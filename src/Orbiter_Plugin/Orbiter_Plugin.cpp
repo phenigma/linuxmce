@@ -49,6 +49,7 @@ using namespace DCE;
 #include "pluto_main/Table_DeviceCategory_DeviceData.h"
 #include "pluto_main/Define_DeviceTemplate.h"
 #include "pluto_main/Define_Command.h"
+#include "pluto_main/Define_CommandParameter.h"
 #include "pluto_main/Table_DeviceTemplate_DeviceData.h"
 #include "pluto_main/Table_Device_DeviceData.h"
 #include "pluto_main/Define_EventParameter.h"
@@ -232,6 +233,10 @@ bool Orbiter_Plugin::Register()
 			{
 				RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::OSD_OnOff) ,0,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,0,MESSAGETYPE_COMMAND,COMMAND_Generic_On_CONST);
 				RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::OSD_OnOff) ,0,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,0,MESSAGETYPE_COMMAND,COMMAND_Generic_Off_CONST);
+
+				RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::OSD_OnOff) ,0,pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_Device,0,0,MESSAGETYPE_COMMAND,COMMAND_Generic_On_CONST);
+				RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::OSD_OnOff) ,0,pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_Device,0,0,MESSAGETYPE_COMMAND,COMMAND_Generic_Off_CONST);
+				m_mapMD_2_Orbiter[pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_Device] = pOH_Orbiter;
 			}
         }
     }
@@ -1524,7 +1529,17 @@ bool Orbiter_Plugin::NewPnpDevice( class Socket *pSocket, class Message *pMessag
 
 bool Orbiter_Plugin::OSD_OnOff( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
+	if( pMessage->m_mapParameters.find(COMMANDPARAMETER_Already_processed_CONST)!=pMessage->m_mapParameters.end() )
+		return false; // This message originated with us
+
+	bool bDestIsMD=false; // Will be true if the destination was an MD, false if an OSD
 	OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_To);
+	if( !pOH_Orbiter )
+	{
+		pOH_Orbiter = m_mapMD_2_Orbiter_Find(pMessage->m_dwPK_Device_To);
+		bDestIsMD=true;
+	}
+
 	if( !pOH_Orbiter || !pDeviceTo->m_pDevice_MD )
 		return false;
 
@@ -1536,9 +1551,23 @@ bool Orbiter_Plugin::OSD_OnOff( class Socket *pSocket, class Message *pMessage, 
 		OverrideAVPipe(pOH_Orbiter->m_pDeviceData_Router,pOH_Orbiter->m_bDisplayOn);
 	}
 
-	Message *pMessage_New = new Message(pMessage);
-	pMessage_New->m_dwPK_Device_To = pDeviceTo->m_pDevice_MD->m_dwPK_Device;
-	QueueMessageToRouter(pMessage_New);
+	if( bDestIsMD )
+	{
+		if( pMessage->m_dwID==COMMAND_Generic_Off_CONST )
+		{
+			// Let the OSD know we turned the m/d's display off so the next time the screen is clicked it will 
+			// turn it back on
+			DCE::CMD_Display_OnOff CMD_Display_OnOff(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,"0",true);
+			SendCommand(CMD_Display_OnOff);
+		}
+	}
+	else
+	{
+		Message *pMessage_New = new Message(pMessage);
+		pMessage_New->m_dwPK_Device_To = pDeviceTo->m_pDevice_MD->m_dwPK_Device;
+		pMessage_New->m_mapParameters[COMMANDPARAMETER_Already_processed_CONST] = "1"; // So we know we already processed it and don't create an infinite loop
+		QueueMessageToRouter(pMessage_New);
+	}
 
 	return false; // Let others handle it too
 }
@@ -1746,7 +1775,10 @@ void Orbiter_Plugin::OverrideAVPipe(DeviceData_Router *pDevice_OSD,bool bOverrid
 		class Pipe *pPipe = it->second;
 		MediaDevice *pMediaDevice = m_pMedia_Plugin->m_mapMediaDevice_Find(pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get());
 		if( !pMediaDevice )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Problem overriding a/v pipe to device %d which isn't categorized as media",pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get());
 			continue; // shouldn't happen -- it's not a/v equipment
+		}
 		pMediaDevice->m_bDontSendOffIfOSD_ON=bOverride;
 		for(size_t s=0;s<pMediaDevice->m_pDeviceData_Router->m_vectDevices_SendingPipes.size();++s)
 		{

@@ -880,6 +880,7 @@ public:
 	bool DATA_Get_Use_OCG_Format();
 	int DATA_Get_VideoFrameInterval();
 	int DATA_Get_ImageQuality();
+	bool DATA_Get_Leave_Monitor_on_for_OSD();
 	string DATA_Get_Ignore_State();
 
 			*****EVENT***** accessors inherited from base class
@@ -921,9 +922,11 @@ public:
 	/** Turn the display on or off */
 		/** @param #8 On/Off */
 			/** 0=Off, 1=On */
+		/** @param #125 Already processed */
+			/** Normally Orbiter will forward the on/off through DCE so the other devices can turn on/off.  If this is true, it won't. */
 
-	virtual void CMD_Display_OnOff(string sOnOff) { string sCMD_Result; CMD_Display_OnOff(sOnOff.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Display_OnOff(string sOnOff,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Display_OnOff(string sOnOff,bool bAlready_processed) { string sCMD_Result; CMD_Display_OnOff(sOnOff.c_str(),bAlready_processed,sCMD_Result,NULL);};
+	virtual void CMD_Display_OnOff(string sOnOff,bool bAlready_processed,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #4 - Go back */

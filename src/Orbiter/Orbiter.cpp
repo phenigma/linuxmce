@@ -192,8 +192,12 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
 	m_sLocalDirectory=sLocalDirectory;
     m_iImageWidth=iImageWidth;
     m_iImageHeight=iImageHeight;
-    m_bDisplayOn=false;  // So the first touch will turn it on
-    m_bYieldScreen=false;
+	if( DATA_Get_Leave_Monitor_on_for_OSD() )
+	    m_bDisplayOn=false;  // So the first touch will turn it on
+	else
+	    m_bDisplayOn=true;  // The display should already be on
+
+	m_bYieldScreen=false;
     m_bYieldInput=false;
     m_bRerenderScreen=false;
 	m_bWeCanRepeat=false;
@@ -510,7 +514,7 @@ g_pPlutoLogger->Write(LV_STATUS,"::Screen saver Bypass screen saver now: %d",(in
 
 	if( m_pScreenHistory_Current->m_pObj == m_pDesignObj_Orbiter_ScreenSaveMenu )
 	{
-		CMD_Display_OnOff("0");
+		CMD_Display_OnOff("0",false);
 	}
 	else
 	{
@@ -3685,7 +3689,7 @@ bool Orbiter::GotActivity(  )
 			m_pDesignObj_Orbiter_MainMenu!=m_pDesignObj_Orbiter_ScreenSaveMenu) )
     {
 		if( !m_bDisplayOn )
-	        CMD_Display_OnOff( "1" );
+	        CMD_Display_OnOff( "1",false );
 		if( m_pDesignObj_Orbiter_ScreenSaveMenu && m_pScreenHistory_Current->m_pObj == m_pDesignObj_Orbiter_ScreenSaveMenu )
 		{
 			CMD_Set_Main_Menu("N");
@@ -4732,11 +4736,16 @@ void Orbiter::CMD_Orbiter_Beep(string &sCMD_Result,Message *pMessage)
 	/** Turn the display on or off */
 		/** @param #8 On/Off */
 			/** 0=Off, 1=On */
+		/** @param #125 Already processed */
+			/** Normally Orbiter will forward the on/off through DCE so the other devices can turn on/off.  If this is true, it won't. */
 
-void Orbiter::CMD_Display_OnOff(string sOnOff,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Display_OnOff(string sOnOff,bool bAlready_processed,string &sCMD_Result,Message *pMessage)
 //<-dceag-c3-e->
 {
 	m_bDisplayOn = sOnOff=="1";
+	if( bAlready_processed )
+		return;
+
 	if( m_bDisplayOn )
 	{
 		DCE::CMD_On CMD_On(m_dwPK_Device,m_dwPK_Device,0,"");
@@ -5146,6 +5155,15 @@ void Orbiter::CMD_Play_Sound(char *pData,int iData_Size,string sFormat,string &s
 void Orbiter::CMD_Refresh(string sDataGrid_ID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c14-e->
 {
+	// We may have a pending render going already.  If so, wait a moment to be sure we're done,
+	// otherwise we may have changed something, causing this refresh, but already drawn it since
+	// we're in the middle of another render.
+	while( g_iDontRender )
+	{
+g_pPlutoLogger->Write(LV_WARNING,"CMD_Set_Now_Playing Waiting for g_iDontRender flag");
+		Sleep(100);
+	}
+
 	if( sDataGrid_ID.length()==0 )
 	    m_bRerenderScreen = true;
 
@@ -6169,6 +6187,7 @@ void Orbiter::CMD_Set_Now_Playing(int iPK_Device,string sValue_To_Assign,int iVa
 	m_dwPK_Device_NowPlaying = iPK_Device;
 	m_mapVariable[VARIABLE_Track_or_Playlist_Positio_CONST]=StringUtils::itos(iValue);
 	g_pPlutoLogger->Write(LV_STATUS,"CMD_Set_Now_Playing %s",sValue_To_Assign.c_str());
+
 	CMD_Refresh("");
 }
 

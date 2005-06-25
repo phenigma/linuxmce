@@ -95,6 +95,7 @@ public:
     bool m_bNoUnknownDeviceIsProcessing;
 	string m_sPK_Device_AllOrbiters;
 	map<int,OH_Orbiter *> m_mapRemote_2_Orbiter;
+	map<int,OH_Orbiter *> m_mapMD_2_Orbiter;
 
 public:
     // Public member variables
@@ -109,7 +110,12 @@ public:
         return it==m_mapRemote_2_Orbiter.end() ? NULL : (*it).second;
     }
 
-    map<string, OH_Orbiter *> m_mapOH_Orbiter_Mac;
+    OH_Orbiter *m_mapMD_2_Orbiter_Find(int PK_Device) {
+        map<int,class OH_Orbiter *>::iterator it = m_mapMD_2_Orbiter.find(PK_Device);
+        return it==m_mapMD_2_Orbiter.end() ? NULL : (*it).second;
+    }
+
+	map<string, OH_Orbiter *> m_mapOH_Orbiter_Mac;
     OH_Orbiter *m_mapOH_Orbiter_Mac_Find(string MacAddress) {
         map<string, class OH_Orbiter *>::iterator it = m_mapOH_Orbiter_Mac.find(MacAddress);
         return it==m_mapOH_Orbiter_Mac.end() ? NULL : (*it).second;

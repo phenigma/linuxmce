@@ -39,19 +39,19 @@ namespace DCE
 	};
 	class CMD_Display_OnOff : public PreformedCommand {
 	public:
-		CMD_Display_OnOff(long DeviceIDFrom, long DeviceIDTo,string sOnOff) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,3,1,8,sOnOff.c_str()); }
+		CMD_Display_OnOff(long DeviceIDFrom, long DeviceIDTo,string sOnOff,bool bAlready_processed) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,3,2,8,sOnOff.c_str(),125,(bAlready_processed ? "1" : "0")); }
 	};
 	class CMD_Display_OnOff_DL : public PreformedCommand {
 	public:
-		CMD_Display_OnOff_DL(long DeviceIDFrom, string DeviceIDTo,string sOnOff) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,3,1,8,sOnOff.c_str()); }
+		CMD_Display_OnOff_DL(long DeviceIDFrom, string DeviceIDTo,string sOnOff,bool bAlready_processed) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,3,2,8,sOnOff.c_str(),125,(bAlready_processed ? "1" : "0")); }
 	};
 	class CMD_Display_OnOff_DT : public PreformedCommand {
 	public:
-		CMD_Display_OnOff_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sOnOff) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,3,1,8,sOnOff.c_str()); }
+		CMD_Display_OnOff_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sOnOff,bool bAlready_processed) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,3,2,8,sOnOff.c_str(),125,(bAlready_processed ? "1" : "0")); }
 	};
 	class CMD_Display_OnOff_Cat : public PreformedCommand {
 	public:
-		CMD_Display_OnOff_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sOnOff) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,3,1,8,sOnOff.c_str()); }
+		CMD_Display_OnOff_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sOnOff,bool bAlready_processed) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,3,2,8,sOnOff.c_str(),125,(bAlready_processed ? "1" : "0")); }
 	};
 	class CMD_Go_back : public PreformedCommand {
 	public:

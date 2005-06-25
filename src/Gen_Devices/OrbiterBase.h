@@ -52,6 +52,7 @@ public:
 	bool Get_Use_OCG_Format() { return (m_mapParameters[64]=="1" ? true : false);}
 	int Get_VideoFrameInterval() { return atoi(m_mapParameters[72].c_str());}
 	int Get_ImageQuality() { return atoi(m_mapParameters[75].c_str());}
+	bool Get_Leave_Monitor_on_for_OSD() { return (m_mapParameters[84]=="1" ? true : false);}
 	string Get_Ignore_State() { return m_mapParameters[87];}
 };
 
@@ -114,13 +115,14 @@ public:
 	bool DATA_Get_Use_OCG_Format() { return GetData()->Get_Use_OCG_Format(); }
 	int DATA_Get_VideoFrameInterval() { return GetData()->Get_VideoFrameInterval(); }
 	int DATA_Get_ImageQuality() { return GetData()->Get_ImageQuality(); }
+	bool DATA_Get_Leave_Monitor_on_for_OSD() { return GetData()->Get_Leave_Monitor_on_for_OSD(); }
 	string DATA_Get_Ignore_State() { return GetData()->Get_Ignore_State(); }
 	//Event accessors
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position) { GetEvents()->Touch_or_click(iX_Position,iY_Position); }
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Capture_Keyboard_To_Variable(string sPK_DesignObj,int iPK_Variable,string sOnOff,string sType,string sReset,int iPK_Text,bool bDataGrid,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Orbiter_Beep(string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Display_OnOff(string sOnOff,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Display_OnOff(string sOnOff,bool bAlready_processed,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Goto_Screen(int iPK_Device,string sPK_DesignObj,string sID,string sPK_DesignObj_CurrentScreen,bool bStore_Variables,bool bCant_Go_Back,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Show_Object(string sPK_DesignObj,int iPK_Variable,string sComparisson_Operator,string sComparisson_Value,string sOnOff,string &sCMD_Result,class Message *pMessage) {};
@@ -247,7 +249,8 @@ public:
 					{
 						string sCMD_Result="OK";
 					string sOnOff=pMessage->m_mapParameters[8];
-						CMD_Display_OnOff(sOnOff.c_str(),sCMD_Result,pMessage);
+					bool bAlready_processed=(pMessage->m_mapParameters[125]=="1" ? true : false);
+						CMD_Display_OnOff(sOnOff.c_str(),bAlready_processed,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -264,7 +267,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Display_OnOff(sOnOff.c_str(),sCMD_Result,pMessage);
+								CMD_Display_OnOff(sOnOff.c_str(),bAlready_processed,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
