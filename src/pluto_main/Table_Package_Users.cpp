@@ -288,7 +288,7 @@ return "NULL";
 char *buf = new char[5000000];
 mysql_real_escape_string(table->database->m_pMySQL, buf, m_Comments.c_str(), (unsigned long) min(16777215,m_Comments.size()));
 string s=string()+"\""+buf+"\"";
-delete buf;
+delete[] buf;
 return s;
 }
 
@@ -354,7 +354,7 @@ return "NULL";
 char *buf = new char[29];
 mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) min(14,m_psc_mod.size()));
 string s=string()+"\""+buf+"\"";
-delete buf;
+delete[] buf;
 return s;
 }
 

@@ -24,6 +24,7 @@ using namespace std;
 #include "Table_Users.h"
 #include "Table_OperatingSystem.h"
 #include "Table_Distro.h"
+#include "Table_Licensing.h"
 
 #include "Table_CommandGroup_D_Command.h"
 #include "Table_ConfigType.h"
@@ -176,8 +177,7 @@ is_null[19] = false;
 is_null[20] = true;
 is_null[21] = true;
 is_null[22] = true;
-m_Licensing = 0;
-is_null[23] = false;
+is_null[23] = true;
 is_null[24] = true;
 is_null[25] = true;
 is_null[26] = true;
@@ -261,9 +261,9 @@ return m_ManufacturerURL;}
 string Row_DeviceTemplate::InternalURLSuffix_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_InternalURLSuffix;}
-short int Row_DeviceTemplate::Licensing_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_DeviceTemplate::FK_Licensing_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return m_Licensing;}
+return m_FK_Licensing;}
 long int Row_DeviceTemplate::psc_id_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_id;}
@@ -350,9 +350,9 @@ m_ManufacturerURL = val; is_modified=true; is_null[21]=false;}
 void Row_DeviceTemplate::InternalURLSuffix_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_InternalURLSuffix = val; is_modified=true; is_null[22]=false;}
-void Row_DeviceTemplate::Licensing_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DeviceTemplate::FK_Licensing_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_Licensing = val; is_modified=true; is_null[23]=false;}
+m_FK_Licensing = val; is_modified=true; is_null[23]=false;}
 void Row_DeviceTemplate::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_id = val; is_modified=true; is_null[24]=false;}
@@ -412,6 +412,9 @@ return is_null[21];}
 bool Row_DeviceTemplate::InternalURLSuffix_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[22];}
+bool Row_DeviceTemplate::FK_Licensing_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[23];}
 bool Row_DeviceTemplate::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[24];}
@@ -482,6 +485,10 @@ void Row_DeviceTemplate::InternalURLSuffix_setNull(bool val){PLUTO_SAFETY_LOCK_E
 is_null[22]=val;
 is_modified=true;
 }
+void Row_DeviceTemplate::FK_Licensing_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[23]=val;
+is_modified=true;
+}
 void Row_DeviceTemplate::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[24]=val;
 is_modified=true;
@@ -523,7 +530,7 @@ return "NULL";
 char *buf = new char[61];
 mysql_real_escape_string(table->database->m_pMySQL, buf, m_Description.c_str(), (unsigned long) min(30,m_Description.size()));
 string s=string()+"\""+buf+"\"";
-delete buf;
+delete[] buf;
 return s;
 }
 
@@ -537,7 +544,7 @@ return "NULL";
 char *buf = new char[5000000];
 mysql_real_escape_string(table->database->m_pMySQL, buf, m_Comments.c_str(), (unsigned long) min(16777215,m_Comments.size()));
 string s=string()+"\""+buf+"\"";
-delete buf;
+delete[] buf;
 return s;
 }
 
@@ -577,7 +584,7 @@ return "NULL";
 char *buf = new char[61];
 mysql_real_escape_string(table->database->m_pMySQL, buf, m_Define.c_str(), (unsigned long) min(30,m_Define.size()));
 string s=string()+"\""+buf+"\"";
-delete buf;
+delete[] buf;
 return s;
 }
 
@@ -617,7 +624,7 @@ return "NULL";
 char *buf = new char[201];
 mysql_real_escape_string(table->database->m_pMySQL, buf, m_CommandLine.c_str(), (unsigned long) min(100,m_CommandLine.size()));
 string s=string()+"\""+buf+"\"";
-delete buf;
+delete[] buf;
 return s;
 }
 
@@ -709,7 +716,7 @@ return "NULL";
 char *buf = new char[101];
 mysql_real_escape_string(table->database->m_pMySQL, buf, m_DestinationDir.c_str(), (unsigned long) min(50,m_DestinationDir.size()));
 string s=string()+"\""+buf+"\"";
-delete buf;
+delete[] buf;
 return s;
 }
 
@@ -775,7 +782,7 @@ return "NULL";
 char *buf = new char[201];
 mysql_real_escape_string(table->database->m_pMySQL, buf, m_ConfigureScript.c_str(), (unsigned long) min(100,m_ConfigureScript.size()));
 string s=string()+"\""+buf+"\"";
-delete buf;
+delete[] buf;
 return s;
 }
 
@@ -789,7 +796,7 @@ return "NULL";
 char *buf = new char[201];
 mysql_real_escape_string(table->database->m_pMySQL, buf, m_ManufacturerURL.c_str(), (unsigned long) min(100,m_ManufacturerURL.size()));
 string s=string()+"\""+buf+"\"";
-delete buf;
+delete[] buf;
 return s;
 }
 
@@ -803,11 +810,11 @@ return "NULL";
 char *buf = new char[101];
 mysql_real_escape_string(table->database->m_pMySQL, buf, m_InternalURLSuffix.c_str(), (unsigned long) min(50,m_InternalURLSuffix.size()));
 string s=string()+"\""+buf+"\"";
-delete buf;
+delete[] buf;
 return s;
 }
 
-string Row_DeviceTemplate::Licensing_asSQL()
+string Row_DeviceTemplate::FK_Licensing_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
@@ -815,7 +822,7 @@ if (is_null[23])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%hi", m_Licensing);
+sprintf(buf, "%li", m_FK_Licensing);
 
 return buf;
 }
@@ -882,7 +889,7 @@ return "NULL";
 char *buf = new char[29];
 mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) min(14,m_psc_mod.size()));
 string s=string()+"\""+buf+"\"";
-delete buf;
+delete[] buf;
 return s;
 }
 
@@ -924,10 +931,10 @@ bool Table_DeviceTemplate::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_DeviceTemplate_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->FK_DeviceCategory_asSQL()+", "+pRow->FK_Manufacturer_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->ImplementsDCE_asSQL()+", "+pRow->IsEmbedded_asSQL()+", "+pRow->CommandLine_asSQL()+", "+pRow->IsPlugAndPlay_asSQL()+", "+pRow->IsIPBased_asSQL()+", "+pRow->IsPlugIn_asSQL()+", "+pRow->IRFrequency_asSQL()+", "+pRow->FK_StabilityStatus_asSQL()+", "+pRow->FK_Package_asSQL()+", "+pRow->DestinationDir_asSQL()+", "+pRow->FK_Users_Maintainer_asSQL()+", "+pRow->FK_OperatingSystem_asSQL()+", "+pRow->FK_Distro_asSQL()+", "+pRow->InheritsMacFromPC_asSQL()+", "+pRow->ConfigureScript_asSQL()+", "+pRow->ManufacturerURL_asSQL()+", "+pRow->InternalURLSuffix_asSQL()+", "+pRow->Licensing_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_DeviceTemplate_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->FK_DeviceCategory_asSQL()+", "+pRow->FK_Manufacturer_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->ImplementsDCE_asSQL()+", "+pRow->IsEmbedded_asSQL()+", "+pRow->CommandLine_asSQL()+", "+pRow->IsPlugAndPlay_asSQL()+", "+pRow->IsIPBased_asSQL()+", "+pRow->IsPlugIn_asSQL()+", "+pRow->IRFrequency_asSQL()+", "+pRow->FK_StabilityStatus_asSQL()+", "+pRow->FK_Package_asSQL()+", "+pRow->DestinationDir_asSQL()+", "+pRow->FK_Users_Maintainer_asSQL()+", "+pRow->FK_OperatingSystem_asSQL()+", "+pRow->FK_Distro_asSQL()+", "+pRow->InheritsMacFromPC_asSQL()+", "+pRow->ConfigureScript_asSQL()+", "+pRow->ManufacturerURL_asSQL()+", "+pRow->InternalURLSuffix_asSQL()+", "+pRow->FK_Licensing_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into DeviceTemplate (`PK_DeviceTemplate`, `Description`, `Comments`, `FK_DeviceCategory`, `FK_Manufacturer`, `Define`, `ImplementsDCE`, `IsEmbedded`, `CommandLine`, `IsPlugAndPlay`, `IsIPBased`, `IsPlugIn`, `IRFrequency`, `FK_StabilityStatus`, `FK_Package`, `DestinationDir`, `FK_Users_Maintainer`, `FK_OperatingSystem`, `FK_Distro`, `InheritsMacFromPC`, `ConfigureScript`, `ManufacturerURL`, `InternalURLSuffix`, `Licensing`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
+		string query = "insert into DeviceTemplate (`PK_DeviceTemplate`, `Description`, `Comments`, `FK_DeviceCategory`, `FK_Manufacturer`, `Define`, `ImplementsDCE`, `IsEmbedded`, `CommandLine`, `IsPlugAndPlay`, `IsIPBased`, `IsPlugIn`, `IRFrequency`, `FK_StabilityStatus`, `FK_Package`, `DestinationDir`, `FK_Users_Maintainer`, `FK_OperatingSystem`, `FK_Distro`, `InheritsMacFromPC`, `ConfigureScript`, `ManufacturerURL`, `InternalURLSuffix`, `FK_Licensing`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -978,7 +985,7 @@ condition = condition + "`PK_DeviceTemplate`=" + tmp_PK_DeviceTemplate;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`PK_DeviceTemplate`="+pRow->PK_DeviceTemplate_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Comments`="+pRow->Comments_asSQL()+", `FK_DeviceCategory`="+pRow->FK_DeviceCategory_asSQL()+", `FK_Manufacturer`="+pRow->FK_Manufacturer_asSQL()+", `Define`="+pRow->Define_asSQL()+", `ImplementsDCE`="+pRow->ImplementsDCE_asSQL()+", `IsEmbedded`="+pRow->IsEmbedded_asSQL()+", `CommandLine`="+pRow->CommandLine_asSQL()+", `IsPlugAndPlay`="+pRow->IsPlugAndPlay_asSQL()+", `IsIPBased`="+pRow->IsIPBased_asSQL()+", `IsPlugIn`="+pRow->IsPlugIn_asSQL()+", `IRFrequency`="+pRow->IRFrequency_asSQL()+", `FK_StabilityStatus`="+pRow->FK_StabilityStatus_asSQL()+", `FK_Package`="+pRow->FK_Package_asSQL()+", `DestinationDir`="+pRow->DestinationDir_asSQL()+", `FK_Users_Maintainer`="+pRow->FK_Users_Maintainer_asSQL()+", `FK_OperatingSystem`="+pRow->FK_OperatingSystem_asSQL()+", `FK_Distro`="+pRow->FK_Distro_asSQL()+", `InheritsMacFromPC`="+pRow->InheritsMacFromPC_asSQL()+", `ConfigureScript`="+pRow->ConfigureScript_asSQL()+", `ManufacturerURL`="+pRow->ManufacturerURL_asSQL()+", `InternalURLSuffix`="+pRow->InternalURLSuffix_asSQL()+", `Licensing`="+pRow->Licensing_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_DeviceTemplate`="+pRow->PK_DeviceTemplate_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Comments`="+pRow->Comments_asSQL()+", `FK_DeviceCategory`="+pRow->FK_DeviceCategory_asSQL()+", `FK_Manufacturer`="+pRow->FK_Manufacturer_asSQL()+", `Define`="+pRow->Define_asSQL()+", `ImplementsDCE`="+pRow->ImplementsDCE_asSQL()+", `IsEmbedded`="+pRow->IsEmbedded_asSQL()+", `CommandLine`="+pRow->CommandLine_asSQL()+", `IsPlugAndPlay`="+pRow->IsPlugAndPlay_asSQL()+", `IsIPBased`="+pRow->IsIPBased_asSQL()+", `IsPlugIn`="+pRow->IsPlugIn_asSQL()+", `IRFrequency`="+pRow->IRFrequency_asSQL()+", `FK_StabilityStatus`="+pRow->FK_StabilityStatus_asSQL()+", `FK_Package`="+pRow->FK_Package_asSQL()+", `DestinationDir`="+pRow->DestinationDir_asSQL()+", `FK_Users_Maintainer`="+pRow->FK_Users_Maintainer_asSQL()+", `FK_OperatingSystem`="+pRow->FK_OperatingSystem_asSQL()+", `FK_Distro`="+pRow->FK_Distro_asSQL()+", `InheritsMacFromPC`="+pRow->InheritsMacFromPC_asSQL()+", `ConfigureScript`="+pRow->ConfigureScript_asSQL()+", `ManufacturerURL`="+pRow->ManufacturerURL_asSQL()+", `InternalURLSuffix`="+pRow->InternalURLSuffix_asSQL()+", `FK_Licensing`="+pRow->FK_Licensing_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update DeviceTemplate set " + update_values_list + " where " + condition;
@@ -1336,12 +1343,12 @@ pRow->m_InternalURLSuffix = string(row[22],lengths[22]);
 if (row[23] == NULL)
 {
 pRow->is_null[23]=true;
-pRow->m_Licensing = 0;
+pRow->m_FK_Licensing = 0;
 }
 else
 {
 pRow->is_null[23]=false;
-sscanf(row[23], "%hi", &(pRow->m_Licensing));
+sscanf(row[23], "%li", &(pRow->m_FK_Licensing));
 }
 
 if (row[24] == NULL)
@@ -1763,12 +1770,12 @@ pRow->m_InternalURLSuffix = string(row[22],lengths[22]);
 if (row[23] == NULL)
 {
 pRow->is_null[23]=true;
-pRow->m_Licensing = 0;
+pRow->m_FK_Licensing = 0;
 }
 else
 {
 pRow->is_null[23]=false;
-sscanf(row[23], "%hi", &(pRow->m_Licensing));
+sscanf(row[23], "%li", &(pRow->m_FK_Licensing));
 }
 
 if (row[24] == NULL)
@@ -1882,6 +1889,13 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Distro *pTable = table->database->Distro_get();
 return pTable->GetRow(m_FK_Distro);
+}
+class Row_Licensing* Row_DeviceTemplate::FK_Licensing_getrow()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Licensing *pTable = table->database->Licensing_get();
+return pTable->GetRow(m_FK_Licensing);
 }
 
 

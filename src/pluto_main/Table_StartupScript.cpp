@@ -382,7 +382,7 @@ return "NULL";
 char *buf = new char[3];
 mysql_real_escape_string(table->database->m_pMySQL, buf, m_When.c_str(), (unsigned long) min(1,m_When.size()));
 string s=string()+"\""+buf+"\"";
-delete buf;
+delete[] buf;
 return s;
 }
 
@@ -396,7 +396,7 @@ return "NULL";
 char *buf = new char[201];
 mysql_real_escape_string(table->database->m_pMySQL, buf, m_Command.c_str(), (unsigned long) min(100,m_Command.size()));
 string s=string()+"\""+buf+"\"";
-delete buf;
+delete[] buf;
 return s;
 }
 
@@ -410,7 +410,7 @@ return "NULL";
 char *buf = new char[131071];
 mysql_real_escape_string(table->database->m_pMySQL, buf, m_Description.c_str(), (unsigned long) min(65535,m_Description.size()));
 string s=string()+"\""+buf+"\"";
-delete buf;
+delete[] buf;
 return s;
 }
 
@@ -437,7 +437,7 @@ return "NULL";
 char *buf = new char[131071];
 mysql_real_escape_string(table->database->m_pMySQL, buf, m_Parameter_Syntax.c_str(), (unsigned long) min(65535,m_Parameter_Syntax.size()));
 string s=string()+"\""+buf+"\"";
-delete buf;
+delete[] buf;
 return s;
 }
 
@@ -490,7 +490,7 @@ return "NULL";
 char *buf = new char[201];
 mysql_real_escape_string(table->database->m_pMySQL, buf, m_Core_Parameter.c_str(), (unsigned long) min(100,m_Core_Parameter.size()));
 string s=string()+"\""+buf+"\"";
-delete buf;
+delete[] buf;
 return s;
 }
 
@@ -543,7 +543,7 @@ return "NULL";
 char *buf = new char[201];
 mysql_real_escape_string(table->database->m_pMySQL, buf, m_MD_Parameter.c_str(), (unsigned long) min(100,m_MD_Parameter.size()));
 string s=string()+"\""+buf+"\"";
-delete buf;
+delete[] buf;
 return s;
 }
 
@@ -596,7 +596,7 @@ return "NULL";
 char *buf = new char[201];
 mysql_real_escape_string(table->database->m_pMySQL, buf, m_Hybrid_Parameter.c_str(), (unsigned long) min(100,m_Hybrid_Parameter.size()));
 string s=string()+"\""+buf+"\"";
-delete buf;
+delete[] buf;
 return s;
 }
 
@@ -675,7 +675,7 @@ return "NULL";
 char *buf = new char[29];
 mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) min(14,m_psc_mod.size()));
 string s=string()+"\""+buf+"\"";
-delete buf;
+delete[] buf;
 return s;
 }
 

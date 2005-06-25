@@ -240,7 +240,7 @@ return "NULL";
 char *buf = new char[201];
 mysql_real_escape_string(table->database->m_pMySQL, buf, m_PK_Image.c_str(), (unsigned long) min(100,m_PK_Image.size()));
 string s=string()+"\""+buf+"\"";
-delete buf;
+delete[] buf;
 return s;
 }
 
@@ -254,7 +254,7 @@ return "NULL";
 char *buf = new char[39];
 mysql_real_escape_string(table->database->m_pMySQL, buf, m_Date.c_str(), (unsigned long) min(19,m_Date.size()));
 string s=string()+"\""+buf+"\"";
-delete buf;
+delete[] buf;
 return s;
 }
 
@@ -346,7 +346,7 @@ return "NULL";
 char *buf = new char[29];
 mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) min(14,m_psc_mod.size()));
 string s=string()+"\""+buf+"\"";
-delete buf;
+delete[] buf;
 return s;
 }
 

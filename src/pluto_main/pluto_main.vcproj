@@ -475,6 +475,9 @@
 				RelativePath=".\Table_License.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_Licensing.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_Manufacturer.cpp">
 			</File>
 			<File
@@ -626,6 +629,9 @@
 			</File>
 			<File
 				RelativePath=".\Table_VertAlignment.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_groupaddresses.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_psc_constants_batdet.cpp">

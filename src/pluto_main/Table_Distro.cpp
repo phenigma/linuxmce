@@ -363,7 +363,7 @@ return "NULL";
 char *buf = new char[61];
 mysql_real_escape_string(table->database->m_pMySQL, buf, m_Description.c_str(), (unsigned long) min(30,m_Description.size()));
 string s=string()+"\""+buf+"\"";
-delete buf;
+delete[] buf;
 return s;
 }
 
@@ -377,7 +377,7 @@ return "NULL";
 char *buf = new char[51];
 mysql_real_escape_string(table->database->m_pMySQL, buf, m_Define.c_str(), (unsigned long) min(25,m_Define.size()));
 string s=string()+"\""+buf+"\"";
-delete buf;
+delete[] buf;
 return s;
 }
 
@@ -404,7 +404,7 @@ return "NULL";
 char *buf = new char[201];
 mysql_real_escape_string(table->database->m_pMySQL, buf, m_Installer.c_str(), (unsigned long) min(100,m_Installer.size()));
 string s=string()+"\""+buf+"\"";
-delete buf;
+delete[] buf;
 return s;
 }
 
@@ -418,7 +418,7 @@ return "NULL";
 char *buf = new char[201];
 mysql_real_escape_string(table->database->m_pMySQL, buf, m_KickStartCD.c_str(), (unsigned long) min(100,m_KickStartCD.size()));
 string s=string()+"\""+buf+"\"";
-delete buf;
+delete[] buf;
 return s;
 }
 
@@ -432,7 +432,7 @@ return "NULL";
 char *buf = new char[201];
 mysql_real_escape_string(table->database->m_pMySQL, buf, m_Binaries.c_str(), (unsigned long) min(100,m_Binaries.size()));
 string s=string()+"\""+buf+"\"";
-delete buf;
+delete[] buf;
 return s;
 }
 
@@ -446,7 +446,7 @@ return "NULL";
 char *buf = new char[201];
 mysql_real_escape_string(table->database->m_pMySQL, buf, m_SourceCode.c_str(), (unsigned long) min(100,m_SourceCode.size()));
 string s=string()+"\""+buf+"\"";
-delete buf;
+delete[] buf;
 return s;
 }
 
@@ -512,7 +512,7 @@ return "NULL";
 char *buf = new char[201];
 mysql_real_escape_string(table->database->m_pMySQL, buf, m_InstallerURL.c_str(), (unsigned long) min(100,m_InstallerURL.size()));
 string s=string()+"\""+buf+"\"";
-delete buf;
+delete[] buf;
 return s;
 }
 
@@ -578,7 +578,7 @@ return "NULL";
 char *buf = new char[29];
 mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) min(14,m_psc_mod.size()));
 string s=string()+"\""+buf+"\"";
-delete buf;
+delete[] buf;
 return s;
 }
 

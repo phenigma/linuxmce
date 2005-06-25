@@ -144,6 +144,7 @@ class Table_Installation_RepositorySource_URL* tblInstallation_RepositorySource_
 class Table_Installation_Users* tblInstallation_Users;
 class Table_Language* tblLanguage;
 class Table_License* tblLicense;
+class Table_Licensing* tblLicensing;
 class Table_Manufacturer* tblManufacturer;
 class Table_MediaType* tblMediaType;
 class Table_MediaType_Broadcast* tblMediaType_Broadcast;
@@ -195,6 +196,7 @@ class Table_Users* tblUsers;
 class Table_Variable* tblVariable;
 class Table_Version* tblVersion;
 class Table_VertAlignment* tblVertAlignment;
+class Table_groupaddresses* tblgroupaddresses;
 class Table_psc_constants_batdet* tblpsc_constants_batdet;
 class Table_psc_constants_bathdr* tblpsc_constants_bathdr;
 class Table_psc_constants_batuser* tblpsc_constants_batuser;
@@ -357,6 +359,7 @@ class Table_Installation_RepositorySource_URL* Installation_RepositorySource_URL
 class Table_Installation_Users* Installation_Users_get() { if( !tblInstallation_Users ) CreateTable_Installation_Users(); return tblInstallation_Users; }
 class Table_Language* Language_get() { if( !tblLanguage ) CreateTable_Language(); return tblLanguage; }
 class Table_License* License_get() { if( !tblLicense ) CreateTable_License(); return tblLicense; }
+class Table_Licensing* Licensing_get() { if( !tblLicensing ) CreateTable_Licensing(); return tblLicensing; }
 class Table_Manufacturer* Manufacturer_get() { if( !tblManufacturer ) CreateTable_Manufacturer(); return tblManufacturer; }
 class Table_MediaType* MediaType_get() { if( !tblMediaType ) CreateTable_MediaType(); return tblMediaType; }
 class Table_MediaType_Broadcast* MediaType_Broadcast_get() { if( !tblMediaType_Broadcast ) CreateTable_MediaType_Broadcast(); return tblMediaType_Broadcast; }
@@ -408,6 +411,7 @@ class Table_Users* Users_get() { if( !tblUsers ) CreateTable_Users(); return tbl
 class Table_Variable* Variable_get() { if( !tblVariable ) CreateTable_Variable(); return tblVariable; }
 class Table_Version* Version_get() { if( !tblVersion ) CreateTable_Version(); return tblVersion; }
 class Table_VertAlignment* VertAlignment_get() { if( !tblVertAlignment ) CreateTable_VertAlignment(); return tblVertAlignment; }
+class Table_groupaddresses* groupaddresses_get() { if( !tblgroupaddresses ) CreateTable_groupaddresses(); return tblgroupaddresses; }
 class Table_psc_constants_batdet* psc_constants_batdet_get() { if( !tblpsc_constants_batdet ) CreateTable_psc_constants_batdet(); return tblpsc_constants_batdet; }
 class Table_psc_constants_bathdr* psc_constants_bathdr_get() { if( !tblpsc_constants_bathdr ) CreateTable_psc_constants_bathdr(); return tblpsc_constants_bathdr; }
 class Table_psc_constants_batuser* psc_constants_batuser_get() { if( !tblpsc_constants_batuser ) CreateTable_psc_constants_batuser(); return tblpsc_constants_batuser; }
@@ -574,6 +578,7 @@ void CreateTable_Installation_RepositorySource_URL();
 void CreateTable_Installation_Users();
 void CreateTable_Language();
 void CreateTable_License();
+void CreateTable_Licensing();
 void CreateTable_Manufacturer();
 void CreateTable_MediaType();
 void CreateTable_MediaType_Broadcast();
@@ -625,6 +630,7 @@ void CreateTable_Users();
 void CreateTable_Variable();
 void CreateTable_Version();
 void CreateTable_VertAlignment();
+void CreateTable_groupaddresses();
 void CreateTable_psc_constants_batdet();
 void CreateTable_psc_constants_bathdr();
 void CreateTable_psc_constants_batuser();
@@ -786,6 +792,7 @@ void DeleteTable_Installation_RepositorySource_URL();
 void DeleteTable_Installation_Users();
 void DeleteTable_Language();
 void DeleteTable_License();
+void DeleteTable_Licensing();
 void DeleteTable_Manufacturer();
 void DeleteTable_MediaType();
 void DeleteTable_MediaType_Broadcast();
@@ -837,6 +844,7 @@ void DeleteTable_Users();
 void DeleteTable_Variable();
 void DeleteTable_Version();
 void DeleteTable_VertAlignment();
+void DeleteTable_groupaddresses();
 void DeleteTable_psc_constants_batdet();
 void DeleteTable_psc_constants_bathdr();
 void DeleteTable_psc_constants_batuser();

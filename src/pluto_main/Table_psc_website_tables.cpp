@@ -212,7 +212,7 @@ return "NULL";
 char *buf = new char[121];
 mysql_real_escape_string(table->database->m_pMySQL, buf, m_Tablename.c_str(), (unsigned long) min(60,m_Tablename.size()));
 string s=string()+"\""+buf+"\"";
-delete buf;
+delete[] buf;
 return s;
 }
 
@@ -226,7 +226,7 @@ return "NULL";
 char *buf = new char[511];
 mysql_real_escape_string(table->database->m_pMySQL, buf, m_filter.c_str(), (unsigned long) min(255,m_filter.size()));
 string s=string()+"\""+buf+"\"";
-delete buf;
+delete[] buf;
 return s;
 }
 
