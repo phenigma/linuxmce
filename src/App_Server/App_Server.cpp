@@ -367,7 +367,7 @@ void App_Server::CMD_Halt_Device(int iPK_Device,string sForce,string &sCMD_Resul
 
 	// See who sent this to us.  If it wasn't GeneralInfoPlugin we want to forward it to it
 	DeviceData_Base *pDeviceData_Base = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(pMessage->m_dwPK_Device_From);
-	if( !pDeviceData_Base || pDeviceData_Base->m_dwPK_Device_Category!=DEVICECATEGORY_General_Info_Plugins_CONST )
+	if( !pDeviceData_Base || pDeviceData_Base->m_dwPK_DeviceCategory!=DEVICECATEGORY_General_Info_Plugins_CONST )
 	{
 		Message *pMessageCopy = new Message(pMessage);
 		pMessageCopy->m_dwPK_Device_To=0;
@@ -449,14 +449,14 @@ void App_Server::CMD_Vol_Up(int iRepeat_Command,string &sCMD_Result,Message *pMe
 {
 	if (iRepeat_Command < 1)
 		iRepeat_Command = 1;
-
+#ifndef WIN32
 	int pid = fork();
 	if (pid == 0)
 	{
 		execl("/usr/bin/amixer", "amixer", "sset", "Master", (StringUtils::itos(iRepeat_Command) + "+").c_str(), NULL);
 		exit(99);
 	}
-	
+#endif	
 	// TODO: check that the mixer actually worked
 	sCMD_Result = "OK";
 }
@@ -474,13 +474,15 @@ void App_Server::CMD_Vol_Down(int iRepeat_Command,string &sCMD_Result,Message *p
 	if (iRepeat_Command < 1)
 		iRepeat_Command = 1;
 
+#ifndef WIN32
 	int pid = fork();
 	if (pid == 0)
 	{
 		execl("/usr/bin/amixer", "amixer", "sset", "Master", (StringUtils::itos(iRepeat_Command) + "-").c_str(), NULL);
 		exit(99);
 	}
-	
+#endif
+
 	// TODO: check that the mixer actually worked
 	sCMD_Result = "OK";
 }
@@ -498,14 +500,16 @@ void App_Server::CMD_Set_Volume(string sLevel,string &sCMD_Result,Message *pMess
 	bool bRelative = false;
 	if ( sLevel.size()>1 && sLevel[0] == '+' || sLevel[0] == '-')
 		bRelative = true;
-	
+
+#ifndef WIN32
 	int pid = fork();
 	if (pid == 0)
 	{
 		execl("/usr/bin/amixer", "amixer", "sset", "Master", (sLevel.substr(bRelative ? 1 : 0) + "%" + (bRelative ? sLevel.substr(0, 1) : "")).c_str(), NULL);
 		exit(99);
 	}
-	
+#endif
+
 	// TODO: check that the mixer actually worked
 	sCMD_Result = "OK";
 }
