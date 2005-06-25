@@ -718,7 +718,7 @@ g_pPlutoLogger->Write(LV_STATUS, "xineEventListener %d",(int) event->type);
 					char lang[XINE_LANG_MAX];
 					strcpy(lang,"**error**");
 					xine_get_audio_lang(xineStream->m_pStream,i,lang);
-					sAudioTracks += xineStream->m_pOwner->TranslateLanguage(lang) + "\n";
+					sAudioTracks += string(xineStream->m_pOwner->TranslateLanguage(lang)) + "\n";
 				}
 				iNum = xine_get_stream_info (xineStream->m_pStream, XINE_STREAM_INFO_MAX_SPU_CHANNEL);
 				string sSubtitles;
@@ -727,7 +727,7 @@ g_pPlutoLogger->Write(LV_STATUS, "xineEventListener %d",(int) event->type);
 					char lang[XINE_LANG_MAX];
 					strcpy(lang,"**error**");
 					xine_get_spu_lang(xineStream->m_pStream,i,lang);
-					sSubtitles += xineStream->m_pOwner->TranslateLanguage(lang) + "\n";
+					sSubtitles += string(xineStream->m_pOwner->TranslateLanguage(lang)) + "\n";
 				}
 				xineStream->m_pOwner->m_pAggregatorObject->DATA_Set_Audio_Tracks(sAudioTracks);
 				xineStream->m_pOwner->m_pAggregatorObject->DATA_Set_Subtitles(sSubtitles);
