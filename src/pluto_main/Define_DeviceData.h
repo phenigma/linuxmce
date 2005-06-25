@@ -72,6 +72,8 @@
 #define DEVICEDATA_Ignore_State_CONST 87
 #define DEVICEDATA_Audio_settings_CONST 88
 #define DEVICEDATA_Video_settings_CONST 89
+#define DEVICEDATA_PK_DesignObj_CONST 90
+
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"
