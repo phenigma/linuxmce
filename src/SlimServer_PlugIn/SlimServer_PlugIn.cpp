@@ -155,7 +155,6 @@ class MediaStream *SlimServer_PlugIn::CreateMediaStream( class MediaHandlerInfo 
 
 	pSlimServerMediaStream = new SlimServerMediaStream( this, pMediaHandlerInfo,
 							pMediaDevice,
-							pMediaHandlerInfo->m_iPK_DesignObj,
 							iPK_Users, st_RemovableMedia, StreamID );
 
 	return pSlimServerMediaStream;
