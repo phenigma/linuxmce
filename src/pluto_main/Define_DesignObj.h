@@ -1259,6 +1259,8 @@
 #define DESIGNOBJ_popOthers_CONST 3465
 #define DESIGNOBJ_objGotoOthers_CONST 3466
 #define DESIGNOBJ_objHidePopup_CONST 3467
+#define DESIGNOBJ_objControllerHome_NoKbSc_CONST 3469
+#define DESIGNOBJ_objShowShortcuts_CONST 3470
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
