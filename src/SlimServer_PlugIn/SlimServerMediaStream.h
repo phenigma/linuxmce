@@ -31,7 +31,7 @@ namespace DCE
 			bool					m_bIsStreaming;
 
 		public:
-			SlimServerMediaStream(class SlimServer_PlugIn *pSlimServerPlugin, class MediaHandlerInfo *pMediaHandlerInfo, MediaDevice *pMediaDevice, int PK_DesignObj_Remote, int PK_Users,enum SourceType sourceType,int iStreamID);
+			SlimServerMediaStream(class SlimServer_PlugIn *pSlimServerPlugin, class MediaHandlerInfo *pMediaHandlerInfo, MediaDevice *pMediaDevice, int PK_Users,enum SourceType sourceType,int iStreamID);
 
 			virtual ~SlimServerMediaStream();
 			virtual int GetType();
