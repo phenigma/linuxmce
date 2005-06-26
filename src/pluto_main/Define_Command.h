@@ -71,7 +71,6 @@
 #define COMMAND_Hide_Application_CONST 70
 #define COMMAND_Request_File_CONST 71
 #define COMMAND_Surrender_to_OS_CONST 72
-#define COMMAND_MH_Send_Me_To_Remote_CONST 73
 #define COMMAND_Bind_to_Media_Remote_CONST 74
 #define COMMAND_Start_TV_CONST 75
 #define COMMAND_Stop_TV_CONST 76
@@ -363,6 +362,7 @@
 #define COMMAND_Show_Popup_CONST 397
 #define COMMAND_Hide_Popup_CONST 398
 #define COMMAND_Show_Shortcuts_CONST 399
+#define COMMAND_MH_Send_Me_To_File_List_CONST 400
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
