@@ -117,6 +117,7 @@ protected:
 	bool HandleDeviceOnOffEvent(MediaDevice *pMediaDevice,bool bIsOn);
 
 	RemoteControlSet *PickRemoteControlMap(int PK_Orbiter,int iPK_DeviceTemplate,int PK_MediaType);
+	string TranslateMediaTypeToDirectory(int iPK_MediaType);
 
 	/**
 	 * Sometimes we just want to override the description with a

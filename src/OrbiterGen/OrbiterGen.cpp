@@ -1013,10 +1013,16 @@ int k=2;
 			if( !oco->m_bUsingCache )
 			{
 				OutputScreen(oco);
-				oco->m_rPosition.Right(m_Width);
-				oco->m_rPosition.Bottom(m_Height);
-				oco->m_rBackgroundPosition.Right(m_Width);
-				oco->m_rBackgroundPosition.Bottom(m_Height);
+				// Don't force popups to be full-screen
+				if( m_mapPopups.find(oco->m_pRow_DesignObj->PK_DesignObj_get())==m_mapPopups.end() )
+				{
+					oco->m_rPosition.Right(m_Width);
+					oco->m_rPosition.Bottom(m_Height);
+					oco->m_rBackgroundPosition.Right(m_Width);
+					oco->m_rBackgroundPosition.Bottom(m_Height);
+				}
+				else
+					oco->m_bIsPopup=true;
 				cout << "Rendering screen " << oco->m_ObjectID << " in orbiter: " << m_pRow_Device->PK_Device_get() << endl;
 				try
 				{
@@ -1163,7 +1169,7 @@ void OrbiterGenerator::SearchForGotos(DesignObj_Data *pDesignObj_Data,DesignObjC
 	for(itActions=alCommands->begin();itActions!=alCommands->end();++itActions)
 	{
 		CGCommand *oca = (CGCommand *) *itActions;
-		if( oca->m_PK_Command == COMMAND_Goto_Screen_CONST )
+		if( oca->m_PK_Command == COMMAND_Goto_Screen_CONST || oca->m_PK_Command == COMMAND_Show_Popup_CONST )
 		{
 			map<int, string>::iterator itParm;
 			for(itParm=oca->m_ParameterList.begin();itParm!=oca->m_ParameterList.end();++itParm)
@@ -1174,6 +1180,8 @@ void OrbiterGenerator::SearchForGotos(DesignObj_Data *pDesignObj_Data,DesignObjC
 					if( p_m_pRow_DesignObj && m_htGeneratedScreens.find(p_m_pRow_DesignObj->PK_DesignObj_get())==m_htGeneratedScreens.end() )
 					{
 						m_iPK_DesignObj_Screen = p_m_pRow_DesignObj->PK_DesignObj_get();
+						if( oca->m_PK_Command == COMMAND_Show_Popup_CONST )
+							m_mapPopups[m_iPK_DesignObj_Screen] = true;
 						DesignObj_Generator *ocDesignObj = new DesignObj_Generator(this,p_m_pRow_DesignObj,PlutoRectangle(0,0,0,0),NULL,true,false);
 						SearchForGotos(ocDesignObj);
 					}
@@ -1429,6 +1437,12 @@ if( ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()==3412 )//2821 && bAddToGen
 						else
 							Value = (*itParm).second;
 						oa->m_ParameterList[COMMANDPARAMETER_PK_DesignObj_CONST]=Value;
+					}
+					else if( oa->m_PK_Command==COMMAND_Show_Popup_CONST && ((*itParm).first==COMMANDPARAMETER_Position_X_CONST || (*itParm).first==COMMANDPARAMETER_Position_Y_CONST) )
+					{
+						int Size=atoi(itParm->second.c_str());
+						Size = Size * ((*itParm).first==COMMANDPARAMETER_Position_X_CONST ? m_pRow_Size->ScaleX_get() : m_pRow_Size->ScaleY_get()) / 1000;
+						oa->m_ParameterList[(*itParm).first] = StringUtils::itos(Size);
 					}
 					else
 						oa->m_ParameterList[(*itParm).first] = StringUtils::Replace((*itParm).second,"<%=!%>",StringUtils::itos(PK_Orbiter));

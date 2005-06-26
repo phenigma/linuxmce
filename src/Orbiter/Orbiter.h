@@ -1446,14 +1446,16 @@ public:
 		/** @param #3 PK_DesignObj */
 			/** The ID of the screen */
 		/** @param #11 Position X */
-			/** X position (orbiter width will be considered to have 10000 units). So X is actually a percentage. */
+			/** X position */
 		/** @param #12 Position Y */
-			/** Y position (orbiter height will be considered to have 10000 units). So Y is actually a percentage. */
+			/** Y position */
 		/** @param #50 Name */
 			/** The popup name */
+		/** @param #126 Exclusive */
+			/** Hide any other popups that are also visible */
 
-	virtual void CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string sName) { string sCMD_Result; CMD_Show_Popup(sPK_DesignObj.c_str(),iPosition_X,iPosition_Y,sName.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string sName,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string sName,bool bExclusive) { string sCMD_Result; CMD_Show_Popup(sPK_DesignObj.c_str(),iPosition_X,iPosition_Y,sName.c_str(),bExclusive,sCMD_Result,NULL);};
+	virtual void CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string sName,bool bExclusive,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #398 - Hide Popup */

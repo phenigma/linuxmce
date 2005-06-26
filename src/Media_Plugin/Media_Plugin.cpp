@@ -384,6 +384,7 @@ bool Media_Plugin::Register()
 
     //  m_pMediaAttributes->ScanDirectory( "/home/public/data/music/" );
 //  m_pMediaAttributes->ScanDirectory( "Z:\\" );
+	PopulateRemoteControlMaps();
 
     return Connect(PK_DeviceTemplate_get());
 }
@@ -3937,7 +3938,7 @@ void Media_Plugin::RegisterMediaPlugin(class Command_Impl *pCommand_Impl,class M
 void Media_Plugin::PopulateRemoteControlMaps()
 {
 	vector<Row_DeviceTemplate_MediaType_DesignObj *> vectRow_DeviceTemplate_MediaType_DesignObj;
-	m_pDatabase_pluto_main->DeviceTemplate_MediaType_DesignObj_get()->GetRows("true",&vectRow_DeviceTemplate_MediaType_DesignObj);
+	m_pDatabase_pluto_main->DeviceTemplate_MediaType_DesignObj_get()->GetRows("1=1",&vectRow_DeviceTemplate_MediaType_DesignObj);
 	for(size_t s=0;s<vectRow_DeviceTemplate_MediaType_DesignObj.size();++s)
 	{
 		Row_DeviceTemplate_MediaType_DesignObj *pRow_DeviceTemplate_MediaType_DesignObj = vectRow_DeviceTemplate_MediaType_DesignObj[s];
@@ -3949,7 +3950,7 @@ void Media_Plugin::PopulateRemoteControlMaps()
 	}
 
 	vector<Row_MediaType_DesignObj *> vectRow_MediaType_DesignObj;
-	m_pDatabase_pluto_main->MediaType_DesignObj_get()->GetRows("true",&vectRow_MediaType_DesignObj);
+	m_pDatabase_pluto_main->MediaType_DesignObj_get()->GetRows("1=1",&vectRow_MediaType_DesignObj);
 	for(size_t s=0;s<vectRow_MediaType_DesignObj.size();++s)
 	{
 		Row_MediaType_DesignObj *pRow_MediaType_DesignObj = vectRow_MediaType_DesignObj[s];
@@ -3959,7 +3960,7 @@ void Media_Plugin::PopulateRemoteControlMaps()
 
 	// Do these last since these are the customer's individual preferences that should override the defaults
 	vector<Row_RemoteControl *> vectRow_RemoteControl;
-	m_pDatabase_pluto_main->RemoteControl_get()->GetRows("true",&vectRow_RemoteControl);
+	m_pDatabase_pluto_main->RemoteControl_get()->GetRows("1=1",&vectRow_RemoteControl);
 	for(size_t s=0;s<vectRow_RemoteControl.size();++s)
 	{
 		Row_RemoteControl *pRow_RemoteControl = vectRow_RemoteControl[s];
@@ -4056,6 +4057,26 @@ void Media_Plugin::CMD_MH_Send_Me_To_File_List(int iPK_MediaType,int iPK_DeviceT
 	{
 		DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pMessage->m_dwPK_Device_From,0,
 			StringUtils::itos(pRemoteControlSet->m_iPK_DesignObj_FileList),"","",false,false);
+		DCE::CMD_Set_Variable CMD_Set_Variable1(m_dwPK_Device,pMessage->m_dwPK_Device_From,VARIABLE_Datagrid_Input_CONST,TranslateMediaTypeToDirectory(iPK_MediaType));
+		CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable1.m_pMessage);
+		DCE::CMD_Set_Variable CMD_Set_Variable2(m_dwPK_Device,pMessage->m_dwPK_Device_From,VARIABLE_PK_MediaType_CONST,StringUtils::itos(iPK_MediaType));
+		CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable2.m_pMessage);
 		SendCommand(CMD_Goto_Screen);
 	}
+}
+
+string Media_Plugin::TranslateMediaTypeToDirectory(int iPK_MediaType)
+{
+	switch( iPK_MediaType )
+	{
+	case MEDIATYPE_pluto_CD_CONST:
+		return "music";
+	case MEDIATYPE_pluto_DVD_CONST:
+		return "movies";
+	case MEDIATYPE_pluto_StoredAudio_CONST:
+		return "music";
+	case MEDIATYPE_pluto_StoredVideo_CONST:
+		return "videos";
+	}
+	return "";
 }

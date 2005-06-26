@@ -4207,10 +4207,10 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 		}
         else if(  Variable=="NP_R" )
 		{
-			if( m_bIsOSD )
-				Output += StringUtils::itos(m_iPK_DesignObj_Remote);
-			else
+			if( m_bIsOSD && m_iPK_DesignObj_RemoteOSD )
 				Output += StringUtils::itos(m_iPK_DesignObj_RemoteOSD);
+			else
+				Output += StringUtils::itos(m_iPK_DesignObj_Remote);
 		}
         else if(  Variable=="NP_PR" )
 			Output += StringUtils::itos(m_iPK_DesignObj_Remote_Popup);
@@ -7150,22 +7150,25 @@ PlutoPopup *Orbiter::FindPopupByName(string sPopupName)
 		/** @param #3 PK_DesignObj */
 			/** The ID of the screen */
 		/** @param #11 Position X */
-			/** X position (orbiter width will be considered to have 10000 units). So X is actually a percentage. */
+			/** X position */
 		/** @param #12 Position Y */
-			/** Y position (orbiter height will be considered to have 10000 units). So Y is actually a percentage. */
+			/** Y position */
 		/** @param #50 Name */
 			/** The popup name */
+		/** @param #126 Exclusive */
+			/** Hide any other popups that are also visible */
 
-void Orbiter::CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string sName,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string sName,bool bExclusive,string &sCMD_Result,Message *pMessage)
 //<-dceag-c397-e->
 {
     PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
-    double dPercentX = iPosition_X / 10000.;
-    double dPercentY = iPosition_Y / 10000.;
+
+	if( bExclusive )
+		HidePopups();
 
     PlutoPopup *pPopup = NULL;
     if(NULL == (pPopup = FindPopupByID(sPK_DesignObj)))
-        m_vectPopups.push_back(new PlutoPopup(sPK_DesignObj, sName, PlutoPoint(int(m_iImageWidth * dPercentX), int(m_iImageHeight * dPercentY)), true));
+        m_vectPopups.push_back(new PlutoPopup(sPK_DesignObj, sName, PlutoPoint(iPosition_X,iPosition_Y), true));
 
     ShowPopup(sPK_DesignObj);
 }

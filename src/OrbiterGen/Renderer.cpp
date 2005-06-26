@@ -175,7 +175,10 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
             if( !pRenderImage )
             {
                 // This is a new screen, start with a clean canvas
-                pRenderImage = CreateBlankCanvas(PlutoSize(m_Width,m_Height)); // TROUBLE nr 1: this pointer is lost each time the for loop starts
+				if( pDesignObj_Generator->m_bIsPopup && pDesignObj_Generator->m_rPosition.Width && pDesignObj_Generator->m_rPosition.Height )
+	                pRenderImage = CreateBlankCanvas(PlutoSize(pDesignObj_Generator->m_rPosition.Width,pDesignObj_Generator->m_rPosition.Height));
+				else
+	                pRenderImage = CreateBlankCanvas(PlutoSize(m_Width,m_Height)); // TROUBLE nr 1: this pointer is lost each time the for loop starts
                 bIsMenu=true;
             }
             else
@@ -577,9 +580,6 @@ RendererImage * Renderer::CreateFromRWops(SDL_RWops * rw, bool bFreeRWops, Pluto
 
 		SDL_SetAlpha(SurfaceFromFile, 0, 0);
 		SDL_BlitSurface(SurfaceFromFile, &src_rect, pCropped_Surface, &dest_rect);
-SDL_SaveBMP(SurfaceFromFile, "C:\\pluto\\orbiter\\C19878\\Before.png");
-SDL_SaveBMP(pCropped_Surface, "C:\\pluto\\orbiter\\C19878\\After.png");
-
 
 	    SDL_FreeSurface(SurfaceFromFile);
 		SurfaceFromFile = pCropped_Surface;

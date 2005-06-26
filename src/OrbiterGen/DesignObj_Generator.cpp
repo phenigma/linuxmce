@@ -82,6 +82,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
     m_pOrbiterGenerator=pGenerator;
     m_bRendered=false;
 	m_bUseOCG=pGenerator->m_bUseOCG;
+	m_bIsPopup=false;
 
     m_mds=drDesignObj->Table_DesignObj_get()->Database_pluto_main_get();
     m_VariableMap = m_pOrbiterGenerator->m_mapVariable;
@@ -91,7 +92,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
     m_bDontShare=bDontShare;
     m_bUsingCache=false;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==3488 || m_pRow_DesignObj->PK_DesignObj_get()==3486 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )
+if( m_pRow_DesignObj->PK_DesignObj_get()==3507 )// || m_pRow_DesignObj->PK_DesignObj_get()==3486 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )
 {
     int k=2; 
 }
@@ -858,7 +859,10 @@ int k=2;
             rtArray.Height = m_pOrbiterGenerator->m_sizeScreen->Height - rtArray.Top();
 
         CGArray *pCGArray = new CGArray(this,drOVO,alArrayValues,rtArray,0,0);
-        if( pCGArray->m_bContainsMore)
+	    if( m_pRow_DesignObj->FK_DesignObjType_get()!=DESIGNOBJTYPE_Floorplan_CONST  )
+			m_rPosition = PlutoRectangle::Union(m_rPosition,pCGArray->m_rBounds);
+		
+		if( pCGArray->m_bContainsMore)
         {
             if( m_alMPArray.size()>0 )
                 throw "There is more than one multi-page array for object variation: " + drOVO->PK_DesignObjVariation_DesignObj_get();
@@ -964,7 +968,7 @@ int DesignObj_Generator::LookForGoto(DesignObjCommandList *alCommands)
     for(itActions=alCommands->begin();itActions!=alCommands->end();++itActions)
     {
         CGCommand *oca = (CGCommand *) *itActions;
-        if( oca->m_PK_Command == COMMAND_Goto_Screen_CONST )
+        if( oca->m_PK_Command == COMMAND_Goto_Screen_CONST || oca->m_PK_Command == COMMAND_Show_Popup_CONST )
         {
             map<int, string>::iterator itParm;
             for(itParm=oca->m_ParameterList.begin();itParm!=oca->m_ParameterList.end();++itParm)
@@ -987,6 +991,8 @@ int DesignObj_Generator::LookForGoto(DesignObjCommandList *alCommands)
                         try
                         {
                             PK_DesignObj_Goto = atoi(objgoto.c_str());
+							if( oca->m_PK_Command == COMMAND_Show_Popup_CONST )
+								m_pOrbiterGenerator->m_mapPopups[PK_DesignObj_Goto] = true;
                         }
                         catch(...)
                         {

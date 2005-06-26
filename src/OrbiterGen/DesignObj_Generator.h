@@ -35,7 +35,7 @@ public:
 	bool m_bDontShare,m_bUsingCache,m_bRendered;
 	bool m_bCanBeHidden,m_bChildrenBehind,m_bDontMergeBackground;
 	bool m_bValuesScaled;
-	bool m_bUseOCG;
+	bool m_bUseOCG,m_bIsPopup;
 	PlutoPoint m_pFloorplanFillPoint;
 	int m_iVersion;
 	int m_iFloorplanPage,m_iFloorplanDevice; // Only used for floorplan objects
