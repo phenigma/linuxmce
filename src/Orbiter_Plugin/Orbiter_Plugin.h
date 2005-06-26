@@ -226,12 +226,6 @@ public:
 		SendCommand( CMD_Goto_Screen );
 	}
 
-	void SetNowPlaying( int dwPK_Device, string sNowPlaying,int iPositionInPlaylist, int iPK_Device )
-	{
-		DCE::CMD_Set_Now_Playing CMD_Set_Now_Playing( m_dwPK_Device, dwPK_Device, iPK_Device, sNowPlaying, iPositionInPlaylist );
-		SendCommand( CMD_Set_Now_Playing );
-	}
-
 	void FireFollowMe(string sMask,int iPK_Orbiter,int iPK_Users,int iPK_RoomOrEntArea,int iPK_RoomOrEntArea_Left);
 	void SetBoundIcons(int iPK_Users,bool bOnOff,string sType);
 

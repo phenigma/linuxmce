@@ -174,7 +174,6 @@ class MediaStream *Xine_Plugin::CreateMediaStream( class MediaHandlerInfo *pMedi
 
 	pXineMediaStream = new XineMediaStream( this, pMediaHandlerInfo,
 							pMediaDevice,
-							pMediaHandlerInfo->m_iPK_DesignObj,
 							iPK_Users, st_RemovableMedia, StreamID );
 
 	// if the source device is a disk drive then we can't move this media stream around.
@@ -370,15 +369,15 @@ bool Xine_Plugin::MenuOnScreen( class Socket *pSocket, class Message *pMessage, 
 
 	if( bOnOff )
 	{
-		pXineMediaStream->m_iPK_DesignObj_Remote_After_Menu=pXineMediaStream->m_iPK_DesignObj_Remote;
+		pXineMediaStream->m_iPK_DesignObj_Remote_After_Menu=pXineMediaStream->m_pRemoteControlSet->m_iPK_DesignObj_Remote;
 		pXineMediaStream->m_iPK_DesignObj_RemoteOSD_After_Menu=pXineMediaStream->m_iPK_DesignObj_RemoteOSD;
 
-		pXineMediaStream->m_iPK_DesignObj_Remote=DESIGNOBJ_mnuDVDMenu_CONST;
+		pXineMediaStream->m_pRemoteControlSet->m_iPK_DesignObj_Remote=DESIGNOBJ_mnuDVDMenu_CONST;
 		pXineMediaStream->m_iPK_DesignObj_RemoteOSD=DESIGNOBJ_dvd_menu_full_screen_CONST;
 	}
 	else
 	{
-		pXineMediaStream->m_iPK_DesignObj_Remote=pXineMediaStream->m_iPK_DesignObj_Remote_After_Menu;
+		pXineMediaStream->m_pRemoteControlSet->m_iPK_DesignObj_Remote=pXineMediaStream->m_iPK_DesignObj_Remote_After_Menu;
 		pXineMediaStream->m_iPK_DesignObj_RemoteOSD=pXineMediaStream->m_iPK_DesignObj_RemoteOSD_After_Menu;
 	}
 

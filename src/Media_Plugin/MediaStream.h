@@ -11,8 +11,23 @@
 
 using namespace std;
 
+class Row_MediaType_DesignObj;
+class Row_DeviceTemplate_MediaType_DesignObj;
+
 namespace DCE
 {
+
+	class RemoteControlSet 
+	{
+	public:
+		int 	m_iPK_DesignObj_Remote; 		/** What screen to use as the remote control */
+        int 	m_iPK_DesignObj_Remote_Popup; 		/** What screen to use as the popup remote control */
+        int 	m_iPK_DesignObj_FileList; 			/** What screen to use as the file list */
+        int 	m_iPK_DesignObj_FileList_Popup; 	/** What screen to use as the file list popup */
+		RemoteControlSet(Row_MediaType_DesignObj *);
+		RemoteControlSet(Row_DeviceTemplate_MediaType_DesignObj *);
+	};
+
 
     /** @brief
      * An instance of media, such as a DVD or a CD.  If 2 people start watching the same DVD individually, that will be 2 media streams,
@@ -58,8 +73,9 @@ namespace DCE
 		char 		*m_pPictureData;
         size_t 		 m_iPictureSize;
 
-        int 	m_iPK_DesignObj_Remote; 		/** What screen to use as the remote control */
         int 	m_iPK_DesignObj_RemoteOSD; 		/** What screen to use as the remote control for the on-screen orbiter */
+
+		RemoteControlSet *m_pRemoteControlSet;  /** The remote controls to use for this stream */
 
 		bool 	m_bPlaying;        				/** True if the media is now playing */
 
@@ -87,7 +103,7 @@ namespace DCE
 
 
         /** @brief constructor*/
-        MediaStream(class MediaHandlerInfo *pMediaHandlerInfo, MediaDevice *pMediaDevice, int PK_DesignObj_Remote, int PK_Users,enum SourceType sourceType,int iStreamID);
+        MediaStream(class MediaHandlerInfo *pMediaHandlerInfo, MediaDevice *pMediaDevice, int PK_Users,enum SourceType sourceType,int iStreamID);
 
         /** @brief virtual destructor */
         virtual ~MediaStream();

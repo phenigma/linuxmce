@@ -28,6 +28,7 @@
 #include "pluto_main/Table_MediaType_DesignObj.h"
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
 #include "MediaAttributes.h"
+#include "Gen_Devices/AllCommandsRequests.h"
 
 #include "../Orbiter/Floorplan.h"
 #include "Orbiter_Plugin/FollowMe_Device.h"
@@ -76,6 +77,15 @@ private:
 	// mapping from job names to a pair or caller devices and the job running devices.
 	map<string, pair<int, int> > m_mapRippingJobsToRippingDevices;
 
+	// When deciding what remote control to use, we will look in these 4 maps in this order,
+	// first for a specific remote for this orbiter/source device/mediatype combination, then for this
+	// orbiter/media type, then for the source device/media type, lastly any remote for the media type
+	map< pair<int,pair<int,int> >, class RemoteControlSet *> m_mapOrbiter_DeviceTemplate_MediaType_RemoteControl;
+	map< pair<int,int>, class RemoteControlSet *> m_mapOrbiter_MediaType_RemoteControl;
+	map< pair<int,int>, class RemoteControlSet *> m_mapDeviceTemplate_MediaType_RemoteControl;
+	map< int, class RemoteControlSet *> m_mapMediaType_RemoteControl;
+
+
 	Database_pluto_main *m_pDatabase_pluto_main;
     Database_pluto_media *m_pDatabase_pluto_media;
     class Datagrid_Plugin *m_pDatagrid_Plugin;
@@ -96,6 +106,8 @@ private:
     class DataGridTable *FloorplanMediaChoices( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
     class DataGridTable *ActiveMediaStreams( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 
+	void PopulateRemoteControlMaps();
+
 protected:
     void PlayMediaByDeviceTemplate(int iPK_DeviceTemplate, int iPK_Device, int iPK_Device_Orbiter, EntertainArea *pEntertainArea, string &sCMD_Result);
     void PlayMediaByFileName(string sFilename, int iPK_Device, int iPK_Device_Orbiter, EntertainArea *pEntertainArea, string &sCMD_Result);
@@ -103,6 +115,8 @@ protected:
 
 	bool DiskDriveIsRipping(int iPK_Device);
 	bool HandleDeviceOnOffEvent(MediaDevice *pMediaDevice,bool bIsOn);
+
+	void PickRemoteControlMap(MediaStream *pMediaStream);
 
 	/**
 	 * Sometimes we just want to override the description with a
@@ -169,63 +183,7 @@ public:
 		RegisterMediaPlugin(pCommand_Impl,pMediaHandlerBase,vectPK_MasterDeviceList,bUsesDCE);
 	}
 
-    void RegisterMediaPlugin(class Command_Impl *pCommand_Impl,class MediaHandlerBase *pMediaHandlerBase,vector<int> &vectPK_MasterDeviceList,bool bUsesDCE)
-    {
-		for(size_t s=0;s<vectPK_MasterDeviceList.size();++s)
-		{
-			int iPK_MasterDeviceList = vectPK_MasterDeviceList[s];
-			Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(iPK_MasterDeviceList);
-			if( !pRow_DeviceTemplate )
-			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"Invalid device template %d as plugin",iPK_MasterDeviceList);
-				return;  // Nothing we can do
-			}
-
-			int iPKDevice = pCommand_Impl->m_dwPK_Device;
-			int iPKDeviceTemplate = pRow_DeviceTemplate->PK_DeviceTemplate_get();
-			string strDescription = pRow_DeviceTemplate->Description_get();
-
-			g_pPlutoLogger->Write(LV_STATUS,"Registered media plug in #%d (Template %d) %s (adress %p, plugin base address %p)",iPKDevice,iPKDeviceTemplate,strDescription.c_str(), pCommand_Impl, pMediaHandlerBase);
-			vector<Row_DeviceTemplate_MediaType *> vectRow_DeviceTemplate_MediaType;
-			pRow_DeviceTemplate->DeviceTemplate_MediaType_FK_DeviceTemplate_getrows(&vectRow_DeviceTemplate_MediaType);
-			for(size_t mt=0;mt<vectRow_DeviceTemplate_MediaType.size();++mt)
-			{
-				Row_DeviceTemplate_MediaType *pRow_DeviceTemplate_MediaType = vectRow_DeviceTemplate_MediaType[mt];
-				MediaHandlerInfo *pMediaHandlerInfo =
-					new MediaHandlerInfo(pMediaHandlerBase,pCommand_Impl,pRow_DeviceTemplate_MediaType->FK_MediaType_get(),
-						iPK_MasterDeviceList,pRow_DeviceTemplate_MediaType->CanSetPosition_get()==1,bUsesDCE);
-
-				m_vectMediaHandlerInfo.push_back(pMediaHandlerInfo);
-				pMediaHandlerBase->m_vectMediaHandlerInfo.push_back(pMediaHandlerInfo);
-
-				// Find a default remote control for this.  If one is specified by the DeviceTemplate, use that, and then revert to one that matches the media type
-				vector<Row_DeviceTemplate_MediaType_DesignObj *> vectRow_DeviceTemplate_MediaType_DesignObj;
-				pRow_DeviceTemplate_MediaType->DeviceTemplate_MediaType_DesignObj_FK_DeviceTemplate_MediaType_getrows(&vectRow_DeviceTemplate_MediaType_DesignObj);
-				if( vectRow_DeviceTemplate_MediaType_DesignObj.size() )
-					pMediaHandlerInfo->m_iPK_DesignObj = vectRow_DeviceTemplate_MediaType_DesignObj[0]->FK_DesignObj_get();
-				else
-				{
-					vector<Row_MediaType_DesignObj *> vectRow_MediaType_DesignObj;
-					Row_MediaType *pRow_MediaType = pRow_DeviceTemplate_MediaType->FK_MediaType_getrow();
-					if( !pRow_MediaType )
-					{
-						g_pPlutoLogger->Write(LV_CRITICAL,"db problem with media type: %d",pRow_DeviceTemplate_MediaType->FK_MediaType_get());
-						continue;
-					}
-					pRow_MediaType->MediaType_DesignObj_FK_MediaType_getrows(&vectRow_MediaType_DesignObj);
-					if( vectRow_MediaType_DesignObj.size() )
-					{
-						Row_MediaType_DesignObj *pRow_MediaType_DesignObj = vectRow_MediaType_DesignObj[0];
-
-	g_pPlutoLogger->Write(LV_STATUS,"FOUND %d records for media type %d %p",(int) vectRow_MediaType_DesignObj.size(),pRow_DeviceTemplate_MediaType->FK_MediaType_get(),pRow_MediaType_DesignObj);
-						pMediaHandlerInfo->m_iPK_DesignObj = pRow_MediaType_DesignObj->FK_DesignObj_get();
-					}
-					else
-						pMediaHandlerInfo->m_iPK_DesignObj = 0;
-				}
-			}
-		}
-    }
+    void RegisterMediaPlugin(class Command_Impl *pCommand_Impl,class MediaHandlerBase *pMediaHandlerBase,vector<int> &vectPK_MasterDeviceList,bool bUsesDCE);
 
     void AddDeviceToEntertainArea(EntertainArea *pEntertainArea,Row_Device *pRow_Device);
 	void DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, string sPK_EntertainArea, vector<EntertainArea *> &vectEntertainArea );
@@ -260,10 +218,10 @@ public:
 
 	// This version is called by MH_Play_Media.  It may result in multiple handlers and multiple streams
 	// if there isn't 1 handler that can do it all.  If p_vectMediaStream is passed it will have a list of all the streams that were created as a result
-	void StartMedia( int iPK_MediaType, unsigned int iPK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int iPK_Device, string sPK_DesignObj, deque<MediaFile *> *dequeMediaFile, bool bResume, int iRepeat, vector<MediaStream *> *p_vectMediaStream=NULL);
+	void StartMedia( int iPK_MediaType, unsigned int iPK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int iPK_Device, deque<MediaFile *> *dequeMediaFile, bool bResume, int iRepeat, vector<MediaStream *> *p_vectMediaStream=NULL);
 
 	// This creates a single media stream for a given media handler and starts playing it by calling the next StartMedia, or returns NULL if it cannot create the stream
-    MediaStream *StartMedia(MediaHandlerInfo *pMediaHandlerInfo, unsigned int PK_Device_Orbiter,vector<EntertainArea *> &vectEntertainArea,int PK_Device_Source,int PK_DesignObj_Remote,deque<MediaFile *> *dequeMediaFile,bool bResume,int iRepeat);
+    MediaStream *StartMedia(MediaHandlerInfo *pMediaHandlerInfo, unsigned int PK_Device_Orbiter,vector<EntertainArea *> &vectEntertainArea,int PK_Device_Source,deque<MediaFile *> *dequeMediaFile,bool bResume,int iRepeat);
 
 	// This is the final stage of 'StartMedia' that starts playing the given stream.  This is also called when the stream changes, or is moved, and needs to be restarted
 	bool StartMedia(MediaStream *pMediaStream);
@@ -359,6 +317,27 @@ public:
 	int DetermineInvolvement(MediaDevice *pMediaDevice, MediaDevice *&pMediaDevice_Source,MediaDevice *&pMediaDevice_Dest,
 		EntertainArea *&pEntertainArea,MediaStream *&pMediaStream);
 
+	void SetNowPlaying( int dwPK_Device, string sNowPlaying, MediaStream *pMediaStream )
+	{
+		string sRemotes;
+		if( pMediaStream && pMediaStream->m_pRemoteControlSet )
+			sRemotes = StringUtils::itos(pMediaStream->m_pRemoteControlSet->m_iPK_DesignObj_Remote) + ","
+				+ StringUtils::itos(pMediaStream->m_pRemoteControlSet->m_iPK_DesignObj_Remote_Popup) + ","
+				+ StringUtils::itos(pMediaStream->m_pRemoteControlSet->m_iPK_DesignObj_FileList) + ","
+				+ StringUtils::itos(pMediaStream->m_pRemoteControlSet->m_iPK_DesignObj_FileList_Popup) + ","
+				+ StringUtils::itos(pMediaStream->m_iPK_DesignObj_RemoteOSD;
+
+		int PK_Device_Source=0,iDequeMediaFile=0;
+		if( pMediaStream )
+		{
+			PK_Device_Source = pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
+			iDequeMediaFile = pMediaStream->m_iDequeMediaFile_Pos;
+		}
+		DCE::CMD_Set_Now_Playing CMD_Set_Now_Playing( m_dwPK_Device, dwPK_Device, PK_Device_Source,
+			sRemotes, sNowPlaying, iDequeMediaFile );
+		SendCommand( CMD_Set_Now_Playing );
+	}
+
 //<-dceag-h-b->
 	/*
 				AUTO-GENERATED SECTION
@@ -382,8 +361,6 @@ public:
 	/** The Orbiters send the play media command to the actual media handler. rnrnThe Orbiter can send anyone or a combination of parameters. rnrnIt's up to media handler to figure out how to handle it. The media handler must find out if the media is already pla */
 		/** @param #2 PK_Device */
 			/** The ID of the actual device to start playing. */
-		/** @param #3 PK_DesignObj */
-			/** The Remote Control to use for playing this media. */
 		/** @param #13 Filename */
 			/** The filename to play or a pipe delimited list of filenames. */
 		/** @param #29 PK_MediaType */
@@ -397,8 +374,8 @@ public:
 		/** @param #117 Repeat */
 			/** 0=default for media type, 1=loop, -1=do not loop */
 
-	virtual void CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string sFilename,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea,bool bResume,int iRepeat) { string sCMD_Result; CMD_MH_Play_Media(iPK_Device,sPK_DesignObj.c_str(),sFilename.c_str(),iPK_MediaType,iPK_DeviceTemplate,sPK_EntertainArea.c_str(),bResume,iRepeat,sCMD_Result,NULL);};
-	virtual void CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string sFilename,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea,bool bResume,int iRepeat,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea,bool bResume,int iRepeat) { string sCMD_Result; CMD_MH_Play_Media(iPK_Device,sFilename.c_str(),iPK_MediaType,iPK_DeviceTemplate,sPK_EntertainArea.c_str(),bResume,iRepeat,sCMD_Result,NULL);};
+	virtual void CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea,bool bResume,int iRepeat,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #44 - MH Stop Media */

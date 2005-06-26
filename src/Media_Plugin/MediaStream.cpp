@@ -34,15 +34,33 @@
 #include "pluto_media/Database_pluto_media.h"
 #include "pluto_media/Table_Attribute.h"
 #include "pluto_media/Define_AttributeType.h"
+#include "pluto_main/Table_MediaType_DesignObj.h"
+#include "pluto_main/Table_DeviceTemplate_MediaType_DesignObj.h"
 
+RemoteControlSet::RemoteControlSet(Row_MediaType_DesignObj *pRow_MediaType_DesignObj)
+{
+	m_iPK_DesignObj_Remote=pRow_MediaType_DesignObj->FK_DesignObj_get();
+	m_iPK_DesignObj_Remote_Popup=pRow_MediaType_DesignObj->FK_DesignObj_Popup_get();
+	m_iPK_DesignObj_FileList=pRow_MediaType_DesignObj->FK_DesignObj_FileList_get();
+	m_iPK_DesignObj_FileList_Popup=pRow_MediaType_DesignObj->FK_DesignObj_FileList_Popup_get();
+}
 
-MediaStream::MediaStream( class MediaHandlerInfo *pMediaHandlerInfo, MediaDevice *pMediaDevice, int PK_DesignObj_Remote, int PK_Users, enum SourceType sourceType, int iStreamID )
+RemoteControlSet::RemoteControlSet(Row_DeviceTemplate_MediaType_DesignObj *pRow_DeviceTemplate_MediaType_DesignObj)
+{
+	m_iPK_DesignObj_Remote=pRow_DeviceTemplate_MediaType_DesignObj->FK_DesignObj_get();
+	m_iPK_DesignObj_Remote_Popup=pRow_DeviceTemplate_MediaType_DesignObj->FK_DesignObj_Popup_get();
+	m_iPK_DesignObj_FileList=pRow_DeviceTemplate_MediaType_DesignObj->FK_DesignObj_FileList_get();
+	m_iPK_DesignObj_FileList_Popup=pRow_DeviceTemplate_MediaType_DesignObj->FK_DesignObj_FileList_Popup_get();
+}
+
+MediaStream::MediaStream( class MediaHandlerInfo *pMediaHandlerInfo, MediaDevice *pMediaDevice, int PK_Users, enum SourceType sourceType, int iStreamID )
 {
 	m_dwPK_Disc=m_discid=0;
     m_iStreamID = iStreamID;
     m_pMediaHandlerInfo=pMediaHandlerInfo;
-    m_iPK_DesignObj_Remote=PK_DesignObj_Remote;
 	m_iPK_DesignObj_RemoteOSD=0;
+	m_pRemoteControlSet=NULL;
+
     m_iPK_Users=PK_Users;
     m_eSourceType=sourceType;
     m_bResume=m_bPlaying=false;

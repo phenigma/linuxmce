@@ -52,9 +52,9 @@ public:
 	static RendererImage *Subset(RendererImage *pRenderImage,PlutoRectangle rect);
 	// If Crop is true and PreserveAspectRatio is true, then instead of shrinking to fit within the given space, it will
 	// fill the target space, and any excess will be cropped
-	static RendererImage *CreateFromFile(string sFilename, PlutoSize size=PlutoSize(0,0),bool bPreserveAspectRatio=true,bool bCrop=false);
-	static RendererImage *CreateFromFile(FILE * File, PlutoSize size=PlutoSize(0,0),bool bPreserveAspectRatio=true,bool bCrop=false);
-	static RendererImage *CreateFromRWops(SDL_RWops * rw, bool bFreeRWops = true, PlutoSize size=PlutoSize(0,0),bool bPreserveAspectRatio=true,bool bCrop=false);
+	static RendererImage *CreateFromFile(string sFilename, PlutoSize size=PlutoSize(0,0),bool bPreserveAspectRatio=true,bool bCrop=false,PlutoRectangle offset=PlutoRectangle(0,0));
+	static RendererImage *CreateFromFile(FILE * File, PlutoSize size=PlutoSize(0,0),bool bPreserveAspectRatio=true,bool bCrop=false,PlutoRectangle offset=PlutoRectangle(0,0));
+	static RendererImage *CreateFromRWops(SDL_RWops * rw, bool bFreeRWops = true, PlutoSize size=PlutoSize(0,0),bool bPreserveAspectRatio=true,bool bCrop=false,PlutoRectangle offset=PlutoRectangle(0,0));
 	static void CompositeImage(RendererImage *pRenderImage_Parent,RendererImage *pRenderImage_Child,PlutoPoint pos);
 	static RendererImage * DuplicateImage(RendererImage * pRendererImage);
 	void RenderText(RendererImage *pRenderImage, DesignObjText *pDesignObjText, TextStyle *pTextStyle, DesignObj_Generator *pDesignObj_Generator, PlutoPoint pos);

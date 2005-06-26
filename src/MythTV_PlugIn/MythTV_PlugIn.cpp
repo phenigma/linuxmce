@@ -338,7 +338,7 @@ class MediaStream *MythTV_PlugIn::CreateMediaStream(class MediaHandlerInfo *pMed
 				pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str(),
 				pMediaDevice->m_pDeviceData_Router->GetIPAddress().c_str());
 
-    MythTvMediaStream *pMediaStream = new MythTvMediaStream(pMediaHandlerInfo, pMediaDevice, pMediaHandlerInfo->m_iPK_DesignObj, 0, st_RemovableMedia,StreamID);
+    MythTvMediaStream *pMediaStream = new MythTvMediaStream(pMediaHandlerInfo, pMediaDevice, 0, st_RemovableMedia,StreamID);
 
 	if ( m_pMythBackend_ProxyDevice == NULL )
 	{

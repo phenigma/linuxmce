@@ -20,10 +20,9 @@ namespace DCE
  	MythTvMediaStream::MythTvMediaStream(
 								MediaHandlerInfo *pMediaHandlerInfo,
 								MediaDevice *pMediaDevice,
-								int PK_DesignObj_Remote,
 								int PK_Users,
 								enum SourceType sourceType,int iStreamID)
-            : MediaStream(pMediaHandlerInfo, pMediaDevice, PK_DesignObj_Remote, PK_Users, sourceType, iStreamID)
+            : MediaStream(pMediaHandlerInfo, pMediaDevice, PK_Users, sourceType, iStreamID)
 	{
 		// m_pMythTV_PlugIn=pMythTV_PlugIn;
 		m_iNextProgramChannelID = m_iCurrentProgramChannelID = 0;

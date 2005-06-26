@@ -1331,13 +1331,15 @@ public:
 	/** Used by the media engine to set the "now playing" text on an orbiter.  If the orbiter is bound to the remote for an entertainment area it will get more updates than just media,  like cover art, but this is the basic information that is visible on screens */
 		/** @param #2 PK_Device */
 			/** The currently active media device */
+		/** @param #3 PK_DesignObj */
+			/** 4 comma delimited objects: normal remote, popup remote, file list remote, popup file list remote */
 		/** @param #5 Value To Assign */
 			/** The description of the media */
 		/** @param #48 Value */
 			/** The track number or position in the playlist */
 
-	virtual void CMD_Set_Now_Playing(int iPK_Device,string sValue_To_Assign,int iValue) { string sCMD_Result; CMD_Set_Now_Playing(iPK_Device,sValue_To_Assign.c_str(),iValue,sCMD_Result,NULL);};
-	virtual void CMD_Set_Now_Playing(int iPK_Device,string sValue_To_Assign,int iValue,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,int iValue) { string sCMD_Result; CMD_Set_Now_Playing(iPK_Device,sPK_DesignObj.c_str(),sValue_To_Assign.c_str(),iValue,sCMD_Result,NULL);};
+	virtual void CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,int iValue,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #254 - Bind Icon */

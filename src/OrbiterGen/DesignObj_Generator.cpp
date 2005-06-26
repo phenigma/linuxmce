@@ -91,7 +91,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
     m_bDontShare=bDontShare;
     m_bUsingCache=false;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==1269 || m_pRow_DesignObj->PK_DesignObj_get()==1255 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )
+if( m_pRow_DesignObj->PK_DesignObj_get()==3488 || m_pRow_DesignObj->PK_DesignObj_get()==3486 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )
 {
     int k=2; 
 }
@@ -361,11 +361,25 @@ Table_Image *p = m_mds->Image_get();
                         if( drOVCP_C_Y==NULL && m_pRow_DesignObjVariation->PK_DesignObjVariation_get()!=m_pRow_DesignObjVariation_Standard->PK_DesignObjVariation_get() )
                             drOVCP_C_Y = m_mds->DesignObjVariation_DesignObjParameter_get()->GetRow(m_pRow_DesignObjVariation->PK_DesignObjVariation_get(),DESIGNOBJPARAMETER_Y_Position_CONST);
 
+						Row_DesignObjVariation_DesignObjParameter * drOVCP_C_CX = m_mds->DesignObjVariation_DesignObjParameter_get()->GetRow(m_pRow_DesignObjVariation->PK_DesignObjVariation_get(),DESIGNOBJPARAMETER_Crop_X_CONST);
+                        if( drOVCP_C_CX==NULL && m_pRow_DesignObjVariation->PK_DesignObjVariation_get()!=m_pRow_DesignObjVariation_Standard->PK_DesignObjVariation_get() )
+                            drOVCP_C_CX = m_mds->DesignObjVariation_DesignObjParameter_get()->GetRow(m_pRow_DesignObjVariation->PK_DesignObjVariation_get(),DESIGNOBJPARAMETER_Crop_X_CONST);
+
+                        Row_DesignObjVariation_DesignObjParameter * drOVCP_C_CY = m_mds->DesignObjVariation_DesignObjParameter_get()->GetRow(m_pRow_DesignObjVariation->PK_DesignObjVariation_get(),DESIGNOBJPARAMETER_Crop_Y_CONST);
+                        if( drOVCP_C_CY==NULL && m_pRow_DesignObjVariation->PK_DesignObjVariation_get()!=m_pRow_DesignObjVariation_Standard->PK_DesignObjVariation_get() )
+                            drOVCP_C_CY = m_mds->DesignObjVariation_DesignObjParameter_get()->GetRow(m_pRow_DesignObjVariation->PK_DesignObjVariation_get(),DESIGNOBJPARAMETER_Crop_Y_CONST);
+
+						string::size_type p;
                         if( drOVCP_C_X && !drOVCP_C_X->Value_isNull() && drOVCP_C_X->Value_get()!="" )
-                            X+=atoi(drOVCP_C_X->Value_get().c_str());
+                            m_rBitmapOffset.X = atoi(drOVCP_C_X->Value_get().c_str());
                         if( drOVCP_C_Y && !drOVCP_C_Y->Value_isNull() && drOVCP_C_Y->Value_get()!="" )
-                            Y+=atoi(drOVCP_C_Y->Value_get().c_str());
-                        m_rBackgroundPosition.Location(PlutoPoint(X,Y));
+                            m_rBitmapOffset.Y = atoi(drOVCP_C_Y->Value_get().c_str());
+                        if( drOVCP_C_CX && !drOVCP_C_CX->Value_isNull() && drOVCP_C_CX->Value_get()!="" )
+                            m_rBitmapOffset.Width = atoi(drOVCP_C_CX->Value_get().c_str());
+                        if( drOVCP_C_CY && !drOVCP_C_CY->Value_isNull() && drOVCP_C_CY->Value_get()!="" )
+                            m_rBitmapOffset.Height = atoi(drOVCP_C_CY->Value_get().c_str());
+
+						m_rBackgroundPosition.Location(PlutoPoint(X,Y));
                     }
 
                     // If we have an image, and this is either the standard, or a non-primary image but there was no primary (width & height=0) set it
@@ -388,6 +402,10 @@ Table_Image *p = m_mds->Image_get();
 							m_rPosition.Width = drImage->Width_get();
 							m_rBackgroundPosition.Width = drImage->Width_get();
 
+			                string sWidth = GetParm(DESIGNOBJPARAMETER_Width_CONST,true);
+							if( sWidth.size() )
+								m_rPosition.Width = m_rBackgroundPosition.Width = atoi(sWidth.c_str());
+
 							/* 10/6/2004 Aaron - Designer adds wrong width/heights sometimes, particularly with objects with multiple variations.  For now always use the actual w/h
 							if( m_rPosition.Height>0 )
 								m_rBackgroundPosition.Height = m_rPosition.Height;
@@ -399,6 +417,10 @@ Table_Image *p = m_mds->Image_get();
 							*/
 							m_rPosition.Height = drImage->Height_get();
 							m_rBackgroundPosition.Height = drImage->Height_get();
+
+							string sHeight = GetParm(DESIGNOBJPARAMETER_Height_CONST,true);
+							if( sHeight.size() )
+								m_rPosition.Height = m_rBackgroundPosition.Height = atoi(sHeight.c_str());
 						}
 						else
 							m_rBackgroundPosition = m_rPosition;
@@ -1280,6 +1302,10 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
     if( oArray.length()==0 )
         return alArray;
 
+	string sExtraInfo = GetParm(DESIGNOBJPARAMETER_Extra_Info_CONST,drDesignObjVariation);
+	bool bNoSubstitutions = sExtraInfo.find('X')!=string::npos;
+	bool bNoIcons = sExtraInfo.find('I')!=string::npos;
+
     int PK_Array = atoi(oArray.c_str());
     int PriorSort=-1;
     switch(PK_Array)
@@ -1308,7 +1334,7 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
                             (!drAG_R->FK_CommandGroup_getrow()->FK_Icon_isNull() ? "~cb~" : "") +  drAG_R->FK_CommandGroup_getrow()->Description_get(),
                             drAG_R->FK_CommandGroup_getrow()->FK_Icon_isNull() ? NULL : drAG_R->FK_CommandGroup_getrow()->FK_Icon_getrow(),
                             drAG_R->FK_CommandGroup_getrow()->FK_Criteria_Orbiter_isNull() ? 0 : drAG_R->FK_CommandGroup_getrow()->FK_Criteria_Orbiter_get(),
-                            drAG_R->FK_CommandGroup_getrow()->FK_DesignObj_isNull() ? 0 : drAG_R->FK_CommandGroup_getrow()->FK_DesignObj_get(),
+                            !bNoSubstitutions && drAG_R->FK_CommandGroup_getrow()->FK_DesignObj_isNull() ? 0 : drAG_R->FK_CommandGroup_getrow()->FK_DesignObj_get(),
                             drAG_R->FK_CommandGroup_get(),VARIABLE_PK_CommandGroup_CONST,drAG_R->FK_CommandGroup_getrow()->CanBeHidden_get()==1,false,PriorSort==drAG_R->Sort_get()));
                         PriorSort=drAG_R->Sort_get();
                     }
@@ -1319,11 +1345,17 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
             if( m_pOrbiterGenerator->m_pRow_EntertainArea==NULL )
                 break;
 
-            alArray->push_back(new ArrayValue("","",NULL,0,DESIGNOBJ_butCurrentlyPlaying_CONST,0,0,false,false,false));
-			PriorSort=-1;
-
             {
-                vector<class Row_CommandGroup_EntertainArea *> vectEGs;
+				int PK_DesignObj_NowPlaying = DESIGNOBJ_butCurrentlyPlaying_CONST;
+				string::size_type p=sExtraInfo.find("NP:");
+				if( p!=string::npos )
+					PK_DesignObj_NowPlaying = atoi(sExtraInfo.substr(p+3).c_str());
+
+				if( PK_DesignObj_NowPlaying )
+					alArray->push_back(new ArrayValue("","",NULL,0,PK_DesignObj_NowPlaying,0,0,false,false,false));
+				PriorSort=-1;
+
+				vector<class Row_CommandGroup_EntertainArea *> vectEGs;
                 string sql = string(COMMANDGROUP_ENTERTAINAREA_FK_ENTERTAINAREA_FIELD) + "=" + \
                     StringUtils::itos(m_pOrbiterGenerator->m_pRow_EntertainArea->PK_EntertainArea_get()) + " ORDER BY " + COMMANDGROUP_ENTERTAINAREA_SORT_FIELD;
                 m_mds->CommandGroup_EntertainArea_get()->GetRows(sql,&vectEGs);
@@ -1338,7 +1370,7 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
                             (!drAG_E->FK_CommandGroup_getrow()->FK_Icon_isNull() ? "~cb~" : "") +  drAG_E->FK_CommandGroup_getrow()->Description_get(),
                             drAG_E->FK_CommandGroup_getrow()->FK_Icon_isNull() ? NULL : drAG_E->FK_CommandGroup_getrow()->FK_Icon_getrow(),
                             drAG_E->FK_CommandGroup_getrow()->FK_Criteria_Orbiter_isNull() ? 0 : drAG_E->FK_CommandGroup_getrow()->FK_Criteria_Orbiter_get(),
-                            drAG_E->FK_CommandGroup_getrow()->FK_DesignObj_isNull() ? 0 : drAG_E->FK_CommandGroup_getrow()->FK_DesignObj_get(),
+                            !bNoSubstitutions && drAG_E->FK_CommandGroup_getrow()->FK_DesignObj_isNull() ? 0 : drAG_E->FK_CommandGroup_getrow()->FK_DesignObj_get(),
                             drAG_E->FK_CommandGroup_get(),VARIABLE_PK_CommandGroup_CONST,drAG_E->FK_CommandGroup_getrow()->CanBeHidden_get()==1,false,PriorSort==drAG_E->Sort_get()));
                         PriorSort=drAG_E->Sort_get();
                     }
@@ -1563,9 +1595,9 @@ int k=2;
         PlutoPoint p(plutoSize.Width,plutoSize.Height);
         PlutoSize plutoSize2(ScaleValue(&p,FactorX,FactorY));
         m_rBackgroundPosition.Size(plutoSize2);
-        p=ScaleValue(&m_rPosition.Location(),FactorX,FactorY);
+		p=ScaleValue(&m_rPosition.Location(),FactorX,FactorY);
         m_rPosition.Location(p);
-        PlutoSize plutoSize3=m_rPosition.Size();
+		PlutoSize plutoSize3=m_rPosition.Size();
         p=PlutoPoint(plutoSize3.Width,plutoSize3.Height);
         p=PlutoPoint(ScaleValue(&p,FactorX,FactorY));
         m_rPosition.Size(p);

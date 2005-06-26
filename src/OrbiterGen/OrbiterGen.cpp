@@ -492,7 +492,8 @@ m_bNoEffects = true;
 	string sSize = StringUtils::itos(m_pRow_Size->Width_get()) + ","
 		+ StringUtils::itos(m_pRow_Size->Height_get()) + ","
 		+ StringUtils::itos(m_pRow_Size->ScaleX_get()) + ","
-		+ StringUtils::itos(m_pRow_Size->ScaleY_get());
+		+ StringUtils::itos(m_pRow_Size->ScaleY_get()) + ","
+		+ StringUtils::itos(m_pRow_Skin->PK_Skin_get());
 
 	if( m_pRow_Orbiter->Size_get()!=sSize )
 	{
@@ -572,6 +573,7 @@ m_bNoEffects = true;
 		}
 
 		listLocationInfo.push_back(li);
+break; ///**************************** temp
 	}
 
 	m_sMainMenu="";

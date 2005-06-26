@@ -66,8 +66,6 @@ namespace DCE
 
 		m_bMultipleDestinations;	/** True means this can be sent to multiple destinations */
 
-		int m_iPK_DesignObj;            /** What remote control to use for this type of media */
-
 		list<class MediaDevice *> m_listMediaDevice;    /** Which Media Devices it is representing.  This can be empty.
 														Then the media handler will give preference to a plug-in that specifically represents a device */
 
@@ -91,7 +89,7 @@ namespace DCE
 		/** @brief A constructor for a plug-in that wants to specify all this stuff manually */
 
 		MediaHandlerInfo(class MediaHandlerBase *pMediaHandlerBase,class Command_Impl *pCommand_Impl)
-		{ m_pMediaHandlerBase=pMediaHandlerBase; m_pCommand_Impl=pCommand_Impl; m_iPK_DesignObj=0; m_MediaHandlerID=g_MediaHandlerID++; };
+		{ m_pMediaHandlerBase=pMediaHandlerBase; m_pCommand_Impl=pCommand_Impl; m_MediaHandlerID=g_MediaHandlerID++; };
 
 		/** @brief
 		* This will perform some standard tasks commonly needed to setup a plug-in.  First, if PK_DeviceTemplate is specified,

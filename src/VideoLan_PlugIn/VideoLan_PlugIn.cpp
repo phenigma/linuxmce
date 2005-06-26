@@ -159,7 +159,6 @@ class MediaStream *VideoLan_PlugIn::CreateMediaStream( class MediaHandlerInfo *p
 
 	pVideoLanMediaStream = new VideoLanMediaStream( this, pMediaHandlerInfo,
 							pMediaDevice,
-							pMediaHandlerInfo->m_iPK_DesignObj,
 							iPK_Users, st_RemovableMedia, StreamID );
 
 	return pVideoLanMediaStream;

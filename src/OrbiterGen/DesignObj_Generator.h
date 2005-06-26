@@ -13,6 +13,7 @@ public:
 	class Row_DesignObj * m_pRow_DesignObj;
 	DesignObj_Generator * m_ocoParent;
 	class OrbiterGenerator *m_pOrbiterGenerator;
+	class PlutoRectangle m_rBitmapOffset;
 	map<int,string> m_VariableMap;
 
 	// These are the input values, the 'real' location on the server that Orbiter Gen uses.  The regular variables without Orig

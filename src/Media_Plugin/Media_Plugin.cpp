@@ -53,6 +53,7 @@ using namespace DCE;
 #include "pluto_main/Table_CommandGroup_Command.h"
 #include "pluto_main/Table_CommandGroup_EntertainArea.h"
 #include "pluto_main/Table_CommandGroup_Command_CommandParameter.h"
+#include "pluto_main/Table_RemoteControl.h"
 #include "pluto_main/Table_Device.h"
 #include "pluto_main/Table_Device_EntertainArea.h"
 #include "pluto_main/Table_DeviceCategory.h"
@@ -517,7 +518,7 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
 
 			g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from Media Inserted with orbiter %d",PK_Orbiter);
 
-			MediaStream *pMediaStream = StartMedia(pMediaHandlerInfo,PK_Orbiter,vectEntertainArea,pDeviceFrom->m_dwPK_Device,0,&dequeMediaFile,false,0);
+			MediaStream *pMediaStream = StartMedia(pMediaHandlerInfo,PK_Orbiter,vectEntertainArea,pDeviceFrom->m_dwPK_Device,&dequeMediaFile,false,0);
 			if( pMediaStream )
 				pMediaStream->m_discid = discid;
 
@@ -628,7 +629,7 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
     return true;
 }
 
-void Media_Plugin::StartMedia( int iPK_MediaType, unsigned int iPK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int iPK_Device, string sPK_DesignObj, deque<MediaFile *> *p_dequeMediaFile, bool bResume, int iRepeat, vector<MediaStream *> *p_vectMediaStream)
+void Media_Plugin::StartMedia( int iPK_MediaType, unsigned int iPK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int iPK_Device, deque<MediaFile *> *p_dequeMediaFile, bool bResume, int iRepeat, vector<MediaStream *> *p_vectMediaStream)
 {
 	if( !iPK_MediaType && p_dequeMediaFile->size() )
 	{
@@ -684,7 +685,7 @@ void Media_Plugin::StartMedia( int iPK_MediaType, unsigned int iPK_Device_Orbite
 		}
 
 		StartMedia(pMediaHandlerInfo,iPK_Device_Orbiter,vectEA_to_MediaHandler[s].second,
-			iPK_Device,sPK_DesignObj.size() ? atoi(sPK_DesignObj.c_str()) : 0,p_dequeMediaFile,bResume,iRepeat);  // We'll let the plug-in figure out the source, and we'll use the default remote
+			iPK_Device,p_dequeMediaFile,bResume,iRepeat);  // We'll let the plug-in figure out the source, and we'll use the default remote
 
 		if( p_dequeMediaFile_Copy )
 			delete p_dequeMediaFile;
@@ -695,7 +696,7 @@ void Media_Plugin::StartMedia( int iPK_MediaType, unsigned int iPK_Device_Orbite
 			delete (*p_dequeMediaFile_Copy)[s];
 }
 
-MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int PK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int PK_Device_Source, int PK_DesignObj_Remote, deque<MediaFile *> *dequeMediaFile, bool bResume,int iRepeat)
+MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int PK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int PK_Device_Source, deque<MediaFile *> *dequeMediaFile, bool bResume,int iRepeat)
 {
     PLUTO_SAFETY_LOCK(mm,m_MediaMutex);
 
@@ -762,10 +763,6 @@ MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsi
 
     // HACK: get the user if the message originated from an orbiter!
 
-    // Todo -- get the real remote
-	if( PK_DesignObj_Remote && PK_DesignObj_Remote!=-1 )
-        pMediaStream->m_iPK_DesignObj_Remote = PK_DesignObj_Remote;
-
 	pMediaStream->m_bResume=bResume;
 	g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from StartMedia");
 	if( StartMedia(pMediaStream) )
@@ -785,6 +782,8 @@ public:
 
 bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 {
+	PickRemoteControlMap(pMediaStream);
+
 	map<int,class OldStreamInfo *> mapOldStreamInfo;
 
 	if( !pMediaStream->m_pMediaDevice_Source )
@@ -880,7 +879,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 		// See if there's a special screen for the OSD
 		pMediaStream->m_iPK_DesignObj_RemoteOSD = pMediaStream->SpecialOsdScreen();
 
-		if( pMediaStream->m_iPK_DesignObj_Remote>0 )
+		if( true) ///xxxxxx  pMediaStream->m_iPK_DesignObj_Remote>0 )
 		{
 			for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
 			{
@@ -892,7 +891,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 				if( pOH_Orbiter && pOH_Orbiter == pMediaStream->m_pOH_Orbiter_StartedMedia && pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_StoredAudio_CONST )
 					continue;
 
-				int iPK_DesignObj_Remote = pMediaStream->m_iPK_DesignObj_Remote;
+				int iPK_DesignObj_Remote = 123; // xxxxxxxxxpMediaStream->m_iPK_DesignObj_Remote;
 
 				// If there's another user in the entertainment area that is in the middle of something (ie the Orbiter is not at the main menu),
 				// we don't want to forcibly 'take over' and change to the remote screen. So we are only goind to send the orbiters controlling this ent area
@@ -1259,7 +1258,7 @@ g_pPlutoLogger->Write(LV_STATUS, "Ready to update bound remotes with %p %d",pMed
         {
             OH_Orbiter *pOH_Orbiter = (*it).second;
             if( pOH_Orbiter->m_pEntertainArea==pEntertainArea )
-                m_pOrbiter_Plugin->SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pMediaStream->m_sMediaDescription, pMediaStream->m_iDequeMediaFile_Pos, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device );
+                SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pMediaStream->m_sMediaDescription, pMediaStream );
         }
     }
 }
@@ -1274,7 +1273,7 @@ void Media_Plugin::OverrideNowPlaying(MediaStream *pMediaStream,string sNowPlayi
         {
             OH_Orbiter *pOH_Orbiter = (*it).second;
             if( pOH_Orbiter->m_pEntertainArea==pEntertainArea )
-                m_pOrbiter_Plugin->SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, sNowPlaying, pMediaStream->m_iDequeMediaFile_Pos, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device );
+                SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, sNowPlaying, pMediaStream );
         }
     }
 }
@@ -1412,7 +1411,7 @@ g_pPlutoLogger->Write( LV_STATUS, "Stream in ea %s ended %d remotes bound", pEnt
         if( pOH_Orbiter->m_pEntertainArea==pEntertainArea )
 		{
 g_pPlutoLogger->Write( LV_STATUS, "Orbiter %d %s in this ea to stop", pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_sDescription.c_str());
-            m_pOrbiter_Plugin->SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, "", -1, 0 );
+            SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, "", NULL );
 		}
     }
 
@@ -1468,16 +1467,17 @@ void Media_Plugin::CMD_MH_Send_Me_To_Remote(bool bNot_Full_Screen,string &sCMD_R
 	}
 	else
 	{
-       g_pPlutoLogger->Write(LV_STATUS, "Stream media type: %d. This (%d) is NOT an OSD Orbiter. Sending to screen: %d",
+       g_pPlutoLogger->Write(LV_STATUS, "Stream media type: %d. This (%d) is NOT an OSD Orbiter. Sending to screen",
                pMessage->m_dwPK_Device_From,
-               pEntertainArea->m_pMediaStream->m_iPK_MediaType,
-               pEntertainArea->m_pMediaStream->m_iPK_DesignObj_Remote);
+               pEntertainArea->m_pMediaStream->m_iPK_MediaType);
 
-		if( pEntertainArea->m_pMediaStream->m_iPK_DesignObj_Remote>0 )
+// xxxx		if( pEntertainArea->m_pMediaStream->m_iPK_DesignObj_Remote>0 )
+	   /*
 		{
 		    DCE::CMD_Goto_Screen CMD_Goto_Screen( m_dwPK_Device, pMessage->m_dwPK_Device_From, 0, StringUtils::itos( pEntertainArea->m_pMediaStream->m_iPK_DesignObj_Remote ), "", "", false, false );
 			SendCommand( CMD_Goto_Screen );
 		}
+*/
 	}
 }
 //<-dceag-c74-b->
@@ -2275,8 +2275,6 @@ int Media_Plugin::DetermineUserOnOrbiter(int iPK_Device_Orbiter)
 	/** The Orbiters send the play media command to the actual media handler. rnrnThe Orbiter can send anyone or a combination of parameters. rnrnIt's up to media handler to figure out how to handle it. The media handler must find out if the media is already pla */
 		/** @param #2 PK_Device */
 			/** The ID of the actual device to start playing. */
-		/** @param #3 PK_DesignObj */
-			/** The Remote Control to use for playing this media. */
 		/** @param #13 Filename */
 			/** The filename to play or a pipe delimited list of filenames. */
 		/** @param #29 PK_MediaType */
@@ -2290,7 +2288,7 @@ int Media_Plugin::DetermineUserOnOrbiter(int iPK_Device_Orbiter)
 		/** @param #117 Repeat */
 			/** 0=default for media type, 1=loop, -1=do not loop */
 
-void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string sFilename,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea,bool bResume,int iRepeat,string &sCMD_Result,Message *pMessage)
+void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea,bool bResume,int iRepeat,string &sCMD_Result,Message *pMessage)
 //<-dceag-c43-e->
 {
     PLUTO_SAFETY_LOCK(mm,m_MediaMutex);
@@ -2404,7 +2402,7 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string 
 		}
     }
 	else
-		StartMedia(iPK_MediaType,iPK_Device_Orbiter,vectEntertainArea,iPK_Device,sPK_DesignObj,&dequeMediaFile,bResume,iRepeat);  // We'll let the plug-in figure out the source, and we'll use the default remote
+		StartMedia(iPK_MediaType,iPK_Device_Orbiter,vectEntertainArea,iPK_Device,&dequeMediaFile,bResume,iRepeat);  // We'll let the plug-in figure out the source, and we'll use the default remote
 }
 
 //<-dceag-c65-b->
@@ -2587,7 +2585,7 @@ void Media_Plugin::CMD_Load_Playlist(string sPK_EntertainArea,int iEK_Playlist,s
 	for(map<int,MediaHandlerInfo *>::iterator it=mapMediaHandlerInfo.begin();it!=mapMediaHandlerInfo.end();++it)
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from Load Playlist");
-	    StartMedia(it->second,pMessage->m_dwPK_Device_From,vectEntertainArea,0,0,&dequeMediaFile,false,0);  // We'll let the plug-in figure out the source, and we'll use the default remote
+	    StartMedia(it->second,pMessage->m_dwPK_Device_From,vectEntertainArea,0,&dequeMediaFile,false,0);  // We'll let the plug-in figure out the source, and we'll use the default remote
 	}
 }
 
@@ -2750,7 +2748,6 @@ g_pPlutoLogger->Write(LV_WARNING,"ready to restart %d eas",(int) vectEntertainAr
 		// since sometimes the source will be preserved across moves maybe???
 		StartMedia( pMediaStream->m_iPK_MediaType, (pMediaStream->m_pOH_Orbiter_StartedMedia ? pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device : 0),
 			vectEntertainArea, 0,
-			"", // The remote may be different
 			&pMediaStream->m_dequeMediaFile, pMediaStream->m_bResume, pMediaStream->m_iRepeat);
 
 		pMediaStream->m_dequeMediaFile.clear();  // We don't want to delete the media files since we will have re-used the same pointers above
@@ -3951,3 +3948,155 @@ int Media_Plugin::DetermineInvolvement(MediaDevice *pMediaDevice, MediaDevice *&
 	}
 	return 0; // No involvement
 }
+
+
+void Media_Plugin::RegisterMediaPlugin(class Command_Impl *pCommand_Impl,class MediaHandlerBase *pMediaHandlerBase,vector<int> &vectPK_MasterDeviceList,bool bUsesDCE)
+{
+	for(size_t s=0;s<vectPK_MasterDeviceList.size();++s)
+	{
+		int iPK_MasterDeviceList = vectPK_MasterDeviceList[s];
+		Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(iPK_MasterDeviceList);
+		if( !pRow_DeviceTemplate )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Invalid device template %d as plugin",iPK_MasterDeviceList);
+			return;  // Nothing we can do
+		}
+
+		int iPKDevice = pCommand_Impl->m_dwPK_Device;
+		int iPKDeviceTemplate = pRow_DeviceTemplate->PK_DeviceTemplate_get();
+		string strDescription = pRow_DeviceTemplate->Description_get();
+
+		g_pPlutoLogger->Write(LV_STATUS,"Registered media plug in #%d (Template %d) %s (adress %p, plugin base address %p)",iPKDevice,iPKDeviceTemplate,strDescription.c_str(), pCommand_Impl, pMediaHandlerBase);
+		vector<Row_DeviceTemplate_MediaType *> vectRow_DeviceTemplate_MediaType;
+		pRow_DeviceTemplate->DeviceTemplate_MediaType_FK_DeviceTemplate_getrows(&vectRow_DeviceTemplate_MediaType);
+		for(size_t mt=0;mt<vectRow_DeviceTemplate_MediaType.size();++mt)
+		{
+			Row_DeviceTemplate_MediaType *pRow_DeviceTemplate_MediaType = vectRow_DeviceTemplate_MediaType[mt];
+			MediaHandlerInfo *pMediaHandlerInfo =
+				new MediaHandlerInfo(pMediaHandlerBase,pCommand_Impl,pRow_DeviceTemplate_MediaType->FK_MediaType_get(),
+					iPK_MasterDeviceList,pRow_DeviceTemplate_MediaType->CanSetPosition_get()==1,bUsesDCE);
+
+			m_vectMediaHandlerInfo.push_back(pMediaHandlerInfo);
+			pMediaHandlerBase->m_vectMediaHandlerInfo.push_back(pMediaHandlerInfo);
+
+			// Find a default remote control for this.  If one is specified by the DeviceTemplate, use that, and then revert to one that matches the media type
+			vector<Row_DeviceTemplate_MediaType_DesignObj *> vectRow_DeviceTemplate_MediaType_DesignObj;
+			pRow_DeviceTemplate_MediaType->DeviceTemplate_MediaType_DesignObj_FK_DeviceTemplate_MediaType_getrows(&vectRow_DeviceTemplate_MediaType_DesignObj);
+		}
+	}
+}
+
+void Media_Plugin::PopulateRemoteControlMaps()
+{
+	vector<Row_DeviceTemplate_MediaType_DesignObj *> vectRow_DeviceTemplate_MediaType_DesignObj;
+	m_pDatabase_pluto_main->DeviceTemplate_MediaType_DesignObj_get()->GetRows("true",&vectRow_DeviceTemplate_MediaType_DesignObj);
+	for(size_t s=0;s<vectRow_DeviceTemplate_MediaType_DesignObj.size();++s)
+	{
+		Row_DeviceTemplate_MediaType_DesignObj *pRow_DeviceTemplate_MediaType_DesignObj = vectRow_DeviceTemplate_MediaType_DesignObj[s];
+		m_mapDeviceTemplate_MediaType_RemoteControl[ 
+			make_pair<int,int> ( pRow_DeviceTemplate_MediaType_DesignObj->FK_DeviceTemplate_MediaType_getrow()->FK_DeviceTemplate_get(),
+				pRow_DeviceTemplate_MediaType_DesignObj->FK_DeviceTemplate_MediaType_getrow()->FK_MediaType_get() )
+			] 
+			= new RemoteControlSet(pRow_DeviceTemplate_MediaType_DesignObj);
+	}
+
+	vector<Row_MediaType_DesignObj *> vectRow_MediaType_DesignObj;
+	m_pDatabase_pluto_main->MediaType_DesignObj_get()->GetRows("true",&vectRow_MediaType_DesignObj);
+	for(size_t s=0;s<vectRow_MediaType_DesignObj.size();++s)
+	{
+		Row_MediaType_DesignObj *pRow_MediaType_DesignObj = vectRow_MediaType_DesignObj[s];
+		m_mapMediaType_RemoteControl[pRow_MediaType_DesignObj->FK_MediaType_get()]
+			= new RemoteControlSet(pRow_MediaType_DesignObj);
+	}
+
+	// Do these last since these are the customer's individual preferences that should override the defaults
+	vector<Row_RemoteControl *> vectRow_RemoteControl;
+	m_pDatabase_pluto_main->RemoteControl_get()->GetRows("true",&vectRow_RemoteControl);
+	for(size_t s=0;s<vectRow_RemoteControl.size();++s)
+	{
+		Row_RemoteControl *pRow_RemoteControl = vectRow_RemoteControl[s];
+		if( pRow_RemoteControl->FK_Orbiter_isNull() )
+		{
+			if( pRow_RemoteControl->FK_DeviceTemplate_MediaType_DesignObj_isNull() )
+			{
+				if( !pRow_RemoteControl->FK_MediaType_DesignObj_isNull() ) // Be sure they're not both null
+					m_mapMediaType_RemoteControl[pRow_RemoteControl->FK_MediaType_DesignObj_getrow()->FK_MediaType_get()]
+						= new RemoteControlSet(pRow_RemoteControl->FK_MediaType_DesignObj_getrow());
+			}
+			else
+				m_mapDeviceTemplate_MediaType_RemoteControl[ 
+					make_pair<int,int> ( pRow_RemoteControl->FK_DeviceTemplate_MediaType_DesignObj_getrow()->FK_DeviceTemplate_MediaType_getrow()->FK_DeviceTemplate_get(),
+						pRow_RemoteControl->FK_DeviceTemplate_MediaType_DesignObj_getrow()->FK_DeviceTemplate_MediaType_getrow()->FK_MediaType_get() )
+					] 
+					= new RemoteControlSet(pRow_RemoteControl->FK_DeviceTemplate_MediaType_DesignObj_getrow());
+		}
+		else
+		{
+			if( pRow_RemoteControl->FK_DeviceTemplate_MediaType_DesignObj_isNull() )
+			{
+				if( !pRow_RemoteControl->FK_MediaType_DesignObj_isNull() ) // Be sure they're not both null
+					m_mapOrbiter_MediaType_RemoteControl[
+						make_pair<int,int> (pRow_RemoteControl->FK_Orbiter_get(),
+							pRow_RemoteControl->FK_MediaType_DesignObj_getrow()->FK_MediaType_get() )
+						]
+						= new RemoteControlSet(pRow_RemoteControl->FK_MediaType_DesignObj_getrow());
+			}
+			else
+				m_mapOrbiter_DeviceTemplate_MediaType_RemoteControl[ 
+					make_pair< int, pair<int,int> > ( pRow_RemoteControl->FK_Orbiter_get(),
+						make_pair< int, int > (
+							pRow_RemoteControl->FK_DeviceTemplate_MediaType_DesignObj_getrow()->FK_DeviceTemplate_MediaType_getrow()->FK_DeviceTemplate_get(),
+							pRow_RemoteControl->FK_DeviceTemplate_MediaType_DesignObj_getrow()->FK_DeviceTemplate_MediaType_getrow()->FK_MediaType_get() ) )
+					] 
+					= new RemoteControlSet(pRow_RemoteControl->FK_DeviceTemplate_MediaType_DesignObj_getrow());
+		}
+	}
+}
+
+void Media_Plugin::PickRemoteControlMap(MediaStream *pMediaStream)
+{
+	
+	// We're going to look in 4 places, from most specific to least specific
+	if( pMediaStream->m_pOH_Orbiter_StartedMedia )
+	{
+		// The first 2 maps will see if the user directly specified a remote control to use for the given remote
+		map< pair<int,pair<int,int> >, class RemoteControlSet *>::iterator it1;
+		pair<int,pair<int,int> > p1 = make_pair< int,pair<int,int> > (
+			pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device,
+			make_pair< int,int > ( pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device, pMediaStream->m_iPK_MediaType ) );
+		if( (it1=m_mapOrbiter_DeviceTemplate_MediaType_RemoteControl.find(p1))!=m_mapOrbiter_DeviceTemplate_MediaType_RemoteControl.end() )
+		{
+			pMediaStream->m_pRemoteControlSet = it1->second;
+			return;
+		}
+
+		map< pair<int,int>, class RemoteControlSet *>::iterator it2;
+		pair<int,int> p2 = make_pair< int,int > (
+			pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device,
+			pMediaStream->m_iPK_MediaType );
+		if( (it2=m_mapOrbiter_MediaType_RemoteControl.find(p2))!=m_mapOrbiter_MediaType_RemoteControl.end() )
+		{
+			pMediaStream->m_pRemoteControlSet = it2->second;
+			return;
+		}
+	}
+
+	map< pair<int,int>, class RemoteControlSet *>::iterator it3;
+	pair<int,int> p3 = make_pair< int,int > (
+		pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
+		pMediaStream->m_iPK_MediaType );
+
+	if( (it3=m_mapDeviceTemplate_MediaType_RemoteControl.find(p3))!=m_mapDeviceTemplate_MediaType_RemoteControl.end() )
+	{
+		pMediaStream->m_pRemoteControlSet = it3->second;
+		return;
+	}
+
+	map< int, class RemoteControlSet *>::iterator it4;
+	if( (it4=m_mapMediaType_RemoteControl.find(pMediaStream->m_iPK_MediaType))!=m_mapMediaType_RemoteControl.end() )
+	{
+		pMediaStream->m_pRemoteControlSet = it4->second;
+		return;
+	}
+}
+

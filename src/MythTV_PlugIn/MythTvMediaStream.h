@@ -36,7 +36,7 @@ namespace DCE
 
 		MythTvMediaStream(MediaHandlerInfo *pMediaHandlerInfo,
 		 				  MediaDevice *pMediaDevice,
-						  int PK_DesignObj_Remote, int PK_Users,
+						  int PK_Users,
 						  enum SourceType sourceType,
 						  int iStreamID);
 

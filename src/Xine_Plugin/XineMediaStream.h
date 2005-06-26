@@ -34,7 +34,7 @@ namespace DCE
 			int 	m_iPK_DesignObj_Remote_After_Menu; 		/** Store the real value if we're switching to a menu */
 			int 	m_iPK_DesignObj_RemoteOSD_After_Menu; 		/** Store the real value if we're switching to a menu */
 
-			XineMediaStream(class Xine_Plugin *pXinePlugin, class MediaHandlerInfo *pMediaHandlerInfo, MediaDevice *pMediaDevice, int PK_DesignObj_Remote, int PK_Users,enum SourceType sourceType,int iStreamID);
+			XineMediaStream(class Xine_Plugin *pXinePlugin, class MediaHandlerInfo *pMediaHandlerInfo, MediaDevice *pMediaDevice, int PK_Users,enum SourceType sourceType,int iStreamID);
 
 			virtual ~XineMediaStream();
 			virtual int GetType();

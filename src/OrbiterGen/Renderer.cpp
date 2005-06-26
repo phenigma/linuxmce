@@ -99,7 +99,7 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 {
 
     //  cout << "Rendering " << pDesignObj_Generator->m_ObjectID << endl;
-	if( pDesignObj_Generator->m_ObjectID.find("3275")!=string::npos )
+	if( pDesignObj_Generator->m_ObjectID.find("3490")!=string::npos )// || pDesignObj_Generator->m_ObjectID.find("3485")!=string::npos )
 //  //  ) //|| pDesignObj_Generator->m_ObjectID.find("2689.0.0.2790")!=string::npos )
         //if( pDesignObj_Generator->m_ObjectID== )
     {
@@ -207,7 +207,7 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 			}
 			else
 			{
-				pRenderImage_Child = CreateFromFile(sInputFile,pDesignObj_Generator->m_rBackgroundPosition.Size(),bPreserveAspectRatio,bIsMenu);
+				pRenderImage_Child = CreateFromFile(sInputFile,pDesignObj_Generator->m_rBackgroundPosition.Size(),bPreserveAspectRatio,bIsMenu,pDesignObj_Generator->m_rBitmapOffset);
 //SaveImageToFile(pRenderImage_Child, "first");
 			}
 
@@ -494,12 +494,12 @@ int k=2;
 }
 
 // load image from file and possibly scale/stretch it
-RendererImage * Renderer::CreateFromFile(string sFilename, PlutoSize size,bool bPreserveAspectRatio,bool bCrop)
+RendererImage * Renderer::CreateFromFile(string sFilename, PlutoSize size,bool bPreserveAspectRatio,bool bCrop,PlutoRectangle offset)
 {
 	FILE * File;
 
 	File = fopen(sFilename.c_str(), "rb");
-	RendererImage * Result = CreateFromFile(File, size, bPreserveAspectRatio, bCrop);
+	RendererImage * Result = CreateFromFile(File, size, bPreserveAspectRatio, bCrop, offset);
     if (Result == NULL)
     {
         throw "Can't create surface from file: " + sFilename  + ": " + SDL_GetError();
@@ -509,7 +509,7 @@ RendererImage * Renderer::CreateFromFile(string sFilename, PlutoSize size,bool b
 	return Result;
 }
 
-RendererImage * Renderer::CreateFromRWops(SDL_RWops * rw, bool bFreeRWops, PlutoSize size, bool bPreserveAspectRatio, bool bCrop)
+RendererImage * Renderer::CreateFromRWops(SDL_RWops * rw, bool bFreeRWops, PlutoSize size, bool bPreserveAspectRatio, bool bCrop, PlutoRectangle offset)
 {
     SDL_Surface * SurfaceFromFile=NULL;
     //  try
@@ -527,6 +527,7 @@ RendererImage * Renderer::CreateFromRWops(SDL_RWops * rw, bool bFreeRWops, Pluto
         throw string("Can't create surface from FILE pointer: ") + SDL_GetError();
     }
 
+
     //  cout << "Loaded: " << sFilename << endl;
     /*
     SDL_FillRect(Screen, NULL, SDL_MapRGB(Screen->format, 0, 0, 0));
@@ -537,9 +538,56 @@ RendererImage * Renderer::CreateFromRWops(SDL_RWops * rw, bool bFreeRWops, Pluto
     */
     //Sleep(5000);
 
+	if( offset.X || offset.Y || offset.Width || offset.Height )
+	{
+	    Uint32 rmask, gmask, bmask, amask;
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+	    rmask = 0xff000000; gmask = 0x00ff0000; bmask = 0x0000ff00; amask = 0x000000ff;
+#else
+		rmask = 0x000000ff; gmask = 0x0000ff00; bmask = 0x00ff0000; amask = 0xff000000;
+#endif
+
+	    SDL_Rect src_rect,dest_rect;
+		src_rect.x=src_rect.y=dest_rect.x=dest_rect.y=0;
+		src_rect.w=SurfaceFromFile->w;
+		src_rect.h=SurfaceFromFile->h;
+
+		if( offset.X>0 )
+		{
+			src_rect.x = offset.X;
+			src_rect.w = SurfaceFromFile->w - offset.X;
+		}
+		else
+			dest_rect.x = offset.X;
+
+		if( offset.Y>0 )
+		{
+			src_rect.y = offset.Y;
+			src_rect.h = SurfaceFromFile->h - offset.Y;
+		}
+		else
+			dest_rect.y = offset.Y;
+
+		if( offset.Width>0 )
+			src_rect.w = offset.Width - offset.X;
+		if( offset.Height>0 )
+			src_rect.h = offset.Height - offset.Y;
+
+		SDL_Surface *pCropped_Surface = SDL_CreateRGBSurface(SDL_SWSURFACE, src_rect.w, src_rect.h, 32, rmask, gmask, bmask, amask);
+
+		SDL_SetAlpha(SurfaceFromFile, 0, 0);
+		SDL_BlitSurface(SurfaceFromFile, &src_rect, pCropped_Surface, &dest_rect);
+SDL_SaveBMP(SurfaceFromFile, "C:\\pluto\\orbiter\\C19878\\Before.png");
+SDL_SaveBMP(pCropped_Surface, "C:\\pluto\\orbiter\\C19878\\After.png");
+
+
+	    SDL_FreeSurface(SurfaceFromFile);
+		SurfaceFromFile = pCropped_Surface;
+	}
+	
     int W = size.Width == 0 ? SurfaceFromFile->w : size.Width;
     int H = size.Height == 0 ? SurfaceFromFile->h : size.Height;
-    PlutoSize new_size(W, H);
+	PlutoSize new_size(W, H);
 
     RendererImage * RIFromFile = CreateBlankCanvas(new_size);
     if (RIFromFile == NULL)
@@ -586,7 +634,8 @@ RendererImage * Renderer::CreateFromRWops(SDL_RWops * rw, bool bFreeRWops, Pluto
         //sge_transform(SurfaceFromFile, RIFromFile->m_pSDL_Surface, 0, scaleX, scaleY, 0, 0, 0, 0, SGE_TSAFE);
         ScaledSurface = sge_transform_surface(SurfaceFromFile, SDL_MapRGBA(SurfaceFromFile->format, 0, 0, 0, 0), 0, scaleX, scaleY, SGE_TSAFE );
     }
-    SDL_SetAlpha(ScaledSurface, 0, 0);
+
+	SDL_SetAlpha(ScaledSurface, 0, 0);
     SDL_BlitSurface(ScaledSurface, NULL, RIFromFile->m_pSDL_Surface, NULL);
 
     SDL_FreeSurface(ScaledSurface);
@@ -595,10 +644,10 @@ RendererImage * Renderer::CreateFromRWops(SDL_RWops * rw, bool bFreeRWops, Pluto
     return RIFromFile;
 }
 
-RendererImage * Renderer::CreateFromFile(FILE * File, PlutoSize size, bool bPreserveAspectRatio, bool bCrop)
+RendererImage * Renderer::CreateFromFile(FILE * File, PlutoSize size, bool bPreserveAspectRatio, bool bCrop,PlutoRectangle offset)
 {
 	SDL_RWops * rw = SDL_RWFromFP(File, 0);
-	return CreateFromRWops(rw, true, size, bPreserveAspectRatio, bCrop);
+	return CreateFromRWops(rw, true, size, bPreserveAspectRatio, bCrop, offset);
 }
 
 void Renderer::CompositeImage(RendererImage * pRenderImage_Parent, RendererImage * pRenderImage_Child, PlutoPoint pos)
