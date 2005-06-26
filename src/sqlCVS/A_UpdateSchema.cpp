@@ -52,6 +52,7 @@ void A_UpdateSchema::ProcessAction(class RA_Request *pRequest,class RA_Processor
 	vector<string> vectCommands;
 	string Tokens="\r\n";
 	StringUtils::Tokenize(m_sUpdateString,Tokens,vectCommands);
+	cout << "A_UpdateSchema::ProcessAction got " << (int) vectCommands.size() << " commands" << endl;
 	for(size_t s=0;s<vectCommands.size();++s)
 	{
 		if( vectCommands[s].length()==0 )

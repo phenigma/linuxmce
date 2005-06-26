@@ -1510,6 +1510,7 @@ void Repository::UpdateClientSchema(RA_Request *pRA_Request,int iSchemaVersion)
 			return; // nothing to update
 		 while( ( row = mysql_fetch_row( result_set.r ) ) ) 
 		 {
+			cout << "UpdateClientSchema for " << m_sName << " to " << row[0] << endl;
 			A_UpdateSchema *pA_UpdateSchema = new A_UpdateSchema(m_sName,atoi(row[0]),row[1]);
 			pRA_Request->AddActionsToResponse( pA_UpdateSchema );
 		}
