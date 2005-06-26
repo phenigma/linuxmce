@@ -161,12 +161,17 @@ protected:
 	bool m_bRestrictedOp_IsUser;
 	int m_iRestrictedOp_ID;
     bool m_bShowShortcuts;
+	bool m_bIsOSD; // true if this is an on-screen display
 
 	int  m_iCaptureKeyboard_PK_Variable; /** < capture keyboard variable (coresponds to primary key) @todo ask */
 	string m_sCaptureKeyboard_Text; /** < text for capture keyboard @todo ask */
 	string m_sCaptureKeyboard_InternalBuffer; /** < capture keyboard internal buffer */
+
+	// The remotes for the current media
+	int m_iPK_DesignObj_Remote,m_iPK_DesignObj_Remote_Popup,m_iPK_DesignObj_FileList,m_iPK_DesignObj_FileList_Popup,m_iPK_DesignObj_RemoteOSD;
 	string m_sNowPlaying; /** < set by the media engine, this is whatever media is currently playing */
 	int m_dwPK_Device_NowPlaying;  /** < set by the media engine, this is whatever media device is currently playing */
+
 	int m_iTimeoutScreenSaver,m_iTimeoutBlank;  /** < When we're not on the screen saver screen how long to timeout before going to it, and when we are, how long before blacking the screen */
 	time_t m_tTimeoutTime;  /** < On the screen saver screen, this is the time when the display will go blank */
     timespec m_tButtonDown;  

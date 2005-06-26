@@ -385,10 +385,6 @@ bool Xine_Plugin::MenuOnScreen( class Socket *pSocket, class Message *pMessage, 
 	g_pPlutoLogger->Write( LV_STATUS, "MediaStream %p with id %d and type %d reached an OnScreen Menu.", pXineMediaStream, pXineMediaStream->m_iStreamID_get( ), pXineMediaStream->m_iPK_MediaType );
 	g_pPlutoLogger->Write( LV_STATUS, "MediaStream m_mapEntertainArea.size( ) %d", pXineMediaStream->m_mapEntertainArea.size( ) );
 
-	// We're going to use the media plugin's 'Send me to remote' processor.  So we'll just 
-	// create a dummy message to re-use.  All media plugin looks at is the 'from' parameter
-	Message *pMessageNew = new Message();
-	string sFoo; // Placeholder
 
 	/** We're going to send a message to all the orbiters that are bound to remotes in any of the entertainment areas */
 	for( MapEntertainArea::iterator itEA = pXineMediaStream->m_mapEntertainArea.begin( );itEA != pXineMediaStream->m_mapEntertainArea.end( );++itEA )
@@ -398,13 +394,14 @@ bool Xine_Plugin::MenuOnScreen( class Socket *pSocket, class Message *pMessage, 
 		for( MapBoundRemote::iterator itBR=pEntertainArea->m_mapBoundRemote.begin( );itBR!=pEntertainArea->m_mapBoundRemote.end( );++itBR )
 		{
 			BoundRemote *pBoundRemote = ( *itBR ).second;
-			pMessageNew->m_dwPK_Device_From = pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device;
 			g_pPlutoLogger->Write(LV_STATUS, "Processing bound remote: for orbiter: %d", pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
-			m_pMedia_Plugin->CMD_MH_Send_Me_To_Remote(false,sFoo,pMessageNew);
+			m_pMedia_Plugin->SetNowPlaying(pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
+				pXineMediaStream->m_sMediaDescription,pXineMediaStream);
+			DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
+				0,"<%=NP_R%>","","",false,false);
+			SendCommand(CMD_Goto_Screen);
 		}
 	}
-
-	delete pMessageNew;
 
 	return true;
 }

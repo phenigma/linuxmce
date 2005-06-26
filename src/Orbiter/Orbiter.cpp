@@ -233,6 +233,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
     m_sCaptureKeyboard_InternalBuffer = "";
     m_pCaptureKeyboard_Text = NULL;
 	m_bBypassScreenSaver = false;
+	m_bIsOSD = m_pData->m_pDevice_ControlledVia && m_pData->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Media_Director_CONST);
 
 	string::size_type pos=0;
 	string sTimeout = DATA_Get_Timeout();
@@ -4204,6 +4205,21 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 			g_pPlutoLogger->Write(LV_STATUS,"SubstVar: CMD_Set_Now_Playing device %d",m_dwPK_Device_NowPlaying);
 			Output += StringUtils::itos(m_dwPK_Device_NowPlaying);
 		}
+        else if(  Variable=="NP_R" )
+		{
+			if( m_bIsOSD )
+				Output += StringUtils::itos(m_iPK_DesignObj_Remote);
+			else
+				Output += StringUtils::itos(m_iPK_DesignObj_RemoteOSD);
+		}
+        else if(  Variable=="NP_PR" )
+			Output += StringUtils::itos(m_iPK_DesignObj_Remote_Popup);
+        else if(  Variable=="NP_FL" )
+			Output += StringUtils::itos(m_iPK_DesignObj_FileList);
+        else if(  Variable=="NP_PFL" )
+			Output += StringUtils::itos(m_iPK_DesignObj_FileList_Popup);
+        else if(  Variable=="NP_RNF" )
+			Output += StringUtils::itos(m_iPK_DesignObj_Remote);
         else if(  Variable=="B" )
 			Output += "\t";
         else if(  Variable=="ND" )
@@ -6190,6 +6206,12 @@ void Orbiter::CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sVa
 	m_dwPK_Device_NowPlaying = iPK_Device;
 	m_mapVariable[VARIABLE_Track_or_Playlist_Positio_CONST]=StringUtils::itos(iValue);
 	g_pPlutoLogger->Write(LV_STATUS,"CMD_Set_Now_Playing %s",sValue_To_Assign.c_str());
+	string::size_type pos=0;
+	m_iPK_DesignObj_Remote=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
+	m_iPK_DesignObj_Remote_Popup=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
+	m_iPK_DesignObj_FileList=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
+	m_iPK_DesignObj_FileList_Popup=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
+	m_iPK_DesignObj_RemoteOSD=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
 
 	CMD_Refresh("");
 }

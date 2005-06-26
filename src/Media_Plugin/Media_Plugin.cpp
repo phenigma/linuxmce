@@ -782,7 +782,10 @@ public:
 
 bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 {
-	PickRemoteControlMap(pMediaStream);
+	pMediaStream->m_pRemoteControlSet = PickRemoteControlMap(
+		(pMediaStream->m_pOH_Orbiter_StartedMedia ? pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device : 0),
+		pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
+		pMediaStream->m_iPK_MediaType);
 
 	map<int,class OldStreamInfo *> mapOldStreamInfo;
 
@@ -1425,61 +1428,6 @@ g_pPlutoLogger->Write( LV_STATUS, "Orbiter %d %s is bound", pBoundRemote->m_pOH_
     }
 }
 
-//<-dceag-c73-b->
-
-	/** @brief COMMAND: #73 - MH Send Me To Remote */
-	/** An Orbiter sends this command when it wants to go to the active remote control.  This device will send the sender of the command a 'goto' command with the current remote. */
-		/** @param #93 Not Full Screen */
-			/** Normally all Orbiters that are on screen displays (ie running on a media director) are always sent to a 'full screen'  application desktop as the remote whenever video is playing, since the user will have another remote control.  Setting this to 1 explici */
-
-void Media_Plugin::CMD_MH_Send_Me_To_Remote(bool bNot_Full_Screen,string &sCMD_Result,Message *pMessage)
-//<-dceag-c73-e->
-{
-    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
-
-	vector<EntertainArea *> vectEntertainArea;
-	// Only an Orbiter will send this
-    DetermineEntArea( pMessage->m_dwPK_Device_From, 0, "", vectEntertainArea );
-
-   if( vectEntertainArea.size()!=1 || !vectEntertainArea[0]->m_pMediaStream )
-    {
-        g_pPlutoLogger->Write(LV_WARNING, "NULL entertainment area or NULL stream in the entertainment area for device %d", pMessage->m_dwPK_Device_From);
-		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T" + StringUtils::itos(TEXT_No_Media_CONST) + "%>",false,10,true);
-        return; // Don't know what area it should be played in, or there's no media playing there
-    }
-
-	EntertainArea *pEntertainArea = vectEntertainArea[0];
-   g_pPlutoLogger->Write(LV_STATUS, "Found entertainment area: (%d) %p %p", pEntertainArea->m_iPK_EntertainArea, pEntertainArea, pEntertainArea->m_pMediaStream);
-
-   // Is the requesting orbiter the OSD?
-	if( pEntertainArea->m_pMediaDevice_ActiveDest &&
-		pEntertainArea->m_pMediaDevice_ActiveDest->m_pOH_Orbiter_OSD &&
-		pEntertainArea->m_pMediaDevice_ActiveDest->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device == (unsigned long)pMessage->m_dwPK_Device_From &&
-		pEntertainArea->m_pMediaStream->m_iPK_DesignObj_RemoteOSD )
-	{
-	   g_pPlutoLogger->Write(LV_STATUS, "Stream media type: %d. This (%d) is an OSD Orbiter. Sending him to screen: %d",
-               pMessage->m_dwPK_Device_From,
-               pEntertainArea->m_pMediaStream->m_iPK_MediaType,
-               pEntertainArea->m_pMediaStream->m_iPK_DesignObj_RemoteOSD);
-
-	    DCE::CMD_Goto_Screen CMD_Goto_Screen( m_dwPK_Device, pMessage->m_dwPK_Device_From, 0, StringUtils::itos( pEntertainArea->m_pMediaStream->m_iPK_DesignObj_RemoteOSD ), "", "", false, false );
-		SendCommand( CMD_Goto_Screen );
-	}
-	else
-	{
-       g_pPlutoLogger->Write(LV_STATUS, "Stream media type: %d. This (%d) is NOT an OSD Orbiter. Sending to screen",
-               pMessage->m_dwPK_Device_From,
-               pEntertainArea->m_pMediaStream->m_iPK_MediaType);
-
-// xxxx		if( pEntertainArea->m_pMediaStream->m_iPK_DesignObj_Remote>0 )
-	   /*
-		{
-		    DCE::CMD_Goto_Screen CMD_Goto_Screen( m_dwPK_Device, pMessage->m_dwPK_Device_From, 0, StringUtils::itos( pEntertainArea->m_pMediaStream->m_iPK_DesignObj_Remote ), "", "", false, false );
-			SendCommand( CMD_Goto_Screen );
-		}
-*/
-	}
-}
 //<-dceag-c74-b->
 
 	/** @brief COMMAND: #74 - Bind to Media Remote */
@@ -4053,50 +4001,61 @@ void Media_Plugin::PopulateRemoteControlMaps()
 	}
 }
 
-void Media_Plugin::PickRemoteControlMap(MediaStream *pMediaStream)
+RemoteControlSet *Media_Plugin::PickRemoteControlMap(int PK_Orbiter,int iPK_DeviceTemplate,int PK_MediaType)
 {
-	
 	// We're going to look in 4 places, from most specific to least specific
-	if( pMediaStream->m_pOH_Orbiter_StartedMedia )
+	if( PK_Orbiter )
 	{
 		// The first 2 maps will see if the user directly specified a remote control to use for the given remote
 		map< pair<int,pair<int,int> >, class RemoteControlSet *>::iterator it1;
 		pair<int,pair<int,int> > p1 = make_pair< int,pair<int,int> > (
-			pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device,
-			make_pair< int,int > ( pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device, pMediaStream->m_iPK_MediaType ) );
+			PK_Orbiter,
+			make_pair< int,int > ( iPK_DeviceTemplate, PK_MediaType ) );
 		if( (it1=m_mapOrbiter_DeviceTemplate_MediaType_RemoteControl.find(p1))!=m_mapOrbiter_DeviceTemplate_MediaType_RemoteControl.end() )
-		{
-			pMediaStream->m_pRemoteControlSet = it1->second;
-			return;
-		}
+			return it1->second;
 
 		map< pair<int,int>, class RemoteControlSet *>::iterator it2;
 		pair<int,int> p2 = make_pair< int,int > (
-			pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device,
-			pMediaStream->m_iPK_MediaType );
+			PK_Orbiter,
+			PK_MediaType );
 		if( (it2=m_mapOrbiter_MediaType_RemoteControl.find(p2))!=m_mapOrbiter_MediaType_RemoteControl.end() )
-		{
-			pMediaStream->m_pRemoteControlSet = it2->second;
-			return;
-		}
+			return it2->second;
 	}
 
 	map< pair<int,int>, class RemoteControlSet *>::iterator it3;
 	pair<int,int> p3 = make_pair< int,int > (
-		pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
-		pMediaStream->m_iPK_MediaType );
+		iPK_DeviceTemplate,
+		PK_MediaType );
 
 	if( (it3=m_mapDeviceTemplate_MediaType_RemoteControl.find(p3))!=m_mapDeviceTemplate_MediaType_RemoteControl.end() )
-	{
-		pMediaStream->m_pRemoteControlSet = it3->second;
-		return;
-	}
+		return it3->second;
 
 	map< int, class RemoteControlSet *>::iterator it4;
-	if( (it4=m_mapMediaType_RemoteControl.find(pMediaStream->m_iPK_MediaType))!=m_mapMediaType_RemoteControl.end() )
-	{
-		pMediaStream->m_pRemoteControlSet = it4->second;
-		return;
-	}
+	if( (it4=m_mapMediaType_RemoteControl.find(PK_MediaType))!=m_mapMediaType_RemoteControl.end() )
+		return it4->second;
+
+	return NULL;
 }
 
+//<-dceag-c400-b->
+
+	/** @brief COMMAND: #400 - MH Send Me To File List */
+	/**  */
+		/** @param #29 PK_MediaType */
+			/** The type of media, this is mandatory */
+		/** @param #44 PK_DeviceTemplate */
+			/** The device to browse files for, if known */
+
+void Media_Plugin::CMD_MH_Send_Me_To_File_List(int iPK_MediaType,int iPK_DeviceTemplate,string &sCMD_Result,Message *pMessage)
+//<-dceag-c400-e->
+{
+	RemoteControlSet *pRemoteControlSet = 
+		PickRemoteControlMap(pMessage->m_dwPK_Device_From,iPK_DeviceTemplate,iPK_MediaType);
+
+	if( pRemoteControlSet )
+	{
+		DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pMessage->m_dwPK_Device_From,0,
+			StringUtils::itos(pRemoteControlSet->m_iPK_DesignObj_FileList),"","",false,false);
+		SendCommand(CMD_Goto_Screen);
+	}
+}

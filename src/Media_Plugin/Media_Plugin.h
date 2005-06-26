@@ -116,7 +116,7 @@ protected:
 	bool DiskDriveIsRipping(int iPK_Device);
 	bool HandleDeviceOnOffEvent(MediaDevice *pMediaDevice,bool bIsOn);
 
-	void PickRemoteControlMap(MediaStream *pMediaStream);
+	RemoteControlSet *PickRemoteControlMap(int PK_Orbiter,int iPK_DeviceTemplate,int PK_MediaType);
 
 	/**
 	 * Sometimes we just want to override the description with a
@@ -402,15 +402,6 @@ public:
 	virtual void CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage);
 
 
-	/** @brief COMMAND: #73 - MH Send Me To Remote */
-	/** An Orbiter sends this command when it wants to go to the active remote control.  This device will send the sender of the command a 'goto' command with the current remote. */
-		/** @param #93 Not Full Screen */
-			/** Normally all Orbiters that are on screen displays (ie running on a media director) are always sent to a 'full screen'  application desktop as the remote whenever video is playing, since the user will have another remote control.  Setting this to 1 explici */
-
-	virtual void CMD_MH_Send_Me_To_Remote(bool bNot_Full_Screen) { string sCMD_Result; CMD_MH_Send_Me_To_Remote(bNot_Full_Screen,sCMD_Result,NULL);};
-	virtual void CMD_MH_Send_Me_To_Remote(bool bNot_Full_Screen,string &sCMD_Result,Message *pMessage);
-
-
 	/** @brief COMMAND: #74 - Bind to Media Remote */
 	/** When an orbiter goes to a media remote control screen, it fires this command so that the media plug-in knows it is sitting at a remote, and needs to be notified when the media changes or the cover art changes.  This should be in the onLoad commands of eve */
 		/** @param #2 PK_Device */
@@ -594,6 +585,17 @@ public:
 
 	virtual void CMD_Get_Attribute(int iEK_Attribute,string *sText) { string sCMD_Result; CMD_Get_Attribute(iEK_Attribute,sText,sCMD_Result,NULL);};
 	virtual void CMD_Get_Attribute(int iEK_Attribute,string *sText,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #400 - MH Send Me To File List */
+	/**  */
+		/** @param #29 PK_MediaType */
+			/** The type of media, this is mandatory */
+		/** @param #44 PK_DeviceTemplate */
+			/** The device to browse files for, if known */
+
+	virtual void CMD_MH_Send_Me_To_File_List(int iPK_MediaType,int iPK_DeviceTemplate) { string sCMD_Result; CMD_MH_Send_Me_To_File_List(iPK_MediaType,iPK_DeviceTemplate,sCMD_Result,NULL);};
+	virtual void CMD_MH_Send_Me_To_File_List(int iPK_MediaType,int iPK_DeviceTemplate,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->
