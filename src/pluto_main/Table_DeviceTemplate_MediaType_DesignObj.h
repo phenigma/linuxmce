@@ -15,7 +15,7 @@
 class DECLSPECIFIER TableRow;
 class DECLSPECIFIER SerializeClass;
 
-class DECLSPECIFIER Table_DeviceTemplate_MediaType_DesignObj : public TableBase , DoubleLongKeyBase
+class DECLSPECIFIER Table_DeviceTemplate_MediaType_DesignObj : public TableBase , SingleLongKeyBase
 {
 private:
 	Database_pluto_main *database;
@@ -32,11 +32,10 @@ private:
 	struct Key
 	{
 		friend class Row_DeviceTemplate_MediaType_DesignObj;
-		long int pk_FK_DeviceTemplate_MediaType;
-long int pk_FK_DesignObj;
+		long int pk_PK_DeviceTemplate_MediaType_DesignObj;
 
 		
-		Key(long int in_FK_DeviceTemplate_MediaType, long int in_FK_DesignObj);
+		Key(long int in_PK_DeviceTemplate_MediaType_DesignObj);
 	
 		Key(class Row_DeviceTemplate_MediaType_DesignObj *pRow);
 	};
@@ -55,13 +54,13 @@ public:
 	Database_pluto_main *Database_pluto_main_get() { return database; }
 	
 		
-	class Row_DeviceTemplate_MediaType_DesignObj* GetRow(long int in_FK_DeviceTemplate_MediaType, long int in_FK_DesignObj);
+	class Row_DeviceTemplate_MediaType_DesignObj* GetRow(long int in_PK_DeviceTemplate_MediaType_DesignObj);
 	
 
 private:	
 	
 		
-	class Row_DeviceTemplate_MediaType_DesignObj* FetchRow(DoubleLongKey &key);
+	class Row_DeviceTemplate_MediaType_DesignObj* FetchRow(SingleLongKey &key);
 		
 			
 };
@@ -73,8 +72,12 @@ class DECLSPECIFIER Row_DeviceTemplate_MediaType_DesignObj : public TableRow, pu
 	private:
 		Table_DeviceTemplate_MediaType_DesignObj *table;
 		
-		long int m_FK_DeviceTemplate_MediaType;
+		long int m_PK_DeviceTemplate_MediaType_DesignObj;
+long int m_FK_DeviceTemplate_MediaType;
 long int m_FK_DesignObj;
+long int m_FK_DesignObj_Popup;
+long int m_FK_DesignObj_FileList;
+long int m_FK_DesignObj_FileList_Popup;
 string m_Description;
 long int m_psc_id;
 long int m_psc_batch;
@@ -82,11 +85,15 @@ long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[8];
+		bool is_null[12];
 	
 	public:
-		long int FK_DeviceTemplate_MediaType_get();
+		long int PK_DeviceTemplate_MediaType_DesignObj_get();
+long int FK_DeviceTemplate_MediaType_get();
 long int FK_DesignObj_get();
+long int FK_DesignObj_Popup_get();
+long int FK_DesignObj_FileList_get();
+long int FK_DesignObj_FileList_Popup_get();
 string Description_get();
 long int psc_id_get();
 long int psc_batch_get();
@@ -95,8 +102,12 @@ short int psc_frozen_get();
 string psc_mod_get();
 
 		
-		void FK_DeviceTemplate_MediaType_set(long int val);
+		void PK_DeviceTemplate_MediaType_DesignObj_set(long int val);
+void FK_DeviceTemplate_MediaType_set(long int val);
 void FK_DesignObj_set(long int val);
+void FK_DesignObj_Popup_set(long int val);
+void FK_DesignObj_FileList_set(long int val);
+void FK_DesignObj_FileList_Popup_set(long int val);
 void Description_set(string val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
@@ -105,14 +116,20 @@ void psc_frozen_set(short int val);
 void psc_mod_set(string val);
 
 		
-		bool Description_isNull();
+		bool FK_DesignObj_Popup_isNull();
+bool FK_DesignObj_FileList_isNull();
+bool FK_DesignObj_FileList_Popup_isNull();
+bool Description_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
 bool psc_frozen_isNull();
 
 			
-		void Description_setNull(bool val);
+		void FK_DesignObj_Popup_setNull(bool val);
+void FK_DesignObj_FileList_setNull(bool val);
+void FK_DesignObj_FileList_Popup_setNull(bool val);
+void Description_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -131,20 +148,27 @@ void psc_frozen_setNull(bool val);
 		// Return the rows for foreign keys 
 		class Row_DeviceTemplate_MediaType* FK_DeviceTemplate_MediaType_getrow();
 class Row_DesignObj* FK_DesignObj_getrow();
+class Row_DesignObj* FK_DesignObj_Popup_getrow();
+class Row_DesignObj* FK_DesignObj_FileList_getrow();
 
 
 		// Return the rows in other tables with foreign keys pointing here
-		
+		void RemoteControl_FK_DeviceTemplate_MediaType_DesignObj_getrows(vector <class Row_RemoteControl*> *rows);
+
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_FK_DeviceTemplate_MediaType+ m_FK_DesignObj+ m_Description+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_DeviceTemplate_MediaType_DesignObj+ m_FK_DeviceTemplate_MediaType+ m_FK_DesignObj+ m_FK_DesignObj_Popup+ m_FK_DesignObj_FileList+ m_FK_DesignObj_FileList_Popup+ m_Description+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
 		
-		string FK_DeviceTemplate_MediaType_asSQL();
+		string PK_DeviceTemplate_MediaType_DesignObj_asSQL();
+string FK_DeviceTemplate_MediaType_asSQL();
 string FK_DesignObj_asSQL();
+string FK_DesignObj_Popup_asSQL();
+string FK_DesignObj_FileList_asSQL();
+string FK_DesignObj_FileList_Popup_asSQL();
 string Description_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();

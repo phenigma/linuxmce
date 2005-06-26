@@ -553,6 +553,9 @@
 				RelativePath=".\Table_Pipe.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_RemoteControl.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_RepositorySource.cpp">
 			</File>
 			<File

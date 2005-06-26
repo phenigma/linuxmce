@@ -1261,6 +1261,17 @@
 #define DESIGNOBJ_objHidePopup_CONST 3467
 #define DESIGNOBJ_objControllerHome_NoKbSc_CONST 3469
 #define DESIGNOBJ_objShowShortcuts_CONST 3470
+#define DESIGNOBJ_Marbella_CONST 3471
+#define DESIGNOBJ_butMediaMap_CONST 3472
+#define DESIGNOBJ_arrMediaMarbella_CONST 3473
+#define DESIGNOBJ_butShortArray_CONST 3474
+#define DESIGNOBJ_butNowPlaying_CONST 3475
+#define DESIGNOBJ_objLightMap_CONST 3476
+#define DESIGNOBJ_butLightsUp_CONST 3477
+#define DESIGNOBJ_butLightsDown_CONST 3478
+#define DESIGNOBJ_arrLightsMarbella_CONST 3479
+#define DESIGNOBJ_butArrayMore_CONST 3480
+#define DESIGNOBJ_butLightsMore_CONST 3481
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

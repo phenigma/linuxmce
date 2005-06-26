@@ -187,9 +187,13 @@ void DesignObjVariation_Zone_FK_DesignObj_Goto_getrows(vector <class Row_DesignO
 void Device_FK_DesignObj_getrows(vector <class Row_Device*> *rows);
 void DeviceTemplate_DesignObj_FK_DesignObj_getrows(vector <class Row_DeviceTemplate_DesignObj*> *rows);
 void DeviceTemplate_MediaType_DesignObj_FK_DesignObj_getrows(vector <class Row_DeviceTemplate_MediaType_DesignObj*> *rows);
+void DeviceTemplate_MediaType_DesignObj_FK_DesignObj_Popup_getrows(vector <class Row_DeviceTemplate_MediaType_DesignObj*> *rows);
+void DeviceTemplate_MediaType_DesignObj_FK_DesignObj_FileList_getrows(vector <class Row_DeviceTemplate_MediaType_DesignObj*> *rows);
 void FloorplanObjectType_FK_DesignObj_Control_getrows(vector <class Row_FloorplanObjectType*> *rows);
 void MediaType_FK_DesignObj_getrows(vector <class Row_MediaType*> *rows);
 void MediaType_DesignObj_FK_DesignObj_getrows(vector <class Row_MediaType_DesignObj*> *rows);
+void MediaType_DesignObj_FK_DesignObj_Popup_getrows(vector <class Row_MediaType_DesignObj*> *rows);
+void MediaType_DesignObj_FK_DesignObj_FileList_getrows(vector <class Row_MediaType_DesignObj*> *rows);
 void Skin_FK_DesignObj_MainMenu_getrows(vector <class Row_Skin*> *rows);
 void Skin_FK_DesignObj_Sleeping_getrows(vector <class Row_Skin*> *rows);
 void Skin_FK_DesignObj_ScreenSaver_getrows(vector <class Row_Skin*> *rows);

@@ -147,6 +147,7 @@ void psc_frozen_setNull(bool val);
 void Device_Orbiter_FK_Orbiter_getrows(vector <class Row_Device_Orbiter*> *rows);
 void Orbiter_Users_PasswordReq_FK_Orbiter_getrows(vector <class Row_Orbiter_Users_PasswordReq*> *rows);
 void Orbiter_Variable_FK_Orbiter_getrows(vector <class Row_Orbiter_Variable*> *rows);
+void RemoteControl_FK_Orbiter_getrows(vector <class Row_RemoteControl*> *rows);
 void Room_Users_FK_Orbiter_getrows(vector <class Row_Room_Users*> *rows);
 
 

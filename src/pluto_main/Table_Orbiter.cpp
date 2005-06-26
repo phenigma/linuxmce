@@ -22,6 +22,7 @@ using namespace std;
 #include "Table_Device_Orbiter.h"
 #include "Table_Orbiter_Users_PasswordReq.h"
 #include "Table_Orbiter_Variable.h"
+#include "Table_RemoteControl.h"
 #include "Table_Room_Users.h"
 
 
@@ -954,6 +955,13 @@ void Row_Orbiter::Orbiter_Variable_FK_Orbiter_getrows(vector <class Row_Orbiter_
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Orbiter_Variable *pTable = table->database->Orbiter_Variable_get();
+pTable->GetRows("`FK_Orbiter`=" + StringUtils::itos(m_PK_Orbiter),rows);
+}
+void Row_Orbiter::RemoteControl_FK_Orbiter_getrows(vector <class Row_RemoteControl*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_RemoteControl *pTable = table->database->RemoteControl_get();
 pTable->GetRows("`FK_Orbiter`=" + StringUtils::itos(m_PK_Orbiter),rows);
 }
 void Row_Orbiter::Room_Users_FK_Orbiter_getrows(vector <class Row_Room_Users*> *rows)
