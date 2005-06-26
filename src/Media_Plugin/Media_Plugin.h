@@ -325,7 +325,7 @@ public:
 				+ StringUtils::itos(pMediaStream->m_pRemoteControlSet->m_iPK_DesignObj_Remote_Popup) + ","
 				+ StringUtils::itos(pMediaStream->m_pRemoteControlSet->m_iPK_DesignObj_FileList) + ","
 				+ StringUtils::itos(pMediaStream->m_pRemoteControlSet->m_iPK_DesignObj_FileList_Popup) + ","
-				+ StringUtils::itos(pMediaStream->m_iPK_DesignObj_RemoteOSD;
+				+ StringUtils::itos(pMediaStream->m_iPK_DesignObj_RemoteOSD);
 
 		int PK_Device_Source=0,iDequeMediaFile=0;
 		if( pMediaStream )
