@@ -141,54 +141,6 @@ function mediaScenarios($output,$dbADO) {
 					}						
 					
 					if(isset($_POST['newType']) && $_POST['newType']!='0'){
-						$remotesArray=array();
-						$secondaryDescription=array();
-						$queryRemotes='				
-							SELECT 
-							FK_DesignObj,DeviceTemplate_MediaType_DesignObj.Description,DesignObj.Description AS dobjDescription,FK_MediaType
-							FROM DeviceTemplate_MediaType_DesignObj
-							JOIN DesignObj ON FK_DesignObj=PK_DesignObj
-							JOIN DeviceTemplate_MediaType ON FK_DeviceTemplate_MediaType=PK_DeviceTemplate_MediaType
-							WHERE FK_MediaType=?';
-						$resRemotes=$dbADO->Execute($queryRemotes,(int)$_POST['newType']);
-						while($rowRemotes=$resRemotes->FetchRow()){
-							$remotesArray[$rowRemotes['FK_DesignObj']]=$rowRemotes['Description'];
-							$secondaryDescription[$rowRemotes['FK_DesignObj']]=$rowRemotes['dobjDescription'];
-							$selectedMediatype=$rowRemotes['FK_MediaType'];
-						}
-						
-						if(isset($_POST['newType'])){
-							$queryOtherRemotes='
-								SELECT DesignObj.Description,PK_DesignObj
-								FROM DesignObj
-								INNER JOIN MediaType_DesignObj ON FK_DesignObj=PK_DesignObj
-								INNER JOIN DeviceTemplate_MediaType ON DeviceTemplate_MediaType.FK_MediaType=MediaType_DesignObj.FK_MediaType
-								WHERE DeviceTemplate_MediaType.FK_MediaType=?';
-							$resOtherRemotes=$dbADO->Execute($queryOtherRemotes,$_POST['newType']);
-							while($rowOtherRemotes=$resOtherRemotes->FetchRow()){
-								$remotesArray[$rowOtherRemotes['PK_DesignObj']]=$rowOtherRemotes['Description'];
-							}
-						}						
-						$out.='
-						<tr>
-							<td>Remote</td>
-							<td><select name="newRemote" onChange="document.mediaScenarios.action.value=\'form\';document.mediaScenarios.GoTo.value=\'addMS\';document.mediaScenarios.submit()">
-								<option value="0">Please select</option>
-						';
-						foreach ($remotesArray AS $key=>$value){
-							$out.='<option value="'.$key.'" '.(($key==@$_POST['newRemote'])?'selected':'').'>'.(($value!='')?$value:$secondaryDescription[$key]).'</option>';
-						}
-						$out.='</select>
-						</td>
-					</tr>';
-						if(count($remotesArray)==0){
-							$out.='
-							<tr>
-								<td colspan="2" class="err">Selected type does not have a remote. Please select another type.</td>
-							</tr>';
-						}						
-					}
-					if(isset($_POST['newRemote']) && $_POST['newRemote']!='0'){
 						$out.='
 						<tr>
 							<td colspan="2" align="center"><input type="submit" class="button" name="add" value="add"  ></td>
@@ -274,11 +226,6 @@ function mediaScenarios($output,$dbADO) {
 					$rowDevice=$resDevice->FetchRow();
 					$deviceName=$rowDevice['Description'];
 	
-					$getRemote='SELECT * FROM DesignObj WHERE PK_DesignObj=?';
-					$resRemote=$dbADO->Execute($getRemote,$paramsArray[$GLOBALS['commandParamPK_DesignObj']]);
-					$rowRemote=$resRemote->FetchRow();
-					$remoteName=$rowRemote['Description'];
-	
 					$getDeviceTemplate='SELECT * FROM DeviceTemplate WHERE PK_DeviceTemplate=?';
 					$resDeviceTemplate=$dbADO->Execute($getDeviceTemplate,$paramsArray[$GLOBALS['commandParamPK_DeviceTemplate']]);
 					$rowDeviceTemplate=$resDeviceTemplate->FetchRow();
@@ -293,7 +240,7 @@ function mediaScenarios($output,$dbADO) {
 					<td align="center">'.@$remoteName.' #'.@$paramsArray[$GLOBALS['commandParamPK_DesignObj']].'</td>
 					<td align="center">'.@$deviceTemplateName.' #'.@$paramsArray[$GLOBALS['commandParamPK_DeviceTemplate']].'</td>
 					<td align="center">'.@$paramsArray[$GLOBALS['commandParamFilename']].'</td>
-					<td><a href="index.php?section=editCommandGroup&cgID='.$rowMediaScenarios['PK_CommandGroup'].'">Edit</a> <a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete the scenario?\')){document.mediaScenarios.action.value=\'delete\';document.mediaScenarios.delCG.value=\''.$rowMediaScenarios['PK_CommandGroup'].'\';document.mediaScenarios.submit()}">Delete</a></td>
+					<td align="center"><a href="index.php?section=editCommandGroup&cgID='.$rowMediaScenarios['PK_CommandGroup'].'">Edit</a> <a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete the scenario?\')){document.mediaScenarios.action.value=\'delete\';document.mediaScenarios.delCG.value=\''.$rowMediaScenarios['PK_CommandGroup'].'\';document.mediaScenarios.submit()}">Delete</a></td>
 				</tr>
 				';
 			}
@@ -302,7 +249,7 @@ function mediaScenarios($output,$dbADO) {
 		if(count($displayedMediaScenarios)>0){
 			$out.='
 			<tr>
-				<td colspan="7" align="center"><input type="submit" class="button" name="saveChanges" value="Update descriptions"  ></td>
+				<td colspan="7" align="center"><input type="submit" class="button" name="saveChanges" value="Choose preferred remotes" onclick="windowOpen(\'index.php?section=mediaRemotes\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\')";> <input type="submit" class="button" name="saveChanges" value="Update descriptions"  ></td>
 			</tr>
 			';
 		}
@@ -343,10 +290,9 @@ function mediaScenarios($output,$dbADO) {
 						$deviceArray=explode('-',$_POST['MSDevice']);
 						$newPKDevice=$deviceArray[0];
 						$newFKDeviceTemplate=$deviceArray[1];
-						$newRemote=$_POST['newRemote'];
 						$newEntArea=$_POST['newEntArea'];
 						$newType=$_POST['newType'];
-						$EntAreaDescription=$_POST['EntAreaDescription'];
+						$EntAreaDescription=stripslashes($_POST['EntAreaDescription']);
 						
 						$insertMediaScenario='INSERT INTO CommandGroup (FK_Array, FK_Installation, Description,FK_Template,Hint) VALUES (?,?,?,?,?)';
 						$dbADO->Execute($insertMediaScenario,array($arrayID,$installationID,$newDescription,$templateWizard,$EntAreaDescription));
@@ -368,7 +314,6 @@ function mediaScenarios($output,$dbADO) {
 							$insertCommandParam='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
 			
 							$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_Device'],$newPKDevice));
-							$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_DesignObj'],$newRemote));
 							$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamFilename'],''));
 							$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_MediaType'],$newType));
 							$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_DeviceTemplate'],$newFKDeviceTemplate));
@@ -391,130 +336,6 @@ function mediaScenarios($output,$dbADO) {
 							$EntAreaDescription=$_POST['EntAreaDescription'];
 							
 							
-							// old code	who set entertain areas and scenarios
-							/*
-							$insertScenario='INSERT INTO CommandGroup (FK_Array, FK_Installation, Description,FK_Template,Hint) VALUES (?,?,?,?,?)';
-							$dbADO->Execute($insertScenario,array($arrayID,$installationID,$optionName,$FK_Template,$EntAreaDescription));
-							$insertID=$dbADO->Insert_ID();
-							
-							$insertDeviceCommandGroup='INSERT INTO CommandGroup_EntertainArea (FK_EntertainArea, FK_CommandGroup,Sort) VALUES (?,?,?)';
-							$dbADO->Execute($insertDeviceCommandGroup,array($FK_EntertainArea,$insertID,$insertID));
-							$CG_C_insertID=$dbADO->Insert_ID();
-							$queryInsertCommandGroup_Command = "
-								INSERT INTO CommandGroup_Command 
-									(FK_CommandGroup,FK_Command,FK_Device) 
-								VALUES(?,?,?)";								
-							switch ($optionName){
-								case 'TV':
-									$queryMediaPlugin='SELECT * FROM Device WHERE FK_Installation=? AND FK_DeviceTemplate=?';
-									$resMediaPlugin=$dbADO->Execute($queryMediaPlugin,array($installationID,$GLOBALS['rootMediaPlugin']));
-									$rowMediaPlugin=$resMediaPlugin->FetchRow();
-									$mediaPluginID=$rowMediaPlugin['PK_Device'];
-									
-									$dbADO->Execute($queryInsertCommandGroup_Command,array($insertID,$GLOBALS['commandMHPlayMedia'],$mediaPluginID));			
-									$CG_C_insertID=$dbADO->Insert_ID();
-									
-									$insertCommandParam='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
-									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_MediaType'],1));
-								break;								
-								case 'playlists':
-									$dbADO->Execute($queryInsertCommandGroup_Command,array($insertID,$GLOBALS['commandGotoScreen'],$GLOBALS['localOrbiter']));	
-									$CG_C_insertID=$dbADO->Insert_ID();
-									$insertCommandParam='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
-									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_DesignObj'],$GLOBALS['mnuMediaFileList2DesignObj']));
-								break;
-								case 'documents':
-									$dbADO->Execute($queryInsertCommandGroup_Command,array($insertID,$GLOBALS['commandGotoScreen'],$GLOBALS['localOrbiter']));	
-									$CG_C_insertID=$dbADO->Insert_ID();
-
-									$insertCommandParam='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
-									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamID'],''));
-									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_DesignObj'],$GLOBALS['mnuPicturesDocumentsList']));
-									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamDesignObjCurrentScreen'],''));
-									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_Device'],''));
-									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamStoreVariables'],''));
-
-									$dbADO->Execute($queryInsertCommandGroup_Command,array($insertID,$GLOBALS['commandSetVar'],$GLOBALS['localOrbiter']));	
-									$CG_C_insertID=$dbADO->Insert_ID();
-									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParameterVariableNumber'],2));
-									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParameterValueToAsign'],$optionName));
-
-								break;
-								case 'pictures':
-									$dbADO->Execute($queryInsertCommandGroup_Command,array($insertID,$GLOBALS['commandGotoScreen'],$GLOBALS['localOrbiter']));	
-									$CG_C_insertID=$dbADO->Insert_ID();
-
-									$insertCommandParam='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
-									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamID'],''));
-									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_DesignObj'],$GLOBALS['mnuPicturesDocumentsList']));
-									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamDesignObjCurrentScreen'],''));
-									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_Device'],''));
-									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamStoreVariables'],''));
-
-									$dbADO->Execute($queryInsertCommandGroup_Command,array($insertID,$GLOBALS['commandSetVar'],$GLOBALS['localOrbiter']));	
-									$CG_C_insertID=$dbADO->Insert_ID();
-									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParameterVariableNumber'],2));
-									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParameterValueToAsign'],$optionName));
-									
-									$dbADO->Execute($queryInsertCommandGroup_Command,array($insertID,$GLOBALS['commandSetVar'],$GLOBALS['localOrbiter']));	
-									$CG_C_insertID=$dbADO->Insert_ID();
-									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParameterVariableNumber'],14));
-									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParameterValueToAsign'],7));
-								break;								
-								case 'Disc CD/DVD':
-									$dbADO->Execute($queryInsertCommandGroup_Command,array($insertID,$GLOBALS['commandMHPlayMedia'],getMediaPluginID($installationID,$dbADO)));	
-									$CG_C_insertID=$dbADO->Insert_ID();
-
-									$dbADO->Execute('INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter) SELECT '.$CG_C_insertID.',FK_CommandParameter FROM Command_CommandParameter WHERE FK_Command=?',$GLOBALS['commandMHPlayMedia']);
-
-									$dbADO->Execute($queryInsertCommandGroup_Command,array($insertID,$GLOBALS['commandGotoScreen'],$GLOBALS['localOrbiter']));	
-									$CG_C_insertID=$dbADO->Insert_ID();
-
-									$insertCommandParam='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
-									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamID'],''));
-									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_DesignObj'],$GLOBALS['mnuNoMediaInDrive']));
-									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamDesignObjCurrentScreen'],''));
-									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_Device'],''));
-									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamStoreVariables'],''));
-
-								break;								
-								default:
-									$dbADO->Execute($queryInsertCommandGroup_Command,array($insertID,$GLOBALS['commandSetVar'],$GLOBALS['localOrbiter']));			
-									$CG_C_insertID=$dbADO->Insert_ID();
-									
-									$insertCommandParam='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
-									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParameterVariableNumber'],2));
-									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParameterValueToAsign'],$optionName));
-									
-									$dbADO->Execute($queryInsertCommandGroup_Command,array($insertID,$GLOBALS['commandGotoScreen'],$GLOBALS['localOrbiter']));	
-									$CG_C_insertID=$dbADO->Insert_ID();
-									
-									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_DesignObj'],($optionName=='documents')?$GLOBALS['butViewDesignObj']:$GLOBALS['mnuMediaFileListDesignObj']));
-									
-									$dbADO->Execute($queryInsertCommandGroup_Command,array($insertID,$GLOBALS['commandSetVar'],$GLOBALS['localOrbiter']));			
-									$CG_C_insertID=$dbADO->Insert_ID();
-	
-									switch ($optionName){
-										case 'music':
-											$parmValue=4;
-										break;
-										case 'movies':
-											$parmValue=3;
-										break;
-										case 'videos':
-											$parmValue=5;
-										break;
-										case 'pictures':
-											$parmValue=7;
-										break;
-									}
-									if(isset($parmValue)){
-										$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParameterVariableNumber'],14));
-										$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParameterValueToAsign'],$parmValue));
-									}
-								break;								
-							}
-							*/
 							// Aaron program
 							$command='/usr/pluto/bin/UpdateEntArea -h localhost -i '.$installationID.' -D '.$dbPlutoMainDatabase.' -e '.$FK_EntertainArea.' -t '.$FK_Template;
 							exec($command);

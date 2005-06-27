@@ -1843,7 +1843,7 @@ function getMediaPluginID($installationID,$dbADO)
 	return $row['PK_Device'];
 }
 
-function pulldownFromArray($valuesArray,$name,$selectedValue,$extra='',$valueKey='key',$zeroValueDescription='- Please select -')
+function pulldownFromArray($valuesArray,$name,$selectedValue,$extra='',$valueKey='key',$zeroValueDescription='- Please select -',$highlightValue=-1)
 {
 //	if(count($valuesArray)==0)
 //		return null;
@@ -1852,7 +1852,7 @@ function pulldownFromArray($valuesArray,$name,$selectedValue,$extra='',$valueKey
 		$out.='<option value="0">'.$zeroValueDescription.'</option>';
 	foreach ($valuesArray AS $key=>$value){
 		$optionValue=($valueKey=='key')?$key:$value;
-		$out.='<option value="'.$optionValue.'" '.(($optionValue==$selectedValue)?'selected':'').'>'.$value.'</option>';
+		$out.='<option value="'.$optionValue.'" '.(($optionValue==$selectedValue)?'selected':'').' '.((in_array($optionValue,explode(',',$highlightValue)))?'style="background:lightgreen;"':'').'>'.$value.'</option>';
 	}
 	$out.='</select>';
 	return $out;
@@ -3288,7 +3288,8 @@ function getFieldsAsArray($tableName,$fields,$dbADO,$filter='',$orderBy='')
 	$result=array();
 	while($row=$res->Fetchrow()){
 		foreach ($fieldsArray AS $field){
-			$result[$field][]=$row[$field];
+			$cleanField=(strpos($field,'.')!==false)?substr($field,strpos($field,'.')+1):$field;
+			$result[$cleanField][]=$row[$cleanField];
 		}
 	}
 	

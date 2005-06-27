@@ -1172,6 +1172,12 @@ switch ($section) {
 	    include_once('operations/myDevices/editDeviceDeviceData.php');
 	    editDeviceDeviceData($output,$dbADO);
 	break;	
+	case 'mediaRemotes';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/myScenarios/mediaRemotes.php');
+	    mediaRemotes($output,$dbADO);
+	break;	
 
 	
 	case '';

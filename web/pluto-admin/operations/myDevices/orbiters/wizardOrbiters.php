@@ -93,7 +93,9 @@ function wizardOrbiters($output,$dbADO) {
 				$joinArray[]=24;		// Skin
 				$joinArray[]=25;		// Size
 				$joinArray[]=26;		// Language
+				$joinArray[]=56;		// Timeout
 				$joinArray[]=84;		// Leave Monitor on for OSD
+				$joinArray[]=90;		// Main Menu
 			
 				$queryDeviceDeviceData='
 					SELECT 
@@ -150,11 +152,10 @@ function wizardOrbiters($output,$dbADO) {
 
 			$out.='		</select></td>
 				</tr>
-				<tr>
-					<td><B>This device uses a Wi-Fi connection</B></td>
-					<td><input type="checkbox" name="PingTest_'.$rowD['PK_Device'].'" value="1" '.(($rowD['PingTest']==1)?'checked':'').'></td>
-				</tr>
 					';
+				$selectedMenu=0;
+				$defaultMenuValue=-1;
+				$isOSD=0;
 				foreach($DeviceDataToDisplay as $key => $value){
 					$queryDDforDevice='
 						SELECT DeviceData.Description, ParameterType.Description AS typeParam, Device_DeviceData.IK_DeviceData,ShowInWizard,ShortDescription,AllowedToModify,DeviceTemplate_DeviceData.Description AS Tooltip 
@@ -171,51 +172,91 @@ function wizardOrbiters($output,$dbADO) {
 						$rowDDforDevice=$resDDforDevice->FetchRow();
 						$ddValue=$rowDDforDevice['IK_DeviceData'];
 					}
-
-					if(@$rowDDforDevice['ShowInWizard']==1 || @$rowDDforDevice['ShowInWizard']==''){
-						$out.='
-						<tr>
-							<td align="right"><b>'.((@$rowDDforDevice['ShortDescription']!='')?$rowDDforDevice['ShortDescription']:$DeviceDataDescriptionToDisplay[$key]).'</b> '.((@$rowDDforDevice['Tooltip']!='')?'<img src="include/images/tooltip.gif" title="'.@$rowDDforDevice['Tooltip'].'" border="0" align="middle">':'').'</td>
-							<td align="left">';
-						switch($DDTypesToDisplay[$key]){
-							case 'int':
-								if(in_array($DeviceDataDescriptionToDisplay[$key],$GLOBALS['DeviceDataLinkedToTables']))
-								{
-									$tableName=str_replace('PK_','',$DeviceDataDescriptionToDisplay[$key]);
-									if($tableName!='Users')
-										$queryTable="SELECT * FROM $tableName ORDER BY Description ASC";
-									else
-										$queryTable="SELECT Users.*, Users.Username AS Description FROM Users ORDER BY Description ASC";
-									$resTable=$dbADO->Execute($queryTable);
-									$out.='<select name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>
-											<option value="0"></option>';
-									while($rowTable=$resTable->FetchRow()){
-										$out.='<option value="'.$rowTable[$DeviceDataDescriptionToDisplay[$key]].'" '.(($rowTable[$DeviceDataDescriptionToDisplay[$key]]==@$ddValue)?'selected':'').'>'.$rowTable['Description'].'</option>';
+					if($DeviceDataToDisplay[$key]==90){
+						$selectedMenu=@$ddValue;
+					}
+					if($DeviceDataToDisplay[$key]==84 && @$ddValue==1){
+						$isOSD=1;
+					}
+					
+					if((@$rowDDforDevice['ShowInWizard']==1 || @$rowDDforDevice['ShowInWizard']=='') && $DeviceDataToDisplay[$key]!=90){
+						if($DeviceDataToDisplay[$key]!=56){
+							$out.='
+							<tr>
+								<td align="right"><b>'.((@$rowDDforDevice['ShortDescription']!='')?$rowDDforDevice['ShortDescription']:$DeviceDataDescriptionToDisplay[$key]).'</b> '.((@$rowDDforDevice['Tooltip']!='')?'<img src="include/images/tooltip.gif" title="'.@$rowDDforDevice['Tooltip'].'" border="0" align="middle">':'').'</td>
+								<td align="left">';
+							switch($DDTypesToDisplay[$key]){
+								case 'int':
+									if(in_array($DeviceDataDescriptionToDisplay[$key],$GLOBALS['DeviceDataLinkedToTables']))
+									{
+										$tableName=str_replace('PK_','',$DeviceDataDescriptionToDisplay[$key]);
+										if($tableName!='Users')
+											$queryTable="SELECT * FROM $tableName ORDER BY Description ASC";
+										else
+											$queryTable="SELECT Users.*, Users.Username AS Description FROM Users ORDER BY Description ASC";
+										$resTable=$dbADO->Execute($queryTable);
+										$out.='<select name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').' '.(($DeviceDataToDisplay[$key]==24)?'onChange="document.wizardOrbiters.action.value=\'form\';document.wizardOrbiters.submit();"':'').'>
+												<option value="0"></option>';
+										while($rowTable=$resTable->FetchRow()){
+											$out.='<option value="'.$rowTable[$DeviceDataDescriptionToDisplay[$key]].'" '.(($rowTable[$DeviceDataDescriptionToDisplay[$key]]==@$ddValue)?'selected':'').'>'.$rowTable['Description'].'</option>';
+										}
+										$out.='</select>';
 									}
-									$out.='</select>';
-								}
-								else 
+									else 
+										$out.='<input type="text" name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" value="'.@$ddValue.'" '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>';
+								break;
+								case 'bool':
+									$out.='<input type="checkbox" name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" value="1" '.((@$ddValue!=0)?'checked':'').' '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>';
+								break;
+								default:
 									$out.='<input type="text" name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" value="'.@$ddValue.'" '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>';
-							break;
-							case 'bool':
-								$out.='<input type="checkbox" name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" value="1" '.((@$ddValue!=0)?'checked':'').' '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>';
-							break;
-							default:
-								$out.='<input type="text" name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" value="'.@$ddValue.'" '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>';
+							}
+							
+							$out.='</td>
+								</tr>';
 						}
-						
-						
-						$out.='</td>
-							</tr>
-							<input type="hidden" name="oldDeviceData_'.$rowD['PK_Device'].'_'.$value.'" value="'.(($resDDforDevice->RecordCount()>0)?$ddValue:'NULL').'">';					
+						else{
+							$parts=explode(',',$ddValue);
+							$out.='
+								<tr>
+									<td align="right"><B>Seconds before screen saver</B></td>
+									<td><input type="text" name="timeoutSS_'.$rowD['PK_Device'].'" value="'.@$parts[0].'"></td>
+								</tr>
+								<tr>
+									<td align="right"><B>Seconds before power off</B></td>
+									<td><input type="text" name="timeoutPO_'.$rowD['PK_Device'].'" value="'.@$parts[1].'"></td>
+								</tr>							';			
+						}
+							$out.='
+								<input type="hidden" name="oldDeviceData_'.$rowD['PK_Device'].'_'.$value.'" value="'.(($resDDforDevice->RecordCount()>0)?$ddValue:'NULL').'">';					
+
+						if($DeviceDataToDisplay[$key]==24){
+							$selSkin=(isset($_POST['deviceData_'.$rowD['PK_Device'].'_'.$value]) && (int)$_POST['deviceData_'.$rowD['PK_Device'].'_'.$value]!=0)?(int)$_POST['deviceData_'.$rowD['PK_Device'].'_'.$value]:@$ddValue;
+							if($selSkin!=0){
+								$defMenuArray=getFieldsAsArray('Skin','FK_DesignObj_MainMenu',$dbADO,'WHERE PK_Skin='.$selSkin);
+								$defaultMenuValue=$defMenuArray['FK_DesignObj_MainMenu'][0];
+							}
+						}						
 						unset($ddValue);
 					}
 				}
+			$objArray=getArrayFromTable('DeviceTemplate_DesignObj','FK_DesignObj','Description',$dbADO,'INNER JOIN DesignObj ON FK_DesignObj=PK_DesignObj WHERE FK_DeviceTemplate=8','ORDER BY Description ASC');
+			if($isOSD==0){
+				$out.='<tr>
+					<td><B>This device uses a Wi-Fi connection</B></td>
+					<td><input type="checkbox" name="PingTest_'.$rowD['PK_Device'].'" value="1" '.(($rowD['PingTest']==1)?'checked':'').'></td>
+				</tr>';			
+			}
+			
 			$out.='
 				<tr>
 					<td align="right"><input type="checkbox" name="reset_'.$rowD['PK_Device'].'" value="1"></td>
 					<td>Reset Router when done regenerating</td>
 				</tr>	
+				<tr>
+					<td align="right"><B>Main menu</B></td>
+					<td>'.pulldownFromArray($objArray,'mainMenu_'.$rowD['PK_Device'],$selectedMenu,'','key','- Please select -',$defaultMenuValue).'</td>
+				</tr>			
 				<tr>
 					<td align="center" colspan="2"><input type="submit" class="button" name="quickRegen_'.$rowD['PK_Device'].'" value="Quick regen"  >&nbsp;&nbsp;<input type="submit" class="button" name="fullRegen_'.$rowD['PK_Device'].'" value="Full regen"  >&nbsp;&nbsp;<input type="submit" class="button" name="update" value="Update"  > &nbsp;&nbsp;<input type="button" class="button" name="edit_'.$rowD['PK_Device'].'" value="Adv"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'\';"> &nbsp;&nbsp; <input type="submit" class="button" name="delete_'.$rowD['PK_Device'].'" value="Delete"  onclick="if(!confirm(\'Are you sure you want to delete this orbiter?\'))return false;">
 					
@@ -329,26 +370,36 @@ function wizardOrbiters($output,$dbADO) {
 				$dbADO->Execute($updateDevice,array($description,$room,$pingTest,$value));
 
 				foreach($DeviceDataToDisplayArray as $ddValue){
-					$deviceData=(isset($_POST['deviceData_'.$value.'_'.$ddValue]))?$_POST['deviceData_'.$value.'_'.$ddValue]:'';
-					$oldDeviceData=$_POST['oldDeviceData_'.$value.'_'.$ddValue];
-					if($oldDeviceData!=$deviceData){
-						if($oldDeviceData=='NULL'){
-							$insertDDD='
-								INSERT INTO Device_DeviceData 
-									(FK_Device, FK_DeviceData, IK_DeviceData)
-								VALUES 
-									(?,?,?)';
-							$dbADO->Execute($insertDDD,array($value,$ddValue,$deviceData));
+					if($ddValue!=90){
+						if($ddValue!=56){
+							$deviceData=(isset($_POST['deviceData_'.$value.'_'.$ddValue]))?$_POST['deviceData_'.$value.'_'.$ddValue]:'';
+						}else{
+							$deviceData=$_POST['timeoutSS_'.$value].','.$_POST['timeoutPO_'.$value];
 						}
-						else{
-							$updateDDD='
-								UPDATE Device_DeviceData 
-									SET IK_DeviceData=? 
-								WHERE FK_Device=? AND FK_DeviceData=?';
-							$dbADO->Execute($updateDDD,array($deviceData,$value,$ddValue));
+						$oldDeviceData=$_POST['oldDeviceData_'.$value.'_'.$ddValue];
+						if($oldDeviceData!=$deviceData){
+							if($oldDeviceData=='NULL'){
+								$insertDDD='
+									INSERT INTO Device_DeviceData 
+										(FK_Device, FK_DeviceData, IK_DeviceData)
+									VALUES 
+										(?,?,?)';
+								$dbADO->Execute($insertDDD,array($value,$ddValue,$deviceData));
+							}
+							else{
+								$updateDDD='
+									UPDATE Device_DeviceData 
+										SET IK_DeviceData=? 
+									WHERE FK_Device=? AND FK_DeviceData=?';
+								$dbADO->Execute($updateDDD,array($deviceData,$value,$ddValue));
+							}
 						}
 					}
 				}
+				
+				// main menu
+				$mainMenu=((int)$_POST['mainMenu_'.$value]>0)?(int)$_POST['mainMenu_'.$value]:'';
+				$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($mainMenu,$value,90));
 			}
 		}
 		
