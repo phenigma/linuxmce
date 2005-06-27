@@ -74,14 +74,16 @@ public:
     string m_sPK_DesignObj;
     string m_sName;
     PlutoPoint m_Position;
-    bool m_bVisible;
+    bool m_bVisible,m_bDontAutohide;
+	DesignObj_Orbiter *m_pObj;
 
-    PlutoPopup(string sPK_DesignObj, string sName, PlutoPoint Position, bool bVisible = false)
+    PlutoPopup(DesignObj_Orbiter *pObj, string sName, PlutoPoint Position, bool bVisible = false)
     {
-        m_sPK_DesignObj = sPK_DesignObj;
+		m_pObj = pObj;
         m_sName = sName;
         m_Position = Position;    
         m_bVisible = bVisible;
+		m_bDontAutohide = false;
     }
 };
 
@@ -251,24 +253,24 @@ protected:
     /**
     * @brief Show a popup
     */
-    virtual void ShowPopup(string sPK_DesignObj);
+    virtual void ShowPopup(PlutoPopup *pPopup);
 
     /**
     * @brief Hide a popup
     */
-    virtual void HidePopup(string sPK_DesignObj);
-    virtual void HidePopups();
+    virtual void HidePopup(DesignObj_Orbiter *pObj,string sPK_DesignObj);
+    virtual void HidePopups(DesignObj_Orbiter *pObj);
 
     /**
     * @brief Render a popup
     */
-    virtual void RenderPopup(string sPK_DesignObj, PlutoPoint point, string sPopupName);
+    virtual void RenderPopup(PlutoPopup *pPopup, PlutoPoint point);
 
     /**
     * @brief Get the popup with the id or name specified
     */
-    PlutoPopup *FindPopupByID(string sPK_DesignObj);
-    PlutoPopup *FindPopupByName(string sPopupName);
+    PlutoPopup *FindPopupByID(DesignObj_Orbiter *pObj,string sPK_DesignObj);
+    PlutoPopup *FindPopupByName(DesignObj_Orbiter *pObj,string sPopupName);
 
 	/**
 	 * @brief Render the screen in m_pScreenHistory_Current
@@ -1449,22 +1451,28 @@ public:
 			/** X position */
 		/** @param #12 Position Y */
 			/** Y position */
+		/** @param #16 PK_DesignObj_CurrentScreen */
+			/** If specified the popup will be local to this screen, otherwise it will be global.  Global and local popups are treated separately */
 		/** @param #50 Name */
 			/** The popup name */
 		/** @param #126 Exclusive */
-			/** Hide any other popups that are also visible */
+			/** Hide any other popups that are also visible, unless don't hide is set. */
+		/** @param #127 Dont Auto Hide */
+			/** If true, this popup will not be automatically hidden when the screen changes or another exclusive is shown.  It must be explicitly hidden. */
 
-	virtual void CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string sName,bool bExclusive) { string sCMD_Result; CMD_Show_Popup(sPK_DesignObj.c_str(),iPosition_X,iPosition_Y,sName.c_str(),bExclusive,sCMD_Result,NULL);};
-	virtual void CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string sName,bool bExclusive,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string sPK_DesignObj_CurrentScreen,string sName,bool bExclusive,bool bDont_Auto_Hide) { string sCMD_Result; CMD_Show_Popup(sPK_DesignObj.c_str(),iPosition_X,iPosition_Y,sPK_DesignObj_CurrentScreen.c_str(),sName.c_str(),bExclusive,bDont_Auto_Hide,sCMD_Result,NULL);};
+	virtual void CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string sPK_DesignObj_CurrentScreen,string sName,bool bExclusive,bool bDont_Auto_Hide,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #398 - Hide Popup */
 	/** Hides a popup. */
 		/** @param #3 PK_DesignObj */
 			/** The ID of the object (popup). If the ID is not specified, all the popups will be hidden. */
+		/** @param #16 PK_DesignObj_CurrentScreen */
+			/** (optional).  The screen on which it's a local popup */
 
-	virtual void CMD_Hide_Popup(string sPK_DesignObj) { string sCMD_Result; CMD_Hide_Popup(sPK_DesignObj.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Hide_Popup(string sPK_DesignObj,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Hide_Popup(string sPK_DesignObj,string sPK_DesignObj_CurrentScreen) { string sCMD_Result; CMD_Hide_Popup(sPK_DesignObj.c_str(),sPK_DesignObj_CurrentScreen.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Hide_Popup(string sPK_DesignObj,string sPK_DesignObj_CurrentScreen,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #399 - Show Shortcuts */
@@ -1472,6 +1480,47 @@ public:
 
 	virtual void CMD_Show_Shortcuts() { string sCMD_Result; CMD_Show_Shortcuts(sCMD_Result,NULL);};
 	virtual void CMD_Show_Shortcuts(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #401 - Show File List */
+	/**  */
+		/** @param #3 PK_DesignObj */
+			/** The screen with the file listing */
+		/** @param #13 Filename */
+			/** The directory to start with */
+		/** @param #29 PK_MediaType */
+			/** The type of media the user wants to browse. */
+		/** @param #129 PK_DesignObj_Popup */
+			/** The popup to use */
+
+	virtual void CMD_Show_File_List(string sPK_DesignObj,string sFilename,int iPK_MediaType,string sPK_DesignObj_Popup) { string sCMD_Result; CMD_Show_File_List(sPK_DesignObj.c_str(),sFilename.c_str(),iPK_MediaType,sPK_DesignObj_Popup.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Show_File_List(string sPK_DesignObj,string sFilename,int iPK_MediaType,string sPK_DesignObj_Popup,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #402 - Use Popup Remote Controls */
+	/** If this command is executed the remote controls will be displayed as popups. */
+		/** @param #11 Position X */
+			/** The location of the popup */
+		/** @param #12 Position Y */
+			/** The location of the popup */
+		/** @param #16 PK_DesignObj_CurrentScreen */
+			/** The screen on which to put the popup */
+
+	virtual void CMD_Use_Popup_Remote_Controls(int iPosition_X,int iPosition_Y,string sPK_DesignObj_CurrentScreen) { string sCMD_Result; CMD_Use_Popup_Remote_Controls(iPosition_X,iPosition_Y,sPK_DesignObj_CurrentScreen.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Use_Popup_Remote_Controls(int iPosition_X,int iPosition_Y,string sPK_DesignObj_CurrentScreen,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #403 - Use Popup File List */
+	/** If this command is executed the file lists will be displayed as popups. */
+		/** @param #11 Position X */
+			/** The location of the popup */
+		/** @param #12 Position Y */
+			/** The location of the popup */
+		/** @param #16 PK_DesignObj_CurrentScreen */
+			/** The screen to put the popup on */
+
+	virtual void CMD_Use_Popup_File_List(int iPosition_X,int iPosition_Y,string sPK_DesignObj_CurrentScreen) { string sCMD_Result; CMD_Use_Popup_File_List(iPosition_X,iPosition_Y,sPK_DesignObj_CurrentScreen.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Use_Popup_File_List(int iPosition_X,int iPosition_Y,string sPK_DesignObj_CurrentScreen,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

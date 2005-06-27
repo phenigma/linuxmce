@@ -170,9 +170,12 @@ public:
 	virtual void CMD_Show_Mouse_Pointer(string sOnOff,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Activate_Window(string sName,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Send_Message(string sText,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string sName,bool bExclusive,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Hide_Popup(string sPK_DesignObj,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string sPK_DesignObj_CurrentScreen,string sName,bool bExclusive,bool bDont_Auto_Hide,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Hide_Popup(string sPK_DesignObj,string sPK_DesignObj_CurrentScreen,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Show_Shortcuts(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Show_File_List(string sPK_DesignObj,string sFilename,int iPK_MediaType,string sPK_DesignObj_Popup,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Use_Popup_Remote_Controls(int iPosition_X,int iPosition_Y,string sPK_DesignObj_CurrentScreen,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Use_Popup_File_List(int iPosition_X,int iPosition_Y,string sPK_DesignObj_CurrentScreen,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -1544,9 +1547,11 @@ public:
 					string sPK_DesignObj=pMessage->m_mapParameters[3];
 					int iPosition_X=atoi(pMessage->m_mapParameters[11].c_str());
 					int iPosition_Y=atoi(pMessage->m_mapParameters[12].c_str());
+					string sPK_DesignObj_CurrentScreen=pMessage->m_mapParameters[16];
 					string sName=pMessage->m_mapParameters[50];
 					bool bExclusive=(pMessage->m_mapParameters[126]=="1" ? true : false);
-						CMD_Show_Popup(sPK_DesignObj.c_str(),iPosition_X,iPosition_Y,sName.c_str(),bExclusive,sCMD_Result,pMessage);
+					bool bDont_Auto_Hide=(pMessage->m_mapParameters[127]=="1" ? true : false);
+						CMD_Show_Popup(sPK_DesignObj.c_str(),iPosition_X,iPosition_Y,sPK_DesignObj_CurrentScreen.c_str(),sName.c_str(),bExclusive,bDont_Auto_Hide,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -1563,7 +1568,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Show_Popup(sPK_DesignObj.c_str(),iPosition_X,iPosition_Y,sName.c_str(),bExclusive,sCMD_Result,pMessage);
+								CMD_Show_Popup(sPK_DesignObj.c_str(),iPosition_X,iPosition_Y,sPK_DesignObj_CurrentScreen.c_str(),sName.c_str(),bExclusive,bDont_Auto_Hide,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -1572,7 +1577,8 @@ public:
 					{
 						string sCMD_Result="OK";
 					string sPK_DesignObj=pMessage->m_mapParameters[3];
-						CMD_Hide_Popup(sPK_DesignObj.c_str(),sCMD_Result,pMessage);
+					string sPK_DesignObj_CurrentScreen=pMessage->m_mapParameters[16];
+						CMD_Hide_Popup(sPK_DesignObj.c_str(),sPK_DesignObj_CurrentScreen.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -1589,7 +1595,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Hide_Popup(sPK_DesignObj.c_str(),sCMD_Result,pMessage);
+								CMD_Hide_Popup(sPK_DesignObj.c_str(),sPK_DesignObj_CurrentScreen.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -1615,6 +1621,91 @@ public:
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Show_Shortcuts(sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case 401:
+					{
+						string sCMD_Result="OK";
+					string sPK_DesignObj=pMessage->m_mapParameters[3];
+					string sFilename=pMessage->m_mapParameters[13];
+					int iPK_MediaType=atoi(pMessage->m_mapParameters[29].c_str());
+					string sPK_DesignObj_Popup=pMessage->m_mapParameters[129];
+						CMD_Show_File_List(sPK_DesignObj.c_str(),sFilename.c_str(),iPK_MediaType,sPK_DesignObj_Popup.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Show_File_List(sPK_DesignObj.c_str(),sFilename.c_str(),iPK_MediaType,sPK_DesignObj_Popup.c_str(),sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case 402:
+					{
+						string sCMD_Result="OK";
+					int iPosition_X=atoi(pMessage->m_mapParameters[11].c_str());
+					int iPosition_Y=atoi(pMessage->m_mapParameters[12].c_str());
+					string sPK_DesignObj_CurrentScreen=pMessage->m_mapParameters[16];
+						CMD_Use_Popup_Remote_Controls(iPosition_X,iPosition_Y,sPK_DesignObj_CurrentScreen.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Use_Popup_Remote_Controls(iPosition_X,iPosition_Y,sPK_DesignObj_CurrentScreen.c_str(),sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case 403:
+					{
+						string sCMD_Result="OK";
+					int iPosition_X=atoi(pMessage->m_mapParameters[11].c_str());
+					int iPosition_Y=atoi(pMessage->m_mapParameters[12].c_str());
+					string sPK_DesignObj_CurrentScreen=pMessage->m_mapParameters[16];
+						CMD_Use_Popup_File_List(iPosition_X,iPosition_Y,sPK_DesignObj_CurrentScreen.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Use_Popup_File_List(iPosition_X,iPosition_Y,sPK_DesignObj_CurrentScreen.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

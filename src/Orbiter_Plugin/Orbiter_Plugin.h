@@ -381,6 +381,17 @@ public:
 	virtual void CMD_Set_Room_For_Device(int iPK_Device,int iPK_Room,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #404 - Set Auto Switch to Remote */
+	/** Specifies whether the given orbiter will automatically switch to the remote control when media starts. */
+		/** @param #2 PK_Device */
+			/** The Orbiter */
+		/** @param #119 True/False */
+			/** If true it will switch automatically */
+
+	virtual void CMD_Set_Auto_Switch_to_Remote(int iPK_Device,bool bTrueFalse) { string sCMD_Result; CMD_Set_Auto_Switch_to_Remote(iPK_Device,bTrueFalse,sCMD_Result,NULL);};
+	virtual void CMD_Set_Auto_Switch_to_Remote(int iPK_Device,bool bTrueFalse,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 };
 

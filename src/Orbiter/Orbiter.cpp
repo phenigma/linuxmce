@@ -480,7 +480,7 @@ if( !m_pScreenHistory_Current || !m_pScreenHistory_Current->m_pObj )
     {
         PlutoPopup *pPopup = m_vectPopups[m_vectPopups.size() - i - 1];
         if(pPopup->m_bVisible)
-            RenderPopup(pPopup->m_sPK_DesignObj, pPopup->m_Position, pPopup->m_sName);
+            RenderPopup(pPopup, pPopup->m_Position);
     }
 
     cm.Release(  );
@@ -3717,6 +3717,7 @@ UTILITIES
 //------------------------------------------------------------------------
 DesignObj_Orbiter *Orbiter::FindObject( string PK_DesignObj, class DesignObj_Orbiter *pDesignObj_Orbiter )
 {
+	PK_DesignObj = SubstituteVariables(PK_DesignObj, NULL, 0, 0);
     string OriginalValue;
     bool bSingleNumber=false;
 
@@ -4856,7 +4857,7 @@ g_pPlutoLogger->Write(LV_STATUS,"CMD_Goto_Screen: %s",sPK_DesignObj.c_str());
 
     PLUTO_SAFETY_LOCK( sm, m_ScreenMutex );  // Nothing more can happen
 
-    HidePopups();
+    HidePopups(NULL);
 
 	if( !TestCurrentScreen(sPK_DesignObj_CurrentScreen) )
 		return;
@@ -7072,33 +7073,28 @@ void Orbiter::ResetState(DesignObj_Orbiter *pObj, bool bDontResetState)
         ResetState( (DesignObj_Orbiter * )( *iHao ), bDontResetState );
 }
 
-/*virtual*/ void Orbiter::RenderPopup(string sPK_DesignObj, PlutoPoint point, string sPopupName)
+/*virtual*/ void Orbiter::RenderPopup(PlutoPopup *pPopup, PlutoPoint point)
 {
-    g_pPlutoLogger->Write(LV_STATUS,"ShowPopup: %s", sPK_DesignObj.c_str());
+    g_pPlutoLogger->Write(LV_STATUS,"ShowPopup: %s", pPopup->m_sPK_DesignObj.c_str());
 
-    PlutoPopup *pPopup = FindPopupByID(sPK_DesignObj);
     if(!pPopup->m_bVisible)
     {
-        g_pPlutoLogger->Write(LV_CRITICAL, "Cannot render the popup %s, it's not visible", sPK_DesignObj.c_str());
+        g_pPlutoLogger->Write(LV_CRITICAL, "Cannot render the popup %s, it's not visible", pPopup->m_sPK_DesignObj.c_str());
         return;
     }
 
     PLUTO_SAFETY_LOCK(sm, m_ScreenMutex);
-    string sDestScreen = SubstituteVariables(sPK_DesignObj, NULL, 0, 0);
 
-    PLUTO_SAFETY_LOCK(vm, m_VariableMutex);
-    DesignObj_Orbiter *pObj_New = m_ScreenMap_Find(sDestScreen);
-
-    if(pObj_New)
-        RenderObject(pObj_New, pObj_New, point);
+    if(pPopup->m_pObj)
+        RenderObject(pPopup->m_pObj, pPopup->m_pObj, point);
     else
-        g_pPlutoLogger->Write(LV_CRITICAL, "Cannot render the popup %s: object %s doesn't exist", pPopup->m_sName.c_str(), sPK_DesignObj.c_str());
+        g_pPlutoLogger->Write(LV_CRITICAL, "Cannot render the popup %s: object %s doesn't exist", pPopup->m_sName.c_str(), pPopup->m_pObj->m_ObjectID.c_str());
 }
 
 
-/*virtual*/ void Orbiter::HidePopup(string sPK_DesignObj)
+/*virtual*/ void Orbiter::HidePopup(DesignObj_Orbiter *pObj,string sPK_DesignObj)
 {
-    PlutoPopup *pPopup = FindPopupByID(sPK_DesignObj);
+    PlutoPopup *pPopup = FindPopupByID(pObj,sPK_DesignObj);
 
     if(pPopup)
     {
@@ -7107,10 +7103,8 @@ void Orbiter::ResetState(DesignObj_Orbiter *pObj, bool bDontResetState)
     }
 }
 
-/*virtual*/ void Orbiter::ShowPopup(string sPK_DesignObj)
+/*virtual*/ void Orbiter::ShowPopup(PlutoPopup *pPopup)
 {
-    PlutoPopup *pPopup = FindPopupByID(sPK_DesignObj);
-
     if(pPopup)
     {
         pPopup->m_bVisible = true;
@@ -7120,26 +7114,50 @@ void Orbiter::ResetState(DesignObj_Orbiter *pObj, bool bDontResetState)
 
 }
 
-PlutoPopup *Orbiter::FindPopupByID(string sPK_DesignObj)
+PlutoPopup *Orbiter::FindPopupByID(DesignObj_Orbiter *pObj,string sPK_DesignObj)
 {
-    for(size_t i = 0; i < m_vectPopups.size(); i++)
-    {
-        PlutoPopup *pPopup = m_vectPopups[i];
-        if(pPopup->m_sPK_DesignObj == sPK_DesignObj)    
-            return pPopup;
-    }
+	if( pObj )
+	{
+		for(size_t i = 0; i < pObj->m_vectPopups.size(); i++)
+		{
+			PlutoPopup *pPopup = pObj->m_vectPopups[i];
+			if(pPopup->m_sPK_DesignObj == sPK_DesignObj)    
+				return pPopup;
+		}
+	}
+	else
+	{
+		for(size_t i = 0; i < m_vectPopups.size(); i++)
+		{
+			PlutoPopup *pPopup = m_vectPopups[i];
+			if(pPopup->m_sPK_DesignObj == sPK_DesignObj)    
+				return pPopup;
+		}
+	}
 
     return NULL;
 }
 
-PlutoPopup *Orbiter::FindPopupByName(string sPopupName)
+PlutoPopup *Orbiter::FindPopupByName(DesignObj_Orbiter *pObj,string sPopupName)
 {
-    for(size_t i = 0; i < m_vectPopups.size(); i++)
-    {
-        PlutoPopup *pPopup = m_vectPopups[i];
-        if(pPopup->m_sName == sPopupName)    
-            return pPopup;
-    }
+	if( pObj )
+	{
+		for(size_t i = 0; i < pObj->m_vectPopups.size(); i++)
+		{
+			PlutoPopup *pPopup = pObj->m_vectPopups[i];
+			if(pPopup->m_sName == sPopupName)    
+				return pPopup;
+		}
+	}
+	else
+	{
+		for(size_t i = 0; i < m_vectPopups.size(); i++)
+		{
+			PlutoPopup *pPopup = m_vectPopups[i];
+			if(pPopup->m_sName == sPopupName)    
+				return pPopup;
+		}
+	}
 
     return NULL;
 }
@@ -7153,24 +7171,38 @@ PlutoPopup *Orbiter::FindPopupByName(string sPopupName)
 			/** X position */
 		/** @param #12 Position Y */
 			/** Y position */
+		/** @param #16 PK_DesignObj_CurrentScreen */
+			/** If specified the popup will be local to this screen, otherwise it will be global.  Global and local popups are treated separately */
 		/** @param #50 Name */
 			/** The popup name */
 		/** @param #126 Exclusive */
-			/** Hide any other popups that are also visible */
+			/** Hide any other popups that are also visible, unless don't hide is set. */
+		/** @param #127 Dont Auto Hide */
+			/** If true, this popup will not be automatically hidden when the screen changes or another exclusive is shown.  It must be explicitly hidden. */
 
-void Orbiter::CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string sName,bool bExclusive,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string sPK_DesignObj_CurrentScreen,string sName,bool bExclusive,bool bDont_Auto_Hide,string &sCMD_Result,Message *pMessage)
 //<-dceag-c397-e->
 {
     PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
 
+	DesignObj_Orbiter *pObj_Screen = FindObject(sPK_DesignObj_CurrentScreen);
 	if( bExclusive )
-		HidePopups();
+		HidePopups(pObj_Screen);
 
     PlutoPopup *pPopup = NULL;
-    if(NULL == (pPopup = FindPopupByID(sPK_DesignObj)))
-        m_vectPopups.push_back(new PlutoPopup(sPK_DesignObj, sName, PlutoPoint(iPosition_X,iPosition_Y), true));
+    if(NULL == (pPopup = FindPopupByID(pObj_Screen,sPK_DesignObj)))
+	{
+		DesignObj_Orbiter *pObj = FindObject(sPK_DesignObj);
+		pPopup=new PlutoPopup(pObj, sName, PlutoPoint(iPosition_X,iPosition_Y), true);
+		if( pObj_Screen )
+			pObj_Screen->m_vectPopups.push_back(pPopup);
+		else
+			m_vectPopups.push_back(pPopup);
+	}
 
-    ShowPopup(sPK_DesignObj);
+	pPopup->m_bDontAutohide = bDont_Auto_Hide;
+
+    ShowPopup(pPopup);
 }
 
 //<-dceag-c398-b->
@@ -7179,26 +7211,42 @@ void Orbiter::CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_
 	/** Hides a popup. */
 		/** @param #3 PK_DesignObj */
 			/** The ID of the object (popup). If the ID is not specified, all the popups will be hidden. */
+		/** @param #16 PK_DesignObj_CurrentScreen */
+			/** (optional).  The screen on which it's a local popup */
 
-void Orbiter::CMD_Hide_Popup(string sPK_DesignObj,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Hide_Popup(string sPK_DesignObj,string sPK_DesignObj_CurrentScreen,string &sCMD_Result,Message *pMessage)
 //<-dceag-c398-e->
 {
     PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
-    if(sPK_DesignObj != "")
-        HidePopup(sPK_DesignObj);
+	DesignObj_Orbiter *pObj_Screen = FindObject(sPK_DesignObj_CurrentScreen);
+
+	if(sPK_DesignObj != "")
+        HidePopup(pObj_Screen,sPK_DesignObj);
     else
-        HidePopups();
+        HidePopups(pObj_Screen);
 }
 
-/*virtual*/ void Orbiter::HidePopups()
+/*virtual*/ void Orbiter::HidePopups(DesignObj_Orbiter *pObj)
 {
     PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
-    for(size_t i = 0; i < m_vectPopups.size(); i++)
-    {
-        PlutoPopup *pPopup = m_vectPopups[i];
-        if(pPopup->m_bVisible)
-            pPopup->m_bVisible = false;
-    }
+	if( pObj )
+	{
+		for(size_t i = 0; i < pObj->m_vectPopups.size(); i++)
+		{
+			PlutoPopup *pPopup = pObj->m_vectPopups[i];
+			if(pPopup->m_bVisible)
+				pPopup->m_bVisible = false;
+		}
+	}
+	else
+	{
+		for(size_t i = 0; i < m_vectPopups.size(); i++)
+		{
+			PlutoPopup *pPopup = m_vectPopups[i];
+			if(pPopup->m_bVisible)
+				pPopup->m_bVisible = false;
+		}
+	}
 }
 
 //<-dceag-c399-b->
@@ -7221,4 +7269,53 @@ void Orbiter::RemoveShortcuts( void *data )
 		return;
     m_bShowShortcuts = false;
     CMD_Refresh("");
+}
+//<-dceag-c401-b->
+
+	/** @brief COMMAND: #401 - Show File List */
+	/**  */
+		/** @param #3 PK_DesignObj */
+			/** The screen with the file listing */
+		/** @param #13 Filename */
+			/** The directory to start with */
+		/** @param #29 PK_MediaType */
+			/** The type of media the user wants to browse. */
+		/** @param #129 PK_DesignObj_Popup */
+			/** The popup to use */
+
+void Orbiter::CMD_Show_File_List(string sPK_DesignObj,string sFilename,int iPK_MediaType,string sPK_DesignObj_Popup,string &sCMD_Result,Message *pMessage)
+//<-dceag-c401-e->
+{
+}
+
+//<-dceag-c402-b->
+
+	/** @brief COMMAND: #402 - Use Popup Remote Controls */
+	/** If this command is executed the remote controls will be displayed as popups. */
+		/** @param #11 Position X */
+			/** The location of the popup */
+		/** @param #12 Position Y */
+			/** The location of the popup */
+		/** @param #16 PK_DesignObj_CurrentScreen */
+			/** The screen on which to put the popup */
+
+void Orbiter::CMD_Use_Popup_Remote_Controls(int iPosition_X,int iPosition_Y,string sPK_DesignObj_CurrentScreen,string &sCMD_Result,Message *pMessage)
+//<-dceag-c402-e->
+{
+}
+
+//<-dceag-c403-b->
+
+	/** @brief COMMAND: #403 - Use Popup File List */
+	/** If this command is executed the file lists will be displayed as popups. */
+		/** @param #11 Position X */
+			/** The location of the popup */
+		/** @param #12 Position Y */
+			/** The location of the popup */
+		/** @param #16 PK_DesignObj_CurrentScreen */
+			/** The screen to put the popup on */
+
+void Orbiter::CMD_Use_Popup_File_List(int iPosition_X,int iPosition_Y,string sPK_DesignObj_CurrentScreen,string &sCMD_Result,Message *pMessage)
+//<-dceag-c403-e->
+{
 }

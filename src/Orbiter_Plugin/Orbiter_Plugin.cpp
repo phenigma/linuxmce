@@ -23,14 +23,13 @@
 #include "PlutoUtils/Other.h"
 
 #include <iostream>
-#include <map>
-#include <vector>
-#include <sstream>
 using namespace std;
 using namespace DCE;
 
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
+
+#include <sstream>
 
 #include "Orbiter/Floorplan.h"
 
@@ -1793,4 +1792,17 @@ void Orbiter_Plugin::OverrideAVPipe(DeviceData_Router *pDevice_OSD,bool bOverrid
 			}
 		}
 	}
+}
+//<-dceag-c404-b->
+
+	/** @brief COMMAND: #404 - Set Auto Switch to Remote */
+	/** Specifies whether the given orbiter will automatically switch to the remote control when media starts. */
+		/** @param #2 PK_Device */
+			/** The Orbiter */
+		/** @param #119 True/False */
+			/** If true it will switch automatically */
+
+void Orbiter_Plugin::CMD_Set_Auto_Switch_to_Remote(int iPK_Device,bool bTrueFalse,string &sCMD_Result,Message *pMessage)
+//<-dceag-c404-e->
+{
 }

@@ -10,6 +10,7 @@ namespace DCE
 	class Orbiter;
 	class Logger;
 	class DataGridTable;
+	class PlutoPopup;
 }
 //-------------------------------------------------------------------------------------------------------
 using namespace DCE;
@@ -101,6 +102,7 @@ public:
 	int m_iRepeatParm;  // A temporary value used to track how many times this button has repeated
 
 	vector<DesignObj_Orbiter *> m_vectObj_TabStops;  // If this is a screen, this is all the tab stops
+    vector <class PlutoPopup*> m_vectPopups; // If this is a screen, these are the local popups
 	DesignObj_DataList m_OverlayObjects;
 
 	int m_GraphicToDisplay;
