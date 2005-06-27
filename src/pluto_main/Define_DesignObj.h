@@ -1245,7 +1245,7 @@
 #define DESIGNOBJ_vlc_dvd_full_screen_CONST 3451
 #define DESIGNOBJ_vlc_dvd_full_screen_with_optio_CONST 3452
 #define DESIGNOBJ_grpMediaNavigationVLC_CONST 3453
-#define DESIGNOBJ_mnuMainMenu2_CONST 3454
+#define DESIGNOBJ_mnuMainMenuPopUp_CONST 3454
 #define DESIGNOBJ_objGotoClimateOptions_CONST 3455
 #define DESIGNOBJ_objGotoLightingOptions_CONST 3456
 #define DESIGNOBJ_objGotoMediaOptions_CONST 3457
@@ -1294,6 +1294,12 @@
 #define DESIGNOBJ_popUsers_CONST 3506
 #define DESIGNOBJ_arrUsers_Popup_CONST 3507
 #define DESIGNOBJ_butPopupUsers_CONST 3508
+#define DESIGNOBJ_arrRooms_Popup_CONST 3509
+#define DESIGNOBJ_butPopupRooms_CONST 3510
+#define DESIGNOBJ_mnuFileList_Popup_CONST 3511
+#define DESIGNOBJ_butInvisibleGotoFullRemote_CONST 3512
+#define DESIGNOBJ_mnuFileList_Popup_Container_CONST 3513
+#define DESIGNOBJ_butCloseFileListPopup_CONST 3514
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
