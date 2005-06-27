@@ -20,6 +20,7 @@ using namespace std;
 #include "../Orbiter/RendererOCG.h"
 
 #include "sge.h"
+#include "SDL_rotozoom.h"
 #include "SDL_image.h"
 #include "SDL_ttf.h"
 #include "png.h"
@@ -604,7 +605,11 @@ RendererImage * Renderer::CreateFromRWops(SDL_RWops * rw, bool bFreeRWops, Pluto
         // no scaling/stretching needed
         //SDL_BlitSurface(SurfaceFromFile, NULL, RIFromFile->m_pSDL_Surface, NULL);
         //sge_transform(SurfaceFromFile, RIFromFile->m_pSDL_Surface, 0, 1, 1, 0, 0, 0, 0, SGE_TSAFE);
+#ifdef USE_SGE_TRANSFORM        
         ScaledSurface = sge_transform_surface(SurfaceFromFile, SDL_MapRGBA(SurfaceFromFile->format, 0, 0, 0, 0), 0, 1, 1, SGE_TSAFE);
+#else        
+        ScaledSurface = zoomSurface(SurfaceFromFile, 1, 1, SMOOTHING_OFF);
+#endif
     }
     else
     {
@@ -632,7 +637,11 @@ RendererImage * Renderer::CreateFromRWops(SDL_RWops * rw, bool bFreeRWops, Pluto
 */
 
         //sge_transform(SurfaceFromFile, RIFromFile->m_pSDL_Surface, 0, scaleX, scaleY, 0, 0, 0, 0, SGE_TSAFE);
+#ifdef USE_SGE_TRANSFORM 
         ScaledSurface = sge_transform_surface(SurfaceFromFile, SDL_MapRGBA(SurfaceFromFile->format, 0, 0, 0, 0), 0, scaleX, scaleY, SGE_TSAFE );
+#else
+        ScaledSurface = zoomSurface(SurfaceFromFile, scaleX, scaleY, SMOOTHING_OFF);
+#endif
     }
 
 	SDL_SetAlpha(ScaledSurface, 0, 0);
