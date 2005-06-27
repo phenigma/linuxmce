@@ -74,6 +74,8 @@ public:
 		m_iFloorplanPage=0;
 		m_pRow_Icon=NULL;
 	}
+
+    ~OrbiterGenerator() {}
 	int DoIt();
 
 private:
