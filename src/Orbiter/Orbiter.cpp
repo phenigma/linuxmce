@@ -3615,28 +3615,23 @@ g_pPlutoLogger->Write(LV_STATUS,"Ignoring click %d,%d",x,y);
     clock_t clkStart = clock(  );
 #endif
 
-    //any popup in that location ?
+    //any popup in this location ?
     DesignObj_Orbiter* pTopMostObject = m_pScreenHistory_Current->m_pObj;
     PlutoPoint RelativePoint(x, y);
     m_pActivePopup = NULL;
     for(size_t i = 0; i < m_vectPopups.size(); i++)
     {
         PlutoPopup *pPopup = m_vectPopups[i];
-        if(pPopup->m_bVisible)    
+        if(
+            pPopup->m_bVisible                                                                              &&
+            pPopup->m_pObj                                                                                  && 
+            pPopup->m_Position.X <= x && x <= pPopup->m_Position.X + pPopup->m_pObj->m_rPosition.Right()    &&
+            pPopup->m_Position.Y <= y && y <= pPopup->m_Position.Y + pPopup->m_pObj->m_rPosition.Bottom())
         {
-            string sDestScreen = SubstituteVariables(pPopup->m_sPK_DesignObj, NULL, 0, 0);
-            DesignObj_Orbiter *pPopupObj = m_ScreenMap_Find(sDestScreen);
-            if(
-                pPopupObj && 
-                pPopup->m_Position.X <= x && x <= pPopup->m_Position.X + pPopupObj->m_rPosition.Right() &&
-                pPopup->m_Position.Y <= y && y <= pPopup->m_Position.Y + pPopupObj->m_rPosition.Bottom()
-            )
-            {
-                pTopMostObject = pPopupObj;
-                RelativePoint = PlutoPoint(x - pPopup->m_Position.X, y - pPopup->m_Position.Y);
-                m_pActivePopup = pPopup;
-                break;
-            }
+            pTopMostObject = pPopup->m_pObj;
+            RelativePoint = PlutoPoint(x - pPopup->m_Position.X, y - pPopup->m_Position.Y);
+            m_pActivePopup = pPopup;
+            break;
         }
     }
 
@@ -7099,7 +7094,8 @@ void Orbiter::ResetState(DesignObj_Orbiter *pObj, bool bDontResetState)
     if(pPopup)
     {
         pPopup->m_bVisible = false;
-        RenderScreen();
+        //RenderScreen();
+        CMD_Refresh("");
     }
 }
 
@@ -7109,7 +7105,8 @@ void Orbiter::ResetState(DesignObj_Orbiter *pObj, bool bDontResetState)
     {
         pPopup->m_bVisible = true;
         m_bRerenderScreen = true;
-        CallMaintenanceInMiliseconds( 0, &Orbiter::RealRedraw, NULL, pe_ALL );
+        //CallMaintenanceInMiliseconds( 0, &Orbiter::RealRedraw, NULL, pe_ALL );
+        CMD_Refresh("");
     }
 
 }
@@ -7193,6 +7190,13 @@ void Orbiter::CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_
     if(NULL == (pPopup = FindPopupByID(pObj_Screen,sPK_DesignObj)))
 	{
 		DesignObj_Orbiter *pObj = FindObject(sPK_DesignObj);
+
+        if(!pObj)
+        {
+            g_pPlutoLogger->Write(LV_CRITICAL, "Cannot show the popup %s: object %s doesn't exist", m_sName.c_str(), sPK_DesignObj.c_str());
+            return;
+        }
+
 		pPopup=new PlutoPopup(pObj, sName, PlutoPoint(iPosition_X,iPosition_Y), true);
 		if( pObj_Screen )
 			pObj_Screen->m_vectPopups.push_back(pPopup);
@@ -7247,6 +7251,7 @@ void Orbiter::CMD_Hide_Popup(string sPK_DesignObj,string sPK_DesignObj_CurrentSc
 				pPopup->m_bVisible = false;
 		}
 	}
+    CMD_Refresh("");
 }
 
 //<-dceag-c399-b->
