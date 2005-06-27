@@ -24,6 +24,15 @@ using namespace DCE;
 #include <sys/fcntl.h>
 #endif
 
+void * StartLeeching(void * Arg)
+{
+	LIRC_DCE * pLIRC_DCE = (LIRC_DCE *) Arg;
+
+	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+	pLIRC_DCE->lirc_leech(pLIRC_DCE->m_DeviceID);
+	exit(-1);
+}
+
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 LIRC_DCE::LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
@@ -33,7 +42,8 @@ LIRC_DCE::LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler,
 {
 	vector<string> vectMapping,vectConfiguration;
 	string sMapping = DATA_Get_Mapping();
-	StringUtils::Tokenize(sMapping,"\r\n",vectMapping);	
+	StringUtils::Tokenize(sMapping,"\r\n",vectMapping);
+	m_DeviceID = DeviceID;
 
 	// Find all our sibblings that are remote controls or Orbiters
 	for(Map_DeviceData_Base::iterator itD=m_pData->m_AllDevices.m_mapDeviceData_Base.begin();
@@ -194,8 +204,14 @@ LIRC_DCE::LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler,
 	system((string("lircd") + " -H " + sLIRCDriver + " -d " + sSerialPort + " /etc/lircd.conf").c_str());
 //TODO: Check if it started*/
 	pRoute = pRouter;
-	lirc_leech(DeviceID);	
-	g_pPlutoLogger->Write(0, "Over and out"); 
+
+	g_pPlutoLogger->Write(LV_WARNING, "Creating Leeching Thread");
+	if (pthread_create(&m_LeechingThread, NULL, StartLeeching, (void *) this))
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "Failed to create Leeching Thread");
+		m_bQuit = 1;
+		exit(1);
+	}
 }
 
 //<-dceag-const2-b->!
@@ -269,15 +285,37 @@ void LIRC_DCE::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 
 int LIRC_DCE::lirc_leech(int DeviceID) {
 #ifndef WIN32
-	
-	if(lirc_init("irexec",1)==-1) return 1;
+	int sock;
+	if((sock = lirc_init("irexec", 1)) == -1)
+		return 1;
 
 	char *code;
 	struct timeval last_time = {0, 0}, this_time, time_diff;
 
-	g_pPlutoLogger->Write(LV_STATUS, "Leeching"); 
-	while(lirc_nextcode(&code)==0)
+	g_pPlutoLogger->Write(LV_STATUS, "Leeching");
+	while(true)
 	{
+		fd_set fdset;
+		struct timeval tv;
+
+		do
+		{
+			FD_ZERO(&fdset);
+			FD_SET(sock, &fdset);
+
+			tv.tv_sec = 1;
+			tv.tv_usec = 0;
+
+			if (m_bQuit)
+				return 0;
+		} while (select(sock + 1, &fdset, NULL, NULL, &tv) == 0);
+
+		if (lirc_nextcode(&code) != 0)
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "Lost connection with lircd");
+			return 1;
+		}
+		
 		gettimeofday(&this_time, NULL);
 		time_diff = this_time - last_time;
 
@@ -304,6 +342,7 @@ int LIRC_DCE::lirc_leech(int DeviceID) {
 	}
 	lirc_deinit();
 #endif
+	g_pPlutoLogger->Write(0, "Over and out"); 
 	return 0;
 }
 
