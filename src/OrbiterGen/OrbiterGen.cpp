@@ -201,13 +201,20 @@ int main(int argc, char *argv[])
 	}
 	try
 	{
-		OrbiterGenerator cg(GraphicsFiles,FontFiles,OutputFiles,PK_Orbiter,DBHost,DBUser,DBPassword,DBName,DBPort);
+		OrbiterGenerator *pOrbiterGenerator = new OrbiterGenerator(GraphicsFiles,FontFiles,OutputFiles,PK_Orbiter,DBHost,DBUser,DBPassword,DBName,DBPort);
 		if( bRegen )
-			cg.m_bOrbiterChanged=true;
-		cg.m_bDontAutoRegenArrays= iDontAutoRegenArrays==1;
-		cg.m_iPK_DesignObj_SoleScreenToGen = iPK_DesignObj_SoleScreenToGen;
+			pOrbiterGenerator->m_bOrbiterChanged=true;
+		pOrbiterGenerator->m_bDontAutoRegenArrays= iDontAutoRegenArrays==1;
+		pOrbiterGenerator->m_iPK_DesignObj_SoleScreenToGen = iPK_DesignObj_SoleScreenToGen;
 
-		iResult = cg.DoIt();
+		iResult = pOrbiterGenerator->DoIt();
+
+        //hack, this is crashing somewhere in pluto_main.dll. 
+        //I might be related to /FORCE:MULTIPLE directive, so we might need to transform DCE into a DLL too.
+        //because now OrbiterGen uses SerializeClass from DCE.lib and from pluto_main.dll, one is static and one is dynamic
+#ifndef WIN32
+        delete pOrbiterGenerator;
+#endif
 	}
 	catch(const char *error)
 	{

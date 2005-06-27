@@ -640,6 +640,7 @@ RendererImage * Renderer::CreateFromRWops(SDL_RWops * rw, bool bFreeRWops, Pluto
 #ifdef USE_SGE_TRANSFORM 
         ScaledSurface = sge_transform_surface(SurfaceFromFile, SDL_MapRGBA(SurfaceFromFile->format, 0, 0, 0, 0), 0, scaleX, scaleY, SGE_TSAFE );
 #else
+        //TODO: use SMOOTHING_ON for the screens != floorplans
         ScaledSurface = zoomSurface(SurfaceFromFile, scaleX, scaleY, SMOOTHING_OFF);
 #endif
     }
