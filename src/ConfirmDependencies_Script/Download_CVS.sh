@@ -25,3 +25,4 @@ if ! make; then
 fi
 popd &>/dev/null
 " >>"$File"
+exit 0

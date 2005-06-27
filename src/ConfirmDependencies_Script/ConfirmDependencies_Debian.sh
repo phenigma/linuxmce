@@ -16,6 +16,19 @@ SECTIONS="main non-free contrib"
 #	exit 0
 #fi
 
+AddPackageDevice()
+{
+	local PK_Device="$1"
+	local PK_PACKAGE="$2"
+
+	if [[ -n "$PK_Device" && -n "$PK_PACKAGE" ]]; then
+		Version=$(dpkg -s "$PKG_NAME" | grep ^Version: | cut -d' ' -f2-)
+		DateTime=$(date +'%Y-%m-%d %k:%M:%S')
+		Q="INSERT INTO Package_Device(FK_Package, FK_Device, Version, InstallDate) VALUES('$PK_PACKAGE', '$PK_Device', '$Version', '$DateTime')"
+		echo "$Q;" | /usr/bin/mysql -h $MySqlHost -u $MySqlUser pluto_main &>/dev/null || /bin/true
+	fi
+}
+
 case "$REPOS_TYPE" in
 	# Package (APT, http/ftp: .deb)
 	1) ;;
@@ -85,13 +98,8 @@ case "$URL_TYPE" in
 			#unset http_proxy
 #			apt-get clean
 		fi
-			
-		if [[ -n "$PK_Device" && -n "$PK_PACKAGE" ]]; then
-			Version=$(dpkg -s "$PKG_NAME" | grep ^Version: | cut -d' ' -f2-)
-			DateTime=$(date +'%Y-%m-%d %k:%M:%S')
-			Q="INSERT INTO Package_Device(FK_Package, FK_Device, Version, InstallDate) VALUES('$PK_PACKAGE', '$PK_Device', '$Version', '$DateTime')"
-			echo "$Q;" | /usr/bin/mysql -h $MySqlHost -u $MySqlUser pluto_main &>/dev/null || /bin/true
-		fi
+		
+		AddPackageDevice "$PK_Device" "$PK_PACKAGE"
 	;;
 	
 	direct)
@@ -133,11 +141,19 @@ case "$URL_TYPE" in
 	;;
 
 	svn)
-		/usr/pluto/install/Download_SVN.sh "$@" || exit $?
+		/usr/pluto/install/Download_SVN.sh "$@"
+		Ret=$?
+		if [[ "$Ret" -eq 0 ]]; then
+			AddPackageDevice "$PK_Device" "$PK_PACKAGE"
+		exit $Ret
 	;;
 
 	cvs)
-		/usr/pluto/install/Download_CVS.sh "$@" || exit $?
+		/usr/pluto/install/Download_CVS.sh "$@"
+		Ret=$?
+		if [[ "$Ret" -eq 0 ]]; then
+			AddPackageDevice "$PK_Device" "$PK_PACKAGE"
+		exit $Ret
 	;;
 esac
 
