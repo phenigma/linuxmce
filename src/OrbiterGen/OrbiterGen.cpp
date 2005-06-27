@@ -840,7 +840,7 @@ break; ///**************************** temp
 		}
 	}
 
-	sql = string("select DeviceTemplate_MediaType_DesignObj.FK_DesignObj,Device.FK_DesignObj") + 
+	sql = string("select DeviceTemplate_MediaType_DesignObj.FK_DesignObj,Device.FK_DesignObj,FK_DesignObj_Popup,FK_DesignObj_FileList,FK_DesignObj_FileList_Popup") + 
 		" FROM Device " +
 		" INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate " +
 		" INNER JOIN DeviceTemplate_MediaType ON DeviceTemplate_MediaType.FK_DeviceTemplate=PK_DeviceTemplate " + 
@@ -870,6 +870,82 @@ break; ///**************************** temp
 					else
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
 				}
+				if( row[2] )
+				{
+					Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(atoi(row[2]));
+					if( !drNewDesignObj )
+						cerr << "Cannot find device.designobj: " << row[2] << endl;
+					else
+						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
+					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
+				}
+				if( row[3] )
+				{
+					Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(atoi(row[3]));
+					if( !drNewDesignObj )
+						cerr << "Cannot find device.designobj: " << row[3] << endl;
+					else
+						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
+				}
+				if( row[4] )
+				{
+					Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(atoi(row[4]));
+					if( !drNewDesignObj )
+						cerr << "Cannot find device.designobj: " << row[4] << endl;
+					else
+						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
+					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
+				}
+			}
+			catch(...)
+			{}
+		}
+	}
+
+
+	sql = "select FK_DesignObj,FK_DesignObj_Popup,FK_DesignObj_FileList,FK_DesignObj_FileList_Popup FROM MediaType_DesignObj";
+
+	PlutoSqlResult result_set4b;
+	if( (result_set4b.r=mysql_query_result(sql)) )
+	{
+		while ((row = mysql_fetch_row(result_set4b.r)))
+		{
+			try
+			{
+				if( row[0] )
+				{
+					Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(atoi(row[0]));
+					if( !drNewDesignObj )
+						cerr << "Cannot find devicetempate_mediatype_designobj: " << row[0] << endl;
+					else
+						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
+				}
+				if( row[1] )
+				{
+					Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(atoi(row[1]));
+					if( !drNewDesignObj )
+						cerr << "Cannot find device.designobj: " << row[1] << endl;
+					else
+						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
+					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
+				}
+				if( row[2] )
+				{
+					Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(atoi(row[2]));
+					if( !drNewDesignObj )
+						cerr << "Cannot find device.designobj: " << row[2] << endl;
+					else
+						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
+				}
+				if( row[3] )
+				{
+					Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(atoi(row[3]));
+					if( !drNewDesignObj )
+						cerr << "Cannot find device.designobj: " << row[3] << endl;
+					else
+						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
+					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
+				}
 			}
 			catch(...)
 			{}
@@ -889,7 +965,7 @@ break; ///**************************** temp
 				{
 					Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(atoi(row[0]));
 					if( !drNewDesignObj )
-						cerr << "Cannot find devicetempate_mediatype_designobj: " << row[0] << endl;
+						cerr << "Cannot find devicetempate_designobj: " << row[0] << endl;
 					else
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
 				}
@@ -1425,39 +1501,13 @@ if( ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()==3412 )//2821 && bAddToGen
 				oz->m_Rect.Y=ocDesignObj->m_rPosition.Y;
 			}
 
-			DesignObjCommandList::iterator itActions;
-			for(itActions=oz->m_Commands.begin();itActions!=oz->m_Commands.end();++itActions)
-			{
-				CGCommand *oa = (CGCommand *) *itActions;
-
-				map<int, string>::iterator itParm;
-				for(itParm=oa->m_ParameterList.begin();itParm!=oa->m_ParameterList.end();++itParm)
-				{
-					if( oa->m_PK_Command==COMMAND_Goto_Screen_CONST && (*itParm).first==COMMANDPARAMETER_PK_DesignObj_CONST )
-					{
-						string Value="";
-						if( ocDesignObj->m_sDesignObjGoto.length()>0 )  // This must be going to another page in an array
-							Value = ocDesignObj->m_sDesignObjGoto;
-						else if( ocDesignObj->m_DesignObj_GeneratorGoto!=NULL )
-							Value = StringUtils::itos(ocDesignObj->m_DesignObj_GeneratorGoto->m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(ocDesignObj->m_DesignObj_GeneratorGoto->m_iVersion) + ".0";
-//						else if( (*itParm).second.find("<%=")!=string::npos ) // ?? todo -- this means that screens, like the main menu that got skipped in handle goto were ignored
-						else
-							Value = (*itParm).second;
-						oa->m_ParameterList[COMMANDPARAMETER_PK_DesignObj_CONST]=Value;
-					}
-					else if( oa->m_PK_Command==COMMAND_Show_Popup_CONST && ((*itParm).first==COMMANDPARAMETER_Position_X_CONST || (*itParm).first==COMMANDPARAMETER_Position_Y_CONST) )
-					{
-						int Size=atoi(itParm->second.c_str());
-						Size = Size * ((*itParm).first==COMMANDPARAMETER_Position_X_CONST ? m_pRow_Size->ScaleX_get() : m_pRow_Size->ScaleY_get()) / 1000;
-						oa->m_ParameterList[(*itParm).first] = StringUtils::itos(Size);
-					}
-					else
-						oa->m_ParameterList[(*itParm).first] = StringUtils::Replace((*itParm).second,"<%=!%>",StringUtils::itos(PK_Orbiter));
-				}
-			}
+			ScaleCommandList(ocDesignObj,oz->m_Commands);
 		}
 	}
-
+	ScaleCommandList(ocDesignObj,ocDesignObj->m_Action_LoadList);
+	ScaleCommandList(ocDesignObj,ocDesignObj->m_Action_StartupList);
+	ScaleCommandList(ocDesignObj,ocDesignObj->m_Action_TimeoutList);
+	ScaleCommandList(ocDesignObj,ocDesignObj->m_Action_UnloadList);
 
 	// It probably makes more sense to just leave all the action groups attached to buttons within the orbiters, and only export action groups
 	// associated with events to event manager.  Perhaps then all the fkid_object_goto's should be eliminated, and it is all just actions??/
@@ -1631,6 +1681,7 @@ if( ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()==3412 )//2821 && bAddToGen
 	{
 		DesignObj_Generator *oco = ocDesignObj->m_alChildDesignObjs[s];
 		ocDesignObj->m_ChildObjects.push_back(oco);
+		oco->m_bContainsFloorplans = ocDesignObj->m_bContainsFloorplans;
 		OutputDesignObjs(oco,0,true,ParentScreen);
 	}
 
@@ -1641,6 +1692,7 @@ if( ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()==3412 )//2821 && bAddToGen
 		{
 			DesignObj_Generator *oco = oca->m_alChildDesignObjs[s];
 			ocDesignObj->m_ChildObjects.push_back(oco);
+			oco->m_bContainsFloorplans = ocDesignObj->m_bContainsFloorplans;
 			OutputDesignObjs(oco,0,true,ParentScreen);
 		}
 	}
@@ -1652,6 +1704,7 @@ if( ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()==3412 )//2821 && bAddToGen
 		{
 			DesignObj_Generator *oco = oca->m_alChildDesignObjs[s];
 			ocDesignObj->m_ChildObjects.push_back(oco);
+			oco->m_bContainsFloorplans = ocDesignObj->m_bContainsFloorplans;
 			OutputDesignObjs(oco,ArrayPage,true,ParentScreen);
 		}
 	}
@@ -1778,4 +1831,38 @@ Row_Size *OrbiterGenerator::TranslateSize(string sSize)
 		return pRow_Size;
 	}
 	return NULL;
+}
+
+void OrbiterGenerator::ScaleCommandList(DesignObj_Generator *ocDesignObj,DesignObjCommandList &CommandList)
+{
+	DesignObjCommandList::iterator itActions;
+	for(itActions=CommandList.begin();itActions!=CommandList.end();++itActions)
+	{
+		CGCommand *oa = (CGCommand *) *itActions;
+
+		map<int, string>::iterator itParm;
+		for(itParm=oa->m_ParameterList.begin();itParm!=oa->m_ParameterList.end();++itParm)
+		{
+			if( oa->m_PK_Command==COMMAND_Goto_Screen_CONST && (*itParm).first==COMMANDPARAMETER_PK_DesignObj_CONST )
+			{
+				string Value="";
+				if( ocDesignObj->m_sDesignObjGoto.length()>0 )  // This must be going to another page in an array
+					Value = ocDesignObj->m_sDesignObjGoto;
+				else if( ocDesignObj->m_DesignObj_GeneratorGoto!=NULL )
+					Value = StringUtils::itos(ocDesignObj->m_DesignObj_GeneratorGoto->m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(ocDesignObj->m_DesignObj_GeneratorGoto->m_iVersion) + ".0";
+//						else if( (*itParm).second.find("<%=")!=string::npos ) // ?? todo -- this means that screens, like the main menu that got skipped in handle goto were ignored
+				else
+					Value = (*itParm).second;
+				oa->m_ParameterList[COMMANDPARAMETER_PK_DesignObj_CONST]=Value;
+			}
+			else if( (oa->m_PK_Command==COMMAND_Show_Popup_CONST || oa->m_PK_Command==COMMAND_Use_Popup_Remote_Controls_CONST || oa->m_PK_Command==COMMAND_Use_Popup_File_List_CONST) && ((*itParm).first==COMMANDPARAMETER_Position_X_CONST || (*itParm).first==COMMANDPARAMETER_Position_Y_CONST) )
+			{
+				int Size=atoi(itParm->second.c_str());
+				Size = Size * ((*itParm).first==COMMANDPARAMETER_Position_X_CONST ? m_pRow_Size->ScaleX_get() : m_pRow_Size->ScaleY_get()) / 1000 * ocDesignObj->m_iScale/100;
+				oa->m_ParameterList[(*itParm).first] = StringUtils::itos(Size);
+			}
+			else
+				oa->m_ParameterList[(*itParm).first] = StringUtils::Replace((*itParm).second,"<%=!%>",StringUtils::itos(m_pRow_Device->PK_Device_get()));
+		}
+	}
 }

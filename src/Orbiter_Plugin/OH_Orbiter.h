@@ -22,7 +22,7 @@ namespace DCE
 
 		int m_iLastSignalStrength;
 		int m_iFailedToConnectCount;
-		bool m_bRegistered,m_bDisplayOn;
+		bool m_bRegistered,m_bDisplayOn,m_bDontAutoShowRemote;
         string m_sUpdateVMCFile;
 		string m_sVersion;
 
@@ -41,6 +41,7 @@ namespace DCE
 			m_bDisplayOn=m_bRegistered=false;
 			m_tSendAppTime=m_tRegenTime=0;
 			m_pOH_User=NULL;
+			m_bDontAutoShowRemote=false;
 		}
 
         bool NeedVMC();

@@ -150,6 +150,10 @@ DesignObj_Orbiter::~DesignObj_Orbiter()
 	int i;
 */
 
+	for(list<class PlutoPopup*>::iterator it=m_listPopups.begin();it!=m_listPopups.end();++it)
+		delete *it;
+    m_listPopups.clear();
+
 	m_pGraphicToUndoSelect = NULL;
 	m_pvectCurrentGraphic = m_pvectCurrentPlayingGraphic = NULL;
 

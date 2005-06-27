@@ -71,20 +71,23 @@ enum ePurgeExisting { pe_NO=0, pe_ALL, pe_Match_Data };
 class PlutoPopup
 {
 public:
-    string m_sPK_DesignObj;
     string m_sName;
     PlutoPoint m_Position;
-    bool m_bVisible,m_bDontAutohide;
+    bool m_bDontAutohide;
 	DesignObj_Orbiter *m_pObj;
 
-    PlutoPopup(DesignObj_Orbiter *pObj, string sName, PlutoPoint Position, bool bVisible = false)
+    PlutoPopup(DesignObj_Orbiter *pObj, string sName, PlutoPoint Position)
     {
 		m_pObj = pObj;
         m_sName = sName;
         m_Position = Position;    
-        m_bVisible = bVisible;
 		m_bDontAutohide = false;
     }
+
+	~PlutoPopup()
+	{
+int k=2;
+	}
 };
 
 //<-dceag-decl-b->! custom
@@ -173,6 +176,7 @@ protected:
 	int m_iPK_DesignObj_Remote,m_iPK_DesignObj_Remote_Popup,m_iPK_DesignObj_FileList,m_iPK_DesignObj_FileList_Popup,m_iPK_DesignObj_RemoteOSD;
 	string m_sNowPlaying; /** < set by the media engine, this is whatever media is currently playing */
 	int m_dwPK_Device_NowPlaying;  /** < set by the media engine, this is whatever media device is currently playing */
+	PlutoPopup *m_pActivePopup;
 
 	int m_iTimeoutScreenSaver,m_iTimeoutBlank;  /** < When we're not on the screen saver screen how long to timeout before going to it, and when we are, how long before blacking the screen */
 	time_t m_tTimeoutTime;  /** < On the screen saver screen, this is the time when the display will go blank */
@@ -212,6 +216,9 @@ protected:
 	list < ScreenHistory * > m_listScreenHistory; /** < A history of the screens we've visited */
 	map<int,class DeviceData_Base *> m_mapDevice_Selected;  /** < We can select multiple devices on the floorplan to send messages to, instead of the usual one */
 
+	string m_sObj_Popop_RemoteControl,m_sObj_Popop_FileList;
+	int m_Popop_RemoteControl_X,m_Popop_RemoteControl_Y,m_Popop_FileList_X,m_Popop_FileList_Y;
+
 	map < string, DesignObj_DataList * > m_mapObj_Bound; /** < All objects bound with the Bind Icon command */
 	DesignObj_DataList *m_mapObj_Bound_Find(string PK_DesignObj) { map<string,DesignObj_DataList *>::iterator it = m_mapObj_Bound.find(PK_DesignObj); return it==m_mapObj_Bound.end() ? NULL : (*it).second; }
 
@@ -222,7 +229,6 @@ protected:
 	 */
 	vector < class DesignObj_Orbiter * > m_vectObjs_NeedRedraw;
 	vector < class DesignObjText * > m_vectTexts_NeedRedraw;
-    PlutoPopup *m_pActivePopup;
 
 	vector < class DesignObj_Orbiter * > m_vectObjs_TabStops; /** < All the tab stops */
 	vector < class DesignObj_Orbiter * > m_vectObjs_Selected; /** < All the objects currently selected */
@@ -230,7 +236,7 @@ protected:
 	vector < class DesignObj_Orbiter * > m_vectObjs_VideoOnScreen; /** < All the video on screen */
 	bool m_bAlreadyQueuedVideo; // We only put 1 GetVideFrame in the queue
 
-    vector <class PlutoPopup*> m_vectPopups;
+    list<class PlutoPopup*> m_listPopups;
 
 	map< string, class DesignObj_DataGrid * > m_mapObjs_AllGrids; /** < All the datagrids */
 
@@ -253,12 +259,11 @@ protected:
     /**
     * @brief Show a popup
     */
-    virtual void ShowPopup(PlutoPopup *pPopup);
+	void AddPopup(list<class PlutoPopup*> &listPopups,class PlutoPopup *pPopup);
 
     /**
     * @brief Hide a popup
     */
-    virtual void HidePopup(DesignObj_Orbiter *pObj,string sPK_DesignObj);
     virtual void HidePopups(DesignObj_Orbiter *pObj);
 
     /**
@@ -269,7 +274,6 @@ protected:
     /**
     * @brief Get the popup with the id or name specified
     */
-    PlutoPopup *FindPopupByID(DesignObj_Orbiter *pObj,string sPK_DesignObj);
     PlutoPopup *FindPopupByName(DesignObj_Orbiter *pObj,string sPopupName);
 
 	/**
@@ -358,6 +362,7 @@ public: // temp - remove this
 	 * @todo ask (makesure)
 	 */
 	virtual void ObjectOnScreen( VectDesignObj_Orbiter *pVectDesignObj_Orbiter, DesignObj_Orbiter *pObj );
+	void HandleNewObjectsOnScreen(VectDesignObj_Orbiter *pVectDesignObj_Orbiter);
 
 	/**
 	 * @brief takes out the specified object from screen
@@ -889,6 +894,7 @@ public:
 	int DATA_Get_ImageQuality();
 	bool DATA_Get_Leave_Monitor_on_for_OSD();
 	string DATA_Get_Ignore_State();
+	bool DATA_Get_Dont_Auto_Jump_to_Remote();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position);
@@ -1464,15 +1470,15 @@ public:
 	virtual void CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string sPK_DesignObj_CurrentScreen,string sName,bool bExclusive,bool bDont_Auto_Hide,string &sCMD_Result,Message *pMessage);
 
 
-	/** @brief COMMAND: #398 - Hide Popup */
+	/** @brief COMMAND: #398 - Remove Popup */
 	/** Hides a popup. */
-		/** @param #3 PK_DesignObj */
-			/** The ID of the object (popup). If the ID is not specified, all the popups will be hidden. */
 		/** @param #16 PK_DesignObj_CurrentScreen */
 			/** (optional).  The screen on which it's a local popup */
+		/** @param #50 Name */
+			/** The name of the popup.  If not specified all popups will be removed */
 
-	virtual void CMD_Hide_Popup(string sPK_DesignObj,string sPK_DesignObj_CurrentScreen) { string sCMD_Result; CMD_Hide_Popup(sPK_DesignObj.c_str(),sPK_DesignObj_CurrentScreen.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Hide_Popup(string sPK_DesignObj,string sPK_DesignObj_CurrentScreen,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Remove_Popup(string sPK_DesignObj_CurrentScreen,string sName) { string sCMD_Result; CMD_Remove_Popup(sPK_DesignObj_CurrentScreen.c_str(),sName.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Remove_Popup(string sPK_DesignObj_CurrentScreen,string sName,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #399 - Show Shortcuts */
@@ -1490,7 +1496,7 @@ public:
 			/** The directory to start with */
 		/** @param #29 PK_MediaType */
 			/** The type of media the user wants to browse. */
-		/** @param #129 PK_DesignObj_Popup */
+		/** @param #128 PK_DesignObj_Popup */
 			/** The popup to use */
 
 	virtual void CMD_Show_File_List(string sPK_DesignObj,string sFilename,int iPK_MediaType,string sPK_DesignObj_Popup) { string sCMD_Result; CMD_Show_File_List(sPK_DesignObj.c_str(),sFilename.c_str(),iPK_MediaType,sPK_DesignObj_Popup.c_str(),sCMD_Result,NULL);};

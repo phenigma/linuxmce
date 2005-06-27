@@ -1805,4 +1805,7 @@ void Orbiter_Plugin::OverrideAVPipe(DeviceData_Router *pDevice_OSD,bool bOverrid
 void Orbiter_Plugin::CMD_Set_Auto_Switch_to_Remote(int iPK_Device,bool bTrueFalse,string &sCMD_Result,Message *pMessage)
 //<-dceag-c404-e->
 {
+	OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(iPK_Device);
+	if( pOH_Orbiter )
+		pOH_Orbiter->m_bDontAutoShowRemote=!bTrueFalse;
 }

@@ -4055,13 +4055,11 @@ void Media_Plugin::CMD_MH_Send_Me_To_File_List(int iPK_MediaType,int iPK_DeviceT
 
 	if( pRemoteControlSet )
 	{
-		DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pMessage->m_dwPK_Device_From,0,
-			StringUtils::itos(pRemoteControlSet->m_iPK_DesignObj_FileList),"","",false,false);
-		DCE::CMD_Set_Variable CMD_Set_Variable1(m_dwPK_Device,pMessage->m_dwPK_Device_From,VARIABLE_Datagrid_Input_CONST,TranslateMediaTypeToDirectory(iPK_MediaType));
-		CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable1.m_pMessage);
-		DCE::CMD_Set_Variable CMD_Set_Variable2(m_dwPK_Device,pMessage->m_dwPK_Device_From,VARIABLE_PK_MediaType_CONST,StringUtils::itos(iPK_MediaType));
-		CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable2.m_pMessage);
-		SendCommand(CMD_Goto_Screen);
+		DCE::CMD_Show_File_List CMD_Show_File_List(m_dwPK_Device,pMessage->m_dwPK_Device_From,
+			StringUtils::itos(pRemoteControlSet->m_iPK_DesignObj_FileList),
+			TranslateMediaTypeToDirectory(iPK_MediaType),iPK_MediaType,
+			StringUtils::itos(pRemoteControlSet->m_iPK_DesignObj_FileList_Popup));
+		SendCommand(CMD_Show_File_List);
 	}
 }
 

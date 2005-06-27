@@ -83,6 +83,12 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
     m_bRendered=false;
 	m_bUseOCG=pGenerator->m_bUseOCG;
 	m_bIsPopup=false;
+	if( ocoParent )
+		m_iScale=ocoParent->m_iScale;
+	else
+		m_iScale=100;
+
+	m_bContainsFloorplans=false;
 
     m_mds=drDesignObj->Table_DesignObj_get()->Database_pluto_main_get();
     m_VariableMap = m_pOrbiterGenerator->m_mapVariable;
@@ -597,6 +603,8 @@ int k=2;
             for(itActions=oz->m_Commands.begin();itActions!=oz->m_Commands.end();++itActions)
             {
                 CGCommand *oa = (CGCommand *) *itActions;
+				if( oa->m_PK_Command==COMMAND_Scale_this_object_CONST )
+					m_iScale = atoi(oa->m_ParameterList[COMMANDPARAMETER_Value_CONST].c_str());
                 m_Action_StartupList.push_back(oa);
             }
         }
@@ -611,12 +619,20 @@ int k=2;
 
     if( m_pRow_DesignObj->FK_DesignObjType_get()==DESIGNOBJTYPE_Floorplan_CONST && m_sOriginalSize.Width>0 && m_sOriginalSize.Height>0 )
     {
-        // This is a floorplan object, first we're going to have to scale this ourselves
+		// This object and all it's parents contain floorplans
+		DesignObj_Generator *pObjFP = this;
+		while( pObjFP )
+		{
+			pObjFP->m_bContainsFloorplans=true;
+			pObjFP = pObjFP->m_ocoParent;
+		}
+
+		// This is a floorplan object, first we're going to have to scale this ourselves
         // since the background is of an unknown size, and then
         // add all the children for this page and type
         PlutoSize cgs = m_rBackgroundPosition.Size();
         PlutoPoint cgp(cgs.Width,cgs.Height);
-        PlutoSize szTargetSize(ScaleValue(&cgp,m_pOrbiterGenerator->m_pRow_Size->ScaleX_get(),m_pOrbiterGenerator->m_pRow_Size->ScaleY_get()));
+        PlutoSize szTargetSize(ScaleValue(&cgp,m_pOrbiterGenerator->m_pRow_Size->ScaleX_get() * m_iScale/100,m_pOrbiterGenerator->m_pRow_Size->ScaleY_get() * m_iScale/100));
         int ScaleWidth = szTargetSize.Width * 1000 / m_sOriginalSize.Width;
         int ScaleHeight = szTargetSize.Height * 1000 / m_sOriginalSize.Height;
         int ScaleFactor = min(ScaleWidth,ScaleHeight);
@@ -1586,8 +1602,10 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
 
 }
 
-void DesignObj_Generator::ScaleAllValues(int FactorX,int FactorY,class DesignObj_Generator *pTopmostObject)
+void DesignObj_Generator::ScaleAllValues(int FactorX_Input,int FactorY_Input,class DesignObj_Generator *pTopmostObject)
 {
+	int FactorX = FactorX_Input * m_iScale/100;
+	int FactorY = FactorY_Input * m_iScale/100;
 if( this->m_pRow_DesignObj->PK_DesignObj_get()==2634 )
 {
 int k=2;
@@ -1644,7 +1662,7 @@ int k=2;
 		if( oc->m_pRow_DesignObj->FK_DesignObjType_get()==DESIGNOBJTYPE_Floorplan_CONST && pTopmostObject )
             pTopmostObject->m_bContainsArrays=true; // We don't want to cache floorplans either
 
-        oc->ScaleAllValues(FactorX,FactorY,pTopmostObject);
+        oc->ScaleAllValues(FactorX_Input,FactorY_Input,pTopmostObject);
     }
 
     for(size_t s=0;s<m_alNonMPArrays.size();++s)
@@ -1656,7 +1674,7 @@ int k=2;
         for(size_t s2=0;s2<oa->m_alChildDesignObjs.size();++s2)
         {
             DesignObj_Generator *oc = oa->m_alChildDesignObjs[s2];
-            oc->ScaleAllValues(FactorX,FactorY,pTopmostObject);
+            oc->ScaleAllValues(FactorX_Input,FactorY_Input,pTopmostObject);
         }
     }
     for(size_t s=0;s<m_alMPArray.size();++s)
@@ -1668,7 +1686,7 @@ int k=2;
 		for(size_t s2=0;s2<oa->m_alChildDesignObjs.size();++s2)
         {
             DesignObj_Generator *oc = oa->m_alChildDesignObjs[s2];
-            oc->ScaleAllValues(FactorX,FactorY,pTopmostObject);
+            oc->ScaleAllValues(FactorX_Input,FactorY_Input,pTopmostObject);
         }
     }
 }

@@ -363,6 +363,9 @@
 #define COMMAND_Hide_Popup_CONST 398
 #define COMMAND_Show_Shortcuts_CONST 399
 #define COMMAND_MH_Send_Me_To_File_List_CONST 400
+#define COMMAND_Use_Popup_Remote_Controls_CONST 402
+#define COMMAND_Use_Popup_File_List_CONST 403
+#define COMMAND_Scale_this_object_CONST 405
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
