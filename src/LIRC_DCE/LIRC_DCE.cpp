@@ -310,6 +310,12 @@ int LIRC_DCE::lirc_leech(int DeviceID) {
 				return 0;
 		} while (select(sock + 1, &fdset, NULL, NULL, &tv) == 0);
 
+		if (errno == EINTR)
+		{
+			errno = 0;
+			continue;
+		}
+
 		if (lirc_nextcode(&code) != 0)
 		{
 			g_pPlutoLogger->Write(LV_WARNING, "Lost connection with lircd");
