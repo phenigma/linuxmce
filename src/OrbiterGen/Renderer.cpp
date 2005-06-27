@@ -41,6 +41,25 @@ using namespace DCE;
 
 int myCounter=0;
 
+#ifdef OrbiterGen
+#define FLAG_DISABLE_VIDEO true
+#else
+#define FLAG_DISABLE_VIDEO false
+#endif
+
+/** @todo: Ask radu to fix this .. global font renderer issue */
+// Nasty hack -- Ask Radu why the fuck he decided to reinitialize the entire font engine for every word todo
+#ifdef WIN32
+	#ifndef WINCE
+		Renderer r("C:/windows/fonts/", "", 800, 600, FLAG_DISABLE_VIDEO);
+	#else
+		Renderer r("\\", "", 800, 600, FLAG_DISABLE_VIDEO);
+	#endif
+#else
+Renderer r("/usr/share/fonts/truetype/msttcorefonts/", "", 800, 600, FLAG_DISABLE_VIDEO);
+#endif
+
+
 Renderer::Renderer(string FontPath,string OutputDirectory,int Width,int Height,bool bDisableVideo)
 {
 #ifndef WIN32
@@ -974,7 +993,7 @@ RendererImage * Renderer::Subset(RendererImage *pRenderImage, PlutoRectangle rec
 
 void DoRender(string font, string output,int width,int height,bool bAspectRatio,class DesignObj_Generator *ocDesignObj)
 {
-    Renderer r(font,output,width,height);
+    static Renderer r(font,output,width,height);
     r.RenderObject(NULL,ocDesignObj,PlutoPoint(0,0),-1,bAspectRatio);  // Render everything
 }
 
@@ -1167,26 +1186,6 @@ PlutoSize Renderer::RealRenderText(RendererImage * pRenderImage, DesignObjText *
 
     return RenderedSize;
 }
-
-#ifdef OrbiterGen
-#define FLAG_DISABLE_VIDEO true
-#else
-#define FLAG_DISABLE_VIDEO false
-#endif
-
-/** @todo: Ask radu to fix this .. global font renderer issue */
-// Nasty hack -- Ask Radu why the fuck he decided to reinitialize the entire font engine for every word todo
-#ifdef WIN32
-	#ifndef WINCE
-		Renderer r("C:/windows/fonts/", "", 800, 600, FLAG_DISABLE_VIDEO);
-	#else
-		Renderer r("\\", "", 800, 600, FLAG_DISABLE_VIDEO);
-	#endif
-#else
-Renderer r("/usr/share/fonts/truetype/msttcorefonts/", "", 800, 600, FLAG_DISABLE_VIDEO);
-#endif
-
-
 
 // the last (void *) parameter is actually a (RendererImage *)
 // but it's made (void *) to accomodate the WORKAROUND (just do a search for WORKAROUND)
