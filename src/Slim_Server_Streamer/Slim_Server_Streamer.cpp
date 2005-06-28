@@ -42,6 +42,31 @@ Slim_Server_Streamer::Slim_Server_Streamer(int DeviceID, string ServerAddress,bo
 	pthread_cond_init( &m_stateChangedCondition, NULL );
 	m_stateChangedMutex.Init( &mutexAttr, &m_stateChangedCondition );
 
+	if (! ConnectToSlimServerCliCommandChannel())
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Connection failed. Sending a start command to the application server.");
+
+		DCE::CMD_Spawn_Application_DT spawnApplication(
+			m_dwPK_Device,                      // send from here
+			DEVICETEMPLATE_App_Server_CONST,    // to an application server
+			BL_SameComputer,                    // on the same computer
+			"/usr/pluto/bin/LaunchSlimServer.sh",  // launch this
+			"slim-server",                              // reference it with this name
+			StringUtils::itos(m_iSlimServerCliPort),    // pass it the desired port number for reconnection.
+			"",                                         // execute this serialized message on exit with failure
+			"",
+			false);                                        // execute this serialized message on exit with success
+
+		spawnApplication.m_pMessage->m_bRelativeToSender = true;
+		SendCommand(spawnApplication);
+
+		Sleep(3000);
+		if (! ConnectToSlimServerCliCommandChannel()) // try again the connection after the command was sent.
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "I could not connect to the streaming server after i have launched it with the application server.");
+		}
+	}
+	
     pthread_create(&m_threadPlaybackCompletedChecker, NULL, checkForPlaybackCompleted, this);
 }
 
