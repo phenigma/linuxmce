@@ -73,7 +73,9 @@ $sql = "update Device_DeviceData SET IK_DeviceData='$ext' WHERE FK_Device='$Devi
 $statement = $db_handle->prepare($sql) or die "Couldn't prepare query '$sql': $DBI::errstr\n";
 $statement->execute() or die "Couldn't execute query '$sql': $DBI::errstr\n";
 $db_handle->disconnect();
-system("/usr/pluto/bin/SynchronizeAsterisk.sh"); #Run igor sync config
+
+#do not call it ... need something like in configure_amp_phone.pl
+#system("/usr/pluto/bin/SynchronizeAsterisk.sh"); #Run igor sync config
 
 open(FILE,">/var/www/snom$ext.htm");
 print FILE "<html>\n<pre>\n";
