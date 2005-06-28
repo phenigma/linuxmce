@@ -5,7 +5,7 @@ function setResolution($output,$dbADO) {
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$mdID=(int)$_REQUEST['mdID'];
 	$installationID = (int)@$_SESSION['installationID'];
-	$videoSettingsArray=array('M'=>'Manual', '640'=>'640x480', '800'=>'800x600', '1024'=>'1024x768', '1224'=>'1280x1024', '1600'=>'1600x1200', '480P'=>'480p', '720P'=>'720p', '1280I'=>'1280i', '1280P'=>'1280P');
+	$videoSettingsArray=array('M'=>'Manual', '640 480'=>'640x480', '800 600'=>'800x600', '1024 768'=>'1024x768', '1280 1024'=>'1280x1024', '1600 1200'=>'1600x1200', '720 480 p'=>'480p', '1280 720 p'=>'720p', '1920 1080 i'=>'1080i', '1920 1080 p'=>'1080p');
 	$refreshArray=array('50'=>'50 hz', '60'=>'60 hz', '72'=>'72 hz','75'=>'75 hz', '80'=>'80 hz');
 	
 	$oldValues=getFieldsAsArray('Device_DeviceData','IK_DeviceData',$dbADO,'WHERE FK_Device='.$mdID.' AND FK_DeviceData='.$GLOBALS['VideoSettings']);
@@ -57,9 +57,17 @@ $out.='
 		$refresh=$_POST['refresh'];
 		$mdDetails=getFieldsAsArray('Device','IPaddress',$dbADO,'WHERE PK_Device='.$mdID);
 		$ipAddress=$mdDetails['IPaddress'][0];
-		
-		// TODO for Radu: put correct script
-		exec('pathto/script_of_radu',$retArray);
+
+		list($resX, $resY, $resType) = explode(' ', $resolution);
+		if ($resType === "i")
+		{
+			$resType = "interlace";
+		}
+		else
+		{
+			$resType = "";
+		}
+		exec("sudo -u root /usr/pluto/bin/LaunchRemoteCmd.sh '$ipAddress' '/usr/pluto/bin/Xres_config.sh $resX $resY $resType'", $retArray);
 		
 		$out.='
 		<form action="index.php" method="post" name="setResolution">
@@ -96,7 +104,9 @@ $out.='
 </form>';
 			
 	}else {
-
+		$Answer = ""; // 'Y', 'N'
+		exec("sudo -u root /usr/pluto/bin/LaunchRemoteCmd.sh '$ipAddress' '/usr/pluto/bin/Xres_config_end.sh $Answer'");
+		
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
 		if (!$canModifyInstallation){
 			header("Location: index.php?section=setResolution&error=You are not authorised to change the installation.");
