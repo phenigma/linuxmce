@@ -98,7 +98,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
     m_bDontShare=bDontShare;
     m_bUsingCache=false;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==3507 )// || m_pRow_DesignObj->PK_DesignObj_get()==3486 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )
+if( m_pRow_DesignObj->PK_DesignObj_get()==3500 )//|| m_pRow_DesignObj->PK_DesignObj_get()==3471 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )
 {
     int k=2; 
 }
@@ -1356,7 +1356,7 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
                             (!drAG_R->FK_CommandGroup_getrow()->FK_Icon_isNull() ? "~cb~" : "") +  drAG_R->FK_CommandGroup_getrow()->Description_get(),
                             drAG_R->FK_CommandGroup_getrow()->FK_Icon_isNull() ? NULL : drAG_R->FK_CommandGroup_getrow()->FK_Icon_getrow(),
                             drAG_R->FK_CommandGroup_getrow()->FK_Criteria_Orbiter_isNull() ? 0 : drAG_R->FK_CommandGroup_getrow()->FK_Criteria_Orbiter_get(),
-                            !bNoSubstitutions && drAG_R->FK_CommandGroup_getrow()->FK_DesignObj_isNull() ? 0 : drAG_R->FK_CommandGroup_getrow()->FK_DesignObj_get(),
+                            bNoSubstitutions || drAG_R->FK_CommandGroup_getrow()->FK_DesignObj_isNull() ? 0 : drAG_R->FK_CommandGroup_getrow()->FK_DesignObj_get(),
                             drAG_R->FK_CommandGroup_get(),VARIABLE_PK_CommandGroup_CONST,drAG_R->FK_CommandGroup_getrow()->CanBeHidden_get()==1,false,PriorSort==drAG_R->Sort_get()));
                         PriorSort=drAG_R->Sort_get();
                     }
