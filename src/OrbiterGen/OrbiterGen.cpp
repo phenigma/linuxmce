@@ -840,6 +840,12 @@ break; ///**************************** temp
 		}
 	}
 
+	vector<Row_DesignObj *> vectRow_DesignObj_AlwaysInclude;
+	mds.DesignObj_get()->GetRows("Priority=127",&vectRow_DesignObj_AlwaysInclude);
+	for(size_t s=0;s<vectRow_DesignObj_AlwaysInclude.size();++s)
+		alNewDesignObjsToGenerate.push_back(vectRow_DesignObj_AlwaysInclude[s]);
+
+
 	sql = string("select DeviceTemplate_MediaType_DesignObj.FK_DesignObj,Device.FK_DesignObj,FK_DesignObj_Popup,FK_DesignObj_FileList,FK_DesignObj_FileList_Popup") + 
 		" FROM Device " +
 		" INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate " +

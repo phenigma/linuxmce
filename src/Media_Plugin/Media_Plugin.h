@@ -76,6 +76,7 @@ private:
 
 	// mapping from job names to a pair or caller devices and the job running devices.
 	map<string, pair<int, int> > m_mapRippingJobsToRippingDevices;
+	map<int,string> m_mapMediaType_2_Directory;
 
 	// When deciding what remote control to use, we will look in these 4 maps in this order,
 	// first for a specific remote for this orbiter/source device/mediatype combination, then for this
@@ -117,7 +118,6 @@ protected:
 	bool HandleDeviceOnOffEvent(MediaDevice *pMediaDevice,bool bIsOn);
 
 	RemoteControlSet *PickRemoteControlMap(int PK_Orbiter,int iPK_DeviceTemplate,int PK_MediaType);
-	string TranslateMediaTypeToDirectory(int iPK_MediaType);
 
 	/**
 	 * Sometimes we just want to override the description with a

@@ -103,6 +103,7 @@ DesignObj_Orbiter::DesignObj_Orbiter(Orbiter *pCore)
 	m_bDisableAspectLock=false;
 	m_bOnScreen=false;
 	m_bContainsDataGrid=false;
+	m_bIsBoundToUser=m_bIsBoundToLocation=false;
 };
 //-------------------------------------------------------------------------------------------------------
 DesignObj_Orbiter::~DesignObj_Orbiter()

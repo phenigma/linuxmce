@@ -4000,6 +4000,14 @@ void Media_Plugin::PopulateRemoteControlMaps()
 					= new RemoteControlSet(pRow_RemoteControl->FK_DeviceTemplate_MediaType_DesignObj_getrow());
 		}
 	}
+
+	vector<Row_MediaType *> vectRow_MediaType;
+	m_pDatabase_pluto_main->MediaType_get()->GetRows("1=1",&vectRow_MediaType);
+	for(size_t s=0;s<vectRow_MediaType.size();++s)
+	{
+		Row_MediaType *pRow_MediaType = vectRow_MediaType[s];
+        m_mapMediaType_2_Directory[pRow_MediaType->PK_MediaType_get()]=pRow_MediaType->Subdirectory_get();
+	}
 }
 
 RemoteControlSet *Media_Plugin::PickRemoteControlMap(int PK_Orbiter,int iPK_DeviceTemplate,int PK_MediaType)
@@ -4057,24 +4065,8 @@ void Media_Plugin::CMD_MH_Send_Me_To_File_List(int iPK_MediaType,int iPK_DeviceT
 	{
 		DCE::CMD_Show_File_List CMD_Show_File_List(m_dwPK_Device,pMessage->m_dwPK_Device_From,
 			StringUtils::itos(pRemoteControlSet->m_iPK_DesignObj_FileList),
-			TranslateMediaTypeToDirectory(iPK_MediaType),iPK_MediaType,
+			m_mapMediaType_2_Directory[iPK_MediaType],iPK_MediaType,
 			StringUtils::itos(pRemoteControlSet->m_iPK_DesignObj_FileList_Popup));
 		SendCommand(CMD_Show_File_List);
 	}
-}
-
-string Media_Plugin::TranslateMediaTypeToDirectory(int iPK_MediaType)
-{
-	switch( iPK_MediaType )
-	{
-	case MEDIATYPE_pluto_CD_CONST:
-		return "music";
-	case MEDIATYPE_pluto_DVD_CONST:
-		return "movies";
-	case MEDIATYPE_pluto_StoredAudio_CONST:
-		return "music";
-	case MEDIATYPE_pluto_StoredVideo_CONST:
-		return "videos";
-	}
-	return "";
 }

@@ -33,6 +33,7 @@
 #include "pluto_main/Define_Template.h"
 #include "pluto_main/Define_Array.h"
 #include "pluto_main/Define_DeviceCategory.h"
+#include "pluto_main/Define_MediaType.h"
 #include "pluto_main/Table_Command.h"
 #include "pluto_main/Table_CommandGroup.h"
 #include "pluto_main/Table_CommandGroup_Command.h"
@@ -56,14 +57,28 @@ UpdateEntArea::UpdateEntArea(int PK_Installation,string host, string user, strin
 	m_iPK_Installation=PK_Installation;
 
 	vector<Row_Device *> vectRow_Device;
-	m_pDatabase_pluto_main->Device_get()->GetRows("JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_Installation=" + 
-		StringUtils::itos(PK_Installation) + " AND FK_DeviceCategory=" + StringUtils::itos(DEVICECATEGORY_Media_Plugins_CONST),&vectRow_Device);
+	string sql = "JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory=" + StringUtils::itos(DEVICECATEGORY_Media_Plugins_CONST);
+	if( m_iPK_Installation!=-1 )
+		sql += " AND FK_Installation=" + StringUtils::itos(PK_Installation);
+	m_pDatabase_pluto_main->Device_get()->GetRows(sql,&vectRow_Device);
 	if( vectRow_Device.size()!=1 )
 	{
 		cerr << "Cannot find a media plugin" << endl;
 		throw "No Media Plugin";
 	}
 	m_dwPK_Device_MediaPlugIn=vectRow_Device[0]->PK_Device_get();
+	m_iPK_Installation = vectRow_Device[0]->FK_Installation_get();
+
+	sql = "JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory=" + StringUtils::itos(DEVICECATEGORY_Orbiter_Plugins_CONST);
+	if( m_iPK_Installation!=-1 )
+		sql += " AND FK_Installation=" + StringUtils::itos(PK_Installation);
+	m_pDatabase_pluto_main->Device_get()->GetRows(sql,&vectRow_Device);
+	if( vectRow_Device.size()!=1 )
+	{
+		cerr << "Cannot find a media plugin" << endl;
+		throw "No Media Plugin";
+	}
+	m_dwPK_Device_OrbiterPlugIn=vectRow_Device[0]->PK_Device_get();
 }
 
 void UpdateEntArea::DoIt()
@@ -273,45 +288,36 @@ void UpdateEntArea::AddDefaultCommandsToEntArea(Row_EntertainArea *pRow_Entertai
 	int PK_CommandGroup;
 	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_TV_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_TV_CONST,"TV"))!=0 )
 	{
-		AddCommand(PK_CommandGroup,m_dwPK_Device_MediaPlugIn,COMMAND_MH_Play_Media_CONST,1,COMMANDPARAMETER_PK_MediaType_CONST,"1");
+		AddCommand(PK_CommandGroup,m_dwPK_Device_MediaPlugIn,COMMAND_MH_Play_Media_CONST,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_pluto_LiveTV_CONST).c_str());
 	}
 	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_Disc_CDDVD_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_Disc_CDDVD_CONST,"Play Disc"))!=0 )
 	{
-		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,"1696");
+		AddCommand(PK_CommandGroup,m_dwPK_Device_OrbiterPlugIn,COMMAND_Display_Message_On_Orbiter_CONST,2,COMMANDPARAMETER_PK_Device_List_CONST,"<%=!%>",COMMANDPARAMETER_Text_CONST,"<%=555%>");
 		AddCommand(PK_CommandGroup,m_dwPK_Device_MediaPlugIn,COMMAND_MH_Play_Media_CONST,0);
 	}
 	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_playlists_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_playlists_CONST,"Playlists"))!=0 )
 	{
-		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,"3226");
+		AddCommand(PK_CommandGroup,m_dwPK_Device_MediaPlugIn,COMMAND_MH_Send_Me_To_File_List_CONST,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_misc_Playlist_CONST).c_str());
 	}
 	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_music_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_music_CONST,"Music"))!=0 )
 	{
-		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Set_Variable_CONST,2,COMMANDPARAMETER_PK_Variable_CONST,"2",COMMANDPARAMETER_Value_To_Assign_CONST,"music");
-		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Set_Variable_CONST,2,COMMANDPARAMETER_PK_Variable_CONST,"14",COMMANDPARAMETER_Value_To_Assign_CONST,"4");
-		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,"2071");
+		AddCommand(PK_CommandGroup,m_dwPK_Device_MediaPlugIn,COMMAND_MH_Send_Me_To_File_List_CONST,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_pluto_StoredAudio_CONST).c_str());
 	}
 	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_movies_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_movies_CONST,"Movies"))!=0 )
 	{
-		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Set_Variable_CONST,2,COMMANDPARAMETER_PK_Variable_CONST,"2",COMMANDPARAMETER_Value_To_Assign_CONST,"movies");
-		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Set_Variable_CONST,2,COMMANDPARAMETER_PK_Variable_CONST,"14",COMMANDPARAMETER_Value_To_Assign_CONST,"3");
-		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,"2071");
+		AddCommand(PK_CommandGroup,m_dwPK_Device_MediaPlugIn,COMMAND_MH_Send_Me_To_File_List_CONST,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_pluto_DVD_CONST).c_str());
 	}
 	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_videos_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_videos_CONST,"Videos"))!=0 )
 	{
-		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Set_Variable_CONST,2,COMMANDPARAMETER_PK_Variable_CONST,"2",COMMANDPARAMETER_Value_To_Assign_CONST,"videos");
-		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Set_Variable_CONST,2,COMMANDPARAMETER_PK_Variable_CONST,"14",COMMANDPARAMETER_Value_To_Assign_CONST,"5");
-		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,"2071");
+		AddCommand(PK_CommandGroup,m_dwPK_Device_MediaPlugIn,COMMAND_MH_Send_Me_To_File_List_CONST,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_pluto_StoredVideo_CONST).c_str());
 	}
 	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_pictures_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_pictures_CONST,"Pictures"))!=0 )
 	{
-		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Set_Variable_CONST,2,COMMANDPARAMETER_PK_Variable_CONST,"2",COMMANDPARAMETER_Value_To_Assign_CONST,"pictures");
-		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Set_Variable_CONST,2,COMMANDPARAMETER_PK_Variable_CONST,"14",COMMANDPARAMETER_Value_To_Assign_CONST,"7");
-		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,"3282");
+		AddCommand(PK_CommandGroup,m_dwPK_Device_MediaPlugIn,COMMAND_MH_Send_Me_To_File_List_CONST,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_pluto_Pictures_CONST).c_str());
 	}
 	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_documents_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_documents_CONST,"Docs"))!=0 )
 	{
-		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Set_Variable_CONST,2,COMMANDPARAMETER_PK_Variable_CONST,"2",COMMANDPARAMETER_Value_To_Assign_CONST,"docs");
-		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,"3282");
+		AddCommand(PK_CommandGroup,m_dwPK_Device_MediaPlugIn,COMMAND_MH_Send_Me_To_File_List_CONST,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_misc_DocViewer_CONST).c_str());
 	}
 }
 

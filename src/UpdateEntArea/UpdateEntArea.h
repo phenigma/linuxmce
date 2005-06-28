@@ -8,7 +8,7 @@
 class UpdateEntArea 
 {
 	int m_iPK_Installation;
-	int m_dwPK_Device_MediaPlugIn;
+	int m_dwPK_Device_MediaPlugIn,m_dwPK_Device_OrbiterPlugIn;
 
 public:
     Database_pluto_main *m_pDatabase_pluto_main ;

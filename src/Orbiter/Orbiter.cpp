@@ -711,7 +711,7 @@ g_pPlutoLogger->Write( LV_STATUS, "object: %s  not visible: %d", pObj->m_ObjectI
         pObj->m_pvectCurrentGraphic = &(pObj->m_vectGraphic);
 
     // This is somewhat of a hack, but we don't have a clean method for setting the graphics on the user & location buttons to
-    if( pObj->m_iBaseObjectID==DESIGNOBJ_objCurrentUser_CONST )
+    if( pObj->m_bIsBoundToUser )
     {
         vector<PlutoGraphic*> *pvectGraphic = m_mapUserIcons[m_dwPK_Users];
 		//vector<PlutoGraphic*> *p = pvectGraphic;
@@ -721,7 +721,7 @@ g_pPlutoLogger->Write( LV_STATUS, "object: %s  not visible: %d", pObj->m_ObjectI
         if( pObj->m_pvectCurrentGraphic )
             RenderGraphic(pObj, rectTotal, false, point);
     }
-    else if( pObj->m_iBaseObjectID==DESIGNOBJ_objCurrentLocation_CONST )
+    else if( pObj->m_bIsBoundToLocation )
     {
         if( m_pLocationInfo && m_pLocationInfo->m_pvectGraphic )
             pObj->m_pvectCurrentGraphic = m_pLocationInfo->m_pvectGraphic;
@@ -3091,63 +3091,6 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
     }
     }
     */
-
-    if(  pObj->m_iBaseObjectID==DESIGNOBJ_butUser_CONST  )
-    {
-        int PK_Users=0;
-        DesignObjZoneList::iterator iZone;
-        for( iZone=pObj->m_ZoneList.begin(  );!PK_Users && iZone!=pObj->m_ZoneList.end(  );++iZone )
-        {
-            DesignObjCommandList::iterator iAction;
-            for( iAction=( *iZone )->m_Commands.begin(  );!PK_Users && iAction!=( *iZone )->m_Commands.end(  );++iAction )
-            {
-                if(  ( *iAction )->m_PK_Command==COMMAND_Set_Current_User_CONST  )
-                {
-                    map<int,  string>::iterator iap;
-                    for( iap=( *iAction )->m_ParameterList.begin(  );iap!=( *iAction )->m_ParameterList.end(  );++iap )
-                    {
-                        if(  ( *iap ).first==COMMANDPARAMETER_PK_Users_CONST  )
-                        {
-                            PK_Users=atoi( ( ( *iap ).second ).c_str(  ) );
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        if(  PK_Users  )
-            m_mapUserIcons[PK_Users]= &(pObj->m_vectGraphic);
-    }
-    else if(  pObj->m_iBaseObjectID==DESIGNOBJ_butLocations_CONST  )
-    {
-        int iLocation=-1;
-        DesignObjZoneList::iterator iZone;
-        for( iZone=pObj->m_ZoneList.begin(  );iZone!=pObj->m_ZoneList.end(  );++iZone )
-        {
-            DesignObjCommandList::iterator iAction;
-            for( iAction=( *iZone )->m_Commands.begin(  );iAction!=( *iZone )->m_Commands.end(  );++iAction )
-            {
-                //int c = ( *iAction )->m_PK_Command;
-                if(  ( *iAction )->m_PK_Command==COMMAND_Set_Current_Location_CONST  )
-                {
-                    map<int,  string>::iterator iap;
-                    for( iap=( *iAction )->m_ParameterList.begin(  );iap!=( *iAction )->m_ParameterList.end(  );++iap )
-                    {
-                        if(  ( *iap ).first==COMMANDPARAMETER_LocationID_CONST  )
-                        {
-                            iLocation=atoi( ( ( *iap ).second ).c_str(  ) );
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        if(  iLocation!=-1  )
-        {
-            LocationInfo *pLocation = m_dequeLocation[iLocation];
-            pLocation->m_pvectGraphic = &(pObj->m_vectGraphic);
-        }
-    }
 }
 //------------------------------------------------------------------------
 bool Orbiter::RenderDesktop( class DesignObj_Orbiter *pObj,  PlutoRectangle rectTotal, PlutoPoint point )
@@ -6293,6 +6236,77 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 	if( !pObj )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find object: %s for bind icon",sPK_DesignObj.c_str());
+		return;
+	}
+
+	if( sType=="room_button" )
+	{
+        int iLocation=-1;
+        DesignObjZoneList::iterator iZone;
+        for( iZone=pObj->m_ZoneList.begin(  );iZone!=pObj->m_ZoneList.end(  );++iZone )
+        {
+            DesignObjCommandList::iterator iAction;
+            for( iAction=( *iZone )->m_Commands.begin(  );iAction!=( *iZone )->m_Commands.end(  );++iAction )
+            {
+                //int c = ( *iAction )->m_PK_Command;
+                if(  ( *iAction )->m_PK_Command==COMMAND_Set_Current_Location_CONST  )
+                {
+                    map<int,  string>::iterator iap;
+                    for( iap=( *iAction )->m_ParameterList.begin(  );iap!=( *iAction )->m_ParameterList.end(  );++iap )
+                    {
+                        if(  ( *iap ).first==COMMANDPARAMETER_LocationID_CONST  )
+                        {
+                            iLocation=atoi( ( ( *iap ).second ).c_str(  ) );
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        if(  iLocation!=-1  )
+        {
+            LocationInfo *pLocation = m_dequeLocation[iLocation];
+            pLocation->m_pvectGraphic = &(pObj->m_vectGraphic);
+        }
+		return;
+	}
+
+	if( sType=="room" )
+	{
+		pObj->m_bIsBoundToLocation=true;
+		return;
+	}
+	if( sType=="user_button" )
+	{
+        int PK_Users=0;
+        DesignObjZoneList::iterator iZone;
+        for( iZone=pObj->m_ZoneList.begin(  );!PK_Users && iZone!=pObj->m_ZoneList.end(  );++iZone )
+        {
+            DesignObjCommandList::iterator iAction;
+            for( iAction=( *iZone )->m_Commands.begin(  );!PK_Users && iAction!=( *iZone )->m_Commands.end(  );++iAction )
+            {
+                if(  ( *iAction )->m_PK_Command==COMMAND_Set_Current_User_CONST  )
+                {
+                    map<int,  string>::iterator iap;
+                    for( iap=( *iAction )->m_ParameterList.begin(  );iap!=( *iAction )->m_ParameterList.end(  );++iap )
+                    {
+                        if(  ( *iap ).first==COMMANDPARAMETER_PK_Users_CONST  )
+                        {
+                            PK_Users=atoi( ( ( *iap ).second ).c_str(  ) );
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        if(  PK_Users  )
+            m_mapUserIcons[PK_Users]= &(pObj->m_vectGraphic);
+		return;
+	}
+
+	if( sType=="user" )
+	{
+		pObj->m_bIsBoundToUser=true;
 		return;
 	}
 
