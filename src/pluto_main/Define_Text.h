@@ -494,6 +494,14 @@
 #define TEXT_mobile_signal_strength_CONST 1169
 #define TEXT_New_Devices_Configured_CONST 1170
 #define TEXT_Hide_Popup_CONST 1171
+#define TEXT_Select_current_user_CONST 1172
+#define TEXT_Select_room_CONST 1173
+#define TEXT_Ligthing_scenarios_CONST 1174
+#define TEXT_Media_Scenarios_CONST 1175
+#define TEXT_Other_options_CONST 1176
+#define TEXT_Security_scenarios_CONST 1177
+#define TEXT_Telecom_scenarios_CONST 1178
+#define TEXT_Climate_scenarios_CONST 1179
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

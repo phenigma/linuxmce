@@ -23,7 +23,6 @@
 #define MEDIATYPE_misc_BlankMedia_CONST 23
 #define MEDIATYPE_misc_DocViewer_CONST 24
 
-
 #define MEDIATYPE_TABLE "MediaType"
 #define MEDIATYPE_PK_MEDIATYPE_FIELD "PK_MediaType"
 #define MEDIATYPE_PK_MEDIATYPE_TABLE_FIELD "MediaType.PK_MediaType"

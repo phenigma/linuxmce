@@ -290,7 +290,6 @@
 #define DESIGNOBJ_objAddEPGFavoriteShow_CONST 1693
 #define DESIGNOBJ_butUser_CONST 1694
 #define DESIGNOBJ_arrUsers_CONST 1695
-#define DESIGNOBJ_mnuNoMediaInDrive_CONST 1696
 #define DESIGNOBJ_mnuRecordMediaSelect_CONST 1698
 #define DESIGNOBJ_objBurnCDAudio_CONST 1699
 #define DESIGNOBJ_objBurnCDData_CONST 1700
@@ -1263,13 +1262,13 @@
 #define DESIGNOBJ_objShowShortcuts_CONST 3470
 #define DESIGNOBJ_Marbella_CONST 3471
 #define DESIGNOBJ_butMediaMap_CONST 3472
-#define DESIGNOBJ_arrMediaMarbella_CONST 3473
+#define DESIGNOBJ_arrMediaMarbellaMainMenu_CONST 3473
 #define DESIGNOBJ_butShortArray_CONST 3474
 #define DESIGNOBJ_butNowPlaying_CONST 3475
 #define DESIGNOBJ_objLightMap_CONST 3476
 #define DESIGNOBJ_butLightsUp_CONST 3477
 #define DESIGNOBJ_butLightsDown_CONST 3478
-#define DESIGNOBJ_arrLightsMarbella_CONST 3479
+#define DESIGNOBJ_arrLightsMarbellaMainMenu_CONST 3479
 #define DESIGNOBJ_butArrayMore_CONST 3480
 #define DESIGNOBJ_butLightsMore_CONST 3481
 #define DESIGNOBJ_grpMediaNavigation_Small_CONST 3482
@@ -1300,6 +1299,18 @@
 #define DESIGNOBJ_butInvisibleGotoFullRemote_CONST 3512
 #define DESIGNOBJ_mnuFileList_Popup_Container_CONST 3513
 #define DESIGNOBJ_butCloseFileListPopup_CONST 3514
+#define DESIGNOBJ_arrClimateMarbella_CONST 3515
+#define DESIGNOBJ_arrMiscMarbella_CONST 3516
+#define DESIGNOBJ_arrSecurityMarbella_CONST 3517
+#define DESIGNOBJ_arrTelecomMarbella_CONST 3518
+#define DESIGNOBJ_butClimateMap_CONST 3519
+#define DESIGNOBJ_butSecurityMap_CONST 3520
+#define DESIGNOBJ_butTelecomMap_CONST 3521
+#define DESIGNOBJ_butMedia_CONST 3522
+#define DESIGNOBJ_butLights_CONST 3523
+#define DESIGNOBJ_arrMediaMarbella_CONST 3524
+#define DESIGNOBJ_arrLightsMarbella_CONST 3525
+#define DESIGNOBJ_butPopupTelecom_CONST 3526
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
