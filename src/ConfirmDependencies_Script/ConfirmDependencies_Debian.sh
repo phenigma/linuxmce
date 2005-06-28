@@ -145,6 +145,7 @@ case "$URL_TYPE" in
 		Ret=$?
 		if [[ "$Ret" -eq 0 ]]; then
 			AddPackageDevice "$PK_Device" "$PK_PACKAGE"
+		fi
 		exit $Ret
 	;;
 
@@ -153,6 +154,7 @@ case "$URL_TYPE" in
 		Ret=$?
 		if [[ "$Ret" -eq 0 ]]; then
 			AddPackageDevice "$PK_Device" "$PK_PACKAGE"
+		fi
 		exit $Ret
 	;;
 esac
