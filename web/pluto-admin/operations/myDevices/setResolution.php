@@ -14,6 +14,9 @@ function setResolution($output,$dbADO) {
 		$oldResolution=@$oldDD[0];
 		$oldRefresh=@$oldDD[1];
 	}
+	$mdDetails=getFieldsAsArray('Device','IPaddress',$dbADO,'WHERE PK_Device='.$mdID);
+	$ipAddress=$mdDetails['IPaddress'][0];
+
 	
 	if ($action=='form') {
 
@@ -55,8 +58,6 @@ $out.='
 	} elseif($action=='confirm'){
 		$resolution=$_POST['resolution'];
 		$refresh=$_POST['refresh'];
-		$mdDetails=getFieldsAsArray('Device','IPaddress',$dbADO,'WHERE PK_Device='.$mdID);
-		$ipAddress=$mdDetails['IPaddress'][0];
 
 		list($resX, $resY, $resType) = explode(' ', $resolution);
 		if ($resType === "i")
@@ -98,27 +99,33 @@ $out.='
 		<td colspan="2" bgcolor="#F0F3F8">'.join('<br>',$retArray).'</td>
 	</tr>
 	<tr>
-		<td colspan="2" align="center"><input type="submit" class="button" name="submit" value="Yes"> <input type="button" class="button" name="submit" value="No" onClick="self.location=\'index.php?section=setResolution&mdID='.$mdID.'\'"></td>
+		<td colspan="2" align="center"><input type="submit" class="button" name="yesBtn" value="Yes"> <input type="submit" class="button" name="noBtn" value="No"></td>
 	</tr>
 </table>		
 </form>';
 			
 	}else {
-		$Answer = ""; // 'Y', 'N'
+		if(isset($_POST['yesBtn'])){
+			$Answer = "Y"; // 'Y', 'N'
+		
+			$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
+			if (!$canModifyInstallation){
+				header("Location: index.php?section=setResolution&error=You are not authorised to change the installation.");
+				exit(0);
+			}
+	
+			$resolution=$_POST['resolution'];
+			$refresh=$_POST['refresh'];
+			$newVS=$resolution.'/'.$refresh;
+			$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($newVS,$mdID,$GLOBALS['VideoSettings']));
+			$msg='Resolution and refresh updated.';
+		}else{
+			$Answer="N";
+		}
+		
 		exec("sudo -u root /usr/pluto/bin/LaunchRemoteCmd.sh '$ipAddress' '/usr/pluto/bin/Xres_config_end.sh $Answer'");
 		
-		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
-		if (!$canModifyInstallation){
-			header("Location: index.php?section=setResolution&error=You are not authorised to change the installation.");
-			exit(0);
-		}
-
-		$resolution=$_POST['resolution'];
-		$refresh=$_POST['refresh'];
-		$newVS=$resolution.'/'.$refresh;
-		$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($newVS,$mdID,$GLOBALS['VideoSettings']));
-
-		header("Location: index.php?section=setResolution&mdID=$mdID&msg=Resolution and refresh updated.");
+		header("Location: index.php?section=setResolution&mdID=$mdID&msg=$msg");
 	}
 	
 	$output->setBody($out);
