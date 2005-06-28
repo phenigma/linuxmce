@@ -14,7 +14,7 @@ function setResolution($output,$dbADO) {
 		$oldResolution=@$oldDD[0];
 		$oldRefresh=@$oldDD[1];
 	}
-
+	
 	if ($action=='form') {
 
 		$out.='
@@ -55,6 +55,8 @@ $out.='
 	} elseif($action=='confirm'){
 		$resolution=$_POST['resolution'];
 		$refresh=$_POST['refresh'];
+		$mdDetails=getFieldsAsArray('Device','IPaddress',$dbADO,'WHERE PK_Device='.$mdID);
+		$ipAddress=$mdDetails['IPaddress'][0];
 		
 		// TODO for Radu: put correct script
 		exec('pathto/script_of_radu',$retArray);
