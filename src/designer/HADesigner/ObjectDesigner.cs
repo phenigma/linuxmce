@@ -320,8 +320,8 @@ namespace HADesigner
 			this.mnuSkin.MenuItems[0].Checked = true;
 
 			this.tbDescription.Text = this.m_objUIDesignObj.DescriptionOnly;
-			this.nudPriority.Value = this.m_objUIDesignObj.Priority;
-			this.cbAnimate.Checked = this.m_objUIDesignObj.Animate;
+//			this.nudPriority.Value = this.m_objUIDesignObj.Priority;
+//			this.cbAnimate.Checked = this.m_objUIDesignObj.Animate;
 			//get the actions
 			CommandTree.CreateTree(this.tvCommand);
 

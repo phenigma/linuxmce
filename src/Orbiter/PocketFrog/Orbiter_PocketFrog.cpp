@@ -548,7 +548,10 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 {
 	CHECK_STATUS();
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
-
+if( pPlutoGraphic->m_Filename=="" )
+{
+int k=2;
+}
 	if(!pPlutoGraphic || pPlutoGraphic->GraphicType_get() != gtPocketFrogGraphic)
 		return;//nothing to render or not an pocket frog graphic
 

@@ -650,7 +650,7 @@ g_pPlutoLogger->Write( LV_STATUS, "Exiting Redraw Objects" );
 //-----------------------------------------------------------------------------------------------------------
 void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Screen, PlutoPoint point)
 {
-if( pObj->m_ObjectID.find("3412")!=string::npos) //&& this->m_pScreenHistory_Current && this->m_pScreenHistory_Current->m_pObj->m_ObjectID.find("1255")!=string::npos )
+if( pObj->m_ObjectID.find("2355")!=string::npos) //&& this->m_pScreenHistory_Current && this->m_pScreenHistory_Current->m_pObj->m_ObjectID.find("1255")!=string::npos )
 {
 int k=2;
 }
@@ -1296,6 +1296,10 @@ void Orbiter::ObjectOnScreenWrapper(  )
     // a variable and a datagrid that uses it.  PopulateDataGrid can get called before the
     // variable is set.  10-15-2003
     ObjectOnScreen( &vectDesignObj_Orbiter_OnScreen, m_pScreenHistory_Current->m_pObj );
+
+	// Do the on load actions for the screen itself,  and objects on it
+    ExecuteCommandsInList( &m_pScreenHistory_Current->m_pObj->m_Action_LoadList, m_pScreenHistory_Current->m_pObj, 0, 0 );
+
 	HandleNewObjectsOnScreen( &vectDesignObj_Orbiter_OnScreen );
 
     //if(  m_vectObjs_TabStops.size(  )  )
@@ -7214,7 +7218,10 @@ void Orbiter::CMD_Remove_Popup(string sPK_DesignObj_CurrentScreen,string sName,s
 	if( pObj )
 	{
 		for(list<class PlutoPopup*>::iterator it=pObj->m_listPopups.begin();it!=pObj->m_listPopups.end();)
+		{
+			ObjectOffScreen((*it)->m_pObj);
 			delete *it++;
+		}
 
         if(pObj->m_listPopups.size()) //no popup, no refresh
             CMD_Refresh("");
@@ -7224,7 +7231,10 @@ void Orbiter::CMD_Remove_Popup(string sPK_DesignObj_CurrentScreen,string sName,s
 	else
 	{
 		for(list<class PlutoPopup*>::iterator it=m_listPopups.begin();it!=m_listPopups.end();)
+		{
+			ObjectOffScreen((*it)->m_pObj);
 			delete *it++;
+		}
 
         if(m_listPopups.size()) //no popup, no refresh
             CMD_Refresh("");
@@ -7338,9 +7348,6 @@ void Orbiter::AddPopup(list<class PlutoPopup*> &listPopups,class PlutoPopup *pPo
 
 void Orbiter::HandleNewObjectsOnScreen(VectDesignObj_Orbiter *pVectDesignObj_Orbiter)
 {
-    // Do the on load actions for the screen itself,  and objects on it
-    ExecuteCommandsInList( &m_pScreenHistory_Current->m_pObj->m_Action_LoadList, m_pScreenHistory_Current->m_pObj, 0, 0 );
-
     size_t s;
     for( s=0;s<pVectDesignObj_Orbiter->size(  );++s )
     {
