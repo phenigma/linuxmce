@@ -17,7 +17,7 @@ ShowDialog()
 }
 
 Modeline="$(/usr/pluto/bin/xtiming.pl "$Width" "$Height" "$Refresh" "$Type")"
-if [[ "$Refresh" != "60" ]]; then
+if [[ "${Refresh// }" != "60" ]]; then
 	ModeName="${Modeline%% *}"
 else
 	# Workaround of the 'i810' driver which decides on its own to ignore ModeLines completely
@@ -35,11 +35,17 @@ awk '
 ' /etc/X11/XF86Config-4 >/etc/X11/XF86Config-4.test
 
 X :1 -ac -xf86config /etc/X11/XF86Config-4.test &
-sleep 1
-pidOfX="$(ps ax|grep 'X :1 -ac -xf86config /etc/X11/XF86Config-4.test'|grep -v grep|cut -f1 -d' ')"
+pidOfX=
+Timeout=5
+while [[ -z "$pidOfX" && $Timeout > 0 ]]; do
+	pidOfX="$(ps ax|grep 'X :1 -ac -xf86config /etc/X11/XF86Config-4.test'|grep -v grep|awk '{print $1}')"
+	((Timeout--))
+	sleep 1
+done
+
 if [[ -z "$pidOfX" ]]; then
 	echo "X didn't start"
-	exit 1
+	exit 10
 fi
 
 setting="$(xrandr -d :1 -q|grep '^\*')"
@@ -50,5 +56,5 @@ Msg="Current resolution: $resolution @ $refresh Hz"
 echo "$Msg"
 ShowDialog "$pidOfX" "$Msg" &
 
-disown -ah
+disown -a
 exit 0

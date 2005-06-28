@@ -10,8 +10,13 @@ echo "IP: $IP ; Cmd: $Cmd" >>"$Log"
 
 if [ -n "$IP" -a "$#" -ne 0 ]; then
 	if [ "$IP" != "127.0.0.1" ]; then
-		ssh -l root -i /usr/pluto/keys/id_dsa_pluto_apache "$IP" "$Cmd" > >(tee -a "$Log") 2> >(cat >>"$Log")
-		[ $? -ne 0 -a $? -ne 10 ] && echo "Failed to contact destination computer (IP: $IP)"
+		Output="$(ssh -l root -i /usr/pluto/keys/id_dsa_pluto_apache "$IP" "$Cmd; echo \$?; sleep 1; kill \$PPID" > >(tee -a "$Log") 2> >(cat >>"$Log"))"
+		Ret="$(echo "$Output" | tail -1)"
+		
+		[[ $Ret -ne 0 && $Ret -ne 10 ]] && echo "Failed to contact destination computer (IP: $IP)" && exit 1
+		Lines=$(echo "$Output" | wc -l | awk '{print $1}')
+		Output="$(echo "$Output" | awk 'NR < '$Lines' {print}')"
+		echo "$Output"
 	else
 		eval "$Cmd"
 	fi

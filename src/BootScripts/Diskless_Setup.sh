@@ -96,7 +96,7 @@ for Client in $R; do
 	Digit=$(echo "$IP" | cut -d. -sf4)
 
 	# TODO: replace InRage with InSubnet thing
-	if [ "$IP" == "NULL" -o -z "$IP" ] || ! InRange "$Digit" "$DHCPsetting"; then
+	if [ "$IP" == "NULL" -o -z "${IP// }" ] || ! InRange "$Digit" "$DHCPsetting"; then
 		FreeDigit=$(GetFreeDigit "$DHCPsetting")
 		echo "* IP allocation"
 		if [ -z "$FreeDigit" ]; then
