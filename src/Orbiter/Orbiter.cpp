@@ -5170,7 +5170,7 @@ void Orbiter::CMD_Refresh(string sDataGrid_ID,string &sCMD_Result,Message *pMess
 //	{
 //int x=g_iDontRender;
 //g_pPlutoLogger->Write(LV_WARNING,"CMD_Set_Now_Playing Waiting for g_iDontRender flag");
-//		Sleep(100);
+//		Sleep(100); 
 //	}
 
 	if( sDataGrid_ID.length()==0 )

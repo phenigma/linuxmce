@@ -230,7 +230,7 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 			}
 			else
 			{
-				pRenderImage_Child = CreateFromFile(sInputFile,pDesignObj_Generator->m_rBackgroundPosition.Size(),bPreserveAspectRatio,bIsMenu,pDesignObj_Generator->m_rBitmapOffset);
+				pRenderImage_Child = CreateFromFile(sInputFile,pDesignObj_Generator->m_rBackgroundPosition.Size(),bPreserveAspectRatio,bIsMenu,pDesignObj_Generator->m_rBitmapOffset,!pDesignObj_Generator->m_bContainsFloorplans);
 //SaveImageToFile(pRenderImage_Child, "first");
 			}
 
@@ -517,12 +517,12 @@ int k=2;
 }
 
 // load image from file and possibly scale/stretch it
-RendererImage * Renderer::CreateFromFile(string sFilename, PlutoSize size,bool bPreserveAspectRatio,bool bCrop,PlutoRectangle offset)
+RendererImage * Renderer::CreateFromFile(string sFilename, PlutoSize size,bool bPreserveAspectRatio,bool bCrop,PlutoRectangle offset,bool bUseAntiAliasing)
 {
 	FILE * File;
 
 	File = fopen(sFilename.c_str(), "rb");
-	RendererImage * Result = CreateFromFile(File, size, bPreserveAspectRatio, bCrop, offset);
+	RendererImage * Result = CreateFromFile(File, size, bPreserveAspectRatio, bCrop, offset,bUseAntiAliasing);
     if (Result == NULL)
     {
         throw "Can't create surface from file: " + sFilename  + ": " + SDL_GetError();
@@ -532,7 +532,7 @@ RendererImage * Renderer::CreateFromFile(string sFilename, PlutoSize size,bool b
 	return Result;
 }
 
-RendererImage * Renderer::CreateFromRWops(SDL_RWops * rw, bool bFreeRWops, PlutoSize size, bool bPreserveAspectRatio, bool bCrop, PlutoRectangle offset)
+RendererImage * Renderer::CreateFromRWops(SDL_RWops * rw, bool bFreeRWops, PlutoSize size, bool bPreserveAspectRatio, bool bCrop, PlutoRectangle offset, bool bUseAntiAliasing)
 {
     SDL_Surface * SurfaceFromFile=NULL;
     //  try
@@ -618,6 +618,8 @@ RendererImage * Renderer::CreateFromRWops(SDL_RWops * rw, bool bFreeRWops, Pluto
 
 //	RIFromFile->m_sFilename = sFilename;
 
+    //printf(" %s ", bUseAntiAliasing ? "with AA" : "without AA");
+
     SDL_Surface * ScaledSurface;
     if (W == SurfaceFromFile->w && H == SurfaceFromFile->h)
     {
@@ -625,9 +627,9 @@ RendererImage * Renderer::CreateFromRWops(SDL_RWops * rw, bool bFreeRWops, Pluto
         //SDL_BlitSurface(SurfaceFromFile, NULL, RIFromFile->m_pSDL_Surface, NULL);
         //sge_transform(SurfaceFromFile, RIFromFile->m_pSDL_Surface, 0, 1, 1, 0, 0, 0, 0, SGE_TSAFE);
 #ifdef USE_SGE_TRANSFORM        
-        ScaledSurface = sge_transform_surface(SurfaceFromFile, SDL_MapRGBA(SurfaceFromFile->format, 0, 0, 0, 0), 0, 1, 1, SGE_TSAFE);
+        ScaledSurface = sge_transform_surface(SurfaceFromFile, SDL_MapRGBA(SurfaceFromFile->format, 0, 0, 0, 0), 0, 1, 1, bUseAntiAliasing ? SGE_TSAFE | SGE_TAA : SGE_TSAFE);
 #else        
-        ScaledSurface = zoomSurface(SurfaceFromFile, 1, 1, SMOOTHING_OFF);
+        ScaledSurface = zoomSurface(SurfaceFromFile, 1, 1, bUseAntiAliasing ? SMOOTHING_ON : SMOOTHING_OFF);
 #endif
     }
     else
@@ -657,10 +659,10 @@ RendererImage * Renderer::CreateFromRWops(SDL_RWops * rw, bool bFreeRWops, Pluto
 
         //sge_transform(SurfaceFromFile, RIFromFile->m_pSDL_Surface, 0, scaleX, scaleY, 0, 0, 0, 0, SGE_TSAFE);
 #ifdef USE_SGE_TRANSFORM 
-        ScaledSurface = sge_transform_surface(SurfaceFromFile, SDL_MapRGBA(SurfaceFromFile->format, 0, 0, 0, 0), 0, scaleX, scaleY, SGE_TSAFE );
+        ScaledSurface = sge_transform_surface(SurfaceFromFile, SDL_MapRGBA(SurfaceFromFile->format, 0, 0, 0, 0), 0, scaleX, scaleY, bUseAntiAliasing ? SGE_TSAFE | SGE_TAA : SGE_TSAFE );
 #else
         //TODO: use SMOOTHING_ON for the screens != floorplans
-        ScaledSurface = zoomSurface(SurfaceFromFile, scaleX, scaleY, SMOOTHING_OFF);
+        ScaledSurface = zoomSurface(SurfaceFromFile, scaleX, scaleY, bUseAntiAliasing ? SMOOTHING_ON : SMOOTHING_OFF);
 #endif
     }
 
@@ -673,10 +675,10 @@ RendererImage * Renderer::CreateFromRWops(SDL_RWops * rw, bool bFreeRWops, Pluto
     return RIFromFile;
 }
 
-RendererImage * Renderer::CreateFromFile(FILE * File, PlutoSize size, bool bPreserveAspectRatio, bool bCrop,PlutoRectangle offset)
+RendererImage * Renderer::CreateFromFile(FILE * File, PlutoSize size, bool bPreserveAspectRatio, bool bCrop,PlutoRectangle offset, bool bUseAntiAliasing)
 {
 	SDL_RWops * rw = SDL_RWFromFP(File, 0);
-	return CreateFromRWops(rw, true, size, bPreserveAspectRatio, bCrop, offset);
+	return CreateFromRWops(rw, true, size, bPreserveAspectRatio, bCrop, offset, bUseAntiAliasing);
 }
 
 void Renderer::CompositeImage(RendererImage * pRenderImage_Parent, RendererImage * pRenderImage_Child, PlutoPoint pos)
