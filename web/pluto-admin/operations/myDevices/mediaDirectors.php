@@ -13,8 +13,6 @@ function mediaDirectors($output,$dbADO) {
 	$soundArray=getAssocArray('DeviceTemplate','PK_DeviceTemplate','Description',$dbADO,' WHERE FK_DeviceCategory='.$GLOBALS['SoundCards'],'ORDER BY Description ASC');
 	$videoArray=getAssocArray('DeviceTemplate','PK_DeviceTemplate','Description',$dbADO,' WHERE FK_DeviceCategory='.$GLOBALS['VideoCards'],'ORDER BY Description ASC');
 	$audioSettingsArray=array('M'=>'Manual settings', 'C'=>'SPDIF Coax', 'O'=>'SPDIF TosLink', 'S'=>'Stereo', 'L'=>'Multi-channel analog');
-	$videoSettingsArray=array('M'=>'Manual', '640'=>'640x480', '800'=>'800x600', '1024'=>'1024x768', '1224'=>'1280x1024', '1600'=>'1600x1200', '480P'=>'480p', '720P'=>'720p', '1280I'=>'1280i', '1280P'=>'1280P');
-	$refreshArray=array('50'=>'50 hz', '60'=>'60 hz', '72'=>'72 hz','75'=>'75 hz', '80'=>'80 hz');
 	
 	$deviceCategory=$GLOBALS['rootMediaDirectors'];
 	$specificFloorplanType=$GLOBALS['EntertainmentZone'];
@@ -272,12 +270,6 @@ function mediaDirectors($output,$dbADO) {
 							$oldAudioSettings=(substr($oldAudioDD,-1)=='3')?substr($oldAudioDD,0,-1):$oldAudioDD;
 							$oldAC3=(substr($oldAudioDD,-1)=='3')?'checked':'';
 						}
-						$oldVideoDD=($rowDDforDevice['PK_DeviceData']==$GLOBALS['VideoSettings'])?$rowDDforDevice['IK_DeviceData']:$oldVideoDD;
-						if(!is_null($oldVideoDD)){
-							$oldVideoDDArray=explode('/',$oldVideoDD);
-							$oldResolution=@$oldVideoDDArray[0];
-							$oldRefresh=@$oldVideoDDArray[1];
-						}
 						
 						if(($rowDDforDevice['ShowInWizard']==1 || $rowDDforDevice['ShowInWizard']=='') && @$resDDforDevice->RecordCount()>0){
 							$deviceDataBox.='<b>'.((@$rowDDforDevice['ShortDescription']!='')?$rowDDforDevice['ShortDescription']:$DeviceDataDescriptionToDisplay[$key]).'</b> '.((@$rowDDforDevice['Tooltip']!='')?'<img src="include/images/tooltip.gif" title="'.@$rowDDforDevice['Tooltip'].'" border="0" align="middle"> ':'');
@@ -457,8 +449,8 @@ function mediaDirectors($output,$dbADO) {
 										Audio settings '.pulldownFromArray($audioSettingsArray,'audioSettings_'.$rowD['PK_Device'],@$oldAudioSettings).'<br>
 										AC3 passthrough <input type="checkbox" name="ac3_'.$rowD['PK_Device'].'" value="3" '.@$oldAC3.'></td>
 										<td align="right">Video Card '.htmlPulldown(@$videoArray,'VideoCard_'.$rowD['PK_Device'],$videoDevice,'Standard Video Card').'<br>
-										Resolution: '.pulldownFromArray($videoSettingsArray,'videoSettings_'.$rowD['PK_Device'],@$oldResolution).'<br>
-										Refresh: '.pulldownFromArray($refreshArray,'refresh_'.$rowD['PK_Device'],@$oldRefresh).'
+										<input type="button" class="button" name="setResolution" value="Set resolution & refresh" onclick="self.location=\'index.php?section=setResolution&mdID='.$rowD['PK_Device'].'\'";>
+										</td>
 									</tr>
 								</table>
 							</td>
@@ -678,7 +670,6 @@ function mediaDirectors($output,$dbADO) {
 
 					processReceiver($value,$dbADO);
 					processAudioSettings($value,$dbADO);
-					processVideoSettings($value,$dbADO);		
 				}
 			}
 			

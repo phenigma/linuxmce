@@ -95,7 +95,7 @@ function wizardOrbiters($output,$dbADO) {
 				$joinArray[]=26;		// Language
 				$joinArray[]=56;		// Timeout
 				$joinArray[]=84;		// Leave Monitor on for OSD
-				$joinArray[]=90;		// Main Menu
+				$joinArray[]=91;		// Main Menu
 			
 				$queryDeviceDeviceData='
 					SELECT 
@@ -172,14 +172,14 @@ function wizardOrbiters($output,$dbADO) {
 						$rowDDforDevice=$resDDforDevice->FetchRow();
 						$ddValue=$rowDDforDevice['IK_DeviceData'];
 					}
-					if($DeviceDataToDisplay[$key]==90){
+					if($DeviceDataToDisplay[$key]==91){
 						$selectedMenu=@$ddValue;
 					}
 					if($DeviceDataToDisplay[$key]==84 && @$ddValue==1){
 						$isOSD=1;
 					}
 					
-					if((@$rowDDforDevice['ShowInWizard']==1 || @$rowDDforDevice['ShowInWizard']=='') && $DeviceDataToDisplay[$key]!=90){
+					if((@$rowDDforDevice['ShowInWizard']==1 || @$rowDDforDevice['ShowInWizard']=='') && $DeviceDataToDisplay[$key]!=91){
 						if($DeviceDataToDisplay[$key]!=56){
 							$out.='
 							<tr>
@@ -370,7 +370,7 @@ function wizardOrbiters($output,$dbADO) {
 				$dbADO->Execute($updateDevice,array($description,$room,$pingTest,$value));
 
 				foreach($DeviceDataToDisplayArray as $ddValue){
-					if($ddValue!=90){
+					if($ddValue!=91){
 						if($ddValue!=56){
 							$deviceData=(isset($_POST['deviceData_'.$value.'_'.$ddValue]))?$_POST['deviceData_'.$value.'_'.$ddValue]:'';
 						}else{
@@ -399,7 +399,7 @@ function wizardOrbiters($output,$dbADO) {
 				
 				// main menu
 				$mainMenu=((int)$_POST['mainMenu_'.$value]>0)?(int)$_POST['mainMenu_'.$value]:'';
-				$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($mainMenu,$value,90));
+				$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($mainMenu,$value,91));
 			}
 		}
 		

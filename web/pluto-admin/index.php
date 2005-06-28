@@ -1178,7 +1178,12 @@ switch ($section) {
 	    include_once('operations/myScenarios/mediaRemotes.php');
 	    mediaRemotes($output,$dbADO);
 	break;	
-
+	case 'setResolution';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/myDevices/setResolution.php');
+	    setResolution($output,$dbADO);
+	break;	
 	
 	case '';
 		$output = new Template($dbADO);	
