@@ -1077,13 +1077,7 @@ g_pPlutoLogger->Write(LV_WARNING,"RenderDataGrid %s %p",pObj->m_ObjectID.c_str()
     if( !pObj->m_pDataGridTable )
         return;
 
-// 2005-05-02 Aaron - Commented this out because a grid being refreshed with a new one with 0 cells 
-// doesn't blank the last rendering, so you still see the old grid
-//	if(pObj->m_pDataGridTable->m_RowCount > 0)
-	{
-		//clear the background for the grid
-		SolidRectangle( point.X + pObj->m_rPosition.X, point.Y + pObj->m_rPosition.Y, pObj->m_rPosition.Width, pObj->m_rPosition.Height, PlutoColor( 0, 0, 0 ) );
-	}
+    SolidRectangle( point.X + pObj->m_rPosition.X, point.Y + pObj->m_rPosition.Y, pObj->m_rPosition.Width, pObj->m_rPosition.Height, PlutoColor( 0, 0, 0 ) );
 
     // short for "number of ARRow ROWS": ArrRows
     // last screen exception: we consider one up arrow as not being there so we don't skip a row when we scroll up
@@ -2124,8 +2118,6 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
 //------------------------------------------------------------------------
 /*virtual*/ void Orbiter::SelectObject( class DesignObj_Orbiter *pObj, PlutoPoint point )
 {
-g_pPlutoLogger->Write(LV_CRITICAL, "Sel obj - render");
-
     int x = point.X + pObj->m_rBackgroundPosition.X;
     int y = point.Y + pObj->m_rBackgroundPosition.Y;
     int w = pObj->m_rBackgroundPosition.Width;
@@ -4610,7 +4602,7 @@ void Orbiter::DeselectObjects( void *data )
     PLUTO_SAFETY_LOCK( vm, m_ScreenMutex )
 	DesignObj_Orbiter *pObj = ( DesignObj_Orbiter * ) data;
 	 
-	if( m_pScreenHistory_Current && m_pScreenHistory_Current->m_pObj!=pObj->m_pObj_Screen )
+	if( m_pScreenHistory_Current && m_pScreenHistory_Current->m_pObj!=pObj->m_pObj_Screen && !m_pActivePopup)
 		return; // We must have since changed screens
 
 g_pPlutoLogger->Write(LV_WARNING, "Deselecting %s object, state '%s'", pObj->m_ObjectID.c_str(), pObj->m_GraphicToDisplay==GRAPHIC_SELECTED ? "'selected'" : "'normal'");
@@ -6213,7 +6205,7 @@ void Orbiter::CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sVa
 	else if( pObj_Popop_RemoteControl )
 		CMD_Remove_Popup(pObj_Popop_RemoteControl->m_ObjectID,"remote");
 
-	CMD_Refresh("");
+	//CMD_Refresh("");
 }
 
 bool Orbiter::TestCurrentScreen(string &sPK_DesignObj_CurrentScreen)
@@ -7209,15 +7201,22 @@ void Orbiter::CMD_Remove_Popup(string sPK_DesignObj_CurrentScreen,string sName,s
 	{
 		for(list<class PlutoPopup*>::iterator it=pObj->m_listPopups.begin();it!=pObj->m_listPopups.end();)
 			delete *it++;
+
+        if(pObj->m_listPopups.size()) //no popup, no refresh
+            CMD_Refresh("");
+
 		pObj->m_listPopups.clear();
 	}
 	else
 	{
 		for(list<class PlutoPopup*>::iterator it=m_listPopups.begin();it!=m_listPopups.end();)
 			delete *it++;
+
+        if(m_listPopups.size()) //no popup, no refresh
+            CMD_Refresh("");
+
 		m_listPopups.clear();
 	}
-    CMD_Refresh("");
 }
 
 //<-dceag-c399-b->

@@ -594,8 +594,8 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 			dest.right = dest.left + int(pSurface->GetWidth() * ZoomX);
 			dest.bottom = dest.top + int(pSurface->GetHeight() * ZoomY);
 
-			g_pPlutoLogger->Write(LV_STATUS, "Need to stretch picture: %d, %d, %d, %d, keep aspect %d", 
-				dest.left, dest.top, dest.right, dest.bottom, !bDisableAspectRatio);
+			//g_pPlutoLogger->Write(LV_STATUS, "Need to stretch picture: %d, %d, %d, %d, keep aspect %d", 
+			//	dest.left, dest.top, dest.right, dest.bottom, !bDisableAspectRatio);
 
 			GetDisplay()->BlitStretch(dest, pSurface);
 		}
