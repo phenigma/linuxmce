@@ -68,7 +68,7 @@ $out.='
 		{
 			$resType = "";
 		}
-		exec("sudo -u root /usr/pluto/bin/LaunchRemoteCmd.sh '$ipAddress' '/usr/pluto/bin/Xres_config.sh $resX $resY $resType'", $retArray);
+		exec("sudo -u root /usr/pluto/bin/LaunchRemoteCmd.sh '$ipAddress' '/usr/pluto/bin/Xres_config.sh $resX $resY $refresh $resType'", $retArray);
 		
 		$out.='
 		<form action="index.php" method="post" name="setResolution">
