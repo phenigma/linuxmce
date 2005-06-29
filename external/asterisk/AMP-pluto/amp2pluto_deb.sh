@@ -49,6 +49,7 @@ include => from-internal
 EOF
 
 cd ./amp_deb/
+find -name '.svn' -type d -exec rm -rf '{}' ';' 2>/dev/null
 dpkg-buildpackage -b -rfakeroot
 cd ..
 
