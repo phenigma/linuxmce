@@ -1,0 +1,13 @@
+Source: amp
+Section: unknown
+Priority: optional
+Maintainer: Office Server Operator <root@activate.plutohome.com>
+Build-Depends: debhelper (>= 4.0.0)
+Standards-Version: 3.6.1
+
+Package: amp
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, asterisk, asterisk-perl, asterisk-addons, libnet-telnet-perl, libipc-signal-perl, libproc-waitstat-perl, php4-pear, php4-cli
+Replaces: asterisk-conf
+Description: <insert up to 60 chars description>
+ <insert long description, indented with spaces>
