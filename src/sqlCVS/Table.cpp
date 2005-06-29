@@ -1482,7 +1482,12 @@ void Table::UpdateRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSproces
 		else
 			sSQL << "'" << StringUtils::SQLEscape( pR_CommitRow->m_vectValues[s] ) << "', ";
 	}
-	sSQL << "psc_batch=" << psqlCVSprocessor->m_i_psc_batch << ",psc_restrict=" << pR_CommitRow->m_psc_restrict << " WHERE psc_id=" << pR_CommitRow->m_psc_id;
+	sSQL << "psc_batch=" << psqlCVSprocessor->m_i_psc_batch << ",psc_restrict=";
+	if( pR_CommitRow->m_psc_restrict )
+		sSQL << pR_CommitRow->m_psc_restrict;
+	else
+		sSQL << "NULL";
+	sSQL << " WHERE psc_id=" << pR_CommitRow->m_psc_id;
 
 	// Add the history before we commit the change.  That way we can compare what the old values were
 	pR_CommitRow->m_psc_batch_new = psqlCVSprocessor->m_i_psc_batch;
@@ -1540,7 +1545,13 @@ void Table::AddRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor
 	else
 		sSQL << "NULL";
 	
-	sSQL << "," << pR_CommitRow->m_psc_restrict << " )"; /** @warning batch # todo - hack */
+	sSQL << ",";
+	if( pR_CommitRow->m_psc_restrict )
+		sSQL << pR_CommitRow->m_psc_restrict;
+	else
+		sSQL << "NULL";
+		
+	sSQL << " )"; /** @warning batch # todo - hack */
 
 	cout << "Adding new row with id: " << m_psc_id_next << endl;
 
@@ -1684,8 +1695,13 @@ void Table::AddToHistory( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSpro
 	if( pR_CommitRow->m_eTypeOfChange==( int ) sqlCVS::toc_Delete )
 	{
 		std::ostringstream sSqlHistory;
-		sSqlHistory << "INSERT INTO `" << m_pTable_History->Name_get( ) << "` (psc_id,psc_batch,psc_toc) VALUES ("
-			<< pR_CommitRow->m_psc_id << ", " << psqlCVSprocessor->m_i_psc_batch << "," << pR_CommitRow->m_eTypeOfChange << ")"; 
+		sSqlHistory << "INSERT INTO `" << m_pTable_History->Name_get( ) << "` (psc_id,psc_batch,psc_toc,psc_restrict) VALUES ("
+			<< pR_CommitRow->m_psc_id << ", " << psqlCVSprocessor->m_i_psc_batch << "," << pR_CommitRow->m_eTypeOfChange << ",";
+		if( pR_CommitRow->m_psc_restrict )
+			sSqlHistory << pR_CommitRow->m_psc_restrict;
+		else
+			sSqlHistory << "NULL";
+		sSqlHistory << ")"; 
 		if( m_pDatabase->threaded_mysql_query( sSqlHistory.str( ) )!=0 )
 		{
 			cerr << "Failed to insert history delete row: " << sSqlHistory.str( ) << endl;
@@ -1711,7 +1727,7 @@ void Table::AddToHistory( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSpro
 	if( m_pField_AutoIncrement && pR_CommitRow->m_eTypeOfChange==toc_New )
 		sSqlHistory << m_pField_AutoIncrement->Name_get( ) << ", ";
 
-	sSqlHistory << "psc_toc, psc_id, psc_batch, psc_user ) VALUES( ";
+	sSqlHistory << "psc_toc, psc_id, psc_batch, psc_user,psc_restrict ) VALUES( ";
 
 	for( size_t s=0;s<pR_CommitRow->m_vectValues.size( );++s )
 	{
@@ -1735,7 +1751,8 @@ void Table::AddToHistory( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSpro
 		sSqlHistory << pR_CommitRow->m_iNewAutoIncrID << ", ";
 
 	sSqlHistory << pR_CommitRow->m_eTypeOfChange << "," << ( pR_CommitRow->m_eTypeOfChange==toc_New ? pR_CommitRow->m_psc_id_new : pR_CommitRow->m_psc_id ) << ", " << pR_CommitRow->m_psc_batch_new << ", " 
-		<< (pR_CommitRow->m_psc_user ? StringUtils::itos(pR_CommitRow->m_psc_user) : "NULL") << " )"; // batch # todo - hack
+		<< (pR_CommitRow->m_psc_user ? StringUtils::itos(pR_CommitRow->m_psc_user) : "NULL") << ","
+		<< (pR_CommitRow->m_psc_restrict ? StringUtils::itos(pR_CommitRow->m_psc_restrict) : "NULL") << ")"; // batch # todo - hack
 	sSqlMask << ( pR_CommitRow->m_eTypeOfChange==toc_New ? pR_CommitRow->m_psc_id_new : pR_CommitRow->m_psc_id ) << ", " << psqlCVSprocessor->m_i_psc_batch << " )"; // batch # todo - hack
 	if( m_pDatabase->threaded_mysql_query( sSqlHistory.str( ) )!=0 || m_pDatabase->threaded_mysql_query( sSqlMask.str( ) )!=0 )
 	{
@@ -1753,8 +1770,9 @@ void Table::AddToHistory( ChangedRow *pChangedRow )
 	if( pChangedRow->m_eTypeOfChange==toc_Delete )
 	{
 		std::ostringstream sSqlHistory;
-		sSqlHistory << "INSERT INTO `" << m_pTable_History->Name_get( ) << "` (psc_id,psc_batch,psc_toc) VALUES ("
-			<< pChangedRow->m_psc_id << ", " << pChangedRow->m_psc_batch << "," << pChangedRow->m_eTypeOfChange << ")"; 
+		sSqlHistory << "INSERT INTO `" << m_pTable_History->Name_get( ) << "` (psc_id,psc_batch,psc_toc,psc_restrict) VALUES ("
+			<< pChangedRow->m_psc_id << ", " << pChangedRow->m_psc_batch << "," << pChangedRow->m_eTypeOfChange << ","
+			<< (pChangedRow->m_psc_restrict ? StringUtils::itos(pChangedRow->m_psc_restrict) : "NULL") << ")"; 
 		if( m_pDatabase->threaded_mysql_query( sSqlHistory.str( ) )!=0 )
 		{
 			cerr << "Failed to insert history delete row: " << sSqlHistory.str( ) << endl;
@@ -1788,7 +1806,7 @@ void Table::AddToHistory( ChangedRow *pChangedRow )
 	if( m_pField_AutoIncrement && pChangedRow->m_eTypeOfChange==toc_New )
 		sSqlHistory << m_pField_AutoIncrement->Name_get( ) << ", ";
 
-	sSqlHistory << "psc_toc, psc_id, psc_batch ";
+	sSqlHistory << "psc_toc, psc_id, psc_batch,psc_restrict ";
 	if( !b_psc_user_passedin )
 		sSqlHistory << ", psc_user ";
 
@@ -1820,7 +1838,8 @@ void Table::AddToHistory( ChangedRow *pChangedRow )
 	if( m_pField_AutoIncrement && pChangedRow->m_eTypeOfChange==toc_New )
 		sSqlHistory << pChangedRow->m_iNewAutoIncrID << ", ";
 
-	sSqlHistory << pChangedRow->m_eTypeOfChange << "," << pChangedRow->m_psc_id << ", " << pChangedRow->m_psc_batch;
+	sSqlHistory << pChangedRow->m_eTypeOfChange << "," << pChangedRow->m_psc_id << ", " << pChangedRow->m_psc_batch
+		<< (pChangedRow->m_psc_restrict ? StringUtils::itos(pChangedRow->m_psc_restrict) : "NULL");
 		
 	if( !b_psc_user_passedin )
 		sSqlHistory << ", " << (pChangedRow->m_psc_user ? StringUtils::itos(pChangedRow->m_psc_user) : "NULL");
