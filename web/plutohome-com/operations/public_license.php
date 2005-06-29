@@ -20,18 +20,23 @@ $out.=<<<TEXT
       </strong>      <p><strong> &ldquo;Software distribution&rdquo;</strong> refers to distributing software in an electronic form with no tangible goods other than traditional storage media, such as a CD-ROM, packaging and documentation.</p>
       <p>Examples of &ldquo;software distribution&rdquo; where this free, open source license apply:</p>
       <ul>
-        <li>An individual obtains this software and installs it on an existing computer.</li>
-        <li>A company sells a software product which includes this software, either alone or with other software, for individuals to install on their existing computers.</li>
-        <li>A company or individual charges to deliver, install or configure this software on the end purchaser&rsquo;s existing equipment.</li>
+        <li>1.  An individual obtains this software and installs it on an existing computer.</li>
+        <li>2.  A company sells a software product which includes this software, either alone or with other software, for individuals to install on their existing computers.</li>
+        <li>3.  A company or individual charges to deliver, install or configure this software on the end purchaser&rsquo;s existing equipment.</li>
       </ul>
       <p><strong> &ldquo;Hardware distribution&rdquo;</strong> refers to selling some tangible hard good, such as a computer, television or automobile, which includes this software pre-installed or installed by the selling party or one of its agents, or if the hard good is marketed with reference to the software or its features.</p>
       <p>Examples of &ldquo;Hardware distribution&rdquo; which require a separate license:</p>
       <ul>
-        <li>A company offers tangible merchandise that comes with the Pluto system pre-installed or bundled with the system, such as a personal computer, a television, an automobile, a point of sale system, etc.</li>
-        <li>A reseller, such as a smart home dealer, offers hard goods which are clearly intended to ultimately run this software, and are marketed as such.</li>
-        <li>A manufacturer offers a product which automatically installs this software, or includes instructions on how to do so.</li>
+        <li>4.  A company offers tangible merchandise that comes with the Pluto system pre-installed or bundled with the system, such as a personal computer, a television, an automobile, a point of sale system, etc.</li>
+        <li>5.  A reseller, such as a smart home dealer, offers hard goods which are clearly intended to ultimately run this software, and are marketed as such.</li>
+        <li>6.  A manufacturer offers a product which automatically installs this software, or includes instructions on how to do so.</li>
+        <li>7.  A dealer offers a product based on Pluto, but directs his clients to purchase the required hardware from a third party.</li>
       </ul>
-      <p>The purpose of examples #5 and #6 are to prevent a hard goods manufacturer or dealer from attempting to circumvent the intent of this license by marketing a product which clearly benefits from this software, but is not technically delivered with this software pre-installed, perhaps booting up to a &ldquo;click-here to install the software prompt&rdquo;. If a hard goods manufacturer wishes to offer a product which includes this software, a separate license must be obtained.</p>
+      <p>The purpose of examples #5, #6 and #7 are to prevent a hard goods manufacturer or dealer from attempting to circumvent the intent of this license by marketing a product which clearly benefits from this software,
+	  but is not technically delivered with this software pre-installed, perhaps booting up to a &ldquo;click-here to install the software prompt&rdquo;. 
+	  If a hard goods manufacturer wishes to offer a product which includes this software, or a dealer offers a turnkey solution based on this software, a separate license must be obtained.  Pluto's business model allows the company to offer
+	  a commercial-grade product for free, as open source, to the open source community and any do-it-yourselfers.  This model is sustained by charging
+	  a licensing fee to those who offer a commercial product based on Pluto.</p>
       <p> <strong>&ldquo;Software&rdquo;</strong> refers to any software distributed under this license, including modified versions, and third-party application programs based on software distributed under this license.</p>
       <strong>Granted rights
       </strong>      <p>1. Subject to the terms of this License, you are hereby granted a royalty-free, non-exclusive, world-wide license provided you comply with the conditions of this license. Distribution of the software, or third-party software that links with the software, in any form signifies acceptance of this license.</p>
