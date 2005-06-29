@@ -39,6 +39,8 @@
 #define PACKAGE_PSC_FROZEN_TABLE_FIELD "Package.psc_frozen"
 #define PACKAGE_PSC_MOD_FIELD "psc_mod"
 #define PACKAGE_PSC_MOD_TABLE_FIELD "Package.psc_mod"
+#define PACKAGE_PSC_RESTRICT_FIELD "psc_restrict"
+#define PACKAGE_PSC_RESTRICT_TABLE_FIELD "Package.psc_restrict"
 
 
 #endif

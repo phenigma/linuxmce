@@ -19,6 +19,8 @@
 #define CONFIGTYPE_SETTING_PSC_FROZEN_TABLE_FIELD "ConfigType_Setting.psc_frozen"
 #define CONFIGTYPE_SETTING_PSC_MOD_FIELD "psc_mod"
 #define CONFIGTYPE_SETTING_PSC_MOD_TABLE_FIELD "ConfigType_Setting.psc_mod"
+#define CONFIGTYPE_SETTING_PSC_RESTRICT_FIELD "psc_restrict"
+#define CONFIGTYPE_SETTING_PSC_RESTRICT_TABLE_FIELD "ConfigType_Setting.psc_restrict"
 
 
 #endif

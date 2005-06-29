@@ -22,6 +22,8 @@
 #define OPERATINGSYSTEM_PSC_FROZEN_TABLE_FIELD "OperatingSystem.psc_frozen"
 #define OPERATINGSYSTEM_PSC_MOD_FIELD "psc_mod"
 #define OPERATINGSYSTEM_PSC_MOD_TABLE_FIELD "OperatingSystem.psc_mod"
+#define OPERATINGSYSTEM_PSC_RESTRICT_FIELD "psc_restrict"
+#define OPERATINGSYSTEM_PSC_RESTRICT_TABLE_FIELD "OperatingSystem.psc_restrict"
 
 
 #endif

@@ -21,6 +21,8 @@
 #define CONFIGTYPE_TOKEN_PSC_FROZEN_TABLE_FIELD "ConfigType_Token.psc_frozen"
 #define CONFIGTYPE_TOKEN_PSC_MOD_FIELD "psc_mod"
 #define CONFIGTYPE_TOKEN_PSC_MOD_TABLE_FIELD "ConfigType_Token.psc_mod"
+#define CONFIGTYPE_TOKEN_PSC_RESTRICT_FIELD "psc_restrict"
+#define CONFIGTYPE_TOKEN_PSC_RESTRICT_TABLE_FIELD "ConfigType_Token.psc_restrict"
 
 
 #endif

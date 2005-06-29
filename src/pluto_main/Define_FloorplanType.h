@@ -26,6 +26,8 @@
 #define FLOORPLANTYPE_PSC_FROZEN_TABLE_FIELD "FloorplanType.psc_frozen"
 #define FLOORPLANTYPE_PSC_MOD_FIELD "psc_mod"
 #define FLOORPLANTYPE_PSC_MOD_TABLE_FIELD "FloorplanType.psc_mod"
+#define FLOORPLANTYPE_PSC_RESTRICT_FIELD "psc_restrict"
+#define FLOORPLANTYPE_PSC_RESTRICT_TABLE_FIELD "FloorplanType.psc_restrict"
 
 
 #endif

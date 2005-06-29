@@ -75,6 +75,8 @@
 #define FLOORPLANOBJECTTYPE_PSC_FROZEN_TABLE_FIELD "FloorplanObjectType.psc_frozen"
 #define FLOORPLANOBJECTTYPE_PSC_MOD_FIELD "psc_mod"
 #define FLOORPLANOBJECTTYPE_PSC_MOD_TABLE_FIELD "FloorplanObjectType.psc_mod"
+#define FLOORPLANOBJECTTYPE_PSC_RESTRICT_FIELD "psc_restrict"
+#define FLOORPLANOBJECTTYPE_PSC_RESTRICT_TABLE_FIELD "FloorplanObjectType.psc_restrict"
 
 
 #endif

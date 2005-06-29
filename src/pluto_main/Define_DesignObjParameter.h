@@ -72,6 +72,8 @@
 #define DESIGNOBJPARAMETER_PSC_FROZEN_TABLE_FIELD "DesignObjParameter.psc_frozen"
 #define DESIGNOBJPARAMETER_PSC_MOD_FIELD "psc_mod"
 #define DESIGNOBJPARAMETER_PSC_MOD_TABLE_FIELD "DesignObjParameter.psc_mod"
+#define DESIGNOBJPARAMETER_PSC_RESTRICT_FIELD "psc_restrict"
+#define DESIGNOBJPARAMETER_PSC_RESTRICT_TABLE_FIELD "DesignObjParameter.psc_restrict"
 
 
 #endif

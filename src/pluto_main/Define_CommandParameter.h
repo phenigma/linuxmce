@@ -147,6 +147,8 @@
 #define COMMANDPARAMETER_PSC_FROZEN_TABLE_FIELD "CommandParameter.psc_frozen"
 #define COMMANDPARAMETER_PSC_MOD_FIELD "psc_mod"
 #define COMMANDPARAMETER_PSC_MOD_TABLE_FIELD "CommandParameter.psc_mod"
+#define COMMANDPARAMETER_PSC_RESTRICT_FIELD "psc_restrict"
+#define COMMANDPARAMETER_PSC_RESTRICT_TABLE_FIELD "CommandParameter.psc_restrict"
 
 
 #endif

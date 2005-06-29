@@ -23,6 +23,8 @@
 #define DOCUMENT_COMMENT_PSC_FROZEN_TABLE_FIELD "Document_Comment.psc_frozen"
 #define DOCUMENT_COMMENT_PSC_MOD_FIELD "psc_mod"
 #define DOCUMENT_COMMENT_PSC_MOD_TABLE_FIELD "Document_Comment.psc_mod"
+#define DOCUMENT_COMMENT_PSC_RESTRICT_FIELD "psc_restrict"
+#define DOCUMENT_COMMENT_PSC_RESTRICT_TABLE_FIELD "Document_Comment.psc_restrict"
 
 
 #endif

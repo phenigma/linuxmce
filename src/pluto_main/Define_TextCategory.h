@@ -19,6 +19,8 @@
 #define TEXTCATEGORY_PSC_FROZEN_TABLE_FIELD "TextCategory.psc_frozen"
 #define TEXTCATEGORY_PSC_MOD_FIELD "psc_mod"
 #define TEXTCATEGORY_PSC_MOD_TABLE_FIELD "TextCategory.psc_mod"
+#define TEXTCATEGORY_PSC_RESTRICT_FIELD "psc_restrict"
+#define TEXTCATEGORY_PSC_RESTRICT_TABLE_FIELD "TextCategory.psc_restrict"
 
 
 #endif

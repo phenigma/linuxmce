@@ -17,6 +17,8 @@
 #define DEVICE_USERS_PSC_FROZEN_TABLE_FIELD "Device_Users.psc_frozen"
 #define DEVICE_USERS_PSC_MOD_FIELD "psc_mod"
 #define DEVICE_USERS_PSC_MOD_TABLE_FIELD "Device_Users.psc_mod"
+#define DEVICE_USERS_PSC_RESTRICT_FIELD "psc_restrict"
+#define DEVICE_USERS_PSC_RESTRICT_TABLE_FIELD "Device_Users.psc_restrict"
 
 
 #endif

@@ -21,6 +21,8 @@
 #define CRITERIALIST_PSC_FROZEN_TABLE_FIELD "CriteriaList.psc_frozen"
 #define CRITERIALIST_PSC_MOD_FIELD "psc_mod"
 #define CRITERIALIST_PSC_MOD_TABLE_FIELD "CriteriaList.psc_mod"
+#define CRITERIALIST_PSC_RESTRICT_FIELD "psc_restrict"
+#define CRITERIALIST_PSC_RESTRICT_TABLE_FIELD "CriteriaList.psc_restrict"
 
 
 #endif

@@ -19,6 +19,8 @@
 #define DEVICE_HOUSEMODE_PSC_FROZEN_TABLE_FIELD "Device_HouseMode.psc_frozen"
 #define DEVICE_HOUSEMODE_PSC_MOD_FIELD "psc_mod"
 #define DEVICE_HOUSEMODE_PSC_MOD_TABLE_FIELD "Device_HouseMode.psc_mod"
+#define DEVICE_HOUSEMODE_PSC_RESTRICT_FIELD "psc_restrict"
+#define DEVICE_HOUSEMODE_PSC_RESTRICT_TABLE_FIELD "Device_HouseMode.psc_restrict"
 
 
 #endif

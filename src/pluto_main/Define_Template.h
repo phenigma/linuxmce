@@ -37,6 +37,8 @@
 #define TEMPLATE_PSC_FROZEN_TABLE_FIELD "Template.psc_frozen"
 #define TEMPLATE_PSC_MOD_FIELD "psc_mod"
 #define TEMPLATE_PSC_MOD_TABLE_FIELD "Template.psc_mod"
+#define TEMPLATE_PSC_RESTRICT_FIELD "psc_restrict"
+#define TEMPLATE_PSC_RESTRICT_TABLE_FIELD "Template.psc_restrict"
 
 
 #endif

@@ -17,6 +17,8 @@
 #define SYSTEM_PSC_FROZEN_TABLE_FIELD "System.psc_frozen"
 #define SYSTEM_PSC_MOD_FIELD "psc_mod"
 #define SYSTEM_PSC_MOD_TABLE_FIELD "System.psc_mod"
+#define SYSTEM_PSC_RESTRICT_FIELD "psc_restrict"
+#define SYSTEM_PSC_RESTRICT_TABLE_FIELD "System.psc_restrict"
 
 
 #endif

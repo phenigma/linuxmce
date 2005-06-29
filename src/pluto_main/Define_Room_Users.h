@@ -21,6 +21,8 @@
 #define ROOM_USERS_PSC_FROZEN_TABLE_FIELD "Room_Users.psc_frozen"
 #define ROOM_USERS_PSC_MOD_FIELD "psc_mod"
 #define ROOM_USERS_PSC_MOD_TABLE_FIELD "Room_Users.psc_mod"
+#define ROOM_USERS_PSC_RESTRICT_FIELD "psc_restrict"
+#define ROOM_USERS_PSC_RESTRICT_TABLE_FIELD "Room_Users.psc_restrict"
 
 
 #endif

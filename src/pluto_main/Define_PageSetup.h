@@ -29,6 +29,8 @@
 #define PAGESETUP_PSC_FROZEN_TABLE_FIELD "PageSetup.psc_frozen"
 #define PAGESETUP_PSC_MOD_FIELD "psc_mod"
 #define PAGESETUP_PSC_MOD_TABLE_FIELD "PageSetup.psc_mod"
+#define PAGESETUP_PSC_RESTRICT_FIELD "psc_restrict"
+#define PAGESETUP_PSC_RESTRICT_TABLE_FIELD "PageSetup.psc_restrict"
 
 
 #endif

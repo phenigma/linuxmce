@@ -92,8 +92,9 @@ long int m_psc_batch;
 long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
+long int m_psc_restrict;
 
-		bool is_null[20];
+		bool is_null[21];
 	
 	public:
 		long int PK_DesignObjVariation_get();
@@ -116,6 +117,7 @@ long int psc_batch_get();
 long int psc_user_get();
 short int psc_frozen_get();
 string psc_mod_get();
+long int psc_restrict_get();
 
 		
 		void PK_DesignObjVariation_set(long int val);
@@ -138,6 +140,7 @@ void psc_batch_set(long int val);
 void psc_user_set(long int val);
 void psc_frozen_set(short int val);
 void psc_mod_set(string val);
+void psc_restrict_set(long int val);
 
 		
 		bool FK_Criteria_D_isNull();
@@ -153,6 +156,7 @@ bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
 bool psc_frozen_isNull();
+bool psc_restrict_isNull();
 
 			
 		void FK_Criteria_D_setNull(bool val);
@@ -168,6 +172,7 @@ void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
 void psc_frozen_setNull(bool val);
+void psc_restrict_setNull(bool val);
 	
 	
 		void Delete();
@@ -202,7 +207,7 @@ void DesignObjVariation_Zone_FK_DesignObjVariation_getrows(vector <class Row_Des
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_DesignObjVariation+ m_FK_DesignObj+ m_FK_Criteria_D+ m_FK_DesignObj_Goto+ m_FK_CommandGroup_D_OnActivate+ m_FK_CommandGroup_D_OnLoad+ m_FK_CommandGroup_D_OnUnload+ m_FK_CommandGroup_D_OnTimeout+ m_FK_CommandGroup_D_OnStartup+ m_FK_Button+ m_FK_Criteria_Orbiter+ m_DontResetSelectedState+ m_FK_StabilityStatus+ m_RepeatMS+ m_RepeatParm+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_DesignObjVariation+ m_FK_DesignObj+ m_FK_Criteria_D+ m_FK_DesignObj_Goto+ m_FK_CommandGroup_D_OnActivate+ m_FK_CommandGroup_D_OnLoad+ m_FK_CommandGroup_D_OnUnload+ m_FK_CommandGroup_D_OnTimeout+ m_FK_CommandGroup_D_OnStartup+ m_FK_Button+ m_FK_Criteria_Orbiter+ m_DontResetSelectedState+ m_FK_StabilityStatus+ m_RepeatMS+ m_RepeatParm+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -227,6 +232,7 @@ string psc_batch_asSQL();
 string psc_user_asSQL();
 string psc_frozen_asSQL();
 string psc_mod_asSQL();
+string psc_restrict_asSQL();
 
 	};
 

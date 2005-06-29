@@ -19,6 +19,8 @@
 #define BROADCAST_PSC_FROZEN_TABLE_FIELD "Broadcast.psc_frozen"
 #define BROADCAST_PSC_MOD_FIELD "psc_mod"
 #define BROADCAST_PSC_MOD_TABLE_FIELD "Broadcast.psc_mod"
+#define BROADCAST_PSC_RESTRICT_FIELD "psc_restrict"
+#define BROADCAST_PSC_RESTRICT_TABLE_FIELD "Broadcast.psc_restrict"
 
 
 #endif

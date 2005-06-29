@@ -19,6 +19,8 @@
 #define ORBITER_VARIABLE_PSC_FROZEN_TABLE_FIELD "Orbiter_Variable.psc_frozen"
 #define ORBITER_VARIABLE_PSC_MOD_FIELD "psc_mod"
 #define ORBITER_VARIABLE_PSC_MOD_TABLE_FIELD "Orbiter_Variable.psc_mod"
+#define ORBITER_VARIABLE_PSC_RESTRICT_FIELD "psc_restrict"
+#define ORBITER_VARIABLE_PSC_RESTRICT_TABLE_FIELD "Orbiter_Variable.psc_restrict"
 
 
 #endif

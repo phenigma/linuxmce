@@ -159,6 +159,7 @@ m_psc_frozen = 0;
 is_null[25] = false;
 m_psc_mod = "00000000000000";
 is_null[26] = false;
+is_null[27] = true;
 
 
 	is_added=false;
@@ -247,6 +248,9 @@ return m_psc_frozen;}
 string Row_DesignObjVariation_DesignObj::psc_mod_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_mod;}
+long int Row_DesignObjVariation_DesignObj::psc_restrict_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_psc_restrict;}
 
 		
 void Row_DesignObjVariation_DesignObj::PK_DesignObjVariation_DesignObj_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -330,6 +334,9 @@ m_psc_frozen = val; is_modified=true; is_null[25]=false;}
 void Row_DesignObjVariation_DesignObj::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_mod = val; is_modified=true; is_null[26]=false;}
+void Row_DesignObjVariation_DesignObj::psc_restrict_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_psc_restrict = val; is_modified=true; is_null[27]=false;}
 
 		
 bool Row_DesignObjVariation_DesignObj::FK_DesignObjVariation_Parent_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -377,6 +384,9 @@ return is_null[24];}
 bool Row_DesignObjVariation_DesignObj::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[25];}
+bool Row_DesignObjVariation_DesignObj::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[27];}
 
 			
 void Row_DesignObjVariation_DesignObj::FK_DesignObjVariation_Parent_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -437,6 +447,10 @@ is_modified=true;
 }
 void Row_DesignObjVariation_DesignObj::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[25]=val;
+is_modified=true;
+}
+void Row_DesignObjVariation_DesignObj::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[27]=val;
 is_modified=true;
 }
 	
@@ -795,6 +809,19 @@ delete[] buf;
 return s;
 }
 
+string Row_DesignObjVariation_DesignObj::psc_restrict_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[27])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_psc_restrict);
+
+return buf;
+}
+
 
 
 
@@ -833,10 +860,10 @@ bool Table_DesignObjVariation_DesignObj::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_DesignObjVariation_DesignObj_asSQL()+", "+pRow->FK_DesignObjVariation_Parent_asSQL()+", "+pRow->FK_DesignObj_Child_asSQL()+", "+pRow->DisplayOrder_asSQL()+", "+pRow->X_asSQL()+", "+pRow->Y_asSQL()+", "+pRow->Width_asSQL()+", "+pRow->Height_asSQL()+", "+pRow->FK_DesignObj_InsteadOf_asSQL()+", "+pRow->CanBeHidden_asSQL()+", "+pRow->HideByDefault_asSQL()+", "+pRow->RegenerateForEachScreen_asSQL()+", "+pRow->DisplayChildrenBeforeText_asSQL()+", "+pRow->DisplayChildrenBehindBackground_asSQL()+", "+pRow->DontMergeBackground_asSQL()+", "+pRow->IsTabStop_asSQL()+", "+pRow->FK_DesignObj_Up_asSQL()+", "+pRow->FK_DesignObj_Down_asSQL()+", "+pRow->FK_DesignObj_Left_asSQL()+", "+pRow->FK_DesignObj_Right_asSQL()+", "+pRow->sFK_DesignObj_TiedTo_asSQL()+", "+pRow->VisibleStates_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_DesignObjVariation_DesignObj_asSQL()+", "+pRow->FK_DesignObjVariation_Parent_asSQL()+", "+pRow->FK_DesignObj_Child_asSQL()+", "+pRow->DisplayOrder_asSQL()+", "+pRow->X_asSQL()+", "+pRow->Y_asSQL()+", "+pRow->Width_asSQL()+", "+pRow->Height_asSQL()+", "+pRow->FK_DesignObj_InsteadOf_asSQL()+", "+pRow->CanBeHidden_asSQL()+", "+pRow->HideByDefault_asSQL()+", "+pRow->RegenerateForEachScreen_asSQL()+", "+pRow->DisplayChildrenBeforeText_asSQL()+", "+pRow->DisplayChildrenBehindBackground_asSQL()+", "+pRow->DontMergeBackground_asSQL()+", "+pRow->IsTabStop_asSQL()+", "+pRow->FK_DesignObj_Up_asSQL()+", "+pRow->FK_DesignObj_Down_asSQL()+", "+pRow->FK_DesignObj_Left_asSQL()+", "+pRow->FK_DesignObj_Right_asSQL()+", "+pRow->sFK_DesignObj_TiedTo_asSQL()+", "+pRow->VisibleStates_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
 
 	
-		string query = "insert into DesignObjVariation_DesignObj (`PK_DesignObjVariation_DesignObj`, `FK_DesignObjVariation_Parent`, `FK_DesignObj_Child`, `DisplayOrder`, `X`, `Y`, `Width`, `Height`, `FK_DesignObj_InsteadOf`, `CanBeHidden`, `HideByDefault`, `RegenerateForEachScreen`, `DisplayChildrenBeforeText`, `DisplayChildrenBehindBackground`, `DontMergeBackground`, `IsTabStop`, `FK_DesignObj_Up`, `FK_DesignObj_Down`, `FK_DesignObj_Left`, `FK_DesignObj_Right`, `sFK_DesignObj_TiedTo`, `VisibleStates`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
+		string query = "insert into DesignObjVariation_DesignObj (`PK_DesignObjVariation_DesignObj`, `FK_DesignObjVariation_Parent`, `FK_DesignObj_Child`, `DisplayOrder`, `X`, `Y`, `Width`, `Height`, `FK_DesignObj_InsteadOf`, `CanBeHidden`, `HideByDefault`, `RegenerateForEachScreen`, `DisplayChildrenBeforeText`, `DisplayChildrenBehindBackground`, `DontMergeBackground`, `IsTabStop`, `FK_DesignObj_Up`, `FK_DesignObj_Down`, `FK_DesignObj_Left`, `FK_DesignObj_Right`, `sFK_DesignObj_TiedTo`, `VisibleStates`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -887,7 +914,7 @@ condition = condition + "`PK_DesignObjVariation_DesignObj`=" + tmp_PK_DesignObjV
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`PK_DesignObjVariation_DesignObj`="+pRow->PK_DesignObjVariation_DesignObj_asSQL()+", `FK_DesignObjVariation_Parent`="+pRow->FK_DesignObjVariation_Parent_asSQL()+", `FK_DesignObj_Child`="+pRow->FK_DesignObj_Child_asSQL()+", `DisplayOrder`="+pRow->DisplayOrder_asSQL()+", `X`="+pRow->X_asSQL()+", `Y`="+pRow->Y_asSQL()+", `Width`="+pRow->Width_asSQL()+", `Height`="+pRow->Height_asSQL()+", `FK_DesignObj_InsteadOf`="+pRow->FK_DesignObj_InsteadOf_asSQL()+", `CanBeHidden`="+pRow->CanBeHidden_asSQL()+", `HideByDefault`="+pRow->HideByDefault_asSQL()+", `RegenerateForEachScreen`="+pRow->RegenerateForEachScreen_asSQL()+", `DisplayChildrenBeforeText`="+pRow->DisplayChildrenBeforeText_asSQL()+", `DisplayChildrenBehindBackground`="+pRow->DisplayChildrenBehindBackground_asSQL()+", `DontMergeBackground`="+pRow->DontMergeBackground_asSQL()+", `IsTabStop`="+pRow->IsTabStop_asSQL()+", `FK_DesignObj_Up`="+pRow->FK_DesignObj_Up_asSQL()+", `FK_DesignObj_Down`="+pRow->FK_DesignObj_Down_asSQL()+", `FK_DesignObj_Left`="+pRow->FK_DesignObj_Left_asSQL()+", `FK_DesignObj_Right`="+pRow->FK_DesignObj_Right_asSQL()+", `sFK_DesignObj_TiedTo`="+pRow->sFK_DesignObj_TiedTo_asSQL()+", `VisibleStates`="+pRow->VisibleStates_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_DesignObjVariation_DesignObj`="+pRow->PK_DesignObjVariation_DesignObj_asSQL()+", `FK_DesignObjVariation_Parent`="+pRow->FK_DesignObjVariation_Parent_asSQL()+", `FK_DesignObj_Child`="+pRow->FK_DesignObj_Child_asSQL()+", `DisplayOrder`="+pRow->DisplayOrder_asSQL()+", `X`="+pRow->X_asSQL()+", `Y`="+pRow->Y_asSQL()+", `Width`="+pRow->Width_asSQL()+", `Height`="+pRow->Height_asSQL()+", `FK_DesignObj_InsteadOf`="+pRow->FK_DesignObj_InsteadOf_asSQL()+", `CanBeHidden`="+pRow->CanBeHidden_asSQL()+", `HideByDefault`="+pRow->HideByDefault_asSQL()+", `RegenerateForEachScreen`="+pRow->RegenerateForEachScreen_asSQL()+", `DisplayChildrenBeforeText`="+pRow->DisplayChildrenBeforeText_asSQL()+", `DisplayChildrenBehindBackground`="+pRow->DisplayChildrenBehindBackground_asSQL()+", `DontMergeBackground`="+pRow->DontMergeBackground_asSQL()+", `IsTabStop`="+pRow->IsTabStop_asSQL()+", `FK_DesignObj_Up`="+pRow->FK_DesignObj_Up_asSQL()+", `FK_DesignObj_Down`="+pRow->FK_DesignObj_Down_asSQL()+", `FK_DesignObj_Left`="+pRow->FK_DesignObj_Left_asSQL()+", `FK_DesignObj_Right`="+pRow->FK_DesignObj_Right_asSQL()+", `sFK_DesignObj_TiedTo`="+pRow->sFK_DesignObj_TiedTo_asSQL()+", `VisibleStates`="+pRow->VisibleStates_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
 
 	
 		string query = "update DesignObjVariation_DesignObj set " + update_values_list + " where " + condition;
@@ -1284,6 +1311,17 @@ else
 {
 pRow->is_null[26]=false;
 pRow->m_psc_mod = string(row[26],lengths[26]);
+}
+
+if (row[27] == NULL)
+{
+pRow->is_null[27]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[27]=false;
+sscanf(row[27], "%li", &(pRow->m_psc_restrict));
 }
 
 
@@ -1689,6 +1727,17 @@ else
 {
 pRow->is_null[26]=false;
 pRow->m_psc_mod = string(row[26],lengths[26]);
+}
+
+if (row[27] == NULL)
+{
+pRow->is_null[27]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[27]=false;
+sscanf(row[27], "%li", &(pRow->m_psc_restrict));
 }
 
 

@@ -138,6 +138,7 @@ m_psc_frozen = 0;
 is_null[11] = false;
 m_psc_mod = "00000000000000";
 is_null[12] = false;
+is_null[13] = true;
 
 
 	is_added=false;
@@ -184,6 +185,9 @@ return m_psc_frozen;}
 string Row_PageSetup::psc_mod_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_mod;}
+long int Row_PageSetup::psc_restrict_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_psc_restrict;}
 
 		
 void Row_PageSetup::PK_PageSetup_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -225,6 +229,9 @@ m_psc_frozen = val; is_modified=true; is_null[11]=false;}
 void Row_PageSetup::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_mod = val; is_modified=true; is_null[12]=false;}
+void Row_PageSetup::psc_restrict_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_psc_restrict = val; is_modified=true; is_null[13]=false;}
 
 		
 bool Row_PageSetup::FK_PageSetup_Parent_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -248,6 +255,9 @@ return is_null[10];}
 bool Row_PageSetup::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[11];}
+bool Row_PageSetup::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[13];}
 
 			
 void Row_PageSetup::FK_PageSetup_Parent_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -276,6 +286,10 @@ is_modified=true;
 }
 void Row_PageSetup::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[11]=val;
+is_modified=true;
+}
+void Row_PageSetup::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[13]=val;
 is_modified=true;
 }
 	
@@ -452,6 +466,19 @@ delete[] buf;
 return s;
 }
 
+string Row_PageSetup::psc_restrict_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[13])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_psc_restrict);
+
+return buf;
+}
+
 
 
 
@@ -490,10 +517,10 @@ bool Table_PageSetup::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_PageSetup_asSQL()+", "+pRow->FK_PageSetup_Parent_asSQL()+", "+pRow->Website_asSQL()+", "+pRow->OrderNum_asSQL()+", "+pRow->FK_Package_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->pageURL_asSQL()+", "+pRow->showInTopMenu_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_PageSetup_asSQL()+", "+pRow->FK_PageSetup_Parent_asSQL()+", "+pRow->Website_asSQL()+", "+pRow->OrderNum_asSQL()+", "+pRow->FK_Package_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->pageURL_asSQL()+", "+pRow->showInTopMenu_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
 
 	
-		string query = "insert into PageSetup (`PK_PageSetup`, `FK_PageSetup_Parent`, `Website`, `OrderNum`, `FK_Package`, `Description`, `pageURL`, `showInTopMenu`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
+		string query = "insert into PageSetup (`PK_PageSetup`, `FK_PageSetup_Parent`, `Website`, `OrderNum`, `FK_Package`, `Description`, `pageURL`, `showInTopMenu`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -544,7 +571,7 @@ condition = condition + "`PK_PageSetup`=" + tmp_PK_PageSetup;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`PK_PageSetup`="+pRow->PK_PageSetup_asSQL()+", `FK_PageSetup_Parent`="+pRow->FK_PageSetup_Parent_asSQL()+", `Website`="+pRow->Website_asSQL()+", `OrderNum`="+pRow->OrderNum_asSQL()+", `FK_Package`="+pRow->FK_Package_asSQL()+", `Description`="+pRow->Description_asSQL()+", `pageURL`="+pRow->pageURL_asSQL()+", `showInTopMenu`="+pRow->showInTopMenu_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_PageSetup`="+pRow->PK_PageSetup_asSQL()+", `FK_PageSetup_Parent`="+pRow->FK_PageSetup_Parent_asSQL()+", `Website`="+pRow->Website_asSQL()+", `OrderNum`="+pRow->OrderNum_asSQL()+", `FK_Package`="+pRow->FK_Package_asSQL()+", `Description`="+pRow->Description_asSQL()+", `pageURL`="+pRow->pageURL_asSQL()+", `showInTopMenu`="+pRow->showInTopMenu_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
 
 	
 		string query = "update PageSetup set " + update_values_list + " where " + condition;
@@ -787,6 +814,17 @@ else
 {
 pRow->is_null[12]=false;
 pRow->m_psc_mod = string(row[12],lengths[12]);
+}
+
+if (row[13] == NULL)
+{
+pRow->is_null[13]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[13]=false;
+sscanf(row[13], "%li", &(pRow->m_psc_restrict));
 }
 
 
@@ -1038,6 +1076,17 @@ else
 {
 pRow->is_null[12]=false;
 pRow->m_psc_mod = string(row[12],lengths[12]);
+}
+
+if (row[13] == NULL)
+{
+pRow->is_null[13]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[13]=false;
+sscanf(row[13], "%li", &(pRow->m_psc_restrict));
 }
 
 

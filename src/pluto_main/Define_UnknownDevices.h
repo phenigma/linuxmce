@@ -21,6 +21,8 @@
 #define UNKNOWNDEVICES_PSC_FROZEN_TABLE_FIELD "UnknownDevices.psc_frozen"
 #define UNKNOWNDEVICES_PSC_MOD_FIELD "psc_mod"
 #define UNKNOWNDEVICES_PSC_MOD_TABLE_FIELD "UnknownDevices.psc_mod"
+#define UNKNOWNDEVICES_PSC_RESTRICT_FIELD "psc_restrict"
+#define UNKNOWNDEVICES_PSC_RESTRICT_TABLE_FIELD "UnknownDevices.psc_restrict"
 
 
 #endif

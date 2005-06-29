@@ -17,6 +17,8 @@
 #define COMMANDGROUP_D_PSC_FROZEN_TABLE_FIELD "CommandGroup_D.psc_frozen"
 #define COMMANDGROUP_D_PSC_MOD_FIELD "psc_mod"
 #define COMMANDGROUP_D_PSC_MOD_TABLE_FIELD "CommandGroup_D.psc_mod"
+#define COMMANDGROUP_D_PSC_RESTRICT_FIELD "psc_restrict"
+#define COMMANDGROUP_D_PSC_RESTRICT_TABLE_FIELD "CommandGroup_D.psc_restrict"
 
 
 #endif

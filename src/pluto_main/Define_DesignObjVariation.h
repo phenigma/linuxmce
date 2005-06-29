@@ -43,6 +43,8 @@
 #define DESIGNOBJVARIATION_PSC_FROZEN_TABLE_FIELD "DesignObjVariation.psc_frozen"
 #define DESIGNOBJVARIATION_PSC_MOD_FIELD "psc_mod"
 #define DESIGNOBJVARIATION_PSC_MOD_TABLE_FIELD "DesignObjVariation.psc_mod"
+#define DESIGNOBJVARIATION_PSC_RESTRICT_FIELD "psc_restrict"
+#define DESIGNOBJVARIATION_PSC_RESTRICT_TABLE_FIELD "DesignObjVariation.psc_restrict"
 
 
 #endif

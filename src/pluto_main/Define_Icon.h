@@ -30,6 +30,8 @@
 #define ICON_PSC_FROZEN_TABLE_FIELD "Icon.psc_frozen"
 #define ICON_PSC_MOD_FIELD "psc_mod"
 #define ICON_PSC_MOD_TABLE_FIELD "Icon.psc_mod"
+#define ICON_PSC_RESTRICT_FIELD "psc_restrict"
+#define ICON_PSC_RESTRICT_TABLE_FIELD "Icon.psc_restrict"
 
 
 #endif

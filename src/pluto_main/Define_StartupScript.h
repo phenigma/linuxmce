@@ -51,6 +51,8 @@
 #define STARTUPSCRIPT_PSC_FROZEN_TABLE_FIELD "StartupScript.psc_frozen"
 #define STARTUPSCRIPT_PSC_MOD_FIELD "psc_mod"
 #define STARTUPSCRIPT_PSC_MOD_TABLE_FIELD "StartupScript.psc_mod"
+#define STARTUPSCRIPT_PSC_RESTRICT_FIELD "psc_restrict"
+#define STARTUPSCRIPT_PSC_RESTRICT_TABLE_FIELD "StartupScript.psc_restrict"
 
 
 #endif

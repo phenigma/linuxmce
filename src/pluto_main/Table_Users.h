@@ -99,8 +99,9 @@ long int m_psc_batch;
 long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
+long int m_psc_restrict;
 
-		bool is_null[27];
+		bool is_null[28];
 	
 	public:
 		long int PK_Users_get();
@@ -130,6 +131,7 @@ long int psc_batch_get();
 long int psc_user_get();
 short int psc_frozen_get();
 string psc_mod_get();
+long int psc_restrict_get();
 
 		
 		void PK_Users_set(long int val);
@@ -159,6 +161,7 @@ void psc_batch_set(long int val);
 void psc_user_set(long int val);
 void psc_frozen_set(short int val);
 void psc_mod_set(string val);
+void psc_restrict_set(long int val);
 
 		
 		bool Extension_isNull();
@@ -178,6 +181,7 @@ bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
 bool psc_frozen_isNull();
+bool psc_restrict_isNull();
 
 			
 		void Extension_setNull(bool val);
@@ -197,6 +201,7 @@ void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
 void psc_frozen_setNull(bool val);
+void psc_restrict_setNull(bool val);
 	
 	
 		void Delete();
@@ -227,7 +232,7 @@ void Room_Users_FK_Users_getrows(vector <class Row_Room_Users*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Users+ m_UserName+ m_Password+ m_PINCode+ m_HasMailbox+ m_AccessGeneralMailbox+ m_Extension+ m_FirstName+ m_LastName+ m_Nickname+ m_ExtensionRingTimeout+ m_ForwardEmail+ m_FK_Language+ m_FK_Installation_Main+ m_HideFromOrbiter+ m_Staff+ m_Password_Unix+ m_Password_Samba+ m_FK_UserMode+ m_EK_Dealer+ m_EK_Manufacturer+ m_RequirePinToSelect+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_Users+ m_UserName+ m_Password+ m_PINCode+ m_HasMailbox+ m_AccessGeneralMailbox+ m_Extension+ m_FirstName+ m_LastName+ m_Nickname+ m_ExtensionRingTimeout+ m_ForwardEmail+ m_FK_Language+ m_FK_Installation_Main+ m_HideFromOrbiter+ m_Staff+ m_Password_Unix+ m_Password_Samba+ m_FK_UserMode+ m_EK_Dealer+ m_EK_Manufacturer+ m_RequirePinToSelect+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -259,6 +264,7 @@ string psc_batch_asSQL();
 string psc_user_asSQL();
 string psc_frozen_asSQL();
 string psc_mod_asSQL();
+string psc_restrict_asSQL();
 
 	};
 

@@ -22,6 +22,8 @@
 #define VERTALIGNMENT_PSC_FROZEN_TABLE_FIELD "VertAlignment.psc_frozen"
 #define VERTALIGNMENT_PSC_MOD_FIELD "psc_mod"
 #define VERTALIGNMENT_PSC_MOD_TABLE_FIELD "VertAlignment.psc_mod"
+#define VERTALIGNMENT_PSC_RESTRICT_FIELD "psc_restrict"
+#define VERTALIGNMENT_PSC_RESTRICT_TABLE_FIELD "VertAlignment.psc_restrict"
 
 
 #endif

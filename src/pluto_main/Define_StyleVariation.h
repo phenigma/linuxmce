@@ -47,6 +47,8 @@
 #define STYLEVARIATION_PSC_FROZEN_TABLE_FIELD "StyleVariation.psc_frozen"
 #define STYLEVARIATION_PSC_MOD_FIELD "psc_mod"
 #define STYLEVARIATION_PSC_MOD_TABLE_FIELD "StyleVariation.psc_mod"
+#define STYLEVARIATION_PSC_RESTRICT_FIELD "psc_restrict"
+#define STYLEVARIATION_PSC_RESTRICT_TABLE_FIELD "StyleVariation.psc_restrict"
 
 
 #endif

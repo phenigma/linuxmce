@@ -27,6 +27,8 @@
 #define ENTERTAINAREA_PSC_FROZEN_TABLE_FIELD "EntertainArea.psc_frozen"
 #define ENTERTAINAREA_PSC_MOD_FIELD "psc_mod"
 #define ENTERTAINAREA_PSC_MOD_TABLE_FIELD "EntertainArea.psc_mod"
+#define ENTERTAINAREA_PSC_RESTRICT_FIELD "psc_restrict"
+#define ENTERTAINAREA_PSC_RESTRICT_TABLE_FIELD "EntertainArea.psc_restrict"
 
 
 #endif

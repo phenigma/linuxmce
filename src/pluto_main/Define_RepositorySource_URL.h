@@ -27,6 +27,8 @@
 #define REPOSITORYSOURCE_URL_PSC_FROZEN_TABLE_FIELD "RepositorySource_URL.psc_frozen"
 #define REPOSITORYSOURCE_URL_PSC_MOD_FIELD "psc_mod"
 #define REPOSITORYSOURCE_URL_PSC_MOD_TABLE_FIELD "RepositorySource_URL.psc_mod"
+#define REPOSITORYSOURCE_URL_PSC_RESTRICT_FIELD "psc_restrict"
+#define REPOSITORYSOURCE_URL_PSC_RESTRICT_TABLE_FIELD "RepositorySource_URL.psc_restrict"
 
 
 #endif

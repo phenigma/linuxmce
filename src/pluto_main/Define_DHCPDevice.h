@@ -27,6 +27,8 @@
 #define DHCPDEVICE_PSC_FROZEN_TABLE_FIELD "DHCPDevice.psc_frozen"
 #define DHCPDEVICE_PSC_MOD_FIELD "psc_mod"
 #define DHCPDEVICE_PSC_MOD_TABLE_FIELD "DHCPDevice.psc_mod"
+#define DHCPDEVICE_PSC_RESTRICT_FIELD "psc_restrict"
+#define DHCPDEVICE_PSC_RESTRICT_TABLE_FIELD "DHCPDevice.psc_restrict"
 
 
 #endif

@@ -25,6 +25,8 @@
 #define DEVICE_STARTUPSCRIPT_PSC_FROZEN_TABLE_FIELD "Device_StartupScript.psc_frozen"
 #define DEVICE_STARTUPSCRIPT_PSC_MOD_FIELD "psc_mod"
 #define DEVICE_STARTUPSCRIPT_PSC_MOD_TABLE_FIELD "Device_StartupScript.psc_mod"
+#define DEVICE_STARTUPSCRIPT_PSC_RESTRICT_FIELD "psc_restrict"
+#define DEVICE_STARTUPSCRIPT_PSC_RESTRICT_TABLE_FIELD "Device_StartupScript.psc_restrict"
 
 
 #endif

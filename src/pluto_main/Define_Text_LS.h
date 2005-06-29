@@ -19,6 +19,8 @@
 #define TEXT_LS_PSC_FROZEN_TABLE_FIELD "Text_LS.psc_frozen"
 #define TEXT_LS_PSC_MOD_FIELD "psc_mod"
 #define TEXT_LS_PSC_MOD_TABLE_FIELD "Text_LS.psc_mod"
+#define TEXT_LS_PSC_RESTRICT_FIELD "psc_restrict"
+#define TEXT_LS_PSC_RESTRICT_TABLE_FIELD "Text_LS.psc_restrict"
 
 
 #endif

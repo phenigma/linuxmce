@@ -17,6 +17,8 @@
 #define INFRAREDGROUP_COMMAND_PREFERRED_PSC_FROZEN_TABLE_FIELD "InfraredGroup_Command_Preferred.psc_frozen"
 #define INFRAREDGROUP_COMMAND_PREFERRED_PSC_MOD_FIELD "psc_mod"
 #define INFRAREDGROUP_COMMAND_PREFERRED_PSC_MOD_TABLE_FIELD "InfraredGroup_Command_Preferred.psc_mod"
+#define INFRAREDGROUP_COMMAND_PREFERRED_PSC_RESTRICT_FIELD "psc_restrict"
+#define INFRAREDGROUP_COMMAND_PREFERRED_PSC_RESTRICT_TABLE_FIELD "InfraredGroup_Command_Preferred.psc_restrict"
 
 
 #endif

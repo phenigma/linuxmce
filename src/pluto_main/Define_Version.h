@@ -33,6 +33,8 @@
 #define VERSION_PSC_FROZEN_TABLE_FIELD "Version.psc_frozen"
 #define VERSION_PSC_MOD_FIELD "psc_mod"
 #define VERSION_PSC_MOD_TABLE_FIELD "Version.psc_mod"
+#define VERSION_PSC_RESTRICT_FIELD "psc_restrict"
+#define VERSION_PSC_RESTRICT_TABLE_FIELD "Version.psc_restrict"
 
 
 #endif

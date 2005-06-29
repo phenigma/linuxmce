@@ -29,6 +29,8 @@
 #define FIREWALL_PSC_FROZEN_TABLE_FIELD "Firewall.psc_frozen"
 #define FIREWALL_PSC_MOD_FIELD "psc_mod"
 #define FIREWALL_PSC_MOD_TABLE_FIELD "Firewall.psc_mod"
+#define FIREWALL_PSC_RESTRICT_FIELD "psc_restrict"
+#define FIREWALL_PSC_RESTRICT_TABLE_FIELD "Firewall.psc_restrict"
 
 
 #endif

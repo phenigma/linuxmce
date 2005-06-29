@@ -26,6 +26,8 @@
 #define CRITERIA_PSC_FROZEN_TABLE_FIELD "Criteria.psc_frozen"
 #define CRITERIA_PSC_MOD_FIELD "psc_mod"
 #define CRITERIA_PSC_MOD_TABLE_FIELD "Criteria.psc_mod"
+#define CRITERIA_PSC_RESTRICT_FIELD "psc_restrict"
+#define CRITERIA_PSC_RESTRICT_TABLE_FIELD "Criteria.psc_restrict"
 
 
 #endif

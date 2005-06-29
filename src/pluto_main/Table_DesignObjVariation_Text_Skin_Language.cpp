@@ -145,6 +145,7 @@ m_psc_frozen = 0;
 is_null[17] = false;
 m_psc_mod = "00000000000000";
 is_null[18] = false;
+is_null[19] = true;
 
 
 	is_added=false;
@@ -209,6 +210,9 @@ return m_psc_frozen;}
 string Row_DesignObjVariation_Text_Skin_Language::psc_mod_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_mod;}
+long int Row_DesignObjVariation_Text_Skin_Language::psc_restrict_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_psc_restrict;}
 
 		
 void Row_DesignObjVariation_Text_Skin_Language::PK_DesignObjVariation_Text_Skin_Language_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -268,6 +272,9 @@ m_psc_frozen = val; is_modified=true; is_null[17]=false;}
 void Row_DesignObjVariation_Text_Skin_Language::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_mod = val; is_modified=true; is_null[18]=false;}
+void Row_DesignObjVariation_Text_Skin_Language::psc_restrict_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_psc_restrict = val; is_modified=true; is_null[19]=false;}
 
 		
 bool Row_DesignObjVariation_Text_Skin_Language::FK_Skin_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -306,6 +313,9 @@ return is_null[16];}
 bool Row_DesignObjVariation_Text_Skin_Language::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[17];}
+bool Row_DesignObjVariation_Text_Skin_Language::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[19];}
 
 			
 void Row_DesignObjVariation_Text_Skin_Language::FK_Skin_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -354,6 +364,10 @@ is_modified=true;
 }
 void Row_DesignObjVariation_Text_Skin_Language::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[17]=val;
+is_modified=true;
+}
+void Row_DesignObjVariation_Text_Skin_Language::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[19]=val;
 is_modified=true;
 }
 	
@@ -606,6 +620,19 @@ delete[] buf;
 return s;
 }
 
+string Row_DesignObjVariation_Text_Skin_Language::psc_restrict_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[19])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_psc_restrict);
+
+return buf;
+}
+
 
 
 
@@ -644,10 +671,10 @@ bool Table_DesignObjVariation_Text_Skin_Language::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_DesignObjVariation_Text_Skin_Language_asSQL()+", "+pRow->FK_DesignObjVariation_Text_asSQL()+", "+pRow->FK_Skin_asSQL()+", "+pRow->FK_Language_asSQL()+", "+pRow->X_asSQL()+", "+pRow->Y_asSQL()+", "+pRow->Width_asSQL()+", "+pRow->Height_asSQL()+", "+pRow->Rotate_asSQL()+", "+pRow->Opacity_asSQL()+", "+pRow->FK_HorizAlignment_asSQL()+", "+pRow->FK_VertAlignment_asSQL()+", "+pRow->FK_Style_asSQL()+", "+pRow->PlainBackgroundColor_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_DesignObjVariation_Text_Skin_Language_asSQL()+", "+pRow->FK_DesignObjVariation_Text_asSQL()+", "+pRow->FK_Skin_asSQL()+", "+pRow->FK_Language_asSQL()+", "+pRow->X_asSQL()+", "+pRow->Y_asSQL()+", "+pRow->Width_asSQL()+", "+pRow->Height_asSQL()+", "+pRow->Rotate_asSQL()+", "+pRow->Opacity_asSQL()+", "+pRow->FK_HorizAlignment_asSQL()+", "+pRow->FK_VertAlignment_asSQL()+", "+pRow->FK_Style_asSQL()+", "+pRow->PlainBackgroundColor_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
 
 	
-		string query = "insert into DesignObjVariation_Text_Skin_Language (`PK_DesignObjVariation_Text_Skin_Language`, `FK_DesignObjVariation_Text`, `FK_Skin`, `FK_Language`, `X`, `Y`, `Width`, `Height`, `Rotate`, `Opacity`, `FK_HorizAlignment`, `FK_VertAlignment`, `FK_Style`, `PlainBackgroundColor`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
+		string query = "insert into DesignObjVariation_Text_Skin_Language (`PK_DesignObjVariation_Text_Skin_Language`, `FK_DesignObjVariation_Text`, `FK_Skin`, `FK_Language`, `X`, `Y`, `Width`, `Height`, `Rotate`, `Opacity`, `FK_HorizAlignment`, `FK_VertAlignment`, `FK_Style`, `PlainBackgroundColor`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -698,7 +725,7 @@ condition = condition + "`PK_DesignObjVariation_Text_Skin_Language`=" + tmp_PK_D
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`PK_DesignObjVariation_Text_Skin_Language`="+pRow->PK_DesignObjVariation_Text_Skin_Language_asSQL()+", `FK_DesignObjVariation_Text`="+pRow->FK_DesignObjVariation_Text_asSQL()+", `FK_Skin`="+pRow->FK_Skin_asSQL()+", `FK_Language`="+pRow->FK_Language_asSQL()+", `X`="+pRow->X_asSQL()+", `Y`="+pRow->Y_asSQL()+", `Width`="+pRow->Width_asSQL()+", `Height`="+pRow->Height_asSQL()+", `Rotate`="+pRow->Rotate_asSQL()+", `Opacity`="+pRow->Opacity_asSQL()+", `FK_HorizAlignment`="+pRow->FK_HorizAlignment_asSQL()+", `FK_VertAlignment`="+pRow->FK_VertAlignment_asSQL()+", `FK_Style`="+pRow->FK_Style_asSQL()+", `PlainBackgroundColor`="+pRow->PlainBackgroundColor_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_DesignObjVariation_Text_Skin_Language`="+pRow->PK_DesignObjVariation_Text_Skin_Language_asSQL()+", `FK_DesignObjVariation_Text`="+pRow->FK_DesignObjVariation_Text_asSQL()+", `FK_Skin`="+pRow->FK_Skin_asSQL()+", `FK_Language`="+pRow->FK_Language_asSQL()+", `X`="+pRow->X_asSQL()+", `Y`="+pRow->Y_asSQL()+", `Width`="+pRow->Width_asSQL()+", `Height`="+pRow->Height_asSQL()+", `Rotate`="+pRow->Rotate_asSQL()+", `Opacity`="+pRow->Opacity_asSQL()+", `FK_HorizAlignment`="+pRow->FK_HorizAlignment_asSQL()+", `FK_VertAlignment`="+pRow->FK_VertAlignment_asSQL()+", `FK_Style`="+pRow->FK_Style_asSQL()+", `PlainBackgroundColor`="+pRow->PlainBackgroundColor_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
 
 	
 		string query = "update DesignObjVariation_Text_Skin_Language set " + update_values_list + " where " + condition;
@@ -1007,6 +1034,17 @@ else
 {
 pRow->is_null[18]=false;
 pRow->m_psc_mod = string(row[18],lengths[18]);
+}
+
+if (row[19] == NULL)
+{
+pRow->is_null[19]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[19]=false;
+sscanf(row[19], "%li", &(pRow->m_psc_restrict));
 }
 
 
@@ -1324,6 +1362,17 @@ else
 {
 pRow->is_null[18]=false;
 pRow->m_psc_mod = string(row[18],lengths[18]);
+}
+
+if (row[19] == NULL)
+{
+pRow->is_null[19]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[19]=false;
+sscanf(row[19], "%li", &(pRow->m_psc_restrict));
 }
 
 

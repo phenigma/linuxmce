@@ -21,6 +21,8 @@
 #define PACKAGE_USERS_PSC_FROZEN_TABLE_FIELD "Package_Users.psc_frozen"
 #define PACKAGE_USERS_PSC_MOD_FIELD "psc_mod"
 #define PACKAGE_USERS_PSC_MOD_TABLE_FIELD "Package_Users.psc_mod"
+#define PACKAGE_USERS_PSC_RESTRICT_FIELD "psc_restrict"
+#define PACKAGE_USERS_PSC_RESTRICT_TABLE_FIELD "Package_Users.psc_restrict"
 
 
 #endif

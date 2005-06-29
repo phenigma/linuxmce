@@ -47,6 +47,8 @@
 #define DEVICE_PSC_FROZEN_TABLE_FIELD "Device.psc_frozen"
 #define DEVICE_PSC_MOD_FIELD "psc_mod"
 #define DEVICE_PSC_MOD_TABLE_FIELD "Device.psc_mod"
+#define DEVICE_PSC_RESTRICT_FIELD "psc_restrict"
+#define DEVICE_PSC_RESTRICT_TABLE_FIELD "Device.psc_restrict"
 
 
 #endif

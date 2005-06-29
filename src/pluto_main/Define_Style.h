@@ -25,6 +25,8 @@
 #define STYLE_PSC_FROZEN_TABLE_FIELD "Style.psc_frozen"
 #define STYLE_PSC_MOD_FIELD "psc_mod"
 #define STYLE_PSC_MOD_TABLE_FIELD "Style.psc_mod"
+#define STYLE_PSC_RESTRICT_FIELD "psc_restrict"
+#define STYLE_PSC_RESTRICT_TABLE_FIELD "Style.psc_restrict"
 
 
 #endif

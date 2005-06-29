@@ -21,6 +21,8 @@
 #define IMAGE_PSC_FROZEN_TABLE_FIELD "Image.psc_frozen"
 #define IMAGE_PSC_MOD_FIELD "psc_mod"
 #define IMAGE_PSC_MOD_TABLE_FIELD "Image.psc_mod"
+#define IMAGE_PSC_RESTRICT_FIELD "psc_restrict"
+#define IMAGE_PSC_RESTRICT_TABLE_FIELD "Image.psc_restrict"
 
 
 #endif

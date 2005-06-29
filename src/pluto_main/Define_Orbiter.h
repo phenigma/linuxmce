@@ -23,6 +23,8 @@
 #define ORBITER_PSC_FROZEN_TABLE_FIELD "Orbiter.psc_frozen"
 #define ORBITER_PSC_MOD_FIELD "psc_mod"
 #define ORBITER_PSC_MOD_TABLE_FIELD "Orbiter.psc_mod"
+#define ORBITER_PSC_RESTRICT_FIELD "psc_restrict"
+#define ORBITER_PSC_RESTRICT_TABLE_FIELD "Orbiter.psc_restrict"
 
 
 #endif

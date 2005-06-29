@@ -1311,6 +1311,12 @@
 #define DESIGNOBJ_arrMediaMarbella_CONST 3524
 #define DESIGNOBJ_arrLightsMarbella_CONST 3525
 #define DESIGNOBJ_butPopupTelecom_CONST 3526
+#define DESIGNOBJ_butAdvancedOptions_CONST 3528
+#define DESIGNOBJ_butSleepingMenu_CONST 3529
+#define DESIGNOBJ_butPower_CONST 3530
+#define DESIGNOBJ_popupLightsMap_CONST 3531
+#define DESIGNOBJ_arrLightsFloorplan_CONST 3532
+#define DESIGNOBJ_butArrayFloorplanLights_CONST 3533
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
@@ -1349,6 +1355,8 @@
 #define DESIGNOBJ_PSC_FROZEN_TABLE_FIELD "DesignObj.psc_frozen"
 #define DESIGNOBJ_PSC_MOD_FIELD "psc_mod"
 #define DESIGNOBJ_PSC_MOD_TABLE_FIELD "DesignObj.psc_mod"
+#define DESIGNOBJ_PSC_RESTRICT_FIELD "psc_restrict"
+#define DESIGNOBJ_PSC_RESTRICT_TABLE_FIELD "DesignObj.psc_restrict"
 
 
 #endif

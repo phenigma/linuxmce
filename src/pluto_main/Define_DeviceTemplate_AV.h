@@ -35,6 +35,8 @@
 #define DEVICETEMPLATE_AV_PSC_FROZEN_TABLE_FIELD "DeviceTemplate_AV.psc_frozen"
 #define DEVICETEMPLATE_AV_PSC_MOD_FIELD "psc_mod"
 #define DEVICETEMPLATE_AV_PSC_MOD_TABLE_FIELD "DeviceTemplate_AV.psc_mod"
+#define DEVICETEMPLATE_AV_PSC_RESTRICT_FIELD "psc_restrict"
+#define DEVICETEMPLATE_AV_PSC_RESTRICT_TABLE_FIELD "DeviceTemplate_AV.psc_restrict"
 
 
 #endif

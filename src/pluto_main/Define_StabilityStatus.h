@@ -20,6 +20,8 @@
 #define STABILITYSTATUS_PSC_FROZEN_TABLE_FIELD "StabilityStatus.psc_frozen"
 #define STABILITYSTATUS_PSC_MOD_FIELD "psc_mod"
 #define STABILITYSTATUS_PSC_MOD_TABLE_FIELD "StabilityStatus.psc_mod"
+#define STABILITYSTATUS_PSC_RESTRICT_FIELD "psc_restrict"
+#define STABILITYSTATUS_PSC_RESTRICT_TABLE_FIELD "StabilityStatus.psc_restrict"
 
 
 #endif

@@ -23,6 +23,8 @@
 #define DEVICEGROUP_PSC_FROZEN_TABLE_FIELD "DeviceGroup.psc_frozen"
 #define DEVICEGROUP_PSC_MOD_FIELD "psc_mod"
 #define DEVICEGROUP_PSC_MOD_TABLE_FIELD "DeviceGroup.psc_mod"
+#define DEVICEGROUP_PSC_RESTRICT_FIELD "psc_restrict"
+#define DEVICEGROUP_PSC_RESTRICT_TABLE_FIELD "DeviceGroup.psc_restrict"
 
 
 #endif

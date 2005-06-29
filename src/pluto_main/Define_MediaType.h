@@ -52,6 +52,8 @@
 #define MEDIATYPE_PSC_FROZEN_TABLE_FIELD "MediaType.psc_frozen"
 #define MEDIATYPE_PSC_MOD_FIELD "psc_mod"
 #define MEDIATYPE_PSC_MOD_TABLE_FIELD "MediaType.psc_mod"
+#define MEDIATYPE_PSC_RESTRICT_FIELD "psc_restrict"
+#define MEDIATYPE_PSC_RESTRICT_TABLE_FIELD "MediaType.psc_restrict"
 
 
 #endif

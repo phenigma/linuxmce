@@ -15,6 +15,8 @@
 #define HOUSEHOLD_PSC_FROZEN_TABLE_FIELD "Household.psc_frozen"
 #define HOUSEHOLD_PSC_MOD_FIELD "psc_mod"
 #define HOUSEHOLD_PSC_MOD_TABLE_FIELD "Household.psc_mod"
+#define HOUSEHOLD_PSC_RESTRICT_FIELD "psc_restrict"
+#define HOUSEHOLD_PSC_RESTRICT_TABLE_FIELD "Household.psc_restrict"
 
 
 #endif

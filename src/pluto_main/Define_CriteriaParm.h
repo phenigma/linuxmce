@@ -27,6 +27,8 @@
 #define CRITERIAPARM_PSC_FROZEN_TABLE_FIELD "CriteriaParm.psc_frozen"
 #define CRITERIAPARM_PSC_MOD_FIELD "psc_mod"
 #define CRITERIAPARM_PSC_MOD_TABLE_FIELD "CriteriaParm.psc_mod"
+#define CRITERIAPARM_PSC_RESTRICT_FIELD "psc_restrict"
+#define CRITERIAPARM_PSC_RESTRICT_TABLE_FIELD "CriteriaParm.psc_restrict"
 
 
 #endif

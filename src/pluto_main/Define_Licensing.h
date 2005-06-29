@@ -23,6 +23,8 @@
 #define LICENSING_PSC_FROZEN_TABLE_FIELD "Licensing.psc_frozen"
 #define LICENSING_PSC_MOD_FIELD "psc_mod"
 #define LICENSING_PSC_MOD_TABLE_FIELD "Licensing.psc_mod"
+#define LICENSING_PSC_RESTRICT_FIELD "psc_restrict"
+#define LICENSING_PSC_RESTRICT_TABLE_FIELD "Licensing.psc_restrict"
 
 
 #endif

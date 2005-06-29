@@ -23,6 +23,8 @@
 #define CANNEDEVENTS_PSC_FROZEN_TABLE_FIELD "CannedEvents.psc_frozen"
 #define CANNEDEVENTS_PSC_MOD_FIELD "psc_mod"
 #define CANNEDEVENTS_PSC_MOD_TABLE_FIELD "CannedEvents.psc_mod"
+#define CANNEDEVENTS_PSC_RESTRICT_FIELD "psc_restrict"
+#define CANNEDEVENTS_PSC_RESTRICT_TABLE_FIELD "CannedEvents.psc_restrict"
 
 
 #endif

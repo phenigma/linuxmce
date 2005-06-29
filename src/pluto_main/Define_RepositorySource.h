@@ -45,6 +45,8 @@
 #define REPOSITORYSOURCE_PSC_FROZEN_TABLE_FIELD "RepositorySource.psc_frozen"
 #define REPOSITORYSOURCE_PSC_MOD_FIELD "psc_mod"
 #define REPOSITORYSOURCE_PSC_MOD_TABLE_FIELD "RepositorySource.psc_mod"
+#define REPOSITORYSOURCE_PSC_RESTRICT_FIELD "psc_restrict"
+#define REPOSITORYSOURCE_PSC_RESTRICT_TABLE_FIELD "RepositorySource.psc_restrict"
 
 
 #endif

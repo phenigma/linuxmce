@@ -19,6 +19,8 @@
 #define PHONELINETYPE_PSC_FROZEN_TABLE_FIELD "PhoneLineType.psc_frozen"
 #define PHONELINETYPE_PSC_MOD_FIELD "psc_mod"
 #define PHONELINETYPE_PSC_MOD_TABLE_FIELD "PhoneLineType.psc_mod"
+#define PHONELINETYPE_PSC_RESTRICT_FIELD "psc_restrict"
+#define PHONELINETYPE_PSC_RESTRICT_TABLE_FIELD "PhoneLineType.psc_restrict"
 
 
 #endif

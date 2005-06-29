@@ -21,6 +21,8 @@
 #define REMOTECONTROL_PSC_FROZEN_TABLE_FIELD "RemoteControl.psc_frozen"
 #define REMOTECONTROL_PSC_MOD_FIELD "psc_mod"
 #define REMOTECONTROL_PSC_MOD_TABLE_FIELD "RemoteControl.psc_mod"
+#define REMOTECONTROL_PSC_RESTRICT_FIELD "psc_restrict"
+#define REMOTECONTROL_PSC_RESTRICT_TABLE_FIELD "RemoteControl.psc_restrict"
 
 
 #endif

@@ -33,6 +33,8 @@
 #define EVENTHANDLER_PSC_FROZEN_TABLE_FIELD "EventHandler.psc_frozen"
 #define EVENTHANDLER_PSC_MOD_FIELD "psc_mod"
 #define EVENTHANDLER_PSC_MOD_TABLE_FIELD "EventHandler.psc_mod"
+#define EVENTHANDLER_PSC_RESTRICT_FIELD "psc_restrict"
+#define EVENTHANDLER_PSC_RESTRICT_TABLE_FIELD "EventHandler.psc_restrict"
 
 
 #endif

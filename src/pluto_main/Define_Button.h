@@ -135,6 +135,8 @@
 #define BUTTON_PSC_FROZEN_TABLE_FIELD "Button.psc_frozen"
 #define BUTTON_PSC_MOD_FIELD "psc_mod"
 #define BUTTON_PSC_MOD_TABLE_FIELD "Button.psc_mod"
+#define BUTTON_PSC_RESTRICT_FIELD "psc_restrict"
+#define BUTTON_PSC_RESTRICT_TABLE_FIELD "Button.psc_restrict"
 
 
 #endif

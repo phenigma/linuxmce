@@ -32,6 +32,8 @@
 #define DESIGNOBJTYPE_PSC_FROZEN_TABLE_FIELD "DesignObjType.psc_frozen"
 #define DESIGNOBJTYPE_PSC_MOD_FIELD "psc_mod"
 #define DESIGNOBJTYPE_PSC_MOD_TABLE_FIELD "DesignObjType.psc_mod"
+#define DESIGNOBJTYPE_PSC_RESTRICT_FIELD "psc_restrict"
+#define DESIGNOBJTYPE_PSC_RESTRICT_TABLE_FIELD "DesignObjType.psc_restrict"
 
 
 #endif

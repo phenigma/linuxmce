@@ -19,6 +19,8 @@
 #define COMMANDGROUP_ROOM_PSC_FROZEN_TABLE_FIELD "CommandGroup_Room.psc_frozen"
 #define COMMANDGROUP_ROOM_PSC_MOD_FIELD "psc_mod"
 #define COMMANDGROUP_ROOM_PSC_MOD_TABLE_FIELD "CommandGroup_Room.psc_mod"
+#define COMMANDGROUP_ROOM_PSC_RESTRICT_FIELD "psc_restrict"
+#define COMMANDGROUP_ROOM_PSC_RESTRICT_TABLE_FIELD "CommandGroup_Room.psc_restrict"
 
 
 #endif

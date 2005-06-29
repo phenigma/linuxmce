@@ -45,6 +45,8 @@
 #define INSTALLATION_PSC_FROZEN_TABLE_FIELD "Installation.psc_frozen"
 #define INSTALLATION_PSC_MOD_FIELD "psc_mod"
 #define INSTALLATION_PSC_MOD_TABLE_FIELD "Installation.psc_mod"
+#define INSTALLATION_PSC_RESTRICT_FIELD "psc_restrict"
+#define INSTALLATION_PSC_RESTRICT_TABLE_FIELD "Installation.psc_restrict"
 
 
 #endif

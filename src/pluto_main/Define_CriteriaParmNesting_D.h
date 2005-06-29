@@ -21,6 +21,8 @@
 #define CRITERIAPARMNESTING_D_PSC_FROZEN_TABLE_FIELD "CriteriaParmNesting_D.psc_frozen"
 #define CRITERIAPARMNESTING_D_PSC_MOD_FIELD "psc_mod"
 #define CRITERIAPARMNESTING_D_PSC_MOD_TABLE_FIELD "CriteriaParmNesting_D.psc_mod"
+#define CRITERIAPARMNESTING_D_PSC_RESTRICT_FIELD "psc_restrict"
+#define CRITERIAPARMNESTING_D_PSC_RESTRICT_TABLE_FIELD "CriteriaParmNesting_D.psc_restrict"
 
 
 #endif

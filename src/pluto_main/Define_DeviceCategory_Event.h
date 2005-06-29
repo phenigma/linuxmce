@@ -17,6 +17,8 @@
 #define DEVICECATEGORY_EVENT_PSC_FROZEN_TABLE_FIELD "DeviceCategory_Event.psc_frozen"
 #define DEVICECATEGORY_EVENT_PSC_MOD_FIELD "psc_mod"
 #define DEVICECATEGORY_EVENT_PSC_MOD_TABLE_FIELD "DeviceCategory_Event.psc_mod"
+#define DEVICECATEGORY_EVENT_PSC_RESTRICT_FIELD "psc_restrict"
+#define DEVICECATEGORY_EVENT_PSC_RESTRICT_TABLE_FIELD "DeviceCategory_Event.psc_restrict"
 
 
 #endif

@@ -21,6 +21,8 @@
 #define INSTALLATION_USERS_PSC_FROZEN_TABLE_FIELD "Installation_Users.psc_frozen"
 #define INSTALLATION_USERS_PSC_MOD_FIELD "psc_mod"
 #define INSTALLATION_USERS_PSC_MOD_TABLE_FIELD "Installation_Users.psc_mod"
+#define INSTALLATION_USERS_PSC_RESTRICT_FIELD "psc_restrict"
+#define INSTALLATION_USERS_PSC_RESTRICT_TABLE_FIELD "Installation_Users.psc_restrict"
 
 
 #endif

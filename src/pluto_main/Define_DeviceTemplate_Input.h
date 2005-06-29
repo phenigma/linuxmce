@@ -21,6 +21,8 @@
 #define DEVICETEMPLATE_INPUT_PSC_FROZEN_TABLE_FIELD "DeviceTemplate_Input.psc_frozen"
 #define DEVICETEMPLATE_INPUT_PSC_MOD_FIELD "psc_mod"
 #define DEVICETEMPLATE_INPUT_PSC_MOD_TABLE_FIELD "DeviceTemplate_Input.psc_mod"
+#define DEVICETEMPLATE_INPUT_PSC_RESTRICT_FIELD "psc_restrict"
+#define DEVICETEMPLATE_INPUT_PSC_RESTRICT_TABLE_FIELD "DeviceTemplate_Input.psc_restrict"
 
 
 #endif

@@ -21,6 +21,8 @@
 #define DEVICETEMPLATE_OUTPUT_PSC_FROZEN_TABLE_FIELD "DeviceTemplate_Output.psc_frozen"
 #define DEVICETEMPLATE_OUTPUT_PSC_MOD_FIELD "psc_mod"
 #define DEVICETEMPLATE_OUTPUT_PSC_MOD_TABLE_FIELD "DeviceTemplate_Output.psc_mod"
+#define DEVICETEMPLATE_OUTPUT_PSC_RESTRICT_FIELD "psc_restrict"
+#define DEVICETEMPLATE_OUTPUT_PSC_RESTRICT_TABLE_FIELD "DeviceTemplate_Output.psc_restrict"
 
 
 #endif

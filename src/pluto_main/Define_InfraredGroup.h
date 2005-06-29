@@ -21,6 +21,8 @@
 #define INFRAREDGROUP_PSC_FROZEN_TABLE_FIELD "InfraredGroup.psc_frozen"
 #define INFRAREDGROUP_PSC_MOD_FIELD "psc_mod"
 #define INFRAREDGROUP_PSC_MOD_TABLE_FIELD "InfraredGroup.psc_mod"
+#define INFRAREDGROUP_PSC_RESTRICT_FIELD "psc_restrict"
+#define INFRAREDGROUP_PSC_RESTRICT_TABLE_FIELD "InfraredGroup.psc_restrict"
 
 
 #endif

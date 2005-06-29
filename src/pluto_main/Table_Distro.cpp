@@ -147,6 +147,7 @@ m_psc_frozen = 0;
 is_null[16] = false;
 m_psc_mod = "00000000000000";
 is_null[17] = false;
+is_null[18] = true;
 
 
 	is_added=false;
@@ -208,6 +209,9 @@ return m_psc_frozen;}
 string Row_Distro::psc_mod_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_mod;}
+long int Row_Distro::psc_restrict_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_psc_restrict;}
 
 		
 void Row_Distro::PK_Distro_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -264,6 +268,9 @@ m_psc_frozen = val; is_modified=true; is_null[16]=false;}
 void Row_Distro::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_mod = val; is_modified=true; is_null[17]=false;}
+void Row_Distro::psc_restrict_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_psc_restrict = val; is_modified=true; is_null[18]=false;}
 
 		
 bool Row_Distro::Define_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -296,6 +303,9 @@ return is_null[15];}
 bool Row_Distro::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[16];}
+bool Row_Distro::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[18];}
 
 			
 void Row_Distro::Define_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -336,6 +346,10 @@ is_modified=true;
 }
 void Row_Distro::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[16]=val;
+is_modified=true;
+}
+void Row_Distro::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[18]=val;
 is_modified=true;
 }
 	
@@ -582,6 +596,19 @@ delete[] buf;
 return s;
 }
 
+string Row_Distro::psc_restrict_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[18])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_psc_restrict);
+
+return buf;
+}
+
 
 
 
@@ -620,10 +647,10 @@ bool Table_Distro::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Distro_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->FK_OperatingSystem_asSQL()+", "+pRow->Installer_asSQL()+", "+pRow->KickStartCD_asSQL()+", "+pRow->Binaries_asSQL()+", "+pRow->SourceCode_asSQL()+", "+pRow->Confirmed_asSQL()+", "+pRow->Core_asSQL()+", "+pRow->MediaDirector_asSQL()+", "+pRow->Orbiter_asSQL()+", "+pRow->InstallerURL_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Distro_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->FK_OperatingSystem_asSQL()+", "+pRow->Installer_asSQL()+", "+pRow->KickStartCD_asSQL()+", "+pRow->Binaries_asSQL()+", "+pRow->SourceCode_asSQL()+", "+pRow->Confirmed_asSQL()+", "+pRow->Core_asSQL()+", "+pRow->MediaDirector_asSQL()+", "+pRow->Orbiter_asSQL()+", "+pRow->InstallerURL_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
 
 	
-		string query = "insert into Distro (`PK_Distro`, `Description`, `Define`, `FK_OperatingSystem`, `Installer`, `KickStartCD`, `Binaries`, `SourceCode`, `Confirmed`, `Core`, `MediaDirector`, `Orbiter`, `InstallerURL`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
+		string query = "insert into Distro (`PK_Distro`, `Description`, `Define`, `FK_OperatingSystem`, `Installer`, `KickStartCD`, `Binaries`, `SourceCode`, `Confirmed`, `Core`, `MediaDirector`, `Orbiter`, `InstallerURL`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -674,7 +701,7 @@ condition = condition + "`PK_Distro`=" + tmp_PK_Distro;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`PK_Distro`="+pRow->PK_Distro_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Define`="+pRow->Define_asSQL()+", `FK_OperatingSystem`="+pRow->FK_OperatingSystem_asSQL()+", `Installer`="+pRow->Installer_asSQL()+", `KickStartCD`="+pRow->KickStartCD_asSQL()+", `Binaries`="+pRow->Binaries_asSQL()+", `SourceCode`="+pRow->SourceCode_asSQL()+", `Confirmed`="+pRow->Confirmed_asSQL()+", `Core`="+pRow->Core_asSQL()+", `MediaDirector`="+pRow->MediaDirector_asSQL()+", `Orbiter`="+pRow->Orbiter_asSQL()+", `InstallerURL`="+pRow->InstallerURL_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_Distro`="+pRow->PK_Distro_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Define`="+pRow->Define_asSQL()+", `FK_OperatingSystem`="+pRow->FK_OperatingSystem_asSQL()+", `Installer`="+pRow->Installer_asSQL()+", `KickStartCD`="+pRow->KickStartCD_asSQL()+", `Binaries`="+pRow->Binaries_asSQL()+", `SourceCode`="+pRow->SourceCode_asSQL()+", `Confirmed`="+pRow->Confirmed_asSQL()+", `Core`="+pRow->Core_asSQL()+", `MediaDirector`="+pRow->MediaDirector_asSQL()+", `Orbiter`="+pRow->Orbiter_asSQL()+", `InstallerURL`="+pRow->InstallerURL_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
 
 	
 		string query = "update Distro set " + update_values_list + " where " + condition;
@@ -972,6 +999,17 @@ else
 {
 pRow->is_null[17]=false;
 pRow->m_psc_mod = string(row[17],lengths[17]);
+}
+
+if (row[18] == NULL)
+{
+pRow->is_null[18]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[18]=false;
+sscanf(row[18], "%li", &(pRow->m_psc_restrict));
 }
 
 
@@ -1278,6 +1316,17 @@ else
 {
 pRow->is_null[17]=false;
 pRow->m_psc_mod = string(row[17],lengths[17]);
+}
+
+if (row[18] == NULL)
+{
+pRow->is_null[18]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[18]=false;
+sscanf(row[18], "%li", &(pRow->m_psc_restrict));
 }
 
 

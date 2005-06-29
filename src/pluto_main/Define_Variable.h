@@ -56,6 +56,8 @@
 #define VARIABLE_PSC_FROZEN_TABLE_FIELD "Variable.psc_frozen"
 #define VARIABLE_PSC_MOD_FIELD "psc_mod"
 #define VARIABLE_PSC_MOD_TABLE_FIELD "Variable.psc_mod"
+#define VARIABLE_PSC_RESTRICT_FIELD "psc_restrict"
+#define VARIABLE_PSC_RESTRICT_TABLE_FIELD "Variable.psc_restrict"
 
 
 #endif

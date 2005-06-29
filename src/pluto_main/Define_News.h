@@ -25,6 +25,8 @@
 #define NEWS_PSC_FROZEN_TABLE_FIELD "News.psc_frozen"
 #define NEWS_PSC_MOD_FIELD "psc_mod"
 #define NEWS_PSC_MOD_TABLE_FIELD "News.psc_mod"
+#define NEWS_PSC_RESTRICT_FIELD "psc_restrict"
+#define NEWS_PSC_RESTRICT_TABLE_FIELD "News.psc_restrict"
 
 
 #endif

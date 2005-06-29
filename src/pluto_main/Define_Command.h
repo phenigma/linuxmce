@@ -393,6 +393,8 @@
 #define COMMAND_PSC_FROZEN_TABLE_FIELD "Command.psc_frozen"
 #define COMMAND_PSC_MOD_FIELD "psc_mod"
 #define COMMAND_PSC_MOD_TABLE_FIELD "Command.psc_mod"
+#define COMMAND_PSC_RESTRICT_FIELD "psc_restrict"
+#define COMMAND_PSC_RESTRICT_TABLE_FIELD "Command.psc_restrict"
 
 
 #endif

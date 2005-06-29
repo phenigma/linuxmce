@@ -19,6 +19,8 @@
 #define DEVICE_COMMAND_PSC_FROZEN_TABLE_FIELD "Device_Command.psc_frozen"
 #define DEVICE_COMMAND_PSC_MOD_FIELD "psc_mod"
 #define DEVICE_COMMAND_PSC_MOD_TABLE_FIELD "Device_Command.psc_mod"
+#define DEVICE_COMMAND_PSC_RESTRICT_FIELD "psc_restrict"
+#define DEVICE_COMMAND_PSC_RESTRICT_TABLE_FIELD "Device_Command.psc_restrict"
 
 
 #endif

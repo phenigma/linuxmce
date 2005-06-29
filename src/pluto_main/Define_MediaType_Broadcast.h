@@ -17,6 +17,8 @@
 #define MEDIATYPE_BROADCAST_PSC_FROZEN_TABLE_FIELD "MediaType_Broadcast.psc_frozen"
 #define MEDIATYPE_BROADCAST_PSC_MOD_FIELD "psc_mod"
 #define MEDIATYPE_BROADCAST_PSC_MOD_TABLE_FIELD "MediaType_Broadcast.psc_mod"
+#define MEDIATYPE_BROADCAST_PSC_RESTRICT_FIELD "psc_restrict"
+#define MEDIATYPE_BROADCAST_PSC_RESTRICT_TABLE_FIELD "MediaType_Broadcast.psc_restrict"
 
 
 #endif

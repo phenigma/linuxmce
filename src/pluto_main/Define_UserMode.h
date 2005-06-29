@@ -23,6 +23,8 @@
 #define USERMODE_PSC_FROZEN_TABLE_FIELD "UserMode.psc_frozen"
 #define USERMODE_PSC_MOD_FIELD "psc_mod"
 #define USERMODE_PSC_MOD_TABLE_FIELD "UserMode.psc_mod"
+#define USERMODE_PSC_RESTRICT_FIELD "psc_restrict"
+#define USERMODE_PSC_RESTRICT_TABLE_FIELD "UserMode.psc_restrict"
 
 
 #endif

@@ -19,6 +19,8 @@
 #define DESIGNOBJCATEGORY_PSC_FROZEN_TABLE_FIELD "DesignObjCategory.psc_frozen"
 #define DESIGNOBJCATEGORY_PSC_MOD_FIELD "psc_mod"
 #define DESIGNOBJCATEGORY_PSC_MOD_TABLE_FIELD "DesignObjCategory.psc_mod"
+#define DESIGNOBJCATEGORY_PSC_RESTRICT_FIELD "psc_restrict"
+#define DESIGNOBJCATEGORY_PSC_RESTRICT_TABLE_FIELD "DesignObjCategory.psc_restrict"
 
 
 #endif

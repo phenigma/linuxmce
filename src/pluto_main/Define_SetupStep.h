@@ -19,6 +19,8 @@
 #define SETUPSTEP_PSC_FROZEN_TABLE_FIELD "SetupStep.psc_frozen"
 #define SETUPSTEP_PSC_MOD_FIELD "psc_mod"
 #define SETUPSTEP_PSC_MOD_TABLE_FIELD "SetupStep.psc_mod"
+#define SETUPSTEP_PSC_RESTRICT_FIELD "psc_restrict"
+#define SETUPSTEP_PSC_RESTRICT_TABLE_FIELD "SetupStep.psc_restrict"
 
 
 #endif

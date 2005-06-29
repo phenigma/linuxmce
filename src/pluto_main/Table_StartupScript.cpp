@@ -158,6 +158,7 @@ m_psc_frozen = 0;
 is_null[22] = false;
 m_psc_mod = "00000000000000";
 is_null[23] = false;
+is_null[24] = true;
 
 
 	is_added=false;
@@ -237,6 +238,9 @@ return m_psc_frozen;}
 string Row_StartupScript::psc_mod_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_mod;}
+long int Row_StartupScript::psc_restrict_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_psc_restrict;}
 
 		
 void Row_StartupScript::PK_StartupScript_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -311,6 +315,9 @@ m_psc_frozen = val; is_modified=true; is_null[22]=false;}
 void Row_StartupScript::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_mod = val; is_modified=true; is_null[23]=false;}
+void Row_StartupScript::psc_restrict_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_psc_restrict = val; is_modified=true; is_null[24]=false;}
 
 		
 bool Row_StartupScript::When_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -331,6 +338,9 @@ return is_null[21];}
 bool Row_StartupScript::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[22];}
+bool Row_StartupScript::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[24];}
 
 			
 void Row_StartupScript::When_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -355,6 +365,10 @@ is_modified=true;
 }
 void Row_StartupScript::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[22]=val;
+is_modified=true;
+}
+void Row_StartupScript::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[24]=val;
 is_modified=true;
 }
 	
@@ -679,6 +693,19 @@ delete[] buf;
 return s;
 }
 
+string Row_StartupScript::psc_restrict_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[24])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_psc_restrict);
+
+return buf;
+}
+
 
 
 
@@ -717,10 +744,10 @@ bool Table_StartupScript::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_StartupScript_asSQL()+", "+pRow->When_asSQL()+", "+pRow->Command_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->ConfigureOnly_asSQL()+", "+pRow->Parameter_Syntax_asSQL()+", "+pRow->Core_Boot_Order_asSQL()+", "+pRow->Core_Background_asSQL()+", "+pRow->Core_Enabled_asSQL()+", "+pRow->Core_Parameter_asSQL()+", "+pRow->MD_Boot_Order_asSQL()+", "+pRow->MD_Background_asSQL()+", "+pRow->MD_Enabled_asSQL()+", "+pRow->MD_Parameter_asSQL()+", "+pRow->Hybrid_Boot_Order_asSQL()+", "+pRow->Hybrid_Background_asSQL()+", "+pRow->Hybrid_Enabled_asSQL()+", "+pRow->Hybrid_Parameter_asSQL()+", "+pRow->FK_DeviceTemplate_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_StartupScript_asSQL()+", "+pRow->When_asSQL()+", "+pRow->Command_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->ConfigureOnly_asSQL()+", "+pRow->Parameter_Syntax_asSQL()+", "+pRow->Core_Boot_Order_asSQL()+", "+pRow->Core_Background_asSQL()+", "+pRow->Core_Enabled_asSQL()+", "+pRow->Core_Parameter_asSQL()+", "+pRow->MD_Boot_Order_asSQL()+", "+pRow->MD_Background_asSQL()+", "+pRow->MD_Enabled_asSQL()+", "+pRow->MD_Parameter_asSQL()+", "+pRow->Hybrid_Boot_Order_asSQL()+", "+pRow->Hybrid_Background_asSQL()+", "+pRow->Hybrid_Enabled_asSQL()+", "+pRow->Hybrid_Parameter_asSQL()+", "+pRow->FK_DeviceTemplate_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
 
 	
-		string query = "insert into StartupScript (`PK_StartupScript`, `When`, `Command`, `Description`, `ConfigureOnly`, `Parameter_Syntax`, `Core_Boot_Order`, `Core_Background`, `Core_Enabled`, `Core_Parameter`, `MD_Boot_Order`, `MD_Background`, `MD_Enabled`, `MD_Parameter`, `Hybrid_Boot_Order`, `Hybrid_Background`, `Hybrid_Enabled`, `Hybrid_Parameter`, `FK_DeviceTemplate`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
+		string query = "insert into StartupScript (`PK_StartupScript`, `When`, `Command`, `Description`, `ConfigureOnly`, `Parameter_Syntax`, `Core_Boot_Order`, `Core_Background`, `Core_Enabled`, `Core_Parameter`, `MD_Boot_Order`, `MD_Background`, `MD_Enabled`, `MD_Parameter`, `Hybrid_Boot_Order`, `Hybrid_Background`, `Hybrid_Enabled`, `Hybrid_Parameter`, `FK_DeviceTemplate`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -771,7 +798,7 @@ condition = condition + "`PK_StartupScript`=" + tmp_PK_StartupScript;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`PK_StartupScript`="+pRow->PK_StartupScript_asSQL()+", `When`="+pRow->When_asSQL()+", `Command`="+pRow->Command_asSQL()+", `Description`="+pRow->Description_asSQL()+", `ConfigureOnly`="+pRow->ConfigureOnly_asSQL()+", `Parameter_Syntax`="+pRow->Parameter_Syntax_asSQL()+", `Core_Boot_Order`="+pRow->Core_Boot_Order_asSQL()+", `Core_Background`="+pRow->Core_Background_asSQL()+", `Core_Enabled`="+pRow->Core_Enabled_asSQL()+", `Core_Parameter`="+pRow->Core_Parameter_asSQL()+", `MD_Boot_Order`="+pRow->MD_Boot_Order_asSQL()+", `MD_Background`="+pRow->MD_Background_asSQL()+", `MD_Enabled`="+pRow->MD_Enabled_asSQL()+", `MD_Parameter`="+pRow->MD_Parameter_asSQL()+", `Hybrid_Boot_Order`="+pRow->Hybrid_Boot_Order_asSQL()+", `Hybrid_Background`="+pRow->Hybrid_Background_asSQL()+", `Hybrid_Enabled`="+pRow->Hybrid_Enabled_asSQL()+", `Hybrid_Parameter`="+pRow->Hybrid_Parameter_asSQL()+", `FK_DeviceTemplate`="+pRow->FK_DeviceTemplate_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_StartupScript`="+pRow->PK_StartupScript_asSQL()+", `When`="+pRow->When_asSQL()+", `Command`="+pRow->Command_asSQL()+", `Description`="+pRow->Description_asSQL()+", `ConfigureOnly`="+pRow->ConfigureOnly_asSQL()+", `Parameter_Syntax`="+pRow->Parameter_Syntax_asSQL()+", `Core_Boot_Order`="+pRow->Core_Boot_Order_asSQL()+", `Core_Background`="+pRow->Core_Background_asSQL()+", `Core_Enabled`="+pRow->Core_Enabled_asSQL()+", `Core_Parameter`="+pRow->Core_Parameter_asSQL()+", `MD_Boot_Order`="+pRow->MD_Boot_Order_asSQL()+", `MD_Background`="+pRow->MD_Background_asSQL()+", `MD_Enabled`="+pRow->MD_Enabled_asSQL()+", `MD_Parameter`="+pRow->MD_Parameter_asSQL()+", `Hybrid_Boot_Order`="+pRow->Hybrid_Boot_Order_asSQL()+", `Hybrid_Background`="+pRow->Hybrid_Background_asSQL()+", `Hybrid_Enabled`="+pRow->Hybrid_Enabled_asSQL()+", `Hybrid_Parameter`="+pRow->Hybrid_Parameter_asSQL()+", `FK_DeviceTemplate`="+pRow->FK_DeviceTemplate_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
 
 	
 		string query = "update StartupScript set " + update_values_list + " where " + condition;
@@ -1135,6 +1162,17 @@ else
 {
 pRow->is_null[23]=false;
 pRow->m_psc_mod = string(row[23],lengths[23]);
+}
+
+if (row[24] == NULL)
+{
+pRow->is_null[24]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[24]=false;
+sscanf(row[24], "%li", &(pRow->m_psc_restrict));
 }
 
 
@@ -1507,6 +1545,17 @@ else
 {
 pRow->is_null[23]=false;
 pRow->m_psc_mod = string(row[23],lengths[23]);
+}
+
+if (row[24] == NULL)
+{
+pRow->is_null[24]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[24]=false;
+sscanf(row[24], "%li", &(pRow->m_psc_restrict));
 }
 
 

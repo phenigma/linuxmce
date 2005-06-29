@@ -84,8 +84,9 @@ long int m_psc_batch;
 long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
+long int m_psc_restrict;
 
-		bool is_null[12];
+		bool is_null[13];
 	
 	public:
 		long int PK_RepositorySource_URL_get();
@@ -100,6 +101,7 @@ long int psc_batch_get();
 long int psc_user_get();
 short int psc_frozen_get();
 string psc_mod_get();
+long int psc_restrict_get();
 
 		
 		void PK_RepositorySource_URL_set(long int val);
@@ -114,6 +116,7 @@ void psc_batch_set(long int val);
 void psc_user_set(long int val);
 void psc_frozen_set(short int val);
 void psc_mod_set(string val);
+void psc_restrict_set(long int val);
 
 		
 		bool FK_Country_isNull();
@@ -123,6 +126,7 @@ bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
 bool psc_frozen_isNull();
+bool psc_restrict_isNull();
 
 			
 		void FK_Country_setNull(bool val);
@@ -132,6 +136,7 @@ void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
 void psc_frozen_setNull(bool val);
+void psc_restrict_setNull(bool val);
 	
 	
 		void Delete();
@@ -154,7 +159,7 @@ class Row_Country* FK_Country_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_RepositorySource_URL+ m_FK_RepositorySource+ m_URL+ m_FK_Country+ m_Username+ m_Password+ m_Comments+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_RepositorySource_URL+ m_FK_RepositorySource+ m_URL+ m_FK_Country+ m_Username+ m_Password+ m_Comments+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -171,6 +176,7 @@ string psc_batch_asSQL();
 string psc_user_asSQL();
 string psc_frozen_asSQL();
 string psc_mod_asSQL();
+string psc_restrict_asSQL();
 
 	};
 

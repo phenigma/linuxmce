@@ -19,6 +19,8 @@
 #define PACKAGE_VERSION_PSC_FROZEN_TABLE_FIELD "Package_Version.psc_frozen"
 #define PACKAGE_VERSION_PSC_MOD_FIELD "psc_mod"
 #define PACKAGE_VERSION_PSC_MOD_TABLE_FIELD "Package_Version.psc_mod"
+#define PACKAGE_VERSION_PSC_RESTRICT_FIELD "psc_restrict"
+#define PACKAGE_VERSION_PSC_RESTRICT_TABLE_FIELD "Package_Version.psc_restrict"
 
 
 #endif

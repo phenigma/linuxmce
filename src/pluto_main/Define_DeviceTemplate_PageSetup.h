@@ -17,6 +17,8 @@
 #define DEVICETEMPLATE_PAGESETUP_PSC_FROZEN_TABLE_FIELD "DeviceTemplate_PageSetup.psc_frozen"
 #define DEVICETEMPLATE_PAGESETUP_PSC_MOD_FIELD "psc_mod"
 #define DEVICETEMPLATE_PAGESETUP_PSC_MOD_TABLE_FIELD "DeviceTemplate_PageSetup.psc_mod"
+#define DEVICETEMPLATE_PAGESETUP_PSC_RESTRICT_FIELD "psc_restrict"
+#define DEVICETEMPLATE_PAGESETUP_PSC_RESTRICT_TABLE_FIELD "DeviceTemplate_PageSetup.psc_restrict"
 
 
 #endif

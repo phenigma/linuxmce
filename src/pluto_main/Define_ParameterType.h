@@ -28,6 +28,8 @@
 #define PARAMETERTYPE_PSC_FROZEN_TABLE_FIELD "ParameterType.psc_frozen"
 #define PARAMETERTYPE_PSC_MOD_FIELD "psc_mod"
 #define PARAMETERTYPE_PSC_MOD_TABLE_FIELD "ParameterType.psc_mod"
+#define PARAMETERTYPE_PSC_RESTRICT_FIELD "psc_restrict"
+#define PARAMETERTYPE_PSC_RESTRICT_TABLE_FIELD "ParameterType.psc_restrict"
 
 
 #endif

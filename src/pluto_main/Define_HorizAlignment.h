@@ -22,6 +22,8 @@
 #define HORIZALIGNMENT_PSC_FROZEN_TABLE_FIELD "HorizAlignment.psc_frozen"
 #define HORIZALIGNMENT_PSC_MOD_FIELD "psc_mod"
 #define HORIZALIGNMENT_PSC_MOD_TABLE_FIELD "HorizAlignment.psc_mod"
+#define HORIZALIGNMENT_PSC_RESTRICT_FIELD "psc_restrict"
+#define HORIZALIGNMENT_PSC_RESTRICT_TABLE_FIELD "HorizAlignment.psc_restrict"
 
 
 #endif

@@ -33,6 +33,8 @@
 #define DEVICECATEGORY_DEVICEDATA_PSC_FROZEN_TABLE_FIELD "DeviceCategory_DeviceData.psc_frozen"
 #define DEVICECATEGORY_DEVICEDATA_PSC_MOD_FIELD "psc_mod"
 #define DEVICECATEGORY_DEVICEDATA_PSC_MOD_TABLE_FIELD "DeviceCategory_DeviceData.psc_mod"
+#define DEVICECATEGORY_DEVICEDATA_PSC_RESTRICT_FIELD "psc_restrict"
+#define DEVICECATEGORY_DEVICEDATA_PSC_RESTRICT_TABLE_FIELD "DeviceCategory_DeviceData.psc_restrict"
 
 
 #endif

@@ -25,6 +25,8 @@
 #define PACKAGE_SOURCE_COMPAT_PSC_FROZEN_TABLE_FIELD "Package_Source_Compat.psc_frozen"
 #define PACKAGE_SOURCE_COMPAT_PSC_MOD_FIELD "psc_mod"
 #define PACKAGE_SOURCE_COMPAT_PSC_MOD_TABLE_FIELD "Package_Source_Compat.psc_mod"
+#define PACKAGE_SOURCE_COMPAT_PSC_RESTRICT_FIELD "psc_restrict"
+#define PACKAGE_SOURCE_COMPAT_PSC_RESTRICT_TABLE_FIELD "Package_Source_Compat.psc_restrict"
 
 
 #endif

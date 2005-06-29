@@ -45,6 +45,8 @@
 #define ARRAY_PSC_FROZEN_TABLE_FIELD "Array.psc_frozen"
 #define ARRAY_PSC_MOD_FIELD "psc_mod"
 #define ARRAY_PSC_MOD_TABLE_FIELD "Array.psc_mod"
+#define ARRAY_PSC_RESTRICT_FIELD "psc_restrict"
+#define ARRAY_PSC_RESTRICT_TABLE_FIELD "Array.psc_restrict"
 
 
 #endif

@@ -57,6 +57,8 @@
 #define USERS_PSC_FROZEN_TABLE_FIELD "Users.psc_frozen"
 #define USERS_PSC_MOD_FIELD "psc_mod"
 #define USERS_PSC_MOD_TABLE_FIELD "Users.psc_mod"
+#define USERS_PSC_RESTRICT_FIELD "psc_restrict"
+#define USERS_PSC_RESTRICT_TABLE_FIELD "Users.psc_restrict"
 
 
 #endif

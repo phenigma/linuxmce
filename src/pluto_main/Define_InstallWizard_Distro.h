@@ -23,6 +23,8 @@
 #define INSTALLWIZARD_DISTRO_PSC_FROZEN_TABLE_FIELD "InstallWizard_Distro.psc_frozen"
 #define INSTALLWIZARD_DISTRO_PSC_MOD_FIELD "psc_mod"
 #define INSTALLWIZARD_DISTRO_PSC_MOD_TABLE_FIELD "InstallWizard_Distro.psc_mod"
+#define INSTALLWIZARD_DISTRO_PSC_RESTRICT_FIELD "psc_restrict"
+#define INSTALLWIZARD_DISTRO_PSC_RESTRICT_TABLE_FIELD "InstallWizard_Distro.psc_restrict"
 
 
 #endif

@@ -55,6 +55,8 @@
 #define DATAGRID_PSC_FROZEN_TABLE_FIELD "DataGrid.psc_frozen"
 #define DATAGRID_PSC_MOD_FIELD "psc_mod"
 #define DATAGRID_PSC_MOD_TABLE_FIELD "DataGrid.psc_mod"
+#define DATAGRID_PSC_RESTRICT_FIELD "psc_restrict"
+#define DATAGRID_PSC_RESTRICT_TABLE_FIELD "DataGrid.psc_restrict"
 
 
 #endif

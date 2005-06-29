@@ -140,6 +140,8 @@
 #define FLOORPLANOBJECTTYPE_COLOR_PSC_FROZEN_TABLE_FIELD "FloorplanObjectType_Color.psc_frozen"
 #define FLOORPLANOBJECTTYPE_COLOR_PSC_MOD_FIELD "psc_mod"
 #define FLOORPLANOBJECTTYPE_COLOR_PSC_MOD_TABLE_FIELD "FloorplanObjectType_Color.psc_mod"
+#define FLOORPLANOBJECTTYPE_COLOR_PSC_RESTRICT_FIELD "psc_restrict"
+#define FLOORPLANOBJECTTYPE_COLOR_PSC_RESTRICT_TABLE_FIELD "FloorplanObjectType_Color.psc_restrict"
 
 
 #endif

@@ -19,6 +19,8 @@
 #define EVENT_EVENTPARAMETER_PSC_FROZEN_TABLE_FIELD "Event_EventParameter.psc_frozen"
 #define EVENT_EVENTPARAMETER_PSC_MOD_FIELD "psc_mod"
 #define EVENT_EVENTPARAMETER_PSC_MOD_TABLE_FIELD "Event_EventParameter.psc_mod"
+#define EVENT_EVENTPARAMETER_PSC_RESTRICT_FIELD "psc_restrict"
+#define EVENT_EVENTPARAMETER_PSC_RESTRICT_TABLE_FIELD "Event_EventParameter.psc_restrict"
 
 
 #endif

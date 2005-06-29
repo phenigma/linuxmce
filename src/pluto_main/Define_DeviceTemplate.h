@@ -1672,6 +1672,8 @@
 #define DEVICETEMPLATE_PSC_FROZEN_TABLE_FIELD "DeviceTemplate.psc_frozen"
 #define DEVICETEMPLATE_PSC_MOD_FIELD "psc_mod"
 #define DEVICETEMPLATE_PSC_MOD_TABLE_FIELD "DeviceTemplate.psc_mod"
+#define DEVICETEMPLATE_PSC_RESTRICT_FIELD "psc_restrict"
+#define DEVICETEMPLATE_PSC_RESTRICT_TABLE_FIELD "DeviceTemplate.psc_restrict"
 
 
 #endif

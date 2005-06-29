@@ -27,6 +27,8 @@
 #define SIZE_PSC_FROZEN_TABLE_FIELD "Size.psc_frozen"
 #define SIZE_PSC_MOD_FIELD "psc_mod"
 #define SIZE_PSC_MOD_TABLE_FIELD "Size.psc_mod"
+#define SIZE_PSC_RESTRICT_FIELD "psc_restrict"
+#define SIZE_PSC_RESTRICT_TABLE_FIELD "Size.psc_restrict"
 
 
 #endif

@@ -17,6 +17,8 @@
 #define DEVICETEMPLATE_DESIGNOBJ_PSC_FROZEN_TABLE_FIELD "DeviceTemplate_DesignObj.psc_frozen"
 #define DEVICETEMPLATE_DESIGNOBJ_PSC_MOD_FIELD "psc_mod"
 #define DEVICETEMPLATE_DESIGNOBJ_PSC_MOD_TABLE_FIELD "DeviceTemplate_DesignObj.psc_mod"
+#define DEVICETEMPLATE_DESIGNOBJ_PSC_RESTRICT_FIELD "psc_restrict"
+#define DEVICETEMPLATE_DESIGNOBJ_PSC_RESTRICT_TABLE_FIELD "DeviceTemplate_DesignObj.psc_restrict"
 
 
 #endif

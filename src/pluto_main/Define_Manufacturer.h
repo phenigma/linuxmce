@@ -19,6 +19,8 @@
 #define MANUFACTURER_PSC_FROZEN_TABLE_FIELD "Manufacturer.psc_frozen"
 #define MANUFACTURER_PSC_MOD_FIELD "psc_mod"
 #define MANUFACTURER_PSC_MOD_TABLE_FIELD "Manufacturer.psc_mod"
+#define MANUFACTURER_PSC_RESTRICT_FIELD "psc_restrict"
+#define MANUFACTURER_PSC_RESTRICT_TABLE_FIELD "Manufacturer.psc_restrict"
 
 
 #endif

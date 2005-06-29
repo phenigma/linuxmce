@@ -17,6 +17,8 @@
 #define ORBITER_USERS_PASSWORDREQ_PSC_FROZEN_TABLE_FIELD "Orbiter_Users_PasswordReq.psc_frozen"
 #define ORBITER_USERS_PASSWORDREQ_PSC_MOD_FIELD "psc_mod"
 #define ORBITER_USERS_PASSWORDREQ_PSC_MOD_TABLE_FIELD "Orbiter_Users_PasswordReq.psc_mod"
+#define ORBITER_USERS_PASSWORDREQ_PSC_RESTRICT_FIELD "psc_restrict"
+#define ORBITER_USERS_PASSWORDREQ_PSC_RESTRICT_TABLE_FIELD "Orbiter_Users_PasswordReq.psc_restrict"
 
 
 #endif

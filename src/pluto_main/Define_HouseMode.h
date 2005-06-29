@@ -25,6 +25,8 @@
 #define HOUSEMODE_PSC_FROZEN_TABLE_FIELD "HouseMode.psc_frozen"
 #define HOUSEMODE_PSC_MOD_FIELD "psc_mod"
 #define HOUSEMODE_PSC_MOD_TABLE_FIELD "HouseMode.psc_mod"
+#define HOUSEMODE_PSC_RESTRICT_FIELD "psc_restrict"
+#define HOUSEMODE_PSC_RESTRICT_TABLE_FIELD "HouseMode.psc_restrict"
 
 
 #endif

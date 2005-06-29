@@ -138,6 +138,7 @@ m_psc_frozen = 0;
 is_null[9] = false;
 m_psc_mod = "00000000000000";
 is_null[10] = false;
+is_null[11] = true;
 
 
 	is_added=false;
@@ -178,6 +179,9 @@ return m_psc_frozen;}
 string Row_Criteria::psc_mod_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_mod;}
+long int Row_Criteria::psc_restrict_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_psc_restrict;}
 
 		
 void Row_Criteria::PK_Criteria_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -213,6 +217,9 @@ m_psc_frozen = val; is_modified=true; is_null[9]=false;}
 void Row_Criteria::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_mod = val; is_modified=true; is_null[10]=false;}
+void Row_Criteria::psc_restrict_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_psc_restrict = val; is_modified=true; is_null[11]=false;}
 
 		
 bool Row_Criteria::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -227,6 +234,9 @@ return is_null[8];}
 bool Row_Criteria::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[9];}
+bool Row_Criteria::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[11];}
 
 			
 void Row_Criteria::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -243,6 +253,10 @@ is_modified=true;
 }
 void Row_Criteria::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[9]=val;
+is_modified=true;
+}
+void Row_Criteria::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[11]=val;
 is_modified=true;
 }
 	
@@ -393,6 +407,19 @@ delete[] buf;
 return s;
 }
 
+string Row_Criteria::psc_restrict_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[11])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_psc_restrict);
+
+return buf;
+}
+
 
 
 
@@ -431,10 +458,10 @@ bool Table_Criteria::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Criteria_asSQL()+", "+pRow->FK_CriteriaParmNesting_asSQL()+", "+pRow->FK_CriteriaList_asSQL()+", "+pRow->FK_Installation_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Criteria_asSQL()+", "+pRow->FK_CriteriaParmNesting_asSQL()+", "+pRow->FK_CriteriaList_asSQL()+", "+pRow->FK_Installation_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
 
 	
-		string query = "insert into Criteria (`PK_Criteria`, `FK_CriteriaParmNesting`, `FK_CriteriaList`, `FK_Installation`, `Description`, `Define`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
+		string query = "insert into Criteria (`PK_Criteria`, `FK_CriteriaParmNesting`, `FK_CriteriaList`, `FK_Installation`, `Description`, `Define`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -485,7 +512,7 @@ condition = condition + "`PK_Criteria`=" + tmp_PK_Criteria;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`PK_Criteria`="+pRow->PK_Criteria_asSQL()+", `FK_CriteriaParmNesting`="+pRow->FK_CriteriaParmNesting_asSQL()+", `FK_CriteriaList`="+pRow->FK_CriteriaList_asSQL()+", `FK_Installation`="+pRow->FK_Installation_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Define`="+pRow->Define_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_Criteria`="+pRow->PK_Criteria_asSQL()+", `FK_CriteriaParmNesting`="+pRow->FK_CriteriaParmNesting_asSQL()+", `FK_CriteriaList`="+pRow->FK_CriteriaList_asSQL()+", `FK_Installation`="+pRow->FK_Installation_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Define`="+pRow->Define_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
 
 	
 		string query = "update Criteria set " + update_values_list + " where " + condition;
@@ -706,6 +733,17 @@ else
 {
 pRow->is_null[10]=false;
 pRow->m_psc_mod = string(row[10],lengths[10]);
+}
+
+if (row[11] == NULL)
+{
+pRow->is_null[11]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[11]=false;
+sscanf(row[11], "%li", &(pRow->m_psc_restrict));
 }
 
 
@@ -935,6 +973,17 @@ else
 {
 pRow->is_null[10]=false;
 pRow->m_psc_mod = string(row[10],lengths[10]);
+}
+
+if (row[11] == NULL)
+{
+pRow->is_null[11]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[11]=false;
+sscanf(row[11], "%li", &(pRow->m_psc_restrict));
 }
 
 

@@ -23,6 +23,8 @@
 #define DIRECTION_PSC_FROZEN_TABLE_FIELD "Direction.psc_frozen"
 #define DIRECTION_PSC_MOD_FIELD "psc_mod"
 #define DIRECTION_PSC_MOD_TABLE_FIELD "Direction.psc_mod"
+#define DIRECTION_PSC_RESTRICT_FIELD "psc_restrict"
+#define DIRECTION_PSC_RESTRICT_TABLE_FIELD "Direction.psc_restrict"
 
 
 #endif

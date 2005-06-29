@@ -21,6 +21,8 @@
 #define FAQ_PSC_FROZEN_TABLE_FIELD "FAQ.psc_frozen"
 #define FAQ_PSC_MOD_FIELD "psc_mod"
 #define FAQ_PSC_MOD_TABLE_FIELD "FAQ.psc_mod"
+#define FAQ_PSC_RESTRICT_FIELD "psc_restrict"
+#define FAQ_PSC_RESTRICT_TABLE_FIELD "FAQ.psc_restrict"
 
 
 #endif

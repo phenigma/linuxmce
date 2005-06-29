@@ -30,6 +30,8 @@
 #define REPOSITORYTYPE_PSC_FROZEN_TABLE_FIELD "RepositoryType.psc_frozen"
 #define REPOSITORYTYPE_PSC_MOD_FIELD "psc_mod"
 #define REPOSITORYTYPE_PSC_MOD_TABLE_FIELD "RepositoryType.psc_mod"
+#define REPOSITORYTYPE_PSC_RESTRICT_FIELD "psc_restrict"
+#define REPOSITORYTYPE_PSC_RESTRICT_TABLE_FIELD "RepositoryType.psc_restrict"
 
 
 #endif

@@ -37,6 +37,8 @@
 #define SKIN_PSC_FROZEN_TABLE_FIELD "Skin.psc_frozen"
 #define SKIN_PSC_MOD_FIELD "psc_mod"
 #define SKIN_PSC_MOD_TABLE_FIELD "Skin.psc_mod"
+#define SKIN_PSC_RESTRICT_FIELD "psc_restrict"
+#define SKIN_PSC_RESTRICT_TABLE_FIELD "Skin.psc_restrict"
 
 
 #endif

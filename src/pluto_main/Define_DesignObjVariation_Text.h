@@ -21,6 +21,8 @@
 #define DESIGNOBJVARIATION_TEXT_PSC_FROZEN_TABLE_FIELD "DesignObjVariation_Text.psc_frozen"
 #define DESIGNOBJVARIATION_TEXT_PSC_MOD_FIELD "psc_mod"
 #define DESIGNOBJVARIATION_TEXT_PSC_MOD_TABLE_FIELD "DesignObjVariation_Text.psc_mod"
+#define DESIGNOBJVARIATION_TEXT_PSC_RESTRICT_FIELD "psc_restrict"
+#define DESIGNOBJVARIATION_TEXT_PSC_RESTRICT_TABLE_FIELD "DesignObjVariation_Text.psc_restrict"
 
 
 #endif

@@ -102,6 +102,8 @@
 #define DEVICECATEGORY_PSC_FROZEN_TABLE_FIELD "DeviceCategory.psc_frozen"
 #define DEVICECATEGORY_PSC_MOD_FIELD "psc_mod"
 #define DEVICECATEGORY_PSC_MOD_TABLE_FIELD "DeviceCategory.psc_mod"
+#define DEVICECATEGORY_PSC_RESTRICT_FIELD "psc_restrict"
+#define DEVICECATEGORY_PSC_RESTRICT_TABLE_FIELD "DeviceCategory.psc_restrict"
 
 
 #endif

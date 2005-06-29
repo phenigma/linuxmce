@@ -132,6 +132,7 @@ m_psc_frozen = 0;
 is_null[8] = false;
 m_psc_mod = "00000000000000";
 is_null[9] = false;
+is_null[10] = true;
 
 
 	is_added=false;
@@ -169,6 +170,9 @@ return m_psc_frozen;}
 string Row_Orbiter::psc_mod_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_mod;}
+long int Row_Orbiter::psc_restrict_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_psc_restrict;}
 
 		
 void Row_Orbiter::PK_Orbiter_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -201,6 +205,9 @@ m_psc_frozen = val; is_modified=true; is_null[8]=false;}
 void Row_Orbiter::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_mod = val; is_modified=true; is_null[9]=false;}
+void Row_Orbiter::psc_restrict_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_psc_restrict = val; is_modified=true; is_null[10]=false;}
 
 		
 bool Row_Orbiter::FloorplanInfo_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -227,6 +234,9 @@ return is_null[7];}
 bool Row_Orbiter::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[8];}
+bool Row_Orbiter::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[10];}
 
 			
 void Row_Orbiter::FloorplanInfo_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -259,6 +269,10 @@ is_modified=true;
 }
 void Row_Orbiter::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[8]=val;
+is_modified=true;
+}
+void Row_Orbiter::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[10]=val;
 is_modified=true;
 }
 	
@@ -397,6 +411,19 @@ delete[] buf;
 return s;
 }
 
+string Row_Orbiter::psc_restrict_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[10])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_psc_restrict);
+
+return buf;
+}
+
 
 
 
@@ -435,10 +462,10 @@ bool Table_Orbiter::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Orbiter_asSQL()+", "+pRow->FloorplanInfo_asSQL()+", "+pRow->Modification_LastGen_asSQL()+", "+pRow->Regen_asSQL()+", "+pRow->Size_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Orbiter_asSQL()+", "+pRow->FloorplanInfo_asSQL()+", "+pRow->Modification_LastGen_asSQL()+", "+pRow->Regen_asSQL()+", "+pRow->Size_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
 
 	
-		string query = "insert into Orbiter (`PK_Orbiter`, `FloorplanInfo`, `Modification_LastGen`, `Regen`, `Size`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
+		string query = "insert into Orbiter (`PK_Orbiter`, `FloorplanInfo`, `Modification_LastGen`, `Regen`, `Size`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -489,7 +516,7 @@ condition = condition + "`PK_Orbiter`=" + tmp_PK_Orbiter;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`PK_Orbiter`="+pRow->PK_Orbiter_asSQL()+", `FloorplanInfo`="+pRow->FloorplanInfo_asSQL()+", `Modification_LastGen`="+pRow->Modification_LastGen_asSQL()+", `Regen`="+pRow->Regen_asSQL()+", `Size`="+pRow->Size_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_Orbiter`="+pRow->PK_Orbiter_asSQL()+", `FloorplanInfo`="+pRow->FloorplanInfo_asSQL()+", `Modification_LastGen`="+pRow->Modification_LastGen_asSQL()+", `Regen`="+pRow->Regen_asSQL()+", `Size`="+pRow->Size_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
 
 	
 		string query = "update Orbiter set " + update_values_list + " where " + condition;
@@ -699,6 +726,17 @@ else
 {
 pRow->is_null[9]=false;
 pRow->m_psc_mod = string(row[9],lengths[9]);
+}
+
+if (row[10] == NULL)
+{
+pRow->is_null[10]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[10]=false;
+sscanf(row[10], "%li", &(pRow->m_psc_restrict));
 }
 
 
@@ -917,6 +955,17 @@ else
 {
 pRow->is_null[9]=false;
 pRow->m_psc_mod = string(row[9],lengths[9]);
+}
+
+if (row[10] == NULL)
+{
+pRow->is_null[10]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[10]=false;
+sscanf(row[10], "%li", &(pRow->m_psc_restrict));
 }
 
 

@@ -19,6 +19,8 @@
 #define COMMANDCATEGORY_PSC_FROZEN_TABLE_FIELD "CommandCategory.psc_frozen"
 #define COMMANDCATEGORY_PSC_MOD_FIELD "psc_mod"
 #define COMMANDCATEGORY_PSC_MOD_TABLE_FIELD "CommandCategory.psc_mod"
+#define COMMANDCATEGORY_PSC_RESTRICT_FIELD "psc_restrict"
+#define COMMANDCATEGORY_PSC_RESTRICT_TABLE_FIELD "CommandCategory.psc_restrict"
 
 
 #endif

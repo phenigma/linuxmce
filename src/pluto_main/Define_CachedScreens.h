@@ -25,6 +25,8 @@
 #define CACHEDSCREENS_PSC_FROZEN_TABLE_FIELD "CachedScreens.psc_frozen"
 #define CACHEDSCREENS_PSC_MOD_FIELD "psc_mod"
 #define CACHEDSCREENS_PSC_MOD_TABLE_FIELD "CachedScreens.psc_mod"
+#define CACHEDSCREENS_PSC_RESTRICT_FIELD "psc_restrict"
+#define CACHEDSCREENS_PSC_RESTRICT_TABLE_FIELD "CachedScreens.psc_restrict"
 
 
 #endif

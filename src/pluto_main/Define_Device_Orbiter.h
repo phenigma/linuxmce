@@ -17,6 +17,8 @@
 #define DEVICE_ORBITER_PSC_FROZEN_TABLE_FIELD "Device_Orbiter.psc_frozen"
 #define DEVICE_ORBITER_PSC_MOD_FIELD "psc_mod"
 #define DEVICE_ORBITER_PSC_MOD_TABLE_FIELD "Device_Orbiter.psc_mod"
+#define DEVICE_ORBITER_PSC_RESTRICT_FIELD "psc_restrict"
+#define DEVICE_ORBITER_PSC_RESTRICT_TABLE_FIELD "Device_Orbiter.psc_restrict"
 
 
 #endif

@@ -26,6 +26,8 @@
 #define CONNECTORTYPE_PSC_FROZEN_TABLE_FIELD "ConnectorType.psc_frozen"
 #define CONNECTORTYPE_PSC_MOD_FIELD "psc_mod"
 #define CONNECTORTYPE_PSC_MOD_TABLE_FIELD "ConnectorType.psc_mod"
+#define CONNECTORTYPE_PSC_RESTRICT_FIELD "psc_restrict"
+#define CONNECTORTYPE_PSC_RESTRICT_TABLE_FIELD "ConnectorType.psc_restrict"
 
 
 #endif

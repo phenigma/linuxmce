@@ -19,6 +19,8 @@
 #define SCHEMA_PSC_FROZEN_TABLE_FIELD "Schema.psc_frozen"
 #define SCHEMA_PSC_MOD_FIELD "psc_mod"
 #define SCHEMA_PSC_MOD_TABLE_FIELD "Schema.psc_mod"
+#define SCHEMA_PSC_RESTRICT_FIELD "psc_restrict"
+#define SCHEMA_PSC_RESTRICT_TABLE_FIELD "Schema.psc_restrict"
 
 
 #endif

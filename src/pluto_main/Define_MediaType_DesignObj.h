@@ -27,6 +27,8 @@
 #define MEDIATYPE_DESIGNOBJ_PSC_FROZEN_TABLE_FIELD "MediaType_DesignObj.psc_frozen"
 #define MEDIATYPE_DESIGNOBJ_PSC_MOD_FIELD "psc_mod"
 #define MEDIATYPE_DESIGNOBJ_PSC_MOD_TABLE_FIELD "MediaType_DesignObj.psc_mod"
+#define MEDIATYPE_DESIGNOBJ_PSC_RESTRICT_FIELD "psc_restrict"
+#define MEDIATYPE_DESIGNOBJ_PSC_RESTRICT_TABLE_FIELD "MediaType_DesignObj.psc_restrict"
 
 
 #endif

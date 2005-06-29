@@ -250,6 +250,8 @@
 #define COUNTRY_PSC_FROZEN_TABLE_FIELD "Country.psc_frozen"
 #define COUNTRY_PSC_MOD_FIELD "psc_mod"
 #define COUNTRY_PSC_MOD_TABLE_FIELD "Country.psc_mod"
+#define COUNTRY_PSC_RESTRICT_FIELD "psc_restrict"
+#define COUNTRY_PSC_RESTRICT_TABLE_FIELD "Country.psc_restrict"
 
 
 #endif

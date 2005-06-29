@@ -19,6 +19,8 @@
 #define EVENTCATEGORY_PSC_FROZEN_TABLE_FIELD "EventCategory.psc_frozen"
 #define EVENTCATEGORY_PSC_MOD_FIELD "psc_mod"
 #define EVENTCATEGORY_PSC_MOD_TABLE_FIELD "EventCategory.psc_mod"
+#define EVENTCATEGORY_PSC_RESTRICT_FIELD "psc_restrict"
+#define EVENTCATEGORY_PSC_RESTRICT_TABLE_FIELD "EventCategory.psc_restrict"
 
 
 #endif

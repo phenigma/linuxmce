@@ -25,6 +25,8 @@
 #define DOCUMENT_PSC_FROZEN_TABLE_FIELD "Document.psc_frozen"
 #define DOCUMENT_PSC_MOD_FIELD "psc_mod"
 #define DOCUMENT_PSC_MOD_TABLE_FIELD "Document.psc_mod"
+#define DOCUMENT_PSC_RESTRICT_FIELD "psc_restrict"
+#define DOCUMENT_PSC_RESTRICT_TABLE_FIELD "Document.psc_restrict"
 
 
 #endif

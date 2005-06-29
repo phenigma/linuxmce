@@ -28,6 +28,8 @@
 #define ROOMTYPE_PSC_FROZEN_TABLE_FIELD "RoomType.psc_frozen"
 #define ROOMTYPE_PSC_MOD_FIELD "psc_mod"
 #define ROOMTYPE_PSC_MOD_TABLE_FIELD "RoomType.psc_mod"
+#define ROOMTYPE_PSC_RESTRICT_FIELD "psc_restrict"
+#define ROOMTYPE_PSC_RESTRICT_TABLE_FIELD "RoomType.psc_restrict"
 
 
 #endif

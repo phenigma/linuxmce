@@ -19,6 +19,8 @@
 #define PIPE_PSC_FROZEN_TABLE_FIELD "Pipe.psc_frozen"
 #define PIPE_PSC_MOD_FIELD "psc_mod"
 #define PIPE_PSC_MOD_TABLE_FIELD "Pipe.psc_mod"
+#define PIPE_PSC_RESTRICT_FIELD "psc_restrict"
+#define PIPE_PSC_RESTRICT_TABLE_FIELD "Pipe.psc_restrict"
 
 
 #endif
