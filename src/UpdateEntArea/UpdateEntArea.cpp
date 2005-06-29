@@ -69,14 +69,15 @@ UpdateEntArea::UpdateEntArea(int PK_Installation,string host, string user, strin
 	m_dwPK_Device_MediaPlugIn=vectRow_Device[0]->PK_Device_get();
 	m_iPK_Installation = vectRow_Device[0]->FK_Installation_get();
 
+	vectRow_Device.clear();
 	sql = "JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory=" + StringUtils::itos(DEVICECATEGORY_Orbiter_Plugins_CONST);
 	if( m_iPK_Installation!=-1 )
 		sql += " AND FK_Installation=" + StringUtils::itos(PK_Installation);
 	m_pDatabase_pluto_main->Device_get()->GetRows(sql,&vectRow_Device);
 	if( vectRow_Device.size()!=1 )
 	{
-		cerr << "Cannot find a media plugin" << endl;
-		throw "No Media Plugin";
+		cerr << "Cannot find an orbiter plugin" << endl;
+		throw "No Orbiter Plugin";
 	}
 	m_dwPK_Device_OrbiterPlugIn=vectRow_Device[0]->PK_Device_get();
 }
