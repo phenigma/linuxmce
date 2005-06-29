@@ -579,7 +579,8 @@ void Orbiter::RealRedraw( void *data )
 
 	g_pPlutoLogger->Write( LV_STATUS, "In Redraw Objects: rerender %d",(int) m_bRerenderScreen );
     PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
-    if(  m_bRerenderScreen  )
+	// We don't have a good solution for rendering objects under popups--so re-render the whole screen if there are popups
+    if(  m_bRerenderScreen || m_listPopups.size() || (m_pScreenHistory_Current && m_pScreenHistory_Current->m_pObj->m_listPopups.size()) )
     {
 		PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
         m_vectObjs_NeedRedraw.clear();
@@ -2611,7 +2612,6 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 void Orbiter::InitializeGrid( DesignObj_DataGrid *pObj )
 {
     PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
-    m_vectObjs_GridsOnScreen.push_back( pObj );
     /* todo 2.0
     bool bEPG = ( GridID.substr( 0, 3 )=="EPG" || GridID.substr( 0, 5 )=="CURSH" );
     */
@@ -6129,8 +6129,10 @@ g_pPlutoLogger->Write(LV_STATUS,"Need to change screens logged to %s",pScreenHis
 			/** The description of the media */
 		/** @param #48 Value */
 			/** The track number or position in the playlist */
+		/** @param #120 Retransmit */
+			/** If true, it will re-request the plist (current playlist) grid */
 
-void Orbiter::CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,int iValue,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,int iValue,bool bRetransmit,string &sCMD_Result,Message *pMessage)
 //<-dceag-c242-e->
 {
     PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
@@ -6146,13 +6148,28 @@ void Orbiter::CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sVa
 	m_iPK_DesignObj_FileList_Popup=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
 	m_iPK_DesignObj_RemoteOSD=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
 
+	if( bRetransmit )
+	{
+		PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
+		vector<DesignObj_DataGrid*>::iterator it;
+		for(it = m_vectObjs_GridsOnScreen.begin(); it != m_vectObjs_GridsOnScreen.end(); ++it)
+		{
+			DesignObj_DataGrid* pDesignObj = *it;
+			if(pDesignObj->m_sGridID.size()>5 && pDesignObj->m_sGridID.substr(0,5)=="plist" )
+			{
+				InitializeGrid(pDesignObj);
+				pDesignObj->bReAcquire=true;
+			}
+		}
+
+	}
 	DesignObj_Orbiter *pObj_Popop_RemoteControl=NULL;
 	if( m_sObj_Popop_RemoteControl.size() && (pObj_Popop_RemoteControl=FindObject(m_sObj_Popop_RemoteControl)) && m_iPK_DesignObj_Remote_Popup )
 		CMD_Show_Popup(StringUtils::itos(m_iPK_DesignObj_Remote_Popup),m_Popop_RemoteControl_X,m_Popop_RemoteControl_Y,pObj_Popop_RemoteControl->m_ObjectID,"remote",false,false);
 	else if( pObj_Popop_RemoteControl )
 		CMD_Remove_Popup(pObj_Popop_RemoteControl->m_ObjectID,"remote");
-
-	//CMD_Refresh("");
+	else
+		CMD_Refresh("");
 }
 
 bool Orbiter::TestCurrentScreen(string &sPK_DesignObj_CurrentScreen)
@@ -7364,6 +7381,18 @@ void Orbiter::HandleNewObjectsOnScreen(VectDesignObj_Orbiter *pVectDesignObj_Orb
         if ( pDesignObj_Orbiter->m_ObjectType == DESIGNOBJTYPE_Datagrid_CONST )
         {
             InitializeGrid( ( DesignObj_DataGrid * )pDesignObj_Orbiter  );
+		    m_vectObjs_GridsOnScreen.push_back( ( DesignObj_DataGrid * ) pDesignObj_Orbiter );
         }
     }
+}//<-dceag-c405-b->
+
+	/** @brief COMMAND: #405 - Scale this object */
+	/** If you add this command to the startup list of an object it will cause Orbiter Gen to scale this object and all it's children. */
+		/** @param #48 Value */
+			/** The value to scale to.  100=full size, 50=half size */
+
+void Orbiter::CMD_Scale_this_object(int iValue,string &sCMD_Result,Message *pMessage)
+//<-dceag-c405-e->
+{
+	// this only applies to orbitergen
 }

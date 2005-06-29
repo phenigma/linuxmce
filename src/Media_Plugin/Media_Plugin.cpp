@@ -1251,18 +1251,14 @@ g_pPlutoLogger->Write(LV_STATUS, "Ready to update bound remotes with %p %d",pMed
         for( MapBoundRemote::iterator itBR=pEntertainArea->m_mapBoundRemote.begin( );itBR!=pEntertainArea->m_mapBoundRemote.end( );++itBR )
         {
             BoundRemote *pBoundRemote = ( *itBR ).second;
-            pBoundRemote->UpdateOrbiter( pMediaStream );
-			if( bRefreshScreen )
-			{
-				DCE::CMD_Regen_Screen CMD_Regen_Screen(m_dwPK_Device,pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
-				SendCommand(CMD_Regen_Screen);
-			}
+            pBoundRemote->UpdateOrbiter( pMediaStream, bRefreshScreen );
         }
         for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
         {
             OH_Orbiter *pOH_Orbiter = (*it).second;
-            if( pOH_Orbiter->m_pEntertainArea==pEntertainArea )
-                SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pMediaStream->m_sMediaDescription, pMediaStream );
+            if( pOH_Orbiter->m_pEntertainArea==pEntertainArea && // UpdateOrbiter will have already set the now playing
+					pEntertainArea->m_mapBoundRemote.find(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device)==pEntertainArea->m_mapBoundRemote.end() )
+                SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pMediaStream->m_sMediaDescription, pMediaStream, bRefreshScreen );
         }
     }
 }
@@ -1277,7 +1273,7 @@ void Media_Plugin::OverrideNowPlaying(MediaStream *pMediaStream,string sNowPlayi
         {
             OH_Orbiter *pOH_Orbiter = (*it).second;
             if( pOH_Orbiter->m_pEntertainArea==pEntertainArea )
-                SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, sNowPlaying, pMediaStream );
+                SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, sNowPlaying, pMediaStream, false );
         }
     }
 }
@@ -1415,7 +1411,7 @@ g_pPlutoLogger->Write( LV_STATUS, "Stream in ea %s ended %d remotes bound", pEnt
         if( pOH_Orbiter->m_pEntertainArea==pEntertainArea )
 		{
 g_pPlutoLogger->Write( LV_STATUS, "Orbiter %d %s in this ea to stop", pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_sDescription.c_str());
-            SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, "", NULL );
+            SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, "", NULL, false );
 		}
     }
 
@@ -1505,7 +1501,7 @@ g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::CMD_Bind_to_Media_Remote(). Bind
         pBoundRemote->m_iPK_Text_Section = iPK_Text_SectionDesc;
         pBoundRemote->m_iPK_Text_Synopsis = iPK_Text_Synopsis;
         pBoundRemote->m_iPK_Text_Timecode = iPK_Text_Timecode;
-        pBoundRemote->UpdateOrbiter( pEntertainArea->m_pMediaStream ); // So that it will put the picture back on this remote
+        pBoundRemote->UpdateOrbiter( pEntertainArea->m_pMediaStream, false ); // So that it will put the picture back on this remote
 g_pPlutoLogger->Write(LV_STATUS,"EA %d %s bound %d remotes",pEntertainArea->m_iPK_EntertainArea,pEntertainArea->m_sDescription.c_str(),(int) pEntertainArea->m_mapBoundRemote.size());
     }
 }
@@ -2173,7 +2169,7 @@ void Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, str
 			}
 
 			g_pPlutoLogger->Write(LV_STATUS, "DetermineEntArea4");
-			if( !vectEntertainArea.size()==0 )
+			if( vectEntertainArea.size()==0 )
 			{
 				g_pPlutoLogger->Write( LV_CRITICAL, "Received a DetermineEntArea from an orbiter %p %d with no entertainment area (%p) %d %d %s",
 					pOH_Orbiter,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_pEntertainArea,

@@ -44,8 +44,8 @@ public:
 
 #ifndef ORBITER
 	void RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,
-	PlutoPoint Position,int iRenderStandard,bool bPreserveAspectRatio,int iOnlyVersion=-999);
-	void RenderObjectsChildren(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint pos,bool bPreserveAspectRatio,int iOnlyVersion);
+		PlutoPoint Position,int iRenderStandard,int iOnlyVersion=-999);
+	void RenderObjectsChildren(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint pos,int iOnlyVersion);
 	void RenderObjectsText(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint pos,int iIteration);
 	static void SaveImageToFile(RendererImage * pRendererImage, string sSaveToFile, bool bUseOCG=false);
 	static void SaveImageToPNGFile(RendererImage * pRendererImage, FILE * File, bool Signature = true);

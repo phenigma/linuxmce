@@ -894,6 +894,7 @@ public:
 	int DATA_Get_ImageQuality();
 	bool DATA_Get_Leave_Monitor_on_for_OSD();
 	string DATA_Get_Ignore_State();
+	int DATA_Get_PK_DesignObj();
 	bool DATA_Get_Dont_Auto_Jump_to_Remote();
 
 			*****EVENT***** accessors inherited from base class
@@ -1350,9 +1351,11 @@ public:
 			/** The description of the media */
 		/** @param #48 Value */
 			/** The track number or position in the playlist */
+		/** @param #120 Retransmit */
+			/** If true, it will re-request the plist (current playlist) grid */
 
-	virtual void CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,int iValue) { string sCMD_Result; CMD_Set_Now_Playing(iPK_Device,sPK_DesignObj.c_str(),sValue_To_Assign.c_str(),iValue,sCMD_Result,NULL);};
-	virtual void CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,int iValue,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,int iValue,bool bRetransmit) { string sCMD_Result; CMD_Set_Now_Playing(iPK_Device,sPK_DesignObj.c_str(),sValue_To_Assign.c_str(),iValue,bRetransmit,sCMD_Result,NULL);};
+	virtual void CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,int iValue,bool bRetransmit,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #254 - Bind Icon */
@@ -1527,6 +1530,15 @@ public:
 
 	virtual void CMD_Use_Popup_File_List(int iPosition_X,int iPosition_Y,string sPK_DesignObj_CurrentScreen) { string sCMD_Result; CMD_Use_Popup_File_List(iPosition_X,iPosition_Y,sPK_DesignObj_CurrentScreen.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Use_Popup_File_List(int iPosition_X,int iPosition_Y,string sPK_DesignObj_CurrentScreen,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #405 - Scale this object */
+	/** If you add this command to the startup list of an object it will cause Orbiter Gen to scale this object and all it's children. */
+		/** @param #48 Value */
+			/** The value to scale to.  100=full size, 50=half size */
+
+	virtual void CMD_Scale_this_object(int iValue) { string sCMD_Result; CMD_Scale_this_object(iValue,sCMD_Result,NULL);};
+	virtual void CMD_Scale_this_object(int iValue,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

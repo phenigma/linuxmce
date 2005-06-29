@@ -54,6 +54,7 @@ public:
 	int Get_ImageQuality() { return atoi(m_mapParameters[75].c_str());}
 	bool Get_Leave_Monitor_on_for_OSD() { return (m_mapParameters[84]=="1" ? true : false);}
 	string Get_Ignore_State() { return m_mapParameters[87];}
+	int Get_PK_DesignObj() { return atoi(m_mapParameters[91].c_str());}
 	bool Get_Dont_Auto_Jump_to_Remote() { return (m_mapParameters[95]=="1" ? true : false);}
 };
 
@@ -118,6 +119,7 @@ public:
 	int DATA_Get_ImageQuality() { return GetData()->Get_ImageQuality(); }
 	bool DATA_Get_Leave_Monitor_on_for_OSD() { return GetData()->Get_Leave_Monitor_on_for_OSD(); }
 	string DATA_Get_Ignore_State() { return GetData()->Get_Ignore_State(); }
+	int DATA_Get_PK_DesignObj() { return GetData()->Get_PK_DesignObj(); }
 	bool DATA_Get_Dont_Auto_Jump_to_Remote() { return GetData()->Get_Dont_Auto_Jump_to_Remote(); }
 	//Event accessors
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position) { GetEvents()->Touch_or_click(iX_Position,iY_Position); }
@@ -161,7 +163,7 @@ public:
 	virtual void CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Off(int iPK_Pipe,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Continuous_Refresh(string sTime,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,int iValue,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,int iValue,bool bRetransmit,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Main_Menu(string sText,string &sCMD_Result,class Message *pMessage) {};
@@ -178,6 +180,7 @@ public:
 	virtual void CMD_Show_File_List(string sPK_DesignObj,string sFilename,int iPK_MediaType,string sPK_DesignObj_Popup,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Use_Popup_Remote_Controls(int iPosition_X,int iPosition_Y,string sPK_DesignObj_CurrentScreen,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Use_Popup_File_List(int iPosition_X,int iPosition_Y,string sPK_DesignObj_CurrentScreen,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Scale_this_object(int iValue,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -1259,7 +1262,8 @@ public:
 					string sPK_DesignObj=pMessage->m_mapParameters[3];
 					string sValue_To_Assign=pMessage->m_mapParameters[5];
 					int iValue=atoi(pMessage->m_mapParameters[48].c_str());
-						CMD_Set_Now_Playing(iPK_Device,sPK_DesignObj.c_str(),sValue_To_Assign.c_str(),iValue,sCMD_Result,pMessage);
+					bool bRetransmit=(pMessage->m_mapParameters[120]=="1" ? true : false);
+						CMD_Set_Now_Playing(iPK_Device,sPK_DesignObj.c_str(),sValue_To_Assign.c_str(),iValue,bRetransmit,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -1276,7 +1280,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Set_Now_Playing(iPK_Device,sPK_DesignObj.c_str(),sValue_To_Assign.c_str(),iValue,sCMD_Result,pMessage);
+								CMD_Set_Now_Playing(iPK_Device,sPK_DesignObj.c_str(),sValue_To_Assign.c_str(),iValue,bRetransmit,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -1708,6 +1712,32 @@ public:
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Use_Popup_File_List(iPosition_X,iPosition_Y,sPK_DesignObj_CurrentScreen.c_str(),sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case 405:
+					{
+						string sCMD_Result="OK";
+					int iValue=atoi(pMessage->m_mapParameters[48].c_str());
+						CMD_Scale_this_object(iValue,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Scale_this_object(iValue,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

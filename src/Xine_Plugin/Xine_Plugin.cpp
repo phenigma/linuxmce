@@ -396,7 +396,7 @@ bool Xine_Plugin::MenuOnScreen( class Socket *pSocket, class Message *pMessage, 
 			BoundRemote *pBoundRemote = ( *itBR ).second;
 			g_pPlutoLogger->Write(LV_STATUS, "Processing bound remote: for orbiter: %d", pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
 			m_pMedia_Plugin->SetNowPlaying(pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
-				pXineMediaStream->m_sMediaDescription,pXineMediaStream);
+				pXineMediaStream->m_sMediaDescription,pXineMediaStream,false);
 			DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
 				0,"<%=NP_R%>","","",false,false);
 			SendCommand(CMD_Goto_Screen);

@@ -83,6 +83,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
     m_bRendered=false;
 	m_bUseOCG=pGenerator->m_bUseOCG;
 	m_bIsPopup=false;
+	m_bPreserveAspectRatio=true;
 	if( ocoParent )
 		m_iScale=ocoParent->m_iScale;
 	else
@@ -411,7 +412,10 @@ Table_Image *p = m_mds->Image_get();
 
 			                string sWidth = GetParm(DESIGNOBJPARAMETER_Width_CONST,true);
 							if( sWidth.size() )
+							{
+								m_bPreserveAspectRatio=false;
 								m_rPosition.Width = m_rBackgroundPosition.Width = atoi(sWidth.c_str());
+							}
 
 							/* 10/6/2004 Aaron - Designer adds wrong width/heights sometimes, particularly with objects with multiple variations.  For now always use the actual w/h
 							if( m_rPosition.Height>0 )
@@ -427,7 +431,10 @@ Table_Image *p = m_mds->Image_get();
 
 							string sHeight = GetParm(DESIGNOBJPARAMETER_Height_CONST,true);
 							if( sHeight.size() )
+							{
+								m_bPreserveAspectRatio=false;
 								m_rPosition.Height = m_rBackgroundPosition.Height = atoi(sHeight.c_str());
+							}
 						}
 						else
 							m_rBackgroundPosition = m_rPosition;

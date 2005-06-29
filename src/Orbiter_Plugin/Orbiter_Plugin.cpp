@@ -876,9 +876,9 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p %d now in ea %p %d",pOH_Orbiter,
 					  (pEntertainArea ? pEntertainArea->m_iPK_EntertainArea : 0));
 
 	if( pEntertainArea && pEntertainArea->m_pMediaStream )
-		m_pMedia_Plugin->SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pEntertainArea->m_pMediaStream->m_sMediaDescription, pEntertainArea->m_pMediaStream );
+		m_pMedia_Plugin->SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pEntertainArea->m_pMediaStream->m_sMediaDescription, pEntertainArea->m_pMediaStream, false );
 	else
-		m_pMedia_Plugin->SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, "", NULL );
+		m_pMedia_Plugin->SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, "", NULL, false );
 
 	FireFollowMe("M",pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->PK_Users_get(),
 		pOH_Orbiter->m_pEntertainArea ? pOH_Orbiter->m_pEntertainArea->m_iPK_EntertainArea : 0,

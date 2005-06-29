@@ -74,7 +74,7 @@ static bool LocationComparer(LocationInfo *x, LocationInfo *y)
 }
 
 // For some reason windows won't compile with this in the same file???
-void DoRender(string font, string output,int width,int height,bool bAspectRatio,class DesignObj_Generator *ocDesignObj);
+void DoRender(string font, string output,int width,int height,class DesignObj_Generator *ocDesignObj);
 
 
 #ifdef WIN32
@@ -500,7 +500,8 @@ m_bNoEffects = true;
 		+ StringUtils::itos(m_pRow_Size->Height_get()) + ","
 		+ StringUtils::itos(m_pRow_Size->ScaleX_get()) + ","
 		+ StringUtils::itos(m_pRow_Size->ScaleY_get()) + ","
-		+ StringUtils::itos(m_pRow_Skin->PK_Skin_get());
+		+ StringUtils::itos(m_pRow_Skin->PK_Skin_get())
+		+ (m_bUseOCG ? ",OCG" : "NO_OCG");
 
 	if( m_pRow_Orbiter->Size_get()!=sSize )
 	{
@@ -1116,7 +1117,7 @@ int k=2;
 				try
 				{
 //if( oco->m_ObjectID.find("2211")!=string::npos )
-					DoRender(m_sFontPath,m_sOutputPath,m_Width,m_Height,m_pRow_Size->PreserveAspectRatio_get()==1,oco);
+					DoRender(m_sFontPath,m_sOutputPath,m_Width,m_Height,oco);
 				}
 				catch(string s)
 				{

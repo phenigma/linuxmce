@@ -115,8 +115,9 @@ Renderer::~Renderer()
 // When we start rendering a non-standard version (selected, highlighted, etc.), we will render all of it's children
 // in the same state.  Therefore we also have an "OnlyVersion" version flag.  This means only render the given version.
 // A standard version that has non-standard variations, will also want all of it's children to render only the standard version
-void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint Position,int iRenderStandard,bool bPreserveAspectRatio,int iOnlyVersion)
+void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint Position,int iRenderStandard,int iOnlyVersion)
 {
+	bool bPreserveAspectRatio = pDesignObj_Generator->m_bPreserveAspectRatio;
 
     //  cout << "Rendering " << pDesignObj_Generator->m_ObjectID << endl;
 	if( pDesignObj_Generator->m_ObjectID.find("3490")!=string::npos )// || pDesignObj_Generator->m_ObjectID.find("3485")!=string::npos )
@@ -301,7 +302,7 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 			// See if we're supposed to render our children first
 			if( pDesignObj_Generator->m_bChildrenBehind )
 			{
-				RenderObjectsChildren(pRenderImageClone,pDesignObj_Generator,Position,bPreserveAspectRatio,iOnlyVersion_Children);
+				RenderObjectsChildren(pRenderImageClone,pDesignObj_Generator,Position,iOnlyVersion_Children);
 				if(pRenderImageClone_Child )
 					CompositeImage(pRenderImageClone,pRenderImageClone_Child,pDesignObj_Generator->m_rPosition.Location() + Position);
 				RenderObjectsText(pRenderImageClone,pDesignObj_Generator,Position,iIteration);
@@ -318,13 +319,13 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 				}
 				if( pDesignObj_Generator->m_bChildrenBeforeText )
 				{
-					RenderObjectsChildren(pRenderImageClone,pDesignObj_Generator,Position,bPreserveAspectRatio,iOnlyVersion_Children);
+					RenderObjectsChildren(pRenderImageClone,pDesignObj_Generator,Position,iOnlyVersion_Children);
 					RenderObjectsText(pRenderImageClone,pDesignObj_Generator,Position,iIteration);
 				}
 				else
 				{
 					RenderObjectsText(pRenderImageClone,pDesignObj_Generator,Position,iIteration);
-					RenderObjectsChildren(pRenderImageClone,pDesignObj_Generator,Position,bPreserveAspectRatio,iOnlyVersion_Children);
+					RenderObjectsChildren(pRenderImageClone,pDesignObj_Generator,Position,iOnlyVersion_Children);
 				}
 //SaveImageToFile(pRenderImageClone, "ic aft ch");
 			}
@@ -378,7 +379,7 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
     //  cout << "Finished Rendering " << pDesignObj_Generator->m_ObjectID << endl;
 }
 
-void Renderer::RenderObjectsChildren(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint pos,bool bPreserveAspectRatio,int iOnlyVersion)
+void Renderer::RenderObjectsChildren(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint pos,int iOnlyVersion)
 {
     // We don't support layering.  This isn't normally a problem for pre-rendered graphics.  However, for objects that are rendered
     // seperately, like the selected and highlighted versions, if they have transparency, it's possible that other child objects
@@ -390,7 +391,7 @@ void Renderer::RenderObjectsChildren(RendererImage *pRenderImage,DesignObj_Gener
         DesignObj_Generator *pObj = (DesignObj_Generator *) *it;
 		if( iOnlyVersion!=-999 )
 		{
-	        RenderObject(pRenderImage,(DesignObj_Generator *) pObj,pos,0,bPreserveAspectRatio,iOnlyVersion);  // Standard only
+	        RenderObject(pRenderImage,(DesignObj_Generator *) pObj,pos,0,iOnlyVersion);  // Standard only
 		    continue;
 		}
 if( pObj->m_ObjectID.find("1399")!=string::npos )
@@ -401,7 +402,7 @@ if( pObj->m_ObjectID.find("1399")!=string::npos )
 }
         if( pObj->m_bCanBeHidden || (pObj->m_sVisibleState.length()>0 && pObj->m_sVisibleState.find('N')==string::npos) )
             continue;
-        RenderObject(pRenderImage,(DesignObj_Generator *) pObj,pos,1,bPreserveAspectRatio);  // Standard only
+        RenderObject(pRenderImage,(DesignObj_Generator *) pObj,pos,1);  // Standard only
         pObj->m_bRendered=true;
     }
 
@@ -416,7 +417,7 @@ if( pObj->m_ObjectID.find("1399")!=string::npos )
 {
     int k=2;
 }
-        RenderObject(pRenderImage,(DesignObj_Generator *) pObj,pos,pObj->m_bRendered ? 0 : -1,bPreserveAspectRatio);
+        RenderObject(pRenderImage,(DesignObj_Generator *) pObj,pos,pObj->m_bRendered ? 0 : -1);
     }
 }
 
@@ -993,10 +994,10 @@ RendererImage * Renderer::Subset(RendererImage *pRenderImage, PlutoRectangle rec
     return SubSurface;
 }
 
-void DoRender(string font, string output,int width,int height,bool bAspectRatio,class DesignObj_Generator *ocDesignObj)
+void DoRender(string font, string output,int width,int height,class DesignObj_Generator *ocDesignObj)
 {
     static Renderer r(font,output,width,height);
-    r.RenderObject(NULL,ocDesignObj,PlutoPoint(0,0),-1,bAspectRatio);  // Render everything
+    r.RenderObject(NULL,ocDesignObj,PlutoPoint(0,0),-1);  // Render everything
 }
 
 #endif //ifndef ORBITER

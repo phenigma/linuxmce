@@ -13,7 +13,7 @@ namespace DCE
         int m_iPK_Text_Description,m_iPK_Text_Section,m_iPK_Text_Synopsis,m_iPK_Text_Timecode;
 
         BoundRemote(class Media_Plugin *pMedia_Plugin) { m_iPK_Text_Description=m_iPK_Text_Timecode=0; m_pMedia_Plugin=pMedia_Plugin;}
-        void UpdateOrbiter(class MediaStream *pMediaStream);
+        void UpdateOrbiter(class MediaStream *pMediaStream,bool bRefreshScreen);
     };
 
     typedef map<int,BoundRemote *> MapBoundRemote;

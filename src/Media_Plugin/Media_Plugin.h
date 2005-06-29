@@ -318,7 +318,8 @@ public:
 	int DetermineInvolvement(MediaDevice *pMediaDevice, MediaDevice *&pMediaDevice_Source,MediaDevice *&pMediaDevice_Dest,
 		EntertainArea *&pEntertainArea,MediaStream *&pMediaStream);
 
-	void SetNowPlaying( int dwPK_Device, string sNowPlaying, MediaStream *pMediaStream )
+	// This sends the set now playing command to an orbiter.  If pMessage is passed, it adds the command without sending it
+	void SetNowPlaying( int dwPK_Device, string sNowPlaying, MediaStream *pMediaStream, bool bRefreshScreen, Message *pMessage=NULL )
 	{
 		string sRemotes;
 		if( pMediaStream && pMediaStream->m_pRemoteControlSet )
@@ -335,8 +336,11 @@ public:
 			iDequeMediaFile = pMediaStream->m_iDequeMediaFile_Pos;
 		}
 		DCE::CMD_Set_Now_Playing CMD_Set_Now_Playing( m_dwPK_Device, dwPK_Device, PK_Device_Source,
-			sRemotes, sNowPlaying, iDequeMediaFile );
-		SendCommand( CMD_Set_Now_Playing );
+			sRemotes, sNowPlaying, iDequeMediaFile, bRefreshScreen );
+		if( pMessage )
+			pMessage->m_vectExtraMessages.push_back(CMD_Set_Now_Playing.m_pMessage);
+		else
+			SendCommand( CMD_Set_Now_Playing );
 	}
 
 //<-dceag-h-b->
