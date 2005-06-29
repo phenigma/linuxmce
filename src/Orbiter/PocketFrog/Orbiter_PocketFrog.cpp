@@ -354,10 +354,10 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 	int Y = Text->m_rPosition.Y;
 	int iTextRectHeight = vectStrings.size() * ciCharHeight + (vectStrings.size() - 1) * ciSpaceHeight;
 
-	switch(Text->m_iPK_HorizAlignment)
+	switch(Text->m_iPK_VertAlignment)
 	{
 		case VERTALIGNMENT_Top_CONST:
-			break;
+			break; 
 		case VERTALIGNMENT_Middle_CONST:
 			Y += (Text->m_rPosition.Height - iTextRectHeight) / 2;
 			break;
