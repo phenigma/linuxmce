@@ -70,6 +70,8 @@ namespace sqlCVS
 		int m_psc_batch;    /**< The batch number the user passed on the command line */
 		int m_iScreenWidth;  /**< The width of the screen */
 
+		int m_iVerifyRestrictID; /**< If doing a verify database, orphaned records will be set to this restriction */
+
 		MapRepository m_mapRepository;  /**< The repositories we're currently operating on */
 		
 		MapTable m_mapTable;  /**< The tables we're currently operating on */

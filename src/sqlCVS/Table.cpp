@@ -2250,10 +2250,6 @@ void Table::ApplyChangedRow(ChangedRow *pChangedRow)
 
 void Table::VerifyIntegrity()
 {
-if( m_sName=="DeviceCategory_DeviceData" )
-{
-int k=2;
-}
 	if( m_pRepository && !m_bIsSystemTable )
 	{
 		ostringstream sql;
@@ -2280,8 +2276,10 @@ int k=2;
 			}
 		}
 
-		string sRestrictions = StringUtils::Replace(g_GlobalConfig.GetRestrictionClause(),"psc_restrict","R.psc_restrict");
+		string sRestrictions_R = StringUtils::Replace(g_GlobalConfig.GetRestrictionClause(),"psc_restrict","R.psc_restrict");
+		string sRestrictions_L = StringUtils::Replace(g_GlobalConfig.GetRestrictionClause(),"psc_restrict","L.psc_restrict");
 		string sRestrictions_T3 = StringUtils::Replace(g_GlobalConfig.GetRestrictionClause(),"psc_restrict","T3.psc_restrict");
+		string sRestrictions_T1 = StringUtils::Replace(g_GlobalConfig.GetRestrictionClause(),"psc_restrict","T1.psc_restrict");
 
 		if( g_GlobalConfig.m_bVerify )
 		{
@@ -2298,9 +2296,9 @@ int k=2;
 					sql << "SELECT L.`" << pField->Name_get() << "`,R.`" << pField->m_pField_IReferTo_Directly->Name_get() << "` FROM " <<
 						"`" << Name_get() << "` As L LEFT JOIN `" << pField->m_pField_IReferTo_Directly->Table_get()->Name_get() << "` As R " <<
 						" ON L.`" << pField->Name_get() << "`=" <<  
-						"R.`" << pField->m_pField_IReferTo_Directly->Name_get() << "` AND " << sRestrictions << " WHERE " <<
+						"R.`" << pField->m_pField_IReferTo_Directly->Name_get() << "` AND " << sRestrictions_R << " WHERE " <<
 						"L.`" << pField->Name_get() << "` IS NOT NULL " <<
-						"AND R.`" << pField->m_pField_IReferTo_Directly->Name_get() << "` IS NULL";
+						"AND R.`" << pField->m_pField_IReferTo_Directly->Name_get() << "` IS NULL AND " << sRestrictions_L;
 
 					if( ( result_set2.r=m_pDatabase->mysql_query_result( sql.str( ) ) ) )
 					{
@@ -2321,10 +2319,14 @@ int k=2;
 								cerr << "Database integrity check failed" << endl;
 								throw "Database integrity check failed";
 							}
-							else if( AskYNQuestion("Delete the offending records?  (BE CAREFUL!)",false) )
+							else if( AskYNQuestion( (g_GlobalConfig.m_iVerifyRestrictID ? "Update resriction on " : "Delete ") + string("the offending records?  (BE CAREFUL!)"),false) )
 							{
 								sql.str("");
-								sql << "DELETE FROM `" << Name_get() << "` WHERE `" << pField->Name_get() << "` IN (" << Keys << ")";
+								if( !g_GlobalConfig.m_iVerifyRestrictID )
+									sql << "DELETE FROM `" << Name_get() << "` WHERE `" << pField->Name_get() << "` IN (" << Keys << ")";
+								else
+									sql << "UPDATE `" << Name_get() << "` SET psc_restrict=" << g_GlobalConfig.m_iVerifyRestrictID << " WHERE `" << pField->Name_get() << "` IN (" << Keys << ")";
+
 								m_pDatabase->threaded_mysql_query(sql.str());
 
 							}
@@ -2348,8 +2350,8 @@ int k=2;
 						" LEFT JOIN " << pField_IReferTo_Indirectly->m_pTable->Name_get() << " As T3 ON T1." << pField->Name_get() << "=T3." << pField_IReferTo_Indirectly->Name_get() <<
 						" AND " << sRestrictions_T3 << 
 						" WHERE T2.Description = \"" << sName << "\" AND T3." << pField_IReferTo_Indirectly->Name_get() <<
-						" IS NULL AND T1." << pField->Name_get() << " IS NOT NULL AND T1." << pField->Name_get() << "<>''" <<
-						" AND T1." << pField->Name_get() << "<>'0'";  // Temorary HACK - todo remove this.  It's only here because php keeps inserting 0's instead of null's and breaking the builder.  Vali will fix this and we'll remove it
+						" IS NULL AND T1." << pField->Name_get() << " IS NOT NULL AND T1." << pField->Name_get() << "<>'' " <<
+						" AND " << sRestrictions_T1;
 
 					if( ( result_set3.r=m_pDatabase->mysql_query_result( sql.str( ) ) ) )
 					{
@@ -2376,10 +2378,13 @@ int k=2;
 								cerr << "Database integrity check failed" << endl;
 								throw "Database integrity check failed";
 							}
-							else if( AskYNQuestion("Delete the offending records?  (BE CAREFUL!)",false) )
+							else if( AskYNQuestion((g_GlobalConfig.m_iVerifyRestrictID ? "Update resriction on " : "Delete ") + string("the offending records?  (BE CAREFUL!)"),false) )
 							{
 								sql.str("");
-								sql << "DELETE FROM `" << m_sName << "` WHERE " << Keys;
+								if( !g_GlobalConfig.m_iVerifyRestrictID )
+									sql << "DELETE FROM `" << m_sName << "` WHERE " << Keys;
+								else
+									sql << "UPDATE `" << m_sName << "` SET psc_restrict=" << g_GlobalConfig.m_iVerifyRestrictID << " WHERE " << Keys;
 								m_pDatabase->threaded_mysql_query(sql.str());
 							}
 						}

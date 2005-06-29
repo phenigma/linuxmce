@@ -258,6 +258,9 @@ int main( int argc, char *argv[] )
 		case 'v':
 			g_GlobalConfig.m_bVerify = true;
 			break;
+		case 'V':
+			g_GlobalConfig.m_iVerifyRestrictID = atoi( argv[++optnum] );
+			break;
 		case 'i':
 			g_GlobalConfig.m_bVerifyID = true;
 			break;
@@ -314,7 +317,11 @@ int main( int argc, char *argv[] )
 			<< "-e everyone    -- Checkin all records from every user" << endl
 			<< "-n no prompts  -- Don't ever prompt, just exit if necessary" << endl
 			<< "-c comments    -- Optional comments to be included with a checkin" << endl
-			<< "-w screen width-- This value will 'stick' because it's stored in the config" << endl;
+			<< "-w screen width-- This value will 'stick' because it's stored in the config" << endl
+			<< "-S restrictions-- Include the listed restrictions." << endl
+			<< "If one restriction, other than 0," << endl
+			<< "                  is specified with the -v option, rather than auto-deleting, it will" << endl
+			<< "                  update orphaned rows to be in the same restriction" << endl;
 
 		exit( 1 );
 	}
