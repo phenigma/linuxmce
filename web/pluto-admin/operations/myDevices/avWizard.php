@@ -258,6 +258,14 @@ $start_time=getmicrotime();
 							$out.=$tuner;
 						}
 					}
+					$out.='
+					<tr>
+						<td><hr></td>
+						<td><hr></td>
+						<td colspan="4"><hr></td>
+						<td><hr></td>
+						<td><hr></td>
+					</tr>';						
 				}else{
 					$embededRows[$rowD['FK_Device_ControlledVia']][]='
 					<tr>
@@ -278,15 +286,7 @@ $start_time=getmicrotime();
 						<td bgcolor="#F0F3F8">'.@$devicePipes['2']['input'].'</td>
 					</tr>';
 				}
-				
-				$out.='
-					<tr>
-						<td><hr></td>
-						<td><hr></td>
-						<td colspan="4"><hr></td>
-						<td><hr></td>
-						<td><hr></td>
-					</tr>';					
+	
 			}
 		}
 		$out.='

@@ -1184,6 +1184,12 @@ switch ($section) {
 	    include_once('operations/myDevices/setResolution.php');
 	    setResolution($output,$dbADO);
 	break;	
+	case 'setupDisklessMD';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/myDevices/setupDisklessMD.php');
+	    setupDisklessMD($output,$dbADO);
+	break;	
 	
 	case '';
 		$output = new Template($dbADO);	

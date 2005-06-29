@@ -3227,7 +3227,7 @@ function getProperties($primaryKey,$table,$properties,$field,$dbADO)
 	}
 }
 
-function displayRemotes($mdID,$dbADO)
+function displayRemotes($mdID,$dbADO,$section)
 {
 	$out='<B>Infrared remote controls you will use:</B> ';
 	$remotes=array();
@@ -3243,7 +3243,7 @@ function displayRemotes($mdID,$dbADO)
 	}
 	$delLinks='';
 	foreach ($remotes AS $rid=>$description){
-		$delLinks.='<a href="javascript:if(confirm(\'Are you sure you want to delete this remote?\'))self.location=\'index.php?section=avWizard&type=media_directors&action=del&delRemote='.$rid.'\';">'.$description.'</a>, ';
+		$delLinks.='<a href="javascript:if(confirm(\'Are you sure you want to delete this remote?\'))self.location=\'index.php?section='.$section.'&type=media_directors&action=del&delRemote='.$rid.'\';">'.$description.'</a>, ';
 	}
 	$out.=substr($delLinks,0,-2).' <input type="button" class="button" name="button" value="Add Remote" onClick="document.mediaDirectors.action.value=\'externalSubmit\';document.mediaDirectors.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from=mediaDirectors&categoryID='.$GLOBALS['RemoteControlls'].'&parmToKeep='.urlencode('mdID='.$mdID).'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');">';
 	
@@ -3453,11 +3453,11 @@ function formatDeviceData($deviceID,$DeviceDataArray,$dbADO,$isIPBased=0)
 		$deviceDataBox.='
 			<tr>
 				<td><B>IP</B></td>
-				<td><input type="text" name="ip_'.$deviceID.'" value="'.$rowD['IPaddress'].'"></td>
+				<td><input type="text" name="ip_'.$deviceID.'" value="'.@$rowD['IPaddress'].'"></td>
 			</tr>
 			<tr>
 				<td><B>MAC</B></td>
-				<td><input type="text" name="mac_'.$deviceID.'" value="'.$rowD['MACaddress'].'"></td>
+				<td><input type="text" name="mac_'.$deviceID.'" value="'.@$rowD['MACaddress'].'"></td>
 			</tr>';
 	}
 	$deviceDataBox.='</table>';
