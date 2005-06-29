@@ -31,10 +31,7 @@ case "$1" in
 		./apply_conf.sh
 		popd &>/dev/null
 		
-#		chgrp -R www-data /var/www/pluto-admin/amp/{admin,amp.png,_asterisk,index.html,mainstyle.css,panel} /etc/asterisk
-#		chmod +x /usr/lib/cgi-bin/vmail.cgi
-#		chmod -R ug+rw /etc/asterisk/
-#		chmod 777 /etc/asterisk /var/www/pluto-admin/amp
+		chmod -R ug+rw /etc/asterisk/
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

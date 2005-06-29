@@ -36,6 +36,7 @@ cp -R ./AMP/upgrades/ ./amp_deb/root/usr/local/amp/
 
 #patch to change permissions
 sed -r -i "s/asterisk[:]asterisk/asterisk:www-data/" ./amp_deb/root/usr/sbin/amportal
+sed -r -i "s/chmod u[+]x/chmod ug+x/" ./amp_deb/root/usr/sbin/amportal
 
 cat >> ./amp_deb/root/etc/asterisk/extensions.conf << EOF
 
