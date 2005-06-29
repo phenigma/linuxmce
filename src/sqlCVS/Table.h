@@ -71,6 +71,7 @@ namespace sqlCVS
 		class Field  *m_pField_user;
 		class Field  *m_pField_frozen;
 		class Field  *m_pField_mod;
+		class Field  *m_pField_restrict;
 		class Field  *m_pField_AutoIncrement;
 		
 		class Table *m_pTable_History;		/**< A pointer to our history table, if we have one,   */
@@ -183,7 +184,7 @@ int itmp_RowsToDelete;
 		void PropagateUpdatedField( Field *pField_Changed, string NewValue, string OldValue, ChangedRow *pChangedRow );
 		void PropagateUpdatedField( Field *pField_Changed, string NewValue, string OldValue, ChangedRow *pChangedRow, Field *pField_FK );
 
-		bool TrackChanges_get( ) { return m_pField_id && m_pField_batch && m_pField_user && m_pField_frozen && m_pField_mod; }
+		bool TrackChanges_get( ) { return m_pField_id && m_pField_batch && m_pField_user && m_pField_frozen && m_pField_mod && m_pField_restrict; }
 		void TrackChanges_set( bool bOn );
 
 		bool DoWeHaveBatch( int psc_batch );

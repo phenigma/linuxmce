@@ -38,13 +38,14 @@
 
 using namespace sqlCVS;
 
-R_UpdateTable::R_UpdateTable( string sTableName, int psc_batch_last_sync, int psc_id_last_sync, vector<string> *pvectFields )
+R_UpdateTable::R_UpdateTable( string sTableName, int psc_batch_last_sync, int psc_id_last_sync, vector<string> *pvectFields, vector<int> *p_vectRestrictions )
 {
 	m_sTableName=sTableName;
 	m_pvectFields=pvectFields;
 	m_bDeleteVectFields=false;
 	m_psc_batch_last_sync=psc_batch_last_sync;
 	m_psc_id_last_sync=psc_id_last_sync;
+	m_vectRestrictions=*p_vectRestrictions;
 }
 /** The server will call this constructor, then ProcessRequest */
 R_UpdateTable::R_UpdateTable( )

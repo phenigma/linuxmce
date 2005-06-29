@@ -41,6 +41,7 @@ R_CommitRow::R_CommitRow( sqlCVS::ChangedRow *pChangedRow )
 	m_psc_id = pChangedRow->m_psc_id;
 	m_psc_batch = pChangedRow->m_psc_batch;
 	m_psc_user = pChangedRow->m_psc_user;
+	m_psc_restrict = pChangedRow->m_psc_restrict;
 	m_iBeforeTransmit_iAutoIncrID = pChangedRow->m_iBeforeTransmit_iAutoIncrID;
 	m_eTypeOfChange = pChangedRow->m_eTypeOfChange;
 

@@ -25,6 +25,7 @@ public:
 	vector<int> m_vect_psc_batch;
 	int m_psc_batch_last_sync;
 	int m_psc_id_last_sync;
+	vector<int> m_vectRestrictions; /** The restrictions we're interested in */
 
 	/** @brief Response Variables */
 
@@ -32,7 +33,7 @@ public:
 
 	/** @brief The call will call this constructor, then ConvertRequestToBinary */
 	
-	R_UpdateTable( string sTableName, int psc_batch_last_sync, int psc_id_last_sync, vector<string> *pvectFields );
+	R_UpdateTable( string sTableName, int psc_batch_last_sync, int psc_id_last_sync, vector<string> *pvectFields, vector<int> *p_vectRestrictions );
 
 	/** @brief The server will call this constructor, then ProcessRequest */
 	
@@ -55,7 +56,7 @@ public:
 	void SetupSerialization_Request( )
 	{
 		RA_Request::SetupSerialization_Request( );
-		StartSerializeList( ) + m_sTableName + *m_pvectFields + m_psc_batch_last_sync + m_psc_id_last_sync + m_vect_psc_batch;
+		StartSerializeList( ) + m_sTableName + *m_pvectFields + m_psc_batch_last_sync + m_psc_id_last_sync + m_vect_psc_batch + m_vectRestrictions;
 	}
 
 	/**

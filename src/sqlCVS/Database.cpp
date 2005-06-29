@@ -1126,6 +1126,8 @@ void Database::Import( string sRepository, Repository *pRepository )
 
 	if( sTable != "psc_" + pRepository->Name_get() + "_repset" )
 		throw "Import schema error";
+if( sTable=="MediaType_DesignObj" )
+int k=2;
 	pRepository->ImportTable(sTable,str,pos,NULL,0,0);
 
 	MapStringString::iterator it;

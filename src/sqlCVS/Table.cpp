@@ -54,7 +54,7 @@ itmp_RowsToDelete=0;
 	m_pDatabase=pDatabase;
 	m_sName=sName;
 	m_pRepository=NULL;
-	m_pField_id=m_pField_batch=m_pField_user=m_pField_frozen=m_pField_mod=NULL;
+	m_pField_id=m_pField_batch=m_pField_user=m_pField_frozen=m_pField_mod=m_pField_restrict=NULL;
 	m_pTable_History=m_pTable_History_Mask=m_pTable_WeAreHistoryFor=m_pTable_WeAreHistoryMaskFor=NULL;
 	m_pField_AutoIncrement=NULL;
 	m_bIsSystemTable=false;
@@ -72,7 +72,7 @@ itmp_RowsToDelete=0;
 
 void Table::GetFields( )
 {
-	m_pField_id=m_pField_batch=m_pField_user=m_pField_frozen=m_pField_mod=NULL;
+	m_pField_id=m_pField_batch=m_pField_user=m_pField_frozen=m_pField_mod=m_pField_restrict=NULL;
 
 	for( MapField::iterator it=m_mapField.begin( );it!=m_mapField.end( );++it )
 		delete ( *it ).second;
@@ -108,7 +108,16 @@ void Table::GetFields( )
 				m_pField_frozen = pField;
 			else if( pField->Name_get( )=="psc_mod" )
 				m_pField_mod = pField;
+			else if( pField->Name_get( )=="psc_restrict" )
+				m_pField_restrict = pField;
 		}
+	}
+
+	// Temporary code since restrict was added after the fact
+	if( !m_pField_restrict && m_pField_id )
+	{
+		m_pDatabase->threaded_mysql_query( "ALTER TABLE `" + m_sName + "` ADD `psc_restrict` INT( 11 );" );
+		GetFields();
 	}
 }
 
@@ -153,6 +162,8 @@ void Table::TrackChanges_set( bool bOn )
 			m_pDatabase->threaded_mysql_query( "ALTER TABLE `" + m_sName + "` ADD `psc_mod` timestamp( 14 ) default '0';" );
 			m_pDatabase->threaded_mysql_query( "UPDATE `" + m_sName + "` SET `psc_mod`=0;" );
 		}
+		if( !m_pField_restrict )
+			m_pDatabase->threaded_mysql_query( "ALTER TABLE `" + m_sName + "` ADD `psc_restrict` INT( 11 );" );
 	}
 	else
 	{
@@ -166,6 +177,8 @@ void Table::TrackChanges_set( bool bOn )
 			m_pDatabase->threaded_mysql_query( "ALTER TABLE `" + m_sName + "` DROP `psc_frozen`;" );
 		if( m_pField_mod )
 			m_pDatabase->threaded_mysql_query( "ALTER TABLE `" + m_sName + "` DROP `psc_mod`;" );
+		if( m_pField_restrict )
+			m_pDatabase->threaded_mysql_query( "ALTER TABLE `" + m_sName + "` DROP `psc_restrict`;" );
 	}
 	GetFields( );
 }
@@ -403,6 +416,10 @@ void Table::MatchUpHistory( )
 
 void Table::GetDependencies( )
 {
+if( m_sName=="CommandGroup_Command_CommandParameter")
+{
+int k=2;
+}
 	for( MapField::iterator it=m_mapField.begin( );it!=m_mapField.end( );++it )
 	{
 		Field *pField = ( *it ).second;
@@ -437,7 +454,7 @@ void Table::GetDependencies( )
 						string FieldName = row[0];
 						class Table *pTable = m_pDatabase->GetTableFromForeignKeyString( this, FieldName );
 						Field *pField_PrimaryKey = pTable->m_mapField_Find( "PK_" + pTable->Name_get( ) );
-						pField->m_listField_IReferTo_Indirectly.push_back( pField_PrimaryKey );
+						pField->m_listField_IReferTo_Indirectly.push_back( make_pair<string,Field *> (FieldName,pField_PrimaryKey) );
 						pField_PrimaryKey->m_listField_ReferringToMe_Indirectly.push_back( pField );
 					}
 				}
@@ -472,7 +489,7 @@ bool Table::Update( RA_Processor &ra_Processor, DCE::Socket *pSocket )
 		vectFields.push_back( ( *it ).first );
 	}
 
-	R_UpdateTable r_UpdateTable( m_sName, m_psc_batch_last_sync, m_psc_id_last_sync, &vectFields );
+	R_UpdateTable r_UpdateTable( m_sName, m_psc_batch_last_sync, m_psc_id_last_sync, &vectFields, &g_GlobalConfig.m_vectRestrictions );
 
 	// The server will send us all updates after m_psc_batch_last_sync, but we need to tell it to 
 	// explicitly exclude any batches that we sent ourselves, since have them already.  Create a list
@@ -564,6 +581,8 @@ void Table::GetChanges( R_UpdateTable *pR_UpdateTable )
 			sSql << (s>0 ? "," : "") << pR_UpdateTable->m_vect_psc_batch[s];
 		sSql << ")";
 	}
+
+	sSql << " AND	" << g_GlobalConfig.GetRestrictionClause( &pR_UpdateTable->m_vectRestrictions );
 	sSql << " ORDER BY psc_id,psc_batch";
 
 	/* 10 May 05 - this used to be order by psc_batch,psc_id.  But it happened that a row was
@@ -619,9 +638,9 @@ void Table::GetChanges( )
 
 	int iAutoIncrField=-1; /** If there is an auto increment field in the key, we will point to it's "slot" here */
 	ostringstream sql;
-	sql << "SELECT psc_id, psc_batch, psc_user";
+	sql << "SELECT psc_id, psc_batch, psc_user, psc_restrict";
 
-	int FieldNum=3;
+	int FieldNum=4;
 	for( ListField::iterator it=m_listField_PrimaryKey.begin( );it!=m_listField_PrimaryKey.end( );++it )
 	{
 		Field *pField = *it;
@@ -631,7 +650,7 @@ void Table::GetChanges( )
 		FieldNum++;
 	}
 
-	sql << " FROM `" << m_sName << "` WHERE psc_mod>0";
+	sql << " FROM `" << m_sName << "` WHERE psc_mod>0 AND " << g_GlobalConfig.GetRestrictionClause();
 
 	PlutoSqlResult result_set;
 	MYSQL_ROW row=NULL;
@@ -649,8 +668,8 @@ void Table::GetChanges( )
 			vector<string> vectPrimaryKeys;
 			for( size_t s=0;s<m_listField_PrimaryKey.size( );++s )
 			{
-cout << "pk: " << s << " " << row[s+3];
-				vectPrimaryKeys.push_back( row[s+3] );
+cout << "pk: " << s << " " << row[s+4];
+				vectPrimaryKeys.push_back( row[s+4] );
 			}
 cout << " psc_id: " << (row[0] ? atoi( row[0] ) : 0) << endl;
 			int iAutoIncrValue = iAutoIncrField>=0 ? atoi( row[iAutoIncrField] ) : 0;
@@ -661,7 +680,7 @@ cout << " psc_id: " << (row[0] ? atoi( row[0] ) : 0) << endl;
 				continue;
 			}
 
-			ChangedRow *pChangedRow = new ChangedRow( this, eTypeOfChange, row[0] ? atoi( row[0] ) : 0, row[1] ? atoi( row[1] ) : 0, row[2] ? atoi( row[2] ) : 0, iAutoIncrValue, vectPrimaryKeys );
+			ChangedRow *pChangedRow = new ChangedRow( this, eTypeOfChange, row[0] ? atoi( row[0] ) : 0, row[1] ? atoi( row[1] ) : 0, row[2] ? atoi( row[2] ) : 0, row[3] ? atoi( row[3] ) : 0, iAutoIncrValue, vectPrimaryKeys );
 			AddChangedRow( pChangedRow );
 		}
 	}
@@ -798,7 +817,7 @@ bool Table::DetermineDeletions( RA_Processor &ra_Processor, string Connection, D
 	// I deleted it locally, but before checking in my deletion, another user updated it and I haven't
 	// yet updated.  Therefore, the batch will be > m_psc_id_last_sync and will not show up
 
-	R_GetAll_psc_id r_GetAll_psc_id( m_sName );
+	R_GetAll_psc_id r_GetAll_psc_id( m_sName, &g_GlobalConfig.m_vectRestrictions );
 	ra_Processor.AddRequest( &r_GetAll_psc_id );
 	while( ra_Processor.SendRequests( Connection, ppSocket ) );
 
@@ -809,7 +828,7 @@ bool Table::DetermineDeletions( RA_Processor &ra_Processor, string Connection, D
 	}
 	std::ostringstream sSQL;
 
-	sSQL << "SELECT psc_id,psc_batch FROM " << m_sName << " WHERE psc_id IS NOT NULL AND psc_id>0 ORDER BY psc_id";
+	sSQL << "SELECT psc_id,psc_batch FROM " << m_sName << " WHERE psc_id IS NOT NULL AND psc_id>0 AND " << g_GlobalConfig.GetRestrictionClause() << " ORDER BY psc_id";
 	PlutoSqlResult res;
 	MYSQL_ROW row=NULL;
 	res.r = m_pDatabase->mysql_query_result( sSQL.str( ) );
@@ -927,7 +946,7 @@ int k=2;
 		
 		/** If this a new record, don't add the auto increment field */
 		
-		if( pField==m_pField_id || pField==m_pField_batch || pField==m_pField_user || pField==m_pField_mod || pField==m_pField_frozen || ( pField==m_pField_AutoIncrement && toc==toc_New ) )
+		if( pField==m_pField_id || pField==m_pField_batch || pField==m_pField_user || pField==m_pField_mod || pField==m_pField_frozen || pField==m_pField_restrict || ( pField==m_pField_AutoIncrement && toc==toc_New ) )
 			continue;
 		vectFields.push_back( ( *it ).first );
 	}
@@ -1463,7 +1482,7 @@ void Table::UpdateRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSproces
 		else
 			sSQL << "'" << StringUtils::SQLEscape( pR_CommitRow->m_vectValues[s] ) << "', ";
 	}
-	sSQL << "psc_batch=" << psqlCVSprocessor->m_i_psc_batch << " WHERE psc_id=" << pR_CommitRow->m_psc_id;
+	sSQL << "psc_batch=" << psqlCVSprocessor->m_i_psc_batch << ",psc_restrict=" << pR_CommitRow->m_psc_restrict << " WHERE psc_id=" << pR_CommitRow->m_psc_id;
 
 	// Add the history before we commit the change.  That way we can compare what the old values were
 	pR_CommitRow->m_psc_batch_new = psqlCVSprocessor->m_i_psc_batch;
@@ -1498,7 +1517,7 @@ void Table::AddRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor
 	for( size_t s=0;s<psqlCVSprocessor->m_pvectFields->size( );++s )
 		sSQL << "`" << ( *psqlCVSprocessor->m_pvectFields )[s] << "`, ";
 
-	sSQL << "psc_id, psc_batch, psc_user ) VALUES( ";
+	sSQL << "psc_id, psc_batch, psc_user, psc_restrict ) VALUES( ";
 
 	for( size_t s=0;s<pR_CommitRow->m_vectValues.size( );++s )
 	{
@@ -1521,7 +1540,7 @@ void Table::AddRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor
 	else
 		sSQL << "NULL";
 	
-	sSQL << " )"; /** @warning batch # todo - hack */
+	sSQL << "," << pR_CommitRow->m_psc_restrict << " )"; /** @warning batch # todo - hack */
 
 	cout << "Adding new row with id: " << m_psc_id_next << endl;
 
@@ -1895,6 +1914,9 @@ bool Table::Dump( SerializeableStrings &str )
 	StringUtils::Replace(&m_sFilter,"<%=U%>",g_GlobalConfig.csvUserID());
 	sSQL.str( "" );
 	sSQL << "SELECT " << sFieldList << " FROM " << m_sName << (m_sFilter.length() && StringUtils::ToUpper(m_sFilter).find("WHERE")==string::npos ? " WHERE " : " " ) << m_sFilter;
+	if( TrackChanges_get() )
+		sSQL << (m_sFilter.length() ? " AND " : " WHERE ") << g_GlobalConfig.GetRestrictionClause();
+
 	if( num_psc_id!=-1 )
 		sSQL << " ORDER BY psc_id";
 	PlutoSqlResult result_set;
@@ -2258,6 +2280,9 @@ int k=2;
 			}
 		}
 
+		string sRestrictions = StringUtils::Replace(g_GlobalConfig.GetRestrictionClause(),"psc_restrict","R.psc_restrict");
+		string sRestrictions_T3 = StringUtils::Replace(g_GlobalConfig.GetRestrictionClause(),"psc_restrict","T3.psc_restrict");
+
 		if( g_GlobalConfig.m_bVerify )
 		{
 			for(MapField::iterator it=m_mapField.begin();it!=m_mapField.end();++it)
@@ -2273,7 +2298,7 @@ int k=2;
 					sql << "SELECT L.`" << pField->Name_get() << "`,R.`" << pField->m_pField_IReferTo_Directly->Name_get() << "` FROM " <<
 						"`" << Name_get() << "` As L LEFT JOIN `" << pField->m_pField_IReferTo_Directly->Table_get()->Name_get() << "` As R " <<
 						" ON L.`" << pField->Name_get() << "`=" <<  
-						"R.`" << pField->m_pField_IReferTo_Directly->Name_get() << "` WHERE " <<
+						"R.`" << pField->m_pField_IReferTo_Directly->Name_get() << "` AND " << sRestrictions << " WHERE " <<
 						"L.`" << pField->Name_get() << "` IS NOT NULL " <<
 						"AND R.`" << pField->m_pField_IReferTo_Directly->Name_get() << "` IS NULL";
 
@@ -2311,16 +2336,18 @@ int k=2;
 						throw "Database error";
 					}
 				}
-				for( ListField::iterator it=pField->m_listField_IReferTo_Indirectly.begin();it!=pField->m_listField_IReferTo_Indirectly.end();++it )
+				for( list< pair<string,Field *> >::iterator it=pField->m_listField_IReferTo_Indirectly.begin();it!=pField->m_listField_IReferTo_Indirectly.end();++it )
 				{
-					Field *pField_IReferTo_Indirectly = *it;
+					string sName = it->first;
+					Field *pField_IReferTo_Indirectly = it->second;
 					Table *pTable = m_pDatabase->GetTableFromForeignKey( pField );
 
 					sql.str("");
 					sql << "SELECT T1.FK_" << pField->Name_get().substr(3) << ",T1." << pField->Name_get() << " FROM `" << m_sName << "` AS T1 " <<
 						"LEFT JOIN " << pField->Name_get().substr(3) << " As T2 ON T1.FK_" << pField->Name_get().substr(3) << " = T2.PK_" << pField->Name_get().substr(3) <<
 						" LEFT JOIN " << pField_IReferTo_Indirectly->m_pTable->Name_get() << " As T3 ON T1." << pField->Name_get() << "=T3." << pField_IReferTo_Indirectly->Name_get() <<
-						" WHERE T2.Description = \"" << pField_IReferTo_Indirectly->Name_get() << "\" AND T3." << pField_IReferTo_Indirectly->Name_get() <<
+						" AND " << sRestrictions_T3 << 
+						" WHERE T2.Description = \"" << sName << "\" AND T3." << pField_IReferTo_Indirectly->Name_get() <<
 						" IS NULL AND T1." << pField->Name_get() << " IS NOT NULL AND T1." << pField->Name_get() << "<>''" <<
 						" AND T1." << pField->Name_get() << "<>'0'";  // Temorary HACK - todo remove this.  It's only here because php keeps inserting 0's instead of null's and breaking the builder.  Vali will fix this and we'll remove it
 

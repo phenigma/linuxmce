@@ -62,6 +62,8 @@ namespace sqlCVS
 
 		string m_sSkipVerification; /**< Table:Field's to be skipped during a verify integrity */
 
+		vector<int> m_vectRestrictions; /** if Restrictions are specified on the command line, they will be here.  0 matches no restrictions */
+
 		int m_iDBPort;		/**< The port of the database */
 		int m_iSqlCVSPort;	/**< The port of the sqlCVS */
 
@@ -110,6 +112,37 @@ namespace sqlCVS
 			m_psc_batch=0;
 			m_bVerify=m_bVerifyID=m_bAllowUnmetDependencies=m_bCheckinEveryone=m_bNoPrompts=false;
 			m_iScreenWidth=dceConfig.ReadInteger("ScreenWidth",120);
+		}
+
+		string GetRestrictionClause(vector<int> *p_vectRestrictions=NULL)
+		{
+			if( p_vectRestrictions==NULL )
+				p_vectRestrictions=&m_vectRestrictions;
+
+			if( p_vectRestrictions->size()==0 )
+				return "(psc_restrict IS NULL)";
+
+			string sResult;
+			bool bIncludeNoRestriction=false;
+			for(vector<int>::iterator it=p_vectRestrictions->begin();it!=p_vectRestrictions->end();++it)
+			{
+				if( (*it) == 0 )
+					bIncludeNoRestriction=true;
+				else
+					sResult += (sResult.size() ? "," : "") + StringUtils::itos(*it);
+			}
+
+			if( sResult.size() )
+				sResult = "(psc_restrict in (" + sResult + ")";
+			
+			if( bIncludeNoRestriction && sResult.size() )
+				sResult += " OR psc_restrict IS NULL)";
+			else if( bIncludeNoRestriction )
+				sResult += "(psc_restrict IS NULL)";
+			else
+				sResult += ")";
+
+			return sResult;
 		}
 
 		/**

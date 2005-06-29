@@ -242,6 +242,14 @@ int main( int argc, char *argv[] )
 		case 'b':
 			g_GlobalConfig.m_psc_batch = atoi( argv[++optnum] );
 			break;
+		case 'S':
+			{
+				string sRestrictions = argv[++optnum];
+				string::size_type pos=0;
+				while(pos!=string::npos && pos<sRestrictions.size())
+					g_GlobalConfig.m_vectRestrictions.push_back( atoi(StringUtils::Tokenize(sRestrictions,",",pos).c_str()) );
+			}
+			break;
 		case 'w':
 			g_GlobalConfig.m_iScreenWidth = atoi( argv[++optnum] );
 			g_GlobalConfig.dceConfig.AddInteger("ScreenWidth",g_GlobalConfig.m_iScreenWidth);

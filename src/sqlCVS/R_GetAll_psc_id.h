@@ -23,12 +23,13 @@ public:
 	/** @brief Request Variables */
 	string m_sTable;
 	int m_psc_id,m_psc_batch;
+	vector<int> m_vectRestrictions; /** The restrictions we're interested in */
 
 	/** @brief Response Variables */
 	vector< pair<int,int> > m_vectAll_psc_id;  // psc_id + batch
 
 	/** @brief constructor */
-	R_GetAll_psc_id( string sTable );
+	R_GetAll_psc_id(string sTable, vector<int> *p_vectRestrictions);
 	
 	/** @brief constructor */
 	R_GetAll_psc_id( ) {};
@@ -46,7 +47,7 @@ public:
 	virtual void SetupSerialization_Request( )
 	{
 		RA_Request::SetupSerialization_Request( );
-		StartSerializeList( ) + m_sTable;
+		StartSerializeList( ) + m_sTable + m_vectRestrictions;
 	}
 
 	/**

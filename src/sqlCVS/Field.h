@@ -33,7 +33,7 @@ namespace sqlCVS
 					*/
 
 		Field *m_pField_IReferTo_Directly;
-		ListField m_listField_IReferTo_Indirectly;
+		list< pair<string,Field *> > m_listField_IReferTo_Indirectly;  // string is the description used in the reference
 
 		ListField m_listField_ReferringToMe_Directly;
 		ListField m_listField_ReferringToMe_Indirectly;

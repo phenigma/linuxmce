@@ -854,7 +854,7 @@ void Repository::Dump( )
 	str.m_vectString.push_back( StringUtils::itos( ( int ) m_mapTable.size( ) ) );
 	for( MapTable::iterator it=m_mapTable.begin( );it!=m_mapTable.end( );++it )
 	{
-		Table *pTable = ( *it ).second;
+			Table *pTable = ( *it ).second;
 		if( !pTable->Dump( str ) )
 		{
 			cerr << "Failed to output table data for dump!" << endl;
@@ -959,7 +959,7 @@ void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t 
 		for( map<string,int>::iterator it=mapFields.begin();it!=mapFields.end();++it )
 		{
 			string sField = (*it).first;
-			if( !pTable->m_mapField_Find(sField) )
+			if( !pTable->m_mapField_Find(sField) && sField!="psc_restrict" )  // temp hack since this was added later
 			{
 				cerr << "Cannot import.  Field: " << sField << " doesn't  exist in current table." << sTableName << endl;
 				throw "Schema error";
@@ -969,7 +969,7 @@ void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t 
 		for( MapField::iterator it=pTable->m_mapField.begin();it!=pTable->m_mapField.end();++it )
 		{
 			Field *pField = (*it).second;
-			if( mapFields.find(pField->Name_get())==mapFields.end() )
+			if( mapFields.find(pField->Name_get())==mapFields.end() && pField->Name_get()!="psc_restrict" )  // temp hack since this was added later
 			{
 				cerr << "Cannot import.  Field: " << pField->Name_get() << " doesn't  exist in import." << sTableName << endl;
 				throw "Schema error";
@@ -1081,7 +1081,7 @@ int k=2;
 			// Don't want to delete stuff that's newer locally
 			sSQL.str( "" );
 			sSQL << "DELETE FROM `" << sTableName << "` WHERE psc_id=" << ipsc_id_deleted 
-				<< " AND (psc_batch is NULL OR psc_batch=0 OR (psc_batch>0 AND psc_batch<=" << ipsc_batch_last << "))";
+				<< " AND (psc_batch is NULL OR psc_batch=0 OR (psc_batch>0 AND psc_batch<=" << ipsc_batch_last << ")) AND " << g_GlobalConfig.GetRestrictionClause();
 			if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
 			{
 				cerr << "SQL Failed: " << sSQL.str( ) << endl;
@@ -1128,7 +1128,19 @@ int k=2;
 		if( bUpdate )
 			sSQL << "UPDATE `" << sTableName << "` SET ";
 		else
-			sSQL << "INSERT INTO `" << sTableName << "` VALUES( ";
+		{
+			sSQL << "INSERT INTO `" << sTableName << "`(";
+			bool bFirst=true;
+			for(list<string>::iterator it=listFields.begin();it!=listFields.end();++it)
+			{
+				if( bFirst )
+					bFirst = false;
+				else
+					sSQL << ",";
+				sSQL << "`" << *it << "`";
+			}
+			sSQL << ") VALUES( ";
+		}
 		bool bFirst=true;
 		for(list<string>::iterator it=listFields.begin();it!=listFields.end();++it)
 		{
