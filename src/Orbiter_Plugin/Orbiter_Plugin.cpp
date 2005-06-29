@@ -970,6 +970,11 @@ void Orbiter_Plugin::CMD_New_Mobile_Orbiter(int iPK_Users,int iPK_DeviceTemplate
 	FileUtils::LaunchProcessInBackground(Cmd);
 	g_pPlutoLogger->Write(LV_STATUS,"Execution returned: %s",Cmd.c_str());
 
+	g_pPlutoLogger->Write(LV_STATUS,"now pending jobs size is: %d",(int) m_listRegenCommands.size());
+	for(list<int>::iterator it = m_listRegenCommands.begin(); it != m_listRegenCommands.end(); ++it)
+		g_pPlutoLogger->Write(LV_STATUS,"Still generating %d",*it);
+
+
     if( !pUnknownDeviceInfos || !pUnknownDeviceInfos->m_iDeviceIDFrom )
         g_pPlutoLogger->Write(LV_CRITICAL,"Got New Mobile Orbiter but can't find device!");
     else
@@ -1476,7 +1481,6 @@ void Orbiter_Plugin::CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Resu
 	}
 
 	g_pPlutoLogger->Write(LV_STATUS,"Regen finished for: %d size is: %d",iPK_Device,(int) m_listRegenCommands.size());
-
 	for(list<int>::iterator it = m_listRegenCommands.begin(); it != m_listRegenCommands.end(); ++it)
 	{
 		if(*it == iPK_Device)
@@ -1486,6 +1490,8 @@ void Orbiter_Plugin::CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Resu
 		}
 	}
 	g_pPlutoLogger->Write(LV_STATUS,"after Regen finished for: %d size is: %d",iPK_Device,(int) m_listRegenCommands.size());
+	for(list<int>::iterator it = m_listRegenCommands.begin(); it != m_listRegenCommands.end(); ++it)
+		g_pPlutoLogger->Write(LV_STATUS,"Still generating %d",*it);
 
 	if( pOH_Orbiter )
 	{

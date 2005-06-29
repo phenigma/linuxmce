@@ -503,7 +503,7 @@ m_bNoEffects = true;
 		+ StringUtils::itos(m_pRow_Skin->PK_Skin_get())
 		+ (m_bUseOCG ? ",OCG" : "NO_OCG");
 
-	if( m_pRow_Orbiter->Size_get()!=sSize )
+	if( m_pRow_Orbiter->Size_get()!=sSize && !m_iPK_DesignObj_SoleScreenToGen )
 	{
 		m_pRow_Orbiter->Size_set(sSize);
 		m_pRow_Orbiter->Table_Orbiter_get()->Commit();
