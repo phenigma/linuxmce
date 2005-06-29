@@ -96,7 +96,7 @@ $out='
 	  		Email: <B>'.$_POST['Email'].'</B><br>
 	  		Website: '.$_POST['Website'].'<br>
 	  		Interest: '.$leadDescription.'<br>
-	  		Comments: <hr>'.nl2br($_POST['Comments']).'
+	  		Comments: <hr>'.nl2br(stripslashes($_POST['Comments'])).'
 	  		<hr><br><br>This email was sent from PlutoHome Website.';
 	   	
 	   	$headers = "From: Pluto Home<website@plutohome.com>\n";

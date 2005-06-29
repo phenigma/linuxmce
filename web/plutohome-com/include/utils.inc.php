@@ -410,8 +410,9 @@ function createChildsForControledViaDeviceCategory($masterDeviceID,$installation
 			$deviceTemplateArray[]=$row['FK_DeviceTemplate'];
 		}
 	}
-	foreach($deviceTemplateArray as $value)
+	foreach($deviceTemplateArray as $value){
 		createChildsForDeviceTemplate($value,$installationID,$insertID,$dbADO,$roomID);
+	}
 }
 
 // $device is the PK_Device of the device who has current options, if '' use default options

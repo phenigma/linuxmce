@@ -485,7 +485,13 @@ switch ($section) {
 		include_once('admin/editQuestion.php');
 	    editQuestion($output);
 	break;
-
+	case 'public_license':
+    	$output = new Template();
+    	$output->setConn($conn);
+       	$output->setTemplateFileType('nonews');
+		include_once('operations/public_license.php');
+	    public_license($output);
+	break;
 	
 	default:			
 		$output = new Template();	
