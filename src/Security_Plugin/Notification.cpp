@@ -227,12 +227,8 @@ bool Notification::ExecuteNotification(string sPhoneNumber, int iDelay, bool bNo
     int nPhoneDevice = 4759; 
 
     //TODO: attach the called id and the wav file
-    DCE::CMD_PL_Originate CMD_PL_Originate_(
-        m_pSecurity_Plugin->m_dwPK_Device, 
-        m_pTelecom_Plugin->m_dwPK_Device,
-        nPhoneDevice, 
-        sPhoneNumber
-        ); 
+    DCE::CMD_PL_Originate CMD_PL_Originate_(m_pSecurity_Plugin->m_dwPK_Device, 
+        m_pTelecom_Plugin->m_dwPK_Device, nPhoneDevice, sPhoneNumber, sCallerID); 
 
     string sResponse;
     bool bResponse = m_pSecurity_Plugin->SendCommand(CMD_PL_Originate_, &sResponse);
