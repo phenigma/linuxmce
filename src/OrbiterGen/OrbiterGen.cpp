@@ -959,7 +959,8 @@ break; ///**************************** temp
 		}
 	}
 
-	sql = "select DeviceTemplate_DesignObj.FK_DesignObj FROM DeviceTemplate_DesignObj JOIN Device ON Device.FK_DeviceTemplate=DeviceTemplate_DesignObj.FK_DeviceTemplate WHERE FK_Installation=" + StringUtils::itos(m_pRow_Device->FK_Installation_get());
+	// exclude dt=8 (orbiter) because that will just drag in all the main menus
+	sql = "select DeviceTemplate_DesignObj.FK_DesignObj FROM DeviceTemplate_DesignObj JOIN Device ON Device.FK_DeviceTemplate=DeviceTemplate_DesignObj.FK_DeviceTemplate JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate WHERE PK_DeviceTemplate<>8 AND FK_Installation=" + StringUtils::itos(m_pRow_Device->FK_Installation_get());
 
 	PlutoSqlResult result_set5;
 	if( (result_set5.r=mysql_query_result(sql)) )
