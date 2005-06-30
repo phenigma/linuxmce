@@ -1317,6 +1317,9 @@
 #define DESIGNOBJ_popupLightsMap_CONST 3531
 #define DESIGNOBJ_arrLightsFloorplan_CONST 3532
 #define DESIGNOBJ_butArrayFloorplanLights_CONST 3533
+#define DESIGNOBJ_popupMediaMap_CONST 3534
+#define DESIGNOBJ_arrMediaFloorplan_CONST 3535
+#define DESIGNOBJ_butArrayFloorplanMedia_CONST 3536
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
