@@ -234,7 +234,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
     m_sCaptureKeyboard_InternalBuffer = "";
     m_pCaptureKeyboard_Text = NULL;
 	m_bBypassScreenSaver = false;
-	m_bIsOSD = m_pData->m_pDevice_ControlledVia && m_pData->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Media_Director_CONST);
+	DeviceData_Base *pDevice_Parent = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(m_pData->m_dwPK_Device_ControlledVia);
+	m_bIsOSD = pDevice_Parent && pDevice_Parent->WithinCategory(DEVICECATEGORY_Media_Director_CONST);
 
 	string::size_type pos=0;
 	string sTimeout = DATA_Get_Timeout();

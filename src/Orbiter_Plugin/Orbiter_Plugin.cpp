@@ -1560,10 +1560,25 @@ bool Orbiter_Plugin::OSD_OnOff( class Socket *pSocket, class Message *pMessage, 
 	{
 		if( pMessage->m_dwID==COMMAND_Generic_Off_CONST )
 		{
-			// Let the OSD know we turned the m/d's display off so the next time the screen is clicked it will 
-			// turn it back on
-			DCE::CMD_Display_OnOff CMD_Display_OnOff(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,"0",true);
-			SendCommand(CMD_Display_OnOff);
+			DeviceData_Router *pDevice_MD = m_pRouter->m_mapDeviceData_Router_Find(pMessage->m_dwPK_Device_To);
+			bool bMD_Uses_External_Video=false;  // See if there's a video path, like going to a TV
+			for( map<int,Pipe *>::iterator it=pDevice_MD->m_mapPipe_Available.begin();it!=pDevice_MD->m_mapPipe_Available.end();++it)
+			{
+				Pipe *pPipe = it->second;
+				if( pPipe->m_pRow_Device_Device_Pipe->FK_Pipe_get()==2 || pPipe->m_pRow_Device_Device_Pipe->FK_Pipe_get()==4 )
+				{
+					bMD_Uses_External_Video=true;
+					break;
+				}
+			}
+
+			if( bMD_Uses_External_Video )
+			{
+				// We just turned off the TV that our Orbiter's OSD is using.  So set display off flag to 'off', so when
+				// the user touches the screen, it will turn the tv back on.
+				DCE::CMD_Display_OnOff CMD_Display_OnOff(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,"0",true);
+				SendCommand(CMD_Display_OnOff);
+			}
 		}
 	}
 	else
