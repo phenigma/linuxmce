@@ -12,7 +12,7 @@ ShowDialog()
 	local pidOfX="$1"
 	local Msg="$2"
 
-	DISPLAY=:1 gimv /usr/pluto/share/resolutions.png
+	DISPLAY=:1 xsetbg /usr/pluto/share/resolutions.png
 	DISPLAY=:1 Xdialog --ignore-eof --cancel-label "Close" --infobox "$Msg" 0x0 0
 	kill "$pidOfX"
 }
