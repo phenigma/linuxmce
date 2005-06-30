@@ -72,9 +72,11 @@ public:
 			/** Device (phone) from which to place the call */
 		/** @param #83 PhoneExtension */
 			/** Phone extension to dial */
+		/** @param #84 PhoneCallerID */
+			/** Caller ID */
 
-	virtual void CMD_PL_Originate(int iPK_Device,string sPhoneExtension) { string sCMD_Result; CMD_PL_Originate(iPK_Device,sPhoneExtension.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_PL_Originate(int iPK_Device,string sPhoneExtension,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_PL_Originate(int iPK_Device,string sPhoneExtension,string sPhoneCallerID) { string sCMD_Result; CMD_PL_Originate(iPK_Device,sPhoneExtension.c_str(),sPhoneCallerID.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_PL_Originate(int iPK_Device,string sPhoneExtension,string sPhoneCallerID,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #234 - PL_TransferConferenceDevice */

@@ -462,8 +462,10 @@ Telecom_Plugin::generate_NewCommandID() {
 			/** Device (phone) from which to place the call */
 		/** @param #83 PhoneExtension */
 			/** Phone extension to dial */
+		/** @param #84 PhoneCallerID */
+			/** Caller ID */
 
-void Telecom_Plugin::CMD_PL_Originate(int iPK_Device,string sPhoneExtension,string &sCMD_Result,Message *pMessage)
+void Telecom_Plugin::CMD_PL_Originate(int iPK_Device,string sPhoneExtension,string sPhoneCallerID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c232-e->
 {
 	g_pPlutoLogger->Write(LV_STATUS, "Originate cammand called with params: DeviceID=%d, PhoneExtension=%s!", iPK_Device, sPhoneExtension.c_str());
@@ -505,7 +507,7 @@ void Telecom_Plugin::CMD_PL_Originate(int iPK_Device,string sPhoneExtension,stri
 		/*send originate command to PBX*/
 		pCallData->setPendingCmdID(generate_NewCommandID());
 		CMD_PBX_Originate cmd_PBX_Originate(m_dwPK_Device, pPBXDevice->m_dwPK_Device,
-					                        sSrcPhoneNumber, sSrcPhoneType, sPhoneExtension, "CALLERID", pCallData->getPendingCmdID());
+					                        sSrcPhoneNumber, sSrcPhoneType, sPhoneExtension, sPhoneCallerID, pCallData->getPendingCmdID());
 	    SendCommand(cmd_PBX_Originate);
 	}
 }
