@@ -582,7 +582,7 @@ void Table::GetChanges( R_UpdateTable *pR_UpdateTable )
 		sSql << ")";
 	}
 
-	sSql << " AND	" << g_GlobalConfig.GetRestrictionClause( &pR_UpdateTable->m_vectRestrictions );
+	sSql << " AND	" << g_GlobalConfig.GetRestrictionClause( m_sName,&pR_UpdateTable->m_vectRestrictions );
 	sSql << " ORDER BY psc_id,psc_batch";
 
 	/* 10 May 05 - this used to be order by psc_batch,psc_id.  But it happened that a row was
@@ -650,7 +650,7 @@ void Table::GetChanges( )
 		FieldNum++;
 	}
 
-	sql << " FROM `" << m_sName << "` WHERE psc_mod>0 AND " << g_GlobalConfig.GetRestrictionClause();
+	sql << " FROM `" << m_sName << "` WHERE psc_mod>0 AND " << g_GlobalConfig.GetRestrictionClause(m_sName);
 
 	PlutoSqlResult result_set;
 	MYSQL_ROW row=NULL;
@@ -828,7 +828,7 @@ bool Table::DetermineDeletions( RA_Processor &ra_Processor, string Connection, D
 	}
 	std::ostringstream sSQL;
 
-	sSQL << "SELECT psc_id,psc_batch FROM " << m_sName << " WHERE psc_id IS NOT NULL AND psc_id>0 AND " << g_GlobalConfig.GetRestrictionClause() << " ORDER BY psc_id";
+	sSQL << "SELECT psc_id,psc_batch FROM " << m_sName << " WHERE psc_id IS NOT NULL AND psc_id>0 AND " << g_GlobalConfig.GetRestrictionClause(m_sName) << " ORDER BY psc_id";
 	PlutoSqlResult res;
 	MYSQL_ROW row=NULL;
 	res.r = m_pDatabase->mysql_query_result( sSQL.str( ) );
@@ -1934,7 +1934,7 @@ bool Table::Dump( SerializeableStrings &str )
 	sSQL.str( "" );
 	sSQL << "SELECT " << sFieldList << " FROM " << m_sName << (m_sFilter.length() && StringUtils::ToUpper(m_sFilter).find("WHERE")==string::npos ? " WHERE " : " " ) << m_sFilter;
 	if( TrackChanges_get() )
-		sSQL << (m_sFilter.length() ? " AND " : " WHERE ") << g_GlobalConfig.GetRestrictionClause();
+		sSQL << (m_sFilter.length() ? " AND " : " WHERE ") << g_GlobalConfig.GetRestrictionClause(m_sName);
 
 	if( num_psc_id!=-1 )
 		sSQL << " ORDER BY psc_id";
@@ -2295,10 +2295,10 @@ void Table::VerifyIntegrity()
 			}
 		}
 
-		string sRestrictions_R = StringUtils::Replace(g_GlobalConfig.GetRestrictionClause(),"psc_restrict","R.psc_restrict");
-		string sRestrictions_L = StringUtils::Replace(g_GlobalConfig.GetRestrictionClause(),"psc_restrict","L.psc_restrict");
-		string sRestrictions_T3 = StringUtils::Replace(g_GlobalConfig.GetRestrictionClause(),"psc_restrict","T3.psc_restrict");
-		string sRestrictions_T1 = StringUtils::Replace(g_GlobalConfig.GetRestrictionClause(),"psc_restrict","T1.psc_restrict");
+		string sRestrictions_R = g_GlobalConfig.GetRestrictionClause("R");
+		string sRestrictions_L = g_GlobalConfig.GetRestrictionClause("L");
+		string sRestrictions_T3 = g_GlobalConfig.GetRestrictionClause("T3");
+		string sRestrictions_T1 = g_GlobalConfig.GetRestrictionClause("T1");
 
 		if( g_GlobalConfig.m_bVerify )
 		{

@@ -49,7 +49,7 @@ bool R_GetAll_psc_id::ProcessRequest( class RA_Processor *pRA_Processor )
 	cout << "R_GetAll_psc_id" << endl;
 	std::ostringstream sSQL;
 	// See notes in Table::DetermineDeletions
-	sSQL << "SELECT psc_id,psc_batch FROM " << m_sTable << " WHERE " << g_GlobalConfig.GetRestrictionClause(&m_vectRestrictions) << " ORDER BY psc_id";
+	sSQL << "SELECT psc_id,psc_batch FROM " << m_sTable << " WHERE " << g_GlobalConfig.GetRestrictionClause(m_sTable,&m_vectRestrictions) << " ORDER BY psc_id";
 
 	PlutoSqlResult res;
 	MYSQL_ROW row=NULL;

@@ -1081,7 +1081,7 @@ int k=2;
 			// Don't want to delete stuff that's newer locally
 			sSQL.str( "" );
 			sSQL << "DELETE FROM `" << sTableName << "` WHERE psc_id=" << ipsc_id_deleted 
-				<< " AND (psc_batch is NULL OR psc_batch=0 OR (psc_batch>0 AND psc_batch<=" << ipsc_batch_last << ")) AND " << g_GlobalConfig.GetRestrictionClause();
+				<< " AND (psc_batch is NULL OR psc_batch=0 OR (psc_batch>0 AND psc_batch<=" << ipsc_batch_last << ")) AND " << g_GlobalConfig.GetRestrictionClause(sTableName);
 			if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
 			{
 				cerr << "SQL Failed: " << sSQL.str( ) << endl;

@@ -116,13 +116,13 @@ namespace sqlCVS
 			m_iScreenWidth=dceConfig.ReadInteger("ScreenWidth",120);
 		}
 
-		string GetRestrictionClause(vector<int> *p_vectRestrictions=NULL)
+		string GetRestrictionClause(string sTableName,vector<int> *p_vectRestrictions=NULL)
 		{
 			if( p_vectRestrictions==NULL )
 				p_vectRestrictions=&m_vectRestrictions;
 
 			if( p_vectRestrictions->size()==0 )
-				return "(psc_restrict IS NULL)";
+				return "(" + sTableName + ".psc_restrict IS NULL)";
 
 			string sResult;
 			bool bIncludeNoRestriction=false;
@@ -135,12 +135,12 @@ namespace sqlCVS
 			}
 
 			if( sResult.size() )
-				sResult = "(psc_restrict in (" + sResult + ")";
+				sResult = "(" + sTableName + ".psc_restrict in (" + sResult + ")";
 			
 			if( bIncludeNoRestriction && sResult.size() )
-				sResult += " OR psc_restrict IS NULL)";
+				sResult += " OR " + sTableName + ".psc_restrict IS NULL)";
 			else if( bIncludeNoRestriction )
-				sResult += "(psc_restrict IS NULL)";
+				sResult += "(" + sTableName + ".psc_restrict IS NULL)";
 			else
 				sResult += ")";
 
