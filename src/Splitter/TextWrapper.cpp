@@ -268,6 +268,7 @@ void TextLineWrap::RenderToSurface(SDL_Surface * Surface)
 void WrapAndRenderText(SDL_Surface * Surface, string text, int X, int Y, int W, int H,
 					   string FontPath, TextStyle *pTextStyle,int PK_HorizAlignment,int PK_VertAlignment)
 {
+H+=(H/10);
 	TextLineWrap T;
 	T.Wrap(text, X, Y, W, H, FontPath, pTextStyle,PK_HorizAlignment,PK_VertAlignment);
 	T.RenderToSurface(Surface);
