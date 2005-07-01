@@ -1737,26 +1737,19 @@ string DesignObj_Generator::GetParm(int PK_DesignObjParameter,Row_DesignObjVaria
 string DesignObj_Generator::GetParm(int PK_DesignObjParameter,Row_DesignObjVariation * drDesignObjVariation,bool bReplaceNulls)
 {
     string oValue="";
+    Row_DesignObjVariation_DesignObjParameter * drODP = m_mds->DesignObjVariation_DesignObjParameter_get()->GetRow(drDesignObjVariation->PK_DesignObjVariation_get(),PK_DesignObjParameter);
 
-    try
+    if( drDesignObjVariation->PK_DesignObjVariation_get()!=m_pRow_DesignObjVariation_Standard->PK_DesignObjVariation_get() &&
+        (!drODP || (drODP->Value_isNull() && bReplaceNulls)) )
     {
-        Row_DesignObjVariation_DesignObjParameter * drODP = m_mds->DesignObjVariation_DesignObjParameter_get()->GetRow(drDesignObjVariation->PK_DesignObjVariation_get(),PK_DesignObjParameter);
-
-        if( drDesignObjVariation->PK_DesignObjVariation_get()!=m_pRow_DesignObjVariation_Standard->PK_DesignObjVariation_get() &&
-            (!drODP || (drODP->Value_isNull() && bReplaceNulls)) )
-        {
-            drODP = m_mds->DesignObjVariation_DesignObjParameter_get()->GetRow(m_pRow_DesignObjVariation_Standard->PK_DesignObjVariation_get(),PK_DesignObjParameter);
-        }
-
-        if( !drODP )
-            return NULL;
-
-        bool btemp;
-        return SubstituteVariables(drODP->Value_get(),&btemp);
+        drODP = m_mds->DesignObjVariation_DesignObjParameter_get()->GetRow(m_pRow_DesignObjVariation_Standard->PK_DesignObjVariation_get(),PK_DesignObjParameter);
     }
-    catch(...) {}
 
-    return oValue;
+    if( !drODP )
+        return string();
+
+    bool btemp;
+    return SubstituteVariables(drODP->Value_get(),&btemp);
 }
 
 string DesignObj_Generator::SubstituteVariables(string Text,bool *bContainsRunTimeVariables)
