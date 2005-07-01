@@ -50,6 +50,12 @@ int myCounter=0;
 #define FLAG_DISABLE_VIDEO false
 #endif
 
+/* Readme!
+- by default, the surfaces will be resized with rotozoom library
+- define USE_SGE_TRANSFORM to use sge library
+- define USE_GD_TRANSFORM to use gd library
+*/
+
 #ifdef USE_GD_TRANSFORM
     #include "Orbiter/GD/GD-SDL.h"
 #endif
@@ -628,14 +634,12 @@ RendererImage * Renderer::CreateFromRWops(SDL_RWops * rw, bool bFreeRWops, Pluto
         // no scaling/stretching needed
         //SDL_BlitSurface(SurfaceFromFile, NULL, RIFromFile->m_pSDL_Surface, NULL);
         //sge_transform(SurfaceFromFile, RIFromFile->m_pSDL_Surface, 0, 1, 1, 0, 0, 0, 0, SGE_TSAFE);
-#ifdef USE_SGE_TRANSFORM        
+#if defined(USE_SGE_TRANSFORM)
         ScaledSurface = sge_transform_surface(SurfaceFromFile, SDL_MapRGBA(SurfaceFromFile->format, 0, 0, 0, 0), 0, 1, 1, bUseAntiAliasing ? SGE_TSAFE | SGE_TAA : SGE_TSAFE);
-#else        
-    #ifdef USE_GD_TRANSFORM
+#elif defined(USE_GD_TRANSFORM)
         ScaledSurface = GD_ResizeSurface(SurfaceFromFile, 1, 1, bUseAntiAliasing);
-    #else
+#else
         ScaledSurface = zoomSurface(SurfaceFromFile, 1, 1, bUseAntiAliasing ? SMOOTHING_ON : SMOOTHING_OFF);
-    #endif
 #endif
     }
     else
@@ -663,14 +667,12 @@ RendererImage * Renderer::CreateFromRWops(SDL_RWops * rw, bool bFreeRWops, Pluto
 /*  starting with the mobile phone, we have 'distorted' images because we want to re-use buttons, but the aspect ratios are different
 */
 
-#ifdef USE_SGE_TRANSFORM 
+#if defined(USE_SGE_TRANSFORM)
         ScaledSurface = sge_transform_surface(SurfaceFromFile, SDL_MapRGBA(SurfaceFromFile->format, 0, 0, 0, 0), 0, scaleX, scaleY, bUseAntiAliasing ? SGE_TSAFE | SGE_TAA : SGE_TSAFE );
-#else
-    #ifdef USE_GD_TRANSFORM
+#elif defined(USE_GD_TRANSFORM)
         ScaledSurface = GD_ResizeSurface(SurfaceFromFile, scaleX, scaleY, bUseAntiAliasing);
-    #else
+#else
         ScaledSurface = zoomSurface(SurfaceFromFile, scaleX, scaleY, bUseAntiAliasing ? SMOOTHING_ON : SMOOTHING_OFF);
-    #endif
 #endif
     }
 
