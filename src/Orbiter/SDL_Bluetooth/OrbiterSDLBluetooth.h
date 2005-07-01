@@ -29,7 +29,7 @@ public:
 
 	// Public virtual methods
 	virtual void DisplayImageOnScreen(struct SDL_Surface *pScreenImage);
-	virtual void RenderDataGrid(DesignObj_DataGrid *pObj);
+	virtual void RenderDataGrid(DesignObj_DataGrid *pObj, PlutoPoint point = PlutoPoint(0, 0));
 
 	virtual void BeginPaint();
 	virtual void EndPaint();

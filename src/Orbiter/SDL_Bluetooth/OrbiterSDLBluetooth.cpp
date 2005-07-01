@@ -151,7 +151,7 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
     g_pPlutoLogger->Write(LV_STATUS, "ShowImage command added to the queue");
 }
 //-----------------------------------------------------------------------------------------------------
-void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj)
+void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj, PlutoPoint point)
 {
     g_pPlutoLogger->Write(LV_STATUS, "Extraoptions in grid: %s", pObj->m_sExtraInfo.c_str());
 
