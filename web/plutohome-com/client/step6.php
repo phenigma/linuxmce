@@ -3,25 +3,6 @@ $pvrArray=getAssocArray('DeviceTemplate','PK_DeviceTemplate','Description',$dbAD
 $soundArray=getAssocArray('DeviceTemplate','PK_DeviceTemplate','Description',$dbADO,' WHERE FK_DeviceCategory='.$GLOBALS['SoundCards'],'ORDER BY Description ASC');
 $videoArray=getAssocArray('DeviceTemplate','PK_DeviceTemplate','Description',$dbADO,' WHERE FK_DeviceCategory='.$GLOBALS['VideoCards'],'ORDER BY Description ASC');
 
-if($_SESSION['sollutionType']==3){
-		$out='
-			<table align="center" border="0" width="100%">
-				 <tr>
-					<td align="left" class="insidetable"><img src="images/titles/installation_wizard.gif"></td>
-					<td align="right" class="insidetable"><a href="index.php?section=wizard&step=5">&lt;&lt; Previous</a> <a href="index.php?section=wizard&step=7">Next &gt;&gt;</a></td>
-				</tr>				
-				<tr>
-					<td colspan="2" align="center" bgcolor="#DADDE4"><B>Step 6 of 8: Media Directors</B></td>
-				</tr>
-				<tr>
-					<td colspan="2" align="center" class="insidetable2" height="150">You have selected the single PC solution, so you can skip this step by clicking NEXT.  </td>
-				</tr>
-				<tr>
-					<td colspan="2" class="insidetable2" align="center"><input type="button" name="next" value="Next" onClick="self.location=\'index.php?section=wizard&step=7\'"></td>
-				</tr>		
-		</table>
-	';
-}else{
 	$queryCoreDeviceTemplates='SELECT * FROM DeviceTemplate WHERE FK_DeviceCategory=?';
 	$resCoreDeviceTemplates=$dbADO->Execute($queryCoreDeviceTemplates,$GLOBALS['rootMediaDirectorID']);
 	$deviceTemplateIdArray=array();
@@ -198,7 +179,8 @@ if($_SESSION['sollutionType']==3){
 					<tr class="normaltext">
 						<td colspan="2" align="center"><input type="button" name="continue" value="Next" onClick="javascript:document.wizard.action.value=\'update\';document.wizard.submit();"></td>
 					</tr>';
-		$out.='
+		if($_SESSION['sollutionType']!=3){		
+			$out.='
 								<tr class="normaltext">
 									<td colspan="2"><B>Add a Media Director</B><a name="addForm"></a></td>
 								</tr>
@@ -279,6 +261,7 @@ if($_SESSION['sollutionType']==3){
 			$scriptInBody='onLoad="self.location=\'#addForm\';"';
 			$output->setScriptInBody($scriptInBody);
 		}
+	}
 	
 	}elseif($action=='add'){
 		// process form step 6
@@ -378,7 +361,6 @@ if($_SESSION['sollutionType']==3){
 		
 		header("Location: index.php?section=wizard&step=".(($action=='updateOnly')?'6':'7'));
 	}
-}
 
 function updateMediaDirectors($displayedDevicesArray,$dbADO)
 {
