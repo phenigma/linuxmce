@@ -37,7 +37,6 @@ public:
 	bool m_bValuesScaled,m_bContainsFloorplans;
 	bool m_bUseOCG,m_bIsPopup;
 	PlutoPoint m_pFloorplanFillPoint;
-	int m_iVersion;
 	int m_iScale;  // If the user put a Scale this object command, this object and all it's children will be scaled
 	int m_iFloorplanPage,m_iFloorplanDevice; // Only used for floorplan objects
 	int m_iPK_CommandGroup_Touch_Extra;  // An extra action group to execute, used when this object is a button in an action group array.  
