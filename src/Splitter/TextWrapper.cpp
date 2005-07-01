@@ -131,11 +131,13 @@ list<Row> & TextLineWrap::Wrap(string text, int atX, int atY, int W, int H,
 
 			WW = WordWidth(Space + * j, RI, pTextStyle);
 
-#ifdef OrbiterGen
+//#ifdef OrbiterGen
 			if (lastX + WW.first >= Width)
+/*
 #else
             if (lastX + WW.first >= Width && lastY + WW.second <= Height)
 #endif
+*/
 			{
 				LAttr.Width = lastX;
 				LAttr.Height = WW.second;
@@ -144,11 +146,12 @@ list<Row> & TextLineWrap::Wrap(string text, int atX, int atY, int W, int H,
 				line.clear();
 				ImageLine.clear();
 				LAttr.Width = lastX = 0;
-
+/*
 #ifndef OrbiterGen
 				if( (lines.size()+1) * LAttr.Height > H )
 					return lines;
 #endif
+*/
 				
 				// re-render last word because it is going to start a new line
 				WW = WordWidth(* j, RI, pTextStyle, false);
@@ -166,8 +169,8 @@ list<Row> & TextLineWrap::Wrap(string text, int atX, int atY, int W, int H,
 		LAttr.Width = lastX;
 		LAttr.Height = WW.second;
 
-        if (lastY + WW.second <= Height)
-		    AddRow(line, ImageLine, LAttr);
+        //if (lastY + WW.second <= Height)
+		AddRow(line, ImageLine, LAttr);
 
         lastY += WW.second;
 		line.clear();
@@ -272,7 +275,7 @@ void WrapAndRenderText(SDL_Surface * Surface, string text, int X, int Y, int W, 
 {
 	TextLineWrap T;
 
-#ifdef OrbiterGen
+//#ifdef OrbiterGen
     //the text won't be rendered directly on the original surface
     //no line will be removed from the list with lines (no height limit)
 	T.Wrap(text, 0, 0, W, H, FontPath, pTextStyle,PK_HorizAlignment,PK_VertAlignment);
@@ -291,8 +294,11 @@ void WrapAndRenderText(SDL_Surface * Surface, string text, int X, int Y, int W, 
     //blits the text surface to the original surface
     SDL_BlitSurface(pTextSurface, NULL, Surface, &rect);
     SDL_FreeSurface(pTextSurface);
+
+    /*
 #else
     T.Wrap(text, X, Y, W, H, FontPath, pTextStyle,PK_HorizAlignment,PK_VertAlignment);
     T.RenderToSurface(Surface);
 #endif
+    */
 }
