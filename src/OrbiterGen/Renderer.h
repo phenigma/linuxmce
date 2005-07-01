@@ -14,7 +14,7 @@ using namespace std;
 struct SDL_Surface;
 class RendererImage;
 
-#ifdef ORBITER_GEN
+#ifdef OrbiterGen
     class DesignObj_Generator;
 #endif
 //------------------------------------------------------------------------

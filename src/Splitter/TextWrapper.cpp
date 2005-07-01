@@ -131,7 +131,7 @@ list<Row> & TextLineWrap::Wrap(string text, int atX, int atY, int W, int H,
 
 			WW = WordWidth(Space + * j, RI, pTextStyle);
 
-#ifdef ORBITER_GEN
+#ifdef OrbiterGen
 			if (lastX + WW.first >= Width)
 #else
             if (lastX + WW.first >= Width && lastY + WW.second <= Height)
@@ -145,7 +145,7 @@ list<Row> & TextLineWrap::Wrap(string text, int atX, int atY, int W, int H,
 				ImageLine.clear();
 				LAttr.Width = lastX = 0;
 
-#ifndef ORBITER_GEN
+#ifndef OrbiterGen
 				if( (lines.size()+1) * LAttr.Height > H )
 					return lines;
 #endif
@@ -272,7 +272,7 @@ void WrapAndRenderText(SDL_Surface * Surface, string text, int X, int Y, int W, 
 {
 	TextLineWrap T;
 
-#ifdef ORBITER_GEN
+#ifdef OrbiterGen
     //the text won't be rendered directly on the original surface
     //no line will be removed from the list with lines (no height limit)
 	T.Wrap(text, 0, 0, W, H, FontPath, pTextStyle,PK_HorizAlignment,PK_VertAlignment);
