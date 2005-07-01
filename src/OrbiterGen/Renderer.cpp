@@ -27,6 +27,9 @@ using namespace std;
 #include "Orbiter/TextStyle.h"
 #include <math.h>
 
+#include "Orbiter/SDL/PlutoSDLDefs.h"
+#include "Splitter/TextWrapper.h"
+
 #ifndef ORBITER
 #include "pluto_main/Define_HorizAlignment.h"
 #include "pluto_main/Define_VertAlignment.h"
@@ -46,6 +49,11 @@ int myCounter=0;
 #else
 #define FLAG_DISABLE_VIDEO false
 #endif
+
+#ifdef USE_GD_TRANSFORM
+    #include "Orbiter/GD/GD-SDL.h"
+#endif
+
 
 /** @todo: Ask radu to fix this .. global font renderer issue */
 // Nasty hack -- Ask Radu why the fuck he decided to reinitialize the entire font engine for every word todo
@@ -564,13 +572,6 @@ RendererImage * Renderer::CreateFromRWops(SDL_RWops * rw, bool bFreeRWops, Pluto
 
 	if( offset.X || offset.Y || offset.Width || offset.Height )
 	{
-	    Uint32 rmask, gmask, bmask, amask;
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-	    rmask = 0xff000000; gmask = 0x00ff0000; bmask = 0x0000ff00; amask = 0x000000ff;
-#else
-		rmask = 0x000000ff; gmask = 0x0000ff00; bmask = 0x00ff0000; amask = 0xff000000;
-#endif
-
 	    SDL_Rect src_rect,dest_rect;
 		src_rect.x=src_rect.y=dest_rect.x=dest_rect.y=0;
 		src_rect.w=SurfaceFromFile->w;
@@ -630,7 +631,11 @@ RendererImage * Renderer::CreateFromRWops(SDL_RWops * rw, bool bFreeRWops, Pluto
 #ifdef USE_SGE_TRANSFORM        
         ScaledSurface = sge_transform_surface(SurfaceFromFile, SDL_MapRGBA(SurfaceFromFile->format, 0, 0, 0, 0), 0, 1, 1, bUseAntiAliasing ? SGE_TSAFE | SGE_TAA : SGE_TSAFE);
 #else        
+    #ifdef USE_GD_TRANSFORM
+        ScaledSurface = GD_ResizeSurface(SurfaceFromFile, 1, 1, bUseAntiAliasing);
+    #else
         ScaledSurface = zoomSurface(SurfaceFromFile, 1, 1, bUseAntiAliasing ? SMOOTHING_ON : SMOOTHING_OFF);
+    #endif
 #endif
     }
     else
@@ -658,16 +663,18 @@ RendererImage * Renderer::CreateFromRWops(SDL_RWops * rw, bool bFreeRWops, Pluto
 /*  starting with the mobile phone, we have 'distorted' images because we want to re-use buttons, but the aspect ratios are different
 */
 
-        //sge_transform(SurfaceFromFile, RIFromFile->m_pSDL_Surface, 0, scaleX, scaleY, 0, 0, 0, 0, SGE_TSAFE);
 #ifdef USE_SGE_TRANSFORM 
         ScaledSurface = sge_transform_surface(SurfaceFromFile, SDL_MapRGBA(SurfaceFromFile->format, 0, 0, 0, 0), 0, scaleX, scaleY, bUseAntiAliasing ? SGE_TSAFE | SGE_TAA : SGE_TSAFE );
 #else
-        //TODO: use SMOOTHING_ON for the screens != floorplans
+    #ifdef USE_GD_TRANSFORM
+        ScaledSurface = GD_ResizeSurface(SurfaceFromFile, scaleX, scaleY, bUseAntiAliasing);
+    #else
         ScaledSurface = zoomSurface(SurfaceFromFile, scaleX, scaleY, bUseAntiAliasing ? SMOOTHING_ON : SMOOTHING_OFF);
+    #endif
 #endif
     }
 
-	SDL_SetAlpha(ScaledSurface, 0, 0);
+    SDL_SetAlpha(ScaledSurface, 0, 0);
     SDL_BlitSurface(ScaledSurface, NULL, RIFromFile->m_pSDL_Surface, NULL);
 
     SDL_FreeSurface(ScaledSurface);
@@ -749,7 +756,6 @@ RendererImage * Renderer::DuplicateImage(RendererImage * pRendererImage)
 
 RendererMNG * Renderer::CreateMNGFromFiles(const vector<string> & FileNames, PlutoSize Size)
 {
-	int RealW, RealH;
 	MNGHeader Header;
 	int kounter = 0;
 
@@ -868,10 +874,6 @@ void Renderer::SaveMNGToFile(string FileName, RendererMNG * MNG)
 
 	fclose(File);
 }
-
-/* WORKAROUND */
-void WrapAndRenderText(void *Surface, string text, int X, int Y, int W, int H,
-                       string FontPath, TextStyle *pTextStyle,int PK_HorizAlignment,int PK_VertAlignment);
 
 void Renderer::RenderText(RendererImage *pRenderImage, DesignObjText *pDesignObjText, TextStyle *pTextStyle, DesignObj_Generator *pDesignObj_Generator, PlutoPoint pos)
 {
@@ -1190,9 +1192,7 @@ PlutoSize Renderer::RealRenderText(RendererImage * pRenderImage, DesignObjText *
     return RenderedSize;
 }
 
-// the last (void *) parameter is actually a (RendererImage *)
-// but it's made (void *) to accomodate the WORKAROUND (just do a search for WORKAROUND)
-pair<int, int> GetWordWidth(string Word, string FontPath, TextStyle *pTextStyle, void * & RI, bool NewSurface = true)
+pair<int, int> GetWordWidth(string Word, string FontPath, TextStyle *pTextStyle, RendererImage * & RI, bool NewSurface/* = true*/)
 {
 // Radu was creating the render for every call
     RendererImage * Canvas;
@@ -1215,10 +1215,9 @@ pair<int, int> GetWordWidth(string Word, string FontPath, TextStyle *pTextStyle,
 
 }
 
-/* WORKAROUND: void * = SDL_Surface * */
-int DoRenderToSurface(void * Surface, list<void *> &RI, int posX, int posY)
+int DoRenderToSurface(SDL_Surface *Surface, list<RendererImage *> &RI, int posX, int posY)
 {
-    list<void *>::iterator i;
+    list<RendererImage *>::iterator i;
 
     RendererImage * myRI;
     for (i = RI.begin(); i != RI.end(); i++)
@@ -1235,9 +1234,8 @@ int DoRenderToSurface(void * Surface, list<void *> &RI, int posX, int posY)
     return myRI->m_pSDL_Surface->h;
 }
 
-// (void *) / (RendererImage *) WORKAROUND
 // returns height of rendered row
-int DoRenderToScreen(list<void *> &RI, int posX, int posY)
+int DoRenderToScreen(list<RendererImage *> &RI, int posX, int posY)
 {
     static SDL_Surface * Screen = NULL;
     if (! (SDL_WasInit(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) == SDL_INIT_VIDEO))
@@ -1255,8 +1253,7 @@ int DoRenderToScreen(list<void *> &RI, int posX, int posY)
     return Result;
 }
 
-/* WORKAROUND (void *) -> (RendererImage *) */
-void extDeleteRendererImage(void * & RI)
+void extDeleteRendererImage(RendererImage * & RI)
 {
     delete (RendererImage *) RI;
 }

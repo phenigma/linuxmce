@@ -11,8 +11,18 @@ using namespace std;
 #include "Orbiter/RendererImage.h"
 #include "Orbiter/RendererMNG.h"
 
-//------------------------------------------------------------------------
+struct SDL_Surface;
+class RendererImage;
 
+#ifdef ORBITER_GEN
+    class DesignObj_Generator;
+#endif
+//------------------------------------------------------------------------
+pair<int, int> GetWordWidth(string Word, string FontPath, TextStyle *pTextStyle, RendererImage * & RI, bool NewSurface = true);
+int DoRenderToScreen(list<RendererImage *> &RI, int posX, int posY);
+int DoRenderToSurface(SDL_Surface * Surface, list<RendererImage *> &RI, int posX, int posY);
+void extDeleteRendererImage(RendererImage * & RI);
+//------------------------------------------------------------------------
 class TextObj
 {
     public:
@@ -27,7 +37,6 @@ class TextObj
 };
 
 //------------------------------------------------------------------------
-
 // TODO: write API docs for this one
 class Renderer
 {

@@ -1,5 +1,9 @@
+#include "Orbiter/SDL/PlutoSDLDefs.h"
+#include "SDL.h"
+
 #include "TextWrapper.h"
 #include "Orbiter/TextStyle.h"
+#include "OrbiterGen/Renderer.h"
 
 #if ( defined( PROFILING ) )
 	#ifdef WINCE
@@ -10,13 +14,6 @@
 
 // Radu: I hope I'll get around to optimizing all this some time.
 // Radu: From my point of view, this looks like its going to eat a lot of memory.
-
-// WORKAROUND: here, RendererImage is typedef'ed to void
-// RI should only be stored and passed when needed, not used in this code until the SDL problem is fixed
-pair<int, int> GetWordWidth(string Word, string FontPath, TextStyle *pTextStyle, RendererImage * & RI, bool NewSurface = true);
-int DoRenderToScreen(list<RendererImage *> &RI, int posX, int posY);
-int DoRenderToSurface(SDL_Surface * Surface, list<void *> &RI, int posX, int posY);
-void extDeleteRendererImage(RendererImage * & RI);
 
 TextLineWrap::~TextLineWrap()
 {
@@ -134,7 +131,11 @@ list<Row> & TextLineWrap::Wrap(string text, int atX, int atY, int W, int H,
 
 			WW = WordWidth(Space + * j, RI, pTextStyle);
 
-			if (lastX + WW.first >= Width && lastY + WW.second <= Height)
+#ifdef ORBITER_GEN
+			if (lastX + WW.first >= Width)
+#else
+            if (lastX + WW.first >= Width && lastY + WW.second <= Height)
+#endif
 			{
 				LAttr.Width = lastX;
 				LAttr.Height = WW.second;
@@ -144,8 +145,10 @@ list<Row> & TextLineWrap::Wrap(string text, int atX, int atY, int W, int H,
 				ImageLine.clear();
 				LAttr.Width = lastX = 0;
 
+#ifndef ORBITER_GEN
 				if( (lines.size()+1) * LAttr.Height > H )
 					return lines;
+#endif
 				
 				// re-render last word because it is going to start a new line
 				WW = WordWidth(* j, RI, pTextStyle, false);
@@ -264,12 +267,32 @@ void TextLineWrap::RenderToSurface(SDL_Surface * Surface)
 	}
 }
 
-// WORKAROUND: void * = SDL_Surface *
 void WrapAndRenderText(SDL_Surface * Surface, string text, int X, int Y, int W, int H,
 					   string FontPath, TextStyle *pTextStyle,int PK_HorizAlignment,int PK_VertAlignment)
 {
-//H+=(H/10);
 	TextLineWrap T;
-	T.Wrap(text, X, Y, W, H, FontPath, pTextStyle,PK_HorizAlignment,PK_VertAlignment);
-	T.RenderToSurface(Surface);
+
+#ifdef ORBITER_GEN
+    //the text won't be rendered directly on the original surface
+    //no line will be removed from the list with lines (no height limit)
+	T.Wrap(text, 0, 0, W, H, FontPath, pTextStyle,PK_HorizAlignment,PK_VertAlignment);
+
+    //creates a surface with the size of the text
+    SDL_Rect rect = {X, Y, W, H};
+    SDL_Surface* pTextSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, W, H, 32, rmask, gmask, bmask, amask);
+
+    //crops the text's rectangle from the source surface
+	SDL_SetAlpha(Surface, 0, 0);
+    SDL_BlitSurface(Surface, &rect, pTextSurface, NULL);
+
+    //renders the text on the new surface, relative to 0, 0
+    T.RenderToSurface(pTextSurface);
+
+    //blits the text surface to the original surface
+    SDL_BlitSurface(pTextSurface, NULL, Surface, &rect);
+    SDL_FreeSurface(pTextSurface);
+#else
+    T.Wrap(text, X, Y, W, H, FontPath, pTextStyle,PK_HorizAlignment,PK_VertAlignment);
+    T.RenderToSurface(Surface);
+#endif
 }

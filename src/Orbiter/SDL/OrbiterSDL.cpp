@@ -25,10 +25,12 @@
 #include "../RendererOCG.h"
 #include "SDLRendererOCGHelper.h"
 
+#include "pluto_main/Define_Text.h"
 #include "pluto_main/Define_DeviceCategory.h"
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "DataGrid.h"
 #include "SDLGraphic.h"
+#include "Splitter/TextWrapper.h"
 
 #include "SDL_rotozoom.h"
 #include <SDL_ttf.h>
@@ -149,12 +151,6 @@ g_pPlutoLogger->Write(LV_STATUS, "~OrbiterSDL finished");
     //PLUTO_SAFETY_LOCK(cm,m_ScreenMutex);
     Orbiter::RedrawObjects();
 }
-
-//-----------------------------------------------------------------------------------------------------
-void WrapAndRenderText(void *Surface, string text, int X, int Y, int W, int H,
-                       string FontPath, TextStyle *pTextStyle,int PK_HorizAlignment,int PK_VertAlignment);
-
-#include "pluto_main/Define_Text.h"
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::RenderText(DesignObjText *Text,TextStyle *pTextStyle, PlutoPoint point)
 {

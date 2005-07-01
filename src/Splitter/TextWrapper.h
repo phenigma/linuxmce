@@ -6,18 +6,14 @@
 
 #include "pluto_main/Define_HorizAlignment.h"
 #include "pluto_main/Define_VertAlignment.h"
-
-/* WORKAROUND */
-#ifndef WORKAROUND_BACKFIRE_RENDIMG
-typedef void RendererImage;
-#endif
-#ifndef WORKAROUND_BACKFIRE_SDL
-typedef void SDL_Surface;
-#endif
-
+//-------------------------------------------------------------------------------------------------------
+//forward declarations
+struct SDL_Surface;
+class RendererImage;
+//-------------------------------------------------------------------------------------------------------
 void WrapAndRenderText(SDL_Surface * Surface, string text, int X, int Y, int W, int H,
 					   string FontPath, TextStyle *pTextStyle,int PK_HorizAlignment,int PK_VertAlignment);
-
+//-------------------------------------------------------------------------------------------------------
 class LineAttr
 {
 	public:
@@ -27,9 +23,9 @@ class LineAttr
 
 		LineAttr() : HAlign(HORIZALIGNMENT_Left_CONST), VAlign(VERTALIGNMENT_Top_CONST), Height(0), Width(0) {}
 };
-
+//-------------------------------------------------------------------------------------------------------
 typedef list<RendererImage *> ImageRow;
-
+//-------------------------------------------------------------------------------------------------------
 class TextLineWrap
 {
 	protected:
@@ -53,5 +49,5 @@ class TextLineWrap
 		void RenderToScreen();
 		void RenderToSurface(SDL_Surface * Surface);
 };
-
+//-------------------------------------------------------------------------------------------------------
 #endif
