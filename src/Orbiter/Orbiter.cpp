@@ -203,6 +203,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
 	m_bWeCanRepeat=false;
 	m_bRepeatingObject=false;
     m_bShowShortcuts = false;
+	m_iPK_DesignObj_Remote=m_iPK_DesignObj_Remote_Popup=m_iPK_DesignObj_FileList=m_iPK_DesignObj_FileList_Popup=m_iPK_DesignObj_RemoteOSD=0;
 
     m_pScreenHistory_Current=NULL;
     m_pObj_LastSelected=m_pObj_Highlighted=NULL;
@@ -4811,7 +4812,8 @@ g_pPlutoLogger->Write(LV_STATUS,"CMD_Goto_Screen: %s",sPK_DesignObj.c_str());
 
     PLUTO_SAFETY_LOCK( sm, m_ScreenMutex );  // Nothing more can happen
 
-	if( sPK_DesignObj=="<%=NP_R%>" && m_iPK_DesignObj_Remote_Popup>0 )
+	// We're using a popup remote, so just go to the main menu
+	if( sPK_DesignObj=="<%=NP_R%>" && m_iPK_DesignObj_Remote_Popup>0 && m_sObj_Popop_RemoteControl.size() )
 		sPK_DesignObj = "<%=M%>"; 
 
     HidePopups(NULL);
