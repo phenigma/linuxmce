@@ -238,7 +238,7 @@ if ($action == 'form') {
 				WHERE FK_DeviceTemplate=?';
 			$resOutput=$dbADO->Execute($queryOutput,$rowD['FK_DeviceTemplate']);
 			$outHeight=20;
-			$outputsForDevice[]='<div align="right" id="out_'.$rowD['PK_Device'].'_cmd_0" style="position:absolute;Z-INDEX: 1000;width:110px;height:20px;left:235;top:'.$outHeight.';border: 1px solid black;background-color:white;" title="No output" onClick="setPipe(\''.$rowD['PK_Device'].'\',\'0\',\'out_\',\'Output on '.urlencode($rowD['Description']).'\');">No output <img src="include/images/none.gif" align="middle"></div>';
+			$outputsForDevice[]='<div align="right" id="out_'.$rowD['PK_Device'].'_cmd_0" style="position:absolute;Z-INDEX: 1000;width:110px;height:20px;left:235;top:'.$outHeight.';border: 1px solid black;background-color:white;" title="Output" onClick="setPipe(\''.$rowD['PK_Device'].'\',\'0\',\'out_\',\'Output on '.urlencode($rowD['Description']).'\');">Output <img src="include/images/none.gif" align="middle"></div>';
 			$outHeight+=25;
 			while($rowOutputs=$resOutput->FetchRow()){
 				$img=($rowOutputs['FK_ConnectorType']=='')?$connectorsArray[0]:$connectorsArray[$rowOutputs['FK_ConnectorType']];

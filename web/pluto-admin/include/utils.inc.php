@@ -3439,6 +3439,7 @@ function formatDeviceData($deviceID,$DeviceDataArray,$dbADO,$isIPBased=0)
 					$deviceDataBox.='<input type="text" name="deviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'].'" value="'.@$ddValue.'" '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>';
 				}
 			}
+			$GLOBALS['mdDistro']=($rowDDforDevice['FK_DeviceData']==$GLOBALS['rootPK_Distro'])?@$ddValue:0;
 
 			$deviceDataBox.='
 							<input type="hidden" name="oldDeviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'].'" value="'.$ddValue.'">';					
@@ -3453,11 +3454,11 @@ function formatDeviceData($deviceID,$DeviceDataArray,$dbADO,$isIPBased=0)
 		$deviceDataBox.='
 			<tr>
 				<td><B>IP</B></td>
-				<td><input type="text" name="ip_'.$deviceID.'" value="'.@$rowD['IPaddress'].'"></td>
+				<td><input type="text" name="ip_'.$deviceID.'" value="'.$rowDDforDevice['IPaddress'].'"></td>
 			</tr>
 			<tr>
 				<td><B>MAC</B></td>
-				<td><input type="text" name="mac_'.$deviceID.'" value="'.@$rowD['MACaddress'].'"></td>
+				<td><input type="text" name="mac_'.$deviceID.'" value="'.$rowDDforDevice['MACaddress'].'"></td>
 			</tr>';
 	}
 	$deviceDataBox.='</table>';

@@ -109,7 +109,7 @@ $start_time=getmicrotime();
 		<table align="center" border="0" cellpadding="2" cellspacing="0">
 			<tr bgcolor="lightblue">
 					<td align="center" rowspan="2"><B>Device</B></td>
-					<td align="center" rowspan="2"><B>Room '.(($type!='media_directors')?'/ Controlled by':'').'</B></td>
+					<td align="center" rowspan="2"><B>Room / Controlled by</B></td>
 					<td align="center" colspan="4"><B>Pipes</B></td>
 					<td align="center" rowspan="2"><B>Device Data</B></td>
 					<td align="center" rowspan="2"><B>Actions</B></td>
@@ -157,6 +157,8 @@ $start_time=getmicrotime();
 			SELECT 
 				PK_Device,
 				Device.Description,
+				IPaddress,
+				MACaddress,
 				FK_Device_ControlledVia,
 				FK_Device_RouteTo,
 				FK_Room,
@@ -405,103 +407,7 @@ $start_time=getmicrotime();
 						}
 					}
 
-					$oldAudioPipeArray=array();
-					$oldAudioPipeArray=explode(',',@$_POST['oldAudioPipe_'.$value]);
-					$oldTo=@$oldAudioPipeArray[0];
-					$oldInput=@$oldAudioPipeArray[1];
-					$oldOutput=@$oldAudioPipeArray[2];
-					$audioOutput=(isset($_POST['audioOutput_'.$value]) && $_POST['audioOutput_'.$value]!='0')?cleanInteger($_POST['audioOutput_'.$value]):NULL;
-					$audioInput=(isset($_POST['audioInput_'.$value]) && $_POST['audioInput_'.$value]!='0')?cleanInteger($_POST['audioInput_'.$value]):NULL;
-					$audioConnectTo=(isset($_POST['audioConnectTo_'.$value]) && $_POST['audioConnectTo_'.$value]!='0')?cleanInteger($_POST['audioConnectTo_'.$value]):NULL;
-					if($oldTo!=$audioConnectTo || $oldInput!=$audioInput || $oldOutput!=$audioOutput){
-						if($oldTo=='' || is_null($oldTo)){
-							$insertDDP='
-								INSERT IGNORE INTO Device_Device_Pipe 
-									(FK_Device_From, FK_Device_To, FK_Command_Input, FK_Command_Output, FK_Pipe)
-								VALUES
-									(?,?,?,?,?)';
-							if(!is_null($audioConnectTo))
-							$dbADO->Execute($insertDDP,array($value,$audioConnectTo,$audioInput,$audioOutput,$GLOBALS['AudioPipe']));
-						}else{
-							if(is_null($audioConnectTo)){
-								$deleteDDP='DELETE FROM Device_Device_Pipe WHERE FK_Device_From=? AND FK_Device_To=? AND FK_Pipe=?';
-								$dbADO->Execute($deleteDDP,array($value,$oldTo,$GLOBALS['AudioPipe']));
-							}else{
-								$updateDDP='
-									UPDATE Device_Device_Pipe 
-									SET FK_Device_To=?, FK_Command_Input=?, FK_Command_Output=? 
-									WHERE FK_Device_From=? AND FK_Device_To=? AND FK_Pipe=?';
-								$dbADO->Execute($updateDDP,array($audioConnectTo,$audioInput,$audioOutput,$value,$oldTo,$GLOBALS['AudioPipe']));
-							}
-						}
-						$anchor=($cmd==1)?'#AudioPipe_'.$value.'':'';
-					}
 
-
-					if(isset($_POST['videoOutput_'.$value])){
-
-						$oldVideoPipeArray=array();
-						$oldVideoPipeArray=explode(',',$_POST['oldVideoPipe_'.$value]);
-						$oldTo=$oldVideoPipeArray[0];
-						$oldInput=$oldVideoPipeArray[1];
-						$oldOutput=$oldVideoPipeArray[2];
-
-						$videoOutput=(isset($_POST['videoOutput_'.$value]) && $_POST['videoOutput_'.$value]!='0')?cleanInteger($_POST['videoOutput_'.$value]):NULL;
-						$videoInput=(isset($_POST['videoInput_'.$value]) && $_POST['videoInput_'.$value]!='0')?cleanInteger($_POST['videoInput_'.$value]):NULL;
-						$videoConnectTo=(isset($_POST['videoConnectTo_'.$value]) && $_POST['videoConnectTo_'.$value]!='0')?cleanInteger($_POST['videoConnectTo_'.$value]):NULL;
-						if($oldTo!=$videoConnectTo || $oldInput!=$videoInput || $oldOutput!=$videoOutput){
-							if($oldTo=='' || is_null($oldTo)){
-								$insertDDP='
-									INSERT IGNORE INTO Device_Device_Pipe 
-										(FK_Device_From, FK_Device_To, FK_Command_Input, FK_Command_Output, FK_Pipe)
-									VALUES
-										(?,?,?,?,?)';
-								if(!is_null($videoConnectTo))
-								$dbADO->Execute($insertDDP,array($value,$videoConnectTo,$videoInput,$videoOutput,$GLOBALS['VideoPipe']));
-							}else{
-								if(is_null($videoConnectTo)){
-									$deleteDDP='DELETE FROM Device_Device_Pipe WHERE FK_Device_From=? AND FK_Device_To=? AND FK_Pipe=?';
-									$dbADO->Execute($deleteDDP,array($value,$oldTo,$GLOBALS['VideoPipe']));
-								}else{
-									$updateDDP='
-										UPDATE Device_Device_Pipe 
-										SET FK_Device_To=?, FK_Command_Input=?, FK_Command_Output=? 
-										WHERE FK_Device_From=? AND FK_Device_To=? AND FK_Pipe=?';
-									$dbADO->Execute($updateDDP,array($videoConnectTo,$videoInput,$videoOutput,$value,$oldTo,$GLOBALS['VideoPipe']));
-								}
-							}
-							$anchor='#VideoPipe_'.$value;
-						}
-					}
-
-					if($type=='media_directors'){
-						$orbiterMDChild=getMediaDirectorOrbiterChild($value,$dbADO);
-						$installOptionsArray=explode(',',@$_POST['displayedTemplatesRequired_'.$orbiterMDChild]);
-						foreach($installOptionsArray AS $elem){
-							$oldDevice=@$_POST['oldDevice_'.$orbiterMDChild.'_requiredTemplate_'.$elem];
-							$optionalDevice=(isset($_POST['device_'.$orbiterMDChild.'_requiredTemplate_'.$elem]))?$_POST['device_'.$orbiterMDChild.'_requiredTemplate_'.$elem]:0;
-							if($optionalDevice!=0){
-								$OptionalDeviceName=cleanString(@$_POST['templateName_'.$elem]);
-
-								if($oldDevice==''){
-									$insertID=exec('/usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$elem.' -i '.$installationID.' -C '.$orbiterMDChild);
-									$dbADO->Execute('UPDATE Device SET Description=?,FK_Room=? WHERE PK_Device=?',array($OptionalDeviceName,$room,$insertID));
-								}
-							}else{
-								if($oldDevice!=''){
-									deleteDevice($oldDevice,$dbADO);
-								}
-							}
-						}
-						// add/delete PVR Capture Card, sound card and video card
-						$pvrDT=$_POST['PVRCaptureCard_'.$value];
-						recreateDevice($value,$GLOBALS['PVRCaptureCards'],$pvrDT,$_SESSION['installationID'],$room,$dbADO);
-						$soundDT=$_POST['SoundCard_'.$value];
-						recreateDevice($value,$GLOBALS['SoundCards'],$soundDT,$_SESSION['installationID'],$room,$dbADO);
-						$videoDT=$_POST['VideoCard_'.$value];
-						recreateDevice($value,$GLOBALS['VideoCards'],$videoDT,$_SESSION['installationID'],$room,$dbADO);
-
-					}
 					processReceiver($value,$dbADO);
 				}
 			}

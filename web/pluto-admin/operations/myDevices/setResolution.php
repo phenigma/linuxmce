@@ -14,8 +14,8 @@ function setResolution($output,$dbADO) {
 		$oldResolution=@$oldDD[0];
 		$oldRefresh=@$oldDD[1];
 	}
-	$mdDetails=getFieldsAsArray('Device','IPaddress',$dbADO,'WHERE PK_Device='.$mdID);
-	$ipAddress=$mdDetails['IPaddress'][0];
+	$mdDetails=getFieldsAsArray('Device','IPaddress,FK_Device_ControlledVia',$dbADO,'WHERE PK_Device='.$mdID);
+	$ipAddress=(is_null($mdDetails['FK_Device_ControlledVia'][0]))?$mdDetails['IPaddress'][0]:'127.0.0.1';
 
 	
 	if ($action=='form') {
@@ -59,7 +59,7 @@ $out.='
 		$resolution=$_POST['resolution'];
 		$refresh=$_POST['refresh'];
 
-		list($resX, $resY, $resType) = explode(' ', $resolution);
+		@list($resX, $resY, $resType) = explode(' ', $resolution);
 		if ($resType === "i")
 		{
 			$resType = "interlace";
@@ -122,7 +122,7 @@ $out.='
 		}else{
 			$Answer="N";
 		}
-		
+		echo $ipAddress;
 		exec("sudo -u root /usr/pluto/bin/LaunchRemoteCmd.sh '$ipAddress' '/usr/pluto/bin/Xres_config_end.sh $Answer'");
 		
 		header("Location: index.php?section=setResolution&mdID=$mdID&msg=$msg");

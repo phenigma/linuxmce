@@ -258,8 +258,8 @@ function editPipes($output,$dbADO) {
 		
 		$out.='
 		<script>
-			opener.document.avWizard.action.value="form";
-			opener.document.avWizard.submit();
+			opener.document.'.$from.'.action.value="form";
+			opener.document.'.$from.'.submit();
 			self.location="index.php?section=editPipes&from=$from&deviceID='.$deviceID.'&msg=The pipes was updated.";
 		</script>';
 

@@ -23,6 +23,8 @@ function floorplanWizard($output,$dbADO) {
 	
 	if($action=='form'){
 		$out=setLeftMenu($dbADO).'
+		<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
+		<div class="confirm" align="center"><B>'.@stripslashes($_GET['msg']).'</B></div>
 		<form name="form1" action="index.php" onsubmit="return submitForm();" method="POST">
 			<input type="hidden" name="section" value="floorplanWizard">
 			<input type="hidden" name="action" value="update">
@@ -47,7 +49,8 @@ function floorplanWizard($output,$dbADO) {
 				</td>
 				<td valign="middle">
 					<a href="index.php?section=uploadFloorplan" class="normalLink">Add another floorplan</a><br />
-					<a href="index.php?section=uploadFloorplan&fpID='.$page.'&type='.$type.'" class="normalLink">Edit this floorplan / Upload Different Image</a>
+					<a href="index.php?section=uploadFloorplan&fpID='.$page.'&type='.$type.'" class="normalLink">Edit this floorplan / Upload Different Image</a><br>
+					<a href="javascript:if(confirm(\'Are you sure you want to delete this floorplan?\')){document.form1.action.value=\'remove\';document.form1.submit();}" class="normalLink">Delete floorplan</a><br />
 				</td>
 			</tr>
 			<tr>
@@ -232,6 +235,13 @@ function floorplanWizard($output,$dbADO) {
 					
 	}else{
 		// process
+		if($action=='remove'){
+			$dbADO->Execute('DELETE FROM Floorplan WHERE FK_Installation=? AND Page=?',array($installationID,$page));
+			unlink($path.'/'.$page.'.png');
+			header('Location: index.php?section=floorplanWizard&msg=The floorplan was deleted.');
+			exit();
+		}
+		
 		$pageToRedirect=$page;
 		if((int)$_POST['page_orig']!=0){
 			$page=(int)$_POST['page_orig'];

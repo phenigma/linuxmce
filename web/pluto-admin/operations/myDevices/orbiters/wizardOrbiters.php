@@ -197,7 +197,7 @@ function wizardOrbiters($output,$dbADO) {
 											$queryTable="SELECT Users.*, Users.Username AS Description FROM Users ORDER BY Description ASC";
 										$resTable=$dbADO->Execute($queryTable);
 										$ddHTML.='<select name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').' '.(($DeviceDataToDisplay[$key]==24)?'onChange="document.wizardOrbiters.action.value=\'form\';document.wizardOrbiters.submit();"':'').'>
-												<option value="0"></option>';
+												<option value=""></option>';
 										while($rowTable=$resTable->FetchRow()){
 											$ddHTML.='<option value="'.$rowTable[$DeviceDataDescriptionToDisplay[$key]].'" '.(($rowTable[$DeviceDataDescriptionToDisplay[$key]]==@$ddValue)?'selected':'').'>'.$rowTable['Description'].'</option>';
 										}
