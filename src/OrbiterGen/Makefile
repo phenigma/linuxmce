@@ -3,7 +3,7 @@ ORB = ../Orbiter
 
 ROOT = ..
 CXXFLAGS = -Wall -ggdb3
-CPPFLAGS = -I/usr/local/include -I$(ROOT)/DCE -I.. -I. -I/usr/include/mysql -I/usr/include/SDL -I$(TS) -DOrbiterGen
+CPPFLAGS = -I/usr/local/include -I$(ROOT)/DCE -I.. -I. -I/usr/include/mysql -I/usr/include/SDL -I$(TS) -DOrbiterGen -DORBITER_GEN
 LDFLAGS = -L$(ROOT)/lib
 LDLIBS = -ldl -lpluto_main -lDCECommon -lPlutoUtils -lSerializeClass -lSDL -lSGE -lSDL_gfx -lSDL_image -lSDL_ttf -lmysqlclient_r
 
