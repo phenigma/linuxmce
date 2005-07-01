@@ -1276,7 +1276,7 @@ void OrbiterGenerator::SearchForGotos(DesignObj_Data *pDesignObj_Data,DesignObjC
 						m_iPK_DesignObj_Screen = p_m_pRow_DesignObj->PK_DesignObj_get();
 						if( oca->m_PK_Command == COMMAND_Show_Popup_CONST )
 							m_mapPopups[m_iPK_DesignObj_Screen] = true;
-						DesignObj_Generator *ocDesignObj = new DesignObj_Generator(this,p_m_pRow_DesignObj,PlutoRectangle(0,0,0,0),NULL,true,false);
+ 						DesignObj_Generator *ocDesignObj = new DesignObj_Generator(this,p_m_pRow_DesignObj,PlutoRectangle(0,0,0,0),NULL,true,false);
 						SearchForGotos(ocDesignObj);
 					}
 				}
@@ -1287,6 +1287,8 @@ void OrbiterGenerator::SearchForGotos(DesignObj_Data *pDesignObj_Data,DesignObjC
 
 void OrbiterGenerator::OutputScreen(DesignObj_Generator *ocDesignObj)
 {
+if( ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()==3471 )
+int k=2;
 	// Always output the first page, even if there's no other
 	for(size_t i=0;i<ocDesignObj->m_alMPArray.size() || i==0;++i)
 	{

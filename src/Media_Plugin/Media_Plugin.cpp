@@ -80,6 +80,11 @@ using namespace DCE;
 #include "File_Grids_Plugin/FileListGrid.h"
 #include "SerializeClass/ShapesColors.h"
 
+#ifndef WIN32
+#include <dirent.h>
+#include <attr/attributes.h>
+#endif
+
 #define MAX_MEDIA_COLORS    5 // We need some unique colors to color-code the media streams
 int UniqueColors[MAX_MEDIA_COLORS];
 
@@ -880,6 +885,8 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 			return true;
 		}
 
+		MediaInfoChanged( pMediaStream, pMediaStream->m_dequeMediaFile.size()>1 );
+
 		// See if there's a special screen for the OSD
 		pMediaStream->m_iPK_DesignObj_RemoteOSD = pMediaStream->SpecialOsdScreen();
 
@@ -895,24 +902,23 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 				if( pOH_Orbiter && pOH_Orbiter == pMediaStream->m_pOH_Orbiter_StartedMedia && pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_StoredAudio_CONST )
 					continue;
 
-				int iPK_DesignObj_Remote = 123; // xxxxxxxxxpMediaStream->m_iPK_DesignObj_Remote;
-
 				// If there's another user in the entertainment area that is in the middle of something (ie the Orbiter is not at the main menu),
 				// we don't want to forcibly 'take over' and change to the remote screen. So we are only goind to send the orbiters controlling this ent area
 				// to the correct remote iff thery are the main menu EXCEPT for the originating device which will always be send to the remote.
 				// If this is the OSD and there's a special screen, don't switch, we'll do it below
 				if( !pMediaStream->m_iPK_DesignObj_RemoteOSD || !pMediaStream->OrbiterIsOSD(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device) )
 				{
+					WaitForMessageQueue();  // Be sure all the Set Now Playing's are set
 					if( pOH_Orbiter && pOH_Orbiter == pMediaStream->m_pOH_Orbiter_StartedMedia )
 					{
 						DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,
-							StringUtils::itos(iPK_DesignObj_Remote),"","",false, false);
+							"<%=NP_R%>","","",false, false);
 						SendCommand(CMD_Goto_Screen);
 					}
 					else
 					{
 						DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,
-							StringUtils::itos(iPK_DesignObj_Remote),"","-1",false, false);
+							"<%=NP_R%>","","-1",false, false);
 						SendCommand(CMD_Goto_Screen);
 					}
 				}
@@ -1204,6 +1210,7 @@ g_pPlutoLogger->Write(LV_STATUS, "Getting m_pPictureData for disc %d size %d",pM
 g_pPlutoLogger->Write(LV_STATUS, "We have %d media entries in the playback list", pMediaStream->m_dequeMediaFile.size());
 		MediaFile *pMediaFile = pMediaStream->m_dequeMediaFile[pMediaStream->m_iDequeMediaFile_Pos];
 
+#ifdef WIN32
 g_pPlutoLogger->Write(LV_STATUS, "Got 2 picture data %p (FK_File: %d)", pMediaStream->m_pPictureData, pMediaFile->m_dwPK_File);
 		if( pMediaFile->m_dwPK_File )
 		{
@@ -1240,8 +1247,16 @@ g_pPlutoLogger->Write(LV_STATUS, "Found PK_Picture to be: %d.", PK_Picture);
 	        if( PK_Picture )
 		        pMediaStream->m_pPictureData = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(PK_Picture) + ".jpg", pMediaStream->m_iPictureSize);
 		}
-    }
+#else
+		int n = 79,result;
+		char value[80];
+		memset( value, 0, sizeof( value ) );
 
+		int PK_Picture;
+		if ( (result=attr_get( pMediaFile->FullyQualifiedFile().c_str( ), "PIC", value, &n, 0)) == 0 && (PK_Picture = atoi(value)) )
+			pMediaStream->m_pPictureData = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(PK_Picture) + ".jpg", pMediaStream->m_iPictureSize);
+#endif
+    }
 g_pPlutoLogger->Write(LV_STATUS, "Ready to update bound remotes with %p %d",pMediaStream->m_pPictureData,pMediaStream->m_iPictureSize);
 
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );

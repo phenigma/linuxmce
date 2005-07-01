@@ -244,7 +244,6 @@ bool VideoLan_PlugIn::StartMedia( class MediaStream *pMediaStream )
 
 	// If there are more than 1 song in the queue, we likely added to an existing queue, so we want
 	// to refresh=true so any orbiters will re-render the play list
-	m_pMedia_Plugin->MediaInfoChanged( pVideoLanMediaStream, pVideoLanMediaStream->m_dequeMediaFile.size()>1 );
 	return true;
 }
 

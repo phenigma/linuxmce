@@ -257,9 +257,9 @@ protected:
 	/** these methods are general purpose, and will call Orbiter-specific methods to do the work */
 
     /**
-    * @brief Show a popup
+    * @brief Add a popup to the list.  Will return false if the identical popup was already there
     */
-	void AddPopup(list<class PlutoPopup*> &listPopups,class PlutoPopup *pPopup);
+	bool AddPopup(list<class PlutoPopup*> &listPopups,class PlutoPopup *pPopup);
 
     /**
     * @brief Hide a popup

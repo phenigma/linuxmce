@@ -84,7 +84,6 @@ bool Generic_NonPluto_Media::StartMedia( class MediaStream *pMediaStream )
 
 	g_pPlutoLogger->Write( LV_STATUS, "Starting media stream playback--sending command, waiting for response" );
 
-	m_pMedia_Plugin->MediaInfoChanged( pMediaStream );
 	return true;
 }
 

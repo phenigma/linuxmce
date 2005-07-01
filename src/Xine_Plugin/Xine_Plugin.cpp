@@ -264,7 +264,6 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 
 	// If there are more than 1 song in the queue, we likely added to an existing queue, so we want
 	// to refresh=true so any orbiters will re-render the play list
-	m_pMedia_Plugin->MediaInfoChanged( pXineMediaStream, pXineMediaStream->m_dequeMediaFile.size()>1 );
 	return true;
 }
 
@@ -371,14 +370,18 @@ bool Xine_Plugin::MenuOnScreen( class Socket *pSocket, class Message *pMessage, 
 	{
 		pXineMediaStream->m_iPK_DesignObj_Remote_After_Menu=pXineMediaStream->m_pRemoteControlSet->m_iPK_DesignObj_Remote;
 		pXineMediaStream->m_iPK_DesignObj_RemoteOSD_After_Menu=pXineMediaStream->m_iPK_DesignObj_RemoteOSD;
+		pXineMediaStream->m_iPK_DesignObj_Remote_Popup_After_Menu=pXineMediaStream->m_pRemoteControlSet->m_iPK_DesignObj_Remote_Popup;
 
 		pXineMediaStream->m_pRemoteControlSet->m_iPK_DesignObj_Remote=DESIGNOBJ_mnuDVDMenu_CONST;
 		pXineMediaStream->m_iPK_DesignObj_RemoteOSD=DESIGNOBJ_dvd_menu_full_screen_CONST;
+		pXineMediaStream->m_pRemoteControlSet->m_iPK_DesignObj_Remote_Popup=-1;  // -1 tells orbiter not to remove the popup--this is just temporary
 	}
 	else
 	{
 		pXineMediaStream->m_pRemoteControlSet->m_iPK_DesignObj_Remote=pXineMediaStream->m_iPK_DesignObj_Remote_After_Menu;
 		pXineMediaStream->m_iPK_DesignObj_RemoteOSD=pXineMediaStream->m_iPK_DesignObj_RemoteOSD_After_Menu;
+		pXineMediaStream->m_pRemoteControlSet->m_iPK_DesignObj_Remote_Popup=pXineMediaStream->m_iPK_DesignObj_Remote_Popup_After_Menu;
+		pXineMediaStream->m_iPK_DesignObj_Remote_After_Menu=pXineMediaStream->m_iPK_DesignObj_RemoteOSD_After_Menu=pXineMediaStream->m_iPK_DesignObj_Remote_Popup_After_Menu=0;
 	}
 
 
@@ -397,6 +400,12 @@ bool Xine_Plugin::MenuOnScreen( class Socket *pSocket, class Message *pMessage, 
 			g_pPlutoLogger->Write(LV_STATUS, "Processing bound remote: for orbiter: %d", pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
 			m_pMedia_Plugin->SetNowPlaying(pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
 				pXineMediaStream->m_sMediaDescription,pXineMediaStream,false);
+		}
+g_pPlutoLogger->Write(LV_WARNING, "Sent now playing to %d remoted for on: %d",(int) pEntertainArea->m_mapBoundRemote.size( ),(int) bOnOff);
+		m_pMedia_Plugin->WaitForMessageQueue();
+		for( MapBoundRemote::iterator itBR=pEntertainArea->m_mapBoundRemote.begin( );itBR!=pEntertainArea->m_mapBoundRemote.end( );++itBR )
+		{
+			BoundRemote *pBoundRemote = ( *itBR ).second;
 			DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
 				0,"<%=NP_R%>","","",false,false);
 			SendCommand(CMD_Goto_Screen);

@@ -23,11 +23,21 @@ namespace DCE {
 							int PK_Users,enum SourceType sourceType,int iStreamID)
 				: MediaStream(pMediaHandlerInfo, pMediaDevice, PK_Users,sourceType, iStreamID)
 	{
-		m_iPK_DesignObj_Remote_After_Menu=m_iPK_DesignObj_RemoteOSD_After_Menu=0;
+		m_iPK_DesignObj_Remote_After_Menu=m_iPK_DesignObj_RemoteOSD_After_Menu=m_iPK_DesignObj_Remote_Popup_After_Menu=0;
 	}
 
 	XineMediaStream::~XineMediaStream()
 	{
+		if( m_pRemoteControlSet )
+		{
+			if( m_iPK_DesignObj_Remote_After_Menu )
+				m_pRemoteControlSet->m_iPK_DesignObj_Remote=m_iPK_DesignObj_Remote_After_Menu;
+			if( m_iPK_DesignObj_RemoteOSD_After_Menu )
+				m_iPK_DesignObj_RemoteOSD=m_iPK_DesignObj_RemoteOSD_After_Menu;
+			if( m_iPK_DesignObj_Remote_Popup_After_Menu )
+				m_pRemoteControlSet->m_iPK_DesignObj_Remote_Popup=m_iPK_DesignObj_Remote_Popup_After_Menu;
+		}
+
 		delete m_pMediaPosition;
 	}
 

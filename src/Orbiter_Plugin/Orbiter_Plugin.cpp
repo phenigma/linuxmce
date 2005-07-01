@@ -966,7 +966,7 @@ void Orbiter_Plugin::CMD_New_Mobile_Orbiter(int iPK_Users,int iPK_DeviceTemplate
 	// Same thing like in regen orbiter
 	string Cmd = "/usr/pluto/bin/RegenOrbiterOnTheFly.sh " + StringUtils::itos(PK_Device) + " " + StringUtils::itos(m_dwPK_Device);
 	m_listRegenCommands.push_back(PK_Device);
-	g_pPlutoLogger->Write(LV_STATUS,"Executing: %s",Cmd.c_str());
+	g_pPlutoLogger->Write(LV_STATUS,"Executing: %s, now size is: %d",Cmd.c_str(),(int) m_listRegenCommands.size());
 	FileUtils::LaunchProcessInBackground(Cmd);
 	g_pPlutoLogger->Write(LV_STATUS,"Execution returned: %s",Cmd.c_str());
 
@@ -1417,6 +1417,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %d set follow me to %s for user %d",iPK
 void Orbiter_Plugin::CMD_Regen_Orbiter(int iPK_Device,string sForce,string &sCMD_Result,Message *pMessage)
 //<-dceag-c266-e->
 {
+g_pPlutoLogger->Write(LV_STATUS,"Starting regen orbiter with %d size",(int) m_listRegenCommands.size());
     PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
     for(map<int,OH_Orbiter *>::iterator it=m_mapOH_Orbiter.begin();it!=m_mapOH_Orbiter.end();++it)
     {
@@ -1445,7 +1446,7 @@ void Orbiter_Plugin::CMD_Regen_Orbiter(int iPK_Device,string sForce,string &sCMD
 	if(iPK_Device) 
 		m_listRegenCommands.push_back(iPK_Device);
 
-	g_pPlutoLogger->Write(LV_STATUS,"Executing: %s",Cmd.c_str());
+	g_pPlutoLogger->Write(LV_STATUS,"Executing: %s size %d",Cmd.c_str(),(int) m_listRegenCommands.size());
 	FileUtils::LaunchProcessInBackground(Cmd);
 	g_pPlutoLogger->Write(LV_STATUS,"Execution returned: %s",Cmd.c_str());
 }

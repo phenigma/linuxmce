@@ -243,7 +243,6 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream)
 		SendCommand(cmd);
 	}
 
-	m_pMedia_Plugin->MediaInfoChanged(pMythTvMediaStream);
     return true;
 }
 
