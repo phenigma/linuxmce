@@ -3179,9 +3179,10 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
 //                    if(  pDesignObj_DataGrid->m_iHighlightedRow>0 || pDesignObj_DataGrid->m_GridCurRow>0  )
   //                  if(  pDesignObj_DataGrid->m_iHighlightedColumn>0 || pDesignObj_DataGrid->m_GridCurColumn>0  )
 				DataGridCell *pCell = pDesignObj_DataGrid->m_pDataGridTable->GetData(
-					pDesignObj_DataGrid->m_iHighlightedColumn==-1 ? 0 : pDesignObj_DataGrid->m_iHighlightedColumn,
-					pDesignObj_DataGrid->m_iHighlightedRow==-1 ? 0 : pDesignObj_DataGrid->m_iHighlightedRow);
-				if( pCell )
+                    pDesignObj_DataGrid->m_iHighlightedColumn!=-1 ? pDesignObj_DataGrid->m_iHighlightedColumn + pDesignObj_DataGrid->m_GridCurCol : pDesignObj_DataGrid->m_GridCurCol,
+                    pDesignObj_DataGrid->m_iHighlightedRow!=-1 ? pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow : 0);
+
+                if( pCell )
 					SelectedGrid( pDesignObj_DataGrid,  pCell );
 				return true;
 			}
