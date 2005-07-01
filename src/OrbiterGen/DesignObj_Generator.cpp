@@ -99,7 +99,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
     m_bDontShare=bDontShare;
     m_bUsingCache=false;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==1255 || m_pRow_DesignObj->PK_DesignObj_get()==3471 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )
+if( m_pRow_DesignObj->PK_DesignObj_get()==2236 )// || m_pRow_DesignObj->PK_DesignObj_get()==3471 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )
 {
     int k=2; 
 }
@@ -676,6 +676,8 @@ int k=2;
 
 			m_mds->Device_DeviceData_get()->GetRows(SQL,&vectRow_Device_DeviceData);
 		}
+
+		Row_Device_DeviceData *pRow_Device_DeviceData_FPInfo=NULL;  // We may need this down below
 		for(size_t s=0;s< (FloorplanType==FLOORPLANTYPE_Entertainment_Zone_CONST ? vectRow_EntertainArea.size() : vectRow_Device_DeviceData.size());++s)
         {
 			string FPInfo_Value;
@@ -694,7 +696,7 @@ int k=2;
 			else
 			{
 				Row_Device_DeviceData *pRow_Device_DeviceData = vectRow_Device_DeviceData[s];
-		        Row_Device_DeviceData *pRow_Device_DeviceData_FPInfo = m_mds->Device_DeviceData_get()->GetRow(pRow_Device_DeviceData->FK_Device_get(),DEVICEDATA_Floorplan_Info_CONST);
+		        pRow_Device_DeviceData_FPInfo = m_mds->Device_DeviceData_get()->GetRow(pRow_Device_DeviceData->FK_Device_get(),DEVICEDATA_Floorplan_Info_CONST);
 			    Row_Device_DeviceData *pRow_Device_DeviceData_ObjType = m_mds->Device_DeviceData_get()->GetRow(pRow_Device_DeviceData->FK_Device_get(),DEVICEDATA_PK_FloorplanObjectType_CONST);
 				if( !pRow_Device_DeviceData_FPInfo || !pRow_Device_DeviceData_ObjType )
 				{
@@ -725,6 +727,13 @@ int k=2;
                         m_VariableMap[VARIABLE_Array_ID_CONST] = pRow_FloorplanObjectType->Description_get();
                         m_VariableMap[VARIABLE_Array_Desc_CONST] = Description;
 
+						if( X>m_sOriginalSize.Width || Y>m_sOriginalSize.Height )
+						{
+							pRow_Device_DeviceData_FPInfo->IK_DeviceData_set("");
+							pRow_Device_DeviceData_FPInfo->Table_Device_DeviceData_get()->Commit();
+							cerr << "Floorplan info for device " << pRow_Device_DeviceData_FPInfo->FK_Device_get() << " is out of bounds" << endl;
+							continue;
+						}
                         // We got ourselves an object to appear on this map
                         X = (X * ScaleFactor) / 1000;
                         Y = (Y * ScaleFactor) / 1000;
@@ -1513,7 +1522,11 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
 						continue;
                     if( PK_Array==ARRAY_Phone_Users_CONST && drIU->FK_Users_getrow()->Extension_isNull() )
                         continue;
-                    alArray->push_back(new ArrayValue(StringUtils::itos(drIU->FK_Users_getrow()->PK_Users_get()),drIU->FK_Users_getrow()->UserName_get(),NULL,0,0,
+					string sName = drIU->FK_Users_getrow()->UserName_get();
+					if( drIU->FK_Users_getrow()->Nickname_get().size() )
+						sName = drIU->FK_Users_getrow()->Nickname_get();
+
+					alArray->push_back(new ArrayValue(StringUtils::itos(drIU->FK_Users_getrow()->PK_Users_get()),sName,NULL,0,0,
                         0,0,drOVO->CanBeHidden_get()==1,drOVO->HideByDefault_get()==1,false));
                 }
             }
