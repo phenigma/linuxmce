@@ -458,6 +458,8 @@ m_bNoEffects = true;
 		time_t lModDate = StringUtils::SQLDateTime(m_pRow_Orbiter->psc_mod_get());
 		time_t lModDate_LastGen = StringUtils::SQLDateTime(m_pRow_Orbiter->Modification_LastGen_get());
 		m_bOrbiterChanged = (lModDate!=lModDate_LastGen);
+		if( m_bOrbiterChanged )
+			cout << "Orbiter changed date from: " << lModDate_LastGen << " to: " << lModDate << endl;
 	}
 
 	m_pRow_Size = NULL;
@@ -505,6 +507,7 @@ m_bNoEffects = true;
 
 	if( m_pRow_Orbiter->Size_get()!=sSize && !m_iPK_DesignObj_SoleScreenToGen )
 	{
+		cout << "Regenerating all: Orbiter data changed from " << m_pRow_Orbiter->Size_get() << " to " << sSize << endl;
 		m_pRow_Orbiter->Size_set(sSize);
 		m_pRow_Orbiter->Table_Orbiter_get()->Commit();
 		string sSQL = "DELETE FROM CachedScreens WHERE FK_Orbiter=" + StringUtils::itos(m_pRow_Orbiter->PK_Orbiter_get());

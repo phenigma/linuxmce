@@ -166,14 +166,20 @@ int k=2;
 								cout << "Not building screen " << StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(m_iVersion) << " found valid cache" << endl;
 								return;
 							}
-int k4=3; // can't use cache
+							else
+								cout << "Regenerating: cannot serialize cache file" << endl;
 						}
-int k5=3; // can't use cache
+						else
+							cout << "Regenerating: cache file doesn't exist" << endl;
 					}
-int k2=3; // can't use cache
+					else
+						cout << "Regenerating: screen has changed" << endl;
 				}
+				else
+					cout << "Regenerating: screen has arrays" << endl;
             }
-int k=2; // can't use cache
+			else
+				cout << "Regenerating: " << ( pdrCachedScreen==NULL ? " no cached screen in DB " : " schema changed " ) << endl;
         }
         string Filespec = m_pOrbiterGenerator->m_sOutputPath + "*" + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get()) + "." +
             StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + ".*";
