@@ -8,6 +8,7 @@
 //<-dceag-d-e->
 
 #include "devicepoll.h"
+#include <map>
 
 //<-dceag-decl-b->
 namespace DCE
@@ -53,6 +54,7 @@ public:
 
 private:
 		CM11ADEV::DevicePoll devpoll;
+		std::map <std::string,int> devdim;
 	};
 
 //<-dceag-end-b->

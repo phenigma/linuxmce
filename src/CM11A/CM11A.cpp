@@ -101,8 +101,17 @@ void CM11A::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sC
 		case COMMAND_Generic_On_CONST: {
 				CM11ADEV::Message msg;
 				msg.setAddress(sChannel);
-				msg.setFunctionCode(CM11A_FUNC_0N);
+				if(devdim[sChannel]==0)
+				{
+					msg.setFunctionCode(CM11A_FUNC_0N);
+				}
+				else
+				{
+					msg.setFunctionCode(CM11A_FUNC_BRIGHT);
+					msg.setDimmLevel(100);
+				}
 				devpoll.SendRequest(&msg);
+				devdim[sChannel]=100;//store latest levet
 			}
 			break;
 		case COMMAND_Generic_Off_CONST: {
@@ -110,17 +119,38 @@ void CM11A::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sC
 				msg.setAddress(sChannel);
 				msg.setFunctionCode(CM11A_FUNC_0FF);
 				devpoll.SendRequest(&msg);
+				devdim[sChannel]=0;//store latest levet
 			}
 			break;
 		case COMMAND_Set_Level_CONST: {
 				CM11ADEV::Message msg;
 				msg.setAddress(sChannel);
-				msg.setFunctionCode(CM11A_FUNC_DIMM);
-				
-				string sDimmLevel = pMessage->m_mapParameters[COMMANDPARAMETER_Level_CONST];
-				msg.setDimmLevel(atoi(sDimmLevel.c_str()));
-				
+				int oldLevel=devdim[sChannel];
+				int newLevel = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Level_CONST].c_str());
+				if(oldLevel==0)
+				{
+					//turn on first
+					CM11ADEV::Message msg1;
+					msg1.setAddress(sChannel);
+					msg1.setFunctionCode(CM11A_FUNC_0N);
+					devpoll.SendRequest(&msg1);
+					oldLevel=100;
+					//then dim to right level
+				}
+				if(newLevel<oldLevel)
+				{
+					//dim
+					msg.setFunctionCode(CM11A_FUNC_DIMM);
+					msg.setDimmLevel(oldLevel-newLevel);
+				}
+				else
+				{
+					//bright
+					msg.setFunctionCode(CM11A_FUNC_BRIGHT);
+					msg.setDimmLevel(newLevel-oldLevel);
+				}
 				devpoll.SendRequest(&msg);
+				devdim[sChannel] = newLevel;//store latest levet
 			}
 			break;
 		default:
@@ -232,5 +262,3 @@ void CM11A::SomeFunction()
 	COMMANDS TO IMPLEMENT
 
 */
-
-

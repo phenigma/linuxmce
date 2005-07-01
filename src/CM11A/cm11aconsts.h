@@ -16,6 +16,7 @@
 #define CM11A_FUNC_0N			0x02
 #define CM11A_FUNC_0FF			0x03
 #define CM11A_FUNC_DIMM			0x04
+#define CM11A_FUNC_BRIGHT		0x05
 
 
 #define CM11A_SET_TIME        	0x9B
