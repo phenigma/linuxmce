@@ -240,7 +240,7 @@ void *ReconnectToBluetoothDongleThread(void *p)
     Sleep(2000); 
 
     g_pPlutoLogger->Write(LV_WARNING, "HandleBDCommandProcessor for %s BDCommandProcessor is disconnected now, we can connect to new dongle with id %d", sPhoneMacAddress.c_str(), iDeviceToLink);
-    DCE::CMD_Link_with_mobile_orbiter CMD_Link_with_mobile_orbiter(iDeviceToLink, iDeviceToLink, 1, sPhoneMacAddress, sVMC_File);
+    DCE::CMD_Link_with_mobile_orbiter CMD_Link_with_mobile_orbiter(iDeviceToLink, iDeviceToLink, sPhoneMacAddress, sVMC_File);
     pBluetooth_Dongle->SendCommand(CMD_Link_with_mobile_orbiter);
 
     delete pReconnectInfo;
@@ -561,23 +561,14 @@ void Bluetooth_Dongle::SignalStrengthChanged( class PhoneDevice *pDevice )
 
 	/** @brief COMMAND: #60 - Link with mobile orbiter */
 	/** After the dongle has detected the device, then the orbiter plugin will send this command to tell the dongle to link to the phone. */
-		/** @param #42 MediaPosition */
-			/** On = 1 (link to the orbiter or link to the phone); Off = 0 (unlink) */
 		/** @param #47 Mac address */
 			/** The mac address of the phone */
 		/** @param #118 VMC File */
 			/** If VMC File is not empty, BluetoothDongle will have to send the file to PlutoMO */
 
-void Bluetooth_Dongle::CMD_Link_with_mobile_orbiter(int iMediaPosition,string sMac_address,string sVMC_File,string &sCMD_Result,Message *pMessage)
+void Bluetooth_Dongle::CMD_Link_with_mobile_orbiter(string sMac_address,string sVMC_File,string &sCMD_Result,Message *pMessage)
 //<-dceag-c60-e->
 {
-	cout << "Command #60 - Link with mobile orbiter" << endl;
-	cout << "Parm #42 - MediaPosition=" << iMediaPosition << endl;
-	cout << "Parm #47 - Mac_address=" << sMac_address << endl;
-
-	//printf( "Got link with MO log: %p\n\n", g_pPlutoLogger );
-	//printf( "on_off: %d\nID: %s\n", iMediaPosition, sMac_address.c_str() );
-
 	{
 		PLUTO_SAFETY_LOCK( bm, m_BTMutex );
 		map<string, BD_Orbiter *>::iterator iMos = m_mapOrbiterSockets.find( sMac_address );

@@ -601,7 +601,7 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
 
                      //Only do this if there's no other dongle
 					DCE::CMD_Link_with_mobile_orbiter CMD_Link_with_mobile_orbiter(
-						m_dwPK_Device, pDeviceFrom->m_dwPK_Device, 1, 
+						m_dwPK_Device, pDeviceFrom->m_dwPK_Device, 
 						sMacAddress, sVmcFileToSend);
 					SendCommand(CMD_Link_with_mobile_orbiter);
 				}

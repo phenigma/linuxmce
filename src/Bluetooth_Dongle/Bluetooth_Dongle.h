@@ -216,15 +216,13 @@ public:
 
 	/** @brief COMMAND: #60 - Link with mobile orbiter */
 	/** After the dongle has detected the device, then the orbiter plugin will send this command to tell the dongle to link to the phone. */
-		/** @param #42 MediaPosition */
-			/** On = 1 (link to the orbiter or link to the phone); Off = 0 (unlink) */
 		/** @param #47 Mac address */
 			/** The mac address of the phone */
 		/** @param #118 VMC File */
 			/** If VMC File is not empty, BluetoothDongle will have to send the file to PlutoMO */
 
-	virtual void CMD_Link_with_mobile_orbiter(int iMediaPosition,string sMac_address,string sVMC_File) { string sCMD_Result; CMD_Link_with_mobile_orbiter(iMediaPosition,sMac_address.c_str(),sVMC_File.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Link_with_mobile_orbiter(int iMediaPosition,string sMac_address,string sVMC_File,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Link_with_mobile_orbiter(string sMac_address,string sVMC_File) { string sCMD_Result; CMD_Link_with_mobile_orbiter(sMac_address.c_str(),sVMC_File.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Link_with_mobile_orbiter(string sMac_address,string sVMC_File,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #61 - Get Signal Strength */

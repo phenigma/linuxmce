@@ -4179,8 +4179,53 @@ class DataGridTable *Media_Plugin::Bookmarks( string GridID, string Parms, void 
 	m_pDatabase_pluto_media->Bookmark_get()->GetRows(sWhere,&vectRow_Bookmark);
 
 	for(size_t s=0;s<vectRow_Bookmark.size();++s)
-		pDataGrid->SetData(0,s,new DataGridCell(vectRow_Bookmark[s]->Description_get(), 
-		StringUtils::itos(vectRow_Bookmark[s]->PK_Bookmark_get())));
+	{
+		Row_Bookmark *pRow_Bookmark = vectRow_Bookmark[s];
+		DataGridCell *pDataGridCell = new DataGridCell(pRow_Bookmark->Description_get(), pRow_Bookmark->Position_get());
+		pDataGridCell->m_Colspan=3;
+		pDataGrid->SetData(2,s,pDataGridCell);
+
+		if( pRow_Bookmark->FK_Picture_get() )
+		{
+			size_t iSize;
+			char *pBuffer = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(pRow_Bookmark->FK_Picture_get()) + "." + pRow_Bookmark->FK_Picture_getrow()->Extension_get(),iSize);
+			if( pBuffer )
+			{
+				pDataGridCell = new DataGridCell("", pRow_Bookmark->Position_get());
+				pDataGridCell->m_pGraphicData = pBuffer;
+				pDataGridCell->m_GraphicLength = iSize;
+				pDataGrid->SetData(1,s,pDataGridCell);
+			}
+g_pPlutoLogger->Write(LV_WARNING,"pic file %p",pBuffer);
+		}
+
+#ifndef WIN32
+		Row_File *pRow_File = pRow_Bookmark->FK_File_getrow();
+		if( pRow_File )
+		{
+			int n = 79,result;
+			char value[80];
+			memset( value, 0, sizeof( value ) );
+
+			int PK_Picture;
+			if ( (result=attr_get( (pRow_File->Path_get() + "/" + pRow_File->Filename_get()).c_str( ), "PIC", value, &n, 0)) == 0 && (PK_Picture = atoi(value)) )
+			{
+				size_t iSize;
+				char *pBuffer = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(PK_Picture) + ".jpg",iSize);
+				if( pBuffer )
+				{
+					pDataGridCell = new DataGridCell("", pRow_Bookmark->Position_get());
+					pDataGridCell->m_pGraphicData = pBuffer;
+					pDataGridCell->m_GraphicLength = iSize;
+					pDataGrid->SetData(0,s,pDataGridCell);
+				}
+	g_pPlutoLogger->Write(LV_WARNING,"pic file 2 %p",pBuffer);
+			}
+			g_pPlutoLogger->Write(LV_WARNING,"File %s pic %d",(pRow_File->Path_get() + "/" + pRow_File->Filename_get()).c_str( ),PK_Picture);
+
+		}
+#endif
+	}
 
     return pDataGrid;
 }
