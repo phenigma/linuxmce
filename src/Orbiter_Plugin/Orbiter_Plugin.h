@@ -392,6 +392,17 @@ public:
 	virtual void CMD_Set_Auto_Switch_to_Remote(int iPK_Device,bool bTrueFalse,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #406 - Display Message On Orbiter */
+	/** Displays a message on orbiters, or all orbiters. */
+		/** @param #9 Text */
+			/** The message to display */
+		/** @param #103 PK_Device_List */
+			/** A comma delimited list of orbiters, or all orbiters if empty */
+
+	virtual void CMD_Display_Message_On_Orbiter(string sText,string sPK_Device_List) { string sCMD_Result; CMD_Display_Message_On_Orbiter(sText.c_str(),sPK_Device_List.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Display_Message_On_Orbiter(string sText,string sPK_Device_List,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 };
 

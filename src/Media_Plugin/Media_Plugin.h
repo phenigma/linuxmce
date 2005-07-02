@@ -107,6 +107,11 @@ private:
     class DataGridTable *FloorplanMediaChoices( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
     class DataGridTable *ActiveMediaStreams( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 
+    class DataGridTable *DVDSubtitles( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
+    class DataGridTable *DVDAudioTracks( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
+    class DataGridTable *DVDAngles( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
+    class DataGridTable *Bookmarks( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
+
 	void PopulateRemoteControlMaps();
 
 protected:
@@ -523,7 +528,7 @@ public:
 
 
 	/** @brief COMMAND: #372 - MH Set Volume */
-	/**  */
+	/** Set the volume */
 		/** @param #45 PK_EntertainArea */
 			/** The Entertainment Area(s) */
 		/** @param #76 Level */
@@ -593,7 +598,7 @@ public:
 
 
 	/** @brief COMMAND: #400 - MH Send Me To File List */
-	/**  */
+	/** An Orbiter sends this when it wants to be sent to the file list */
 		/** @param #29 PK_MediaType */
 			/** The type of media, this is mandatory */
 		/** @param #44 PK_DeviceTemplate */
@@ -601,6 +606,35 @@ public:
 
 	virtual void CMD_MH_Send_Me_To_File_List(int iPK_MediaType,int iPK_DeviceTemplate) { string sCMD_Result; CMD_MH_Send_Me_To_File_List(iPK_MediaType,iPK_DeviceTemplate,sCMD_Result,NULL);};
 	virtual void CMD_MH_Send_Me_To_File_List(int iPK_MediaType,int iPK_DeviceTemplate,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #409 - Save Bookmark */
+	/** Save the current position as a bookmark */
+		/** @param #45 PK_EntertainArea */
+			/** The entertainment area with the media */
+
+	virtual void CMD_Save_Bookmark(string sPK_EntertainArea) { string sCMD_Result; CMD_Save_Bookmark(sPK_EntertainArea.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Save_Bookmark(string sPK_EntertainArea,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #410 - Delete Bookmark */
+	/** Delete a bookmark */
+		/** @param #129 EK_Bookmark */
+			/** The bookmark to delete */
+
+	virtual void CMD_Delete_Bookmark(int iEK_Bookmark) { string sCMD_Result; CMD_Delete_Bookmark(iEK_Bookmark,sCMD_Result,NULL);};
+	virtual void CMD_Delete_Bookmark(int iEK_Bookmark,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #411 - Rename Bookmark */
+	/** Rename a bookmark */
+		/** @param #5 Value To Assign */
+			/** The new name */
+		/** @param #129 EK_Bookmark */
+			/** The bookmark */
+
+	virtual void CMD_Rename_Bookmark(string sValue_To_Assign,int iEK_Bookmark) { string sCMD_Result; CMD_Rename_Bookmark(sValue_To_Assign.c_str(),iEK_Bookmark,sCMD_Result,NULL);};
+	virtual void CMD_Rename_Bookmark(string sValue_To_Assign,int iEK_Bookmark,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

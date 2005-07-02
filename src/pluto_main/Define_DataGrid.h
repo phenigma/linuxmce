@@ -35,6 +35,7 @@
 #define DATAGRID_Pending_Tasks_CONST 32
 #define DATAGRID_DVD_Audio_Tracks_CONST 33
 #define DATAGRID_DVD_Angles_CONST 34
+#define DATAGRID_Bookmarks_CONST 35
 
 #define DATAGRID_TABLE "DataGrid"
 #define DATAGRID_PK_DATAGRID_FIELD "PK_DataGrid"

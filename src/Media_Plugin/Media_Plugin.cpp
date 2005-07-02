@@ -65,11 +65,13 @@ using namespace DCE;
 #include "pluto_main/Table_MediaType.h"
 #include "pluto_media/Database_pluto_media.h"
 #include "pluto_media/Table_Attribute.h"
+#include "pluto_media/Table_Bookmark.h"
 #include "pluto_media/Table_File_Attribute.h"
 #include "pluto_media/Table_File.h"
 #include "pluto_media/Table_Disc.h"
 #include "pluto_media/Table_Picture_Disc.h"
 #include "pluto_media/Table_Disc_Attribute.h"
+#include "pluto_media/Table_Picture.h"
 #include "pluto_media/Table_Picture_File.h"
 #include "pluto_media/Table_Picture_Attribute.h"
 #include "pluto_media/Table_AttributeType.h"
@@ -387,7 +389,23 @@ bool Media_Plugin::Register()
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::ActiveMediaStreams ), true )
         , DATAGRID_Floorplan_Media_Streams_CONST );
 
-    //  m_pMediaAttributes->ScanDirectory( "/home/public/data/music/" );
+    m_pDatagrid_Plugin->RegisterDatagridGenerator(
+        new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::DVDSubtitles ))
+        , DATAGRID_DVD_Subtitles_CONST );
+
+    m_pDatagrid_Plugin->RegisterDatagridGenerator(
+        new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::DVDAudioTracks ))
+        , DATAGRID_DVD_Audio_Tracks_CONST );
+
+    m_pDatagrid_Plugin->RegisterDatagridGenerator(
+        new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::DVDAngles ))
+        , DATAGRID_DVD_Angles_CONST );
+
+    m_pDatagrid_Plugin->RegisterDatagridGenerator(
+        new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::Bookmarks ))
+        , DATAGRID_Bookmarks_CONST );
+	
+	//  m_pMediaAttributes->ScanDirectory( "/home/public/data/music/" );
 //  m_pMediaAttributes->ScanDirectory( "Z:\\" );
 	PopulateRemoteControlMaps();
 
@@ -3538,7 +3556,7 @@ MediaDevice *Media_Plugin::GetMediaDeviceForEA(int iPK_MediaType,EntertainArea *
 //<-dceag-c372-b->
 
 	/** @brief COMMAND: #372 - MH Set Volume */
-	/**  */
+	/** Set the volume */
 		/** @param #45 PK_EntertainArea */
 			/** The Entertainment Area(s) */
 		/** @param #76 Level */
@@ -4060,7 +4078,7 @@ RemoteControlSet *Media_Plugin::PickRemoteControlMap(int PK_Orbiter,int iPK_Devi
 //<-dceag-c400-b->
 
 	/** @brief COMMAND: #400 - MH Send Me To File List */
-	/**  */
+	/** An Orbiter sends this when it wants to be sent to the file list */
 		/** @param #29 PK_MediaType */
 			/** The type of media, this is mandatory */
 		/** @param #44 PK_DeviceTemplate */
@@ -4081,3 +4099,194 @@ void Media_Plugin::CMD_MH_Send_Me_To_File_List(int iPK_MediaType,int iPK_DeviceT
 		SendCommand(CMD_Show_File_List);
 	}
 }
+
+class DataGridTable *Media_Plugin::DVDSubtitles( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+    DataGridTable *pDataGrid = new DataGridTable();
+
+	vector<EntertainArea *> vectEntertainArea;
+    DetermineEntArea( pMessage->m_dwPK_Device_From, 0, "", vectEntertainArea );
+	if( vectEntertainArea.size()==0 || vectEntertainArea[0]->m_pMediaStream==NULL )
+		return pDataGrid;
+	MediaStream *pMediaStream = vectEntertainArea[0]->m_pMediaStream;
+	string Data = GetCurrentDeviceData( pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device, DEVICEDATA_Subtitles_CONST );
+	string::size_type pos=0;
+	int iCurrent = atoi(StringUtils::Tokenize(Data,"\n",pos).c_str());
+	for(int i=0;pos!=string::npos && pos<Data.size();++i)
+	{
+		DataGridCell *pCell = new DataGridCell( StringUtils::Tokenize(Data,"\n",pos), StringUtils::itos(i) );
+		pDataGrid->SetData(0,i,pCell);
+	}
+	*iPK_Variable=VARIABLE_Misc_Data_1_CONST;
+	*sValue_To_Assign=StringUtils::itos(iCurrent);
+	return pDataGrid;
+}
+
+class DataGridTable *Media_Plugin::DVDAudioTracks( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+    DataGridTable *pDataGrid = new DataGridTable();
+
+	vector<EntertainArea *> vectEntertainArea;
+    DetermineEntArea( pMessage->m_dwPK_Device_From, 0, "", vectEntertainArea );
+	if( vectEntertainArea.size()==0 || vectEntertainArea[0]->m_pMediaStream==NULL )
+		return pDataGrid;
+	MediaStream *pMediaStream = vectEntertainArea[0]->m_pMediaStream;
+	string Data = GetCurrentDeviceData( pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device, DEVICEDATA_Audio_Tracks_CONST );
+	string::size_type pos=0;
+	int iCurrent = atoi(StringUtils::Tokenize(Data,"\n",pos).c_str());
+	for(int i=0;pos!=string::npos && pos<Data.size();++i)
+	{
+		DataGridCell *pCell = new DataGridCell( StringUtils::Tokenize(Data,"\n",pos), StringUtils::itos(i) );
+		pDataGrid->SetData(0,i,pCell);
+	}
+	*iPK_Variable=VARIABLE_Misc_Data_2_CONST;
+	*sValue_To_Assign=StringUtils::itos(iCurrent);
+	return pDataGrid;
+}
+
+class DataGridTable *Media_Plugin::DVDAngles( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+    DataGridTable *pDataGrid = new DataGridTable();
+
+	vector<EntertainArea *> vectEntertainArea;
+    DetermineEntArea( pMessage->m_dwPK_Device_From, 0, "", vectEntertainArea );
+	if( vectEntertainArea.size()==0 || vectEntertainArea[0]->m_pMediaStream==NULL )
+		return pDataGrid;
+	MediaStream *pMediaStream = vectEntertainArea[0]->m_pMediaStream;
+	string Data = GetCurrentDeviceData( pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device, DEVICEDATA_Angles_CONST );
+	string::size_type pos=0;
+	int iCurrent = atoi(StringUtils::Tokenize(Data,"\n",pos).c_str());
+	for(int i=0;pos!=string::npos && pos<Data.size();++i)
+	{
+		DataGridCell *pCell = new DataGridCell( StringUtils::Tokenize(Data,"\n",pos), StringUtils::itos(i) );
+		pDataGrid->SetData(0,i,pCell);
+	}
+	*iPK_Variable=VARIABLE_Misc_Data_3_CONST;
+	*sValue_To_Assign=StringUtils::itos(iCurrent);
+	return pDataGrid;
+}
+
+class DataGridTable *Media_Plugin::Bookmarks( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+	DataGridTable *pDataGrid = new DataGridTable();
+
+	g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::Bookmarks Called to populate: %s", Parms.c_str());
+    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+
+    int PK_MediaType = atoi(Parms.c_str());
+	string sWhere = PK_MediaType ? "EK_MediaType=" + StringUtils::itos(PK_MediaType) : "1=1";
+	vector<Row_Bookmark *> vectRow_Bookmark;
+	m_pDatabase_pluto_media->Bookmark_get()->GetRows(sWhere,&vectRow_Bookmark);
+
+	for(size_t s=0;s<vectRow_Bookmark.size();++s)
+		pDataGrid->SetData(0,s,new DataGridCell(vectRow_Bookmark[s]->Description_get(), 
+		StringUtils::itos(vectRow_Bookmark[s]->PK_Bookmark_get())));
+
+    return pDataGrid;
+}
+
+//<-dceag-c409-b->
+
+	/** @brief COMMAND: #409 - Save Bookmark */
+	/** Save the current position as a bookmark */
+		/** @param #45 PK_EntertainArea */
+			/** The entertainment area with the media */
+
+void Media_Plugin::CMD_Save_Bookmark(string sPK_EntertainArea,string &sCMD_Result,Message *pMessage)
+//<-dceag-c409-e->
+{
+    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+
+	EntertainArea *pEntertainArea = m_mapEntertainAreas_Find( atoi(sPK_EntertainArea.c_str()) );
+	if( !pEntertainArea || !pEntertainArea->m_pMediaStream )
+		return;  // Shouldn't happen
+
+	MediaStream *pMediaStream = pEntertainArea->m_pMediaStream;
+
+	MediaFile *pMediaFile;
+	if( pMediaStream->m_dequeMediaFile.size()==0 ||
+		pMediaStream->m_iDequeMediaFile_Pos<0 ||
+		pMediaStream->m_iDequeMediaFile_Pos>=pEntertainArea->m_pMediaStream->m_dequeMediaFile.size() ||
+		(pMediaFile=pMediaStream->m_dequeMediaFile[pMediaStream->m_iDequeMediaFile_Pos])==NULL ||
+		pMediaFile->m_dwPK_File==0)
+	{
+		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(StringUtils::itos(pMessage->m_dwPK_Device_From),"Bookmarks only work with files");
+		return;
+	}
+
+	string sPosition,sText;
+	DCE::CMD_Report_Playback_Position CMD_Report_Playback_Position(m_dwPK_Device,pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
+		pMediaStream->m_iStreamID_get(),&sText,&sPosition);
+
+	if( !SendCommand(CMD_Report_Playback_Position) || sPosition.size()==0 )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot get current position from %d",pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
+		return;
+	}
+
+	char *pData=NULL;
+	int iData_Size=0;
+	string sFormat;
+	DCE::CMD_Get_Video_Frame CMD_Get_Video_Frame(m_dwPK_Device,pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
+		"0",pMediaStream->m_iStreamID_get(),800,800,&pData,&iData_Size,&sFormat);
+	SendCommand(CMD_Get_Video_Frame);
+
+	Row_Picture *pRow_Picture = NULL;
+	if( pData && iData_Size )
+	{
+		pRow_Picture = m_pDatabase_pluto_media->Picture_get()->AddRow();
+		pRow_Picture->Extension_set(sFormat);
+		m_pDatabase_pluto_media->Picture_get()->Commit();
+
+		FILE *file = fopen( ("/home/mediapics/" + StringUtils::itos(pRow_Picture->PK_Picture_get()) + "." + StringUtils::ToLower(sFormat)).c_str(),"wb");
+		if( !file )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot create bookmark pic file");
+			pRow_Picture->Delete();
+			m_pDatabase_pluto_media->Picture_get()->Commit();
+			pRow_Picture=NULL;
+		}
+		else
+		{
+			fwrite((void *) pData,iData_Size,1,file);
+			fclose(file);
+		}
+	}
+
+	Row_Bookmark *pRow_Bookmark = m_pDatabase_pluto_media->Bookmark_get()->AddRow();
+	pRow_Bookmark->FK_File_set(pMediaFile->m_dwPK_File);
+	pRow_Bookmark->EK_MediaType_set(pMediaStream->m_iPK_MediaType);
+	if( pRow_Picture )
+		pRow_Bookmark->FK_Picture_set(pRow_Picture->PK_Picture_get());
+	string sName = pMediaStream->m_sMediaDescription + " " + sText;
+	pRow_Bookmark->Description_set(sName);
+	pRow_Bookmark->Position_set(sPosition);
+	m_pDatabase_pluto_media->Bookmark_get()->Commit();
+}
+
+//<-dceag-c410-b->
+
+	/** @brief COMMAND: #410 - Delete Bookmark */
+	/** Delete a bookmark */
+		/** @param #129 EK_Bookmark */
+			/** The bookmark to delete */
+
+void Media_Plugin::CMD_Delete_Bookmark(int iEK_Bookmark,string &sCMD_Result,Message *pMessage)
+//<-dceag-c410-e->
+{
+}
+
+//<-dceag-c411-b->
+
+	/** @brief COMMAND: #411 - Rename Bookmark */
+	/** Rename a bookmark */
+		/** @param #5 Value To Assign */
+			/** The new name */
+		/** @param #129 EK_Bookmark */
+			/** The bookmark */
+
+void Media_Plugin::CMD_Rename_Bookmark(string sValue_To_Assign,int iEK_Bookmark,string &sCMD_Result,Message *pMessage)
+//<-dceag-c411-e->
+{
+}
+

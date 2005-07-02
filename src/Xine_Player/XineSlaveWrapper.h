@@ -254,7 +254,7 @@ public:
      * @brief play the stream represented by the fileName.
      */
 
-    bool playStream(int streamID, int mediaPosition, bool playbackStopped = false);
+    bool playStream(int streamID, string mediaPosition, bool playbackStopped = false);
 
 	/**
      * @brief callback function to listen for events from the xine lib.
@@ -371,6 +371,9 @@ public:
 	 *
 	 */
 	int getDeviceId();
+
+	bool setSubtitle(int Value);
+	bool setAudio(int Value);
 
 
 	bool isSlimClient();

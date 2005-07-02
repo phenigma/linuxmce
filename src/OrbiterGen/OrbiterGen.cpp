@@ -584,7 +584,6 @@ m_bNoEffects = true;
 		}
 
 		listLocationInfo.push_back(li);
-break; ///**************************** temp
 	}
 
 	m_sMainMenu="";

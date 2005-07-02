@@ -99,7 +99,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
     m_bDontShare=bDontShare;
     m_bUsingCache=false;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==3533 )/* ||  m_pRow_DesignObj->PK_DesignObj_get()==2212 || 
+if( m_pRow_DesignObj->PK_DesignObj_get()==1255 )/* ||  m_pRow_DesignObj->PK_DesignObj_get()==2212 || 
    m_pRow_DesignObj->PK_DesignObj_get()==2213 ||  m_pRow_DesignObj->PK_DesignObj_get()==2211 ||
    m_pRow_DesignObj->PK_DesignObj_get()==1881 ||  m_pRow_DesignObj->PK_DesignObj_get()==2228 ||
    m_pRow_DesignObj->PK_DesignObj_get()==3531 ||  m_pRow_DesignObj->PK_DesignObj_get()==3534 )// || m_pRow_DesignObj->PK_DesignObj_get()==3471 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )*/
@@ -238,7 +238,18 @@ int k=2;
         else
         {
             if( GraphicType==1 )
-                o=GetParm(DESIGNOBJPARAMETER_Graphic_Filename_CONST,true);
+			{
+				if( m_pRow_DesignObj==m_pOrbiterGenerator->m_pRow_DesignObj_MainMenu &&
+						FileUtils::FileExists(m_pOrbiterGenerator->m_GraphicsBasePath + "/" + m_pOrbiterGenerator->m_pRow_Skin->DataSubdirectory_get() + 
+						"/../../orbiter_bg/" + StringUtils::itos(m_pOrbiterGenerator->m_iPK_Orbiter) + "_" + 
+						StringUtils::itos(m_pOrbiterGenerator->m_dequeLocation[m_pOrbiterGenerator->m_iLocation]->PK_Room) + ".png") )
+					o = "../../orbiter_bg/" + StringUtils::itos(m_pOrbiterGenerator->m_iPK_Orbiter) + "_" + StringUtils::itos(m_pOrbiterGenerator->m_dequeLocation[m_pOrbiterGenerator->m_iLocation]->PK_Room) + ".png";
+				else if( m_pRow_DesignObj==m_pOrbiterGenerator->m_pRow_DesignObj_MainMenu &&
+						FileUtils::FileExists(m_pOrbiterGenerator->m_GraphicsBasePath + "/" + m_pOrbiterGenerator->m_pRow_Skin->DataSubdirectory_get() + "/../../orbiter_bg/" + StringUtils::itos(m_pOrbiterGenerator->m_iPK_Orbiter) + ".png") )
+					o = "../../orbiter_bg/" + StringUtils::itos(m_pOrbiterGenerator->m_iPK_Orbiter) + ".png";
+				else
+					o=GetParm(DESIGNOBJPARAMETER_Graphic_Filename_CONST,true);
+			}
             else if( GraphicType==2 && !m_pOrbiterGenerator->m_bIgnoreSelected )
                 o=GetParm(DESIGNOBJPARAMETER_Selected_Graphic_Fil_CONST,true);
             else if( GraphicType==3 && !m_pOrbiterGenerator->m_bIgnoreHighlighted)
@@ -282,7 +293,7 @@ int k=2;
                 // Be sure there are no windows paths in here.  Windows will work with forward slashes also, use them instead
                 sGraphicFile = StringUtils::Replace(&sGraphicFile,"\\","/");
                 string sOriginalFile = sGraphicFile;
-	                if( sGraphicFile[0]=='/' )
+	            if( sGraphicFile[0]=='/' )
                     sGraphicFile = m_pOrbiterGenerator->m_GraphicsBasePath + sGraphicFile;
                 else
                     sGraphicFile = m_pOrbiterGenerator->m_GraphicsBasePath + "/" + m_pOrbiterGenerator->m_pRow_Skin->DataSubdirectory_get() + "/" + sGraphicFile;
@@ -626,7 +637,8 @@ int k=2;
                 CGCommand *oa = (CGCommand *) *itActions;
 				if( oa->m_PK_Command==COMMAND_Scale_this_object_CONST )
 					m_iScale = atoi(oa->m_ParameterList[COMMANDPARAMETER_Value_CONST].c_str());
-                m_Action_StartupList.push_back(oa);
+				else
+	                m_Action_StartupList.push_back(oa);
             }
         }
     }

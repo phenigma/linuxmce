@@ -1831,3 +1831,17 @@ void Orbiter_Plugin::CMD_Set_Auto_Switch_to_Remote(int iPK_Device,bool bTrueFals
 	if( pOH_Orbiter )
 		pOH_Orbiter->m_bDontAutoShowRemote=!bTrueFalse;
 }
+//<-dceag-c406-b->
+
+	/** @brief COMMAND: #406 - Display Message On Orbiter */
+	/** Displays a message on orbiters, or all orbiters. */
+		/** @param #9 Text */
+			/** The message to display */
+		/** @param #103 PK_Device_List */
+			/** A comma delimited list of orbiters, or all orbiters if empty */
+
+void Orbiter_Plugin::CMD_Display_Message_On_Orbiter(string sText,string sPK_Device_List,string &sCMD_Result,Message *pMessage)
+//<-dceag-c406-e->
+{
+	DisplayMessageOnOrbiter(sPK_Device_List,sText);
+}

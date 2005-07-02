@@ -72,7 +72,7 @@ Xine_Player::Xine_Player(int DeviceID, string ServerAddress,bool bConnectEventHa
 
 	m_pXineSlaveControl = new XineSlaveWrapper();
 
-
+	m_iTitle=m_iChapter=-1;
 
 	//m_pSlimServerClient = new SlimServerClient();
 //	m_pSlimServerClient->setXineSlaveObject(m_pXineSlaveControl);
@@ -176,9 +176,17 @@ void Xine_Player::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 		/** @param #42 MediaPosition */
 			/** The position at which we need to start playing. */
 
-void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,int iMediaPosition,string &sCMD_Result,Message *pMessage)
+void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,string sMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c37-e->
 {
+	DATA_Set_Subtitles("");
+	DATA_Set_Audio_Tracks("");
+	DATA_Set_Angles("");
+	m_iTitle=m_iChapter=-1;
+	m_sCurrentFile=sFilename;
+
+	if( sMediaPosition )
+
 	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() called for filename: %s with slave %p.", sFilename.c_str(),m_pXineSlaveControl);
 	PLUTO_SAFETY_LOCK(xineSlaveLock, m_xineSlaveMutex);
 
@@ -199,7 +207,7 @@ void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
 
 	if ( sFilename.substr(0, strlen("slim://")).compare("slim://") == 0)
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Need to behave like a slim server client");
+/*		g_pPlutoLogger->Write(LV_STATUS, "Need to behave like a slim server client");
 
 		string macAddress = StringUtils::makeUpPlayerAddressFromPlayerId(m_dwPK_Device);
 		m_pXineSlaveControl->setSlimClient(true);
@@ -207,12 +215,13 @@ void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
 		getSlimServerClient()->setMediaStreamID(iStreamID);
 		getSlimServerClient()->setRequestingObjectID(pMessage->m_dwPK_Device_From);
 		getSlimServerClient()->connectToServer(sFilename.substr(strlen("slim://")), iStreamID);
+*/
 	}
 	else
 	{
 		m_pXineSlaveControl->setSlimClient(false);
 // 		getSlimServerClient()->disconnectFromServer();
-		if ( ! m_pXineSlaveControl->createStream(sFilename, iStreamID, pMessage->m_dwPK_Device_From) || ! m_pXineSlaveControl->playStream(iStreamID, iMediaPosition) )
+		if ( ! m_pXineSlaveControl->createStream(sFilename, iStreamID, pMessage->m_dwPK_Device_From) || ! m_pXineSlaveControl->playStream(iStreamID, sMediaPosition) )
 		{
 			EVENT_Playback_Completed(iStreamID,true);  // true = there was an error, don't keep repeating
 //			delete m_pXineSlaveControl;  AB 2005-06-10 Why did Mihai put this here?  It means if there's ever a bad file Xine is permenantly unable to play anything
@@ -231,7 +240,7 @@ void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
 		/** @param #42 MediaPosition */
 			/** The position at which this stream was last played. */
 
-void Xine_Player::CMD_Stop_Media(int iStreamID,int *iMediaPosition,string &sCMD_Result,Message *pMessage)
+void Xine_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c38-e->
 {
     PLUTO_SAFETY_LOCK(xineSlaveLock, m_xineSlaveMutex);
@@ -247,8 +256,8 @@ void Xine_Player::CMD_Stop_Media(int iStreamID,int *iMediaPosition,string &sCMD_
     g_pPlutoLogger->Write(LV_STATUS, "Xine_Player::CMD_Stop_Media() Got a stop media for stream ID %d (%p)", iStreamID, m_pXineSlaveControl);
     m_pXineSlaveControl->pauseMediaStream(iStreamID);
     g_pPlutoLogger->Write(LV_STATUS, "Xine_Player::CMD_Stop_Media() After pause media %d", iStreamID);
-    *iMediaPosition = m_pXineSlaveControl->getStreamPlaybackPosition(iStreamID, currentTime, totalTime);
-    g_pPlutoLogger->Write(LV_STATUS, "Xine_Player::CMD_Stop_Media() position %d", *iMediaPosition);
+    int iMediaPosition = m_pXineSlaveControl->getStreamPlaybackPosition(iStreamID, currentTime, totalTime);
+    g_pPlutoLogger->Write(LV_STATUS, "Xine_Player::CMD_Stop_Media() position %s", sMediaPosition->c_str());
 
 pthread_t pt;
 g_bHackToBeSureWeStop=true;
@@ -257,9 +266,10 @@ pthread_create(&pt, NULL, HackToBeSureWeStop, NULL);
 g_bHackToBeSureWeStop=false;
 pthread_cancel(pt);
 	g_pPlutoLogger->Write(LV_STATUS, "Xine_Player::CMD_Stop_Media() The stream playback should be stopped at this moment and the resources should be freed!");
-
+/*
 	if ( getSlimServerClient()->isConnected(iStreamID) )
 		getSlimServerClient()->disconnectFromServer(iStreamID);
+*/
 }
 
 //<-dceag-c39-b->
@@ -559,16 +569,14 @@ void Xine_Player::CMD_Enable_Broadcasting(int iStreamID,string *sMediaURL,string
 
 	/** @brief COMMAND: #259 - Report Playback Position */
 	/** This will report the playback position of the current stream. */
-		/** @param #39 Options */
-			/** Other options that the player might record for this position. Usefull if we have a non standard encoding of the player position. */
+		/** @param #9 Text */
+			/** A human readable representation of the current position */
 		/** @param #41 StreamID */
 			/** The stream ID on which to report the position. */
 		/** @param #42 MediaPosition */
-			/** The reported media position ( in milliseconds since the beginning of the stream). */
-		/** @param #106 Media Length */
-			/** The complete length of the media stream. Where appliable. */
+			/** A media player readable representation of the current position including all options */
 
-void Xine_Player::CMD_Report_Playback_Position(int iStreamID,string *sOptions,int *iMediaPosition,int *iMedia_Length,string &sCMD_Result,Message *pMessage)
+void Xine_Player::CMD_Report_Playback_Position(int iStreamID,string *sText,string *sMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c259-e->
 {
 	PLUTO_SAFETY_LOCK(xineSlaveLock, m_xineSlaveMutex);
@@ -582,7 +590,17 @@ void Xine_Player::CMD_Report_Playback_Position(int iStreamID,string *sOptions,in
 	if ( m_pXineSlaveControl->isSlimClient() )
 		return;
 
-	m_pXineSlaveControl->getStreamPlaybackPosition(iStreamID, *iMediaPosition, *iMedia_Length);
+	int iMediaPosition,iMedia_Length;
+	m_pXineSlaveControl->getStreamPlaybackPosition(iStreamID, iMediaPosition, iMedia_Length);
+
+	if( m_iChapter!=-1 )
+		*sMediaPosition += " CHAPTER:" + StringUtils::itos(m_iChapter);
+	*sMediaPosition += " POS:" + StringUtils::itos(iMediaPosition);
+
+	*sText = *sMediaPosition;  // Up till now it's readable stuff
+
+	if( m_iTitle!=-1 )
+		*sMediaPosition += " TITLE:" + StringUtils::itos(m_iTitle);
 }
 
 //<-dceag-createinst-b->!
@@ -878,6 +896,7 @@ void Xine_Player::CMD_Back_Prior_Menu(string &sCMD_Result,Message *pMessage)
 
 SlimServerClient *Xine_Player::getSlimServerClient()
 {
+/*
 	if ( m_pSlimServerClient == NULL )
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "Creating the Slim Server Client object");
@@ -885,6 +904,92 @@ SlimServerClient *Xine_Player::getSlimServerClient()
 		m_pSlimServerClient->setXineSlaveObject(m_pXineSlaveControl);
 		m_pSlimServerClient->setXineSlaveMutex(&m_xineSlaveMutex);
 	}
-
+*/
 	return m_pSlimServerClient;
+}
+//<-dceag-c140-b->
+
+	/** @brief COMMAND: #140 - Audio Track */
+	/** Go to an audio track */
+		/** @param #5 Value To Assign */
+			/** The audio track to go to.  Simple A/V equipment ignores this and just toggles. */
+
+void Xine_Player::CMD_Audio_Track(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
+//<-dceag-c140-e->
+{
+	g_pPlutoLogger->Write(LV_STATUS,"Go to audio track %s",sValue_To_Assign.c_str());
+	PLUTO_SAFETY_LOCK(xineSlaveLock, m_xineSlaveMutex);
+
+	if ( ! m_pXineSlaveControl )
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Audio_Track() I don't have a slave to use. Ignoring.");
+        return;
+    }
+
+	if ( m_pXineSlaveControl->isSlimClient() )
+		return;
+
+	m_pXineSlaveControl->setAudio(atoi(sValue_To_Assign.c_str()));
+}
+//<-dceag-c141-b->
+
+	/** @brief COMMAND: #141 - Subtitle */
+	/** Go to a subtitle */
+		/** @param #5 Value To Assign */
+			/** The subtitle to go to.  Simple A/V equipment ignores this and just toggles. */
+
+void Xine_Player::CMD_Subtitle(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
+//<-dceag-c141-e->
+{
+	g_pPlutoLogger->Write(LV_STATUS,"Go to subtitle %s",sValue_To_Assign.c_str());
+	PLUTO_SAFETY_LOCK(xineSlaveLock, m_xineSlaveMutex);
+
+	if ( ! m_pXineSlaveControl )
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Subtitle() I don't have a slave to use. Ignoring.");
+        return;
+    }
+
+	if ( m_pXineSlaveControl->isSlimClient() )
+		return;
+
+	m_pXineSlaveControl->setSubtitle(atoi(sValue_To_Assign.c_str()));
+}
+//<-dceag-c142-b->
+
+	/** @brief COMMAND: #142 - Angle */
+	/** Go to an angle */
+		/** @param #5 Value To Assign */
+			/** The angle to go to.  Simple A/V equipment ignores this and just toggles. */
+
+void Xine_Player::CMD_Angle(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
+//<-dceag-c142-e->
+{
+	g_pPlutoLogger->Write(LV_STATUS,"Go to angle %s chapter %d title %d",sValue_To_Assign.c_str(),m_iTitle,m_iChapter);
+	PLUTO_SAFETY_LOCK(xineSlaveLock, m_xineSlaveMutex);
+
+	if ( ! m_pXineSlaveControl )
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Angle() I don't have a slave to use. Ignoring.");
+        return;
+    }
+
+	if ( m_pXineSlaveControl->isSlimClient() )
+		return;
+	m_pXineSlaveControl->setAudio(atoi(sValue_To_Assign.c_str()));
+}
+//<-dceag-c412-b->
+
+	/** @brief COMMAND: #412 - Set Media Position */
+	/** Jump to a certain media position */
+		/** @param #41 StreamID */
+			/** The stream to set */
+		/** @param #42 MediaPosition */
+			/** The media position */
+
+void Xine_Player::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,string &sCMD_Result,Message *pMessage)
+//<-dceag-c412-e->
+{
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Set_Media_Position() called for filename: %s with slave %p.", m_sCurrentFile.c_str(),m_pXineSlaveControl);
+	CMD_Play_Media(m_sCurrentFile,0,iStreamID,sMediaPosition);
 }
