@@ -99,7 +99,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
     m_bDontShare=bDontShare;
     m_bUsingCache=false;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==3514 )/* ||  m_pRow_DesignObj->PK_DesignObj_get()==2212 || 
+if( m_pRow_DesignObj->PK_DesignObj_get()==3533 )/* ||  m_pRow_DesignObj->PK_DesignObj_get()==2212 || 
    m_pRow_DesignObj->PK_DesignObj_get()==2213 ||  m_pRow_DesignObj->PK_DesignObj_get()==2211 ||
    m_pRow_DesignObj->PK_DesignObj_get()==1881 ||  m_pRow_DesignObj->PK_DesignObj_get()==2228 ||
    m_pRow_DesignObj->PK_DesignObj_get()==3531 ||  m_pRow_DesignObj->PK_DesignObj_get()==3534 )// || m_pRow_DesignObj->PK_DesignObj_get()==3471 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )*/
@@ -929,7 +929,30 @@ int k=2;
     int PK_DesignObj_Goto = 0;
     int tmpDesignObj_Goto;
 
-    DesignObjZoneList::iterator itZone;
+    DesignObjCommandList::iterator itActions;
+    for(itActions=m_Action_StartupList.begin();itActions!=m_Action_StartupList.end();++itActions)
+    {
+        CGCommand *oca = (CGCommand *) *itActions;
+        if( oca->m_PK_Command == COMMAND_Set_Floorplan_CONST )
+        {
+            map<int, string>::iterator itParm=oca->m_ParameterList.find(COMMANDPARAMETER_PK_DesignObj_CONST);
+			if( itParm!=oca->m_ParameterList.end() )
+			{
+				int PK_DesignObj_Goto = atoi(itParm->second.c_str());
+				if( oca->m_ParameterList.find(COMMANDPARAMETER_TrueFalse_CONST)!=oca->m_ParameterList.end() &&
+						oca->m_ParameterList[COMMANDPARAMETER_TrueFalse_CONST]=="1" )
+					m_pOrbiterGenerator->m_mapPopups[PK_DesignObj_Goto] = true;
+		
+				bool bDontShare=m_bDontShare;
+				m_bDontShare=false;  // Floorplans are shared across all rooms
+				HandleGoto(PK_DesignObj_Goto);
+				m_bDontShare=bDontShare;
+            }
+        }
+
+    }
+
+	DesignObjZoneList::iterator itZone;
     for(itZone=m_ZoneList.begin();itZone!=m_ZoneList.end();++itZone)
     {
         CGZone *oz = (CGZone *) *itZone;
@@ -1005,9 +1028,6 @@ DesignObj_Generator::~DesignObj_Generator()
 
 int DesignObj_Generator::LookForGoto(DesignObjCommandList *alCommands)
 {
-    // Store a list of actions that we will and delete to remove the device goto's and replace them with variable assign and goto's
-    DesignObjCommandList alAddCommands,alDeleteCommands;
-
     int PK_DesignObj_Goto=0;
 
     DesignObjCommandList::iterator itActions;
@@ -1016,95 +1036,38 @@ int DesignObj_Generator::LookForGoto(DesignObjCommandList *alCommands)
         CGCommand *oca = (CGCommand *) *itActions;
         if( oca->m_PK_Command == COMMAND_Goto_Screen_CONST || oca->m_PK_Command == COMMAND_Show_Popup_CONST )
         {
-            map<int, string>::iterator itParm;
-            for(itParm=oca->m_ParameterList.begin();itParm!=oca->m_ParameterList.end();++itParm)
-            {
-                if( (*itParm).first == COMMANDPARAMETER_PK_DesignObj_CONST )
+            map<int, string>::iterator itParm=oca->m_ParameterList.find(COMMANDPARAMETER_PK_DesignObj_CONST);
+			if( itParm!=oca->m_ParameterList.end() )
+			{
+                if(PK_DesignObj_Goto!=0)
+                    throw "Multiple goto's in object " + StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + " " + m_pRow_DesignObj->Description_get();
+
+                bool b;
+                size_t pos;
+
+                string objgoto = SubstituteVariables((*itParm).second,&b);
+                if( (pos = objgoto.find('.'))!=string::npos )
+                    objgoto = objgoto.substr(0,pos);
+
+                // Be sure there's no substitution
+                if( objgoto.find("<%=")==string::npos )
                 {
-                    if(PK_DesignObj_Goto!=0)
-                        throw "Multiple goto's in object " + StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + " " + m_pRow_DesignObj->Description_get();
-
-                    bool b;
-                    size_t pos;
-
-                    string objgoto = SubstituteVariables((*itParm).second,&b);
-                    if( (pos = objgoto.find('.'))!=string::npos )
-                        objgoto = objgoto.substr(0,pos);
-
-                    // Be sure there's no substitution
-                    if( objgoto.find("<%=")==string::npos )
+                    try
                     {
-                        try
-                        {
-                            PK_DesignObj_Goto = atoi(objgoto.c_str());
-							if( oca->m_PK_Command == COMMAND_Show_Popup_CONST )
-								m_pOrbiterGenerator->m_mapPopups[PK_DesignObj_Goto] = true;
-                        }
-                        catch(...)
-                        {
-                            throw "Cannot go to screen: " + (*itParm).second + " from object: " + StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get());
-                        }
+                        PK_DesignObj_Goto = atoi(objgoto.c_str());
+						if( oca->m_PK_Command == COMMAND_Show_Popup_CONST )
+							m_pOrbiterGenerator->m_mapPopups[PK_DesignObj_Goto] = true;
+                    }
+                    catch(...)
+                    {
+                        throw "Cannot go to screen: " + (*itParm).second + " from object: " + StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get());
                     }
                 }
             }
-            break;
         }
 
-        /* not neeeded anymore
-        else if( oca->m_PK_Command == ACTION_SWITCH_TO_CONTROLLER_CONST )
-        {
-            alDeleteCommands.Add(oca);
-            PK_DesignObj_Goto=-1;
-
-            int PK_Orbiter=0;
-            for(size_t s=0;s<oca->m_alParms.size();++s)
-            {
-                CGCommandParm *ocap = oca->m_alParms[s];
-                if( ocap->m_PK_CommandParameter == C_COMMANDPARAMETER_CONTROLLER_ID_CONST )
-                {
-                    PK_Orbiter = atoi(ocap->m_sValue.c_str());
-                    break;
-                }
-            }
-            if( PK_Orbiter!=0 )
-            {
-                // Keep this controller
-                Row_Orbiter * drOrbiter = m_pOrbiterGenerator->m_pRow_Orbiter;
-                if( m_pOrbiterGenerator->m_htGeneratedOrbiters.ContainsKey(PK_Orbiter) )
-                {
-                    m_sDesignObjGoto = m_pOrbiterGenerator->m_htGeneratedOrbiters[PK_Orbiter];
-                }
-                else
-                {
-                    // temporarily change to the 'goto controller'
-                    m_pOrbiterGenerator->m_pRow_Orbiter=m_mds->Orbiter_get()->GetRow(PK_Orbiter);
-                    m_bDontShare=true;
-                    int MainMenu = m_pOrbiterGenerator->m_pRow_DesignObj_MainMenu->PK_DesignObj_get();
-                    HandleGoto(MainMenu);
-                    ArrayList al = (ArrayList) m_pOrbiterGenerator->m_htGeneratedScreens[MainMenu];
-                    int Version = al.Count-1;
-                    m_sDesignObjGoto = StringUtils::itos(MainMenu) + "." + StringUtils::itos(Version) + ".0";
-                    m_pOrbiterGenerator->m_htGeneratedOrbiters[PK_Orbiter] = m_sDesignObjGoto;
-                    m_pOrbiterGenerator->m_pRow_Orbiter = drOrbiter; // Change back
-                }
-                CGCommand *oa = new CGCommand(COMMAND_Goto_Screen_CONST,this);
-                oa->m_alParms.push_back(new CGCommandParm(COMMANDPARAMETER_PK_DesignObj_CONST,m_sDesignObjGoto));
-                alAddCommands.push_back(oa);
-            }
-        }
-        */
     }
 
-    for(itActions=alDeleteCommands.begin();itActions!=alDeleteCommands.end();++itActions)
-    {
-        CGCommand *oa = (CGCommand *) *itActions;
-// todo C++     alCommands->erase(oa);
-    }
-    for(itActions=alAddCommands.begin();itActions!=alAddCommands.end();++itActions)
-    {
-        CGCommand *oa = (CGCommand *) *itActions;
-// todo C++     alCommands->erase(oa);
-    }
     return PK_DesignObj_Goto;
 }
 
@@ -1181,7 +1144,8 @@ int k=2;
         map<int,string> *htPriorVariables = &m_pOrbiterGenerator->m_mapVariable;
         m_pOrbiterGenerator->m_mapVariable = htNewVariables;
 
-
+if( this->m_pRow_DesignObj->PK_DesignObj_get()==1255 )
+int k=2;
         m_pOrbiterGenerator->m_iPK_DesignObj_Screen = PK_DesignObj_Goto;
         m_DesignObj_GeneratorGoto = new DesignObj_Generator(m_pOrbiterGenerator,drDesignObj_new,PlutoRectangle(0,0,0,0),NULL,pListScreens->size()==0,false);
 //  I think this is not needed since the if( bAddToGenerated at the top of the constructor does this since pListScreens->size()==0???       pListScreens->push_back(m_DesignObj_GeneratorGoto);

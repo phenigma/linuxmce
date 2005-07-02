@@ -239,6 +239,7 @@ protected:
     list<class PlutoPopup*> m_listPopups;
 
 	map< string, class DesignObj_DataGrid * > m_mapObjs_AllGrids; /** < All the datagrids */
+	map< string, class DesignObj_Orbiter * > m_mapFloorplan;
 
 	/** for threads and shared memory control @todo ask */
 
@@ -1492,7 +1493,7 @@ public:
 
 
 	/** @brief COMMAND: #401 - Show File List */
-	/**  */
+	/** Shows the file list */
 		/** @param #3 PK_DesignObj */
 			/** The screen with the file listing */
 		/** @param #13 Filename */
@@ -1539,6 +1540,32 @@ public:
 
 	virtual void CMD_Scale_this_object(int iValue) { string sCMD_Result; CMD_Scale_this_object(iValue,sCMD_Result,NULL);};
 	virtual void CMD_Scale_this_object(int iValue,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #407 - Set Floorplan */
+	/** Sets the object to use for one of the following types:
+light, media, climate, security, telecom */
+		/** @param #3 PK_DesignObj */
+			/** The screen to use for this floorplan */
+		/** @param #14 Type */
+			/** One of the following:
+light, climate, media, security, telecom */
+
+	virtual void CMD_Set_Floorplan(string sPK_DesignObj,string sType) { string sCMD_Result; CMD_Set_Floorplan(sPK_DesignObj.c_str(),sType.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Set_Floorplan(string sPK_DesignObj,string sType,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #408 - Show Floorplan */
+	/** Shows the floorplan */
+		/** @param #11 Position X */
+			/** If the floorplan is not full screen, the location where it should be displayed */
+		/** @param #12 Position Y */
+			/** If the floorplan is not full screen, the location where it should be displayed */
+		/** @param #14 Type */
+			/** The type of floorplan */
+
+	virtual void CMD_Show_Floorplan(int iPosition_X,int iPosition_Y,string sType) { string sCMD_Result; CMD_Show_Floorplan(iPosition_X,iPosition_Y,sType.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Show_Floorplan(int iPosition_X,int iPosition_Y,string sType,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

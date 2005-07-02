@@ -369,6 +369,8 @@
 #define COMMAND_Set_Auto_Switch_to_Remote_CONST 404
 #define COMMAND_Scale_this_object_CONST 405
 #define COMMAND_Display_Message_On_Orbiter_CONST 406
+#define COMMAND_Set_Floorplan_CONST 407
+#define COMMAND_Show_Floorplan_CONST 408
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

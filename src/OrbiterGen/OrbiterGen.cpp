@@ -1263,22 +1263,24 @@ void OrbiterGenerator::SearchForGotos(DesignObj_Data *pDesignObj_Data,DesignObjC
 	for(itActions=alCommands->begin();itActions!=alCommands->end();++itActions)
 	{
 		CGCommand *oca = (CGCommand *) *itActions;
-		if( oca->m_PK_Command == COMMAND_Goto_Screen_CONST || oca->m_PK_Command == COMMAND_Show_Popup_CONST )
+		if( oca->m_PK_Command == COMMAND_Goto_Screen_CONST || oca->m_PK_Command == COMMAND_Show_Popup_CONST || oca->m_PK_Command == COMMAND_Set_Floorplan_CONST )
 		{
-			map<int, string>::iterator itParm;
-			for(itParm=oca->m_ParameterList.begin();itParm!=oca->m_ParameterList.end();++itParm)
+if( oca->m_PK_Command == COMMAND_Set_Floorplan_CONST )
+int k=2;
+            map<int, string>::iterator itParm=oca->m_ParameterList.find(COMMANDPARAMETER_PK_DesignObj_CONST);
+			if( itParm!=oca->m_ParameterList.end() )
 			{
-				if( (*itParm).first == COMMANDPARAMETER_PK_DesignObj_CONST )
+				Row_DesignObj *p_m_pRow_DesignObj = mds.DesignObj_get()->GetRow(atoi((*itParm).second.c_str()));
+				if( p_m_pRow_DesignObj && m_htGeneratedScreens.find(p_m_pRow_DesignObj->PK_DesignObj_get())==m_htGeneratedScreens.end() )
 				{
-					Row_DesignObj *p_m_pRow_DesignObj = mds.DesignObj_get()->GetRow(atoi((*itParm).second.c_str()));
-					if( p_m_pRow_DesignObj && m_htGeneratedScreens.find(p_m_pRow_DesignObj->PK_DesignObj_get())==m_htGeneratedScreens.end() )
-					{
-						m_iPK_DesignObj_Screen = p_m_pRow_DesignObj->PK_DesignObj_get();
-						if( oca->m_PK_Command == COMMAND_Show_Popup_CONST )
-							m_mapPopups[m_iPK_DesignObj_Screen] = true;
- 						DesignObj_Generator *ocDesignObj = new DesignObj_Generator(this,p_m_pRow_DesignObj,PlutoRectangle(0,0,0,0),NULL,true,false);
-						SearchForGotos(ocDesignObj);
-					}
+					m_iPK_DesignObj_Screen = p_m_pRow_DesignObj->PK_DesignObj_get();
+					if( oca->m_PK_Command == COMMAND_Show_Popup_CONST ||
+							(oca->m_PK_Command == COMMAND_Set_Floorplan_CONST && 
+							oca->m_ParameterList.find(COMMANDPARAMETER_TrueFalse_CONST)!=oca->m_ParameterList.end() &&
+							oca->m_ParameterList[COMMANDPARAMETER_TrueFalse_CONST]=="1") )
+						m_mapPopups[m_iPK_DesignObj_Screen] = true;
+ 					DesignObj_Generator *ocDesignObj = new DesignObj_Generator(this,p_m_pRow_DesignObj,PlutoRectangle(0,0,0,0),NULL,true,false);
+					SearchForGotos(ocDesignObj);
 				}
 			}
 		}
@@ -1287,7 +1289,7 @@ void OrbiterGenerator::SearchForGotos(DesignObj_Data *pDesignObj_Data,DesignObjC
 
 void OrbiterGenerator::OutputScreen(DesignObj_Generator *ocDesignObj)
 {
-if( ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()==3471 )
+if( ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()==2211 )
 int k=2;
 	// Always output the first page, even if there's no other
 	for(size_t i=0;i<ocDesignObj->m_alMPArray.size() || i==0;++i)
@@ -1868,7 +1870,8 @@ void OrbiterGenerator::ScaleCommandList(DesignObj_Generator *ocDesignObj,DesignO
 					Value = (*itParm).second;
 				oa->m_ParameterList[COMMANDPARAMETER_PK_DesignObj_CONST]=Value;
 			}
-			else if( (oa->m_PK_Command==COMMAND_Show_Popup_CONST || oa->m_PK_Command==COMMAND_Use_Popup_Remote_Controls_CONST || oa->m_PK_Command==COMMAND_Use_Popup_File_List_CONST) && ((*itParm).first==COMMANDPARAMETER_Position_X_CONST || (*itParm).first==COMMANDPARAMETER_Position_Y_CONST) )
+			else if( (oa->m_PK_Command==COMMAND_Show_Popup_CONST || oa->m_PK_Command==COMMAND_Use_Popup_Remote_Controls_CONST || oa->m_PK_Command==COMMAND_Use_Popup_File_List_CONST || oa->m_PK_Command==COMMAND_Show_Floorplan_CONST ) 
+				&& ((*itParm).first==COMMANDPARAMETER_Position_X_CONST || (*itParm).first==COMMANDPARAMETER_Position_Y_CONST) )
 			{
 				int Size=atoi(itParm->second.c_str());
 				Size = Size * ((*itParm).first==COMMANDPARAMETER_Position_X_CONST ? m_pRow_Size->ScaleX_get() : m_pRow_Size->ScaleY_get()) / 1000 * ocDesignObj->m_iScale/100;

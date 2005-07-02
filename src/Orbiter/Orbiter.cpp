@@ -477,12 +477,12 @@ if( !m_pScreenHistory_Current || !m_pScreenHistory_Current->m_pObj )
         RenderObject( m_pScreenHistory_Current->m_pObj,  m_pScreenHistory_Current->m_pObj);
     }
 
-	for(list<class PlutoPopup*>::reverse_iterator it=m_listPopups.rbegin();it!=m_listPopups.rend();++it)
+	for(list<class PlutoPopup*>::iterator it=m_listPopups.begin();it!=m_listPopups.end();++it)
 		RenderPopup(*it, (*it)->m_Position);
 
 	if( m_pScreenHistory_Current  )
 	{
-		for(list<class PlutoPopup*>::reverse_iterator it=m_pScreenHistory_Current->m_pObj->m_listPopups.rbegin();it!=m_pScreenHistory_Current->m_pObj->m_listPopups.rend();++it)
+		for(list<class PlutoPopup*>::iterator it=m_pScreenHistory_Current->m_pObj->m_listPopups.begin();it!=m_pScreenHistory_Current->m_pObj->m_listPopups.end();++it)
 			RenderPopup(*it, (*it)->m_Position);
 	}
 
@@ -655,7 +655,7 @@ g_pPlutoLogger->Write( LV_STATUS, "Exiting Redraw Objects" );
 //-----------------------------------------------------------------------------------------------------------
 void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Screen, PlutoPoint point)
 {
-if( pObj->m_ObjectID.find("2355")!=string::npos) //&& this->m_pScreenHistory_Current && this->m_pScreenHistory_Current->m_pObj->m_ObjectID.find("1255")!=string::npos )
+if( pObj->m_ObjectID.find("3531")!=string::npos) //&& this->m_pScreenHistory_Current && this->m_pScreenHistory_Current->m_pObj->m_ObjectID.find("1255")!=string::npos )
 {
 int k=2;
 }
@@ -1014,7 +1014,7 @@ bool Orbiter::RenderCell( class DesignObj_DataGrid *pObj,  class DataGridTable *
     GetGridCellDimensions( pObj,  pCell->m_Colspan,  pCell->m_Rowspan,  j,  i,  x,  y,  w,  h );
     if ( w>4 && h >4 )
     {
-        if ( !bTransparentCell )
+		if ( !bTransparentCell )
 			SolidRectangle( point.X + x,  point.Y + y,  w,  h,  pCell->m_AltColor ? pCell->m_AltColor : pTextStyle->m_BackColor);
 
 		/*
@@ -1082,7 +1082,7 @@ g_pPlutoLogger->Write(LV_WARNING,"RenderDataGrid %s %p",pObj->m_ObjectID.c_str()
     if( !pObj->m_pDataGridTable )
         return;
 
-    SolidRectangle( point.X + pObj->m_rPosition.X, point.Y + pObj->m_rPosition.Y, pObj->m_rPosition.Width, pObj->m_rPosition.Height, PlutoColor( 0, 0, 0 ) );
+	SolidRectangle( point.X + pObj->m_rPosition.X, point.Y + pObj->m_rPosition.Y, pObj->m_rPosition.Width, pObj->m_rPosition.Height, PlutoColor( 0, 0, 0 ) );
 
     // short for "number of ARRow ROWS": ArrRows
     // last screen exception: we consider one up arrow as not being there so we don't skip a row when we scroll up
@@ -2844,7 +2844,7 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
 void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Screen, DesignObj_Orbiter *pObj_Parent, GraphicType Type,  int Lev )
 {
 	ShowProgress();
-    if(  pObj->m_ObjectID.find( "3513.0.0.3514" )!=string::npos  )
+    if(  pObj->m_ObjectID.find( "2211" )!=string::npos  )
     {
         int k=2;
     }
@@ -3571,19 +3571,22 @@ g_pPlutoLogger->Write(LV_STATUS,"Ignoring click %d,%d",x,y);
 		}
 	}
 
-	for(list<class PlutoPopup*>::reverse_iterator it=m_listPopups.rbegin();it!=m_listPopups.rend();++it)
+	if( !m_pActivePopup )
 	{
-        PlutoPopup *pPopup = *it;
-        if(
-            pPopup->m_Position.X <= x && x <= pPopup->m_Position.X + pPopup->m_pObj->m_rPosition.Right()    &&
-            pPopup->m_Position.Y <= y && y <= pPopup->m_Position.Y + pPopup->m_pObj->m_rPosition.Bottom())
-        {
-            pTopMostObject = pPopup->m_pObj;
-            RelativePoint = PlutoPoint(x - pPopup->m_Position.X, y - pPopup->m_Position.Y);
-            m_pActivePopup = pPopup;
-            break;
-        }
-    }
+		for(list<class PlutoPopup*>::reverse_iterator it=m_listPopups.rbegin();it!=m_listPopups.rend();++it)
+		{
+			PlutoPopup *pPopup = *it;
+			if(
+				pPopup->m_Position.X <= x && x <= pPopup->m_Position.X + pPopup->m_pObj->m_rPosition.Right()    &&
+				pPopup->m_Position.Y <= y && y <= pPopup->m_Position.Y + pPopup->m_pObj->m_rPosition.Bottom())
+			{
+				pTopMostObject = pPopup->m_pObj;
+				RelativePoint = PlutoPoint(x - pPopup->m_Position.X, y - pPopup->m_Position.Y);
+				m_pActivePopup = pPopup;
+				break;
+			}
+		}
+	}
 
     bHandled=ClickedRegion( pTopMostObject, RelativePoint.X, RelativePoint.Y, pTopMostAnimatedObject );
 
@@ -7325,7 +7328,7 @@ void Orbiter::RemoveShortcuts( void *data )
 //<-dceag-c401-b->
 
 	/** @brief COMMAND: #401 - Show File List */
-	/**  */
+	/** Shows the file list */
 		/** @param #3 PK_DesignObj */
 			/** The screen with the file listing */
 		/** @param #13 Filename */
@@ -7442,4 +7445,47 @@ void Orbiter::CMD_Scale_this_object(int iValue,string &sCMD_Result,Message *pMes
 //<-dceag-c405-e->
 {
 	// this only applies to orbitergen
+}
+//<-dceag-c407-b->
+
+	/** @brief COMMAND: #407 - Set Floorplan */
+	/** Sets the object to use for one of the following types:
+light, media, climate, security, telecom */
+		/** @param #3 PK_DesignObj */
+			/** The screen to use for this floorplan */
+		/** @param #14 Type */
+			/** One of the following:
+light, climate, media, security, telecom */
+
+void Orbiter::CMD_Set_Floorplan(string sPK_DesignObj,string sType,string &sCMD_Result,Message *pMessage)
+//<-dceag-c407-e->
+{
+	DesignObj_Orbiter *pObj = FindObject(sPK_DesignObj);
+	m_mapFloorplan[sType]=pObj;
+}
+
+//<-dceag-c408-b->
+
+	/** @brief COMMAND: #408 - Show Floorplan */
+	/** Shows the floorplan */
+		/** @param #11 Position X */
+			/** If the floorplan is not full screen, the location where it should be displayed */
+		/** @param #12 Position Y */
+			/** If the floorplan is not full screen, the location where it should be displayed */
+		/** @param #14 Type */
+			/** The type of floorplan */
+
+void Orbiter::CMD_Show_Floorplan(int iPosition_X,int iPosition_Y,string sType,string &sCMD_Result,Message *pMessage)
+//<-dceag-c408-e->
+{
+	DesignObj_Orbiter *pObj = m_mapFloorplan[sType];
+	if( !pObj )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"No floorplan for type %s",sType.c_str());
+		return;
+	}
+	if( !m_pScreenHistory_Current || (pObj->m_rPosition.Width==m_pScreenHistory_Current->m_pObj->m_rPosition.Width && pObj->m_rPosition.Height==m_pScreenHistory_Current->m_pObj->m_rPosition.Height) )
+		GotoScreen(pObj->m_ObjectID);
+	else
+		CMD_Show_Popup(pObj->m_ObjectID,iPosition_X,iPosition_Y,"","floorplan",false,false);
 }
