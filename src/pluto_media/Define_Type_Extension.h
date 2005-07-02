@@ -17,6 +17,8 @@
 #define TYPE_EXTENSION_PSC_FROZEN_TABLE_FIELD "Type_Extension.psc_frozen"
 #define TYPE_EXTENSION_PSC_MOD_FIELD "psc_mod"
 #define TYPE_EXTENSION_PSC_MOD_TABLE_FIELD "Type_Extension.psc_mod"
+#define TYPE_EXTENSION_PSC_RESTRICT_FIELD "psc_restrict"
+#define TYPE_EXTENSION_PSC_RESTRICT_TABLE_FIELD "Type_Extension.psc_restrict"
 
 
 #endif

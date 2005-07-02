@@ -21,6 +21,8 @@
 #define ATTRIBUTE_PSC_FROZEN_TABLE_FIELD "Attribute.psc_frozen"
 #define ATTRIBUTE_PSC_MOD_FIELD "psc_mod"
 #define ATTRIBUTE_PSC_MOD_TABLE_FIELD "Attribute.psc_mod"
+#define ATTRIBUTE_PSC_RESTRICT_FIELD "psc_restrict"
+#define ATTRIBUTE_PSC_RESTRICT_TABLE_FIELD "Attribute.psc_restrict"
 
 
 #endif

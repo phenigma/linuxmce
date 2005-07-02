@@ -25,6 +25,8 @@
 #define PLAYLISTENTRY_PSC_FROZEN_TABLE_FIELD "PlaylistEntry.psc_frozen"
 #define PLAYLISTENTRY_PSC_MOD_FIELD "psc_mod"
 #define PLAYLISTENTRY_PSC_MOD_TABLE_FIELD "PlaylistEntry.psc_mod"
+#define PLAYLISTENTRY_PSC_RESTRICT_FIELD "psc_restrict"
+#define PLAYLISTENTRY_PSC_RESTRICT_TABLE_FIELD "PlaylistEntry.psc_restrict"
 
 
 #endif

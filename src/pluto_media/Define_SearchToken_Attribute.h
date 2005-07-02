@@ -17,6 +17,8 @@
 #define SEARCHTOKEN_ATTRIBUTE_PSC_FROZEN_TABLE_FIELD "SearchToken_Attribute.psc_frozen"
 #define SEARCHTOKEN_ATTRIBUTE_PSC_MOD_FIELD "psc_mod"
 #define SEARCHTOKEN_ATTRIBUTE_PSC_MOD_TABLE_FIELD "SearchToken_Attribute.psc_mod"
+#define SEARCHTOKEN_ATTRIBUTE_PSC_RESTRICT_FIELD "psc_restrict"
+#define SEARCHTOKEN_ATTRIBUTE_PSC_RESTRICT_TABLE_FIELD "SearchToken_Attribute.psc_restrict"
 
 
 #endif

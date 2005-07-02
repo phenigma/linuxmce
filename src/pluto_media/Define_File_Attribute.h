@@ -17,6 +17,8 @@
 #define FILE_ATTRIBUTE_PSC_FROZEN_TABLE_FIELD "File_Attribute.psc_frozen"
 #define FILE_ATTRIBUTE_PSC_MOD_FIELD "psc_mod"
 #define FILE_ATTRIBUTE_PSC_MOD_TABLE_FIELD "File_Attribute.psc_mod"
+#define FILE_ATTRIBUTE_PSC_RESTRICT_FIELD "psc_restrict"
+#define FILE_ATTRIBUTE_PSC_RESTRICT_TABLE_FIELD "File_Attribute.psc_restrict"
 
 
 #endif

@@ -34,6 +34,8 @@
 #define ATTRIBUTETYPE_PSC_FROZEN_TABLE_FIELD "AttributeType.psc_frozen"
 #define ATTRIBUTETYPE_PSC_MOD_FIELD "psc_mod"
 #define ATTRIBUTETYPE_PSC_MOD_TABLE_FIELD "AttributeType.psc_mod"
+#define ATTRIBUTETYPE_PSC_RESTRICT_FIELD "psc_restrict"
+#define ATTRIBUTETYPE_PSC_RESTRICT_TABLE_FIELD "AttributeType.psc_restrict"
 
 
 #endif

@@ -8,6 +8,7 @@ LDLIBS =  -lmysqlclient_r
 sources = Database_pluto_media.cpp TableRow.cpp \
 Table_Attribute.cpp \
 Table_AttributeType.cpp \
+Table_Bookmark.cpp \
 Table_Disc.cpp \
 Table_Disc_Attribute.cpp \
 Table_File.cpp \

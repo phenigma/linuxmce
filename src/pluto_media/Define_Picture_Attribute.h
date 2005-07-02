@@ -17,6 +17,8 @@
 #define PICTURE_ATTRIBUTE_PSC_FROZEN_TABLE_FIELD "Picture_Attribute.psc_frozen"
 #define PICTURE_ATTRIBUTE_PSC_MOD_FIELD "psc_mod"
 #define PICTURE_ATTRIBUTE_PSC_MOD_TABLE_FIELD "Picture_Attribute.psc_mod"
+#define PICTURE_ATTRIBUTE_PSC_RESTRICT_FIELD "psc_restrict"
+#define PICTURE_ATTRIBUTE_PSC_RESTRICT_TABLE_FIELD "Picture_Attribute.psc_restrict"
 
 
 #endif

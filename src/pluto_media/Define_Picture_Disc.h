@@ -17,6 +17,8 @@
 #define PICTURE_DISC_PSC_FROZEN_TABLE_FIELD "Picture_Disc.psc_frozen"
 #define PICTURE_DISC_PSC_MOD_FIELD "psc_mod"
 #define PICTURE_DISC_PSC_MOD_TABLE_FIELD "Picture_Disc.psc_mod"
+#define PICTURE_DISC_PSC_RESTRICT_FIELD "psc_restrict"
+#define PICTURE_DISC_PSC_RESTRICT_TABLE_FIELD "Picture_Disc.psc_restrict"
 
 
 #endif

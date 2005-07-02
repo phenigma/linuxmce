@@ -124,6 +124,7 @@ m_psc_frozen = 0;
 is_null[5] = false;
 m_psc_mod = "00000000000000";
 is_null[6] = false;
+is_null[7] = true;
 
 
 	is_added=false;
@@ -152,6 +153,9 @@ return m_psc_frozen;}
 string Row_Disc::psc_mod_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_mod;}
+long int Row_Disc::psc_restrict_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_psc_restrict;}
 
 		
 void Row_Disc::PK_Disc_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -175,6 +179,9 @@ m_psc_frozen = val; is_modified=true; is_null[5]=false;}
 void Row_Disc::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_mod = val; is_modified=true; is_null[6]=false;}
+void Row_Disc::psc_restrict_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_psc_restrict = val; is_modified=true; is_null[7]=false;}
 
 		
 bool Row_Disc::ID_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -192,6 +199,9 @@ return is_null[4];}
 bool Row_Disc::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[5];}
+bool Row_Disc::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[7];}
 
 			
 void Row_Disc::ID_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -212,6 +222,10 @@ is_modified=true;
 }
 void Row_Disc::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[5]=val;
+is_modified=true;
+}
+void Row_Disc::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[7]=val;
 is_modified=true;
 }
 	
@@ -239,7 +253,7 @@ return "NULL";
 char *buf = new char[511];
 mysql_real_escape_string(table->database->m_pMySQL, buf, m_ID.c_str(), (unsigned long) min(255,m_ID.size()));
 string s=string()+"\""+buf+"\"";
-delete buf;
+delete[] buf;
 return s;
 }
 
@@ -305,8 +319,21 @@ return "NULL";
 char *buf = new char[29];
 mysql_real_escape_string(table->database->m_pMySQL, buf, m_psc_mod.c_str(), (unsigned long) min(14,m_psc_mod.size()));
 string s=string()+"\""+buf+"\"";
-delete buf;
+delete[] buf;
 return s;
+}
+
+string Row_Disc::psc_restrict_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[7])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_psc_restrict);
+
+return buf;
 }
 
 
@@ -347,10 +374,10 @@ bool Table_Disc::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Disc_asSQL()+", "+pRow->ID_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Disc_asSQL()+", "+pRow->ID_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
 
 	
-		string query = "insert into Disc (`PK_Disc`, `ID`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
+		string query = "insert into Disc (`PK_Disc`, `ID`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -401,7 +428,7 @@ condition = condition + "`PK_Disc`=" + tmp_PK_Disc;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`PK_Disc`="+pRow->PK_Disc_asSQL()+", `ID`="+pRow->ID_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_Disc`="+pRow->PK_Disc_asSQL()+", `ID`="+pRow->ID_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
 
 	
 		string query = "update Disc set " + update_values_list + " where " + condition;
@@ -578,6 +605,17 @@ else
 {
 pRow->is_null[6]=false;
 pRow->m_psc_mod = string(row[6],lengths[6]);
+}
+
+if (row[7] == NULL)
+{
+pRow->is_null[7]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[7]=false;
+sscanf(row[7], "%li", &(pRow->m_psc_restrict));
 }
 
 
@@ -763,6 +801,17 @@ else
 {
 pRow->is_null[6]=false;
 pRow->m_psc_mod = string(row[6],lengths[6]);
+}
+
+if (row[7] == NULL)
+{
+pRow->is_null[7]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[7]=false;
+sscanf(row[7], "%li", &(pRow->m_psc_restrict));
 }
 
 

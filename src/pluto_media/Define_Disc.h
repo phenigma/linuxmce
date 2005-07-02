@@ -17,6 +17,8 @@
 #define DISC_PSC_FROZEN_TABLE_FIELD "Disc.psc_frozen"
 #define DISC_PSC_MOD_FIELD "psc_mod"
 #define DISC_PSC_MOD_TABLE_FIELD "Disc.psc_mod"
+#define DISC_PSC_RESTRICT_FIELD "psc_restrict"
+#define DISC_PSC_RESTRICT_TABLE_FIELD "Disc.psc_restrict"
 
 
 #endif
