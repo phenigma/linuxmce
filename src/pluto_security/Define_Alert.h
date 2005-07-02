@@ -37,6 +37,8 @@
 #define ALERT_PSC_FROZEN_TABLE_FIELD "Alert.psc_frozen"
 #define ALERT_PSC_MOD_FIELD "psc_mod"
 #define ALERT_PSC_MOD_TABLE_FIELD "Alert.psc_mod"
+#define ALERT_PSC_RESTRICT_FIELD "psc_restrict"
+#define ALERT_PSC_RESTRICT_TABLE_FIELD "Alert.psc_restrict"
 
 
 #endif

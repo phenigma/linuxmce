@@ -21,6 +21,8 @@
 #define ALERT_DEVICE_PSC_FROZEN_TABLE_FIELD "Alert_Device.psc_frozen"
 #define ALERT_DEVICE_PSC_MOD_FIELD "psc_mod"
 #define ALERT_DEVICE_PSC_MOD_TABLE_FIELD "Alert_Device.psc_mod"
+#define ALERT_DEVICE_PSC_RESTRICT_FIELD "psc_restrict"
+#define ALERT_DEVICE_PSC_RESTRICT_TABLE_FIELD "Alert_Device.psc_restrict"
 
 
 #endif

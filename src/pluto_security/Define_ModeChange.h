@@ -23,6 +23,8 @@
 #define MODECHANGE_PSC_FROZEN_TABLE_FIELD "ModeChange.psc_frozen"
 #define MODECHANGE_PSC_MOD_FIELD "psc_mod"
 #define MODECHANGE_PSC_MOD_TABLE_FIELD "ModeChange.psc_mod"
+#define MODECHANGE_PSC_RESTRICT_FIELD "psc_restrict"
+#define MODECHANGE_PSC_RESTRICT_TABLE_FIELD "ModeChange.psc_restrict"
 
 
 #endif
