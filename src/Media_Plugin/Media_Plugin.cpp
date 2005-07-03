@@ -2492,6 +2492,7 @@ void Media_Plugin::CMD_Save_playlist(int iPK_Users,string sPK_EntertainArea,stri
         g_pPlutoLogger->Write(LV_WARNING, "Couldn't find a valid entertainment area with a valid stream in it. Can't save the playlist");
         return;
     }
+g_pPlutoLogger->Write(LV_WARNING, "pl1 = %s",sName.c_str());
 
 	EntertainArea *pEntertainArea = vectEntertainArea[0];
     if ( sName == "" )
@@ -2500,6 +2501,7 @@ void Media_Plugin::CMD_Save_playlist(int iPK_Users,string sPK_EntertainArea,stri
     if ( sName == "" )
         sName = "New Playlist";
 
+g_pPlutoLogger->Write(LV_WARNING, "pl2 = %s",sName.c_str());
     int iPK_Playlist = bSave_as_new ? 0 : pEntertainArea->m_pMediaStream->m_iPK_Playlist;
     if( !m_pMediaAttributes->SavePlaylist(pEntertainArea->m_pMediaStream->m_dequeMediaFile, iPK_Users, iPK_Playlist, sName) )
     {

@@ -970,6 +970,8 @@ bool MediaAttributes::SavePlaylist(deque<MediaFile *> &dequeMediaFile, int iPK_U
     pRow_Playlist->Name_set(sPlaylistName);
     pRow_Playlist->EK_User_set(iPK_Users);
 
+g_pPlutoLogger->Write(LV_WARNING, "pl3 = %s %s",sPlaylistName.c_str()pRow_Playlist->Name_get().c_str());
+
     if ( !pRow_Playlist->Table_Playlist_get()->Commit() )
     {
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot save/create playlist with ID %d error: %s",iPK_Playlist,
