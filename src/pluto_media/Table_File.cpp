@@ -590,8 +590,10 @@ bool Table_File::GetRows(string where_statement,vector<class Row_File*> *rows)
 		query = "select `File`.* from File " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `File`.* from File where " + where_statement;
+	else
+		query = "select `File`.* from File";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

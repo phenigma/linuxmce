@@ -504,8 +504,10 @@ bool Table_SearchToken_Attribute::GetRows(string where_statement,vector<class Ro
 		query = "select `SearchToken_Attribute`.* from SearchToken_Attribute " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `SearchToken_Attribute`.* from SearchToken_Attribute where " + where_statement;
+	else
+		query = "select `SearchToken_Attribute`.* from SearchToken_Attribute";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

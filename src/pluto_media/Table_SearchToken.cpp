@@ -495,8 +495,10 @@ bool Table_SearchToken::GetRows(string where_statement,vector<class Row_SearchTo
 		query = "select `SearchToken`.* from SearchToken " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `SearchToken`.* from SearchToken where " + where_statement;
+	else
+		query = "select `SearchToken`.* from SearchToken";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

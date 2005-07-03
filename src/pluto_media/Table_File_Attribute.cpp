@@ -504,8 +504,10 @@ bool Table_File_Attribute::GetRows(string where_statement,vector<class Row_File_
 		query = "select `File_Attribute`.* from File_Attribute " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `File_Attribute`.* from File_Attribute where " + where_statement;
+	else
+		query = "select `File_Attribute`.* from File_Attribute";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

@@ -631,8 +631,10 @@ bool Table_AlertType::GetRows(string where_statement,vector<class Row_AlertType*
 		query = "select `AlertType`.* from AlertType " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `AlertType`.* from AlertType where " + where_statement;
+	else
+		query = "select `AlertType`.* from AlertType";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

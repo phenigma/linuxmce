@@ -504,8 +504,10 @@ bool Table_Picture_Disc::GetRows(string where_statement,vector<class Row_Picture
 		query = "select `Picture_Disc`.* from Picture_Disc " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `Picture_Disc`.* from Picture_Disc where " + where_statement;
+	else
+		query = "select `Picture_Disc`.* from Picture_Disc";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

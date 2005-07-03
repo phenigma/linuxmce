@@ -572,8 +572,10 @@ bool Table_Notification::GetRows(string where_statement,vector<class Row_Notific
 		query = "select `Notification`.* from Notification " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `Notification`.* from Notification where " + where_statement;
+	else
+		query = "select `Notification`.* from Notification";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

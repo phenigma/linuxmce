@@ -553,8 +553,10 @@ bool Table_Type_AttributeType::GetRows(string where_statement,vector<class Row_T
 		query = "select `Type_AttributeType`.* from Type_AttributeType " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `Type_AttributeType`.* from Type_AttributeType where " + where_statement;
+	else
+		query = "select `Type_AttributeType`.* from Type_AttributeType";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

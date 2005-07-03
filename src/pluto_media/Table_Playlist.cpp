@@ -516,8 +516,10 @@ bool Table_Playlist::GetRows(string where_statement,vector<class Row_Playlist*> 
 		query = "select `Playlist`.* from Playlist " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `Playlist`.* from Playlist where " + where_statement;
+	else
+		query = "select `Playlist`.* from Playlist";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

@@ -523,8 +523,10 @@ bool Table_Type::GetRows(string where_statement,vector<class Row_Type*> *rows)
 		query = "select `Type`.* from Type " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `Type`.* from Type where " + where_statement;
+	else
+		query = "select `Type`.* from Type";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

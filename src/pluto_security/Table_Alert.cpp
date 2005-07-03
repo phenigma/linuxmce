@@ -766,8 +766,10 @@ bool Table_Alert::GetRows(string where_statement,vector<class Row_Alert*> *rows)
 		query = "select `Alert`.* from Alert " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `Alert`.* from Alert where " + where_statement;
+	else
+		query = "select `Alert`.* from Alert";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

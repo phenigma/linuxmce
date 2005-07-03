@@ -537,8 +537,10 @@ bool Table_Alert_Device::GetRows(string where_statement,vector<class Row_Alert_D
 		query = "select `Alert_Device`.* from Alert_Device " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `Alert_Device`.* from Alert_Device where " + where_statement;
+	else
+		query = "select `Alert_Device`.* from Alert_Device";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
