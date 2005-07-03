@@ -588,7 +588,7 @@ void Slim_Server_Streamer::SetStateForStream(int iStreamID, StreamStateType newS
 		/** @param #42 MediaPosition */
 			/** The position at which we need to start playing. */
 
-void Slim_Server_Streamer::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,int iMediaPosition,string &sCMD_Result,Message *pMessage)
+void Slim_Server_Streamer::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,string sMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c37-e->
 {
 	PLUTO_SAFETY_LOCK(dataMutexLock, m_dataStructureAccessMutex);
@@ -618,7 +618,7 @@ void Slim_Server_Streamer::CMD_Play_Media(string sFilename,int iPK_MediaType,int
 		/** @param #42 MediaPosition */
 			/** The position at which this stream was last played. */
 
-void Slim_Server_Streamer::CMD_Stop_Media(int iStreamID,int *iMediaPosition,string &sCMD_Result,Message *pMessage)
+void Slim_Server_Streamer::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c38-e->
 {
 	PLUTO_SAFETY_LOCK(dataMutexLock, m_dataStructureAccessMutex);
@@ -742,16 +742,14 @@ void Slim_Server_Streamer::CMD_Enable_Broadcasting(int iStreamID,string *sMediaU
 
 	/** @brief COMMAND: #259 - Report Playback Position */
 	/** This will report the playback position of the current stream. */
-		/** @param #39 Options */
-			/** Other options that the player might record for this position. Usefull if we have a non standard encoding of the player position. */
+		/** @param #9 Text */
+			/** A human readable representation of the current position */
 		/** @param #41 StreamID */
 			/** The stream ID on which to report the position. */
 		/** @param #42 MediaPosition */
-			/** The reported media position ( in milliseconds since the beginning of the stream). */
-		/** @param #106 Media Length */
-			/** The complete length of the media stream. Where appliable. */
+			/** A media player readable representation of the current position including all options */
 
-void Slim_Server_Streamer::CMD_Report_Playback_Position(int iStreamID,string *sOptions,int *iMediaPosition,int *iMedia_Length,string &sCMD_Result,Message *pMessage)
+void Slim_Server_Streamer::CMD_Report_Playback_Position(int iStreamID,string *sText,string *sMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c259-e->
 {
 	string commandResult;
@@ -904,3 +902,41 @@ string Slim_Server_Streamer::getMacAddressForDevice(DeviceData_Base *pDevice)
 
 	return StringUtils::URLEncode(StringUtils::ToLower(macAddress));
 }
+//<-dceag-c140-b->
+
+	/** @brief COMMAND: #140 - Audio Track */
+	/** Go to an audio track */
+		/** @param #5 Value To Assign */
+			/** The audio track to go to.  Simple A/V equipment ignores this and just toggles. */
+
+void Slim_Server_Streamer::CMD_Audio_Track(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
+//<-dceag-c140-e->
+//<-dceag-c141-b->
+
+	/** @brief COMMAND: #141 - Subtitle */
+	/** Go to a subtitle */
+		/** @param #5 Value To Assign */
+			/** The subtitle to go to.  Simple A/V equipment ignores this and just toggles. */
+
+void Slim_Server_Streamer::CMD_Subtitle(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
+//<-dceag-c141-e->
+//<-dceag-c142-b->
+
+	/** @brief COMMAND: #142 - Angle */
+	/** Go to an angle */
+		/** @param #5 Value To Assign */
+			/** The angle to go to.  Simple A/V equipment ignores this and just toggles. */
+
+void Slim_Server_Streamer::CMD_Angle(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
+//<-dceag-c142-e->
+//<-dceag-c412-b->
+
+	/** @brief COMMAND: #412 - Set Media Position */
+	/** Jump to a certain media position */
+		/** @param #41 StreamID */
+			/** The stream to set */
+		/** @param #42 MediaPosition */
+			/** The media position */
+
+void Slim_Server_Streamer::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,string &sCMD_Result,Message *pMessage)
+//<-dceag-c412-e->

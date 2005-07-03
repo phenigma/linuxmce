@@ -196,7 +196,7 @@ void SqueezeBox_Player::SomeFunction()
 		/** @param #42 MediaPosition */
 			/** The position at which we need to start playing. */
 
-void SqueezeBox_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,int iMediaPosition,string &sCMD_Result,Message *pMessage)
+void SqueezeBox_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,string sMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c37-e->
 {
     Slim_Server_Streamer *pSlimServer  = findSlimServerController();
@@ -223,7 +223,7 @@ void SqueezeBox_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iS
 		/** @param #42 MediaPosition */
 			/** The position at which this stream was last played. */
 
-void SqueezeBox_Player::CMD_Stop_Media(int iStreamID,int *iMediaPosition,string &sCMD_Result,Message *pMessage)
+void SqueezeBox_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c38-e->
 {
     cout << "Need to implement command #38 - Stop Media" << endl;
@@ -321,16 +321,14 @@ void SqueezeBox_Player::CMD_Enable_Broadcasting(int iStreamID,string *sMediaURL,
 
 	/** @brief COMMAND: #259 - Report Playback Position */
 	/** This will report the playback position of the current stream. */
-		/** @param #39 Options */
-			/** Other options that the player might record for this position. Usefull if we have a non standard encoding of the player position. */
+		/** @param #9 Text */
+			/** A human readable representation of the current position */
 		/** @param #41 StreamID */
 			/** The stream ID on which to report the position. */
 		/** @param #42 MediaPosition */
-			/** The reported media position ( in milliseconds since the beginning of the stream). */
-		/** @param #106 Media Length */
-			/** The complete length of the media stream. Where appliable. */
+			/** A media player readable representation of the current position including all options */
 
-void SqueezeBox_Player::CMD_Report_Playback_Position(int iStreamID,string *sOptions,int *iMediaPosition,int *iMedia_Length,string &sCMD_Result,Message *pMessage)
+void SqueezeBox_Player::CMD_Report_Playback_Position(int iStreamID,string *sText,string *sMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c259-e->
 {
 
@@ -375,3 +373,41 @@ void SqueezeBox_Player::CMD_Mute(string &sCMD_Result,Message *pMessage)
 {
 
 }
+//<-dceag-c140-b->
+
+	/** @brief COMMAND: #140 - Audio Track */
+	/** Go to an audio track */
+		/** @param #5 Value To Assign */
+			/** The audio track to go to.  Simple A/V equipment ignores this and just toggles. */
+
+void SqueezeBox_Player::CMD_Audio_Track(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
+//<-dceag-c140-e->
+//<-dceag-c141-b->
+
+	/** @brief COMMAND: #141 - Subtitle */
+	/** Go to a subtitle */
+		/** @param #5 Value To Assign */
+			/** The subtitle to go to.  Simple A/V equipment ignores this and just toggles. */
+
+void SqueezeBox_Player::CMD_Subtitle(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
+//<-dceag-c141-e->
+//<-dceag-c142-b->
+
+	/** @brief COMMAND: #142 - Angle */
+	/** Go to an angle */
+		/** @param #5 Value To Assign */
+			/** The angle to go to.  Simple A/V equipment ignores this and just toggles. */
+
+void SqueezeBox_Player::CMD_Angle(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
+//<-dceag-c142-e->
+//<-dceag-c412-b->
+
+	/** @brief COMMAND: #412 - Set Media Position */
+	/** Jump to a certain media position */
+		/** @param #41 StreamID */
+			/** The stream to set */
+		/** @param #42 MediaPosition */
+			/** The media position */
+
+void SqueezeBox_Player::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,string &sCMD_Result,Message *pMessage)
+//<-dceag-c412-e->

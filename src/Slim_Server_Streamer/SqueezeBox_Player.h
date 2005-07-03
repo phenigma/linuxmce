@@ -65,8 +65,8 @@ public:
 		/** @param #42 MediaPosition */
 			/** The position at which we need to start playing. */
 
-	virtual void CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,int iMediaPosition) { string sCMD_Result; CMD_Play_Media(sFilename.c_str(),iPK_MediaType,iStreamID,iMediaPosition,sCMD_Result,NULL);};
-	virtual void CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,int iMediaPosition,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,string sMediaPosition) { string sCMD_Result; CMD_Play_Media(sFilename.c_str(),iPK_MediaType,iStreamID,sMediaPosition.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,string sMediaPosition,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #38 - Stop Media */
@@ -76,8 +76,8 @@ public:
 		/** @param #42 MediaPosition */
 			/** The position at which this stream was last played. */
 
-	virtual void CMD_Stop_Media(int iStreamID,int *iMediaPosition) { string sCMD_Result; CMD_Stop_Media(iStreamID,iMediaPosition,sCMD_Result,NULL);};
-	virtual void CMD_Stop_Media(int iStreamID,int *iMediaPosition,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Stop_Media(int iStreamID,string *sMediaPosition) { string sCMD_Result; CMD_Stop_Media(iStreamID,sMediaPosition,sCMD_Result,NULL);};
+	virtual void CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #39 - Pause Media */
@@ -148,6 +148,33 @@ public:
 	virtual void CMD_Mute(string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #140 - Audio Track */
+	/** Go to an audio track */
+		/** @param #5 Value To Assign */
+			/** The audio track to go to.  Simple A/V equipment ignores this and just toggles. */
+
+	virtual void CMD_Audio_Track(string sValue_To_Assign) { string sCMD_Result; CMD_Audio_Track(sValue_To_Assign.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Audio_Track(string sValue_To_Assign,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #141 - Subtitle */
+	/** Go to a subtitle */
+		/** @param #5 Value To Assign */
+			/** The subtitle to go to.  Simple A/V equipment ignores this and just toggles. */
+
+	virtual void CMD_Subtitle(string sValue_To_Assign) { string sCMD_Result; CMD_Subtitle(sValue_To_Assign.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Subtitle(string sValue_To_Assign,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #142 - Angle */
+	/** Go to an angle */
+		/** @param #5 Value To Assign */
+			/** The angle to go to.  Simple A/V equipment ignores this and just toggles. */
+
+	virtual void CMD_Angle(string sValue_To_Assign) { string sCMD_Result; CMD_Angle(sValue_To_Assign.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Angle(string sValue_To_Assign,string &sCMD_Result,Message *pMessage);
+
+
 	/** @brief COMMAND: #243 - Enable Broadcasting */
 	/** Enable broadcasting from here. */
 		/** @param #41 StreamID */
@@ -161,17 +188,26 @@ public:
 
 	/** @brief COMMAND: #259 - Report Playback Position */
 	/** This will report the playback position of the current stream. */
-		/** @param #39 Options */
-			/** Other options that the player might record for this position. Usefull if we have a non standard encoding of the player position. */
+		/** @param #9 Text */
+			/** A human readable representation of the current position */
 		/** @param #41 StreamID */
 			/** The stream ID on which to report the position. */
 		/** @param #42 MediaPosition */
-			/** The reported media position ( in milliseconds since the beginning of the stream). */
-		/** @param #106 Media Length */
-			/** The complete length of the media stream. Where appliable. */
+			/** A media player readable representation of the current position including all options */
 
-	virtual void CMD_Report_Playback_Position(int iStreamID,string *sOptions,int *iMediaPosition,int *iMedia_Length) { string sCMD_Result; CMD_Report_Playback_Position(iStreamID,sOptions,iMediaPosition,iMedia_Length,sCMD_Result,NULL);};
-	virtual void CMD_Report_Playback_Position(int iStreamID,string *sOptions,int *iMediaPosition,int *iMedia_Length,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Report_Playback_Position(int iStreamID,string *sText,string *sMediaPosition) { string sCMD_Result; CMD_Report_Playback_Position(iStreamID,sText,sMediaPosition,sCMD_Result,NULL);};
+	virtual void CMD_Report_Playback_Position(int iStreamID,string *sText,string *sMediaPosition,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #412 - Set Media Position */
+	/** Jump to a certain media position */
+		/** @param #41 StreamID */
+			/** The stream to set */
+		/** @param #42 MediaPosition */
+			/** The media position */
+
+	virtual void CMD_Set_Media_Position(int iStreamID,string sMediaPosition) { string sCMD_Result; CMD_Set_Media_Position(iStreamID,sMediaPosition.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Set_Media_Position(int iStreamID,string sMediaPosition,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->
