@@ -268,8 +268,10 @@ bool Table_@table_name@::GetRows(string where_statement,vector<class Row_@table_
 		query = "select `@table_name@`.* from @table_name@ " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `@table_name@`.* from @table_name@ where " + where_statement;
+	else
+		query = "select `@table_name@`.* from @table_name@";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
