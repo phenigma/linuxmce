@@ -228,7 +228,6 @@ void SqueezeBox_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,stri
 {
     cout << "Need to implement command #38 - Stop Media" << endl;
     cout << "Parm #41 - StreamID=" << iStreamID << endl;
-    cout << "Parm #42 - MediaPosition=" << iMediaPosition << endl;
 }
 
 //<-dceag-c39-b->
@@ -382,6 +381,9 @@ void SqueezeBox_Player::CMD_Mute(string &sCMD_Result,Message *pMessage)
 
 void SqueezeBox_Player::CMD_Audio_Track(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c140-e->
+{
+}
+
 //<-dceag-c141-b->
 
 	/** @brief COMMAND: #141 - Subtitle */
@@ -391,6 +393,9 @@ void SqueezeBox_Player::CMD_Audio_Track(string sValue_To_Assign,string &sCMD_Res
 
 void SqueezeBox_Player::CMD_Subtitle(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c141-e->
+{
+}
+
 //<-dceag-c142-b->
 
 	/** @brief COMMAND: #142 - Angle */
@@ -400,6 +405,9 @@ void SqueezeBox_Player::CMD_Subtitle(string sValue_To_Assign,string &sCMD_Result
 
 void SqueezeBox_Player::CMD_Angle(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c142-e->
+{
+}
+
 //<-dceag-c412-b->
 
 	/** @brief COMMAND: #412 - Set Media Position */
@@ -411,3 +419,6 @@ void SqueezeBox_Player::CMD_Angle(string sValue_To_Assign,string &sCMD_Result,Me
 
 void SqueezeBox_Player::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c412-e->
+{
+}
+
