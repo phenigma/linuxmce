@@ -11,6 +11,8 @@
 #define BOOKMARK_EK_MEDIATYPE_TABLE_FIELD "Bookmark.EK_MediaType"
 #define BOOKMARK_FK_PICTURE_FIELD "FK_Picture"
 #define BOOKMARK_FK_PICTURE_TABLE_FIELD "Bookmark.FK_Picture"
+#define BOOKMARK_EK_USERS_FIELD "EK_Users"
+#define BOOKMARK_EK_USERS_TABLE_FIELD "Bookmark.EK_Users"
 #define BOOKMARK_DESCRIPTION_FIELD "Description"
 #define BOOKMARK_DESCRIPTION_TABLE_FIELD "Bookmark.Description"
 #define BOOKMARK_POSITION_FIELD "Position"

@@ -76,6 +76,7 @@ class DECLSPECIFIER Row_Bookmark : public TableRow, public SerializeClass
 long int m_FK_File;
 long int m_EK_MediaType;
 long int m_FK_Picture;
+long int m_EK_Users;
 string m_Description;
 string m_Position;
 long int m_psc_id;
@@ -85,13 +86,14 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[12];
+		bool is_null[13];
 	
 	public:
 		long int PK_Bookmark_get();
 long int FK_File_get();
 long int EK_MediaType_get();
 long int FK_Picture_get();
+long int EK_Users_get();
 string Description_get();
 string Position_get();
 long int psc_id_get();
@@ -106,6 +108,7 @@ long int psc_restrict_get();
 void FK_File_set(long int val);
 void EK_MediaType_set(long int val);
 void FK_Picture_set(long int val);
+void EK_Users_set(long int val);
 void Description_set(string val);
 void Position_set(string val);
 void psc_id_set(long int val);
@@ -117,6 +120,7 @@ void psc_restrict_set(long int val);
 
 		
 		bool FK_Picture_isNull();
+bool EK_Users_isNull();
 bool Description_isNull();
 bool Position_isNull();
 bool psc_id_isNull();
@@ -127,6 +131,7 @@ bool psc_restrict_isNull();
 
 			
 		void FK_Picture_setNull(bool val);
+void EK_Users_setNull(bool val);
 void Description_setNull(bool val);
 void Position_setNull(bool val);
 void psc_id_setNull(bool val);
@@ -155,7 +160,7 @@ class Row_Picture* FK_Picture_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Bookmark+ m_FK_File+ m_EK_MediaType+ m_FK_Picture+ m_Description+ m_Position+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_Bookmark+ m_FK_File+ m_EK_MediaType+ m_FK_Picture+ m_EK_Users+ m_Description+ m_Position+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -164,6 +169,7 @@ class Row_Picture* FK_Picture_getrow();
 string FK_File_asSQL();
 string EK_MediaType_asSQL();
 string FK_Picture_asSQL();
+string EK_Users_asSQL();
 string Description_asSQL();
 string Position_asSQL();
 string psc_id_asSQL();
