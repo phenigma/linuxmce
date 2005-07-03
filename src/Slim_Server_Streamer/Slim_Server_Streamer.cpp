@@ -603,8 +603,8 @@ void Slim_Server_Streamer::CMD_Play_Media(string sFilename,int iPK_MediaType,int
 	SetStateForStream(iStreamID, STATE_CHANGING);
 	SendReceiveCommand(sControlledPlayerMac + " playlist play " + StringUtils::URLEncode(string("file://") + StringUtils::Replace(&sFilename,"//", "/")));
 
-	if ( iMediaPosition != 0 )
-		SendReceiveCommand(sControlledPlayerMac + " gototime " + StringUtils::itos(iMediaPosition / 1000));
+//	if ( sMediaPosition != 0 )
+//		SendReceiveCommand(sControlledPlayerMac + " gototime " + StringUtils::itos(iMediaPosition / 1000));
 
 	SetStateForStream(iStreamID, STATE_PLAY);
 }
@@ -632,8 +632,8 @@ void Slim_Server_Streamer::CMD_Stop_Media(int iStreamID,string *sMediaPosition,s
 	string sOptions;
 	int mediaPosition;
 	int mediaLength;
-	CMD_Report_Playback_Position(iStreamID,&sOptions,&mediaPosition,&mediaLength,sCMD_Result,pMessage);
-	*iMediaPosition = mediaPosition;
+//	CMD_Report_Playback_Position(iStreamID,&sOptions,&mediaPosition,&mediaLength,sCMD_Result,pMessage);
+//	*iMediaPosition = mediaPosition;
 	m_mapStreamsToPlayers.erase(iStreamID);
 	SendReceiveCommand(sControlledPlayerMac + " playlist clear");
 	SendReceiveCommand(sControlledPlayerMac + " stop");
@@ -756,6 +756,7 @@ void Slim_Server_Streamer::CMD_Report_Playback_Position(int iStreamID,string *sT
 	string command;
 	string sPlayerMac;
 	float floatValue;
+	int MediaPosition=0, iMedia_Length=0;
 
 	PLUTO_SAFETY_LOCK(dataMutexLock, m_dataStructureAccessMutex);
 
@@ -775,7 +776,7 @@ void Slim_Server_Streamer::CMD_Report_Playback_Position(int iStreamID,string *sT
 		return;
 	}
 
-	*iMediaPosition = (int)(floatValue * 1000);
+	iMediaPosition = (int)(floatValue * 1000);
 
 	command = sPlayerMac + " duration ";
 	if ( (commandResult = SendReceiveCommand(command + "?")) == "")
@@ -790,9 +791,9 @@ void Slim_Server_Streamer::CMD_Report_Playback_Position(int iStreamID,string *sT
 		return;
 	}
 
-	*iMedia_Length = (int)(floatValue * 1000);
+	iMedia_Length = (int)(floatValue * 1000);
 
-	g_pPlutoLogger->Write(LV_STATUS, "Detected data: position %d from %d", *iMediaPosition, *iMedia_Length);
+	g_pPlutoLogger->Write(LV_STATUS, "Detected data: position %d from %d", iMediaPosition, iMedia_Length);
 }
 //<-dceag-createinst-b->!
 //<-dceag-c89-b->
@@ -911,6 +912,9 @@ string Slim_Server_Streamer::getMacAddressForDevice(DeviceData_Base *pDevice)
 
 void Slim_Server_Streamer::CMD_Audio_Track(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c140-e->
+{
+}
+
 //<-dceag-c141-b->
 
 	/** @brief COMMAND: #141 - Subtitle */
@@ -920,6 +924,9 @@ void Slim_Server_Streamer::CMD_Audio_Track(string sValue_To_Assign,string &sCMD_
 
 void Slim_Server_Streamer::CMD_Subtitle(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c141-e->
+{
+}
+
 //<-dceag-c142-b->
 
 	/** @brief COMMAND: #142 - Angle */
@@ -929,6 +936,9 @@ void Slim_Server_Streamer::CMD_Subtitle(string sValue_To_Assign,string &sCMD_Res
 
 void Slim_Server_Streamer::CMD_Angle(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c142-e->
+{
+}
+
 //<-dceag-c412-b->
 
 	/** @brief COMMAND: #412 - Set Media Position */
@@ -940,3 +950,6 @@ void Slim_Server_Streamer::CMD_Angle(string sValue_To_Assign,string &sCMD_Result
 
 void Slim_Server_Streamer::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c412-e->
+{
+}
+
