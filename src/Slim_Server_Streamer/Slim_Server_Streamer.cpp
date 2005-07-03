@@ -756,7 +756,7 @@ void Slim_Server_Streamer::CMD_Report_Playback_Position(int iStreamID,string *sT
 	string command;
 	string sPlayerMac;
 	float floatValue;
-	int MediaPosition=0, iMedia_Length=0;
+	int iMediaPosition=0, iMedia_Length=0;
 
 	PLUTO_SAFETY_LOCK(dataMutexLock, m_dataStructureAccessMutex);
 
