@@ -6519,19 +6519,19 @@ namespace DCE
 	};
 	class CMD_Rename_Bookmark : public PreformedCommand {
 	public:
-		CMD_Rename_Bookmark(long DeviceIDFrom, long DeviceIDTo,string sValue_To_Assign,int iEK_Bookmark) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,411,2,5,sValue_To_Assign.c_str(),129,StringUtils::itos(iEK_Bookmark).c_str()); }
+		CMD_Rename_Bookmark(long DeviceIDFrom, long DeviceIDTo,string sValue_To_Assign,int iPK_Users,int iEK_Bookmark) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,411,3,5,sValue_To_Assign.c_str(),17,StringUtils::itos(iPK_Users).c_str(),129,StringUtils::itos(iEK_Bookmark).c_str()); }
 	};
 	class CMD_Rename_Bookmark_DL : public PreformedCommand {
 	public:
-		CMD_Rename_Bookmark_DL(long DeviceIDFrom, string DeviceIDTo,string sValue_To_Assign,int iEK_Bookmark) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,411,2,5,sValue_To_Assign.c_str(),129,StringUtils::itos(iEK_Bookmark).c_str()); }
+		CMD_Rename_Bookmark_DL(long DeviceIDFrom, string DeviceIDTo,string sValue_To_Assign,int iPK_Users,int iEK_Bookmark) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,411,3,5,sValue_To_Assign.c_str(),17,StringUtils::itos(iPK_Users).c_str(),129,StringUtils::itos(iEK_Bookmark).c_str()); }
 	};
 	class CMD_Rename_Bookmark_DT : public PreformedCommand {
 	public:
-		CMD_Rename_Bookmark_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sValue_To_Assign,int iEK_Bookmark) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,411,2,5,sValue_To_Assign.c_str(),129,StringUtils::itos(iEK_Bookmark).c_str()); }
+		CMD_Rename_Bookmark_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sValue_To_Assign,int iPK_Users,int iEK_Bookmark) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,411,3,5,sValue_To_Assign.c_str(),17,StringUtils::itos(iPK_Users).c_str(),129,StringUtils::itos(iEK_Bookmark).c_str()); }
 	};
 	class CMD_Rename_Bookmark_Cat : public PreformedCommand {
 	public:
-		CMD_Rename_Bookmark_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sValue_To_Assign,int iEK_Bookmark) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,411,2,5,sValue_To_Assign.c_str(),129,StringUtils::itos(iEK_Bookmark).c_str()); }
+		CMD_Rename_Bookmark_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sValue_To_Assign,int iPK_Users,int iEK_Bookmark) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,411,3,5,sValue_To_Assign.c_str(),17,StringUtils::itos(iPK_Users).c_str(),129,StringUtils::itos(iEK_Bookmark).c_str()); }
 	};
 	class CMD_Set_Media_Position : public PreformedCommand {
 	public:

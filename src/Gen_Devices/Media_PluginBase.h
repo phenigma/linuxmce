@@ -117,7 +117,7 @@ public:
 	virtual void CMD_MH_Send_Me_To_File_List(int iPK_MediaType,int iPK_DeviceTemplate,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Save_Bookmark(string sPK_EntertainArea,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Delete_Bookmark(int iEK_Bookmark,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Rename_Bookmark(string sValue_To_Assign,int iEK_Bookmark,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Rename_Bookmark(string sValue_To_Assign,int iPK_Users,int iEK_Bookmark,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -721,8 +721,9 @@ public:
 					{
 						string sCMD_Result="OK";
 					string sValue_To_Assign=pMessage->m_mapParameters[5];
+					int iPK_Users=atoi(pMessage->m_mapParameters[17].c_str());
 					int iEK_Bookmark=atoi(pMessage->m_mapParameters[129].c_str());
-						CMD_Rename_Bookmark(sValue_To_Assign.c_str(),iEK_Bookmark,sCMD_Result,pMessage);
+						CMD_Rename_Bookmark(sValue_To_Assign.c_str(),iPK_Users,iEK_Bookmark,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -739,7 +740,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Rename_Bookmark(sValue_To_Assign.c_str(),iEK_Bookmark,sCMD_Result,pMessage);
+								CMD_Rename_Bookmark(sValue_To_Assign.c_str(),iPK_Users,iEK_Bookmark,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

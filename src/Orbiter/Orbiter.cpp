@@ -2667,6 +2667,7 @@ g_pPlutoLogger->Write(LV_WARNING,"from grid %s deleting m_pDataGridTable 1",pObj
         bool bResponse;
         int iPK_Variable=0;
         string sValue_To_Assign;
+		WaitForMessageQueue();  // There might still be some messages in the queue which will affect this grid
         DCE::CMD_Populate_Datagrid CMD_Populate_Datagrid( m_dwPK_Device,  m_dwPK_Device_DatagridPlugIn,  StringUtils::itos( m_dwIDataGridRequestCounter ), pObj->m_sGridID,
             pObj->m_iPK_Datagrid, SubstituteVariables( pObj->m_sOptions, pObj, 0, 0 ), &iPK_Variable, &sValue_To_Assign, &bResponse, &pObj->m_iPopulatedWidth, &pObj->m_iPopulatedHeight  );
         if(  !SendCommand( CMD_Populate_Datagrid ) || !bResponse  ) // wait for a response

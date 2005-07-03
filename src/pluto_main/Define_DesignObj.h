@@ -219,9 +219,9 @@
 #define DESIGNOBJ_objAddAllFiles_CONST 1599
 #define DESIGNOBJ_objSavePrivate_CONST 1600
 #define DESIGNOBJ_objGotoNamePlaylist_CONST 1601
-#define DESIGNOBJ_mnuPlaylistSave_CONST 1602
+#define DESIGNOBJ_mnuFileSave_CONST 1602
 #define DESIGNOBJ_objSavePublic_CONST 1603
-#define DESIGNOBJ_mnuManagePlaylist_CONST 1606
+#define DESIGNOBJ_mnuFileSavex_CONST 1606
 #define DESIGNOBJ_mnuDriveBusy_CONST 1607
 #define DESIGNOBJ_objCancelBurnRip_CONST 1608
 #define DESIGNOBJ_mnuBroadcast_CONST 1610

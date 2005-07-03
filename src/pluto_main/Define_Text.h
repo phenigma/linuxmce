@@ -502,6 +502,7 @@
 #define TEXT_Security_scenarios_CONST 1177
 #define TEXT_Telecom_scenarios_CONST 1178
 #define TEXT_Climate_scenarios_CONST 1179
+#define TEXT_Name_Bookmark_CONST 1183
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

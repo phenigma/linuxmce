@@ -118,7 +118,7 @@ void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFr
 	int baseMessageSpecPos = 0;
 	int targetType = 0; // Device;
 	bool bResponseRequired=false,bOutParams=false;
-	while( cArguments[baseMessageSpecPos][0]=='-' )
+	while( iNumArgs>baseMessageSpecPos && cArguments[baseMessageSpecPos][0]=='-' )
 	{
 		if ( stricmp(cArguments[baseMessageSpecPos], "-targetType") == 0 )
 		{
@@ -146,6 +146,9 @@ void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFr
 		m_eExpectedResponse = ER_DeliveryConfirmation;  // i.e. just an "OK"
 	if( bOutParams )
 		m_eExpectedResponse = ER_ReplyMessage;
+
+	if( baseMessageSpecPos+3 >= iNumArgs )
+		return; // Invalid message
 
 	m_dwPK_Device_From = dwPK_DeviceFrom ? dwPK_DeviceFrom : atoi(cArguments[baseMessageSpecPos]);
 	string sDeviceTo=cArguments[baseMessageSpecPos + 1];

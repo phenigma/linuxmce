@@ -4173,8 +4173,33 @@ class DataGridTable *Media_Plugin::Bookmarks( string GridID, string Parms, void 
 	g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::Bookmarks Called to populate: %s", Parms.c_str());
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 
-    int PK_MediaType = atoi(Parms.c_str());
-	string sWhere = PK_MediaType ? "EK_MediaType=" + StringUtils::itos(PK_MediaType) : "1=1";
+	// If this is called to browse the bookmarks within the currently playing file, this will be called with
+	// MediaType=0.  Otherwise the MediaType and current user will be passed in
+	string::size_type pos=0;
+	int PK_MediaType = atoi(StringUtils::Tokenize(Parms,",",pos).c_str());
+	int PK_Users = atoi(StringUtils::Tokenize(Parms,",",pos).c_str());
+
+	string sWhere;
+	if( PK_MediaType )
+		sWhere = "EK_MediaType=" + StringUtils::itos(PK_MediaType) + " AND (EK_Users IS NULL OR EK_Users="+StringUtils::itos(PK_Users)+")";
+	else
+	{
+		vector<EntertainArea *> vectEntertainArea;
+		// Only an Orbiter will tell us to play media
+		DetermineEntArea( pMessage->m_dwPK_Device_From, 0, "", vectEntertainArea );
+		if( vectEntertainArea.size() )
+		{
+			EntertainArea *pEntertainArea = vectEntertainArea[0];
+			if( pEntertainArea->m_pMediaStream && pEntertainArea->m_pMediaStream->m_dequeMediaFile.size() &&
+				pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos>=0 &&
+				pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos<pEntertainArea->m_pMediaStream->m_dequeMediaFile.size() )
+			{
+				MediaFile *pMediaFile = pEntertainArea->m_pMediaStream->m_dequeMediaFile[pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos];
+				sWhere = "FK_File=" + StringUtils::itos(pMediaFile->m_dwPK_File);
+			}
+		}
+	}
+
 	vector<Row_Bookmark *> vectRow_Bookmark;
 	m_pDatabase_pluto_media->Bookmark_get()->GetRows(sWhere,&vectRow_Bookmark);
 
@@ -4182,7 +4207,7 @@ class DataGridTable *Media_Plugin::Bookmarks( string GridID, string Parms, void 
 	{
 		Row_Bookmark *pRow_Bookmark = vectRow_Bookmark[s];
 		DataGridCell *pDataGridCell = new DataGridCell(pRow_Bookmark->Description_get(), pRow_Bookmark->Position_get());
-		pDataGridCell->m_Colspan=3;
+		pDataGridCell->m_Colspan=2;
 		pDataGrid->SetData(2,s,pDataGridCell);
 
 		if( pRow_Bookmark->FK_Picture_get() )
@@ -4307,6 +4332,18 @@ void Media_Plugin::CMD_Save_Bookmark(string sPK_EntertainArea,string &sCMD_Resul
 	pRow_Bookmark->Description_set(sName);
 	pRow_Bookmark->Position_set(sPosition);
 	m_pDatabase_pluto_media->Bookmark_get()->Commit();
+
+	DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pMessage->m_dwPK_Device_From,0,StringUtils::itos(DESIGNOBJ_mnuFileSave_CONST),"","",false,false);
+	string sCmdToRenameBookmark="<%=!%> <%=V-106%> 1 411 5 \"<%=17%>\" 129 " + StringUtils::itos(pRow_Bookmark->PK_Bookmark_get());
+	DCE::CMD_Set_Variable CMD_Set_Variable_Private(m_dwPK_Device,pMessage->m_dwPK_Device_From,VARIABLE_Misc_Data_1_CONST,
+		 sCmdToRenameBookmark + "17 <%=U%>");  // Private, add the user
+	CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable_Private.m_pMessage);
+	DCE::CMD_Set_Variable CMD_Set_Variable_Public(m_dwPK_Device,pMessage->m_dwPK_Device_From,VARIABLE_Misc_Data_2_CONST,
+		 sCmdToRenameBookmark);
+	CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable_Public.m_pMessage);
+	DCE::CMD_Set_Text CMD_Set_Text( m_dwPK_Device,pMessage->m_dwPK_Device_From, StringUtils::itos(DESIGNOBJ_mnuFileSave_CONST), "<%=" + StringUtils::itos(TEXT_Name_Bookmark_CONST) + "%>",TEXT_STATUS_CONST);
+	CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text.m_pMessage);
+	SendCommand(CMD_Goto_Screen);
 }
 
 //<-dceag-c410-b->
@@ -4327,11 +4364,27 @@ void Media_Plugin::CMD_Delete_Bookmark(int iEK_Bookmark,string &sCMD_Result,Mess
 	/** Rename a bookmark */
 		/** @param #5 Value To Assign */
 			/** The new name */
+		/** @param #17 PK_Users */
+			/** The user, if this is a private bookmark */
 		/** @param #129 EK_Bookmark */
 			/** The bookmark */
 
-void Media_Plugin::CMD_Rename_Bookmark(string sValue_To_Assign,int iEK_Bookmark,string &sCMD_Result,Message *pMessage)
+void Media_Plugin::CMD_Rename_Bookmark(string sValue_To_Assign,int iPK_Users,int iEK_Bookmark,string &sCMD_Result,Message *pMessage)
 //<-dceag-c411-e->
 {
+    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+	Row_Bookmark *pRow_Bookmark = m_pDatabase_pluto_media->Bookmark_get()->GetRow(iEK_Bookmark);
+	if( !pRow_Bookmark )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot retrieve bookmark");
+		return;
+	}
+
+	pRow_Bookmark->Description_set(sValue_To_Assign);
+	if( !iPK_Users )
+		pRow_Bookmark->EK_Users_setNull(true);
+	else
+		pRow_Bookmark->EK_Users_set(iPK_Users);
+	m_pDatabase_pluto_media->Bookmark_get()->Commit();
 }
 

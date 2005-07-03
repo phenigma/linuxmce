@@ -630,11 +630,13 @@ public:
 	/** Rename a bookmark */
 		/** @param #5 Value To Assign */
 			/** The new name */
+		/** @param #17 PK_Users */
+			/** The user, if this is a private bookmark */
 		/** @param #129 EK_Bookmark */
 			/** The bookmark */
 
-	virtual void CMD_Rename_Bookmark(string sValue_To_Assign,int iEK_Bookmark) { string sCMD_Result; CMD_Rename_Bookmark(sValue_To_Assign.c_str(),iEK_Bookmark,sCMD_Result,NULL);};
-	virtual void CMD_Rename_Bookmark(string sValue_To_Assign,int iEK_Bookmark,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Rename_Bookmark(string sValue_To_Assign,int iPK_Users,int iEK_Bookmark) { string sCMD_Result; CMD_Rename_Bookmark(sValue_To_Assign.c_str(),iPK_Users,iEK_Bookmark,sCMD_Result,NULL);};
+	virtual void CMD_Rename_Bookmark(string sValue_To_Assign,int iPK_Users,int iEK_Bookmark,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->
