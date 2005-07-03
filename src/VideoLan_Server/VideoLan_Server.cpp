@@ -487,9 +487,9 @@ void VideoLan_Server::CMD_Stop_Streaming(int iStreamID,string sStreamingTargets,
 	string::size_type pos=0;
 	while( pos<pVideoLanServerInstance->m_sStreamingTargets.size() )
 	{
-		int iMediaPosition;
+		string MediaPosition;
 		int PK_Device = atoi(StringUtils::Tokenize(pVideoLanServerInstance->m_sStreamingTargets,",",pos).c_str());
-		DCE::CMD_Stop_Media CMD_Stop_Media(m_dwPK_Device,PK_Device,iStreamID,&iMediaPosition);
+		DCE::CMD_Stop_Media CMD_Stop_Media(m_dwPK_Device,PK_Device,iStreamID,&MediaPosition);
 		SendCommand(CMD_Stop_Media);
 	}
 }
