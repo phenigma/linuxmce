@@ -421,9 +421,6 @@ void VideoLan_Client::CMD_Report_Playback_Position(int iStreamID,string *sText,s
 //<-dceag-c259-e->
 {
 	cout << "Need to implement command #259 - Report Playback Position" << endl;
-	cout << "Parm #39 - Options=" << sOptions << endl;
-	cout << "Parm #41 - StreamID=" << iStreamID << endl;
-	cout << "Parm #106 - Media_Length=" << iMedia_Length << endl;
 }
 
 void VideoLan_Client::ProcessExited(int pid, int status)
