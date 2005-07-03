@@ -185,8 +185,6 @@ void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
 	m_iTitle=m_iChapter=-1;
 	m_sCurrentFile=sFilename;
 
-	if( sMediaPosition )
-
 	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() called for filename: %s with slave %p.", sFilename.c_str(),m_pXineSlaveControl);
 	PLUTO_SAFETY_LOCK(xineSlaveLock, m_xineSlaveMutex);
 
