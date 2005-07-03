@@ -141,7 +141,6 @@ void VideoLan_Server::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStr
 	cout << "Parm #13 - Filename=" << sFilename << endl;
 	cout << "Parm #29 - PK_MediaType=" << iPK_MediaType << endl;
 	cout << "Parm #41 - StreamID=" << iStreamID << endl;
-	cout << "Parm #42 - MediaPosition=" << iMediaPosition << endl;
 
 	VideoLanServerInstance *pVideoLanServerInstance = m_mapVideoLanServerInstance_Find(iStreamID);
 	if( !pVideoLanServerInstance )
@@ -235,8 +234,6 @@ void VideoLan_Server::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string
 {
 	cout << "Need to implement command #38 - Stop Media" << endl;
 	cout << "Parm #41 - StreamID=" << iStreamID << endl;
-	cout << "Parm #42 - MediaPosition=" << iMediaPosition << endl;
-
 }
 
 //<-dceag-c39-b->
@@ -445,10 +442,6 @@ void VideoLan_Server::CMD_Report_Playback_Position(int iStreamID,string *sText,s
 //<-dceag-c259-e->
 {
 	cout << "Need to implement command #259 - Report Playback Position" << endl;
-	cout << "Parm #39 - Options=" << sOptions << endl;
-	cout << "Parm #41 - StreamID=" << iStreamID << endl;
-	cout << "Parm #42 - MediaPosition=" << iMediaPosition << endl;
-	cout << "Parm #106 - Media_Length=" << iMedia_Length << endl;
 }
 
 //<-dceag-c262-b->
@@ -511,6 +504,9 @@ void VideoLan_Server::ProcessExited(int pid, int status)
 
 void VideoLan_Server::CMD_Audio_Track(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c140-e->
+{
+}
+
 //<-dceag-c141-b->
 
 	/** @brief COMMAND: #141 - Subtitle */
@@ -520,6 +516,9 @@ void VideoLan_Server::CMD_Audio_Track(string sValue_To_Assign,string &sCMD_Resul
 
 void VideoLan_Server::CMD_Subtitle(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c141-e->
+{
+}
+
 //<-dceag-c142-b->
 
 	/** @brief COMMAND: #142 - Angle */
@@ -529,6 +528,9 @@ void VideoLan_Server::CMD_Subtitle(string sValue_To_Assign,string &sCMD_Result,M
 
 void VideoLan_Server::CMD_Angle(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c142-e->
+{
+}
+
 //<-dceag-c412-b->
 
 	/** @brief COMMAND: #412 - Set Media Position */
@@ -540,3 +542,6 @@ void VideoLan_Server::CMD_Angle(string sValue_To_Assign,string &sCMD_Result,Mess
 
 void VideoLan_Server::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c412-e->
+{
+}
+
