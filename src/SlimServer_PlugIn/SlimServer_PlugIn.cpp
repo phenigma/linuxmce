@@ -292,7 +292,7 @@ cmd.m_pcResponse=NULL;
 	}
 	else
 	{
-		pSlimServerMediaStream->GetMediaPosition()->m_iSavedPosition = SavedPosition;
+//		pSlimServerMediaStream->GetMediaPosition()->m_iSavedPosition = SavedPosition;
 		MediaStream *pMediaStream = m_pMedia_Plugin->m_mapMediaStream_Find(StreamID);
 		if( !pMediaStream || (pSlimServerMediaStream = ConvertToSlimServerMediaStream(pMediaStream, "SlimServer_PlugIn::StopMedia() ")) == NULL )
 		{
@@ -300,7 +300,7 @@ cmd.m_pcResponse=NULL;
 			return false; // It's ok -- the user just stopped it
 		}
 
-		pSlimServerMediaStream->GetMediaPosition()->m_iSavedPosition=SavedPosition;
+//		pSlimServerMediaStream->GetMediaPosition()->m_iSavedPosition=SavedPosition;
 		g_pPlutoLogger->Write( LV_STATUS, "The target device %d responded to stop media command! Stopped at position: %d",
 											pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
 											pSlimServerMediaStream->GetMediaPosition()->m_iSavedPosition);

@@ -310,7 +310,7 @@ cmd.m_pcResponse=NULL;
 	}
 	else
 	{
-		pXineMediaStream->GetMediaPosition()->m_iSavedPosition = SavedPosition;
+//		pXineMediaStream->GetMediaPosition()->m_iSavedPosition = SavedPosition;
 		MediaStream *pMediaStream = m_pMedia_Plugin->m_mapMediaStream_Find(StreamID);
 		if( !pMediaStream || (pXineMediaStream = ConvertToXineMediaStream(pMediaStream, "Xine_Plugin::StopMedia() ")) == NULL )
 		{
@@ -318,7 +318,7 @@ cmd.m_pcResponse=NULL;
 			return false; // It's ok -- the user just stopped it
 		}
 
-		pXineMediaStream->GetMediaPosition()->m_iSavedPosition=SavedPosition;
+//		pXineMediaStream->GetMediaPosition()->m_iSavedPosition=SavedPosition;
 		g_pPlutoLogger->Write( LV_STATUS, "The target device %d responded to stop media command! Stopped at position: %d",
 											pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
 											pXineMediaStream->GetMediaPosition()->m_iSavedPosition);
