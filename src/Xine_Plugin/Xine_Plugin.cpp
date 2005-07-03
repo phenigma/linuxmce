@@ -248,7 +248,7 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 							mediaURL,
 							pXineMediaStream->m_iPK_MediaType,
 							pXineMediaStream->m_iStreamID_get( ),
-							pXineMediaStream->GetMediaPosition()->m_iSavedPosition);
+							"");//pXineMediaStream->GetMediaPosition()->m_iSavedPosition);
 
 	// No handling of errors (it will in some cases deadlock the router.)
 	SendCommand(cmd);
@@ -289,7 +289,7 @@ int k=2;
 	}
 	int PK_Device = pXineMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
 	int StreamID = pXineMediaStream->m_iStreamID_get( );
-	int SavedPosition=0;
+	string SavedPosition;
 	DCE::CMD_Stop_Media cmd(m_dwPK_Device,                          // Send from us
 							PK_Device,  		// Send to the device that is actually playing
 							StreamID,      		// Send the stream ID that we want to actually stop

@@ -271,7 +271,7 @@ bool SlimServer_PlugIn::StopMedia( class MediaStream *pMediaStream )
 	}
 	int PK_Device = pSlimServerMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
 	int StreamID = pSlimServerMediaStream->m_iStreamID_get( );
-	int SavedPosition=0;
+	string SavedPosition;
 	DCE::CMD_Stop_Media cmd(m_dwPK_Device,                          // Send from us
 							PK_Device,  		// Send to the device that is actually playing
 							StreamID,      		// Send the stream ID that we want to actually stop
