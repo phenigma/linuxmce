@@ -42,7 +42,7 @@ ArchiveLogs()
 	find "$Output" -mtime +5 -exec rm -f '{}' ';'
 }
 
-Filename="${PK_Device}_$(date +%F_%H-%M-%S)"
+Filename="${PK_Installation}_${PK_Device}_$(date +%F_%H-%M-%S)"
 Critical="/var/log/pluto/critical"
 Output="/var/log/pluto/archive"
 
