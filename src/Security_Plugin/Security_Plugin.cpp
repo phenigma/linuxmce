@@ -28,6 +28,7 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
+#include "PlutoUtils/MySQLHelper.h"
 
 #include <iostream>
 using namespace std;
@@ -123,6 +124,8 @@ Security_Plugin::Security_Plugin(int DeviceID, string ServerAddress,bool bConnec
 		m_bQuit=true;
 		return;
 	}
+
+    m_PK_DefaultPhoneDevice = GetDefaultPhoneDevice();
 
 	// Get the last mode change for each zone
 	string sql = "select max(PK_ModeChange),EK_DeviceGroup FROM ModeChange GROUP BY EK_DeviceGroup";
@@ -1125,4 +1128,44 @@ void Security_Plugin::GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Rout
 		iPK_FloorplanObjectType_Color = FLOORPLANOBJECTTYPE_COLOR_SECURITY_DOOR_ARMED_CONST;
 	else
 		iPK_FloorplanObjectType_Color = FLOORPLANOBJECTTYPE_COLOR_SECURITY_DOOR_CLOSED_CONST;
+}
+
+int Security_Plugin::GetDefaultPhoneDevice()
+{
+    //get default line
+    string sql = "SELECT value FROM `globals` WHERE variable='INCOMING'";
+    MySqlHelper *pMySqlHelper = new MySqlHelper(m_pRouter->sDBHost_get(), m_pRouter->sDBUser_get(), 
+        m_pRouter->sDBPassword_get(), "asterisk", m_pRouter->iDBPort_get());
+
+    PlutoSqlResult result_set;
+    MYSQL_ROW row=NULL;
+    if((result_set.r = pMySqlHelper->mysql_query_result(sql.c_str())) == 0 || (row = mysql_fetch_row(result_set.r)) == NULL)
+    {
+        g_pPlutoLogger->Write(LV_CRITICAL, "No default line found in asterisk database");
+        return 0;
+    }
+
+    string sExtValue = row[0];
+    delete pMySqlHelper;
+
+    //EXT-xxxxx
+    string sDefaultLine = sExtValue.substr(4, sExtValue.length());
+
+    vector<Row_Device_DeviceData *> vectRow_Device_DeviceData;
+    m_pDatabase_pluto_main->Device_DeviceData_get()->GetRows(
+        " FK_DeviceData = " + StringUtils::ltos(DEVICEDATA_PhoneNumber_CONST) + " AND IK_DeviceData = " + sDefaultLine,
+        &vectRow_Device_DeviceData);
+
+    if(!vectRow_Device_DeviceData.size())
+    {
+        g_pPlutoLogger->Write(LV_CRITICAL, "No phone device for %s line.", sDefaultLine.c_str());
+        return 0;
+    }
+
+    long PK_DefaultPhoneDevice = vectRow_Device_DeviceData[0]->FK_Device_get();
+    vectRow_Device_DeviceData.clear();
+
+    g_pPlutoLogger->Write(LV_WARNING, "Default phone device is %d", PK_DefaultPhoneDevice);
+
+    return PK_DefaultPhoneDevice;
 }

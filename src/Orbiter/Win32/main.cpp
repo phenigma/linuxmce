@@ -49,7 +49,12 @@ int WINAPI WinMain(	HINSTANCE hInstance,
     int PK_Device=0;
 	string sLogger="orbiter.log";
 
+#if defined(POCKETFROG) && !defined(WINCE)  //max screen resoltion
+    int Width=1024,Height=768;
+#else
     int Width=800,Height=600;
+#endif
+
     bool bLocalMode=false; // If true, it will not connect to PlutoServer but will look for it's files in the local directory
 	bool bFullScreen=false;
     string sLocalDirectory="";

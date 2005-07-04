@@ -621,7 +621,6 @@ void CPlutoMOAppUi::NotifyIncomingNumber(const TDesC& aTellNumber)
 	LOG(string(aTellNumber));
 	LOG("\n");
 
-	/* //this is a hack... we'll intercept all the calls (for the show)
 	for(i = 0; i < iNumPhoneTypes; ++i)
 	{
 		TInt PhoneLen = iPhoneTypes[i].iPhoneNumber.Length();
@@ -647,7 +646,6 @@ void CPlutoMOAppUi::NotifyIncomingNumber(const TDesC& aTellNumber)
 			return;
 		}
 	}
-	*/
 
 	iCall.HangUp();
 	LOG("Hang up call - ok\n");
@@ -664,7 +662,7 @@ void CPlutoMOAppUi::NotifyIncomingNumber(const TDesC& aTellNumber)
 	return;
 
 
-//	iCall.Close();
+	//iCall.Close();
 	
 /*
 	//parse for phone and get event id
@@ -710,8 +708,7 @@ TInt CPlutoMOAppUi::DoIdle()
 	// check for status of the call set ret to ETrue when hannging up
 	// or idle. and bring app to front
 
-	//hack for the show!!!
-	//if (iCallStatus == RCall::EStatusHangingUp || iCallStatus == RCall::EStatusIdle)
+	if(iCallStatus == RCall::EStatusHangingUp || iCallStatus == RCall::EStatusIdle)
 	{
 		ret = EFalse; //finished do not come back
 		iCall.Close();
@@ -788,8 +785,8 @@ TInt CPlutoMOAppUi::DoIdle()
 		LOG("open vmc file - ok");
 		*/
 	}
-//	else
-//		ret = ETrue; //not finish, do come back
+	else
+		ret = ETrue; //not finish, do come back
 
 	LOG("end of idle");
 

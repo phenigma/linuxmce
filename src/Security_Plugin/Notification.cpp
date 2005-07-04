@@ -224,7 +224,7 @@ bool Notification::ExecuteNotification(string sPhoneNumber, int iDelay, bool bNo
 
     //hardcoding!! we'll get the right default line id after the database will be redesigned
     //TODO: find the device id for the right phone the place the call
-    int nPhoneDevice = 4759; 
+    int nPhoneDevice = m_pSecurity_Plugin->m_PK_DefaultPhoneDevice;
 
     //TODO: attach the called id and the wav file
     DCE::CMD_PL_Originate CMD_PL_Originate_(m_pSecurity_Plugin->m_dwPK_Device, 

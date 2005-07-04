@@ -146,7 +146,7 @@ void *GeneratorThread( void *p)
 		{
 			Count = 0;
 
-			x = rand() % pOrbiter->m_iImageWidth;//  SDL_WIDTH;
+			x = rand() % pOrbiter->m_iImageWidth;
 			y = rand() % pOrbiter->m_iImageHeight;
 
 			if(!pOrbiter->m_bQuit && bGenerateMouseClicks)
