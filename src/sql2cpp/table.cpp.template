@@ -147,7 +147,7 @@ bool Table_@table_name@::Key_Less::operator()(const Table_@table_name@::Key &key
 			@key_less_statement@	
 }	
 
-bool Table_@table_name@::Commit()
+bool Table_@table_name@::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
@@ -167,6 +167,11 @@ bool Table_@table_name@::Commit()
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+			if( bDeleteFailedInsertRow )
+			{
+				addedRows.erase(i);
+				delete pRow;
+			}
 			return false;
 		}
 	
@@ -209,6 +214,11 @@ bool Table_@table_name@::Commit()
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+			if( bDeleteFailedModifiedRow )
+			{
+				cachedRows.erase(i);
+				delete pRow;
+			}
 			return false;
 		}
 	
