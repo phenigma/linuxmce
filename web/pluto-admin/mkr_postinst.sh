@@ -27,6 +27,11 @@ chmod -R 777 /usr/pluto/orbiter/scenarios
 rm -f /var/www/pluto-admin/scenarios
 ln -s /usr/pluto/orbiter/scenarios /var/www/pluto-admin/scenarios
 
+mkdir -p /usr/pluto/orbiter/orbiter_bg
+chmod -R 777 /usr/pluto/orbiter/orbiter_bg
+rm -f /var/www/pluto-admin/orbiter_bg
+ln -s /usr/pluto/orbiter/orbiter_bg /var/www/pluto-admin/orbiter_bg
+
 a2dissite default || /bin/true
 
 #Index=$(grep DirectoryIndex /etc/apache/httpd.conf | sed 's/DirectoryIndex//g; s/^ *//g; s/ *$//g' | grep -v '^#')
