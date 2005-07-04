@@ -49,7 +49,12 @@ long int pk_FK_AttributeType;
 	
 
 public:				
-	bool Commit();
+	// Normally the framework never deletes any Row_X objects, since the application will
+	// likely have pointers to them.  This means that if a Commit fails because a row
+	// cannot be committed, all subsequent calls to Commit will also fail unless you fix
+	// the rows since they will be re-attempted.  If you set either flag to true, the failed
+	// row can be deleted.  Use with caution since your pointers become invalid!
+	bool Commit(bool bDeleteFailedModifiedRow=false,bool bDeleteFailedInsertRow=false);
 	bool GetRows(string where_statement,vector<class Row_Type_AttributeType*> *rows);
 	class Row_Type_AttributeType* AddRow();
 	Database_pluto_media *Database_pluto_media_get() { return database; }

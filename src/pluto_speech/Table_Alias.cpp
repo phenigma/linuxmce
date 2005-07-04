@@ -213,7 +213,7 @@ return "NULL";
 char *buf = new char[61];
 mysql_real_escape_string(table->database->m_pMySQL, buf, m_Keyword_Input.c_str(), (unsigned long) min(30,m_Keyword_Input.size()));
 string s=string()+"\""+buf+"\"";
-delete buf;
+delete[] buf;
 return s;
 }
 
@@ -227,7 +227,7 @@ return "NULL";
 char *buf = new char[61];
 mysql_real_escape_string(table->database->m_pMySQL, buf, m_Keyword_Meaning.c_str(), (unsigned long) min(30,m_Keyword_Meaning.size()));
 string s=string()+"\""+buf+"\"";
-delete buf;
+delete[] buf;
 return s;
 }
 
@@ -256,7 +256,7 @@ else
 return false;	
 }	
 
-bool Table_Alias::Commit()
+bool Table_Alias::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
@@ -279,6 +279,11 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_Alias_asSQL
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+			if( bDeleteFailedInsertRow )
+			{
+				addedRows.erase(i);
+				delete pRow;
+			}
 			return false;
 		}
 	
@@ -330,6 +335,11 @@ update_values_list = update_values_list + "`PK_Alias`="+pRow->PK_Alias_asSQL()+"
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+			if( bDeleteFailedModifiedRow )
+			{
+				cachedRows.erase(i);
+				delete pRow;
+			}
 			return false;
 		}
 	
@@ -395,8 +405,10 @@ bool Table_Alias::GetRows(string where_statement,vector<class Row_Alias*> *rows)
 		query = "select `Alias`.* from Alias " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `Alias`.* from Alias where " + where_statement;
+	else
+		query = "select `Alias`.* from Alias";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

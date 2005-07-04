@@ -241,7 +241,7 @@ return "NULL";
 char *buf = new char[61];
 mysql_real_escape_string(table->database->m_pMySQL, buf, m_Keyword.c_str(), (unsigned long) min(30,m_Keyword.size()));
 string s=string()+"\""+buf+"\"";
-delete buf;
+delete[] buf;
 return s;
 }
 
@@ -283,7 +283,7 @@ else
 return false;	
 }	
 
-bool Table_Keyword::Commit()
+bool Table_Keyword::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
@@ -306,6 +306,11 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_Keyword_asS
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+			if( bDeleteFailedInsertRow )
+			{
+				addedRows.erase(i);
+				delete pRow;
+			}
 			return false;
 		}
 	
@@ -357,6 +362,11 @@ update_values_list = update_values_list + "`PK_Keyword`="+pRow->PK_Keyword_asSQL
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+			if( bDeleteFailedModifiedRow )
+			{
+				cachedRows.erase(i);
+				delete pRow;
+			}
 			return false;
 		}
 	
@@ -422,8 +432,10 @@ bool Table_Keyword::GetRows(string where_statement,vector<class Row_Keyword*> *r
 		query = "select `Keyword`.* from Keyword " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `Keyword`.* from Keyword where " + where_statement;
+	else
+		query = "select `Keyword`.* from Keyword";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
