@@ -136,9 +136,6 @@
 				RelativePath="DesignObj_Generator.cpp">
 			</File>
 			<File
-				RelativePath="..\Orbiter\Gd\GD-SDL.cpp">
-			</File>
-			<File
 				RelativePath="OGArray.cpp">
 			</File>
 			<File
