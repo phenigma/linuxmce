@@ -346,7 +346,7 @@ else
 return false;	
 }	
 
-bool Table_psc_designer_batdet::Commit()
+bool Table_psc_designer_batdet::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
@@ -369,6 +369,11 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_designe
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+			if( bDeleteFailedInsertRow )
+			{
+				addedRows.erase(i);
+				delete pRow;
+			}
 			return false;
 		}
 	
@@ -422,6 +427,11 @@ update_values_list = update_values_list + "`PK_psc_designer_batdet`="+pRow->PK_p
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+			if( bDeleteFailedModifiedRow )
+			{
+				cachedRows.erase(i);
+				delete pRow;
+			}
 			return false;
 		}
 	

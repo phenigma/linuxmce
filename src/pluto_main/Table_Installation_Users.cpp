@@ -407,7 +407,7 @@ else
 return false;	
 }	
 
-bool Table_Installation_Users::Commit()
+bool Table_Installation_Users::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
@@ -430,6 +430,11 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_Installatio
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+			if( bDeleteFailedInsertRow )
+			{
+				addedRows.erase(i);
+				delete pRow;
+			}
 			return false;
 		}
 	
@@ -484,6 +489,11 @@ update_values_list = update_values_list + "`FK_Installation`="+pRow->FK_Installa
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+			if( bDeleteFailedModifiedRow )
+			{
+				cachedRows.erase(i);
+				delete pRow;
+			}
 			return false;
 		}
 	

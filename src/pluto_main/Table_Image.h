@@ -48,7 +48,12 @@ private:
 	map<Table_Image::Key, class TableRow*, Table_Image::Key_Less> deleted_cachedRows;
 
 public:				
-	bool Commit();
+	// Normally the framework never deletes any Row_X objects, since the application will
+	// likely have pointers to them.  This means that if a Commit fails because a row
+	// cannot be committed, all subsequent calls to Commit will also fail unless you fix
+	// the rows since they will be re-attempted.  If you set either flag to true, the failed
+	// row can be deleted.  Use with caution since your pointers become invalid!
+	bool Commit(bool bDeleteFailedModifiedRow=false,bool bDeleteFailedInsertRow=false);
 	bool GetRows(string where_statement,vector<class Row_Image*> *rows);
 	class Row_Image* AddRow();
 	Database_pluto_main *Database_pluto_main_get() { return database; }
