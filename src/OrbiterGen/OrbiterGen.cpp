@@ -97,7 +97,8 @@ int main(int argc, char *argv[])
 #else
 	string GraphicsFiles="/usr/pluto/orbiter/skins",FontFiles="/usr/share/fonts/truetype/msttcorefonts",OutputFiles="/usr/pluto/orbiter";
 #endif
-	int DBPort=3306,PK_Orbiter=0,iDontAutoRegenArrays=0,iPK_DesignObj_SoleScreenToGen=0;
+	int DBPort=3306,PK_Orbiter=0,iDontAutoRegenArrays=0;
+	string sSoleScreenToGen;
 	bool bRegen=false;
 	bool bError=false; // An error parsing the command line
 	char c;
@@ -131,7 +132,7 @@ int main(int argc, char *argv[])
 			PK_Orbiter = atoi(argv[++optnum]);
 			break;
 		case 's':
-			iPK_DesignObj_SoleScreenToGen = atoi(argv[++optnum]);
+			sSoleScreenToGen = argv[++optnum];
 			break;
 		case 'g':
 			GraphicsFiles = argv[++optnum];
@@ -205,11 +206,24 @@ int main(int argc, char *argv[])
 		if( bRegen )
 			pOrbiterGenerator->m_bOrbiterChanged=true;
 		pOrbiterGenerator->m_bDontAutoRegenArrays= iDontAutoRegenArrays==1;
-		pOrbiterGenerator->m_iPK_DesignObj_SoleScreenToGen = iPK_DesignObj_SoleScreenToGen;
+
+		string::size_type pos=0;
+		while(pos!=string::npos && pos<sSoleScreenToGen.length())
+			pOrbiterGenerator->m_map_PK_DesignObj_SoleScreenToGen[atoi(StringUtils::Tokenize(sSoleScreenToGen,",",pos).c_str())]=true;
+
+		struct tm *newtime;
+		time_t aclock;
+		time( &aclock );   // Get time in seconds
+		newtime = localtime( &aclock );   // Convert time to struct tm form 
+		cout << "Generation started at " << asctime( newtime ) << endl;
 
 		iResult = pOrbiterGenerator->DoIt();
 
-        //hack, this is crashing somewhere in pluto_main.dll. 
+		time( &aclock );   // Get time in seconds
+		newtime = localtime( &aclock );   // Convert time to struct tm form 
+		cout << "Generation done at " << asctime( newtime ) << endl;
+
+		//hack, this is crashing somewhere in pluto_main.dll. 
         //I might be related to /FORCE:MULTIPLE directive, so we might need to transform DCE into a DLL too.
         //because now OrbiterGen uses SerializeClass from DCE.lib and from pluto_main.dll, one is static and one is dynamic
 #ifndef WIN32
@@ -505,7 +519,7 @@ m_bNoEffects = true;
 		+ StringUtils::itos(m_pRow_Skin->PK_Skin_get())
 		+ (m_bUseOCG ? ",OCG" : "NO_OCG");
 
-	if( m_pRow_Orbiter->Size_get()!=sSize && !m_iPK_DesignObj_SoleScreenToGen )
+	if( m_pRow_Orbiter->Size_get()!=sSize && m_map_PK_DesignObj_SoleScreenToGen.size()==0 )
 	{
 		cout << "Regenerating all: Orbiter data changed from " << m_pRow_Orbiter->Size_get() << " to " << sSize << endl;
 		m_pRow_Orbiter->Size_set(sSize);

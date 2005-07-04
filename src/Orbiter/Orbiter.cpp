@@ -4167,7 +4167,7 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 		}
         else if(  Variable=="NP_R" )
 		{
-			if( m_bIsOSD && m_iPK_DesignObj_RemoteOSD )
+			if( m_bIsOSD && m_iPK_DesignObj_RemoteOSD && m_iLocation_Initial==m_pLocationInfo->iLocation)  // If we've changed locations, we're not the OSD anymore
 				Output += StringUtils::itos(m_iPK_DesignObj_RemoteOSD);
 			else
 				Output += StringUtils::itos(m_iPK_DesignObj_Remote);

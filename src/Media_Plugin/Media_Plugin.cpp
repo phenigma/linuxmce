@@ -87,6 +87,9 @@ using namespace DCE;
 #include <attr/attributes.h>
 #endif
 
+#include "DCE/DCEConfig.h"
+DCEConfig g_DCEConfig;
+
 #define MAX_MEDIA_COLORS    5 // We need some unique colors to color-code the media streams
 int UniqueColors[MAX_MEDIA_COLORS];
 
@@ -268,6 +271,14 @@ continue;
 
 	m_pGeneric_NonPluto_Media = new Generic_NonPluto_Media(this);
     m_pGenericMediaHandlerInfo = new MediaHandlerInfo(m_pGeneric_NonPluto_Media,this,0,0,false,false);
+
+	string sMediaType = g_DCEConfig.m_mapParameters_Find("Bookmark_Media");
+	string::size_type pos=0;
+	while( pos<sMediaType.size() && pos!=string::npos )
+	{
+		int PK_MediaType = atoi(StringUtils::Tokenize(sMediaType,",",pos).c_str());
+		m_mapMediaType_Bookmarkable[PK_MediaType]=true;
+	}
 }
 
 
@@ -903,62 +914,33 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 			return true;
 		}
 
-		MediaInfoChanged( pMediaStream, pMediaStream->m_dequeMediaFile.size()>1 );
-
 		// See if there's a special screen for the OSD
 		pMediaStream->m_iPK_DesignObj_RemoteOSD = pMediaStream->SpecialOsdScreen();
 
-		if( true) ///xxxxxx  pMediaStream->m_iPK_DesignObj_Remote>0 )
+		MediaInfoChanged( pMediaStream, pMediaStream->m_dequeMediaFile.size()>1 );
+
+		for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
 		{
-			for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
+			OH_Orbiter *pOH_Orbiter = (*it).second;
+			if( !pOH_Orbiter->m_pEntertainArea || pMediaStream->m_mapEntertainArea.find(pOH_Orbiter->m_pEntertainArea->m_iPK_EntertainArea)==pMediaStream->m_mapEntertainArea.end() )
+				continue;  // Don't send an orbiter to the remote if it's not linked to an entertainment area where we're playing this stream
+
+			// We don't want to change to the remote screen on the orbiter that started playing this if it's audio, so that they can build a playlist
+			if( pOH_Orbiter && pOH_Orbiter == pMediaStream->m_pOH_Orbiter_StartedMedia && pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_StoredAudio_CONST )
+				continue;
+
+			WaitForMessageQueue();  // Be sure all the Set Now Playing's are set
+			if( pOH_Orbiter && pOH_Orbiter == pMediaStream->m_pOH_Orbiter_StartedMedia || pMediaStream->OrbiterIsOSD(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device) )
 			{
-				OH_Orbiter *pOH_Orbiter = (*it).second;
-				if( !pOH_Orbiter->m_pEntertainArea || pMediaStream->m_mapEntertainArea.find(pOH_Orbiter->m_pEntertainArea->m_iPK_EntertainArea)==pMediaStream->m_mapEntertainArea.end() )
-					continue;  // Don't send an orbiter to the remote if it's not linked to an entertainment area where we're playing this stream
-
-				// We don't want to change to the remote screen on the orbiter that started playing this if it's audio, so that they can build a playlist
-				if( pOH_Orbiter && pOH_Orbiter == pMediaStream->m_pOH_Orbiter_StartedMedia && pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_StoredAudio_CONST )
-					continue;
-
-				// If there's another user in the entertainment area that is in the middle of something (ie the Orbiter is not at the main menu),
-				// we don't want to forcibly 'take over' and change to the remote screen. So we are only goind to send the orbiters controlling this ent area
-				// to the correct remote iff thery are the main menu EXCEPT for the originating device which will always be send to the remote.
-				// If this is the OSD and there's a special screen, don't switch, we'll do it below
-				if( !pMediaStream->m_iPK_DesignObj_RemoteOSD || !pMediaStream->OrbiterIsOSD(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device) )
-				{
-					WaitForMessageQueue();  // Be sure all the Set Now Playing's are set
-					if( pOH_Orbiter && pOH_Orbiter == pMediaStream->m_pOH_Orbiter_StartedMedia )
-					{
-						DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,
-							"<%=NP_R%>","","",false, false);
-						SendCommand(CMD_Goto_Screen);
-					}
-					else
-					{
-						DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,
-							"<%=NP_R%>","","-1",false, false);
-						SendCommand(CMD_Goto_Screen);
-					}
-				}
+				DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,
+					"<%=NP_R%>","","",false, false);  // Always go
+				SendCommand(CMD_Goto_Screen);
 			}
-		}
-		else
-			g_pPlutoLogger->Write(LV_CRITICAL,"Media Plug-in -- there's no remote control for screen.");
-
-
-		if ( pMediaStream->m_iPK_DesignObj_RemoteOSD ) // this needs special handling for the OSD
-		{
-			for( MapEntertainArea::iterator it=pMediaStream->m_mapEntertainArea.begin( );it!=pMediaStream->m_mapEntertainArea.end( );++it )
+			else
 			{
-				EntertainArea *pEntertainArea = ( *it ).second;
-
-				// finally send the OnScreenDisplay orbiter (the one that is on the target media director) to the app_desktop screen.
-				if( pEntertainArea->m_pMediaDevice_ActiveDest && pEntertainArea->m_pMediaDevice_ActiveDest->m_pOH_Orbiter_OSD )
-				{
-					DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pEntertainArea->m_pMediaDevice_ActiveDest->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device,0,
-						StringUtils::itos(pMediaStream->m_iPK_DesignObj_RemoteOSD),"","",false, false);
-					SendCommand(CMD_Goto_Screen);
-				}
+				DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,
+					"<%=NP_R%>","","-1",false, false);  // Only if at main menu
+				SendCommand(CMD_Goto_Screen);
 			}
 		}
 	}
@@ -4283,6 +4265,12 @@ void Media_Plugin::CMD_Save_Bookmark(string sPK_EntertainArea,string &sCMD_Resul
 		pMediaFile->m_dwPK_File==0)
 	{
 		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(StringUtils::itos(pMessage->m_dwPK_Device_From),"Bookmarks only work with files");
+		return;
+	}
+
+	if( m_mapMediaType_Bookmarkable_Find(pMediaStream->m_iPK_MediaType)==false )
+	{
+		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(StringUtils::itos(pMessage->m_dwPK_Device_From),"This type of media cannot be bookmarked");
 		return;
 	}
 

@@ -77,6 +77,7 @@ private:
 	// mapping from job names to a pair or caller devices and the job running devices.
 	map<string, pair<int, int> > m_mapRippingJobsToRippingDevices;
 	map<int,string> m_mapMediaType_2_Directory;
+	map<int,bool> m_mapMediaType_Bookmarkable;
 
 	// When deciding what remote control to use, we will look in these 4 maps in this order,
 	// first for a specific remote for this orbiter/source device/mediatype combination, then for this
@@ -170,7 +171,8 @@ public:
     EntertainArea *m_mapEntertainAreas_Find(int iPK_EntertainArea) { map<int,class EntertainArea *>::iterator it = m_mapEntertainAreas.find(iPK_EntertainArea); return it==m_mapEntertainAreas.end() ? NULL : (*it).second; }
     MediaDevice *m_mapMediaDevice_Find(int iPK_Device) { map<int,class MediaDevice *>::iterator it = m_mapMediaDevice.find(iPK_Device); return it==m_mapMediaDevice.end() ? NULL : (*it).second; }
     MediaStream *m_mapMediaStream_Find(int StreamID)  { MapMediaStream::iterator it = m_mapMediaStream.find(StreamID);  return it==m_mapMediaStream.end() ? NULL : (*it).second; }
-    void m_mapMediaStream_Remove(int StreamID) { MapMediaStream::iterator it = m_mapMediaStream.find(StreamID); if( it!=m_mapMediaStream.end() ) m_mapMediaStream.erase(it); }
+	bool m_mapMediaType_Bookmarkable_Find(int iPK_MediaType) { map<int,bool>::iterator it=m_mapMediaType_Bookmarkable.find(iPK_MediaType); return it==m_mapMediaType_Bookmarkable.end() ? false : (*it).second; }
+	void m_mapMediaStream_Remove(int StreamID) { MapMediaStream::iterator it = m_mapMediaStream.find(StreamID); if( it!=m_mapMediaStream.end() ) m_mapMediaStream.erase(it); }
 
 	Database_pluto_main *GetMainDatabaseConnection()
 	{

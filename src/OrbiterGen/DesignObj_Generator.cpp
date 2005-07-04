@@ -146,18 +146,18 @@ if( !m_pOrbiterGenerator->m_pRow_DesignObj_MainMenu )
 {
 int k=2;
 }
-        if( m_pOrbiterGenerator->m_bOrbiterChanged==false || m_pOrbiterGenerator->m_iPK_DesignObj_SoleScreenToGen )
+        if( m_pOrbiterGenerator->m_bOrbiterChanged==false || m_pOrbiterGenerator->m_map_PK_DesignObj_SoleScreenToGen.size() )
         {
             // Let's see if we can just use a cached version
             Row_CachedScreens *pdrCachedScreen = m_mds->CachedScreens_get()->GetRow(m_pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get(),m_pRow_DesignObj->PK_DesignObj_get(),m_iVersion);
             if( pdrCachedScreen && pdrCachedScreen->Schema_get()==ORBITER_SCHEMA &&
-				(!m_pOrbiterGenerator->m_iPK_DesignObj_SoleScreenToGen || m_pOrbiterGenerator->m_iPK_DesignObj_SoleScreenToGen!=m_pRow_DesignObj->PK_DesignObj_get()) )
+				(m_pOrbiterGenerator->m_map_PK_DesignObj_SoleScreenToGen.size()==0 || m_pOrbiterGenerator->m_map_PK_DesignObj_SoleScreenToGen[m_pRow_DesignObj->PK_DesignObj_get()]==false) )
             {
-				if( m_pOrbiterGenerator->m_iPK_DesignObj_SoleScreenToGen || pdrCachedScreen->ContainsArrays_get()==0 )
+				if( (m_pOrbiterGenerator->m_map_PK_DesignObj_SoleScreenToGen.size()!=0 && m_pOrbiterGenerator->m_map_PK_DesignObj_SoleScreenToGen[m_pRow_DesignObj->PK_DesignObj_get()]==false) || pdrCachedScreen->ContainsArrays_get()==0 )
 				{
 					time_t lModDate1 = StringUtils::SQLDateTime(pdrCachedScreen->Modification_LastGen_get());
 					time_t lModDate2 = StringUtils::SQLDateTime(m_pRow_DesignObj->psc_mod_get());
-					if( lModDate1==lModDate2 || m_pOrbiterGenerator->m_iPK_DesignObj_SoleScreenToGen )
+					if( lModDate1==lModDate2 || (m_pOrbiterGenerator->m_map_PK_DesignObj_SoleScreenToGen.size()!=0 && m_pOrbiterGenerator->m_map_PK_DesignObj_SoleScreenToGen[m_pRow_DesignObj->PK_DesignObj_get()]==false) )
 					{
 						string Filename = m_pOrbiterGenerator->m_sOutputPath + "screen " + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get()) + "." +
 							StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(m_iVersion) + "." + StringUtils::itos((int) lModDate1) + ".cache";
