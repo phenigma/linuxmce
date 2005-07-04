@@ -1015,19 +1015,19 @@ namespace DCE
 	};
 	class CMD_Link_with_mobile_orbiter : public PreformedCommand {
 	public:
-		CMD_Link_with_mobile_orbiter(long DeviceIDFrom, long DeviceIDTo,string sMac_address,string sVMC_File) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,60,2,47,sMac_address.c_str(),118,sVMC_File.c_str()); }
+		CMD_Link_with_mobile_orbiter(long DeviceIDFrom, long DeviceIDTo,string sMac_address,string sVMC_File,string sConfig_File) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,60,3,47,sMac_address.c_str(),118,sVMC_File.c_str(),130,sConfig_File.c_str()); }
 	};
 	class CMD_Link_with_mobile_orbiter_DL : public PreformedCommand {
 	public:
-		CMD_Link_with_mobile_orbiter_DL(long DeviceIDFrom, string DeviceIDTo,string sMac_address,string sVMC_File) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,60,2,47,sMac_address.c_str(),118,sVMC_File.c_str()); }
+		CMD_Link_with_mobile_orbiter_DL(long DeviceIDFrom, string DeviceIDTo,string sMac_address,string sVMC_File,string sConfig_File) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,60,3,47,sMac_address.c_str(),118,sVMC_File.c_str(),130,sConfig_File.c_str()); }
 	};
 	class CMD_Link_with_mobile_orbiter_DT : public PreformedCommand {
 	public:
-		CMD_Link_with_mobile_orbiter_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sMac_address,string sVMC_File) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,60,2,47,sMac_address.c_str(),118,sVMC_File.c_str()); }
+		CMD_Link_with_mobile_orbiter_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sMac_address,string sVMC_File,string sConfig_File) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,60,3,47,sMac_address.c_str(),118,sVMC_File.c_str(),130,sConfig_File.c_str()); }
 	};
 	class CMD_Link_with_mobile_orbiter_Cat : public PreformedCommand {
 	public:
-		CMD_Link_with_mobile_orbiter_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sMac_address,string sVMC_File) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,60,2,47,sMac_address.c_str(),118,sVMC_File.c_str()); }
+		CMD_Link_with_mobile_orbiter_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sMac_address,string sVMC_File,string sConfig_File) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,60,3,47,sMac_address.c_str(),118,sVMC_File.c_str(),130,sConfig_File.c_str()); }
 	};
 	class RESP_Get_Signal_Strength : public PreformedCommandResponse {
 		int *m_iValue;
@@ -5487,19 +5487,19 @@ namespace DCE
 	};
 	class CMD_Disconnect_From_Mobile_Orbiter : public PreformedCommand {
 	public:
-		CMD_Disconnect_From_Mobile_Orbiter(long DeviceIDFrom, long DeviceIDTo,string sMac_address,string sVMC_File,int iDeviceToLink) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,333,3,47,sMac_address.c_str(),118,sVMC_File.c_str(),124,StringUtils::itos(iDeviceToLink).c_str()); }
+		CMD_Disconnect_From_Mobile_Orbiter(long DeviceIDFrom, long DeviceIDTo,string sMac_address,string sVMC_File,int iDeviceToLink,string sConfig_File) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,333,4,47,sMac_address.c_str(),118,sVMC_File.c_str(),124,StringUtils::itos(iDeviceToLink).c_str(),130,sConfig_File.c_str()); }
 	};
 	class CMD_Disconnect_From_Mobile_Orbiter_DL : public PreformedCommand {
 	public:
-		CMD_Disconnect_From_Mobile_Orbiter_DL(long DeviceIDFrom, string DeviceIDTo,string sMac_address,string sVMC_File,int iDeviceToLink) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,333,3,47,sMac_address.c_str(),118,sVMC_File.c_str(),124,StringUtils::itos(iDeviceToLink).c_str()); }
+		CMD_Disconnect_From_Mobile_Orbiter_DL(long DeviceIDFrom, string DeviceIDTo,string sMac_address,string sVMC_File,int iDeviceToLink,string sConfig_File) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,333,4,47,sMac_address.c_str(),118,sVMC_File.c_str(),124,StringUtils::itos(iDeviceToLink).c_str(),130,sConfig_File.c_str()); }
 	};
 	class CMD_Disconnect_From_Mobile_Orbiter_DT : public PreformedCommand {
 	public:
-		CMD_Disconnect_From_Mobile_Orbiter_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sMac_address,string sVMC_File,int iDeviceToLink) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,333,3,47,sMac_address.c_str(),118,sVMC_File.c_str(),124,StringUtils::itos(iDeviceToLink).c_str()); }
+		CMD_Disconnect_From_Mobile_Orbiter_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sMac_address,string sVMC_File,int iDeviceToLink,string sConfig_File) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,333,4,47,sMac_address.c_str(),118,sVMC_File.c_str(),124,StringUtils::itos(iDeviceToLink).c_str(),130,sConfig_File.c_str()); }
 	};
 	class CMD_Disconnect_From_Mobile_Orbiter_Cat : public PreformedCommand {
 	public:
-		CMD_Disconnect_From_Mobile_Orbiter_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sMac_address,string sVMC_File,int iDeviceToLink) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,333,3,47,sMac_address.c_str(),118,sVMC_File.c_str(),124,StringUtils::itos(iDeviceToLink).c_str()); }
+		CMD_Disconnect_From_Mobile_Orbiter_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sMac_address,string sVMC_File,int iDeviceToLink,string sConfig_File) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,333,4,47,sMac_address.c_str(),118,sVMC_File.c_str(),124,StringUtils::itos(iDeviceToLink).c_str(),130,sConfig_File.c_str()); }
 	};
 	class CMD_Phone_Initiate : public PreformedCommand {
 	public:

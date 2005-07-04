@@ -97,6 +97,7 @@ void *HandleBDCommandProcessorThread( void *p )
 	string sMacAddress = pBD_Orbiter_Plus_DongleHandle->m_sMacAddress;
 	u_int64_t iMacAddress = pBD_Orbiter_Plus_DongleHandle->m_iMacAddress;
     string sVMC_File = pBD_Orbiter_Plus_DongleHandle->m_sVMCFile;
+    string sConfig_File = pBD_Orbiter_Plus_DongleHandle->m_sConfigFile;
 	
 	if( !pBD_Orbiter || !pBD_Orbiter->m_pBDCommandProcessor || pBD_Orbiter->m_pBDCommandProcessor->m_bDead ) // check if everything is OK first
 	{
@@ -115,9 +116,10 @@ void *HandleBDCommandProcessorThread( void *p )
 	BD_CP_SendMeKeystrokes *pBD_CP_SendMeKeystrokes = new BD_CP_SendMeKeystrokes( 1 );
 	pBD_Orbiter->m_pBDCommandProcessor->AddCommand( pBD_CP_SendMeKeystrokes );
 
+    //sending plutomo.vmc file
     if(sVMC_File != "")
     {
-        string sDestionationVMCFileName = "PlutoMO.vmc";
+        string sDestinationVMCFileName = "PlutoMO.vmc";
 
         size_t iSize = 0;
         char *pData = FileUtils::ReadFileIntoBuffer(sVMC_File, iSize);
@@ -127,9 +129,9 @@ void *HandleBDCommandProcessorThread( void *p )
             g_pPlutoLogger->Write(LV_WARNING, "Sending %s file to PlutoMO, size %d", sVMC_File.c_str(), iSize);
 
             BD_CP_SendFile *pBD_CP_SendFile = new BD_CP_SendFile(
-                const_cast<char *>(sDestionationVMCFileName.c_str()), 
+                const_cast<char *>(sDestinationVMCFileName.c_str()), 
                 pData, 
-                (unsigned long)sDestionationVMCFileName.length(), 
+                (unsigned long)sDestinationVMCFileName.length(), 
                 (unsigned long)iSize
             );
             pBD_Orbiter->m_pBDCommandProcessor->AddCommand( pBD_CP_SendFile );            
@@ -137,22 +139,22 @@ void *HandleBDCommandProcessorThread( void *p )
         }
     }
 
-    const string csPlutoMOConfigFile = "/usr/pluto/bin/PlutoMO.cfg";
-    if(FileUtils::FileExists(csPlutoMOConfigFile))
+    //sending config file
+    if(FileUtils::FileExists(sConfig_File))
     {
-        string sDestionationCfgFileName = "PlutoMO.cfg";
+        string sDestinationCfgFileName = "PlutoMO.cfg";
 
         size_t iSize = 0;
-        char *pData = FileUtils::ReadFileIntoBuffer(csPlutoMOConfigFile, iSize);
+        char *pData = FileUtils::ReadFileIntoBuffer(sConfig_File, iSize);
 
         if(pData)
         {
-            g_pPlutoLogger->Write(LV_WARNING, "Sending %s file to PlutoMO, size %d", csPlutoMOConfigFile.c_str(), iSize);
+            g_pPlutoLogger->Write(LV_WARNING, "Sending %s file to PlutoMO, size %d", sConfig_File.c_str(), iSize);
 
             BD_CP_SendFile *pBD_CP_SendFile = new BD_CP_SendFile(
-                const_cast<char *>(sDestionationCfgFileName.c_str()), 
+                const_cast<char *>(sDestinationCfgFileName.c_str()), 
                 pData, 
-                (unsigned long)sDestionationCfgFileName.length(), 
+                (unsigned long)sDestinationCfgFileName.length(), 
                 (unsigned long)iSize
                 );
             pBD_Orbiter->m_pBDCommandProcessor->AddCommand( pBD_CP_SendFile );            
@@ -213,6 +215,7 @@ void *ReconnectToBluetoothDongleThread(void *p)
 
     Bluetooth_Dongle *pBluetooth_Dongle = pReconnectInfo->m_pBluetooth_Dongle;
     string sVMC_File = pReconnectInfo->m_sVMCFile;
+    string sConfig_File = pReconnectInfo->m_sConfig_File;
     string sPhoneMacAddress = pReconnectInfo->m_sPhoneMacAddress;
     int iDeviceToLink = pReconnectInfo->m_iDeviceToLink;
 
@@ -240,7 +243,7 @@ void *ReconnectToBluetoothDongleThread(void *p)
     Sleep(2000); 
 
     g_pPlutoLogger->Write(LV_WARNING, "HandleBDCommandProcessor for %s BDCommandProcessor is disconnected now, we can connect to new dongle with id %d", sPhoneMacAddress.c_str(), iDeviceToLink);
-    DCE::CMD_Link_with_mobile_orbiter CMD_Link_with_mobile_orbiter(iDeviceToLink, iDeviceToLink, sPhoneMacAddress, sVMC_File);
+    DCE::CMD_Link_with_mobile_orbiter CMD_Link_with_mobile_orbiter(iDeviceToLink, iDeviceToLink, sPhoneMacAddress, sVMC_File, sConfig_File);
     pBluetooth_Dongle->SendCommand(CMD_Link_with_mobile_orbiter);
 
     delete pReconnectInfo;
@@ -565,8 +568,10 @@ void Bluetooth_Dongle::SignalStrengthChanged( class PhoneDevice *pDevice )
 			/** The mac address of the phone */
 		/** @param #118 VMC File */
 			/** If VMC File is not empty, BluetoothDongle will have to send the file to PlutoMO */
+		/** @param #130 Config File */
+			/** Path to Config File the be sent to PlutoMO */
 
-void Bluetooth_Dongle::CMD_Link_with_mobile_orbiter(string sMac_address,string sVMC_File,string &sCMD_Result,Message *pMessage)
+void Bluetooth_Dongle::CMD_Link_with_mobile_orbiter(string sMac_address,string sVMC_File,string sConfig_File,string &sCMD_Result,Message *pMessage)
 //<-dceag-c60-e->
 {
 	{
@@ -643,7 +648,8 @@ void Bluetooth_Dongle::CMD_Link_with_mobile_orbiter(string sMac_address,string s
 			new BD_Orbiter_Plus_DongleHandle(
 				pBD_Orbiter, this, sMac_address, 
 				pBD_Orbiter->m_pPhoneDevice->m_iMacAddress,
-                sVMC_File
+                sVMC_File,
+                sConfig_File
 			);
 
         g_pPlutoLogger->Write( LV_WARNING, "Connected to PlutoMO." );
@@ -850,8 +856,10 @@ void Bluetooth_Dongle::CMD_Ignore_MAC_Address(string sMac_address,string &sCMD_R
 			/** Path the VMC file to send */
 		/** @param #124 DeviceToLink */
 			/** Send CMD_Link_with_mobile_orbiter command to DeviceToLink */
+		/** @param #130 Config File */
+			/** Path to Config File to send */
 
-void Bluetooth_Dongle::CMD_Disconnect_From_Mobile_Orbiter(string sMac_address,string sVMC_File,int iDeviceToLink,string &sCMD_Result,Message *pMessage)
+void Bluetooth_Dongle::CMD_Disconnect_From_Mobile_Orbiter(string sMac_address,string sVMC_File,int iDeviceToLink,string sConfig_File,string &sCMD_Result,Message *pMessage)
 //<-dceag-c333-e->
 {
 	PLUTO_SAFETY_LOCK( bm, m_BTMutex );
@@ -885,7 +893,7 @@ void Bluetooth_Dongle::CMD_Disconnect_From_Mobile_Orbiter(string sMac_address,st
 		}
 	}
 
-    BD_ReconnectInfo *pReconnectInfo = new BD_ReconnectInfo(this, sMac_address, iDeviceToLink, sVMC_File);
+    BD_ReconnectInfo *pReconnectInfo = new BD_ReconnectInfo(this, sMac_address, iDeviceToLink, sVMC_File, sConfig_File);
 
     pthread_t pthread_id;
     pthread_create( &pthread_id, NULL, ReconnectToBluetoothDongleThread, (void*)pReconnectInfo );

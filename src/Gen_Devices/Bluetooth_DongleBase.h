@@ -90,12 +90,12 @@ public:
 	void EVENT_Mobile_orbiter_linked(string sMac_Address,string sVersion) { GetEvents()->Mobile_orbiter_linked(sMac_Address.c_str(),sVersion.c_str()); }
 	void EVENT_Mobile_orbiter_lost(string sMac_Address,bool bConnectionFailed) { GetEvents()->Mobile_orbiter_lost(sMac_Address.c_str(),bConnectionFailed); }
 	//Commands - Override these to handle commands from the server
-	virtual void CMD_Link_with_mobile_orbiter(string sMac_address,string sVMC_File,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Link_with_mobile_orbiter(string sMac_address,string sVMC_File,string sConfig_File,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Signal_Strength(string sMac_address,int *iValue,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Create_Mobile_Orbiter(int iPK_Device,string sPK_EntertainArea,string sMac_address,int iPK_Room,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Send_File_To_Device(string sFilename,string sMac_address,string sIP_Address,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Ignore_MAC_Address(string sMac_address,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Disconnect_From_Mobile_Orbiter(string sMac_address,string sVMC_File,int iDeviceToLink,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Disconnect_From_Mobile_Orbiter(string sMac_address,string sVMC_File,int iDeviceToLink,string sConfig_File,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -116,7 +116,8 @@ public:
 						string sCMD_Result="OK";
 					string sMac_address=pMessage->m_mapParameters[47];
 					string sVMC_File=pMessage->m_mapParameters[118];
-						CMD_Link_with_mobile_orbiter(sMac_address.c_str(),sVMC_File.c_str(),sCMD_Result,pMessage);
+					string sConfig_File=pMessage->m_mapParameters[130];
+						CMD_Link_with_mobile_orbiter(sMac_address.c_str(),sVMC_File.c_str(),sConfig_File.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -133,7 +134,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Link_with_mobile_orbiter(sMac_address.c_str(),sVMC_File.c_str(),sCMD_Result,pMessage);
+								CMD_Link_with_mobile_orbiter(sMac_address.c_str(),sVMC_File.c_str(),sConfig_File.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -255,7 +256,8 @@ public:
 					string sMac_address=pMessage->m_mapParameters[47];
 					string sVMC_File=pMessage->m_mapParameters[118];
 					int iDeviceToLink=atoi(pMessage->m_mapParameters[124].c_str());
-						CMD_Disconnect_From_Mobile_Orbiter(sMac_address.c_str(),sVMC_File.c_str(),iDeviceToLink,sCMD_Result,pMessage);
+					string sConfig_File=pMessage->m_mapParameters[130];
+						CMD_Disconnect_From_Mobile_Orbiter(sMac_address.c_str(),sVMC_File.c_str(),iDeviceToLink,sConfig_File.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -272,7 +274,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Disconnect_From_Mobile_Orbiter(sMac_address.c_str(),sVMC_File.c_str(),iDeviceToLink,sCMD_Result,pMessage);
+								CMD_Disconnect_From_Mobile_Orbiter(sMac_address.c_str(),sVMC_File.c_str(),iDeviceToLink,sConfig_File.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

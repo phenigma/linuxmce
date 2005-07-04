@@ -579,7 +579,7 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
                     //allow only 'pDeviceFrom->m_dwPK_Device' device to connect to PlutoMO in EXPIRATION_INTERVAL sec.
                     //this will prevent other dongle to connect to PlutoMO while it is disconnected and
                     //it is waiting for the 'pDeviceFrom->m_dwPK_Device' to connect
-                    //if the that device will not connect to PlutoMO in EXPIRATION_INTERVAL seconds, any other device 
+                    //if that device will not connect to PlutoMO in EXPIRATION_INTERVAL seconds, any other device 
                     //will be allowed to connect to PlutoMO.
                     PLUTO_SAFETY_LOCK(ac, m_AllowedConnectionsMutex);
                     m_mapAllowedConnections[sMacAddress] = new AllowedConnections(time(NULL) + EXPIRATION_INTERVAL, pDeviceFrom->m_dwPK_Device);
@@ -591,7 +591,7 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
                     //this dongle will send a link with mobile orbiter when it has finished disconnecting
 					DCE::CMD_Disconnect_From_Mobile_Orbiter cmd_Disconnect_From_Mobile_Orbiter(
 						m_dwPK_Device, pOH_Orbiter->m_pDevice_CurrentDetected->m_dwPK_Device,
-						sMacAddress,sVmcFileToSend,pDeviceFrom->m_dwPK_Device); 
+						sMacAddress,sVmcFileToSend,pDeviceFrom->m_dwPK_Device,pOH_Orbiter->m_sConfigFile); 
 					SendCommand(cmd_Disconnect_From_Mobile_Orbiter);
 				}
 				else 
@@ -602,7 +602,7 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
                      //Only do this if there's no other dongle
 					DCE::CMD_Link_with_mobile_orbiter CMD_Link_with_mobile_orbiter(
 						m_dwPK_Device, pDeviceFrom->m_dwPK_Device, 
-						sMacAddress, sVmcFileToSend);
+						sMacAddress, sVmcFileToSend, pOH_Orbiter->m_sConfigFile);
 					SendCommand(CMD_Link_with_mobile_orbiter);
 				}
             }
@@ -1726,50 +1726,90 @@ void Orbiter_Plugin::GenerateVMCFiles()
 void Orbiter_Plugin::GeneratePlutoMOConfig()
 {
     const string csWapConfFile("/etc/wap.conf");
-    const string csPlutoMOConfFile("/usr/pluto/bin/PlutoMO.cfg");
+    const string csPlutoMOConf("/usr/pluto/bin/PlutoMO");
 
     if(FileUtils::FileExists(csWapConfFile))
     {
-        g_pPlutoLogger->Write(LV_STATUS, "About to generate '%s' file", csPlutoMOConfFile.c_str());
-
-        size_t iSize = 0;
-        char *pWapURL = FileUtils::ReadFileIntoBuffer(csWapConfFile, iSize);
-
-        string sPlutoMOConfig(pWapURL);
-        delete []pWapURL;
-
-        sPlutoMOConfig += "\n";
-        
-        //generating the list with alert types
-        vector<Row_AlertType *> vectRow_AlertType;
-        m_pDatabase_pluto_security->AlertType_get()->GetRows("1 = 1", &vectRow_AlertType);
-        sPlutoMOConfig += StringUtils::ltos(long(vectRow_AlertType.size())) + "\n";
-
-        size_t i;
-        for(i = 0; i < vectRow_AlertType.size(); i++)
+        for(map<string, OH_Orbiter *>::iterator iter = m_mapOH_Orbiter_Mac.begin(); iter != m_mapOH_Orbiter_Mac.end(); ++iter)
         {
-            Row_AlertType *pRow_AlertType = vectRow_AlertType[i];
-            sPlutoMOConfig += pRow_AlertType->Description_get() + "\n";
+            OH_Orbiter *pOH_Orbiter = (*iter).second;
+
+            long dwPKDevice = pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device;
+            string sPKDevice = StringUtils::ltos(dwPKDevice);
+            string sPlutoMOConfFile = csPlutoMOConf + "_" + sPKDevice + ".cfg";
+
+            g_pPlutoLogger->Write(LV_STATUS, "About to generate '%s' file", sPlutoMOConfFile.c_str());
+
+            size_t iSize = 0;
+            char *pWapURL = FileUtils::ReadFileIntoBuffer(csWapConfFile, iSize);
+
+            string sPlutoMOConfig(pWapURL);
+            delete []pWapURL;
+
+            //generating the list with alert types
+            vector<Row_AlertType *> vectRow_AlertType;
+            m_pDatabase_pluto_security->AlertType_get()->GetRows("1 = 1", &vectRow_AlertType);
+            sPlutoMOConfig += StringUtils::ltos(long(vectRow_AlertType.size())) + "\n";
+
+            size_t i;
+            for(i = 0; i < vectRow_AlertType.size(); i++)
+            {
+                Row_AlertType *pRow_AlertType = vectRow_AlertType[i];
+                sPlutoMOConfig += pRow_AlertType->Description_get() + "\n";
+            }
+
+            //generate the list with known caller ids
+            sPlutoMOConfig += StringUtils::ltos(long(vectRow_AlertType.size())) + "\n";
+            for(i = 0; i < vectRow_AlertType.size(); i++)
+            {
+                Row_AlertType *pRow_AlertType = vectRow_AlertType[i];
+
+                sPlutoMOConfig += StringUtils::ltos(pRow_AlertType->PK_AlertType_get()) + "\n";
+                string sCallerID = GenerateCallerID(pRow_AlertType->PK_AlertType_get());
+                sPlutoMOConfig += sCallerID + "\n";
+                sPlutoMOConfig += pRow_AlertType->Description_get() + "\n";
+
+                //TODO: need a 'Hang up true/false' field in AlertType table
+                sPlutoMOConfig += "1\n";
+            }
+            vectRow_AlertType.clear();
+
+            //user name and pin
+            vector<Row_Device_DeviceData *> vectRow_Device_DeviceData;
+            m_pDatabase_pluto_main->Device_DeviceData_get()->GetRows(
+                " FK_Device = " + sPKDevice + " AND " + 
+                " FK_DeviceData = " + StringUtils::ltos(DEVICEDATA_PK_Users_CONST),
+                &vectRow_Device_DeviceData);
+
+            if(vectRow_Device_DeviceData.size() != 1)
+            {
+                g_pPlutoLogger->Write(LV_CRITICAL, "No user for %s mobile or too many: %d", sPKDevice.c_str(),
+                    vectRow_Device_DeviceData.size());
+                vectRow_Device_DeviceData.clear();
+                continue;
+            }
+
+            string sPK_User = vectRow_Device_DeviceData[0]->IK_DeviceData_get();
+            vectRow_Device_DeviceData.clear();
+
+            Row_Users *pRow_Users = m_pDatabase_pluto_main->Users_get()->GetRow(atoi(sPK_User.c_str()));
+
+            if(!pRow_Users)
+            {
+                g_pPlutoLogger->Write(LV_CRITICAL, "No record found in the databse for user %d", sPK_User.c_str(),
+                    vectRow_Device_DeviceData.size());
+                vectRow_Device_DeviceData.clear();
+                continue;
+            }
+
+            string sUserName = pRow_Users->UserName_get();
+            string sPin = pRow_Users->PINCode_get();
+            sPlutoMOConfig += sUserName + "\n" + sPin + "\n";
+            pOH_Orbiter->m_sConfigFile = sPlutoMOConfFile;
+
+            FileUtils::WriteBufferIntoFile(sPlutoMOConfFile, const_cast<char *>(sPlutoMOConfig.c_str()), 
+                sPlutoMOConfig.length());
         }
-
-        //generate the list with known caller ids
-        sPlutoMOConfig += StringUtils::ltos(long(vectRow_AlertType.size())) + "\n";
-        for(i = 0; i < vectRow_AlertType.size(); i++)
-        {
-            Row_AlertType *pRow_AlertType = vectRow_AlertType[i];
-
-            sPlutoMOConfig += StringUtils::ltos(pRow_AlertType->PK_AlertType_get()) + "\n";
-            string sCallerID = GenerateCallerID(pRow_AlertType->PK_AlertType_get());
-            sPlutoMOConfig += sCallerID + "\n";
-            sPlutoMOConfig += pRow_AlertType->Description_get() + "\n";
-
-            //TODO: need a 'Hang up true/false' filder in AlertType table
-            sPlutoMOConfig += "1\n";
-        }
-        vectRow_AlertType.clear();
-
-        FileUtils::WriteBufferIntoFile(csPlutoMOConfFile, const_cast<char *>(sPlutoMOConfig.c_str()), 
-            sPlutoMOConfig.length());
     }
     else
     {

@@ -220,6 +220,13 @@ void CPlutoMOAppUi::ReadConfigurationFile()
 		TLex8 lex_hangup(iCurrentLine);
 		lex_hangup.Val(iPhoneTypes[i].iHangUp);
 	}
+
+	//user name
+	lr.ReadL(iCurrentLine, iCurrentLineOffset);
+	iUsername.Copy(iCurrentLine);
+	//pin
+	lr.ReadL(iCurrentLine, iCurrentLineOffset);
+	iPinMD5.Copy(iCurrentLine);
 	
 	lr.Close();
 }

@@ -24,6 +24,7 @@ namespace DCE
 		int m_iFailedToConnectCount;
 		bool m_bRegistered,m_bDisplayOn,m_bDontAutoShowRemote;
         string m_sUpdateVMCFile;
+        string m_sConfigFile;
 		string m_sVersion;
 
 		time_t m_tRegenTime,m_tSendAppTime;

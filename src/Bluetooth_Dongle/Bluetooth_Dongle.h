@@ -74,15 +74,17 @@ public:
 	string m_sMacAddress;
 	u_int64_t m_iMacAddress;
     string m_sVMCFile;
+    string m_sConfigFile;
 
 	BD_Orbiter_Plus_DongleHandle(class BD_Orbiter* pBD_Orbiter, class Bluetooth_Dongle* pBluetooth_Dongle, 
-			string sMacAddress, u_int64_t iMacAddress, string sVMCFile)
+			string sMacAddress, u_int64_t iMacAddress, string sVMCFile, string sConfigFile)
 	{
 		m_pBD_Orbiter = pBD_Orbiter;
 		m_pBluetooth_Dongle = pBluetooth_Dongle;
 		m_sMacAddress = sMacAddress;
 		m_iMacAddress = iMacAddress;
         m_sVMCFile = sVMCFile;
+        m_sConfigFile = sConfigFile;
 	}
 };
 
@@ -93,13 +95,16 @@ public:
     string m_sPhoneMacAddress;
     int m_iDeviceToLink;
     string m_sVMCFile;
+    string m_sConfig_File;
 
-    BD_ReconnectInfo(class Bluetooth_Dongle* pBluetooth_Dongle, string sPhoneMacAddress, int iDeviceToLink, string sVMCFile)
+    BD_ReconnectInfo(class Bluetooth_Dongle* pBluetooth_Dongle, string sPhoneMacAddress, int iDeviceToLink, string sVMCFile,
+        string sConfig_File)
     {
         m_pBluetooth_Dongle = pBluetooth_Dongle;
         m_sPhoneMacAddress = sPhoneMacAddress;
         m_iDeviceToLink = iDeviceToLink;
         m_sVMCFile = sVMCFile;
+        m_sConfig_File = sConfig_File;
     }
 };
 
@@ -220,9 +225,11 @@ public:
 			/** The mac address of the phone */
 		/** @param #118 VMC File */
 			/** If VMC File is not empty, BluetoothDongle will have to send the file to PlutoMO */
+		/** @param #130 Config File */
+			/** Path to Config File the be sent to PlutoMO */
 
-	virtual void CMD_Link_with_mobile_orbiter(string sMac_address,string sVMC_File) { string sCMD_Result; CMD_Link_with_mobile_orbiter(sMac_address.c_str(),sVMC_File.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Link_with_mobile_orbiter(string sMac_address,string sVMC_File,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Link_with_mobile_orbiter(string sMac_address,string sVMC_File,string sConfig_File) { string sCMD_Result; CMD_Link_with_mobile_orbiter(sMac_address.c_str(),sVMC_File.c_str(),sConfig_File.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Link_with_mobile_orbiter(string sMac_address,string sVMC_File,string sConfig_File,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #61 - Get Signal Strength */
@@ -282,9 +289,11 @@ public:
 			/** Path the VMC file to send */
 		/** @param #124 DeviceToLink */
 			/** Send CMD_Link_with_mobile_orbiter command to DeviceToLink */
+		/** @param #130 Config File */
+			/** Path to Config File to send */
 
-	virtual void CMD_Disconnect_From_Mobile_Orbiter(string sMac_address,string sVMC_File,int iDeviceToLink) { string sCMD_Result; CMD_Disconnect_From_Mobile_Orbiter(sMac_address.c_str(),sVMC_File.c_str(),iDeviceToLink,sCMD_Result,NULL);};
-	virtual void CMD_Disconnect_From_Mobile_Orbiter(string sMac_address,string sVMC_File,int iDeviceToLink,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Disconnect_From_Mobile_Orbiter(string sMac_address,string sVMC_File,int iDeviceToLink,string sConfig_File) { string sCMD_Result; CMD_Disconnect_From_Mobile_Orbiter(sMac_address.c_str(),sVMC_File.c_str(),iDeviceToLink,sConfig_File.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Disconnect_From_Mobile_Orbiter(string sMac_address,string sVMC_File,int iDeviceToLink,string sConfig_File,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->
