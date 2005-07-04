@@ -518,8 +518,10 @@ bool Table_VertAlignment::GetRows(string where_statement,vector<class Row_VertAl
 		query = "select `VertAlignment`.* from VertAlignment " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `VertAlignment`.* from VertAlignment where " + where_statement;
+	else
+		query = "select `VertAlignment`.* from VertAlignment";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

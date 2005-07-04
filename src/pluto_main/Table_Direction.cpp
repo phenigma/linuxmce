@@ -516,8 +516,10 @@ bool Table_Direction::GetRows(string where_statement,vector<class Row_Direction*
 		query = "select `Direction`.* from Direction " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `Direction`.* from Direction where " + where_statement;
+	else
+		query = "select `Direction`.* from Direction";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

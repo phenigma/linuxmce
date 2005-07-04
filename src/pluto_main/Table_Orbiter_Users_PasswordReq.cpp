@@ -504,8 +504,10 @@ bool Table_Orbiter_Users_PasswordReq::GetRows(string where_statement,vector<clas
 		query = "select `Orbiter_Users_PasswordReq`.* from Orbiter_Users_PasswordReq " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `Orbiter_Users_PasswordReq`.* from Orbiter_Users_PasswordReq where " + where_statement;
+	else
+		query = "select `Orbiter_Users_PasswordReq`.* from Orbiter_Users_PasswordReq";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

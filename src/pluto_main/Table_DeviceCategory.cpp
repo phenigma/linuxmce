@@ -587,8 +587,10 @@ bool Table_DeviceCategory::GetRows(string where_statement,vector<class Row_Devic
 		query = "select `DeviceCategory`.* from DeviceCategory " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `DeviceCategory`.* from DeviceCategory where " + where_statement;
+	else
+		query = "select `DeviceCategory`.* from DeviceCategory";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

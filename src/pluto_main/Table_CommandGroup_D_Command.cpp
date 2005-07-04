@@ -654,8 +654,10 @@ bool Table_CommandGroup_D_Command::GetRows(string where_statement,vector<class R
 		query = "select `CommandGroup_D_Command`.* from CommandGroup_D_Command " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `CommandGroup_D_Command`.* from CommandGroup_D_Command where " + where_statement;
+	else
+		query = "select `CommandGroup_D_Command`.* from CommandGroup_D_Command";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

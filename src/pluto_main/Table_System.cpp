@@ -494,8 +494,10 @@ bool Table_System::GetRows(string where_statement,vector<class Row_System*> *row
 		query = "select `System`.* from System " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `System`.* from System where " + where_statement;
+	else
+		query = "select `System`.* from System";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

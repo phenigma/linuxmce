@@ -504,8 +504,10 @@ bool Table_InfraredGroup_Command_Preferred::GetRows(string where_statement,vecto
 		query = "select `InfraredGroup_Command_Preferred`.* from InfraredGroup_Command_Preferred " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `InfraredGroup_Command_Preferred`.* from InfraredGroup_Command_Preferred where " + where_statement;
+	else
+		query = "select `InfraredGroup_Command_Preferred`.* from InfraredGroup_Command_Preferred";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

@@ -545,8 +545,10 @@ bool Table_CriteriaParmNesting::GetRows(string where_statement,vector<class Row_
 		query = "select `CriteriaParmNesting`.* from CriteriaParmNesting " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `CriteriaParmNesting`.* from CriteriaParmNesting where " + where_statement;
+	else
+		query = "select `CriteriaParmNesting`.* from CriteriaParmNesting";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

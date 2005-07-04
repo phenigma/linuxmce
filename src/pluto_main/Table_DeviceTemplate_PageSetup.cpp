@@ -504,8 +504,10 @@ bool Table_DeviceTemplate_PageSetup::GetRows(string where_statement,vector<class
 		query = "select `DeviceTemplate_PageSetup`.* from DeviceTemplate_PageSetup " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `DeviceTemplate_PageSetup`.* from DeviceTemplate_PageSetup where " + where_statement;
+	else
+		query = "select `DeviceTemplate_PageSetup`.* from DeviceTemplate_PageSetup";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

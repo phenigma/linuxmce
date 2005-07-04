@@ -542,8 +542,10 @@ bool Table_CriteriaParmList::GetRows(string where_statement,vector<class Row_Cri
 		query = "select `CriteriaParmList`.* from CriteriaParmList " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `CriteriaParmList`.* from CriteriaParmList where " + where_statement;
+	else
+		query = "select `CriteriaParmList`.* from CriteriaParmList";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

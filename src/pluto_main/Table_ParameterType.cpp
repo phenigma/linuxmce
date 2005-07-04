@@ -549,8 +549,10 @@ bool Table_ParameterType::GetRows(string where_statement,vector<class Row_Parame
 		query = "select `ParameterType`.* from ParameterType " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `ParameterType`.* from ParameterType where " + where_statement;
+	else
+		query = "select `ParameterType`.* from ParameterType";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

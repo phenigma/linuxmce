@@ -630,8 +630,10 @@ bool Table_RepositorySource::GetRows(string where_statement,vector<class Row_Rep
 		query = "select `RepositorySource`.* from RepositorySource " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `RepositorySource`.* from RepositorySource where " + where_statement;
+	else
+		query = "select `RepositorySource`.* from RepositorySource";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

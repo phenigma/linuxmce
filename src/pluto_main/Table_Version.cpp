@@ -714,8 +714,10 @@ bool Table_Version::GetRows(string where_statement,vector<class Row_Version*> *r
 		query = "select `Version`.* from Version " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `Version`.* from Version where " + where_statement;
+	else
+		query = "select `Version`.* from Version";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

@@ -504,8 +504,10 @@ bool Table_Command_Pipe::GetRows(string where_statement,vector<class Row_Command
 		query = "select `Command_Pipe`.* from Command_Pipe " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `Command_Pipe`.* from Command_Pipe where " + where_statement;
+	else
+		query = "select `Command_Pipe`.* from Command_Pipe";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

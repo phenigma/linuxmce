@@ -578,8 +578,10 @@ bool Table_InstallWizard_Distro::GetRows(string where_statement,vector<class Row
 		query = "select `InstallWizard_Distro`.* from InstallWizard_Distro " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `InstallWizard_Distro`.* from InstallWizard_Distro where " + where_statement;
+	else
+		query = "select `InstallWizard_Distro`.* from InstallWizard_Distro";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

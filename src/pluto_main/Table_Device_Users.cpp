@@ -504,8 +504,10 @@ bool Table_Device_Users::GetRows(string where_statement,vector<class Row_Device_
 		query = "select `Device_Users`.* from Device_Users " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `Device_Users`.* from Device_Users where " + where_statement;
+	else
+		query = "select `Device_Users`.* from Device_Users";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

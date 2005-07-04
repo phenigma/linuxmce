@@ -628,8 +628,10 @@ bool Table_DeviceTemplate_MediaType_DesignObj::GetRows(string where_statement,ve
 		query = "select `DeviceTemplate_MediaType_DesignObj`.* from DeviceTemplate_MediaType_DesignObj " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `DeviceTemplate_MediaType_DesignObj`.* from DeviceTemplate_MediaType_DesignObj where " + where_statement;
+	else
+		query = "select `DeviceTemplate_MediaType_DesignObj`.* from DeviceTemplate_MediaType_DesignObj";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

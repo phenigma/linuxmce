@@ -525,8 +525,10 @@ bool Table_CommandGroup_Room::GetRows(string where_statement,vector<class Row_Co
 		query = "select `CommandGroup_Room`.* from CommandGroup_Room " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `CommandGroup_Room`.* from CommandGroup_Room where " + where_statement;
+	else
+		query = "select `CommandGroup_Room`.* from CommandGroup_Room";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

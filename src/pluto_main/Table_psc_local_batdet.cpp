@@ -487,8 +487,10 @@ bool Table_psc_local_batdet::GetRows(string where_statement,vector<class Row_psc
 		query = "select `psc_local_batdet`.* from psc_local_batdet " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `psc_local_batdet`.* from psc_local_batdet where " + where_statement;
+	else
+		query = "select `psc_local_batdet`.* from psc_local_batdet";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

@@ -523,8 +523,10 @@ bool Table_Directory::GetRows(string where_statement,vector<class Row_Directory*
 		query = "select `Directory`.* from Directory " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `Directory`.* from Directory where " + where_statement;
+	else
+		query = "select `Directory`.* from Directory";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

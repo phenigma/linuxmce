@@ -550,8 +550,10 @@ bool Table_DataGrid::GetRows(string where_statement,vector<class Row_DataGrid*> 
 		query = "select `DataGrid`.* from DataGrid " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `DataGrid`.* from DataGrid where " + where_statement;
+	else
+		query = "select `DataGrid`.* from DataGrid";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

@@ -623,8 +623,10 @@ bool Table_RepositorySource_URL::GetRows(string where_statement,vector<class Row
 		query = "select `RepositorySource_URL`.* from RepositorySource_URL " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `RepositorySource_URL`.* from RepositorySource_URL where " + where_statement;
+	else
+		query = "select `RepositorySource_URL`.* from RepositorySource_URL";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

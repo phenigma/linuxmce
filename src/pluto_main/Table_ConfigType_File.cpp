@@ -560,8 +560,10 @@ bool Table_ConfigType_File::GetRows(string where_statement,vector<class Row_Conf
 		query = "select `ConfigType_File`.* from ConfigType_File " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `ConfigType_File`.* from ConfigType_File where " + where_statement;
+	else
+		query = "select `ConfigType_File`.* from ConfigType_File";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

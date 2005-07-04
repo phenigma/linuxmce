@@ -523,8 +523,10 @@ bool Table_PackageType::GetRows(string where_statement,vector<class Row_PackageT
 		query = "select `PackageType`.* from PackageType " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `PackageType`.* from PackageType where " + where_statement;
+	else
+		query = "select `PackageType`.* from PackageType";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

@@ -710,8 +710,10 @@ bool Table_EventHandler::GetRows(string where_statement,vector<class Row_EventHa
 		query = "select `EventHandler`.* from EventHandler " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `EventHandler`.* from EventHandler where " + where_statement;
+	else
+		query = "select `EventHandler`.* from EventHandler";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

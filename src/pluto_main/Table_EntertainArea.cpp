@@ -616,8 +616,10 @@ bool Table_EntertainArea::GetRows(string where_statement,vector<class Row_Entert
 		query = "select `EntertainArea`.* from EntertainArea " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `EntertainArea`.* from EntertainArea where " + where_statement;
+	else
+		query = "select `EntertainArea`.* from EntertainArea";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

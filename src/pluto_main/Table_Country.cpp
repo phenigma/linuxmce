@@ -518,8 +518,10 @@ bool Table_Country::GetRows(string where_statement,vector<class Row_Country*> *r
 		query = "select `Country`.* from Country " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `Country`.* from Country where " + where_statement;
+	else
+		query = "select `Country`.* from Country";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

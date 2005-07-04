@@ -525,8 +525,10 @@ bool Table_CommandGroup_EntertainArea::GetRows(string where_statement,vector<cla
 		query = "select `CommandGroup_EntertainArea`.* from CommandGroup_EntertainArea " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `CommandGroup_EntertainArea`.* from CommandGroup_EntertainArea where " + where_statement;
+	else
+		query = "select `CommandGroup_EntertainArea`.* from CommandGroup_EntertainArea";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

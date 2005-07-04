@@ -556,8 +556,10 @@ bool Table_FAQ::GetRows(string where_statement,vector<class Row_FAQ*> *rows)
 		query = "select `FAQ`.* from FAQ " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `FAQ`.* from FAQ where " + where_statement;
+	else
+		query = "select `FAQ`.* from FAQ";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

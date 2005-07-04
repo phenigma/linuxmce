@@ -530,8 +530,10 @@ bool Table_DesignObjCategory::GetRows(string where_statement,vector<class Row_De
 		query = "select `DesignObjCategory`.* from DesignObjCategory " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `DesignObjCategory`.* from DesignObjCategory where " + where_statement;
+	else
+		query = "select `DesignObjCategory`.* from DesignObjCategory";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

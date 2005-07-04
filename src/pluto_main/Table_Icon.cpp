@@ -652,8 +652,10 @@ bool Table_Icon::GetRows(string where_statement,vector<class Row_Icon*> *rows)
 		query = "select `Icon`.* from Icon " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `Icon`.* from Icon where " + where_statement;
+	else
+		query = "select `Icon`.* from Icon";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

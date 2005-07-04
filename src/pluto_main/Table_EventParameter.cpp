@@ -567,8 +567,10 @@ bool Table_EventParameter::GetRows(string where_statement,vector<class Row_Event
 		query = "select `EventParameter`.* from EventParameter " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `EventParameter`.* from EventParameter where " + where_statement;
+	else
+		query = "select `EventParameter`.* from EventParameter";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

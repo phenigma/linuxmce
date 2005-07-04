@@ -518,8 +518,10 @@ bool Table_ConnectorType::GetRows(string where_statement,vector<class Row_Connec
 		query = "select `ConnectorType`.* from ConnectorType " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `ConnectorType`.* from ConnectorType where " + where_statement;
+	else
+		query = "select `ConnectorType`.* from ConnectorType";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

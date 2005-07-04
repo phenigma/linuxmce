@@ -593,8 +593,10 @@ bool Table_Device_Device_Pipe::GetRows(string where_statement,vector<class Row_D
 		query = "select `Device_Device_Pipe`.* from Device_Device_Pipe " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `Device_Device_Pipe`.* from Device_Device_Pipe where " + where_statement;
+	else
+		query = "select `Device_Device_Pipe`.* from Device_Device_Pipe";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

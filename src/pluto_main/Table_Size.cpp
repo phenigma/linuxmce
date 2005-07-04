@@ -599,8 +599,10 @@ bool Table_Size::GetRows(string where_statement,vector<class Row_Size*> *rows)
 		query = "select `Size`.* from Size " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `Size`.* from Size where " + where_statement;
+	else
+		query = "select `Size`.* from Size";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

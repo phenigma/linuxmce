@@ -629,8 +629,10 @@ bool Table_Package_Source::GetRows(string where_statement,vector<class Row_Packa
 		query = "select `Package_Source`.* from Package_Source " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `Package_Source`.* from Package_Source where " + where_statement;
+	else
+		query = "select `Package_Source`.* from Package_Source";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

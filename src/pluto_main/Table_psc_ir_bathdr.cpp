@@ -403,8 +403,10 @@ bool Table_psc_ir_bathdr::GetRows(string where_statement,vector<class Row_psc_ir
 		query = "select `psc_ir_bathdr`.* from psc_ir_bathdr " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `psc_ir_bathdr`.* from psc_ir_bathdr where " + where_statement;
+	else
+		query = "select `psc_ir_bathdr`.* from psc_ir_bathdr";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

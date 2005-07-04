@@ -614,8 +614,10 @@ bool Table_CachedScreens::GetRows(string where_statement,vector<class Row_Cached
 		query = "select `CachedScreens`.* from CachedScreens " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `CachedScreens`.* from CachedScreens where " + where_statement;
+	else
+		query = "select `CachedScreens`.* from CachedScreens";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

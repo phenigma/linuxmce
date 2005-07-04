@@ -988,8 +988,10 @@ bool Table_DesignObjVariation_DesignObj::GetRows(string where_statement,vector<c
 		query = "select `DesignObjVariation_DesignObj`.* from DesignObjVariation_DesignObj " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `DesignObjVariation_DesignObj`.* from DesignObjVariation_DesignObj where " + where_statement;
+	else
+		query = "select `DesignObjVariation_DesignObj`.* from DesignObjVariation_DesignObj";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

@@ -672,8 +672,10 @@ bool Table_Package_Directory::GetRows(string where_statement,vector<class Row_Pa
 		query = "select `Package_Directory`.* from Package_Directory " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `Package_Directory`.* from Package_Directory where " + where_statement;
+	else
+		query = "select `Package_Directory`.* from Package_Directory";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

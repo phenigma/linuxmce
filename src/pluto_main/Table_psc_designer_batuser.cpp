@@ -399,8 +399,10 @@ bool Table_psc_designer_batuser::GetRows(string where_statement,vector<class Row
 		query = "select `psc_designer_batuser`.* from psc_designer_batuser " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `psc_designer_batuser`.* from psc_designer_batuser where " + where_statement;
+	else
+		query = "select `psc_designer_batuser`.* from psc_designer_batuser";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

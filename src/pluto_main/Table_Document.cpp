@@ -598,8 +598,10 @@ bool Table_Document::GetRows(string where_statement,vector<class Row_Document*> 
 		query = "select `Document`.* from Document " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `Document`.* from Document where " + where_statement;
+	else
+		query = "select `Document`.* from Document";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

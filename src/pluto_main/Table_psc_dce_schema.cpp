@@ -336,8 +336,10 @@ bool Table_psc_dce_schema::GetRows(string where_statement,vector<class Row_psc_d
 		query = "select `psc_dce_schema`.* from psc_dce_schema " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `psc_dce_schema`.* from psc_dce_schema where " + where_statement;
+	else
+		query = "select `psc_dce_schema`.* from psc_dce_schema";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

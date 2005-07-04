@@ -371,6 +371,10 @@
 #define COMMAND_Display_Message_On_Orbiter_CONST 406
 #define COMMAND_Set_Floorplan_CONST 407
 #define COMMAND_Show_Floorplan_CONST 408
+#define COMMAND_Save_Bookmark_CONST 409
+#define COMMAND_Delete_Bookmark_CONST 410
+#define COMMAND_Rename_Bookmark_CONST 411
+#define COMMAND_Set_Media_Position_CONST 412
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

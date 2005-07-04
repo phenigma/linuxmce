@@ -504,8 +504,10 @@ bool Table_Device_Orbiter::GetRows(string where_statement,vector<class Row_Devic
 		query = "select `Device_Orbiter`.* from Device_Orbiter " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `Device_Orbiter`.* from Device_Orbiter where " + where_statement;
+	else
+		query = "select `Device_Orbiter`.* from Device_Orbiter";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

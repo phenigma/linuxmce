@@ -532,8 +532,10 @@ bool Table_DesignObjVariation_DesignObjParameter::GetRows(string where_statement
 		query = "select `DesignObjVariation_DesignObjParameter`.* from DesignObjVariation_DesignObjParameter " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `DesignObjVariation_DesignObjParameter`.* from DesignObjVariation_DesignObjParameter where " + where_statement;
+	else
+		query = "select `DesignObjVariation_DesignObjParameter`.* from DesignObjVariation_DesignObjParameter";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

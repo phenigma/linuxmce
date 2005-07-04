@@ -572,8 +572,10 @@ bool Table_InstallWizard::GetRows(string where_statement,vector<class Row_Instal
 		query = "select `InstallWizard`.* from InstallWizard " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `InstallWizard`.* from InstallWizard where " + where_statement;
+	else
+		query = "select `InstallWizard`.* from InstallWizard";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

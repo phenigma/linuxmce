@@ -526,8 +526,10 @@ bool Table_Text_LS::GetRows(string where_statement,vector<class Row_Text_LS*> *r
 		query = "select `Text_LS`.* from Text_LS " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `Text_LS`.* from Text_LS where " + where_statement;
+	else
+		query = "select `Text_LS`.* from Text_LS";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

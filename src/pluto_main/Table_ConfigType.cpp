@@ -574,8 +574,10 @@ bool Table_ConfigType::GetRows(string where_statement,vector<class Row_ConfigTyp
 		query = "select `ConfigType`.* from ConfigType " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `ConfigType`.* from ConfigType where " + where_statement;
+	else
+		query = "select `ConfigType`.* from ConfigType";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

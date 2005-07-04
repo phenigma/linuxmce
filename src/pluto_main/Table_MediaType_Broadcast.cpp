@@ -504,8 +504,10 @@ bool Table_MediaType_Broadcast::GetRows(string where_statement,vector<class Row_
 		query = "select `MediaType_Broadcast`.* from MediaType_Broadcast " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `MediaType_Broadcast`.* from MediaType_Broadcast where " + where_statement;
+	else
+		query = "select `MediaType_Broadcast`.* from MediaType_Broadcast";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

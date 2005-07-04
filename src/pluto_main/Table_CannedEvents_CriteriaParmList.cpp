@@ -694,8 +694,10 @@ bool Table_CannedEvents_CriteriaParmList::GetRows(string where_statement,vector<
 		query = "select `CannedEvents_CriteriaParmList`.* from CannedEvents_CriteriaParmList " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `CannedEvents_CriteriaParmList`.* from CannedEvents_CriteriaParmList where " + where_statement;
+	else
+		query = "select `CannedEvents_CriteriaParmList`.* from CannedEvents_CriteriaParmList";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

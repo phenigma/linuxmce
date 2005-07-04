@@ -194,7 +194,7 @@
 #define TEXT_WAIT_FOR_SENSORS_CONST 560
 #define TEXT_BYPASS_SENSORS_CONST 561
 #define TEXT_ARM_WHEN_READY_CONST 562
-#define TEXT_COPY_CD_CONST 566
+#define TEXT_Copy_Disc_CONST 566
 #define TEXT_ADVANCED_REMOTE_CONST 567
 #define TEXT_REJECT_CALL_CONST 568
 #define TEXT_HOME_VIDEOS_CONST 569
@@ -327,7 +327,6 @@
 #define TEXT_Delete_Rule_CONST 734
 #define TEXT_Delete_Rule_And_Shows_CONST 735
 #define TEXT_Hangup_All_TVs_CONST 736
-#define TEXT_COPY_DVD_CONST 737
 #define TEXT_ADVANCED_MEDIA_OPTIONS_CONST 738
 #define TEXT_NOW_PLAYING_LONG_CONST 740
 #define TEXT_FILE_LIST_CONST 741
@@ -502,7 +501,11 @@
 #define TEXT_Security_scenarios_CONST 1177
 #define TEXT_Telecom_scenarios_CONST 1178
 #define TEXT_Climate_scenarios_CONST 1179
+#define TEXT_Bookmarks_CONST 1180
+#define TEXT_Save_Bookmark_CONST 1181
+#define TEXT_Delete_Bookmark_CONST 1182
 #define TEXT_Name_Bookmark_CONST 1183
+#define TEXT_How_to_create_bookmark_CONST 1184
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

@@ -504,8 +504,10 @@ bool Table_Household_Installation::GetRows(string where_statement,vector<class R
 		query = "select `Household_Installation`.* from Household_Installation " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `Household_Installation`.* from Household_Installation where " + where_statement;
+	else
+		query = "select `Household_Installation`.* from Household_Installation";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

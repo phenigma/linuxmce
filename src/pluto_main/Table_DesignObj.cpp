@@ -780,8 +780,10 @@ bool Table_DesignObj::GetRows(string where_statement,vector<class Row_DesignObj*
 		query = "select `DesignObj`.* from DesignObj " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `DesignObj`.* from DesignObj where " + where_statement;
+	else
+		query = "select `DesignObj`.* from DesignObj";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

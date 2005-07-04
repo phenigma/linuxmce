@@ -507,8 +507,10 @@ bool Table_CommandGroup_D::GetRows(string where_statement,vector<class Row_Comma
 		query = "select `CommandGroup_D`.* from CommandGroup_D " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `CommandGroup_D`.* from CommandGroup_D where " + where_statement;
+	else
+		query = "select `CommandGroup_D`.* from CommandGroup_D";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

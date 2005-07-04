@@ -627,8 +627,10 @@ bool Table_DHCPDevice::GetRows(string where_statement,vector<class Row_DHCPDevic
 		query = "select `DHCPDevice`.* from DHCPDevice " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `DHCPDevice`.* from DHCPDevice where " + where_statement;
+	else
+		query = "select `DHCPDevice`.* from DHCPDevice";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

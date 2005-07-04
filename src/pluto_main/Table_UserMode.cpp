@@ -517,8 +517,10 @@ bool Table_UserMode::GetRows(string where_statement,vector<class Row_UserMode*> 
 		query = "select `UserMode`.* from UserMode " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `UserMode`.* from UserMode where " + where_statement;
+	else
+		query = "select `UserMode`.* from UserMode";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

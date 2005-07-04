@@ -663,8 +663,10 @@ bool Table_InfraredGroup_Command::GetRows(string where_statement,vector<class Ro
 		query = "select `InfraredGroup_Command`.* from InfraredGroup_Command " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `InfraredGroup_Command`.* from InfraredGroup_Command where " + where_statement;
+	else
+		query = "select `InfraredGroup_Command`.* from InfraredGroup_Command";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

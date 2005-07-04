@@ -688,8 +688,10 @@ bool Table_DeviceTemplate_AV::GetRows(string where_statement,vector<class Row_De
 		query = "select `DeviceTemplate_AV`.* from DeviceTemplate_AV " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `DeviceTemplate_AV`.* from DeviceTemplate_AV where " + where_statement;
+	else
+		query = "select `DeviceTemplate_AV`.* from DeviceTemplate_AV";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

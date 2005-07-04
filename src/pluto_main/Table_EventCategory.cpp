@@ -530,8 +530,10 @@ bool Table_EventCategory::GetRows(string where_statement,vector<class Row_EventC
 		query = "select `EventCategory`.* from EventCategory " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `EventCategory`.* from EventCategory where " + where_statement;
+	else
+		query = "select `EventCategory`.* from EventCategory";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

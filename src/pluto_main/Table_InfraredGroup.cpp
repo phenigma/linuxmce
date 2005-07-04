@@ -546,8 +546,10 @@ bool Table_InfraredGroup::GetRows(string where_statement,vector<class Row_Infrar
 		query = "select `InfraredGroup`.* from InfraredGroup " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `InfraredGroup`.* from InfraredGroup where " + where_statement;
+	else
+		query = "select `InfraredGroup`.* from InfraredGroup";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

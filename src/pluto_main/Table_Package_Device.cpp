@@ -560,8 +560,10 @@ bool Table_Package_Device::GetRows(string where_statement,vector<class Row_Packa
 		query = "select `Package_Device`.* from Package_Device " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `Package_Device`.* from Package_Device where " + where_statement;
+	else
+		query = "select `Package_Device`.* from Package_Device";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

@@ -569,8 +569,10 @@ bool Table_CommandParameter::GetRows(string where_statement,vector<class Row_Com
 		query = "select `CommandParameter`.* from CommandParameter " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `CommandParameter`.* from CommandParameter where " + where_statement;
+	else
+		query = "select `CommandParameter`.* from CommandParameter";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

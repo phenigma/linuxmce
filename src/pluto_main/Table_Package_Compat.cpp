@@ -550,8 +550,10 @@ bool Table_Package_Compat::GetRows(string where_statement,vector<class Row_Packa
 		query = "select `Package_Compat`.* from Package_Compat " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `Package_Compat`.* from Package_Compat where " + where_statement;
+	else
+		query = "select `Package_Compat`.* from Package_Compat";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

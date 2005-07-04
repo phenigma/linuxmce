@@ -918,8 +918,10 @@ bool Table_Device::GetRows(string where_statement,vector<class Row_Device*> *row
 		query = "select `Device`.* from Device " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `Device`.* from Device where " + where_statement;
+	else
+		query = "select `Device`.* from Device";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

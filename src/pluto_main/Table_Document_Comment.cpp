@@ -558,8 +558,10 @@ bool Table_Document_Comment::GetRows(string where_statement,vector<class Row_Doc
 		query = "select `Document_Comment`.* from Document_Comment " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `Document_Comment`.* from Document_Comment where " + where_statement;
+	else
+		query = "select `Document_Comment`.* from Document_Comment";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

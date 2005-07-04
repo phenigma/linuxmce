@@ -799,8 +799,10 @@ bool Table_DesignObjVariation_Text_Skin_Language::GetRows(string where_statement
 		query = "select `DesignObjVariation_Text_Skin_Language`.* from DesignObjVariation_Text_Skin_Language " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `DesignObjVariation_Text_Skin_Language`.* from DesignObjVariation_Text_Skin_Language where " + where_statement;
+	else
+		query = "select `DesignObjVariation_Text_Skin_Language`.* from DesignObjVariation_Text_Skin_Language";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

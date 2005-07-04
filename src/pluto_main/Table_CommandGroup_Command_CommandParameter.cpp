@@ -271,8 +271,8 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 if (is_null[2])
 return "NULL";
 
-char *buf = new char[101];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_IK_CommandParameter.c_str(), (unsigned long) min(50,m_IK_CommandParameter.size()));
+char *buf = new char[131071];
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_IK_CommandParameter.c_str(), (unsigned long) min(65535,m_IK_CommandParameter.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
@@ -532,8 +532,10 @@ bool Table_CommandGroup_Command_CommandParameter::GetRows(string where_statement
 		query = "select `CommandGroup_Command_CommandParameter`.* from CommandGroup_Command_CommandParameter " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `CommandGroup_Command_CommandParameter`.* from CommandGroup_Command_CommandParameter where " + where_statement;
+	else
+		query = "select `CommandGroup_Command_CommandParameter`.* from CommandGroup_Command_CommandParameter";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

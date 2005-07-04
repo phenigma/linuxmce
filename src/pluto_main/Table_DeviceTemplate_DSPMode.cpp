@@ -525,8 +525,10 @@ bool Table_DeviceTemplate_DSPMode::GetRows(string where_statement,vector<class R
 		query = "select `DeviceTemplate_DSPMode`.* from DeviceTemplate_DSPMode " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `DeviceTemplate_DSPMode`.* from DeviceTemplate_DSPMode where " + where_statement;
+	else
+		query = "select `DeviceTemplate_DSPMode`.* from DeviceTemplate_DSPMode";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

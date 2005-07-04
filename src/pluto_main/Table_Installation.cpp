@@ -894,8 +894,10 @@ bool Table_Installation::GetRows(string where_statement,vector<class Row_Install
 		query = "select `Installation`.* from Installation " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `Installation`.* from Installation where " + where_statement;
+	else
+		query = "select `Installation`.* from Installation";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

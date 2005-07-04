@@ -531,8 +531,10 @@ bool Table_Device_CommandGroup::GetRows(string where_statement,vector<class Row_
 		query = "select `Device_CommandGroup`.* from Device_CommandGroup " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `Device_CommandGroup`.* from Device_CommandGroup where " + where_statement;
+	else
+		query = "select `Device_CommandGroup`.* from Device_CommandGroup";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

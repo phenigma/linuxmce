@@ -473,8 +473,10 @@ bool Table_Household::GetRows(string where_statement,vector<class Row_Household*
 		query = "select `Household`.* from Household " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `Household`.* from Household where " + where_statement;
+	else
+		query = "select `Household`.* from Household";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

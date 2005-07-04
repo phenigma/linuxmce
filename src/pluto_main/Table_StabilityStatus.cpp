@@ -520,8 +520,10 @@ bool Table_StabilityStatus::GetRows(string where_statement,vector<class Row_Stab
 		query = "select `StabilityStatus`.* from StabilityStatus " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
-	else
+	else if( where_statement.size() )
 		query = "select `StabilityStatus`.* from StabilityStatus where " + where_statement;
+	else
+		query = "select `StabilityStatus`.* from StabilityStatus";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
