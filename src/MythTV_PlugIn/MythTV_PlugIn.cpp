@@ -227,12 +227,13 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream)
 		}
 		else
 		{
+/* AB - 2005-07-04 I don't think this was ever working??
 			DCE::CMD_Goto_Screen cmdGotoScreen(
                     m_dwPK_Device, pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device,
                     0, StringUtils::itos(DESIGNOBJ_mnuPVROptions_CONST).c_str(),
                     "", "", false, false);
 			SendCommand(cmdGotoScreen);
-
+*/
 			return true;
 		}
 	}
