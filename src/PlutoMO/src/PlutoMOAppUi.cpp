@@ -227,7 +227,7 @@ void CPlutoMOAppUi::ReadConfigurationFile()
 	//pin
 	lr.ReadL(iCurrentLine, iCurrentLineOffset);
 	iPinMD5.Copy(iCurrentLine);
-	
+
 	lr.Close();
 }
 //----------------------------------------------------------------------------------------------
@@ -718,6 +718,7 @@ TInt CPlutoMOAppUi::DoIdle()
 
 	
 		//just open vali's wml page for security
+
 		LOG("About to open the browser\n");
 		iURL.Copy(iURLClone);
 		iURL.Append(string("security=0").Des());
@@ -799,8 +800,13 @@ void CPlutoMOAppUi::LaunchBrowser()
 
 	HBufC* param = HBufC::NewLC( 1024 ); 
 
+	string sSecurityInfo = "&user='" + string(iUsername) + "'&pin='" + string(iPinMD5) + "'";
+
 	param->Des().Copy( _L("4 "));
-	param->Des().Append( iURL ); 
+	param->Des().Append(iURL); 
+
+	//add here pin and user
+	iURL.Append(sSecurityInfo.Des());
 
 	// Wap Browser's constants UId 
 	const TInt KWmlBrowserUid = 0x10008D39; 

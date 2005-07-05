@@ -153,9 +153,6 @@ public:
 	TBuf<256> iUsername;
 	TBuf<256> iPinMD5;
 
-	string sUserName;
-	string sPinMD5;
-
 	bool m_bPlutoEventVisible;
 
 private:
