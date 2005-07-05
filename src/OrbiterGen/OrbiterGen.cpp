@@ -223,12 +223,7 @@ int main(int argc, char *argv[])
 		newtime = localtime( &aclock );   // Convert time to struct tm form 
 		cout << "Generation done at " << asctime( newtime ) << endl;
 
-		//hack, this is crashing somewhere in pluto_main.dll. 
-        //I might be related to /FORCE:MULTIPLE directive, so we might need to transform DCE into a DLL too.
-        //because now OrbiterGen uses SerializeClass from DCE.lib and from pluto_main.dll, one is static and one is dynamic
-#ifndef WIN32
         delete pOrbiterGenerator;
-#endif
 	}
 	catch(const char *error)
 	{
