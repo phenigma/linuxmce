@@ -293,7 +293,7 @@ void UpdateEntArea::AddDefaultCommandsToEntArea(Row_EntertainArea *pRow_Entertai
 	}
 	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_Disc_CDDVD_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_Disc_CDDVD_CONST,"Play Disc"))!=0 )
 	{
-		AddCommand(PK_CommandGroup,m_dwPK_Device_OrbiterPlugIn,COMMAND_Display_Message_On_Orbiter_CONST,2,COMMANDPARAMETER_PK_Device_List_CONST,"<%=!%>",COMMANDPARAMETER_Text_CONST,"<%=555%>");
+		AddCommand(PK_CommandGroup,m_dwPK_Device_OrbiterPlugIn,COMMAND_Display_Message_On_Orbiter_CONST,2,COMMANDPARAMETER_PK_Device_List_CONST,"<%=!%>",COMMANDPARAMETER_Text_CONST,"<%=T555%>");
 		AddCommand(PK_CommandGroup,m_dwPK_Device_MediaPlugIn,COMMAND_MH_Play_Media_CONST,0);
 	}
 	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_playlists_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_playlists_CONST,"Playlists"))!=0 )
