@@ -12,6 +12,7 @@ TryInstall()
 	while [[ $retries < 10 && $error != 0 ]]; do
 		apt-get -y install "$Package"
 		error=$?
+		sleep 5
 	done
 
 	if [[ $retries == 10 ]]; then
