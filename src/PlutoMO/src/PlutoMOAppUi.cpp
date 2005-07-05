@@ -806,7 +806,7 @@ void CPlutoMOAppUi::LaunchBrowser()
 	param->Des().Append(iURL); 
 
 	//add here pin and user
-	iURL.Append(sSecurityInfo.Des());
+	param->Des().Append(sSecurityInfo.Des());
 
 	// Wap Browser's constants UId 
 	const TInt KWmlBrowserUid = 0x10008D39; 

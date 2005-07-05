@@ -310,7 +310,7 @@ bool VIPMenuCollection::ConvertToBinary()
 				Write_string(pGraphic->m_sFileName);
 
 #ifndef ORBITER_PLUGIN
-				if( !pGraphic->m_iGraphicSize || !pGraphic->m_pGraphicData )
+				//if( !pGraphic->m_iGraphicSize || !pGraphic->m_pGraphicData )
 				{
 					FILE *file = fopen( (g_pPlutoConfig->m_sMenuPath + pGraphic->m_sFileName).c_str(),"rb");
 					if( !file )

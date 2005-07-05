@@ -146,7 +146,7 @@ public:
 		m_bEncryptBeforeSending = bEncryptBeforeSending;
 		m_iVariableID = iVariableID;
 		m_iPhoneSetsValue=PhoneSetsValue;  m_sInitialValue=sInitialValue;
-		m_sCurrentValue = m_sInitialValue;
+		m_sCurrentValue = ""; //m_sInitialValue;
 		m_pCollection=NULL;
 	}
 	VIPVariable() {};

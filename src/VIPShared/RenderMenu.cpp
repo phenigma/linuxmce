@@ -601,8 +601,8 @@ void RenderMenu::KeyPressed(int KeyCode)
 					}
 				}
 
-				if(sParams != "")
-					sParams += "dummy=0";
+				//if(sParams != "")
+				//	sParams += "dummy=0";
 
 				sUrl += sParams;	
 
