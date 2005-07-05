@@ -509,7 +509,6 @@
 #define TEXT_Cannot_play_media_CONST 1185
 #define TEXT_Cannot_bookmark_CONST 1186
 
-
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
 #define TEXT_PK_TEXT_TABLE_FIELD "Text.PK_Text"
