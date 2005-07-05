@@ -989,5 +989,5 @@ void Xine_Player::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,str
 //<-dceag-c412-e->
 {
 	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Set_Media_Position() called for filename: %s with slave %p.", m_sCurrentFile.c_str(),m_pXineSlaveControl);
-	CMD_Play_Media(m_sCurrentFile,0,iStreamID,sMediaPosition);
+	CMD_Play_Media(m_sCurrentFile,0,iStreamID,sMediaPosition,sCMD_Result,pMessage);
 }

@@ -687,6 +687,8 @@ void Media_Plugin::StartMedia( int iPK_MediaType, unsigned int iPK_Device_Orbite
 
 	if( !iPK_MediaType )
 	{
+		if( iPK_Device_Orbiter )
+			m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"<%=T" + StringUtils::itos(TEXT_Cannot_play_media_CONST) + "%>");
 		g_pPlutoLogger->Write(LV_CRITICAL,"StartMedia - MediaType==0");
 		return;
 	}
@@ -772,6 +774,8 @@ MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsi
         OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(PK_Device_Orbiter);
 		if ( (pMediaStream = pMediaHandlerInfo->m_pMediaHandlerBase->CreateMediaStream(pMediaHandlerInfo,vectEntertainArea,pMediaDevice,(pOH_Orbiter ? pOH_Orbiter->PK_Users_get() : 0),dequeMediaFile,++m_iStreamID)) == NULL )
 		{
+			if( PK_Device_Orbiter )
+				m_pOrbiter_Plugin->DisplayMessageOnOrbiter(PK_Device_Orbiter,"<%=T" + StringUtils::itos(TEXT_Cannot_play_media_CONST) + "%>");
 			g_pPlutoLogger->Write(LV_CRITICAL, "The plugin %s (%d) returned a NULL media stream object",
 													pMediaHandlerInfo->m_pMediaHandlerBase->m_pMedia_Plugin->m_sName.c_str(),
 													pMediaHandlerInfo->m_pMediaHandlerBase->m_pMedia_Plugin->m_dwPK_Device);
@@ -826,6 +830,8 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 
 	if( !pMediaStream->m_pMediaDevice_Source )
 	{
+		if( pMediaStream->m_pOH_Orbiter_StartedMedia )
+			m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device,"<%=T" + StringUtils::itos(TEXT_Cannot_play_media_CONST) + "%>");
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot start media without a source");
 		return false;
 	}
@@ -922,8 +928,9 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 		for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
 		{
 			OH_Orbiter *pOH_Orbiter = (*it).second;
-			if( !pOH_Orbiter->m_pEntertainArea || pMediaStream->m_mapEntertainArea.find(pOH_Orbiter->m_pEntertainArea->m_iPK_EntertainArea)==pMediaStream->m_mapEntertainArea.end() )
-				continue;  // Don't send an orbiter to the remote if it's not linked to an entertainment area where we're playing this stream
+			if( !pMediaStream->OrbiterIsOSD(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device) &&
+				(!pOH_Orbiter->m_pEntertainArea || pMediaStream->m_mapEntertainArea.find(pOH_Orbiter->m_pEntertainArea->m_iPK_EntertainArea)==pMediaStream->m_mapEntertainArea.end()) )
+				continue;  // Don't send an orbiter to the remote if it's not linked to an entertainment area where we're playing this stream unless it's the OSD
 
 			// We don't want to change to the remote screen on the orbiter that started playing this if it's audio, so that they can build a playlist
 			if( pOH_Orbiter && pOH_Orbiter == pMediaStream->m_pOH_Orbiter_StartedMedia && pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_StoredAudio_CONST )
@@ -945,7 +952,11 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 		}
 	}
 	else
+	{
+		if( pMediaStream->m_pOH_Orbiter_StartedMedia )
+			m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device,"<%=T" + StringUtils::itos(TEXT_Cannot_play_media_CONST) + "%>");
 		g_pPlutoLogger->Write(LV_CRITICAL,"Media Plug-in's call to Start Media failed 2.");
+	}
 
 	g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::StartMedia() function call completed with honors!");
 
@@ -1271,7 +1282,7 @@ g_pPlutoLogger->Write(LV_STATUS, "Ready to update bound remotes with %p %d",pMed
         for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
         {
             OH_Orbiter *pOH_Orbiter = (*it).second;
-            if( pOH_Orbiter->m_pEntertainArea==pEntertainArea && // UpdateOrbiter will have already set the now playing
+            if( (pOH_Orbiter->m_pEntertainArea==pEntertainArea || pMediaStream->OrbiterIsOSD(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device))&& // UpdateOrbiter will have already set the now playing
 					pEntertainArea->m_mapBoundRemote.find(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device)==pEntertainArea->m_mapBoundRemote.end() )
                 SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pMediaStream->m_sMediaDescription, pMediaStream, bRefreshScreen );
         }
@@ -4206,7 +4217,7 @@ class DataGridTable *Media_Plugin::Bookmarks( string GridID, string Parms, void 
 				pDataGridCell->m_GraphicLength = iSize;
 				pDataGrid->SetData(1,s,pDataGridCell);
 			}
-g_pPlutoLogger->Write(LV_WARNING,"pic file %p",pBuffer);
+g_pPlutoLogger->Write(LV_WARNING,"pic file 1 %p",pBuffer);
 		}
 
 #ifndef WIN32
@@ -4271,7 +4282,7 @@ void Media_Plugin::CMD_Save_Bookmark(string sPK_EntertainArea,string &sCMD_Resul
 
 	if( m_mapMediaType_Bookmarkable_Find(pMediaStream->m_iPK_MediaType)==false )
 	{
-		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(StringUtils::itos(pMessage->m_dwPK_Device_From),"This type of media cannot be bookmarked");
+		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(StringUtils::itos(pMessage->m_dwPK_Device_From),"<%=T" + StringUtils::itos(TEXT_Cannot_bookmark_CONST) + "%>");
 		return;
 	}
 
@@ -4281,6 +4292,7 @@ void Media_Plugin::CMD_Save_Bookmark(string sPK_EntertainArea,string &sCMD_Resul
 
 	if( !SendCommand(CMD_Report_Playback_Position) || sPosition.size()==0 )
 	{
+		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(StringUtils::itos(pMessage->m_dwPK_Device_From),"<%=T" + StringUtils::itos(TEXT_Cannot_bookmark_CONST) + "%>");
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot get current position from %d",pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 		return;
 	}
@@ -4296,7 +4308,7 @@ void Media_Plugin::CMD_Save_Bookmark(string sPK_EntertainArea,string &sCMD_Resul
 	if( pData && iData_Size )
 	{
 		pRow_Picture = m_pDatabase_pluto_media->Picture_get()->AddRow();
-		pRow_Picture->Extension_set(sFormat);
+		pRow_Picture->Extension_set(StringUtils::ToLower(sFormat));
 		m_pDatabase_pluto_media->Picture_get()->Commit();
 
 		FILE *file = fopen( ("/home/mediapics/" + StringUtils::itos(pRow_Picture->PK_Picture_get()) + "." + StringUtils::ToLower(sFormat)).c_str(),"wb");
@@ -4332,7 +4344,7 @@ void Media_Plugin::CMD_Save_Bookmark(string sPK_EntertainArea,string &sCMD_Resul
 	DCE::CMD_Set_Variable CMD_Set_Variable_Public(m_dwPK_Device,pMessage->m_dwPK_Device_From,VARIABLE_Misc_Data_2_CONST,
 		 sCmdToRenameBookmark);
 	CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable_Public.m_pMessage);
-	DCE::CMD_Set_Text CMD_Set_Text( m_dwPK_Device,pMessage->m_dwPK_Device_From, StringUtils::itos(DESIGNOBJ_mnuFileSave_CONST), "<%=" + StringUtils::itos(TEXT_Name_Bookmark_CONST) + "%>",TEXT_STATUS_CONST);
+	DCE::CMD_Set_Text CMD_Set_Text( m_dwPK_Device,pMessage->m_dwPK_Device_From, StringUtils::itos(DESIGNOBJ_mnuFileSave_CONST), "<%=T" + StringUtils::itos(TEXT_Name_Bookmark_CONST) + "%>",TEXT_STATUS_CONST);
 	CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text.m_pMessage);
 	SendCommand(CMD_Goto_Screen);
 }
