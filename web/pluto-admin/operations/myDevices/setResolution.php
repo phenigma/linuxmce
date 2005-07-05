@@ -122,7 +122,7 @@ $out.='
 		}else{
 			$Answer="N";
 		}
-		echo $ipAddress;
+
 		exec("sudo -u root /usr/pluto/bin/LaunchRemoteCmd.sh '$ipAddress' '/usr/pluto/bin/Xres_config_end.sh $Answer'");
 		
 		header("Location: index.php?section=setResolution&mdID=$mdID&msg=$msg");
