@@ -14,6 +14,12 @@ switch ($imageinfo[2]){
 	case 3:
 		$imagetype = "png";
 	break;
+	case 6:
+		$imagetype = "bmp";
+	break;	
+	case 15:
+		$imagetype = "wbmp";
+	break;	
 	default:
 		header( "HTTP/1.0 404 Not Found" );
 		exit ;

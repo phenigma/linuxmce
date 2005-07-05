@@ -3566,4 +3566,21 @@ function getmicrotime()
     list($usec, $sec) = explode(" ", microtime()); 
     return ((float)$usec + (float)$sec); 
 }
+
+function getScenarios($arrayID,$installationID,$dbADO)
+{
+	$scenariosArray=array();
+	$selectCG='
+		SELECT * 
+		FROM CommandGroup
+		WHERE FK_Array=? AND FK_Installation=?
+		ORDER BY Description ASC';
+	$resCG=$dbADO->Execute($selectCG,array($arrayID,$installationID));
+	while($row=$resCG->FetchRow()){
+		$scenariosArray[]=$row;
+	}
+	
+	return $scenariosArray;
+
+}
 ?>

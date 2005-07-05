@@ -547,9 +547,13 @@ $installationID = (int)@$_SESSION['installationID'];
 					if ($elem!=0 && isset($_POST['deviceData_'.$elem])) {
 						$query = "insert into Device_DeviceData  (IK_DeviceData,FK_Device,FK_DeviceData) values(?,?,?)";
 						$rs=$dbADO->Execute($query,array($value,$deviceID,$elem));
-						
 					}
-				}				
+				}
+			if($elem==$GLOBALS['Path'] && $DeviceTemplate==$GLOBALS['SecurityPlugin']){
+				exec('sudo -u root /usr/pluto/bin/SetWebLinks.sh \''.$value.'\' \'/var/www/security_images\'',$retArray);
+				$error=@join('',$retArray);
+			}
+				
 		}	
 		if (trim($description)!='') {		
 			$selectOldValues = 'SELECT * FROM Device where PK_Device = ?';	

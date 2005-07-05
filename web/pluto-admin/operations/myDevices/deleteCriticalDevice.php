@@ -26,7 +26,7 @@ function deleteCriticalDevice($output,$dbADO) {
 	<input type="hidden" name="action" value="del">	
 	<input type="hidden" name="deviceID" value="'.$deviceID.'">
 		<font color="red">
-		<h2 align="center">This is a critical device !!! If you delete it, you will breake you installation.</h2><br>
+		<h2 align="center">This is a critical device !!! If you delete it, you will break you installation.</h2><br>
 		<h3 align="center"><B>Do you still want to delete it?</B></h3>
 		<table width="50%" align="center">
 			<tr>

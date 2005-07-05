@@ -123,6 +123,7 @@
 	$GLOBALS['commandParameterObjectScreen']=16;	// Object(Screen)
 	
 	// PK_DeviceData from table DeviceData
+	$GLOBALS['Path']=2;							// the Path
 	$GLOBALS['rootPK_Distro']=7;				// the PK_Distro
 	$GLOBALS['FloorplanInfo']=10;				// FloorplanInfo (coordinates)
 	$GLOBALS['FloorplanObjectType']=11;			// FloorplanObjectType
@@ -142,6 +143,7 @@
 	$GLOBALS['PK_Device']=77;					// PK_Device
 	$GLOBALS['AudioSettings']=88;				// Audio settings
 	$GLOBALS['VideoSettings']=89;				// Video settings
+	$GLOBALS['EmergencyCalls']=96;				// Emergency Calls
 	
 	// PK_FloorplanType from table FloorplanType 
 
