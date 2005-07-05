@@ -1151,6 +1151,12 @@ int Security_Plugin::GetDefaultPhoneDevice()
     //EXT-xxxxx
     string sDefaultLine = sExtValue.substr(4, sExtValue.length());
 
+    if(!atoi(sDefaultLine.c_str())) //test if this is a valid number
+    {
+        g_pPlutoLogger->Write(LV_CRITICAL, "No valid default line: %s", sDefaultLine.c_str());
+        return 0;
+    }
+
     vector<Row_Device_DeviceData *> vectRow_Device_DeviceData;
     m_pDatabase_pluto_main->Device_DeviceData_get()->GetRows(
         " FK_DeviceData = " + StringUtils::ltos(DEVICEDATA_PhoneNumber_CONST) + " AND IK_DeviceData = " + sDefaultLine,

@@ -1796,7 +1796,7 @@ void Orbiter_Plugin::GeneratePlutoMOConfig()
 
             if(!pRow_Users)
             {
-                g_pPlutoLogger->Write(LV_CRITICAL, "No record found in the databse for user %d", sPK_User.c_str(),
+                g_pPlutoLogger->Write(LV_CRITICAL, "No record found in the database for user %s, rows %d", sPK_User.c_str(),
                     vectRow_Device_DeviceData.size());
                 vectRow_Device_DeviceData.clear();
                 continue;
