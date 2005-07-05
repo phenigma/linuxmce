@@ -70,6 +70,11 @@ fi
 
 Logging $TYPE $SEVERITY_STAGE "$module" "Entering $module"
 
+# wait for the package to be installed if this is the case
+while [[ -f /usr/pluto/locks/installing."$device_id" ]]; do
+	sleep 1
+done
+
 echo "$$ Spawn_Device of $Path$cmd_line (by $0)" >>/var/log/pluto/running.pids
 
 Tab=$(printf "\t") # to prevent any smart masses from converting this tab to 4 or 8 spaces
