@@ -107,6 +107,7 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 		{
 			string sCmd = "/usr/pluto/bin/InstallNewDevice.sh " + StringUtils::itos(PK_Device) + " \"" + row[0] + "\"";
 			g_pPlutoLogger->Write(LV_STATUS,"Executing %s",sCmd.c_str());
+			system(sCmd.c_str());
 		}
 		else
 			g_pPlutoLogger->Write(LV_CRITICAL,"No installation info for package %d",iPK_Package);
@@ -127,7 +128,7 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 			SQL = "SELECT PK_Device FROM DeviceTemplate_DeviceCategory_ControlledVia "
 				"JOIN DeviceTemplate ON DeviceTemplate_DeviceCategory_ControlledVia.FK_DeviceCategory=DeviceTemplate.FK_DeviceCategory "
 				"JOIN Device ON Device.FK_DeviceTemplate=DeviceTemplate.PK_DeviceTemplate "
-				"WHERE DeviceTemplate_DeviceCategory_ControlledVia.FK_DeviceTemplate" + StringUtils::itos(iPK_DeviceTemplate);
+				"WHERE DeviceTemplate_DeviceCategory_ControlledVia.FK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate);
 			if( (result_cv2.r=mysql_query_result(SQL)) && (row=mysql_fetch_row(result_cv2.r)) )
 				iPK_Device_ControlledVia_New = atoi(row[0]);
 		}
