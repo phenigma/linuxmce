@@ -506,6 +506,9 @@
 #define TEXT_Delete_Bookmark_CONST 1182
 #define TEXT_Name_Bookmark_CONST 1183
 #define TEXT_How_to_create_bookmark_CONST 1184
+#define TEXT_Cannot_play_media_CONST 1185
+#define TEXT_Cannot_bookmark_CONST 1186
+
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
