@@ -124,7 +124,8 @@ if( m_pRow_DesignObj->PK_DesignObj_get()==2147 )// || m_pRow_DesignObj->PK_Desig
     }
 
 	if( m_pOrbiterGenerator->m_mapDesignObjVariation_WithArrays.find(m_pRow_DesignObjVariation_Standard->PK_DesignObjVariation_get())!=
-		m_pOrbiterGenerator->m_mapDesignObjVariation_WithArrays.end() )
+		m_pOrbiterGenerator->m_mapDesignObjVariation_WithArrays.end() ||
+		m_pOrbiterGenerator->m_pRow_DesignObj_MainMenu==m_pRow_DesignObj )
 	{
 		bAddToGenerated = true;
 		m_bDontShare = true;
@@ -153,7 +154,8 @@ int k=2;
             if( pdrCachedScreen && pdrCachedScreen->Schema_get()==ORBITER_SCHEMA &&
 				(m_pOrbiterGenerator->m_map_PK_DesignObj_SoleScreenToGen.size()==0 || m_pOrbiterGenerator->m_map_PK_DesignObj_SoleScreenToGen[m_pRow_DesignObj->PK_DesignObj_get()]==false) )
             {
-				if( (m_pOrbiterGenerator->m_map_PK_DesignObj_SoleScreenToGen.size()!=0 && m_pOrbiterGenerator->m_map_PK_DesignObj_SoleScreenToGen[m_pRow_DesignObj->PK_DesignObj_get()]==false) || pdrCachedScreen->ContainsArrays_get()==0 )
+				if( (m_pOrbiterGenerator->m_map_PK_DesignObj_SoleScreenToGen.size()!=0 && m_pOrbiterGenerator->m_map_PK_DesignObj_SoleScreenToGen[m_pRow_DesignObj->PK_DesignObj_get()]==false) || 
+					(pdrCachedScreen->ContainsArrays_get()==0 && m_pOrbiterGenerator->m_pRow_DesignObj_MainMenu!=m_pRow_DesignObj) )
 				{
 					time_t lModDate1 = StringUtils::SQLDateTime(pdrCachedScreen->Modification_LastGen_get());
 					time_t lModDate2 = StringUtils::SQLDateTime(m_pRow_DesignObj->psc_mod_get());
@@ -179,7 +181,7 @@ int k=2;
 						cout << "Regenerating: screen has changed" << endl;
 				}
 				else
-					cout << "Regenerating: screen has arrays" << endl;
+					cout << "Regenerating: screen has arrays or is main menu" << endl;
             }
 			else
 				cout << "Regenerating: " << ( pdrCachedScreen==NULL ? " no cached screen in DB " : " schema changed " ) << endl;

@@ -2445,6 +2445,7 @@ void Media_Plugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string 
     	pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pEntertainArea->m_pMediaStream);
 	}
 
+	MediaInfoChanged(pEntertainArea->m_pMediaStream,false);  // Refresh the screen and re-draw the grid
 //  StartMediaByPositionInPlaylist(pEntertainArea, pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos, 0, 0);
 }
 //<-dceag-c214-b->

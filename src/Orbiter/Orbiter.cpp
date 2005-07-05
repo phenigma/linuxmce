@@ -2845,7 +2845,7 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
 void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Screen, DesignObj_Orbiter *pObj_Parent, GraphicType Type,  int Lev )
 {
 	ShowProgress();
-    if(  pObj->m_ObjectID.find( "2211" )!=string::npos  )
+    if(  pObj->m_ObjectID.find( "3554" )!=string::npos  || pObj->m_ObjectID.find( "2071" )!=string::npos )
     {
         int k=2;
     }
@@ -4168,9 +4168,9 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
         else if(  Variable=="NP_R" )
 		{
 			if( m_bIsOSD && m_iPK_DesignObj_RemoteOSD && m_iLocation_Initial==m_pLocationInfo->iLocation)  // If we've changed locations, we're not the OSD anymore
-				Output += StringUtils::itos(m_iPK_DesignObj_RemoteOSD);
+				Output += m_iPK_DesignObj_RemoteOSD ? StringUtils::itos(m_iPK_DesignObj_RemoteOSD) : "**NOMEDIA**";
 			else
-				Output += StringUtils::itos(m_iPK_DesignObj_Remote);
+				Output += m_iPK_DesignObj_Remote ? StringUtils::itos(m_iPK_DesignObj_Remote) : "**NOMEDIA**";
 		}
         else if(  Variable=="NP_PR" )
 			Output += StringUtils::itos(m_iPK_DesignObj_Remote_Popup);
@@ -4819,6 +4819,11 @@ g_pPlutoLogger->Write(LV_STATUS,"CMD_Goto_Screen: %s",sPK_DesignObj.c_str());
 	// We're using a popup remote, so just go to the main menu
 	if( sPK_DesignObj=="<%=NP_R%>" && m_iPK_DesignObj_Remote_Popup>0 && m_sObj_Popop_RemoteControl.size() )
 		sPK_DesignObj = "<%=M%>"; 
+	else if( sPK_DesignObj=="**NOMEDIA**" )
+	{
+		sPK_DesignObj = StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST);
+		CMD_Set_Text(sPK_DesignObj, m_mapTextString[TEXT_No_Media_CONST], TEXT_STATUS_CONST);
+	}
 
     HidePopups(NULL);
 

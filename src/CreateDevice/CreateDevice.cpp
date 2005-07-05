@@ -99,6 +99,19 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 
 	g_pPlutoLogger->Write(LV_STATUS,"Inserted device: %d Package: %d configure: %d",PK_Device,iPK_Package,(int) m_bDontCallConfigureScript);
 
+	if( iPK_Package )
+	{
+		SQL = "SELECT Name FROM Package_Source JOIN RepositorySource ON FK_RepositorySource=PK_RepositorySource WHERE FK_RepositoryType=1 and FK_Package=" + StringUtils::itos(iPK_Package);
+		PlutoSqlResult result;
+		if( ( result.r=mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+		{
+			string sCmd = "/usr/pluto/bin/InstallNewDevice.sh " + StringUtils::itos(PK_Device) + " \"" + row[0] + "\"";
+			g_pPlutoLogger->Write(LV_STATUS,"Executing %s",sCmd.c_str());
+		}
+		else
+			g_pPlutoLogger->Write(LV_CRITICAL,"No installation info for package %d",iPK_Package);
+	}
+
 	ConfirmRelations(PK_Device);
 
 	// If we weren't given a controlled via, try to find an appropriate one
@@ -111,7 +124,10 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 			iPK_Device_ControlledVia_New = atoi(row[0]);
 		else
 		{
-			SQL = "SELECT PK_Device FROM DeviceTemplate_DeviceCategory_ControlledVia JOIN Device ON DeviceTemplate_DeviceCategory_ControlledVia.FK_DeviceCategory=Device.FK_DeviceCategory WHERE DeviceTemplate_DeviceCategory_ControlledVia.FK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate);
+			SQL = "SELECT PK_Device FROM DeviceTemplate_DeviceCategory_ControlledVia "
+				"JOIN DeviceTemplate ON DeviceTemplate_DeviceCategory_ControlledVia.FK_DeviceCategory=DeviceTemplate.FK_DeviceCategory "
+				"JOIN Device ON Device.FK_DeviceTemplate=DeviceTemplate.PK_DeviceTemplate "
+				"WHERE DeviceTemplate_DeviceCategory_ControlledVia.FK_DeviceTemplate" + StringUtils::itos(iPK_DeviceTemplate);
 			if( (result_cv2.r=mysql_query_result(SQL)) && (row=mysql_fetch_row(result_cv2.r)) )
 				iPK_Device_ControlledVia_New = atoi(row[0]);
 		}
