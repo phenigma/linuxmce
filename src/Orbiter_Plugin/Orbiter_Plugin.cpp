@@ -1718,7 +1718,7 @@ void Orbiter_Plugin::GenerateVMCFiles()
         if(sOldChecksum != FileUtils::FileChecksum(sDestFileName))
         {
             g_pPlutoLogger->Write(LV_STATUS, "Need to send %s to PlutoMO, the checksum is changed", sDestFileName.c_str());
-            pOH_Orbiter->m_pDeviceData_Router->m_sStatus_set("NEED VMC");
+            pOH_Orbiter->NeedVMC(true);
         }
     }
 }
