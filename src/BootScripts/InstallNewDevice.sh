@@ -1,6 +1,6 @@
 #!/bin/bash
 
-exec >>/var/log/pluto/InstallNewDevice.newlog 2>&1
+exec >>/var/log/pluto/InstallNewDevice.newlog 2>&1 0</dev/null
 
 Device="$1"
 Package="$2"
