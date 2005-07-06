@@ -396,7 +396,7 @@ function genericSerialDevices($output,$dbADO) {
 			unset($_SESSION['from']);
 			$deviceTemplate=(int)$_REQUEST['deviceTemplate'];
 			if($deviceTemplate!=0){
-				$insertID=exec('/usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID);	
+				$insertID=exec('sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID);	
 				setDCERouterNeedConfigure($_SESSION['installationID'],$dbADO);
 				$commandToSend='/usr/pluto/bin/UpdateEntArea -h localhost';
 				exec($commandToSend);

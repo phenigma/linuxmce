@@ -281,6 +281,9 @@ function mediaDirectors($output,$dbADO) {
 						$soundDevice=getSubDT($rowD['PK_Device'],$GLOBALS['SoundCards'],$dbADO);
 						$videoDevice=getSubDT($rowD['PK_Device'],$GLOBALS['VideoCards'],$dbADO);
 						$out.='
+							<input type="hidden" name="oldPVR_'.$rowD['PK_Device'].'" value="'.$pvrDevice.'">
+							<input type="hidden" name="oldSound_'.$rowD['PK_Device'].'" value="'.$soundDevice.'">
+							<input type="hidden" name="oldVideo_'.$rowD['PK_Device'].'" value="'.$videoDevice.'">
 							<tr class="normaltext">
 								<td colspan="7">
 									<table>
@@ -424,7 +427,7 @@ function mediaDirectors($output,$dbADO) {
 							$OptionalDeviceName=cleanString(@$_POST['templateName_'.$elem]);
 
 							if($oldDevice==''){
-								$insertID=exec('/usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$elem.' -i '.$installationID.' -C '.$orbiterMDChild);
+								$insertID=exec('sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$elem.' -i '.$installationID.' -C '.$orbiterMDChild);
 								$dbADO->Execute('UPDATE Device SET Description=?,FK_Room=? WHERE PK_Device=?',array($OptionalDeviceName,$room,$insertID));
 							}
 						}else{
@@ -434,13 +437,19 @@ function mediaDirectors($output,$dbADO) {
 						}
 					}
 					// add/delete PVR Capture Card, sound card and video card
+					
 					$pvrDT=$_POST['PVRCaptureCard_'.$value];
-					recreateDevice($value,$GLOBALS['PVRCaptureCards'],$pvrDT,$_SESSION['installationID'],$room,$dbADO);
+					if($pvrDT!=$_POST['oldPVR_'.$value]){
+						recreateDevice($value,$GLOBALS['PVRCaptureCards'],$pvrDT,$_SESSION['installationID'],$room,$dbADO);
+					}
 					$soundDT=$_POST['SoundCard_'.$value];
-					recreateDevice($value,$GLOBALS['SoundCards'],$soundDT,$_SESSION['installationID'],$room,$dbADO);
+					if($soundDT!=$_POST['oldSound_'.$value]){
+						recreateDevice($value,$GLOBALS['SoundCards'],$soundDT,$_SESSION['installationID'],$room,$dbADO);
+					}
 					$videoDT=$_POST['VideoCard_'.$value];
-					recreateDevice($value,$GLOBALS['VideoCards'],$videoDT,$_SESSION['installationID'],$room,$dbADO);
-
+					if($videoDT!=$_POST['oldVideo_'.$value]){
+						recreateDevice($value,$GLOBALS['VideoCards'],$videoDT,$_SESSION['installationID'],$room,$dbADO);
+					}
 
 					processReceiver($value,$dbADO);
 					processAudioSettings($value,$dbADO);
@@ -456,7 +465,7 @@ function mediaDirectors($output,$dbADO) {
 			unset($_SESSION['from']);
 			$deviceTemplate=(int)$_REQUEST['deviceTemplate'];
 			if($deviceTemplate!=0){
-				$insertID=exec('/usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID,$ret);	
+				$insertID=exec('sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID,$ret);	
 				setDCERouterNeedConfigure($_SESSION['installationID'],$dbADO);
 				$commandToSend='/usr/pluto/bin/UpdateEntArea -h localhost';
 				exec($commandToSend);

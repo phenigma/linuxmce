@@ -412,7 +412,7 @@ function wizardOrbiters($output,$dbADO) {
 		if(isset($_POST['add'])){
 			$deviceTemplate=(int)$_POST['deviceTemplate'];
 			if($deviceTemplate!=0){
-				$insertID=exec('/usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID);				
+				$insertID=exec('sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID);				
 			}
 		}
 		$commandMessage=(isset($commandToSend))?'<br>Command sent: '.$commandToSend:'';

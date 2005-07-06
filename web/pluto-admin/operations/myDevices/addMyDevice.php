@@ -67,7 +67,7 @@ function addMyDevice($output,$dbADO) {
 			$ignoreOnOff = $_SESSION['ignoreOnOff'];
 			$parentID = $_SESSION['parentID'];
 			
-			$insertID=exec('/usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID.(($IPaddressMyDevice!='')?' -I '.$IPaddressMyDevice:'').(($MACaddressMyDevice!='')?' -M '.$MACaddressMyDevice:'').(($parentID!=0)?' -C '.$parentID:''));
+			$insertID=exec('sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID.(($IPaddressMyDevice!='')?' -I '.$IPaddressMyDevice:'').(($MACaddressMyDevice!='')?' -M '.$MACaddressMyDevice:'').(($parentID!=0)?' -C '.$parentID:''));
 			if($descriptionMyDevice!='')
 				$dbADO->Execute('UPDATE Device SET Description=?, IgnoreOnOff=? WHERE PK_Device=?',array($descriptionMyDevice,$ignoreOnOff,$insertID));
 				

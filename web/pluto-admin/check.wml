@@ -117,7 +117,7 @@ function displaySecuritySelected($alertID,$securityADO)
 {
 	// Display selected security alert
 	if($alertID!=0 ){
-		switch($_REQUEST['action']){
+		switch(@$_REQUEST['action']){
 			case 1:
 				break;
 			case 2:

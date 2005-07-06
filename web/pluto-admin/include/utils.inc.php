@@ -1471,20 +1471,6 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 						}else
 							$openTunerConfig='';
 			 			
-						/*
-			 			if($categoryID==$GLOBALS['rootAVEquipment']){
-			 				$templateID=$dbADO->Insert_ID();
-							$insertID=exec('/usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$templateID.' -i '.$_SESSION['installationID']);	
-							setDCERouterNeedConfigure($_SESSION['installationID'],$dbADO);
-							$out.='
-								<script>
-									'.$openTunerConfig.'
-									opener.location="index.php?section=avWizard&type=avEquipment#deviceLink_'.$insertID.'";
-									self.close();
-								</script>';
-			 			}else{
-			 			}
-			 			*/
 		 				$out.='
 							<script>
 								'.$openTunerConfig.'
@@ -2815,7 +2801,7 @@ function createDevice($FK_DeviceTemplate,$FK_Installation,$controlledBy,$roomID,
 	$orbiterID=getMediaDirectorOrbiterChild($controlledBy,$dbADO);
 	
 	$parentID=($childOfMD==0)?$orbiterID:$controlledBy;
-	$insertID=exec('/usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$FK_DeviceTemplate.' -i '.$FK_Installation);
+	$insertID=exec('sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$FK_DeviceTemplate.' -i '.$FK_Installation);
 	$dbADO->Execute('UPDATE Device SET FK_Device_ControlledVia=?,FK_Room=? WHERE PK_Device=?',array($parentID,$roomID,$insertID));
 }
 
@@ -3259,7 +3245,7 @@ function processRemotes($dbADO)
 	unset($_SESSION['from']);
 	$deviceTemplate=(int)@$_REQUEST['deviceTemplate'];
 	if($deviceTemplate!=0 && $mdID!=0){
-		$insertID=exec('/usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID.' -C '.$mdID,$ret);
+		$insertID=exec('sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID.' -C '.$mdID,$ret);
 		setDCERouterNeedConfigure($_SESSION['installationID'],$dbADO);
 		$commandToSend='/usr/pluto/bin/UpdateEntArea -h localhost';
 		exec($commandToSend);

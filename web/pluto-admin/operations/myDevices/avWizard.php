@@ -421,7 +421,7 @@ $start_time=getmicrotime();
 			unset($_SESSION['from']);
 			$deviceTemplate=(int)$_REQUEST['deviceTemplate'];
 			if($deviceTemplate!=0){
-				$insertID=exec('/usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID,$ret);
+				$insertID=exec('sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID,$ret);
 				setDCERouterNeedConfigure($_SESSION['installationID'],$dbADO);
 				$commandToSend='/usr/pluto/bin/UpdateEntArea -h localhost';
 				exec($commandToSend);
