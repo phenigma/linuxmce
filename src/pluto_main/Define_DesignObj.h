@@ -693,7 +693,7 @@
 #define DESIGNOBJ_mnuNewPhoneDetected_CONST 3150
 #define DESIGNOBJ_no_CONST 3152
 #define DESIGNOBJ_navmode_CONST 3154
-#define DESIGNOBJ_generic_app_desktop_CONST 3155
+#define DESIGNOBJ_generic_app_full_screen_with_o_CONST 3155
 #define DESIGNOBJ_pvr_full_screen_CONST 3156
 #define DESIGNOBJ_go_to_main_menu_CONST 3159
 #define DESIGNOBJ_go_to_pluto_tv_CONST 3160
@@ -806,7 +806,7 @@
 #define DESIGNOBJ_dvd_full_screen_with_options_CONST 3289
 #define DESIGNOBJ_storedvideos_full_screen_CONST 3290
 #define DESIGNOBJ_storedvideos_full_screen_with_CONST 3291
-#define DESIGNOBJ_generic_full_screen_CONST 3292
+#define DESIGNOBJ_generic_app_full_screen_CONST 3292
 #define DESIGNOBJ_grpSeekPlaylist_CONST 3293
 #define DESIGNOBJ_dgCommands_CONST 3294
 #define DESIGNOBJ_temp_CONST 3295
@@ -1030,6 +1030,7 @@
 #define DESIGNOBJ_dgCreateViewBookmark_CONST 3551
 #define DESIGNOBJ_mnuBrowseBookmarks_CONST 3552
 #define DESIGNOBJ_dgBrowseBookmarks_CONST 3553
+#define DESIGNOBJ_mnuGenericAppController_CONST 3555
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
