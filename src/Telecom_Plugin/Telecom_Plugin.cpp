@@ -610,7 +610,7 @@ void Telecom_Plugin::CMD_PL_External_Originate(string sPhoneNumber,string sCalle
     }
 
     /* find default line in AMP configs */
-	string sql = "SELECT application FROM extensions WHERE priority=1 AND flags=2";
+	string sql = "SELECT application FROM extensions WHERE priority=1 AND flags=2;";
     MySqlHelper *pMySqlHelper = new MySqlHelper(m_pRouter->sDBHost_get(), m_pRouter->sDBUser_get(), 
         m_pRouter->sDBPassword_get(), "asterisk", m_pRouter->iDBPort_get());
 
@@ -623,7 +623,7 @@ void Telecom_Plugin::CMD_PL_External_Originate(string sPhoneNumber,string sCalle
     }
     string defContext = row[0];
 	row=NULL;
-	sql = "SELECT args FROM extensions WHERE context="+defContext+" AND priority=1;";
+	sql = "SELECT args FROM extensions WHERE context='"+defContext+"' AND priority=1;";
     if((result_set.r = pMySqlHelper->mysql_query_result(sql.c_str())) == 0 || (row = mysql_fetch_row(result_set.r)) == NULL)
     {
         g_pPlutoLogger->Write(LV_CRITICAL, "No default args found in asterisk database");
@@ -637,7 +637,7 @@ void Telecom_Plugin::CMD_PL_External_Originate(string sPhoneNumber,string sCalle
 	string trunkName = "";
 
 	row=NULL;
-	sql = "SELECT data FROM iax WHERE keyword = 'account' AND id LIKE '9999"+trunkID+"';";
+	sql = "SELECT data FROM iax WHERE keyword='account' AND id LIKE '9999"+trunkID+"';";
     if((result_set.r = pMySqlHelper->mysql_query_result(sql.c_str())) != 0 && (row = mysql_fetch_row(result_set.r)) != NULL)
     {
 		trunkType = "IAX2";
@@ -645,7 +645,7 @@ void Telecom_Plugin::CMD_PL_External_Originate(string sPhoneNumber,string sCalle
 		goto SET_CHANNEL;
     }
 	row=NULL;
-	sql = "SELECT data FROM sip WHERE keyword = 'account' AND id LIKE '9999"+trunkID+"';";
+	sql = "SELECT data FROM sip WHERE keyword='account' AND id LIKE '9999"+trunkID+"';";
     if((result_set.r = pMySqlHelper->mysql_query_result(sql.c_str())) != 0 && (row = mysql_fetch_row(result_set.r)) != NULL)
     {
 		trunkType = "SIP";
@@ -653,7 +653,7 @@ void Telecom_Plugin::CMD_PL_External_Originate(string sPhoneNumber,string sCalle
 		goto SET_CHANNEL;
     }
 	row=NULL;
-	sql = "SELECT data FROM zap WHERE keyword = 'account' AND id LIKE '9999"+trunkID+"';";
+	sql = "SELECT data FROM zap WHERE keyword='account' AND id LIKE '9999"+trunkID+"';";
     if((result_set.r = pMySqlHelper->mysql_query_result(sql.c_str())) != 0 && (row = mysql_fetch_row(result_set.r)) != NULL)
     {
 		trunkType = "ZAP";
