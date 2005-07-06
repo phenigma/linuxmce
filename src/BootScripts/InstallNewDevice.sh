@@ -13,6 +13,7 @@ TryInstall()
 		apt-get -y install "$Package"
 		error=$?
 		sleep 5
+		((retries++))
 	done
 
 	if [[ $retries == 10 ]]; then
