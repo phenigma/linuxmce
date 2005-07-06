@@ -95,6 +95,19 @@ public:
 	virtual void CMD_PL_Hangup(string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #413 - PL External Originate */
+	/** Originate an external call */
+		/** @param #75 PhoneNumber */
+			/** Phone to call */
+		/** @param #81 CallerID */
+			/** Caller ID */
+		/** @param #83 PhoneExtension */
+			/** Phone extension to dial */
+
+	virtual void CMD_PL_External_Originate(string sPhoneNumber,string sCallerID,string sPhoneExtension) { string sCMD_Result; CMD_PL_External_Originate(sPhoneNumber.c_str(),sCallerID.c_str(),sPhoneExtension.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_PL_External_Originate(string sPhoneNumber,string sCallerID,string sPhoneExtension,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 
 private:

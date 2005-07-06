@@ -56,6 +56,7 @@ namespace DCE
 
     private: 
         string GenerateWavFile(long nAlertType);
+        string GetAlertInfo(long AlertType);
 
         bool ExecuteNotification(string sPhoneNumber, int iDelay, bool bNotifyOrbiter);
 	};

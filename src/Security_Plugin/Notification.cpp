@@ -48,6 +48,7 @@ using namespace DCE;
 #include "pluto_security/Table_Alert_Device.h"
 #include "pluto_security/Table_AlertType.h"
 #include "pluto_security/Table_ModeChange.h"
+#include "pluto_security/Table_Notification.h"
 
 void* StartNotificationInfo( void* param ) 
 {
@@ -132,10 +133,6 @@ bool Notification::NotifyLoop(int iType,bool bProcessInBackground)
 	if( m_pRow_Alert->ResetTime_isNull()==false )  // If it's not null we handled it
 		return true;
 
-    //hack... for testing
-    //m_sOrbiterNotifications = m_sOther_Phone_Notifications = "30,0723144156,0,1,0,0,0";
-    //iType = TYPE_ORBITER; //hack
-
 	string *s;
 	if( iType==TYPE_ORBITER )
 		s=&m_sOrbiterNotifications;
@@ -200,47 +197,63 @@ g_pPlutoLogger->Write(LV_STATUS,"Skipping orbiter %s",sPhoneNumber.c_str());
 	return m_pRow_Alert->ResetTime_isNull()==false;  // If it's not null we handled it
 }
 
-bool Notification::NotifyOrbiter(string sPhoneNumber,int iDelay)
+bool Notification::NotifyOrbiter(string sPhoneNumber, int iDelay)
 {
-	g_pPlutoLogger->Write(LV_CRITICAL,"Notifying orbiter %s for delay %d",sPhoneNumber.c_str(),iDelay);
+	g_pPlutoLogger->Write(LV_WARNING,"Notifying %s, delay %d",sPhoneNumber.c_str(),iDelay);
     return ExecuteNotification(sPhoneNumber, iDelay, true);
 }
 
 bool Notification::NotifyOther(string sPhoneNumber,int iDelay)
 {
-	g_pPlutoLogger->Write(LV_CRITICAL,"Notifying phone %s for delay %d",sPhoneNumber.c_str(),iDelay);
+	g_pPlutoLogger->Write(LV_WARNING,"Notifying %s, delay %d",sPhoneNumber.c_str(),iDelay);
     return ExecuteNotification(sPhoneNumber, iDelay, false);
 }
 
 bool Notification::ExecuteNotification(string sPhoneNumber, int iDelay, bool bNotifyOrbiter)
 {
+    long nAlertType = m_pRow_Alert->FK_AlertType_get();
+    string sCallerID = bNotifyOrbiter ? GenerateCallerID(nAlertType) : ""; //no caller id for the others
+    string sWavFileName = GenerateWavFile(nAlertType);
+    int nPhoneDevice = m_pSecurity_Plugin->m_PK_DefaultPhoneDevice;
+
+    Row_Notification *pRow_Notification = m_pSecurity_Plugin->m_pDatabase_pluto_security->Notification_get()->AddRow();
+    pRow_Notification->FK_Alert_set(m_pRow_Alert->PK_Alert_get());
+    pRow_Notification->NotificationTime_set(StringUtils::SQLDateTime(time(NULL)));
+    pRow_Notification->Info_set(GetAlertInfo(nAlertType));
+    pRow_Notification->Table_Notification_get()->Commit();
+
     // iDelay = How many seconds to wait for the phone to respond and acknowledge
     if( iDelay==0 )
         iDelay = MAX_TIMEOUT_FOR_PHONES;
 
-    long nAlertType = m_pRow_Alert->FK_AlertType_get();
-    string sCallerID = bNotifyOrbiter ? GenerateCallerID(nAlertType) : ""; //no caller id for the others
-    string sWavFileName = GenerateWavFile(nAlertType);
-
-    //hardcoding!! we'll get the right default line id after the database will be redesigned
-    //TODO: find the device id for the right phone the place the call
-    int nPhoneDevice = m_pSecurity_Plugin->m_PK_DefaultPhoneDevice;
-
-    //TODO: attach the called id and the wav file
+    //TODO: attach the wav file
     DCE::CMD_PL_Originate CMD_PL_Originate_(m_pSecurity_Plugin->m_dwPK_Device, 
         m_pTelecom_Plugin->m_dwPK_Device, nPhoneDevice, sPhoneNumber, sCallerID); 
+
+    time_t tStartNotification = time(NULL);
 
     string sResponse;
     bool bResponse = m_pSecurity_Plugin->SendCommand(CMD_PL_Originate_, &sResponse);
 
-    //TODO: wait iDelay seconds for a response
+    if(!bResponse || tStartNotification + iDelay < time(NULL))
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "Unable to notify user");
+        return false;
+    }
 
-    return false;
+    g_pPlutoLogger->Write(LV_WARNING, "User notified");
+    return true;
 }
 
 string Notification::GenerateWavFile(long nAlertType)
 {
-    string sText = "This is Pluto.";
+    string sText = "This is Pluto. " + GetAlertInfo(nAlertType);
+    return TextToSpeech(sText);
+}
+
+string Notification::GetAlertInfo(long nAlertType)
+{
+    string sText;
     switch(nAlertType)
     {
         case ALERTTYPE_Security_CONST:      sText += "There is a security breach.";     break;
@@ -254,5 +267,5 @@ string Notification::GenerateWavFile(long nAlertType)
         default: sText+= "Unknown security event";
     }
 
-    return TextToSpeech(sText);
+    return sText;
 }

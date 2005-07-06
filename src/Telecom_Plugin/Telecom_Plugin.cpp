@@ -588,3 +588,53 @@ void Telecom_Plugin::GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Route
 {
 }
 
+//<-dceag-c413-b->
+
+	/** @brief COMMAND: #413 - PL External Originate */
+	/** Originate an external call */
+		/** @param #75 PhoneNumber */
+			/** Phone to call */
+		/** @param #81 CallerID */
+			/** Caller ID */
+		/** @param #83 PhoneExtension */
+			/** Phone extension to dial */
+
+void Telecom_Plugin::CMD_PL_External_Originate(string sPhoneNumber,string sCallerID,string sPhoneExtension,string &sCMD_Result,Message *pMessage)
+//<-dceag-c413-e->
+{
+    g_pPlutoLogger->Write(LV_STATUS, "Originate external cammand called with params: PhoneNumber=%s, PhoneExtension=%s!", sPhoneNumber.c_str(), sPhoneExtension.c_str());
+
+    if(sPhoneExtension.empty()) {
+        g_pPlutoLogger->Write(LV_CRITICAL, "Error validating input parameters");
+        return;
+    }
+
+    /*find phonetype and phonenumber*/
+
+    //TODO
+    string sSrcPhoneType = "not implemented";// = pDeviceData->mapParameters_Find(DEVICEDATA_PhoneType_CONST);
+//    g_pPlutoLogger->Write(LV_STATUS, "Using source phone with parameters: PhoneType=%s, PhoneNumber=%s!", 
+//        sSrcPhoneType.c_str(), sSrcPhoneNumber.c_str());
+
+
+    /*find PBX*/
+    DeviceData_Router* pPBXDevice = find_AsteriskDevice();
+    if(pPBXDevice) {
+
+        CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(pMessage->m_dwPK_Device_From);
+        if(!pCallData) {
+            /*create new call data*/
+            pCallData = new CallData();
+            pCallData->setOwnerDevID(pMessage->m_dwPK_Device_From);
+            CallManager::getInstance()->addCall(pCallData);
+        }
+
+        pCallData->setState(CallData::STATE_ORIGINATING);
+
+        /*send originate command to PBX*/
+        pCallData->setPendingCmdID(generate_NewCommandID());
+        CMD_PBX_Originate cmd_PBX_Originate(m_dwPK_Device, pPBXDevice->m_dwPK_Device,
+            sPhoneNumber, sSrcPhoneType, sPhoneExtension, sCallerID, pCallData->getPendingCmdID());
+        SendCommand(cmd_PBX_Originate);
+    }
+}
