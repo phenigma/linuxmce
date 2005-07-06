@@ -214,7 +214,6 @@ bool Notification::ExecuteNotification(string sPhoneNumber, int iDelay, bool bNo
     long nAlertType = m_pRow_Alert->FK_AlertType_get();
     string sCallerID = bNotifyOrbiter ? GenerateCallerID(nAlertType) : ""; //no caller id for the others
     string sWavFileName = GenerateWavFile(nAlertType);
-    int nPhoneDevice = m_pSecurity_Plugin->m_PK_DefaultPhoneDevice;
 
     Row_Notification *pRow_Notification = m_pSecurity_Plugin->m_pDatabase_pluto_security->Notification_get()->AddRow();
     pRow_Notification->FK_Alert_set(m_pRow_Alert->PK_Alert_get());
@@ -222,20 +221,25 @@ bool Notification::ExecuteNotification(string sPhoneNumber, int iDelay, bool bNo
     pRow_Notification->Info_set(GetAlertInfo(nAlertType));
     pRow_Notification->Table_Notification_get()->Commit();
 
+    string sPhoneExtension;
+
+    Row_AlertType *pRow_AlertType = m_pSecurity_Plugin->m_pDatabase_pluto_security->AlertType_get()->GetRow(nAlertType);
+    if(pRow_AlertType)
+        sPhoneExtension = StringUtils::ltos(pRow_AlertType->PhoneExtension_get());
+
+    //TODO : use iDelay (?)
     // iDelay = How many seconds to wait for the phone to respond and acknowledge
     if( iDelay==0 )
         iDelay = MAX_TIMEOUT_FOR_PHONES;
 
     //TODO: attach the wav file
-    DCE::CMD_PL_Originate CMD_PL_Originate_(m_pSecurity_Plugin->m_dwPK_Device, 
-        m_pTelecom_Plugin->m_dwPK_Device, nPhoneDevice, sPhoneNumber, sCallerID); 
-
-    time_t tStartNotification = time(NULL);
+    DCE::CMD_PL_External_Originate CMD_PL_External_Originate_(m_pSecurity_Plugin->m_dwPK_Device, 
+        m_pTelecom_Plugin->m_dwPK_Device, sPhoneNumber, sCallerID, sPhoneExtension); 
 
     string sResponse;
-    bool bResponse = m_pSecurity_Plugin->SendCommand(CMD_PL_Originate_, &sResponse);
+    bool bResponse = m_pSecurity_Plugin->SendCommand(CMD_PL_External_Originate_, &sResponse);
 
-    if(!bResponse || tStartNotification + iDelay < time(NULL))
+    if(!bResponse)
     {
         g_pPlutoLogger->Write(LV_WARNING, "Unable to notify user");
         return false;

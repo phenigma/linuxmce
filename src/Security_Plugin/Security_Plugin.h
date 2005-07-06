@@ -80,12 +80,8 @@ namespace DCE
 	map<int,bool> m_mapAlarm_New; // For a PK_Alert Set to true when a new exit delay is started so we know to make a full announcement.
 
 	// Private methods
-    //utils
-    int GetDefaultPhoneDevice();
-
 public:
 	// Public member variables
-    int m_PK_DefaultPhoneDevice;
 
 //<-dceag-const-b->
 public:
