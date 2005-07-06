@@ -49,11 +49,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
     int PK_Device=0;
 	string sLogger="orbiter.log";
 
-#if defined(POCKETFROG) && !defined(WINCE)  //max screen resoltion
-    int Width=1024,Height=768;
-#else
     int Width=800,Height=600;
-#endif
 
     bool bLocalMode=false; // If true, it will not connect to PlutoServer but will look for it's files in the local directory
 	bool bFullScreen=false;
@@ -264,7 +260,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
             Orbiter_PocketFrog::GetInstance()->OnQuit();
 
             time_t tTime = time(NULL);
-            while(1)
+            while(true)
             {
                 if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
                 {

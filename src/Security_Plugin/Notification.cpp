@@ -251,7 +251,8 @@ bool Notification::ExecuteNotification(string sPhoneNumber, int iDelay, bool bNo
 
 string Notification::GenerateWavFile(long nAlertType)
 {
-    string sText = "This is Pluto. " + GetAlertInfo(nAlertType);
+    string sSecurityZone;
+    string sText = "This is Pluto. " + GetAlertInfo(nAlertType) + ": " + sSecurityZone;
     return TextToSpeech(sText);
 }
 
@@ -260,13 +261,13 @@ string Notification::GetAlertInfo(long nAlertType)
     string sText;
     switch(nAlertType)
     {
-        case ALERTTYPE_Security_CONST:      sText += "There is a security breach.";     break;
-        case ALERTTYPE_Fire_CONST:          sText += "Your house is on fire.";          break;
-        case ALERTTYPE_Air_Quality_CONST:   sText += "Air Quality?";                    break;
-        case ALERTTYPE_Movement_CONST:      sText += "Movement?";                       break;
-        case ALERTTYPE_Information_CONST:   sText += "Information?";                    break;
-        case ALERTTYPE_Doorbell_CONST:      sText += "Doorbell?";                       break;
-        case ALERTTYPE_Monitor_mode_CONST:  sText += "Monitor mode?";                   break;
+        case ALERTTYPE_Security_CONST:      sText += "Security breach";                break;
+        case ALERTTYPE_Fire_CONST:          sText += "Fire in the house";              break;
+        case ALERTTYPE_Air_Quality_CONST:   sText += "Air Quality";                    break;
+        case ALERTTYPE_Movement_CONST:      sText += "Movement";                       break;
+        case ALERTTYPE_Information_CONST:   sText += "Information";                    break;
+        case ALERTTYPE_Doorbell_CONST:      sText += "Doorbell";                       break;
+        case ALERTTYPE_Monitor_mode_CONST:  sText += "Monitor mode";                   break;
 
         default: sText+= "Unknown security event";
     }

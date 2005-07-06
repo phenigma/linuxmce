@@ -60,6 +60,11 @@ typedef struct _VIDEO_POWER_MANAGEMENT {
     ULONG PowerState;
 } VIDEO_POWER_MANAGEMENT, *PVIDEO_POWER_MANAGEMENT;
 //-----------------------------------------------------------------------------------------------------
+#ifdef WINCE
+	#define DT_MODIFYSTRING 0
+	#define DT_END_ELLIPSIS 0
+#endif
+//-----------------------------------------------------------------------------------------------------
 #define CHECK_STATUS() { if(m_bQuit) return; }
 //-----------------------------------------------------------------------------------------------------
 Orbiter_PocketFrog *Orbiter_PocketFrog::m_pInstance = NULL; //the one and only
@@ -313,6 +318,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 	string TextToDisplay = SubstituteVariables(Text->m_sText, NULL, 0, 0).c_str();
 
+	/*
 	//temp
 #ifdef WINCE
 
@@ -414,6 +420,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 
 
 #else //winxp/2000
+  */
 
 	HDC hdc = GetDisplay()->GetBackBuffer()->GetDC(false);
 	
@@ -429,7 +436,13 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 	lf.lfItalic		= pTextStyle->m_bItalic;
 	lf.lfUnderline	= pTextStyle->m_bUnderline;
 
+#ifdef WINCE
+    wchar_t wFaceName[1024];
+    mbstowcs(wFaceName, pTextStyle->m_sFont.c_str(), 1024);	
+	wcscpy(lf.lfFaceName, wFaceName);
+#else
 	strcpy(lf.lfFaceName, pTextStyle->m_sFont.c_str());
+#endif
 
 	hFontNew = ::CreateFontIndirect(&lf);
 	hFontOld = (HFONT) ::SelectObject(hdc, hFontNew);
@@ -450,9 +463,21 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 		rectLocation.bottom
 	};
 
+#ifdef WINCE
+    wchar_t wText[1024];
+    mbstowcs(wText, TextToDisplay.c_str(), 1024);
+#endif
+
+#ifndef WINCE
+	#define TEXT_TO_RENDER TextToDisplay.c_str()
+#else
+	#define TEXT_TO_RENDER wText
+#endif
+
 	//calculate rect first
-	::DrawText(hdc, TextToDisplay.c_str(), int(TextToDisplay.length()), &rectLocation, 
+	::DrawText(hdc, TEXT_TO_RENDER, int(TextToDisplay.length()), &rectLocation, 
 		DT_WORDBREAK | DT_NOPREFIX | DT_CALCRECT | DT_MODIFYSTRING | DT_END_ELLIPSIS ); 
+
 
 	int iRealHeight = rectLocation.bottom - rectLocation.top;
 
@@ -478,17 +503,17 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 	switch (Text->m_iPK_HorizAlignment)
 	{
 		case HORIZALIGNMENT_Left_CONST: 
-			::DrawText(hdc, TextToDisplay.c_str(), int(TextToDisplay.length()), &rectLocation, 
+			::DrawText(hdc, TEXT_TO_RENDER, int(TextToDisplay.length()), &rectLocation, 
 				DT_WORDBREAK | DT_NOPREFIX | DT_MODIFYSTRING | DT_END_ELLIPSIS); 
 		break;
 
         case HORIZALIGNMENT_Center_CONST: 
-            ::DrawText(hdc, TextToDisplay.c_str(), int(TextToDisplay.length()), &rectLocation, 
+            ::DrawText(hdc, TEXT_TO_RENDER, int(TextToDisplay.length()), &rectLocation, 
                 DT_WORDBREAK | DT_CENTER | DT_NOPREFIX | DT_MODIFYSTRING | DT_END_ELLIPSIS); 
         break;
 
-        default: //HORIZALIGNMENT_Center_CONST
-            ::DrawText(hdc, TextToDisplay.c_str(), int(TextToDisplay.length()), &rectLocation, 
+        default: 
+            ::DrawText(hdc, TEXT_TO_RENDER, int(TextToDisplay.length()), &rectLocation, 
                 DT_WORDBREAK | DT_CENTER | DT_NOPREFIX | DT_MODIFYSTRING | DT_END_ELLIPSIS); 
             break;
 	}
@@ -498,7 +523,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 
 	GetDisplay()->GetBackBuffer()->ReleaseDC(hdc);
 
-#endif
+//#endif
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::SaveBackgroundForDeselect(DesignObj_Orbiter *pObj, PlutoPoint point)
