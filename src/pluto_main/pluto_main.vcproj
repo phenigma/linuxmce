@@ -367,7 +367,13 @@
 				RelativePath=".\Table_Device_HouseMode.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_Device_MRU.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_Device_Orbiter.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Device_QuickStart.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_Device_StartupScript.cpp">

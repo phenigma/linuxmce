@@ -89,7 +89,9 @@ Table_Device_Device_Pipe.cpp \
 Table_Device_Device_Related.cpp \
 Table_Device_EntertainArea.cpp \
 Table_Device_HouseMode.cpp \
+Table_Device_MRU.cpp \
 Table_Device_Orbiter.cpp \
+Table_Device_QuickStart.cpp \
 Table_Device_StartupScript.cpp \
 Table_Device_Users.cpp \
 Table_Direction.cpp \

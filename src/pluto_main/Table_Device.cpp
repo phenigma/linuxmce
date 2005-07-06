@@ -37,7 +37,9 @@ using namespace std;
 #include "Table_Device_Device_Related.h"
 #include "Table_Device_EntertainArea.h"
 #include "Table_Device_HouseMode.h"
+#include "Table_Device_MRU.h"
 #include "Table_Device_Orbiter.h"
+#include "Table_Device_QuickStart.h"
 #include "Table_Device_StartupScript.h"
 #include "Table_Device_Users.h"
 #include "Table_InfraredGroup_Command.h"
@@ -1715,11 +1717,25 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 class Table_Device_HouseMode *pTable = table->database->Device_HouseMode_get();
 pTable->GetRows("`FK_Device`=" + StringUtils::itos(m_PK_Device),rows);
 }
+void Row_Device::Device_MRU_FK_Device_getrows(vector <class Row_Device_MRU*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Device_MRU *pTable = table->database->Device_MRU_get();
+pTable->GetRows("`FK_Device`=" + StringUtils::itos(m_PK_Device),rows);
+}
 void Row_Device::Device_Orbiter_FK_Device_getrows(vector <class Row_Device_Orbiter*> *rows)
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Device_Orbiter *pTable = table->database->Device_Orbiter_get();
+pTable->GetRows("`FK_Device`=" + StringUtils::itos(m_PK_Device),rows);
+}
+void Row_Device::Device_QuickStart_FK_Device_getrows(vector <class Row_Device_QuickStart*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Device_QuickStart *pTable = table->database->Device_QuickStart_get();
 pTable->GetRows("`FK_Device`=" + StringUtils::itos(m_PK_Device),rows);
 }
 void Row_Device::Device_StartupScript_FK_Device_getrows(vector <class Row_Device_StartupScript*> *rows)

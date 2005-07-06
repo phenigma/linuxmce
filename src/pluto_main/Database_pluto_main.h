@@ -108,7 +108,9 @@ class Table_Device_Device_Pipe* tblDevice_Device_Pipe;
 class Table_Device_Device_Related* tblDevice_Device_Related;
 class Table_Device_EntertainArea* tblDevice_EntertainArea;
 class Table_Device_HouseMode* tblDevice_HouseMode;
+class Table_Device_MRU* tblDevice_MRU;
 class Table_Device_Orbiter* tblDevice_Orbiter;
+class Table_Device_QuickStart* tblDevice_QuickStart;
 class Table_Device_StartupScript* tblDevice_StartupScript;
 class Table_Device_Users* tblDevice_Users;
 class Table_Direction* tblDirection;
@@ -323,7 +325,9 @@ class Table_Device_Device_Pipe* Device_Device_Pipe_get() { if( !tblDevice_Device
 class Table_Device_Device_Related* Device_Device_Related_get() { if( !tblDevice_Device_Related ) CreateTable_Device_Device_Related(); return tblDevice_Device_Related; }
 class Table_Device_EntertainArea* Device_EntertainArea_get() { if( !tblDevice_EntertainArea ) CreateTable_Device_EntertainArea(); return tblDevice_EntertainArea; }
 class Table_Device_HouseMode* Device_HouseMode_get() { if( !tblDevice_HouseMode ) CreateTable_Device_HouseMode(); return tblDevice_HouseMode; }
+class Table_Device_MRU* Device_MRU_get() { if( !tblDevice_MRU ) CreateTable_Device_MRU(); return tblDevice_MRU; }
 class Table_Device_Orbiter* Device_Orbiter_get() { if( !tblDevice_Orbiter ) CreateTable_Device_Orbiter(); return tblDevice_Orbiter; }
+class Table_Device_QuickStart* Device_QuickStart_get() { if( !tblDevice_QuickStart ) CreateTable_Device_QuickStart(); return tblDevice_QuickStart; }
 class Table_Device_StartupScript* Device_StartupScript_get() { if( !tblDevice_StartupScript ) CreateTable_Device_StartupScript(); return tblDevice_StartupScript; }
 class Table_Device_Users* Device_Users_get() { if( !tblDevice_Users ) CreateTable_Device_Users(); return tblDevice_Users; }
 class Table_Direction* Direction_get() { if( !tblDirection ) CreateTable_Direction(); return tblDirection; }
@@ -542,7 +546,9 @@ void CreateTable_Device_Device_Pipe();
 void CreateTable_Device_Device_Related();
 void CreateTable_Device_EntertainArea();
 void CreateTable_Device_HouseMode();
+void CreateTable_Device_MRU();
 void CreateTable_Device_Orbiter();
+void CreateTable_Device_QuickStart();
 void CreateTable_Device_StartupScript();
 void CreateTable_Device_Users();
 void CreateTable_Direction();
@@ -756,7 +762,9 @@ void DeleteTable_Device_Device_Pipe();
 void DeleteTable_Device_Device_Related();
 void DeleteTable_Device_EntertainArea();
 void DeleteTable_Device_HouseMode();
+void DeleteTable_Device_MRU();
 void DeleteTable_Device_Orbiter();
+void DeleteTable_Device_QuickStart();
 void DeleteTable_Device_StartupScript();
 void DeleteTable_Device_Users();
 void DeleteTable_Direction();

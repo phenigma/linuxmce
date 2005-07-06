@@ -226,7 +226,9 @@ void Device_Device_Related_FK_Device_getrows(vector <class Row_Device_Device_Rel
 void Device_Device_Related_FK_Device_Related_getrows(vector <class Row_Device_Device_Related*> *rows);
 void Device_EntertainArea_FK_Device_getrows(vector <class Row_Device_EntertainArea*> *rows);
 void Device_HouseMode_FK_Device_getrows(vector <class Row_Device_HouseMode*> *rows);
+void Device_MRU_FK_Device_getrows(vector <class Row_Device_MRU*> *rows);
 void Device_Orbiter_FK_Device_getrows(vector <class Row_Device_Orbiter*> *rows);
+void Device_QuickStart_FK_Device_getrows(vector <class Row_Device_QuickStart*> *rows);
 void Device_StartupScript_FK_Device_getrows(vector <class Row_Device_StartupScript*> *rows);
 void Device_Users_FK_Device_getrows(vector <class Row_Device_Users*> *rows);
 void InfraredGroup_Command_FK_Device_getrows(vector <class Row_InfraredGroup_Command*> *rows);
