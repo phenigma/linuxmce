@@ -24,6 +24,8 @@
 #define ALERTTYPE_DESCRIPTION_TABLE_FIELD "AlertType.Description"
 #define ALERTTYPE_DEFINE_FIELD "Define"
 #define ALERTTYPE_DEFINE_TABLE_FIELD "AlertType.Define"
+#define ALERTTYPE_PHONEEXTENSION_FIELD "PhoneExtension"
+#define ALERTTYPE_PHONEEXTENSION_TABLE_FIELD "AlertType.PhoneExtension"
 #define ALERTTYPE_PSC_ID_FIELD "psc_id"
 #define ALERTTYPE_PSC_ID_TABLE_FIELD "AlertType.psc_id"
 #define ALERTTYPE_PSC_BATCH_FIELD "psc_batch"
