@@ -84,22 +84,9 @@ void Text_To_Speech::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessag
 
 //<-dceag-sample-b->!
 
-/*
-
-	COMMANDS TO IMPLEMENT
-
-*/
-/*
 char *Text_To_Speech::CreateWAV(string sText,int &Size)
 {
-	// do it
-	FILE *fp;
-	string cmd;
-
-	char *pBuffer, *pData;
-	unsigned int count, size;
-
-	pBuffer = pData = NULL;
+    string cmd;
 #ifdef WIN32
 	cmd = "iisc /ttw \"" + sText + "\" sample.wav";
 	system(cmd.c_str());
@@ -108,37 +95,9 @@ char *Text_To_Speech::CreateWAV(string sText,int &Size)
 	system(cmd.c_str());
 #endif
 
-	count = 0;
-	pData = (char *)malloc(1);
-	fp = fopen("sample.wav", "rb");
-	fseek( fp, 0L, SEEK_SET );
-	if(fp != NULL) {
-		while(feof(fp)==0) {
-			char c;
-			fscanf( fp, "%c", &c );
-			count++;
-		}
-		fclose(fp);
-	}
-	size = count;
-	pBuffer = new char[size];
-	size--;
-//Oricare Os este pana aici avem fisierul WAV;
-	fp = fopen("sample.wav", "rb");
-	fseek( fp, 0L, SEEK_SET );
-	count = 0;
-	if(fp != NULL) {
-		while(feof(fp)==0) {
-			fscanf(fp, "%c", &pBuffer[count]);
-			count++;
-		}
-		fclose(fp);
-	} 
-	else {
-		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to open WAV file");
-	}
-//Am citit buferul shi il returnam;
-	Size = size;
+    size_t iSize;
+    char *pData = FileUtils::ReadFileIntoBuffer("sample.wav", iSize);
+    Size = iSize;
 
 #ifdef WIN32
 	cmd = "del sample.wav";
@@ -148,10 +107,8 @@ char *Text_To_Speech::CreateWAV(string sText,int &Size)
 	system(cmd.c_str());
 #endif
 
-	return pBuffer;
+	return pData;
 }
-
-*/
 
 //<-dceag-c253-b->
 
@@ -210,14 +167,7 @@ void Text_To_Speech::CMD_Send_Audio_To_Device(string sText,string sPK_Device_Lis
 void Text_To_Speech::CMD_Text_To_Wave(string sText,char **pData,int *iData_Size,string &sCMD_Result,Message *pMessage)
 //<-dceag-c256-e->
 {
-	int Size;
-
-//	Size = Find_Exact_Size(sText);
-	*pData = new char[Size];
-	*iData_Size=Size;
-	cout << "the size is " << Size << endl;
-	*pData = NULL; //CreateWAV(sText,Size);
-
+	*pData = CreateWAV(sText,*iData_Size);
 }
 
 //<-dceag-createinst-b->!

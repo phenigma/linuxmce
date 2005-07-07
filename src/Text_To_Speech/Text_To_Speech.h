@@ -35,6 +35,9 @@ public:
 		int m_dwID;  // A numeric ID for the request
 		map<time_t,string> m_mapOutstandingFiles; // So we can delete files more than 5 minutes old
 
+private:
+        char *CreateWAV(string sText,int &Size);
+
 //<-dceag-h-b->
 	/*
 				AUTO-GENERATED SECTION
