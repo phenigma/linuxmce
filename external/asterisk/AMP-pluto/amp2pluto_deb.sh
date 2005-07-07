@@ -12,11 +12,13 @@ mkdir -p ./amp_deb/root/var/lib
 mkdir -p ./amp_deb/root/var/spool
 mkdir -p ./amp_deb/root/$AMPWEBROOT
 mkdir -p ./amp_deb/root/$AMPCGIBIN
+mkdir -p ./amp_deb/root/var/lib/asterisk/sounds/pluto/
 #stuff for post install
 mkdir -p ./amp_deb/root/usr/local/amp/install/
 
 #copy pluto's config
 cp -R ./amp_pluto.conf ./amp_deb/root/etc/amportal.conf
+cp -R ./ext_pluto.conf ./amp_deb/root/etc/asterisk/extensions_custom.conf
 
 #copy files needed for dpkg-buildpackage
 cp ./debian/* ./amp_deb/debian
@@ -29,6 +31,7 @@ cp -R ./AMP/amp_conf/var/lib/* ./amp_deb/root/var/lib/
 cp -R ./AMP/amp_conf/var/spool/* ./amp_deb/root/var/spool/
 cp -R ./AMP/amp_conf/var/www/html/* ./amp_deb/root/$AMPWEBROOT/
 cp -R ./AMP/amp_conf/var/www/cgi-bin/* ./amp_deb/root/$AMPCGIBIN/
+cp -R ./pluto-sounds/* ./amp_deb/root/var/lib/asterisk/sounds/pluto/
 #stuff for post install
 cp ./AMP/SQL/* ./amp_deb/root/usr/local/amp/install/
 cp ./AMP/apply_conf.sh ./amp_deb/root/usr/local/amp/install/

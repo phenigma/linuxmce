@@ -26,6 +26,8 @@ case "$1" in
 			echo 'drop database asteriskcdrdb;' | /usr/bin/mysql || /bin/true
 			echo 'create database asteriskcdrdb;' | /usr/bin/mysql || /bin/true
 			/usr/bin/mysql asteriskcdrdb </usr/local/amp/install/cdr_mysql_table.sql
+			sed -r -i "s/RUNASTERISK=no/RUNASTERISK=yes/" /etc/default/asterisk
+			sed -r -i "s/[#]RUNASTSAFE=yes/RUNASTSAFE=yes/" /etc/default/asterisk
 		fi
 		pushd /usr/local/amp/install &>/dev/null
 		./apply_conf.sh
