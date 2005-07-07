@@ -6,7 +6,7 @@ $out.=<<<TEXT
 
 <table width="100%" border="0" cellpadding="0" cellspacing="0" class="maintable">
   <tr>
-    <td class="titletable"><img src="images/submenus/public_license_txt.gif" width="148" height="13"></td>
+    <td class="titletable">&nbsp;</td>
   </tr>
   <tr>
     <td class="insidetable"><p>The Pluto Public License, Version 1.0<br>
