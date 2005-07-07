@@ -42,6 +42,7 @@
 	$GLOBALS['OrbiterPlugIn'] = 12; 			// Orbiter Plug In
 	$GLOBALS['rootMediaDirectorsID'] = 28; 		// Media Directors
 	$GLOBALS['SecurityPlugin'] = 33;	 		// Security plugin
+	$GLOBALS['TelecomPlugin'] = 34;	 			// Telecom plugin
 	$GLOBALS['LightSwitchOnOff']=37;			// Light Switch (on/off)
 	$GLOBALS['LightSwitchDimmable']=38;			// Light Switch (dimmable)
 	$GLOBALS['InfraredPlugIn'] = 39; 			// Infrared Plug In
@@ -144,6 +145,7 @@
 	$GLOBALS['AudioSettings']=88;				// Audio settings
 	$GLOBALS['VideoSettings']=89;				// Video settings
 	$GLOBALS['EmergencyCalls']=96;				// Emergency Calls
+	$GLOBALS['MobileOrbiterPhone']=97;			// Mobile Orbiter Phone
 	
 	// PK_FloorplanType from table FloorplanType 
 

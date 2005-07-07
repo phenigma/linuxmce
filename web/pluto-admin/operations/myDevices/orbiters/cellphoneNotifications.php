@@ -36,6 +36,8 @@ function cellphoneNotifications($output,$dbADO) {
 					$monArray=explode(',',$rowDDD['IK_DeviceData']);
 				}
 			}
+			
+			$phonesPulldown=getAssocArray('Device_DeviceData','IK_DeviceData','Description',$dbADO,'INNER JOIN Device ON FK_Device=PK_Device WHERE FK_DeviceData='.$GLOBALS['MobileOrbiterPhone'],'ORDER BY Description ASC');
 		$out.='
 			Call Order: 
 			<select name="mon_sequence" onchange="form_change()">
@@ -59,7 +61,7 @@ function cellphoneNotifications($output,$dbADO) {
 			for($i=0;$i<5;$i++){
 				$out.='
 				<tr>
-					<td align="center"><input type="text" name="tel_'.(6*$i+1).'" value="'.@$monArray[6*$i+1].'"/></td>
+					<td align="center">'.pulldownFromArray($phonesPulldown,'tel_'.(6*$i+1),((!isset($monArray[6*$i+1]))?0:$monArray[6*$i+1]),'','key','- Please select -','').'</td>
 					<td align="center"><input type="checkbox" name="monitor_mode_'.(6*$i+2).'" value="1" '.(((int)@$monArray[6*$i+2]>0)?'checked':'').'/></td>
 					<td align="center"><input type="checkbox" name="security_'.(6*$i+3).'" value="1" '.(((int)@$monArray[6*$i+3]>0)?'checked':'').'/></td>
 					<td align="center"><input type="checkbox" name="fire_'.(6*$i+4).'" value="1" '.(((int)@$monArray[6*$i+4]>0)?'checked':'').'/></td>
@@ -68,7 +70,11 @@ function cellphoneNotifications($output,$dbADO) {
 				</tr>';
 			}
 		$out.='
+			<tr>
+				<td colspan="6">* Highlighted Orbiter Phones doesn\'t have a phone number yet.</td>
+			</tr>
 		</table>
+		
 		<div align="center">
 		<h3>Other Phone Notifications</h3>
 		<p>Here you can specify any phone number you want Pluto to call in the event of a security alert.  Pluto will call the number and play a recorded message.</p>
@@ -206,6 +212,7 @@ function cellphoneNotifications($output,$dbADO) {
 		$MONDeviceData=$mon_sequence;
 		for($i=0;$i<5;$i++){
 			$tel=cleanString($_POST['tel_'.(6*$i+1)]);
+			$tel=($tel=='0')?'':$tel;
 			$monitor_mode=(int)@$_POST['monitor_mode_'.(6*$i+2)];
 			$security=(int)@$_POST['security_'.(6*$i+3)];
 			$fire=(int)@$_POST['fire_'.(6*$i+4)];
