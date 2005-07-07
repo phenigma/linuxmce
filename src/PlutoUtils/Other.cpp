@@ -108,11 +108,4 @@ string GenerateCallerID(long nAlertType)
 
     return sCallerID;
 }
-
-string TextToSpeech(string sText)
-{
-    //TODO: return the wav filename
-    //HINT: use m_pSecurity_Plugin->m_PK_Device_TextToSpeach
-    return "not_implemented.wav";
-}
 #endif

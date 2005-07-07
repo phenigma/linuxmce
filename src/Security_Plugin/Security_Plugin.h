@@ -54,6 +54,8 @@ namespace DCE
 	class Security_Plugin : public Security_Plugin_Command, public DataGridGeneratorPlugIn, public AlarmEvent, public FloorplanInfoProvider, public FollowMe_Device
 	{
 //<-dceag-decl-e->
+
+    friend class Notification;
 	// Private member variables 
     pluto_pthread_mutex_t m_SecurityMutex;
 	pthread_mutexattr_t m_MutexAttr; /** < make it recursive */

@@ -78,8 +78,6 @@ extern long GetTickCount();
 
 #endif //#ifndef WIN32
 
-//used in Orbiter_Plugin and Security_Plugin
-string TextToSpeech(string sText);
 string GenerateCallerID(long nAlertType);
 
 #endif //#ifndef SYMBIAN

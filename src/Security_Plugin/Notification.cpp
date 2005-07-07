@@ -251,9 +251,27 @@ bool Notification::ExecuteNotification(string sPhoneNumber, int iDelay, bool bNo
 
 string Notification::GenerateWavFile(long nAlertType)
 {
+    const string csMenuWavFile("/tmp/pluto-security-voicemenu.wav");
     string sSecurityZone;
     string sText = "This is Pluto. " + GetAlertInfo(nAlertType) + ": " + sSecurityZone;
-    return TextToSpeech(sText);
+    
+    char *pData = NULL;
+    int iSize = 0;
+
+    CMD_Text_To_Wave CMD_Text_To_Wave_(m_pSecurity_Plugin->m_dwPK_Device, m_pSecurity_Plugin->m_PK_Device_TextToSpeach, 
+        sText, &pData, &iSize);
+    string sResponse;
+    bool bResponse = m_pSecurity_Plugin->SendCommand(CMD_Text_To_Wave_, &sResponse);
+
+    if(!pData)
+    {
+        g_pPlutoLogger->Write(LV_CRITICAL, "Text to speech device couldn't create the wav file");
+        return string();
+    }
+
+    FileUtils::WriteBufferIntoFile(csMenuWavFile, pData, size_t(iSize));
+    delete []pData;
+    return csMenuWavFile;
 }
 
 string Notification::GetAlertInfo(long nAlertType)

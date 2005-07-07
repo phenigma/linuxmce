@@ -482,7 +482,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	
 				CreateLabel(hWnd, 10, WIN_HEIGHT - 4 * MENU_HEIGHT + 15 - SMALL_BOTTOM_OFFSET + 3 - BOTTOM_ADJUSTMENT, 80, "Device ID: ");	
 				g_hWnd_DeviceIDEdit = CreateEdit(hWnd, 90, WIN_HEIGHT - 4 * MENU_HEIGHT + 15 - SMALL_BOTTOM_OFFSET + 3 - BOTTOM_ADJUSTMENT, 50, "", true, true);
-				CreateLabel(hWnd, 150, WIN_HEIGHT - 4 * MENU_HEIGHT + 15 - SMALL_BOTTOM_OFFSET + 3 - BOTTOM_ADJUSTMENT, 660, "(To determine the device ID automatically, this device's IP address must be listed in teh database)");
+				CreateLabel(hWnd, 150, WIN_HEIGHT - 4 * MENU_HEIGHT + 15 - SMALL_BOTTOM_OFFSET + 3 - BOTTOM_ADJUSTMENT, 660, "(To determine the device ID automatically, this device's IP address must be listed in the database)");
 
 				CreateLabel(hWnd, 10, WIN_HEIGHT - 4 * MENU_HEIGHT + 35 - SMALL_BOTTOM_OFFSET + 3 - BOTTOM_ADJUSTMENT, 80, "Router IP: ");	
 				g_hWnd_RouterIPEdit = CreateEdit(hWnd, 90, WIN_HEIGHT - 4 * MENU_HEIGHT + 35 - SMALL_BOTTOM_OFFSET + 3 - BOTTOM_ADJUSTMENT, 100, "", false, false);
