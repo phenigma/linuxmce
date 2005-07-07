@@ -377,6 +377,7 @@
 #define COMMAND_Set_Media_Position_CONST 412
 #define COMMAND_Forward_local_kb_to_OSD_CONST 413
 #define COMMAND_PL_External_Originate_CONST 414
+#define COMMAND_Set_Mouse_Position_Relative_CONST 415
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
