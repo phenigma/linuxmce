@@ -22,7 +22,7 @@ public:
 	int m_iPK_Device_Computer,m_iDBPort,m_iDCERouterPort,m_iPK_Installation;
 	int m_iPK_Distro;
 	map<string,string> m_mapParameters;
-	string m_mapParameters_Find(string Token) {	map<string,string>::iterator it = m_mapParameters.find( Token ); return it == m_mapParameters.end() ? NULL : (*it).second; }
+	string m_mapParameters_Find(string Token) {	map<string,string>::iterator it = m_mapParameters.find( Token ); return it == m_mapParameters.end() ? string() : (*it).second; }
 	bool m_mapParameters_Exists(string Token) {	map<string,string>::iterator it = m_mapParameters.find( Token ); return it != m_mapParameters.end(); }
 
 	inline int ReadInteger(string sToken, int iDefaultValue = 0);
