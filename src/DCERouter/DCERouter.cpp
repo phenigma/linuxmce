@@ -1444,16 +1444,17 @@ bool Router::DeviceIsRegistered(int PK_Device)
 
 void Router::AddMessageToQueue(Message *pMessage)
 {
-    /*
 #ifdef DEBUG
-    g_pPlutoLogger->Write(LV_STATUS,"adding message from %d to %d type %d id %d to queue size was: %d",
+    g_pPlutoLogger->Write(LV_STATUS,"AddMessageToQueue(ProcessQueue) adding message from %d to %d type %d id %d to queue size was: %d",
         pMessage->m_dwPK_Device_From,pMessage->m_dwPK_Device_To,pMessage->m_dwMessage_Type,pMessage->m_dwID,(int) m_MessageQueue.size());
 #endif
-    */
     pthread_mutex_lock(&m_MessageQueueMutex);
     m_MessageQueue.push_back(pMessage);
     pthread_mutex_unlock(&m_MessageQueueMutex);
     pthread_cond_broadcast(&m_MessageQueueCond);
+#ifdef DEBUG
+    g_pPlutoLogger->Write(LV_STATUS,"AddMessageToQueue(ProcessQueue) sent broadcast");
+#endif
 }
 
 void Router::ProcessQueue()
@@ -1463,21 +1464,23 @@ void Router::ProcessQueue()
     {
         while( m_MessageQueue.size()==0 )
         {
+g_pPlutoLogger->Write(LV_STATUS,"ProcessQueue going to sleep");
             pthread_cond_wait(&m_MessageQueueCond,&m_MessageQueueMutex);
+g_pPlutoLogger->Write(LV_STATUS,"ProcessQueue woke up with size: %d",(int) m_MessageQueue.size());
         }
 
         // We are holding the mutex
         Message *pMessage = m_MessageQueue.front();
         m_MessageQueue.pop_front();
-        g_pPlutoLogger->Write(LV_STATUS,"sending message from %d to %d type %d id %d to queue now size: %d",
+        g_pPlutoLogger->Write(LV_STATUS,"ProcessQueue sending message from %d to %d type %d id %d to queue now size: %d",
             pMessage->m_dwPK_Device_From,pMessage->m_dwPK_Device_To,pMessage->m_dwMessage_Type,pMessage->m_dwID,(int) m_MessageQueue.size());
         pthread_mutex_unlock(&m_MessageQueueMutex);
 
         SafetyMessage pSafetyMessage(pMessage);
-//      g_pPlutoLogger->Write(LV_STATUS,"Calling realsendmessage from queue");
+g_pPlutoLogger->Write(LV_STATUS,"ProcessQueue Calling realsendmessage from queue");
         RealSendMessage(NULL,&pSafetyMessage);
         pthread_mutex_lock(&m_MessageQueueMutex);
-//      g_pPlutoLogger->Write(LV_STATUS,"finished Calling realsendmessage from queue");
+g_pPlutoLogger->Write(LV_STATUS,"ProcessQueue finished Calling realsendmessage from queue");
     }
 }
 
@@ -1615,12 +1618,12 @@ void Router::RealSendMessage(Socket *pSocket,SafetyMessage *pSafetyMessage)
 
 	if( pDeviceTo && pDeviceTo->m_pDevice_RouteTo )
         (*(*pSafetyMessage))->m_dwPK_Device_To=pDeviceTo->m_pDevice_RouteTo->m_dwPK_Device;
-//  g_pPlutoLogger->Write(LV_STATUS,"begin realsendmessage before lock");
+  g_pPlutoLogger->Write(LV_STATUS,"begin realsendmessage before lock");
     PLUTO_SAFETY_LOCK(slCore,m_CoreMutex);
     int RouteToDevice = DEVICEID_NULL;
 
-//  g_pPlutoLogger->Write(LV_STATUS,"realsendmessage from %d to %d type %d id %d ",
-//      (*(*pSafetyMessage))->m_dwPK_Device_From,(*(*pSafetyMessage))->m_dwPK_Device_To,(*(*pSafetyMessage))->m_dwMessage_Type,(*(*pSafetyMessage))->m_dwID);
+  g_pPlutoLogger->Write(LV_STATUS,"realsendmessage from %d to %d type %d id %d ",
+      (*(*pSafetyMessage))->m_dwPK_Device_From,(*(*pSafetyMessage))->m_dwPK_Device_To,(*(*pSafetyMessage))->m_dwMessage_Type,(*(*pSafetyMessage))->m_dwID);
 
     map<int,int>::iterator iRoute;
     /* NOT needed for 2.0  -- a video plug-in will handle this
@@ -1642,8 +1645,8 @@ void Router::RealSendMessage(Socket *pSocket,SafetyMessage *pSafetyMessage)
         }
     }
     slCore.Release();
-//g_pPlutoLogger->Write(LV_STATUS,"realsendmessage after core release from %d to %d type %d id %d ",
-//  (*(*pSafetyMessage))->m_dwPK_Device_From,(*(*pSafetyMessage))->m_dwPK_Device_To,(*(*pSafetyMessage))->m_dwMessage_Type,(*(*pSafetyMessage))->m_dwID);
+g_pPlutoLogger->Write(LV_STATUS,"realsendmessage after core release from %d to %d type %d id %d ",
+  (*(*pSafetyMessage))->m_dwPK_Device_From,(*(*pSafetyMessage))->m_dwPK_Device_To,(*(*pSafetyMessage))->m_dwMessage_Type,(*(*pSafetyMessage))->m_dwID);
 
     if (RouteToDevice > 0)
     {
@@ -1664,8 +1667,8 @@ void Router::RealSendMessage(Socket *pSocket,SafetyMessage *pSafetyMessage)
             }
 
             {
-//g_pPlutoLogger->Write(LV_STATUS,"realsendmessage before device conn mutex from %d to %d type %d id %d ",
-//  (*(*pSafetyMessage))->m_dwPK_Device_From,(*(*pSafetyMessage))->m_dwPK_Device_To,(*(*pSafetyMessage))->m_dwMessage_Type,(*(*pSafetyMessage))->m_dwID);
+g_pPlutoLogger->Write(LV_STATUS,"realsendmessage before device conn mutex from %d to %d type %d id %d ",
+  (*(*pSafetyMessage))->m_dwPK_Device_From,(*(*pSafetyMessage))->m_dwPK_Device_To,(*(*pSafetyMessage))->m_dwMessage_Type,(*(*pSafetyMessage))->m_dwID);
 
 #ifdef DEBUG
                 DeviceData_Router *pDest = m_mapDeviceData_Router_Find(pDeviceConnection->m_dwPK_Device);
@@ -1684,8 +1687,8 @@ void Router::RealSendMessage(Socket *pSocket,SafetyMessage *pSafetyMessage)
                 PLUTO_SAFETY_LOCK(slConnMutex,pDeviceConnection->m_ConnectionMutex)
 #endif
 
-//g_pPlutoLogger->Write(LV_STATUS,"realsendmessage after device conn mutex from %d to %d type %d id %d ",
-//  (*(*pSafetyMessage))->m_dwPK_Device_From,(*(*pSafetyMessage))->m_dwPK_Device_To,(*(*pSafetyMessage))->m_dwMessage_Type,(*(*pSafetyMessage))->m_dwID);
+g_pPlutoLogger->Write(LV_STATUS,"realsendmessage after device conn mutex from %d to %d type %d id %d ",
+  (*(*pSafetyMessage))->m_dwPK_Device_From,(*(*pSafetyMessage))->m_dwPK_Device_To,(*(*pSafetyMessage))->m_dwMessage_Type,(*(*pSafetyMessage))->m_dwID);
 
 #ifdef DEBUG
                 // Let's see how long it takes to send
@@ -1699,12 +1702,12 @@ void Router::RealSendMessage(Socket *pSocket,SafetyMessage *pSafetyMessage)
                 /* AB 8/5, changed this since we still use the message later
                 bool bResult = pDeviceConnection->SendMessage(pSafetyMessage->Detach()); */
                 bool bResult = pDeviceConnection->SendMessage(pSafetyMessage->m_pMessage,false);
-/*
+
 #ifdef DEBUG
                 g_pPlutoLogger->Write(LV_SOCKET, "Response %d to realsendmessage type %d id %d socket %d using lock: %p  expected response: %d",
                     bResult ? 1 : 0,MessageType,ID,pDeviceConnection->m_Socket,&pDeviceConnection->m_ConnectionMutex,(int) (*(*pSafetyMessage))->m_eExpectedResponse);
 #endif
-*/
+
 #ifdef DEBUG
 g_pPlutoLogger->Write(LV_SOCKET, "Got response: %d to message type %d id %d to %d %s on socket %d using lock: %p",
     (bResult ? 1 : 0),
@@ -1733,13 +1736,13 @@ g_pPlutoLogger->Write(LV_SOCKET, "Got response: %d to message type %d id %d to %
                     string sResponse;
                     if (pDeviceConnection->ReceiveString(sResponse))
                     {
-/*
+
 #ifdef DEBUG
                         if( clock()-clk2>(CLOCKS_PER_SEC*4) )
                             g_pPlutoLogger->Write(LV_CRITICAL,"Took %d secs (ticks: %d) to receive response from %d",(int) ((clock()-clk2)/CLOCKS_PER_SEC),(int) (clock()-clk2),pDeviceConnection->m_dwPK_Device);
                         g_pPlutoLogger->Write(LV_STATUS, "%d Destination realsendmessage responded with %s.", pDeviceConnection->m_dwPK_Device, sResponse.c_str());
 #endif
-*/
+
                         if (sResponse.substr(0,7)  == "MESSAGE")
                         {
                             g_pPlutoLogger->Write(LV_STATUS, "1 pSocket=%p", pSocket);
@@ -1790,7 +1793,7 @@ g_pPlutoLogger->Write(LV_SOCKET, "Got response: %d to message type %d id %d to %
                     }
                 }
             }
-//          g_pPlutoLogger->Write(LV_STATUS, "realsendmessage - before failed socket");
+          g_pPlutoLogger->Write(LV_STATUS, "realsendmessage - before failed socket");
 
 
 			if (pFailedSocket)
@@ -1808,7 +1811,7 @@ g_pPlutoLogger->Write(LV_SOCKET, "Got response: %d to message type %d id %d to %
         }
     }
     ErrorResponse(pSocket,(*(*pSafetyMessage)));
-//  g_pPlutoLogger->Write(LV_STATUS, "realsendmessage - end");
+  g_pPlutoLogger->Write(LV_STATUS, "realsendmessage - end");
 }
 
 // Will send an error if somebody's waiting for a response and didn't get it

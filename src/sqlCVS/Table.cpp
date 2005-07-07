@@ -971,6 +971,12 @@ int k=2;
 			if( pChangedRow->m_eTypeOfChange != toc )
 				continue;
 
+			// If we have a mask file, only check in the changes in that file
+			if( g_GlobalConfig.m_mapMaskedChanges.size() &&
+					g_GlobalConfig.m_mapMaskedChanges.find( make_pair<string,string> (m_pRepository->Name_get()+":"+m_sName,pChangedRow->GetWhereClause()) )
+					== g_GlobalConfig.m_mapMaskedChanges.end() )
+				continue;
+
 			R_CommitRow r_CommitRow( pChangedRow );
 
 			cout << "Sending row table: " << m_sName << " toc: " << pChangedRow->m_eTypeOfChange << " psc_id: " << pChangedRow->m_psc_id << " " << pChangedRow->GetWhereClause() << endl;
@@ -1984,72 +1990,86 @@ bool Table::RevertChange(ChangedRow *pChangedRow)
 {
 	if( pChangedRow->m_bReverted )
 		return false;
-	std::ostringstream sSQL;
 	if( pChangedRow->m_eTypeOfChange==toc_New )
 	{
+		std::ostringstream sSQL;
 		if( !g_GlobalConfig.m_bNoPrompts && AskYNQuestion("Delete the new row you added?",false)==false )
 			return false;
 		sSQL << "DELETE FROM " << m_sName << pChangedRow->GetWhereClause();
+
+		if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
+		{
+			cerr << "Revert change: " << sSQL.str( ) << endl;
+			throw "Database error";
+		}
 	}
 	else
 	{
-		// We need the row from the server
-		R_GetRow r_GetRow( m_sName, pChangedRow->m_psc_id );
-
-		int ClientID=1, SoftwareVersion=1; /** @warning HACK!!! */
-		RA_Processor ra_Processor( ClientID, SoftwareVersion );
-		ra_Processor.AddRequest( &r_GetRow );
-
-		DCE::Socket *pSocket=NULL;
-		while( ra_Processor.SendRequests( g_GlobalConfig.m_sSqlCVSHost + ":" + StringUtils::itos(g_GlobalConfig.m_iSqlCVSPort), &pSocket ) );
-
-		if( r_GetRow.m_cProcessOutcome!=SUCCESSFULLY_PROCESSED )
-		{
-			cerr << "Cannot get changed record from server:" << (int) r_GetRow.m_cProcessOutcome << endl;
-			throw "Communication error";
-		}
-
-		if( pChangedRow->m_eTypeOfChange==toc_Delete )
-		{
-			sSQL << "INSERT INTO " << m_sName << "(";
-			for( MapStringString::iterator it=r_GetRow.m_mapCurrentValues.begin();it!=r_GetRow.m_mapCurrentValues.end();++it)
-				sSQL << (it!=r_GetRow.m_mapCurrentValues.begin() ? "," : "") << "`" << (*it).first << "`";
-			sSQL << ") VALUES (";
-			for( MapStringString::iterator it=r_GetRow.m_mapCurrentValues.begin();it!=r_GetRow.m_mapCurrentValues.end();++it)
-			{
-				if( it!=r_GetRow.m_mapCurrentValues.begin() )
-					sSQL << ",";
-
-				if( (*it).first=="psc_mod" )
-					sSQL << "0";
-				else if( (*it).second==NULL_TOKEN )
-					sSQL << "NULL";
-				else
-					sSQL << "'" << StringUtils::SQLEscape((*it).second) << "'";
-			}
-			sSQL << ")";
-		}
-		else if( pChangedRow->m_eTypeOfChange==toc_Modify )
-		{
-			sSQL << "UPDATE " << m_sName << " SET ";
-			for( MapStringString::iterator it=r_GetRow.m_mapCurrentValues.begin();it!=r_GetRow.m_mapCurrentValues.end();++it)
-			{
-				if( it!=r_GetRow.m_mapCurrentValues.begin() )
-					sSQL << ",";
-
-				sSQL << "`" << (*it).first << "`=";
-
-				if( (*it).first=="psc_mod" )
-					sSQL << "0";
-				else if( (*it).second==NULL_TOKEN )
-					sSQL << "NULL";
-				else
-					sSQL << "'" << StringUtils::SQLEscape((*it).second) << "'";
-			}
-			sSQL << " WHERE psc_id=" << pChangedRow->m_psc_id;
-		}
-		delete pSocket;
+		if( RevertChange(pChangedRow->m_psc_id,pChangedRow->m_eTypeOfChange) )
+			pChangedRow->m_bReverted=true;
 	}
+	return true;
+}
+
+bool Table::RevertChange(int psc_id,enum TypeOfChange toc)
+{
+	std::ostringstream sSQL;
+	// We need the row from the server
+	R_GetRow r_GetRow( m_sName, psc_id );
+
+	int ClientID=1, SoftwareVersion=1; /** @warning HACK!!! */
+	RA_Processor ra_Processor( ClientID, SoftwareVersion );
+	ra_Processor.AddRequest( &r_GetRow );
+
+	DCE::Socket *pSocket=NULL;
+	while( ra_Processor.SendRequests( g_GlobalConfig.m_sSqlCVSHost + ":" + StringUtils::itos(g_GlobalConfig.m_iSqlCVSPort), &pSocket ) );
+
+	if( r_GetRow.m_cProcessOutcome!=SUCCESSFULLY_PROCESSED )
+	{
+		cerr << "Cannot get changed record from server:" << (int) r_GetRow.m_cProcessOutcome << endl;
+		throw "Communication error";
+	}
+	
+	if( toc==toc_Delete )
+	{
+		sSQL << "INSERT INTO " << m_sName << "(";
+		for( MapStringString::iterator it=r_GetRow.m_mapCurrentValues.begin();it!=r_GetRow.m_mapCurrentValues.end();++it)
+			sSQL << (it!=r_GetRow.m_mapCurrentValues.begin() ? "," : "") << "`" << (*it).first << "`";
+		sSQL << ") VALUES (";
+		for( MapStringString::iterator it=r_GetRow.m_mapCurrentValues.begin();it!=r_GetRow.m_mapCurrentValues.end();++it)
+		{
+			if( it!=r_GetRow.m_mapCurrentValues.begin() )
+				sSQL << ",";
+
+			if( (*it).first=="psc_mod" )
+				sSQL << "0";
+			else if( (*it).second==NULL_TOKEN )
+				sSQL << "NULL";
+			else
+				sSQL << "'" << StringUtils::SQLEscape((*it).second) << "'";
+		}
+		sSQL << ")";
+	}
+	else if( toc==toc_Modify )
+	{
+		sSQL << "UPDATE " << m_sName << " SET ";
+		for( MapStringString::iterator it=r_GetRow.m_mapCurrentValues.begin();it!=r_GetRow.m_mapCurrentValues.end();++it)
+		{
+			if( it!=r_GetRow.m_mapCurrentValues.begin() )
+				sSQL << ",";
+
+			sSQL << "`" << (*it).first << "`=";
+
+			if( (*it).first=="psc_mod" )
+				sSQL << "0";
+			else if( (*it).second==NULL_TOKEN )
+				sSQL << "NULL";
+			else
+				sSQL << "'" << StringUtils::SQLEscape((*it).second) << "'";
+		}
+		sSQL << " WHERE psc_id=" << psc_id;
+	}
+	delete pSocket;
 
 	if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
 	{
@@ -2057,7 +2077,6 @@ bool Table::RevertChange(ChangedRow *pChangedRow)
 		throw "Database error";
 	}
 
-	pChangedRow->m_bReverted=true;
 	return true;
 }
 

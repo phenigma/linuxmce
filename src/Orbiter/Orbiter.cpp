@@ -197,6 +197,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
 	else
 	    m_bDisplayOn=true;  // The display should already be on
 
+	m_bForward_local_kb_to_OSD=false;
 	m_bYieldScreen=false;
     m_bYieldInput=false;
     m_bRerenderScreen=false;
@@ -2845,11 +2846,10 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
 void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Screen, DesignObj_Orbiter *pObj_Parent, GraphicType Type,  int Lev )
 {
 	ShowProgress();
-    if(  pObj->m_ObjectID.find( "3554" )!=string::npos  || pObj->m_ObjectID.find( "2071" )!=string::npos )
+    if(  pObj->m_ObjectID.find( "3312" )!=string::npos )// || pObj->m_ObjectID.find( "2071" )!=string::npos )
     {
         int k=2;
     }
-
 /*
 
     if(  pObj->m_ObjectID.find( "3290." )!=string::npos  )
@@ -3431,7 +3431,13 @@ g_pPlutoLogger->Write(LV_CRITICAL, "Repeated key %d", iPK_Button);
 
 bool Orbiter::ButtonUp( int iPK_Button )
 {
-    //if this was a repeated button, we might want to stop all repeat related events
+	if( m_bForward_local_kb_to_OSD && m_pLocationInfo && m_pLocationInfo->m_dwPK_Device_Orbiter )
+	{
+		DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_dwPK_Device,m_pLocationInfo->m_dwPK_Device_Orbiter,StringUtils::itos(iPK_Button),"");
+		SendCommand(CMD_Simulate_Keypress);
+	}
+
+	//if this was a repeated button, we might want to stop all repeat related events
     if(m_pScreenHistory_Current && IsRepeatedKeyForScreen(m_pScreenHistory_Current->m_pObj, iPK_Button)) 
     {
         StopRepeatRelatedEvents();
@@ -7462,8 +7468,10 @@ light, media, climate, security, telecom */
 		/** @param #14 Type */
 			/** One of the following:
 light, climate, media, security, telecom */
+		/** @param #119 True/False */
+			/** True if this is a popup.  False if it's full screen */
 
-void Orbiter::CMD_Set_Floorplan(string sPK_DesignObj,string sType,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Set_Floorplan(string sPK_DesignObj,string sType,bool bTrueFalse,string &sCMD_Result,Message *pMessage)
 //<-dceag-c407-e->
 {
 	DesignObj_Orbiter *pObj = FindObject(sPK_DesignObj);
@@ -7494,4 +7502,16 @@ void Orbiter::CMD_Show_Floorplan(int iPosition_X,int iPosition_Y,string sType,st
 		GotoScreen(pObj->m_ObjectID);
 	else
 		CMD_Show_Popup(pObj->m_ObjectID,iPosition_X,iPosition_Y,"","floorplan",false,false);
+}
+//<-dceag-c413-b->
+
+	/** @brief COMMAND: #413 - Forward local k/b to OSD */
+	/** Means this orbiter's keyboard should be controlling the application running on the media director. */
+		/** @param #119 True/False */
+			/** If 1, do it.  It 0, stop */
+
+void Orbiter::CMD_Forward_local_kb_to_OSD(bool bTrueFalse,string &sCMD_Result,Message *pMessage)
+//<-dceag-c413-e->
+{
+	m_bForward_local_kb_to_OSD=bTrueFalse;
 }

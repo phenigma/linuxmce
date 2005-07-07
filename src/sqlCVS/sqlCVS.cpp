@@ -81,10 +81,13 @@ using namespace DCE;
 using namespace sqlCVS;
 
 void ChangeLoginUsers();
+bool ParseMaskFile(Database &database);
 
 string GetCommand( )
 {
-	cout << "What would you like to do?" << endl
+
+	cout << "Use sqlCVS -? for command line options." << endl << endl
+		<< "What would you like to do?" << endl
 		<< "In the future you can also make your selections on the command line using the command shown in parenthesis." << endl
 		<< "------Server-side functions------" << endl
 		<< "1.	Create a new sqlCVS repository from an existing database ( create )" << endl
@@ -110,6 +113,7 @@ string GetCommand( )
 		<< "E.	View my local changes ( diff )" << endl
 		<< "F.	Approve pending batch ( approve )" << endl
 		<< "G.	Reject pending batch ( reject )" << endl
+		<< "H.	Revert changes from a mask file ( revert )" << endl
 		<< endl
 		<< "Z.	Change login or users" << endl
 		<< endl 
@@ -183,101 +187,117 @@ int main( int argc, char *argv[] )
 
 	bool bError=false; /** An error parsing the command line */
 
-	char c;
-	for( int optnum=1;optnum<argc;++optnum )
+	try
 	{
-		if( argv[optnum][0]!='-' )
+		char c;
+		for( int optnum=1;optnum<argc;++optnum )
 		{
-			g_GlobalConfig.m_sCommand = argv[optnum];
-			if( optnum<argc-1 )
+			if( argv[optnum][0]!='-' )
 			{
-				cerr << "If " << argv[optnum] << " is the command it must be at the end of the line" << endl;
-				bError=true;	/** The command must be the last thing on the line */
+				g_GlobalConfig.m_sCommand = argv[optnum];
+				if( optnum<argc-1 )
+				{
+					cerr << "If " << argv[optnum] << " is the command it must be at the end of the line" << endl;
+					bError=true;	/** The command must be the last thing on the line */
+				}
+				break;
 			}
-			break;
-		}
 
-		c=argv[optnum][1];
-		switch ( c )
-		{
-		case 'h':
-			g_GlobalConfig.m_sDBHost = argv[++optnum];
-			break;
-		case 'u':
-			g_GlobalConfig.m_sDBUser = argv[++optnum];
-			break;
-		case 'p':
-			g_GlobalConfig.m_sDBPassword = argv[++optnum];
-			break;
-		case 'D':
-			g_GlobalConfig.m_sDBName = argv[++optnum];
-			break;
-		case 'P':
-			g_GlobalConfig.m_iDBPort = atoi( argv[++optnum] );
-			break;
-		case 'H':
-			g_GlobalConfig.m_sSqlCVSHost = argv[++optnum];
-			break;
-		case 'R':
-			g_GlobalConfig.m_iSqlCVSPort = atoi( argv[++optnum] );
-			break;
-		case 'r':
-			g_GlobalConfig.m_sRepository = argv[++optnum];
-			break;
-		case 's':
-			g_GlobalConfig.m_sSkipVerification = argv[++optnum];
-			break;
-		case 'c':
-			g_GlobalConfig.m_sComments = argv[++optnum];
-			break;
-		case 't':
-			g_GlobalConfig.m_sTable = argv[++optnum];
-			break;
-		case 'd':
-			g_GlobalConfig.m_sDefaultUser = argv[++optnum];
-			break;
-		case 'U':
-			g_GlobalConfig.m_sUsers = argv[++optnum];
-			break;
-		case 'b':
-			g_GlobalConfig.m_psc_batch = atoi( argv[++optnum] );
-			break;
-		case 'S':
+			c=argv[optnum][1];
+			switch ( c )
 			{
-				string sRestrictions = argv[++optnum];
-				string::size_type pos=0;
-				while(pos!=string::npos && pos<sRestrictions.size())
-					g_GlobalConfig.m_vectRestrictions.push_back( atoi(StringUtils::Tokenize(sRestrictions,",",pos).c_str()) );
-			}
-			break;
-		case 'w':
-			g_GlobalConfig.m_iScreenWidth = atoi( argv[++optnum] );
-			g_GlobalConfig.dceConfig.AddInteger("ScreenWidth",g_GlobalConfig.m_iScreenWidth);
-			g_GlobalConfig.dceConfig.WriteSettings();
-			break;
-		case 'v':
-			g_GlobalConfig.m_bVerify = true;
-			break;
-		case 'V':
-			g_GlobalConfig.m_iVerifyRestrictID = atoi( argv[++optnum] );
-			break;
-		case 'i':
-			g_GlobalConfig.m_bVerifyID = true;
-			break;
-		case 'a':
-			g_GlobalConfig.m_bAllowUnmetDependencies = true;
-			break;
-		case 'e':
-			g_GlobalConfig.m_bCheckinEveryone = true;
-			break;
-		case 'n':
-			g_GlobalConfig.m_bNoPrompts = true;
-			break;
-		default:
-			cerr << "Unknown option: " << argv[optnum] << endl;
-			bError=true;
-			break;
-		};
+			case 'h':
+				g_GlobalConfig.m_sDBHost = argv[++optnum];
+				break;
+			case 'u':
+				g_GlobalConfig.m_sDBUser = argv[++optnum];
+				break;
+			case 'p':
+				g_GlobalConfig.m_sDBPassword = argv[++optnum];
+				break;
+			case 'D':
+				g_GlobalConfig.m_sDBName = argv[++optnum];
+				break;
+			case 'P':
+				g_GlobalConfig.m_iDBPort = atoi( argv[++optnum] );
+				break;
+			case 'H':
+				g_GlobalConfig.m_sSqlCVSHost = argv[++optnum];
+				break;
+			case 'R':
+				g_GlobalConfig.m_iSqlCVSPort = atoi( argv[++optnum] );
+				break;
+			case 'r':
+				g_GlobalConfig.m_sRepository = argv[++optnum];
+				break;
+			case 's':
+				g_GlobalConfig.m_sSkipVerification = argv[++optnum];
+				break;
+			case 'c':
+				g_GlobalConfig.m_sComments = argv[++optnum];
+				break;
+			case 't':
+				g_GlobalConfig.m_sTable = argv[++optnum];
+				break;
+			case 'd':
+				g_GlobalConfig.m_sDefaultUser = argv[++optnum];
+				break;
+			case 'U':
+				g_GlobalConfig.m_sUsers = argv[++optnum];
+				break;
+			case 'b':
+				g_GlobalConfig.m_psc_batch = atoi( argv[++optnum] );
+				break;
+			case 'S':
+				{
+					string sRestrictions = argv[++optnum];
+					string::size_type pos=0;
+					while(pos!=string::npos && pos<sRestrictions.size())
+						g_GlobalConfig.m_vectRestrictions.push_back( atoi(StringUtils::Tokenize(sRestrictions,",",pos).c_str()) );
+				}
+				break;
+			case 'w':
+				g_GlobalConfig.m_iScreenWidth = atoi( argv[++optnum] );
+				g_GlobalConfig.dceConfig.AddInteger("ScreenWidth",g_GlobalConfig.m_iScreenWidth);
+				g_GlobalConfig.dceConfig.WriteSettings();
+				break;
+			case 'v':
+				g_GlobalConfig.m_bVerify = true;
+				break;
+			case 'V':
+				g_GlobalConfig.m_iVerifyRestrictID = atoi( argv[++optnum] );
+				break;
+			case 'i':
+				g_GlobalConfig.m_bVerifyID = true;
+				break;
+			case 'a':
+				g_GlobalConfig.m_bAllowUnmetDependencies = true;
+				break;
+			case 'e':
+				g_GlobalConfig.m_bCheckinEveryone = true;
+				break;
+			case 'n':
+				g_GlobalConfig.m_bNoPrompts = true;
+				break;
+			case 'f':
+				g_GlobalConfig.m_sOutputFile = argv[++optnum];
+				break;
+			case 'm':
+				g_GlobalConfig.m_sMaskFile = argv[++optnum];
+				break;
+			case '?':
+				bError=true;
+				break;
+			default:
+				cerr << "Unknown option: " << argv[optnum] << endl;
+				bError=true;
+				break;
+			};
+		}
+	}
+	catch(...)
+	{
+		bError=true;
 	}
 
 	if ( bError )
@@ -290,8 +310,8 @@ int main( int argc, char *argv[] )
 			<< "[-H sqlCVS hostname] [-R sqlCVS port] " << endl
 			<< "[-r Repository( -ies )] [-v] [-i] [-c comments]" << endl
 			<< "[-t Table( s )] [-U Username[~Password][,...]] [-d username]" << endl
-			<< "[-a Allow unmet dependencies] [-e everyone] [-w width]" << endl
-			<< "[-s Skip Verification of fields] [-b batch]" << endl
+			<< "[-a] [-e everyone] [-w width]" << endl
+			<< "[-s Skip Verification of fields] [-b batch] [-f] [-n]" << endl
 			<< "-h hostname    -- address or DNS of database host," << endl
 			<< "			default is `dcerouter`" << endl
 			<< "-u username    -- username for database connection" << endl
@@ -312,16 +332,19 @@ int main( int argc, char *argv[] )
 			<< "-s Table:Field -- Comma delimted list of Fields to ignore when doing a verify" << endl
 			<< "-i verify id   -- Verifies that all records have unique psc_id" << endl
 			<< "-a allow       -- Allows checking in a row with a foreign key" << endl
-			<< "            to a modified/ew row in another table that is not" << endl
+			<< "            to a modified row in another table that is not" << endl
 			<< "            being checked in" << endl
 			<< "-e everyone    -- Checkin all records from every user" << endl
 			<< "-n no prompts  -- Don't ever prompt, just exit if necessary" << endl
 			<< "-c comments    -- Optional comments to be included with a checkin" << endl
 			<< "-w screen width-- This value will 'stick' because it's stored in the config" << endl
 			<< "-S restrictions-- Include the listed restrictions." << endl
-			<< "If one restriction, other than 0," << endl
+			<< "                  If one restriction, other than 0," << endl
 			<< "                  is specified with the -v option, rather than auto-deleting, it will" << endl
-			<< "                  update orphaned rows to be in the same restriction" << endl;
+			<< "                  update orphaned rows to be in the same restriction" << endl
+			<< "-f filename    -- Save the output of this command to a file, usually so" << endl
+			<< "                  another program like a website can show the contents" << endl
+			<< "                  normally used with -n" << endl;
 
 		exit( 1 );
 	}
@@ -367,6 +390,9 @@ int main( int argc, char *argv[] )
 			string Password = StringUtils::Tokenize( Token, "~", pos2 );
 			g_GlobalConfig.m_mapUsersPasswords[Username]=Password;
 		}
+
+		if( !ParseMaskFile(database) )
+			exit(1);
 
 		while( true ) /** An endless loop processing commands */
 		{
@@ -477,6 +503,10 @@ int main( int argc, char *argv[] )
 			else if( g_GlobalConfig.m_sCommand=="reject" )
 			{
 				database.Approve(true);
+			}
+			else if( g_GlobalConfig.m_sCommand=="revert" )
+			{
+				database.Revert();
 			}
 			else
 			{
@@ -651,4 +681,68 @@ void ChangeLoginUsers()
 					g_GlobalConfig.m_sUsers += (g_GlobalConfig.m_sUsers.length() ? "," : "") + vectUsers[s];
 		}
 	}
+}
+
+bool ParseMaskFile(Database &database)
+{
+	if( g_GlobalConfig.m_sMaskFile.size()==0 )
+		return true; // OK
+
+	vector<string> vectCommitLines;
+	FileUtils::ReadFileIntoVector( g_GlobalConfig.m_sMaskFile, vectCommitLines );
+	if( vectCommitLines.size()==0 )
+	{
+		cerr << "Mask file is empty" << endl;
+		return false;
+	}
+	for(size_t s=0;s<vectCommitLines.size();++s)
+	{
+		string::size_type pos=0;
+		string sRepository,sTable,sWhere,sToc;
+		if( vectCommitLines[s].size()==0 )
+			continue; // blank line
+		while( pos<vectCommitLines[s].size() )
+		{
+			string sToken = StringUtils::Tokenize(vectCommitLines[s],"\t",pos);
+			if( StringUtils::StartsWith(sToken,"REP:") && sToken.size()>4 )
+				sRepository = sToken.substr(4);
+			else if( StringUtils::StartsWith(sToken,"TABLE:") && sToken.size()>6 )
+				sTable = sToken.substr(6);
+			else if( StringUtils::StartsWith(sToken,"WHERE:") && sToken.size()>6 )
+				sWhere = sToken.substr(6);
+			else if( StringUtils::StartsWith(sToken,"CHANGE:") && sToken.size()>7 )
+				sToc = sToken.substr(7);
+		}
+
+		Repository *pRepository = database.m_mapRepository_Find(sRepository);
+		Table *pTable = database.m_mapTable_Find(sTable);
+		if( !pRepository || !pTable || sWhere.size()==0 )
+		{
+			cerr << "Mask file has invalid format" << endl;
+			return false;
+		}
+
+		enum TypeOfChange eToc;
+
+		if( sToc=="NEW" )
+			eToc=toc_New;
+		else if( sToc=="MOD" )
+			eToc=toc_Modify;
+		else if( sToc=="DEL" )
+			eToc=toc_Delete;
+		else
+		{
+			cerr << "Mask file has invalid format" << endl;
+			return false;
+		}
+
+		int psc_id=0;
+		if( (pos=sWhere.find("psc_id="))!=string::npos )
+			psc_id = atoi( sWhere.substr(pos+7).c_str() );
+
+		g_GlobalConfig.m_mapMaskedChanges[ make_pair<string,string> (sRepository+":"+sTable,sWhere) ] = 
+			new MaskedChange(pTable,pRepository,eToc,psc_id);
+	}
+
+	return true;
 }

@@ -26,6 +26,7 @@ namespace sqlCVS
 	class Repository;
 	class Database;
 	class ChangedRow;
+	enum TypeOfChange { toc_New=0, toc_Delete=1, toc_Modify=2 };
 	typedef list<ChangedRow *> ListChangedRow;
 
 	typedef map<string,Table *> MapTable;
@@ -38,6 +39,21 @@ namespace sqlCVS
 		int m_psc_user;
 		ValidatedUser(int psc_user,bool bWithoutPassword,bool bIsSupervisor) { m_psc_user=psc_user; m_bWithoutPassword=bWithoutPassword; m_bIsSupervisor=bIsSupervisor; }
 	};
+
+	// This is a change from a Mask file indicating a row a user wants to revert or checkin
+	class MaskedChange
+	{
+	public:
+		Table *m_pTable;
+		Repository *m_pRepository;
+		TypeOfChange m_eTypeOfChange;
+		int m_psc_id;
+		MaskedChange(Table *pTable,Repository *pRepository,TypeOfChange eTypeOfChange,int psc_id)
+		{
+			m_pTable=pTable; m_pRepository=pRepository; m_eTypeOfChange=eTypeOfChange; m_psc_id=psc_id;
+		}
+	};
+
 	/**
 	 * @brief  class modelling the global configuration
 	 */
@@ -61,6 +77,11 @@ namespace sqlCVS
 		string m_sComments; /**< Comments to be included during a checkin  */
 
 		string m_sSkipVerification; /**< Table:Field's to be skipped during a verify integrity */
+
+		// The following are useful when automating the process via a web page
+		string m_sOutputFile; /**< Save the output to a file so an outside program can read it*/
+		string m_sMaskFile; /**< Limit the transactions to be checked in to the contents of this file */
+		map< pair<string,string>, MaskedChange *> m_mapMaskedChanges; // <rep:tablename,where clause>=true for all the changes we want to be committed from a mask file
 
 		vector<int> m_vectRestrictions; /** if Restrictions are specified on the command line, they will be here.  0 matches no restrictions */
 

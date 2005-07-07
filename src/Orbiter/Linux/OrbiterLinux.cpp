@@ -25,8 +25,10 @@
 #include <X11/Xutil.h>
 #include <X11/Xproto.h>
 #include <X11/keysym.h>
+#include <X11/extensions/XTest.h>
 
 #include "pluto_main/Define_Button.h"
+#include "PlutoUtils/PlutoButtonsToX.h"
 
 using namespace std;
 
@@ -310,4 +312,28 @@ void OrbiterLinux::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
 void OrbiterLinux::CMD_Activate_Window(string sName,string &sCMD_Result,Message *pMessage)
 {
 	commandRatPoison(string(":select ") + sName);
+}
+
+void OrbiterLinux::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage)
+{
+	if( m_bYieldInput )
+	{
+g_pPlutoLogger->Write(LV_STATUS, "Need to forward button %s to X",sPK_Button.c_str());
+		int iXKeySym = PlutoButtonsToX(atoi(sPK_Button.c_str()));
+g_pPlutoLogger->Write(LV_STATUS, "Sending XKeysym %d",iXKeySym);
+		XTestFakeKeyEvent( XServerDisplay, XKeysymToKeycode(XServerDisplay, iXKeySym), True, 0 );
+		XTestFakeKeyEvent( XServerDisplay, XKeysymToKeycode(XServerDisplay, iXKeySym), False, 0 );
+
+		XTestFakeKeyEvent( XServerDisplay, XKeysymToKeycode(XServerDisplay, XK_1), True, 0 );
+		XTestFakeKeyEvent( XServerDisplay, XKeysymToKeycode(XServerDisplay, XK_1), False, 0 );
+
+		XTestFakeKeyEvent( XServerDisplay, XKeysymToKeycode(XServerDisplay, XK_KP_2), True, 0 );
+		XTestFakeKeyEvent( XServerDisplay, XKeysymToKeycode(XServerDisplay, XK_KP_2), False, 0 );
+
+		XTestFakeKeyEvent( XServerDisplay, XK_3, True, 0 );
+		XTestFakeKeyEvent( XServerDisplay, XK_3, False, 0 );
+
+		XTestFakeKeyEvent( XServerDisplay, XK_KP_4, True, 0 );
+		XTestFakeKeyEvent( XServerDisplay, XK_KP_4, False, 0 );
+	}
 }

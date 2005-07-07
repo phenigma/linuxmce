@@ -121,6 +121,7 @@ int itmp_RowsToDelete;
 		/** @brief Revert changes made locally */
 		bool RevertAllChanges();
 		bool RevertChange(ChangedRow *pChangedRow);
+		bool RevertChange(int psc_id,enum TypeOfChange toc);
 
 		/** @brief Displays a summary of all the rows changed in the table.  Called by the 'diff' command.  returns false means the user wants to quit */
 		bool ShowChanges(bool bAllUsers=false);

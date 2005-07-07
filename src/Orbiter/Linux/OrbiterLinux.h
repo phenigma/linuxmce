@@ -72,6 +72,8 @@ public:
 	virtual void CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage);
 
 	virtual void CMD_Activate_Window(string sName,string &sCMD_Result,Message *pMessage);
+
+	virtual void CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage);
 //     virtual void Initialize(GraphicType Type);
 };
 

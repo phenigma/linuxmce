@@ -504,6 +504,11 @@ void Database::ShowChanges()
 		delete pSocket;
 	}
 
+	bool bOutputToFile=g_GlobalConfig.m_sOutputFile.size()>0;
+	fstream fstr_Diff;
+	if( bOutputToFile )
+		fstr_Diff.open(g_GlobalConfig.m_sOutputFile.c_str(),fstream::out);
+
 	while(true)
 	{
 		cout << "    Repository                                 New   Mod   Del" << endl;
@@ -541,10 +546,32 @@ void Database::ShowChanges()
 							iMod++;
 						else if( pChangedRow->m_eTypeOfChange==toc_Delete )
 							iDel++;
+
+						// Output instead
+						if( bOutputToFile )
+						{
+							fstr_Diff << "REP:" << pRepository->Name_get() << "\t" 
+								<< "TABLE:" << pTable->Name_get() << "\t"
+								<< "USER:" << pChangedRow->m_psc_user << "\t"
+								<< "CHANGE:";
+							if( pChangedRow->m_eTypeOfChange==toc_New )
+								fstr_Diff << "NEW\t";
+							else if( pChangedRow->m_eTypeOfChange==toc_Modify )
+								fstr_Diff << "MOD\t";
+							else if( pChangedRow->m_eTypeOfChange==toc_Delete )
+								fstr_Diff << "DEL\t";
+							fstr_Diff << "WHERE:" << pChangedRow->GetWhereClause() << "\n";
+						}
 					}
 				}
 			}
 			cout << setw( 6 ) << iNew << setw( 6 ) << iMod << setw( 6 ) << iDel << endl;
+		}
+
+		if( bOutputToFile )
+		{
+			fstr_Diff.close();
+			return; // Nothing more to do--we only output the diffs to a file
 		}
 
 		cout << "What repository do you want more detail on?  Enter 'q' to quit" << endl;
@@ -1677,3 +1704,26 @@ void Database::ListBatchContents()
 	cout << endl;
 }
 
+void Database::Revert()
+{
+	StartTransaction();
+	for(map< pair<string,string>, MaskedChange *>::iterator it=g_GlobalConfig.m_mapMaskedChanges.begin();
+		it!=g_GlobalConfig.m_mapMaskedChanges.end();++it)
+	{
+		MaskedChange *pMaskedChange = it->second;
+		if( pMaskedChange->m_eTypeOfChange==toc_New )
+		{
+			std::ostringstream sSQL;
+			sSQL << "DELETE FROM " << pMaskedChange->m_pTable->Name_get() << it->first.second;
+
+			if( threaded_mysql_query( sSQL.str( ) )!=0 )
+			{
+				cerr << "Revert change: " << sSQL.str( ) << endl;
+				throw "Database error";
+			}
+		}
+		else
+			pMaskedChange->m_pTable->RevertChange(pMaskedChange->m_psc_id,pMaskedChange->m_eTypeOfChange);
+	}
+	Commit();  // an exception would have been thrown if something went wrong
+}

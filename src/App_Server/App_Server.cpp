@@ -257,11 +257,15 @@ void App_Server::CMD_Kill_Application(string sName,string &sCMD_Result,Message *
 		g_pPlutoLogger->Write(LV_WARNING, "Failed to kill the application with name: %s", sName.c_str());
 	}
 
-	vector<void *>::const_iterator itAttachedData = messagesToSend.begin();
-	while (itAttachedData != messagesToSend.end())
+	for(vector<void *>::const_iterator itAttachedData = messagesToSend.begin();itAttachedData != messagesToSend.end();++itAttachedData)
 	{
+void *pV = (*itAttachedData);
+g_pPlutoLogger->Write(LV_WARNING, "pV %p",pV);
 		pair<string, string> *pStringsPair = (pair<string, string> *)(*itAttachedData);
+g_pPlutoLogger->Write(LV_WARNING, "s1 %s s2 %s",pStringsPair->first.c_str(),pStringsPair->second.c_str());
+
 		SendMessageList(pStringsPair->second);
+g_pPlutoLogger->Write(LV_WARNING, "after send message");
 		delete pStringsPair;
 	}
 #endif

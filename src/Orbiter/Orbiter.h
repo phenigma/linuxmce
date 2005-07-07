@@ -167,6 +167,7 @@ protected:
 	int m_iRestrictedOp_ID;
     bool m_bShowShortcuts;
 	bool m_bIsOSD; // true if this is an on-screen display
+	bool m_bForward_local_kb_to_OSD; // true if this is orbiter should be used a remote keyboard for another
 
 	int  m_iCaptureKeyboard_PK_Variable; /** < capture keyboard variable (coresponds to primary key) @todo ask */
 	string m_sCaptureKeyboard_Text; /** < text for capture keyboard @todo ask */
@@ -1550,9 +1551,11 @@ light, media, climate, security, telecom */
 		/** @param #14 Type */
 			/** One of the following:
 light, climate, media, security, telecom */
+		/** @param #119 True/False */
+			/** True if this is a popup.  False if it's full screen */
 
-	virtual void CMD_Set_Floorplan(string sPK_DesignObj,string sType) { string sCMD_Result; CMD_Set_Floorplan(sPK_DesignObj.c_str(),sType.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Set_Floorplan(string sPK_DesignObj,string sType,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Set_Floorplan(string sPK_DesignObj,string sType,bool bTrueFalse) { string sCMD_Result; CMD_Set_Floorplan(sPK_DesignObj.c_str(),sType.c_str(),bTrueFalse,sCMD_Result,NULL);};
+	virtual void CMD_Set_Floorplan(string sPK_DesignObj,string sType,bool bTrueFalse,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #408 - Show Floorplan */
@@ -1566,6 +1569,15 @@ light, climate, media, security, telecom */
 
 	virtual void CMD_Show_Floorplan(int iPosition_X,int iPosition_Y,string sType) { string sCMD_Result; CMD_Show_Floorplan(iPosition_X,iPosition_Y,sType.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Show_Floorplan(int iPosition_X,int iPosition_Y,string sType,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #413 - Forward local k/b to OSD */
+	/** Means this orbiter's keyboard should be controlling the application running on the media director. */
+		/** @param #119 True/False */
+			/** If 1, do it.  It 0, stop */
+
+	virtual void CMD_Forward_local_kb_to_OSD(bool bTrueFalse) { string sCMD_Result; CMD_Forward_local_kb_to_OSD(bTrueFalse,sCMD_Result,NULL);};
+	virtual void CMD_Forward_local_kb_to_OSD(bool bTrueFalse,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

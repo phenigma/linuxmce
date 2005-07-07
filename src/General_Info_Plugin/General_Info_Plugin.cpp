@@ -35,6 +35,8 @@ using namespace DCE;
 #include "DCE/DeviceData_Router.h"
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Table_UnknownDevices.h"
+#include "pluto_main/Table_Device_QuickStart.h"
+#include "pluto_main/Table_Device_MRU.h"
 #include "pluto_main/Define_DataGrid.h"
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_Text.h"
@@ -96,6 +98,15 @@ bool General_Info_Plugin::Register()
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &General_Info_Plugin::PendingTasks ) )
         , DATAGRID_Pending_Tasks_CONST );
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+        new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &General_Info_Plugin::QuickStartApps ) )
+        , DATAGRID_Quick_Start_Apps_CONST );
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+        new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &General_Info_Plugin::MRUDocuments ) )
+        , DATAGRID_MRU_Documents_CONST );
+
 	return Connect(PK_DeviceTemplate_get()); 
 }
 
@@ -560,6 +571,96 @@ class DataGridTable *General_Info_Plugin::PendingTasks( string GridID, string Pa
         pCell = new DataGridCell( sTask );
         pDataGrid->SetData( 0, RowCount++, pCell );
 	}
+
+	return pDataGrid;
+}
+
+class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+    DataGridTable *pDataGrid = new DataGridTable( );
+    DataGridCell *pCell;
+
+	int PK_Device_MD=atoi(Parms.c_str());
+	DeviceData_Router *pDevice_MD = m_pRouter->m_mapDeviceData_Router_Find(PK_Device_MD);
+	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow( PK_Device_MD );
+
+	if( !pRow_Device || !pDevice_MD )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"QuickStartApps - invalid MD %s",Parms.c_str());
+		return pDataGrid;
+	}
+
+	vector<DeviceData_Router *> vectDevice_AppServer;
+	pDevice_MD->FindChildrenWithinCategory(DEVICECATEGORY_App_Server_CONST,vectDevice_AppServer);
+	if( vectDevice_AppServer.size()==0 )
+	{
+		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"There are no App Servers on this media director");
+		return pDataGrid;
+	}
+	DeviceData_Router *pDevice_AppServer = vectDevice_AppServer[0];
+
+	vector<DeviceData_Router *> vectDevice_Orbiter_OSD;
+	pDevice_MD->FindChildrenWithinCategory(DEVICECATEGORY_Standard_Orbiter_CONST,vectDevice_Orbiter_OSD);
+	if( vectDevice_Orbiter_OSD.size()==0 )
+	{
+		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"There are is no OSD on this media director");
+		return pDataGrid;
+	}
+	DeviceData_Router *pDevice_Orbiter_OSD = vectDevice_Orbiter_OSD[0];
+
+	vector<Row_Device_QuickStart *> vectRow_Device_QuickStart;
+	pRow_Device->Device_QuickStart_FK_Device_getrows(&vectRow_Device_QuickStart);
+	for(size_t s=0;s<vectRow_Device_QuickStart.size();++s)
+	{
+		Row_Device_QuickStart *pRow_Device_QuickStart = vectRow_Device_QuickStart[s];
+		pCell = new DataGridCell( pRow_Device_QuickStart->Description_get(), "" );
+
+		// If this is the same on screen orbiter on which the app will run, we will send the user 
+		// to a screen that retains a small strip at the bottom to terminate the app and return to the orbiter.
+		// Otherwise, we will send the OSD to the full screen app, and the orbiter will become a remote control
+		if( pDevice_Orbiter_OSD->m_dwPK_Device==pMessage->m_dwPK_Device_From )
+		{
+			// This is the OSD orbiter
+			DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pDevice_Orbiter_OSD->m_dwPK_Device,0,
+				StringUtils::itos(DESIGNOBJ_generic_app_with_options_CONST),"","",false,false);
+			DCE::CMD_Set_Variable CMD_Set_Variable1(m_dwPK_Device,pDevice_Orbiter_OSD->m_dwPK_Device,
+				VARIABLE_Misc_Data_1_CONST,pRow_Device_QuickStart->Binary_get());
+			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable1.m_pMessage);
+			DCE::CMD_Set_Variable CMD_Set_Variable2(m_dwPK_Device,pDevice_Orbiter_OSD->m_dwPK_Device,
+				VARIABLE_Misc_Data_2_CONST,pRow_Device_QuickStart->Arguments_get());
+			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable2.m_pMessage);
+			pCell->m_pMessage = CMD_Goto_Screen.m_pMessage;
+		}
+		else
+		{
+			// Do this on the OSD orbiter
+			DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pDevice_Orbiter_OSD->m_dwPK_Device,0,
+				StringUtils::itos(DESIGNOBJ_generic_app_full_screen_CONST),"","",false,false);
+			DCE::CMD_Set_Variable CMD_Set_Variable1(m_dwPK_Device,pDevice_Orbiter_OSD->m_dwPK_Device,
+				VARIABLE_Misc_Data_1_CONST,pRow_Device_QuickStart->Binary_get());
+			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable1.m_pMessage);
+			DCE::CMD_Set_Variable CMD_Set_Variable2(m_dwPK_Device,pDevice_Orbiter_OSD->m_dwPK_Device,
+				VARIABLE_Misc_Data_2_CONST,pRow_Device_QuickStart->Arguments_get());
+			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable2.m_pMessage);
+
+			// Do this on the controlling orbiter
+			DCE::CMD_Goto_Screen CMD_Goto_Screen2(m_dwPK_Device,pMessage->m_dwPK_Device_From,0,
+				StringUtils::itos(DESIGNOBJ_mnuGenericAppController_CONST),"","",false,false);
+			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen2.m_pMessage);
+
+			pCell->m_pMessage = CMD_Goto_Screen.m_pMessage;
+		}
+		pDataGrid->SetData( 0, s, pCell );
+	}
+
+	return pDataGrid;
+}
+
+class DataGridTable *General_Info_Plugin::MRUDocuments( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+    DataGridTable *pDataGrid = new DataGridTable( );
+    DataGridCell *pCell;
+
 
 	return pDataGrid;
 }

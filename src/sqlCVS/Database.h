@@ -49,6 +49,9 @@ namespace sqlCVS
 		/** @brief Displays a summary of all the rows changed in the database.  Called by the 'diff' command */
 		void ShowChanges();
 
+		/** @brief Revert changes from a mask file */
+		void Revert();
+
 		/** 
 		 * @ brief This will create the repository 
 		 */
