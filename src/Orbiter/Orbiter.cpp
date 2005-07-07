@@ -6199,7 +6199,7 @@ void Orbiter::CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sVa
 		for(it = m_vectObjs_GridsOnScreen.begin(); it != m_vectObjs_GridsOnScreen.end(); ++it)
 		{
 			DesignObj_DataGrid* pDesignObj = *it;
-			if(pDesignObj->m_sGridID.size()>5 && pDesignObj->m_sGridID.substr(0,5)=="plist" )
+			if(pDesignObj->m_sGridID.size()>6 && (pDesignObj->m_sGridID.substr(0,5)=="plist" || pDesignObj->m_sGridID.substr(0,6)=="tracks") )
 			{
 				InitializeGrid(pDesignObj);
 				pDesignObj->bReAcquire=true;

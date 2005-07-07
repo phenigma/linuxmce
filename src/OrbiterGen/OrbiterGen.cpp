@@ -1837,7 +1837,7 @@ Row_Size *OrbiterGenerator::TranslateSize(string sSize)
 {
 	cout << "Translating size: " << sSize << endl;
 	Row_Size *pRow_Size = new Row_Size( mds.Size_get() );
-	if( StringUtils::StartsWith(sSize,"1024") )
+	if( StringUtils::StartsWith(sSize,"1024 768") )
 	{
 		pRow_Size->Width_set(1024);
 		pRow_Size->Height_set(768);
@@ -1845,7 +1845,7 @@ Row_Size *OrbiterGenerator::TranslateSize(string sSize)
 		pRow_Size->ScaleY_set(480);
 		return pRow_Size;
 	}
-	else if( StringUtils::StartsWith(sSize,"800") )
+	else if( StringUtils::StartsWith(sSize,"800 600") )
 	{
 		pRow_Size->Width_set(800);
 		pRow_Size->Height_set(600);

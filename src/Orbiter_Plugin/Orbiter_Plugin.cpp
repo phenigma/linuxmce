@@ -1601,7 +1601,7 @@ g_pPlutoLogger->Write(LV_STATUS,"CMD_Set_Room_For_Device: before %d after %d pen
 (int) sBefore,(int) m_listNewPnpDevicesWaitingForARoom.size(),(int) bStillRunningConfig);
 	// If there pnp devices waiting for the room, and we finished specifying the last one, and we're
 	// not still getting the software, let the user know his device is done
-	if( sBefore && m_listNewPnpDevicesWaitingForARoom.size() && !bStillRunningConfig )
+	if( sBefore && m_listNewPnpDevicesWaitingForARoom.size()==0 && !bStillRunningConfig )
 		DisplayMessageOnOrbiter("","<%=T" + StringUtils::itos(TEXT_New_Devices_Configured_CONST) + "%>",true);
 }
 

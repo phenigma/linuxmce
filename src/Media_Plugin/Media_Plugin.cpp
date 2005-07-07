@@ -571,6 +571,8 @@ bool Media_Plugin::MediaIdentified( class Socket *pSocket, class Message *pMessa
 	int PK_Device_Disk_Drive = atoi( pMessage->m_mapParameters[EVENTPARAMETER_PK_Device_CONST].c_str( ) );
 	string sValue = pMessage->m_mapParameters[EVENTPARAMETER_Value_CONST];
 
+g_pPlutoLogger->Write(LV_STATUS,"Media was identified id %d device %d format %s",discid,PK_Device_Disk_Drive,sFormat.c_str());
+
 	DeviceData_Router *pDevice_Disk_Drive = m_pRouter->m_mapDeviceData_Router_Find(PK_Device_Disk_Drive);
 	if( !pDevice_Disk_Drive )
 	{
@@ -3067,6 +3069,8 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,string
 		if( sTracks.size()==0 )
 		{
 			DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pMessage->m_dwPK_Device_From,0,StringUtils::itos(DESIGNOBJ_mnuCDTrackCopy_CONST),"","",false,true);
+			DCE::CMD_Set_Variable CMD_Set_Variable(m_dwPK_Device,pMessage->m_dwPK_Device_From,VARIABLE_Misc_Data_1_CONST,StringUtils::itos(iPK_Users));
+			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Variable.m_pMessage );
 			SendCommand(CMD_Goto_Screen);
 			return;
 		}
@@ -3590,6 +3594,8 @@ void Media_Plugin::Parse_CDDB_Media_ID(MediaStream *pMediaStream,string sValue)
 	// Before proceeding, see if this disc is already in the database
 	if( !IsDiscAlreadyIdentified(sCDDBID,pMediaStream) )
 	{
+g_pPlutoLogger->Write(LV_STATUS,"Parse_CDDB_Media_ID not already id'd");
+
 		// The cddb info is space delimited
 	    pRow_Attribute = m_pMediaAttributes->GetAttributeFromDescription(ATTRIBUTETYPE_CDDB_CONST,StringUtils::Tokenize(sCDDBID," ",pos2)); 
 		pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_CDDB_CONST] = pRow_Attribute->PK_Attribute_get();
@@ -3630,6 +3636,8 @@ void Media_Plugin::Parse_CDDB_Media_ID(MediaStream *pMediaStream,string sValue)
 		}
 		AddIdentifiedDiscToDB(sCDDBID,pMediaStream);
 	}
+
+g_pPlutoLogger->Write(LV_STATUS,"Parse_CDDB_Media_ID done");
 
 	pMediaStream->UpdateDescriptionsFromAttributes();
 	MediaInfoChanged(pMediaStream,true);
@@ -3739,6 +3747,7 @@ bool Media_Plugin::IsDiscAlreadyIdentified(string sIdentifiedDisc,MediaStream *p
 	{
 		Row_Disc_Attribute *pRow_Disc_Attribute = vectRow_Disc_Attribute[s];
 		Row_Attribute *pRow_Attribute = pRow_Disc_Attribute->FK_Attribute_getrow();
+g_pPlutoLogger->Write(LV_STATUS,"Already in DB %p %p",pRow_Disc_Attribute,pRow_Attribute);
 		if( !pRow_Attribute )
 			continue; // Should never happen
 		if( pRow_Disc_Attribute->Track_get()==0 )
