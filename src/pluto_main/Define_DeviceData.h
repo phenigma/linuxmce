@@ -78,6 +78,7 @@
 #define DEVICEDATA_Angles_CONST 94
 #define DEVICEDATA_Dont_Auto_Jump_to_Remote_CONST 95
 #define DEVICEDATA_Emergency_Calls_CONST 96
+#define DEVICEDATA_Mobile_Orbiter_Phone_CONST 97
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"
