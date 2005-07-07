@@ -383,7 +383,7 @@ int main(int argc, char *argv[])
 
 			cout << "ok=0" << endl;
 			cout << "while [ \"$ok\" -eq 0 ]; do" << endl;
-			cout << "\tdpkg --configure -a" << endl;
+			cout << "\tdpkg --configure -a --force-confold" << endl;
 			//			cout << endl << "-----------------------------------------------------" << endl;
 			if( pPackageInfo->m_pRow_Package_Source->FK_Package_get()==277 )
 			{
