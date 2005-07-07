@@ -1,13 +1,23 @@
-ROOT=..
+ROOT = ..
+CXXFLAGS = -pipe -Wall -ggdb3
+CPPFLAGS = -I/usr/local/include -I$(ROOT)/DCE -I.. -I. -I/usr/include/mysql
+LDFLAGS = -L$(ROOT)/lib
+LDLIBS = -ldl -lmysqlclient -lpthread -lpluto_main -lDCECommon -lSerializeClass -lPlutoUtils
 
-CXX=g++
-CC=$(CXX)
-CPPFLAGS=-W -Wall -pipe -ggdb3
-CXXFLAGS=-I. -I.. -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql
-LDFLAGS=-L$(ROOT)/lib
-LDLIBS=-lpluto_main -lSerializeClass -lDCECommon -lDCECommon -lmysqlclient_r -lPlutoUtils
+APPNAME = MakeRelease
+VERSION = 2.0.0
 
-all: MakeRelease.o MakeRelease
+sources = MakeRelease.cpp
 
-clean:
-	rm -f MakeRelease MakeRelease.o
+all: $(sources:.cpp=.o)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o MakeRelease $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
+	cp MakeRelease ../bin
+
+clean: clean-recursive
+	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) MakeRelease >/dev/null
+
+package:
+	./make_package.sh $(APPNAME) $(VERSION)
+
+include $(ROOT)/PlutoUtils/make.rules
+-include $(sources:.cpp=.d)
