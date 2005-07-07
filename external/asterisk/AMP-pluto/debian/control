@@ -9,5 +9,6 @@ Package: amp
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, asterisk (>= 1.0.7), asterisk-perl, asterisk-addons, libnet-telnet-perl, libipc-signal-perl, libproc-waitstat-perl, php4-pear, php4-cli
 Replaces: asterisk-config
+Conflicts: asterisk-config
 Description: <insert up to 60 chars description>
  <insert long description, indented with spaces>
