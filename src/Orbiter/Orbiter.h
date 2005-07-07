@@ -1580,6 +1580,17 @@ light, climate, media, security, telecom */
 	virtual void CMD_Forward_local_kb_to_OSD(bool bTrueFalse,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #414 - Set Mouse Position Relative */
+	/** Move the mouse relative to its current position */
+		/** @param #11 Position X */
+			/** The X Position to move */
+		/** @param #12 Position Y */
+			/** The Y Position to move */
+
+	virtual void CMD_Set_Mouse_Position_Relative(int iPosition_X,int iPosition_Y) { string sCMD_Result; CMD_Set_Mouse_Position_Relative(iPosition_X,iPosition_Y,sCMD_Result,NULL);};
+	virtual void CMD_Set_Mouse_Position_Relative(int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 
 /** temporary solution only */

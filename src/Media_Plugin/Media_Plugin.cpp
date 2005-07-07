@@ -314,14 +314,14 @@ bool Media_Plugin::Register()
 //<-dceag-reg-e->
 {
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
-    ListCommand_Impl *pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find( DEVICETEMPLATE_Orbiter_Plugin_CONST );
-    if( !pListCommand_Impl || pListCommand_Impl->size( )!=1 )
-    {
-        g_pPlutoLogger->Write( LV_CRITICAL, "Media handler plug in cannot find orbiter handler %s", ( pListCommand_Impl ? "There were more than 1" : "" ) );
-        return false;
-    }
 
-    m_pOrbiter_Plugin=( Orbiter_Plugin * ) pListCommand_Impl->front( );
+	m_pOrbiter_Plugin=( Orbiter_Plugin * ) m_pRouter->FindPluginByCategory(DEVICETEMPLATE_Orbiter_Plugin_CONST);
+    m_pDatagrid_Plugin=( Datagrid_Plugin * ) m_pRouter->FindPluginByCategory(DEVICETEMPLATE_Datagrid_Plugin_CONST);
+	if( !m_pDatagrid_Plugin || !m_pOrbiter_Plugin )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins");
+		return false;
+	}
 
 	for( map<int, class MediaDevice *>::iterator itDevice=m_mapMediaDevice.begin( );itDevice!=m_mapMediaDevice.end( );++itDevice )
     {
@@ -344,16 +344,6 @@ bool Media_Plugin::Register()
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::AvInputChanged ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_AV_Input_Changed_CONST );
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::MediaDescriptionChanged ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Media_Description_Changed_CONST );
 
-    // And the datagrid plug-in
-    m_pDatagrid_Plugin=NULL;
-    pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find( DEVICETEMPLATE_Datagrid_Plugin_CONST );
-    if( !pListCommand_Impl || pListCommand_Impl->size( )!=1 )
-    {
-        g_pPlutoLogger->Write( LV_CRITICAL, "File grids cannot find datagrid handler %s", ( pListCommand_Impl ? "There were more than 1" : "" ) );
-        return false;
-    }
-
-    m_pDatagrid_Plugin=( Datagrid_Plugin * ) pListCommand_Impl->front( );
 
     m_pDatagrid_Plugin->RegisterDatagridGenerator(
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::CurrentMediaSections) )

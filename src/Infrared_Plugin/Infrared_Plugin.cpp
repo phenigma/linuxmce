@@ -63,16 +63,13 @@ Infrared_Plugin::~Infrared_Plugin()
 bool Infrared_Plugin::Register()
 //<-dceag-reg-e->
 {
-	m_pDatagrid_Plugin=NULL;
-	ListCommand_Impl *pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find(DEVICETEMPLATE_Datagrid_Plugin_CONST);
-
-	if( !pListCommand_Impl || pListCommand_Impl->size()!=1 )
+	m_pDatagrid_Plugin=( Datagrid_Plugin * ) m_pRouter->FindPluginByCategory(DEVICETEMPLATE_Datagrid_Plugin_CONST);
+	m_pOrbiter_Plugin=( Orbiter_Plugin * ) m_pRouter->FindPluginByCategory(DEVICETEMPLATE_Orbiter_Plugin_CONST);
+	if( !m_pDatagrid_Plugin || !m_pOrbiter_Plugin )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"File grids cannot find datagrid handler %s",(pListCommand_Impl ? "There were more than 1" : ""));
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins");
 		return false;
 	}
-
-	m_pDatagrid_Plugin=(Datagrid_Plugin *) pListCommand_Impl->front();
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Infrared_Plugin::DevicesGrid)),
@@ -98,14 +95,6 @@ bool Infrared_Plugin::Register()
 		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Infrared_Plugin::InfraredCodes)),
 		DATAGRID_Infrared_Codes_CONST);
 
-    ListCommand_Impl *pListCommand_Impl_2nd = m_pRouter->m_mapPlugIn_DeviceTemplate_Find( DEVICETEMPLATE_Orbiter_Plugin_CONST );
-    if( !pListCommand_Impl_2nd || pListCommand_Impl_2nd->size( )!=1 )
-    {
-        g_pPlutoLogger->Write( LV_CRITICAL, "Infrared plug in cannot find orbiter handler %s", ( pListCommand_Impl_2nd ? "There were more than 1" : "" ) );
-        return false;
-    }
-
-    m_pOrbiter_Plugin=( Orbiter_Plugin * ) pListCommand_Impl_2nd->front( );
 	return Connect(PK_DeviceTemplate_get()); 
 }
 

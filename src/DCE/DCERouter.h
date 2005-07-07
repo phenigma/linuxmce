@@ -343,6 +343,14 @@ namespace DCE
 		virtual int GetDeviceID( int iPK_DeviceTemplate, string sIPorMacAddress );
 		virtual int ConfirmDeviceTemplate( int iPK_Device, int iPK_DeviceTemplate );
 
+		Command_Impl *FindPluginByCategory(int PK_DeviceCategory)
+		{
+			ListCommand_Impl *pListCommand_Impl = m_mapPlugIn_DeviceTemplate_Find( PK_DeviceCategory );
+			if( !pListCommand_Impl || pListCommand_Impl->size( )!=1 )
+				return NULL;
+			return pListCommand_Impl->front( );
+		}
+
         // declared inline since i use it from some plugins.
         int FindClosestRelative(unsigned int MasterDeviceType, int CurrentDevice)
         {

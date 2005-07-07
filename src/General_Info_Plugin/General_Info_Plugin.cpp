@@ -50,7 +50,7 @@ General_Info_Plugin::General_Info_Plugin(int DeviceID, string ServerAddress,bool
 //<-dceag-const-e->
 	, m_GipMutex("GeneralInfo")
 {
-	m_GipMutex.Init(NULL);
+	m_GipMutex.Init(NrecursULL);
 	m_bRerunConfigWhenDone=false;
 	m_pDatabase_pluto_main = new Database_pluto_main();
 	if(!m_pDatabase_pluto_main->Connect(m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get()) )
@@ -77,23 +77,13 @@ bool General_Info_Plugin::Register()
 //<-dceag-reg-e->
 {
     // Get the datagrid plugin
-    m_pDatagrid_Plugin=NULL;
-    ListCommand_Impl *pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find( DEVICETEMPLATE_Datagrid_Plugin_CONST );
-    if( !pListCommand_Impl || pListCommand_Impl->size( )!=1 )
-    {
-        g_pPlutoLogger->Write( LV_CRITICAL, "File grids cannot find datagrid handler %s", ( pListCommand_Impl ? "There were more than 1" : "" ) );
-        return false;
-    }
-    m_pDatagrid_Plugin=( Datagrid_Plugin * ) pListCommand_Impl->front( );
-
-    pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find( DEVICETEMPLATE_Orbiter_Plugin_CONST );
-    if( !pListCommand_Impl || pListCommand_Impl->size( )!=1 )
-    {
-        g_pPlutoLogger->Write( LV_CRITICAL, "Media handler plug in cannot find orbiter handler %s", ( pListCommand_Impl ? "There were more than 1" : "" ) );
-        return false;
-    }
-
-    m_pOrbiter_Plugin=( Orbiter_Plugin * ) pListCommand_Impl->front( );
+	m_pDatagrid_Plugin=( Datagrid_Plugin * ) m_pRouter->FindPluginByCategory(DEVICETEMPLATE_Datagrid_Plugin_CONST);
+	m_pOrbiter_Plugin=( Orbiter_Plugin * ) m_pRouter->FindPluginByCategory(DEVICETEMPLATE_Orbiter_Plugin_CONST);
+	if( !m_pDatagrid_Plugin || !m_pOrbiter_Plugin )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins");
+		return false;
+	}
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &General_Info_Plugin::PendingTasks ) )
@@ -758,12 +748,13 @@ void General_Info_Plugin::CMD_Check_for_updates_done(string &sCMD_Result,Message
 	else
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"Done updating config");
-		m_pOrbiter_Plugin->DisplayMessageOnOrbiter("","<%=T" + StringUtils::itos(TEXT_New_Devices_Configured_CONST) + "%>",true);
+		m_pOrbiter_Plugin->DoneCheckingForUpdates();
 	}
 }
 
 bool General_Info_Plugin::PendingConfigs()
 {
+	PLUTO_SAFETY_LOCK(gm,m_GipMutex);
 	for(map<int,bool>::iterator it=m_mapMediaDirectors_PendingConfig.begin();it!=m_mapMediaDirectors_PendingConfig.end();++it)
 	{
 		if( it->second )

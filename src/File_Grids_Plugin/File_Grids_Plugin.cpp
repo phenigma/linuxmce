@@ -84,27 +84,13 @@ File_Grids_Plugin::~File_Grids_Plugin()
 bool File_Grids_Plugin::Register()
 //<-dceag-reg-e->
 {
-	m_pDatagrid_Plugin=NULL;
-	ListCommand_Impl *pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find(DEVICETEMPLATE_Datagrid_Plugin_CONST);
-
-	if( !pListCommand_Impl || pListCommand_Impl->size()!=1 )
+	m_pDatagrid_Plugin=( Datagrid_Plugin * ) m_pRouter->FindPluginByCategory(DEVICETEMPLATE_Datagrid_Plugin_CONST);
+	m_pMedia_Plugin=( Media_Plugin * ) m_pRouter->FindPluginByCategory(DEVICETEMPLATE_Media_Plugin_CONST);
+	if( !m_pDatagrid_Plugin || !Media_Plugin )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"File grids cannot find datagrid handler %s",(pListCommand_Impl ? "There were more than 1" : ""));
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins");
 		return false;
 	}
-
-	m_pDatagrid_Plugin=(Datagrid_Plugin *) pListCommand_Impl->front();
-
-	m_pMedia_Plugin=NULL;
-	pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find(DEVICETEMPLATE_Media_Plugin_CONST);
-
-	if( !pListCommand_Impl || pListCommand_Impl->size()!=1 )
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"File grids cannot find Media handler %s",(pListCommand_Impl ? "There were more than 1" : ""));
-		return false;
-	}
-
-	m_pMedia_Plugin=(Media_Plugin *) pListCommand_Impl->front();
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&File_Grids_Plugin::FileList))

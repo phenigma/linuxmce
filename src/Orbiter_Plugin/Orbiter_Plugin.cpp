@@ -155,59 +155,26 @@ Don't know the best solution to allow for this type of abstraction. */
 bool Orbiter_Plugin::Register()
 //<-dceag-reg-e->
 {
-	// Find all the plugins
-	ListCommand_Impl *pListCommand_Impl;
-
-	m_pLighting_Floorplan=NULL;
-	pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find( DEVICETEMPLATE_Lighting_Plugin_CONST );
-	if( !pListCommand_Impl || pListCommand_Impl->size( )!=1 )
-	{
-		g_pPlutoLogger->Write( LV_CRITICAL, "Orbiter cannot find Lighting plug-in %s", ( pListCommand_Impl ? "There were more than 1" : "" ) );
-		return false;
-	}
-	Lighting_Plugin *pLighting_Plugin = ( Lighting_Plugin * ) pListCommand_Impl->front( );
+	Lighting_Plugin *pLighting_Plugin=( Lighting_Plugin * ) m_pRouter->FindPluginByCategory(DEVICETEMPLATE_Lighting_Plugin_CONST);
 	m_pLighting_Floorplan=( FloorplanInfoProvider * ) pLighting_Plugin;
 
-	m_pClimate_Floorplan=NULL;
-	pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find( DEVICETEMPLATE_Climate_Plugin_CONST );
-	if( !pListCommand_Impl || pListCommand_Impl->size( )!=1 )
-	{
-		g_pPlutoLogger->Write( LV_CRITICAL, "Orbiter cannot find Climate plug-in %s", ( pListCommand_Impl ? "There were more than 1" : "" ) );
-		return false;
-	}
-	Climate_Plugin *pClimate_Plugin = ( Climate_Plugin * ) pListCommand_Impl->front( );
+	Climate_Plugin *pClimate_Plugin=( Climate_Plugin * ) m_pRouter->FindPluginByCategory(DEVICETEMPLATE_Climate_Plugin_CONST);
 	m_pClimate_Floorplan=( FloorplanInfoProvider * ) pClimate_Plugin;
 
-	m_pMedia_Floorplan=NULL;
-	m_pMedia_Plugin=NULL;
-	pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find( DEVICETEMPLATE_Media_Plugin_CONST );
-	if( !pListCommand_Impl || pListCommand_Impl->size( )!=1 )
-	{
-		g_pPlutoLogger->Write( LV_CRITICAL, "Orbiter cannot find Media plug-in %s", ( pListCommand_Impl ? "There were more than 1" : "" ) );
-		return false;
-	}
-	m_pMedia_Plugin=( Media_Plugin * ) pListCommand_Impl->front( );
+	m_pMedia_Plugin=( Media_Plugin * ) m_pRouter->FindPluginByCategory(DEVICETEMPLATE_Media_Plugin_CONST);
 	m_pMedia_Floorplan=( FloorplanInfoProvider * ) m_pMedia_Plugin;
 
-	m_pSecurity_Floorplan=NULL;
-	pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find( DEVICETEMPLATE_Security_Plugin_CONST );
-	if( !pListCommand_Impl || pListCommand_Impl->size( )!=1 )
-	{
-		g_pPlutoLogger->Write( LV_CRITICAL, "Orbiter cannot find Security plug-in %s", ( pListCommand_Impl ? "There were more than 1" : "" ) );
-		return false;
-	}
-	Security_Plugin *pSecurity_Plugin = ( Security_Plugin * ) pListCommand_Impl->front( );
+	Security_Plugin *pSecurity_Plugin=( Security_Plugin * ) m_pRouter->FindPluginByCategory(DEVICETEMPLATE_Security_Plugin_CONST);
 	m_pSecurity_Floorplan=( FloorplanInfoProvider * ) pSecurity_Plugin;
 
-	m_pTelecom_Floorplan=NULL;
-	pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find( DEVICETEMPLATE_Telecom_Plugin_CONST );
-	if( !pListCommand_Impl || pListCommand_Impl->size( )!=1 )
+	Telecom_Plugin *pTelecom_Plugin=( Telecom_Plugin * ) m_pRouter->FindPluginByCategory(DEVICETEMPLATE_Telecom_Plugin_CONST);
+	m_pTelecom_Floorplan=( FloorplanInfoProvider * ) pTelecom_Plugin;
+
+	if( !m_pLighting_Floorplan || !m_pClimate_Floorplan || !m_pMedia_Floorplan || !m_pSecurity_Floorplan || !m_pTelecom_Floorplan )
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL, "Orbiter cannot find Telecom plug-in %s", ( pListCommand_Impl ? "There were more than 1" : "" ) );
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins");
 		return false;
 	}
-	Telecom_Plugin *pTelecom_Plugin = ( Telecom_Plugin * ) pListCommand_Impl->front( );
-	m_pTelecom_Floorplan=( FloorplanInfoProvider * ) pTelecom_Plugin;
 
     // Check for all orbiters
     for(map<int,class DeviceData_Router *>::const_iterator it=m_pRouter->m_mapDeviceData_Router_get()->begin();it!=m_pRouter->m_mapDeviceData_Router_get()->end();++it)
@@ -1504,6 +1471,7 @@ void Orbiter_Plugin::CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Resu
 
 bool Orbiter_Plugin::NewPnpDevice( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
+    PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
 	int PK_Device = atoi(pMessage->m_mapParameters[EVENTPARAMETER_PK_Device_CONST].c_str());
 	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(PK_Device);
 	if( !pRow_Device )
@@ -1511,6 +1479,8 @@ bool Orbiter_Plugin::NewPnpDevice( class Socket *pSocket, class Message *pMessag
 		g_pPlutoLogger->Write(LV_CRITICAL,"Got invalid pnp device: %d",PK_Device);
 		return false;
 	}
+
+	m_listNewPnpDevicesWaitingForARoom.push_back(PK_Device);
 
 	DCE::CMD_Goto_Screen_DL CMD_Goto_Screen( m_dwPK_Device, m_sPK_Device_AllOrbiters, 0, StringUtils::itos(DESIGNOBJ_mnuNewPlugAndPlayDevice_CONST), StringUtils::itos(PK_Device), "", true, false );
 	// The destination devices must match
@@ -1601,6 +1571,9 @@ bool Orbiter_Plugin::OSD_OnOff( class Socket *pSocket, class Message *pMessage, 
 void Orbiter_Plugin::CMD_Set_Room_For_Device(int iPK_Device,int iPK_Room,string &sCMD_Result,Message *pMessage)
 //<-dceag-c274-e->
 {
+    PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
+	size_t sBefore=m_listNewPnpDevicesWaitingForARoom.size();
+
 	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(iPK_Device);
 	Row_Room *pRow_Room = m_pDatabase_pluto_main->Room_get()->GetRow(iPK_Room);
 	if( !pRow_Device || !pRow_Room )
@@ -1617,6 +1590,16 @@ void Orbiter_Plugin::CMD_Set_Room_For_Device(int iPK_Device,int iPK_Room,string 
 
 	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL( m_dwPK_Device, m_sPK_Device_AllOrbiters, StringUtils::itos(DESIGNOBJ_mnuNewPlugAndPlayDevice_CONST), StringUtils::itos(iPK_Device) );
 	SendCommand(CMD_Remove_Screen_From_History_DL);
+
+	m_listNewPnpDevicesWaitingForARoom.erase(pRow_Device->PK_Device_get());
+
+bool bStillRunningConfig = this->m_pGeneralInfoPlugin->PendingConfigs();
+g_pPlutoLogger->Write(LV_STATUS,"CMD_Set_Room_For_Device: before %d after %d pending %d",
+(int) sBefore,(int) m_listNewPnpDevicesWaitingForARoom.size(),(int) bStillRunningConfig);
+	// If there pnp devices waiting for the room, and we finished specifying the last one, and we're
+	// not still getting the software, let the user know his device is done
+	if( sBefore && m_listNewPnpDevicesWaitingForARoom.size() && !bStillRunningConfig )
+		m_pOrbiter_Plugin->DisplayMessageOnOrbiter("","<%=T" + StringUtils::itos(TEXT_New_Devices_Configured_CONST) + "%>",true);
 }
 
 void Orbiter_Plugin::FireFollowMe(string sMask,int iPK_Orbiter,int iPK_Users,int iPK_RoomOrEntArea,int iPK_RoomOrEntArea_Left)
@@ -1881,3 +1864,14 @@ void Orbiter_Plugin::CMD_Display_Message_On_Orbiter(string sText,string sPK_Devi
 {
 	DisplayMessageOnOrbiter(sPK_Device_List,sText);
 }
+
+void Orbiter_Plugin::DoneCheckingForUpdates()
+{
+    PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
+
+	// We must have started the check for updates because we added a new device.  However we finished
+	// getting room info from the user, so he's ready to go
+	if( m_listNewPnpDevicesWaitingForARoom.size()==0 )
+		m_pOrbiter_Plugin->DisplayMessageOnOrbiter("","<%=T" + StringUtils::itos(TEXT_New_Devices_Configured_CONST) + "%>",true);
+}
+
