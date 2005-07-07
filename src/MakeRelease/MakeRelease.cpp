@@ -116,8 +116,9 @@ bool ZipFiles(string sArchiveFileName);
 bool PackageIsCompatible(Row_Package *pRow_Package);
 bool CopySourceFile(string sInput,string sOutput)
 {
-	if( !g_bSimulate && StringUtils::EndsWith(sInput,".cpp",true) || StringUtils::EndsWith(sInput,".c",true) ||
-			StringUtils::EndsWith(sInput,".h",true) )
+	if( !g_bSimulate && sInput.find("/MakeRelease/")==string::npos && 
+			(StringUtils::EndsWith(sInput,".cpp",true) || StringUtils::EndsWith(sInput,".c",true) ||
+			StringUtils::EndsWith(sInput,".h",true)) )
 	{
 		if( !StringUtils::Replace( sInput, "/mkrelease_temp_file", "/*SVN_REVISION*/", "int g_SvnRevision=" + StringUtils::itos(g_iSVNRevision) + ";" ) )
 			return false;
@@ -1044,7 +1045,7 @@ AsksSourceQuests:
 		}
 
 		// Replace the <=version=> in all the files
-		if( !g_bSimulate )
+		if( !g_bSimulate && sSourceDirectory.find("/MakeRelease")==string::npos )
 		{
 			list<string> listFiles;
 			FileUtils::FindFiles(listFiles,sSourceDirectory,"*.cpp,*.c,*.h,*.cs",true);
