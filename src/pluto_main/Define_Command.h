@@ -375,7 +375,8 @@
 #define COMMAND_Delete_Bookmark_CONST 410
 #define COMMAND_Rename_Bookmark_CONST 411
 #define COMMAND_Set_Media_Position_CONST 412
-#define COMMAND_PL_External_Originate_CONST 413
+#define COMMAND_Forward_local_kb_to_OSD_CONST 413
+#define COMMAND_PL_External_Originate_CONST 414
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
