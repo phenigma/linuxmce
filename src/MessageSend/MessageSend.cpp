@@ -33,12 +33,12 @@ int main(int argc, char *argv[])
 
     if (argc<6)
     {
-		cout << "Usage: MessageSendTest server [-targetType [device|category|template]] [-r | -o] DeviceFrom DeviceTo MsgType(1=Command, 2=Event) MsgID [parm1id param1value] [parm2id parm2value] ..." << endl
+		cout << "Usage: MessageSendTest server [-targetType [device|category|template]] [-r | -o] [-p path] DeviceFrom DeviceTo MsgType(1=Command, 2=Event) MsgID [parm1id param1value] [parm2id parm2value] ..." << endl
 			<< "\tthe server is the name/ip of the router, such as localhost" << endl
 			<< "\tthe default target type is the device." << endl
-			<< "\t-r means the message will be sent with a response request" << endl
+            << "\t-p specifies the path for output params" << endl
+            << "\t-r means the message will be sent with a response request" << endl
 			<< "\t-o means the message will expect out parameters" << endl
-            << "\t[-p <path for output params>]" << endl
 			<< "\t\twhich will be echoed to the screen as resp: [response]" << endl
 			<< "\tthe parm ID can be prefixed with a letter:" << endl
 			<< "\t\tD send as a data paramter, rather than text" << endl
