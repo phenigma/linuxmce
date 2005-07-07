@@ -227,6 +227,9 @@ void CPlutoMOAppUi::ReadConfigurationFile()
 	//pin
 	lr.ReadL(iCurrentLine, iCurrentLineOffset);
 	iPinMD5.Copy(iCurrentLine);
+	//phone number
+	lr.ReadL(iCurrentLine, iCurrentLineOffset);
+	iPhoneNo.Copy(iCurrentLine);
 
 	lr.Close();
 }
@@ -800,7 +803,7 @@ void CPlutoMOAppUi::LaunchBrowser()
 
 	HBufC* param = HBufC::NewLC( 1024 ); 
 
-	string sSecurityInfo = "&user='" + string(iUsername) + "'&pin='" + string(iPinMD5) + "'";
+	string sSecurityInfo = "&user=" + string(iUsername) + "&pin=" + string(iPinMD5) + "&phone=" + string(iPhoneNo);
 
 	param->Des().Copy( _L("4 "));
 	param->Des().Append(iURL); 
