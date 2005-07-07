@@ -143,6 +143,8 @@ namespace DCE
         map<long, unsigned long>  m_mapData_Lengths; /** < the length of the data from data parameters */
         vector<class Message *> m_vectExtraMessages; /** < vector of messages */
 
+        string sOutputParametersPath; /** < where to store output parameters files */
+
         /**
          * @brief just calls the Clear method
          * @see the Message::Clear() method

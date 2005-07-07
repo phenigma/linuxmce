@@ -138,6 +138,12 @@ void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFr
 			bOutParams=true;
 			baseMessageSpecPos++;
 		}
+        else if ( strcmp(cArguments[baseMessageSpecPos], "-p") == 0 )
+        {
+            baseMessageSpecPos++;
+            sOutputParametersPath = cArguments[baseMessageSpecPos];
+            baseMessageSpecPos++;
+        }
 		else
 			g_pPlutoLogger->Write(LV_CRITICAL,"Create message Unknown argument: %s",cArguments[baseMessageSpecPos]);
 	}

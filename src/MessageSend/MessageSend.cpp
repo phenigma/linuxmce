@@ -38,6 +38,7 @@ int main(int argc, char *argv[])
 			<< "\tthe default target type is the device." << endl
 			<< "\t-r means the message will be sent with a response request" << endl
 			<< "\t-o means the message will expect out parameters" << endl
+            << "\t[-p <path for output params>]" << endl
 			<< "\t\twhich will be echoed to the screen as resp: [response]" << endl
 			<< "\tthe parm ID can be prefixed with a letter:" << endl
 			<< "\t\tD send as a data paramter, rather than text" << endl
@@ -56,6 +57,10 @@ int main(int argc, char *argv[])
 	Event_Impl *pEvent = new Event_Impl(DEVICEID_MESSAGESEND, 0, ServerAddress);
 
     Message *pMsg=new Message(argc-2,&argv[2]);
+
+    string sOutputParametersPath = pMsg->sOutputParametersPath;
+    if(sOutputParametersPath != "")
+        sOutputParametersPath += "/";
 
 	eExpectedResponse ExpectedResponse = pMsg->m_eExpectedResponse;
 	// We need a response.  It will be a string if there are no out parameters
@@ -99,7 +104,10 @@ int main(int argc, char *argv[])
 	for( map<long, char *>::iterator it=pResponse->m_mapData_Parameters.begin();it!=pResponse->m_mapData_Parameters.end();++it)
 	{
 		cout << "D" << (*it).first << ":" << (*it).second << ":" << (*it).first << ".out" << endl;
-		FILE *file = fopen( (StringUtils::itos((*it).first) + ".out").c_str(),"wb");
+        
+        string sOutputFile = sOutputParametersPath + StringUtils::itos((*it).first) + ".out";
+        cout << "Writing parameter to: " << sOutputFile << endl;
+		FILE *file = fopen( sOutputFile.c_str(),"wb");
 		if( file )
 		{
 			fwrite( (*it).second,pResponse->m_mapData_Lengths[(*it).first],1,file );
