@@ -59,8 +59,8 @@ bool MythTV_PlugIn::Register()
 {
 	m_iPriority=DATA_Get_Priority();
     /** Get a pointer to the media plugin */
-	m_pDatagrid_Plugin=( Datagrid_Plugin * ) m_pRouter->FindPluginByCategory(DEVICETEMPLATE_Datagrid_Plugin_CONST);
-	m_pMedia_Plugin=( Media_Plugin * ) m_pRouter->FindPluginByCategory(DEVICETEMPLATE_Media_Plugin_CONST);
+	m_pDatagrid_Plugin=( Datagrid_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Datagrid_Plugin_CONST);
+	m_pMedia_Plugin=( Media_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Media_Plugin_CONST);
 	if( !m_pDatagrid_Plugin || !Media_Plugin )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins");

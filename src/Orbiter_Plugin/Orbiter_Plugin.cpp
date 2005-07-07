@@ -76,6 +76,7 @@ string g_sLatestMobilePhoneVersion="2005.07.04";
 
 #include "../Media_Plugin/EntertainArea.h"
 #include "../Media_Plugin/Media_Plugin.h"
+#include "../General_Info_Plugin/General_Info_Plugin.h"
 
 #define EXPIRATION_INTERVAL 30
 
@@ -155,22 +156,24 @@ Don't know the best solution to allow for this type of abstraction. */
 bool Orbiter_Plugin::Register()
 //<-dceag-reg-e->
 {
-	Lighting_Plugin *pLighting_Plugin=( Lighting_Plugin * ) m_pRouter->FindPluginByCategory(DEVICETEMPLATE_Lighting_Plugin_CONST);
+	Lighting_Plugin *pLighting_Plugin=( Lighting_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Lighting_Plugin_CONST);
 	m_pLighting_Floorplan=( FloorplanInfoProvider * ) pLighting_Plugin;
 
-	Climate_Plugin *pClimate_Plugin=( Climate_Plugin * ) m_pRouter->FindPluginByCategory(DEVICETEMPLATE_Climate_Plugin_CONST);
+	Climate_Plugin *pClimate_Plugin=( Climate_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Climate_Plugin_CONST);
 	m_pClimate_Floorplan=( FloorplanInfoProvider * ) pClimate_Plugin;
 
-	m_pMedia_Plugin=( Media_Plugin * ) m_pRouter->FindPluginByCategory(DEVICETEMPLATE_Media_Plugin_CONST);
+	m_pMedia_Plugin=( Media_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Media_Plugin_CONST);
 	m_pMedia_Floorplan=( FloorplanInfoProvider * ) m_pMedia_Plugin;
 
-	Security_Plugin *pSecurity_Plugin=( Security_Plugin * ) m_pRouter->FindPluginByCategory(DEVICETEMPLATE_Security_Plugin_CONST);
+	Security_Plugin *pSecurity_Plugin=( Security_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Security_Plugin_CONST);
 	m_pSecurity_Floorplan=( FloorplanInfoProvider * ) pSecurity_Plugin;
 
-	Telecom_Plugin *pTelecom_Plugin=( Telecom_Plugin * ) m_pRouter->FindPluginByCategory(DEVICETEMPLATE_Telecom_Plugin_CONST);
+	Telecom_Plugin *pTelecom_Plugin=( Telecom_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Telecom_Plugin_CONST);
 	m_pTelecom_Floorplan=( FloorplanInfoProvider * ) pTelecom_Plugin;
 
-	if( !m_pLighting_Floorplan || !m_pClimate_Floorplan || !m_pMedia_Floorplan || !m_pSecurity_Floorplan || !m_pTelecom_Floorplan )
+	m_pGeneral_Info_Plugin=( General_Info_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_General_Info_Plugin_CONST);
+
+	if( !m_pLighting_Floorplan || !m_pClimate_Floorplan || !m_pMedia_Floorplan || !m_pSecurity_Floorplan || !m_pTelecom_Floorplan || !m_pGeneral_Info_Plugin )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins");
 		return false;
@@ -1591,15 +1594,15 @@ void Orbiter_Plugin::CMD_Set_Room_For_Device(int iPK_Device,int iPK_Room,string 
 	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL( m_dwPK_Device, m_sPK_Device_AllOrbiters, StringUtils::itos(DESIGNOBJ_mnuNewPlugAndPlayDevice_CONST), StringUtils::itos(iPK_Device) );
 	SendCommand(CMD_Remove_Screen_From_History_DL);
 
-	m_listNewPnpDevicesWaitingForARoom.erase(pRow_Device->PK_Device_get());
+	m_listNewPnpDevicesWaitingForARoom.remove(pRow_Device->PK_Device_get());
 
-bool bStillRunningConfig = this->m_pGeneralInfoPlugin->PendingConfigs();
+bool bStillRunningConfig = m_pGeneral_Info_Plugin->PendingConfigs();
 g_pPlutoLogger->Write(LV_STATUS,"CMD_Set_Room_For_Device: before %d after %d pending %d",
 (int) sBefore,(int) m_listNewPnpDevicesWaitingForARoom.size(),(int) bStillRunningConfig);
 	// If there pnp devices waiting for the room, and we finished specifying the last one, and we're
 	// not still getting the software, let the user know his device is done
 	if( sBefore && m_listNewPnpDevicesWaitingForARoom.size() && !bStillRunningConfig )
-		m_pOrbiter_Plugin->DisplayMessageOnOrbiter("","<%=T" + StringUtils::itos(TEXT_New_Devices_Configured_CONST) + "%>",true);
+		DisplayMessageOnOrbiter("","<%=T" + StringUtils::itos(TEXT_New_Devices_Configured_CONST) + "%>",true);
 }
 
 void Orbiter_Plugin::FireFollowMe(string sMask,int iPK_Orbiter,int iPK_Users,int iPK_RoomOrEntArea,int iPK_RoomOrEntArea_Left)
@@ -1863,15 +1866,5 @@ void Orbiter_Plugin::CMD_Display_Message_On_Orbiter(string sText,string sPK_Devi
 //<-dceag-c406-e->
 {
 	DisplayMessageOnOrbiter(sPK_Device_List,sText);
-}
-
-void Orbiter_Plugin::DoneCheckingForUpdates()
-{
-    PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
-
-	// We must have started the check for updates because we added a new device.  However we finished
-	// getting room info from the user, so he's ready to go
-	if( m_listNewPnpDevicesWaitingForARoom.size()==0 )
-		m_pOrbiter_Plugin->DisplayMessageOnOrbiter("","<%=T" + StringUtils::itos(TEXT_New_Devices_Configured_CONST) + "%>",true);
 }
 

@@ -84,9 +84,9 @@ File_Grids_Plugin::~File_Grids_Plugin()
 bool File_Grids_Plugin::Register()
 //<-dceag-reg-e->
 {
-	m_pDatagrid_Plugin=( Datagrid_Plugin * ) m_pRouter->FindPluginByCategory(DEVICETEMPLATE_Datagrid_Plugin_CONST);
-	m_pMedia_Plugin=( Media_Plugin * ) m_pRouter->FindPluginByCategory(DEVICETEMPLATE_Media_Plugin_CONST);
-	if( !m_pDatagrid_Plugin || !Media_Plugin )
+	m_pDatagrid_Plugin=( Datagrid_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Datagrid_Plugin_CONST);
+	m_pMedia_Plugin=( Media_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Media_Plugin_CONST);
+	if( !m_pDatagrid_Plugin || !m_pMedia_Plugin )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins");
 		return false;

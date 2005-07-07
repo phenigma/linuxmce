@@ -50,7 +50,10 @@ General_Info_Plugin::General_Info_Plugin(int DeviceID, string ServerAddress,bool
 //<-dceag-const-e->
 	, m_GipMutex("GeneralInfo")
 {
-	m_GipMutex.Init(NrecursULL);
+    pthread_mutexattr_init( &m_MutexAttr );
+    pthread_mutexattr_settype( &m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP );
+    m_GipMutex.Init( &m_MutexAttr );
+
 	m_bRerunConfigWhenDone=false;
 	m_pDatabase_pluto_main = new Database_pluto_main();
 	if(!m_pDatabase_pluto_main->Connect(m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get()) )
@@ -77,8 +80,8 @@ bool General_Info_Plugin::Register()
 //<-dceag-reg-e->
 {
     // Get the datagrid plugin
-	m_pDatagrid_Plugin=( Datagrid_Plugin * ) m_pRouter->FindPluginByCategory(DEVICETEMPLATE_Datagrid_Plugin_CONST);
-	m_pOrbiter_Plugin=( Orbiter_Plugin * ) m_pRouter->FindPluginByCategory(DEVICETEMPLATE_Orbiter_Plugin_CONST);
+	m_pDatagrid_Plugin=( Datagrid_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Datagrid_Plugin_CONST);
+	m_pOrbiter_Plugin=( Orbiter_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Orbiter_Plugin_CONST);
 	if( !m_pDatagrid_Plugin || !m_pOrbiter_Plugin )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins");
@@ -750,15 +753,4 @@ void General_Info_Plugin::CMD_Check_for_updates_done(string &sCMD_Result,Message
 		g_pPlutoLogger->Write(LV_STATUS,"Done updating config");
 		m_pOrbiter_Plugin->DoneCheckingForUpdates();
 	}
-}
-
-bool General_Info_Plugin::PendingConfigs()
-{
-	PLUTO_SAFETY_LOCK(gm,m_GipMutex);
-	for(map<int,bool>::iterator it=m_mapMediaDirectors_PendingConfig.begin();it!=m_mapMediaDirectors_PendingConfig.end();++it)
-	{
-		if( it->second )
-			return true;
-	}
-	return false;
 }

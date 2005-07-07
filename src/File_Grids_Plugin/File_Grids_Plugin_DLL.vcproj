@@ -131,7 +131,7 @@
 				RelativePath="..\Gen_Devices\Datagrid_PluginBase.cpp">
 			</File>
 			<File
-				RelativePath="File_Grids_Plugin.cpp">
+				RelativePath=".\File_Grids_Plugin.cpp">
 			</File>
 			<File
 				RelativePath="File_Grids_Plugin.def">

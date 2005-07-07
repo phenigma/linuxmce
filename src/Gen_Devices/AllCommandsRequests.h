@@ -6565,21 +6565,37 @@ namespace DCE
 	public:
 		CMD_Forward_local_kb_to_OSD_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,bool bTrueFalse) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,413,1,119,(bTrueFalse ? "1" : "0")); }
 	};
+	class CMD_PL_External_Originate : public PreformedCommand {
+	public:
+		CMD_PL_External_Originate(long DeviceIDFrom, long DeviceIDTo,string sPhoneNumber,string sCallerID,string sPhoneExtension) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,414,3,75,sPhoneNumber.c_str(),81,sCallerID.c_str(),83,sPhoneExtension.c_str()); }
+	};
+	class CMD_PL_External_Originate_DL : public PreformedCommand {
+	public:
+		CMD_PL_External_Originate_DL(long DeviceIDFrom, string DeviceIDTo,string sPhoneNumber,string sCallerID,string sPhoneExtension) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,414,3,75,sPhoneNumber.c_str(),81,sCallerID.c_str(),83,sPhoneExtension.c_str()); }
+	};
+	class CMD_PL_External_Originate_DT : public PreformedCommand {
+	public:
+		CMD_PL_External_Originate_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sPhoneNumber,string sCallerID,string sPhoneExtension) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,414,3,75,sPhoneNumber.c_str(),81,sCallerID.c_str(),83,sPhoneExtension.c_str()); }
+	};
+	class CMD_PL_External_Originate_Cat : public PreformedCommand {
+	public:
+		CMD_PL_External_Originate_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sPhoneNumber,string sCallerID,string sPhoneExtension) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,414,3,75,sPhoneNumber.c_str(),81,sCallerID.c_str(),83,sPhoneExtension.c_str()); }
+	};
 	class CMD_Set_Mouse_Position_Relative : public PreformedCommand {
 	public:
-		CMD_Set_Mouse_Position_Relative(long DeviceIDFrom, long DeviceIDTo,int iPosition_X,int iPosition_Y) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,414,2,11,StringUtils::itos(iPosition_X).c_str(),12,StringUtils::itos(iPosition_Y).c_str()); }
+		CMD_Set_Mouse_Position_Relative(long DeviceIDFrom, long DeviceIDTo,int iPosition_X,int iPosition_Y) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,415,2,11,StringUtils::itos(iPosition_X).c_str(),12,StringUtils::itos(iPosition_Y).c_str()); }
 	};
 	class CMD_Set_Mouse_Position_Relative_DL : public PreformedCommand {
 	public:
-		CMD_Set_Mouse_Position_Relative_DL(long DeviceIDFrom, string DeviceIDTo,int iPosition_X,int iPosition_Y) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,414,2,11,StringUtils::itos(iPosition_X).c_str(),12,StringUtils::itos(iPosition_Y).c_str()); }
+		CMD_Set_Mouse_Position_Relative_DL(long DeviceIDFrom, string DeviceIDTo,int iPosition_X,int iPosition_Y) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,415,2,11,StringUtils::itos(iPosition_X).c_str(),12,StringUtils::itos(iPosition_Y).c_str()); }
 	};
 	class CMD_Set_Mouse_Position_Relative_DT : public PreformedCommand {
 	public:
-		CMD_Set_Mouse_Position_Relative_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPosition_X,int iPosition_Y) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,414,2,11,StringUtils::itos(iPosition_X).c_str(),12,StringUtils::itos(iPosition_Y).c_str()); }
+		CMD_Set_Mouse_Position_Relative_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPosition_X,int iPosition_Y) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,415,2,11,StringUtils::itos(iPosition_X).c_str(),12,StringUtils::itos(iPosition_Y).c_str()); }
 	};
 	class CMD_Set_Mouse_Position_Relative_Cat : public PreformedCommand {
 	public:
-		CMD_Set_Mouse_Position_Relative_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPosition_X,int iPosition_Y) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,414,2,11,StringUtils::itos(iPosition_X).c_str(),12,StringUtils::itos(iPosition_Y).c_str()); }
+		CMD_Set_Mouse_Position_Relative_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPosition_X,int iPosition_Y) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,415,2,11,StringUtils::itos(iPosition_X).c_str(),12,StringUtils::itos(iPosition_Y).c_str()); }
 	};
 }
 #endif

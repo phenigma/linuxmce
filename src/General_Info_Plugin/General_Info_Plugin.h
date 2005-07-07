@@ -32,12 +32,23 @@ public:
     class Datagrid_Plugin *m_pDatagrid_Plugin;
     class Orbiter_Plugin *m_pOrbiter_Plugin;
     pluto_pthread_mutex_t m_GipMutex; // Other classes may need this
+    pthread_mutexattr_t m_MutexAttr;
 	bool m_bRerunConfigWhenDone;
 	map<int,bool> m_mapMediaDirectors_PendingConfig;
 
 	// Private methods
 	void SetNetBoot(DeviceData_Router *pDevice,bool bNetBoot);
-	bool PendingConfigs();
+	bool PendingConfigs()
+	{
+		PLUTO_SAFETY_LOCK(gm,m_GipMutex);
+		for(map<int,bool>::iterator it=m_mapMediaDirectors_PendingConfig.begin();it!=m_mapMediaDirectors_PendingConfig.end();++it)
+		{
+			if( it->second )
+				return true;
+		}
+		return false;
+	}
+
 public:
 	// Public member variables
 

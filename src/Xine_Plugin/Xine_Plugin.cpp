@@ -70,8 +70,8 @@ bool Xine_Plugin::Register()
 {
 	m_iPriority=DATA_Get_Priority();
 
-	m_pMedia_Plugin=( Media_Plugin * ) m_pRouter->FindPluginByCategory(DEVICETEMPLATE_Media_Plugin_CONST);
-	m_pOrbiter_Plugin=( Orbiter_Plugin * ) m_pRouter->FindPluginByCategory(DEVICETEMPLATE_Orbiter_Plugin_CONST);
+	m_pMedia_Plugin=( Media_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Media_Plugin_CONST);
+	m_pOrbiter_Plugin=( Orbiter_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Orbiter_Plugin_CONST);
 	if( !m_pMedia_Plugin || !m_pOrbiter_Plugin )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins");

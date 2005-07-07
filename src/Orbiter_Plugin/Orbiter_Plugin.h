@@ -72,6 +72,7 @@ public:
     Database_pluto_security *m_pDatabase_pluto_security;
 	class FloorplanInfoProvider *m_pLighting_Floorplan,*m_pClimate_Floorplan,*m_pMedia_Floorplan,*m_pSecurity_Floorplan,*m_pTelecom_Floorplan;
 	class Media_Plugin *m_pMedia_Plugin;
+	class General_Info_Plugin *m_pGeneral_Info_Plugin;
 	list<int> m_listNewPnpDevicesWaitingForARoom;
 
     // Private methods
@@ -145,6 +146,15 @@ public:
 	bool OSD_OnOff( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 
     void ProcessUnknownDevice();
+	void DoneCheckingForUpdates()
+	{
+		PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
+
+		// We must have started the check for updates because we added a new device.  However we finished
+		// getting room info from the user, so he's ready to go
+		if( m_listNewPnpDevicesWaitingForARoom.size()==0 )
+			DisplayMessageOnOrbiter("","<%=T" + StringUtils::itos(TEXT_New_Devices_Configured_CONST) + "%>",true);
+	}
 
 	/*  If the user wants to use the onscreen display, he may want the tv to always stay on and only
 	turn off when the orbiter is specifcally turned off or goes to sleep.  In those cases the user

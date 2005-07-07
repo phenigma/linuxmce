@@ -1828,7 +1828,7 @@ public:
 					};
 					iHandled++;
 					continue;
-				case 414:
+				case 415:
 					{
 						string sCMD_Result="OK";
 					int iPosition_X=atoi(pMessage->m_mapParameters[11].c_str());

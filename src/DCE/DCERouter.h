@@ -343,9 +343,9 @@ namespace DCE
 		virtual int GetDeviceID( int iPK_DeviceTemplate, string sIPorMacAddress );
 		virtual int ConfirmDeviceTemplate( int iPK_Device, int iPK_DeviceTemplate );
 
-		Command_Impl *FindPluginByCategory(int PK_DeviceCategory)
+		Command_Impl *FindPluginByTemplate(int PK_DeviceTemplate)
 		{
-			ListCommand_Impl *pListCommand_Impl = m_mapPlugIn_DeviceTemplate_Find( PK_DeviceCategory );
+			ListCommand_Impl *pListCommand_Impl = m_mapPlugIn_DeviceTemplate_Find( PK_DeviceTemplate );
 			if( !pListCommand_Impl || pListCommand_Impl->size( )!=1 )
 				return NULL;
 			return pListCommand_Impl->front( );
