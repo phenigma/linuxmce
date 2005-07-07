@@ -112,6 +112,9 @@ fi
 MQ1="UPDATE Package_Source_Compat   JOIN Package_Source on FK_Package_Source=PK_Package_Source  SET FK_OperatingSystem=NULL,FK_Distro=1  WHERE FK_RepositorySource=2";
 echo $MQ1 | mysql pluto_main
 
+MQ1="DELETE FROM CachedScreens; DELETE FROM Device_DeviceData;"
+echo $MQ1 | mysql main_sqlcvs
+
 svninfo=$(svn info . |grep ^Revision | cut -d" " -f2)
 O2="UPDATE Version SET SvnRevision=$svninfo WHERE PK_Version=$version;"
 echo $O2 | mysql pluto_main
