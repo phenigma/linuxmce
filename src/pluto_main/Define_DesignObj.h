@@ -1033,6 +1033,7 @@
 #define DESIGNOBJ_generic_app_with_options_CONST 3556
 #define DESIGNOBJ_objExitApp_CONST 3557
 #define DESIGNOBJ_generic_app_desktop_CONST 3558
+#define DESIGNOBJ_butMouseUp_CONST 3559
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
