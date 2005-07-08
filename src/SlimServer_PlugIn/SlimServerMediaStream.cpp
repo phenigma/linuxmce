@@ -28,7 +28,6 @@ namespace DCE {
 
 	SlimServerMediaStream::~SlimServerMediaStream()
 	{
-		delete m_pMediaPosition;
 	}
 
 	int SlimServerMediaStream::GetType()
@@ -60,38 +59,6 @@ namespace DCE {
 			return true;
 
 		return false;
-	}
-
-	SlimServerMediaStream::SlimServerMediaPosition *SlimServerMediaStream::GetMediaPosition()
-	{
-		if ( m_pMediaPosition == NULL )
-			m_pMediaPosition = new SlimServerMediaPosition();
-
-		return static_cast<SlimServerMediaStream::SlimServerMediaPosition*>(m_pMediaPosition);
-	}
-
-	SlimServerMediaStream::SlimServerMediaPosition::SlimServerMediaPosition()
-	{
-		Reset();
-	}
-
-	SlimServerMediaStream::SlimServerMediaPosition::~SlimServerMediaPosition()
-	{
-		// HACK: No-op dtor. But to avoid gcc warnings.
-	}
-
-	void SlimServerMediaStream::SlimServerMediaPosition::Reset()
-	{
-g_pPlutoLogger->Write(LV_STATUS,"SlimServerMediaPosition reset");
-
-		m_iSavedPosition = 0;
-		m_iTotalStreamTime = 0;
-		m_sSavedPosition = "";
-	}
-
-	string SlimServerMediaStream::SlimServerMediaPosition::GetID()
-	{
-		return "SlimServerMediaStream::SlimServerMediaPosition class";
 	}
 
 	bool SlimServerMediaStream::CanPlayMore()

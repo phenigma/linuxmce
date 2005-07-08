@@ -29,7 +29,6 @@ namespace DCE {
 
 	VideoLanMediaStream::~VideoLanMediaStream()
 	{
-		delete m_pMediaPosition;
 	}
 
 	int VideoLanMediaStream::GetType()
@@ -61,38 +60,6 @@ namespace DCE {
 			return true;
 
 		return false;
-	}
-
-	VideoLanMediaStream::VideoLanMediaPosition *VideoLanMediaStream::GetMediaPosition()
-	{
-		if ( m_pMediaPosition == NULL )
-			m_pMediaPosition = new VideoLanMediaPosition();
-
-		return static_cast<VideoLanMediaStream::VideoLanMediaPosition*>(m_pMediaPosition);
-	}
-
-	VideoLanMediaStream::VideoLanMediaPosition::VideoLanMediaPosition()
-	{
-		Reset();
-	}
-
-	VideoLanMediaStream::VideoLanMediaPosition::~VideoLanMediaPosition()
-	{
-		// HACK: No-op dtor. But to avoid gcc warnings.
-	}
-
-	void VideoLanMediaStream::VideoLanMediaPosition::Reset()
-	{
-g_pPlutoLogger->Write(LV_STATUS,"VideoLanMediaPosition reset");
-
-		m_iSavedPosition = 0;
-		m_iTotalStreamTime = 0;
-		m_sSavedPosition = "";
-	}
-
-	string VideoLanMediaStream::VideoLanMediaPosition::GetID()
-	{
-		return "VideoLanMediaStream::VideoLanMediaPosition class";
 	}
 
 	bool VideoLanMediaStream::CanPlayMore()

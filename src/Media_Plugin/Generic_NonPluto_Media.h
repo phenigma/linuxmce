@@ -14,7 +14,6 @@
 #include "Media_Plugin.h"
 #include "MediaStream.h"
 #include "MediaHandlerBase.h"
-#include "MediaPosition.h"
 
 namespace DCE
 {

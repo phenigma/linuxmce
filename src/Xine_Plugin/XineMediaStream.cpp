@@ -37,8 +37,6 @@ namespace DCE {
 			if( m_iPK_DesignObj_Remote_Popup_After_Menu )
 				m_pRemoteControlSet->m_iPK_DesignObj_Remote_Popup=m_iPK_DesignObj_Remote_Popup_After_Menu;
 		}
-
-		delete m_pMediaPosition;
 	}
 
 	int XineMediaStream::GetType()
@@ -60,38 +58,6 @@ namespace DCE {
 			return true;
 
 		return false;
-	}
-
-	XineMediaStream::XineMediaPosition *XineMediaStream::GetMediaPosition()
-	{
-		if ( m_pMediaPosition == NULL )
-			m_pMediaPosition = new XineMediaPosition();
-
-		return static_cast<XineMediaStream::XineMediaPosition*>(m_pMediaPosition);
-	}
-
-	XineMediaStream::XineMediaPosition::XineMediaPosition()
-	{
-		Reset();
-	}
-
-	XineMediaStream::XineMediaPosition::~XineMediaPosition()
-	{
-		// HACK: No-op dtor. But to avoid gcc warnings.
-	}
-
-	void XineMediaStream::XineMediaPosition::Reset()
-	{
-g_pPlutoLogger->Write(LV_STATUS,"XineMediaPosition reset");
-
-		m_iSavedPosition = 0;
-		m_iTotalStreamTime = 0;
-		m_sSavedPosition = "";
-	}
-
-	string XineMediaStream::XineMediaPosition::GetID()
-	{
-		return "XineMediaStream::XineMediaPosition class";
 	}
 
 	bool XineMediaStream::CanPlayMore()

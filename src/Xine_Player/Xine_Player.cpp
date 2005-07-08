@@ -219,6 +219,9 @@ void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
 	{
 		m_pXineSlaveControl->setSlimClient(false);
 // 		getSlimServerClient()->disconnectFromServer();
+
+		CalculatePosition(sMediaPosition,&sFilename);
+
 		if ( ! m_pXineSlaveControl->createStream(sFilename, iStreamID, pMessage->m_dwPK_Device_From) || ! m_pXineSlaveControl->playStream(iStreamID, sMediaPosition) )
 		{
 			EVENT_Playback_Completed(iStreamID,true);  // true = there was an error, don't keep repeating
@@ -243,6 +246,7 @@ void Xine_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &sC
 {
     PLUTO_SAFETY_LOCK(xineSlaveLock, m_xineSlaveMutex);
 
+	m_sCurrentFile="";
 	if ( ! m_pXineSlaveControl )
     {
         g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Stop_Media() I don't have a slave to make it play. The slave proabbly failed to initialize properly.");
@@ -254,8 +258,7 @@ void Xine_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &sC
     g_pPlutoLogger->Write(LV_STATUS, "Xine_Player::CMD_Stop_Media() Got a stop media for stream ID %d (%p)", iStreamID, m_pXineSlaveControl);
     m_pXineSlaveControl->pauseMediaStream(iStreamID);
     g_pPlutoLogger->Write(LV_STATUS, "Xine_Player::CMD_Stop_Media() After pause media %d", iStreamID);
-    int iMediaPosition = m_pXineSlaveControl->getStreamPlaybackPosition(iStreamID, currentTime, totalTime);
-    g_pPlutoLogger->Write(LV_STATUS, "Xine_Player::CMD_Stop_Media() position %s", sMediaPosition->c_str());
+	*sMediaPosition=GetPosition();
 
 pthread_t pt;
 g_bHackToBeSureWeStop=true;
@@ -591,14 +594,7 @@ void Xine_Player::CMD_Report_Playback_Position(int iStreamID,string *sText,strin
 	int iMediaPosition,iMedia_Length;
 	m_pXineSlaveControl->getStreamPlaybackPosition(iStreamID, iMediaPosition, iMedia_Length);
 
-	if( m_iChapter!=-1 )
-		*sMediaPosition += " CHAPTER:" + StringUtils::itos(m_iChapter);
-	*sMediaPosition += " POS:" + StringUtils::itos(iMediaPosition);
-
-	*sText = *sMediaPosition;  // Up till now it's readable stuff
-
-	if( m_iTitle!=-1 )
-		*sMediaPosition += " TITLE:" + StringUtils::itos(m_iTitle);
+	*sMediaPosition=GetPosition();
 }
 
 //<-dceag-createinst-b->!
@@ -991,3 +987,55 @@ void Xine_Player::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,str
 	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Set_Media_Position() called for filename: %s with slave %p.", m_sCurrentFile.c_str(),m_pXineSlaveControl);
 	CMD_Play_Media(m_sCurrentFile,0,iStreamID,sMediaPosition,sCMD_Result,pMessage);
 }
+
+string Xine_Player::GetPosition()
+{
+	string sPosition;
+
+	if( m_iChapter!=-1 )
+		sPosition += " CHAPTER:" + StringUtils::itos(m_iChapter);
+	
+    int currentTime, totalTime;
+	int iMediaPosition = m_pXineSlaveControl->getStreamPlaybackPosition(1, currentTime, totalTime);
+ 	sPosition += " POS:" + StringUtils::itos(currentTime);
+
+	if( m_iTitle!=-1 )
+		sPosition += " TITLE:" + StringUtils::itos(m_iTitle);
+
+	return sPosition;
+}
+
+int Xine_Player::CalculatePosition(string &sMediaPosition,string *sMRL,int *Subtitle,int *Angle,int *AudioTrack)
+{
+	string::size_type pos=0;
+	int iTitle=-1,iChapter=-1,iPos=0;
+
+	if( sMRL )
+	{
+g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CalculatePosition() called for filename: %s with %s.", sMRL->c_str(),sMediaPosition.c_str());
+		pos = sMediaPosition.find(" TITLE:");
+		if( pos!=string::npos )
+		{
+			iTitle = atoi( sMediaPosition.substr(pos+7).c_str() );
+g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CalculatePosition() TI %d %d %s",pos,iTitle,sMediaPosition.substr( pos+7).c_str());
+}
+		pos = sMediaPosition.find(" CHAPTER:");
+		if( pos!=string::npos )
+{
+			iChapter = atoi( sMediaPosition.substr(pos+9).c_str() );
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CalculatePosition() CH %d %d %s",pos,iChapter,sMediaPosition.substr( pos+9).c_str());
+}
+		if( iTitle!=-1 && iChapter!=-1 )
+			(*sMRL)+="/" + StringUtils::itos(iTitle) + "." + StringUtils::itos(iChapter);
+g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CalculatePosition() after called for filename: %s with %s.", sMRL->c_str(),sMediaPosition.c_str());
+	}
+
+	pos = sMediaPosition.find(" POS:");
+	if( pos!=string::npos )
+	{
+		iPos = atoi( sMediaPosition.substr(pos+5).c_str() );
+g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CalculatePosition() p %d %d %s",pos,iPos,sMediaPosition.substr( pos+5).c_str());
+}
+	return iPos;
+}
+

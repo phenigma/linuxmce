@@ -51,6 +51,12 @@ typedef struct
   uint32_t  status;
 } MWMHints;
 
+// Since xine can't handle speeds other than 1x,2x,4x, we'll create our own
+// thread to handle special seek speeds by doing lots of searches
+// If g_iSpecialSeekSpeed==0, that means we don't need a special speed--thread will sleep
+// It can be set to a value such as 32000 (for 32x) or -250 (for -1/4x)
+// The event processing thread will handle it
+int g_iSpecialSeekSpeed=0;
 
 /*
 	Crazy hack -- it seems xine is firing the payback completed event
@@ -394,12 +400,16 @@ bool XineSlaveWrapper::playStream(int streamID, string mediaPosition, bool playb
 
 	time_t startTime = time(NULL);
 
-	if ( xine_play(xineStream->m_pStream, 0, 0) )
-	{
-		g_pPlutoLogger->Write(LV_STATUS, "Playing... The command took %d seconds to complete: ", time(NULL) - startTime);
+	int Subtitle=-1,Angle=-1,AudioTrack=-1;
+	int pos=m_pAggregatorObject->CalculatePosition(mediaPosition,NULL,&Subtitle,&Angle,&AudioTrack);
 
-		g_pPlutoLogger->Write(LV_STATUS, "Starting audio stream from position: %s", mediaPosition.c_str());
-		xine_play(xineStream->m_pStream, 0, 0);  // Pass in position as 2nd parameter
+	if ( xine_play(xineStream->m_pStream, 0, pos) )
+	{
+		// The position is often ignored on the first play
+		if( pos )
+			xine_play(xineStream->m_pStream, 0, pos);
+
+		g_pPlutoLogger->Write(LV_STATUS, "Playing... The command took %d seconds to complete: ", time(NULL) - startTime);
 
 		if ( playbackStopped )
 			xine_set_param(xineStream->m_pStream, XINE_PARAM_SPEED, XINE_SPEED_PAUSE);
@@ -789,6 +799,7 @@ void *XineSlaveWrapper::eventProcessingLoop(void *arguments)
 
 	Display *pDisplay = XOpenDisplay(getenv("DISPLAY"));
 
+	int iCounter=0;  // A counter for the special seek
     XEvent  event;
     while ( ! pStream->m_pOwner->m_bExitThread )
     {
@@ -812,6 +823,17 @@ void *XineSlaveWrapper::eventProcessingLoop(void *arguments)
 
 			} while ( checkResult == True );
 		}
+
+		if( g_iSpecialSeekSpeed && iCounter++>5 )  // Every half second
+		{
+			iCounter=0;
+			// time to seek
+			int positionTime,totalTime;
+			pStream->m_pOwner->getStreamPlaybackPosition(1,positionTime,totalTime);
+			g_pPlutoLogger->Write(LV_STATUS,"Current pos %d / %d  seek speed: %d",positionTime,totalTime,g_iSpecialSeekSpeed);
+			xine_play(pStream->m_pStream, 0, positionTime + g_iSpecialSeekSpeed);  // Pass in position as 2nd parameter
+		}
+
 		usleep(1000);
     }
 
@@ -1671,7 +1693,7 @@ int XineSlaveWrapper::getStreamPlaybackPosition(int iStreamID, int &positionTime
 //         return -1;
 //     }
 
-    g_pPlutoLogger->Write(LV_STATUS, "Got those numbers: %d, %d", iPosTime, iLengthTime);
+    g_pPlutoLogger->Write(LV_STATUS, "Got those numbers: %d %d, %d", iPosStream, iPosTime, iLengthTime);
 
     positionTime = iPosTime;
     totalTime = iLengthTime;

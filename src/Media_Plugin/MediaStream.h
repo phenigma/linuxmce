@@ -67,9 +67,6 @@ namespace DCE
 		MediaDevice		*m_pMediaDevice_Source;      /** The device which is the source of this media stream. */
 		int 			 m_iPK_MediaType;        	/** The type of media in this stream. */
 
-		// TODO: Ask why do i need to put class in front here ?
-		class MediaPosition 	*m_pMediaPosition; 			/** Where we are in the media stream */
-
 		char 		*m_pPictureData;
         size_t 		 m_iPictureSize;
 

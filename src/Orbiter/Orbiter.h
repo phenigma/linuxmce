@@ -1593,6 +1593,15 @@ light, climate, media, security, telecom */
 	virtual void CMD_Set_Mouse_Position_Relative(int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #416 - Simulate Mouse Click At Present Pos */
+	/** Simulates clicking the mouse button */
+		/** @param #14 Type */
+			/** If L or empty, the left button.  If R the right button. */
+
+	virtual void CMD_Simulate_Mouse_Click_At_Present_Pos(string sType) { string sCMD_Result; CMD_Simulate_Mouse_Click_At_Present_Pos(sType.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Simulate_Mouse_Click_At_Present_Pos(string sType,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 
 /** temporary solution only */

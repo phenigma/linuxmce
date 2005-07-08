@@ -28,6 +28,7 @@
 #include "pluto_media/Table_Attribute.h"
 #include "pluto_media/Table_File_Attribute.h"
 #include "pluto_media/Table_File.h"
+#include "pluto_media/Table_Bookmark.h"
 #include "pluto_media/Table_Playlist.h"
 #include "pluto_media/Table_PlaylistEntry.h"
 
@@ -53,7 +54,7 @@ void MediaAttributes::TransformFilenameToDeque(string sFilename,deque<MediaFile 
 	if( sFilename.length()==0 )
 		return;
 
-	if( sFilename[0] != '#' || sFilename.length()<3 )
+	if( sFilename[0] != '!' || sFilename.length()<3 )
 	{
 		dequeFilenames.push_back(new MediaFile(this,sFilename));  // Just a normal file
 		return;
@@ -78,6 +79,20 @@ void MediaAttributes::TransformFilenameToDeque(string sFilename,deque<MediaFile 
 	}
 	else if( sFilename[1] == 'F' || sFilename[1] == 'f' )
 		dequeFilenames.push_back(new MediaFile(atoi(sFilename.substr(2).c_str()),GetFilePathFromFileID(atoi(sFilename.substr(2).c_str()))));
+	else if( sFilename[1] == 'B' || sFilename[1] == 'b' )
+	{
+		Row_Bookmark *pRow_Bookmark = m_pDatabase_pluto_media->Bookmark_get()->GetRow(atoi(sFilename.substr(2).c_str()));
+		if( pRow_Bookmark )
+		{
+			Row_File *pRow_File = pRow_Bookmark->FK_File_getrow();
+			if( pRow_File )
+			{
+				MediaFile *pMediaFile = new MediaFile(pRow_File->PK_File_get(),pRow_File->Path_get() + "/" + pRow_File->Filename_get());
+				pMediaFile->m_sStartPosition = pRow_Bookmark->Position_get();
+				dequeFilenames.push_back(pMediaFile);
+			}
+		}
+	}
 	else
 	{
 		dequeFilenames.push_back(new MediaFile(this,sFilename));  // Just a normal file
@@ -632,11 +647,13 @@ string MediaAttributes::GetFilePathFromFileID( int PK_File )
     MYSQL_ROW row;
     if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
     {
+g_pPlutoLogger->Write(LV_CRITICAL,"GetFilePathFromFileID sql ok %s",SQL.c_str());
         string strPath = row[0];
         string strFile = row[1];
         return strPath + "/" + strFile;
     }
 
+g_pPlutoLogger->Write(LV_CRITICAL,"GetFilePathFromFileID sql nothing %s",SQL.c_str());
     return "";
 }
 

@@ -1685,7 +1685,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Selected grid %s but m_pDataGridTable is NULL"
                     bFinishLoop = true;
                     bFoundSelection = true; // Is this correct????  Hacked in this time
 
-					CMD_Refresh(pDesignObj_DataGrid->m_sGridID);
+					CMD_Refresh(""); // AB 2005-07-07 we passed in this, but it causes teh grid to be re-acquired each time:pDesignObj_DataGrid->m_sGridID);
                 }
 
                 if ( pLastCell != pCell )
@@ -3423,6 +3423,7 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
 
 bool Orbiter::ButtonDown( int iPK_Button )
 {
+g_pPlutoLogger->Write(LV_CRITICAL, "Orbiter::ButtonDown %d",iPK_Button);
     //if this is a repeated button, we'll handle it right away
     if(m_pScreenHistory_Current && IsRepeatedKeyForScreen(m_pScreenHistory_Current->m_pObj, iPK_Button))
     {
@@ -3438,6 +3439,7 @@ g_pPlutoLogger->Write(LV_CRITICAL, "Repeated key %d", iPK_Button);
 
 bool Orbiter::ButtonUp( int iPK_Button )
 {
+g_pPlutoLogger->Write(LV_CRITICAL, "Orbiter::ButtonDown %d",iPK_Button);
 	if( m_bForward_local_kb_to_OSD && m_pLocationInfo && m_pLocationInfo->m_dwPK_Device_Orbiter )
 	{
 		DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_dwPK_Device,m_pLocationInfo->m_dwPK_Device_Orbiter,StringUtils::itos(iPK_Button),"");
@@ -5472,6 +5474,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Variable: %d set to %s",iPK_Variable,sValue_To_
 void Orbiter::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage)
 //<-dceag-c28-e->
 {
+g_pPlutoLogger->Write(LV_CRITICAL, "Orbiter::CMD_Simulate_Keypress button %s to X",sPK_Button.c_str());
     ButtonDown( atoi(sPK_Button.c_str()) ); // TODO: Handle shift and send second digit if shit is down
     ButtonUp( atoi(sPK_Button.c_str()) ); // TODO: Handle shift and send second digit if shit is down
 }
@@ -7533,5 +7536,16 @@ void Orbiter::CMD_Forward_local_kb_to_OSD(bool bTrueFalse,string &sCMD_Result,Me
 
 void Orbiter::CMD_Set_Mouse_Position_Relative(int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage)
 //<-dceag-c415-e->
+{
+}
+//<-dceag-c416-b->
+
+	/** @brief COMMAND: #416 - Simulate Mouse Click At Present Pos */
+	/** Simulates clicking the mouse button */
+		/** @param #14 Type */
+			/** If L or empty, the left button.  If R the right button. */
+
+void Orbiter::CMD_Simulate_Mouse_Click_At_Present_Pos(string sType,string &sCMD_Result,Message *pMessage)
+//<-dceag-c416-e->
 {
 }

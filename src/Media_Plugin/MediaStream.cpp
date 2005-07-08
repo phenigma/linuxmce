@@ -19,7 +19,6 @@
 #include "MediaHandlerInfo.h"
 #include "MediaHandlerBase.h"
 #include "EntertainArea.h"
-#include "MediaPosition.h"
 #include "Media_Plugin.h"
 
 #include "DCERouter.h"
@@ -64,7 +63,6 @@ MediaStream::MediaStream( class MediaHandlerInfo *pMediaHandlerInfo, MediaDevice
     m_iPK_Users=PK_Users;
     m_eSourceType=sourceType;
     m_bResume=m_bPlaying=false;
-    m_pMediaPosition=NULL;
     m_pOH_Orbiter_StartedMedia=NULL;
     m_pPictureData=NULL;
     m_iPictureSize=0;
@@ -104,8 +102,8 @@ void MediaStream::setIsMovable(bool bIsMovable)
 
 void MediaStream::SetPlaylistPosition(int position)
 {
-g_pPlutoLogger->Write(LV_STATUS,"SetPlaylistPosition with position %d dequepos %d size %d m_pmediaposition %p",
-	position,m_iDequeMediaFile_Pos,(int) m_dequeMediaFile.size(),m_pMediaPosition);
+g_pPlutoLogger->Write(LV_STATUS,"SetPlaylistPosition with position %d dequepos %d size %d",
+	position,m_iDequeMediaFile_Pos,(int) m_dequeMediaFile.size());
 
 	if ( (unsigned int)position == m_iDequeMediaFile_Pos )
 		return;
@@ -117,10 +115,6 @@ g_pPlutoLogger->Write(LV_STATUS,"SetPlaylistPosition with position %d dequepos %
 
     if ( m_iDequeMediaFile_Pos >= m_dequeMediaFile.size() )
         m_iDequeMediaFile_Pos = 0;
-
-	// reset the stream position
-	if ( m_pMediaPosition )
-		m_pMediaPosition->Reset();
 }
 
 

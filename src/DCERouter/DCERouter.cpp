@@ -887,6 +887,7 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 						{
 							Command_Impl *pPlugIn = (*it).second;
 							string sPendingTasks;
+g_pPlutoLogger->Write(LV_CRITICAL,"Checking plugin %d for reload",pPlugIn->m_dwPK_Device);
 							if( !pPlugIn->SafeToReload(&sPendingTasks) )
 							{
 								g_pPlutoLogger->Write(LV_STATUS,"Aborting reload as per %s %s",pPlugIn->m_sName.c_str(),sPendingTasks.c_str());
@@ -898,6 +899,7 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 								return;
 							}
 						}
+g_pPlutoLogger->Write(LV_CRITICAL,"PLUGINS OK");
 					}
 				}
                 m_bReload=true;

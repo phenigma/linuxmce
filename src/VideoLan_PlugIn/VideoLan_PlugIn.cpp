@@ -288,9 +288,8 @@ cmd.m_pcResponse=NULL;
 		}
 
 //		pVideoLanMediaStream->GetMediaPosition()->m_iSavedPosition=SavedPosition;
-		g_pPlutoLogger->Write( LV_STATUS, "The target device %d responded to stop media command! Stopped at position: %d",
-											pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
-											pVideoLanMediaStream->GetMediaPosition()->m_iSavedPosition);
+		g_pPlutoLogger->Write( LV_STATUS, "The target device %d responded to stop media command! Stopped",
+											pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 	}
 
 	return true;

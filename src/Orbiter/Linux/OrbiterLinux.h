@@ -68,13 +68,11 @@ public:
 
 	// overridden to handle turning on and off the mouse pointer
 	virtual void CMD_Show_Mouse_Pointer(string sOnOff,string &sCMD_Result,Message *pMessage);
-
 	virtual void CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage);
-
 	virtual void CMD_Activate_Window(string sName,string &sCMD_Result,Message *pMessage);
-
 	virtual void CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage);
-//     virtual void Initialize(GraphicType Type);
+	virtual void CMD_Set_Mouse_Position_Relative(int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Simulate_Mouse_Click_At_Present_Pos(string sType,string &sCMD_Result,Message *pMessage);
 };
 
 #endif // __CONTROLLERLINUXDESKTOP_H__

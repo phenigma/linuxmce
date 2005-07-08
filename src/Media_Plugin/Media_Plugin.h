@@ -2,7 +2,7 @@
 /**
  *
  * @file Media_Plugin.h
- * @brief header file for the  Media_Plugin, MediaPosition, MediaDevice, MediaHandlerBase classes
+ * @brief header file for the  Media_Plugin, MediaDevice, MediaHandlerBase classes
  */
 
 //<-dceag-d-b->

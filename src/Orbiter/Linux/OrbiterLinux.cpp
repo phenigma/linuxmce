@@ -318,23 +318,24 @@ void OrbiterLinux::CMD_Simulate_Keypress(string sPK_Button,string sName,string &
 {
 	if( m_bYieldInput )
 	{
-g_pPlutoLogger->Write(LV_STATUS, "Need to forward button %s to X",sPK_Button.c_str());
-		int iXKeySym = PlutoButtonsToX(atoi(sPK_Button.c_str()));
-g_pPlutoLogger->Write(LV_STATUS, "Sending XKeysym %d",iXKeySym);
-		XTestFakeKeyEvent( XServerDisplay, XKeysymToKeycode(XServerDisplay, iXKeySym), True, 0 );
-		XTestFakeKeyEvent( XServerDisplay, XKeysymToKeycode(XServerDisplay, iXKeySym), False, 0 );
-
-		XTestFakeKeyEvent( XServerDisplay, XKeysymToKeycode(XServerDisplay, XK_1), True, 0 );
-		XTestFakeKeyEvent( XServerDisplay, XKeysymToKeycode(XServerDisplay, XK_1), False, 0 );
-
-		XTestFakeKeyEvent( XServerDisplay, XKeysymToKeycode(XServerDisplay, XK_KP_2), True, 0 );
-		XTestFakeKeyEvent( XServerDisplay, XKeysymToKeycode(XServerDisplay, XK_KP_2), False, 0 );
-
-		XTestFakeKeyEvent( XServerDisplay, XK_3, True, 0 );
-		XTestFakeKeyEvent( XServerDisplay, XK_3, False, 0 );
-
-		XTestFakeKeyEvent( XServerDisplay, XK_KP_4, True, 0 );
-		XTestFakeKeyEvent( XServerDisplay, XK_KP_4, False, 0 );
+g_pPlutoLogger->Write(LV_CRITICAL, "Need to forward button %s to X",sPK_Button.c_str());
+		pair<bool,int> XKeySym = PlutoButtonsToX(atoi(sPK_Button.c_str()));
+g_pPlutoLogger->Write(LV_CRITICAL, "Sending XKeysym %d",XKeySym.second);
+		XTestFakeKeyEvent( XServerDisplay, XKeysymToKeycode(XServerDisplay, XKeySym.second), True, 0 );
+		XTestFakeKeyEvent( XServerDisplay, XKeysymToKeycode(XServerDisplay, XKeySym.second), False, 0 );
 	}
 	Orbiter::CMD_Simulate_Keypress(sPK_Button,sName,sCMD_Result,pMessage);
+}
+
+void OrbiterLinux::CMD_Set_Mouse_Position_Relative(int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage)
+{
+g_pPlutoLogger->Write(LV_STATUS, "Moving mouse %d %d",iPosition_X, iPosition_Y);
+	XTestFakeRelativeMotionEvent(XServerDisplay, iPosition_X, iPosition_Y, 0);
+}
+
+void OrbiterLinux::CMD_Simulate_Mouse_Click_At_Present_Pos(string sType,string &sCMD_Result,Message *pMessage)
+{
+g_pPlutoLogger->Write(LV_STATUS, "Clicking mouse %s",sType.c_str());
+	XTestFakeButtonEvent(XServerDisplay, 1, true, 0);
+	XTestFakeButtonEvent(XServerDisplay, 1, false, 0);
 }

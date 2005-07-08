@@ -19,7 +19,6 @@
 #include "MediaHandlerInfo.h"
 #include "MediaHandlerBase.h"
 #include "EntertainArea.h"
-#include "MediaPosition.h"
 #include "Media_Plugin.h"
 
 #include "DCERouter.h"

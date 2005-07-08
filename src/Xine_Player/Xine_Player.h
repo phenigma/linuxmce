@@ -50,6 +50,11 @@ public:
 		XineSlaveWrapper *m_pXineSlaveControl; /** < m_pXineSlaveControl points to the XineSlaveWrapper object */
 
 		bool Connect(int iPK_DeviceTemplate );
+		string GetPosition();
+
+		// Take the MRL and the position, adjust the MRL if necessary, such as adding title.chapter 
+		// and return the position in ms to seek to
+		int CalculatePosition(string &sMediaPosition,string *sMRL=NULL,int *Subtitle=NULL,int *Angle=NULL,int *AudioTrack=NULL);
 
 		Display *getDisplay();
 	public:

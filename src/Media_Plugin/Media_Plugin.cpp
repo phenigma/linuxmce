@@ -728,7 +728,6 @@ void Media_Plugin::StartMedia( int iPK_MediaType, unsigned int iPK_Device_Orbite
 MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int PK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int PK_Device_Source, deque<MediaFile *> *dequeMediaFile, bool bResume,int iRepeat)
 {
     PLUTO_SAFETY_LOCK(mm,m_MediaMutex);
-
     MediaDevice *pMediaDevice=NULL;
     if( PK_Device_Source )
         pMediaDevice = m_mapMediaDevice_Find(PK_Device_Source);
@@ -1756,9 +1755,9 @@ class DataGridTable *Media_Plugin::MediaAttrFiles( string GridID, string Parms, 
 
     string PK_Attribute = Parms;
 
-    if( PK_Attribute.substr( 0, 2 )=="#A" )
+    if( PK_Attribute.substr( 0, 2 )=="!A" )
         PK_Attribute = PK_Attribute.substr( 2 );
-    else if( PK_Attribute.substr( 0, 2 )=="#F" )
+    else if( PK_Attribute.substr( 0, 2 )=="!F" )
         PK_Attribute = StringUtils::itos(m_pMediaAttributes->GetAttributeFromFileID( atoi( PK_Attribute.substr( 2 ).c_str( ) ) ) );
 
     if ( PK_Attribute == "" )
@@ -1806,9 +1805,9 @@ class DataGridTable *Media_Plugin::MediaAttrCollections( string GridID, string P
 		return pDataGrid;
 
     string PK_Attribute = Parms;
-    if( PK_Attribute.substr( 0, 2 )=="#A" )
+    if( PK_Attribute.substr( 0, 2 )=="!A" )
         PK_Attribute = PK_Attribute.substr( 2 );
-    else if( PK_Attribute.substr( 0, 2 )=="#F" )
+    else if( PK_Attribute.substr( 0, 2 )=="!F" )
         PK_Attribute = StringUtils::itos(
             m_pMediaAttributes->GetAttributeFromFileID( atoi( PK_Attribute.substr( 2 ).c_str( ) ) )
          );
@@ -1862,13 +1861,13 @@ class DataGridTable *Media_Plugin::MediaAttrXref( string GridID, string Parms, v
 	if( PK_Attribute.length()==0 )
 		return pDataGrid;
 
-	if( PK_Attribute.substr( 0, 2 )=="#A" )
+	if( PK_Attribute.substr( 0, 2 )=="!A" )
         PK_Attribute = PK_Attribute.substr( 2 );
 
     int PK_Picture;
     string Extension;
 
-	if( PK_Attribute.substr( 0, 2 )=="#F" )
+	if( PK_Attribute.substr( 0, 2 )=="!F" )
 	{
         Extension = m_pMediaAttributes->GetPictureFromFileID(atoi(PK_Attribute.substr(2).c_str()),&PK_Picture);
         PK_Attribute = StringUtils::itos(m_pMediaAttributes->GetAttributeFromFileID( atoi( PK_Attribute.substr( 2 ).c_str( ) ) ) );
@@ -1936,11 +1935,11 @@ class DataGridTable *Media_Plugin::MediaItemAttr( string GridID, string Parms, v
     string PK_Attribute = Parms;
     if( PK_Attribute.length()==0 )
         return NULL;
-    if( PK_Attribute.substr(0,2)=="#F" )
+    if( PK_Attribute.substr(0,2)=="!F" )
         PK_File = atoi(PK_Attribute.substr(2).c_str());
     else
     {
-        if( PK_Attribute.substr(0,2)=="#A" )
+        if( PK_Attribute.substr(0,2)=="!A" )
             PK_Attribute = PK_Attribute.substr(2);
 //
         PK_File = m_pMediaAttributes->GetFileIDFromAttributeID(atoi(PK_Attribute.c_str()));
@@ -2301,7 +2300,7 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_Med
 				dequeMediaFile.push_back(new MediaFile(m_pMediaAttributes, *itFileName++));
 		}
 		else
-			m_pMediaAttributes->TransformFilenameToDeque(sFilename, dequeMediaFile);  // This will convert any #a, #f, etc.
+			m_pMediaAttributes->TransformFilenameToDeque(sFilename, dequeMediaFile);  // This will convert any !A, !F, !B etc.
  	}
 
     // What is the media?  It must be a Device, DeviceTemplate, or a media type, or filename
@@ -4169,11 +4168,12 @@ class DataGridTable *Media_Plugin::Bookmarks( string GridID, string Parms, void 
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 
 	// If this is called to browse the bookmarks within the currently playing file, this will be called with
-	// MediaType=0.  Otherwise the MediaType and current user will be passed in
+	// MediaType=0.  Otherwise the MediaType and current user will be passed in, and we will assign the EntArea
+	EntertainArea *pEntertainArea=NULL;
 	string::size_type pos=0;
 	int PK_MediaType = atoi(StringUtils::Tokenize(Parms,",",pos).c_str());
 	int PK_Users = atoi(StringUtils::Tokenize(Parms,",",pos).c_str());
-
+	
 	string sWhere;
 	if( PK_MediaType )
 		sWhere = "EK_MediaType=" + StringUtils::itos(PK_MediaType) + " AND (EK_Users IS NULL OR EK_Users="+StringUtils::itos(PK_Users)+")";
@@ -4184,7 +4184,7 @@ class DataGridTable *Media_Plugin::Bookmarks( string GridID, string Parms, void 
 		DetermineEntArea( pMessage->m_dwPK_Device_From, 0, "", vectEntertainArea );
 		if( vectEntertainArea.size() )
 		{
-			EntertainArea *pEntertainArea = vectEntertainArea[0];
+			pEntertainArea = vectEntertainArea[0];
 			if( pEntertainArea->m_pMediaStream && pEntertainArea->m_pMediaStream->m_dequeMediaFile.size() &&
 				pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos>=0 &&
 				pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos<pEntertainArea->m_pMediaStream->m_dequeMediaFile.size() )
@@ -4201,7 +4201,12 @@ class DataGridTable *Media_Plugin::Bookmarks( string GridID, string Parms, void 
 	for(size_t s=0;s<vectRow_Bookmark.size();++s)
 	{
 		Row_Bookmark *pRow_Bookmark = vectRow_Bookmark[s];
-		DataGridCell *pDataGridCell = new DataGridCell(pRow_Bookmark->Description_get(), pRow_Bookmark->Position_get());
+
+		DataGridCell *pDataGridCell = new DataGridCell(pRow_Bookmark->Description_get(), StringUtils::itos(pRow_Bookmark->PK_Bookmark_get()));
+		DataGridCell *pDataGridCell_Cover = new DataGridCell("", StringUtils::itos(pRow_Bookmark->PK_Bookmark_get()));
+		DataGridCell *pDataGridCell_Preview = new DataGridCell("", StringUtils::itos(pRow_Bookmark->PK_Bookmark_get()));
+		pDataGrid->SetData(0,s,pDataGridCell_Cover);
+		pDataGrid->SetData(1,s,pDataGridCell_Preview);
 		pDataGridCell->m_Colspan=2;
 		pDataGrid->SetData(2,s,pDataGridCell);
 
@@ -4211,10 +4216,8 @@ class DataGridTable *Media_Plugin::Bookmarks( string GridID, string Parms, void 
 			char *pBuffer = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(pRow_Bookmark->FK_Picture_get()) + "." + pRow_Bookmark->FK_Picture_getrow()->Extension_get(),iSize);
 			if( pBuffer )
 			{
-				pDataGridCell = new DataGridCell("", pRow_Bookmark->Position_get());
-				pDataGridCell->m_pGraphicData = pBuffer;
-				pDataGridCell->m_GraphicLength = iSize;
-				pDataGrid->SetData(1,s,pDataGridCell);
+				pDataGridCell_Cover->m_pGraphicData = pBuffer;
+				pDataGridCell_Cover->m_GraphicLength = iSize;
 			}
 g_pPlutoLogger->Write(LV_WARNING,"pic file 1 %p",pBuffer);
 		}
@@ -4234,10 +4237,8 @@ g_pPlutoLogger->Write(LV_WARNING,"pic file 1 %p",pBuffer);
 				char *pBuffer = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(PK_Picture) + ".jpg",iSize);
 				if( pBuffer )
 				{
-					pDataGridCell = new DataGridCell("", pRow_Bookmark->Position_get());
-					pDataGridCell->m_pGraphicData = pBuffer;
-					pDataGridCell->m_GraphicLength = iSize;
-					pDataGrid->SetData(0,s,pDataGridCell);
+					pDataGridCell_Preview->m_pGraphicData = pBuffer;
+					pDataGridCell_Preview->m_GraphicLength = iSize;
 				}
 	g_pPlutoLogger->Write(LV_WARNING,"pic file 2 %p",pBuffer);
 			}
@@ -4268,13 +4269,15 @@ void Media_Plugin::CMD_Save_Bookmark(string sPK_EntertainArea,string &sCMD_Resul
 
 	MediaStream *pMediaStream = pEntertainArea->m_pMediaStream;
 
-	MediaFile *pMediaFile;
+	MediaFile *pMediaFile=NULL;
 	if( pMediaStream->m_dequeMediaFile.size()==0 ||
 		pMediaStream->m_iDequeMediaFile_Pos<0 ||
 		pMediaStream->m_iDequeMediaFile_Pos>=pEntertainArea->m_pMediaStream->m_dequeMediaFile.size() ||
 		(pMediaFile=pMediaStream->m_dequeMediaFile[pMediaStream->m_iDequeMediaFile_Pos])==NULL ||
 		pMediaFile->m_dwPK_File==0)
 	{
+g_pPlutoLogger->Write(LV_CRITICAL,"size %d pos %d file %p %d",(int) pMediaStream->m_dequeMediaFile.size(),
+					  pMediaStream->m_iDequeMediaFile_Pos,pMediaFile,pMediaFile ? pMediaFile->m_dwPK_File : 0);
 		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(StringUtils::itos(pMessage->m_dwPK_Device_From),"Bookmarks only work with files");
 		return;
 	}

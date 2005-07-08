@@ -15,7 +15,6 @@
 #include "../Media_Plugin/MediaHandlerInfo.h"
 #include "../Media_Plugin/MediaStream.h"
 #include "../Media_Plugin/MediaDevice.h"
-#include "../Media_Plugin/MediaPosition.h"
 
 #include <map>
 #include <list>
@@ -43,23 +42,6 @@ namespace DCE
 			bool ShouldUseStreaming();
 
 			bool CanPlayMore();
-
-			class XineMediaPosition : public MediaPosition
-			{
-				public:
-					// data related to stream position. I'm not sure we even need it here because we can always ask the device
-					// for it. If a device crashes then we might need to keep the data here.
-					int             	m_iSavedPosition;
-					int					m_iTotalStreamTime;
-					string 				m_sSavedPosition;
-
-					XineMediaPosition();
-					virtual ~XineMediaPosition();
-					virtual void Reset();
-					virtual string GetID();
-			};
-
-			XineMediaPosition *GetMediaPosition();
 	};
 
 };

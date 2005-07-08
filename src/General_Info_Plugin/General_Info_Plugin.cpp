@@ -571,7 +571,7 @@ class DataGridTable *General_Info_Plugin::PendingTasks( string GridID, string Pa
 class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
     DataGridTable *pDataGrid = new DataGridTable( );
-    DataGridCell *pCell;
+    DataGridCell *pCellIcon,*pCellText;
 
 	int PK_Device_MD=atoi(Parms.c_str());
 	DeviceData_Router *pDevice_MD = m_pRouter->m_mapDeviceData_Router_Find(PK_Device_MD);
@@ -606,7 +606,11 @@ class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string 
 	for(size_t s=0;s<vectRow_Device_QuickStart.size();++s)
 	{
 		Row_Device_QuickStart *pRow_Device_QuickStart = vectRow_Device_QuickStart[s];
-		pCell = new DataGridCell( pRow_Device_QuickStart->Description_get(), "" );
+		pCellIcon = new DataGridCell( pRow_Device_QuickStart->Description_get(), "" );
+		pCellText = new DataGridCell( pRow_Device_QuickStart->Description_get(), "" );
+		pCellText->m_Colspan=3;
+		pDataGrid->SetData( 0, s, pCellIcon );
+		pDataGrid->SetData( 1, s, pCellText );
 
 		// If this is the same on screen orbiter on which the app will run, we will send the user 
 		// to a screen that retains a small strip at the bottom to terminate the app and return to the orbiter.
@@ -622,7 +626,8 @@ class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string 
 			DCE::CMD_Set_Variable CMD_Set_Variable2(m_dwPK_Device,pDevice_Orbiter_OSD->m_dwPK_Device,
 				VARIABLE_Misc_Data_2_CONST,pRow_Device_QuickStart->Arguments_get());
 			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable2.m_pMessage);
-			pCell->m_pMessage = CMD_Goto_Screen.m_pMessage;
+			pCellIcon->m_pMessage = CMD_Goto_Screen.m_pMessage;
+			pCellText->m_pMessage = new Message(pCellIcon->m_pMessage);
 		}
 		else
 		{
@@ -641,9 +646,9 @@ class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string 
 				StringUtils::itos(DESIGNOBJ_mnuGenericAppController_CONST),"","",false,false);
 			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen2.m_pMessage);
 
-			pCell->m_pMessage = CMD_Goto_Screen.m_pMessage;
+			pCellIcon->m_pMessage = CMD_Goto_Screen.m_pMessage;
+			pCellText->m_pMessage = new Message(pCellIcon->m_pMessage);
 		}
-		pDataGrid->SetData( 0, s, pCell );
 	}
 
 	return pDataGrid;

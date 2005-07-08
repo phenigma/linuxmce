@@ -213,10 +213,11 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 	string mediaURL;
 	string Response;
 
+	MediaFile *pMediaFile = NULL;
 	// HACK: -- todo: get real informations.
 	if( pXineMediaStream->m_dequeMediaFile.size()>pXineMediaStream->m_iDequeMediaFile_Pos )
 	{
-		MediaFile *pMediaFile = pXineMediaStream->m_dequeMediaFile[pXineMediaStream->m_iDequeMediaFile_Pos];
+		pMediaFile = pXineMediaStream->m_dequeMediaFile[pXineMediaStream->m_iDequeMediaFile_Pos];
 		if( pMediaFile && pMediaFile->m_sDescription.size() )
 			pXineMediaStream->m_sMediaDescription = pMediaFile->m_sDescription;
 		else
@@ -230,15 +231,15 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 	if ( pXineMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST )
 		mediaURL = "dvd:/" + mediaURL;
 
-	g_pPlutoLogger->Write(LV_WARNING, "sending CMD_Play_Media from %d to %d with deq pos %d saved pos %d", 
+	g_pPlutoLogger->Write(LV_WARNING, "sending CMD_Play_Media from %d to %d with deq pos %d", 
 		m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
-		pMediaStream->m_iDequeMediaFile_Pos, pXineMediaStream->GetMediaPosition()->m_iSavedPosition);
+		pMediaStream->m_iDequeMediaFile_Pos);
 	DCE::CMD_Play_Media cmd(m_dwPK_Device,
 							pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
 							mediaURL,
 							pXineMediaStream->m_iPK_MediaType,
 							pXineMediaStream->m_iStreamID_get( ),
-							"");//pXineMediaStream->GetMediaPosition()->m_iSavedPosition);
+							pMediaFile ? pMediaFile->m_sStartPosition : "");
 
 	// No handling of errors (it will in some cases deadlock the router.)
 	SendCommand(cmd);
@@ -309,9 +310,8 @@ cmd.m_pcResponse=NULL;
 		}
 
 //		pXineMediaStream->GetMediaPosition()->m_iSavedPosition=SavedPosition;
-		g_pPlutoLogger->Write( LV_STATUS, "The target device %d responded to stop media command! Stopped at position: %d",
-											pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
-											pXineMediaStream->GetMediaPosition()->m_iSavedPosition);
+		g_pPlutoLogger->Write( LV_STATUS, "The target device %d responded to stop media command",
+											pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 	}
 
 	return true;

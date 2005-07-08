@@ -6597,5 +6597,21 @@ namespace DCE
 	public:
 		CMD_Set_Mouse_Position_Relative_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPosition_X,int iPosition_Y) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,415,2,11,StringUtils::itos(iPosition_X).c_str(),12,StringUtils::itos(iPosition_Y).c_str()); }
 	};
+	class CMD_Simulate_Mouse_Click_At_Present_Pos : public PreformedCommand {
+	public:
+		CMD_Simulate_Mouse_Click_At_Present_Pos(long DeviceIDFrom, long DeviceIDTo,string sType) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,416,1,14,sType.c_str()); }
+	};
+	class CMD_Simulate_Mouse_Click_At_Present_Pos_DL : public PreformedCommand {
+	public:
+		CMD_Simulate_Mouse_Click_At_Present_Pos_DL(long DeviceIDFrom, string DeviceIDTo,string sType) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,416,1,14,sType.c_str()); }
+	};
+	class CMD_Simulate_Mouse_Click_At_Present_Pos_DT : public PreformedCommand {
+	public:
+		CMD_Simulate_Mouse_Click_At_Present_Pos_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sType) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,416,1,14,sType.c_str()); }
+	};
+	class CMD_Simulate_Mouse_Click_At_Present_Pos_Cat : public PreformedCommand {
+	public:
+		CMD_Simulate_Mouse_Click_At_Present_Pos_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sType) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,416,1,14,sType.c_str()); }
+	};
 }
 #endif

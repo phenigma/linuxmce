@@ -19,7 +19,6 @@
 #include "../Media_Plugin/Media_Plugin.h"
 #include "../Media_Plugin/MediaStream.h"
 #include "../Media_Plugin/MediaHandlerBase.h"
-#include "../Media_Plugin/MediaPosition.h"
 
 #include "XineMediaStream.h"
 
