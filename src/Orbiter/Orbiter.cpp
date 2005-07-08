@@ -245,6 +245,13 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
 	m_iTimeoutBlank = atoi(StringUtils::Tokenize(sTimeout,",",pos).c_str());
 	m_sCacheFolder = DATA_Get_CacheFolder();
 	m_iCacheSize = DATA_Get_CacheSize();
+
+    if(DATA_Get_ScreenWidth())
+        m_iImageWidth = DATA_Get_ScreenWidth();
+
+    if(DATA_Get_ScreenHeight())
+        m_iImageHeight = DATA_Get_ScreenHeight();
+
 	m_pCacheImageManager = NULL;
 	if(m_iCacheSize > 0)
 		m_pCacheImageManager = new CacheImageManager(m_sCacheFolder, m_iCacheSize);

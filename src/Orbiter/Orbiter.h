@@ -898,6 +898,8 @@ public:
 	string DATA_Get_Ignore_State();
 	int DATA_Get_PK_DesignObj();
 	bool DATA_Get_Dont_Auto_Jump_to_Remote();
+	int DATA_Get_ScreenWidth();
+	int DATA_Get_ScreenHeight();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position);

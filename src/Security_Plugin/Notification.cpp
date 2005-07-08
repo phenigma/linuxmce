@@ -49,6 +49,8 @@ using namespace DCE;
 #include "pluto_security/Table_AlertType.h"
 #include "pluto_security/Table_ModeChange.h"
 #include "pluto_security/Table_Notification.h"
+#include "pluto_main/Table_Device.h"
+#include "pluto_main/Table_Room.h"
 
 void* StartNotificationInfo( void* param ) 
 {
@@ -213,7 +215,7 @@ bool Notification::ExecuteNotification(string sPhoneNumber, int iDelay, bool bNo
 {
     long nAlertType = m_pRow_Alert->FK_AlertType_get();
     string sCallerID = bNotifyOrbiter ? GenerateCallerID(nAlertType) : ""; //no caller id for the others
-    string sWavFileName = GenerateWavFile(nAlertType);
+    string sWavFileName = GenerateWavFile(nAlertType, m_pRow_Alert->EK_Device_get());
 
     Row_Notification *pRow_Notification = m_pSecurity_Plugin->m_pDatabase_pluto_security->Notification_get()->AddRow();
     pRow_Notification->FK_Alert_set(m_pRow_Alert->PK_Alert_get());
@@ -249,11 +251,20 @@ bool Notification::ExecuteNotification(string sPhoneNumber, int iDelay, bool bNo
     return true;
 }
 
-string Notification::GenerateWavFile(long nAlertType)
+string Notification::GenerateWavFile(long nAlertType, long nDeviceID)
 {
     const string csMenuWavFile("/tmp/pluto-security-voicemenu.wav");
-    string sSecurityZone;
-    string sText = "This is Pluto. " + GetAlertInfo(nAlertType) + ": " + sSecurityZone;
+    string sRoom("an unknown room");
+
+    Row_Device *pRow_Device = m_pSecurity_Plugin->m_pDatabase_pluto_main->Device_get()->GetRow(nDeviceID);
+    if(pRow_Device)
+    {
+        Row_Room *pRow_Room = m_pSecurity_Plugin->m_pDatabase_pluto_main->Room_get()->GetRow(pRow_Device->FK_Room_get());
+        if(pRow_Room)
+            sRoom = pRow_Room->Description_get();
+    }
+
+    string sText = "This is Pluto. " + GetAlertInfo(nAlertType) + " in " + sRoom;
     
     char *pData = NULL;
     int iSize = 0;

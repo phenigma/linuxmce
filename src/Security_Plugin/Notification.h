@@ -55,7 +55,7 @@ namespace DCE
 		bool NotifyOther(string sPhoneNumber,int iDelay);
 
     private: 
-        string GenerateWavFile(long nAlertType);
+        string GenerateWavFile(long nAlertType, long nDeviceID);
         string GetAlertInfo(long AlertType);
 
         bool ExecuteNotification(string sPhoneNumber, int iDelay, bool bNotifyOrbiter);
