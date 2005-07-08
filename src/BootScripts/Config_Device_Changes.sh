@@ -75,7 +75,9 @@ bash -x "$CUsh" &> >(tee /var/log/pluto/Config_Device_Changes.newlog)
 
 echo /usr/pluto/bin/ConfirmDependencies -n -h $MySqlHost -u $MySqlUser $Pass -d $PK_Device buildall
 mkdir -p /usr/pluto/sources
-echo "#!/bin/bash" >>"/usr/pluto/sources/buildall.sh"
+
+: >"/usr/pluto/sources/buildall.sh"
+echo '#!/bin/bash' >>"/usr/pluto/sources/buildall.sh"
 echo "cd /usr/pluto/sources" >>"/usr/pluto/sources/buildall.sh"
 /usr/pluto/bin/ConfirmDependencies -n -h $MySqlHost -u $MySqlUser $Pass -d $PK_Device buildall >>"/usr/pluto/sources/buildall.sh"
 rm -f "/usr/pluto/install/compile.sh" # old version mistake precaution
