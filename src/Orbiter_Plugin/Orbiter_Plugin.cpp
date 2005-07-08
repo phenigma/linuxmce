@@ -1786,7 +1786,25 @@ void Orbiter_Plugin::GeneratePlutoMOConfig()
 
             string sUserName = pRow_Users->UserName_get();
             string sPin = pRow_Users->PINCode_get();
-            sPlutoMOConfig += sUserName + "\n" + sPin + "\n";
+            string sPhoneNumber;
+
+            m_pDatabase_pluto_main->Device_DeviceData_get()->GetRows(
+                " FK_Device = " + sPKDevice + " AND " + 
+                " FK_DeviceData = " + StringUtils::ltos(DEVICEDATA_Mobile_Orbiter_Phone_CONST),
+                &vectRow_Device_DeviceData);
+
+            if(vectRow_Device_DeviceData.size() != 1)
+            {
+                g_pPlutoLogger->Write(LV_WARNING, "No phone number for %s mobile or too many: %d", sPKDevice.c_str(),
+                    vectRow_Device_DeviceData.size());
+                vectRow_Device_DeviceData.clear();
+            }
+            else
+                sPhoneNumber = vectRow_Device_DeviceData[0]->IK_DeviceData_get();
+
+            vectRow_Device_DeviceData.clear();
+
+            sPlutoMOConfig += sUserName + "\n" + sPin + "\n" + sPhoneNumber + "\n";
             pOH_Orbiter->m_sConfigFile = sPlutoMOConfFile;
 
             FileUtils::WriteBufferIntoFile(sPlutoMOConfFile, const_cast<char *>(sPlutoMOConfig.c_str()), 
