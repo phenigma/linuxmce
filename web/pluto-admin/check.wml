@@ -38,7 +38,7 @@ if(!isset($_REQUEST['user']) && !isset($_REQUEST['pin']) && !isset($_REQUEST['pi
 		if(!isset($_REQUEST['opt'])){
 			if(isset($_REQUEST['security'])){
 				if((int)$_REQUEST['security']==0){
-					$msg=displaySecurityAlerts($securityADO);
+					$msg=displaySecurityAlerts($securityADO,$dbADO);
 				}else{
 					$msg=displaySecuritySelected((int)$_REQUEST['security'],$dbADO,$securityADO);
 				}
@@ -87,11 +87,13 @@ function executeScenario($cgid,$dbADO)
 }
 
 
-function displaySecurityAlerts($securityADO)
+function displaySecurityAlerts($securityADO,$dbADO)
 {
 	// Security alerts
+	$roomsArray=getAssocArray('Room','PK_Device','Room.Description',$dbADO,'INNER JOIN Device ON FK_Room=PK_Room');	
+
 	if(isset($_REQUEST['security']) && (int)$_REQUEST['security']==0){
-		$DateFormat='H:i:s d-m-Y';
+		$DateFormat='H:i:s d-m';
 		
 		$rs=$securityADO->Execute('
 			SELECT 
@@ -105,7 +107,7 @@ function displaySecurityAlerts($securityADO)
 		$pos=0;
 		while($row=$rs->FetchRow()){
 			$pos++;
-			$msg.=$pos.'. <a href="check.wml?security='.$row['PK_Alert'].extraLinks().'">'.$row['Description'].'</a> - '.date($DateFormat,$row['UnixTime']).'<br/>
+			$msg.=$pos.'. <a href="check.wml?security='.$row['PK_Alert'].extraLinks().'">'.$row['Description'].'</a> ['.(!isset($roomsArray[$row['EK_Device']])?'No room':$roomsArray[$row['EK_Device']]).'] - '.date($DateFormat,$row['UnixTime']).'<br/>
 			';
 		}
 	}
@@ -116,6 +118,7 @@ function displaySecurityAlerts($securityADO)
 function displaySecuritySelected($alertID,$dbADO,$securityADO)
 {
 	global $installationID;
+	$roomsArray=getAssocArray('Room','PK_Device','Room.Description',$dbADO,'INNER JOIN Device ON FK_Room=PK_Room');		
 	// Display selected security alert
 	if($alertID!=0 ){
 		switch(@$_REQUEST['action']){
@@ -136,13 +139,14 @@ function displaySecuritySelected($alertID,$dbADO,$securityADO)
 				updateNotification($_REQUEST['user'].': Neighbors',$alertID,$securityADO);
 				break;
 			case 5:
+				$actionResult=speakInTheHouse($dbADO);
 				updateNotification($_REQUEST['user'].': Speak',$alertID,$securityADO);
 				break;
 			default:
 				break;
 		}
 		
-		$DateFormat='H:i:s d-m-Y';
+		$DateFormat='H:i:s d-m';
 		
 		$rs=$securityADO->Execute('
 			SELECT 
@@ -160,8 +164,8 @@ function displaySecuritySelected($alertID,$dbADO,$securityADO)
 		$row=$rs->FetchRow();
 		$alertDevice=getFieldsAsArray('Alert_Device','PK_Alert_Device',$securityADO,'WHERE FK_Alert='.$alertID.' AND EK_Device='.$row['EK_Device']);
 		
-		$msg.='<b>'.$row['Description'].'</b> - '.date($DateFormat,$row['UnixTime']).'<br/>
-		<img src="security_images/'.$alertDevice['PK_Alert_Device'][0].'.jpg"/><br/>
+		$msg.='<b>'.$row['Description'].'</b> ['.(!isset($roomsArray[$row['EK_Device']])?'No room':$roomsArray[$row['EK_Device']]).'] - '.date($DateFormat,$row['UnixTime']).'<br/>
+		<img src="security_images/'.$alertDevice['PK_Alert_Device'][0].'.jpg" alt="Loading..."/><br/>
 		<b>What to do?</b><br/>
 		a) <a href="check.wml?security='.$row['PK_Alert'].'&amp;action=1'.extraLinks().'">reseting the alarm</a><br/> 
 		b) <a href="check.wml?security='.$row['PK_Alert'].'&amp;action=2'.extraLinks().'">ignoring the alert (ie it continues to notify others)</a><br/> 
@@ -242,17 +246,10 @@ function displayScreens($dbADO)
 			break;
 		case 3:
 			// speak in the house
-			$securityDevicePlugin=getFieldsAsArray('Device','PK_Device',$dbADO,'WHERE FK_DeviceTemplate='.$GLOBALS['SecurityPlugin'].' AND FK_Installation='.$installationID);
-			$securityPluginID=(int)@$securityDevicePlugin['PK_Device'][0];
-			$telecomDevicePlugin=getFieldsAsArray('Device','PK_Device',$dbADO,'WHERE FK_DeviceTemplate='.$GLOBALS['TelecomPlugin'].' AND FK_Installation='.$installationID);		
-			$telecomPluginID=(int)@$telecomDevicePlugin['PK_Device'][0];
-			$phone=$_REQUEST['phone'];
-			
-			$cmd='/usr/pluto/bin/MessageSend localhost -targetType device '.$securityPluginID.' '.$telecomPluginID.' 1 413 75 '.$phone.' 81 "pluto" 83 "000"';
-			exec($cmd);
-			$msg='Speaking in progress ...';
+			$msg=speakInTheHouse($dbADO);
 			break;
 		case 4:
+			// view cameras
 			if(!isset($_REQUEST['cameraID'])){
 				$cameraDevices=getDevicesFromCategory($GLOBALS['rootCameras'],$installationID,$dbADO);
 				$msg='Cameras: <br/>';
@@ -273,7 +270,7 @@ function displayScreens($dbADO)
 				foreach ($retArray as $line) {
 					if(!ereg(':OK',$line)){
 						exec('mv /var/www/pluto-admin/security_images/19.out /var/www/pluto-admin/security_images/'.$cameraID.'.jpg',$retArray,$retCode);
-						$msg='<img src="security_images/'.$cameraID.'.jpg"/>';
+						$msg='<img src="security_images/'.$cameraID.'.jpg" alt="Loading ..."/>';
 					}
 				}
 			}
@@ -332,5 +329,21 @@ function getDevicesFromCategory($categoryID,$installationID,$dbADO)
 function updateNotification($action,$alertID,$securityADO)
 {
 	$securityADO->Execute('UPDATE Notification SET Result=CONCAT(IF(ISNULL(Result),\'\',Result),?) WHERE FK_Alert=?',array($action."\n",$alertID));
+}
+
+function speakInTheHouse($dbADO)
+{
+	global $installationID;
+	$securityDevicePlugin=getFieldsAsArray('Device','PK_Device',$dbADO,'WHERE FK_DeviceTemplate='.$GLOBALS['SecurityPlugin'].' AND FK_Installation='.$installationID);
+	$securityPluginID=(int)@$securityDevicePlugin['PK_Device'][0];
+	$telecomDevicePlugin=getFieldsAsArray('Device','PK_Device',$dbADO,'WHERE FK_DeviceTemplate='.$GLOBALS['TelecomPlugin'].' AND FK_Installation='.$installationID);
+	$telecomPluginID=(int)@$telecomDevicePlugin['PK_Device'][0];
+	$phone=$_REQUEST['phone'];
+
+	$cmd='/usr/pluto/bin/MessageSend localhost -targetType device '.$securityPluginID.' '.$telecomPluginID.' 1 413 75 '.$phone.' 81 "pluto" 83 "000"';
+	exec($cmd);
+	$msg='Speaking in progress ...';
+	
+	return $msg;
 }
 ?>

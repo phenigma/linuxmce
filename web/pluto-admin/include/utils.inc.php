@@ -2789,7 +2789,8 @@ function getAssocArray($table,$keyField,$labelField,$dbADO,$whereClause='',$orde
 	$retArray=array();
 	$res=$dbADO->Execute("SELECT $keyField,$labelField FROM $table $whereClause $orderClause");
 	while($row=$res->FetchRow()){
-		$retArray[$row[$keyField]]=$row[$labelField];
+		$cleanLabel=(strpos($labelField,'.')!==false)?substr($labelField,strpos($labelField,'.')+1):$labelField;
+		$retArray[$row[$keyField]]=$row[$cleanLabel];
 	}
 	return $retArray;
 }
