@@ -336,4 +336,5 @@ g_pPlutoLogger->Write(LV_STATUS, "Sending XKeysym %d",iXKeySym);
 		XTestFakeKeyEvent( XServerDisplay, XK_KP_4, True, 0 );
 		XTestFakeKeyEvent( XServerDisplay, XK_KP_4, False, 0 );
 	}
+	Orbiter::CMD_Simulate_Keypress(sPK_Button,sName,sCMD_Result,pMessage);
 }
