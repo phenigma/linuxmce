@@ -30,7 +30,6 @@
 
 #ifndef WIN32
 	#include <fcntl.h>
-	#include <netdb.h>
 #endif
 
 #ifdef WINCE
@@ -119,32 +118,7 @@ Socket::Socket(string Name,string sIPAddress) : m_SocketMutex("socket mutex " + 
 #endif
 #endif
 	m_pcSockLogFile=m_pcSockLogErrorFile=NULL;
-
-#ifndef WIN32
-	/*
-	// code unusable; there's a memory leak in libc6 2.3.2
-	struct addrinfo hints;
-	struct addrinfo * res;
-			
-	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_protocol = IPPROTO_TCP;
-	hints.ai_flags = AI_CANONNAME;
-	hints.ai_family = PF_INET;
-	hints.ai_addrlen = 0;
-	hints.ai_addr = NULL;
-	hints.ai_canonname = NULL;
-
-	getaddrinfo(m_sIPAddress.c_str(), NULL, &hints, &res);
-
-	freeaddrinfo(res);
-	*/
-
-	struct hostent * res;
-	res = gethostbyname2(sIPAddress.c_str(), AF_INET);
-	m_sIPAddress = res->h_addr;
-#else
 	m_sIPAddress = sIPAddress;
-#endif
 	m_iSocketCounter = SocketCounter++;
 	m_sName = Name;
 	m_bQuit = false;
