@@ -120,13 +120,13 @@ bool CopySourceFile(string sInput,string sOutput)
 			(StringUtils::EndsWith(sInput,".cpp",true) || StringUtils::EndsWith(sInput,".c",true) ||
 			StringUtils::EndsWith(sInput,".h",true)) )
 	{
-		if( !StringUtils::Replace( sInput, "/mkrelease_temp_file", "/*SVN_REVISION*/", "int g_SvnRevision=" + StringUtils::itos(g_iSVNRevision) + ";" ) )
+		if( !StringUtils::Replace( sInput, sOutput, "/*SVN_REVISION*/", "int g_SvnRevision=" + StringUtils::itos(g_iSVNRevision) + ";" ) )
 			return false;
 
-		if( !StringUtils::Replace( sInput, "/mkrelease_temp_file", "<=compile_date=>", g_sCompile_Date ) )
+		if( !StringUtils::Replace( sOutput, sOutput, "<=compile_date=>", g_sCompile_Date ) )
 			return false;
 
-		return StringUtils::Replace( "/mkrelease_temp_file", sOutput, "<=version=>", g_pRow_Version->VersionName_get() );
+		return StringUtils::Replace( sOutput, sOutput, "<=version=>", g_pRow_Version->VersionName_get() );
 	}
 	else
 		return FileUtils::PUCopyFile(sInput,sOutput);
@@ -1045,12 +1045,15 @@ AsksSourceQuests:
 		}
 
 		// Replace the <=version=> in all the files
+cout << "Deciding to do snr on: " << sSourceDirectory << endl;
 		if( !g_bSimulate && sSourceDirectory.find("/MakeRelease")==string::npos )
 		{
 			list<string> listFiles;
 			FileUtils::FindFiles(listFiles,sSourceDirectory,"*.cpp,*.c,*.h,*.cs",true);
+cout << "Found " << (int) listFiles.size() << endl;
 			for(list<string>::iterator it=listFiles.begin();it!=listFiles.end();++it)
 			{
+cout << "Doing snr on " << sSourceDirectory << "/" << *it << endl;
 				StringUtils::Replace(sSourceDirectory + "/" + *it,sSourceDirectory + "/" + *it,"<=version=>",g_pRow_Version->VersionName_get());
 				StringUtils::Replace(sSourceDirectory + "/" + *it,sSourceDirectory + "/" + *it, "<=compile_date=>", g_sCompile_Date );
 				StringUtils::Replace(sSourceDirectory + "/" + *it,sSourceDirectory + "/" + *it, "/*SVN_REVISION*/", "int g_SvnRevision=" + StringUtils::itos(g_iSVNRevision) + ";" );
