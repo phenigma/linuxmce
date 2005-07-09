@@ -4394,7 +4394,7 @@ void Media_Plugin::AddFileToDatabase(MediaFile *pMediaFile,int PK_MediaType)
 	pMediaFile->m_dwPK_File = pRow_File->PK_File_get();
 
 #ifndef WIN32
-	string sPK_File = StringUtils::itos(PK_File);
+	string sPK_File = StringUtils::itos(pMediaFile->m_dwPK_File);
 	attr_set( pMediaFile->FullyQualifiedFile().c_str( ), "ID", sPK_File.c_str( ), sPK_File.length( ), 0 );
 #endif
 }
