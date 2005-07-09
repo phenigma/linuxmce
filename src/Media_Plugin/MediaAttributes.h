@@ -13,6 +13,7 @@ using namespace std;
 
 #include "pluto_media/Database_pluto_media.h"
 #include "pluto_media/Table_PlaylistEntry.h"
+#include "pluto_media/Table_Attribute.h"
 
 /**
  * @brief Contains a media file
@@ -90,10 +91,31 @@ public:
     int GetFileIDFromAttributeID(int PK_Attribute);
 	// First name can either be a separate parameter, or part of Name delimited by a tab
     Row_Attribute *GetAttributeFromDescription(int PK_AttributeType,string sName,string sFirstName=""); 
-	string GetTabbedName(Row_Attribute *pRow_Attribute);
 	void TransformFilenameToDeque(string sFilename,deque<MediaFile *> &dequeMediaFile);
-	string GetPrintableName(Row_Attribute *pRow_Attribute);
-	string GetPrintableName(int PK_Attribute);
+
+	string GetTabbedName(Row_Attribute *pRow_Attribute)
+	{
+		if( pRow_Attribute->FirstName_get().size()==0 )
+			return pRow_Attribute->Name_get();
+		else
+			return pRow_Attribute->Name_get() + "\t" + pRow_Attribute->FirstName_get();
+	}
+
+	string GetPrintableName(Row_Attribute *pRow_Attribute)
+	{
+		if( pRow_Attribute->FirstName_get().size()==0 )
+			return pRow_Attribute->Name_get();
+		else
+			return pRow_Attribute->Name_get() + ", " + pRow_Attribute->FirstName_get();
+	}
+
+	string GetPrintableName(int PK_Attribute)
+	{
+		Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(PK_Attribute);
+		if( !pRow_Attribute )
+			return "";
+		return GetPrintableName(pRow_Attribute);
+	}
 
     void MarkAsMissing(int iKey, string fileName);
 

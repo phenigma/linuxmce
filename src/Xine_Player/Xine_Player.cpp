@@ -1002,6 +1002,9 @@ string Xine_Player::GetPosition()
 	if( m_iTitle!=-1 )
 		sPosition += " TITLE:" + StringUtils::itos(m_iTitle);
 
+	sPosition += " SUBTITLE:" + StringUtils::itos(m_pXineSlaveControl->getSubtitle());
+	sPosition += " AUDIO:" + StringUtils::itos(m_pXineSlaveControl->getAudio());
+
 	return sPosition;
 }
 
@@ -1012,30 +1015,36 @@ int Xine_Player::CalculatePosition(string &sMediaPosition,string *sMRL,int *Subt
 
 	if( sMRL )
 	{
-g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CalculatePosition() called for filename: %s with %s.", sMRL->c_str(),sMediaPosition.c_str());
 		pos = sMediaPosition.find(" TITLE:");
 		if( pos!=string::npos )
-		{
 			iTitle = atoi( sMediaPosition.substr(pos+7).c_str() );
-g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CalculatePosition() TI %d %d %s",pos,iTitle,sMediaPosition.substr( pos+7).c_str());
-}
+
 		pos = sMediaPosition.find(" CHAPTER:");
 		if( pos!=string::npos )
-{
 			iChapter = atoi( sMediaPosition.substr(pos+9).c_str() );
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CalculatePosition() CH %d %d %s",pos,iChapter,sMediaPosition.substr( pos+9).c_str());
-}
+
 		if( iTitle!=-1 && iChapter!=-1 )
 			(*sMRL)+="/" + StringUtils::itos(iTitle) + "." + StringUtils::itos(iChapter);
-g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CalculatePosition() after called for filename: %s with %s.", sMRL->c_str(),sMediaPosition.c_str());
+	}
+
+	if( Subtitle )
+	{
+		pos = sMediaPosition.find(" SUBTITLE:");
+		if( pos!=string::npos )
+			*Subtitle = atoi( sMediaPosition.substr(pos+10).c_str() );
+	}
+
+	if( AudioTrack )
+	{
+		pos = sMediaPosition.find(" AUDIO:");
+		if( pos!=string::npos )
+			*AudioTrack = atoi( sMediaPosition.substr(pos+7).c_str() );
 	}
 
 	pos = sMediaPosition.find(" POS:");
 	if( pos!=string::npos )
-	{
 		iPos = atoi( sMediaPosition.substr(pos+5).c_str() );
-g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CalculatePosition() p %d %d %s",pos,iPos,sMediaPosition.substr( pos+5).c_str());
-}
+
 	return iPos;
 }
 

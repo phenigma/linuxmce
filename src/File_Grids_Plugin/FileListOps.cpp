@@ -102,7 +102,6 @@ g_pPlutoLogger->Write(LV_STATUS, "opened dir %s", BasePath.c_str());
         if (dirp == NULL)
         {
             g_pPlutoLogger->Write(LV_CRITICAL, "opendir1 %s failed: %s", BasePath.c_str(), strerror(errno));
-            listFileNames.clear();
             continue;
         }
 

@@ -728,7 +728,16 @@ void Media_Plugin::StartMedia( int iPK_MediaType, unsigned int iPK_Device_Orbite
 MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int PK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int PK_Device_Source, deque<MediaFile *> *dequeMediaFile, bool bResume,int iRepeat)
 {
     PLUTO_SAFETY_LOCK(mm,m_MediaMutex);
-    MediaDevice *pMediaDevice=NULL;
+
+	// Be sure all the files are in the database
+	for(size_t s=0;s<dequeMediaFile->size();++s)
+	{
+		if( !(*dequeMediaFile)[s]->m_dwPK_File )
+			AddFileToDatabase( (*dequeMediaFile)[s],pMediaHandlerInfo->m_PK_MediaType);
+	}
+
+	
+	MediaDevice *pMediaDevice=NULL;
     if( PK_Device_Source )
         pMediaDevice = m_mapMediaDevice_Find(PK_Device_Source);
 
@@ -3369,6 +3378,7 @@ bool Media_Plugin::DiskDriveIsRipping(int iPK_Device)
 bool Media_Plugin::SafeToReload(string *sPendingTasks)
 {
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+	g_pPlutoLogger->Write( LV_STATUS, "checking ripping jobs %d %d",m_dwPK_Device, (int) m_mapRippingJobsToRippingDevices.size());
 	if( m_mapRippingJobsToRippingDevices.size() )
 	{
 		string sJobs;
@@ -3672,41 +3682,6 @@ void Media_Plugin::CMD_Set_Media_Private(string sPK_EntertainArea,bool bTrueFals
 			StringUtils::itos((int) pEntertainArea->m_bMediaIsPrivate),"media_private");
 		SendCommand(CMD_Set_Bound_Iconl);
 	}
-}
-//<-dceag-c390-b->
-
-	/** @brief COMMAND: #390 - Get Default Ripping Name */
-	/** Gets the default name for ripping the media in the given entertainment area. */
-		/** @param #13 Filename */
-			/** The default filename */
-		/** @param #45 PK_EntertainArea */
-			/** The entertainment area */
-
-void Media_Plugin::CMD_Get_Default_Ripping_Name(string sPK_EntertainArea,string *sFilename,string &sCMD_Result,Message *pMessage)
-//<-dceag-c390-e->
-{
-    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
-	EntertainArea *pEntertainArea = m_mapEntertainAreas_Find(atoi(sPK_EntertainArea.c_str()));
-	if( !pEntertainArea || !pEntertainArea->m_pMediaStream )
-	{
-		*sFilename = "***ERROR*** cannot rip";  // should not happen
-
-		return;
-	}
-	if( pEntertainArea->m_pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
-	{
-		(*sFilename) = m_pMediaAttributes->GetPrintableName(pEntertainArea->m_pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Group_CONST]);
-		if( sFilename->size() )
-			(*sFilename) += "/"; // We got a group
-
-		(*sFilename) += m_pMediaAttributes->GetPrintableName(pEntertainArea->m_pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Album_CONST]);
-	}
-	else
-		(*sFilename) = pEntertainArea->m_pMediaStream->m_sMediaDescription;
-
-	// Validate the name and be sure it's unique
-	if( sFilename->size()==0 )
-		(*sFilename) = "Unknown disc";
 }
 
 //<-dceag-c391-b->
@@ -4106,10 +4081,12 @@ class DataGridTable *Media_Plugin::DVDSubtitles( string GridID, string Parms, vo
 	string Data = GetCurrentDeviceData( pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device, DEVICEDATA_Subtitles_CONST );
 	string::size_type pos=0;
 	int iCurrent = atoi(StringUtils::Tokenize(Data,"\n",pos).c_str());
+	DataGridCell *pCell = new DataGridCell("Off", "-1");
+	pDataGrid->SetData(0,0,pCell);
 	for(int i=0;pos!=string::npos && pos<Data.size();++i)
 	{
 		DataGridCell *pCell = new DataGridCell( StringUtils::Tokenize(Data,"\n",pos), StringUtils::itos(i) );
-		pDataGrid->SetData(0,i,pCell);
+		pDataGrid->SetData(0,i+1,pCell);
 	}
 	*iPK_Variable=VARIABLE_Misc_Data_1_CONST;
 	*sValue_To_Assign=StringUtils::itos(iCurrent);
@@ -4168,7 +4145,7 @@ class DataGridTable *Media_Plugin::Bookmarks( string GridID, string Parms, void 
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 
 	// If this is called to browse the bookmarks within the currently playing file, this will be called with
-	// MediaType=0.  Otherwise the MediaType and current user will be passed in, and we will assign the EntArea
+	// MediaType=0 and we will assign the EntArea.  Otherwise the MediaType and current user will be passed in
 	EntertainArea *pEntertainArea=NULL;
 	string::size_type pos=0;
 	int PK_MediaType = atoi(StringUtils::Tokenize(Parms,",",pos).c_str());
@@ -4202,9 +4179,22 @@ class DataGridTable *Media_Plugin::Bookmarks( string GridID, string Parms, void 
 	{
 		Row_Bookmark *pRow_Bookmark = vectRow_Bookmark[s];
 
-		DataGridCell *pDataGridCell = new DataGridCell(pRow_Bookmark->Description_get(), StringUtils::itos(pRow_Bookmark->PK_Bookmark_get()));
-		DataGridCell *pDataGridCell_Cover = new DataGridCell("", StringUtils::itos(pRow_Bookmark->PK_Bookmark_get()));
-		DataGridCell *pDataGridCell_Preview = new DataGridCell("", StringUtils::itos(pRow_Bookmark->PK_Bookmark_get()));
+		DataGridCell *pDataGridCell,*pDataGridCell_Cover,*pDataGridCell_Preview;
+		if( pEntertainArea )
+		{
+			// When browing bookmarks within a file, we will send the position directly to the media player
+			pDataGridCell = new DataGridCell(pRow_Bookmark->Description_get(), pRow_Bookmark->Position_get());
+			pDataGridCell_Cover = new DataGridCell("", pRow_Bookmark->Position_get());
+			pDataGridCell_Preview = new DataGridCell("", pRow_Bookmark->Position_get());
+		}
+		else
+		{
+			// When browsing all bookmarks within a type, we will send the bookmark ID to media plugin
+			pDataGridCell = new DataGridCell(pRow_Bookmark->Description_get(), StringUtils::itos(pRow_Bookmark->PK_Bookmark_get()));
+			pDataGridCell_Cover = new DataGridCell("", StringUtils::itos(pRow_Bookmark->PK_Bookmark_get()));
+			pDataGridCell_Preview = new DataGridCell("", StringUtils::itos(pRow_Bookmark->PK_Bookmark_get()));
+		}
+
 		pDataGrid->SetData(0,s,pDataGridCell_Cover);
 		pDataGrid->SetData(1,s,pDataGridCell_Preview);
 		pDataGridCell->m_Colspan=2;
@@ -4216,8 +4206,8 @@ class DataGridTable *Media_Plugin::Bookmarks( string GridID, string Parms, void 
 			char *pBuffer = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(pRow_Bookmark->FK_Picture_get()) + "." + pRow_Bookmark->FK_Picture_getrow()->Extension_get(),iSize);
 			if( pBuffer )
 			{
-				pDataGridCell_Cover->m_pGraphicData = pBuffer;
-				pDataGridCell_Cover->m_GraphicLength = iSize;
+				pDataGridCell_Preview->m_pGraphicData = pBuffer;
+				pDataGridCell_Preview->m_GraphicLength = iSize;
 			}
 g_pPlutoLogger->Write(LV_WARNING,"pic file 1 %p",pBuffer);
 		}
@@ -4237,8 +4227,8 @@ g_pPlutoLogger->Write(LV_WARNING,"pic file 1 %p",pBuffer);
 				char *pBuffer = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(PK_Picture) + ".jpg",iSize);
 				if( pBuffer )
 				{
-					pDataGridCell_Preview->m_pGraphicData = pBuffer;
-					pDataGridCell_Preview->m_GraphicLength = iSize;
+					pDataGridCell_Cover->m_pGraphicData = pBuffer;
+					pDataGridCell_Cover->m_GraphicLength = iSize;
 				}
 	g_pPlutoLogger->Write(LV_WARNING,"pic file 2 %p",pBuffer);
 			}
@@ -4393,3 +4383,18 @@ void Media_Plugin::CMD_Rename_Bookmark(string sValue_To_Assign,int iPK_Users,int
 	m_pDatabase_pluto_media->Bookmark_get()->Commit();
 }
 
+void Media_Plugin::AddFileToDatabase(MediaFile *pMediaFile,int PK_MediaType)
+{
+	Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->AddRow();
+	pRow_File->Path_set(pMediaFile->m_sPath);
+	pRow_File->Filename_set(pMediaFile->m_sFilename);
+	pRow_File->FK_Type_set(PK_MediaType);
+	// TODO: Add attributes from ID3 tags
+	pRow_File->Table_File_get()->Commit();
+	pMediaFile->m_dwPK_File = pRow_File->PK_File_get();
+
+#ifndef WIN32
+	string sPK_File = StringUtils::itos(PK_File);
+	attr_set( pMediaFile->FullyQualifiedFile().c_str( ), "ID", sPK_File.c_str( ), sPK_File.length( ), 0 );
+#endif
+}

@@ -393,6 +393,8 @@ bool XineSlaveWrapper::createStream(string fileName, int streamID, int iRequesti
  */
 bool XineSlaveWrapper::playStream(int streamID, string mediaPosition, bool playbackStopped)
 {
+	g_iSpecialSeekSpeed=0;
+
 	XineStream *xineStream = getStreamForId(streamID, "XineSlaveWrapper::playStream() could not play an empty stream!");
 
 	if ( xineStream == NULL )
@@ -400,16 +402,41 @@ bool XineSlaveWrapper::playStream(int streamID, string mediaPosition, bool playb
 
 	time_t startTime = time(NULL);
 
-	int Subtitle=-1,Angle=-1,AudioTrack=-1;
+	int Subtitle=-2,Angle=-2,AudioTrack=-2;
 	int pos=m_pAggregatorObject->CalculatePosition(mediaPosition,NULL,&Subtitle,&Angle,&AudioTrack);
 
+	xine_set_param(xineStream->m_pStream, XINE_PARAM_IGNORE_AUDIO, 1);
+	xine_set_param(xineStream->m_pStream, XINE_PARAM_IGNORE_VIDEO, 1);
 	if ( xine_play(xineStream->m_pStream, 0, pos) )
 	{
-		// The position is often ignored on the first play
+		g_pPlutoLogger->Write(LV_STATUS, "Playing... The command took %d seconds to complete at pos %d", time(NULL) - startTime,pos);
+		// The position is often ignored on the first play.  And it seems we have to keep seeking over and over and over
+		// and xine gets closer and closer to the real position.  After 6 seeks, it seems to always be right on.  The problem
+		// is if you do the xine_play's too fast, the xine engine hangs.  So we throw in a bunch of sleeps and seeks.  Lousy
+		// hack...  We turned off audio and video above so at least the user won't see all this jumping around
 		if( pos )
+		{
+			Sleep(300);
 			xine_play(xineStream->m_pStream, 0, pos);
+			Sleep(300);
+			xine_play(xineStream->m_pStream, 0, pos);
+			Sleep(300);
+			xine_play(xineStream->m_pStream, 0, pos);
+			Sleep(300);
+			xine_play(xineStream->m_pStream, 0, pos);
+			Sleep(300);
+			xine_play(xineStream->m_pStream, 0, pos);
+			Sleep(300);
+			xine_play(xineStream->m_pStream, 0, pos);
+		}
 
-		g_pPlutoLogger->Write(LV_STATUS, "Playing... The command took %d seconds to complete: ", time(NULL) - startTime);
+		if( Subtitle!=-2 )
+			setSubtitle(Subtitle);
+		if( AudioTrack!=-2 )
+			setAudio(AudioTrack);
+
+		xine_set_param(xineStream->m_pStream, XINE_PARAM_IGNORE_VIDEO, 0);
+		xine_set_param(xineStream->m_pStream, XINE_PARAM_IGNORE_AUDIO, 0);
 
 		if ( playbackStopped )
 			xine_set_param(xineStream->m_pStream, XINE_PARAM_SPEED, XINE_SPEED_PAUSE);
@@ -605,8 +632,6 @@ void XineSlaveWrapper::xineEventListener(void *userData, const xine_event_t *eve
 {
     XineStream *xineStream = (XineStream *)userData;
 
-g_pPlutoLogger->Write(LV_STATUS, "xineEventListener %d",(int) event->type);
-
     switch(event->type)
     {
         case XINE_EVENT_UI_PLAYBACK_FINISHED:
@@ -625,6 +650,7 @@ g_pPlutoLogger->Write(LV_STATUS, "xineEventListener %d",(int) event->type);
              else
                 send_event(XINE_SE_PLAYBACK_FINISHED, "");
         */
+			g_iSpecialSeekSpeed=0;
             xineStream->m_pOwner->playbackCompleted(xineStream->m_iStreamID,false);
             xineStream->m_bIsRendering = false;
             break;
@@ -642,6 +668,7 @@ g_pPlutoLogger->Write(LV_STATUS, "xineEventListener %d",(int) event->type);
 
         case XINE_EVENT_UI_NUM_BUTTONS:
             {
+				g_iSpecialSeekSpeed=0;
                 int iButtons = ((xine_ui_data_t *)event->data)->num_buttons;
 
 				g_pPlutoLogger->Write(LV_STATUS, "Menu with %d buttons", iButtons);
@@ -651,9 +678,11 @@ g_pPlutoLogger->Write(LV_STATUS, "xineEventListener %d",(int) event->type);
             break;
 
         case XINE_EVENT_UI_SET_TITLE:
+			if( g_iSpecialSeekSpeed )
+				break; // Ignore this while we're doing all those seeks
 			{
                 xine_ui_data_t *data = (xine_ui_data_t *) event->data;
-				g_pPlutoLogger->Write(LV_STATUS, "UI set title: %s", data->str);
+				g_pPlutoLogger->Write(LV_STATUS, "UI set title: %s %s", data->str,xineStream->m_pOwner->m_pAggregatorObject->GetPosition().c_str());
 				//UI set title: Title 58, Chapter 1,
 				const char *p = strstr(data->str,"Title ");
 				if( p )
@@ -700,51 +729,36 @@ g_pPlutoLogger->Write(LV_STATUS, "xineEventListener %d",(int) event->type);
             break;
 
 		case XINE_EVENT_UI_CHANNELS_CHANGED:
+			if( g_iSpecialSeekSpeed )
+				break; // Ignore this while we're doing all those seeks
 			{
-				int iNum = xine_get_stream_info (xineStream->m_pStream, XINE_STREAM_INFO_MAX_AUDIO_CHANNEL);
-g_pPlutoLogger->Write(LV_WARNING, "XINE_STREAM_INFO_MAX_AUDIO_CHANNEL %d (%d)",iNum,
-					  xine_get_stream_info(xineStream->m_pStream, XINE_STREAM_INFO_AUDIO_CHANNELS));
-				string sAudioTracks=StringUtils::itos(xine_get_stream_info(xineStream->m_pStream, XINE_STREAM_INFO_AUDIO_CHANNELS)) + "\n";
-				for(int i=0;i<iNum;++i)
+				string sAudioTracks=StringUtils::itos(xineStream->m_pOwner->getAudio()) + "\n";
+				int iResult=1;
+				for(int i=0;;++i)
 				{
 					char lang[XINE_LANG_MAX];
 					strcpy(lang,"**error**");
-					xine_get_audio_lang(xineStream->m_pStream,i,lang);
+					iResult=xine_get_audio_lang(xineStream->m_pStream,i,lang);
+					if( iResult==0 )
+						break;
 					sAudioTracks += string(xineStream->m_pOwner->TranslateLanguage(lang)) + "\n";
 				}
-				iNum = xine_get_stream_info (xineStream->m_pStream, XINE_STREAM_INFO_MAX_SPU_CHANNEL);
-g_pPlutoLogger->Write(LV_WARNING, "XINE_STREAM_INFO_MAX_SPU_CHANNEL %d (%d)",iNum,xine_get_param (xineStream->m_pStream, XINE_PARAM_SPU_CHANNEL));
-				string sSubtitles="0\n";
-				for(int i=0;i<iNum;++i)
+
+				string sSubtitles=StringUtils::itos(xineStream->m_pOwner->getSubtitle()) + "\n";
+				iResult=1;
+				for(int i=0;;++i)
 				{
 					char lang[XINE_LANG_MAX];
 					strcpy(lang,"**error**");
-					xine_get_spu_lang(xineStream->m_pStream,i,lang);
+					iResult=xine_get_spu_lang(xineStream->m_pStream,i,lang);
+					if( iResult==0 )
+						break;
 					sSubtitles += string(xineStream->m_pOwner->TranslateLanguage(lang)) + "\n";
 				}
 				xineStream->m_pOwner->m_pAggregatorObject->DATA_Set_Audio_Tracks(sAudioTracks);
 				xineStream->m_pOwner->m_pAggregatorObject->DATA_Set_Subtitles(sSubtitles);
-	g_pPlutoLogger->Write(LV_STATUS, "Subtitles set to %s",sSubtitles.c_str());
-	g_pPlutoLogger->Write(LV_STATUS, "audi set to %s",sAudioTracks.c_str());
-
-int pos_stream,pos_time,length_time;
-int i4 = xine_get_pos_length (xineStream->m_pStream,&pos_stream,&pos_time,&length_time);
-g_pPlutoLogger->Write(LV_CRITICAL, "(%d) str:%d time:%d len:%d",i4,pos_stream,pos_time,length_time);
-
-
-const char *sz;
-int u;
-sz = xine_get_meta_info   (xineStream->m_pStream, XINE_META_INFO_VIDEOCODEC);
-g_pPlutoLogger->Write(LV_STATUS, "XINE_META_INFO_VIDEOCODEC  %s",sz);
-sz = xine_get_meta_info   (xineStream->m_pStream, XINE_META_INFO_AUDIOCODEC);
-g_pPlutoLogger->Write(LV_STATUS, "XINE_META_INFO_AUDIOCODEC  %s",sz);
-sz = xine_get_meta_info   (xineStream->m_pStream, XINE_META_INFO_SYSTEMLAYER);
-g_pPlutoLogger->Write(LV_STATUS, "XINE_META_INFO_SYSTEMLAYER  %s",sz);
-sz = xine_get_meta_info   (xineStream->m_pStream, XINE_META_INFO_INPUT_PLUGIN);
-g_pPlutoLogger->Write(LV_STATUS, "XINE_META_INFO_INPUT_PLUGIN  %s",sz);
 			}
-
-break;
+			break;
 
         default:
             g_pPlutoLogger->Write(LV_STATUS, "Got unprocessed Xine playback event: %d", event->type);
@@ -824,17 +838,37 @@ void *XineSlaveWrapper::eventProcessingLoop(void *arguments)
 			} while ( checkResult == True );
 		}
 
-		if( g_iSpecialSeekSpeed && iCounter++>5 )  // Every half second
+		if( iCounter++>10 )
+		{
+			iCounter=0;
+			g_pPlutoLogger->Write(LV_WARNING,"%s",pStream->m_pOwner->m_pAggregatorObject->GetPosition().c_str());
+		}
+
+
+
+		if( g_iSpecialSeekSpeed && iCounter++>10 )  // Every second
 		{
 			iCounter=0;
 			// time to seek
 			int positionTime,totalTime;
 			pStream->m_pOwner->getStreamPlaybackPosition(1,positionTime,totalTime);
-			g_pPlutoLogger->Write(LV_STATUS,"Current pos %d / %d  seek speed: %d",positionTime,totalTime,g_iSpecialSeekSpeed);
-			xine_play(pStream->m_pStream, 0, positionTime + g_iSpecialSeekSpeed);  // Pass in position as 2nd parameter
+			if( g_iSpecialSeekSpeed<0 )
+				positionTime -= 1000; // Move it back 1 sec to account for the 1 sec we let it go forward
+
+g_pPlutoLogger->Write(LV_WARNING,"Current pos %d / %d  seek speed: %d",positionTime,totalTime,g_iSpecialSeekSpeed);
+if( positionTime + g_iSpecialSeekSpeed<0 || positionTime + g_iSpecialSeekSpeed>totalTime )
+{
+g_pPlutoLogger->Write(LV_CRITICAL,"aborting seek");
+g_iSpecialSeekSpeed=0;
+}
+			else if( !xine_play(pStream->m_pStream, 0, positionTime + g_iSpecialSeekSpeed) )  // Pass in position as 2nd parameter
+{
+g_pPlutoLogger->Write(LV_CRITICAL,"special seek failed, normal speed");
+g_iSpecialSeekSpeed=0;
+}
 		}
 
-		usleep(1000);
+		usleep(100000);
     }
 
 	XCloseDisplay(pDisplay);
@@ -1065,6 +1099,7 @@ void XineSlaveWrapper::changePlaybackSpeed(int iStreamID, PlayBackSpeedType desi
         return;
 
     int xineSpeed = XINE_SPEED_PAUSE;
+	g_iSpecialSeekSpeed=0;  // If this is a special speed we'll set it below
     switch ( desiredSpeed )
     {
         case PLAYBACK_STOP:
@@ -1084,6 +1119,22 @@ void XineSlaveWrapper::changePlaybackSpeed(int iStreamID, PlayBackSpeedType desi
             break;
         case PLAYBACK_FF_4:
             xineSpeed = XINE_SPEED_FAST_4;
+            break;
+		case PLAYBACK_REW_64:
+		case PLAYBACK_REW_32:
+		case PLAYBACK_REW_16:
+		case PLAYBACK_REW_8:
+		case PLAYBACK_REW_4:
+		case PLAYBACK_REW_2:
+		case PLAYBACK_REW_1:
+		case PLAYBACK_REW_1_2:
+		case PLAYBACK_REW_1_4:
+		case PLAYBACK_FF_8:
+		case PLAYBACK_FF_16:
+		case PLAYBACK_FF_32:
+		case PLAYBACK_FF_64:
+			g_iSpecialSeekSpeed=desiredSpeed;
+            xineSpeed = XINE_SPEED_NORMAL;
             break;
 
         default:
@@ -1224,6 +1275,8 @@ void XineSlaveWrapper::pauseMediaStream(int iStreamID)
  */
 void XineSlaveWrapper::sendInputEvent(int eventType)
 {
+	g_iSpecialSeekSpeed=0;
+
 	time_t startTime = time(NULL);
 	XineStream *pStream;
 	if ( (pStream = getStreamForId(1, "void XineSlaveWrapper::sendInputEvent(int eventType) getting one stream")) == NULL )
@@ -1687,14 +1740,6 @@ int XineSlaveWrapper::getStreamPlaybackPosition(int iStreamID, int &positionTime
           usleep(500);
     }
 
-//     if ( xine_get_pos_length(xineStream->m_pStream, &iPosStream, &iPosTime, &iLengthTime) == 0 )
-//     {
-//         g_pPlutoLogger->Write(LV_STATUS, "Error getting the stream position");
-//         return -1;
-//     }
-
-    g_pPlutoLogger->Write(LV_STATUS, "Got those numbers: %d %d, %d", iPosStream, iPosTime, iLengthTime);
-
     positionTime = iPosTime;
     totalTime = iLengthTime;
     return positionTime;
@@ -1873,7 +1918,7 @@ const char *XineSlaveWrapper::TranslateLanguage(const char *abbreviation)
 	if( strcmp(pAbbreviation,"en")==0 )
 		return "English";
 	else if( strcmp(pAbbreviation,"de")==0 )
-		return "Deutch";
+		return "Deutsch";
 	else if( strcmp(pAbbreviation,"fr")==0 )
 		return "Francais";
 
@@ -1887,7 +1932,7 @@ bool XineSlaveWrapper::setSubtitle(int Value)
     if ( xineStream == NULL )
         return false;
 
-	g_pPlutoLogger->Write(LV_CRITICAL,"SPU was %d now %d",xine_get_param (xineStream->m_pStream, XINE_PARAM_SPU_CHANNEL),Value);
+	g_pPlutoLogger->Write(LV_STATUS,"SPU was %d now %d",getSubtitle(),Value);
 	xine_set_param(xineStream->m_pStream, XINE_PARAM_SPU_CHANNEL, Value);
 
     return true;
@@ -1900,8 +1945,28 @@ bool XineSlaveWrapper::setAudio(int Value)
     if ( xineStream == NULL )
         return false;
 
-	g_pPlutoLogger->Write(LV_CRITICAL,"AUDIO was %d now %d",xine_get_param (xineStream->m_pStream, XINE_PARAM_AUDIO_CHANNEL_LOGICAL));
+	g_pPlutoLogger->Write(LV_STATUS,"AUDIO was %d now %d",xine_get_param (xineStream->m_pStream, XINE_PARAM_AUDIO_CHANNEL_LOGICAL),Value);
 	xine_set_param(xineStream->m_pStream, XINE_PARAM_AUDIO_CHANNEL_LOGICAL, Value);
 
     return true;
+}
+
+int XineSlaveWrapper::getSubtitle()
+{
+    XineStream *xineStream = getStreamForId(1, "Trying to set parm for and invalid stream: (%d)");
+
+    if ( xineStream == NULL )
+        return -1;
+
+	return xine_get_param (xineStream->m_pStream, XINE_PARAM_SPU_CHANNEL);
+}
+
+int XineSlaveWrapper::getAudio()
+{
+	XineStream *xineStream = getStreamForId(1, "Trying to set parm for and invalid stream: (%d)");
+
+    if ( xineStream == NULL )
+        return 0;
+
+	return xine_get_param (xineStream->m_pStream, XINE_PARAM_AUDIO_CHANNEL_LOGICAL);
 }

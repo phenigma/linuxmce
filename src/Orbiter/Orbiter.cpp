@@ -4200,12 +4200,7 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
         else if(  Variable=="ND" )
 			Output += StringUtils::itos((int) m_mapDevice_Selected.size());
         else if(  Variable=="DFN"  )
-		{
-			string sFilename="Unknown disc";
-			DCE::CMD_Get_Default_Ripping_Name CMD_Get_Default_Ripping_Name(m_dwPK_Device,m_dwPK_Device_MediaPlugIn,StringUtils::itos(m_pLocationInfo->PK_EntertainArea),&sFilename);
-			SendCommand(CMD_Get_Default_Ripping_Name);
-			Output += sFilename;
-		}
+			Output += m_sDefaultRippingName;
         else if(  Variable.length()>1 && Variable[0]=='G' && Variable[1]=='D' )
 		{
 			DesignObj_Orbiter *pObjGD = pObj;
@@ -6181,12 +6176,14 @@ g_pPlutoLogger->Write(LV_STATUS,"Need to change screens logged to %s",pScreenHis
 			/** 4 comma delimited objects: normal remote, popup remote, file list remote, popup file list remote */
 		/** @param #5 Value To Assign */
 			/** The description of the media */
+		/** @param #13 Filename */
+			/** The default name to use if the user wants to rip this.  Only applies to discs. */
 		/** @param #48 Value */
 			/** The track number or position in the playlist */
 		/** @param #120 Retransmit */
 			/** If true, it will re-request the plist (current playlist) grid */
 
-void Orbiter::CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,int iValue,bool bRetransmit,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,string sFilename,int iValue,bool bRetransmit,string &sCMD_Result,Message *pMessage)
 //<-dceag-c242-e->
 {
     PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
@@ -6201,6 +6198,7 @@ void Orbiter::CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sVa
 	m_iPK_DesignObj_FileList=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
 	m_iPK_DesignObj_FileList_Popup=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
 	m_iPK_DesignObj_RemoteOSD=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
+	m_sDefaultRippingName = sFilename;
 
 	if( bRetransmit )
 	{

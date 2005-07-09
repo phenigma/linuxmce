@@ -882,6 +882,8 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 					g_pPlutoLogger->Write(LV_STATUS,"Received reload command");
 					if( (*SafetyMessage)->m_dwID!=SYSCOMMAND_RELOAD_FORCED )
 					{
+					    pthread_mutex_lock(&m_MessageQueueMutex);
+g_pPlutoLogger->Write(LV_CRITICAL,"Checking %d plugins",(int)m_mapPlugIn.size()); 
 						map<int,class Command_Impl *>::iterator it;
 						for(it=m_mapPlugIn.begin();it!=m_mapPlugIn.end();++it)
 						{
@@ -900,6 +902,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Checking plugin %d for reload",pPlugIn->m_dwP
 							}
 						}
 g_pPlutoLogger->Write(LV_CRITICAL,"PLUGINS OK");
+					    pthread_mutex_unlock(&m_MessageQueueMutex);
 					}
 				}
                 m_bReload=true;

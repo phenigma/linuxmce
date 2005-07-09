@@ -42,6 +42,7 @@ class XineSlaveWrapper
 public:
     typedef enum _playbackSpeedEnum
 	{
+		PLAYBACK_REW_64     = -64000,
 		PLAYBACK_REW_32     = -32000,
 		PLAYBACK_REW_16     = -16000,
 		PLAYBACK_REW_8      =  -8000,
@@ -61,6 +62,7 @@ public:
 		PLAYBACK_FF_8       =   8000,
 		PLAYBACK_FF_16      =  16000,
 		PLAYBACK_FF_32      =  32000,
+		PLAYBACK_FF_64      =  64000,
 	} PlayBackSpeedType;
 
 private:
@@ -374,6 +376,8 @@ public:
 
 	bool setSubtitle(int Value);
 	bool setAudio(int Value);
+	int getSubtitle();
+	int getAudio();
 
 
 	bool isSlimClient();

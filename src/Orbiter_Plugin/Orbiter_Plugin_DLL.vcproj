@@ -32,7 +32,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthreadVC.lib wsock32.lib  libmySQL.lib DCE.lib pluto_main.lib pluto_security.lib"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib  libmySQL.lib DCE.lib pluto_main.lib pluto_security.lib pluto_media.lib"
 				OutputFile="../Debug/Orbiter_Plugin.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="\mysql\lib\Debug;&quot;../../libs/Libraries/pthreads-win32/lib&quot;;../lib"

@@ -148,7 +148,7 @@ bool App_Server::Connect(int iPK_DeviceTemplate )
 		SetStatus("MD_ON",m_dwPK_Device_MD);
 
 	// spawn the application
-	EnsureLogoIsDisplayed();
+	ProcessUtils::SpawnApplication("gimv", "/usr/pluto/share/wait-screen.gif", LOGO_APPLICATION_NAME, NULL);
 	return bResult;
 }
 

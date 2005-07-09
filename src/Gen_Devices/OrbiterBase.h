@@ -167,7 +167,7 @@ public:
 	virtual void CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Off(int iPK_Pipe,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Continuous_Refresh(string sTime,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,int iValue,bool bRetransmit,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,string sFilename,int iValue,bool bRetransmit,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Main_Menu(string sText,string &sCMD_Result,class Message *pMessage) {};
@@ -1270,9 +1270,10 @@ public:
 					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
 					string sPK_DesignObj=pMessage->m_mapParameters[3];
 					string sValue_To_Assign=pMessage->m_mapParameters[5];
+					string sFilename=pMessage->m_mapParameters[13];
 					int iValue=atoi(pMessage->m_mapParameters[48].c_str());
 					bool bRetransmit=(pMessage->m_mapParameters[120]=="1" ? true : false);
-						CMD_Set_Now_Playing(iPK_Device,sPK_DesignObj.c_str(),sValue_To_Assign.c_str(),iValue,bRetransmit,sCMD_Result,pMessage);
+						CMD_Set_Now_Playing(iPK_Device,sPK_DesignObj.c_str(),sValue_To_Assign.c_str(),sFilename.c_str(),iValue,bRetransmit,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -1289,7 +1290,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Set_Now_Playing(iPK_Device,sPK_DesignObj.c_str(),sValue_To_Assign.c_str(),iValue,bRetransmit,sCMD_Result,pMessage);
+								CMD_Set_Now_Playing(iPK_Device,sPK_DesignObj.c_str(),sValue_To_Assign.c_str(),sFilename.c_str(),iValue,bRetransmit,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

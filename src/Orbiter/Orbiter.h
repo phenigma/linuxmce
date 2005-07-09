@@ -175,7 +175,7 @@ protected:
 
 	// The remotes for the current media
 	int m_iPK_DesignObj_Remote,m_iPK_DesignObj_Remote_Popup,m_iPK_DesignObj_FileList,m_iPK_DesignObj_FileList_Popup,m_iPK_DesignObj_RemoteOSD;
-	string m_sNowPlaying; /** < set by the media engine, this is whatever media is currently playing */
+	string m_sNowPlaying,m_sDefaultRippingName; /** < set by the media engine, this is whatever media is currently playing */
 	int m_dwPK_Device_NowPlaying;  /** < set by the media engine, this is whatever media device is currently playing */
 	PlutoPopup *m_pActivePopup;
 
@@ -1353,13 +1353,15 @@ public:
 			/** 4 comma delimited objects: normal remote, popup remote, file list remote, popup file list remote */
 		/** @param #5 Value To Assign */
 			/** The description of the media */
+		/** @param #13 Filename */
+			/** The default name to use if the user wants to rip this.  Only applies to discs. */
 		/** @param #48 Value */
 			/** The track number or position in the playlist */
 		/** @param #120 Retransmit */
 			/** If true, it will re-request the plist (current playlist) grid */
 
-	virtual void CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,int iValue,bool bRetransmit) { string sCMD_Result; CMD_Set_Now_Playing(iPK_Device,sPK_DesignObj.c_str(),sValue_To_Assign.c_str(),iValue,bRetransmit,sCMD_Result,NULL);};
-	virtual void CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,int iValue,bool bRetransmit,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,string sFilename,int iValue,bool bRetransmit) { string sCMD_Result; CMD_Set_Now_Playing(iPK_Device,sPK_DesignObj.c_str(),sValue_To_Assign.c_str(),sFilename.c_str(),iValue,bRetransmit,sCMD_Result,NULL);};
+	virtual void CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,string sFilename,int iValue,bool bRetransmit,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #254 - Bind Icon */

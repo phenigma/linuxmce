@@ -26,6 +26,8 @@
 #include "pluto_main/Table_DeviceTemplate_MediaType.h"
 #include "pluto_main/Table_DeviceTemplate_MediaType_DesignObj.h"
 #include "pluto_main/Table_MediaType_DesignObj.h"
+
+#include "pluto_media/Define_AttributeType.h"
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
 #include "MediaAttributes.h"
 #include "Gen_Devices/AllCommandsRequests.h"
@@ -155,6 +157,11 @@ protected:
      * Turn off the device and other devices in the pipe, but without turning off devices we are currently using
      */
 	void TurnDeviceOff(int PK_Pipe,DeviceData_Router *pDeviceData_Router,map<int,MediaDevice *> *pmapMediaDevice_Current,vector<int> *p_vectDevice=NULL);
+
+    /**
+     * Add the file to the pluto_media database
+     */
+	void AddFileToDatabase(MediaFile *pMediaFile,int PK_MediaType);
 
     /**
      * Find a media type specific for a file name
@@ -337,13 +344,26 @@ public:
 				+ StringUtils::itos(pMediaStream->m_iPK_DesignObj_RemoteOSD);
 
 		int PK_Device_Source=0,iDequeMediaFile=0;
+		string sFilename;
 		if( pMediaStream )
 		{
 			PK_Device_Source = pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
 			iDequeMediaFile = pMediaStream->m_iDequeMediaFile_Pos;
+
+			if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
+			{
+				sFilename = m_pMediaAttributes->GetPrintableName(pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Group_CONST]);
+				if( sFilename.size() )
+					sFilename += "/"; // We got a group
+
+				sFilename += m_pMediaAttributes->GetPrintableName(pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Album_CONST]);
+			}
+			else if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST )
+				sFilename = pMediaStream->m_sMediaDescription;
 		}
+
 		DCE::CMD_Set_Now_Playing CMD_Set_Now_Playing( m_dwPK_Device, dwPK_Device, PK_Device_Source,
-			sRemotes, sNowPlaying, iDequeMediaFile, bRefreshScreen );
+			sRemotes, sNowPlaying, sFilename, iDequeMediaFile, bRefreshScreen );
 		if( pMessage )
 			pMessage->m_vectExtraMessages.push_back(CMD_Set_Now_Playing.m_pMessage);
 		else
@@ -549,17 +569,6 @@ public:
 
 	virtual void CMD_Set_Media_Private(string sPK_EntertainArea,bool bTrueFalse) { string sCMD_Result; CMD_Set_Media_Private(sPK_EntertainArea.c_str(),bTrueFalse,sCMD_Result,NULL);};
 	virtual void CMD_Set_Media_Private(string sPK_EntertainArea,bool bTrueFalse,string &sCMD_Result,Message *pMessage);
-
-
-	/** @brief COMMAND: #390 - Get Default Ripping Name */
-	/** Gets the default name for ripping the media in the given entertainment area. */
-		/** @param #13 Filename */
-			/** The default filename */
-		/** @param #45 PK_EntertainArea */
-			/** The entertainment area */
-
-	virtual void CMD_Get_Default_Ripping_Name(string sPK_EntertainArea,string *sFilename) { string sCMD_Result; CMD_Get_Default_Ripping_Name(sPK_EntertainArea.c_str(),sFilename,sCMD_Result,NULL);};
-	virtual void CMD_Get_Default_Ripping_Name(string sPK_EntertainArea,string *sFilename,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #391 - Add Media Attribute */
