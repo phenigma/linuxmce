@@ -403,17 +403,30 @@ bool VideoLan_PlugIn::StartStreaming(VideoLanMediaStream *pMediaStream)
 	}
 
 		string mediaURL = pMediaStream->GetFilenameToPlay("Empty file name");
+		MediaFile *pMediaFile = NULL;
+		// HACK: -- todo: get real informations.
+		if( pMediaStream->m_dequeMediaFile.size()>pMediaStream->m_iDequeMediaFile_Pos )
+		{
+			pMediaFile = pMediaStream->m_dequeMediaFile[pMediaStream->m_iDequeMediaFile_Pos];
+			if( pMediaFile && pMediaFile->m_sDescription.size() )
+				pMediaStream->m_sMediaDescription = pMediaFile->m_sDescription;
+			else
+				pMediaStream->m_sMediaDescription = FileUtils::FilenameWithoutPath(mediaURL);
+		}
+		else
+			pMediaStream->m_sMediaDescription = FileUtils::FilenameWithoutPath(mediaURL);
+
 		if ( pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST )
 			mediaURL = "dvdsimple:/" + mediaURL;
 
-g_pPlutoLogger->Write(LV_CRITICAL,"About to call CMD_Play_Media sole master to %d play media within start streaming",pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
+	g_pPlutoLogger->Write(LV_CRITICAL,"About to call CMD_Play_Media sole master to %d play media within start streaming",pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 
 	DCE::CMD_Play_Media cmd(m_dwPK_Device,
 							pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
 							mediaURL,
 							pMediaStream->m_iPK_MediaType,
 							pMediaStream->m_iStreamID_get( ),
-							0);//Mihai look into this please pMediaStream->GetMediaPosition()->m_iSavedPosition);
+							pMediaFile ? pMediaFile->m_sStartPosition : "");
 
 	// No handling of errors (it will in some cases deadlock the router.)
 	SendCommand(cmd);

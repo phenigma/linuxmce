@@ -406,13 +406,17 @@ bool SlimServer_PlugIn::StartStreaming(SlimServerMediaStream *pMediaStream)
 	}
 
 g_pPlutoLogger->Write(LV_CRITICAL,"About to call CMD_Play_Media sole master to %d play media within start streaming",pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
+	MediaFile *pMediaFile = NULL;
+	// HACK: -- todo: get real informations.
+	if( pMediaStream->m_dequeMediaFile.size()>pMediaStream->m_iDequeMediaFile_Pos )
+		pMediaFile = pMediaStream->m_dequeMediaFile[pMediaStream->m_iDequeMediaFile_Pos];
 
 	DCE::CMD_Play_Media cmd(m_dwPK_Device,
 							pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
 							pMediaStream->GetFilenameToPlay("Empty file name"),
 							pMediaStream->m_iPK_MediaType,
 							pMediaStream->m_iStreamID_get( ),
-							0);//Mihai look into this please pMediaStream->GetMediaPosition()->m_iSavedPosition);
+							pMediaFile ? pMediaFile->m_sStartPosition : "");
 
 	// No handling of errors (it will in some cases deadlock the router.)
 	SendCommand(cmd);
