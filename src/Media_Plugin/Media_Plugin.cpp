@@ -4275,7 +4275,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"size %d pos %d file %p %d",(int) pMediaStream
 
 	if( m_mapMediaType_Bookmarkable_Find(pMediaStream->m_iPK_MediaType)==false )
 	{
-		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(StringUtils::itos(pMessage->m_dwPK_Device_From),"<%=T" + StringUtils::itos(TEXT_Cannot_bookmark_CONST) + "%>");
+		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(StringUtils::itos(pMessage->m_dwPK_Device_From),"<%=T" + StringUtils::itos(TEXT_Cannot_bookmark_CONST) + "%> (MT:" + StringUtils::itos(pMediaStream->m_iPK_MediaType) + ")");
 		return;
 	}
 

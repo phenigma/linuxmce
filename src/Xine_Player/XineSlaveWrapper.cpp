@@ -380,7 +380,7 @@ bool XineSlaveWrapper::createStream(string fileName, int streamID, int iRequesti
     }
     else
     {
-        g_pPlutoLogger->Write(LV_STATUS, "Failed to open %s", fileName.c_str());
+        g_pPlutoLogger->Write(LV_WARNING, "Failed to open %s", fileName.c_str());
         xineStream->m_pOwner->playbackCompleted(xineStream->m_iStreamID,true);
     }
 
@@ -406,7 +406,7 @@ bool XineSlaveWrapper::playStream(int streamID, string mediaPosition, bool playb
 	int pos=m_pAggregatorObject->CalculatePosition(mediaPosition,NULL,&Subtitle,&Angle,&AudioTrack);
 
 	xine_set_param(xineStream->m_pStream, XINE_PARAM_IGNORE_AUDIO, 1);
-	xine_set_param(xineStream->m_pStream, XINE_PARAM_IGNORE_VIDEO, 1);
+//	xine_set_param(xineStream->m_pStream, XINE_PARAM_IGNORE_VIDEO, 1);  // Tried this so the user doesn't see the jitters during seeking to pos, but it causes xine to die
 	if ( xine_play(xineStream->m_pStream, 0, pos) )
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "Playing... The command took %d seconds to complete at pos %d", time(NULL) - startTime,pos);
@@ -416,18 +416,19 @@ bool XineSlaveWrapper::playStream(int streamID, string mediaPosition, bool playb
 		// hack...  We turned off audio and video above so at least the user won't see all this jumping around
 		if( pos )
 		{
-			Sleep(300);
-			xine_play(xineStream->m_pStream, 0, pos);
-			Sleep(300);
-			xine_play(xineStream->m_pStream, 0, pos);
-			Sleep(300);
-			xine_play(xineStream->m_pStream, 0, pos);
-			Sleep(300);
-			xine_play(xineStream->m_pStream, 0, pos);
-			Sleep(300);
-			xine_play(xineStream->m_pStream, 0, pos);
-			Sleep(300);
-			xine_play(xineStream->m_pStream, 0, pos);
+			int positionTime, totalTime;
+			for(int i=0;i<10;++i) // A maximum of 10 tries
+			{
+				if( abs(getStreamPlaybackPosition(streamID, positionTime, totalTime) - pos) < 2000 )
+{
+g_pPlutoLogger->Write(LV_WARNING, "Close enough %d %d",positionTime,pos);
+break;
+}
+g_pPlutoLogger->Write(LV_WARNING, "get closer %d %d",positionTime,pos);
+
+				Sleep(300);
+				xine_play(xineStream->m_pStream, 0, pos);
+			}
 		}
 
 		if( Subtitle!=-2 )
@@ -435,7 +436,7 @@ bool XineSlaveWrapper::playStream(int streamID, string mediaPosition, bool playb
 		if( AudioTrack!=-2 )
 			setAudio(AudioTrack);
 
-		xine_set_param(xineStream->m_pStream, XINE_PARAM_IGNORE_VIDEO, 0);
+//		xine_set_param(xineStream->m_pStream, XINE_PARAM_IGNORE_VIDEO, 0);
 		xine_set_param(xineStream->m_pStream, XINE_PARAM_IGNORE_AUDIO, 0);
 
 		if ( playbackStopped )
@@ -446,6 +447,7 @@ bool XineSlaveWrapper::playStream(int streamID, string mediaPosition, bool playb
 	}
     else
 	{
+		g_pPlutoLogger->Write(LV_WARNING, "Play failed with error %d",xine_get_error(xineStream->m_pStream));
 		xineStream->m_pOwner->playbackCompleted(xineStream->m_iStreamID, false);
 		return false;
 	}
@@ -650,6 +652,7 @@ void XineSlaveWrapper::xineEventListener(void *userData, const xine_event_t *eve
              else
                 send_event(XINE_SE_PLAYBACK_FINISHED, "");
         */
+			g_pPlutoLogger->Write(LV_STATUS, "Got XINE_EVENT_UI_PLAYBACK_FINISHED");
 			g_iSpecialSeekSpeed=0;
             xineStream->m_pOwner->playbackCompleted(xineStream->m_iStreamID,false);
             xineStream->m_bIsRendering = false;
@@ -850,7 +853,7 @@ void *XineSlaveWrapper::eventProcessingLoop(void *arguments)
 				if( g_iSpecialSeekSpeed<0 )
 					positionTime -= 1000; // Move it back 1 sec to account for the 1 sec we let it go forward
 
-	g_pPlutoLogger->Write(LV_WARNING,"Current pos %d / %d  seek speed: %d",positionTime,totalTime,g_iSpecialSeekSpeed);
+				g_pPlutoLogger->Write(LV_WARNING,"Current pos %d / %d  seek speed: %d will seek to: %d",positionTime,totalTime,g_iSpecialSeekSpeed,positionTime + g_iSpecialSeekSpeed);
 	if( positionTime + g_iSpecialSeekSpeed<0 || positionTime + g_iSpecialSeekSpeed>totalTime )
 	{
 	g_pPlutoLogger->Write(LV_CRITICAL,"aborting seek");
