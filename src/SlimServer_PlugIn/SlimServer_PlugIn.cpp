@@ -268,11 +268,6 @@ bool SlimServer_PlugIn::StopMedia( class MediaStream *pMediaStream )
 							&SavedPosition);
 
 
-// todo -- temporary hack -- Maybe slim can lockup while trying to stop.  
-// Ignore the out paramater until we fix this
-delete cmd.m_pcResponse;
-cmd.m_pcResponse=NULL;
-
 	// TODO: Remove the device from the list of players also.
 	string Response;
 	if( !SendCommand( cmd ) ) // hack - todo see above, &Response ) )
@@ -282,15 +277,12 @@ cmd.m_pcResponse=NULL;
 	}
 	else
 	{
-//		pSlimServerMediaStream->GetMediaPosition()->m_iSavedPosition = SavedPosition;
-		MediaStream *pMediaStream = m_pMedia_Plugin->m_mapMediaStream_Find(StreamID);
-		if( !pMediaStream || (pSlimServerMediaStream = ConvertToSlimServerMediaStream(pMediaStream, "SlimServer_PlugIn::StopMedia() ")) == NULL )
+		if( pSlimServerMediaStream->m_iDequeMediaFile_Pos>=0 && pSlimServerMediaStream->m_iDequeMediaFile_Pos<pSlimServerMediaStream->m_dequeMediaFile.size() )
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "Stream has vanished or was changed.");
-			return false; // It's ok -- the user just stopped it
+			pSlimServerMediaStream->m_dequeMediaFile[pSlimServerMediaStream->m_iDequeMediaFile_Pos]->m_sStartPosition = SavedPosition;
+			g_pPlutoLogger->Write( LV_STATUS, "Media stopped at %s",SavedPosition.c_str());
 		}
 
-//		pSlimServerMediaStream->GetMediaPosition()->m_iSavedPosition=SavedPosition;
 		g_pPlutoLogger->Write( LV_STATUS, "The target device %d responded to stop media command! Stopped at position: %d",
 											pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 	}
@@ -420,7 +412,9 @@ g_pPlutoLogger->Write(LV_CRITICAL,"About to call CMD_Play_Media sole master to %
 
 	// No handling of errors (it will in some cases deadlock the router.)
 	SendCommand(cmd);
-	//QueueMessageToRouter(cmd.m_pMessage);
+
+	if( pMediaFile )
+		pMediaFile->m_sStartPosition=""; // Be sure to reset the start position so next time we start at the beginning of the file if this is in a queue
 
 	g_pPlutoLogger->Write(LV_STATUS, "Established streaming configuration: %d -> [%s]!",
 											pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,

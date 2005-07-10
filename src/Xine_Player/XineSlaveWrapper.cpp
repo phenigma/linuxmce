@@ -838,34 +838,30 @@ void *XineSlaveWrapper::eventProcessingLoop(void *arguments)
 			} while ( checkResult == True );
 		}
 
-		if( iCounter++>10 )
+		if( iCounter++>10 )  // Every second
 		{
+			g_pPlutoLogger->Write(LV_WARNING,"%s (seek %d),",pStream->m_pOwner->m_pAggregatorObject->GetPosition().c_str(),g_iSpecialSeekSpeed);
 			iCounter=0;
-			g_pPlutoLogger->Write(LV_WARNING,"%s",pStream->m_pOwner->m_pAggregatorObject->GetPosition().c_str());
-		}
+			if( g_iSpecialSeekSpeed )
+			{
+				// time to seek
+				int positionTime,totalTime;
+				pStream->m_pOwner->getStreamPlaybackPosition(1,positionTime,totalTime);
+				if( g_iSpecialSeekSpeed<0 )
+					positionTime -= 1000; // Move it back 1 sec to account for the 1 sec we let it go forward
 
-
-
-		if( g_iSpecialSeekSpeed && iCounter++>10 )  // Every second
-		{
-			iCounter=0;
-			// time to seek
-			int positionTime,totalTime;
-			pStream->m_pOwner->getStreamPlaybackPosition(1,positionTime,totalTime);
-			if( g_iSpecialSeekSpeed<0 )
-				positionTime -= 1000; // Move it back 1 sec to account for the 1 sec we let it go forward
-
-g_pPlutoLogger->Write(LV_WARNING,"Current pos %d / %d  seek speed: %d",positionTime,totalTime,g_iSpecialSeekSpeed);
-if( positionTime + g_iSpecialSeekSpeed<0 || positionTime + g_iSpecialSeekSpeed>totalTime )
-{
-g_pPlutoLogger->Write(LV_CRITICAL,"aborting seek");
-g_iSpecialSeekSpeed=0;
-}
-			else if( !xine_play(pStream->m_pStream, 0, positionTime + g_iSpecialSeekSpeed) )  // Pass in position as 2nd parameter
-{
-g_pPlutoLogger->Write(LV_CRITICAL,"special seek failed, normal speed");
-g_iSpecialSeekSpeed=0;
-}
+	g_pPlutoLogger->Write(LV_WARNING,"Current pos %d / %d  seek speed: %d",positionTime,totalTime,g_iSpecialSeekSpeed);
+	if( positionTime + g_iSpecialSeekSpeed<0 || positionTime + g_iSpecialSeekSpeed>totalTime )
+	{
+	g_pPlutoLogger->Write(LV_CRITICAL,"aborting seek");
+	g_iSpecialSeekSpeed=0;
+	}
+				else if( !xine_play(pStream->m_pStream, 0, positionTime + g_iSpecialSeekSpeed) )  // Pass in position as 2nd parameter
+	{
+	g_pPlutoLogger->Write(LV_CRITICAL,"special seek failed, normal speed");
+	g_iSpecialSeekSpeed=0;
+	}
+			}
 		}
 
 		usleep(100000);
@@ -1142,6 +1138,7 @@ void XineSlaveWrapper::changePlaybackSpeed(int iStreamID, PlayBackSpeedType desi
             break;
     }
 
+	g_pPlutoLogger->Write(LV_STATUS, "Setting speed to special %d real %d desired %d",g_iSpecialSeekSpeed,xineSpeed,desiredSpeed);
     if ( (xineSpeed == XINE_SPEED_PAUSE && desiredSpeed == 0) || xineSpeed != XINE_SPEED_PAUSE)
         xine_set_param(pStream->m_pStream, XINE_PARAM_SPEED, xineSpeed);
 }

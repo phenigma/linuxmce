@@ -36,6 +36,7 @@ public:
 //<-dceag-const-e->
 
 		void ProcessExited(int pid, int status);
+		int CalculatePosition(string &sMediaPosition,int *Title,int *Chapter,int *Subtitle,int *Angle,int *AudioTrack);
 
 //<-dceag-const2-b->!
 

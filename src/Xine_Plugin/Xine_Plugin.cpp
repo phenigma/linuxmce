@@ -244,6 +244,9 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 	// No handling of errors (it will in some cases deadlock the router.)
 	SendCommand(cmd);
 
+	if( pMediaFile )
+		pMediaFile->m_sStartPosition=""; // Be sure to reset the start position so next time we start at the beginning of the file if this is in a queue
+
 	g_pPlutoLogger->Write(LV_WARNING, "play media command sent from %d to %d!", m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 
 // 	if( !SendCommand( cmd, &Response ) )
@@ -286,12 +289,6 @@ int k=2;
 							StreamID,      		// Send the stream ID that we want to actually stop
 							&SavedPosition);
 
-
-// todo -- temporary hack -- Xine can lockup while trying to stop.  
-// Ignore the out paramater until we fix this
-delete cmd.m_pcResponse;
-cmd.m_pcResponse=NULL;
-
 	// TODO: Remove the device from the list of players also.
 	string Response;
 	if( !SendCommand( cmd ) ) // hack - todo see above, &Response ) )
@@ -301,15 +298,12 @@ cmd.m_pcResponse=NULL;
 	}
 	else
 	{
-//		pXineMediaStream->GetMediaPosition()->m_iSavedPosition = SavedPosition;
-		MediaStream *pMediaStream = m_pMedia_Plugin->m_mapMediaStream_Find(StreamID);
-		if( !pMediaStream || (pXineMediaStream = ConvertToXineMediaStream(pMediaStream, "Xine_Plugin::StopMedia() ")) == NULL )
+		if( pXineMediaStream->m_iDequeMediaFile_Pos>=0 && pXineMediaStream->m_iDequeMediaFile_Pos<pXineMediaStream->m_dequeMediaFile.size() )
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "Stream has vanished or was changed.");
-			return false; // It's ok -- the user just stopped it
+			pXineMediaStream->m_dequeMediaFile[pXineMediaStream->m_iDequeMediaFile_Pos]->m_sStartPosition = SavedPosition;
+			g_pPlutoLogger->Write( LV_STATUS, "Media stopped at %s",SavedPosition.c_str());
 		}
 
-//		pXineMediaStream->GetMediaPosition()->m_iSavedPosition=SavedPosition;
 		g_pPlutoLogger->Write( LV_STATUS, "The target device %d responded to stop media command",
 											pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 	}

@@ -195,6 +195,9 @@ void VideoLan_Server::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStr
 		DCE::CMD_Play_Media CMD_Play_Media(m_dwPK_Device,vectDevices[s],"udp:",iPK_MediaType,iStreamID,"");
 		SendCommand(CMD_Play_Media);
 	}
+
+	if( sMediaPosition )
+		CMD_Set_Media_Position(iStreamID,sMediaPosition);
 }
 
 string VideoLan_Server::GetVlanStream(vector<string> &vectIPs,int iStreamID)
@@ -543,5 +546,60 @@ void VideoLan_Server::CMD_Angle(string sValue_To_Assign,string &sCMD_Result,Mess
 void VideoLan_Server::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c412-e->
 {
+	g_pPlutoLogger->Write(LV_STATUS,"Set media position %d %s",iStreamID,sMediaPosition.c_str());
+	PLUTO_SAFETY_LOCK(vlc,m_VideoLanMutex);
+
+	VideoLanServerInstance *pVideoLanServerInstance = m_mapVideoLanServerInstance_Find(iStreamID);
+	if( !pVideoLanServerInstance )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannt skip fwd on nonexistant stream");
+		return;
+	}
+
+	int Pos=-2,Title=-2,Chapter=2,Subtitle=-2,Angle=-2,AudioTrack=-2;
+	Pos = CalculatePosition(sMediaPosition,&Title,&Chapter,&Subtitle,&Angle,&AudioTrack);
+
+	if( ProcessUtils::SendKeysToProcess(pVideoLanServerInstance->m_sSpawnName,"chapter_p\n")==false )
+		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to send chapter_p");
+}
+
+int VideoLan_Server::CalculatePosition(string &sMediaPosition,int *Title,int *Chapter,int *Subtitle,int *Angle,int *AudioTrack)
+{
+	string::size_type pos=0;
+	int iPos=0;
+
+	if( Title )
+	{
+		pos = sMediaPosition.find(" TITLE:");
+		if( pos!=string::npos )
+			*Title = atoi( sMediaPosition.substr(pos+7).c_str() )+1;
+	}
+
+	if( Chapter )
+	{
+		pos = sMediaPosition.find(" CHAPTER:");
+		if( pos!=string::npos )
+			*Chapter = atoi( sMediaPosition.substr(pos+9).c_str() )+1;  // 
+	}
+
+	if( Subtitle )
+	{
+		pos = sMediaPosition.find(" SUBTITLE:");
+		if( pos!=string::npos )
+			*Subtitle = atoi( sMediaPosition.substr(pos+10).c_str() );
+	}
+
+	if( AudioTrack )
+	{
+		pos = sMediaPosition.find(" AUDIO:");
+		if( pos!=string::npos )
+			*AudioTrack = atoi( sMediaPosition.substr(pos+7).c_str() );
+	}
+
+	pos = sMediaPosition.find(" POS:");
+	if( pos!=string::npos )
+		iPos = atoi( sMediaPosition.substr(pos+5).c_str() );
+
+	return iPos;
 }
 
