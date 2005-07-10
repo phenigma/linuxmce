@@ -116,7 +116,7 @@ bool ZipFiles(string sArchiveFileName);
 bool PackageIsCompatible(Row_Package *pRow_Package);
 bool CopySourceFile(string sInput,string sOutput)
 {
-	if( !g_bSimulate && sInput.find("/MakeRelease/")==string::npos && 
+	if( !g_bSimulate && sInput.find("MakeRelease.cpp")==string::npos && // Don't do the replace on this file
 			(StringUtils::EndsWith(sInput,".cpp",true) || StringUtils::EndsWith(sInput,".c",true) ||
 			StringUtils::EndsWith(sInput,".h",true)) )
 	{
@@ -1046,7 +1046,7 @@ AsksSourceQuests:
 
 		// Replace the <=version=> in all the files
 cout << "Deciding to do snr on: " << sSourceDirectory << endl;
-		if( !g_bSimulate && sSourceDirectory.find("/MakeRelease")==string::npos )
+		if( !g_bSimulate && pRow_Package->FK_Package_Sourcecode_get()!=446 ) // Don't do the snr on MakeRelease itself
 		{
 			list<string> listFiles;
 			FileUtils::FindFiles(listFiles,sSourceDirectory,"*.cpp,*.c,*.h,*.cs",true);

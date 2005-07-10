@@ -3377,6 +3377,7 @@ bool Media_Plugin::DiskDriveIsRipping(int iPK_Device)
 
 bool Media_Plugin::SafeToReload(string *sPendingTasks)
 {
+	g_pPlutoLogger->Write( LV_STATUS, "safe to reload before lock %d %s %d",m_MediaMutex.m_NumLocks,m_MediaMutex.m_sFileName.c_str(),m_MediaMutex.m_Line);
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 	g_pPlutoLogger->Write( LV_STATUS, "checking ripping jobs %d %d",m_dwPK_Device, (int) m_mapRippingJobsToRippingDevices.size());
 	if( m_mapRippingJobsToRippingDevices.size() )
