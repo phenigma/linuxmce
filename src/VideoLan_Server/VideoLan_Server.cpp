@@ -196,7 +196,7 @@ void VideoLan_Server::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStr
 		SendCommand(CMD_Play_Media);
 	}
 
-	if( sMediaPosition )
+	if( sMediaPosition.size() )
 		CMD_Set_Media_Position(iStreamID,sMediaPosition);
 }
 
@@ -559,7 +559,11 @@ void VideoLan_Server::CMD_Set_Media_Position(int iStreamID,string sMediaPosition
 	int Pos=-2,Title=-2,Chapter=2,Subtitle=-2,Angle=-2,AudioTrack=-2;
 	Pos = CalculatePosition(sMediaPosition,&Title,&Chapter,&Subtitle,&Angle,&AudioTrack);
 
-	if( ProcessUtils::SendKeysToProcess(pVideoLanServerInstance->m_sSpawnName,"chapter_p\n")==false )
+	g_pPlutoLogger->Write(LV_STATUS,"VideoLan_Server::CMD_Set_Media_Position %d %d",Title,Chapter);
+
+	if( Title!=-2 && ProcessUtils::SendKeysToProcess(pVideoLanServerInstance->m_sSpawnName,"title " + StringUtils::itos(Title) + "\n")==false )
+		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to send chapter_p");
+	if( Chapter!=-2 && ProcessUtils::SendKeysToProcess(pVideoLanServerInstance->m_sSpawnName,"chapter " + StringUtils::itos(Chapter) + "\n")==false )
 		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to send chapter_p");
 }
 
