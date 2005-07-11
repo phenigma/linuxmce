@@ -158,7 +158,7 @@ function editComputingApplications($output,$dbADO,$mediadbADO) {
 
 			// move up
 			if((int)$app!=0 && isset($_POST['u_'.$app])){
-				$res=$dbADO->Execute('SELECT * FROM Device_QuickStart WHERE FK_Device=? AND SortOrder<? LIMIT 0,1',array($mdID,$currentPos));
+				$res=$dbADO->Execute('SELECT * FROM Device_QuickStart WHERE FK_Device=? AND SortOrder<? ORDER BY SortOrder DESC LIMIT 0,1',array($mdID,$currentPos));
 				if($res->RecordCount()>0){
 					$row=$res->FetchRow();
 					$dbADO->Execute('UPDATE Device_QuickStart SET SortOrder=? WHERE PK_Device_QuickStart=?',array($row['SortOrder'],$app));
@@ -168,7 +168,7 @@ function editComputingApplications($output,$dbADO,$mediadbADO) {
 
 			// move down
 			if((int)$app!=0 && isset($_POST['d_'.$app])){
-				$res=$dbADO->Execute('SELECT * FROM Device_QuickStart WHERE FK_Device=? AND SortOrder>? LIMIT 0,1',array($mdID,$currentPos));
+				$res=$dbADO->Execute('SELECT * FROM Device_QuickStart WHERE FK_Device=? AND SortOrder>? ORDER BY SortOrder ASC LIMIT 0,1',array($mdID,$currentPos));
 				if($res->RecordCount()>0){
 					$row=$res->FetchRow();
 					$dbADO->Execute('UPDATE Device_QuickStart SET SortOrder=? WHERE PK_Device_QuickStart=?',array($row['SortOrder'],$app));
