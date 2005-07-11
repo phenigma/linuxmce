@@ -116,21 +116,30 @@ void Row_AlertType::SetDefaultValues()
 	m_PK_AlertType = 0;
 is_null[0] = false;
 is_null[1] = true;
+m_DelayBeforeAlarm = 0;
 is_null[2] = true;
+m_ExitDelay = 0;
 is_null[3] = true;
+m_AlarmDuration = 0;
 is_null[4] = true;
+m_PoolAlerts = 0;
 m_Description = "";
 is_null[5] = false;
 is_null[6] = true;
 is_null[7] = true;
+m_PhoneExtension = 0;
 is_null[8] = true;
+m_psc_id = 0;
 is_null[9] = true;
+m_psc_batch = 0;
 is_null[10] = true;
+m_psc_user = 0;
 m_psc_frozen = 0;
 is_null[11] = false;
 m_psc_mod = "00000000000000";
 is_null[12] = false;
 is_null[13] = true;
+m_psc_restrict = 0;
 
 
 	is_added=false;
