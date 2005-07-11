@@ -1,6 +1,7 @@
 amp (1.10.008-3) unstable; urgency=low
 
   * Added firewall rules to enable SIP and IAX2 protocols.
+  * Load OSS module on enable "speak in the house".
 
  -- Office Server Operator <root@activate.plutohome.com>  Fri, 08 Jul 2005 12:49:06 +0300
 
