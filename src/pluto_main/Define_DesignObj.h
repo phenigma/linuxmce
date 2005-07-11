@@ -203,7 +203,7 @@
 #define DESIGNOBJ_pdaHome_CONST 1792
 #define DESIGNOBJ_grpHardButtonsDataGrid_CONST 1793
 #define DESIGNOBJ_mnuControllerStatus_CONST 1796
-#define DESIGNOBJ_grpUpDown_CONST 1798
+#define DESIGNOBJ_grpUpDownPlaylist_CONST 1798
 #define DESIGNOBJ_icoRoomIcon_CONST 1804
 #define DESIGNOBJ_icoHouseStatusIndicator_CONST 1809
 #define DESIGNOBJ_arrClimateSub_CONST 1823
@@ -1034,6 +1034,9 @@
 #define DESIGNOBJ_objExitApp_CONST 3557
 #define DESIGNOBJ_generic_app_desktop_CONST 3558
 #define DESIGNOBJ_butMouseUp_CONST 3559
+#define DESIGNOBJ_grpUpDownBookmarks_CONST 3560
+#define DESIGNOBJ_objDatagridBookmarkUp_CONST 3561
+#define DESIGNOBJ_objDatagridBookmarkDown_CONST 3562
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

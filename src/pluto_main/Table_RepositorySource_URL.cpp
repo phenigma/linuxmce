@@ -122,18 +122,23 @@ is_null[1] = false;
 m_URL = "";
 is_null[2] = false;
 is_null[3] = true;
+m_FK_Country = 0;
 is_null[4] = true;
 m_Password = "";
 is_null[5] = false;
 is_null[6] = true;
 is_null[7] = true;
+m_psc_id = 0;
 is_null[8] = true;
+m_psc_batch = 0;
 is_null[9] = true;
+m_psc_user = 0;
 m_psc_frozen = 0;
 is_null[10] = false;
 m_psc_mod = "00000000000000";
 is_null[11] = false;
 is_null[12] = true;
+m_psc_restrict = 0;
 
 
 	is_added=false;

@@ -116,13 +116,17 @@ void Row_Household::SetDefaultValues()
 	m_PK_Household = 0;
 is_null[0] = false;
 is_null[1] = true;
+m_psc_id = 0;
 is_null[2] = true;
+m_psc_batch = 0;
 is_null[3] = true;
+m_psc_user = 0;
 m_psc_frozen = 0;
 is_null[4] = false;
 m_psc_mod = "00000000000000";
 is_null[5] = false;
 is_null[6] = true;
+m_psc_restrict = 0;
 
 
 	is_added=false;
