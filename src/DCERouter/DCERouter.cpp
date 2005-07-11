@@ -1450,10 +1450,10 @@ bool Router::DeviceIsRegistered(int PK_Device)
 void Router::AddMessageToQueue(Message *pMessage)
 {
 #ifdef DEBUG
+    pthread_mutex_lock(&m_MessageQueueMutex);
     g_pPlutoLogger->Write(LV_STATUS,"AddMessageToQueue(ProcessQueue) adding message from %d to %d type %d id %d to queue size was: %d",
         pMessage->m_dwPK_Device_From,pMessage->m_dwPK_Device_To,pMessage->m_dwMessage_Type,pMessage->m_dwID,(int) m_MessageQueue.size());
 #endif
-    pthread_mutex_lock(&m_MessageQueueMutex);
     m_MessageQueue.push_back(pMessage);
     pthread_mutex_unlock(&m_MessageQueueMutex);
     pthread_cond_broadcast(&m_MessageQueueCond);
