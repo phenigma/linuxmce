@@ -115,6 +115,7 @@ void Row_Alias::SetDefaultValues()
 	m_PK_Alias = 0;
 is_null[0] = false;
 is_null[1] = true;
+m_SimpleAdvanced = 0;
 is_null[2] = true;
 is_null[3] = true;
 

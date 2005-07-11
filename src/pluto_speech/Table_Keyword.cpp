@@ -117,8 +117,10 @@ is_null[0] = false;
 m_SimpleAdvanced = 0;
 is_null[1] = false;
 is_null[2] = true;
+m_EK_Room = 0;
 is_null[3] = true;
 is_null[4] = true;
+m_EK_CommandGroup = 0;
 
 
 	is_added=false;
