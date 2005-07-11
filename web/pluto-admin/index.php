@@ -1190,6 +1190,12 @@ switch ($section) {
 	    include_once('operations/myDevices/setupDisklessMD.php');
 	    setupDisklessMD($output,$dbADO);
 	break;	
+	case 'editComputingApplications';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/myDevices/editComputingApplications.php');
+	    editComputingApplications($output,$dbADO,$mediadbADO);
+	break;	
 	
 	case '';
 		$output = new Template($dbADO);	

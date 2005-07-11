@@ -3276,6 +3276,7 @@ function getFieldsAsArray($tableName,$fields,$dbADO,$filter='',$orderBy='')
 	while($row=$res->Fetchrow()){
 		foreach ($fieldsArray AS $field){
 			$cleanField=(strpos($field,'.')!==false)?substr($field,strpos($field,'.')+1):$field;
+			$cleanField=str_replace('`','',$cleanField);
 			$result[$cleanField][]=$row[$cleanField];
 		}
 	}

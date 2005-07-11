@@ -293,7 +293,7 @@ function mediaDirectors($output,$dbADO) {
 											<td align="right">Sound Card '.htmlPulldown($soundArray,'SoundCard_'.$rowD['PK_Device'],$soundDevice,'Standard Sound Card').'<br>
 											Audio settings '.pulldownFromArray($audioSettingsArray,'audioSettings_'.$rowD['PK_Device'],@$oldAudioSettings).'<br>
 											AC3 passthrough <input type="checkbox" name="ac3_'.$rowD['PK_Device'].'" value="3" '.@$oldAC3.'></td>
-											<td align="right">Video Card '.htmlPulldown(@$videoArray,'VideoCard_'.$rowD['PK_Device'],$videoDevice,'Standard Video Card').'<br>
+											<td align="right" valign="top">Video Card '.htmlPulldown(@$videoArray,'VideoCard_'.$rowD['PK_Device'],$videoDevice,'Standard Video Card').'<br>
 											<input type="button" class="button" name="setResolution" value="Set resolution & refresh" onclick="self.location=\'index.php?section=setResolution&mdID='.$rowD['PK_Device'].'\'";>
 											</td>
 										</tr>
@@ -303,7 +303,7 @@ function mediaDirectors($output,$dbADO) {
 	
 						$out.='
 							<tr>
-								<td colspan="8">'.getInstallWizardDeviceTemplates(6,$dbADO,$orbiterMDChild,$GLOBALS['mdDistro'],1).'<br>'.displayRemotes($rowD['PK_Device'],$dbADO,'mediaDirectors').'<br>'.displayReceivers($rowD['PK_Device'],$dbADO).'<hr></td>
+								<td colspan="8">'.getInstallWizardDeviceTemplates(6,$dbADO,$orbiterMDChild,$GLOBALS['mdDistro'],1).'<br>'.displayRemotes($rowD['PK_Device'],$dbADO,'mediaDirectors').'<br>'.displayReceivers($rowD['PK_Device'],$dbADO).'<br><input type="button" class="button" name="editCA_" value="Edit Computing Applications" onclick="windowOpen(\'index.php?section=editComputingApplications&mdID='.$rowD['PK_Device'].'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\')"><hr></td>
 							</tr>';
 						$setupDisklessMD=' <input type="button" class="button" name="setupDisklessMD" value="Setup Diskless Media Directors *" onClick="self.location=\'index.php?section=setupDisklessMD\';">';
 						$setupDisklessMDInfo='* When you add a new diskless M/D, you must first click this button, wait for the setup process to complete, then do a ‘quick reload router’, and then you can bootup your new diskless media director.';
