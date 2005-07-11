@@ -197,7 +197,7 @@ cout << (int) listSubDirectories.size() << " sub directories" << endl;
 		{
 cout << sDirectory << " is a ripped dvd" << endl;
 #ifndef WIN32
-			attr_set( sDirectory.c_str( ), "DIR_AS_FILE", "1", "1", 0 );
+			attr_set( sDirectory.c_str( ), "DIR_AS_FILE", "1", 1, 0 );
 #endif
 			break; // Don't recurse anymore
 		}
