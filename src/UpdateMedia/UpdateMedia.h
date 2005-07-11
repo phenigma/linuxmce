@@ -2,6 +2,7 @@
 #define UpdateMedia_h
 
 #include "pluto_media/Database_pluto_media.h"
+#include "pluto_main/Database_pluto_main.h"
 
 class UpdateMedia 
 {
@@ -10,7 +11,8 @@ class UpdateMedia
 
 public:
     Database_pluto_media *m_pDatabase_pluto_media ;
-	UpdateMedia(string host, string user, string pass, string db_name, int port,string sDirectory);
+    Database_pluto_main *m_pDatabase_pluto_main ;
+	UpdateMedia(string host, string user, string pass, int port,string sDirectory);
 
 	void DoIt();
 
@@ -18,7 +20,7 @@ public:
 	void SetPicAttribute(string sDirectory,string sFile,int PK_Picture);
 	void SetFileAttribute(string sDirectory,string sFile,int PK_File);
 	int GetFileAttribute(string sDirectory,string sFile);
-	int AddFileToDatabase(int PK_Type,string sDirectory,string sFile);
+	int AddFileToDatabase(int PK_MediaType,string sDirectory,string sFile);
 	int GetPicForFileOrDirectory(string sFile,int PK_File); // if PK_File is 0, we will find it
 };
 #endif

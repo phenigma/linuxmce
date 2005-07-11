@@ -8,7 +8,7 @@
 
 #include <deque>
 
-#define ORBITER_SCHEMA		9	// Used to determine if cached screens can be used or if the schema has changed
+#define ORBITER_SCHEMA		10	// Used to determine if cached screens can be used or if the schema has changed
 
 #ifdef ORBITER
 #include "DesignObj_Orbiter.h"
@@ -62,7 +62,7 @@ class OrbiterData : public SerializeClass
 public:
 	int m_Width, m_Height, m_AnimationStyle, m_dwPK_Users_Default, m_iLocation_Initial;
 	unsigned long m_tGenerationTime;
-	string m_sMainMenu,m_sSleepingMenu,m_sScreenSaveMenu,m_sInitialScreen;
+	string m_sMainMenu,m_sSleepingMenu,m_sScreenSaveMenu,m_sInitialScreen,m_sSkin;
 	ScreenMap m_ScreenMap;
 	map<int,string> m_mapTextString;
 	vector<int> m_vectPK_Users_RequiringPIN;
@@ -117,7 +117,7 @@ public:
 
 	void SetupSerialization(int iSC_Version)
 	{
-		StartSerializeList() + m_mapVariable + m_Width + m_Height + m_AnimationStyle + m_sInitialScreen + m_sMainMenu + m_sSleepingMenu + m_sScreenSaveMenu + m_dwPK_Users_Default + m_iLocation_Initial
+		StartSerializeList() + m_mapVariable + m_Width + m_Height + m_AnimationStyle + m_sInitialScreen + m_sMainMenu + m_sSleepingMenu + m_sScreenSaveMenu + m_dwPK_Users_Default + m_iLocation_Initial + m_sSkin
 			+ m_dwPK_Device_Router + m_dwPK_Device_DatagridPlugIn + m_dwPK_Device_EventPlugIn + m_dwPK_Device_InfraredPlugIn + m_dwPK_Device_GeneralInfoPlugIn + m_dwPK_Device_OrbiterPlugIn
 			+ m_dwPK_Device_LightingPlugIn + m_dwPK_Device_ClimatePlugIn + m_dwPK_Device_MediaPlugIn + m_dwPK_Device_TelecomPlugIn + m_dwPK_Device_SecurityPlugIn
 			+ m_dwPK_Device_LocalAppServer + m_tGenerationTime + m_mapTextString + m_vectPK_Users_RequiringPIN;

@@ -3832,7 +3832,10 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
         DesignObjCommand *pCommand = *iCommand;
         int PK_Command = pCommand->m_PK_Command;
         g_pPlutoLogger->Write( LV_STATUS, "Executing command %d in object: %s", PK_Command,  pObj->m_ObjectID.c_str(  ) );
-        if(  PK_Command==COMMAND_Requires_Special_Handling_CONST  )
+
+        if(  PK_Command==COMMAND_Restart_DCERouter_CONST && Simulator::GetInstance()->IsRunning() )
+			continue;  // While in stress-test simulator, don't try to reset the router
+        else if(  PK_Command==COMMAND_Requires_Special_Handling_CONST  )
         {
             SpecialHandlingObjectSelected( pObj );
             continue;
@@ -4228,6 +4231,8 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 		{
 			Output += "<%=" + Variable.substr(1) + "%>";
 		}
+        else if(  Variable=="SKIN" )
+			Output += m_sSkin;
         else if(  Variable=="SG" )
 		{
 			time_t t = m_tGenerationTime;
@@ -4881,8 +4886,6 @@ g_pPlutoLogger->Write(LV_STATUS,"Forcing go to the main menu");
 	//hack! if the simulator is running, we won't go to pluto admin screen
 	if(Simulator::GetInstance()->IsRunning() && (pObj_New->m_iBaseObjectID==DESIGNOBJ_mnuAdvancedOptions_CONST || pObj_New->m_iBaseObjectID==DESIGNOBJ_mnuDisplayPower_CONST) )
 		return;
-
-
 
     // We're going to change screens,  create the new ScreenHistory object
     ScreenHistory *pScreenHistory_New = new ScreenHistory( pObj_New, m_pScreenHistory_Current );
@@ -6198,7 +6201,6 @@ void Orbiter::CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sVa
 
 	if( bRetransmit )
 	{
-		PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
 		vector<DesignObj_DataGrid*>::iterator it;
 		for(it = m_vectObjs_GridsOnScreen.begin(); it != m_vectObjs_GridsOnScreen.end(); ++it)
 		{

@@ -62,9 +62,6 @@ int main(int argc, char *argv[])
 		case 'p':
 			dceConfig.m_sDBPassword = argv[++optnum];
 			break;
-		case 'D':
-			dceConfig.m_sDBName = argv[++optnum];
-			break;
 		case 'P':
 			dceConfig.m_iDBPort = atoi(argv[++optnum]);
 			break;
@@ -92,8 +89,7 @@ int main(int argc, char *argv[])
 		exit(0);
 	}
 
-	UpdateMedia UpdateMedia(dceConfig.m_sDBHost,dceConfig.m_sDBUser,dceConfig.m_sDBPassword,dceConfig.m_sDBName,
-		dceConfig.m_iDBPort,sDirectory);
+	UpdateMedia UpdateMedia(dceConfig.m_sDBHost,dceConfig.m_sDBUser,dceConfig.m_sDBPassword,dceConfig.m_iDBPort,sDirectory);
 	UpdateMedia.DoIt();
 	return 0;
 }

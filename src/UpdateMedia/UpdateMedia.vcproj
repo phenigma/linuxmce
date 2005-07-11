@@ -32,7 +32,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib DCE.lib pluto_media.lib"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib DCE.lib pluto_media.lib pluto_main.lib"
 				OutputFile="../Debug/UpdateMedia.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="/mysql/lib/Debug;../../libs/Libraries/pthreads-win32/lib;../lib"

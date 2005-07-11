@@ -303,7 +303,7 @@ int OrbiterGenerator::DoIt()
 		exit(1);
 	}
 
-	m_pRow_Skin = mds.Skin_get()->GetRow( atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) );
+	m_sSkin = m_pRow_Skin->Description_get();
 
 	m_pRow_DesignObj_MainMenu = NULL;
 	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_DesignObj_CONST);

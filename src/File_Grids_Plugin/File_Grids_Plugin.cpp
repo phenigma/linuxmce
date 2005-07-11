@@ -44,6 +44,11 @@ using namespace DCE;
 
 #include "FileListOps.h"
 
+#ifndef WIN32
+#include <dirent.h>
+#include <attr/attributes.h>
+#endif
+
 static bool FileNameComparer(FileDetails *x, FileDetails *y)
 {
 	return StringUtils::ToUpper(x->m_sFileName)<StringUtils::ToUpper(y->m_sFileName);
@@ -167,9 +172,10 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 	if( sSubDirectory.length()==1 && (sSubDirectory[0]=='/' || sSubDirectory[0]=='\\') )
 		sSubDirectory = "";
 
+	int PK_MediaType=0;
 	if( Extensions.length()>3 && Extensions.substr(0,3)=="~MT" )
 	{
-		int PK_MediaType = atoi(Extensions.substr(3).c_str());
+		PK_MediaType = atoi(Extensions.substr(3).c_str());
 		Row_MediaType *pRow_MediaType=m_pDatabase_pluto_main->MediaType_get()->GetRow(PK_MediaType);
 		if( !pRow_MediaType )
 		{
@@ -234,6 +240,18 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 		DataGridCell *pCellPicture = new DataGridCell("", pFileDetails->m_sBaseName + pFileDetails->m_sFileName);
 		pCell = new DataGridCell(pFileDetails->m_sFileName + " " + pFileDetails->m_sDescription, pFileDetails->m_sBaseName + pFileDetails->m_sFileName);
 		pCell->m_Colspan = 6;
+
+		if (pFileDetails->m_bIsDir && PK_MediaType==MEDIATYPE_pluto_DVD_CONST)
+		{
+#ifndef WIN32
+			int n = 79,result;
+			char value[80];
+			memset( value, 0, sizeof( value ) );
+
+			if ( (result=attr_get( (pFileDetails->m_sBaseName + "/" + pFileDetails->m_sFileName).c_str( ), "DIR_AS_FILE", value, &n, 0)) == 0 && atoi(value)==1 )
+#endif
+				pFileDetails->m_bIsDir=false;
+		}
 
 		if (pFileDetails->m_bIsDir)
 		{

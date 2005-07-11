@@ -675,6 +675,14 @@ void Media_Plugin::StartMedia( int iPK_MediaType, unsigned int iPK_Device_Orbite
 				break;
 	        }
 		}
+
+		if( !iPK_MediaType )
+		{
+			// This could be a DVD in a directory we're supposed to play as a file
+			string sDirectory = (*p_dequeMediaFile)[0]->FullyQualifiedFile() + "/video_ts";
+			if( FileUtils::DirExists(sDirectory) )
+				iPK_MediaType=MEDIATYPE_pluto_DVD_CONST;
+		}
 	}
 
 	if( !iPK_MediaType )
@@ -729,13 +737,14 @@ MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsi
 {
     PLUTO_SAFETY_LOCK(mm,m_MediaMutex);
 
+g_pPlutoLogger->Write(LV_CRITICAL,"checking %d files for db",(int) dequeMediaFile->size());
 	// Be sure all the files are in the database
 	for(size_t s=0;s<dequeMediaFile->size();++s)
 	{
+g_pPlutoLogger->Write(LV_CRITICAL,"file %s %d",(*dequeMediaFile)[s]->FullyQualifiedFile().c_str(),(*dequeMediaFile)[s]->m_dwPK_File);
 		if( !(*dequeMediaFile)[s]->m_dwPK_File )
 			AddFileToDatabase( (*dequeMediaFile)[s],pMediaHandlerInfo->m_PK_MediaType);
 	}
-
 	
 	MediaDevice *pMediaDevice=NULL;
     if( PK_Device_Source )
@@ -4389,10 +4398,11 @@ void Media_Plugin::AddFileToDatabase(MediaFile *pMediaFile,int PK_MediaType)
 	Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->AddRow();
 	pRow_File->Path_set(pMediaFile->m_sPath);
 	pRow_File->Filename_set(pMediaFile->m_sFilename);
-	pRow_File->FK_Type_set(PK_MediaType);
+	pRow_File->EK_MediaType_set(PK_MediaType);
 	// TODO: Add attributes from ID3 tags
 	pRow_File->Table_File_get()->Commit();
 	pMediaFile->m_dwPK_File = pRow_File->PK_File_get();
+g_pPlutoLogger->Write(LV_CRITICAL,"File %s is added as %d",pMediaFile->FullyQualifiedFile().c_str(),pRow_File->PK_File_get());
 
 #ifndef WIN32
 	string sPK_File = StringUtils::itos(pMediaFile->m_dwPK_File);

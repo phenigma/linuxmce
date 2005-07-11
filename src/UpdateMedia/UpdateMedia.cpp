@@ -18,11 +18,13 @@
 #include <attr/attributes.h>
 #endif
 
+#include "pluto_main/Table_MediaType.h"
+#include "pluto_main/Table_DeviceTemplate_MediaType.h"
+
 #include "pluto_media/Table_File.h"
 #include "pluto_media/Table_Picture_File.h"
 #include "pluto_media/Table_Picture_Attribute.h"
 #include "pluto_media/Table_File_Attribute.h"
-#include "pluto_media/Table_Type_Extension.h"
 
 #ifdef WIN32
 #include <direct.h>
@@ -39,25 +41,46 @@
 using namespace std;
 using namespace DCE;
 
-UpdateMedia::UpdateMedia(string host, string user, string pass, string db_name, int port,string sDirectory)
+UpdateMedia::UpdateMedia(string host, string user, string pass, int port,string sDirectory)
 {
 	m_pDatabase_pluto_media = new Database_pluto_media( );
-	if( !m_pDatabase_pluto_media->Connect( host, user, pass, db_name, port ) )
+	if( !m_pDatabase_pluto_media->Connect( host, user, pass, "pluto_media", port ) )
 	{
 		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );
 		return;
 	}
-	m_sDirectory=StringUtils::Replace(&sDirectory,"\\","/");  // Be sure no Windows \'s
 
-	vector<Row_Type_Extension *> vectRow_Type_Extension;
-	m_pDatabase_pluto_media->Type_Extension_get()->GetRows("1=1",&vectRow_Type_Extension);
-	for(size_t s=0;s<vectRow_Type_Extension.size();++s)
+	m_pDatabase_pluto_main = new Database_pluto_main( );
+	if( !m_pDatabase_pluto_main->Connect( host, user, pass, "pluto_main", port ) )
 	{
-		Row_Type_Extension *pRow_Type_Extension = vectRow_Type_Extension[s];
-		m_sExtensions += pRow_Type_Extension->Extension_get() + ",";
-		m_mapExtensions[pRow_Type_Extension->Extension_get()] = pRow_Type_Extension->FK_Type_get();
+		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );
+		return;
 	}
 
+	m_sDirectory=StringUtils::Replace(&sDirectory,"\\","/");  // Be sure no Windows \'s
+
+	vector<Row_MediaType *> vectRow_MediaType;
+	m_pDatabase_pluto_main->MediaType_get()->GetRows("1=1",&vectRow_MediaType);
+	for(size_t s=0;s<vectRow_MediaType.size();++s)
+	{
+		Row_MediaType *pRow_MediaType = vectRow_MediaType[s];
+		string::size_type pos=0;
+		string sExtensions = pRow_MediaType->Extensions_get();
+		while(pos < sExtensions.size() )
+			m_mapExtensions[StringUtils::Tokenize(sExtensions,",",pos)] = pRow_MediaType->PK_MediaType_get();
+	}
+
+	vector<Row_DeviceTemplate_MediaType *> vectRow_DeviceTemplate_MediaType;
+	m_pDatabase_pluto_main->DeviceTemplate_MediaType_get()->GetRows("1=1",&vectRow_DeviceTemplate_MediaType);
+	for(size_t s=0;s<vectRow_DeviceTemplate_MediaType.size();++s)
+	{
+		Row_DeviceTemplate_MediaType *pRow_DeviceTemplate_MediaType = vectRow_DeviceTemplate_MediaType[s];
+		string::size_type pos=0;
+		string sExtensions = pRow_DeviceTemplate_MediaType->Extensions_get();
+		while(pos < sExtensions.size() )
+			m_mapExtensions[StringUtils::Tokenize(sExtensions,",",pos)] = pRow_DeviceTemplate_MediaType->FK_MediaType_get();
+	}
+	
 #ifdef WIN32
 	chdir("Z:\\");
 #endif
@@ -115,9 +138,9 @@ cout << *it << " not in db-attr: " << PK_File << endl;
 			{
 				// Is it a media file?
 				string sExtension = FileUtils::FindExtension(*it);
-				int PK_Type = m_mapExtensions[sExtension];
-				if( PK_Type )
-					PK_File = AddFileToDatabase(PK_Type,sDirectory,*it);
+				int PK_MediaType = m_mapExtensions[sExtension];
+				if( PK_MediaType )
+					PK_File = AddFileToDatabase(PK_MediaType,sDirectory,*it);
 				else
 				{
 cout << "not a media file" << endl;
@@ -169,7 +192,16 @@ cout << it->first << " exists: " << it->second.second << endl;
 cout << (int) listSubDirectories.size() << " sub directories" << endl;
 	for(list<string>::iterator it=listSubDirectories.begin();it!=listSubDirectories.end();++it)
 	{
-		int i = ReadDirectory(*it);
+		string sSubDir = *it;
+		if( StringUtils::ToUpper(FileUtils::FilenameWithoutPath(sSubDir))=="VIDEO_TS" || StringUtils::ToUpper(FileUtils::FilenameWithoutPath(sSubDir))=="AUDIO_TS" )
+		{
+cout << sDirectory << " is a ripped dvd" << endl;
+#ifndef WIN32
+			attr_set( sDirectory.c_str( ), "DIR_AS_FILE", "1", "1", 0 );
+#endif
+			break; // Don't recurse anymore
+		}
+		int i = ReadDirectory(sSubDir);
 		if( !PK_Picture )
 			PK_Picture = i;
 	}
@@ -230,12 +262,12 @@ cout << "GetFileAttribute " << sDirectory << " / " << sFile << " not found " << 
 }        
 
 
-int UpdateMedia::AddFileToDatabase(int PK_Type,string sDirectory,string sFile)
+int UpdateMedia::AddFileToDatabase(int PK_MediaType,string sDirectory,string sFile)
 {
 	Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->AddRow();
 	pRow_File->Path_set(sDirectory);
 	pRow_File->Filename_set(sFile);
-	pRow_File->FK_Type_set(PK_Type);
+	pRow_File->EK_MediaType_set(PK_MediaType);
 	// TODO: Add attributes from ID3 tags
 	pRow_File->Table_File_get()->Commit();
 cout << "Added " << sDirectory << " / " << sFile << " to db " << pRow_File->PK_File_get() << endl;
