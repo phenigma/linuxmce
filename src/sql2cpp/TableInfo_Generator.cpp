@@ -489,10 +489,14 @@ string TableInfo_Generator::get_set_default_values()
 	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++, field_index++ )
 	{
 		if ((*i)->m_pcFieldDefaultValue == NULL)
+		{
 			if (!((*i)->m_iFlags & NOT_NULL_FLAG))
 				s = s + "is_null[" + int2string(field_index) + "] = true;\n";
 			else
 				s = s + "is_null[" + int2string(field_index) + "] = false;\n";
+			if ((*i)->getCType() != "string" && ((*i)->getCType() != "unsupported_type") && ((*i)->getCType() != "MYSQL_DATE"))
+				s = s + "m_" + (*i)->m_pcFieldName + " = 0;\n";
+		}
 		else
 			if ((*i)->getCType() == "string")
 			{
