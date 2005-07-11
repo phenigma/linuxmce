@@ -211,6 +211,8 @@ public:
 
 	virtual string SerializeClassClassName() { return "DesignObj_Data"; }
 	virtual ~DesignObj_Data();
+
+	class DesignObj_Data *TopMostObject() { return m_pParentObject ? m_pParentObject->TopMostObject() : this; }
 };
 
 #endif

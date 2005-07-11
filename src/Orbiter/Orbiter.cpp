@@ -2039,10 +2039,11 @@ void Orbiter::SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter)
         m_pObj_LastSelected=pDesignObj_Orbiter;
     }
 
+	// The toolbar will be a direct child of the topmost object, whether it's a screen or a popup
 	if( PK_DesignObj_Toolbar_ToTurnOn )
-		CMD_Show_Object(StringUtils::itos(PK_DesignObj_Toolbar_ToTurnOn),0,"","","1");
+		CMD_Show_Object(pDesignObj_Orbiter->TopMostObject()->m_ObjectID + "." + StringUtils::itos(PK_DesignObj_Toolbar_ToTurnOn),0,"","","1");
 	if( PK_DesignObj_Toolbar_ToTurnOff )
-		CMD_Show_Object(StringUtils::itos(PK_DesignObj_Toolbar_ToTurnOff),0,"","","0");
+		CMD_Show_Object(pDesignObj_Orbiter->TopMostObject()->m_ObjectID + "." + StringUtils::itos(PK_DesignObj_Toolbar_ToTurnOff),0,"","","0");
 
 /*
     if( pDesignObj_Orbiter->m_pParentObject->m_iBaseObjectID==OBJECT_FPENTERTAINMENT_CONST )

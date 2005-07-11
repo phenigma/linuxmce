@@ -58,6 +58,8 @@ typedef struct
 // The event processing thread will handle it
 int g_iSpecialSeekSpeed=0;
 
+int g_iSpecialOneTimeSeek=0;
+
 /*
 	Crazy hack -- it seems xine is firing the payback completed event
 	2 seconds before it's really completed, chopping off the end of the media,
@@ -405,39 +407,17 @@ bool XineSlaveWrapper::playStream(int streamID, string mediaPosition, bool playb
 	int Subtitle=-2,Angle=-2,AudioTrack=-2;
 	int pos=m_pAggregatorObject->CalculatePosition(mediaPosition,NULL,&Subtitle,&Angle,&AudioTrack);
 
-	xine_set_param(xineStream->m_pStream, XINE_PARAM_IGNORE_AUDIO, 1);
-//	xine_set_param(xineStream->m_pStream, XINE_PARAM_IGNORE_VIDEO, 1);  // Tried this so the user doesn't see the jitters during seeking to pos, but it causes xine to die
-	if ( xine_play(xineStream->m_pStream, 0, pos) )
+	if ( xine_play(xineStream->m_pStream, 0, 0) )
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Playing... The command took %d seconds to complete at pos %d", time(NULL) - startTime,pos);
-		// The position is often ignored on the first play.  And it seems we have to keep seeking over and over and over
-		// and xine gets closer and closer to the real position.  After 6 seeks, it seems to always be right on.  The problem
-		// is if you do the xine_play's too fast, the xine engine hangs.  So we throw in a bunch of sleeps and seeks.  Lousy
-		// hack...  We turned off audio and video above so at least the user won't see all this jumping around
-		if( pos )
-		{
-			int positionTime, totalTime;
-			for(int i=0;i<10;++i) // A maximum of 10 tries
-			{
-				if( abs(getStreamPlaybackPosition(streamID, positionTime, totalTime) - pos) < 2000 )
-{
-g_pPlutoLogger->Write(LV_WARNING, "Close enough %d %d",positionTime,pos);
-break;
-}
-g_pPlutoLogger->Write(LV_WARNING, "get closer %d %d",positionTime,pos);
-
-				Sleep(300);
-				xine_play(xineStream->m_pStream, 0, pos);
-			}
-		}
+g_pPlutoLogger->Write(LV_STATUS, "Playing... The command took %d seconds to complete at pos %d", time(NULL) - startTime,pos);
+		// The position is ignored on the first play, and this thread must return for some reason before xine
+		// will play correctly, so we set g_iSpecialOneTimeSeek and then we'll catch it in the loop
+		g_iSpecialOneTimeSeek=pos;
 
 		if( Subtitle!=-2 )
 			setSubtitle(Subtitle);
 		if( AudioTrack!=-2 )
 			setAudio(AudioTrack);
-
-//		xine_set_param(xineStream->m_pStream, XINE_PARAM_IGNORE_VIDEO, 0);
-		xine_set_param(xineStream->m_pStream, XINE_PARAM_IGNORE_AUDIO, 0);
 
 		if ( playbackStopped )
 			xine_set_param(xineStream->m_pStream, XINE_PARAM_SPEED, XINE_SPEED_PAUSE);
@@ -817,6 +797,7 @@ void *XineSlaveWrapper::eventProcessingLoop(void *arguments)
 	Display *pDisplay = XOpenDisplay(getenv("DISPLAY"));
 
 	int iCounter=0;  // A counter for the special seek
+	int iCounter_OneTimeSeek=0;
     XEvent  event;
     while ( ! pStream->m_pOwner->m_bExitThread )
     {
@@ -839,6 +820,25 @@ void *XineSlaveWrapper::eventProcessingLoop(void *arguments)
 					pStream->m_pOwner->XServerEventProcessor(pStream, event);
 
 			} while ( checkResult == True );
+		}
+
+		// Wait half a second after starting media before doing the 1 time seek
+		if( g_iSpecialOneTimeSeek && iCounter_OneTimeSeek++>=4 )
+		{
+			int positionTime, totalTime;
+			if( iCounter_OneTimeSeek>10 || abs(pStream->m_pOwner->getStreamPlaybackPosition(1, positionTime, totalTime) - g_iSpecialOneTimeSeek) < 2000 || totalTime<g_iSpecialOneTimeSeek)
+			{
+				//xine_set_param(pStream->m_pStream, XINE_PARAM_IGNORE_AUDIO, 0);
+				g_pPlutoLogger->Write(LV_WARNING, "Close enough %d %d (%d) total %d",positionTime,g_iSpecialOneTimeSeek,iCounter_OneTimeSeek,totalTime);
+				g_iSpecialOneTimeSeek=0;
+				iCounter_OneTimeSeek=0;
+			}
+			else
+			{
+				//xine_set_param(pStream->m_pStream, XINE_PARAM_IGNORE_AUDIO, 1);
+				g_pPlutoLogger->Write(LV_WARNING, "get closer %d %d total %d",positionTime,g_iSpecialOneTimeSeek,totalTime);
+				xine_play(pStream->m_pStream, 0, g_iSpecialOneTimeSeek );
+			}
 		}
 
 		if( iCounter++>10 )  // Every second
@@ -1729,6 +1729,13 @@ int XineSlaveWrapper::getStreamPlaybackPosition(int iStreamID, int &positionTime
     if ( xineStream == NULL )
         return 0;
 
+	if( xine_get_stream_info(xineStream->m_pStream, XINE_STREAM_INFO_SEEKABLE)==0 )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Stream is not seekable");
+		positionTime=totalTime=0;
+		return 0;
+	}
+
     int iPosStream = 0;
     int iPosTime = 0;
     int iLengthTime = 0;
@@ -1737,7 +1744,7 @@ int XineSlaveWrapper::getStreamPlaybackPosition(int iStreamID, int &positionTime
     while( --count && ! xine_get_pos_length(xineStream->m_pStream, &iPosStream, &iPosTime, &iLengthTime) )
     {
           g_pPlutoLogger->Write(LV_STATUS, "Error reading stream position: %d", xine_get_error(xineStream->m_pStream));
-          usleep(500);
+          Sleep(30);
     }
 
     positionTime = iPosTime;

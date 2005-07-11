@@ -262,10 +262,10 @@ void Xine_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &sC
 
 pthread_t pt;
 g_bHackToBeSureWeStop=true;
-pthread_create(&pt, NULL, HackToBeSureWeStop, NULL);
+//pthread_create(&pt, NULL, HackToBeSureWeStop, NULL);
     m_pXineSlaveControl->stopMedia(iStreamID);
 g_bHackToBeSureWeStop=false;
-pthread_cancel(pt);
+//pthread_cancel(pt);
 	g_pPlutoLogger->Write(LV_STATUS, "Xine_Player::CMD_Stop_Media() The stream playback should be stopped at this moment and the resources should be freed!");
 /*
 	if ( getSlimServerClient()->isConnected(iStreamID) )
