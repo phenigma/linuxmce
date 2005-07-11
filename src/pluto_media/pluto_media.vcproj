@@ -139,6 +139,9 @@
 				RelativePath=".\Table_File_Attribute.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_MediaType_AttributeType.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_Picture.cpp">
 			</File>
 			<File
@@ -161,15 +164,6 @@
 			</File>
 			<File
 				RelativePath=".\Table_SearchToken_Attribute.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_Type.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_Type_AttributeType.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_Type_Extension.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_psc_media_batdet.cpp">

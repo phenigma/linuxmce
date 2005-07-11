@@ -19,7 +19,7 @@ using namespace std;
 #include "Table_AttributeType.h"
 
 #include "Table_Attribute.h"
-#include "Table_Type_AttributeType.h"
+#include "Table_MediaType_AttributeType.h"
 
 
 void Database_pluto_media::CreateTable_AttributeType()
@@ -941,11 +941,11 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 class Table_Attribute *pTable = table->database->Attribute_get();
 pTable->GetRows("`FK_AttributeType`=" + StringUtils::itos(m_PK_AttributeType),rows);
 }
-void Row_AttributeType::Type_AttributeType_FK_AttributeType_getrows(vector <class Row_Type_AttributeType*> *rows)
+void Row_AttributeType::MediaType_AttributeType_FK_AttributeType_getrows(vector <class Row_MediaType_AttributeType*> *rows)
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-class Table_Type_AttributeType *pTable = table->database->Type_AttributeType_get();
+class Table_MediaType_AttributeType *pTable = table->database->MediaType_AttributeType_get();
 pTable->GetRows("`FK_AttributeType`=" + StringUtils::itos(m_PK_AttributeType),rows);
 }
 

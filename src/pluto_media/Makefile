@@ -13,6 +13,7 @@ Table_Disc.cpp \
 Table_Disc_Attribute.cpp \
 Table_File.cpp \
 Table_File_Attribute.cpp \
+Table_MediaType_AttributeType.cpp \
 Table_Picture.cpp \
 Table_Picture_Attribute.cpp \
 Table_Picture_Disc.cpp \
@@ -21,9 +22,6 @@ Table_Playlist.cpp \
 Table_PlaylistEntry.cpp \
 Table_SearchToken.cpp \
 Table_SearchToken_Attribute.cpp \
-Table_Type.cpp \
-Table_Type_AttributeType.cpp \
-Table_Type_Extension.cpp \
 Table_psc_media_batdet.cpp \
 Table_psc_media_bathdr.cpp \
 Table_psc_media_batuser.cpp \

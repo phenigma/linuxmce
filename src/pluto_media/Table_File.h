@@ -78,7 +78,7 @@ class DECLSPECIFIER Row_File : public TableRow, public SerializeClass
 		Table_File *table;
 		
 		long int m_PK_File;
-long int m_FK_Type;
+long int m_EK_MediaType;
 string m_Path;
 string m_Filename;
 long int m_Missing;
@@ -94,7 +94,7 @@ long int m_psc_restrict;
 	
 	public:
 		long int PK_File_get();
-long int FK_Type_get();
+long int EK_MediaType_get();
 string Path_get();
 string Filename_get();
 long int Missing_get();
@@ -108,7 +108,7 @@ long int psc_restrict_get();
 
 		
 		void PK_File_set(long int val);
-void FK_Type_set(long int val);
+void EK_MediaType_set(long int val);
 void Path_set(string val);
 void Filename_set(string val);
 void Missing_set(long int val);
@@ -121,7 +121,7 @@ void psc_mod_set(string val);
 void psc_restrict_set(long int val);
 
 		
-		bool FK_Type_isNull();
+		bool EK_MediaType_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -129,7 +129,7 @@ bool psc_frozen_isNull();
 bool psc_restrict_isNull();
 
 			
-		void FK_Type_setNull(bool val);
+		void EK_MediaType_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -147,8 +147,7 @@ void psc_restrict_setNull(bool val);
 		class Table_File *Table_File_get() { return table; };
 
 		// Return the rows for foreign keys 
-		class Row_Type* FK_Type_getrow();
-
+		
 
 		// Return the rows in other tables with foreign keys pointing here
 		void Bookmark_FK_File_getrows(vector <class Row_Bookmark*> *rows);
@@ -159,13 +158,13 @@ void PlaylistEntry_FK_File_getrows(vector <class Row_PlaylistEntry*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_File+ m_FK_Type+ m_Path+ m_Filename+ m_Missing+ m_IsDirectory+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_File+ m_EK_MediaType+ m_Path+ m_Filename+ m_Missing+ m_IsDirectory+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
 		
 		string PK_File_asSQL();
-string FK_Type_asSQL();
+string EK_MediaType_asSQL();
 string Path_asSQL();
 string Filename_asSQL();
 string Missing_asSQL();

@@ -17,7 +17,6 @@
 using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "Table_File.h"
-#include "Table_Type.h"
 
 #include "Table_Bookmark.h"
 #include "Table_File_Attribute.h"
@@ -120,7 +119,7 @@ void Row_File::SetDefaultValues()
 	m_PK_File = 0;
 is_null[0] = false;
 is_null[1] = true;
-m_FK_Type = 0;
+m_EK_MediaType = 0;
 m_Path = "";
 is_null[2] = false;
 m_Filename = "0";
@@ -151,9 +150,9 @@ m_psc_restrict = 0;
 long int Row_File::PK_File_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_PK_File;}
-long int Row_File::FK_Type_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_File::EK_MediaType_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return m_FK_Type;}
+return m_EK_MediaType;}
 string Row_File::Path_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Path;}
@@ -189,9 +188,9 @@ return m_psc_restrict;}
 void Row_File::PK_File_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_PK_File = val; is_modified=true; is_null[0]=false;}
-void Row_File::FK_Type_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_File::EK_MediaType_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_FK_Type = val; is_modified=true; is_null[1]=false;}
+m_EK_MediaType = val; is_modified=true; is_null[1]=false;}
 void Row_File::Path_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_Path = val; is_modified=true; is_null[2]=false;}
@@ -224,7 +223,7 @@ void Row_File::psc_restrict_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,ta
 m_psc_restrict = val; is_modified=true; is_null[11]=false;}
 
 		
-bool Row_File::FK_Type_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_File::EK_MediaType_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[1];}
 bool Row_File::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -244,7 +243,7 @@ bool Row_File::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->dat
 return is_null[11];}
 
 			
-void Row_File::FK_Type_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_File::EK_MediaType_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[1]=val;
 is_modified=true;
 }
@@ -283,7 +282,7 @@ sprintf(buf, "%li", m_PK_File);
 return buf;
 }
 
-string Row_File::FK_Type_asSQL()
+string Row_File::EK_MediaType_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
@@ -291,7 +290,7 @@ if (is_null[1])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%li", m_FK_Type);
+sprintf(buf, "%li", m_EK_MediaType);
 
 return buf;
 }
@@ -467,10 +466,10 @@ bool Table_File::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRo
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_File_asSQL()+", "+pRow->FK_Type_asSQL()+", "+pRow->Path_asSQL()+", "+pRow->Filename_asSQL()+", "+pRow->Missing_asSQL()+", "+pRow->IsDirectory_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_File_asSQL()+", "+pRow->EK_MediaType_asSQL()+", "+pRow->Path_asSQL()+", "+pRow->Filename_asSQL()+", "+pRow->Missing_asSQL()+", "+pRow->IsDirectory_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
 
 	
-		string query = "insert into File (`PK_File`, `FK_Type`, `Path`, `Filename`, `Missing`, `IsDirectory`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
+		string query = "insert into File (`PK_File`, `EK_MediaType`, `Path`, `Filename`, `Missing`, `IsDirectory`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -526,7 +525,7 @@ condition = condition + "`PK_File`=" + tmp_PK_File;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`PK_File`="+pRow->PK_File_asSQL()+", `FK_Type`="+pRow->FK_Type_asSQL()+", `Path`="+pRow->Path_asSQL()+", `Filename`="+pRow->Filename_asSQL()+", `Missing`="+pRow->Missing_asSQL()+", `IsDirectory`="+pRow->IsDirectory_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
+update_values_list = update_values_list + "`PK_File`="+pRow->PK_File_asSQL()+", `EK_MediaType`="+pRow->EK_MediaType_asSQL()+", `Path`="+pRow->Path_asSQL()+", `Filename`="+pRow->Filename_asSQL()+", `Missing`="+pRow->Missing_asSQL()+", `IsDirectory`="+pRow->IsDirectory_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
 
 	
 		string query = "update File set " + update_values_list + " where " + condition;
@@ -649,12 +648,12 @@ sscanf(row[0], "%li", &(pRow->m_PK_File));
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_FK_Type = 0;
+pRow->m_EK_MediaType = 0;
 }
 else
 {
 pRow->is_null[1]=false;
-sscanf(row[1], "%li", &(pRow->m_FK_Type));
+sscanf(row[1], "%li", &(pRow->m_EK_MediaType));
 }
 
 if (row[2] == NULL)
@@ -889,12 +888,12 @@ sscanf(row[0], "%li", &(pRow->m_PK_File));
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_FK_Type = 0;
+pRow->m_EK_MediaType = 0;
 }
 else
 {
 pRow->is_null[1]=false;
-sscanf(row[1], "%li", &(pRow->m_FK_Type));
+sscanf(row[1], "%li", &(pRow->m_EK_MediaType));
 }
 
 if (row[2] == NULL)
@@ -1015,13 +1014,6 @@ sscanf(row[11], "%li", &(pRow->m_psc_restrict));
 }
 
 
-class Row_Type* Row_File::FK_Type_getrow()
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-class Table_Type *pTable = table->database->Type_get();
-return pTable->GetRow(m_FK_Type);
-}
 
 
 void Row_File::Bookmark_FK_File_getrows(vector <class Row_Bookmark*> *rows)
