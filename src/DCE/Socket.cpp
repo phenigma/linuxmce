@@ -519,7 +519,7 @@ bool Socket::SendData( int iSize, const char *pcData )
 			}
 #endif
 
-			tv_total -= 1;
+			tv_total -= 1000;
 			tv_total += tv;
 		} while (iRet != -1 && iRet != 1 && tv_total.tv_sec > 0);
 
@@ -658,7 +658,7 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 					iRet = 0;
 				}
 #endif
-				tv_total -= 1;
+				tv_total -= 1000;
 				tv_total += tv;
 #ifndef DISABLE_SOCKET_TIMEOUTS
 			} while (iRet != -1 && iRet != 1 && (m_iReceiveTimeout > 0 ? tv_total.tv_sec > 0 : true));
