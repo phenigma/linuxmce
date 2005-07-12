@@ -3205,7 +3205,10 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
                     pDesignObj_DataGrid->m_iHighlightedRow!=-1 ? pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow : 0);
 
                 if( pCell )
-					SelectedGrid( pDesignObj_DataGrid,  pCell );
+                {
+                    SelectedGrid( pDesignObj_DataGrid,  pCell );
+                    SelectedObject( pDesignObj_DataGrid, -1, -1 ); //also select the grid as a object
+                }
 				return true;
 			}
 		}
