@@ -520,7 +520,7 @@ check_config:
 
 				if( vectRow_Package_Directory_File.size()==0 )
 					continue;
-				cout << "cd " << pRow_Package_Directory->InputPath_get() << endl;
+				cout << "pushd " << pRow_Package_Directory->InputPath_get() << endl;
 
 				for(size_t s=0;s<vectRow_Package_Directory_File.size();++s)
 				{
@@ -537,7 +537,7 @@ check_config:
 						cout << "fi" << endl;
 					}
 				}
-				cout << "cd -" << endl;
+				cout << "popd" << endl;
 			}
 		}
 	}
