@@ -523,6 +523,27 @@ m_bNoEffects = true;
 		threaded_mysql_query(sSQL);
 	}
 
+	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_ScreenWidth_CONST);
+	if( !pRow_Device_DeviceData )
+	{
+		pRow_Device_DeviceData = mds.Device_DeviceData_get()->AddRow();
+		pRow_Device_DeviceData->FK_Device_set(m_pRow_Device->PK_Device_get());
+		pRow_Device_DeviceData->FK_DeviceData_set(DEVICEDATA_ScreenWidth_CONST);
+	}
+	pRow_Device_DeviceData->IK_DeviceData_set( StringUtils::itos(m_pRow_Size->Width_get()) );
+	mds.Device_DeviceData_get()->Commit();
+
+	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_ScreenHeight_CONST);
+	if( !pRow_Device_DeviceData )
+	{
+		pRow_Device_DeviceData = mds.Device_DeviceData_get()->AddRow();
+		pRow_Device_DeviceData->FK_Device_set(m_pRow_Device->PK_Device_get());
+		pRow_Device_DeviceData->FK_DeviceData_set(DEVICEDATA_ScreenHeight_CONST);
+	}
+	pRow_Device_DeviceData->IK_DeviceData_set( StringUtils::itos(m_pRow_Size->Height_get()) );
+	mds.Device_DeviceData_get()->Commit();
+
+	// m_sizeScreen is the unscaled resolution
 	m_sizeScreen = new PlutoSize(m_pRow_Size->Width_get() * 1000 / m_pRow_Size->ScaleX_get(),m_pRow_Size->Height_get() * 1000 / m_pRow_Size->ScaleY_get());
 	m_iPK_DesignObj_Screen = m_pRow_DesignObj_MainMenu->PK_DesignObj_get();
 
