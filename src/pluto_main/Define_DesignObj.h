@@ -1037,6 +1037,7 @@
 #define DESIGNOBJ_grpUpDownBookmarks_CONST 3560
 #define DESIGNOBJ_objDatagridBookmarkUp_CONST 3561
 #define DESIGNOBJ_objDatagridBookmarkDown_CONST 3562
+#define DESIGNOBJ_grpNumberPadPhone_CONST 3563
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
