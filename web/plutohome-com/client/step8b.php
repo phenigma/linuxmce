@@ -12,7 +12,7 @@ $out .= '
 	</tr>
 	<tr class="normaltext">
 		<td colspan="2" align="left">You finished the wizard!  All the settings you made have been saved into a database so your system can install and configure itself automatically.  You can go back to a prior page to change options and return to this page at any time.  
-			Once your system is up and running, you will make all future changes on the Pluto Admin web site that gets installed on your '.$_SESSION['coreName'].'.  The settings you chose here are only used when you are installing the software, and have no effect once the software is already installed.<br><br></td>
+			Once your system is up and running, you will make all future changes on the Pluto Admin web site that gets installed on your '.$_SESSION['coreName'].'.  The settings you chose here are only used when you are installing the software, and have no effect once the software is already installed.  <b>You need an internet conection during installation.</b><br><br></td>
 	</tr>
 	<tr class="normaltext">
 		<td colspan="2" align="left"><b>Your activation code is: '.$_SESSION['ActivationCode'].'</b> &nbsp;&nbsp;&nbsp; You will be asked for this during installation.<br><br>During installation you will be asked for the activation code, and the device ID listed below.  This will be used to lookup the configuration at plutohome.com.  Just be sure to correctly specify the device for each computer you use it on.</td>
