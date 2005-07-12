@@ -200,9 +200,10 @@ int main(int argc, char *argv[])
 		cerr << "Cannot find 'fonts' -- looked for " << FontFiles << "arial.ttf.  Specify the directory with -f" << endl;
 		exit(1);
 	}
+	OrbiterGenerator *pOrbiterGenerator=NULL;
 	try
 	{
-		OrbiterGenerator *pOrbiterGenerator = new OrbiterGenerator(GraphicsFiles,FontFiles,OutputFiles,PK_Orbiter,DBHost,DBUser,DBPassword,DBName,DBPort);
+		pOrbiterGenerator = new OrbiterGenerator(GraphicsFiles,FontFiles,OutputFiles,PK_Orbiter,DBHost,DBUser,DBPassword,DBName,DBPort);
 		if( bRegen )
 			pOrbiterGenerator->m_bOrbiterChanged=true;
 		pOrbiterGenerator->m_bDontAutoRegenArrays= iDontAutoRegenArrays==1;
@@ -222,8 +223,6 @@ int main(int argc, char *argv[])
 		time( &aclock );   // Get time in seconds
 		newtime = localtime( &aclock );   // Convert time to struct tm form 
 		cout << "Generation done at " << asctime( newtime ) << endl;
-
-        delete pOrbiterGenerator;
 	}
 	catch(const char *error)
 	{
@@ -235,6 +234,15 @@ int main(int argc, char *argv[])
 		cerr << "Error: " << error;
 		Sleep(2000);
 	}
+
+	if( pOrbiterGenerator && pOrbiterGenerator->m_pRow_Orbiter )
+	{
+		pOrbiterGenerator->m_pRow_Orbiter->Regen_set(false);
+		pOrbiterGenerator->m_pRow_Orbiter->Table_Orbiter_get()->Commit();
+	}
+	if( pOrbiterGenerator )
+        delete pOrbiterGenerator;
+
 	cout << "Finished!" << endl;
 	return iResult;
 }
@@ -264,6 +272,8 @@ int OrbiterGenerator::DoIt()
 		m_pRow_Orbiter->PK_Orbiter_set(m_iPK_Orbiter);
 		m_pRow_Orbiter->Table_Orbiter_get()->Commit();
 	}
+	m_pRow_Orbiter->Regen_set(true);
+	m_pRow_Orbiter->Table_Orbiter_get()->Commit();
 
 	cout << "Generating: #" << m_pRow_Device->PK_Device_get() << " " << m_pRow_Device->Description_get() << endl;
 
@@ -300,6 +310,8 @@ int OrbiterGenerator::DoIt()
 	if( !m_pRow_Skin )
 	{
 		cerr << "Cannot find Orbiter's Skin" << endl;
+		m_pRow_Orbiter->Regen_set(false);
+		mds.Orbiter_get()->Commit();
 		exit(1);
 	}
 
@@ -319,6 +331,8 @@ int OrbiterGenerator::DoIt()
 	if( !m_pRow_DesignObj_MainMenu )
 	{
 		cerr << "Cannot find Orbiter's Main Menu: " << endl;
+		m_pRow_Orbiter->Regen_set(false);
+		mds.Orbiter_get()->Commit();
 		exit(1);
 	}
 
@@ -343,6 +357,8 @@ int OrbiterGenerator::DoIt()
 	if( !m_pRow_Language )
 	{
 		cerr << "Cannot find Orbiter's Language" << endl;
+		m_pRow_Orbiter->Regen_set(false);
+		mds.Orbiter_get()->Commit();
 		exit(1);
 	}
 

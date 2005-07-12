@@ -1427,6 +1427,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Starting regen orbiter with %d size",(int) m_li
 void Orbiter_Plugin::CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c267-e->
 {
+	g_pPlutoLogger->Write(LV_STATUS,"Got a CMD_Regen_Orbiter_Finished");
     PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
 	OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(iPK_Device);
 	if( !pOH_Orbiter )

@@ -1,5 +1,6 @@
 #include "ProcessUtils.h"
 #include "CommonIncludes.h"
+#include "MultiThreadIncludes.h"
 
 #include <vector>
 #include <map>
@@ -37,7 +38,7 @@ namespace ProcessUtils
 	MapIdentifierToPidData g_mapIdentifierToPidData;
 }
 
-pthread_mutex_t mutexDataStructure = PTHREAD_MUTEX_INITIALIZER;
+pluto_pthread_mutex_t g_ProcessUtilsMutex("process utils",true);
 
 int ProcessUtils::SpawnApplication(string sCmdExecutable, string sCmdParams, string sAppIdentifier, void *attachedData, bool bLogOutput)
 {
@@ -86,7 +87,7 @@ printf("dupped arg %d %s\n",i,ps);
 	int semSpawnApplication = semget(IPC_PRIVATE, 1, IPC_CREAT | 0600);
 	semctl(semSpawnApplication, 0, SETVAL, 1);
 
-	pthread_mutex_lock(&mutexDataStructure);
+	PLUTO_SAFETY_LOCK(sl,g_ProcessUtilsMutex);
     pid_t pid = fork();
 
     switch (pid)
@@ -127,7 +128,6 @@ printf("dupped arg %d %s\n",i,ps);
 
         case -1:
             printf("ProcessUtils::SpawnApplication() Error starting %s, err: %s\n", sCmdExecutable.c_str(), strerror(errno));
-			pthread_mutex_unlock(&mutexDataStructure);
             return 0;
 
 		default:
@@ -146,7 +146,6 @@ printf("dupped arg %d %s\n",i,ps);
 			pPidData->m_pData = attachedData;
 			pPidData->in = in[1];
 			g_mapIdentifierToPidData[sAppIdentifier][pid] = pPidData;
-			pthread_mutex_unlock(&mutexDataStructure);
 
 			sops.sem_num = 0;
 			sops.sem_op = -1;
@@ -169,7 +168,7 @@ printf("dupped arg %d %s\n",i,ps);
 
 bool ProcessUtils::KillApplication(string sAppIdentifier, vector<void *> &associatedData)
 {
-	pthread_mutex_lock(&mutexDataStructure);
+	PLUTO_SAFETY_LOCK(sl,g_ProcessUtilsMutex);
 
 	vector<int> pidsArray;
 	MapIdentifierToPidData::iterator element = g_mapIdentifierToPidData.find(sAppIdentifier);
@@ -177,7 +176,6 @@ bool ProcessUtils::KillApplication(string sAppIdentifier, vector<void *> &associ
 	if (element == g_mapIdentifierToPidData.end())
     {
         printf("ProcessUtils::KillApplication() No application '%s' found. None killed\n", sAppIdentifier.c_str());
-		pthread_mutex_unlock(&mutexDataStructure);
 		return false;
     }
 
@@ -194,7 +192,7 @@ bool ProcessUtils::KillApplication(string sAppIdentifier, vector<void *> &associ
 	}
 
 	g_mapIdentifierToPidData.erase(element);
-	pthread_mutex_unlock(&mutexDataStructure);
+	sl.Release();
 
 	printf("ProcessUtils::KillApplication(): Mutex unlocked Sending kill signal.\n");
 	// we are doing the killing without the lock taken (since this killing might trigger another call into one of our functions which might cause a deadlock).
@@ -214,7 +212,7 @@ bool ProcessUtils::ApplicationExited(int pid, string &associatedName, void *&ass
 {
 	printf("ProcessUtils::ApplicationExited() pid exited: %d\n", pid);
 
-	pthread_mutex_lock(&mutexDataStructure);
+	PLUTO_SAFETY_LOCK(sl,g_ProcessUtilsMutex);
 
 	MapIdentifierToPidData::iterator applicationElement = g_mapIdentifierToPidData.begin();
 	while ( applicationElement != g_mapIdentifierToPidData.end() )
@@ -238,34 +236,30 @@ bool ProcessUtils::ApplicationExited(int pid, string &associatedName, void *&ass
 			if ( removeIt )
 				mapPidsToData.erase(itPidsToData);
 
-			pthread_mutex_unlock(&mutexDataStructure);
 			return true;
 		}
 		applicationElement++;
 	}
 
-	pthread_mutex_unlock(&mutexDataStructure);
 	return false;
 }
 
 bool ProcessUtils::ApplicationIsLaunchedByMe(string applicationName)
 {
-	pthread_mutex_lock(&mutexDataStructure);
+	PLUTO_SAFETY_LOCK(sl,g_ProcessUtilsMutex);
 
 	printf("ApplicationIsLaunchedByMe %s size: %d",applicationName.c_str(),(int) g_mapIdentifierToPidData.size());
 	if ( g_mapIdentifierToPidData.find(applicationName) == g_mapIdentifierToPidData.end() )
 	{
-		pthread_mutex_unlock(&mutexDataStructure);
 		return false;
 	}
 
-	pthread_mutex_unlock(&mutexDataStructure);
 	return true;
 }
 
 bool ProcessUtils::SendKeysToProcess(string sAppIdentifier,string sKeys)
 {
-	pthread_mutex_lock(&mutexDataStructure);
+	PLUTO_SAFETY_LOCK(sl,g_ProcessUtilsMutex);
 
 	vector<int> pidsArray;
 	MapIdentifierToPidData::iterator element = g_mapIdentifierToPidData.find(sAppIdentifier);
@@ -273,7 +267,6 @@ bool ProcessUtils::SendKeysToProcess(string sAppIdentifier,string sKeys)
 	if (element == g_mapIdentifierToPidData.end())
     {
         printf("ProcessUtils::KillApplication() No application '%s' found. None to send keys to\n", sAppIdentifier.c_str());
-		pthread_mutex_unlock(&mutexDataStructure);
 		return false;
     }
 
@@ -288,6 +281,5 @@ bool ProcessUtils::SendKeysToProcess(string sAppIdentifier,string sKeys)
 		itPidsToData++;
 	}
 
-	pthread_mutex_unlock(&mutexDataStructure);
 	return true;
 }

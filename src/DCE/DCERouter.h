@@ -151,7 +151,7 @@ namespace DCE
         // Miscellaneous Data for internal use
         AlarmManager* m_pAlarmManager;
         pluto_pthread_mutex_t m_CoreMutex,m_InterceptorMutex;
-        pthread_mutex_t m_MessageQueueMutex;
+        pluto_pthread_mutex_t m_MessageQueueMutex;
         pthread_cond_t m_MessageQueueCond;
         int m_Port,m_dwPK_Language;
         unsigned long m_dwPK_Device_Largest;

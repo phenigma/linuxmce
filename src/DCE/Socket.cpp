@@ -397,9 +397,6 @@ bool Socket::SendData( int iSize, const char *pcData )
 
 #endif
 
-	/** @todo check comment */
-	// pthread_mutex_lock(&m_DCESocketMutex);  AB 1-25-2004 - use safety lock instead
-
 #if (defined(LL_DEBUG) || defined(LL_DEBUG_FILE))
 	char *pcTmp = new char[iSize+1]; // freeing it after writing data to the file
 	hexmemcpy( pcTmp, pcData, min(iSize,200) );

@@ -58,7 +58,6 @@ int c=ETIMEDOUT;
 			timeout.tv_sec = 500000; 
 	g_pPlutoConfig->m_iPollingInterval = 2000000000;
 			timeout.tv_nsec = 0; g_pPlutoConfig->m_iPollingInterval;
-	//			pthread_cond_wait(&pProcessor->m_PollingCond,&pProcessor->m_PollingMutex.mutex);
 			int ret = pm.TimedCondWait(timeout);
 Sleep(500); // This is screwed up, it doesn't matter if it's seconds, ms, nanoseconds, the cond_timedwait always returns immediately
 int k=2;
@@ -67,7 +66,6 @@ int k=2;
 		// We are holding the mutex
 		pProcessor->SendCommand();
 Sleep(25); // Somehow designer is still tying up all the CPU time????
-//		pthread_mutex_lock(&pProcessor->m_PollingMutex.mutex);
 	}
 
    	if (!SOCKFAIL(m_Socket))

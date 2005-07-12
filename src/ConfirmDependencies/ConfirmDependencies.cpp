@@ -120,6 +120,7 @@ list<PackageInfo *> listPackageInfo;  // We need a list so we can keep them in t
 DCEConfig dceConfig;
 Row_Distro *pRow_Distro=NULL;
 map<int,Row_Package *> m_mapReportedErrors;
+vector<Row_Device *> m_vectDevicesNeedingConfigure;
 
 string GetCommand()
 {
@@ -449,8 +450,9 @@ int main(int argc, char *argv[])
 			cout << "done" << endl;
 
 check_config:
-			if( pRow_Device->Status_get()=="**RUN_CONFIG**" )
+			for(size_t s=0;s<m_vectDevicesNeedingConfigure.size();++s)
 			{
+				Row_Device *pRow_Device = m_vectDevicesNeedingConfigure[s];
 				if( pRow_Device->FK_DeviceTemplate_getrow()->ConfigureScript_get().size() )
 				{
 					cout << "#Running configure script" << endl;
@@ -463,6 +465,7 @@ check_config:
 
 				cout << "#Cleared RUN_CONFIG flag" << endl;
 			}
+			database_pluto_main.Device_get()->Commit();
 		}
 
 		for(it=listPackageInfo.begin(); it!=listPackageInfo.end(); ++it)
@@ -660,6 +663,9 @@ void CheckDevice(Row_Device *pRow_Device,bool bSourceCode)
 
 void CheckDeviceLoop(Row_Device *pRow_Device,bool bDevelopment)
 {
+	if( pRow_Device->Status_get()=="**RUN_CONFIG**" )
+		m_vectDevicesNeedingConfigure.push_back(pRow_Device);
+
 	if( pRow_Device->FK_DeviceTemplate_getrow()->FK_Package_isNull() )
 	{
 		if( sCommand!="line" )

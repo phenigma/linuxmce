@@ -85,11 +85,13 @@ public:
 	string m_sName;
 	int m_NumLocks;  // For tracking recursive
 	pthread_cond_t *m_pthread_cond_t; // non null if there's a condition associated with this
-	pluto_pthread_mutex_t(string Name) 
+	pluto_pthread_mutex_t(string Name,bool bAutoInit=false) 
 		: m_bInitialized(false), m_Line(0), m_LockNum(0), m_sFileName("NONE"), m_thread(pthread_self()), m_sName(Name) 
 	{
 		m_NumLocks=0;
 		m_pthread_cond_t=NULL;
+		if( bAutoInit )
+			Init(NULL);
 	}
 	virtual ~pluto_pthread_mutex_t() { if( m_bInitialized ) pthread_mutex_destroy(&mutex); }
 	void Init(pthread_mutexattr_t *type,pthread_cond_t *pthread_cond_t=NULL)

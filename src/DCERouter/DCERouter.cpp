@@ -102,7 +102,8 @@ void DeadlockHandler(PlutoLock *pPlutoLock)
 }
 
 Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,string DBUser,string DBPassword,string DBName,int DBPort,int ListenPort) :
-    SocketListener("Router Dev #" + StringUtils::itos(PK_Device)), MySqlHelper(DBHost,DBUser,DBPassword,DBName,DBPort), m_CoreMutex("core"), m_InterceptorMutex("interceptor")
+    SocketListener("Router Dev #" + StringUtils::itos(PK_Device)), MySqlHelper(DBHost,DBUser,DBPassword,DBName,DBPort), 
+		m_CoreMutex("core"), m_InterceptorMutex("interceptor"), m_MessageQueueMutex("messagequeue")
 {
 	g_pRouter=this;  // For the deadlock handler
 	g_pDeadlockHandler=DeadlockHandler;
@@ -125,8 +126,8 @@ Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,s
 
     m_CoreMutex.Init(NULL);
     m_InterceptorMutex.Init(NULL);
-    pthread_mutex_init(&m_MessageQueueMutex,NULL);
     pthread_cond_init(&m_MessageQueueCond, NULL);
+    m_MessageQueueMutex.Init(NULL,&m_MessageQueueCond);
 
     if(pthread_create(&m_pthread_queue_id, NULL, MessageQueueThread_DCER, (void*)this))
     {
@@ -882,7 +883,7 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 					g_pPlutoLogger->Write(LV_STATUS,"Received reload command");
 					if( (*SafetyMessage)->m_dwID!=SYSCOMMAND_RELOAD_FORCED )
 					{
-					    pthread_mutex_lock(&m_MessageQueueMutex);
+					    PLUTO_SAFETY_LOCK(mm,m_MessageQueueMutex);
 g_pPlutoLogger->Write(LV_CRITICAL,"Checking %d plugins",(int)m_mapPlugIn.size()); 
 						map<int,class Command_Impl *>::iterator it;
 						for(it=m_mapPlugIn.begin();it!=m_mapPlugIn.end();++it)
@@ -902,7 +903,6 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Checking plugin %d for reload",pPlugIn->m_dwP
 							}
 						}
 g_pPlutoLogger->Write(LV_CRITICAL,"PLUGINS OK");
-					    pthread_mutex_unlock(&m_MessageQueueMutex);
 					}
 				}
                 m_bReload=true;
@@ -1449,13 +1449,13 @@ bool Router::DeviceIsRegistered(int PK_Device)
 
 void Router::AddMessageToQueue(Message *pMessage)
 {
-    pthread_mutex_lock(&m_MessageQueueMutex);
+    PLUTO_SAFETY_LOCK(mm,m_MessageQueueMutex);
 #ifdef DEBUG
     g_pPlutoLogger->Write(LV_STATUS,"AddMessageToQueue(ProcessQueue) adding message from %d to %d type %d id %d to queue size was: %d",
         pMessage->m_dwPK_Device_From,pMessage->m_dwPK_Device_To,pMessage->m_dwMessage_Type,pMessage->m_dwID,(int) m_MessageQueue.size());
 #endif
     m_MessageQueue.push_back(pMessage);
-    pthread_mutex_unlock(&m_MessageQueueMutex);
+	mm.Release();
     pthread_cond_broadcast(&m_MessageQueueCond);
 #ifdef DEBUG
     g_pPlutoLogger->Write(LV_STATUS,"AddMessageToQueue(ProcessQueue) sent broadcast");
@@ -1464,13 +1464,13 @@ void Router::AddMessageToQueue(Message *pMessage)
 
 void Router::ProcessQueue()
 {
-    pthread_mutex_lock(&m_MessageQueueMutex);
+    PLUTO_SAFETY_LOCK(mm,m_MessageQueueMutex);
     while(true)
     {
         while( m_MessageQueue.size()==0 )
         {
 g_pPlutoLogger->Write(LV_STATUS,"ProcessQueue going to sleep");
-            pthread_cond_wait(&m_MessageQueueCond,&m_MessageQueueMutex);
+            mm.CondWait();
 g_pPlutoLogger->Write(LV_STATUS,"ProcessQueue woke up with size: %d",(int) m_MessageQueue.size());
         }
 
@@ -1479,12 +1479,12 @@ g_pPlutoLogger->Write(LV_STATUS,"ProcessQueue woke up with size: %d",(int) m_Mes
         m_MessageQueue.pop_front();
         g_pPlutoLogger->Write(LV_STATUS,"ProcessQueue sending message from %d to %d type %d id %d to queue now size: %d",
             pMessage->m_dwPK_Device_From,pMessage->m_dwPK_Device_To,pMessage->m_dwMessage_Type,pMessage->m_dwID,(int) m_MessageQueue.size());
-        pthread_mutex_unlock(&m_MessageQueueMutex);
+        mm.Release();
 
         SafetyMessage pSafetyMessage(pMessage);
 g_pPlutoLogger->Write(LV_STATUS,"ProcessQueue Calling realsendmessage from queue");
         RealSendMessage(NULL,&pSafetyMessage);
-        pthread_mutex_lock(&m_MessageQueueMutex);
+        mm.Relock();
 g_pPlutoLogger->Write(LV_STATUS,"ProcessQueue finished Calling realsendmessage from queue");
     }
 }
