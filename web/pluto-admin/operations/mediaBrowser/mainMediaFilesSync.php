@@ -1,5 +1,5 @@
 <?
-function mainMediaFilesSync($output,$mediadbADO) {
+function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 	/* @var $mediadbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	$out='';
@@ -7,9 +7,9 @@ function mainMediaFilesSync($output,$mediadbADO) {
 	$path = (isset($_REQUEST['path']) && $_REQUEST['path']!='')?cleanString($_REQUEST['path']):'';
 	
 	$typeArray=array();
-	$resType=$mediadbADO->Execute('SELECT * FROM Type ORDER BY Description ASC');
+	$resType=$dbADO->Execute('SELECT * FROM MediaType ORDER BY Description ASC');
 	while($rowType=$resType->FetchRow()){
-		$typeArray[$rowType['PK_Type']]=$rowType['Description'];
+		$typeArray[$rowType['PK_MediaType']]=$rowType['Description'];
 	}
 	$notInDBArray=array();	
 	$oldDir=substr($path,strrpos($path,'/')+1);
@@ -218,7 +218,7 @@ function mainMediaFilesSync($output,$mediadbADO) {
 				$type=(int)@$_POST['type_'.$physicalkey];
 				if($type!=0){
 					$isDir=(is_dir(stripslashes($path).'/'.$filename))?1:0;
-					$mediadbADO->Execute('INSERT INTO File (FK_Type, Path, Filename,IsDirectory) VALUES (?,?,?,?)',array($type,stripslashes($path),$filename,$isDir));
+					$mediadbADO->Execute('INSERT INTO File (EK_MediaType, Path, Filename,IsDirectory) VALUES (?,?,?,?)',array($type,stripslashes($path),$filename,$isDir));
 				}
 			}
 			header('Location: index.php?section=mainMediaFilesSync&path='.urlencode($path).'&msg=File added to database.');

@@ -644,13 +644,13 @@ switch ($section) {
 		$output->setTemplateFileType('large');
 	    include_once('operations/mediaBrowser/mainMediaBrowser.php');
 	    $output->setHelpSrc('/support/index.php?section=document&docID=173');
-	    mainMediaBrowser($output,$mediadbADO);	    
+	    mainMediaBrowser($output,$mediadbADO,$dbADO);	    
 	break;
 	case 'editMediaFile':
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
 	    include_once('operations/mediaBrowser/editMediaFile.php');
-	    editMediaFile($output,$mediadbADO);	    
+	    editMediaFile($output,$mediadbADO,$dbADO);	    
 	break;
 	case 'playlists':
 		$output = new Template($dbADO);
@@ -689,7 +689,7 @@ switch ($section) {
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
 	    include_once('operations/mediaBrowser/mainMediaFilesSync.php');
-	    mainMediaFilesSync($output,$mediadbADO);	    
+	    mainMediaFilesSync($output,$mediadbADO,$dbADO);	    
 	break;
 	
 	case 'floorplanWizard':

@@ -71,11 +71,17 @@ function wizardOrbiters($output,$dbADO) {
 				$joinArray[]=0;
 				$queryDevice='
 					SELECT 
-						Device.*, DeviceTemplate.Description AS TemplateName, DeviceCategory.Description AS CategoryName,Manufacturer.Description AS ManufacturerName,IsIPBased
+						Device.*, 
+						DeviceTemplate.Description AS TemplateName, 
+						DeviceCategory.Description AS CategoryName,
+						Manufacturer.Description AS ManufacturerName,
+						IsIPBased,
+						Regen
 					FROM Device 
 						INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
 						INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory
 						INNER JOIN Manufacturer ON FK_Manufacturer=PK_Manufacturer
+						LEFT JOIN Orbiter ON PK_Orbiter=PK_Device
 					WHERE
 						FK_DeviceTemplate IN ('.join(',',$joinArray).') AND FK_Installation=?';	
 
@@ -133,11 +139,11 @@ function wizardOrbiters($output,$dbADO) {
 				if($rowD['IsIPBased']==1){
 					$out.='
 						<tr>
-							<td>IP</td>
+							<td align="right"><B>IP</B></td>
 							<td><input type="text" name="ip_'.$rowD['PK_Device'].'" value="'.$rowD['IPaddress'].'"></td>
 						</tr>
 						<tr>
-							<td>MAC</td>
+							<td align="right"><B>MAC</B></td>
 							<td><input type="text" name="mac_'.$rowD['PK_Device'].'" value="'.$rowD['MACaddress'].'"></td>
 						</tr>';
 				}				
@@ -262,7 +268,14 @@ function wizardOrbiters($output,$dbADO) {
 				<tr>
 					<td align="right"><input type="checkbox" name="reset_'.$rowD['PK_Device'].'" value="1"></td>
 					<td>Reset Router when done regenerating</td>
-				</tr>	
+				</tr>';
+			if(@$rowD['Regen']==1){
+				$out.='
+					<tr>
+						<td colspan="2" align="center"><B><font color="red">Orbiter Generation in process</font></B></td>
+					</tr>';
+			}
+			$out.='	
 				<tr>
 					<td align="center" colspan="2"><input type="submit" class="button" name="quickRegen_'.$rowD['PK_Device'].'" value="Quick regen"  >&nbsp;&nbsp;<input type="submit" class="button" name="fullRegen_'.$rowD['PK_Device'].'" value="Full regen"  >&nbsp;&nbsp;<input type="submit" class="button" name="update" value="Update"  > &nbsp;&nbsp;<input type="button" class="button" name="edit_'.$rowD['PK_Device'].'" value="Adv"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'\';"> &nbsp;&nbsp; <input type="submit" class="button" name="delete_'.$rowD['PK_Device'].'" value="Delete"  onclick="if(!confirm(\'Are you sure you want to delete this orbiter?\'))return false;">
 					

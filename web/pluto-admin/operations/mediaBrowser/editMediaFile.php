@@ -1,5 +1,5 @@
 <?
-function editMediaFile($output,$mediadbADO) {
+function editMediaFile($output,$mediadbADO,$dbADO) {
 	/* @var $mediadbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	$out='';
@@ -52,10 +52,10 @@ function editMediaFile($output,$mediadbADO) {
 		$queryAttrTypes='
 			SELECT * 
 			FROM AttributeType 
-			INNER JOIN Type_AttributeType ON FK_AttributeType=PK_AttributeType
-			WHERE FK_Type=?
+			INNER JOIN MediaType_AttributeType ON FK_AttributeType=PK_AttributeType
+			WHERE EK_MediaType=?
 			ORDER BY Description ASC';
-		$resAttrTypes=$mediadbADO->Execute($queryAttrTypes,$rowFile['FK_Type']);
+		$resAttrTypes=$mediadbADO->Execute($queryAttrTypes,$rowFile['EK_MediaType']);
 		$attributeTypes=array();
 		while($rowTypes=$resAttrTypes->FetchRow()){
 			$attributeTypes[$rowTypes['PK_AttributeType']]=$rowTypes['Description'];
@@ -79,9 +79,9 @@ function editMediaFile($output,$mediadbADO) {
 			<tr bgcolor="#EEEEEE">
 				<td><B>Type:</B></td>
 				<td><select name="type">';
-			$resType=$mediadbADO->Execute('SELECT * FROM Type ORDER BY Description ASC');
+			$resType=$dbADO->Execute('SELECT * FROM MediaType ORDER BY Description ASC');
 			while($rowType=$resType->FetchRow()){
-				$out.='<option value="'.$rowType['PK_Type'].'" '.(($rowType['PK_Type']==$rowFile['FK_Type'])?'selected':'').'>'.$rowType['Description'].'</option>';
+				$out.='<option value="'.$rowType['PK_MediaType'].'" '.(($rowType['PK_MediaType']==$rowFile['EK_MediaType'])?'selected':'').'>'.$rowType['Description'].'</option>';
 			}
 			$out.='
 				</select></td>
@@ -272,7 +272,7 @@ function editMediaFile($output,$mediadbADO) {
 					@unlink($oldFilePath);
 				}
 			}
-			$mediadbADO->Execute('UPDATE File SET Filename=?, Path=?, FK_Type=? WHERE PK_File=?',array($fileName,$path,$type,$fileID));
+			$mediadbADO->Execute('UPDATE File SET Filename=?, Path=?, EK_MediaType=? WHERE PK_File=?',array($fileName,$path,$type,$fileID));
 			
 			exec('sudo -u root /usr/pluto/bin/UpdateMedia -d "'.$path.'"');
 			header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg=Media file updated.');			

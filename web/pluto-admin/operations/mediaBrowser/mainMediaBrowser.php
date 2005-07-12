@@ -1,5 +1,5 @@
 <?
-function mainMediaBrowser($output,$mediadbADO) {
+function mainMediaBrowser($output,$mediadbADO,$dbADO) {
 	/* @var $mediadbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	$out='';
@@ -154,7 +154,7 @@ function mainMediaBrowser($output,$mediadbADO) {
 				<tr>
 					<td valign="top" align="left" colspan="6">';
 			$queryFiles='
-				SELECT FK_File, FK_Attribute,FK_Type, Path, Filename,PK_File, Missing
+				SELECT FK_File, FK_Attribute,EK_MediaType, Path, Filename,PK_File, Missing
 				FROM File_Attribute
 					INNER JOIN File ON File_Attribute.FK_File=PK_File
 				WHERE FK_Attribute=?';
@@ -164,10 +164,10 @@ function mainMediaBrowser($output,$mediadbADO) {
 		
 			$fileTypeSelect='<select name="newType">
 				<option value="0">Please select</option>';
-			$selectFileType='SELECT * FROM Type ORDER BY Description ASC';
-			$resFileType=$mediadbADO->Execute($selectFileType);
+			$selectFileType='SELECT * FROM MediaType ORDER BY Description ASC';
+			$resFileType=$dbADO->Execute($selectFileType);
 			while($rowFileType=$resFileType->FetchRow()){
-				$fileTypeSelect.='<option value="'.$rowFileType['PK_Type'].'">'.$rowFileType['Description'].'</option>';
+				$fileTypeSelect.='<option value="'.$rowFileType['PK_MediaType'].'">'.$rowFileType['Description'].'</option>';
 			}
 			$fileTypeSelect.='</select>';
 			$out.='<table></td>
@@ -277,7 +277,7 @@ function mainMediaBrowser($output,$mediadbADO) {
 		$newType=(@$_POST['newPath']!='0')?@$_POST['newPath']:NULL;
 		
 		if(($newFile!='' && $newPath!='')){
-			$insertFile='INSERT INTO File(Path, Filename, FK_Type) VALUES (?,?,?)';
+			$insertFile='INSERT INTO File(Path, Filename, EK_MediaType) VALUES (?,?,?)';
 			$mediadbADO->Execute($insertFile,array($newPath,$newFile,$newType));
 			
 			$insertID=$mediadbADO->Insert_ID();
