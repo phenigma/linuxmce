@@ -2355,6 +2355,7 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_Med
 		EntertainArea *pEntertainArea = vectEntertainArea[0];
 		bool bDiskIsRipping = false;
 		bool bDiskWasReset  = false;
+		int PK_Device_Ripping=0;
         for(map<int,class MediaDevice *>::iterator itDevice=pEntertainArea->m_mapMediaDevice.begin();itDevice!=pEntertainArea->m_mapMediaDevice.end();++itDevice)
         {
             class MediaDevice *pMediaDevice = (*itDevice).second;
@@ -2371,6 +2372,7 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_Med
 				}
 				else
 				{
+					PK_Device_Ripping=pMediaDevice->m_pDeviceData_Router->m_dwPK_Device;
 					bDiskIsRipping = true;
 				}
             }
@@ -2378,7 +2380,10 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_Med
 
 		if ( !bDiskWasReset && bDiskIsRipping ) // we weren't able to reset any drives and at least one of them was ripping.
 		{
-			m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From, "There is a ripping operation in progress at this moment. Can't reset the disk.",false,10,true);
+			m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From, "<%=T" + StringUtils::itos(TEXT_ripping_cant_play_disc_CONST) + "%>",false,10,true,
+				"<%=" + StringUtils::itos(TEXT_Abort_ripping_CONST) + "%>",
+				StringUtils::itos(pMessage->m_dwPK_Device_From) + " " + StringUtils::itos(PK_Device_Ripping) + " 1 " + StringUtils::itos(COMMAND_Abort_Ripping_CONST));
+			return;
 		}
     }
 	else
@@ -3074,14 +3079,32 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,string
 	DetermineEntArea( pMessage->m_dwPK_Device_From, 0, "", vectEntertainArea);
 	if ( vectEntertainArea.size()!=1 )
 	{
+		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T" + StringUtils::itos(TEXT_problem_ripping_CONST) + "%>");
 		g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::CMD_Rip_Disk(): The source device ID in the message is not in an ent area or is not an orbiter. Ignoring request");
 		return;
 	}
 
 	EntertainArea *pEntertainArea = vectEntertainArea[0];
+	if( !pEntertainArea->m_pMediaStream )
+	{
+		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T" + StringUtils::itos(TEXT_problem_ripping_CONST) + "%>");
+		g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::CMD_Rip_Disk(): no media stream");
+		return;
+	}
+
+	if( pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos<0 || 
+		pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos>pEntertainArea->m_pMediaStream->m_dequeMediaFile.size() ||
+		pEntertainArea->m_pMediaStream->m_dequeMediaFile.size()==0 ||
+		StringUtils::StartsWith(StringUtils::ToUpper(
+			pEntertainArea->m_pMediaStream->m_dequeMediaFile[pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos]->FullyQualifiedFile()),"/DEV/")==false )
+	{
+		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T" + StringUtils::itos(TEXT_Only_rip_drives_CONST) + "%>");
+		g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::CMD_Rip_Disk(): not a drive");
+		return;
+	}
 
 	// If it's a cd and no tracks were specified, prompt the user, otherwise fill in the file names
-	if( pEntertainArea->m_pMediaStream && pEntertainArea->m_pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
+	if( pEntertainArea->m_pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
 	{
 		if( sTracks.size()==0 )
 		{

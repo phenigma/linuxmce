@@ -233,7 +233,6 @@ void Disk_Drive::CMD_Start_Burning(string &sCMD_Result,Message *pMessage)
 void Disk_Drive::CMD_Abort_Burning(string &sCMD_Result,Message *pMessage)
 //<-dceag-c53-e->
 {
-    cout << "Need to implement command #53 - Abort Burning" << endl;
 }
 
 //<-dceag-c54-b->
@@ -266,13 +265,20 @@ void Disk_Drive::CMD_Mount_Disk_Image(string sFilename,string *sMediaURL,string 
 
 //<-dceag-c55-b->
 
-	/** @brief COMMAND: #55 - Start Ripping DVD */
+	/** @brief COMMAND: #55 - Abort Ripping */
 	/** Starts ripping a DVD. */
 
-void Disk_Drive::CMD_Start_Ripping_DVD(string &sCMD_Result,Message *pMessage)
+void Disk_Drive::CMD_Abort_Ripping(string &sCMD_Result,Message *pMessage)
 //<-dceag-c55-e->
 {
-    cout << "Need to implement command #55 - Start Ripping DVD" << endl;
+	g_pPlutoLogger->Write(LV_STATUS,"Aborting Ripping");
+	DCE::CMD_Kill_Application_DT
+		CMD_Kill_Application_DT(m_dwPK_Device,
+						DEVICETEMPLATE_App_Server_CONST,
+						BL_SameComputer,
+						"rip_" + StringUtils::itos(m_dwPK_Device));
+
+    SendCommand(CMD_Kill_Application_DT);
 }
 
 //<-dceag-c56-b->
@@ -829,7 +835,7 @@ void Disk_Drive::CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,string &
 		spawnApplication(m_dwPK_Device,
 						DEVICETEMPLATE_App_Server_CONST,
 						BL_SameComputer,
-						"/usr/pluto/bin/ripDiskWrapper.sh", sName, strParameters,
+						"/usr/pluto/bin/ripDiskWrapper.sh", "rip_" + StringUtils::itos(m_dwPK_Device), strParameters,
 						sResultMessage + StringUtils::itos(RIP_RESULT_FAILURE),
 						sResultMessage + StringUtils::itos(RIP_RESULT_SUCCESS),
 						"0");

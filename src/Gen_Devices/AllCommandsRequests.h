@@ -933,21 +933,21 @@ namespace DCE
 	public:
 		CMD_NOREP_Mount_Disk_Image_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sFilename) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,54,1,13,sFilename.c_str()); }
 	};
-	class CMD_Start_Ripping_DVD : public PreformedCommand {
+	class CMD_Abort_Ripping : public PreformedCommand {
 	public:
-		CMD_Start_Ripping_DVD(long DeviceIDFrom, long DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,55,0); }
+		CMD_Abort_Ripping(long DeviceIDFrom, long DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,55,0); }
 	};
-	class CMD_Start_Ripping_DVD_DL : public PreformedCommand {
+	class CMD_Abort_Ripping_DL : public PreformedCommand {
 	public:
-		CMD_Start_Ripping_DVD_DL(long DeviceIDFrom, string DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,55,0); }
+		CMD_Abort_Ripping_DL(long DeviceIDFrom, string DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,55,0); }
 	};
-	class CMD_Start_Ripping_DVD_DT : public PreformedCommand {
+	class CMD_Abort_Ripping_DT : public PreformedCommand {
 	public:
-		CMD_Start_Ripping_DVD_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,55,0); }
+		CMD_Abort_Ripping_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,55,0); }
 	};
-	class CMD_Start_Ripping_DVD_Cat : public PreformedCommand {
+	class CMD_Abort_Ripping_Cat : public PreformedCommand {
 	public:
-		CMD_Start_Ripping_DVD_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,55,0); }
+		CMD_Abort_Ripping_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,55,0); }
 	};
 	class CMD_Format_Drive : public PreformedCommand {
 	public:

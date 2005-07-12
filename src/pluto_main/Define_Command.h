@@ -53,7 +53,7 @@
 #define COMMAND_Start_Burning_CONST 52
 #define COMMAND_Abort_Burning_CONST 53
 #define COMMAND_Mount_Disk_Image_CONST 54
-#define COMMAND_Start_Ripping_DVD_CONST 55
+#define COMMAND_Abort_Ripping_CONST 55
 #define COMMAND_Format_Drive_CONST 56
 #define COMMAND_Close_Tray_CONST 57
 #define COMMAND_Set_Current_User_CONST 58

@@ -98,7 +98,7 @@ public:
 	virtual void CMD_Start_Burning(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Abort_Burning(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Mount_Disk_Image(string sFilename,string *sMediaURL,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Start_Ripping_DVD(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Abort_Ripping(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Format_Drive(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Close_Tray(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,string &sCMD_Result,class Message *pMessage) {};
@@ -373,7 +373,7 @@ public:
 				case 55:
 					{
 						string sCMD_Result="OK";
-						CMD_Start_Ripping_DVD(sCMD_Result,pMessage);
+						CMD_Abort_Ripping(sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -390,7 +390,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Start_Ripping_DVD(sCMD_Result,pMessage);
+								CMD_Abort_Ripping(sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

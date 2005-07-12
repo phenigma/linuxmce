@@ -1884,6 +1884,6 @@ void Orbiter_Plugin::CMD_Set_Auto_Switch_to_Remote(int iPK_Device,bool bTrueFals
 void Orbiter_Plugin::CMD_Display_Message_On_Orbiter(string sText,string sPK_Device_List,string &sCMD_Result,Message *pMessage)
 //<-dceag-c406-e->
 {
-	DisplayMessageOnOrbiter(sPK_Device_List,sText);
+	DisplayMessageOnOrbiter(sPK_Device_List,sText,false,60,true);
 }
 

@@ -179,11 +179,11 @@ public:
 	virtual void CMD_Mount_Disk_Image(string sFilename,string *sMediaURL,string &sCMD_Result,Message *pMessage);
 
 
-	/** @brief COMMAND: #55 - Start Ripping DVD */
+	/** @brief COMMAND: #55 - Abort Ripping */
 	/** Starts ripping a DVD. */
 
-	virtual void CMD_Start_Ripping_DVD() { string sCMD_Result; CMD_Start_Ripping_DVD(sCMD_Result,NULL);};
-	virtual void CMD_Start_Ripping_DVD(string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Abort_Ripping() { string sCMD_Result; CMD_Abort_Ripping(sCMD_Result,NULL);};
+	virtual void CMD_Abort_Ripping(string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #56 - Format Drive */
