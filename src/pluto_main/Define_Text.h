@@ -511,7 +511,7 @@
 #define TEXT_problem_ripping_CONST 1187
 #define TEXT_Only_rip_drives_CONST 1188
 #define TEXT_ripping_cant_play_disc_CONST 1189
-#define TEXT_Abort_CONST 1190
+#define TEXT_Abort_ripping_CONST 1190
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
