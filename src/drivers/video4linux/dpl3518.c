@@ -1,4 +1,6 @@
 /*
+ * $Id: dpl3518.c,v 1.4 2005/06/18 06:00:36 nsh Exp $
+ *
  * programming the dpl3518a Dolby Pro Logic Processor
  *
  * WARNING: THIS DRIVER WILL LOAD WITHOUT COMPLAINTS EVEN IF A DIFFERENT
@@ -58,7 +60,9 @@
 static unsigned short normal_i2c[] = {
 	I2C_DPL3518 >> 1,
 	I2C_CLIENT_END};
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,13)
 static unsigned short normal_i2c_range[] = {I2C_CLIENT_END};
+#endif
 I2C_CLIENT_INSMOD;
 
 struct dpl3518 {

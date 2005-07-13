@@ -50,7 +50,6 @@ static unsigned short normal_i2c[] =  {
     I2C_TDA9875 >> 1,
     I2C_CLIENT_END
 };
-static unsigned short normal_i2c_range[] = {I2C_CLIENT_END};
 I2C_CLIENT_INSMOD;
 
 /* This is a superset of the TDA9875 */
@@ -418,7 +417,6 @@ static struct i2c_driver driver = {
 static struct i2c_client client_template =
 {
         I2C_DEVNAME("tda9875"),
-        .id        = -1,
         .driver    = &driver,
 };
 

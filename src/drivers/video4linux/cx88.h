@@ -1,5 +1,5 @@
 /*
- * $Id: cx88.h,v 1.58 2005/05/29 10:22:08 nsh Exp $
+ * $Id: cx88.h,v 1.68 2005/07/07 14:17:47 mchehab Exp $
  *
  * v4l2 device driver for cx2388x based TV cards
  *
@@ -52,8 +52,6 @@
 /* ----------------------------------------------------------- */
 /* defines and enums                                           */
 
-#define V4L2_I2C_CLIENTS 1
-
 #define FORMAT_FLAGS_PACKED       0x01
 #define FORMAT_FLAGS_PLANAR       0x02
 
@@ -64,6 +62,13 @@
 #define SHADOW_AUD_VOL_CTL           1
 #define SHADOW_AUD_BAL_CTL           2
 #define SHADOW_MAX                   2
+
+/* FM Radio deemphasis type */
+enum cx88_deemph_type {
+	FM_NO_DEEMPH = 0,
+	FM_DEEMPH_50,
+	FM_DEEMPH_75
+};
 
 /* ----------------------------------------------------------- */
 /* tv norms                                                    */
@@ -78,8 +83,11 @@ struct cx88_tvnorm {
 static unsigned int inline norm_maxw(struct cx88_tvnorm *norm)
 {
 	return (norm->id & V4L2_STD_625_50) ? 768 : 640;
-//	return (norm->id & V4L2_STD_625_50) ? 720 : 640;
+#if 0
+	return (norm->id & V4L2_STD_625_50) ? 720 : 640;
+#endif
 }
+
 
 static unsigned int inline norm_maxh(struct cx88_tvnorm *norm)
 {
@@ -153,7 +161,7 @@ extern struct sram_channel cx88_sram_channels[];
 #define CX88_BOARD_KWORLD_DVB_T            14
 #define CX88_BOARD_DVICO_FUSIONHDTV_DVB_T1 15
 #define CX88_BOARD_KWORLD_LTV883           16
-#define CX88_BOARD_DVICO_FUSIONHDTV_3_GOLD 17
+#define CX88_BOARD_DVICO_FUSIONHDTV_3_GOLD_Q  17
 #define CX88_BOARD_HAUPPAUGE_DVB_T1        18
 #define CX88_BOARD_CONEXANT_DVB_T1         19
 #define CX88_BOARD_PROVIDEO_PV259          20
@@ -161,10 +169,12 @@ extern struct sram_channel cx88_sram_channels[];
 #define CX88_BOARD_PCHDTV_HD3000           22
 #define CX88_BOARD_DNTV_LIVE_DVB_T         23
 #define CX88_BOARD_HAUPPAUGE_ROSLYN        24
-#define CX88_BOARD_DIGITALLOGIC_MEC	       25
+#define CX88_BOARD_DIGITALLOGIC_MEC        25
 #define CX88_BOARD_IODATA_GVBCTV7E         26
 #define CX88_BOARD_PIXELVIEW_PLAYTV_ULTRA_PRO 27
-#define CX88_BOARD_DVICO_FUSIONHDTV_3_GOLD_Q  28
+#define CX88_BOARD_DVICO_FUSIONHDTV_3_GOLD_T  28
+#define CX88_BOARD_ADSTECH_DVB_T_PCI          29
+#define CX88_BOARD_TERRATEC_CINERGY_1400_DVB_T1  30
 
 enum cx88_itype {
 	CX88_VMUX_COMPOSITE1 = 1,
@@ -188,6 +198,9 @@ struct cx88_input {
 struct cx88_board {
 	char                    *name;
 	unsigned int            tuner_type;
+	unsigned int		radio_type;
+	unsigned char		tuner_addr;
+	unsigned char		radio_addr;
 	int                     tda9887_conf;
 	struct cx88_input       input[8];
 	struct cx88_input       radio;
@@ -211,7 +224,9 @@ struct cx88_subid {
 #define RESOURCE_VBI           4
 
 #define BUFFER_TIMEOUT     (HZ/2)  /* 0.5 seconds */
-//#define BUFFER_TIMEOUT     (HZ*2)
+#if 0
+#define BUFFER_TIMEOUT     (HZ*2)
+#endif
 
 /* buffer for one video frame */
 struct cx88_buffer {
@@ -258,6 +273,9 @@ struct cx88_core {
 	/* config info -- analog */
 	unsigned int               board;
 	unsigned int               tuner_type;
+	unsigned int               radio_type;
+	unsigned char              tuner_addr;
+	unsigned char              radio_addr;
 	unsigned int               tda9887_conf;
 	unsigned int               has_radio;
 
@@ -432,9 +450,6 @@ struct cx8802_dev {
 /* ----------------------------------------------------------- */
 /* cx88-core.c                                                 */
 
-extern char *cx88_pci_irqs[32];
-extern char *cx88_vid_irqs[32];
-extern char *cx88_mpeg_irqs[32];
 extern void cx88_print_irqbits(char *name, char *tag, char **strings,
 			       u32 bits, u32 mask);
 extern void cx88_print_ioctl(char *name, unsigned int cmd);
@@ -484,9 +499,11 @@ extern void cx88_core_put(struct cx88_core *core,
 /* cx88-vbi.c                                                  */
 
 void cx8800_vbi_fmt(struct cx8800_dev *dev, struct v4l2_format *f);
+/*
 int cx8800_start_vbi_dma(struct cx8800_dev    *dev,
 			 struct cx88_dmaqueue *q,
 			 struct cx88_buffer   *buf);
+*/
 int cx8800_stop_vbi_dma(struct cx8800_dev *dev);
 int cx8800_restart_vbi_queue(struct cx8800_dev    *dev,
 			     struct cx88_dmaqueue *q);

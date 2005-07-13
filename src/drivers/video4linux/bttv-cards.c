@@ -1,5 +1,5 @@
 /*
-    $Id: bttv-cards.c,v 1.48 2005/05/24 23:41:42 nsh Exp $
+    $Id: bttv-cards.c,v 1.53 2005/07/05 17:37:35 nsh Exp $
 
     bttv-cards.c
 
@@ -1957,7 +1957,6 @@ struct tvcard bttv_tvcards[] = {
         .no_tda9875     = 1,
         .no_tda7432     = 1,
         .tuner_type     = TUNER_ABSENT,
-        .no_video       = 1,
 	.pll            = PLL_28,
 },{
 	.name           = "Teppro TEV-560/InterVision IV-560",
@@ -2276,7 +2275,7 @@ struct tvcard bttv_tvcards[] = {
         .muxsel         = { 2, 3, 1, 0},
         .tuner_type     = -1,
         .pll            = PLL_28,
- 
+
 }};
 
 static const unsigned int bttv_num_tvcards = ARRAY_SIZE(bttv_tvcards);
@@ -2824,10 +2823,18 @@ void __devinit bttv_init_card2(struct bttv *btv)
 		btv->tuner_type = tuner[btv->c.nr];
 	printk("bttv%d: using tuner=%d\n",btv->c.nr,btv->tuner_type);
 	if (btv->pinnacle_id != UNSET)
-		bttv_call_i2c_clients(btv,AUDC_CONFIG_PINNACLE,
+		bttv_call_i2c_clients(btv, AUDC_CONFIG_PINNACLE,
 				      &btv->pinnacle_id);
-	if (btv->tuner_type != UNSET)
-		bttv_call_i2c_clients(btv,TUNER_SET_TYPE,&btv->tuner_type);
+	if (btv->tuner_type != UNSET) {
+	        struct tuner_setup tun_setup;
+
+	        tun_setup.mode_mask = T_RADIO | T_ANALOG_TV | T_DIGITAL_TV;
+		tun_setup.type = btv->tuner_type;
+		tun_setup.addr = ADDR_UNSET;
+
+		bttv_call_i2c_clients(btv, TUNER_SET_TYPE_ADDR, &tun_setup);
+	}
+
 	btv->svhs = bttv_tvcards[btv->c.type].svhs;
 	if (svhs[btv->c.nr] != UNSET)
 		btv->svhs = svhs[btv->c.nr];
@@ -4105,7 +4112,7 @@ static void kodicom4400r_write(struct bttv *btv,
 			       unsigned char yaddr,
 			       unsigned char data) {
 	unsigned int udata;
-	
+
 	udata = (data << 7) | ((yaddr&3) << 4) | (xaddr&0xf);
 	gpio_bits(0x1ff, udata);		/* write ADDR and DAT */
 	gpio_bits(0x1ff, udata | (1 << 8));	/* strobe high */
@@ -4126,7 +4133,7 @@ static void kodicom4400r_muxsel(struct bttv *btv, unsigned int input)
 	int xaddr, yaddr;
 	struct bttv *mctlr;
 	static unsigned char map[4] = {3, 0, 2, 1};
-	
+
 	mctlr = master[btv->c.nr];
 	if (mctlr == NULL) {	/* ignore if master not yet detected */
 		return;

@@ -1,4 +1,6 @@
 /*
+ * $Id: i2c-compat.h,v 1.2 2005/06/12 04:19:19 mchehab Exp $
+ *
  * some i2c layer compatibility stuff -- to avoid cluttering up the
  * i2c modules with tons of #ifdefs
  */

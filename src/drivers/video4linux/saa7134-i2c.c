@@ -1,5 +1,5 @@
 /*
- * $Id: saa7134-i2c.c,v 1.10 2005/01/24 17:37:23 kraxel Exp $
+ * $Id: saa7134-i2c.c,v 1.19 2005/07/07 01:49:30 mkrufky Exp $
  *
  * device driver for philips saa7134 based TV cards
  * i2c interface support
@@ -238,7 +238,7 @@ static inline int i2c_recv_byte(struct saa7134_dev *dev)
 }
 
 static int saa7134_i2c_xfer(struct i2c_adapter *i2c_adap,
-			    struct i2c_msg msgs[], int num)
+			    struct i2c_msg *msgs, int num)
 {
 	struct saa7134_dev *dev = i2c_adap->algo_data;
 	enum i2c_status status;
@@ -331,12 +331,44 @@ static u32 functionality(struct i2c_adapter *adap)
 
 static int attach_inform(struct i2c_client *client)
 {
-        struct saa7134_dev *dev = client->adapter->algo_data;
+	struct saa7134_dev *dev = client->adapter->algo_data;
 	int tuner = dev->tuner_type;
 	int conf  = dev->tda9887_conf;
+	struct tuner_setup tun_setup;
 
-	saa7134_i2c_call_clients(dev,TUNER_SET_TYPE,&tuner);
-	saa7134_i2c_call_clients(dev,TDA9887_SET_CONFIG,&conf);
+	d1printk( "%s i2c attach [addr=0x%x,client=%s]\n",
+		client->driver->name,client->addr,i2c_clientname(client));
+
+	if (!client->driver->command)
+		return 0;
+
+	if (saa7134_boards[dev->board].radio_type != UNSET) {
+
+		tun_setup.type = saa7134_boards[dev->board].radio_type;
+		tun_setup.addr = saa7134_boards[dev->board].radio_addr;
+
+		if ((tun_setup.addr == ADDR_UNSET) || (tun_setup.addr == client->addr)) {
+			tun_setup.mode_mask = T_RADIO;
+
+			client->driver->command(client, TUNER_SET_TYPE_ADDR, &tun_setup);
+		}
+        }
+
+	if (tuner != UNSET) {
+
+	        tun_setup.type = tuner;
+	        tun_setup.addr = saa7134_boards[dev->board].tuner_addr;
+
+		if ((tun_setup.addr == ADDR_UNSET)||(tun_setup.addr == client->addr)) {
+
+			tun_setup.mode_mask = T_ANALOG_TV;
+
+			client->driver->command(client,TUNER_SET_TYPE_ADDR, &tun_setup);
+		}
+        }
+
+	client->driver->command(client, TDA9887_SET_CONFIG, &conf);
+
         return 0;
 }
 
@@ -361,7 +393,6 @@ static struct i2c_adapter saa7134_adap_template = {
 
 static struct i2c_client saa7134_client_template = {
 	I2C_DEVNAME("saa7134 internal"),
-        .id        = -1,
 };
 
 /* ----------------------------------------------------------- */

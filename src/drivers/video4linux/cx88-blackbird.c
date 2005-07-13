@@ -1,5 +1,5 @@
 /*
- * $Id: cx88-blackbird.c,v 1.26 2005/03/07 15:58:05 kraxel Exp $
+ * $Id: cx88-blackbird.c,v 1.27 2005/06/03 13:31:50 mchehab Exp $
  *
  *  Support for a cx23416 mpeg encoder via cx2388x host port.
  *  "blackbird" reference design.
@@ -242,8 +242,8 @@ const int CX8800_CTLS = ARRAY_SIZE(cx8800_ctls);
 
 #define IVTV_CMD_HW_BLOCKS_RST 0xFFFFFFFF
 
-/*Firmware API commands*/
-//#define IVTV_API_STD_TIMEOUT 0x00010000 /*65536, units??*/
+/* Firmware API commands */
+/* #define IVTV_API_STD_TIMEOUT 0x00010000 // 65536, units?? */
 #define IVTV_API_STD_TIMEOUT 500
 
 #define BLACKBIRD_API_PING               0x80
@@ -873,13 +873,13 @@ static void blackbird_codec_settings(struct cx8802_dev *dev)
 	int bitrate_peak = 7500000;
 #if 1
 	bitrate_mode = BLACKBIRD_VIDEO_CBR;
-	bitrate = 4500000;
-	bitrate_peak = 6000000;
+	bitrate = 4000*1024;
+	bitrate_peak = 4000*1024;
 #endif
 
 	/* assign stream type */
 	blackbird_api_cmd(dev, BLACKBIRD_API_SET_STREAM_TYPE, 1, 0, BLACKBIRD_STREAM_PROGRAM);
-	//blackbird_api_cmd(dev, BLACKBIRD_API_SET_STREAM_TYPE, 1, 0, BLACKBIRD_STREAM_TRANSPORT);
+	/* blackbird_api_cmd(dev, BLACKBIRD_API_SET_STREAM_TYPE, 1, 0, BLACKBIRD_STREAM_TRANSPORT); */
 
 	/* assign output port */
 	blackbird_api_cmd(dev, BLACKBIRD_API_SET_OUTPUT_PORT, 1, 0, BLACKBIRD_OUTPUT_PORT_STREAMING); /* Host */
@@ -909,14 +909,14 @@ static void blackbird_codec_settings(struct cx8802_dev *dev)
 
 	/* assign audio properties */
 	/* note: it's not necessary to set the samplerate, the mpeg encoder seems to autodetect/adjust */
-	//blackbird_api_cmd(dev, IVTV_API_ASSIGN_AUDIO_PROPERTIES, 1, 0, (2<<2) | (8<<4));
-	//blackbird_api_cmd(dev, IVTV_API_ASSIGN_AUDIO_PROPERTIES, 1, 0, 0 | (2 << 2) | (14 << 4));
+	/* blackbird_api_cmd(dev, IVTV_API_ASSIGN_AUDIO_PROPERTIES, 1, 0, (2<<2) | (8<<4));
+	   blackbird_api_cmd(dev, IVTV_API_ASSIGN_AUDIO_PROPERTIES, 1, 0, 0 | (2 << 2) | (14 << 4)); */
 	blackbird_api_cmd(dev, BLACKBIRD_API_SET_AUDIO_PARAMS, 1, 0,
 			BLACKBIRD_AUDIO_BITS_44100HZ |
 			BLACKBIRD_AUDIO_BITS_LAYER_2 |
 			BLACKBIRD_AUDIO_BITS_LAYER_2_224 |
 			BLACKBIRD_AUDIO_BITS_STEREO |
-			/*BLACKBIRD_AUDIO_BITS_BOUND_4 |*/
+			/* BLACKBIRD_AUDIO_BITS_BOUND_4 | */
 			BLACKBIRD_AUDIO_BITS_EMPHASIS_NONE |
 			BLACKBIRD_AUDIO_BITS_CRC_OFF |
 			BLACKBIRD_AUDIO_BITS_COPYRIGHT_OFF |
@@ -946,7 +946,7 @@ static void blackbird_codec_settings(struct cx8802_dev *dev)
 		);
 
 	/* assign frame drop rate */
-	//blackbird_api_cmd(dev, IVTV_API_ASSIGN_FRAME_DROP_RATE, 1, 0, 0);
+	/* blackbird_api_cmd(dev, IVTV_API_ASSIGN_FRAME_DROP_RATE, 1, 0, 0); */
 }
 
 static int blackbird_initialize_codec(struct cx8802_dev *dev)
@@ -997,15 +997,15 @@ static int blackbird_initialize_codec(struct cx8802_dev *dev)
 	blackbird_codec_settings(dev);
 	msleep(1);
 
-	//blackbird_api_cmd(dev, IVTV_API_ASSIGN_NUM_VSYNC_LINES, 4, 0, 0xef, 0xef);
-	//blackbird_api_cmd(dev, IVTV_API_ASSIGN_NUM_VSYNC_LINES, 4, 0, 0xf0, 0xf0);
-	//blackbird_api_cmd(dev, IVTV_API_ASSIGN_NUM_VSYNC_LINES, 4, 0, 0x180, 0x180);
+	/* blackbird_api_cmd(dev, IVTV_API_ASSIGN_NUM_VSYNC_LINES, 4, 0, 0xef, 0xef);
+	   blackbird_api_cmd(dev, IVTV_API_ASSIGN_NUM_VSYNC_LINES, 4, 0, 0xf0, 0xf0);
+	   blackbird_api_cmd(dev, IVTV_API_ASSIGN_NUM_VSYNC_LINES, 4, 0, 0x180, 0x180); */
 	blackbird_api_cmd(dev, BLACKBIRD_API_SET_CAPTURE_LINES, 2, 0,
 			BLACKBIRD_FIELD1_SAA7115,
 			BLACKBIRD_FIELD1_SAA7115
 		);
 
-	//blackbird_api_cmd(dev, IVTV_API_ASSIGN_PLACEHOLDER, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+	/* blackbird_api_cmd(dev, IVTV_API_ASSIGN_PLACEHOLDER, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0); */
 	blackbird_api_cmd(dev, BLACKBIRD_API_SET_CUSTOM_DATA, 12, 0,
 			BLACKBIRD_CUSTOM_EXTENSION_USR_DATA,
 			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -1019,7 +1019,7 @@ static int blackbird_initialize_codec(struct cx8802_dev *dev)
 	blackbird_api_cmd(dev, BLACKBIRD_API_MUTE_AUDIO, 1, 0, BLACKBIRD_UNMUTE);
 	msleep(1);
 
-	//blackbird_api_cmd(dev, BLACKBIRD_API_BEGIN_CAPTURE, 2, 0, 0, 0x13); /* start capturing to the host interface */
+	/* blackbird_api_cmd(dev, BLACKBIRD_API_BEGIN_CAPTURE, 2, 0, 0, 0x13); // start capturing to the host interface */
 	blackbird_api_cmd(dev, BLACKBIRD_API_BEGIN_CAPTURE, 2, 0,
 			BLACKBIRD_MPEG_CAPTURE,
 			BLACKBIRD_RAW_BITS_NONE
@@ -1037,8 +1037,8 @@ static int bb_buf_setup(struct videobuf_queue *q,
 {
 	struct cx8802_fh *fh = q->priv_data;
 
-	fh->dev->ts_packet_size  = 512;
-	fh->dev->ts_packet_count = 100;
+	fh->dev->ts_packet_size  = 188 * 4; /* was: 512; */
+	fh->dev->ts_packet_count = 32; /* was: 100; */
 
 	*size = fh->dev->ts_packet_size * fh->dev->ts_packet_count;
 	if (0 == *count)
@@ -1430,7 +1430,7 @@ static int mpeg_do_ioctl(struct inode *inode, struct file *file,
 
 		memset(f,0,sizeof(*f));
 		f->index = index;
-		strlcpy(f->description, "MPEG-2 TS", sizeof(f->description));
+		strlcpy(f->description, "MPEG TS", sizeof(f->description));
 		f->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 		f->pixelformat = V4L2_PIX_FMT_MPEG;
 		return 0;
@@ -1449,7 +1449,8 @@ static int mpeg_do_ioctl(struct inode *inode, struct file *file,
 		f->fmt.pix.pixelformat  = V4L2_PIX_FMT_MPEG;
 		f->fmt.pix.field        = V4L2_FIELD_NONE;
 		f->fmt.pix.bytesperline = 0;
-		f->fmt.pix.sizeimage    = 1024 * 512 /* FIXME: BUFFER_SIZE */;
+		//f->fmt.pix.sizeimage    = 1024 * 512 /* FIXME: BUFFER_SIZE */;
+		f->fmt.pix.sizeimage    = 188 * 4 * 1024 /* FIXME: BUFFER_SIZE */;
 		f->fmt.pix.colorspace   = 0;
 		return 0;
 	}
@@ -1741,7 +1742,7 @@ static int mpeg_release(struct inode *inode, struct file *file)
 {
 	struct cx8802_fh  *fh  = file->private_data;
 
-	//blackbird_api_cmd(fh->dev, BLACKBIRD_API_END_CAPTURE, 3, 0, BLACKBIRD_END_NOW, 0, 0x13);
+	/* blackbird_api_cmd(fh->dev, BLACKBIRD_API_END_CAPTURE, 3, 0, BLACKBIRD_END_NOW, 0, 0x13); */
 	blackbird_api_cmd(fh->dev, BLACKBIRD_API_END_CAPTURE, 3, 0,
 			BLACKBIRD_END_NOW,
 			BLACKBIRD_MPEG_CAPTURE,
@@ -1872,7 +1873,7 @@ static int __devinit blackbird_probe(struct pci_dev *pci_dev,
 	dev->pci = pci_dev;
 	dev->core = core;
 	dev->width = 720;
-	dev->height = 480;
+	dev->height = 576;
 
 	err = cx8802_init_common(dev);
 	if (0 != err)

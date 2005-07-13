@@ -12,7 +12,8 @@ srcdiff	saa7134-ts.c		drivers/media/video/saa7134/saa7134-ts.c
 srcdiff	saa7134-input.c		drivers/media/video/saa7134/saa7134-input.c
 
 srcdiff	saa7134-empress.c	drivers/media/video/saa7134/saa7134-empress.c
-srcdiff	saa7134-dvb.c		drivers/media/video/saa7134/saa7134-dvb.c
 
-srcdiff saa6752hs.h		include/media/saa6752hs.h
-srcdiff saa6752hs.c		drivers/media/video/saa7134/saa6752hs.c
+# Already at dvb-saa7134
+# srcdiff saa7134-dvb.c		drivers/media/video/saa7134/saa7134-dvb.c
+# srcdiff saa6752hs.h		include/media/saa6752hs.h
+# srcdiff saa6752hs.c		drivers/media/video/saa7134/saa6752hs.c

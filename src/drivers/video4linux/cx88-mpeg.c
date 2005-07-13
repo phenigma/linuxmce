@@ -1,5 +1,5 @@
 /*
- * $Id: cx88-mpeg.c,v 1.25 2005/03/07 14:18:00 kraxel Exp $
+ * $Id: cx88-mpeg.c,v 1.31 2005/07/07 14:17:47 mchehab Exp $
  *
  *  Support for the mpeg transport stream transfers
  *  PCI function #2 of the cx2388x.
@@ -70,11 +70,16 @@ static int cx8802_start_dma(struct cx8802_dev    *dev,
 
 	if (cx88_boards[core->board].dvb) {
 		/* negedge driven & software reset */
-		cx_write(TS_GEN_CNTRL, 0x40);
+		cx_write(TS_GEN_CNTRL, 0x0040 | dev->ts_gen_cntrl);
 		udelay(100);
 		cx_write(MO_PINMUX_IO, 0x00);
-		cx_write(TS_HW_SOP_CNTRL,47<<16|188<<4|0x00);
-		cx_write(TS_SOP_STAT,0x00);
+		cx_write(TS_HW_SOP_CNTRL,0x47<<16|188<<4|0x01);
+		if ((core->board == CX88_BOARD_DVICO_FUSIONHDTV_3_GOLD_Q) ||
+		    (core->board == CX88_BOARD_DVICO_FUSIONHDTV_3_GOLD_T)) {
+			cx_write(TS_SOP_STAT, 1<<13);
+		} else {
+			cx_write(TS_SOP_STAT, 0x00);
+		}
 		cx_write(TS_GEN_CNTRL, dev->ts_gen_cntrl);
 		udelay(100);
 	}
@@ -265,6 +270,15 @@ static void cx8802_timeout(unsigned long data)
 	do_cancel_buffers(dev,"timeout",1);
 }
 
+static char *cx88_mpeg_irqs[32] = {
+	"ts_risci1", NULL, NULL, NULL,
+	"ts_risci2", NULL, NULL, NULL,
+	"ts_oflow",  NULL, NULL, NULL,
+	"ts_sync",   NULL, NULL, NULL,
+	"opc_err", "par_err", "rip_err", "pci_abort",
+	"ts_err?",
+};
+
 static void cx8802_mpeg_irq(struct cx8802_dev *dev)
 {
 	struct cx88_core *core = dev->core;
@@ -277,10 +291,7 @@ static void cx8802_mpeg_irq(struct cx8802_dev *dev)
 		return;
 
 	cx_write(MO_TS_INTSTAT, status);
-#if 0
-	cx88_print_irqbits(core->name, "irq mpeg ",
-			cx88_mpeg_irqs, status, mask);
-#endif
+
 	if (debug || (status & mask & ~0xff))
 		cx88_print_irqbits(core->name, "irq mpeg ",
 				   cx88_mpeg_irqs, status, mask);

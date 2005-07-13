@@ -1,4 +1,6 @@
 /*
+ * $Id: v4l1-compat.c,v 1.10 2005/06/22 22:58:04 mchehab Exp $
+ *
  *	Video for Linux Two
  *	Backward Compatibility Layer
  *
@@ -796,12 +798,15 @@ v4l_compat_translate_ioctl(struct inode         *inode,
 		    !(qctrl2.flags & V4L2_CTRL_FLAG_DISABLED))
 			aud->step = qctrl2.step;
 		aud->mode = 0;
+
+		memset(&tun2,0,sizeof(tun2));
 		err = drv(inode, file, VIDIOC_G_TUNER, &tun2);
 		if (err < 0) {
 			dprintk("VIDIOCGAUDIO / VIDIOC_G_TUNER: %d\n",err);
 			err = 0;
 			break;
 		}
+
 		if (tun2.rxsubchans & V4L2_TUNER_SUB_LANG2)
 			aud->mode = VIDEO_SOUND_LANG1 | VIDEO_SOUND_LANG2;
 		else if (tun2.rxsubchans & V4L2_TUNER_SUB_STEREO)

@@ -26,7 +26,7 @@ cx88xx-objs     := cx88-cards.o cx88-core.o cx88-i2c.o cx88-tvaudio.o \
 cx8800-objs     := cx88-video.o cx88-vbi.o
 cx8801-objs     := cx88-alsa.o
 cx8802-objs     := cx88-mpeg.o
-tuner-objs	:= tuner-core.o tuner-simple.o mt20xx.o tda8290.o
+tuner-objs	:= tuner-core.o tuner-simple.o mt20xx.o tda8290.o tea5767.o
 list-multi	:= bttv.o saa7134.o cx88xx.o cx8800.o cx8801.o cx8802.o
 
 # what to build
@@ -39,8 +39,8 @@ obj-$(CONFIG_VIDEO_IR)		+= ir-common.o
 obj-$(CONFIG_VIDEO_TUNER)	+= tuner.o tda9887.o
 obj-$(CONFIG_VIDEO_TVAUDIO)	+= msp3400.o tvaudio.o tvmixer.o
 
-obj-$(CONFIG_VIDEO_CX88_DVB)	+= video-buf-dvb.o cx88-dvb.o cx22702.o dvb-pll.o or51132.o
-obj-$(CONFIG_VIDEO_SAA7134_DVB) += video-buf-dvb.o saa7134-dvb.o mt352.o
+obj-$(CONFIG_VIDEO_CX88_DVB)	+= video-buf-dvb.o cx88-dvb.o cx22702.o dvb-pll.o or51132.o lgdt3302.o mt352.o
+obj-$(CONFIG_VIDEO_SAA7134_DVB) += video-buf-dvb.o saa7134-dvb.o mt352.o tda1004x.o
 
 # 2.6-only stuff
 ifeq ($(VERSION).$(PATCHLEVEL),2.6)
@@ -58,8 +58,15 @@ EXTRA_CFLAGS += -I$(srctree)/drivers/media/dvb/dvb-core/
 EXTRA_CFLAGS += -I$(srctree)/drivers/media/dvb/frontends/
 ifeq ($(CONFIG_VIDEO_CX88_DVB),m)
  EXTRA_CFLAGS += -DCONFIG_VIDEO_CX88_DVB_MODULE=1
+ EXTRA_CFLAGS += -DCONFIG_DVB_CX22702=1
+ EXTRA_CFLAGS += -DCONFIG_DVB_OR51132=1
+ EXTRA_CFLAGS += -DCONFIG_DVB_LGDT3302=1
+ EXTRA_CFLAGS += -DCONFIG_DVB_MT352=1
 endif
-
+ifeq ($(CONFIG_VIDEO_SAA7134_DVB),m)
+ EXTRA_CFLAGS += -DCONFIG_DVB_MT352=1
+ EXTRA_CFLAGS += -DCONFIG_DVB_TDA1004X=1
+endif
 
 #################################################
 # compile modules
@@ -107,12 +114,25 @@ endif
 KDIR		:= /lib/modules/$(KERNELRELEASE)/build
 PWD		:= $(shell pwd)
 DEST		:= /lib/modules/$(KERNELRELEASE)/$(MDIR)
+KDIR26		:= /lib/modules/$(KERNELRELEASE)/kernel/drivers/media
 
 # which files to install?
 inst-m		:= $(wildcard *.ko)
 ifeq ($(inst-m),)
   inst-m	:= $(obj-m)
 endif
+
+inst_common := ir-common.ko
+inst_frontends := cx22702.ko dvb-pll.ko mt352.ko lgdt3302.ko or51132.ko tda1004x.ko
+inst_video := btcx-risc.ko bttv.ko tda9887.ko tuner.ko tvaudio.ko tveeprom.ko
+inst_video += tvmixer.ko v4l1-compat.ko v4l2-common.ko
+inst_video += video-buf.ko video-buf-dvb.ko
+inst_video += ir-kbd-gpio.ko ir-kbd-i2c.ko msp3400.ko
+inst_cx88 := cx8800.ko cx8801.ko cx88-dvb.ko cx8802.ko 
+inst_cx88 += cx88-blackbird.ko cx88xx.ko
+inst_saa7134 := saa6752hs.ko saa7134.ko saa7134-dvb.ko saa7134-empress.ko
+
+v4l_modules := $(shell lsmod|cut -d' ' -f1 ) $(patsubst %.ko,%,$(inst-m))
 
 # locales seem to cause trouble sometimes.
 LC_ALL = POSIX
@@ -121,9 +141,57 @@ export LC_ALL
 default:: linux media
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) modules
 
-install::
-	strip --strip-debug $(inst-m)
-	-su -c "mkdir -p $(DEST); cp -v $(inst-m) $(DEST); depmod -a"
+
+install:: rminstall
+	@echo -e "\nInstalling new V4L modules at corresponding Kernel dir..."
+
+	@strip --strip-debug $(inst-m)
+
+	-install -d $(KDIR26)/common
+	-install -m 644 -c $(inst_common) $(KDIR26)/common
+
+	-install -d $(KDIR26)/dvb/frontends
+	-install -m 644 -c $(inst_frontends) $(KDIR26)/dvb/frontends
+
+	-install -d $(KDIR26)/video
+	-install -m 644 -c $(inst_video) $(KDIR26)/video
+
+	-install -d $(KDIR26)/video/cx88
+	-install -m 644 -c $(inst_cx88) $(KDIR26)/video/cx88
+
+	-install -d $(KDIR26)/video/saa7134
+	-install -m 644 -c $(inst_saa7134) $(KDIR26)/video/saa7134
+
+	/sbin/depmod -a
+
+v4l_install:: rminstall
+	@echo -e "\nInstalling new V4L modules at $(DEST)..."
+
+	@strip --strip-debug $(inst-m)
+
+	-install -d $(DEST)
+	install -m 644 -c $(inst-m) $(DEST)
+
+	/sbin/depmod -a
+
+rminstall::
+	@echo -e "\nEliminating old V4L modules (errors on this step is not a problem).."
+
+	-@rm -r $(DEST) \
+		$(addprefix $(KDIR26)/common/, $(inst_common)) \
+		$(addprefix $(KDIR26)/dvb/frontends/, $(inst_frontends)) \
+		$(addprefix $(KDIR26)/video/, $(inst_video)) \
+		$(addprefix $(KDIR26)/video/cx88/, $(inst_cx88)) \
+		$(addprefix $(KDIR26)/video/saa7134/, $(inst_saa7134)) \
+		$(addprefix $(KDIR26)/common/, $(addsuffix .gz,$(inst_common))) \
+		$(addprefix $(KDIR26)/dvb/frontends/, $(addsuffix .gz,$(inst_frontends))) \
+		$(addprefix $(KDIR26)/video/, $(addsuffix .gz,$(inst_video))) \
+		$(addprefix $(KDIR26)/video/cx88/, $(addsuffix .gz,$(inst_cx88))) \
+		$(addprefix $(KDIR26)/video/saa7134/, $(addsuffix .gz,$(inst_saa7134))) 2>/dev/null
+	@echo
+
+rmmodules::
+	rmmod -w $(shell echo "$(v4l_modules)"|sed s,' ','\n',g|sed s,'-','_',g|sort|uniq -d)
 
 clean::
 	-rm -f *~ *.o *.ko *.mod.c
@@ -151,6 +219,7 @@ release: clean
 snapshot snap tarball: clean
 	echo $(date) > .snapshot
 	(cd ..; tar czf $(snapdir)/$(snap)-$(date).tar.gz $(thisdir))
+	cp ChangeLog /$(snapdir)/ChangeLog-$(date)
 	$(MAKE) -C $(snapdir)
 
 

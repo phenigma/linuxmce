@@ -483,7 +483,10 @@ static unsigned short normal_i2c[] = {
 	0xa0 >> 1,
 	I2C_CLIENT_END,
 };
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,13)
 static unsigned short normal_i2c_range[] = { I2C_CLIENT_END };
+#endif
+
 I2C_CLIENT_INSMOD;
 
 struct i2c_driver i2c_driver_tveeprom;

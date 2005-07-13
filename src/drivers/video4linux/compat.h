@@ -1,3 +1,19 @@
+/*
+ * $Id: compat.h,v 1.12 2005/06/13 08:42:51 nsh Exp $
+ */
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,18)
+# define minor(x) MINOR(x)
+#endif
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
+# define need_resched() (current->need_resched)
+#endif
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,19)
+# define BUG_ON(condition) do { if ((condition)!=0) BUG(); } while(0)
+#endif
+
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,23)
 # define irqreturn_t void
 # define IRQ_RETVAL(foobar)

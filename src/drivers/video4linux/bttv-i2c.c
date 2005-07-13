@@ -1,5 +1,5 @@
 /*
-    $Id: bttv-i2c.c,v 1.20 2005/05/24 12:16:56 kraxel Exp $
+    $Id: bttv-i2c.c,v 1.25 2005/07/05 17:37:35 nsh Exp $
 
     bttv-i2c.c  --  all the i2c code is here
 
@@ -241,7 +241,7 @@ bttv_i2c_readbytes(struct bttv *btv, const struct i2c_msg *msg, int last)
        	return retval;
 }
 
-static int bttv_i2c_xfer(struct i2c_adapter *i2c_adap, struct i2c_msg msgs[], int num)
+static int bttv_i2c_xfer(struct i2c_adapter *i2c_adap, struct i2c_msg *msgs, int num)
 {
 	struct bttv *btv = i2c_get_adapdata(i2c_adap);
 	int retval = 0;
@@ -295,14 +295,26 @@ static int attach_inform(struct i2c_client *client)
 {
         struct bttv *btv = i2c_get_adapdata(client->adapter);
 
-	if (btv->tuner_type != UNSET)
-		bttv_call_i2c_clients(btv,TUNER_SET_TYPE,&btv->tuner_type);
+	if (bttv_debug)
+		printk(KERN_DEBUG "bttv%d: %s i2c attach [addr=0x%x,client=%s]\n",
+			btv->c.nr,client->driver->name,client->addr,
+			i2c_clientname(client));
+	if (!client->driver->command)
+		return 0;
+
+	if (btv->tuner_type != UNSET) {
+	        struct tuner_setup tun_setup;
+
+	        tun_setup.mode_mask = T_RADIO | T_ANALOG_TV | T_DIGITAL_TV;
+		tun_setup.type = btv->tuner_type;
+		tun_setup.addr = ADDR_UNSET;
+
+		client->driver->command (client, TUNER_SET_TYPE_ADDR, &tun_setup);
+	}
+
 	if (btv->pinnacle_id != UNSET)
-		bttv_call_i2c_clients(btv,AUDC_CONFIG_PINNACLE,
+		client->driver->command(client,AUDC_CONFIG_PINNACLE,
 				      &btv->pinnacle_id);
-        if (bttv_debug)
-		printk("bttv%d: i2c attach [client=%s]\n",
-		       btv->c.nr, i2c_clientname(client));
         return 0;
 }
 
@@ -315,7 +327,6 @@ void bttv_call_i2c_clients(struct bttv *btv, unsigned int cmd, void *arg)
 
 static struct i2c_client bttv_i2c_client_template = {
 	I2C_DEVNAME("bttv internal"),
-        .id       = -1,
 };
 
 

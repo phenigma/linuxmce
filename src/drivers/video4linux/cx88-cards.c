@@ -1,5 +1,5 @@
 /*
- * $Id: cx88-cards.c,v 1.71 2005/05/30 15:43:44 mchehab Exp $
+ * $Id: cx88-cards.c,v 1.85 2005/07/04 19:35:05 mkrufky Exp $
  *
  * device driver for Conexant 2388x based TV cards
  * card-specific stuff.
@@ -35,6 +35,9 @@ struct cx88_board cx88_boards[] = {
 	[CX88_BOARD_UNKNOWN] = {
 		.name		= "UNKNOWN/GENERIC",
 		.tuner_type     = UNSET,
+		.radio_type     = UNSET,
+		.tuner_addr	= ADDR_UNSET,
+		.radio_addr	= ADDR_UNSET,
 		.input          = {{
 			.type   = CX88_VMUX_COMPOSITE1,
 			.vmux   = 0,
@@ -52,6 +55,9 @@ struct cx88_board cx88_boards[] = {
 	[CX88_BOARD_HAUPPAUGE] = {
 		.name		= "Hauppauge WinTV 34xxx models",
 		.tuner_type     = UNSET,
+		.radio_type     = UNSET,
+		.tuner_addr	= ADDR_UNSET,
+		.radio_addr	= ADDR_UNSET,
 		.tda9887_conf   = TDA9887_PRESENT,
 		.input          = {{
 			.type   = CX88_VMUX_TELEVISION,
@@ -78,6 +84,9 @@ struct cx88_board cx88_boards[] = {
 	[CX88_BOARD_GDI] = {
 		.name		= "GDI Black Gold",
 		.tuner_type     = UNSET,
+		.radio_type     = UNSET,
+		.tuner_addr	= ADDR_UNSET,
+		.radio_addr	= ADDR_UNSET,
 		.input          = {{
 			.type   = CX88_VMUX_TELEVISION,
 			.vmux   = 0,
@@ -85,7 +94,10 @@ struct cx88_board cx88_boards[] = {
 	},
 	[CX88_BOARD_PIXELVIEW] = {
 		.name           = "PixelView",
-		.tuner_type     = 5,
+		.tuner_type     = TUNER_PHILIPS_PAL,
+		.radio_type     = UNSET,
+		.tuner_addr	= ADDR_UNSET,
+		.radio_addr	= ADDR_UNSET,
 		.input          = {{
 			.type   = CX88_VMUX_TELEVISION,
 			.vmux   = 0,
@@ -104,7 +116,10 @@ struct cx88_board cx88_boards[] = {
 	},
 	[CX88_BOARD_ATI_WONDER_PRO] = {
 		.name           = "ATI TV Wonder Pro",
-		.tuner_type     = 44,
+		.tuner_type     = TUNER_PHILIPS_4IN1,
+		.radio_type     = UNSET,
+		.tuner_addr	= ADDR_UNSET,
+		.radio_addr	= ADDR_UNSET,
 		.tda9887_conf   = TDA9887_PRESENT | TDA9887_INTERCARRIER,
 		.input          = {{
 			.type   = CX88_VMUX_TELEVISION,
@@ -122,7 +137,10 @@ struct cx88_board cx88_boards[] = {
 	},
         [CX88_BOARD_WINFAST2000XP_EXPERT] = {
                 .name           = "Leadtek Winfast 2000XP Expert",
-                .tuner_type     = 44,
+                .tuner_type     = TUNER_PHILIPS_4IN1,
+		.radio_type     = UNSET,
+		.tuner_addr	= ADDR_UNSET,
+		.radio_addr	= ADDR_UNSET,
 		.tda9887_conf   = TDA9887_PRESENT,
                 .input          = {{
                         .type   = CX88_VMUX_TELEVISION,
@@ -156,7 +174,10 @@ struct cx88_board cx88_boards[] = {
         },
 	[CX88_BOARD_AVERTV_303] = {
 		.name           = "AverTV Studio 303 (M126)",
-		.tuner_type     = 38,
+		.tuner_type     = TUNER_PHILIPS_FM1216ME_MK3,
+		.radio_type     = UNSET,
+		.tuner_addr	= ADDR_UNSET,
+		.radio_addr	= ADDR_UNSET,
 		.tda9887_conf   = TDA9887_PRESENT,
 		.input          = {{
 			.type   = CX88_VMUX_TELEVISION,
@@ -179,7 +200,10 @@ struct cx88_board cx88_boards[] = {
 		// added gpio values thanks to Michal
 		// values for PAL from DScaler
 		.name           = "MSI TV-@nywhere Master",
-		.tuner_type     = 33,
+		.tuner_type     = TUNER_MT2032,
+		.radio_type     = UNSET,
+		.tuner_addr	= ADDR_UNSET,
+		.radio_addr	= ADDR_UNSET,
 		.tda9887_conf	= TDA9887_PRESENT,
 		.input          = {{
 			.type   = CX88_VMUX_TELEVISION,
@@ -206,7 +230,10 @@ struct cx88_board cx88_boards[] = {
 	},
 	[CX88_BOARD_WINFAST_DV2000] = {
                 .name           = "Leadtek Winfast DV2000",
-                .tuner_type     = 38,
+                .tuner_type     = TUNER_PHILIPS_FM1216ME_MK3,
+		.radio_type     = UNSET,
+		.tuner_addr	= ADDR_UNSET,
+		.radio_addr	= ADDR_UNSET,
 		.tda9887_conf   = TDA9887_PRESENT,
                 .input          = {{
                         .type   = CX88_VMUX_TELEVISION,
@@ -242,7 +269,10 @@ struct cx88_board cx88_boards[] = {
 	[CX88_BOARD_LEADTEK_PVR2000] = {
 		// gpio values for PAL version from regspy by DScaler
 		.name           = "Leadtek PVR 2000",
-		.tuner_type     = 38,
+		.tuner_type     = TUNER_PHILIPS_FM1216ME_MK3,
+		.radio_type     = UNSET,
+		.tuner_addr	= ADDR_UNSET,
+		.radio_addr	= ADDR_UNSET,
 		.tda9887_conf   = TDA9887_PRESENT,
 		.input          = {{
 			.type   = CX88_VMUX_TELEVISION,
@@ -266,7 +296,10 @@ struct cx88_board cx88_boards[] = {
 	[CX88_BOARD_IODATA_GVVCP3PCI] = {
  		.name		= "IODATA GV-VCP3/PCI",
 		.tuner_type     = TUNER_ABSENT,
- 		.input          = {{
+ 		.radio_type     = UNSET,
+		.tuner_addr	= ADDR_UNSET,
+		.radio_addr	= ADDR_UNSET,
+		.input          = {{
  			.type   = CX88_VMUX_COMPOSITE1,
  			.vmux   = 0,
  		},{
@@ -279,7 +312,10 @@ struct cx88_board cx88_boards[] = {
  	},
 	[CX88_BOARD_PROLINK_PLAYTVPVR] = {
                 .name           = "Prolink PlayTV PVR",
-                .tuner_type     = 43,
+                .tuner_type     = TUNER_PHILIPS_FM1236_MK3,
+		.radio_type     = UNSET,
+		.tuner_addr	= ADDR_UNSET,
+		.radio_addr	= ADDR_UNSET,
 		.tda9887_conf	= TDA9887_PRESENT,
 		.input          = {{
 			.type   = CX88_VMUX_TELEVISION,
@@ -301,8 +337,11 @@ struct cx88_board cx88_boards[] = {
 	},
 	[CX88_BOARD_ASUS_PVR_416] = {
 		.name		= "ASUS PVR-416",
-		.tuner_type     = 43,
-                .tda9887_conf   = TDA9887_PRESENT,
+		.tuner_type     = TUNER_PHILIPS_FM1236_MK3,
+		.radio_type     = UNSET,
+		.tuner_addr	= ADDR_UNSET,
+		.radio_addr	= ADDR_UNSET,
+		.tda9887_conf   = TDA9887_PRESENT,
 		.input          = {{
 			.type   = CX88_VMUX_TELEVISION,
 			.vmux   = 0,
@@ -320,7 +359,10 @@ struct cx88_board cx88_boards[] = {
 	},
 	[CX88_BOARD_MSI_TVANYWHERE] = {
 		.name           = "MSI TV-@nywhere",
-		.tuner_type     = 33,
+		.tuner_type     = TUNER_MT2032,
+		.radio_type     = UNSET,
+		.tuner_addr	= ADDR_UNSET,
+		.radio_addr	= ADDR_UNSET,
 		.tda9887_conf   = TDA9887_PRESENT,
 		.input          = {{
 			.type   = CX88_VMUX_TELEVISION,
@@ -342,6 +384,9 @@ struct cx88_board cx88_boards[] = {
         [CX88_BOARD_KWORLD_DVB_T] = {
                 .name           = "KWorld/VStream XPert DVB-T",
 		.tuner_type     = TUNER_ABSENT,
+		.radio_type     = UNSET,
+		.tuner_addr	= ADDR_UNSET,
+		.radio_addr	= ADDR_UNSET,
                 .input          = {{
                         .type   = CX88_VMUX_COMPOSITE1,
                         .vmux   = 1,
@@ -356,8 +401,11 @@ struct cx88_board cx88_boards[] = {
 		.dvb            = 1,
 	},
 	[CX88_BOARD_DVICO_FUSIONHDTV_DVB_T1] = {
-		.name           = "DVICO FusionHDTV DVB-T1",
+		.name           = "DViCO FusionHDTV DVB-T1",
 		.tuner_type     = TUNER_ABSENT, /* No analog tuner */
+		.radio_type     = UNSET,
+		.tuner_addr	= ADDR_UNSET,
+		.radio_addr	= ADDR_UNSET,
 		.input          = {{
 			.type   = CX88_VMUX_COMPOSITE1,
 			.vmux   = 1,
@@ -371,7 +419,10 @@ struct cx88_board cx88_boards[] = {
 	},
 	[CX88_BOARD_KWORLD_LTV883] = {
 		.name           = "KWorld LTV883RF",
-                .tuner_type     = 48,
+		.tuner_type     = TUNER_TNF_8831BGFF,
+		.radio_type     = UNSET,
+		.tuner_addr	= ADDR_UNSET,
+		.radio_addr	= ADDR_UNSET,
                 .input          = {{
                         .type   = CX88_VMUX_TELEVISION,
                         .vmux   = 0,
@@ -394,9 +445,12 @@ struct cx88_board cx88_boards[] = {
                         .gpio0  = 0x000007f8,
                 },
 	},
-	[CX88_BOARD_DVICO_FUSIONHDTV_3_GOLD] = {
-		.name		= "DViCO - FusionHDTV 3 Gold",
+	[CX88_BOARD_DVICO_FUSIONHDTV_3_GOLD_Q] = {
+		.name		= "DViCO FusionHDTV 3 Gold-Q",
 		.tuner_type     = TUNER_MICROTUNE_4042FI5,
+		.radio_type     = UNSET,
+		.tuner_addr	= ADDR_UNSET,
+		.radio_addr	= ADDR_UNSET,
 		/*
 		   GPIO[0] resets DT3302 DTV receiver
 		    0 - reset asserted
@@ -410,6 +464,9 @@ struct cx88_board cx88_boards[] = {
 		   GPIO[3] selects RF input connector on tuner module
 		    0 - RF connector labeled CABLE
 		    1 - RF connector labeled ANT
+		   GPIO[4] selects high RF for QAM256 mode
+		    0 - normal RF
+		    1 - high RF
 		*/
 		.input          = {{
 			.type   = CX88_VMUX_TELEVISION,
@@ -428,11 +485,15 @@ struct cx88_board cx88_boards[] = {
 			.vmux   = 2,
 			.gpio0	= 0x0f00,
 		}},
+		.dvb            = 1,
 	},
         [CX88_BOARD_HAUPPAUGE_DVB_T1] = {
-                .name           = "Hauppauge Nova-T DVB-T",
+		.name           = "Hauppauge Nova-T DVB-T",
 		.tuner_type     = TUNER_ABSENT,
-                .input          = {{
+		.radio_type     = UNSET,
+		.tuner_addr	= ADDR_UNSET,
+		.radio_addr	= ADDR_UNSET,
+		.input          = {{
                         .type   = CX88_VMUX_DVB,
                         .vmux   = 0,
                 }},
@@ -441,6 +502,9 @@ struct cx88_board cx88_boards[] = {
         [CX88_BOARD_CONEXANT_DVB_T1] = {
 		.name           = "Conexant DVB-T reference design",
 		.tuner_type     = TUNER_ABSENT,
+		.radio_type     = UNSET,
+		.tuner_addr	= ADDR_UNSET,
+		.radio_addr	= ADDR_UNSET,
                 .input          = {{
                         .type   = CX88_VMUX_DVB,
                         .vmux   = 0,
@@ -450,6 +514,9 @@ struct cx88_board cx88_boards[] = {
 	[CX88_BOARD_PROVIDEO_PV259] = {
 		.name		= "Provideo PV259",
 		.tuner_type     = TUNER_PHILIPS_FQ1216ME,
+		.radio_type     = UNSET,
+		.tuner_addr	= ADDR_UNSET,
+		.radio_addr	= ADDR_UNSET,
 		.input          = {{
 			.type   = CX88_VMUX_TELEVISION,
 			.vmux   = 0,
@@ -457,8 +524,11 @@ struct cx88_board cx88_boards[] = {
 		.blackbird = 1,
 	},
 	[CX88_BOARD_DVICO_FUSIONHDTV_DVB_T_PLUS] = {
-		.name           = "DVICO FusionHDTV DVB-T Plus",
+		.name           = "DViCO FusionHDTV DVB-T Plus",
 		.tuner_type     = TUNER_ABSENT, /* No analog tuner */
+		.radio_type     = UNSET,
+		.tuner_addr	= ADDR_UNSET,
+		.radio_addr	= ADDR_UNSET,
 		.input          = {{
 			.type   = CX88_VMUX_COMPOSITE1,
 			.vmux   = 1,
@@ -473,6 +543,9 @@ struct cx88_board cx88_boards[] = {
 	[CX88_BOARD_DNTV_LIVE_DVB_T] = {
 		.name	        = "digitalnow DNTV Live! DVB-T",
 		.tuner_type     = TUNER_ABSENT,
+		.radio_type     = UNSET,
+		.tuner_addr	= ADDR_UNSET,
+		.radio_addr	= ADDR_UNSET,
 		.input	        = {{
 			.type   = CX88_VMUX_COMPOSITE1,
 			.vmux   = 1,
@@ -489,6 +562,9 @@ struct cx88_board cx88_boards[] = {
 	[CX88_BOARD_PCHDTV_HD3000] = {
 		.name           = "pcHDTV HD3000 HDTV",
 		.tuner_type     = TUNER_THOMSON_DTT7610,
+		.radio_type     = UNSET,
+		.tuner_addr	= ADDR_UNSET,
+		.radio_addr	= ADDR_UNSET,
 		.input          = {{
 			.type   = CX88_VMUX_TELEVISION,
 			.vmux   = 0,
@@ -524,8 +600,11 @@ struct cx88_board cx88_boards[] = {
 	[CX88_BOARD_HAUPPAUGE_ROSLYN] = {
 		// entry added by Kaustubh D. Bhalerao <bhalerao.1@osu.edu>
 		// GPIO values obtained from regspy, courtesy Sean Covel
-		.name        = "Hauppauge WinTV 28xxx (Roslyn) models",
-		.tuner_type  = UNSET,
+		.name           = "Hauppauge WinTV 28xxx (Roslyn) models",
+		.tuner_type     = UNSET,
+		.radio_type     = UNSET,
+		.tuner_addr	= ADDR_UNSET,
+		.radio_addr	= ADDR_UNSET,
 		.input          = {{
 			.type   = CX88_VMUX_TELEVISION,
 			.vmux   = 0,
@@ -554,7 +633,10 @@ struct cx88_board cx88_boards[] = {
 	},
 	[CX88_BOARD_DIGITALLOGIC_MEC] = {
 		.name           = "Digital-Logic MICROSPACE Entertainment Center (MEC)",
-		.tuner_type     = 38,
+		.tuner_type     = TUNER_PHILIPS_FM1216ME_MK3,
+		.radio_type     = UNSET,
+		.tuner_addr	= ADDR_UNSET,
+		.radio_addr	= ADDR_UNSET,
 		.tda9887_conf   = TDA9887_PRESENT,
 		.input          = {{
 			.type   = CX88_VMUX_TELEVISION,
@@ -578,6 +660,9 @@ struct cx88_board cx88_boards[] = {
 	[CX88_BOARD_IODATA_GVBCTV7E] = {
 		.name           = "IODATA GV/BCTV7E",
 		.tuner_type     = TUNER_PHILIPS_FQ1286,
+		.radio_type     = UNSET,
+		.tuner_addr	= ADDR_UNSET,
+		.radio_addr	= ADDR_UNSET,
 		.tda9887_conf   = TDA9887_PRESENT,
 		.input          = {{
 			.type   = CX88_VMUX_TELEVISION,
@@ -597,6 +682,9 @@ struct cx88_board cx88_boards[] = {
 		.name           = "PixelView PlayTV Ultra Pro (Stereo)",
 		/* May be also TUNER_YMEC_TVF_5533MF for NTSC/M or PAL/M */
 		.tuner_type     = TUNER_PHILIPS_FM1216ME_MK3,
+		.radio_type     = TUNER_TEA5767,
+		.tuner_addr	= 0xc2>>1,
+		.radio_addr	= 0xc0>>1,
 		.input          = {{
 			.type   = CX88_VMUX_TELEVISION,
 			.vmux   = 0,
@@ -615,17 +703,17 @@ struct cx88_board cx88_boards[] = {
 			 .gpio0 = 0xbf60,
 		 },
 	},
-        [CX88_BOARD_DVICO_FUSIONHDTV_3_GOLD_Q] = {
-                .name           = "DViCO - FusionHDTV 3 Gold-Q",
-                .tuner_type     = TUNER_THOMSON_DTT7611,
-                .input          = {{
+        [CX88_BOARD_DVICO_FUSIONHDTV_3_GOLD_T] = {
+		.name           = "DViCO FusionHDTV 3 Gold-T",
+		.tuner_type     = TUNER_THOMSON_DTT7611,
+		.radio_type     = UNSET,
+		.tuner_addr	= ADDR_UNSET,
+		.radio_addr	= ADDR_UNSET,
+		/*  See DViCO FusionHDTV 3 Gold-Q for GPIO documentation.  */
+		.input          = {{
                         .type   = CX88_VMUX_TELEVISION,
                         .vmux   = 0,
                         .gpio0  = 0x0f0d,
-                },{
-                        .type   = CX88_VMUX_CABLE,
-                        .vmux   = 0,
-                        .gpio0  = 0x0f05,
                 },{
                         .type   = CX88_VMUX_COMPOSITE1,
                         .vmux   = 1,
@@ -635,7 +723,36 @@ struct cx88_board cx88_boards[] = {
                         .vmux   = 2,
                         .gpio0  = 0x0f00,
                 }},
+		.dvb            = 1,
         },
+        [CX88_BOARD_ADSTECH_DVB_T_PCI] = {
+                .name           = "ADS Tech Instant TV DVB-T PCI",
+		.tuner_type     = TUNER_ABSENT,
+		.radio_type     = UNSET,
+		.tuner_addr	= ADDR_UNSET,
+		.radio_addr	= ADDR_UNSET,
+		.input          = {{
+                        .type   = CX88_VMUX_COMPOSITE1,
+                        .vmux   = 1,
+			.gpio0  = 0x0700,
+			.gpio2  = 0x0101,
+                },{
+                        .type   = CX88_VMUX_SVIDEO,
+                        .vmux   = 2,
+			.gpio0  = 0x0700,
+			.gpio2  = 0x0101,
+                }},
+		.dvb            = 1,
+	},
+	[CX88_BOARD_TERRATEC_CINERGY_1400_DVB_T1] = {
+		.name           = "TerraTec Cinergy 1400 DVB-T",
+		.tuner_type     = TUNER_ABSENT,
+		.input          = {{
+			.type   = CX88_VMUX_DVB,
+			.vmux   = 0,
+		}},
+		.dvb            = 1,
+	},
 };
 const unsigned int cx88_bcount = ARRAY_SIZE(cx88_boards);
 
@@ -706,11 +823,11 @@ struct cx88_subid cx88_subids[] = {
 	},{
 		.subvendor = 0x18ac,
 		.subdevice = 0xd810,
-		.card      = CX88_BOARD_DVICO_FUSIONHDTV_3_GOLD,
+		.card      = CX88_BOARD_DVICO_FUSIONHDTV_3_GOLD_Q,
 	},{
 		.subvendor = 0x18ac,
 		.subdevice = 0xd820,
-		.card      = CX88_BOARD_DVICO_FUSIONHDTV_3_GOLD_Q,
+		.card      = CX88_BOARD_DVICO_FUSIONHDTV_3_GOLD_T,
 	},{
 		.subvendor = 0x18AC,
 		.subdevice = 0xDB00,
@@ -756,10 +873,14 @@ struct cx88_subid cx88_subids[] = {
 		.subdevice = 0xd035,
 		.card      = CX88_BOARD_IODATA_GVBCTV7E,
 	},{
-		.subvendor = 0x14f1,
-		.subdevice = 0x8800,
-		.card      = CX88_BOARD_PIXELVIEW_PLAYTV_ULTRA_PRO,
-	}
+		.subvendor = 0x1421,
+		.subdevice = 0x0334,
+		.card      = CX88_BOARD_ADSTECH_DVB_T_PCI,
+ 	},{
+		.subvendor = 0x153b,
+		.subdevice = 0x1166,
+		.card      = CX88_BOARD_TERRATEC_CINERGY_1400_DVB_T1,
+	},
 };
 const unsigned int cx88_idcount = ARRAY_SIZE(cx88_subids);
 

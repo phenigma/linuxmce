@@ -1,3 +1,7 @@
+/*
+ * $Id: video-buf-dvb.h,v 1.7 2005/06/18 04:00:19 mkrufky Exp $
+ */
+
 #include <dvbdev.h>
 #include <dmxdev.h>
 #include <dvb_demux.h>
@@ -16,7 +20,11 @@ struct videobuf_dvb {
 	int                        nfeeds;
 
 	/* videobuf_dvb_(un)register manges this */
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,12))
+	struct dvb_adapter         adapter;
+#else
 	struct dvb_adapter         *adapter;
+#endif
 	struct dvb_demux           demux;
 	struct dmxdev              dmxdev;
 	struct dmx_frontend        fe_hw;

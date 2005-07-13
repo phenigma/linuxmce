@@ -1,3 +1,7 @@
+/*
+ * $Id: plx9054.h,v 1.3 2005/06/12 04:19:19 mchehab Exp $
+ */
+
 #ifndef _PLX9054_H_
 #define _PLX9054_H_
 

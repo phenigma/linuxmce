@@ -1,5 +1,5 @@
 /*
- * $Id: saa7134-video.c,v 1.29 2005/05/24 23:13:06 nsh Exp $
+ * $Id: saa7134-video.c,v 1.36 2005/06/28 23:41:47 mkrufky Exp $
  *
  * device driver for philips saa7134 based TV cards
  * video4linux video interface
@@ -30,8 +30,6 @@
 
 #include "saa7134-reg.h"
 #include "saa7134.h"
-
-#define V4L2_I2C_CLIENTS 1
 
 /* ------------------------------------------------------------------ */
 
@@ -276,14 +274,13 @@ static struct saa7134_tvnorm tvnorms[] = {
 
 		.h_start       = 0,
 		.h_stop        = 719,
-		.video_v_start = 22,
   		.video_v_start = 23,
   		.video_v_stop  = 262,
   		.vbi_v_start_0 = 10,
   		.vbi_v_stop_0  = 21,
   		.vbi_v_start_1 = 273,
   		.src_timing    = 7,
-		
+
 		.sync_control  = 0x18,
 		.luma_control  = 0x40,
 		.chroma_ctrl1  = 0x81,
@@ -525,22 +522,7 @@ static void set_tvnorm(struct saa7134_dev *dev, struct saa7134_tvnorm *norm)
 	saa_writeb(SAA7134_RAW_DATA_GAIN,         0x40);
 	saa_writeb(SAA7134_RAW_DATA_OFFSET,       0x80);
 
-#ifdef V4L2_I2C_CLIENTS
 	saa7134_i2c_call_clients(dev,VIDIOC_S_STD,&norm->id);
-#else
-	{
-		/* pass down info to the i2c chips (v4l1) */
-		struct video_channel c;
-		memset(&c,0,sizeof(c));
-		c.channel = dev->ctl_input;
-		c.norm = VIDEO_MODE_PAL;
-		if (norm->id & V4L2_STD_NTSC)
-			c.norm = VIDEO_MODE_NTSC;
-		if (norm->id & V4L2_STD_SECAM)
-			c.norm = VIDEO_MODE_SECAM;
-		saa7134_i2c_call_clients(dev,VIDIOCSCHAN,&c);
-	}
-#endif
 }
 
 static void video_mux(struct saa7134_dev *dev, int input)
@@ -1222,7 +1204,6 @@ static int video_open(struct inode *inode, struct file *file)
 	struct list_head *list;
 	enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	int radio = 0;
-
 	list_for_each(list,&saa7134_devlist) {
 		h = list_entry(list, struct saa7134_dev, devlist);
 		if (h->video_dev && (h->video_dev->minor == minor))
@@ -1274,12 +1255,12 @@ static int video_open(struct inode *inode, struct file *file)
 	if (fh->radio) {
 		/* switch to radio mode */
 		saa7134_tvaudio_setinput(dev,&card(dev).radio);
-		saa7134_i2c_call_clients(dev,AUDC_SET_RADIO,NULL);
+		saa7134_i2c_call_clients(dev,AUDC_SET_RADIO, NULL);
 	} else {
 		/* switch to video/vbi mode */
 		video_mux(dev,dev->ctl_input);
 	}
-        return 0;
+	return 0;
 }
 
 static ssize_t
@@ -1322,10 +1303,10 @@ video_poll(struct file *file, struct poll_table_struct *wait)
 	} else {
 		down(&fh->cap.lock);
 		if (UNSET == fh->cap.read_off) {
-                        /* need to capture a new frame */
+			/* need to capture a new frame */
 			if (res_locked(fh->dev,RESOURCE_VIDEO)) {
-                                up(&fh->cap.lock);
-                                return POLLERR;
+				up(&fh->cap.lock);
+				return POLLERR;
                         }
                         if (0 != fh->cap.ops->buf_prepare(&fh->cap,fh->cap.read_buf,fh->cap.field)) {
                                 up(&fh->cap.lock);
@@ -1379,6 +1360,36 @@ static int video_release(struct inode *inode, struct file *file)
 		if (fh->vbi.reading)
 			videobuf_read_stop(&fh->vbi);
 		res_free(dev,fh,RESOURCE_VBI);
+	}
+
+	/* ts-capture will not work in planar mode, so turn it off Hac: 04.05*/
+	saa_andorb(SAA7134_OFMT_VIDEO_A, 0x1f, 0);
+	saa_andorb(SAA7134_OFMT_VIDEO_B, 0x1f, 0);
+	saa_andorb(SAA7134_OFMT_DATA_A, 0x1f, 0);
+	saa_andorb(SAA7134_OFMT_DATA_B, 0x1f, 0);
+
+	if (dev->tuner_type == TUNER_PHILIPS_TDA8290) {
+		u8 data[2];
+		int ret;
+		struct i2c_msg msg = {.addr=I2C_ADDR_TDA8290, .flags=0, .buf=data, .len = 2};
+		data[0] = 0x21;
+		data[1] = 0xc0;
+		ret = i2c_transfer(&dev->i2c_adap, &msg, 1);
+		if (ret != 1)
+			printk(KERN_ERR "TDA8290 access failure\n");
+		msg.addr = I2C_ADDR_TDA8275;
+		data[0] = 0x30;
+		data[1] = 0xd0;
+		ret = i2c_transfer(&dev->i2c_adap, &msg, 1);
+		if (ret != 1)
+			printk(KERN_ERR "TDA8275 access failure\n");
+		msg.addr = I2C_ADDR_TDA8290;
+		data[0] = 0x21;
+		data[1] = 0x80;
+		i2c_transfer(&dev->i2c_adap, &msg, 1);
+		data[0] = 0x00;
+		data[1] = 0x02;
+		i2c_transfer(&dev->i2c_adap, &msg, 1);
 	}
 
 	/* free stuff */
@@ -1884,11 +1895,9 @@ static int video_do_ioctl(struct inode *inode, struct file *file,
 			return -EINVAL;
 		down(&dev->lock);
 		dev->ctl_freq = f->frequency;
-#ifdef V4L2_I2C_CLIENTS
+
 		saa7134_i2c_call_clients(dev,VIDIOC_S_FREQUENCY,f);
-#else
-		saa7134_i2c_call_clients(dev,VIDIOCSFREQ,&dev->ctl_freq);
-#endif
+
 		saa7134_tvaudio_do_scan(dev);
 		up(&dev->lock);
 		return 0;
@@ -2140,19 +2149,20 @@ static int radio_do_ioctl(struct inode *inode, struct file *file,
 
 		memset(t,0,sizeof(*t));
 		strcpy(t->name, "Radio");
-                t->rangelow  = (int)(65*16);
-                t->rangehigh = (int)(108*16);
 
-#ifdef V4L2_I2C_CLIENTS
-		saa7134_i2c_call_clients(dev,VIDIOC_G_TUNER,t);
-#else
-		{
-			struct video_tuner vt;
-			memset(&vt,0,sizeof(vt));
-			saa7134_i2c_call_clients(dev,VIDIOCGTUNER,&vt);
-			t->signal = vt.signal;
-		}
-#endif
+		saa7134_i2c_call_clients(dev, VIDIOC_G_TUNER, t);
+
+		return 0;
+	}
+	case VIDIOC_S_TUNER:
+	{
+		struct v4l2_tuner *t = arg;
+
+		if (0 != t->index)
+			return -EINVAL;
+
+		saa7134_i2c_call_clients(dev,VIDIOC_S_TUNER,t);
+
 		return 0;
 	}
 	case VIDIOC_ENUMINPUT:
@@ -2186,7 +2196,6 @@ static int radio_do_ioctl(struct inode *inode, struct file *file,
 		return 0;
 	}
 	case VIDIOC_S_AUDIO:
-	case VIDIOC_S_TUNER:
 	case VIDIOC_S_INPUT:
 	case VIDIOC_S_STD:
 		return 0;

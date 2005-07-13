@@ -1,4 +1,6 @@
 /*
+ * $Id: rds-saa6588.c,v 1.3 2005/06/12 04:19:19 mchehab Exp $
+ *
  * poll i2c RDS receiver [Philips saa6588]
  *
  */

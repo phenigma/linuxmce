@@ -602,7 +602,7 @@ EXPORT_SYMBOL(cx22702_attach);
 static struct i2c_driver demod_driver = {
 	.owner = THIS_MODULE,
 	.name  = __stringify(KBUILD_MODNAME) " demod",
-	.id    = I2C_DRIVERID_DVBFE_CX22702,
+	.id    = -1,
 };
 static struct i2c_client demod_template = {
 	.name   = "cx22702",
@@ -613,7 +613,7 @@ static struct i2c_client demod_template = {
 static struct i2c_driver pll_driver = {
 	.owner = THIS_MODULE,
 	.name  = __stringify(KBUILD_MODNAME) " pll",
-	.id    = I2C_DRIVERID_DVBFE_CX22702,
+	.id    = -1,
 };
 static struct i2c_client pll_template = {
 	.name   = "unset",

@@ -1,22 +1,22 @@
 #!/bin/sh
-
 cat bttv-cards.c \
 	| grep "\.name.*=" \
 	| perl -ne '/"([^"]+)"/; printf("card=%d - %s\n",$i++,$1)' \
-	> doc/CARDLIST.bttv
+	| perl -ne 's/[ \t]+$//; print' > doc/CARDLIST.bttv
 
 LINE="`grep -n "gdi_tuner\[\]" cx88-cards.c|cut -f1 -d:`"
 
 head -$LINE cx88-cards.c \
 	| grep "\.name.*=" \
 	| perl -ne '/"([^"]+)"/; printf("card=%d - %s\n",$i++,$1)' \
-	> doc/CARDLIST.cx88
+	| perl -ne 's/[ \t]+$//; print' > doc/CARDLIST.cx88
 
 cat tuner-simple.c \
 	| grep "{ \"" \
 	| perl -ne '/"([^"]+)"/; printf("tuner=%d - %s\n",$i++,$1)' \
-	> doc/CARDLIST.tuner
+	| perl -ne 's/[ \t]+$//; print' > doc/CARDLIST.tuner
 
 scripts/saa7134.pl saa7134.h saa7134-cards.c \
-	> doc/CARDLIST.saa7134
+	| perl -ne 's/[ \t]+$//; print' > doc/CARDLIST.saa7134
+
 

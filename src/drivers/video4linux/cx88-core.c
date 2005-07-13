@@ -1,5 +1,5 @@
 /*
- * $Id: cx88-core.c,v 1.26 2005/06/01 03:33:05 mchehab Exp $
+ * $Id: cx88-core.c,v 1.33 2005/07/07 14:17:47 mchehab Exp $
  *
  * device driver for Conexant 2388x based TV cards
  * driver core
@@ -51,18 +51,22 @@ module_param(latency,int,0444);
 MODULE_PARM_DESC(latency,"pci latency timer");
 
 static unsigned int tuner[] = {[0 ... (CX88_MAXBOARDS - 1)] = UNSET };
+static unsigned int radio[] = {[0 ... (CX88_MAXBOARDS - 1)] = UNSET };
 static unsigned int card[]  = {[0 ... (CX88_MAXBOARDS - 1)] = UNSET };
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,10)
 static int dummy;
 module_param_array(tuner, int, dummy, 0444);
+module_param_array(radio, int, dummy, 0444);
 module_param_array(card,  int, dummy, 0444);
 #else
 module_param_array(tuner, int, NULL, 0444);
+module_param_array(radio, int, NULL, 0444);
 module_param_array(card,  int, NULL, 0444);
 #endif
 
 MODULE_PARM_DESC(tuner,"tuner type");
+MODULE_PARM_DESC(radio,"radio tuner type");
 MODULE_PARM_DESC(card,"card type");
 
 static unsigned int nicam = 0;
@@ -548,26 +552,11 @@ void cx88_sram_channel_dump(struct cx88_core *core,
 	       core->name,cx_read(ch->cnt2_reg));
 }
 
-char *cx88_pci_irqs[32] = {
+static char *cx88_pci_irqs[32] = {
 	"vid", "aud", "ts", "vip", "hst", "5", "6", "tm1",
 	"src_dma", "dst_dma", "risc_rd_err", "risc_wr_err",
 	"brdg_err", "src_dma_err", "dst_dma_err", "ipb_dma_err",
 	"i2c", "i2c_rack", "ir_smp", "gpio0", "gpio1"
-};
-char *cx88_vid_irqs[32] = {
-	"y_risci1", "u_risci1", "v_risci1", "vbi_risc1",
-	"y_risci2", "u_risci2", "v_risci2", "vbi_risc2",
-	"y_oflow",  "u_oflow",  "v_oflow",  "vbi_oflow",
-	"y_sync",   "u_sync",   "v_sync",   "vbi_sync",
-	"opc_err",  "par_err",  "rip_err",  "pci_abort",
-};
-char *cx88_mpeg_irqs[32] = {
-	"ts_risci1", NULL, NULL, NULL,
-	"ts_risci2", NULL, NULL, NULL,
-	"ts_oflow",  NULL, NULL, NULL,
-	"ts_sync",   NULL, NULL, NULL,
-	"opc_err", "par_err", "rip_err", "pci_abort",
-	"ts_err?",
 };
 
 void cx88_print_irqbits(char *name, char *tag, char **strings,
@@ -1009,21 +998,7 @@ int cx88_set_tvnorm(struct cx88_core *core, struct cx88_tvnorm *norm)
 	set_tvaudio(core);
 
 	// tell i2c chips
-#ifdef V4L2_I2C_CLIENTS
 	cx88_call_i2c_clients(core,VIDIOC_S_STD,&norm->id);
-#else
-	{
-		struct video_channel c;
-		memset(&c,0,sizeof(c));
-		c.channel = core->input;
-		c.norm = VIDEO_MODE_PAL;
-		if ((norm->id & (V4L2_STD_NTSC_M|V4L2_STD_NTSC_M_JP)))
-			c.norm = VIDEO_MODE_NTSC;
-		if (norm->id & V4L2_STD_SECAM)
-			c.norm = VIDEO_MODE_SECAM;
-		cx88_call_i2c_clients(core,VIDIOCSCHAN,&c);
-	}
-#endif
 
 	// done
 	return 0;
@@ -1181,8 +1156,20 @@ struct cx88_core* cx88_core_get(struct pci_dev *pci)
 	       "insmod option" : "autodetected");
 
 	core->tuner_type = tuner[core->nr];
+	core->radio_type = radio[core->nr];
 	if (UNSET == core->tuner_type)
 		core->tuner_type = cx88_boards[core->board].tuner_type;
+	if (UNSET == core->radio_type)
+		core->radio_type = cx88_boards[core->board].radio_type;
+	if (!core->tuner_addr)
+		core->tuner_addr = cx88_boards[core->board].tuner_addr;
+	if (!core->radio_addr)
+		core->radio_addr = cx88_boards[core->board].radio_addr;
+
+	printk(KERN_INFO "TV tuner %d at 0x%02x, Radio tuner %d at 0x%02x\n",
+		core->tuner_type, core->tuner_addr<<1,
+		core->radio_type, core->radio_addr<<1);
+
 	core->tda9887_conf = cx88_boards[core->board].tda9887_conf;
 
 	/* init hardware */
@@ -1223,9 +1210,6 @@ void cx88_core_put(struct cx88_core *core, struct pci_dev *pci)
 /* ------------------------------------------------------------------ */
 
 EXPORT_SYMBOL(cx88_print_ioctl);
-EXPORT_SYMBOL(cx88_pci_irqs);
-EXPORT_SYMBOL(cx88_vid_irqs);
-EXPORT_SYMBOL(cx88_mpeg_irqs);
 EXPORT_SYMBOL(cx88_print_irqbits);
 
 EXPORT_SYMBOL(cx88_core_irq);

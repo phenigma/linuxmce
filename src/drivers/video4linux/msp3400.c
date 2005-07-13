@@ -148,7 +148,9 @@ static unsigned short normal_i2c[] = {
 	I2C_MSP3400C_ALT  >> 1,
 	I2C_CLIENT_END
 };
-static unsigned short normal_i2c_range[] = {I2C_CLIENT_END,I2C_CLIENT_END};
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,13)
+static unsigned short normal_i2c_range[] = { I2C_CLIENT_END };
+#endif
 I2C_CLIENT_INSMOD;
 
 /* ----------------------------------------------------------------------- */
@@ -752,8 +754,14 @@ static int msp34xx_sleep(struct msp3400c *msp, int timeout)
 #endif
 		}
 	}
-	if (current->flags & PF_FREEZE)
-		refrigerator(PF_FREEZE);
+	if (current->flags & PF_FREEZE) {
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,12)
+		refrigerator (PF_FREEZE);
+#else
+		refrigerator ();
+#endif
+	}
+
 	remove_wait_queue(&msp->wq, &wait);
 	return msp->restart;
 }

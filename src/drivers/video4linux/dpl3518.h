@@ -1,3 +1,7 @@
+/*
+ * $Id: dpl3518.h,v 1.3 2005/06/12 04:19:19 mchehab Exp $
+ */
+
 #ifndef DPL3518_H
 #define DPL3518_H
 

@@ -1,5 +1,5 @@
 /*
- * $Id: saa7134-core.c,v 1.30 2005/05/22 19:23:39 nsh Exp $
+ * $Id: saa7134-core.c,v 1.39 2005/07/05 17:37:35 nsh Exp $
  *
  * device driver for philips saa7134 based TV cards
  * driver core
@@ -722,7 +722,6 @@ static int saa7134_hwinit1(struct saa7134_dev *dev)
 		   SAA7134_MAIN_CTRL_EVFE1 |
 		   SAA7134_MAIN_CTRL_EVFE2 |
 		   SAA7134_MAIN_CTRL_ESFE  |
-		   SAA7134_MAIN_CTRL_EBADC |
 		   SAA7134_MAIN_CTRL_EBDAC);
 
 	/* enable peripheral devices */
@@ -737,14 +736,28 @@ static int saa7134_hwinit1(struct saa7134_dev *dev)
 /* late init (with i2c + irq) */
 static int saa7134_hwinit2(struct saa7134_dev *dev)
 {
+	unsigned int irq2_mask;
 	dprintk("hwinit2\n");
 
 	saa7134_video_init2(dev);
 	saa7134_tvaudio_init2(dev);
 
 	/* enable IRQ's */
+   	irq2_mask =
+		SAA7134_IRQ2_INTE_DEC3    |
+		SAA7134_IRQ2_INTE_DEC2    |
+		SAA7134_IRQ2_INTE_DEC1    |
+		SAA7134_IRQ2_INTE_DEC0    |
+		SAA7134_IRQ2_INTE_PE      |
+		SAA7134_IRQ2_INTE_AR;
+
+	if (dev->has_remote)
+		irq2_mask |= (SAA7134_IRQ2_INTE_GPIO18  |
+			      SAA7134_IRQ2_INTE_GPIO18A |
+			      SAA7134_IRQ2_INTE_GPIO16  );
+
 	saa_writel(SAA7134_IRQ1, 0);
-	saa_writel(SAA7134_IRQ2, dev->irq2_mask);
+	saa_writel(SAA7134_IRQ2, irq2_mask);
 
 	return 0;
 }
@@ -967,13 +980,6 @@ static int __devinit saa7134_initdev(struct pci_dev *pci_dev,
 	}
 
 	/* initialize hardware #1 */
-   	dev->irq2_mask =
-		SAA7134_IRQ2_INTE_DEC3    |
-		SAA7134_IRQ2_INTE_DEC2    |
-		SAA7134_IRQ2_INTE_DEC1    |
-		SAA7134_IRQ2_INTE_DEC0    |
-		SAA7134_IRQ2_INTE_PE      |
-		SAA7134_IRQ2_INTE_AR;
 	saa7134_board_init1(dev);
 	saa7134_hwinit1(dev);
 
@@ -1003,6 +1009,7 @@ static int __devinit saa7134_initdev(struct pci_dev *pci_dev,
 		request_module("saa6752hs");
 		request_module_depend("saa7134-empress",&need_empress);
 	}
+
   	if (card_is_dvb(dev))
 		request_module_depend("saa7134-dvb",&need_dvb);
 
@@ -1225,8 +1232,10 @@ static int saa7134_init(void)
 
 static void saa7134_fini(void)
 {
+#ifdef CONFIG_MODULES
 	if (pending_registered)
 		unregister_module_notifier(&pending_notifier);
+#endif
 	pci_unregister_driver(&saa7134_pci_driver);
 }
 

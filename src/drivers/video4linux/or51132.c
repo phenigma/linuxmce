@@ -59,7 +59,7 @@ struct or51132_state
 	const struct or51132_config* config;
 
 	struct dvb_frontend frontend;
-	
+
 	/* Demodulator private data */
 	fe_modulation_t current_modulation;
 
@@ -139,7 +139,7 @@ static int or51132_load_firmware (struct dvb_frontend* fe, const struct firmware
 		return ret;
 	}
 
-	/* Wait at least 5 msec */ 
+	/* Wait at least 5 msec */
 	msleep(20); /* 10ms */
 
 	if ((ret = i2c_writebytes(state,state->config->demod_address,
@@ -191,7 +191,7 @@ static int or51132_load_firmware (struct dvb_frontend* fe, const struct firmware
 		get_ver_buf[4] = i+1;
 		if ((ret = i2c_readbytes(state,state->config->demod_address,
 					&rec_buf[i*2],2))) {
-			printk(KERN_WARNING 
+			printk(KERN_WARNING
 			       "or51132: load_firmware error d - %d\n",i);
 			return ret;
 		}
@@ -332,7 +332,7 @@ static int or51132_set_parameters(struct dvb_frontend* fe,
 			dprintk("set_parameters VSB MODE\n");
 			printk("or51132: Waiting for firmware upload(%s)...\n",
 			       OR51132_VSB_FIRMWARE);
-			ret = request_firmware(&fw, OR51132_VSB_FIRMWARE, 
+			ret = request_firmware(&fw, OR51132_VSB_FIRMWARE,
 					       &state->i2c->dev);
 			if (ret){
 				printk(KERN_WARNING "or51132: No firmware up"
@@ -348,7 +348,7 @@ static int or51132_set_parameters(struct dvb_frontend* fe,
 			dprintk("set_parameters QAM MODE\n");
 			printk("or51132: Waiting for firmware upload(%s)...\n",
 			       OR51132_QAM_FIRMWARE);
-			ret = request_firmware(&fw, OR51132_QAM_FIRMWARE, 
+			ret = request_firmware(&fw, OR51132_QAM_FIRMWARE,
 					       &state->i2c->dev);
 			if (ret){
 				printk(KERN_WARNING "or51132: No firmware up"
@@ -388,10 +388,10 @@ static int or51132_set_parameters(struct dvb_frontend* fe,
 		if (i2c_writebytes(state, state->config->pll_address ,buf, 4))
 			printk(KERN_WARNING "or51132: set_parameters error "
 			       "writing to tuner\n");
-	
+
 		/* Set to current mode */
 		or51132_setmode(fe);
-	
+
 		/* Update current frequency */
 		state->current_frequency = param->frequency;
 	}
@@ -454,7 +454,7 @@ unsigned int i100x20log10[] = {
   3964, 3969, 3973, 3978, 3982, 3986, 3991, 3995, 4000, 4004,
 };
 
-unsigned int denom[] = {1,1,100,1000,10000,100000,1000000,10000000,100000000};
+static unsigned int denom[] = {1,1,100,1000,10000,100000,1000000,10000000,100000000};
 
 unsigned int i20Log10(unsigned short val)
 {
@@ -479,7 +479,7 @@ static int or51132_read_signal_strength(struct dvb_frontend* fe, u16* strength)
 	u8 rcvr_stat;
 	u16 snr_equ;
 	int usK;
-	
+
 	snd_buf[0]=0x04;
 	snd_buf[1]=0x02; /* SNR after Equalizer */
 	msleep(30); /* 30ms */

@@ -1,5 +1,5 @@
 /*
- * $Id: dvb-pll.h,v 1.2 2005/02/10 11:43:41 kraxel Exp $
+ * $Id: dvb-pll.h,v 1.4 2005/07/04 19:35:05 mkrufky Exp $
  */
 
 struct dvb_pll_desc {
@@ -21,6 +21,8 @@ extern struct dvb_pll_desc dvb_pll_thomson_dtt7579;
 extern struct dvb_pll_desc dvb_pll_thomson_dtt759x;
 extern struct dvb_pll_desc dvb_pll_thomson_dtt7610;
 extern struct dvb_pll_desc dvb_pll_lg_z201;
+extern struct dvb_pll_desc dvb_pll_microtune_4042;
+extern struct dvb_pll_desc dvb_pll_thomson_dtt7611;
 extern struct dvb_pll_desc dvb_pll_unknown_1;
 
 int dvb_pll_configure(struct dvb_pll_desc *desc, u8 *buf,

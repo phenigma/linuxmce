@@ -1,4 +1,7 @@
 /*
+   $Id: cx22702.h,v 1.5 2005/06/12 04:19:19 mchehab Exp $
+
+
     Conexant 22702 DVB OFDM demodulator driver
 
     based on:

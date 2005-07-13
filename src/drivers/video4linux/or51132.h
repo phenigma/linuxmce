@@ -1,4 +1,6 @@
 /*
+ * $Id: or51132.h,v 1.5 2005/06/12 04:19:19 mchehab Exp $
+ *
  *    Support for OR51132 (pcHDTV HD-3000) - VSB/QAM
  *
  *    Copyright (C) 2005 Kirk Lapray <kirk_lapray@bigfoot.com>

@@ -1,5 +1,5 @@
 /*
- * $Id: dvb-pll.c,v 1.7 2005/02/10 11:52:02 kraxel Exp $
+ * $Id: dvb-pll.c,v 1.9 2005/07/04 19:35:05 mkrufky Exp $
  *
  * descriptions + helper functions for simple dvb plls.
  *
@@ -94,6 +94,32 @@ struct dvb_pll_desc dvb_pll_lg_z201 = {
 	},
 };
 EXPORT_SYMBOL(dvb_pll_lg_z201);
+
+struct dvb_pll_desc dvb_pll_microtune_4042 = {
+	.name  = "Microtune 4042 FI5",
+	.min   =  57000000,
+	.max   = 858000000,
+	.count = 3,
+	.entries = {
+		{ 162000000, 44000000, 62500, 0x8e, 0xa1 },
+		{ 457000000, 44000000, 62500, 0x8e, 0x91 },
+		{ 999999999, 44000000, 62500, 0x8e, 0x31 },
+		},
+};
+EXPORT_SYMBOL(dvb_pll_microtune_4042);
+
+struct dvb_pll_desc dvb_pll_thomson_dtt7611 = {
+	.name  = "Thomson dtt7611",
+	.min   =  44000000,
+	.max   = 958000000,
+	.count = 3,
+	.entries = {
+		{ 157250000, 44000000, 62500, 0x8e, 0x39 },
+		{ 454000000, 44000000, 62500, 0x8e, 0x3a },
+		{ 999999999, 44000000, 62500, 0x8e, 0x3c },
+	},
+};
+EXPORT_SYMBOL(dvb_pll_thomson_dtt7611);
 
 struct dvb_pll_desc dvb_pll_unknown_1 = {
 	.name  = "unknown 1", /* used by dntv live dvb-t */

@@ -1,5 +1,5 @@
 /*
- * $Id: video-buf-dvb.c,v 1.7 2004/12/09 12:51:35 kraxel Exp $
+ * $Id: video-buf-dvb.c,v 1.11 2005/07/07 01:49:30 mkrufky Exp $
  *
  * some helper function for simple DVB cards which simply DMA the
  * complete transport stream and let the computer sort everything else
@@ -62,8 +62,13 @@ static int videobuf_dvb_thread(void *data)
 			break;
 		if (kthread_should_stop())
 			break;
-		if (current->flags & PF_FREEZE)
-			refrigerator(PF_FREEZE);
+		if (current->flags & PF_FREEZE) {
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,12)
+			refrigerator (PF_FREEZE);
+#else
+			refrigerator ();
+#endif
+		}
 
 		/* feed buffer data to demux */
 		if (buf->state == STATE_DONE)
@@ -149,10 +154,16 @@ int videobuf_dvb_register(struct videobuf_dvb *dvb,
 		       dvb->name, result);
 		goto fail_adapter;
 	}
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,12))
+	dvb->adapter.priv = adapter_priv;
+	/* register frontend */
+	result = dvb_register_frontend(&dvb->adapter, dvb->frontend);
+#else
 	dvb->adapter->priv = adapter_priv;
-
 	/* register frontend */
 	result = dvb_register_frontend(dvb->adapter, dvb->frontend);
+#endif
+
 	if (result < 0) {
 		printk(KERN_WARNING "%s: dvb_register_frontend failed (errno = %d)\n",
 		       dvb->name, result);
@@ -178,7 +189,11 @@ int videobuf_dvb_register(struct videobuf_dvb *dvb,
 	dvb->dmxdev.filternum    = 256;
 	dvb->dmxdev.demux        = &dvb->demux.dmx;
 	dvb->dmxdev.capabilities = 0;
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,12))
+	result = dvb_dmxdev_init(&dvb->dmxdev, &dvb->adapter);
+#else
 	result = dvb_dmxdev_init(&dvb->dmxdev, dvb->adapter);
+#endif
 	if (result < 0) {
 		printk(KERN_WARNING "%s: dvb_dmxdev_init failed (errno = %d)\n",
 		       dvb->name, result);
@@ -209,7 +224,11 @@ int videobuf_dvb_register(struct videobuf_dvb *dvb,
 	}
 
 	/* register network adapter */
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,12))
+	dvb_net_init(&dvb->adapter, &dvb->net, &dvb->demux.dmx);
+#else
 	dvb_net_init(dvb->adapter, &dvb->net, &dvb->demux.dmx);
+#endif
 	return 0;
 
 fail_fe_conn:
@@ -223,7 +242,11 @@ fail_dmxdev:
 fail_dmx:
 	dvb_unregister_frontend(dvb->frontend);
 fail_frontend:
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,12))
+	dvb_unregister_adapter(&dvb->adapter);
+#else
 	dvb_unregister_adapter(dvb->adapter);
+#endif
 fail_adapter:
 	return result;
 }
@@ -236,7 +259,11 @@ void videobuf_dvb_unregister(struct videobuf_dvb *dvb)
 	dvb_dmxdev_release(&dvb->dmxdev);
 	dvb_dmx_release(&dvb->demux);
 	dvb_unregister_frontend(dvb->frontend);
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,12))
+	dvb_unregister_adapter(&dvb->adapter);
+#else
 	dvb_unregister_adapter(dvb->adapter);
+#endif
 }
 
 EXPORT_SYMBOL(videobuf_dvb_register);

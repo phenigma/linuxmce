@@ -1,5 +1,5 @@
 /*
- * $Id: cx88-video.c,v 1.58 2005/03/07 15:58:05 kraxel Exp $
+ * $Id: cx88-video.c,v 1.79 2005/07/07 14:17:47 mchehab Exp $
  *
  * device driver for Conexant 2388x based TV cards
  * video4linux video interface
@@ -255,6 +255,7 @@ static struct cx88_ctrl cx8800_ctls[] = {
 			.default_value = 0,
 			.type          = V4L2_CTRL_TYPE_INTEGER,
 		},
+		.off                   = 0,
 		.reg                   = MO_CONTR_BRIGHT,
 		.mask                  = 0xff00,
 		.shift                 = 8,
@@ -268,7 +269,7 @@ static struct cx88_ctrl cx8800_ctls[] = {
 			.default_value = 0,
 			.type          = V4L2_CTRL_TYPE_INTEGER,
 		},
-		.off                   = 0,
+		.off                   = 128,
 		.reg                   = MO_HUE,
 		.mask                  = 0x00ff,
 		.shift                 = 0,
@@ -332,7 +333,7 @@ static struct cx88_ctrl cx8800_ctls[] = {
 		.shift                 = 0,
 	}
 };
-const int CX8800_CTLS = ARRAY_SIZE(cx8800_ctls);
+static const int CX8800_CTLS = ARRAY_SIZE(cx8800_ctls);
 
 /* ------------------------------------------------------------------- */
 /* resource management                                                 */
@@ -672,7 +673,7 @@ static void buffer_release(struct videobuf_queue *q, struct videobuf_buffer *vb)
 	cx88_free_buffer(fh->dev->pci,buf);
 }
 
-struct videobuf_queue_ops cx8800_video_qops = {
+static struct videobuf_queue_ops cx8800_video_qops = {
 	.buf_setup    = buffer_setup,
 	.buf_prepare  = buffer_prepare,
 	.buf_queue    = buffer_queue,
@@ -887,13 +888,13 @@ static int setup_window(struct cx8800_dev *dev, struct cx8800_fh *fh,
 	fh->clips    = clips;
 	fh->nclips   = n;
 	fh->win      = *win;
-#if 0
+/* #if 0 */
 	fh->ov.setup_ok = 1;
-#endif
+/* #endif */
 
 	/* update overlay if needed */
 	retval = 0;
-#if 0
+/* #if 0 */
 	if (check_btres(fh, RESOURCE_OVERLAY)) {
 		struct bttv_buffer *new;
 
@@ -901,7 +902,7 @@ static int setup_window(struct cx8800_dev *dev, struct cx8800_fh *fh,
 		bttv_overlay_risc(btv, &fh->ov, fh->ovfmt, new);
 		retval = bttv_switch_overlay(btv,fh,new);
 	}
-#endif
+/* #endif */
 	up(&fh->vidq.lock);
 	return retval;
 }
@@ -1196,15 +1197,15 @@ static void init_controls(struct cx8800_dev *dev)
 	};
 	static struct v4l2_control hue = {
 		.id    = V4L2_CID_HUE,
-		.value = 0x0,
+		.value = 0x80,
 	};
 	static struct v4l2_control contrast = {
 		.id    = V4L2_CID_CONTRAST,
-		.value = 0x40,
+		.value = 0x80,
 	};
 	static struct v4l2_control brightness = {
 		.id    = V4L2_CID_BRIGHTNESS,
-		.value = 0x99,
+		.value = 0x80,
 	};
 
 	set_control(dev,&mute);
@@ -1479,7 +1480,7 @@ static int video_do_ioctl(struct inode *inode, struct file *file,
 			}
 			break;
 		case 1:
-			if (CX88_BOARD_DVICO_FUSIONHDTV_3_GOLD == core->board) {
+			if (CX88_BOARD_DVICO_FUSIONHDTV_3_GOLD_Q == core->board) {
 				strcpy(a->name,"Line In");
 				a->capability = V4L2_AUDCAP_STEREO;
 				return 0;
@@ -1592,13 +1593,16 @@ static int video_do_ioctl(struct inode *inode, struct file *file,
 	{
 		struct v4l2_frequency *f = arg;
 
+		memset(f,0,sizeof(*f));
+
 		if (UNSET == core->tuner_type)
 			return -EINVAL;
-		if (f->tuner != 0)
-			return -EINVAL;
-		memset(f,0,sizeof(*f));
+
 		f->type = fh->radio ? V4L2_TUNER_RADIO : V4L2_TUNER_ANALOG_TV;
 		f->frequency = dev->freq;
+
+		cx88_call_i2c_clients(dev->core,VIDIOC_G_FREQUENCY,f);
+
 		return 0;
 	}
 	case VIDIOC_S_FREQUENCY:
@@ -1616,11 +1620,7 @@ static int video_do_ioctl(struct inode *inode, struct file *file,
 		down(&dev->lock);
 		dev->freq = f->frequency;
 		cx88_newstation(core);
-#ifdef V4L2_I2C_CLIENTS
 		cx88_call_i2c_clients(dev->core,VIDIOC_S_FREQUENCY,f);
-#else
-		cx88_call_i2c_clients(dev->core,VIDIOCSFREQ,&dev->freq);
-#endif
 		up(&dev->lock);
 		return 0;
 	}
@@ -1730,19 +1730,8 @@ static int radio_do_ioctl(struct inode *inode, struct file *file,
 
 		memset(t,0,sizeof(*t));
 		strcpy(t->name, "Radio");
-                t->rangelow  = (int)(65*16);
-                t->rangehigh = (int)(108*16);
 
-#ifdef V4L2_I2C_CLIENTS
 		cx88_call_i2c_clients(dev->core,VIDIOC_G_TUNER,t);
-#else
-		{
-			struct video_tuner vt;
-			memset(&vt,0,sizeof(vt));
-			cx88_call_i2c_clients(dev,VIDIOCGTUNER,&vt);
-			t->signal = vt.signal;
-		}
-#endif
 		return 0;
 	}
 	case VIDIOC_ENUMINPUT:
@@ -1775,8 +1764,29 @@ static int radio_do_ioctl(struct inode *inode, struct file *file,
 		*id = 0;
 		return 0;
 	}
-	case VIDIOC_S_AUDIO:
+	case VIDIOCSTUNER:
+	{
+		struct video_tuner *v = arg;
+
+		if (v->tuner) /* Only tuner 0 */
+			return -EINVAL;
+
+		cx88_call_i2c_clients(dev->core,VIDIOCSTUNER,v);
+		return 0;
+	}
 	case VIDIOC_S_TUNER:
+	{
+		struct v4l2_tuner *t = arg;
+
+		if (0 != t->index)
+			return -EINVAL;
+
+		cx88_call_i2c_clients(dev->core,VIDIOC_S_TUNER,t);
+
+		return 0;
+	}
+
+	case VIDIOC_S_AUDIO:
 	case VIDIOC_S_INPUT:
 	case VIDIOC_S_STD:
 		return 0;
@@ -1846,6 +1856,14 @@ static void cx8800_vid_timeout(unsigned long data)
 	restart_video_queue(dev,q);
 	spin_unlock_irqrestore(&dev->slock,flags);
 }
+
+static char *cx88_vid_irqs[32] = {
+	"y_risci1", "u_risci1", "v_risci1", "vbi_risc1",
+	"y_risci2", "u_risci2", "v_risci2", "vbi_risc2",
+	"y_oflow",  "u_oflow",  "v_oflow",  "vbi_oflow",
+	"y_sync",   "u_sync",   "v_sync",   "vbi_sync",
+	"opc_err",  "par_err",  "rip_err",  "pci_abort",
+};
 
 static void cx8800_vid_irq(struct cx8800_dev *dev)
 {
@@ -1946,7 +1964,7 @@ static struct file_operations video_fops =
 	.llseek        = no_llseek,
 };
 
-struct video_device cx8800_video_template =
+static struct video_device cx8800_video_template =
 {
 	.name          = "cx8800-video",
 	.type          = VID_TYPE_CAPTURE|VID_TYPE_TUNER|VID_TYPE_SCALES,
@@ -1955,7 +1973,7 @@ struct video_device cx8800_video_template =
 	.minor         = -1,
 };
 
-struct video_device cx8800_vbi_template =
+static struct video_device cx8800_vbi_template =
 {
 	.name          = "cx8800-vbi",
 	.type          = VID_TYPE_TELETEXT|VID_TYPE_TUNER,
@@ -1973,7 +1991,7 @@ static struct file_operations radio_fops =
 	.llseek        = no_llseek,
 };
 
-struct video_device cx8800_radio_template =
+static struct video_device cx8800_radio_template =
 {
 	.name          = "cx8800-radio",
 	.type          = VID_TYPE_TUNER,
@@ -2014,6 +2032,9 @@ static int __devinit cx8800_initdev(struct pci_dev *pci_dev,
 {
 	struct cx8800_dev *dev;
 	struct cx88_core *core;
+#if 0
+	struct tuner_setup tun_setup;
+#endif
 	int err;
 
 	dev = kmalloc(sizeof(*dev),GFP_KERNEL);
@@ -2087,11 +2108,25 @@ static int __devinit cx8800_initdev(struct pci_dev *pci_dev,
 		request_module("tuner");
 	if (core->tda9887_conf)
 		request_module("tda9887");
-	if (core->tuner_type != UNSET)
-		cx88_call_i2c_clients(dev->core,TUNER_SET_TYPE,&core->tuner_type);
+#if 0	/* cx88-i2c has already this function */
+	if (core->radio_type != UNSET) {
+		tun_setup.mode_mask = T_RADIO;
+		tun_setup.type = core->radio_type;
+		tun_setup.addr = core->radio_addr;
+		cx88_call_i2c_clients (dev->core, TUNER_SET_TYPE_ADDR, &tun_setup);
+	}
+	if (core->tuner_type != UNSET) {
+
+		tun_setup.mode_mask = T_ANALOG_TV;
+		tun_setup.type = core->tuner_type;
+		tun_setup.addr = core->tuner_addr;
+
+		cx88_call_i2c_clients(dev->core, TUNER_SET_TYPE_ADDR, &tun_setup);
+	}
+
 	if (core->tda9887_conf)
 		cx88_call_i2c_clients(dev->core,TDA9887_SET_CONFIG,&core->tda9887_conf);
-
+#endif
 	/* register v4l devices */
 	dev->video_dev = cx88_vdev_init(core,dev->pci,
 					&cx8800_video_template,"video");
@@ -2256,7 +2291,7 @@ static int cx8800_resume(struct pci_dev *pci_dev)
 
 /* ----------------------------------------------------------- */
 
-struct pci_device_id cx8800_pci_tbl[] = {
+static struct pci_device_id cx8800_pci_tbl[] = {
 	{
 		.vendor       = 0x14f1,
 		.device       = 0x8800,
