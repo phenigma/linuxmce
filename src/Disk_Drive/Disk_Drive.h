@@ -99,7 +99,7 @@ public:
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Media_Inserted(int iFK_MediaType,string sMRL,string sID,string sName);
-	void EVENT_Ripping_Completed(int iResult,string sName);
+	void EVENT_Ripping_Completed(int iResult,string sName,int iEK_Disc);
 
 			*****COMMANDS***** we need to implement
 	*/
@@ -208,9 +208,11 @@ public:
 			/** The target disk name, or for cd's, a comma-delimited list of names for each track. */
 		/** @param #121 Tracks */
 			/** For CD's, this must be a comma-delimted list of tracks (1 based) to rip. */
+		/** @param #131 EK_Disc */
+			/** The ID of the disc to rip */
 
-	virtual void CMD_Rip_Disk(int iPK_Users,string sName,string sTracks) { string sCMD_Result; CMD_Rip_Disk(iPK_Users,sName.c_str(),sTracks.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,int iEK_Disc) { string sCMD_Result; CMD_Rip_Disk(iPK_Users,sName.c_str(),sTracks.c_str(),iEK_Disc,sCMD_Result,NULL);};
+	virtual void CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,int iEK_Disc,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

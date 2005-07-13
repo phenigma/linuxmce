@@ -750,12 +750,15 @@ char **StringUtils::ConvertStringToArgs(string sInput,int &iNumArgs)
 
 		// Starting some new "
 		int TerminatingQuote=0;
-		if( sInput[pos_start]=='"' && pos_end!=string::npos )
+		if( sInput[pos_start]=='"' && (pos_end!=string::npos || sInput[sInput.size()-1]=='"') )
 		{
 			TerminatingQuote=1;
 			pos_start++;
-			while( sInput[pos_end-1]!='"' && pos_end!=string::npos && pos_end<sInput.size() )
-				pos_end=sInput.find(' ',pos_end+1);
+			if( pos_end!=string::npos )
+			{
+				while( sInput[pos_end-1]!='"' && pos_end!=string::npos && pos_end<sInput.size() )
+					pos_end=sInput.find(' ',pos_end+1);
+			}
 		}
 
 		if( pos_end==string::npos )

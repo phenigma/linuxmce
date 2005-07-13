@@ -77,7 +77,7 @@ private:
     MapMediaStream m_mapMediaStream; // All active streams
 
 	// mapping from job names to a pair or caller devices and the job running devices.
-	map<string, pair<int, int> > m_mapRippingJobsToRippingDevices;
+	map<string, class RippingJob *> m_mapRippingJobs;
 	map<int,string> m_mapMediaType_2_Directory;
 	map<int,bool> m_mapMediaType_Bookmarkable;
 
@@ -163,6 +163,8 @@ protected:
      * Add the file to the pluto_media database
      */
 	void AddFileToDatabase(MediaFile *pMediaFile,int PK_MediaType);
+	void AddRippedDiscToDatabase(RippingJob *pRippingJob);
+	void AddDiscAttributesToFile(int PK_File,int PK_Disc,int Track);
 
     /**
      * Find a media type specific for a file name

@@ -493,7 +493,8 @@ bool FileUtils::FindFiles(list<string> &listFiles, string sDirectory, string sFi
                 string s = StringUtils::Tokenize(sFileSpec_CSV, ",", pos);
                 if (s.size() && s.substr(0,1) == "*")
                     s = s.substr(1);  // If it's a *.ext drop the *
-                if (sFileSpec_CSV.size()==0 || (s.size() && (s == ".*" || s == "*" || StringUtils::EndsWith(finddata.name, s.c_str(),true) )) )
+                if (sFileSpec_CSV.size()==0 || (s.size() && (s == ".*" || s == "*" || StringUtils::EndsWith(finddata.name, s.c_str(),true) )) ||
+					(sFileSpec_CSV[sFileSpec_CSV.size()-1]=='*' && StringUtils::StartsWith(finddata.name,sFileSpec_CSV.substr(0,sFileSpec_CSV.size()-1),true)) )
                 {
 					if( bFullyQualifiedPath )
 	                    listFiles.push_back(sDirectory + finddata.name);

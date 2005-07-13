@@ -5551,19 +5551,19 @@ namespace DCE
 	};
 	class CMD_Rip_Disk : public PreformedCommand {
 	public:
-		CMD_Rip_Disk(long DeviceIDFrom, long DeviceIDTo,int iPK_Users,string sName,string sTracks) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,337,3,17,StringUtils::itos(iPK_Users).c_str(),50,sName.c_str(),121,sTracks.c_str()); }
+		CMD_Rip_Disk(long DeviceIDFrom, long DeviceIDTo,int iPK_Users,string sName,string sTracks,int iEK_Disc) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,337,4,17,StringUtils::itos(iPK_Users).c_str(),50,sName.c_str(),121,sTracks.c_str(),131,StringUtils::itos(iEK_Disc).c_str()); }
 	};
 	class CMD_Rip_Disk_DL : public PreformedCommand {
 	public:
-		CMD_Rip_Disk_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_Users,string sName,string sTracks) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,337,3,17,StringUtils::itos(iPK_Users).c_str(),50,sName.c_str(),121,sTracks.c_str()); }
+		CMD_Rip_Disk_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_Users,string sName,string sTracks,int iEK_Disc) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,337,4,17,StringUtils::itos(iPK_Users).c_str(),50,sName.c_str(),121,sTracks.c_str(),131,StringUtils::itos(iEK_Disc).c_str()); }
 	};
 	class CMD_Rip_Disk_DT : public PreformedCommand {
 	public:
-		CMD_Rip_Disk_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_Users,string sName,string sTracks) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,337,3,17,StringUtils::itos(iPK_Users).c_str(),50,sName.c_str(),121,sTracks.c_str()); }
+		CMD_Rip_Disk_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_Users,string sName,string sTracks,int iEK_Disc) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,337,4,17,StringUtils::itos(iPK_Users).c_str(),50,sName.c_str(),121,sTracks.c_str(),131,StringUtils::itos(iEK_Disc).c_str()); }
 	};
 	class CMD_Rip_Disk_Cat : public PreformedCommand {
 	public:
-		CMD_Rip_Disk_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Users,string sName,string sTracks) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,337,3,17,StringUtils::itos(iPK_Users).c_str(),50,sName.c_str(),121,sTracks.c_str()); }
+		CMD_Rip_Disk_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Users,string sName,string sTracks,int iEK_Disc) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,337,4,17,StringUtils::itos(iPK_Users).c_str(),50,sName.c_str(),121,sTracks.c_str(),131,StringUtils::itos(iEK_Disc).c_str()); }
 	};
 	class CMD_Process_Incoming_Data : public PreformedCommand {
 	public:

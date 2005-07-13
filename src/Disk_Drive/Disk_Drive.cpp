@@ -790,27 +790,29 @@ bool Disk_Drive::internal_reset_drive(bool bFireEvent)
 			/** The target disk name, or for cd's, a comma-delimited list of names for each track. */
 		/** @param #121 Tracks */
 			/** For CD's, this must be a comma-delimted list of tracks (1 based) to rip. */
+		/** @param #131 EK_Disc */
+			/** The ID of the disc to rip */
 
-void Disk_Drive::CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,string &sCMD_Result,Message *pMessage)
+void Disk_Drive::CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,int iEK_Disc,string &sCMD_Result,Message *pMessage)
 //<-dceag-c337-e->
 {
 	g_pPlutoLogger->Write(LV_STATUS, "Going to rip %s", sName.c_str() );
 
 	if ( m_isRipping )
 	{
-		EVENT_Ripping_Completed(RIP_RESULT_ALREADY_RIPPING, sName);
+		EVENT_Ripping_Completed(RIP_RESULT_ALREADY_RIPPING, sName, iEK_Disc);
 		return;
 	}
 
 	if ( ! m_mediaInserted )
 	{
-		EVENT_Ripping_Completed(RIP_RESULT_NO_DISC, sName);
+		EVENT_Ripping_Completed(RIP_RESULT_NO_DISC, sName, iEK_Disc);
 		return;
 	}
 
 	if ( m_mediaDiskStatus != DISCTYPE_CD_AUDIO && m_mediaDiskStatus != DISCTYPE_DVD_VIDEO && m_mediaDiskStatus != DISCTYPE_CD_MIXED && m_mediaDiskStatus != DISCTYPE_CD_VCD )
 	{
-		EVENT_Ripping_Completed(RIP_RESULT_INVALID_DISC_TYPE, sName);
+		EVENT_Ripping_Completed(RIP_RESULT_INVALID_DISC_TYPE, sName, iEK_Disc);
 		return;
 	}
 
@@ -828,7 +830,8 @@ void Disk_Drive::CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,string &
 
 	string sResultMessage =
 		StringUtils::itos(m_dwPK_Device) + " -1001 " + StringUtils::itos(MESSAGETYPE_EVENT) + 
-			" " + StringUtils::itos(EVENT_Ripping_Completed_CONST) + " " + StringUtils::itos(EVENTPARAMETER_Name_CONST) + " \"" +
+			" " + StringUtils::itos(EVENT_Ripping_Completed_CONST) + " " + StringUtils::itos(EVENTPARAMETER_EK_Disc_CONST) + " " + StringUtils::itos(iEK_Disc) +
+			" " + StringUtils::itos(EVENTPARAMETER_Name_CONST) + " \"" +
 			sName + "\" " + StringUtils::itos(EVENTPARAMETER_Result_CONST) + " ";
 
 	DCE::CMD_Spawn_Application_DT

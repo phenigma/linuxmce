@@ -81,6 +81,7 @@ using namespace DCE;
 #include "DataGrid.h"
 #include "File_Grids_Plugin/FileListGrid.h"
 #include "SerializeClass/ShapesColors.h"
+#include "RippingJob.h"
 
 #ifndef WIN32
 #include <dirent.h>
@@ -616,7 +617,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Media was identified id %d device %d format %s"
 		if( pMediaStream->m_pPictureData )
 			delete[] pMediaStream->m_pPictureData;
 		pMediaStream->m_iPictureSize=iImageSize;
-		pMediaStream->m_pPictureData=pImage;
+		pMediaStream->m_pPictureData=new char[iImageSize];
+		memcpy(pMediaStream->m_pPictureData,pImage,iImageSize);
 	}
 
 	if( sFormat=="CDDB-TAB" )
@@ -3121,8 +3123,11 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,string
 	if( pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos<0 || 
 		pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos>pEntertainArea->m_pMediaStream->m_dequeMediaFile.size() ||
 		pEntertainArea->m_pMediaStream->m_dequeMediaFile.size()==0 ||
-		StringUtils::StartsWith(StringUtils::ToUpper(
-			pEntertainArea->m_pMediaStream->m_dequeMediaFile[pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos]->FullyQualifiedFile()),"/DEV/")==false )
+		( StringUtils::StartsWith(StringUtils::ToUpper(
+			pEntertainArea->m_pMediaStream->m_dequeMediaFile[pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos]->FullyQualifiedFile()),"/DEV/")==false &&
+		  StringUtils::StartsWith(StringUtils::ToUpper(
+			pEntertainArea->m_pMediaStream->m_dequeMediaFile[pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos]->FullyQualifiedFile()),"CDDA:/")==false 
+		) )
 	{
 		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T" + StringUtils::itos(TEXT_Only_rip_drives_CONST) + "%>");
 		g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::CMD_Rip_Disk(): not a drive");
@@ -3211,10 +3216,14 @@ g_pPlutoLogger->Write(LV_STATUS,"Transformed %s into %s",sTracks.c_str(),sNewTra
 		return;
 	}
 
+	int PK_Disc=0,PK_MediaType=0;
 	if( pEntertainArea->m_pMediaStream )
 	{
 		MediaStream *pTmpMediaStream = pEntertainArea->m_pMediaStream;
 		mm.Release();
+
+		PK_Disc=pEntertainArea->m_pMediaStream->m_dwPK_Disc;
+		PK_MediaType=pEntertainArea->m_pMediaStream->m_iPK_MediaType;
 
 		g_pPlutoLogger->Write( LV_STATUS, "Sending stop media before rip" );
 		pTmpMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pTmpMediaStream );
@@ -3222,9 +3231,10 @@ g_pPlutoLogger->Write(LV_STATUS,"Transformed %s into %s",sTracks.c_str(),sNewTra
 		StreamEnded(pTmpMediaStream);
 	}
 
-	DCE::CMD_Rip_Disk cmdRipDisk(m_dwPK_Device, pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device, iPK_Users, sName, sTracks);
+	DCE::CMD_Rip_Disk cmdRipDisk(m_dwPK_Device, pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device, iPK_Users, sName, sTracks, PK_Disc);
 	SendCommand(cmdRipDisk);
-	m_mapRippingJobsToRippingDevices[sName] = make_pair<int, int>(pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device, pMessage->m_dwPK_Device_From);
+	m_mapRippingJobs[sName] = new RippingJob(pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device, 
+		pMessage->m_dwPK_Device_From, PK_Disc, PK_MediaType, iPK_Users, sName, sTracks);
 	return;
 }
 
@@ -3243,6 +3253,7 @@ bool Media_Plugin::RippingCompleted( class Socket *pSocket, class Message *pMess
 {
     string 	sJobName = pMessage->m_mapParameters[EVENTPARAMETER_Name_CONST];
 	int		iResult  = atoi( pMessage->m_mapParameters[EVENTPARAMETER_Result_CONST].c_str( ) );
+	int		iPK_Disc = atoi( pMessage->m_mapParameters[EVENTPARAMETER_EK_Disc_CONST].c_str( ) );
 
 	// See Disk_Drive.h for the defines
 	if ( iResult <= RIP_RESULT_BEGIN_ENUM || iResult >= RIP_RESULT_END_ENUM )
@@ -3254,9 +3265,9 @@ bool Media_Plugin::RippingCompleted( class Socket *pSocket, class Message *pMess
 	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 
 	g_pPlutoLogger->Write(LV_STATUS, "Got a ripping completed event for job named \"%s\" from device: \"%d\"", sJobName.c_str(), pMessage->m_dwPK_Device_From);
-	map<string, pair<int, int> >::const_iterator itRippingJobs;
+	map<string, class RippingJob *>::const_iterator itRippingJobs;
 
-	if ( (itRippingJobs = m_mapRippingJobsToRippingDevices.find(sJobName)) == m_mapRippingJobsToRippingDevices.end() )
+	if ( (itRippingJobs = m_mapRippingJobs.find(sJobName)) == m_mapRippingJobs.end() )
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "Unrecognized ripping job: %s. Ignoring event.", sJobName.c_str());
 		return true;
@@ -3275,11 +3286,16 @@ bool Media_Plugin::RippingCompleted( class Socket *pSocket, class Message *pMess
 			break;
 	}
 
-	int sourceOrbiter = m_mapRippingJobsToRippingDevices[sJobName].second;
-	m_mapRippingJobsToRippingDevices.erase(sJobName);
+	RippingJob *pRippingJob = m_mapRippingJobs[sJobName];
+	if( iResult==RIP_RESULT_SUCCESS )
+		AddRippedDiscToDatabase(pRippingJob);
+	else
+		g_pPlutoLogger->Write(LV_STATUS,"Ripping wasn't successful--not adding it to the database");
+	if( pRippingJob->m_iPK_Orbiter )
+		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pRippingJob->m_iPK_Orbiter,sMessage,false,1200,true);   // Leave the message on screen for 20 mins
 
-	m_pOrbiter_Plugin->DisplayMessageOnOrbiter(sourceOrbiter,sMessage,false,1200,true);   // Leave the message on screen for 20 mins
-
+	delete pRippingJob;
+	m_mapRippingJobs.erase(sJobName);
 	return true;
 }
 
@@ -3422,11 +3438,11 @@ bool Media_Plugin::AvInputChanged( class Socket *pSocket, class Message *pMessag
 
 bool Media_Plugin::DiskDriveIsRipping(int iPK_Device)
 {
-	map<string, pair<int, int> >::const_iterator itRippingJobs;
+	map<string, class RippingJob *>::const_iterator itRippingJobs;
 
-	for ( itRippingJobs = m_mapRippingJobsToRippingDevices.begin(); itRippingJobs != m_mapRippingJobsToRippingDevices.end(); itRippingJobs++ )
+	for ( itRippingJobs = m_mapRippingJobs.begin(); itRippingJobs != m_mapRippingJobs.end(); itRippingJobs++ )
 	{
-		if ( (*itRippingJobs).second.first == iPK_Device)
+		if ( (*itRippingJobs).second->m_iPK_Device_Disk_Drive == iPK_Device)
 			return true;
 	}
 
@@ -3437,13 +3453,13 @@ bool Media_Plugin::SafeToReload(string *sPendingTasks)
 {
 	g_pPlutoLogger->Write( LV_STATUS, "safe to reload before lock %d %s %d",m_MediaMutex.m_NumLocks,m_MediaMutex.m_sFileName.c_str(),m_MediaMutex.m_Line);
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
-	g_pPlutoLogger->Write( LV_STATUS, "checking ripping jobs %d %d",m_dwPK_Device, (int) m_mapRippingJobsToRippingDevices.size());
-	if( m_mapRippingJobsToRippingDevices.size() )
+	g_pPlutoLogger->Write( LV_STATUS, "checking ripping jobs %d %d",m_dwPK_Device, (int) m_mapRippingJobs.size());
+	if( m_mapRippingJobs.size() )
 	{
 		string sJobs;
 		if( sPendingTasks )
 		{
-			for(map<string, pair<int, int> >::iterator it=m_mapRippingJobsToRippingDevices.begin();it!=m_mapRippingJobsToRippingDevices.end();++it)
+			for(map<string, class RippingJob *>::iterator it=m_mapRippingJobs.begin();it!=m_mapRippingJobs.end();++it)
 				(*sPendingTasks) += "Ripping: " + (*it).first + "\n";
 		}
 		return false;
@@ -3655,10 +3671,11 @@ g_pPlutoLogger->Write(LV_STATUS,"For EA %s found active device %d",s.c_str(),pEn
 void Media_Plugin::Parse_Misc_Media_ID(MediaStream *pMediaStream,string sValue)
 {
 	// The format is as follows.  Each line (\n terminated) contains the following:
+	// The first line only is the disc id
 	// Track \t PK_AttributeType \t Section \t Name/Description \t FirstName
 	// Track refers to separate tracks on a cd, which, if ripped, would be separate files.
 	// Section, however, refers to chapters within a DVD--there is only file, but it has sections
-	// FirstName is optional, and usually isn't used
+	// FirstName is optional, and usually isn't used.
 
 	vector<string> vectAttributes;
 	StringUtils::Tokenize(sValue,"\n",vectAttributes);
@@ -3673,7 +3690,7 @@ void Media_Plugin::Parse_Misc_Media_ID(MediaStream *pMediaStream,string sValue)
 		Row_Attribute *pRow_Attribute;
 	    pRow_Attribute = m_pMediaAttributes->GetAttributeFromDescription(ATTRIBUTETYPE_Disc_ID_CONST,vectAttributes[0]); 
 		pMediaStream->m_mapPK_Attribute[ make_pair<int,int> (ATTRIBUTETYPE_Disc_ID_CONST,0) ] = pRow_Attribute->PK_Attribute_get();
-		for(size_t s=0;s<vectAttributes.size();++s)
+		for(size_t s=1;s<vectAttributes.size();++s)
 		{
 			string::size_type pos=0;
 			int Track = atoi(StringUtils::Tokenize(vectAttributes[s],"\t",pos).c_str());
@@ -3839,13 +3856,13 @@ g_pPlutoLogger->Write(LV_STATUS,"Already in DB %p %p",pRow_Disc_Attribute,pRow_A
 		if( !pRow_Attribute )
 			continue; // Should never happen
 		if( pRow_Disc_Attribute->Track_get()==0 )
-			pMediaStream->m_mapPK_Attribute[make_pair<int,int> (pRow_Attribute->FK_AttributeType_get(),0)] = pRow_Attribute->PK_Attribute_get();
+			pMediaStream->m_mapPK_Attribute[make_pair<int,int> (pRow_Attribute->FK_AttributeType_get(),pRow_Disc_Attribute->Section_get())] = pRow_Attribute->PK_Attribute_get();
 		else
 		{
 			if( pRow_Disc_Attribute->Track_get()>=1 && pRow_Disc_Attribute->Track_get()<pMediaStream->m_dequeMediaFile.size() )
 			{
 				MediaFile *pMediaFile = pMediaStream->m_dequeMediaFile[pRow_Disc_Attribute->Track_get()-1];
-				pMediaFile->m_mapPK_Attribute[make_pair<int,int> (pRow_Attribute->FK_AttributeType_get(),0)] = pRow_Attribute->PK_Attribute_get();
+				pMediaFile->m_mapPK_Attribute[make_pair<int,int> (pRow_Attribute->FK_AttributeType_get(),pRow_Disc_Attribute->Section_get())] = pRow_Attribute->PK_Attribute_get();
 			}
 		}
 	}
@@ -3903,6 +3920,25 @@ int Media_Plugin::AddIdentifiedDiscToDB(string sIdentifiedDisc,MediaStream *pMed
 				pRow_Disc_Attribute->Table_Disc_Attribute_get()->Commit();
 			}
 		}
+	}
+
+	if( pMediaStream->m_pPictureData && pMediaStream->m_iPictureSize )
+	{
+		Row_Picture *pRow_Picture = m_pDatabase_pluto_media->Picture_get()->AddRow();
+		pRow_Picture->Extension_set("jpg");
+		m_pDatabase_pluto_media->Picture_get()->Commit();
+
+		FILE *file = fopen(("/home/mediapics/" + StringUtils::itos(pRow_Picture->PK_Picture_get()) + "." + pRow_Picture->Extension_get()).c_str(),"wb");
+		if( file )
+		{
+			fwrite(pMediaStream->m_pPictureData,pMediaStream->m_iPictureSize,1,file);
+			fclose(file);
+		}
+
+		Row_Picture_Disc *pRow_Picture_Disc = m_pDatabase_pluto_media->Picture_Disc_get()->AddRow();
+		pRow_Picture_Disc->FK_Disc_set( pRow_Disc->PK_Disc_get() );
+		pRow_Picture_Disc->FK_Picture_set( pRow_Picture->PK_Picture_get() );
+		m_pDatabase_pluto_media->Picture_Disc_get()->Commit();
 	}
 	return pRow_Disc->PK_Disc_get();
 }
@@ -4514,4 +4550,111 @@ g_pPlutoLogger->Write(LV_CRITICAL,"File %s is added as %d",pMediaFile->FullyQual
 	string sPK_File = StringUtils::itos(pMediaFile->m_dwPK_File);
 	attr_set( pMediaFile->FullyQualifiedFile().c_str( ), "ID", sPK_File.c_str( ), sPK_File.length( ), 0 );
 #endif
+}
+
+void Media_Plugin::AddRippedDiscToDatabase(RippingJob *pRippingJob)
+{
+	if( FileUtils::DirExists(pRippingJob->m_sName) )
+	{
+		Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->AddRow();
+		pRow_File->EK_MediaType_set(pRippingJob->m_iPK_MediaType);
+		pRow_File->Path_set( FileUtils::BasePath(pRippingJob->m_sName) );
+		pRow_File->Filename_set( FileUtils::FilenameWithoutPath(pRippingJob->m_sName) );
+		pRow_File->IsDirectory_set(1);
+		m_pDatabase_pluto_media->File_get()->Commit();
+
+		g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::AddRippedDiscToDatabase Dir Exists %s tracks %s",pRippingJob->m_sName.c_str(),pRippingJob->m_sTracks.c_str());
+
+		AddDiscAttributesToFile(pRow_File->PK_File_get(),pRippingJob->m_iPK_Disc,0);  // Track ==0
+
+		string::size_type pos=0;
+		while( pos<pRippingJob->m_sTracks.size() )
+		{
+			// Now get all the tracks
+			string s = StringUtils::Tokenize(pRippingJob->m_sTracks,"|",pos);
+			string::size_type p2=0;
+			int iTrack = atoi(StringUtils::Tokenize(s,",",p2).c_str());
+			string sTrackName = StringUtils::Tokenize(s,",",p2);
+			
+			// See if there's a file with this base name
+			list<string> listFiles;
+			FileUtils::FindFiles(listFiles,pRippingJob->m_sName,sTrackName + ".*");
+			if( listFiles.size()!=1 )
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find ripped track: %s/%s",pRippingJob->m_sName.c_str(),sTrackName.c_str());
+				continue;
+			}
+
+			Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->AddRow();
+			pRow_File->EK_MediaType_set(pRippingJob->m_iPK_MediaType);
+			pRow_File->Path_set( pRippingJob->m_sName );
+			pRow_File->Filename_set( FileUtils::FilenameWithoutPath(listFiles.front()) );
+			m_pDatabase_pluto_media->File_get()->Commit();
+			AddDiscAttributesToFile(pRow_File->PK_File_get(),pRippingJob->m_iPK_Disc,iTrack);  
+		}
+	}
+	else
+	{
+		// It's not a directory, so it should be a file
+		list<string> listFiles;
+		FileUtils::FindFiles(listFiles,FileUtils::BasePath(pRippingJob->m_sName),FileUtils::FilenameWithoutPath(pRippingJob->m_sName) + ".*");
+
+		g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::AddRippedDiscToDatabase Dir does not exists %s found %d files",pRippingJob->m_sName.c_str(),(int) listFiles.size());
+
+		if( listFiles.size()!=1 )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find ripped disc: %s",pRippingJob->m_sName.c_str());
+		else
+		{
+			Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->AddRow();
+			pRow_File->EK_MediaType_set(pRippingJob->m_iPK_MediaType);
+			pRow_File->Path_set( FileUtils::BasePath(pRippingJob->m_sName) );
+			pRow_File->Filename_set( FileUtils::FilenameWithoutPath(listFiles.front()) );
+			m_pDatabase_pluto_media->File_get()->Commit();
+			AddDiscAttributesToFile(pRow_File->PK_File_get(),pRippingJob->m_iPK_Disc,0);  
+		}
+	}
+}
+
+void Media_Plugin::AddDiscAttributesToFile(int PK_File,int PK_Disc,int Track)
+{
+	Row_Disc *pRow_Disc = m_pDatabase_pluto_media->Disc_get()->GetRow( PK_Disc );
+	Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow( PK_File );
+	if( !pRow_Disc || !pRow_File )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::AddDiscAttributesToFile called with missing file %d disc %d",PK_File,PK_Disc);
+		return;
+	}
+
+#ifndef WIN32
+	string sPK_File = StringUtils::itos(PK_File);
+	attr_set( (pRow_File->Path_get() + "/" + pRow_File->Filename_get()).c_str( ), "ID", sPK_File.c_str( ), sPK_File.length( ), 0 );
+#endif
+
+	vector<Row_Picture_Disc *> vectRow_Picture_Disc;
+	pRow_Disc->Picture_Disc_FK_Disc_getrows(&vectRow_Picture_Disc);
+	for(size_t s=0;s<vectRow_Picture_Disc.size();++s)
+	{
+		Row_Picture_File *pRow_Picture_File = m_pDatabase_pluto_media->Picture_File_get()->AddRow();
+		pRow_Picture_File->FK_File_set(PK_File);
+		pRow_Picture_File->FK_Picture_set( vectRow_Picture_Disc[s]->FK_Picture_get() );
+		m_pDatabase_pluto_media->Picture_File_get()->Commit();
+#ifndef WIN32
+		string sPK_Picture = StringUtils::itos(pRow_Picture_File->FK_Picture_get());
+		attr_set( (pRow_File->Path_get() + "/" + pRow_File->Filename_get()).c_str( ), "PIC", sPK_Picture.c_str( ), sPK_Picture.length( ), 0 );
+#endif
+	}
+
+	vector<Row_Disc_Attribute *> vectRow_Disc_Attribute;
+	string sWhere = "FK_Disc=" + StringUtils::itos(PK_Disc) + " AND Track=" + StringUtils::itos(Track);
+	m_pDatabase_pluto_media->Disc_Attribute_get()->GetRows(sWhere,&vectRow_Disc_Attribute);
+	for(size_t s=0;s<vectRow_Disc_Attribute.size();++s)
+	{
+		Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->AddRow();
+		pRow_File_Attribute->FK_File_set(PK_File);
+		pRow_File_Attribute->FK_Attribute_set( vectRow_Disc_Attribute[s]->FK_Attribute_get() );
+		pRow_File_Attribute->Section_set( vectRow_Disc_Attribute[s]->Section_get() );
+		m_pDatabase_pluto_media->File_Attribute_get()->Commit();
+	}
+	g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::AddDiscAttributesToFile file: %d disc %d track %d #pics: %d #attr %d",
+		PK_File,PK_Disc,Track,(int) vectRow_Picture_Disc.size(),(int) vectRow_Disc_Attribute.size());
 }
