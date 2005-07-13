@@ -147,7 +147,20 @@ Socket::Socket(string Name,string sIPAddress) : m_SocketMutex("socket mutex " + 
 	else
 		m_sIPAddress = sIPAddress;
 #else
-	m_sIPAddress = sIPAddress;
+    struct hostent * res;
+    res = gethostbyname(sIPAddress.c_str());
+    if (res != NULL)
+    {
+        struct sockaddr_in sa;
+        memcpy((char *)&sa.sin_addr,(char *)res->h_addr, res->h_length);
+        m_sIPAddress = 
+            StringUtils::ltos(sa.sin_addr.S_un.S_un_b.s_b1) + "." +
+            StringUtils::ltos(sa.sin_addr.S_un.S_un_b.s_b2) + "." +
+            StringUtils::ltos(sa.sin_addr.S_un.S_un_b.s_b3) + "." +
+            StringUtils::ltos(sa.sin_addr.S_un.S_un_b.s_b4);
+    }
+    else
+        m_sIPAddress = sIPAddress;
 #endif
 	m_iSocketCounter = SocketCounter++;
 	m_sName = Name;
