@@ -1,8 +1,8 @@
 #ifndef __Define_AttributeType_H__
 #define __Define_AttributeType_H__
 
-#define ATTRIBUTETYPE_Individual_CONST 1
-#define ATTRIBUTETYPE_Group_CONST 2
+#define ATTRIBUTETYPE_Director_CONST 1
+#define ATTRIBUTETYPE_Performer_CONST 2
 #define ATTRIBUTETYPE_Album_CONST 3
 #define ATTRIBUTETYPE_Song_CONST 4
 #define ATTRIBUTETYPE_Track_CONST 5
@@ -14,6 +14,12 @@
 #define ATTRIBUTETYPE_Episode_CONST 11
 #define ATTRIBUTETYPE_Program_CONST 12
 #define ATTRIBUTETYPE_Title_CONST 13
+#define ATTRIBUTETYPE_Disc_ID_CONST 14
+#define ATTRIBUTETYPE_Conductor_CONST 15
+#define ATTRIBUTETYPE_Composer_CONST 16
+#define ATTRIBUTETYPE_Studio_CONST 17
+#define ATTRIBUTETYPE_Rating_CONST 18
+#define ATTRIBUTETYPE_Release_Date_CONST 19
 
 #define ATTRIBUTETYPE_TABLE "AttributeType"
 #define ATTRIBUTETYPE_PK_ATTRIBUTETYPE_FIELD "PK_AttributeType"

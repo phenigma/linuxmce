@@ -15,7 +15,7 @@
 class DECLSPECIFIER TableRow;
 class DECLSPECIFIER SerializeClass;
 
-class DECLSPECIFIER Table_File_Attribute : public TableBase , DoubleLongKeyBase
+class DECLSPECIFIER Table_File_Attribute : public TableBase , TripleLongKeyBase
 {
 private:
 	Database_pluto_media *database;
@@ -34,9 +34,10 @@ private:
 		friend class Row_File_Attribute;
 		long int pk_FK_File;
 long int pk_FK_Attribute;
+long int pk_Section;
 
 		
-		Key(long int in_FK_File, long int in_FK_Attribute);
+		Key(long int in_FK_File, long int in_FK_Attribute, long int in_Section);
 	
 		Key(class Row_File_Attribute *pRow);
 	};
@@ -60,13 +61,13 @@ public:
 	Database_pluto_media *Database_pluto_media_get() { return database; }
 	
 		
-	class Row_File_Attribute* GetRow(long int in_FK_File, long int in_FK_Attribute);
+	class Row_File_Attribute* GetRow(long int in_FK_File, long int in_FK_Attribute, long int in_Section);
 	
 
 private:	
 	
 		
-	class Row_File_Attribute* FetchRow(DoubleLongKey &key);
+	class Row_File_Attribute* FetchRow(TripleLongKey &key);
 		
 			
 };
@@ -80,6 +81,7 @@ class DECLSPECIFIER Row_File_Attribute : public TableRow, public SerializeClass
 		
 		long int m_FK_File;
 long int m_FK_Attribute;
+long int m_Section;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -87,11 +89,12 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[8];
+		bool is_null[9];
 	
 	public:
 		long int FK_File_get();
 long int FK_Attribute_get();
+long int Section_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -102,6 +105,7 @@ long int psc_restrict_get();
 		
 		void FK_File_set(long int val);
 void FK_Attribute_set(long int val);
+void Section_set(long int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -143,13 +147,14 @@ class Row_Attribute* FK_Attribute_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_FK_File+ m_FK_Attribute+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_FK_File+ m_FK_Attribute+ m_Section+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
 		
 		string FK_File_asSQL();
 string FK_Attribute_asSQL();
+string Section_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();
