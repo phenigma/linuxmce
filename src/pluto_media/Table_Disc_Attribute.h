@@ -15,7 +15,7 @@
 class DECLSPECIFIER TableRow;
 class DECLSPECIFIER SerializeClass;
 
-class DECLSPECIFIER Table_Disc_Attribute : public TableBase , TripleLongKeyBase
+class DECLSPECIFIER Table_Disc_Attribute : public TableBase 
 {
 private:
 	Database_pluto_media *database;
@@ -35,9 +35,10 @@ private:
 		long int pk_FK_Disc;
 long int pk_FK_Attribute;
 long int pk_Track;
+long int pk_Section;
 
 		
-		Key(long int in_FK_Disc, long int in_FK_Attribute, long int in_Track);
+		Key(long int in_FK_Disc, long int in_FK_Attribute, long int in_Track, long int in_Section);
 	
 		Key(class Row_Disc_Attribute *pRow);
 	};
@@ -46,8 +47,8 @@ long int pk_Track;
 		bool operator()(const Table_Disc_Attribute::Key &key1, const Table_Disc_Attribute::Key &key2) const;
 	};	
 
-	
-	
+	map<Table_Disc_Attribute::Key, class TableRow*, Table_Disc_Attribute::Key_Less> cachedRows;
+	map<Table_Disc_Attribute::Key, class TableRow*, Table_Disc_Attribute::Key_Less> deleted_cachedRows;
 
 public:				
 	// Normally the framework never deletes any Row_X objects, since the application will
@@ -61,13 +62,13 @@ public:
 	Database_pluto_media *Database_pluto_media_get() { return database; }
 	
 		
-	class Row_Disc_Attribute* GetRow(long int in_FK_Disc, long int in_FK_Attribute, long int in_Track);
+	class Row_Disc_Attribute* GetRow(long int in_FK_Disc, long int in_FK_Attribute, long int in_Track, long int in_Section);
 	
 
 private:	
 	
 		
-	class Row_Disc_Attribute* FetchRow(TripleLongKey &key);
+	class Row_Disc_Attribute* FetchRow(Table_Disc_Attribute::Key &key);
 		
 			
 };
@@ -82,6 +83,7 @@ class DECLSPECIFIER Row_Disc_Attribute : public TableRow, public SerializeClass
 		long int m_FK_Disc;
 long int m_FK_Attribute;
 long int m_Track;
+long int m_Section;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -89,12 +91,13 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[9];
+		bool is_null[10];
 	
 	public:
 		long int FK_Disc_get();
 long int FK_Attribute_get();
 long int Track_get();
+long int Section_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -106,6 +109,7 @@ long int psc_restrict_get();
 		void FK_Disc_set(long int val);
 void FK_Attribute_set(long int val);
 void Track_set(long int val);
+void Section_set(long int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -147,7 +151,7 @@ class Row_Attribute* FK_Attribute_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_FK_Disc+ m_FK_Attribute+ m_Track+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_FK_Disc+ m_FK_Attribute+ m_Track+ m_Section+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -155,6 +159,7 @@ class Row_Attribute* FK_Attribute_getrow();
 		string FK_Disc_asSQL();
 string FK_Attribute_asSQL();
 string Track_asSQL();
+string Section_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();
