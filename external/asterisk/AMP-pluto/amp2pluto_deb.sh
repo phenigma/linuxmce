@@ -20,6 +20,9 @@ mkdir -p ./amp_deb/root/usr/local/amp/install/
 cp -R ./amp_pluto.conf ./amp_deb/root/etc/amportal.conf
 cp -R ./ext_pluto.conf ./amp_deb/root/etc/asterisk/extensions_custom.conf
 
+#copy original config
+cp -R ./astconfig/* ./amp_deb/root/etc/asterisk/
+
 #copy files needed for dpkg-buildpackage
 cp ./debian/* ./amp_deb/debian
 cp ./Makefile ./amp_deb

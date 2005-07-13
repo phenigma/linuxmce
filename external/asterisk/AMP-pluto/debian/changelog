@@ -1,3 +1,9 @@
+amp (1.10.008-4) unstable; urgency=low
+
+  * Debian's asterisk-config is not longer installed so we should provide all missing files
+
+ -- Office Server Operator <root@activate.plutohome.com>  Fri, 08 Jul 2005 12:49:06 +0300
+ 
 amp (1.10.008-3) unstable; urgency=low
 
   * Added firewall rules to enable SIP and IAX2 protocols.
