@@ -119,9 +119,8 @@ Socket::Socket(string Name,string sIPAddress) : m_SocketMutex("socket mutex " + 
 #endif
 #endif
 	m_pcSockLogFile=m_pcSockLogErrorFile=NULL;
-
 	m_sHostName = sIPAddress;
-#ifndef WIN32
+
 	/*
 	// code unusable; there's a memory leak in libc6 2.3.2
 	struct addrinfo hints;
@@ -140,28 +139,24 @@ Socket::Socket(string Name,string sIPAddress) : m_SocketMutex("socket mutex " + 
 	freeaddrinfo(res);
 	*/
 
-	struct hostent * res;
-	res = gethostbyname2(sIPAddress.c_str(), AF_INET);
-	if (res != NULL)
-		m_sIPAddress = res->h_addr;
-	else
-		m_sIPAddress = sIPAddress;
-#else
     struct hostent * res;
+#ifdef WIN32
     res = gethostbyname(sIPAddress.c_str());
+#else
+    res = gethostbyname2(sIPAddress.c_str(), AF_INET);
+#endif
+
     if (res != NULL)
     {
-        struct sockaddr_in sa;
-        memcpy((char *)&sa.sin_addr,(char *)res->h_addr, res->h_length);
         m_sIPAddress = 
-            StringUtils::ltos(sa.sin_addr.S_un.S_un_b.s_b1) + "." +
-            StringUtils::ltos(sa.sin_addr.S_un.S_un_b.s_b2) + "." +
-            StringUtils::ltos(sa.sin_addr.S_un.S_un_b.s_b3) + "." +
-            StringUtils::ltos(sa.sin_addr.S_un.S_un_b.s_b4);
+            StringUtils::ltos(res->h_addr[0]) + "." +
+            StringUtils::ltos(res->h_addr[1]) + "." +
+            StringUtils::ltos(res->h_addr[2]) + "." +
+            StringUtils::ltos(res->h_addr[3]);
     }
     else
         m_sIPAddress = sIPAddress;
-#endif
+
 	m_iSocketCounter = SocketCounter++;
 	m_sName = Name;
 	m_bQuit = false;
