@@ -149,10 +149,10 @@ Socket::Socket(string Name,string sIPAddress) : m_SocketMutex("socket mutex " + 
     if (res != NULL)
     {
         m_sIPAddress = 
-            StringUtils::ltos(res->h_addr[0]) + "." +
-            StringUtils::ltos(res->h_addr[1]) + "." +
-            StringUtils::ltos(res->h_addr[2]) + "." +
-            StringUtils::ltos(res->h_addr[3]);
+            StringUtils::ltos(res->h_addr[0] & 0xFF) + "." +
+            StringUtils::ltos(res->h_addr[1] & 0xFF) + "." +
+            StringUtils::ltos(res->h_addr[2] & 0xFF) + "." +
+            StringUtils::ltos(res->h_addr[3] & 0xFF);
     }
     else
         m_sIPAddress = sIPAddress;
