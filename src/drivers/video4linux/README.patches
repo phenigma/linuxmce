@@ -1,0 +1,47 @@
+Mauro Carvalho Chehab					10 June 2005
+
+The master copy of the video4linux kernel subsystem is now maintained at 
+http://www.linuxtv.org/downloads/video4linux/
+
+=== Video4linux snapshots available from linuxtv.org ===
+
+
+We are now publishing periodic snapshots (about once a month) at 
+linuxtv.org. The main idea is to have "stable" snapshots on Linuxtv. You
+can check it at:
+
+ http://www.linuxtv.org/downloads/video4linux/
+
+The ChangeLog is also maintained at linuxtv.org. Our intention is to have 
+one snapshot generated at the same time it is being submited to -mm 
+series.
+
+I intend to send a first series of synchronizing patches to -mm this 
+weekend. There is already a working first patch at the site.
+
+* The cvs tree at cvs.linuxtv.org is now the "master copy" of the 
+video4linux subsystem.
+
+* Patches should be built against video4linux cvs.
+
+===How to get your changes into the mainline tree?===
+
+1. Post your patches to the video4linux mailing list[1] for review and 
+testing by other people. 
+
+2. Using [PATCH] at subject will help CVS maintainers to better handing 
+it.
+
+3.  Please edit also ChangeLog, including some comments about it.
+
+4.  Every patch should have a line like '''Signed-off-by: Your name 
+<name@yoursite.com>''' with name of people envolving on making it.
+
+5.  Fix problems and repeat until everyone is happy ;)
+
+6.  Maintainers will periodically submit changes to mainstream.
+
+
+Mauro
+
+Mauro Carvalho Chehab <mchehab at brturbo dot com dot br>
