@@ -169,8 +169,8 @@ g_pPlutoLogger->Write(LV_CRITICAL,"const 3 %d %s",m_dwPK_File,sFullyQualifiedFil
 	~MediaFile() {
 	}
 
-	map<int,int> m_mapPK_Attribute;  /** An external media identification script may set attributes here, PK_AttributeType=PK_Attribute */
-	int m_mapPK_Attribute_Find(int PK_AttributeType) { map<int,int>::iterator it = m_mapPK_Attribute.find(PK_AttributeType); return it==m_mapPK_Attribute.end() ? NULL : (*it).second; }
+	map< pair<int,int>,int> m_mapPK_Attribute;  /** An external media identification script may set attributes here, PK_AttributeType,Section=PK_Attribute */
+    int m_mapPK_Attribute_Find(pair<int,int> PK_AttributeType_Section) { map< pair<int,int>,int>::iterator it = m_mapPK_Attribute.find(PK_AttributeType_Section); return it==m_mapPK_Attribute.end() ? NULL : (*it).second; }
 	int m_dwPK_File;
 	string m_sPath,m_sFilename,m_sDescription;
 	string m_sStartPosition; /** Where to start the media the first time.  As soon as the media has begun MediaPlugin will reset this */

@@ -379,7 +379,7 @@ int main(int argc, char *argv[])
 				cout << "\t# Package: " << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get()
 					<< " Type: " << pPackageInfo->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_getrow()->Description_get() << endl;
 				cout << "\t# ****** SKIPPING --- PACKAGE ALREADY INSTALLED ******" << endl;
-				goto check_config;
+				continue;
 			}
 
 			cout << "ok=0" << endl;
@@ -448,25 +448,23 @@ int main(int argc, char *argv[])
 
 			cout << "\tfi" << endl;
 			cout << "done" << endl;
-
-check_config:
-			for(size_t s=0;s<m_vectDevicesNeedingConfigure.size();++s)
-			{
-				Row_Device *pRow_Device = m_vectDevicesNeedingConfigure[s];
-				if( pRow_Device->FK_DeviceTemplate_getrow()->ConfigureScript_get().size() )
-				{
-					cout << "#Running configure script" << endl;
-					cout << "/usr/pluto/bin/" << pRow_Device->FK_DeviceTemplate_getrow()->ConfigureScript_get()
-						<< " " + StringUtils::itos(pRow_Device->PK_Device_get()) << " \"" << pRow_Device->IPaddress_get()
-						<< "\" \"" + pRow_Device->MACaddress_get() + "\"" << endl;
-				}
-
-				pRow_Device->Status_set("");
-
-				cout << "#Cleared RUN_CONFIG flag" << endl;
-			}
-			database_pluto_main.Device_get()->Commit();
 		}
+		for(size_t s=0;s<m_vectDevicesNeedingConfigure.size();++s)
+		{
+			Row_Device *pRow_Device = m_vectDevicesNeedingConfigure[s];
+			if( pRow_Device->FK_DeviceTemplate_getrow()->ConfigureScript_get().size() )
+			{
+				cout << "#Running configure script" << endl;
+				cout << "/usr/pluto/bin/" << pRow_Device->FK_DeviceTemplate_getrow()->ConfigureScript_get()
+					<< " " + StringUtils::itos(pRow_Device->PK_Device_get()) << " \"" << pRow_Device->IPaddress_get()
+					<< "\" \"" + pRow_Device->MACaddress_get() + "\"" << endl;
+			}
+
+			pRow_Device->Status_set("");
+
+			cout << "#Cleared RUN_CONFIG flag" << endl;
+		}
+		database_pluto_main.Device_get()->Commit();
 
 		for(it=listPackageInfo.begin(); it!=listPackageInfo.end(); ++it)
 		{

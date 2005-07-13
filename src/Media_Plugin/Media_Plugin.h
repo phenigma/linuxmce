@@ -138,6 +138,7 @@ protected:
 	 */
 
 	void Parse_CDDB_Media_ID(MediaStream *pMediaStream,string sValue);
+	void Parse_Misc_Media_ID(MediaStream *pMediaStream,string sValue);
 
     /**
      * Find a media plugin info object that will play the specified file.
@@ -352,11 +353,11 @@ public:
 
 			if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
 			{
-				sFilename = m_pMediaAttributes->GetPrintableName(pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Group_CONST]);
+				sFilename = m_pMediaAttributes->GetPrintableName(pMediaStream->m_mapPK_Attribute[make_pair<int,int> (ATTRIBUTETYPE_Performer_CONST,0)]);
 				if( sFilename.size() )
-					sFilename += "/"; // We got a group
+					sFilename += "/"; // We got a performer
 
-				sFilename += m_pMediaAttributes->GetPrintableName(pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Album_CONST]);
+				sFilename += m_pMediaAttributes->GetPrintableName(pMediaStream->m_mapPK_Attribute[make_pair<int,int> (ATTRIBUTETYPE_Album_CONST,0)]);
 			}
 			else if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST )
 				sFilename = pMediaStream->m_sMediaDescription;

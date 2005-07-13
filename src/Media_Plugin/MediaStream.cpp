@@ -59,6 +59,7 @@ MediaStream::MediaStream( class MediaHandlerInfo *pMediaHandlerInfo, MediaDevice
     m_pMediaHandlerInfo=pMediaHandlerInfo;
 	m_iPK_DesignObj_RemoteOSD=0;
 	m_pRemoteControlSet=NULL;
+	m_IdentifiedPriority=0;
 
     m_iPK_Users=PK_Users;
     m_eSourceType=sourceType;
