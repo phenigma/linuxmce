@@ -46,7 +46,7 @@ using namespace DCE;
 #endif
 
 
-ClientSocket::ClientSocket( int iDeviceID, string sIPAddress, string sName ) : Socket( sName )
+ClientSocket::ClientSocket( int iDeviceID, string sIPAddress, string sName ) : Socket( sName, sIPAddress )
 {
 	m_dwPK_Device = iDeviceID;
 	m_sIPAddress = sIPAddress;
