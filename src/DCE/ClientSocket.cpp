@@ -49,7 +49,6 @@ using namespace DCE;
 ClientSocket::ClientSocket( int iDeviceID, string sIPAddress, string sName ) : Socket( sName, sIPAddress )
 {
 	m_dwPK_Device = iDeviceID;
-	m_sIPAddress = sIPAddress;
 
 	/** @todo check comment */
 	//	if( g_pDCELogger ) // This won't be created yet if this is the server logger socket

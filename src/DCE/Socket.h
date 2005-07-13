@@ -38,7 +38,7 @@ namespace DCE
 
 		SOCKET m_Socket; /** < the actual socket @todo ask */
 		
-		string m_sName,m_sIPAddress; /** < a name for the socket */
+		string m_sName,m_sIPAddress,m_sHostName; /** < a name for the socket */
 		
 		int m_iSocketCounter; /** < counts the sockets actually created */
 

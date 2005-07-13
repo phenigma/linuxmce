@@ -34,7 +34,6 @@ namespace DCE
 	{
 		
 	public:
-		string m_sIPAddress; /** < the server to connect to IP address */
 		long m_dwPK_Device; /** < the device identifier */
 		clock_t m_clockTimeout; /** < used to set timeouts */
 		string m_sMyIPAddress; /** this client's machine IP address */
