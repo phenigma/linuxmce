@@ -296,7 +296,7 @@ void MediaStream::UpdateDescriptionsFromAttributes()
 	for(size_t s=0;s<m_dequeMediaFile.size();++s)
 	{
 		MediaFile *pMediaFile = m_dequeMediaFile[s];
-		int PK_Attribute = pMediaFile->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Song_CONST);
+		int PK_Attribute = pMediaFile->m_mapPK_Attribute_Find(make_pair<int,int> (ATTRIBUTETYPE_Song_CONST,0));
 		if( PK_Attribute )
 		{
 			Row_Attribute *pRow_Attribute = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(PK_Attribute);
@@ -313,8 +313,8 @@ void MediaStream::UpdateDescriptionsFromAttributes()
 	else
 	{
 		m_sMediaDescription = "";
-		Row_Attribute *pRow_Attribute_Group = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(m_mapPK_Attribute_Find(ATTRIBUTETYPE_Group_CONST));
-		Row_Attribute *pRow_Attribute_Album = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(m_mapPK_Attribute_Find(ATTRIBUTETYPE_Album_CONST));
+		Row_Attribute *pRow_Attribute_Group = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(m_mapPK_Attribute_Find(make_pair<int,int> (ATTRIBUTETYPE_Performer_CONST,0)));
+		Row_Attribute *pRow_Attribute_Album = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(m_mapPK_Attribute_Find(make_pair<int,int> (ATTRIBUTETYPE_Album_CONST,0)));
 
 		if( pRow_Attribute_Group )
 			m_sMediaDescription = pMedia_Plugin->m_pMediaAttributes->GetPrintableName(pRow_Attribute_Group);
