@@ -1715,18 +1715,13 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
 	string::size_type pos=0;
 	int PK_MediaType = atoi(StringUtils::Tokenize(Parms,"|",pos).c_str());
 	string AC = StringUtils::Tokenize(Parms,"|",pos);
-	string sPK_Type="";
-	if( PK_MediaType==MEDIATYPE_pluto_StoredAudio_CONST )
-		sPK_Type="1"; // TYPE_Music_CONST;
-	else if( PK_MediaType==MEDIATYPE_pluto_StoredVideo_CONST )
-		sPK_Type="2,3,5"; // TYPE_Movie_CONST, TYPE_Home_Video_CONST, TYPE_TV_Show_CONST;
 
     string SQL = "select PK_Attribute, Name, FirstName, Description FROM Attribute " \
         "JOIN AttributeType ON Attribute.FK_AttributeType=PK_AttributeType "\
-        "JOIN Type_AttributeType ON Type_AttributeType.FK_AttributeType=PK_AttributeType "\
+        "JOIN MediaType_AttributeType ON MediaType_AttributeType.FK_AttributeType=PK_AttributeType "\
         "WHERE ( Name Like '" + AC + "%' OR FirstName Like '" + AC + "%' ) AND Identifier>0 " +
-		(sPK_Type.length() ? " AND FK_Type IN (" + sPK_Type + ") " : "") +
-        "ORDER BY Name limit 30;";
+		" AND EK_MediaType=" + StringUtils::itos(PK_MediaType) +
+        " ORDER BY Name limit 30;";
 
     PlutoSqlResult result;
     MYSQL_ROW row;
@@ -1760,10 +1755,10 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
         "JOIN SearchToken_Attribute ON PK_SearchToken=FK_SearchToken "\
         "JOIN Attribute ON SearchToken_Attribute.FK_Attribute=PK_Attribute "\
         "JOIN AttributeType ON Attribute.FK_AttributeType=PK_AttributeType "\
-        "JOIN Type_AttributeType ON Type_AttributeType.FK_AttributeType=PK_AttributeType "\
+        "JOIN MediaType_AttributeType ON MediaType_AttributeType.FK_AttributeType=PK_AttributeType "\
         "WHERE Token like '" + AC + "%' " +
 		(AttributesFirstSearch.length() ? "AND PK_Attribute NOT IN (" + AttributesFirstSearch + ") " : "") +
-		(sPK_Type.length() ? " AND FK_Type IN (" + sPK_Type + ") " : "") +
+		" AND EK_MediaType=" + StringUtils::itos(PK_MediaType) +
 		" ORDER BY Name "\
         "limit 30;";
 
@@ -1812,8 +1807,8 @@ class DataGridTable *Media_Plugin::MediaAttrFiles( string GridID, string Parms, 
         " JOIN File ON Dest.FK_File=PK_File "\
         "JOIN Attribute ON Dest.FK_Attribute=PK_Attribute "\
         "JOIN AttributeType ON Attribute.FK_AttributeType=PK_AttributeType "\
-        "JOIN Type_AttributeType ON Type_AttributeType.FK_Type=File.FK_Type "\
-        "AND Type_AttributeType.FK_AttributeType=Attribute.FK_AttributeType "\
+        "JOIN MediaType_AttributeType ON File.EK_MediaType=MediaType_AttributeType.EK_MediaType "\
+        "AND MediaType_AttributeType.FK_AttributeType=Attribute.FK_AttributeType "\
         "WHERE Identifier=1 ORDER BY Name limit 200;";
 
     PlutoSqlResult result;
@@ -1864,8 +1859,8 @@ class DataGridTable *Media_Plugin::MediaAttrCollections( string GridID, string P
         "' JOIN File ON Dest.FK_File=PK_File "\
         "JOIN Attribute ON Dest.FK_Attribute=PK_Attribute "\
         "JOIN AttributeType ON Attribute.FK_AttributeType=PK_AttributeType "\
-        "JOIN Type_AttributeType ON Type_AttributeType.FK_Type=File.FK_Type "\
-        "AND Type_AttributeType.FK_AttributeType=Attribute.FK_AttributeType "\
+        "JOIN MediaType_AttributeType ON File.EK_MediaType=MediaType_AttributeType.EK_MediaType "\
+        "AND MediaType_AttributeType.FK_AttributeType=Attribute.FK_AttributeType "\
         "WHERE Identifier=2 ORDER BY Name limit 100;";
 
     PlutoSqlResult result;
@@ -1923,8 +1918,8 @@ class DataGridTable *Media_Plugin::MediaAttrXref( string GridID, string Parms, v
         " JOIN File ON Dest.FK_File=PK_File "\
         "JOIN Attribute ON Dest.FK_Attribute=PK_Attribute "\
         "JOIN AttributeType ON Attribute.FK_AttributeType=PK_AttributeType "\
-        "JOIN Type_AttributeType ON Type_AttributeType.FK_Type=File.FK_Type "\
-        "AND Type_AttributeType.FK_AttributeType=Attribute.FK_AttributeType "\
+        "JOIN MediaType_AttributeType ON File.EK_MediaType=MediaType_AttributeType.EK_MediaType "\
+        "AND MediaType_AttributeType.FK_AttributeType=Attribute.FK_AttributeType "\
         "WHERE Identifier>=2 ORDER BY AttributeType.Description limit 30;";
 
     PlutoSqlResult result;

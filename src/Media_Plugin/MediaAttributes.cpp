@@ -190,7 +190,7 @@ int MediaAttributes::AddAttribute( int PK_File, int PK_Attribute, int PK_Attribu
     {
         bool bCombineAsOne=false;
         string SQL = "SELECT CombineAsOne FROM File "\
-            "JOIN Type_AttributeType ON File.FK_Type=Type_AttributeType.FK_Type "\
+            "JOIN MediaType_AttributeType ON File.EK_MediaType=MediaType_AttributeType.EK_MediaType "\
             "WHERE FK_AttributeType=" + StringUtils::itos( PK_AttributeType ) + " AND PK_File=" + StringUtils::itos( PK_File );
         {
         }
@@ -661,8 +661,7 @@ int MediaAttributes::GetFileIDFromAttributeID( int PK_Attribute )
     string SQL = "SELECT PK_File FROM File "\
         "JOIN File_Attribute ON FK_File=PK_File "\
         "JOIN Attribute ON FK_Attribute=PK_Attribute "\
-        "JOIN Type_AttributeType ON "\
-        "Type_AttributeType.FK_Type=File.FK_Type "\
+        "JOIN MediaType_AttributeType ON File.EK_MediaType=MediaType_AttributeType.EK_MediaType "\
         "AND Type_AttributeType.FK_AttributeType=Attribute.FK_AttributeType "\
         "WHERE Identifier=1 AND FK_Attribute=" + StringUtils::itos( PK_Attribute );
 
@@ -940,8 +939,8 @@ int MediaAttributes::GetAttributeFromFileID( int PK_File )
     string SQL = "select PK_Attribute FROM File_Attribute "\
         "JOIN Attribute ON FK_Attribute=PK_Attribute "\
         "JOIN File ON FK_File=PK_File "\
-        "JOIN Type_AttributeType ON Type_AttributeType.FK_Type=File.FK_Type "\
-        "AND Type_AttributeType.FK_AttributeType=Attribute.FK_AttributeType "\
+        "JOIN MediaType_AttributeType ON File.EK_MediaType=MediaType_AttributeType.EK_MediaType "\
+        "AND MediaType_AttributeType.FK_AttributeType=Attribute.FK_AttributeType "\
         "WHERE Identifier=1 AND PK_File=" + StringUtils::itos( PK_File );
 
     PlutoSqlResult result;
@@ -956,8 +955,8 @@ int MediaAttributes::GetAttributeFromFilePath( string File )
     string SQL = "select PK_Attribute FROM File_Attribute "\
         "JOIN Attribute ON FK_Attribute=PK_Attribute "\
         "JOIN File ON FK_File=PK_File "\
-        "JOIN Type_AttributeType ON Type_AttributeType.FK_Type=File.FK_Type "\
-        "AND Type_AttributeType.FK_AttributeType=Attribute.FK_AttributeType "\
+        "JOIN MediaType_AttributeType ON File.EK_MediaType=MediaType_AttributeType.EK_MediaType "\
+        "AND MediaType_AttributeType.FK_AttributeType=Attribute.FK_AttributeType "\
         "WHERE Identifier=1 AND Path='" + StringUtils::SQLEscape( File ) + "'";
 
     PlutoSqlResult result;
