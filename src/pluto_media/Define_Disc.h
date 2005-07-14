@@ -7,6 +7,8 @@
 #define DISC_PK_DISC_TABLE_FIELD "Disc.PK_Disc"
 #define DISC_ID_FIELD "ID"
 #define DISC_ID_TABLE_FIELD "Disc.ID"
+#define DISC_EK_MEDIATYPE_FIELD "EK_MediaType"
+#define DISC_EK_MEDIATYPE_TABLE_FIELD "Disc.EK_MediaType"
 #define DISC_PSC_ID_FIELD "psc_id"
 #define DISC_PSC_ID_TABLE_FIELD "Disc.psc_id"
 #define DISC_PSC_BATCH_FIELD "psc_batch"

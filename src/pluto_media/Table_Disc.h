@@ -79,6 +79,7 @@ class DECLSPECIFIER Row_Disc : public TableRow, public SerializeClass
 		
 		long int m_PK_Disc;
 string m_ID;
+long int m_EK_MediaType;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -86,11 +87,12 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[8];
+		bool is_null[9];
 	
 	public:
 		long int PK_Disc_get();
 string ID_get();
+long int EK_MediaType_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -101,6 +103,7 @@ long int psc_restrict_get();
 		
 		void PK_Disc_set(long int val);
 void ID_set(string val);
+void EK_MediaType_set(long int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -144,13 +147,14 @@ void Picture_Disc_FK_Disc_getrows(vector <class Row_Picture_Disc*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Disc+ m_ID+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_Disc+ m_ID+ m_EK_MediaType+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
 		
 		string PK_Disc_asSQL();
 string ID_asSQL();
+string EK_MediaType_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();
