@@ -180,6 +180,7 @@ Table_Users.cpp \
 Table_Variable.cpp \
 Table_Version.cpp \
 Table_VertAlignment.cpp \
+Table_groupaddresses.cpp \
 Table_psc_constants_batdet.cpp \
 Table_psc_constants_bathdr.cpp \
 Table_psc_constants_batuser.cpp \

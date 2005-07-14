@@ -85,6 +85,7 @@ long int m_FK_DeviceCategory;
 short int m_BroadcastLevel;
 short int m_RelativeToSender;
 long int m_OrderNum;
+short int m_DeliveryConfirmation;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -92,7 +93,7 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[14];
+		bool is_null[15];
 	
 	public:
 		long int PK_CommandGroup_D_Command_get();
@@ -103,6 +104,7 @@ long int FK_DeviceCategory_get();
 short int BroadcastLevel_get();
 short int RelativeToSender_get();
 long int OrderNum_get();
+short int DeliveryConfirmation_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -119,6 +121,7 @@ void FK_DeviceCategory_set(long int val);
 void BroadcastLevel_set(short int val);
 void RelativeToSender_set(short int val);
 void OrderNum_set(long int val);
+void DeliveryConfirmation_set(short int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -173,7 +176,7 @@ class Row_DeviceCategory* FK_DeviceCategory_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_CommandGroup_D_Command+ m_FK_CommandGroup_D+ m_FK_Command+ m_FK_DeviceTemplate+ m_FK_DeviceCategory+ m_BroadcastLevel+ m_RelativeToSender+ m_OrderNum+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_CommandGroup_D_Command+ m_FK_CommandGroup_D+ m_FK_Command+ m_FK_DeviceTemplate+ m_FK_DeviceCategory+ m_BroadcastLevel+ m_RelativeToSender+ m_OrderNum+ m_DeliveryConfirmation+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -186,6 +189,7 @@ string FK_DeviceCategory_asSQL();
 string BroadcastLevel_asSQL();
 string RelativeToSender_asSQL();
 string OrderNum_asSQL();
+string DeliveryConfirmation_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

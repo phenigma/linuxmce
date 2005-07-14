@@ -84,6 +84,7 @@ long int m_FK_Device;
 long int m_FK_DeviceGroup;
 short int m_TurnOff;
 long int m_OrderNum;
+short int m_DeliveryConfirmation;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -91,7 +92,7 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[13];
+		bool is_null[14];
 	
 	public:
 		long int PK_CommandGroup_Command_get();
@@ -101,6 +102,7 @@ long int FK_Device_get();
 long int FK_DeviceGroup_get();
 short int TurnOff_get();
 long int OrderNum_get();
+short int DeliveryConfirmation_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -116,6 +118,7 @@ void FK_Device_set(long int val);
 void FK_DeviceGroup_set(long int val);
 void TurnOff_set(short int val);
 void OrderNum_set(long int val);
+void DeliveryConfirmation_set(short int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -166,7 +169,7 @@ class Row_DeviceGroup* FK_DeviceGroup_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_CommandGroup_Command+ m_FK_CommandGroup+ m_FK_Command+ m_FK_Device+ m_FK_DeviceGroup+ m_TurnOff+ m_OrderNum+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_CommandGroup_Command+ m_FK_CommandGroup+ m_FK_Command+ m_FK_Device+ m_FK_DeviceGroup+ m_TurnOff+ m_OrderNum+ m_DeliveryConfirmation+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -178,6 +181,7 @@ string FK_Device_asSQL();
 string FK_DeviceGroup_asSQL();
 string TurnOff_asSQL();
 string OrderNum_asSQL();
+string DeliveryConfirmation_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();
