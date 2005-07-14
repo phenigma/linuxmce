@@ -1701,6 +1701,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Selected grid %s but m_pDataGridTable is NULL"
 bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCell *pCell )
 {
 	pDesignObj_DataGrid->m_iHighlightedColumn=pDesignObj_DataGrid->m_iHighlightedRow=-1;
+	m_sLastSelectedDatagrid=pCell->GetText();
 
     PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
     if(  pCell->m_pMessage  )
@@ -3831,10 +3832,14 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
     //              ( *iZone )->m_Commands.size(  ), pObj, ( *iZone ) );
     // The commands are in the list backwards, so use a reverse iterator so that they are executed in the same order they appear within designer
     DesignObjCommandList::reverse_iterator iCommand;
+	bool bGetConfirmation=false;
     for(iCommand=pDesignObjCommandList->rbegin();iCommand!=pDesignObjCommandList->rend();++iCommand)
     {
         DesignObjCommand *pCommand = *iCommand;
         int PK_Command = pCommand->m_PK_Command;
+		if( pCommand->m_bDeliveryConfirmation )
+			bGetConfirmation=true;
+
         g_pPlutoLogger->Write( LV_STATUS, "Executing command %d in object: %s", PK_Command,  pObj->m_ObjectID.c_str(  ) );
 
         if(  PK_Command==COMMAND_Restart_DCERouter_CONST && Simulator::GetInstance()->IsRunning() )
@@ -4043,9 +4048,19 @@ g_pPlutoLogger->Write( LV_STATUS, "Parm %d = %s",( *iap ).first,Value.c_str());
     }
     if(  pMessage && !m_bLocalMode  )
     {
-        if( !m_pcRequestSocket->SendMessage( pMessage ) )
-            g_pPlutoLogger->Write( LV_CRITICAL,  "Send Message failed");
-
+		if( bGetConfirmation )
+		{
+			pMessage->m_eExpectedResponse = ER_DeliveryConfirmation;  // i.e. just an "OK"
+			string sResponse; // We'll use this only if a response wasn't passed in
+			bool bResult = m_pcRequestSocket->SendMessage( pMessage, sResponse );
+			if( !bResult || sResponse != "OK" )
+				g_pPlutoLogger->Write( LV_CRITICAL,  "Send Message failed with result %d Response %s",(int) bResult,sResponse.c_str());
+		}
+		else
+		{
+			if( !m_pcRequestSocket->SendMessage( pMessage ) )
+				g_pPlutoLogger->Write( LV_CRITICAL,  "Send Message failed");
+		}
 		pMessage = NULL;
     }
     if(  bRefreshGrids  )
@@ -4172,6 +4187,8 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
             Output += StringUtils::itos( m_pLocationInfo_Initial->m_dwPK_Device_MediaDirector );
         else if(  Variable=="LD" && m_pLocationInfo  )
             Output += m_pLocationInfo->Description;
+        else if(  Variable=="LDGC"  )
+            Output += m_sLastSelectedDatagrid;
         else if(  Variable=="V" )
 			Output += string(VERSION) + "(" + g_szCompile_Date + ")";
         else if(  Variable=="NP" )
@@ -4777,10 +4794,13 @@ DumpScreenHistory();
 
         // We now took the prior screen off teh list
         m_listScreenHistory.pop_back(  );
-        if(  pScreenHistory->m_bCantGoBack && sForce!="1"  )
+        if( pScreenHistory->m_bCantGoBack && sForce!="1"  )
             continue;
 
-        break;   // We got one to go back to
+        if( m_pScreenHistory_Current && pScreenHistory->m_pObj==m_pScreenHistory_Current->m_pObj && !pScreenHistory->m_pObj->m_bCanGoBackToSameScreen  )
+            continue;
+
+		break;   // We got one to go back to
     }
 
     // todo hack -- handle restoring variables,  etc. pScreenHistory

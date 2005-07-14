@@ -1406,6 +1406,7 @@ if( ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()==3412 )//2821 && bAddToGen
 	ocDesignObj->m_iRepeatIntervalInMS = ocDesignObj->m_pRow_DesignObjVariation->RepeatMS_get();
 	ocDesignObj->m_bRepeatParm = ocDesignObj->m_pRow_DesignObjVariation->RepeatParm_get()==1;
 	ocDesignObj->m_bCantGoBack = ocDesignObj->m_pRow_DesignObj->CantGoBack_get()==1;
+	ocDesignObj->m_bCanGoBackToSameScreen = ocDesignObj->m_pRow_DesignObj->CanGoBackToSameScreen_get()==1;
 
 	//		StringUtils::itos(ocDesignObj->m_bChildrenBeforeText) << "|" << 
 	//StringUtils::itos(ocDesignObj->m_bChildrenBehind) << "|" << 
@@ -1543,7 +1544,7 @@ if( ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()==3412 )//2821 && bAddToGen
 		// Just output 1 zone that is the full object size with a nav_goto
 
 		DesignObjZone *p_DesignObjZone = new DesignObjZone(ocDesignObj->m_rPosition.X,ocDesignObj->m_rPosition.Y,ocDesignObj->m_rPosition.Width,ocDesignObj->m_rPosition.Height);
-		DesignObjCommand *p_DesignObjCommand = new DesignObjCommand(COMMAND_Goto_Screen_CONST,0,true,0,0);
+		DesignObjCommand *p_DesignObjCommand = new DesignObjCommand(COMMAND_Goto_Screen_CONST,0,true,0,0,false);
 		p_DesignObjZone->m_Commands.push_back(p_DesignObjCommand);
 		p_DesignObjCommand->m_ParameterList[COMMANDPARAMETER_PK_DesignObj_CONST] = ocDesignObj->m_sDesignObjGoto;
 		ocDesignObj->m_ZoneList.push_back(p_DesignObjZone);

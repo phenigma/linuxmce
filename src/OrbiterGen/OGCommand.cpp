@@ -61,6 +61,7 @@ CGCommand::CGCommand(Row_CommandGroup_Command * drAGA,DesignObj_Generator *Paren
 	m_drCommandGroup_Command = drAGA;
 	m_PK_Command = m_drCommandGroup_Command->FK_Command_get();
 	m_drCommand = m_drCommandGroup_Command->FK_Command_getrow();
+	m_bDeliveryConfirmation = m_drCommandGroup_Command->DeliveryConfirmation_get();
 	if( !m_drCommandGroup_Command->FK_Device_isNull() )
 		m_PK_Device = m_drCommandGroup_Command->FK_Device_get();
 	if( !m_drCommandGroup_Command->FK_DeviceGroup_isNull() )
@@ -91,6 +92,7 @@ CGCommand::CGCommand(Row_CommandGroup_D_Command * drAGA,DesignObj_Generator *Par
 	m_drCommandGroup_D_Command = drAGA;
 	m_PK_Command = m_drCommandGroup_D_Command->FK_Command_get();
 	m_drCommand = m_drCommandGroup_D_Command->FK_Command_getrow();
+	m_bDeliveryConfirmation = m_drCommandGroup_D_Command->DeliveryConfirmation_get();
 	if( !m_drCommandGroup_D_Command->FK_DeviceTemplate_isNull() )
 		m_PK_DeviceTemplate = m_drCommandGroup_D_Command->FK_DeviceTemplate_get();
 	if( !m_drCommandGroup_D_Command->FK_DeviceCategory_isNull() )

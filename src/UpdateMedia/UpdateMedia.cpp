@@ -23,6 +23,7 @@
 
 #include "pluto_media/Table_File.h"
 #include "pluto_media/Table_Picture_File.h"
+#include "pluto_media/Table_Attribute.h"
 #include "pluto_media/Table_Picture_Attribute.h"
 #include "pluto_media/Table_File_Attribute.h"
 
@@ -174,6 +175,30 @@ cout << *it << " exists in db as: " << PK_File << endl;
 		int i = GetPicForFileOrDirectory(sDirectory + "/" + *it,PK_File);
 		if( !PK_Picture )
 			PK_Picture = i;
+
+		if( PK_Picture )
+		{
+			string sSql="SELECT Attribute.* FROM Attribute"
+				" JOIN File_Attribute ON FK_Attribute=PK_Attribute"
+				" JOIN File ON FK_File=PK_File"
+				" JOIN MediaType_AttributeType ON Attribute.FK_AttributeType=MediaType_AttributeType.FK_AttributeType"
+				" AND MediaType_AttributeType.EK_MediaType=File.EK_MediaType"
+				" WHERE PK_File=" + StringUtils::itos(PK_File) + " AND Identifier=1";
+			vector<Row_Attribute *> vectRow_Attribute;
+			m_pDatabase_pluto_media->Attribute_get()->GetRows(sSql,&vectRow_Attribute);
+			for(size_t s=0;s<vectRow_Attribute.size();++s)
+			{
+				Row_Attribute *pRow_Attribute = vectRow_Attribute[s];
+				Row_Picture_Attribute *pRow_Picture_Attribute = m_pDatabase_pluto_media->Picture_Attribute_get()->GetRow(PK_Picture,pRow_Attribute->PK_Attribute_get());
+				if( !pRow_Picture_Attribute )
+				{
+					pRow_Picture_Attribute = m_pDatabase_pluto_media->Picture_Attribute_get()->AddRow();
+					pRow_Picture_Attribute->FK_Picture_set(PK_Picture);
+					pRow_Picture_Attribute->FK_Attribute_set(pRow_Attribute->PK_Attribute_get());
+					m_pDatabase_pluto_media->Picture_Attribute_get()->Commit();
+				}
+			}
+		}
 	}
 
 	// See if there are any files in the database that aren't in the directory any more

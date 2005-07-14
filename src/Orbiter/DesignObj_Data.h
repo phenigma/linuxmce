@@ -26,25 +26,26 @@ class DesignObjCommand : public SerializeClass
 public:
 	int m_PK_Command,m_PK_Device,m_PK_DeviceGroup; //,PK_C_ExecTime;
 	int BroadcastLevel,m_PK_DeviceTemplate,m_PK_DeviceCategory;
-	bool m_bRelativeToSender;
+	bool m_bRelativeToSender,m_bDeliveryConfirmation;
 
 	map<int, string> m_ParameterList;
 	class Orbiter_CriteriaList *ptrCriteria;
 
 	DesignObjCommand() : ptrCriteria(NULL) {};
-	DesignObjCommand(int PK_Command,int PK_Criteria,bool bHandleLocally,int PK_Device,int PK_DeviceGroup) 
+	DesignObjCommand(int PK_Command,int PK_Criteria,bool bHandleLocally,int PK_Device,int PK_DeviceGroup, bool bDeliveryConfirmation) 
 		: ptrCriteria(NULL) 
 	{
 		m_PK_Command=PK_Command;
 		m_PK_Device=PK_Device;
 		m_PK_DeviceGroup=PK_DeviceGroup;
+		m_bDeliveryConfirmation=bDeliveryConfirmation;
 	};
 	virtual ~DesignObjCommand() { m_ParameterList.clear(); } 
 	void SetupSerialization(int iSC_Version)
 	{
 		StartSerializeList() + m_PK_Command + m_PK_Device + m_PK_DeviceGroup + 
 			BroadcastLevel + m_PK_DeviceTemplate + m_PK_DeviceCategory +
-			m_bRelativeToSender + 
+			m_bRelativeToSender + m_bDeliveryConfirmation +
 			m_ParameterList;
 	}
 	virtual string SerializeClassClassName() { return "DesignObjCommand"; }
@@ -144,7 +145,7 @@ class DesignObj_Data : public SerializeClass
 {
 public:
 	// Our data
-	bool m_bChild,m_bDontResetState,m_bCantGoBack,m_bChildrenBeforeText,m_bProcessActionsAtServer,m_bAnimate,m_bHideByDefault;
+	bool m_bChild,m_bDontResetState,m_bCantGoBack,m_bCanGoBackToSameScreen,m_bChildrenBeforeText,m_bProcessActionsAtServer,m_bAnimate,m_bHideByDefault;
 	bool m_bTabStop;
 	int m_PK_DesignObj_Up,m_PK_DesignObj_Down,m_PK_DesignObj_Left,m_PK_DesignObj_Right,m_iRegenInterval;
 	string m_sPK_DesignObj_TiedTo;
@@ -185,7 +186,7 @@ public:
 
 	void SetupSerialization(int iSC_Version)
 	{
-		StartSerializeList() + m_bChild + m_bDontResetState + m_bCantGoBack + m_bChildrenBeforeText + m_bProcessActionsAtServer + m_bAnimate + m_bHideByDefault + 
+		StartSerializeList() + m_bChild + m_bDontResetState + m_bCantGoBack + m_bCanGoBackToSameScreen + m_bChildrenBeforeText + m_bProcessActionsAtServer + m_bAnimate + m_bHideByDefault + 
 		m_bTabStop + m_iPK_Button + m_dwTimeoutSeconds + m_Priority + m_iPK_Criteria + 
 		m_sBackgroundFile +  m_sSelectedFile +  m_sHighlightGraphicFilename +
 		m_vectAltGraphicFilename + m_mapObjParms +

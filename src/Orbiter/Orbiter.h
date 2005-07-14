@@ -173,6 +173,8 @@ protected:
 	string m_sCaptureKeyboard_Text; /** < text for capture keyboard @todo ask */
 	string m_sCaptureKeyboard_InternalBuffer; /** < capture keyboard internal buffer */
 
+	string m_sLastSelectedDatagrid; /** < The contents of the last selected datagrid cell */
+
 	// The remotes for the current media
 	int m_iPK_DesignObj_Remote,m_iPK_DesignObj_Remote_Popup,m_iPK_DesignObj_FileList,m_iPK_DesignObj_FileList_Popup,m_iPK_DesignObj_RemoteOSD;
 	string m_sNowPlaying,m_sDefaultRippingName; /** < set by the media engine, this is whatever media is currently playing */

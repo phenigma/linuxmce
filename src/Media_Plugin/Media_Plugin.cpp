@@ -3876,6 +3876,7 @@ int Media_Plugin::AddIdentifiedDiscToDB(string sIdentifiedDisc,MediaStream *pMed
 	{
 		pRow_Disc = m_pDatabase_pluto_media->Disc_get()->AddRow();
 		pRow_Disc->ID_set(sIdentifiedDisc);
+		pRow_Disc->EK_MediaType_set(pMediaStream->m_iPK_MediaType);
 		pRow_Disc->Table_Disc_get()->Commit();
 	}
 	pMediaStream->m_dwPK_Disc = pRow_Disc->PK_Disc_get();
@@ -3934,6 +3935,28 @@ int Media_Plugin::AddIdentifiedDiscToDB(string sIdentifiedDisc,MediaStream *pMed
 		pRow_Picture_Disc->FK_Disc_set( pRow_Disc->PK_Disc_get() );
 		pRow_Picture_Disc->FK_Picture_set( pRow_Picture->PK_Picture_get() );
 		m_pDatabase_pluto_media->Picture_Disc_get()->Commit();
+
+		// Find all attributes that we added that identify this disc and need the same picture
+		string sWhere="SELECT Attribute.* FROM Attribute"
+			" JOIN Disc_Attribute ON FK_Attribute=PK_Attribute"
+			" JOIN Disc ON FK_Disc=PK_Disc"
+			" JOIN MediaType_AttributeType ON Attribute.FK_AttributeType=MediaType_AttributeType.FK_AttributeType"
+			" AND MediaType_AttributeType.EK_MediaType=Disc.EK_MediaType"
+			" WHERE PK_Disc=" + StringUtils::itos(pRow_Disc->PK_Disc_get()) + " AND Identifier=1";
+		vector<Row_Attribute *> vectRow_Attribute;
+		m_pDatabase_pluto_media->Attribute_get()->GetRows(sWhere,&vectRow_Attribute);
+		for(size_t s=0;s<vectRow_Attribute.size();++s)
+		{
+			Row_Attribute *pRow_Attribute = vectRow_Attribute[s];
+			Row_Picture_Attribute *pRow_Picture_Attribute = m_pDatabase_pluto_media->Picture_Attribute_get()->GetRow(pRow_Picture->PK_Picture_get(),pRow_Attribute->PK_Attribute_get());
+			if( !pRow_Picture_Attribute )
+			{
+				pRow_Picture_Attribute = m_pDatabase_pluto_media->Picture_Attribute_get()->AddRow();
+				pRow_Picture_Attribute->FK_Picture_set(pRow_Picture->PK_Picture_get());
+				pRow_Picture_Attribute->FK_Attribute_set(pRow_Attribute->PK_Attribute_get());
+				m_pDatabase_pluto_media->Picture_Attribute_get()->Commit();
+			}
+		}
 	}
 	return pRow_Disc->PK_Disc_get();
 }
