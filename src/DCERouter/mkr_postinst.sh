@@ -222,3 +222,5 @@ awk '!/^#/ && ($3 == "ext2" || $3 == "ext3" || $3 == "xfs") {print $2}' /etc/fst
 	echo -n "$line "
 	mount -o remount $line && echo "Ok" || echo "Failed"
 done
+
+[[ -z "$RA_CheckRemotePort" ]] && ConfSet RA_CheckRemotePort 1
