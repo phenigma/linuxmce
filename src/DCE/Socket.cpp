@@ -497,6 +497,9 @@ bool Socket::SendData( int iSize, const char *pcData )
 	{
 		fd_set wrfds;
 		struct timeval tv_total, tv;
+        struct timeval tv_select_1; 
+        struct timeval tv_select_2; 
+        struct timeval tv_select;
 
 		if ( m_Socket == INVALID_SOCKET )
 		{
@@ -544,7 +547,17 @@ bool Socket::SendData( int iSize, const char *pcData )
 
 			tv.tv_sec = 1;
 			tv.tv_usec = 0;
+
+            //before select
+            gettimeofday(&tv_select_1, NULL);
+
 			iRet = select((int) (m_Socket+1), NULL, &wrfds, NULL, &tv);
+
+            //after select
+            gettimeofday(&tv_select_2, NULL);
+            //the select took 'tv_select' time
+            tv_select = tv_select_2 - tv_select_1;
+
 
 #ifndef WINCE
 			if (errno == EINTR)
@@ -554,8 +567,8 @@ bool Socket::SendData( int iSize, const char *pcData )
 			}
 #endif
 
-			tv_total -= 1000;
-			tv_total += tv;
+			tv_total -= tv_select;
+
 		} while (iRet != -1 && iRet != 1 && tv_total.tv_sec > 0);
 
 		if (iRet == 1)
@@ -668,6 +681,9 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 		{
 			fd_set rfds;
 			struct timeval tv, tv_total;
+            struct timeval tv_select_1; 
+            struct timeval tv_select_2; 
+            struct timeval tv_select;
 
 			int iRet;
 
@@ -684,7 +700,16 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 
 				tv.tv_sec = 1;
 				tv.tv_usec = 0;
+                
+                //before select
+                gettimeofday(&tv_select_1, NULL);
+
 				iRet = select((int) (m_Socket+1), &rfds, NULL, NULL, &tv);
+
+                //after select
+                gettimeofday(&tv_select_2, NULL);
+                //the select took 'tv_select' time
+                tv_select = tv_select_2 - tv_select_1;
 
 #ifndef WINCE
 				if (errno == EINTR)
@@ -693,8 +718,7 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 					iRet = 0;
 				}
 #endif
-				tv_total -= 1000;
-				tv_total += tv;
+				tv_total -= tv_select;
 #ifndef DISABLE_SOCKET_TIMEOUTS
 			} while (iRet != -1 && iRet != 1 && (m_iReceiveTimeout > 0 ? tv_total.tv_sec > 0 : true));
 #else
