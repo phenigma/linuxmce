@@ -7212,6 +7212,8 @@ PlutoPopup *Orbiter::FindPopupByName(DesignObj_Orbiter *pObj,string sName)
 void Orbiter::CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string sPK_DesignObj_CurrentScreen,string sName,bool bExclusive,bool bDont_Auto_Hide,string &sCMD_Result,Message *pMessage)
 //<-dceag-c397-e->
 {
+    g_pPlutoLogger->Write(LV_CRITICAL,"show popup %s",sName.c_str());
+
     PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
 
 	DesignObj_Orbiter *pObj_Popup = FindObject(sPK_DesignObj);
@@ -7257,7 +7259,7 @@ void Orbiter::CMD_Remove_Popup(string sPK_DesignObj_CurrentScreen,string sName,s
 {
     PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
 	DesignObj_Orbiter *pObj = FindObject(sPK_DesignObj_CurrentScreen);
-g_pPlutoLogger->Write(LV_STATUS,"remove popup %s",sName.c_str());
+g_pPlutoLogger->Write(LV_CRITICAL,"remove popup %s",sName.c_str());
 
 	if( pObj )
 	{
@@ -7426,8 +7428,8 @@ bool Orbiter::AddPopup(list<class PlutoPopup*> &listPopups,class PlutoPopup *pPo
 		{
 			if( p->m_pObj==pPopup->m_pObj && p->m_Position==pPopup->m_Position )
 				return false;
-			listPopups.erase(it);
-			delete p;
+
+            CMD_Remove_Popup("", pPopup->m_sName);
 			break;
 		}
 	}
