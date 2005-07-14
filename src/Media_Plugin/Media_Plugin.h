@@ -547,9 +547,11 @@ public:
 			/** The target disk name, or for cd's, a comma-delimited list of names for each track. */
 		/** @param #121 Tracks */
 			/** For CD's, this must be a comma-delimted list of tracks (1 based) to rip. */
+		/** @param #131 EK_Disc */
+			/** The ID of the disc to rip */
 
-	virtual void CMD_Rip_Disk(int iPK_Users,string sName,string sTracks) { string sCMD_Result; CMD_Rip_Disk(iPK_Users,sName.c_str(),sTracks.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,int iEK_Disc) { string sCMD_Result; CMD_Rip_Disk(iPK_Users,sName.c_str(),sTracks.c_str(),iEK_Disc,sCMD_Result,NULL);};
+	virtual void CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,int iEK_Disc,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #372 - MH Set Volume */
@@ -651,6 +653,17 @@ public:
 
 	virtual void CMD_Rename_Bookmark(string sValue_To_Assign,int iPK_Users,int iEK_Bookmark) { string sCMD_Result; CMD_Rename_Bookmark(sValue_To_Assign.c_str(),iPK_Users,iEK_Bookmark,sCMD_Result,NULL);};
 	virtual void CMD_Rename_Bookmark(string sValue_To_Assign,int iPK_Users,int iEK_Bookmark,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #412 - Set Media Position */
+	/** Position the current media to a bookmark */
+		/** @param #41 StreamID */
+			/** The stream to set */
+		/** @param #42 MediaPosition */
+			/** The media position.  When MediaPlugin gets this, it will be a bookmark ID, when a media player gets it, the string */
+
+	virtual void CMD_Set_Media_Position(int iStreamID,string sMediaPosition) { string sCMD_Result; CMD_Set_Media_Position(iStreamID,sMediaPosition.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Set_Media_Position(int iStreamID,string sMediaPosition,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

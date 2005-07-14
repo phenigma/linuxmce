@@ -7363,7 +7363,7 @@ void Orbiter::RemoveShortcuts( void *data )
 void Orbiter::CMD_Show_File_List(string sPK_DesignObj,string sFilename,int iPK_MediaType,string sPK_DesignObj_Popup,string &sCMD_Result,Message *pMessage)
 //<-dceag-c401-e->
 {
-	m_mapVariable[VARIABLE_Datagrid_Input_CONST] = sFilename;
+	m_mapVariable[VARIABLE_Filename_CONST] = sFilename;
 	m_mapVariable[VARIABLE_PK_MediaType_CONST] = StringUtils::itos(iPK_MediaType);
 
 	DesignObj_Orbiter *pObj_Popop_FileList;

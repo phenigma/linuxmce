@@ -647,13 +647,11 @@ string MediaAttributes::GetFilePathFromFileID( int PK_File )
     MYSQL_ROW row;
     if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
     {
-g_pPlutoLogger->Write(LV_CRITICAL,"GetFilePathFromFileID sql ok %s",SQL.c_str());
         string strPath = row[0];
         string strFile = row[1];
         return strPath + "/" + strFile;
     }
 
-g_pPlutoLogger->Write(LV_CRITICAL,"GetFilePathFromFileID sql nothing %s",SQL.c_str());
     return "";
 }
 

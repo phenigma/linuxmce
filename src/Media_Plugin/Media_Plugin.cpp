@@ -760,11 +760,9 @@ MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsi
 {
     PLUTO_SAFETY_LOCK(mm,m_MediaMutex);
 
-g_pPlutoLogger->Write(LV_CRITICAL,"checking %d files for db",(int) dequeMediaFile->size());
 	// Be sure all the files are in the database
 	for(size_t s=0;s<dequeMediaFile->size();++s)
 	{
-g_pPlutoLogger->Write(LV_CRITICAL,"file %s %d",(*dequeMediaFile)[s]->FullyQualifiedFile().c_str(),(*dequeMediaFile)[s]->m_dwPK_File);
 		if( !(*dequeMediaFile)[s]->m_dwPK_File )
 			AddFileToDatabase( (*dequeMediaFile)[s],pMediaHandlerInfo->m_PK_MediaType);
 	}
@@ -3092,8 +3090,10 @@ bool Media_Plugin::MediaFollowMe( class Socket *pSocket, class Message *pMessage
 			/** The target disk name, or for cd's, a comma-delimited list of names for each track. */
 		/** @param #121 Tracks */
 			/** For CD's, this must be a comma-delimted list of tracks (1 based) to rip. */
+		/** @param #131 EK_Disc */
+			/** The ID of the disc to rip */
 
-void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,string &sCMD_Result,Message *pMessage)
+void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,int iEK_Disc,string &sCMD_Result,Message *pMessage)
 //<-dceag-c337-e->
 {
 	// we only have the sources device. This should be an orbiter
@@ -4332,20 +4332,9 @@ class DataGridTable *Media_Plugin::Bookmarks( string GridID, string Parms, void 
 		Row_Bookmark *pRow_Bookmark = vectRow_Bookmark[s];
 
 		DataGridCell *pDataGridCell,*pDataGridCell_Cover,*pDataGridCell_Preview;
-		if( pEntertainArea )
-		{
-			// When browing bookmarks within a file, we will send the position directly to the media player
-			pDataGridCell = new DataGridCell(pRow_Bookmark->Description_get(), pRow_Bookmark->Position_get());
-			pDataGridCell_Cover = new DataGridCell("", pRow_Bookmark->Position_get());
-			pDataGridCell_Preview = new DataGridCell("", pRow_Bookmark->Position_get());
-		}
-		else
-		{
-			// When browsing all bookmarks within a type, we will send the bookmark ID to media plugin
-			pDataGridCell = new DataGridCell(pRow_Bookmark->Description_get(), StringUtils::itos(pRow_Bookmark->PK_Bookmark_get()));
-			pDataGridCell_Cover = new DataGridCell("", StringUtils::itos(pRow_Bookmark->PK_Bookmark_get()));
-			pDataGridCell_Preview = new DataGridCell("", StringUtils::itos(pRow_Bookmark->PK_Bookmark_get()));
-		}
+		pDataGridCell = new DataGridCell(pRow_Bookmark->Description_get(), StringUtils::itos(pRow_Bookmark->PK_Bookmark_get()));
+		pDataGridCell_Cover = new DataGridCell("", StringUtils::itos(pRow_Bookmark->PK_Bookmark_get()));
+		pDataGridCell_Preview = new DataGridCell("", StringUtils::itos(pRow_Bookmark->PK_Bookmark_get()));
 
 		pDataGrid->SetData(0,s,pDataGridCell_Cover);
 		pDataGrid->SetData(1,s,pDataGridCell_Preview);
@@ -4503,6 +4492,13 @@ g_pPlutoLogger->Write(LV_CRITICAL,"size %d pos %d file %p %d",(int) pMediaStream
 void Media_Plugin::CMD_Delete_Bookmark(int iEK_Bookmark,string &sCMD_Result,Message *pMessage)
 //<-dceag-c410-e->
 {
+    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+	Row_Bookmark *pRow_Bookmark = m_pDatabase_pluto_media->Bookmark_get()->GetRow( iEK_Bookmark );
+	if( pRow_Bookmark )
+	{
+		pRow_Bookmark->Delete();
+		m_pDatabase_pluto_media->Bookmark_get()->Commit();
+	}
 }
 
 //<-dceag-c411-b->
@@ -4544,7 +4540,6 @@ void Media_Plugin::AddFileToDatabase(MediaFile *pMediaFile,int PK_MediaType)
 	// TODO: Add attributes from ID3 tags
 	pRow_File->Table_File_get()->Commit();
 	pMediaFile->m_dwPK_File = pRow_File->PK_File_get();
-g_pPlutoLogger->Write(LV_CRITICAL,"File %s is added as %d",pMediaFile->FullyQualifiedFile().c_str(),pRow_File->PK_File_get());
 
 #ifndef WIN32
 	string sPK_File = StringUtils::itos(pMediaFile->m_dwPK_File);
@@ -4657,4 +4652,33 @@ void Media_Plugin::AddDiscAttributesToFile(int PK_File,int PK_Disc,int Track)
 	}
 	g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::AddDiscAttributesToFile file: %d disc %d track %d #pics: %d #attr %d",
 		PK_File,PK_Disc,Track,(int) vectRow_Picture_Disc.size(),(int) vectRow_Disc_Attribute.size());
+}
+//<-dceag-c412-b->
+
+	/** @brief COMMAND: #412 - Set Media Position */
+	/** Position the current media to a bookmark */
+		/** @param #41 StreamID */
+			/** The stream to set */
+		/** @param #42 MediaPosition */
+			/** The media position.  When MediaPlugin gets this, it will be a bookmark ID, when a media player gets it, the string */
+
+void Media_Plugin::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,string &sCMD_Result,Message *pMessage)
+//<-dceag-c412-e->
+{
+    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+
+	vector<EntertainArea *> vectEntertainArea;
+	// Only an Orbiter will tell us to play media
+    DetermineEntArea( pMessage->m_dwPK_Device_From, 0, "", vectEntertainArea );
+	Row_Bookmark *pRow_Bookmark = m_pDatabase_pluto_media->Bookmark_get()->GetRow( atoi(sMediaPosition.c_str()) );
+	EntertainArea *pEntertainArea;
+	if( vectEntertainArea.size()==0 || (pEntertainArea=vectEntertainArea[0])==NULL || !pEntertainArea->m_pMediaStream || !pRow_Bookmark )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Can't go to media position -- no EA or stream");
+		return;
+	}
+
+	DCE::CMD_Set_Media_Position CMD_Set_Media_Position(m_dwPK_Device,pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
+		iStreamID,pRow_Bookmark->Position_get());
+	SendCommand(CMD_Set_Media_Position);
 }

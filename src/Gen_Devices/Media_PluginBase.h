@@ -107,7 +107,7 @@ public:
 	virtual void CMD_Move_Playlist_entry_Down(int iValue,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Remove_playlist_entry(int iValue,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_EntAreas_For_Device(int iPK_Device,string *sText,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,int iEK_Disc,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_MH_Set_Volume(string sPK_EntertainArea,string sLevel,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Media_Private(string sPK_EntertainArea,bool bTrueFalse,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Add_Media_Attribute(string sValue_To_Assign,int iStreamID,string sTracks,int iEK_AttributeType,string &sCMD_Result,class Message *pMessage) {};
@@ -117,6 +117,7 @@ public:
 	virtual void CMD_Save_Bookmark(string sPK_EntertainArea,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Delete_Bookmark(int iEK_Bookmark,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Rename_Bookmark(string sValue_To_Assign,int iPK_Users,int iEK_Bookmark,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Set_Media_Position(int iStreamID,string sMediaPosition,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -449,7 +450,8 @@ public:
 					int iPK_Users=atoi(pMessage->m_mapParameters[17].c_str());
 					string sName=pMessage->m_mapParameters[50];
 					string sTracks=pMessage->m_mapParameters[121];
-						CMD_Rip_Disk(iPK_Users,sName.c_str(),sTracks.c_str(),sCMD_Result,pMessage);
+					int iEK_Disc=atoi(pMessage->m_mapParameters[131].c_str());
+						CMD_Rip_Disk(iPK_Users,sName.c_str(),sTracks.c_str(),iEK_Disc,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -466,7 +468,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Rip_Disk(iPK_Users,sName.c_str(),sTracks.c_str(),sCMD_Result,pMessage);
+								CMD_Rip_Disk(iPK_Users,sName.c_str(),sTracks.c_str(),iEK_Disc,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -712,6 +714,33 @@ public:
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Rename_Bookmark(sValue_To_Assign.c_str(),iPK_Users,iEK_Bookmark,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case 412:
+					{
+						string sCMD_Result="OK";
+					int iStreamID=atoi(pMessage->m_mapParameters[41].c_str());
+					string sMediaPosition=pMessage->m_mapParameters[42];
+						CMD_Set_Media_Position(iStreamID,sMediaPosition.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Set_Media_Position(iStreamID,sMediaPosition.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
