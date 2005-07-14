@@ -55,7 +55,7 @@ case $diskType in
 	*)	result=$ERR_NOT_SUPPORTED_YET;;
 esac
 
-echo $command;
+echo "$command"
 if [ "$command" == "" ]; then 
 	/usr/pluto/bin/MessageSend dcerouter $diskDriveDeviceID -1001 2 35 20 $result 35 "$targetFileName";
 	exit;
@@ -76,9 +76,12 @@ elif [[ "$diskType" == 0 || "$diskType" == 1 || "$diskType" == 6 || "$diskType" 
 		File=${File//@~#/ }
 		Track=${File%,*}
 		FileName=${File#*,}
-#		if ! nice -n 15 cdparanoia -d $sourceDevice $Track - | flac -o $Dir/$FileName.in-progress-flac -; then
-		echo "Executing: $(eval echo \"$command\")"
-		if ! eval $command; then
+		
+		echo "Track: $Track; Filename: $FileName"
+		displaycmd="$command"
+		displaycmd="${displaycmd//\\\"/\\\"}"
+		echo "Executing: $(eval echo "\"$displaycmd\"")"
+		if ! eval "$command"; then
 			echo "Ripping failed"
 			/usr/pluto/bin/MessageSend dcerouter $diskDriveDeviceID -1001 2 35 20 $ERR_RESULT_FAILURE 35 "$FileName"
 			exit
