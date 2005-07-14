@@ -6,6 +6,10 @@ switch($scriptID){
 		$command[]='sudo -u root /usr/pluto/bin/Update_StartupScrips.sh';
 		$title='Please wait for the setup process to complete, then do a ‘quick reload router’, and then you can bootup your new diskless media director.';
 	break;
+	case 2:
+		$command[]=stripslashes(urldecode($_REQUEST['command']));
+		$title='sqlCVS update';
+	break;	
 	default:
 		$command[]='';
 		$title='No command specified.';

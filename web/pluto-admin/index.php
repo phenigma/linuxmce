@@ -1196,6 +1196,31 @@ switch ($section) {
 	    include_once('operations/myDevices/editComputingApplications.php');
 	    editComputingApplications($output,$dbADO,$mediadbADO);
 	break;	
+	case 'sqlcvs_update';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/sqlCVS/sqlcvs_update.php');
+	    sqlcvs_update($output,$dbADO);
+	break;	
+	case 'sqlcvs_checkin';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/sqlCVS/sqlcvs_checkin.php');
+	    sqlcvs_checkin($output,$dbADO);
+	break;	
+	case 'sqlcvs_diff';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/sqlCVS/sqlcvs_diff.php');
+	    sqlcvs_diff($output,$dbADO);
+	break;	
+	case 'sqlcvs_view_batch';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/sqlCVS/sqlcvs_view_batch.php');
+	    sqlcvs_view_batch($output,$dbADO);
+	break;	
+
 	
 	case '';
 		$output = new Template($dbADO);	

@@ -1308,7 +1308,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 						<th width="25%">Device Category</th>
 						<th width="25%">
 						Models ';
-						if(ereg('parentID',@$_SESSION['from']) && $_SESSION['parentID']!=0){
+						if(ereg('parentID',@$_SESSION['from']) && @$_SESSION['parentID']!=0){
 							$parentFields=getProperties($_SESSION['parentID'],'Device','FK_DeviceTemplate','PK_Device',$dbADO);
 							$dtFields=getProperties($parentFields['FK_DeviceTemplate'],'DeviceTemplate','Description','PK_DeviceTemplate',$dbADO);
 							$out.=' controlled by '.$dtFields['Description'];
@@ -3569,6 +3569,14 @@ function getScenarios($arrayID,$installationID,$dbADO)
 	}
 	
 	return $scenariosArray;
+}
 
+function getUnixStamp($date)
+{
+	$dateArray=explode(' ',$date);
+	$dateParts=explode('-',$dateArray[0]);
+	$timeParts=explode(':',$dateArray[1]);
+
+	return mktime($timeParts[0],$timeParts[1],$timeParts[2],$dateParts[1],$dateParts[2],$dateParts[0]);
 }
 ?>

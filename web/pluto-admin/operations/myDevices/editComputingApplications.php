@@ -20,7 +20,7 @@ function editComputingApplications($output,$dbADO,$mediadbADO) {
 		
 	$tableRows='';
 	$appArray=getFieldsAsArray('Device_QuickStart','PK_Device_QuickStart,Description,SortOrder,`Binary`,Arguments,EK_Picture',$dbADO,'WHERE FK_Device='.$mdID,'ORDER BY SortOrder ASC');
-	for($i=0;$i<count($appArray['PK_Device_QuickStart']);$i++){
+	for($i=0;$i<count(@$appArray['PK_Device_QuickStart']);$i++){
 		$color=($i%2!=0)?'#F0F3F8':'#FFFFFF';
 		$pic=(!is_null($appArray['EK_Picture'][$i]))?'<img src="include/image.php?imagepath='.$fixedPath.'/'.$picsByKey[$appArray['EK_Picture'][$i]].'" align="middle">':'&nbsp;';
 		$tableRows.='
@@ -34,7 +34,7 @@ function editComputingApplications($output,$dbADO,$mediadbADO) {
 			</tr>
 		';
 	}
-	$tableRows.='<input type="hidden" name="apps" value="'.join(',',array_values($appArray['PK_Device_QuickStart'])).'">';
+	$tableRows.='<input type="hidden" name="apps" value="'.@join(',',@array_values($appArray['PK_Device_QuickStart'])).'">';
 	
 		
 		
