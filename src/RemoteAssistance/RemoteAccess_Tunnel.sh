@@ -20,9 +20,10 @@ else
 fi
 
 # TODO: check or remove host key every time just in case
+# TODO: check if port 80 isn't proxyed and if it is, also check port 22
 while echo 'x'; do
 	sleep 5
 done |
-	ssh -i $RAKey -R$RemotePort:localhost:$LocalPort remoteassistance@pf.plutohome.com |
+	ssh -p 80 -i $RAKey -R$RemotePort:localhost:$LocalPort remoteassistance@pf.plutohome.com |
 	tee /dev/tty | /usr/pluto/bin/charperiod
 Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Tunnel to port $LocalPort died"
