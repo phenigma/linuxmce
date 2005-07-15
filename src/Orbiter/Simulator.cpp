@@ -254,7 +254,7 @@ Simulator::Simulator()
 	m_bGenerateKeyboardEvents = 1;
 	m_iKeysSetToGenerate = 1;
 	m_sHomeScreen = "1255";
-	m_bTryToDetermineAutomatically = true;
+	m_bTryToDetermineAutomatically = false;
 	m_bFullScreen = false;
 	m_bLogToServer = false;
 
@@ -329,7 +329,7 @@ void Simulator::LoadConfigurationFile(string sConfigurationFile)
 	m_iKeysSetToGenerate = ReadInteger("KeysSetToGenerate", m_iKeysSetToGenerate);
 	m_sHomeScreen = ReadString("HomeScreen", m_sHomeScreen);
 
-	m_bTryToDetermineAutomatically = ReadInteger("TryToDetermineAutomatically", (int)m_bTryToDetermineAutomatically) != 0;
+	m_bTryToDetermineAutomatically = false;
 	m_bFullScreen = ReadInteger("FullScreen", (int)m_bFullScreen) != 0;
 	m_bLogToServer = ReadInteger("LogToServer", (int)m_bLogToServer) != 0;
 	m_sDeviceID = ReadString("DeviceID", m_sDeviceID);

@@ -35,11 +35,11 @@
 #endif
 
 #define MAX_LOADSTRING 100
-#define WIN_WIDTH	   800
-#define WIN_HEIGHT	   500
+#define WIN_WIDTH	   240
+#define WIN_HEIGHT	   320
 
-#define SDL_WIDTH	   800
-#define SDL_HEIGHT	   600
+#define SDL_WIDTH	   240
+#define SDL_HEIGHT	   320
 
 #define MENU_HEIGHT	   25
 //-----------------------------------------------------------------------------------------------------
@@ -71,7 +71,6 @@ HWND				g_hWndPage1;
 HWND				g_hWndPage2;
 HWND				g_hWndPage3;
 //-----------------------------------------------------------------------------------------------------
-HWND				g_hWnd_TryAutomCheckBox;
 HWND				g_hWnd_FullScreenCheckBox;
 HWND				g_hWnd_LogToServerCheckBox;
 HWND				g_hWnd_DeviceIDEdit;
@@ -439,9 +438,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					if(lParam == (LPARAM)g_hWnd_ApplyButton)
 						OnApply();
 
-					if(lParam ==  (LPARAM)g_hWnd_TryAutomCheckBox)
-						OnTryAutomCheckBoxChanged();
-
 					break;
 				}
 			}
@@ -476,19 +472,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 
 				//configuration info
-				g_hWnd_TryAutomCheckBox = CreateCheckBox(hWnd, 10, WIN_HEIGHT - 4 * MENU_HEIGHT - SMALL_BOTTOM_OFFSET - BOTTOM_ADJUSTMENT, "Try to determine automatically the device id", 330);
-				g_hWnd_FullScreenCheckBox = CreateCheckBox(hWnd, 350, WIN_HEIGHT - 4 * MENU_HEIGHT - SMALL_BOTTOM_OFFSET - BOTTOM_ADJUSTMENT, "Full screen", 120);
-				g_hWnd_LogToServerCheckBox = CreateCheckBox(hWnd, 500, WIN_HEIGHT - 4 * MENU_HEIGHT - SMALL_BOTTOM_OFFSET - BOTTOM_ADJUSTMENT, "Log to server for debugging", 200);
+				g_hWnd_FullScreenCheckBox = CreateCheckBox(hWnd, 10, WIN_HEIGHT - 4 * MENU_HEIGHT - SMALL_BOTTOM_OFFSET - BOTTOM_ADJUSTMENT, "Full screen", 120);
+				g_hWnd_LogToServerCheckBox = CreateCheckBox(hWnd, 130, WIN_HEIGHT - 4 * MENU_HEIGHT - SMALL_BOTTOM_OFFSET - BOTTOM_ADJUSTMENT, "Log to server for debugging", 200);
 	
 				CreateLabel(hWnd, 10, WIN_HEIGHT - 4 * MENU_HEIGHT + 15 - SMALL_BOTTOM_OFFSET + 3 - BOTTOM_ADJUSTMENT, 80, "Device ID: ");	
 				g_hWnd_DeviceIDEdit = CreateEdit(hWnd, 90, WIN_HEIGHT - 4 * MENU_HEIGHT + 15 - SMALL_BOTTOM_OFFSET + 3 - BOTTOM_ADJUSTMENT, 50, "", true, true);
-				CreateLabel(hWnd, 150, WIN_HEIGHT - 4 * MENU_HEIGHT + 15 - SMALL_BOTTOM_OFFSET + 3 - BOTTOM_ADJUSTMENT, 660, "(To determine the device ID automatically, this device's IP address must be listed in the database)");
 
 				CreateLabel(hWnd, 10, WIN_HEIGHT - 4 * MENU_HEIGHT + 35 - SMALL_BOTTOM_OFFSET + 3 - BOTTOM_ADJUSTMENT, 80, "Router IP: ");	
 				g_hWnd_RouterIPEdit = CreateEdit(hWnd, 90, WIN_HEIGHT - 4 * MENU_HEIGHT + 35 - SMALL_BOTTOM_OFFSET + 3 - BOTTOM_ADJUSTMENT, 100, "", false, false);
-				CreateLabel(hWnd, 200, WIN_HEIGHT - 4 * MENU_HEIGHT + 35 - SMALL_BOTTOM_OFFSET + 3 - BOTTOM_ADJUSTMENT, 500, "(If no IP is specified, this will try to resolve the name 'dcerouter')");
 
-				g_hWnd_ApplyButton = CreateButton(hWnd, WIN_WIDTH - 60, WIN_HEIGHT - 4 * MENU_HEIGHT + 35 - SMALL_BOTTOM_OFFSET + 3 - BOTTOM_ADJUSTMENT, "&Apply");
+				g_hWnd_ApplyButton = CreateButton(hWnd, 160, WIN_HEIGHT - 4 * MENU_HEIGHT + 10 - BOTTOM_ADJUSTMENT + 3 - BOTTOM_ADJUSTMENT, "&Apply");
 
 				g_hWndTab = CreateTabControl(hWnd);
 				g_hWndPage1 = CreatePage(g_hWndTab);
@@ -1276,7 +1269,7 @@ void OnApply()
 //-----------------------------------------------------------------------------------------------------
 void OnTryAutomCheckBoxChanged()
 {
-	bool bAutomDetection = BST_CHECKED == ::SendMessage(g_hWnd_TryAutomCheckBox, BM_GETCHECK, 0, 0);
+	bool bAutomDetection = false;
 
 	if(bAutomDetection) 
 	{
@@ -1356,7 +1349,7 @@ void SaveUI_To_ConfigurationData()
 	string HomeScreen;
 	GetEditText(g_hWndRandom_HomeEdit, HomeScreen);
 
-	bool bAutomDetection = BST_CHECKED == ::SendMessage(g_hWnd_TryAutomCheckBox, BM_GETCHECK, 0, 0);
+	bool bAutomDetection = false;
 
 	string DeviceID;
 	GetEditText(g_hWnd_DeviceIDEdit, DeviceID);
@@ -1387,8 +1380,7 @@ void SyncConfigurationData()
 {
 	Simulator::GetInstance()->m_sDeviceID = StringUtils::ltos(CmdLineParams.PK_Device);
 	Simulator::GetInstance()->m_sRouterIP = CmdLineParams.sRouter_IP;
-	Simulator::GetInstance()->m_bTryToDetermineAutomatically = 
-		CmdLineParams.PK_Device == 0 && CmdLineParams.sRouter_IP == "dcerouter";
+	Simulator::GetInstance()->m_bTryToDetermineAutomatically = false;
 	Simulator::GetInstance()->m_bFullScreen = CmdLineParams.bFullScreen;
 
 }
@@ -1441,8 +1433,6 @@ void LoadUI_From_ConfigurationData()
 		case 2: ::SendMessage(g_hWndRandom_KeyOption3RadioBox, BM_SETCHECK, BST_CHECKED, 0); break;
 	}
 
-	::SendMessage(g_hWnd_TryAutomCheckBox, BM_SETCHECK, 
-		Simulator::GetInstance()->m_bTryToDetermineAutomatically ? BST_CHECKED : BST_UNCHECKED, 0);
 	::SendMessage(g_hWnd_FullScreenCheckBox, BM_SETCHECK, 
 		Simulator::GetInstance()->m_bFullScreen ? BST_CHECKED : BST_UNCHECKED, 0);
 	::SendMessage(g_hWnd_LogToServerCheckBox, BM_SETCHECK, 

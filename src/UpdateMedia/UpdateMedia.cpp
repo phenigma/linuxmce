@@ -131,36 +131,9 @@ int UpdateMedia::ReadDirectory(string sDirectory)
 		map<string,pair<Row_File *,bool> >::iterator itMapFiles = mapFiles.find( *it );
 		if( itMapFiles==mapFiles.end() )
 		{
-			// Nope.  It's either a new file, or it was moved here from some other directory.  If so,
-			// then the the attribute should be set.
-			PK_File = GetFileAttribute(sDirectory,*it);
-cout << *it << " not in db-attr: " << PK_File << endl;
+			PK_File = HandleFileNotInDatabase(sDirectory,*it);
 			if( !PK_File )
-			{
-				// Is it a media file?
-				string sExtension = FileUtils::FindExtension(*it);
-				int PK_MediaType = m_mapExtensions[sExtension];
-				if( PK_MediaType )
-					PK_File = AddFileToDatabase(PK_MediaType,sDirectory,*it);
-				else
-				{
-cout << "not a media file" << endl;
-					continue; // Nothing to do
-}
-			}
-			else
-			{
-				Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(PK_File);
-				if( !pRow_File )
-				{
-					SetFileAttribute(sDirectory,*it,0);  // The file doesn't exist.  Shouldn't really happen
-cout << "Huh??  not in db now" << endl;
-					continue; //  Nothing to do
-				}
-				// it was in the database, but it's been moved to a different directory
-				pRow_File->Path_set( sDirectory );
-				pRow_File->Table_File_get()->Commit();
-			}
+				continue; // Nothing to do
 		}
 		else
 		{
@@ -224,7 +197,24 @@ cout << sDirectory << " is a ripped dvd" << endl;
 #ifndef WIN32
 			attr_set( sDirectory.c_str( ), "DIR_AS_FILE", "1", 1, 0 );
 #endif
+			// Add this directory like it were a file
+			int PK_File=HandleFileNotInDatabase(FileUtils::BasePath(sDirectory),FileUtils::FilenameWithoutPath(sDirectory),MEDIATYPE_pluto_DVD_CONST);
+			Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(PK_File);
+			pRow_File->IsDirectory_set(false);
+			m_pDatabase_pluto_media->File_get()->Commit();
+
+			SetFileAttribute(FileUtils::BasePath(sDirectory),FileUtils::FilenameWithoutPath(sDirectory),PK_File);
 			break; // Don't recurse anymore
+		}
+		map<string,pair<Row_File *,bool> >::iterator itMapFiles = mapFiles.find( FileUtils::FilenameWithoutPath(sSubDir) );
+		if( itMapFiles!=mapFiles.end() )
+		{
+cout << sDirectory << " is a sub-dir already categoriezed ripped dvd" << endl;
+#ifndef WIN32
+			attr_set( (sSubDir).c_str( ), "DIR_AS_FILE", "1", 1, 0 );
+#endif
+			SetFileAttribute(sSubDir,"",itMapFiles->second.first->PK_File_get());
+			continue; // This directory is already in the database 
 		}
 		int i = ReadDirectory(sSubDir);
 		if( !PK_Picture )
@@ -339,4 +329,40 @@ cout << "Found " << (int) vectPicture_Attribute.size() << " pics for attribute" 
 		return vectPicture_Attribute[0]->FK_Picture_get();  // The first pic for this directory
 	}
 	return 0;
+}
+
+int UpdateMedia::HandleFileNotInDatabase(string sDirectory,string sFile,int PK_MediaType)
+{
+	// Nope.  It's either a new file, or it was moved here from some other directory.  If so,
+	// then the the attribute should be set.
+	int PK_File = GetFileAttribute(sDirectory,sFile);
+	cout << sDirectory << " / " << sFile << " not in db-attr: " << PK_File << endl;
+	if( !PK_File )
+	{
+		// Is it a media file?
+		string sExtension = FileUtils::FindExtension(sFile);
+		if( !PK_MediaType )
+			PK_MediaType = m_mapExtensions[sExtension];
+		if( PK_MediaType )
+			return AddFileToDatabase(PK_MediaType,sDirectory,sFile);
+		else
+		{
+			cout << "not a media file" << endl;
+			return 0;
+		}
+	}
+	else
+	{
+		Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(PK_File);
+		if( !pRow_File )
+		{
+			SetFileAttribute(sDirectory,sFile,0);  // The file doesn't exist.  Shouldn't really happen
+			cout << "Huh??  not in db now" << endl;
+			return 0;
+		}
+		// it was in the database, but it's been moved to a different directory
+		pRow_File->Path_set( sDirectory );
+		pRow_File->Table_File_get()->Commit();
+	}
+	return PK_File;
 }

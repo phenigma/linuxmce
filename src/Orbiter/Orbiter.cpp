@@ -1024,20 +1024,6 @@ bool Orbiter::RenderCell( class DesignObj_DataGrid *pObj,  class DataGridTable *
     GetGridCellDimensions( pObj,  pCell->m_Colspan,  pCell->m_Rowspan,  j,  i,  x,  y,  w,  h );
     if ( w>4 && h >4 )
     {
-PlutoColor color;
-if( i==0 )
-	color = PlutoColor(128,0,0,255);
-else if( i==1 )
-	color = PlutoColor(0,128,0,255);
-else if( i==2 )
-	color = PlutoColor(0,0,128,255);
-else if( i==3 )
-	color = PlutoColor(0,128,128,255);
-else if( i==4 )
-	color = PlutoColor(128,0,128,255);
-else if( i==5 )
-	color = PlutoColor(128,128,0,255);
-
 		if ( !bTransparentCell )
 //			SolidRectangle( point.X + x,  point.Y + y,  w,  h,  pCell->m_AltColor ? pCell->m_AltColor : pTextStyle->m_BackColor);
 			SolidRectangle( point.X + x,  point.Y + y,  w,  h,  color);

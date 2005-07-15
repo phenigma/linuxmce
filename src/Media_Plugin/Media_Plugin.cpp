@@ -702,8 +702,9 @@ void Media_Plugin::StartMedia( int iPK_MediaType, unsigned int iPK_Device_Orbite
 		if( !iPK_MediaType )
 		{
 			// This could be a DVD in a directory we're supposed to play as a file
-			string sDirectory = (*p_dequeMediaFile)[0]->FullyQualifiedFile() + "/video_ts";
-			if( FileUtils::DirExists(sDirectory) )
+			string sDirectory1 = (*p_dequeMediaFile)[0]->FullyQualifiedFile() + "/video_ts";
+			string sDirectory2 = (*p_dequeMediaFile)[0]->FullyQualifiedFile() + "/VIDEO_TS";
+			if( FileUtils::DirExists(sDirectory1) || FileUtils::DirExists(sDirectory2) )
 				iPK_MediaType=MEDIATYPE_pluto_DVD_CONST;
 		}
 	}
@@ -4356,7 +4357,6 @@ class DataGridTable *Media_Plugin::Bookmarks( string GridID, string Parms, void 
 
 		pDataGrid->SetData(0,s,pDataGridCell_Cover);
 		pDataGrid->SetData(1,s,pDataGridCell_Preview);
-		pDataGridCell->m_Colspan=2;
 		pDataGrid->SetData(2,s,pDataGridCell);
 
 		if( pRow_Bookmark->FK_Picture_get() )

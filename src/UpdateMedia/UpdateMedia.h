@@ -22,5 +22,6 @@ public:
 	int GetFileAttribute(string sDirectory,string sFile);
 	int AddFileToDatabase(int PK_MediaType,string sDirectory,string sFile);
 	int GetPicForFileOrDirectory(string sFile,int PK_File); // if PK_File is 0, we will find it
+	int HandleFileNotInDatabase(string sDirectory,string sFile,int PK_MediaType=0);
 };
 #endif
