@@ -17,7 +17,7 @@ public:
 	void Initialize();
 	GraphicType GraphicType_get() { return gtPocketFrogGraphic; }
 	bool IsEmpty() { return NULL == m_pSurface; }
-	bool LoadGraphic(char *pData, size_t iSize);
+	bool LoadGraphic(char *pData, size_t iSize,int iRotation=0);
 	void Clear(); 
 
 	class Surface *m_pSurface;

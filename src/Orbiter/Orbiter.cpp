@@ -5631,7 +5631,7 @@ void Orbiter::CMD_Update_Object_Image(string sPK_DesignObj,string sType,char *pD
 	else
 		pPlutoGraphic->m_GraphicFormat = GR_UNKNOWN;
 
-	pPlutoGraphic->LoadGraphic(pData, iData_Size);
+	pPlutoGraphic->LoadGraphic(pData, iData_Size, m_iRotation);  // These weren't pre-rotated
 	pObj->m_vectGraphic.push_back(pPlutoGraphic);
 	pObj->m_pvectCurrentGraphic = &(pObj->m_vectGraphic);
 

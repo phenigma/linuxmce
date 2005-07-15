@@ -67,7 +67,7 @@ public:
 	virtual void Initialize();
 	virtual GraphicType GraphicType_get()=0;  // Must be implemented
 	virtual bool IsEmpty()=0; //Must be implemented
-	virtual bool LoadGraphic(char *pData, size_t iSize) = 0; //Must be implemented
+	virtual bool LoadGraphic(char *pData, size_t iSize,int iRotation=0) = 0; //Must be implemented
 	virtual void Clear() = 0; //Must be implemented
 
 	enum eGraphicManagement m_GraphicManagement;

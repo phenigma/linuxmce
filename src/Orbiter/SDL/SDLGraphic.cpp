@@ -39,7 +39,7 @@ void SDLGraphic::Initialize()
 	m_pSDL_Surface = NULL;
 }
 //-------------------------------------------------------------------------------------------------------
-bool SDLGraphic::LoadGraphic(char *pData, size_t iSize)
+bool SDLGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
 {
 	if(m_GraphicFormat == GR_OCG)
 	{

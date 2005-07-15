@@ -38,7 +38,7 @@ void PocketFrogGraphic::Initialize()
 	m_pSurface = NULL;
 }
 //-------------------------------------------------------------------------------------------------------
-bool PocketFrogGraphic::LoadGraphic(char *pData, size_t iSize)
+bool PocketFrogGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
 {
 	if(m_GraphicFormat == GR_OCG)
 	{
