@@ -159,6 +159,20 @@ fi
 mkdir -p /home/diskless
 ln -sf /home/diskless /usr/pluto/diskless
 
+# Changed from 2.0.0.24 to 2.0.0.25: pluto logs and core dumps were moved to /home
+if [ ! -L /usr/pluto/coredump -a -d /usr/pluto/coredump ]; then
+	mv /usr/pluto/coredump /home
+	mkdir -p /home/coredump
+	ln -sf /home/coredump /usr/pluto/coredump
+fi
+
+if [ ! -L /var/log/pluto -a -d /var/log/pluto ]; then
+	mkdir -p /home/logs
+	mv /var/log/pluto /home/logs
+	mkdir -p /home/logs/pluto
+	ln -sf /home/logs/pluto /var/log/pluto
+fi
+
 # update atftp entry in inet.d
 update-inetd --remove tftp
 update-inetd --group BOOT --add "tftp        dgram   udp wait    nobody /usr/sbin/tcpd /usr/sbin/in.tftpd --tftpd-timeout 300 --retry-timeout 5     --mcast-port 1758 --mcast-addr 239.255.0.0-255 --maxthread 100 --verbose=5 --no-blksize /tftpboot"
