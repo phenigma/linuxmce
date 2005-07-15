@@ -95,7 +95,7 @@ function outsideAccess($output,$dbADO) {
 			<td><input type="password" name="password1" value="'.(isset($remote)?$remote:'').'"></td>
 		</tr>
 		<tr>
-			<td><input type="checkbox" name="RA_CheckRemotePort" value="1" '.(isset($RA_CheckRemotePort)?'checked':'').'></td>
+			<td><input type="checkbox" name="RA_CheckRemotePort" value="1" '.(((int)@$RA_CheckRemotePort==1)?'checked':'').'></td>
 			<td>Enable anti-hanging measure for Remote Assistance</td>
 			<td>&nbsp;</td>
 		</tr>		
@@ -186,12 +186,14 @@ function outsideAccess($output,$dbADO) {
 				removeFromFile('remote',$accessFile);
 			}
 			
-			if(@$RA_CheckRemotePort==1){
-				if(isset($_POST['RA_CheckRemotePort'])){
+			if((int)@$RA_CheckRemotePort==1){
+				if(!isset($_POST['RA_CheckRemotePort'])){
 					writeToFile($accessFile, 'RA_CheckRemotePort',1,0);	
 				}
 			}else{
-				writeToFile($accessFile, 'RA_CheckRemotePort',0,1);
+				if(isset($_POST['RA_CheckRemotePort'])){
+					writeToFile($accessFile, 'RA_CheckRemotePort',0,1);
+				}
 			}
 
 			exec('sudo -u root /usr/pluto/bin/SetupRemoteAccess.sh');
@@ -216,8 +218,8 @@ function writeToFile($accessFile, $variable,$oldValue,$newValue)
 		exit();
 	}
 	$oldFile=implode('',$oldFileArray);
-	if($oldValue!=''){
-		$stringToReplace=$variable.'='.$oldValue;
+	$stringToReplace=$variable.'='.$oldValue;
+	if(ereg($stringToReplace,$oldFile)){
 		$newFile=str_replace($stringToReplace,$variable.'='.$newValue,$oldFile);
 	}
 	else
