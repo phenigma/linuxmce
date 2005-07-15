@@ -175,20 +175,19 @@ public:
 		}
 		else if( iDegrees==180 )
 		{
-			X = Width-X;
-			Y = Height-Y;
+			X = sizeTotal.Width - X - Width;
+			Y = sizeTotal.Height - Y - Height;
 		}
 		else if( iDegrees==270 )
 		{
 			int x=X;
 			X = Y;
-			Y = Width-x;
+			Y = sizeTotal.Width - x - Width;
 			int W=Width;
 			Width=Height;
 			Height=W;
 		}
 	}
-
 	static PlutoRectangle PlutoRectangle::Union(PlutoRectangle &r1,PlutoRectangle &r2)
 	{
 		return PlutoRectangle(

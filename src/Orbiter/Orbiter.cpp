@@ -4137,15 +4137,25 @@ void Orbiter::GetGridCellDimensions( DesignObj_DataGrid *pDesignObj_DataGrid,  i
     }
 
     PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
-	if( m_iRotation==0 )
-	{
-	    x = pDesignObj_DataGrid->m_rPosition.X+( Column*( pDesignObj_DataGrid->m_FixedColumnWidth+1 ) ) + DeltaX;
-		y = pDesignObj_DataGrid->m_rPosition.Y+( Row *( pDesignObj_DataGrid->m_FixedRowHeight+1 ) ) + DeltaY;
-	}
-	else if( m_iRotation==90 )
+	if( m_iRotation==90 )
 	{
 	    x = pDesignObj_DataGrid->m_rPosition.Right()-( Row*( pDesignObj_DataGrid->m_FixedRowHeight+1 ) ) + DeltaX - pDesignObj_DataGrid->m_FixedRowHeight;
 		y = pDesignObj_DataGrid->m_rPosition.Y+( Column *( pDesignObj_DataGrid->m_FixedColumnWidth+1 ) ) + DeltaY;
+	}
+	else if( m_iRotation==180 )
+	{
+	    x = pDesignObj_DataGrid->m_rPosition.Right()-( Column*( pDesignObj_DataGrid->m_FixedColumnWidth+1 ) ) + DeltaX - pDesignObj_DataGrid->m_FixedColumnWidth;
+		y = pDesignObj_DataGrid->m_rPosition.Bottom()-( Row *( pDesignObj_DataGrid->m_FixedRowHeight+1 ) ) + DeltaY - pDesignObj_DataGrid->m_FixedRowHeight;
+	}
+	else if( m_iRotation==270 )
+	{
+	    x = pDesignObj_DataGrid->m_rPosition.X+( Row*( pDesignObj_DataGrid->m_FixedRowHeight+1 ) ) + DeltaX;
+		y = pDesignObj_DataGrid->m_rPosition.Bottom()+( Column *( pDesignObj_DataGrid->m_FixedColumnWidth+1 ) ) + DeltaY - pDesignObj_DataGrid->m_FixedColumnWidth;
+	}
+	else
+	{
+	    x = pDesignObj_DataGrid->m_rPosition.X+( Column*( pDesignObj_DataGrid->m_FixedColumnWidth+1 ) ) + DeltaX;
+		y = pDesignObj_DataGrid->m_rPosition.Y+( Row *( pDesignObj_DataGrid->m_FixedRowHeight+1 ) ) + DeltaY;
 	}
 
     if ( Column == 0 && pDesignObj_DataGrid->m_FirstColumnWidth > 0 && ( pDesignObj_DataGrid->m_GridCurCol == 0 || pDesignObj_DataGrid->m_bKeepColHeader ))

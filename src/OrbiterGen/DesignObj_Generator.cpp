@@ -1889,6 +1889,10 @@ int k=2;
 
 void DesignObj_Generator::HandleRotation(int iRotate)
 {
+if( this->m_pRow_DesignObj->PK_DesignObj_get()==2432 )
+{
+int k=2;
+}
 	m_rBackgroundPosition.Rotate(iRotate,m_pOrbiterGenerator->m_sScaledSize);
 	m_rPosition.Rotate(iRotate,m_pOrbiterGenerator->m_sScaledSize);
 	m_rBitmapOffset.Rotate(iRotate,m_pOrbiterGenerator->m_sScaledSize);
@@ -1907,15 +1911,3 @@ void DesignObj_Generator::HandleRotation(int iRotate)
 		((DesignObj_Generator *)(*it))->HandleRotation(iRotate);
 }
 
-
-/*
-void OrbiterGenerator::Rotate(PlutoRectangle &r)
-{
-	r.X = m_pOrbiterGenerator->RotateX(r.X);
-	r.Y = m_pOrbiterGenerator->RotateY(r.Y);
-	r.W = m_pOrbiterGenerator->RotateW(r.W);
-	r.H = m_pOrbiterGenerator->RotateH(r.H);
-}
-
-int OrbiterGenerator::RotateX()
-*/

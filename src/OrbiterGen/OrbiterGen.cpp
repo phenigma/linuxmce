@@ -549,7 +549,10 @@ m_bNoEffects = true;
 		pRow_Device_DeviceData->FK_Device_set(m_pRow_Device->PK_Device_get());
 		pRow_Device_DeviceData->FK_DeviceData_set(DEVICEDATA_ScreenWidth_CONST);
 	}
-	pRow_Device_DeviceData->IK_DeviceData_set( StringUtils::itos(m_pRow_Size->Width_get()) );
+	if( m_iRotation==90 || m_iRotation==270 )
+		pRow_Device_DeviceData->IK_DeviceData_set( StringUtils::itos(m_pRow_Size->Height_get()) );
+	else
+		pRow_Device_DeviceData->IK_DeviceData_set( StringUtils::itos(m_pRow_Size->Width_get()) );
 	mds.Device_DeviceData_get()->Commit();
 
 	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_ScreenHeight_CONST);
@@ -559,7 +562,10 @@ m_bNoEffects = true;
 		pRow_Device_DeviceData->FK_Device_set(m_pRow_Device->PK_Device_get());
 		pRow_Device_DeviceData->FK_DeviceData_set(DEVICEDATA_ScreenHeight_CONST);
 	}
-	pRow_Device_DeviceData->IK_DeviceData_set( StringUtils::itos(m_pRow_Size->Height_get()) );
+	if( m_iRotation==90 || m_iRotation==270 )
+		pRow_Device_DeviceData->IK_DeviceData_set( StringUtils::itos(m_pRow_Size->Width_get()) );
+	else
+		pRow_Device_DeviceData->IK_DeviceData_set( StringUtils::itos(m_pRow_Size->Height_get()) );
 	mds.Device_DeviceData_get()->Commit();
 
 	// m_sizeScreen is the unscaled resolution
