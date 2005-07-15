@@ -62,7 +62,7 @@ bool SDLGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
     if(iRotation)
     {
         SDL_Surface *pSourceSurface = m_pSDL_Surface;
-        SDL_Surface *m_pSDL_Surface = rotozoomSurface(pSourceSurface, iRotation, 1, SMOOTHING_ON);
+        m_pSDL_Surface = rotozoomSurface(pSourceSurface, iRotation, 1, SMOOTHING_ON);
         SDL_FreeSurface(pSourceSurface);
     }
 

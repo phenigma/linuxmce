@@ -70,7 +70,7 @@ bool PocketFrogGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
     {
         Surface *pSourceSurface = m_pSurface;
 
-        Surface *m_pSurface = pDisplayDevice->CreateSurface(m_pSurface->m_width, m_pSurface->m_height);
+        m_pSurface = pDisplayDevice->CreateSurface(m_pSurface->m_width, m_pSurface->m_height);
         Rasterizer *pRasterizer = pDisplayDevice->CreateRasterizer(m_pSurface);
         pRasterizer->BlitRotated( 0, 0, iRotation, pSourceSurface);
 
