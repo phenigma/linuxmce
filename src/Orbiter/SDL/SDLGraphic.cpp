@@ -1,6 +1,7 @@
 #include "SDLGraphic.h"
 #include "Logger.h"
 
+#include "SDL_rotozoom.h"
 #include <SDL.h>
 #include <SDL_ttf.h>
 #include <SDL_image.h>
@@ -43,8 +44,6 @@ bool SDLGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
 {
 	if(m_GraphicFormat == GR_OCG)
 	{
-		//m_pSDL_Surface = SDL_LoadOCG(pData, iSize);
-
         g_pPlutoLogger->Write(LV_CRITICAL, "Cannot load ocg files with PocketFrog surfaces in Orbiter SDL. Please check 'Use_OCG' device data for this device. Exiting...");
         exit(1);
 	}
@@ -59,6 +58,13 @@ bool SDLGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
 		g_pPlutoLogger->Write(LV_CRITICAL, "Unable to read graphic from data %p with size %d", pData, iSize);
 		return false;
 	}
+
+    if(iRotation)
+    {
+        SDL_Surface *pSourceSurface = m_pSDL_Surface;
+        SDL_Surface *m_pSDL_Surface = rotozoomSurface(pSourceSurface, iRotation, 1, SMOOTHING_ON);
+        SDL_FreeSurface(pSourceSurface);
+    }
 
 	return true;
 }

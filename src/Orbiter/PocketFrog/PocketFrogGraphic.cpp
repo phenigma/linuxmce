@@ -40,13 +40,15 @@ void PocketFrogGraphic::Initialize()
 //-------------------------------------------------------------------------------------------------------
 bool PocketFrogGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
 {
+    DisplayDevice *pDisplayDevice = Orbiter_PocketFrog::GetInstance()->GetOrbiterDisplay();
+
 	if(m_GraphicFormat == GR_OCG)
 	{
 		m_pSurface = PocketFrog_LoadPFG(pData, iSize);
 	}
 	else
 	{
-		m_pSurface = LoadImage(Orbiter_PocketFrog::GetInstance()->GetOrbiterDisplay(), (uint8_t*)pData, 
+		m_pSurface = LoadImage(pDisplayDevice, (uint8_t*)pData, 
 			(uint8_t*)(pData + iSize));
 	}
 
@@ -54,7 +56,7 @@ bool PocketFrogGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
 	if( !m_pSurface ) //maybe it's a png ?
 	{
 		FileUtils::WriteBufferIntoFile("tmp.img", pData, iSize); //hack :(
-		m_pSurface = PocketFrog_LoadPNG(Orbiter_PocketFrog::GetInstance()->GetOrbiterDisplay(), "tmp.img");
+		m_pSurface = PocketFrog_LoadPNG(pDisplayDevice, "tmp.img");
 	}
 #endif
 
@@ -63,6 +65,17 @@ bool PocketFrogGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
 		g_pPlutoLogger->Write(LV_CRITICAL, "Unable to read graphic from data %p with size %d", pData, iSize);
 		return false;
 	}
+
+    if(iRotation)
+    {
+        Surface *pSourceSurface = m_pSurface;
+
+        Surface *m_pSurface = pDisplayDevice->CreateSurface(m_pSurface->m_width, m_pSurface->m_height);
+        Rasterizer *pRasterizer = pDisplayDevice->CreateRasterizer(m_pSurface);
+        pRasterizer->BlitRotated( 0, 0, iRotation, pSourceSurface);
+
+        delete pSourceSurface;
+    }
 
 	return true;
 }
