@@ -22,6 +22,7 @@
 #include "DesignObj_Orbiter.h"
 #include "Floorplan.h"
 #include "CacheImageManager.h"
+#include "SerializeClass/ShapesColors.h"
 
 /** For brevity,  DesignObj_Orbiter will be abbreviated Obj */
 
@@ -172,6 +173,7 @@ protected:
 	int  m_iCaptureKeyboard_PK_Variable; /** < capture keyboard variable (coresponds to primary key) @todo ask */
 	string m_sCaptureKeyboard_Text; /** < text for capture keyboard @todo ask */
 	string m_sCaptureKeyboard_InternalBuffer; /** < capture keyboard internal buffer */
+	PlutoSize m_sScreenSize;
 
 	string m_sLastSelectedDatagrid; /** < The contents of the last selected datagrid cell */
 

@@ -252,6 +252,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
     if(DATA_Get_ScreenHeight())
         m_iImageHeight = DATA_Get_ScreenHeight();
 
+	m_sScreenSize=PlutoSize(m_iImageWidth,m_iImageHeight);
+
 	m_pCacheImageManager = NULL;
 	if(m_iCacheSize > 0)
 		m_pCacheImageManager = new CacheImageManager(m_sCacheFolder, m_iCacheSize);
@@ -7277,7 +7279,15 @@ void Orbiter::CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_
 	if( bExclusive )
 		HidePopups(pObj_Screen);
 
-    PlutoPopup *pPopup = new PlutoPopup(pObj_Popup, sName, PlutoPoint(iPosition_X,iPosition_Y));
+	PlutoPoint pt(iPosition_X,iPosition_Y);
+	if( m_iRotation==90 )
+	{
+		int x=pt.X;
+		pt.X = m_sScreenSize.Height - pt.Y - pObj_Popup->m_rPosition.Height;
+		pt.Y = x;
+	}
+
+    PlutoPopup *pPopup = new PlutoPopup(pObj_Popup, sName, pt);
 	bool bSuccessful;
 	if( pObj_Screen )
 		bSuccessful=AddPopup(pObj_Screen->m_listPopups,pPopup);
