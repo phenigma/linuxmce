@@ -193,7 +193,7 @@ bool OrbiterLinux::setDesktopVisible(bool visible)
     if ( ! visible )
         return resizeMoveDesktop(m_nDesktopWidth, m_nDesktopHeight, 10, 10);
     else
-        return resizeMoveDesktop(0, 0, m_nDesktopWidth - m_nImageWidth, m_nDesktopHeight - m_nImageHeight);
+        return resizeMoveDesktop(0, 0, m_nDesktopWidth - m_iImageWidth, m_nDesktopHeight - m_iImageHeight);
 }
 
 void OrbiterLinux::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainArea)

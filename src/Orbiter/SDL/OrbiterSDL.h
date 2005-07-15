@@ -18,9 +18,8 @@ class OrbiterSDL : public Orbiter
 {
 protected:
 	SDL_Surface * m_pScreenImage;
-	
+
 protected: // (mtoader) I want access to them in the OrbiterLinuxDesktop
-	int m_nImageWidth, m_nImageHeight;
 	bool m_bFullScreen;
 
 public:

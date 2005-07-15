@@ -137,8 +137,8 @@ LINK32=link.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 1
-# PROP Output_Dir "ARMV4Dbg"
-# PROP Intermediate_Dir "ARMV4Dbg"
+# PROP Output_Dir "SmartphoneARMV4Dbg"
+# PROP Intermediate_Dir "SmartphoneARMV4Dbg"
 # PROP CPU_ID "{ECBEA43D-CD7B-4852-AD55-D4227B5D624B}"
 # PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
 # PROP Ignore_Export_Lib 0
@@ -158,7 +158,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
-# ADD LINK32 commctrl.lib coredll.lib aygshell.lib PthreadsCE.lib winsock.lib ccrtrtti.lib zlib_wince.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /out:"../../bin/OrbiterCE.exe" /libpath:"../CENET/Ritti/ArmV4" /libpath:"../../../libs/CrossPlatform/zlib/zlib_wince/ARMV4Dbg" /libpath:"../../../libs/CrossPlatform/sge030809-w32/sge_wince/ARMV4Dbg" /libpath:"../../../libs/CrossPlatform/lpng127/lpng_wince/ARMV4Dbg\\" /libpath:"../../../libs/CrossPlatform/SDL_rotozoom-1.6/WinCE/ARMV4Dbg" /libpath:"../../../libs/CrossPlatform/SDL-1.2.7/VisualCE/SDL/ARMV4Dbg" /libpath:"../../../libs/CrossPlatform/SDL_image-1.2.3/WINCE/ARMV4Dbg" /libpath:"../../../libs/CrossPlatform/lpng127/lpng_wince/ARMV4Dbg" /libpath:"../../../libs/Libraries/pthreads-snap-2002-11-04/PthreadsCE/ARMDbg" /libpath:"../../../libs/CrossPlatform/SDL_ttf-2.0.6/WinCE/ARMV4Dbg" /libpath:"../../../libs/CrossPlatform/freetype-2.1.9/freetype_wince/ARMV4Dbg" /libpath:"../../../libs/Libraries/PocketFrog/lib/ARM/Debug/" /libpath:""../../CrossPlatform-Libs/SDL_image-1.2.3/WINCE/ARMV4Dbg"" /libpath:""../../CrossPlatform-Libs/SDL_ttf-2.0.6/WinCE/ARMV4Dbg"" /libpath:""c:\pluto\trunk\CrossPlatform-Libs\freetype-2.1.9\freetype_wince\ARMV4Dbg\"" /libpath:""../../CrossPlatform-Libs/SDL-1.2.7/VisualCE/SDL/ARMV4Dbg"" /libpath:""../../Libraries/pthreads-snap-2002-11-04/PthreadsCE/ARMDbg"" /libpath:""C:\Program /libpath:""../../CrossPlatform-Libs/SDL-1.2.7/VisualC7/SDL/Debug"" /libpath:""../../CrossPlatform-Libs/SDL_image-1.2.3/VisualC/Debug"" /libpath:""../../CrossPlatform-Libs/SDL_ttf-2.0.6/VisualC/Debug"" /libpath:""../../CrossPlatform-Libs/sge030809-w32/sge-msvc/sge/VisualC/Debug"" /libpath:""../../CrossPlatform-Libs/lpng127/projects/visualc6/Win32_DLL_Debug"" /libpath:""../../CrossPlatform-Libs/zlib/projects/visualc6/Win32_DLL_Debug"" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:THUMB
+# ADD LINK32 commctrl.lib coredll.lib aygshell.lib PthreadsCE.lib winsock.lib ccrtrtti.lib zlib_wince.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /out:"SmartphoneARMV4Dbg/OrbiterSmartphone.exe" /libpath:"../CENET/Ritti/ArmV4" /libpath:"../../../libs/CrossPlatform/zlib/zlib_wince/ARMV4Dbg" /libpath:"../../../libs/CrossPlatform/sge030809-w32/sge_wince/ARMV4Dbg" /libpath:"../../../libs/CrossPlatform/lpng127/lpng_wince/ARMV4Dbg\\" /libpath:"../../../libs/CrossPlatform/SDL_rotozoom-1.6/WinCE/ARMV4Dbg" /libpath:"../../../libs/CrossPlatform/SDL-1.2.7/VisualCE/SDL/ARMV4Dbg" /libpath:"../../../libs/CrossPlatform/SDL_image-1.2.3/WINCE/ARMV4Dbg" /libpath:"../../../libs/CrossPlatform/lpng127/lpng_wince/ARMV4Dbg" /libpath:"../../../libs/Libraries/pthreads-snap-2002-11-04/PthreadsCE/ARMDbg" /libpath:"../../../libs/CrossPlatform/SDL_ttf-2.0.6/WinCE/ARMV4Dbg" /libpath:"../../../libs/CrossPlatform/freetype-2.1.9/freetype_wince/ARMV4Dbg" /libpath:"../../../libs/Libraries/PocketFrog/lib/ARM/Debug/" /libpath:""../../CrossPlatform-Libs/SDL_image-1.2.3/WINCE/ARMV4Dbg"" /libpath:""../../CrossPlatform-Libs/SDL_ttf-2.0.6/WinCE/ARMV4Dbg"" /libpath:""c:\pluto\trunk\CrossPlatform-Libs\freetype-2.1.9\freetype_wince\ARMV4Dbg\"" /libpath:""../../CrossPlatform-Libs/SDL-1.2.7/VisualCE/SDL/ARMV4Dbg"" /libpath:""../../Libraries/pthreads-snap-2002-11-04/PthreadsCE/ARMDbg"" /libpath:""C:\Program /libpath:""../../CrossPlatform-Libs/SDL-1.2.7/VisualC7/SDL/Debug"" /libpath:""../../CrossPlatform-Libs/SDL_image-1.2.3/VisualC/Debug"" /libpath:""../../CrossPlatform-Libs/SDL_ttf-2.0.6/VisualC/Debug"" /libpath:""../../CrossPlatform-Libs/sge030809-w32/sge-msvc/sge/VisualC/Debug"" /libpath:""../../CrossPlatform-Libs/lpng127/projects/visualc6/Win32_DLL_Debug"" /libpath:""../../CrossPlatform-Libs/zlib/projects/visualc6/Win32_DLL_Debug"" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:THUMB
 # SUBTRACT LINK32 /pdb:none
 
 !ENDIF 
@@ -1233,10 +1233,10 @@ DEP_CPP_HANDL=\
 	".\stdafx.h"\
 	{$(INCLUDE)}"aygshell.h"\
 	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"vibrate.h"\
 	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_HANDL=\
-	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	
 
@@ -1465,10 +1465,10 @@ DEP_CPP_MAIN_=\
 	".\stdafx.h"\
 	{$(INCLUDE)}"aygshell.h"\
 	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"vibrate.h"\
 	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_MAIN_=\
-	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	
 
@@ -1619,10 +1619,10 @@ DEP_CPP_MAIND=\
 	".\stdafx.h"\
 	{$(INCLUDE)}"aygshell.h"\
 	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"vibrate.h"\
 	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_MAIND=\
-	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	
 
@@ -2167,10 +2167,10 @@ DEP_CPP_ORBITE=\
 	".\stdafx.h"\
 	{$(INCLUDE)}"aygshell.h"\
 	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"vibrate.h"\
 	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_ORBITE=\
-	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	
 
@@ -2686,10 +2686,8 @@ DEP_CPP_POPUP=\
 	".\stdafx.h"\
 	{$(INCLUDE)}"aygshell.h"\
 	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"vibrate.h"\
 	{$(INCLUDE)}"winuserm.h"\
-	
-NODEP_CPP_POPUP=\
-	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	
 
 !ENDIF 
@@ -3009,10 +3007,10 @@ DEP_CPP_SELFU=\
 	".\stdafx.h"\
 	{$(INCLUDE)}"aygshell.h"\
 	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"vibrate.h"\
 	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_SELFU=\
-	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	
 
@@ -3340,10 +3338,10 @@ DEP_CPP_SIMUL=\
 	".\stdafx.h"\
 	{$(INCLUDE)}"aygshell.h"\
 	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"vibrate.h"\
 	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_SIMUL=\
-	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	
 
@@ -3595,10 +3593,10 @@ DEP_CPP_START=\
 	".\stdafx.h"\
 	{$(INCLUDE)}"aygshell.h"\
 	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"vibrate.h"\
 	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_START=\
-	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	
 

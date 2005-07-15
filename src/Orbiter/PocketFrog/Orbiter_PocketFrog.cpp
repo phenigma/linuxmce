@@ -436,6 +436,10 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 	lf.lfItalic		= pTextStyle->m_bItalic;
 	lf.lfUnderline	= pTextStyle->m_bUnderline;
 
+    //use this to rotate text
+    //lf.lfOrientation = 90;
+    //lf.lfEscapement = 90;
+
 #ifdef WINCE
     wchar_t wFaceName[1024];
     mbstowcs(wFaceName, pTextStyle->m_sFont.c_str(), 1024);	

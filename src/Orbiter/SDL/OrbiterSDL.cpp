@@ -53,8 +53,6 @@ OrbiterSDL::OrbiterSDL(int DeviceID, string ServerAddress, string sLocalDirector
     : Orbiter(DeviceID, ServerAddress, sLocalDirectory, bLocalMode, nImageWidth, nImageHeight)
 {
     m_pScreenImage = NULL;
-    m_nImageWidth=nImageWidth;
-    m_nImageHeight=nImageHeight;
 	m_bFullScreen=bFullScreen;
 
 	Uint32 uSDLInitFlags = SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE;
@@ -84,14 +82,14 @@ OrbiterSDL::OrbiterSDL(int DeviceID, string ServerAddress, string sLocalDirector
 		uVideoModeFlags |= SDL_FULLSCREEN;
 #endif
 
-	if ((Screen = SDL_SetVideoMode(m_nImageWidth, m_nImageHeight, 0, uVideoModeFlags)) == NULL)
+	if ((Screen = SDL_SetVideoMode(m_iImageWidth, m_iImageHeight, 0, uVideoModeFlags)) == NULL)
     {
         g_pPlutoLogger->Write(LV_WARNING, "Failed to set video mode: %s", SDL_GetError());
         exit(1);
     }
 #endif
 
-    g_pPlutoLogger->Write(LV_STATUS, "Set video mode to %d x %d Window.", m_nImageWidth, m_nImageHeight);
+    g_pPlutoLogger->Write(LV_STATUS, "Set video mode to %d x %d Window.", m_iImageWidth, m_iImageHeight);
 
 #ifdef USE_ONLY_SCREEN_SURFACE
 	m_pScreenImage = Screen;
