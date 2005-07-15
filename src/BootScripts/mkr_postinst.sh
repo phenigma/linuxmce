@@ -16,10 +16,10 @@ Dpkg::Options { "--force-confold"; };
 echo -n "$pluto_apt_conf" >/etc/apt/apt.conf.d/30pluto
 
 # Changed from 2.0.0.24 to 2.0.0.25: pluto logs and core dumps were moved to /home
-if [ ! -L /usr/pluto/coredumps -a -d /usr/pluto/coredumps ]; then
-	mv /usr/pluto/coredumps /home
-	mkdir -p /home/coredumps
-	ln -sf /home/coredumps /usr/pluto/coredumps
+if [ ! -L /usr/pluto/coredump -a -d /usr/pluto/coredump ]; then
+	mv /usr/pluto/coredump /home
+	mkdir -p /home/coredump
+	ln -sf /home/coredump /usr/pluto/coredump
 fi
 
 if [ ! -L /var/log/pluto -a -d /var/log/pluto ]; then
