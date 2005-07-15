@@ -1886,3 +1886,36 @@ int k=2;
 
     return Text;
 }
+
+void DesignObj_Generator::HandleRotation(int iRotate)
+{
+	m_rBackgroundPosition.Rotate(iRotate,m_pOrbiterGenerator->m_sScaledSize);
+	m_rPosition.Rotate(iRotate,m_pOrbiterGenerator->m_sScaledSize);
+	m_rBitmapOffset.Rotate(iRotate,m_pOrbiterGenerator->m_sScaledSize);
+	m_sOriginalSize.Rotate(iRotate);
+
+	for(size_t s=0;s<m_vectDesignObjText.size();++s)
+	{
+		CGText *pDesignObjText = (CGText *) m_vectDesignObjText[s];
+		pDesignObjText->m_rPosition.Rotate(iRotate,m_pOrbiterGenerator->m_sScaledSize);
+	}
+
+	for(DesignObjZoneList::iterator it=m_ZoneList.begin();it!=m_ZoneList.end();++it)
+		(*it)->m_Rect.Rotate(iRotate,m_pOrbiterGenerator->m_sScaledSize);
+
+	for(DesignObj_DataList::iterator it=m_ChildObjects.begin();it!=m_ChildObjects.end();++it)
+		((DesignObj_Generator *)(*it))->HandleRotation(iRotate);
+}
+
+
+/*
+void OrbiterGenerator::Rotate(PlutoRectangle &r)
+{
+	r.X = m_pOrbiterGenerator->RotateX(r.X);
+	r.Y = m_pOrbiterGenerator->RotateY(r.Y);
+	r.W = m_pOrbiterGenerator->RotateW(r.W);
+	r.H = m_pOrbiterGenerator->RotateH(r.H);
+}
+
+int OrbiterGenerator::RotateX()
+*/

@@ -73,6 +73,8 @@ int myCounter=0;
 Renderer r("/usr/share/fonts/truetype/msttcorefonts/", "", 800, 600, FLAG_DISABLE_VIDEO);
 #endif
 
+int Renderer::m_Rotate=0;
+
 
 Renderer::Renderer(string FontPath,string OutputDirectory,int Width,int Height,bool bDisableVideo)
 {
@@ -463,9 +465,13 @@ void Renderer::SaveImageToPNGFile(RendererImage * pRendererImage, FILE * File, b
         throw "Save to image passed in a null pointer";
     }
 
+	SDL_Surface *pSDL_Surface = pRendererImage->m_pSDL_Surface;
+	if( m_Rotate )
+		pSDL_Surface = rotozoomSurface (pRendererImage->m_pSDL_Surface, m_Rotate, 1,0);
+
 	png_bytepp image_rows;
     int BitsPerColor;
-    SDL_Surface * Drawing = pRendererImage->m_pSDL_Surface;
+    SDL_Surface * Drawing = pSDL_Surface;
 
     image_rows = new png_bytep[Drawing->h];
     for (int n = 0; n < Drawing->h; n++)
@@ -494,31 +500,41 @@ void Renderer::SaveImageToPNGFile(RendererImage * pRendererImage, FILE * File, b
     delete [] image_rows;
 
     png_destroy_write_struct(&png_ptr, &png_info);
+
+	if( m_Rotate )
+	    SDL_FreeSurface(pSDL_Surface);
 }
 
 void Renderer::SaveImageToFile(RendererImage * pRendererImage, string sSaveToFile, bool bUseOCG)
 {
-if( sSaveToFile.find(".1257.")!=string::npos )
-{
-int k=2;
-}
     // we can't just save NULL pointers...
     if (pRendererImage == NULL || pRendererImage->m_pSDL_Surface == NULL)
     {
         throw "Save to image passed in a null pointer";
     }
+
 #ifdef OUTPUT_BMP
     string FileName = sSaveToFile + ".bmp";
-    if (SDL_SaveBMP(pRendererImage->m_pSDL_Surface, FileName.c_str()) == -1)
+	SDL_Surface *pSDL_Surface = pRendererImage->m_pSDL_Surface;
+	if( m_Rotate )
+		pSDL_Surface = rotozoomSurface (pRendererImage->m_pSDL_Surface, m_Rotate, 1,0);
+    if (SDL_SaveBMP(pSDL_Surface, FileName.c_str()) == -1)
     {
         throw "Failed to write file: " + FileName + ": " + SDL_GetError();
     }
+	if( m_Rotate )
+	    SDL_FreeSurface(pSDL_Surface);
 #else
 	if( bUseOCG )
 	{
 		string FileName = sSaveToFile + ".ocg";
 		cout << "Saving " << FileName << endl;
-		SDL_SaveOCG(pRendererImage->m_pSDL_Surface, FileName);
+		SDL_Surface *pSDL_Surface = pRendererImage->m_pSDL_Surface;
+		if( m_Rotate )
+			pSDL_Surface = rotozoomSurface (pRendererImage->m_pSDL_Surface, m_Rotate, 1,0);
+		SDL_SaveOCG(pSDL_Surface, FileName);
+		if( m_Rotate )
+			SDL_FreeSurface(pSDL_Surface);
 	}
 	else
 	{
@@ -998,9 +1014,15 @@ RendererImage * Renderer::Subset(RendererImage *pRenderImage, PlutoRectangle rec
     return SubSurface;
 }
 
-void DoRender(string font, string output,int width,int height,class DesignObj_Generator *ocDesignObj)
+void DoRender(string font, string output,int width,int height,class DesignObj_Generator *ocDesignObj,int Rotate)
 {
     static Renderer r(font,output,width,height);
+	if( Rotate==90 )  // SDL treats rotation as counter clockwise, we do clockwise
+        r.m_Rotate=270;
+	else if( Rotate==180 )
+        r.m_Rotate=180;
+	else if( Rotate==270 )
+        r.m_Rotate=90;
     r.RenderObject(NULL,ocDesignObj,PlutoPoint(0,0),-1);  // Render everything
 }
 

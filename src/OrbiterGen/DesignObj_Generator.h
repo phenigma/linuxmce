@@ -51,6 +51,7 @@ public:
 	static void PickVariation(OrbiterGenerator *pGenerator,class Row_DesignObj *drDesignObj,class Row_DesignObjVariation **drDesignObjVariation,class Row_DesignObjVariation **drStandardVariation, vector<class Row_DesignObjVariation *> *alDesignObjVariations);
 	static void PickStyleVariation(class Row_Style * drStyle,OrbiterGenerator *pGenerator,MapTextStyle &mapTextStyle);
 	static TextStyle *PickStyleVariation(vector<Row_StyleVariation *> &vectrsv,OrbiterGenerator *pGenerator,int Version);
+	void HandleRotation(int iRotate);
 
 	vector<class ArrayValue *> *GetArrayValues(class Row_DesignObjVariation_DesignObj * drOVO);
 	void ScaleAllValues(int FactorX,int FactorY,class DesignObj_Generator *pTopmostObject);

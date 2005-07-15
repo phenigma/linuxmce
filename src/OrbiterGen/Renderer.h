@@ -43,6 +43,7 @@ class Renderer
 public:
 	string m_sFontPath,m_sOutputDirectory;
 	int m_Width,m_Height;
+	static int m_Rotate;
 	SDL_Surface * Screen;
 
 	Renderer(string FontPath,string OutputDirectory,int Width,int Height,bool bDisableVideo=false);

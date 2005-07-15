@@ -83,6 +83,7 @@
 #define DEVICEDATA_Y_CONST 99
 #define DEVICEDATA_ScreenWidth_CONST 100
 #define DEVICEDATA_ScreenHeight_CONST 101
+#define DEVICEDATA_Rotation_CONST 102
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"

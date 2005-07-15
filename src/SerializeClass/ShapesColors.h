@@ -73,6 +73,15 @@ public:
 		
 	}
 	PlutoSize(int W,int H) { Width=W; Height=H;  }
+	void Rotate(int iDegrees)
+	{
+		if( iDegrees==90 || iDegrees==270 )
+		{
+			int W=Width;
+			Width=Height;
+			Height=W;
+		}
+	}
 
 	void SetupSerialization(int iSC_Version)
 	{
@@ -150,6 +159,33 @@ public:
 			NewRect.Height= Y2() - NewRect.Y;
 
 		*this = NewRect;
+	}
+
+	void Rotate(int iDegrees,PlutoSize sizeTotal)
+	{
+		if( iDegrees==90 )
+		{
+			int x=X;
+			X = sizeTotal.Height - Y - Height;
+			Y = x;
+			int W=Width;
+			Width=Height;
+			Height=W;
+		}
+		else if( iDegrees==180 )
+		{
+			X = Width-X;
+			Y = Height-Y;
+		}
+		else if( iDegrees==270 )
+		{
+			int x=X;
+			X = Y;
+			Y = Width-x;
+			int W=Width;
+			Width=Height;
+			Height=W;
+		}
 	}
 
 	static PlutoRectangle PlutoRectangle::Union(PlutoRectangle &r1,PlutoRectangle &r2)

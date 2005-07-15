@@ -49,6 +49,7 @@ public:
 //	string m_sMySQLHost,m_sMySQLUser,m_sMySQLPass,m_sMySQLDBName;
 	string m_sOutputPath,m_sGraphicsBasePath,m_sFontPath;
 //	int m_iMySQLPort;
+	PlutoSize m_sScaledSize;
 
 	OrbiterGenerator(string sGraphicsFiles,string sFontFiles,string sOutputFiles,int PK_Orbiter,string DBHost,string DBUser,string DBPassword,string DBName,int DBPort)
 		: MySqlHelper(DBHost, DBUser, DBPassword, DBName, DBPort)

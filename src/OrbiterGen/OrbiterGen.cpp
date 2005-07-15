@@ -74,7 +74,7 @@ static bool LocationComparer(LocationInfo *x, LocationInfo *y)
 }
 
 // For some reason windows won't compile with this in the same file???
-void DoRender(string font, string output,int width,int height,class DesignObj_Generator *ocDesignObj);
+void DoRender(string font, string output,int width,int height,class DesignObj_Generator *ocDesignObj,int Rotate);
 
 
 #ifdef WIN32
@@ -372,6 +372,8 @@ int OrbiterGenerator::DoIt()
 // HACK - TEMPORARILY DISABLE EFFECTS
 m_bNoEffects = true;
 
+	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_Rotation_CONST);
+	m_iRotation = pRow_Device_DeviceData ? atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) : 0;
 
 	// Get the ignore state flag
 	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_Ignore_State_CONST);
@@ -527,7 +529,8 @@ m_bNoEffects = true;
 		+ StringUtils::itos(m_pRow_Size->Height_get()) + ","
 		+ StringUtils::itos(m_pRow_Size->ScaleX_get()) + ","
 		+ StringUtils::itos(m_pRow_Size->ScaleY_get()) + ","
-		+ StringUtils::itos(m_pRow_Skin->PK_Skin_get())
+		+ StringUtils::itos(m_pRow_Skin->PK_Skin_get()) + ","
+		+ StringUtils::itos(m_iRotation) +
 		+ (m_bUseOCG ? ",OCG" : "NO_OCG");
 
 	if( m_pRow_Orbiter->Size_get()!=sSize && m_map_PK_DesignObj_SoleScreenToGen.size()==0 )
@@ -1098,6 +1101,7 @@ m_bNoEffects = true;
 
 	m_Width = m_pRow_Size->Width_get();
 	m_Height = m_pRow_Size->Height_get();
+	m_sScaledSize = PlutoSize(m_Width,m_Height);
 	m_AnimationStyle = 1; // TODO -- is this used anymore? m_pRow_Orbiter->FK_Skin_getrow()->FK_AnimationStyle_get();
 
 
@@ -1166,7 +1170,8 @@ int k=2;
 				try
 				{
 //if( oco->m_ObjectID.find("2211")!=string::npos )
-					DoRender(m_sFontPath,m_sOutputPath,m_Width,m_Height,oco);
+					DoRender(m_sFontPath,m_sOutputPath,m_Width,m_Height,oco,m_iRotation);
+					oco->HandleRotation(m_iRotation);
 				}
 				catch(string s)
 				{

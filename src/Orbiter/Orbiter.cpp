@@ -2855,7 +2855,11 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
 void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Screen, DesignObj_Orbiter *pObj_Parent, GraphicType Type,  int Lev )
 {
 	ShowProgress();
-    if(  pObj->m_ObjectID.find( "3312" )!=string::npos )// || pObj->m_ObjectID.find( "2071" )!=string::npos )
+    if(  pObj->m_ObjectID.find( "1255.0.0" )!=string::npos )// || pObj->m_ObjectID.find( "2071" )!=string::npos )
+    {
+        int k=2;
+    }
+    if(  pObj->m_ObjectID.find( "1255.0.0.1687" )!=string::npos )// || pObj->m_ObjectID.find( "2071" )!=string::npos )
     {
         int k=2;
     }
