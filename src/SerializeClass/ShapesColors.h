@@ -163,6 +163,7 @@ public:
 
 	void Rotate(int iDegrees,PlutoSize sizeTotal)
 	{
+		// This rotates and resets the origin to be always the upper left corner
 		if( iDegrees==90 )
 		{
 			int x=X;

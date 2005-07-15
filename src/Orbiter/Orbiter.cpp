@@ -1022,9 +1022,23 @@ bool Orbiter::RenderCell( class DesignObj_DataGrid *pObj,  class DataGridTable *
     GetGridCellDimensions( pObj,  pCell->m_Colspan,  pCell->m_Rowspan,  j,  i,  x,  y,  w,  h );
     if ( w>4 && h >4 )
     {
-		if ( !bTransparentCell )
-			SolidRectangle( point.X + x,  point.Y + y,  w,  h,  pCell->m_AltColor ? pCell->m_AltColor : pTextStyle->m_BackColor);
+PlutoColor color;
+if( j==0 )
+	color = PlutoColor(128,0,0,255);
+else if( j==1 )
+	color = PlutoColor(0,128,0,255);
+else if( j==2 )
+	color = PlutoColor(0,0,128,255);
+else if( j==3 )
+	color = PlutoColor(0,128,128,255);
+else if( j==4 )
+	color = PlutoColor(128,0,128,255);
+else if( j==5 )
+	color = PlutoColor(128,128,0,255);
 
+		if ( !bTransparentCell )
+//			SolidRectangle( point.X + x,  point.Y + y,  w,  h,  pCell->m_AltColor ? pCell->m_AltColor : pTextStyle->m_BackColor);
+			SolidRectangle( point.X + x,  point.Y + y,  w,  h,  color);
 		/*
 		if ( pObj->BorderColor2.m_Value!=pObj->BorderColor.m_Value )
         {
@@ -4111,8 +4125,16 @@ void Orbiter::GetGridCellDimensions( DesignObj_DataGrid *pDesignObj_DataGrid,  i
     }
 
     PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
-        x = pDesignObj_DataGrid->m_rPosition.X+( Column*( pDesignObj_DataGrid->m_FixedColumnWidth+1 ) ) + DeltaX;
-    y = pDesignObj_DataGrid->m_rPosition.Y+( Row *( pDesignObj_DataGrid->m_FixedRowHeight+1 ) ) + DeltaY;
+	if( m_iRotation==0 )
+	{
+	    x = pDesignObj_DataGrid->m_rPosition.X+( Column*( pDesignObj_DataGrid->m_FixedColumnWidth+1 ) ) + DeltaX;
+		y = pDesignObj_DataGrid->m_rPosition.Y+( Row *( pDesignObj_DataGrid->m_FixedRowHeight+1 ) ) + DeltaY;
+	}
+	else if( m_iRotation==90 )
+	{
+	    x = pDesignObj_DataGrid->m_rPosition.Right()-( Row*( pDesignObj_DataGrid->m_FixedRowHeight+1 ) ) + DeltaX - pDesignObj_DataGrid->m_FixedRowHeight;
+		y = pDesignObj_DataGrid->m_rPosition.Y+( Column *( pDesignObj_DataGrid->m_FixedColumnWidth+1 ) ) + DeltaY;
+	}
 
     if ( Column == 0 && pDesignObj_DataGrid->m_FirstColumnWidth > 0 && ( pDesignObj_DataGrid->m_GridCurCol == 0 || pDesignObj_DataGrid->m_bKeepColHeader ))
     {
@@ -4131,15 +4153,14 @@ void Orbiter::GetGridCellDimensions( DesignObj_DataGrid *pDesignObj_DataGrid,  i
         h = pDesignObj_DataGrid->m_FixedRowHeight * Rowspan+ ( Rowspan-1 );
     }
 
-    if ( x+w > pDesignObj_DataGrid->m_rPosition.X + pDesignObj_DataGrid->m_rPosition.Width )
-    {
-        // Oops,  width is greater than the size of the object.  Truncate.
-        w = ( pDesignObj_DataGrid->m_rPosition.X+pDesignObj_DataGrid->m_rPosition.Width ) - x;
-    }
-    if ( y+h > pDesignObj_DataGrid->m_rPosition.Y + pDesignObj_DataGrid->m_rPosition.Height )
-    {
-        // Oops,  height is greater than the size of the object.  Truncate.
-        h = ( pDesignObj_DataGrid->m_rPosition.Y+pDesignObj_DataGrid->m_rPosition.Height ) - y;
+	if( m_iRotation==0 )
+	{
+	    if ( x+w > pDesignObj_DataGrid->m_rPosition.X + pDesignObj_DataGrid->m_rPosition.Width )
+		    // Oops,  width is greater than the size of the object.  Truncate.
+	        w = ( pDesignObj_DataGrid->m_rPosition.X+pDesignObj_DataGrid->m_rPosition.Width ) - x;
+	    if ( y+h > pDesignObj_DataGrid->m_rPosition.Y + pDesignObj_DataGrid->m_rPosition.Height )
+	        // Oops,  height is greater than the size of the object.  Truncate.
+		    h = ( pDesignObj_DataGrid->m_rPosition.Y+pDesignObj_DataGrid->m_rPosition.Height ) - y;
     }
 
     vm.Release(  );
@@ -4150,6 +4171,12 @@ void Orbiter::GetGridCellDimensions( DesignObj_DataGrid *pDesignObj_DataGrid,  i
         return;
     }
 
+	if( m_iRotation==90 || m_iRotation==270 )
+	{
+		int ww = w;
+		w=h;
+		h=ww;
+	}
 }
 //------------------------------------------------------------------------
 string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  int X,  int Y )

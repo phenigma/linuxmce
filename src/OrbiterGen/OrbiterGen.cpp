@@ -531,7 +531,7 @@ m_bNoEffects = true;
 		+ StringUtils::itos(m_pRow_Size->ScaleY_get()) + ","
 		+ StringUtils::itos(m_pRow_Skin->PK_Skin_get()) + ","
 		+ StringUtils::itos(m_iRotation) +
-		+ (m_bUseOCG ? ",OCG" : "NO_OCG");
+		+ (m_bUseOCG ? ",OCG" : ",NO_OCG");
 
 	if( m_pRow_Orbiter->Size_get()!=sSize && m_map_PK_DesignObj_SoleScreenToGen.size()==0 )
 	{
