@@ -6,6 +6,8 @@
 #include "PocketFrog/PNGWrapper.h"
 #endif
 
+#define M_PI 3.1415592654
+
 #include "src/internal/graphicbuffer.h"
 //-------------------------------------------------------------------------------------------------------
 PocketFrogGraphic::PocketFrogGraphic(string Filename, eGraphicManagement GraphicManagement,
@@ -72,7 +74,7 @@ bool PocketFrogGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
 
         m_pSurface = pDisplayDevice->CreateSurface(m_pSurface->m_width, m_pSurface->m_height);
         Rasterizer *pRasterizer = pDisplayDevice->CreateRasterizer(m_pSurface);
-        pRasterizer->BlitRotated( 0, 0, iRotation, pSourceSurface);
+        pRasterizer->BlitRotated( 0, 0, float(iRotation * M_PI / 360.), pSourceSurface); 
 
         delete pSourceSurface;
     }
