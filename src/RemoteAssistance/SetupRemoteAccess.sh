@@ -125,6 +125,12 @@ RemoveTunnels()
 	fi
 }
 
+DeleteHostKey()
+{
+	sed -i '/pf\.plutohome\.com/d' /root/.ssh/known_hosts
+}
+
+DeleteHostKey
 if [ -n "$remote" ]; then
 	AddCronEntry
 	[ "$1" == "restart" ] && RemoveTunnels

@@ -6,6 +6,7 @@
 Q='CREATE DATABASE IF NOT EXISTS `eib`'
 RunSQL "$Q"
 
+UseDB eib
 Q='CREATE TABLE IF NOT EXISTS `groupaddresses` (
 	`name` varchar(100) default NULL,
 	`address` varchar(100) NOT NULL,
@@ -15,3 +16,6 @@ RunSQL "$Q"
 
 # add eib user
 adduser --system --home /var/run/eib eib || true
+
+Q="GRANT ALL PRIVILEGES ON eib.* to 'eib'@'localhost'; FLUSH PRIVILEGES"
+RunSQL "$Q"
