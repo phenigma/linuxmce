@@ -94,7 +94,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, string ServerAddress, string sLocalDirector
 #ifdef USE_ONLY_SCREEN_SURFACE
 	m_pScreenImage = Screen;
 #else
-    m_pScreenImage = SDL_CreateRGBSurface(SDL_SWSURFACE, m_nImageWidth, m_nImageHeight, 32, rmask, gmask, bmask, amask);
+    m_pScreenImage = SDL_CreateRGBSurface(SDL_SWSURFACE, m_iImageWidth, m_iImageHeight, 32, rmask, gmask, bmask, amask);
     if (m_pScreenImage == NULL)
     {
         g_pPlutoLogger->Write(LV_WARNING, "SDL_CreateRGBSurface failed! %s",SDL_GetError());
