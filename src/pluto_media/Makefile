@@ -13,6 +13,7 @@ Table_Disc.cpp \
 Table_Disc_Attribute.cpp \
 Table_File.cpp \
 Table_File_Attribute.cpp \
+Table_MediaProvider.cpp \
 Table_MediaType_AttributeType.cpp \
 Table_Picture.cpp \
 Table_Picture_Attribute.cpp \

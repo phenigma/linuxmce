@@ -18,6 +18,8 @@ using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "Table_Bookmark.h"
 #include "Table_File.h"
+#include "Table_Disc.h"
+#include "Table_MediaProvider.h"
 #include "Table_Picture.h"
 
 
@@ -116,27 +118,31 @@ void Row_Bookmark::SetDefaultValues()
 {
 	m_PK_Bookmark = 0;
 is_null[0] = false;
+is_null[1] = true;
 m_FK_File = 0;
-is_null[1] = false;
-m_EK_MediaType = 0;
-is_null[2] = false;
+is_null[2] = true;
+m_FK_Disc = 0;
 is_null[3] = true;
-m_FK_Picture = 0;
-is_null[4] = true;
-m_EK_Users = 0;
+m_FK_MediaProvider = 0;
+m_EK_MediaType = 0;
+is_null[4] = false;
 is_null[5] = true;
+m_FK_Picture = 0;
 is_null[6] = true;
+m_EK_Users = 0;
 is_null[7] = true;
-m_psc_id = 0;
 is_null[8] = true;
-m_psc_batch = 0;
 is_null[9] = true;
+m_psc_id = 0;
+is_null[10] = true;
+m_psc_batch = 0;
+is_null[11] = true;
 m_psc_user = 0;
 m_psc_frozen = 0;
-is_null[10] = false;
+is_null[12] = false;
 m_psc_mod = "00000000000000";
-is_null[11] = false;
-is_null[12] = true;
+is_null[13] = false;
+is_null[14] = true;
 m_psc_restrict = 0;
 
 
@@ -151,6 +157,12 @@ return m_PK_Bookmark;}
 long int Row_Bookmark::FK_File_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_File;}
+long int Row_Bookmark::FK_Disc_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_FK_Disc;}
+long int Row_Bookmark::FK_MediaProvider_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_FK_MediaProvider;}
 long int Row_Bookmark::EK_MediaType_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_EK_MediaType;}
@@ -192,104 +204,131 @@ m_PK_Bookmark = val; is_modified=true; is_null[0]=false;}
 void Row_Bookmark::FK_File_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_File = val; is_modified=true; is_null[1]=false;}
+void Row_Bookmark::FK_Disc_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_FK_Disc = val; is_modified=true; is_null[2]=false;}
+void Row_Bookmark::FK_MediaProvider_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_FK_MediaProvider = val; is_modified=true; is_null[3]=false;}
 void Row_Bookmark::EK_MediaType_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_EK_MediaType = val; is_modified=true; is_null[2]=false;}
+m_EK_MediaType = val; is_modified=true; is_null[4]=false;}
 void Row_Bookmark::FK_Picture_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_FK_Picture = val; is_modified=true; is_null[3]=false;}
+m_FK_Picture = val; is_modified=true; is_null[5]=false;}
 void Row_Bookmark::EK_Users_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_EK_Users = val; is_modified=true; is_null[4]=false;}
+m_EK_Users = val; is_modified=true; is_null[6]=false;}
 void Row_Bookmark::Description_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_Description = val; is_modified=true; is_null[5]=false;}
+m_Description = val; is_modified=true; is_null[7]=false;}
 void Row_Bookmark::Position_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_Position = val; is_modified=true; is_null[6]=false;}
+m_Position = val; is_modified=true; is_null[8]=false;}
 void Row_Bookmark::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_id = val; is_modified=true; is_null[7]=false;}
+m_psc_id = val; is_modified=true; is_null[9]=false;}
 void Row_Bookmark::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_batch = val; is_modified=true; is_null[8]=false;}
+m_psc_batch = val; is_modified=true; is_null[10]=false;}
 void Row_Bookmark::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_user = val; is_modified=true; is_null[9]=false;}
+m_psc_user = val; is_modified=true; is_null[11]=false;}
 void Row_Bookmark::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_frozen = val; is_modified=true; is_null[10]=false;}
+m_psc_frozen = val; is_modified=true; is_null[12]=false;}
 void Row_Bookmark::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_mod = val; is_modified=true; is_null[11]=false;}
+m_psc_mod = val; is_modified=true; is_null[13]=false;}
 void Row_Bookmark::psc_restrict_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_restrict = val; is_modified=true; is_null[12]=false;}
+m_psc_restrict = val; is_modified=true; is_null[14]=false;}
 
 		
-bool Row_Bookmark::FK_Picture_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Bookmark::FK_File_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[1];}
+bool Row_Bookmark::FK_Disc_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[2];}
+bool Row_Bookmark::FK_MediaProvider_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[3];}
-bool Row_Bookmark::EK_Users_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-return is_null[4];}
-bool Row_Bookmark::Description_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Bookmark::FK_Picture_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[5];}
-bool Row_Bookmark::Position_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Bookmark::EK_Users_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[6];}
-bool Row_Bookmark::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Bookmark::Description_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[7];}
-bool Row_Bookmark::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Bookmark::Position_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[8];}
-bool Row_Bookmark::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Bookmark::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[9];}
-bool Row_Bookmark::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Bookmark::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[10];}
-bool Row_Bookmark::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Bookmark::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[11];}
+bool Row_Bookmark::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[12];}
+bool Row_Bookmark::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[14];}
 
 			
-void Row_Bookmark::FK_Picture_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Bookmark::FK_File_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[1]=val;
+is_modified=true;
+}
+void Row_Bookmark::FK_Disc_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[2]=val;
+is_modified=true;
+}
+void Row_Bookmark::FK_MediaProvider_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[3]=val;
 is_modified=true;
 }
-void Row_Bookmark::EK_Users_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-is_null[4]=val;
-is_modified=true;
-}
-void Row_Bookmark::Description_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Bookmark::FK_Picture_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[5]=val;
 is_modified=true;
 }
-void Row_Bookmark::Position_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Bookmark::EK_Users_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[6]=val;
 is_modified=true;
 }
-void Row_Bookmark::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Bookmark::Description_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[7]=val;
 is_modified=true;
 }
-void Row_Bookmark::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Bookmark::Position_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[8]=val;
 is_modified=true;
 }
-void Row_Bookmark::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Bookmark::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[9]=val;
 is_modified=true;
 }
-void Row_Bookmark::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Bookmark::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[10]=val;
 is_modified=true;
 }
-void Row_Bookmark::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Bookmark::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[11]=val;
+is_modified=true;
+}
+void Row_Bookmark::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[12]=val;
+is_modified=true;
+}
+void Row_Bookmark::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[14]=val;
 is_modified=true;
 }
 	
@@ -320,11 +359,37 @@ sprintf(buf, "%li", m_FK_File);
 return buf;
 }
 
-string Row_Bookmark::EK_MediaType_asSQL()
+string Row_Bookmark::FK_Disc_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[2])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_Disc);
+
+return buf;
+}
+
+string Row_Bookmark::FK_MediaProvider_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[3])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_MediaProvider);
+
+return buf;
+}
+
+string Row_Bookmark::EK_MediaType_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[4])
 return "NULL";
 
 char buf[32];
@@ -337,7 +402,7 @@ string Row_Bookmark::FK_Picture_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[3])
+if (is_null[5])
 return "NULL";
 
 char buf[32];
@@ -350,7 +415,7 @@ string Row_Bookmark::EK_Users_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[4])
+if (is_null[6])
 return "NULL";
 
 char buf[32];
@@ -363,7 +428,7 @@ string Row_Bookmark::Description_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[5])
+if (is_null[7])
 return "NULL";
 
 char *buf = new char[121];
@@ -377,7 +442,7 @@ string Row_Bookmark::Position_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[6])
+if (is_null[8])
 return "NULL";
 
 char *buf = new char[511];
@@ -391,7 +456,7 @@ string Row_Bookmark::psc_id_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[7])
+if (is_null[9])
 return "NULL";
 
 char buf[32];
@@ -404,7 +469,7 @@ string Row_Bookmark::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[8])
+if (is_null[10])
 return "NULL";
 
 char buf[32];
@@ -417,7 +482,7 @@ string Row_Bookmark::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[9])
+if (is_null[11])
 return "NULL";
 
 char buf[32];
@@ -430,7 +495,7 @@ string Row_Bookmark::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[10])
+if (is_null[12])
 return "NULL";
 
 char buf[32];
@@ -443,7 +508,7 @@ string Row_Bookmark::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[11])
+if (is_null[13])
 return "NULL";
 
 char *buf = new char[29];
@@ -457,7 +522,7 @@ string Row_Bookmark::psc_restrict_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[12])
+if (is_null[14])
 return "NULL";
 
 char buf[32];
@@ -504,10 +569,10 @@ bool Table_Bookmark::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInse
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Bookmark_asSQL()+", "+pRow->FK_File_asSQL()+", "+pRow->EK_MediaType_asSQL()+", "+pRow->FK_Picture_asSQL()+", "+pRow->EK_Users_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Position_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Bookmark_asSQL()+", "+pRow->FK_File_asSQL()+", "+pRow->FK_Disc_asSQL()+", "+pRow->FK_MediaProvider_asSQL()+", "+pRow->EK_MediaType_asSQL()+", "+pRow->FK_Picture_asSQL()+", "+pRow->EK_Users_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Position_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
 
 	
-		string query = "insert into Bookmark (`PK_Bookmark`, `FK_File`, `EK_MediaType`, `FK_Picture`, `EK_Users`, `Description`, `Position`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
+		string query = "insert into Bookmark (`PK_Bookmark`, `FK_File`, `FK_Disc`, `FK_MediaProvider`, `EK_MediaType`, `FK_Picture`, `EK_Users`, `Description`, `Position`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -563,7 +628,7 @@ condition = condition + "`PK_Bookmark`=" + tmp_PK_Bookmark;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`PK_Bookmark`="+pRow->PK_Bookmark_asSQL()+", `FK_File`="+pRow->FK_File_asSQL()+", `EK_MediaType`="+pRow->EK_MediaType_asSQL()+", `FK_Picture`="+pRow->FK_Picture_asSQL()+", `EK_Users`="+pRow->EK_Users_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Position`="+pRow->Position_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
+update_values_list = update_values_list + "`PK_Bookmark`="+pRow->PK_Bookmark_asSQL()+", `FK_File`="+pRow->FK_File_asSQL()+", `FK_Disc`="+pRow->FK_Disc_asSQL()+", `FK_MediaProvider`="+pRow->FK_MediaProvider_asSQL()+", `EK_MediaType`="+pRow->EK_MediaType_asSQL()+", `FK_Picture`="+pRow->FK_Picture_asSQL()+", `EK_Users`="+pRow->EK_Users_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Position`="+pRow->Position_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
 
 	
 		string query = "update Bookmark set " + update_values_list + " where " + condition;
@@ -697,122 +762,144 @@ sscanf(row[1], "%li", &(pRow->m_FK_File));
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_EK_MediaType = 0;
+pRow->m_FK_Disc = 0;
 }
 else
 {
 pRow->is_null[2]=false;
-sscanf(row[2], "%li", &(pRow->m_EK_MediaType));
+sscanf(row[2], "%li", &(pRow->m_FK_Disc));
 }
 
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_FK_Picture = 0;
+pRow->m_FK_MediaProvider = 0;
 }
 else
 {
 pRow->is_null[3]=false;
-sscanf(row[3], "%li", &(pRow->m_FK_Picture));
+sscanf(row[3], "%li", &(pRow->m_FK_MediaProvider));
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_EK_Users = 0;
+pRow->m_EK_MediaType = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-sscanf(row[4], "%li", &(pRow->m_EK_Users));
+sscanf(row[4], "%li", &(pRow->m_EK_MediaType));
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_Description = "";
+pRow->m_FK_Picture = 0;
 }
 else
 {
 pRow->is_null[5]=false;
-pRow->m_Description = string(row[5],lengths[5]);
+sscanf(row[5], "%li", &(pRow->m_FK_Picture));
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_Position = "";
+pRow->m_EK_Users = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-pRow->m_Position = string(row[6],lengths[6]);
+sscanf(row[6], "%li", &(pRow->m_EK_Users));
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_psc_id = 0;
+pRow->m_Description = "";
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%li", &(pRow->m_psc_id));
+pRow->m_Description = string(row[7],lengths[7]);
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_psc_batch = 0;
+pRow->m_Position = "";
 }
 else
 {
 pRow->is_null[8]=false;
-sscanf(row[8], "%li", &(pRow->m_psc_batch));
+pRow->m_Position = string(row[8],lengths[8]);
 }
 
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[9]=false;
-sscanf(row[9], "%li", &(pRow->m_psc_user));
+sscanf(row[9], "%li", &(pRow->m_psc_id));
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[10]=false;
-sscanf(row[10], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[10], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[11] == NULL)
 {
 pRow->is_null[11]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[11]=false;
-pRow->m_psc_mod = string(row[11],lengths[11]);
+sscanf(row[11], "%li", &(pRow->m_psc_user));
 }
 
 if (row[12] == NULL)
 {
 pRow->is_null[12]=true;
-pRow->m_psc_restrict = 0;
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[12]=false;
-sscanf(row[12], "%li", &(pRow->m_psc_restrict));
+sscanf(row[12], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[13] == NULL)
+{
+pRow->is_null[13]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[13]=false;
+pRow->m_psc_mod = string(row[13],lengths[13]);
+}
+
+if (row[14] == NULL)
+{
+pRow->is_null[14]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[14]=false;
+sscanf(row[14], "%li", &(pRow->m_psc_restrict));
 }
 
 
@@ -948,122 +1035,144 @@ sscanf(row[1], "%li", &(pRow->m_FK_File));
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_EK_MediaType = 0;
+pRow->m_FK_Disc = 0;
 }
 else
 {
 pRow->is_null[2]=false;
-sscanf(row[2], "%li", &(pRow->m_EK_MediaType));
+sscanf(row[2], "%li", &(pRow->m_FK_Disc));
 }
 
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_FK_Picture = 0;
+pRow->m_FK_MediaProvider = 0;
 }
 else
 {
 pRow->is_null[3]=false;
-sscanf(row[3], "%li", &(pRow->m_FK_Picture));
+sscanf(row[3], "%li", &(pRow->m_FK_MediaProvider));
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_EK_Users = 0;
+pRow->m_EK_MediaType = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-sscanf(row[4], "%li", &(pRow->m_EK_Users));
+sscanf(row[4], "%li", &(pRow->m_EK_MediaType));
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_Description = "";
+pRow->m_FK_Picture = 0;
 }
 else
 {
 pRow->is_null[5]=false;
-pRow->m_Description = string(row[5],lengths[5]);
+sscanf(row[5], "%li", &(pRow->m_FK_Picture));
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_Position = "";
+pRow->m_EK_Users = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-pRow->m_Position = string(row[6],lengths[6]);
+sscanf(row[6], "%li", &(pRow->m_EK_Users));
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_psc_id = 0;
+pRow->m_Description = "";
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%li", &(pRow->m_psc_id));
+pRow->m_Description = string(row[7],lengths[7]);
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_psc_batch = 0;
+pRow->m_Position = "";
 }
 else
 {
 pRow->is_null[8]=false;
-sscanf(row[8], "%li", &(pRow->m_psc_batch));
+pRow->m_Position = string(row[8],lengths[8]);
 }
 
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[9]=false;
-sscanf(row[9], "%li", &(pRow->m_psc_user));
+sscanf(row[9], "%li", &(pRow->m_psc_id));
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[10]=false;
-sscanf(row[10], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[10], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[11] == NULL)
 {
 pRow->is_null[11]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[11]=false;
-pRow->m_psc_mod = string(row[11],lengths[11]);
+sscanf(row[11], "%li", &(pRow->m_psc_user));
 }
 
 if (row[12] == NULL)
 {
 pRow->is_null[12]=true;
-pRow->m_psc_restrict = 0;
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[12]=false;
-sscanf(row[12], "%li", &(pRow->m_psc_restrict));
+sscanf(row[12], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[13] == NULL)
+{
+pRow->is_null[13]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[13]=false;
+pRow->m_psc_mod = string(row[13],lengths[13]);
+}
+
+if (row[14] == NULL)
+{
+pRow->is_null[14]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[14]=false;
+sscanf(row[14], "%li", &(pRow->m_psc_restrict));
 }
 
 
@@ -1080,6 +1189,20 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_File *pTable = table->database->File_get();
 return pTable->GetRow(m_FK_File);
+}
+class Row_Disc* Row_Bookmark::FK_Disc_getrow()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Disc *pTable = table->database->Disc_get();
+return pTable->GetRow(m_FK_Disc);
+}
+class Row_MediaProvider* Row_Bookmark::FK_MediaProvider_getrow()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_MediaProvider *pTable = table->database->MediaProvider_get();
+return pTable->GetRow(m_FK_MediaProvider);
 }
 class Row_Picture* Row_Bookmark::FK_Picture_getrow()
 {

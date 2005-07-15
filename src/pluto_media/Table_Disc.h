@@ -141,7 +141,8 @@ void psc_restrict_setNull(bool val);
 		
 
 		// Return the rows in other tables with foreign keys pointing here
-		void Disc_Attribute_FK_Disc_getrows(vector <class Row_Disc_Attribute*> *rows);
+		void Bookmark_FK_Disc_getrows(vector <class Row_Bookmark*> *rows);
+void Disc_Attribute_FK_Disc_getrows(vector <class Row_Disc_Attribute*> *rows);
 void Picture_Disc_FK_Disc_getrows(vector <class Row_Picture_Disc*> *rows);
 
 
