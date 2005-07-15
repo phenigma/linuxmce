@@ -19,7 +19,7 @@ function irCodes($output)
 	
 	$dtID = (int)$_REQUEST['dtID'];
 	$deviceID = (isset($_REQUEST['deviceID']) && (int)@$_REQUEST['deviceID']!=0)?(int)$_REQUEST['deviceID']:NULL;
-	$userID = $_SESSION['userID'];
+	$userID = (int)@$_SESSION['userID'];
 	if ($dtID==0) {
 		header("Location: index.php?section=login");
 	}
@@ -74,7 +74,13 @@ function irCodes($output)
 			<input type="hidden" name="irgroup_command" value="">
 			<input type="hidden" name="label" value="'.$label.'">';
 		$selectDTData='
-			SELECT DeviceTemplate.Description AS Template, DeviceCategory.Description AS Category,Manufacturer.Description AS Manufacturer, FK_Manufacturer,FK_DeviceCategory
+			SELECT 
+				DeviceTemplate.Description AS Template, 
+				DeviceCategory.Description AS Category,
+				Manufacturer.Description AS Manufacturer, 
+				FK_Manufacturer,
+				FK_DeviceCategory,
+				DeviceTemplate.psc_user
 			FROM DeviceTemplate
 			INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory
 			INNER JOIN Manufacturer ON FK_Manufacturer=PK_Manufacturer
@@ -87,6 +93,8 @@ function irCodes($output)
 		$rowDTData=$resDTData->FetchRow();
 		$manufacturerID=$rowDTData['FK_Manufacturer'];
 		$deviceCategoryID=$rowDTData['FK_DeviceCategory'];
+		$owner=$rowDTData['psc_user'];
+		$GLOBALS['btnEnabled']=(!isset($_SESSION['userID']) || $owner!=@$_SESSION['userID'])?'disabled':'';
 
 		$selectedIRGrops=array();
 		$resDT_IG=$publicADO->Execute('SELECT * FROM DeviceTemplate_InfraredGroup WHERE FK_DeviceTemplate=?',$dtID);
@@ -301,7 +309,7 @@ function irCodes($output)
 		
 		$out.='		
 			<tr>
-				<td colspan="3" align="center"><input type="button" class="button" name="button" value="Add/Remove commands" onClick="windowOpen(\'index.php?section=infraredCommands&infraredGroup='.$infraredGroupID.'&deviceID='.$deviceID.'&dtID='.$dtID.(($GLOBALS['label']!='infrared')?'&rootNode=1':'').'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"> <input type="submit" class="button" name="update" value="Update"></td>
+				<td colspan="3" align="center"><input type="button" class="button" name="button" value="Add/Remove commands" '.$GLOBALS['btnEnabled'].' onClick="windowOpen(\'index.php?section=infraredCommands&infraredGroup='.$infraredGroupID.'&deviceID='.$deviceID.'&dtID='.$dtID.(($GLOBALS['label']!='infrared')?'&rootNode=1':'').'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"> <input type="submit" class="button" name="update" value="Update" '.$GLOBALS['btnEnabled'].'></td>
 			</tr>';
 		$out.='
 			<tr>
@@ -322,9 +330,8 @@ function irCodes($output)
 				</table></td>
 			</tr>
 			<tr>
-				<td colspan="3" align="center"><input type="submit" class="button" name="update" value="Update"></td>
+				<td colspan="3" align="center"><input type="submit" class="button" name="update" value="Update" '.$GLOBALS['btnEnabled'].'></td>
 			</tr>
-		
 	';
 		$out.='
 		</table>
@@ -332,6 +339,7 @@ function irCodes($output)
 			<input type="hidden" name="commandsDisplayed" value="'.join(',',$commandsDisplayed).'">
 		</form>
 	';	
+		$out.=(($GLOBALS['btnEnabled']=='disabled')?'<span class="normaltext"><em>* Add/Edit options are available only for your own device templates.</em></span>':'');		
 	} else {
 		// process
 		if($action=='testCode'){
@@ -506,13 +514,13 @@ function showCodes($commandsToShow,$infraredGroupID,$deviceID,$dtID,$publicADO)
 				$textAreaElem='<textarea name="irData_'.$rowStandardCode['PK_InfraredGroup_Command'].'" rows="2" style="width:100%">'.$rowStandardCode['IRData'].'</textarea>';
 			}else{
 				$textAreaElem='
-					<textarea name="ir" rows="2" style="width:100%" disabled>'.$rowStandardCode['IRData'].'</textarea>
+					<textarea name="ir" rows="2" style="width:100%" READONLY>'.$rowStandardCode['IRData'].'</textarea>
 					<input type="hidden" name="irData_'.$rowStandardCode['PK_InfraredGroup_Command'].'" value="'.urlencode(addslashes($rowStandardCode['IRData'])).'">
 					<input type="hidden" name="isHidden_'.$rowStandardCode['PK_InfraredGroup_Command'].'" value="1">';
 			}
 			$out.='
 				<tr bgcolor="lightblue">
-					<td align="center" width="100"><B>'.$rowStandardCode['Description'].'</B> <br><input type="button" class="button" name="learnCode" value="New code" onClick="windowOpen(\'index.php?section=newIRCode&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$rowStandardCode['PK_Command'].'&action=sendCommand\',\''.(($GLOBALS['label']=='infrared')?'width=750,height=310':'width=600,height=650').',toolbars=true,scrollbars=1,resizable=1\');"></td>
+					<td align="center" width="100"><B>'.$rowStandardCode['Description'].'</B> <br><input type="button" class="button" name="learnCode" value="New code" '.$GLOBALS['btnEnabled'].' onClick="windowOpen(\'index.php?section=newIRCode&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$rowStandardCode['PK_Command'].'&action=sendCommand\',\''.(($GLOBALS['label']=='infrared')?'width=750,height=310':'width=600,height=650').',toolbars=true,scrollbars=1,resizable=1\');"></td>
 					<td width="25">'.((!is_null($rowStandardCode['PK_InfraredGroup_Command']))?'<input type="radio" name="prefered_'.$rowStandardCode['FK_Command'].'_'.$rowStandardCode['FK_InfraredGroup'].'" value="'.$rowStandardCode['PK_InfraredGroup_Command'].'" '.(($existingCodes==1 || in_array($rowStandardCode['PK_InfraredGroup_Command'],$GLOBALS['igcPrefered']))?'checked':'').'>':'&nbsp;').'</td>
 					<td>'.((is_null($rowStandardCode['PK_InfraredGroup_Command']))?'<B> Not in database</B>':$textAreaElem).'</td>
 					<td align="center" width="100"></td>
@@ -524,24 +532,24 @@ function showCodes($commandsToShow,$infraredGroupID,$deviceID,$dtID,$publicADO)
 			$GLOBALS['displayedIRGC'][]=$rowUserCode['PK_InfraredGroup_Command'];
 			$customCodesNo[]=$rowUserCode['PK_InfraredGroup_Command'];
 
-			if($rowUserCode['FK_Users']==$_SESSION['userID']){
+			if($rowUserCode['FK_Users']==@$_SESSION['userID']){
 				$textareaUserCode='<textarea name="irData_'.$rowUserCode['PK_InfraredGroup_Command'].'" rows="2" style="width:100%" onClick="setPreferred(\'prefered_'.$rowUserCode['FK_Command'].'_'.(($infraredGroupID==0)?'':$infraredGroupID).'\','.$rowUserCode['PK_InfraredGroup_Command'].')">'.$rowUserCode['IRData'].'</textarea>';
 			}else{
 				$textareaUserCode='
-					<textarea name="ir" rows="2" style="width:100%" disabled onClick="setPreferred(\'prefered_'.$rowUserCode['FK_Command'].'_'.(($infraredGroupID==0)?'':$infraredGroupID).'\','.$rowUserCode['PK_InfraredGroup_Command'].')">'.$rowUserCode['IRData'].'</textarea>
+					<textarea name="ir" rows="2" style="width:100%" READONLY  onClick="setPreferred(\'prefered_'.$rowUserCode['FK_Command'].'_'.(($infraredGroupID==0)?'':$infraredGroupID).'\','.$rowUserCode['PK_InfraredGroup_Command'].')">'.$rowUserCode['IRData'].'</textarea>
 					<input type="hidden" name="irData_'.$rowUserCode['PK_InfraredGroup_Command'].'" value="'.urlencode(addslashes($rowUserCode['IRData'])).'">
 					<input type="hidden" name="isHidden_'.$rowUserCode['PK_InfraredGroup_Command'].'" value="1">';
 			}
 
-			$RowColor=(($rowUserCode['FK_Users']==$_SESSION['userID'])?'yellow':'lightyellow');
+			$RowColor=(isset($_SESSION['userID']) && $rowUserCode['FK_Users']==@$_SESSION['userID'])?'yellow':'lightyellow';
 			$out.='
 				<tr bgcolor="'.$RowColor.'">
 					<td align="center" width="100"><B>'.$rowUserCode['Description'].'</B><br> User: '.$rowUserCode['FK_Users'].'</td>
 					<td width="25"><input type="radio" name="prefered_'.$rowUserCode['FK_Command'].'_'.$rowUserCode['FK_InfraredGroup'].'" value="'.$rowUserCode['PK_InfraredGroup_Command'].'" '.((in_array($rowUserCode['PK_InfraredGroup_Command'],$GLOBALS['igcPrefered']))?'checked':'').'></td>
 					<td>'.$textareaUserCode.'</td>
 					<td align="center" width="100">';
-					if($rowUserCode['FK_Users']==$_SESSION['userID']){
-						$out.='<input type="button" class="button" name="delCustomCode" value="Delete code" onClick="if(confirm(\'Are you sure you want to delete this code?\')){document.irCodes.action.value=\'delete\';document.irCodes.irgroup_command.value='.$rowUserCode['PK_InfraredGroup_Command'].';document.irCodes.submit();}"> <br>';
+					if(isset($_SESSION['userID']) && $rowUserCode['FK_Users']==@$_SESSION['userID']){
+						$out.='<input type="button" class="button" name="delCustomCode" value="Delete code" onClick="if(confirm(\'Are you sure you want to delete this code?\')){document.irCodes.action.value=\'delete\';document.irCodes.irgroup_command.value='.$rowUserCode['PK_InfraredGroup_Command'].';document.irCodes.submit();}" '.$GLOBALS['btnEnabled'].'> <br>';
 					}
 					$out.='
 					</td>

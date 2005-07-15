@@ -492,13 +492,77 @@ switch ($section) {
 		include_once('operations/public_license.php');
 	    public_license($output);
 	break;
+	case 'dealer_signin':
+    	$output = new Template();
+    	$output->setConn($conn);
+       	$output->setTemplateFileType('nonews');
+		include_once('dealer/dealer_signin.php');
+	    dealer_signin($output,$dbADO);
+	break;
+	case 'manufacturer_signin':
+    	$output = new Template();
+    	$output->setConn($conn);
+       	$output->setTemplateFileType('nonews');
+		include_once('dealer/manufacturer_signin.php');
+	    manufacturer_signin($output,$dbADO);
+	break;
+	case 'dealer_area':
+    	$output = new Template();
+    	$output->setConn($conn);
+       	$output->setTemplateFileType('nonews');
+		include_once('dealer/dealer_area.php');
+	    dealer_area($output,$dbADO);
+	break;
+	case 'dealer_installation':
+    	$output = new Template();
+    	$output->setConn($conn);
+       	$output->setTemplateFileType('nonews');
+		include_once('dealer/dealer_installation.php');
+	    dealer_installation($output,$dbADO);
+	break;
+	case 'dealer_license_device':
+    	$output = new Template();
+    	$output->setConn($conn);
+       	$output->setTemplateFileType('nonews');
+		include_once('dealer/dealer_license_device.php');
+	    dealer_license_device($output,$dbADO);
+	break;
+	case 'edit_dealer_profile':
+    	$output = new Template();
+    	$output->setConn($conn);
+       	$output->setTemplateFileType('nonews');
+		include_once('dealer/edit_dealer_profile.php');
+	    edit_dealer_profile($output,$conn,$dbADO);
+	break;
+	case 'manufacturer_area':
+    	$output = new Template();
+    	$output->setConn($conn);
+       	$output->setTemplateFileType('nonews');
+		include_once('dealer/manufacturer_area.php');
+	    manufacturer_area($output,$dbADO);
+	break;
+	case 'edit_manufacturer_profile':
+    	$output = new Template();
+    	$output->setConn($conn);
+       	$output->setTemplateFileType('nonews');
+		include_once('dealer/edit_manufacturer_profile.php');
+	    edit_manufacturer_profile($output,$conn,$dbADO);
+	break;
+	case 'irGroup':
+    	$output = new Template();
+    	$output->setConn($conn);
+       	$output->setTemplateFileType('nonews');
+		include_once('operations/irGroup.php');
+	    irGroup($output,$conn,$dbADO);
+	break;
+
 	
 	default:			
 		$output = new Template();	
 		$output->setConn($conn);
 		$output->setTemplateFileType('nonav');
 		include_once('operations/home.php');
-	   home($output,$conn);
+	    home($output,$conn);
 	break;
 }
 ?>

@@ -5,6 +5,9 @@ if(!isset($_SESSION['userIsLogged'])){
 }
 function myPluto($output,$dbADO,$conn) {
 	global $forumHost,$MantisHost;
+	global $dbDealerServer, $dbDealerUser, $dbDealerPass, $dbDealerDatabase;
+	global $dbManufacturerServer, $dbManufacturerUser, $dbManufacturerPass, $dbManufacturerDatabase;
+	
 	/* @var $dbADO ADOConnection */
 	
 	if ($_SESSION['userIsLogged']!="yes") {
@@ -70,6 +73,33 @@ function myPluto($output,$dbADO,$conn) {
 			$errMsg='';
 	}
 	
+	// extract dealer, if any
+	$dealerADO=dbConnection($dbDealerServer,$dbDealerUser,$dbDealerPass,$dbDealerDatabase);
+	$userDealer=getFieldsAsArray('Dealer_Users','PK_Dealer,Name,Validated',$dealerADO,'INNER JOIN Dealer ON FK_Dealer=PK_Dealer WHERE EK_Users='.$FK_Users);
+	if(isset($userDealer['Validated'][0]) && $userDealer['Validated'][0]!=1){
+		$hasDealerLink='Request to link account to a dealer is waiting to be processed *';
+		$showNotice=1;
+	}else{
+		$hasDealerLink='Dealer: <a href="index.php?section=dealer_area">'.@$userDealer['Name'][0].'</a>';
+	}
+	$dealerLink=(count($userDealer)==0)?'<a href="index.php?section=dealer_signin">Link my user account to a dealer</a>':$hasDealerLink;
+
+	// extract manufacturer, if any
+	$manufacturerADO=dbConnection($dbManufacturerServer,$dbManufacturerUser,$dbManufacturerPass,$dbManufacturerDatabase);
+	$userManufacturer=getFieldsAsArray('Manufacturer_Users','EK_Manufacturer,EK_Manufacturer,Validated',$manufacturerADO,'WHERE EK_Users='.$FK_Users);
+	$manufacturersArray=getAssocArray('Manufacturer','EK_Manufacturer','Name',$manufacturerADO);
+	$manufacturersIDs=array_values($userManufacturer);
+	if(isset($userManufacturer['Validated'][0]) && $userManufacturer['Validated'][0]!=1){
+		$hasManufacturerLink='Request to link account to a manufacturer is waiting to be processed *';
+		$showNotice=1;
+	}else{
+		$hasManufacturerLink='Manufacturer: <a href="index.php?section=manufacturer_area">'.@$manufacturersArray[$userManufacturer['EK_Manufacturer'][0]].'</a>';
+	}
+	
+	$manufacturerLink=(count($userManufacturer)==0)?'<a href="index.php?section=manufacturer_signin">Link my user account to a manufacturer</a>':$hasManufacturerLink;
+
+	$notice=(@$showNotice==1)?'<br><br>* <em>Please allow 24-48 hours for your request to be processed.</em>':'';
+	
 	$out = '
       		<table width="100%">
 	      		<tr>
@@ -100,7 +130,11 @@ function myPluto($output,$dbADO,$conn) {
 						<table width="100%">
 							<tr>
 								<td colspan="2" align="left" class="normaltext">Pluto has unique and generous rewards for referring both open source and retail customers as well as
-								 dealers and manufacturers who license the Pluto platform for their smarthome appliances.  Send us an email or fill out the contact form for details.
+								 dealers and manufacturers who license the Pluto platform for their smarthome appliances.  Send us an email or fill out the contact form for details.<br><br>
+								<hr>
+								'.$dealerLink.'<br>
+								'.$manufacturerLink.'
+								'.$notice.'
 								 </td>
 							</tr>
 						</table>

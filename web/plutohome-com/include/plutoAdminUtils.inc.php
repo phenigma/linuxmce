@@ -51,6 +51,9 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 		$modelsJsArray = '
 				modelsArray = new Array();
 		';
+		$irgJsArray='
+				irgsArray = new Array();
+		';
 		$where = " AND 1=1 ";
 		$manufOrDevice = 0;
 		if ($selectedManufacturer!=0) {	
@@ -96,9 +99,11 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 			$rs = $dbADO->_Execute($queryModels);
 			
 			$arJsPos=0;
+				$avDT=getAssocArray('DeviceTemplate_AV','FK_DeviceTemplate','UsesIR',$dbADO);
 				while ($row = $rs->FetchRow()) {
+					$irHighlight=(in_array($row['PK_DeviceTemplate'],array_keys($avDT)) && $avDT[$row['PK_DeviceTemplate']]==1)?'style="background-color:#FFDFDF;"':'';
 					
-					$selectModels.="<option ".($selectedModel==$row['PK_DeviceTemplate']?" selected ":"")." value='{$row['PK_DeviceTemplate']}' ".(($row['IsPlugAndPlay']==1)?'style="background-color:lightgreen;"':'').">{$row['Description']}</option>";
+					$selectModels.="<option ".($selectedModel==$row['PK_DeviceTemplate']?" selected ":"")." value='{$row['PK_DeviceTemplate']}' ".(($row['IsPlugAndPlay']==1)?'style="background-color:lightgreen;"':'')." $irHighlight>{$row['Description']}</option>";
 					
 					if ($row['PK_DeviceTemplate']>0) {
 					$modelsJsArray.='
@@ -117,6 +122,26 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 			$rs->Close();
 		}
 		
+		$selectIrgc='';
+		$resIrg=$dbADO->Execute("
+			SELECT InfraredGroup.Description,PK_InfraredGroup,Manufacturer.Description AS manufacturerDescription, DeviceCategory.Description as deviceDescription
+			FROM InfraredGroup 
+				INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory
+				INNER JOIN Manufacturer ON PK_Manufacturer=FK_Manufacturer
+			WHERE 1=1 $where ORDER BY InfraredGroup.Description");
+		while($row=$resIrg->FetchRow()){
+			$selectIrgc.='<option value="'.$row['PK_InfraredGroup'].'">'.$row['Description'].'</option>';
+			
+			$irgJsArray.='
+					
+				irg'.$row['PK_InfraredGroup'].' = new Array();
+				irg'.$row['PK_InfraredGroup'].'.manufacturerName = \''.addslashes($row['manufacturerDescription']).'\';
+				irg'.$row['PK_InfraredGroup'].'.deviceDescription = \''.addslashes($row['deviceDescription']).'\';
+					
+				irgsArray['.$row['PK_InfraredGroup'].'] = irg'.$row['PK_InfraredGroup'].';
+			';			
+			
+		}
 			
 		
 		$scriptInHead = "
@@ -190,15 +215,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 						return obj;
 					}
 				}
-		/*
-				if (getObj) {
-					if (typeof obj == 'string') {
-						return getObj(obj);
-					} else {
-						return obj;
-					}
-				}
-		*/
+
 				return null;	
 			} 
 
@@ -221,7 +238,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 				}
 			} 
 		$modelsJsArray
-		
+		$irgJsArray
 		
 		</script>
 		";
@@ -255,7 +272,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 								<option value="" selected="selected">All</option>
 								'.$selectManufacturersTxt.'						
 							</select><br /><br />';
-					if($boolManufacturer==1){
+					if($boolManufacturer==1 && isset($_SESSION['userID'])){
 						$out.='
 							<input type="text" name="Manufacturer_Description" size="15" />
 							<input type="submit" class="button" name="addManufacturer" value="Add"  />';
@@ -287,37 +304,49 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 						</td>
 						<td width="25%" align="center"  valign="top" class="normaltext">
 							<script>
-								function checkEdit() {
-									if(document.'.$formName.'.model.selectedIndex!=0){							
-										self.location=\'index.php?section=editAVDevice&deviceID=\'+document.'.$formName.'.model[document.'.$formName.'.model.selectedIndex].value;
+								function checkEdit(targetSection) {
+									if(targetSection==\'model\'){
+										if(document.'.$formName.'.model.selectedIndex!=0){							
+											self.location=\'index.php?section=editAVDevice&deviceID=\'+document.'.$formName.'.model[document.'.$formName.'.model.selectedIndex].value;
+										}
+									}else{
+										if(document.'.$formName.'.irg.selectedIndex!=0){							
+											self.location=\'index.php?section=irGroup&irgID=\'+document.'.$formName.'.irg[document.'.$formName.'.irg.selectedIndex].value;
+										}
+									
 									}
 								}
 		
-								function updateModelDetail() {
+								function updateModelDetail(byItem) {
 									objF=document.'.$formName.';
-									if (typeof modelsArray[objF.model[objF.model.selectedIndex].value] != "undefined") {
-										getObj(\'modelManuf\').innerHTML = \'<br />\'+modelsArray[objF.model[objF.model.selectedIndex].value].manufacturerName;
-										getObj(\'modelDeviceDescription\').innerHTML = \'<br />\'+modelsArray[objF.model[objF.model.selectedIndex].value].deviceDescription;
+									eval("tmpFlag=objF."+byItem+".selectedIndex");
+									eval("targetObj=objF."+byItem);
+									eval("targetArray="+byItem+"sArray");
+									if (tmpFlag!= "undefined") {
+										document.getElementById(\'modelManuf\').innerHTML = \'<br />Manufacturer: \'+targetArray[targetObj[tmpFlag].value].manufacturerName;
+										document.getElementById(\'modelDeviceDescription\').innerHTML = \'<br />Category: \'+targetArray[targetObj[tmpFlag].value].deviceDescription;
 									} else {
-										getObj(\'modelManuf\').innerHTML = \'\';
-										getObj(\'modelDeviceDescription\').innerHTML = \'\';
+										document.getElementById(\'modelManuf\').innerHTML = \'\';
+										document.getElementById(\'modelDeviceDescription\').innerHTML = \'\';
 									} 					
 								}
 
 							</script>
 							<select name="model" id="model" 
-									onChange="updateModelDetail();"
+									onChange="updateModelDetail(\'model\');"
 									 size="10">
 									<option value="" selected="selected">'.(($section=='deviceTemplatePicker')?'- Please select -':'All').'</option>
 									'.$selectModels.'	
 							</select>';
 							if($returnValue==0){
-								$out.='<input type="button" class="button" name="edit_DeviceTemplate" value="Edit" onClick="javascript:checkEdit(this.form);" />';
+								$out.='<br><input type="button" class="button" name="edit_DeviceTemplate" value="Edit Model" onClick="javascript:checkEdit(\'model\');" />';
 							}else{
 								$out.='<br><input type="button" class="button" name="pickDT" value="Add device" onClick="opener.location=\'index.php?section='.$_SESSION['from'].'&deviceTemplate=\'+document.'.$section.'.model[document.'.$section.'.model.selectedIndex].value+\'&action=add&add=1\';self.close();" />';
 							}
 							$out.='
 							<hr />
+							<em>* Green device templates are plug and play.<br>
+								Red device templates are IR.</em><br>
 						<b><span id="modelManuf"></span><span id="modelDeviceDescription"></span></b><br />
 							
 							';
@@ -330,8 +359,25 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 					
 							$disabled_str = "disabled";
 				
-				$out.='	<b>Device templates highlighted are plug and play.';
+				
 				$out.='
+						<br>
+					<table width="100%">
+						<tr>
+							<th><h2>Infrared Groups</h2></th>
+						</tr>
+						<tr>
+							<td align="center"><select name="irg" id="irg" 
+									onChange="updateModelDetail(\'irg\');"
+									 size="10">
+									<option value="" selected="selected">'.(($section=='deviceTemplatePicker')?'- Please select -':'All').'</option>
+									'.$selectIrgc.'	
+							</select>
+							<br>
+							<input type="button" class="button" name="edit_irg" value="Edit IR Group" onClick="javascript:checkEdit(\'irg\');" />
+							</td>
+						</tr>				
+					</table>
 						</td>				
 					</tr>';
 				if($returnValue!=0){

@@ -12,7 +12,7 @@ function ir($output)
 	global $PlutoHomeHost;
 	$userID=(int)@$_SESSION['userID'];
 
-
+/*
 	if($userID==0){
 		$out='
 	<h3>Devices & IR Codes <a href="'.$PlutoHomeHost.'index.php?section=login">[ login required ]</a></h3>
@@ -24,7 +24,11 @@ function ir($output)
 
 		$out=pickDeviceTemplate($GLOBALS['rootAVEquipment'],1,0,0,0,1,'ir',$firstColLinks,$publicADO,1);
 	}
-
+*/
+	
+	$firstColLinks='';
+	$out=pickDeviceTemplate($GLOBALS['rootAVEquipment'],1,0,0,0,1,'ir',$firstColLinks,$publicADO,1);
+	
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME);
 	$output->output();

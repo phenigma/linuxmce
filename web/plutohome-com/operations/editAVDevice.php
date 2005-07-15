@@ -44,7 +44,9 @@ if ($action=='form') {
 		while ($row = $rs->FetchRow()) {			
 			$deviceTemplateName = $row['Description'];			
 			$deviceCategID = $row['FK_DeviceCategory'];
+			$dtOwner=$row['psc_user'];
 		}
+	$btnEnabled=(!isset($_SESSION['userID']) || $dtOwner!=$_SESSION['userID'])?'disabled':'';
 	$rs->Close();
 		
 	$grabOldValues = "SELECT * FROM DeviceTemplate_AV WHERE FK_DeviceTemplate = ?";
@@ -265,7 +267,7 @@ $out.='
 	<table align="center" class="normaltext">
 		<tr>
 			<td align="right" width="50%">Uses IR: </td>
-			<td><input type="checkbox" name="usesIR" value="1" onclick="document.editAVDevice.action.value=\'update\';setCheckboxes();document.editAVDevice.submit();"> <input type="button" name="ircodes" value="IR Codes" onclick="self.location=\'index.php?section=irCodes&dtID='.$deviceID.'\'">
+			<td><input type="checkbox" name="usesIR" value="1" '.(($usesIR>0)?'checked':'').' '.$btnEnabled.' onclick="document.editAVDevice.action.value=\'update\';setCheckboxes();document.editAVDevice.submit();"> <input type="button" name="ircodes" value="IR Codes" onclick="self.location=\'index.php?section=irCodes&dtID='.$deviceID.'\'">
 		</td>
 		</tr>
 		<tr>
@@ -282,7 +284,7 @@ $out.='
 			<td align="center" colspan="2">'.$mediaTypeCheckboxes.'</td>
 		</tr>
 	</table>
-<div align="center"><input type="submit" class="button" name="mdl" value="Update"  /></div>
+<div align="center"><input type="submit" class="button" name="mdl" value="Update" '.$btnEnabled.' /></div>
 		<table cellpadding="5" cellspacing="0" border="1" align="center" class="normaltext">
 		<tr>
 			<th>DSP Modes</th><th>Inputs</th><th>Outputs</th>
@@ -313,7 +315,7 @@ $out.='
 						</tr>
 				</table><br>
 				<B>Add new DSP Mode command</B><br><br>
-				<input type="text" name="newDSPMode" value=""> <input type="submit" class="button" name="addDSPMode" value="Add">
+				<input type="text" name="newDSPMode" value=""> <input type="submit" class="button" name="addDSPMode" value="Add" '.$btnEnabled.'>
 			</td>
 
 
@@ -340,7 +342,7 @@ $out.='
 					<input type="hidden" name="Input__selectedOrdered" value="">
 				</table>
 				<B>Add new Input command</B><br><br>
-				<input type="text" name="newInput" value=""> <input type="submit" class="button" name="addInput" value="Add">
+				<input type="text" name="newInput" value=""> <input type="submit" class="button" name="addInput" value="Add" '.$btnEnabled.'>
 			</td>
 
 			<td valign="top">
@@ -366,12 +368,16 @@ $out.='
 				<input type="hidden" name="Output__selectedOrdered" value="">
 				</table>
 			<B>Add new Output command</B><br><br>
-				<input type="text" name="newOutput" value=""> <input type="submit" class="button" name="addOutput" value="Add">
+				<input type="text" name="newOutput" value=""> <input type="submit" class="button" name="addOutput" value="Add" '.$btnEnabled.'>
 			</td>
 
 		</tr>
-		</table><br />
-		<div align="center"><input type="submit" class="button" name="mdl" value="Update"  /></div>
+		</table><br />';
+		if($btnEnabled=='disabled')	{
+			$out.='<span class="normaltext"><em>* You can only edit your own device templates</em></span>';
+		}
+		$out.='	
+		<div align="center"><input type="submit" class="button" name="mdl" value="Update" '.$btnEnabled.' /></div>
 		
 	</form>
 ';

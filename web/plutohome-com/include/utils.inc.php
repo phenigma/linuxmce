@@ -847,7 +847,7 @@ function addScenariosToRoom($roomID, $installationID, $dbADO)
 	
 }
 
-function htmlPulldown($contentArray,$name,$selectedValue='None',$unselectedLabel)
+function htmlPulldown($contentArray,$name,$selectedValue='None',$unselectedLabel='- Please select -')
 {
 	if(!is_array($contentArray))
 		return '';	// error
@@ -860,7 +860,7 @@ function htmlPulldown($contentArray,$name,$selectedValue='None',$unselectedLabel
 	return $out;
 }
 
-function getAssocArray($table,$keyField,$labelField,$dbADO,$whereClause='',$orderClause)
+function getAssocArray($table,$keyField,$labelField,$dbADO,$whereClause='',$orderClause='')
 {
 	$retArray=array();
 	$res=$dbADO->Execute("SELECT $keyField,$labelField FROM $table $whereClause $orderClause");
@@ -893,5 +893,46 @@ function delInstallation($installationID,$dbADO)
 		$dbADO->Execute($queryDelFromTable);
 	}
 	$dbADO->Execute('DELETE FROM Installation WHERE PK_Installation=?',$installationID);
+}
+
+function dbConnection($dbServer,$dbUser,$dbPass,$dbDatabase)
+{
+  $dbADO = &ADONewConnection('mysql');
+  $dbADO->NConnect($dbServer,urlencode($dbUser),urlencode($dbPass),urlencode($dbDatabase)); 
+  
+  return $dbADO;
+}
+
+function getFieldsAsArray($tableName,$fields,$dbADO,$filter='',$orderBy='')
+{
+	$fieldsArray=explode(',',$fields);
+	$res=$dbADO->execute("SELECT $fields FROM $tableName $filter $orderBy");
+	$result=array();
+	while($row=$res->Fetchrow()){
+		foreach ($fieldsArray AS $field){
+			$cleanField=(strpos($field,'.')!==false)?substr($field,strpos($field,'.')+1):$field;
+			$cleanField=trim($cleanField);
+			$result[$cleanField][]=$row[$cleanField];
+		}
+	}
+	
+	return $result;	
+}
+
+function convertMac($mac)
+{
+	$macArray=explode(':',$mac);
+	if(count($macArray)!=6)
+		return false;
+		
+		
+	$int64 = 0;
+	for ($i = 5; $i >= 0; $i--){
+	    $value = hexdec($macArray[$i]);
+	    $power = pow(256, $i);
+	    $int64 += $power * $value;
+	}
+	
+	return $int64;
 }
 ?>
