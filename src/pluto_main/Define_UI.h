@@ -7,6 +7,8 @@
 #define UI_PK_UI_TABLE_FIELD "UI.PK_UI"
 #define UI_DESCRIPTION_FIELD "Description"
 #define UI_DESCRIPTION_TABLE_FIELD "UI.Description"
+#define UI_DEFINE_FIELD "Define"
+#define UI_DEFINE_TABLE_FIELD "UI.Define"
 #define UI_INCLUDESTANDARDUI_FIELD "IncludeStandardUI"
 #define UI_INCLUDESTANDARDUI_TABLE_FIELD "UI.IncludeStandardUI"
 #define UI_PSC_ID_FIELD "psc_id"

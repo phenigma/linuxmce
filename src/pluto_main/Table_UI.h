@@ -79,6 +79,7 @@ class DECLSPECIFIER Row_UI : public TableRow, public SerializeClass
 		
 		long int m_PK_UI;
 string m_Description;
+string m_Define;
 short int m_IncludeStandardUI;
 long int m_psc_id;
 long int m_psc_batch;
@@ -87,11 +88,12 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[9];
+		bool is_null[10];
 	
 	public:
 		long int PK_UI_get();
 string Description_get();
+string Define_get();
 short int IncludeStandardUI_get();
 long int psc_id_get();
 long int psc_batch_get();
@@ -103,6 +105,7 @@ long int psc_restrict_get();
 		
 		void PK_UI_set(long int val);
 void Description_set(string val);
+void Define_set(string val);
 void IncludeStandardUI_set(short int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
@@ -113,6 +116,7 @@ void psc_restrict_set(long int val);
 
 		
 		bool Description_isNull();
+bool Define_isNull();
 bool IncludeStandardUI_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
@@ -122,6 +126,7 @@ bool psc_restrict_isNull();
 
 			
 		void Description_setNull(bool val);
+void Define_setNull(bool val);
 void IncludeStandardUI_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
@@ -150,13 +155,14 @@ void StyleVariation_FK_UI_getrows(vector <class Row_StyleVariation*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_UI+ m_Description+ m_IncludeStandardUI+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_UI+ m_Description+ m_Define+ m_IncludeStandardUI+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
 		
 		string PK_UI_asSQL();
 string Description_asSQL();
+string Define_asSQL();
 string IncludeStandardUI_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
