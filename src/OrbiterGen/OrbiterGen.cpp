@@ -3,9 +3,7 @@
 
 #include "PlutoUtils/CommonIncludes.h"	
 #include "PlutoUtils/FileUtils.h"
-#include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
-#include "PlutoUtils/Other.h"
 #include "PlutoUtils/Other.h"
 #include "OrbiterGen.h"
 
@@ -30,6 +28,7 @@
 #include "pluto_main/Table_Size.h"
 #include "pluto_main/Table_Skin.h"
 #include "pluto_main/Table_Language.h"
+#include "pluto_main/Table_UI.h"
 #include "pluto_main/Table_Text.h"
 #include "pluto_main/Table_Style.h"
 #include "pluto_main/Table_Room_Users.h"
@@ -357,6 +356,22 @@ int OrbiterGenerator::DoIt()
 	if( !m_pRow_Language )
 	{
 		cerr << "Cannot find Orbiter's Language" << endl;
+		m_pRow_Orbiter->Regen_set(false);
+		mds.Orbiter_get()->Commit();
+		exit(1);
+	}
+
+	// Get the UI
+	m_pRow_UI = NULL;
+	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_UI_CONST);
+	if( pRow_Device_DeviceData )
+		m_pRow_UI = mds.UI_get()->GetRow( atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) );
+	if( !m_pRow_UI )
+		m_pRow_UI = mds.UI_get()->GetRow( 1 ); // Default
+
+	if( !m_pRow_UI )
+	{
+		cerr << "Cannot find Orbiter's UI" << endl;
 		m_pRow_Orbiter->Regen_set(false);
 		mds.Orbiter_get()->Commit();
 		exit(1);

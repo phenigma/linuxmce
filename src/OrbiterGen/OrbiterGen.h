@@ -46,7 +46,9 @@ public:
 	class Row_Icon * m_pRow_Icon;
 	class PlutoSize *m_sizeScreen;
 	class Row_Size * m_pRow_Size;
-//	string m_sMySQLHost,m_sMySQLUser,m_sMySQLPass,m_sMySQLDBName;
+	class Row_UI * m_pRow_UI;
+
+	//	string m_sMySQLHost,m_sMySQLUser,m_sMySQLPass,m_sMySQLDBName;
 	string m_sOutputPath,m_sGraphicsBasePath,m_sFontPath;
 //	int m_iMySQLPort;
 	PlutoSize m_sScaledSize;

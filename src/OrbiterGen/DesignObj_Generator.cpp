@@ -15,7 +15,6 @@
 #include "Renderer.h"
 
 #include "pluto_main/Database_pluto_main.h"
-#include "pluto_main/Define_Criteria_D.h"
 #include "pluto_main/Table_Text_LS.h"
 #include "pluto_main/Table_Floorplan.h"
 #include "pluto_main/Table_FloorplanType.h"
@@ -36,6 +35,7 @@
 #include "pluto_main/Table_Room.h"
 #include "pluto_main/Table_Size.h"
 #include "pluto_main/Table_Language.h"
+#include "pluto_main/Table_UI.h"
 #include "pluto_main/Table_Skin.h"
 #include "pluto_main/Table_Style.h"
 #include "pluto_main/Table_StyleVariation.h"
@@ -1182,47 +1182,16 @@ void DesignObj_Generator::PickVariation(OrbiterGenerator *pGenerator,class Row_D
         // see if a specific criteria was specified for this skin
         Row_Device *pDevice = pGenerator->mds.Device_get()->GetRow(pGenerator->m_pRow_Orbiter->PK_Orbiter_get());
 
-        if( !pGenerator->m_pRow_Skin->FK_Criteria_D_isNull() )
-        {
-            if( drOV->FK_Criteria_D_isNull() && pGenerator->m_pRow_Skin->MergeStandardVariation_get()==1 )
-            {
-                *drStandardVariation = drOV;
-                alDesignObjVariations->push_back(drOV);
-            }
-            else if( drOV->FK_Criteria_D_get() == pGenerator->m_pRow_Skin->FK_Criteria_D_get() )
-            {
-                *drDesignObjVariation = drOV;
-                alDesignObjVariations->push_back(drOV);
-            }
-        }
-        else
-        {
-            // We're going to have to figure it out ourselves
-
-            // HACK _- todo
-            if( !drOV->FK_Criteria_D_isNull() && drOV->FK_Criteria_D_get()!=CRITERIA_D_Normal_VGA_CONST && (pDevice->FK_DeviceTemplate_get()==DEVICETEMPLATE_Orbiter_CONST || 
-  				pDevice->FK_DeviceTemplate_get()==DEVICETEMPLATE_OnScreen_Orbiter_CONST || pDevice->FK_DeviceTemplate_get()==DEVICETEMPLATE_Windows_CE_Orbiter_CONST || pDevice->FK_DeviceTemplate_get()==DEVICETEMPLATE_Windows_XP2000_Orbiter_CONST) )  // normal tablet
-				continue;  // Don't include the audi mmi prototype on the phone
-            if( !drOV->FK_Criteria_D_isNull() && drOV->FK_Criteria_D_get()!=CRITERIA_D_PDA_CONST && pDevice->FK_DeviceTemplate_get()==DEVICETEMPLATE_Nokia_36503660_CONST )   // phone
-                continue;  // Don't include the phone on a the audi mmi prototype
-
-			// hack this in for audi
-            *drStandardVariation = drOV;        //hack
-            alDesignObjVariations->push_back(drOV);     // hack
-        }
-/*
-        if( drOV->FK_Criteria_D_isNull() )
+		if( drOV->FK_UI_isNull() && pGenerator->m_pRow_UI->IncludeStandardUI_get()==1 )
         {
             *drStandardVariation = drOV;
             alDesignObjVariations->push_back(drOV);
-        }  // criteria: 3=pda, 4=non pda, 5=vga
-        else if( drOV->FK_Criteria_D_isNull() || (pGenerator->m_pRow_Size->PK_Size_get()==1 && drOV->FK_Criteria_D_get()==3) ||
-            (pGenerator->m_pRow_Size->PK_Size_get()!=1 && (drOV->FK_Criteria_D_get()==4 || drOV->FK_Criteria_D_get()==5)) )
+        }
+        else if( drOV->FK_UI_get() == pGenerator->m_pRow_UI->PK_UI_get() )
         {
             *drDesignObjVariation = drOV;
             alDesignObjVariations->push_back(drOV);
         }
-*/
     }
 
     // It's possible there's just no standard variation.  In that case the chosen variation will be standard.
@@ -1275,15 +1244,13 @@ TextStyle *DesignObj_Generator::PickStyleVariation(vector<Row_StyleVariation *> 
         if( !drStyleVariation->FK_Skin_isNull() && drStyleVariation->FK_Skin_get()!=pGenerator->m_pRow_Skin->PK_Skin_get() )
             continue;
 
-        if( !drStyleVariation->FK_Criteria_D_isNull() && (
-            (drStyleVariation->FK_Criteria_D_get()==3 && pGenerator->m_pRow_Size->PK_Size_get()!=1) ||
-            (drStyleVariation->FK_Criteria_D_get()!=3 && pGenerator->m_pRow_Size->PK_Size_get()==1) ) )
-                continue;
+        if( !drStyleVariation->FK_UI_isNull() && drStyleVariation->FK_UI_get()!=pGenerator->m_pRow_UI->PK_UI_get() )
+			continue;
 
         // We don't have a confirmed non-match
-        if( drStyleVariation->FK_Criteria_D_isNull() && drStyleVariation->FK_Skin_isNull() )
+        if( drStyleVariation->FK_UI_isNull() && drStyleVariation->FK_Skin_isNull() )
             drSV_Neither = drStyleVariation;
-        else if( drStyleVariation->FK_Criteria_D_isNull() )
+        else if( drStyleVariation->FK_UI_isNull() )
             drSV_NoCriteria = drStyleVariation;
         else if( drStyleVariation->FK_Skin_isNull() )
             drSV_NoSkin = drStyleVariation;
