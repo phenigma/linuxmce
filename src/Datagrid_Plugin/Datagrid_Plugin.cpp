@@ -284,9 +284,13 @@ void Datagrid_Plugin::CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int i
 	if( itGridCB != m_mapDataGridGeneratorCallBack.end() )
 	{
 		DataGridGeneratorCallBack *pCB = ( *itGridCB ).second;
+#ifdef DEBUG
 		g_pPlutoLogger->Write( LV_STATUS, "About to call member function: %d %s", iPK_DataGrid, sDataGrid_ID.c_str() );
+#endif
 		pDataGridTable = CALL_MEMBER_FN( *pCB->m_pDataGridGeneratorPlugIn, pCB->m_pDCEDataGridGeneratorFn ) ( sDataGrid_ID, sOptions, NULL, iPK_Variable, sValue_To_Assign, pMessage );
+#ifdef DEBUG
 		g_pPlutoLogger->Write( LV_STATUS, "Called datagrid populate function for grid: %d %s", iPK_DataGrid, sDataGrid_ID.c_str() );
+#endif
 
 		if( pCB->m_bRePopulateEachTimeRequested && pDataGridTable )
 		{

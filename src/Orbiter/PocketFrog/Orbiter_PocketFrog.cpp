@@ -561,6 +561,10 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 					continue;  // Unchanged
 				if( m_iRotation==90 )
 					::SetPixel(hdc,Text->m_rPosition.Right()-y,Text->m_rPosition.Y+x,c);
+				else if( m_iRotation==180 )
+					::SetPixel(hdc,Text->m_rPosition.Right()-x,Text->m_rPosition.Bottom()-y,c);
+				else if( m_iRotation==270 )
+					::SetPixel(hdc,Text->m_rPosition.X+y,Text->m_rPosition.Bottom()-x,c);
 			}
 		}
 		bool b2=DeleteDC(hdc_drawing);
@@ -595,7 +599,9 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 /*virtual*/ void Orbiter_PocketFrog::RenderScreen()
 {
 	CHECK_STATUS();
+#ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"$$$ RENDER SCREEN $$$ %s",(m_pScreenHistory_Current ? m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str() : " NO SCREEN"));
+#endif
 	
     if (m_pScreenHistory_Current)
     {
@@ -665,9 +671,6 @@ int k=2;
 			dest.right = dest.left + int(pSurface->GetWidth() * ZoomX);
 			dest.bottom = dest.top + int(pSurface->GetHeight() * ZoomY);
 
-			//g_pPlutoLogger->Write(LV_STATUS, "Need to stretch picture: %d, %d, %d, %d, keep aspect %d", 
-			//	dest.left, dest.top, dest.right, dest.bottom, !bDisableAspectRatio);
-
 			GetDisplay()->BlitStretch(dest, pSurface);
 		}
 		else
@@ -683,7 +686,9 @@ int k=2;
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::EndPaint()
 {
+#ifdef DEBUG
     g_pPlutoLogger->Write(LV_WARNING, "End paint...");
+#endif
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::UpdateRect(PlutoRectangle rect, PlutoPoint point)
@@ -918,7 +923,21 @@ void Orbiter_PocketFrog::CalcTextRectangle(RECT &rectLocation,PlutoRectangle &rP
 
 		rectLocation.bottom = rectLocation.top+iHeight;
 	}
-	else if( m_iRotation==90 )
+	else if( m_iRotation==180 )
+	{
+		rectLocation.left = 0;
+		rectLocation.right = rPosition.Width;
+
+		if( iVertAlignment==VERTALIGNMENT_Bottom_CONST )
+			rectLocation.top = rPosition.Height - iHeight;
+		else if( iVertAlignment==VERTALIGNMENT_Middle_CONST )
+			rectLocation.top = ((rPosition.Height - iHeight)/2);
+		else
+			rectLocation.top = 0;
+
+		rectLocation.bottom = rectLocation.top+iHeight;
+	}
+	else if( m_iRotation==90 || m_iRotation==270 )
 	{
 		rectLocation.left = 0;
 		rectLocation.right = rPosition.Height;
@@ -932,20 +951,4 @@ void Orbiter_PocketFrog::CalcTextRectangle(RECT &rectLocation,PlutoRectangle &rP
 
 		rectLocation.bottom = rectLocation.top+iHeight;
 	}
-	/*
-	else if( m_iRotation==90 )
-	{
-		rectLocation.top = rPosition.Top();
-		rectLocation.bottom = rPosition.Bottom();
-
-		if( iVertAlignment==VERTALIGNMENT_Bottom_CONST )
-			rectLocation.left = rPosition.Left();
-		else if( iVertAlignment==VERTALIGNMENT_Middle_CONST )
-			rectLocation.left = rPosition.Left() + ((rPosition.Width - iHeight)/2);
-		else
-			rectLocation.left = rPosition.Right() - iHeight;
-
-		rectLocation.right = rectLocation.left+iHeight;
-	}
-	*/
 }

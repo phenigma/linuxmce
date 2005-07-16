@@ -150,7 +150,9 @@ bool ServerSocket::_Run()
 			sprintf( s, "TIME|%d|%d|%d|%d|%d|%d|UGMT|%lu|BIAS|%lu|%d",
 				lt.tm_hour, lt.tm_min, lt.tm_sec, lt.tm_mon+1, lt.tm_mday,
 				lt.tm_year+1900, (long unsigned int)t, (long unsigned int) mktime(&lt) - mktime(&gt), lt.tm_isdst );
+#ifdef DEBUG
 			g_pPlutoLogger->Write(LV_STATUS, "Device %d requested time: sending %s",m_dwPK_Device,s);
+#endif
 			SendString( s );
 			continue;
 		}

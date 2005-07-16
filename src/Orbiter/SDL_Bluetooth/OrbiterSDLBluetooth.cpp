@@ -120,13 +120,18 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
 
     string sRepeatedKeysList;
     GetRepeatedKeysForScreen(m_pScreenHistory_Current->m_pObj, sRepeatedKeysList);
+#ifdef DEBUG
     g_pPlutoLogger->Write(LV_WARNING, "Repeated keys list %s: ", sRepeatedKeysList.c_str());
+#endif
 
     //load the image into a buffer and create 'BD_CP_ShowImage' command
     size_t iImageSize;
     char *pImage = FileUtils::ReadFileIntoBuffer(csTempFileName, iImageSize);
 
+#ifdef DEBUG
 	g_pPlutoLogger->Write(LV_WARNING, "Ready to send a picture, size %d, reporting signal strength %d", iImageSize, bSignalStrengthScreen);
+#endif
+
     BD_CP_ShowImage *pBD_CP_ShowImage = new BD_CP_ShowImage(0, (unsigned long)iImageSize, pImage, 
         (unsigned long)(sRepeatedKeysList.length()), sRepeatedKeysList.c_str(), bSignalStrengthScreen);
 
@@ -148,12 +153,16 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
     if( m_pBDCommandProcessor )
         m_pBDCommandProcessor->AddCommand(pBD_CP_ShowImage);
 
+#ifdef DEBUG
     g_pPlutoLogger->Write(LV_STATUS, "ShowImage command added to the queue");
+#endif
 }
 //-----------------------------------------------------------------------------------------------------
 void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj, PlutoPoint point)
 {
+#ifdef DEBUG
     g_pPlutoLogger->Write(LV_STATUS, "Extraoptions in grid: %s", pObj->m_sExtraInfo.c_str());
+#endif
 
 #if (defined(PROFILING))
     clock_t clkStart = clock();
@@ -181,7 +190,9 @@ void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj, PlutoPoint po
     //if 'F' option is specified, we'll let the base the render the grid
     if(pObj->m_sExtraInfo.find( 'F' ) != string::npos) 
     {
+#ifdef DEBUG
         g_pPlutoLogger->Write(LV_WARNING, "OrbiterSDLBluetooth: I won't render this grid on the phone");
+#endif
         OrbiterSDL::RenderDataGrid(pObj);
         return;
     }
@@ -193,8 +204,9 @@ void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj, PlutoPoint po
 
 	if(pObj->m_pDataGridTable)
     {
+#ifdef DEBUG
 		g_pPlutoLogger->Write(LV_WARNING, "Got to render a datagrid with %d columns", pObj->m_pDataGridTable->m_ColumnCount);
-
+#endif
 		if(pObj->m_pDataGridTable->m_ColumnCount == 1)//we can render on column datagrid
 			bUsePhoneGrid = true;
 
@@ -219,14 +231,18 @@ void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj, PlutoPoint po
 			bSendSelectedOnMove = true;
 
 		bool bTurnOn = true;
+#ifdef DEBUG
 		g_pPlutoLogger->Write(LV_WARNING, "About to send BD_CP_ShowList command, column %d, turnon %d, items count %d, selected item %d, send 'selected item' %d",
 				iSelectedColumn, bTurnOn, pObj->m_pDataGridTable->getTotalRowCount(), pObj->m_iHighlightedRow, (int)bSendSelectedOnMove);
-		
+#endif
+
         for(int i = 0; i < pObj->m_pDataGridTable->getTotalRowCount(); i++)
         {
             DataGridCell * pCell = pObj->m_pDataGridTable->GetData(iSelectedColumn, i);
 			string sItem = pCell != NULL ? pCell->GetText() : "<empty>";
+#ifdef DEBUG
 			g_pPlutoLogger->Write(LV_STATUS, "Item %d : '%s'", i, sItem.c_str());
+#endif
             listGrid.push_back(sItem);
         }
 
@@ -257,11 +273,12 @@ void OrbiterSDLBluetooth::CMD_Capture_Keyboard_To_Variable(string sPK_DesignObj,
         )
     )
     {
+#ifdef DEBUG
 		g_pPlutoLogger->Write(LV_WARNING, "Sending BD_CP_CaptureKeyboard command with parameters: On: %d, Reset: %d, PinType: %d, DataGrid: %d, PK_Variable: %d, Text: %s",
 			m_bCaptureKeyboard_OnOff, m_bCaptureKeyboard_Reset, m_iCaptureKeyboard_EditType,
 			m_bCaptureKeyboard_DataGrid, m_iCaptureKeyboard_PK_Variable, m_sCaptureKeyboard_Text.c_str()
 		);
-
+#endif
 		BD_CP_CaptureKeyboard *pBD_CP_CaptureKeyboard = new BD_CP_CaptureKeyboard(
 				m_bCaptureKeyboard_OnOff,
 				m_bCaptureKeyboard_DataGrid,

@@ -121,7 +121,9 @@ g_pPlutoLogger->Write(LV_STATUS, "~OrbiterSDL finished");
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::RenderScreen()
 {
+#ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"$$$ RENDER SCREEN $$$ %s",(m_pScreenHistory_Current ? m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str() : " NO SCREEN"));
+#endif
 
     if (m_pScreenHistory_Current)
     {
@@ -158,11 +160,6 @@ g_pPlutoLogger->Write(LV_STATUS, "~OrbiterSDL finished");
     TextLocation.y = point.Y + Text->m_rPosition.Y;
     TextLocation.w = Text->m_rPosition.Width;
     TextLocation.h = Text->m_rPosition.Height;
-
-if( Text->m_PK_Text==TEXT_USR_ENTRY_CONST )
-{
-g_pPlutoLogger->Write(LV_STATUS,"*******rendering timeout at %d,%d - %d,%d",TextLocation.x,TextLocation.y,TextLocation.w,TextLocation.h );
-}
 
 #ifdef WIN32
     string BasePath="C:\\Windows\\Fonts\\";
@@ -340,9 +337,11 @@ void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, Pl
 	SDL_PixelFormat * PF = m_pScreenImage->format;
 	Uint32 PlutoPixelDest, PlutoPixelSrc, Pixel;
 
+#ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS, "ReplaceColor: %u %u %u : %u %u %u",
 		ColorToReplace.R(), ColorToReplace.G(), ColorToReplace.B(),
 		ReplacementColor.R(), ReplacementColor.G(), ReplacementColor.B());
+#endif
 
 	PlutoPixelSrc = (ColorToReplace.R() << PF->Rshift) | (ColorToReplace.G() << PF->Gshift) | (ColorToReplace.B() << PF->Bshift) | (ColorToReplace.A() << PF->Ashift);
 	unsigned char *Source = (unsigned char *) &PlutoPixelSrc;
@@ -369,7 +368,6 @@ void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, Pl
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::BeginPaint()
 {
-	//g_pPlutoLogger->Write(LV_STATUS, "Begin paint.");
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::EndPaint()

@@ -135,7 +135,9 @@ void File_Grids_Plugin::ReceivedUnknownCommand(string &sCMD_Result,Message *pMes
 
 class DataGridTable * File_Grids_Plugin::FileList(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
 {
+#ifdef DEBUG
 g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
+#endif
 	FileListGrid *pDataGrid = new FileListGrid(m_pDatagrid_Plugin,m_pMedia_Plugin);
 	DataGridCell *pCell;
 
@@ -288,7 +290,9 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 
 	return pDataGrid;
 
+#ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS,"End File list");
+#endif
 	return pDataGrid;
 }
 

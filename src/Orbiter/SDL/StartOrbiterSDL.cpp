@@ -92,6 +92,7 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
             if(SDL_KEYDOWN == sdlEvent.type && SDLK_CAPSLOCK == sdlEvent.key.keysym.sym)
                 kbdState->bCapsLock = !kbdState->bCapsLock;
 
+#ifdef DEBUG
 			g_pPlutoLogger->Write(LV_STATUS, "key %s %d shif: %d ctrl: %d alt: %d caps: %d",
                     SDL_KEYDOWN == sdlEvent.type ? "down" : "up",
 					(int) sdlEvent.key.keysym.sym,
@@ -99,6 +100,7 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
 					(int) kbdState->bControlDown,
 					(int) kbdState->bAltDown,
 					(int) kbdState->bCapsLock);
+#endif
 
 #ifndef PHONEKEYS
 			if ( SDLK_a <= sdlEvent.key.keysym.sym && sdlEvent.key.keysym.sym <= SDLK_z )
@@ -274,9 +276,7 @@ bool StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bL
 
 		while (!pCLinux->m_bQuit)
         {
-//g_pPlutoLogger->Write(LV_STATUS,"Before wait for event");
             SDL_WaitEvent(&Event);
-//g_pPlutoLogger->Write(LV_STATUS,"wait for event returned %d",Event.type);
 
 			// convert the SDL into what we know to interpret.
 			translateSDLEventToOrbiterEvent(Event, &orbiterEvent, &keyboardState);
@@ -286,9 +286,6 @@ bool StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bL
 
 			pCLinux->ProcessEvent(orbiterEvent);
         }  // while
-
-	g_pPlutoLogger->Write(LV_STATUS, "Orbiter quit is %d",(int) pCLinux->m_bQuit);
-
     } // if connect
 	bool bReload = pCLinux->m_bReload;
 g_pPlutoLogger->Write(LV_STATUS, "ready to delete instance End of SDL loop with reload: %s",(bReload ? "Y" : "N"));

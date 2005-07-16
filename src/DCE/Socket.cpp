@@ -101,8 +101,9 @@ void* PingLoop( void* param ) // renamed to cancel link-time name collision in M
 			
 		string sResponse=pSocket->SendReceiveString("PING");
 		
+#ifdef DEBUG
 		g_pPlutoLogger->Write( LV_STATUS, "Sent PING on %p and got %s",pSocket,sResponse.c_str());
-
+#endif
 		if( sResponse!="PONG" )
 		{
 			sSM.Release();

@@ -17,7 +17,7 @@ sources = Main.cpp Orbiter.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
 CXXFLAGS +=
-CPPFLAGS += -I/usr/include/SDL -DORBITER -DCACHE_IMAGES -DDEBUG -DxPHONEKEYS -DxTHREAD_LOG -I$(ROOT)/Splitter -I$(ROOT)/OrbiterGen -L/usr/X11/lib
+CPPFLAGS += -I/usr/include/SDL -DORBITER -DCACHE_IMAGES -DxPHONEKEYS -I$(ROOT)/Splitter -I$(ROOT)/OrbiterGen -L/usr/X11/lib
 LDFLAGS += -L/usr/X11R6/lib
 XTRALDLIBS = -lDCECommon -lSDL -lSDL_ttf -lSDL_image -lSGE -lSDL_gfx -lXtst
 

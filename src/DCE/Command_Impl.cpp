@@ -68,9 +68,13 @@ void *WatchDogThread( void *pData )
 
 	while( !pCommand_Impl->m_bStopWatchdog)
 	{
+#ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS, "About to send PING to the router.");
+#endif
 		string sResponse = pCommand_Impl->SendReceiveString( "PING " + StringUtils::itos( pCommand_Impl->m_dwPK_Device ) );
+#ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS, "Sent PING to the router.");
+#endif
 
 		if ( sResponse != "BUBU" )
 		{
@@ -85,7 +89,9 @@ void *WatchDogThread( void *pData )
 		}
 		else
 		{
+#ifdef DEBUG
 			g_pPlutoLogger->Write(LV_STATUS, "Received PONG from the router.");
+#endif
 			Sleep(5000);
 		}
 	}
@@ -495,7 +501,9 @@ bool Command_Impl::ReceivedMessage( Message *pMessage )
 			{
 				string ValueOld = m_pData->m_mapParameters[(*p).first];
 				m_pData->m_mapParameters[(*p).first] = (*p).second;
+#ifdef DEBUG
 				g_pPlutoLogger->Write( LV_STATUS, "Updating data parm %d with %s (Device %d).", (*p).first, (*p).second.c_str(), m_dwPK_Device );
+#endif
 				SendString( "OK" );
 				OnDataChange( (*p).first, ValueOld, (*p).second );
 			}
@@ -563,7 +571,9 @@ bool Command_Impl::InternalSendCommand( PreformedCommand &pPreformedCommand, int
 	// Just put it in the queue.  The queue will delete pPreformedCommand.m_pMessage after sending
 	if( iConfirmation == 0 || ( iConfirmation == -1 && !pPreformedCommand.m_pcResponse ) )
 	{
+#ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand queue conf %d resp %p",iConfirmation,pPreformedCommand.m_pcResponse);
+#endif
 		pPreformedCommand.m_pMessage->m_eExpectedResponse = ER_None;
 		QueueMessageToRouter( pPreformedCommand.m_pMessage );
 		return true;
@@ -572,23 +582,31 @@ g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand queue conf %d resp %p",iCon
 	// We need a response.  It will be a string if there are no out parameters
 	if( !pPreformedCommand.m_pcResponse )
 	{
+#ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand confirmation conf %d resp %p",iConfirmation,pPreformedCommand.m_pcResponse);
+#endif
 		pPreformedCommand.m_pMessage->m_eExpectedResponse = ER_DeliveryConfirmation;  // i.e. just an "OK"
 		string sResponse; // We'll use this only if a response wasn't passed in
 		if( !p_sResponse )
 			p_sResponse = &sResponse;
 
 		bool bResult = m_pcRequestSocket->SendMessage( pPreformedCommand.m_pMessage, *p_sResponse );
+#ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand confirmation done conf %d resp %p (%d) %s",
 					  iConfirmation,pPreformedCommand.m_pcResponse,(int) bResult,p_sResponse->c_str());
+#endif
 		return bResult && *p_sResponse == "OK";
 	}
+#ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand out parm conf %d resp %p",iConfirmation,pPreformedCommand.m_pcResponse);
+#endif
 	// There are out parameters, we need to get a message back in return
 	pPreformedCommand.m_pMessage->m_eExpectedResponse = ER_ReplyMessage;
 	Message *pResponse = m_pcRequestSocket->SendReceiveMessage( pPreformedCommand.m_pMessage );
+#ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand out done conf %d resp %p %p %d",
 iConfirmation,pPreformedCommand.m_pcResponse,pResponse,(pResponse ? pResponse->m_dwID : 0));
+#endif
 	if( !pResponse || pResponse->m_dwID != 0 )
 	{
 		if(pResponse)
@@ -603,8 +621,9 @@ iConfirmation,pPreformedCommand.m_pcResponse,pResponse,(pResponse ? pResponse->m
 		*p_sResponse = sResponse;
 
 	bool bResult = sResponse=="OK";
+#ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand out parm exiting conf %d resp %p",iConfirmation,pPreformedCommand.m_pcResponse);
-
+#endif
 	delete pResponse;
 	return bResult;
 }

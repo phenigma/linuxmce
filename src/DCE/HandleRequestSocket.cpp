@@ -156,8 +156,9 @@ void HandleRequestSocket::RunThread()
 			if( m_bQuit )
 				break;
 
+#ifdef DEBUG
 			g_pPlutoLogger->Write(LV_STATUS, "Receive string: %s", sMessage.c_str());
-
+#endif
 			if ( sMessage == "CORRUPT SOCKET" )
 			{
 				g_pPlutoLogger->Write( LV_STATUS, "Socket flagged as corrupted %p device: %d", this, m_dwPK_Device );

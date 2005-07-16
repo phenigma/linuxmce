@@ -49,8 +49,9 @@ void GetDirContents(list<FileDetails *> &listFileNames,string Path, string sVali
 {
     string BasePath;
 
+#ifdef DEBUG
     g_pPlutoLogger->Write(LV_STATUS, "get dir contents Base Path: %s",Path.c_str());
-
+#endif
     string::size_type pos=0;
     while( (BasePath=StringUtils::Tokenize(Path,",",pos)).length() )
     {
@@ -97,8 +98,9 @@ void GetDirContents(list<FileDetails *> &listFileNames,string Path, string sVali
         DIR * dirp = opendir(BasePath.c_str());
         struct dirent entry;
         struct dirent * direntp = & entry;
+#ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS, "opened dir %s", BasePath.c_str());
-
+#endif
         if (dirp == NULL)
         {
             g_pPlutoLogger->Write(LV_CRITICAL, "opendir1 %s failed: %s", BasePath.c_str(), strerror(errno));
@@ -120,17 +122,23 @@ g_pPlutoLogger->Write(LV_STATUS, "opened dir %s", BasePath.c_str());
             // if (entry.d_type == DT_DIR )
             if ( S_ISDIR(dirEntryStat.st_mode) )
             {
+#ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS, "found dir entry %s", entry.d_name);
+#endif
                 if (entry.d_name[0] != '.') // ignore folders starting with . {hidden and the . .. ones}
                 {
                     FileDetails *fi = new FileDetails(BasePath, entry.d_name, true, time(NULL));
+#ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS, "adding dir");
+#endif
                     listFileNames.push_back(fi);
                 }
             }
             else if ( S_ISREG(dirEntryStat.st_mode) && entry.d_name[0] != '.') // ignore hidden files
             {
+#ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS, "found file entry %s", entry.d_name);
+#endif
                 size_t pos = 0;
                 while(pos<sValidExtensions_CSV.length() || sValidExtensions_CSV.length()==0 )
                 {
@@ -140,7 +148,9 @@ g_pPlutoLogger->Write(LV_STATUS, "found file entry %s", entry.d_name);
                     if ( s.length()==0 || s == ".*" || strstr(entry.d_name, s.c_str()) != NULL)
                     {
                         FileDetails *fi = new FileDetails(BasePath, entry.d_name, false, time(NULL));
+#ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS, "added file %s", entry.d_name);
+#endif
                         listFileNames.push_back(fi);
                         break;
                     }
@@ -151,5 +161,7 @@ g_pPlutoLogger->Write(LV_STATUS, "added file %s", entry.d_name);
 #endif
     }
 
+#ifdef DEBUG
     g_pPlutoLogger->Write(LV_STATUS, "get dir contents returning: %d records",(int) listFileNames.size());
+#endif
 }

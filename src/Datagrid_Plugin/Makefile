@@ -16,7 +16,7 @@ Gen_Dev_Files = $(GENDEV)/Datagrid_PluginBase.cpp
 sources = Main.cpp Datagrid_Plugin.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
-CXXFLAGS += -DDEBUG
+CXXFLAGS +=
 CPPFLAGS +=
 LDFLAGS +=
 XTRALDLIBS = 

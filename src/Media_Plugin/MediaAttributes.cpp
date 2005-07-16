@@ -825,7 +825,9 @@ string MediaAttributes::GetAnyPictureUnderDirectory( string File, int *PK_Pictur
     }
     while ( dirp != NULL && ( readdir_r( dirp, direntp, &direntp ) == 0 ) && direntp )
     {
+#ifdef DEBUG
 g_pPlutoLogger->Write( LV_STATUS, "GetPicture: Reading %s %s depth %d",File.c_str(),entry.d_name,MaxDepthToSearch);
+#endif
         if( MaxDepthToSearch && ( entry.d_type==DT_DIR ) && entry.d_name[0]!='.' )
         {
             string Extension = GetAnyPictureUnderDirectory( File + "/" + entry.d_name, PK_Picture, MaxDepthToSearch-1 );
@@ -840,7 +842,9 @@ g_pPlutoLogger->Write( LV_STATUS, "GetPicture: Reading %s %s depth %d",File.c_st
             FilesToScan--;
             string Extension = GetPictureFromFilePath( File + "/" + entry.d_name, PK_Picture );
 
+#ifdef DEBUG
 g_pPlutoLogger->Write( LV_STATUS, "GetPicture: Reading %s %s got pic %d %s",File.c_str(),entry.d_name,*PK_Picture,Extension.c_str());
+#endif
             if( *PK_Picture )
             {
                 closedir( dirp );
@@ -998,13 +1002,17 @@ g_pPlutoLogger->Write(LV_WARNING, "pl3 = %s %s",sPlaylistName.c_str(),pRow_Playl
 		// We'll just re-write the whole thing out again anyway
 	    vector<Row_PlaylistEntry*> vectRow_PlaylistEntry;
 		pRow_Playlist->PlaylistEntry_FK_Playlist_getrows(&vectRow_PlaylistEntry);
+#ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS,"Deleting %d rows from old playlist",(int) vectRow_PlaylistEntry.size());
+#endif
 		for(size_t s=0;s<vectRow_PlaylistEntry.size();++s)
 			vectRow_PlaylistEntry[s]->Delete();
 	}
 
     iPK_Playlist = pRow_Playlist->PK_Playlist_get();
+#ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS,"Save playlist id %d with %d rows",iPK_Playlist,(int) dequeMediaFile.size());
+#endif
 
 	for(size_t s=0;s<dequeMediaFile.size();++s)
 	{

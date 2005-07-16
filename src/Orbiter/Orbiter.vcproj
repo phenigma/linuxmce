@@ -74,7 +74,7 @@
 				InlineFunctionExpansion="1"
 				OmitFramePointers="TRUE"
 				AdditionalIncludeDirectories=".;..;../DCE;&quot;../../libs/Libraries/pthreads-win32/include&quot;;/mysql/include;&quot;../../libs/CrossPlatform/sge030809-w32/src&quot;;&quot;../../libs/CrossPlatform/SDL_ttf-2.0.6&quot;;&quot;../../libs/CrossPlatform/SDL_image-1.2.3&quot;;&quot;../../libs/CrossPlatform/SDL-1.2.7/include&quot;;../Splitter;../../libs/CrossPlatform/zlib;../../libs/CrossPlatform/lpng127;../PlutoUtils;Win32;&quot;../../libs/CrossPlatform/SDL_rotozoom-1.6&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;ORBITER;THREAD_LOG;CACHE_IMAGES;DEBUG"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;ORBITER;CACHE_IMAGES"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"

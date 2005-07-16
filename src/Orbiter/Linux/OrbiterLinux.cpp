@@ -291,7 +291,9 @@ bool OrbiterLinux::PreprocessEvent(Orbiter::Event &event)
 				event.type = Orbiter::Event::NOT_PROCESSED;
 	}
 
+#ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS, "The keysym was %d, the final event type %d", keysym, event.type);
+#endif
 }
 
 void OrbiterLinux::CMD_Show_Mouse_Pointer(string sOnOff,string &sCMD_Result,Message *pMessage)
@@ -329,13 +331,17 @@ g_pPlutoLogger->Write(LV_CRITICAL, "Sending XKeysym %d",XKeySym.second);
 
 void OrbiterLinux::CMD_Set_Mouse_Position_Relative(int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage)
 {
+#ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS, "Moving mouse %d %d",iPosition_X, iPosition_Y);
+#endif
 	XTestFakeRelativeMotionEvent(XServerDisplay, iPosition_X, iPosition_Y, 0);
 }
 
 void OrbiterLinux::CMD_Simulate_Mouse_Click_At_Present_Pos(string sType,string &sCMD_Result,Message *pMessage)
 {
+#ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS, "Clicking mouse %s",sType.c_str());
+#endif
 	XTestFakeButtonEvent(XServerDisplay, 1, true, 0);
 	XTestFakeButtonEvent(XServerDisplay, 1, false, 0);
 }

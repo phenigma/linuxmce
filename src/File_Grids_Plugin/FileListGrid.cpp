@@ -77,11 +77,14 @@ g_pPlutoLogger->Write(LV_STATUS,"filelistgrid::row %d graphic data: %p rowstart:
 
 			if ( (result=attr_get( flInfo->m_sPath.c_str( ), "PIC", value, &n, 0)) != 0 || (PKID_MED_Picture = atoi(value))==0 )
 {
+#ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS, "No PIC attribute for %s result: %d",flInfo->m_sPath.c_str( ),result);
+#endif
 continue;
 }
+#ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS, "Pic for %s is: %d",flInfo->m_sPath.c_str( ),PKID_MED_Picture);
-
+#endif
 			char *pIconBuffer = NULL;
 			size_t stIconSize;
 
@@ -89,7 +92,9 @@ g_pPlutoLogger->Write(LV_STATUS, "Pic for %s is: %d",flInfo->m_sPath.c_str( ),PK
 			{
 				PictureFile = "/home/mediapics/" + StringUtils::itos(PKID_MED_Picture) + "_tn.jpg";
 				pIconBuffer = FileUtils::ReadFileIntoBuffer(PictureFile,stIconSize);
+#ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS, "Pic file: %s has size: %d", PictureFile.c_str(),stIconSize);
+#endif
 				format = GR_JPG;
 			}
 

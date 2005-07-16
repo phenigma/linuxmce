@@ -62,21 +62,9 @@ void OrbiterSelfUpdate::GetProcessFilePath(char *pProcessFilePath)
 #else
     ::GetModuleFileName(NULL, pProcessFilePath, 256);
 
-    /*
-    int iNumArgs;
-    LPSTR pCmdLine = GetCommandLine();
-    g_pPlutoLogger->Write(LV_STATUS, "Orbiter's command line: %s", pCmdLine);
-
-	wchar_t pCmdLineW[256];
-	mbstowcs(pCmdLineW, pCmdLine, 256);
-	LPWSTR* pCmdLineParams = CommandLineToArgvW(pCmdLineW, &iNumArgs);
-
-	wchar_t *pProcessNameW = pCmdLineParams[0];
-	wcstombs(pProcessFilePath, pProcessNameW, 256);
-    ::LocalFree(pCmdLineParams);
-    */
-
+#ifdef DEBUG
     g_pPlutoLogger->Write(LV_STATUS, "Orbiter's full path: %s", pProcessFilePath);
+#endif
 
 #endif
 }
@@ -135,8 +123,7 @@ bool OrbiterSelfUpdate::UpdateAvailable()
 
 	string sActualChecksum = GetOrbiterCheckSum();
 
-	g_pPlutoLogger->Write( LV_STATUS,  "Current checksum : %s", sActualChecksum.c_str() );	
-	g_pPlutoLogger->Write( LV_STATUS,  "Server orbiter checksum : %s", sChecksum.c_str() );	
+	g_pPlutoLogger->Write( LV_STATUS,  "Current checksum : %s orbiter %s", sActualChecksum.c_str(), sChecksum.c_str() );	
 
 	if(sActualChecksum == sChecksum)
 		return false; //no updates needed
@@ -248,8 +235,7 @@ bool OrbiterSelfUpdate::SpawnUpdateBinaryProcess()
 	sCmdLine += " -o \"" + m_sOrbiterFilePath + "\"";
 	sCmdLine += " -c " + sCommFile;
 
-	g_pPlutoLogger->Write( LV_STATUS,  "Ready to start: %s", sUpdateBinaryFilePath.c_str());
-	g_pPlutoLogger->Write( LV_STATUS,  "Communication file: %s", sCmdLine.c_str());
+	g_pPlutoLogger->Write( LV_STATUS,  "Ready to start: %s comm file %s", sUpdateBinaryFilePath.c_str(), sCmdLine.c_str());
 
 #ifdef WINCE
 	wchar_t CmdLineW[256];
@@ -297,11 +283,14 @@ bool OrbiterSelfUpdate::Run()
 		g_pPlutoLogger->Write( LV_CRITICAL,  "Last update failed. We won't try to update again." );
 		return false;
 	}
+#ifdef DEBUG
 	g_pPlutoLogger->Write( LV_STATUS,  "Last update didn't fail." );
-
+#endif
 	if(!UpdateAvailable())
 	{
+#ifdef DEBUG
 		g_pPlutoLogger->Write( LV_STATUS,  "No update available on the server." );
+#endif
 		return false;
 	}
 	g_pPlutoLogger->Write( LV_STATUS,  "Update available on the server." );

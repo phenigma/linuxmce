@@ -475,7 +475,6 @@ void OrbiterSDL_WinCE::OnQuit()
 	m_bConnectionLost = true;
 
 	//::ShowWindow(hSDLWindow, SW_HIDE);
-	g_pPlutoLogger->Write(LV_STATUS, "Minimizing orbiter");
 	ShowMainDialog();
 
 	g_pPlutoLogger->Write(LV_STATUS, "Sending dummy SDL_MOUSEMOTION");

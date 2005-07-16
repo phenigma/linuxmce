@@ -178,9 +178,13 @@ int main(int argc, char* argv[])
 	bool bReload=false;
     try
     {
+#ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS, "about to call StartOrbiter");
-        bReload = StartOrbiter(PK_Device,sRouter_IP,sLocalDirectory,bLocalMode,Width,Height,bFullScreen);
+#endif
+	bReload = StartOrbiter(PK_Device,sRouter_IP,sLocalDirectory,bLocalMode,Width,Height,bFullScreen);
+#ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS, "StartOrbiter finished with reload: %s",(bReload ? "Y" : "N"));
+#endif
     }
     catch(string s)
     {

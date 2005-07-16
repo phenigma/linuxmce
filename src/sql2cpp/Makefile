@@ -1,6 +1,6 @@
 ROOT = ..
 CXXFLAGS = -Wall -g 
-CPPFLAGS = -I$(ROOT)/ -I$(ROOT)/DCE -I$(ROOT)/VIPShared -I/usr/include/mysql -D_REENTRANT -D_GNU_SOURCE -DDEBUG -DGENERATOR
+CPPFLAGS = -I$(ROOT)/ -I$(ROOT)/DCE -I$(ROOT)/VIPShared -I/usr/include/mysql -D_REENTRANT -D_GNU_SOURCE -D_DEVEL_DEFINES -DGENERATOR
 LDFLAGS = -L$(ROOT)/lib 
 LDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lpthread -lmysqlclient_r -lattr
 CXX = g++

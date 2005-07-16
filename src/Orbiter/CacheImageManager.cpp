@@ -39,8 +39,10 @@ CacheImageManager::~CacheImageManager()
 //----------------------------------------------------------------------------------------
 bool CacheImageManager::VerifyCache(string sTimeStamp)
 {
+#ifdef DEBUG
 	g_pPlutoLogger->Write(LV_WARNING, "Server skins timestamp: %s. Cache skins timestamp: %s",
 		sTimeStamp.c_str(), m_sTimeStamp.c_str());
+#endif
 
 	if(sTimeStamp != m_sTimeStamp)
 	{
@@ -75,8 +77,10 @@ void CacheImageManager::CacheImage(char *pData, int iSize, string sFileName,
 	{
 		if(!FileUtils::WriteBufferIntoFile(GetCacheImageFileName(sFileName), pData, iSize))
 			g_pPlutoLogger->Write(LV_WARNING, "Unable to add image '%s' to cache", sFileName.c_str());
+#ifdef DEBUG
 		else
 			g_pPlutoLogger->Write(LV_STATUS, "Added image '%s' to cache", sFileName.c_str());
+#endif
 	}
 }
 //----------------------------------------------------------------------------------------
@@ -104,7 +108,9 @@ bool CacheImageManager::IsImageInCache(string sFileName, int iPriority/*=0*/)
 
 		AdjustCacheSize();
 
+#ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS, "Image '%s' found in cache folder. Added to our list.", sFileName.c_str());
+#endif
 		return IsImageInCache(sFileName);
 	}
 
