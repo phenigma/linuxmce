@@ -49,7 +49,7 @@ namespace HADesigner
 		//private CriteriaList m_CriteriaList;
 		private UIDesignObj m_objParentUIDesignObj;
 
-		private int m_intCriteria_DID = -1;
+		private int m_intUIID = -1;
 		private int m_intGotoUIDesignObjID = -1;
 		//		private int m_intCommandID = -1;
 		//		private int m_intCommandGroupID = -1;
@@ -67,7 +67,7 @@ namespace HADesigner
 
 
 		//things that can change
-		private int m_intCriteria_DIDOriginal = -1;
+		private int m_intUIIDOriginal = -1;
 		private int m_intGotoUIDesignObjIDOriginal  = -1;
 		//		private int m_intCommandIDOriginal = -1;
 		private int m_intCommandGroup_D_TouchIDOriginal  = -1,m_intCommandGroup_D_LoadIDOriginal  = -1,m_intCommandGroup_D_UnloadIDOriginal  = -1, m_intCommandGroup_D_StartupIDOriginal = -1, m_intCommandGroup_D_TimeoutIDOriginal = -1;
@@ -219,8 +219,8 @@ namespace HADesigner
 
 		public int CriteriaID
 		{
-			get	{return m_intCriteria_DID;}
-			set {m_intCriteria_DID = value;}
+			get	{return m_intUIID;}
+			set {m_intUIID = value;}
 		}
 		public int GotoUIDesignObjID
 		{
@@ -303,7 +303,7 @@ namespace HADesigner
 		{
 			get
 			{
-				return m_intCriteria_DIDOriginal != m_intCriteria_DID || m_intCommandGroup_D_TouchIDOriginal != m_intCommandGroup_D_TouchID || 
+				return m_intUIIDOriginal != m_intUIID || m_intCommandGroup_D_TouchIDOriginal != m_intCommandGroup_D_TouchID || 
 					m_intCommandGroup_D_LoadIDOriginal != m_intCommandGroup_D_LoadID || m_intCommandGroup_D_UnloadIDOriginal != m_intCommandGroup_D_UnloadID || m_intCommandGroup_D_StartupID != m_intCommandGroup_D_StartupIDOriginal || m_intCommandGroup_D_TimeoutID != m_intCommandGroup_D_TimeoutIDOriginal || 
 					m_intCButton != m_intCButtonOriginal || m_intGotoUIDesignObjIDOriginal != m_intGotoUIDesignObjID || m_boolDontResetSelectedState!=m_boolDontResetSelectedStateOriginal;
 			}
@@ -373,7 +373,7 @@ namespace HADesigner
 
 
 		//CONSTRUCTORS
-		public UIDesignObjVariation(UIDesignObj objParentUIDesignObj, int intID, int intCriteria_DID)
+		public UIDesignObjVariation(UIDesignObj objParentUIDesignObj, int intID, int intUIID)
 		{
 			this.ParentUIDesignObj = objParentUIDesignObj;
 			if(intID == -1)
@@ -382,16 +382,16 @@ namespace HADesigner
 				//this one doesn't exist in the database yet
 				this.NeedsInsert = true;
 				this.ID = -1;
-				this.CriteriaID = intCriteria_DID;
+				this.CriteriaID = intUIID;
 
-				if(intCriteria_DID != -1)
+				if(intUIID != -1)
 				{
 
 					this.IsStandard = false;
 
 					//get the description of the criteria
-					Criteria_DDataRow drCriteria = mds.tCriteria_D[this.CriteriaID];
-					this.Description = drCriteria.fDescription + "  (" + Convert.ToString(drCriteria.fPK_Criteria_D) + ")";
+					UIDataRow drCriteria = mds.tUI[this.CriteriaID];
+					this.Description = drCriteria.fDescription + "  (" + Convert.ToString(drCriteria.fPK_UI) + ")";
 
 					//we need to create parameters for this Variation
 					//create the parms based on the parent object type and look in DesignObjType_DesignObjParameter
@@ -597,11 +597,11 @@ namespace HADesigner
 
 
 			//Get the criteria and description
-			if(!drVariation.fFK_Criteria_DIsNull)
+			if(!drVariation.fFK_UIIsNull)
 			{
 				this.IsStandard = false;
-				m_intCriteria_DID = drVariation.fFK_Criteria_D;
-				m_strDescription = drVariation.fFK_Criteria_D_DataRow.fDescription + "  (" + Convert.ToString(drVariation.fFK_Criteria_D_DataRow.fPK_Criteria_D) + ")";
+				m_intUIID = drVariation.fFK_UI;
+				m_strDescription = drVariation.fFK_UI_DataRow.fDescription + "  (" + Convert.ToString(drVariation.fFK_UI_DataRow.fPK_UI) + ")";
 			}
 			else
 			{
@@ -894,9 +894,9 @@ namespace HADesigner
 						drDesignObjVariation.fDontResetSelectedState = (short) (this.m_boolDontResetSelectedState ? 1 : 0);
 
 						if(this.CriteriaID == -1)
-							drDesignObjVariation.fFK_Criteria_DSetNull();
+							drDesignObjVariation.fFK_UISetNull();
 						else
-							drDesignObjVariation.fFK_Criteria_D = this.CriteriaID;
+							drDesignObjVariation.fFK_UI = this.CriteriaID;
 
 						if(this.GotoUIDesignObjID == -1)
 							drDesignObjVariation.fFK_DesignObj_GotoSetNull();
@@ -973,9 +973,9 @@ namespace HADesigner
 							drDesignObjVariation.fDontResetSelectedState = (short) (this.m_boolDontResetSelectedState ? 1 : 0);
 
 							if(this.CriteriaID == -1)
-								drDesignObjVariation.fFK_Criteria_DSetNull();
+								drDesignObjVariation.fFK_UISetNull();
 							else
-								drDesignObjVariation.fFK_Criteria_D = this.CriteriaID;
+								drDesignObjVariation.fFK_UI = this.CriteriaID;
 
 							if(this.GotoUIDesignObjID == -1)
 								drDesignObjVariation.fFK_DesignObj_GotoSetNull();
@@ -1233,7 +1233,7 @@ namespace HADesigner
 
 		public void ResetOriginals()
 		{
-			m_intCriteria_DIDOriginal = m_intCriteria_DID;
+			m_intUIIDOriginal = m_intUIID;
 			m_intCommandGroup_D_TouchIDOriginal = m_intCommandGroup_D_TouchID;
 			m_intCommandGroup_D_LoadIDOriginal = m_intCommandGroup_D_LoadID;
 			m_intCommandGroup_D_UnloadIDOriginal = m_intCommandGroup_D_UnloadID;

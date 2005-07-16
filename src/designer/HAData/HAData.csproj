@@ -194,11 +194,6 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "DataAccess\Criteria_DData.cs"
-                    SubType = "Component"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "DataAccess\CriteriaList_CriteriaParmListData.cs"
                     SubType = "Component"
                     BuildAction = "Compile"
@@ -209,17 +204,7 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "DataAccess\CriteriaParm_DData.cs"
-                    SubType = "Component"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "DataAccess\CriteriaParmListData.cs"
-                    SubType = "Component"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "DataAccess\CriteriaParmNesting_DData.cs"
                     SubType = "Component"
                     BuildAction = "Compile"
                 />
@@ -355,6 +340,11 @@
                 />
                 <File
                     RelPath = "DataAccess\TextData.cs"
+                    SubType = "Component"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "DataAccess\UIData.cs"
                     SubType = "Component"
                     BuildAction = "Compile"
                 />

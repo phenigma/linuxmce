@@ -99,11 +99,6 @@
                     Project = "{C5679AE5-F8FF-451F-A97B-EA58F93B04AF}"
                     Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
                 />
-                <Reference
-                    Name = "Criteria"
-                    Project = "{0D8390EC-CBF8-4BD2-A1E0-620F3CEF70D9}"
-                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
-                />
             </References>
         </Build>
         <Files>
@@ -140,11 +135,6 @@
                 <File
                     RelPath = "ColorPicker.cs"
                     SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "CriteriaForm.cs"
-                    SubType = "Form"
                     BuildAction = "Compile"
                 />
                 <File

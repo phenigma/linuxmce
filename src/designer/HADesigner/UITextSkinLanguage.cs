@@ -277,7 +277,7 @@ namespace HADesigner
 			{
 				StyleVariationDataRow drStyleVPossible = new StyleVariationDataRow(dr);
 
-				int styleCriteria = drStyleVPossible.fFK_Criteria_DIsNull ? -1 : drStyleVPossible.fFK_Criteria_D;
+				int styleCriteria = drStyleVPossible.fFK_UIIsNull ? -1 : drStyleVPossible.fFK_UI;
 				if (styleCriteria == this.ParentUIText.ParentUIDesignObjVariation.CriteriaID)
 				{
 					drStyleV = drStyleVPossible;

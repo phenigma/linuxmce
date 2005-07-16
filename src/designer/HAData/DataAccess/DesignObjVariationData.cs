@@ -13,7 +13,7 @@ namespace HAData.DataAccess {
 		public const String DESIGNOBJVARIATION_TABLE = "DesignObjVariation";
 		public const String PK_DESIGNOBJVARIATION_FIELD = "PK_DesignObjVariation";
 		public const String FK_DESIGNOBJ_FIELD = "FK_DesignObj";
-		public const String FK_CRITERIA_D_FIELD = "FK_Criteria_D";
+		public const String FK_UI_FIELD = "FK_UI";
 		public const String FK_DESIGNOBJ_GOTO_FIELD = "FK_DesignObj_Goto";
 		public const String FK_COMMANDGROUP_D_ONACTIVATE_FIELD = "FK_CommandGroup_D_OnActivate";
 		public const String FK_COMMANDGROUP_D_ONLOAD_FIELD = "FK_CommandGroup_D_OnLoad";
@@ -27,7 +27,7 @@ namespace HAData.DataAccess {
 		// table+field constants
 		public const String PK_DESIGNOBJVARIATION_TABLE_FIELD = "DesignObjVariation.PK_DesignObjVariation";
 		public const String FK_DESIGNOBJ_TABLE_FIELD = "DesignObjVariation.FK_DesignObj";
-		public const String FK_CRITERIA_D_TABLE_FIELD = "DesignObjVariation.FK_Criteria_D";
+		public const String FK_UI_TABLE_FIELD = "DesignObjVariation.FK_UI";
 		public const String FK_DESIGNOBJ_GOTO_TABLE_FIELD = "DesignObjVariation.FK_DesignObj_Goto";
 		public const String FK_COMMANDGROUP_D_ONACTIVATE_TABLE_FIELD = "DesignObjVariation.FK_CommandGroup_D_OnActivate";
 		public const String FK_COMMANDGROUP_D_ONLOAD_TABLE_FIELD = "DesignObjVariation.FK_CommandGroup_D_OnLoad";
@@ -44,7 +44,7 @@ namespace HAData.DataAccess {
 		// Stored procedure parameters
 		protected const String PK_DESIGNOBJVARIATION_PARM = "@PK_DesignObjVariation";
 		protected const String FK_DESIGNOBJ_PARM = "@FK_DesignObj";
-		protected const String FK_CRITERIA_D_PARM = "@FK_Criteria_D";
+		protected const String FK_UI_PARM = "@FK_UI";
 		protected const String FK_DESIGNOBJ_GOTO_PARM = "@FK_DesignObj_Goto";
 		protected const String FK_COMMANDGROUP_D_ONACTIVATE_PARM = "@FK_CommandGroup_D_OnActivate";
 		protected const String FK_COMMANDGROUP_D_ONLOAD_PARM = "@FK_CommandGroup_D_OnLoad";
@@ -124,7 +124,7 @@ namespace HAData.DataAccess {
 			Column.AllowDBNull = false;
 			Column.DefaultValue = 0;
 
-			Columns.Add(FK_CRITERIA_D_FIELD, typeof(System.Int32));
+			Columns.Add(FK_UI_FIELD, typeof(System.Int32));
 			Columns.Add(FK_DESIGNOBJ_GOTO_FIELD, typeof(System.Int32));
 			Columns.Add(FK_COMMANDGROUP_D_ONACTIVATE_FIELD, typeof(System.Int32));
 			Columns.Add(FK_COMMANDGROUP_D_ONLOAD_FIELD, typeof(System.Int32));
@@ -148,7 +148,7 @@ namespace HAData.DataAccess {
 		protected static void CreateParameters(OdbcParameterCollection Params, bool IsInsert) {
 			Params.Add(new OdbcParameter(PK_DESIGNOBJVARIATION_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(FK_DESIGNOBJ_PARM, OdbcType.Int,4));
-			Params.Add(new OdbcParameter(FK_CRITERIA_D_PARM, OdbcType.Int,4));
+			Params.Add(new OdbcParameter(FK_UI_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(FK_DESIGNOBJ_GOTO_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(FK_COMMANDGROUP_D_ONACTIVATE_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(FK_COMMANDGROUP_D_ONLOAD_PARM, OdbcType.Int,4));
@@ -169,7 +169,7 @@ namespace HAData.DataAccess {
 			}
 
 			Params[FK_DESIGNOBJ_PARM].SourceColumn = DesignObjVariationData.FK_DESIGNOBJ_FIELD;
-			Params[FK_CRITERIA_D_PARM].SourceColumn = DesignObjVariationData.FK_CRITERIA_D_FIELD;
+			Params[FK_UI_PARM].SourceColumn = DesignObjVariationData.FK_UI_FIELD;
 			Params[FK_DESIGNOBJ_GOTO_PARM].SourceColumn = DesignObjVariationData.FK_DESIGNOBJ_GOTO_FIELD;
 			Params[FK_COMMANDGROUP_D_ONACTIVATE_PARM].SourceColumn = DesignObjVariationData.FK_COMMANDGROUP_D_ONACTIVATE_FIELD;
 			Params[FK_COMMANDGROUP_D_ONLOAD_PARM].SourceColumn = DesignObjVariationData.FK_COMMANDGROUP_D_ONLOAD_FIELD;
@@ -227,7 +227,7 @@ namespace HAData.DataAccess {
 		}
 
 		protected static void CreateCommands(OdbcDataAdapter odbcda,OdbcConnection Conn, OdbcTransaction Trans, ref OdbcCommand LoadCommand, ref OdbcCommand InsertCommand, ref OdbcCommand UpdateCommand, ref OdbcCommand DeleteCommand) {
-				LoadCommand = new OdbcCommand("SELECT PK_DesignObjVariation,FK_DesignObj,FK_Criteria_D,FK_DesignObj_Goto,FK_CommandGroup_D_OnActivate,FK_CommandGroup_D_OnLoad,FK_CommandGroup_D_OnUnload,FK_CommandGroup_D_OnTimeout,FK_CommandGroup_D_OnStartup,FK_Button,FK_Criteria_Orbiter,DontResetSelectedState,FK_StabilityStatus FROM DesignObjVariation", Conn);
+				LoadCommand = new OdbcCommand("SELECT PK_DesignObjVariation,FK_DesignObj,FK_UI,FK_DesignObj_Goto,FK_CommandGroup_D_OnActivate,FK_CommandGroup_D_OnLoad,FK_CommandGroup_D_OnUnload,FK_CommandGroup_D_OnTimeout,FK_CommandGroup_D_OnStartup,FK_Button,FK_Criteria_Orbiter,DontResetSelectedState,FK_StabilityStatus FROM DesignObjVariation", Conn);
 				LoadCommand.Transaction = Trans;
 
 				LoadCommand.Parameters.Add(new OdbcParameter(PK_DESIGNOBJVARIATION_PARM, OdbcType.Int,4));
@@ -271,7 +271,7 @@ namespace HAData.DataAccess {
 				conn = HADataConfiguration.GetOdbcConnection();
 			
 			OdbcDataAdapter sqlda = new OdbcDataAdapter();
-			string sSQL = "SELECT PK_DesignObjVariation, FK_DesignObj, FK_Criteria_D, FK_DesignObj_Goto, FK_CommandGroup_D_OnActivate, FK_CommandGroup_D_OnLoad, FK_CommandGroup_D_OnUnload, FK_CommandGroup_D_OnTimeout, FK_CommandGroup_D_OnStartup, FK_Button, FK_Criteria_Orbiter, DontResetSelectedState, FK_StabilityStatus FROM DesignObjVariation WHERE " + WhereClause;
+			string sSQL = "SELECT PK_DesignObjVariation, FK_DesignObj, FK_UI, FK_DesignObj_Goto, FK_CommandGroup_D_OnActivate, FK_CommandGroup_D_OnLoad, FK_CommandGroup_D_OnUnload, FK_CommandGroup_D_OnTimeout, FK_CommandGroup_D_OnStartup, FK_Button, FK_Criteria_Orbiter, DontResetSelectedState, FK_StabilityStatus FROM DesignObjVariation WHERE " + WhereClause;
 			
 			OdbcCommand LoadCommand = new OdbcCommand(sSQL,conn);
 			
@@ -520,7 +520,7 @@ namespace HAData.DataAccess {
 				return mds.tDesignObj[Convert.ToInt32(dr[1])];
 			}
 		}
-		public System.Int32 fFK_Criteria_D
+		public System.Int32 fFK_UI
 		{
 			get
 			{
@@ -531,23 +531,23 @@ namespace HAData.DataAccess {
 				dr[2]=value;
 			}
 		}
-		public bool fFK_Criteria_DIsNull
+		public bool fFK_UIIsNull
 		{
 			get
 			{
 				return dr[2]==DBNull.Value;
 			}
 		}
-		public void fFK_Criteria_DSetNull()
+		public void fFK_UISetNull()
 		{
 			dr[2]=DBNull.Value;
 		}
-		public Criteria_DDataRow fFK_Criteria_D_DataRow
+		public UIDataRow fFK_UI_DataRow
 		{
 			get
 			{
 				MyDataSet mds = (MyDataSet)dr.Table.DataSet;
-				return mds.tCriteria_D[Convert.ToInt32(dr[2])];
+				return mds.tUI[Convert.ToInt32(dr[2])];
 			}
 		}
 		public System.Int32 fFK_DesignObj_Goto
@@ -931,7 +931,7 @@ namespace HAData.DataAccess {
 					return Convert.ToInt32(dr[1]);
 			}
 		}
-		public System.Int32 fFK_Criteria_D
+		public System.Int32 fFK_UI
 		{
 			get
 			{
@@ -941,7 +941,7 @@ namespace HAData.DataAccess {
 					return Convert.ToInt32(dr[2]);
 			}
 		}
-		public bool fFK_Criteria_DIsNull
+		public bool fFK_UIIsNull
 		{
 			get
 			{
@@ -1161,7 +1161,7 @@ namespace HAData.DataAccess {
 		public DataRowCollection LoadAll(OdbcConnection conn, OdbcTransaction trans)
 		{
 			OdbcDataAdapter sqlda = new OdbcDataAdapter();
-			OdbcCommand LoadCommand = new OdbcCommand("SELECT PK_DesignObjVariation,FK_DesignObj,FK_Criteria_D,FK_DesignObj_Goto,FK_CommandGroup_D_OnActivate,FK_CommandGroup_D_OnLoad,FK_CommandGroup_D_OnUnload,FK_CommandGroup_D_OnTimeout,FK_CommandGroup_D_OnStartup,FK_Button,FK_Criteria_Orbiter,DontResetSelectedState,FK_StabilityStatus FROM DesignObjVariation", conn);
+			OdbcCommand LoadCommand = new OdbcCommand("SELECT PK_DesignObjVariation,FK_DesignObj,FK_UI,FK_DesignObj_Goto,FK_CommandGroup_D_OnActivate,FK_CommandGroup_D_OnLoad,FK_CommandGroup_D_OnUnload,FK_CommandGroup_D_OnTimeout,FK_CommandGroup_D_OnStartup,FK_Button,FK_Criteria_Orbiter,DontResetSelectedState,FK_StabilityStatus FROM DesignObjVariation", conn);
 			LoadCommand.CommandType = CommandType.Text;
 			if( trans!=null )
 				LoadCommand.Transaction = trans;
@@ -1197,7 +1197,7 @@ namespace HAData.DataAccess {
 				return Columns[1];
 			}
 		}
-		public DataColumn cFK_Criteria_D
+		public DataColumn cFK_UI
 		{
 			get
 			{

@@ -93,10 +93,10 @@ namespace HADesigner
 			this.cbStyle.Items.Add(new StringPair(-1,"(new style)"));
 
 			this.cbCriteria.Items.Add(new StringPair(-1,"Default Variation"));
-			foreach(DataRow dr in mds.tCriteria_D.Select(Criteria_DData.FK_CRITERIALIST_FIELD + "=" + CriteriaListData.OBJECT_FILTER_CONST, Criteria_DData.DESCRIPTION_FIELD))
+			foreach(DataRow dr in mds.tUI.Select("", UIData.DESCRIPTION_FIELD))
 			{
-				Criteria_DDataRow drC = new Criteria_DDataRow(dr);
-				this.cbCriteria.Items.Add(new StringPair(drC.fPK_Criteria_D, drC.fDescription));
+				UIDataRow drC = new UIDataRow(dr);
+				this.cbCriteria.Items.Add(new StringPair(drC.fPK_UI, drC.fDescription));
 			}
 
 			
@@ -523,7 +523,7 @@ namespace HADesigner
 		}
 
 
-		private void updateFormValues(int intStyle, int intCriteria_D, int intSkin)
+		private void updateFormValues(int intStyle, int intUI, int intSkin)
 		{
 			
 			string strSelect = "";
@@ -655,7 +655,7 @@ namespace HADesigner
 			if (this.styleVariationID == -1)
 			{
 				svdr.fFK_Style = this.spStyle.intID;
-				if (this.spCriteria.intID != -1) svdr.fFK_Criteria_D = this.spCriteria.intID;
+				if (this.spCriteria.intID != -1) svdr.fFK_UI = this.spCriteria.intID;
 				if (this.spSkin.intID != -1) svdr.fFK_Skin = this.spSkin.intID;
 				mds.tStyleVariation.Rows.Add(svdr.dr);
 			}

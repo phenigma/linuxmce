@@ -39,12 +39,10 @@ namespace HAData.DataAccess {
 				tCommandGroup_D_Command.LoadAll(conn,trans);
 				tCommandGroup_D_Command_CommandParameter.LoadAll(conn,trans);
 				tCommandParameter.LoadAll(conn,trans);
-				tCriteria_D.LoadAll(conn,trans);
+				tUI.LoadAll(conn,trans);
 				tCriteriaList.LoadAll(conn,trans);
 				tCriteriaList_CriteriaParmList.LoadAll(conn,trans);
-				tCriteriaParm_D.LoadAll(conn,trans);
 				tCriteriaParmList.LoadAll(conn,trans);
-				tCriteriaParmNesting_D.LoadAll(conn,trans);
 				tDesignObj.LoadAll(conn,trans);
 				tDesignObjCategory.LoadAll(conn,trans);
 				tDesignObjParameter.LoadAll(conn,trans);
@@ -104,12 +102,10 @@ namespace HAData.DataAccess {
 			Tables.Add(CommandGroup_D_CommandData.BuildDataTables());
 			Tables.Add(CommandGroup_D_Command_CommandParameterData.BuildDataTables());
 			Tables.Add(CommandParameterData.BuildDataTables());
-			Tables.Add(Criteria_DData.BuildDataTables());
+			Tables.Add(UIData.BuildDataTables());
 			Tables.Add(CriteriaListData.BuildDataTables());
 			Tables.Add(CriteriaList_CriteriaParmListData.BuildDataTables());
-			Tables.Add(CriteriaParm_DData.BuildDataTables());
 			Tables.Add(CriteriaParmListData.BuildDataTables());
-			Tables.Add(CriteriaParmNesting_DData.BuildDataTables());
 			Tables.Add(DesignObjData.BuildDataTables());
 			Tables.Add(DesignObjCategoryData.BuildDataTables());
 			Tables.Add(DesignObjParameterData.BuildDataTables());
@@ -325,12 +321,12 @@ namespace HAData.DataAccess {
 				CommandParameterData.UpdateCommandParameter(ref ds,PK_Users,conn,trans);
 				}
 			}
-			dt=Tables["Criteria_D"];
+			dt=Tables["UI"];
 			if( dt!=null )
 			{
 				if( !dt.Rows.IsSynchronized )
 				{
-				Criteria_DData.UpdateCriteria_D(ref ds,PK_Users,conn,trans);
+				UIData.UpdateUI(ref ds,PK_Users,conn,trans);
 				}
 			}
 			dt=Tables["CriteriaList"];
@@ -349,28 +345,12 @@ namespace HAData.DataAccess {
 				CriteriaList_CriteriaParmListData.UpdateCriteriaList_CriteriaParmList(ref ds,PK_Users,conn,trans);
 				}
 			}
-			dt=Tables["CriteriaParm_D"];
-			if( dt!=null )
-			{
-				if( !dt.Rows.IsSynchronized )
-				{
-				CriteriaParm_DData.UpdateCriteriaParm_D(ref ds,PK_Users,conn,trans);
-				}
-			}
 			dt=Tables["CriteriaParmList"];
 			if( dt!=null )
 			{
 				if( !dt.Rows.IsSynchronized )
 				{
 				CriteriaParmListData.UpdateCriteriaParmList(ref ds,PK_Users,conn,trans);
-				}
-			}
-			dt=Tables["CriteriaParmNesting_D"];
-			if( dt!=null )
-			{
-				if( !dt.Rows.IsSynchronized )
-				{
-				CriteriaParmNesting_DData.UpdateCriteriaParmNesting_D(ref ds,PK_Users,conn,trans);
 				}
 			}
 			dt=Tables["DesignObj"];
@@ -767,21 +747,21 @@ namespace HAData.DataAccess {
 				return (CommandParameterTable) dt;
 			}
 		}
-		public Criteria_DTable tCriteria_D
+		public UITable tUI
 		{
 			get
 			{
 				if( m_bIsCache )
-					return (Criteria_DTable) Tables["Criteria_D"];
+					return (UITable) Tables["UI"];
 				if( m_mdsCache!=null )
-					return (Criteria_DTable) m_mdsCache.Tables["Criteria_D"];
-				Criteria_DTable dt = (Criteria_DTable)Tables["Criteria_D"];
+					return (UITable) m_mdsCache.Tables["UI"];
+				UITable dt = (UITable)Tables["UI"];
 				if( dt==null )
 				{
-					dt = Criteria_DData.BuildCriteria_DTable();
+					dt = UIData.BuildUITable();
 					Tables.Add(dt);
 				}
-				return (Criteria_DTable) dt;
+				return (UITable) dt;
 			}
 		}
 		public CriteriaListTable tCriteriaList
@@ -818,23 +798,6 @@ namespace HAData.DataAccess {
 				return (CriteriaList_CriteriaParmListTable) dt;
 			}
 		}
-		public CriteriaParm_DTable tCriteriaParm_D
-		{
-			get
-			{
-				if( m_bIsCache )
-					return (CriteriaParm_DTable) Tables["CriteriaParm_D"];
-				if( m_mdsCache!=null )
-					return (CriteriaParm_DTable) m_mdsCache.Tables["CriteriaParm_D"];
-				CriteriaParm_DTable dt = (CriteriaParm_DTable)Tables["CriteriaParm_D"];
-				if( dt==null )
-				{
-					dt = CriteriaParm_DData.BuildCriteriaParm_DTable();
-					Tables.Add(dt);
-				}
-				return (CriteriaParm_DTable) dt;
-			}
-		}
 		public CriteriaParmListTable tCriteriaParmList
 		{
 			get
@@ -850,23 +813,6 @@ namespace HAData.DataAccess {
 					Tables.Add(dt);
 				}
 				return (CriteriaParmListTable) dt;
-			}
-		}
-		public CriteriaParmNesting_DTable tCriteriaParmNesting_D
-		{
-			get
-			{
-				if( m_bIsCache )
-					return (CriteriaParmNesting_DTable) Tables["CriteriaParmNesting_D"];
-				if( m_mdsCache!=null )
-					return (CriteriaParmNesting_DTable) m_mdsCache.Tables["CriteriaParmNesting_D"];
-				CriteriaParmNesting_DTable dt = (CriteriaParmNesting_DTable)Tables["CriteriaParmNesting_D"];
-				if( dt==null )
-				{
-					dt = CriteriaParmNesting_DData.BuildCriteriaParmNesting_DTable();
-					Tables.Add(dt);
-				}
-				return (CriteriaParmNesting_DTable) dt;
 			}
 		}
 		public DesignObjTable tDesignObj
@@ -1408,14 +1354,9 @@ namespace HAData.DataAccess {
 			Relations.Add(MyRelations.CommandGroup_D_Command_CommandParameter_FK_CommandGroup_D_Command,tCommandGroup_D_Command.cPK_CommandGroup_D_Command,tCommandGroup_D_Command_CommandParameter.cFK_CommandGroup_D_Command);
 			Relations.Add(MyRelations.CommandGroup_D_Command_CommandParameter_FK_CommandParameter,tCommandParameter.cPK_CommandParameter,tCommandGroup_D_Command_CommandParameter.cFK_CommandParameter);
 			Relations.Add(MyRelations.CommandParameter_FK_ParameterType,tParameterType.cPK_ParameterType,tCommandParameter.cFK_ParameterType);
-			Relations.Add(MyRelations.Criteria_D_FK_CriteriaParmNesting_D,tCriteriaParmNesting_D.cPK_CriteriaParmNesting_D,tCriteria_D.cFK_CriteriaParmNesting_D);
-			Relations.Add(MyRelations.Criteria_D_FK_CriteriaList,tCriteriaList.cPK_CriteriaList,tCriteria_D.cFK_CriteriaList);
 			Relations.Add(MyRelations.CriteriaList_CriteriaParmList_FK_CriteriaList,tCriteriaList.cPK_CriteriaList,tCriteriaList_CriteriaParmList.cFK_CriteriaList);
 			Relations.Add(MyRelations.CriteriaList_CriteriaParmList_FK_CriteriaParmList,tCriteriaParmList.cPK_CriteriaParmList,tCriteriaList_CriteriaParmList.cFK_CriteriaParmList);
-			Relations.Add(MyRelations.CriteriaParm_D_FK_CriteriaParmNesting_D,tCriteriaParmNesting_D.cPK_CriteriaParmNesting_D,tCriteriaParm_D.cFK_CriteriaParmNesting_D);
-			Relations.Add(MyRelations.CriteriaParm_D_FK_CriteriaParmList,tCriteriaParmList.cPK_CriteriaParmList,tCriteriaParm_D.cFK_CriteriaParmList);
 			Relations.Add(MyRelations.CriteriaParmList_FK_ParameterType,tParameterType.cPK_ParameterType,tCriteriaParmList.cFK_ParameterType);
-			Relations.Add(MyRelations.CriteriaParmNesting_D_FK_CriteriaParmNesting_D_Parent,tCriteriaParmNesting_D.cPK_CriteriaParmNesting_D,tCriteriaParmNesting_D.cFK_CriteriaParmNesting_D_Parent);
 			Relations.Add(MyRelations.DesignObj_FK_DesignObjType,tDesignObjType.cPK_DesignObjType,tDesignObj.cFK_DesignObjType);
 			Relations.Add(MyRelations.DesignObj_FK_DesignObjCategory,tDesignObjCategory.cPK_DesignObjCategory,tDesignObj.cFK_DesignObjCategory);
 			Relations.Add(MyRelations.DesignObj_FK_DesignObj_IncludeIfOtherIncluded,tDesignObj.cPK_DesignObj,tDesignObj.cFK_DesignObj_IncludeIfOtherIncluded);
@@ -1424,7 +1365,7 @@ namespace HAData.DataAccess {
 			Relations.Add(MyRelations.DesignObjType_DesignObjParameter_FK_DesignObjType,tDesignObjType.cPK_DesignObjType,tDesignObjType_DesignObjParameter.cFK_DesignObjType);
 			Relations.Add(MyRelations.DesignObjType_DesignObjParameter_FK_DesignObjParameter,tDesignObjParameter.cPK_DesignObjParameter,tDesignObjType_DesignObjParameter.cFK_DesignObjParameter);
 			Relations.Add(MyRelations.DesignObjVariation_FK_DesignObj,tDesignObj.cPK_DesignObj,tDesignObjVariation.cFK_DesignObj);
-			Relations.Add(MyRelations.DesignObjVariation_FK_Criteria_D,tCriteria_D.cPK_Criteria_D,tDesignObjVariation.cFK_Criteria_D);
+			Relations.Add(MyRelations.DesignObjVariation_FK_UI,tUI.cPK_UI,tDesignObjVariation.cFK_UI);
 			Relations.Add(MyRelations.DesignObjVariation_FK_DesignObj_Goto,tDesignObj.cPK_DesignObj,tDesignObjVariation.cFK_DesignObj_Goto);
 			Relations.Add(MyRelations.DesignObjVariation_FK_CommandGroup_D_OnActivate,tCommandGroup_D.cPK_CommandGroup_D,tDesignObjVariation.cFK_CommandGroup_D_OnActivate);
 			Relations.Add(MyRelations.DesignObjVariation_FK_CommandGroup_D_OnLoad,tCommandGroup_D.cPK_CommandGroup_D,tDesignObjVariation.cFK_CommandGroup_D_OnLoad);
@@ -1463,7 +1404,7 @@ namespace HAData.DataAccess {
 			Relations.Add(MyRelations.Style_FK_Style_Alt,tStyle.cPK_Style,tStyle.cFK_Style_Alt);
 			Relations.Add(MyRelations.StyleVariation_FK_Style,tStyle.cPK_Style,tStyleVariation.cFK_Style);
 			Relations.Add(MyRelations.StyleVariation_FK_Skin,tSkin.cPK_Skin,tStyleVariation.cFK_Skin);
-			Relations.Add(MyRelations.StyleVariation_FK_Criteria_D,tCriteria_D.cPK_Criteria_D,tStyleVariation.cFK_Criteria_D);
+			Relations.Add(MyRelations.StyleVariation_FK_UI,tUI.cPK_UI,tStyleVariation.cFK_UI);
 			Relations.Add(MyRelations.StyleVariation_FK_HorizAlignment,tHorizAlignment.cPK_HorizAlignment,tStyleVariation.cFK_HorizAlignment);
 			Relations.Add(MyRelations.StyleVariation_FK_VertAlignment,tVertAlignment.cPK_VertAlignment,tStyleVariation.cFK_VertAlignment);
 			Relations.Add(MyRelations.Text_FK_TextCategory,tTextCategory.cPK_TextCategory,tText.cFK_TextCategory);
@@ -1485,14 +1426,9 @@ namespace HAData.DataAccess {
 			public const string CommandGroup_D_Command_CommandParameter_FK_CommandGroup_D_Command="8";
 			public const string CommandGroup_D_Command_CommandParameter_FK_CommandParameter="9";
 			public const string CommandParameter_FK_ParameterType="10";
-			public const string Criteria_D_FK_CriteriaParmNesting_D="11";
-			public const string Criteria_D_FK_CriteriaList="12";
 			public const string CriteriaList_CriteriaParmList_FK_CriteriaList="13";
 			public const string CriteriaList_CriteriaParmList_FK_CriteriaParmList="14";
-			public const string CriteriaParm_D_FK_CriteriaParmNesting_D="15";
-			public const string CriteriaParm_D_FK_CriteriaParmList="16";
 			public const string CriteriaParmList_FK_ParameterType="17";
-			public const string CriteriaParmNesting_D_FK_CriteriaParmNesting_D_Parent="18";
 			public const string DesignObj_FK_DesignObjType="19";
 			public const string DesignObj_FK_DesignObjCategory="20";
 			public const string DesignObj_FK_DesignObj_IncludeIfOtherIncluded="21";
@@ -1501,7 +1437,7 @@ namespace HAData.DataAccess {
 			public const string DesignObjType_DesignObjParameter_FK_DesignObjType="24";
 			public const string DesignObjType_DesignObjParameter_FK_DesignObjParameter="25";
 			public const string DesignObjVariation_FK_DesignObj="26";
-			public const string DesignObjVariation_FK_Criteria_D="27";
+			public const string DesignObjVariation_FK_UI="27";
 			public const string DesignObjVariation_FK_DesignObj_Goto="28";
 			public const string DesignObjVariation_FK_CommandGroup_D_OnActivate="29";
 			public const string DesignObjVariation_FK_CommandGroup_D_OnLoad="30";
@@ -1540,7 +1476,7 @@ namespace HAData.DataAccess {
 			public const string Style_FK_Style_Alt="63";
 			public const string StyleVariation_FK_Style="64";
 			public const string StyleVariation_FK_Skin="65";
-			public const string StyleVariation_FK_Criteria_D="66";
+			public const string StyleVariation_FK_UI="66";
 			public const string StyleVariation_FK_HorizAlignment="67";
 			public const string StyleVariation_FK_VertAlignment="68";
 			public const string Text_FK_TextCategory="69";

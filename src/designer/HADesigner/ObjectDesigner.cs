@@ -351,18 +351,18 @@ namespace HADesigner
 		private void UpdateAvailableVariationsList()
 		{
 			//update the available variations list
-			DataRow[] drCriterias = mds.tCriteria_D.Select(Criteria_DData.FK_CRITERIALIST_FIELD + "=" + CriteriaListData.OBJECT_FILTER_CONST, Criteria_DData.DESCRIPTION_FIELD);
+			DataRow[] drCriterias = mds.tUI.Select("", UIData.DESCRIPTION_FIELD);
 			cbAvailableVariations.Items.Clear();
 			//			cbAvailableVariations.DisplayMember = "Description";
 			//			cbAvailableVariations.ValueMember = "ID";
 			foreach(DataRow dr in drCriterias)
 			{
-				Criteria_DDataRow drCriteria = new Criteria_DDataRow(dr);
+				UIDataRow drCriteria = new UIDataRow(dr);
 
-				int intCriteria_DID = drCriteria.fPK_Criteria_D;
+				int intUIID = drCriteria.fPK_UI;
 				//see if there is a variation with the given criteria id
 
-				StringPair objPair = new StringPair(Convert.ToString(intCriteria_DID), drCriteria.fDescription);
+				StringPair objPair = new StringPair(Convert.ToString(intUIID), drCriteria.fDescription);
 				cbAvailableVariations.Items.Add(objPair);
 			}
 		}
@@ -3586,7 +3586,6 @@ namespace HADesigner
 
 		private void btnVariationControllerCriteria_Click(object sender, System.EventArgs e)
 		{
-			(new CriteriaForm(32)).ShowDialog();
 		}
 
 		private void chCantGoBack_CheckedChanged(object sender, System.EventArgs e)

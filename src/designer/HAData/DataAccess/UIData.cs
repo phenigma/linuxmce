@@ -6,31 +6,22 @@ namespace HAData.DataAccess {
 
 	using HAData.Common;
 
-	public class Criteria_DData : MyDataSet {
+	public class UIData : MyDataSet {
 		//
-		// Criteria_D table constants
+		// UI table constants
 		//
-		public const String CRITERIA_D_TABLE = "Criteria_D";
-		public const String PK_CRITERIA_D_FIELD = "PK_Criteria_D";
-		public const String FK_CRITERIAPARMNESTING_D_FIELD = "FK_CriteriaParmNesting_D";
-		public const String FK_CRITERIALIST_FIELD = "FK_CriteriaList";
+		public const String UI_TABLE = "UI";
+		public const String PK_UI_FIELD = "PK_UI";
 		public const String DESCRIPTION_FIELD = "Description";
-		public const String DEFINE_FIELD = "Define";
 		// table+field constants
-		public const String PK_CRITERIA_D_TABLE_FIELD = "Criteria_D.PK_Criteria_D";
-		public const String FK_CRITERIAPARMNESTING_D_TABLE_FIELD = "Criteria_D.FK_CriteriaParmNesting_D";
-		public const String FK_CRITERIALIST_TABLE_FIELD = "Criteria_D.FK_CriteriaList";
-		public const String DESCRIPTION_TABLE_FIELD = "Criteria_D.Description";
-		public const String DEFINE_TABLE_FIELD = "Criteria_D.Define";
+		public const String PK_UI_TABLE_FIELD = "UI.PK_UI";
+		public const String DESCRIPTION_TABLE_FIELD = "UI.Description";
 		// DataSetCommand object
 		protected OdbcDataAdapter m_DSCommand;
 
 		// Stored procedure parameters
-		protected const String PK_CRITERIA_D_PARM = "@PK_Criteria_D";
-		protected const String FK_CRITERIAPARMNESTING_D_PARM = "@FK_CriteriaParmNesting_D";
-		protected const String FK_CRITERIALIST_PARM = "@FK_CriteriaList";
+		protected const String PK_UI_PARM = "@PK_UI";
 		protected const String DESCRIPTION_PARM = "@Description";
-		protected const String DEFINE_PARM = "@Define";
 		protected const String USERID_PARM = "@UserID";
 
 		protected OdbcCommand m_LoadCommand;
@@ -42,7 +33,7 @@ namespace HAData.DataAccess {
 		public DataTable Table { get { return Tables[0]; } }
 
 
-		public Criteria_DData() {  // marker:1
+		public UIData() {  // marker:1
 			//
 			// Create the tables in the dataset
 			//
@@ -52,10 +43,10 @@ namespace HAData.DataAccess {
 			// Create our DataSetCommand
 			m_DSCommand = new OdbcDataAdapter();
 
-			m_DSCommand.TableMappings.Add("Table", Criteria_DData.CRITERIA_D_TABLE);
+			m_DSCommand.TableMappings.Add("Table", UIData.UI_TABLE);
 		}
 
-		public Criteria_DData(OdbcConnection conn,OdbcTransaction trans) {
+		public UIData(OdbcConnection conn,OdbcTransaction trans) {
 
 			m_Connection = conn;
 			m_Transaction = trans;
@@ -63,10 +54,10 @@ namespace HAData.DataAccess {
 			// Create our DataSetCommand
 			m_DSCommand = new OdbcDataAdapter();
 
-			m_DSCommand.TableMappings.Add("Table", Criteria_DData.CRITERIA_D_TABLE);
+			m_DSCommand.TableMappings.Add("Table", UIData.UI_TABLE);
 		}
 
-		private Criteria_DData(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) {
+		private UIData(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) {
 			CreateCommands(m_Connection, m_Transaction, ref m_LoadCommand, ref m_InsertCommand, ref m_UpdateCommand, ref m_DeleteCommand);
 
 			//
@@ -80,34 +71,23 @@ namespace HAData.DataAccess {
 		}
 
 		public static DataTable BuildDataTables() {
-			return (DataTable) BuildCriteria_DTable();
+			return (DataTable) BuildUITable();
 		}
-		public static Criteria_DTable BuildCriteria_DTable() {
+		public static UITable BuildUITable() {
 			//
-			// Create the Criteria_D table
+			// Create the UI table
 			//
-			Criteria_DTable Table = new Criteria_DTable();
+			UITable Table = new UITable();
 			DataColumnCollection Columns = Table.Columns;
 			DataColumn[] PKColumns = new DataColumn[1];
 
-			DataColumn Column = Columns.Add(PK_CRITERIA_D_FIELD, typeof(System.Int32));
+			DataColumn Column = Columns.Add(PK_UI_FIELD, typeof(System.Int32));
 			Column.AutoIncrement = true;
 			Column.AutoIncrementSeed = -1;
 			Column.AutoIncrementStep = -1;
 			PKColumns[0] = Column;
 
-			Column = Columns.Add(FK_CRITERIAPARMNESTING_D_FIELD, typeof(System.Int32));
-			Column.AllowDBNull = false;
-			Column.DefaultValue = 0;
-
-			Column = Columns.Add(FK_CRITERIALIST_FIELD, typeof(System.Int32));
-			Column.AllowDBNull = false;
-			Column.DefaultValue = 0;
-
 			Column = Columns.Add(DESCRIPTION_FIELD, typeof(System.String));
-			Column.AllowDBNull = false;
-
-			Column = Columns.Add(DEFINE_FIELD, typeof(System.String));
 			Column.AllowDBNull = false;
 
 			Table.PrimaryKey = PKColumns;
@@ -115,39 +95,33 @@ namespace HAData.DataAccess {
 			return Table;
 		}
 		protected static void CreateParameters(OdbcParameterCollection Params, bool IsInsert) {
-			Params.Add(new OdbcParameter(PK_CRITERIA_D_PARM, OdbcType.Int,4));
-			Params.Add(new OdbcParameter(FK_CRITERIAPARMNESTING_D_PARM, OdbcType.Int,4));
-			Params.Add(new OdbcParameter(FK_CRITERIALIST_PARM, OdbcType.Int,4));
+			Params.Add(new OdbcParameter(PK_UI_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(DESCRIPTION_PARM, OdbcType.VarChar, 25));
-			Params.Add(new OdbcParameter(DEFINE_PARM, OdbcType.VarChar, 25));
 			Params.Add(new OdbcParameter(USERID_PARM, OdbcType.Int));
 
 			// map the parameters to the data table
 
-			Params[PK_CRITERIA_D_PARM].SourceColumn = Criteria_DData.PK_CRITERIA_D_FIELD;
+			Params[PK_UI_PARM].SourceColumn = UIData.PK_UI_FIELD;
 			if(IsInsert) {
-				Params[PK_CRITERIA_D_PARM].Direction = ParameterDirection.Output;
+				Params[PK_UI_PARM].Direction = ParameterDirection.Output;
 			}
 
-			Params[FK_CRITERIAPARMNESTING_D_PARM].SourceColumn = Criteria_DData.FK_CRITERIAPARMNESTING_D_FIELD;
-			Params[FK_CRITERIALIST_PARM].SourceColumn = Criteria_DData.FK_CRITERIALIST_FIELD;
-			Params[DESCRIPTION_PARM].SourceColumn = Criteria_DData.DESCRIPTION_FIELD;
-			Params[DEFINE_PARM].SourceColumn = Criteria_DData.DEFINE_FIELD;
+			Params[DESCRIPTION_PARM].SourceColumn = UIData.DESCRIPTION_FIELD;
 		}
 
 		protected static void CreateCommands(OdbcConnection Conn, OdbcTransaction Trans, ref OdbcCommand LoadCommand, ref OdbcCommand InsertCommand, ref OdbcCommand UpdateCommand, ref OdbcCommand DeleteCommand) {
 			if(LoadCommand == null) {
 				// Create the command since it's null
-				LoadCommand = new OdbcCommand("sp_Select_Criteria_D", Conn);
+				LoadCommand = new OdbcCommand("sp_Select_UI", Conn);
 				LoadCommand.CommandType = CommandType.StoredProcedure;
 				LoadCommand.Transaction = Trans;
 
-				LoadCommand.Parameters.Add(new OdbcParameter(PK_CRITERIA_D_PARM, OdbcType.Int,4));
+				LoadCommand.Parameters.Add(new OdbcParameter(PK_UI_PARM, OdbcType.Int,4));
 			}
 
 			if(InsertCommand == null) {
 				// Create the command since it's null
-				InsertCommand = new OdbcCommand("sp_Insert_Criteria_D", Conn);
+				InsertCommand = new OdbcCommand("sp_Insert_UI", Conn);
 				InsertCommand.CommandType = CommandType.StoredProcedure;
 				InsertCommand.Transaction = Trans;
 
@@ -159,7 +133,7 @@ namespace HAData.DataAccess {
 
 			if(UpdateCommand == null) {
 				// Create the command since it's null
-				UpdateCommand = new OdbcCommand("sp_Update_Criteria_D", Conn);
+				UpdateCommand = new OdbcCommand("sp_Update_UI", Conn);
 				UpdateCommand.CommandType = CommandType.StoredProcedure;
 				UpdateCommand.Transaction = Trans;
 
@@ -170,20 +144,20 @@ namespace HAData.DataAccess {
 			}
 			if (DeleteCommand == null)
 			{
-				DeleteCommand = new OdbcCommand("sp_Delete_Criteria_D", Conn);
+				DeleteCommand = new OdbcCommand("sp_Delete_UI", Conn);
 				DeleteCommand.CommandType = CommandType.StoredProcedure;
 				DeleteCommand.Transaction = Trans;
 
-				DeleteCommand.Parameters.Add(PK_CRITERIA_D_PARM, OdbcType.Int,4, PK_CRITERIA_D_FIELD);
+				DeleteCommand.Parameters.Add(PK_UI_PARM, OdbcType.Int,4, PK_UI_FIELD);
 				DeleteCommand.Parameters.Add(USERID_PARM, OdbcType.Int);
 			}
 		}
 
 		protected static void CreateCommands(OdbcDataAdapter odbcda,OdbcConnection Conn, OdbcTransaction Trans, ref OdbcCommand LoadCommand, ref OdbcCommand InsertCommand, ref OdbcCommand UpdateCommand, ref OdbcCommand DeleteCommand) {
-				LoadCommand = new OdbcCommand("SELECT PK_Criteria_D,FK_CriteriaParmNesting_D,FK_CriteriaList,Description,Define FROM Criteria_D", Conn);
+				LoadCommand = new OdbcCommand("SELECT PK_UI,Description FROM UI", Conn);
 				LoadCommand.Transaction = Trans;
 
-				LoadCommand.Parameters.Add(new OdbcParameter(PK_CRITERIA_D_PARM, OdbcType.Int,4));
+				LoadCommand.Parameters.Add(new OdbcParameter(PK_UI_PARM, OdbcType.Int,4));
 
 			odbcda.SelectCommand = LoadCommand;
 			OdbcCommandBuilder odbcCB = new OdbcCommandBuilder(odbcda);
@@ -193,16 +167,16 @@ namespace HAData.DataAccess {
 			UpdateCommand = odbcCB.GetUpdateCommand();
 		}
 
-		public Criteria_DData LoadCriteria_D(System.Int32 PK_Criteria_D)
+		public UIData LoadUI(System.Int32 PK_UI)
 		{
 			m_DSCommand.SelectCommand = m_LoadCommand;
-			m_DSCommand.SelectCommand.Parameters[PK_CRITERIA_D_PARM].Value = PK_Criteria_D;
+			m_DSCommand.SelectCommand.Parameters[PK_UI_PARM].Value = PK_UI;
 
 			m_DSCommand.Fill(this);
 			return this;
 		}
 
-		public static DataRowCollection LoadCriteria_DWithWhere(ref MyDataSet ds, OdbcConnection conn, OdbcTransaction trans, string WhereClause) // marker:2
+		public static DataRowCollection LoadUIWithWhere(ref MyDataSet ds, OdbcConnection conn, OdbcTransaction trans, string WhereClause) // marker:2
 		{
 			DataRowCollection dr;
 			if( ds==null )
@@ -212,7 +186,7 @@ namespace HAData.DataAccess {
 			}
 			else
 			{
-				DataTable dt = ds.Tables["Criteria_D"];
+				DataTable dt = ds.Tables["UI"];
 				if( dt==null )
 					ds.Tables.Add(BuildDataTables());
 			}
@@ -224,7 +198,7 @@ namespace HAData.DataAccess {
 				conn = HADataConfiguration.GetOdbcConnection();
 			
 			OdbcDataAdapter sqlda = new OdbcDataAdapter();
-			string sSQL = "SELECT PK_Criteria_D, FK_CriteriaParmNesting_D, FK_CriteriaList, Description, Define FROM Criteria_D WHERE " + WhereClause;
+			string sSQL = "SELECT PK_UI, Description FROM UI WHERE " + WhereClause;
 			
 			OdbcCommand LoadCommand = new OdbcCommand(sSQL,conn);
 			
@@ -232,9 +206,9 @@ namespace HAData.DataAccess {
 				LoadCommand.Transaction = trans;
 			
 			sqlda.SelectCommand = LoadCommand;
-			sqlda.Fill(dsTemp,"Criteria_D");
+			sqlda.Fill(dsTemp,"UI");
 			
-			dr=dsTemp.Tables["Criteria_D"].Rows;
+			dr=dsTemp.Tables["UI"].Rows;
 			
 			if( dr!=null )
 				ds.Merge(dsTemp);
@@ -242,7 +216,7 @@ namespace HAData.DataAccess {
 			return dr;
 		}
 
-		public static DataRow LoadNoCacheCriteria_D(ref MyDataSet ds, OdbcConnection conn, OdbcTransaction trans, System.Int32 PK_Criteria_D)
+		public static DataRow LoadNoCacheUI(ref MyDataSet ds, OdbcConnection conn, OdbcTransaction trans, System.Int32 PK_UI)
 		{
 			DataRow dr = null;
 			if( ds==null )
@@ -252,7 +226,7 @@ namespace HAData.DataAccess {
 			}
 			else
 			{
-				DataTable dt = ds.Tables["Criteria_D"];
+				DataTable dt = ds.Tables["UI"];
 				if( dt==null )
 					ds.Tables.Add(BuildDataTables());
 			}
@@ -262,20 +236,20 @@ namespace HAData.DataAccess {
 			if( conn==null )
 				conn = HADataConfiguration.GetOdbcConnection();
 
-			LoadCommand = new OdbcCommand("sp_Select_Criteria_D", conn);
+			LoadCommand = new OdbcCommand("sp_Select_UI", conn);
 
 			LoadCommand.CommandType = CommandType.StoredProcedure;
-			LoadCommand.Parameters.Add(new OdbcParameter(PK_CRITERIA_D_PARM, OdbcType.Int,4));
-			LoadCommand.Parameters[PK_CRITERIA_D_PARM].Value = PK_Criteria_D;
+			LoadCommand.Parameters.Add(new OdbcParameter(PK_UI_PARM, OdbcType.Int,4));
+			LoadCommand.Parameters[PK_UI_PARM].Value = PK_UI;
 			if( trans!=null )
 				LoadCommand.Transaction = trans;
 			sqlda.SelectCommand = LoadCommand;
-			sqlda.Fill(ds,"Criteria_D");
-				dr = ds.Tables["Criteria_D"].Rows.Find(PK_Criteria_D);
+			sqlda.Fill(ds,"UI");
+				dr = ds.Tables["UI"].Rows.Find(PK_UI);
 			return dr;
 		}
 
-		public static DataRow LoadCriteria_D(ref MyDataSet ds, OdbcConnection conn, OdbcTransaction trans, System.Int32 PK_Criteria_D)  // marker:3
+		public static DataRow LoadUI(ref MyDataSet ds, OdbcConnection conn, OdbcTransaction trans, System.Int32 PK_UI)  // marker:3
 		{
 			DataRow dr = null;
 			if( ds==null )
@@ -285,11 +259,11 @@ namespace HAData.DataAccess {
 			}
 			else
 			{
-				DataTable dt = ds.Tables["Criteria_D"];
+				DataTable dt = ds.Tables["UI"];
 				if( dt==null )
 					ds.Tables.Add(BuildDataTables());
 				else
-				dr = dt.Rows.Find(PK_Criteria_D);
+				dr = dt.Rows.Find(PK_UI);
 			}
 
 			if( dr==null )
@@ -299,24 +273,24 @@ namespace HAData.DataAccess {
 				if( conn==null )
 					conn = HADataConfiguration.GetOdbcConnection();
 
-				LoadCommand = new OdbcCommand("sp_Select_Criteria_D", conn);
+				LoadCommand = new OdbcCommand("sp_Select_UI", conn);
 
 				LoadCommand.CommandType = CommandType.StoredProcedure;
-				LoadCommand.Parameters.Add(new OdbcParameter(PK_CRITERIA_D_PARM, OdbcType.Int,4));
-				LoadCommand.Parameters[PK_CRITERIA_D_PARM].Value = PK_Criteria_D;
+				LoadCommand.Parameters.Add(new OdbcParameter(PK_UI_PARM, OdbcType.Int,4));
+				LoadCommand.Parameters[PK_UI_PARM].Value = PK_UI;
 				if( trans!=null )
 					LoadCommand.Transaction = trans;
 				sqlda.SelectCommand = LoadCommand;
-				sqlda.Fill(ds,"Criteria_D");
-				dr = ds.Tables["Criteria_D"].Rows.Find(PK_Criteria_D);
+				sqlda.Fill(ds,"UI");
+				dr = ds.Tables["UI"].Rows.Find(PK_UI);
 			}
 			return dr;
 		}
 
-		public Criteria_DData LoadAll() {
+		public UIData LoadAll() {
 
 			// Create the command since it's null
-			m_DSCommand.SelectCommand = new OdbcCommand("SELECT * FROM Criteria_D", m_Connection);
+			m_DSCommand.SelectCommand = new OdbcCommand("SELECT * FROM UI", m_Connection);
 			m_DSCommand.SelectCommand.CommandType = CommandType.Text;
 			m_DSCommand.SelectCommand.Transaction = m_Transaction;
 
@@ -330,23 +304,23 @@ namespace HAData.DataAccess {
 			if( conn==null )
 				conn = HADataConfiguration.GetOdbcConnection();
 			OdbcDataAdapter sqlda = new OdbcDataAdapter();
-			OdbcCommand LoadCommand = new OdbcCommand("SELECT * FROM Criteria_D", conn);
+			OdbcCommand LoadCommand = new OdbcCommand("SELECT * FROM UI", conn);
 			LoadCommand.CommandType = CommandType.Text;
 			if( trans!=null )
 				LoadCommand.Transaction = trans;
 
 			sqlda.SelectCommand = LoadCommand;
-			if( sqlda.Fill(ds,"Criteria_D")==0 )
+			if( sqlda.Fill(ds,"UI")==0 )
 				return null;
 			else
-				return ds.Tables["Criteria_D"].Rows;
+				return ds.Tables["UI"].Rows;
 
 		}
 
-		public Criteria_DData ExecuteQuery(String sSQL) {
-			return ExecuteQuery(sSQL,CRITERIA_D_TABLE);
+		public UIData ExecuteQuery(String sSQL) {
+			return ExecuteQuery(sSQL,UI_TABLE);
 		}
-		public Criteria_DData ExecuteQuery(String sSQL,String sTableName) {
+		public UIData ExecuteQuery(String sSQL,String sTableName) {
 
 			// Create the command since it's null
 			m_DSCommand.SelectCommand = new OdbcCommand(sSQL, m_Connection);
@@ -359,7 +333,7 @@ namespace HAData.DataAccess {
 		}
 
 		public static DataRowCollection ExecuteQuery(String sSQL,ref MyDataSet ds, OdbcConnection conn, OdbcTransaction trans) {
-			return ExecuteQuery(sSQL,ref ds,conn,trans,"Criteria_D");
+			return ExecuteQuery(sSQL,ref ds,conn,trans,"UI");
 		}
 
 		public static DataRowCollection ExecuteQuery(String sSQL,ref MyDataSet ds, OdbcConnection conn, OdbcTransaction trans,string sTableName) {
@@ -379,7 +353,7 @@ namespace HAData.DataAccess {
 
 		}
 
-		public bool UpdateCriteria_D(int CurUserID) {
+		public bool UpdateUI(int CurUserID) {
 			m_DSCommand.UpdateCommand = m_UpdateCommand;
 			m_DSCommand.UpdateCommand.Parameters[USERID_PARM].Value = CurUserID;
 
@@ -392,19 +366,19 @@ namespace HAData.DataAccess {
 				m_DSCommand.DeleteCommand.Parameters[USERID_PARM].Value = CurUserID;
 			}
 
-			m_DSCommand.Update(this, Criteria_DData.CRITERIA_D_TABLE);
+			m_DSCommand.Update(this, UIData.UI_TABLE);
 			return true;
 		}
 
-		public static bool UpdateCriteria_D(ref MyDataSet ds, int CurUserID)
+		public static bool UpdateUI(ref MyDataSet ds, int CurUserID)
 		{
 			OdbcConnection OdbcConn = HADataConfiguration.GetOdbcConnection();
-			return UpdateCriteria_D(ref ds,CurUserID,OdbcConn,null);
+			return UpdateUI(ref ds,CurUserID,OdbcConn,null);
 		}
 
-		public static bool UpdateCriteria_D(ref MyDataSet ds, int CurUserID,OdbcConnection OdbcConn,OdbcTransaction Trans)
+		public static bool UpdateUI(ref MyDataSet ds, int CurUserID,OdbcConnection OdbcConn,OdbcTransaction Trans)
 		{
-			DataTable dt = ds.Tables[CRITERIA_D_TABLE];
+			DataTable dt = ds.Tables[UI_TABLE];
 			if( dt == null )
 				return false;
 
@@ -431,11 +405,11 @@ namespace HAData.DataAccess {
 			}
 		}
 
-	} // public class Criteria_DData
-	public class Criteria_DDataRow
+	} // public class UIData
+	public class UIDataRow
 	{
 		public DataRow dr = null;
-		public Criteria_DDataRow(DataRow d)
+		public UIDataRow(DataRow d)
 		{
 			dr=d;
 		}
@@ -447,91 +421,42 @@ namespace HAData.DataAccess {
 				return dr!=null;
 			}
 		}
-		public System.Int32 fPK_Criteria_D
+		public System.Int32 fPK_UI
 		{
 			get
 			{
 				return Convert.ToInt32(dr[0]);
 			}
 		}
-		public System.Int32 fFK_CriteriaParmNesting_D
+		public System.String fDescription
 		{
 			get
 			{
-				return Convert.ToInt32(dr[1]);
+				return Convert.ToString(dr[1]);
 			}
 			set
 			{
 				dr[1]=value;
 			}
 		}
-		public CriteriaParmNesting_DDataRow fFK_CriteriaParmNesting_D_DataRow
-		{
-			get
-			{
-				MyDataSet mds = (MyDataSet)dr.Table.DataSet;
-				return mds.tCriteriaParmNesting_D[Convert.ToInt32(dr[1])];
-			}
-		}
-		public System.Int32 fFK_CriteriaList
-		{
-			get
-			{
-				return Convert.ToInt32(dr[2]);
-			}
-			set
-			{
-				dr[2]=value;
-			}
-		}
-		public CriteriaListDataRow fFK_CriteriaList_DataRow
-		{
-			get
-			{
-				MyDataSet mds = (MyDataSet)dr.Table.DataSet;
-				return mds.tCriteriaList[Convert.ToInt32(dr[2])];
-			}
-		}
-		public System.String fDescription
-		{
-			get
-			{
-				return Convert.ToString(dr[3]);
-			}
-			set
-			{
-				dr[3]=value;
-			}
-		}
-		public System.String fDefine
-		{
-			get
-			{
-				return Convert.ToString(dr[4]);
-			}
-			set
-			{
-				dr[4]=value;
-			}
-		}
-	} // public class Criteria_DDataRow
-	public class Criteria_DDataReader
+	} // public class UIDataRow
+	public class UIDataReader
 	{
 		public OdbcDataReader dr;
 		bool bCache=false;
 		int iRecord=-1,iNumRecords=-1;
 		ArrayList al = null;
 
-		public Criteria_DDataReader(OdbcDataReader d)
+		public UIDataReader(OdbcDataReader d)
 		{
 			dr=d;
 		}
-		public Criteria_DDataReader(OdbcCommand cmd)
+		public UIDataReader(OdbcCommand cmd)
 		{
 			dr = cmd.ExecuteReader();
 		}
 
-		public Criteria_DDataReader(OdbcCommand cmd,bool Cache)
+		public UIDataReader(OdbcCommand cmd,bool Cache)
 		{
 			dr = cmd.ExecuteReader();
 			bCache=Cache;
@@ -539,20 +464,20 @@ namespace HAData.DataAccess {
 				CacheAndClose();
 		}
 
-		public Criteria_DDataReader(string sSQL)
+		public UIDataReader(string sSQL)
 		{
 			OdbcConnection conn = HADataConfiguration.GetOdbcConnection();
 
 			if( !sSQL.ToUpper().StartsWith("SELECT") )
 			{
-				sSQL = "SELECT * FROM Criteria_D WHERE " + sSQL;
+				sSQL = "SELECT * FROM UI WHERE " + sSQL;
 			}
 
 			OdbcCommand cmd = new OdbcCommand(sSQL,conn,null);
 			dr = cmd.ExecuteReader();
 		}
 
-		public Criteria_DDataReader(string sSQL,OdbcConnection conn)
+		public UIDataReader(string sSQL,OdbcConnection conn)
 		{
 			if( conn==null )
 			{
@@ -561,14 +486,14 @@ namespace HAData.DataAccess {
 
 			if( !sSQL.ToUpper().StartsWith("SELECT") )
 			{
-				sSQL = "SELECT * FROM Criteria_D WHERE " + sSQL;
+				sSQL = "SELECT * FROM UI WHERE " + sSQL;
 			}
 
 			OdbcCommand cmd = new OdbcCommand(sSQL,conn,null);
 			dr = cmd.ExecuteReader();
 		}
 
-		public Criteria_DDataReader(string sSQL,OdbcConnection conn,OdbcTransaction trans,bool Cache)
+		public UIDataReader(string sSQL,OdbcConnection conn,OdbcTransaction trans,bool Cache)
 		{
 			if( conn==null )
 			{
@@ -577,7 +502,7 @@ namespace HAData.DataAccess {
 
 			if( !sSQL.ToUpper().StartsWith("SELECT") )
 			{
-				sSQL = "SELECT * FROM Criteria_D WHERE " + sSQL;
+				sSQL = "SELECT * FROM UI WHERE " + sSQL;
 			}
 
 			OdbcCommand cmd = new OdbcCommand(sSQL,conn,trans);
@@ -596,8 +521,8 @@ namespace HAData.DataAccess {
 			while( dr.Read() )
 			{
 				iNumRecords++;
-				object[] objs = new object[5];
-				for(int i=0;i<5;i++)
+				object[] objs = new object[3];
+				for(int i=0;i<3;i++)
 					objs[i]=dr[i];
 				al.Add(objs);
 			}
@@ -621,7 +546,7 @@ namespace HAData.DataAccess {
 				al = null;
 			}
 		}
-		public System.Int32 fPK_Criteria_D
+		public System.Int32 fPK_UI
 		{
 			get
 			{
@@ -631,69 +556,39 @@ namespace HAData.DataAccess {
 					return Convert.ToInt32(dr[0]);
 			}
 		}
-		public System.Int32 fFK_CriteriaParmNesting_D
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToInt32(((object[]) al[iRecord])[1]);
-				else
-					return Convert.ToInt32(dr[1]);
-			}
-		}
-		public System.Int32 fFK_CriteriaList
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToInt32(((object[]) al[iRecord])[2]);
-				else
-					return Convert.ToInt32(dr[2]);
-			}
-		}
 		public System.String fDescription
 		{
 			get
 			{
 				if( bCache )
-					return Convert.ToString(((object[]) al[iRecord])[3]);
+					return Convert.ToString(((object[]) al[iRecord])[1]);
 				else
-					return Convert.ToString(dr[3]);
+					return Convert.ToString(dr[1]);
 			}
 		}
-		public System.String fDefine
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToString(((object[]) al[iRecord])[4]);
-				else
-					return Convert.ToString(dr[4]);
-			}
-		}
-	} // public class Criteria_DDataReader
-	public class Criteria_DTable : DataTable
+	} // public class UIDataReader
+	public class UITable : DataTable
 	{
-		public Criteria_DTable() : base("Criteria_D") {}
+		public UITable() : base("UI") {}
 
-		public Criteria_DDataRow this [System.Int32 PK_Criteria_D]
+		public UIDataRow this [System.Int32 PK_UI]
 		{
 			get
 			{
-				Criteria_DDataRow dr = new Criteria_DDataRow(Rows.Find(PK_Criteria_D));
+				UIDataRow dr = new UIDataRow(Rows.Find(PK_UI));
 				if( !dr.bIsValid  && false /* can't do this with ODBC */  )
 				{
 					MyDataSet mds = (MyDataSet) DataSet;
 					if( mds.m_conn==null )
 						return dr;
 					OdbcDataAdapter sqlda = new OdbcDataAdapter();
-					OdbcCommand LoadCommand = new OdbcCommand("sp_Select_Criteria_D", mds.m_conn,mds.m_trans);
+					OdbcCommand LoadCommand = new OdbcCommand("sp_Select_UI", mds.m_conn,mds.m_trans);
 					LoadCommand.CommandType = CommandType.StoredProcedure;
-					LoadCommand.Parameters.Add(new OdbcParameter("@PK_Criteria_D", OdbcType.Int,4));
-					LoadCommand.Parameters["@PK_Criteria_D"].Value = PK_Criteria_D;
+					LoadCommand.Parameters.Add(new OdbcParameter("@PK_UI", OdbcType.Int,4));
+					LoadCommand.Parameters["@PK_UI"].Value = PK_UI;
 					sqlda.SelectCommand = LoadCommand;
-					sqlda.Fill(mds,"Criteria_D");
-					dr = new Criteria_DDataRow(Rows.Find(PK_Criteria_D));
+					sqlda.Fill(mds,"UI");
+					dr = new UIDataRow(Rows.Find(PK_UI));
 				}
 				return dr;
 			}
@@ -701,13 +596,13 @@ namespace HAData.DataAccess {
 		public DataRowCollection LoadAll(OdbcConnection conn, OdbcTransaction trans)
 		{
 			OdbcDataAdapter sqlda = new OdbcDataAdapter();
-			OdbcCommand LoadCommand = new OdbcCommand("SELECT PK_Criteria_D,FK_CriteriaParmNesting_D,FK_CriteriaList,Description,Define FROM Criteria_D", conn);
+			OdbcCommand LoadCommand = new OdbcCommand("SELECT PK_UI,Description FROM UI", conn);
 			LoadCommand.CommandType = CommandType.Text;
 			if( trans!=null )
 				LoadCommand.Transaction = trans;
 
 			sqlda.SelectCommand = LoadCommand;
-			if( sqlda.Fill(this.DataSet,"Criteria_D")==0 )
+			if( sqlda.Fill(this.DataSet,"UI")==0 )
 				return null;
 			else
 				return Rows;
@@ -721,41 +616,20 @@ namespace HAData.DataAccess {
 			if( conn==null )
 				return;
 			MyDataSet ds = (MyDataSet) this.DataSet;
-			Criteria_DData.UpdateCriteria_D(ref ds,PK_Users,conn,trans);
+			UIData.UpdateUI(ref ds,PK_Users,conn,trans);
 		}
-		public DataColumn cPK_Criteria_D
+		public DataColumn cPK_UI
 		{
 			get
 			{
 				return Columns[0];
 			}
 		}
-		public DataColumn cFK_CriteriaParmNesting_D
-		{
-			get
-			{
-				return Columns[1];
-			}
-		}
-		public DataColumn cFK_CriteriaList
-		{
-			get
-			{
-				return Columns[2];
-			}
-		}
 		public DataColumn cDescription
 		{
 			get
 			{
-				return Columns[3];
-			}
-		}
-		public DataColumn cDefine
-		{
-			get
-			{
-				return Columns[4];
+				return Columns[1];
 			}
 		}
 	}

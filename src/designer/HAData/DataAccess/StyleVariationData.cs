@@ -14,7 +14,7 @@ namespace HAData.DataAccess {
 		public const String PK_STYLEVARIATION_FIELD = "PK_StyleVariation";
 		public const String FK_STYLE_FIELD = "FK_Style";
 		public const String FK_SKIN_FIELD = "FK_Skin";
-		public const String FK_CRITERIA_D_FIELD = "FK_Criteria_D";
+		public const String FK_UI_FIELD = "FK_UI";
 		public const String FONT_FIELD = "Font";
 		public const String FORECOLOR_FIELD = "ForeColor";
 		public const String PIXELHEIGHT_FIELD = "PixelHeight";
@@ -31,7 +31,7 @@ namespace HAData.DataAccess {
 		public const String PK_STYLEVARIATION_TABLE_FIELD = "StyleVariation.PK_StyleVariation";
 		public const String FK_STYLE_TABLE_FIELD = "StyleVariation.FK_Style";
 		public const String FK_SKIN_TABLE_FIELD = "StyleVariation.FK_Skin";
-		public const String FK_CRITERIA_D_TABLE_FIELD = "StyleVariation.FK_Criteria_D";
+		public const String FK_UI_TABLE_FIELD = "StyleVariation.FK_UI";
 		public const String FONT_TABLE_FIELD = "StyleVariation.Font";
 		public const String FORECOLOR_TABLE_FIELD = "StyleVariation.ForeColor";
 		public const String PIXELHEIGHT_TABLE_FIELD = "StyleVariation.PixelHeight";
@@ -51,7 +51,7 @@ namespace HAData.DataAccess {
 		protected const String PK_STYLEVARIATION_PARM = "@PK_StyleVariation";
 		protected const String FK_STYLE_PARM = "@FK_Style";
 		protected const String FK_SKIN_PARM = "@FK_Skin";
-		protected const String FK_CRITERIA_D_PARM = "@FK_Criteria_D";
+		protected const String FK_UI_PARM = "@FK_UI";
 		protected const String FONT_PARM = "@Font";
 		protected const String FORECOLOR_PARM = "@ForeColor";
 		protected const String PIXELHEIGHT_PARM = "@PixelHeight";
@@ -134,7 +134,7 @@ namespace HAData.DataAccess {
 			Column.DefaultValue = 0;
 
 			Columns.Add(FK_SKIN_FIELD, typeof(System.Int32));
-			Columns.Add(FK_CRITERIA_D_FIELD, typeof(System.Int32));
+			Columns.Add(FK_UI_FIELD, typeof(System.Int32));
 			Column = Columns.Add(FONT_FIELD, typeof(System.String));
 			Column.AllowDBNull = false;
 
@@ -178,7 +178,7 @@ namespace HAData.DataAccess {
 			Params.Add(new OdbcParameter(PK_STYLEVARIATION_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(FK_STYLE_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(FK_SKIN_PARM, OdbcType.Int,4));
-			Params.Add(new OdbcParameter(FK_CRITERIA_D_PARM, OdbcType.Int,4));
+			Params.Add(new OdbcParameter(FK_UI_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(FONT_PARM, OdbcType.VarChar, 30));
 			Params.Add(new OdbcParameter(FORECOLOR_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(PIXELHEIGHT_PARM, OdbcType.Int,4));
@@ -202,7 +202,7 @@ namespace HAData.DataAccess {
 
 			Params[FK_STYLE_PARM].SourceColumn = StyleVariationData.FK_STYLE_FIELD;
 			Params[FK_SKIN_PARM].SourceColumn = StyleVariationData.FK_SKIN_FIELD;
-			Params[FK_CRITERIA_D_PARM].SourceColumn = StyleVariationData.FK_CRITERIA_D_FIELD;
+			Params[FK_UI_PARM].SourceColumn = StyleVariationData.FK_UI_FIELD;
 			Params[FONT_PARM].SourceColumn = StyleVariationData.FONT_FIELD;
 			Params[FORECOLOR_PARM].SourceColumn = StyleVariationData.FORECOLOR_FIELD;
 			Params[PIXELHEIGHT_PARM].SourceColumn = StyleVariationData.PIXELHEIGHT_FIELD;
@@ -262,7 +262,7 @@ namespace HAData.DataAccess {
 		}
 
 		protected static void CreateCommands(OdbcDataAdapter odbcda,OdbcConnection Conn, OdbcTransaction Trans, ref OdbcCommand LoadCommand, ref OdbcCommand InsertCommand, ref OdbcCommand UpdateCommand, ref OdbcCommand DeleteCommand) {
-				LoadCommand = new OdbcCommand("SELECT PK_StyleVariation,FK_Style,FK_Skin,FK_Criteria_D,Font,ForeColor,PixelHeight,Bold,Italic,Underline,ShadowX,ShadowY,ShadowColor,FK_HorizAlignment,FK_VertAlignment,BackColor FROM StyleVariation", Conn);
+				LoadCommand = new OdbcCommand("SELECT PK_StyleVariation,FK_Style,FK_Skin,FK_UI,Font,ForeColor,PixelHeight,Bold,Italic,Underline,ShadowX,ShadowY,ShadowColor,FK_HorizAlignment,FK_VertAlignment,BackColor FROM StyleVariation", Conn);
 				LoadCommand.Transaction = Trans;
 
 				LoadCommand.Parameters.Add(new OdbcParameter(PK_STYLEVARIATION_PARM, OdbcType.Int,4));
@@ -306,7 +306,7 @@ namespace HAData.DataAccess {
 				conn = HADataConfiguration.GetOdbcConnection();
 			
 			OdbcDataAdapter sqlda = new OdbcDataAdapter();
-			string sSQL = "SELECT PK_StyleVariation, FK_Style, FK_Skin, FK_Criteria_D, Font, ForeColor, PixelHeight, Bold, Italic, Underline, ShadowX, ShadowY, ShadowColor, FK_HorizAlignment, FK_VertAlignment, BackColor FROM StyleVariation WHERE " + WhereClause;
+			string sSQL = "SELECT PK_StyleVariation, FK_Style, FK_Skin, FK_UI, Font, ForeColor, PixelHeight, Bold, Italic, Underline, ShadowX, ShadowY, ShadowColor, FK_HorizAlignment, FK_VertAlignment, BackColor FROM StyleVariation WHERE " + WhereClause;
 			
 			OdbcCommand LoadCommand = new OdbcCommand(sSQL,conn);
 			
@@ -585,7 +585,7 @@ namespace HAData.DataAccess {
 				return mds.tSkin[Convert.ToInt32(dr[2])];
 			}
 		}
-		public System.Int32 fFK_Criteria_D
+		public System.Int32 fFK_UI
 		{
 			get
 			{
@@ -596,23 +596,23 @@ namespace HAData.DataAccess {
 				dr[3]=value;
 			}
 		}
-		public bool fFK_Criteria_DIsNull
+		public bool fFK_UIIsNull
 		{
 			get
 			{
 				return dr[3]==DBNull.Value;
 			}
 		}
-		public void fFK_Criteria_DSetNull()
+		public void fFK_UISetNull()
 		{
 			dr[3]=DBNull.Value;
 		}
-		public Criteria_DDataRow fFK_Criteria_D_DataRow
+		public UIDataRow fFK_UI_DataRow
 		{
 			get
 			{
 				MyDataSet mds = (MyDataSet)dr.Table.DataSet;
-				return mds.tCriteria_D[Convert.ToInt32(dr[3])];
+				return mds.tUI[Convert.ToInt32(dr[3])];
 			}
 		}
 		public System.String fFont
@@ -954,7 +954,7 @@ namespace HAData.DataAccess {
 					return dr[2]==DBNull.Value;
 			}
 		}
-		public System.Int32 fFK_Criteria_D
+		public System.Int32 fFK_UI
 		{
 			get
 			{
@@ -964,7 +964,7 @@ namespace HAData.DataAccess {
 					return Convert.ToInt32(dr[3]);
 			}
 		}
-		public bool fFK_Criteria_DIsNull
+		public bool fFK_UIIsNull
 		{
 			get
 			{
@@ -1164,7 +1164,7 @@ namespace HAData.DataAccess {
 		public DataRowCollection LoadAll(OdbcConnection conn, OdbcTransaction trans)
 		{
 			OdbcDataAdapter sqlda = new OdbcDataAdapter();
-			OdbcCommand LoadCommand = new OdbcCommand("SELECT PK_StyleVariation,FK_Style,FK_Skin,FK_Criteria_D,Font,ForeColor,PixelHeight,Bold,Italic,Underline,ShadowX,ShadowY,ShadowColor,FK_HorizAlignment,FK_VertAlignment,BackColor FROM StyleVariation", conn);
+			OdbcCommand LoadCommand = new OdbcCommand("SELECT PK_StyleVariation,FK_Style,FK_Skin,FK_UI,Font,ForeColor,PixelHeight,Bold,Italic,Underline,ShadowX,ShadowY,ShadowColor,FK_HorizAlignment,FK_VertAlignment,BackColor FROM StyleVariation", conn);
 			LoadCommand.CommandType = CommandType.Text;
 			if( trans!=null )
 				LoadCommand.Transaction = trans;
@@ -1207,7 +1207,7 @@ namespace HAData.DataAccess {
 				return Columns[2];
 			}
 		}
-		public DataColumn cFK_Criteria_D
+		public DataColumn cFK_UI
 		{
 			get
 			{
