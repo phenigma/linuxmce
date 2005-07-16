@@ -19,7 +19,7 @@ using namespace std;
 #include "Table_StyleVariation.h"
 #include "Table_Style.h"
 #include "Table_Skin.h"
-#include "Table_Criteria_D.h"
+#include "Table_UI.h"
 #include "Table_HorizAlignment.h"
 #include "Table_VertAlignment.h"
 
@@ -124,7 +124,7 @@ is_null[1] = false;
 is_null[2] = true;
 m_FK_Skin = 0;
 is_null[3] = true;
-m_FK_Criteria_D = 0;
+m_FK_UI = 0;
 m_Font = "";
 is_null[4] = false;
 is_null[5] = true;
@@ -179,9 +179,9 @@ return m_FK_Style;}
 long int Row_StyleVariation::FK_Skin_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_Skin;}
-long int Row_StyleVariation::FK_Criteria_D_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_StyleVariation::FK_UI_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return m_FK_Criteria_D;}
+return m_FK_UI;}
 string Row_StyleVariation::Font_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Font;}
@@ -250,9 +250,9 @@ m_FK_Style = val; is_modified=true; is_null[1]=false;}
 void Row_StyleVariation::FK_Skin_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_Skin = val; is_modified=true; is_null[2]=false;}
-void Row_StyleVariation::FK_Criteria_D_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StyleVariation::FK_UI_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_FK_Criteria_D = val; is_modified=true; is_null[3]=false;}
+m_FK_UI = val; is_modified=true; is_null[3]=false;}
 void Row_StyleVariation::Font_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_Font = val; is_modified=true; is_null[4]=false;}
@@ -315,7 +315,7 @@ m_psc_restrict = val; is_modified=true; is_null[22]=false;}
 bool Row_StyleVariation::FK_Skin_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[2];}
-bool Row_StyleVariation::FK_Criteria_D_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_StyleVariation::FK_UI_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[3];}
 bool Row_StyleVariation::ForeColor_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -354,7 +354,7 @@ void Row_StyleVariation::FK_Skin_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(
 is_null[2]=val;
 is_modified=true;
 }
-void Row_StyleVariation::FK_Criteria_D_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_StyleVariation::FK_UI_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[3]=val;
 is_modified=true;
 }
@@ -439,7 +439,7 @@ sprintf(buf, "%li", m_FK_Skin);
 return buf;
 }
 
-string Row_StyleVariation::FK_Criteria_D_asSQL()
+string Row_StyleVariation::FK_UI_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
@@ -447,7 +447,7 @@ if (is_null[3])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%li", m_FK_Criteria_D);
+sprintf(buf, "%li", m_FK_UI);
 
 return buf;
 }
@@ -739,10 +739,10 @@ bool Table_StyleVariation::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFail
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_StyleVariation_asSQL()+", "+pRow->FK_Style_asSQL()+", "+pRow->FK_Skin_asSQL()+", "+pRow->FK_Criteria_D_asSQL()+", "+pRow->Font_asSQL()+", "+pRow->ForeColor_asSQL()+", "+pRow->PixelHeight_asSQL()+", "+pRow->Bold_asSQL()+", "+pRow->Italic_asSQL()+", "+pRow->Underline_asSQL()+", "+pRow->ShadowX_asSQL()+", "+pRow->ShadowY_asSQL()+", "+pRow->ShadowColor_asSQL()+", "+pRow->BorderStyle_asSQL()+", "+pRow->FK_HorizAlignment_asSQL()+", "+pRow->FK_VertAlignment_asSQL()+", "+pRow->BackColor_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_StyleVariation_asSQL()+", "+pRow->FK_Style_asSQL()+", "+pRow->FK_Skin_asSQL()+", "+pRow->FK_UI_asSQL()+", "+pRow->Font_asSQL()+", "+pRow->ForeColor_asSQL()+", "+pRow->PixelHeight_asSQL()+", "+pRow->Bold_asSQL()+", "+pRow->Italic_asSQL()+", "+pRow->Underline_asSQL()+", "+pRow->ShadowX_asSQL()+", "+pRow->ShadowY_asSQL()+", "+pRow->ShadowColor_asSQL()+", "+pRow->BorderStyle_asSQL()+", "+pRow->FK_HorizAlignment_asSQL()+", "+pRow->FK_VertAlignment_asSQL()+", "+pRow->BackColor_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
 
 	
-		string query = "insert into StyleVariation (`PK_StyleVariation`, `FK_Style`, `FK_Skin`, `FK_Criteria_D`, `Font`, `ForeColor`, `PixelHeight`, `Bold`, `Italic`, `Underline`, `ShadowX`, `ShadowY`, `ShadowColor`, `BorderStyle`, `FK_HorizAlignment`, `FK_VertAlignment`, `BackColor`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
+		string query = "insert into StyleVariation (`PK_StyleVariation`, `FK_Style`, `FK_Skin`, `FK_UI`, `Font`, `ForeColor`, `PixelHeight`, `Bold`, `Italic`, `Underline`, `ShadowX`, `ShadowY`, `ShadowColor`, `BorderStyle`, `FK_HorizAlignment`, `FK_VertAlignment`, `BackColor`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -798,7 +798,7 @@ condition = condition + "`PK_StyleVariation`=" + tmp_PK_StyleVariation;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`PK_StyleVariation`="+pRow->PK_StyleVariation_asSQL()+", `FK_Style`="+pRow->FK_Style_asSQL()+", `FK_Skin`="+pRow->FK_Skin_asSQL()+", `FK_Criteria_D`="+pRow->FK_Criteria_D_asSQL()+", `Font`="+pRow->Font_asSQL()+", `ForeColor`="+pRow->ForeColor_asSQL()+", `PixelHeight`="+pRow->PixelHeight_asSQL()+", `Bold`="+pRow->Bold_asSQL()+", `Italic`="+pRow->Italic_asSQL()+", `Underline`="+pRow->Underline_asSQL()+", `ShadowX`="+pRow->ShadowX_asSQL()+", `ShadowY`="+pRow->ShadowY_asSQL()+", `ShadowColor`="+pRow->ShadowColor_asSQL()+", `BorderStyle`="+pRow->BorderStyle_asSQL()+", `FK_HorizAlignment`="+pRow->FK_HorizAlignment_asSQL()+", `FK_VertAlignment`="+pRow->FK_VertAlignment_asSQL()+", `BackColor`="+pRow->BackColor_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
+update_values_list = update_values_list + "`PK_StyleVariation`="+pRow->PK_StyleVariation_asSQL()+", `FK_Style`="+pRow->FK_Style_asSQL()+", `FK_Skin`="+pRow->FK_Skin_asSQL()+", `FK_UI`="+pRow->FK_UI_asSQL()+", `Font`="+pRow->Font_asSQL()+", `ForeColor`="+pRow->ForeColor_asSQL()+", `PixelHeight`="+pRow->PixelHeight_asSQL()+", `Bold`="+pRow->Bold_asSQL()+", `Italic`="+pRow->Italic_asSQL()+", `Underline`="+pRow->Underline_asSQL()+", `ShadowX`="+pRow->ShadowX_asSQL()+", `ShadowY`="+pRow->ShadowY_asSQL()+", `ShadowColor`="+pRow->ShadowColor_asSQL()+", `BorderStyle`="+pRow->BorderStyle_asSQL()+", `FK_HorizAlignment`="+pRow->FK_HorizAlignment_asSQL()+", `FK_VertAlignment`="+pRow->FK_VertAlignment_asSQL()+", `BackColor`="+pRow->BackColor_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
 
 	
 		string query = "update StyleVariation set " + update_values_list + " where " + condition;
@@ -943,12 +943,12 @@ sscanf(row[2], "%li", &(pRow->m_FK_Skin));
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_FK_Criteria_D = 0;
+pRow->m_FK_UI = 0;
 }
 else
 {
 pRow->is_null[3]=false;
-sscanf(row[3], "%li", &(pRow->m_FK_Criteria_D));
+sscanf(row[3], "%li", &(pRow->m_FK_UI));
 }
 
 if (row[4] == NULL)
@@ -1304,12 +1304,12 @@ sscanf(row[2], "%li", &(pRow->m_FK_Skin));
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_FK_Criteria_D = 0;
+pRow->m_FK_UI = 0;
 }
 else
 {
 pRow->is_null[3]=false;
-sscanf(row[3], "%li", &(pRow->m_FK_Criteria_D));
+sscanf(row[3], "%li", &(pRow->m_FK_UI));
 }
 
 if (row[4] == NULL)
@@ -1543,12 +1543,12 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 class Table_Skin *pTable = table->database->Skin_get();
 return pTable->GetRow(m_FK_Skin);
 }
-class Row_Criteria_D* Row_StyleVariation::FK_Criteria_D_getrow()
+class Row_UI* Row_StyleVariation::FK_UI_getrow()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-class Table_Criteria_D *pTable = table->database->Criteria_D_get();
-return pTable->GetRow(m_FK_Criteria_D);
+class Table_UI *pTable = table->database->UI_get();
+return pTable->GetRow(m_FK_UI);
 }
 class Row_HorizAlignment* Row_StyleVariation::FK_HorizAlignment_getrow()
 {

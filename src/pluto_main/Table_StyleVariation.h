@@ -80,7 +80,7 @@ class DECLSPECIFIER Row_StyleVariation : public TableRow, public SerializeClass
 		long int m_PK_StyleVariation;
 long int m_FK_Style;
 long int m_FK_Skin;
-long int m_FK_Criteria_D;
+long int m_FK_UI;
 string m_Font;
 long int m_ForeColor;
 long int m_PixelHeight;
@@ -107,7 +107,7 @@ long int m_psc_restrict;
 		long int PK_StyleVariation_get();
 long int FK_Style_get();
 long int FK_Skin_get();
-long int FK_Criteria_D_get();
+long int FK_UI_get();
 string Font_get();
 long int ForeColor_get();
 long int PixelHeight_get();
@@ -132,7 +132,7 @@ long int psc_restrict_get();
 		void PK_StyleVariation_set(long int val);
 void FK_Style_set(long int val);
 void FK_Skin_set(long int val);
-void FK_Criteria_D_set(long int val);
+void FK_UI_set(long int val);
 void Font_set(string val);
 void ForeColor_set(long int val);
 void PixelHeight_set(long int val);
@@ -155,7 +155,7 @@ void psc_restrict_set(long int val);
 
 		
 		bool FK_Skin_isNull();
-bool FK_Criteria_D_isNull();
+bool FK_UI_isNull();
 bool ForeColor_isNull();
 bool ShadowX_isNull();
 bool ShadowY_isNull();
@@ -169,7 +169,7 @@ bool psc_restrict_isNull();
 
 			
 		void FK_Skin_setNull(bool val);
-void FK_Criteria_D_setNull(bool val);
+void FK_UI_setNull(bool val);
 void ForeColor_setNull(bool val);
 void ShadowX_setNull(bool val);
 void ShadowY_setNull(bool val);
@@ -194,7 +194,7 @@ void psc_restrict_setNull(bool val);
 		// Return the rows for foreign keys 
 		class Row_Style* FK_Style_getrow();
 class Row_Skin* FK_Skin_getrow();
-class Row_Criteria_D* FK_Criteria_D_getrow();
+class Row_UI* FK_UI_getrow();
 class Row_HorizAlignment* FK_HorizAlignment_getrow();
 class Row_VertAlignment* FK_VertAlignment_getrow();
 
@@ -204,7 +204,7 @@ class Row_VertAlignment* FK_VertAlignment_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_StyleVariation+ m_FK_Style+ m_FK_Skin+ m_FK_Criteria_D+ m_Font+ m_ForeColor+ m_PixelHeight+ m_Bold+ m_Italic+ m_Underline+ m_ShadowX+ m_ShadowY+ m_ShadowColor+ m_BorderStyle+ m_FK_HorizAlignment+ m_FK_VertAlignment+ m_BackColor+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_StyleVariation+ m_FK_Style+ m_FK_Skin+ m_FK_UI+ m_Font+ m_ForeColor+ m_PixelHeight+ m_Bold+ m_Italic+ m_Underline+ m_ShadowX+ m_ShadowY+ m_ShadowColor+ m_BorderStyle+ m_FK_HorizAlignment+ m_FK_VertAlignment+ m_BackColor+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -212,7 +212,7 @@ class Row_VertAlignment* FK_VertAlignment_getrow();
 		string PK_StyleVariation_asSQL();
 string FK_Style_asSQL();
 string FK_Skin_asSQL();
-string FK_Criteria_D_asSQL();
+string FK_UI_asSQL();
 string Font_asSQL();
 string ForeColor_asSQL();
 string PixelHeight_asSQL();

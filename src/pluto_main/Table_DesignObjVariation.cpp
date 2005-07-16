@@ -18,7 +18,7 @@ using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "Table_DesignObjVariation.h"
 #include "Table_DesignObj.h"
-#include "Table_Criteria_D.h"
+#include "Table_UI.h"
 #include "Table_DesignObj.h"
 #include "Table_CommandGroup_D.h"
 #include "Table_CommandGroup_D.h"
@@ -132,7 +132,7 @@ is_null[0] = false;
 m_FK_DesignObj = 0;
 is_null[1] = false;
 is_null[2] = true;
-m_FK_Criteria_D = 0;
+m_FK_UI = 0;
 is_null[3] = true;
 m_FK_DesignObj_Goto = 0;
 is_null[4] = true;
@@ -182,9 +182,9 @@ return m_PK_DesignObjVariation;}
 long int Row_DesignObjVariation::FK_DesignObj_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_DesignObj;}
-long int Row_DesignObjVariation::FK_Criteria_D_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_DesignObjVariation::FK_UI_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return m_FK_Criteria_D;}
+return m_FK_UI;}
 long int Row_DesignObjVariation::FK_DesignObj_Goto_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_DesignObj_Goto;}
@@ -247,9 +247,9 @@ m_PK_DesignObjVariation = val; is_modified=true; is_null[0]=false;}
 void Row_DesignObjVariation::FK_DesignObj_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_DesignObj = val; is_modified=true; is_null[1]=false;}
-void Row_DesignObjVariation::FK_Criteria_D_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::FK_UI_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_FK_Criteria_D = val; is_modified=true; is_null[2]=false;}
+m_FK_UI = val; is_modified=true; is_null[2]=false;}
 void Row_DesignObjVariation::FK_DesignObj_Goto_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_DesignObj_Goto = val; is_modified=true; is_null[3]=false;}
@@ -306,7 +306,7 @@ void Row_DesignObjVariation::psc_restrict_set(long int val){PLUTO_SAFETY_LOCK_ER
 m_psc_restrict = val; is_modified=true; is_null[20]=false;}
 
 		
-bool Row_DesignObjVariation::FK_Criteria_D_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_DesignObjVariation::FK_UI_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[2];}
 bool Row_DesignObjVariation::FK_DesignObj_Goto_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -350,7 +350,7 @@ bool Row_DesignObjVariation::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY
 return is_null[20];}
 
 			
-void Row_DesignObjVariation::FK_Criteria_D_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::FK_UI_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[2]=val;
 is_modified=true;
 }
@@ -434,7 +434,7 @@ sprintf(buf, "%li", m_FK_DesignObj);
 return buf;
 }
 
-string Row_DesignObjVariation::FK_Criteria_D_asSQL()
+string Row_DesignObjVariation::FK_UI_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
@@ -442,7 +442,7 @@ if (is_null[2])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%li", m_FK_Criteria_D);
+sprintf(buf, "%li", m_FK_UI);
 
 return buf;
 }
@@ -720,10 +720,10 @@ bool Table_DesignObjVariation::Commit(bool bDeleteFailedModifiedRow,bool bDelete
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_DesignObjVariation_asSQL()+", "+pRow->FK_DesignObj_asSQL()+", "+pRow->FK_Criteria_D_asSQL()+", "+pRow->FK_DesignObj_Goto_asSQL()+", "+pRow->FK_CommandGroup_D_OnActivate_asSQL()+", "+pRow->FK_CommandGroup_D_OnLoad_asSQL()+", "+pRow->FK_CommandGroup_D_OnUnload_asSQL()+", "+pRow->FK_CommandGroup_D_OnTimeout_asSQL()+", "+pRow->FK_CommandGroup_D_OnStartup_asSQL()+", "+pRow->FK_Button_asSQL()+", "+pRow->FK_Criteria_Orbiter_asSQL()+", "+pRow->DontResetSelectedState_asSQL()+", "+pRow->FK_StabilityStatus_asSQL()+", "+pRow->RepeatMS_asSQL()+", "+pRow->RepeatParm_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_DesignObjVariation_asSQL()+", "+pRow->FK_DesignObj_asSQL()+", "+pRow->FK_UI_asSQL()+", "+pRow->FK_DesignObj_Goto_asSQL()+", "+pRow->FK_CommandGroup_D_OnActivate_asSQL()+", "+pRow->FK_CommandGroup_D_OnLoad_asSQL()+", "+pRow->FK_CommandGroup_D_OnUnload_asSQL()+", "+pRow->FK_CommandGroup_D_OnTimeout_asSQL()+", "+pRow->FK_CommandGroup_D_OnStartup_asSQL()+", "+pRow->FK_Button_asSQL()+", "+pRow->FK_Criteria_Orbiter_asSQL()+", "+pRow->DontResetSelectedState_asSQL()+", "+pRow->FK_StabilityStatus_asSQL()+", "+pRow->RepeatMS_asSQL()+", "+pRow->RepeatParm_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
 
 	
-		string query = "insert into DesignObjVariation (`PK_DesignObjVariation`, `FK_DesignObj`, `FK_Criteria_D`, `FK_DesignObj_Goto`, `FK_CommandGroup_D_OnActivate`, `FK_CommandGroup_D_OnLoad`, `FK_CommandGroup_D_OnUnload`, `FK_CommandGroup_D_OnTimeout`, `FK_CommandGroup_D_OnStartup`, `FK_Button`, `FK_Criteria_Orbiter`, `DontResetSelectedState`, `FK_StabilityStatus`, `RepeatMS`, `RepeatParm`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
+		string query = "insert into DesignObjVariation (`PK_DesignObjVariation`, `FK_DesignObj`, `FK_UI`, `FK_DesignObj_Goto`, `FK_CommandGroup_D_OnActivate`, `FK_CommandGroup_D_OnLoad`, `FK_CommandGroup_D_OnUnload`, `FK_CommandGroup_D_OnTimeout`, `FK_CommandGroup_D_OnStartup`, `FK_Button`, `FK_Criteria_Orbiter`, `DontResetSelectedState`, `FK_StabilityStatus`, `RepeatMS`, `RepeatParm`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -779,7 +779,7 @@ condition = condition + "`PK_DesignObjVariation`=" + tmp_PK_DesignObjVariation;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`PK_DesignObjVariation`="+pRow->PK_DesignObjVariation_asSQL()+", `FK_DesignObj`="+pRow->FK_DesignObj_asSQL()+", `FK_Criteria_D`="+pRow->FK_Criteria_D_asSQL()+", `FK_DesignObj_Goto`="+pRow->FK_DesignObj_Goto_asSQL()+", `FK_CommandGroup_D_OnActivate`="+pRow->FK_CommandGroup_D_OnActivate_asSQL()+", `FK_CommandGroup_D_OnLoad`="+pRow->FK_CommandGroup_D_OnLoad_asSQL()+", `FK_CommandGroup_D_OnUnload`="+pRow->FK_CommandGroup_D_OnUnload_asSQL()+", `FK_CommandGroup_D_OnTimeout`="+pRow->FK_CommandGroup_D_OnTimeout_asSQL()+", `FK_CommandGroup_D_OnStartup`="+pRow->FK_CommandGroup_D_OnStartup_asSQL()+", `FK_Button`="+pRow->FK_Button_asSQL()+", `FK_Criteria_Orbiter`="+pRow->FK_Criteria_Orbiter_asSQL()+", `DontResetSelectedState`="+pRow->DontResetSelectedState_asSQL()+", `FK_StabilityStatus`="+pRow->FK_StabilityStatus_asSQL()+", `RepeatMS`="+pRow->RepeatMS_asSQL()+", `RepeatParm`="+pRow->RepeatParm_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
+update_values_list = update_values_list + "`PK_DesignObjVariation`="+pRow->PK_DesignObjVariation_asSQL()+", `FK_DesignObj`="+pRow->FK_DesignObj_asSQL()+", `FK_UI`="+pRow->FK_UI_asSQL()+", `FK_DesignObj_Goto`="+pRow->FK_DesignObj_Goto_asSQL()+", `FK_CommandGroup_D_OnActivate`="+pRow->FK_CommandGroup_D_OnActivate_asSQL()+", `FK_CommandGroup_D_OnLoad`="+pRow->FK_CommandGroup_D_OnLoad_asSQL()+", `FK_CommandGroup_D_OnUnload`="+pRow->FK_CommandGroup_D_OnUnload_asSQL()+", `FK_CommandGroup_D_OnTimeout`="+pRow->FK_CommandGroup_D_OnTimeout_asSQL()+", `FK_CommandGroup_D_OnStartup`="+pRow->FK_CommandGroup_D_OnStartup_asSQL()+", `FK_Button`="+pRow->FK_Button_asSQL()+", `FK_Criteria_Orbiter`="+pRow->FK_Criteria_Orbiter_asSQL()+", `DontResetSelectedState`="+pRow->DontResetSelectedState_asSQL()+", `FK_StabilityStatus`="+pRow->FK_StabilityStatus_asSQL()+", `RepeatMS`="+pRow->RepeatMS_asSQL()+", `RepeatParm`="+pRow->RepeatParm_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
 
 	
 		string query = "update DesignObjVariation set " + update_values_list + " where " + condition;
@@ -913,12 +913,12 @@ sscanf(row[1], "%li", &(pRow->m_FK_DesignObj));
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_FK_Criteria_D = 0;
+pRow->m_FK_UI = 0;
 }
 else
 {
 pRow->is_null[2]=false;
-sscanf(row[2], "%li", &(pRow->m_FK_Criteria_D));
+sscanf(row[2], "%li", &(pRow->m_FK_UI));
 }
 
 if (row[3] == NULL)
@@ -1252,12 +1252,12 @@ sscanf(row[1], "%li", &(pRow->m_FK_DesignObj));
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_FK_Criteria_D = 0;
+pRow->m_FK_UI = 0;
 }
 else
 {
 pRow->is_null[2]=false;
-sscanf(row[2], "%li", &(pRow->m_FK_Criteria_D));
+sscanf(row[2], "%li", &(pRow->m_FK_UI));
 }
 
 if (row[3] == NULL)
@@ -1473,12 +1473,12 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 class Table_DesignObj *pTable = table->database->DesignObj_get();
 return pTable->GetRow(m_FK_DesignObj);
 }
-class Row_Criteria_D* Row_DesignObjVariation::FK_Criteria_D_getrow()
+class Row_UI* Row_DesignObjVariation::FK_UI_getrow()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-class Table_Criteria_D *pTable = table->database->Criteria_D_get();
-return pTable->GetRow(m_FK_Criteria_D);
+class Table_UI *pTable = table->database->UI_get();
+return pTable->GetRow(m_FK_UI);
 }
 class Row_DesignObj* Row_DesignObjVariation::FK_DesignObj_Goto_getrow()
 {

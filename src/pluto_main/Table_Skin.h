@@ -79,7 +79,7 @@ class DECLSPECIFIER Row_Skin : public TableRow, public SerializeClass
 		
 		long int m_PK_Skin;
 string m_Description;
-long int m_FK_Criteria_D;
+long int m_FK_UI;
 short int m_MergeStandardVariation;
 string m_DataSubdirectory;
 long int m_FK_Style;
@@ -101,7 +101,7 @@ long int m_psc_restrict;
 	public:
 		long int PK_Skin_get();
 string Description_get();
-long int FK_Criteria_D_get();
+long int FK_UI_get();
 short int MergeStandardVariation_get();
 string DataSubdirectory_get();
 long int FK_Style_get();
@@ -121,7 +121,7 @@ long int psc_restrict_get();
 		
 		void PK_Skin_set(long int val);
 void Description_set(string val);
-void FK_Criteria_D_set(long int val);
+void FK_UI_set(long int val);
 void MergeStandardVariation_set(short int val);
 void DataSubdirectory_set(string val);
 void FK_Style_set(long int val);
@@ -139,7 +139,7 @@ void psc_mod_set(string val);
 void psc_restrict_set(long int val);
 
 		
-		bool FK_Criteria_D_isNull();
+		bool FK_UI_isNull();
 bool DataSubdirectory_isNull();
 bool FK_Style_isNull();
 bool FK_Skin_TextPlacement_isNull();
@@ -150,7 +150,7 @@ bool psc_frozen_isNull();
 bool psc_restrict_isNull();
 
 			
-		void FK_Criteria_D_setNull(bool val);
+		void FK_UI_setNull(bool val);
 void DataSubdirectory_setNull(bool val);
 void FK_Style_setNull(bool val);
 void FK_Skin_TextPlacement_setNull(bool val);
@@ -171,7 +171,7 @@ void psc_restrict_setNull(bool val);
 		class Table_Skin *Table_Skin_get() { return table; };
 
 		// Return the rows for foreign keys 
-		class Row_Criteria_D* FK_Criteria_D_getrow();
+		class Row_UI* FK_UI_getrow();
 class Row_Style* FK_Style_getrow();
 class Row_Skin* FK_Skin_TextPlacement_getrow();
 class Row_StabilityStatus* FK_StabilityStatus_getrow();
@@ -188,14 +188,14 @@ void StyleVariation_FK_Skin_getrows(vector <class Row_StyleVariation*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Skin+ m_Description+ m_FK_Criteria_D+ m_MergeStandardVariation+ m_DataSubdirectory+ m_FK_Style+ m_FK_Skin_TextPlacement+ m_DrawTextBeforeChildren+ m_FK_StabilityStatus+ m_FK_DesignObj_MainMenu+ m_FK_DesignObj_Sleeping+ m_FK_DesignObj_ScreenSaver+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_Skin+ m_Description+ m_FK_UI+ m_MergeStandardVariation+ m_DataSubdirectory+ m_FK_Style+ m_FK_Skin_TextPlacement+ m_DrawTextBeforeChildren+ m_FK_StabilityStatus+ m_FK_DesignObj_MainMenu+ m_FK_DesignObj_Sleeping+ m_FK_DesignObj_ScreenSaver+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
 		
 		string PK_Skin_asSQL();
 string Description_asSQL();
-string FK_Criteria_D_asSQL();
+string FK_UI_asSQL();
 string MergeStandardVariation_asSQL();
 string DataSubdirectory_asSQL();
 string FK_Style_asSQL();

@@ -79,7 +79,7 @@ class DECLSPECIFIER Row_DesignObjVariation : public TableRow, public SerializeCl
 		
 		long int m_PK_DesignObjVariation;
 long int m_FK_DesignObj;
-long int m_FK_Criteria_D;
+long int m_FK_UI;
 long int m_FK_DesignObj_Goto;
 long int m_FK_CommandGroup_D_OnActivate;
 long int m_FK_CommandGroup_D_OnLoad;
@@ -104,7 +104,7 @@ long int m_psc_restrict;
 	public:
 		long int PK_DesignObjVariation_get();
 long int FK_DesignObj_get();
-long int FK_Criteria_D_get();
+long int FK_UI_get();
 long int FK_DesignObj_Goto_get();
 long int FK_CommandGroup_D_OnActivate_get();
 long int FK_CommandGroup_D_OnLoad_get();
@@ -127,7 +127,7 @@ long int psc_restrict_get();
 		
 		void PK_DesignObjVariation_set(long int val);
 void FK_DesignObj_set(long int val);
-void FK_Criteria_D_set(long int val);
+void FK_UI_set(long int val);
 void FK_DesignObj_Goto_set(long int val);
 void FK_CommandGroup_D_OnActivate_set(long int val);
 void FK_CommandGroup_D_OnLoad_set(long int val);
@@ -148,7 +148,7 @@ void psc_mod_set(string val);
 void psc_restrict_set(long int val);
 
 		
-		bool FK_Criteria_D_isNull();
+		bool FK_UI_isNull();
 bool FK_DesignObj_Goto_isNull();
 bool FK_CommandGroup_D_OnActivate_isNull();
 bool FK_CommandGroup_D_OnLoad_isNull();
@@ -164,7 +164,7 @@ bool psc_frozen_isNull();
 bool psc_restrict_isNull();
 
 			
-		void FK_Criteria_D_setNull(bool val);
+		void FK_UI_setNull(bool val);
 void FK_DesignObj_Goto_setNull(bool val);
 void FK_CommandGroup_D_OnActivate_setNull(bool val);
 void FK_CommandGroup_D_OnLoad_setNull(bool val);
@@ -191,7 +191,7 @@ void psc_restrict_setNull(bool val);
 
 		// Return the rows for foreign keys 
 		class Row_DesignObj* FK_DesignObj_getrow();
-class Row_Criteria_D* FK_Criteria_D_getrow();
+class Row_UI* FK_UI_getrow();
 class Row_DesignObj* FK_DesignObj_Goto_getrow();
 class Row_CommandGroup_D* FK_CommandGroup_D_OnActivate_getrow();
 class Row_CommandGroup_D* FK_CommandGroup_D_OnLoad_getrow();
@@ -212,14 +212,14 @@ void DesignObjVariation_Zone_FK_DesignObjVariation_getrows(vector <class Row_Des
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_DesignObjVariation+ m_FK_DesignObj+ m_FK_Criteria_D+ m_FK_DesignObj_Goto+ m_FK_CommandGroup_D_OnActivate+ m_FK_CommandGroup_D_OnLoad+ m_FK_CommandGroup_D_OnUnload+ m_FK_CommandGroup_D_OnTimeout+ m_FK_CommandGroup_D_OnStartup+ m_FK_Button+ m_FK_Criteria_Orbiter+ m_DontResetSelectedState+ m_FK_StabilityStatus+ m_RepeatMS+ m_RepeatParm+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_DesignObjVariation+ m_FK_DesignObj+ m_FK_UI+ m_FK_DesignObj_Goto+ m_FK_CommandGroup_D_OnActivate+ m_FK_CommandGroup_D_OnLoad+ m_FK_CommandGroup_D_OnUnload+ m_FK_CommandGroup_D_OnTimeout+ m_FK_CommandGroup_D_OnStartup+ m_FK_Button+ m_FK_Criteria_Orbiter+ m_DontResetSelectedState+ m_FK_StabilityStatus+ m_RepeatMS+ m_RepeatParm+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
 		
 		string PK_DesignObjVariation_asSQL();
 string FK_DesignObj_asSQL();
-string FK_Criteria_D_asSQL();
+string FK_UI_asSQL();
 string FK_DesignObj_Goto_asSQL();
 string FK_CommandGroup_D_OnActivate_asSQL();
 string FK_CommandGroup_D_OnLoad_asSQL();

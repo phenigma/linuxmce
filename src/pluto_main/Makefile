@@ -37,9 +37,6 @@ Table_CriteriaList_CriteriaParmList.cpp \
 Table_CriteriaParm.cpp \
 Table_CriteriaParmList.cpp \
 Table_CriteriaParmNesting.cpp \
-Table_CriteriaParmNesting_D.cpp \
-Table_CriteriaParm_D.cpp \
-Table_Criteria_D.cpp \
 Table_DHCPDevice.cpp \
 Table_DHCPDevice_DeviceData.cpp \
 Table_DataGrid.cpp \
@@ -174,6 +171,7 @@ Table_Text.cpp \
 Table_TextCategory.cpp \
 Table_Text_LS.cpp \
 Table_Text_LS_AltVersions.cpp \
+Table_UI.cpp \
 Table_UnknownDevices.cpp \
 Table_UserMode.cpp \
 Table_Users.cpp \

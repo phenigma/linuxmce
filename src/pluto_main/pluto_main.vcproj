@@ -211,15 +211,6 @@
 				RelativePath=".\Table_CriteriaParmNesting.cpp">
 			</File>
 			<File
-				RelativePath=".\Table_CriteriaParmNesting_D.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_CriteriaParm_D.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_Criteria_D.cpp">
-			</File>
-			<File
 				RelativePath=".\Table_DHCPDevice.cpp">
 			</File>
 			<File
@@ -620,6 +611,9 @@
 			</File>
 			<File
 				RelativePath=".\Table_Text_LS_AltVersions.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_UI.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_UnknownDevices.cpp">

@@ -56,9 +56,6 @@ class Table_CriteriaList_CriteriaParmList* tblCriteriaList_CriteriaParmList;
 class Table_CriteriaParm* tblCriteriaParm;
 class Table_CriteriaParmList* tblCriteriaParmList;
 class Table_CriteriaParmNesting* tblCriteriaParmNesting;
-class Table_CriteriaParmNesting_D* tblCriteriaParmNesting_D;
-class Table_CriteriaParm_D* tblCriteriaParm_D;
-class Table_Criteria_D* tblCriteria_D;
 class Table_DHCPDevice* tblDHCPDevice;
 class Table_DHCPDevice_DeviceData* tblDHCPDevice_DeviceData;
 class Table_DataGrid* tblDataGrid;
@@ -193,6 +190,7 @@ class Table_Text* tblText;
 class Table_TextCategory* tblTextCategory;
 class Table_Text_LS* tblText_LS;
 class Table_Text_LS_AltVersions* tblText_LS_AltVersions;
+class Table_UI* tblUI;
 class Table_UnknownDevices* tblUnknownDevices;
 class Table_UserMode* tblUserMode;
 class Table_Users* tblUsers;
@@ -273,9 +271,6 @@ class Table_CriteriaList_CriteriaParmList* CriteriaList_CriteriaParmList_get() {
 class Table_CriteriaParm* CriteriaParm_get() { if( !tblCriteriaParm ) CreateTable_CriteriaParm(); return tblCriteriaParm; }
 class Table_CriteriaParmList* CriteriaParmList_get() { if( !tblCriteriaParmList ) CreateTable_CriteriaParmList(); return tblCriteriaParmList; }
 class Table_CriteriaParmNesting* CriteriaParmNesting_get() { if( !tblCriteriaParmNesting ) CreateTable_CriteriaParmNesting(); return tblCriteriaParmNesting; }
-class Table_CriteriaParmNesting_D* CriteriaParmNesting_D_get() { if( !tblCriteriaParmNesting_D ) CreateTable_CriteriaParmNesting_D(); return tblCriteriaParmNesting_D; }
-class Table_CriteriaParm_D* CriteriaParm_D_get() { if( !tblCriteriaParm_D ) CreateTable_CriteriaParm_D(); return tblCriteriaParm_D; }
-class Table_Criteria_D* Criteria_D_get() { if( !tblCriteria_D ) CreateTable_Criteria_D(); return tblCriteria_D; }
 class Table_DHCPDevice* DHCPDevice_get() { if( !tblDHCPDevice ) CreateTable_DHCPDevice(); return tblDHCPDevice; }
 class Table_DHCPDevice_DeviceData* DHCPDevice_DeviceData_get() { if( !tblDHCPDevice_DeviceData ) CreateTable_DHCPDevice_DeviceData(); return tblDHCPDevice_DeviceData; }
 class Table_DataGrid* DataGrid_get() { if( !tblDataGrid ) CreateTable_DataGrid(); return tblDataGrid; }
@@ -410,6 +405,7 @@ class Table_Text* Text_get() { if( !tblText ) CreateTable_Text(); return tblText
 class Table_TextCategory* TextCategory_get() { if( !tblTextCategory ) CreateTable_TextCategory(); return tblTextCategory; }
 class Table_Text_LS* Text_LS_get() { if( !tblText_LS ) CreateTable_Text_LS(); return tblText_LS; }
 class Table_Text_LS_AltVersions* Text_LS_AltVersions_get() { if( !tblText_LS_AltVersions ) CreateTable_Text_LS_AltVersions(); return tblText_LS_AltVersions; }
+class Table_UI* UI_get() { if( !tblUI ) CreateTable_UI(); return tblUI; }
 class Table_UnknownDevices* UnknownDevices_get() { if( !tblUnknownDevices ) CreateTable_UnknownDevices(); return tblUnknownDevices; }
 class Table_UserMode* UserMode_get() { if( !tblUserMode ) CreateTable_UserMode(); return tblUserMode; }
 class Table_Users* Users_get() { if( !tblUsers ) CreateTable_Users(); return tblUsers; }
@@ -494,9 +490,6 @@ void CreateTable_CriteriaList_CriteriaParmList();
 void CreateTable_CriteriaParm();
 void CreateTable_CriteriaParmList();
 void CreateTable_CriteriaParmNesting();
-void CreateTable_CriteriaParmNesting_D();
-void CreateTable_CriteriaParm_D();
-void CreateTable_Criteria_D();
 void CreateTable_DHCPDevice();
 void CreateTable_DHCPDevice_DeviceData();
 void CreateTable_DataGrid();
@@ -631,6 +624,7 @@ void CreateTable_Text();
 void CreateTable_TextCategory();
 void CreateTable_Text_LS();
 void CreateTable_Text_LS_AltVersions();
+void CreateTable_UI();
 void CreateTable_UnknownDevices();
 void CreateTable_UserMode();
 void CreateTable_Users();
@@ -710,9 +704,6 @@ void DeleteTable_CriteriaList_CriteriaParmList();
 void DeleteTable_CriteriaParm();
 void DeleteTable_CriteriaParmList();
 void DeleteTable_CriteriaParmNesting();
-void DeleteTable_CriteriaParmNesting_D();
-void DeleteTable_CriteriaParm_D();
-void DeleteTable_Criteria_D();
 void DeleteTable_DHCPDevice();
 void DeleteTable_DHCPDevice_DeviceData();
 void DeleteTable_DataGrid();
@@ -847,6 +838,7 @@ void DeleteTable_Text();
 void DeleteTable_TextCategory();
 void DeleteTable_Text_LS();
 void DeleteTable_Text_LS_AltVersions();
+void DeleteTable_UI();
 void DeleteTable_UnknownDevices();
 void DeleteTable_UserMode();
 void DeleteTable_Users();

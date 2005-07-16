@@ -17,7 +17,7 @@
 using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "Table_Skin.h"
-#include "Table_Criteria_D.h"
+#include "Table_UI.h"
 #include "Table_Style.h"
 #include "Table_Skin.h"
 #include "Table_StabilityStatus.h"
@@ -127,7 +127,7 @@ is_null[0] = false;
 m_Description = "";
 is_null[1] = false;
 is_null[2] = true;
-m_FK_Criteria_D = 0;
+m_FK_UI = 0;
 m_MergeStandardVariation = 1;
 is_null[3] = false;
 is_null[4] = true;
@@ -170,9 +170,9 @@ return m_PK_Skin;}
 string Row_Skin::Description_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Description;}
-long int Row_Skin::FK_Criteria_D_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_Skin::FK_UI_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return m_FK_Criteria_D;}
+return m_FK_UI;}
 short int Row_Skin::MergeStandardVariation_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_MergeStandardVariation;}
@@ -226,9 +226,9 @@ m_PK_Skin = val; is_modified=true; is_null[0]=false;}
 void Row_Skin::Description_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_Description = val; is_modified=true; is_null[1]=false;}
-void Row_Skin::FK_Criteria_D_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Skin::FK_UI_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_FK_Criteria_D = val; is_modified=true; is_null[2]=false;}
+m_FK_UI = val; is_modified=true; is_null[2]=false;}
 void Row_Skin::MergeStandardVariation_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_MergeStandardVariation = val; is_modified=true; is_null[3]=false;}
@@ -276,7 +276,7 @@ void Row_Skin::psc_restrict_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,ta
 m_psc_restrict = val; is_modified=true; is_null[17]=false;}
 
 		
-bool Row_Skin::FK_Criteria_D_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_Skin::FK_UI_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[2];}
 bool Row_Skin::DataSubdirectory_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -305,7 +305,7 @@ bool Row_Skin::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->dat
 return is_null[17];}
 
 			
-void Row_Skin::FK_Criteria_D_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_Skin::FK_UI_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[2]=val;
 is_modified=true;
 }
@@ -370,7 +370,7 @@ delete[] buf;
 return s;
 }
 
-string Row_Skin::FK_Criteria_D_asSQL()
+string Row_Skin::FK_UI_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
@@ -378,7 +378,7 @@ if (is_null[2])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%li", m_FK_Criteria_D);
+sprintf(buf, "%li", m_FK_UI);
 
 return buf;
 }
@@ -618,10 +618,10 @@ bool Table_Skin::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRo
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Skin_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->FK_Criteria_D_asSQL()+", "+pRow->MergeStandardVariation_asSQL()+", "+pRow->DataSubdirectory_asSQL()+", "+pRow->FK_Style_asSQL()+", "+pRow->FK_Skin_TextPlacement_asSQL()+", "+pRow->DrawTextBeforeChildren_asSQL()+", "+pRow->FK_StabilityStatus_asSQL()+", "+pRow->FK_DesignObj_MainMenu_asSQL()+", "+pRow->FK_DesignObj_Sleeping_asSQL()+", "+pRow->FK_DesignObj_ScreenSaver_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Skin_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->FK_UI_asSQL()+", "+pRow->MergeStandardVariation_asSQL()+", "+pRow->DataSubdirectory_asSQL()+", "+pRow->FK_Style_asSQL()+", "+pRow->FK_Skin_TextPlacement_asSQL()+", "+pRow->DrawTextBeforeChildren_asSQL()+", "+pRow->FK_StabilityStatus_asSQL()+", "+pRow->FK_DesignObj_MainMenu_asSQL()+", "+pRow->FK_DesignObj_Sleeping_asSQL()+", "+pRow->FK_DesignObj_ScreenSaver_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
 
 	
-		string query = "insert into Skin (`PK_Skin`, `Description`, `FK_Criteria_D`, `MergeStandardVariation`, `DataSubdirectory`, `FK_Style`, `FK_Skin_TextPlacement`, `DrawTextBeforeChildren`, `FK_StabilityStatus`, `FK_DesignObj_MainMenu`, `FK_DesignObj_Sleeping`, `FK_DesignObj_ScreenSaver`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
+		string query = "insert into Skin (`PK_Skin`, `Description`, `FK_UI`, `MergeStandardVariation`, `DataSubdirectory`, `FK_Style`, `FK_Skin_TextPlacement`, `DrawTextBeforeChildren`, `FK_StabilityStatus`, `FK_DesignObj_MainMenu`, `FK_DesignObj_Sleeping`, `FK_DesignObj_ScreenSaver`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -677,7 +677,7 @@ condition = condition + "`PK_Skin`=" + tmp_PK_Skin;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`PK_Skin`="+pRow->PK_Skin_asSQL()+", `Description`="+pRow->Description_asSQL()+", `FK_Criteria_D`="+pRow->FK_Criteria_D_asSQL()+", `MergeStandardVariation`="+pRow->MergeStandardVariation_asSQL()+", `DataSubdirectory`="+pRow->DataSubdirectory_asSQL()+", `FK_Style`="+pRow->FK_Style_asSQL()+", `FK_Skin_TextPlacement`="+pRow->FK_Skin_TextPlacement_asSQL()+", `DrawTextBeforeChildren`="+pRow->DrawTextBeforeChildren_asSQL()+", `FK_StabilityStatus`="+pRow->FK_StabilityStatus_asSQL()+", `FK_DesignObj_MainMenu`="+pRow->FK_DesignObj_MainMenu_asSQL()+", `FK_DesignObj_Sleeping`="+pRow->FK_DesignObj_Sleeping_asSQL()+", `FK_DesignObj_ScreenSaver`="+pRow->FK_DesignObj_ScreenSaver_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
+update_values_list = update_values_list + "`PK_Skin`="+pRow->PK_Skin_asSQL()+", `Description`="+pRow->Description_asSQL()+", `FK_UI`="+pRow->FK_UI_asSQL()+", `MergeStandardVariation`="+pRow->MergeStandardVariation_asSQL()+", `DataSubdirectory`="+pRow->DataSubdirectory_asSQL()+", `FK_Style`="+pRow->FK_Style_asSQL()+", `FK_Skin_TextPlacement`="+pRow->FK_Skin_TextPlacement_asSQL()+", `DrawTextBeforeChildren`="+pRow->DrawTextBeforeChildren_asSQL()+", `FK_StabilityStatus`="+pRow->FK_StabilityStatus_asSQL()+", `FK_DesignObj_MainMenu`="+pRow->FK_DesignObj_MainMenu_asSQL()+", `FK_DesignObj_Sleeping`="+pRow->FK_DesignObj_Sleeping_asSQL()+", `FK_DesignObj_ScreenSaver`="+pRow->FK_DesignObj_ScreenSaver_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
 
 	
 		string query = "update Skin set " + update_values_list + " where " + condition;
@@ -811,12 +811,12 @@ pRow->m_Description = string(row[1],lengths[1]);
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_FK_Criteria_D = 0;
+pRow->m_FK_UI = 0;
 }
 else
 {
 pRow->is_null[2]=false;
-sscanf(row[2], "%li", &(pRow->m_FK_Criteria_D));
+sscanf(row[2], "%li", &(pRow->m_FK_UI));
 }
 
 if (row[3] == NULL)
@@ -1117,12 +1117,12 @@ pRow->m_Description = string(row[1],lengths[1]);
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_FK_Criteria_D = 0;
+pRow->m_FK_UI = 0;
 }
 else
 {
 pRow->is_null[2]=false;
-sscanf(row[2], "%li", &(pRow->m_FK_Criteria_D));
+sscanf(row[2], "%li", &(pRow->m_FK_UI));
 }
 
 if (row[3] == NULL)
@@ -1298,12 +1298,12 @@ sscanf(row[17], "%li", &(pRow->m_psc_restrict));
 }
 
 
-class Row_Criteria_D* Row_Skin::FK_Criteria_D_getrow()
+class Row_UI* Row_Skin::FK_UI_getrow()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-class Table_Criteria_D *pTable = table->database->Criteria_D_get();
-return pTable->GetRow(m_FK_Criteria_D);
+class Table_UI *pTable = table->database->UI_get();
+return pTable->GetRow(m_FK_UI);
 }
 class Row_Style* Row_Skin::FK_Style_getrow()
 {

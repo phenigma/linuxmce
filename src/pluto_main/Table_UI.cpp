@@ -16,35 +16,36 @@
 
 using namespace std;
 #include "PlutoUtils/StringUtils.h"
-#include "Table_CriteriaList.h"
+#include "Table_UI.h"
 
-#include "Table_Criteria.h"
-#include "Table_CriteriaList_CriteriaParmList.h"
+#include "Table_DesignObjVariation.h"
+#include "Table_Skin.h"
+#include "Table_StyleVariation.h"
 
 
-void Database_pluto_main::CreateTable_CriteriaList()
+void Database_pluto_main::CreateTable_UI()
 {
-	tblCriteriaList = new Table_CriteriaList(this);
+	tblUI = new Table_UI(this);
 }
 
-void Database_pluto_main::DeleteTable_CriteriaList()
+void Database_pluto_main::DeleteTable_UI()
 {
-	if( tblCriteriaList )
-		delete tblCriteriaList;
+	if( tblUI )
+		delete tblUI;
 }
 
-Table_CriteriaList::~Table_CriteriaList()
+Table_UI::~Table_UI()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		Row_CriteriaList *pRow = (Row_CriteriaList *) (*it).second;
+		Row_UI *pRow = (Row_UI *) (*it).second;
 		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		Row_CriteriaList *pRow = (Row_CriteriaList *) (*it).second;
+		Row_UI *pRow = (Row_UI *) (*it).second;
 		delete pRow;
 	}
 
@@ -56,16 +57,16 @@ Table_CriteriaList::~Table_CriteriaList()
 }
 
 
-void Row_CriteriaList::Delete()
+void Row_UI::Delete()
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-	Row_CriteriaList *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+	Row_UI *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
 			vector<TableRow*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_CriteriaList *) *i != this); i++);
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_UI *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -75,7 +76,7 @@ void Row_CriteriaList::Delete()
 		}
 		else
 		{
-			SingleLongKey key(pRow->m_PK_CriteriaList);
+			SingleLongKey key(pRow->m_PK_UI);
 			map<SingleLongKey, TableRow*, SingleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
@@ -85,17 +86,17 @@ void Row_CriteriaList::Delete()
 		}	
 }
 
-void Row_CriteriaList::Reload()
+void Row_UI::Reload()
 {
-	Row_CriteriaList *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+	Row_UI *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 	
 	
 	if (!is_added)
 	{
-		SingleLongKey key(pRow->m_PK_CriteriaList);
-		Row_CriteriaList *pRow = table->FetchRow(key);
+		SingleLongKey key(pRow->m_PK_UI);
+		Row_UI *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
 		{
@@ -107,19 +108,18 @@ void Row_CriteriaList::Reload()
 	
 }
 
-Row_CriteriaList::Row_CriteriaList(Table_CriteriaList *pTable):table(pTable)
+Row_UI::Row_UI(Table_UI *pTable):table(pTable)
 {
 	SetDefaultValues();
 }
 
-void Row_CriteriaList::SetDefaultValues()
+void Row_UI::SetDefaultValues()
 {
-	m_PK_CriteriaList = 0;
+	m_PK_UI = 0;
 is_null[0] = false;
-m_Description = "";
-is_null[1] = false;
-m_Define = "";
-is_null[2] = false;
+is_null[1] = true;
+is_null[2] = true;
+m_IncludeStandardUI = 0;
 is_null[3] = true;
 m_psc_id = 0;
 is_null[4] = true;
@@ -139,104 +139,118 @@ m_psc_restrict = 0;
 	is_modified=false;
 }
 
-long int Row_CriteriaList::PK_CriteriaList_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_UI::PK_UI_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return m_PK_CriteriaList;}
-string Row_CriteriaList::Description_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+return m_PK_UI;}
+string Row_UI::Description_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_Description;}
-string Row_CriteriaList::Define_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_UI::IncludeStandardUI_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return m_Define;}
-long int Row_CriteriaList::psc_id_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+return m_IncludeStandardUI;}
+long int Row_UI::psc_id_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_id;}
-long int Row_CriteriaList::psc_batch_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_UI::psc_batch_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_batch;}
-long int Row_CriteriaList::psc_user_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_UI::psc_user_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_user;}
-short int Row_CriteriaList::psc_frozen_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+short int Row_UI::psc_frozen_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_frozen;}
-string Row_CriteriaList::psc_mod_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+string Row_UI::psc_mod_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_mod;}
-long int Row_CriteriaList::psc_restrict_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+long int Row_UI::psc_restrict_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_restrict;}
 
 		
-void Row_CriteriaList::PK_CriteriaList_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_UI::PK_UI_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_PK_CriteriaList = val; is_modified=true; is_null[0]=false;}
-void Row_CriteriaList::Description_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+m_PK_UI = val; is_modified=true; is_null[0]=false;}
+void Row_UI::Description_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_Description = val; is_modified=true; is_null[1]=false;}
-void Row_CriteriaList::Define_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_UI::IncludeStandardUI_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_Define = val; is_modified=true; is_null[2]=false;}
-void Row_CriteriaList::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+m_IncludeStandardUI = val; is_modified=true; is_null[2]=false;}
+void Row_UI::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_id = val; is_modified=true; is_null[3]=false;}
-void Row_CriteriaList::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_UI::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_batch = val; is_modified=true; is_null[4]=false;}
-void Row_CriteriaList::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_UI::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_user = val; is_modified=true; is_null[5]=false;}
-void Row_CriteriaList::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_UI::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_frozen = val; is_modified=true; is_null[6]=false;}
-void Row_CriteriaList::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_UI::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_mod = val; is_modified=true; is_null[7]=false;}
-void Row_CriteriaList::psc_restrict_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_UI::psc_restrict_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_psc_restrict = val; is_modified=true; is_null[8]=false;}
 
 		
-bool Row_CriteriaList::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_UI::Description_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[1];}
+bool Row_UI::IncludeStandardUI_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[2];}
+bool Row_UI::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[3];}
-bool Row_CriteriaList::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_UI::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[4];}
-bool Row_CriteriaList::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_UI::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[5];}
-bool Row_CriteriaList::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_UI::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[6];}
-bool Row_CriteriaList::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_UI::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[8];}
 
 			
-void Row_CriteriaList::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_UI::Description_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[1]=val;
+is_modified=true;
+}
+void Row_UI::IncludeStandardUI_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[2]=val;
+is_modified=true;
+}
+void Row_UI::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[3]=val;
 is_modified=true;
 }
-void Row_CriteriaList::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_UI::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[4]=val;
 is_modified=true;
 }
-void Row_CriteriaList::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_UI::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[5]=val;
 is_modified=true;
 }
-void Row_CriteriaList::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_UI::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[6]=val;
 is_modified=true;
 }
-void Row_CriteriaList::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_UI::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[8]=val;
 is_modified=true;
 }
 	
 
-string Row_CriteriaList::PK_CriteriaList_asSQL()
+string Row_UI::PK_UI_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
@@ -244,40 +258,39 @@ if (is_null[0])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%li", m_PK_CriteriaList);
+sprintf(buf, "%li", m_PK_UI);
 
 return buf;
 }
 
-string Row_CriteriaList::Description_asSQL()
+string Row_UI::Description_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[1])
 return "NULL";
 
-char *buf = new char[51];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_Description.c_str(), (unsigned long) min(25,m_Description.size()));
+char *buf = new char[61];
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Description.c_str(), (unsigned long) min(30,m_Description.size()));
 string s=string()+"\""+buf+"\"";
 delete[] buf;
 return s;
 }
 
-string Row_CriteriaList::Define_asSQL()
+string Row_UI::IncludeStandardUI_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[2])
 return "NULL";
 
-char *buf = new char[51];
-mysql_real_escape_string(table->database->m_pMySQL, buf, m_Define.c_str(), (unsigned long) min(25,m_Define.size()));
-string s=string()+"\""+buf+"\"";
-delete[] buf;
-return s;
+char buf[32];
+sprintf(buf, "%hi", m_IncludeStandardUI);
+
+return buf;
 }
 
-string Row_CriteriaList::psc_id_asSQL()
+string Row_UI::psc_id_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
@@ -290,7 +303,7 @@ sprintf(buf, "%li", m_psc_id);
 return buf;
 }
 
-string Row_CriteriaList::psc_batch_asSQL()
+string Row_UI::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
@@ -303,7 +316,7 @@ sprintf(buf, "%li", m_psc_batch);
 return buf;
 }
 
-string Row_CriteriaList::psc_user_asSQL()
+string Row_UI::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
@@ -316,7 +329,7 @@ sprintf(buf, "%li", m_psc_user);
 return buf;
 }
 
-string Row_CriteriaList::psc_frozen_asSQL()
+string Row_UI::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
@@ -329,7 +342,7 @@ sprintf(buf, "%hi", m_psc_frozen);
 return buf;
 }
 
-string Row_CriteriaList::psc_mod_asSQL()
+string Row_UI::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
@@ -343,7 +356,7 @@ delete[] buf;
 return s;
 }
 
-string Row_CriteriaList::psc_restrict_asSQL()
+string Row_UI::psc_restrict_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
@@ -359,29 +372,29 @@ return buf;
 
 
 
-Table_CriteriaList::Key::Key(long int in_PK_CriteriaList)
+Table_UI::Key::Key(long int in_PK_UI)
 {
-			pk_PK_CriteriaList = in_PK_CriteriaList;
+			pk_PK_UI = in_PK_UI;
 	
 }
 
-Table_CriteriaList::Key::Key(Row_CriteriaList *pRow)
+Table_UI::Key::Key(Row_UI *pRow)
 {
 			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
-			pk_PK_CriteriaList = pRow->m_PK_CriteriaList;
+			pk_PK_UI = pRow->m_PK_UI;
 	
 }		
 
-bool Table_CriteriaList::Key_Less::operator()(const Table_CriteriaList::Key &key1, const Table_CriteriaList::Key &key2) const
+bool Table_UI::Key_Less::operator()(const Table_UI::Key &key1, const Table_UI::Key &key2) const
 {
-			if (key1.pk_PK_CriteriaList!=key2.pk_PK_CriteriaList)
-return key1.pk_PK_CriteriaList<key2.pk_PK_CriteriaList;
+			if (key1.pk_PK_UI!=key2.pk_PK_UI)
+return key1.pk_PK_UI<key2.pk_PK_UI;
 else
 return false;	
 }	
 
-bool Table_CriteriaList::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Table_UI::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
@@ -390,14 +403,14 @@ bool Table_CriteriaList::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailed
 	{
 		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_CriteriaList *pRow = (Row_CriteriaList *)*i;
+		Row_UI *pRow = (Row_UI *)*i;
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_CriteriaList_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_UI_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->IncludeStandardUI_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
 
 	
-		string query = "insert into CriteriaList (`PK_CriteriaList`, `Description`, `Define`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
+		string query = "insert into UI (`PK_UI`, `Description`, `IncludeStandardUI`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -419,11 +432,11 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_CriteriaLis
 			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
 		
 			if (id!=0)
-pRow->m_PK_CriteriaList=id;
+pRow->m_PK_UI=id;
 	
 			
 			addedRows.erase(i);
-			SingleLongKey key(pRow->m_PK_CriteriaList);	
+			SingleLongKey key(pRow->m_PK_UI);	
 			cachedRows[key] = pRow;
 					
 			
@@ -440,23 +453,23 @@ pRow->m_PK_CriteriaList=id;
 	for (map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
 		if	(((*i).second)->is_modified_get())
 	{
-		Row_CriteriaList* pRow = (Row_CriteriaList*) (*i).second;	
-		SingleLongKey key(pRow->m_PK_CriteriaList);
+		Row_UI* pRow = (Row_UI*) (*i).second;	
+		SingleLongKey key(pRow->m_PK_UI);
 
-		char tmp_PK_CriteriaList[32];
-sprintf(tmp_PK_CriteriaList, "%li", key.pk);
+		char tmp_PK_UI[32];
+sprintf(tmp_PK_UI, "%li", key.pk);
 
 
 string condition;
-condition = condition + "`PK_CriteriaList`=" + tmp_PK_CriteriaList;
+condition = condition + "`PK_UI`=" + tmp_PK_UI;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`PK_CriteriaList`="+pRow->PK_CriteriaList_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Define`="+pRow->Define_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
+update_values_list = update_values_list + "`PK_UI`="+pRow->PK_UI_asSQL()+", `Description`="+pRow->Description_asSQL()+", `IncludeStandardUI`="+pRow->IncludeStandardUI_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
 
 	
-		string query = "update CriteriaList set " + update_values_list + " where " + condition;
+		string query = "update UI set " + update_values_list + " where " + condition;
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
@@ -478,7 +491,7 @@ update_values_list = update_values_list + "`PK_CriteriaList`="+pRow->PK_Criteria
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_CriteriaList* pRow = (Row_CriteriaList*) (*i);
+		Row_UI* pRow = (Row_UI*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -491,17 +504,17 @@ update_values_list = update_values_list + "`PK_CriteriaList`="+pRow->PK_Criteria
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_CriteriaList* pRow = (Row_CriteriaList*) (*i).second;	
+		Row_UI* pRow = (Row_UI*) (*i).second;	
 
-		char tmp_PK_CriteriaList[32];
-sprintf(tmp_PK_CriteriaList, "%li", key.pk);
+		char tmp_PK_UI[32];
+sprintf(tmp_PK_UI, "%li", key.pk);
 
 
 string condition;
-condition = condition + "`PK_CriteriaList`=" + tmp_PK_CriteriaList;
+condition = condition + "`PK_UI`=" + tmp_PK_UI;
 
 	
-		string query = "delete from CriteriaList where " + condition;
+		string query = "delete from UI where " + condition;
 		
 		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
@@ -510,7 +523,7 @@ condition = condition + "`PK_CriteriaList`=" + tmp_PK_CriteriaList;
 			return false;
 		}	
 		
-		pRow = (Row_CriteriaList*) (*i).second;;
+		pRow = (Row_UI*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}
@@ -518,7 +531,7 @@ condition = condition + "`PK_CriteriaList`=" + tmp_PK_CriteriaList;
 	return true;
 }
 
-bool Table_CriteriaList::GetRows(string where_statement,vector<class Row_CriteriaList*> *rows)
+bool Table_UI::GetRows(string where_statement,vector<class Row_UI*> *rows)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
@@ -529,13 +542,13 @@ bool Table_CriteriaList::GetRows(string where_statement,vector<class Row_Criteri
 		StringUtils::StartsWith(where_statement,"right ",true) ||
 		StringUtils::StartsWith(where_statement,"full ",true) ||
 		StringUtils::StartsWith(where_statement,"outer ",true) )
-		query = "select `CriteriaList`.* from CriteriaList " + where_statement;
+		query = "select `UI`.* from UI " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else if( where_statement.size() )
-		query = "select `CriteriaList`.* from CriteriaList where " + where_statement;
+		query = "select `UI`.* from UI where " + where_statement;
 	else
-		query = "select `CriteriaList`.* from CriteriaList";
+		query = "select `UI`.* from UI";
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
@@ -560,17 +573,17 @@ bool Table_CriteriaList::GetRows(string where_statement,vector<class Row_Criteri
 	{	
 		unsigned long *lengths = mysql_fetch_lengths(res);
 
-		Row_CriteriaList *pRow = new Row_CriteriaList(this);
+		Row_UI *pRow = new Row_UI(this);
 		
 		if (row[0] == NULL)
 {
 pRow->is_null[0]=true;
-pRow->m_PK_CriteriaList = 0;
+pRow->m_PK_UI = 0;
 }
 else
 {
 pRow->is_null[0]=false;
-sscanf(row[0], "%li", &(pRow->m_PK_CriteriaList));
+sscanf(row[0], "%li", &(pRow->m_PK_UI));
 }
 
 if (row[1] == NULL)
@@ -587,12 +600,12 @@ pRow->m_Description = string(row[1],lengths[1]);
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_Define = "";
+pRow->m_IncludeStandardUI = 0;
 }
 else
 {
 pRow->is_null[2]=false;
-pRow->m_Define = string(row[2],lengths[2]);
+sscanf(row[2], "%hi", &(pRow->m_IncludeStandardUI));
 }
 
 if (row[3] == NULL)
@@ -665,14 +678,14 @@ sscanf(row[8], "%li", &(pRow->m_psc_restrict));
 
 		//checking for duplicates
 
-		SingleLongKey key(pRow->m_PK_CriteriaList);
+		SingleLongKey key(pRow->m_PK_UI);
 		
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (Row_CriteriaList *)(*i).second;
+			pRow = (Row_UI *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -685,11 +698,11 @@ sscanf(row[8], "%li", &(pRow->m_psc_restrict));
 	return true;					
 }
 
-Row_CriteriaList* Table_CriteriaList::AddRow()
+Row_UI* Table_UI::AddRow()
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
-	Row_CriteriaList *pRow = new Row_CriteriaList(this);
+	Row_UI *pRow = new Row_UI(this);
 	pRow->is_added=true;
 	addedRows.push_back(pRow);
 	return pRow;		
@@ -697,11 +710,11 @@ Row_CriteriaList* Table_CriteriaList::AddRow()
 
 
 
-Row_CriteriaList* Table_CriteriaList::GetRow(long int in_PK_CriteriaList)
+Row_UI* Table_UI::GetRow(long int in_PK_UI)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
-	SingleLongKey row_key(in_PK_CriteriaList);
+	SingleLongKey row_key(in_PK_UI);
 
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
@@ -714,9 +727,9 @@ Row_CriteriaList* Table_CriteriaList::GetRow(long int in_PK_CriteriaList)
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (Row_CriteriaList*) (*i).second;
+		return (Row_UI*) (*i).second;
 	//we have to fetch row
-	Row_CriteriaList* pRow = FetchRow(row_key);
+	Row_UI* pRow = FetchRow(row_key);
 
 	if (pRow!=NULL)
 		cachedRows[row_key] = pRow;
@@ -725,20 +738,20 @@ Row_CriteriaList* Table_CriteriaList::GetRow(long int in_PK_CriteriaList)
 
 
 
-Row_CriteriaList* Table_CriteriaList::FetchRow(SingleLongKey &key)
+Row_UI* Table_UI::FetchRow(SingleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
-	char tmp_PK_CriteriaList[32];
-sprintf(tmp_PK_CriteriaList, "%li", key.pk);
+	char tmp_PK_UI[32];
+sprintf(tmp_PK_UI, "%li", key.pk);
 
 
 string condition;
-condition = condition + "`PK_CriteriaList`=" + tmp_PK_CriteriaList;
+condition = condition + "`PK_UI`=" + tmp_PK_UI;
 
 
-	string query = "select * from CriteriaList where " + condition;		
+	string query = "select * from UI where " + condition;		
 
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
@@ -767,17 +780,17 @@ condition = condition + "`PK_CriteriaList`=" + tmp_PK_CriteriaList;
 						
 	unsigned long *lengths = mysql_fetch_lengths(res);
 
-	Row_CriteriaList *pRow = new Row_CriteriaList(this);
+	Row_UI *pRow = new Row_UI(this);
 		
 	if (row[0] == NULL)
 {
 pRow->is_null[0]=true;
-pRow->m_PK_CriteriaList = 0;
+pRow->m_PK_UI = 0;
 }
 else
 {
 pRow->is_null[0]=false;
-sscanf(row[0], "%li", &(pRow->m_PK_CriteriaList));
+sscanf(row[0], "%li", &(pRow->m_PK_UI));
 }
 
 if (row[1] == NULL)
@@ -794,12 +807,12 @@ pRow->m_Description = string(row[1],lengths[1]);
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_Define = "";
+pRow->m_IncludeStandardUI = 0;
 }
 else
 {
 pRow->is_null[2]=false;
-pRow->m_Define = string(row[2],lengths[2]);
+sscanf(row[2], "%hi", &(pRow->m_IncludeStandardUI));
 }
 
 if (row[3] == NULL)
@@ -878,19 +891,26 @@ sscanf(row[8], "%li", &(pRow->m_psc_restrict));
 
 
 
-void Row_CriteriaList::Criteria_FK_CriteriaList_getrows(vector <class Row_Criteria*> *rows)
+void Row_UI::DesignObjVariation_FK_UI_getrows(vector <class Row_DesignObjVariation*> *rows)
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-class Table_Criteria *pTable = table->database->Criteria_get();
-pTable->GetRows("`FK_CriteriaList`=" + StringUtils::itos(m_PK_CriteriaList),rows);
+class Table_DesignObjVariation *pTable = table->database->DesignObjVariation_get();
+pTable->GetRows("`FK_UI`=" + StringUtils::itos(m_PK_UI),rows);
 }
-void Row_CriteriaList::CriteriaList_CriteriaParmList_FK_CriteriaList_getrows(vector <class Row_CriteriaList_CriteriaParmList*> *rows)
+void Row_UI::Skin_FK_UI_getrows(vector <class Row_Skin*> *rows)
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-class Table_CriteriaList_CriteriaParmList *pTable = table->database->CriteriaList_CriteriaParmList_get();
-pTable->GetRows("`FK_CriteriaList`=" + StringUtils::itos(m_PK_CriteriaList),rows);
+class Table_Skin *pTable = table->database->Skin_get();
+pTable->GetRows("`FK_UI`=" + StringUtils::itos(m_PK_UI),rows);
+}
+void Row_UI::StyleVariation_FK_UI_getrows(vector <class Row_StyleVariation*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_StyleVariation *pTable = table->database->StyleVariation_get();
+pTable->GetRows("`FK_UI`=" + StringUtils::itos(m_PK_UI),rows);
 }
 
 

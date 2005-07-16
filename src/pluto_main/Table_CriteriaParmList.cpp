@@ -22,7 +22,6 @@ using namespace std;
 #include "Table_CannedEvents_CriteriaParmList.h"
 #include "Table_CriteriaList_CriteriaParmList.h"
 #include "Table_CriteriaParm.h"
-#include "Table_CriteriaParm_D.h"
 
 
 void Database_pluto_main::CreateTable_CriteriaParmList()
@@ -950,13 +949,6 @@ void Row_CriteriaParmList::CriteriaParm_FK_CriteriaParmList_getrows(vector <clas
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_CriteriaParm *pTable = table->database->CriteriaParm_get();
-pTable->GetRows("`FK_CriteriaParmList`=" + StringUtils::itos(m_PK_CriteriaParmList),rows);
-}
-void Row_CriteriaParmList::CriteriaParm_D_FK_CriteriaParmList_getrows(vector <class Row_CriteriaParm_D*> *rows)
-{
-PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-
-class Table_CriteriaParm_D *pTable = table->database->CriteriaParm_D_get();
 pTable->GetRows("`FK_CriteriaParmList`=" + StringUtils::itos(m_PK_CriteriaParmList),rows);
 }
 
