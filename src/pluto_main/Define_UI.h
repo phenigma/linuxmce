@@ -1,6 +1,10 @@
 #ifndef __Define_UI_H__
 #define __Define_UI_H__
 
+#define UI_Normal_VGA_CONST 1
+#define UI_PDA_CONST 2
+#define UI_Symbian_Series_60_Phone_CONST 3
+#define UI_Audi_RSE_CONST 4
 
 #define UI_TABLE "UI"
 #define UI_PK_UI_FIELD "PK_UI"

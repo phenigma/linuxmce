@@ -84,6 +84,7 @@
 #define DEVICEDATA_ScreenWidth_CONST 100
 #define DEVICEDATA_ScreenHeight_CONST 101
 #define DEVICEDATA_Rotation_CONST 102
+#define DEVICEDATA_EK_MediaProvider_CONST 103
 #define DEVICEDATA_PK_UI_CONST 104
 
 #define DEVICEDATA_TABLE "DeviceData"
