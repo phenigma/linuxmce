@@ -76,7 +76,7 @@ function wizardOrbiters($output,$dbADO) {
 						DeviceCategory.Description AS CategoryName,
 						Manufacturer.Description AS ManufacturerName,
 						IsIPBased,
-						Regen
+						RegenInProgress
 					FROM Device 
 						INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
 						INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory
@@ -269,7 +269,7 @@ function wizardOrbiters($output,$dbADO) {
 					<td align="right"><input type="checkbox" name="reset_'.$rowD['PK_Device'].'" value="1"></td>
 					<td>Reset Router when done regenerating</td>
 				</tr>';
-			if(@$rowD['Regen']==1){
+			if(@$rowD['RegenInProgress']==1){
 				$out.='
 					<tr>
 						<td colspan="2" align="center"><B><font color="red">Orbiter Generation in process</font></B></td>
