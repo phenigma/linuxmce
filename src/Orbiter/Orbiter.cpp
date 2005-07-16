@@ -1025,8 +1025,8 @@ bool Orbiter::RenderCell( class DesignObj_DataGrid *pObj,  class DataGridTable *
     if ( w>4 && h >4 )
     {
 		if ( !bTransparentCell )
-//			SolidRectangle( point.X + x,  point.Y + y,  w,  h,  pCell->m_AltColor ? pCell->m_AltColor : pTextStyle->m_BackColor);
-			SolidRectangle( point.X + x,  point.Y + y,  w,  h,  color);
+			SolidRectangle( point.X + x,  point.Y + y,  w,  h,  pCell->m_AltColor ? pCell->m_AltColor : pTextStyle->m_BackColor);
+
 		/*
 		if ( pObj->BorderColor2.m_Value!=pObj->BorderColor.m_Value )
         {
