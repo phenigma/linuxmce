@@ -1017,12 +1017,7 @@ RendererImage * Renderer::Subset(RendererImage *pRenderImage, PlutoRectangle rec
 void DoRender(string font, string output,int width,int height,class DesignObj_Generator *ocDesignObj,int Rotate)
 {
     static Renderer r(font,output,width,height);
-	if( Rotate==90 )  // SDL treats rotation as counter clockwise, we do clockwise
-        r.m_Rotate=270;
-	else if( Rotate==180 )
-        r.m_Rotate=180;
-	else if( Rotate==270 )
-        r.m_Rotate=90;
+	r.m_Rotate = 360 - Rotate;  // SDL treats rotation as counter clockwise, we do clockwise
     r.RenderObject(NULL,ocDesignObj,PlutoPoint(0,0),-1);  // Render everything
 }
 

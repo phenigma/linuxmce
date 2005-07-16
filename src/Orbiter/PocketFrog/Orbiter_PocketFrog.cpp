@@ -422,7 +422,45 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 #else //winxp/2000
   */
 
-	HDC hdc = GetDisplay()->GetBackBuffer()->GetDC(false);
+	RECT rectLocation;
+	rectLocation.left   = 0;
+	rectLocation.top    = 0;
+
+	HDC hdc_drawing=0, hdc = GetDisplay()->GetBackBuffer()->GetDC(false);
+	if( m_iRotation==0 )
+	{
+		hdc_drawing=hdc;
+		rectLocation.right  = Text->m_rPosition.Width;
+		rectLocation.bottom = Text->m_rPosition.Height;
+	}
+	else
+	{
+		if( m_iRotation==180 )
+		{
+			rectLocation.right  = Text->m_rPosition.Width;
+			rectLocation.bottom = Text->m_rPosition.Height;
+		}
+		else
+		{
+			rectLocation.right  = Text->m_rPosition.Height;
+			rectLocation.bottom = Text->m_rPosition.Width;
+		}
+
+		hdc_drawing = CreateCompatibleDC(GetDisplay()->GetBackBuffer()->GetDC(false));
+		// Create a bitmap big enough for our client rectangle.
+		HBITMAP hbmMem = ::CreateCompatibleBitmap(hdc,
+										rectLocation.right,
+										rectLocation.bottom);
+
+		HGDIOBJ  hbmOld = ::SelectObject(hdc_drawing, hbmMem);
+		::DeleteObject(hbmOld);
+
+		HBRUSH hbr = ::CreateSolidBrush(RGB(128,0,0));
+		HBRUSH hbrOld = (HBRUSH) ::SelectObject(hdc_drawing,hbr);
+		::FillRect(hdc_drawing,&rectLocation,hbr);
+		::SelectObject(hdc_drawing,hbrOld);
+		::DeleteObject(hbr);
+	}
 	
 	LOGFONT lf;
 	HFONT hFontNew, hFontOld;
@@ -431,15 +469,21 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 	memset(&lf, 0, sizeof(LOGFONT));
 
 	lf.lfHeight		= pTextStyle->m_iPixelHeight;
-	lf.lfQuality	= DRAFT_QUALITY;
+	if( m_iRotation==0 )
+		lf.lfQuality	= DRAFT_QUALITY;
+	else
+		lf.lfQuality	= NONANTIALIASED_QUALITY;
 	lf.lfWeight		= pTextStyle->m_bBold ? FW_EXTRABOLD : FW_NORMAL;
 	lf.lfItalic		= pTextStyle->m_bItalic;
 	lf.lfUnderline	= pTextStyle->m_bUnderline;
-
-    //use this to rotate text
-    //lf.lfOrientation = 90;
-    //lf.lfEscapement = 90;
-
+/*	MS' Gdi doesn't seem to work, we have to hack in a work around
+	if( m_iRotation )
+	{
+		//use this to rotate text
+		lf.lfOrientation = (360 - m_iRotation) * 10;
+		lf.lfEscapement = (360 - m_iRotation) * 10;
+	}
+*/
 #ifdef WINCE
     wchar_t wFaceName[1024];
     mbstowcs(wFaceName, pTextStyle->m_sFont.c_str(), 1024);	
@@ -449,23 +493,8 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 #endif
 
 	hFontNew = ::CreateFontIndirect(&lf);
-	hFontOld = (HFONT) ::SelectObject(hdc, hFontNew);
+	hFontOld = (HFONT) ::SelectObject(hdc_drawing, hFontNew);
 	
-	RECT rectLocation;
-	rectLocation.left   = Text->m_rPosition.X;
-	rectLocation.top    = Text->m_rPosition.Y;
-	rectLocation.right  = Text->m_rPosition.X + Text->m_rPosition.Width;
-	rectLocation.bottom = Text->m_rPosition.Y + Text->m_rPosition.Height;
-
-	int iOldHeight = rectLocation.bottom - rectLocation.top;
-
-	RECT rectOld = 
-	{
-		rectLocation.left,
-		rectLocation.top,
-		rectLocation.right,
-		rectLocation.bottom
-	};
 
 #ifdef WINCE
     wchar_t wText[1024];
@@ -479,54 +508,65 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 #endif
 
 	//calculate rect first
-	::DrawText(hdc, TEXT_TO_RENDER, int(TextToDisplay.length()), &rectLocation, 
+	::DrawText(hdc_drawing, TEXT_TO_RENDER, int(TextToDisplay.length()), &rectLocation, 
 		DT_WORDBREAK | DT_NOPREFIX | DT_CALCRECT | DT_MODIFYSTRING | DT_END_ELLIPSIS ); 
 
+	int iRealHeight = rectLocation.bottom;
+	if( iRealHeight>Text->m_rPosition.Height )
+		iRealHeight=Text->m_rPosition.Height; // Crop to the area
 
-	int iRealHeight = rectLocation.bottom - rectLocation.top;
+	// Figure out where to put this
+	CalcTextRectangle(rectLocation,Text->m_rPosition,m_iRotation,iRealHeight,Text->m_iPK_VertAlignment);
 
-	rectLocation.top    = rectOld.top + (iOldHeight - iRealHeight) / 2;
-	rectLocation.bottom = rectOld.bottom;
-	rectLocation.left   = rectOld.left;
-	rectLocation.right  = rectOld.right;
+	if( m_iRotation==0 )
+	{
+		rectLocation.left += point.X;
+		rectLocation.right += point.X;
+		rectLocation.top += point.Y;
+		rectLocation.bottom += point.Y;
+	}
 
-	::SetTextColor(hdc, RGB(pTextStyle->m_ForeColor.R(), pTextStyle->m_ForeColor.G(), pTextStyle->m_ForeColor.B()));
-	::SetBkMode(hdc, TRANSPARENT);
-
-	if(rectLocation.top < Text->m_rPosition.Y)
-		rectLocation.top = Text->m_rPosition.Y;
-
-	if(rectLocation.bottom > rectLocation.top + Text->m_rPosition.Width)
-		rectLocation.bottom = rectLocation.top + Text->m_rPosition.Width;
-
-    rectLocation.left += point.X;
-    rectLocation.right += point.X;
-    rectLocation.top += point.Y;
-    rectLocation.bottom += point.Y;
+ 	::SetTextColor(hdc_drawing, RGB(255,255,255));//pTextStyle->m_ForeColor.R(), pTextStyle->m_ForeColor.G(), pTextStyle->m_ForeColor.B()));
+	::SetBkMode(hdc_drawing, TRANSPARENT);
 
 	switch (Text->m_iPK_HorizAlignment)
 	{
 		case HORIZALIGNMENT_Left_CONST: 
-			::DrawText(hdc, TEXT_TO_RENDER, int(TextToDisplay.length()), &rectLocation, 
+			::DrawText(hdc_drawing, TEXT_TO_RENDER, int(TextToDisplay.length()), &rectLocation, 
 				DT_WORDBREAK | DT_NOPREFIX | DT_MODIFYSTRING | DT_END_ELLIPSIS); 
 		break;
 
         case HORIZALIGNMENT_Center_CONST: 
-            ::DrawText(hdc, TEXT_TO_RENDER, int(TextToDisplay.length()), &rectLocation, 
+            ::DrawText(hdc_drawing, TEXT_TO_RENDER, int(TextToDisplay.length()), &rectLocation, 
                 DT_WORDBREAK | DT_CENTER | DT_NOPREFIX | DT_MODIFYSTRING | DT_END_ELLIPSIS); 
         break;
 
         default: 
-            ::DrawText(hdc, TEXT_TO_RENDER, int(TextToDisplay.length()), &rectLocation, 
-                DT_WORDBREAK | DT_CENTER | DT_NOPREFIX | DT_MODIFYSTRING | DT_END_ELLIPSIS); 
+            ::DrawText(hdc_drawing, TEXT_TO_RENDER, int(TextToDisplay.length()), &rectLocation, 
+				DT_WORDBREAK | DT_CENTER | DT_NOPREFIX | DT_MODIFYSTRING | DT_END_ELLIPSIS); 
             break;
 	}
 
-	::SelectObject(hdc, hFontOld);
+	::SelectObject(hdc_drawing, hFontOld);
 	::DeleteObject(hFontNew);
 
-	GetDisplay()->GetBackBuffer()->ReleaseDC(hdc);
+	if( hdc_drawing!=hdc )
+	{
+		for(int x=0;x<(m_iRotation==180 ? Text->m_rPosition.Width : Text->m_rPosition.Height);x++)
+		{
+			for(int y=0;y<(m_iRotation==180 ? Text->m_rPosition.Height: Text->m_rPosition.Width);y++)
+			{
+				COLORREF c = ::GetPixel(hdc_drawing,x,y);
+				if( c==132 )
+					continue;  // Unchanged
+				if( m_iRotation==90 )
+					::SetPixel(hdc,Text->m_rPosition.Right()-y,Text->m_rPosition.Y+x,c);
+			}
+		}
+		bool b2=DeleteDC(hdc_drawing);
+	}
 
+	GetDisplay()->GetBackBuffer()->ReleaseDC(hdc);
 //#endif
 }
 //-----------------------------------------------------------------------------------------------------
@@ -861,3 +901,51 @@ void Orbiter_PocketFrog::PingFailed()
 #endif
 }
 //-----------------------------------------------------------------------------------------------------
+
+void Orbiter_PocketFrog::CalcTextRectangle(RECT &rectLocation,PlutoRectangle &rPosition,int iRotation,int iHeight,int iVertAlignment)
+{
+	if( m_iRotation==0 ) 
+	{
+		rectLocation.left = rPosition.Left();
+		rectLocation.right = rPosition.Right();
+
+		if( iVertAlignment==VERTALIGNMENT_Bottom_CONST )
+			rectLocation.top = rPosition.Bottom() - iHeight;
+		else if( iVertAlignment==VERTALIGNMENT_Middle_CONST )
+			rectLocation.top = rPosition.Top() + ((rPosition.Height - iHeight)/2);
+		else
+			rectLocation.top = rPosition.Top();
+
+		rectLocation.bottom = rectLocation.top+iHeight;
+	}
+	else if( m_iRotation==90 )
+	{
+		rectLocation.left = 0;
+		rectLocation.right = rPosition.Height;
+
+		if( iVertAlignment==VERTALIGNMENT_Bottom_CONST )
+			rectLocation.top = rPosition.Width - iHeight;
+		else if( iVertAlignment==VERTALIGNMENT_Middle_CONST )
+			rectLocation.top = ((rPosition.Width - iHeight)/2);
+		else
+			rectLocation.top = 0;
+
+		rectLocation.bottom = rectLocation.top+iHeight;
+	}
+	/*
+	else if( m_iRotation==90 )
+	{
+		rectLocation.top = rPosition.Top();
+		rectLocation.bottom = rPosition.Bottom();
+
+		if( iVertAlignment==VERTALIGNMENT_Bottom_CONST )
+			rectLocation.left = rPosition.Left();
+		else if( iVertAlignment==VERTALIGNMENT_Middle_CONST )
+			rectLocation.left = rPosition.Left() + ((rPosition.Width - iHeight)/2);
+		else
+			rectLocation.left = rPosition.Right() - iHeight;
+
+		rectLocation.right = rectLocation.left+iHeight;
+	}
+	*/
+}

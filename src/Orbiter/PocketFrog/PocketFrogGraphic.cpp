@@ -70,11 +70,12 @@ bool PocketFrogGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
 
     if(iRotation)
     {
+		iRotation = 360-iRotation;  // We use cw, they ccw
         Surface *pSourceSurface = m_pSurface;
 
         m_pSurface = pDisplayDevice->CreateSurface(m_pSurface->m_width, m_pSurface->m_height);
         Rasterizer *pRasterizer = pDisplayDevice->CreateRasterizer(m_pSurface);
-        pRasterizer->BlitRotated( 0, 0, float(iRotation * M_PI / 360.), pSourceSurface); 
+        pRasterizer->BlitRotated( m_pSurface->m_width/2, m_pSurface->m_height/2, float(iRotation * M_PI / 180.), pSourceSurface); 
 
         delete pSourceSurface;
     }

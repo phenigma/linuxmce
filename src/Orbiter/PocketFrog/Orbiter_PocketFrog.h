@@ -101,6 +101,7 @@ public:
 	virtual void CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage);
 
     virtual void AdjustWindowSize(int iWidth, int iHeight);
+	void CalcTextRectangle(RECT &rectLocation,PlutoRectangle &rPosition,int iRotation,int iHeight,int iVertAlignment);
 
 	bool SelfUpdate();
 };
