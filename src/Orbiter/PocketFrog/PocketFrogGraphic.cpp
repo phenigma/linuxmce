@@ -80,6 +80,9 @@ bool PocketFrogGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
         delete pSourceSurface;
     }
 
+	Width = m_pSurface->m_width;
+	Height = m_pSurface->m_height;
+
 	return true;
 }
 //-------------------------------------------------------------------------------------------------------

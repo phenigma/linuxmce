@@ -679,7 +679,7 @@ g_pPlutoLogger->Write( LV_STATUS, "Exiting Redraw Objects" );
 //-----------------------------------------------------------------------------------------------------------
 void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Screen, PlutoPoint point)
 {
-if( pObj->m_ObjectID.find("2607")!=string::npos) //&& this->m_pScreenHistory_Current && this->m_pScreenHistory_Current->m_pObj->m_ObjectID.find("1255")!=string::npos )
+if( pObj->m_ObjectID.find("3351")!=string::npos) //&& this->m_pScreenHistory_Current && this->m_pScreenHistory_Current->m_pObj->m_ObjectID.find("1255")!=string::npos )
 {
 int k=2;
 }
@@ -750,14 +750,14 @@ g_pPlutoLogger->Write( LV_STATUS, "object: %s  not visible: %d", pObj->m_ObjectI
         if( pvectGraphic )
 			pObj->m_pvectCurrentGraphic = pvectGraphic;
         if( pObj->m_pvectCurrentGraphic )
-            RenderGraphic(pObj, rectTotal, false, point);
+            RenderGraphic(pObj, rectTotal, pObj->m_bDisableAspectLock, point);
     }
     else if( pObj->m_bIsBoundToLocation )
     {
         if( m_pLocationInfo && m_pLocationInfo->m_pvectGraphic )
             pObj->m_pvectCurrentGraphic = m_pLocationInfo->m_pvectGraphic;
         if( pObj->m_pvectCurrentGraphic )
-            RenderGraphic(pObj, rectTotal, false, point);
+            RenderGraphic(pObj, rectTotal, pObj->m_bDisableAspectLock, point);
     }
     // Maybe we're showing a non standard state
     else if(  pObj->m_pGraphicToUndoSelect && pObj->m_GraphicToDisplay==GRAPHIC_NORMAL  )
@@ -768,7 +768,7 @@ g_pPlutoLogger->Write( LV_STATUS, "object: %s  not visible: %d", pObj->m_ObjectI
 		vectGraphicToUndoSelect.push_back(pObj->m_pGraphicToUndoSelect);
 		pObj->m_pvectCurrentGraphic = &vectGraphicToUndoSelect;
 
-		RenderGraphic( pObj,  rectTotal, false, point );
+		RenderGraphic( pObj,  rectTotal, pObj->m_bDisableAspectLock, point );
 
         pObj->m_pvectCurrentGraphic = pvectGraphic_Hold;
 
@@ -778,7 +778,7 @@ g_pPlutoLogger->Write( LV_STATUS, "object: %s  not visible: %d", pObj->m_ObjectI
     }
     else if(  pObj->m_pvectCurrentGraphic  )
     {
-        RenderGraphic( pObj,  rectTotal, false, point );
+        RenderGraphic( pObj,  rectTotal, pObj->m_bDisableAspectLock, point );
     }
 
     if(pObj == m_pObj_Highlighted)
@@ -4796,7 +4796,7 @@ void Orbiter::GetVideoFrame( void *data )
 			DCE::CMD_Get_Video_Frame CMD_Get_Video_Frame( m_dwPK_Device,  atoi( pObj->GetParameterValue( DESIGNOBJPARAMETER_Source_CONST ).c_str(  ) ), "0",  0 /* stream */, pObj->m_rBackgroundPosition.Width, pObj->m_rBackgroundPosition.Height, &pBuffer, &Size, &sFormat );
 			if(  SendCommand( CMD_Get_Video_Frame ) && pBuffer  )
 			{
-				CMD_Update_Object_Image( pObj->m_ObjectID,  sFormat ,  pBuffer,  Size, "" );
+				CMD_Update_Object_Image( pObj->m_ObjectID,  sFormat ,  pBuffer,  Size, "1" );
                 delete [] pBuffer; //we don't need it anymore
 			}
             else
