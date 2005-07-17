@@ -345,14 +345,6 @@
 #define DESIGNOBJ_butMoviesLibrary_CONST 2141
 #define DESIGNOBJ_butPicturesLibrary_CONST 2142
 #define DESIGNOBJ_butHomeVideoLibrary_CONST 2143
-#define DESIGNOBJ_objGotoRemote1_CONST 2149
-#define DESIGNOBJ_objGotoRemote1sel_CONST 2150
-#define DESIGNOBJ_objGotoRemote2_CONST 2151
-#define DESIGNOBJ_objGotoMediaCentral_CONST 2153
-#define DESIGNOBJ_objGotoMediaCentralsel_CONST 2154
-#define DESIGNOBJ_objGotoGuide_CONST 2155
-#define DESIGNOBJ_objGotoGuidesel_CONST 2156
-#define DESIGNOBJ_objGotoGlance_CONST 2158
 #define DESIGNOBJ_objHomeArea_CONST 2160
 #define DESIGNOBJ_mnuDVDRemote_CONST 2165
 #define DESIGNOBJ_butBurning_CONST 2173
@@ -526,7 +518,6 @@
 #define DESIGNOBJ_butIndexC_CONST 2450
 #define DESIGNOBJ_butIndexD_CONST 2451
 #define DESIGNOBJ_grpFileListIndex_CONST 2452
-#define DESIGNOBJ_butAdvancedPlutoCD_CONST 2453
 #define DESIGNOBJ_butCurrentlyPlaying_CONST 2454
 #define DESIGNOBJ_objNowPlayingLong_CONST 2455
 #define DESIGNOBJ_grpMediaNavigation_CONST 2456
@@ -1038,6 +1029,9 @@
 #define DESIGNOBJ_objDatagridBookmarkUp_CONST 3561
 #define DESIGNOBJ_objDatagridBookmarkDown_CONST 3562
 #define DESIGNOBJ_grpNumberPadPhone_CONST 3563
+#define DESIGNOBJ_grpSeekFileList_Narrow_CONST 3567
+#define DESIGNOBJ_grpUpDownBookmarks_Horiz_CONST 3568
+#define DESIGNOBJ_grpWideKeyboard_pda_CONST 3569
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

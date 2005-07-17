@@ -513,6 +513,7 @@
 #define TEXT_ripping_cant_play_disc_CONST 1189
 #define TEXT_Abort_ripping_CONST 1190
 #define TEXT_Last_Datagrid_Cell_CONST 1191
+#define TEXT_Bookmark_here_CONST 1193
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
