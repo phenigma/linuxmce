@@ -557,7 +557,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 			for(int y=0;y<(m_iRotation==180 ? Text->m_rPosition.Height: Text->m_rPosition.Width);y++)
 			{
 				COLORREF c = ::GetPixel(hdc_drawing,x,y);
-				if( c==132 )
+				if( c==132 || c==128 )
 					continue;  // Unchanged
 				if( m_iRotation==90 )
 					::SetPixel(hdc,Text->m_rPosition.Right()-y,Text->m_rPosition.Y+x,c);
