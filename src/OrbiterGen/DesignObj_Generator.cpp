@@ -83,7 +83,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
     m_bRendered=false;
 	m_bUseOCG=pGenerator->m_bUseOCG;
 	m_bIsPopup=false;
-	m_bPreserveAspectRatio=true;
+	m_bPreserveAspectRatio=(m_pOrbiterGenerator->m_pRow_Size->PreserveAspectRatio_get()==1);
 	if( ocoParent )
 		m_iScale=ocoParent->m_iScale;
 	else
@@ -99,7 +99,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
     m_bDontShare=bDontShare;
     m_bUsingCache=false;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==2607 )/* ||  m_pRow_DesignObj->PK_DesignObj_get()==2212 || 
+if( m_pRow_DesignObj->PK_DesignObj_get()==3413 )/* ||  m_pRow_DesignObj->PK_DesignObj_get()==2212 || 
    m_pRow_DesignObj->PK_DesignObj_get()==2213 ||  m_pRow_DesignObj->PK_DesignObj_get()==2211 ||
    m_pRow_DesignObj->PK_DesignObj_get()==1881 ||  m_pRow_DesignObj->PK_DesignObj_get()==2228 ||
    m_pRow_DesignObj->PK_DesignObj_get()==3531 ||  m_pRow_DesignObj->PK_DesignObj_get()==3534 )// || m_pRow_DesignObj->PK_DesignObj_get()==3471 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )*/
@@ -135,6 +135,9 @@ if( m_pRow_DesignObj->PK_DesignObj_get()==2147 )// || m_pRow_DesignObj->PK_Desig
 	if( bAddToGenerated )
     {
 		cout << "Generating screen: " << drDesignObj->PK_DesignObj_get() << " in orbiter: " << pGenerator->m_pRow_Device->PK_Device_get() << endl;
+		if( m_pOrbiterGenerator->m_pRow_Size->PreserveAspectRatio_get()==2 )  // Means only preserve the backgrounds
+			m_bPreserveAspectRatio=true;
+
         listDesignObj_Generator *al = m_pOrbiterGenerator->m_htGeneratedScreens[drDesignObj->PK_DesignObj_get()];
         if( al==NULL )
         {
@@ -1182,10 +1185,11 @@ void DesignObj_Generator::PickVariation(OrbiterGenerator *pGenerator,class Row_D
         // see if a specific criteria was specified for this skin
         Row_Device *pDevice = pGenerator->mds.Device_get()->GetRow(pGenerator->m_pRow_Orbiter->PK_Orbiter_get());
 
-		if( drOV->FK_UI_isNull() && pGenerator->m_pRow_UI->IncludeStandardUI_get()==1 )
+		if( drOV->FK_UI_isNull() )
         {
             *drStandardVariation = drOV;
-            alDesignObjVariations->push_back(drOV);
+			if( pGenerator->m_pRow_UI->IncludeStandardUI_get()==2 )
+				alDesignObjVariations->push_back(drOV);   // Always include this
         }
         else if( drOV->FK_UI_get() == pGenerator->m_pRow_UI->PK_UI_get() )
         {
@@ -1201,12 +1205,16 @@ void DesignObj_Generator::PickVariation(OrbiterGenerator *pGenerator,class Row_D
     }
     else if( *drDesignObjVariation==NULL )
     {
-        if( *drStandardVariation==NULL )  // Confirm they're not both null
+        if( *drStandardVariation==NULL || pGenerator->m_pRow_UI->IncludeStandardUI_get()==0 )  // Confirm they're not both null
         {
             cerr << "WARNING: Cannot find any variation for object: " << drDesignObj->PK_DesignObj_get() << endl;
         }
         else
+		{
             *drDesignObjVariation = *drStandardVariation;
+			if( pGenerator->m_pRow_UI->IncludeStandardUI_get()==1 )
+				alDesignObjVariations->push_back(*drDesignObjVariation);   // Include this since we didn't find another
+		}
     }
 }
 

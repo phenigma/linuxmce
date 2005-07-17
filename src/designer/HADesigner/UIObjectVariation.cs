@@ -198,7 +198,7 @@ namespace HADesigner
 		}
 		public string Description
 		{
-			get {return m_strDescription + "(" + ID + ")";}
+			get {return ID + " " + m_strDescription;}
 			set	{m_strDescription = value;}
 		}
 
@@ -391,7 +391,7 @@ namespace HADesigner
 
 					//get the description of the criteria
 					UIDataRow drCriteria = mds.tUI[this.CriteriaID];
-					this.Description = drCriteria.fDescription + "  (" + Convert.ToString(drCriteria.fPK_UI) + ")";
+					this.Description = Convert.ToString(drCriteria.fPK_UI) + " " + drCriteria.fDescription;
 
 					//we need to create parameters for this Variation
 					//create the parms based on the parent object type and look in DesignObjType_DesignObjParameter

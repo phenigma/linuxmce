@@ -144,7 +144,7 @@ namespace HADesigner
 			get
 			{
 				if (this.m_strDescription == null) return "";
-				else return this.m_strDescription + "(" + ID + ")" + (this.m_bitHideByDefault ? " h" : "");
+				else return ID + " " + m_strDescription + (m_bitHideByDefault ? " h" : "");
 			}
 			set	{m_strDescription = value;}
 		}

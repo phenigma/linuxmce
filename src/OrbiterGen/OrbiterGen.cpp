@@ -1377,10 +1377,6 @@ void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int Arr
 
 	int PK_Orbiter = ocDesignObj->m_pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get();
 	Row_Orbiter * m_pRow_Orbiter = ocDesignObj->m_pOrbiterGenerator->m_pRow_Orbiter;
-if( ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()==3412 )//2821 && bAddToGenerated )
-{
-    int k=2;
-}
 
 	if( ocDesignObj->m_bChild )
 	{
@@ -1801,6 +1797,11 @@ if( ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()==3412 )//2821 && bAddToGen
 void OrbiterGenerator::OutputText(DesignObj_Generator *ocDesignObj,CGText *p_DesignObjText,bool bPrerender)
 {
 	p_DesignObjText->m_PK_Text = p_DesignObjText->m_pdrText_LS->FK_Text_get();
+	if( p_DesignObjText->m_rPosition.Right()>m_sScaledSize.Width )
+		p_DesignObjText->m_rPosition.Right(m_sScaledSize.Width);
+	if( p_DesignObjText->m_rPosition.Bottom()>m_sScaledSize.Height )
+		p_DesignObjText->m_rPosition.Bottom(m_sScaledSize.Height);
+
 if( p_DesignObjText->m_PK_Text==795 )
 {
 	int k=2;

@@ -62,7 +62,7 @@ void DeadlockHandler(PlutoLock *pPlutoLock)
 	if( g_pCommand_Impl )
 	{
 		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Deadlock problem.  Going to reload and quit");
+			g_pPlutoLogger->Write(LV_CRITICAL,"Deadlock problem.  %d  Going to reload and quit",g_pCommand_Impl->m_dwPK_Device);
 		g_pCommand_Impl->OnReload();
 	}
 }
@@ -72,7 +72,7 @@ void SocketCrashHandler(Socket *pSocket)
 	if( g_pCommand_Impl )
 	{
 		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Socket problem.  Going to reload and quit");
+			g_pPlutoLogger->Write(LV_CRITICAL,"Socket problem. %d  Going to reload and quit",g_pCommand_Impl->m_dwPK_Device);
 		g_pCommand_Impl->OnReload();
 	}
 }
@@ -82,7 +82,7 @@ void Plugin_DeadlockHandler(PlutoLock *pPlutoLock)
 	if( g_pCommand_Impl && g_pCommand_Impl->m_pRouter )
 	{
 		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Plugin Deadlock problem.  Going to reload");
+			g_pPlutoLogger->Write(LV_CRITICAL,"Plugin Deadlock problem.  %d Going to reload",g_pCommand_Impl->m_dwPK_Device);
 		g_pCommand_Impl->m_pRouter->CrashWithinPlugin(g_pCommand_Impl->m_dwPK_Device);
 	}
 }
@@ -92,7 +92,7 @@ void Plugin_SocketCrashHandler(Socket *pSocket)
 	if( g_pCommand_Impl && g_pCommand_Impl->m_pRouter )
 	{
 		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Plugin Deadlock problem.  Going to reload");
+			g_pPlutoLogger->Write(LV_CRITICAL,"Plugin Socket problem.  %d Going to reload",g_pCommand_Impl->m_dwPK_Device);
 		g_pCommand_Impl->m_pRouter->CrashWithinPlugin(g_pCommand_Impl->m_dwPK_Device);
 	}
 }

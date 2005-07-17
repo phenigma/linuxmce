@@ -136,7 +136,7 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 	bool bPreserveAspectRatio = pDesignObj_Generator->m_bPreserveAspectRatio;
 
     //  cout << "Rendering " << pDesignObj_Generator->m_ObjectID << endl;
-	if( pDesignObj_Generator->m_ObjectID.find("2607")!=string::npos )// || pDesignObj_Generator->m_ObjectID.find("3485")!=string::npos )
+	if( pDesignObj_Generator->m_ObjectID.find("1275")!=string::npos || pDesignObj_Generator->m_ObjectID.find("1276")!=string::npos )
 //  //  ) //|| pDesignObj_Generator->m_ObjectID.find("2689.0.0.2790")!=string::npos )
         //if( pDesignObj_Generator->m_ObjectID== )
     {
@@ -1017,7 +1017,11 @@ RendererImage * Renderer::Subset(RendererImage *pRenderImage, PlutoRectangle rec
 void DoRender(string font, string output,int width,int height,class DesignObj_Generator *ocDesignObj,int Rotate)
 {
     static Renderer r(font,output,width,height);
-	r.m_Rotate = 360 - Rotate;  // SDL treats rotation as counter clockwise, we do clockwise
+	if( Rotate )
+		r.m_Rotate = 360 - Rotate;  // SDL treats rotation as counter clockwise, we do clockwise
+	else
+		r.m_Rotate=0;
+
     r.RenderObject(NULL,ocDesignObj,PlutoPoint(0,0),-1);  // Render everything
 }
 

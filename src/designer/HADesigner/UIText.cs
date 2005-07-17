@@ -101,7 +101,7 @@ namespace HADesigner
 		/// </summary>
 		public string Description
 		{
-			get {return this.text_description + "(" + this.TextID + ")";}
+			get {return TextID + " " + text_description;}
 			set	{this.text_description = value;}
 		}
 						
