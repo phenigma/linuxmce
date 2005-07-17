@@ -671,7 +671,8 @@ int k=2;
 			dest.right = dest.left + int(pSurface->GetWidth() * ZoomX);
 			dest.bottom = dest.top + int(pSurface->GetHeight() * ZoomY);
 
-			GetDisplay()->BlitStretch(dest, pSurface);
+			if( dest.right-dest.left>0 && dest.bottom-dest.top>0 )  // PF crashes with 0 width/height
+				GetDisplay()->BlitStretch(dest, pSurface); 
 		}
 		else
 		{
