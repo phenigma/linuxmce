@@ -82,8 +82,8 @@ RSC=rc.exe
 # ADD BASE RSC /l 0x409 /d "$(CePlatform)" /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "DEBUG" /d "_X86_" /d "x86" /d "_i386_" /r
 # ADD RSC /l 0x409 /d "$(CePlatform)" /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "DEBUG" /d "_X86_" /d "x86" /d "_i386_" /r
 CPP=cl.exe
-# ADD BASE CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "_i386_" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /Yu"stdafx.h" /Gs8192 /GF /c
-# ADD CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "_i386_" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /Yu"stdafx.h" /Gs8192 /GF /c
+# ADD BASE CPP /nologo /W3 /Zi /Od /D "_i386_" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /Yu"stdafx.h" /Gs8192 /GF /c
+# ADD CPP /nologo /W3 /Zi /Od /D "_i386_" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /Yu"stdafx.h" /Gs8192 /GF /c
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
@@ -147,8 +147,8 @@ RSC=rc.exe
 # ADD BASE RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "DEBUG" /d "UNICODE" /d "_UNICODE" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /d "ARMV4" /r
 # ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "DEBUG" /d "UNICODE" /d "_UNICODE" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /d "ARMV4" /r
 CPP=clarm.exe
-# ADD BASE CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /Yu"stdafx.h" /M$(CECrtMTDebug) /c
-# ADD CPP /nologo /Zi /Od /Gy /I "." /I ".." /I "../Win32" /I "../SDL" /I "../.." /I "../../DCE" /I "../../../libs/Libraries/pthreads-snap-2002-11-04" /I "../../../libs/Libraries/pthreads-win32/include" /I "../../../libs/CrossPlatform/sge030809-w32/src" /I "../../../libs/CrossPlatform/SDL_ttf-2.0.6" /I "../../../libs/CrossPlatform/SDL_image-1.2.3" /I "../../../libs/CrossPlatform/SDL-1.2.7/include" /I "../../Splitter" /I "../../../libs/CrossPlatform/zlib" /I "../../../libs/CrossPlatform/lpng127" /I "../../../libs/Libraries/STLport-4.5.3/stlport" /I "../../../libs/Libraries/STLport-4.5.3/src" /I "../../PlutoUtils" /I "../../../libs/CrossPlatform/SDL_rotozoom-1.6" /I "../../OrbiterGen" /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /D "WIN32" /D "WINCE" /D "ORBITER" /D "__STL_NO_IOSTREAMS" /D "LOAD_PNG" /FR /I /pluto/trunk" /M$(CECrtMTDebug) " /c
+# ADD BASE CPP /nologo /W3 /Zi /Od /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /Yu"stdafx.h" /M$(CECrtMTDebug) /c
+# ADD CPP /nologo /Zi /Od /Gy /I "." /I ".." /I "../Win32" /I "../SDL" /I "../.." /I "../../DCE" /I "../../../libs/Libraries/pthreads-snap-2002-11-04" /I "../../../libs/Libraries/pthreads-win32/include" /I "../../../libs/CrossPlatform/sge030809-w32/src" /I "../../../libs/CrossPlatform/SDL_ttf-2.0.6" /I "../../../libs/CrossPlatform/SDL_image-1.2.3" /I "../../../libs/CrossPlatform/SDL-1.2.7/include" /I "../../Splitter" /I "../../../libs/CrossPlatform/zlib" /I "../../../libs/CrossPlatform/lpng127" /I "../../../libs/Libraries/STLport-4.5.3/stlport" /I "../../../libs/Libraries/STLport-4.5.3/src" /I "../../PlutoUtils" /I "../../../libs/CrossPlatform/SDL_rotozoom-1.6" /I "../../OrbiterGen" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /D "WIN32" /D "WINCE" /D "ORBITER" /D "__STL_NO_IOSTREAMS" /D "LOAD_PNG" /FR /I /pluto/trunk" /M$(CECrtMTDebug) " /c
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
