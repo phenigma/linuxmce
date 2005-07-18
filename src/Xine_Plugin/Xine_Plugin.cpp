@@ -298,6 +298,7 @@ int k=2;
 	}
 	else
 	{
+		pXineMediaStream->m_sLastPosition=SavedPosition;
 		if( pXineMediaStream->m_iDequeMediaFile_Pos>=0 && pXineMediaStream->m_iDequeMediaFile_Pos<pXineMediaStream->m_dequeMediaFile.size() )
 		{
 			pXineMediaStream->m_dequeMediaFile[pXineMediaStream->m_iDequeMediaFile_Pos]->m_sStartPosition = SavedPosition;
@@ -373,16 +374,19 @@ bool Xine_Plugin::MenuOnScreen( class Socket *pSocket, class Message *pMessage, 
 	g_pPlutoLogger->Write( LV_STATUS, "MediaStream m_mapEntertainArea.size( ) %d", pXineMediaStream->m_mapEntertainArea.size( ) );
 
 
-	/** We're going to send a message to all the orbiters that are bound to remotes in any of the entertainment areas */
+	/** We're going to send a message to all the orbiters in this area so they know what the remote is,
+	and we will send all bound remotes to the new screen */
 	for( MapEntertainArea::iterator itEA = pXineMediaStream->m_mapEntertainArea.begin( );itEA != pXineMediaStream->m_mapEntertainArea.end( );++itEA )
 	{
 		EntertainArea *pEntertainArea = ( *itEA ).second;
 		g_pPlutoLogger->Write( LV_STATUS, "Looking into the ent area (%p) with id %d and %d remotes", pEntertainArea, pEntertainArea->m_iPK_EntertainArea, (int) pEntertainArea->m_mapBoundRemote.size() );
-		for( MapBoundRemote::iterator itBR=pEntertainArea->m_mapBoundRemote.begin( );itBR!=pEntertainArea->m_mapBoundRemote.end( );++itBR )
-		{
-			BoundRemote *pBoundRemote = ( *itBR ).second;
-			g_pPlutoLogger->Write(LV_STATUS, "Processing bound remote: for orbiter: %d", pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
-			m_pMedia_Plugin->SetNowPlaying(pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
+        for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
+        {
+            OH_Orbiter *pOH_Orbiter = (*it).second;
+			if( pOH_Orbiter->m_pEntertainArea!=pEntertainArea )
+				continue;
+			g_pPlutoLogger->Write(LV_STATUS, "Processing remote: for orbiter: %d", pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+			m_pMedia_Plugin->SetNowPlaying(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
 				pXineMediaStream->m_sMediaDescription,pXineMediaStream,false);
 		}
 g_pPlutoLogger->Write(LV_WARNING, "Sent now playing to %d remoted for on: %d",(int) pEntertainArea->m_mapBoundRemote.size( ),(int) bOnOff);

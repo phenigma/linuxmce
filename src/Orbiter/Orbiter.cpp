@@ -679,7 +679,7 @@ g_pPlutoLogger->Write( LV_STATUS, "Exiting Redraw Objects" );
 //-----------------------------------------------------------------------------------------------------------
 void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Screen, PlutoPoint point)
 {
-if( pObj->m_ObjectID.find("3351")!=string::npos) //&& this->m_pScreenHistory_Current && this->m_pScreenHistory_Current->m_pObj->m_ObjectID.find("1255")!=string::npos )
+if( pObj->m_ObjectID.find("2355")!=string::npos) //&& this->m_pScreenHistory_Current && this->m_pScreenHistory_Current->m_pObj->m_ObjectID.find("1255")!=string::npos )
 {
 int k=2;
 }
@@ -768,6 +768,10 @@ g_pPlutoLogger->Write( LV_STATUS, "object: %s  not visible: %d", pObj->m_ObjectI
 		vectGraphicToUndoSelect.push_back(pObj->m_pGraphicToUndoSelect);
 		pObj->m_pvectCurrentGraphic = &vectGraphicToUndoSelect;
 
+if( pObj->m_ObjectID.find("2355")!=string::npos) //&& this->m_pScreenHistory_Current && this->m_pScreenHistory_Current->m_pObj->m_ObjectID.find("1255")!=string::npos )
+{
+int k=2;
+}
 		RenderGraphic( pObj,  rectTotal, pObj->m_bDisableAspectLock, point );
 
         pObj->m_pvectCurrentGraphic = pvectGraphic_Hold;
@@ -778,6 +782,10 @@ g_pPlutoLogger->Write( LV_STATUS, "object: %s  not visible: %d", pObj->m_ObjectI
     }
     else if(  pObj->m_pvectCurrentGraphic  )
     {
+if( pObj->m_ObjectID.find("2355")!=string::npos) //&& this->m_pScreenHistory_Current && this->m_pScreenHistory_Current->m_pObj->m_ObjectID.find("1255")!=string::npos )
+{
+int k=2;
+}
         RenderGraphic( pObj,  rectTotal, pObj->m_bDisableAspectLock, point );
     }
 
@@ -1277,6 +1285,8 @@ g_pPlutoLogger->Write(LV_WARNING,"Goto Screen -- wakign up from screen saver");
 		{
 			PlutoPopup *pPlutoPopup = *it;
 			ObjectOffScreen( pPlutoPopup->m_pObj );
+			if( m_pActivePopup==pPlutoPopup )
+				m_pActivePopup=NULL;
 		}
 
         if(m_pScreenHistory_Current != pScreenHistory)
@@ -3790,8 +3800,8 @@ DesignObj_Orbiter *Orbiter::FindObject( string PK_DesignObj, class DesignObj_Orb
 		// AB 1 Jul 05 - check for version & page first, otherwise popups use the wrong version
 		if( pDesignObj_Orbiter )
 			PK_DesignObj += "." + StringUtils::itos(pDesignObj_Orbiter->m_iVersion) + "." + StringUtils::itos(pDesignObj_Orbiter->m_iPage);
-		else if( m_pScreenHistory_Current && m_pScreenHistory_Current->m_pObj )
-			PK_DesignObj += "." + StringUtils::itos(m_pScreenHistory_Current->m_pObj->m_iVersion) + "." + StringUtils::itos(m_pScreenHistory_Current->m_pObj->m_iPage);
+		else 
+			PK_DesignObj += "." + StringUtils::itos(m_pLocationInfo->iLocation) + ".0";
 
 		if( (oi=m_mapObj_All.find(PK_DesignObj))!=m_mapObj_All.end(  ) )
 			return oi->second;
@@ -6649,6 +6659,14 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 	int iCurrentFrame = pObj->m_iCurrentFrame;
 	PlutoGraphic *pPlutoGraphic = (*pVectorPlutoGraphic)[iCurrentFrame];
 	bool bIsMNG = pPlutoGraphic->m_GraphicFormat == GR_MNG;
+if( pObj->m_ObjectID.find(".3351")!=string::npos )
+{
+	if( rectTotal.X!=13 )
+	{
+		int k4=4;
+	}
+int k=2;
+}
 
     //hack: if a button doesn't have a mng as selected state (see bDisableEffects), then the png
     //used in normal state will be rendered for selected state + a blue rectangle to show the selection
@@ -6669,14 +6687,14 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
     }
 
 	string sFileName = "";
-	if(pPlutoGraphic->IsEmpty() && NULL != m_pCacheImageManager &&
+	if(pPlutoGraphic->IsEmpty() && NULL != m_pCacheImageManager && pPlutoGraphic->m_Filename.length() && 
 		m_pCacheImageManager->IsImageInCache(pPlutoGraphic->m_Filename, pObj->m_Priority)
 	)
 	{
 		//if we have the file in cache
 		sFileName = m_pCacheImageManager->GetCacheImageFileName(pPlutoGraphic->m_Filename);
 	}
-	else if(pPlutoGraphic->IsEmpty() && m_sLocalDirectory.length() > 0)
+	else if(pPlutoGraphic->IsEmpty() && m_sLocalDirectory.length() > 0 && pPlutoGraphic->m_Filename.length() )
 	{
 		//the file is in our localdrive
 		sFileName = m_sLocalDirectory + pPlutoGraphic->m_Filename;
@@ -6826,6 +6844,11 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 		pObj->m_GraphicToPlay = pObj->m_GraphicToDisplay;
 		CallMaintenanceInMiliseconds( iTime, &Orbiter::PlayMNG_CallBack, pObj , pe_NO );
 	}
+if( pObj->m_ObjectID.find(".2355")!=string::npos )
+{
+	// x=163
+int k=2;
+}
 
 	if(!pPlutoGraphic->IsEmpty())
 		RenderGraphic(pPlutoGraphic, rectTotal, bDisableAspectRatio, point);
@@ -7409,6 +7432,11 @@ void Orbiter::CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_
 	pPopup->m_bDontAutohide = bDont_Auto_Hide;
 
 	CMD_Refresh("");
+if( sName=="remote" )
+{
+int k=2;
+}
+
 }
 
 //<-dceag-c398-b->
@@ -7423,6 +7451,10 @@ void Orbiter::CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_
 void Orbiter::CMD_Remove_Popup(string sPK_DesignObj_CurrentScreen,string sName,string &sCMD_Result,Message *pMessage)
 //<-dceag-c398-e->
 {
+if( sName=="remote" )
+{
+int k=2;
+}
     PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
 	DesignObj_Orbiter *pObj = FindObject(sPK_DesignObj_CurrentScreen);
 g_pPlutoLogger->Write(LV_CRITICAL,"remove popup %s",sName.c_str());

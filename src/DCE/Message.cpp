@@ -249,9 +249,20 @@ void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFr
 Message::Message( string sMessageInStringFormat )
 {
 	int iNumArgs;
-	char **pArgs = StringUtils::ConvertStringToArgs(sMessageInStringFormat,iNumArgs);
-
+	int iPosNext=0;
+	char **pArgs = StringUtils::ConvertStringToArgs(sMessageInStringFormat,iNumArgs,iPosNext);
 	BuildFromArgs( iNumArgs, pArgs );
+
+	int iPosNextCumulative=iPosNext;
+	while( iPosNext )  // If there's not at least 5 characters it can't be a valid message
+	{
+		// There are more messages
+		pArgs = StringUtils::ConvertStringToArgs(sMessageInStringFormat.substr(iPosNextCumulative),iNumArgs,iPosNext);
+		iPosNextCumulative+=iPosNext;
+		Message *pMessage = new Message();
+		pMessage->BuildFromArgs( iNumArgs, pArgs );
+		m_vectExtraMessages.push_back(pMessage);
+	}
 }
 
 Message::Message( long dwDeviceIDFrom, long dwDeviceIDTo, long dwPriority, long dwMessageType, long dwID, unsigned long dwParameterCount, ... )

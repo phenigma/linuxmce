@@ -6573,5 +6573,21 @@ namespace DCE
 	public:
 		CMD_Simulate_Mouse_Click_At_Present_Pos_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sType) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,416,1,14,sType.c_str()); }
 	};
+	class CMD_Set_Auto_Resume_Options : public PreformedCommand {
+	public:
+		CMD_Set_Auto_Resume_Options(long DeviceIDFrom, long DeviceIDTo,string sValue_To_Assign,int iPK_Users,int iPK_MediaType) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,417,3,5,sValue_To_Assign.c_str(),17,StringUtils::itos(iPK_Users).c_str(),29,StringUtils::itos(iPK_MediaType).c_str()); }
+	};
+	class CMD_Set_Auto_Resume_Options_DL : public PreformedCommand {
+	public:
+		CMD_Set_Auto_Resume_Options_DL(long DeviceIDFrom, string DeviceIDTo,string sValue_To_Assign,int iPK_Users,int iPK_MediaType) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,417,3,5,sValue_To_Assign.c_str(),17,StringUtils::itos(iPK_Users).c_str(),29,StringUtils::itos(iPK_MediaType).c_str()); }
+	};
+	class CMD_Set_Auto_Resume_Options_DT : public PreformedCommand {
+	public:
+		CMD_Set_Auto_Resume_Options_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sValue_To_Assign,int iPK_Users,int iPK_MediaType) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,417,3,5,sValue_To_Assign.c_str(),17,StringUtils::itos(iPK_Users).c_str(),29,StringUtils::itos(iPK_MediaType).c_str()); }
+	};
+	class CMD_Set_Auto_Resume_Options_Cat : public PreformedCommand {
+	public:
+		CMD_Set_Auto_Resume_Options_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sValue_To_Assign,int iPK_Users,int iPK_MediaType) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,417,3,5,sValue_To_Assign.c_str(),17,StringUtils::itos(iPK_Users).c_str(),29,StringUtils::itos(iPK_MediaType).c_str()); }
+	};
 }
 #endif

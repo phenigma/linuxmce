@@ -180,7 +180,7 @@ namespace StringUtils
 
 	/** < Convert space delimited string to arguments, like on a command line.  Use " to include spaces
 		  There's a hardcoded limit of 500 arguments */
-	char **ConvertStringToArgs(string sInput,int &iNumArgs);
+	char **ConvertStringToArgs(string sInput,int &iNumArgs,int &iPosNext);
 	void FreeArgs(char **pArgs,int iNumArgs);
 
 	time_t StringToDate(string Value);  /** < Converts a date/time as a string to a time_t */

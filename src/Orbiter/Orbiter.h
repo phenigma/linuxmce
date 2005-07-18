@@ -1565,7 +1565,6 @@ light, climate, media, security, telecom */
 	virtual void CMD_Set_Floorplan(string sPK_DesignObj,string sType,bool bTrueFalse) { string sCMD_Result; CMD_Set_Floorplan(sPK_DesignObj.c_str(),sType.c_str(),bTrueFalse,sCMD_Result,NULL);};
 	virtual void CMD_Set_Floorplan(string sPK_DesignObj,string sType,bool bTrueFalse,string &sCMD_Result,Message *pMessage);
 
-
 	/** @brief COMMAND: #408 - Show Floorplan */
 	/** Shows the floorplan */
 		/** @param #11 Position X */

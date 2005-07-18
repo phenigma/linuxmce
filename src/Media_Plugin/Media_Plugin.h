@@ -81,6 +81,9 @@ private:
 	map<int,string> m_mapMediaType_2_Directory;
 	map<int,bool> m_mapMediaType_Bookmarkable;
 
+	// Keep track of which users,media types want to be prompted to resume.  Valid char values are 'N' (never resume), 'A' (always resume), 'P' or anything else (prompt)
+	map< pair<int,int>,char > m_mapPromptResume;
+
 	// When deciding what remote control to use, we will look in these 4 maps in this order,
 	// first for a specific remote for this orbiter/source device/mediatype combination, then for this
 	// orbiter/media type, then for the source device/media type, lastly any remote for the media type
@@ -229,7 +232,17 @@ public:
 	void GetMediaHandlersForEA(int iPK_MediaType,vector<EntertainArea *> &vectEntertainArea, vector< pair< MediaHandlerInfo *,vector<EntertainArea *> > > &vectEA_to_MediaHandler);
 	MediaDevice *GetMediaDeviceForEA(int iPK_MediaType,EntertainArea *pEntertainArea);
 
-    /**
+	/**
+     * @brief Save the last positions so we can resume
+     */
+	void SaveLastPlaylistPosition(MediaStream *pMediaStream);
+	void SaveLastFilePosition(MediaStream *pMediaStream);
+	void SaveLastDiscPosition(MediaStream *pMediaStream);
+	void RestoreMediaResumePreferences();
+	void SaveMediaResumePreferences();
+	int CheckForAutoResume(MediaStream *pMediaStream);
+
+	/**
      * @brief Required for plug-ins that render floorplans
      */
     virtual void GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,EntertainArea *pEntertainArea,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,int &Color,string &sDescription,string &OSD,int &PK_DesignObj_Toolbar);
@@ -239,7 +252,7 @@ public:
 	void StartMedia( int iPK_MediaType, unsigned int iPK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int iPK_Device, deque<MediaFile *> *dequeMediaFile, bool bResume, int iRepeat, vector<MediaStream *> *p_vectMediaStream=NULL);
 
 	// This creates a single media stream for a given media handler and starts playing it by calling the next StartMedia, or returns NULL if it cannot create the stream
-    MediaStream *StartMedia(MediaHandlerInfo *pMediaHandlerInfo, unsigned int PK_Device_Orbiter,vector<EntertainArea *> &vectEntertainArea,int PK_Device_Source,deque<MediaFile *> *dequeMediaFile,bool bResume,int iRepeat);
+    MediaStream *StartMedia(MediaHandlerInfo *pMediaHandlerInfo, unsigned int PK_Device_Orbiter,vector<EntertainArea *> &vectEntertainArea,int PK_Device_Source,deque<MediaFile *> *dequeMediaFile,bool bResume,int iRepeat, int iPK_Playlist=0);
 
 	// This is the final stage of 'StartMedia' that starts playing the given stream.  This is also called when the stream changes, or is moved, and needs to be restarted
 	bool StartMedia(MediaStream *pMediaStream);
@@ -664,6 +677,19 @@ public:
 
 	virtual void CMD_Set_Media_Position(int iStreamID,string sMediaPosition) { string sCMD_Result; CMD_Set_Media_Position(iStreamID,sMediaPosition.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Set_Media_Position(int iStreamID,string sMediaPosition,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #417 - Set Auto Resume Options */
+	/** Specify if the user should be prompted to resume the given media type or not */
+		/** @param #5 Value To Assign */
+			/** Valid values are: NEVER, ALWAYS, PROMPT */
+		/** @param #17 PK_Users */
+			/** The user to set */
+		/** @param #29 PK_MediaType */
+			/** The media type */
+
+	virtual void CMD_Set_Auto_Resume_Options(string sValue_To_Assign,int iPK_Users,int iPK_MediaType) { string sCMD_Result; CMD_Set_Auto_Resume_Options(sValue_To_Assign.c_str(),iPK_Users,iPK_MediaType,sCMD_Result,NULL);};
+	virtual void CMD_Set_Auto_Resume_Options(string sValue_To_Assign,int iPK_Users,int iPK_MediaType,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

@@ -410,6 +410,7 @@ bool Media_Plugin::Register()
 	//  m_pMediaAttributes->ScanDirectory( "/home/public/data/music/" );
 //  m_pMediaAttributes->ScanDirectory( "Z:\\" );
 	PopulateRemoteControlMaps();
+	RestoreMediaResumePreferences();
 
     return Connect(PK_DeviceTemplate_get());
 }
@@ -757,7 +758,7 @@ void Media_Plugin::StartMedia( int iPK_MediaType, unsigned int iPK_Device_Orbite
 			delete (*p_dequeMediaFile_Copy)[s];
 }
 
-MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int PK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int PK_Device_Source, deque<MediaFile *> *dequeMediaFile, bool bResume,int iRepeat)
+MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int PK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int PK_Device_Source, deque<MediaFile *> *dequeMediaFile, bool bResume,int iRepeat, int iPK_Playlist)
 {
     PLUTO_SAFETY_LOCK(mm,m_MediaMutex);
 
@@ -830,6 +831,7 @@ MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsi
 	    pMediaStream->m_mapEntertainArea[pEntertainArea->m_iPK_EntertainArea] = pEntertainArea;
 	}
 	pMediaStream->m_iRepeat=iRepeat;
+	pMediaStream->m_iPK_Playlist=iPK_Playlist;
 
     // HACK: get the user if the message originated from an orbiter!
 
@@ -922,6 +924,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 		g_pPlutoLogger->Write(LV_STATUS,"Calling Plug-in's start media");
 
 	g_pPlutoLogger->Write(LV_STATUS,"Ready to call plugin's startmedia");
+	int iPK_Orbiter_PromptingToResume = CheckForAutoResume(pMediaStream);
 
 	if( pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pMediaStream) )
 	{
@@ -959,6 +962,9 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 		for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
 		{
 			OH_Orbiter *pOH_Orbiter = (*it).second;
+			if( iPK_Orbiter_PromptingToResume==pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device )
+				continue;  // This orbiter is displaying a resume? message
+
 			if( !pMediaStream->OrbiterIsOSD(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device) &&
 				(!pOH_Orbiter->m_pEntertainArea || pMediaStream->m_mapEntertainArea.find(pOH_Orbiter->m_pEntertainArea->m_iPK_EntertainArea)==pMediaStream->m_mapEntertainArea.end()) )
 				continue;  // Don't send an orbiter to the remote if it's not linked to an entertainment area where we're playing this stream unless it's the OSD
@@ -1366,8 +1372,22 @@ void Media_Plugin::CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_De
 		EntertainArea *pEntertainArea = vectEntertainArea[s];
 		if( !pEntertainArea->m_pMediaStream )
 			continue; // Don't know what area it should be played in, or there's no media playing there
+		pEntertainArea->m_pMediaStream->m_sLastPosition = ""; // Be sure we get a real position
 		pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pEntertainArea->m_pMediaStream );
 		g_pPlutoLogger->Write( LV_STATUS, "Called StopMedia" );
+
+		// Unless this user has specified he doesn't ever want to resume this type of media, we should prompt him
+		if( m_mapPromptResume[make_pair<int,int> (pEntertainArea->m_pMediaStream->m_iPK_Users,pEntertainArea->m_pMediaStream->m_iPK_MediaType)]!='N' )
+		{
+			if( pEntertainArea->m_pMediaStream->m_dwPK_Disc )
+				SaveLastDiscPosition(pEntertainArea->m_pMediaStream);
+
+			if( pEntertainArea->m_pMediaStream->m_iPK_Playlist )
+				SaveLastPlaylistPosition(pEntertainArea->m_pMediaStream);
+
+			if( pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos>=0 && pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos<pEntertainArea->m_pMediaStream->m_dequeMediaFile.size() )
+				SaveLastFilePosition(pEntertainArea->m_pMediaStream);
+		}
 		StreamEnded(pEntertainArea->m_pMediaStream);
 	}
 }
@@ -2595,7 +2615,7 @@ void Media_Plugin::CMD_Load_Playlist(string sPK_EntertainArea,int iEK_Playlist,s
 	for(map<int,MediaHandlerInfo *>::iterator it=mapMediaHandlerInfo.begin();it!=mapMediaHandlerInfo.end();++it)
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from Load Playlist");
-	    StartMedia(it->second,pMessage->m_dwPK_Device_From,vectEntertainArea,0,&dequeMediaFile,false,0);  // We'll let the plug-in figure out the source, and we'll use the default remote
+	    StartMedia(it->second,pMessage->m_dwPK_Device_From,vectEntertainArea,0,&dequeMediaFile,false,0,iEK_Playlist);  // We'll let the plug-in figure out the source, and we'll use the default remote
 	}
 }
 
@@ -4699,4 +4719,226 @@ void Media_Plugin::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,st
 	DCE::CMD_Set_Media_Position CMD_Set_Media_Position(m_dwPK_Device,pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
 		iStreamID,pRow_Bookmark->Position_get());
 	SendCommand(CMD_Set_Media_Position);
+}
+//<-dceag-c417-b->
+
+	/** @brief COMMAND: #417 - Set Auto Resume Options */
+	/** Specify if the user should be prompted to resume the given media type or not */
+		/** @param #5 Value To Assign */
+			/** Valid values are: NEVER, ALWAYS, PROMPT */
+		/** @param #17 PK_Users */
+			/** The user to set */
+		/** @param #29 PK_MediaType */
+			/** The media type */
+
+void Media_Plugin::CMD_Set_Auto_Resume_Options(string sValue_To_Assign,int iPK_Users,int iPK_MediaType,string &sCMD_Result,Message *pMessage)
+//<-dceag-c417-e->
+{
+	m_mapPromptResume[ make_pair<int,int> (iPK_Users,iPK_MediaType) ] = (sValue_To_Assign.size() ? sValue_To_Assign[0] : 'P');
+	SaveMediaResumePreferences();
+}
+
+void Media_Plugin::SaveLastPlaylistPosition(MediaStream *pMediaStream)
+{
+	string sWhere = "EK_Users=" + StringUtils::itos(pMediaStream->m_iPK_Users) + " AND FK_Playlist=" + StringUtils::itos(pMediaStream->m_iPK_Playlist) + " AND IsAutoResume=1";
+
+	Row_Bookmark *pRow_Bookmark=NULL;
+	vector<Row_Bookmark *> vectRow_Bookmark;
+	m_pDatabase_pluto_media->Bookmark_get()->GetRows(sWhere,&vectRow_Bookmark);
+	if( vectRow_Bookmark.size() ) // Should only be 1
+		pRow_Bookmark=vectRow_Bookmark[0];
+	else
+	{
+		pRow_Bookmark=m_pDatabase_pluto_media->Bookmark_get()->AddRow();
+		pRow_Bookmark->FK_Playlist_set(pMediaStream->m_iPK_Playlist);
+		pRow_Bookmark->EK_Users_set(pMediaStream->m_iPK_Users);
+		pRow_Bookmark->Description_set("Auto resume");
+		pRow_Bookmark->IsAutoResume_set(1);
+	}
+
+	pRow_Bookmark->Position_set(" QUEUE_POS:" + StringUtils::itos(pMediaStream->m_iDequeMediaFile_Pos) + " " + pMediaStream->m_sLastPosition);
+	m_pDatabase_pluto_media->Bookmark_get()->Commit();
+}
+
+void Media_Plugin::SaveLastDiscPosition(MediaStream *pMediaStream)
+{
+	string sWhere = "EK_Users=" + StringUtils::itos(pMediaStream->m_iPK_Users) + " AND FK_Disc=" + StringUtils::itos(pMediaStream->m_dwPK_Disc) + " AND IsAutoResume=1";
+
+	Row_Bookmark *pRow_Bookmark=NULL;
+	vector<Row_Bookmark *> vectRow_Bookmark;
+	m_pDatabase_pluto_media->Bookmark_get()->GetRows(sWhere,&vectRow_Bookmark);
+	if( vectRow_Bookmark.size() ) // Should only be 1
+		pRow_Bookmark=vectRow_Bookmark[0];
+	else
+	{
+		pRow_Bookmark=m_pDatabase_pluto_media->Bookmark_get()->AddRow();
+		pRow_Bookmark->FK_Disc_set(pMediaStream->m_dwPK_Disc);
+		pRow_Bookmark->EK_Users_set(pMediaStream->m_iPK_Users);
+		pRow_Bookmark->Description_set("Auto resume");
+		pRow_Bookmark->IsAutoResume_set(1);
+	}
+
+	pRow_Bookmark->Position_set(" QUEUE_POS:" + StringUtils::itos(pMediaStream->m_iDequeMediaFile_Pos) + " " + pMediaStream->m_sLastPosition);
+	m_pDatabase_pluto_media->Bookmark_get()->Commit();
+}
+
+void Media_Plugin::SaveLastFilePosition(MediaStream *pMediaStream)
+{
+	MediaFile *pMediaFile = pMediaStream->m_dequeMediaFile[pMediaStream->m_iDequeMediaFile_Pos];
+	if( !pMediaFile->m_dwPK_File )
+		return; // The file isn't in the database
+
+	string sWhere = "EK_Users=" + StringUtils::itos(pMediaStream->m_iPK_Users) + " AND FK_File=" + StringUtils::itos(pMediaFile->m_dwPK_File) + " AND IsAutoResume=1";
+
+	Row_Bookmark *pRow_Bookmark=NULL;
+	vector<Row_Bookmark *> vectRow_Bookmark;
+	m_pDatabase_pluto_media->Bookmark_get()->GetRows(sWhere,&vectRow_Bookmark);
+	if( vectRow_Bookmark.size() ) // Should only be 1
+		pRow_Bookmark=vectRow_Bookmark[0];
+	else
+	{
+		pRow_Bookmark=m_pDatabase_pluto_media->Bookmark_get()->AddRow();
+		pRow_Bookmark->FK_File_set(pMediaFile->m_dwPK_File);
+		pRow_Bookmark->EK_Users_set(pMediaStream->m_iPK_Users);
+		pRow_Bookmark->Description_set("Auto resume");
+		pRow_Bookmark->IsAutoResume_set(1);
+	}
+
+	pRow_Bookmark->Position_set(pMediaStream->m_sLastPosition);
+	m_pDatabase_pluto_media->Bookmark_get()->Commit();
+}
+
+void Media_Plugin::RestoreMediaResumePreferences()
+{
+	for(map<string,string>::iterator it=g_DCEConfig.m_mapParameters.begin();it!=g_DCEConfig.m_mapParameters.end();++it)
+	{
+		if( StringUtils::StartsWith(it->first,"auto_resume_user_") )
+		{
+			int PK_Users = atoi( it->first.substr(17).c_str() );
+			string::size_type pos=0;
+			while(pos<it->second.length())
+			{
+				string sToken = StringUtils::Tokenize(it->second,",",pos);
+				string::size_type pos_equal = sToken.find('-');
+				if( pos_equal==string::npos )
+					return;
+				int PK_MediaType = atoi(sToken.c_str());
+				m_mapPromptResume[ make_pair<int,int> (PK_Users,PK_MediaType) ] = sToken[pos_equal+1];
+			}
+		}
+	}
+}
+
+void Media_Plugin::SaveMediaResumePreferences()
+{
+	map<int,string> mapSettings;
+	for( map< pair<int,int>,char >::iterator it=m_mapPromptResume.begin();it!=m_mapPromptResume.end();++it )
+		mapSettings[ it->first.first ] = mapSettings[ it->first.first ] + StringUtils::itos(it->first.second) + "-" + it->second + ",";
+
+	for(map<int,string>::iterator it=mapSettings.begin();it!=mapSettings.end();++it)
+		g_DCEConfig.AddString("auto_resume_user_" + StringUtils::itos(it->first),it->second);
+	g_DCEConfig.WriteSettings();
+}
+
+int Media_Plugin::CheckForAutoResume(MediaStream *pMediaStream)
+{
+	string sPosition;
+	Row_Bookmark *pRow_Bookmark=NULL;
+	vector<Row_Bookmark *> vectRow_Bookmark;
+	// See if this is a disc to resume
+	if( pMediaStream->m_dwPK_Disc )
+	{
+		m_pDatabase_pluto_media->Bookmark_get()->GetRows(
+			"EK_Users=" + StringUtils::itos(pMediaStream->m_iPK_Users) + 
+			" AND FK_Disk=" + StringUtils::itos(pMediaStream->m_dwPK_Disc) + " AND IsAutoResume=1",
+			&vectRow_Bookmark);
+
+		if( vectRow_Bookmark.size() )
+		{
+			sPosition = vectRow_Bookmark[0]->Position_get();
+			vectRow_Bookmark.clear();
+		}
+	}
+		
+	// Or a playlist
+	if( pMediaStream->m_iPK_Playlist )
+	{
+		m_pDatabase_pluto_media->Bookmark_get()->GetRows(
+			"EK_Users=" + StringUtils::itos(pMediaStream->m_iPK_Users) + 
+			" AND FK_Playlist=" + StringUtils::itos(pMediaStream->m_iPK_Playlist) + " AND IsAutoResume=1",
+			&vectRow_Bookmark);
+
+		if( vectRow_Bookmark.size() )
+		{
+			sPosition = vectRow_Bookmark[0]->Position_get() + sPosition;  // Just append in case we already got one
+			vectRow_Bookmark.clear();
+		}
+	}
+
+	// Either one of those could have set a position in the queue to resume
+	string::size_type queue_pos = sPosition.find(" QUEUE_POS:");
+	if( queue_pos!=string::npos )
+	{
+		int pos = atoi( sPosition.substr(queue_pos+11).c_str() );
+		if( pos>=0 && pos<pMediaStream->m_dequeMediaFile.size() )
+			pMediaStream->m_iDequeMediaFile_Pos=pos;
+	}
+
+	MediaFile *pMediaFile=NULL;
+	if( pMediaStream->m_iDequeMediaFile_Pos<pMediaStream->m_dequeMediaFile.size() )
+	{
+		pMediaFile = pMediaStream->m_dequeMediaFile[pMediaStream->m_iDequeMediaFile_Pos];
+		if( pMediaFile->m_dwPK_File )
+		{
+			m_pDatabase_pluto_media->Bookmark_get()->GetRows(
+				"EK_Users=" + StringUtils::itos(pMediaStream->m_iPK_Users) + 
+				" AND FK_File=" + StringUtils::itos(pMediaFile->m_dwPK_File) + " AND IsAutoResume=1",
+				&vectRow_Bookmark);
+
+			if( vectRow_Bookmark.size() )
+			{
+				sPosition = vectRow_Bookmark[0]->Position_get() + sPosition;  // Just append in case we already got one
+				vectRow_Bookmark.clear();
+			}
+		}
+	}
+
+	if( sPosition.size()==0 || m_mapPromptResume[make_pair<int,int> (pMediaStream->m_iPK_Users,pMediaStream->m_iPK_MediaType)]=='N' )
+		return 0; // Nothing to resume anyway, we only restored so far the queue if this was a playlist
+	if( m_mapPromptResume[make_pair<int,int> (pMediaStream->m_iPK_Users,pMediaStream->m_iPK_MediaType)]=='A' )
+	{
+		if( pMediaFile )
+			pMediaFile->m_sStartPosition = sPosition;
+		return 0; // Resume automatically
+	}
+
+	int iPK_Device_Orbiter=0;
+	if( !pMediaStream->m_pOH_Orbiter_StartedMedia )
+		return 0; // can't ask if there's no orbiter
+	else
+		iPK_Device_Orbiter = pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device;
+
+	string sMessageToResume = StringUtils::itos(m_dwPK_Device) + " " + StringUtils::itos(pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device)
+		+ " 1 " + StringUtils::itos(COMMAND_Set_Media_Position_CONST) + " " 
+		+ StringUtils::itos(COMMANDPARAMETER_StreamID_CONST) + " " + StringUtils::itos(pMediaStream->m_iStreamID_get()) + " "
+		+ StringUtils::itos(COMMANDPARAMETER_MediaPosition_CONST) + " \"" + sPosition + "\"";
+
+	string sMessageToGoToRemote = StringUtils::itos(m_dwPK_Device) + " " + StringUtils::itos(iPK_Device_Orbiter)
+		+ " 1 " + StringUtils::itos(COMMAND_Goto_Screen_CONST) + " " 
+		+ StringUtils::itos(COMMANDPARAMETER_PK_DesignObj_CONST) + " <%=NP_R%>";
+
+	string sMessageToSetPreference = StringUtils::itos(iPK_Device_Orbiter) + " " + StringUtils::itos(m_dwPK_Device)
+		+ " 1 " + StringUtils::itos(COMMAND_Set_Auto_Resume_Options_CONST) + " " 
+		+ StringUtils::itos(COMMANDPARAMETER_PK_Users_CONST) + " " + StringUtils::itos(pMediaStream->m_iPK_Users) + " "
+		+ StringUtils::itos(COMMANDPARAMETER_PK_MediaType_CONST) + " " + StringUtils::itos(pMediaStream->m_iPK_MediaType) + " "
+		+ StringUtils::itos(COMMANDPARAMETER_Value_To_Assign_CONST);
+
+	// Prompt the user
+	m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"<%=T" + StringUtils::itos(TEXT_Ask_to_resume_CONST) + "%>",
+		false,10,true,
+		"<%=T" + StringUtils::itos(TEXT_YES_CONST) + "%>",sMessageToResume + "\n" + sMessageToGoToRemote,
+		"<%=T" + StringUtils::itos(TEXT_NO_CONST) + "%>",sMessageToGoToRemote,
+		"<%=T" + StringUtils::itos(TEXT_Always_Resume_CONST) + "%>",sMessageToResume + "\n" + sMessageToGoToRemote + "\n" + sMessageToSetPreference + " A",
+		"<%=T" + StringUtils::itos(TEXT_Never_Resume_CONST) + "%>",sMessageToGoToRemote + "\n" + sMessageToSetPreference + " N");
+	return iPK_Device_Orbiter;
 }

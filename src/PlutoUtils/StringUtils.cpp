@@ -732,9 +732,9 @@ string StringUtils::GetDow( int iDow, bool bFull )
 	return "";
 }
 
-char **StringUtils::ConvertStringToArgs(string sInput,int &iNumArgs)
+char **StringUtils::ConvertStringToArgs(string sInput,int &iNumArgs,int &iPosNext)
 {
-	iNumArgs=0;
+	iNumArgs=iPosNext=0;
 	char **pArgs = new char*[500];
 	const char *pc_str = sInput.c_str();
 
@@ -746,29 +746,38 @@ char **StringUtils::ConvertStringToArgs(string sInput,int &iNumArgs)
 		while(sInput[pos_start]==' ' && pos_start<sInput.size())
 			pos_start++;
 
-		pos_end=sInput.find(' ',pos_start);
+		if( pos_start>=sInput.size() )
+			return pArgs;
+
+		if( sInput[pos_start]=='\n' )  // There's another set of args that follows
+		{
+			iPosNext = pos_start+1;
+			return pArgs;
+		}
+
+		pos_end=sInput.find(' ',pos_start+1);
+		string::size_type pos_nextmessage = sInput.find('\n',pos_start+1);
+		if( pos_nextmessage!=string::npos &&
+				(pos_nextmessage<pos_end || pos_end==string::npos) )
+			pos_end=pos_nextmessage;
 
 		// Starting some new "
-		int TerminatingQuote=0;
 		if( sInput[pos_start]=='"' && (pos_end!=string::npos || sInput[sInput.size()-1]=='"') )
 		{
-			TerminatingQuote=1;
 			pos_start++;
-			if( pos_end!=string::npos )
-			{
-				while( sInput[pos_end-1]!='"' && pos_end!=string::npos && pos_end<sInput.size() )
-					pos_end=sInput.find(' ',pos_end+1);
-			}
+			pos_end=pos_start;
+			while(pos_end<sInput.size() && (sInput[pos_end]!='\"' || sInput[pos_end-1]=='\\') )
+				pos_end++;
 		}
 
 		if( pos_end==string::npos )
 			pos_end = sInput.size();
 
-		char *pString = new char[pos_end-pos_start+1-TerminatingQuote];
-		strncpy(pString,&pc_str[pos_start],pos_end-pos_start-TerminatingQuote);
-		pString[pos_end-pos_start-TerminatingQuote]=0;
+		char *pString = new char[pos_end-pos_start+1];
+		strncpy(pString,&pc_str[pos_start],pos_end-pos_start);
+		pString[pos_end-pos_start]=0;
 		pArgs[iNumArgs++]=pString;
-		pos_start=pos_end+1;  // This will either be a final " or a space.  We skip leading spaces anyway
+		pos_start=pos_end + (sInput[pos_end]=='\n' ? 0 : 1);  // This will either be a final " or a space.  We skip leading spaces anyway
 	}
 
 	return pArgs;
