@@ -85,16 +85,13 @@ static int cx8802_start_dma(struct cx8802_dev    *dev,
 	}
 
 	if (cx88_boards[core->board].blackbird) {
-		cx_write(MO_PINMUX_IO, 0x88); /* enable MPEG parallel IO */
-
 		// cx_write(TS_F2_CMD_STAT_MM, 0x2900106); /* F2_CMD_STAT_MM defaults + master + memory space */
 		cx_write(TS_GEN_CNTRL, 0x46); /* punctured clock TS & posedge driven & software reset */
 		udelay(100);
-
+		cx_write(MO_PINMUX_IO, 0x88); /* enable MPEG parallel IO */
 		cx_write(TS_HW_SOP_CNTRL, 0x408); /* mpeg start byte */
 		//cx_write(TS_HW_SOP_CNTRL, 0x2F0BC0); /* mpeg start byte ts: 0x2F0BC0 ? */
 		cx_write(TS_VALERR_CNTRL, 0x2000);
-
 		cx_write(TS_GEN_CNTRL, 0x06); /* punctured clock TS & posedge driven */
 		udelay(100);
 	}

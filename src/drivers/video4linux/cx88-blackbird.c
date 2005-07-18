@@ -154,6 +154,7 @@ static struct cx88_ctrl cx8800_ctls[] = {
 			.default_value = 0,
 			.type          = V4L2_CTRL_TYPE_INTEGER,
 		},
+		.off                   = 0,
 		.reg                   = MO_CONTR_BRIGHT,
 		.mask                  = 0xff00,
 		.shift                 = 8,
@@ -167,7 +168,7 @@ static struct cx88_ctrl cx8800_ctls[] = {
 			.default_value = 0,
 			.type          = V4L2_CTRL_TYPE_INTEGER,
 		},
-		.off                   = 0,
+		.off                   = 128,
 		.reg                   = MO_HUE,
 		.mask                  = 0x00ff,
 		.shift                 = 0,
@@ -231,7 +232,7 @@ static struct cx88_ctrl cx8800_ctls[] = {
 		.shift                 = 0,
 	}
 };
-const int CX8800_CTLS = ARRAY_SIZE(cx8800_ctls);
+static const int CX8800_CTLS = ARRAY_SIZE(cx8800_ctls);
 
 /* ------------------------------------------------------------------ */
 
@@ -1160,7 +1161,7 @@ static int set_control(struct cx8802_dev *dev, struct v4l2_control *ctl)
 	switch (ctl->id) {
 	case V4L2_CID_HUE:
 		dprintk( 0, "HUE: 0x%02x, min: 0x%02x, max: 0x%02x\n", ctl->value, c->v.minimum, c->v.maximum );
-		ctl->value = 0x0;
+		/*ctl->value = 0x0;*/
 		break;
 	case V4L2_CID_CONTRAST:
 		dprintk( 1, "CONTRAST: 0x%02x\n", ctl->value );
@@ -1226,11 +1227,11 @@ static void init_controls(struct cx8802_dev *dev)
 	};
 	static struct v4l2_control hue = {
 		.id    = V4L2_CID_HUE,
-		.value = 0x0,
+		.value = 0x80,
 	};
 	static struct v4l2_control contrast = {
 		.id    = V4L2_CID_CONTRAST,
-		.value = 0x40,
+		.value = 0x80,
 	};
 	static struct v4l2_control brightness = {
 		.id    = V4L2_CID_BRIGHTNESS,
@@ -1516,13 +1517,16 @@ static int mpeg_do_ioctl(struct inode *inode, struct file *file,
 	{
 		struct v4l2_frequency *f = arg;
 
+		memset(f,0,sizeof(*f));
+
 		if (UNSET == core->tuner_type)
 			return -EINVAL;
-		if (f->tuner != 0)
-			return -EINVAL;
-		memset(f,0,sizeof(*f));
+
 		f->type = V4L2_TUNER_ANALOG_TV;
 		f->frequency = dev->freq;
+
+		cx88_call_i2c_clients(dev->core,VIDIOC_G_FREQUENCY,f);
+
 		return 0;
 	}
 	case VIDIOC_S_FREQUENCY:
@@ -1536,11 +1540,7 @@ static int mpeg_do_ioctl(struct inode *inode, struct file *file,
 		down(&dev->lock);
 		dev->freq = f->frequency;
 		cx88_newstation(core);
-#ifdef V4L2_I2C_CLIENTS
 		cx88_call_i2c_clients(dev->core,VIDIOC_S_FREQUENCY,f);
-#else
-		cx88_call_i2c_clients(dev->core,VIDIOCSFREQ,&dev->freq);
-#endif
 		up(&dev->lock);
 		return 0;
 	}
