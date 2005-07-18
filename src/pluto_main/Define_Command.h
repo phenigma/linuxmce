@@ -378,7 +378,6 @@
 #define COMMAND_PL_External_Originate_CONST 414
 #define COMMAND_Set_Mouse_Position_Relative_CONST 415
 #define COMMAND_Simulate_Mouse_Click_At_Present_Pos_CONST 416
-#define COMMAND_Set_Auto_Resume_Options_CONST 417
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

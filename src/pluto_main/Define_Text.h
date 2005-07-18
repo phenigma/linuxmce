@@ -514,9 +514,6 @@
 #define TEXT_Abort_ripping_CONST 1190
 #define TEXT_Last_Datagrid_Cell_CONST 1191
 #define TEXT_Bookmark_here_CONST 1193
-#define TEXT_Ask_to_resume_CONST 1194
-#define TEXT_Always_Resume_CONST 1195
-#define TEXT_Never_Resume_CONST 1196
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
