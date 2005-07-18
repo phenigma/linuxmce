@@ -6,8 +6,13 @@ RunSQL()
 {
 	local Q Pass
 	Q="$*"
-	[ -n "$MySqlPassword" ] && Pass="-p$MySqlPassword"
-	[ -z "$Q" ] || echo "$Q;" | mysql -A -N "$SQL_DB" -h "$MySqlHost" -u "$MySqlUser" $Pass | tr '\n\t ' ' ,~' | sed 's/ *$//'
+	Pass=
+	if [[ -n "$MySqlPassword" ]]; then
+		Pass="-p$MySqlPassword"
+	fi
+	if [[ -n "$Q" ]]; then
+		echo "$Q;" | mysql -A -N "$SQL_DB" -h "$MySqlHost" -u "$MySqlUser" $Pass | tr '\n\t ' ' ,~' | sed 's/ *$//'
+	fi
 }
 
 Field()
@@ -21,7 +26,9 @@ Field()
 UseDB()
 {
 	SQL_DB="$1"
-	[[ -z "$SQL_DB" ]] && SQL_DB="pluto_main"
+	if [[ -z "$SQL_DB" ]]; then
+		SQL_DB="pluto_main"
+	fi
 }
 
 UseDB "$MySqlDBName"
