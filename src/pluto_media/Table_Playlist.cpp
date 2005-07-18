@@ -18,6 +18,7 @@ using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "Table_Playlist.h"
 
+#include "Table_Bookmark.h"
 #include "Table_PlaylistEntry.h"
 
 
@@ -876,6 +877,13 @@ sscanf(row[8], "%li", &(pRow->m_psc_restrict));
 
 
 
+void Row_Playlist::Bookmark_FK_Playlist_getrows(vector <class Row_Bookmark*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Bookmark *pTable = table->database->Bookmark_get();
+pTable->GetRows("`FK_Playlist`=" + StringUtils::itos(m_PK_Playlist),rows);
+}
 void Row_Playlist::PlaylistEntry_FK_Playlist_getrows(vector <class Row_PlaylistEntry*> *rows)
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);

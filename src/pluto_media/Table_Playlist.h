@@ -139,7 +139,8 @@ void psc_restrict_setNull(bool val);
 		
 
 		// Return the rows in other tables with foreign keys pointing here
-		void PlaylistEntry_FK_Playlist_getrows(vector <class Row_PlaylistEntry*> *rows);
+		void Bookmark_FK_Playlist_getrows(vector <class Row_Bookmark*> *rows);
+void PlaylistEntry_FK_Playlist_getrows(vector <class Row_PlaylistEntry*> *rows);
 
 
 		// Setup binary serialization

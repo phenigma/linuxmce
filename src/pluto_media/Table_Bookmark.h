@@ -80,12 +80,14 @@ class DECLSPECIFIER Row_Bookmark : public TableRow, public SerializeClass
 		long int m_PK_Bookmark;
 long int m_FK_File;
 long int m_FK_Disc;
+long int m_FK_Playlist;
 long int m_FK_MediaProvider;
 long int m_EK_MediaType;
 long int m_FK_Picture;
 long int m_EK_Users;
 string m_Description;
 string m_Position;
+short int m_IsAutoResume;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -93,18 +95,20 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[15];
+		bool is_null[17];
 	
 	public:
 		long int PK_Bookmark_get();
 long int FK_File_get();
 long int FK_Disc_get();
+long int FK_Playlist_get();
 long int FK_MediaProvider_get();
 long int EK_MediaType_get();
 long int FK_Picture_get();
 long int EK_Users_get();
 string Description_get();
 string Position_get();
+short int IsAutoResume_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -116,12 +120,14 @@ long int psc_restrict_get();
 		void PK_Bookmark_set(long int val);
 void FK_File_set(long int val);
 void FK_Disc_set(long int val);
+void FK_Playlist_set(long int val);
 void FK_MediaProvider_set(long int val);
 void EK_MediaType_set(long int val);
 void FK_Picture_set(long int val);
 void EK_Users_set(long int val);
 void Description_set(string val);
 void Position_set(string val);
+void IsAutoResume_set(short int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -132,6 +138,7 @@ void psc_restrict_set(long int val);
 		
 		bool FK_File_isNull();
 bool FK_Disc_isNull();
+bool FK_Playlist_isNull();
 bool FK_MediaProvider_isNull();
 bool FK_Picture_isNull();
 bool EK_Users_isNull();
@@ -146,6 +153,7 @@ bool psc_restrict_isNull();
 			
 		void FK_File_setNull(bool val);
 void FK_Disc_setNull(bool val);
+void FK_Playlist_setNull(bool val);
 void FK_MediaProvider_setNull(bool val);
 void FK_Picture_setNull(bool val);
 void EK_Users_setNull(bool val);
@@ -170,6 +178,7 @@ void psc_restrict_setNull(bool val);
 		// Return the rows for foreign keys 
 		class Row_File* FK_File_getrow();
 class Row_Disc* FK_Disc_getrow();
+class Row_Playlist* FK_Playlist_getrow();
 class Row_MediaProvider* FK_MediaProvider_getrow();
 class Row_Picture* FK_Picture_getrow();
 
@@ -179,7 +188,7 @@ class Row_Picture* FK_Picture_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Bookmark+ m_FK_File+ m_FK_Disc+ m_FK_MediaProvider+ m_EK_MediaType+ m_FK_Picture+ m_EK_Users+ m_Description+ m_Position+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_Bookmark+ m_FK_File+ m_FK_Disc+ m_FK_Playlist+ m_FK_MediaProvider+ m_EK_MediaType+ m_FK_Picture+ m_EK_Users+ m_Description+ m_Position+ m_IsAutoResume+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -187,12 +196,14 @@ class Row_Picture* FK_Picture_getrow();
 		string PK_Bookmark_asSQL();
 string FK_File_asSQL();
 string FK_Disc_asSQL();
+string FK_Playlist_asSQL();
 string FK_MediaProvider_asSQL();
 string EK_MediaType_asSQL();
 string FK_Picture_asSQL();
 string EK_Users_asSQL();
 string Description_asSQL();
 string Position_asSQL();
+string IsAutoResume_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();
