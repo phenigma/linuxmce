@@ -38,5 +38,5 @@ for section in $sections; do
 
 	files=$(cat $section.changes | grep '^\+' | cut -c2- | tr '\n' ' ')
 	(cd $dirL; tar -czvf $location/$section.tar.gz $files)
-	echo "tar -xzvf $section.tar.gz" >>$section.patch.sh
+	echo "tar -xzvf /home/uploads/$section.tar.gz" >>$section.patch.sh
 done
