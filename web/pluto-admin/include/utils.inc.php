@@ -840,13 +840,15 @@ function grabDirectory ($path, $depth) {
 }
 
 
-function grabFiles($path,$fileParm='-type f') {
+function grabFiles($path,$fileParm='-type f',$startingWith='') {
 	$filesArray=array();
 	// required to read files larger than 2G
-	exec('find "'.$path.'" '.$fileParm.' -maxdepth 1',$retArray);
+	$PathParm=($startingWith!='')?'"'.$path.$startingWith.'"*':$path;
+	exec('find '.$PathParm.' '.$fileParm.' -maxdepth 1',$retArray);
 	foreach ($retArray AS $file){
-		if($file!=$path)
-			$filesArray[]=str_replace($path.'/','',$file);
+		if($file!=$path){
+			$filesArray[]=str_replace($path,'',$file);
+		}
 	}
 	return $filesArray;
 }
@@ -859,7 +861,11 @@ function resizeImage($source, $destination, $new_width, $new_height,$forcedPNG=0
 	$arr=getimagesize($source);
 	$old_w=$arr[0];
 	$old_h=$arr[1];
-	if($new_height<=0 || $new_width<=0)
+	if($new_width==0 || $new_height==0){
+		$new_width=$old_w;
+		$new_height=$old_h;
+	}
+	if($new_height<0 || $new_width<0)
 		return 2;	// invalid width or height
 	$aspect_ratio=$new_width/$new_height;
 	if($old_w/$old_h==$aspect_ratio)
@@ -2948,8 +2954,10 @@ function PortForHumans($device,$deviceNames)
 	return "Unknown: $devname";
 }
 
-function serialPortsPulldown($name,$selectedPort,$allowedToModify,$topParentIP)
+function serialPortsPulldown($name,$selectedPort,$allowedToModify,$topParentIP,$dbADO,$deviceID)
 {
+	$installationID=(int)$_SESSION['installationID'];
+
 	if($topParentIP==0){
 		return 'Error: top parent IP not found';
 	}
@@ -2957,8 +2965,24 @@ function serialPortsPulldown($name,$selectedPort,$allowedToModify,$topParentIP)
 	$serial_ports=array();
 	exec("sudo -u root /usr/pluto/bin/LaunchRemoteCmd.sh '$topParentIP' /usr/pluto/bin/ListSerialPorts.sh", $serial_ports);
 
+	$usedPorts=getFieldsAsArray('Device_DeviceData','Device.Description,FK_Device,IK_DeviceData',$dbADO,'INNER JOIN Device ON FK_Device=PK_Device WHERE FK_Installation='.$installationID.' AND FK_DeviceData='.$GLOBALS['Port'].' AND PK_Device!='.$deviceID);
+	$serialPortAsoc=array();
+	foreach($serial_ports AS $key=>$value){
+		$usedBy=array();
+		for($i=0;$i<count($usedPorts['IK_DeviceData']);$i++){
+			if($value==$usedPorts['IK_DeviceData'][$i]){
+				$usedBy[]=$usedPorts['Description'][$i];
+			}
+		}
+		if(count($usedBy)>0){
+			$serialPortAsoc[$value]=$value.' Used by '.join(', ',$usedBy);
+		}else{
+			$serialPortAsoc[$value]=$value;
+		}
+	}
+	
 	$extra=((isset($allowedToModify) && $allowedToModify==0)?'disabled':'');
-	$out=pulldownFromArray($serial_ports,$name,$selectedPort,$extra,'value');
+	$out=pulldownFromArray($serialPortAsoc,$name,$selectedPort,$extra,'key');
 	
 	return $out;
 }
@@ -3422,7 +3446,6 @@ function formatDeviceData($deviceID,$DeviceDataArray,$dbADO,$isIPBased=0)
 				if($rowDDforDevice['FK_DeviceData']==$GLOBALS['Port']){
 					$deviceDataBox.=@$ddValue;
 					$deviceDataBox.='<input type="hidden" name="deviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'].'" value="'.@$ddValue.'">&nbsp;<a href="javascript:windowOpen(\'index.php?section=editDeviceDeviceData&deviceID='.$deviceID.'&dd='.$rowDDforDevice['FK_DeviceData'].'&from=avWizard\',\'status=0,resizable=1,width=600,height=250,toolbars=true\');">Edit</a>';
-					//$deviceDataBox.=serialPortsPulldown('deviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'],@$ddValue,$rowDDforDevice['AllowedToModify'],getTopLevelParent($deviceID,$dbADO));
 				}else{
 					$deviceDataBox.='<input type="text" name="deviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'].'" value="'.@$ddValue.'" '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>';
 				}
@@ -3441,11 +3464,11 @@ function formatDeviceData($deviceID,$DeviceDataArray,$dbADO,$isIPBased=0)
 	if($isIPBased==1){
 		$deviceDataBox.='
 			<tr>
-				<td><B>IP</B></td>
+				<td align="right"><B>IP</B></td>
 				<td><input type="text" name="ip_'.$deviceID.'" value="'.$rowDDforDevice['IPaddress'].'"></td>
 			</tr>
 			<tr>
-				<td><B>MAC</B></td>
+				<td align="right"><B>MAC</B></td>
 				<td><input type="text" name="mac_'.$deviceID.'" value="'.$rowDDforDevice['MACaddress'].'"></td>
 			</tr>';
 	}

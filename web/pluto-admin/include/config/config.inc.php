@@ -30,8 +30,9 @@
 	$directory="/pluto-admin/";
 	$domain="http://localhost";
 	
-	// path where the media pics are uploaded
+	// path where the media pics and orbiter backgrounds are uploaded
 	$GLOBALS['mediaPicsPath']=$_SERVER['DOCUMENT_ROOT'].'/pluto-admin/mediapics/';
+	$GLOBALS['orbiterBackgroundPath']=$_SERVER['DOCUMENT_ROOT'].'/pluto-admin/orbiter_bg/';
 	
 	
 	define("VERSION","0.1");

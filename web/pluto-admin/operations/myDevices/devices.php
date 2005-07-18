@@ -266,7 +266,7 @@ function devices($output,$dbADO) {
 								}
 								else
 								{
-									$out.=serialPortsPulldown('deviceData_'.$rowD['PK_Device'].'_'.$value,$ddValue,$rowDDforDevice['AllowedToModify'],getTopLevelParent($rowD['PK_Device'],$dbADO));
+									$out.=serialPortsPulldown('deviceData_'.$rowD['PK_Device'].'_'.$value,$ddValue,$rowDDforDevice['AllowedToModify'],getTopLevelParent($rowD['PK_Device'],$dbADO),$dbADO,$rowD['PK_Device']);
 								}
 						}
 						
@@ -298,7 +298,7 @@ function devices($output,$dbADO) {
 					<td colspan="5">&nbsp;</td>
 				</tr>
 				<tr>
-					<td colspan="5" align="center"><input type="button" class="button" name="button" value="Add device" onClick="document.devices.action.value=\'externalSubmit\';document.devices.submit();windowOpen(\'index.php?section=deviceTemplatePicker&from='.urlencode('devices&type='.$type).'&categoryID='.$deviceCategory.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');">'.$addGC100Btn.'</td>
+					<td colspan="5" align="center"><input type="button" class="button" name="button" value="Add device" onClick="document.devices.action.value=\'externalSubmit\';document.devices.submit();windowOpen(\'index.php?section=deviceTemplatePicker&from='.urlencode('devices&type='.$type).'&categoryID='.$deviceCategory.'&allowAdd=1\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');">'.$addGC100Btn.'</td>
 				</tr>
 			</table>
 			</div>

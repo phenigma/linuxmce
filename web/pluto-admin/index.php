@@ -1220,7 +1220,12 @@ switch ($section) {
 	    include_once('operations/sqlCVS/sqlcvs_view_batch.php');
 	    sqlcvs_view_batch($output,$dbADO);
 	break;	
-
+	case 'customBackground';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/myDevices/orbiters/customBackground.php');
+	    customBackground($output,$dbADO);
+	break;	
 	
 	case '';
 		$output = new Template($dbADO);	

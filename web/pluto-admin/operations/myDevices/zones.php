@@ -53,18 +53,19 @@ function zones($output,$dbADO) {
 					<td><input type="text" name="dg_'.$row['PK_DeviceGroup'].'" value="'.$row['Description'].'"></td>
 					<td>'.$devicesInZone.'</td>
 					<td>'.pulldownFromArray($outZoneArray,'addTo_'.$row['PK_DeviceGroup'],0).'</td>
+					<td><input type="submit" class="button" name="zone_'.$row['PK_DeviceGroup'].'" value="Delete Zone" onclick="if(!confirm(\'Are you sure you want to delete this security zone?\'))return false; else{document.zones.dzone.value='.$row['PK_DeviceGroup'].';}"></td>
 				</tr>';
 		}
 		if($res->RecordCount()==0){
 			$tableRowsArray[]='
 				<tr>
-					<td colspan="3">No '.$title.' Zones defined</td>
+					<td colspan="4">No '.$title.' Zones defined</td>
 				</tr>';
 		}else{
 			$tableRowsArray[]='
 				<input type="hidden" name="deviceGroupArray" value="'.join(',',$deviceGroupArray).'">
 				<tr>
-					<td colspan="3" align="center"><input type="submit" class="button" name="update" value="update"></td>
+					<td colspan="4" align="center"><input type="submit" class="button" name="update" value="update"></td>
 				</tr>';
 		}
 		$tableRows=join('',$tableRowsArray);
@@ -78,6 +79,7 @@ function zones($output,$dbADO) {
 	<input type="hidden" name="action" value="add">	
 	<input type="hidden" name="did" value="">
 	<input type="hidden" name="ddg" value="">
+	<input type="hidden" name="dzone" value="">
 				
 	<div align="center"><h3>'.$title.' Zones</h3></div>
 		
@@ -86,6 +88,7 @@ function zones($output,$dbADO) {
 			<td align="center"><B>Zone Name</B></td>
 			<td align="center"><B>Devices in zone (click to remove)</B></td>
 			<td align="center"><B>Add device to zone</B></td>
+			<td align="center">&nbsp;</td>
 		</tr>
 		'.$tableRows.'
 		<tr>
@@ -93,7 +96,7 @@ function zones($output,$dbADO) {
 		</tr>		
 		<tr bgcolor="#F0F3F8">
 			<td align="center"><B>Add zone</B></td>
-			<td colspan="2"><input type="text" name="newDG" value=""> <input type="submit" class="button" name="add" value="Add zone"></td>
+			<td colspan="3"><input type="text" name="newDG" value=""> <input type="submit" class="button" name="add" value="Add zone"></td>
 		</tr>
 	</table>
 	</form>
@@ -110,11 +113,11 @@ function zones($output,$dbADO) {
 		
 		$msg='';
 		// update button
-		$deviceGroupArray=explode(',',$_POST['deviceGroupArray']);
+		$deviceGroupArray=explode(',',@$_POST['deviceGroupArray']);
 		$updCount=0;
 		foreach ($deviceGroupArray AS $dg){
-			$device=(int)$_POST['addTo_'.$dg];
-			$description=stripslashes($_POST['dg_'.$dg]);
+			$device=(int)@$_POST['addTo_'.$dg];
+			$description=stripslashes(@$_POST['dg_'.$dg]);
 			$dbADO->Execute('UPDATE DeviceGroup SET Description=? WHERE PK_DeviceGroup=?',array($description,$dg));
 			$updCount+=$dbADO->Affected_Rows();
 			if( $device!=0){
@@ -140,6 +143,14 @@ function zones($output,$dbADO) {
 					(?,?,?)',array(stripslashes($_POST['newDG']),$installationID,$typeInt));
 			$msg.='<br>New '.$title.' zone was added.';	
 		}
+		
+		$dzone=(int)$_POST['dzone'];
+		if($dzone>0){
+			$dbADO->Execute('DELETE FROM Device_DeviceGroup WHERE FK_DeviceGroup=?',array($dzone));
+			$dbADO->Execute('DELETE FROM DeviceGroup WHERE PK_DeviceGroup=?',array($dzone));
+			$msg='The zone was deleted.';	
+		}
+		
 		header("Location: index.php?section=zones&type=$type&msg=".urlencode($msg));		
 	}
 

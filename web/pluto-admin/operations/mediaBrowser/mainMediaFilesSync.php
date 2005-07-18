@@ -20,6 +20,11 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 			
 			$out.='
 			<script>
+			function windowOpen(locationA,attributes) 
+			{
+				window.open(locationA,\'\',attributes);
+			}
+			
 			function requestName(oldDir)
 			{
 				var newDir=prompt("Please type the new name for the directory: ",oldDir);
@@ -47,6 +52,7 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 			<table cellpadding="3" cellspacing="0">
 				<tr bgcolor="#F0F3F8">
 					<td><B>Directory: '.$path.'</B></td>
+					<td><input type="button" class="button" name="resyncDir" value="Resynchronize" onClick="windowOpen(\'operations/logs/executeLog.php?script=3&path='.urlencode($path).'\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');self.location=\'index.php?section=mainMediaFilesSync&action=resync&path='.$path.'\';"></td>
 					<td><input type="button" class="button" name="renameDir" value="Rename" onClick="requestName(\''.addslashes($oldDir).'\')"></td>
 					<td><input type="button" class="button" name="subDir" value="Create subdirectory" onClick="createSubdir()"></td>
 					<td><input type="button" class="button" name="delDir" value="Delete" onClick="confirmDel();"></td>
@@ -91,7 +97,7 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 						$addToDB='<td align="right"> Type: <select name="type_'.$physicalkey.'">
 							<option value="">- Please select -</option>';
 						foreach ($typeArray AS $typeID=>$typeDescription){
-							$addToDB.='<option value="'.$typeID.'">'.$typeDescription.'</option>';
+							$addToDB.='<option value="'.$typeID.'">'.str_replace('np_','',$typeDescription).'</option>';
 						}
 						$addToDB.='</select> <input type="submit" class="button" name="add" value="Add to database">
 						<input type="hidden" name="filename_'.$physicalkey.'" value="'.$filename.'">
@@ -209,6 +215,11 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 				</script>';				
 			}
 			
+		}
+		
+		if($action=='resync'){
+			header('Location: index.php?section=mainMediaFilesSync&path='.urlencode($path).'&msg=The command to resynchronize directory was sent.');			
+			exit();
 		}
 		
 		if($action=='update'){

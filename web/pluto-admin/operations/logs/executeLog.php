@@ -10,6 +10,11 @@ switch($scriptID){
 		$command[]=stripslashes(urldecode($_REQUEST['command']));
 		$title='sqlCVS update';
 	break;	
+	case 3:
+		$path=stripslashes($_REQUEST['path']);
+		$command[]='sudo -u root /usr/pluto/bin/UpdateMedia -d "'.$path.'"';
+		$title='Resynchronize directory '.$path;
+	break;	
 	default:
 		$command[]='';
 		$title='No command specified.';

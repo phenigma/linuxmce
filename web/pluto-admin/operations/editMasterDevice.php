@@ -756,15 +756,15 @@ $out='';
 		$ConfigureScript=$_POST['ConfigureScript'];
 		$oldIsIPBased= cleanInteger(@$_POST['oldIsIPBased']);
 		$comments=cleanString($_POST['comments']);
-		$newScreen=(int)$_POST['newScreen'];
-		$newMacFrom=(int)$_POST['mac_from'];
-		$newMacTo=(int)$_POST['mac_to'];
+		$newScreen=(int)@$_POST['newScreen'];
+		$newMacFrom=(int)@$_POST['mac_from'];
+		$newMacTo=(int)@$_POST['mac_to'];
 		$newManufacturer=((int)$_POST['manufacturerPnp']>0)?(int)$_POST['manufacturerPnp']:NULL;
 		$manufacturerURL=($_POST['manufacturerURL']!='')?$_POST['manufacturerURL']:NULL;
 		$internalURLsufix=($_POST['internalURLsufix']!='')?$_POST['internalURLsufix']:NULL;
-		$newCategory=((int)$_POST['categoryPnp']>0)?(int)$_POST['categoryPnp']:NULL;
-		$newComment=$_POST['commentPnp'];
-		$dhcpArray=explode(',',$_POST['dhcpArray']);
+		$newCategory=((int)@$_POST['categoryPnp']>0)?(int)$_POST['categoryPnp']:NULL;
+		$newComment=@$_POST['commentPnp'];
+		$dhcpArray=explode(',',@$_POST['dhcpArray']);
 		$isAVDevice = cleanInteger(@$_POST['isAVDevice']);
 		$old_isAVDevice = cleanInteger(@$_POST['old_isAVDevice']);
 
@@ -988,7 +988,6 @@ $out='';
 			$query = "insert into DeviceTemplate_DeviceData( FK_DeviceTemplate , FK_DeviceData) values(?,?)";
 			$dbADO->Execute($query,array($deviceID,$newDeviceData));
 			
-			$dbADO->Execute('INSERT IGNORE INTO Device_DeviceData (FK_DeviceData, FK_Device) SELECT '.$newDeviceData.',PK_Device FROM Device WHERE FK_DeviceTemplate=?',$deviceID);
 			$locationGoTo = "Data_Description_{$newDeviceData}";
 
 		}
@@ -1034,8 +1033,8 @@ $out='';
 				$query = $dbADO->Execute($insertControlledVia,array($deviceID,$GLOBALS['rootDCERouter']));
 			
 			}	
-			$addRelated=(int)$_POST['addRelated'];
-			$valueRelated=(int)$_POST['valueRelated'];
+			$addRelated=(int)@$_POST['addRelated'];
+			$valueRelated=(int)@$_POST['valueRelated'];
 			if($addRelated!=0){
 				$dtRelatedArray=getFieldsAsArray('DeviceTemplate','PK_DeviceTemplate',$dbADO,'WHERE PK_DeviceTemplate='.$addRelated);
 				if(count($dtRelatedArray)==0){
@@ -1053,7 +1052,7 @@ $out='';
 				}
 			}
 			
-			if((int)$_POST['delRelated']>0){
+			if((int)@$_POST['delRelated']>0){
 				$dbADO->Execute('DELETE FROM DeviceTemplate_DeviceTemplate_Related WHERE FK_DeviceTemplate=? AND FK_DeviceTemplate_Related=?',array($deviceID,(int)$_POST['delRelated']));
 				$locationGoTo='#dtRelated';
 			}

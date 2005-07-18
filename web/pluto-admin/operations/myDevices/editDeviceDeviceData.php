@@ -65,7 +65,7 @@ function editDeviceDeviceData($output,$dbADO) {
 					break;
 					default:
 					if($dd==$GLOBALS['Port']){
-						$deviceDataBox.=serialPortsPulldown('IK_DeviceData',@$ddValue,$rowDDforDevice['AllowedToModify'],getTopLevelParent($deviceID,$dbADO));
+						$deviceDataBox.=serialPortsPulldown('IK_DeviceData',@$ddValue,$rowDDforDevice['AllowedToModify'],getTopLevelParent($deviceID,$dbADO),$dbADO,$deviceID);
 					}else{
 						$deviceDataBox.='<textarea name="IK_DeviceData" '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>'.@$ddValue.'</textarea>';
 					}

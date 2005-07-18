@@ -61,7 +61,10 @@ function wizardOrbiters($output,$dbADO) {
 		<div id="content" style="display:none;">
 		<table border="0">
 			<tr>
-				<td colspan="2" align="center"><input type="submit" class="button" name="QuickRegenAll" value="Quick Regen All"> <input type="submit" class="button" name="FullRegenAll" value="Full Regen All"> <input type="checkbox" name="reset_all" value="1"> Reset Router when done regenerating</td>
+				<td colspan="2" align="center">
+					<input type="submit" class="button" name="QuickRegenAll" value="Quick Regen All"> 
+					<input type="submit" class="button" name="FullRegenAll" value="Full Regen All"> 
+					<input type="checkbox" name="reset_all" value="1"> Reset Router when done regenerating</td>
 			</tr>';
 				$displayedDevices=array();
 				$DeviceDataToDisplay=array();
@@ -277,9 +280,13 @@ function wizardOrbiters($output,$dbADO) {
 			}
 			$out.='	
 				<tr>
-					<td align="center" colspan="2"><input type="submit" class="button" name="quickRegen_'.$rowD['PK_Device'].'" value="Quick regen"  >&nbsp;&nbsp;<input type="submit" class="button" name="fullRegen_'.$rowD['PK_Device'].'" value="Full regen"  >&nbsp;&nbsp;<input type="submit" class="button" name="update" value="Update"  > &nbsp;&nbsp;<input type="button" class="button" name="edit_'.$rowD['PK_Device'].'" value="Adv"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'\';"> &nbsp;&nbsp; <input type="submit" class="button" name="delete_'.$rowD['PK_Device'].'" value="Delete"  onclick="if(!confirm(\'Are you sure you want to delete this orbiter?\'))return false;">
-					
-					
+					<td align="center" colspan="2">
+						<input type="submit" class="button" name="quickRegen_'.$rowD['PK_Device'].'" value="Quick regen"  >&nbsp;&nbsp;
+						<input type="submit" class="button" name="fullRegen_'.$rowD['PK_Device'].'" value="Full regen"  >&nbsp;&nbsp;
+						<input type="button" class="button" name="customBg" value="Custom Bg"  onclick="windowOpen(\'index.php?section=customBackground&oID='.$rowD['PK_Device'].'\',\'width=600,height=400,scrollbars=1,resizable=1\');">&nbsp;&nbsp;
+						<input type="submit" class="button" name="update" value="Update"  >&nbsp;&nbsp;
+						<input type="button" class="button" name="edit_'.$rowD['PK_Device'].'" value="Adv"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'\';">&nbsp;&nbsp;
+						<input type="submit" class="button" name="delete_'.$rowD['PK_Device'].'" value="Delete"  onclick="if(!confirm(\'Are you sure you want to delete this orbiter?\'))return false;">
 					</td>
 					</tr>
 				</table></td>';

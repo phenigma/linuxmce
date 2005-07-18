@@ -446,8 +446,9 @@ $installationID = (int)@$_SESSION['installationID'];
 		} 
 			
 		while ($rowDevicedata = $resDeviceData->FetchRow()) {
+			print_array($rowDevicedata);
 			if($rowDevicedata['PK_DD']==$GLOBALS['Port'])
-				$formElement=serialPortsPulldown('deviceData_'.$rowDevicedata['PK_DD'],stripslashes($rowDevicedata['IK_DeviceData']),$rowDevicedata['AllowedToModify'],getTopLevelParent($deviceID,$dbADO));
+				$formElement=serialPortsPulldown('deviceData_'.$rowDevicedata['PK_DD'],stripslashes($rowDevicedata['IK_DeviceData']),$rowDevicedata['AllowedToModify'],getTopLevelParent($deviceID,$dbADO),$dbADO,$deviceID);
 			else
 				$formElement="<textarea name=\"deviceData_".$rowDevicedata['PK_DD']."\" ".(($rowDevicedata['AllowedToModify']==1 || $rowDevicedata['DT_DD_Exists']=='')?'':'disabled')." rows=\"1\">".stripslashes($rowDevicedata['IK_DeviceData'])."</textarea> ".$rowDevicedata['ExtraInfo'];
 				

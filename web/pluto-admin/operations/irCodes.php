@@ -217,6 +217,7 @@ function irCodes($output,$dbADO) {
 		$deviceCG=array();
 		foreach ($cgArray AS $key=>$arrayValues){
 			// get commands from DeviceCommandGroup
+			// $dbADO->debug=true;
 			$res=$dbADO->Execute('
 				SELECT Command.Description,PK_Command 
 				FROM DeviceCommandGroup_Command 
@@ -231,19 +232,19 @@ function irCodes($output,$dbADO) {
 			}
 			
 			
-			// insert command in InfraredGroup_Command
+			// insert command in from FK_DeviceCommandGroup_Command in InfraredGroup_Command
 			if($arrayValues['checked']==1){
-				//$dbADO->debug=true;
+				
 					if(count($commandIDs)==0){
 						$commandIDs[]=0;
 					}
-					
+
 					$oldRes=$dbADO->Execute('
 						SELECT PK_InfraredGroup_Command,FK_Command
 						FROM InfraredGroup_Command 
 						WHERE FK_Command IN ('.join(',',$commandIDs).') AND 
 							((FK_DeviceTemplate=? AND FK_InfraredGroup IS NULL AND (FK_Device IS NULL OR FK_Device=?))
-							OR (FK_DeviceTemplate IS NULL AND FK_InfraredGroup IS NOT NULL AND FK_Device IS NULL))',array($dtID,$deviceID));
+							OR (FK_DeviceTemplate IS NULL AND FK_InfraredGroup=? AND FK_Device IS NULL))',array($dtID,$deviceID,$infraredGroupID));
 					$existCommands=array();
 					while($rowCom=$oldRes->FetchRow()){
 						$existCommands[]=$rowCom['FK_Command'];
@@ -411,8 +412,10 @@ function irCodes($output,$dbADO) {
 						LEFT JOIN InfraredGroup_Command ON InfraredGroup_Command.FK_Command=DeviceCommandGroup_Command.FK_Command AND (FK_InfraredGroup=? OR FK_InfraredGroup IS NULL)
 						WHERE FK_DeviceCommandGroup=?',array($infraredGroupID,$deviceCG));
 
+					
 					while($rowC=$res->FetchRow()){
-						if($rowC['PK_InfraredGroup_Command']==''){
+						if(is_null($rowC['PK_InfraredGroup_Command'])){
+							echo $rowC['FK_Command'].'<br>';
 							$infraredGroupID=($infraredGroupID==0)?NULL:$infraredGroupID;
 							$dbADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command,FK_Device,FK_DeviceTemplate,IRData,FK_Users) VALUES (?,?,?,?,?,?)',array(NULL,$rowC['FK_Command'],$deviceID,$dtID,'',$_SESSION['userID']));
 						}

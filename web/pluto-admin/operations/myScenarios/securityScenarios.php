@@ -233,9 +233,13 @@ if($action=='form') {
 				<td colspan="2"><b>Select cameras for quad view:</b></td>
 			</tr>';
 			$camerasTxt='';
+			$xinePlayers=getAssocArray('Device','PK_Device','Description',$dbADO,'WHERE FK_Installation='.$installationID.' AND FK_DeviceTemplate='.$GLOBALS['XinePlayer']);
+			$cameraDevices=$cameraDevices+$xinePlayers;
+			asort($cameraDevices);
 			foreach($cameraDevices as $cameraID=>$cameraDescription){
 				$camerasTxt.='<option value="'.$cameraID.'">'.$cameraDescription.'</option>';
 			}
+			
 			for($i=1;$i<5;$i++){
 				$out.='
 				<tr>
@@ -337,6 +341,9 @@ if($action=='form') {
 					<td><B>Camera '.($pos+1).': </B></td>
 					<td><select name="camera_'.$cameraNO.'">
 						<option value="0"></option>';
+					$xinePlayers=getAssocArray('Device','PK_Device','Description',$dbADO,'WHERE FK_Installation='.$installationID.' AND FK_DeviceTemplate='.$GLOBALS['XinePlayer']);
+					$cameraDevices=$cameraDevices+$xinePlayers;
+					asort($cameraDevices);
 					foreach($cameraDevices as $cameraID=>$cameraDescription){
 						$out.='<option value="'.$cameraID.'" '.(($cameraID==@$oldIDs[$cameraNO])?'selected':'').'>'.$cameraDescription.'</option>';
 					}
