@@ -732,9 +732,9 @@ string StringUtils::GetDow( int iDow, bool bFull )
 	return "";
 }
 
-char **StringUtils::ConvertStringToArgs(string sInput,int &iNumArgs,int &iPosNext)
+char **StringUtils::ConvertStringToArgs(string sInput,int &iNumArgs,int *p_iPosNext)
 {
-	iNumArgs=iPosNext=0;
+	iNumArgs=(*p_iPosNext)=0;
 	char **pArgs = new char*[500];
 	const char *pc_str = sInput.c_str();
 
@@ -751,7 +751,8 @@ char **StringUtils::ConvertStringToArgs(string sInput,int &iNumArgs,int &iPosNex
 
 		if( sInput[pos_start]=='\n' )  // There's another set of args that follows
 		{
-			iPosNext = pos_start+1;
+			if( p_iPosNext )
+				*p_iPosNext = pos_start+1;
 			return pArgs;
 		}
 
