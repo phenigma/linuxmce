@@ -41,6 +41,8 @@ case "$1" in
 		popd &>/dev/null
 		
 		chmod -R ug+rw /etc/asterisk/
+		chmod 777 /var /var/lib/ /var/lib/asterisk/ /var/lib/asterisk/sounds/
+		chmod -R ug+rw /var/lib/asterisk/sounds/
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
