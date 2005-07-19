@@ -250,14 +250,14 @@ Message::Message( string sMessageInStringFormat )
 {
 	int iNumArgs;
 	int iPosNext=0;
-	char **pArgs = StringUtils::ConvertStringToArgs(sMessageInStringFormat,iNumArgs,iPosNext);
+	char **pArgs = StringUtils::ConvertStringToArgs(sMessageInStringFormat,iNumArgs,&iPosNext);
 	BuildFromArgs( iNumArgs, pArgs );
 
 	int iPosNextCumulative=iPosNext;
 	while( iPosNext )  // If there's not at least 5 characters it can't be a valid message
 	{
 		// There are more messages
-		pArgs = StringUtils::ConvertStringToArgs(sMessageInStringFormat.substr(iPosNextCumulative),iNumArgs,iPosNext);
+		pArgs = StringUtils::ConvertStringToArgs(sMessageInStringFormat.substr(iPosNextCumulative),iNumArgs,&iPosNext);
 		iPosNextCumulative+=iPosNext;
 		Message *pMessage = new Message();
 		pMessage->BuildFromArgs( iNumArgs, pArgs );
