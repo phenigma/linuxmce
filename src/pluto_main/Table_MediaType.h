@@ -86,6 +86,7 @@ string m_Extensions;
 string m_Subdirectory;
 short int m_IsExternalTransmission;
 long int m_FK_Pipe;
+short int m_CanBookmark;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -93,7 +94,7 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[15];
+		bool is_null[16];
 	
 	public:
 		long int PK_MediaType_get();
@@ -105,6 +106,7 @@ string Extensions_get();
 string Subdirectory_get();
 short int IsExternalTransmission_get();
 long int FK_Pipe_get();
+short int CanBookmark_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -122,6 +124,7 @@ void Extensions_set(string val);
 void Subdirectory_set(string val);
 void IsExternalTransmission_set(short int val);
 void FK_Pipe_set(long int val);
+void CanBookmark_set(short int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -176,7 +179,7 @@ void MediaType_DesignObj_FK_MediaType_getrows(vector <class Row_MediaType_Design
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_MediaType+ m_Define+ m_Description+ m_FK_DesignObj+ m_DCEAware+ m_Extensions+ m_Subdirectory+ m_IsExternalTransmission+ m_FK_Pipe+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_MediaType+ m_Define+ m_Description+ m_FK_DesignObj+ m_DCEAware+ m_Extensions+ m_Subdirectory+ m_IsExternalTransmission+ m_FK_Pipe+ m_CanBookmark+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -190,6 +193,7 @@ string Extensions_asSQL();
 string Subdirectory_asSQL();
 string IsExternalTransmission_asSQL();
 string FK_Pipe_asSQL();
+string CanBookmark_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();
