@@ -35,7 +35,8 @@ while [ "$offline" -eq 0 -a "$tries" -gt 0 ]; do
 		# TODO: remember which hosts are offline as to not ping them anymore
 		ping -qnc 1 -W 1 "$Host" &>/dev/null && offline=0 && Logging $TYPE $SEVERITY_WARNING "$0" "$Host still online"
 	done
-	: $((tries--))
+	((tries--))
+	sleep 1
 done
 
 # wait 10 seconds more, just to be sure
