@@ -55,6 +55,21 @@ class MediaStream *Generic_NonPluto_Media::CreateMediaStream( class MediaHandler
 {
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 
+	if ( pMediaDevice == NULL  && vectEntertainArea.size() )
+	{
+		// Find a source device in this area
+		EntertainArea *pEntertainArea = vectEntertainArea[0];
+        for( map<int, class MediaDevice *>::iterator itDevice=pEntertainArea->m_mapMediaDevice.begin( );itDevice!=pEntertainArea->m_mapMediaDevice.end( );++itDevice )
+        {
+            class MediaDevice *pMediaDevice2 = ( *itDevice ).second;
+			if( pMediaDevice2->m_mapMediaType.find( pMediaHandlerInfo->m_PK_MediaType )!=pMediaDevice2->m_mapMediaType.end() &&
+				pMediaDevice2->m_iPK_MediaProvider==iPK_MediaProvider )
+			{
+				pMediaDevice=pMediaDevice2;
+				break;
+			}
+		}
+	}
 	if ( pMediaDevice == NULL )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "I can't create a media stream without an entertainment area or a media device");

@@ -460,8 +460,15 @@ void Media_Plugin::AddDeviceToEntertainArea( EntertainArea *pEntertainArea, Row_
         pMediaDevice = new MediaDevice( m_pRouter, pRow_Device ); // Nope, create it
         m_mapMediaDevice[pMediaDevice->m_pDeviceData_Router->m_dwPK_Device]=pMediaDevice;
 
+if( pRow_Device->PK_Device_get()==20278 )
+{
+int k=2;
+}
 		vector<Row_DeviceTemplate_MediaType *> vectRow_DeviceTemplate_MediaType;
 		pMediaDevice->m_pDeviceData_Router->m_pRow_Device->FK_DeviceTemplate_getrow()->DeviceTemplate_MediaType_FK_DeviceTemplate_getrows(&vectRow_DeviceTemplate_MediaType);
+		if( pMediaDevice->m_pDeviceData_Router->m_pDevice_RouteTo )  // If it's an embedded device like a tuner, add the master's device types too
+			pMediaDevice->m_pDeviceData_Router->m_pDevice_RouteTo->m_pRow_Device->FK_DeviceTemplate_getrow()->DeviceTemplate_MediaType_FK_DeviceTemplate_getrows(&vectRow_DeviceTemplate_MediaType);
+
 		for(size_t mt=0;mt<vectRow_DeviceTemplate_MediaType.size();++mt)
 		{
 			Row_DeviceTemplate_MediaType *pRow_DeviceTemplate_MediaType = vectRow_DeviceTemplate_MediaType[mt];
@@ -798,7 +805,8 @@ MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, int 
     if( !bResume && pMediaStream_AllEAsPlaying && !pMediaStream_AllEAsPlaying->m_bResume &&
 		pMediaStream_AllEAsPlaying->m_pMediaHandlerInfo->m_pMediaHandlerBase == pMediaHandlerInfo->m_pMediaHandlerBase &&
 		pMediaStream_AllEAsPlaying->m_iPK_MediaType == pMediaHandlerInfo->m_PK_MediaType &&
-		pMediaHandlerInfo->m_PK_MediaType!=MEDIATYPE_pluto_DVD_CONST )
+		pMediaHandlerInfo->m_PK_MediaType!=MEDIATYPE_pluto_DVD_CONST &&
+		pMediaStream_AllEAsPlaying->m_dequeMediaFile.size() )
     {
         pMediaStream = pMediaStream_AllEAsPlaying;
         pMediaStream->m_dequeMediaFile += *dequeMediaFile;
