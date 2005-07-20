@@ -136,19 +136,16 @@ class MediaFile
 public:
 	MediaFile(int dwPK_File,string sFullyQualifiedFile)	{
 		m_dwPK_File=dwPK_File; m_sPath=FileUtils::BasePath(sFullyQualifiedFile); m_sFilename=FileUtils::FilenameWithoutPath(sFullyQualifiedFile);
-g_pPlutoLogger->Write(LV_CRITICAL,"const 1 %d %s",dwPK_File,sFullyQualifiedFile.c_str());
 	}
 
 	MediaFile(string sMRL)	{
 		m_sFilename=sMRL;
 		m_dwPK_File=0;
-g_pPlutoLogger->Write(LV_CRITICAL,"const 2 %d %s",m_dwPK_File,m_sFilename.c_str());
 	}
 
 	MediaFile(MediaAttributes *pMediaAttributes, string sFullyQualifiedFile) {
 		m_sPath=FileUtils::BasePath(sFullyQualifiedFile); m_sFilename=FileUtils::FilenameWithoutPath(sFullyQualifiedFile);
 		m_dwPK_File=pMediaAttributes->GetFileIDFromFilePath(sFullyQualifiedFile);
-g_pPlutoLogger->Write(LV_CRITICAL,"const 3 %d %s",m_dwPK_File,sFullyQualifiedFile.c_str());
 	}
 
 	MediaFile(MediaFile *pMediaFile_Copy) {

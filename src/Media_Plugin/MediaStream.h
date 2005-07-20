@@ -102,6 +102,7 @@ namespace DCE
         string m_sMediaSynopsis;    	/** A description of what's playing, such as the tv show description */
         string m_sTimecode;    			/** The handler may populate this with a timecode */
 		string m_sLastPosition;			/** The handler may populate this with a seekable position showing the current location.  I should do this in StopMedia if possible so the media can be resumed */
+		string m_sStartPosition;		/** The position to start the stream at. */
 
 
         /** @brief constructor*/

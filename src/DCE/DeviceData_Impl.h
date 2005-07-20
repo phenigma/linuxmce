@@ -34,6 +34,7 @@ namespace DCE
 	public:
 		Event_Impl *m_pEvent_Impl; /** < pointer to an event implementation assicieted with the current device @todo ask */
 		map<int, string> m_mapParameters; /** < integer-keyed map with the parameters this device has @todo ask - is string=paramvalue? */
+        string m_mapParameters_Find(int PK_DeviceData) { map<int, string>::iterator it = m_mapParameters.find(PK_DeviceData); return it==m_mapParameters.end() ? "" : (*it).second; }
 		
 		VectDeviceData_Impl m_vectDeviceData_Impl_Children; /** < vector containing the child devices  */
 		bool m_bUsePingToKeepAlive;

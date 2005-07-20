@@ -1207,6 +1207,7 @@ void DesignObj_Generator::PickVariation(OrbiterGenerator *pGenerator,class Row_D
     {
         if( *drStandardVariation==NULL || pGenerator->m_pRow_UI->IncludeStandardUI_get()==0 )  // Confirm they're not both null
         {
+			*drStandardVariation=NULL;
             cerr << "WARNING: Cannot find any variation for object: " << drDesignObj->PK_DesignObj_get() << endl;
         }
         else

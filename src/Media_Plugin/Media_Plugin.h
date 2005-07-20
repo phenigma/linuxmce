@@ -117,6 +117,7 @@ private:
     class DataGridTable *DVDAudioTracks( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
     class DataGridTable *DVDAngles( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
     class DataGridTable *Bookmarks( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
+	class DataGridTable *BookmarksByMediaType( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 
 	void PopulateRemoteControlMaps();
 
@@ -249,10 +250,10 @@ public:
 
 	// This version is called by MH_Play_Media.  It may result in multiple handlers and multiple streams
 	// if there isn't 1 handler that can do it all.  If p_vectMediaStream is passed it will have a list of all the streams that were created as a result
-	void StartMedia( int iPK_MediaType, unsigned int iPK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int iPK_Device, deque<MediaFile *> *dequeMediaFile, bool bResume, int iRepeat, vector<MediaStream *> *p_vectMediaStream=NULL);
+	void StartMedia( int iPK_MediaType, unsigned int iPK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int iPK_Device, deque<MediaFile *> *dequeMediaFile, bool bResume, int iRepeat, string sStartingPosition, vector<MediaStream *> *p_vectMediaStream=NULL);
 
 	// This creates a single media stream for a given media handler and starts playing it by calling the next StartMedia, or returns NULL if it cannot create the stream
-    MediaStream *StartMedia(MediaHandlerInfo *pMediaHandlerInfo, unsigned int PK_Device_Orbiter,vector<EntertainArea *> &vectEntertainArea,int PK_Device_Source,deque<MediaFile *> *dequeMediaFile,bool bResume,int iRepeat, int iPK_Playlist=0);
+    MediaStream *StartMedia(MediaHandlerInfo *pMediaHandlerInfo, unsigned int PK_Device_Orbiter,vector<EntertainArea *> &vectEntertainArea,int PK_Device_Source,deque<MediaFile *> *dequeMediaFile,bool bResume,int iRepeat, string sStartingPosition, int iPK_Playlist=0);
 
 	// This is the final stage of 'StartMedia' that starts playing the given stream.  This is also called when the stream changes, or is moved, and needs to be restarted
 	bool StartMedia(MediaStream *pMediaStream);

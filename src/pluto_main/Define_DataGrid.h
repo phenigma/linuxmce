@@ -38,6 +38,7 @@
 #define DATAGRID_Bookmarks_CONST 35
 #define DATAGRID_Quick_Start_Apps_CONST 36
 #define DATAGRID_MRU_Documents_CONST 37
+#define DATAGRID_Bookmarks_by_MediaType_CONST 38
 
 #define DATAGRID_TABLE "DataGrid"
 #define DATAGRID_PK_DATAGRID_FIELD "PK_DataGrid"

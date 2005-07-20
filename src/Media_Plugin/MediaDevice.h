@@ -20,7 +20,7 @@ namespace DCE
 
 		map<int,int> m_mapMediaType_DesignObj;              /** A map of all the remotes for the various screens */
 		map<int,class EntertainArea *> m_mapEntertainArea;
-		int m_iLastPlaybackSpeed;
+		int m_iLastPlaybackSpeed,m_iPK_MediaProvider;
 		class OH_Orbiter *m_pOH_Orbiter_OSD;    	   /** Which orbiter is the on-sceren display */
 		map<int, Row_MediaType *> m_mapMediaType;
 		class CommandGroup *m_pCommandGroup; // A command group used to turn this device on

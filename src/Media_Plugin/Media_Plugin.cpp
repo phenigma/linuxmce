@@ -116,6 +116,7 @@ MediaDevice::MediaDevice( class Router *pRouter, class Row_Device *pRow_Device )
 	m_pCommandGroup=NULL;
 	m_tReset=0;
 	m_pDevice_App_Server_Volume=NULL;
+	m_iPK_MediaProvider=atoi(m_pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_EK_MediaProvider_CONST).c_str());
 
 	// See if this is an M/D
 	if( m_pDeviceData_Router->WithinCategory(DEVICECATEGORY_Media_Director_CONST) )
@@ -407,6 +408,10 @@ bool Media_Plugin::Register()
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::Bookmarks ))
         , DATAGRID_Bookmarks_CONST );
 	
+    m_pDatagrid_Plugin->RegisterDatagridGenerator(
+        new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::BookmarksByMediaType ))
+        , DATAGRID_Bookmarks_by_MediaType_CONST );
+
 	//  m_pMediaAttributes->ScanDirectory( "/home/public/data/music/" );
 //  m_pMediaAttributes->ScanDirectory( "Z:\\" );
 	PopulateRemoteControlMaps();
@@ -545,7 +550,7 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
 
 			g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from Media Inserted with orbiter %d",PK_Orbiter);
 
-			MediaStream *pMediaStream = StartMedia(pMediaHandlerInfo,PK_Orbiter,vectEntertainArea,pDeviceFrom->m_dwPK_Device,&dequeMediaFile,false,0);
+			MediaStream *pMediaStream = StartMedia(pMediaHandlerInfo,PK_Orbiter,vectEntertainArea,pDeviceFrom->m_dwPK_Device,&dequeMediaFile,false,0,"");
 			if( pMediaStream )
 				pMediaStream->m_discid = discid;
 
@@ -680,7 +685,7 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
     return true;
 }
 
-void Media_Plugin::StartMedia( int iPK_MediaType, unsigned int iPK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int iPK_Device, deque<MediaFile *> *p_dequeMediaFile, bool bResume, int iRepeat, vector<MediaStream *> *p_vectMediaStream)
+void Media_Plugin::StartMedia( int iPK_MediaType, unsigned int iPK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int iPK_Device, deque<MediaFile *> *p_dequeMediaFile, bool bResume, int iRepeat, string sStartingPosition, vector<MediaStream *> *p_vectMediaStream)
 {
 	if( !iPK_MediaType && p_dequeMediaFile->size() )
 	{
@@ -747,7 +752,7 @@ void Media_Plugin::StartMedia( int iPK_MediaType, unsigned int iPK_Device_Orbite
 		}
 
 		StartMedia(pMediaHandlerInfo,iPK_Device_Orbiter,vectEA_to_MediaHandler[s].second,
-			iPK_Device,p_dequeMediaFile,bResume,iRepeat);  // We'll let the plug-in figure out the source, and we'll use the default remote
+			iPK_Device,p_dequeMediaFile,bResume,iRepeat,"");  // We'll let the plug-in figure out the source, and we'll use the default remote
 
 		if( p_dequeMediaFile_Copy )
 			delete p_dequeMediaFile;
@@ -758,7 +763,7 @@ void Media_Plugin::StartMedia( int iPK_MediaType, unsigned int iPK_Device_Orbite
 			delete (*p_dequeMediaFile_Copy)[s];
 }
 
-MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int PK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int PK_Device_Source, deque<MediaFile *> *dequeMediaFile, bool bResume,int iRepeat, int iPK_Playlist)
+MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int PK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int PK_Device_Source, deque<MediaFile *> *dequeMediaFile, bool bResume,int iRepeat, string sStartingPosition, int iPK_Playlist)
 {
     PLUTO_SAFETY_LOCK(mm,m_MediaMutex);
 
@@ -816,6 +821,7 @@ MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsi
 
 		// ContainsVideo needs this too
 	    pMediaStream->m_iPK_MediaType = pMediaHandlerInfo->m_PK_MediaType;
+		pMediaStream->m_sStartPosition = sStartingPosition;
 
         pMediaStream->m_pOH_Orbiter_StartedMedia = pOH_Orbiter;
 		if( pOH_Orbiter && pOH_Orbiter->m_pOH_User )
@@ -2363,7 +2369,28 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_Med
 			m_pMediaAttributes->TransformFilenameToDeque(sFilename, dequeMediaFile);  // This will convert any !A, !F, !B etc.
  	}
 
-    // What is the media?  It must be a Device, DeviceTemplate, or a media type, or filename
+	int iPK_MediaProvider=0;
+	string sStartPosition;
+	// See if it's a bookmark to a channel or something
+	if( !iPK_MediaType && dequeMediaFile.size()==0 && sFilename.size() && sFilename[0]=='!' && sFilename[1]=='B' )
+	{
+		Row_Bookmark *pRow_Bookmark = m_pDatabase_pluto_media->Bookmark_get()->GetRow(atoi(sFilename.substr(2).c_str()));
+		if( pRow_Bookmark )
+		{
+			sStartPosition = pRow_Bookmark->Position_get();
+			iPK_MediaType = pRow_Bookmark->EK_MediaType_get();
+			iPK_MediaProvider = pRow_Bookmark->FK_MediaProvider_get();
+		}
+	}
+
+	// We determined the media type, but we're not playing files, and a device wasn't specified,
+	// so find a device that can handle this type.
+    if( iPK_MediaType && !iPK_Device && !iPK_DeviceTemplate && dequeMediaFile.size()==0 )
+	{
+//		xx  -- problem, how to get Provider in there!
+	}
+
+	// What is the media?  It must be a Device, DeviceTemplate, or a media type, or filename
     if( !iPK_MediaType && (iPK_Device || iPK_DeviceTemplate) )
     {
 		vector<Row_DeviceTemplate_MediaType *> vectRow_DeviceTemplate_MediaType;
@@ -2429,7 +2456,7 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_Med
 		}
     }
 	else
-		StartMedia(iPK_MediaType,iPK_Device_Orbiter,vectEntertainArea,iPK_Device,&dequeMediaFile,bResume,iRepeat);  // We'll let the plug-in figure out the source, and we'll use the default remote
+		StartMedia(iPK_MediaType,iPK_Device_Orbiter,vectEntertainArea,iPK_Device,&dequeMediaFile,bResume,iRepeat,"");  // We'll let the plug-in figure out the source, and we'll use the default remote
 }
 
 //<-dceag-c65-b->
@@ -2615,7 +2642,7 @@ void Media_Plugin::CMD_Load_Playlist(string sPK_EntertainArea,int iEK_Playlist,s
 	for(map<int,MediaHandlerInfo *>::iterator it=mapMediaHandlerInfo.begin();it!=mapMediaHandlerInfo.end();++it)
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from Load Playlist");
-	    StartMedia(it->second,pMessage->m_dwPK_Device_From,vectEntertainArea,0,&dequeMediaFile,false,0,iEK_Playlist);  // We'll let the plug-in figure out the source, and we'll use the default remote
+	    StartMedia(it->second,pMessage->m_dwPK_Device_From,vectEntertainArea,0,&dequeMediaFile,false,0,"",iEK_Playlist);  // We'll let the plug-in figure out the source, and we'll use the default remote
 	}
 }
 
@@ -2778,7 +2805,7 @@ g_pPlutoLogger->Write(LV_WARNING,"ready to restart %d eas",(int) vectEntertainAr
 		// since sometimes the source will be preserved across moves maybe???
 		StartMedia( pMediaStream->m_iPK_MediaType, (pMediaStream->m_pOH_Orbiter_StartedMedia ? pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device : 0),
 			vectEntertainArea, 0,
-			&pMediaStream->m_dequeMediaFile, pMediaStream->m_bResume, pMediaStream->m_iRepeat);
+			&pMediaStream->m_dequeMediaFile, pMediaStream->m_bResume, pMediaStream->m_iRepeat,"");
 
 		pMediaStream->m_dequeMediaFile.clear();  // We don't want to delete the media files since we will have re-used the same pointers above
 		delete pMediaStream; // We will have started with new copies
@@ -4379,16 +4406,16 @@ class DataGridTable *Media_Plugin::Bookmarks( string GridID, string Parms, void 
 		pDataGrid->SetData(1,s,pDataGridCell_Preview);
 		pDataGrid->SetData(2,s,pDataGridCell);
 
-		if( pRow_Bookmark->FK_Picture_get() )
+		Row_Picture *pRow_Picture=NULL;
+		if( (pRow_Picture=pRow_Bookmark->FK_Picture_getrow())!=NULL )
 		{
 			size_t iSize;
-			char *pBuffer = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(pRow_Bookmark->FK_Picture_get()) + "." + pRow_Bookmark->FK_Picture_getrow()->Extension_get(),iSize);
+			char *pBuffer = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(pRow_Picture->PK_Picture_get()) + "." + pRow_Picture->Extension_get(),iSize);
 			if( pBuffer )
 			{
 				pDataGridCell_Preview->m_pGraphicData = pBuffer;
 				pDataGridCell_Preview->m_GraphicLength = iSize;
 			}
-g_pPlutoLogger->Write(LV_WARNING,"pic file 1 %p",pBuffer);
 		}
 
 #ifndef WIN32
@@ -4418,6 +4445,52 @@ g_pPlutoLogger->Write(LV_WARNING,"pic file 1 %p",pBuffer);
 	}
 
     return pDataGrid;
+}
+
+class DataGridTable *Media_Plugin::BookmarksByMediaType( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+	DataGridTable *pDataGrid = new DataGridTable();
+
+	g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::BookmarksByMediaType Called to populate: %s", Parms.c_str());
+    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+	string::size_type pos=0;
+	int PK_MediaType = atoi(StringUtils::Tokenize(Parms,",",pos).c_str());
+	int PK_Users = atoi(StringUtils::Tokenize(Parms,",",pos).c_str());
+	int iMaxColumns = atoi(StringUtils::Tokenize(Parms,",",pos).c_str());
+
+	string sWhere = "EK_MediaType=" + StringUtils::itos(PK_MediaType) + " AND (EK_Users IS NULL OR EK_Users="+StringUtils::itos(PK_Users)+")";
+	vector<Row_Bookmark *> vectRow_Bookmark;
+	m_pDatabase_pluto_media->Bookmark_get()->GetRows(sWhere,&vectRow_Bookmark);
+	int iRow=0,iColumn=0;
+
+	for(size_t s=0;s<vectRow_Bookmark.size();++s)
+	{
+		Row_Bookmark *pRow_Bookmark = vectRow_Bookmark[s];
+		DataGridCell *pDataGridCell = new DataGridCell("", StringUtils::itos(pRow_Bookmark->PK_Bookmark_get()));
+		Row_Picture *pRow_Picture=NULL;
+		if( (pRow_Picture=pRow_Bookmark->FK_Picture_getrow())!=NULL )
+		{
+			size_t iSize;
+			char *pBuffer = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(pRow_Picture->PK_Picture_get()) + "." + pRow_Picture->Extension_get(),iSize);
+			if( pBuffer )
+			{
+				pDataGridCell->m_pGraphicData = pBuffer;
+				pDataGridCell->m_GraphicLength = iSize;
+			}
+		}
+		pDataGridCell->m_Rowspan=2;
+		pDataGrid->SetData(iColumn,iRow,pDataGridCell);
+		pDataGridCell = new DataGridCell(pRow_Bookmark->Description_get(), StringUtils::itos(pRow_Bookmark->PK_Bookmark_get()));
+		pDataGrid->SetData(iColumn,iRow+2,pDataGridCell);
+
+		if( iColumn++ >= iMaxColumns-1 )
+		{
+			iColumn=0;
+			iRow+=3;
+		}
+	}
+
+	return pDataGrid;
 }
 
 //<-dceag-c409-b->
