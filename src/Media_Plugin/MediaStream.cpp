@@ -52,7 +52,7 @@ RemoteControlSet::RemoteControlSet(Row_DeviceTemplate_MediaType_DesignObj *pRow_
 	m_iPK_DesignObj_FileList_Popup=pRow_DeviceTemplate_MediaType_DesignObj->FK_DesignObj_FileList_Popup_get();
 }
 
-MediaStream::MediaStream( class MediaHandlerInfo *pMediaHandlerInfo, MediaDevice *pMediaDevice, int PK_Users, enum SourceType sourceType, int iStreamID )
+MediaStream::MediaStream( class MediaHandlerInfo *pMediaHandlerInfo, int iPK_MediaProvider, MediaDevice *pMediaDevice, int PK_Users, enum SourceType sourceType, int iStreamID )
 {
 	m_dwPK_Disc=m_discid=0;
     m_iStreamID = iStreamID;
@@ -60,6 +60,7 @@ MediaStream::MediaStream( class MediaHandlerInfo *pMediaHandlerInfo, MediaDevice
 	m_iPK_DesignObj_RemoteOSD=0;
 	m_pRemoteControlSet=NULL;
 	m_IdentifiedPriority=0;
+	m_iPK_MediaProvider=iPK_MediaProvider;
 
     m_iPK_Users=PK_Users;
     m_eSourceType=sourceType;

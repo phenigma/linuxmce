@@ -27,7 +27,7 @@ namespace DCE
 		{
 			for(map<int,ListMediaDevice *>::iterator it=m_mapMediaDeviceByTemplate.begin();it!=m_mapMediaDeviceByTemplate.end();++it)
 				delete (*it).second;
-			for(map<int,List_MediaHandlerInfo *>::iterator it=m_mapMediaHandlerInfo_MediaType.begin();it!=m_mapMediaHandlerInfo_MediaType.end();++it)
+			for(map< pair<int,int>,List_MediaHandlerInfo *>::iterator it=m_mapMediaHandlerInfo_MediaType.begin();it!=m_mapMediaHandlerInfo_MediaType.end();++it)
 				delete (*it).second;
 			for(map<string,List_MediaHandlerInfo *>::iterator it=m_mapMediaHandlerInfo_Extension.begin();it!=m_mapMediaHandlerInfo_Extension.end();++it)
 				delete (*it).second;
@@ -71,11 +71,11 @@ namespace DCE
 		bool m_bOnly1Stream;
 		/** If true, stop any other media streams in this area when a new one starts.  There can be only 1.  This is the default behavior */
 
-		map<int,List_MediaHandlerInfo *> m_mapMediaHandlerInfo_MediaType; /** The key is the media type */
+		map< pair<int,int>,List_MediaHandlerInfo *> m_mapMediaHandlerInfo_MediaType; /** The key is the media type,media provider */
 
-		List_MediaHandlerInfo *m_mapMediaHandlerInfo_MediaType_Find(int PK_MediaType)
+		List_MediaHandlerInfo *m_mapMediaHandlerInfo_MediaType_Find(int PK_MediaType,int PK_MediaProvider)
 		{
-			map<int,List_MediaHandlerInfo *>::iterator it = m_mapMediaHandlerInfo_MediaType.find(PK_MediaType);
+			map< pair<int,int>,List_MediaHandlerInfo *>::iterator it = m_mapMediaHandlerInfo_MediaType.find( make_pair<int,int> (PK_MediaType,PK_MediaProvider) );
 			return it==m_mapMediaHandlerInfo_MediaType.end() ? NULL : (*it).second;
 		}
 

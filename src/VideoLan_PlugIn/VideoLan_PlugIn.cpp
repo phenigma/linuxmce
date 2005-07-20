@@ -105,7 +105,7 @@ void VideoLan_PlugIn::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessa
 
 */
 
-class MediaStream *VideoLan_PlugIn::CreateMediaStream( class MediaHandlerInfo *pMediaHandlerInfo, vector<class EntertainArea *> &vectEntertainArea, MediaDevice *pMediaDevice, int iPK_Users, deque<MediaFile *> *dequeFilenames, int StreamID )
+class MediaStream *VideoLan_PlugIn::CreateMediaStream( class MediaHandlerInfo *pMediaHandlerInfo, int iPK_MediaProvider, vector<class EntertainArea *> &vectEntertainArea, MediaDevice *pMediaDevice, int iPK_Users, deque<MediaFile *> *dequeFilenames, int StreamID )
 {
 	VideoLanMediaStream *pVideoLanMediaStream;
 	MediaDevice *pMediaDevice_PassedIn;
@@ -146,8 +146,8 @@ class MediaStream *VideoLan_PlugIn::CreateMediaStream( class MediaHandlerInfo *p
 			pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
 			pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
 
-	pVideoLanMediaStream = new VideoLanMediaStream( this, pMediaHandlerInfo,
-							pMediaDevice,
+	pVideoLanMediaStream = new VideoLanMediaStream( this, pMediaHandlerInfo, iPK_MediaProvider,
+							pMediaDevice, 
 							iPK_Users, st_RemovableMedia, StreamID );
 
 	return pVideoLanMediaStream;

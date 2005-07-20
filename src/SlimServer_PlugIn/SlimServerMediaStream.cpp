@@ -19,9 +19,10 @@ namespace DCE {
 	SlimServerMediaStream::SlimServerMediaStream(
 							class SlimServer_PlugIn *pSlimServerPlugin,
 							class MediaHandlerInfo *pMediaHandlerInfo,
+							int iPK_MediaProvider,
 							MediaDevice *pMediaDevice,
 							int PK_Users,enum SourceType sourceType,int iStreamID)
-				: MediaStream(pMediaHandlerInfo, pMediaDevice, PK_Users,sourceType, iStreamID)
+				: MediaStream(pMediaHandlerInfo, iPK_MediaProvider, pMediaDevice, PK_Users,sourceType, iStreamID)
 	{
 		m_bIsStreaming = 0;
 	}

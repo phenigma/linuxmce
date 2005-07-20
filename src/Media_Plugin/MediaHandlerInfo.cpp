@@ -120,11 +120,11 @@ MediaHandlerInfo::MediaHandlerInfo( class MediaHandlerBase *pMediaHandlerBase, c
         for( map<int,class EntertainArea *>::iterator itEntArea=pMediaDevice->m_mapEntertainArea.begin( );itEntArea!=pMediaDevice->m_mapEntertainArea.end( );++itEntArea )
         {
             EntertainArea *pEntertainArea = itEntArea->second;
-            List_MediaHandlerInfo *pList_MediaHandlerInfo = pEntertainArea->m_mapMediaHandlerInfo_MediaType_Find( m_PK_MediaType );
+            List_MediaHandlerInfo *pList_MediaHandlerInfo = pEntertainArea->m_mapMediaHandlerInfo_MediaType_Find( m_PK_MediaType,pMediaDevice->m_iPK_MediaProvider );
             if( !pList_MediaHandlerInfo )
             {
                 pList_MediaHandlerInfo = new List_MediaHandlerInfo( );
-                pEntertainArea->m_mapMediaHandlerInfo_MediaType[m_PK_MediaType] = pList_MediaHandlerInfo;
+                pEntertainArea->m_mapMediaHandlerInfo_MediaType[make_pair<int,int> (m_PK_MediaType,pMediaDevice->m_iPK_MediaProvider) ] = pList_MediaHandlerInfo;
             }
             pList_MediaHandlerInfo->push_back( this );
 

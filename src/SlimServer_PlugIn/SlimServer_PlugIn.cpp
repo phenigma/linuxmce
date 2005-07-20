@@ -102,7 +102,7 @@ void SlimServer_PlugIn::ReceivedUnknownCommand(string &sCMD_Result,Message *pMes
 
 //<-dceag-sample-b->!
 
-class MediaStream *SlimServer_PlugIn::CreateMediaStream( class MediaHandlerInfo *pMediaHandlerInfo, vector<class EntertainArea *> &vectEntertainArea, MediaDevice *pMediaDevice, int iPK_Users, deque<MediaFile *> *dequeFilenames, int StreamID )
+class MediaStream *SlimServer_PlugIn::CreateMediaStream( class MediaHandlerInfo *pMediaHandlerInfo, int iPK_MediaProvider, vector<class EntertainArea *> &vectEntertainArea, MediaDevice *pMediaDevice, int iPK_Users, deque<MediaFile *> *dequeFilenames, int StreamID )
 {
 	SlimServerMediaStream *pSlimServerMediaStream;
 	MediaDevice *pMediaDevice_PassedIn;
@@ -144,7 +144,7 @@ class MediaStream *SlimServer_PlugIn::CreateMediaStream( class MediaHandlerInfo 
 			pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
 
 	pSlimServerMediaStream = new SlimServerMediaStream( this, pMediaHandlerInfo,
-							pMediaDevice,
+							iPK_MediaProvider, pMediaDevice, 
 							iPK_Users, st_RemovableMedia, StreamID );
 
 	return pSlimServerMediaStream;

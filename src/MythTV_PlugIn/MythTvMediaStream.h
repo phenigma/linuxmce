@@ -35,6 +35,7 @@ namespace DCE
 		// class MythTV_PlugIn *m_pMythTV_PlugIn;
 
 		MythTvMediaStream(MediaHandlerInfo *pMediaHandlerInfo,
+						  int iPK_MediaProvider,
 		 				  MediaDevice *pMediaDevice,
 						  int PK_Users,
 						  enum SourceType sourceType,

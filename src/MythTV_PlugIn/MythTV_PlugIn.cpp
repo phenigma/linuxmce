@@ -286,7 +286,7 @@ bool MythTV_PlugIn::StopMedia(class MediaStream *pMediaStream)
 }
 
 
-class MediaStream *MythTV_PlugIn::CreateMediaStream(class MediaHandlerInfo *pMediaHandlerInfo, vector<class EntertainArea *> &vectEntertainArea, MediaDevice *pMediaDevice,int iPK_Users, deque<MediaFile *> *dequeFilenames,int StreamID)
+class MediaStream *MythTV_PlugIn::CreateMediaStream(class MediaHandlerInfo *pMediaHandlerInfo,int iPK_MediaProvider, vector<class EntertainArea *> &vectEntertainArea, MediaDevice *pMediaDevice,int iPK_Users, deque<MediaFile *> *dequeFilenames,int StreamID)
 {
     if ( m_pMedia_Plugin == NULL )
         return NULL;
@@ -324,7 +324,7 @@ class MediaStream *MythTV_PlugIn::CreateMediaStream(class MediaHandlerInfo *pMed
 				pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str(),
 				pMediaDevice->m_pDeviceData_Router->GetIPAddress().c_str());
 
-    MythTvMediaStream *pMediaStream = new MythTvMediaStream(pMediaHandlerInfo, pMediaDevice, 0, st_RemovableMedia,StreamID);
+    MythTvMediaStream *pMediaStream = new MythTvMediaStream(pMediaHandlerInfo, iPK_MediaProvider, pMediaDevice, 0, st_RemovableMedia,StreamID);
 
 	if ( m_pMythBackend_ProxyDevice == NULL )
 	{

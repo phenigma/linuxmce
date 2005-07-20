@@ -19,10 +19,10 @@ namespace DCE {
 
 	VideoLanMediaStream::VideoLanMediaStream(
 							class VideoLan_PlugIn *pVideoLanPlugin,
-							class MediaHandlerInfo *pMediaHandlerInfo,
-							MediaDevice *pMediaDevice,
+							class MediaHandlerInfo *pMediaHandlerInfo, int iPK_MediaProvider,
+							MediaDevice *pMediaDevice, 
 							int PK_Users,enum SourceType sourceType,int iStreamID)
-				: MediaStream(pMediaHandlerInfo, pMediaDevice, PK_Users,sourceType, iStreamID)
+				: MediaStream(pMediaHandlerInfo, iPK_MediaProvider, pMediaDevice, PK_Users,sourceType, iStreamID)
 	{
 		m_bIsStreaming = 0;
 	}

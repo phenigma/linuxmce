@@ -51,7 +51,7 @@ Generic_NonPluto_Media::~Generic_NonPluto_Media()
 }
 
 
-class MediaStream *Generic_NonPluto_Media::CreateMediaStream( class MediaHandlerInfo *pMediaHandlerInfo, vector<class EntertainArea *> &vectEntertainArea, MediaDevice *pMediaDevice, int iPK_Users, deque<MediaFile *> *dequeFilenames, int StreamID )
+class MediaStream *Generic_NonPluto_Media::CreateMediaStream( class MediaHandlerInfo *pMediaHandlerInfo, int iPK_MediaProvider, vector<class EntertainArea *> &vectEntertainArea, MediaDevice *pMediaDevice, int iPK_Users, deque<MediaFile *> *dequeFilenames, int StreamID )
 {
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 
@@ -70,8 +70,8 @@ class MediaStream *Generic_NonPluto_Media::CreateMediaStream( class MediaHandler
 	g_pPlutoLogger->Write(LV_STATUS, "Selected device (%d) as playback device!", pMediaDevice->m_pDeviceData_Router->m_dwPK_Device);
 
 	MediaStream *pMediaStream
-		= new MediaStream( pMediaHandlerInfo,
-							pMediaDevice,
+		= new MediaStream( pMediaHandlerInfo, iPK_MediaProvider,
+							pMediaDevice, 
 							iPK_Users, st_RemovableMedia, StreamID );
 
 	pMediaStream->m_sMediaDescription = pMediaDevice->m_pDeviceData_Router->m_sDescription;

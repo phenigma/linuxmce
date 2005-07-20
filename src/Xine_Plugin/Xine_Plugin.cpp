@@ -120,7 +120,7 @@ void Xine_Plugin::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 	sCMD_Result = "UNHANDLED";
 }
 
-class MediaStream *Xine_Plugin::CreateMediaStream( class MediaHandlerInfo *pMediaHandlerInfo, vector<class EntertainArea *> &vectEntertainArea, MediaDevice *pMediaDevice, int iPK_Users, deque<MediaFile *> *dequeFilenames, int StreamID )
+class MediaStream *Xine_Plugin::CreateMediaStream( class MediaHandlerInfo *pMediaHandlerInfo, int iPK_MediaProvider, vector<class EntertainArea *> &vectEntertainArea, MediaDevice *pMediaDevice, int iPK_Users, deque<MediaFile *> *dequeFilenames, int StreamID )
 {
 	XineMediaStream *pXineMediaStream;
 	MediaDevice *pMediaDevice_PassedIn;
@@ -162,7 +162,7 @@ class MediaStream *Xine_Plugin::CreateMediaStream( class MediaHandlerInfo *pMedi
 			pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
 			pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
 
-	pXineMediaStream = new XineMediaStream( this, pMediaHandlerInfo,
+	pXineMediaStream = new XineMediaStream( this, pMediaHandlerInfo,iPK_MediaProvider,
 							pMediaDevice,
 							iPK_Users, st_RemovableMedia, StreamID );
 

@@ -70,6 +70,7 @@ namespace DCE
 
 		MediaDevice		*m_pMediaDevice_Source;      /** The device which is the source of this media stream. */
 		int 			 m_iPK_MediaType;        	/** The type of media in this stream. */
+		int				 m_iPK_MediaProvider;		/** The media provider in this stream. */
 
 		char 		*m_pPictureData;
         size_t 		 m_iPictureSize;
@@ -106,7 +107,7 @@ namespace DCE
 
 
         /** @brief constructor*/
-        MediaStream(class MediaHandlerInfo *pMediaHandlerInfo, MediaDevice *pMediaDevice, int PK_Users,enum SourceType sourceType,int iStreamID);
+        MediaStream(class MediaHandlerInfo *pMediaHandlerInfo, int iPK_MediaProvider, MediaDevice *pMediaDevice, int PK_Users,enum SourceType sourceType,int iStreamID);
 
         /** @brief virtual destructor */
         virtual ~MediaStream();

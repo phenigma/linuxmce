@@ -30,7 +30,7 @@ namespace DCE
 			bool					m_bIsStreaming;
 
 		public:
-			VideoLanMediaStream(class VideoLan_PlugIn *pVideoLanPlugin, class MediaHandlerInfo *pMediaHandlerInfo, MediaDevice *pMediaDevice, int PK_Users,enum SourceType sourceType,int iStreamID);
+			VideoLanMediaStream(class VideoLan_PlugIn *pVideoLanPlugin, class MediaHandlerInfo *pMediaHandlerInfo, int iPK_MediaProvider, MediaDevice *pMediaDevice, int PK_Users,enum SourceType sourceType,int iStreamID);
 
 			virtual ~VideoLanMediaStream();
 			virtual int GetType();
