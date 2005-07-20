@@ -1032,6 +1032,8 @@
 #define DESIGNOBJ_grpSeekFileList_Narrow_CONST 3567
 #define DESIGNOBJ_grpUpDownBookmarks_Horiz_CONST 3568
 #define DESIGNOBJ_grpWideKeyboard_pda_CONST 3569
+#define DESIGNOBJ_mnuBookmarksByMediaType_CONST 3570
+#define DESIGNOBJ_dgBookmarksByMediaType_CONST 3571
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
