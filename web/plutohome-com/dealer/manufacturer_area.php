@@ -18,10 +18,10 @@ function manufacturer_area($output,$dbADO) {
 	$start=$page*$RecordsPerPage;
 
 	$manufacturerADO=dbConnection($dbManufacturerServer,$dbManufacturerUser,$dbManufacturerPass,$dbManufacturerDatabase);
-	$manufacturerUser=getFieldsAsArray('Manufacturer_Users','CanEditProfile,EK_Manufacturer,EK_Users,Validated',$manufacturerADO,'WHERE EK_Users='.$FK_Users);	
+	$manufacturerUser=getFieldsAsArray('Manufacturer_Users','CanEditProfile,EK_Manufacturer,EK_Users',$manufacturerADO,'WHERE EK_Users='.$FK_Users);	
 	
-	if(isset($manufacturerUser['Validated'][0]) && $manufacturerUser['Validated'][0]!=1){
-		header('Location: index.php?section=manufacturer_signin');
+	if(count($manufacturerUser['EK_Manufacturer'][0])==0){
+		header('Location: index.php');
 		exit();
 	}else{
 		$manufacturerID=$manufacturerUser['EK_Manufacturer'][0];

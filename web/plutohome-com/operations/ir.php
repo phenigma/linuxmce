@@ -12,6 +12,14 @@ function ir($output)
 	global $PlutoHomeHost;
 	$userID=(int)@$_SESSION['userID'];
 
+	// for Aaron: replace the text below with your comments
+	$out='
+	<br><span class="normaltext" style="padding:20px;">
+
+		Instructions: will be added soon.
+	
+	</span><br><br>';
+	
 /*
 	if($userID==0){
 		$out='
@@ -27,7 +35,7 @@ function ir($output)
 */
 	
 	$firstColLinks='';
-	$out=pickDeviceTemplate($GLOBALS['rootAVEquipment'],1,0,0,0,1,'ir',$firstColLinks,$publicADO,1);
+	$out.=pickDeviceTemplate($GLOBALS['rootAVEquipment'],1,0,0,0,0,'ir',$firstColLinks,$publicADO,1);
 	
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME);

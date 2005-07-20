@@ -16,11 +16,11 @@ function dealer_area($output,$dbADO) {
 	$FK_Users=(isset($_SESSION['userID']))?(int)$_SESSION['userID']:0;
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 
-	$userDealer=getFieldsAsArray('Dealer_Users','Validated,CanEditProfile,FK_Dealer',$dealerADO,' WHERE EK_Users='.$FK_Users);
+	$userDealer=getFieldsAsArray('Dealer_Users','CanEditProfile,FK_Dealer',$dealerADO,' WHERE EK_Users='.$FK_Users);
 	$dealerID=(int)@$userDealer['FK_Dealer'][0];
 
-	if($dealerID==0 || @$userDealer['Validated'][0]!=1){
-		header('Location: index.php?section=dealer_signin');
+	if($dealerID==0){
+		header('Location: index.php');
 		exit();
 	}else{
 		$dealerInstallations=getAssocArray('Dealer_Installation','EK_Installation','Description',$dealerADO,'WHERE FK_Dealer='.$dealerID,'ORDER BY Description ASC');

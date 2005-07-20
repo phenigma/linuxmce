@@ -520,7 +520,7 @@ function showCodes($commandsToShow,$infraredGroupID,$deviceID,$dtID,$publicADO)
 			}
 			$out.='
 				<tr bgcolor="lightblue">
-					<td align="center" width="100"><B>'.$rowStandardCode['Description'].'</B> <br><input type="button" class="button" name="learnCode" value="New code" '.$GLOBALS['btnEnabled'].' onClick="windowOpen(\'index.php?section=newIRCode&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$rowStandardCode['PK_Command'].'&action=sendCommand\',\''.(($GLOBALS['label']=='infrared')?'width=750,height=310':'width=600,height=650').',toolbars=true,scrollbars=1,resizable=1\');"></td>
+					<td align="center" width="100"><B>'.$rowStandardCode['Description'].'</B> <br><input type="button" class="button" name="learnCode" value="New code" onClick="windowOpen(\'index.php?section=newIRCode&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$rowStandardCode['PK_Command'].'&action=sendCommand\',\''.(($GLOBALS['label']=='infrared')?'width=750,height=310':'width=600,height=650').',toolbars=true,scrollbars=1,resizable=1\');"></td>
 					<td width="25">'.((!is_null($rowStandardCode['PK_InfraredGroup_Command']))?'<input type="radio" name="prefered_'.$rowStandardCode['FK_Command'].'_'.$rowStandardCode['FK_InfraredGroup'].'" value="'.$rowStandardCode['PK_InfraredGroup_Command'].'" '.(($existingCodes==1 || in_array($rowStandardCode['PK_InfraredGroup_Command'],$GLOBALS['igcPrefered']))?'checked':'').'>':'&nbsp;').'</td>
 					<td>'.((is_null($rowStandardCode['PK_InfraredGroup_Command']))?'<B> Not in database</B>':$textAreaElem).'</td>
 					<td align="center" width="100"></td>
@@ -549,7 +549,7 @@ function showCodes($commandsToShow,$infraredGroupID,$deviceID,$dtID,$publicADO)
 					<td>'.$textareaUserCode.'</td>
 					<td align="center" width="100">';
 					if(isset($_SESSION['userID']) && $rowUserCode['FK_Users']==@$_SESSION['userID']){
-						$out.='<input type="button" class="button" name="delCustomCode" value="Delete code" onClick="if(confirm(\'Are you sure you want to delete this code?\')){document.irCodes.action.value=\'delete\';document.irCodes.irgroup_command.value='.$rowUserCode['PK_InfraredGroup_Command'].';document.irCodes.submit();}" '.$GLOBALS['btnEnabled'].'> <br>';
+						$out.='<input type="button" class="button" name="delCustomCode" value="Delete code" onClick="if(confirm(\'Are you sure you want to delete this code?\')){document.irCodes.action.value=\'delete\';document.irCodes.irgroup_command.value='.$rowUserCode['PK_InfraredGroup_Command'].';document.irCodes.submit();}"> <br>';
 					}
 					$out.='
 					</td>

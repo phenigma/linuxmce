@@ -120,17 +120,18 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 					$arJsPos++;
 				}
 			$rs->Close();
-		}
 		
-		$selectIrgc='';
-		$resIrg=$dbADO->Execute("
-			SELECT InfraredGroup.Description,PK_InfraredGroup,Manufacturer.Description AS manufacturerDescription, DeviceCategory.Description as deviceDescription
-			FROM InfraredGroup 
-				INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory
-				INNER JOIN Manufacturer ON PK_Manufacturer=FK_Manufacturer
-			WHERE 1=1 $where ORDER BY InfraredGroup.Description");
-		while($row=$resIrg->FetchRow()){
-			$selectIrgc.='<option value="'.$row['PK_InfraredGroup'].'">'.$row['Description'].'</option>';
+		
+			$selectIrgc='';
+	
+			$resIrg=$dbADO->Execute("
+				SELECT InfraredGroup.Description,PK_InfraredGroup,Manufacturer.Description AS manufacturerDescription, DeviceCategory.Description as deviceDescription
+				FROM InfraredGroup 
+					INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory
+					INNER JOIN Manufacturer ON PK_Manufacturer=FK_Manufacturer
+				WHERE 1=1 $where ORDER BY InfraredGroup.Description");
+			while($row=$resIrg->FetchRow()){
+				$selectIrgc.='<option value="'.$row['PK_InfraredGroup'].'">'.$row['Description'].'</option>';
 			
 			$irgJsArray.='
 					
@@ -140,7 +141,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 					
 				irgsArray['.$row['PK_InfraredGroup'].'] = irg'.$row['PK_InfraredGroup'].';
 			';			
-			
+			}	
 		}
 			
 		
@@ -371,7 +372,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 									onChange="updateModelDetail(\'irg\');"
 									 size="10">
 									<option value="" selected="selected">'.(($section=='deviceTemplatePicker')?'- Please select -':'All').'</option>
-									'.$selectIrgc.'	
+									'.@$selectIrgc.'	
 							</select>
 							<br>
 							<input type="button" class="button" name="edit_irg" value="Edit IR Group" onClick="javascript:checkEdit(\'irg\');" />

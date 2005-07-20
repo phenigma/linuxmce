@@ -36,9 +36,13 @@ function myPluto($output,$dbADO,$conn) {
 		$installationsText='You have the following installations:
 		<table width="100%" border="0">';
 		$isDealer=0;
+		$isManufacturer=0;
 		while($rowInstallations=$res->FetchRow()){
 			if(@$rowInstallations['EK_Dealer']!='')
 				$isDealer=1;
+			if(@$rowInstallations['EK_Manufacturer']!='')
+				$isManufacturer=1;
+				
 			$installationsText.='
 			<tr>
 				<td colspan="2">Installation no. <b>'.$rowInstallations['PK_Installation'].'</b></td>
@@ -75,30 +79,28 @@ function myPluto($output,$dbADO,$conn) {
 	
 	// extract dealer, if any
 	$dealerADO=dbConnection($dbDealerServer,$dbDealerUser,$dbDealerPass,$dbDealerDatabase);
-	$userDealer=getFieldsAsArray('Dealer_Users','PK_Dealer,Name,Validated',$dealerADO,'INNER JOIN Dealer ON FK_Dealer=PK_Dealer WHERE EK_Users='.$FK_Users);
-	if(isset($userDealer['Validated'][0]) && $userDealer['Validated'][0]!=1){
-		$hasDealerLink='Request to link account to a dealer is waiting to be processed *';
-		$showNotice=1;
+	$userDealer=getFieldsAsArray('Dealer_Users','PK_Dealer,Name',$dealerADO,'INNER JOIN Dealer ON FK_Dealer=PK_Dealer WHERE EK_Users='.$FK_Users);
+	if(count(@$userDealer['PK_Dealer'][0])==0){
+		$hasDealerLink='';
 	}else{
 		$hasDealerLink='Dealer: <a href="index.php?section=dealer_area">'.@$userDealer['Name'][0].'</a>';
 	}
-	$dealerLink=(count($userDealer)==0)?'<a href="index.php?section=dealer_signin">Link my user account to a dealer</a>':$hasDealerLink;
+	$dealerLink=(count($userDealer)==0)?'':$hasDealerLink;
 
 	// extract manufacturer, if any
 	$manufacturerADO=dbConnection($dbManufacturerServer,$dbManufacturerUser,$dbManufacturerPass,$dbManufacturerDatabase);
-	$userManufacturer=getFieldsAsArray('Manufacturer_Users','EK_Manufacturer,EK_Manufacturer,Validated',$manufacturerADO,'WHERE EK_Users='.$FK_Users);
+	$userManufacturer=getFieldsAsArray('Manufacturer_Users','EK_Manufacturer,EK_Manufacturer',$manufacturerADO,'WHERE EK_Users='.$FK_Users);
 	$manufacturersArray=getAssocArray('Manufacturer','EK_Manufacturer','Name',$manufacturerADO);
 	$manufacturersIDs=array_values($userManufacturer);
-	if(isset($userManufacturer['Validated'][0]) && $userManufacturer['Validated'][0]!=1){
-		$hasManufacturerLink='Request to link account to a manufacturer is waiting to be processed *';
-		$showNotice=1;
+	if(count(@$userManufacturer['EK_Manufacturer'][0])==0){
+		$hasManufacturerLink='';
 	}else{
 		$hasManufacturerLink='Manufacturer: <a href="index.php?section=manufacturer_area">'.@$manufacturersArray[$userManufacturer['EK_Manufacturer'][0]].'</a>';
 	}
 	
-	$manufacturerLink=(count($userManufacturer)==0)?'<a href="index.php?section=manufacturer_signin">Link my user account to a manufacturer</a>':$hasManufacturerLink;
+	$manufacturerLink=(count($userManufacturer)==0)?'':$hasManufacturerLink;
 
-	$notice=(@$showNotice==1)?'<br><br>* <em>Please allow 24-48 hours for your request to be processed.</em>':'';
+
 	
 	$out = '
       		<table width="100%">
@@ -134,7 +136,6 @@ function myPluto($output,$dbADO,$conn) {
 								<hr>
 								'.$dealerLink.'<br>
 								'.$manufacturerLink.'
-								'.$notice.'
 								 </td>
 							</tr>
 						</table>
@@ -148,10 +149,30 @@ function myPluto($output,$dbADO,$conn) {
       				<td align="center" width="33%" class="normaltext"><b>Status</b></td>
       			</tr>
 	      		<tr>
-      				<td align="left" valign="top" class="normaltext">'.((@$isDealer==1)?'<a href="index.php?section=updateProfile"><B>Update profile</B></a><br>
-					<a href="index.php?section=requestInstallationAssistance"><B>Request Installation Assistance</B></a><br>':'Pluto 2 has been written from the ground up to be a very comfortable development platform for open source programmers.<br><br>
+      				<td align="left" valign="top" class="normaltext">';
+					if(@$isDealer==1){
+						$out.='
+							<a href="index.php?section=updateProfile"><B>Update profile</B></a><br>
+							<a href="index.php?section=requestInstallationAssistance"><B>Request Installation Assistance</B></a><br>
+							<a href="index.php?section=dealer_users"><B>Add/delete users to dealer account</B></a><br>';
+					}else{
+						$out.='Pluto 2 has been written from the ground up to be a very comfortable development platform for open source programmers.<br><br>
       				We have developed class generators that will build a fully complete, ready-to-compile <a href="support/index.php?section=document&docID=51">DCE Devices</a> in minutes.
-	     			They\'re standard C++, run on both Linux & Windows, ready talk to any other DCE Device on any platform.  See our <a href="http://plutohome.com/support/index.php?section=document&docID=15">Programmer\'s guide</a> for a quick intro.<br><br>').'
+	     			They\'re standard C++, run on both Linux & Windows, ready talk to any other DCE Device on any platform.  See our <a href="http://plutohome.com/support/index.php?section=document&docID=15">Programmer\'s guide</a> for a quick intro.<br><br>';
+					}
+					if(@$isManufacturer==1){
+						$out.='
+						<table width="100%">
+							<tr bgcolor="#DADDE4">
+								<td align="center"><B>Manufacturer\'s corner</B></td>
+							</tr>
+							<tr>
+								<td><a href="index.php?section=manufacturer_users"><B>Add/delete users to manufacturer account</B></a><br></td>
+							</tr>
+						</table>						
+						';
+					}					
+					$out.='
       				</td>
       				<td align="left" width="33%" class="normaltext" valign="top">
       				Pluto has made available a preview release of the new Pluto.  This is targeted mainly for developers, since it is not yet ready for end users.

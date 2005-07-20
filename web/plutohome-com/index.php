@@ -555,7 +555,20 @@ switch ($section) {
 		include_once('operations/irGroup.php');
 	    irGroup($output,$conn,$dbADO);
 	break;
-
+	case 'dealer_users':
+    	$output = new Template();
+    	$output->setConn($conn);
+       	$output->setTemplateFileType('nonews');
+		include_once('dealer/dealer_users.php');
+	    dealer_users($output,$dbADO);
+	break;
+	case 'manufacturer_users':
+    	$output = new Template();
+    	$output->setConn($conn);
+       	$output->setTemplateFileType('nonews');
+		include_once('dealer/manufacturer_users.php');
+	    manufacturer_users($output,$dbADO);
+	break;
 	
 	default:			
 		$output = new Template();	
