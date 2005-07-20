@@ -429,7 +429,9 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_MediaProvid
 			
 			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
 		
-				
+			if (id!=0)
+pRow->m_PK_MediaProvider=id;
+	
 			
 			addedRows.erase(i);
 			SingleLongKey key(pRow->m_PK_MediaProvider);	
