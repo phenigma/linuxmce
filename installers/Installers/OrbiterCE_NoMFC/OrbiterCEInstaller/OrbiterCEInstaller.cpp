@@ -22,7 +22,7 @@ LRESULT CALLBACK	WndProc			(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK	About			(HWND, UINT, WPARAM, LPARAM);
 
 #define MAX_STRING_LEN 1024
-#define WND_WIDTH 350
+#define WND_WIDTH 240
 #define WND_HEIGHT 150
 
 #include "Wininet.h"
@@ -267,8 +267,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	MyRegisterClass(hInstance, szWindowClass);
 
 	LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
+
 	hWnd = CreateWindow(szWindowClass, szTitle, WS_VISIBLE,
-		225, 200, WND_WIDTH, WND_HEIGHT, NULL, NULL, hInstance, NULL);
+		CW_USEDEFAULT, CW_USEDEFAULT, WND_WIDTH, WND_HEIGHT, NULL, NULL, hInstance, NULL);
 
 	if (!hWnd)
 	{	
