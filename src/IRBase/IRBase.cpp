@@ -209,8 +209,8 @@ IRBase::DispatchMessage(Message* pmsg) {
 	}
 	
 	if(!ircode.empty()) {
-		g_pPlutoLogger->Write(LV_STATUS, "Sending Infrared Code, channel <%s>, code <%s>", 
-					irport.c_str(), ircode.c_str());
+		g_pPlutoLogger->Write(LV_STATUS, "Sending Infrared Code for dev <%d> cmd <%d>, channel <%s>, code <%s>", 
+					devid, cmd, irport.c_str(), ircode.c_str());
 		SendIR(irport, ircode);
 	} else {
 		g_pPlutoLogger->Write(LV_WARNING, "Infrared Code Data is Empty...");

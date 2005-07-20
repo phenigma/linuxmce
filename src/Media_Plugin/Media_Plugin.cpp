@@ -460,10 +460,6 @@ void Media_Plugin::AddDeviceToEntertainArea( EntertainArea *pEntertainArea, Row_
         pMediaDevice = new MediaDevice( m_pRouter, pRow_Device ); // Nope, create it
         m_mapMediaDevice[pMediaDevice->m_pDeviceData_Router->m_dwPK_Device]=pMediaDevice;
 
-if( pRow_Device->PK_Device_get()==20278 )
-{
-int k=2;
-}
 		vector<Row_DeviceTemplate_MediaType *> vectRow_DeviceTemplate_MediaType;
 		pMediaDevice->m_pDeviceData_Router->m_pRow_Device->FK_DeviceTemplate_getrow()->DeviceTemplate_MediaType_FK_DeviceTemplate_getrows(&vectRow_DeviceTemplate_MediaType);
 		if( pMediaDevice->m_pDeviceData_Router->m_pDevice_RouteTo )  // If it's an embedded device like a tuner, add the master's device types too
@@ -2455,6 +2451,12 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_Med
 				StringUtils::itos(pMessage->m_dwPK_Device_From) + " " + StringUtils::itos(PK_Device_Ripping) + " 1 " + StringUtils::itos(COMMAND_Abort_Ripping_CONST));
 			return;
 		}
+		else if( bDiskWasReset )
+		{
+			m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From, "<%=T" + StringUtils::itos(COMMANDPARAMETER_Text_CONST) + "%>");
+			return;
+		}
+		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From, "<%=T" + StringUtils::itos(TEXT_Cannot_play_media_CONST) + "%>");
     }
 	else
 		StartMedia(iPK_MediaType,iPK_MediaProvider,iPK_Device_Orbiter,vectEntertainArea,iPK_Device,&dequeMediaFile,bResume,iRepeat,"");  // We'll let the plug-in figure out the source, and we'll use the default remote

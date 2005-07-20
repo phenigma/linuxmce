@@ -296,22 +296,9 @@ void MediaStream::UpdateDescriptionsFromAttributes()
 	string sDescription;
 	Media_Plugin *pMedia_Plugin = m_pMediaHandlerInfo->m_pMediaHandlerBase->m_pMedia_Plugin;
 
+	// Global for the disc
 	int PK_Attribute;
 	Row_Attribute *pRow_Attribute_Song=NULL,*pRow_Attribute_Title=NULL,*pRow_Attribute_Album=NULL,*pRow_Attribute_Performer=NULL;
-	if( m_dequeMediaFile.size() && m_iDequeMediaFile_Pos<m_dequeMediaFile.size() )
-	{
-		MediaFile *pMediaFile = m_dequeMediaFile[m_iDequeMediaFile_Pos];
-
-		if( (PK_Attribute = pMediaFile->m_mapPK_Attribute_Find(make_pair<int,int> (ATTRIBUTETYPE_Song_CONST,0)))!=0 )
-			pRow_Attribute_Song = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(PK_Attribute);
-		if( (PK_Attribute = pMediaFile->m_mapPK_Attribute_Find(make_pair<int,int> (ATTRIBUTETYPE_Title_CONST,0)))!=0 )
-			pRow_Attribute_Title = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(PK_Attribute);
-		if( (PK_Attribute = pMediaFile->m_mapPK_Attribute_Find(make_pair<int,int> (ATTRIBUTETYPE_Performer_CONST,0)))!=0 )
-			pRow_Attribute_Performer = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(PK_Attribute);
-		if( (PK_Attribute = pMediaFile->m_mapPK_Attribute_Find(make_pair<int,int> (ATTRIBUTETYPE_Album_CONST,0)))!=0 )
-			pRow_Attribute_Album = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(PK_Attribute);
-	}
-
 	if( !pRow_Attribute_Song && (PK_Attribute = m_mapPK_Attribute_Find(make_pair<int,int> (ATTRIBUTETYPE_Song_CONST,0)))!=0 )
 		pRow_Attribute_Song = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(PK_Attribute);
 	if( !pRow_Attribute_Title && (PK_Attribute = m_mapPK_Attribute_Find(make_pair<int,int> (ATTRIBUTETYPE_Title_CONST,0)))!=0 )
@@ -320,6 +307,48 @@ void MediaStream::UpdateDescriptionsFromAttributes()
 		pRow_Attribute_Performer = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(PK_Attribute);
 	if( !pRow_Attribute_Album && (PK_Attribute = m_mapPK_Attribute_Find(make_pair<int,int> (ATTRIBUTETYPE_Album_CONST,0)))!=0 )
 		pRow_Attribute_Album = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(PK_Attribute);
+
+
+	for(size_t s=0;s<m_dequeMediaFile.size();++s )
+	{
+		// Just for this track
+		Row_Attribute *l_pRow_Attribute_Song=NULL,*l_pRow_Attribute_Title=NULL,*l_pRow_Attribute_Album=NULL,*l_pRow_Attribute_Performer=NULL;
+		MediaFile *pMediaFile = m_dequeMediaFile[s];
+
+		if( (PK_Attribute = pMediaFile->m_mapPK_Attribute_Find(make_pair<int,int> (ATTRIBUTETYPE_Song_CONST,0)))!=0 )
+			l_pRow_Attribute_Song = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(PK_Attribute);
+		if( (PK_Attribute = pMediaFile->m_mapPK_Attribute_Find(make_pair<int,int> (ATTRIBUTETYPE_Title_CONST,0)))!=0 )
+			l_pRow_Attribute_Title = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(PK_Attribute);
+		if( (PK_Attribute = pMediaFile->m_mapPK_Attribute_Find(make_pair<int,int> (ATTRIBUTETYPE_Performer_CONST,0)))!=0 )
+			l_pRow_Attribute_Performer = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(PK_Attribute);
+		if( (PK_Attribute = pMediaFile->m_mapPK_Attribute_Find(make_pair<int,int> (ATTRIBUTETYPE_Album_CONST,0)))!=0 )
+			l_pRow_Attribute_Album = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(PK_Attribute);
+
+		string sDescription;
+		if( l_pRow_Attribute_Title && l_pRow_Attribute_Title!=pRow_Attribute_Title )
+			sDescription = pMedia_Plugin->m_pMediaAttributes->GetPrintableName(l_pRow_Attribute_Title);
+		else
+		{
+			if( l_pRow_Attribute_Performer && l_pRow_Attribute_Performer!=pRow_Attribute_Performer )
+				sDescription = pMedia_Plugin->m_pMediaAttributes->GetPrintableName(l_pRow_Attribute_Performer);
+
+			if( l_pRow_Attribute_Album && l_pRow_Attribute_Album!=pRow_Attribute_Album )
+			{
+				if( sDescription.size() )
+					sDescription += "\n";
+				sDescription += pMedia_Plugin->m_pMediaAttributes->GetPrintableName(l_pRow_Attribute_Album);
+			}
+		}
+
+		if( l_pRow_Attribute_Song )
+		{
+			if( sDescription.size() )
+				sDescription += "\n";
+			sDescription += pMedia_Plugin->m_pMediaAttributes->GetPrintableName(l_pRow_Attribute_Song);
+		}
+		pMediaFile->m_sDescription = sDescription;
+	}
+
 
 	// Only show title or album/performer, not both
 	if( pRow_Attribute_Title )
