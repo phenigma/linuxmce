@@ -45,7 +45,7 @@ switch ($section) {
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('small');
 	    include_once('operations/editAVDevice.php');
-	    editAVDevice($output,$dbADO);
+	    editAVDevice($output,$dbADO,$mediadbADO);
 	break;
 	case 'addManufacturer':
 		$output = new Template($dbADO);
@@ -1226,6 +1226,18 @@ switch ($section) {
 	    include_once('operations/myDevices/orbiters/customBackground.php');
 	    customBackground($output,$dbADO);
 	break;	
+	case 'mediaProviders';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/mediaBrowser/mediaProviders.php');
+	    mediaProviders($output,$mediadbADO,$dbADO);
+	break;
+	case 'bookmarks';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/mediaBrowser/bookmarks.php');
+	    bookmarks($output,$mediadbADO,$dbADO);
+	break;
 	
 	case '';
 		$output = new Template($dbADO);	

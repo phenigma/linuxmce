@@ -147,6 +147,7 @@
 	$GLOBALS['VideoSettings']=89;				// Video settings
 	$GLOBALS['EmergencyCalls']=96;				// Emergency Calls
 	$GLOBALS['MobileOrbiterPhone']=97;			// Mobile Orbiter Phone
+	$GLOBALS['MediaProvider']=103;				// Media Provider
 	
 	// PK_FloorplanType from table FloorplanType 
 

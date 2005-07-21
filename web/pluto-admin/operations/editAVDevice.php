@@ -1,5 +1,5 @@
 <?
-function editAVDevice($output,$dbADO) {
+function editAVDevice($output,$dbADO,$mediaADO) {
 /* @var $dbADO ADOConnection */
 /* @var $rs ADORecordSet */
 $out='';
@@ -8,10 +8,11 @@ $out='';
 $action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 $from = isset($_REQUEST['from'])?cleanString($_REQUEST['from']):'';
 	
-$deviceID = (int)$_REQUEST['deviceID'];
+$dtID = (int)$_REQUEST['dtID'];
+$deviceID = (int)@$_REQUEST['deviceID'];
 	$selectedInstallation = (int)@$_REQUEST['installation'];
 	
-	if ($deviceID==0) {
+	if ($dtID==0) {
 		header("Location: index.php?section=userHome");
 	}
 	
@@ -30,7 +31,7 @@ if ($action=='form') {
 					FROM DeviceTemplate 
 						INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory 
 						INNER JOIN Manufacturer ON PK_Manufacturer=FK_Manufacturer 
-					WHERE PK_DeviceTemplate='$deviceID'";
+					WHERE PK_DeviceTemplate='$dtID'";
 
 	$rs = $dbADO->_Execute($queryModels);	
 		while ($row = $rs->FetchRow()) {			
@@ -40,13 +41,13 @@ if ($action=='form') {
 	$rs->Close();
 		
 	$grabOldValues = "SELECT * FROM DeviceTemplate_AV WHERE FK_DeviceTemplate = ?";
-	$resGrabOldValues = $dbADO->Execute($grabOldValues,array($deviceID));
+	$resGrabOldValues = $dbADO->Execute($grabOldValues,array($dtID));
 	if ($resGrabOldValues->RecordCount()==0) {
 		$insertRecord = "INSERT INTO DeviceTemplate_AV (FK_DeviceTemplate,UsesIR) values(?,1)";
-		$resInsertRecord = $dbADO->Execute($insertRecord,array($deviceID));
+		$resInsertRecord = $dbADO->Execute($insertRecord,array($dtID));
 		$controlSQL='INSERT INTO DeviceTemplate_DeviceCategory_ControlledVia (FK_DeviceTemplate,FK_DeviceCategory) VALUES (?,?)';
-		$dbADO->Execute($controlSQL,array($deviceID,$GLOBALS['specialized']));
-		$dbADO->Execute($controlSQL,array($deviceID,$GLOBALS['InfraredInterface']));
+		$dbADO->Execute($controlSQL,array($dtID,$GLOBALS['specialized']));
+		$dbADO->Execute($controlSQL,array($dtID,$GLOBALS['InfraredInterface']));
 		
 		$irPowerDelay = 0;
 		$irModeDelay = 0;
@@ -78,7 +79,7 @@ if ($action=='form') {
 	$queryDspSelected = "SELECT DeviceTemplate_DSPMode.*,Command.Description as DSP_Desc
 							FROM DeviceTemplate_DSPMode 
 								INNER JOIN Command on PK_Command = FK_Command							
-							WHERE FK_DeviceTemplate='$deviceID' ORDER BY OrderNO ASC";
+							WHERE FK_DeviceTemplate='$dtID' ORDER BY OrderNO ASC";
 	$resDspSelected = $dbADO->_Execute($queryDspSelected);
 		if ($resDspSelected) {
 			while ($row=$resDspSelected->FetchRow()) {				
@@ -122,7 +123,7 @@ if ($action=='form') {
 	$queryInputSelected = "SELECT DeviceTemplate_Input.*,Command.Description as Input_Desc, FK_ConnectorType
 								FROM DeviceTemplate_Input 	
 									INNER JOIN Command on PK_Command = FK_Command
-						   WHERE FK_DeviceTemplate='$deviceID' order by OrderNo ASC";
+						   WHERE FK_DeviceTemplate='$dtID' order by OrderNo ASC";
 	
 	$resInputSelected = $dbADO->_Execute($queryInputSelected);
 		if ($resInputSelected) {
@@ -172,7 +173,7 @@ if ($action=='form') {
 	$queryOutputSelected = "SELECT DeviceTemplate_Output.*,Command.Description as Output_Desc,FK_ConnectorType
 								FROM DeviceTemplate_Output 	
 									INNER JOIN Command on PK_Command = FK_Command
-						   WHERE FK_DeviceTemplate='$deviceID' order by OrderNo ASC";
+						   WHERE FK_DeviceTemplate='$dtID' order by OrderNo ASC";
 	
 	$resOutputSelected = $dbADO->_Execute($queryOutputSelected);
 		if ($resOutputSelected) {
@@ -218,26 +219,53 @@ if ($action=='form') {
 	$checkedUsesIR = $usesIR>0?"checked":"";
 	$enabledIROptions=($usesIR>0)?'':'disabled';
 	
-	$mediaTypeCheckboxes='';
+	$mediaTypeCheckboxes='<table>';
 	$resMT=$dbADO->Execute('
 		SELECT MediaType.Description, PK_MediaType, FK_DeviceTemplate 
 		FROM MediaType 
 		LEFT JOIN DeviceTemplate_MediaType ON FK_MediaType=PK_MediaType AND FK_DeviceTemplate=?
-		WHERE DCEaware=0',$deviceID);
+		WHERE DCEaware=0',$dtID);
 	$displayedMT=array();
 	$checkedMT=array();
 	while($rowMT=$resMT->FetchRow()){
 		$displayedMT[]=$rowMT['PK_MediaType'];
 		if(!is_null($rowMT['FK_DeviceTemplate']))
 			$checkedMT[]=$rowMT['PK_MediaType'];
-		$mediaTypeCheckboxes.='<input type="checkbox" name="mediaType_'.$rowMT['PK_MediaType'].'" '.(($rowMT['FK_DeviceTemplate']!='')?'checked':'').'>'.$rowMT['Description'].' ';
-		$mediaTypeCheckboxes.=((count($displayedMT))%5==0)?'<br>':'';
+		$mediaTypeCheckboxes.='
+			<tr>
+				<td><input type="checkbox" name="mediaType_'.$rowMT['PK_MediaType'].'" '.(($rowMT['FK_DeviceTemplate']!='')?'checked':'').'></td>
+				<td>'.cleanMediaType($rowMT['Description']).'</td>';
+		if($rowMT['FK_DeviceTemplate']!=''){
+			$mediaProvidersArray=getAssocArray('MediaProvider','PK_MediaProvider','Description',$mediaADO,'WHERE EK_MediaType='.$rowMT['PK_MediaType']);
+			if($deviceID!=0){
+				$ddMediaProvider=getFieldsAsArray('Device_DeviceData','IK_DeviceData',$dbADO,'WHERE FK_Device='.$deviceID.' AND FK_DeviceData='.$GLOBALS['MediaProvider']);
+				$ddParts=explode(',',$ddMediaProvider['IK_DeviceData'][0]);
+				$currentMediaProvider=array();
+				foreach ($ddParts AS $mpForMediaType){
+					$mpParts=explode(':',$mpForMediaType);
+					@$currentMediaProvider[$mpParts[0]]=@$mpParts[1];
+				}
+				if(count($mediaProvidersArray)==0){
+					$puldown='&nbsp;';
+				}else{
+					$puldown=pulldownFromArray($mediaProvidersArray,'mediaProvider_'.$rowMT['PK_MediaType'],@$currentMediaProvider[$rowMT['PK_MediaType']]);
+				}
+			}
+			$mediaTypeCheckboxes.='<td>'.@$puldown.'</td>';
+		}
+		else{ 
+			$mediaTypeCheckboxes.='<td>&nbsp;</td>';
+		}
+		$mediaTypeCheckboxes.='	
+			</tr>';
 	}
+	$mediaTypeCheckboxes.='</table>';
 $out.='
 
 <form action="index.php" method="POST" name="editAVDevice" onSubmit="setCheckboxes();">
 <input type="hidden" name="section" value="editAVDevice">
 <input type="hidden" name="action" value="update">
+<input type="hidden" name="dtID" value="'.$dtID.'">
 <input type="hidden" name="deviceID" value="'.$deviceID.'">
 <input type="hidden" name="displayedMT" value="'.join(',',$displayedMT).'">
 <input type="hidden" name="checkedMT" value="'.join(',',$checkedMT).'">
@@ -663,11 +691,11 @@ function deleteFromArray(toDelete,targetArray)
 	$updateBasicDetails = "UPDATE DeviceTemplate_AV SET 
 			IR_PowerDelay = ?,IR_ModeDelay = ?,DigitDelay =?,TogglePower=?,ToggleDSP=?,ToggleInput=?,ToggleOutput=?, UsesIR=?
 						WHERE  FK_DeviceTemplate = ? ";
-	$res = $dbADO->Execute($updateBasicDetails,array($powerDelay,$modeDelay,$digitDelay,$togglePower,$toggleDSP,$toggleInput,$toggleOutput,$usesIR,$deviceID));
+	$res = $dbADO->Execute($updateBasicDetails,array($powerDelay,$modeDelay,$digitDelay,$togglePower,$toggleDSP,$toggleInput,$toggleOutput,$usesIR,$dtID));
 	if($usesIR==1){
-		$dbADO->Execute('UPDATE DeviceTemplate_DeviceCategory_ControlledVia SET FK_DeviceCategory=? WHERE FK_DeviceTemplate=? AND FK_DeviceCategory=?',array($GLOBALS['InfraredInterface'],$deviceID,$GLOBALS['rootComputerID']));
+		$dbADO->Execute('UPDATE DeviceTemplate_DeviceCategory_ControlledVia SET FK_DeviceCategory=? WHERE FK_DeviceTemplate=? AND FK_DeviceCategory=?',array($GLOBALS['InfraredInterface'],$dtID,$GLOBALS['rootComputerID']));
 	}else{
-		$dbADO->Execute('UPDATE DeviceTemplate_DeviceCategory_ControlledVia SET FK_DeviceCategory=? WHERE FK_DeviceTemplate=? AND FK_DeviceCategory=?',array($GLOBALS['rootComputerID'],$deviceID,$GLOBALS['InfraredInterface']));
+		$dbADO->Execute('UPDATE DeviceTemplate_DeviceCategory_ControlledVia SET FK_DeviceCategory=? WHERE FK_DeviceTemplate=? AND FK_DeviceCategory=?',array($GLOBALS['rootComputerID'],$dtID,$GLOBALS['InfraredInterface']));
 	}
 	
 	$dspOrderedArray = explode(",",$dspOrdered);
@@ -709,19 +737,19 @@ function deleteFromArray(toDelete,targetArray)
 	//delete dsp that are now unselected 
 	$cleanDSPMode = "
 		DELETE FROM DeviceTemplate_DSPMode WHERE FK_DeviceTemplate = ? AND FK_Command NOT IN (".join(",",$dspOrderedArrayIDs).")";
-	$dbADO->Execute($cleanDSPMode,array($deviceID));
+	$dbADO->Execute($cleanDSPMode,array($dtID));
 	
 	$pos=1;
 	foreach ($dspOrderedArrayIDs as $dspModeElem) {
 		$checkIfExists='SELECT * FROM DeviceTemplate_DSPMode WHERE FK_DeviceTemplate = ? AND FK_Command = ?';
-		$resCheckIfExists = $dbADO->Execute($checkIfExists,array($deviceID,$dspModeElem));
+		$resCheckIfExists = $dbADO->Execute($checkIfExists,array($dtID,$dspModeElem));
 		if ($resCheckIfExists->RecordCount()==1) {
 			$updateOrder = "UPDATE DeviceTemplate_DSPMode SET OrderNo = ? WHERE FK_DeviceTemplate= ? AND FK_Command = ? ";
-			$resUpdateOrder = $dbADO->Execute($updateOrder,array($pos,$deviceID,$dspModeElem));
+			$resUpdateOrder = $dbADO->Execute($updateOrder,array($pos,$dtID,$dspModeElem));
 		} else {
 			if ($dspModeElem!=0) {
 				$insertRecord = "INSERT INTO DeviceTemplate_DSPMode (FK_DeviceTemplate,FK_Command,OrderNo) values(?,?,?)";
-				$resInsertRecord = $dbADO->Execute($insertRecord,array($deviceID,$dspModeElem,$pos));
+				$resInsertRecord = $dbADO->Execute($insertRecord,array($dtID,$dspModeElem,$pos));
 			}
 		}
 		$pos++;	
@@ -746,20 +774,20 @@ function deleteFromArray(toDelete,targetArray)
 		DELETE FROM DeviceTemplate_Input WHERE FK_DeviceTemplate = ? AND FK_Command NOT IN (".join(",",$inputOrderedArrayIDs).")
 				
 	";
-	$dbADO->Execute($cleanInput,array($deviceID));
+	$dbADO->Execute($cleanInput,array($dtID));
 	
 	$pos=1;
 	foreach ($inputOrderedArrayIDs as $inputElem) {
 		$connectorID=((int)@$_POST['connector_'.$inputElem]!=0)?(int)@$_POST['connector_'.$inputElem]:NULL;
 		$checkIfExists='SELECT * FROM DeviceTemplate_Input WHERE FK_DeviceTemplate = ? AND FK_Command = ?';
-		$resCheckIfExists = $dbADO->Execute($checkIfExists,array($deviceID,$inputElem));
+		$resCheckIfExists = $dbADO->Execute($checkIfExists,array($dtID,$inputElem));
 		if ($resCheckIfExists->RecordCount()==1) {
 			$updateOrder = "UPDATE DeviceTemplate_Input SET OrderNo = ?, FK_ConnectorType=? WHERE FK_DeviceTemplate= ? AND FK_Command = ? ";
-			$resUpdateOrder = $dbADO->Execute($updateOrder,array($pos,$connectorID,$deviceID,$inputElem));
+			$resUpdateOrder = $dbADO->Execute($updateOrder,array($pos,$connectorID,$dtID,$inputElem));
 		} else {
 			if ($inputElem!=0) {
 				$insertRecord = "INSERT INTO DeviceTemplate_Input (FK_DeviceTemplate,FK_Command,OrderNo,FK_ConnectorType) values(?,?,?,?)";
-				$resInsertRecord = $dbADO->Execute($insertRecord,array($deviceID,$inputElem,$pos,$connectorID));
+				$resInsertRecord = $dbADO->Execute($insertRecord,array($dtID,$inputElem,$pos,$connectorID));
 			}
 		}
 		$pos++;	
@@ -784,39 +812,51 @@ function deleteFromArray(toDelete,targetArray)
 		DELETE FROM DeviceTemplate_Output WHERE FK_DeviceTemplate = ? AND FK_Command NOT IN (".join(",",$outputOrderedArrayIDs).")
 			
 	";
-	$dbADO->Execute($cleanOutput,array($deviceID));
+	$dbADO->Execute($cleanOutput,array($dtID));
 	
 	$pos=1;
 	foreach ($outputOrderedArrayIDs as $outputElem) {
 		$connectorID=((int)@$_POST['connector_'.$outputElem]!=0)?(int)@$_POST['connector_'.$outputElem]:NULL;
 		$checkIfExists='SELECT * FROM DeviceTemplate_Output WHERE FK_DeviceTemplate = ? AND FK_Command = ?';
-		$resCheckIfExists = $dbADO->Execute($checkIfExists,array($deviceID,$outputElem));
+		$resCheckIfExists = $dbADO->Execute($checkIfExists,array($dtID,$outputElem));
 		if ($resCheckIfExists->RecordCount()==1) {
 			$updateOrder = "UPDATE DeviceTemplate_Output SET FK_ConnectorType=?,OrderNo = ? WHERE FK_DeviceTemplate= ? AND FK_Command = ? ";
-			$resUpdateOrder = $dbADO->Execute($updateOrder,array($connectorID,$pos,$deviceID,$outputElem));
+			$resUpdateOrder = $dbADO->Execute($updateOrder,array($connectorID,$pos,$dtID,$outputElem));
 		} else {
 			if ($outputElem!=0) {
 				$insertRecord = "INSERT INTO DeviceTemplate_Output (FK_DeviceTemplate,FK_Command,OrderNo,FK_ConnectorType) values(?,?,?,?)";
-				$resInsertRecord = $dbADO->Execute($insertRecord,array($deviceID,$outputElem,$pos,$connectorID));
+				$resInsertRecord = $dbADO->Execute($insertRecord,array($dtID,$outputElem,$pos,$connectorID));
 			}
 		}
 		$pos++;	
 	}
-	
+
 	// add or delete records in DeviceTemplate_MediaType
+	// if device parameter is set, also set device_DeviceData for media provider
+	if($deviceID!=0){
+		$newMediaProvider=array();
+	}
 	$displayedMTArray=explode(',',$_POST['displayedMT']);
 	$checkedMTArray=explode(',',$_POST['checkedMT']);
 	foreach ($displayedMTArray AS $mediaType){
 		if(isset($_POST['mediaType_'.$mediaType])){
+			if($deviceID!=0){
+				if((int)@$_POST['mediaProvider_'.$mediaType]!=0)
+					$newMediaProvider[]=$mediaType.':'.(int)$_POST['mediaProvider_'.$mediaType];
+			}
 			if(!in_array($mediaType,$checkedMTArray)){
-				$dbADO->Execute('INSERT INTO DeviceTemplate_MediaType (FK_DeviceTemplate,FK_MediaType) VALUES (?,?)',array($deviceID,$mediaType));
+				$dbADO->Execute('INSERT INTO DeviceTemplate_MediaType (FK_DeviceTemplate,FK_MediaType) VALUES (?,?)',array($dtID,$mediaType));
 			}
 		}elseif(in_array($mediaType,$checkedMTArray)){
-			$dbADO->Execute('DELETE FROM DeviceTemplate_MediaType WHERE FK_DeviceTemplate=? AND FK_MediaType=?',array($deviceID,$mediaType));
+			$dbADO->Execute('DELETE FROM DeviceTemplate_MediaType WHERE FK_DeviceTemplate=? AND FK_MediaType=?',array($dtID,$mediaType));
 		}
 	}
+	if($deviceID!=0){
+		$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array(join(',',$newMediaProvider),$deviceID,$GLOBALS['MediaProvider']));
+	}
+
 	
-	header("Location: index.php?section=editAVDevice&deviceID=$deviceID&from=$from");
+	header("Location: index.php?section=editAVDevice&dtID=$dtID&deviceID=$deviceID&from=$from");
 }
 
 $output->setBody($out);

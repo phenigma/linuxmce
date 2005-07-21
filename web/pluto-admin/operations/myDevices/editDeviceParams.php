@@ -446,7 +446,7 @@ $installationID = (int)@$_SESSION['installationID'];
 		} 
 			
 		while ($rowDevicedata = $resDeviceData->FetchRow()) {
-			print_array($rowDevicedata);
+			//print_array($rowDevicedata);
 			if($rowDevicedata['PK_DD']==$GLOBALS['Port'])
 				$formElement=serialPortsPulldown('deviceData_'.$rowDevicedata['PK_DD'],stripslashes($rowDevicedata['IK_DeviceData']),$rowDevicedata['AllowedToModify'],getTopLevelParent($deviceID,$dbADO),$dbADO,$deviceID);
 			else

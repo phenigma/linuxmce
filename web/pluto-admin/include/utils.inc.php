@@ -3602,4 +3602,9 @@ function getUnixStamp($date)
 
 	return mktime($timeParts[0],$timeParts[1],$timeParts[2],$dateParts[1],$dateParts[2],$dateParts[0]);
 }
+
+function cleanMediaType($var)
+{
+	return str_replace('np_','',$var);
+}
 ?>
