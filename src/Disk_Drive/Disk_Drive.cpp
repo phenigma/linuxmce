@@ -73,6 +73,8 @@ Disk_Drive::Disk_Drive(int DeviceID, string ServerAddress,bool bConnectEventHand
         m_monitorEnabled(true), m_mediaInserted(false), m_mediaDiskStatus(DISCTYPE_NONE), m_serverPid(-1), m_serverPort(SERVER_PORT)
 //<-dceag-const-e->
 {
+	system("modprobe ide-generic");
+	system("modprobe ide-cd");
 	m_discid=0;  // No disc inserted
 	m_sDrive=DATA_Get_Drive();
 	if( m_sDrive=="" )
