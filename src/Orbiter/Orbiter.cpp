@@ -2915,6 +2915,21 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
             }
         }
     }
+
+	pos=0;
+	while(pos<DATA_Get_Hard_Keys_mapping().size())
+	{
+		string sToken=StringUtils::Tokenize(DATA_Get_Hard_Keys_mapping(),"\n",pos);
+		string::size_type pos2=0;
+		int iKey = atoi( StringUtils::Tokenize(sToken,"\t",pos2).c_str() );
+		if( !iKey )
+			continue;
+		Message *pMessage = new Message(StringUtils::Tokenize(sToken,"\t",pos2));
+		if( pMessage->m_dwPK_Device_To<0 )
+			pMessage->m_dwPK_Device_To = TranslateVirtualDevice(pMessage->m_dwPK_Device_To);
+		m_mapHardKeys[iKey] = pMessage;
+	}
+
     return true;
 }
 //------------------------------------------------------------------------
@@ -3535,6 +3550,14 @@ bool Orbiter::ButtonDown( int iPK_Button )
 
 bool Orbiter::ButtonUp( int iPK_Button )
 {
+	if( m_mapHardKeys.find(iPK_Button)!=m_mapHardKeys.end() )
+	{
+		Message *pMessage = m_mapHardKeys[iPK_Button];
+		if( pMessage->m_dwPK_Device_To==m_dwPK_Device )
+			ReceivedMessage( pMessage );
+		else
+			QueueMessageToRouter(new Message(pMessage));
+	}
 	if( m_bForward_local_kb_to_OSD && m_pLocationInfo && m_pLocationInfo->m_dwPK_Device_Orbiter )
 	{
 		DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_dwPK_Device,m_pLocationInfo->m_dwPK_Device_Orbiter,StringUtils::itos(iPK_Button),"");

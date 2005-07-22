@@ -195,6 +195,8 @@ protected:
     bool m_bAltDown;
     bool m_bCapsLock;
 
+	map<int,Message *> m_mapHardKeys;  /** < Messages to fire when keys are pressed */
+
 	DesignObjText *m_pCaptureKeyboard_Text; /** < @todo ask */
 	map<int,  vector<PlutoGraphic*> *> m_mapUserIcons; /** < user icons */
 	map<int,FloorplanObjectVectorMap *> m_mapFloorplanObjectVector;
@@ -904,6 +906,9 @@ public:
 	bool DATA_Get_Dont_Auto_Jump_to_Remote();
 	int DATA_Get_ScreenWidth();
 	int DATA_Get_ScreenHeight();
+	int DATA_Get_Rotation();
+	int DATA_Get_PK_UI();
+	string DATA_Get_Hard_Keys_mapping();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position);
@@ -1564,6 +1569,7 @@ light, climate, media, security, telecom */
 
 	virtual void CMD_Set_Floorplan(string sPK_DesignObj,string sType,bool bTrueFalse) { string sCMD_Result; CMD_Set_Floorplan(sPK_DesignObj.c_str(),sType.c_str(),bTrueFalse,sCMD_Result,NULL);};
 	virtual void CMD_Set_Floorplan(string sPK_DesignObj,string sType,bool bTrueFalse,string &sCMD_Result,Message *pMessage);
+
 
 	/** @brief COMMAND: #408 - Show Floorplan */
 	/** Shows the floorplan */

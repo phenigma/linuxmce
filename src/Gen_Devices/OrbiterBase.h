@@ -58,6 +58,9 @@ public:
 	bool Get_Dont_Auto_Jump_to_Remote() { return (m_mapParameters[95]=="1" ? true : false);}
 	int Get_ScreenWidth() { return atoi(m_mapParameters[100].c_str());}
 	int Get_ScreenHeight() { return atoi(m_mapParameters[101].c_str());}
+	int Get_Rotation() { return atoi(m_mapParameters[102].c_str());}
+	int Get_PK_UI() { return atoi(m_mapParameters[104].c_str());}
+	string Get_Hard_Keys_mapping() { return m_mapParameters[105];}
 };
 
 
@@ -125,6 +128,9 @@ public:
 	bool DATA_Get_Dont_Auto_Jump_to_Remote() { return GetData()->Get_Dont_Auto_Jump_to_Remote(); }
 	int DATA_Get_ScreenWidth() { return GetData()->Get_ScreenWidth(); }
 	int DATA_Get_ScreenHeight() { return GetData()->Get_ScreenHeight(); }
+	int DATA_Get_Rotation() { return GetData()->Get_Rotation(); }
+	int DATA_Get_PK_UI() { return GetData()->Get_PK_UI(); }
+	string DATA_Get_Hard_Keys_mapping() { return GetData()->Get_Hard_Keys_mapping(); }
 	//Event accessors
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position) { GetEvents()->Touch_or_click(iX_Position,iY_Position); }
 	//Commands - Override these to handle commands from the server

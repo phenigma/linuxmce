@@ -1366,6 +1366,8 @@ void DCEGen::WriteGlobals()
 
 	vector<Row_Command *> vectRow_Command;
 	m_dce.Command_get()->GetRows("1=1",&vectRow_Command);
+
+	map<string,bool> mapCommands;  // It's possible commands are similar and when stripped by ValidCppName they have the same name, like 10+ and 10-.  These are never DCE commands anyway
 	for(size_t s=0;s<vectRow_Command.size();++s)
 	{
 		Row_Command *pRow_Command = vectRow_Command[s];
@@ -1376,8 +1378,10 @@ void DCEGen::WriteGlobals()
 		CreateFunctionParms(pRow_Command,&commandInfo);
 		string Name = commandInfo.CPPName();
 
-		if( Name.size()==0 )
+		if( Name.size()==0 || mapCommands[Name]==true )
 			continue;
+
+		mapCommands[Name]=true;
 
 		if( commandInfo.m_vectRow_Command_CommandParameter_Out.size() )
 		{
