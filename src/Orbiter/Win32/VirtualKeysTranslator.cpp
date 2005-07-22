@@ -7,13 +7,12 @@ bool TranslateVirtualKeys2PlutoKeys(UINT uMsg, WPARAM wParam, LPARAM lParam,
 {
     static WPARAM wOldParam = 0;
     static bool bLastEvent_KeyDown = false;
+	static bool bWindows_Down = false;
+
 
     // Prevent auto-repeat
     if(uMsg == WM_KEYDOWN && bLastEvent_KeyDown && wOldParam == wParam) 
         return false;
-
-    wOldParam = wParam;
-    bLastEvent_KeyDown = uMsg == WM_KEYDOWN; 
 
     if (uMsg == WM_KEYDOWN)
     {
@@ -23,6 +22,7 @@ bool TranslateVirtualKeys2PlutoKeys(UINT uMsg, WPARAM wParam, LPARAM lParam,
             case VK_CONTROL:                    bControlDown=true;            break;
             case VK_MENU:                       bAltDown=true;                break;
             case VK_CAPITAL:                    bCapsLock = !bCapsLock;       break;
+			case VK_LWIN:						bWindows_Down=true;			  break;
         }
     }
 
@@ -33,10 +33,14 @@ bool TranslateVirtualKeys2PlutoKeys(UINT uMsg, WPARAM wParam, LPARAM lParam,
             case VK_SHIFT:                      bShiftDown=false;              break;
             case VK_CONTROL:                    bControlDown=false;            break;
             case VK_MENU:                       bAltDown=false;                break;
+			case VK_LWIN:						bWindows_Down=false;			   if( wOldParam==VK_LWIN ) iPK_Button = BUTTON_F1_CONST; break;  // On PDA's, if the user hits left windows and let's go, we treat it as F1
         }
     }
 
-    switch (wParam)
+    wOldParam = wParam;
+    bLastEvent_KeyDown = uMsg == WM_KEYDOWN; 
+
+	switch (wParam)
     {
         case '0':       iPK_Button = BUTTON_0_CONST;     break;
         case '1':       iPK_Button = BUTTON_1_CONST;     break;
@@ -96,6 +100,13 @@ bool TranslateVirtualKeys2PlutoKeys(UINT uMsg, WPARAM wParam, LPARAM lParam,
             iPK_Button = BUTTON_A_CONST + int(wParam) - VK_Z;
     }
 #endif 
+
+    switch (wParam)  // The 3 hard buttons on a PDA
+    {
+        case 0xC2:		iPK_Button = BUTTON_F2_CONST;    break;
+        case 0xC3:		iPK_Button = BUTTON_F3_CONST;    break;
+        case 0xC4:		iPK_Button = BUTTON_F4_CONST;    break;
+    }
 
     return true;
 }
