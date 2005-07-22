@@ -105,6 +105,7 @@ function wizardOrbiters($output,$dbADO) {
 				$joinArray[]=56;		// Timeout
 				$joinArray[]=84;		// Leave Monitor on for OSD
 				$joinArray[]=91;		// Main Menu
+				$joinArray[]=104;		// UI
 			
 				$queryDeviceDeviceData='
 					SELECT 
@@ -424,7 +425,7 @@ function wizardOrbiters($output,$dbADO) {
 				}
 				
 				// main menu
-				$mainMenu=((int)$_POST['mainMenu_'.$value]>0)?(int)$_POST['mainMenu_'.$value]:'';
+				$mainMenu=((int)@$_POST['mainMenu_'.$value]>0)?(int)$_POST['mainMenu_'.$value]:'';
 				$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($mainMenu,$value,91));
 			}
 		}

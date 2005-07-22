@@ -206,7 +206,7 @@
 	
 	// DeviceData displayed as pulldown menu
 	
-	$GLOBALS['DeviceDataLinkedToTables']=array('PK_Distro','PK_FloorplanObjectType','PK_Skin','PK_Size','PK_Language','PK_Users','PK_AlertType');
+	$GLOBALS['DeviceDataLinkedToTables']=array('PK_Distro','PK_FloorplanObjectType','PK_Skin','PK_Size','PK_Language','PK_Users','PK_AlertType','PK_UI');
 	
 	// PK_Device for Local Orbiter
 	

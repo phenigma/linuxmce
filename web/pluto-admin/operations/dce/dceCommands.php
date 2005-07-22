@@ -23,6 +23,7 @@ function dceCommands($output,$dbADO) {
 		<table cellpadding="3" align="center">
 			<tr bgcolor="lightblue">
 				<td align="center" width="120"><B>Command category</B></td>
+				<td align="center"><B>#</b></td>
 				<td align="center"><B>Command description</b></td>
 				<td align="center" colspan="2"><B>Used by</B></td>
 			</tr>
@@ -37,7 +38,7 @@ function dceCommands($output,$dbADO) {
 		$out.=formatOutput($resRootCC,$dbADO,0);
 		$out.='
 			<tr>
-				<td align="left" colspan="3"><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addCommandCategory&from=dceCommands\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');">Add Command Category</a></td>
+				<td align="left" colspan="4"><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addCommandCategory&from=dceCommands\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');">Add Command Category</a></td>
 			</tr>
 		</table>
 		</form>';
@@ -80,7 +81,7 @@ function formatOutput($resRootCC,$dbADO,$level)
 
 		$out.='
 			<tr bgcolor="#EEEEEE">
-				<td colspan="2">'.$indent.' <a href="#" onClick="windowOpen(\'index.php?section=editCommandCategory&from=dceCommands&ccID='.$rowRootCC['PK_CommandCategory'].'\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');"><B>'.$rowRootCC['Description'].'</B></a></td>
+				<td colspan="3">'.$indent.' <a href="#" onClick="windowOpen(\'index.php?section=editCommandCategory&from=dceCommands&ccID='.$rowRootCC['PK_CommandCategory'].'\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');"><B>'.$rowRootCC['Description'].'</B></a></td>
 				<td align="center"><B>Device Templates</B></td>
 				<td align="center"><B>Devices</B></td>
 			</tr>';
@@ -117,6 +118,7 @@ function formatOutput($resRootCC,$dbADO,$level)
 			$out.='
 				<tr>
 					<td>&nbsp;</td>
+					<td bgcolor="'.(($cmdPos%2==0)?'#FFFFFF':'#EBEFF9').'">'.$rowCommands['PK_Command'].'</td>
 					<td bgcolor="'.(($cmdPos%2==0)?'#FFFFFF':'#EBEFF9').'"><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editCommand&from=dceCommands&commandID='.$rowCommands['PK_Command'].'\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');">'.$rowCommands['Description'].'<a></td>
 					<td bgcolor="'.(($cmdPos%2==0)?'#FFFFFF':'#EBEFF9').'">'.join(', ',$dtLinks).'</td>
 					<td bgcolor="'.(($cmdPos%2==0)?'#FFFFFF':'#EBEFF9').'">'.join(', ',$devicesLinks).'</td>
