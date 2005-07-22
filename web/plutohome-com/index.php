@@ -569,6 +569,14 @@ switch ($section) {
 		include_once('dealer/manufacturer_users.php');
 	    manufacturer_users($output,$dbADO);
 	break;
+	case 'irg_models':
+    	$output = new Template();
+    	$output->setConn($conn);
+       	$output->setTemplateFileType('nonews');
+		include_once('operations/irg_models.php');
+	    irg_models($output);
+	break;
+
 	
 	default:			
 		$output = new Template();	

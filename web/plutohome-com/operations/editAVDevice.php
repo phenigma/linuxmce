@@ -7,7 +7,6 @@ function editAVDevice($output)
 	$publicADO = &ADONewConnection('mysql');
 	$publicADO->NConnect($dbPlutoAdminServer,urlencode($dbPlutoAdminUser),urlencode($dbPlutoAdminPass),urlencode($dbPlutoAdminDatabase));
 	
-	
 /* @var $publicADO ADOConnection */
 /* @var $rs ADORecordSet */
 $out='';
@@ -41,11 +40,14 @@ if ($action=='form') {
 					WHERE PK_DeviceTemplate='$deviceID'";
 
 	$rs = $publicADO->_Execute($queryModels);	
-		while ($row = $rs->FetchRow()) {			
-			$deviceTemplateName = $row['Description'];			
-			$deviceCategID = $row['FK_DeviceCategory'];
-			$dtOwner=$row['psc_user'];
-		}
+	while ($row = $rs->FetchRow()) {			
+		$deviceTemplateName = $row['Description'];			
+		$deviceCategID = $row['FK_DeviceCategory'];
+		$manufID = $row['FK_Manufacturer'];
+		$dtOwner=$row['psc_user'];
+	}
+	$isOwner=(@$dtOwner==$_SESSION['userID'])?1:0;
+		
 	$btnEnabled=(!isset($_SESSION['userID']) || $dtOwner!=$_SESSION['userID'])?'disabled':'';
 	$rs->Close();
 		
@@ -107,14 +109,20 @@ if ($action=='form') {
 		var Input__Array=new Array();
 		var Output_Array=new Array();
 	';
-	$queryDsp="SELECT * FROM Command WHERE FK_CommandCategory=21 ORDER BY Description";
+	$queryDsp="
+		SELECT * 
+		FROM Command 
+		LEFT JOIN InfraredGroup_Command ON FK_Command=PK_Command AND FK_InfraredGroup=".(int)@$_REQUEST['irg']."
+		WHERE FK_CommandCategory=21 ORDER BY Description";
 	$ckb=0;
 	$resDsp= $publicADO->_Execute($queryDsp);
 		if ($resDsp) {
 			while ($row=$resDsp->FetchRow()) {
 				$onclickFunction='if(document.editAVDevice.DSPMode__available['.$ckb.'].checked)moveDualList(this.form.DSPMode__available,this.form.DSPMode__selected,false,this.form.DSPMode__selectedOrdered,this.form.DSPMode__selected);else eraseElement('.$row['PK_Command'].',this.form.DSPMode__selected);';
 				$jsArray.='DSPModeArray['.$row['PK_Command'].']="'.$row['Description'].'";';
-				$dspUnselectedTxt.='<input type="checkbox" name="DSPMode__available" value="'.$row['PK_Command'].'" '.((in_array($row['PK_Command'],$dspSelected))?'checked':'').' onClick="'.$onclickFunction.'">'.$row['Description'].'<br>';
+				$dspUnselectedTxt.='<input type="checkbox" name="DSPMode__available" value="'.$row['PK_Command'].'" '.((in_array($row['PK_Command'],$dspSelected))?'checked':'').' onClick="'.$onclickFunction.'">';
+				$dspUnselectedTxt.=(!is_null($row['PK_InfraredGroup_Command']))?'<span class="confirm">'.$row['Description'].'</span>':$row['Description'];
+				$dspUnselectedTxt.='<br>';
 				$dspUnselected[]=$row['PK_Command'];
 				$ckb++;
 			}
@@ -146,7 +154,11 @@ if ($action=='form') {
 	$resInputSelected->close();
 
 	$inputUnselectedTxt='<table>';
-	$queryInput="SELECT * FROM Command WHERE FK_CommandCategory=22 AND PK_Command ORDER BY Description ASC";
+	$queryInput="
+		SELECT * 
+		FROM Command 
+		LEFT JOIN InfraredGroup_Command ON FK_Command=PK_Command AND FK_InfraredGroup=".(int)@$_REQUEST['irg']."
+		WHERE FK_CommandCategory=22 AND PK_Command ORDER BY Description ASC";
 	$resInput= $publicADO->_Execute($queryInput);
 		if ($resInput) {
 			$ckb=0;
@@ -161,9 +173,10 @@ if ($action=='form') {
 				}
 				$connectorPullDown.='</select>';
 				
+				$itemLabel=(!is_null($row['PK_InfraredGroup_Command']))?'<span class="confirm">'.$row['Description'].'</span>':$row['Description'];
 				$inputUnselectedTxt.='
 					<tr>
-						<td><input type="checkbox" name="Input__available" value="'.$row['PK_Command'].'" '.((in_array($row['PK_Command'],$inputSelected))?'checked':'').' onClick="'.$onclickFunction.'if(this.checked)showPulldown(\'connector_'.$row['PK_Command'].'\',\'\')">'.$row['Description'].'</td>
+						<td><input type="checkbox" name="Input__available" value="'.$row['PK_Command'].'" '.((in_array($row['PK_Command'],$inputSelected))?'checked':'').' onClick="'.$onclickFunction.'if(this.checked)showPulldown(\'connector_'.$row['PK_Command'].'\',\'\')">'.$itemLabel.'</td>
 						<td>'.$connectorPullDown.'</td>
 					</tr>';
 				$inputUnselected[]=$row['PK_Command'];
@@ -195,7 +208,11 @@ if ($action=='form') {
 	$resOutputSelected->close();
 	
 	$outputUnselectedTxt='<table>';
-	$queryOutput="SELECT * FROM Command WHERE FK_CommandCategory=27 AND PK_Command ORDER BY Description ASC";
+	$queryOutput="
+		SELECT * 
+		FROM Command 
+		LEFT JOIN InfraredGroup_Command ON FK_Command=PK_Command AND FK_InfraredGroup=".(int)@$_REQUEST['irg']."
+		WHERE FK_CommandCategory=27 AND PK_Command ORDER BY Description ASC";
 	$resOutput= $publicADO->_Execute($queryOutput);
 		if ($resOutput) {
 			$ckb=0;
@@ -209,9 +226,10 @@ if ($action=='form') {
 				}
 				$connectorPullDown.='</select>';
 				
+				$itemLabel=(!is_null($row['PK_InfraredGroup_Command']))?'<span class="confirm">'.$row['Description'].'</span>':$row['Description'];				
 				$outputUnselectedTxt.='
 					<tr>
-						<td><input type="checkbox" name="Output__available" value="'.$row['PK_Command'].'" '.((in_array($row['PK_Command'],$outputSelected))?'checked':'').' onClick="'.$onclickFunction.'if(this.checked)showPulldown(\'connector_'.$row['PK_Command'].'\',\'\')">'.$row['Description'].'</td>
+						<td><input type="checkbox" name="Output__available" value="'.$row['PK_Command'].'" '.((in_array($row['PK_Command'],$outputSelected))?'checked':'').' onClick="'.$onclickFunction.'if(this.checked)showPulldown(\'connector_'.$row['PK_Command'].'\',\'\')">'.$itemLabel.'</td>
 						<td>'.$connectorPullDown.'</td>
 					</tr>';
 				$outputUnselected[]=$row['PK_Command'];
@@ -221,7 +239,6 @@ if ($action=='form') {
 	$resOutput->close();
 	$outputUnselectedTxt.='</table>';
 	
-	$checkedTogglePower = $togglePower>0?"checked":"";
 	$checkedDSPModes = $toggleDSP>0?"checked":"";
 	$checkedInput = $toggleInput>0?"checked":"";
 	$checkedOutput = $toggleOutput>0?"checked":"";
@@ -240,7 +257,7 @@ if ($action=='form') {
 		$displayedMT[]=$rowMT['PK_MediaType'];
 		if(!is_null($rowMT['FK_DeviceTemplate']))
 			$checkedMT[]=$rowMT['PK_MediaType'];
-		$mediaTypeCheckboxes.='<input type="checkbox" name="mediaType_'.$rowMT['PK_MediaType'].'" '.(($rowMT['FK_DeviceTemplate']!='')?'checked':'').'>'.$rowMT['Description'].' ';
+		$mediaTypeCheckboxes.='<input type="checkbox" name="mediaType_'.$rowMT['PK_MediaType'].'" '.(($rowMT['FK_DeviceTemplate']!='')?'checked':'').'>'.str_replace('np_','',$rowMT['Description']).' ';
 		$mediaTypeCheckboxes.=((count($displayedMT))%5==0)?'<br>':'';
 	}
 $out.='
@@ -252,7 +269,6 @@ $out.='
 <input type="hidden" name="displayedMT" value="'.join(',',$displayedMT).'">
 <input type="hidden" name="checkedMT" value="'.join(',',$checkedMT).'">
 <br>';
-
 if(ereg('devices',$from))
 	$out.='<div class="err" align="center"><B>WARNING</B>: the changes will affect all devices from <B>'.$deviceTemplateName.'</B> category.</div>';
 
@@ -274,8 +290,11 @@ $out.='
 			<td colspan="2" align="center"><span>IR Power Delay: <input type="text" name="irPowerDelay" value="'.$irPowerDelay.'" size="5" /> IR Mode Delay: <input type="text" name="irModeDelay" value="'.$irModeDelay.'" size="5" /> Digit Delay (ms): <input type="text" name="irDigitDelay" value="'.$digitDelay.'" size="5" /></span></td>
 		</tr>
 		<tr>
-			<td align="right"><span class="'.(($usesIR>0)?'':'grayout').'">Toggle Power: </span></td>
-			<td><input type="checkbox" name="toggle_power" value="1" '.$checkedTogglePower.' '.$enabledIROptions.' onClick="setCheckboxes();document.editAVDevice.submit();"></td>
+			<td align="center" colspan="2"><span class="'.(($usesIR>0)?'':'grayout').'"> Power: <input type="radio" name="toggle_power" value="1" '.(($togglePower>0)?'checked':'').' '.$enabledIROptions.'> Toggle <input type="radio" name="toggle_power" value="0" '.(($togglePower>0)?'':'checked').' '.$enabledIROptions.'> Discrete</span></td>
+		</tr>
+		<tr>
+			<td align="right">Infrared Groups</td>
+			<td align="left">'.generatePullDown('irg','InfraredGroup','PK_InfraredGroup','Description',(int)@$_REQUEST['irg'],$publicADO,'WHERE FK_Manufacturer='.$manufID.' AND FK_DeviceCategory='.$deviceCategID,'onchange="document.editAVDevice.action.value=\'form\';document.editAVDevice.submit();"').'</td>
 		</tr>
 		<tr>
 			<td align="center" colspan="2"><B>Media Type</B></td>
@@ -374,14 +393,18 @@ $out.='
 		</tr>
 		</table><br />';
 		if($btnEnabled=='disabled')	{
-			$out.='<span class="normaltext"><em>* You can only edit your own device templates</em></span>';
+			$out.='<span class="normaltext"><em>* Only the owner (#'.$dtOwner.') can edit the device template</em></span>';
+		}
+		if((int)@$_REQUEST['irg']){
+			$out.='<span class="normaltext"><em>** Commands highlighed have infrared codes</em></span>';
 		}
 		$out.='	
 		<div align="center"><input type="submit" class="button" name="mdl" value="Update" '.$btnEnabled.' /></div>
 		
 	</form>
+<span class="normaltext">If you have question or comments, please contact us by <a href="mailto:support@plutohome.com?subject=IR Group '.(int)@$_REQUEST['irgID'].' x Device Template '.$deviceID.' x UserID '.$_SESSION['userID'].'">email</a>.</span><br><br>				
 ';
-//$output->setLeftMenu($leftMenu);
+
 
 $output->setScriptCalendar('null');
 

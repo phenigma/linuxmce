@@ -63,8 +63,10 @@ function irCodes($output)
 				
 			}
 		</script>	
+		
 	<div class="err"><br>'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
 	<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>	
+		
 		<form action="index.php" method="POST" name="irCodes">
 			<input type="hidden" name="section" value="irCodes">
 			<input type="hidden" name="action" value="update">
@@ -200,7 +202,6 @@ function irCodes($output)
 			<tr>
 				<td valign="top" colspan="2">Device template <B>'.$rowDTData['Template'].'</B>, category <B>'.$rowDTData['Category'].'</B> and manufacturer <B>'.$rowDTData['Manufacturer'].'</B>.<td>
 			</tr>';
-		if(!is_null($deviceID)){
 			$out.='
 			<tr>
 				<td colspan="2">Uses '.$label.' group <select name="irGroup" onChange="document.irCodes.submit();">
@@ -217,7 +218,7 @@ function irCodes($output)
 			$out.='
 				</select></td>
 		</tr>';
-		}
+
 		$out.='
 			<tr>
 				<td valign="top" width="250">Implement Command Groups </td>
@@ -338,6 +339,7 @@ function irCodes($output)
 			<input type="hidden" name="displayedIRGC" value="'.join(',',$GLOBALS['displayedIRGC']).'">
 			<input type="hidden" name="commandsDisplayed" value="'.join(',',$commandsDisplayed).'">
 		</form>
+	<span class="normaltext">If you have question or comments, please contact us by <a href="mailto:support@plutohome.com?subject=IR Group '.$infraredGroupID.' x Device Template '.$dtID.' x UserID '.$userID.'">email</a>.</span><br><br>		
 	';	
 		$out.=(($GLOBALS['btnEnabled']=='disabled')?'<span class="normaltext"><em>* Add/Edit options are available only for your own device templates.</em></span>':'');		
 	} else {
@@ -355,17 +357,16 @@ function irCodes($output)
 			exit();
 		}
 
-		if(!is_null($deviceID)){
-			$newIRGroup=((int)@$_POST['irGroup']>0)?(int)$_POST['irGroup']:NULL;
-			$oldIRGroup=(int)$_POST['oldIRGroup'];
-			if($newIRGroup!=$oldIRGroup){
-				$publicADO->Execute('DELETE FROM DeviceTemplate_InfraredGroup WHERE FK_DeviceTemplate=?',$dtID);
-				if(!is_null($newIRGroup))
-					$publicADO->Execute('INSERT INTO DeviceTemplate_InfraredGroup (FK_DeviceTemplate, FK_InfraredGroup) VALUES (?,?)',array($dtID,$newIRGroup));
-				$publicADO->Execute('UPDATE InfraredGroup_Command SET FK_InfraredGroup=? WHERE FK_DeviceTemplate=? AND FK_InfraredGroup IS NOT NULL',array($newIRGroup,$dtID));
-				header("Location: index.php?section=irCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$newIRGroup&msg=IR Group changed for selected device template.&label=".$GLOBALS['label']);
-				exit();
-			}
+		$newIRGroup=((int)@$_POST['irGroup']>0)?(int)$_POST['irGroup']:NULL;
+		$oldIRGroup=(int)$_POST['oldIRGroup'];
+		if($newIRGroup!=$oldIRGroup){
+			$publicADO->Execute('DELETE FROM DeviceTemplate_InfraredGroup WHERE FK_DeviceTemplate=?',array($dtID));
+			if(!is_null($newIRGroup))
+				$publicADO->Execute('INSERT INTO DeviceTemplate_InfraredGroup (FK_DeviceTemplate, FK_InfraredGroup) VALUES (?,?)',array($dtID,$newIRGroup));
+			$publicADO->Execute('UPDATE InfraredGroup_Command SET FK_InfraredGroup=? WHERE FK_DeviceTemplate=? AND FK_InfraredGroup IS NOT NULL AND FK_Users=?',array($newIRGroup,$dtID,$userID));
+
+			header("Location: index.php?section=irCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$newIRGroup&msg=IR Group changed for selected device template.&label=".$GLOBALS['label']);
+			exit();
 		}
 		
 		if(isset($_POST['irgroup_command']) && (int)$_POST['irgroup_command']>0){

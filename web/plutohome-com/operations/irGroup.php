@@ -29,6 +29,7 @@ function irGroup($output)
 	$GLOBALS['igcPrefered']=array();	
 
 	if ($action=='form') {
+		$irgData=getAssocArray('InfraredGroup','PK_InfraredGroup','Description',$publicADO,'WHERE PK_InfraredGroup='.$irgID);
 		$out.='
 		<script>
 			function windowOpen(locationA,attributes) {
@@ -47,7 +48,8 @@ function irGroup($output)
 
 	
 		$out.='
-		<h3>Edit IR Group</h3>
+		<h3>Edit IR Group #'.$irgID.' '.$irgData[$irgID].'</h3>
+		<p class="normaltext"><a href="index.php?section=irg_models&irgID='.$irgID.'">Show models using this group</a>
 		<table border="0" width="100%" class="normaltext">
 		';
 
@@ -94,6 +96,7 @@ function irGroup($output)
 			<input type="hidden" name="displayedIRGC" value="'.join(',',$GLOBALS['displayedIRGC']).'">
 			<input type="hidden" name="commandsDisplayed" value="'.join(',',$commandsDisplayed).'">
 		</form>
+<span class="normaltext">If you have question or comments, please contact us by <a href="mailto:support@plutohome.com?subject=IR Group '.$irgID.' x UserID '.$userID.'">email</a>.</span><br><br>				
 	';	
 		
 	} else {
