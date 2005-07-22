@@ -5,8 +5,8 @@
 #define PACKAGETYPE_Pluto_Libraries_CONST 2
 #define PACKAGETYPE_Pluto_Utilities_CONST 3
 #define PACKAGETYPE_Pluto_DCE_Devices_CONST 4
-#define PACKAGETYPE_Pluto_Plug_DASH_ins_CONST 5
-#define PACKAGETYPE_3rd_Party_Plug_DASH_ins_CONST 6
+#define PACKAGETYPE_Pluto_Plugins_CONST 5
+#define PACKAGETYPE_3rd_Party_Plugins_CONST 6
 #define PACKAGETYPE_3rd_Party_DCE_Devices_CONST 7
 #define PACKAGETYPE_3rd_Party_Utilities_CONST 8
 #define PACKAGETYPE_Developer_Tools_CONST 9

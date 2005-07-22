@@ -12,7 +12,7 @@
 #define DEVICEDATA_Diskless_Boot_CONST 9
 #define DEVICEDATA_Floorplan_Info_CONST 10
 #define DEVICEDATA_PK_FloorplanObjectType_CONST 11
-#define DEVICEDATA_Port_SLASH_Channel_Number_CONST 12
+#define DEVICEDATA_PortChannel_Number_CONST 12
 #define DEVICEDATA_InputOrOutput_CONST 18
 #define DEVICEDATA_Default_State_CONST 19
 #define DEVICEDATA_No_Effects_CONST 20
@@ -62,7 +62,7 @@
 #define DEVICEDATA_VideoFrameInterval_CONST 72
 #define DEVICEDATA_Alsa_Output_Device_CONST 74
 #define DEVICEDATA_ImageQuality_CONST 75
-#define DEVICEDATA_COM_Port_ParityBit_SLASH_Stop_CONST 76
+#define DEVICEDATA_COM_Port_ParityBitStop_CONST 76
 #define DEVICEDATA_PK_Device_CONST 77
 #define DEVICEDATA_COM_Port_BaudRate_CONST 78
 #define DEVICEDATA_Area_CONST 80

@@ -1,12 +1,12 @@
 #ifndef __Define_HouseMode_H__
 #define __Define_HouseMode_H__
 
-#define HOUSEMODE_Unarmed_DASH_at_home_CONST 1
-#define HOUSEMODE_Armed_DASH_away_CONST 2
-#define HOUSEMODE_Armed_DASH_at_home_CONST 3
+#define HOUSEMODE_Unarmed_at_home_CONST 1
+#define HOUSEMODE_Armed_away_CONST 2
+#define HOUSEMODE_Armed_at_home_CONST 3
 #define HOUSEMODE_Sleeping_CONST 4
 #define HOUSEMODE_Entertaining_CONST 5
-#define HOUSEMODE_Armed_DASH_Extended_away_CONST 6
+#define HOUSEMODE_Armed_Extended_away_CONST 6
 
 #define HOUSEMODE_TABLE "HouseMode"
 #define HOUSEMODE_PK_HOUSEMODE_FIELD "PK_HouseMode"

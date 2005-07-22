@@ -2,7 +2,7 @@
 #define __Define_ConnectorType_H__
 
 #define CONNECTORTYPE_Composite_CONST 1
-#define CONNECTORTYPE_S_DASH_Video_CONST 2
+#define CONNECTORTYPE_SVideo_CONST 2
 #define CONNECTORTYPE_Component_CONST 3
 #define CONNECTORTYPE_DVI_CONST 4
 #define CONNECTORTYPE_VGA_CONST 5

@@ -48,7 +48,7 @@
 #define EVENT_Presence_Lost_CONST 45
 #define EVENT_Media_Identified_CONST 46
 #define EVENT_New_Version_available_CONST 47
-#define EVENT_Device_On_SLASH_Off_CONST 48
+#define EVENT_Device_OnOff_CONST 48
 #define EVENT_AV_Input_Changed_CONST 49
 #define EVENT_Media_Description_Changed_CONST 50
 

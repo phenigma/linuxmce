@@ -2,23 +2,23 @@
 #define __Define_Template_H__
 
 #define TEMPLATE_Media_Wizard_CONST 1
-#define TEMPLATE_Media_Wiz_DASH_TV_CONST 2
-#define TEMPLATE_Media_Wiz_DASH_playlists_CONST 3
-#define TEMPLATE_Media_Wiz_DASH_music_CONST 4
-#define TEMPLATE_Media_Wiz_DASH_movies_CONST 5
-#define TEMPLATE_Media_Wiz_DASH_videos_CONST 6
-#define TEMPLATE_Media_Wiz_DASH_pictures_CONST 7
-#define TEMPLATE_Media_Wiz_DASH_documents_CONST 8
+#define TEMPLATE_Media_Wiz_TV_CONST 2
+#define TEMPLATE_Media_Wiz_playlists_CONST 3
+#define TEMPLATE_Media_Wiz_music_CONST 4
+#define TEMPLATE_Media_Wiz_movies_CONST 5
+#define TEMPLATE_Media_Wiz_videos_CONST 6
+#define TEMPLATE_Media_Wiz_pictures_CONST 7
+#define TEMPLATE_Media_Wiz_documents_CONST 8
 #define TEMPLATE_Lighting_Wizard_CONST 9
 #define TEMPLATE_Climate_Wizard_CONST 10
 #define TEMPLATE_Events_Handler_CONST 11
 #define TEMPLATE_Security_Scenarios_CONST 12
-#define TEMPLATE_Security_DASH_Arm_Disarm_CONST 13
-#define TEMPLATE_Security_DASH_SOS_CONST 14
-#define TEMPLATE_Security_DASH_View_Cameras_CONST 15
-#define TEMPLATE_Security_DASH_View_Camera_CONST 16
+#define TEMPLATE_Security_Arm_Disarm_CONST 13
+#define TEMPLATE_Security_SOS_CONST 14
+#define TEMPLATE_Security_View_Cameras_CONST 15
+#define TEMPLATE_Security_View_Camera_CONST 16
 #define TEMPLATE_Telecom_Scenarios_CONST 17
-#define TEMPLATE_Media_Wiz_DASH_Disc_CD_SLASH_DVD_CONST 18
+#define TEMPLATE_Media_Wiz_Disc_CDDVD_CONST 18
 
 #define TEMPLATE_TABLE "Template"
 #define TEMPLATE_PK_TEMPLATE_FIELD "PK_Template"
