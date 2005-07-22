@@ -428,8 +428,8 @@ string FileUtils::ValidCPPName(string sInput)
     StringUtils::Replace(&sInput,"=","_");
     StringUtils::Replace(&sInput,",","_");
     StringUtils::Replace(&sInput,"@","_");
-    StringUtils::Replace(&sInput,"-","_DASH_");
-    StringUtils::Replace(&sInput,"/","_SLASH_");
+    StringUtils::Replace(&sInput,"-","");
+    StringUtils::Replace(&sInput,"/","");
     StringUtils::Replace(&sInput,"#","Num");
     StringUtils::Replace(&sInput,"*","");
     StringUtils::Replace(&sInput,"$","");
@@ -444,7 +444,6 @@ string FileUtils::ValidCPPName(string sInput)
     StringUtils::Replace(&sInput,"__","_");
     StringUtils::Replace(&sInput,"%","");
     StringUtils::Replace(&sInput,"&","");
-    StringUtils::Replace(&sInput,"+","_PLUS_");
 
     // taking out the underscores from the begining of the file name
     while(sInput.length() && sInput[0]=='_')
