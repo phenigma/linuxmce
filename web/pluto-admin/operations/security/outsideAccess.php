@@ -95,6 +95,11 @@ function outsideAccess($output,$dbADO) {
 			<td><input type="password" name="password1" value="'.(isset($remote)?$remote:'').'"></td>
 		</tr>
 		<tr>
+			<td><input type="checkbox" name="raport" value="1" '.(((int)@$raport==22)?'checked':'').'></td>
+			<td>Use port 22 for remote assistance</td>
+			<td>&nbsp;</td>
+		</tr>		
+		<tr>
 			<td><input type="checkbox" name="RA_CheckRemotePort" value="1" '.(((int)@$RA_CheckRemotePort==1)?'checked':'').'></td>
 			<td>Enable anti-hanging measure for Remote Assistance</td>
 			<td>&nbsp;</td>
@@ -185,7 +190,17 @@ function outsideAccess($output,$dbADO) {
 			}else {
 				removeFromFile('remote',$accessFile);
 			}
-			
+
+			if(isset($_POST['raport'])){
+				if(@$raport!=22){
+					writeToFile($accessFile, 'raport',0,22);	
+				}
+			}else{
+				if(@$raport==22){
+					removeFromFile('raport',$accessFile);
+				}
+			}
+						
 			if((int)@$RA_CheckRemotePort==1){
 				if(!isset($_POST['RA_CheckRemotePort'])){
 					writeToFile($accessFile, 'RA_CheckRemotePort',1,0);	

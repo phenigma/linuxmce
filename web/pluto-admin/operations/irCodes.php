@@ -58,6 +58,7 @@ function irCodes($output,$dbADO) {
 		</script>	
 	<div class="err"><br>'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
 	<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>	
+
 		
 		<form action="index.php" method="POST" name="irCodes">
 			<input type="hidden" name="section" value="irCodes">
@@ -358,7 +359,7 @@ function irCodes($output,$dbADO) {
 				$dbADO->Execute('DELETE FROM DeviceTemplate_InfraredGroup WHERE FK_DeviceTemplate=?',$dtID);
 				if(!is_null($newIRGroup))
 					$dbADO->Execute('INSERT INTO DeviceTemplate_InfraredGroup (FK_DeviceTemplate, FK_InfraredGroup) VALUES (?,?)',array($dtID,$newIRGroup));
-				$dbADO->Execute('UPDATE InfraredGroup_Command SET FK_InfraredGroup=? WHERE FK_DeviceTemplate=? AND (FK_InfraredGroup=? OR  FK_InfraredGroup IS NULL)',array($newIRGroup,$dtID,$oldIRGroup));
+				$dbADO->Execute('UPDATE InfraredGroup_Command SET FK_InfraredGroup=? WHERE FK_DeviceTemplate=? AND (FK_InfraredGroup=? OR  FK_InfraredGroup IS NULL AND FK_Users=?)',array($newIRGroup,$dtID,$oldIRGroup,$userID));
 				header("Location: index.php?section=irCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$newIRGroup&msg=IR Group changed for selected device template.&label=".$GLOBALS['label']);
 				exit();
 			}
