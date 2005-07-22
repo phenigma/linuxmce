@@ -69,7 +69,6 @@ void Plugin_DeadlockHandler(PlutoLock *pPlutoLock)
 }
 void Plugin_SocketCrashHandler(Socket *pSocket)
 {
-	// This isn't graceful, but for the moment in the event of a socket crash we'll just kill everything and force a reload
 	if( g_pCommand_Impl && g_pCommand_Impl->m_pRouter )
 	{
 		if( g_pPlutoLogger )
