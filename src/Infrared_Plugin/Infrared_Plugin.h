@@ -10,6 +10,7 @@
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
 #include "DCERouter.h"
 #include "pluto_main/Database_pluto_main.h"
+class IRDevice;
 
 //<-dceag-decl-b->!
 namespace DCE
@@ -44,7 +45,7 @@ public:
 		class DataGridTable *InfraredCodes(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
 		class DataGridTable *IRGroupCategories(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
 
-		void GetInfraredCodes(int iPK_Device,map<int,string> &mapCodes,bool bNoIRData=false);
+		void GetInfraredCodes(int iPK_Device,IRDevice &irDevice,bool bNoIRData=false);
 		
 //<-dceag-h-b->
 	/*

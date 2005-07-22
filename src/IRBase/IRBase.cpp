@@ -26,6 +26,7 @@
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "DCE/Logger.h"
 #include "Serial/SerialPort.h"
+#include "IR/IRDevice.h"
 
 #include <math.h>
 #include <time.h>
@@ -53,13 +54,12 @@ IRBase::handleStart() {
 		DCE::CMD_Get_Infrared_Codes_DT CMD_Get_Infrared_Codes_DT(devid, DEVICETEMPLATE_Infrared_Plugin_CONST,
 					BL_SameHouse, devid, &pData, &iSize);
 		getCommandImpl()->SendCommand(CMD_Get_Infrared_Codes_DT);  // Get the codes from I/R Plugin
-		SerializeClass mapsc(true);  // A manual serialize class
-		mapsc + mapClass;
-		mapsc.SerializeRead(iSize, pData); // De-serialize the data
+		IRDevice irDevice;
+		irDevice.SerializeRead(iSize, pData); // De-serialize the data
 		
 		g_pPlutoLogger->Write(LV_STATUS, "IR Code count: %d", mapClass.size());
 				
-		for(map<int,string>::iterator it = mapClass.begin(); it != mapClass.end(); it++ ) {
+		for(map<int,string>::iterator it = irDevice.m_mapCodes.begin(); it != irDevice.m_mapCodes.end(); it++ ) {
 			long cmdid = (*it).first;
 			codemap_[longPair(devid, cmdid)] = (*it).second;
 			g_pPlutoLogger->Write(LV_STATUS, "Loaded IR code for Device %ld, Action %ld", devid, cmdid);

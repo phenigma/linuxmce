@@ -31,6 +31,7 @@ using namespace DCE;
 #include "pluto_main/Table_Manufacturer.h"
 #include "pluto_main/Define_DataGrid.h"
 #include "pluto_main/Define_Variable.h"
+#include "IR/IRDevice.h"
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -276,9 +277,9 @@ class DataGridTable *Infrared_Plugin::CommandsGrid(string GridID,string Parms,vo
 	}
 
 	// See if there any commands for which we have i/r codes, but aren't in the 'official list'.  List them now
-	map<int,string> mapCodes;
-	GetInfraredCodes(PK_Device,mapCodes,true);
-	for(map<int,string>::iterator it=mapCodes.begin();it!=mapCodes.end();++it)
+	IRDevice irDevice;
+	GetInfraredCodes(PK_Device,irDevice,true);
+	for(map<int,string>::iterator it=irDevice.m_mapCodes.begin();it!=irDevice.m_mapCodes.end();++it)
 	{
 		int PK_Command = (*it).first;
 		if( mapCodesAlreadyShown.find(PK_Command)==mapCodesAlreadyShown.end() )
@@ -460,17 +461,15 @@ class DataGridTable *Infrared_Plugin::IRGroupCategories(string GridID,string Par
 void Infrared_Plugin::CMD_Get_Infrared_Codes(int iPK_Device,char **pData,int *iData_Size,string &sCMD_Result,Message *pMessage)
 //<-dceag-c188-e->
 {
-	map<int,string> mapCodes;
-	GetInfraredCodes(iPK_Device,mapCodes);
-	SerializeClass sc(true);
-	sc + mapCodes;
-	sc.SerializeWrite();
-	*iData_Size = sc.m_dwAllocatedSize;
-	*pData = sc.m_pcDataBlock;
+	IRDevice irDevice;
+	GetInfraredCodes(iPK_Device,irDevice);
+	irDevice.SerializeWrite();
+	*iData_Size = irDevice.m_dwAllocatedSize;
+	*pData = irDevice.m_pcDataBlock;
 	sCMD_Result = "OK";
 }
 
-void Infrared_Plugin::GetInfraredCodes(int iPK_Device,map<int,string> &mapCodes,bool bNoIRData)
+void Infrared_Plugin::GetInfraredCodes(int iPK_Device,IRDevice &irDevice,bool bNoIRData)
 {
 	int i;
 	size_t Count = 0;
@@ -481,7 +480,8 @@ void Infrared_Plugin::GetInfraredCodes(int iPK_Device,map<int,string> &mapCodes,
 	// go through a second time to get the codes that are in there.
 	vector<Row_InfraredGroup_Command *> vectRow_InfraredGroup_Command[2];
 
-	long FK_DeviceTemplate = m_pDatabase_pluto_main->Device_get()->GetRow(iPK_Device)->FK_DeviceTemplate_get();
+	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(iPK_Device);
+	long FK_DeviceTemplate = pRow_Device->FK_DeviceTemplate_get();
 	
 	vector<Row_DeviceTemplate_InfraredGroup *> vectRow_DeviceTemplate_InfraredGroup;
 	m_pDatabase_pluto_main->DeviceTemplate_InfraredGroup_get()->GetRows("FK_DeviceTemplate=" + StringUtils::itos(FK_DeviceTemplate),
@@ -509,9 +509,17 @@ g_pPlutoLogger->Write(LV_STATUS,"Found %d codes for device %d",(int) vectRow_Inf
 		for (it_vRIGC = vectRow_InfraredGroup_Command[i].begin(); it_vRIGC != vectRow_InfraredGroup_Command[i].end(); it_vRIGC++)
 		{
 			Row_InfraredGroup_Command * pRow_InfraredGroup_Command = * it_vRIGC;
-			mapCodes[pRow_InfraredGroup_Command->FK_Command_get()] = pRow_InfraredGroup_Command->IRData_get();
+			irDevice.m_mapCodes[pRow_InfraredGroup_Command->FK_Command_get()] = pRow_InfraredGroup_Command->IRData_get();
 		}
 	}
+
+	vector<Row_DeviceTemplate_AV *> vectDeviceTemplate_AV;
+	pRow_Device->FK_DeviceTemplate_getrow()->DeviceTemplate_AV_FK_DeviceTemplate_getrows(&vectDeviceTemplate_AV);
+	if( vectDeviceTemplate_AV.size() )
+	{
+		Row_DeviceTemplate_AV *pDeviceTemplate_AV = vectDeviceTemplate_AV[0]; // Should only be 1 anyway
+	}
+
 }
 //<-dceag-c250-b->
 

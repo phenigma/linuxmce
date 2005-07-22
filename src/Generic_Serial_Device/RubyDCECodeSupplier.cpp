@@ -24,6 +24,7 @@
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_DeviceTemplate.h"
 #include "Gen_Devices/AllCommandsRequests.h"
+#include "IR/IRDevice.h"
 
 using namespace std;
 
@@ -65,19 +66,17 @@ RubyDCECodeSupplier::addCode(Database_pluto_main* pdb, Command_Impl *pcmdimpl, D
 
 	g_pPlutoLogger->Write(LV_STATUS, "Fetching Ruby code from Infrared Plugin");
 	
-	map<int,string> mapClass;  
+	IRDevice irDevice;
 	// this will have all the Ruby code, where int is the PK_Command and string is the codeint 
 	int iSize = 0; char* pData = NULL; // Place holders for the 'out' parameter
 	DCE::CMD_Get_Infrared_Codes_DT CMD_Get_Infrared_Codes_DT(devid, DEVICETEMPLATE_Infrared_Plugin_CONST,
 				BL_SameHouse, devid, &pData, &iSize);
 	pcmdimpl->SendCommand(CMD_Get_Infrared_Codes_DT);  // Get the codes from I/R Plugin
-	SerializeClass mapsc(true);  // A manual serialize class
-	mapsc + mapClass;
-	mapsc.SerializeRead(iSize, pData); // De-serialize the data
+	irDevice.SerializeRead(iSize, pData); // De-serialize the data
 	
-	g_pPlutoLogger->Write(LV_STATUS, "Fetched %d commands...", mapClass.size());
+	g_pPlutoLogger->Write(LV_STATUS, "Fetched %d commands...", irDevice.m_mapCodes.size());
 
-	for(map<int,string>::iterator it = mapClass.begin(); it != mapClass.end(); it++ ) {
+	for(map<int,string>::iterator it = irDevice.m_mapCodes.begin(); it != irDevice.m_mapCodes.end(); it++ ) {
 		int cmdid = (*it).first;
 		string scmdid = StringUtils::itos(cmdid);
 		if(!isCmdImplemented(devid, cmdid)) {

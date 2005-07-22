@@ -15,7 +15,7 @@
  
  */
 
-//<-dceag-incl-b->
+//<-dceag-incl-b->!
 #include "General_Info_Plugin.h"
 #include "DCE/Logger.h"
 #include "ServerLogger.h"
@@ -56,8 +56,8 @@ void SocketCrashHandler(Socket *pSocket)
 	if( g_pCommand_Impl )
 	{
 		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Socket problem. %d  Going to reload and quit",g_pCommand_Impl->m_dwPK_Device);
-		g_pCommand_Impl->OnReload();
+			g_pPlutoLogger->Write(LV_CRITICAL,"Socket problem. %d  general_info_plugin doesn't reload",g_pCommand_Impl->m_dwPK_Device);
+//		g_pCommand_Impl->OnReload();  Don't reload since this sometimes sends large files over a wi-fi connection
 	}
 }
 void Plugin_DeadlockHandler(PlutoLock *pPlutoLock)
