@@ -289,7 +289,7 @@ void StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bL
 				break;
 
 			case osErrorReconnect:
-				ShowPopup("Pluto Orbiter", "Failed to connect to DCERouter. Trying to reconnect...");
+//				ShowPopup("Pluto Orbiter", "Failed to connect to DCERouter. Trying to reconnect...");
 
 				WriteStatusOutput("Failed to connect to DCERouter. I'll try again in 2 seconds...");
 				Sleep(2000);
