@@ -383,7 +383,7 @@
 #define TEXT_Security_CONST 799
 #define TEXT_Other_CONST 800
 #define TEXT_location_CONST 801
-#define TEXT_Hold_C_Help_15_follow_CONST 802
+#define TEXT_Hold_C_Help_1_DASH_5_follow_CONST 802
 #define TEXT_playing_CONST 803
 #define TEXT_music_media_CONST 816
 #define TEXT_Yes_Install_the_software_CONST 1065
@@ -426,7 +426,7 @@
 #define TEXT_Temp_outside_CONST 1102
 #define TEXT_Temp_inside_CONST 1103
 #define TEXT_Wake_Up_CONST 1104
-#define TEXT_Email_Contacts_CONST 1105
+#define TEXT_E_DASH_mail_SLASH_Contacts_CONST 1105
 #define TEXT_KDE_desktop_CONST 1106
 #define TEXT_Installed_Programs_CONST 1107
 #define TEXT_Recent_files_CONST 1108

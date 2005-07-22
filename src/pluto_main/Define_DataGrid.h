@@ -9,14 +9,14 @@
 #define DATAGRID_Climate_Scenarios_CONST 6
 #define DATAGRID_Telecom_Scenarios_CONST 7
 #define DATAGRID_Security_Scenarios_CONST 8
-#define DATAGRID_EPG_Current_Shows_CONST 9
+#define DATAGRID_EPG_DASH_Current_Shows_CONST 9
 #define DATAGRID_Floorplan_Media_Streams_CONST 10
-#define DATAGRID_EPG_All_Shows_CONST 11
+#define DATAGRID_EPG_DASH_All_Shows_CONST 11
 #define DATAGRID_Media_Search_Auto_Compl_CONST 12
 #define DATAGRID_Media_Attr_Files_CONST 13
 #define DATAGRID_Media_Attr_Collections_CONST 14
 #define DATAGRID_Media_Attr_Xref_CONST 15
-#define DATAGRID_EPG_All_Shows_Mobile_CONST 16
+#define DATAGRID_EPG_DASH_All_Shows_Mobile_CONST 16
 #define DATAGRID_Media_Item_Attr_CONST 17
 #define DATAGRID_Current_Media_Sections_CONST 18
 #define DATAGRID_Floorplan_Media_Choices_CONST 19
