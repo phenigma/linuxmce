@@ -361,7 +361,6 @@
 #define COMMAND_Show_Popup_CONST 397
 #define COMMAND_Remove_Popup_CONST 398
 #define COMMAND_Show_Shortcuts_CONST 399
-#define COMMAND_MH_Send_Me_To_File_List_CONST 400
 #define COMMAND_Show_File_List_CONST 401
 #define COMMAND_Use_Popup_Remote_Controls_CONST 402
 #define COMMAND_Use_Popup_File_List_CONST 403

@@ -143,6 +143,9 @@
 				RelativePath="..\Gen_Devices\Orbiter_PluginBase.cpp">
 			</File>
 			<File
+				RelativePath="..\Orbiter\OrbiterFileBrowser.cpp">
+			</File>
+			<File
 				RelativePath=".\PopulateListsInVMC.cpp">
 			</File>
 			<File

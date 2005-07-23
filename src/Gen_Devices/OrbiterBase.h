@@ -187,7 +187,7 @@ public:
 	virtual void CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string sPK_DesignObj_CurrentScreen,string sName,bool bExclusive,bool bDont_Auto_Hide,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Remove_Popup(string sPK_DesignObj_CurrentScreen,string sName,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Show_Shortcuts(string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Show_File_List(string sPK_DesignObj,string sFilename,int iPK_MediaType,string sPK_DesignObj_Popup,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Show_File_List(int iPK_MediaType,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Use_Popup_Remote_Controls(int iPosition_X,int iPosition_Y,string sPK_DesignObj_CurrentScreen,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Use_Popup_File_List(int iPosition_X,int iPosition_Y,string sPK_DesignObj_CurrentScreen,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Scale_this_object(int iValue,string &sCMD_Result,class Message *pMessage) {};
@@ -1650,11 +1650,8 @@ public:
 				case 401:
 					{
 						string sCMD_Result="OK";
-					string sPK_DesignObj=pMessage->m_mapParameters[3];
-					string sFilename=pMessage->m_mapParameters[13];
 					int iPK_MediaType=atoi(pMessage->m_mapParameters[29].c_str());
-					string sPK_DesignObj_Popup=pMessage->m_mapParameters[128];
-						CMD_Show_File_List(sPK_DesignObj.c_str(),sFilename.c_str(),iPK_MediaType,sPK_DesignObj_Popup.c_str(),sCMD_Result,pMessage);
+						CMD_Show_File_List(iPK_MediaType,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -1671,7 +1668,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Show_File_List(sPK_DesignObj.c_str(),sFilename.c_str(),iPK_MediaType,sPK_DesignObj_Popup.c_str(),sCMD_Result,pMessage);
+								CMD_Show_File_List(iPK_MediaType,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

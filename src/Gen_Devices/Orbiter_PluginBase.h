@@ -111,7 +111,7 @@ public:
 	virtual void CMD_Add_Unknown_Device(string sText,string sID,string sMac_address,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Floorplan_Layout(string *sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Current_Floorplan(string sID,int iPK_FloorplanType,string *sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Orbiter_Registered(string sOnOff,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Orbiter_Registered(string sOnOff,int iPK_Users,string sPK_EntertainArea,int iPK_Room,char **pData,int *iData_Size,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_FollowMe(int iPK_Device,string sText,int iPK_Users,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Regen_Orbiter(int iPK_Device,string sForce,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Result,class Message *pMessage) {};
@@ -327,11 +327,17 @@ public:
 					{
 						string sCMD_Result="OK";
 					string sOnOff=pMessage->m_mapParameters[8];
-						CMD_Orbiter_Registered(sOnOff.c_str(),sCMD_Result,pMessage);
+					int iPK_Users=atoi(pMessage->m_mapParameters[17].c_str());
+					string sPK_EntertainArea=pMessage->m_mapParameters[45];
+					int iPK_Room=atoi(pMessage->m_mapParameters[57].c_str());
+					char *pData=pMessage->m_mapData_Parameters[19];
+					int iData_Size=pMessage->m_mapData_Lengths[19];
+						CMD_Orbiter_Registered(sOnOff.c_str(),iPK_Users,sPK_EntertainArea.c_str(),iPK_Room,&pData,&iData_Size,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+						pMessageOut->m_mapData_Parameters[19]=pData; pMessageOut->m_mapData_Lengths[19]=iData_Size;
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
@@ -344,7 +350,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Orbiter_Registered(sOnOff.c_str(),sCMD_Result,pMessage);
+								CMD_Orbiter_Registered(sOnOff.c_str(),iPK_Users,sPK_EntertainArea.c_str(),iPK_Room,&pData,&iData_Size,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

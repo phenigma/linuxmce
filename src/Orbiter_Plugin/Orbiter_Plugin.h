@@ -343,9 +343,17 @@ public:
 	/** Indicates the orbiter has registered, or unregistered */
 		/** @param #8 On/Off */
 			/** 1 means it is registering, 0 means it is closing */
+		/** @param #17 PK_Users */
+			/** If registering, the current user */
+		/** @param #19 Data */
+			/** a serialized map containing the media types,file list screens, so the orbiter can display the file lists without asking media plugin each time */
+		/** @param #45 PK_EntertainArea */
+			/** If registering, the current EA */
+		/** @param #57 PK_Room */
+			/** If registering, the current room */
 
-	virtual void CMD_Orbiter_Registered(string sOnOff) { string sCMD_Result; CMD_Orbiter_Registered(sOnOff.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Orbiter_Registered(string sOnOff,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Orbiter_Registered(string sOnOff,int iPK_Users,string sPK_EntertainArea,int iPK_Room,char **pData,int *iData_Size) { string sCMD_Result; CMD_Orbiter_Registered(sOnOff.c_str(),iPK_Users,sPK_EntertainArea.c_str(),iPK_Room,pData,iData_Size,sCMD_Result,NULL);};
+	virtual void CMD_Orbiter_Registered(string sOnOff,int iPK_Users,string sPK_EntertainArea,int iPK_Room,char **pData,int *iData_Size,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #261 - Set Follow-Me */

@@ -36,12 +36,13 @@
 #include "Orbiter_Plugin/FollowMe_Device.h"
 #include "MediaStream.h"
 #include "EntertainArea.h"
+#include "Orbiter/OrbiterFileBrowser.h"
+#include "Orbiter_Plugin/OH_Orbiter.h"
 
 class Database_pluto_main;
 class Database_pluto_media;
 class Row_EntertainArea;
 class MediaFile;
-
 
 namespace DCE
 {
@@ -129,7 +130,41 @@ protected:
 	bool DiskDriveIsRipping(int iPK_Device);
 	bool HandleDeviceOnOffEvent(MediaDevice *pMediaDevice,bool bIsOn);
 
-	RemoteControlSet *PickRemoteControlMap(int PK_Orbiter,int iPK_DeviceTemplate,int PK_MediaType);
+	RemoteControlSet *PickRemoteControlMap(int PK_Orbiter,int iPK_DeviceTemplate,int PK_MediaType)
+	{
+		// We're going to look in 4 places, from most specific to least specific
+		if( PK_Orbiter )
+		{
+			// The first 2 maps will see if the user directly specified a remote control to use for the given remote
+			map< pair<int,pair<int,int> >, class RemoteControlSet *>::iterator it1;
+			pair<int,pair<int,int> > p1 = make_pair< int,pair<int,int> > (
+				PK_Orbiter,
+				make_pair< int,int > ( iPK_DeviceTemplate, PK_MediaType ) );
+			if( (it1=m_mapOrbiter_DeviceTemplate_MediaType_RemoteControl.find(p1))!=m_mapOrbiter_DeviceTemplate_MediaType_RemoteControl.end() )
+				return it1->second;
+
+			map< pair<int,int>, class RemoteControlSet *>::iterator it2;
+			pair<int,int> p2 = make_pair< int,int > (
+				PK_Orbiter,
+				PK_MediaType );
+			if( (it2=m_mapOrbiter_MediaType_RemoteControl.find(p2))!=m_mapOrbiter_MediaType_RemoteControl.end() )
+				return it2->second;
+		}
+
+		map< pair<int,int>, class RemoteControlSet *>::iterator it3;
+		pair<int,int> p3 = make_pair< int,int > (
+			iPK_DeviceTemplate,
+			PK_MediaType );
+
+		if( (it3=m_mapDeviceTemplate_MediaType_RemoteControl.find(p3))!=m_mapDeviceTemplate_MediaType_RemoteControl.end() )
+			return it3->second;
+
+		map< int, class RemoteControlSet *>::iterator it4;
+		if( (it4=m_mapMediaType_RemoteControl.find(PK_MediaType))!=m_mapMediaType_RemoteControl.end() )
+			return it4->second;
+
+		return NULL;
+	}
 
 	/**
 	 * Sometimes we just want to override the description with a
@@ -247,6 +282,29 @@ public:
      * @brief Required for plug-ins that render floorplans
      */
     virtual void GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,EntertainArea *pEntertainArea,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,int &Color,string &sDescription,string &OSD,int &PK_DesignObj_Toolbar);
+
+	// Get a list of all the screens an orbiter will use to show the user a file picker
+	OrbiterFileBrowser_Collection *CreateOrbiterFileList(OH_Orbiter *pOH_Orbiter)
+	{
+		OrbiterFileBrowser_Collection *pOrbiterFileBrowser_Collection = new OrbiterFileBrowser_Collection();
+
+		for(map<int,string>::iterator it=m_mapMediaType_2_Directory.begin();it!=m_mapMediaType_2_Directory.end();++it)
+		{
+			RemoteControlSet *pRemoteControlSet = 
+				PickRemoteControlMap(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,it->first);
+
+			if( pRemoteControlSet )
+			{
+				OrbiterFileBrowser_Entry *pOrbiterFileBrowser_Entry = new OrbiterFileBrowser_Entry();
+				pOrbiterFileBrowser_Entry->m_DesignObj=pRemoteControlSet->m_iPK_DesignObj_FileList;
+				pOrbiterFileBrowser_Entry->m_DesignObj_Popup=pRemoteControlSet->m_iPK_DesignObj_FileList_Popup;
+				pOrbiterFileBrowser_Entry->m_MediaType=it->first;
+				pOrbiterFileBrowser_Entry->m_sFilename=m_mapMediaType_2_Directory[it->first];
+				pOrbiterFileBrowser_Collection->m_mapOrbiterFileBrowser[it->first]=pOrbiterFileBrowser_Entry;
+			}
+		}
+		return pOrbiterFileBrowser_Collection;
+	}
 
 	// This version is called by MH_Play_Media.  It may result in multiple handlers and multiple streams
 	// if there isn't 1 handler that can do it all.  If p_vectMediaStream is passed it will have a list of all the streams that were created as a result
@@ -625,17 +683,6 @@ public:
 
 	virtual void CMD_Get_Attribute(int iEK_Attribute,string *sText) { string sCMD_Result; CMD_Get_Attribute(iEK_Attribute,sText,sCMD_Result,NULL);};
 	virtual void CMD_Get_Attribute(int iEK_Attribute,string *sText,string &sCMD_Result,Message *pMessage);
-
-
-	/** @brief COMMAND: #400 - MH Send Me To File List */
-	/** An Orbiter sends this when it wants to be sent to the file list */
-		/** @param #29 PK_MediaType */
-			/** The type of media, this is mandatory */
-		/** @param #44 PK_DeviceTemplate */
-			/** The device to browse files for, if known */
-
-	virtual void CMD_MH_Send_Me_To_File_List(int iPK_MediaType,int iPK_DeviceTemplate) { string sCMD_Result; CMD_MH_Send_Me_To_File_List(iPK_MediaType,iPK_DeviceTemplate,sCMD_Result,NULL);};
-	virtual void CMD_MH_Send_Me_To_File_List(int iPK_MediaType,int iPK_DeviceTemplate,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #409 - Save Bookmark */

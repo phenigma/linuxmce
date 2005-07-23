@@ -24,6 +24,8 @@
 #include "CacheImageManager.h"
 #include "SerializeClass/ShapesColors.h"
 
+class OrbiterFileBrowser_Collection;
+
 /** For brevity,  DesignObj_Orbiter will be abbreviated Obj */
 
 namespace DCE
@@ -161,6 +163,7 @@ protected:
 	/** flags */
 	bool m_bCaptureKeyboard_OnOff; /** < flag for capture keyboard */
 	bool m_bCaptureKeyboard_Reset; /** < flag for capture keyboard */
+	bool m_bStartingUp; /** < True while the system hasn't yet finished starting */
 	int m_iCaptureKeyboard_EditType; /** < 0 = normal, 1 = numbers only, 2 = pin */
 	bool m_bCaptureKeyboard_DataGrid; /** < flag for capture keyboard */
 	bool m_bWeCanRepeat; /** < true if the rendering device we're using gives us Region Up Messages */
@@ -209,6 +212,8 @@ protected:
 	bool m_bBypassScreenSaver; /** < True if we don't want the screen to blank */
 	bool m_bRepeatingObject; /** < True if we're currently holding down a repeating button */
 	bool m_bRerenderScreen; /** <  Set to true means ignore the objects to redraw, and just redraw the whole screen */
+
+	OrbiterFileBrowser_Collection *m_pOrbiterFileBrowser_Collection;
 
 	/**
 	 * This is an internal counter. When we start doing stuff that may include lots of embedded commands which want to update the screen, we can create
@@ -1509,17 +1514,11 @@ public:
 
 	/** @brief COMMAND: #401 - Show File List */
 	/** Shows the file list */
-		/** @param #3 PK_DesignObj */
-			/** The screen with the file listing */
-		/** @param #13 Filename */
-			/** The directory to start with */
 		/** @param #29 PK_MediaType */
 			/** The type of media the user wants to browse. */
-		/** @param #128 PK_DesignObj_Popup */
-			/** The popup to use */
 
-	virtual void CMD_Show_File_List(string sPK_DesignObj,string sFilename,int iPK_MediaType,string sPK_DesignObj_Popup) { string sCMD_Result; CMD_Show_File_List(sPK_DesignObj.c_str(),sFilename.c_str(),iPK_MediaType,sPK_DesignObj_Popup.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Show_File_List(string sPK_DesignObj,string sFilename,int iPK_MediaType,string sPK_DesignObj_Popup,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Show_File_List(int iPK_MediaType) { string sCMD_Result; CMD_Show_File_List(iPK_MediaType,sCMD_Result,NULL);};
+	virtual void CMD_Show_File_List(int iPK_MediaType,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #402 - Use Popup Remote Controls */

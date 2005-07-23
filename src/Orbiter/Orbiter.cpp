@@ -56,6 +56,7 @@ using namespace DCE;
 #include "pluto_main/Define_Text.h"
 
 #include "../Orbiter/RendererMNG.h"
+#include "OrbiterFileBrowser.h"
 
 #include "GraphicBuilder.h"
 #include "Simulator.h"
@@ -185,9 +186,11 @@ m_MaintThreadMutex("MaintThread"), m_NeedRedrawVarMutex( "need redraw variables"
 {
 g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
 
+	m_bStartingUp=true;
 	m_pLocationInfo = NULL;
 	m_dwPK_Users = 0;
 	m_dwPK_Device_NowPlaying = 0;
+	m_pOrbiterFileBrowser_Collection=NULL;
 
 	m_sLocalDirectory=sLocalDirectory;
     m_iImageWidth=iImageWidth;
@@ -296,7 +299,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter  %p is exiting",this);
 
 g_pPlutoLogger->Write(LV_STATUS,"Maint thread dead");
 
-	DCE::CMD_Orbiter_Registered CMD_Orbiter_Registered( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, "0" );
+	char *pData=NULL;int iSize=0;
+	DCE::CMD_Orbiter_Registered CMD_Orbiter_Registered( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, "0", 0, "", 0, &pData, &iSize );
     SendCommand( CMD_Orbiter_Registered );
 
 	PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex );
@@ -2523,6 +2527,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 {
     if ( !m_bQuit )
 	{
+		m_bStartingUp=true;
 		{
 			NeedToRender render( this, "Initial config" );
 			Message *pMessage=NULL;
@@ -2676,10 +2681,13 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 			m_pLocationInfo = m_pLocationInfo_Initial;
 			m_dwPK_Users = m_dwPK_Users_Default;
 
-			DCE::CMD_Set_Current_User CMD_Set_Current_User( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, m_dwPK_Users );
-			SendCommand( CMD_Set_Current_User );
-			DCE::CMD_Orbiter_Registered CMD_Orbiter_Registered( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, "1" );
+			char *pData=NULL; int iSize=0;
+			DCE::CMD_Orbiter_Registered CMD_Orbiter_Registered( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, "1",
+				m_dwPK_Users,StringUtils::itos(m_pLocationInfo->PK_EntertainArea),m_pLocationInfo->PK_Room, &pData, &iSize);
 			SendCommand( CMD_Orbiter_Registered );
+			m_pOrbiterFileBrowser_Collection = new OrbiterFileBrowser_Collection;
+			m_pOrbiterFileBrowser_Collection->SerializeRead(iSize,pData);
+			delete pData;
 		}
 
 		if( !m_pScreenHistory_Current )
@@ -2698,6 +2706,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 			if(  pObj->m_Action_StartupList.size(  )>0  )
 				ExecuteCommandsInList( &pObj->m_Action_StartupList, pObj );
 		}
+		m_bStartingUp=false;
 	}
 }
 
@@ -6213,10 +6222,13 @@ void Orbiter::CMD_Set_Current_Location(int iLocationID,string &sCMD_Result,Messa
     {
         LocationInfo *pLocationInfo = m_dequeLocation[iLocationID];
         m_pLocationInfo = pLocationInfo;
-		DCE::CMD_Set_Entertainment_Area CMD_Set_Entertainment_Area( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, StringUtils::itos(pLocationInfo->PK_EntertainArea) );
-        SendCommand( CMD_Set_Entertainment_Area );
-        DCE::CMD_Set_Current_Room CMD_Set_Current_Room( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, pLocationInfo->PK_Room );
-        SendCommand( CMD_Set_Current_Room );
+		if( !m_bStartingUp )
+		{
+			DCE::CMD_Set_Entertainment_Area CMD_Set_Entertainment_Area( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, StringUtils::itos(pLocationInfo->PK_EntertainArea) );
+			SendCommand( CMD_Set_Entertainment_Area );
+			DCE::CMD_Set_Current_Room CMD_Set_Current_Room( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, pLocationInfo->PK_Room );
+			SendCommand( CMD_Set_Current_Room );
+		}
         m_sMainMenu = StringUtils::itos( atoi( m_sMainMenu.c_str(  ) ) ) + "." + StringUtils::itos( iLocationID ) + ".0";
 
 		string sMainMenu = StringUtils::itos( atoi( m_pDesignObj_Orbiter_MainMenu->m_ObjectID.c_str(  ) ) ) + "." + StringUtils::itos( iLocationID ) + ".0";
@@ -7600,29 +7612,35 @@ void Orbiter::RemoveShortcuts( void *data )
 
 	/** @brief COMMAND: #401 - Show File List */
 	/** Shows the file list */
-		/** @param #3 PK_DesignObj */
-			/** The screen with the file listing */
-		/** @param #13 Filename */
-			/** The directory to start with */
 		/** @param #29 PK_MediaType */
 			/** The type of media the user wants to browse. */
-		/** @param #128 PK_DesignObj_Popup */
-			/** The popup to use */
 
-void Orbiter::CMD_Show_File_List(string sPK_DesignObj,string sFilename,int iPK_MediaType,string sPK_DesignObj_Popup,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Show_File_List(int iPK_MediaType,string &sCMD_Result,Message *pMessage)
 //<-dceag-c401-e->
 {
-	m_mapVariable[VARIABLE_Filename_CONST] = sFilename;
+	if( !m_pOrbiterFileBrowser_Collection )
+		return; // Should never happen
+
+	OrbiterFileBrowser_Entry *pOrbiterFileBrowser_Entry = 
+		m_pOrbiterFileBrowser_Collection->m_mapOrbiterFileBrowser[iPK_MediaType];
+
+	if( !pOrbiterFileBrowser_Entry )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"No way to show file list for %d",iPK_MediaType);
+		return;
+	}
+
+	m_mapVariable[VARIABLE_Filename_CONST] = pOrbiterFileBrowser_Entry->m_sFilename;
 	m_mapVariable[VARIABLE_PK_MediaType_CONST] = StringUtils::itos(iPK_MediaType);
 
 	DesignObj_Orbiter *pObj_Popop_FileList;
-	if( m_sObj_Popop_RemoteControl.size() && atoi(sPK_DesignObj_Popup.c_str()) && (pObj_Popop_FileList=FindObject(m_sObj_Popop_RemoteControl)) )
+	if( m_sObj_Popop_RemoteControl.size() && pOrbiterFileBrowser_Entry->m_DesignObj_Popup && (pObj_Popop_FileList=FindObject(m_sObj_Popop_RemoteControl)) )
 	{
 		CMD_Remove_Popup(pObj_Popop_FileList->m_ObjectID,"filelist");
-		CMD_Show_Popup(sPK_DesignObj_Popup,m_Popop_FileList_X,m_Popop_FileList_Y,pObj_Popop_FileList->m_ObjectID,"filelist",false,false);
+		CMD_Show_Popup(StringUtils::itos(pOrbiterFileBrowser_Entry->m_DesignObj_Popup),m_Popop_FileList_X,m_Popop_FileList_Y,pObj_Popop_FileList->m_ObjectID,"filelist",false,false);
 	}
 	else
-		GotoScreen(sPK_DesignObj);
+		GotoScreen(StringUtils::itos(pOrbiterFileBrowser_Entry->m_DesignObj));
 }
 
 //<-dceag-c402-b->

@@ -154,6 +154,9 @@
 				RelativePath="..\..\Gen_Devices\OrbiterBase.cpp">
 			</File>
 			<File
+				RelativePath="..\OrbiterFileBrowser.cpp">
+			</File>
+			<File
 				RelativePath="..\PocketFrog\PFGHelper.cpp">
 			</File>
 			<File

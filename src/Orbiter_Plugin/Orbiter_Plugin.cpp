@@ -32,6 +32,7 @@ using namespace DCE;
 #include <sstream>
 
 #include "Orbiter/Floorplan.h"
+#include "Orbiter/OrbiterFileBrowser.h"
 
 #include "pluto_security/Database_pluto_security.h"
 #include "pluto_security/Table_AlertType.h"
@@ -1270,8 +1271,16 @@ g_pPlutoLogger->Write(LV_STATUS,"Preparing floorplan %d devices",NumDevices);
 	/** Indicates the orbiter has registered, or unregistered */
 		/** @param #8 On/Off */
 			/** 1 means it is registering, 0 means it is closing */
+		/** @param #17 PK_Users */
+			/** If registering, the current user */
+		/** @param #19 Data */
+			/** a serialized map containing the media types,file list screens, so the orbiter can display the file lists without asking media plugin each time */
+		/** @param #45 PK_EntertainArea */
+			/** If registering, the current EA */
+		/** @param #57 PK_Room */
+			/** If registering, the current room */
 
-void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,string &sCMD_Result,Message *pMessage)
+void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,int iPK_Users,string sPK_EntertainArea,int iPK_Room,char **pData,int *iData_Size,string &sCMD_Result,Message *pMessage)
 //<-dceag-c255-e->
 {
 	OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find( pMessage->m_dwPK_Device_From );
@@ -1286,19 +1295,38 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,string &sCMD_Result,Me
 	if( pOH_Orbiter->m_bRegistered )
 	{
 		DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Iconl(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_pOH_User && pOH_Orbiter->m_pOH_User->m_bFollowMe_Lighting ? "1" : "0","follow_light");
-		SendCommand(CMD_Set_Bound_Iconl);
 
 		DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Iconm(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_pOH_User && pOH_Orbiter->m_pOH_User->m_bFollowMe_Media ? "1" : "0","follow_media");
-		SendCommand(CMD_Set_Bound_Iconm);
+		CMD_Set_Bound_Iconl.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Bound_Iconm.m_pMessage);
 
 		DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Iconc(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_pOH_User && pOH_Orbiter->m_pOH_User->m_bFollowMe_Climate ? "1" : "0","follow_climate");
-		SendCommand(CMD_Set_Bound_Iconc);
+		CMD_Set_Bound_Iconl.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Bound_Iconc.m_pMessage);
 
 		DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icons(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_pOH_User && pOH_Orbiter->m_pOH_User->m_bFollowMe_Security ? "1" : "0","follow_security");
-		SendCommand(CMD_Set_Bound_Icons);
+		CMD_Set_Bound_Iconl.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Bound_Icons.m_pMessage);
 
 		DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icont(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_pOH_User && pOH_Orbiter->m_pOH_User->m_bFollowMe_Telecom ? "1" : "0","follow_telecom");
-		SendCommand(CMD_Set_Bound_Icont);
+		CMD_Set_Bound_Iconl.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Bound_Icont.m_pMessage);
+
+		pOH_Orbiter->m_dwPK_Room=iPK_Room;
+		EntertainArea *pEntertainArea = m_pMedia_Plugin->m_mapEntertainAreas_Find(atoi(sPK_EntertainArea.c_str()));
+	    pOH_Orbiter->m_pEntertainArea=pEntertainArea;
+		if( pEntertainArea && pEntertainArea->m_pMediaStream )
+			m_pMedia_Plugin->SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pEntertainArea->m_pMediaStream->m_sMediaDescription, pEntertainArea->m_pMediaStream, false, CMD_Set_Bound_Iconl.m_pMessage);
+
+		OrbiterFileBrowser_Collection *pOrbiterFileBrowser_Collection = m_pMedia_Plugin->CreateOrbiterFileList(pOH_Orbiter);
+		pOrbiterFileBrowser_Collection->SerializeWrite();
+		*iData_Size = pOrbiterFileBrowser_Collection->m_dwAllocatedSize;
+		*pData = pOrbiterFileBrowser_Collection->m_pcDataBlock;
+
+		SendCommand(CMD_Set_Bound_Iconl);
+
+		delete pOrbiterFileBrowser_Collection;
+	}
+	else
+	{
+		*pData=NULL;
+		*iData_Size=0;
 	}
 }
 

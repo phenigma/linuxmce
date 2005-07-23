@@ -4237,66 +4237,6 @@ void Media_Plugin::PopulateRemoteControlMaps()
 	}
 }
 
-RemoteControlSet *Media_Plugin::PickRemoteControlMap(int PK_Orbiter,int iPK_DeviceTemplate,int PK_MediaType)
-{
-	// We're going to look in 4 places, from most specific to least specific
-	if( PK_Orbiter )
-	{
-		// The first 2 maps will see if the user directly specified a remote control to use for the given remote
-		map< pair<int,pair<int,int> >, class RemoteControlSet *>::iterator it1;
-		pair<int,pair<int,int> > p1 = make_pair< int,pair<int,int> > (
-			PK_Orbiter,
-			make_pair< int,int > ( iPK_DeviceTemplate, PK_MediaType ) );
-		if( (it1=m_mapOrbiter_DeviceTemplate_MediaType_RemoteControl.find(p1))!=m_mapOrbiter_DeviceTemplate_MediaType_RemoteControl.end() )
-			return it1->second;
-
-		map< pair<int,int>, class RemoteControlSet *>::iterator it2;
-		pair<int,int> p2 = make_pair< int,int > (
-			PK_Orbiter,
-			PK_MediaType );
-		if( (it2=m_mapOrbiter_MediaType_RemoteControl.find(p2))!=m_mapOrbiter_MediaType_RemoteControl.end() )
-			return it2->second;
-	}
-
-	map< pair<int,int>, class RemoteControlSet *>::iterator it3;
-	pair<int,int> p3 = make_pair< int,int > (
-		iPK_DeviceTemplate,
-		PK_MediaType );
-
-	if( (it3=m_mapDeviceTemplate_MediaType_RemoteControl.find(p3))!=m_mapDeviceTemplate_MediaType_RemoteControl.end() )
-		return it3->second;
-
-	map< int, class RemoteControlSet *>::iterator it4;
-	if( (it4=m_mapMediaType_RemoteControl.find(PK_MediaType))!=m_mapMediaType_RemoteControl.end() )
-		return it4->second;
-
-	return NULL;
-}
-
-//<-dceag-c400-b->
-
-	/** @brief COMMAND: #400 - MH Send Me To File List */
-	/** An Orbiter sends this when it wants to be sent to the file list */
-		/** @param #29 PK_MediaType */
-			/** The type of media, this is mandatory */
-		/** @param #44 PK_DeviceTemplate */
-			/** The device to browse files for, if known */
-
-void Media_Plugin::CMD_MH_Send_Me_To_File_List(int iPK_MediaType,int iPK_DeviceTemplate,string &sCMD_Result,Message *pMessage)
-//<-dceag-c400-e->
-{
-	RemoteControlSet *pRemoteControlSet = 
-		PickRemoteControlMap(pMessage->m_dwPK_Device_From,iPK_DeviceTemplate,iPK_MediaType);
-
-	if( pRemoteControlSet )
-	{
-		DCE::CMD_Show_File_List CMD_Show_File_List(m_dwPK_Device,pMessage->m_dwPK_Device_From,
-			StringUtils::itos(pRemoteControlSet->m_iPK_DesignObj_FileList),
-			m_mapMediaType_2_Directory[iPK_MediaType],iPK_MediaType,
-			StringUtils::itos(pRemoteControlSet->m_iPK_DesignObj_FileList_Popup));
-		SendCommand(CMD_Show_File_List);
-	}
-}
 
 class DataGridTable *Media_Plugin::DVDSubtitles( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
