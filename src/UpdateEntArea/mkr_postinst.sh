@@ -3,4 +3,4 @@
 . /usr/pluto/bin/SQL_Ops.sh
 
 /usr/bin/mysql pluto_main < /usr/pluto/bin/PurgeEntAreas.sql
-
+/usr/pluto/bin/UpdateEntArea
