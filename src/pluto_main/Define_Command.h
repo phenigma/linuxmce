@@ -388,11 +388,11 @@
 #define COMMAND_External_1_CONST 424
 #define COMMAND_External_2_CONST 425
 #define COMMAND_External_3_CONST 426
-#define COMMAND_10+_CONST 427
+#define COMMAND_10_CONST 427
 #define COMMAND_116_CONST 428
 #define COMMAND_1732_CONST 429
-#define COMMAND_20+_CONST 430
-#define COMMAND_30+_CONST 431
+#define COMMAND_20_CONST 430
+#define COMMAND_30_CONST 431
 #define COMMAND_3stereo_CONST 432
 #define COMMAND_A_CONST 433
 #define COMMAND_AB_CONST 434
@@ -637,7 +637,7 @@
 #define COMMAND_Update_CONST 674
 #define COMMAND_Video_Menu_CONST 675
 #define COMMAND_Video_Mute_CONST 676
-#define COMMAND_Video+Showview_CONST 677
+#define COMMAND_VideoShowview_CONST 677
 #define COMMAND_View_CONST 678
 #define COMMAND_VISS_Index_Next_CONST 679
 #define COMMAND_VISS_Index_Previous_CONST 680
