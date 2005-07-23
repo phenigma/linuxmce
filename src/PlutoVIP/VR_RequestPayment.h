@@ -63,7 +63,7 @@ public:
 			+ m_iTransactionNumber
 			+ m_sApprovalCode + m_sCardNumber;
 	}
-	VR_RequestPayment &operator+ (list<InvoiceDetail *> &i ) { m_listItemToSerialize.push_back( new ItemToSerialize( SERIALIZE_DATA_TYPE_LIST_INV_DETAIL, (void *) &i) ); return (*this); }
+	VR_RequestPayment &operator+ (list<InvoiceDetail *> &i ) { m_vectItemToSerialize.push_back( new ItemToSerialize( SERIALIZE_DATA_TYPE_LIST_INV_DETAIL, (void *) &i) ); return (*this); }
 	virtual bool UnknownSerialize( ItemToSerialize *pItem, bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition );
 
 	virtual bool ProcessRequest(class RA_Processor *pRA_Processor);

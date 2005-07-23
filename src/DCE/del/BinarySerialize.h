@@ -34,7 +34,7 @@ If your derived class has objects that are not of a standard type that Serialize
 your own methods to add them to the serialize list, like this a typedef list<DesignObj_Data *> DesignObj_DataList object:
 
 #define SERIALIZE_DATA_TYPE_INT_DESIGNOBJCHILDLIST	1000	// Be sure this doesn't conflict with any other class in the tree
-void AddToAutoSerializeList(DesignObj_DataList &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_INT_DESIGNOBJCHILDLIST,(void *) &i)); }
+void AddToAutoSerializeList(DesignObj_DataList &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_INT_DESIGNOBJCHILDLIST,(void *) &i)); }
 DesignObj_Data &operator+ (DesignObjCommandList &i) { AddToAutoSerializeList(i); return (*this); }
 
 Then, implement the UnknownSerialize method, like this:
@@ -124,7 +124,7 @@ class SerializeClass
 #endif
 {
 protected:
-	MYSTL_CREATE_LIST(m_listItemToSerialize,ItemToSerialize);
+	MYSTL_CREATE_LIST(m_vectItemToSerialize,ItemToSerialize);
 
 public:
 	SerializeClass()
@@ -133,7 +133,7 @@ public:
 	}
 	virtual ~SerializeClass()
 	{
-		MYSTL_ITERATE_LIST(m_listItemToSerialize,ItemToSerialize,pItem,it)
+		MYSTL_ITERATE_LIST(m_vectItemToSerialize,ItemToSerialize,pItem,it)
 		{
 			delete pItem;
 		}
@@ -177,24 +177,24 @@ public:
 
 	// Create these for easily adding items to the list.  Now a constructor can just
 	// do (*this) + m_iMyInt + m_sMyString + m_bMyBool, etc.
-	SerializeClass &operator+ (int &i) {  MYSTL_ADDTO_LIST(m_listItemToSerialize, new ItemToSerialize(SERIALIZE_DATA_TYPE_LONG, (void *) &i)); return (*this); }
-	SerializeClass &operator+ (long &i) { MYSTL_ADDTO_LIST(m_listItemToSerialize, new ItemToSerialize(SERIALIZE_DATA_TYPE_LONG,(void *) &i));  return (*this); }
-	SerializeClass &operator+ (unsigned long &i) { MYSTL_ADDTO_LIST(m_listItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_UNSIGNED_LONG,(void *) &i)); return (*this); }
-	SerializeClass &operator+ (bool &i) { MYSTL_ADDTO_LIST(m_listItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_CHAR,(void *) &i)); return (*this); }
-	SerializeClass &operator+ (char &i) { MYSTL_ADDTO_LIST(m_listItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_CHAR,(void *) &i)); return (*this); }
-	SerializeClass &operator+ (short &i) { MYSTL_ADDTO_LIST(m_listItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_SHORT,(void *) &i)); return (*this); }
-	SerializeClass &operator+ (u_int64_t &i) { MYSTL_ADDTO_LIST(m_listItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_INT64,(void *) &i)); return (*this); }
-	SerializeClass &operator+ (string &i) { MYSTL_ADDTO_LIST(m_listItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_STRING,(void *) &i)); return (*this); }
+	SerializeClass &operator+ (int &i) {  MYSTL_ADDTO_LIST(m_vectItemToSerialize, new ItemToSerialize(SERIALIZE_DATA_TYPE_LONG, (void *) &i)); return (*this); }
+	SerializeClass &operator+ (long &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new ItemToSerialize(SERIALIZE_DATA_TYPE_LONG,(void *) &i));  return (*this); }
+	SerializeClass &operator+ (unsigned long &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_UNSIGNED_LONG,(void *) &i)); return (*this); }
+	SerializeClass &operator+ (bool &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_CHAR,(void *) &i)); return (*this); }
+	SerializeClass &operator+ (char &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_CHAR,(void *) &i)); return (*this); }
+	SerializeClass &operator+ (short &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_SHORT,(void *) &i)); return (*this); }
+	SerializeClass &operator+ (u_int64_t &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_INT64,(void *) &i)); return (*this); }
+	SerializeClass &operator+ (string &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_STRING,(void *) &i)); return (*this); }
 
 #ifndef SYMBIAN
-	SerializeClass &operator+ (vector<string> &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_VECT_STRING,(void *) &i)); return (*this); }
-	SerializeClass &operator+ (map<int,string> &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_INT_STRING,(void *) &i)); return (*this); }
+	SerializeClass &operator+ (vector<string> &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_VECT_STRING,(void *) &i)); return (*this); }
+	SerializeClass &operator+ (map<int,string> &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_INT_STRING,(void *) &i)); return (*this); }
 #endif
 
-	SerializeClass &operator+ (PlutoColor &i) { MYSTL_ADDTO_LIST(m_listItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_COLOR,(void *) &i)); return (*this); }
-	SerializeClass &operator+ (PlutoPoint &i) { MYSTL_ADDTO_LIST(m_listItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_POINT,(void *) &i)); return (*this); }
-	SerializeClass &operator+ (PlutoSize &i) { MYSTL_ADDTO_LIST(m_listItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_SIZE,(void *) &i)); return (*this); }
-	SerializeClass &operator+ (PlutoRectangle &i) { MYSTL_ADDTO_LIST(m_listItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_RECTANGLE,(void *) &i)); return (*this); }
+	SerializeClass &operator+ (PlutoColor &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_COLOR,(void *) &i)); return (*this); }
+	SerializeClass &operator+ (PlutoPoint &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_POINT,(void *) &i)); return (*this); }
+	SerializeClass &operator+ (PlutoSize &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_SIZE,(void *) &i)); return (*this); }
+	SerializeClass &operator+ (PlutoRectangle &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_RECTANGLE,(void *) &i)); return (*this); }
 
 	bool SerializeWrite(void *pExtraSerializationData=NULL)
 	{
@@ -316,23 +316,23 @@ public:
 		// In some cases a class may need extra data to properly serialize in UnknownSerialize.  This is an extra void pointer that can be cast to something useful
 		m_pExtraSerializationData=pExtraSerializationData;
 
-		MYSTL_ITERATE_LIST(m_listItemToSerialize,ItemToSerialize,pItem_del,it_del)
+		MYSTL_ITERATE_LIST(m_vectItemToSerialize,ItemToSerialize,pItem_del,it_del)
 		{
 			delete pItem_del;
 		}
-		MYSTL_CLEAR_LIST(m_listItemToSerialize);
+		MYSTL_CLEAR_LIST(m_vectItemToSerialize);
 
 		SetupSerialization(int iSC_Version);
 
 #ifdef DEBUG_SERIALIZATION
 		cout << "Schema for: " << SerializeClassClassName();
-		MYSTL_ITERATE_LIST(m_listItemToSerialize,ItemToSerialize,pItem_cout,it_cout)
+		MYSTL_ITERATE_LIST(m_vectItemToSerialize,ItemToSerialize,pItem_cout,it_cout)
 		{
 			cout << " " << pItem_cout->m_iSerializeDataType;
 		}
 		cout << endl;
 #endif
-		MYSTL_ITERATE_LIST(m_listItemToSerialize,ItemToSerialize,pItem,it)
+		MYSTL_ITERATE_LIST(m_vectItemToSerialize,ItemToSerialize,pItem,it)
 		{
 
 			// These are self-serializing, we don't need the if( bWriting ) split.  However, these classes are 

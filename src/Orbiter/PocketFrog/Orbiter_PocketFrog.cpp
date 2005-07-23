@@ -331,7 +331,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
     clock_t clkStart = clock(  );
 #endif
 
-	int iNumChars = Text->m_rPosition.Width / ciCharWidth;
+	int iNumChars = Text->Data.m_rPosition.Width / ciCharWidth;
 	int i, iPos;
 
 	vector<string> vectStringsInterm;
@@ -362,7 +362,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 	}
 	vectStringsInterm.clear();
 
-	int Y = Text->m_rPosition.Y;
+	int Y = Text->Data.m_rPosition.Y;
 	int iTextRectHeight = vectStrings.size() * ciCharHeight + (vectStrings.size() - 1) * ciSpaceHeight;
 
 	switch(Text->m_iPK_VertAlignment)
@@ -370,15 +370,15 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 		case VERTALIGNMENT_Top_CONST:
 			break; 
 		case VERTALIGNMENT_Middle_CONST:
-			Y += (Text->m_rPosition.Height - iTextRectHeight) / 2;
+			Y += (Text->Data.m_rPosition.Height - iTextRectHeight) / 2;
 			break;
 		case VERTALIGNMENT_Bottom_CONST:
-			Y += Text->m_rPosition.Height - iTextRectHeight;
+			Y += Text->Data.m_rPosition.Height - iTextRectHeight;
 			break;
 	}
 
-	if(Y < Text->m_rPosition.Y)
-		Y = Text->m_rPosition.Y;
+	if(Y < Text->Data.m_rPosition.Y)
+		Y = Text->Data.m_rPosition.Y;
 
 	wchar_t TextW[4096];
 
@@ -392,7 +392,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 	{
 		mbstowcs(TextW, vectStrings[i].c_str(), 4096);	
 
-		int X = Text->m_rPosition.X;
+		int X = Text->Data.m_rPosition.X;
 		int iTextRectWidth = ciCharWidth * vectStrings[i].length();
 
 		switch(Text->m_iPK_HorizAlignment)
@@ -400,17 +400,17 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 			case HORIZALIGNMENT_Left_CONST:
 				break;
 			case HORIZALIGNMENT_Right_CONST:
-				X += Text->m_rPosition.Width - iTextRectWidth;
+				X += Text->Data.m_rPosition.Width - iTextRectWidth;
 				break;
             case HORIZALIGNMENT_Center_CONST:
-                X += (Text->m_rPosition.Width - iTextRectWidth) / 2;
+                X += (Text->Data.m_rPosition.Width - iTextRectWidth) / 2;
                 break;
             default:
-                X += (Text->m_rPosition.Width - iTextRectWidth) / 2;
+                X += (Text->Data.m_rPosition.Width - iTextRectWidth) / 2;
                 break; //HORIZALIGNMENT_Center_CONST
 		}
 
-		if(Y + i * (ciCharHeight + ciSpaceHeight) + ciCharHeight >= Text->m_rPosition.Y + Text->m_rPosition.Height) 
+		if(Y + i * (ciCharHeight + ciSpaceHeight) + ciCharHeight >= Text->Data.m_rPosition.Y + Text->Data.m_rPosition.Height) 
 			break;
 
 		GetDisplay()->DrawVGAText(VGAROMFont, TextW, DVT_NONE, point.X + X, point.Y + Y + i * (ciCharHeight + ciSpaceHeight), color);
@@ -435,20 +435,20 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 	if( m_iRotation==0 )
 	{
 		hdc_drawing=hdc;
-		rectLocation.right  = Text->m_rPosition.Width;
-		rectLocation.bottom = Text->m_rPosition.Height;
+		rectLocation.right  = Text->Data.m_rPosition.Width;
+		rectLocation.bottom = Text->Data.m_rPosition.Height;
 	}
 	else
 	{
 		if( m_iRotation==180 )
 		{
-			rectLocation.right  = Text->m_rPosition.Width;
-			rectLocation.bottom = Text->m_rPosition.Height;
+			rectLocation.right  = Text->Data.m_rPosition.Width;
+			rectLocation.bottom = Text->Data.m_rPosition.Height;
 		}
 		else
 		{
-			rectLocation.right  = Text->m_rPosition.Height;
-			rectLocation.bottom = Text->m_rPosition.Width;
+			rectLocation.right  = Text->Data.m_rPosition.Height;
+			rectLocation.bottom = Text->Data.m_rPosition.Width;
 		}
 
 		hdc_drawing = CreateCompatibleDC(GetDisplay()->GetBackBuffer()->GetDC(false));
@@ -517,11 +517,11 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 		DT_WORDBREAK | DT_NOPREFIX | DT_CALCRECT | DT_MODIFYSTRING | DT_END_ELLIPSIS ); 
 
 	int iRealHeight = rectLocation.bottom;
-	if( iRealHeight>Text->m_rPosition.Height )
-		iRealHeight=Text->m_rPosition.Height; // Crop to the area
+	if( iRealHeight>Text->Data.m_rPosition.Height )
+		iRealHeight=Text->Data.m_rPosition.Height; // Crop to the area
 
 	// Figure out where to put this
-	CalcTextRectangle(rectLocation,Text->m_rPosition,m_iRotation,iRealHeight,Text->m_iPK_VertAlignment);
+	CalcTextRectangle(rectLocation,Text->Data.m_rPosition,m_iRotation,iRealHeight,Text->Data.m_iPK_VertAlignment);
 
 	if( m_iRotation==0 )
 	{
@@ -534,7 +534,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
  	::SetTextColor(hdc_drawing, RGB(255,255,255));//pTextStyle->m_ForeColor.R(), pTextStyle->m_ForeColor.G(), pTextStyle->m_ForeColor.B()));
 	::SetBkMode(hdc_drawing, TRANSPARENT);
 
-	switch (Text->m_iPK_HorizAlignment)
+	switch (Text->Data.m_iPK_HorizAlignment)
 	{
 		case HORIZALIGNMENT_Left_CONST: 
 			::DrawText(hdc_drawing, TEXT_TO_RENDER, int(TextToDisplay.length()), &rectLocation, 
@@ -557,19 +557,19 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 
 	if( hdc_drawing!=hdc )
 	{
-		for(int x=0;x<(m_iRotation==180 ? Text->m_rPosition.Width : Text->m_rPosition.Height);x++)
+		for(int x=0;x<(m_iRotation==180 ? Text->Data.m_rPosition.Width : Text->Data.m_rPosition.Height);x++)
 		{
-			for(int y=0;y<(m_iRotation==180 ? Text->m_rPosition.Height: Text->m_rPosition.Width);y++)
+			for(int y=0;y<(m_iRotation==180 ? Text->Data.m_rPosition.Height: Text->Data.m_rPosition.Width);y++)
 			{
 				COLORREF c = ::GetPixel(hdc_drawing,x,y);
 				if( c==132 || c==128 )
 					continue;  // Unchanged
 				if( m_iRotation==90 )
-					::SetPixel(hdc,Text->m_rPosition.Right()-y,Text->m_rPosition.Y+x,c);
+					::SetPixel(hdc,Text->Data.m_rPosition.Right()-y,Text->Data.m_rPosition.Y+x,c);
 				else if( m_iRotation==180 )
-					::SetPixel(hdc,Text->m_rPosition.Right()-x,Text->m_rPosition.Bottom()-y,c);
+					::SetPixel(hdc,Text->Data.m_rPosition.Right()-x,Text->Data.m_rPosition.Bottom()-y,c);
 				else if( m_iRotation==270 )
-					::SetPixel(hdc,Text->m_rPosition.X+y,Text->m_rPosition.Bottom()-x,c);
+					::SetPixel(hdc,Text->Data.m_rPosition.X+y,Text->Data.m_rPosition.Bottom()-x,c);
 			}
 		}
 		bool b2=DeleteDC(hdc_drawing);
@@ -584,9 +584,9 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 	CHECK_STATUS();
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 	Rect srcRect;
-	srcRect.Set(point.X + pObj->m_rPosition.Left(), point.Y + pObj->m_rPosition.Top(), point.X + pObj->m_rPosition.Right(), point.Y + pObj->m_rPosition.Bottom());
+	srcRect.Set(point.X + pObj->Data.m_rPosition.Left(), point.Y + pObj->Data.m_rPosition.Top(), point.X + pObj->Data.m_rPosition.Right(), point.Y + pObj->Data.m_rPosition.Bottom());
 
-	Surface *pSurface = GetDisplay()->CreateSurface(pObj->m_rPosition.Width, pObj->m_rPosition.Height);
+	Surface *pSurface = GetDisplay()->CreateSurface(pObj->Data.m_rPosition.Width, pObj->Data.m_rPosition.Height);
 	Rasterizer *pRasterizer = GetDisplay()->CreateRasterizer(pSurface);
 	pRasterizer->Blit(0, 0, GetDisplay()->GetBackBuffer(), &srcRect);
 

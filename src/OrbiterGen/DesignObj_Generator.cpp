@@ -68,12 +68,12 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
     m_bContainsArrays=false;
     m_bDontShare=false;
     m_bCanBeHidden=false;
-    m_bChildrenBeforeText=false;
+    Data.m_bChildrenBeforeText=false;
     m_bChildrenBehind=false;
     m_bDontMergeBackground=false;
-    m_bHideByDefault=false;
+    Data.m_bHideByDefault=false;
     m_bValuesScaled=false;
-    m_iVersion=0;
+    Data.m_iVersion=0;
     m_iFloorplanPage=0;
     m_iFloorplanDevice=0; // Only used for floorplan objects
     m_iPK_CommandGroup_Touch_Extra=0;  // An extra action group to execute, used when this object is a button in an action group array
@@ -94,7 +94,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
     m_mds=drDesignObj->Table_DesignObj_get()->Database_pluto_main_get();
     m_VariableMap = m_pOrbiterGenerator->m_mapVariable;
     m_pRow_DesignObj=drDesignObj;
-    m_rPosition=rPosition;
+    Data.m_rPosition=rPosition;
     m_ocoParent=ocoParent;
     m_bDontShare=bDontShare;
     m_bUsingCache=false;
@@ -129,7 +129,7 @@ if( m_pRow_DesignObj->PK_DesignObj_get()==2147 )// || m_pRow_DesignObj->PK_Desig
 	{
 		bAddToGenerated = true;
 		m_bDontShare = true;
-        m_iVersion = m_pOrbiterGenerator->m_iLocation;
+        Data.m_iVersion = m_pOrbiterGenerator->m_iLocation;
     }
 
 	if( bAddToGenerated )
@@ -153,7 +153,7 @@ int k=2;
         if( m_pOrbiterGenerator->m_bOrbiterChanged==false || m_pOrbiterGenerator->m_map_PK_DesignObj_SoleScreenToGen.size() )
         {
             // Let's see if we can just use a cached version
-            Row_CachedScreens *pdrCachedScreen = m_mds->CachedScreens_get()->GetRow(m_pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get(),m_pRow_DesignObj->PK_DesignObj_get(),m_iVersion);
+            Row_CachedScreens *pdrCachedScreen = m_mds->CachedScreens_get()->GetRow(m_pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get(),m_pRow_DesignObj->PK_DesignObj_get(),Data.m_iVersion);
             if( pdrCachedScreen && pdrCachedScreen->Schema_get()==ORBITER_SCHEMA &&
 				(m_pOrbiterGenerator->m_map_PK_DesignObj_SoleScreenToGen.size()==0 || m_pOrbiterGenerator->m_map_PK_DesignObj_SoleScreenToGen[m_pRow_DesignObj->PK_DesignObj_get()]==false) )
             {
@@ -165,13 +165,13 @@ int k=2;
 					if( lModDate1==lModDate2 || (m_pOrbiterGenerator->m_map_PK_DesignObj_SoleScreenToGen.size()!=0 && m_pOrbiterGenerator->m_map_PK_DesignObj_SoleScreenToGen[m_pRow_DesignObj->PK_DesignObj_get()]==false) )
 					{
 						string Filename = m_pOrbiterGenerator->m_sOutputPath + "screen " + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get()) + "." +
-							StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(m_iVersion) + "." + StringUtils::itos((int) lModDate1) + ".cache";
+							StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(Data.m_iVersion) + "." + StringUtils::itos((int) lModDate1) + ".cache";
 						if( FileUtils::FileExists(Filename) )
 						{
 							if( SerializeRead(Filename) )
 							{
 								m_bUsingCache=true;
-								cout << "Not building screen " << StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(m_iVersion) << " found valid cache" << endl;
+								cout << "Not building screen " << StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(Data.m_iVersion) << " found valid cache" << endl;
 								return;
 							}
 							else
@@ -390,7 +390,7 @@ Table_Image *p = m_mds->Image_get();
                     }
                     if( GraphicType==1 )
                     {
-                        int X=m_rPosition.X,Y=m_rPosition.Y;
+                        int X=Data.m_rPosition.X,Y=Data.m_rPosition.Y;
                         Row_DesignObjVariation_DesignObjParameter * drOVCP_C_X = m_mds->DesignObjVariation_DesignObjParameter_get()->GetRow(m_pRow_DesignObjVariation->PK_DesignObjVariation_get(),DESIGNOBJPARAMETER_X_Position_CONST);
                         if( drOVCP_C_X==NULL && m_pRow_DesignObjVariation->PK_DesignObjVariation_get()!=m_pRow_DesignObjVariation_Standard->PK_DesignObjVariation_get() )
                             drOVCP_C_X = m_mds->DesignObjVariation_DesignObjParameter_get()->GetRow(m_pRow_DesignObjVariation->PK_DesignObjVariation_get(),DESIGNOBJPARAMETER_X_Position_CONST);
@@ -417,57 +417,57 @@ Table_Image *p = m_mds->Image_get();
                         if( drOVCP_C_CY && !drOVCP_C_CY->Value_isNull() && drOVCP_C_CY->Value_get()!="" )
                             m_rBitmapOffset.Height = atoi(drOVCP_C_CY->Value_get().c_str());
 
-						m_rBackgroundPosition.Location(PlutoPoint(X,Y));
+						Data.m_rBackgroundPosition.Location(PlutoPoint(X,Y));
                     }
 
                     // If we have an image, and this is either the standard, or a non-primary image but there was no primary (width & height=0) set it
-                    if( drImage && (GraphicType==1 || (m_rBackgroundPosition.Width==0 && m_rBackgroundPosition.Height==0) ) )
+                    if( drImage && (GraphicType==1 || (Data.m_rBackgroundPosition.Width==0 && Data.m_rBackgroundPosition.Height==0) ) )
                     {
-                        m_sOriginalSize = PlutoSize(drImage->Width_get(),drImage->Height_get());
+                        Data.m_sOriginalSize = PlutoSize(drImage->Width_get(),drImage->Height_get());
 				        
 						// 12/10/2004 Aaron - The code below (10/6) forces all floorplans to be the size of the graphic.  We can't guarantee users will upload floorplans of the right size
 						if( m_pRow_DesignObj->FK_DesignObjType_get()!=DESIGNOBJTYPE_Floorplan_CONST )
 						{
 							/* 10/6/2004 Aaron - Designer adds wrong width/heights sometimes, particularly with objects with multiple variations.  For now always use the actual w/h
-							if( m_rPosition.Width>0 )
-								m_rBackgroundPosition.Width = m_rPosition.Width;
+							if( Data.m_rPosition.Width>0 )
+								Data.m_rBackgroundPosition.Width = Data.m_rPosition.Width;
 							else
 							{
-								m_rPosition.Width = drImage->Width_get();
-								m_rBackgroundPosition.Width = drImage->Width_get();
+								Data.m_rPosition.Width = drImage->Width_get();
+								Data.m_rBackgroundPosition.Width = drImage->Width_get();
 							}
 							*/
-							m_rPosition.Width = drImage->Width_get();
-							m_rBackgroundPosition.Width = drImage->Width_get();
+							Data.m_rPosition.Width = drImage->Width_get();
+							Data.m_rBackgroundPosition.Width = drImage->Width_get();
 
 			                string sWidth = GetParm(DESIGNOBJPARAMETER_Width_CONST,true);
 							if( sWidth.size() )
 							{
 								m_bPreserveAspectRatio=false;
-								m_rPosition.Width = m_rBackgroundPosition.Width = atoi(sWidth.c_str());
+								Data.m_rPosition.Width = Data.m_rBackgroundPosition.Width = atoi(sWidth.c_str());
 							}
 
 							/* 10/6/2004 Aaron - Designer adds wrong width/heights sometimes, particularly with objects with multiple variations.  For now always use the actual w/h
-							if( m_rPosition.Height>0 )
-								m_rBackgroundPosition.Height = m_rPosition.Height;
+							if( Data.m_rPosition.Height>0 )
+								Data.m_rBackgroundPosition.Height = Data.m_rPosition.Height;
 							else
 							{
-								m_rPosition.Height = drImage->Height_get();
-								m_rBackgroundPosition.Height = drImage->Height_get();
+								Data.m_rPosition.Height = drImage->Height_get();
+								Data.m_rBackgroundPosition.Height = drImage->Height_get();
 							}
 							*/
-							m_rPosition.Height = drImage->Height_get();
-							m_rBackgroundPosition.Height = drImage->Height_get();
+							Data.m_rPosition.Height = drImage->Height_get();
+							Data.m_rBackgroundPosition.Height = drImage->Height_get();
 
 							string sHeight = GetParm(DESIGNOBJPARAMETER_Height_CONST,true);
 							if( sHeight.size() )
 							{
 								m_bPreserveAspectRatio=false;
-								m_rPosition.Height = m_rBackgroundPosition.Height = atoi(sHeight.c_str());
+								Data.m_rPosition.Height = Data.m_rBackgroundPosition.Height = atoi(sHeight.c_str());
 							}
 						}
 						else
-							m_rBackgroundPosition = m_rPosition;
+							Data.m_rBackgroundPosition = Data.m_rPosition;
                     }
 
                     if( GraphicType==1 )
@@ -491,11 +491,11 @@ Table_Image *p = m_mds->Image_get();
 
 	// See if there's a button
 	if( !m_pRow_DesignObjVariation->FK_Button_isNull() )
-		m_iPK_Button = m_pRow_DesignObjVariation->FK_Button_get();
+		Data.m_iPK_Button = m_pRow_DesignObjVariation->FK_Button_get();
 	else if( !m_pRow_DesignObjVariation_Standard->FK_Button_isNull() )
-		m_iPK_Button = m_pRow_DesignObjVariation_Standard->FK_Button_get();
+		Data.m_iPK_Button = m_pRow_DesignObjVariation_Standard->FK_Button_get();
 	else
-		m_iPK_Button = 0;
+		Data.m_iPK_Button = 0;
 
     // Add all text objects
 
@@ -575,8 +575,8 @@ int k=2;
                     m_pOrbiterGenerator->m_htUsedStyleVariation[(*it).first]=1;
                 }
 
-                pCGText->m_rPosition.X += m_rPosition.X;  // Offset by our position
-                pCGText->m_rPosition.Y += m_rPosition.Y;
+                pCGText->Data.m_rPosition.X += Data.m_rPosition.X;  // Offset by our position
+                pCGText->Data.m_rPosition.Y += Data.m_rPosition.Y;
             }
         }
     }
@@ -640,7 +640,7 @@ int k=2;
             for(itActions=oz->m_Commands.begin();itActions!=oz->m_Commands.end();++itActions)
             {
                 CGCommand *oa = (CGCommand *) *itActions;
-				if( oa->m_PK_Command==COMMAND_Scale_this_object_CONST )
+				if( oa->Data.m_PK_Command==COMMAND_Scale_this_object_CONST )
 					m_iScale = atoi(oa->m_ParameterList[COMMANDPARAMETER_Value_CONST].c_str());
 				else
 	                m_Action_StartupList.push_back(oa);
@@ -655,7 +655,7 @@ int k=2;
         m_ZoneList.push_back(oczone);
     }
 
-    if( m_pRow_DesignObj->FK_DesignObjType_get()==DESIGNOBJTYPE_Floorplan_CONST && m_sOriginalSize.Width>0 && m_sOriginalSize.Height>0 )
+    if( m_pRow_DesignObj->FK_DesignObjType_get()==DESIGNOBJTYPE_Floorplan_CONST && Data.m_sOriginalSize.Width>0 && Data.m_sOriginalSize.Height>0 )
     {
 		// This object and all it's parents contain floorplans
 		DesignObj_Generator *pObjFP = this;
@@ -668,18 +668,18 @@ int k=2;
 		// This is a floorplan object, first we're going to have to scale this ourselves
         // since the background is of an unknown size, and then
         // add all the children for this page and type
-        PlutoSize cgs = m_rBackgroundPosition.Size();
+        PlutoSize cgs = Data.m_rBackgroundPosition.Size();
         PlutoPoint cgp(cgs.Width,cgs.Height);
         PlutoSize szTargetSize(ScaleValue(&cgp,m_pOrbiterGenerator->m_pRow_Size->ScaleX_get() * m_iScale/100,m_pOrbiterGenerator->m_pRow_Size->ScaleY_get() * m_iScale/100));
-        int ScaleWidth = szTargetSize.Width * 1000 / m_sOriginalSize.Width;
-        int ScaleHeight = szTargetSize.Height * 1000 / m_sOriginalSize.Height;
+        int ScaleWidth = szTargetSize.Width * 1000 / Data.m_sOriginalSize.Width;
+        int ScaleHeight = szTargetSize.Height * 1000 / Data.m_sOriginalSize.Height;
         int ScaleFactor = min(ScaleWidth,ScaleHeight);
 
         // Adjust the width and the height so that we don't mess up the aspect ratio
-        m_rBackgroundPosition.Width = m_sOriginalSize.Width * ScaleFactor / m_pOrbiterGenerator->m_pRow_Size->ScaleX_get();
-        m_rBackgroundPosition.Height = m_sOriginalSize.Height * ScaleFactor / m_pOrbiterGenerator->m_pRow_Size->ScaleY_get();
-        m_rPosition.Width = m_rBackgroundPosition.Width;
-        m_rPosition.Height = m_rBackgroundPosition.Height;
+        Data.m_rBackgroundPosition.Width = Data.m_sOriginalSize.Width * ScaleFactor / m_pOrbiterGenerator->m_pRow_Size->ScaleX_get();
+        Data.m_rBackgroundPosition.Height = Data.m_sOriginalSize.Height * ScaleFactor / m_pOrbiterGenerator->m_pRow_Size->ScaleY_get();
+        Data.m_rPosition.Width = Data.m_rBackgroundPosition.Width;
+        Data.m_rPosition.Height = Data.m_rBackgroundPosition.Height;
 
         int FloorplanType = atoi(GetParm(DESIGNOBJPARAMETER_Type_CONST).c_str());
         Row_FloorplanType *drFloorplanType = m_mds->FloorplanType_get()->GetRow(FloorplanType);
@@ -753,7 +753,7 @@ int k=2;
                         m_VariableMap[VARIABLE_Array_ID_CONST] = pRow_FloorplanObjectType->Description_get();
                         m_VariableMap[VARIABLE_Array_Desc_CONST] = Description;
 
-						if( X>m_sOriginalSize.Width || Y>m_sOriginalSize.Height )
+						if( X>Data.m_sOriginalSize.Width || Y>Data.m_sOriginalSize.Height )
 						{
 							pRow_Device_DeviceData_FPInfo->IK_DeviceData_set("");
 							pRow_Device_DeviceData_FPInfo->Table_Device_DeviceData_get()->Commit();
@@ -763,7 +763,7 @@ int k=2;
                         // We got ourselves an object to appear on this map
                         X = (X * ScaleFactor) / 1000;
                         Y = (Y * ScaleFactor) / 1000;
-                        PlutoRectangle rectangle(m_rPosition.X+X,m_rPosition.Y+Y,0,0);
+                        PlutoRectangle rectangle(Data.m_rPosition.X+X,Data.m_rPosition.Y+Y,0,0);
 						if( !pRow_FloorplanObjectType->FK_DesignObj_Control_isNull() )
 						{
 							DesignObj_Generator *pDesignObj_Generator = new DesignObj_Generator(m_pOrbiterGenerator,pRow_FloorplanObjectType->FK_DesignObj_Control_getrow(),
@@ -771,8 +771,8 @@ int k=2;
 							if( pDesignObj_Generator->m_pRow_DesignObjVariation )
 							{
 								pDesignObj_Generator->m_bCanBeHidden = false;
-								pDesignObj_Generator->m_bHideByDefault = false;
-								pDesignObj_Generator->m_bChildrenBeforeText = false;
+								pDesignObj_Generator->Data.m_bHideByDefault = false;
+								pDesignObj_Generator->Data.m_bChildrenBeforeText = false;
 								pDesignObj_Generator->m_bChildrenBehind = false;
 								pDesignObj_Generator->m_bDontMergeBackground = false;
 								pDesignObj_Generator->m_iFloorplanPage = m_iFloorplanPage;
@@ -784,15 +784,15 @@ int k=2;
 								// handled when ScaleAllValues is called the second time.
 								pDesignObj_Generator->ScaleAllValues(m_pOrbiterGenerator->m_pRow_Size->ScaleX_get(),m_pOrbiterGenerator->m_pRow_Size->ScaleY_get(),NULL);
 								m_alChildDesignObjs.push_back(pDesignObj_Generator);
-								pDesignObj_Generator->m_rBackgroundPosition.X=X;
-								pDesignObj_Generator->m_rBackgroundPosition.Y=Y;
-								pDesignObj_Generator->m_rPosition.X=X;
-								pDesignObj_Generator->m_rPosition.Y=Y;
+								pDesignObj_Generator->Data.m_rBackgroundPosition.X=X;
+								pDesignObj_Generator->Data.m_rBackgroundPosition.Y=Y;
+								pDesignObj_Generator->Data.m_rPosition.X=X;
+								pDesignObj_Generator->Data.m_rPosition.Y=Y;
 								for(size_t s=0;s<pDesignObj_Generator->m_vectDesignObjText.size();++s)
 								{
 									CGText *ot = (CGText *) pDesignObj_Generator->m_vectDesignObjText[s];
-									ot->m_rPosition.X=X;
-									ot->m_rPosition.Y=Y;
+									ot->Data.m_rPosition.X=X;
+									ot->Data.m_rPosition.Y=Y;
 								}
 
 								pDesignObj_Generator->m_pFloorplanFillPoint = new PlutoPoint(pRow_FloorplanObjectType->FillX_get() * ScaleFactor / 1000,pRow_FloorplanObjectType->FillY_get() * ScaleFactor / 1000);
@@ -825,7 +825,7 @@ if( drOVO->PK_DesignObjVariation_DesignObj_get()==6312 )
     int k=2;
 }
             drDesignObj = drOVO->FK_DesignObj_Child_getrow();
-            if( (m_rPosition.X+drOVO->X_get())*m_iScale/100<m_pOrbiterGenerator->m_sizeScreen->Width && (m_rPosition.Y+drOVO->Y_get())*m_iScale/100<m_pOrbiterGenerator->m_sizeScreen->Height )
+            if( (Data.m_rPosition.X+drOVO->X_get())*m_iScale/100<m_pOrbiterGenerator->m_sizeScreen->Width && (Data.m_rPosition.Y+drOVO->Y_get())*m_iScale/100<m_pOrbiterGenerator->m_sizeScreen->Height )
             {
                 if( drDesignObj->FK_DesignObjType_get()==DESIGNOBJTYPE_Array_CONST )
                     alArrays.push_back(drOVO);
@@ -841,13 +841,13 @@ if( drOVO->PK_DesignObjVariation_DesignObj_get()==6312 )
                         {
                             Row_Floorplan *pRow_Floorplan = vectRow_Floorplan[s];
                             m_pOrbiterGenerator->m_iFloorplanPage = ++PageCount;
-                            PlutoRectangle rectangle(m_rPosition.X+drOVO->X_get(),m_rPosition.Y+drOVO->Y_get(),drOVO->Width_get(),drOVO->Height_get());
+                            PlutoRectangle rectangle(Data.m_rPosition.X+drOVO->X_get(),Data.m_rPosition.Y+drOVO->Y_get(),drOVO->Width_get(),drOVO->Height_get());
                             DesignObj_Generator *pDesignObj_Generator = new DesignObj_Generator(m_pOrbiterGenerator,drOVO->FK_DesignObj_Child_getrow(),rectangle,this,false,false);
 							if( pDesignObj_Generator->m_pRow_DesignObjVariation )
 							{
 								pDesignObj_Generator->m_bCanBeHidden = true;
-								pDesignObj_Generator->m_bHideByDefault = true;
-								pDesignObj_Generator->m_bChildrenBeforeText = drOVO->DisplayChildrenBeforeText_get()==1;
+								pDesignObj_Generator->Data.m_bHideByDefault = true;
+								pDesignObj_Generator->Data.m_bChildrenBeforeText = drOVO->DisplayChildrenBeforeText_get()==1;
 								pDesignObj_Generator->m_bChildrenBehind = drOVO->DisplayChildrenBehindBackground_get()==1;
 								pDesignObj_Generator->m_bDontMergeBackground = drOVO->DontMergeBackground_get()==1;
 								m_alChildDesignObjs.push_back(pDesignObj_Generator);
@@ -858,7 +858,7 @@ if( drOVO->PK_DesignObjVariation_DesignObj_get()==6312 )
                     }
                     else
                     {
-                        DesignObj_Generator *pDesignObj_Generator = new DesignObj_Generator(m_pOrbiterGenerator,drOVO->FK_DesignObj_Child_getrow(),PlutoRectangle(m_rPosition.X+drOVO->X_get(),m_rPosition.Y+drOVO->Y_get(),drOVO->Width_get(),drOVO->Height_get()),this,false,false);
+                        DesignObj_Generator *pDesignObj_Generator = new DesignObj_Generator(m_pOrbiterGenerator,drOVO->FK_DesignObj_Child_getrow(),PlutoRectangle(Data.m_rPosition.X+drOVO->X_get(),Data.m_rPosition.Y+drOVO->Y_get(),drOVO->Width_get(),drOVO->Height_get()),this,false,false);
                         if( !pDesignObj_Generator->m_pRow_DesignObjVariation )
                         {
                             cout << "Not adding object: " << drOVO->FK_DesignObj_Child_get() << " to object: " << drOVO->FK_DesignObjVariation_Parent_getrow()->FK_DesignObj_get() << " because there are no qualifying variations." << endl;
@@ -867,20 +867,20 @@ if( drOVO->PK_DesignObjVariation_DesignObj_get()==6312 )
                         else
                         {
                             pDesignObj_Generator->m_bCanBeHidden = drOVO->CanBeHidden_get()==1;
-                            pDesignObj_Generator->m_bHideByDefault = drOVO->HideByDefault_get()==1;
-                            pDesignObj_Generator->m_bChildrenBeforeText = drOVO->DisplayChildrenBeforeText_get()==1;
-if( pDesignObj_Generator->m_bChildrenBeforeText )
+                            pDesignObj_Generator->Data.m_bHideByDefault = drOVO->HideByDefault_get()==1;
+                            pDesignObj_Generator->Data.m_bChildrenBeforeText = drOVO->DisplayChildrenBeforeText_get()==1;
+if( pDesignObj_Generator->Data.m_bChildrenBeforeText )
 {
 int k=2;
 }
                             pDesignObj_Generator->m_bChildrenBehind = drOVO->DisplayChildrenBehindBackground_get()==1;
                             pDesignObj_Generator->m_bDontMergeBackground = drOVO->DontMergeBackground_get()==1;
-                            pDesignObj_Generator->m_bTabStop = drOVO->IsTabStop_get()==1;
+                            pDesignObj_Generator->Data.m_bTabStop = drOVO->IsTabStop_get()==1;
 
-                            pDesignObj_Generator->m_PK_DesignObj_Up=drOVO->FK_DesignObj_Up_get();
-                            pDesignObj_Generator->m_PK_DesignObj_Down=drOVO->FK_DesignObj_Down_get();
-                            pDesignObj_Generator->m_PK_DesignObj_Left=drOVO->FK_DesignObj_Left_get();
-                            pDesignObj_Generator->m_PK_DesignObj_Right=drOVO->FK_DesignObj_Right_get();
+                            pDesignObj_Generator->Data.m_PK_DesignObj_Up=drOVO->FK_DesignObj_Up_get();
+                            pDesignObj_Generator->Data.m_PK_DesignObj_Down=drOVO->FK_DesignObj_Down_get();
+                            pDesignObj_Generator->Data.m_PK_DesignObj_Left=drOVO->FK_DesignObj_Left_get();
+                            pDesignObj_Generator->Data.m_PK_DesignObj_Right=drOVO->FK_DesignObj_Right_get();
 
                             pDesignObj_Generator->m_sPK_DesignObj_TiedTo=drOVO->sFK_DesignObj_TiedTo_get();
                             pDesignObj_Generator->m_sVisibleState=StringUtils::ToUpper(drOVO->VisibleStates_get());
@@ -899,12 +899,12 @@ int k=2;
         for(size_t s=0;s<m_alChildDesignObjs.size();++s)
         {
             DesignObj_Generator *oco = m_alChildDesignObjs[s];
-            if( oco->m_rPosition.Width>0 )
+            if( oco->Data.m_rPosition.Width>0 )
             {
-                if( m_rPosition.Width>0 )
-                    m_rPosition = PlutoRectangle::Union(m_rPosition,oco->m_rPosition);
+                if( Data.m_rPosition.Width>0 )
+                    Data.m_rPosition = PlutoRectangle::Union(Data.m_rPosition,oco->Data.m_rPosition);
                 else
-                    m_rPosition  = oco->m_rPosition ;
+                    Data.m_rPosition  = oco->Data.m_rPosition ;
             }
         }
     }
@@ -915,7 +915,7 @@ int k=2;
         Row_DesignObjVariation_DesignObj * drOVO = alArrays[s];
 
         vector<class ArrayValue *> *alArrayValues = GetArrayValues(drOVO);
-        PlutoRectangle rtArray(m_rPosition.X + drOVO->X_get(),m_rPosition.Y + drOVO->Y_get(),drOVO->Width_isNull() ? 0 : drOVO->Width_get(),drOVO->Height_isNull() ?  0 : drOVO->Height_get());
+        PlutoRectangle rtArray(Data.m_rPosition.X + drOVO->X_get(),Data.m_rPosition.Y + drOVO->Y_get(),drOVO->Width_isNull() ? 0 : drOVO->Width_get(),drOVO->Height_isNull() ?  0 : drOVO->Height_get());
         if( rtArray.Right()>m_pOrbiterGenerator->m_sizeScreen->Width || rtArray.Width==0 )
             rtArray.Width = m_pOrbiterGenerator->m_sizeScreen->Width - rtArray.Left();
         if( rtArray.Bottom()>m_pOrbiterGenerator->m_sizeScreen->Height || rtArray.Height==0 )
@@ -923,7 +923,7 @@ int k=2;
 
         CGArray *pCGArray = new CGArray(this,drOVO,alArrayValues,rtArray,0,0);
 	    if( m_pRow_DesignObj->FK_DesignObjType_get()!=DESIGNOBJTYPE_Floorplan_CONST  )
-			m_rPosition = PlutoRectangle::Union(m_rPosition,pCGArray->m_rBounds);
+			Data.m_rPosition = PlutoRectangle::Union(Data.m_rPosition,pCGArray->m_rBounds);
 		
 		if( pCGArray->m_bContainsMore)
         {
@@ -950,7 +950,7 @@ int k=2;
     for(itActions=m_Action_StartupList.begin();itActions!=m_Action_StartupList.end();++itActions)
     {
         CGCommand *oca = (CGCommand *) *itActions;
-        if( oca->m_PK_Command == COMMAND_Set_Floorplan_CONST )
+        if( oca->Data.m_PK_Command == COMMAND_Set_Floorplan_CONST )
         {
             map<int, string>::iterator itParm=oca->m_ParameterList.find(COMMANDPARAMETER_PK_DesignObj_CONST);
 			if( itParm!=oca->m_ParameterList.end() )
@@ -1051,7 +1051,7 @@ int DesignObj_Generator::LookForGoto(DesignObjCommandList *alCommands)
     for(itActions=alCommands->begin();itActions!=alCommands->end();++itActions)
     {
         CGCommand *oca = (CGCommand *) *itActions;
-        if( oca->m_PK_Command == COMMAND_Goto_Screen_CONST || oca->m_PK_Command == COMMAND_Show_Popup_CONST )
+        if( oca->Data.m_PK_Command == COMMAND_Goto_Screen_CONST || oca->Data.m_PK_Command == COMMAND_Show_Popup_CONST )
         {
             map<int, string>::iterator itParm=oca->m_ParameterList.find(COMMANDPARAMETER_PK_DesignObj_CONST);
 			if( itParm!=oca->m_ParameterList.end() )
@@ -1072,7 +1072,7 @@ int DesignObj_Generator::LookForGoto(DesignObjCommandList *alCommands)
                     try
                     {
                         PK_DesignObj_Goto = atoi(objgoto.c_str());
-						if( oca->m_PK_Command == COMMAND_Show_Popup_CONST )
+						if( oca->Data.m_PK_Command == COMMAND_Show_Popup_CONST )
 							m_pOrbiterGenerator->m_mapPopups[PK_DesignObj_Goto] = true;
                     }
                     catch(...)
@@ -1135,7 +1135,7 @@ int k=2;
             for(itActions=oz->m_Commands.begin();itActions!=oz->m_Commands.end();++itActions)
             {
                 CGCommand *oa = (CGCommand *) *itActions;
-                if( oa->m_PK_Command == COMMAND_Set_Variable_CONST )
+                if( oa->Data.m_PK_Command == COMMAND_Set_Variable_CONST )
                 {
                     int PK_Variable=0;
                     string oValue="";
@@ -1168,7 +1168,7 @@ int k=2;
 //  I think this is not needed since the if( bAddToGenerated at the top of the constructor does this since pListScreens->size()==0???       pListScreens->push_back(m_DesignObj_GeneratorGoto);
 //      m_pOrbiterGenerator->m_mapVariable = htPriorVariables;
         if( m_bDontShare )
-            m_DesignObj_GeneratorGoto->m_iVersion=(int) pListScreens->size();
+            m_DesignObj_GeneratorGoto->Data.m_iVersion=(int) pListScreens->size();
     }
 }
 
@@ -1600,30 +1600,30 @@ int k=2;
 }
     if( !m_bValuesScaled )
     {
-        PlutoPoint p3(m_rBackgroundPosition.Location());
+        PlutoPoint p3(Data.m_rBackgroundPosition.Location());
         PlutoPoint p2(ScaleValue(&p3,FactorX,FactorY));
-        m_rBackgroundPosition.Location(p2);
-        PlutoSize plutoSize = m_rBackgroundPosition.Size();
+        Data.m_rBackgroundPosition.Location(p2);
+        PlutoSize plutoSize = Data.m_rBackgroundPosition.Size();
         PlutoPoint p(plutoSize.Width,plutoSize.Height);
         PlutoSize plutoSize2(ScaleValue(&p,FactorX,FactorY));
-        m_rBackgroundPosition.Size(plutoSize2);
-		p=ScaleValue(&m_rPosition.Location(),FactorX,FactorY);
-        m_rPosition.Location(p);
-		PlutoSize plutoSize3=m_rPosition.Size();
+        Data.m_rBackgroundPosition.Size(plutoSize2);
+		p=ScaleValue(&Data.m_rPosition.Location(),FactorX,FactorY);
+        Data.m_rPosition.Location(p);
+		PlutoSize plutoSize3=Data.m_rPosition.Size();
         p=PlutoPoint(plutoSize3.Width,plutoSize3.Height);
         p=PlutoPoint(ScaleValue(&p,FactorX,FactorY));
-        m_rPosition.Size(p);
+        Data.m_rPosition.Size(p);
         for(size_t s=0;s<m_vectDesignObjText.size();++s)
         {
             CGText *ot = (CGText *) m_vectDesignObjText[s];
-            PlutoPoint p5 = ot->m_rPosition.Location();
+            PlutoPoint p5 = ot->Data.m_rPosition.Location();
             PlutoSize plutoSize4(*(ScaleValue(&p5,FactorX,FactorY)));
-            ot->m_rPosition.Location(PlutoPoint(plutoSize4.Width,plutoSize4.Height));
-            PlutoSize plutoSize5(ot->m_rPosition.Size());  // Linux won't let me pass these in
-            //PlutoPoint p4(ot->m_rPosition.Size()); // Works on vs.net, but not gcc
+            ot->Data.m_rPosition.Location(PlutoPoint(plutoSize4.Width,plutoSize4.Height));
+            PlutoSize plutoSize5(ot->Data.m_rPosition.Size());  // Linux won't let me pass these in
+            //PlutoPoint p4(ot->Data.m_rPosition.Size()); // Works on vs.net, but not gcc
             PlutoPoint p4(plutoSize5.Width,plutoSize5.Height);
             PlutoPoint p(ScaleValue(&p4,FactorX,FactorY));
-            ot->m_rPosition.Size(p);
+            ot->Data.m_rPosition.Size(p);
         }
 
         m_bValuesScaled=true;
@@ -1632,15 +1632,15 @@ int k=2;
 	{
 		// Floorplans were scaled already, but they need to be offset by the parent floorplan object
 		// and they are to be centered on the point, rather than upper/left like the others
-		m_rBackgroundPosition.X += m_ocoParent->m_rBackgroundPosition.X - m_rBackgroundPosition.Width/2;
-		m_rBackgroundPosition.Y += m_ocoParent->m_rBackgroundPosition.Y - m_rBackgroundPosition.Width/2;
-		m_rPosition.X += m_ocoParent->m_rPosition.X - m_rPosition.Width/2;
-		m_rPosition.Y += m_ocoParent->m_rPosition.Y - m_rPosition.Width/2;
+		Data.m_rBackgroundPosition.X += m_ocoParent->Data.m_rBackgroundPosition.X - Data.m_rBackgroundPosition.Width/2;
+		Data.m_rBackgroundPosition.Y += m_ocoParent->Data.m_rBackgroundPosition.Y - Data.m_rBackgroundPosition.Width/2;
+		Data.m_rPosition.X += m_ocoParent->Data.m_rPosition.X - Data.m_rPosition.Width/2;
+		Data.m_rPosition.Y += m_ocoParent->Data.m_rPosition.Y - Data.m_rPosition.Width/2;
         for(size_t s=0;s<m_vectDesignObjText.size();++s)
         {
             CGText *ot = (CGText *) m_vectDesignObjText[s];
-			ot->m_rPosition.X += m_ocoParent->m_rPosition.X - m_rPosition.Width/2;
-			ot->m_rPosition.Y += m_ocoParent->m_rPosition.Y - m_rPosition.Width/2;
+			ot->Data.m_rPosition.X += m_ocoParent->Data.m_rPosition.X - Data.m_rPosition.Width/2;
+			ot->Data.m_rPosition.Y += m_ocoParent->Data.m_rPosition.Y - Data.m_rPosition.Width/2;
 		}
 	}
 
@@ -1869,15 +1869,15 @@ if( this->m_pRow_DesignObj->PK_DesignObj_get()==2432 )
 {
 int k=2;
 }
-	m_rBackgroundPosition.Rotate(iRotate,m_pOrbiterGenerator->m_sScaledSize);
-	m_rPosition.Rotate(iRotate,m_pOrbiterGenerator->m_sScaledSize);
+	Data.m_rBackgroundPosition.Rotate(iRotate,m_pOrbiterGenerator->m_sScaledSize);
+	Data.m_rPosition.Rotate(iRotate,m_pOrbiterGenerator->m_sScaledSize);
 	m_rBitmapOffset.Rotate(iRotate,m_pOrbiterGenerator->m_sScaledSize);
-	m_sOriginalSize.Rotate(iRotate);
+	Data.m_sOriginalSize.Rotate(iRotate);
 
 	for(size_t s=0;s<m_vectDesignObjText.size();++s)
 	{
 		CGText *pDesignObjText = (CGText *) m_vectDesignObjText[s];
-		pDesignObjText->m_rPosition.Rotate(iRotate,m_pOrbiterGenerator->m_sScaledSize);
+		pDesignObjText->Data.m_rPosition.Rotate(iRotate,m_pOrbiterGenerator->m_sScaledSize);
 	}
 
 	for(DesignObjZoneList::iterator it=m_ZoneList.begin();it!=m_ZoneList.end();++it)

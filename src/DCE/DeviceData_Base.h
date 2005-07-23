@@ -135,19 +135,19 @@ namespace DCE
 
 
 		/**
-		 * @brief adds a new ItemToSerialize to the m_listItemToSerialize list (the DeviceData_Base map)
+		 * @brief adds a new ItemToSerialize to the m_vectItemToSerialize list (the DeviceData_Base map)
 		 */
-		AllDevices &operator+ ( Map_DeviceData_Base &i ) { m_listItemToSerialize.push_back( new ItemToSerialize( SERIALIZE_DATA_TYPE_MAP_DCEDEVICEDATA_BASE, (void *) &i) ); return (*this); }
+		AllDevices &operator+ ( Map_DeviceData_Base &i ) { m_vectItemToSerialize.push_back( new ItemToSerialize( SERIALIZE_DATA_TYPE_MAP_DCEDEVICEDATA_BASE, (void *) &i) ); return (*this); }
 
 		/**
-		 * @brief adds a new ItemToSerialize to the m_listItemToSerialize list (the DeviceCategory map)
+		 * @brief adds a new ItemToSerialize to the m_vectItemToSerialize list (the DeviceCategory map)
 		 */
-		AllDevices &operator+ ( Map_DeviceCategory &i ) { m_listItemToSerialize.push_back( new ItemToSerialize( SERIALIZE_DATA_TYPE_MAP_DCECATEGORY, (void *) &i ) ); return (*this); }
+		AllDevices &operator+ ( Map_DeviceCategory &i ) { m_vectItemToSerialize.push_back( new ItemToSerialize( SERIALIZE_DATA_TYPE_MAP_DCECATEGORY, (void *) &i ) ); return (*this); }
 
 		/**
-		 * @brief adds a new ItemToSerialize to the m_listItemToSerialize list (the DeviceGroup vector)
+		 * @brief adds a new ItemToSerialize to the m_vectItemToSerialize list (the DeviceGroup vector)
 		 */
-		AllDevices &operator+ ( Map_DeviceGroup &i ) { m_listItemToSerialize.push_back( new ItemToSerialize( SERIALIZE_DATA_TYPE_MAP_DCEDEVICE_GROUP, (void *) &i) ); return (*this); }
+		AllDevices &operator+ ( Map_DeviceGroup &i ) { m_vectItemToSerialize.push_back( new ItemToSerialize( SERIALIZE_DATA_TYPE_MAP_DCEDEVICE_GROUP, (void *) &i) ); return (*this); }
 
 		/**
 		 * @brief overrides the SerializeClass::UnknownSerialize method

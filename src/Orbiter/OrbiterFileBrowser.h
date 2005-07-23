@@ -35,7 +35,7 @@ public:
 			delete it->second;
 	}
 
-	OrbiterFileBrowser_Collection &operator+ (MapOrbiterFileBrowser &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_MAP_OBJFILEBROWSER,(void *) &i)); return (*this); }
+	OrbiterFileBrowser_Collection &operator+ (MapOrbiterFileBrowser &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_MAP_OBJFILEBROWSER,(void *) &i)); return (*this); }
 	virtual bool UnknownSerialize(ItemToSerialize *pItem,bool bWriting,char *&pDataBlock,unsigned long &iAllocatedSize,char *&pCurrentPosition);
 
 	void SetupSerialization(int iSC_Version)

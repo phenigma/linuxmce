@@ -43,11 +43,11 @@ bool SerializeClass::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 	if( !m_bManuallySetupSerialization )
 	{
 		// For Symbian compatibility
-		MYSTL_ITERATE_LIST( m_listItemToSerialize, ItemToSerialize, pItem_del, it_del )
+		MYSTL_ITERATE_VECT( m_vectItemToSerialize, ItemToSerialize, pItem_del, it_del )
 		{
 			delete pItem_del;
 		}
-		MYSTL_CLEAR_LIST(m_listItemToSerialize);
+		MYSTL_CLEAR_LIST(m_vectItemToSerialize);
 		if( bWriting )
 		{
 			Write_unsigned_long(m_iSC_Version);
@@ -70,13 +70,13 @@ bool SerializeClass::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 	}
 #ifdef DEBUG_SERIALIZATION
 	cout << "Schema for: " << SerializeClassClassName();
-	MYSTL_ITERATE_LIST(m_listItemToSerialize,ItemToSerialize,pItem_cout,it_cout)
+	MYSTL_ITERATE_VECT(m_vectItemToSerialize,ItemToSerialize,pItem_cout,it_cout)
 	{
 		cout << " " << pItem_cout->m_iSerializeDataType;
 	}
 	cout << endl;
 #endif
-	MYSTL_ITERATE_LIST(m_listItemToSerialize,ItemToSerialize,pItem,it)
+	MYSTL_ITERATE_VECT(m_vectItemToSerialize,ItemToSerialize,pItem,it)
 	{
 
 		// These are self-serializing, we don't need the if( bWriting ) split.  However, these classes are 

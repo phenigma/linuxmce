@@ -4,7 +4,9 @@
 #ifndef SYMBIAN
 
 #define MYSTL_CREATE_LIST(CollectionName,ValueObjectType) list<class ValueObjectType *> CollectionName
+#define MYSTL_CREATE_VECT(CollectionName,ValueObjectType) vector<class ValueObjectType *> CollectionName
 #define MYSTL_ITERATE_LIST(CollectionName,ValueObjectType,ValueObject,IteratorName) 	ValueObjectType *ValueObject; list<class ValueObjectType *>::iterator IteratorName;	for(IteratorName=CollectionName.begin(),ValueObject=(IteratorName!=CollectionName.end() ? (*IteratorName) : NULL);			IteratorName!=CollectionName.end();++IteratorName,ValueObject=(IteratorName!=CollectionName.end() ? (*IteratorName) : NULL))
+#define MYSTL_ITERATE_VECT(CollectionName,ValueObjectType,ValueObject,IteratorName) 	ValueObjectType *ValueObject; vector<class ValueObjectType *>::iterator IteratorName;	for(IteratorName=CollectionName.begin(),ValueObject=(IteratorName!=CollectionName.end() ? (*IteratorName) : NULL);			IteratorName!=CollectionName.end();++IteratorName,ValueObject=(IteratorName!=CollectionName.end() ? (*IteratorName) : NULL))
 #define MYSTL_ADDTO_LIST(CollectionName,ValueObject) CollectionName.push_back(ValueObject)
 #define MYSTL_CLEAR_LIST(CollectionName) CollectionName.clear()
 #define MYSTL_SIZEOF_LIST(CollectionName) CollectionName.size()
@@ -28,6 +30,8 @@
 
 #define MYSTL_CREATE_LIST(CollectionName,ValueObjectType) RPointerArray<class ValueObjectType> CollectionName
 #define MYSTL_ITERATE_LIST(CollectionName,ValueObjectType,ValueObject,IteratorName) ValueObjectType *ValueObject = NULL; for (int IteratorName = 0; IteratorName < CollectionName.Count() && (ValueObject = CollectionName[IteratorName]); IteratorName++)
+#define MYSTL_CREATE_VECT(CollectionName,ValueObjectType) RPointerArray<class ValueObjectType> CollectionName
+#define MYSTL_ITERATE_VECT(CollectionName,ValueObjectType,ValueObject,IteratorName) ValueObjectType *ValueObject = NULL; for (int IteratorName = 0; IteratorName < CollectionName.Count() && (ValueObject = CollectionName[IteratorName]); IteratorName++)
 #define MYSTL_ADDTO_LIST(CollectionName,ValueObject) CollectionName.Append(ValueObject)
 #define MYSTL_CLEAR_LIST(CollectionName) CollectionName.Reset()
 #define MYSTL_SIZEOF_LIST(CollectionName) CollectionName.Count()

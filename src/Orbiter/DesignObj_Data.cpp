@@ -32,6 +32,22 @@ DesignObj_Data::~DesignObj_Data()
 	m_vectDesignObjText.clear();
 }
 
+bool DesignObjCommand::Serialize(bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition, void *pExtraSerializationData)
+{
+	if( bWriting )
+	{
+		m_pcDataBlock=pcDataBlock; m_dwAllocatedSize=dwAllocatedSize; m_pcCurrentPosition=pcCurrentPosition;
+		Write_block( (char *)&Data,sizeof(Data));
+		pcDataBlock=m_pcDataBlock; dwAllocatedSize=m_dwAllocatedSize; pcCurrentPosition=m_pcCurrentPosition;
+	}
+	else
+	{
+		memcpy((void *)&Data,pcCurrentPosition,sizeof(Data));
+		pcCurrentPosition += sizeof(Data);
+	}
+	return SerializeClass::Serialize(bWriting,pcDataBlock,dwAllocatedSize,pcCurrentPosition,pExtraSerializationData);
+}
+
 bool DesignObjZone::UnknownSerialize(ItemToSerialize *pItem,bool bWriting,char *&pDataBlock,unsigned long &iAllocatedSize,char *&pCurrentPosition) 
 {
 	m_pcDataBlock=pDataBlock; m_dwAllocatedSize=iAllocatedSize; m_pcCurrentPosition=pCurrentPosition;
@@ -75,6 +91,22 @@ bool DesignObjZone::UnknownSerialize(ItemToSerialize *pItem,bool bWriting,char *
 	pDataBlock=m_pcDataBlock; iAllocatedSize=m_dwAllocatedSize; pCurrentPosition=m_pcCurrentPosition;
 	return true;
 } 
+
+bool DesignObjZone::Serialize(bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition, void *pExtraSerializationData)
+{
+	if( bWriting )
+	{
+		m_pcDataBlock=pcDataBlock; m_dwAllocatedSize=dwAllocatedSize; m_pcCurrentPosition=pcCurrentPosition;
+		Write_block( (char *)&m_Rect,sizeof(PlutoRectangle));
+		pcDataBlock=m_pcDataBlock; dwAllocatedSize=m_dwAllocatedSize; pcCurrentPosition=m_pcCurrentPosition;
+	}
+	else
+	{
+		memcpy((void *)&m_Rect,pcCurrentPosition,sizeof(PlutoRectangle));
+		pcCurrentPosition += sizeof(PlutoRectangle);
+	}
+	return SerializeClass::Serialize(bWriting,pcDataBlock,dwAllocatedSize,pcCurrentPosition,pExtraSerializationData);
+}
 
 bool DesignObjText::UnknownSerialize(ItemToSerialize *pItem,bool bWriting,char *&pDataBlock,unsigned long &iAllocatedSize,char *&pCurrentPosition)
 {
@@ -122,8 +154,21 @@ bool DesignObjText::UnknownSerialize(ItemToSerialize *pItem,bool bWriting,char *
 	return bHandledIt;
 }
 
-
-
+bool DesignObjText::Serialize(bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition, void *pExtraSerializationData)
+{
+	if( bWriting )
+	{
+		m_pcDataBlock=pcDataBlock; m_dwAllocatedSize=dwAllocatedSize; m_pcCurrentPosition=pcCurrentPosition;
+		Write_block( (char *)&Data,sizeof(Data));
+		pcDataBlock=m_pcDataBlock; dwAllocatedSize=m_dwAllocatedSize; pcCurrentPosition=m_pcCurrentPosition;
+	}
+	else
+	{
+		memcpy((void *)&Data,pcCurrentPosition,sizeof(Data));
+		pcCurrentPosition += sizeof(Data);
+	}
+	return SerializeClass::Serialize(bWriting,pcDataBlock,dwAllocatedSize,pcCurrentPosition,pExtraSerializationData);
+}
 
 bool DesignObj_Data::UnknownSerialize(ItemToSerialize *pItem,bool bWriting,char *&pDataBlock,unsigned long &iAllocatedSize,char *&pCurrentPosition) 
 { 
@@ -164,7 +209,7 @@ bool DesignObj_Data::UnknownSerialize(ItemToSerialize *pItem,bool bWriting,char 
 				{
 					DesignObj_Data *pObj = *it;
 					// Different types of objects require different derived classes, so save this information first
-					Write_unsigned_long(pObj->m_ObjectType);
+					Write_unsigned_long(pObj->Data.m_ObjectType);
 					pObj->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition);
 				}
 				bHandledIt=true;  // We handled it
@@ -261,3 +306,19 @@ bool DesignObj_Data::UnknownSerialize(ItemToSerialize *pItem,bool bWriting,char 
 	pDataBlock=m_pcDataBlock; iAllocatedSize=m_dwAllocatedSize; pCurrentPosition=m_pcCurrentPosition;
 	return bHandledIt;
 } 
+
+bool DesignObj_Data::Serialize(bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition, void *pExtraSerializationData)
+{
+	if( bWriting )
+	{
+		m_pcDataBlock=pcDataBlock; m_dwAllocatedSize=dwAllocatedSize; m_pcCurrentPosition=pcCurrentPosition;
+		Write_block( (char *)&Data,sizeof(Data));
+		pcDataBlock=m_pcDataBlock; dwAllocatedSize=m_dwAllocatedSize; pcCurrentPosition=m_pcCurrentPosition;
+	}
+	else
+	{
+		memcpy((void *)&Data,pcCurrentPosition,sizeof(Data));
+		pcCurrentPosition += sizeof(Data);
+	}
+	return SerializeClass::Serialize(bWriting,pcDataBlock,dwAllocatedSize,pcCurrentPosition,pExtraSerializationData);
+}

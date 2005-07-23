@@ -16,6 +16,7 @@ using namespace std;
 #define SERIALIZE_DATA_TYPE_INT_DESIGNOBJCHILDLIST		1003
 #define SERIALIZE_DATA_TYPE_INT_STYLEMAP				1004
 
+#define SERIALIZE_DATA_TYPE_DESIGNOBJ_CMD_DATA			1005
 
 typedef list<class DesignObjCommandParameter *> DesignObjCommandParameterList;
 typedef list<class DesignObjCommand *> DesignObjCommandList;
@@ -24,9 +25,12 @@ typedef list<class DesignObjZone *> DesignObjZoneList;
 class DesignObjCommand : public SerializeClass
 {
 public:
-	int m_PK_Command,m_PK_Device,m_PK_DeviceGroup; //,PK_C_ExecTime;
-	int BroadcastLevel,m_PK_DeviceTemplate,m_PK_DeviceCategory;
-	bool m_bRelativeToSender,m_bDeliveryConfirmation;
+	struct
+	{
+		int m_PK_Command,m_PK_Device,m_PK_DeviceGroup; 
+		int BroadcastLevel,m_PK_DeviceTemplate,m_PK_DeviceCategory;
+		bool m_bRelativeToSender,m_bDeliveryConfirmation;
+	} Data; // Put them all in 1 struct to speed up the serialization
 
 	map<int, string> m_ParameterList;
 	class Orbiter_CriteriaList *ptrCriteria;
@@ -35,20 +39,19 @@ public:
 	DesignObjCommand(int PK_Command,int PK_Criteria,bool bHandleLocally,int PK_Device,int PK_DeviceGroup, bool bDeliveryConfirmation) 
 		: ptrCriteria(NULL) 
 	{
-		m_PK_Command=PK_Command;
-		m_PK_Device=PK_Device;
-		m_PK_DeviceGroup=PK_DeviceGroup;
-		m_bDeliveryConfirmation=bDeliveryConfirmation;
+		Data.m_PK_Command=PK_Command;
+		Data.m_PK_Device=PK_Device;
+		Data.m_PK_DeviceGroup=PK_DeviceGroup;
+		Data.m_bDeliveryConfirmation=bDeliveryConfirmation;
 	};
 	virtual ~DesignObjCommand() { m_ParameterList.clear(); } 
+
 	void SetupSerialization(int iSC_Version)
 	{
-		StartSerializeList() + m_PK_Command + m_PK_Device + m_PK_DeviceGroup + 
-			BroadcastLevel + m_PK_DeviceTemplate + m_PK_DeviceCategory +
-			m_bRelativeToSender + m_bDeliveryConfirmation +
-			m_ParameterList;
+		StartSerializeList() + m_ParameterList;
 	}
 	virtual string SerializeClassClassName() { return "DesignObjCommand"; }
+	virtual bool Serialize(bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition, void *pExtraSerializationData=NULL);
 }; 
 
 class DesignObjZone : public SerializeClass
@@ -74,15 +77,16 @@ public:
 
 	void SetupSerialization(int iSC_Version)
 	{
-		StartSerializeList() + m_Rect;
+		StartSerializeList();
 		(*this) + m_Commands; // this is serialized custom
 	}
 	virtual string SerializeClassClassName() { return "DesignObjZone"; }
 
 	// For our custom serialize types.
-	DesignObjZone &operator+ (DesignObjCommandList &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_INT_DESIGNOBJACTIONLIST,(void *) &i)); return (*this); }
+	DesignObjZone &operator+ (DesignObjCommandList &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_INT_DESIGNOBJACTIONLIST,(void *) &i)); return (*this); }
 
 	virtual bool UnknownSerialize(ItemToSerialize *pItem,bool bWriting,char *&pDataBlock,unsigned long &iAllocatedSize,char *&pCurrentPosition);
+	virtual bool Serialize(bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition, void *pExtraSerializationData=NULL);  // Serialize manually for speed
 }; 
 
 typedef list<class DesignObj_Data *> DesignObj_DataList;
@@ -92,12 +96,16 @@ class DesignObjText : public SerializeClass
 {
 public:
 	map<int,string> m_mapAltVersions;
-	PlutoRectangle m_rPosition;
-	bool m_bPreRender;
-	int m_PK_Text;
-	int m_iLastXOffset,m_iLastYOffset;  // Used only within the Orbiter
+	struct
+	{
+		PlutoRectangle m_rPosition;
+		bool m_bPreRender;
+		int m_PK_Text;
+		int m_iLastXOffset,m_iLastYOffset;  // Used only within the Orbiter
+		int m_iPK_VertAlignment,m_iPK_HorizAlignment;
+	} Data;
+
 	string m_sText;
-	int m_iPK_VertAlignment,m_iPK_HorizAlignment;
 	MapTextStyle m_mapTextStyle;
 	TextStyle *m_mapTextStyle_Find(int Version)
 	{
@@ -109,7 +117,7 @@ public:
 
 	DesignObjText(class DesignObj_Orbiter *pObj) 
 	{ 
-		m_pObject=pObj; m_iLastXOffset=m_iLastYOffset=0; m_iPK_VertAlignment=m_iPK_HorizAlignment=0;
+		m_pObject=pObj; Data.m_iLastXOffset=Data.m_iLastYOffset=0; Data.m_iPK_VertAlignment=Data.m_iPK_HorizAlignment=0;
 	}
 	DesignObjText() { m_pObject = NULL; }
 	
@@ -129,14 +137,14 @@ public:
 
 	void SetupSerialization(int iSC_Version)
 	{
-		StartSerializeList() + m_sText + m_bPreRender +
-			m_PK_Text + m_mapAltVersions + m_rPosition + m_iPK_VertAlignment + m_iPK_HorizAlignment;
+		StartSerializeList() + m_sText + m_mapAltVersions;
 		
 		(*this) + m_mapTextStyle;
 	}
 	virtual string SerializeClassClassName() { return "DesignObjText"; }
-	DesignObjText &operator+ (MapTextStyle &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_INT_STYLEMAP,(void *) &i)); return (*this); }
+	DesignObjText &operator+ (MapTextStyle &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_INT_STYLEMAP,(void *) &i)); return (*this); }
 	virtual bool UnknownSerialize(ItemToSerialize *pItem,bool bWriting,char *&pDataBlock,unsigned long &iAllocatedSize,char *&pCurrentPosition);
+	virtual bool Serialize(bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition, void *pExtraSerializationData=NULL);  // Serialize manually for speed
 };
 
 typedef vector<DesignObjText *> VectorDesignObjText;
@@ -145,29 +153,32 @@ class DesignObj_Data : public SerializeClass
 {
 public:
 	// Our data
-	bool m_bChild,m_bDontResetState,m_bCantGoBack,m_bCanGoBackToSameScreen,m_bChildrenBeforeText,m_bProcessActionsAtServer,m_bAnimate,m_bHideByDefault;
-	bool m_bTabStop;
-	int m_PK_DesignObj_Up,m_PK_DesignObj_Down,m_PK_DesignObj_Left,m_PK_DesignObj_Right,m_iRegenInterval;
+	struct
+	{
+		bool m_bChild,m_bDontResetState,m_bCantGoBack,m_bCanGoBackToSameScreen,m_bChildrenBeforeText,m_bProcessActionsAtServer,m_bAnimate,m_bHideByDefault;
+		bool m_bTabStop;
+		int m_PK_DesignObj_Up,m_PK_DesignObj_Down,m_PK_DesignObj_Left,m_PK_DesignObj_Right,m_iRegenInterval;
+		int m_iPK_Button,m_dwTimeoutSeconds,m_Priority;
+		int m_iPK_Criteria;
+		int m_iBaseObjectID,m_iVersion,m_iPage;  // Version & Page will only be used for top level objects (screens)
+		int m_ObjectType;
+		PlutoRectangle m_rectDontDim, m_rPosition, m_rBackgroundPosition;
+		class PlutoSize m_sOriginalSize;
+		int m_dwIDim;
+		// If non-zero, this is a repeating button, and as long as it's held down, the command will keep
+		// repeating until the user lets go this many milliseconds.  A parameter 'Repeat' will be added if bRepeatParm is true
+		int m_iRepeatIntervalInMS;
+		bool m_bRepeatParm;
+	} Data;
+
 	string m_sPK_DesignObj_TiedTo;
 	string m_sVisibleState;
-	int m_iPK_Button,m_dwTimeoutSeconds,m_Priority;
-	int m_iPK_Criteria;
-
 	string m_sBackgroundFile, m_sSelectedFile, m_sHighlightGraphicFilename;
 	vector<string> m_vectAltGraphicFilename;
 	map<int,string> m_mapObjParms;
 	string m_ObjectID;
-	int m_iBaseObjectID,m_iVersion,m_iPage;  // Version & Page will only be used for top level objects (screens)
-	int m_ObjectType;
-	PlutoRectangle m_rectDontDim, m_rPosition, m_rBackgroundPosition;
 	PlutoDataBlock m_dbHitTest;
-	class PlutoSize m_sOriginalSize;
-	int m_dwIDim;
 
-	// If non-zero, this is a repeating button, and as long as it's held down, the command will keep
-	// repeating until the user lets go this many milliseconds.  A parameter 'Repeat' will be added if bRepeatParm is true
-	int m_iRepeatIntervalInMS;
-	bool m_bRepeatParm;
 
 	DesignObjCommandList m_Action_LoadList,m_Action_UnloadList,m_Action_TimeoutList,m_Action_StartupList;
 	DesignObjZoneList m_ZoneList;
@@ -177,25 +188,19 @@ public:
 
 	DesignObj_Data() 
 	{
-		m_PK_DesignObj_Up=m_PK_DesignObj_Down=m_PK_DesignObj_Left=m_PK_DesignObj_Right=0;
+		Data.m_PK_DesignObj_Up=Data.m_PK_DesignObj_Down=Data.m_PK_DesignObj_Left=Data.m_PK_DesignObj_Right=0;
 		m_sPK_DesignObj_TiedTo="";
-		m_iRegenInterval=m_iRepeatIntervalInMS=m_iVersion=m_iPage=0;
-		m_bTabStop = m_bRepeatParm=false;
+		Data.m_iRegenInterval=Data.m_iRepeatIntervalInMS=Data.m_iVersion=Data.m_iPage=0;
+		Data.m_bTabStop = Data.m_bRepeatParm=false;
 		return;
 	}
 
 	void SetupSerialization(int iSC_Version)
 	{
-		StartSerializeList() + m_bChild + m_bDontResetState + m_bCantGoBack + m_bCanGoBackToSameScreen + m_bChildrenBeforeText + m_bProcessActionsAtServer + m_bAnimate + m_bHideByDefault + 
-		m_bTabStop + m_iPK_Button + m_dwTimeoutSeconds + m_Priority + m_iPK_Criteria + 
-		m_sBackgroundFile +  m_sSelectedFile +  m_sHighlightGraphicFilename +
-		m_vectAltGraphicFilename + m_mapObjParms +
-		m_ObjectID +
-		m_iBaseObjectID + m_iVersion + m_iPage +
-		m_ObjectType + m_rectDontDim +  m_rPosition +  m_rBackgroundPosition + 
-		m_PK_DesignObj_Up + m_PK_DesignObj_Down + m_PK_DesignObj_Left + m_PK_DesignObj_Right + m_sPK_DesignObj_TiedTo + m_sVisibleState +
-		m_sOriginalSize + m_iRepeatIntervalInMS + m_bRepeatParm +
-		m_dwIDim + m_dbHitTest + m_iRegenInterval;
+		StartSerializeList() + 
+			m_sBackgroundFile +  m_sSelectedFile +  m_sHighlightGraphicFilename +
+			m_vectAltGraphicFilename + m_mapObjParms +
+			m_ObjectID + m_sPK_DesignObj_TiedTo + m_sVisibleState + m_dbHitTest;
 
 		// These are handled locally, so start with this
 		(*this) + m_Action_LoadList + m_Action_UnloadList + m_Action_TimeoutList + m_Action_StartupList +
@@ -203,10 +208,10 @@ public:
 	}
 
 	// For our custom serialize types
-	DesignObj_Data &operator+ (DesignObjCommandList &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_INT_DESIGNOBJACTIONLIST,(void *) &i)); return (*this); }
-	DesignObj_Data &operator+ (DesignObjZoneList &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_INT_DESIGNOBJZONELIST,(void *) &i)); return (*this); }
-	DesignObj_Data &operator+ (VectorDesignObjText &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_VECT_DESIGNOBJTEXT,(void *) &i)); return (*this); }
-	DesignObj_Data &operator+ (DesignObj_DataList &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_INT_DESIGNOBJCHILDLIST,(void *) &i)); return (*this); }
+	DesignObj_Data &operator+ (DesignObjCommandList &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_INT_DESIGNOBJACTIONLIST,(void *) &i)); return (*this); }
+	DesignObj_Data &operator+ (DesignObjZoneList &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_INT_DESIGNOBJZONELIST,(void *) &i)); return (*this); }
+	DesignObj_Data &operator+ (VectorDesignObjText &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_VECT_DESIGNOBJTEXT,(void *) &i)); return (*this); }
+	DesignObj_Data &operator+ (DesignObj_DataList &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_INT_DESIGNOBJCHILDLIST,(void *) &i)); return (*this); }
 
 	virtual bool UnknownSerialize(ItemToSerialize *pItem,bool bWriting,char *&pDataBlock,unsigned long &iAllocatedSize,char *&pCurrentPosition);
 
@@ -214,6 +219,7 @@ public:
 	virtual ~DesignObj_Data();
 
 	class DesignObj_Data *TopMostObject() { return m_pParentObject ? m_pParentObject->TopMostObject() : this; }
+	virtual bool Serialize(bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition, void *pExtraSerializationData=NULL);
 };
 
 #endif

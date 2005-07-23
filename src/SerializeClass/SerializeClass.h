@@ -143,7 +143,7 @@ public:
 	 */
 	virtual ~SerializeClass()
 	{
-		MYSTL_ITERATE_LIST(m_listItemToSerialize,ItemToSerialize,pItem,it)
+		MYSTL_ITERATE_VECT(m_vectItemToSerialize,ItemToSerialize,pItem,it)
 		{
 			delete pItem;
 		}
@@ -214,28 +214,28 @@ public:
 	// Create these for easily adding items to the list.  Now a constructor can just
 	// do (*this) + m_iMyInt + m_sMyString + m_bMyBool, etc.
 
-	SerializeClass &operator+ (int &i) {  MYSTL_ADDTO_LIST(m_listItemToSerialize, new ItemToSerialize(SERIALIZE_DATA_TYPE_LONG, (void *) &i)); return (*this); } /** < @brief overloading + to take an int */
-	SerializeClass &operator+ (long &i) { MYSTL_ADDTO_LIST(m_listItemToSerialize, new ItemToSerialize(SERIALIZE_DATA_TYPE_LONG,(void *) &i));  return (*this); } /** < @brief overloading + to take an long */
-	SerializeClass &operator+ (unsigned long &i) { MYSTL_ADDTO_LIST(m_listItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_UNSIGNED_LONG,(void *) &i)); return (*this); } /** < @brief overloading + to take an unsigned int */
-	SerializeClass &operator+ (bool &i) { MYSTL_ADDTO_LIST(m_listItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_CHAR,(void *) &i)); return (*this); } /** < @brief overloading + to take an bool */
-	SerializeClass &operator+ (char &i) { MYSTL_ADDTO_LIST(m_listItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_CHAR,(void *) &i)); return (*this); } /** < @brief overloading + to take an char */
-	SerializeClass &operator+ (short &i) { MYSTL_ADDTO_LIST(m_listItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_SHORT,(void *) &i)); return (*this); } /** < @brief overloading + to take an short */
-	SerializeClass &operator+ (string &i) { MYSTL_ADDTO_LIST(m_listItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_STRING,(void *) &i)); return (*this); } /** < @brief overloading + to take a string */
-	SerializeClass &operator+ (u_int64_t &i) { MYSTL_ADDTO_LIST(m_listItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_INT64,(void *) &i)); return (*this); } /** < @brief overloading + to take an u_int64_t */
+	SerializeClass &operator+ (int &i) {  MYSTL_ADDTO_LIST(m_vectItemToSerialize, new ItemToSerialize(SERIALIZE_DATA_TYPE_LONG, (void *) &i)); return (*this); } /** < @brief overloading + to take an int */
+	SerializeClass &operator+ (long &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new ItemToSerialize(SERIALIZE_DATA_TYPE_LONG,(void *) &i));  return (*this); } /** < @brief overloading + to take an long */
+	SerializeClass &operator+ (unsigned long &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_UNSIGNED_LONG,(void *) &i)); return (*this); } /** < @brief overloading + to take an unsigned int */
+	SerializeClass &operator+ (bool &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_CHAR,(void *) &i)); return (*this); } /** < @brief overloading + to take an bool */
+	SerializeClass &operator+ (char &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_CHAR,(void *) &i)); return (*this); } /** < @brief overloading + to take an char */
+	SerializeClass &operator+ (short &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_SHORT,(void *) &i)); return (*this); } /** < @brief overloading + to take an short */
+	SerializeClass &operator+ (string &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_STRING,(void *) &i)); return (*this); } /** < @brief overloading + to take a string */
+	SerializeClass &operator+ (u_int64_t &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_INT64,(void *) &i)); return (*this); } /** < @brief overloading + to take an u_int64_t */
 
 #ifndef SYMBIAN
-	SerializeClass &operator+ (vector<string> &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_VECT_STRING,(void *) &i)); return (*this); } /** < @brief overloading + to take a vector of strings */
-	SerializeClass &operator+ (map<int,string> &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_INT_STRING,(void *) &i)); return (*this); } /** < @brief overloading + to take a map<int,string> */
-	SerializeClass &operator+ (map<string,string> &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_STRING_STRING,(void *) &i)); return (*this); } /** < @brief overloading + to take a map<string,string> */
-	SerializeClass &operator+ (vector<int> &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_VECT_INT,(void *) &i)); return (*this); } /** < @brief overloading + to take a map<int,string> */
-	SerializeClass &operator+ (vector< pair<int,int> > &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_VECT_PAIR_INT,(void *) &i)); return (*this); } /** < @brief overloading + to take a map<int,string> */
+	SerializeClass &operator+ (vector<string> &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_VECT_STRING,(void *) &i)); return (*this); } /** < @brief overloading + to take a vector of strings */
+	SerializeClass &operator+ (map<int,string> &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_INT_STRING,(void *) &i)); return (*this); } /** < @brief overloading + to take a map<int,string> */
+	SerializeClass &operator+ (map<string,string> &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_STRING_STRING,(void *) &i)); return (*this); } /** < @brief overloading + to take a map<string,string> */
+	SerializeClass &operator+ (vector<int> &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_VECT_INT,(void *) &i)); return (*this); } /** < @brief overloading + to take a map<int,string> */
+	SerializeClass &operator+ (vector< pair<int,int> > &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_VECT_PAIR_INT,(void *) &i)); return (*this); } /** < @brief overloading + to take a map<int,string> */
 #endif
 
-	SerializeClass &operator+ (PlutoColor &i) { MYSTL_ADDTO_LIST(m_listItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_COLOR,(void *) &i)); return (*this); } /** < @brief overloading + to take a PlutoColor object */
-	SerializeClass &operator+ (PlutoPoint &i) { MYSTL_ADDTO_LIST(m_listItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_POINT,(void *) &i)); return (*this); } /** < @brief overloading + to take a PlutoPoint object */
-	SerializeClass &operator+ (PlutoSize &i) { MYSTL_ADDTO_LIST(m_listItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_SIZE,(void *) &i)); return (*this); } /** < @brief overloading + to take an PlutoSize object */
-	SerializeClass &operator+ (PlutoRectangle &i) { MYSTL_ADDTO_LIST(m_listItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_RECTANGLE,(void *) &i)); return (*this); } /** < @brief overloading + to take a PlutoRectangle object*/
-	SerializeClass &operator+ (PlutoDataBlock &i) { MYSTL_ADDTO_LIST(m_listItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_BLOCK,(void *) &i)); return (*this); } /** < @brief overloading + to take a PlutoDataBlock object*/
+	SerializeClass &operator+ (PlutoColor &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_COLOR,(void *) &i)); return (*this); } /** < @brief overloading + to take a PlutoColor object */
+	SerializeClass &operator+ (PlutoPoint &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_POINT,(void *) &i)); return (*this); } /** < @brief overloading + to take a PlutoPoint object */
+	SerializeClass &operator+ (PlutoSize &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_SIZE,(void *) &i)); return (*this); } /** < @brief overloading + to take an PlutoSize object */
+	SerializeClass &operator+ (PlutoRectangle &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_RECTANGLE,(void *) &i)); return (*this); } /** < @brief overloading + to take a PlutoRectangle object*/
+	SerializeClass &operator+ (PlutoDataBlock &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_BLOCK,(void *) &i)); return (*this); } /** < @brief overloading + to take a PlutoDataBlock object*/
 	
 	/**
 	 * @brief serializes data to be written
@@ -622,7 +622,7 @@ protected:
 	/**
      * @brief for Symbian compatibility; see Symbian.txt for detailes
      */
-	MYSTL_CREATE_LIST(m_listItemToSerialize, ItemToSerialize);
+	MYSTL_CREATE_VECT(m_vectItemToSerialize, ItemToSerialize);
 };
 
 #endif

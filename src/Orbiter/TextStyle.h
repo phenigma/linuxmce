@@ -8,9 +8,9 @@
 class TextStyle : public SerializeClass
 {
 public:
+	string m_sFont;
 	int m_iPK_Style,m_iPK_StyleVariation,m_iPK_Style_Selected,m_iPK_Style_Highlighed,m_iPK_Style_Alt;
 	int m_iVersion; // This is for the selected, alt, or highlighted versions
-	string m_sFont;
 	PlutoColor m_ForeColor,m_BackColor,m_ShadowColor;
 	int m_iPixelHeight;
 	bool m_bBold, m_bItalic, m_bUnderline;

@@ -8,7 +8,7 @@
 
 #include <deque>
 
-#define ORBITER_SCHEMA		12	// Used to determine if cached screens can be used or if the schema has changed
+#define ORBITER_SCHEMA		13	// Used to determine if cached screens can be used or if the schema has changed
 
 #ifdef ORBITER
 #include "DesignObj_Orbiter.h"
@@ -111,9 +111,9 @@ public:
 		return it==m_mapTextStyle.end() ? NULL : (*it).second;
 	}
 
-	OrbiterData &operator+ (ScreenMap &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_SCREEN_MAP,(void *) &i)); return (*this); }
-	OrbiterData &operator+ (MapTextStyle &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_STYLE_MAP,(void *) &i)); return (*this); }
-	OrbiterData &operator+ (DequeLocationInfo &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_LOCATIONS,(void *) &i)); return (*this); }
+	OrbiterData &operator+ (ScreenMap &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_SCREEN_MAP,(void *) &i)); return (*this); }
+	OrbiterData &operator+ (MapTextStyle &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_STYLE_MAP,(void *) &i)); return (*this); }
+	OrbiterData &operator+ (DequeLocationInfo &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_LOCATIONS,(void *) &i)); return (*this); }
 
 	void SetupSerialization(int iSC_Version)
 	{
@@ -141,7 +141,7 @@ public:
 					for(it=m_ScreenMap.begin();it!=m_ScreenMap.end();++it)
 					{
 						DesignObj_Data *pObj = (*it).second;
-						Write_unsigned_long( pObj->m_ObjectType );
+						Write_unsigned_long( pObj->Data.m_ObjectType );
 						if( !pObj->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition) )
 							return false;
 					}

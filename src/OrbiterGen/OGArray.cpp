@@ -92,7 +92,7 @@ if( DesignObj_Generator_Parent->m_pRow_DesignObj->PK_DesignObj_get()==2611 )
 			PlutoRectangle(m_ptNextPosition.X,m_ptNextPosition.Y,0,0),m_DesignObj_Generator_Parent,false,false);
 		if( m_ocBack->m_pRow_DesignObjVariation )
 		{
-			m_ocBack->m_sDesignObjGoto = m_ocBack->m_pOrbiterGenerator->m_iPK_DesignObj_Screen + "." + StringUtils::itos(m_ocBack->m_iVersion) + "." + StringUtils::itos(m_iPage-1);
+			m_ocBack->m_sDesignObjGoto = m_ocBack->m_pOrbiterGenerator->m_iPK_DesignObj_Screen + "." + StringUtils::itos(m_ocBack->Data.m_iVersion) + "." + StringUtils::itos(m_iPage-1);
 			m_alChildDesignObjs.push_back(m_ocBack);
 		}
 		else
@@ -119,10 +119,10 @@ if( DesignObj_Generator_Parent->m_pRow_DesignObj->PK_DesignObj_get()==2611 )
 				if( FixedRowHeight>0 )
 					m_ptNextPosition.Y += FixedRowHeight;
 				else
-					m_ptNextPosition.Y = ocLastDesignObj->m_rPosition.Bottom() + RowSpacing;
+					m_ptNextPosition.Y = ocLastDesignObj->Data.m_rPosition.Bottom() + RowSpacing;
 
 				// See if another one of those objects won't fit and we need a new column
-				if( (MaxNumRows>0 && iCurrentNumRows>=MaxNumRows) || m_ptNextPosition.Y + ocLastDesignObj->m_rPosition.Height > rBounds.Bottom() )
+				if( (MaxNumRows>0 && iCurrentNumRows>=MaxNumRows) || m_ptNextPosition.Y + ocLastDesignObj->Data.m_rPosition.Height > rBounds.Bottom() )
 				{
 					if( MaxNumColumns>0 && ++iCurrentNumColumns>=MaxNumColumns )
 					{ CheckLastEntry(); return; }
@@ -133,9 +133,9 @@ if( DesignObj_Generator_Parent->m_pRow_DesignObj->PK_DesignObj_get()==2611 )
 					if( FixedColumnWidth>0 )
 						m_ptNextPosition.X += FixedColumnWidth;
 					else
-						m_ptNextPosition.X = ocLastDesignObj->m_rPosition.Right() + ColumnSpacing;
+						m_ptNextPosition.X = ocLastDesignObj->Data.m_rPosition.Right() + ColumnSpacing;
 				
-					if( m_ptNextPosition.X + ocLastDesignObj->m_rPosition.Width > rBounds.Right() )
+					if( m_ptNextPosition.X + ocLastDesignObj->Data.m_rPosition.Width > rBounds.Right() )
 					{ CheckLastEntry(); return; }
 				}
 			}
@@ -146,10 +146,10 @@ if( DesignObj_Generator_Parent->m_pRow_DesignObj->PK_DesignObj_get()==2611 )
 				if( FixedColumnWidth>0 )
 					m_ptNextPosition.X += FixedColumnWidth;
 				else
-					m_ptNextPosition.X = ocLastDesignObj->m_rPosition.Right() + ColumnSpacing;
+					m_ptNextPosition.X = ocLastDesignObj->Data.m_rPosition.Right() + ColumnSpacing;
 
 				// See if another one of those objects won't fit and we need a new column
-				if( (MaxNumColumns>0 && iCurrentNumColumns>=MaxNumColumns) || m_ptNextPosition.X + ocLastDesignObj->m_rPosition.Width > rBounds.Right() )
+				if( (MaxNumColumns>0 && iCurrentNumColumns>=MaxNumColumns) || m_ptNextPosition.X + ocLastDesignObj->Data.m_rPosition.Width > rBounds.Right() )
 				{
 					if( MaxNumRows>0 && ++iCurrentNumRows>=MaxNumRows )
 					{ CheckLastEntry(); return; }
@@ -160,9 +160,9 @@ if( DesignObj_Generator_Parent->m_pRow_DesignObj->PK_DesignObj_get()==2611 )
 					if( FixedRowHeight>0 )
 						m_ptNextPosition.Y += FixedRowHeight;
 					else
-						m_ptNextPosition.Y = ocLastDesignObj->m_rPosition.Bottom() + RowSpacing;
+						m_ptNextPosition.Y = ocLastDesignObj->Data.m_rPosition.Bottom() + RowSpacing;
 				
-					if( m_ptNextPosition.Y + ocLastDesignObj->m_rPosition.Height > rBounds.Bottom() )
+					if( m_ptNextPosition.Y + ocLastDesignObj->Data.m_rPosition.Height > rBounds.Bottom() )
 					{ CheckLastEntry(); return; }
 				}
 			}
@@ -197,28 +197,28 @@ if( DesignObj_Generator_Parent->m_pRow_DesignObj->PK_DesignObj_get()==2611 )
 		}
 
 		// In an array we want to increment the buttons
-		if( ocNextDesignObj->m_iPK_Button )
+		if( ocNextDesignObj->Data.m_iPK_Button )
 		{
 			if( m_DesignObj_Generator_Parent->m_pOrbiterGenerator->m_bIsMobilePhone )
 			{
-				if( ocNextDesignObj->m_iPK_Button==BUTTON_1_CONST && m_alChildDesignObjs.size()==9 )
-					ocNextDesignObj->m_iPK_Button = BUTTON_Asterisk_CONST;
-				else if( ocNextDesignObj->m_iPK_Button==BUTTON_1_CONST && m_alChildDesignObjs.size()==10 )
-					ocNextDesignObj->m_iPK_Button = BUTTON_0_CONST;
-				else if( ocNextDesignObj->m_iPK_Button==BUTTON_1_CONST && m_alChildDesignObjs.size()==11 )
-					ocNextDesignObj->m_iPK_Button = BUTTON_Pound_CONST;
+				if( ocNextDesignObj->Data.m_iPK_Button==BUTTON_1_CONST && m_alChildDesignObjs.size()==9 )
+					ocNextDesignObj->Data.m_iPK_Button = BUTTON_Asterisk_CONST;
+				else if( ocNextDesignObj->Data.m_iPK_Button==BUTTON_1_CONST && m_alChildDesignObjs.size()==10 )
+					ocNextDesignObj->Data.m_iPK_Button = BUTTON_0_CONST;
+				else if( ocNextDesignObj->Data.m_iPK_Button==BUTTON_1_CONST && m_alChildDesignObjs.size()==11 )
+					ocNextDesignObj->Data.m_iPK_Button = BUTTON_Pound_CONST;
 				else
-					ocNextDesignObj->m_iPK_Button += m_alChildDesignObjs.size();
+					ocNextDesignObj->Data.m_iPK_Button += m_alChildDesignObjs.size();
 			}
 			else
-				ocNextDesignObj->m_iPK_Button += m_alChildDesignObjs.size();
+				ocNextDesignObj->Data.m_iPK_Button += m_alChildDesignObjs.size();
 		}
 		ocNextDesignObj->m_bCanBeHidden = av->m_bCanHide;
-		ocNextDesignObj->m_bHideByDefault = av->m_bHideByDefault;
-		ocNextDesignObj->m_bChildrenBeforeText = drDesignObjVariation_DesignObj->DisplayChildrenBeforeText_get()==1;
+		ocNextDesignObj->Data.m_bHideByDefault = av->m_bHideByDefault;
+		ocNextDesignObj->Data.m_bChildrenBeforeText = drDesignObjVariation_DesignObj->DisplayChildrenBeforeText_get()==1;
 		ocNextDesignObj->m_bChildrenBehind = drDesignObjVariation_DesignObj->DisplayChildrenBehindBackground_get()==1;
 		ocNextDesignObj->m_bDontMergeBackground = drDesignObjVariation_DesignObj->DontMergeBackground_get()==1;
-		ocNextDesignObj->m_bTabStop = drDesignObjVariation_DesignObj->IsTabStop_get()==1;
+		ocNextDesignObj->Data.m_bTabStop = drDesignObjVariation_DesignObj->IsTabStop_get()==1;
 
 		// Insert a zone in the beginning to add the variables
 		CGZone *oz = new CGZone();
@@ -226,13 +226,13 @@ if( DesignObj_Generator_Parent->m_pRow_DesignObj->PK_DesignObj_get()==2611 )
 		CGCommand *oa = new CGCommand(COMMAND_Set_Variable_CONST,m_DesignObj_Generator_Parent);
 		oa->m_ParameterList[COMMANDPARAMETER_PK_Variable_CONST]=StringUtils::itos(VARIABLE_Array_ID_CONST);;
 		oa->m_ParameterList[COMMANDPARAMETER_Value_To_Assign_CONST]=av->m_ID;
-		oa->m_PK_Device = DEVICEID_HANDLED_INTERNALLY;
+		oa->Data.m_PK_Device = DEVICEID_HANDLED_INTERNALLY;
 		oz->m_Commands.push_back(oa);
 
 		oa = new CGCommand(COMMAND_Set_Variable_CONST,m_DesignObj_Generator_Parent);
 		oa->m_ParameterList[COMMANDPARAMETER_PK_Variable_CONST]=StringUtils::itos(VARIABLE_Array_Desc_CONST);
 		oa->m_ParameterList[COMMANDPARAMETER_Value_To_Assign_CONST]=av->m_sDescription;
-		oa->m_PK_Device = DEVICEID_HANDLED_INTERNALLY;
+		oa->Data.m_PK_Device = DEVICEID_HANDLED_INTERNALLY;
 		oz->m_Commands.push_back(oa);
 
 		if( av->m_iPK_Variable>0 )
@@ -240,7 +240,7 @@ if( DesignObj_Generator_Parent->m_pRow_DesignObj->PK_DesignObj_get()==2611 )
 			oa = new CGCommand(COMMAND_Set_Variable_CONST,m_DesignObj_Generator_Parent);
 			oa->m_ParameterList[COMMANDPARAMETER_PK_Variable_CONST]=StringUtils::itos(av->m_iPK_Variable).c_str();
 			oa->m_ParameterList[COMMANDPARAMETER_Value_To_Assign_CONST]=av->m_ID;
-			oa->m_PK_Device = DEVICEID_HANDLED_INTERNALLY;
+			oa->Data.m_PK_Device = DEVICEID_HANDLED_INTERNALLY;
 			oz->m_Commands.push_back(oa);
 		}
 		ocNextDesignObj->m_ZoneList.insert(ocNextDesignObj->m_ZoneList.begin(),oz);
@@ -259,7 +259,7 @@ void CGArray::CheckLastEntry()
 		DesignObj_Generator *obPrevious = m_alChildDesignObjs[m_alChildDesignObjs.size()-1];
 		m_ocFwd = new DesignObj_Generator(m_DesignObj_Generator_Parent->m_pOrbiterGenerator,
 			m_mds->DesignObj_get()->GetRow(atoi(m_drOVCP_MoreFwd->Value_get().c_str())),
-			PlutoRectangle(obPrevious->m_rPosition.X,obPrevious->m_rPosition.Y,0,0),
+			PlutoRectangle(obPrevious->Data.m_rPosition.X,obPrevious->Data.m_rPosition.Y,0,0),
 			m_DesignObj_Generator_Parent,false,false);
 
 		if( !m_ocFwd->m_pRow_DesignObjVariation )
@@ -275,7 +275,7 @@ void CGArray::CheckLastEntry()
 			return;
 		else
 		{
-			m_ocFwd->m_sDesignObjGoto = m_ocFwd->m_pOrbiterGenerator->m_iPK_DesignObj_Screen + "." + StringUtils::itos(m_ocFwd->m_iVersion) + "." + StringUtils::itos(m_iPage+1);
+			m_ocFwd->m_sDesignObjGoto = m_ocFwd->m_pOrbiterGenerator->m_iPK_DesignObj_Screen + "." + StringUtils::itos(m_ocFwd->Data.m_iVersion) + "." + StringUtils::itos(m_iPage+1);
 			m_bContainsMore=true; 
 		}
 		m_alChildDesignObjs[m_alChildDesignObjs.size()-1] = m_ocFwd;

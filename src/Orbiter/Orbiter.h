@@ -100,6 +100,7 @@ int k=2;
 class Orbiter : public Orbiter_Command,  public OrbiterData
 {
 void DumpScreenHistory(); // temporary function
+bool Serialize( bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition, void *pExtraSerializationData );
 
 //<-dceag-decl-e->
 	friend class BD_PC_SetVariable; /** < Needs to maniuplate our variables */

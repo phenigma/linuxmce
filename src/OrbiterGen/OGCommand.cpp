@@ -38,34 +38,34 @@
 
 CGCommand::CGCommand(int PK_Command,DesignObj_Generator *Parent)
 {
-	m_PK_Device=0;
-	m_PK_DeviceGroup=0;
-	m_PK_Command=PK_Command;
-	BroadcastLevel=0;
-	m_PK_DeviceTemplate=0;
-	m_PK_DeviceCategory=0;
-	m_bRelativeToSender=false;
-	m_drCommand = Parent->m_mds->Command_get()->GetRow(m_PK_Command);
-// todo 2.0	m_bHandleLocally=m_drCommand->HandledByOrbiter_get()==1;
+	Data.m_PK_Device=0;
+	Data.m_PK_DeviceGroup=0;
+	Data.m_PK_Command=PK_Command;
+	Data.BroadcastLevel=0;
+	Data.m_PK_DeviceTemplate=0;
+	Data.m_PK_DeviceCategory=0;
+	Data.m_bRelativeToSender=false;
+	m_drCommand = Parent->m_mds->Command_get()->GetRow(Data.m_PK_Command);
+// todo 2.0	Data.m_bHandleLocally=m_drCommand->HandledByOrbiter_get()==1;
 }
 
 CGCommand::CGCommand(Row_CommandGroup_Command * drAGA,DesignObj_Generator *Parent)
 {
-	m_PK_Device=0;
-	m_PK_DeviceTemplate=0;
-	m_PK_DeviceGroup=0;
-	BroadcastLevel=0;
-	m_PK_DeviceCategory=0;
-	m_bRelativeToSender=false;
+	Data.m_PK_Device=0;
+	Data.m_PK_DeviceTemplate=0;
+	Data.m_PK_DeviceGroup=0;
+	Data.BroadcastLevel=0;
+	Data.m_PK_DeviceCategory=0;
+	Data.m_bRelativeToSender=false;
 	m_drCommandGroup_D_Command = NULL;
 	m_drCommandGroup_Command = drAGA;
-	m_PK_Command = m_drCommandGroup_Command->FK_Command_get();
+	Data.m_PK_Command = m_drCommandGroup_Command->FK_Command_get();
 	m_drCommand = m_drCommandGroup_Command->FK_Command_getrow();
-	m_bDeliveryConfirmation = m_drCommandGroup_Command->DeliveryConfirmation_get();
+	Data.m_bDeliveryConfirmation = m_drCommandGroup_Command->DeliveryConfirmation_get();
 	if( !m_drCommandGroup_Command->FK_Device_isNull() )
-		m_PK_Device = m_drCommandGroup_Command->FK_Device_get();
+		Data.m_PK_Device = m_drCommandGroup_Command->FK_Device_get();
 	if( !m_drCommandGroup_Command->FK_DeviceGroup_isNull() )
-		m_PK_DeviceGroup = m_drCommandGroup_Command->FK_DeviceGroup_get();
+		Data.m_PK_DeviceGroup = m_drCommandGroup_Command->FK_DeviceGroup_get();
 
 
 	vector<Row_CommandGroup_Command_CommandParameter *> ragas;
@@ -76,30 +76,30 @@ CGCommand::CGCommand(Row_CommandGroup_Command * drAGA,DesignObj_Generator *Paren
 		AddParm(drAGACP,Parent);
 		/*
 		CGCommandParm *oap = new CGCommandParm(drAGACP,Parent);
-		m_alParms.push_back(oap); */
+		Data.m_alParms.push_back(oap); */
 	}
 }
 
 CGCommand::CGCommand(Row_CommandGroup_D_Command * drAGA,DesignObj_Generator *Parent)
 {
-	m_PK_Device=0;
-	m_PK_DeviceTemplate=0;
-	m_PK_DeviceGroup=0;
-	BroadcastLevel=0;
-	m_PK_DeviceCategory=0;
-	m_bRelativeToSender=false;
+	Data.m_PK_Device=0;
+	Data.m_PK_DeviceTemplate=0;
+	Data.m_PK_DeviceGroup=0;
+	Data.BroadcastLevel=0;
+	Data.m_PK_DeviceCategory=0;
+	Data.m_bRelativeToSender=false;
 	m_drCommandGroup_Command = NULL;
 	m_drCommandGroup_D_Command = drAGA;
-	m_PK_Command = m_drCommandGroup_D_Command->FK_Command_get();
+	Data.m_PK_Command = m_drCommandGroup_D_Command->FK_Command_get();
 	m_drCommand = m_drCommandGroup_D_Command->FK_Command_getrow();
-	m_bDeliveryConfirmation = m_drCommandGroup_D_Command->DeliveryConfirmation_get();
+	Data.m_bDeliveryConfirmation = m_drCommandGroup_D_Command->DeliveryConfirmation_get();
 	if( !m_drCommandGroup_D_Command->FK_DeviceTemplate_isNull() )
-		m_PK_DeviceTemplate = m_drCommandGroup_D_Command->FK_DeviceTemplate_get();
+		Data.m_PK_DeviceTemplate = m_drCommandGroup_D_Command->FK_DeviceTemplate_get();
 	if( !m_drCommandGroup_D_Command->FK_DeviceCategory_isNull() )
-		m_PK_DeviceCategory = m_drCommandGroup_D_Command->FK_DeviceCategory_get();
+		Data.m_PK_DeviceCategory = m_drCommandGroup_D_Command->FK_DeviceCategory_get();
 
-	BroadcastLevel=m_drCommandGroup_D_Command->BroadcastLevel_get();
-	m_bRelativeToSender=m_drCommandGroup_D_Command->RelativeToSender_get()==1;
+	Data.BroadcastLevel=m_drCommandGroup_D_Command->BroadcastLevel_get();
+	Data.m_bRelativeToSender=m_drCommandGroup_D_Command->RelativeToSender_get()==1;
 
 	vector<Row_CommandGroup_D_Command_CommandParameter *> ragas;
 	m_drCommandGroup_D_Command->CommandGroup_D_Command_CommandParameter_FK_CommandGroup_D_Command_getrows(&ragas);
@@ -109,18 +109,18 @@ CGCommand::CGCommand(Row_CommandGroup_D_Command * drAGA,DesignObj_Generator *Par
 		AddParm(drAGACP,Parent);
 		/*
 		CGCommandParm *oap = new CGCommandParm(drAGACP,Parent);
-		m_alParms.push_back(oap);
+		Data.m_alParms.push_back(oap);
 		*/
 	}
 }
 void CGCommand::SharedConstructor(DesignObj_Generator *Parent)
 {
-// todo 2.0	m_bHandleLocally=m_drCommand->HandledByOrbiter_get()==1;
-	m_PK_Device=0;
-	m_PK_DeviceGroup=0;
+// todo 2.0	Data.m_bHandleLocally=m_drCommand->HandledByOrbiter_get()==1;
+	Data.m_PK_Device=0;
+	Data.m_PK_DeviceGroup=0;
 
 	// Trap for virtual devices that can be resolved at buildtime
-	if( m_PK_Device==-16 )	// DEVICEID_SIPPHONE
+	if( Data.m_PK_Device==-16 )	// DEVICEID_SIPPHONE
 	{
 		vector<Row_Device_Orbiter *> vectdc;
 		Parent->m_pOrbiterGenerator->m_pRow_Orbiter->Device_Orbiter_FK_Orbiter_getrows(&vectdc);
@@ -130,15 +130,15 @@ void CGCommand::SharedConstructor(DesignObj_Generator *Parent)
 /* todo 2.0
 			if( drD_C->FK_Device_getrow()->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_SIP_EXTENSION_CONST )
 			{
-				m_PK_Device = drD_C->FK_Device_get();
+				Data.m_PK_Device = drD_C->FK_Device_get();
 				break;
 			}
 */
 		}
-		if( m_PK_Device<0 )
+		if( Data.m_PK_Device<0 )
 			throw "No Sip Phone associated with controller " + StringUtils::itos(Parent->m_pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get()) + " as requested in object: " + StringUtils::itos(Parent->m_pRow_DesignObj->PK_DesignObj_get());
 	}
-	else if( m_PK_Device==-17 )	// DEVICEID_VIDEOPHONE
+	else if( Data.m_PK_Device==-17 )	// DEVICEID_VIDEOPHONE
 	{
 		vector<Row_Device_Orbiter *> vectrdc;
 		Parent->m_pOrbiterGenerator->m_pRow_Orbiter->Device_Orbiter_FK_Orbiter_getrows(&vectrdc);
@@ -148,12 +148,12 @@ void CGCommand::SharedConstructor(DesignObj_Generator *Parent)
 /* todo 2.0
 			if( drD_C->FK_Device_getrow()->FK_DeviceTemplate_get()==DeviceTemplate_OHPHONE_CONST )
 			{
-				m_PK_Device = drD_C->FK_Device_get();
+				Data.m_PK_Device = drD_C->FK_Device_get();
 				break;
 			}
 */
 		}
-		if( m_PK_Device<0 )
+		if( Data.m_PK_Device<0 )
 			throw "No video phone associated with controller " + StringUtils::itos(Parent->m_pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get()) + " as requested in object: " + StringUtils::itos(Parent->m_pRow_DesignObj->PK_DesignObj_get());
 	}
 }

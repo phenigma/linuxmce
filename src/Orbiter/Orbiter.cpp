@@ -61,6 +61,8 @@ using namespace DCE;
 #include "GraphicBuilder.h"
 #include "Simulator.h"
 
+#include "PlutoUtils/Profiler.h"
+
 #define  VERSION "<=version=>"
 extern const char *g_szCompile_Date;
 extern Command_Impl *g_pCommand_Impl;
@@ -585,7 +587,7 @@ void Orbiter::RedrawObject( void *iData )
     PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
 	NeedToRender render( this, "RedrawObject" );
 
-	if( pObj->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
+	if( pObj->Data.m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
 	{
 		DesignObj_DataGrid *pGrid = (DesignObj_DataGrid *) pObj;
 		pGrid->bReAcquire=true;
@@ -596,7 +598,7 @@ void Orbiter::RedrawObject( void *iData )
     nd.Release();
 
 
-	CallMaintenanceInMiliseconds(pObj->m_iRegenInterval,&Orbiter::RedrawObject,pObj,pe_Match_Data);
+	CallMaintenanceInMiliseconds(pObj->Data.m_iRegenInterval,&Orbiter::RedrawObject,pObj,pe_Match_Data);
 }
 
 void Orbiter::RealRedraw( void *data )
@@ -647,7 +649,7 @@ g_pPlutoLogger->Write( LV_STATUS, "Exiting Redraw Objects" );
 		if(pObj)
 		{
             RenderObject( pObj, m_pScreenHistory_Current->m_pObj, AbsolutePosition );
-		    UpdateRect(pObj->m_rPosition, AbsolutePosition);
+		    UpdateRect(pObj->Data.m_rPosition, AbsolutePosition);
 		}
     }
 
@@ -659,13 +661,13 @@ g_pPlutoLogger->Write( LV_STATUS, "Exiting Redraw Objects" );
 		if( pTextStyle )
 		{
             if(NULL != m_pActivePopup)
-                SolidRectangle( m_pActivePopup->m_Position.X + pText->m_rPosition.Left(),  m_pActivePopup->m_Position.Y + pText->m_rPosition.Top(), pText->m_rPosition.Width,  pText->m_rPosition.Height,  pTextStyle->m_BackColor);
+                SolidRectangle( m_pActivePopup->m_Position.X + pText->Data.m_rPosition.Left(),  m_pActivePopup->m_Position.Y + pText->Data.m_rPosition.Top(), pText->Data.m_rPosition.Width,  pText->Data.m_rPosition.Height,  pTextStyle->m_BackColor);
             else
-                SolidRectangle( pText->m_rPosition.Left(),  pText->m_rPosition.Top(), pText->m_rPosition.Width,  pText->m_rPosition.Height,  pTextStyle->m_BackColor);
+                SolidRectangle( pText->Data.m_rPosition.Left(),  pText->Data.m_rPosition.Top(), pText->Data.m_rPosition.Width,  pText->Data.m_rPosition.Height,  pTextStyle->m_BackColor);
 
 		    string TextToDisplay = SubstituteVariables(pText->m_sText, pText->m_pObject, 0, 0).c_str();
 			RenderText(TextToDisplay,pText, pTextStyle, AbsolutePosition);    
-			UpdateRect(pText->m_rPosition, AbsolutePosition);
+			UpdateRect(pText->Data.m_rPosition, AbsolutePosition);
 		}
 		else
 		{
@@ -694,7 +696,7 @@ int k=2;
     if(  pObj->m_pDesignObj_Orbiter_TiedTo  )
     {
         pObj->m_bHidden = pObj->m_pDesignObj_Orbiter_TiedTo->IsHidden(  );
-        if(  ( pObj->m_iRowTiedTo==-1 && pObj->m_iColumnTiedTo==-1 ) || pObj->m_pDesignObj_Orbiter_TiedTo->m_ObjectType!=DESIGNOBJTYPE_Datagrid_CONST  )
+        if(  ( pObj->m_iRowTiedTo==-1 && pObj->m_iColumnTiedTo==-1 ) || pObj->m_pDesignObj_Orbiter_TiedTo->Data.m_ObjectType!=DESIGNOBJTYPE_Datagrid_CONST  )
         {
             if(  pObj->m_pDesignObj_Orbiter_TiedTo==m_pObj_Highlighted  )
                 pObj->m_GraphicToDisplay = GRAPHIC_HIGHLIGHTED;
@@ -722,7 +724,7 @@ int k=2;
             return;
     }
 
-    if ( pObj->m_bHidden || pObj->m_rPosition.Width==0 || pObj->m_rPosition.Height==0 )
+    if ( pObj->m_bHidden || pObj->Data.m_rPosition.Width==0 || pObj->Data.m_rPosition.Height==0 )
     {
 #ifdef DEBUG
 g_pPlutoLogger->Write( LV_STATUS, "object: %s  not visible: %d", pObj->m_ObjectID.c_str(), (int) pObj->m_bHidden );
@@ -733,8 +735,8 @@ g_pPlutoLogger->Write( LV_STATUS, "object: %s  not visible: %d", pObj->m_ObjectI
     PROFILE_START( ctObj )
 
     PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex )
-    PlutoRectangle rectBackground = pObj->m_rBackgroundPosition;
-    PlutoRectangle rectTotal = pObj->m_rPosition;
+    PlutoRectangle rectBackground = pObj->Data.m_rBackgroundPosition;
+    PlutoRectangle rectTotal = pObj->Data.m_rPosition;
     vm.Release(  );
 
 	if( (pObj == m_pObj_Highlighted || pObj->m_GraphicToDisplay == GRAPHIC_HIGHLIGHTED ) && pObj->m_vectHighlightedGraphic.size() )
@@ -810,7 +812,7 @@ int k=2;
     PROFILE_STOP( ctText,  "Text ( obj below )" )
     }
     */
-    switch( pObj->m_ObjectType )
+    switch( pObj->Data.m_ObjectType )
     {
     case DESIGNOBJTYPE_Rectangle_CONST:
         // todo 2.0     SolidRectangle( rectTotal.X,  rectTotal.Y,  rectTotal.Width,  rectTotal.Height,  atoi( pObj->GetParameterValue( DESIGNOBJPARAMETER_Cell_Color_CONST ).c_str(  ) ),  atoi( pObj->GetParameterValue( DESIGNOBJPARAMETER_Transparency_CONST ).c_str(  ) ) );
@@ -828,11 +830,11 @@ int k=2;
         if ( m_bYieldScreen )
             RenderDesktop( pObj, PlutoRectangle( 0, 0, -1, -1 ), point );  // Full screen
         else
-            RenderDesktop( pObj, pObj->m_rPosition, point );
+            RenderDesktop( pObj, pObj->Data.m_rPosition, point );
         break;
 #ifdef PRONTO
     case DESIGNOBJTYPE_Pronto_File_CONST:
-        if ( pObj->m_pCCF == NULL )
+        if ( pObj->Data.m_pCCF == NULL )
         {
             if ( !m_bInitialPaint )
             {
@@ -849,7 +851,7 @@ int k=2;
                     if ( pMessage->m_dwID==FILERESULT_SUCCESS )
                     {
 
-                        pObj->m_pCCF = new ProntoCCF( this,  pMessage->m_mapData_Parameters[1],  pMessage->m_mapData_Lengths[1],  pObj,  IRDevice );
+                        pObj->Data.m_pCCF = new ProntoCCF( this,  pMessage->m_mapData_Parameters[1],  pMessage->m_mapData_Lengths[1],  pObj,  IRDevice );
                         // Clear the data parameters so the Message's destructor doesn't delete the data.
                         pMessage->m_mapData_Parameters.clear(  );
                     }
@@ -861,9 +863,9 @@ int k=2;
                 m_AutoInvalidateTime = clock();
             }
         }
-        if ( pObj->m_pCCF )
+        if ( pObj->Data.m_pCCF )
         {
-            pObj->m_pCCF->RenderPronto( XOffset,  YOffset, point );
+            pObj->Data.m_pCCF->RenderPronto( XOffset,  YOffset, point );
         }
         break;
 #endif
@@ -896,7 +898,7 @@ int k=2;
         /* todo 2.0
         if ( !m_bInitialPaint )
         {
-        if(  pObj->m_iBaseObjectID==DESIGNOBJ_OBJPREVIEWWINDOW1_CONST || pObj->m_iBaseObjectID==DESIGNOBJ_OBJPREVIEWWINDOW2_CONST  )
+        if(  pObj->Data.m_iBaseObjectID==DESIGNOBJ_OBJPREVIEWWINDOW1_CONST || pObj->Data.m_iBaseObjectID==DESIGNOBJ_OBJPREVIEWWINDOW2_CONST  )
         m_AutoInvalidateTime = clock(  ) + ( CLOCKS_PER_SEC*4 );
         else
         m_AutoInvalidateTime = clock(  ) + ( ( 3 * CLOCKS_PER_SEC )/4 );
@@ -910,8 +912,8 @@ int k=2;
         {
         Message *pMessage = m_pcRequestSocket->SendReceiveMessage( new Message( m_dwPK_Device,  PK_Device_VideoSource,  PRIORITY_LOW,  MESSAGETYPE_REQUEST,  REQUESTTYPE_VIDEO_FRAME,  3,
         C_DEVICEDATA_DEVICELIST_CONST,  pObj->GetParameterValue( C_PARAMETER_SOURCE_CONST ).c_str(  ),
-        COMMANDPARAMETER_Position_X_CONST,  StringUtils::itos( pObj->m_rPosition.Width ).c_str(  ),
-        COMMANDPARAMETER_Position_Y_CONST,  StringUtils::itos( pObj->m_rPosition.Height ).c_str(  ) ) );
+        COMMANDPARAMETER_Position_X_CONST,  StringUtils::itos( pObj->Data.m_rPosition.Width ).c_str(  ),
+        COMMANDPARAMETER_Position_Y_CONST,  StringUtils::itos( pObj->Data.m_rPosition.Height ).c_str(  ) ) );
         string sResult;
         if ( pMessage ) //LACA_B4_0( "About to decompress cam video" );
         LocalDecompressCamVideo( pObj,  pMessage,  rectTotal );
@@ -970,7 +972,7 @@ int k=2;
     for( iText=pObj->m_vectDesignObjText.begin(  ); iText != pObj->m_vectDesignObjText.end(  ); ++iText )
     {
         DesignObjText *pText = *iText;
-        if(  pText->m_bPreRender  )
+        if(  pText->Data.m_bPreRender  )
             continue;
         PROFILE_START( ctText );
             TextStyle *pTextStyle = pText->m_mapTextStyle_Find( 0 );
@@ -982,30 +984,30 @@ int k=2;
     {
 		int i;
         for(i = 0; i < 4; ++i)
-            HollowRectangle(point.X + pObj->m_rBackgroundPosition.X-i, point.Y + pObj->m_rBackgroundPosition.Y-i, pObj->m_rBackgroundPosition.Width+i+i, pObj->m_rBackgroundPosition.Height+i+i,
+            HollowRectangle(point.X + pObj->Data.m_rBackgroundPosition.X-i, point.Y + pObj->Data.m_rBackgroundPosition.Y-i, pObj->Data.m_rBackgroundPosition.Width+i+i, pObj->Data.m_rBackgroundPosition.Height+i+i,
 			    (i==1 || i==2 ? PlutoColor::Black() : PlutoColor::White()));
 
         //force an update because the object boundaries are not respected
-        PlutoRectangle rect(point.X + pObj->m_rBackgroundPosition.X-i, point.Y + pObj->m_rBackgroundPosition.Y-i, pObj->m_rBackgroundPosition.Width+i+i, pObj->m_rBackgroundPosition.Height+i+i);
+        PlutoRectangle rect(point.X + pObj->Data.m_rBackgroundPosition.X-i, point.Y + pObj->Data.m_rBackgroundPosition.Y-i, pObj->Data.m_rBackgroundPosition.Width+i+i, pObj->Data.m_rBackgroundPosition.Height+i+i);
         UpdateRect(rect, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));
     }
 
     if(m_bShowShortcuts)
     {
         string sCharToRender;
-        if(pObj->m_iPK_Button >= BUTTON_1_CONST && pObj->m_iPK_Button <= BUTTON_9_CONST)
-            sCharToRender += '0' + pObj->m_iPK_Button - BUTTON_1_CONST + 1;
-        else if(pObj->m_iPK_Button == BUTTON_0_CONST)
+        if(pObj->Data.m_iPK_Button >= BUTTON_1_CONST && pObj->Data.m_iPK_Button <= BUTTON_9_CONST)
+            sCharToRender += '0' + pObj->Data.m_iPK_Button - BUTTON_1_CONST + 1;
+        else if(pObj->Data.m_iPK_Button == BUTTON_0_CONST)
             sCharToRender += '0';
                 
         if(sCharToRender != "")
         {
             PlutoPoint AbsPos = NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0);
-            PlutoPoint textPos(AbsPos.X + pObj->m_rPosition.X + 5, AbsPos.Y + pObj->m_rPosition.Y + 5);
+            PlutoPoint textPos(AbsPos.X + pObj->Data.m_rPosition.X + 5, AbsPos.Y + pObj->Data.m_rPosition.Y + 5);
 
             PlutoRectangle rect(textPos.X, textPos.Y, 20, 20);
             DesignObjText text(m_pScreenHistory_Current->m_pObj);
-            text.m_rPosition = rect;
+            text.Data.m_rPosition = rect;
             TextStyle *pTextStyle = m_mapTextStyle_Find(1);
             PlutoColor OldColor = pTextStyle->m_ForeColor;
             pTextStyle->m_ForeColor.m_Value = 0x808080;
@@ -1086,13 +1088,13 @@ bool Orbiter::RenderCell( class DesignObj_DataGrid *pObj,  class DataGridTable *
 
         DesignObjText Text( pObj );
         // todo         Text.m_Rect = PlutoRectangle( x+pObj->BorderWidth,  y+pObj->BorderWidth,  w-( 2*pObj->BorderWidth ),  h-( 2*pObj->BorderWidth ) );
-        Text.m_rPosition = PlutoRectangle( x,  y,  w,  h );
+        Text.Data.m_rPosition = PlutoRectangle( x,  y,  w,  h );
         //pTextStyle->m_BackColor = PlutoColor( 0, 0, 0, 255 );
         //pTextStyle->m_ForeColor = PlutoColor( 255, 255, 255, 255 );
         //pTextStyle->m_iPK_VertAlignment=2;
 
-		Text.m_iPK_HorizAlignment = pTextStyle->m_iPK_HorizAlignment;
-		Text.m_iPK_VertAlignment = pTextStyle->m_iPK_VertAlignment;
+		Text.Data.m_iPK_HorizAlignment = pTextStyle->m_iPK_HorizAlignment;
+		Text.Data.m_iPK_VertAlignment = pTextStyle->m_iPK_VertAlignment;
 
         string sText = pCell->GetText(  );
         RenderText( sText, &Text, pTextStyle, point );
@@ -1130,7 +1132,7 @@ g_pPlutoLogger->Write(LV_WARNING,"RenderDataGrid %s %p",pObj->m_ObjectID.c_str()
     if( !pObj->m_pDataGridTable )
         return;
 
-	SolidRectangle( point.X + pObj->m_rPosition.X, point.Y + pObj->m_rPosition.Y, pObj->m_rPosition.Width, pObj->m_rPosition.Height, PlutoColor( 0, 0, 0 ) );
+	SolidRectangle( point.X + pObj->Data.m_rPosition.X, point.Y + pObj->Data.m_rPosition.Y, pObj->Data.m_rPosition.Width, pObj->Data.m_rPosition.Height, PlutoColor( 0, 0, 0 ) );
 
     // short for "number of ARRow ROWS": ArrRows
     // last screen exception: we consider one up arrow as not being there so we don't skip a row when we scroll up
@@ -1335,8 +1337,8 @@ g_pPlutoLogger->Write( LV_STATUS, "@@@ About to call maint for screen saver with
 
     m_pScreenHistory_Current=pScreenHistory;
     m_pScreenHistory_Current->m_pObj->m_bActive=true;
-	if( m_pScreenHistory_Current->m_pObj->m_dwTimeoutSeconds )
-		CallMaintenanceInMiliseconds( m_pScreenHistory_Current->m_pObj->m_dwTimeoutSeconds * 1000, &Orbiter::Timeout, (void *) m_pScreenHistory_Current->m_pObj, pe_ALL );
+	if( m_pScreenHistory_Current->m_pObj->Data.m_dwTimeoutSeconds )
+		CallMaintenanceInMiliseconds( m_pScreenHistory_Current->m_pObj->Data.m_dwTimeoutSeconds * 1000, &Orbiter::Timeout, (void *) m_pScreenHistory_Current->m_pObj, pe_ALL );
 
 #ifdef DEBUG
     g_pPlutoLogger->Write( LV_STATUS, "Changing screen to %s", m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str(  ) );
@@ -1391,23 +1393,23 @@ void Orbiter::ObjectOnScreen( VectDesignObj_Orbiter *pVectDesignObj_Orbiter, Des
 {
 	// Do this again since sometimes there will be several grids with the same name within the application and if
 	// we're going to do a lookup, such as with seek grid, we want to find the one most recently on screen
-	if( pObj->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
+	if( pObj->Data.m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
 	{
 		DesignObj_DataGrid *pObj_Datagrid = (DesignObj_DataGrid *) pObj;
 		m_mapObjs_AllGrids[pObj_Datagrid->m_sGridID] = pObj_Datagrid;
 	}
-	if( pObj->m_iRegenInterval )
-		CallMaintenanceInMiliseconds(pObj->m_iRegenInterval,&Orbiter::RedrawObject,pObj,pe_Match_Data);
+	if( pObj->Data.m_iRegenInterval )
+		CallMaintenanceInMiliseconds(pObj->Data.m_iRegenInterval,&Orbiter::RedrawObject,pObj,pe_Match_Data);
 
     pVectDesignObj_Orbiter->push_back( pObj );
     pObj->m_bOnScreen=true;
 
     // Add it to the list of tab stops whether it's visible or not.  The findfirst/next will skip of hidden objects anyway
     // And this way we don't need to worry about the changing state of objects that are hidden/shown
-    if(  pObj->m_bTabStop  ) 
+    if(  pObj->Data.m_bTabStop  ) 
         m_vectObjs_TabStops.push_back( pObj );
 
-	if( pObj->m_ObjectType==DESIGNOBJTYPE_Broadcast_Video_CONST )
+	if( pObj->Data.m_ObjectType==DESIGNOBJTYPE_Broadcast_Video_CONST )
 	{
         pObj->m_pvectCurrentGraphic = NULL;
 		for(size_t i = 0; i < pObj->m_vectGraphic.size(); i++)
@@ -1445,7 +1447,7 @@ void Orbiter::ObjectOffScreen( DesignObj_Orbiter *pObj )
 {
 #ifdef DEBUG
     if(  pObj->m_ObjectID.find( "2715" )!=string::npos  )
-        //if(  pObj->m_iBaseObjectID == 2707  )
+        //if(  pObj->Data.m_iBaseObjectID == 2707  )
     {
         g_pPlutoLogger->Write( LV_STATUS, "control off screen state: %d undo: %p", pObj->m_GraphicToDisplay, pObj->m_pGraphicToUndoSelect );
     }
@@ -1483,12 +1485,12 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y)
 {
     PLUTO_SAFETY_LOCK( vm, m_ScreenMutex );
 
-    if ( pObj->m_ObjectType == DESIGNOBJTYPE_Datagrid_CONST && X>=0 && Y>=0  )
+    if ( pObj->Data.m_ObjectType == DESIGNOBJTYPE_Datagrid_CONST && X>=0 && Y>=0  )
     {
 #ifdef DEBUG
         g_pPlutoLogger->Write( LV_CONTROLLER,  "\x1b[33mSelected datagrid: %s\x1b[0m", pObj->m_ObjectID.c_str(  ) );
 #endif
-        if ( !SelectedGrid( ( DesignObj_DataGrid * ) pObj,  X-pObj->m_rPosition.X,  Y-pObj->m_rPosition.Y ) )
+        if ( !SelectedGrid( ( DesignObj_DataGrid * ) pObj,  X-pObj->Data.m_rPosition.X,  Y-pObj->Data.m_rPosition.Y ) )
             return;
     }
 
@@ -1525,13 +1527,13 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y)
 			if(pPlutoGraphic->m_GraphicFormat != GR_MNG)
 			{
 				SaveBackgroundForDeselect( pObj, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
-				if(  !pObj->m_bDontResetState  )
+				if(  !pObj->Data.m_bDontResetState  )
 					CallMaintenanceInMiliseconds( 500, &Orbiter::DeselectObjects, ( void * ) pObj, pe_NO );
 			}
 		}
 
         // Unless the screen's don't reset state is set,  we'll clear any other selected graphics
-        if(  !m_pScreenHistory_Current->m_pObj->m_bDontResetState  )
+        if(  !m_pScreenHistory_Current->m_pObj->Data.m_bDontResetState  )
         {
             for( size_t s=0;s<m_vectObjs_Selected.size(  );++s )
             {
@@ -1562,16 +1564,16 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y)
     }
 
 #ifdef PRONTO
-    if ( pObj->m_ObjectType == DESIGNOBJTYPE_Pronto_File_CONST )
+    if ( pObj->Data.m_ObjectType == DESIGNOBJTYPE_Pronto_File_CONST )
     {
-        if ( pObj->m_pCCF )
-            pObj->m_pCCF->Touch( X-pObj->m_rPosition.X,  Y-pObj->m_rPosition.Y );
+        if ( pObj->Data.m_pCCF )
+            pObj->Data.m_pCCF->Touch( X-pObj->Data.m_rPosition.X,  Y-pObj->Data.m_rPosition.Y );
         return;
     }
 #endif
 
 #pragma warning( "bad,  bad hack" )
-    if(  pObj->m_iBaseObjectID==2706  )
+    if(  pObj->Data.m_iBaseObjectID==2706  )
     {
         // There's a problem when you select the video button.  The music button was already selected,  and saved a snapshop in the 'savebackgroundfordeselect'.
         // The new video objects are drawn,  then the deselected music object,  which includes a snapshot of the music datagrid.  If I put refresh in the video object
@@ -1582,10 +1584,10 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y)
     /*
     string VariableData = "";
     map<string, string>::iterator ivv;
-    for( ivv=pObj->m_VariableValue.begin(  );ivv!=pObj->m_VariableValue.end(  );++ivv )
+    for( ivv=pObj->Data.m_VariableValue.begin(  );ivv!=pObj->Data.m_VariableValue.end(  );++ivv )
     {
     if ( VariableData.length(  )==0 )
-    VariableData = StringUtils::itos( pObj->m_VariableValue.size(  ) );
+    VariableData = StringUtils::itos( pObj->Data.m_VariableValue.size(  ) );
 
     VariableData+="|";
     VariableData+=( *ivv ).first+"|"+( *ivv ).second;
@@ -1594,10 +1596,10 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y)
     */
 
     /* todo 2.0
-    if( pObj->m_bProcessActionsAtServer )
+    if( pObj->Data.m_bProcessActionsAtServer )
     {
     Message *pThisMessage = new Message( m_dwPK_Device, DEVICEID_DCEROUTER, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_PROCESS_BUTTON_AT_SERVER_CONST, 3,
-    COMMANDPARAMETER_PK_DesignObj_CONST, StringUtils::itos( pObj->m_iBaseObjectID ),
+    COMMANDPARAMETER_PK_DesignObj_CONST, StringUtils::itos( pObj->Data.m_iBaseObjectID ),
     C_COMMANDPARAMETER_ONLY_IF_ON_SCREEN_CONST, m_pVisibleScreen->m_ObjectID,
     COMMANDPARAMETER_Text_CONST,  m_mapVariable[VARIABLE_USER_INPUT_CONST] );
     if(  pButtonTouchMessage==NULL  )
@@ -1616,15 +1618,15 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y)
     Message *pThisMessage = new Message( m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, EVENT_Orbiter_BUTTON_TOUCHED_CONST, 4,
     C_EVENTPARAMETER_PK_OBJECT_CONST, pObj->m_ObjectID.c_str(  ),
     C_EVENTPARAMETER_ID_CONST, StringUtils::itos( CTRLCOMMAND_ACTIVATE ).c_str(  ),
-    C_EVENTPARAMETER_XPOS_CONST, StringUtils::itos( X-pObj->m_rPosition.X ).c_str(  ),
-    C_EVENTPARAMETER_YPOS_CONST, StringUtils::itos( Y-pObj->m_rPosition.Y ).c_str(  ) );
+    C_EVENTPARAMETER_XPOS_CONST, StringUtils::itos( X-pObj->Data.m_rPosition.X ).c_str(  ),
+    C_EVENTPARAMETER_YPOS_CONST, StringUtils::itos( Y-pObj->Data.m_rPosition.Y ).c_str(  ) );
 
     pButtonTouchMessage->m_vectExtraMessages.push_back( pThisMessage );
 
     QueueMessageToRouter( pButtonTouchMessage );
     //      GetEvents(  )->Orbiter_Object_Actions( StringUtils::itos( NumActions ) + "\t" +ActionData,
-    //          pObj->m_ObjectID,  StringUtils::itos( CTRLCOMMAND_ACTIVATE ),  StringUtils::itos( X-pObj->m_rPosition.X ),
-    //          StringUtils::itos( Y-pObj->m_rPosition.Y ) );
+    //          pObj->m_ObjectID,  StringUtils::itos( CTRLCOMMAND_ACTIVATE ),  StringUtils::itos( X-pObj->Data.m_rPosition.X ),
+    //          StringUtils::itos( Y-pObj->Data.m_rPosition.Y ) );
     }
     */
 }
@@ -1673,8 +1675,8 @@ g_pPlutoLogger->Write(LV_WARNING,"Selected grid %s but m_pDataGridTable is NULL"
                 else
                     GetGridCellDimensions( pDesignObj_DataGrid,  1,  1,  j,  i,  x,  y,  w,  h );
                 PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
-                    int ContainsX=X+pDesignObj_DataGrid->m_rPosition.X;
-                int ContainsY=Y+pDesignObj_DataGrid->m_rPosition.Y;
+                    int ContainsX=X+pDesignObj_DataGrid->Data.m_rPosition.X;
+                int ContainsY=Y+pDesignObj_DataGrid->Data.m_rPosition.Y;
                 vm.Release(  );
                 if ( PlutoRectangle( x,  y,  w,  h ).Contains( ContainsX,  ContainsY ) )
                 {
@@ -1714,8 +1716,8 @@ g_pPlutoLogger->Write(LV_WARNING,"Selected grid %s but m_pDataGridTable is NULL"
             {
                 GetGridCellDimensions( pDesignObj_DataGrid,  pCell->m_Colspan,  pCell->m_Rowspan,  j,  i,  x,  y,  w,  h );
                 PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
-                    int ContainsX=X+pDesignObj_DataGrid->m_rPosition.X;
-                int ContainsY=Y+pDesignObj_DataGrid->m_rPosition.Y;
+                    int ContainsX=X+pDesignObj_DataGrid->Data.m_rPosition.X;
+                int ContainsY=Y+pDesignObj_DataGrid->Data.m_rPosition.Y;
                 vm.Release(  );
                 if ( ( delSelections.length(  ) > 2 && delSelections.find( "|"+string( pCell->GetValue(  ) )+"|" )!=string::npos ) )
                 {
@@ -1937,7 +1939,7 @@ void Orbiter::SpecialHandlingObjectSelected(DesignObj_Orbiter *pDesignObj_Orbite
     if( pDesignObj_Orbiter->m_pFloorplanObject )
         SelectedFloorplan(pDesignObj_Orbiter);
 
-	if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_butPINGo_CONST)
+	if( pDesignObj_Orbiter->Data.m_iBaseObjectID==DESIGNOBJ_butPINGo_CONST)
 	{
 		if( m_bRestrictedOp_IsUser )
 		{
@@ -1956,7 +1958,7 @@ void Orbiter::SpecialHandlingObjectSelected(DesignObj_Orbiter *pDesignObj_Orbite
 			}
 		}
 	}
-	else if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_mnuDisplayPower_CONST)
+	else if( pDesignObj_Orbiter->Data.m_iBaseObjectID==DESIGNOBJ_mnuDisplayPower_CONST)
 	{
 		if( !m_pLocationInfo->m_dwPK_Device_MediaDirector || m_pLocationInfo->m_dwPK_Device_MediaDirector==DEVICEID_NULL )
 		{
@@ -2003,12 +2005,12 @@ void Orbiter::SpecialHandlingObjectSelected(DesignObj_Orbiter *pDesignObj_Orbite
 			}
 		}
 	}
-	else if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_mnuScreenSaver_CONST )
+	else if( pDesignObj_Orbiter->Data.m_iBaseObjectID==DESIGNOBJ_mnuScreenSaver_CONST )
 	{
 		CMD_Set_Text(pDesignObj_Orbiter->m_ObjectID, StringUtils::itos(	int(m_tTimeoutTime - time(NULL)) ) + " seconds",TEXT_USR_ENTRY_CONST);
 		CMD_Continuous_Refresh("10");
 	}
-	else if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_objHouseStatusIndicator_CONST )
+	else if( pDesignObj_Orbiter->Data.m_iBaseObjectID==DESIGNOBJ_objHouseStatusIndicator_CONST )
 	{
 		// This is actually at startup time.  Figure out what device group this is controlling
 		int PK_DeviceGroup=0;
@@ -2019,7 +2021,7 @@ void Orbiter::SpecialHandlingObjectSelected(DesignObj_Orbiter *pDesignObj_Orbite
 			for(DesignObjCommandList::iterator it=pDesignObjZone->m_Commands.begin();it!=pDesignObjZone->m_Commands.end();++it)
 			{
 				DesignObjCommand *pDesignObjCommand = *it;
-				if( pDesignObjCommand->m_PK_Command==COMMAND_Set_Variable_CONST )
+				if( pDesignObjCommand->Data.m_PK_Command==COMMAND_Set_Variable_CONST )
 				{
 					int PK_Variable = atoi(pDesignObjCommand->m_ParameterList[COMMANDPARAMETER_PK_Variable_CONST].c_str());
 					if( PK_Variable == VARIABLE_PK_DeviceGroup_CONST )
@@ -2109,7 +2111,7 @@ void Orbiter::SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter)
 		CMD_Show_Object(pDesignObj_Orbiter->TopMostObject()->m_ObjectID + "." + StringUtils::itos(PK_DesignObj_Toolbar_ToTurnOff),0,"","","0");
 
 /*
-    if( pDesignObj_Orbiter->m_pParentObject->m_iBaseObjectID==OBJECT_FPENTERTAINMENT_CONST )
+    if( pDesignObj_Orbiter->m_pParentObject->Data.m_iBaseObjectID==OBJECT_FPENTERTAINMENT_CONST )
     {
         bool bResponse;
         int iPK_Variable=0;
@@ -2147,7 +2149,7 @@ bool Orbiter::ClickedButton( DesignObj_Orbiter *pObj, int PK_Button )
         if(  !bFoundHandler && bResult  )
             bFoundHandler=true;
     }
-    if( pObj->m_iPK_Button==PK_Button || pObj->m_iPK_Button==BUTTON_Any_key_CONST  )
+    if( pObj->Data.m_iPK_Button==PK_Button || pObj->Data.m_iPK_Button==BUTTON_Any_key_CONST  )
     {
         SelectedObject( pObj );
         return true;
@@ -2168,18 +2170,18 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
         ClickedRegion( ( DesignObj_Orbiter * )( *iHao ), X, Y, pTopMostAnimatedObject );
     }
 
-    if( pObj->m_rPosition.Contains( X, Y ) )
+    if( pObj->Data.m_rPosition.Contains( X, Y ) )
     {
-        if(  pObj->m_bAnimate && !pTopMostAnimatedObject  )  // These get called from topmost down,  so don't overwrite if a higher object already did
+        if(  pObj->Data.m_bAnimate && !pTopMostAnimatedObject  )  // These get called from topmost down,  so don't overwrite if a higher object already did
         {
             pTopMostAnimatedObject = pObj;
         }
 
 		if( pObj->m_dbHitTest.m_dwSize )
 		{
-			int LineWidth = pObj->m_rBackgroundPosition.Width / 8 + 1; // The width of each line
-			int x = X - pObj->m_rPosition.Left();
-			int y = Y - pObj->m_rPosition.Top();
+			int LineWidth = pObj->Data.m_rBackgroundPosition.Width / 8 + 1; // The width of each line
+			int x = X - pObj->Data.m_rPosition.Left();
+			int y = Y - pObj->Data.m_rPosition.Top();
 			char c = pObj->m_dbHitTest.m_pBlock[ y * LineWidth + x/8 ];
 			if( !(c & 1 << (x%8)) )
 				return false;
@@ -2193,10 +2195,10 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
 //------------------------------------------------------------------------
 /*virtual*/ void Orbiter::HighlightObject( class DesignObj_Orbiter *pObj, PlutoPoint point )
 {
-    int x = point.X + pObj->m_rBackgroundPosition.X;
-    int y = point.Y + pObj->m_rBackgroundPosition.Y;
-    int w = pObj->m_rBackgroundPosition.Width;
-    int h = pObj->m_rBackgroundPosition.Height;
+    int x = point.X + pObj->Data.m_rBackgroundPosition.X;
+    int y = point.Y + pObj->Data.m_rBackgroundPosition.Y;
+    int w = pObj->Data.m_rBackgroundPosition.Width;
+    int h = pObj->Data.m_rBackgroundPosition.Height;
 
     PlutoColor WhiteColor(255, 255, 255, 100);
     PlutoColor RedColor(255, 0, 0, 100);
@@ -2209,10 +2211,10 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
 //------------------------------------------------------------------------
 /*virtual*/ void Orbiter::SelectObject( class DesignObj_Orbiter *pObj, PlutoPoint point )
 {
-    int x = point.X + pObj->m_rBackgroundPosition.X;
-    int y = point.Y + pObj->m_rBackgroundPosition.Y;
-    int w = pObj->m_rBackgroundPosition.Width;
-    int h = pObj->m_rBackgroundPosition.Height;
+    int x = point.X + pObj->Data.m_rBackgroundPosition.X;
+    int y = point.Y + pObj->Data.m_rBackgroundPosition.Y;
+    int w = pObj->Data.m_rBackgroundPosition.Width;
+    int h = pObj->Data.m_rBackgroundPosition.Height;
 
     PlutoColor WhiteColor(255, 255, 255, 100);
     PlutoColor BlueColor(0, 0, 255, 100);
@@ -2251,8 +2253,8 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
             int k=2;
         }
 */
-        if( ( *iter )->m_bTabStop && ( ( DesignObj_Orbiter * ) ( *iter ) )->m_bOnScreen &&
-            ( ( DesignObj_Orbiter * ) ( *iter ) )->IsHidden(  ) == false && ( *iter )->m_bTabStop  )
+        if( ( *iter )->Data.m_bTabStop && ( ( DesignObj_Orbiter * ) ( *iter ) )->m_bOnScreen &&
+            ( ( DesignObj_Orbiter * ) ( *iter ) )->IsHidden(  ) == false && ( *iter )->Data.m_bTabStop  )
         {
             m_pObj_Highlighted = ( DesignObj_Orbiter * ) *iter;
             return true;
@@ -2280,13 +2282,13 @@ void Orbiter::FindObjectToHighlight(
     {
         DesignObj_Orbiter *pCurrentObj = ( DesignObj_Orbiter * ) *iter;
 
-        if( pCurrentObj->m_bTabStop && pCurrentObj->m_bOnScreen && !pCurrentObj->IsHidden(  ) )
+        if( pCurrentObj->Data.m_bTabStop && pCurrentObj->m_bOnScreen && !pCurrentObj->IsHidden(  ) )
         {
-            nXDistNew = m_pObj_Highlighted->m_rBackgroundPosition.X - pCurrentObj->m_rBackgroundPosition.X;
-            nYDistNew = m_pObj_Highlighted->m_rBackgroundPosition.Y - pCurrentObj->m_rBackgroundPosition.Y;
+            nXDistNew = m_pObj_Highlighted->Data.m_rBackgroundPosition.X - pCurrentObj->Data.m_rBackgroundPosition.X;
+            nYDistNew = m_pObj_Highlighted->Data.m_rBackgroundPosition.Y - pCurrentObj->Data.m_rBackgroundPosition.Y;
 
-            nXDistOld = m_pObj_Highlighted->m_rBackgroundPosition.X - ( *ppNextObjectToRight )->m_rBackgroundPosition.X;
-            nYDistOld = m_pObj_Highlighted->m_rBackgroundPosition.Y - ( *ppNextObjectToRight )->m_rBackgroundPosition.Y;
+            nXDistOld = m_pObj_Highlighted->Data.m_rBackgroundPosition.X - ( *ppNextObjectToRight )->Data.m_rBackgroundPosition.X;
+            nYDistOld = m_pObj_Highlighted->Data.m_rBackgroundPosition.Y - ( *ppNextObjectToRight )->Data.m_rBackgroundPosition.Y;
 
             switch( PK_Direction )
             {
@@ -2561,7 +2563,8 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 			{
 				size_t size;
 				char *buffer = FileUtils::ReadFileIntoBuffer( m_sLocalDirectory + "/" + Filename, size );
-				if(  !buffer || !SerializeRead( ( long ) size, buffer, ( void * ) this ) || !ParseConfigurationData( Type )  )
+
+				if(  !buffer || !SerializeRead( ( long ) size, buffer, ( void * ) this ) || !ParseConfigurationData( Type ) )
 				{
 					delete[] buffer;
 					g_pPlutoLogger->Write( LV_CRITICAL,  "Unable to read Orbiter data from file: %s/%s", m_sLocalDirectory.c_str(  ), Filename.c_str(  ) );
@@ -2696,8 +2699,8 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 			exit( 1 );
 		}
 
-        AdjustWindowSize(m_pScreenHistory_Current->m_pObj->m_rPosition.Width, 
-            m_pScreenHistory_Current->m_pObj->m_rPosition.Height);
+        AdjustWindowSize(m_pScreenHistory_Current->m_pObj->Data.m_rPosition.Width, 
+            m_pScreenHistory_Current->m_pObj->Data.m_rPosition.Height);
 
 		DesignObj_OrbiterMap::iterator itDesignObjOrbiter;
 		for(itDesignObjOrbiter = m_mapObj_All.begin(); itDesignObjOrbiter != m_mapObj_All.end(); itDesignObjOrbiter++)
@@ -2809,14 +2812,14 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
         DesignObj_Orbiter *pObj = ( *oi ).second;
 
         // Now match up all the up/down/left/right
-        if(  pObj->m_PK_DesignObj_Up  )
-            pObj->m_pDesignObj_Orbiter_Up = FindObject( StringUtils::itos( pObj->m_PK_DesignObj_Up ), pObj );
-        if(  pObj->m_PK_DesignObj_Down  )
-            pObj->m_pDesignObj_Orbiter_Down = FindObject( StringUtils::itos( pObj->m_PK_DesignObj_Down ), pObj );
-        if(  pObj->m_PK_DesignObj_Left  )
-            pObj->m_pDesignObj_Orbiter_Left = FindObject( StringUtils::itos( pObj->m_PK_DesignObj_Left ), pObj );
-        if(  pObj->m_PK_DesignObj_Right  )
-            pObj->m_pDesignObj_Orbiter_Right = FindObject( StringUtils::itos( pObj->m_PK_DesignObj_Right ), pObj );
+        if(  pObj->Data.m_PK_DesignObj_Up  )
+            pObj->m_pDesignObj_Orbiter_Up = FindObject( StringUtils::itos( pObj->Data.m_PK_DesignObj_Up ), pObj );
+        if(  pObj->Data.m_PK_DesignObj_Down  )
+            pObj->m_pDesignObj_Orbiter_Down = FindObject( StringUtils::itos( pObj->Data.m_PK_DesignObj_Down ), pObj );
+        if(  pObj->Data.m_PK_DesignObj_Left  )
+            pObj->m_pDesignObj_Orbiter_Left = FindObject( StringUtils::itos( pObj->Data.m_PK_DesignObj_Left ), pObj );
+        if(  pObj->Data.m_PK_DesignObj_Right  )
+            pObj->m_pDesignObj_Orbiter_Right = FindObject( StringUtils::itos( pObj->Data.m_PK_DesignObj_Right ), pObj );
         if(  pObj->m_sPK_DesignObj_TiedTo.length(  )  )
         {
             // This may be in the form object:column:row
@@ -2919,8 +2922,8 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
                         DesignObjZone *pDesignObjZone = new DesignObjZone();
                         pDesignObjZone->m_Rect.Width=pDesignObjZone->m_Rect.Height=0;
                         DesignObjCommand *pDesignObjCommand = new DesignObjCommand();
-                        pDesignObjCommand->m_PK_Command=COMMAND_Requires_Special_Handling_CONST;
-                        pDesignObjCommand->m_PK_Device=DEVICEID_HANDLED_INTERNALLY;
+                        pDesignObjCommand->Data.m_PK_Command=COMMAND_Requires_Special_Handling_CONST;
+                        pDesignObjCommand->Data.m_PK_Device=DEVICEID_HANDLED_INTERNALLY;
                         pDesignObjZone->m_Commands.push_back(pDesignObjCommand);
                         fpObj->pObj->m_ZoneList.push_back(pDesignObjZone);
                     }
@@ -2978,7 +2981,7 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
     m_mapObj_All[pObj->m_ObjectID] = pObj;  // Do this earlier since the bind to action may require looking this up.
 	pObj->m_pObj_Screen=pObj_Screen;
 
-    if(  pObj->m_bHideByDefault  )
+    if(  pObj->Data.m_bHideByDefault  )
         pObj->m_bHidden = true;
 
     enum eGraphicManagement eMgmt = GR_DISCARDONCHANGE;
@@ -2995,7 +2998,7 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
 		pObj->m_vectAltGraphics.push_back( vectPlutoGraphic );
     }
 
-    if(  pObj->m_bTabStop  )
+    if(  pObj->Data.m_bTabStop  )
         pObj_Screen->m_vectObj_TabStops.push_back( pObj );
 
     /*
@@ -3037,17 +3040,17 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
             pObjectList = ( *it ).second;
         pObjectList->push_back( pObj );
         string x=pObj->m_ObjectID.substr( PriorToLastDotPos+1 );
-        pObj->m_iBaseObjectID = atoi( x.c_str(  ) );
+        pObj->Data.m_iBaseObjectID = atoi( x.c_str(  ) );
     }
     else
     {
-        pObj->m_iBaseObjectID = atoi( pObj->m_ObjectID.c_str(  ) );
+        pObj->Data.m_iBaseObjectID = atoi( pObj->m_ObjectID.c_str(  ) );
     }
 
 	// On any screen all child objects should inherit the screen's priority so the whole screen is cached
-	pObj->m_Priority = pObj_Screen->m_Priority;
+	pObj->Data.m_Priority = pObj_Screen->Data.m_Priority;
 
-	if ( pObj->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
+	if ( pObj->Data.m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
     {
         pObj->m_bContainsDataGrid=true;
         DesignObj_DataGrid *pObj_Datagrid = ( DesignObj_DataGrid * ) pObj;
@@ -3073,16 +3076,16 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
             if(  pObj_Datagrid->m_FixedColumnWidth==0  )
                 pObj_Datagrid->m_MaxCol=1;
             else if( m_iRotation==90 || m_iRotation==270 )
-                pObj_Datagrid->m_MaxCol =1+ ( pObj_Datagrid->m_rPosition.Height - ( pObj_Datagrid->m_FirstColumnWidth +1  ) ) / ( pObj_Datagrid->m_FixedColumnWidth+1 );
+                pObj_Datagrid->m_MaxCol =1+ ( pObj_Datagrid->Data.m_rPosition.Height - ( pObj_Datagrid->m_FirstColumnWidth +1  ) ) / ( pObj_Datagrid->m_FixedColumnWidth+1 );
 			else
-                pObj_Datagrid->m_MaxCol =1+ ( pObj_Datagrid->m_rPosition.Width - ( pObj_Datagrid->m_FirstColumnWidth +1  ) ) / ( pObj_Datagrid->m_FixedColumnWidth+1 );
+                pObj_Datagrid->m_MaxCol =1+ ( pObj_Datagrid->Data.m_rPosition.Width - ( pObj_Datagrid->m_FirstColumnWidth +1  ) ) / ( pObj_Datagrid->m_FixedColumnWidth+1 );
         }
         else if ( pObj_Datagrid->m_FixedColumnWidth == 0 ) // Do we know the number of columns but not their size?
         {
             if( m_iRotation==90 || m_iRotation==270 )
-				pObj_Datagrid->m_FixedColumnWidth = ( pObj_Datagrid->m_rPosition.Height / pObj_Datagrid->m_MaxCol ) - ( ( pObj_Datagrid->m_MaxCol-1 ) * pObj_Datagrid->m_ColumnSpacing );
+				pObj_Datagrid->m_FixedColumnWidth = ( pObj_Datagrid->Data.m_rPosition.Height / pObj_Datagrid->m_MaxCol ) - ( ( pObj_Datagrid->m_MaxCol-1 ) * pObj_Datagrid->m_ColumnSpacing );
 			else
-				pObj_Datagrid->m_FixedColumnWidth = ( pObj_Datagrid->m_rPosition.Width / pObj_Datagrid->m_MaxCol ) - ( ( pObj_Datagrid->m_MaxCol-1 ) * pObj_Datagrid->m_ColumnSpacing );
+				pObj_Datagrid->m_FixedColumnWidth = ( pObj_Datagrid->Data.m_rPosition.Width / pObj_Datagrid->m_MaxCol ) - ( ( pObj_Datagrid->m_MaxCol-1 ) * pObj_Datagrid->m_ColumnSpacing );
         }
         pObj_Datagrid->m_MaxRow = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Num_of_Rows_CONST ).c_str(  ) );
         if ( pObj_Datagrid->m_MaxRow == 0 )
@@ -3090,16 +3093,16 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
             if(  pObj_Datagrid->m_FixedRowHeight==0  )
                 pObj_Datagrid->m_MaxRow=1;
             else if( m_iRotation==90 || m_iRotation==270 )
-                pObj_Datagrid->m_MaxRow = 1+ ( pObj_Datagrid->m_rPosition.Width - ( pObj_Datagrid->m_FirstRowHeight +1  ) ) / ( pObj_Datagrid->m_FixedRowHeight+1 );
+                pObj_Datagrid->m_MaxRow = 1+ ( pObj_Datagrid->Data.m_rPosition.Width - ( pObj_Datagrid->m_FirstRowHeight +1  ) ) / ( pObj_Datagrid->m_FixedRowHeight+1 );
 			else
-                pObj_Datagrid->m_MaxRow = 1+ ( pObj_Datagrid->m_rPosition.Height - ( pObj_Datagrid->m_FirstRowHeight +1  ) ) / ( pObj_Datagrid->m_FixedRowHeight+1 );
+                pObj_Datagrid->m_MaxRow = 1+ ( pObj_Datagrid->Data.m_rPosition.Height - ( pObj_Datagrid->m_FirstRowHeight +1  ) ) / ( pObj_Datagrid->m_FixedRowHeight+1 );
         }
         else if ( pObj_Datagrid->m_FixedRowHeight == 0 ) // Do we know the number of columns but not their size?
         {
             if( m_iRotation==90 || m_iRotation==270 )
-				pObj_Datagrid->m_FixedRowHeight = ( pObj_Datagrid->m_rPosition.Width / pObj_Datagrid->m_MaxRow ) - ( ( pObj_Datagrid->m_MaxRow-1 ) * pObj_Datagrid->m_RowSpacing );
+				pObj_Datagrid->m_FixedRowHeight = ( pObj_Datagrid->Data.m_rPosition.Width / pObj_Datagrid->m_MaxRow ) - ( ( pObj_Datagrid->m_MaxRow-1 ) * pObj_Datagrid->m_RowSpacing );
 			else
-				pObj_Datagrid->m_FixedRowHeight = ( pObj_Datagrid->m_rPosition.Height / pObj_Datagrid->m_MaxRow ) - ( ( pObj_Datagrid->m_MaxRow-1 ) * pObj_Datagrid->m_RowSpacing );
+				pObj_Datagrid->m_FixedRowHeight = ( pObj_Datagrid->Data.m_rPosition.Height / pObj_Datagrid->m_MaxRow ) - ( ( pObj_Datagrid->m_MaxRow-1 ) * pObj_Datagrid->m_RowSpacing );
         }
         if(  ( pObj_Datagrid->m_FixedColumnWidth == 0 && pObj_Datagrid->m_MaxCol == 0 ) || ( pObj_Datagrid->m_FixedRowHeight == 0 && pObj_Datagrid->m_MaxRow == 0 )  )
         {
@@ -3189,46 +3192,46 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
 
     /*
     Floorplan
-    else if(  pObj->m_iBaseObjectID==DESIGNOBJ_GRPHOUSEINDICATORS_CONST  )
+    else if(  pObj->Data.m_iBaseObjectID==DESIGNOBJ_GRPHOUSEINDICATORS_CONST  )
     {
     DesignObj_DataList::iterator iHao;
     for( iHao=pObj->m_ChildObjects.begin(  ); iHao != pObj->m_ChildObjects.end(  ); ++iHao )
     {
     DesignObj_Orbiter *p = ( *iHao );
-    if(  p->m_iBaseObjectID==DESIGNOBJ_GRAWINDOW0_CONST  )
+    if(  p->Data.m_iBaseObjectID==DESIGNOBJ_GRAWINDOW0_CONST  )
     m_FloorplanObjects.m_Windows->m_objBypassed = p;
-    else if(  p->m_iBaseObjectID==DESIGNOBJ_GRAWINDOW1_CONST  )
+    else if(  p->Data.m_iBaseObjectID==DESIGNOBJ_GRAWINDOW1_CONST  )
     m_FloorplanObjects.m_Windows->m_objArmed = p;
-    else if(  p->m_iBaseObjectID==DESIGNOBJ_GRAWINDOW2_CONST  )
+    else if(  p->Data.m_iBaseObjectID==DESIGNOBJ_GRAWINDOW2_CONST  )
     m_FloorplanObjects.m_Windows->m_objNotArmed = p;
-    else if(  p->m_iBaseObjectID==DESIGNOBJ_GRAWINDOW3_CONST  )
+    else if(  p->Data.m_iBaseObjectID==DESIGNOBJ_GRAWINDOW3_CONST  )
     m_FloorplanObjects.m_Windows->m_objTriggered = p;
 
-    else if(  p->m_iBaseObjectID==DESIGNOBJ_GRADOOR0_CONST  )
+    else if(  p->Data.m_iBaseObjectID==DESIGNOBJ_GRADOOR0_CONST  )
     m_FloorplanObjects.m_Doors->m_objBypassed = p;
-    else if(  p->m_iBaseObjectID==DESIGNOBJ_GRADOOR1_CONST  )
+    else if(  p->Data.m_iBaseObjectID==DESIGNOBJ_GRADOOR1_CONST  )
     m_FloorplanObjects.m_Doors->m_objArmed = p;
-    else if(  p->m_iBaseObjectID==DESIGNOBJ_GRADOOR2_CONST  )
+    else if(  p->Data.m_iBaseObjectID==DESIGNOBJ_GRADOOR2_CONST  )
     m_FloorplanObjects.m_Doors->m_objNotArmed = p;
-    else if(  p->m_iBaseObjectID==DESIGNOBJ_GRADOOR3_CONST  )
+    else if(  p->Data.m_iBaseObjectID==DESIGNOBJ_GRADOOR3_CONST  )
     m_FloorplanObjects.m_Doors->m_objTriggered = p;
 
-    else if(  p->m_iBaseObjectID==DESIGNOBJ_GRAMOTION0_CONST  )
+    else if(  p->Data.m_iBaseObjectID==DESIGNOBJ_GRAMOTION0_CONST  )
     m_FloorplanObjects.m_Motions->m_objBypassed = p;
-    else if(  p->m_iBaseObjectID==DESIGNOBJ_GRAMOTION1_CONST  )
+    else if(  p->Data.m_iBaseObjectID==DESIGNOBJ_GRAMOTION1_CONST  )
     m_FloorplanObjects.m_Motions->m_objArmed = p;
-    else if(  p->m_iBaseObjectID==DESIGNOBJ_GRAMOTION2_CONST  )
+    else if(  p->Data.m_iBaseObjectID==DESIGNOBJ_GRAMOTION2_CONST  )
     m_FloorplanObjects.m_Motions->m_objNotArmed = p;
-    else if(  p->m_iBaseObjectID==DESIGNOBJ_GRAMOTION3_CONST  )
+    else if(  p->Data.m_iBaseObjectID==DESIGNOBJ_GRAMOTION3_CONST  )
     m_FloorplanObjects.m_Motions->m_objTriggered = p;
 
-    else if(  p->m_iBaseObjectID==DESIGNOBJ_GRACAMERA0_CONST  )
+    else if(  p->Data.m_iBaseObjectID==DESIGNOBJ_GRACAMERA0_CONST  )
     m_FloorplanObjects.m_Cameras->m_objBypassed = p;
-    else if(  p->m_iBaseObjectID==DESIGNOBJ_GRACAMERA1_CONST  )
+    else if(  p->Data.m_iBaseObjectID==DESIGNOBJ_GRACAMERA1_CONST  )
     m_FloorplanObjects.m_Cameras->m_objArmed = p;
-    else if(  p->m_iBaseObjectID==DESIGNOBJ_GRACAMERA2_CONST  )
+    else if(  p->Data.m_iBaseObjectID==DESIGNOBJ_GRACAMERA2_CONST  )
     m_FloorplanObjects.m_Cameras->m_objNotArmed = p;
-    else if(  p->m_iBaseObjectID==DESIGNOBJ_GRACAMERA3_CONST  )
+    else if(  p->Data.m_iBaseObjectID==DESIGNOBJ_GRACAMERA3_CONST  )
     m_FloorplanObjects.m_Cameras->m_objTriggered = p;
     }
     }
@@ -3240,7 +3243,7 @@ bool Orbiter::RenderDesktop( class DesignObj_Orbiter *pObj,  PlutoRectangle rect
 #ifdef DEBUG
     g_pPlutoLogger->Write( LV_STATUS, "Render desktop orb" );
 #endif
-    SolidRectangle( point.X + pObj->m_rPosition.X, point.Y + pObj->m_rPosition.Y, pObj->m_rPosition.Width, pObj->m_rPosition.Height, PlutoColor( 0, 0, 255 ) );
+    SolidRectangle( point.X + pObj->Data.m_rPosition.X, point.Y + pObj->Data.m_rPosition.Y, pObj->Data.m_rPosition.Width, pObj->Data.m_rPosition.Height, PlutoColor( 0, 0, 255 ) );
     return true;
 }
 
@@ -3695,7 +3698,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Ignoring click %d,%d",x,y);
         //      exit( 1 );  // Die an immediate death
     }
 
-    if ( m_pScreenHistory_Current  && m_pScreenHistory_Current->m_pObj->m_rPosition.Contains( x,  y ) )
+    if ( m_pScreenHistory_Current  && m_pScreenHistory_Current->m_pObj->Data.m_rPosition.Contains( x,  y ) )
     {
 #ifdef LOG_MOUSE_CLICKS
         g_pPlutoLogger->Write( LV_MOUSE_CLICKS,  "./MessageSend localhost 0 %d 1 305 57 %d 58 %d", m_dwPK_Device, x, y );
@@ -3717,8 +3720,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Ignoring click %d,%d",x,y);
 		for(list<class PlutoPopup*>::reverse_iterator it=m_pScreenHistory_Current->m_pObj->m_listPopups.rbegin();it!=m_pScreenHistory_Current->m_pObj->m_listPopups.rend();++it)
 		{
 			PlutoPopup *pPopup = *it;
-			if( pPopup->m_Position.X <= x && x <= pPopup->m_Position.X + pPopup->m_pObj->m_rPosition.Right() &&
-				pPopup->m_Position.Y <= y && y <= pPopup->m_Position.Y + pPopup->m_pObj->m_rPosition.Bottom()
+			if( pPopup->m_Position.X <= x && x <= pPopup->m_Position.X + pPopup->m_pObj->Data.m_rPosition.Right() &&
+				pPopup->m_Position.Y <= y && y <= pPopup->m_Position.Y + pPopup->m_pObj->Data.m_rPosition.Bottom()
 			)
 			{
 				pTopMostObject = pPopup->m_pObj;
@@ -3735,8 +3738,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Ignoring click %d,%d",x,y);
 		{
 			PlutoPopup *pPopup = *it;
 			if(
-				pPopup->m_Position.X <= x && x <= pPopup->m_Position.X + pPopup->m_pObj->m_rPosition.Right()    &&
-				pPopup->m_Position.Y <= y && y <= pPopup->m_Position.Y + pPopup->m_pObj->m_rPosition.Bottom())
+				pPopup->m_Position.X <= x && x <= pPopup->m_Position.X + pPopup->m_pObj->Data.m_rPosition.Right()    &&
+				pPopup->m_Position.Y <= y && y <= pPopup->m_Position.Y + pPopup->m_pObj->Data.m_rPosition.Bottom())
 			{
 				pTopMostObject = pPopup->m_pObj;
 				RelativePoint = PlutoPoint(x - pPopup->m_Position.X, y - pPopup->m_Position.Y);
@@ -3763,7 +3766,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Ignoring click %d,%d",x,y);
         if(  m_ChangeToScreen!=""  )
         {
         //LACA_B4_0( "fill rectangle" )
-        SolidRectangle( pTopMostAnimatedObject->m_rBackgroundPosition.X+XOffset, pTopMostAnimatedObject->m_rBackgroundPosition.Y+YOffset,  pTopMostAnimatedObject->m_rBackgroundPosition.Width,  pTopMostAnimatedObject->m_rBackgroundPosition.Height,  RGB( 255, 255, 255 ),  75 );
+        SolidRectangle( pTopMostAnimatedObject->Data.m_rBackgroundPosition.X+XOffset, pTopMostAnimatedObject->Data.m_rBackgroundPosition.Y+YOffset,  pTopMostAnimatedObject->Data.m_rBackgroundPosition.Width,  pTopMostAnimatedObject->Data.m_rBackgroundPosition.Height,  RGB( 255, 255, 255 ),  75 );
         }
         else
         {
@@ -3808,8 +3811,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Ignoring click because screen saver was active"
 		return false; // Don't do anything with this
     }
 
-	if(  m_pScreenHistory_Current && m_pScreenHistory_Current->m_pObj->m_dwTimeoutSeconds  )
-		CallMaintenanceInMiliseconds( m_pScreenHistory_Current->m_pObj->m_dwTimeoutSeconds * 1000, &Orbiter::Timeout, (void *) m_pScreenHistory_Current->m_pObj, pe_ALL );
+	if(  m_pScreenHistory_Current && m_pScreenHistory_Current->m_pObj->Data.m_dwTimeoutSeconds  )
+		CallMaintenanceInMiliseconds( m_pScreenHistory_Current->m_pObj->Data.m_dwTimeoutSeconds * 1000, &Orbiter::Timeout, (void *) m_pScreenHistory_Current->m_pObj, pe_ALL );
 
 	if( m_pDesignObj_Orbiter_ScreenSaveMenu && !m_bBypassScreenSaver && m_pScreenHistory_Current->m_pObj != m_pDesignObj_Orbiter_ScreenSaveMenu && m_iTimeoutScreenSaver )
 	{
@@ -3841,7 +3844,7 @@ DesignObj_Orbiter *Orbiter::FindObject( string PK_DesignObj, class DesignObj_Orb
         bSingleNumber=true;
 		// AB 1 Jul 05 - check for version & page first, otherwise popups use the wrong version
 		if( pDesignObj_Orbiter )
-			PK_DesignObj += "." + StringUtils::itos(pDesignObj_Orbiter->m_iVersion) + "." + StringUtils::itos(pDesignObj_Orbiter->m_iPage);
+			PK_DesignObj += "." + StringUtils::itos(pDesignObj_Orbiter->Data.m_iVersion) + "." + StringUtils::itos(pDesignObj_Orbiter->Data.m_iPage);
 		else 
 			PK_DesignObj += "." + StringUtils::itos(m_pLocationInfo->iLocation) + ".0";
 
@@ -3925,7 +3928,7 @@ DesignObj_Orbiter* Orbiter::FindSingleNumberObject( int PK_Object,  DesignObj_Or
     for( iHao=pObj->m_ChildObjects.begin(  ); iHao != pObj->m_ChildObjects.end(  ); ++iHao )
     {
         DesignObj_Orbiter *pChild = ( DesignObj_Orbiter * ) ( *iHao );
-        if(  pChild->m_iBaseObjectID==PK_Object  )
+        if(  pChild->Data.m_iBaseObjectID==PK_Object  )
             return pChild;
         pChild = FindSingleNumberObject( PK_Object, pChild );
         if(  pChild  )
@@ -3935,7 +3938,7 @@ DesignObj_Orbiter* Orbiter::FindSingleNumberObject( int PK_Object,  DesignObj_Or
     for( iHao=pObj->m_OverlayObjects.begin(  ); iHao != pObj->m_OverlayObjects.end(  ); ++iHao )
     {
         DesignObj_Orbiter *pChild = ( DesignObj_Orbiter * ) ( *iHao );
-        if(  pChild->m_iBaseObjectID==PK_Object  )
+        if(  pChild->Data.m_iBaseObjectID==PK_Object  )
             return pChild;
 
         pChild = FindSingleNumberObject( PK_Object, pChild );
@@ -3955,13 +3958,13 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
 	if(  pDesignObjCommandList->size(  )==0  )
         return;
 
-	if( pObj->m_iRepeatIntervalInMS && m_bWeCanRepeat )
+	if( pObj->Data.m_iRepeatIntervalInMS && m_bWeCanRepeat )
 	{
 		m_bRepeatingObject=true;
 		pObj->m_iRepeatParm = Repeat;
 		// Arbitrary decision that there should be a bit of a delay before the object starts repeating that
 		// is 3 times the repeat interval
-		CallMaintenanceInMiliseconds( (Repeat==0 ? pObj->m_iRepeatIntervalInMS * 3 : pObj->m_iRepeatIntervalInMS),
+		CallMaintenanceInMiliseconds( (Repeat==0 ? pObj->Data.m_iRepeatIntervalInMS * 3 : pObj->Data.m_iRepeatIntervalInMS),
 			&Orbiter::ReselectObject, pObj, pe_ALL, true );
 	}
 
@@ -3982,8 +3985,8 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
     for(iCommand=pDesignObjCommandList->rbegin();iCommand!=pDesignObjCommandList->rend();++iCommand)
     {
         DesignObjCommand *pCommand = *iCommand;
-        int PK_Command = pCommand->m_PK_Command;
-		if( pCommand->m_bDeliveryConfirmation )
+        int PK_Command = pCommand->Data.m_PK_Command;
+		if( pCommand->Data.m_bDeliveryConfirmation )
 			bGetConfirmation=true;
 
 #ifdef DEBUG
@@ -4052,48 +4055,48 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
 // HACK! HACK!
 // TODO - REMOVE THIS AND MAKE IT A PARAMETER FOR THE OBJECT
 
-        if(  pCommand->m_PK_DeviceTemplate  )
+        if(  pCommand->Data.m_PK_DeviceTemplate  )
         {
-            if(  pCommand->m_PK_DeviceTemplate<0  )
+            if(  pCommand->Data.m_PK_DeviceTemplate<0  )
             {
-                pCommand->m_PK_Device=DEVICEID_HANDLED_INTERNALLY;  // Set this to a temporary value,  so we'll know if it's changes at teh end of the if
-				if( pCommand->m_PK_DeviceTemplate!=DEVICEID_HANDLED_INTERNALLY )  // Just leave it there
+                pCommand->Data.m_PK_Device=DEVICEID_HANDLED_INTERNALLY;  // Set this to a temporary value,  so we'll know if it's changes at teh end of the if
+				if( pCommand->Data.m_PK_DeviceTemplate!=DEVICEID_HANDLED_INTERNALLY )  // Just leave it there
 				{
-					pCommand->m_PK_Device = TranslateVirtualDevice(pCommand->m_PK_DeviceTemplate);
-					if(  pCommand->m_PK_Device==DEVICEID_NULL  )
+					pCommand->Data.m_PK_Device = TranslateVirtualDevice(pCommand->Data.m_PK_DeviceTemplate);
+					if(  pCommand->Data.m_PK_Device==DEVICEID_NULL  )
 					{
 						// We recognized it as one of the known cases in the switch block,  but apparently this option isn't sent
-						g_pPlutoLogger->Write( LV_CRITICAL, "Sending command to unidentified virtual device: %d", pCommand->m_PK_DeviceTemplate );
-						pCommand->m_PK_Device = pCommand->m_PK_DeviceTemplate; // Maybe there's some interceptor that will know what to do with it
+						g_pPlutoLogger->Write( LV_CRITICAL, "Sending command to unidentified virtual device: %d", pCommand->Data.m_PK_DeviceTemplate );
+						pCommand->Data.m_PK_Device = pCommand->Data.m_PK_DeviceTemplate; // Maybe there's some interceptor that will know what to do with it
 					}
-					else if(  pCommand->m_PK_Device==DEVICEID_HANDLED_INTERNALLY  )
-						pCommand->m_PK_Device = pCommand->m_PK_DeviceTemplate; // It's not a virtual device we know how to handle.  Let the interceptors have it
+					else if(  pCommand->Data.m_PK_Device==DEVICEID_HANDLED_INTERNALLY  )
+						pCommand->Data.m_PK_Device = pCommand->Data.m_PK_DeviceTemplate; // It's not a virtual device we know how to handle.  Let the interceptors have it
 				}
             }
             else
-                pCommand->m_PK_Device=DEVICEID_MASTERDEVICE;
+                pCommand->Data.m_PK_Device=DEVICEID_MASTERDEVICE;
         }
-        else if(  pCommand->m_PK_DeviceCategory  )
-            pCommand->m_PK_Device=DEVICEID_CATEGORY;
+        else if(  pCommand->Data.m_PK_DeviceCategory  )
+            pCommand->Data.m_PK_Device=DEVICEID_CATEGORY;
 
-        if(  pCommand->m_PK_Device==0 && pCommand->m_PK_DeviceGroup==0  )
+        if(  pCommand->Data.m_PK_Device==0 && pCommand->Data.m_PK_DeviceGroup==0  )
         {
             // See if it's one we handle locally
             if(  m_bLocalMode )
             {
-                pCommand->m_PK_Device=DEVICEID_HANDLED_INTERNALLY;
+                pCommand->Data.m_PK_Device=DEVICEID_HANDLED_INTERNALLY;
             }
             else if( m_mapDevice_Selected.size() )
-                pCommand->m_PK_Device = DEVICEID_LIST;
+                pCommand->Data.m_PK_Device = DEVICEID_LIST;
             else
             {
                 PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
-                pCommand->m_PK_Device = atoi( m_mapVariable[VARIABLE_PK_Device_CONST].c_str(  ) );
+                pCommand->Data.m_PK_Device = atoi( m_mapVariable[VARIABLE_PK_Device_CONST].c_str(  ) );
                 vm.Release(  );
             }
         }
 
-        if(  pCommand->m_PK_Device==DEVICEID_NULL  )
+        if(  pCommand->Data.m_PK_Device==DEVICEID_NULL  )
         {
             g_pPlutoLogger->Write( LV_CONTROLLER,  "\x1b[33;1m****ACTION %d GOING TO DEVICEID_NULL***%d\x1b[0m\n", PK_Command );
         }
@@ -4143,12 +4146,12 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
                 continue; // processed this one ourselves
             }
 
-            Message *pThisMessage = new Message( m_dwPK_Device, pCommand->m_PK_Device, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, PK_Command, 0 );
-            if(  pCommand->m_PK_Device==DEVICEID_MASTERDEVICE  )
-                pThisMessage->m_dwPK_Device_Template=pCommand->m_PK_DeviceTemplate;
-            else if(  pCommand->m_PK_Device==DEVICEID_CATEGORY  )
-                pThisMessage->m_dwPK_Device_Category_To=pCommand->m_PK_DeviceCategory;
-            else if(  pCommand->m_PK_Device==DEVICEID_LIST  )
+            Message *pThisMessage = new Message( m_dwPK_Device, pCommand->Data.m_PK_Device, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, PK_Command, 0 );
+            if(  pCommand->Data.m_PK_Device==DEVICEID_MASTERDEVICE  )
+                pThisMessage->m_dwPK_Device_Template=pCommand->Data.m_PK_DeviceTemplate;
+            else if(  pCommand->Data.m_PK_Device==DEVICEID_CATEGORY  )
+                pThisMessage->m_dwPK_Device_Category_To=pCommand->Data.m_PK_DeviceCategory;
+            else if(  pCommand->Data.m_PK_Device==DEVICEID_LIST  )
 			{
 				for(map<int,class DeviceData_Base *>::iterator it=m_mapDevice_Selected.begin();it!=m_mapDevice_Selected.end();++it)
 				{
@@ -4173,9 +4176,9 @@ g_pPlutoLogger->Write( LV_STATUS, "Parm %d = %s",( *iap ).first,Value.c_str());
 				pThisMessage->m_mapParameters[COMMANDPARAMETER_Repeat_Command_CONST]=StringUtils::itos(Repeat);
 
 
-			pThisMessage->m_dwPK_Device_Group_ID_To=pCommand->m_PK_DeviceGroup;
+			pThisMessage->m_dwPK_Device_Group_ID_To=pCommand->Data.m_PK_DeviceGroup;
 
-            if(  pCommand->m_PK_Device==DEVICEID_HANDLED_INTERNALLY  )
+            if(  pCommand->Data.m_PK_Device==DEVICEID_HANDLED_INTERNALLY  )
             {
                 pThisMessage->m_dwPK_Device_To = m_dwPK_Device; // So the handler will loop back to ourselves
                 ReceivedMessage( pThisMessage );
@@ -4270,23 +4273,23 @@ void Orbiter::GetGridCellDimensions( DesignObj_DataGrid *pDesignObj_DataGrid,  i
     PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
 	if( m_iRotation==90 )
 	{
-	    x = pDesignObj_DataGrid->m_rPosition.Right()-( Row*( pDesignObj_DataGrid->m_FixedRowHeight+1 ) ) + DeltaX - pDesignObj_DataGrid->m_FixedRowHeight;
-		y = pDesignObj_DataGrid->m_rPosition.Y+( Column *( pDesignObj_DataGrid->m_FixedColumnWidth+1 ) ) + DeltaY;
+	    x = pDesignObj_DataGrid->Data.m_rPosition.Right()-( Row*( pDesignObj_DataGrid->m_FixedRowHeight+1 ) ) + DeltaX - pDesignObj_DataGrid->m_FixedRowHeight;
+		y = pDesignObj_DataGrid->Data.m_rPosition.Y+( Column *( pDesignObj_DataGrid->m_FixedColumnWidth+1 ) ) + DeltaY;
 	}
 	else if( m_iRotation==180 )
 	{
-	    x = pDesignObj_DataGrid->m_rPosition.Right()-( (Column+Colspan-1)*( pDesignObj_DataGrid->m_FixedColumnWidth+1 ) ) + DeltaX - pDesignObj_DataGrid->m_FixedColumnWidth;
-		y = pDesignObj_DataGrid->m_rPosition.Bottom()-( (Row+Rowspan-1) *( pDesignObj_DataGrid->m_FixedRowHeight+1 ) ) + DeltaY - pDesignObj_DataGrid->m_FixedRowHeight;
+	    x = pDesignObj_DataGrid->Data.m_rPosition.Right()-( (Column+Colspan-1)*( pDesignObj_DataGrid->m_FixedColumnWidth+1 ) ) + DeltaX - pDesignObj_DataGrid->m_FixedColumnWidth;
+		y = pDesignObj_DataGrid->Data.m_rPosition.Bottom()-( (Row+Rowspan-1) *( pDesignObj_DataGrid->m_FixedRowHeight+1 ) ) + DeltaY - pDesignObj_DataGrid->m_FixedRowHeight;
 	}
 	else if( m_iRotation==270 )
 	{
-	    x = pDesignObj_DataGrid->m_rPosition.X+( Row*( pDesignObj_DataGrid->m_FixedRowHeight+1 ) ) + DeltaX;
-		y = pDesignObj_DataGrid->m_rPosition.Bottom()-( (Column+Colspan-1) *( pDesignObj_DataGrid->m_FixedColumnWidth+1 ) ) + DeltaY - pDesignObj_DataGrid->m_FixedColumnWidth;
+	    x = pDesignObj_DataGrid->Data.m_rPosition.X+( Row*( pDesignObj_DataGrid->m_FixedRowHeight+1 ) ) + DeltaX;
+		y = pDesignObj_DataGrid->Data.m_rPosition.Bottom()-( (Column+Colspan-1) *( pDesignObj_DataGrid->m_FixedColumnWidth+1 ) ) + DeltaY - pDesignObj_DataGrid->m_FixedColumnWidth;
 	}
 	else
 	{
-	    x = pDesignObj_DataGrid->m_rPosition.X+( Column*( pDesignObj_DataGrid->m_FixedColumnWidth+1 ) ) + DeltaX;
-		y = pDesignObj_DataGrid->m_rPosition.Y+( Row *( pDesignObj_DataGrid->m_FixedRowHeight+1 ) ) + DeltaY;
+	    x = pDesignObj_DataGrid->Data.m_rPosition.X+( Column*( pDesignObj_DataGrid->m_FixedColumnWidth+1 ) ) + DeltaX;
+		y = pDesignObj_DataGrid->Data.m_rPosition.Y+( Row *( pDesignObj_DataGrid->m_FixedRowHeight+1 ) ) + DeltaY;
 	}
 
     if ( Column == 0 && pDesignObj_DataGrid->m_FirstColumnWidth > 0 && ( pDesignObj_DataGrid->m_GridCurCol == 0 || pDesignObj_DataGrid->m_bKeepColHeader ))
@@ -4308,12 +4311,12 @@ void Orbiter::GetGridCellDimensions( DesignObj_DataGrid *pDesignObj_DataGrid,  i
 
 	if( m_iRotation==0 )
 	{
-	    if ( x+w > pDesignObj_DataGrid->m_rPosition.X + pDesignObj_DataGrid->m_rPosition.Width )
+	    if ( x+w > pDesignObj_DataGrid->Data.m_rPosition.X + pDesignObj_DataGrid->Data.m_rPosition.Width )
 		    // Oops,  width is greater than the size of the object.  Truncate.
-	        w = ( pDesignObj_DataGrid->m_rPosition.X+pDesignObj_DataGrid->m_rPosition.Width ) - x;
-	    if ( y+h > pDesignObj_DataGrid->m_rPosition.Y + pDesignObj_DataGrid->m_rPosition.Height )
+	        w = ( pDesignObj_DataGrid->Data.m_rPosition.X+pDesignObj_DataGrid->Data.m_rPosition.Width ) - x;
+	    if ( y+h > pDesignObj_DataGrid->Data.m_rPosition.Y + pDesignObj_DataGrid->Data.m_rPosition.Height )
 	        // Oops,  height is greater than the size of the object.  Truncate.
-		    h = ( pDesignObj_DataGrid->m_rPosition.Y+pDesignObj_DataGrid->m_rPosition.Height ) - y;
+		    h = ( pDesignObj_DataGrid->Data.m_rPosition.Y+pDesignObj_DataGrid->Data.m_rPosition.Height ) - y;
     }
 
     vm.Release(  );
@@ -4486,16 +4489,16 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
         {
             if(pObj->m_vectGraphic.size() && pObj->m_vectGraphic[pObj->m_iCurrentFrame]->Width > 0)
             {
-                int ClickX = X - pObj->m_rPosition.X;
-                Output+=StringUtils::itos( pObj->m_vectGraphic[pObj->m_iCurrentFrame]->Width * ClickX / pObj->m_rPosition.Width );
+                int ClickX = X - pObj->Data.m_rPosition.X;
+                Output+=StringUtils::itos( pObj->m_vectGraphic[pObj->m_iCurrentFrame]->Width * ClickX / pObj->Data.m_rPosition.Width );
             }
         }
         else if(  Variable=="YS"  )
         {
             if(pObj->m_vectGraphic.size() && pObj->m_vectGraphic[pObj->m_iCurrentFrame]->Height > 0)
             {
-                int ClickY = Y - pObj->m_rPosition.Y;
-                Output += StringUtils::itos( pObj->m_vectGraphic[pObj->m_iCurrentFrame]->Height * ClickY / pObj->m_rPosition.Height );
+                int ClickY = Y - pObj->Data.m_rPosition.Y;
+                Output += StringUtils::itos( pObj->m_vectGraphic[pObj->m_iCurrentFrame]->Height * ClickY / pObj->Data.m_rPosition.Height );
             }
         }
         else if(  Variable=="S"  )
@@ -4586,12 +4589,12 @@ void Orbiter::FindDGArrows( DesignObj_Orbiter *pObj, DesignObj_DataGrid *pDGObj 
         {
             DesignObjCommand *pCommand = ( *iCommand );
 
-            if(  pCommand->m_PK_Command == COMMAND_Scroll_Grid_CONST  )
+            if(  pCommand->Data.m_PK_Command == COMMAND_Scroll_Grid_CONST  )
             {
                 if(  pCommand->m_ParameterList[COMMANDPARAMETER_Level_CONST]=="-1"  )
                     continue; // This is just a move to the top/bottom
                 // If this Command points to this grid or to nothing,  it's a match
-                if(  atoi( pCommand->m_ParameterList[COMMANDPARAMETER_PK_DesignObj_CONST].c_str(  ) ) == pDGObj->m_iBaseObjectID ||
+                if(  atoi( pCommand->m_ParameterList[COMMANDPARAMETER_PK_DesignObj_CONST].c_str(  ) ) == pDGObj->Data.m_iBaseObjectID ||
                     atoi( pCommand->m_ParameterList[COMMANDPARAMETER_PK_DesignObj_CONST].c_str(  ) ) == 0  )
                 {
                     int PK_Direction = atoi( pCommand->m_ParameterList[COMMANDPARAMETER_PK_Direction_CONST].c_str(  ) );
@@ -4859,7 +4862,7 @@ void Orbiter::GetVideoFrame( void *data )
 		if(  !pObj->IsHidden(  )  )
 		{
 			char *pBuffer=NULL; int Size=0;  string sFormat;
-			DCE::CMD_Get_Video_Frame CMD_Get_Video_Frame( m_dwPK_Device,  atoi( pObj->GetParameterValue( DESIGNOBJPARAMETER_Source_CONST ).c_str(  ) ), "0",  0 /* stream */, pObj->m_rBackgroundPosition.Width, pObj->m_rBackgroundPosition.Height, &pBuffer, &Size, &sFormat );
+			DCE::CMD_Get_Video_Frame CMD_Get_Video_Frame( m_dwPK_Device,  atoi( pObj->GetParameterValue( DESIGNOBJPARAMETER_Source_CONST ).c_str(  ) ), "0",  0 /* stream */, pObj->Data.m_rBackgroundPosition.Width, pObj->Data.m_rBackgroundPosition.Height, &pBuffer, &Size, &sFormat );
 			if(  SendCommand( CMD_Get_Video_Frame ) && pBuffer  )
 			{
 				CMD_Update_Object_Image( pObj->m_ObjectID,  sFormat ,  pBuffer,  Size, "1" );
@@ -4988,7 +4991,7 @@ DumpScreenHistory();
         if( pScreenHistory->m_bCantGoBack && sForce!="1"  )
             continue;
 
-        if( m_pScreenHistory_Current && pScreenHistory->m_pObj==m_pScreenHistory_Current->m_pObj && !pScreenHistory->m_pObj->m_bCanGoBackToSameScreen  )
+        if( m_pScreenHistory_Current && pScreenHistory->m_pObj==m_pScreenHistory_Current->m_pObj && !pScreenHistory->m_pObj->Data.m_bCanGoBackToSameScreen  )
             continue;
 
 		break;   // We got one to go back to
@@ -5006,7 +5009,7 @@ DumpScreenHistory();
 		vm.Release();
 
 		//hack! :(
-		if( pScreenHistory->m_pObj->m_iBaseObjectID == atoi(m_sMainMenu.c_str()) )
+		if( pScreenHistory->m_pObj->Data.m_iBaseObjectID == atoi(m_sMainMenu.c_str()) )
 		{
 #ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS,"Forcing go back to the main menu");
@@ -5072,7 +5075,7 @@ g_pPlutoLogger->Write(LV_STATUS,"CMD_Goto_Screen: %s",sPK_DesignObj.c_str());
 		return;
 	}
 
-	if( pObj_New->m_iBaseObjectID == atoi(m_sMainMenu.c_str()) )
+	if( pObj_New->Data.m_iBaseObjectID == atoi(m_sMainMenu.c_str()) )
 	{
 #ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS,"Forcing go to the main menu");
@@ -5093,14 +5096,14 @@ g_pPlutoLogger->Write(LV_STATUS,"Forcing go to the main menu");
     }
 
 	//hack! if the simulator is running, we won't go to pluto admin screen
-	if(Simulator::GetInstance()->IsRunning() && (pObj_New->m_iBaseObjectID==DESIGNOBJ_mnuAdvancedOptions_CONST || pObj_New->m_iBaseObjectID==DESIGNOBJ_mnuDisplayPower_CONST) )
+	if(Simulator::GetInstance()->IsRunning() && (pObj_New->Data.m_iBaseObjectID==DESIGNOBJ_mnuAdvancedOptions_CONST || pObj_New->Data.m_iBaseObjectID==DESIGNOBJ_mnuDisplayPower_CONST) )
 		return;
 
     // We're going to change screens,  create the new ScreenHistory object
     ScreenHistory *pScreenHistory_New = new ScreenHistory( pObj_New, m_pScreenHistory_Current );
     // See if we're going to control a new device,  or should stick with the one we're now controlling
     pScreenHistory_New->m_sID=sID;
-	pScreenHistory_New->m_bCantGoBack = bCant_Go_Back ? true : pObj_New->m_bCantGoBack;
+	pScreenHistory_New->m_bCantGoBack = bCant_Go_Back ? true : pObj_New->Data.m_bCantGoBack;
     vm.Release(  );
 
     // See if we need to store the variables on this screen,  so we restore them in case of a go back
@@ -5248,7 +5251,7 @@ void Orbiter::CMD_Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iP
         pObj = FindObject( sPK_DesignObj );
 
 	DesignObj_DataGrid *pObj_Datagrid = NULL;
-	if( pObj && pObj->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
+	if( pObj && pObj->Data.m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
 		pObj_Datagrid = (DesignObj_DataGrid *) pObj;
 	else if( pObj )
 	{
@@ -5645,7 +5648,7 @@ void Orbiter::CMD_Set_Bound_Icon(string sValue_To_Assign,string sType,string &sC
 	for(DesignObj_DataList::iterator it=pDesignObj_DataList->begin();it!=pDesignObj_DataList->end();++it)
 	{
 		DesignObj_Orbiter *pObj = (DesignObj_Orbiter *) *it;
-		pObj->m_bDontResetState=true;
+		pObj->Data.m_bDontResetState=true;
 		pObj->m_GraphicToDisplay = iValue;
 		if( pObj->m_bOnScreen )
 		{
@@ -5993,7 +5996,7 @@ DesignObjText *Orbiter::FindText( DesignObj_Orbiter *pObj,  int iPK_Text )
     {
         DesignObjText *pText_Temp = *it_text;
 
-        if( pText_Temp->m_PK_Text == iPK_Text )
+        if( pText_Temp->Data.m_PK_Text == iPK_Text )
         {
             pText = pText_Temp;
             break;
@@ -6084,10 +6087,10 @@ bool Orbiter::BuildCaptureKeyboardParams( string sPK_DesignObj, int iPK_Variable
     }
     else
     {
-	    m_sCaptureKeyboard_Text += StringUtils::itos( m_pCaptureKeyboard_Text->m_rPosition.X ) + ",";
-        m_sCaptureKeyboard_Text += StringUtils::itos( m_pCaptureKeyboard_Text->m_rPosition.Y ) + ",";
-        m_sCaptureKeyboard_Text += StringUtils::itos( m_pCaptureKeyboard_Text->m_rPosition.Width ) + ",";
-        m_sCaptureKeyboard_Text += StringUtils::itos( m_pCaptureKeyboard_Text->m_rPosition.Height );
+	    m_sCaptureKeyboard_Text += StringUtils::itos( m_pCaptureKeyboard_Text->Data.m_rPosition.X ) + ",";
+        m_sCaptureKeyboard_Text += StringUtils::itos( m_pCaptureKeyboard_Text->Data.m_rPosition.Y ) + ",";
+        m_sCaptureKeyboard_Text += StringUtils::itos( m_pCaptureKeyboard_Text->Data.m_rPosition.Width ) + ",";
+        m_sCaptureKeyboard_Text += StringUtils::itos( m_pCaptureKeyboard_Text->Data.m_rPosition.Height );
     }
 
     return true;
@@ -6095,8 +6098,8 @@ bool Orbiter::BuildCaptureKeyboardParams( string sPK_DesignObj, int iPK_Variable
 
 void Orbiter::GetButtonsInObject( DesignObj_Data *pObj, vector<int> &vectButtons )
 {
-    if( pObj->m_iPK_Button )
-        vectButtons.push_back(pObj->m_iPK_Button);
+    if( pObj->Data.m_iPK_Button )
+        vectButtons.push_back(pObj->Data.m_iPK_Button);
 
     DesignObj_DataList::iterator iHao;
     for( iHao=pObj->m_ChildObjects.begin(  ); iHao != pObj->m_ChildObjects.end(  ); ++iHao )
@@ -6260,10 +6263,10 @@ void Orbiter::RenderFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_O
     int Type = atoi(pDesignObj_Orbiter->GetParameterValue(DESIGNOBJPARAMETER_Type_CONST).c_str());
 
     string sResult;
-	DCE::CMD_Get_Current_Floorplan CMD_Get_Current_Floorplan(m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, StringUtils::itos(pDesignObj_Orbiter->m_iPage), Type, &sResult);
+	DCE::CMD_Get_Current_Floorplan CMD_Get_Current_Floorplan(m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, StringUtils::itos(pDesignObj_Orbiter->Data.m_iPage), Type, &sResult);
     SendCommand(CMD_Get_Current_Floorplan);
 
-    FloorplanObjectVectorMap *pFloorplanObjectVectorMap = m_mapFloorplanObjectVector_Find(pDesignObj_Orbiter->m_iPage);
+    FloorplanObjectVectorMap *pFloorplanObjectVectorMap = m_mapFloorplanObjectVector_Find(pDesignObj_Orbiter->Data.m_iPage);
     FloorplanObjectVector *fpObjVector = NULL;
 
 //  FloodFill(150,241, RGB(0,0,0), RGB(255,255,0));
@@ -6272,7 +6275,7 @@ void Orbiter::RenderFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_O
         fpObjVector = (*pFloorplanObjectVectorMap)[Type];
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"Get current floorplan %d page %d returned %s",Type, pDesignObj_Orbiter->m_iPage, sResult.c_str());
+	g_pPlutoLogger->Write(LV_STATUS,"Get current floorplan %d page %d returned %s",Type, pDesignObj_Orbiter->Data.m_iPage, sResult.c_str());
 #endif
 
     if( fpObjVector )
@@ -6293,8 +6296,8 @@ void Orbiter::RenderFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_O
 
 			if( fpObj->pObj )
             {
-                if( fpObj->pObj->m_rBackgroundPosition.X+fpObj->pObj->m_rBackgroundPosition.Width>m_Width ||
-                    fpObj->pObj->m_rBackgroundPosition.Y+fpObj->pObj->m_rBackgroundPosition.Height>m_Height )
+                if( fpObj->pObj->Data.m_rBackgroundPosition.X+fpObj->pObj->Data.m_rBackgroundPosition.Width>m_Width ||
+                    fpObj->pObj->Data.m_rBackgroundPosition.Y+fpObj->pObj->Data.m_rBackgroundPosition.Height>m_Height )
                 {
                     g_pPlutoLogger->Write(LV_CRITICAL,"Floorplan object %s is out of bounds ",fpObj->DeviceDescription.c_str());
                     continue;
@@ -6306,11 +6309,11 @@ void Orbiter::RenderFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_O
 
 #ifdef DEBUG
 					g_pPlutoLogger->Write(LV_STATUS,"Replacing obj %s %d,%d-%d,%d with color %d",
-						fpObj->pObj->m_ObjectID.c_str(),fpObj->pObj->m_rBackgroundPosition.X,fpObj->pObj->m_rBackgroundPosition.Y,fpObj->pObj->m_rBackgroundPosition.Width,
-						fpObj->pObj->m_rBackgroundPosition.Height, (int) Color);
+						fpObj->pObj->m_ObjectID.c_str(),fpObj->pObj->Data.m_rBackgroundPosition.X,fpObj->pObj->Data.m_rBackgroundPosition.Y,fpObj->pObj->Data.m_rBackgroundPosition.Width,
+						fpObj->pObj->Data.m_rBackgroundPosition.Height, (int) Color);
 #endif
-					ReplaceColorInRectangle(point.X + fpObj->pObj->m_rBackgroundPosition.X, point.Y + fpObj->pObj->m_rBackgroundPosition.Y,fpObj->pObj->m_rBackgroundPosition.Width,
-						fpObj->pObj->m_rBackgroundPosition.Height, Magenta, Color);
+					ReplaceColorInRectangle(point.X + fpObj->pObj->Data.m_rBackgroundPosition.X, point.Y + fpObj->pObj->Data.m_rBackgroundPosition.Y,fpObj->pObj->Data.m_rBackgroundPosition.Width,
+						fpObj->pObj->Data.m_rBackgroundPosition.Height, Magenta, Color);
 
 				}
 
@@ -6319,7 +6322,7 @@ void Orbiter::RenderFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_O
                     DesignObjText *pDesignObjText = fpObj->pObj->m_vectDesignObjText[0];
                     pDesignObjText->m_sText = OSD;
                 }
-                //FloodFill(fpObj->pObj->m_rectBackground.X + fpObj->FillX,fpObj->pObj->m_rectBackground.Y + fpObj->FillY, RGB(0,0,0), Color);
+                //FloodFill(fpObj->pObj->Data.m_rectBackground.X + fpObj->FillX,fpObj->pObj->Data.m_rectBackground.Y + fpObj->FillY, RGB(0,0,0), Color);
             }
         }
     }
@@ -6440,7 +6443,7 @@ void Orbiter::CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sVa
 bool Orbiter::TestCurrentScreen(string &sPK_DesignObj_CurrentScreen)
 {
     PLUTO_SAFETY_LOCK( vm, m_VariableMutex );
-	if( sPK_DesignObj_CurrentScreen.length(  ) && ( !m_pScreenHistory_Current || atoi( sPK_DesignObj_CurrentScreen.c_str(  ) )!=m_pScreenHistory_Current->m_pObj->m_iBaseObjectID )  ) // It should be at the beginning
+	if( sPK_DesignObj_CurrentScreen.length(  ) && ( !m_pScreenHistory_Current || atoi( sPK_DesignObj_CurrentScreen.c_str(  ) )!=m_pScreenHistory_Current->m_pObj->Data.m_iBaseObjectID )  ) // It should be at the beginning
     {
         // Be sure it's not a -1 telling us to be at the main menu
         if(  sPK_DesignObj_CurrentScreen=="-1" )
@@ -6448,9 +6451,9 @@ bool Orbiter::TestCurrentScreen(string &sPK_DesignObj_CurrentScreen)
 			if( !m_pScreenHistory_Current || !m_pScreenHistory_Current->m_pObj )
 				return false;
 
-			if( m_pScreenHistory_Current->m_pObj->m_iBaseObjectID==m_pDesignObj_Orbiter_MainMenu->m_iBaseObjectID ||
-					(m_pDesignObj_Orbiter_SleepingMenu && m_pScreenHistory_Current->m_pObj->m_iBaseObjectID==m_pDesignObj_Orbiter_SleepingMenu->m_iBaseObjectID) ||
-					(m_pDesignObj_Orbiter_ScreenSaveMenu && m_pScreenHistory_Current->m_pObj->m_iBaseObjectID==m_pDesignObj_Orbiter_ScreenSaveMenu->m_iBaseObjectID) )
+			if( m_pScreenHistory_Current->m_pObj->Data.m_iBaseObjectID==m_pDesignObj_Orbiter_MainMenu->Data.m_iBaseObjectID ||
+					(m_pDesignObj_Orbiter_SleepingMenu && m_pScreenHistory_Current->m_pObj->Data.m_iBaseObjectID==m_pDesignObj_Orbiter_SleepingMenu->Data.m_iBaseObjectID) ||
+					(m_pDesignObj_Orbiter_ScreenSaveMenu && m_pScreenHistory_Current->m_pObj->Data.m_iBaseObjectID==m_pDesignObj_Orbiter_ScreenSaveMenu->Data.m_iBaseObjectID) )
 				return true;
 			else
 	            return false;
@@ -6466,7 +6469,7 @@ void Orbiter::ContinuousRefresh( void *data )
 		delete pContinuousRefreshInfo;
 	else
 	{
-		if( m_pScreenHistory_Current->m_pObj->m_iBaseObjectID==DESIGNOBJ_mnuScreenSaver_CONST )
+		if( m_pScreenHistory_Current->m_pObj->Data.m_iBaseObjectID==DESIGNOBJ_mnuScreenSaver_CONST )
 		{
 			if( !m_bDisplayOn )
 				return; // Nothing more to do
@@ -6475,8 +6478,8 @@ void Orbiter::ContinuousRefresh( void *data )
 			if( pText  )
 			{
 				pText->m_sText = StringUtils::itos(	int(m_tTimeoutTime - time(NULL)) ) + " seconds";
-				pText->m_rPosition.X = int(rand() * (float) (m_iImageWidth * .5 / RAND_MAX));
-				pText->m_rPosition.Y = int(rand() * (float) (m_iImageHeight *.9 / RAND_MAX));
+				pText->Data.m_rPosition.X = int(rand() * (float) (m_iImageWidth * .5 / RAND_MAX));
+				pText->Data.m_rPosition.Y = int(rand() * (float) (m_iImageHeight *.9 / RAND_MAX));
 			}
 
 			CMD_Set_Text(m_pScreenHistory_Current->m_pObj->m_ObjectID, StringUtils::itos( int(m_tTimeoutTime - time(NULL)) ) + " seconds",TEXT_USR_ENTRY_CONST);
@@ -6533,7 +6536,7 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
             for( iAction=( *iZone )->m_Commands.begin(  );iAction!=( *iZone )->m_Commands.end(  );++iAction )
             {
                 //int c = ( *iAction )->m_PK_Command;
-                if(  ( *iAction )->m_PK_Command==COMMAND_Set_Current_Location_CONST  )
+                if(  ( *iAction )->Data.m_PK_Command==COMMAND_Set_Current_Location_CONST  )
                 {
                     map<int,  string>::iterator iap;
                     for( iap=( *iAction )->m_ParameterList.begin(  );iap!=( *iAction )->m_ParameterList.end(  );++iap )
@@ -6569,7 +6572,7 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
             DesignObjCommandList::iterator iAction;
             for( iAction=( *iZone )->m_Commands.begin(  );!PK_Users && iAction!=( *iZone )->m_Commands.end(  );++iAction )
             {
-                if(  ( *iAction )->m_PK_Command==COMMAND_Set_Current_User_CONST  )
+                if(  ( *iAction )->Data.m_PK_Command==COMMAND_Set_Current_User_CONST  )
                 {
                     map<int,  string>::iterator iap;
                     for( iap=( *iAction )->m_ParameterList.begin(  );iap!=( *iAction )->m_ParameterList.end(  );++iap )
@@ -6625,7 +6628,7 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 	SolidRectangle( m_iImageWidth - 250, m_iImageHeight - 30, 250, 25, color, 50);
 	PlutoRectangle rect2(m_iImageWidth - 250, m_iImageHeight - 30, 250, 25);
 	DesignObjText text2(m_pScreenHistory_Current->m_pObj);
-	text2.m_rPosition = rect2;
+	text2.Data.m_rPosition = rect2;
 	TextStyle *pTextStyle = m_mapTextStyle_Find( 1 );
 	string sText = "Current screen: " + this->GetCurrentScreenID();
 	RenderText(sText,&text2, pTextStyle);
@@ -6648,7 +6651,7 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 	SolidRectangle(5, m_iImageHeight - 30, 200, 25, color, 50);
 	PlutoRectangle rect(5, m_iImageHeight - 30, 200, 25);
 	DesignObjText text(m_pScreenHistory_Current->m_pObj);
-	text.m_rPosition = rect;
+	text.Data.m_rPosition = rect;
 	TextStyle *pTextStyle = m_mapTextStyle_Find( 1 );
 	string sText = "Key code: " + StringUtils::ltos(key);
 	RenderText(sText,&text, pTextStyle);
@@ -6658,7 +6661,7 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 	SolidRectangle( m_iImageWidth - 250, m_iImageHeight - 30, 250, 25, color2, 50);
 	PlutoRectangle rect2(m_iImageWidth - 250, m_iImageHeight - 30, 250, 25);
 	DesignObjText text2(m_pScreenHistory_Current->m_pObj);
-	text2.m_rPosition = rect2;
+	text2.Data.m_rPosition = rect2;
 	sText = "Current screen: " + this->GetCurrentScreenID();
 	RenderText(sText,&text2, pTextStyle);
 	UpdateRect(PlutoRectangle(5, m_iImageHeight - 30, 200, 25), PlutoPoint(0, 0));
@@ -6747,7 +6750,7 @@ int k=2;
 
 	string sFileName = "";
 	if(pPlutoGraphic->IsEmpty() && NULL != m_pCacheImageManager && pPlutoGraphic->m_Filename.length() && 
-		m_pCacheImageManager->IsImageInCache(pPlutoGraphic->m_Filename, pObj->m_Priority)
+		m_pCacheImageManager->IsImageInCache(pPlutoGraphic->m_Filename, pObj->Data.m_Priority)
 	)
 	{
 		//if we have the file in cache
@@ -6781,7 +6784,7 @@ int k=2;
 		//save the image in cache
 		if(NULL != m_pCacheImageManager) //cache manager is enabled ?
 		{
-			m_pCacheImageManager->CacheImage(pGraphicFile, iSizeGraphicFile, pPlutoGraphic->m_Filename, pObj->m_Priority);
+			m_pCacheImageManager->CacheImage(pGraphicFile, iSizeGraphicFile, pPlutoGraphic->m_Filename, pObj->Data.m_Priority);
 			sFileName = m_pCacheImageManager->GetCacheImageFileName(pPlutoGraphic->m_Filename);
 		}
 
@@ -6925,12 +6928,12 @@ int k=2;
 
 /*virtual*/ void Orbiter::GetRepeatedKeysForScreen(DesignObj_Orbiter* pObj, string& sKeysList)
 {
-    if(pObj->m_bRepeatParm)
+    if(pObj->Data.m_bRepeatParm)
     {
         if(sKeysList.length())
             sKeysList += ",";
 
-        sKeysList += StringUtils::ltos(pObj->m_iPK_Button);
+        sKeysList += StringUtils::ltos(pObj->Data.m_iPK_Button);
     }
 
     DesignObj_DataList::iterator it;
@@ -6943,7 +6946,7 @@ int k=2;
 
 /*virtual*/ bool Orbiter::IsRepeatedKeyForScreen(DesignObj_Orbiter* pObj, int iPK_Button)
 {
-    if(pObj->m_bRepeatParm && pObj->m_iPK_Button == iPK_Button)
+    if(pObj->Data.m_bRepeatParm && pObj->Data.m_iPK_Button == iPK_Button)
         return true;
 
     DesignObj_DataList::iterator it;
@@ -6982,12 +6985,12 @@ int k=2;
 	if(!pPlutoGraphic->IsEmpty())
 	{
 		BeginPaint();
-		RenderGraphic(pPlutoGraphic, pObj->m_rBackgroundPosition, pObj->m_bDisableAspectLock);
+		RenderGraphic(pPlutoGraphic, pObj->Data.m_rBackgroundPosition, pObj->m_bDisableAspectLock);
 
         if(pObj == m_pObj_Highlighted)
             HighlightObject(pObj);
 
-        UpdateRect(pObj->m_rPosition, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));
+        UpdateRect(pObj->Data.m_rPosition, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));
 		EndPaint();
 	}
 
@@ -7190,13 +7193,13 @@ void Orbiter::CMD_Set_Timeout(string sPK_DesignObj,string sTime,string &sCMD_Res
     }
 
 
-	pObj->m_dwTimeoutSeconds = atoi(sTime.c_str());
+	pObj->Data.m_dwTimeoutSeconds = atoi(sTime.c_str());
 
 #ifdef DEBUG
-g_pPlutoLogger->Write( LV_STATUS, "set timeout on %s to %d  %p = %p",pObj->m_ObjectID.c_str(),pObj->m_dwTimeoutSeconds,pObj,m_pScreenHistory_Current->m_pObj );
+g_pPlutoLogger->Write( LV_STATUS, "set timeout on %s to %d  %p = %p",pObj->m_ObjectID.c_str(),pObj->Data.m_dwTimeoutSeconds,pObj,m_pScreenHistory_Current->m_pObj );
 #endif
-	if( pObj==m_pScreenHistory_Current->m_pObj && pObj->m_dwTimeoutSeconds )
-		CallMaintenanceInMiliseconds( pObj->m_dwTimeoutSeconds * 1000, &Orbiter::Timeout, (void *) pObj, pe_ALL, true );
+	if( pObj==m_pScreenHistory_Current->m_pObj && pObj->Data.m_dwTimeoutSeconds )
+		CallMaintenanceInMiliseconds( pObj->Data.m_dwTimeoutSeconds * 1000, &Orbiter::Timeout, (void *) pObj, pe_ALL, true );
 }
 //<-dceag-c325-b->
 
@@ -7242,7 +7245,7 @@ void Orbiter::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
 	SolidRectangle(5, m_iImageHeight - 30, 200, 25, color, 50);
 	PlutoRectangle rect(5, m_iImageHeight - 30, 200, 25);
 	DesignObjText text(m_pScreenHistory_Current->m_pObj);
-	text.m_rPosition = rect;
+	text.Data.m_rPosition = rect;
 	TextStyle *pTextStyle = m_mapTextStyle_Find( 1 );
 	string sText = "Display is OFF";
 	RenderText(sText,&text, pTextStyle);
@@ -7265,8 +7268,8 @@ void Orbiter::CMD_Set_Mouse_Pointer_Over_Object(string sPK_DesignObj,string &sCM
 		g_pPlutoLogger->Write(LV_CRITICAL,"MousePointerOverUnknownObject: %s",sPK_DesignObj.c_str());
 		return;
 	}
-	int X = pObj->m_rPosition.X + pObj->m_rPosition.Width/2;
-	int Y = pObj->m_rPosition.Y + pObj->m_rPosition.Height/2;
+	int X = pObj->Data.m_rPosition.X + pObj->Data.m_rPosition.Width/2;
+	int Y = pObj->Data.m_rPosition.Y + pObj->Data.m_rPosition.Height/2;
 	SetMousePointer(X,Y);
 }
 
@@ -7376,7 +7379,7 @@ void Orbiter::CMD_Send_Message(string sText,string &sCMD_Result,Message *pMessag
 
 void Orbiter::ResetState(DesignObj_Orbiter *pObj, bool bDontResetState)
 {
-    if(  pObj->m_bDontResetState || pObj->m_bOneTimeDontReset  )
+    if(  pObj->Data.m_bDontResetState || pObj->m_bOneTimeDontReset  )
     {
         pObj->m_bOneTimeDontReset=false;
         bDontResetState=true;
@@ -7384,7 +7387,7 @@ void Orbiter::ResetState(DesignObj_Orbiter *pObj, bool bDontResetState)
     else if(  !bDontResetState  )
     {
         pObj->m_GraphicToDisplay=GRAPHIC_NORMAL;
-        pObj->m_bHidden=pObj->m_bHideByDefault;
+        pObj->m_bHidden=pObj->Data.m_bHideByDefault;
     }
 
     DesignObj_DataList::iterator iHao;
@@ -7470,7 +7473,7 @@ void Orbiter::CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_
 	if( m_iRotation==90 )
 	{
 		int x=pt.X;
-		pt.X = m_sScreenSize.Height - pt.Y - pObj_Popup->m_rPosition.Height;
+		pt.X = m_sScreenSize.Height - pt.Y - pObj_Popup->Data.m_rPosition.Height;
 		pt.Y = x;
 	}
 
@@ -7717,7 +7720,7 @@ void Orbiter::HandleNewObjectsOnScreen(VectDesignObj_Orbiter *pVectDesignObj_Orb
     for( s=0;s<pVectDesignObj_Orbiter->size(  );++s )
     {
         DesignObj_Orbiter *pDesignObj_Orbiter = (*pVectDesignObj_Orbiter)[s];
-        if ( pDesignObj_Orbiter->m_ObjectType == DESIGNOBJTYPE_Datagrid_CONST )
+        if ( pDesignObj_Orbiter->Data.m_ObjectType == DESIGNOBJTYPE_Datagrid_CONST )
         {
             InitializeGrid( ( DesignObj_DataGrid * )pDesignObj_Orbiter  );
 		    m_vectObjs_GridsOnScreen.push_back( ( DesignObj_DataGrid * ) pDesignObj_Orbiter );
@@ -7775,7 +7778,7 @@ void Orbiter::CMD_Show_Floorplan(int iPosition_X,int iPosition_Y,string sType,st
 		g_pPlutoLogger->Write(LV_CRITICAL,"No floorplan for type %s",sType.c_str());
 		return;
 	}
-	if( !m_pScreenHistory_Current || (pObj->m_rPosition.Width==m_pScreenHistory_Current->m_pObj->m_rPosition.Width && pObj->m_rPosition.Height==m_pScreenHistory_Current->m_pObj->m_rPosition.Height) )
+	if( !m_pScreenHistory_Current || (pObj->Data.m_rPosition.Width==m_pScreenHistory_Current->m_pObj->Data.m_rPosition.Width && pObj->Data.m_rPosition.Height==m_pScreenHistory_Current->m_pObj->Data.m_rPosition.Height) )
 		GotoScreen(pObj->m_ObjectID);
 	else
 		CMD_Show_Popup(pObj->m_ObjectID,iPosition_X,iPosition_Y,"","floorplan",false,false);
@@ -7815,4 +7818,323 @@ void Orbiter::CMD_Set_Mouse_Position_Relative(int iPosition_X,int iPosition_Y,st
 void Orbiter::CMD_Simulate_Mouse_Click_At_Present_Pos(string sType,string &sCMD_Result,Message *pMessage)
 //<-dceag-c416-e->
 {
+}
+
+
+
+
+
+bool Orbiter::Serialize( bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition, void *pExtraSerializationData )	
+{
+	// Save the starting points
+	m_pcDataBlock=pcDataBlock; m_dwAllocatedSize=dwAllocatedSize; m_pcCurrentPosition=pcCurrentPosition;
+		
+	// In some cases a class may need extra data to properly serialize in UnknownSerialize.  This is an extra void pointer that can be cast to something useful
+	m_pExtraSerializationData=pExtraSerializationData;
+
+	if( !m_bManuallySetupSerialization )
+	{
+		// For Symbian compatibility
+		MYSTL_ITERATE_VECT( m_vectItemToSerialize, ItemToSerialize, pItem_del, it_del )
+		{
+			delete pItem_del;
+		}
+		MYSTL_CLEAR_LIST(m_vectItemToSerialize);
+		if( bWriting )
+		{
+			Write_unsigned_long(m_iSC_Version);
+			SetupSerialization(m_iSC_Version);
+		}
+		else
+		{
+			unsigned long iSC_Version = Read_unsigned_long();
+			SetupSerialization(iSC_Version);
+		}
+	}
+#ifdef DEBUG_SERIALIZATION
+	cout << "Schema for: " << SerializeClassClassName();
+	MYSTL_ITERATE_VECT(m_vectItemToSerialize,ItemToSerialize,pItem_cout,it_cout)
+	{
+		cout << " " << pItem_cout->m_iSerializeDataType;
+	}
+	cout << endl;
+#endif
+	MYSTL_ITERATE_VECT(m_vectItemToSerialize,ItemToSerialize,pItem,it)
+	{
+
+		// These are self-serializing, we don't need the if( bWriting ) split.  However, these classes are 
+		// derived from SerializeClass.  Therefore, we can't include the class definitions before binary
+		// serialize.  We do a forward declaration, and have to put the actual switch block in a .cpp
+		// file to avoid the cylcical dependencies
+		if( SelfSerializing(bWriting,pItem) )
+			continue;
+			
+		if( bWriting )
+		{
+#ifdef DEBUG_SERIALIZATION
+			cout << "Writing type " << pItem->m_iSerializeDataType << " from class " << SerializeClassClassName() << " at pos: " << (int) CurrentSize() << endl;
+#endif
+			switch(pItem->m_iSerializeDataType)
+			{
+			case SERIALIZE_DATA_TYPE_CHAR:
+				Write_char( *((char *) pItem->m_pItem) );
+				break;
+			case SERIALIZE_DATA_TYPE_SHORT:
+				Write_short( *((short *) pItem->m_pItem) );
+				break;
+			case SERIALIZE_DATA_TYPE_LONG:
+				Write_long( *((long *) pItem->m_pItem) );
+				break;
+			case SERIALIZE_DATA_TYPE_UNSIGNED_LONG:
+				Write_unsigned_long( *((unsigned long *) pItem->m_pItem) );
+				break;
+#ifndef SYMBIAN
+			case SERIALIZE_DATA_TYPE_INT64:
+				Write_int64( *((u_int64_t *) pItem->m_pItem) );
+				break;
+#endif
+			case SERIALIZE_DATA_TYPE_STRING:
+				Write_string( *((string *) pItem->m_pItem) );
+				break;
+#ifndef SYMBIAN
+			case SERIALIZE_DATA_TYPE_VECT_STRING:
+				{
+					vector<string> *pVect = (vector<string> *) pItem->m_pItem;
+					Write_unsigned_long((unsigned long) pVect->size());
+#ifdef DEBUG_SERIALIZATION
+					cout << "Writing " << (unsigned long) pVect->size() << " vector strings" << endl;
+#endif
+					for(size_t s=0; s < pVect->size(); ++s)
+					{
+						Write_string( (*pVect)[s] );
+					}
+				}
+				break;
+			case SERIALIZE_DATA_TYPE_BLOCK:
+				{
+					PlutoDataBlock *pBlock = (PlutoDataBlock *) pItem->m_pItem;
+					Write_unsigned_long(pBlock->m_dwSize);
+					Write_block(pBlock->m_pBlock,pBlock->m_dwSize);
+				}
+				break;
+
+			case SERIALIZE_DATA_TYPE_VECT_INT:
+				{
+					vector<int> *pVect = (vector<int> *) pItem->m_pItem;
+					Write_unsigned_long((unsigned long) pVect->size());
+#ifdef DEBUG_SERIALIZATION
+					cout << "Writing " << (unsigned long) pVect->size() << " vector ints" << endl;
+#endif
+					for(size_t s=0; s < pVect->size(); ++s)
+					{
+						Write_unsigned_long( (*pVect)[s] );
+					}
+				}
+				break;
+			case SERIALIZE_DATA_TYPE_VECT_PAIR_INT:
+				{
+					vector< pair<int,int> > *pVect = (vector< pair<int,int> > *) pItem->m_pItem;
+					Write_unsigned_long((unsigned long) pVect->size());
+#ifdef DEBUG_SERIALIZATION
+					cout << "Writing " << (unsigned long) pVect->size() << " vector pair ints" << endl;
+#endif
+					for(size_t s=0; s < pVect->size(); ++s)
+					{
+						Write_unsigned_long( (*pVect)[s].first );
+						Write_unsigned_long( (*pVect)[s].second );
+					}
+				}
+				break;
+			case SERIALIZE_DATA_TYPE_INT_STRING:
+				{
+					map<int,string> *pMap = (map<int,string> *) pItem->m_pItem;
+					Write_unsigned_long((unsigned long) pMap->size());
+#ifdef DEBUG_SERIALIZATION
+					cout << "Writing " << (unsigned long) pMap->size() << " map int strings" << endl;
+#endif
+					map<int,string>::iterator it;
+					for(it=pMap->begin(); it!=pMap->end(); ++it)
+					{
+						Write_long( (*it).first );
+						Write_string( (*it).second );
+					}
+				}
+				break;
+			case SERIALIZE_DATA_TYPE_STRING_STRING:
+				{
+					map<string,string> *pMap = (map<string,string> *) pItem->m_pItem;
+					Write_unsigned_long((unsigned long) pMap->size());
+#ifdef DEBUG_SERIALIZATION
+					cout << "Writing " << (unsigned long) pMap->size() << " map string strings" << endl;
+#endif
+					map<string,string>::iterator it;
+					for(it=pMap->begin(); it!=pMap->end(); ++it)
+					{
+						string key=(*it).first;
+						Write_string( key );
+						Write_string( (*it).second );
+					}
+				}
+				break;
+
+#endif
+
+			default:
+				{
+					if( !UnknownSerialize(pItem,bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition) )
+					{
+
+#ifdef DEBUG_SERIALIZATION
+						cout << "Unknown Serialize failed" << endl;
+#else
+
+#ifndef SYMBIAN						
+
+						throw ("Don't know how to serialize data type" + StringUtils::itos(pItem->m_iSerializeDataType)).c_str();
+#else
+						/** @todo show a popup */
+#endif
+#endif
+						return false; // We don't know how to serialize this type
+					}
+				}
+			};
+		}
+		else
+		{
+
+#ifdef DEBUG_SERIALIZATION
+			cout << "Reading type " << pItem->m_iSerializeDataType << " from class " << SerializeClassClassName() << " at pos:" << (int) CurrentSize() << endl;
+#endif
+			switch(pItem->m_iSerializeDataType)
+			{
+			case SERIALIZE_DATA_TYPE_CHAR:
+				*((char *) pItem->m_pItem)=Read_char();
+				break;
+			case SERIALIZE_DATA_TYPE_SHORT:
+				*((short *) pItem->m_pItem)=Read_short();
+				break;
+			case SERIALIZE_DATA_TYPE_LONG:
+				*((long *) pItem->m_pItem)=Read_long();
+				break;
+			case SERIALIZE_DATA_TYPE_UNSIGNED_LONG:
+				*((unsigned long *) pItem->m_pItem)=Read_unsigned_long();
+				break;
+#ifndef SYMBIAN
+			case SERIALIZE_DATA_TYPE_INT64:
+				*((u_int64_t *) pItem->m_pItem)=Read_int64();
+				break;
+#endif
+			case SERIALIZE_DATA_TYPE_STRING:
+				Read_string( *((string *) pItem->m_pItem) );
+				break;
+#ifndef SYMBIAN
+			case SERIALIZE_DATA_TYPE_VECT_STRING:
+				{
+					vector<string> *pVect = (vector<string> *) pItem->m_pItem;
+					unsigned long count = Read_unsigned_long();
+#ifdef DEBUG_SERIALIZATION
+					cout << "Reading " << count << " vector strings" << endl;
+#endif
+					for(size_t s=0;s<count;++s)
+					{
+						string value;
+						Read_string(value);
+						pVect->push_back(value);
+					}
+				}
+				break;
+			case SERIALIZE_DATA_TYPE_VECT_INT:
+				{
+					vector<int> *pVect = (vector<int> *) pItem->m_pItem;
+					unsigned long count = Read_unsigned_long();
+#ifdef DEBUG_SERIALIZATION
+					cout << "Reading " << count << " vector ints" << endl;
+#endif
+					for(size_t s=0;s<count;++s)
+					{
+						pVect->push_back(Read_unsigned_long());
+					}
+				}
+				break;
+			case SERIALIZE_DATA_TYPE_VECT_PAIR_INT:
+				{
+					vector< pair<int,int> > *pVect = (vector< pair<int,int> > *) pItem->m_pItem;
+					unsigned long count = Read_unsigned_long();
+#ifdef DEBUG_SERIALIZATION
+					cout << "Reading " << count << " vector pair ints" << endl;
+#endif
+					for(size_t s=0;s<count;++s)
+					{
+						long l1 = Read_unsigned_long();
+						long l2 = Read_unsigned_long();
+						pVect->push_back( pair<int,int> (l1,l2) );
+					}
+				}
+				break;
+			case SERIALIZE_DATA_TYPE_INT_STRING:
+				{
+					map<int,string> *pMap = (map<int,string> *) pItem->m_pItem;
+					unsigned long count=Read_unsigned_long();
+#ifdef DEBUG_SERIALIZATION
+					cout << "Reading " << count << " map int strings" << endl;
+#endif
+					for(size_t s=0;s<count;++s)
+					{
+						int Key = Read_long();
+						string value;
+						Read_string(value);
+						(*pMap)[Key]=value;
+					}
+				}
+				break;
+			case SERIALIZE_DATA_TYPE_STRING_STRING:
+				{
+					map<string,string> *pMap = (map<string,string> *) pItem->m_pItem;
+					unsigned long count=Read_unsigned_long();
+#ifdef DEBUG_SERIALIZATION
+					cout << "Reading " << count << " map string strings" << endl;
+#endif
+					for(size_t s=0;s<count;++s)
+					{
+						string key,value;
+						Read_string(key);
+						Read_string(value);
+						(*pMap)[key]=value;
+					}
+				}
+				break;
+#endif
+			case SERIALIZE_DATA_TYPE_BLOCK:
+				{
+					PlutoDataBlock *pBlock = (PlutoDataBlock *) pItem->m_pItem;
+					pBlock->m_dwSize = Read_unsigned_long();
+					pBlock->m_pBlock=Read_block(pBlock->m_dwSize);
+				}
+				break;
+			default:
+				{
+					if( !UnknownSerialize(pItem,bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition) )
+					{
+#ifdef DEBUG_SERIALIZATION
+						cout << "Unknown Serialize failed" << endl;
+#else
+
+#ifndef SYMBIAN							
+						throw ("Don't know how to serialize data type" + StringUtils::itos(pItem->m_iSerializeDataType)).c_str();
+#else
+						/** @todo show a popup */
+#endif
+							
+#endif
+						return false;
+					}
+				}
+			};
+		}
+	}
+
+	// We may have re-allocated the memory block and size, and the position will have changed
+	pcDataBlock=m_pcDataBlock; dwAllocatedSize=m_dwAllocatedSize; pcCurrentPosition=m_pcCurrentPosition;
+	return true;
 }

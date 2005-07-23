@@ -129,9 +129,9 @@ namespace DCE
 		/** overloding + for our custom serialize types */
 		
 		/**
-		 * @brief adds a new ItemToSerialize to the m_listItemToSerialize list (the m_vectDeviceData_Impl_Children vector)
+		 * @brief adds a new ItemToSerialize to the m_vectItemToSerialize list (the m_vectDeviceData_Impl_Children vector)
 		 */
-		DeviceData_Impl &operator+ ( VectDeviceData_Impl &i ) { m_listItemToSerialize.push_back( new ItemToSerialize( SERIALIZE_DATA_TYPE_VECTOR_DEVICEDATA_IMPL,(void *) &i ) ); return (*this); }
+		DeviceData_Impl &operator+ ( VectDeviceData_Impl &i ) { m_vectItemToSerialize.push_back( new ItemToSerialize( SERIALIZE_DATA_TYPE_VECTOR_DEVICEDATA_IMPL,(void *) &i ) ); return (*this); }
 
 		/**
 		 * @brief overrides the SerializeClass::UnknownSerialize method
