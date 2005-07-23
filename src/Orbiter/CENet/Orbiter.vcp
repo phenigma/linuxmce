@@ -1216,13 +1216,13 @@ DEP_CPP_HANDL=\
 	"..\Win32\StartOrbiter.h"\
 	".\stdafx.h"\
 	".\wince.h"\
-	{$(INCLUDE)}"aygshell.h"\
-	{$(INCLUDE)}"sipapi.h"\
-	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_HANDL=\
 	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
+	".\inuserm.h"\
+	".\ipapi.h"\
+	".\ygshell.h"\
 	
 
 !ENDIF 
@@ -1431,14 +1431,14 @@ DEP_CPP_MAIN_=\
 	".\OrbiterSDL_WinCE.h"\
 	".\stdafx.h"\
 	".\wince.h"\
-	{$(INCLUDE)}"aygshell.h"\
-	{$(INCLUDE)}"sipapi.h"\
-	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_MAIN_=\
 	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	"..\Win32\Orbiter_PocketFrog.h"\
+	".\inuserm.h"\
+	".\ipapi.h"\
+	".\ygshell.h"\
 	
 
 !ENDIF 
@@ -1569,14 +1569,14 @@ DEP_CPP_MAIND=\
 	".\OrbiterSDL_WinCE.h"\
 	".\stdafx.h"\
 	".\wince.h"\
-	{$(INCLUDE)}"aygshell.h"\
-	{$(INCLUDE)}"sipapi.h"\
-	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_MAIND=\
 	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	"..\Win32\Orbiter_PocketFrog.h"\
+	".\inuserm.h"\
+	".\ipapi.h"\
+	".\ygshell.h"\
 	
 
 !ENDIF 
@@ -2059,11 +2059,66 @@ SOURCE=.\OrbiterCE.rc
 # End Source File
 # Begin Source File
 
-SOURCE=..\SDL\OrbiterSDL.cpp
+SOURCE=..\OrbiterFileBrowser.cpp
 
 !IF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Release"
 
 DEP_CPP_ORBITER=\
+	"..\OrbiterFileBrowser.h"\
+	
+NODEP_CPP_ORBITER=\
+	"..\PlutoUtils\CommonIncludes.h"\
+	"..\SerializeClass\SerializeClass.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Debug"
+
+DEP_CPP_ORBITER=\
+	"..\OrbiterFileBrowser.h"\
+	
+NODEP_CPP_ORBITER=\
+	"..\PlutoUtils\CommonIncludes.h"\
+	"..\SerializeClass\SerializeClass.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_ORBITER=\
+	"..\OrbiterFileBrowser.h"\
+	
+NODEP_CPP_ORBITER=\
+	"..\PlutoUtils\CommonIncludes.h"\
+	"..\SerializeClass\SerializeClass.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_ORBITER=\
+	"..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\PlutoUtils\FileUtils.h"\
+	"..\..\PlutoUtils\getch.h"\
+	"..\..\PlutoUtils\MyMap.h"\
+	"..\..\PlutoUtils\MyStl.h"\
+	"..\..\PlutoUtils\MyString.h"\
+	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SerializeClass\SerializeClass.h"\
+	"..\OrbiterFileBrowser.h"\
+	
+NODEP_CPP_ORBITER=\
+	"..\..\PlutoUtils\PKFUNCS.H"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\SDL\OrbiterSDL.cpp
+
+!IF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Release"
+
+DEP_CPP_ORBITERS=\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_Orbiter.h"\
 	"..\Floorplan.h"\
@@ -2072,7 +2127,7 @@ DEP_CPP_ORBITER=\
 	"..\SDL\OrbiterSDL.h"\
 	"..\TextStyle.h"\
 	
-NODEP_CPP_ORBITER=\
+NODEP_CPP_ORBITERS=\
 	"..\DCE\Logger.h"\
 	"..\Gen_Devices\OrbiterBase.h"\
 	"..\Message.h"\
@@ -2092,7 +2147,7 @@ NODEP_CPP_ORBITER=\
 
 !ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Debug"
 
-DEP_CPP_ORBITER=\
+DEP_CPP_ORBITERS=\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_Orbiter.h"\
 	"..\Floorplan.h"\
@@ -2101,7 +2156,7 @@ DEP_CPP_ORBITER=\
 	"..\SDL\OrbiterSDL.h"\
 	"..\TextStyle.h"\
 	
-NODEP_CPP_ORBITER=\
+NODEP_CPP_ORBITERS=\
 	"..\DCE\Logger.h"\
 	"..\Gen_Devices\OrbiterBase.h"\
 	"..\Message.h"\
@@ -2121,7 +2176,7 @@ NODEP_CPP_ORBITER=\
 
 !ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Release"
 
-DEP_CPP_ORBITER=\
+DEP_CPP_ORBITERS=\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_Orbiter.h"\
 	"..\Floorplan.h"\
@@ -2130,7 +2185,7 @@ DEP_CPP_ORBITER=\
 	"..\SDL\OrbiterSDL.h"\
 	"..\TextStyle.h"\
 	
-NODEP_CPP_ORBITER=\
+NODEP_CPP_ORBITERS=\
 	"..\DCE\Logger.h"\
 	"..\Gen_Devices\OrbiterBase.h"\
 	"..\Message.h"\
@@ -2150,7 +2205,7 @@ NODEP_CPP_ORBITER=\
 
 !ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Debug"
 
-DEP_CPP_ORBITER=\
+DEP_CPP_ORBITERS=\
 	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\begin_code.h"\
 	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\close_code.h"\
 	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL.h"\
@@ -2236,7 +2291,7 @@ DEP_CPP_ORBITER=\
 	"..\TextStyle.h"\
 	".\wince.h"\
 	
-NODEP_CPP_ORBITER=\
+NODEP_CPP_ORBITERS=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	
 
@@ -2249,7 +2304,7 @@ SOURCE=.\OrbiterSDL_WinCE.cpp
 
 !IF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Release"
 
-DEP_CPP_ORBITERS=\
+DEP_CPP_ORBITERSD=\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_Orbiter.h"\
 	"..\Floorplan.h"\
@@ -2259,7 +2314,7 @@ DEP_CPP_ORBITERS=\
 	"..\TextStyle.h"\
 	".\OrbiterSDL_WinCE.h"\
 	
-NODEP_CPP_ORBITERS=\
+NODEP_CPP_ORBITERSD=\
 	"..\DCE\Logger.h"\
 	"..\Gen_Devices\OrbiterBase.h"\
 	"..\Message.h"\
@@ -2275,7 +2330,7 @@ NODEP_CPP_ORBITERS=\
 
 !ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Debug"
 
-DEP_CPP_ORBITERS=\
+DEP_CPP_ORBITERSD=\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_Orbiter.h"\
 	"..\Floorplan.h"\
@@ -2285,7 +2340,7 @@ DEP_CPP_ORBITERS=\
 	"..\TextStyle.h"\
 	".\OrbiterSDL_WinCE.h"\
 	
-NODEP_CPP_ORBITERS=\
+NODEP_CPP_ORBITERSD=\
 	"..\DCE\Logger.h"\
 	"..\Gen_Devices\OrbiterBase.h"\
 	"..\Message.h"\
@@ -2301,7 +2356,7 @@ NODEP_CPP_ORBITERS=\
 
 !ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Release"
 
-DEP_CPP_ORBITERS=\
+DEP_CPP_ORBITERSD=\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_Orbiter.h"\
 	"..\Floorplan.h"\
@@ -2311,7 +2366,7 @@ DEP_CPP_ORBITERS=\
 	"..\TextStyle.h"\
 	".\OrbiterSDL_WinCE.h"\
 	
-NODEP_CPP_ORBITERS=\
+NODEP_CPP_ORBITERSD=\
 	"..\DCE\Logger.h"\
 	"..\Gen_Devices\OrbiterBase.h"\
 	"..\Message.h"\
@@ -2327,7 +2382,7 @@ NODEP_CPP_ORBITERS=\
 
 !ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Debug"
 
-DEP_CPP_ORBITERS=\
+DEP_CPP_ORBITERSD=\
 	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\begin_code.h"\
 	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\close_code.h"\
 	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL.h"\
@@ -2399,13 +2454,13 @@ DEP_CPP_ORBITERS=\
 	".\OrbiterSDL_WinCE.h"\
 	".\stdafx.h"\
 	".\wince.h"\
-	{$(INCLUDE)}"aygshell.h"\
-	{$(INCLUDE)}"sipapi.h"\
-	{$(INCLUDE)}"winuserm.h"\
 	
-NODEP_CPP_ORBITERS=\
+NODEP_CPP_ORBITERSD=\
 	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
+	".\inuserm.h"\
+	".\ipapi.h"\
+	".\ygshell.h"\
 	
 
 !ENDIF 
@@ -2470,12 +2525,12 @@ DEP_CPP_POPUP=\
 	"..\Win32\PopupMessage.h"\
 	"..\Win32\StartOrbiter.h"\
 	".\stdafx.h"\
-	{$(INCLUDE)}"aygshell.h"\
-	{$(INCLUDE)}"sipapi.h"\
-	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_POPUP=\
 	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
+	".\inuserm.h"\
+	".\ipapi.h"\
+	".\ygshell.h"\
 	
 
 !ENDIF 
@@ -3180,14 +3235,14 @@ DEP_CPP_SELFU=\
 	".\OrbiterSDL_WinCE.h"\
 	".\stdafx.h"\
 	".\wince.h"\
-	{$(INCLUDE)}"aygshell.h"\
-	{$(INCLUDE)}"sipapi.h"\
-	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_SELFU=\
 	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	"..\Orbiter_PocketFrog.h"\
+	".\inuserm.h"\
+	".\ipapi.h"\
+	".\ygshell.h"\
 	
 
 !ENDIF 
@@ -3495,14 +3550,14 @@ DEP_CPP_SIMUL=\
 	".\OrbiterSDL_WinCE.h"\
 	".\stdafx.h"\
 	".\wince.h"\
-	{$(INCLUDE)}"aygshell.h"\
-	{$(INCLUDE)}"sipapi.h"\
-	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_SIMUL=\
 	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	"..\Orbiter_PocketFrog.h"\
+	".\inuserm.h"\
+	".\ipapi.h"\
+	".\ygshell.h"\
 	
 
 !ENDIF 
@@ -3734,14 +3789,14 @@ DEP_CPP_START=\
 	".\OrbiterSDL_WinCE.h"\
 	".\stdafx.h"\
 	".\wince.h"\
-	{$(INCLUDE)}"aygshell.h"\
-	{$(INCLUDE)}"sipapi.h"\
-	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_START=\
 	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	"..\Win32\Orbiter_PocketFrog.h"\
+	".\inuserm.h"\
+	".\ipapi.h"\
+	".\ygshell.h"\
 	
 
 !ENDIF 
