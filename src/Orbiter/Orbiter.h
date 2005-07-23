@@ -242,6 +242,7 @@ protected:
 	vector < class DesignObj_DataGrid * > m_vectObjs_GridsOnScreen; /** < All the grids currently on the screen */
 	vector < class DesignObj_Orbiter * > m_vectObjs_VideoOnScreen; /** < All the video on screen */
 	bool m_bAlreadyQueuedVideo; // We only put 1 GetVideFrame in the queue
+	class DesignObj_Orbiter *m_pObj_NowPlayingOnScreen; /** < The objects showing 'now playing' on screen */
 
     list<class PlutoPopup*> m_listPopups;
 
@@ -597,7 +598,7 @@ void RealRedraw( void *data );  // temp hack -- see comments
 	/**
 	 * @brief renders text with the specified style
 	 */
-	virtual void RenderText( class DesignObjText *Text, class TextStyle *pTextStyle, PlutoPoint point = PlutoPoint(0, 0) ) = 0;
+	virtual void RenderText( string &sTextToDisplay,class DesignObjText *Text, class TextStyle *pTextStyle, PlutoPoint point = PlutoPoint(0, 0) ) = 0;
 
 	/**
 	 * @brief draws an rectangle

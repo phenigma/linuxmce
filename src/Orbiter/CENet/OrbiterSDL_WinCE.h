@@ -54,7 +54,7 @@ public:
 
 	//base public methods
 	void OnQuit();
-	void RenderText(DesignObjText *Text,TextStyle *pTextStyle);
+	void RenderText(string &sTextToDisplay,DesignObjText *Text,TextStyle *pTextStyle);
 	void WriteStatusOutput(const char* pMessage);
 	bool SelfUpdate();
 

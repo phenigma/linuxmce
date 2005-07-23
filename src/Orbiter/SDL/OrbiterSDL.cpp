@@ -152,9 +152,8 @@ g_pPlutoLogger->Write(LV_STATUS, "~OrbiterSDL finished");
     Orbiter::RedrawObjects();
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void OrbiterSDL::RenderText(DesignObjText *Text,TextStyle *pTextStyle, PlutoPoint point)
+/*virtual*/ void OrbiterSDL::RenderText(string &sTextToDisplay,DesignObjText *Text,TextStyle *pTextStyle, PlutoPoint point)
 {
-    string TextToDisplay = SubstituteVariables(Text->m_sText, NULL, 0, 0).c_str();
     SDL_Rect TextLocation;
     TextLocation.x = point.X + Text->m_rPosition.X;
     TextLocation.y = point.Y + Text->m_rPosition.Y;

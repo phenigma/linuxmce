@@ -131,15 +131,13 @@ OrbiterSDL_WinCE::~OrbiterSDL_WinCE()
 	}
 }
 //-----------------------------------------------------------------------------------------------------
-void OrbiterSDL_WinCE::RenderText(DesignObjText *Text,TextStyle *pTextStyle)
+void OrbiterSDL_WinCE::RenderText(string &sTextToDisplay,DesignObjText *Text,TextStyle *pTextStyle)
 {
 	RECT rect;
 	rect.left   = Text->m_rPosition.X;
 	rect.top    = Text->m_rPosition.Y;
 	rect.right  = Text->m_rPosition.X + Text->m_rPosition.Width;
 	rect.bottom = Text->m_rPosition.Y + Text->m_rPosition.Height;
-
-	string TextToDisplay = SubstituteVariables(Text->m_sText, NULL, 0, 0).c_str();
 
 	TextWinCEObject *pTextWinCEObject = new TextWinCEObject(TextToDisplay, rect, pTextStyle);
 

@@ -30,7 +30,7 @@
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "DataGrid.h"
 
-void BoundRemote::UpdateOrbiter( MediaStream *pMediaStream, bool bRefreshScreen )
+void BoundRemote::UpdateOrbiter( MediaStream *pMediaStream, bool bRefreshScreen, Message **p_pMessage )
 {
     // Log a big warning on the log file. This should not crash the router but it is an error to call UpdateOrbiter with a NULL media Stream.
     if ( pMediaStream == NULL )
@@ -71,7 +71,8 @@ void BoundRemote::UpdateOrbiter( MediaStream *pMediaStream, bool bRefreshScreen 
     }
 
 	m_pMedia_Plugin->SetNowPlaying(m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pMediaStream->m_sMediaDescription, pMediaStream, bRefreshScreen, CMD_Update_Object_Image.m_pMessage );
-
-	m_pMedia_Plugin->QueueMessageToRouter( CMD_Update_Object_Image.m_pMessage );
-    // TODO -- Need a real way to send multiple messages to the same device in one package. This gets them to the
+	if( p_pMessage )
+		*p_pMessage = CMD_Update_Object_Image.m_pMessage;
+	else
+		m_pMedia_Plugin->QueueMessageToRouter( CMD_Update_Object_Image.m_pMessage );
 }

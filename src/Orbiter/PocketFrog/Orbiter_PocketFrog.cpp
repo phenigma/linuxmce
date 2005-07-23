@@ -318,11 +318,10 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
     }
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void Orbiter_PocketFrog::RenderText(class DesignObjText *Text,class TextStyle *pTextStyle, PlutoPoint point)
+/*virtual*/ void Orbiter_PocketFrog::RenderText(string &TextToDisplay,class DesignObjText *Text,class TextStyle *pTextStyle, PlutoPoint point)
 {
 	CHECK_STATUS();
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
-	string TextToDisplay = SubstituteVariables(Text->m_sText, NULL, 0, 0).c_str();
 
 	/*
 	//temp

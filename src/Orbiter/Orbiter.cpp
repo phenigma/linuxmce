@@ -476,7 +476,7 @@ if( !m_pScreenHistory_Current || !m_pScreenHistory_Current->m_pObj )
 	return;
 }
 #ifdef DEBUG
-    g_pPlutoLogger->Write( LV_STATUS, "Render screen: %s", m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str(  ) );
+    g_pPlutoLogger->Write( LV_CRITICAL, "Render screen: %s", m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str(  ) );
 #endif
 
 #if ( defined( PROFILING ) )
@@ -515,6 +515,9 @@ g_pPlutoLogger->Write( LV_STATUS, "Render screen: %s finished", m_pScreenHistory
 //-----------------------------------------------------------------------------------------------------------
 void Orbiter::RedrawObjects(  )
 {
+	PLUTO_SAFETY_LOCK(rm,m_NeedRedrawVarMutex);
+    if(m_vectObjs_NeedRedraw.size() == 0 && m_vectTexts_NeedRedraw.size() == 0 && m_bRerenderScreen==false)
+		return; // Nothing to do anyway
     // TODO --- hack
     // There appears to be a problem with SDL_Flip sometimes calling _XRead to wait for an event,  causing the thread
     // to block until there's an event,  so that our loop no longer gets back to the SDL_WaitEvent in the main pump
@@ -656,7 +659,8 @@ g_pPlutoLogger->Write( LV_STATUS, "Exiting Redraw Objects" );
             else
                 SolidRectangle( pText->m_rPosition.Left(),  pText->m_rPosition.Top(), pText->m_rPosition.Width,  pText->m_rPosition.Height,  pTextStyle->m_BackColor);
 
-			RenderText(pText, pTextStyle, AbsolutePosition);    
+		    string TextToDisplay = SubstituteVariables(pText->m_sText, pText->m_pObject, 0, 0).c_str();
+			RenderText(TextToDisplay,pText, pTextStyle, AbsolutePosition);    
 			UpdateRect(pText->m_rPosition, AbsolutePosition);
 		}
 		else
@@ -966,7 +970,8 @@ int k=2;
             continue;
         PROFILE_START( ctText );
             TextStyle *pTextStyle = pText->m_mapTextStyle_Find( 0 );
-        RenderText( pText, pTextStyle, point );
+	    string TextToDisplay = SubstituteVariables(pText->m_sText, pText->m_pObject, 0, 0).c_str();
+        RenderText( TextToDisplay, pText, pTextStyle, point );
         PROFILE_STOP( ctText,  "Text ( obj below )" );
     }
     if( pObj->m_pFloorplanObject && m_mapDevice_Selected.find(pObj->m_pFloorplanObject->PK_Device)!=m_mapDevice_Selected.end() )
@@ -996,12 +1001,11 @@ int k=2;
 
             PlutoRectangle rect(textPos.X, textPos.Y, 20, 20);
             DesignObjText text(m_pScreenHistory_Current->m_pObj);
-            text.m_sText = sCharToRender;
             text.m_rPosition = rect;
             TextStyle *pTextStyle = m_mapTextStyle_Find(1);
             PlutoColor OldColor = pTextStyle->m_ForeColor;
             pTextStyle->m_ForeColor.m_Value = 0x808080;
-            RenderText(&text, pTextStyle);
+            RenderText(sCharToRender,&text, pTextStyle);
             pTextStyle->m_ForeColor = OldColor;
         }
     }
@@ -1077,7 +1081,6 @@ bool Orbiter::RenderCell( class DesignObj_DataGrid *pObj,  class DataGridTable *
 		}
 
         DesignObjText Text( pObj );
-        Text.m_sText = pCell->GetText(  );
         // todo         Text.m_Rect = PlutoRectangle( x+pObj->BorderWidth,  y+pObj->BorderWidth,  w-( 2*pObj->BorderWidth ),  h-( 2*pObj->BorderWidth ) );
         Text.m_rPosition = PlutoRectangle( x,  y,  w,  h );
         //pTextStyle->m_BackColor = PlutoColor( 0, 0, 0, 255 );
@@ -1087,7 +1090,8 @@ bool Orbiter::RenderCell( class DesignObj_DataGrid *pObj,  class DataGridTable *
 		Text.m_iPK_HorizAlignment = pTextStyle->m_iPK_HorizAlignment;
 		Text.m_iPK_VertAlignment = pTextStyle->m_iPK_VertAlignment;
 
-        RenderText( &Text, pTextStyle, point );
+        string sText = pCell->GetText(  );
+        RenderText( sText, &Text, pTextStyle, point );
     }
     else
         g_pPlutoLogger->Write( LV_WARNING,  "Datagrid width or height is too small" );
@@ -1250,6 +1254,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Need to change screens executed to %s (%d)",
     PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
     m_vectObjs_GridsOnScreen.clear(  );
 	m_vectObjs_VideoOnScreen.clear(  );
+	m_pObj_NowPlayingOnScreen=NULL;
     dg.Release(  );
 
     PLUTO_SAFETY_LOCK( sm, m_ScreenMutex );
@@ -1732,8 +1737,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Selected grid %s but m_pDataGridTable is NULL"
                     SelectedGrid( pDesignObj_DataGrid,  pCell );
                     bFinishLoop = true;
                     bFoundSelection = true; // Is this correct????  Hacked in this time
-
-					CMD_Refresh(""); // AB 2005-07-07 we passed in this, but it causes teh grid to be re-acquired each time:pDesignObj_DataGrid->m_sGridID);
+				    m_vectObjs_NeedRedraw.push_back(pDesignObj_DataGrid);
                 }
 
                 if ( pLastCell != pCell )
@@ -2945,7 +2949,12 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
     {
         int k=2;
     }
-/*
+
+	for(size_t s=0;s<pObj->m_vectDesignObjText.size();++s)
+		pObj->m_vectDesignObjText[s]->m_pObject = pObj;
+
+	/*
+
 
     if(  pObj->m_ObjectID.find( "3290." )!=string::npos  )
         //if(  ocDesignObj->m_drDesignObj->PK_DesignObj_get(  )==2790  )
@@ -4016,6 +4025,7 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
 				}
 			}
 		}
+
         // We may attach a simulate keypress action to an onscreen button, like a keyboard key, which simulates pressing
         // that key if the user touches it.  In this case, we don't want to execute the simulate keypress command
         // if the button was selected because the user hit the button associated with it (ie x==-1 and y==-1 when input was ButtonDown)
@@ -4188,6 +4198,16 @@ g_pPlutoLogger->Write( LV_STATUS, "Parm %d = %s",( *iap ).first,Value.c_str());
 			if( !bResult || sResponse != "OK" )
 				g_pPlutoLogger->Write( LV_CRITICAL,  "Send Message failed with result %d Response %s",(int) bResult,sResponse.c_str());
 		}
+		else if( pMessage->m_dwID==COMMAND_Bind_to_Media_Remote_CONST )
+		{
+			pMessage->m_eExpectedResponse = ER_ReplyMessage;  // a set now playing command
+			Message *pResponse = m_pcRequestSocket->SendReceiveMessage( pMessage );
+			if( pResponse && pResponse->m_dwID )
+			{
+                ReceivedMessage( pResponse );
+				delete pResponse;
+			}
+		}
 		else
 		{
 			if( !m_pcRequestSocket->SendMessage( pMessage ) )
@@ -4349,6 +4369,9 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
         else if(  Variable=="NP" )
 		{
             Output += m_sNowPlaying;
+			m_pObj_NowPlayingOnScreen=pObj;
+			if( !m_pObj_NowPlayingOnScreen->m_pvectCurrentGraphic || m_pObj_NowPlayingOnScreen->m_pvectCurrentGraphic->size()==0 )
+				SaveBackgroundForDeselect( m_pObj_NowPlayingOnScreen, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
 		}
         else if(  Variable=="NPD" )
 		{
@@ -6398,8 +6421,8 @@ void Orbiter::CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sVa
 		CMD_Show_Popup(StringUtils::itos(m_iPK_DesignObj_Remote_Popup),m_Popop_RemoteControl_X,m_Popop_RemoteControl_Y,pObj_Popop_RemoteControl->m_ObjectID,"remote",false,false);
 	else if( pObj_Popop_RemoteControl && m_iPK_DesignObj_Remote_Popup==0 )
 		CMD_Remove_Popup(pObj_Popop_RemoteControl->m_ObjectID,"remote");
-	else
-		CMD_Refresh("");
+	else if( m_pObj_NowPlayingOnScreen )
+		m_vectObjs_NeedRedraw.push_back(m_pObj_NowPlayingOnScreen);
 }
 
 bool Orbiter::TestCurrentScreen(string &sPK_DesignObj_CurrentScreen)
@@ -6590,10 +6613,10 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 	SolidRectangle( m_iImageWidth - 250, m_iImageHeight - 30, 250, 25, color, 50);
 	PlutoRectangle rect2(m_iImageWidth - 250, m_iImageHeight - 30, 250, 25);
 	DesignObjText text2(m_pScreenHistory_Current->m_pObj);
-	text2.m_sText = "Current screen: " + this->GetCurrentScreenID();
 	text2.m_rPosition = rect2;
 	TextStyle *pTextStyle = m_mapTextStyle_Find( 1 );
-	RenderText(&text2, pTextStyle);
+	string sText = "Current screen: " + this->GetCurrentScreenID();
+	RenderText(sText,&text2, pTextStyle);
 	UpdateRect(PlutoRectangle(m_iImageWidth - 250, m_iImageHeight - 30, 250, 25), PlutoPoint(0, 0));
 	EndPaint();
 
@@ -6613,19 +6636,19 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 	SolidRectangle(5, m_iImageHeight - 30, 200, 25, color, 50);
 	PlutoRectangle rect(5, m_iImageHeight - 30, 200, 25);
 	DesignObjText text(m_pScreenHistory_Current->m_pObj);
-	text.m_sText = "Key code: " + StringUtils::ltos(key);
 	text.m_rPosition = rect;
 	TextStyle *pTextStyle = m_mapTextStyle_Find( 1 );
-	RenderText(&text, pTextStyle);
+	string sText = "Key code: " + StringUtils::ltos(key);
+	RenderText(sText,&text, pTextStyle);
 
 	//render current screen id
 	PlutoColor color2(255, 0, 0, 100);
 	SolidRectangle( m_iImageWidth - 250, m_iImageHeight - 30, 250, 25, color2, 50);
 	PlutoRectangle rect2(m_iImageWidth - 250, m_iImageHeight - 30, 250, 25);
 	DesignObjText text2(m_pScreenHistory_Current->m_pObj);
-	text2.m_sText = "Current screen: " + this->GetCurrentScreenID();
 	text2.m_rPosition = rect2;
-	RenderText(&text2, pTextStyle);
+	sText = "Current screen: " + this->GetCurrentScreenID();
+	RenderText(sText,&text2, pTextStyle);
 	UpdateRect(PlutoRectangle(5, m_iImageHeight - 30, 200, 25), PlutoPoint(0, 0));
 	EndPaint();
 
@@ -7207,10 +7230,10 @@ void Orbiter::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
 	SolidRectangle(5, m_iImageHeight - 30, 200, 25, color, 50);
 	PlutoRectangle rect(5, m_iImageHeight - 30, 200, 25);
 	DesignObjText text(m_pScreenHistory_Current->m_pObj);
-	text.m_sText = "Display is OFF";
 	text.m_rPosition = rect;
 	TextStyle *pTextStyle = m_mapTextStyle_Find( 1 );
-	RenderText(&text, pTextStyle);
+	string sText = "Display is OFF";
+	RenderText(sText,&text, pTextStyle);
 	UpdateRect(PlutoRectangle(5, m_iImageHeight - 30, 200, 25), PlutoPoint(0, 0));
 	EndPaint();
 }

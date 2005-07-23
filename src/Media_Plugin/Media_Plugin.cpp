@@ -1540,7 +1540,6 @@ g_pPlutoLogger->Write( LV_STATUS, "Orbiter %d %s is bound", pBoundRemote->m_pOH_
 void Media_Plugin::CMD_Bind_to_Media_Remote(int iPK_Device,string sPK_DesignObj,string sOnOff,string sPK_DesignObj_CurrentScreen,int iPK_Text,string sOptions,string sPK_EntertainArea,int iPK_Text_Timecode,int iPK_Text_SectionDesc,int iPK_Text_Synopsis,string &sCMD_Result,Message *pMessage)
 //<-dceag-c74-e->
 {
-
 g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::CMD_Bind_to_Media_Remote(). Binding (%s) orbiter %d to device %d with cover art on the object: %s",
 			sOnOff.c_str(),
 			pMessage->m_dwPK_Device_From,
@@ -1588,7 +1587,16 @@ g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::CMD_Bind_to_Media_Remote(). Bind
         pBoundRemote->m_iPK_Text_Section = iPK_Text_SectionDesc;
         pBoundRemote->m_iPK_Text_Synopsis = iPK_Text_Synopsis;
         pBoundRemote->m_iPK_Text_Timecode = iPK_Text_Timecode;
-        pBoundRemote->UpdateOrbiter( pEntertainArea->m_pMediaStream, false ); // So that it will put the picture back on this remote
+		if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+		{
+g_pPlutoLogger->Write(LV_STATUS,"embedding set now playing");
+			Message *pMessage_Response;
+	        pBoundRemote->UpdateOrbiter( pEntertainArea->m_pMediaStream, false, &pMessage_Response ); // So that it will put the picture back on this remote
+			pMessage->m_bRespondedToMessage=true;
+			SendMessage(pMessage_Response);
+		}
+		else
+	        pBoundRemote->UpdateOrbiter( pEntertainArea->m_pMediaStream, false ); // So that it will put the picture back on this remote
 g_pPlutoLogger->Write(LV_STATUS,"EA %d %s bound %d remotes",pEntertainArea->m_iPK_EntertainArea,pEntertainArea->m_sDescription.c_str(),(int) pEntertainArea->m_mapBoundRemote.size());
     }
 }
