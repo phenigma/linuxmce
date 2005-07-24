@@ -435,7 +435,10 @@ g_PlutoProfiler->Start("block1");
 	rectLocation.left   = 0;
 	rectLocation.top    = 0;
 
+g_PlutoProfiler->Start("block1 a");
 	HDC hdc_drawing=0, hdc = GetDisplay()->GetBackBuffer()->GetDC(false);
+g_PlutoProfiler->Stop("block1 a");
+
 	if( m_iRotation==0 )
 	{
 		hdc_drawing=hdc;
@@ -455,11 +458,13 @@ g_PlutoProfiler->Start("block1");
 			rectLocation.bottom = Text->m_rPosition.Width;
 		}
 
+g_PlutoProfiler->Start("block1 b");
 		hdc_drawing = CreateCompatibleDC(GetDisplay()->GetBackBuffer()->GetDC(false));
 		// Create a bitmap big enough for our client rectangle.
 		HBITMAP hbmMem = ::CreateCompatibleBitmap(hdc,
 										rectLocation.right,
 										rectLocation.bottom);
+g_PlutoProfiler->Stop("block1 b");
 
 		HGDIOBJ  hbmOld = ::SelectObject(hdc_drawing, hbmMem);
 		::DeleteObject(hbmOld);
@@ -566,8 +571,11 @@ g_PlutoProfiler->Start("block5");
 
 g_PlutoProfiler->Stop("block5");
 g_PlutoProfiler->Start("block6");
+
+g_PlutoProfiler->Start("block6 a");
 	::SelectObject(hdc_drawing, hFontOld);
 	::DeleteObject(hFontNew);
+g_PlutoProfiler->Stop("block6 b");
 
 	if( hdc_drawing!=hdc )
 	{
@@ -575,6 +583,7 @@ g_PlutoProfiler->Start("block6");
 		{
 			for(int y=0;y<(m_iRotation==180 ? Text->m_rPosition.Height: Text->m_rPosition.Width);y++)
 			{
+g_PlutoProfiler->Start("block6-rotation");
 				COLORREF c = ::GetPixel(hdc_drawing,x,y);
 				if( c==132 || c==128 )
 					continue;  // Unchanged
@@ -584,12 +593,16 @@ g_PlutoProfiler->Start("block6");
 					::SetPixel(hdc,Text->m_rPosition.Right()-x,Text->m_rPosition.Bottom()-y,c);
 				else if( m_iRotation==270 )
 					::SetPixel(hdc,Text->m_rPosition.X+y,Text->m_rPosition.Bottom()-x,c);
+g_PlutoProfiler->Stop("block6-rotation");
 			}
 		}
 		bool b2=DeleteDC(hdc_drawing);
 	}
 
+g_PlutoProfiler->Start("block6 b");
 	GetDisplay()->GetBackBuffer()->ReleaseDC(hdc);
+g_PlutoProfiler->Stop("block6 b");
+
 g_PlutoProfiler->Stop("block6");
 
 //#endif
