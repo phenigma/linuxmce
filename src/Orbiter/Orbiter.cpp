@@ -62,6 +62,7 @@ using namespace DCE;
 #include "Simulator.h"
 
 #include "PlutoUtils/Profiler.h"
+PlutoProfiler *g_PlutoProfiler=new PlutoProfiler();
 
 #define  VERSION "<=version=>"
 extern const char *g_szCompile_Date;
@@ -476,7 +477,9 @@ GENERAL PURPOSE METHODS
 //-----------------------------------------------------------------------------------------------------------
 void Orbiter::RenderScreen( )
 {
-if( !m_pScreenHistory_Current || !m_pScreenHistory_Current->m_pObj )
+g_PlutoProfiler->Start("renderscreen");
+
+	if( !m_pScreenHistory_Current || !m_pScreenHistory_Current->m_pObj )
 {
     g_pPlutoLogger->Write( LV_CRITICAL, "Got attempt to render null screen: %s", m_pScreenHistory_Current );
 	return;
@@ -516,6 +519,9 @@ if( !m_pScreenHistory_Current || !m_pScreenHistory_Current->m_pObj )
 #ifdef DEBUG
 g_pPlutoLogger->Write( LV_STATUS, "Render screen: %s finished", m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str(  ) );
 #endif
+	g_PlutoProfiler->Stop("renderscreen");
+	g_PlutoProfiler->DumpResults();
+	g_PlutoProfiler->ClearResults();
 }
 
 //-----------------------------------------------------------------------------------------------------------
@@ -751,6 +757,7 @@ g_pPlutoLogger->Write( LV_STATUS, "object: %s  not visible: %d", pObj->m_ObjectI
     if(  !pObj->m_pvectCurrentGraphic && pObj->m_GraphicToDisplay != GRAPHIC_NORMAL  )
         pObj->m_pvectCurrentGraphic = &(pObj->m_vectGraphic);
 
+g_PlutoProfiler->Start("rendergraphic");
     // This is somewhat of a hack, but we don't have a clean method for setting the graphics on the user & location buttons to
     if( pObj->m_bIsBoundToUser )
     {
@@ -798,6 +805,7 @@ int k=2;
 }
         RenderGraphic( pObj,  rectTotal, pObj->m_bDisableAspectLock, point );
     }
+g_PlutoProfiler->Stop("rendergraphic");
 
     if(pObj == m_pObj_Highlighted)
         HighlightObject(pObj, point);
@@ -818,7 +826,9 @@ int k=2;
         // todo 2.0     SolidRectangle( rectTotal.X,  rectTotal.Y,  rectTotal.Width,  rectTotal.Height,  atoi( pObj->GetParameterValue( DESIGNOBJPARAMETER_Cell_Color_CONST ).c_str(  ) ),  atoi( pObj->GetParameterValue( DESIGNOBJPARAMETER_Transparency_CONST ).c_str(  ) ) );
         break;
     case DESIGNOBJTYPE_Datagrid_CONST:
+g_PlutoProfiler->Start("renderdg");
         RenderDataGrid( ( DesignObj_DataGrid * )pObj, point );
+g_PlutoProfiler->Stop("renderdg");
         break;
     case DESIGNOBJTYPE_Floorplan_CONST:
         RenderFloorplan(pObj,pObj_Screen, point);
@@ -968,6 +978,7 @@ int k=2;
         RenderObject( pDesignObj_Orbiter,  pObj_Screen, point );
     }
 
+g_PlutoProfiler->Start("rendertext");
     VectorDesignObjText::iterator iText;
     for( iText=pObj->m_vectDesignObjText.begin(  ); iText != pObj->m_vectDesignObjText.end(  ); ++iText )
     {
@@ -980,6 +991,7 @@ int k=2;
         RenderText( TextToDisplay, pText, pTextStyle, point );
         PROFILE_STOP( ctText,  "Text ( obj below )" );
     }
+g_PlutoProfiler->Stop("rendertext");
     if( pObj->m_pFloorplanObject && m_mapDevice_Selected.find(pObj->m_pFloorplanObject->PK_Device)!=m_mapDevice_Selected.end() )
     {
 		int i;
@@ -1019,6 +1031,7 @@ int k=2;
 //-----------------------------------------------------------------------------------------------------------
 bool Orbiter::RenderCell( class DesignObj_DataGrid *pObj,  class DataGridTable *pT,  class DataGridCell *pCell,  int j,  int i,  int GraphicToDisplay, PlutoPoint point )
 {
+g_PlutoProfiler->Start("render cell");
     TextStyle *pTextStyle = pObj->m_pTextStyle;
     bool bTransparentCell = false; // todo,  is transparency in PlutoColor? ( strchr( pObj->GetParameterValue( C_PARAMETER_CELL_COLOR_CONST ).c_str(  ),  ', ' )==NULL );
 
@@ -1102,6 +1115,7 @@ bool Orbiter::RenderCell( class DesignObj_DataGrid *pObj,  class DataGridTable *
     else
         g_pPlutoLogger->Write( LV_WARNING,  "Datagrid width or height is too small" );
 
+g_PlutoProfiler->Stop("render cell");
     return bTransparentCell;
 }
 //------------------------------------------------------------------------
@@ -1123,7 +1137,9 @@ g_pPlutoLogger->Write(LV_WARNING,"RenderDataGrid %s %p",pObj->m_ObjectID.c_str()
     clock_t clkStart = clock(  );
 #endif
 
+g_PlutoProfiler->Start("prepare render dg");
     PrepareRenderDataGrid( pObj,  delSelections );
+g_PlutoProfiler->Stop("prepare render dg");
 
 #if ( defined( PROFILING_GRID ) )
     clock_t clkAcquired = clock(  );
@@ -2585,12 +2601,13 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 				// Request our config info
 				char *pConfigFile=NULL;
 				int iSizeConfigFile=0;
-
+g_PlutoProfiler->Start("getfile");
 				// We can't send it to the General Info virtual device since we won't have that until we get our config data
 				DCE::CMD_Request_File_Cat CMD_Request_File_Cat( m_dwPK_Device, DEVICECATEGORY_General_Info_Plugins_CONST, false,  BL_SameHouse, "orbiter/C" + StringUtils::itos( m_dwPK_Device ) + "/" + Filename,
 					&pConfigFile, &iSizeConfigFile );
 				SendCommand( CMD_Request_File_Cat );
 
+g_PlutoProfiler->Stop("getfile");
 				if ( !iSizeConfigFile )
 				{
 					g_pPlutoLogger->Write( LV_CRITICAL,  "Unable to get Orbiter data" );
@@ -2598,9 +2615,10 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 					m_bReload = true;
 					return;
 				}
+g_PlutoProfiler->Start("serialize");
 
 				// The framework needs a pointer to us when it's creating Orbiter objects,  pass in this as a void *
-				if(  !SerializeRead( iSizeConfigFile, pConfigFile, ( void * ) this ) || !ParseConfigurationData( Type )  )
+				if(  !SerializeRead( iSizeConfigFile, pConfigFile, ( void * ) this ) )
 				{
 					delete pMessage;
 					g_pPlutoLogger->Write( LV_CRITICAL,  "Unable to parse Orbiter data" );
@@ -2608,7 +2626,10 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 					m_bReload = true;
 					return;
 				}
-
+g_PlutoProfiler->Stop("serialize");
+g_PlutoProfiler->Start("parse");
+ParseConfigurationData( Type );
+g_PlutoProfiler->Stop("parse");
 				delete pConfigFile;
 			}
 
@@ -2715,6 +2736,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 
 void Orbiter::InitializeGrid( DesignObj_DataGrid *pObj )
 {
+g_PlutoProfiler->Start("init grid");
     PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
     /* todo 2.0
     bool bEPG = ( GridID.substr( 0, 3 )=="EPG" || GridID.substr( 0, 5 )=="CURSH" );
@@ -2794,6 +2816,7 @@ g_pPlutoLogger->Write(LV_WARNING,"from grid %s deleting m_pDataGridTable 1",pObj
     g_pPlutoLogger->Write( LV_WARNING, "Marker set: start time: %d column: %d", ( int ) EPGStartingTime, pObj->m_GridCurCol );
     }
     */
+g_PlutoProfiler->Stop("init grid");
 }
 //------------------------------------------------------------------------
 bool Orbiter::ParseConfigurationData( GraphicType Type )
@@ -4618,6 +4641,7 @@ void Orbiter::FindDGArrows( DesignObj_Orbiter *pObj, DesignObj_DataGrid *pDGObj 
 }
 bool Orbiter::AcquireGrid( DesignObj_DataGrid *pObj,  int GridCurCol,  int &GridCurRow,  DataGridTable* &pDataGridTable )
 {
+g_PlutoProfiler->Start("acquire grid");
     bool bLoadedSomething = false;
 
     if (  pObj->bReAcquire || !pDataGridTable || pDataGridTable->m_StartingColumn != GridCurCol || pDataGridTable->m_StartingRow != GridCurRow || pObj->m_sSeek.length() )
@@ -4672,6 +4696,7 @@ g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable deleted indirect
                     pObj->m_iHighlightedColumn=-1;
                 }
                 pObj->m_sSeek="";  // Only do the seek 1 time
+g_PlutoProfiler->Stop("acquire grid");
                 return pDataGridTable!=NULL;
             }
             else
@@ -4680,6 +4705,7 @@ g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable deleted indirect
             }
         }
     }
+g_PlutoProfiler->Stop("acquire grid");
     return false;
 }
 
