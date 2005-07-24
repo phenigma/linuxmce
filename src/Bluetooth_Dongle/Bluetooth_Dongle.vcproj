@@ -232,6 +232,9 @@
 				RelativePath="..\Gen_Devices\OrbiterBase.cpp">
 			</File>
 			<File
+				RelativePath="..\Orbiter\OrbiterFileBrowser.cpp">
+			</File>
+			<File
 				RelativePath="..\Orbiter\Sdl\OrbiterSDL.cpp">
 			</File>
 			<File

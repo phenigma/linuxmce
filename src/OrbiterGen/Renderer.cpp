@@ -212,8 +212,8 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
             if( !pRenderImage )
             {
                 // This is a new screen, start with a clean canvas
-				if( pDesignObj_Generator->m_bIsPopup && pDesignObj_Generator->Data.m_rPosition.Width && pDesignObj_Generator->Data.m_rPosition.Height )
-	                pRenderImage = CreateBlankCanvas(PlutoSize(pDesignObj_Generator->Data.m_rPosition.Width,pDesignObj_Generator->Data.m_rPosition.Height));
+				if( pDesignObj_Generator->m_bIsPopup && pDesignObj_Generator->m_rPosition.Width && pDesignObj_Generator->m_rPosition.Height )
+	                pRenderImage = CreateBlankCanvas(PlutoSize(pDesignObj_Generator->m_rPosition.Width,pDesignObj_Generator->m_rPosition.Height));
 				else
 	                pRenderImage = CreateBlankCanvas(PlutoSize(m_Width,m_Height)); // TROUBLE nr 1: this pointer is lost each time the for loop starts
                 bIsMenu=true;
@@ -221,9 +221,9 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
             else
             {
                 // This is going to be a "piece" of the existing background
-                pRenderImage=Subset(pRenderImage,pDesignObj_Generator->Data.m_rPosition + Position);
+                pRenderImage=Subset(pRenderImage,pDesignObj_Generator->m_rPosition + Position);
                 // All the child's objects will have absolute values, so the offset position if we're outputing to a separate file is our absolute position * -1
-                Position.X=pDesignObj_Generator->Data.m_rPosition.X*-1; Position.Y=pDesignObj_Generator->Data.m_rPosition.Y*-1;
+                Position.X=pDesignObj_Generator->m_rPosition.X*-1; Position.Y=pDesignObj_Generator->m_rPosition.Y*-1;
             }
 
             // Append to the filename based on what graphic we're outputing
@@ -241,13 +241,13 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
         {
 			if( StringUtils::ToUpper(FileUtils::FindExtension(sInputFile))=="MNG" )
 			{
-				pRendererMNG = CreateMNGFromFile(sInputFile,pDesignObj_Generator->Data.m_rBackgroundPosition.Size());
+				pRendererMNG = CreateMNGFromFile(sInputFile,pDesignObj_Generator->m_rBackgroundPosition.Size());
 				string::size_type pos = sInputFile.rfind('/');
 //				SaveMNGToFile("C:/x/" + sInputFile.substr(pos + 1), pRendererMNG);
 			}
 			else
 			{
-				pRenderImage_Child = CreateFromFile(sInputFile,pDesignObj_Generator->Data.m_rBackgroundPosition.Size(),bPreserveAspectRatio,bIsMenu,pDesignObj_Generator->m_rBitmapOffset,!pDesignObj_Generator->m_bContainsFloorplans);
+				pRenderImage_Child = CreateFromFile(sInputFile,pDesignObj_Generator->m_rBackgroundPosition.Size(),bPreserveAspectRatio,bIsMenu,pDesignObj_Generator->m_rBitmapOffset,!pDesignObj_Generator->m_bContainsFloorplans);
 //SaveImageToFile(pRenderImage_Child, "first");
 			}
 
@@ -258,8 +258,8 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 
 			if( pDesignObj_Generator->m_sVisibleState.find('T')!=string::npos )
 			{
-				int X = pDesignObj_Generator->Data.m_rBackgroundPosition.Width;
-				int Y = pDesignObj_Generator->Data.m_rBackgroundPosition.Height;
+				int X = pDesignObj_Generator->m_rBackgroundPosition.Width;
+				int Y = pDesignObj_Generator->m_rBackgroundPosition.Height;
 				StringUtils::Replace(&pDesignObj_Generator->m_sVisibleState,"T","");
 				int LineWidth = X / 8 + 1; // The width of each line
 				unsigned char *pHitTest = new unsigned char[LineWidth * Y];
@@ -320,7 +320,7 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 			{
 				RenderObjectsChildren(pRenderImageClone,pDesignObj_Generator,Position,iOnlyVersion_Children);
 				if(pRenderImageClone_Child )
-					CompositeImage(pRenderImageClone,pRenderImageClone_Child,pDesignObj_Generator->Data.m_rPosition.Location() + Position);
+					CompositeImage(pRenderImageClone,pRenderImageClone_Child,pDesignObj_Generator->m_rPosition.Location() + Position);
 				RenderObjectsText(pRenderImageClone,pDesignObj_Generator,Position,iIteration);
 			}
 			else // Render our own first
@@ -330,10 +330,10 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 //SaveImageToFile(pRenderImage, "ri");
 //SaveImageToFile(pRenderImageClone, "ic b4");
 //SaveImageToFile(pRenderImageClone_Child, "icc b4");
-					CompositeImage(pRenderImageClone,pRenderImageClone_Child,pDesignObj_Generator->Data.m_rPosition.Location() + Position);
+					CompositeImage(pRenderImageClone,pRenderImageClone_Child,pDesignObj_Generator->m_rPosition.Location() + Position);
 //SaveImageToFile(pRenderImageClone, "ic aft");
 				}
-				if( pDesignObj_Generator->Data.m_bChildrenBeforeText )
+				if( pDesignObj_Generator->m_bChildrenBeforeText )
 				{
 					RenderObjectsChildren(pRenderImageClone,pDesignObj_Generator,Position,iOnlyVersion_Children);
 					RenderObjectsText(pRenderImageClone,pDesignObj_Generator,Position,iIteration);
@@ -442,7 +442,7 @@ void Renderer::RenderObjectsText(RendererImage *pRenderImage,DesignObj_Generator
     for(size_t s=0;s<pDesignObj_Generator->m_vectDesignObjText.size();++s)
     {
         DesignObjText *pDesignObjText = pDesignObj_Generator->m_vectDesignObjText[s];
-        if( !pDesignObjText->Data.m_bPreRender )
+        if( !pDesignObjText->m_bPreRender )
             continue;
 
         // Find the style to use
@@ -451,7 +451,7 @@ void Renderer::RenderObjectsText(RendererImage *pRenderImage,DesignObj_Generator
             pTextStyle = pDesignObjText->m_mapTextStyle_Find(0);  // The standard one
 
         if( !pTextStyle )
-            throw "Cannot find a style to use for text " + StringUtils::itos(pDesignObjText->Data.m_PK_Text);
+            throw "Cannot find a style to use for text " + StringUtils::itos(pDesignObjText->m_PK_Text);
 
         RenderText(pRenderImage,pDesignObjText,pTextStyle,pDesignObj_Generator,pos);
     }
@@ -895,10 +895,10 @@ void Renderer::SaveMNGToFile(string FileName, RendererMNG * MNG)
 
 void Renderer::RenderText(RendererImage *pRenderImage, DesignObjText *pDesignObjText, TextStyle *pTextStyle, DesignObj_Generator *pDesignObj_Generator, PlutoPoint pos)
 {
-    PlutoRectangle rect = pDesignObjText->Data.m_rPosition + pos;
+    PlutoRectangle rect = pDesignObjText->m_rPosition + pos;
 
     WrapAndRenderText(pRenderImage->m_pSDL_Surface, pDesignObjText->m_sText, rect.X, rect.Y, rect.Width, rect.Height,
-        m_sFontPath, pTextStyle,pDesignObjText->Data.m_iPK_HorizAlignment,pDesignObjText->Data.m_iPK_VertAlignment);
+        m_sFontPath, pTextStyle,pDesignObjText->m_iPK_HorizAlignment,pDesignObjText->m_iPK_VertAlignment);
 }
 
 Uint32 Renderer::getpixel(RendererImage * RIsurface, int x, int y)

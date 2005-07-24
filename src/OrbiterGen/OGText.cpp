@@ -21,29 +21,29 @@ if( drOVTSL->FK_DesignObjVariation_Text_getrow()->FK_Text_get()==792 )
 {
 int k=2;
 }
-	Data.m_bPreRender=true;
+	m_bPreRender=true;
 	m_pParent=Parent;
 	Database_pluto_main *mds = drOVTSL->Table_DesignObjVariation_Text_Skin_Language_get()->Database_pluto_main_get();
 	m_pRow_DesignObjVariation_Text_Skin_Language=drOVTSL;
 	m_pdrOrbiter=drOrbiter;
 
 	Row_DesignObjVariation_Text *pp = drOVTSL->FK_DesignObjVariation_Text_getrow();
-	Data.m_PK_Text=pp->FK_Text_get();
+	m_PK_Text=pp->FK_Text_get();
 	if( (m_pdrText_LS=GetText_LS(drOVTSL->FK_DesignObjVariation_Text_getrow()->FK_Text_get(),Parent->m_pOrbiterGenerator))==NULL )
 		return;
 
 	m_sText = m_pdrText_LS->Description_get();
-	Data.m_rPosition.X = m_pRow_DesignObjVariation_Text_Skin_Language->X_get();
-	Data.m_rPosition.Y = m_pRow_DesignObjVariation_Text_Skin_Language->Y_get();
+	m_rPosition.X = m_pRow_DesignObjVariation_Text_Skin_Language->X_get();
+	m_rPosition.Y = m_pRow_DesignObjVariation_Text_Skin_Language->Y_get();
 	if( m_pRow_DesignObjVariation_Text_Skin_Language->Width_get()==0 )
-		Data.m_rPosition.Width = m_pParent->Data.m_rPosition.Width - Data.m_rPosition.X;
+		m_rPosition.Width = m_pParent->m_rPosition.Width - m_rPosition.X;
 	else
-		Data.m_rPosition.Width = m_pRow_DesignObjVariation_Text_Skin_Language->Width_get();
+		m_rPosition.Width = m_pRow_DesignObjVariation_Text_Skin_Language->Width_get();
 
 	if(m_pRow_DesignObjVariation_Text_Skin_Language->Height_get()==0)
-		Data.m_rPosition.Height = m_pParent->Data.m_rPosition.Height - Data.m_rPosition.Y;
+		m_rPosition.Height = m_pParent->m_rPosition.Height - m_rPosition.Y;
 	else
-		Data.m_rPosition.Height = m_pRow_DesignObjVariation_Text_Skin_Language->Height_get();
+		m_rPosition.Height = m_pRow_DesignObjVariation_Text_Skin_Language->Height_get();
 
 	bool bContainsRunTimeVariables;
 	m_sText = m_pParent->SubstituteVariables(m_sText,&bContainsRunTimeVariables);
@@ -70,7 +70,7 @@ todo c++
 		}
 	}
 */
-	Data.m_bPreRender = (!bContainsRunTimeVariables || m_mapAltVersions.size()>0);
+	m_bPreRender = (!bContainsRunTimeVariables || m_mapAltVersions.size()>0);
 }
 
 Row_Text_LS *CGText::GetText_LS(int PK_Text,OrbiterGenerator *pOrbiterGen)
