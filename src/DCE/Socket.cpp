@@ -158,6 +158,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Socket const");
     }
     else
         m_sIPAddress = sIPAddress;
+g_pPlutoLogger->Write(LV_STATUS,"aft gethostbyname");
 
 	m_iSocketCounter = SocketCounter++;
 	m_sName = Name;
@@ -228,6 +229,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Socket const");
 	printf("stop const %p\n",this);
 #endif
 #endif
+g_pPlutoLogger->Write(LV_STATUS,"end socket const");
 }
 
 Socket::~Socket()
