@@ -322,6 +322,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::RenderText(string &TextToDisplay,class DesignObjText *Text,class TextStyle *pTextStyle, PlutoPoint point)
 {
+g_PlutoProfiler->Start("rendertext total");
 	CHECK_STATUS();
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 
@@ -428,6 +429,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 
 #else //winxp/2000
   */
+g_PlutoProfiler->Start("block1");
 
 	RECT rectLocation;
 	rectLocation.left   = 0;
@@ -468,6 +470,8 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 		::SelectObject(hdc_drawing,hbrOld);
 		::DeleteObject(hbr);
 	}
+g_PlutoProfiler->Stop("block1");
+g_PlutoProfiler->Start("block2");
 	
 	LOGFONT lf;
 	HFONT hFontNew, hFontOld;
@@ -514,6 +518,8 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 	#define TEXT_TO_RENDER wText
 #endif
 
+g_PlutoProfiler->Stop("block2");
+g_PlutoProfiler->Start("block3");
 	//calculate rect first
 	::DrawText(hdc_drawing, TEXT_TO_RENDER, int(TextToDisplay.length()), &rectLocation, 
 		DT_WORDBREAK | DT_NOPREFIX | DT_CALCRECT | DT_MODIFYSTRING | DT_END_ELLIPSIS ); 
@@ -521,6 +527,8 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 	int iRealHeight = rectLocation.bottom;
 	if( iRealHeight>Text->m_rPosition.Height )
 		iRealHeight=Text->m_rPosition.Height; // Crop to the area
+g_PlutoProfiler->Stop("block3");
+g_PlutoProfiler->Start("block4");
 
 	// Figure out where to put this
 	CalcTextRectangle(rectLocation,Text->m_rPosition,m_iRotation,iRealHeight,Text->m_iPK_VertAlignment);
@@ -535,6 +543,8 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 
  	::SetTextColor(hdc_drawing, RGB(255,255,255));//pTextStyle->m_ForeColor.R(), pTextStyle->m_ForeColor.G(), pTextStyle->m_ForeColor.B()));
 	::SetBkMode(hdc_drawing, TRANSPARENT);
+g_PlutoProfiler->Stop("block4");
+g_PlutoProfiler->Start("block5");
 
 	switch (Text->m_iPK_HorizAlignment)
 	{
@@ -554,6 +564,8 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
             break;
 	}
 
+g_PlutoProfiler->Stop("block5");
+g_PlutoProfiler->Start("block6");
 	::SelectObject(hdc_drawing, hFontOld);
 	::DeleteObject(hFontNew);
 
@@ -578,7 +590,10 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 	}
 
 	GetDisplay()->GetBackBuffer()->ReleaseDC(hdc);
+g_PlutoProfiler->Stop("block6");
+
 //#endif
+g_PlutoProfiler->Stop("rendertext total");
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::SaveBackgroundForDeselect(DesignObj_Orbiter *pObj, PlutoPoint point)
@@ -628,13 +643,20 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 /*virtual*/ void Orbiter_PocketFrog::RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, 
     bool bDisableAspectRatio, PlutoPoint point)
 {
+g_PlutoProfiler->Start("rendergrtotal");
 	CHECK_STATUS();
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 	if(!pPlutoGraphic || pPlutoGraphic->GraphicType_get() != gtPocketFrogGraphic)
+{
+g_PlutoProfiler->Stop("rendergrtotal");
 		return;//nothing to render or not an pocket frog graphic
+}
 
 	if(pPlutoGraphic->IsEmpty())
-		return;
+{
+g_PlutoProfiler->Stop("rendergrtotal");
+		return;//nothing to render or not an pocket frog graphic
+}
 
 if( pPlutoGraphic->m_Filename=="" )
 int k=2;
@@ -648,7 +670,7 @@ g_PlutoProfiler->Start("IsBadReadPtr");
 		g_pPlutoLogger->Write(LV_CRITICAL, "The surface has a bad pointer for pixels array (Surface: %p, pixels: %p)",
 			pSurface, pSurface->m_buffer->GetPixels());
 		pPlutoGraphic->Clear(); //force reload ocg
-		return;
+int k=2;
 	}
 g_PlutoProfiler->Stop("IsBadReadPtr");
 
@@ -656,7 +678,7 @@ g_PlutoProfiler->Stop("IsBadReadPtr");
     rectTotal.Y += point.Y;
 
 	if(pSurface->GetWidth() == 0 || pSurface->GetHeight() == 0)
-		return;
+int k=2;
 	else
 		if(pSurface->GetWidth() != rectTotal.Width || pSurface->GetHeight() != rectTotal.Height)
 		{
@@ -691,6 +713,7 @@ g_PlutoProfiler->Start("Blit");
 			GetDisplay()->Blit( rectTotal.X, rectTotal.Y, pSurface );
 g_PlutoProfiler->Stop("Blit");
 		}
+g_PlutoProfiler->Stop("rendergrtotal");
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::BeginPaint()
