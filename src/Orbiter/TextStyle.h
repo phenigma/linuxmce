@@ -22,19 +22,8 @@ public:
 	TextStyle(class Row_StyleVariation *pRow_StyleVariation);
 	TextStyle() { m_pTTF_Font=NULL; } // Needed for de-serializing
 
-	void SetupSerialization(int iSC_Version)
-	{
-		StartSerializeList() + 
-			m_iPK_Style + m_iPK_StyleVariation + m_iPK_Style_Selected + m_iPK_Style_Highlighed + m_iPK_Style_Alt + m_iVersion +
-			m_sFont + 
-			m_ForeColor + m_BackColor + m_ShadowColor + 
-			m_iPixelHeight + 
-			m_bBold + m_bItalic + m_bUnderline + 
-			m_iShadowX + m_iShadowY +
-			m_iBorderStyle + m_iRotate + m_iPK_HorizAlignment + m_iPK_VertAlignment;
-	}
-
 	TextStyle::~TextStyle();
+	virtual bool Serialize(bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition, void *pExtraSerializationData=NULL);
 };
 
 typedef map<int,TextStyle *> MapTextStyle;

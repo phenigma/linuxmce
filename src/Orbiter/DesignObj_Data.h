@@ -41,14 +41,10 @@ public:
 		m_bDeliveryConfirmation=bDeliveryConfirmation;
 	};
 	virtual ~DesignObjCommand() { m_ParameterList.clear(); } 
-	void SetupSerialization(int iSC_Version)
-	{
-		StartSerializeList() + m_PK_Command + m_PK_Device + m_PK_DeviceGroup + 
-			BroadcastLevel + m_PK_DeviceTemplate + m_PK_DeviceCategory +
-			m_bRelativeToSender + m_bDeliveryConfirmation +
-			m_ParameterList;
-	}
+
 	virtual string SerializeClassClassName() { return "DesignObjCommand"; }
+
+	virtual bool Serialize(bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition, void *pExtraSerializationData=NULL);
 }; 
 
 class DesignObjZone : public SerializeClass
@@ -72,17 +68,9 @@ public:
 	PlutoRectangle m_Rect;
 	DesignObjCommandList m_Commands;
 
-	void SetupSerialization(int iSC_Version)
-	{
-		StartSerializeList() + m_Rect;
-		(*this) + m_Commands; // this is serialized custom
-	}
 	virtual string SerializeClassClassName() { return "DesignObjZone"; }
 
-	// For our custom serialize types.
-	DesignObjZone &operator+ (DesignObjCommandList &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_INT_DESIGNOBJACTIONLIST,(void *) &i)); return (*this); }
-
-	virtual bool UnknownSerialize(ItemToSerialize *pItem,bool bWriting,char *&pDataBlock,unsigned long &iAllocatedSize,char *&pCurrentPosition);
+	virtual bool Serialize(bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition, void *pExtraSerializationData=NULL);
 }; 
 
 typedef list<class DesignObj_Data *> DesignObj_DataList;
@@ -127,16 +115,8 @@ public:
 		m_mapTextStyle.clear();
 	};
 
-	void SetupSerialization(int iSC_Version)
-	{
-		StartSerializeList() + m_sText + m_bPreRender +
-			m_PK_Text + m_mapAltVersions + m_rPosition + m_iPK_VertAlignment + m_iPK_HorizAlignment;
-		
-		(*this) + m_mapTextStyle;
-	}
 	virtual string SerializeClassClassName() { return "DesignObjText"; }
-	DesignObjText &operator+ (MapTextStyle &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_INT_STYLEMAP,(void *) &i)); return (*this); }
-	virtual bool UnknownSerialize(ItemToSerialize *pItem,bool bWriting,char *&pDataBlock,unsigned long &iAllocatedSize,char *&pCurrentPosition);
+	virtual bool Serialize(bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition, void *pExtraSerializationData=NULL);
 };
 
 typedef vector<DesignObjText *> VectorDesignObjText;
@@ -183,32 +163,6 @@ public:
 		m_bTabStop = m_bRepeatParm=false;
 		return;
 	}
-
-	void SetupSerialization(int iSC_Version)
-	{
-		StartSerializeList() + m_bChild + m_bDontResetState + m_bCantGoBack + m_bCanGoBackToSameScreen + m_bChildrenBeforeText + m_bProcessActionsAtServer + m_bAnimate + m_bHideByDefault + 
-		m_bTabStop + m_iPK_Button + m_dwTimeoutSeconds + m_Priority + m_iPK_Criteria + 
-		m_sBackgroundFile +  m_sSelectedFile +  m_sHighlightGraphicFilename +
-		m_vectAltGraphicFilename + m_mapObjParms +
-		m_ObjectID +
-		m_iBaseObjectID + m_iVersion + m_iPage +
-		m_ObjectType + m_rectDontDim +  m_rPosition +  m_rBackgroundPosition + 
-		m_PK_DesignObj_Up + m_PK_DesignObj_Down + m_PK_DesignObj_Left + m_PK_DesignObj_Right + m_sPK_DesignObj_TiedTo + m_sVisibleState +
-		m_sOriginalSize + m_iRepeatIntervalInMS + m_bRepeatParm +
-		m_dwIDim + m_dbHitTest + m_iRegenInterval;
-
-		// These are handled locally, so start with this
-		(*this) + m_Action_LoadList + m_Action_UnloadList + m_Action_TimeoutList + m_Action_StartupList +
-			m_ZoneList + m_ChildObjects + m_vectDesignObjText;
-	}
-
-	// For our custom serialize types
-	DesignObj_Data &operator+ (DesignObjCommandList &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_INT_DESIGNOBJACTIONLIST,(void *) &i)); return (*this); }
-	DesignObj_Data &operator+ (DesignObjZoneList &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_INT_DESIGNOBJZONELIST,(void *) &i)); return (*this); }
-	DesignObj_Data &operator+ (VectorDesignObjText &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_VECT_DESIGNOBJTEXT,(void *) &i)); return (*this); }
-	DesignObj_Data &operator+ (DesignObj_DataList &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_INT_DESIGNOBJCHILDLIST,(void *) &i)); return (*this); }
-
-	virtual bool UnknownSerialize(ItemToSerialize *pItem,bool bWriting,char *&pDataBlock,unsigned long &iAllocatedSize,char *&pCurrentPosition);
 
 	virtual string SerializeClassClassName() { return "DesignObj_Data"; }
 	virtual ~DesignObj_Data();
