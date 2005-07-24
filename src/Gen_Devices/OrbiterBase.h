@@ -72,6 +72,7 @@ public:
 	Orbiter_Command(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL)
 	: Command_Impl(DeviceID, ServerAddress, bLocalMode, pRouter)
 	{
+g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Command %p constructor",this);
 		if( m_bLocalMode )
 			return;
 		m_pData=NULL;
@@ -96,6 +97,7 @@ g_PlutoProfiler->Stop("const - m_AllDevices");
 		delete[] pConfig;
 		m_pData->m_pEvent_Impl = m_pEvent;
 		m_pcRequestSocket = new Event_Impl(DeviceID, 8,ServerAddress);
+g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Command finish %p constructor",this);
 	};
 	Orbiter_Command(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter) : Command_Impl(pPrimaryDeviceCommand, pData, pEvent, pRouter) {};
 	virtual ~Orbiter_Command() {};
