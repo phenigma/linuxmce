@@ -111,9 +111,9 @@ public:
 		return it==m_mapTextStyle.end() ? NULL : (*it).second;
 	}
 
-	OrbiterData &operator+ (ScreenMap &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_SCREEN_MAP,(void *) &i)); return (*this); }
-	OrbiterData &operator+ (MapTextStyle &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_STYLE_MAP,(void *) &i)); return (*this); }
-	OrbiterData &operator+ (DequeLocationInfo &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_LOCATIONS,(void *) &i)); return (*this); }
+	OrbiterData &operator+ (ScreenMap &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_SCREEN_MAP,(void *) &i)); return (*this); }
+	OrbiterData &operator+ (MapTextStyle &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_STYLE_MAP,(void *) &i)); return (*this); }
+	OrbiterData &operator+ (DequeLocationInfo &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_LOCATIONS,(void *) &i)); return (*this); }
 
 	void SetupSerialization(int iSC_Version)
 	{

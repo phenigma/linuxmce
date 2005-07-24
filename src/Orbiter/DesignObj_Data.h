@@ -80,7 +80,7 @@ public:
 	virtual string SerializeClassClassName() { return "DesignObjZone"; }
 
 	// For our custom serialize types.
-	DesignObjZone &operator+ (DesignObjCommandList &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_INT_DESIGNOBJACTIONLIST,(void *) &i)); return (*this); }
+	DesignObjZone &operator+ (DesignObjCommandList &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_INT_DESIGNOBJACTIONLIST,(void *) &i)); return (*this); }
 
 	virtual bool UnknownSerialize(ItemToSerialize *pItem,bool bWriting,char *&pDataBlock,unsigned long &iAllocatedSize,char *&pCurrentPosition);
 }; 
@@ -135,7 +135,7 @@ public:
 		(*this) + m_mapTextStyle;
 	}
 	virtual string SerializeClassClassName() { return "DesignObjText"; }
-	DesignObjText &operator+ (MapTextStyle &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_INT_STYLEMAP,(void *) &i)); return (*this); }
+	DesignObjText &operator+ (MapTextStyle &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_INT_STYLEMAP,(void *) &i)); return (*this); }
 	virtual bool UnknownSerialize(ItemToSerialize *pItem,bool bWriting,char *&pDataBlock,unsigned long &iAllocatedSize,char *&pCurrentPosition);
 };
 
@@ -203,10 +203,10 @@ public:
 	}
 
 	// For our custom serialize types
-	DesignObj_Data &operator+ (DesignObjCommandList &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_INT_DESIGNOBJACTIONLIST,(void *) &i)); return (*this); }
-	DesignObj_Data &operator+ (DesignObjZoneList &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_INT_DESIGNOBJZONELIST,(void *) &i)); return (*this); }
-	DesignObj_Data &operator+ (VectorDesignObjText &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_VECT_DESIGNOBJTEXT,(void *) &i)); return (*this); }
-	DesignObj_Data &operator+ (DesignObj_DataList &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_INT_DESIGNOBJCHILDLIST,(void *) &i)); return (*this); }
+	DesignObj_Data &operator+ (DesignObjCommandList &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_INT_DESIGNOBJACTIONLIST,(void *) &i)); return (*this); }
+	DesignObj_Data &operator+ (DesignObjZoneList &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_INT_DESIGNOBJZONELIST,(void *) &i)); return (*this); }
+	DesignObj_Data &operator+ (VectorDesignObjText &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_VECT_DESIGNOBJTEXT,(void *) &i)); return (*this); }
+	DesignObj_Data &operator+ (DesignObj_DataList &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_INT_DESIGNOBJCHILDLIST,(void *) &i)); return (*this); }
 
 	virtual bool UnknownSerialize(ItemToSerialize *pItem,bool bWriting,char *&pDataBlock,unsigned long &iAllocatedSize,char *&pCurrentPosition);
 
