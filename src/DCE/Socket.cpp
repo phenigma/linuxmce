@@ -114,6 +114,7 @@ void* PingLoop( void* param ) // renamed to cancel link-time name collision in M
 
 Socket::Socket(string Name,string sIPAddress) : m_SocketMutex("socket mutex " + Name)
 {
+g_pPlutoLogger->Write(LV_STATUS,"Socket const");
 #ifndef WINCE
 #ifdef THREAD_LOG
 	printf("start const %p\n",this);

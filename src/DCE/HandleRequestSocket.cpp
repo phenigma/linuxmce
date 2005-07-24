@@ -53,6 +53,7 @@ void *BeginHandleRequestThread( void *HRqSock )
 HandleRequestSocket::HandleRequestSocket( int iDeviceID, string sIPAddress, string sName ) :
 	ClientSocket( iDeviceID, sIPAddress, sName )
 {
+g_pPlutoLogger->Write(LV_STATUS,"HandleRequestSocket const");
 	m_RequestHandlerThread = 0;
 	m_bUnexpected = false;
 	m_bRunning = false;
