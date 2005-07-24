@@ -12,10 +12,26 @@ using namespace Frog;
 namespace DCE
 {
 
+class TextToRenderInfo
+{
+public:
+	string TextToDisplay;
+	PlutoRectangle rPosition;
+	int iPK_HorizAlignment,iPK_VertAlignment;
+	PlutoPoint point;
+
+	string sFont;
+	PlutoColor ForeColor;
+	int iPixelHeight;
+	bool bBold, bItalic, bUnderline;
+};
+
 class Orbiter_PocketFrog : public Orbiter, public PlutoGame
 {
 protected:
 	static Orbiter_PocketFrog* m_pInstance; //the one and only instance of OrbiterSDL_Win32
+	bool m_bPoolRendering;
+	vector<TextToRenderInfo *> m_vectPooledTextToRender;
 
     //bool m_bShiftDown, m_bControlDown, m_bAltDown, m_bRepeat, m_bCapsLock;
     //clock_t m_cKeyDown;
@@ -23,7 +39,6 @@ protected:
 	bool m_bFullScreen;
 
 	unsigned char* VGAROMFont;
-
 public:
 
 	DisplayDevice* GetOrbiterDisplay() { return GetDisplay(); }
@@ -62,6 +77,8 @@ public:
 	virtual void ReplaceColorInRectangle(int x, int y, int width, int height, PlutoColor ColorToReplace, PlutoColor ReplacementColor);
 	virtual void FloodFill(int x, int y, PlutoColor ColorToReplace, PlutoColor ReplacementColor) {};
 	virtual void RenderText(string &sTextToDisplay,class DesignObjText *Text,class TextStyle *pTextStyle, PlutoPoint point = PlutoPoint(0, 0));
+	virtual void RenderText(HDC hdc,string &sTextToDisplay,PlutoRectangle &rPosition,int iPK_HorizAlignment,int iPK_VertAlignment,
+		string &sFont,PlutoColor &ForeColor,int iPixelHeight,bool bBold,bool bItalic,bool bUnderline,PlutoPoint point = PlutoPoint(0, 0));
 	virtual void SaveBackgroundForDeselect(DesignObj_Orbiter *pObj, PlutoPoint point);
 	virtual PlutoGraphic *CreateGraphic();
 

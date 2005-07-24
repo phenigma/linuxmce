@@ -84,6 +84,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 	m_bReload = false;
 	m_bQuit = false;
 	m_bWeCanRepeat = true;
+	m_bPoolRendering = true;
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ Orbiter_PocketFrog::~Orbiter_PocketFrog()
@@ -322,7 +323,37 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::RenderText(string &TextToDisplay,class DesignObjText *Text,class TextStyle *pTextStyle, PlutoPoint point)
 {
-g_PlutoProfiler->Start("rendertext total");
+g_PlutoProfiler->Start("pool text");
+	if( !m_bPoolRendering )
+	{
+		HDC hdc = GetDisplay()->GetBackBuffer()->GetDC(false);
+		RenderText(hdc,TextToDisplay,Text->m_rPosition,Text->m_iPK_HorizAlignment,Text->m_iPK_VertAlignment,
+			pTextStyle->m_sFont,pTextStyle->m_ForeColor,pTextStyle->m_iPixelHeight,pTextStyle->m_bBold,pTextStyle->m_bItalic,pTextStyle->m_bUnderline,
+			point);
+		GetDisplay()->GetBackBuffer()->ReleaseDC(hdc);
+	}
+	else
+	{
+		TextToRenderInfo *pTextToRenderInfo = new TextToRenderInfo;
+		pTextToRenderInfo->TextToDisplay = TextToDisplay;
+		pTextToRenderInfo->rPosition = PlutoRectangle(Text->m_rPosition);
+		pTextToRenderInfo->iPK_HorizAlignment = Text->m_iPK_HorizAlignment;
+		pTextToRenderInfo->iPK_VertAlignment = Text->m_iPK_VertAlignment;
+		pTextToRenderInfo->sFont = pTextStyle->m_sFont;
+		pTextToRenderInfo->ForeColor = PlutoColor(pTextStyle->m_ForeColor);
+		pTextToRenderInfo->iPixelHeight = pTextStyle->m_iPixelHeight;
+		pTextToRenderInfo->bBold = pTextStyle->m_bBold;
+		pTextToRenderInfo->bItalic = pTextStyle->m_bItalic;
+		pTextToRenderInfo->bUnderline = pTextStyle->m_bUnderline;
+		pTextToRenderInfo->point = PlutoPoint(point);
+		m_vectPooledTextToRender.push_back(pTextToRenderInfo);
+	}
+g_PlutoProfiler->Stop("pool text");
+}
+
+/*virtual*/ void Orbiter_PocketFrog::RenderText(HDC hdc,string &TextToDisplay,PlutoRectangle &rPosition,int iPK_HorizAlignment,int iPK_VertAlignment,string &sFont,PlutoColor &ForeColor,int iPixelHeight,bool bBold,bool bItalic,bool bUnderline, PlutoPoint point)
+{
+	g_PlutoProfiler->Start("rendertext total");
 	CHECK_STATUS();
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 
@@ -435,27 +466,31 @@ g_PlutoProfiler->Start("block1");
 	rectLocation.left   = 0;
 	rectLocation.top    = 0;
 
+if( hdc==0 )
+{
+int k=1;
+}
 g_PlutoProfiler->Start("block1 a");
-	HDC hdc_drawing=0, hdc = GetDisplay()->GetBackBuffer()->GetDC(false);
+	HDC hdc_drawing=0;
 g_PlutoProfiler->Stop("block1 a");
 
 	if( m_iRotation==0 )
 	{
 		hdc_drawing=hdc;
-		rectLocation.right  = Text->m_rPosition.Width;
-		rectLocation.bottom = Text->m_rPosition.Height;
+		rectLocation.right  = rPosition.Width;
+		rectLocation.bottom = rPosition.Height;
 	}
 	else
 	{
 		if( m_iRotation==180 )
 		{
-			rectLocation.right  = Text->m_rPosition.Width;
-			rectLocation.bottom = Text->m_rPosition.Height;
+			rectLocation.right  = rPosition.Width;
+			rectLocation.bottom = rPosition.Height;
 		}
 		else
 		{
-			rectLocation.right  = Text->m_rPosition.Height;
-			rectLocation.bottom = Text->m_rPosition.Width;
+			rectLocation.right  = rPosition.Height;
+			rectLocation.bottom = rPosition.Width;
 		}
 
 g_PlutoProfiler->Start("block1 b");
@@ -484,14 +519,14 @@ g_PlutoProfiler->Start("block2");
 	// Clear out the lf structure to use when creating the font.
 	memset(&lf, 0, sizeof(LOGFONT));
 
-	lf.lfHeight		= pTextStyle->m_iPixelHeight;
+	lf.lfHeight		= iPixelHeight;
 	if( m_iRotation==0 )
 		lf.lfQuality	= DRAFT_QUALITY;
 	else
 		lf.lfQuality	= NONANTIALIASED_QUALITY;
-	lf.lfWeight		= pTextStyle->m_bBold ? FW_EXTRABOLD : FW_NORMAL;
-	lf.lfItalic		= pTextStyle->m_bItalic;
-	lf.lfUnderline	= pTextStyle->m_bUnderline;
+	lf.lfWeight		= bBold ? FW_EXTRABOLD : FW_NORMAL;
+	lf.lfItalic		= bItalic;
+	lf.lfUnderline	= bUnderline;
 /*	MS' Gdi doesn't seem to work, we have to hack in a work around
 	if( m_iRotation )
 	{
@@ -502,10 +537,10 @@ g_PlutoProfiler->Start("block2");
 */
 #ifdef WINCE
     wchar_t wFaceName[1024];
-    mbstowcs(wFaceName, pTextStyle->m_sFont.c_str(), 1024);	
+    mbstowcs(wFaceName, sFont.c_str(), 1024);	
 	wcscpy(lf.lfFaceName, wFaceName);
 #else
-	strcpy(lf.lfFaceName, pTextStyle->m_sFont.c_str());
+	strcpy(lf.lfFaceName, sFont.c_str());
 #endif
 
 	hFontNew = ::CreateFontIndirect(&lf);
@@ -530,13 +565,13 @@ g_PlutoProfiler->Start("block3");
 		DT_WORDBREAK | DT_NOPREFIX | DT_CALCRECT | DT_MODIFYSTRING | DT_END_ELLIPSIS ); 
 
 	int iRealHeight = rectLocation.bottom;
-	if( iRealHeight>Text->m_rPosition.Height )
-		iRealHeight=Text->m_rPosition.Height; // Crop to the area
+	if( iRealHeight>rPosition.Height )
+		iRealHeight=rPosition.Height; // Crop to the area
 g_PlutoProfiler->Stop("block3");
 g_PlutoProfiler->Start("block4");
 
 	// Figure out where to put this
-	CalcTextRectangle(rectLocation,Text->m_rPosition,m_iRotation,iRealHeight,Text->m_iPK_VertAlignment);
+	CalcTextRectangle(rectLocation,rPosition,m_iRotation,iRealHeight,iPK_VertAlignment);
 
 	if( m_iRotation==0 )
 	{
@@ -546,12 +581,12 @@ g_PlutoProfiler->Start("block4");
 		rectLocation.bottom += point.Y;
 	}
 
- 	::SetTextColor(hdc_drawing, RGB(255,255,255));//pTextStyle->m_ForeColor.R(), pTextStyle->m_ForeColor.G(), pTextStyle->m_ForeColor.B()));
+ 	::SetTextColor(hdc_drawing, RGB(ForeColor.R(), ForeColor.G(), ForeColor.B()));
 	::SetBkMode(hdc_drawing, TRANSPARENT);
 g_PlutoProfiler->Stop("block4");
 g_PlutoProfiler->Start("block5");
 
-	switch (Text->m_iPK_HorizAlignment)
+	switch (iPK_HorizAlignment)
 	{
 		case HORIZALIGNMENT_Left_CONST: 
 			::DrawText(hdc_drawing, TEXT_TO_RENDER, int(TextToDisplay.length()), &rectLocation, 
@@ -579,41 +614,26 @@ g_PlutoProfiler->Stop("block6 a");
 
 	if( hdc_drawing!=hdc )
 	{
-		for(int x=0;x<(m_iRotation==180 ? Text->m_rPosition.Width : Text->m_rPosition.Height);x++)
+		for(int x=0;x<(m_iRotation==180 ? rPosition.Width : rPosition.Height);x++)
 		{
-			for(int y=0;y<(m_iRotation==180 ? Text->m_rPosition.Height: Text->m_rPosition.Width);y++)
+			for(int y=0;y<(m_iRotation==180 ? rPosition.Height: rPosition.Width);y++)
 			{
 g_PlutoProfiler->Start("block6-rotation");
 				COLORREF c = ::GetPixel(hdc_drawing,x,y);
 				if( c==132 || c==128 )
 					continue;  // Unchanged
 				if( m_iRotation==90 )
-					::SetPixel(hdc,Text->m_rPosition.Right()-y,Text->m_rPosition.Y+x,c);
+					::SetPixel(hdc,rPosition.Right()-y,rPosition.Y+x,c);
 				else if( m_iRotation==180 )
-					::SetPixel(hdc,Text->m_rPosition.Right()-x,Text->m_rPosition.Bottom()-y,c);
+					::SetPixel(hdc,rPosition.Right()-x,rPosition.Bottom()-y,c);
 				else if( m_iRotation==270 )
-					::SetPixel(hdc,Text->m_rPosition.X+y,Text->m_rPosition.Bottom()-x,c);
+					::SetPixel(hdc,rPosition.X+y,rPosition.Bottom()-x,c);
 g_PlutoProfiler->Stop("block6-rotation");
 			}
 		}
-		bool b2=DeleteDC(hdc_drawing);
+		DeleteDC(hdc_drawing);
 	}
 
-g_PlutoProfiler->Start("block6 b");
-
-g_PlutoProfiler->Start("block6 b1");
-DisplayDevice *pDev = GetDisplay();
-g_PlutoProfiler->Stop("block6 b1");
-
-g_PlutoProfiler->Start("block6 b2");
-Surface *ps = pDev->GetBackBuffer();
-g_PlutoProfiler->Stop("block6 b2");
-
-g_PlutoProfiler->Start("block6 b3");
-ps->ReleaseDC(hdc);
-g_PlutoProfiler->Stop("block6 b3");
-
-g_PlutoProfiler->Stop("block6 b");
 
 g_PlutoProfiler->Stop("block6");
 
@@ -656,7 +676,27 @@ g_PlutoProfiler->Stop("rendertext total");
 		GetDisplay()->FillRect(0, 0, m_iImageWidth, m_iImageHeight, 0x0000);
     }
 
-    Orbiter::RenderScreen();
+	m_bPoolRendering=true;
+	Orbiter::RenderScreen();
+	m_bPoolRendering=false;
+
+	g_PlutoProfiler->Start("rendertext pool");
+	if( m_vectPooledTextToRender.size() )
+	{
+		HDC hdc = GetDisplay()->GetBackBuffer()->GetDC(false);
+		for(size_t s=0;s<m_vectPooledTextToRender.size();++s)
+		{
+			TextToRenderInfo *pTextToRenderInfo = m_vectPooledTextToRender[s];
+			RenderText(hdc,pTextToRenderInfo->TextToDisplay,pTextToRenderInfo->rPosition,pTextToRenderInfo->iPK_HorizAlignment,pTextToRenderInfo->iPK_VertAlignment,
+				pTextToRenderInfo->sFont,pTextToRenderInfo->ForeColor,pTextToRenderInfo->iPixelHeight,pTextToRenderInfo->bBold,pTextToRenderInfo->bItalic,pTextToRenderInfo->bUnderline,
+				pTextToRenderInfo->point);
+			delete pTextToRenderInfo;
+		}
+		GetDisplay()->GetBackBuffer()->ReleaseDC(hdc);
+		m_vectPooledTextToRender.clear();
+	}
+	g_PlutoProfiler->Stop("rendertext pool");
+
 	TryToUpdate();
 }
 //-----------------------------------------------------------------------------------------------------
@@ -1014,3 +1054,4 @@ void Orbiter_PocketFrog::CalcTextRectangle(RECT &rectLocation,PlutoRectangle &rP
 		rectLocation.bottom = rectLocation.top+iHeight;
 	}
 }
+
