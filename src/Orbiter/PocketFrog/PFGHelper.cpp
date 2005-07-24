@@ -10,8 +10,10 @@
 //----------------------------------------------------------------------------------------------------------------
 Surface* PocketFrog_LoadPFG(char *pOCGData, size_t iOCGDataSize)
 {
-g_PlutoProfiler->Start("PocketFrog_LoadPFG prep");
+g_PlutoProfiler->Start("PocketFrog_LoadPFG prep 1");
 	RendererOCG *pRendererOCG = new RendererOCG();
+g_PlutoProfiler->Stop("PocketFrog_LoadPFG prep 1");
+g_PlutoProfiler->Start("PocketFrog_LoadPFG prep 2");
 	pRendererOCG->SetOCGData(pOCGData, iOCGDataSize);
 	Surface *pSurface = NULL;
 
@@ -21,7 +23,7 @@ g_PlutoProfiler->Start("PocketFrog_LoadPFG prep");
 	size_t iPixelFormatDataSize;
 	int iWidth;
 	int iHeigth;
-g_PlutoProfiler->Stop("PocketFrog_LoadPFG prep");
+g_PlutoProfiler->Stop("PocketFrog_LoadPFG prep 2");
 
 g_PlutoProfiler->Start("PocketFrog_LoadPFG pRendererOCG->GetSurface");
 	if(pRendererOCG->GetSurface(pPixelsData, iPixelsDataSize, pPixelFormatData, iPixelFormatDataSize, iWidth, iHeigth))

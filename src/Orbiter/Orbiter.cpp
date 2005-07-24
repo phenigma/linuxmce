@@ -1215,10 +1215,13 @@ g_PlutoProfiler->Start("renderdg - b5 loop");
             int DGRow = ( ( i == 0 && pT->m_bKeepRowHeader ) ? 0 : i + pT->m_StartingRow );
             int DGColumn = ( j == 0 && pT->m_bKeepColumnHeader ) ? 0 : j + pT->m_StartingColumn;
 
+g_PlutoProfiler->Start("renderdg - b5 loop - getdata");
             DataGridCell * pCell = pT->GetData( DGColumn,  DGRow );
+g_PlutoProfiler->Stop("renderdg - b5 loop - getdata");
 
             if ( pCell )
             {
+g_PlutoProfiler->Start("renderdg - b5 loop - RenderCell");
                 if ( !pObj->m_bDontShowSelection )
                 {
                     int GraphicType = GRAPHIC_NORMAL;
@@ -1234,6 +1237,7 @@ g_PlutoProfiler->Start("renderdg - b5 loop");
                 else
                     RenderCell( pObj,  pT,  pCell,  j,  i + ( int ) bAddedUpButton,  GRAPHIC_NORMAL, point );
 
+g_PlutoProfiler->Stop("renderdg - b5 loop - RenderCell");
                 delete pCell;
                 pCell = NULL;
             }
