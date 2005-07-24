@@ -54,7 +54,7 @@ using namespace DCE;
 #include "pluto_main/Define_DesignObj.h"
 #include "pluto_main/Define_FloorplanType.h"
 #include "pluto_main/Define_Text.h"
-
+#include "PlutoUtils/minilzo.h"
 #include "../Orbiter/RendererMNG.h"
 #include "OrbiterFileBrowser.h"
 
@@ -2603,11 +2603,24 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 				int iSizeConfigFile=0;
 g_PlutoProfiler->Start("getfile");
 				// We can't send it to the General Info virtual device since we won't have that until we get our config data
-				DCE::CMD_Request_File_Cat CMD_Request_File_Cat( m_dwPK_Device, DEVICECATEGORY_General_Info_Plugins_CONST, false,  BL_SameHouse, "orbiter/C" + StringUtils::itos( m_dwPK_Device ) + "/" + Filename,
+				DCE::CMD_Request_File_Cat CMD_Request_File_Cat( m_dwPK_Device, DEVICECATEGORY_General_Info_Plugins_CONST, false,  BL_SameHouse, "orbiter/C" + StringUtils::itos( m_dwPK_Device ) + "/" + Filename + ".lzo",
 					&pConfigFile, &iSizeConfigFile );
 				SendCommand( CMD_Request_File_Cat );
-
 g_PlutoProfiler->Stop("getfile");
+
+g_PlutoProfiler->Start("decompressfile");
+				if ( iSizeConfigFile )  // Decompress it
+				{
+					int UncompressedLength = *((int *)pConfigFile);
+					char *UncompressedData = new char[UncompressedLength];
+					lzo_uint new_len;
+					lzo1x_decompress((lzo_byte *)pConfigFile+4,iSizeConfigFile - 4,(lzo_byte *)UncompressedData,&new_len,NULL);
+					delete[] pConfigFile;
+					pConfigFile = UncompressedData;
+					iSizeConfigFile=UncompressedLength;
+				}
+g_PlutoProfiler->Stop("decompressfile");
+
 				if ( !iSizeConfigFile )
 				{
 					g_pPlutoLogger->Write( LV_CRITICAL,  "Unable to get Orbiter data" );
