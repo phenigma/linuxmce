@@ -600,7 +600,19 @@ g_PlutoProfiler->Stop("block6-rotation");
 	}
 
 g_PlutoProfiler->Start("block6 b");
-	GetDisplay()->GetBackBuffer()->ReleaseDC(hdc);
+
+g_PlutoProfiler->Start("block6 b1");
+DisplayDevice *pDev = GetDisplay();
+g_PlutoProfiler->Stop("block6 b1");
+
+g_PlutoProfiler->Start("block6 b2");
+Surface *ps = pDev->GetBackBuffer();
+g_PlutoProfiler->Stop("block6 b2");
+
+g_PlutoProfiler->Start("block6 b3");
+ps->ReleaseDC(hdc);
+g_PlutoProfiler->Stop("block6 b3");
+
 g_PlutoProfiler->Stop("block6 b");
 
 g_PlutoProfiler->Stop("block6");
