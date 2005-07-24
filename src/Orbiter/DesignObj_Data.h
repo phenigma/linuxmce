@@ -214,6 +214,8 @@ public:
 	virtual ~DesignObj_Data();
 
 	class DesignObj_Data *TopMostObject() { return m_pParentObject ? m_pParentObject->TopMostObject() : this; }
+
+	virtual bool Serialize(bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition, void *pExtraSerializationData=NULL);
 };
 
 #endif

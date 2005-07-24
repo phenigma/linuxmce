@@ -198,6 +198,7 @@ public:
 						if( !pDesignObj_Data->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition,m_pExtraSerializationData) )
 							return false;
 						m_ScreenMap[pDesignObj_Data->m_ObjectID]=pDesignObj_Data;
+int k=2;
 					}
 					return true;
 				}

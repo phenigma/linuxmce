@@ -1504,13 +1504,13 @@ void Orbiter::ObjectOffScreen( DesignObj_Orbiter *pObj )
         pObj->m_pGraphicToUndoSelect=NULL;
     }
 
-    //GraphicOffScreen( &(pObj->m_vectGraphic) );
-    //GraphicOffScreen( &(pObj->m_vectSelectedGraphic) );
-	//GraphicOffScreen( &(pObj->m_vectHighlightedGraphic) );
+    GraphicOffScreen( &(pObj->m_vectGraphic) );
+    GraphicOffScreen( &(pObj->m_vectSelectedGraphic) );
+	GraphicOffScreen( &(pObj->m_vectHighlightedGraphic) );
 
     size_t i;
-//    for(i = 0; i < pObj->m_vectAltGraphics.size(); ++i)
-  //      GraphicOffScreen(&(pObj->m_vectAltGraphics[i]));
+    for(i = 0; i < pObj->m_vectAltGraphics.size(); ++i)
+        GraphicOffScreen(&(pObj->m_vectAltGraphics[i]));
 
     pObj->m_pvectCurrentGraphic = NULL;
 	pObj->m_pvectCurrentPlayingGraphic = NULL;

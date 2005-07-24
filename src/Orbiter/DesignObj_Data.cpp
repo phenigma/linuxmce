@@ -261,3 +261,251 @@ bool DesignObj_Data::UnknownSerialize(ItemToSerialize *pItem,bool bWriting,char 
 	pDataBlock=m_pcDataBlock; iAllocatedSize=m_dwAllocatedSize; pCurrentPosition=m_pcCurrentPosition;
 	return bHandledIt;
 } 
+
+bool DesignObj_Data::Serialize( bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition, void *pExtraSerializationData )	
+{
+	// Save the starting points
+	m_pcDataBlock=pcDataBlock; m_dwAllocatedSize=dwAllocatedSize; m_pcCurrentPosition=pcCurrentPosition;
+
+	if( bWriting )
+	{
+		Write_char(m_bChild);
+		Write_char(m_bDontResetState);
+		Write_char(m_bCantGoBack);
+		Write_char(m_bCanGoBackToSameScreen);
+		Write_char(m_bChildrenBeforeText);
+		Write_char(m_bProcessActionsAtServer);
+		Write_char(m_bAnimate);
+		Write_char(m_bHideByDefault);
+
+		Write_char(m_bTabStop);
+		Write_char(m_bRepeatParm);
+
+		Write_long(m_iPK_Button);
+		Write_long(m_dwTimeoutSeconds);
+		Write_long(m_Priority);
+		Write_long(m_iPK_Criteria);
+
+		Write_long(m_iBaseObjectID);
+		Write_long(m_iVersion);
+		Write_long(m_iPage);
+
+		Write_long(m_ObjectType);
+
+		Write_long(m_rPosition.X);
+		Write_long(m_rPosition.Y);
+		Write_long(m_rPosition.Width);
+		Write_long(m_rPosition.Height);
+
+		Write_long(m_rBackgroundPosition.X);
+		Write_long(m_rBackgroundPosition.Y);
+		Write_long(m_rBackgroundPosition.Width);
+		Write_long(m_rBackgroundPosition.Height);
+
+		Write_long(m_sOriginalSize.Width);
+		Write_long(m_sOriginalSize.Height);
+
+		Write_long(m_PK_DesignObj_Up);
+		Write_long(m_PK_DesignObj_Down);
+		Write_long(m_PK_DesignObj_Left);
+		Write_long(m_PK_DesignObj_Right);
+
+		Write_long(m_iRepeatIntervalInMS);
+		Write_long(m_dwIDim);
+		Write_long(m_iRegenInterval);
+
+		Write_string(m_sBackgroundFile);
+		Write_string(m_sSelectedFile);
+		Write_string(m_sHighlightGraphicFilename);
+
+		Write_string(m_ObjectID);
+		Write_string(m_sPK_DesignObj_TiedTo);
+		Write_string(m_sVisibleState);
+		Write_block(m_dbHitTest.m_pBlock,m_dbHitTest.m_dwSize);
+
+		Write_long(m_vectAltGraphicFilename.size());
+		for(size_t s=0;s<m_vectAltGraphicFilename.size();++s)
+			Write_string(m_vectAltGraphicFilename[s]);
+
+		Write_long(m_mapObjParms.size());
+		for(map<int,string>::iterator it=m_mapObjParms.begin();it!=m_mapObjParms.end();++it)
+		{
+			Write_long(it->first);
+			Write_string(it->second);
+		}
+
+		Write_long(m_Action_LoadList.size());
+		for(DesignObjCommandList::iterator it=m_Action_LoadList.begin();it!=m_Action_LoadList.end();++it)
+			(*it)->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition,pExtraSerializationData);
+
+		Write_long(m_Action_UnloadList.size());
+		for(DesignObjCommandList::iterator it=m_Action_UnloadList.begin();it!=m_Action_UnloadList.end();++it)
+			(*it)->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition,pExtraSerializationData);
+
+		Write_long(m_Action_TimeoutList.size());
+		for(DesignObjCommandList::iterator it=m_Action_TimeoutList.begin();it!=m_Action_TimeoutList.end();++it)
+			(*it)->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition,pExtraSerializationData);
+
+		Write_long(m_Action_StartupList.size());
+		for(DesignObjCommandList::iterator it=m_Action_StartupList.begin();it!=m_Action_StartupList.end();++it)
+			(*it)->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition,pExtraSerializationData);
+
+		Write_long(m_ZoneList.size());
+		for(DesignObjZoneList::iterator it=m_ZoneList.begin();it!=m_ZoneList.end();++it)
+			(*it)->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition,pExtraSerializationData);
+
+		Write_long(m_ChildObjects.size());
+		for(DesignObj_DataList::iterator it=m_ChildObjects.begin();it!=m_ChildObjects.end();++it)
+		{
+			Write_unsigned_long( (*it)->m_ObjectType );
+			(*it)->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition,pExtraSerializationData);
+		}
+
+		Write_long(m_vectDesignObjText.size());
+		for(VectorDesignObjText::iterator it=m_vectDesignObjText.begin();it!=m_vectDesignObjText.end();++it)
+			(*it)->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition,pExtraSerializationData);
+	}
+	else
+	{
+		m_bChild=Read_char();
+		m_bDontResetState=Read_char();
+		m_bCantGoBack=Read_char();
+		m_bCanGoBackToSameScreen=Read_char();
+		m_bChildrenBeforeText=Read_char();
+		m_bProcessActionsAtServer=Read_char();
+		m_bAnimate=Read_char();
+		m_bHideByDefault=Read_char();
+
+		m_bTabStop=Read_char();
+		m_bRepeatParm=Read_char();
+
+		m_iPK_Button=Read_long();
+		m_dwTimeoutSeconds=Read_long();
+		m_Priority=Read_long();
+		m_iPK_Criteria=Read_long();
+
+		m_iBaseObjectID=Read_long();
+		m_iVersion=Read_long();
+		m_iPage=Read_long();
+
+		m_ObjectType=Read_long();
+
+		m_rPosition.X=Read_long();
+		m_rPosition.Y=Read_long();
+		m_rPosition.Width=Read_long();
+		m_rPosition.Height=Read_long();
+
+		m_rBackgroundPosition.X=Read_long();
+		m_rBackgroundPosition.Y=Read_long();
+		m_rBackgroundPosition.Width=Read_long();
+		m_rBackgroundPosition.Height=Read_long();
+
+		m_sOriginalSize.Width=Read_long();
+		m_sOriginalSize.Height=Read_long();
+
+		m_PK_DesignObj_Up=Read_long();
+		m_PK_DesignObj_Down=Read_long();
+		m_PK_DesignObj_Left=Read_long();
+		m_PK_DesignObj_Right=Read_long();
+
+		m_iRepeatIntervalInMS=Read_long();
+		m_dwIDim=Read_long();
+		m_iRegenInterval=Read_long();
+
+		Read_string(m_sBackgroundFile);
+		Read_string(m_sSelectedFile);
+		Read_string(m_sHighlightGraphicFilename);
+
+		Read_string(m_ObjectID);
+		Read_string(m_sPK_DesignObj_TiedTo);
+		Read_string(m_sVisibleState);
+		m_dbHitTest.m_pBlock=Read_block(m_dbHitTest.m_dwSize);
+
+		int count=Read_long();
+		for(size_t s=0;s<count;++s)
+		{
+			string str;
+			Read_string(str);
+			m_vectAltGraphicFilename.push_back(str);
+		}
+
+		count=Read_long();
+		for(size_t s=0;s<count;++s)
+		{
+			long l = Read_long();
+			string str;
+			Read_string(str);
+			m_mapObjParms[l]=str;
+		}
+
+		count=Read_long();
+		for(size_t s=0;s<count;++s)
+		{
+			DesignObjCommand *pDesignObjCommand = new DesignObjCommand();
+			pDesignObjCommand->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition,pExtraSerializationData);
+			m_Action_LoadList.push_back(pDesignObjCommand);
+		}
+
+		count=Read_long();
+		for(size_t s=0;s<count;++s)
+		{
+			DesignObjCommand *pDesignObjCommand = new DesignObjCommand();
+			pDesignObjCommand->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition,pExtraSerializationData);
+			m_Action_UnloadList.push_back(pDesignObjCommand);
+		}
+
+		count=Read_long();
+		for(size_t s=0;s<count;++s)
+		{
+			DesignObjCommand *pDesignObjCommand = new DesignObjCommand();
+			pDesignObjCommand->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition,pExtraSerializationData);
+			m_Action_TimeoutList.push_back(pDesignObjCommand);
+		}
+
+		count=Read_long();
+		for(size_t s=0;s<count;++s)
+		{
+			DesignObjCommand *pDesignObjCommand = new DesignObjCommand();
+			pDesignObjCommand->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition,pExtraSerializationData);
+			m_Action_StartupList.push_back(pDesignObjCommand);
+		}
+
+
+		count=Read_long();
+		for(size_t s=0;s<count;++s)
+		{
+			DesignObjZone *pDesignObjZone = new DesignObjZone();
+			pDesignObjZone->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition,pExtraSerializationData);
+			m_ZoneList.push_back(pDesignObjZone);
+		}
+
+		count=Read_long();
+		for(size_t s=0;s<count;++s)
+		{
+			unsigned long Type = Read_unsigned_long();
+#ifdef ORBITER
+			DesignObj_Orbiter *pDesignObj_Data=NULL;
+			if( Type==DESIGNOBJTYPE_Datagrid_CONST )
+				pDesignObj_Data = new DesignObj_DataGrid((class Orbiter *) m_pExtraSerializationData);
+			else
+				pDesignObj_Data = new DesignObj_Orbiter((class Orbiter *) m_pExtraSerializationData);
+#else
+			DesignObj_Data *pDesignObj_Data = new DesignObj_Data();
+#endif
+
+			pDesignObj_Data->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition,pExtraSerializationData);
+			m_ChildObjects.push_back(pDesignObj_Data);
+		}
+
+		count=Read_long();
+		for(size_t s=0;s<count;++s)
+		{
+			DesignObjText *pDesignObjText = new DesignObjText();
+			pDesignObjText->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition,pExtraSerializationData);
+			m_vectDesignObjText.push_back(pDesignObjText);
+		}
+	}
+	// We may have re-allocated the memory block and size, and the position will have changed
+	pcDataBlock=m_pcDataBlock; dwAllocatedSize=m_dwAllocatedSize; pcCurrentPosition=m_pcCurrentPosition;
+	return true;
+}
