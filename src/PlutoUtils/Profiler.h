@@ -4,6 +4,15 @@
 #include "DCE/Logger.h"
 
 using namespace DCE;
+#ifndef WIN32
+class PlutoProfiler
+{
+public:
+	void Start(const char *pName) {}
+	void Stop(const char *pName) {}
+	void DumpResults() {}
+	void Error(string sID,string sMessage) {}
+#else
 
 typedef map<string, pair<LARGE_INTEGER,int> > MapProfiles;
 class PlutoProfiler
@@ -64,6 +73,8 @@ public:
 	}
 };
 
-static PlutoProfiler *g_PlutoProfiler=NULL;
+#endif
+
+extern PlutoProfiler *g_PlutoProfiler=NULL;
 
 #endif
