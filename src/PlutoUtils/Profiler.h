@@ -12,6 +12,7 @@ public:
 	void Stop(const char *pName) {}
 	void DumpResults() {}
 	void Error(string sID,string sMessage) {}
+	void ClearResults() { }
 };
 #else
 
@@ -65,17 +66,19 @@ public:
 	void DumpResults()
 	{
 		for(MapProfiles::iterator it = m_MapProfiles.begin();it != m_MapProfiles.end();++it)
-			g_pPlutoLogger->Write(LV_WARNING,"ID: %s used %d nanoseconds",it->first.c_str(),it->second.second);
+			g_pPlutoLogger->Write(LV_WARNING,"PROFILE ID: %s used %d nanoseconds",it->first.c_str(),it->second.second);
 	}
 
 	void Error(string sID,string sMessage)
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Profiling failed: %s %s",sID.c_str(),sMessage.c_str());
 	}
+
+	void ClearResults() { m_MapProfiles.clear(); }
 };
 
 #endif
 
-extern PlutoProfiler *g_PlutoProfiler=NULL;
+extern PlutoProfiler *g_PlutoProfiler;
 
 #endif
