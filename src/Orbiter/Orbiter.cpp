@@ -1238,7 +1238,6 @@ g_PlutoProfiler->Start("renderdg - b5 loop - RenderCell");
                     RenderCell( pObj,  pT,  pCell,  j,  i + ( int ) bAddedUpButton,  GRAPHIC_NORMAL, point );
 
 g_PlutoProfiler->Stop("renderdg - b5 loop - RenderCell");
-                delete pCell;
                 pCell = NULL;
             }
         }
@@ -1790,13 +1789,9 @@ g_pPlutoLogger->Write(LV_WARNING,"Selected grid %s but m_pDataGridTable is NULL"
                     bFoundSelection = true; // Is this correct????  Hacked in this time
 				    m_vectObjs_NeedRedraw.push_back(pDesignObj_DataGrid);
                 }
-
-                if ( pLastCell != pCell )
-                    delete pCell;
             }
         }
     }
-    delete pLastCell;
 
     return bFoundSelection;
 }
@@ -2474,7 +2469,6 @@ void Orbiter::FindObjectToHighlight(
 							PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
 							m_mapVariable[pDesignObj_DataGrid->m_iPK_Variable] = pCell->GetValue(  );
 							vm.Release();
-							delete pCell;
 						}
 					}
 					else
@@ -4725,7 +4719,9 @@ g_PlutoProfiler->Start("acquire grid - CMD_Request_Datagrid_Contents");
 g_PlutoProfiler->Stop("acquire grid - CMD_Request_Datagrid_Contents");
             if ( size && data )
             {
+g_PlutoProfiler->Start("acquire grid - deserialize");
                 pDataGridTable = new DataGridTable( size,  data );
+g_PlutoProfiler->Start("acquire grid - deserialize");
 
 				delete[] data; 
 				data = NULL;
