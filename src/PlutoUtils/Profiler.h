@@ -12,6 +12,7 @@ public:
 	void Stop(const char *pName) {}
 	void DumpResults() {}
 	void Error(string sID,string sMessage) {}
+};
 #else
 
 typedef map<string, pair<LARGE_INTEGER,int> > MapProfiles;
