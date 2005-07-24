@@ -268,20 +268,9 @@ DataGridCell *DataGridTable::GetData(int Column, int Row, int *Size)
 {
 	MemoryDataTable::iterator iDR = m_MemoryDataTable.find(MAKECOLROW(Column, Row));
 	if (iDR!=m_MemoryDataTable.end())
-	{
-		char *pData;
-		unsigned long nSize;
-
-		(*iDR).second->ToData(nSize, pData);
-		DataGridCell *pNewCell = new DataGridCell(nSize, pData);
-		
-		if (Size)
-			*Size = nSize;
-
-		delete[] pData;
-		return pNewCell;
-	}
-	return NULL;
+		return (*iDR).second;
+	else
+		return NULL;
 }
 
 void DataGridTable::SetData(int Column, int Row, DataGridCell *Value)
