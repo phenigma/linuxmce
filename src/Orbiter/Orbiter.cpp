@@ -6796,8 +6796,10 @@ int k=2;
 
         //we have nothing to render
         if(pVectorPlutoGraphic->size() == 0)
+{
+g_PlutoProfiler->Stop("rendergraphic preface");
             return;
-
+}
         if(int(pVectorPlutoGraphic->size()) <= pObj->m_iCurrentFrame)
             pObj->m_iCurrentFrame = 0;
 
