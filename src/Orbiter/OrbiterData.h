@@ -184,6 +184,7 @@ public:
 					for(unsigned long i=0;i<count;++i)
 					{
 						unsigned long Type = Read_unsigned_long();
+g_pPlutoLogger->Write(LV_STATUS,"Ready to deserialize screen Type %d",Type);
 #ifdef ORBITER
 						DesignObj_Orbiter *pDesignObj_Data=NULL;
 						if( Type==DESIGNOBJTYPE_Datagrid_CONST )
@@ -195,6 +196,7 @@ public:
 #endif
 						if( !pDesignObj_Data->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition,m_pExtraSerializationData) )
 							return false;
+g_pPlutoLogger->Write(LV_STATUS,"Deserialized screen %s",pDesignObj_Data->m_ObjectID.c_str());
 						m_ScreenMap[pDesignObj_Data->m_ObjectID]=pDesignObj_Data;
 					}
 					return true;
