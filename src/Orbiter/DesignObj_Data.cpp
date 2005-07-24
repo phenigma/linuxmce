@@ -327,7 +327,10 @@ bool DesignObj_Data::Serialize(bool bWriting, char *&pcDataBlock, unsigned long 
 g_pPlutoLogger->Write(LV_STATUS,"start object");
 		memcpy((void *)&Data,pcCurrentPosition,sizeof(Data));
 		pcCurrentPosition += sizeof(Data);
-g_pPlutoLogger->Write(LV_STATUS,"done object %d",Data.m_iBaseObjectID);
+g_pPlutoLogger->Write(LV_STATUS,"done object %d",Data.m_sOriginalSize.Width);
 	}
-	return SerializeClass::Serialize(bWriting,pcDataBlock,dwAllocatedSize,pcCurrentPosition,pExtraSerializationData);
+g_pPlutoLogger->Write(LV_STATUS,"before serialize offset %d",(int) (pcCurrentPosition-pcDataBlock));
+	bool b=SerializeClass::Serialize(bWriting,pcDataBlock,dwAllocatedSize,pcCurrentPosition,pExtraSerializationData);
+g_pPlutoLogger->Write(LV_STATUS,"after serialize offset %d",(int) (pcCurrentPosition-pcDataBlock));
+	return b;
 }
