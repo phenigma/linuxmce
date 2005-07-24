@@ -410,8 +410,6 @@ public: // temp - remove this
 	 */
 	bool SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid, class DataGridCell *pCell );
 
-	virtual void ShowProgress() {}
-
 	/**
 	 * @brief
 	 * @todo An object that requires special handling was selected

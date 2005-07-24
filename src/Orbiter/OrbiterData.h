@@ -115,6 +115,7 @@ public:
 	OrbiterData &operator+ (MapTextStyle &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_STYLE_MAP,(void *) &i)); return (*this); }
 	OrbiterData &operator+ (DequeLocationInfo &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_LOCATIONS,(void *) &i)); return (*this); }
 
+	virtual void ShowProgress() {}
 	void SetupSerialization(int iSC_Version)
 	{
 		StartSerializeList() + m_mapVariable + m_Width + m_Height + m_AnimationStyle + m_sInitialScreen + m_sMainMenu + m_sSleepingMenu + m_sScreenSaveMenu + m_dwPK_Users_Default + m_iLocation_Initial + m_sSkin
@@ -185,6 +186,7 @@ public:
 					{
 						unsigned long Type = Read_unsigned_long();
 #ifdef ORBITER
+						ShowProgress();
 						DesignObj_Orbiter *pDesignObj_Data=NULL;
 						if( Type==DESIGNOBJTYPE_Datagrid_CONST )
 							pDesignObj_Data = new DesignObj_DataGrid((class Orbiter *) m_pExtraSerializationData);
