@@ -8,7 +8,7 @@
 
 #include <deque>
 
-#define ORBITER_SCHEMA		13	// Used to determine if cached screens can be used or if the schema has changed
+#define ORBITER_SCHEMA		12	// Used to determine if cached screens can be used or if the schema has changed
 
 #ifdef ORBITER
 #include "DesignObj_Orbiter.h"
@@ -111,9 +111,9 @@ public:
 		return it==m_mapTextStyle.end() ? NULL : (*it).second;
 	}
 
-	OrbiterData &operator+ (ScreenMap &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_SCREEN_MAP,(void *) &i)); return (*this); }
-	OrbiterData &operator+ (MapTextStyle &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_STYLE_MAP,(void *) &i)); return (*this); }
-	OrbiterData &operator+ (DequeLocationInfo &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_LOCATIONS,(void *) &i)); return (*this); }
+	OrbiterData &operator+ (ScreenMap &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_SCREEN_MAP,(void *) &i)); return (*this); }
+	OrbiterData &operator+ (MapTextStyle &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_STYLE_MAP,(void *) &i)); return (*this); }
+	OrbiterData &operator+ (DequeLocationInfo &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_LOCATIONS,(void *) &i)); return (*this); }
 
 	void SetupSerialization(int iSC_Version)
 	{
@@ -141,7 +141,7 @@ public:
 					for(it=m_ScreenMap.begin();it!=m_ScreenMap.end();++it)
 					{
 						DesignObj_Data *pObj = (*it).second;
-						Write_unsigned_long( pObj->Data.m_ObjectType );
+						Write_unsigned_long( pObj->m_ObjectType );
 						if( !pObj->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition) )
 							return false;
 					}
@@ -184,7 +184,6 @@ public:
 					for(unsigned long i=0;i<count;++i)
 					{
 						unsigned long Type = Read_unsigned_long();
-g_pPlutoLogger->Write(LV_STATUS,"Ready to deserialize screen Type %d",Type);
 #ifdef ORBITER
 						DesignObj_Orbiter *pDesignObj_Data=NULL;
 						if( Type==DESIGNOBJTYPE_Datagrid_CONST )
@@ -196,7 +195,6 @@ g_pPlutoLogger->Write(LV_STATUS,"Ready to deserialize screen Type %d",Type);
 #endif
 						if( !pDesignObj_Data->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition,m_pExtraSerializationData) )
 							return false;
-g_pPlutoLogger->Write(LV_STATUS,"Deserialized screen %s",pDesignObj_Data->m_ObjectID.c_str());
 						m_ScreenMap[pDesignObj_Data->m_ObjectID]=pDesignObj_Data;
 					}
 					return true;

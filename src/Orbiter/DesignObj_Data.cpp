@@ -18,7 +18,6 @@
 #include "PlutoUtils/CommonIncludes.h"	
 #include "DesignObj_Orbiter.h"
 #include "pluto_main/Define_DesignObjType.h"
-#include "DCE/Logger.h"
 
 DesignObj_Data::~DesignObj_Data()
 {
@@ -31,24 +30,6 @@ DesignObj_Data::~DesignObj_Data()
 	m_ZoneList.clear();
 	m_ChildObjects.clear();	
 	m_vectDesignObjText.clear();
-}
-
-bool DesignObjCommand::Serialize(bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition, void *pExtraSerializationData)
-{
-	if( bWriting )
-	{
-		m_pcDataBlock=pcDataBlock; m_dwAllocatedSize=dwAllocatedSize; m_pcCurrentPosition=pcCurrentPosition;
-		Write_block( (char *)&Data,sizeof(Data));
-		pcDataBlock=m_pcDataBlock; dwAllocatedSize=m_dwAllocatedSize; pcCurrentPosition=m_pcCurrentPosition;
-	}
-	else
-	{
-g_pPlutoLogger->Write(LV_STATUS,"start to deserialize command");
-		memcpy((void *)&Data,pcCurrentPosition,sizeof(Data));
-		pcCurrentPosition += sizeof(Data);
-g_pPlutoLogger->Write(LV_STATUS,"done command %d",Data.m_PK_Command);
-	}
-	return SerializeClass::Serialize(bWriting,pcDataBlock,dwAllocatedSize,pcCurrentPosition,pExtraSerializationData);
 }
 
 bool DesignObjZone::UnknownSerialize(ItemToSerialize *pItem,bool bWriting,char *&pDataBlock,unsigned long &iAllocatedSize,char *&pCurrentPosition) 
@@ -94,24 +75,6 @@ bool DesignObjZone::UnknownSerialize(ItemToSerialize *pItem,bool bWriting,char *
 	pDataBlock=m_pcDataBlock; iAllocatedSize=m_dwAllocatedSize; pCurrentPosition=m_pcCurrentPosition;
 	return true;
 } 
-
-bool DesignObjZone::Serialize(bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition, void *pExtraSerializationData)
-{
-	if( bWriting )
-	{
-		m_pcDataBlock=pcDataBlock; m_dwAllocatedSize=dwAllocatedSize; m_pcCurrentPosition=pcCurrentPosition;
-		Write_block( (char *)&m_Rect,sizeof(PlutoRectangle));
-		pcDataBlock=m_pcDataBlock; dwAllocatedSize=m_dwAllocatedSize; pcCurrentPosition=m_pcCurrentPosition;
-	}
-	else
-	{
-g_pPlutoLogger->Write(LV_STATUS,"start to deserialize zone");
-		memcpy((void *)&m_Rect,pcCurrentPosition,sizeof(PlutoRectangle));
-		pcCurrentPosition += sizeof(PlutoRectangle);
-g_pPlutoLogger->Write(LV_STATUS,"done zone %d",m_Rect.X);
-	}
-	return SerializeClass::Serialize(bWriting,pcDataBlock,dwAllocatedSize,pcCurrentPosition,pExtraSerializationData);
-}
 
 bool DesignObjText::UnknownSerialize(ItemToSerialize *pItem,bool bWriting,char *&pDataBlock,unsigned long &iAllocatedSize,char *&pCurrentPosition)
 {
@@ -159,23 +122,8 @@ bool DesignObjText::UnknownSerialize(ItemToSerialize *pItem,bool bWriting,char *
 	return bHandledIt;
 }
 
-bool DesignObjText::Serialize(bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition, void *pExtraSerializationData)
-{
-	if( bWriting )
-	{
-		m_pcDataBlock=pcDataBlock; m_dwAllocatedSize=dwAllocatedSize; m_pcCurrentPosition=pcCurrentPosition;
-		Write_block( (char *)&Data,sizeof(Data));
-		pcDataBlock=m_pcDataBlock; dwAllocatedSize=m_dwAllocatedSize; pcCurrentPosition=m_pcCurrentPosition;
-	}
-	else
-	{
-g_pPlutoLogger->Write(LV_STATUS,"start ext");
-		memcpy((void *)&Data,pcCurrentPosition,sizeof(Data));
-		pcCurrentPosition += sizeof(Data);
-g_pPlutoLogger->Write(LV_STATUS,"done text %d",Data.m_PK_Text);
-	}
-	return SerializeClass::Serialize(bWriting,pcDataBlock,dwAllocatedSize,pcCurrentPosition,pExtraSerializationData);
-}
+
+
 
 bool DesignObj_Data::UnknownSerialize(ItemToSerialize *pItem,bool bWriting,char *&pDataBlock,unsigned long &iAllocatedSize,char *&pCurrentPosition) 
 { 
@@ -216,7 +164,7 @@ bool DesignObj_Data::UnknownSerialize(ItemToSerialize *pItem,bool bWriting,char 
 				{
 					DesignObj_Data *pObj = *it;
 					// Different types of objects require different derived classes, so save this information first
-					Write_unsigned_long(pObj->Data.m_ObjectType);
+					Write_unsigned_long(pObj->m_ObjectType);
 					pObj->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition);
 				}
 				bHandledIt=true;  // We handled it
@@ -313,24 +261,3 @@ bool DesignObj_Data::UnknownSerialize(ItemToSerialize *pItem,bool bWriting,char 
 	pDataBlock=m_pcDataBlock; iAllocatedSize=m_dwAllocatedSize; pCurrentPosition=m_pcCurrentPosition;
 	return bHandledIt;
 } 
-
-bool DesignObj_Data::Serialize(bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition, void *pExtraSerializationData)
-{
-	if( bWriting )
-	{
-		m_pcDataBlock=pcDataBlock; m_dwAllocatedSize=dwAllocatedSize; m_pcCurrentPosition=pcCurrentPosition;
-		Write_block( (char *)&Data,sizeof(Data));
-		pcDataBlock=m_pcDataBlock; dwAllocatedSize=m_dwAllocatedSize; pcCurrentPosition=m_pcCurrentPosition;
-	}
-	else
-	{
-g_pPlutoLogger->Write(LV_STATUS,"start object");
-		memcpy((void *)&Data,pcCurrentPosition,sizeof(Data));
-		pcCurrentPosition += sizeof(Data);
-g_pPlutoLogger->Write(LV_STATUS,"done object %d",Data.m_sOriginalSize.Width);
-	}
-g_pPlutoLogger->Write(LV_STATUS,"before serialize offset %d",(int) (pcCurrentPosition-pcDataBlock));
-	bool b=SerializeClass::Serialize(bWriting,pcDataBlock,dwAllocatedSize,pcCurrentPosition,pExtraSerializationData);
-g_pPlutoLogger->Write(LV_STATUS,"after serialize offset %d",(int) (pcCurrentPosition-pcDataBlock));
-	return b;
-}
