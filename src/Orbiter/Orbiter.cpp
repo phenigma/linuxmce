@@ -1138,6 +1138,7 @@ g_PlutoProfiler->Stop("render cell");
 //------------------------------------------------------------------------
 void Orbiter::RenderDataGrid( DesignObj_DataGrid *pObj, PlutoPoint point )
 {
+g_PlutoProfiler->Start("renderdg - b1");
 #ifdef DEBUG
 g_pPlutoLogger->Write(LV_WARNING,"RenderDataGrid %s %p",pObj->m_ObjectID.c_str(),pObj->m_pDataGridTable);
 #endif
@@ -1154,9 +1155,10 @@ g_pPlutoLogger->Write(LV_WARNING,"RenderDataGrid %s %p",pObj->m_ObjectID.c_str()
     clock_t clkStart = clock(  );
 #endif
 
-g_PlutoProfiler->Start("prepare render dg");
+g_PlutoProfiler->Stop("renderdg - b1");
+g_PlutoProfiler->Start("renderdg - b2 prepare render dg");
     PrepareRenderDataGrid( pObj,  delSelections );
-g_PlutoProfiler->Stop("prepare render dg");
+g_PlutoProfiler->Stop("renderdg - b2 prepare render dg");
 
 #if ( defined( PROFILING_GRID ) )
     clock_t clkAcquired = clock(  );
@@ -1165,7 +1167,9 @@ g_PlutoProfiler->Stop("prepare render dg");
     if( !pObj->m_pDataGridTable )
         return;
 
+g_PlutoProfiler->Start("renderdg - b3 rect");
 	SolidRectangle( point.X + pObj->m_rPosition.X, point.Y + pObj->m_rPosition.Y, pObj->m_rPosition.Width, pObj->m_rPosition.Height, PlutoColor( 0, 0, 0 ) );
+g_PlutoProfiler->Stop("renderdg - b3 rect");
 
     // short for "number of ARRow ROWS": ArrRows
     // last screen exception: we consider one up arrow as not being there so we don't skip a row when we scroll up
@@ -1176,6 +1180,7 @@ g_PlutoProfiler->Stop("prepare render dg");
 
     bool bAddedUpButton=false, bAddedDownButton=false;
 
+g_PlutoProfiler->Start("renderdg - b4 arrows");
 	// See if we should add page up/down cells -- see notes at top of file
     if(  pObj->m_sExtraInfo.find( 'P' )!=string::npos  )
     {
@@ -1200,7 +1205,9 @@ g_PlutoProfiler->Stop("prepare render dg");
             bAddedDownButton=true;
         }
     }
+g_PlutoProfiler->Stop("renderdg - b4 arrows");
 
+g_PlutoProfiler->Start("renderdg - b5 loop");
     for ( i = 0; i < pObj->m_pDataGridTable->m_RowCount - ArrRows; i++ )
     {
         for ( j = 0; j < pObj->m_pDataGridTable->m_ColumnCount; j++ )
@@ -1233,6 +1240,7 @@ g_PlutoProfiler->Stop("prepare render dg");
         }
     }
 
+g_PlutoProfiler->Stop("renderdg - b5 loop");
     pObj->m_pDataGridTable->m_RowCount = i + ArrRows;
 
 #if ( defined( PROFILING_GRID ) )
