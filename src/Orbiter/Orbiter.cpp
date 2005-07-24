@@ -6804,7 +6804,7 @@ int k=2;
         iCurrentFrame = pObj->m_iCurrentFrame;
         pPlutoGraphic = (*pVectorPlutoGraphic)[iCurrentFrame];
         bIsMNG = pPlutoGraphic->m_GraphicFormat == GR_MNG;
-    }}
+    }
 g_PlutoProfiler->Stop("rendergraphic preface");
 
 	string sFileName = "";
