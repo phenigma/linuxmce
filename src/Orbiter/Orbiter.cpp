@@ -1072,11 +1072,15 @@ g_PlutoProfiler->Start("render cell");
         return false;
     }
     int x, y, w, h;
+g_PlutoProfiler->Start("GetGridCellDimensions");
     GetGridCellDimensions( pObj,  pCell->m_Colspan,  pCell->m_Rowspan,  j,  i,  x,  y,  w,  h );
+g_PlutoProfiler->Stop("GetGridCellDimensions");
     if ( w>4 && h >4 )
     {
+g_PlutoProfiler->Start("SolidRectangle");
 		if ( !bTransparentCell )
 			SolidRectangle( point.X + x,  point.Y + y,  w,  h,  pCell->m_AltColor ? pCell->m_AltColor : pTextStyle->m_BackColor);
+g_PlutoProfiler->Stop("SolidRectangle");
 
 		/*
 		if ( pObj->BorderColor2.m_Value!=pObj->BorderColor.m_Value )
@@ -1090,6 +1094,7 @@ g_PlutoProfiler->Start("render cell");
 		*/
 
 		//SolidRectangle( x,  y,  w,  h,  pObj->BorderColor  );
+g_PlutoProfiler->Start("cellgraphic");
 		if ( pCell->m_pGraphicData )
 		{
 			PlutoGraphic *pPlutoGraphic = CreateGraphic();
@@ -1098,6 +1103,7 @@ g_PlutoProfiler->Start("render cell");
 			RenderGraphic(pPlutoGraphic, PlutoRectangle(x,  y,  w,  h), pObj->m_bDisableAspectLock, point );
 			delete pPlutoGraphic;
 		}
+g_PlutoProfiler->Stop("cellgraphic");
 
         DesignObjText Text( pObj );
         // todo         Text.m_Rect = PlutoRectangle( x+pObj->BorderWidth,  y+pObj->BorderWidth,  w-( 2*pObj->BorderWidth ),  h-( 2*pObj->BorderWidth ) );
@@ -1109,8 +1115,12 @@ g_PlutoProfiler->Start("render cell");
 		Text.m_iPK_HorizAlignment = pTextStyle->m_iPK_HorizAlignment;
 		Text.m_iPK_VertAlignment = pTextStyle->m_iPK_VertAlignment;
 
+g_PlutoProfiler->Start("GetText");
         string sText = pCell->GetText(  );
+g_PlutoProfiler->Stop("GetText");
+g_PlutoProfiler->Start("RenderText");
         RenderText( sText, &Text, pTextStyle, point );
+g_PlutoProfiler->Stop("RenderText");
     }
     else
         g_pPlutoLogger->Write( LV_WARNING,  "Datagrid width or height is too small" );

@@ -34,6 +34,8 @@ CComModule _Module;
 // GDI Escapes for ExtEscape()
 #define QUERYESCSUPPORT    8
  
+#include "PlutoUtils/Profiler.h"
+
 // The following are unique to CE
 #define GETVFRAMEPHYSICAL   6144
 #define GETVFRAMELEN    6145
@@ -640,6 +642,7 @@ int k=2;
 	PocketFrogGraphic *pPocketFrogGraphic = (PocketFrogGraphic *) pPlutoGraphic;
 	Surface *pSurface = pPocketFrogGraphic->m_pSurface;
 
+g_PlutoProfiler->Start("IsBadReadPtr");
 	if(::IsBadReadPtr(pSurface->m_buffer->GetPixels(), pSurface->GetWidth() * pSurface->GetHeight() * 2))
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "The surface has a bad pointer for pixels array (Surface: %p, pixels: %p)",
@@ -647,6 +650,7 @@ int k=2;
 		pPlutoGraphic->Clear(); //force reload ocg
 		return;
 	}
+g_PlutoProfiler->Stop("IsBadReadPtr");
 
     rectTotal.X += point.X;
     rectTotal.Y += point.Y;
@@ -676,12 +680,16 @@ int k=2;
 			dest.right = dest.left + int(pSurface->GetWidth() * ZoomX);
 			dest.bottom = dest.top + int(pSurface->GetHeight() * ZoomY);
 
+g_PlutoProfiler->Start("BlitStretch");
 			if( dest.right-dest.left>0 && dest.bottom-dest.top>0 )  // PF crashes with 0 width/height
 				GetDisplay()->BlitStretch(dest, pSurface); 
+g_PlutoProfiler->Stop("BlitStretch");
 		}
 		else
 		{
+g_PlutoProfiler->Start("Blit");
 			GetDisplay()->Blit( rectTotal.X, rectTotal.Y, pSurface );
+g_PlutoProfiler->Stop("Blit");
 		}
 }
 //-----------------------------------------------------------------------------------------------------

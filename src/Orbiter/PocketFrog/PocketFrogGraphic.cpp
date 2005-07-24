@@ -8,6 +8,8 @@
 
 #define M_PI 3.1415592654
 
+#include "PlutoUtils/Profiler.h"
+
 #include "src/internal/graphicbuffer.h"
 //-------------------------------------------------------------------------------------------------------
 PocketFrogGraphic::PocketFrogGraphic(string Filename, eGraphicManagement GraphicManagement,
@@ -46,7 +48,9 @@ bool PocketFrogGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
 
 	if(m_GraphicFormat == GR_OCG)
 	{
+g_PlutoProfiler->Start("PocketFrog_LoadPFG");
 		m_pSurface = PocketFrog_LoadPFG(pData, iSize);
+g_PlutoProfiler->Stop("PocketFrog_LoadPFG");
 	}
 	else
 	{
@@ -73,9 +77,15 @@ bool PocketFrogGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
 		iRotation = 360-iRotation;  // We use cw, they ccw
         Surface *pSourceSurface = m_pSurface;
 
+g_PlutoProfiler->Start("pDisplayDevice->CreateSurface");
         m_pSurface = pDisplayDevice->CreateSurface(m_pSurface->m_width, m_pSurface->m_height);
+g_PlutoProfiler->Stop("pDisplayDevice->CreateSurface");
+g_PlutoProfiler->Start("CreateRasterizer");
         Rasterizer *pRasterizer = pDisplayDevice->CreateRasterizer(m_pSurface);
+g_PlutoProfiler->Stop("CreateRasterizer");
+g_PlutoProfiler->Start("BlitRotated");
         pRasterizer->BlitRotated( m_pSurface->m_width/2, m_pSurface->m_height/2, float(iRotation * M_PI / 180.), pSourceSurface); 
+g_PlutoProfiler->Stop("BlitRotated");
 
         delete pSourceSurface;
     }
