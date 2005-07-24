@@ -219,10 +219,10 @@ void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj, PlutoPoint po
 
 		pObj->m_MaxRow = pObj->m_pDataGridTable->getTotalRowCount();
 
-        int x       = pObj->Data.m_rPosition.X;
-        int y       = pObj->Data.m_rPosition.Y;
-        int Width   = pObj->Data.m_rPosition.Width;
-        int Height  = pObj->Data.m_rPosition.Height;
+        int x       = pObj->m_rPosition.X;
+        int y       = pObj->m_rPosition.Y;
+        int Width   = pObj->m_rPosition.Width;
+        int Height  = pObj->m_rPosition.Height;
         list<string> listGrid;
 		bool bSendSelectedOnMove = false; 
 

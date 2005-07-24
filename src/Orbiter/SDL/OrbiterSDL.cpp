@@ -155,10 +155,10 @@ g_pPlutoLogger->Write(LV_STATUS, "~OrbiterSDL finished");
 /*virtual*/ void OrbiterSDL::RenderText(string &TextToDisplay,DesignObjText *Text,TextStyle *pTextStyle, PlutoPoint point)
 {
     SDL_Rect TextLocation;
-    TextLocation.x = point.X + Text->Data.m_rPosition.X;
-    TextLocation.y = point.Y + Text->Data.m_rPosition.Y;
-    TextLocation.w = Text->Data.m_rPosition.Width;
-    TextLocation.h = Text->Data.m_rPosition.Height;
+    TextLocation.x = point.X + Text->m_rPosition.X;
+    TextLocation.y = point.Y + Text->m_rPosition.Y;
+    TextLocation.w = Text->m_rPosition.Width;
+    TextLocation.h = Text->m_rPosition.Height;
 
 #ifdef WIN32
     string BasePath="C:\\Windows\\Fonts\\";
@@ -169,7 +169,7 @@ g_pPlutoLogger->Write(LV_STATUS, "~OrbiterSDL finished");
 	try
 	{
 		WrapAndRenderText(m_pScreenImage, TextToDisplay, TextLocation.x, TextLocation.y, TextLocation.w, TextLocation.h, BasePath, 
-			pTextStyle,Text->Data.m_iPK_HorizAlignment,Text->Data.m_iPK_VertAlignment);
+			pTextStyle,Text->m_iPK_HorizAlignment,Text->m_iPK_VertAlignment);
 	}
 	catch(...)
 	{
@@ -243,11 +243,11 @@ g_pPlutoLogger->Write(LV_STATUS, "~OrbiterSDL finished");
 /*virtual*/ void OrbiterSDL::SaveBackgroundForDeselect(DesignObj_Orbiter *pObj, PlutoPoint point)
 {
     SDL_Surface *pSDL_Surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
-		pObj->Data.m_rPosition.Width, pObj->Data.m_rPosition.Height, 32, rmask, gmask, bmask, amask);
+		pObj->m_rPosition.Width, pObj->m_rPosition.Height, 32, rmask, gmask, bmask, amask);
 
 	SDL_Rect SourceRect;
-	SourceRect.x = point.X + pObj->Data.m_rPosition.Left(); SourceRect.y = point.Y + pObj->Data.m_rPosition.Top();
-	SourceRect.w = pObj->Data.m_rPosition.Width; SourceRect.h = pObj->Data.m_rPosition.Height;
+	SourceRect.x = point.X + pObj->m_rPosition.Left(); SourceRect.y = point.Y + pObj->m_rPosition.Top();
+	SourceRect.w = pObj->m_rPosition.Width; SourceRect.h = pObj->m_rPosition.Height;
 
 	SDL_SetAlpha(m_pScreenImage, 0, 0);
 	SDL_BlitSurface(m_pScreenImage, &SourceRect, pSDL_Surface, NULL);
