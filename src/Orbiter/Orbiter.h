@@ -562,6 +562,11 @@ void RealRedraw( void *data );  // temp hack -- see comments
 	void ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Screen, DesignObj_Orbiter *pObj_Parent, GraphicType Type, int iLev );
 
 	/**
+	 * We'll parse the grids only on the first use since it takes time and it will make startup faster
+	 */
+	void ParseGrid(DesignObj_DataGrid *pObj_Datagrid);
+
+	/**
 	 *	PURE VIRTUALS
 	 */
 

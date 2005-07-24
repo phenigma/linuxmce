@@ -2776,6 +2776,9 @@ void Orbiter::InitializeGrid( DesignObj_DataGrid *pObj )
 {
 g_PlutoProfiler->Start("init grid");
     PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
+	if( !pObj->m_bParsed )
+		ParseGrid(pObj);
+
     /* todo 2.0
     bool bEPG = ( GridID.substr( 0, 3 )=="EPG" || GridID.substr( 0, 5 )=="CURSH" );
     */
@@ -3045,7 +3048,6 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
     if(  pObj->m_bHideByDefault  )
         pObj->m_bHidden = true;
 
-g_PlutoProfiler->Start("create vect graphic");
 
     enum eGraphicManagement eMgmt = GR_DISCARDONCHANGE;
     if(  pObj->m_sBackgroundFile.length(  )>0  )
@@ -3060,7 +3062,6 @@ g_PlutoProfiler->Start("create vect graphic");
 		CreateVectorGraphic(vectPlutoGraphic, Type,  pObj->m_vectAltGraphicFilename[salt],  eMgmt,  this);
 		pObj->m_vectAltGraphics.push_back( vectPlutoGraphic );
     }
-g_PlutoProfiler->Stop("create vect graphic");
 
     if(  pObj->m_bTabStop  )
         pObj_Screen->m_vectObj_TabStops.push_back( pObj );
@@ -3078,7 +3079,6 @@ g_PlutoProfiler->Stop("create vect graphic");
     COMMANDPARAMETER_PK_Device_CONST,  Device.c_str(  ) ) );
     }
     */
-g_PlutoProfiler->Start("dots");
 
     // Child objects have the format screen.version.page.objectid.x where x is an arbitrary increment to insure uniqueness
     // Some commands need to send messages to an object not knowing the value of x.  So,  we create another map without the suffix
@@ -3111,7 +3111,6 @@ g_PlutoProfiler->Start("dots");
     {
         pObj->m_iBaseObjectID = atoi( pObj->m_ObjectID.c_str(  ) );
     }
-g_PlutoProfiler->Stop("dots");
 
 	// On any screen all child objects should inherit the screen's priority so the whole screen is cached
 	pObj->m_Priority = pObj_Screen->m_Priority;
@@ -3123,128 +3122,6 @@ g_PlutoProfiler->Start("grids");
         DesignObj_DataGrid *pObj_Datagrid = ( DesignObj_DataGrid * ) pObj;
         // Fix up the parameters
         pObj_Datagrid->m_sGridID = SubstituteVariables( pObj->GetParameterValue( DESIGNOBJPARAMETER_Data_grid_ID_CONST ), pObj, 0, 0 );
-        pObj_Datagrid->m_sExtraInfo = pObj_Datagrid->m_mapObjParms[DESIGNOBJPARAMETER_Extra_Info_CONST];
-        pObj_Datagrid->m_FixedRowHeight = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Fixed_Row_Height_CONST ).c_str(  ) );
-        pObj_Datagrid->m_FixedColumnWidth =  atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Fixed_Column_Width_CONST ).c_str(  ) );
-        pObj_Datagrid->m_RowSpacing = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Row_Spacing_CONST ).c_str(  ) );
-        pObj_Datagrid->m_ColumnSpacing = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Column_Spacing_CONST ).c_str(  ) );
-        pObj_Datagrid->m_FirstRowHeight = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_First_Row_Height_CONST ).c_str(  ) );
-        pObj_Datagrid->m_FirstColumnWidth =  atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_First_Column_Width_CONST ).c_str(  ) );
-        pObj_Datagrid->m_bKeepRowHeader = pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Keep_Row_Header_CONST )=="1";
-        pObj_Datagrid->m_bKeepColHeader = pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Keep_Column_Header_CONST )=="1";
-        pObj_Datagrid->m_bPersistXY = pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Persist_XY_Position_CONST )=="1";
-        pObj_Datagrid->m_iInitialRowNum = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Initial_Row_Number_CONST ).c_str(  ) );
-        pObj_Datagrid->m_iInitialColNum = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Initial_Column_Numb_CONST ).c_str(  ) );
-        pObj_Datagrid->m_MaxCol = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Num_of_Columns_CONST ).c_str(  ) );
-        pObj_Datagrid->m_sSeek = pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Seek_Value_CONST );
-        pObj_Datagrid->m_iSeekColumn = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Seek_Column_CONST ).c_str(  ) );
-        if ( pObj_Datagrid->m_MaxCol == 0 )
-        {
-            if(  pObj_Datagrid->m_FixedColumnWidth==0  )
-                pObj_Datagrid->m_MaxCol=1;
-            else if( m_iRotation==90 || m_iRotation==270 )
-                pObj_Datagrid->m_MaxCol =1+ ( pObj_Datagrid->m_rPosition.Height - ( pObj_Datagrid->m_FirstColumnWidth +1  ) ) / ( pObj_Datagrid->m_FixedColumnWidth+1 );
-			else
-                pObj_Datagrid->m_MaxCol =1+ ( pObj_Datagrid->m_rPosition.Width - ( pObj_Datagrid->m_FirstColumnWidth +1  ) ) / ( pObj_Datagrid->m_FixedColumnWidth+1 );
-        }
-        else if ( pObj_Datagrid->m_FixedColumnWidth == 0 ) // Do we know the number of columns but not their size?
-        {
-            if( m_iRotation==90 || m_iRotation==270 )
-				pObj_Datagrid->m_FixedColumnWidth = ( pObj_Datagrid->m_rPosition.Height / pObj_Datagrid->m_MaxCol ) - ( ( pObj_Datagrid->m_MaxCol-1 ) * pObj_Datagrid->m_ColumnSpacing );
-			else
-				pObj_Datagrid->m_FixedColumnWidth = ( pObj_Datagrid->m_rPosition.Width / pObj_Datagrid->m_MaxCol ) - ( ( pObj_Datagrid->m_MaxCol-1 ) * pObj_Datagrid->m_ColumnSpacing );
-        }
-        pObj_Datagrid->m_MaxRow = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Num_of_Rows_CONST ).c_str(  ) );
-        if ( pObj_Datagrid->m_MaxRow == 0 )
-        {
-            if(  pObj_Datagrid->m_FixedRowHeight==0  )
-                pObj_Datagrid->m_MaxRow=1;
-            else if( m_iRotation==90 || m_iRotation==270 )
-                pObj_Datagrid->m_MaxRow = 1+ ( pObj_Datagrid->m_rPosition.Width - ( pObj_Datagrid->m_FirstRowHeight +1  ) ) / ( pObj_Datagrid->m_FixedRowHeight+1 );
-			else
-                pObj_Datagrid->m_MaxRow = 1+ ( pObj_Datagrid->m_rPosition.Height - ( pObj_Datagrid->m_FirstRowHeight +1  ) ) / ( pObj_Datagrid->m_FixedRowHeight+1 );
-        }
-        else if ( pObj_Datagrid->m_FixedRowHeight == 0 ) // Do we know the number of columns but not their size?
-        {
-            if( m_iRotation==90 || m_iRotation==270 )
-				pObj_Datagrid->m_FixedRowHeight = ( pObj_Datagrid->m_rPosition.Width / pObj_Datagrid->m_MaxRow ) - ( ( pObj_Datagrid->m_MaxRow-1 ) * pObj_Datagrid->m_RowSpacing );
-			else
-				pObj_Datagrid->m_FixedRowHeight = ( pObj_Datagrid->m_rPosition.Height / pObj_Datagrid->m_MaxRow ) - ( ( pObj_Datagrid->m_MaxRow-1 ) * pObj_Datagrid->m_RowSpacing );
-        }
-        if(  ( pObj_Datagrid->m_FixedColumnWidth == 0 && pObj_Datagrid->m_MaxCol == 0 ) || ( pObj_Datagrid->m_FixedRowHeight == 0 && pObj_Datagrid->m_MaxRow == 0 )  )
-        {
-            g_pPlutoLogger->Write( LV_CRITICAL,  "Neither the column/row size,  nor the the column/row count are specified in the parameters on grid %s",  pObj_Datagrid->m_ObjectID.c_str(  ) );
-        }
-
-        // For purposes of calculation,  take the bigger of the two here when not fixed
-        if(  !pObj_Datagrid->m_bKeepRowHeader  )
-        {
-            pObj_Datagrid->m_FirstRowHeight = max( pObj_Datagrid->m_FirstRowHeight,  pObj_Datagrid->m_FixedRowHeight );
-        }
-        else
-        {
-            if ( pObj_Datagrid->m_FirstRowHeight == 0 )
-                pObj_Datagrid->m_FirstRowHeight = pObj_Datagrid->m_FixedRowHeight;
-        }
-        if (  !pObj_Datagrid->m_FirstColumnWidth  )
-        {
-            pObj_Datagrid->m_FirstColumnWidth = max( pObj_Datagrid->m_FirstColumnWidth,  pObj_Datagrid->m_FixedColumnWidth );
-        }
-        else
-        {
-            if ( pObj_Datagrid->m_FirstColumnWidth == 0 )
-                pObj_Datagrid->m_FirstColumnWidth = pObj_Datagrid->m_FixedColumnWidth;
-        }
-
-        pObj_Datagrid->m_iPK_Variable = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_PK_Variable_CONST ).c_str(  ) );
-        pObj_Datagrid->m_sOptions = pObj_Datagrid->m_mapObjParms[DESIGNOBJPARAMETER_Options_CONST];  // No substitution since this usually has tokens in it to parse at runtime
-        pObj_Datagrid->m_iPK_Datagrid = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_PK_Datagrid_CONST ).c_str(  ) );
-        pObj_Datagrid->m_bDontShowSelection = pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Is_Multi_Select_CONST )=="-1";
-        pObj_Datagrid->m_bIsMultiSelect = pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Is_Multi_Select_CONST )=="1";
-
-        string::size_type pos = 0;
-        /* todo 2.0 pObj_Datagrid->BorderWidth = atoi( StringUtils::Tokenize( pObj_Datagrid->BorderStyle,  ", ",  pos ).c_str(  ) );
-        pObj_Datagrid->BorderColor = atoi( StringUtils::Tokenize( pObj_Datagrid->BorderStyle,  ";",  pos ).c_str(  ) );
-        if ( pos<pObj_Datagrid->BorderStyle.length(  ) )
-        pObj_Datagrid->BorderColor2 = atoi( StringUtils::Tokenize( pObj_Datagrid->BorderStyle,  ";",  pos ).c_str(  ) );
-        else
-        pObj_Datagrid->BorderColor2 = pObj_Datagrid->BorderColor;
-        */
-        pObj_Datagrid->sSelVariable = pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_PK_Variable_CONST );
-
-        pObj_Datagrid->m_pTextStyle = m_mapTextStyle_Find(  atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_PK_Style_CONST ).c_str(  ) )  );
-        if(  !pObj_Datagrid->m_pTextStyle  )
-            pObj_Datagrid->m_pTextStyle = m_mapTextStyle_Find(  1  );
-        pObj_Datagrid->m_pTextStyle_FirstCol = m_mapTextStyle_Find(  atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_PK_Style_FirstColumn_CONST ).c_str(  ) )  );
-        pObj_Datagrid->m_pTextStyle_FirstRow = m_mapTextStyle_Find(  atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_PK_Style_FirstRow_CONST ).c_str(  ) )  );
-        pObj_Datagrid->m_pTextStyle_Selected = m_mapTextStyle_Find(  atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_PK_Style_Selected_CONST ).c_str(  ) )  );
-        pObj_Datagrid->m_pTextStyle_Highlighted = m_mapTextStyle_Find(  atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_PK_Style_Highlighted_CONST ).c_str(  ) )  );
-
-        if(  !pObj_Datagrid->m_pTextStyle_FirstCol  )
-            pObj_Datagrid->m_pTextStyle_FirstCol = pObj_Datagrid->m_pTextStyle;
-        if(  !pObj_Datagrid->m_pTextStyle_FirstRow  )
-            pObj_Datagrid->m_pTextStyle_FirstRow = pObj_Datagrid->m_pTextStyle;
-        if(  !pObj_Datagrid->m_pTextStyle_Selected  )
-            pObj_Datagrid->m_pTextStyle_Selected = pObj_Datagrid->m_pTextStyle;
-
-        pos=0;
-        string AltStyles = pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_PK_Style_Alt_CONST );
-        int Counter=0;
-        while( true )
-        {
-            string Style = StringUtils::Tokenize( AltStyles, ", ", pos );
-            if(  Style.length(  )==0  )
-                break;
-            TextStyle *pTextStyle = m_mapTextStyle_Find(  atoi( Style.c_str(  ) )  );
-            if(  pTextStyle  )
-            {
-				while(int(pObj_Datagrid->m_vectTextStyle_Alt.size()) < Counter)
-                    pObj_Datagrid->m_vectTextStyle_Alt.push_back(NULL);
-                pObj_Datagrid->m_vectTextStyle_Alt.push_back(pTextStyle);
-                //              pObj_Datagrid->m_vectTextStyle_Alt[Counter] = pTextStyle;
-            }
-            Counter++;
-        }
         m_mapObjs_AllGrids[pObj_Datagrid->m_sGridID] = pObj_Datagrid;
     }
 g_PlutoProfiler->Stop("grids");
@@ -8224,3 +8101,131 @@ g_pPlutoLogger->Write(LV_STATUS,"unknown serialize %d",pItem->m_iSerializeDataTy
 	pcDataBlock=m_pcDataBlock; dwAllocatedSize=m_dwAllocatedSize; pcCurrentPosition=m_pcCurrentPosition;
 	return true;
 }
+
+void Orbiter::ParseGrid(DesignObj_DataGrid *pObj_Datagrid)
+{
+	pObj_Datagrid->m_sExtraInfo = pObj_Datagrid->m_mapObjParms[DESIGNOBJPARAMETER_Extra_Info_CONST];
+    pObj_Datagrid->m_FixedRowHeight = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Fixed_Row_Height_CONST ).c_str(  ) );
+    pObj_Datagrid->m_FixedColumnWidth =  atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Fixed_Column_Width_CONST ).c_str(  ) );
+    pObj_Datagrid->m_RowSpacing = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Row_Spacing_CONST ).c_str(  ) );
+    pObj_Datagrid->m_ColumnSpacing = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Column_Spacing_CONST ).c_str(  ) );
+    pObj_Datagrid->m_FirstRowHeight = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_First_Row_Height_CONST ).c_str(  ) );
+    pObj_Datagrid->m_FirstColumnWidth =  atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_First_Column_Width_CONST ).c_str(  ) );
+    pObj_Datagrid->m_bKeepRowHeader = pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Keep_Row_Header_CONST )=="1";
+    pObj_Datagrid->m_bKeepColHeader = pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Keep_Column_Header_CONST )=="1";
+    pObj_Datagrid->m_bPersistXY = pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Persist_XY_Position_CONST )=="1";
+    pObj_Datagrid->m_iInitialRowNum = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Initial_Row_Number_CONST ).c_str(  ) );
+    pObj_Datagrid->m_iInitialColNum = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Initial_Column_Numb_CONST ).c_str(  ) );
+    pObj_Datagrid->m_MaxCol = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Num_of_Columns_CONST ).c_str(  ) );
+    pObj_Datagrid->m_sSeek = pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Seek_Value_CONST );
+    pObj_Datagrid->m_iSeekColumn = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Seek_Column_CONST ).c_str(  ) );
+    if ( pObj_Datagrid->m_MaxCol == 0 )
+    {
+        if(  pObj_Datagrid->m_FixedColumnWidth==0  )
+            pObj_Datagrid->m_MaxCol=1;
+        else if( m_iRotation==90 || m_iRotation==270 )
+            pObj_Datagrid->m_MaxCol =1+ ( pObj_Datagrid->m_rPosition.Height - ( pObj_Datagrid->m_FirstColumnWidth +1  ) ) / ( pObj_Datagrid->m_FixedColumnWidth+1 );
+		else
+            pObj_Datagrid->m_MaxCol =1+ ( pObj_Datagrid->m_rPosition.Width - ( pObj_Datagrid->m_FirstColumnWidth +1  ) ) / ( pObj_Datagrid->m_FixedColumnWidth+1 );
+    }
+    else if ( pObj_Datagrid->m_FixedColumnWidth == 0 ) // Do we know the number of columns but not their size?
+    {
+        if( m_iRotation==90 || m_iRotation==270 )
+			pObj_Datagrid->m_FixedColumnWidth = ( pObj_Datagrid->m_rPosition.Height / pObj_Datagrid->m_MaxCol ) - ( ( pObj_Datagrid->m_MaxCol-1 ) * pObj_Datagrid->m_ColumnSpacing );
+		else
+			pObj_Datagrid->m_FixedColumnWidth = ( pObj_Datagrid->m_rPosition.Width / pObj_Datagrid->m_MaxCol ) - ( ( pObj_Datagrid->m_MaxCol-1 ) * pObj_Datagrid->m_ColumnSpacing );
+    }
+    pObj_Datagrid->m_MaxRow = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Num_of_Rows_CONST ).c_str(  ) );
+    if ( pObj_Datagrid->m_MaxRow == 0 )
+    {
+        if(  pObj_Datagrid->m_FixedRowHeight==0  )
+            pObj_Datagrid->m_MaxRow=1;
+        else if( m_iRotation==90 || m_iRotation==270 )
+            pObj_Datagrid->m_MaxRow = 1+ ( pObj_Datagrid->m_rPosition.Width - ( pObj_Datagrid->m_FirstRowHeight +1  ) ) / ( pObj_Datagrid->m_FixedRowHeight+1 );
+		else
+            pObj_Datagrid->m_MaxRow = 1+ ( pObj_Datagrid->m_rPosition.Height - ( pObj_Datagrid->m_FirstRowHeight +1  ) ) / ( pObj_Datagrid->m_FixedRowHeight+1 );
+    }
+    else if ( pObj_Datagrid->m_FixedRowHeight == 0 ) // Do we know the number of columns but not their size?
+    {
+        if( m_iRotation==90 || m_iRotation==270 )
+			pObj_Datagrid->m_FixedRowHeight = ( pObj_Datagrid->m_rPosition.Width / pObj_Datagrid->m_MaxRow ) - ( ( pObj_Datagrid->m_MaxRow-1 ) * pObj_Datagrid->m_RowSpacing );
+		else
+			pObj_Datagrid->m_FixedRowHeight = ( pObj_Datagrid->m_rPosition.Height / pObj_Datagrid->m_MaxRow ) - ( ( pObj_Datagrid->m_MaxRow-1 ) * pObj_Datagrid->m_RowSpacing );
+    }
+    if(  ( pObj_Datagrid->m_FixedColumnWidth == 0 && pObj_Datagrid->m_MaxCol == 0 ) || ( pObj_Datagrid->m_FixedRowHeight == 0 && pObj_Datagrid->m_MaxRow == 0 )  )
+    {
+        g_pPlutoLogger->Write( LV_CRITICAL,  "Neither the column/row size,  nor the the column/row count are specified in the parameters on grid %s",  pObj_Datagrid->m_ObjectID.c_str(  ) );
+    }
+
+    // For purposes of calculation,  take the bigger of the two here when not fixed
+    if(  !pObj_Datagrid->m_bKeepRowHeader  )
+    {
+        pObj_Datagrid->m_FirstRowHeight = max( pObj_Datagrid->m_FirstRowHeight,  pObj_Datagrid->m_FixedRowHeight );
+    }
+    else
+    {
+        if ( pObj_Datagrid->m_FirstRowHeight == 0 )
+            pObj_Datagrid->m_FirstRowHeight = pObj_Datagrid->m_FixedRowHeight;
+    }
+    if (  !pObj_Datagrid->m_FirstColumnWidth  )
+    {
+        pObj_Datagrid->m_FirstColumnWidth = max( pObj_Datagrid->m_FirstColumnWidth,  pObj_Datagrid->m_FixedColumnWidth );
+    }
+    else
+    {
+        if ( pObj_Datagrid->m_FirstColumnWidth == 0 )
+            pObj_Datagrid->m_FirstColumnWidth = pObj_Datagrid->m_FixedColumnWidth;
+    }
+
+    pObj_Datagrid->m_iPK_Variable = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_PK_Variable_CONST ).c_str(  ) );
+    pObj_Datagrid->m_sOptions = pObj_Datagrid->m_mapObjParms[DESIGNOBJPARAMETER_Options_CONST];  // No substitution since this usually has tokens in it to parse at runtime
+    pObj_Datagrid->m_iPK_Datagrid = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_PK_Datagrid_CONST ).c_str(  ) );
+    pObj_Datagrid->m_bDontShowSelection = pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Is_Multi_Select_CONST )=="-1";
+    pObj_Datagrid->m_bIsMultiSelect = pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Is_Multi_Select_CONST )=="1";
+
+    string::size_type pos = 0;
+    /* todo 2.0 pObj_Datagrid->BorderWidth = atoi( StringUtils::Tokenize( pObj_Datagrid->BorderStyle,  ", ",  pos ).c_str(  ) );
+    pObj_Datagrid->BorderColor = atoi( StringUtils::Tokenize( pObj_Datagrid->BorderStyle,  ";",  pos ).c_str(  ) );
+    if ( pos<pObj_Datagrid->BorderStyle.length(  ) )
+    pObj_Datagrid->BorderColor2 = atoi( StringUtils::Tokenize( pObj_Datagrid->BorderStyle,  ";",  pos ).c_str(  ) );
+    else
+    pObj_Datagrid->BorderColor2 = pObj_Datagrid->BorderColor;
+    */
+    pObj_Datagrid->sSelVariable = pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_PK_Variable_CONST );
+
+    pObj_Datagrid->m_pTextStyle = m_mapTextStyle_Find(  atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_PK_Style_CONST ).c_str(  ) )  );
+    if(  !pObj_Datagrid->m_pTextStyle  )
+        pObj_Datagrid->m_pTextStyle = m_mapTextStyle_Find(  1  );
+    pObj_Datagrid->m_pTextStyle_FirstCol = m_mapTextStyle_Find(  atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_PK_Style_FirstColumn_CONST ).c_str(  ) )  );
+    pObj_Datagrid->m_pTextStyle_FirstRow = m_mapTextStyle_Find(  atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_PK_Style_FirstRow_CONST ).c_str(  ) )  );
+    pObj_Datagrid->m_pTextStyle_Selected = m_mapTextStyle_Find(  atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_PK_Style_Selected_CONST ).c_str(  ) )  );
+    pObj_Datagrid->m_pTextStyle_Highlighted = m_mapTextStyle_Find(  atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_PK_Style_Highlighted_CONST ).c_str(  ) )  );
+
+    if(  !pObj_Datagrid->m_pTextStyle_FirstCol  )
+        pObj_Datagrid->m_pTextStyle_FirstCol = pObj_Datagrid->m_pTextStyle;
+    if(  !pObj_Datagrid->m_pTextStyle_FirstRow  )
+        pObj_Datagrid->m_pTextStyle_FirstRow = pObj_Datagrid->m_pTextStyle;
+    if(  !pObj_Datagrid->m_pTextStyle_Selected  )
+        pObj_Datagrid->m_pTextStyle_Selected = pObj_Datagrid->m_pTextStyle;
+
+    pos=0;
+    string AltStyles = pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_PK_Style_Alt_CONST );
+    int Counter=0;
+    while( true )
+    {
+        string Style = StringUtils::Tokenize( AltStyles, ", ", pos );
+        if(  Style.length(  )==0  )
+            break;
+        TextStyle *pTextStyle = m_mapTextStyle_Find(  atoi( Style.c_str(  ) )  );
+        if(  pTextStyle  )
+        {
+			while(int(pObj_Datagrid->m_vectTextStyle_Alt.size()) < Counter)
+                pObj_Datagrid->m_vectTextStyle_Alt.push_back(NULL);
+            pObj_Datagrid->m_vectTextStyle_Alt.push_back(pTextStyle);
+            //              pObj_Datagrid->m_vectTextStyle_Alt[Counter] = pTextStyle;
+        }
+        Counter++;
+    }
+	pObj_Datagrid->m_bParsed=true;
+}
+
