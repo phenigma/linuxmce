@@ -18,6 +18,7 @@
 #include "PlutoUtils/CommonIncludes.h"	
 #include "DesignObj_Orbiter.h"
 #include "pluto_main/Define_DesignObjType.h"
+#include "DCE/Logger.h"
 
 DesignObj_Data::~DesignObj_Data()
 {
@@ -42,8 +43,10 @@ bool DesignObjCommand::Serialize(bool bWriting, char *&pcDataBlock, unsigned lon
 	}
 	else
 	{
+g_pPlutoLogger->Write(LV_STATUS,"start to deserialize command");
 		memcpy((void *)&Data,pcCurrentPosition,sizeof(Data));
 		pcCurrentPosition += sizeof(Data);
+g_pPlutoLogger->Write(LV_STATUS,"done command %d",Data.m_PK_Command);
 	}
 	return SerializeClass::Serialize(bWriting,pcDataBlock,dwAllocatedSize,pcCurrentPosition,pExtraSerializationData);
 }
@@ -102,8 +105,10 @@ bool DesignObjZone::Serialize(bool bWriting, char *&pcDataBlock, unsigned long &
 	}
 	else
 	{
+g_pPlutoLogger->Write(LV_STATUS,"start to deserialize zone");
 		memcpy((void *)&m_Rect,pcCurrentPosition,sizeof(PlutoRectangle));
 		pcCurrentPosition += sizeof(PlutoRectangle);
+g_pPlutoLogger->Write(LV_STATUS,"done zone %d",m_Rect.X);
 	}
 	return SerializeClass::Serialize(bWriting,pcDataBlock,dwAllocatedSize,pcCurrentPosition,pExtraSerializationData);
 }
@@ -164,8 +169,10 @@ bool DesignObjText::Serialize(bool bWriting, char *&pcDataBlock, unsigned long &
 	}
 	else
 	{
+g_pPlutoLogger->Write(LV_STATUS,"start ext");
 		memcpy((void *)&Data,pcCurrentPosition,sizeof(Data));
 		pcCurrentPosition += sizeof(Data);
+g_pPlutoLogger->Write(LV_STATUS,"done text %d",Data.m_PK_Text);
 	}
 	return SerializeClass::Serialize(bWriting,pcDataBlock,dwAllocatedSize,pcCurrentPosition,pExtraSerializationData);
 }
@@ -317,8 +324,10 @@ bool DesignObj_Data::Serialize(bool bWriting, char *&pcDataBlock, unsigned long 
 	}
 	else
 	{
+g_pPlutoLogger->Write(LV_STATUS,"start object");
 		memcpy((void *)&Data,pcCurrentPosition,sizeof(Data));
 		pcCurrentPosition += sizeof(Data);
+g_pPlutoLogger->Write(LV_STATUS,"done object %d",Data.m_iBaseObjectID);
 	}
 	return SerializeClass::Serialize(bWriting,pcDataBlock,dwAllocatedSize,pcCurrentPosition,pExtraSerializationData);
 }
