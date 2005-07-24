@@ -141,23 +141,28 @@ g_pPlutoLogger->Write(LV_STATUS,"Socket const");
 	freeaddrinfo(res);
 	*/
 
-    struct hostent * res;
+	if( sIPAddress.find('.')==string::npos )
+	{
+	    struct hostent * res;
 #ifdef WIN32
-    res = gethostbyname(sIPAddress.c_str());
+	    res = gethostbyname(sIPAddress.c_str());
 #else
-    res = gethostbyname2(sIPAddress.c_str(), AF_INET);
+	    res = gethostbyname2(sIPAddress.c_str(), AF_INET);
 #endif
 
-    if (res != NULL)
-    {
-        m_sIPAddress = 
-            StringUtils::ltos(res->h_addr[0] & 0xFF) + "." +
-            StringUtils::ltos(res->h_addr[1] & 0xFF) + "." +
-            StringUtils::ltos(res->h_addr[2] & 0xFF) + "." +
-            StringUtils::ltos(res->h_addr[3] & 0xFF);
-    }
-    else
-        m_sIPAddress = sIPAddress;
+		if (res != NULL)
+		{
+			m_sIPAddress = 
+				StringUtils::ltos(res->h_addr[0] & 0xFF) + "." +
+				StringUtils::ltos(res->h_addr[1] & 0xFF) + "." +
+				StringUtils::ltos(res->h_addr[2] & 0xFF) + "." +
+				StringUtils::ltos(res->h_addr[3] & 0xFF);
+		}
+		else
+			m_sIPAddress = sIPAddress;
+	}
+	else
+		m_sIPAddress = sIPAddress;
 g_pPlutoLogger->Write(LV_STATUS,"aft gethostbyname");
 
 	m_iSocketCounter = SocketCounter++;
