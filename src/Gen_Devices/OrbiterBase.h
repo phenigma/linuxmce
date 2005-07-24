@@ -4,6 +4,7 @@
 #include "Message.h"
 #include "Command_Impl.h"
 
+#include "PlutoUtils/Profiler.h"
 
 namespace DCE
 {
@@ -63,8 +64,6 @@ public:
 	string Get_Hard_Keys_mapping() { return m_mapParameters[105];}
 };
 
-
-
 //   OUR COMMAND CLASS 
 
 class Orbiter_Command : public Command_Impl
@@ -79,15 +78,21 @@ public:
 		m_pEvent = new Orbiter_Event(DeviceID, ServerAddress);
 		if( m_pEvent->m_dwPK_Device )
 			m_dwPK_Device = m_pEvent->m_dwPK_Device;
+g_PlutoProfiler->Start("const - getconfig");
 		int Size; char *pConfig = m_pEvent->GetConfig(Size);
+g_PlutoProfiler->Stop("const - getconfig");
 		if( !pConfig )
 			throw "Cannot get configuration data";
 		m_pData = new Orbiter_Data();
+g_PlutoProfiler->Start("const - parse");
 		if( Size )
 			m_pData->SerializeRead(Size,pConfig);
+g_PlutoProfiler->Stop("const - parse");
 		delete[] pConfig;
 		pConfig = m_pEvent->GetDeviceList(Size);
+g_PlutoProfiler->Start("const - m_AllDevices");
 		m_pData->m_AllDevices.SerializeRead(Size,pConfig);
+g_PlutoProfiler->Stop("const - m_AllDevices");
 		delete[] pConfig;
 		m_pData->m_pEvent_Impl = m_pEvent;
 		m_pcRequestSocket = new Event_Impl(DeviceID, 8,ServerAddress);
