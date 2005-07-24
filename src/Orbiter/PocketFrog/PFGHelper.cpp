@@ -4,6 +4,9 @@
 #include "PlutoUtils/FileUtils.h"
 #include "../PocketFrog/Orbiter_PocketFrog.h"
 #include "src/internal/graphicbuffer.h"
+
+#include "PlutoUtils/Profiler.h"
+
 //----------------------------------------------------------------------------------------------------------------
 Surface* PocketFrog_LoadPFG(char *pOCGData, size_t iOCGDataSize)
 {
@@ -18,16 +21,27 @@ Surface* PocketFrog_LoadPFG(char *pOCGData, size_t iOCGDataSize)
 	int iWidth;
 	int iHeigth;
 
+g_PlutoProfiler->Start("PocketFrog_LoadPFG pRendererOCG->GetSurface");
 	if(pRendererOCG->GetSurface(pPixelsData, iPixelsDataSize, pPixelFormatData, iPixelFormatDataSize, iWidth, iHeigth))
 	{
+g_PlutoProfiler->Stop("PocketFrog_LoadPFG pRendererOCG->GetSurface");
 		if(iPixelsDataSize)
 		{
+g_PlutoProfiler->Start("PocketFrog_LoadPFG pRendererOCG->CreateSurface");
 			pSurface = Orbiter_PocketFrog::GetInstance()->GetOrbiterDisplay()->CreateSurface(iWidth, iHeigth);
+g_PlutoProfiler->Stop("PocketFrog_LoadPFG pRendererOCG->CreateSurface");
 
+g_PlutoProfiler->Start("PocketFrog_LoadPFG GetPixels");
 			Pixel * pPixels = pSurface->m_buffer->GetPixels();
+g_PlutoProfiler->Stop("PocketFrog_LoadPFG GetPixels");
+g_PlutoProfiler->Start("PocketFrog_LoadPFG memcpy");
 			memcpy((char *)pPixels, pPixelsData, iPixelsDataSize);
+g_PlutoProfiler->Stop("PocketFrog_LoadPFG memcpy");
 		}
 	}
+else
+g_PlutoProfiler->Stop("PocketFrog_LoadPFG pRendererOCG->GetSurface");
+
 
 	PLUTO_SAFE_DELETE(pRendererOCG);
 	return pSurface; 

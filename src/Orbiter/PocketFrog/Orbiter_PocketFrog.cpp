@@ -353,7 +353,6 @@ g_PlutoProfiler->Stop("pool text");
 
 /*virtual*/ void Orbiter_PocketFrog::RenderText(HDC hdc,string &TextToDisplay,PlutoRectangle &rPosition,int iPK_HorizAlignment,int iPK_VertAlignment,string &sFont,PlutoColor &ForeColor,int iPixelHeight,bool bBold,bool bItalic,bool bUnderline, PlutoPoint point)
 {
-	g_PlutoProfiler->Start("rendertext total");
 	CHECK_STATUS();
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 
@@ -460,19 +459,12 @@ g_PlutoProfiler->Stop("pool text");
 
 #else //winxp/2000
   */
-g_PlutoProfiler->Start("block1");
 
 	RECT rectLocation;
 	rectLocation.left   = 0;
 	rectLocation.top    = 0;
 
-if( hdc==0 )
-{
-int k=1;
-}
-g_PlutoProfiler->Start("block1 a");
 	HDC hdc_drawing=0;
-g_PlutoProfiler->Stop("block1 a");
 
 	if( m_iRotation==0 )
 	{
@@ -493,13 +485,11 @@ g_PlutoProfiler->Stop("block1 a");
 			rectLocation.bottom = rPosition.Width;
 		}
 
-g_PlutoProfiler->Start("block1 b");
 		hdc_drawing = CreateCompatibleDC(GetDisplay()->GetBackBuffer()->GetDC(false));
 		// Create a bitmap big enough for our client rectangle.
 		HBITMAP hbmMem = ::CreateCompatibleBitmap(hdc,
 										rectLocation.right,
 										rectLocation.bottom);
-g_PlutoProfiler->Stop("block1 b");
 
 		HGDIOBJ  hbmOld = ::SelectObject(hdc_drawing, hbmMem);
 		::DeleteObject(hbmOld);
@@ -510,8 +500,6 @@ g_PlutoProfiler->Stop("block1 b");
 		::SelectObject(hdc_drawing,hbrOld);
 		::DeleteObject(hbr);
 	}
-g_PlutoProfiler->Stop("block1");
-g_PlutoProfiler->Start("block2");
 	
 	LOGFONT lf;
 	HFONT hFontNew, hFontOld;
@@ -558,8 +546,6 @@ g_PlutoProfiler->Start("block2");
 	#define TEXT_TO_RENDER wText
 #endif
 
-g_PlutoProfiler->Stop("block2");
-g_PlutoProfiler->Start("block3");
 	//calculate rect first
 	::DrawText(hdc_drawing, TEXT_TO_RENDER, int(TextToDisplay.length()), &rectLocation, 
 		DT_WORDBREAK | DT_NOPREFIX | DT_CALCRECT | DT_MODIFYSTRING | DT_END_ELLIPSIS ); 
@@ -567,8 +553,6 @@ g_PlutoProfiler->Start("block3");
 	int iRealHeight = rectLocation.bottom;
 	if( iRealHeight>rPosition.Height )
 		iRealHeight=rPosition.Height; // Crop to the area
-g_PlutoProfiler->Stop("block3");
-g_PlutoProfiler->Start("block4");
 
 	// Figure out where to put this
 	CalcTextRectangle(rectLocation,rPosition,m_iRotation,iRealHeight,iPK_VertAlignment);
@@ -583,8 +567,6 @@ g_PlutoProfiler->Start("block4");
 
  	::SetTextColor(hdc_drawing, RGB(ForeColor.R(), ForeColor.G(), ForeColor.B()));
 	::SetBkMode(hdc_drawing, TRANSPARENT);
-g_PlutoProfiler->Stop("block4");
-g_PlutoProfiler->Start("block5");
 
 	switch (iPK_HorizAlignment)
 	{
@@ -604,13 +586,8 @@ g_PlutoProfiler->Start("block5");
             break;
 	}
 
-g_PlutoProfiler->Stop("block5");
-g_PlutoProfiler->Start("block6");
-
-g_PlutoProfiler->Start("block6 a");
 	::SelectObject(hdc_drawing, hFontOld);
 	::DeleteObject(hFontNew);
-g_PlutoProfiler->Stop("block6 a");
 
 	if( hdc_drawing!=hdc )
 	{
@@ -618,7 +595,6 @@ g_PlutoProfiler->Stop("block6 a");
 		{
 			for(int y=0;y<(m_iRotation==180 ? rPosition.Height: rPosition.Width);y++)
 			{
-g_PlutoProfiler->Start("block6-rotation");
 				COLORREF c = ::GetPixel(hdc_drawing,x,y);
 				if( c==132 || c==128 )
 					continue;  // Unchanged
@@ -628,17 +604,10 @@ g_PlutoProfiler->Start("block6-rotation");
 					::SetPixel(hdc,rPosition.Right()-x,rPosition.Bottom()-y,c);
 				else if( m_iRotation==270 )
 					::SetPixel(hdc,rPosition.X+y,rPosition.Bottom()-x,c);
-g_PlutoProfiler->Stop("block6-rotation");
 			}
 		}
 		DeleteDC(hdc_drawing);
 	}
-
-
-g_PlutoProfiler->Stop("block6");
-
-//#endif
-g_PlutoProfiler->Stop("rendertext total");
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::SaveBackgroundForDeselect(DesignObj_Orbiter *pObj, PlutoPoint point)

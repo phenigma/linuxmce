@@ -477,13 +477,14 @@ GENERAL PURPOSE METHODS
 //-----------------------------------------------------------------------------------------------------------
 void Orbiter::RenderScreen( )
 {
-g_PlutoProfiler->Start("renderscreen");
 
 	if( !m_pScreenHistory_Current || !m_pScreenHistory_Current->m_pObj )
 {
     g_pPlutoLogger->Write( LV_CRITICAL, "Got attempt to render null screen: %s", m_pScreenHistory_Current );
 	return;
 }
+g_PlutoProfiler->Start(("renderscreen " + m_pScreenHistory_Current->m_pObj->m_ObjectID).c_str());
+
 #ifdef DEBUG
     g_pPlutoLogger->Write( LV_CRITICAL, "Render screen: %s", m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str(  ) );
 #endif
@@ -519,7 +520,7 @@ g_PlutoProfiler->Start("renderscreen");
 #ifdef DEBUG
 g_pPlutoLogger->Write( LV_STATUS, "Render screen: %s finished", m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str(  ) );
 #endif
-	g_PlutoProfiler->Stop("renderscreen");
+	g_PlutoProfiler->Stop(("renderscreen " + m_pScreenHistory_Current->m_pObj->m_ObjectID).c_str());
 	g_PlutoProfiler->DumpResults();
 	g_PlutoProfiler->ClearResults();
 }
@@ -1080,15 +1081,15 @@ g_PlutoProfiler->Start("render cell");
         return false;
     }
     int x, y, w, h;
-g_PlutoProfiler->Start("GetGridCellDimensions");
+g_PlutoProfiler->Start("render cell - GetGridCellDimensions");
     GetGridCellDimensions( pObj,  pCell->m_Colspan,  pCell->m_Rowspan,  j,  i,  x,  y,  w,  h );
-g_PlutoProfiler->Stop("GetGridCellDimensions");
+g_PlutoProfiler->Stop("render cell - GetGridCellDimensions");
     if ( w>4 && h >4 )
     {
-g_PlutoProfiler->Start("SolidRectangle");
+g_PlutoProfiler->Start("render cell - SolidRectangle");
 		if ( !bTransparentCell )
 			SolidRectangle( point.X + x,  point.Y + y,  w,  h,  pCell->m_AltColor ? pCell->m_AltColor : pTextStyle->m_BackColor);
-g_PlutoProfiler->Stop("SolidRectangle");
+g_PlutoProfiler->Stop("render cell - SolidRectangle");
 
 		/*
 		if ( pObj->BorderColor2.m_Value!=pObj->BorderColor.m_Value )
@@ -1102,7 +1103,7 @@ g_PlutoProfiler->Stop("SolidRectangle");
 		*/
 
 		//SolidRectangle( x,  y,  w,  h,  pObj->BorderColor  );
-g_PlutoProfiler->Start("cellgraphic");
+g_PlutoProfiler->Start("render cell - cellgraphic");
 		if ( pCell->m_pGraphicData )
 		{
 			PlutoGraphic *pPlutoGraphic = CreateGraphic();
@@ -1111,8 +1112,9 @@ g_PlutoProfiler->Start("cellgraphic");
 			RenderGraphic(pPlutoGraphic, PlutoRectangle(x,  y,  w,  h), pObj->m_bDisableAspectLock, point );
 			delete pPlutoGraphic;
 		}
-g_PlutoProfiler->Stop("cellgraphic");
+g_PlutoProfiler->Stop("render cell - cellgraphic");
 
+g_PlutoProfiler->Start("render cell - celltext");
         DesignObjText Text( pObj );
         // todo         Text.m_Rect = PlutoRectangle( x+pObj->BorderWidth,  y+pObj->BorderWidth,  w-( 2*pObj->BorderWidth ),  h-( 2*pObj->BorderWidth ) );
         Text.m_rPosition = PlutoRectangle( x,  y,  w,  h );
@@ -1123,12 +1125,9 @@ g_PlutoProfiler->Stop("cellgraphic");
 		Text.m_iPK_HorizAlignment = pTextStyle->m_iPK_HorizAlignment;
 		Text.m_iPK_VertAlignment = pTextStyle->m_iPK_VertAlignment;
 
-g_PlutoProfiler->Start("GetText");
         string sText = pCell->GetText(  );
-g_PlutoProfiler->Stop("GetText");
-g_PlutoProfiler->Start("RenderText");
         RenderText( sText, &Text, pTextStyle, point );
-g_PlutoProfiler->Stop("RenderText");
+g_PlutoProfiler->Stop("render cell - celltext");
     }
     else
         g_pPlutoLogger->Write( LV_WARNING,  "Datagrid width or height is too small" );
@@ -4702,6 +4701,7 @@ g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable deleted indirect
         int size = 0;
         char *data = NULL;
 
+g_PlutoProfiler->Start("acquire grid - CMD_Request_Datagrid_Contents");
         DCE::CMD_Request_Datagrid_Contents CMD_Request_Datagrid_Contents( m_dwPK_Device,  m_dwPK_Device_DatagridPlugIn,
             StringUtils::itos( m_dwIDataGridRequestCounter ), pObj->m_sGridID, GridCurCol,
             pObj->m_MaxRow, pObj->m_MaxCol, pObj->m_bKeepRowHeader, pObj->m_bKeepColHeader, true, pObj->m_sSeek, pObj->m_iSeekColumn, &data, &size, &GridCurRow );
@@ -4710,6 +4710,7 @@ g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable deleted indirect
             g_pPlutoLogger->Write( LV_CRITICAL, "Request datagrid: %s failed", pObj->m_ObjectID.c_str(  ) );
         else
         {
+g_PlutoProfiler->Stop("acquire grid - CMD_Request_Datagrid_Contents");
             if ( size && data )
             {
                 pDataGridTable = new DataGridTable( size,  data );
@@ -6771,7 +6772,6 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 	if(pVectorPlutoGraphic->size() == 0)
 		return;
 
-g_PlutoProfiler->Start("rendergraphic preface");
 	//just in case
 	if(int(pVectorPlutoGraphic->size()) <= pObj->m_iCurrentFrame)
 		pObj->m_iCurrentFrame = 0;
@@ -6796,10 +6796,7 @@ int k=2;
 
         //we have nothing to render
         if(pVectorPlutoGraphic->size() == 0)
-{
-g_PlutoProfiler->Stop("rendergraphic preface");
             return;
-}
         if(int(pVectorPlutoGraphic->size()) <= pObj->m_iCurrentFrame)
             pObj->m_iCurrentFrame = 0;
 
@@ -6807,7 +6804,6 @@ g_PlutoProfiler->Stop("rendergraphic preface");
         pPlutoGraphic = (*pVectorPlutoGraphic)[iCurrentFrame];
         bIsMNG = pPlutoGraphic->m_GraphicFormat == GR_MNG;
     }
-g_PlutoProfiler->Stop("rendergraphic preface");
 
 	string sFileName = "";
 	if(pPlutoGraphic->IsEmpty() && NULL != m_pCacheImageManager && pPlutoGraphic->m_Filename.length() && 
@@ -6833,13 +6829,13 @@ g_PlutoProfiler->Stop("rendergraphic get local");
 		// Request our config info
 		char *pGraphicFile=NULL;
 		int iSizeGraphicFile=0;
-g_PlutoProfiler->Start("rendergraphic get server");
+g_PlutoProfiler->Start( ("rendergraphic get server " + pPlutoGraphic->m_Filename).c_str() );
 		DCE::CMD_Request_File CMD_Request_File(
 			m_dwPK_Device,m_dwPK_Device_GeneralInfoPlugIn,
 			"orbiter/C" + StringUtils::itos(m_dwPK_Device) + "/" + pPlutoGraphic->m_Filename,
 			&pGraphicFile,&iSizeGraphicFile);
 		SendCommand(CMD_Request_File);
-g_PlutoProfiler->Stop("rendergraphic get server");
+g_PlutoProfiler->Stop( ("rendergraphic get server " + pPlutoGraphic->m_Filename).c_str() );
 
 		if (!iSizeGraphicFile)
 		{
@@ -6858,7 +6854,7 @@ g_PlutoProfiler->Stop("rendergraphic save cache");
 
 		//TODO: same logic for in-memory data
 g_PlutoProfiler->Start("rendergraphic load");
-		if(sFileName.empty() && !pPlutoGraphic->LoadGraphic(pGraphicFile, iSizeGraphicFile))
+		if( (sFileName.empty() || iSizeGraphicFile) && !pPlutoGraphic->LoadGraphic(pGraphicFile, iSizeGraphicFile))
 		{
 			delete pGraphicFile;
 			pGraphicFile = NULL;
