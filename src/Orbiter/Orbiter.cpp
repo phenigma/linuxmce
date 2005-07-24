@@ -761,6 +761,7 @@ g_PlutoProfiler->Start("rendergraphic");
     // This is somewhat of a hack, but we don't have a clean method for setting the graphics on the user & location buttons to
     if( pObj->m_bIsBoundToUser )
     {
+g_PlutoProfiler->Start("rendergraphic b1");
         vector<PlutoGraphic*> *pvectGraphic = m_mapUserIcons[m_dwPK_Users];
 		//vector<PlutoGraphic*> *p = pvectGraphic;
 
@@ -768,17 +769,21 @@ g_PlutoProfiler->Start("rendergraphic");
 			pObj->m_pvectCurrentGraphic = pvectGraphic;
         if( pObj->m_pvectCurrentGraphic )
             RenderGraphic(pObj, rectTotal, pObj->m_bDisableAspectLock, point);
+g_PlutoProfiler->Stop("rendergraphic b1");
     }
     else if( pObj->m_bIsBoundToLocation )
     {
+g_PlutoProfiler->Start("rendergraphic b2");
         if( m_pLocationInfo && m_pLocationInfo->m_pvectGraphic )
             pObj->m_pvectCurrentGraphic = m_pLocationInfo->m_pvectGraphic;
         if( pObj->m_pvectCurrentGraphic )
             RenderGraphic(pObj, rectTotal, pObj->m_bDisableAspectLock, point);
+g_PlutoProfiler->Stop("rendergraphic b2");
     }
     // Maybe we're showing a non standard state
     else if(  pObj->m_pGraphicToUndoSelect && pObj->m_GraphicToDisplay==GRAPHIC_NORMAL  )
     {
+g_PlutoProfiler->Start("rendergraphic b3");
         vector<PlutoGraphic*> *pvectGraphic_Hold = pObj->m_pvectCurrentGraphic;
 
 		vector<PlutoGraphic*> vectGraphicToUndoSelect;
@@ -796,6 +801,7 @@ int k=2;
 		vectGraphicToUndoSelect.clear();
         delete pObj->m_pGraphicToUndoSelect;
         pObj->m_pGraphicToUndoSelect=NULL;
+g_PlutoProfiler->Stop("rendergraphic b3");
     }
     else if(  pObj->m_pvectCurrentGraphic  )
     {
@@ -803,7 +809,9 @@ if( pObj->m_ObjectID.find("2355")!=string::npos) //&& this->m_pScreenHistory_Cur
 {
 int k=2;
 }
+g_PlutoProfiler->Start("rendergraphic b4");
         RenderGraphic( pObj,  rectTotal, pObj->m_bDisableAspectLock, point );
+g_PlutoProfiler->Stop("rendergraphic b4");
     }
 g_PlutoProfiler->Stop("rendergraphic");
 
@@ -6763,6 +6771,7 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 	if(pVectorPlutoGraphic->size() == 0)
 		return;
 
+g_PlutoProfiler->Start("rendergraphic preface");
 	//just in case
 	if(int(pVectorPlutoGraphic->size()) <= pObj->m_iCurrentFrame)
 		pObj->m_iCurrentFrame = 0;
@@ -6795,7 +6804,8 @@ int k=2;
         iCurrentFrame = pObj->m_iCurrentFrame;
         pPlutoGraphic = (*pVectorPlutoGraphic)[iCurrentFrame];
         bIsMNG = pPlutoGraphic->m_GraphicFormat == GR_MNG;
-    }
+    }}
+g_PlutoProfiler->Stop("rendergraphic preface");
 
 	string sFileName = "";
 	if(pPlutoGraphic->IsEmpty() && NULL != m_pCacheImageManager && pPlutoGraphic->m_Filename.length() && 
@@ -6803,12 +6813,16 @@ int k=2;
 	)
 	{
 		//if we have the file in cache
+g_PlutoProfiler->Start("rendergraphic get cache");
 		sFileName = m_pCacheImageManager->GetCacheImageFileName(pPlutoGraphic->m_Filename);
+g_PlutoProfiler->Stop("rendergraphic get cache");
 	}
 	else if(pPlutoGraphic->IsEmpty() && m_sLocalDirectory.length() > 0 && pPlutoGraphic->m_Filename.length() )
 	{
 		//the file is in our localdrive
+g_PlutoProfiler->Start("rendergraphic get local");
 		sFileName = m_sLocalDirectory + pPlutoGraphic->m_Filename;
+g_PlutoProfiler->Stop("rendergraphic get local");
 	}
 
 	//if we don't have the file in cache or on our localdrive
@@ -6817,12 +6831,13 @@ int k=2;
 		// Request our config info
 		char *pGraphicFile=NULL;
 		int iSizeGraphicFile=0;
-
+g_PlutoProfiler->Start("rendergraphic get server");
 		DCE::CMD_Request_File CMD_Request_File(
 			m_dwPK_Device,m_dwPK_Device_GeneralInfoPlugIn,
 			"orbiter/C" + StringUtils::itos(m_dwPK_Device) + "/" + pPlutoGraphic->m_Filename,
 			&pGraphicFile,&iSizeGraphicFile);
 		SendCommand(CMD_Request_File);
+g_PlutoProfiler->Stop("rendergraphic get server");
 
 		if (!iSizeGraphicFile)
 		{
@@ -6833,17 +6848,22 @@ int k=2;
 		//save the image in cache
 		if(NULL != m_pCacheImageManager) //cache manager is enabled ?
 		{
+g_PlutoProfiler->Start("rendergraphic save cache");
 			m_pCacheImageManager->CacheImage(pGraphicFile, iSizeGraphicFile, pPlutoGraphic->m_Filename, pObj->m_Priority);
 			sFileName = m_pCacheImageManager->GetCacheImageFileName(pPlutoGraphic->m_Filename);
+g_PlutoProfiler->Stop("rendergraphic save cache");
 		}
 
 		//TODO: same logic for in-memory data
+g_PlutoProfiler->Start("rendergraphic load");
 		if(sFileName.empty() && !pPlutoGraphic->LoadGraphic(pGraphicFile, iSizeGraphicFile))
 		{
 			delete pGraphicFile;
 			pGraphicFile = NULL;
+g_PlutoProfiler->Stop("rendergraphic load");
 			return;
 		}
+g_PlutoProfiler->Stop("rendergraphic load");
 
 		delete pGraphicFile;
 		pGraphicFile = NULL;
@@ -6867,13 +6887,17 @@ int k=2;
 			case GR_OCG:
 				{
 					size_t size = 0;
+g_PlutoProfiler->Start("rendergraphic load to buffer");
 					char *pData = FileUtils::ReadFileIntoBuffer(sFileName.c_str(), size);
+g_PlutoProfiler->Stop("rendergraphic load to buffer");
 
 					if(!size)
 						return;
 
+g_PlutoProfiler->Start("rendergraphic load from buffer");
 					if(!pPlutoGraphic->LoadGraphic(pData, size))
 						return;
+g_PlutoProfiler->Stop("rendergraphic load from buffer");
 
 					delete [] pData;
 				}
