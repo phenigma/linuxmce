@@ -2768,6 +2768,8 @@ g_PlutoProfiler->Stop("parse");
 		}
 		m_bStartingUp=false;
 	}
+g_PlutoProfiler->DumpResults();
+g_PlutoProfiler->ClearResults();
 }
 
 void Orbiter::InitializeGrid( DesignObj_DataGrid *pObj )
@@ -3043,6 +3045,8 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
     if(  pObj->m_bHideByDefault  )
         pObj->m_bHidden = true;
 
+g_PlutoProfiler->Start("create vect graphic");
+
     enum eGraphicManagement eMgmt = GR_DISCARDONCHANGE;
     if(  pObj->m_sBackgroundFile.length(  )>0  )
         CreateVectorGraphic(pObj->m_vectGraphic, Type,  pObj->m_sBackgroundFile,  eMgmt,  this );
@@ -3056,6 +3060,7 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
 		CreateVectorGraphic(vectPlutoGraphic, Type,  pObj->m_vectAltGraphicFilename[salt],  eMgmt,  this);
 		pObj->m_vectAltGraphics.push_back( vectPlutoGraphic );
     }
+g_PlutoProfiler->Stop("create vect graphic");
 
     if(  pObj->m_bTabStop  )
         pObj_Screen->m_vectObj_TabStops.push_back( pObj );
@@ -3073,6 +3078,7 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
     COMMANDPARAMETER_PK_Device_CONST,  Device.c_str(  ) ) );
     }
     */
+g_PlutoProfiler->Start("dots");
 
     // Child objects have the format screen.version.page.objectid.x where x is an arbitrary increment to insure uniqueness
     // Some commands need to send messages to an object not knowing the value of x.  So,  we create another map without the suffix
@@ -3105,9 +3111,11 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
     {
         pObj->m_iBaseObjectID = atoi( pObj->m_ObjectID.c_str(  ) );
     }
+g_PlutoProfiler->Stop("dots");
 
 	// On any screen all child objects should inherit the screen's priority so the whole screen is cached
 	pObj->m_Priority = pObj_Screen->m_Priority;
+g_PlutoProfiler->Start("grids");
 
 	if ( pObj->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
     {
@@ -3239,6 +3247,7 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
         }
         m_mapObjs_AllGrids[pObj_Datagrid->m_sGridID] = pObj_Datagrid;
     }
+g_PlutoProfiler->Stop("grids");
 
     DesignObj_DataList::iterator iHao;
     for( iHao=pObj->m_ChildObjects.begin(  ); iHao != pObj->m_ChildObjects.end(  ); ++iHao )

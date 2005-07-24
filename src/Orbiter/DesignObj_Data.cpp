@@ -457,7 +457,7 @@ bool DesignObj_Data::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 				m_mapObjParms[l]=str;
 			}
 		}
-g_PlutoProfiler->Start("serialize - child");
+g_PlutoProfiler->Start("serialize - cmd");
 		{
 			int count=Read_long();
 			for(size_t s=0;s<count;++s)
@@ -507,7 +507,7 @@ g_PlutoProfiler->Start("serialize - child");
 				m_ZoneList.push_back(pDesignObjZone);
 			}
 		}
-g_PlutoProfiler->Stop("serialize - child");
+g_PlutoProfiler->Stop("serialize - cmd");
 
 		{
 			int count=Read_long();
@@ -528,7 +528,7 @@ g_PlutoProfiler->Stop("serialize - child");
 				m_ChildObjects.push_back(pDesignObj_Data);
 			}
 		}
-g_PlutoProfiler->Start("serialize - child");
+g_PlutoProfiler->Start("serialize - text");
 
 		{
 			int count=Read_long();
@@ -539,7 +539,7 @@ g_PlutoProfiler->Start("serialize - child");
 				m_vectDesignObjText.push_back(pDesignObjText);
 			}
 		}
-g_PlutoProfiler->Stop("serialize - child");
+g_PlutoProfiler->Stop("serialize - text");
 
 	}
 	// We may have re-allocated the memory block and size, and the position will have changed
