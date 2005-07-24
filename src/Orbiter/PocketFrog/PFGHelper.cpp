@@ -5,15 +5,10 @@
 #include "../PocketFrog/Orbiter_PocketFrog.h"
 #include "src/internal/graphicbuffer.h"
 
-#include "PlutoUtils/Profiler.h"
-
 //----------------------------------------------------------------------------------------------------------------
 Surface* PocketFrog_LoadPFG(char *pOCGData, size_t iOCGDataSize)
 {
-g_PlutoProfiler->Start("PocketFrog_LoadPFG prep 1");
 	RendererOCG *pRendererOCG = new RendererOCG();
-g_PlutoProfiler->Stop("PocketFrog_LoadPFG prep 1");
-g_PlutoProfiler->Start("PocketFrog_LoadPFG prep 2");
 	pRendererOCG->SetOCGData(pOCGData, iOCGDataSize);
 	Surface *pSurface = NULL;
 
@@ -23,33 +18,21 @@ g_PlutoProfiler->Start("PocketFrog_LoadPFG prep 2");
 	size_t iPixelFormatDataSize;
 	int iWidth;
 	int iHeigth;
-g_PlutoProfiler->Stop("PocketFrog_LoadPFG prep 2");
 
-g_PlutoProfiler->Start("PocketFrog_LoadPFG pRendererOCG->GetSurface");
 	if(pRendererOCG->GetSurface(pPixelsData, iPixelsDataSize, pPixelFormatData, iPixelFormatDataSize, iWidth, iHeigth))
 	{
-g_PlutoProfiler->Stop("PocketFrog_LoadPFG pRendererOCG->GetSurface");
 		if(iPixelsDataSize)
 		{
-g_PlutoProfiler->Start("PocketFrog_LoadPFG pRendererOCG->CreateSurface");
 			pSurface = Orbiter_PocketFrog::GetInstance()->GetOrbiterDisplay()->CreateSurface(iWidth, iHeigth);
-g_PlutoProfiler->Stop("PocketFrog_LoadPFG pRendererOCG->CreateSurface");
 
-g_PlutoProfiler->Start("PocketFrog_LoadPFG GetPixels");
 			Pixel * pPixels = pSurface->m_buffer->GetPixels();
-g_PlutoProfiler->Stop("PocketFrog_LoadPFG GetPixels");
-g_PlutoProfiler->Start("PocketFrog_LoadPFG memcpy");
 			memcpy((char *)pPixels, pPixelsData, iPixelsDataSize);
-g_PlutoProfiler->Stop("PocketFrog_LoadPFG memcpy");
 		}
 	}
 else
-g_PlutoProfiler->Stop("PocketFrog_LoadPFG pRendererOCG->GetSurface");
 
-
-g_PlutoProfiler->Start("PocketFrog_LoadPFG del");
 	PLUTO_SAFE_DELETE(pRendererOCG);
-g_PlutoProfiler->Stop("PocketFrog_LoadPFG del");
+
 	return pSurface; 
 }
 //----------------------------------------------------------------------------------------------------------------

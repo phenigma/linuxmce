@@ -34,7 +34,6 @@ CComModule _Module;
 // GDI Escapes for ExtEscape()
 #define QUERYESCSUPPORT    8
  
-#include "PlutoUtils/Profiler.h"
 
 // The following are unique to CE
 #define GETVFRAMEPHYSICAL   6144
@@ -323,7 +322,6 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::RenderText(string &TextToDisplay,class DesignObjText *Text,class TextStyle *pTextStyle, PlutoPoint point)
 {
-g_PlutoProfiler->Start("pool text");
 	if( !m_bPoolRendering )
 	{
 		HDC hdc = GetDisplay()->GetBackBuffer()->GetDC(false);
@@ -348,7 +346,6 @@ g_PlutoProfiler->Start("pool text");
 		pTextToRenderInfo->point = PlutoPoint(point);
 		m_vectPooledTextToRender.push_back(pTextToRenderInfo);
 	}
-g_PlutoProfiler->Stop("pool text");
 }
 
 /*virtual*/ void Orbiter_PocketFrog::RenderText(HDC hdc,string &TextToDisplay,PlutoRectangle &rPosition,int iPK_HorizAlignment,int iPK_VertAlignment,string &sFont,PlutoColor &ForeColor,int iPixelHeight,bool bBold,bool bItalic,bool bUnderline, PlutoPoint point)
@@ -649,7 +646,6 @@ g_PlutoProfiler->Stop("pool text");
 	Orbiter::RenderScreen();
 	m_bPoolRendering=false;
 
-	g_PlutoProfiler->Start("rendertext pool");
 	if( m_vectPooledTextToRender.size() )
 	{
 		HDC hdc = GetDisplay()->GetBackBuffer()->GetDC(false);
@@ -664,8 +660,7 @@ g_PlutoProfiler->Stop("pool text");
 		GetDisplay()->GetBackBuffer()->ReleaseDC(hdc);
 		m_vectPooledTextToRender.clear();
 	}
-	g_PlutoProfiler->Stop("rendertext pool");
-
+	
 	TryToUpdate();
 }
 //-----------------------------------------------------------------------------------------------------
@@ -677,20 +672,13 @@ g_PlutoProfiler->Stop("pool text");
 /*virtual*/ void Orbiter_PocketFrog::RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, 
     bool bDisableAspectRatio, PlutoPoint point)
 {
-g_PlutoProfiler->Start("rendergrtotal");
 	CHECK_STATUS();
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 	if(!pPlutoGraphic || pPlutoGraphic->GraphicType_get() != gtPocketFrogGraphic)
-{
-g_PlutoProfiler->Stop("rendergrtotal");
 		return;//nothing to render or not an pocket frog graphic
-}
 
 	if(pPlutoGraphic->IsEmpty())
-{
-g_PlutoProfiler->Stop("rendergrtotal");
 		return;//nothing to render or not an pocket frog graphic
-}
 
 if( pPlutoGraphic->m_Filename=="" )
 int k=2;
@@ -698,7 +686,6 @@ int k=2;
 	PocketFrogGraphic *pPocketFrogGraphic = (PocketFrogGraphic *) pPlutoGraphic;
 	Surface *pSurface = pPocketFrogGraphic->m_pSurface;
 
-g_PlutoProfiler->Start("IsBadReadPtr");
 	if(::IsBadReadPtr(pSurface->m_buffer->GetPixels(), pSurface->GetWidth() * pSurface->GetHeight() * 2))
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "The surface has a bad pointer for pixels array (Surface: %p, pixels: %p)",
@@ -706,7 +693,6 @@ g_PlutoProfiler->Start("IsBadReadPtr");
 		pPlutoGraphic->Clear(); //force reload ocg
 int k=2;
 	}
-g_PlutoProfiler->Stop("IsBadReadPtr");
 
     rectTotal.X += point.X;
     rectTotal.Y += point.Y;
@@ -736,18 +722,13 @@ int k=2;
 			dest.right = dest.left + int(pSurface->GetWidth() * ZoomX);
 			dest.bottom = dest.top + int(pSurface->GetHeight() * ZoomY);
 
-g_PlutoProfiler->Start("BlitStretch");
 			if( dest.right-dest.left>0 && dest.bottom-dest.top>0 )  // PF crashes with 0 width/height
 				GetDisplay()->BlitStretch(dest, pSurface); 
-g_PlutoProfiler->Stop("BlitStretch");
 		}
 		else
 		{
-g_PlutoProfiler->Start("Blit");
 			GetDisplay()->Blit( rectTotal.X, rectTotal.Y, pSurface );
-g_PlutoProfiler->Stop("Blit");
 		}
-g_PlutoProfiler->Stop("rendergrtotal");
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::BeginPaint()

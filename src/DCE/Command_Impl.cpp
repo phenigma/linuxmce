@@ -113,7 +113,6 @@ void *WatchDogThread( void *pData )
 Command_Impl::Command_Impl( int DeviceID, string ServerAddress, bool bLocalMode, class Router *pRouter )
 	: HandleRequestSocket( DeviceID, ServerAddress, "Command_Impl1 Dev #" + StringUtils::itos(DeviceID) ), m_listMessageQueueMutex( "MessageQueue" )
 {
-g_pPlutoLogger->Write(LV_STATUS,"Command_Impl const");
 	m_pRouter = pRouter;
 	m_pcRequestSocket = NULL;
 	m_bLocalMode = bLocalMode;

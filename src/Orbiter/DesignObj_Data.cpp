@@ -19,8 +19,6 @@
 #include "DesignObj_Orbiter.h"
 #include "pluto_main/Define_DesignObjType.h"
 
-#include "PlutoUtils/Profiler.h"
-
 DesignObj_Data::~DesignObj_Data()
 {
 	m_vectAltGraphicFilename.clear();
@@ -215,6 +213,7 @@ bool DesignObj_Data::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 		Write_char(m_bProcessActionsAtServer);
 		Write_char(m_bAnimate);
 		Write_char(m_bHideByDefault);
+		Write_char(m_bKeepGraphicInCache);
 
 		Write_char(m_bTabStop);
 		Write_char(m_bRepeatParm);
@@ -327,6 +326,7 @@ bool DesignObj_Data::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 		m_bProcessActionsAtServer=Read_char()==1;
 		m_bAnimate=Read_char()==1;
 		m_bHideByDefault=Read_char()==1;
+		m_bKeepGraphicInCache=Read_char()==1;
 
 		m_bTabStop=Read_char()==1;
 		m_bRepeatParm=Read_char()==1;
@@ -393,7 +393,7 @@ bool DesignObj_Data::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 				m_mapObjParms[l]=str;
 			}
 		}
-g_PlutoProfiler->Start("serialize - cmd");
+
 		{
 			int count=Read_long();
 			for(size_t s=0;s<count;++s)
@@ -443,7 +443,6 @@ g_PlutoProfiler->Start("serialize - cmd");
 				m_ZoneList.push_back(pDesignObjZone);
 			}
 		}
-g_PlutoProfiler->Stop("serialize - cmd");
 
 		{
 			int count=Read_long();
@@ -464,7 +463,6 @@ g_PlutoProfiler->Stop("serialize - cmd");
 				m_ChildObjects.push_back(pDesignObj_Data);
 			}
 		}
-g_PlutoProfiler->Start("serialize - text");
 
 		{
 			int count=Read_long();
@@ -475,8 +473,6 @@ g_PlutoProfiler->Start("serialize - text");
 				m_vectDesignObjText.push_back(pDesignObjText);
 			}
 		}
-g_PlutoProfiler->Stop("serialize - text");
-
 	}
 	// We may have re-allocated the memory block and size, and the position will have changed
 	pcDataBlock=m_pcDataBlock; dwAllocatedSize=m_dwAllocatedSize; pcCurrentPosition=m_pcCurrentPosition;

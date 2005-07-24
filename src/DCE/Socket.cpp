@@ -114,7 +114,6 @@ void* PingLoop( void* param ) // renamed to cancel link-time name collision in M
 
 Socket::Socket(string Name,string sIPAddress) : m_SocketMutex("socket mutex " + Name)
 {
-g_pPlutoLogger->Write(LV_STATUS,"Socket const");
 #ifndef WINCE
 #ifdef THREAD_LOG
 	printf("start const %p\n",this);
@@ -163,7 +162,6 @@ g_pPlutoLogger->Write(LV_STATUS,"Socket const");
 	}
 	else
 		m_sIPAddress = sIPAddress;
-g_pPlutoLogger->Write(LV_STATUS,"aft gethostbyname");
 
 	m_iSocketCounter = SocketCounter++;
 	m_sName = Name;
@@ -234,7 +232,6 @@ g_pPlutoLogger->Write(LV_STATUS,"aft gethostbyname");
 	printf("stop const %p\n",this);
 #endif
 #endif
-g_pPlutoLogger->Write(LV_STATUS,"end socket const");
 }
 
 Socket::~Socket()

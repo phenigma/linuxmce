@@ -2,7 +2,6 @@
 #include "PlutoUtils/PlutoDefs.h"
 #include "PlutoUtils/minilzo.h"
 #include "PlutoUtils/FileUtils.h"
-#include "PlutoUtils/Profiler.h"
 
 //----------------------------------------------------------------------------------------------------------------
 #define HEAP_ALLOC(var,size) \
@@ -143,17 +142,12 @@ bool RendererOCG::SetSurface(char *pPixelsData, size_t iPixelsDataSize,
 //----------------------------------------------------------------------------------------------------------------
 bool RendererOCG::SetOCGData(char *pOCGData, size_t iOCGSize)//it's user responsability to delete pOCGData!!!
 {
-g_PlutoProfiler->Start("PocketFrog_LoadPFG prep - SetOCGData - Cleanup");
 	Cleanup();
-g_PlutoProfiler->Stop("PocketFrog_LoadPFG prep - SetOCGData - Cleanup");
 
-g_PlutoProfiler->Start("PocketFrog_LoadPFG prep - SetOCGData - memcpy");
 	m_iOCGSize = iOCGSize;
 	m_pOCGData = new char[iOCGSize];
 	memcpy(m_pOCGData, pOCGData, iOCGSize);
-g_PlutoProfiler->Stop("PocketFrog_LoadPFG prep - SetOCGData - memcpy");
 
-g_PlutoProfiler->Start("PocketFrog_LoadPFG prep - SetOCGData - deserialize");
 	//deserialize OCG data
 	size_t iOffset = 0;
 
@@ -213,9 +207,6 @@ g_PlutoProfiler->Start("PocketFrog_LoadPFG prep - SetOCGData - deserialize");
 
 		int iMagicEnd = (v4 << 24) + (v3 << 16) + (v2 << 8) + v1;
 
-g_PlutoProfiler->Stop("PocketFrog_LoadPFG prep - SetOCGData - deserialize");
-g_PlutoProfiler->Start("PocketFrog_LoadPFG prep - SetOCGData - iMagicEnd");
-
 	iOffset += sizeof(iMagicEnd);
 	if(iMagicEnd != ciOCGMagicEnd || iOffset != m_iOCGSize)
 	{
@@ -223,15 +214,9 @@ g_PlutoProfiler->Start("PocketFrog_LoadPFG prep - SetOCGData - iMagicEnd");
 		return false;
 	}
 
-g_PlutoProfiler->Stop("PocketFrog_LoadPFG prep - SetOCGData - iMagicEnd");
 
-g_PlutoProfiler->Start("PocketFrog_LoadPFG prep - SetOCGData - m_pPixelsData");
 	m_pPixelsData = new char[iUncompressedSize];
-g_PlutoProfiler->Stop("PocketFrog_LoadPFG prep - SetOCGData - m_pPixelsData");
-
-g_PlutoProfiler->Start("PocketFrog_LoadPFG prep - SetOCGData - lzo1x_decompress");
 	lzo1x_decompress((lzo_byte *)pCompressedData, (lzo_uint)iCompressedDataSize, (lzo_byte *)m_pPixelsData, (lzo_uint *)(&m_iPixelsDataSize), wrkmem);
-g_PlutoProfiler->Stop("PocketFrog_LoadPFG prep - SetOCGData - lzo1x_decompress");
 
 	PLUTO_SAFE_DELETE_ARRAY(pCompressedData);
 	return true;

@@ -125,7 +125,7 @@ class DesignObj_Data : public SerializeClass
 {
 public:
 	// Our data
-	bool m_bChild,m_bDontResetState,m_bCantGoBack,m_bCanGoBackToSameScreen,m_bChildrenBeforeText,m_bProcessActionsAtServer,m_bAnimate,m_bHideByDefault;
+	bool m_bChild,m_bDontResetState,m_bCantGoBack,m_bCanGoBackToSameScreen,m_bChildrenBeforeText,m_bProcessActionsAtServer,m_bAnimate,m_bHideByDefault,m_bKeepGraphicInCache;
 	bool m_bTabStop;
 	int m_PK_DesignObj_Up,m_PK_DesignObj_Down,m_PK_DesignObj_Left,m_PK_DesignObj_Right,m_iRegenInterval;
 	string m_sPK_DesignObj_TiedTo;

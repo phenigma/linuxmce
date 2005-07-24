@@ -919,7 +919,7 @@ m_bNoEffects = true;
 	}
 
 	vector<Row_DesignObj *> vectRow_DesignObj_AlwaysInclude;
-	mds.DesignObj_get()->GetRows("Priority=127",&vectRow_DesignObj_AlwaysInclude);
+	mds.DesignObj_get()->GetRows("AlwaysInclude=1",&vectRow_DesignObj_AlwaysInclude);
 	for(size_t s=0;s<vectRow_DesignObj_AlwaysInclude.size();++s)
 		alNewDesignObjsToGenerate.push_back(vectRow_DesignObj_AlwaysInclude[s]);
 
@@ -1090,7 +1090,6 @@ m_bNoEffects = true;
 	for(itno=alNewDesignObjsToGenerate2.begin();itno!=alNewDesignObjsToGenerate2.end();++itno)
 		alNewDesignObjsToGenerate.push_back(*itno); // Merge these back in
 
-
 	for(itno=alNewDesignObjsToGenerate.begin();itno!=alNewDesignObjsToGenerate.end();++itno)
 	{
 		Row_DesignObj *m_pRow_DesignObjDependancy = *itno;
@@ -1104,8 +1103,8 @@ m_bNoEffects = true;
 			}
 		}
 	}
-	int NumScreens=0;
 
+	int NumScreens=0;
 	for(itgs=m_htGeneratedScreens.begin();itgs!=m_htGeneratedScreens.end();++itgs)
 	{
 		listDesignObj_Generator *o = (*itgs).second;
@@ -1449,6 +1448,8 @@ void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int Arr
 	ocDesignObj->m_iRepeatIntervalInMS = ocDesignObj->m_pRow_DesignObjVariation->RepeatMS_get();
 	ocDesignObj->m_bRepeatParm = ocDesignObj->m_pRow_DesignObjVariation->RepeatParm_get()==1;
 	ocDesignObj->m_bCantGoBack = ocDesignObj->m_pRow_DesignObj->CantGoBack_get()==1;
+	ocDesignObj->m_bKeepGraphicInCache = ocDesignObj->m_pRow_DesignObj->KeepGraphicInCache_get()==1 || 
+		(ocDesignObj->m_ocoParent && ocDesignObj->m_ocoParent->m_bKeepGraphicInCache);
 	ocDesignObj->m_bCanGoBackToSameScreen = ocDesignObj->m_pRow_DesignObj->CanGoBackToSameScreen_get()==1;
 
 	//		StringUtils::itos(ocDesignObj->m_bChildrenBeforeText) << "|" << 
