@@ -7796,7 +7796,7 @@ bool Orbiter::Serialize( bool bWriting, char *&pcDataBlock, unsigned long &dwAll
 		
 	// In some cases a class may need extra data to properly serialize in UnknownSerialize.  This is an extra void pointer that can be cast to something useful
 	m_pExtraSerializationData=pExtraSerializationData;
-g_pPlutoLogger->Write(LV_STATUS,"Starting serialize offset %d",(int) (pcCurrentPosition-pcDataBlock));
+
 	if( !m_bManuallySetupSerialization )
 	{
 		// For Symbian compatibility
@@ -7815,12 +7815,6 @@ g_pPlutoLogger->Write(LV_STATUS,"Starting serialize offset %d",(int) (pcCurrentP
 			unsigned long iSC_Version = Read_unsigned_long();
 			SetupSerialization(iSC_Version);
 		}
-g_pPlutoLogger->Write(LV_STATUS,"finished setup serialize offset %d",(int) (pcCurrentPosition-pcDataBlock));
-	}
-g_pPlutoLogger->Write(LV_STATUS,"schema for offset %s",SerializeClassClassName().c_str());
-	MYSTL_ITERATE_VECT(m_vectItemToSerialize,ItemToSerialize,pItem_cout,it_cout)
-	{
-g_pPlutoLogger->Write(LV_STATUS,"%d",pItem_cout->m_iSerializeDataType);
 	}
 
 	MYSTL_ITERATE_VECT(m_vectItemToSerialize,ItemToSerialize,pItem,it)
@@ -7966,7 +7960,6 @@ g_pPlutoLogger->Write(LV_STATUS,"%d",pItem_cout->m_iSerializeDataType);
 		}
 		else
 		{
-g_pPlutoLogger->Write(LV_STATUS,"reading type %d",pItem->m_iSerializeDataType);
 
 			switch(pItem->m_iSerializeDataType)
 			{
@@ -8076,7 +8069,6 @@ g_pPlutoLogger->Write(LV_STATUS,"reading type %d",pItem->m_iSerializeDataType);
 				break;
 			default:
 				{
-g_pPlutoLogger->Write(LV_STATUS,"unknown serialize %d",pItem->m_iSerializeDataType);
 					if( !UnknownSerialize(pItem,bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition) )
 					{
 #ifdef DEBUG_SERIALIZATION
