@@ -575,7 +575,7 @@ g_PlutoProfiler->Start("block6");
 g_PlutoProfiler->Start("block6 a");
 	::SelectObject(hdc_drawing, hFontOld);
 	::DeleteObject(hFontNew);
-g_PlutoProfiler->Stop("block6 b");
+g_PlutoProfiler->Stop("block6 a");
 
 	if( hdc_drawing!=hdc )
 	{
