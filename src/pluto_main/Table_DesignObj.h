@@ -84,6 +84,8 @@ long int m_FK_DesignObjType;
 long int m_FK_DesignObjCategory;
 long int m_FK_DesignObj_IncludeIfOtherIncluded;
 short int m_Priority;
+short int m_KeepGraphicInCache;
+short int m_AlwaysInclude;
 short int m_CantGoBack;
 short int m_CommandsProcessedAtServer;
 short int m_TimeoutSeconds;
@@ -98,7 +100,7 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[20];
+		bool is_null[22];
 	
 	public:
 		long int PK_DesignObj_get();
@@ -108,6 +110,8 @@ long int FK_DesignObjType_get();
 long int FK_DesignObjCategory_get();
 long int FK_DesignObj_IncludeIfOtherIncluded_get();
 short int Priority_get();
+short int KeepGraphicInCache_get();
+short int AlwaysInclude_get();
 short int CantGoBack_get();
 short int CommandsProcessedAtServer_get();
 short int TimeoutSeconds_get();
@@ -130,6 +134,8 @@ void FK_DesignObjType_set(long int val);
 void FK_DesignObjCategory_set(long int val);
 void FK_DesignObj_IncludeIfOtherIncluded_set(long int val);
 void Priority_set(short int val);
+void KeepGraphicInCache_set(short int val);
+void AlwaysInclude_set(short int val);
 void CantGoBack_set(short int val);
 void CommandsProcessedAtServer_set(short int val);
 void TimeoutSeconds_set(short int val);
@@ -214,7 +220,7 @@ void Skin_FK_DesignObj_ScreenSaver_getrows(vector <class Row_Skin*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_DesignObj+ m_Description+ m_Define+ m_FK_DesignObjType+ m_FK_DesignObjCategory+ m_FK_DesignObj_IncludeIfOtherIncluded+ m_Priority+ m_CantGoBack+ m_CommandsProcessedAtServer+ m_TimeoutSeconds+ m_Animate+ m_FK_StabilityStatus+ m_FK_Document+ m_CanGoBackToSameScreen+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_DesignObj+ m_Description+ m_Define+ m_FK_DesignObjType+ m_FK_DesignObjCategory+ m_FK_DesignObj_IncludeIfOtherIncluded+ m_Priority+ m_KeepGraphicInCache+ m_AlwaysInclude+ m_CantGoBack+ m_CommandsProcessedAtServer+ m_TimeoutSeconds+ m_Animate+ m_FK_StabilityStatus+ m_FK_Document+ m_CanGoBackToSameScreen+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -226,6 +232,8 @@ string FK_DesignObjType_asSQL();
 string FK_DesignObjCategory_asSQL();
 string FK_DesignObj_IncludeIfOtherIncluded_asSQL();
 string Priority_asSQL();
+string KeepGraphicInCache_asSQL();
+string AlwaysInclude_asSQL();
 string CantGoBack_asSQL();
 string CommandsProcessedAtServer_asSQL();
 string TimeoutSeconds_asSQL();
