@@ -53,10 +53,9 @@ void FileListGrid::ToData(string GridID,int &Size, char* &Data, int ColStart, in
 #ifdef DEBUG
 	clock_t cStart=clock(); // move this to within #debug
 #endif
-	int CurrentCellSize;
 	for(int row=RowStart;row<=RowStart+RowCount && row<m_TotalRows;++row)
 	{
-		DataGridCell *pCell = GetData(0,row,&CurrentCellSize);
+		DataGridCell *pCell = GetData(0,row);
 #ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS,"filelistgrid::row %d graphic data: %p rowstart: %d rowCount: %d totalrows: %d",
 	row,pCell->m_pGraphicData,RowStart,RowCount,m_TotalRows);
