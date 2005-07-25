@@ -297,27 +297,27 @@ void UpdateEntArea::AddDefaultCommandsToEntArea(Row_EntertainArea *pRow_Entertai
 	}
 	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_playlists_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_playlists_CONST,"Playlists"))!=0 )
 	{
-		AddCommand(PK_CommandGroup,m_dwPK_Device_MediaPlugIn,COMMAND_Show_File_List_CONST,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_misc_Playlist_CONST).c_str());
+		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Show_File_List_CONST,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_misc_Playlist_CONST).c_str());
 	}
 	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_music_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_music_CONST,"Music"))!=0 )
 	{
-		AddCommand(PK_CommandGroup,m_dwPK_Device_MediaPlugIn,COMMAND_Show_File_List_CONST,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_pluto_StoredAudio_CONST).c_str());
+		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Show_File_List_CONST,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_pluto_StoredAudio_CONST).c_str());
 	}
 	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_movies_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_movies_CONST,"Movies"))!=0 )
 	{
-		AddCommand(PK_CommandGroup,m_dwPK_Device_MediaPlugIn,COMMAND_Show_File_List_CONST,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_pluto_DVD_CONST).c_str());
+		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Show_File_List_CONST,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_pluto_DVD_CONST).c_str());
 	}
 	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_videos_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_videos_CONST,"Videos"))!=0 )
 	{
-		AddCommand(PK_CommandGroup,m_dwPK_Device_MediaPlugIn,COMMAND_Show_File_List_CONST,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_pluto_StoredVideo_CONST).c_str());
+		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Show_File_List_CONST,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_pluto_StoredVideo_CONST).c_str());
 	}
 	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_pictures_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_pictures_CONST,"Pictures"))!=0 )
 	{
-		AddCommand(PK_CommandGroup,m_dwPK_Device_MediaPlugIn,COMMAND_Show_File_List_CONST,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_pluto_Pictures_CONST).c_str());
+		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Show_File_List_CONST,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_pluto_Pictures_CONST).c_str());
 	}
 	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_documents_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_documents_CONST,"Docs"))!=0 )
 	{
-		AddCommand(PK_CommandGroup,m_dwPK_Device_MediaPlugIn,COMMAND_Show_File_List_CONST,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_misc_DocViewer_CONST).c_str());
+		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Show_File_List_CONST,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_misc_DocViewer_CONST).c_str());
 	}
 }
 
