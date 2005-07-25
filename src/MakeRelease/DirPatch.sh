@@ -8,7 +8,7 @@ ScriptL="
 for i in *; do
 	stat -c %s \"\$i\" | tr '\n' ' '
 	md5sum \"\$i\"
-done | awk '{print \$3,\$2,\$1}' | sort
+done | awk '{print \$3,\$2,\$1}' | sort -k1
 "
 
 ScriptR="${ScriptL//\\\\/\\\\}"
@@ -23,7 +23,7 @@ for section in $sections; do
 	eval dirR=\$${section}R
 	(cd "$dirL"; eval "$ScriptL") >$section.local
 	ssh uploads@plutohome.com "cd \"$dirR\"; eval \"$ScriptR\"" >$section.remote
-	diff -u $section.{remote,local} | egrep '^[+-]' | egrep -v '^\+\+\+ |^--- ' | sort | awk '{print $1}' >$section.changes
+	diff -u $section.{remote,local} | egrep '^[+-]' | egrep -v '^\+\+\+ |^--- ' | sort -k1 | awk '{print $1}' >$section.changes
 
 	: >$section.patch.sh
 	chmod +x $section.patch.sh
