@@ -139,7 +139,7 @@ void OrbiterSDL_WinCE::RenderText(string &sTextToDisplay,DesignObjText *Text,Tex
 	rect.right  = Text->m_rPosition.X + Text->m_rPosition.Width;
 	rect.bottom = Text->m_rPosition.Y + Text->m_rPosition.Height;
 
-	TextWinCEObject *pTextWinCEObject = new TextWinCEObject(TextToDisplay, rect, pTextStyle);
+	TextWinCEObject *pTextWinCEObject = new TextWinCEObject(sTextToDisplay, rect, pTextStyle);
 
 #if ( defined( PROFILING_CE ) )
     clock_t clkStart = clock(  );
@@ -152,7 +152,7 @@ void OrbiterSDL_WinCE::RenderText(string &sTextToDisplay,DesignObjText *Text,Tex
     if(  m_pScreenHistory_Current   )
     {
         g_pPlutoLogger->Write( LV_CONTROLLER, "RenderTextCE: %s took %d ms",
-            TextToDisplay.c_str(  ), clkFinished-clkStart );
+            sTextToDisplay.c_str(  ), clkFinished-clkStart );
     }
 #endif
 
