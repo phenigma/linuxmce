@@ -479,7 +479,7 @@ void Orbiter::RenderScreen( )
 }
 
 #ifdef DEBUG
-    g_pPlutoLogger->Write( LV_CRITICAL, "Render screen: %s", m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str(  ) );
+    g_pPlutoLogger->Write( LV_STATUS, "Render screen: %s", m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str(  ) );
 #endif
 
 #if ( defined( PROFILING ) )
@@ -5529,7 +5529,7 @@ void Orbiter::CMD_Set_Bound_Icon(string sValue_To_Assign,string sType,string &sC
 	DesignObj_DataList *pDesignObj_DataList = m_mapObj_Bound_Find(sType);
 	if( !pDesignObj_DataList )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Got SetBoundIcon for unknown type: %s",sType.c_str());
+		g_pPlutoLogger->Write(LV_CRITICAL,"Got SetBoundIcon for unknown type: %s size: %d",sType.c_str(),(int) m_mapObj_Bound.size());
 		return;
 	}
 
@@ -6409,6 +6409,7 @@ void Orbiter::CMD_Continuous_Refresh(string sTime,string &sCMD_Result,Message *p
 void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string &sCMD_Result,Message *pMessage)
 //<-dceag-c254-e->
 {
+	g_pPlutoLogger->Write(LV_STATUS,"CMD_Bind_Icon %s %s %d (size %d)",sPK_DesignObj.c_str(),sType.c_str(),(int) bChild,(int) m_mapObj_Bound.size());
 	DesignObj_Orbiter *pObj = FindObject( sPK_DesignObj );
 	if( !pObj )
 	{
@@ -6493,6 +6494,8 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 		pDesignObj_DataList = new DesignObj_DataList();
 		m_mapObj_Bound[sType] = pDesignObj_DataList;
 	}
+
+	g_pPlutoLogger->Write(LV_STATUS,"CMD_Bind_Icon added %s %s %d (size %d)",sPK_DesignObj.c_str(),sType.c_str(),(int) bChild,(int) m_mapObj_Bound.size());
 
 	if( bChild )
 	{

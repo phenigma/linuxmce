@@ -373,7 +373,10 @@ void MediaStream::UpdateDescriptionsFromAttributes()
 		sDescription += pMedia_Plugin->m_pMediaAttributes->GetPrintableName(pRow_Attribute_Song);
 	}
 
-	m_sMediaDescription = sDescription;
+	if( sDescription.size() )
+		m_sMediaDescription = sDescription;
+	else
+		m_sMediaDescription = "Unknown disc";
 }
 
 string MediaStream::GetEntAreasWithout(EntertainArea *pEntertainArea)

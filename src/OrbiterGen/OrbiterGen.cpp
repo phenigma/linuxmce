@@ -241,6 +241,7 @@ int main(int argc, char *argv[])
 
 	if( pOrbiterGenerator && pOrbiterGenerator->m_pRow_Orbiter )
 	{
+		pOrbiterGenerator->m_pRow_Orbiter->Reload();  // We already updated floorplans
 		pOrbiterGenerator->m_pRow_Orbiter->Regen_set(false);
 		pOrbiterGenerator->m_pRow_Orbiter->Table_Orbiter_get()->Commit();
 	}

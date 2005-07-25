@@ -1892,8 +1892,14 @@ void Router::ParseDevice(int MasterDeviceID, int ParentDeviceID, class DeviceDat
     }
     else
     {
-        g_pPlutoLogger->Write(LV_STATUS,"Created device %d %s (mdl: %d) routed to: %d",pDevice->m_dwPK_Device,
-            pDevice->m_sDescription.c_str(),pDevice->m_dwPK_DeviceTemplate,MasterDeviceID);
+		string sTop;
+		if( pDevice->m_pDevice_Core )
+			sTop = StringUtils::itos(pDevice->m_pDevice_Core->m_dwPK_Device) + " " + pDevice->m_pDevice_Core->m_sDescription;
+		else if( pDevice->m_pDevice_MD )
+			sTop = StringUtils::itos(pDevice->m_pDevice_MD->m_dwPK_Device) + " " + pDevice->m_pDevice_MD->m_sDescription;
+
+		g_pPlutoLogger->Write(LV_STATUS,"Created device %d %s (mdl: %d) routed to: %d (%s)",pDevice->m_dwPK_Device,
+            pDevice->m_sDescription.c_str(),pDevice->m_dwPK_DeviceTemplate,MasterDeviceID,sTop.c_str());
         m_Routing_DeviceToController[pDevice->m_dwPK_Device] = MasterDeviceID;
     }
 
