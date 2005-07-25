@@ -2693,6 +2693,8 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 			char *pData=NULL; int iSize=0;
 			DCE::CMD_Orbiter_Registered CMD_Orbiter_Registered( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, "1",
 				m_dwPK_Users,StringUtils::itos(m_pLocationInfo->PK_EntertainArea),m_pLocationInfo->PK_Room, &pData, &iSize);
+			DCE::CMD_Set_Current_User CMD_Set_Current_User( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, m_dwPK_Users );
+			CMD_Orbiter_Registered.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Current_User.m_pMessage);
 			SendCommand( CMD_Orbiter_Registered );
 			m_pOrbiterFileBrowser_Collection = new OrbiterFileBrowser_Collection;
 			m_pOrbiterFileBrowser_Collection->SerializeRead(iSize,pData);
@@ -7738,9 +7740,9 @@ void Orbiter::ParseGrid(DesignObj_DataGrid *pObj_Datagrid)
         if(  pObj_Datagrid->m_FixedColumnWidth==0  )
             pObj_Datagrid->m_MaxCol=1;
         else if( m_iRotation==90 || m_iRotation==270 )
-            pObj_Datagrid->m_MaxCol =1+ ( pObj_Datagrid->m_rPosition.Height - ( pObj_Datagrid->m_FirstColumnWidth +1  ) ) / ( pObj_Datagrid->m_FixedColumnWidth+1 );
+            pObj_Datagrid->m_MaxCol = ( pObj_Datagrid->m_rPosition.Height - ( pObj_Datagrid->m_FirstColumnWidth +1  ) ) / ( pObj_Datagrid->m_FixedColumnWidth+1 );
 		else
-            pObj_Datagrid->m_MaxCol =1+ ( pObj_Datagrid->m_rPosition.Width - ( pObj_Datagrid->m_FirstColumnWidth +1  ) ) / ( pObj_Datagrid->m_FixedColumnWidth+1 );
+            pObj_Datagrid->m_MaxCol = ( pObj_Datagrid->m_rPosition.Width - ( pObj_Datagrid->m_FirstColumnWidth +1  ) ) / ( pObj_Datagrid->m_FixedColumnWidth+1 );
     }
     else if ( pObj_Datagrid->m_FixedColumnWidth == 0 ) // Do we know the number of columns but not their size?
     {
@@ -7755,9 +7757,9 @@ void Orbiter::ParseGrid(DesignObj_DataGrid *pObj_Datagrid)
         if(  pObj_Datagrid->m_FixedRowHeight==0  )
             pObj_Datagrid->m_MaxRow=1;
         else if( m_iRotation==90 || m_iRotation==270 )
-            pObj_Datagrid->m_MaxRow = 1+ ( pObj_Datagrid->m_rPosition.Width - ( pObj_Datagrid->m_FirstRowHeight +1  ) ) / ( pObj_Datagrid->m_FixedRowHeight+1 );
+            pObj_Datagrid->m_MaxRow = ( pObj_Datagrid->m_rPosition.Width - ( pObj_Datagrid->m_FirstRowHeight +1  ) ) / ( pObj_Datagrid->m_FixedRowHeight+1 );
 		else
-            pObj_Datagrid->m_MaxRow = 1+ ( pObj_Datagrid->m_rPosition.Height - ( pObj_Datagrid->m_FirstRowHeight +1  ) ) / ( pObj_Datagrid->m_FixedRowHeight+1 );
+            pObj_Datagrid->m_MaxRow = ( pObj_Datagrid->m_rPosition.Height - ( pObj_Datagrid->m_FirstRowHeight +1  ) ) / ( pObj_Datagrid->m_FixedRowHeight+1 );
     }
     else if ( pObj_Datagrid->m_FixedRowHeight == 0 ) // Do we know the number of columns but not their size?
     {
