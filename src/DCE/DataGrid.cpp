@@ -152,11 +152,8 @@ void DataGridCell::SetMessage(Message* pMessage)
 void DataGridCell::ToData(unsigned long &Size, char* &Data)
 {
 	char *MessageData = NULL;
-	m_MessageLength = 0;
 	if (m_pMessage)
-	{
 		m_pMessage->ToData(m_MessageLength, MessageData);
-	}
 
 	Size = sizeof(DataGridCellSerializableData)+m_TextLength+m_ValueLength+m_GraphicLength+m_MessageLength;
 	Data = new char[Size];
@@ -264,7 +261,7 @@ int DataGridTable::GetCols()
 	return m_TotalColumns;
 }
 
-DataGridCell *DataGridTable::GetData(int Column, int Row, int *Size)
+DataGridCell *DataGridTable::GetData(int Column, int Row)
 {
 	MemoryDataTable::iterator iDR = m_MemoryDataTable.find(MAKECOLROW(Column, Row));
 	if (iDR!=m_MemoryDataTable.end())
@@ -325,7 +322,10 @@ g_pPlutoLogger->Write( LV_DATAGRID, "inside todata" );
 	int MaxCell = ColCount * RowCount;
 	DataGridTableCellIndex *ntIndex = new DataGridTableCellIndex[MaxCell];
 	DataGridCell **ntCells = new DataGridCell*[MaxCell];
-	int ntTotalCellSize = 0, CurrentCellSize;
+	char **pCellData = new char*[MaxCell];
+	unsigned long *pCellSize = new unsigned long[MaxCell];
+
+	int ntTotalCellSize = 0;
 
 	// Set the subset-related parameters. 
 	m_StartingRow = RowStart;
@@ -344,14 +344,14 @@ g_pPlutoLogger->Write( LV_DATAGRID, "rows: %d cols: %d",m_RowCount,m_ColumnCount
 	{
 		for(register int j=0;j<m_ColumnCount;++j)
 		{
-			DataGridCell *Cell = GetData((j==0 && m_bKeepColumnHeader) ? 0 : j+m_StartingColumn, (i==0 && m_bKeepRowHeader) ? 0 : i+m_StartingRow, &CurrentCellSize);
+			DataGridCell *Cell = GetData((j==0 && m_bKeepColumnHeader) ? 0 : j+m_StartingColumn, (i==0 && m_bKeepRowHeader) ? 0 : i+m_StartingRow);
 			if (!Cell && j==ActualFirstColumn)
 			{
 				// Hmm, no data on the first cell.  Maybe this is the middle of a columnspan?  If so
 				// find the column and make the adjustment.
 				for(int cssearch = m_StartingColumn+ActualFirstColumn-1; cssearch>=ActualFirstColumn; cssearch--)
 				{
-					Cell = GetData(cssearch, (i==0 && m_bKeepRowHeader) ? 0 : i+m_StartingRow, &CurrentCellSize);
+					Cell = GetData(cssearch, (i==0 && m_bKeepRowHeader) ? 0 : i+m_StartingRow);
                     if (Cell)
 					{
 						if (Cell->m_Colspan >= (1 + (m_StartingColumn-cssearch)-ActualFirstColumn))
@@ -378,8 +378,16 @@ g_pPlutoLogger->Write( LV_DATAGRID, "rows: %d cols: %d",m_RowCount,m_ColumnCount
 					Cell->m_Colspan = m_ColumnCount - j;
 				}
 				ntIndex[m_CellCount].m_ColRow = MAKECOLROW((j==0 && m_bKeepColumnHeader) ? 0 : j+m_StartingColumn, (i==0 && m_bKeepRowHeader) ? 0 : i+m_StartingRow);
+
+				char *pData=NULL;
+				unsigned long CurrentCellSize;
+				Cell->ToData(CurrentCellSize,pData);
+
 				ntIndex[m_CellCount].m_Size = CurrentCellSize;
-				ntCells[m_CellCount++] = Cell;
+				ntCells[m_CellCount] = Cell;
+				pCellData[m_CellCount] = pData;
+				pCellSize[m_CellCount] = CurrentCellSize;
+				m_CellCount++;
 				ntTotalCellSize += CurrentCellSize;
 			}
 		}
@@ -407,8 +415,8 @@ g_pPlutoLogger->Write( LV_DATAGRID, "cell count %d",m_CellCount );
 #endif
     for(i=0;i<m_CellCount;++i)
 	{
-		unsigned long CellSize;
-		char *CellData;
+		unsigned long CellSize=pCellSize[i];
+		char *CellData=pCellData[i];
 		ntCells[i]->ToData(CellSize, CellData);
 
 		if (CellSize != ntIndex[i].m_Size)
@@ -423,6 +431,8 @@ g_pPlutoLogger->Write( LV_DATAGRID, "cell count %d",m_CellCount );
 
 	delete[] ntIndex;
 	delete[] ntCells;
+	delete[] pCellData;
+	delete[] pCellSize;
 #ifndef DISABLE_LZO_DATAGRID
 	Data = new char[UncompressedSize + UncompressedSize / 64 + 16 + 3 + 4];
     lzo_uint out_len;

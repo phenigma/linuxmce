@@ -100,7 +100,7 @@ namespace DCE
 
 		virtual int GetRows();  // The total number of rows in the whole grid
 		virtual int GetCols();  // The total number of columns in the whole grid
-		virtual DataGridCell *GetData(int Column, int Row, int *Size = NULL);
+		virtual DataGridCell *GetData(int Column, int Row);
 		//The caller is responsible for deleting the cell returned by this.
 		virtual void SetData(int Column, int Row, DataGridCell *Value);
 		virtual void ClearData();

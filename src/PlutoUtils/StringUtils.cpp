@@ -734,7 +734,9 @@ string StringUtils::GetDow( int iDow, bool bFull )
 
 char **StringUtils::ConvertStringToArgs(string sInput,int &iNumArgs,int *p_iPosNext)
 {
-	iNumArgs=(*p_iPosNext)=0;
+	if(p_iPosNext)
+		(*p_iPosNext)=0;
+	iNumArgs=0;
 	char **pArgs = new char*[500];
 	const char *pc_str = sInput.c_str();
 
