@@ -201,7 +201,7 @@ bool DesignObjCommand::Serialize( bool bWriting, char *&pcDataBlock, unsigned lo
 bool DesignObj_Data::Serialize( bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition, void *pExtraSerializationData )	
 {
 	// Save the starting points
-	m_pcDataBlock=pcDataBlock; m_dwAllocatedSize=dwAllocatedSize; m_pcCurrentPosition=pcCurrentPosition;
+	m_pcDataBlock=pcDataBlock; m_dwAllocatedSize=dwAllocatedSize; m_pcCurrentPosition=pcCurrentPosition; m_pExtraSerializationData=pExtraSerializationData;
 
 	if( bWriting )
 	{

@@ -1689,6 +1689,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Selected grid %s but m_pDataGridTable is NULL"
 							PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
 							m_mapVariable[pDesignObj_DataGrid->m_iPK_Variable] = "";
 						}
+						dg.Release();
                         CMD_Scroll_Grid( "",  pDesignObj_DataGrid->m_ObjectID,  DIRECTION_Down_CONST );
                         return false;  // No more processing
                     }
@@ -1700,6 +1701,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Selected grid %s but m_pDataGridTable is NULL"
 							PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
 							m_mapVariable[pDesignObj_DataGrid->m_iPK_Variable] = "";
 						}
+						dg.Release();
                         CMD_Scroll_Grid( "",  pDesignObj_DataGrid->m_ObjectID,  DIRECTION_Up_CONST );
                         return false;  // No more processing
                     }
@@ -2353,10 +2355,12 @@ void Orbiter::FindObjectToHighlight(
         {
             // We've got a datagrid that is capturing scrolling.
             if(  pDesignObj_DataGrid->m_sExtraInfo.find( 'p' )!=string::npos  ) // P means page
+			{
+				dg.Release();
                 CMD_Scroll_Grid( "", "", PK_Direction );
+			}
             else  // Otherwise we move 1 row at a time
             {
-//int r=pDesignObj_DataGrid->m_pDataGridTable->GetRows(  );
                 switch( PK_Direction )
                 {
                 case DIRECTION_Up_CONST:
@@ -2367,6 +2371,7 @@ void Orbiter::FindObjectToHighlight(
                         {
                             // Save which row in the actual table we are pointing to,  so we can point there again after doing the scroll
                             int iHighlightedAbsoluteRow = pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow;
+							dg.Release();
                             CMD_Scroll_Grid( "", "", PK_Direction );
                             pDesignObj_DataGrid->m_iHighlightedRow=iHighlightedAbsoluteRow - pDesignObj_DataGrid->m_GridCurRow;
                         }
@@ -2381,6 +2386,7 @@ void Orbiter::FindObjectToHighlight(
                         if(  pDesignObj_DataGrid->m_iHighlightedRow>=pDesignObj_DataGrid->m_MaxRow - (pDesignObj_DataGrid->m_dwIDownRow >= 0 ? 1 : 0) - (pDesignObj_DataGrid->m_iUpRow >= 0 ? 1 : 0) )
                         {
                             int iHighlightedAbsoluteRow = pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow;
+							dg.Release();
                             CMD_Scroll_Grid( "", "", PK_Direction );
                             pDesignObj_DataGrid->m_iHighlightedRow=iHighlightedAbsoluteRow - pDesignObj_DataGrid->m_GridCurRow;
                         }
@@ -2392,6 +2398,7 @@ void Orbiter::FindObjectToHighlight(
                         pDesignObj_DataGrid->m_iHighlightedColumn--;
                         if(  pDesignObj_DataGrid->m_iHighlightedColumn<0  )
                         {
+							dg.Release();
                             CMD_Scroll_Grid( "", "", PK_Direction );
                             pDesignObj_DataGrid->m_iHighlightedColumn=pDesignObj_DataGrid->m_MaxCol;
                         }
@@ -2405,6 +2412,7 @@ void Orbiter::FindObjectToHighlight(
                         // See if we've scrolled past the visible end, in which case we need to page
                         if(  pDesignObj_DataGrid->m_iHighlightedColumn>=pDesignObj_DataGrid->m_MaxCol  )
                         {
+							dg.Release();
                             CMD_Scroll_Grid( "", "", PK_Direction );
                             pDesignObj_DataGrid->m_iHighlightedColumn=0;
                         }
@@ -4512,7 +4520,7 @@ bool Orbiter::AcquireGrid( DesignObj_DataGrid *pObj,  int GridCurCol,  int &Grid
 
     if (  pObj->bReAcquire || !pDataGridTable || pDataGridTable->m_StartingColumn != GridCurCol || pDataGridTable->m_StartingRow != GridCurRow || pObj->m_sSeek.length() )
     {
-		pObj->m_iHighlightedColumn=pObj->m_iHighlightedRow=-1;
+// 25-july-2005		pObj->m_iHighlightedColumn=pObj->m_iHighlightedRow=-1;  This means the highlighted row is lost on paging????
         if ( pDataGridTable )
         {
             delete pDataGridTable;
@@ -5131,7 +5139,8 @@ g_pPlutoLogger->Write(LV_STATUS,"deleting %s - %s",pScreenHistory->m_pObj->m_Obj
 void Orbiter::CMD_Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iPK_Direction,string &sCMD_Result,Message *pMessage)
 //<-dceag-c9-e->
 {
-    PLUTO_SAFETY_LOCK( dng, m_DatagridMutex );
+	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
+    PLUTO_SAFETY_LOCK( dng, m_DatagridMutex );  // Lock them in the same order as render screen
     // todo 2.0?    NeedsUpdate( 2 ); // Moving grids is slow; take care of an animation if necessary
 
     DesignObj_Orbiter *pObj=NULL;
@@ -5151,7 +5160,6 @@ void Orbiter::CMD_Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iP
 		return;
 	}
 
-	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
     while( LoopNum<( int ) m_vectObjs_GridsOnScreen.size(  ) )
     {
         if(  LoopNum!=-1  )
