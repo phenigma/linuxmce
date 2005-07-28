@@ -42,8 +42,6 @@ ArchiveLogs()
 	find "$Output" -mtime +5 -exec rm -f '{}' ';'
 }
 
-cp /var/log/pluto/upgrade.newlog /usr/pluto/coredump/
-
 Filename="${PK_Installation}_${PK_Device}_$(date +%F_%H-%M-%S)"
 Critical="/var/log/pluto/critical"
 Output="/var/log/pluto/archive"

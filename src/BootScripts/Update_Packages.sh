@@ -18,12 +18,16 @@ exec &> >(tee /var/log/pluto/upgrade.newlog)
 
 echo "Performing system update"
 apt-get update
+Fail=0
 if apt-get -f -y $DownloadOnly dist-upgrade && [[ -n "$DownloadOnly" ]]; then
 	date -R >"$Lock"
+else
+	Fail=1
+	cp /var/log/pluto/upgrade.newlog /usr/pluto/coredump/
 fi
 
 cp /var/cache/apt/archives/kernel-image* /usr/pluto/deb-cache/dists/sarge/main/binary-i386/ 2>/dev/null
 
-if [[ -z "$DownloadOnly" ]]; then
+if [[ -z "$DownloadOnly" && $Fail -eq 0 ]]; then
 	apt-get clean
 fi
