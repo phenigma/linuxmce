@@ -1,10 +1,17 @@
 #!/bin/bash
 
 . /usr/pluto/bin/pluto.func
+. /usr/pluto/bin/Config_Ops.sh
+
+shopt -s extglob
 
 if [[ "$#" -ne 3 ]]; then
 	Logging "$TYPE" "$SEVERITY_WARNING" "$0" "Called with wrong number of parameters: $#"
 	exit 1
+fi
+
+if [[ -z "$RAport" || "$RAport" != +([0-9]) ]]; then
+	RAport=80
 fi
 
 RemotePort="$1"
@@ -24,6 +31,6 @@ fi
 while echo 'x'; do
 	sleep 5
 done |
-	ssh -p 80 -i $RAKey -R$RemotePort:localhost:$LocalPort remoteassistance@pf.plutohome.com |
+	ssh -p $RAport -i $RAKey -R$RemotePort:localhost:$LocalPort remoteassistance@pf.plutohome.com |
 	tee /dev/tty | /usr/pluto/bin/charperiod
 Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Tunnel to port $LocalPort died"
