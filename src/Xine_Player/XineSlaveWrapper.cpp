@@ -383,7 +383,7 @@ bool XineSlaveWrapper::createStream(string fileName, int streamID, int iRequesti
     else
     {
         g_pPlutoLogger->Write(LV_WARNING, "Failed to open %s", fileName.c_str());
-        xineStream->m_pOwner->playbackCompleted(xineStream->m_iStreamID,true);
+		return false;
     }
 
 	g_pPlutoLogger->Write(LV_STATUS, "Done with CreateStream");
@@ -428,7 +428,6 @@ g_pPlutoLogger->Write(LV_STATUS, "Playing... The command took %d seconds to comp
     else
 	{
 		g_pPlutoLogger->Write(LV_WARNING, "Play failed with error %d",xine_get_error(xineStream->m_pStream));
-		xineStream->m_pOwner->playbackCompleted(xineStream->m_iStreamID, false);
 		return false;
 	}
 }

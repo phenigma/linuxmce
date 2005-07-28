@@ -220,13 +220,27 @@ void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
 		m_pXineSlaveControl->setSlimClient(false);
 // 		getSlimServerClient()->disconnectFromServer();
 
+		string sFilenameWithoutPosition = sFilename;
 		CalculatePosition(sMediaPosition,&sFilename);
 
 		if ( ! m_pXineSlaveControl->createStream(sFilename, iStreamID, pMessage->m_dwPK_Device_From) || ! m_pXineSlaveControl->playStream(iStreamID, sMediaPosition) )
 		{
-			EVENT_Playback_Completed(iStreamID,true);  // true = there was an error, don't keep repeating
-//			delete m_pXineSlaveControl;  AB 2005-06-10 Why did Mihai put this here?  It means if there's ever a bad file Xine is permenantly unable to play anything
-//			m_pXineSlaveControl = NULL;
+			if( sFilenameWithoutPosition != sFilename )
+			{
+				sFilename=sFilenameWithoutPosition;
+				g_pPlutoLogger->Write(LV_CRITICAL, "Xine_Player::CMD_Play_Media() failed to play -- retrying without starting position info");
+			    m_pXineSlaveControl->stopMedia(iStreamID);
+				if ( ! m_pXineSlaveControl->createStream(sFilename, iStreamID, pMessage->m_dwPK_Device_From) || ! m_pXineSlaveControl->playStream(iStreamID, sMediaPosition) )
+				{
+					g_pPlutoLogger->Write(LV_CRITICAL, "Xine_Player::CMD_Play_Media() failed to play %s without position info",sFilename.c_str());
+					EVENT_Playback_Completed(iStreamID,true);  // true = there was an error, don't keep repeating
+				}
+			}
+			else
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL, "Xine_Player::CMD_Play_Media() failed to play %s",sFilename.c_str());
+				EVENT_Playback_Completed(iStreamID,true);  // true = there was an error, don't keep repeating
+			}
 		}
 	}
 	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() ended for filename: %s with slave %p.", sFilename.c_str(),m_pXineSlaveControl);
