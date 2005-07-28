@@ -24,8 +24,8 @@ UploadLogs()
 
 ArchiveCoreDumps()
 {
-	tar -czf "$Output/$Filename.critical.tar.gz" "$Critical" /usr/pluto/coredump.archive 2>/dev/null
-	rm -rf /usr/pluto/coredump.archive
+	tar -czf "$Output/$Filename.critical.tar.gz" "$Critical" /usr/pluto/coredump/archive 2>/dev/null
+	rm -rf /usr/pluto/coredump/archive
 	rm -rf "$Critical"
 
 	/usr/pluto/bin/MonitorDiskSpace.sh 
@@ -42,6 +42,8 @@ ArchiveLogs()
 	find "$Output" -mtime +5 -exec rm -f '{}' ';'
 }
 
+cp /var/log/pluto/upgrade.newlog /usr/pluto/coredump/
+
 Filename="${PK_Installation}_${PK_Device}_$(date +%F_%H-%M-%S)"
 Critical="/var/log/pluto/critical"
 Output="/var/log/pluto/archive"
@@ -53,9 +55,9 @@ for i in /var/log/pluto/*.{,new}log; do
 	grep "^01" "$i" >"$Critical/$(basename $i)"
 done
 
-mkdir -p /usr/pluto/coredump.archive
+mkdir -p /usr/pluto/coredump/archive
 CoreFiles=$(echo /usr/pluto/coredump/*)
-[ -n "$CoreFiles" ] && mv /usr/pluto/coredump/* /usr/pluto/coredump.archive/
+[ -n "$CoreFiles" ] && mv /usr/pluto/coredump/* /usr/pluto/coredump/archive/
 ArchiveCoreDumps "$Param" &
 
 mkdir -p /var/log/pluto/log.archive

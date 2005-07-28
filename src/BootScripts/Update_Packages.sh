@@ -1,6 +1,10 @@
 #!/bin/bash
 
 cronEntry="0 3 * * * root /usr/pluto/bin/Update_Packages.sh --download-only"
+cronNotify="0 */10 * * * root /usr/pluto/bin/Update_Notify.sh"
+
+Lock=/usr/pluto/locks/upgrade_ok
+rm -f "$Lock"
 
 if ! grep -qF "$cronEntry" /etc/crontab; then
 	echo "$cronEntry" >>/etc/crontab
@@ -14,11 +18,12 @@ exec &> >(tee /var/log/pluto/upgrade.newlog)
 
 echo "Performing system update"
 apt-get update
-apt-get -y $DownloadOnly dist-upgrade
+if apt-get -f -y $DownloadOnly dist-upgrade && [[ -n "$DownloadOnly" ]]; then
+	date -R >"$Lock"
+fi
+
 cp /var/cache/apt/archives/kernel-image* /usr/pluto/deb-cache/dists/sarge/main/binary-i386/ 2>/dev/null
 
-if [[ -n "$DownloadOnly" ]]; then
-	/usr/pluto/bin/MessageSend localhost 0 -1001 2 47
-else
+if [[ -z "$DownloadOnly" ]]; then
 	apt-get clean
 fi
