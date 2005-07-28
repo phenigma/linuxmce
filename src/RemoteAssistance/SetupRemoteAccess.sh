@@ -45,6 +45,7 @@ CreateTunnel()
 	Suffix="$1"
 	LocalPort="$2"
 	RemotePort="$3"
+	Host="$4"
 
 	Tunnel=$(echo /var/run/screen/S-root/*${screenName}_${Suffix}*)
 
@@ -69,7 +70,7 @@ CreateTunnel()
 		fi
 		if [[ "$FalseAlarm" -eq 0 ]]; then
 			[[ -n "$Tunnel" ]] && RemoveTunnel "$Suffix"
-			screen -d -m -S "${screenName}_${Suffix}" /usr/pluto/bin/RemoteAccess_Tunnel.sh "$RemotePort" "$LocalPort" "$RAKey"
+			screen -d -m -S "${screenName}_${Suffix}" /usr/pluto/bin/RemoteAccess_Tunnel.sh "$RemotePort" "$LocalPort" "$RAKey" $Host
 			Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "$Suffix tunnel enabled."
 		else
 			Logging "$TYPE" "$SEVERITY_WARNING" "$0" "$Suffix tunnel not down. False alarm"
