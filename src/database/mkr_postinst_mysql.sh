@@ -7,3 +7,4 @@ sed -i "s/^skip-networking/#skip-networking/; s/^skip-innodb/#skip-innodb/; s/^d
 grep -q '^default-table-type=' "$MyCnf" || echo "default-table-type=$DefTableType" >>"$MyCnf"
 echo "GRANT ALL PRIVILEGES ON pluto_main.* to 'root'@'127.0.0.1';" | mysql
 echo "FLUSH PRIVILEGES;" | mysql
+/etc/init.d/mysql restart
