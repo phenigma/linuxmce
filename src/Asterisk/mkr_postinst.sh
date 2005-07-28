@@ -1,5 +1,9 @@
 #!/bin/bash
 
+#enable asterisk daemon
+sed -r -i "s/RUNASTERISK=no/RUNASTERISK=yes/" /etc/default/asterisk
+sed -r -i "s/[#]RUNASTSAFE=yes/RUNASTSAFE=yes/" /etc/default/asterisk
+
 ########### DO NOTHING ###########
 
 #echo 'CREATE DATABASE IF NOT EXISTS `asterisk`;' | mysql
