@@ -8,6 +8,9 @@
 #include "MediaHandlerInfo.h"
 #include "DeviceData_Router.h"
 
+#include "MediaFile.h"
+#include "MediaTitle.h"
+#include "MediaSection.h"
 
 using namespace std;
 
@@ -50,14 +53,16 @@ namespace DCE
 		class OH_Orbiter *m_pOH_Orbiter_StartedMedia;    	   /** Which orbiter started this stream in the first place */
 
         map<int, class EntertainArea *> m_mapEntertainArea; /** The entertainment areas where this stream is playing */
-		map< pair<int,int>,int> m_mapPK_Attribute;  /** An external media identification script may set attributes here, PK_AttributeType,Section=PK_Attribute */
-        int m_mapPK_Attribute_Find(pair<int,int> PK_AttributeType_Section) { map< pair<int,int>,int>::iterator it = m_mapPK_Attribute.find(PK_AttributeType_Section); return it==m_mapPK_Attribute.end() ? NULL : (*it).second; }
+		map<int,int> m_mapPK_Attribute;  /** An external media identification script may set attributes here, PK_AttributeType,Section=PK_Attribute */
+        int m_mapPK_Attribute_Find(int PK_AttributeType) { map<int,int>::iterator it = m_mapPK_Attribute.find(PK_AttributeType); return it==m_mapPK_Attribute.end() ? 0 : (*it).second; }
 
         /**
          * As more 'play media' commands come in to this stream, it will add them to the queue so the user can save as a play list.
          * If it's a mounted media, like dvd, that won't happen
          */
         deque<MediaFile *>  m_dequeMediaFile;        /** The filenames we're playing */
+        deque<MediaTitle *>  m_dequeMediaTitle;      /** The titles, if this is something like a DVD */
+        deque<MediaSection *>  m_dequeMediaSection;      /** The titles, if this is something like a DVD */
         unsigned int		m_iDequeMediaFile_Pos;   /** The play position in the m_dequeFilename deque. */
         int					m_iPK_Playlist;          /** the ID of the playlist. nonZero if the playlist was loaded from database, zero otherwise. */
         string				m_sPlaylistName;       	 /** the name of the playlist which was loaded from the database. */

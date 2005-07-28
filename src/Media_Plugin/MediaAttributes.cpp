@@ -25,12 +25,22 @@
 #endif
 
 // pluto_media related database access
+#include "pluto_main/Table_MediaType.h"
+
 #include "pluto_media/Table_Attribute.h"
 #include "pluto_media/Table_File_Attribute.h"
 #include "pluto_media/Table_File.h"
 #include "pluto_media/Table_Bookmark.h"
 #include "pluto_media/Table_Playlist.h"
 #include "pluto_media/Table_PlaylistEntry.h"
+#include "pluto_media/Table_Disc.h"
+#include "pluto_media/Table_Picture_Disc.h"
+#include "pluto_media/Table_Disc_Attribute.h"
+#include "pluto_media/Table_Picture.h"
+#include "pluto_media/Table_Picture_Attribute.h"
+
+#include "MediaFile.h"
+#include "MediaStream.h"
 
 using namespace DCE;
 
@@ -1098,6 +1108,210 @@ Row_Attribute *MediaAttributes::GetAttributeFromDescription(int PK_AttributeType
 		pRow_Attribute->FirstName_set(sFirstName);
 		pRow_Attribute->Table_Attribute_get()->Commit();
 		return pRow_Attribute;
+	}
+}
+
+int MediaAttributes::AddIdentifiedDiscToDB(string sIdentifiedDisc,MediaStream *pMediaStream)
+{
+	Row_Disc *pRow_Disc;
+	
+	vector<Row_Disc *> vectRow_Disc;
+	m_pDatabase_pluto_media->Disc_get()->GetRows("ID='" + StringUtils::SQLEscape(sIdentifiedDisc) + "'",&vectRow_Disc);
+	if( vectRow_Disc.size() )
+		pRow_Disc = vectRow_Disc[0];
+	else
+	{
+		pRow_Disc = m_pDatabase_pluto_media->Disc_get()->AddRow();
+		pRow_Disc->ID_set(sIdentifiedDisc);
+		pRow_Disc->EK_MediaType_set(pMediaStream->m_iPK_MediaType);
+		pRow_Disc->Table_Disc_get()->Commit();
+	}
+	pMediaStream->m_dwPK_Disc = pRow_Disc->PK_Disc_get();
+
+	AddAttributesToDisc(pRow_Disc,0,0,&pMediaStream->m_mapPK_Attribute);
+
+	if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
+	{
+		for(size_t sFile=0;sFile<pMediaStream->m_dequeMediaFile.size();sFile++)
+		{
+			MediaFile *pMediaFile=pMediaStream->m_dequeMediaFile[sFile];
+			AddAttributesToDisc(pRow_Disc,sFile+1,0,&pMediaFile->m_mapPK_Attribute);
+			for(size_t sSection=0;sSection<pMediaFile->m_dequeMediaSection.size();sSection++)
+				AddAttributesToDisc(pRow_Disc,sFile+1,sSection+1,&pMediaFile->m_dequeMediaSection[sSection]->m_mapPK_Attribute);
+		}
+	}
+
+	for(size_t sSection=0;sSection<pMediaStream->m_dequeMediaSection.size();sSection++)
+		AddAttributesToDisc(pRow_Disc,0,sSection,&pMediaStream->m_dequeMediaSection[sSection]->m_mapPK_Attribute);
+
+	for(size_t sTitle=0;sTitle<pMediaStream->m_dequeMediaTitle.size();sTitle++)
+	{
+		MediaTitle *pMediaTitle=pMediaStream->m_dequeMediaTitle[sTitle];
+		AddAttributesToDisc(pRow_Disc,sTitle+1,0,&pMediaTitle->m_mapPK_Attribute);
+		for(size_t sSection=0;sSection<pMediaTitle->m_dequeMediaSection.size();sSection++)
+			AddAttributesToDisc(pRow_Disc,sTitle+1,sSection+1,&pMediaTitle->m_dequeMediaSection[sSection]->m_mapPK_Attribute);
+	}
+
+	if( pMediaStream->m_pPictureData && pMediaStream->m_iPictureSize )
+	{
+		Row_Picture *pRow_Picture = m_pDatabase_pluto_media->Picture_get()->AddRow();
+		pRow_Picture->Extension_set("jpg");
+		m_pDatabase_pluto_media->Picture_get()->Commit();
+
+		FILE *file = fopen(("/home/mediapics/" + StringUtils::itos(pRow_Picture->PK_Picture_get()) + "." + pRow_Picture->Extension_get()).c_str(),"wb");
+		if( file )
+		{
+			fwrite(pMediaStream->m_pPictureData,pMediaStream->m_iPictureSize,1,file);
+			fclose(file);
+		}
+
+		Row_Picture_Disc *pRow_Picture_Disc = m_pDatabase_pluto_media->Picture_Disc_get()->AddRow();
+		pRow_Picture_Disc->FK_Disc_set( pRow_Disc->PK_Disc_get() );
+		pRow_Picture_Disc->FK_Picture_set( pRow_Picture->PK_Picture_get() );
+		m_pDatabase_pluto_media->Picture_Disc_get()->Commit();
+
+		// Find all attributes that we added that identify this disc and need the same picture
+		string sWhere="SELECT Attribute.* FROM Attribute"
+			" JOIN Disc_Attribute ON FK_Attribute=PK_Attribute"
+			" JOIN Disc ON FK_Disc=PK_Disc"
+			" JOIN MediaType_AttributeType ON Attribute.FK_AttributeType=MediaType_AttributeType.FK_AttributeType"
+			" AND MediaType_AttributeType.EK_MediaType=Disc.EK_MediaType"
+			" WHERE PK_Disc=" + StringUtils::itos(pRow_Disc->PK_Disc_get()) + " AND Identifier=1";
+		vector<Row_Attribute *> vectRow_Attribute;
+		m_pDatabase_pluto_media->Attribute_get()->GetRows(sWhere,&vectRow_Attribute);
+		for(size_t s=0;s<vectRow_Attribute.size();++s)
+		{
+			Row_Attribute *pRow_Attribute = vectRow_Attribute[s];
+			Row_Picture_Attribute *pRow_Picture_Attribute = m_pDatabase_pluto_media->Picture_Attribute_get()->GetRow(pRow_Picture->PK_Picture_get(),pRow_Attribute->PK_Attribute_get());
+			if( !pRow_Picture_Attribute )
+			{
+				pRow_Picture_Attribute = m_pDatabase_pluto_media->Picture_Attribute_get()->AddRow();
+				pRow_Picture_Attribute->FK_Picture_set(pRow_Picture->PK_Picture_get());
+				pRow_Picture_Attribute->FK_Attribute_set(pRow_Attribute->PK_Attribute_get());
+				m_pDatabase_pluto_media->Picture_Attribute_get()->Commit();
+			}
+		}
+	}
+	return pRow_Disc->PK_Disc_get();
+}
+
+void MediaAttributes::AddAttributesToDisc(Row_Disc *pRow_Disc,int iFileOrTrack,int iSection,map<int,int> *p_mapPK_Attribute)
+{
+	for( map<int,int>::iterator it=p_mapPK_Attribute->begin();it!=p_mapPK_Attribute->end();++it)
+	{
+		if( it->first==0 )
+			continue;  // Don't store the recognition type
+
+		Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(it->second);
+		Row_Disc_Attribute *pRow_Disc_Attribute = m_pDatabase_pluto_media->Disc_Attribute_get()->GetRow(pRow_Disc->PK_Disc_get(),pRow_Attribute->PK_Attribute_get(),iFileOrTrack,iSection);
+		if( !pRow_Disc_Attribute )
+		{
+			pRow_Disc_Attribute = m_pDatabase_pluto_media->Disc_Attribute_get()->AddRow();
+			pRow_Disc_Attribute->FK_Disc_set(pRow_Disc->PK_Disc_get());
+			pRow_Disc_Attribute->FK_Attribute_set(pRow_Attribute->PK_Attribute_get()); 
+			pRow_Disc_Attribute->Track_set(iFileOrTrack);
+			pRow_Disc_Attribute->Section_set(iSection);
+			pRow_Disc_Attribute->Table_Disc_Attribute_get()->Commit();
+		}
+	}
+}
+
+bool MediaAttributes::IsDiscAlreadyIdentified(string sIdentifiedDisc,MediaStream *pMediaStream)
+{
+	vector<Row_Disc *> vectRow_Disc;
+	m_pDatabase_pluto_media->Disc_get()->GetRows("ID='" + StringUtils::SQLEscape(sIdentifiedDisc) + "'",&vectRow_Disc);
+	if( vectRow_Disc.size()==0 )
+		return false;
+
+	Row_Disc *pRow_Disc = vectRow_Disc[0];
+	pMediaStream->m_dwPK_Disc = pRow_Disc->PK_Disc_get();
+
+	vector<Row_Disc_Attribute *> vectRow_Disc_Attribute;
+	pRow_Disc->Disc_Attribute_FK_Disc_getrows(&vectRow_Disc_Attribute);
+
+	if( vectRow_Disc_Attribute.size()<2 )
+		return false; // If it was identified successfully, we'd have at least 2 entries.  It could have been a failed identify before, so we'll retry
+	for(size_t s=0;s<vectRow_Disc_Attribute.size();++s)
+	{
+		Row_Disc_Attribute *pRow_Disc_Attribute = vectRow_Disc_Attribute[s];
+		Row_Attribute *pRow_Attribute = pRow_Disc_Attribute->FK_Attribute_getrow();
+g_pPlutoLogger->Write(LV_STATUS,"Already in DB %p %p",pRow_Disc_Attribute,pRow_Attribute);
+		if( !pRow_Attribute )
+			continue; // Should never happen
+		if( pRow_Disc->EK_MediaType_get()==MEDIATYPE_pluto_CD_CONST ) // Tracks are treated as files
+			AddAttributeToStream(pMediaStream,pRow_Attribute,pRow_Disc_Attribute->Track_get(),0,pRow_Disc_Attribute->Section_get());
+		else
+			AddAttributeToStream(pMediaStream,pRow_Attribute,0,pRow_Disc_Attribute->Track_get(),pRow_Disc_Attribute->Section_get());
+	}
+	return true;
+}
+
+void MediaAttributes::AddAttributeToStream(MediaStream *pMediaStream,Row_Attribute *pRow_Attribute,int File,int Title_Track,int Section)
+{
+	int PK_AttributeType=pRow_Attribute->FK_AttributeType_get();
+	// For CD's, the tracks are represented as files
+	if( File )
+	{
+		if( File>0 && File<=pMediaStream->m_dequeMediaFile.size() )
+		{
+			MediaFile *pMediaFile = pMediaStream->m_dequeMediaFile[File-1];
+			if( Title_Track )
+			{
+				while( Title_Track>pMediaFile->m_dequeMediaTitle.size() )
+					pMediaFile->m_dequeMediaTitle.push_back(new MediaTitle());
+				MediaTitle *pMediaTitle=pMediaFile->m_dequeMediaTitle[Title_Track-1];
+				if( Section==0 )
+					pMediaTitle->m_mapPK_Attribute[PK_AttributeType] = pRow_Attribute->PK_Attribute_get();
+				else
+				{
+					MediaSection *pMediaSection=GetMediaSection(&pMediaTitle->m_dequeMediaSection,Section);
+					pMediaSection->m_mapPK_Attribute[PK_AttributeType] = pRow_Attribute->PK_Attribute_get();
+				}
+			}
+			else if( Section==0 )
+				pMediaFile->m_mapPK_Attribute[PK_AttributeType] = pRow_Attribute->PK_Attribute_get();
+			else
+				GetMediaSection(&pMediaFile->m_dequeMediaSection,Section)->m_mapPK_Attribute[PK_AttributeType] = pRow_Attribute->PK_Attribute_get();
+		}
+	}
+	else if( Title_Track ) // For DVD's Track is the title
+	{
+		while( Title_Track>pMediaStream->m_dequeMediaTitle.size() )
+			pMediaStream->m_dequeMediaTitle.push_back(new MediaTitle());
+		MediaTitle *pMediaTitle=pMediaStream->m_dequeMediaTitle[Title_Track-1];
+		if( Section==0 )
+			pMediaTitle->m_mapPK_Attribute[PK_AttributeType] = pRow_Attribute->PK_Attribute_get();
+		else
+		{
+			MediaSection *pMediaSection=GetMediaSection(&pMediaTitle->m_dequeMediaSection,Section);
+			pMediaSection->m_mapPK_Attribute[PK_AttributeType] = pRow_Attribute->PK_Attribute_get();
+		}
+	}
+	else if( Section==0 )
+		pMediaStream->m_mapPK_Attribute[PK_AttributeType] = pRow_Attribute->PK_Attribute_get();
+	else
+		GetMediaSection(&pMediaStream->m_dequeMediaSection,Section)->m_mapPK_Attribute[PK_AttributeType] = pRow_Attribute->PK_Attribute_get();
+}
+
+void MediaAttributes::LoadStreamAttributes(MediaStream *pMediaStream)
+{
+	for(size_t s=0;s<pMediaStream->m_dequeMediaFile.size();++s)
+	{
+		MediaFile *pMediaFile = pMediaStream->m_dequeMediaFile[s];
+		if( !pMediaFile->m_dwPK_File )
+			continue;
+
+		Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(pMediaFile->m_dwPK_File);
+		if( !pRow_File )
+			continue;
+
+		vector<Row_File_Attribute *> vectRow_File_Attribute;
+		pRow_File->File_Attribute_FK_File_getrows(&vectRow_File_Attribute);
+		for(size_t sA=0;sA<vectRow_File_Attribute.size();++sA)
+		{
+			Row_File_Attribute *pRow_File_Attribute=vectRow_File_Attribute[sA];
+			AddAttributeToStream(pMediaStream,pRow_File_Attribute->FK_Attribute_getrow(),s+1,pRow_File_Attribute->Track_get(),pRow_File_Attribute->Section_get());
+		}
 	}
 }
 

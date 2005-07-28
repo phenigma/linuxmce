@@ -389,8 +389,10 @@ bool Xine_Plugin::MenuOnScreen( class Socket *pSocket, class Message *pMessage, 
 			m_pMedia_Plugin->SetNowPlaying(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
 				pXineMediaStream->m_sMediaDescription,pXineMediaStream,false);
 		}
-g_pPlutoLogger->Write(LV_WARNING, "Sent now playing to %d remoted for on: %d",(int) pEntertainArea->m_mapBoundRemote.size( ),(int) bOnOff);
+int iWas=m_pMedia_Plugin->m_listMessageQueue.size();
 		m_pMedia_Plugin->WaitForMessageQueue();
+g_pPlutoLogger->Write(LV_WARNING, "Sent now playing to %d remoted for on: %d queue was %d now %d",
+					  (int) pEntertainArea->m_mapBoundRemote.size( ),(int) bOnOff,iWas,m_pMedia_Plugin->m_listMessageQueue.size());
 		for( MapBoundRemote::iterator itBR=pEntertainArea->m_mapBoundRemote.begin( );itBR!=pEntertainArea->m_mapBoundRemote.end( );++itBR )
 		{
 			BoundRemote *pBoundRemote = ( *itBR ).second;

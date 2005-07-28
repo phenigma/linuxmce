@@ -243,6 +243,7 @@ int main(int argc, char *argv[])
 	{
 		pOrbiterGenerator->m_pRow_Orbiter->Reload();  // We already updated floorplans
 		pOrbiterGenerator->m_pRow_Orbiter->Regen_set(false);
+		pOrbiterGenerator->m_pRow_Orbiter->RegenInProgress_set(false);
 		pOrbiterGenerator->m_pRow_Orbiter->Table_Orbiter_get()->Commit();
 	}
 	if( pOrbiterGenerator )
@@ -277,7 +278,7 @@ int OrbiterGenerator::DoIt()
 		m_pRow_Orbiter->PK_Orbiter_set(m_iPK_Orbiter);
 		m_pRow_Orbiter->Table_Orbiter_get()->Commit();
 	}
-	m_pRow_Orbiter->Regen_set(true);
+	m_pRow_Orbiter->RegenInProgress_set(true);
 	m_pRow_Orbiter->Table_Orbiter_get()->Commit();
 
 	cout << "Generating: #" << m_pRow_Device->PK_Device_get() << " " << m_pRow_Device->Description_get() << endl;
@@ -315,7 +316,7 @@ int OrbiterGenerator::DoIt()
 	if( !m_pRow_Skin )
 	{
 		cerr << "Cannot find Orbiter's Skin" << endl;
-		m_pRow_Orbiter->Regen_set(false);
+		m_pRow_Orbiter->RegenInProgress_set(false);
 		mds.Orbiter_get()->Commit();
 		exit(1);
 	}
@@ -336,7 +337,7 @@ int OrbiterGenerator::DoIt()
 	if( !m_pRow_DesignObj_MainMenu )
 	{
 		cerr << "Cannot find Orbiter's Main Menu: " << endl;
-		m_pRow_Orbiter->Regen_set(false);
+		m_pRow_Orbiter->RegenInProgress_set(false);
 		mds.Orbiter_get()->Commit();
 		exit(1);
 	}
@@ -362,7 +363,7 @@ int OrbiterGenerator::DoIt()
 	if( !m_pRow_Language )
 	{
 		cerr << "Cannot find Orbiter's Language" << endl;
-		m_pRow_Orbiter->Regen_set(false);
+		m_pRow_Orbiter->RegenInProgress_set(false);
 		mds.Orbiter_get()->Commit();
 		exit(1);
 	}
@@ -378,7 +379,7 @@ int OrbiterGenerator::DoIt()
 	if( !m_pRow_UI )
 	{
 		cerr << "Cannot find Orbiter's UI" << endl;
-		m_pRow_Orbiter->Regen_set(false);
+		m_pRow_Orbiter->RegenInProgress_set(false);
 		mds.Orbiter_get()->Commit();
 		exit(1);
 	}

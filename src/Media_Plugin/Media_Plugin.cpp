@@ -630,7 +630,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Media was identified id %d device %d format %s"
 		memcpy(pMediaStream->m_pPictureData,pImage,iImageSize);
 	}
 
-	if( sFormat=="CDDB-TAB" )
+	if( sFormat=="CDDB-TAB" && pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
 		Parse_CDDB_Media_ID(pMediaStream,sValue);
 	if( sFormat=="MISC-TAB" )
 		Parse_Misc_Media_ID(pMediaStream,sValue);
@@ -936,6 +936,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 	g_pPlutoLogger->Write(LV_STATUS,"Ready to call plugin's startmedia");
 	int iPK_Orbiter_PromptingToResume = CheckForAutoResume(pMediaStream);
 
+	m_pMediaAttributes->LoadStreamAttributes(pMediaStream);
 	if( pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pMediaStream) )
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"Plug-in started media");
@@ -2180,15 +2181,13 @@ class DataGridTable *Media_Plugin::MediaAttrCurStream( string GridID, string Par
 		return pDataGrid;
 
 	int iRow=0;
-	for( map< pair<int,int>,int>::iterator it=pEntertainArea->m_pMediaStream->m_mapPK_Attribute.begin();it!=pEntertainArea->m_pMediaStream->m_mapPK_Attribute.end();++it)
+	for(map<int,int>::iterator it=pEntertainArea->m_pMediaStream->m_mapPK_Attribute.begin();it!=pEntertainArea->m_pMediaStream->m_mapPK_Attribute.end();++it)
 	{
-		Row_AttributeType *pRow_AttributeType = m_pDatabase_pluto_media->AttributeType_get()->GetRow(it->first.first);
+		Row_AttributeType *pRow_AttributeType = m_pDatabase_pluto_media->AttributeType_get()->GetRow(it->first);
 		Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(it->second);
 		if( pRow_AttributeType && pRow_Attribute )
 		{
 			string sName = pRow_AttributeType->Description_get() + ": ";
-			if( it->first.second )
-				sName += " CH " + StringUtils::itos(it->first.second) + ": ";
 			sName += m_pMediaAttributes->GetPrintableName(pRow_Attribute);
 			DataGridCell *pCell = new DataGridCell( sName, StringUtils::itos(it->second) );
 			pDataGrid->SetData(0,iRow++,pCell);
@@ -2197,23 +2196,70 @@ class DataGridTable *Media_Plugin::MediaAttrCurStream( string GridID, string Par
 	for(size_t s=0;s<pEntertainArea->m_pMediaStream->m_dequeMediaFile.size();++s)
 	{
 		MediaFile *pMediaFile = pEntertainArea->m_pMediaStream->m_dequeMediaFile[s];
-		for( map< pair<int,int>,int>::iterator it=pMediaFile->m_mapPK_Attribute.begin();it!=pMediaFile->m_mapPK_Attribute.end();++it)
+		string sNamePrefix;
+		if( pMediaFile->m_dwPK_File )
+			sNamePrefix = "(" + pMediaFile->m_sFilename + ") ";  // It's a real file
+		else
+			sNamePrefix = "(#" + StringUtils::itos(s+1) + ") ";
+		for( map<int,int>::iterator it=pMediaFile->m_mapPK_Attribute.begin();it!=pMediaFile->m_mapPK_Attribute.end();++it)
 		{
-			Row_AttributeType *pRow_AttributeType = m_pDatabase_pluto_media->AttributeType_get()->GetRow(it->first.first);
+			Row_AttributeType *pRow_AttributeType = m_pDatabase_pluto_media->AttributeType_get()->GetRow(it->first);
 			Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(it->second);
 			if( pRow_AttributeType && pRow_Attribute )
 			{
-				string sName = "(" + pMediaFile->m_sFilename + ") ";
-				if( it->first.second )
-					sName += " CH " + StringUtils::itos(it->first.second) + ": ";
-				sName += pRow_AttributeType->Description_get() + ": " + m_pMediaAttributes->GetPrintableName(pRow_Attribute);
+				string sName = sNamePrefix + pRow_AttributeType->Description_get() + "\n" + m_pMediaAttributes->GetPrintableName(pRow_Attribute);
+				DataGridCell *pCell = new DataGridCell( sName, StringUtils::itos(it->second) );
+				pDataGrid->SetData(0,iRow++,pCell);
+			}
+		}
+		AddMediaSectionToDataGrid(pDataGrid,iRow,pMediaFile->m_dequeMediaSection,sNamePrefix);
+		AddMediaTitlesToDataGrid(pDataGrid,iRow,pMediaFile->m_dequeMediaTitle,sNamePrefix);
+	}
+
+	AddMediaTitlesToDataGrid(pDataGrid,iRow,pEntertainArea->m_pMediaStream->m_dequeMediaTitle,"");
+
+	return pDataGrid;
+}
+
+void Media_Plugin::AddMediaTitlesToDataGrid(DataGridTable *pDataGrid,int &iRow,deque<MediaTitle *> &dequeMediaTitle,string sPreface)
+{
+	for(size_t s=0;s<dequeMediaTitle.size();++s)
+	{
+		MediaTitle *pMediaTitle = dequeMediaTitle[s];
+		string sNamePrefix = "(Title " + StringUtils::itos(s+1) + ") ";
+		for( map<int,int>::iterator it=pMediaTitle->m_mapPK_Attribute.begin();it!=pMediaTitle->m_mapPK_Attribute.end();++it)
+		{
+			Row_AttributeType *pRow_AttributeType = m_pDatabase_pluto_media->AttributeType_get()->GetRow(it->first);
+			Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(it->second);
+			if( pRow_AttributeType && pRow_Attribute )
+			{
+				string sName = sNamePrefix + pRow_AttributeType->Description_get() + "\n" + m_pMediaAttributes->GetPrintableName(pRow_Attribute);
+				DataGridCell *pCell = new DataGridCell( sName, StringUtils::itos(it->second) );
+				pDataGrid->SetData(0,iRow++,pCell);
+			}
+		}
+		AddMediaSectionToDataGrid(pDataGrid,iRow,pMediaTitle->m_dequeMediaSection,sNamePrefix);
+	}
+}
+
+void Media_Plugin::AddMediaSectionToDataGrid(DataGridTable *pDataGrid,int &iRow,deque<MediaSection *> &dequeMediaSection,string sPreface)
+{
+	for(size_t s=0;s<dequeMediaSection.size();++s)
+	{
+		MediaSection *pMediaSection = dequeMediaSection[s];
+		for( map<int,int>::iterator it=pMediaSection->m_mapPK_Attribute.begin();it!=pMediaSection->m_mapPK_Attribute.end();++it)
+		{
+			Row_AttributeType *pRow_AttributeType = m_pDatabase_pluto_media->AttributeType_get()->GetRow(it->first);
+			Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(it->second);
+			if( pRow_AttributeType && pRow_Attribute )
+			{
+				string sName = sPreface + " #" + StringUtils::itos(s+1) + " ";
+				sName += pRow_AttributeType->Description_get() + "\n" + m_pMediaAttributes->GetPrintableName(pRow_Attribute);
 				DataGridCell *pCell = new DataGridCell( sName, StringUtils::itos(it->second) );
 				pDataGrid->SetData(0,iRow++,pCell);
 			}
 		}
 	}
-
-	return pDataGrid;
 }
 
 void Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, string sPK_EntertainArea, vector<EntertainArea *> &vectEntertainArea )
@@ -2461,9 +2507,10 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_Med
 		}
 		else if( bDiskWasReset )
 		{
-			m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From, "<%=T" + StringUtils::itos(COMMANDPARAMETER_Text_CONST) + "%>");
+			m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From, "<%=T" + StringUtils::itos(TEXT_Checking_drive_CONST) + "%>");
 			return;
 		}
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot reset disk: reset %d ripping %d dev rip %d EA %d",(int) bDiskWasReset, (int) bDiskIsRipping,PK_Device_Ripping,pEntertainArea->m_iPK_EntertainArea);
 		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From, "<%=T" + StringUtils::itos(TEXT_Cannot_play_media_CONST) + "%>");
     }
 	else
@@ -3739,37 +3786,34 @@ void Media_Plugin::Parse_Misc_Media_ID(MediaStream *pMediaStream,string sValue)
 		return;
 	}
 	
-	if( !IsDiscAlreadyIdentified(vectAttributes[0],pMediaStream) )
+	if( !m_pMediaAttributes->IsDiscAlreadyIdentified(vectAttributes[0],pMediaStream) )
 	{
 		Row_Attribute *pRow_Attribute;
 	    pRow_Attribute = m_pMediaAttributes->GetAttributeFromDescription(ATTRIBUTETYPE_Disc_ID_CONST,vectAttributes[0]); 
-		pMediaStream->m_mapPK_Attribute[ make_pair<int,int> (ATTRIBUTETYPE_Disc_ID_CONST,0) ] = pRow_Attribute->PK_Attribute_get();
+		pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Disc_ID_CONST] = pRow_Attribute->PK_Attribute_get();
 		for(size_t s=1;s<vectAttributes.size();++s)
 		{
+			string sLine = vectAttributes[s];
 			string::size_type pos=0;
-			int Track = atoi(StringUtils::Tokenize(vectAttributes[s],"\t",pos).c_str());
-			int PK_AttributeType = atoi(StringUtils::Tokenize(vectAttributes[s],"\t",pos).c_str());
-			int Section = atoi(StringUtils::Tokenize(vectAttributes[s],"\t",pos).c_str());
-			string sName = StringUtils::Tokenize(vectAttributes[s],"\t",pos);
-			string sFirstName = StringUtils::Tokenize(vectAttributes[s],"\t",pos);
-			if( !PK_AttributeType || (sName.size()==0 && sFirstName.size()==0) || 
-				Track<0 || Track>pMediaStream->m_dequeMediaFile.size())
+
+			int Track = atoi(StringUtils::Tokenize(sLine,"\t",pos).c_str());
+			int PK_AttributeType = atoi(StringUtils::Tokenize(sLine,"\t",pos).c_str());
+			int Section = atoi(StringUtils::Tokenize(sLine,"\t",pos).c_str());
+			string sName = StringUtils::Tokenize(sLine,"\t",pos);
+			string sFirstName = StringUtils::Tokenize(sLine,"\t",pos);
+			if( !PK_AttributeType || (sName.size()==0 && sFirstName.size()==0) )
 			{
 				g_pPlutoLogger->Write(LV_CRITICAL,"Empty/invalid media attribute");
 				continue;
 			}
 
-			pRow_Attribute = m_pMediaAttributes->GetAttributeFromDescription(PK_AttributeType,sName,sFirstName); 
-
-			if( Track )
-			{
-				MediaFile *pMediaFile = pMediaStream->m_dequeMediaFile[Track];
-				pMediaFile->m_mapPK_Attribute[make_pair<int,int> (PK_AttributeType,Section)] = pRow_Attribute->PK_Attribute_get();
-			}
+			pRow_Attribute = m_pMediaAttributes->GetAttributeFromDescription(PK_AttributeType,sName,sFirstName);
+			if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST ) // Tracks are treated as files
+				m_pMediaAttributes->AddAttributeToStream(pMediaStream,pRow_Attribute,Track,0,Section);
 			else
-				pMediaStream->m_mapPK_Attribute[make_pair<int,int> (PK_AttributeType,Section)] = pRow_Attribute->PK_Attribute_get();
+				m_pMediaAttributes->AddAttributeToStream(pMediaStream,pRow_Attribute,0,Track,Section);
 		}
-		AddIdentifiedDiscToDB(vectAttributes[0],pMediaStream);
+		m_pMediaAttributes->AddIdentifiedDiscToDB(vectAttributes[0],pMediaStream);
 	}
 
 g_pPlutoLogger->Write(LV_STATUS,"Parse_misc_Media_ID done");
@@ -3786,13 +3830,13 @@ void Media_Plugin::Parse_CDDB_Media_ID(MediaStream *pMediaStream,string sValue)
 	Row_Attribute *pRow_Attribute;
 
 	// Before proceeding, see if this disc is already in the database
-	if( !IsDiscAlreadyIdentified(sCDDBID,pMediaStream) )
+	if( !m_pMediaAttributes->IsDiscAlreadyIdentified(sCDDBID,pMediaStream) )
 	{
 g_pPlutoLogger->Write(LV_STATUS,"Parse_CDDB_Media_ID not already id'd");
 
 		// The cddb info is space delimited
 	    pRow_Attribute = m_pMediaAttributes->GetAttributeFromDescription(ATTRIBUTETYPE_CDDB_CONST,StringUtils::Tokenize(sCDDBID," ",pos2)); 
-		pMediaStream->m_mapPK_Attribute[make_pair<int,int> (ATTRIBUTETYPE_CDDB_CONST,0) ] = pRow_Attribute->PK_Attribute_get();
+		pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_CDDB_CONST] = pRow_Attribute->PK_Attribute_get();
 		int NumTracks=atoi(StringUtils::Tokenize(sCDDBID," ",pos2).c_str()); // cddb id
 
 		// The actual data is now tab delimited.
@@ -3800,21 +3844,21 @@ g_pPlutoLogger->Write(LV_STATUS,"Parse_CDDB_Media_ID not already id'd");
 		if( s.size() )
 		{
 			pRow_Attribute = m_pMediaAttributes->GetAttributeFromDescription(ATTRIBUTETYPE_Performer_CONST,s); 
-			pMediaStream->m_mapPK_Attribute[make_pair<int,int> (ATTRIBUTETYPE_Performer_CONST,0)] = pRow_Attribute->PK_Attribute_get();
+			pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Performer_CONST] = pRow_Attribute->PK_Attribute_get();
 		}
 
 		s = StringUtils::Tokenize(sValue,"\t",pos);
 		if( s.size() )
 		{
 			pRow_Attribute = m_pMediaAttributes->GetAttributeFromDescription(ATTRIBUTETYPE_Album_CONST,s); 
-			pMediaStream->m_mapPK_Attribute[make_pair<int,int> (ATTRIBUTETYPE_Album_CONST,0)] = pRow_Attribute->PK_Attribute_get();
+			pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Album_CONST] = pRow_Attribute->PK_Attribute_get();
 		}
 
 		s = StringUtils::Tokenize(sValue,"\t",pos);
 		if( s.size() )
 		{
 			pRow_Attribute = m_pMediaAttributes->GetAttributeFromDescription(ATTRIBUTETYPE_Genre_CONST,s); 
-			pMediaStream->m_mapPK_Attribute[make_pair<int,int> (ATTRIBUTETYPE_Genre_CONST,0)] = pRow_Attribute->PK_Attribute_get();
+			pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Genre_CONST] = pRow_Attribute->PK_Attribute_get();
 		}
 
 		// Read the info for the tracks.  NumTracks normally should = pMediaStream->m_dequeMediaFile.size()
@@ -3825,10 +3869,10 @@ g_pPlutoLogger->Write(LV_STATUS,"Parse_CDDB_Media_ID not already id'd");
 			if( str.size() )
 			{
 				pRow_Attribute = m_pMediaAttributes->GetAttributeFromDescription(ATTRIBUTETYPE_Song_CONST,str); 
-				pMediaFile->m_mapPK_Attribute[make_pair<int,int> (ATTRIBUTETYPE_Song_CONST,0)] = pRow_Attribute->PK_Attribute_get();
+				pMediaFile->m_mapPK_Attribute[ATTRIBUTETYPE_Song_CONST] = pRow_Attribute->PK_Attribute_get();
 			}
 		}
-		AddIdentifiedDiscToDB(sCDDBID,pMediaStream);
+		m_pMediaAttributes->AddIdentifiedDiscToDB(sCDDBID,pMediaStream);
 	}
 
 g_pPlutoLogger->Write(LV_STATUS,"Parse_CDDB_Media_ID done");
@@ -3887,138 +3931,7 @@ void Media_Plugin::CMD_Add_Media_Attribute(string sValue_To_Assign,int iStreamID
 {
 }
 
-bool Media_Plugin::IsDiscAlreadyIdentified(string sIdentifiedDisc,MediaStream *pMediaStream)
-{
-	vector<Row_Disc *> vectRow_Disc;
-	m_pDatabase_pluto_media->Disc_get()->GetRows("ID='" + StringUtils::SQLEscape(sIdentifiedDisc) + "'",&vectRow_Disc);
-	if( vectRow_Disc.size()==0 )
-		return false;
 
-	Row_Disc *pRow_Disc = vectRow_Disc[0];
-	pMediaStream->m_dwPK_Disc = pRow_Disc->PK_Disc_get();
-
-	vector<Row_Disc_Attribute *> vectRow_Disc_Attribute;
-	pRow_Disc->Disc_Attribute_FK_Disc_getrows(&vectRow_Disc_Attribute);
-
-	if( vectRow_Disc_Attribute.size()<2 )
-		return false; // If it was identified successfully, we'd have at least 2 entries.  It could have been a failed identify before, so we'll retry
-	for(size_t s=0;s<vectRow_Disc_Attribute.size();++s)
-	{
-		Row_Disc_Attribute *pRow_Disc_Attribute = vectRow_Disc_Attribute[s];
-		Row_Attribute *pRow_Attribute = pRow_Disc_Attribute->FK_Attribute_getrow();
-g_pPlutoLogger->Write(LV_STATUS,"Already in DB %p %p",pRow_Disc_Attribute,pRow_Attribute);
-		if( !pRow_Attribute )
-			continue; // Should never happen
-		if( pRow_Disc_Attribute->Track_get()==0 )
-			pMediaStream->m_mapPK_Attribute[make_pair<int,int> (pRow_Attribute->FK_AttributeType_get(),pRow_Disc_Attribute->Section_get())] = pRow_Attribute->PK_Attribute_get();
-		else
-		{
-			if( pRow_Disc_Attribute->Track_get()>=1 && pRow_Disc_Attribute->Track_get()<pMediaStream->m_dequeMediaFile.size() )
-			{
-				MediaFile *pMediaFile = pMediaStream->m_dequeMediaFile[pRow_Disc_Attribute->Track_get()-1];
-				pMediaFile->m_mapPK_Attribute[make_pair<int,int> (pRow_Attribute->FK_AttributeType_get(),pRow_Disc_Attribute->Section_get())] = pRow_Attribute->PK_Attribute_get();
-			}
-		}
-	}
-	return true;
-}
-
-int Media_Plugin::AddIdentifiedDiscToDB(string sIdentifiedDisc,MediaStream *pMediaStream)
-{
-	Row_Disc *pRow_Disc;
-	
-	vector<Row_Disc *> vectRow_Disc;
-	m_pDatabase_pluto_media->Disc_get()->GetRows("ID='" + StringUtils::SQLEscape(sIdentifiedDisc) + "'",&vectRow_Disc);
-	if( vectRow_Disc.size() )
-		pRow_Disc = vectRow_Disc[0];
-	else
-	{
-		pRow_Disc = m_pDatabase_pluto_media->Disc_get()->AddRow();
-		pRow_Disc->ID_set(sIdentifiedDisc);
-		pRow_Disc->EK_MediaType_set(pMediaStream->m_iPK_MediaType);
-		pRow_Disc->Table_Disc_get()->Commit();
-	}
-	pMediaStream->m_dwPK_Disc = pRow_Disc->PK_Disc_get();
-
-	for( map< pair<int,int>,int>::iterator it=pMediaStream->m_mapPK_Attribute.begin();it!=pMediaStream->m_mapPK_Attribute.end();++it)
-	{
-		if( it->first.first==0 )
-			continue;  // Don't store the recognition type
-
-		Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(it->second);
-		Row_Disc_Attribute *pRow_Disc_Attribute = m_pDatabase_pluto_media->Disc_Attribute_get()->GetRow(pRow_Disc->PK_Disc_get(),pRow_Attribute->PK_Attribute_get(),0,it->first.second);
-		if( !pRow_Disc_Attribute )
-		{
-			pRow_Disc_Attribute = m_pDatabase_pluto_media->Disc_Attribute_get()->AddRow();
-			pRow_Disc_Attribute->FK_Disc_set(pRow_Disc->PK_Disc_get());
-			pRow_Disc_Attribute->FK_Attribute_set(pRow_Attribute->PK_Attribute_get()); 
-			pRow_Disc_Attribute->Track_set(0);
-			pRow_Disc_Attribute->Section_set(it->first.second);
-			pRow_Disc_Attribute->Table_Disc_Attribute_get()->Commit();
-		}
-	}
-
-	for(size_t s=0;s<pMediaStream->m_dequeMediaFile.size();++s)
-	{
-		MediaFile *pMediaFile = pMediaStream->m_dequeMediaFile[s];
-		for( map< pair<int,int>,int>::iterator it=pMediaFile->m_mapPK_Attribute.begin();it!=pMediaFile->m_mapPK_Attribute.end();++it)
-		{
-			Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(it->second);
-			Row_Disc_Attribute *pRow_Disc_Attribute = m_pDatabase_pluto_media->Disc_Attribute_get()->GetRow(pRow_Disc->PK_Disc_get(),pRow_Attribute->PK_Attribute_get(),s,it->first.second);
-			if( !pRow_Disc_Attribute )
-			{
-				pRow_Disc_Attribute = m_pDatabase_pluto_media->Disc_Attribute_get()->AddRow();
-				pRow_Disc_Attribute->FK_Disc_set(pRow_Disc->PK_Disc_get());
-				pRow_Disc_Attribute->FK_Attribute_set(pRow_Attribute->PK_Attribute_get()); 
-				pRow_Disc_Attribute->Track_set(s+1);
-				pRow_Disc_Attribute->Section_set(it->first.second);
-				pRow_Disc_Attribute->Table_Disc_Attribute_get()->Commit();
-			}
-		}
-	}
-
-	if( pMediaStream->m_pPictureData && pMediaStream->m_iPictureSize )
-	{
-		Row_Picture *pRow_Picture = m_pDatabase_pluto_media->Picture_get()->AddRow();
-		pRow_Picture->Extension_set("jpg");
-		m_pDatabase_pluto_media->Picture_get()->Commit();
-
-		FILE *file = fopen(("/home/mediapics/" + StringUtils::itos(pRow_Picture->PK_Picture_get()) + "." + pRow_Picture->Extension_get()).c_str(),"wb");
-		if( file )
-		{
-			fwrite(pMediaStream->m_pPictureData,pMediaStream->m_iPictureSize,1,file);
-			fclose(file);
-		}
-
-		Row_Picture_Disc *pRow_Picture_Disc = m_pDatabase_pluto_media->Picture_Disc_get()->AddRow();
-		pRow_Picture_Disc->FK_Disc_set( pRow_Disc->PK_Disc_get() );
-		pRow_Picture_Disc->FK_Picture_set( pRow_Picture->PK_Picture_get() );
-		m_pDatabase_pluto_media->Picture_Disc_get()->Commit();
-
-		// Find all attributes that we added that identify this disc and need the same picture
-		string sWhere="SELECT Attribute.* FROM Attribute"
-			" JOIN Disc_Attribute ON FK_Attribute=PK_Attribute"
-			" JOIN Disc ON FK_Disc=PK_Disc"
-			" JOIN MediaType_AttributeType ON Attribute.FK_AttributeType=MediaType_AttributeType.FK_AttributeType"
-			" AND MediaType_AttributeType.EK_MediaType=Disc.EK_MediaType"
-			" WHERE PK_Disc=" + StringUtils::itos(pRow_Disc->PK_Disc_get()) + " AND Identifier=1";
-		vector<Row_Attribute *> vectRow_Attribute;
-		m_pDatabase_pluto_media->Attribute_get()->GetRows(sWhere,&vectRow_Attribute);
-		for(size_t s=0;s<vectRow_Attribute.size();++s)
-		{
-			Row_Attribute *pRow_Attribute = vectRow_Attribute[s];
-			Row_Picture_Attribute *pRow_Picture_Attribute = m_pDatabase_pluto_media->Picture_Attribute_get()->GetRow(pRow_Picture->PK_Picture_get(),pRow_Attribute->PK_Attribute_get());
-			if( !pRow_Picture_Attribute )
-			{
-				pRow_Picture_Attribute = m_pDatabase_pluto_media->Picture_Attribute_get()->AddRow();
-				pRow_Picture_Attribute->FK_Picture_set(pRow_Picture->PK_Picture_get());
-				pRow_Picture_Attribute->FK_Attribute_set(pRow_Attribute->PK_Attribute_get());
-				m_pDatabase_pluto_media->Picture_Attribute_get()->Commit();
-			}
-		}
-	}
-	return pRow_Disc->PK_Disc_get();
-}
 //<-dceag-c392-b->
 
 	/** @brief COMMAND: #392 - Set Media Attribute Text */
@@ -4595,6 +4508,8 @@ void Media_Plugin::CMD_Rename_Bookmark(string sValue_To_Assign,int iPK_Users,int
 
 void Media_Plugin::AddFileToDatabase(MediaFile *pMediaFile,int PK_MediaType)
 {
+	if( StringUtils::StartsWith(pMediaFile->m_sFilename,"/dev/",true) || StringUtils::StartsWith(pMediaFile->m_sFilename,"cdda:/",true) )
+		return;  // Don't add it if it's just a drive
 	Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->AddRow();
 	pRow_File->Path_set(pMediaFile->m_sPath);
 	pRow_File->Filename_set(pMediaFile->m_sFilename);
@@ -4667,7 +4582,7 @@ void Media_Plugin::AddRippedDiscToDatabase(RippingJob *pRippingJob)
 			pRow_File->Path_set( FileUtils::BasePath(pRippingJob->m_sName) );
 			pRow_File->Filename_set( FileUtils::FilenameWithoutPath(listFiles.front()) );
 			m_pDatabase_pluto_media->File_get()->Commit();
-			AddDiscAttributesToFile(pRow_File->PK_File_get(),pRippingJob->m_iPK_Disc,0);  
+			AddDiscAttributesToFile(pRow_File->PK_File_get(),pRippingJob->m_iPK_Disc,-1);  // We won't have tracks then we ripped.  -1=ripped whole thing
 		}
 	}
 }
@@ -4702,13 +4617,16 @@ void Media_Plugin::AddDiscAttributesToFile(int PK_File,int PK_Disc,int Track)
 	}
 
 	vector<Row_Disc_Attribute *> vectRow_Disc_Attribute;
-	string sWhere = "FK_Disc=" + StringUtils::itos(PK_Disc) + " AND Track=" + StringUtils::itos(Track);
+	string sWhere = "FK_Disc=" + StringUtils::itos(PK_Disc);
+	if( Track!=-1 )
+		sWhere += " AND Track=" + StringUtils::itos(Track);
 	m_pDatabase_pluto_media->Disc_Attribute_get()->GetRows(sWhere,&vectRow_Disc_Attribute);
 	for(size_t s=0;s<vectRow_Disc_Attribute.size();++s)
 	{
 		Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->AddRow();
 		pRow_File_Attribute->FK_File_set(PK_File);
 		pRow_File_Attribute->FK_Attribute_set( vectRow_Disc_Attribute[s]->FK_Attribute_get() );
+		pRow_File_Attribute->Track_set( vectRow_Disc_Attribute[s]->Track_get() );
 		pRow_File_Attribute->Section_set( vectRow_Disc_Attribute[s]->Section_get() );
 		m_pDatabase_pluto_media->File_Attribute_get()->Commit();
 	}
@@ -4966,3 +4884,4 @@ int Media_Plugin::CheckForAutoResume(MediaStream *pMediaStream)
 		"<%=T" + StringUtils::itos(TEXT_Never_Resume_CONST) + "%>",sMessageToGoToRemote + "\n" + sMessageToSetPreference + " N");
 	return iPK_Device_Orbiter;
 }
+

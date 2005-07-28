@@ -14,13 +14,20 @@ using namespace std;
 #include "pluto_media/Database_pluto_media.h"
 #include "pluto_media/Table_PlaylistEntry.h"
 #include "pluto_media/Table_Attribute.h"
+#include "MediaSection.h"
 
 /**
  * @brief Contains a media file
  */
 
-class MediaFile;  // Class declared at the end of the file since it references MediaAttributes
+namespace DCE
+{
+	class MediaStream;
+};
+
+class MediaFile;
 class Row_Attribute;
+class Row_Disc;
 
 /**
  * @brief the attributes of the media
@@ -117,6 +124,12 @@ public:
 		return GetPrintableName(pRow_Attribute);
 	}
 
+	MediaSection *GetMediaSection(deque<MediaSection *> *p_dequeMediaSection,int Section) 
+	{
+		while( Section>p_dequeMediaSection->size() )
+			p_dequeMediaSection->push_back(new MediaSection());
+		return (*p_dequeMediaSection)[Section-1];
+	}
     void MarkAsMissing(int iKey, string fileName);
 
 	bool SavePlaylist(deque<MediaFile *> &dequeMediaFile, int iPK_Users, int &iPK_Playlist, string sPlaylistName );
@@ -129,57 +142,12 @@ public:
 
     static listMediaPicture *PicturesFromString(string Input);
     static string PicturesToString(listMediaPicture *plistMediaPicture);
+
+	int AddIdentifiedDiscToDB(string sIdentifiedDisc,MediaStream *pMediaStream);
+	void AddAttributesToDisc(Row_Disc *pRow_Disc,int iFileOrTrack,int iSection,map<int,int> *p_mapPK_Attribute);
+	bool IsDiscAlreadyIdentified(string sIdentifiedDisc,MediaStream *pMediaStream);
+	void AddAttributeToStream(MediaStream *pMediaStream,Row_Attribute *pRow_Attribute,int File,int Track,int Section);
+	void LoadStreamAttributes(MediaStream *pMediaStream);
 };
-
-class MediaFile
-{
-public:
-	MediaFile(int dwPK_File,string sFullyQualifiedFile)	{
-		m_dwPK_File=dwPK_File; m_sPath=FileUtils::BasePath(sFullyQualifiedFile); m_sFilename=FileUtils::FilenameWithoutPath(sFullyQualifiedFile);
-	}
-
-	MediaFile(string sMRL)	{
-		m_sFilename=sMRL;
-		m_dwPK_File=0;
-	}
-
-	MediaFile(MediaAttributes *pMediaAttributes, string sFullyQualifiedFile) {
-		m_sPath=FileUtils::BasePath(sFullyQualifiedFile); m_sFilename=FileUtils::FilenameWithoutPath(sFullyQualifiedFile);
-		m_dwPK_File=pMediaAttributes->GetFileIDFromFilePath(sFullyQualifiedFile);
-	}
-
-	MediaFile(MediaFile *pMediaFile_Copy) {
-		m_dwPK_File=pMediaFile_Copy->m_dwPK_File;
-		m_sPath=pMediaFile_Copy->m_sPath;
-		m_sFilename=pMediaFile_Copy->m_sFilename;
-		m_sDescription=pMediaFile_Copy->m_sDescription;
-		m_sStartPosition=pMediaFile_Copy->m_sStartPosition;
-	}
-
-
-	MediaFile(Row_PlaylistEntry *pRow_PlaylistEntry) {
-		m_dwPK_File=pRow_PlaylistEntry->FK_File_get(); 
-		m_sPath=pRow_PlaylistEntry->Path_get();
-		m_sFilename=pRow_PlaylistEntry->Filename_get();
-	}
-
-	~MediaFile() {
-	}
-
-	map< pair<int,int>,int> m_mapPK_Attribute;  /** An external media identification script may set attributes here, PK_AttributeType,Section=PK_Attribute */
-    int m_mapPK_Attribute_Find(pair<int,int> PK_AttributeType_Section) { map< pair<int,int>,int>::iterator it = m_mapPK_Attribute.find(PK_AttributeType_Section); return it==m_mapPK_Attribute.end() ? NULL : (*it).second; }
-	int m_dwPK_File;
-	string m_sPath,m_sFilename,m_sDescription;
-	string m_sStartPosition; /** Where to start the media the first time.  As soon as the media has begun MediaPlugin will reset this */
-
-	string FullyQualifiedFile() {
-		if( m_sPath.size() )
-			return m_sPath + "/" + m_sFilename; 
-		else
-			return m_sFilename; 
-	}
-};
-
-void operator+= (deque<MediaFile *> &dTarget, deque<MediaFile *> &dAdditional);
 
 #endif

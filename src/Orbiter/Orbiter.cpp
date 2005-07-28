@@ -1733,7 +1733,6 @@ g_pPlutoLogger->Write(LV_WARNING,"Selected grid %s but m_pDataGridTable is NULL"
 						}
                         bFinishLoop = true;
                     }
-                    delete pLastCell;
                     pLastCell = pCell;
                     LastI = i;
                     LastJ = j;
@@ -6327,6 +6326,8 @@ void Orbiter::CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sVa
 			{
 				InitializeGrid(pDesignObj);
 				pDesignObj->bReAcquire=true;
+				PLUTO_SAFETY_LOCK(rm,m_NeedRedrawVarMutex);
+				m_vectObjs_NeedRedraw.push_back(pDesignObj);
 			}
 		}
 
@@ -6337,7 +6338,10 @@ void Orbiter::CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sVa
 	else if( pObj_Popop_RemoteControl && m_iPK_DesignObj_Remote_Popup==0 )
 		CMD_Remove_Popup(pObj_Popop_RemoteControl->m_ObjectID,"remote");
 	else if( m_pObj_NowPlayingOnScreen )
+	{
+		PLUTO_SAFETY_LOCK(rm,m_NeedRedrawVarMutex);
 		m_vectObjs_NeedRedraw.push_back(m_pObj_NowPlayingOnScreen);
+	}
 }
 
 bool Orbiter::TestCurrentScreen(string &sPK_DesignObj_CurrentScreen)

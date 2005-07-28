@@ -175,7 +175,15 @@ bool MediaStream::CanPlayMore()
 
 MediaStream::~MediaStream( )
 {
-    if ( m_pMediaHandlerInfo )
+	for(size_t s=0;s<m_dequeMediaSection.size();++s)
+		if( m_dequeMediaSection[s] )
+			delete m_dequeMediaSection[s];
+
+	for(size_t s=0;s<m_dequeMediaTitle.size();++s)
+		if( m_dequeMediaTitle[s] )
+			delete m_dequeMediaTitle[s];
+
+	if ( m_pMediaHandlerInfo )
         m_pMediaHandlerInfo->m_pMediaHandlerBase->m_pMedia_Plugin->m_mapMediaStream_Remove( m_iStreamID );
     ClearPlaylist();
 }
@@ -299,15 +307,14 @@ void MediaStream::UpdateDescriptionsFromAttributes()
 	// Global for the disc
 	int PK_Attribute;
 	Row_Attribute *pRow_Attribute_Song=NULL,*pRow_Attribute_Title=NULL,*pRow_Attribute_Album=NULL,*pRow_Attribute_Performer=NULL;
-	if( !pRow_Attribute_Song && (PK_Attribute = m_mapPK_Attribute_Find(make_pair<int,int> (ATTRIBUTETYPE_Song_CONST,0)))!=0 )
+	if( !pRow_Attribute_Song && (PK_Attribute = m_mapPK_Attribute_Find(ATTRIBUTETYPE_Song_CONST))!=0 )
 		pRow_Attribute_Song = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(PK_Attribute);
-	if( !pRow_Attribute_Title && (PK_Attribute = m_mapPK_Attribute_Find(make_pair<int,int> (ATTRIBUTETYPE_Title_CONST,0)))!=0 )
+	if( !pRow_Attribute_Title && (PK_Attribute = m_mapPK_Attribute_Find(ATTRIBUTETYPE_Title_CONST))!=0 )
 		pRow_Attribute_Title = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(PK_Attribute);
-	if( !pRow_Attribute_Performer && (PK_Attribute = m_mapPK_Attribute_Find(make_pair<int,int> (ATTRIBUTETYPE_Performer_CONST,0)))!=0 )
+	if( !pRow_Attribute_Performer && (PK_Attribute = m_mapPK_Attribute_Find(ATTRIBUTETYPE_Performer_CONST))!=0 )
 		pRow_Attribute_Performer = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(PK_Attribute);
-	if( !pRow_Attribute_Album && (PK_Attribute = m_mapPK_Attribute_Find(make_pair<int,int> (ATTRIBUTETYPE_Album_CONST,0)))!=0 )
+	if( !pRow_Attribute_Album && (PK_Attribute = m_mapPK_Attribute_Find(ATTRIBUTETYPE_Album_CONST))!=0 )
 		pRow_Attribute_Album = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(PK_Attribute);
-
 
 	for(size_t s=0;s<m_dequeMediaFile.size();++s )
 	{
@@ -315,13 +322,13 @@ void MediaStream::UpdateDescriptionsFromAttributes()
 		Row_Attribute *l_pRow_Attribute_Song=NULL,*l_pRow_Attribute_Title=NULL,*l_pRow_Attribute_Album=NULL,*l_pRow_Attribute_Performer=NULL;
 		MediaFile *pMediaFile = m_dequeMediaFile[s];
 
-		if( (PK_Attribute = pMediaFile->m_mapPK_Attribute_Find(make_pair<int,int> (ATTRIBUTETYPE_Song_CONST,0)))!=0 )
+		if( (PK_Attribute = pMediaFile->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Song_CONST))!=0 )
 			l_pRow_Attribute_Song = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(PK_Attribute);
-		if( (PK_Attribute = pMediaFile->m_mapPK_Attribute_Find(make_pair<int,int> (ATTRIBUTETYPE_Title_CONST,0)))!=0 )
+		if( (PK_Attribute = pMediaFile->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Title_CONST))!=0 )
 			l_pRow_Attribute_Title = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(PK_Attribute);
-		if( (PK_Attribute = pMediaFile->m_mapPK_Attribute_Find(make_pair<int,int> (ATTRIBUTETYPE_Performer_CONST,0)))!=0 )
+		if( (PK_Attribute = pMediaFile->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Performer_CONST))!=0 )
 			l_pRow_Attribute_Performer = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(PK_Attribute);
-		if( (PK_Attribute = pMediaFile->m_mapPK_Attribute_Find(make_pair<int,int> (ATTRIBUTETYPE_Album_CONST,0)))!=0 )
+		if( (PK_Attribute = pMediaFile->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Album_CONST))!=0 )
 			l_pRow_Attribute_Album = pMedia_Plugin->m_pDatabase_pluto_media->Attribute_get()->GetRow(PK_Attribute);
 
 		string sDescription;

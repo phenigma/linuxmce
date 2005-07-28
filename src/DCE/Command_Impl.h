@@ -36,7 +36,7 @@ namespace DCE
 	class Command_Impl : public HandleRequestSocket
 	{
 	
-	private:
+	public:
 	
 		list<Message *> m_listMessageQueue;  /** < there are two ways of sending a message: realtime and queued (in a sepparted thread); this is the queue of messages */
 		vector<string> m_vectSpawnedDevices;  /** < Keep track of all the devices we spawned so we can kill them on create */

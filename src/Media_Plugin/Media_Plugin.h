@@ -108,6 +108,8 @@ private:
     class DataGridTable *MediaItemAttr( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
     class DataGridTable *DevicesPipes( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 	class DataGridTable *MediaAttrCurStream( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
+	void AddMediaSectionToDataGrid(DataGridTable *pDataGrid,int &iRow,deque<MediaSection *> &dequeMediaSection,string sPreface);
+	void AddMediaTitlesToDataGrid(DataGridTable *pDataGrid,int &iRow,deque<MediaTitle *> &dequeMediaTitle,string sPreface);
 	void DevicesPipes_Loop(int PK_Orbiter,DeviceData_Router *pDevice,DataGridTable *&pDataGrid,int &iRow,int PK_Command_Input=0,int PK_Command_Output=0,vector<int> *p_vectDevice=NULL);
 
     class DataGridTable *AvailablePlaylists( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
@@ -316,9 +318,6 @@ public:
 	// This is the final stage of 'StartMedia' that starts playing the given stream.  This is also called when the stream changes, or is moved, and needs to be restarted
 	bool StartMedia(MediaStream *pMediaStream);
 
-	int AddIdentifiedDiscToDB(string sIdentifiedDisc,MediaStream *pMediaStream);
-	bool IsDiscAlreadyIdentified(string sIdentifiedDisc,MediaStream *pMediaStream);
-
     /**
      * @brief More capable StartMedia. Does not need an actual device since it will search for it at the play time.
      *
@@ -427,11 +426,11 @@ public:
 
 			if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
 			{
-				sFilename = m_pMediaAttributes->GetPrintableName(pMediaStream->m_mapPK_Attribute[make_pair<int,int> (ATTRIBUTETYPE_Performer_CONST,0)]);
+				sFilename = m_pMediaAttributes->GetPrintableName(pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Performer_CONST]);
 				if( sFilename.size() )
 					sFilename += "/"; // We got a performer
 
-				sFilename += m_pMediaAttributes->GetPrintableName(pMediaStream->m_mapPK_Attribute[make_pair<int,int> (ATTRIBUTETYPE_Album_CONST,0)]);
+				sFilename += m_pMediaAttributes->GetPrintableName(pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Album_CONST]);
 			}
 			else if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST )
 				sFilename = pMediaStream->m_sMediaDescription;
