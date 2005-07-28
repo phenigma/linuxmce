@@ -27,9 +27,6 @@ case "$1" in
 			echo 'drop database asteriskcdrdb;' | /usr/bin/mysql || /bin/true
 			echo 'create database asteriskcdrdb;' | /usr/bin/mysql || /bin/true
 			/usr/bin/mysql asteriskcdrdb </usr/local/amp/install/cdr_mysql_table.sql
-			#enable asterisk daemon
-			sed -r -i "s/RUNASTERISK=no/RUNASTERISK=yes/" /etc/default/asterisk
-			sed -r -i "s/[#]RUNASTSAFE=yes/RUNASTSAFE=yes/" /etc/default/asterisk
 			#enable firewal for SIP and IAX2
 			echo "insert into Firewall (Protocol,SourcePort,SourcePortEnd,DestinationPort,RuleType) values ('udp',4569,0,0,'core_input');" | /usr/bin/mysql pluto_main
 			echo "insert into Firewall (Protocol,SourcePort,SourcePortEnd,DestinationPort,RuleType) values ('udp',5060,0,0,'core_input');" | /usr/bin/mysql pluto_main

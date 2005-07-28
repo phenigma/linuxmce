@@ -1,7 +1,9 @@
+
 amp (1.10.008-5) unstable; urgency=low
 
   * Add mpg123 dependency for music on hold.
   * Need asterisk-addons 1.0.7-2 which includes "Conference" application used instead of MeetMe.
+  * Move patching of /etc/default/asterisk to pluto-asterisk
 
  -- Office Server Operator <root@activate.plutohome.com>  Fri, 08 Jul 2005 12:49:06 +0300
 
