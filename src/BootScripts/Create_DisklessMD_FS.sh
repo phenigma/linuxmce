@@ -16,7 +16,7 @@ FSarchive=PlutoMD.tar.bz2
 DlPath="/usr/pluto/diskless/$IP"
 HexIP=$(gethostip -x "$IP")
 
-Modules="pcnet32 tg3 e1000 sk98lin fealnx natsemi"
+Modules="pcnet32 tg3 e1000 sk98lin fealnx natsemi r8169"
 
 KERNEL_VERSION="$(uname -r)"
 
