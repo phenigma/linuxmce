@@ -12,12 +12,12 @@ date -R >>/var/log/pluto/remote_install.newlog
 Result=""
 if [ -n "$IsDeb" ]; then
 	[ "${RepositoryName/ }" == "$RepositoryName" ] && RepositoryName="$RepositoryName main contrib non-free"
-	echo "$RepositoryURL $RepositoryName #Pluto temporary" >>/etc/apt/sources.list
+	if ! grep -qF "$RepositoryURL $RepositoryName" /etc/apt/sources.list; then
+		echo "$RepositoryURL $RepositoryName" >>/etc/apt/sources.list
+	fi
 	apt-get update &> >(tee -a /var/log/pluto/remote_install.newlog)
 	apt-get -y install "$PackageName" &> >(tee -a /var/log/pluto/remote_install.newlog)
 	RetCode="$?"
-	awk '!/#Pluto temporary/' /etc/apt/sources.list >/etc/apt/sources.list.$$
-	mv /etc/apt/sources.list.$$ /etc/apt/sources.list
 
 	[ "$RetCode" -ne 0 ] && Result="Installation failed (from Debian repository)"
 else
