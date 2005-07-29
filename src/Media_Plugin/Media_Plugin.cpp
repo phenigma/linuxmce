@@ -538,9 +538,9 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
 			{
 				MediaFile *pMediaFile = new MediaFile(dequeFileNames[s]);
 				if( dequeFileNames.size()>1 )
-					pMediaFile->m_sDescription = "Unknown track " + StringUtils::itos(s+1);
+					pMediaFile->m_sDescription = "<%=T" + StringUtils::itos(TEXT_Unknown_Disc_CONST) + "%>" + StringUtils::itos(s+1);
 				else
-					pMediaFile->m_sDescription = "Unknown disc";
+					pMediaFile->m_sDescription = "<%=T" + StringUtils::itos(TEXT_Unknown_Disc_CONST) + "%>";
 
 				dequeMediaFile.push_back(pMediaFile);
 			}
@@ -1577,6 +1577,8 @@ g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::CMD_Bind_to_Media_Remote(). Bind
 		if( !pEntertainArea->m_pMediaStream )
 		{
 			sCMD_Result="No media stream";
+			DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pMessage->m_dwPK_Device_From,0,"<%=M%>","","",false,false);
+			SendCommand(CMD_Goto_Screen);
 			g_pPlutoLogger->Write(LV_CRITICAL,"Attempt to bind to a remote in an entertainment area with no media stream");
 			return; // Don't know what area it should be played in, or there's no media playing there
 		}
@@ -2515,7 +2517,7 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_Med
 		if ( !bDiskWasReset && bDiskIsRipping ) // we weren't able to reset any drives and at least one of them was ripping.
 		{
 			m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From, "<%=T" + StringUtils::itos(TEXT_ripping_cant_play_disc_CONST) + "%>",false,10,true,
-				"<%=" + StringUtils::itos(TEXT_Abort_ripping_CONST) + "%>",
+				"<%=T" + StringUtils::itos(TEXT_Abort_ripping_CONST) + "%>",
 				StringUtils::itos(pMessage->m_dwPK_Device_From) + " " + StringUtils::itos(PK_Device_Ripping) + " 1 " + StringUtils::itos(COMMAND_Abort_Ripping_CONST));
 			return;
 		}

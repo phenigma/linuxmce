@@ -4917,6 +4917,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Forcing go back to the main menu");
 #endif
 			GotoScreen( m_sMainMenu );
 		}
+		else if( pScreenHistory->m_pObj->m_bIsARemoteControl )
+			CMD_Goto_Screen(0,"<%=NP_R%>","","",false,false);
 		else
 			NeedToRender::NeedToChangeScreens( this, pScreenHistory, false );
 
@@ -4950,9 +4952,16 @@ g_pPlutoLogger->Write(LV_STATUS,"CMD_Goto_Screen: %s",sPK_DesignObj.c_str());
 #endif
     PLUTO_SAFETY_LOCK( sm, m_ScreenMutex );  // Nothing more can happen
 
+	bool bIsRemote=false;
 	// We're using a popup remote, so just go to the main menu
-	if( sPK_DesignObj=="<%=NP_R%>" && m_iPK_DesignObj_Remote_Popup>0 && m_sObj_Popop_RemoteControl.size() )
-		sPK_DesignObj = "<%=M%>"; 
+	if( sPK_DesignObj=="<%=NP_R%>" )
+	{
+		if( m_iPK_DesignObj_Remote_Popup>0 && m_sObj_Popop_RemoteControl.size() )
+			sPK_DesignObj = "<%=M%>"; 
+		else
+			bIsRemote=true;
+	}
+
 	else if( sPK_DesignObj=="**NOMEDIA**" )
 	{
 		sPK_DesignObj = StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST);
@@ -4999,6 +5008,9 @@ g_pPlutoLogger->Write(LV_STATUS,"Forcing go to the main menu");
 	//hack! if the simulator is running, we won't go to pluto admin screen
 	if(Simulator::GetInstance()->IsRunning() && (pObj_New->m_iBaseObjectID==DESIGNOBJ_mnuAdvancedOptions_CONST || pObj_New->m_iBaseObjectID==DESIGNOBJ_mnuDisplayPower_CONST) )
 		return;
+
+	if( bIsRemote )
+		pObj_New->m_bIsARemoteControl=true;
 
     // We're going to change screens,  create the new ScreenHistory object
     ScreenHistory *pScreenHistory_New = new ScreenHistory( pObj_New, m_pScreenHistory_Current );

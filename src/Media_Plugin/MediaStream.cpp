@@ -387,7 +387,7 @@ void MediaStream::UpdateDescriptionsFromAttributes()
 	if( sDescription.size() )
 		m_sMediaDescription = sDescription;
 	else
-		m_sMediaDescription = "Unknown disc";
+		m_sMediaDescription = "<%=T" + StringUtils::itos(TEXT_Unknown_Disc_CONST) + "%>";
 }
 
 string MediaStream::GetEntAreasWithout(EntertainArea *pEntertainArea)

@@ -264,7 +264,7 @@ g_pPlutoLogger->Write(LV_WARNING, "pV %p",pV);
 		pair<string, string> *pStringsPair = (pair<string, string> *)(*itAttachedData);
 g_pPlutoLogger->Write(LV_WARNING, "s1 %s s2 %s",pStringsPair->first.c_str(),pStringsPair->second.c_str());
 
-		SendMessageList(pStringsPair->second);
+		SendMessageList(pStringsPair->first);
 g_pPlutoLogger->Write(LV_WARNING, "after send message");
 		delete pStringsPair;
 	}

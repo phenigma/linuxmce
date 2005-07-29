@@ -320,28 +320,36 @@ void OrbiterLinux::CMD_Simulate_Keypress(string sPK_Button,string sName,string &
 {
 	if( m_bYieldInput )
 	{
-g_pPlutoLogger->Write(LV_CRITICAL, "Need to forward button %s to X",sPK_Button.c_str());
 		pair<bool,int> XKeySym = PlutoButtonsToX(atoi(sPK_Button.c_str()));
-g_pPlutoLogger->Write(LV_CRITICAL, "Sending XKeysym %d",XKeySym.second);
-		XTestFakeKeyEvent( XServerDisplay, XKeysymToKeycode(XServerDisplay, XKeySym.second), True, 0 );
-		XTestFakeKeyEvent( XServerDisplay, XKeysymToKeycode(XServerDisplay, XKeySym.second), False, 0 );
+		g_pPlutoLogger->Write(LV_STATUS, "Need to forward button %s to X",sPK_Button.c_str(),XKeySym.second);
+		Display *dpy = XOpenDisplay (NULL);
+		Window rootwindow = DefaultRootWindow (dpy);
+		XTestFakeKeyEvent( dpy, XKeysymToKeycode(dpy, XKeySym.second), True, 0 );
+		XTestFakeKeyEvent( dpy, XKeysymToKeycode(dpy, XKeySym.second), False, 0 );
+		XCloseDisplay(dpy);
 	}
 	Orbiter::CMD_Simulate_Keypress(sPK_Button,sName,sCMD_Result,pMessage);
 }
 
 void OrbiterLinux::CMD_Set_Mouse_Position_Relative(int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage)
 {
-#ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS, "Moving mouse %d %d",iPosition_X, iPosition_Y);
-#endif
-	XTestFakeRelativeMotionEvent(XServerDisplay, iPosition_X, iPosition_Y, 0);
+    Display *dpy = XOpenDisplay (NULL);
+    Window rootwindow = DefaultRootWindow (dpy);
+	g_pPlutoLogger->Write(LV_STATUS, "Moving mouse (relative %d,%d)",iPosition_X,iPosition_Y);
+		
+	XWarpPointer(dpy, rootwindow,0 , 0, 0, 0, 0, iPosition_X, iPosition_Y);
+	XCloseDisplay(dpy);
 }
 
 void OrbiterLinux::CMD_Simulate_Mouse_Click_At_Present_Pos(string sType,string &sCMD_Result,Message *pMessage)
 {
-#ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS, "Clicking mouse %s",sType.c_str());
-#endif
+
 	XTestFakeButtonEvent(XServerDisplay, 1, true, 0);
 	XTestFakeButtonEvent(XServerDisplay, 1, false, 0);
+	Display *dpy = XOpenDisplay (NULL);
+	Window rootwindow = DefaultRootWindow (dpy);
+	XTestFakeButtonEvent(dpy, 1, true, 0);
+	XTestFakeButtonEvent(dpy, 1, false, 0);
+	XCloseDisplay(dpy);
 }

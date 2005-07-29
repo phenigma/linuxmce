@@ -90,7 +90,7 @@ public:
 
 	class Orbiter *m_pCore;
 	bool m_bOneTimeDontReset;
-	bool m_bIsBoundToUser,m_bIsBoundToLocation; // Redundant, but saves time from looking this up each time
+	bool m_bIsBoundToUser,m_bIsBoundToLocation,m_bIsARemoteControl; // Redundant, but saves time from looking this up each time
 	bool m_bOnScreen,m_bDisableAspectLock,m_bContainsDataGrid;
 	DataGridTable *m_pDataGridTable;
 	class WebWindow *m_pWebWindow;
