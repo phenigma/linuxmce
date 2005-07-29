@@ -118,7 +118,7 @@ bool CopySourceFile(string sInput,string sOutput)
 {
 	if( !g_bSimulate && sInput.find("MakeRelease.cpp")==string::npos && // Don't do the replace on this file
 			(StringUtils::EndsWith(sInput,".cpp",true) || StringUtils::EndsWith(sInput,".c",true) ||
-			StringUtils::EndsWith(sInput,".sh",true) || StringUtils::EndsWith(sInput,".h",true)) )
+			StringUtils::EndsWith(sInput,".h",true)) )
 	{
 		if( !StringUtils::Replace( sInput, sOutput, "/*SVN_REVISION*/", "int g_SvnRevision=" + StringUtils::itos(g_iSVNRevision) + ";" ) )
 			return false;
@@ -1049,7 +1049,7 @@ cout << "Deciding to do snr on: " << sSourceDirectory << endl;
 		if( !g_bSimulate && pRow_Package->FK_Package_Sourcecode_get()!=446 ) // Don't do the snr on MakeRelease itself
 		{
 			list<string> listFiles;
-			FileUtils::FindFiles(listFiles,sSourceDirectory,"*.cpp,*.c,*.h,*.cs,*.sh",true);
+			FileUtils::FindFiles(listFiles,sSourceDirectory,"*.cpp,*.c,*.h,*.cs",true);
 cout << "Found " << (int) listFiles.size() << endl;
 			for(list<string>::iterator it=listFiles.begin();it!=listFiles.end();++it)
 			{
