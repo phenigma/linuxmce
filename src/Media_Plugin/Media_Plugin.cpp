@@ -985,10 +985,19 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 				continue;
 
 			WaitForMessageQueue();  // Be sure all the Set Now Playing's are set
-			if( pOH_Orbiter && pOH_Orbiter == pMediaStream->m_pOH_Orbiter_StartedMedia || pMediaStream->OrbiterIsOSD(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device) )
+			EntertainArea *pEntertainArea_OSD=NULL;
+			bool bIsOSD=pMediaStream->OrbiterIsOSD(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,&pEntertainArea_OSD);
+			if( bIsOSD || pOH_Orbiter == pMediaStream->m_pOH_Orbiter_StartedMedia )
 			{
 				DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,
 					"<%=NP_R%>","","",false, false);  // Always go
+
+				if( bIsOSD && pEntertainArea_OSD )
+				{
+					DCE::CMD_Set_Entertainment_Area CMD_Set_Entertainment_Area(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
+						StringUtils::itos(pEntertainArea_OSD->m_iPK_EntertainArea));
+					CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Entertainment_Area.m_pMessage);
+				}
 				SendCommand(CMD_Goto_Screen);
 			}
 			else
