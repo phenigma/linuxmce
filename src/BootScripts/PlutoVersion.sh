@@ -4,8 +4,7 @@
 . /usr/pluto/bin/SQL_Ops.sh
 . /usr/pluto/bin/Config_Ops.sh
 
-#Version=$(dpkg -s pluto-version-check|grep ^Version|cut -d' ' -f2-)
-Version="<=version=>"
+. /usr/pluto/bin/PlutoVersion.h
 
 Q="SELECT FK_DeviceTemplate FROM Device WHERE PK_Device=$PK_Device"
 DeviceTemplate=$(RunSQL "$Q")
