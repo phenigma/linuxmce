@@ -20,4 +20,4 @@ update-rc.d -f discover remove || /bin/true
 update-rc.d discover start 80 1 2 3 4 5 .
 
 update-rc.d -f hotplug remove || /bin/true
-update-rc.d hotplug start 81 1 2 3 4 5 . stop 89 0 6 || /bin/true
+update-rc.d hotplug start 81 1 2 3 4 5 . stop 89 0 6 . || /bin/true
