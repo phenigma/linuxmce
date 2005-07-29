@@ -156,7 +156,7 @@ for Client in $R; do
 		mv $DlPath/etc/network/interfaces{.$$,}
 
 		echo -n " DNS"
-		echo $CORE_INTERNAL_ADDRESS >$DlPath/etc/resolv.conf
+		echo "nameserver $CORE_INTERNAL_ADDRESS" >$DlPath/etc/resolv.conf
 
 		echo -n " hostname"
 		echo "moon$MoonNumber" >$DlPath/etc/hostname
