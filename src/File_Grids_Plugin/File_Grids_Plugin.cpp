@@ -150,18 +150,18 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 
 	// Paths can be a comma separated list of Paths.  The grid will be the contents
 	// of all paths merged into 1 grid
-	string Paths = StringUtils::Tokenize(Parms, "|", pos);
+	string Paths = StringUtils::Tokenize(Parms, "\n", pos);
 
 	// A comma separated list of file extensions.  Blank means all files
-	string Extensions = StringUtils::Tokenize(Parms, "|", pos);
+	string Extensions = StringUtils::Tokenize(Parms, "\n", pos);
 
 	// Because the orbiter cannot execute different actions for files than directories, it will pass an "Actions"
 	// parameter that will tell the file grid generator what type of command to attach to file entries.
 	// P = "play this file", which is a normal start media command
 	// S = "show the play button", which is a normal start media command
-	string Actions = StringUtils::Tokenize(Parms, "|", pos);
+	string Actions = StringUtils::Tokenize(Parms, "\n", pos);
 
-	bool bSortByDate = StringUtils::Tokenize(Parms, "|", pos)=="1";
+	bool bSortByDate = StringUtils::Tokenize(Parms, "\n", pos)=="1";
 
 	// This grid is initially called by the orbiter without the iDirNumber and sSubDirectory
 	// When the grid creates cells for sub-directories, it will create an action that re-populates,
@@ -169,8 +169,8 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 	// here.  When it repopulates itself again, it will this time populate only the contents of the
 	// Path[iDirNumber] + sSubDirectory.  It will also add a 'parent' button that that drops
 	// 1 path off the sSubDirectory and repopulates itself
-	int iDirNumber = atoi(StringUtils::Tokenize(Parms, "|", pos).c_str());
-	string sSubDirectory = StringUtils::Tokenize(Parms, "|", pos);
+	int iDirNumber = atoi(StringUtils::Tokenize(Parms, "\n", pos).c_str());
+	string sSubDirectory = StringUtils::Tokenize(Parms, "\n", pos);
 	if( sSubDirectory.length()==1 && (sSubDirectory[0]=='/' || sSubDirectory[0]=='\\') )
 		sSubDirectory = "";
 
@@ -194,7 +194,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 	{
 		pos=0;
 		for(int i=0;i<=iDirNumber;++i)
-			PathsToScan = StringUtils::Tokenize(Paths, ",", pos);
+			PathsToScan = StringUtils::Tokenize(Paths, "\t", pos);
 		PathsToScan += "/" + sSubDirectory;
 		(*sValue_To_Assign) = PathsToScan;
 	}
@@ -217,8 +217,8 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 	if( sSubDirectory.length() )
 	{
 		string sParent = FileUtils::BasePath(sSubDirectory) + "/";
-		string newParams = Paths + "|" + Extensions + "|" + Actions + "|" + (bSortByDate ? "1" : "0")
-			+ "|" + StringUtils::itos(iDirNumber)+ "|" + sParent;
+		string newParams = Paths + "\n" + Extensions + "\n" + Actions + "\n" + (bSortByDate ? "1" : "0")
+			+ "\n" + StringUtils::itos(iDirNumber)+ "\n" + sParent;
 		DCE::CMD_NOREP_Populate_Datagrid_DT CMDPDG(PK_Controller, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse,
 			"", GridID, DATAGRID_Directory_Listing_CONST, newParams);
 		pCell = new DataGridCell("", "");
@@ -257,8 +257,8 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 
 		if (pFileDetails->m_bIsDir)
 		{
-			string newParams = Paths + "|" + Extensions + "|" + Actions + "|" + (bSortByDate ? "1" : "0")
-				+ "|" + StringUtils::itos(iDirNumber)+ "|" + sSubDirectory + pFileDetails->m_sFileName + "/";
+			string newParams = Paths + "\n" + Extensions + "\n" + Actions + "\n" + (bSortByDate ? "1" : "0")
+				+ "\n" + StringUtils::itos(pFileDetails->m_iDirNumber)+ "\n" + sSubDirectory + pFileDetails->m_sFileName + "/";
 			DCE::CMD_NOREP_Populate_Datagrid_DT CMDPDG(PK_Controller, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse,
 				"", GridID, DATAGRID_Directory_Listing_CONST, newParams);
 			pCell->m_pMessage = CMDPDG.m_pMessage;

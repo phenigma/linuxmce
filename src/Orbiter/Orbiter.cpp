@@ -4303,6 +4303,8 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 			Output += StringUtils::itos(m_iPK_DesignObj_Remote);
         else if(  Variable=="B" )
 			Output += "\t";
+        else if(  Variable=="N" )
+			Output += "\n";
         else if(  Variable=="ND" )
 			Output += StringUtils::itos((int) m_mapDevice_Selected.size());
         else if(  Variable=="DFN"  )

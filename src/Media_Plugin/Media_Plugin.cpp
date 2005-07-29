@@ -2423,9 +2423,14 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_Med
 
 			string Extensions = pRow_MediaType->Extensions_get();
 			g_pPlutoLogger->Write(LV_STATUS, "Using there extensions to filter the results: %s", Extensions.c_str());
-			if ( FileUtils::FindFiles(allFilesList, sFilename.substr(0, sFilename.length()-1), Extensions.c_str(), true, true) ) // we have hit the bottom
+			sFilename = sFilename.substr(0, sFilename.length()-1);
+			string::size_type posDirs=0;
+			string sDirectory;
+			while( posDirs<sFilename.size() )
 			{
-				m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter, "You have more than 100 pictures in this folder. Only the first 100 of them have been added to the queue.");
+				sDirectory=StringUtils::Tokenize(sFilename,"\t",posDirs);
+				if ( FileUtils::FindFiles(allFilesList, sDirectory, Extensions.c_str(), true, true) ) // we have hit the bottom
+					m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter, "You have more than 100 pictures in this folder. Only the first 100 of them have been added to the queue.");
 			}
 
 			itFileName = allFilesList.begin();
