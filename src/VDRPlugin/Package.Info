@@ -1,0 +1,9 @@
+<-dceag-p-b->
+Package = DCE_Destination_Package
+Dir = 
+desc = DCE Implemenation for #1706 VDR-Plugin
+Maintainer = DCE_MaintainerName
+Email = DCE_MaintainerEmail
+Depend = DCE_Dependencies
+<-dceag-p-e->
+
