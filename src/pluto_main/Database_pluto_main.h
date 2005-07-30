@@ -169,6 +169,8 @@ class Table_PaidLicense* tblPaidLicense;
 class Table_ParameterType* tblParameterType;
 class Table_PhoneLineType* tblPhoneLineType;
 class Table_Pipe* tblPipe;
+class Table_QuickStartCategory* tblQuickStartCategory;
+class Table_QuickStartTemplate* tblQuickStartTemplate;
 class Table_RemoteControl* tblRemoteControl;
 class Table_RepositorySource* tblRepositorySource;
 class Table_RepositorySource_URL* tblRepositorySource_URL;
@@ -384,6 +386,8 @@ class Table_PaidLicense* PaidLicense_get() { if( !tblPaidLicense ) CreateTable_P
 class Table_ParameterType* ParameterType_get() { if( !tblParameterType ) CreateTable_ParameterType(); return tblParameterType; }
 class Table_PhoneLineType* PhoneLineType_get() { if( !tblPhoneLineType ) CreateTable_PhoneLineType(); return tblPhoneLineType; }
 class Table_Pipe* Pipe_get() { if( !tblPipe ) CreateTable_Pipe(); return tblPipe; }
+class Table_QuickStartCategory* QuickStartCategory_get() { if( !tblQuickStartCategory ) CreateTable_QuickStartCategory(); return tblQuickStartCategory; }
+class Table_QuickStartTemplate* QuickStartTemplate_get() { if( !tblQuickStartTemplate ) CreateTable_QuickStartTemplate(); return tblQuickStartTemplate; }
 class Table_RemoteControl* RemoteControl_get() { if( !tblRemoteControl ) CreateTable_RemoteControl(); return tblRemoteControl; }
 class Table_RepositorySource* RepositorySource_get() { if( !tblRepositorySource ) CreateTable_RepositorySource(); return tblRepositorySource; }
 class Table_RepositorySource_URL* RepositorySource_URL_get() { if( !tblRepositorySource_URL ) CreateTable_RepositorySource_URL(); return tblRepositorySource_URL; }
@@ -603,6 +607,8 @@ void CreateTable_PaidLicense();
 void CreateTable_ParameterType();
 void CreateTable_PhoneLineType();
 void CreateTable_Pipe();
+void CreateTable_QuickStartCategory();
+void CreateTable_QuickStartTemplate();
 void CreateTable_RemoteControl();
 void CreateTable_RepositorySource();
 void CreateTable_RepositorySource_URL();
@@ -817,6 +823,8 @@ void DeleteTable_PaidLicense();
 void DeleteTable_ParameterType();
 void DeleteTable_PhoneLineType();
 void DeleteTable_Pipe();
+void DeleteTable_QuickStartCategory();
+void DeleteTable_QuickStartTemplate();
 void DeleteTable_RemoteControl();
 void DeleteTable_RepositorySource();
 void DeleteTable_RepositorySource_URL();

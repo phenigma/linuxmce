@@ -213,6 +213,7 @@ void MediaType_FK_DesignObj_getrows(vector <class Row_MediaType*> *rows);
 void MediaType_DesignObj_FK_DesignObj_getrows(vector <class Row_MediaType_DesignObj*> *rows);
 void MediaType_DesignObj_FK_DesignObj_Popup_getrows(vector <class Row_MediaType_DesignObj*> *rows);
 void MediaType_DesignObj_FK_DesignObj_FileList_getrows(vector <class Row_MediaType_DesignObj*> *rows);
+void QuickStartTemplate_FK_DesignObj_getrows(vector <class Row_QuickStartTemplate*> *rows);
 void Skin_FK_DesignObj_MainMenu_getrows(vector <class Row_Skin*> *rows);
 void Skin_FK_DesignObj_Sleeping_getrows(vector <class Row_Skin*> *rows);
 void Skin_FK_DesignObj_ScreenSaver_getrows(vector <class Row_Skin*> *rows);

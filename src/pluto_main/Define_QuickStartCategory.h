@@ -1,0 +1,27 @@
+#ifndef __Define_QuickStartCategory_H__
+#define __Define_QuickStartCategory_H__
+
+
+#define QUICKSTARTCATEGORY_TABLE "QuickStartCategory"
+#define QUICKSTARTCATEGORY_PK_QUICKSTARTCATEGORY_FIELD "PK_QuickStartCategory"
+#define QUICKSTARTCATEGORY_PK_QUICKSTARTCATEGORY_TABLE_FIELD "QuickStartCategory.PK_QuickStartCategory"
+#define QUICKSTARTCATEGORY_FK_QUICKSTARTCATEGORY_PARENT_FIELD "FK_QuickStartCategory_Parent"
+#define QUICKSTARTCATEGORY_FK_QUICKSTARTCATEGORY_PARENT_TABLE_FIELD "QuickStartCategory.FK_QuickStartCategory_Parent"
+#define QUICKSTARTCATEGORY_DESCRIPTION_FIELD "Description"
+#define QUICKSTARTCATEGORY_DESCRIPTION_TABLE_FIELD "QuickStartCategory.Description"
+#define QUICKSTARTCATEGORY_PSC_ID_FIELD "psc_id"
+#define QUICKSTARTCATEGORY_PSC_ID_TABLE_FIELD "QuickStartCategory.psc_id"
+#define QUICKSTARTCATEGORY_PSC_BATCH_FIELD "psc_batch"
+#define QUICKSTARTCATEGORY_PSC_BATCH_TABLE_FIELD "QuickStartCategory.psc_batch"
+#define QUICKSTARTCATEGORY_PSC_USER_FIELD "psc_user"
+#define QUICKSTARTCATEGORY_PSC_USER_TABLE_FIELD "QuickStartCategory.psc_user"
+#define QUICKSTARTCATEGORY_PSC_FROZEN_FIELD "psc_frozen"
+#define QUICKSTARTCATEGORY_PSC_FROZEN_TABLE_FIELD "QuickStartCategory.psc_frozen"
+#define QUICKSTARTCATEGORY_PSC_MOD_FIELD "psc_mod"
+#define QUICKSTARTCATEGORY_PSC_MOD_TABLE_FIELD "QuickStartCategory.psc_mod"
+#define QUICKSTARTCATEGORY_PSC_RESTRICT_FIELD "psc_restrict"
+#define QUICKSTARTCATEGORY_PSC_RESTRICT_TABLE_FIELD "QuickStartCategory.psc_restrict"
+
+
+#endif
+

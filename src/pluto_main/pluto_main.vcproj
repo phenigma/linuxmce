@@ -550,6 +550,12 @@
 				RelativePath=".\Table_Pipe.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_QuickStartCategory.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_QuickStartTemplate.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_RemoteControl.cpp">
 			</File>
 			<File

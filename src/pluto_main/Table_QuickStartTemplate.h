@@ -1,10 +1,10 @@
-#ifndef __Table_Device_QuickStart_H__
-#define __Table_Device_QuickStart_H__
+#ifndef __Table_QuickStartTemplate_H__
+#define __Table_QuickStartTemplate_H__
 
 #include "TableRow.h"
 #include "Database_pluto_main.h"
 #include "PlutoUtils/MultiThreadIncludes.h"
-#include "Define_Device_QuickStart.h"
+#include "Define_QuickStartTemplate.h"
 #include "SerializeClass/SerializeClass.h"
 
 // If we declare the maps locally, the compiler will create multiple copies of them
@@ -15,33 +15,33 @@
 class DECLSPECIFIER TableRow;
 class DECLSPECIFIER SerializeClass;
 
-class DECLSPECIFIER Table_Device_QuickStart : public TableBase , SingleLongKeyBase
+class DECLSPECIFIER Table_QuickStartTemplate : public TableBase , SingleLongKeyBase
 {
 private:
 	Database_pluto_main *database;
 	struct Key;	//forward declaration
 	
 public:
-	Table_Device_QuickStart(Database_pluto_main *pDatabase):database(pDatabase)
+	Table_QuickStartTemplate(Database_pluto_main *pDatabase):database(pDatabase)
 	{
 	};
-	~Table_Device_QuickStart();
+	~Table_QuickStartTemplate();
 
 private:		
-	friend class Row_Device_QuickStart;
+	friend class Row_QuickStartTemplate;
 	struct Key
 	{
-		friend class Row_Device_QuickStart;
-		long int pk_PK_Device_QuickStart;
+		friend class Row_QuickStartTemplate;
+		long int pk_PK_QuickStartTemplate;
 
 		
-		Key(long int in_PK_Device_QuickStart);
+		Key(long int in_PK_QuickStartTemplate);
 	
-		Key(class Row_Device_QuickStart *pRow);
+		Key(class Row_QuickStartTemplate *pRow);
 	};
 	struct Key_Less
 	{			
-		bool operator()(const Table_Device_QuickStart::Key &key1, const Table_Device_QuickStart::Key &key2) const;
+		bool operator()(const Table_QuickStartTemplate::Key &key1, const Table_QuickStartTemplate::Key &key2) const;
 	};	
 
 	
@@ -54,37 +54,38 @@ public:
 	// the rows since they will be re-attempted.  If you set either flag to true, the failed
 	// row can be deleted.  Use with caution since your pointers become invalid!
 	bool Commit(bool bDeleteFailedModifiedRow=false,bool bDeleteFailedInsertRow=false);
-	bool GetRows(string where_statement,vector<class Row_Device_QuickStart*> *rows);
-	class Row_Device_QuickStart* AddRow();
+	bool GetRows(string where_statement,vector<class Row_QuickStartTemplate*> *rows);
+	class Row_QuickStartTemplate* AddRow();
 	Database_pluto_main *Database_pluto_main_get() { return database; }
 	
 		
-	class Row_Device_QuickStart* GetRow(long int in_PK_Device_QuickStart);
+	class Row_QuickStartTemplate* GetRow(long int in_PK_QuickStartTemplate);
 	
 
 private:	
 	
 		
-	class Row_Device_QuickStart* FetchRow(SingleLongKey &key);
+	class Row_QuickStartTemplate* FetchRow(SingleLongKey &key);
 		
 			
 };
 
-class DECLSPECIFIER Row_Device_QuickStart : public TableRow, public SerializeClass
+class DECLSPECIFIER Row_QuickStartTemplate : public TableRow, public SerializeClass
 	{
-		friend struct Table_Device_QuickStart::Key;
-		friend class Table_Device_QuickStart;
+		friend struct Table_QuickStartTemplate::Key;
+		friend class Table_QuickStartTemplate;
 	private:
-		Table_Device_QuickStart *table;
+		Table_QuickStartTemplate *table;
 		
-		long int m_PK_Device_QuickStart;
-long int m_FK_Device;
+		long int m_PK_QuickStartTemplate;
 string m_Description;
-long int m_SortOrder;
+long int m_FK_QuickStartCategory;
+long int m_FK_Package;
 string m_Binary;
 string m_Arguments;
-long int m_EK_Picture;
-long int m_FK_QuickStartTemplate;
+string m_Homepage;
+string m_Icon;
+long int m_FK_DesignObj;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -92,17 +93,18 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[14];
+		bool is_null[15];
 	
 	public:
-		long int PK_Device_QuickStart_get();
-long int FK_Device_get();
+		long int PK_QuickStartTemplate_get();
 string Description_get();
-long int SortOrder_get();
+long int FK_QuickStartCategory_get();
+long int FK_Package_get();
 string Binary_get();
 string Arguments_get();
-long int EK_Picture_get();
-long int FK_QuickStartTemplate_get();
+string Homepage_get();
+string Icon_get();
+long int FK_DesignObj_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -111,14 +113,15 @@ string psc_mod_get();
 long int psc_restrict_get();
 
 		
-		void PK_Device_QuickStart_set(long int val);
-void FK_Device_set(long int val);
+		void PK_QuickStartTemplate_set(long int val);
 void Description_set(string val);
-void SortOrder_set(long int val);
+void FK_QuickStartCategory_set(long int val);
+void FK_Package_set(long int val);
 void Binary_set(string val);
 void Arguments_set(string val);
-void EK_Picture_set(long int val);
-void FK_QuickStartTemplate_set(long int val);
+void Homepage_set(string val);
+void Icon_set(string val);
+void FK_DesignObj_set(long int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -128,11 +131,13 @@ void psc_restrict_set(long int val);
 
 		
 		bool Description_isNull();
-bool SortOrder_isNull();
+bool FK_QuickStartCategory_isNull();
+bool FK_Package_isNull();
 bool Binary_isNull();
 bool Arguments_isNull();
-bool EK_Picture_isNull();
-bool FK_QuickStartTemplate_isNull();
+bool Homepage_isNull();
+bool Icon_isNull();
+bool FK_DesignObj_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -141,11 +146,13 @@ bool psc_restrict_isNull();
 
 			
 		void Description_setNull(bool val);
-void SortOrder_setNull(bool val);
+void FK_QuickStartCategory_setNull(bool val);
+void FK_Package_setNull(bool val);
 void Binary_setNull(bool val);
 void Arguments_setNull(bool val);
-void EK_Picture_setNull(bool val);
-void FK_QuickStartTemplate_setNull(bool val);
+void Homepage_setNull(bool val);
+void Icon_setNull(bool val);
+void FK_DesignObj_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -156,35 +163,38 @@ void psc_restrict_setNull(bool val);
 		void Delete();
 		void Reload();		
 	
-		Row_Device_QuickStart(Table_Device_QuickStart *pTable);
+		Row_QuickStartTemplate(Table_QuickStartTemplate *pTable);
 	
 		bool IsDeleted(){return is_deleted;};
 		bool IsModified(){return is_modified;};			
-		class Table_Device_QuickStart *Table_Device_QuickStart_get() { return table; };
+		class Table_QuickStartTemplate *Table_QuickStartTemplate_get() { return table; };
 
 		// Return the rows for foreign keys 
-		class Row_Device* FK_Device_getrow();
-class Row_QuickStartTemplate* FK_QuickStartTemplate_getrow();
+		class Row_QuickStartCategory* FK_QuickStartCategory_getrow();
+class Row_Package* FK_Package_getrow();
+class Row_DesignObj* FK_DesignObj_getrow();
 
 
 		// Return the rows in other tables with foreign keys pointing here
-		
+		void Device_QuickStart_FK_QuickStartTemplate_getrows(vector <class Row_Device_QuickStart*> *rows);
+
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Device_QuickStart+ m_FK_Device+ m_Description+ m_SortOrder+ m_Binary+ m_Arguments+ m_EK_Picture+ m_FK_QuickStartTemplate+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_QuickStartTemplate+ m_Description+ m_FK_QuickStartCategory+ m_FK_Package+ m_Binary+ m_Arguments+ m_Homepage+ m_Icon+ m_FK_DesignObj+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
 		
-		string PK_Device_QuickStart_asSQL();
-string FK_Device_asSQL();
+		string PK_QuickStartTemplate_asSQL();
 string Description_asSQL();
-string SortOrder_asSQL();
+string FK_QuickStartCategory_asSQL();
+string FK_Package_asSQL();
 string Binary_asSQL();
 string Arguments_asSQL();
-string EK_Picture_asSQL();
-string FK_QuickStartTemplate_asSQL();
+string Homepage_asSQL();
+string Icon_asSQL();
+string FK_DesignObj_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

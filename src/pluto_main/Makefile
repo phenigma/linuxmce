@@ -150,6 +150,8 @@ Table_PaidLicense.cpp \
 Table_ParameterType.cpp \
 Table_PhoneLineType.cpp \
 Table_Pipe.cpp \
+Table_QuickStartCategory.cpp \
+Table_QuickStartTemplate.cpp \
 Table_RemoteControl.cpp \
 Table_RepositorySource.cpp \
 Table_RepositorySource_URL.cpp \

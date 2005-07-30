@@ -39,6 +39,7 @@ using namespace std;
 #include "Table_Package_Version.h"
 #include "Table_PageSetup.h"
 #include "Table_PaidLicense.h"
+#include "Table_QuickStartTemplate.h"
 
 
 void Database_pluto_main::CreateTable_Package()
@@ -1541,6 +1542,13 @@ void Row_Package::PaidLicense_FK_Package_getrows(vector <class Row_PaidLicense*>
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_PaidLicense *pTable = table->database->PaidLicense_get();
+pTable->GetRows("`FK_Package`=" + StringUtils::itos(m_PK_Package),rows);
+}
+void Row_Package::QuickStartTemplate_FK_Package_getrows(vector <class Row_QuickStartTemplate*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_QuickStartTemplate *pTable = table->database->QuickStartTemplate_get();
 pTable->GetRows("`FK_Package`=" + StringUtils::itos(m_PK_Package),rows);
 }
 
