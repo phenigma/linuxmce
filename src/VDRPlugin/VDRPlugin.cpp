@@ -190,7 +190,12 @@ bool VDRPlugin::StartMedia( class MediaStream *pMediaStream )
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 
 	g_pPlutoLogger->Write( LV_STATUS, "VDRPlugin::StartMedia() Starting media stream playback. pos: %d", pMediaStream->m_iDequeMediaFile_Pos );
+	int PK_Device = pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
+	int StreamID = pMediaStream->m_iStreamID_get( );
+	DCE::CMD_Start_TV CMD_Start_TV(m_dwPK_Device,                          // Send from us
+							PK_Device);
 
+	SendCommand(CMD_Start_TV);
 	return true;
 }
 
@@ -203,15 +208,13 @@ bool VDRPlugin::StopMedia( class MediaStream *pMediaStream )
 	string SavedPosition;
 	int PK_Device = pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
 	int StreamID = pMediaStream->m_iStreamID_get( );
-	DCE::CMD_Stop_Media cmd(m_dwPK_Device,                          // Send from us
-							PK_Device,  		// Send to the device that is actually playing
-							StreamID,      		// Send the stream ID that we want to actually stop
-							&SavedPosition);
+	DCE::CMD_Stop_TV CMD_Stop_TV(m_dwPK_Device,                          // Send from us
+							PK_Device);
 
 
 	// TODO: Remove the device from the list of players also.
 	string Response;
-	if( !SendCommand( cmd ) ) // hack - todo see above, &Response ) )
+	if( !SendCommand( CMD_Stop_TV ) ) // hack - todo see above, &Response ) )
 	{
 		// TODO: handle failure when sending the command. This is ignored now.
 		g_pPlutoLogger->Write( LV_CRITICAL, "The target device %d didn't respond to stop media command!", PK_Device );
