@@ -324,8 +324,14 @@ void OrbiterLinux::CMD_Simulate_Keypress(string sPK_Button,string sName,string &
 		g_pPlutoLogger->Write(LV_STATUS, "Need to forward button %s to X",sPK_Button.c_str(),XKeySym.second);
 		Display *dpy = XOpenDisplay (NULL);
 		Window rootwindow = DefaultRootWindow (dpy);
+		if( XKeySym.first )
+			XTestFakeKeyEvent( dpy, XK_Shift_L, True, 0 );
+
 		XTestFakeKeyEvent( dpy, XKeysymToKeycode(dpy, XKeySym.second), True, 0 );
 		XTestFakeKeyEvent( dpy, XKeysymToKeycode(dpy, XKeySym.second), False, 0 );
+
+		if( XKeySym.first )
+			XTestFakeKeyEvent( dpy, XK_Shift_L, False, 0 );
 		XCloseDisplay(dpy);
 	}
 	Orbiter::CMD_Simulate_Keypress(sPK_Button,sName,sCMD_Result,pMessage);
