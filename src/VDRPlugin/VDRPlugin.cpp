@@ -178,6 +178,40 @@ void VDRPlugin::SomeFunction()
 
 class MediaStream *VDRPlugin::CreateMediaStream( class MediaHandlerInfo *pMediaHandlerInfo, int iPK_MediaProvider, vector<class EntertainArea *> &vectEntertainArea, MediaDevice *pMediaDevice, int iPK_Users, deque<MediaFile *> *dequeFilenames, int StreamID )
 {
+	MediaDevice *pMediaDevice_PassedIn;
+
+	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
+
+	pMediaDevice_PassedIn = NULL;
+	if ( vectEntertainArea.size()==0 && pMediaDevice == NULL )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "I can't create a media stream without an entertainment area or a media device");
+		return NULL;
+	}
+
+	if ( pMediaDevice != NULL  && // test the media device only if it set
+	     pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate != DEVICETEMPLATE_VDR_CONST )
+	{
+		pMediaDevice_PassedIn = pMediaDevice;
+		pMediaDevice = m_pMedia_Plugin->m_mapMediaDevice_Find(m_pRouter->FindClosestRelative(DEVICETEMPLATE_VDR_CONST, pMediaDevice->m_pDeviceData_Router->m_dwPK_Device));
+	}
+
+	if ( !pMediaDevice )
+	{
+		for(size_t s=0;s<vectEntertainArea.size();++s)
+		{
+			EntertainArea *pEntertainArea = vectEntertainArea[0];
+			pMediaDevice = FindMediaDeviceForEntertainArea(pEntertainArea);
+			if( pMediaDevice )
+				break;
+		}
+		if( !pMediaDevice )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "I didn't find a device in the target ent area.");
+			return NULL;
+		}
+	}
+
 	MediaStream *pMediaStream = new MediaStream( pMediaHandlerInfo, iPK_MediaProvider,
 										pMediaDevice,
 										iPK_Users, st_RemovableMedia, StreamID );
@@ -227,6 +261,17 @@ bool VDRPlugin::StopMedia( class MediaStream *pMediaStream )
 
 	return true;
 }
+
+MediaDevice *VDRPlugin::FindMediaDeviceForEntertainArea(EntertainArea *pEntertainArea)
+{
+	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
+	MediaDevice *pMediaDevice;
+	pMediaDevice = GetMediaDeviceForEntertainArea(pEntertainArea, DEVICETEMPLATE_VDR_CONST);
+	g_pPlutoLogger->Write(LV_STATUS, "Returning this device %d (%s)", pMediaDevice->m_pDeviceData_Router->m_dwPK_Device, pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
+
+	return pMediaDevice;
+}
+
 
 
 /*

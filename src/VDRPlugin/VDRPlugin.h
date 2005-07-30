@@ -54,6 +54,7 @@ public:
 		*/
 		virtual bool StopMedia( class MediaStream *pMediaStream );
 
+		virtual MediaDevice *FindMediaDeviceForEntertainArea(EntertainArea *pEntertainArea);
 
 
 //<-dceag-h-b->
