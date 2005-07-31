@@ -117,6 +117,11 @@
 #define BUTTON_caps_lock_CONST 170
 #define BUTTON_both_soft_buttons_CONST 173
 #define BUTTON_Terminate_Text_CONST 175
+#define BUTTON_F6_CONST 176
+#define BUTTON_F7_CONST 177
+#define BUTTON_F8_CONST 178
+#define BUTTON_F9_CONST 179
+#define BUTTON_F10_CONST 180
 
 #define BUTTON_TABLE "Button"
 #define BUTTON_PK_BUTTON_FIELD "PK_Button"
