@@ -20,6 +20,8 @@
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Table_Device.h"
 #include "pluto_main/Table_Device_DeviceData.h"
+#include "pluto_main/Table_Device_QuickStart.h"
+#include "pluto_main/Table_QuickStartTemplate.h"
 #include "pluto_main/Table_DeviceData.h"
 #include "pluto_main/Table_DeviceCategory.h"
 #include "pluto_main/Table_DeviceTemplate.h"
@@ -677,6 +679,23 @@ void CheckDeviceLoop(Row_Device *pRow_Device,bool bDevelopment)
 		}
 		string PkgName = pRow_Device->FK_DeviceTemplate_getrow()->FK_Package_getrow()->Description_get();
 		CheckPackage(pRow_Device->FK_DeviceTemplate_getrow()->FK_Package_getrow(),pRow_Device,bDevelopment,pRow_Distro,false);
+		Row_DeviceCategory *pRow_DeviceCategory = pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_getrow();
+		if( pRow_DeviceCategory && (pRow_DeviceCategory->PK_DeviceCategory_get()==DEVICECATEGORY_Media_Director_CONST ||
+			pRow_DeviceCategory->FK_DeviceCategory_Parent_get()==DEVICECATEGORY_Media_Director_CONST) )
+		{
+			// This is a media director, check the QuickStart tables too
+			vector<Row_Device_QuickStart *> vectRow_Device_QuickStart;
+			pRow_Device->Device_QuickStart_FK_Device_getrows(&vectRow_Device_QuickStart);
+			for(size_t s=0;s<vectRow_Device_QuickStart.size();++s)
+			{
+				Row_Device_QuickStart *pRow_Device_QuickStart = vectRow_Device_QuickStart[s];
+				Row_QuickStartTemplate *pRow_QuickStartTemplate = pRow_Device_QuickStart->FK_QuickStartTemplate_getrow();
+				if( pRow_QuickStartTemplate && pRow_QuickStartTemplate->FK_Package_get() )
+				{
+					CheckPackage(pRow_QuickStartTemplate->FK_Package_getrow(),pRow_Device,bDevelopment,pRow_Distro,false);
+				}
+			}
+		}
 	}
 
 	vector<Row_Device *> vectRow_Device;

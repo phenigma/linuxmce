@@ -4761,19 +4761,23 @@ void Orbiter::GetVideoFrame( void *data )
 		if(  !pObj->IsHidden(  )  )
 		{
 			char *pBuffer=NULL; int Size=0;  string sFormat;
-			DCE::CMD_Get_Video_Frame CMD_Get_Video_Frame( m_dwPK_Device,  atoi( pObj->GetParameterValue( DESIGNOBJPARAMETER_Source_CONST ).c_str(  ) ), "0",  0 /* stream */, pObj->m_rBackgroundPosition.Width, pObj->m_rBackgroundPosition.Height, &pBuffer, &Size, &sFormat );
-			if(  SendCommand( CMD_Get_Video_Frame ) && pBuffer  )
+			int PK_Device = atoi( pObj->GetParameterValue( DESIGNOBJPARAMETER_Source_CONST ).c_str(  ) );
+			if( PK_Device )
 			{
-				CMD_Update_Object_Image( pObj->m_ObjectID,  sFormat ,  pBuffer,  Size, "1" );
-                delete [] pBuffer; //we don't need it anymore
-			}
-            else
-            {
-                g_pPlutoLogger->Write(LV_WARNING, "CMD_Get_Video_Frame failed: the image buffer is empty");
+				DCE::CMD_Get_Video_Frame CMD_Get_Video_Frame( m_dwPK_Device,  , "0",  0 /* stream */, pObj->m_rBackgroundPosition.Width, pObj->m_rBackgroundPosition.Height, &pBuffer, &Size, &sFormat );
+				if(  SendCommand( CMD_Get_Video_Frame ) && pBuffer  )
+				{
+					CMD_Update_Object_Image( pObj->m_ObjectID,  sFormat ,  pBuffer,  Size, "1" );
+					delete [] pBuffer; //we don't need it anymore
+				}
+				else
+				{
+					g_pPlutoLogger->Write(LV_WARNING, "CMD_Get_Video_Frame failed: the image buffer is empty");
 
-                // Don't purge existing callbacks since there can be multiple frames on the screen
-                CallMaintenanceInMiliseconds( m_iVideoFrameInterval, &Orbiter::GetVideoFrame, NULL, pe_ALL );
-            }
+					// Don't purge existing callbacks since there can be multiple frames on the screen
+					CallMaintenanceInMiliseconds( m_iVideoFrameInterval, &Orbiter::GetVideoFrame, NULL, pe_ALL );
+				}
+			}
 		}
 	}
 	m_bAlreadyQueuedVideo=false;

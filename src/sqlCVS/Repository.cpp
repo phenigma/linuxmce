@@ -1211,7 +1211,7 @@ bool Repository::UpdateSchema(int PriorSchema)
 			 {
 				 if( vectCommands[s].length()==0 )
 					 continue;
-				if( m_pDatabase->threaded_mysql_query( vectCommands[s] )!=0 )
+				if( !ProcessSchemaUpdate(vectCommands[s]) )
 				{
 					cout << "SQL failed: " << vectCommands[s] << endl;
 					cerr << "The database is now corrupted, and the schema is out of sync" << endl
@@ -1531,3 +1531,50 @@ void Repository::UpdateClientSchema(RA_Request *pRA_Request,int iSchemaVersion)
 	throw "Database error"; // Can't get schema info??
 }
 
+bool Repository::ProcessSchemaUpdate(string sSQLCommand)
+{
+	if( StringUtils::StartsWith(sSQLCommand,"alter table",true) )
+	{
+		string::size_type pos_start=11;
+		while(sSQLCommand[pos_start]==' ')
+			pos_start++;
+
+		string sTable;
+		string::size_type pos_end;
+		if( sSQLCommand[pos_start]=='`' )
+		{
+			pos_start++;
+			pos_end = sSQLCommand.find('`',pos_start);
+			if( pos_end==string::npos )
+			{
+				cout << "ProcessSchemaUpdate can't find ending `" << endl;
+				return false;
+			}
+			sTable=sSQLCommand.substr(pos_start,pos_end-pos_start);
+		}
+		else
+		{
+			pos_end = sSQLCommand.find(' ',pos_start);
+			if( pos_end==string::npos )
+			{
+				cout << "ProcessSchemaUpdate can't find ending space" << endl;
+				return false;
+			}
+			sTable=sSQLCommand.substr(pos_start,pos_end-pos_start);
+		}
+
+		if( m_mapTable_Find(sTable)==NULL )
+		{
+			cout << "ProcessSchemaUpdate - table " <<  sTable << " doesn't exist yet" << endl;
+			return true; // It's ok - the next import will bring in the latest schema
+		}
+	}
+	if( m_pDatabase->threaded_mysql_query( sSQLCommand )!=0 )
+	{
+		cout << "ProcessSchemaUpdate failed: " << sSQLCommand << endl;
+		return false;
+	}
+
+	cout << "ProcessSchemaUpdate OK: " << sSQLCommand << endl;
+	return true; 
+}

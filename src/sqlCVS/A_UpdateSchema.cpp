@@ -58,7 +58,7 @@ void A_UpdateSchema::ProcessAction(class RA_Request *pRequest,class RA_Processor
 		if( vectCommands[s].length()==0 )
 			continue;
 
-		if( pRepository->m_pDatabase->threaded_mysql_query( vectCommands[s] )!=0 )
+		if( !pRepository->ProcessSchemaUpdate(vectCommands[s]) )
 		{
 			cout << "SQL failed: " << vectCommands[s] << endl;
 			cerr << "The database is now corrupted, and the schema is out of sync" << endl

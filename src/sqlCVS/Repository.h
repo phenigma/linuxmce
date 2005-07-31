@@ -101,6 +101,7 @@ namespace sqlCVS
 		void ImportTable(string sTableName,SerializeableStrings &str,size_t &pos,Table *pTable,int ipsc_id_last,int ipsc_batch_last);
 		bool UpdateSchema(int PriorSchema);
 		void UpdateClientSchema(RA_Request *pRA_Request,int iSchemaVersion);
+		bool ProcessSchemaUpdate(string sSQLCommand);
 		int GetSchemaVersion() { return atoi(GetSetting("schema","0").c_str()); };
 
 		bool ApproveBatch(R_ApproveBatch *pR_ApproveBatch,sqlCVSprocessor *psqlCVSprocessor);
