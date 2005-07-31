@@ -6320,7 +6320,7 @@ void Orbiter::CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sVa
 {
     PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
 
-	m_sNowPlaying = sValue_To_Assign;
+	m_sNowPlaying = SubstituteVariables(sValue_To_Assign, NULL, 0, 0);
 	m_dwPK_Device_NowPlaying = iPK_Device;
 	m_mapVariable[VARIABLE_Track_or_Playlist_Positio_CONST]=StringUtils::itos(iValue);
 #ifdef DEBUG

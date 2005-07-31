@@ -436,6 +436,9 @@ public:
 				sFilename = pMediaStream->m_sMediaDescription;
 		}
 
+		if( StringUtils::StartsWith(sFilename,"<%=") )
+			sFilename="";  // It's just a stock message--the user will have to pick
+
 		DCE::CMD_Set_Now_Playing CMD_Set_Now_Playing( m_dwPK_Device, dwPK_Device, PK_Device_Source,
 			sRemotes, sNowPlaying, sFilename, iDequeMediaFile, bRefreshScreen );
 		if( pMessage )
