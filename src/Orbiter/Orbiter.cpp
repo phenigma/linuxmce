@@ -4764,7 +4764,7 @@ void Orbiter::GetVideoFrame( void *data )
 			int PK_Device = atoi( pObj->GetParameterValue( DESIGNOBJPARAMETER_Source_CONST ).c_str(  ) );
 			if( PK_Device )
 			{
-				DCE::CMD_Get_Video_Frame CMD_Get_Video_Frame( m_dwPK_Device,  , "0",  0 /* stream */, pObj->m_rBackgroundPosition.Width, pObj->m_rBackgroundPosition.Height, &pBuffer, &Size, &sFormat );
+				DCE::CMD_Get_Video_Frame CMD_Get_Video_Frame( m_dwPK_Device, PK_Device, "0",  0 /* stream */, pObj->m_rBackgroundPosition.Width, pObj->m_rBackgroundPosition.Height, &pBuffer, &Size, &sFormat );
 				if(  SendCommand( CMD_Get_Video_Frame ) && pBuffer  )
 				{
 					CMD_Update_Object_Image( pObj->m_ObjectID,  sFormat ,  pBuffer,  Size, "1" );
