@@ -13,7 +13,8 @@ function what_is_pluto($output,$conn){
 		<td style="padding-left: 8px;">Pluto is the only all-in-one solution for your home that seamlessly combines media &amp; entertainment, home automation, security, telecom and computing. <br />
       You can control your whole house with a mobile phone, a touch-screen tablet or a web-interface. A Pluto system is like an appliance - not a computer. It is self-configuring, maintaining and updating. No technical skills are required to use or install Pluto.<br />
       Pluto is above all simple. The devices are all plug and play. Pluto is also an open platform, offering unlimited expansion potential, and requiring no special cabling.<br />
-    This is Pluto: a complete, comfortable and secure solution for your home.</td>
+    This is Pluto: a complete, comfortable and secure solution for your home. <br />
+	See also: <a href="http://plutohome.org">Open source/techie page</a> and <a href="http://plutohome.com/support/index.php?section=document&docID=208">What can Pluto do?</a></td>
 	</tr></table></td>
   </tr>
   <tr>
