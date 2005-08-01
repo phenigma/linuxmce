@@ -66,6 +66,9 @@ bool SDLGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
         SDL_FreeSurface(pSourceSurface);
     }
 
+	Width = m_pSDL_Surface->w;
+	Height = m_pSDL_Surface->h;
+
 	return true;
 }
 //-------------------------------------------------------------------------------------------------------

@@ -478,7 +478,7 @@ void Orbiter::RenderScreen( )
 	return;
 }
 
-#ifdef DEBUG
+#ifndef WINCE
     g_pPlutoLogger->Write( LV_STATUS, "Render screen: %s", m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str(  ) );
 #endif
 
