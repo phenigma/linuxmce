@@ -1543,13 +1543,13 @@ string Makefile = "none:\n"
 
 #ifndef WIN32
 	cout << string(("sed -i 's/^Depends:.*$/Depends: ${shlibs:Depends}, ${misc:Depends}" + sDepends + "/' " + Dir + "/debian/control")) << endl;
-	cout << string(("dpkg-buildpackage -b -rfakeroot")) << endl;
+	cout << string(("dpkg-buildpackage -b -rfakeroot -us -uc")) << endl;
 	system(("sed -i 's/^Depends:.*$/Depends: ${shlibs:Depends}, ${misc:Depends}" + sDepends + "/' " + Dir + "/debian/control").c_str());
 
 	if (!g_bSimulate)
 	{
 		// in C++, the headers do a "*(int *) &(status)" - where C uses the "status" parameter verbatim
-		int status = system("dpkg-buildpackage -b -rfakeroot");
+		int status = system("dpkg-buildpackage -b -rfakeroot -us -uc");
 		printf("dpkg-buildpackage returned %d\n", WEXITSTATUS(status));
 		if (WEXITSTATUS(status))
 		{
