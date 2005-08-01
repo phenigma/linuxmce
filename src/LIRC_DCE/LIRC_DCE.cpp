@@ -96,25 +96,29 @@ LIRC_DCE::LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler,
 	{
 	cout << vectMapping[s] << endl;
 		string::size_type pos=0;
+string x=vectMapping[s];
+int k=2;
 		while(pos<vectMapping[s].size() && pos!=string::npos)
 		{
 			string sToken = StringUtils::Tokenize(vectMapping[s],";|",pos);
 			if( sToken.size()>0 && (it=m_mapMessages.find(StringUtils::ToUpper(sToken)))!=m_mapMessages.end() )
 			{
 				// We got ourselves a valid one
-				pos=vectMapping[s].find('|');
-				if( pos!=string::npos )  // Should always be true unless data is malformed
+				string::size_type posSlash=vectMapping[s].find('|');
+				if( posSlash!=string::npos )  // Should always be true unless data is malformed
 				{
 					int iNumberOfArguments;
-					char **pArgs = StringUtils::ConvertStringToArgs(vectMapping[s].substr(pos+1),iNumberOfArguments);
+					char **pArgs = StringUtils::ConvertStringToArgs(vectMapping[s].substr(posSlash+1),iNumberOfArguments);
 					if( iNumberOfArguments )  // Should always be true
 					{
-						g_pPlutoLogger->Write(LV_STATUS,"LIRC button: %s will fire: %s",sToken.c_str(),vectMapping[s].substr(pos+1).c_str());
+						g_pPlutoLogger->Write(LV_STATUS,"LIRC button: %s will fire: %s",sToken.c_str(),vectMapping[s].substr(posSlash+1).c_str());
 						Message *pMessage = new Message(iNumberOfArguments,pArgs,m_dwPK_Device);
 						pMessage->m_dwPK_Device_To = m_Virtual_Device_Translator.TranslateVirtualDevice(pMessage->m_dwPK_Device_To);
 // TODO: Dan, if you want hex codes rather than strings, we can do the conversion here
 						m_mapMessages[ (*it).first ] = pMessage;
 					}
+					if( posSlash>=pos )
+						break; // We already parsed the last one
 				}
 			}
 		}
