@@ -43,10 +43,10 @@ namespace FileUtils
 	void DelFile(string sFileName);
 	void DelDir(string sDirectory);
     string BasePath( string sFileName ); /** < returns the path one dir up @todo ask */
-
-#ifndef WINCE
     string FileWithoutExtension ( string sFileName ); /** < returns the filename without the extension */
     string FilenameWithoutPath( string sFullPath, bool bIncludeExtension=true ); /** < returnes only the file name from a path/filename string */
+
+#ifndef WINCE
     string ValidCPPName( string sInput ); /** < converts the input file name to a valid CPP file name */
     time_t FileDate(string sFileName); /** < returns the date of the last file modification or 0 if error */
 	/** < scan sDirectory, for files matching any of the sFilespec_CSV (ie *.jpg,a*,bcd*.mpg), and store the names in listFiles.  

@@ -61,11 +61,10 @@ void OrbiterSelfUpdate::GetProcessFilePath(char *pProcessFilePath)
 	wcstombs(pProcessFilePath, pProcessNameW, 256);
 #else
     ::GetModuleFileName(NULL, pProcessFilePath, 256);
+#endif
 
 #ifdef DEBUG
     g_pPlutoLogger->Write(LV_STATUS, "Orbiter's full path: %s", pProcessFilePath);
-#endif
-
 #endif
 }
 //-----------------------------------------------------------------------------------------------------
@@ -238,10 +237,10 @@ bool OrbiterSelfUpdate::SpawnUpdateBinaryProcess()
 	g_pPlutoLogger->Write( LV_STATUS,  "Ready to start: %s comm file %s", sUpdateBinaryFilePath.c_str(), sCmdLine.c_str());
 
 #ifdef WINCE
-	wchar_t CmdLineW[256];
-	mbstowcs(CmdLineW, sCmdLine.c_str(), 256);
-	wchar_t OrbiterPathW[256];
-	mbstowcs(OrbiterPathW, sUpdateBinaryFilePath.c_str(), 256);
+	wchar_t CmdLineW[512];
+	mbstowcs(CmdLineW, sCmdLine.c_str(), 512);
+	wchar_t OrbiterPathW[512];
+	mbstowcs(OrbiterPathW, sUpdateBinaryFilePath.c_str(), 512);
 
 	if(!::CreateProcess(OrbiterPathW, CmdLineW, NULL, NULL, NULL, 0, NULL, NULL, &si, &pi))
 #else

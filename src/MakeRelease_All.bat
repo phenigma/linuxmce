@@ -9,7 +9,7 @@ svn co http://10.0.0.170/pluto/trunk/src /pluto.makerelease/trunk/src
 svn co http://10.0.0.170/pluto/trunk/libs /pluto.makerelease/trunk/libs
 svn co http://10.0.0.170/pluto/trunk/installers/Installers /pluto.makerelease/trunk/installers/Installers
 
-echo Building pluto(windows ce) sources...
+echo Building pluto(symbian) sources...
 cd "c:\pluto.makerelease\trunk\src"
 call "MakeRelease_Symbian_S60.bat"
 
@@ -17,7 +17,7 @@ echo Building pluto(windows) sources...
 cd "c:\pluto.makerelease\trunk\src"
 call "MakeRelease_Windows.bat"
 
-echo Building pluto(symbian) sources...
+echo Building pluto(windows ce) sources...
 cd "c:\pluto.makerelease\trunk\src"
 call "MakeRelease_WindowsCE.bat"
 

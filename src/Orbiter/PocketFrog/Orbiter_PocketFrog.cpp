@@ -100,7 +100,13 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 	Surface* pLogoSurface = NULL;
 
 #ifdef WINCE
-	pLogoSurface = LoadImage( GetDisplay(), TEXT("\\Storage Card\\logo.gif") );
+    string sLogoPath = g_sBinaryPath + "logo.gif";
+    sLogoPath = StringUtils::Replace(sLogoPath, "/", "\\");
+
+    wchar_t wPath[4096];
+    mbstowcs(wPath, sLogoPath.c_str(), 4096);	
+
+	pLogoSurface = LoadImage( GetDisplay(), wPath);
 #else
 	pLogoSurface = LoadImage( GetDisplay(), TEXT("logo.gif")); 
 #endif

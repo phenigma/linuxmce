@@ -42,8 +42,17 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 					LPTSTR    lpCmdLine,
 					int       nCmdShow)
 {
-	g_sBinary = "OrbiterWin.exe";
-	g_sBinaryPath = "";
+	//get the binary name and the binary path
+	char pFullPath[256];
+#ifdef WINCE
+	wchar_t pProcessNameW[256];
+	::GetModuleFileName(NULL, pProcessNameW, sizeof(pProcessNameW));
+	wcstombs(pFullPath, pProcessNameW, 256);
+#else
+    ::GetModuleFileName(NULL, pFullPath, 256);
+#endif
+	g_sBinary = FileUtils::FilenameWithoutPath(pFullPath);
+	g_sBinaryPath = FileUtils::BasePath(pFullPath) + "/";
 
 	string sRouter_IP="dcerouter";
     int PK_Device=0;
@@ -64,7 +73,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 
 #ifdef WINCE
 	bFullScreen = true; //full-screen by default
-	sLogger = "/Storage card/Orbiter.log";
+	sLogger = g_sBinaryPath + "Orbiter.log";
 #endif
 
 	//parse command line
@@ -185,24 +194,11 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 		}
 
 		//NOTE: the logger is not created yet. Do not try to use the logger at this moment!
-
-#ifdef WINCE
-		Simulator::GetInstance()->LoadConfigurationFile("/Storage Card/Orbiter.conf");
-#else
-		Simulator::GetInstance()->LoadConfigurationFile("Orbiter.conf");
-#endif
+		Simulator::GetInstance()->LoadConfigurationFile(g_sBinaryPath + "Orbiter.conf");
 
 		if(!CmdLineParams.bDeviceIDSpecified)
 			if(!(Simulator::GetInstance()->m_bTryToDetermineAutomatically))
-			{
-				try
-				{
-					CmdLineParams.PK_Device = atoi(Simulator::GetInstance()->m_sDeviceID.c_str());
-				}
-				catch(...)
-				{
-				}
-			}
+				CmdLineParams.PK_Device = atoi(Simulator::GetInstance()->m_sDeviceID.c_str());
 
 		if(!CmdLineParams.bRouterIPSpecified)
 			if(!(Simulator::GetInstance()->m_bTryToDetermineAutomatically))
@@ -276,8 +272,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 
 		g_pPlutoLogger->Write(LV_STATUS, "Exited process messages loop. We are shutting down....");
 
-#ifdef WINCE
-		Simulator::GetInstance()->SaveConfigurationFile("/Storage Card/Orbiter.conf");
+		Simulator::GetInstance()->SaveConfigurationFile(g_sBinaryPath + "Orbiter.conf");
 		Simulator::Cleanup();
 
 		#ifdef POCKETFROG
@@ -286,20 +281,9 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 				OrbiterSDL_WinCE::Cleanup();
 		#endif
 
-#else
-		Simulator::GetInstance()->SaveConfigurationFile("Orbiter.conf");
-		Simulator::Cleanup();
-
-	#ifdef POCKETFROG
-			Orbiter_PocketFrog::Cleanup();
-	#else
-			OrbiterSDL_Win32::Cleanup();
-	#endif
-#endif
-
 #ifdef WINCE
-			HWND hTaskBarWindow = ::FindWindow(TEXT("HHTaskBar"), NULL);
-			::ShowWindow(hTaskBarWindow, SW_SHOWNORMAL);
+		HWND hTaskBarWindow = ::FindWindow(TEXT("HHTaskBar"), NULL);
+		::ShowWindow(hTaskBarWindow, SW_SHOWNORMAL);
 #endif
 
 		g_pPlutoLogger->Write(LV_STATUS, "About to delete logger. Logger out.");
@@ -310,7 +294,6 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 
 
     WSACleanup();
-
 	return 0;
 }
 
