@@ -208,6 +208,7 @@ void DeviceTemplate_DesignObj_FK_DesignObj_getrows(vector <class Row_DeviceTempl
 void DeviceTemplate_MediaType_DesignObj_FK_DesignObj_getrows(vector <class Row_DeviceTemplate_MediaType_DesignObj*> *rows);
 void DeviceTemplate_MediaType_DesignObj_FK_DesignObj_Popup_getrows(vector <class Row_DeviceTemplate_MediaType_DesignObj*> *rows);
 void DeviceTemplate_MediaType_DesignObj_FK_DesignObj_FileList_getrows(vector <class Row_DeviceTemplate_MediaType_DesignObj*> *rows);
+void DeviceTemplate_MediaType_DesignObj_FK_DesignObj_Guide_getrows(vector <class Row_DeviceTemplate_MediaType_DesignObj*> *rows);
 void FloorplanObjectType_FK_DesignObj_Control_getrows(vector <class Row_FloorplanObjectType*> *rows);
 void MediaType_FK_DesignObj_getrows(vector <class Row_MediaType*> *rows);
 void MediaType_DesignObj_FK_DesignObj_getrows(vector <class Row_MediaType_DesignObj*> *rows);
