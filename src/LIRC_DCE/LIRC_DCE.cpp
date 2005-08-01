@@ -117,7 +117,7 @@ int k=2;
 // TODO: Dan, if you want hex codes rather than strings, we can do the conversion here
 						m_mapMessages[ (*it).first ] = pMessage;
 					}
-					if( posSlash>=pos )
+					if( posSlash<=pos )
 						break; // We already parsed the last one
 				}
 			}
