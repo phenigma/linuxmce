@@ -1927,8 +1927,7 @@ bool Orbiter::SelectedGrid( int DGRow )
 		PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
 		m_mapVariable[pDesignObj_DataGrid->m_iPK_Variable] = pCell->GetValue(  );
 		vm.Release();
-		delete pCell;
-	}
+    }
 
 	return true;
 }

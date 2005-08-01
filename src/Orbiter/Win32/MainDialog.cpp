@@ -38,9 +38,6 @@
 #define WIN_WIDTH	   240
 #define WIN_HEIGHT	   320
 
-#define SDL_WIDTH	   240
-#define SDL_HEIGHT	   320
-
 #define MENU_HEIGHT	   25
 //-----------------------------------------------------------------------------------------------------
 const MAX_STRING_LEN = 4096;
@@ -250,7 +247,6 @@ DWORD WINAPI PlayerThread( LPVOID lpParameter)
 				long key = atoi(sKey.c_str());
 
 				pOrbiter->SimulateKeyPress(key);
-				//PerformActionKeyPress(key);
 			}
 			else
 			{
@@ -1158,56 +1154,6 @@ void OnRecord_Stop()
 	WriteStatusOutput("RECORD: STOP");
 
 	g_bStopPlayerThread = true;
-}
-//-----------------------------------------------------------------------------------------------------
-void PerformActionKeyPress(long key)
-{
-#ifdef POCKETFROG
-	HWND hSDLWindow = ::FindWindow(TEXT("PocketFrog"), NULL);
-#else
-	HWND hSDLWindow = ::FindWindow(TEXT("SDL_app"), NULL);						
-#endif
-
-
-	::SendMessage(hSDLWindow, WM_KEYDOWN, key, 0L);
-	::SendMessage(hSDLWindow, WM_KEYUP, key, 0L);
-
-	RECT rc = { 5, SDL_HEIGHT - 20, 200, SDL_HEIGHT - 1};
-
-	HDC hDC = ::GetDC(hSDLWindow);
-
-	string Str = "Key press: " + StringUtils::ltos(key);
-
-#ifdef WINCE
-	wchar_t wTextBuffer[MAX_STRING_LEN];
-	mbstowcs(wTextBuffer, Str.c_str(), MAX_STRING_LEN);
-	#define MY_TEXT wTextBuffer
-#else
-	#define MY_TEXT Str.c_str()
-#endif
-
-	::SetTextColor(hDC, RGB(255, 0, 0));
-	::SetBkMode(hDC, TRANSPARENT);
-	::DrawText(hDC, MY_TEXT, (int)Str.length(), &rc, 0);
-	::ReleaseDC(hSDLWindow, hDC); 
-}
-//-----------------------------------------------------------------------------------------------------
-void PerformActionMouseClick(int x, int y)
-{
-#ifdef POCKETFROG
-	HWND hSDLWindow = ::FindWindow(TEXT("PocketFrog"), NULL);
-#else
-	HWND hSDLWindow = ::FindWindow(TEXT("SDL_app"), NULL);						
-#endif
-
-	::SendMessage(hSDLWindow, WM_LBUTTONDOWN, 0L, MAKELPARAM(x, y));
-	::SendMessage(hSDLWindow, WM_LBUTTONUP, 0L, MAKELPARAM(x, y));
-
-	RECT rc = { x - 5, y - 5, x + 5, y + 5 };
-
-	HDC hDC = ::GetDC(hSDLWindow);
-	::FillRect(hDC, &rc, (HBRUSH)::GetStockObject(BLACK_BRUSH));
-	::ReleaseDC(hSDLWindow, hDC);
 }
 //-----------------------------------------------------------------------------------------------------
 void OnRandom_Generate()
