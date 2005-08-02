@@ -1203,6 +1203,11 @@ void MediaAttributes::AddAttributesToDisc(Row_Disc *pRow_Disc,int iFileOrTrack,i
 			continue;  // Don't store the recognition type
 
 		Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(it->second);
+		if( !pRow_Attribute )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"MediaAttributes::AddAttributesToDisc now can't find attribute %d",it->second);
+			continue;
+		}
 		Row_Disc_Attribute *pRow_Disc_Attribute = m_pDatabase_pluto_media->Disc_Attribute_get()->GetRow(pRow_Disc->PK_Disc_get(),pRow_Attribute->PK_Attribute_get(),iFileOrTrack,iSection);
 		if( !pRow_Disc_Attribute )
 		{
@@ -1235,7 +1240,7 @@ bool MediaAttributes::IsDiscAlreadyIdentified(string sIdentifiedDisc,MediaStream
 	{
 		Row_Disc_Attribute *pRow_Disc_Attribute = vectRow_Disc_Attribute[s];
 		Row_Attribute *pRow_Attribute = pRow_Disc_Attribute->FK_Attribute_getrow();
-g_pPlutoLogger->Write(LV_STATUS,"Already in DB %p %p",pRow_Disc_Attribute,pRow_Attribute);
+g_pPlutoLogger->Write(LV_STATUS,"Already in DB %p %p %d",pRow_Disc_Attribute,pRow_Attribute,(pRow_Attribute ? pRow_Attribute->PK_Attribute_get() : 0));
 		if( !pRow_Attribute )
 			continue; // Should never happen
 		if( pRow_Disc->EK_MediaType_get()==MEDIATYPE_pluto_CD_CONST ) // Tracks are treated as files
@@ -1250,6 +1255,7 @@ void MediaAttributes::AddAttributeToStream(MediaStream *pMediaStream,Row_Attribu
 {
 	int PK_AttributeType=pRow_Attribute->FK_AttributeType_get();
 	// For CD's, the tracks are represented as files
+g_pPlutoLogger->Write(LV_STATUS,"MediaAttributes::AddAttributeToStream %p %d",pRow_Attribute,(pRow_Attribute ? pRow_Attribute->PK_Attribute_get() : 0));
 	if( File )
 	{
 		if( File>0 && File<=pMediaStream->m_dequeMediaFile.size() )

@@ -3824,6 +3824,9 @@ void Media_Plugin::Parse_Misc_Media_ID(MediaStream *pMediaStream,string sValue)
 			}
 
 			pRow_Attribute = m_pMediaAttributes->GetAttributeFromDescription(PK_AttributeType,sName,sFirstName);
+g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::Parse_Misc_Media_ID added attribute %p %d %s",
+	pRow_Attribute, (pRow_Attribute ? pRow_Attribute->PK_Attribute_get() : 0), sName.c_str());
+
 			if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST ) // Tracks are treated as files
 				m_pMediaAttributes->AddAttributeToStream(pMediaStream,pRow_Attribute,Track,0,Section);
 			else
