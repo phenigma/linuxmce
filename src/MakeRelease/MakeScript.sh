@@ -37,33 +37,14 @@ function changeSvnPermissions
 	sudo -u www-data cp /home/sources/svn-repositories/svn-users-permissions-updated /home/sources/svn-repositories/svn-users-permissions
 }
 
-# If not version was specified then we will assume the latest specified version from the database 
-if [ "$1" = "" ]; then
-	# lock the svn commits only to the authorized personnel
-	if [ "x$nobuild" = "x" ]; then
-		changeSvnPermissions r;
-    	fi
- 	Q="select PK_Version from Version WHERE PK_Version<>1 ORDER BY date desc, PK_Version limit 1"
-	version=$(echo "$Q;" | mysql -N pluto_main)
-else
-	changeSvnPermissions rw;
-	version=$1
-fi
+Q="select PK_Version from Version ORDER BY date desc, PK_Version limit 1"
+version=$(echo "$Q;" | mysql -N pluto_main)
 
 echo Using version with id: "$version"
 
 if [ "$nobuild" = "" ]; then
 	rm /tmp/main_sqlcvs.dump
     if [ $version -eq 1 ]; then
-	    Q="select PK_Version from Version WHERE PK_Version<>1 ORDER BY date desc, PK_Version limit 1"
-		last_version=$(echo "$Q;" | mysql -N pluto_main)
-		
-		Q="select VersionName from Version WHERE PK_Version=$last_version"
-		last_version_name=$(echo "$Q;" | mysql -N pluto_main)
-
-		O1="UPDATE Version SET VersionName='${last_version_name}.$(date +%g%m%d%H)' WHERE PK_Version=$version;"
-        echo "$O1" | mysql pluto_main
-		
 		#This is an hourly build, so we're going to dump the pluto_main database and make it our sqlCVS database
 		mysqldump --quote-names --allow-keywords --add-drop-table pluto_main > /tmp/main_sqlcvs.dump
 	else
@@ -217,8 +198,13 @@ if [ $version -ne 1 ]; then
     cd ../upload
     sh -x `dirname $0`/scripts/DumpVersionPackage.sh
     scp dumpvp.tar.gz uploads@66.235.209.27:~/
-    popd
 
+	cd /home/WorkNew/src/MakeRelease
+	sh -x DirPatch.sh
+	scp replacements.tar.gz uploads@66.235.209.27:~/
+	scp replacements.patch.sh uploads@66.235.209.27:~/
+    popd
+	
 	# SourceForge CVS
 	if ! MakeRelease -a -o 1 -r 12 -m 1 -s /home/MakeRelease/trunk -n / -b -v $version  > /home/MakeRelease/MakeRelease6.log ; then
 		reportError
