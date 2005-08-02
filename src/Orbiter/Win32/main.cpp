@@ -278,7 +278,11 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 		#ifdef POCKETFROG
 				Orbiter_PocketFrog::Cleanup();
 		#else
-				OrbiterSDL_WinCE::Cleanup();
+            #ifdef WINCE
+                OrbiterSDL_WinCE::Cleanup();
+            #else
+                OrbiterSDL_Win32::Cleanup();
+            #endif
 		#endif
 
 #ifdef WINCE
