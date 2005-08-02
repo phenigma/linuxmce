@@ -7,7 +7,7 @@ if [ "$1" = "" ]; then
 	Q="select VersionName from Version WHERE PK_Version=$last_version"
 	last_version_name=$(echo "$Q;" | mysql -N pluto_main)
 
-	O1="UPDATE Version SET VersionName='${last_version_name}.$(date +%g%m%d%H)' WHERE PK_Version=$version;"
+	O1="UPDATE Version SET VersionName='${last_version_name}.$(date +%g%m%d%H)',Date='20$(date +%g%m%d)' WHERE PK_Version=1;"
 	echo "$O1" | mysql pluto_main
 fi
 
