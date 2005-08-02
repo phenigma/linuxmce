@@ -111,9 +111,24 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 	pLogoSurface = LoadImage( GetDisplay(), TEXT("logo.gif")); 
 #endif
 
-	if(pLogoSurface && pLogoSurface->m_height == m_iImageHeight && pLogoSurface->m_width == m_iImageWidth)
+	if(pLogoSurface) 
 	{
-		GetDisplay()->Blit( 0, 0, pLogoSurface );
+        if(pLogoSurface->m_height == m_iImageHeight && pLogoSurface->m_width == m_iImageWidth)
+		    GetDisplay()->Blit( 0, 0, pLogoSurface );
+        else //zoom
+        {
+            Rect dest;	
+            dest.Set(0, 0, m_iImageWidth, m_iImageHeight);
+
+            double ZoomX = m_iImageWidth / double(pLogoSurface->GetWidth());
+            double ZoomY = m_iImageHeight / double(pLogoSurface->GetHeight());
+
+            dest.right = dest.left + int(pLogoSurface->GetWidth() * ZoomX);
+            dest.bottom = dest.top + int(pLogoSurface->GetHeight() * ZoomY);     
+            
+            if( dest.right-dest.left>0 && dest.bottom-dest.top>0 )  // PF crashes with 0 width/height
+                GetDisplay()->BlitStretch(dest, pLogoSurface); 
+        }
 	}
 	else
 	{
@@ -686,9 +701,6 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 	if(pPlutoGraphic->IsEmpty())
 		return;//nothing to render or not an pocket frog graphic
 
-if( pPlutoGraphic->m_Filename=="" )
-int k=2;
-
 	PocketFrogGraphic *pPocketFrogGraphic = (PocketFrogGraphic *) pPlutoGraphic;
 	Surface *pSurface = pPocketFrogGraphic->m_pSurface;
 
@@ -697,14 +709,15 @@ int k=2;
 		g_pPlutoLogger->Write(LV_CRITICAL, "The surface has a bad pointer for pixels array (Surface: %p, pixels: %p)",
 			pSurface, pSurface->m_buffer->GetPixels());
 		pPlutoGraphic->Clear(); //force reload ocg
-int k=2;
 	}
 
     rectTotal.X += point.X;
     rectTotal.Y += point.Y;
 
 	if(pSurface->GetWidth() == 0 || pSurface->GetHeight() == 0)
-int k=2;
+    {
+        //do nothing
+    }
 	else
 		if(pSurface->GetWidth() != rectTotal.Width || pSurface->GetHeight() != rectTotal.Height)
 		{
@@ -894,16 +907,16 @@ void Orbiter_PocketFrog::WriteStatusOutput(const char* pMessage)
 
 	Counter++;
 
-	int iProgressWidth = m_iImageWidth < 300 ? m_iImageWidth - 50 : 300;
+	int iProgressWidth = m_iImageWidth < 300 ? m_iImageWidth - 100 : 300;
 	int iStart = (m_iImageWidth - iProgressWidth) / 2;
-	int iStep = iProgressWidth / 45;
+    int iStep = m_iImageWidth < 300 ? iProgressWidth / 9 : iProgressWidth / 35 ;
 
 	if(!(Counter % 50))
 	{
-		SolidRectangle(iStart, m_iImageHeight - 50, iProgressWidth, 3, white);
+        SolidRectangle(iStart, m_iImageHeight - 50, iProgressWidth, 3, white);
 		SolidRectangle(iStart, m_iImageHeight - 50, Counter / iStep, 3, green);
 		PlutoRectangle rect(iStart, m_iImageHeight - 50, iProgressWidth, 3);
-		UpdateRect(rect, PlutoPoint(0, 0));
+        GetDisplay()->Update();
 	}
 }
 //-----------------------------------------------------------------------------------------------------
