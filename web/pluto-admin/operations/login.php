@@ -40,6 +40,9 @@ $loginFormBig= '
 	    <tr>
 	      <td colspan="2" align="center">Learn about Pluto at <a href="http://www.plutohome.com" target="_top">www.plutohome.com</a><br><br>Download <a href="index.php?section=orbitersWin">Orbiter Win Installer</a></td>
 	    </tr>
+	    <tr>
+	      <td colspan="2" align="center">Version: <=version=></td>
+	    </tr>
 	  </table>
 	</form>
 	<p align="center" class="err"><B>'.(isset($_GET['error'])?strip_tags(stripslashes($_GET['error'])):'').'</B></p>	
