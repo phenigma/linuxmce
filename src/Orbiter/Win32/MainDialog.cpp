@@ -35,10 +35,12 @@
 #endif
 
 #define MAX_LOADSTRING 100
-#define WIN_WIDTH	   240
-#define WIN_HEIGHT	   320
-
 #define MENU_HEIGHT	   25
+//-----------------------------------------------------------------------------------------------------
+static int g_iDialogWidth;
+static int g_iDialogHeight;
+static bool g_bSimplifyUI = false;
+static bool g_bSmartPhone = false;
 //-----------------------------------------------------------------------------------------------------
 const MAX_STRING_LEN = 4096;
 static bool bStartRecording = true;
@@ -326,7 +328,29 @@ WORD MyRegisterClass(HINSTANCE hInstance, LPTSTR szWindowClass)
 //
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
-	HWND	hWnd = NULL;
+	RECT rc;
+    HWND hWndDesktop = ::GetDesktopWindow();
+    GetWindowRect(hWndDesktop, &rc);
+
+    int iWidth = rc.right - rc.left;
+    int iHeight = rc.bottom - rc.top;
+
+    if(iWidth >= 640 && iHeight >= 480)
+    {		
+        g_iDialogWidth = 640;
+        g_iDialogHeight = 480;
+    }
+    else //match the desktop resolution
+    {
+		g_bSimplifyUI = true;
+        g_iDialogWidth = iWidth;
+        g_iDialogHeight = iHeight;
+
+        if(iWidth < 240 && iHeight < 320)
+            g_bSmartPhone = true;
+    }
+    
+    HWND	hWnd = NULL;
 	g_hInst = hInstance;		// Store instance handle in our global variable
 
 	TCHAR	szTitle[MAX_LOADSTRING];			// The title bar text
@@ -335,19 +359,6 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	// Initialize global strings
 	LoadString(hInstance, IDC_ORBITER, szWindowClass, MAX_LOADSTRING);
 	LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-
-	/*
-	//If it is already running, then focus on the window
-	hWnd = FindWindow(szWindowClass, szTitle);	
-	if (hWnd) 
-	{
-		// set focus to foremost child window
-		// The "| 0x01" is used to bring any owned windows to the foreground and
-		// activate them.
-		SetForegroundWindow((HWND)((ULONG) hWnd | 0x00000001));
-		return 0;
-	} 
-	*/
 
 	MyRegisterClass(hInstance, szWindowClass);
 
@@ -371,25 +382,14 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	if (g_hwndCB)
 #endif
     {
-		RECT rc;
-
-#ifdef WINCE		
-		RECT rcMenuBar;
-#endif
-
-		HWND hWndDesktop = ::GetDesktopWindow();
-		GetWindowRect(hWndDesktop, &rc);
-
-		int iWidth = rc.right - rc.left;
-		int iHeight = rc.bottom - rc.top;
-		
-		rc.left = (iWidth - WIN_WIDTH) / 2;
-		rc.right = rc.left + WIN_WIDTH;
-		rc.top = (iHeight - WIN_HEIGHT) / 2;
-		rc.bottom = rc.top + WIN_HEIGHT;
+		rc.left = (iWidth - g_iDialogWidth) / 2;
+		rc.right = rc.left + g_iDialogWidth;
+		rc.top = (iHeight - g_iDialogHeight) / 2;
+		rc.bottom = rc.top + g_iDialogHeight;
 
 #ifdef WINCE
-		GetWindowRect(g_hwndCB, &rcMenuBar);
+        RECT rcMenuBar;
+        GetWindowRect(g_hwndCB, &rcMenuBar);
 		rc.bottom -= (rcMenuBar.bottom - rcMenuBar.top);
 #endif		
 
@@ -468,16 +468,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 
 				//configuration info
-				g_hWnd_FullScreenCheckBox = CreateCheckBox(hWnd, 10, WIN_HEIGHT - 4 * MENU_HEIGHT - SMALL_BOTTOM_OFFSET - BOTTOM_ADJUSTMENT, "Full screen", 120);
-				g_hWnd_LogToServerCheckBox = CreateCheckBox(hWnd, 130, WIN_HEIGHT - 4 * MENU_HEIGHT - SMALL_BOTTOM_OFFSET - BOTTOM_ADJUSTMENT, "Log to server for debugging", 200);
+                int iBase = g_iDialogHeight - 5 * MENU_HEIGHT - SMALL_BOTTOM_OFFSET - BOTTOM_ADJUSTMENT;
+
+				g_hWnd_FullScreenCheckBox = CreateCheckBox(hWnd, 10, iBase, "Full screen", 120);
+				g_hWnd_LogToServerCheckBox = CreateCheckBox(hWnd, 10, iBase + 20, "Log to server for debugging", 200);
 	
-				CreateLabel(hWnd, 10, WIN_HEIGHT - 4 * MENU_HEIGHT + 15 - SMALL_BOTTOM_OFFSET + 3 - BOTTOM_ADJUSTMENT, 80, "Device ID: ");	
-				g_hWnd_DeviceIDEdit = CreateEdit(hWnd, 90, WIN_HEIGHT - 4 * MENU_HEIGHT + 15 - SMALL_BOTTOM_OFFSET + 3 - BOTTOM_ADJUSTMENT, 50, "", true, true);
+				CreateLabel(hWnd, 10, iBase + 40, 80, "Device ID: ");	
+				g_hWnd_DeviceIDEdit = CreateEdit(hWnd, 90, iBase + 40, 50, "", true, true);
 
-				CreateLabel(hWnd, 10, WIN_HEIGHT - 4 * MENU_HEIGHT + 35 - SMALL_BOTTOM_OFFSET + 3 - BOTTOM_ADJUSTMENT, 80, "Router IP: ");	
-				g_hWnd_RouterIPEdit = CreateEdit(hWnd, 90, WIN_HEIGHT - 4 * MENU_HEIGHT + 35 - SMALL_BOTTOM_OFFSET + 3 - BOTTOM_ADJUSTMENT, 100, "", false, false);
+				CreateLabel(hWnd, 10, iBase + 60, 80, "Router IP: ");	
+				g_hWnd_RouterIPEdit = CreateEdit(hWnd, 90, iBase + 60, 80, "", false, false);
 
-				g_hWnd_ApplyButton = CreateButton(hWnd, 160, WIN_HEIGHT - 4 * MENU_HEIGHT + 10 - BOTTOM_ADJUSTMENT + 3 - BOTTOM_ADJUSTMENT, "&Apply");
+				g_hWnd_ApplyButton = CreateButton(hWnd, g_iDialogWidth - 60, iBase, "&Apply");
 
 				g_hWndTab = CreateTabControl(hWnd);
 				g_hWndPage1 = CreatePage(g_hWndTab);
@@ -485,7 +487,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				g_hWndPage3 = CreatePage(g_hWndTab);
 
 				//page 1
-				RECT rt_list = { 1, 1, WIN_WIDTH - 16, WIN_HEIGHT - 4 * MENU_HEIGHT - 5 - BOTTOM_OFFSET };
+				RECT rt_list = { 1, 1, g_iDialogWidth - 16, g_iDialogHeight - 5 * MENU_HEIGHT - 5 - BOTTOM_OFFSET };
 				g_hWndList = CreateListBox(g_hWndPage1, rt_list);
 
 				//page 2
@@ -495,12 +497,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				g_hWndRecord_KeyboardCheckBox = CreateCheckBox(g_hWndPage2, 10, 30, "Record keyboard");
 				::SendMessage(g_hWndRecord_KeyboardCheckBox, BM_SETCHECK, BST_CHECKED, 0);
 				
-				RECT rt_record_list = { 170, 10, WIN_WIDTH - 190, WIN_HEIGHT - 150 - BOTTOM_OFFSET };
+				RECT rt_record_list = { 170, 10, g_iDialogWidth - 190, g_iDialogHeight - 150 - BOTTOM_OFFSET - MENU_HEIGHT };
 				g_hWndRecord_List = CreateListBox(g_hWndPage2, rt_record_list);
 
-				g_hWndRecord_SaveButton = CreateButton(g_hWndPage2, 120 + 170, WIN_HEIGHT - 140 - BOTTOM_OFFSET, "&Save");
-				g_hWndRecord_LoadButton = CreateButton(g_hWndPage2, 120 + 230, WIN_HEIGHT - 140 - BOTTOM_OFFSET, "&Load");
-				g_hWndRecord_ClearButton = CreateButton(g_hWndPage2, 120 + 290, WIN_HEIGHT - 140 - BOTTOM_OFFSET, "&Clear");
+				g_hWndRecord_SaveButton = CreateButton(g_hWndPage2, 120 + 170, g_iDialogHeight - 140 - BOTTOM_OFFSET - MENU_HEIGHT, "&Save");
+				g_hWndRecord_LoadButton = CreateButton(g_hWndPage2, 120 + 230, g_iDialogHeight - 140 - BOTTOM_OFFSET - MENU_HEIGHT, "&Load");
+				g_hWndRecord_ClearButton = CreateButton(g_hWndPage2, 120 + 290, g_iDialogHeight - 140 - BOTTOM_OFFSET - MENU_HEIGHT, "&Clear");
 
 				CreateLabel(g_hWndPage2, 10, 200, 25 + PLAYER_OFFSET, "Play");
 				g_hWndRecord_RepeatEdit = CreateEdit(g_hWndPage2, 35 + 2 * PLAYER_OFFSET, 200, 32, "1", true, true);
@@ -533,8 +535,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				CreateLabel(g_hWndPage3, 10, 200, 200, "Home screen: ");	
 				g_hWndRandom_HomeEdit = CreateEdit(g_hWndPage3, 225, 200, 50, "1255", true, true);
 
-				g_hWndRandom_GenerateButton = CreateButton(g_hWndPage3, 10, 250, "&Generate", 100);
-				g_hWndRandom_StopButton = CreateButton(g_hWndPage3, 120, 250, "&Stop");
+				g_hWndRandom_GenerateButton = CreateButton(g_hWndPage3, 10, 230, "&Generate", 100);
+				g_hWndRandom_StopButton = CreateButton(g_hWndPage3, 120, 230, "&Stop");
 
 				::SetWindowLong(g_hWndPage3, GWL_WNDPROC, reinterpret_cast<long>(PagesWndProc));
 
@@ -685,6 +687,9 @@ HWND CreateRpCommandBar(HWND hwnd)
 //-----------------------------------------------------------------------------------------------------
 HWND CreateTabControl(HWND hWnd)
 {
+    if(g_bSmartPhone)
+        return NULL;
+
 #ifdef WINCE
 	INITCOMMONCONTROLSEX iccex;
 	iccex.dwSize = sizeof (INITCOMMONCONTROLSEX);
@@ -695,7 +700,7 @@ HWND CreateTabControl(HWND hWnd)
 	#define OFFSET 1
 #endif
 
-	RECT rt = {1, OFFSET, WIN_WIDTH - 5, WIN_HEIGHT - 3 * MENU_HEIGHT - BOTTOM_OFFSET };
+	RECT rt = {1, OFFSET, g_iDialogWidth - 5, g_iDialogHeight - 4 * MENU_HEIGHT - BOTTOM_OFFSET };
 
 	HWND hTabCtrl = CreateWindowEx(0, WC_TABCONTROL, NULL, WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS | WS_VISIBLE ,
 		rt.left, rt.top, rt.right, rt.bottom, hWnd,(HMENU)"", g_hInst, NULL );
@@ -703,19 +708,24 @@ HWND CreateTabControl(HWND hWnd)
 	TCITEM tcItem;
 	tcItem.mask = TCIF_TEXT;
 
-	tcItem.pszText = _T("Random");
-	::SendMessage(hTabCtrl, TCM_INSERTITEM, (WPARAM)(int)0, (LPARAM)(const TC_ITEM *)&tcItem);
-	tcItem.pszText = _T("Recorder");
-	::SendMessage(hTabCtrl, TCM_INSERTITEM, (WPARAM)(int)0, (LPARAM)(const TC_ITEM *)&tcItem);
+
+	if(!g_bSimplifyUI)
+	{
+		tcItem.pszText = _T("Random");
+		::SendMessage(hTabCtrl, TCM_INSERTITEM, (WPARAM)(int)0, (LPARAM)(const TC_ITEM *)&tcItem);
+		tcItem.pszText = _T("Recorder");
+		::SendMessage(hTabCtrl, TCM_INSERTITEM, (WPARAM)(int)0, (LPARAM)(const TC_ITEM *)&tcItem);
+	}
+
 	tcItem.pszText = _T("Logger");
 	::SendMessage(hTabCtrl, TCM_INSERTITEM, (WPARAM)(int)0, (LPARAM)(const TC_ITEM *)&tcItem);
 
-	return hTabCtrl;
+    return hTabCtrl;
 }
 //-----------------------------------------------------------------------------------------------------
 HWND CreatePage(HWND hWnd)
 {
-	RECT rt = {3, MENU_HEIGHT, WIN_WIDTH - 12, WIN_HEIGHT - 4 * MENU_HEIGHT - 4 - BOTTOM_OFFSET };
+	RECT rt = {3, MENU_HEIGHT, g_iDialogWidth - 12, g_iDialogHeight - 5 * MENU_HEIGHT - BOTTOM_OFFSET - 4 };
 
 	HWND hWndPage = CreateWindow(TEXT("STATIC"), NULL, WS_CHILD | WS_CLIPSIBLINGS | WS_BORDER,
 		rt.left, rt.top, rt.right, rt.bottom, hWnd, (HMENU)"", g_hInst, NULL );
