@@ -3,6 +3,9 @@
 cd /usr/pluto/database/
 /usr/pluto/bin/sqlCVS -n -D pluto_main -r local import
 
+# In the .26 release a change was inadvertently made disabling the UpdatePackages for MD's.  Temporarily restore that
+echo "update Device_StartupScript set Enabled=1 where FK_StartupScript=34;" | mysql pluto_main
+
 # The following open up ports 22 and 80 and 3450 (DCERouter)  on the Firewall.  This is for development mode only.  The release versions will have the firewall closed by default
 set +e
 rows="$(echo "select * from Firewall" | mysql -N pluto_main)";
