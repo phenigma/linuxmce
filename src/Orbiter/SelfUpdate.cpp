@@ -248,7 +248,12 @@ bool OrbiterSelfUpdate::SpawnUpdateBinaryProcess()
 	if(!::CreateProcess(NULL, const_cast<char *>(sUpdateBinaryFilePath.c_str()), NULL, NULL, NULL, 0, NULL, NULL, &si, &pi))
 #endif
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL,  "Failed to start UpdateBinary application '%s'", sUpdateBinaryFilePath.c_str() );
+        string sErrorMessage = "Failed to start UpdateBinary application '" + sUpdateBinaryFilePath + "'";
+		g_pPlutoLogger->Write( LV_CRITICAL,  sErrorMessage.c_str() );
+
+        
+        ::MessageBox(NULL, TEXT("Failed to start UpdateBinary application.\r\nPlease be sure that you are running the correct orbiter."), 
+			TEXT("Pluto Orbiter failed to update"), 0);
 		return false; 
 	}
 
@@ -303,12 +308,11 @@ bool OrbiterSelfUpdate::Run()
 
 	if(!CreateCommunicationFile())
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL,  "Unable to create the commuication file for UpdateBinary applicaiton." );
+		g_pPlutoLogger->Write( LV_CRITICAL,  "Unable to create the communication file for UpdateBinary application." );
 		return false;
 	}
 	g_pPlutoLogger->Write( LV_STATUS,  "Communication file created." );
 
-	SpawnUpdateBinaryProcess();
-	return true;	//need restart
+	return SpawnUpdateBinaryProcess();
 }
 //-----------------------------------------------------------------------------------------------------
