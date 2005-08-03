@@ -94,6 +94,7 @@ public:
 
 	virtual void ShowProgress();
 	virtual void OnQuit();
+    virtual void DisplayMessage(string sMessage);
 
 	// Other
 	virtual void Initialize(GraphicType Type, int iPK_Room=0, int iPK_EntertainArea=0);

@@ -147,6 +147,8 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
         MessageBox(TEXT("Orbiter cannot start because no screens are generated. \r\nTo generate screens, please use OrbiterGen."),
             TEXT("Pluto Orbiter"), MB_ICONHAND);
 
+        m_bQuit = true;
+
         exit(1);
     }
 
@@ -977,7 +979,6 @@ void Orbiter_PocketFrog::PingFailed()
 #endif
 }
 //-----------------------------------------------------------------------------------------------------
-
 void Orbiter_PocketFrog::CalcTextRectangle(RECT &rectLocation,PlutoRectangle &rPosition,int iRotation,int iHeight,int iVertAlignment)
 {
 	if( m_iRotation==0 ) 
@@ -1023,4 +1024,15 @@ void Orbiter_PocketFrog::CalcTextRectangle(RECT &rectLocation,PlutoRectangle &rP
 		rectLocation.bottom = rectLocation.top+iHeight;
 	}
 }
-
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void Orbiter_PocketFrog::DisplayMessage(string sMessage)
+{
+#ifdef WINCE
+    wchar_t wMessage[4096];
+    mbstowcs(wMessage, sMessage.c_str(), 4096);	
+    ::MessageBox(NULL, wMessage, TEXT("Orbiter"), 0);
+#else
+    ::MessageBox(NULL, sMessage.c_str(), TEXT("Orbiter"), 0);
+#endif
+}
+//-----------------------------------------------------------------------------------------------------

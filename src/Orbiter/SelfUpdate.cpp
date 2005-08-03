@@ -284,7 +284,7 @@ bool OrbiterSelfUpdate::Run()
 
 	if(LastUpdateFailed())
 	{	
-        if(IDOK == ::MessageBox(NULL, TEXT("Last time I tried to update it failed. Should I try again?  \r\nWe recommend you choose 'yes' unless the update keeps failing,\r\nin which case please notify Pluto support."), 
+        if(IDYES == ::MessageBox(NULL, TEXT("Last time I tried to update it failed. Should I try again?  \r\nWe recommend you choose 'yes' unless the update keeps failing,\r\nin which case please notify Pluto support."), 
             TEXT("Last update failed"), MB_YESNO))
         {
             g_pPlutoLogger->Write( LV_CRITICAL,  "The user chooses to try to update Orbiter again, let's try this..." );

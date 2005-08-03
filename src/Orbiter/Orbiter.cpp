@@ -7227,8 +7227,14 @@ bool Orbiter::OkayToDeserialize(int iSC_Version)
 {
 	if( iSC_Version==ORBITER_SCHEMA )
 		return true;
-	g_pPlutoLogger->Write(LV_CRITICAL,"Cannot deserialize .info file.  It is version %d and I need %d",
-		iSC_Version,ORBITER_SCHEMA);
+
+    string sErrorMessage = "Cannot deserialize .info file.  It is version " + StringUtils::ltos(iSC_Version) + 
+        " and I need " + StringUtils::ltos(ORBITER_SCHEMA) + ".";
+    g_pPlutoLogger->Write(LV_CRITICAL, sErrorMessage.c_str());
+
+    sErrorMessage += "\r\n\r\nMake sure you are running the latest version of Orbiter\r\nand the screens are generated with the latest version of OrbiterGen";
+    DisplayMessage(sErrorMessage);
+
 	return false;
 }
 
