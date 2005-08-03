@@ -269,7 +269,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
 
 	hWnd = CreateWindow(szWindowClass, szTitle, WS_VISIBLE,
-		CW_USEDEFAULT, CW_USEDEFAULT, WND_WIDTH, WND_HEIGHT, NULL, NULL, hInstance, NULL);
+		0, 0, WND_WIDTH, WND_HEIGHT, NULL, NULL, hInstance, NULL);
 
 	if (!hWnd)
 	{	
@@ -278,8 +278,11 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
+
 	if (hwndCB)
 		CommandBar_Show(hwndCB, TRUE);
+
+
 
 	return TRUE;
 }
