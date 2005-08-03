@@ -333,11 +333,13 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
     GetWindowRect(hWndDesktop, &rc);
 
 #ifdef WIN32
-	//hack for motorola
-	rc.left = 0;
-	rc.top = 0;
-	rc.right = 240;
-	rc.bottom = 320;
+	#ifndef SMARTPHONE
+		//hack for motorola
+		rc.left = 0;
+		rc.top = 0;
+		rc.right = 240;
+		rc.bottom = 320;
+	#endif
 #endif
 
     int iWidth = rc.right - rc.left;
