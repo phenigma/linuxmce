@@ -1237,6 +1237,7 @@
 #define DESIGNOBJ_objMousePad_x16_y16_CONST 3828
 #define DESIGNOBJ_butLeft_Click_CONST 3829
 #define DESIGNOBJ_butRight_Click_CONST 3830
+#define DESIGNOBJ_crop_CONST 3831
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
