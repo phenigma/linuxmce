@@ -332,6 +332,14 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
     HWND hWndDesktop = ::GetDesktopWindow();
     GetWindowRect(hWndDesktop, &rc);
 
+#ifdef WIN32
+	//hack for motorola
+	rc.left = 0;
+	rc.top = 0;
+	rc.right = 240;
+	rc.bottom = 320;
+#endif
+
     int iWidth = rc.right - rc.left;
     int iHeight = rc.bottom - rc.top;
 

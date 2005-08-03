@@ -284,12 +284,22 @@ bool OrbiterSelfUpdate::Run()
 
 	if(LastUpdateFailed())
 	{	
-		g_pPlutoLogger->Write( LV_CRITICAL,  "Last update failed. We won't try to update again." );
-		return false;
+        if(IDOK == ::MessageBox(NULL, TEXT("Last time I tried to update it failed. Should I try again?  \r\nWe recommend you choose 'yes' unless the update keeps failing,\r\nin which case please notify Pluto support."), 
+            TEXT("Last update failed"), MB_YESNO))
+        {
+            g_pPlutoLogger->Write( LV_CRITICAL,  "The user chooses to try to update Orbiter again, let's try this..." );
+        }
+        else
+        {
+    		g_pPlutoLogger->Write( LV_CRITICAL,  "Last update failed. We won't try to update again." );
+	    	return false;
+        }
 	}
+
 #ifdef DEBUG
-	g_pPlutoLogger->Write( LV_STATUS,  "Last update didn't fail." );
+	g_pPlutoLogger->Write( LV_STATUS,  "Last update didn't fail or the user decided to try to update again." );
 #endif
+
 	if(!UpdateAvailable())
 	{
 #ifdef DEBUG

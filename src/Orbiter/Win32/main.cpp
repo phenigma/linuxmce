@@ -20,6 +20,12 @@ const char *g_szCompile_Date="<=compile_date=>";
 
 extern HWND	g_hWndList; //maindialog logger list
 
+#ifdef WIN32
+    static const string g_sOrbiterConfName = "Orbiter.conf";
+#else
+    static const string g_sOrbiterConfName = "Orbiter.txt";
+#endif
+
 #ifdef POCKETFROG
 	#include "Orbiter_PocketFrog.h"
 #else
@@ -194,7 +200,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 		}
 
 		//NOTE: the logger is not created yet. Do not try to use the logger at this moment!
-		Simulator::GetInstance()->LoadConfigurationFile(g_sBinaryPath + "Orbiter.conf");
+		Simulator::GetInstance()->LoadConfigurationFile(g_sBinaryPath + g_sOrbiterConfName);
 
 		if(!CmdLineParams.bDeviceIDSpecified)
 			if(!(Simulator::GetInstance()->m_bTryToDetermineAutomatically))
@@ -272,7 +278,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 
 		g_pPlutoLogger->Write(LV_STATUS, "Exited process messages loop. We are shutting down....");
 
-		Simulator::GetInstance()->SaveConfigurationFile(g_sBinaryPath + "Orbiter.conf");
+		Simulator::GetInstance()->SaveConfigurationFile(g_sBinaryPath + g_sOrbiterConfName);
 		Simulator::Cleanup();
 
 		#ifdef POCKETFROG
