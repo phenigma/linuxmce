@@ -204,7 +204,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
 	m_bWeCanRepeat=false;
 	m_bRepeatingObject=false;
     m_bShowShortcuts = false;
-	m_iPK_DesignObj_Remote=m_iPK_DesignObj_Remote_Popup=m_iPK_DesignObj_FileList=m_iPK_DesignObj_FileList_Popup=m_iPK_DesignObj_RemoteOSD=0;
+	m_iPK_DesignObj_Remote=m_iPK_DesignObj_Remote_Popup=m_iPK_DesignObj_FileList=m_iPK_DesignObj_FileList_Popup=m_iPK_DesignObj_RemoteOSD=m_iPK_DesignObj_Guide=0;
 
     m_pScreenHistory_Current=NULL;
     m_pObj_LastSelected=m_pObj_Highlighted=NULL;
@@ -4377,7 +4377,10 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 				Output += StringUtils::itos((*it).first) + ",";
         else if(  Variable=="SDD" )
 			for(map<int,DeviceData_Base *>::iterator it=m_mapDevice_Selected.begin();it!=m_mapDevice_Selected.end();++it)
-				Output += it->second->m_sDescription + ",";
+			{
+				if( it->second )
+					Output += it->second->m_sDescription + ",";
+			}
         else if(  Variable=="R" && m_pLocationInfo  )
             Output += StringUtils::itos( m_pLocationInfo->PK_Room );
         else if(  Variable=="U" )
@@ -6307,7 +6310,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Need to change screens logged to %s",pScreenHis
 		/** @param #2 PK_Device */
 			/** The currently active media device */
 		/** @param #3 PK_DesignObj */
-			/** 4 comma delimited objects: normal remote, popup remote, file list remote, popup file list remote */
+			/** 4 comma delimited objects: normal remote, popup remote, file list remote, popup file list remote, guide */
 		/** @param #5 Value To Assign */
 			/** The description of the media */
 		/** @param #13 Filename */
@@ -6334,6 +6337,7 @@ void Orbiter::CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sVa
 	m_iPK_DesignObj_FileList=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
 	m_iPK_DesignObj_FileList_Popup=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
 	m_iPK_DesignObj_RemoteOSD=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
+	m_iPK_DesignObj_Guide=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
 	m_sDefaultRippingName = sFilename;
 
 	if( bRetransmit )
@@ -7883,3 +7887,77 @@ void Orbiter::ParseGrid(DesignObj_DataGrid *pObj_Datagrid)
 	pObj_Datagrid->m_bParsed=true;
 }
 
+//<-dceag-c126-b->
+
+	/** @brief COMMAND: #126 - Guide */
+	/** Go to the media guide if applicable, otherwise forward to media plugin. */
+
+void Orbiter::CMD_Guide(string &sCMD_Result,Message *pMessage)
+//<-dceag-c126-e->
+{
+	if( m_iPK_DesignObj_Guide )
+		CMD_Goto_Screen( 0, StringUtils::itos(m_iPK_DesignObj_Guide), "","", false,false );
+	else
+	{
+		DCE::CMD_Guide CMD_Guide(m_dwPK_Device,m_dwPK_Device_MediaPlugIn);
+		SendCommand(CMD_Guide);
+	}
+}
+
+//<-dceag-c194-b->
+
+	/** @brief COMMAND: #194 - Toggle Power */
+	/** First time stops any media playing.  Second time turns the display off.  Third time powers off the media director. */
+		/** @param #8 On/Off */
+			/** Depending on each device On/Off can be interpreted differently, but in genereal On/Off has a value of 1 for on and 0 for Off */
+
+void Orbiter::CMD_Toggle_Power(string sOnOff,string &sCMD_Result,Message *pMessage)
+//<-dceag-c194-e->
+{
+	if( m_pScreenHistory_Current && m_pScreenHistory_Current->m_pObj->m_bIsARemoteControl )
+	{
+		DCE::CMD_MH_Stop_Media CMD_MH_Stop_Media(m_dwPK_Device,m_dwPK_Device_MediaPlugIn,0,0,0,StringUtils::itos( m_pLocationInfo->PK_EntertainArea ));
+		SendCommand(CMD_MH_Stop_Media);
+	}
+	else if( m_bDisplayOn )
+		CMD_Display_OnOff("0",false);
+	else
+	{
+		DCE::CMD_Halt_Device CMD_Halt_Device(m_dwPK_Device,m_dwPK_Device_LocalAppServer,m_dwPK_Device,false);
+		SendCommand(CMD_Halt_Device);
+	}
+}
+
+//<-dceag-c240-b->
+
+	/** @brief COMMAND: #240 - Back / Prior Menu */
+	/** If at a remote control, forward to media plugin.  Otherwise go back 1 screen. */
+
+void Orbiter::CMD_Back_Prior_Menu(string &sCMD_Result,Message *pMessage)
+//<-dceag-c240-e->
+{
+	if( m_pScreenHistory_Current && m_pScreenHistory_Current->m_pObj->m_bIsARemoteControl )
+	{
+		DCE::CMD_Back_Prior_Menu CMD_Back_Prior_Menu(m_dwPK_Device,m_dwPK_Device_MediaPlugIn);
+		SendCommand(CMD_Back_Prior_Menu);
+	}
+	else
+		CMD_Go_back("","");
+}
+
+//<-dceag-c363-b->
+
+	/** @brief COMMAND: #363 - Back / Clear Entry */
+	/** If at a remote control, forward to media plugin.  Otherwise clear typing */
+
+void Orbiter::CMD_Back_Clear_Entry(string &sCMD_Result,Message *pMessage)
+//<-dceag-c363-e->
+{
+	if( m_pScreenHistory_Current && m_pScreenHistory_Current->m_pObj->m_bIsARemoteControl )
+	{
+		DCE::CMD_Back_Clear_Entry CMD_Back_Clear_Entry(m_dwPK_Device,m_dwPK_Device_MediaPlugIn);
+		SendCommand(CMD_Back_Clear_Entry);
+	}
+	else
+		CaptureKeyboard_EditText_DeleteLastChar(  );
+}

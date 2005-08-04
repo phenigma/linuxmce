@@ -181,7 +181,7 @@ protected:
 	string m_sLastSelectedDatagrid; /** < The contents of the last selected datagrid cell */
 
 	// The remotes for the current media
-	int m_iPK_DesignObj_Remote,m_iPK_DesignObj_Remote_Popup,m_iPK_DesignObj_FileList,m_iPK_DesignObj_FileList_Popup,m_iPK_DesignObj_RemoteOSD;
+	int m_iPK_DesignObj_Remote,m_iPK_DesignObj_Remote_Popup,m_iPK_DesignObj_FileList,m_iPK_DesignObj_FileList_Popup,m_iPK_DesignObj_RemoteOSD,m_iPK_DesignObj_Guide;
 	string m_sNowPlaying,m_sDefaultRippingName; /** < set by the media engine, this is whatever media is currently playing */
 	int m_dwPK_Device_NowPlaying;  /** < set by the media engine, this is whatever media device is currently playing */
 	PlutoPopup *m_pActivePopup;
@@ -1335,6 +1335,13 @@ public:
 	virtual void CMD_Set_Current_Location(int iLocationID,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #126 - Guide */
+	/** Go to the media guide if applicable, otherwise forward to media plugin. */
+
+	virtual void CMD_Guide() { string sCMD_Result; CMD_Guide(sCMD_Result,NULL);};
+	virtual void CMD_Guide(string &sCMD_Result,Message *pMessage);
+
+
 	/** @brief COMMAND: #192 - On */
 	/** Turn the device on */
 		/** @param #97 PK_Pipe */
@@ -1355,6 +1362,15 @@ public:
 	virtual void CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #194 - Toggle Power */
+	/** First time stops any media playing.  Second time turns the display off.  Third time powers off the media director. */
+		/** @param #8 On/Off */
+			/** Depending on each device On/Off can be interpreted differently, but in genereal On/Off has a value of 1 for on and 0 for Off */
+
+	virtual void CMD_Toggle_Power(string sOnOff) { string sCMD_Result; CMD_Toggle_Power(sOnOff.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Toggle_Power(string sOnOff,string &sCMD_Result,Message *pMessage);
+
+
 	/** @brief COMMAND: #238 - Continuous Refresh */
 	/** Continuously refresh the current page.  Used when the page contains constantly changing data. */
 		/** @param #102 Time */
@@ -1364,12 +1380,19 @@ public:
 	virtual void CMD_Continuous_Refresh(string sTime,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #240 - Back / Prior Menu */
+	/** If at a remote control, forward to media plugin.  Otherwise go back 1 screen. */
+
+	virtual void CMD_Back_Prior_Menu() { string sCMD_Result; CMD_Back_Prior_Menu(sCMD_Result,NULL);};
+	virtual void CMD_Back_Prior_Menu(string &sCMD_Result,Message *pMessage);
+
+
 	/** @brief COMMAND: #242 - Set Now Playing */
 	/** Used by the media engine to set the "now playing" text on an orbiter.  If the orbiter is bound to the remote for an entertainment area it will get more updates than just media,  like cover art, but this is the basic information that is visible on screens */
 		/** @param #2 PK_Device */
 			/** The currently active media device */
 		/** @param #3 PK_DesignObj */
-			/** 4 comma delimited objects: normal remote, popup remote, file list remote, popup file list remote */
+			/** 4 comma delimited objects: normal remote, popup remote, file list remote, popup file list remote, guide */
 		/** @param #5 Value To Assign */
 			/** The description of the media */
 		/** @param #13 Filename */
@@ -1457,6 +1480,13 @@ public:
 
 	virtual void CMD_Show_Mouse_Pointer(string sOnOff) { string sCMD_Result; CMD_Show_Mouse_Pointer(sOnOff.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Show_Mouse_Pointer(string sOnOff,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #363 - Back / Clear Entry */
+	/** If at a remote control, forward to media plugin.  Otherwise clear typing */
+
+	virtual void CMD_Back_Clear_Entry() { string sCMD_Result; CMD_Back_Clear_Entry(sCMD_Result,NULL);};
+	virtual void CMD_Back_Clear_Entry(string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #366 - Activate Window */
