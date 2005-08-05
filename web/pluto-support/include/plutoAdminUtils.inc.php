@@ -337,9 +337,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 				}
 				if($categoryID==$GLOBALS['rootAVEquipment']){
 					$out.='
-					<tr>
-						<td colspan="3">After you add the device you\'ll to choose the A/V properties button and then I/R codes.</td>
-					</tr>';
+					';
 				}
 				$out.='
 				</table>

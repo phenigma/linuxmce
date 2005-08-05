@@ -449,6 +449,20 @@ switch ($section) {
 		include_once('operations/newIRCode.php');
 	    newIRCode($output);
 	break;	
+   case 'newIRGCode':
+    	$output = new Template();
+    	$output->setConn($conn);
+       	$output->setTemplateFileType('popup');
+		include_once('operations/newIRGCode.php');
+	    newIRGCode($output);
+	break;
+   case 'editIRGCode':
+    	$output = new Template();
+    	$output->setConn($conn);
+       	$output->setTemplateFileType('popup');
+		include_once('operations/editIRGCode.php');
+	    editIRGCode($output);
+	break;
 	case 'editAVDevice':
     	$output = new Template();
     	$output->setConn($conn);
@@ -554,6 +568,20 @@ switch ($section) {
        	$output->setTemplateFileType('nonews');
 		include_once('operations/irGroup.php');
 	    irGroup($output,$conn,$dbADO);
+	break;
+   case 'irGrouptest':
+    	$output = new Template();
+    	$output->setConn($conn);
+       	$output->setTemplateFileType('nonews');
+		include_once('operations/irGrouptest.php');
+	    irGrouptest($output,$conn,$dbADO);
+	break;
+    case 'irGrouptest1':
+    	$output = new Template();
+    	$output->setConn($conn);
+       	$output->setTemplateFileType('nonews');
+		include_once('operations/irGrouptest1.php');
+	    irGrouptest1($output,$conn,$dbADO);
 	break;
 	case 'dealer_users':
     	$output = new Template();

@@ -340,14 +340,13 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 									'.$selectModels.'	
 							</select>';
 							if($returnValue==0){
-								$out.='<br><input type="button" class="button" name="edit_DeviceTemplate" value="Edit Model" onClick="javascript:checkEdit(\'model\');" />';
+								$out.='<br><input type="button" class="button" name="edit_DeviceTemplate" value="Show Model" onClick="javascript:checkEdit(\'model\');" />';
 							}else{
 								$out.='<br><input type="button" class="button" name="pickDT" value="Add device" onClick="opener.location=\'index.php?section='.$_SESSION['from'].'&deviceTemplate=\'+document.'.$section.'.model[document.'.$section.'.model.selectedIndex].value+\'&action=add&add=1\';self.close();" />';
 							}
 							$out.='
 							<hr />
-							<em>* Green device templates are plug and play.<br>
-								Red device templates are IR.</em><br>
+							<em>* Models in red use IR codes, in white use Pluto\'s GSD.  Models in green are plug and play.</em><br>
 						<b><span id="modelManuf"></span><span id="modelDeviceDescription"></span></b><br />
 							
 							';
@@ -375,7 +374,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 									'.@$selectIrgc.'	
 							</select>
 							<br>
-							<input type="button" class="button" name="edit_irg" value="Edit IR Group" onClick="javascript:checkEdit(\'irg\');" />
+							<input type="button" class="button" name="edit_irg" value="Show IR Group" onClick="javascript:checkEdit(\'irg\');" />
 							</td>
 						</tr>				
 					</table>

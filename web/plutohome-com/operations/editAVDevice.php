@@ -282,22 +282,65 @@ $out.='
 <br />
 	<table align="center" class="normaltext">
 		<tr>
-			<td align="right" width="50%">Uses IR: </td>
-			<td><input type="checkbox" name="usesIR" value="1" '.(($usesIR>0)?'checked':'').' '.$btnEnabled.' onclick="document.editAVDevice.action.value=\'update\';setCheckboxes();document.editAVDevice.submit();"> <input type="button" name="ircodes" value="IR Codes" onclick="self.location=\'index.php?section=irCodes&dtID='.$deviceID.'\'">
+		<td colspan=2>
+		Pluto\'s free, open source I/R control modules are intelligent so you do not need to ever program any macros.  Just tell Pluto you have the device in your 
+		home, and automatically Pluto knows what to do with it and creates a remote control for you.  However this means whoever first adds the device needs to take 
+		a moment to specify the properties for the device so Pluto knows how to control it.  This data is stored in an open, free database that anybody can use.
 		</td>
 		</tr>
 		<tr>
-			<td colspan="2" align="center"><span>IR Power Delay: <input type="text" name="irPowerDelay" value="'.$irPowerDelay.'" size="5" /> IR Mode Delay: <input type="text" name="irModeDelay" value="'.$irModeDelay.'" size="5" /> Digit Delay (ms): <input type="text" name="irDigitDelay" value="'.$digitDelay.'" size="5" /></span></td>
+			<td colspan=2 align="center">
+			<input type="button" name="ircodes" value="Show the Infrared or GSD codes" onclick="self.location=\'index.php?section=irCodes&dtID='.$deviceID.'\'">
+		</td>
 		</tr>
 		<tr>
-			<td align="center" colspan="2"><span class="'.(($usesIR>0)?'':'grayout').'"> Power: <input type="radio" name="toggle_power" value="1" '.(($togglePower>0)?'checked':'').' '.$enabledIROptions.'> Toggle <input type="radio" name="toggle_power" value="0" '.(($togglePower>0)?'':'checked').' '.$enabledIROptions.'> Discrete</span></td>
+			<td >
+				<input type="checkbox" name="usesIR" value="1" '.(($usesIR>0)?'checked':'').' '.$btnEnabled.
+					' onclick="document.editAVDevice.action.value=\'update\';setCheckboxes();document.editAVDevice.submit();">
+				This device is controlled by sending infrared codes.  Leave unchecked if creating a GSD device.
+			</td>
+			<td align="left">This devices use the infrared group:<br>'.generatePullDown('irg','InfraredGroup','PK_InfraredGroup','Description',(int)@$_REQUEST['irg'],$publicADO,'WHERE FK_Manufacturer='.$manufID.' AND FK_DeviceCategory='.$deviceCategID,'onchange="document.editAVDevice.action.value=\'form\';document.editAVDevice.submit();"').'</td>
 		</tr>
 		<tr>
-			<td align="right">Infrared Groups</td>
-			<td align="left">'.generatePullDown('irg','InfraredGroup','PK_InfraredGroup','Description',(int)@$_REQUEST['irg'],$publicADO,'WHERE FK_Manufacturer='.$manufID.' AND FK_DeviceCategory='.$deviceCategID,'onchange="document.editAVDevice.action.value=\'form\';document.editAVDevice.submit();"').'</td>
+			<td colspan="2">
+			After sending a code to turn the power on wait <input type="text" name="irPowerDelay" value="'.$irPowerDelay.'" size="5" /> 
+			seconds for the device to warm up before sending other codes.
+			</td>
 		</tr>
 		<tr>
-			<td align="center" colspan="2"><B>Media Type</B></td>
+			<td colspan="2">
+			After changing inputs or modes on this device wait <input type="text" name="irModeDelay" value="'.$irModeDelay.'" size="5" />
+			before sending other codes.
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2">
+			When sending a series of codes, such as a sequence of digits to tune to a channel, wait <input type="text" name="irDigitDelay" value="'.$digitDelay.'" size="5" />
+			milliseconds between commands.<br>
+			  Note: A millisend is 1/1000 of 
+			  a second, so 500 = 1/2 second, 1500 = 1-1/2 seconds, etc.  The smaller the number the faster the device will be controlled.  But if the number is too small 
+			  codes may be sent faster than the device can recognize them.  For example, you try to tune to channel 125.  That means three codes, or buttons, are 
+			  sent: 1, 2 and 5.  But if your devices goes to channel 15, then codes are probably comming in too fast and the device lost one of the codes.  Then
+			  try increasing the number.  <b>250 (ie 1/4 second) is generally a good number</b>.
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2">
+			If this device is a TV, cable box, VCR, etc., where you enter channels, or frequencies, to tune channels or stations, do you hit the Enter button on the 
+			remote after typing in the numbers? ( ) Yes  ( ) No  If the entries should always be a fixed number of digits with 0\'s in front, enter the number of digits 
+			here: [    ]   For example, entering 3 means channel 4 will be entered as 004, channel 56 will be 056.
+			</td>
+		</tr>
+		<tr>
+			<td align="center" colspan="2"><span class="'.(($usesIR>0)?'':'grayout').'"> How do you turn this device on and off? <br><input type="radio" 
+			name="toggle_power" value="1" '.(($togglePower>0)?'checked':'').' '.$enabledIROptions.'> Toggle -- there\'s a single power button I use that toggles between on and off.
+			<br><input type="radio" name="toggle_power" value="0" '.(($togglePower>0)?'':'checked').' '.$enabledIROptions.'> Discrete -- There are separate buttons for on and off.</span></td>
+		</tr>
+		<tr>
+			<td align="center" colspan="2">What type of media can this device handle without having to specify an input selection?  For DVD\'s, this would normally be \'DVD\'.  For a cable or satellite 
+			box, this would normally be \'Live TV\'.  However most modern TV\'s, for example, require you to go to the \'tuner\' input before you can watch TV.  In such a 
+			case don\'t check anything here for the TV, rather select \'Live TV\' from the list next to the \'Tuner\' input below.  You would only check \'Live TV\' below if 
+			the TV did not have multiple inputs.</td>
 		</tr>
 		<tr>
 			<td align="center" colspan="2">'.$mediaTypeCheckboxes.'</td>
