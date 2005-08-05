@@ -32,3 +32,33 @@ WHERE FK_DeviceCategory=7
 AND Device_StartupScript.FK_Device IS NULL"
 
 echo "$Q;" | /usr/bin/mysql pluto_main
+
+Q="UPDATE Device_StartupScript 
+JOIN Device ON FK_Device=PK_Device
+JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate
+JOIN StartupScript ON FK_StartupScript=PK_StartupScript
+SET Boot_Order = StartupScript.Core_Boot_Order 
+WHERE FK_DeviceCategory=7"
+
+echo "$Q;" | /usr/bin/mysql pluto_main
+
+Q="UPDATE Device_StartupScript 
+JOIN Device As Device_Co ON FK_Device=Device_Co.PK_Device
+JOIN Device As Device_Hy ON Device_Hy.FK_Device_ControlledVia=Device_Co.PK_Device
+JOIN DeviceTemplate AS DeviceTemplate_Co ON Device_Co.FK_DeviceTemplate=DeviceTemplate_Co.PK_DeviceTemplate
+JOIN DeviceTemplate AS DeviceTemplate_Hy ON Device_Hy.FK_DeviceTemplate=DeviceTemplate_Hy.PK_DeviceTemplate
+JOIN StartupScript ON FK_StartupScript=PK_StartupScript
+SET Boot_Order = StartupScript.Hybrid_Boot_Order 
+WHERE DeviceTemplate_Hy.FK_DeviceCategory=8 AND DeviceTemplate_Co.FK_DeviceCategory=7"
+
+echo "$Q;" | /usr/bin/mysql pluto_main
+
+Q="UPDATE Device_StartupScript 
+JOIN Device ON FK_Device=PK_Device
+JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate
+JOIN StartupScript ON FK_StartupScript=PK_StartupScript
+SET Boot_Order = StartupScript.MD_Boot_Order 
+WHERE FK_DeviceCategory=8 AND FK_Device_ControlledVia IS NULL"
+
+echo "$Q;" | /usr/bin/mysql pluto_main
+
