@@ -8,6 +8,7 @@ mkdir -p ./amp_deb/debian
 
 mkdir -p ./amp_deb/root/etc/asterisk
 mkdir -p ./amp_deb/root/usr/sbin
+mkdir -p ./amp_deb/root/usr/pluto/bin
 mkdir -p ./amp_deb/root/var/lib
 mkdir -p ./amp_deb/root/var/spool
 mkdir -p ./amp_deb/root/$AMPWEBROOT
@@ -43,6 +44,10 @@ cp -R ./AMP/upgrades/ ./amp_deb/root/usr/local/amp/
 #patch to change permissions
 sed -r -i "s/asterisk[:]asterisk/asterisk:www-data/" ./amp_deb/root/usr/sbin/amportal
 sed -r -i "s/chmod u[+]x/chmod ug+x/" ./amp_deb/root/usr/sbin/amportal
+
+#copy AGI scripts
+cp -R ./pluto-sos.agi ./amp_deb/root/var/lib/asterisk/agi-bin/
+cp -R ./pluto-sos-gen.pl ./amp_deb/root/usr/pluto/bin/
 
 cat >> ./amp_deb/root/etc/asterisk/extensions.conf << EOF
 

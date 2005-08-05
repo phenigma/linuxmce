@@ -1,3 +1,10 @@
+amp (1.10.008-6) unstable; urgency=low
+
+  * Add sox dependency for security menu.
+  * Add AGI scripts for dialing SOS calls
+  * Small changes in security voice menu 
+
+ -- Office Server Operator <root@activate.plutohome.com>  Fri, 05 Aug 2005 12:15:06 +0300
 
 amp (1.10.008-5) unstable; urgency=low
 
