@@ -252,9 +252,6 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
     if(DATA_Get_ScreenHeight())
         m_iImageHeight = DATA_Get_ScreenHeight();
 
-	if(DATA_Get_Rotation())
-		m_iRotation = DATA_Get_Rotation();
-
 	m_sScreenSize=PlutoSize(m_iImageWidth,m_iImageHeight);
 
 	m_pCacheImageManager = NULL;

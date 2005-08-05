@@ -574,9 +574,9 @@ void Telecom_Plugin::GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Route
 {
 }
 
-//<-dceag-c413-b->
+//<-dceag-c414-b->
 
-	/** @brief COMMAND: #413 - PL External Originate */
+	/** @brief COMMAND: #414 - PL External Originate */
 	/** Originate an external call */
 		/** @param #75 PhoneNumber */
 			/** Phone to call */
@@ -586,7 +586,7 @@ void Telecom_Plugin::GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Route
 			/** Phone extension to dial */
 
 void Telecom_Plugin::CMD_PL_External_Originate(string sPhoneNumber,string sCallerID,string sPhoneExtension,string &sCMD_Result,Message *pMessage)
-//<-dceag-c413-e->
+//<-dceag-c414-e->
 {
     g_pPlutoLogger->Write(LV_STATUS, "Originate external cammand called with params: PhoneNumber=%s, PhoneExtension=%s!", sPhoneNumber.c_str(), sPhoneExtension.c_str());
 
@@ -596,7 +596,7 @@ void Telecom_Plugin::CMD_PL_External_Originate(string sPhoneNumber,string sCalle
     }
 
     /* find default line in AMP configs */
-	string sql = "SELECT application FROM extensions WHERE priority=1 AND flags=2;";
+    string sql = "SELECT application FROM extensions WHERE priority=1 AND flags=2;";
     MySqlHelper *pMySqlHelper = new MySqlHelper(m_pRouter->sDBHost_get(), m_pRouter->sDBUser_get(), 
         m_pRouter->sDBPassword_get(), "asterisk", m_pRouter->iDBPort_get());
 
@@ -608,53 +608,53 @@ void Telecom_Plugin::CMD_PL_External_Originate(string sPhoneNumber,string sCalle
         return;
     }
     string defContext = row[0];
-	row=NULL;
-	sql = "SELECT args FROM extensions WHERE context='"+defContext+"' AND priority=1;";
+    row=NULL;
+    sql = "SELECT args FROM extensions WHERE context='"+defContext+"' AND priority=1;";
     if((result_set.r = pMySqlHelper->mysql_query_result(sql.c_str())) == 0 || (row = mysql_fetch_row(result_set.r)) == NULL)
     {
         g_pPlutoLogger->Write(LV_CRITICAL, "No default args found in asterisk database");
         return;
     }
-	string defArgs = row[0];
-	int commaPos=defArgs.find(",");
-	
-	string trunkID = defArgs.substr(commaPos+1,defArgs.find(",",commaPos+1)-commaPos-1);
-	string trunkType = "";
-	string trunkName = "";
+    string defArgs = row[0];
+    int commaPos=defArgs.find(",");
 
-	row=NULL;
-	sql = "SELECT data FROM iax WHERE keyword='account' AND id LIKE '9999"+trunkID+"';";
+    string trunkID = defArgs.substr(commaPos+1,defArgs.find(",",commaPos+1)-commaPos-1);
+    string trunkType = "";
+    string trunkName = "";
+
+    row=NULL;
+    sql = "SELECT data FROM iax WHERE keyword='account' AND id LIKE '9999"+trunkID+"';";
     if((result_set.r = pMySqlHelper->mysql_query_result(sql.c_str())) != 0 && (row = mysql_fetch_row(result_set.r)) != NULL)
     {
-		trunkType = "IAX2";
-		trunkName = row[0];
-		goto SET_CHANNEL;
+        trunkType = "IAX2";
+        trunkName = row[0];
+        goto SET_CHANNEL;
     }
-	row=NULL;
-	sql = "SELECT data FROM sip WHERE keyword='account' AND id LIKE '9999"+trunkID+"';";
+    row=NULL;
+    sql = "SELECT data FROM sip WHERE keyword='account' AND id LIKE '9999"+trunkID+"';";
     if((result_set.r = pMySqlHelper->mysql_query_result(sql.c_str())) != 0 && (row = mysql_fetch_row(result_set.r)) != NULL)
     {
-		trunkType = "SIP";
-		trunkName = row[0];
-		goto SET_CHANNEL;
+        trunkType = "SIP";
+        trunkName = row[0];
+        goto SET_CHANNEL;
     }
-	row=NULL;
-	sql = "SELECT data FROM zap WHERE keyword='account' AND id LIKE '9999"+trunkID+"';";
+    row=NULL;
+    sql = "SELECT data FROM zap WHERE keyword='account' AND id LIKE '9999"+trunkID+"';";
     if((result_set.r = pMySqlHelper->mysql_query_result(sql.c_str())) != 0 && (row = mysql_fetch_row(result_set.r)) != NULL)
     {
-		trunkType = "ZAP";
-		trunkName = row[0];
-		goto SET_CHANNEL;
+        trunkType = "ZAP";
+        trunkName = row[0];
+        goto SET_CHANNEL;
     }
-	delete pMySqlHelper;
-	g_pPlutoLogger->Write(LV_CRITICAL, "No default channel for trunkId=%s found in asterisk database",trunkID.c_str());
-	return;
-	
-	SET_CHANNEL:
     delete pMySqlHelper;
-	
-	/* create channel */
-	
+    g_pPlutoLogger->Write(LV_CRITICAL, "No default channel for trunkId=%s found in asterisk database",trunkID.c_str());
+    return;
+
+SET_CHANNEL:
+    delete pMySqlHelper;
+
+    /* create channel */
+
     string sSrcPhoneType = trunkType+"/"+trunkName;
 
     g_pPlutoLogger->Write(LV_STATUS, "Using source phone with parameters: PhoneChannel=%s, PhoneNumber=%s!", 

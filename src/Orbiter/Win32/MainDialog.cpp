@@ -487,7 +487,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				g_hWnd_DeviceIDEdit = CreateEdit(hWnd, 90, iBase + 40, 50, "", true, true);
 
 				CreateLabel(hWnd, 10, iBase + 60, 80, "Router IP: ");	
-				g_hWnd_RouterIPEdit = CreateEdit(hWnd, 90, iBase + 60, 80, "", false, false);
+				g_hWnd_RouterIPEdit = CreateEdit(hWnd, 90, iBase + 60, 120, "", false, false);
 
 				g_hWnd_ApplyButton = CreateButton(hWnd, g_iDialogWidth - 60, iBase, "&Apply");
 

@@ -95,7 +95,7 @@ public:
 	virtual void CMD_PL_Hangup(string &sCMD_Result,Message *pMessage);
 
 
-	/** @brief COMMAND: #413 - PL External Originate */
+	/** @brief COMMAND: #414 - PL External Originate */
 	/** Originate an external call */
 		/** @param #75 PhoneNumber */
 			/** Phone to call */

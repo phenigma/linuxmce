@@ -1754,7 +1754,7 @@ void Orbiter_Plugin::GeneratePlutoMOConfig()
             size_t iSize = 0;
             char *pWapURL = FileUtils::ReadFileIntoBuffer(csWapConfFile, iSize);
 
-            string sPlutoMOConfig(pWapURL);
+            string sPlutoMOConfig = string(pWapURL) + "\n";
             delete []pWapURL;
 
             //generating the list with alert types
