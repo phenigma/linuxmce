@@ -1238,6 +1238,10 @@
 #define DESIGNOBJ_butLeft_Click_CONST 3829
 #define DESIGNOBJ_butRight_Click_CONST 3830
 #define DESIGNOBJ_crop_CONST 3831
+#define DESIGNOBJ_NumPound_CONST 3832
+#define DESIGNOBJ_NumAsterisk_CONST 3833
+#define DESIGNOBJ__CONST 3834
+#define DESIGNOBJ_Num_CONST 3835
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
