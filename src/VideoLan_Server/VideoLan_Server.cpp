@@ -300,13 +300,8 @@ void VideoLan_Server::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlayback
 		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to stop VideoLan Server");
 }
 
-//<-dceag-c63-b->
-
-	/** @brief COMMAND: #63 - Skip Fwd - Channel/Track Greater */
-	/** Chapter/Track Next/Down/Forward */
-
+/*
 void VideoLan_Server::CMD_Skip_Fwd_ChannelTrack_Greater(string &sCMD_Result,Message *pMessage)
-//<-dceag-c63-e->
 {
 	int iStreamID = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST].c_str());
 
@@ -325,10 +320,6 @@ void VideoLan_Server::CMD_Skip_Fwd_ChannelTrack_Greater(string &sCMD_Result,Mess
 		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to send chapter_n");
 }
 
-//<-dceag-c64-b->
-
-	/** @brief COMMAND: #64 - Skip Back - Channel/Track Lower */
-	/** Chapter/Track Back/Up/Prior */
 
 void VideoLan_Server::CMD_Skip_Back_ChannelTrack_Lower(string &sCMD_Result,Message *pMessage)
 //<-dceag-c64-e->
@@ -348,62 +339,8 @@ void VideoLan_Server::CMD_Skip_Back_ChannelTrack_Lower(string &sCMD_Result,Messa
 	if( ProcessUtils::SendKeysToProcess(pVideoLanServerInstance->m_sSpawnName,"chapter_p\n")==false )
 		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to send chapter_p");
 }
+*/
 
-//<-dceag-c89-b->
-
-	/** @brief COMMAND: #89 - Vol Up */
-	/** Make the sound go up. */
-		/** @param #72 Repeat Command */
-			/** If specified, repeat the volume up this many times */
-
-void VideoLan_Server::CMD_Vol_Up(int iRepeat_Command,string &sCMD_Result,Message *pMessage)
-//<-dceag-c89-e->
-{
-	cout << "Need to implement command #89 - Vol Up" << endl;
-	cout << "Parm #72 - Repeat_Command=" << iRepeat_Command << endl;
-}
-
-//<-dceag-c90-b->
-
-	/** @brief COMMAND: #90 - Vol Down */
-	/** Make the sound go down. */
-		/** @param #72 Repeat Command */
-			/** If specified, repeat the volume down this many times. */
-
-void VideoLan_Server::CMD_Vol_Down(int iRepeat_Command,string &sCMD_Result,Message *pMessage)
-//<-dceag-c90-e->
-{
-	cout << "Need to implement command #90 - Vol Down" << endl;
-	cout << "Parm #72 - Repeat_Command=" << iRepeat_Command << endl;
-}
-
-//<-dceag-c97-b->
-
-	/** @brief COMMAND: #97 - Mute */
-	/** Mute the sound. */
-
-void VideoLan_Server::CMD_Mute(string &sCMD_Result,Message *pMessage)
-//<-dceag-c97-e->
-{
-	cout << "Need to implement command #97 - Mute" << endl;
-}
-
-//<-dceag-c243-b->
-
-	/** @brief COMMAND: #243 - Enable Broadcasting */
-	/** Enable broadcasting from here. */
-		/** @param #41 StreamID */
-			/** The stream to enable broadcast for */
-		/** @param #59 MediaURL */
-			/** The media url from which this stream can be played. */
-
-void VideoLan_Server::CMD_Enable_Broadcasting(int iStreamID,string *sMediaURL,string &sCMD_Result,Message *pMessage)
-//<-dceag-c243-e->
-{
-	cout << "Need to implement command #243 - Enable Broadcasting" << endl;
-	cout << "Parm #41 - StreamID=" << iStreamID << endl;
-	cout << "Parm #59 - MediaURL=" << sMediaURL << endl;
-}
 
 //<-dceag-c249-b->
 
@@ -498,42 +435,6 @@ void VideoLan_Server::ProcessExited(int pid, int status)
 	else
 		g_pPlutoLogger->Write(LV_WARNING, "VideoLan_Server::ProcessExited() Child with pid %d terminated", pid);
 }
-//<-dceag-c140-b->
-
-	/** @brief COMMAND: #140 - Audio Track */
-	/** Go to an audio track */
-		/** @param #5 Value To Assign */
-			/** The audio track to go to.  Simple A/V equipment ignores this and just toggles. */
-
-void VideoLan_Server::CMD_Audio_Track(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
-//<-dceag-c140-e->
-{
-}
-
-//<-dceag-c141-b->
-
-	/** @brief COMMAND: #141 - Subtitle */
-	/** Go to a subtitle */
-		/** @param #5 Value To Assign */
-			/** The subtitle to go to.  Simple A/V equipment ignores this and just toggles. */
-
-void VideoLan_Server::CMD_Subtitle(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
-//<-dceag-c141-e->
-{
-}
-
-//<-dceag-c142-b->
-
-	/** @brief COMMAND: #142 - Angle */
-	/** Go to an angle */
-		/** @param #5 Value To Assign */
-			/** The angle to go to.  Simple A/V equipment ignores this and just toggles. */
-
-void VideoLan_Server::CMD_Angle(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
-//<-dceag-c142-e->
-{
-}
-
 //<-dceag-c412-b->
 
 	/** @brief COMMAND: #412 - Set Media Position */
@@ -618,6 +519,8 @@ int VideoLan_Server::CalculatePosition(string &sMediaPosition,int *Title,int *Ch
 
 void VideoLan_Server::CMD_Jump_to_Position_in_Stream(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c42-e->
+{
+}
 //<-dceag-c65-b->
 
 	/** @brief COMMAND: #65 - Jump Position In Playlist */
@@ -627,3 +530,6 @@ void VideoLan_Server::CMD_Jump_to_Position_in_Stream(string sValue_To_Assign,int
 
 void VideoLan_Server::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c65-e->
+{
+}
+

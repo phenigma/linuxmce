@@ -9,9 +9,9 @@
 
 // In source files stored in archives and packages, these 2 lines will have the release version (build)
 // and the svn revision as a global variable that can be inspected within a core dump
-#define  VERSION "<=version=>"
-const char *g_szCompile_Date="<=compile_date=>";
-/*SVN_REVISION*/
+#define  VERSION "2.0.0.27.05080622"
+const char *g_szCompile_Date="Sun Aug  7 08:11:40 2005";
+int g_SvnRevision=4478;
 
 namespace DCE
 {
