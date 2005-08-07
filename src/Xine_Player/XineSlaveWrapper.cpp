@@ -850,7 +850,8 @@ void *XineSlaveWrapper::eventProcessingLoop(void *arguments)
 				int positionTime,totalTime;
 				pStream->m_pOwner->getStreamPlaybackPosition(1,positionTime,totalTime);
 				if( g_iSpecialSeekSpeed<0 )
-					positionTime -= 1000; // Move it back 1 sec to account for the 1 sec we let it go forward
+//					positionTime -= 1000; // Move it back 1 sec to account for the 1 sec we let it go forward
+					positionTime -= 3000; // HACK!!  Xine seems to ignore a seek back 1 second and stays where it's at???  Try 3 seconds
 
 				g_pPlutoLogger->Write(LV_WARNING,"Current pos %d / %d  seek speed: %d will seek to: %d",positionTime,totalTime,g_iSpecialSeekSpeed,positionTime + g_iSpecialSeekSpeed);
 	if( positionTime + g_iSpecialSeekSpeed<0 || positionTime + g_iSpecialSeekSpeed>totalTime )

@@ -288,35 +288,6 @@ bool MythTV_Player::locateMythTvFrontendWindow(long unsigned int window)
 
 */
 
-/*
-void MythTV_Player::CMD_Start_TV(string &sCMD_Result,Message *pMessage)
-{
-	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-	if ( ! checkXServerConnection())
-		return;
-
-	if ( ! locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay())) )
-    {
-            LaunchMythFrontend();
-            locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay()));
-    }
-
-    selectWindow();
-}
-
-
-void MythTV_Player::CMD_Stop_TV(string &sCMD_Result,Message *pMessage)
-{
-	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-	if ( ! checkXServerConnection())
-		return;
-
-	vector<void *> data;
-	if ( ProcessUtils::KillApplication(MYTH_WINDOW_NAME, data) == false )
-		g_pPlutoLogger->Write(LV_WARNING, "I failed to kill the application launched with name: %s", MYTH_WINDOW_NAME);
-}
-*/
-
 //<-dceag-c187-b->
 
 	/** @brief COMMAND: #187 - Tune to channel */
@@ -679,6 +650,7 @@ void MythTV_Player::CMD_Back_Prior_Menu(string &sCMD_Result,Message *pMessage)
 }
 //<-dceag-createinst-b->!
 //<-dceag-sample-b->!
+
 //<-dceag-c37-b->
 
 	/** @brief COMMAND: #37 - Play Media */
@@ -694,6 +666,20 @@ void MythTV_Player::CMD_Back_Prior_Menu(string &sCMD_Result,Message *pMessage)
 
 void MythTV_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,string sMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c37-e->
+{
+	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
+	if ( ! checkXServerConnection())
+		return;
+
+	if ( ! locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay())) )
+    {
+            LaunchMythFrontend();
+            locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay()));
+    }
+
+    selectWindow();
+}
+
 //<-dceag-c38-b->
 
 	/** @brief COMMAND: #38 - Stop Media */
@@ -705,6 +691,16 @@ void MythTV_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStrea
 
 void MythTV_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c38-e->
+{
+	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
+	if ( ! checkXServerConnection())
+		return;
+
+	vector<void *> data;
+	if ( ProcessUtils::KillApplication(MYTH_WINDOW_NAME, data) == false )
+		g_pPlutoLogger->Write(LV_WARNING, "I failed to kill the application launched with name: %s", MYTH_WINDOW_NAME);
+}
+
 //<-dceag-c39-b->
 
 	/** @brief COMMAND: #39 - Pause Media */
@@ -714,6 +710,9 @@ void MythTV_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &
 
 void MythTV_Player::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c39-e->
+{
+}
+
 //<-dceag-c40-b->
 
 	/** @brief COMMAND: #40 - Restart Media */
@@ -723,6 +722,9 @@ void MythTV_Player::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message *p
 
 void MythTV_Player::CMD_Restart_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c40-e->
+{
+}
+
 //<-dceag-c41-b->
 
 	/** @brief COMMAND: #41 - Change Playback Speed */
@@ -734,6 +736,9 @@ void MythTV_Player::CMD_Restart_Media(int iStreamID,string &sCMD_Result,Message 
 
 void MythTV_Player::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpeed,string &sCMD_Result,Message *pMessage)
 //<-dceag-c41-e->
+{
+}
+
 //<-dceag-c42-b->
 
 	/** @brief COMMAND: #42 - Jump to Position in Stream */
@@ -745,6 +750,9 @@ void MythTV_Player::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSp
 
 void MythTV_Player::CMD_Jump_to_Position_in_Stream(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c42-e->
+{
+}
+
 //<-dceag-c65-b->
 
 	/** @brief COMMAND: #65 - Jump Position In Playlist */
@@ -754,6 +762,15 @@ void MythTV_Player::CMD_Jump_to_Position_in_Stream(string sValue_To_Assign,int i
 
 void MythTV_Player::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c65-e->
+{
+	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
+
+	if( sValue_To_Assign.size()==0 || sValue_To_Assign[0]=='+' )
+		processKeyBoardInputRequest(XK_Down);
+	else
+		processKeyBoardInputRequest(XK_Up);
+}
+
 //<-dceag-c259-b->
 
 	/** @brief COMMAND: #259 - Report Playback Position */
@@ -767,6 +784,9 @@ void MythTV_Player::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string
 
 void MythTV_Player::CMD_Report_Playback_Position(int iStreamID,string *sText,string *sMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c259-e->
+{
+}
+
 //<-dceag-c412-b->
 
 	/** @brief COMMAND: #412 - Set Media Position */
@@ -778,3 +798,5 @@ void MythTV_Player::CMD_Report_Playback_Position(int iStreamID,string *sText,str
 
 void MythTV_Player::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c412-e->
+{
+}

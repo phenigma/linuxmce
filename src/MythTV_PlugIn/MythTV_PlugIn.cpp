@@ -40,6 +40,7 @@ MythTV_PlugIn::MythTV_PlugIn(int DeviceID, string ServerAddress,bool bConnectEve
 {
     m_pMythBackend_ProxyDevice = NULL;
 	m_pMythWrapper = new MythTvWrapper(this);
+	m_bPreProcessSpeedControl=false;  // We do some ridiculous hacks in Myth player to convert speed control commands to keystrokes
 }
 
 //<-dceag-const2-b->!

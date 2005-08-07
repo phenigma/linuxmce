@@ -1078,6 +1078,7 @@ bool Media_Plugin::ReceivedMessage( class Message *pMessage )
 		pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST] = StringUtils::itos(pEntertainArea->m_pMediaStream->m_iStreamID_get());
 
 		if( pEntertainArea->m_pMediaStream->m_pMediaDevice_Source &&
+			pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->m_bPreProcessSpeedControl &&
 			pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND &&
 			(pMessage->m_dwID==COMMAND_Change_Playback_Speed_CONST ||
 			pMessage->m_dwID==COMMAND_Pause_Media_CONST ||

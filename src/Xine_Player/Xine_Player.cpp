@@ -1044,6 +1044,36 @@ void Xine_Player::CMD_Jump_to_Position_in_Stream(string sValue_To_Assign,int iSt
 void Xine_Player::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c65-e->
 {
+	if( sValue_To_Assign.size()==0 )
+		return;  // Nothing to do
+
+	PLUTO_SAFETY_LOCK(xineSlaveLock, m_xineSlaveMutex);
+
+	if ( ! m_pXineSlaveControl )
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Skip_Fwd_ChannelTrack_Greater() I don't have a slave to use. Ignoring.");
+        return;
+    }
+
+	if ( m_pXineSlaveControl->isSlimClient() )
+		return;
+
+	int ChaptersToSkip;
+	if( sValue_To_Assign[0]=='-' || sValue_To_Assign[0]=='+' )
+		ChaptersToSkip = atoi(sValue_To_Assign.c_str());
+	else if( m_iChapter==-1 )
+		ChaptersToSkip=1;
+	else
+		ChaptersToSkip = atoi(sValue_To_Assign.c_str())-m_iChapter;
+
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::Skipping %d chapters",ChaptersToSkip);
+
+	if( ChaptersToSkip<0 )
+		for(int i=0;i>ChaptersToSkip;i--)
+			m_pXineSlaveControl->sendInputEvent(XINE_EVENT_INPUT_PREVIOUS);
+	else
+		for(int i=0;i<ChaptersToSkip;i++)
+			m_pXineSlaveControl->sendInputEvent(XINE_EVENT_INPUT_NEXT);
 }
 
 //<-dceag-c92-b->

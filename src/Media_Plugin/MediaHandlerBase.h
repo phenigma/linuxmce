@@ -16,9 +16,10 @@ namespace DCE
 	{
 	public:
 		class Media_Plugin *m_pMedia_Plugin;
+		bool m_bPreProcessSpeedControl;  // If true, media plugin will do some processing, like converting 2 pauses to a play, and repeated 'ff' to increasing change playback speed
 
 		/** @brief constructor */
-		MediaHandlerBase() { }
+		MediaHandlerBase() { m_bPreProcessSpeedControl=true; }
 		virtual ~MediaHandlerBase() { }
 
 		int m_iPriority; // If multiple media handlers can handle the same type of media in an area the one with the highest priority will be chosen
