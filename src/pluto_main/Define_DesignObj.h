@@ -754,12 +754,6 @@
 #define DESIGNOBJ_num7_CONST 3241
 #define DESIGNOBJ_num8_CONST 3242
 #define DESIGNOBJ_num9_CONST 3243
-#define DESIGNOBJ_grpMediaNavigation2_CONST 3244
-#define DESIGNOBJ_ChannelUp2_CONST 3245
-#define DESIGNOBJ_ChannelDown2_CONST 3246
-#define DESIGNOBJ_F1X2_CONST 3247
-#define DESIGNOBJ_F2X2_CONST 3248
-#define DESIGNOBJ_R1X2_CONST 3249
 #define DESIGNOBJ_butMythTVSetup_CONST 3250
 #define DESIGNOBJ_myth_tv_setup_2_CONST 3251
 #define DESIGNOBJ_go_to_phone_book_CONST 3252
@@ -855,7 +849,6 @@
 #define DESIGNOBJ_mnuPhonePlaylist_CONST 3355
 #define DESIGNOBJ_go_to_playlist_CONST 3356
 #define DESIGNOBJ_dvd_menu_full_screen_CONST 3358
-#define DESIGNOBJ_grpMediaNavigation3_CONST 3361
 #define DESIGNOBJ_grpMediaNavigation4_CONST 3362
 #define DESIGNOBJ_pluto_logo_CONST 3368
 #define DESIGNOBJ_dgFileListPictures_CONST 3369
@@ -866,7 +859,6 @@
 #define DESIGNOBJ_save_playlist_CONST 3374
 #define DESIGNOBJ_objMenu2_CONST 3376
 #define DESIGNOBJ_go_to_security_menu_with_red_CONST 3377
-#define DESIGNOBJ_grpMediaNavigation5_CONST 3378
 #define DESIGNOBJ_objMenuNonDvd_CONST 3384
 #define DESIGNOBJ_butAngles_CONST 3385
 #define DESIGNOBJ_butAudioOptions_CONST 3386
@@ -926,7 +918,6 @@
 #define DESIGNOBJ_butRandom_CONST 3450
 #define DESIGNOBJ_vlc_dvd_full_screen_CONST 3451
 #define DESIGNOBJ_vlc_dvd_full_screen_with_optio_CONST 3452
-#define DESIGNOBJ_grpMediaNavigationVLC_CONST 3453
 #define DESIGNOBJ_mnuMainMenuPopUp_CONST 3454
 #define DESIGNOBJ_objGotoClimateOptions_CONST 3455
 #define DESIGNOBJ_objGotoLightingOptions_CONST 3456
@@ -1237,11 +1228,11 @@
 #define DESIGNOBJ_objMousePad_x16_y16_CONST 3828
 #define DESIGNOBJ_butLeft_Click_CONST 3829
 #define DESIGNOBJ_butRight_Click_CONST 3830
-#define DESIGNOBJ_crop_CONST 3831
-#define DESIGNOBJ_NumPound_CONST 3832
-#define DESIGNOBJ_NumAsterisk_CONST 3833
-#define DESIGNOBJ__CONST 3834
-#define DESIGNOBJ_Num_CONST 3835
+#define DESIGNOBJ_crop_CONST 4260
+#define DESIGNOBJ_NumPound_CONST 4261
+#define DESIGNOBJ_NumAsterisk_CONST 4262
+#define DESIGNOBJ__CONST 4263
+#define DESIGNOBJ_Num_CONST 4264
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

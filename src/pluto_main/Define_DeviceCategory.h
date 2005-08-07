@@ -65,7 +65,7 @@
 #define DEVICECATEGORY_Satellite_Boxes_CONST 108
 #define DEVICECATEGORY_TVVCR_Combo_CONST 109
 #define DEVICECATEGORY_Bluetooth_Dongles_CONST 110
-#define DEVICECATEGORY_Generic_Analog_Capture_Card_CONST 111
+#define DEVICECATEGORY_Surveillance_Video_Interfaces_CONST 111
 #define DEVICECATEGORY_Infrared_Interface_CONST 114
 #define DEVICECATEGORY_Media_Identifiers_CONST 115
 #define DEVICECATEGORY_Infrared_Handlers_CONST 116

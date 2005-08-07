@@ -40,7 +40,7 @@
 #define COMMAND_Pause_Media_CONST 39
 #define COMMAND_Restart_Media_CONST 40
 #define COMMAND_Change_Playback_Speed_CONST 41
-#define COMMAND_Rewind_Playback_CONST 42
+#define COMMAND_Jump_to_Position_in_Stream_CONST 42
 #define COMMAND_MH_Play_Media_CONST 43
 #define COMMAND_MH_Stop_Media_CONST 44
 #define COMMAND_Disk_Drive_Monitoring_ON_CONST 45
@@ -72,8 +72,6 @@
 #define COMMAND_Request_File_CONST 71
 #define COMMAND_Surrender_to_OS_CONST 72
 #define COMMAND_Bind_to_Media_Remote_CONST 74
-#define COMMAND_Start_TV_CONST 75
-#define COMMAND_Stop_TV_CONST 76
 #define COMMAND_Set_Current_Room_CONST 77
 #define COMMAND_New_Mobile_Orbiter_CONST 78
 #define COMMAND_Add_Unknown_Device_CONST 79
@@ -229,7 +227,6 @@
 #define COMMAND_Back_Prior_Menu_CONST 240
 #define COMMAND_MH_Move_Media_CONST 241
 #define COMMAND_Set_Now_Playing_CONST 242
-#define COMMAND_Enable_Broadcasting_CONST 243
 #define COMMAND_Output_Select_CONST 244
 #define COMMAND_Learn_IR_CONST 245
 #define COMMAND_Set_Device_Data_CONST 246

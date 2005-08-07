@@ -75,7 +75,7 @@
 #define DEVICETEMPLATE_Windows_XP_PCtablet_Horiz_Di_CONST 61
 #define DEVICETEMPLATE_OnScreen_Orbiter_CONST 62
 #define DEVICETEMPLATE_MythTV_Backend_Proxy_CONST 63
-#define DEVICETEMPLATE_Generic_Analog_Capture_Card_CONST 64
+#define DEVICETEMPLATE_Motion_Wrapper_CONST 64
 #define DEVICETEMPLATE_Generic_Analog_Camera_CONST 66
 #define DEVICETEMPLATE_Generic_Blackbird_Card_CONST 67
 #define DEVICETEMPLATE_Drapes_Switch_CONST 68
