@@ -12,7 +12,7 @@ namespace DCE
 class VDRPlugin_Event : public Event_Impl
 {
 public:
-	VDRPlugin_Event(int DeviceID, string ServerAddress, bool bConnectEventHandler=true) : Event_Impl(DeviceID,1706, ServerAddress, bConnectEventHandler) {};
+	VDRPlugin_Event(int DeviceID, string ServerAddress, bool bConnectEventHandler=true) : Event_Impl(DeviceID,1704, ServerAddress, bConnectEventHandler) {};
 	VDRPlugin_Event(class ClientSocket *pOCClientSocket, int DeviceID) : Event_Impl(pOCClientSocket, DeviceID) {};
 	//Events
 	class Event_Impl *CreateEvent( unsigned long dwPK_DeviceTemplate, ClientSocket *pOCClientSocket, unsigned long dwDevice );
@@ -26,7 +26,7 @@ class VDRPlugin_Data : public DeviceData_Impl
 public:
 	virtual ~VDRPlugin_Data() {};
 	class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition);
-	virtual int GetPK_DeviceList() { return 1706; } ;
+	virtual int GetPK_DeviceList() { return 1704; } ;
 	virtual const char *GetDeviceDescription() { return "VDRPlugin"; } ;
 };
 
@@ -57,21 +57,23 @@ public:
 		m_pData->m_AllDevices.SerializeRead(Size,pConfig);
 		delete[] pConfig;
 		m_pData->m_pEvent_Impl = m_pEvent;
-		m_pcRequestSocket = new Event_Impl(DeviceID, 1706,ServerAddress);
+		m_pcRequestSocket = new Event_Impl(DeviceID, 1704,ServerAddress);
 	};
 	VDRPlugin_Command(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter) : Command_Impl(pPrimaryDeviceCommand, pData, pEvent, pRouter) {};
 	virtual ~VDRPlugin_Command() {};
 	VDRPlugin_Event *GetEvents() { return (VDRPlugin_Event *) m_pEvent; };
 	VDRPlugin_Data *GetData() { return (VDRPlugin_Data *) m_pData; };
 	const char *GetClassName() { return "VDRPlugin_Command"; };
-	virtual int PK_DeviceTemplate_get() { return 1706; };
-	static int PK_DeviceTemplate_get_static() { return 1706; };
+	virtual int PK_DeviceTemplate_get() { return 1704; };
+	static int PK_DeviceTemplate_get_static() { return 1704; };
 	virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage) { };
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
 	//Event accessors
 	//Commands - Override these to handle commands from the server
+	virtual void CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Schedule_Recording(string sProgramID,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -83,7 +85,66 @@ public:
 		for(int s=-1;s<(int) pMessageOriginal->m_vectExtraMessages.size(); ++s)
 		{
 			Message *pMessage = s>=0 ? pMessageOriginal->m_vectExtraMessages[s] : pMessageOriginal;
-			 if( pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND )
+			if (pMessage->m_dwPK_Device_To==m_dwPK_Device && pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND)
+			{
+				switch(pMessage->m_dwID)
+				{
+				case 65:
+					{
+						string sCMD_Result="OK";
+					string sValue_To_Assign=pMessage->m_mapParameters[5];
+						CMD_Jump_Position_In_Playlist(sValue_To_Assign.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Jump_Position_In_Playlist(sValue_To_Assign.c_str(),sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case 185:
+					{
+						string sCMD_Result="OK";
+					string sProgramID=pMessage->m_mapParameters[68];
+						CMD_Schedule_Recording(sProgramID.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Schedule_Recording(sProgramID.c_str(),sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				}
+				iHandled += Command_Impl::ReceivedMessage(pMessage);
+			}
+			else if( pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND )
 			{
 				MapCommand_Impl::iterator it = m_mapCommandImpl_Children.find(pMessage->m_dwPK_Device_To);
 				if( it!=m_mapCommandImpl_Children.end() && !(*it).second->m_bGeneric )

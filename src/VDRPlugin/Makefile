@@ -10,7 +10,7 @@ BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
 
 MYNAME = VDRPlugin
 VERSION = 2.0.0
-MYDEVTEMPLATEID = 1706mplateID
+MYDEVTEMPLATEID = 1704mplateID
 
 Gen_Dev_Files = $(GENDEV)/VDRPluginBase.cpp
 sources = Main.cpp VDRPlugin.cpp $(Gen_Dev_Files)

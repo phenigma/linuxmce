@@ -541,7 +541,7 @@ void VideoLan_Server::CMD_Angle(string sValue_To_Assign,string &sCMD_Result,Mess
 		/** @param #41 StreamID */
 			/** The stream to set */
 		/** @param #42 MediaPosition */
-			/** The media position */
+			/** The media position.  When MediaPlugin gets this, it will be a bookmark ID, when a media player gets it, the string */
 
 void VideoLan_Server::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c412-e->
@@ -607,3 +607,23 @@ int VideoLan_Server::CalculatePosition(string &sMediaPosition,int *Title,int *Ch
 	return iPos;
 }
 
+//<-dceag-c42-b->
+
+	/** @brief COMMAND: #42 - Jump to Position in Stream */
+	/** Jump to a position in the stream, specified in seconds. */
+		/** @param #5 Value To Assign */
+			/** The number of seconds.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1.  A simpler command than Set Media Position */
+		/** @param #41 StreamID */
+			/** The stream */
+
+void VideoLan_Server::CMD_Jump_to_Position_in_Stream(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c42-e->
+//<-dceag-c65-b->
+
+	/** @brief COMMAND: #65 - Jump Position In Playlist */
+	/** Jump to a specific position in the playlist, or a track, or a chapter.  Smart media players should also understand the skip fwd/skip back (which non-DCE media players use) to be the same thing as a jump +1 or -1 */
+		/** @param #5 Value To Assign */
+			/** The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1. */
+
+void VideoLan_Server::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
+//<-dceag-c65-e->

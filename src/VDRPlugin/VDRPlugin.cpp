@@ -282,3 +282,21 @@ MediaDevice *VDRPlugin::FindMediaDeviceForEntertainArea(EntertainArea *pEntertai
 
 
 
+//<-dceag-c65-b->
+
+	/** @brief COMMAND: #65 - Jump Position In Playlist */
+	/** Change channels.  +1 and -1 mean up and down 1 channel. */
+		/** @param #5 Value To Assign */
+			/** The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1. */
+
+void VDRPlugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
+//<-dceag-c65-e->
+//<-dceag-c185-b->
+
+	/** @brief COMMAND: #185 - Schedule Recording */
+	/** This will schedule a recording. */
+		/** @param #68 ProgramID */
+			/** The program which will need to be recorded. (The format is defined by the device which created the original datagrid) */
+
+void VDRPlugin::CMD_Schedule_Recording(string sProgramID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c185-e->

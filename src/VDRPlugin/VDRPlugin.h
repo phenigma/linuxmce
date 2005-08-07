@@ -2,7 +2,7 @@
 #ifndef VDRPlugin_h
 #define VDRPlugin_h
 
-//	DCE Implemenation for #1706 VDR-Plugin
+//	DCE Implemenation for #1704 VDR-Plugin
 
 #include "Gen_Devices/VDRPluginBase.h"
 //<-dceag-d-e->
@@ -70,6 +70,24 @@ public:
 
 			*****COMMANDS***** we need to implement
 	*/
+
+
+	/** @brief COMMAND: #65 - Jump Position In Playlist */
+	/** Change channels.  +1 and -1 mean up and down 1 channel. */
+		/** @param #5 Value To Assign */
+			/** The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1. */
+
+	virtual void CMD_Jump_Position_In_Playlist(string sValue_To_Assign) { string sCMD_Result; CMD_Jump_Position_In_Playlist(sValue_To_Assign.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #185 - Schedule Recording */
+	/** This will schedule a recording. */
+		/** @param #68 ProgramID */
+			/** The program which will need to be recorded. (The format is defined by the device which created the original datagrid) */
+
+	virtual void CMD_Schedule_Recording(string sProgramID) { string sCMD_Result; CMD_Schedule_Recording(sProgramID.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Schedule_Recording(string sProgramID,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

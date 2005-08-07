@@ -79,20 +79,6 @@ public:
 	*/
 
 
-	/** @brief COMMAND: #75 - Start TV */
-	/** Start TV playback on this device. */
-
-	virtual void CMD_Start_TV() { string sCMD_Result; CMD_Start_TV(sCMD_Result,NULL);};
-	virtual void CMD_Start_TV(string &sCMD_Result,Message *pMessage);
-
-
-	/** @brief COMMAND: #76 - Stop TV */
-	/** Stop TV playback on this device. */
-
-	virtual void CMD_Stop_TV() { string sCMD_Result; CMD_Stop_TV(sCMD_Result,NULL);};
-	virtual void CMD_Stop_TV(string &sCMD_Result,Message *pMessage);
-
-
 	/** @brief COMMAND: #84 - Get Video Frame */
 	/** Capture a Video frame */
 		/** @param #19 Data */

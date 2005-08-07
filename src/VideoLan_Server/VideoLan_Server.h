@@ -111,81 +111,24 @@ public:
 	virtual void CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpeed,string &sCMD_Result,Message *pMessage);
 
 
-	/** @brief COMMAND: #63 - Skip Fwd - Channel/Track Greater */
-	/** Chapter/Track Next/Down/Forward */
-
-	virtual void CMD_Skip_Fwd_ChannelTrack_Greater() { string sCMD_Result; CMD_Skip_Fwd_ChannelTrack_Greater(sCMD_Result,NULL);};
-	virtual void CMD_Skip_Fwd_ChannelTrack_Greater(string &sCMD_Result,Message *pMessage);
-
-
-	/** @brief COMMAND: #64 - Skip Back - Channel/Track Lower */
-	/** Chapter/Track Back/Up/Prior */
-
-	virtual void CMD_Skip_Back_ChannelTrack_Lower() { string sCMD_Result; CMD_Skip_Back_ChannelTrack_Lower(sCMD_Result,NULL);};
-	virtual void CMD_Skip_Back_ChannelTrack_Lower(string &sCMD_Result,Message *pMessage);
-
-
-	/** @brief COMMAND: #89 - Vol Up */
-	/** Make the sound go up. */
-		/** @param #72 Repeat Command */
-			/** If specified, repeat the volume up this many times */
-
-	virtual void CMD_Vol_Up(int iRepeat_Command) { string sCMD_Result; CMD_Vol_Up(iRepeat_Command,sCMD_Result,NULL);};
-	virtual void CMD_Vol_Up(int iRepeat_Command,string &sCMD_Result,Message *pMessage);
-
-
-	/** @brief COMMAND: #90 - Vol Down */
-	/** Make the sound go down. */
-		/** @param #72 Repeat Command */
-			/** If specified, repeat the volume down this many times. */
-
-	virtual void CMD_Vol_Down(int iRepeat_Command) { string sCMD_Result; CMD_Vol_Down(iRepeat_Command,sCMD_Result,NULL);};
-	virtual void CMD_Vol_Down(int iRepeat_Command,string &sCMD_Result,Message *pMessage);
-
-
-	/** @brief COMMAND: #97 - Mute */
-	/** Mute the sound. */
-
-	virtual void CMD_Mute() { string sCMD_Result; CMD_Mute(sCMD_Result,NULL);};
-	virtual void CMD_Mute(string &sCMD_Result,Message *pMessage);
-
-
-	/** @brief COMMAND: #140 - Audio Track */
-	/** Go to an audio track */
+	/** @brief COMMAND: #42 - Jump to Position in Stream */
+	/** Jump to a position in the stream, specified in seconds. */
 		/** @param #5 Value To Assign */
-			/** The audio track to go to.  Simple A/V equipment ignores this and just toggles. */
-
-	virtual void CMD_Audio_Track(string sValue_To_Assign) { string sCMD_Result; CMD_Audio_Track(sValue_To_Assign.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Audio_Track(string sValue_To_Assign,string &sCMD_Result,Message *pMessage);
-
-
-	/** @brief COMMAND: #141 - Subtitle */
-	/** Go to a subtitle */
-		/** @param #5 Value To Assign */
-			/** The subtitle to go to.  Simple A/V equipment ignores this and just toggles. */
-
-	virtual void CMD_Subtitle(string sValue_To_Assign) { string sCMD_Result; CMD_Subtitle(sValue_To_Assign.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Subtitle(string sValue_To_Assign,string &sCMD_Result,Message *pMessage);
-
-
-	/** @brief COMMAND: #142 - Angle */
-	/** Go to an angle */
-		/** @param #5 Value To Assign */
-			/** The angle to go to.  Simple A/V equipment ignores this and just toggles. */
-
-	virtual void CMD_Angle(string sValue_To_Assign) { string sCMD_Result; CMD_Angle(sValue_To_Assign.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Angle(string sValue_To_Assign,string &sCMD_Result,Message *pMessage);
-
-
-	/** @brief COMMAND: #243 - Enable Broadcasting */
-	/** Enable broadcasting from here. */
+			/** The number of seconds.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1.  A simpler command than Set Media Position */
 		/** @param #41 StreamID */
-			/** The stream to enable broadcast for */
-		/** @param #59 MediaURL */
-			/** The media url from which this stream can be played. */
+			/** The stream */
 
-	virtual void CMD_Enable_Broadcasting(int iStreamID,string *sMediaURL) { string sCMD_Result; CMD_Enable_Broadcasting(iStreamID,sMediaURL,sCMD_Result,NULL);};
-	virtual void CMD_Enable_Broadcasting(int iStreamID,string *sMediaURL,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Jump_to_Position_in_Stream(string sValue_To_Assign,int iStreamID) { string sCMD_Result; CMD_Jump_to_Position_in_Stream(sValue_To_Assign.c_str(),iStreamID,sCMD_Result,NULL);};
+	virtual void CMD_Jump_to_Position_in_Stream(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #65 - Jump Position In Playlist */
+	/** Jump to a specific position in the playlist, or a track, or a chapter.  Smart media players should also understand the skip fwd/skip back (which non-DCE media players use) to be the same thing as a jump +1 or -1 */
+		/** @param #5 Value To Assign */
+			/** The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1. */
+
+	virtual void CMD_Jump_Position_In_Playlist(string sValue_To_Assign) { string sCMD_Result; CMD_Jump_Position_In_Playlist(sValue_To_Assign.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #249 - Start Streaming */
@@ -230,7 +173,7 @@ public:
 		/** @param #41 StreamID */
 			/** The stream to set */
 		/** @param #42 MediaPosition */
-			/** The media position */
+			/** The media position.  When MediaPlugin gets this, it will be a bookmark ID, when a media player gets it, the string */
 
 	virtual void CMD_Set_Media_Position(int iStreamID,string sMediaPosition) { string sCMD_Result; CMD_Set_Media_Position(iStreamID,sMediaPosition.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Set_Media_Position(int iStreamID,string sMediaPosition,string &sCMD_Result,Message *pMessage);

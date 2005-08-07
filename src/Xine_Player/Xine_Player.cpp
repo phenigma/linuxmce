@@ -364,7 +364,7 @@ void Xine_Player::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpee
 //<-dceag-c63-b->
 
 	/** @brief COMMAND: #63 - Skip Fwd - Channel/Track Greater */
-	/** Chapter/Track Next/Down/Forward */
+	/** Raise  the channel, track, station, etc. by 1.  Same as Jump to Pos in Playlist with value +1 for a smart media player */
 
 void Xine_Player::CMD_Skip_Fwd_ChannelTrack_Greater(string &sCMD_Result,Message *pMessage)
 //<-dceag-c63-e->
@@ -387,7 +387,7 @@ void Xine_Player::CMD_Skip_Fwd_ChannelTrack_Greater(string &sCMD_Result,Message 
 //<-dceag-c64-b->
 
 	/** @brief COMMAND: #64 - Skip Back - Channel/Track Lower */
-	/** Chapter/Track Back/Up/Prior */
+	/** Lower the channel, track, station, etc. by 1.  Same as Jump to Pos in Playlist with value -1 for a smart media player */
 
 void Xine_Player::CMD_Skip_Back_ChannelTrack_Lower(string &sCMD_Result,Message *pMessage)
 //<-dceag-c64-e->
@@ -993,7 +993,7 @@ void Xine_Player::CMD_Angle(string sValue_To_Assign,string &sCMD_Result,Message 
 		/** @param #41 StreamID */
 			/** The stream to set */
 		/** @param #42 MediaPosition */
-			/** The media position */
+			/** The media position.  When MediaPlugin gets this, it will be a bookmark ID, when a media player gets it, the string */
 
 void Xine_Player::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c412-e->
@@ -1062,3 +1062,44 @@ int Xine_Player::CalculatePosition(string &sMediaPosition,string *sMRL,int *Subt
 	return iPos;
 }
 
+//<-dceag-c42-b->
+
+	/** @brief COMMAND: #42 - Jump to Position in Stream */
+	/** Jump to a position in the stream, specified in seconds. */
+		/** @param #5 Value To Assign */
+			/** The number of seconds.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1.  A simpler command than Set Media Position */
+		/** @param #41 StreamID */
+			/** The stream */
+
+void Xine_Player::CMD_Jump_to_Position_in_Stream(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c42-e->
+//<-dceag-c65-b->
+
+	/** @brief COMMAND: #65 - Jump Position In Playlist */
+	/** Jump to a specific position in the playlist, or a track, or a chapter.  Smart media players should also understand the skip fwd/skip back (which non-DCE media players use) to be the same thing as a jump +1 or -1 */
+		/** @param #5 Value To Assign */
+			/** The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1. */
+
+void Xine_Player::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
+//<-dceag-c65-e->
+//<-dceag-c92-b->
+
+	/** @brief COMMAND: #92 - Pause */
+	/** Pause the media */
+
+void Xine_Player::CMD_Pause(string &sCMD_Result,Message *pMessage)
+//<-dceag-c92-e->
+//<-dceag-c95-b->
+
+	/** @brief COMMAND: #95 - Stop */
+	/** Stop the media */
+
+void Xine_Player::CMD_Stop(string &sCMD_Result,Message *pMessage)
+//<-dceag-c95-e->
+//<-dceag-c139-b->
+
+	/** @brief COMMAND: #139 - Play */
+	/** Play the media */
+
+void Xine_Player::CMD_Play(string &sCMD_Result,Message *pMessage)
+//<-dceag-c139-e->
