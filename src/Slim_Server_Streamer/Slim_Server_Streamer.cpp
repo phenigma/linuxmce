@@ -799,7 +799,7 @@ void Slim_Server_Streamer::CMD_Report_Playback_Position(int iStreamID,string *sT
 //<-dceag-c89-b->
 
 	/** @brief COMMAND: #89 - Vol Up */
-	/** Make the sound go up. */
+	/** volume up */
 		/** @param #72 Repeat Command */
 			/** If specified, repeat the volume up this many times */
 
@@ -830,7 +830,7 @@ void Slim_Server_Streamer::CMD_Vol_Up(int iRepeat_Command,string &sCMD_Result,Me
 //<-dceag-c90-b->
 
 	/** @brief COMMAND: #90 - Vol Down */
-	/** Make the sound go down. */
+	/** volume down */
 		/** @param #72 Repeat Command */
 			/** If specified, repeat the volume down this many times. */
 
@@ -861,7 +861,7 @@ void Slim_Server_Streamer::CMD_Vol_Down(int iRepeat_Command,string &sCMD_Result,
 //<-dceag-c97-b->
 
 	/** @brief COMMAND: #97 - Mute */
-	/** Mute the sound. */
+	/** mute */
 
 void Slim_Server_Streamer::CMD_Mute(string &sCMD_Result,Message *pMessage)
 //<-dceag-c97-e->
