@@ -288,13 +288,8 @@ bool MythTV_Player::locateMythTvFrontendWindow(long unsigned int window)
 
 */
 
-//<-dceag-c75-b->
-
-	/** @brief COMMAND: #75 - Start TV */
-	/** Start TV playback on this device. */
-
+/*
 void MythTV_Player::CMD_Start_TV(string &sCMD_Result,Message *pMessage)
-//<-dceag-c75-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 	if ( ! checkXServerConnection())
@@ -310,13 +305,7 @@ void MythTV_Player::CMD_Start_TV(string &sCMD_Result,Message *pMessage)
 }
 
 
-//<-dceag-c76-b->
-
-	/** @brief COMMAND: #76 - Stop TV */
-	/** Stop TV playback on this device. */
-
 void MythTV_Player::CMD_Stop_TV(string &sCMD_Result,Message *pMessage)
-//<-dceag-c76-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 	if ( ! checkXServerConnection())
@@ -326,6 +315,7 @@ void MythTV_Player::CMD_Stop_TV(string &sCMD_Result,Message *pMessage)
 	if ( ProcessUtils::KillApplication(MYTH_WINDOW_NAME, data) == false )
 		g_pPlutoLogger->Write(LV_WARNING, "I failed to kill the application launched with name: %s", MYTH_WINDOW_NAME);
 }
+*/
 
 //<-dceag-c187-b->
 
