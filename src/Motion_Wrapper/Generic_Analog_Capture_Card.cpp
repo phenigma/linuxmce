@@ -589,3 +589,95 @@ DeviceData_Router* Generic_Analog_Capture_Card::find_Device(int iPK_Device) {
     /*search device by id*/
 	return m_pRouter->m_mapDeviceData_Router_Find(iPK_Device);
 }
+
+
+/*
+
+this came from generic_analog_camera
+
+	string sPortNumber, sPath, sLine;
+	FILE *fp;
+	string FilePath, sData, sRep;
+	unsigned long int size, iPortNumber, pid;
+
+	iPortNumber = DATA_Get_Port_Number();
+	iPortNumber++;
+	sPath = "/etc/motion/thread" + StringUtils::itos(iPortNumber) + ".conf";
+	FilePath = sPath;
+	g_pPlutoLogger->Write(LV_STATUS, "Looking for camera config file");
+	if(FileUtils::FileExists(sPath) == true) {
+		g_pPlutoLogger->Write(LV_STATUS, "File found, modifing...");
+		sPath = "rm -f " + sPath;
+ 		system(sPath.c_str());
+	} else {
+		g_pPlutoLogger->Write(LV_STATUS, "Camera config file not found, writing new one");
+	}
+	fp = fopen(FilePath.c_str(),"wt+");
+	//main config
+	sLine = "videodevice /dev/video" + StringUtils::itos(iPortNumber) + "\n";
+	fprintf(fp,sLine.c_str());
+	fprintf(fp,"input 8\n");
+	fprintf(fp,"norm 0\n");	//pal/secam
+	fprintf(fp,"frequncy 0\n");
+	fprintf(fp,"rotate 0\n");
+	fprintf(fp,"width 320\n");
+	fprintf(fp,"height 240\n");
+	fprintf(fp,"framerate 2\n");
+	fprintf(fp,"auto_brightness off\n");
+	fprintf(fp,"brightness 0\n");
+	fprintf(fp,"contrast 0\n");
+	fprintf(fp,"saturation 0\n");
+	fprintf(fp,"hue 0\n");
+	//snapshot config
+	fprintf(fp,"snapshot_interval 3600\n");
+	//Output Directory
+	sLine = "/home/cameras/" + StringUtils::itos(DeviceID);
+	g_pPlutoLogger->Write(LV_STATUS, "Looking for camera output directory");
+	if(FileUtils::DirExists(sLine) == false) {
+		g_pPlutoLogger->Write(LV_STATUS, "Camera output directory not found, creating it");
+		FileUtils::MakeDir(sLine);
+	} else {
+		g_pPlutoLogger->Write(LV_STATUS, "Camera output found");
+	}
+	fprintf(fp,"target_dir %s\n",sLine.c_str());
+	sLine = "snapshot_filename %Y/%m/%d/%H/%M_%S";
+	fprintf(fp,"%s\n",sLine.c_str());
+	sLine = "jpeg_filename %Y/%m/%d/%H/%M_%S";
+	fprintf(fp,"%s\n",sLine.c_str());
+	fclose(fp);
+
+	g_pPlutoLogger->Write(LV_STATUS, "Reading Main configuration file of the motion server");
+	sPath = "/etc/motion/motion.conf";
+	size = FileUtils::FileSize(sPath);
+	char *pData = new char(size+1);
+	pData[size] = '\0';
+	pData = FileUtils::ReadFileIntoBuffer(sPath,(size_t &)size);
+	sLine = "#thread /etc/motion/thread" + StringUtils::itos(iPortNumber) + ".conf";
+	sRep = "thread /etc/motion/thread" + StringUtils::itos(iPortNumber) + ".conf";
+	
+	g_pPlutoLogger->Write(LV_STATUS, "Replacing %s",sLine.c_str());
+	g_pPlutoLogger->Write(LV_STATUS, "With %s",sRep.c_str());
+	std::string std = pData;
+	std = StringUtils::Replace(&std,sLine,sRep);
+
+	g_pPlutoLogger->Write(LV_STATUS, "Adding child camera to main config file");
+	strcpy(pData,std.c_str());
+	FileUtils::WriteBufferIntoFile(sPath,pData,size);
+
+	g_pPlutoLogger->Write(LV_STATUS, "Getting PID of the motion server");
+	sLine = "ps -e | grep motion | awk '{print $1}' > camera_card.temp";
+	system(sLine.c_str());
+	size_t s;
+	const char *ptr = FileUtils::ReadFileIntoBuffer("camera_card.temp",s);
+	pid = atoi(ptr);
+	if(pid == 0) {
+		g_pPlutoLogger->Write(LV_STATUS, "Motion Server is not running, exiting");
+		system("rm -f camera_card.temp");
+		exit(1);
+	}
+	g_pPlutoLogger->Write(LV_STATUS, "Rehashing motion server with PID: %d",pid);
+
+	sPath = "kill -s SIGHUP " + StringUtils::itos(pid);
+	system(sPath.c_str());
+
+*/
