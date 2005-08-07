@@ -226,7 +226,7 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream)
 	else
 	{
 		// if there is no next channel to tune then just start it.
-		DCE::CMD_Start_TV cmd(m_dwPK_Device, pMythTvMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
+		DCE::CMD_Play_Media cmd(m_dwPK_Device, pMythTvMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,"",MEDIATYPE_pluto_LiveTV_CONST,0,"");
 		SendCommand(cmd);
 	}
 
@@ -258,7 +258,8 @@ bool MythTV_PlugIn::StopMedia(class MediaStream *pMediaStream)
 
 	int i; // report the current playback position here.
 
-    DCE::CMD_Stop_TV cmd(m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
+	string sLastPosition;
+    DCE::CMD_Stop_Media cmd(m_dwPK_Device, pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,0,&sLastPosition);
 	// this is useless here because all the message processing in the Media Plugin is done with the m_MediaMutex taken and
 	// since this mutex is recursive the release here is useless and the same apply for all the media plugin processing functions.
 	mm.Release();
