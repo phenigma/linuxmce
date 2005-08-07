@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="Generic_Analog_Capture_Card"
+	Name="Motion_Wrapper"
 	ProjectGUID="{BFB764EC-A94C-414F-AE25-7EECDFEE8BBA}"
 	Keyword="Win32Proj">
 	<Platforms>
@@ -33,12 +33,12 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib"
-				OutputFile="../bin/Generic_Analog_Capture_Card.dll"
+				OutputFile="../bin/Motion_Wrapper.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="../Libraries/pthreads-win32/lib;../lib"
-				ModuleDefinitionFile="Generic_Analog_Capture_Card.def"
+				ModuleDefinitionFile="Motion_Wrapper.def"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile="$(OutDir)/Generic_Analog_Capture_Card.pdb"
+				ProgramDatabaseFile="$(OutDir)/Motion_Wrapper.pdb"
 				SubSystem="1"
 				TargetMachine="1"/>
 			<Tool
@@ -85,9 +85,9 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/Generic_Analog_Capture_Card.dll"
+				OutputFile="$(OutDir)/Motion_Wrapper.dll"
 				LinkIncremental="1"
-				ModuleDefinitionFile="Generic_Analog_Capture_Card.def"
+				ModuleDefinitionFile="Motion_Wrapper.def"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -125,13 +125,13 @@
 				RelativePath="Main.cpp">
 			</File>
 			<File
-				RelativePath="Generic_Analog_Capture_Card.cpp">
+				RelativePath="Motion_Wrapper.cpp">
 			</File>
 			<File
-				RelativePath="Generic_Analog_Capture_Card.def">
+				RelativePath="Motion_Wrapper.def">
 			</File>
 			<File
-				RelativePath="..\Gen_Devices\Generic_Analog_Capture_CardBase.cpp">
+				RelativePath="..\Gen_Devices\Motion_WrapperBase.cpp">
 			</File>
 		</Filter>
 		<Filter
@@ -141,7 +141,7 @@
 				RelativePath="..\DCE\DCEDeviceData_Impl.h">
 			</File>
 			<File
-				RelativePath="Generic_Analog_Capture_Card.h">
+				RelativePath="Motion_Wrapper.h">
 			</File>
 		</Filter>
 		<Filter

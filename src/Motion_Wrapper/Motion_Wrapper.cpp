@@ -1,5 +1,5 @@
 //<-dceag-d-b->
-#include "Generic_Analog_Capture_Card.h"
+#include "Motion_Wrapper.h"
 #include "DCE/Logger.h"
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
@@ -24,8 +24,8 @@ using namespace DCE;
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
-Generic_Analog_Capture_Card::Generic_Analog_Capture_Card(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
-	: Generic_Analog_Capture_Card_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
+Motion_Wrapper::Motion_Wrapper(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
+	: Motion_Wrapper_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
 /*	int i;
@@ -205,14 +205,14 @@ Generic_Analog_Capture_Card::Generic_Analog_Capture_Card(int DeviceID, string Se
 
 //<-dceag-const2-b->
 // The constructor when the class is created as an embedded instance within another stand-alone device
-Generic_Analog_Capture_Card::Generic_Analog_Capture_Card(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)
-	: Generic_Analog_Capture_Card_Command(pPrimaryDeviceCommand, pData, pEvent, pRouter)
+Motion_Wrapper::Motion_Wrapper(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)
+	: Motion_Wrapper_Command(pPrimaryDeviceCommand, pData, pEvent, pRouter)
 //<-dceag-const2-e->
 {
 }
 
 //<-dceag-dest-b->
-Generic_Analog_Capture_Card::~Generic_Analog_Capture_Card()
+Motion_Wrapper::~Motion_Wrapper()
 //<-dceag-dest-e->
 {
 	if(motionpid_) {
@@ -224,7 +224,7 @@ Generic_Analog_Capture_Card::~Generic_Analog_Capture_Card()
 	}
 }
 
-bool Generic_Analog_Capture_Card::Connect(int iPK_DeviceTemplate) {
+bool Motion_Wrapper::Connect(int iPK_DeviceTemplate) {
 	g_pPlutoLogger->Write(LV_STATUS, "Generating Motion configuration...");
 	
 	string sPath = MOTION_CONF_PATH MOTION_CONF_FILE;
@@ -322,13 +322,13 @@ bool Generic_Analog_Capture_Card::Connect(int iPK_DeviceTemplate) {
 		}
 	}
 							
-	return Generic_Analog_Capture_Card_Command::Connect(iPK_DeviceTemplate);
+	return Motion_Wrapper_Command::Connect(iPK_DeviceTemplate);
 }
 
 
 //<-dceag-reg-b->
 // This function will only be used if this device is loaded into the DCE Router's memory space as a plug-in.  Otherwise Connect() will be called from the main()
-bool Generic_Analog_Capture_Card::Register()
+bool Motion_Wrapper::Register()
 //<-dceag-reg-e->
 {
 	return Connect(PK_DeviceTemplate_get()); 
@@ -338,9 +338,9 @@ bool Generic_Analog_Capture_Card::Register()
 	cannot include the actual implementation.  Instead there's an extern function declared, and the actual new exists here.  You 
 	can safely remove this block (put a ! after the dceag-createinst-b block) if this device is not embedded within other devices. */
 //<-dceag-createinst-b->
-Generic_Analog_Capture_Card_Command *Create_Generic_Analog_Capture_Card(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)
+Motion_Wrapper_Command *Create_Motion_Wrapper(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)
 {
-	return new Generic_Analog_Capture_Card(pPrimaryDeviceCommand, pData, pEvent, pRouter);
+	return new Motion_Wrapper(pPrimaryDeviceCommand, pData, pEvent, pRouter);
 }
 //<-dceag-createinst-e->
 
@@ -353,7 +353,7 @@ Generic_Analog_Capture_Card_Command *Create_Generic_Analog_Capture_Card(Command_
 	should change the sCMD_Result to OK
 */
 //<-dceag-cmdch-b->
-void Generic_Analog_Capture_Card::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage)
+void Motion_Wrapper::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
 	sCMD_Result = "OK";
@@ -421,7 +421,7 @@ void Generic_Analog_Capture_Card::ReceivedCommandForChild(DeviceData_Base *pDevi
 
 
 bool 
-Generic_Analog_Capture_Card::AddChildDeviceToConfigFile(std::ofstream& conffile, DeviceData_Impl* pDeviceData,size_t i) {
+Motion_Wrapper::AddChildDeviceToConfigFile(std::ofstream& conffile, DeviceData_Impl* pDeviceData,size_t i) {
 	int PK_Device = pDeviceData->m_dwPK_Device;
 	g_pPlutoLogger->Write(LV_STATUS, "Using child device %d from Generic Analog Capture Card ", PK_Device);
 	
@@ -490,7 +490,7 @@ Generic_Analog_Capture_Card::AddChildDeviceToConfigFile(std::ofstream& conffile,
 	should change the sCMD_Result to OK
 */
 //<-dceag-cmduk-b->
-void Generic_Analog_Capture_Card::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
+void Motion_Wrapper::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 //<-dceag-cmduk-e->
 {
 	sCMD_Result = "UNKNOWN DEVICE";
@@ -505,7 +505,7 @@ Without the !, everything between <=dceag-sometag-b-> and <=dceag-sometag-e->
 will be replaced by DCEGenerator each time it is run with the normal merge selection.
 The above blocks are actually <- not <=.  We don't want a substitution here
 
-void Generic_Analog_Capture_Card::SomeFunction()
+void Motion_Wrapper::SomeFunction()
 {
 	// If this is going to be loaded into the router as a plug-in, you can implement: 	virtual bool Register();
 	// to do all your registration, such as creating message interceptors
@@ -585,7 +585,7 @@ void Generic_Analog_Capture_Card::SomeFunction()
 
 */
 
-DeviceData_Router* Generic_Analog_Capture_Card::find_Device(int iPK_Device) {
+DeviceData_Router* Motion_Wrapper::find_Device(int iPK_Device) {
     /*search device by id*/
 	return m_pRouter->m_mapDeviceData_Router_Find(iPK_Device);
 }

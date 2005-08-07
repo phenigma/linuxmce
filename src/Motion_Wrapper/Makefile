@@ -8,12 +8,12 @@ CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -D_DEVEL_DEFINES
 LDFLAGS = -L$(ROOT)/lib
 BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
 
-MYNAME = Generic_Analog_Capture_Card
+MYNAME = Motion_Wrapper
 VERSION = 2.0.0
 MYDEVTEMPLATEID = 64mplateID
 
-Gen_Dev_Files = $(GENDEV)/Generic_Analog_Capture_CardBase.cpp
-sources = Main.cpp Generic_Analog_Capture_Card.cpp $(Gen_Dev_Files)
+Gen_Dev_Files = $(GENDEV)/Motion_WrapperBase.cpp
+sources = Main.cpp Motion_Wrapper.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
 CXXFLAGS +=
@@ -32,23 +32,23 @@ whattodo:
 
 all: bin so
 
-bin: Generic_Analog_Capture_Card
+bin: Motion_Wrapper
 
-so: Generic_Analog_Capture_Card.so
+so: Motion_Wrapper.so
 
-Generic_Analog_Capture_Card.so: $(sources:.cpp=.o)
+Motion_Wrapper.so: $(sources:.cpp=.o)
 	$(CXX) -shared -o $(MYNAME).so $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
 		
-Generic_Analog_Capture_Card: $(sources:.cpp=.o)
+Motion_Wrapper: $(sources:.cpp=.o)
 	$(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	./post_make.sh $@
 
 clean: clean-recursive
-	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) Generic_Analog_Capture_Card.bin Generic_Analog_Capture_Card.so >/dev/null
+	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) Motion_Wrapper.bin Motion_Wrapper.so >/dev/null
 
 package:
 	chmod +x make_package.sh
