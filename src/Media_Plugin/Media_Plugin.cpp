@@ -2566,26 +2566,9 @@ void Media_Plugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string 
 	// If we don't have multiple files in the queue, this is treated as a skip forward/back to jump through chapters
 	if( pEntertainArea->m_pMediaStream->m_dequeMediaFile.size()<2 )
 	{
-		int iRepeat=atoi(sValue_To_Assign.c_str());
-		bool bSkipBack=false;
-		if( sValue_To_Assign.size() && sValue_To_Assign[0]=='-' )
-		{
-			iRepeat *= -1;
-			bSkipBack=true;
-		}
-
-		if( bSkipBack )
-		{
-			DCE::CMD_Skip_Back_ChannelTrack_Lower CMD_Skip_Back_ChannelTrack_Lower(m_dwPK_Device,pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
-			CMD_Skip_Back_ChannelTrack_Lower.m_pMessage->m_mapParameters[COMMANDPARAMETER_Repeat_Command_CONST] = StringUtils::itos(iRepeat);
-			SendCommand(CMD_Skip_Back_ChannelTrack_Lower);
-		}
-		else
-		{
-			DCE::CMD_Skip_Fwd_ChannelTrack_Greater CMD_Skip_Fwd_ChannelTrack_Greater(m_dwPK_Device,pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
-			CMD_Skip_Fwd_ChannelTrack_Greater.m_pMessage->m_mapParameters[COMMANDPARAMETER_Repeat_Command_CONST] = StringUtils::itos(iRepeat);
-			SendCommand(CMD_Skip_Fwd_ChannelTrack_Greater);
-		}
+		Message *pMessageOut = new Message(pMessage);
+		pMessageOut->m_dwPK_Device_To = pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
+		QueueMessageToRouter(pMessageOut);
 		return;
 	}
 
