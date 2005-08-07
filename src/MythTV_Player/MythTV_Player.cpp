@@ -679,3 +679,102 @@ void MythTV_Player::CMD_Back_Prior_Menu(string &sCMD_Result,Message *pMessage)
 }
 //<-dceag-createinst-b->!
 //<-dceag-sample-b->!
+//<-dceag-c37-b->
+
+	/** @brief COMMAND: #37 - Play Media */
+	/** This command will instruct a Media Player to play a media stream identified by a media descriptor created by the "Create Media" command. */
+		/** @param #13 Filename */
+			/** The file to play.  The format is specific on the media type and the media player. */
+		/** @param #29 PK_MediaType */
+			/** The type of media */
+		/** @param #41 StreamID */
+			/** The media that we need to play. */
+		/** @param #42 MediaPosition */
+			/** The position at which we need to start playing. */
+
+void MythTV_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,string sMediaPosition,string &sCMD_Result,Message *pMessage)
+//<-dceag-c37-e->
+//<-dceag-c38-b->
+
+	/** @brief COMMAND: #38 - Stop Media */
+	/** This will instruct the media player to stop the playback of a media started with the "Play Media" Command */
+		/** @param #41 StreamID */
+			/** The media needing to be stopped. */
+		/** @param #42 MediaPosition */
+			/** The position at which this stream was last played. */
+
+void MythTV_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &sCMD_Result,Message *pMessage)
+//<-dceag-c38-e->
+//<-dceag-c39-b->
+
+	/** @brief COMMAND: #39 - Pause Media */
+	/** This will stop a media that is currently played. This method should be paired with the "Restart Media" and used when the playback will be stopped and restarted on the same display device. */
+		/** @param #41 StreamID */
+			/** The media stream for which we need to pause playback. */
+
+void MythTV_Player::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c39-e->
+//<-dceag-c40-b->
+
+	/** @brief COMMAND: #40 - Restart Media */
+	/** This will restart a media was paused with the above command */
+		/** @param #41 StreamID */
+			/** The media stream that we need to restart playback for. */
+
+void MythTV_Player::CMD_Restart_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c40-e->
+//<-dceag-c41-b->
+
+	/** @brief COMMAND: #41 - Change Playback Speed */
+	/** Will make the playback to FF with a configurable amount of speed. */
+		/** @param #41 StreamID */
+			/** The media needing the playback speed change. */
+		/** @param #43 MediaPlaybackSpeed */
+			/** The requested media playback speed * 1000.  -1000 = rev, 4000 = 4x fwd, -500 = rev 1/2.  Less than 10 = relative.  +2 = double, -1 = reverse.   See Media_Plugin::ReceivedMessage */
+
+void MythTV_Player::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpeed,string &sCMD_Result,Message *pMessage)
+//<-dceag-c41-e->
+//<-dceag-c42-b->
+
+	/** @brief COMMAND: #42 - Jump to Position in Stream */
+	/** Jump to a position in the stream, specified in seconds. */
+		/** @param #5 Value To Assign */
+			/** The number of seconds.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1.  A simpler command than Set Media Position */
+		/** @param #41 StreamID */
+			/** The stream */
+
+void MythTV_Player::CMD_Jump_to_Position_in_Stream(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c42-e->
+//<-dceag-c65-b->
+
+	/** @brief COMMAND: #65 - Jump Position In Playlist */
+	/** Jump to a specific position in the playlist, or a track, or a chapter.  Smart media players should also understand the skip fwd/skip back (which non-DCE media players use) to be the same thing as a jump +1 or -1 */
+		/** @param #5 Value To Assign */
+			/** The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1. */
+
+void MythTV_Player::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
+//<-dceag-c65-e->
+//<-dceag-c259-b->
+
+	/** @brief COMMAND: #259 - Report Playback Position */
+	/** This will report the playback position of the current stream. */
+		/** @param #9 Text */
+			/** A human readable representation of the current position */
+		/** @param #41 StreamID */
+			/** The stream ID on which to report the position. */
+		/** @param #42 MediaPosition */
+			/** A media player readable representation of the current position including all options */
+
+void MythTV_Player::CMD_Report_Playback_Position(int iStreamID,string *sText,string *sMediaPosition,string &sCMD_Result,Message *pMessage)
+//<-dceag-c259-e->
+//<-dceag-c412-b->
+
+	/** @brief COMMAND: #412 - Set Media Position */
+	/** Jump to a certain media position */
+		/** @param #41 StreamID */
+			/** The stream to set */
+		/** @param #42 MediaPosition */
+			/** The media position.  When MediaPlugin gets this, it will be a bookmark ID, when a media player gets it, the string */
+
+void MythTV_Player::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,string &sCMD_Result,Message *pMessage)
+//<-dceag-c412-e->
