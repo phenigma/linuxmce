@@ -547,17 +547,8 @@ void Xine_Player::FireMenuOnScreen(int iDestinationDevice, int iStreamID, bool b
 
     EVENT_Menu_Onscreen(iStreamID, bOnOff);
 }
-//<-dceag-c243-b->
-
-	/** @brief COMMAND: #243 - Enable Broadcasting */
-	/** Enable broadcasting from here. */
-		/** @param #41 StreamID */
-			/** The stream to enable broadcast for */
-		/** @param #59 MediaURL */
-			/** The media url from which this stream can be played. */
-
+/*
 void Xine_Player::CMD_Enable_Broadcasting(int iStreamID,string *sMediaURL,string &sCMD_Result,Message *pMessage)
-//<-dceag-c243-e->
 {
     PLUTO_SAFETY_LOCK(xineSlaveLock, m_xineSlaveMutex);
 
@@ -580,6 +571,7 @@ void Xine_Player::CMD_Enable_Broadcasting(int iStreamID,string *sMediaURL,string
 
     *sMediaURL = string("slave://localhost") + StringUtils::itos(iBroadcastPort);
 }
+*/
 //<-dceag-c259-b->
 
 	/** @brief COMMAND: #259 - Report Playback Position */
@@ -755,40 +747,6 @@ void Xine_Player::CMD_Move_Right(string &sCMD_Result,Message *pMessage)
 	makeActive(m_pXineSlaveControl->getRenderingWindowName());
 	m_pXineSlaveControl->sendInputEvent(XINE_EVENT_INPUT_RIGHT);
 //	m_pXineSlaveControl->simulateKeystroke(BUTTON_Right_Arrow_CONST);
-}
-//<-dceag-c89-b->
-
-	/** @brief COMMAND: #89 - Vol Up */
-	/** Make the sound go up. */
-		/** @param #72 Repeat Command */
-			/** If specified, repeat the volume up this many times */
-
-void Xine_Player::CMD_Vol_Up(int iRepeat_Command,string &sCMD_Result,Message *pMessage)
-//<-dceag-c89-e->
-{
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Vol_Up() Not implemented!");
-}
-//<-dceag-c90-b->
-
-	/** @brief COMMAND: #90 - Vol Down */
-	/** Make the sound go down. */
-		/** @param #72 Repeat Command */
-			/** If specified, repeat the volume down this many times. */
-
-void Xine_Player::CMD_Vol_Down(int iRepeat_Command,string &sCMD_Result,Message *pMessage)
-//<-dceag-c90-e->
-{
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Vol_Down() Not implemented!");
-}
-//<-dceag-c97-b->
-
-	/** @brief COMMAND: #97 - Mute */
-	/** Mute the sound. */
-
-void Xine_Player::CMD_Mute(string &sCMD_Result,Message *pMessage)
-//<-dceag-c97-e->
-{
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Mute() Not implemented!");
 }
 //<-dceag-c204-b->
 
@@ -1073,6 +1031,9 @@ int Xine_Player::CalculatePosition(string &sMediaPosition,string *sMRL,int *Subt
 
 void Xine_Player::CMD_Jump_to_Position_in_Stream(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c42-e->
+{
+}
+
 //<-dceag-c65-b->
 
 	/** @brief COMMAND: #65 - Jump Position In Playlist */
@@ -1082,6 +1043,9 @@ void Xine_Player::CMD_Jump_to_Position_in_Stream(string sValue_To_Assign,int iSt
 
 void Xine_Player::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c65-e->
+{
+}
+
 //<-dceag-c92-b->
 
 	/** @brief COMMAND: #92 - Pause */
@@ -1089,6 +1053,9 @@ void Xine_Player::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &
 
 void Xine_Player::CMD_Pause(string &sCMD_Result,Message *pMessage)
 //<-dceag-c92-e->
+{
+}
+
 //<-dceag-c95-b->
 
 	/** @brief COMMAND: #95 - Stop */
@@ -1096,6 +1063,9 @@ void Xine_Player::CMD_Pause(string &sCMD_Result,Message *pMessage)
 
 void Xine_Player::CMD_Stop(string &sCMD_Result,Message *pMessage)
 //<-dceag-c95-e->
+{
+}
+
 //<-dceag-c139-b->
 
 	/** @brief COMMAND: #139 - Play */
@@ -1103,3 +1073,6 @@ void Xine_Player::CMD_Stop(string &sCMD_Result,Message *pMessage)
 
 void Xine_Player::CMD_Play(string &sCMD_Result,Message *pMessage)
 //<-dceag-c139-e->
+{
+}
+
