@@ -703,41 +703,6 @@ void Slim_Server_Streamer::CMD_Change_Playback_Speed(int iStreamID,int iMediaPla
 	}
 }
 
-//<-dceag-c63-b->
-
-	/** @brief COMMAND: #63 - Skip Fwd - Channel/Track Greater */
-	/** Chapter/Track Next/Down/Forward */
-
-void Slim_Server_Streamer::CMD_Skip_Fwd_ChannelTrack_Greater(string &sCMD_Result,Message *pMessage)
-//<-dceag-c63-e->
-{
-}
-
-//<-dceag-c64-b->
-
-	/** @brief COMMAND: #64 - Skip Back - Channel/Track Lower */
-	/** Chapter/Track Back/Up/Prior */
-
-void Slim_Server_Streamer::CMD_Skip_Back_ChannelTrack_Lower(string &sCMD_Result,Message *pMessage)
-//<-dceag-c64-e->
-{
-}
-
-//<-dceag-c243-b->
-
-	/** @brief COMMAND: #243 - Enable Broadcasting */
-	/** Enable broadcasting from here. */
-		/** @param #41 StreamID */
-			/** The stream to enable broadcast for */
-		/** @param #59 MediaURL */
-			/** The media url from which this stream can be played. */
-
-void Slim_Server_Streamer::CMD_Enable_Broadcasting(int iStreamID,string *sMediaURL,string &sCMD_Result,Message *pMessage)
-//<-dceag-c243-e->
-{
-
-}
-
 //<-dceag-c259-b->
 
 	/** @brief COMMAND: #259 - Report Playback Position */
@@ -903,41 +868,6 @@ string Slim_Server_Streamer::getMacAddressForDevice(DeviceData_Base *pDevice)
 
 	return StringUtils::URLEncode(StringUtils::ToLower(macAddress));
 }
-//<-dceag-c140-b->
-
-	/** @brief COMMAND: #140 - Audio Track */
-	/** Go to an audio track */
-		/** @param #5 Value To Assign */
-			/** The audio track to go to.  Simple A/V equipment ignores this and just toggles. */
-
-void Slim_Server_Streamer::CMD_Audio_Track(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
-//<-dceag-c140-e->
-{
-}
-
-//<-dceag-c141-b->
-
-	/** @brief COMMAND: #141 - Subtitle */
-	/** Go to a subtitle */
-		/** @param #5 Value To Assign */
-			/** The subtitle to go to.  Simple A/V equipment ignores this and just toggles. */
-
-void Slim_Server_Streamer::CMD_Subtitle(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
-//<-dceag-c141-e->
-{
-}
-
-//<-dceag-c142-b->
-
-	/** @brief COMMAND: #142 - Angle */
-	/** Go to an angle */
-		/** @param #5 Value To Assign */
-			/** The angle to go to.  Simple A/V equipment ignores this and just toggles. */
-
-void Slim_Server_Streamer::CMD_Angle(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
-//<-dceag-c142-e->
-{
-}
 
 //<-dceag-c412-b->
 
@@ -964,6 +894,8 @@ void Slim_Server_Streamer::CMD_Set_Media_Position(int iStreamID,string sMediaPos
 
 void Slim_Server_Streamer::CMD_Jump_to_Position_in_Stream(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c42-e->
+{
+}
 //<-dceag-c65-b->
 
 	/** @brief COMMAND: #65 - Jump Position In Playlist */
@@ -973,3 +905,6 @@ void Slim_Server_Streamer::CMD_Jump_to_Position_in_Stream(string sValue_To_Assig
 
 void Slim_Server_Streamer::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c65-e->
+{
+}
+
