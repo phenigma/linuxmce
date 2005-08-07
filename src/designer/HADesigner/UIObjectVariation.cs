@@ -1185,7 +1185,7 @@ namespace HADesigner
 		{
 			string path = this.GetParameterValue(DesignObjParameterData.GRAPHIC_FILENAME_CONST);
 
-			if (path == "") return "";
+			if (path == "" || path == " ") return "";
 			else if (path.StartsWith("C:") || path.StartsWith(@"\\")) return path;
 			else 
 			{
@@ -1200,7 +1200,7 @@ namespace HADesigner
 		{
 			string strErrorMessage = "";
 
-			if (strPath == "") return null;
+			if (strPath == "" || strPath == " " ) return null;
 
 			Bitmap objReturnBitmap;
 
@@ -1218,7 +1218,7 @@ namespace HADesigner
 			}
 			else
 			{
-				if( strPath.IndexOf("<%=")<0 )
+				if( strPath.IndexOf("<%=")<0  )
 					MessageBox.Show("Cannot find bitmap: " + strPath);
 				objReturnBitmap = new Bitmap(this.pathFileNotFound);
 			}
