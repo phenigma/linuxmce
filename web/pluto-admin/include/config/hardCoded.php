@@ -52,6 +52,7 @@
 	$GLOBALS['DrapesSwitch']=68;				// Drapes Switch
 	$GLOBALS['StandardThermostat']=4;			// Standard Thermostat
 	$GLOBALS['Tuner']=75;						// Generic Tuner
+	$GLOBALS['ONScreenOrbiter']=62;				// On screen orbiter
 	
 	
 	// PK_Template from table Template
@@ -148,7 +149,10 @@
 	$GLOBALS['VideoSettings']=89;				// Video settings
 	$GLOBALS['EmergencyCalls']=96;				// Emergency Calls
 	$GLOBALS['MobileOrbiterPhone']=97;			// Mobile Orbiter Phone
+	$GLOBALS['ScreenWidth']=100;				// Screen Width
+	$GLOBALS['ScreenHeight']=101;				// Screen Height
 	$GLOBALS['MediaProvider']=103;				// Media Provider
+	
 	
 	// PK_FloorplanType from table FloorplanType 
 

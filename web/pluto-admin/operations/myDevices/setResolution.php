@@ -125,8 +125,18 @@ $out.='
 			$newVS=$resolution.'/'.$refresh;
 			
 			$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($newVS,$mdID,$GLOBALS['Size']));
-			
 			if(@$_POST['updateOrbiters']==1){
+				// update device data for onscreen orbiter or orbiter
+				$orbiterArray=getOSDFromMD($mdID,$dbADO);
+				@list($resX, $resY, $resType) = explode(' ', $resolution);	
+				
+				if(!is_null($orbiterArray['FK_DeviceTemplate'])){	
+					
+					$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($resX,$orbiterArray['PK_Device'],$GLOBALS['ScreenWidth']));
+					$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($resY,$orbiterArray['PK_Device'],$GLOBALS['ScreenHeight']));
+				}
+				
+				
 				// do quick reload router
 				$command='/usr/pluto/bin/MessageSend localhost 0 -1000 7 1';
 				exec($command);

@@ -346,6 +346,15 @@ function wizardOrbiters($output,$dbADO) {
 									$dbADO->Execute($updateDDD,array($deviceData,$value,$ddValue));
 								}
 							}
+							if($ddValue==$GLOBALS['Size']){
+								$sizeArray=getFieldsAsArray('Size','Width,Height',$dbADO,'WHERE PK_Size='.$deviceData);
+								if(count($sizeArray)>0){
+									$resX=$sizeArray['Width'][0];
+									$resY=$sizeArray['Height'][0];
+									$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($resX,$value,$GLOBALS['ScreenWidth']));
+									$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($resY,$value,$GLOBALS['ScreenHeight']));
+								}
+							}
 						}
 					}
 				}

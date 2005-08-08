@@ -3611,4 +3611,16 @@ function cleanMediaType($var)
 {
 	return str_replace('np_','',$var);
 }
+
+function getOSDFromMD($mdID,$dbADO)
+{
+
+	$getOrbiterChild='SELECT * FROM Device WHERE FK_DeviceTemplate = ?  AND FK_Device_ControlledVia=?';
+	$resOrbiterChild=$dbADO->Execute($getOrbiterChild,array($GLOBALS['ONScreenOrbiter'],$mdID));
+	if($resOrbiterChild->RecordCount()!=0){
+		$rowOrbiterChild=$resOrbiterChild->FetchRow();
+		return $rowOrbiterChild;
+	}
+	return null;
+}
 ?>
