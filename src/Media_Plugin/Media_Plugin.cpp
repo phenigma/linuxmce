@@ -866,7 +866,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 {
 	pMediaStream->m_pRemoteControlSet = PickRemoteControlMap(
 		(pMediaStream->m_pOH_Orbiter_StartedMedia ? pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device : 0),
-		pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
+		pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_DeviceTemplate,
 		pMediaStream->m_iPK_MediaType);
 
 	map<int,class OldStreamInfo *> mapOldStreamInfo;
