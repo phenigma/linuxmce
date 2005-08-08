@@ -4,21 +4,20 @@
 MYTH_SETUP_PIDS=`pidof mythtv-setup`;
 
 if [ "$MYTH_SETUP_PIDS" != "" ]; then 
-	/usr/pluto/bin/ratpoison -c "select mythtv-setup";
-	wait $MYTH_SETUP_PIDS;
-else
-	echo -e "\n\n" | mythtv-setup 
-
-	/etc/init.d/mythtv-backend force-reload
-
-	PID=`pidof mmythfilldatabase`;
-
-	if [ "$PID" != "" ] ; then 
-		kill -9 $PID;
-	fi;
-
-	/etc/cron.daily/mythtv-backend 2>/var/log/pluto/myth-filldatabase.log &
+	killall mythtv-setup
 fi;
+
+echo -e "\n\n" | mythtv-setup 
+
+/etc/init.d/mythtv-backend force-reload
+
+PID=`pidof mmythfilldatabase`;
+
+if [ "$PID" != "" ] ; then 
+	kill -9 $PID;
+fi;
+
+/etc/cron.daily/mythtv-backend 2>/var/log/pluto/myth-filldatabase.log &
 
 # sleep 1;
 
