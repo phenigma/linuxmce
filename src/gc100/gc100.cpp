@@ -325,7 +325,7 @@ bool gc100::ConvertPronto(string ProntoCode, string &gc_code)
 		token=StringUtils::Tokenize(ProntoCode," ",pos);
 		sscanf(token.c_str(),"%4x",&token_int);
 
-		if (token_int==0)
+		if (token_int==0 || token_int==256 )
 		{
 			// Carrier divider
 			token=StringUtils::Tokenize(ProntoCode," ",pos);
