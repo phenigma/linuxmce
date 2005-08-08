@@ -156,27 +156,36 @@ bool OrbiterSelfUpdate::DownloadUpdateBinary()
 		return false; //we'll continue with this version
 	}
 
-	string sUpdateBinaryPath;
     if(sStoragePath == "")
-        sUpdateBinaryPath = sUpdateName;
+        m_sUpdateBinaryPath = sUpdateName;
     else
-        sUpdateBinaryPath = sStoragePath + "/" + sUpdateName;
+        m_sUpdateBinaryPath = sStoragePath + "/" + sUpdateName;
 
 #ifdef WINCE
 	wchar_t UpdateFileNameW[256];
-	mbstowcs(UpdateFileNameW, sUpdateBinaryPath.c_str(), 256);
+	mbstowcs(UpdateFileNameW, m_sUpdateBinaryPath.c_str(), 256);
 #define UPDATEBINARY_FILE UpdateFileNameW	
 #else
-#define UPDATEBINARY_FILE const_cast<char *>(sUpdateBinaryPath.c_str())
+#define UPDATEBINARY_FILE const_cast<char *>(m_sUpdateBinaryPath.c_str())
 #endif		
 
 	g_pPlutoLogger->Write( LV_STATUS,  "Ready to delete UpdateBinary application");
 	::DeleteFile(UPDATEBINARY_FILE);
 
-	if(!FileUtils::WriteBufferIntoFile(sUpdateBinaryPath, pUpdateFile, iSizeUpdateFile))
+	if(!FileUtils::WriteBufferIntoFile(m_sUpdateBinaryPath, pUpdateFile, iSizeUpdateFile))
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL,  "Failed to save the UpdateBinary application to location '%s'", sUpdateBinaryPath.c_str() );
-		return false; //we'll continue with this version
+		g_pPlutoLogger->Write( LV_CRITICAL,  "Failed to save the UpdateBinary application to location '%s'", m_sUpdateBinaryPath.c_str() );
+
+        string sOldUpdateBinaryPath = m_sUpdateBinaryPath;
+        m_sUpdateBinaryPath = g_sBinaryPath + sUpdateName; //try local folder
+        if(!FileUtils::WriteBufferIntoFile(m_sUpdateBinaryPath, pUpdateFile, iSizeUpdateFile))    
+        {
+            g_pPlutoLogger->Write( LV_CRITICAL,  "Failed to save the UpdateBinary application to location '%s'", m_sUpdateBinaryPath.c_str() );
+            ::MessageBox(NULL, TEXT("Unable to download UpdateBinary to the specified folder. Please check if the 'Path' device data is correct"),
+                TEXT("Pluto Orbiter error"), MB_ICONERROR);
+
+            return false; //we'll continue with this version
+        }
 	}
 
 	return true;
@@ -217,13 +226,6 @@ bool OrbiterSelfUpdate::SpawnUpdateBinaryProcess()
 	string sUpdateName = m_pOrbiter->DATA_Get_Update_Name();
 	string sStoragePath = m_pOrbiter->DATA_Get_Path();
 	string sCommFile = m_pOrbiter->DATA_Get_Communication_file();
-	string sUpdateBinaryFilePath;
-    
-    if(sStoragePath == "")
-        sUpdateBinaryFilePath = sUpdateName;
-    else
-        sUpdateBinaryFilePath = sStoragePath + "/" + sUpdateName;
-
 	string sCmdLine = "";
 
 	sCmdLine += "-d " + StringUtils::ltos(m_pOrbiter->m_dwPK_Device);
@@ -234,26 +236,26 @@ bool OrbiterSelfUpdate::SpawnUpdateBinaryProcess()
 	sCmdLine += " -o \"" + m_sOrbiterFilePath + "\"";
 	sCmdLine += " -c " + sCommFile;
 
-	g_pPlutoLogger->Write( LV_STATUS,  "Ready to start: %s comm file %s", sUpdateBinaryFilePath.c_str(), sCmdLine.c_str());
+	g_pPlutoLogger->Write( LV_STATUS,  "Ready to start: %s comm file %s", m_sUpdateBinaryPath.c_str(), sCmdLine.c_str());
 
 #ifdef WINCE
 	wchar_t CmdLineW[512];
 	mbstowcs(CmdLineW, sCmdLine.c_str(), 512);
 	wchar_t OrbiterPathW[512];
-	mbstowcs(OrbiterPathW, sUpdateBinaryFilePath.c_str(), 512);
+	mbstowcs(OrbiterPathW, m_sUpdateBinaryPath.c_str(), 512);
 
 	if(!::CreateProcess(OrbiterPathW, CmdLineW, NULL, NULL, NULL, 0, NULL, NULL, &si, &pi))
 #else
-	sUpdateBinaryFilePath += " " + sCmdLine;
-	if(!::CreateProcess(NULL, const_cast<char *>(sUpdateBinaryFilePath.c_str()), NULL, NULL, NULL, 0, NULL, NULL, &si, &pi))
+	string sCompleteCmdLine = m_sUpdateBinaryPath + " " + sCmdLine;
+	if(!::CreateProcess(NULL, const_cast<char *>(sCompleteCmdLine.c_str()), NULL, NULL, NULL, 0, NULL, NULL, &si, &pi))
 #endif
 	{
-        string sErrorMessage = "Failed to start UpdateBinary application '" + sUpdateBinaryFilePath + "'";
+        string sErrorMessage = "Failed to start UpdateBinary application '" + m_sUpdateBinaryPath + "'";
 		g_pPlutoLogger->Write( LV_CRITICAL,  sErrorMessage.c_str() );
 
         
         ::MessageBox(NULL, TEXT("Failed to start UpdateBinary application.\r\nPlease be sure that you are running the correct orbiter."), 
-			TEXT("Pluto Orbiter failed to update"), 0);
+			TEXT("Pluto Orbiter failed to update"), MB_ICONWARNING);
 		return false; 
 	}
 
@@ -285,7 +287,7 @@ bool OrbiterSelfUpdate::Run()
 	if(LastUpdateFailed())
 	{	
         if(IDYES == ::MessageBox(NULL, TEXT("Last time I tried to update it failed. Should I try again?  \r\nWe recommend you choose 'yes' unless the update keeps failing,\r\nin which case please notify Pluto support."), 
-            TEXT("Last update failed"), MB_YESNO))
+            TEXT("Last update failed"), MB_YESNO | MB_ICONWARNING))
         {
             g_pPlutoLogger->Write( LV_CRITICAL,  "The user chooses to try to update Orbiter again, let's try this..." );
         }
