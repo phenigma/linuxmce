@@ -144,11 +144,8 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 	if(m_bQuit || m_bReload)
     {
         ShowMainDialog();
-        MessageBox(TEXT("Orbiter cannot start because no screens are generated. \r\nTo generate screens, please use OrbiterGen."),
-            TEXT("Pluto Orbiter"), MB_ICONHAND);
-
+        DisplayMessage("Orbiter cannot start because no screens are generated. \r\nTo generate screens, please use OrbiterGen.");
         m_bQuit = true;
-
         exit(1);
     }
 
@@ -1030,9 +1027,23 @@ void Orbiter_PocketFrog::CalcTextRectangle(RECT &rectLocation,PlutoRectangle &rP
 #ifdef WINCE
     wchar_t wMessage[4096];
     mbstowcs(wMessage, sMessage.c_str(), 4096);	
-    ::MessageBox(NULL, wMessage, TEXT("Orbiter"), 0);
+    ::MessageBox(m_hWnd, wMessage, TEXT("Orbiter"), MB_ICONERROR);
 #else
-    ::MessageBox(NULL, sMessage.c_str(), TEXT("Orbiter"), 0);
+    ::MessageBox(m_hWnd, sMessage.c_str(), TEXT("Orbiter"), MB_ICONERROR);
 #endif
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ bool Orbiter_PocketFrog::OnReplaceHandler(string sIP)
+{
+    if(sIP != m_sIPAddress)
+    {
+        string sMessage = "An Orbiter with the same device id was started on " + sIP + ".\r\nThis Orbiter will be closed.";
+        DisplayMessage(sMessage.c_str());
+        m_bQuit = true;
+        exit(1);
+        return true;
+    }
+
+    return false;
 }
 //-----------------------------------------------------------------------------------------------------

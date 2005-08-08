@@ -80,7 +80,7 @@ namespace DCE
 		/**
 		 * @brief overrideable by the derived classes, called when another device connects with the same device ID
 		 */
-		virtual void OnReplaceHandler(string sIP) { };
+		virtual bool OnReplaceHandler(string sIP) { return false; };
 	};
 }
 #endif

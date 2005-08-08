@@ -168,9 +168,10 @@ void HandleRequestSocket::RunThread()
 			else if ( sMessage.substr(0,7) == "REPLACE" && sMessage.size()>7 )
 			{
 				g_pPlutoLogger->Write( LV_STATUS, "Another device with IP %s connected as device: %d", sMessage.c_str(), m_dwPK_Device );
-				OnReplaceHandler(sMessage.substr(7));
-				m_bUnexpected = true;
-				m_bTerminate = true;
+                m_bUnexpected = true;
+                m_bTerminate = true;
+                if(OnReplaceHandler(sMessage.substr(7)))
+                    return;
 			}
 #ifdef DEBUG
 			g_pPlutoLogger->Write( LV_STATUS, "Received %s %p device: %d", sMessage.c_str(), this, m_dwPK_Device);
