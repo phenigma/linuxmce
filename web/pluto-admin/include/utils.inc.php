@@ -847,7 +847,7 @@ function grabFiles($path,$fileParm='-type f',$startingWith='') {
 	exec('find '.$PathParm.' '.$fileParm.' -maxdepth 1',$retArray);
 	foreach ($retArray AS $file){
 		if($file!=$path){
-			$filesArray[]=str_replace($path,'',$file);
+			$filesArray[]=str_replace($path.'/','',$file);
 		}
 	}
 	return $filesArray;
@@ -1576,7 +1576,7 @@ function generatePullDown($name,$tableName,$valueField,$labelField,$selectedValu
 	return $pullDown;
 }
 
-function getDeviceTemplatesFromCategory($categoryID,$dbADO)
+function getDeviceTemplatesFromCategory($categoryID,$dbADO,$withNames=0)
 {
 	$GLOBALS['childsDeviceCategoryArray']=array();
 	getDeviceCategoryChildsArray($categoryID,$dbADO);
@@ -1590,7 +1590,11 @@ function getDeviceTemplatesFromCategory($categoryID,$dbADO)
 	$resDeviceTemplate=$dbADO->Execute($queryDeviceTemplate);
 	$DTArray=array();
 	while($rowDeviceCategory=$resDeviceTemplate->FetchRow()){
-		$DTArray[]=$rowDeviceCategory['PK_DeviceTemplate'];
+		if($withNames==0){
+			$DTArray[]=$rowDeviceCategory['PK_DeviceTemplate'];
+		}else{
+			$DTArray[$rowDeviceCategory['PK_DeviceTemplate']]=$rowDeviceCategory['Description'];
+		}
 	}
 	return $DTArray;
 }

@@ -68,7 +68,8 @@ $out.='
 		{
 			$resType = "";
 		}
-		exec("sudo -u root /usr/pluto/bin/LaunchRemoteCmd.sh '$ipAddress' '/usr/pluto/bin/Xres_config.sh $resX $resY $refresh $resType'", $retArray);
+		$cmd="sudo -u root /usr/pluto/bin/LaunchRemoteCmd.sh '$ipAddress' '/usr/pluto/bin/Xres_config.sh $resX $resY $refresh $resType'";
+		exec($cmd, $retArray);
 		
 		$out.='
 		<form action="index.php" method="post" name="setResolution">
@@ -84,7 +85,8 @@ $out.='
 <br><br>';
 
 
-
+$answer=join('<br>',$retArray);
+$answer=(ereg('Failed',$answer))?'<span class="err">'.$answer.'</span>':$answer;
 $out.='
 <table>
 	<tr>
@@ -96,7 +98,11 @@ $out.='
 		<td>'.$refreshArray[$refresh].'</td>
 	</tr>
 	<tr>
-		<td colspan="2" bgcolor="#F0F3F8">'.join('<br>',$retArray).'</td>
+		<td colspan="2" bgcolor="#F0F3F8">'.$answer.'</td>
+	</tr>
+	<tr>
+		<td align="right"><input type="checkbox" name="updateOrbiters" value="1" checked></td>
+		<td>Quick reload router.</td>
 	</tr>
 	<tr>
 		<td colspan="2" align="center"><input type="submit" class="button" name="yesBtn" value="Yes"> <input type="submit" class="button" name="noBtn" value="No"></td>
@@ -117,7 +123,15 @@ $out.='
 			$resolution=$_POST['resolution'];
 			$refresh=$_POST['refresh'];
 			$newVS=$resolution.'/'.$refresh;
-			$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($newVS,$mdID,$GLOBALS['VideoSettings']));
+			
+			$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($newVS,$mdID,$GLOBALS['Size']));
+			
+			if(@$_POST['updateOrbiters']==1){
+				// do quick reload router
+				$command='/usr/pluto/bin/MessageSend localhost 0 -1000 7 1';
+				exec($command);
+			}
+			
 			$msg='Resolution and refresh updated.';
 		}else{
 			$Answer="N";

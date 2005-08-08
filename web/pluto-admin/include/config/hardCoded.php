@@ -131,6 +131,7 @@
 	$GLOBALS['FloorplanObjectType']=11;			// FloorplanObjectType
 	$GLOBALS['Channel']=12;						// Channel
 	$GLOBALS['InputOrOutput']=18;				// InputOrOutput
+	$GLOBALS['Size']=25;						// Resolution (Size)
 	$GLOBALS['Language']=26;					// Language
 	$GLOBALS['DHCPDeviceData']=28;				// DHCP
 	$GLOBALS['PhoneNumber']=31;					// Phone Number
