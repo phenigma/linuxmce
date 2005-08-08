@@ -711,6 +711,9 @@ void MythTV_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &
 void MythTV_Player::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c39-e->
 {
+	// We treat the middle button (pause) as enter -- what a nasty hack!
+	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
+	processKeyBoardInputRequest(XK_Return);
 }
 
 //<-dceag-c40-b->
@@ -737,6 +740,12 @@ void MythTV_Player::CMD_Restart_Media(int iStreamID,string &sCMD_Result,Message 
 void MythTV_Player::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpeed,string &sCMD_Result,Message *pMessage)
 //<-dceag-c41-e->
 {
+	// We send left/right for this
+	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
+	if( iMediaPlaybackSpeed==2 )
+		processKeyBoardInputRequest(XK_Right);
+	else
+		processKeyBoardInputRequest(XK_Left);
 }
 
 //<-dceag-c42-b->

@@ -1,6 +1,7 @@
 #ifndef __Define_DeviceTemplate_H__
 #define __Define_DeviceTemplate_H__
 
+#define DEVICETEMPLATE_This_Orbiters_Now_Playing_CONST -304
 #define DEVICETEMPLATE_Standard_Orbiters_in_my_room_CONST -303
 #define DEVICETEMPLATE_Mobile_Orbiters_in_my_room_CONST -302
 #define DEVICETEMPLATE_Orbiters_in_my_room_CONST -301

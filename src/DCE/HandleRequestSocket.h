@@ -76,6 +76,11 @@ namespace DCE
 		 * @brief overrideable by the derived classes
 		 */
 		virtual void OnUnexpectedDisconnect() { };
+
+		/**
+		 * @brief overrideable by the derived classes, called when another device connects with the same device ID
+		 */
+		virtual void OnReplaceHandler(string sIP) { };
 	};
 }
 #endif

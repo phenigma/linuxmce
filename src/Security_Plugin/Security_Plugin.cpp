@@ -981,6 +981,7 @@ void Security_Plugin::SetMonitorModeBoundIcon(OH_Orbiter *pOH_Orbiter_Compare)
 
 void Security_Plugin::SetHouseModeBoundIcon(int PK_DeviceGroup,OH_Orbiter *pOH_Orbiter_Compare)
 {
+	PLUTO_SAFETY_LOCK(sm,m_SecurityMutex);
 	for(map<int,int>::iterator itHM=m_mapPK_HouseMode.begin();itHM!=m_mapPK_HouseMode.end();++itHM)
 	{
 		if( PK_DeviceGroup==-1 || PK_DeviceGroup==itHM->first )
@@ -1001,6 +1002,7 @@ void Security_Plugin::SetHouseModeBoundIcon(int PK_DeviceGroup,OH_Orbiter *pOH_O
 
 void Security_Plugin::GetHouseModes()
 {
+	PLUTO_SAFETY_LOCK(sm,m_SecurityMutex);
 	Row_Device_DeviceData *pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(m_dwPK_Device,DEVICEDATA_Configuration_CONST);
 	if( !pRow_Device_DeviceData )
 		return;
@@ -1017,6 +1019,7 @@ void Security_Plugin::GetHouseModes()
 
 void Security_Plugin::SaveHouseModes()
 {
+	PLUTO_SAFETY_LOCK(sm,m_SecurityMutex);
 	Row_Device_DeviceData *pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(m_dwPK_Device,DEVICEDATA_Configuration_CONST);
 	if( !pRow_Device_DeviceData )
 	{

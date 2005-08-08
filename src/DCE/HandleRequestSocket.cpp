@@ -162,6 +162,14 @@ void HandleRequestSocket::RunThread()
 			if ( sMessage == "CORRUPT SOCKET" )
 			{
 				g_pPlutoLogger->Write( LV_STATUS, "Socket flagged as corrupted %p device: %d", this, m_dwPK_Device );
+				m_bUnexpected = true;
+				m_bTerminate = true;
+			}
+			else if ( sMessage.substr(0,7) == "REPLACE" && sMessage.size()>7 )
+			{
+				g_pPlutoLogger->Write( LV_STATUS, "Another device with IP %s connected as device: %d", sMessage.c_str(), m_dwPK_Device );
+				OnReplaceHandler(sMessage.substr(7));
+				m_bUnexpected = true;
 				m_bTerminate = true;
 			}
 #ifdef DEBUG

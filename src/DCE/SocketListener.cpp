@@ -268,11 +268,15 @@ void SocketListener::RegisterCommandHandler( ServerSocket *Socket, int iDeviceID
 	DeviceClientMap::iterator iDC = m_mapCommandHandlers.find( iDeviceID ); // search if device is allready in the map
 	if ( iDC != m_mapCommandHandlers.end() )
 	{
+		ServerSocket *pSocket_Old = iDC->second;
 		g_pPlutoLogger->Write( LV_REGISTRATION, "!!! Replacing command handler on device ID \x1b[34;1m%d!\x1b[0m", iDeviceID );
 		ll.Release();
+		if( Socket->m_sIPAddress != pSocket_Old->m_sIPAddress )
+			pSocket_Old->SendString("REPLACE " + Socket->m_sIPAddress);
+
 		// the delete line below will also unregister it from the SocketListener.
 		// RemoveSocket( (*iDC).second );
-		delete (*iDC).second;
+		delete pSocket_Old;
 		ll.Relock();
 	}
 	m_mapCommandHandlers[iDeviceID] = Socket; // assigning it the new specified socket

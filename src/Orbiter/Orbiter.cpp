@@ -7056,6 +7056,9 @@ int Orbiter::TranslateVirtualDevice(int PK_DeviceTemplate)
 	case DEVICETEMPLATE_This_Orbiter_CONST:
 		return m_dwPK_Device;
 
+	case DEVICETEMPLATE_This_Orbiters_Now_Playing_CONST:
+		return m_dwPK_Device_NowPlaying;
+
 	case DEVICETEMPLATE_VirtDev_Security_Plugin_CONST:
 		return m_dwPK_Device_SecurityPlugIn;
 
