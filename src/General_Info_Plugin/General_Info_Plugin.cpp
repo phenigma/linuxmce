@@ -612,6 +612,13 @@ class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string 
 		pDataGrid->SetData( 0, s, pCellIcon );
 		pDataGrid->SetData( 1, s, pCellText );
 
+		string sMessage = "0 " + StringUtils::itos(pDevice_Orbiter_OSD->m_dwPK_Device) + " 1 4 16 " + StringUtils::itos(DESIGNOBJ_generic_app_with_options_CONST);
+		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,
+			pRow_Device_QuickStart->Binary_get(),"generic_app",pRow_Device_QuickStart->Arguments_get(),
+			sMessage,sMessage,true);
+		pCellIcon->m_pMessage = CMD_Spawn_Application.m_pMessage;
+		pCellText->m_pMessage = new Message(pCellIcon->m_pMessage);
+
 		// If this is the same on screen orbiter on which the app will run, we will send the user 
 		// to a screen that retains a small strip at the bottom to terminate the app and return to the orbiter.
 		// Otherwise, we will send the OSD to the full screen app, and the orbiter will become a remote control
@@ -619,35 +626,28 @@ class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string 
 		{
 			// This is the OSD orbiter
 			DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pDevice_Orbiter_OSD->m_dwPK_Device,0,
-				StringUtils::itos(DESIGNOBJ_generic_app_with_options_CONST),"","",false,false);
-			DCE::CMD_Set_Variable CMD_Set_Variable1(m_dwPK_Device,pDevice_Orbiter_OSD->m_dwPK_Device,
-				VARIABLE_Misc_Data_1_CONST,pRow_Device_QuickStart->Binary_get());
-			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable1.m_pMessage);
-			DCE::CMD_Set_Variable CMD_Set_Variable2(m_dwPK_Device,pDevice_Orbiter_OSD->m_dwPK_Device,
-				VARIABLE_Misc_Data_2_CONST,pRow_Device_QuickStart->Arguments_get());
-			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable2.m_pMessage);
-			pCellIcon->m_pMessage = CMD_Goto_Screen.m_pMessage;
-			pCellText->m_pMessage = new Message(pCellIcon->m_pMessage);
+				StringUtils::itos(DESIGNOBJ_generic_app_full_screen_CONST),"","",false,false);
+			pCellIcon->m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen.m_pMessage);
+			pCellText->m_pMessage->m_vectExtraMessages.push_back(new Message(CMD_Goto_Screen.m_pMessage));
+
+			DCE::CMD_Set_Variable CMD_Set_Variable(m_dwPK_Device,pDevice_Orbiter_OSD->m_dwPK_Device,
+				VARIABLE_Array_Desc_CONST,pRow_Device_QuickStart->Description_get());
+			pCellIcon->m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable.m_pMessage);
+			pCellText->m_pMessage->m_vectExtraMessages.push_back(new Message(CMD_Set_Variable.m_pMessage));
 		}
 		else
 		{
 			// Do this on the OSD orbiter
 			DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pDevice_Orbiter_OSD->m_dwPK_Device,0,
 				StringUtils::itos(DESIGNOBJ_generic_app_full_screen_CONST),"","",false,false);
-			DCE::CMD_Set_Variable CMD_Set_Variable1(m_dwPK_Device,pDevice_Orbiter_OSD->m_dwPK_Device,
-				VARIABLE_Misc_Data_1_CONST,pRow_Device_QuickStart->Binary_get());
-			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable1.m_pMessage);
-			DCE::CMD_Set_Variable CMD_Set_Variable2(m_dwPK_Device,pDevice_Orbiter_OSD->m_dwPK_Device,
-				VARIABLE_Misc_Data_2_CONST,pRow_Device_QuickStart->Arguments_get());
-			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable2.m_pMessage);
+			pCellIcon->m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen.m_pMessage);
+			pCellText->m_pMessage->m_vectExtraMessages.push_back(new Message(CMD_Goto_Screen.m_pMessage));
 
 			// Do this on the controlling orbiter
 			DCE::CMD_Goto_Screen CMD_Goto_Screen2(m_dwPK_Device,pMessage->m_dwPK_Device_From,0,
 				StringUtils::itos(DESIGNOBJ_mnuGenericAppController_CONST),"","",false,false);
-			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen2.m_pMessage);
-
-			pCellIcon->m_pMessage = CMD_Goto_Screen.m_pMessage;
-			pCellText->m_pMessage = new Message(pCellIcon->m_pMessage);
+			pCellIcon->m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen2.m_pMessage);
+			pCellText->m_pMessage->m_vectExtraMessages.push_back(new Message(CMD_Goto_Screen2.m_pMessage));
 		}
 	}
 

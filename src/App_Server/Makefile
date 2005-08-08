@@ -17,9 +17,9 @@ sources = Main.cpp App_Server.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
 CXXFLAGS +=
-CPPFLAGS +=
-LDFLAGS +=
-XTRALDLIBS = 
+CPPFLAGS += -L/usr/X11/lib
+LDFLAGS += -L/usr/X11R6/lib
+XTRALDLIBS = -lX11
 
 Gen_Dev_Files +=
 sources +=

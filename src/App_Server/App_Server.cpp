@@ -42,6 +42,9 @@ using namespace DCE;
 
 #ifndef WIN32
 #include "utilities/linux/RatpoisonHandler.h"
+#include <X11/X.h>
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
 #endif
 
 #include <signal.h>
@@ -106,8 +109,8 @@ App_Server::App_Server(int DeviceID, string ServerAddress,bool bConnectEventHand
 App_Server::~App_Server()
 //<-dceag-dest-e->
 {
-	vector<void *> data;
-	ProcessUtils::KillApplication(LOGO_APPLICATION_NAME, data);
+//	vector<void *> data;
+//	ProcessUtils::KillApplication(LOGO_APPLICATION_NAME, data);
 }
 
 //<-dceag-reg-b->
@@ -147,8 +150,6 @@ bool App_Server::Connect(int iPK_DeviceTemplate )
 	else
 		SetStatus("MD_ON",m_dwPK_Device_MD);
 
-	// spawn the application
-	ProcessUtils::SpawnApplication("gimv", "/usr/pluto/share/wait-screen.gif", LOGO_APPLICATION_NAME, NULL);
 	return bResult;
 }
 
@@ -226,7 +227,34 @@ void App_Server::CMD_Spawn_Application(string sFilename,string sName,string sArg
 	g_pPlutoLogger->Write(LV_STATUS,"SpawnApp file: %s name %s args %s failure %s logo %d",
 		sFilename.c_str(),sName.c_str(),sArguments.c_str(),sSendOnFailure.c_str(),(int) bShow_logo);
 	if ( bShow_logo )
-		EnsureLogoIsDisplayed();
+	{
+		// Popup a black window so the user doesn't see some other program that may be running while he's
+		// waiting for this one to appear
+#ifndef WIN32
+		Display *XServerDisplay;
+	    if( (XServerDisplay = XOpenDisplay(getenv("DISPLAY"))) != NULL)
+	    {
+		    int iCurrentScreen   = XDefaultScreen(XServerDisplay);
+			static Window w=0;
+			if( w )
+				XDestroyWindow(XServerDisplay,w);
+
+			w = XCreateSimpleWindow(XServerDisplay, XDefaultRootWindow(XServerDisplay),
+							0, 0, (DisplayWidth(XServerDisplay, iCurrentScreen)), DisplayHeight(XServerDisplay, iCurrentScreen),
+							1, 0, 0);
+
+			XClassHint		classHint;
+			classHint.res_name = (char*) ("AppServer " + StringUtils::itos(m_dwPK_Device)).c_str();
+			classHint.res_class = (char*) ("AppServer " + StringUtils::itos(m_dwPK_Device)).c_str();
+			XSetClassHint ( XServerDisplay, w, &classHint );
+
+			XMapWindow(XServerDisplay, w);
+
+			XSync(XServerDisplay, True);
+			g_pPlutoLogger->Write(LV_STATUS,"Window %d",(int) w);
+		}
+#endif
+	}
 
 	if (! ProcessUtils::SpawnApplication(sFilename, sArguments, sName, new pair<string, string>(sSendOnFailure, sSendOnSuccess)) )
     {
@@ -288,6 +316,7 @@ void App_Server::CMD_Hide_Application(string sName,string &sCMD_Result,Message *
 /* Private */
 void App_Server::EnsureLogoIsDisplayed()
 {
+	return;  // don't do this anymore, it was a real mess
 	if ( ! ProcessUtils::ApplicationIsLaunchedByMe(LOGO_APPLICATION_NAME) )
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "The application is not running! Need to launch it!");
