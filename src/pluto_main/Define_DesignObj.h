@@ -1233,6 +1233,8 @@
 #define DESIGNOBJ_NumAsterisk_CONST 4262
 #define DESIGNOBJ__CONST 4263
 #define DESIGNOBJ_Num_CONST 4264
+#define DESIGNOBJ_mnuPVR_Myth_CONST 4265
+#define DESIGNOBJ_grpPhoneSearchKeyboardlargep_CONST 4266
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
