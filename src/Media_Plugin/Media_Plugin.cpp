@@ -3802,12 +3802,14 @@ void Media_Plugin::Parse_Misc_Media_ID(MediaStream *pMediaStream,string sValue)
 					PK_AttributeType==ATTRIBUTETYPE_Performer_CONST ||
 					PK_AttributeType==ATTRIBUTETYPE_Conductor_CONST ||
 					PK_AttributeType==ATTRIBUTETYPE_Composer_CONST )
-						sName = StringUtils::Tokenize(sWholeName,";",pos);
+						StringUtils::Tokenize(sWholeName,";",pos);
 				else
 				{
 					sName=sWholeName;
 					pos=string::npos;
 				}
+
+				StringUtils::TrimSpaces(sName);
 
 				pRow_Attribute = m_pMediaAttributes->GetAttributeFromDescription(PK_AttributeType,sName);
 	g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::Parse_Misc_Media_ID added attribute %p %d %s",
