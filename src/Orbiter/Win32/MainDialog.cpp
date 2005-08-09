@@ -19,7 +19,6 @@
 	#endif
 #endif
 
-
 #pragma warning(disable : 4311 4312)
 
 #ifdef WINCE
@@ -60,6 +59,7 @@ DWORD GeneratorThreadId;
 // Global Variables:
 HINSTANCE			g_hInst;				// The current instance
 HWND				g_hwndMainDialog;		// The main dialog window handle
+LONG                g_OldEditWndProc;
 
 #ifdef WINCE
 HWND				g_hwndCB;				// The command bar handle
@@ -114,6 +114,7 @@ static SHACTIVATEINFO s_sai;
 //-----------------------------------------------------------------------------------------------------
 /*extern*/ CommandLineParams CmdLineParams;
 //-----------------------------------------------------------------------------------------------------
+LRESULT CALLBACK EditWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 LRESULT CALLBACK PagesWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 //-----------------------------------------------------------------------------------------------------
 #ifdef WINCE
@@ -123,7 +124,7 @@ LRESULT CALLBACK PagesWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 HWND CreateTabControl(HWND hWnd);
 HWND CreatePage(HWND hWnd);
 HWND CreateListBox(HWND hWnd, RECT rt);			
-HWND CreateCheckBox(HWND hParentWnd, int x, int y, const char* caption, int width = 155);
+HWND CreateCheckBox(HWND hParentWnd, int x, int y, const char* caption, int width = 155, int height = 18);
 HWND CreateButton(HWND hParentWnd, int x, int y, const char* caption, int width = 50);
 HWND CreateLabel(HWND hParentWnd, int x, int y, int width, char* caption, int height = 20);
 HWND CreateEdit(HWND hParentWnd, int x, int y,  int width, char* caption, bool bNumber, bool bAlignRight);
@@ -308,7 +309,7 @@ WORD MyRegisterClass(HINSTANCE hInstance, LPTSTR szWindowClass)
 	wcex.hIcon			= LoadIcon(hInstance, (LPCTSTR)IDI_ORBITER);
 	wcex.hCursor		= LoadCursor(NULL, IDC_ARROW);
 	wcex.hbrBackground	= (HBRUSH)(COLOR_WINDOW+1);
-	wcex.lpszMenuName	= (LPCTSTR)IDC_ORBITER;
+    wcex.lpszMenuName	= g_bSmartPhone? 0 : (LPCTSTR)IDC_ORBITER;
 	wcex.lpszClassName	= szWindowClass;
 	wcex.hIconSm		= LoadIcon(wcex.hInstance, (LPCTSTR)IDI_SMALL);
 
@@ -332,12 +333,11 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
     HWND hWndDesktop = ::GetDesktopWindow();
     GetWindowRect(hWndDesktop, &rc);
 
-#ifdef WINCE
+#ifdef WINCE 
     rc.left = 0;
     rc.top = 0;
 
     #ifndef SMARTPHONE
-		//hack for motorola
         rc.right = 240;
         rc.bottom = 320;
     #else
@@ -377,8 +377,13 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	MyRegisterClass(hInstance, szWindowClass);
 
 #ifdef WINCE
-	hWnd = CreateWindow(szWindowClass, szTitle, WS_VISIBLE | WS_SYSMENU | WS_BORDER | WS_CAPTION,
-		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance, NULL);
+	#ifdef SMARTPHONE //no border or sysmenu
+		hWnd = CreateWindow(szWindowClass, szTitle, WS_VISIBLE, 
+			CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance, NULL);
+	#else
+		hWnd = CreateWindow(szWindowClass, szTitle, WS_VISIBLE | WS_SYSMENU | WS_BORDER | WS_CAPTION,
+			CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance, NULL);
+	#endif
 #else
    hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX & ~WS_SIZEBOX,
       CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
@@ -418,6 +423,25 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	return TRUE;
 }
 //-----------------------------------------------------------------------------------------------------
+LRESULT CALLBACK EditWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	switch(message)
+    {
+        case WM_KEYDOWN:
+        if(wParam == VK_RETURN)
+        {
+            ::EnableWindow(hWnd, false);
+            ::EnableWindow(hWnd, true);
+            ::SetFocus(g_hwndMainDialog);
+			return 0;
+        }
+        break;
+    }
+
+    return CallWindowProc((WNDPROC)g_OldEditWndProc, hWnd, message, wParam, lParam);
+}
+//-----------------------------------------------------------------------------------------------------
+
 //
 //  FUNCTION: WndProc(HWND, unsigned, WORD, LONG)
 //
@@ -482,18 +506,35 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 
 				//configuration info
-                int iBase = g_iDialogHeight - 5 * MENU_HEIGHT - SMALL_BOTTOM_OFFSET - BOTTOM_ADJUSTMENT;
+                if(g_bSmartPhone)
+                {
+                    CreateLabel(hWnd, 10, 10, 10, "1. "); 
+                    g_hWnd_FullScreenCheckBox = CreateCheckBox(hWnd, 25, 10, "Full screen", 120);
+                    CreateLabel(hWnd, 10, 30, 10, "2. "); 
+                    g_hWnd_LogToServerCheckBox = CreateCheckBox(hWnd, 25, 30, "Log to server for debugging", 120, 40);
+                    CreateLabel(hWnd, 10, 75, 90, "3. Device ID:");	
+                    g_hWnd_DeviceIDEdit = CreateEdit(hWnd, 105, 75, 50, "", true, true);
+                    CreateLabel(hWnd, 10, 95, 90, "4. Router IP:");	
+                    g_hWnd_RouterIPEdit = CreateEdit(hWnd, 35, 115, 120, "", false, false);
+                    CreateLabel(hWnd, 10, 140, 100, "5. Apply");	
+                    CreateLabel(hWnd, 10, 160, 100, "6. Exit");	
 
-				g_hWnd_FullScreenCheckBox = CreateCheckBox(hWnd, 10, iBase, "Full screen", 120);
-				g_hWnd_LogToServerCheckBox = CreateCheckBox(hWnd, 10, iBase + 20, "Log to server for debugging", 200);
-	
-				CreateLabel(hWnd, 10, iBase + 40, 80, "Device ID: ");	
-				g_hWnd_DeviceIDEdit = CreateEdit(hWnd, 90, iBase + 40, 50, "", true, true);
-
-				CreateLabel(hWnd, 10, iBase + 60, 80, "Router IP: ");	
-				g_hWnd_RouterIPEdit = CreateEdit(hWnd, 90, iBase + 60, 120, "", false, false);
-
-				g_hWnd_ApplyButton = CreateButton(hWnd, g_iDialogWidth - 60, iBase, "&Apply");
+					//todo: why is this wrong on smartphones?
+					g_OldEditWndProc = ::GetWindowLong(g_hWnd_DeviceIDEdit, GWL_WNDPROC);
+                    ::SetWindowLong(g_hWnd_DeviceIDEdit, GWL_WNDPROC, reinterpret_cast<long>(EditWndProc));
+                    ::SetWindowLong(g_hWnd_RouterIPEdit, GWL_WNDPROC, reinterpret_cast<long>(EditWndProc));
+                }
+                else
+                {
+                    int iBase = g_iDialogHeight - 5 * MENU_HEIGHT - SMALL_BOTTOM_OFFSET - BOTTOM_ADJUSTMENT;
+                    g_hWnd_FullScreenCheckBox = CreateCheckBox(hWnd, 10, iBase, "Full screen", 120);
+                    g_hWnd_LogToServerCheckBox = CreateCheckBox(hWnd, 10, iBase + 20, "Log to server for debugging", 200);
+                    CreateLabel(hWnd, 10, iBase + 40, 80, "Device ID: ");	
+                    g_hWnd_DeviceIDEdit = CreateEdit(hWnd, 90, iBase + 40, 50, "", true, true);
+                    CreateLabel(hWnd, 10, iBase + 60, 80, "Router IP: ");	
+                    g_hWnd_RouterIPEdit = CreateEdit(hWnd, 90, iBase + 60, 120, "", false, false);
+                    g_hWnd_ApplyButton = CreateButton(hWnd, g_iDialogWidth - 60, iBase, "&Apply");
+                }
 
 				g_hWndTab = CreateTabControl(hWnd);
 				g_hWndPage1 = CreatePage(g_hWndTab);
@@ -505,7 +546,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				g_hWndList = CreateListBox(g_hWndPage1, rt_list);
 
 				//page 2
-				g_hWndRecord_MouseCheckBox = CreateCheckBox(g_hWndPage2, 10, 10, "Record mouse clicks");
+				g_hWndRecord_MouseCheckBox = CreateCheckBox(g_hWndPage2, 10, 10, "Record mouse clicks", 160);
 				::SendMessage(g_hWndRecord_MouseCheckBox, BM_SETCHECK, BST_CHECKED, 0);
 
 				g_hWndRecord_KeyboardCheckBox = CreateCheckBox(g_hWndPage2, 10, 30, "Record keyboard");
@@ -565,7 +606,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				RECT rt;
 				hdc = BeginPaint(hWnd, &ps);
 				GetClientRect(hWnd, &rt);
+#ifdef SMARTPHONE
+				COLORREF crBkColor = 0x00FFFFFF;
+#else
 				COLORREF crBkColor = ::GetSysColor(COLOR_3DFACE);
+#endif
 				HBRUSH hBrush = CreateSolidBrush(crBkColor);
 				SelectObject(hdc, hBrush);
 				FillRect(hdc, &rt, hBrush);//(HBRUSH)::GetStockObject(GRAY_BRUSH));
@@ -602,6 +647,43 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			SHHandleWMSettingChange(hWnd, wParam, lParam, &s_sai);
 #endif
      		break;
+
+        case WM_KEYDOWN:
+            if(g_bSmartPhone)
+            {
+                if(wParam == (WPARAM)'1')
+                {
+                    bool bFullScreen = BST_CHECKED == ::SendMessage(g_hWnd_FullScreenCheckBox, BM_GETCHECK, 0, 0);
+                    ::SendMessage(g_hWnd_FullScreenCheckBox, BM_SETCHECK, bFullScreen ? BST_UNCHECKED : BST_CHECKED, 0);
+                }
+
+                if(wParam == (WPARAM)'2')
+                {
+                    bool bLogToServer = BST_CHECKED == ::SendMessage(g_hWnd_LogToServerCheckBox, BM_GETCHECK, 0, 0);
+                    ::SendMessage(g_hWnd_LogToServerCheckBox, BM_SETCHECK, bLogToServer ? BST_UNCHECKED : BST_CHECKED, 0);
+                }
+
+                if(wParam == (WPARAM)'3')
+                {
+                    ::SetFocus(g_hWnd_DeviceIDEdit);
+                }
+
+                if(wParam == (WPARAM)'4')
+                {
+                    ::SetFocus(g_hWnd_RouterIPEdit);
+                }
+
+                if(wParam == (WPARAM)'5')
+                {
+                    OnApply();
+                }
+
+                if(wParam == (WPARAM)'6')
+                {
+                    ::PostMessage(g_hwndMainDialog, WM_QUIT, 0, 0);
+                }
+            }
+            break;
 
 		case WM_NOTIFY:
 		{
@@ -759,9 +841,9 @@ HWND CreateListBox(HWND hWnd, RECT rt_list)
 	return hWndList;
 }
 //-----------------------------------------------------------------------------------------------------
-HWND CreateCheckBox(HWND hParentWnd, int x, int y, const char* caption, int width/* = 130*/)
+HWND CreateCheckBox(HWND hParentWnd, int x, int y, const char* caption, int width/* = 130*/, int height/* = 18*/)
 {
-	RECT rt_cb = { x, y, width, 18 };
+	RECT rt_cb = { x, y, width, height };
 
 #ifdef WINCE
 	wchar_t wTextBuffer[MAX_STRING_LEN];
@@ -773,7 +855,7 @@ HWND CreateCheckBox(HWND hParentWnd, int x, int y, const char* caption, int widt
 
 	HWND hWndList = 
 		CreateWindow(TEXT("BUTTON"), CAPTION, 
-			WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_AUTOCHECKBOX, 
+			WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_AUTOCHECKBOX | BS_MULTILINE, 
 			rt_cb.left, rt_cb.top, rt_cb.right, rt_cb.bottom, 
 			hParentWnd, NULL, g_hInst, NULL
 		);
@@ -849,7 +931,11 @@ HWND CreateLabel(HWND hParentWnd, int x, int y, int width, char* caption, int he
 //-----------------------------------------------------------------------------------------------------
 HWND CreateEdit(HWND hParentWnd, int x, int y,  int width, char* caption, bool bNumber, bool bAlignRight)
 {
+#ifdef SMARTPHONE
+	RECT rt_edit = { x, y, width, 20 };
+#else
 	RECT rt_edit = { x, y, width, 18 };
+#endif
 
 #ifdef WINCE
 	wchar_t wTextBuffer[MAX_STRING_LEN];
