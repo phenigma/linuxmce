@@ -101,6 +101,7 @@ string m_ConfigureScript;
 string m_ManufacturerURL;
 string m_InternalURLSuffix;
 long int m_FK_Licensing;
+long int m_FK_InfraredGroup;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -108,7 +109,7 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[30];
+		bool is_null[31];
 	
 	public:
 		long int PK_DeviceTemplate_get();
@@ -135,6 +136,7 @@ string ConfigureScript_get();
 string ManufacturerURL_get();
 string InternalURLSuffix_get();
 long int FK_Licensing_get();
+long int FK_InfraredGroup_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -167,6 +169,7 @@ void ConfigureScript_set(string val);
 void ManufacturerURL_set(string val);
 void InternalURLSuffix_set(string val);
 void FK_Licensing_set(long int val);
+void FK_InfraredGroup_set(long int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -190,6 +193,7 @@ bool ConfigureScript_isNull();
 bool ManufacturerURL_isNull();
 bool InternalURLSuffix_isNull();
 bool FK_Licensing_isNull();
+bool FK_InfraredGroup_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -212,6 +216,7 @@ void ConfigureScript_setNull(bool val);
 void ManufacturerURL_setNull(bool val);
 void InternalURLSuffix_setNull(bool val);
 void FK_Licensing_setNull(bool val);
+void FK_InfraredGroup_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -237,6 +242,7 @@ class Row_Users* FK_Users_Maintainer_getrow();
 class Row_OperatingSystem* FK_OperatingSystem_getrow();
 class Row_Distro* FK_Distro_getrow();
 class Row_Licensing* FK_Licensing_getrow();
+class Row_InfraredGroup* FK_InfraredGroup_getrow();
 
 
 		// Return the rows in other tables with foreign keys pointing here
@@ -267,7 +273,7 @@ void StartupScript_FK_DeviceTemplate_getrows(vector <class Row_StartupScript*> *
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_DeviceTemplate+ m_Description+ m_Comments+ m_FK_DeviceCategory+ m_FK_Manufacturer+ m_Define+ m_ImplementsDCE+ m_IsEmbedded+ m_CommandLine+ m_IsPlugAndPlay+ m_IsIPBased+ m_IsPlugIn+ m_IRFrequency+ m_FK_StabilityStatus+ m_FK_Package+ m_DestinationDir+ m_FK_Users_Maintainer+ m_FK_OperatingSystem+ m_FK_Distro+ m_InheritsMacFromPC+ m_ConfigureScript+ m_ManufacturerURL+ m_InternalURLSuffix+ m_FK_Licensing+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_DeviceTemplate+ m_Description+ m_Comments+ m_FK_DeviceCategory+ m_FK_Manufacturer+ m_Define+ m_ImplementsDCE+ m_IsEmbedded+ m_CommandLine+ m_IsPlugAndPlay+ m_IsIPBased+ m_IsPlugIn+ m_IRFrequency+ m_FK_StabilityStatus+ m_FK_Package+ m_DestinationDir+ m_FK_Users_Maintainer+ m_FK_OperatingSystem+ m_FK_Distro+ m_InheritsMacFromPC+ m_ConfigureScript+ m_ManufacturerURL+ m_InternalURLSuffix+ m_FK_Licensing+ m_FK_InfraredGroup+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -296,6 +302,7 @@ string ConfigureScript_asSQL();
 string ManufacturerURL_asSQL();
 string InternalURLSuffix_asSQL();
 string FK_Licensing_asSQL();
+string FK_InfraredGroup_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

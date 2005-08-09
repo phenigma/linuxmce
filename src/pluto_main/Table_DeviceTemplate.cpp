@@ -25,6 +25,7 @@ using namespace std;
 #include "Table_OperatingSystem.h"
 #include "Table_Distro.h"
 #include "Table_Licensing.h"
+#include "Table_InfraredGroup.h"
 
 #include "Table_CommandGroup_D_Command.h"
 #include "Table_ConfigType.h"
@@ -186,16 +187,18 @@ is_null[22] = true;
 is_null[23] = true;
 m_FK_Licensing = 0;
 is_null[24] = true;
-m_psc_id = 0;
+m_FK_InfraredGroup = 0;
 is_null[25] = true;
-m_psc_batch = 0;
+m_psc_id = 0;
 is_null[26] = true;
+m_psc_batch = 0;
+is_null[27] = true;
 m_psc_user = 0;
 m_psc_frozen = 0;
-is_null[27] = false;
-m_psc_mod = "00000000000000";
 is_null[28] = false;
-is_null[29] = true;
+m_psc_mod = "00000000000000";
+is_null[29] = false;
+is_null[30] = true;
 m_psc_restrict = 0;
 
 
@@ -276,6 +279,9 @@ return m_InternalURLSuffix;}
 long int Row_DeviceTemplate::FK_Licensing_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_FK_Licensing;}
+long int Row_DeviceTemplate::FK_InfraredGroup_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_FK_InfraredGroup;}
 long int Row_DeviceTemplate::psc_id_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_id;}
@@ -368,24 +374,27 @@ m_InternalURLSuffix = val; is_modified=true; is_null[22]=false;}
 void Row_DeviceTemplate::FK_Licensing_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_FK_Licensing = val; is_modified=true; is_null[23]=false;}
+void Row_DeviceTemplate::FK_InfraredGroup_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_FK_InfraredGroup = val; is_modified=true; is_null[24]=false;}
 void Row_DeviceTemplate::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_id = val; is_modified=true; is_null[24]=false;}
+m_psc_id = val; is_modified=true; is_null[25]=false;}
 void Row_DeviceTemplate::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_batch = val; is_modified=true; is_null[25]=false;}
+m_psc_batch = val; is_modified=true; is_null[26]=false;}
 void Row_DeviceTemplate::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_user = val; is_modified=true; is_null[26]=false;}
+m_psc_user = val; is_modified=true; is_null[27]=false;}
 void Row_DeviceTemplate::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_frozen = val; is_modified=true; is_null[27]=false;}
+m_psc_frozen = val; is_modified=true; is_null[28]=false;}
 void Row_DeviceTemplate::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_mod = val; is_modified=true; is_null[28]=false;}
+m_psc_mod = val; is_modified=true; is_null[29]=false;}
 void Row_DeviceTemplate::psc_restrict_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_restrict = val; is_modified=true; is_null[29]=false;}
+m_psc_restrict = val; is_modified=true; is_null[30]=false;}
 
 		
 bool Row_DeviceTemplate::Comments_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -433,21 +442,24 @@ return is_null[22];}
 bool Row_DeviceTemplate::FK_Licensing_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[23];}
-bool Row_DeviceTemplate::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_DeviceTemplate::FK_InfraredGroup_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[24];}
-bool Row_DeviceTemplate::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_DeviceTemplate::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[25];}
-bool Row_DeviceTemplate::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_DeviceTemplate::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[26];}
-bool Row_DeviceTemplate::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+bool Row_DeviceTemplate::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return is_null[27];}
+bool Row_DeviceTemplate::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[28];}
 bool Row_DeviceTemplate::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return is_null[29];}
+return is_null[30];}
 
 			
 void Row_DeviceTemplate::Comments_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -510,24 +522,28 @@ void Row_DeviceTemplate::FK_Licensing_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORS
 is_null[23]=val;
 is_modified=true;
 }
-void Row_DeviceTemplate::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DeviceTemplate::FK_InfraredGroup_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[24]=val;
 is_modified=true;
 }
-void Row_DeviceTemplate::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DeviceTemplate::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[25]=val;
 is_modified=true;
 }
-void Row_DeviceTemplate::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DeviceTemplate::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[26]=val;
 is_modified=true;
 }
-void Row_DeviceTemplate::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DeviceTemplate::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[27]=val;
 is_modified=true;
 }
+void Row_DeviceTemplate::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[28]=val;
+is_modified=true;
+}
 void Row_DeviceTemplate::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-is_null[29]=val;
+is_null[30]=val;
 is_modified=true;
 }
 	
@@ -852,11 +868,24 @@ sprintf(buf, "%li", m_FK_Licensing);
 return buf;
 }
 
-string Row_DeviceTemplate::psc_id_asSQL()
+string Row_DeviceTemplate::FK_InfraredGroup_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[24])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_InfraredGroup);
+
+return buf;
+}
+
+string Row_DeviceTemplate::psc_id_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[25])
 return "NULL";
 
 char buf[32];
@@ -869,7 +898,7 @@ string Row_DeviceTemplate::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[25])
+if (is_null[26])
 return "NULL";
 
 char buf[32];
@@ -882,7 +911,7 @@ string Row_DeviceTemplate::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[26])
+if (is_null[27])
 return "NULL";
 
 char buf[32];
@@ -895,7 +924,7 @@ string Row_DeviceTemplate::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[27])
+if (is_null[28])
 return "NULL";
 
 char buf[32];
@@ -908,7 +937,7 @@ string Row_DeviceTemplate::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[28])
+if (is_null[29])
 return "NULL";
 
 char *buf = new char[29];
@@ -922,7 +951,7 @@ string Row_DeviceTemplate::psc_restrict_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[29])
+if (is_null[30])
 return "NULL";
 
 char buf[32];
@@ -969,10 +998,10 @@ bool Table_DeviceTemplate::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFail
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_DeviceTemplate_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->FK_DeviceCategory_asSQL()+", "+pRow->FK_Manufacturer_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->ImplementsDCE_asSQL()+", "+pRow->IsEmbedded_asSQL()+", "+pRow->CommandLine_asSQL()+", "+pRow->IsPlugAndPlay_asSQL()+", "+pRow->IsIPBased_asSQL()+", "+pRow->IsPlugIn_asSQL()+", "+pRow->IRFrequency_asSQL()+", "+pRow->FK_StabilityStatus_asSQL()+", "+pRow->FK_Package_asSQL()+", "+pRow->DestinationDir_asSQL()+", "+pRow->FK_Users_Maintainer_asSQL()+", "+pRow->FK_OperatingSystem_asSQL()+", "+pRow->FK_Distro_asSQL()+", "+pRow->InheritsMacFromPC_asSQL()+", "+pRow->ConfigureScript_asSQL()+", "+pRow->ManufacturerURL_asSQL()+", "+pRow->InternalURLSuffix_asSQL()+", "+pRow->FK_Licensing_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_DeviceTemplate_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->FK_DeviceCategory_asSQL()+", "+pRow->FK_Manufacturer_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->ImplementsDCE_asSQL()+", "+pRow->IsEmbedded_asSQL()+", "+pRow->CommandLine_asSQL()+", "+pRow->IsPlugAndPlay_asSQL()+", "+pRow->IsIPBased_asSQL()+", "+pRow->IsPlugIn_asSQL()+", "+pRow->IRFrequency_asSQL()+", "+pRow->FK_StabilityStatus_asSQL()+", "+pRow->FK_Package_asSQL()+", "+pRow->DestinationDir_asSQL()+", "+pRow->FK_Users_Maintainer_asSQL()+", "+pRow->FK_OperatingSystem_asSQL()+", "+pRow->FK_Distro_asSQL()+", "+pRow->InheritsMacFromPC_asSQL()+", "+pRow->ConfigureScript_asSQL()+", "+pRow->ManufacturerURL_asSQL()+", "+pRow->InternalURLSuffix_asSQL()+", "+pRow->FK_Licensing_asSQL()+", "+pRow->FK_InfraredGroup_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
 
 	
-		string query = "insert into DeviceTemplate (`PK_DeviceTemplate`, `Description`, `Comments`, `FK_DeviceCategory`, `FK_Manufacturer`, `Define`, `ImplementsDCE`, `IsEmbedded`, `CommandLine`, `IsPlugAndPlay`, `IsIPBased`, `IsPlugIn`, `IRFrequency`, `FK_StabilityStatus`, `FK_Package`, `DestinationDir`, `FK_Users_Maintainer`, `FK_OperatingSystem`, `FK_Distro`, `InheritsMacFromPC`, `ConfigureScript`, `ManufacturerURL`, `InternalURLSuffix`, `FK_Licensing`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
+		string query = "insert into DeviceTemplate (`PK_DeviceTemplate`, `Description`, `Comments`, `FK_DeviceCategory`, `FK_Manufacturer`, `Define`, `ImplementsDCE`, `IsEmbedded`, `CommandLine`, `IsPlugAndPlay`, `IsIPBased`, `IsPlugIn`, `IRFrequency`, `FK_StabilityStatus`, `FK_Package`, `DestinationDir`, `FK_Users_Maintainer`, `FK_OperatingSystem`, `FK_Distro`, `InheritsMacFromPC`, `ConfigureScript`, `ManufacturerURL`, `InternalURLSuffix`, `FK_Licensing`, `FK_InfraredGroup`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -1028,7 +1057,7 @@ condition = condition + "`PK_DeviceTemplate`=" + tmp_PK_DeviceTemplate;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`PK_DeviceTemplate`="+pRow->PK_DeviceTemplate_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Comments`="+pRow->Comments_asSQL()+", `FK_DeviceCategory`="+pRow->FK_DeviceCategory_asSQL()+", `FK_Manufacturer`="+pRow->FK_Manufacturer_asSQL()+", `Define`="+pRow->Define_asSQL()+", `ImplementsDCE`="+pRow->ImplementsDCE_asSQL()+", `IsEmbedded`="+pRow->IsEmbedded_asSQL()+", `CommandLine`="+pRow->CommandLine_asSQL()+", `IsPlugAndPlay`="+pRow->IsPlugAndPlay_asSQL()+", `IsIPBased`="+pRow->IsIPBased_asSQL()+", `IsPlugIn`="+pRow->IsPlugIn_asSQL()+", `IRFrequency`="+pRow->IRFrequency_asSQL()+", `FK_StabilityStatus`="+pRow->FK_StabilityStatus_asSQL()+", `FK_Package`="+pRow->FK_Package_asSQL()+", `DestinationDir`="+pRow->DestinationDir_asSQL()+", `FK_Users_Maintainer`="+pRow->FK_Users_Maintainer_asSQL()+", `FK_OperatingSystem`="+pRow->FK_OperatingSystem_asSQL()+", `FK_Distro`="+pRow->FK_Distro_asSQL()+", `InheritsMacFromPC`="+pRow->InheritsMacFromPC_asSQL()+", `ConfigureScript`="+pRow->ConfigureScript_asSQL()+", `ManufacturerURL`="+pRow->ManufacturerURL_asSQL()+", `InternalURLSuffix`="+pRow->InternalURLSuffix_asSQL()+", `FK_Licensing`="+pRow->FK_Licensing_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
+update_values_list = update_values_list + "`PK_DeviceTemplate`="+pRow->PK_DeviceTemplate_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Comments`="+pRow->Comments_asSQL()+", `FK_DeviceCategory`="+pRow->FK_DeviceCategory_asSQL()+", `FK_Manufacturer`="+pRow->FK_Manufacturer_asSQL()+", `Define`="+pRow->Define_asSQL()+", `ImplementsDCE`="+pRow->ImplementsDCE_asSQL()+", `IsEmbedded`="+pRow->IsEmbedded_asSQL()+", `CommandLine`="+pRow->CommandLine_asSQL()+", `IsPlugAndPlay`="+pRow->IsPlugAndPlay_asSQL()+", `IsIPBased`="+pRow->IsIPBased_asSQL()+", `IsPlugIn`="+pRow->IsPlugIn_asSQL()+", `IRFrequency`="+pRow->IRFrequency_asSQL()+", `FK_StabilityStatus`="+pRow->FK_StabilityStatus_asSQL()+", `FK_Package`="+pRow->FK_Package_asSQL()+", `DestinationDir`="+pRow->DestinationDir_asSQL()+", `FK_Users_Maintainer`="+pRow->FK_Users_Maintainer_asSQL()+", `FK_OperatingSystem`="+pRow->FK_OperatingSystem_asSQL()+", `FK_Distro`="+pRow->FK_Distro_asSQL()+", `InheritsMacFromPC`="+pRow->InheritsMacFromPC_asSQL()+", `ConfigureScript`="+pRow->ConfigureScript_asSQL()+", `ManufacturerURL`="+pRow->ManufacturerURL_asSQL()+", `InternalURLSuffix`="+pRow->InternalURLSuffix_asSQL()+", `FK_Licensing`="+pRow->FK_Licensing_asSQL()+", `FK_InfraredGroup`="+pRow->FK_InfraredGroup_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
 
 	
 		string query = "update DeviceTemplate set " + update_values_list + " where " + condition;
@@ -1404,67 +1433,78 @@ sscanf(row[23], "%li", &(pRow->m_FK_Licensing));
 if (row[24] == NULL)
 {
 pRow->is_null[24]=true;
-pRow->m_psc_id = 0;
+pRow->m_FK_InfraredGroup = 0;
 }
 else
 {
 pRow->is_null[24]=false;
-sscanf(row[24], "%li", &(pRow->m_psc_id));
+sscanf(row[24], "%li", &(pRow->m_FK_InfraredGroup));
 }
 
 if (row[25] == NULL)
 {
 pRow->is_null[25]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[25]=false;
-sscanf(row[25], "%li", &(pRow->m_psc_batch));
+sscanf(row[25], "%li", &(pRow->m_psc_id));
 }
 
 if (row[26] == NULL)
 {
 pRow->is_null[26]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[26]=false;
-sscanf(row[26], "%li", &(pRow->m_psc_user));
+sscanf(row[26], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[27] == NULL)
 {
 pRow->is_null[27]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[27]=false;
-sscanf(row[27], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[27], "%li", &(pRow->m_psc_user));
 }
 
 if (row[28] == NULL)
 {
 pRow->is_null[28]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[28]=false;
-pRow->m_psc_mod = string(row[28],lengths[28]);
+sscanf(row[28], "%hi", &(pRow->m_psc_frozen));
 }
 
 if (row[29] == NULL)
 {
 pRow->is_null[29]=true;
-pRow->m_psc_restrict = 0;
+pRow->m_psc_mod = "";
 }
 else
 {
 pRow->is_null[29]=false;
-sscanf(row[29], "%li", &(pRow->m_psc_restrict));
+pRow->m_psc_mod = string(row[29],lengths[29]);
+}
+
+if (row[30] == NULL)
+{
+pRow->is_null[30]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[30]=false;
+sscanf(row[30], "%li", &(pRow->m_psc_restrict));
 }
 
 
@@ -1842,67 +1882,78 @@ sscanf(row[23], "%li", &(pRow->m_FK_Licensing));
 if (row[24] == NULL)
 {
 pRow->is_null[24]=true;
-pRow->m_psc_id = 0;
+pRow->m_FK_InfraredGroup = 0;
 }
 else
 {
 pRow->is_null[24]=false;
-sscanf(row[24], "%li", &(pRow->m_psc_id));
+sscanf(row[24], "%li", &(pRow->m_FK_InfraredGroup));
 }
 
 if (row[25] == NULL)
 {
 pRow->is_null[25]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[25]=false;
-sscanf(row[25], "%li", &(pRow->m_psc_batch));
+sscanf(row[25], "%li", &(pRow->m_psc_id));
 }
 
 if (row[26] == NULL)
 {
 pRow->is_null[26]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[26]=false;
-sscanf(row[26], "%li", &(pRow->m_psc_user));
+sscanf(row[26], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[27] == NULL)
 {
 pRow->is_null[27]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[27]=false;
-sscanf(row[27], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[27], "%li", &(pRow->m_psc_user));
 }
 
 if (row[28] == NULL)
 {
 pRow->is_null[28]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[28]=false;
-pRow->m_psc_mod = string(row[28],lengths[28]);
+sscanf(row[28], "%hi", &(pRow->m_psc_frozen));
 }
 
 if (row[29] == NULL)
 {
 pRow->is_null[29]=true;
-pRow->m_psc_restrict = 0;
+pRow->m_psc_mod = "";
 }
 else
 {
 pRow->is_null[29]=false;
-sscanf(row[29], "%li", &(pRow->m_psc_restrict));
+pRow->m_psc_mod = string(row[29],lengths[29]);
+}
+
+if (row[30] == NULL)
+{
+pRow->is_null[30]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[30]=false;
+sscanf(row[30], "%li", &(pRow->m_psc_restrict));
 }
 
 
@@ -1968,6 +2019,13 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Licensing *pTable = table->database->Licensing_get();
 return pTable->GetRow(m_FK_Licensing);
+}
+class Row_InfraredGroup* Row_DeviceTemplate::FK_InfraredGroup_getrow()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_InfraredGroup *pTable = table->database->InfraredGroup_get();
+return pTable->GetRow(m_FK_InfraredGroup);
 }
 
 

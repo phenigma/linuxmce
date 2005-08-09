@@ -81,6 +81,7 @@ class DECLSPECIFIER Row_InfraredGroup : public TableRow, public SerializeClass
 long int m_FK_DeviceCategory;
 long int m_FK_Manufacturer;
 string m_Description;
+long int m_FK_CommMethod;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -88,13 +89,14 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[10];
+		bool is_null[11];
 	
 	public:
 		long int PK_InfraredGroup_get();
 long int FK_DeviceCategory_get();
 long int FK_Manufacturer_get();
 string Description_get();
+long int FK_CommMethod_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -107,6 +109,7 @@ long int psc_restrict_get();
 void FK_DeviceCategory_set(long int val);
 void FK_Manufacturer_set(long int val);
 void Description_set(string val);
+void FK_CommMethod_set(long int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -143,16 +146,18 @@ void psc_restrict_setNull(bool val);
 		// Return the rows for foreign keys 
 		class Row_DeviceCategory* FK_DeviceCategory_getrow();
 class Row_Manufacturer* FK_Manufacturer_getrow();
+class Row_CommMethod* FK_CommMethod_getrow();
 
 
 		// Return the rows in other tables with foreign keys pointing here
-		void DeviceTemplate_InfraredGroup_FK_InfraredGroup_getrows(vector <class Row_DeviceTemplate_InfraredGroup*> *rows);
+		void DeviceTemplate_FK_InfraredGroup_getrows(vector <class Row_DeviceTemplate*> *rows);
+void DeviceTemplate_InfraredGroup_FK_InfraredGroup_getrows(vector <class Row_DeviceTemplate_InfraredGroup*> *rows);
 void InfraredGroup_Command_FK_InfraredGroup_getrows(vector <class Row_InfraredGroup_Command*> *rows);
 
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_InfraredGroup+ m_FK_DeviceCategory+ m_FK_Manufacturer+ m_Description+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_InfraredGroup+ m_FK_DeviceCategory+ m_FK_Manufacturer+ m_Description+ m_FK_CommMethod+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -161,6 +166,7 @@ void InfraredGroup_Command_FK_InfraredGroup_getrows(vector <class Row_InfraredGr
 string FK_DeviceCategory_asSQL();
 string FK_Manufacturer_asSQL();
 string Description_asSQL();
+string FK_CommMethod_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

@@ -136,6 +136,9 @@
 				RelativePath=".\Table_CannedEvents_CriteriaParmList.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_CommMethod.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_Command.cpp">
 			</File>
 			<File

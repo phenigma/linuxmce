@@ -440,7 +440,7 @@
 #define TEXT_Addgc_CONST 1116
 #define TEXT_New_PnP_CONST 1117
 #define TEXT_Regen_all_Orbiters_CONST 1118
-#define TEXT_Orbiter_controling_CONST 1119
+#define TEXT_Orbiter_in_control_CONST 1119
 #define TEXT_Orbiter_I_am_CONST 1120
 #define TEXT_ON_display_CONST 1121
 #define TEXT_OFF_display_CONST 1122

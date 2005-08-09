@@ -12,6 +12,7 @@ Table_Button.cpp \
 Table_CachedScreens.cpp \
 Table_CannedEvents.cpp \
 Table_CannedEvents_CriteriaParmList.cpp \
+Table_CommMethod.cpp \
 Table_Command.cpp \
 Table_CommandCategory.cpp \
 Table_CommandGroup.cpp \

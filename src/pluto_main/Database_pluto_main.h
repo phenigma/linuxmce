@@ -31,6 +31,7 @@ class Table_Button* tblButton;
 class Table_CachedScreens* tblCachedScreens;
 class Table_CannedEvents* tblCannedEvents;
 class Table_CannedEvents_CriteriaParmList* tblCannedEvents_CriteriaParmList;
+class Table_CommMethod* tblCommMethod;
 class Table_Command* tblCommand;
 class Table_CommandCategory* tblCommandCategory;
 class Table_CommandGroup* tblCommandGroup;
@@ -248,6 +249,7 @@ class Table_Button* Button_get() { if( !tblButton ) CreateTable_Button(); return
 class Table_CachedScreens* CachedScreens_get() { if( !tblCachedScreens ) CreateTable_CachedScreens(); return tblCachedScreens; }
 class Table_CannedEvents* CannedEvents_get() { if( !tblCannedEvents ) CreateTable_CannedEvents(); return tblCannedEvents; }
 class Table_CannedEvents_CriteriaParmList* CannedEvents_CriteriaParmList_get() { if( !tblCannedEvents_CriteriaParmList ) CreateTable_CannedEvents_CriteriaParmList(); return tblCannedEvents_CriteriaParmList; }
+class Table_CommMethod* CommMethod_get() { if( !tblCommMethod ) CreateTable_CommMethod(); return tblCommMethod; }
 class Table_Command* Command_get() { if( !tblCommand ) CreateTable_Command(); return tblCommand; }
 class Table_CommandCategory* CommandCategory_get() { if( !tblCommandCategory ) CreateTable_CommandCategory(); return tblCommandCategory; }
 class Table_CommandGroup* CommandGroup_get() { if( !tblCommandGroup ) CreateTable_CommandGroup(); return tblCommandGroup; }
@@ -469,6 +471,7 @@ void CreateTable_Button();
 void CreateTable_CachedScreens();
 void CreateTable_CannedEvents();
 void CreateTable_CannedEvents_CriteriaParmList();
+void CreateTable_CommMethod();
 void CreateTable_Command();
 void CreateTable_CommandCategory();
 void CreateTable_CommandGroup();
@@ -685,6 +688,7 @@ void DeleteTable_Button();
 void DeleteTable_CachedScreens();
 void DeleteTable_CannedEvents();
 void DeleteTable_CannedEvents_CriteriaParmList();
+void DeleteTable_CommMethod();
 void DeleteTable_Command();
 void DeleteTable_CommandCategory();
 void DeleteTable_CommandGroup();

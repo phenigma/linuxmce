@@ -731,8 +731,6 @@
 #define DESIGNOBJ_setup_myth_CONST 3215
 #define DESIGNOBJ_go_to_2_screen_CONST 3216
 #define DESIGNOBJ_setup_myth_2_CONST 3217
-#define DESIGNOBJ_go_to_myth_setup_CONST 3218
-#define DESIGNOBJ_go_to_pvr_full_screen_CONST 3219
 #define DESIGNOBJ_mnuFirstTime_CONST 3221
 #define DESIGNOBJ_butGoToMainMenu_CONST 3222
 #define DESIGNOBJ_grpSeekFileList_CONST 3223
@@ -754,7 +752,6 @@
 #define DESIGNOBJ_num7_CONST 3241
 #define DESIGNOBJ_num8_CONST 3242
 #define DESIGNOBJ_num9_CONST 3243
-#define DESIGNOBJ_butMythTVSetup_CONST 3250
 #define DESIGNOBJ_myth_tv_setup_2_CONST 3251
 #define DESIGNOBJ_go_to_phone_book_CONST 3252
 #define DESIGNOBJ_go_to_dial_phone_number_CONST 3253
@@ -957,8 +954,7 @@
 #define DESIGNOBJ_mnuBrowseBookmarks_CONST 3552
 #define DESIGNOBJ_dgBrowseBookmarks_CONST 3553
 #define DESIGNOBJ_mnuGenericAppController_CONST 3555
-#define DESIGNOBJ_generic_app_with_options_CONST 3556
-#define DESIGNOBJ_objExitApp_CONST 3557
+#define DESIGNOBJ_objExitAppOnOSD_CONST 3557
 #define DESIGNOBJ_generic_app_desktop_CONST 3558
 #define DESIGNOBJ_grpUpDownBookmarks_CONST 3560
 #define DESIGNOBJ_objDatagridBookmarkUp_CONST 3561
@@ -1235,6 +1231,7 @@
 #define DESIGNOBJ_Num_CONST 4264
 #define DESIGNOBJ_mnuPVR_Myth_CONST 4265
 #define DESIGNOBJ_grpPhoneSearchKeyboardlargep_CONST 4266
+#define DESIGNOBJ_butKillApp_CONST 4267
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
