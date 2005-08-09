@@ -426,11 +426,11 @@ public:
 
 			if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
 			{
-				sFilename = m_pMediaAttributes->GetPrintableName(pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Performer_CONST]);
+				sFilename = m_pMediaAttributes->GetAttributeName(pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Performer_CONST]);
 				if( sFilename.size() )
 					sFilename += "/"; // We got a performer
 
-				sFilename += m_pMediaAttributes->GetPrintableName(pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Album_CONST]);
+				sFilename += m_pMediaAttributes->GetAttributeName(pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Album_CONST]);
 			}
 			else if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST )
 				sFilename = pMediaStream->m_sMediaDescription;

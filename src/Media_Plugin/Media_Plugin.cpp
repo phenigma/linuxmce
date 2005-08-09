@@ -1768,10 +1768,10 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
 	int PK_MediaType = atoi(StringUtils::Tokenize(Parms,"|",pos).c_str());
 	string AC = StringUtils::Tokenize(Parms,"|",pos);
 
-    string SQL = "select PK_Attribute, Name, FirstName, Description FROM Attribute " \
+    string SQL = "select PK_Attribute, Name, Description FROM Attribute " \
         "JOIN AttributeType ON Attribute.FK_AttributeType=PK_AttributeType "\
         "JOIN MediaType_AttributeType ON MediaType_AttributeType.FK_AttributeType=PK_AttributeType "\
-        "WHERE ( Name Like '" + AC + "%' OR FirstName Like '" + AC + "%' ) AND Identifier>0 " +
+        "WHERE Name Like '" + AC + "%' AND Identifier>0 " +
 		" AND EK_MediaType=" + StringUtils::itos(PK_MediaType) +
         " ORDER BY Name limit 30;";
 
@@ -1786,9 +1786,7 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
         while( ( row=mysql_fetch_row( result.r ) ) )
         {
             string label = /* string( "~`S24`" ) + */ row[1];
-            if( row[2] && *row[2] )
-                label += string( ", " ) + row[2];
-            label += string( "\n" ) + row[3];
+            label += string( "\n" ) + row[2];
             pCell = new DataGridCell( "", row[0] );
             pDataGrid->SetData( 0, RowCount, pCell );
 
@@ -1803,7 +1801,7 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
         }
     }
 
-    SQL = "select PK_Attribute, Name, FirstName, Description FROM SearchToken "\
+    SQL = "select PK_Attribute, Name, Description FROM SearchToken "\
         "JOIN SearchToken_Attribute ON PK_SearchToken=FK_SearchToken "\
         "JOIN Attribute ON SearchToken_Attribute.FK_Attribute=PK_Attribute "\
         "JOIN AttributeType ON Attribute.FK_AttributeType=PK_AttributeType "\
@@ -1819,9 +1817,7 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
         while( ( row=mysql_fetch_row( result.r ) ) )
         {
             string label = /*string( "~`S24`" ) + */ row[1];
-            if( row[2] && *row[2]  )
-                label += string( ", " ) + row[2];
-            label += string( "\n" ) + row[3];
+            label += string( "\n" ) + row[2];
             pCell = new DataGridCell( "", row[0] );
             pDataGrid->SetData( 0, RowCount, pCell );
 
@@ -1852,7 +1848,7 @@ class DataGridTable *Media_Plugin::MediaAttrFiles( string GridID, string Parms, 
         return new DataGridTable();;
     }
 
-    string SQL="select DISTINCT Dest.FK_File, Attribute.Name, Attribute.FirstName, AttributeType.Description "\
+    string SQL="select DISTINCT Dest.FK_File, Attribute.Name, AttributeType.Description "\
         "FROM File_Attribute As Source "\
         "JOIN File_Attribute As Dest "\
 		"ON Source.FK_File=Dest.FK_File AND Source.FK_Attribute=" + StringUtils::itos(atoi(PK_Attribute.c_str())) +
@@ -1872,9 +1868,7 @@ class DataGridTable *Media_Plugin::MediaAttrFiles( string GridID, string Parms, 
         while( ( row=mysql_fetch_row( result.r ) ) )
         {
             string label = row[1];
-            if( row[2] && *row[2] )
-                label += string( ", " ) + row[2];
-            label += string( "\n" ) + row[3];
+            label += string( "\n" ) + row[2];
             pCell = new DataGridCell( label, row[0] );
             pDataGrid->SetData( 0, RowCount++, pCell );
         }
@@ -1904,7 +1898,7 @@ class DataGridTable *Media_Plugin::MediaAttrCollections( string GridID, string P
         return new DataGridTable();
     }
 
-    string SQL="select DISTINCT Dest.FK_Attribute, Attribute.Name, Attribute.FirstName, AttributeType.Description "\
+    string SQL="select DISTINCT Dest.FK_Attribute, Attribute.Name, AttributeType.Description "\
         "FROM File_Attribute As Source "\
         "JOIN File_Attribute As Dest "\
         "ON Source.FK_File=Dest.FK_File AND Source.FK_Attribute='" + StringUtils::itos(atoi(PK_Attribute.c_str())) +
@@ -1924,9 +1918,7 @@ class DataGridTable *Media_Plugin::MediaAttrCollections( string GridID, string P
         while( ( row=mysql_fetch_row( result.r ) ) )
         {
             string label = row[1];
-            if( row[2] )
-                label += string( ", " ) + row[2];
-            label += string( "\n" ) + row[3];
+            label += string( "\n" ) + row[2];
             pCell = new DataGridCell( label, row[0] );
             pDataGrid->SetData( 0, RowCount++, pCell );
         }
@@ -1963,7 +1955,7 @@ class DataGridTable *Media_Plugin::MediaAttrXref( string GridID, string Parms, v
 
     g_pPlutoLogger->Write(LV_STATUS, "Transformed PK_Attributte: %s", PK_Attribute.c_str());
 
-    string SQL="select DISTINCT Dest.FK_Attribute, Attribute.Name, Attribute.FirstName, AttributeType.Description "\
+    string SQL="select DISTINCT Dest.FK_Attribute, Attribute.Name, AttributeType.Description "\
         "FROM File_Attribute As Source "\
         "JOIN File_Attribute As Dest "\
         "ON Source.FK_File=Dest.FK_File AND Source.FK_Attribute=" + PK_Attribute +
@@ -1985,9 +1977,7 @@ g_pPlutoLogger->Write(LV_STATUS, "Transformed 2 PK_Attributte: %s", PK_Attribute
         {
 g_pPlutoLogger->Write(LV_STATUS, "Transformed 4 PK_Attributte: %s", PK_Attribute.c_str());
             string label = row[1];
-            if( row[2] && *row[2] )
-                label += string( ", " ) + row[2];
-            label += string( "\n" ) + row[3];
+            label += string( "\n" ) + row[2];
             pCell = new DataGridCell( label, row[0] );
             pDataGrid->SetData( 0, RowCount++, pCell );
         }
@@ -2033,7 +2023,7 @@ class DataGridTable *Media_Plugin::MediaItemAttr( string GridID, string Parms, v
         if( !PK_File )
         {
             // They chose an attribute other than a file, like an album
-            SQL = "select DISTINCT PK_Attribute,Description,Name,FirstName FROM File_Attribute AS Source "\
+            SQL = "select DISTINCT PK_Attribute,Description,Name FROM File_Attribute AS Source "\
                 "JOIN File_Attribute As Dest ON Source.FK_File=Dest.FK_File "\
                 "JOIN Attribute ON Dest.FK_Attribute=PK_Attribute  "\
                 "JOIN C_AttributeType ON Attribute.FK_C_AttributeType=PK_C_AttributeType  "\
@@ -2067,7 +2057,7 @@ class DataGridTable *Media_Plugin::MediaItemAttr( string GridID, string Parms, v
     // We may have already built the sql statement
     if( SQL.length()==0 )
     {
-        SQL="SELECT PK_Attribute,Description,Name,FirstName FROM File "\
+        SQL="SELECT PK_Attribute,Description,Name FROM File "\
         "JOIN File_Attribute ON FK_File=PK_File "\
         "JOIN Attribute ON FK_Attribute=PK_Attribute "\
         "JOIN C_AttributeType ON FK_C_AttributeType=PK_C_AttributeType "\
@@ -2085,8 +2075,6 @@ class DataGridTable *Media_Plugin::MediaItemAttr( string GridID, string Parms, v
             string label = row[1];
             label += ": ";
             label += row[2];
-            if( row[3] && *row[3] )
-                label += string(",") + row[3];
             pCell = new DataGridCell(label,row[0]);
             pDataGrid->SetData(0,RowCount++,pCell);
         }
@@ -2200,7 +2188,7 @@ class DataGridTable *Media_Plugin::MediaAttrCurStream( string GridID, string Par
 		if( pRow_AttributeType && pRow_Attribute )
 		{
 			string sName = pRow_AttributeType->Description_get() + ": ";
-			sName += m_pMediaAttributes->GetPrintableName(pRow_Attribute);
+			sName += pRow_Attribute->Name_get();
 			DataGridCell *pCell = new DataGridCell( sName, StringUtils::itos(it->second) );
 			pDataGrid->SetData(0,iRow++,pCell);
 		}
@@ -2219,7 +2207,7 @@ class DataGridTable *Media_Plugin::MediaAttrCurStream( string GridID, string Par
 			Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(it->second);
 			if( pRow_AttributeType && pRow_Attribute )
 			{
-				string sName = sNamePrefix + pRow_AttributeType->Description_get() + "\n" + m_pMediaAttributes->GetPrintableName(pRow_Attribute);
+				string sName = sNamePrefix + pRow_AttributeType->Description_get() + "\n" + pRow_Attribute->Name_get();
 				DataGridCell *pCell = new DataGridCell( sName, StringUtils::itos(it->second) );
 				pDataGrid->SetData(0,iRow++,pCell);
 			}
@@ -2245,7 +2233,7 @@ void Media_Plugin::AddMediaTitlesToDataGrid(DataGridTable *pDataGrid,int &iRow,d
 			Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(it->second);
 			if( pRow_AttributeType && pRow_Attribute )
 			{
-				string sName = sNamePrefix + pRow_AttributeType->Description_get() + "\n" + m_pMediaAttributes->GetPrintableName(pRow_Attribute);
+				string sName = sNamePrefix + pRow_AttributeType->Description_get() + "\n" + pRow_Attribute->Name_get();
 				DataGridCell *pCell = new DataGridCell( sName, StringUtils::itos(it->second) );
 				pDataGrid->SetData(0,iRow++,pCell);
 			}
@@ -2266,7 +2254,7 @@ void Media_Plugin::AddMediaSectionToDataGrid(DataGridTable *pDataGrid,int &iRow,
 			if( pRow_AttributeType && pRow_Attribute )
 			{
 				string sName = sPreface + " #" + StringUtils::itos(s+1) + " ";
-				sName += pRow_AttributeType->Description_get() + "\n" + m_pMediaAttributes->GetPrintableName(pRow_Attribute);
+				sName += pRow_AttributeType->Description_get() + "\n" + pRow_Attribute->Name_get();
 				DataGridCell *pCell = new DataGridCell( sName, StringUtils::itos(it->second) );
 				pDataGrid->SetData(0,iRow++,pCell);
 			}
@@ -3773,10 +3761,9 @@ void Media_Plugin::Parse_Misc_Media_ID(MediaStream *pMediaStream,string sValue)
 {
 	// The format is as follows.  Each line (\n terminated) contains the following:
 	// The first line only is the disc id
-	// Track \t PK_AttributeType \t Section \t Name/Description \t FirstName
+	// Track \t PK_AttributeType \t Section \t Name/Description
 	// Track refers to separate tracks on a cd, which, if ripped, would be separate files.
 	// Section, however, refers to chapters within a DVD--there is only file, but it has sections
-	// FirstName is optional, and usually isn't used.
 
 	vector<string> vectAttributes;
 	StringUtils::Tokenize(sValue,"\n",vectAttributes);
@@ -3799,22 +3786,38 @@ void Media_Plugin::Parse_Misc_Media_ID(MediaStream *pMediaStream,string sValue)
 			int Track = atoi(StringUtils::Tokenize(sLine,"\t",pos).c_str());
 			int PK_AttributeType = atoi(StringUtils::Tokenize(sLine,"\t",pos).c_str());
 			int Section = atoi(StringUtils::Tokenize(sLine,"\t",pos).c_str());
-			string sName = StringUtils::Tokenize(sLine,"\t",pos);
-			string sFirstName = StringUtils::Tokenize(sLine,"\t",pos);
-			if( !PK_AttributeType || (sName.size()==0 && sFirstName.size()==0) )
+			string sWholeName = StringUtils::Tokenize(sLine,"\t",pos);
+			if( !PK_AttributeType || sWholeName.size()==0 )
 			{
 				g_pPlutoLogger->Write(LV_CRITICAL,"Empty/invalid media attribute");
 				continue;
 			}
 
-			pRow_Attribute = m_pMediaAttributes->GetAttributeFromDescription(PK_AttributeType,sName,sFirstName);
-g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::Parse_Misc_Media_ID added attribute %p %d %s",
-	pRow_Attribute, (pRow_Attribute ? pRow_Attribute->PK_Attribute_get() : 0), sName.c_str());
+			// Some attributes may be ; delimited lists
+			pos=0;
+			string sName;
+			while(pos<sWholeName.size()-1)
+			{
+				if( PK_AttributeType==ATTRIBUTETYPE_Director_CONST || 
+					PK_AttributeType==ATTRIBUTETYPE_Performer_CONST ||
+					PK_AttributeType==ATTRIBUTETYPE_Conductor_CONST ||
+					PK_AttributeType==ATTRIBUTETYPE_Composer_CONST )
+						sName = StringUtils::Tokenize(sWholeName,";",pos);
+				else
+				{
+					sName=sWholeName;
+					pos=string::npos;
+				}
 
-			if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST ) // Tracks are treated as files
-				m_pMediaAttributes->AddAttributeToStream(pMediaStream,pRow_Attribute,Track,0,Section);
-			else
-				m_pMediaAttributes->AddAttributeToStream(pMediaStream,pRow_Attribute,0,Track,Section);
+				pRow_Attribute = m_pMediaAttributes->GetAttributeFromDescription(PK_AttributeType,sName);
+	g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::Parse_Misc_Media_ID added attribute %p %d %s",
+		pRow_Attribute, (pRow_Attribute ? pRow_Attribute->PK_Attribute_get() : 0), sName.c_str());
+
+				if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST ) // Tracks are treated as files
+					m_pMediaAttributes->AddAttributeToStream(pMediaStream,pRow_Attribute,Track,0,Section);
+				else
+					m_pMediaAttributes->AddAttributeToStream(pMediaStream,pRow_Attribute,0,Track,Section);
+			}
 		}
 		m_pMediaAttributes->AddIdentifiedDiscToDB(vectAttributes[0],pMediaStream);
 	}
@@ -3940,7 +3943,7 @@ void Media_Plugin::CMD_Add_Media_Attribute(string sValue_To_Assign,int iStreamID
 	/** @brief COMMAND: #392 - Set Media Attribute Text */
 	/** Adds a new attribute */
 		/** @param #5 Value To Assign */
-			/** The new value.  If it's a name, LastName^Firstname format */
+			/** The new value.  If it's a name, LastName format */
 		/** @param #123 EK_Attribute */
 			/** The attribute */
 
@@ -3951,15 +3954,7 @@ void Media_Plugin::CMD_Set_Media_Attribute_Text(string sValue_To_Assign,int iEK_
 	Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(iEK_Attribute);
 	if( pRow_Attribute )
 	{
-		string sFirstName;
-		string::size_type posFirstName = sValue_To_Assign.find('^');
-		if( posFirstName!=string::npos )
-		{
-			sFirstName = sValue_To_Assign.substr(posFirstName-1);
-			sValue_To_Assign = sValue_To_Assign.substr(0,posFirstName);
-		}
 		pRow_Attribute->Name_set(sValue_To_Assign);
-		pRow_Attribute->FirstName_set(sFirstName);
 		pRow_Attribute->Table_Attribute_get()->Commit();
 
 		for(MapMediaStream::iterator it=m_mapMediaStream.begin();it!=m_mapMediaStream.end();++it)
@@ -3984,7 +3979,7 @@ void Media_Plugin::CMD_Get_Attribute(int iEK_Attribute,string *sText,string &sCM
 	Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(iEK_Attribute);
 	if( pRow_Attribute )
 	{
-		(*sText) = m_pMediaAttributes->GetTabbedName(pRow_Attribute);
+		(*sText) = pRow_Attribute->Name_get();
 		StringUtils::Replace(sText,"\t","&");
 	}
 }

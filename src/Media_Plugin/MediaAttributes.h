@@ -40,7 +40,6 @@ public:
     int PK_Attribute;
     int PK_AttributeType;
     string Name;
-    string FirstName;
 };
 
 /**
@@ -77,9 +76,9 @@ public:
     ~MediaAttributes();
     int CreatedMedia(int PK_Type,string Path,listMediaAttribute *plistMediaAttribute,listMediaPicture *plistMediaPicture);
     void UpdatedMedia(int PK_File,int PK_Type,string Path,listMediaAttribute *plistMediaAttribute,listMediaPicture *plistMediaPicture);
-    int AddAttribute(int PK_File,int PK_Attribute,int PK_AttributeType,string Name,string FirstName);
-    void ChangeAttribute(int OldPK_AttributeType,int NewPK_AttributeType,string OldName,string OldFirstName,string NewName,string NewFirstName);
-    void ChangeAttribute(int PK_Attribute,string NewName,string NewFirstName);
+    int AddAttribute(int PK_File,int PK_Attribute,int PK_AttributeType,string Name);
+    void ChangeAttribute(int OldPK_AttributeType,int NewPK_AttributeType,string OldName,string NewName);
+    void ChangeAttribute(int PK_Attribute,string NewName);
     void AddPicture(int PK_File,int PK_Attribute,string Path);
     int SetPicture(int PK_Picture,string Path);
     void UpdateSearchTokens(int PK_Attribute);
@@ -97,32 +96,8 @@ public:
     int GetAttributeFromFilePath(string File);
     int GetFileIDFromAttributeID(int PK_Attribute);
 	// First name can either be a separate parameter, or part of Name delimited by a tab
-    Row_Attribute *GetAttributeFromDescription(int PK_AttributeType,string sName,string sFirstName=""); 
+    Row_Attribute *GetAttributeFromDescription(int PK_AttributeType,string sName); 
 	void TransformFilenameToDeque(string sFilename,deque<MediaFile *> &dequeMediaFile);
-
-	string GetTabbedName(Row_Attribute *pRow_Attribute)
-	{
-		if( pRow_Attribute->FirstName_get().size()==0 )
-			return pRow_Attribute->Name_get();
-		else
-			return pRow_Attribute->Name_get() + "\t" + pRow_Attribute->FirstName_get();
-	}
-
-	string GetPrintableName(Row_Attribute *pRow_Attribute)
-	{
-		if( pRow_Attribute->FirstName_get().size()==0 )
-			return pRow_Attribute->Name_get();
-		else
-			return pRow_Attribute->Name_get() + ", " + pRow_Attribute->FirstName_get();
-	}
-
-	string GetPrintableName(int PK_Attribute)
-	{
-		Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(PK_Attribute);
-		if( !pRow_Attribute )
-			return "";
-		return GetPrintableName(pRow_Attribute);
-	}
 
 	MediaSection *GetMediaSection(deque<MediaSection *> *p_dequeMediaSection,int Section) 
 	{
@@ -148,6 +123,14 @@ public:
 	bool IsDiscAlreadyIdentified(string sIdentifiedDisc,MediaStream *pMediaStream);
 	void AddAttributeToStream(MediaStream *pMediaStream,Row_Attribute *pRow_Attribute,int File,int Track,int Section);
 	void LoadStreamAttributes(MediaStream *pMediaStream);
+
+	string GetAttributeName(int PK_Attribute)
+	{
+		Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(PK_Attribute);
+		if( pRow_Attribute )
+			return pRow_Attribute->Name_get();
+		return "";
+	}
 };
 
 #endif

@@ -172,7 +172,7 @@ void MediaAttributes::UpdatedMedia( int PK_File, int PK_Type, string FilePath, l
         for( listMediaAttribute::iterator it=plistMediaAttribute->begin( );it!=plistMediaAttribute->end( );++it )
         {
             MediaAttribute *ma = ( *it );
-            AddAttribute( PK_File, ma->PK_Attribute, ma->PK_AttributeType, ma->Name, ma->FirstName );
+            AddAttribute( PK_File, ma->PK_Attribute, ma->PK_AttributeType, ma->Name );
         }
     }
     if( plistMediaPicture )
@@ -188,11 +188,11 @@ void MediaAttributes::UpdatedMedia( int PK_File, int PK_Type, string FilePath, l
     }
 }
 
-int MediaAttributes::AddAttribute( int PK_File, int PK_Attribute, int PK_AttributeType, string Name, string FirstName )
+int MediaAttributes::AddAttribute( int PK_File, int PK_Attribute, int PK_AttributeType, string Name )
 {
     printf( "Add attribute file %d att %d Name %s \n", PK_File, PK_Attribute, Name.c_str( ) );
 
-    if( ( Name.length( )==0 || Name=="( null )" ) && ( FirstName.length( )==0 || FirstName=="( null )" ) )
+    if( Name.length( )==0 || Name=="( null )" )
         return 0;
     PlutoSqlResult result;
     MYSQL_ROW row;
@@ -215,17 +215,16 @@ int MediaAttributes::AddAttribute( int PK_File, int PK_Attribute, int PK_Attribu
         {
             SQL = "SELECT PK_Attribute FROM Attribute WHERE FK_AttributeType=" +
                 StringUtils::itos( PK_AttributeType ) + " AND Name='" +
-                StringUtils::SQLEscape( Name ) + "' AND FirstName='" + StringUtils::SQLEscape( FirstName ) + "'";
+                StringUtils::SQLEscape( Name ) + "'";
 
-            if(     ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+            if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
             PK_Attribute = atoi( row[0] );
         }
 
         if( !PK_Attribute )
         {
-            SQL = "INSERT INTO Attribute( FK_AttributeType, Name, FirstName ) VALUES( " +
-                StringUtils::itos( PK_AttributeType ) + ", '" + StringUtils::SQLEscape( Name ) + "', '" +
-                StringUtils::SQLEscape( FirstName ) + "' )";
+            SQL = "INSERT INTO Attribute( FK_AttributeType, Name ) VALUES( " +
+                StringUtils::itos( PK_AttributeType ) + ", '" + StringUtils::SQLEscape( Name ) + "' )";
             PK_Attribute = m_pDatabase_pluto_media->threaded_mysql_query_withID( SQL );
         }
     }
@@ -239,11 +238,11 @@ int MediaAttributes::AddAttribute( int PK_File, int PK_Attribute, int PK_Attribu
     return PK_Attribute;
 }
 
-void MediaAttributes::ChangeAttribute( int OldPK_AttributeType, int NewPK_AttributeType, string OldName, string OldFirstName, string NewName, string NewFirstName )
+void MediaAttributes::ChangeAttribute( int OldPK_AttributeType, int NewPK_AttributeType, string OldName, string NewName )
 {
 }
 
-void MediaAttributes::ChangeAttribute( int PK_Attribute, string NewName, string NewFirstName )
+void MediaAttributes::ChangeAttribute( int PK_Attribute, string NewName )
 {
 }
 
@@ -411,43 +410,40 @@ void MediaAttributes::UpdateSearchTokens( int PK_Attribute )
 {
     PlutoSqlResult result;
     MYSQL_ROW row, row2;
-    string SQL = "SELECT Name, FirstName FROM Attribute WHERE PK_Attribute=" + StringUtils::itos( PK_Attribute );
+    string SQL = "SELECT Name FROM Attribute WHERE PK_Attribute=" + StringUtils::itos( PK_Attribute );
     if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
     {
         SQL = "DELETE FROM SearchToken_Attribute WHERE FK_Attribute=" + StringUtils::itos( PK_Attribute );
         m_pDatabase_pluto_media->threaded_mysql_query( SQL );
-        for( int i=0;i<=1;++i )
+        char *ptr = row[0];
+        string::size_type pos=0;
+        while( ptr && *ptr )
         {
-            char *ptr = row[i];
-            string::size_type pos=0;
-            while( ptr && *ptr )
+            string s( ptr );
+            string Token=StringUtils::ToUpper( StringUtils::Tokenize( s, " ", pos ) );
+            if( Token.length( )==0 )
+                break;
+            SQL = "SELECT PK_SearchToken FROM SearchToken WHERE Token='" +
+                StringUtils::SQLEscape( Token ) + "'";
+            int PK_SearchToken=0;
+            if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row2=mysql_fetch_row( result.r ) ) )
             {
-                string s( ptr );
-                string Token=StringUtils::ToUpper( StringUtils::Tokenize( s, " ", pos ) );
-                if( Token.length( )==0 )
-                    break;
-                SQL = "SELECT PK_SearchToken FROM SearchToken WHERE Token='" +
-                    StringUtils::SQLEscape( Token ) + "'";
-                int PK_SearchToken=0;
-                if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row2=mysql_fetch_row( result.r ) ) )
-                {
-                    PK_SearchToken = atoi( row2[0] );
-                    printf( "Found token ( %d ): %s\n", PK_SearchToken, Token.c_str( ) );
-                }
-                else
-                {
-                    printf( "Didn't find token: %d %s ( %s )\n", PK_SearchToken, Token.c_str( ), SQL.c_str( ) );
-                    SQL = "INSERT INTO SearchToken( Token ) VALUES( '" +
-                        StringUtils::SQLEscape( Token ) + "' )";
-                    PK_SearchToken = m_pDatabase_pluto_media->threaded_mysql_query_withID( SQL );
-                }
-                if( PK_SearchToken )
-                {
-                    SQL = "INSERT INTO SearchToken_Attribute VALUES( " +
-                        StringUtils::itos( PK_SearchToken ) + ", " +
-                        StringUtils::itos( PK_Attribute ) + " )";
-                    m_pDatabase_pluto_media->threaded_mysql_query( SQL, true );
-                }
+                PK_SearchToken = atoi( row2[0] );
+                printf( "Found token ( %d ): %s\n", PK_SearchToken, Token.c_str( ) );
+            }
+            else
+            {
+                printf( "Didn't find token: %d %s ( %s )\n", PK_SearchToken, Token.c_str( ), SQL.c_str( ) );
+                SQL = "INSERT INTO SearchToken( Token ) VALUES( '" +
+                    StringUtils::SQLEscape( Token ) + "' )";
+                PK_SearchToken = m_pDatabase_pluto_media->threaded_mysql_query_withID( SQL );
+            }
+            if( PK_SearchToken )
+            {
+                SQL = "INSERT INTO SearchToken_Attribute VALUES( " +
+                    StringUtils::itos( PK_SearchToken ) + ", " +
+                    StringUtils::itos( PK_Attribute ) + " )";
+                m_pDatabase_pluto_media->threaded_mysql_query( SQL, true );
             }
         }
     }
@@ -546,15 +542,15 @@ if( macounter>50 )
                 int PK_File = CreatedMedia( 1, Path + TrackName + ".flac", NULL, NULL );
                 if( PK_File )
                 {
-                    AddAttribute( PK_File, 0, 2, TrackArtist, "" );
-                    iArtist=AddAttribute( PK_File, iArtist, 2, Artist, "" );
-                    iAlbum=AddAttribute( PK_File, iAlbum, 3, Title, "" );
-                    AddAttribute( PK_File, 0, 4, TrackName, "" );
-                    AddAttribute( PK_File, 0, 5, StringUtils::itos( i ), "" );
-                    iAsin=AddAttribute( PK_File, iAsin, 6, Asin, "" );
-                    iDisc=AddAttribute( PK_File, iDisc, 7, DiscID, "" );
-                    iCategory=AddAttribute( PK_File, iCategory, 8, Category, "" );
-                    iGenre=AddAttribute( PK_File, iGenre, 8, Genre, "" );
+                    AddAttribute( PK_File, 0, 2, TrackArtist);
+                    iArtist=AddAttribute( PK_File, iArtist, 2, Artist);
+                    iAlbum=AddAttribute( PK_File, iAlbum, 3, Title);
+                    AddAttribute( PK_File, 0, 4, TrackName);
+                    AddAttribute( PK_File, 0, 5, StringUtils::itos( i ));
+                    iAsin=AddAttribute( PK_File, iAsin, 6, Asin);
+                    iDisc=AddAttribute( PK_File, iDisc, 7, DiscID);
+                    iCategory=AddAttribute( PK_File, iCategory, 8, Category);
+                    iGenre=AddAttribute( PK_File, iGenre, 8, Genre);
                     AddPicture( PK_File, iAlbum, Path + "cover.jpg" );
                 }
                 else
@@ -590,7 +586,6 @@ listMediaAttribute *MediaAttributes::AttributesFromString( string Input )
         mi->PK_Attribute = atoi( StringUtils::Tokenize( Input, "|", pos ).c_str( ) );
         mi->PK_AttributeType = atoi( StringUtils::Tokenize( Input, "|", pos ).c_str( ) );
         mi->Name = StringUtils::Tokenize( Input, "|", pos );
-        mi->FirstName = StringUtils::Tokenize( Input, "|", pos );
         if( !mi->PK_Attribute && !mi->PK_AttributeType )
         {
             delete mi;
@@ -611,7 +606,6 @@ string MediaAttributes::AttributesToString( listMediaAttribute *plistMediaAttrib
         Result += StringUtils::itos( mi->PK_Attribute ) + "|";
         Result += StringUtils::itos( mi->PK_AttributeType ) + "|";
         Result += mi->Name + "|";
-        Result += mi->FirstName + "|";
     }
 
     return Result;
@@ -1084,17 +1078,10 @@ void operator+= (deque<MediaFile *> &dTarget, deque<MediaFile *> &dAdditional)
         dTarget.push_back(dAdditional[s]);
 }
 
-Row_Attribute *MediaAttributes::GetAttributeFromDescription(int PK_AttributeType,string sName,string sFirstName)
+Row_Attribute *MediaAttributes::GetAttributeFromDescription(int PK_AttributeType,string sName)
 {
 	string::size_type posTab;
-	if( sFirstName.size()==0 && (posTab=sName.find('\t'))!=string::npos )
-	{
-		sFirstName = sName.substr(posTab+1);
-		sName = sName.substr(0,posTab-1);
-	}
 	string sWhere = "FK_AttributeType=" + StringUtils::itos(PK_AttributeType) + " AND Name='" + StringUtils::SQLEscape(sName) + "'";
-	if( sFirstName.size() )
-		sWhere += " AND FirstName='" + StringUtils::SQLEscape(sFirstName) + "'";
 
 	vector<Row_Attribute *> vectRow_Attribute;
 	m_pDatabase_pluto_media->Attribute_get()->GetRows(sWhere,&vectRow_Attribute);
@@ -1105,7 +1092,6 @@ Row_Attribute *MediaAttributes::GetAttributeFromDescription(int PK_AttributeType
 		Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->AddRow();
 		pRow_Attribute->FK_AttributeType_set(PK_AttributeType);
 		pRow_Attribute->Name_set(sName);
-		pRow_Attribute->FirstName_set(sFirstName);
 		pRow_Attribute->Table_Attribute_get()->Commit();
 		return pRow_Attribute;
 	}

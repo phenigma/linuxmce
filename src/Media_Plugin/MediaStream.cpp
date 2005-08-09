@@ -337,17 +337,17 @@ void MediaStream::UpdateDescriptionsFromAttributes()
 
 		string sDescription;
 		if( l_pRow_Attribute_Title && l_pRow_Attribute_Title!=pRow_Attribute_Title )
-			sDescription = pMedia_Plugin->m_pMediaAttributes->GetPrintableName(l_pRow_Attribute_Title);
+			sDescription = l_pRow_Attribute_Title->Name_get();
 		else
 		{
 			if( l_pRow_Attribute_Performer && l_pRow_Attribute_Performer!=pRow_Attribute_Performer )
-				sDescription = pMedia_Plugin->m_pMediaAttributes->GetPrintableName(l_pRow_Attribute_Performer);
+				sDescription = l_pRow_Attribute_Performer->Name_get();
 
 			if( l_pRow_Attribute_Album && l_pRow_Attribute_Album!=pRow_Attribute_Album )
 			{
 				if( sDescription.size() )
 					sDescription += "\n";
-				sDescription += pMedia_Plugin->m_pMediaAttributes->GetPrintableName(l_pRow_Attribute_Album);
+				sDescription += l_pRow_Attribute_Album->Name_get();
 			}
 		}
 
@@ -355,7 +355,7 @@ void MediaStream::UpdateDescriptionsFromAttributes()
 		{
 			if( sDescription.size() )
 				sDescription += "\n";
-			sDescription += pMedia_Plugin->m_pMediaAttributes->GetPrintableName(l_pRow_Attribute_Song);
+			sDescription += l_pRow_Attribute_Song->Name_get();
 		}
 		pMediaFile->m_sDescription = sDescription;
 	}
@@ -363,17 +363,17 @@ void MediaStream::UpdateDescriptionsFromAttributes()
 
 	// Only show title or album/performer, not both
 	if( pRow_Attribute_Title )
-		sDescription = pMedia_Plugin->m_pMediaAttributes->GetPrintableName(pRow_Attribute_Title);
+		sDescription = pRow_Attribute_Title->Name_get();
 	else
 	{
 		if( pRow_Attribute_Performer )
-			sDescription = pMedia_Plugin->m_pMediaAttributes->GetPrintableName(pRow_Attribute_Performer);
+			sDescription = pRow_Attribute_Performer->Name_get();
 
 		if( pRow_Attribute_Album )
 		{
 			if( sDescription.size() )
 				sDescription += "\n";
-			sDescription += pMedia_Plugin->m_pMediaAttributes->GetPrintableName(pRow_Attribute_Album);
+			sDescription += pRow_Attribute_Album->Name_get();
 		}
 	}
 
@@ -381,7 +381,7 @@ void MediaStream::UpdateDescriptionsFromAttributes()
 	{
 		if( sDescription.size() )
 			sDescription += "\n";
-		sDescription += pMedia_Plugin->m_pMediaAttributes->GetPrintableName(pRow_Attribute_Song);
+		sDescription += pRow_Attribute_Song->Name_get();
 	}
 
 	if( sDescription.size() )
