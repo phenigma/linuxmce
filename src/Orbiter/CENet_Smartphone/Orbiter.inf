@@ -1,0 +1,39 @@
+[Version]
+Signature   = "$Windows NT$"        ; required as-is
+Provider    = "Pluto"           ; maximum of 30 characters, full app name will be "<Provider> <AppName>"
+CESignature = "$Windows CE$"        ; required as-is
+ 
+[CEStrings]
+AppName     = "Pluto Orbiter"        ; maximum of 40 characters, full app name will be "<Provider> <AppName>"
+InstallDir  = %CE1%\%AppName%       ; Program Files\Mine Sweeper
+ 
+[SourceDisksNames]                  ; directory that holds the application's files
+1 = , ".",,"C:\Temp\plutomo\"        ; 1 = , "Common Files",,Common
+ 
+[SourceDisksFiles]                  ; list of files to be included in .cab
+OrbiterSmartphone.exe = 1
+AYGSHELL.DLL = 1
+PthreadsCE.DLL = 1
+logo.gif = 1
+ 
+[DefaultInstall]                    ; operations to be completed during install
+CopyFiles   = CopyToProgramFiles
+AddReg      = RegData
+CEShortcuts = Shortcuts   
+ 
+[DestinationDirs]                   ; default destination directories for each operation section
+CopyToProgramFiles    = 0, %InstallDir%
+Shortcuts   = 0, "%CE14%"    ; \Windows\Start Menu\Programs\Games
+ 
+[CopyToProgramFiles]                ; copy operation file list
+"PlutoMO.exe", OrbiterSmartphone.exe 
+"AYGSHELL.DLL", AYGSHELL.DLL 
+"PthreadsCE.dll", PthreadsCE.DLL 
+"logo.gif", logo.gif 
+ 
+[RegData]                           ; registry key list
+HKCU,Software\%AppName%,MajorVersion,0x00010001,2
+HKCU,Software\%AppName%,MinorVersion,0x00010001,26
+ 
+[Shortcuts]                         ; Shortcut created in destination dir, %CE14%
+%AppName%,0,PlutoMO.exe

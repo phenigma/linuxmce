@@ -227,7 +227,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 						g_pPlutoLogger = new WinOrbiterLogger(g_hWndList);
 					else
                     {
-                        //purge the log everytime orbiter starts.
+#ifndef DEBUG    
                         #ifdef WINCE
                             wchar_t LoggerFileNameW[256];
                             mbstowcs(LoggerFileNameW, sLogger.c_str(), 256);
@@ -235,7 +235,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
                         #else
                             ::DeleteFile(sLogger.c_str());
                         #endif		
-
+#endif
 						g_pPlutoLogger = new FileLogger(sLogger.c_str());
                     }
 			}
