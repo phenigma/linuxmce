@@ -37,7 +37,7 @@
 #define DEVICETEMPLATE_Orbiter_Plugin_CONST 12
 #define DEVICETEMPLATE_Bluetooth_Dongle_CONST 13
 #define DEVICETEMPLATE_Lutron_Homeworks_Interactive_CONST 14
-#define DEVICETEMPLATE_Nokia_36503660_CONST 24
+#define DEVICETEMPLATE_Symbian_Series_60_mobile_CONST 24
 #define DEVICETEMPLATE_Lutron_Radio_RA_CONST 25
 #define DEVICETEMPLATE_App_Server_CONST 26
 #define DEVICETEMPLATE_General_Info_Plugin_CONST 27
@@ -77,7 +77,7 @@
 #define DEVICETEMPLATE_OnScreen_Orbiter_CONST 62
 #define DEVICETEMPLATE_MythTV_Backend_Proxy_CONST 63
 #define DEVICETEMPLATE_Motion_Wrapper_CONST 64
-#define DEVICETEMPLATE_Generic_Analog_Camera_CONST 66
+#define DEVICETEMPLATE_Generic_Camera_CONST 66
 #define DEVICETEMPLATE_Generic_Blackbird_Card_CONST 67
 #define DEVICETEMPLATE_Drapes_Switch_CONST 68
 #define DEVICETEMPLATE_Generic_Serial_Device_CONST 69
