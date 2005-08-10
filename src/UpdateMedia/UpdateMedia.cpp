@@ -384,7 +384,7 @@ void UpdateMedia::UpdateSearchTokens()
 			string::size_type pos=0;
 			while( pos<sName.size() )
 			{
-				string Token=StringUtils::ToUpper( StringUtils::Tokenize( sName, " ", pos ) );
+				string Token=StringUtils::UpperAZ09Only( StringUtils::Tokenize( sName, " ", pos ) );
 				if( Token.length( )==0 )
 					continue;
 				SQL = "SELECT PK_SearchToken FROM SearchToken WHERE Token='" +
@@ -393,11 +393,9 @@ void UpdateMedia::UpdateSearchTokens()
 				if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row2=mysql_fetch_row( result.r ) ) )
 				{
 					PK_SearchToken = atoi( row2[0] );
-					printf( "Found token ( %d ): %s\n", PK_SearchToken, Token.c_str( ) );
 				}
 				else
 				{
-					printf( "Didn't find token: %d %s ( %s )\n", PK_SearchToken, Token.c_str( ), SQL.c_str( ) );
 					SQL = "INSERT INTO SearchToken( Token ) VALUES( '" +
 						StringUtils::SQLEscape( Token ) + "' )";
 					PK_SearchToken = m_pDatabase_pluto_media->threaded_mysql_query_withID( SQL );

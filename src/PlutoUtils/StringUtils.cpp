@@ -810,3 +810,17 @@ string StringUtils::makeUpPlayerAddressFromPlayerId(unsigned int playerId)
 }
 
 #endif //#ifndef SYMBIAN
+
+string StringUtils::UpperAZ09Only(string &sInput)
+{
+	string sOutput;
+	for(int i=0;i<sInput.size();++i)
+	{
+		if( (sInput[i]>='0' && sInput[i]<='9') || (sInput[i]>='A' && sInput[i]<='Z') )
+			sOutput+=sInput[i];
+		else if( sInput[i]>='a' && sInput[i]<='z' )
+			sOutput+=sInput[i]-32;
+	}
+	return sOutput;
+}
+

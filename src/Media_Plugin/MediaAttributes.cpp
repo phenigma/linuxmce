@@ -624,7 +624,11 @@ void operator+= (deque<MediaFile *> &dTarget, deque<MediaFile *> &dAdditional)
 Row_Attribute *MediaAttributes::GetAttributeFromDescription(int PK_MediaType,int PK_AttributeType,string sName)
 {
 	vector<Row_Attribute *> vectRow_Attribute;
-	Row_MediaType_AttributeType *pMediaType_AttributeType = m_pDatabase_pluto_media->MediaType_AttributeType_get()->GetRow(PK_MediaType,PK_AttributeType);
+	Row_MediaType_AttributeType *pMediaType_AttributeType = NULL;
+	if( PK_MediaType==MEDIATYPE_pluto_CD_CONST )
+		pMediaType_AttributeType = m_pDatabase_pluto_media->MediaType_AttributeType_get()->GetRow(MEDIATYPE_pluto_StoredAudio_CONST,PK_AttributeType);
+	else
+		pMediaType_AttributeType = m_pDatabase_pluto_media->MediaType_AttributeType_get()->GetRow(PK_MediaType,PK_AttributeType);
 	if( pMediaType_AttributeType && pMediaType_AttributeType->CombineAsOne_get()==1 )
 	{
 		string::size_type posTab;
@@ -700,7 +704,7 @@ int MediaAttributes::AddIdentifiedDiscToDB(string sIdentifiedDisc,MediaStream *p
 			" JOIN Disc_Attribute ON FK_Attribute=PK_Attribute"
 			" JOIN Disc ON FK_Disc=PK_Disc"
 			" JOIN MediaType_AttributeType ON Attribute.FK_AttributeType=MediaType_AttributeType.FK_AttributeType"
-			" AND MediaType_AttributeType.EK_MediaType=Disc.EK_MediaType"
+			" AND MediaType_AttributeType.EK_MediaType=" + StringUtils::itos(pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST ? MEDIATYPE_pluto_StoredAudio_CONST : pMediaStream->m_iPK_MediaType) +
 			" WHERE PK_Disc=" + StringUtils::itos(pRow_Disc->PK_Disc_get()) + " AND Identifier=1";
 		vector<Row_Attribute *> vectRow_Attribute;
 		m_pDatabase_pluto_media->Attribute_get()->GetRows(sWhere,&vectRow_Attribute);
@@ -890,7 +894,7 @@ void MediaAttributes::UpdateSearchTokens(Row_Attribute *pRow_Attribute)
         while( ptr && *ptr )
         {
             string s( ptr );
-            string Token=StringUtils::ToUpper( StringUtils::Tokenize( s, " ", pos ) );
+            string Token=StringUtils::UpperAZ09Only( StringUtils::Tokenize( s, " ", pos ) );
             if( Token.length( )==0 )
                 break;
             SQL = "SELECT PK_SearchToken FROM SearchToken WHERE Token='" +
@@ -899,11 +903,9 @@ void MediaAttributes::UpdateSearchTokens(Row_Attribute *pRow_Attribute)
             if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row2=mysql_fetch_row( result.r ) ) )
             {
                 PK_SearchToken = atoi( row2[0] );
-                printf( "Found token ( %d ): %s\n", PK_SearchToken, Token.c_str( ) );
             }
             else
             {
-                printf( "Didn't find token: %d %s ( %s )\n", PK_SearchToken, Token.c_str( ), SQL.c_str( ) );
                 SQL = "INSERT INTO SearchToken( Token ) VALUES( '" +
                     StringUtils::SQLEscape( Token ) + "' )";
                 PK_SearchToken = m_pDatabase_pluto_media->threaded_mysql_query_withID( SQL );

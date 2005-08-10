@@ -1620,18 +1620,22 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
     FileListGrid *pDataGrid = new FileListGrid( m_pDatagrid_Plugin, this );
     DataGridCell *pCell;
 
-    if( Parms.length( )==0 )
-        return pDataGrid; // Nothing passed in yet
-
 	string::size_type pos=0;
 	int PK_MediaType = atoi(StringUtils::Tokenize(Parms,"|",pos).c_str());
 	string AC = StringUtils::Tokenize(Parms,"|",pos);
 
-    string SQL = "select PK_Attribute, Name, Description FROM Attribute " \
+	if( AC.length( )==0 )
+        return pDataGrid; // Nothing passed in yet
+
+    string SQL = "select DISTINCT PK_Attribute, Name, Description, FK_Picture FROM Attribute " \
+		"JOIN File_Attribute ON FK_Attribute=PK_Attribute "\
+		"JOIN File ON File_Attribute.FK_File=PK_File "\
         "JOIN AttributeType ON Attribute.FK_AttributeType=PK_AttributeType "\
         "JOIN MediaType_AttributeType ON MediaType_AttributeType.FK_AttributeType=PK_AttributeType "\
+		"LEFT JOIN Picture_File ON Picture_File.FK_File=File.PK_File "\
         "WHERE Name Like '" + AC + "%' AND Identifier>0 " +
-		" AND EK_MediaType=" + StringUtils::itos(PK_MediaType) +
+		" AND MediaType_AttributeType.EK_MediaType=" + StringUtils::itos(PK_MediaType) +
+		" AND File.EK_MediaType=" + StringUtils::itos(PK_MediaType) +
         " ORDER BY Name limit 30;";
 
     PlutoSqlResult result;
@@ -1647,6 +1651,12 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
             string label = /* string( "~`S24`" ) + */ row[1];
             label += string( "\n" ) + row[2];
             pCell = new DataGridCell( "", row[0] );
+			if( row[3] && row[3][0]!='0' )
+			{
+				size_t st=0;
+				pCell->m_pGraphicData = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + string(row[3]) + "_tn.jpg",st);
+				pCell->m_GraphicLength=st;
+			}
             pDataGrid->SetData( 0, RowCount, pCell );
 
             if( AttributesFirstSearch.length() )
@@ -1660,14 +1670,18 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
         }
     }
 
-    SQL = "select PK_Attribute, Name, Description FROM SearchToken "\
+    SQL = "select DISTINCT PK_Attribute, Name, Description, FK_Picture FROM SearchToken "\
         "JOIN SearchToken_Attribute ON PK_SearchToken=FK_SearchToken "\
         "JOIN Attribute ON SearchToken_Attribute.FK_Attribute=PK_Attribute "\
         "JOIN AttributeType ON Attribute.FK_AttributeType=PK_AttributeType "\
+		"JOIN File_Attribute ON File_Attribute.FK_Attribute=PK_Attribute "\
+		"JOIN File ON File_Attribute.FK_File=PK_File "\
         "JOIN MediaType_AttributeType ON MediaType_AttributeType.FK_AttributeType=PK_AttributeType "\
+		"LEFT JOIN Picture_File ON Picture_File.FK_File=File.PK_File "\
         "WHERE Token like '" + AC + "%' " +
 		(AttributesFirstSearch.length() ? "AND PK_Attribute NOT IN (" + AttributesFirstSearch + ") " : "") +
-		" AND EK_MediaType=" + StringUtils::itos(PK_MediaType) +
+		" AND MediaType_AttributeType.EK_MediaType=" + StringUtils::itos(PK_MediaType) +
+		" AND File.EK_MediaType=" + StringUtils::itos(PK_MediaType) +
 		" ORDER BY Name "\
         "limit 30;";
 
@@ -1678,6 +1692,12 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
             string label = /*string( "~`S24`" ) + */ row[1];
             label += string( "\n" ) + row[2];
             pCell = new DataGridCell( "", row[0] );
+			if( row[3] && row[3][0]!='0' )
+			{
+				size_t st=0;
+				pCell->m_pGraphicData = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + string(row[3]) + "_tn.jpg",st);
+				pCell->m_GraphicLength=st;
+			}
             pDataGrid->SetData( 0, RowCount, pCell );
 
             pCell = new DataGridCell( label, row[0] );
@@ -3661,7 +3681,7 @@ void Media_Plugin::Parse_Misc_Media_ID(MediaStream *pMediaStream,string sValue)
 					PK_AttributeType==ATTRIBUTETYPE_Performer_CONST ||
 					PK_AttributeType==ATTRIBUTETYPE_Conductor_CONST ||
 					PK_AttributeType==ATTRIBUTETYPE_Composer_CONST )
-						StringUtils::Tokenize(sWholeName,";",pos);
+						sName=StringUtils::Tokenize(sWholeName,";",pos);
 				else
 				{
 					sName=sWholeName;
@@ -3669,6 +3689,8 @@ void Media_Plugin::Parse_Misc_Media_ID(MediaStream *pMediaStream,string sValue)
 				}
 
 				StringUtils::TrimSpaces(sName);
+				if( sName.size()==0 )
+					continue;
 
 				pRow_Attribute = m_pMediaAttributes->GetAttributeFromDescription(pMediaStream->m_iPK_MediaType,PK_AttributeType,sName);
 	g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::Parse_Misc_Media_ID added attribute %p %d %s",
@@ -3678,6 +3700,20 @@ void Media_Plugin::Parse_Misc_Media_ID(MediaStream *pMediaStream,string sValue)
 					m_pMediaAttributes->AddAttributeToStream(pMediaStream,pRow_Attribute,Track,0,Section);
 				else
 					m_pMediaAttributes->AddAttributeToStream(pMediaStream,pRow_Attribute,0,Track,Section);
+			}
+		}
+		if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
+		{
+			int PK_Attribute_Album = pMediaStream->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Album_CONST);
+			// For CD's be sure the album is stored with each track too
+			if( PK_Attribute_Album )
+			{
+				for(size_t s=0;s<pMediaStream->m_dequeMediaFile.size();++s)
+				{
+					MediaFile *pMediaFile = pMediaStream->m_dequeMediaFile[s];
+					if( pMediaFile->m_mapPK_Attribute.find(ATTRIBUTETYPE_Album_CONST)==pMediaFile->m_mapPK_Attribute.end() )
+						pMediaFile->m_mapPK_Attribute[ATTRIBUTETYPE_Album_CONST]=PK_Attribute_Album;
+				}
 			}
 		}
 		m_pMediaAttributes->AddIdentifiedDiscToDB(vectAttributes[0],pMediaStream);
@@ -4405,7 +4441,10 @@ void Media_Plugin::AddRippedDiscToDatabase(RippingJob *pRippingJob)
 			}
 
 			Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->AddRow();
-			pRow_File->EK_MediaType_set(pRippingJob->m_iPK_MediaType);
+			if( pRippingJob->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
+				pRow_File->EK_MediaType_set(MEDIATYPE_pluto_StoredAudio_CONST);
+			else
+				pRow_File->EK_MediaType_set(pRippingJob->m_iPK_MediaType);
 			pRow_File->Path_set( pRippingJob->m_sName );
 			pRow_File->Filename_set( FileUtils::FilenameWithoutPath(listFiles.front()) );
 			m_pDatabase_pluto_media->File_get()->Commit();
