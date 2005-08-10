@@ -58,9 +58,9 @@ void FileListGrid::ToData(string GridID,int &Size, char* &Data, int ColStart, in
 		DataGridCell *pCell = GetData(0,row);
 #ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS,"filelistgrid::row %d graphic data: %p rowstart: %d rowCount: %d totalrows: %d",
-	row,pCell->m_pGraphicData,RowStart,RowCount,m_TotalRows);
+	row,(pCell ? pCell->m_pGraphicData : NULL),RowStart,RowCount,m_TotalRows);
 #endif
-		if( (!pCell || !pCell->m_pGraphicData) && (!pCell || pCell->m_Text==NULL) ) // We haven't already set a picture for this cell.  Skip it if it's a cell with text
+		if( (!pCell || !pCell->m_pGraphicData) && (!pCell || pCell->m_Text==NULL || pCell->m_Text[0]==0) ) // We haven't already set a picture for this cell.  Skip it if it's a cell with text
 		{
 			string Extension,PictureFile;
 			int PKID_MED_Picture=0;

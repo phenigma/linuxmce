@@ -910,7 +910,7 @@ void MediaAttributes::UpdateSearchTokens(Row_Attribute *pRow_Attribute)
             }
             if( PK_SearchToken )
             {
-                SQL = "INSERT INTO SearchToken_Attribute VALUES( " +
+                SQL = "INSERT INTO SearchToken_Attribute(FK_SearchToken,FK_Attribute) VALUES( " +
                     StringUtils::itos( PK_SearchToken ) + ", " +
                     StringUtils::itos( PK_Attribute ) + " )";
                 m_pDatabase_pluto_media->threaded_mysql_query( SQL, true );

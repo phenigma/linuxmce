@@ -404,7 +404,7 @@ void UpdateMedia::UpdateSearchTokens()
 				}
 				if( PK_SearchToken )
 				{
-					SQL = "INSERT INTO SearchToken_Attribute VALUES( " +
+					SQL = "INSERT INTO SearchToken_Attribute(FK_SearchToken,FK_Attribute) VALUES( " +
 						StringUtils::itos( PK_SearchToken ) + ", " +
 						row[0] + " )";
 					m_pDatabase_pluto_media->threaded_mysql_query( SQL, true );
@@ -426,10 +426,10 @@ void UpdateMedia::UpdateThumbnails()
 			time_t tModTime=0,tTnModTime=0;
 #ifndef WIN32
 			struct stat64 dirEntryStat;
-            if ( stat64((string("/home/mediapics/") + row[0] + "." + row[1]).c_str(), &dirEntryStat) != 0 )
+            if ( stat64((string("/home/mediapics/") + row[0] + "." + row[1]).c_str(), &dirEntryStat) == 0 )
 				tModTime = dirEntryStat.st_mtime;
 
-            if ( stat64((string("/home/mediapics/") + row[0] + "_tn." + row[1]).c_str(), &dirEntryStat) != 0 )
+            if ( stat64((string("/home/mediapics/") + row[0] + "_tn." + row[1]).c_str(), &dirEntryStat) == 0 )
 				tTnModTime = dirEntryStat.st_mtime;
 #endif
 			if( tModTime>tTnModTime )
@@ -439,6 +439,15 @@ void UpdateMedia::UpdateThumbnails()
 				int result;
 				if( ( result=system( Cmd.c_str( ) ) )!=0 )
 					g_pPlutoLogger->Write( LV_CRITICAL, "Thumbnail picture %s returned %d", Cmd.c_str( ), result );
+			}
+			else if( tModTime==0 && tTnModTime==0 )
+			{
+				cout << "Picture " << row[0] << " missing.  Deleting all references" << endl;
+				m_pDatabase_pluto_media->threaded_mysql_query("DELETE FROM Picture WHERE PK_Picture=" + string(row[0]));
+				m_pDatabase_pluto_media->threaded_mysql_query("DELETE FROM Picture_Attribute WHERE FK_Picture=" + string(row[0]));
+				m_pDatabase_pluto_media->threaded_mysql_query("DELETE FROM Picture_Disc WHERE FK_Picture=" + string(row[0]));
+				m_pDatabase_pluto_media->threaded_mysql_query("DELETE FROM Picture_File WHERE FK_Picture=" + string(row[0]));
+				m_pDatabase_pluto_media->threaded_mysql_query("UPDATE Bookmark SET FK_Picture=NULL WHERE FK_Picture=" + string(row[0]));
 			}
 		}
 	}
