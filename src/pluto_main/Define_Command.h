@@ -642,6 +642,7 @@
 #define COMMAND_Zoom_CONST 683
 #define COMMAND_Zoom_In_CONST 684
 #define COMMAND_Zoom_Out_CONST 685
+#define COMMAND_Display_Dialog_Box_On_Orbiter_CONST 686
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
