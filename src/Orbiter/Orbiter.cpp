@@ -7309,8 +7309,12 @@ void Orbiter::CMD_Send_Message(string sText,string &sCMD_Result,Message *pMessag
 //<-dceag-c389-e->
 {
 	string sMessage = SubstituteVariables(sText,NULL,0,0);
-	Message *pMessageOut = new Message(sMessage);
-	QueueMessageToRouter(pMessageOut);
+
+    if(sMessage != "")
+    {
+        Message *pMessageOut = new Message(sMessage);
+        QueueMessageToRouter(pMessageOut);
+    }
 }
 
 void Orbiter::ResetState(DesignObj_Orbiter *pObj, bool bDontResetState)

@@ -970,7 +970,7 @@ g_pPlutoLogger->Write(LV_STATUS,"setting process flag to false");
 	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL( m_dwPK_Device, m_sPK_Device_AllOrbiters, StringUtils::itos(DESIGNOBJ_mnuNewPhoneDetected_CONST), "" );
     SendCommand(CMD_Remove_Screen_From_History_DL);
 
-	DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T" + StringUtils::itos(TEXT_instructions_CONST) + "%>",false);
+    DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T" + StringUtils::itos(TEXT_instructions_CONST) + "%>",false);
 	m_bNoUnknownDeviceIsProcessing = false;
     ProcessUnknownDevice();
 }
@@ -1912,3 +1912,31 @@ void Orbiter_Plugin::CMD_Display_Message_On_Orbiter(string sText,string sPK_Devi
 	DisplayMessageOnOrbiter(sPK_Device_List,sText,false,60,true);
 }
 
+//<-dceag-c686-b->
+
+	/** @brief COMMAND: #686 - Display Dialog Box On Orbiter */
+	/** Display a dialog box on orbiters, or all orbiter, with 0-4 custom buttons. */
+		/** @param #9 Text */
+			/** The message to display */
+		/** @param #39 Options */
+			/** A pipe delimited list with options and messages like this: option1|message1|options2|message2 */
+		/** @param #103 PK_Device_List */
+			/** A comma delimited list of orbiters, or all orbiters if empty */
+
+void Orbiter_Plugin::CMD_Display_Dialog_Box_On_Orbiter(string sText,string sOptions,string sPK_Device_List,string &sCMD_Result,Message *pMessage)
+//<-dceag-c686-e->
+{
+    //allows to user to use MessageSend tool, with ' instead of "
+    sOptions = StringUtils::Replace(sOptions, "'", "\""); 
+
+    vector<string> vectOptions;
+    StringUtils::Tokenize(sOptions, "|", vectOptions);
+
+    //fill the rest of parameters with weren't specified
+    while(vectOptions.size() < 8)
+        vectOptions.push_back("");
+
+    DisplayMessageOnOrbiter(sPK_Device_List, sText, false, 0, false,
+        vectOptions[0], vectOptions[1], vectOptions[2], vectOptions[3], 
+        vectOptions[4], vectOptions[5], vectOptions[6], vectOptions[7]);
+}

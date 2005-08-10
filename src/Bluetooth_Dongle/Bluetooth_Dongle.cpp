@@ -50,6 +50,7 @@ using namespace DCE;
 #include "../pluto_main/Define_Command.h"
 #include "../pluto_main/Define_DeviceCategory.h"
 #include "../pluto_main/Define_DeviceData.h"
+#include "../pluto_main/Define_Text.h"
 
 #include "../Orbiter/Orbiter.h"
 #include "../Orbiter/SDL_Bluetooth/StartOrbiterSDLBluetooth.h"
@@ -795,40 +796,48 @@ void Bluetooth_Dongle::CMD_Send_File_To_Device(string sFilename,string sMac_addr
 //<-dceag-c80-e->
 {
 	g_pPlutoLogger->Write( LV_STATUS, "Send File: %s to %s", sFilename.c_str(), sMac_address.c_str() );
-	
-#ifndef _WIN32
-	//sleep( 10 );
-	
-	string ObexPushScriptPath = "/usr/pluto/bin/";//TODO
-	string Command = ObexPushScriptPath + "PhoneInstall.sh ";
-		
+
+    bool bFailed = false;
+    string Command;
+	string ObexPushScriptPath = "/usr/pluto/bin/";
+
+    Command += ObexPushScriptPath + "PhoneInstall.sh ";
 	Command += sMac_address + " ";
-	Command += "/usr/pluto/bin/" + sFilename;
+	Command += ObexPushScriptPath + sFilename;
 
-	//linux only
-    int Retries = 5;
+    g_pPlutoLogger->Write(LV_WARNING, "Executing command: %s", Command.c_str());
+    int ret = system( Command.c_str() );
 
-    while(Retries--)
+    if(ret == -1)
     {
-        g_pPlutoLogger->Write(LV_WARNING, "Executing command: %s", Command.c_str());
-        int ret = system( Command.c_str() );
-
-        if(ret == -1)
-        {
-            g_pPlutoLogger->Write(LV_CRITICAL, "Script not found.");
-            break;
-        } 
-        else if(ret == 0)
-        {
-            g_pPlutoLogger->Write(LV_WARNING, "File uploaded successfully.");
-            break;
-        }
-        else 
-        {
-            g_pPlutoLogger->Write(LV_WARNING, "Failed to upload the file to the phone. Returned code: %d", ret);
-        }
+        bFailed = true;
+        g_pPlutoLogger->Write(LV_CRITICAL, "Script not found.");
+    } 
+    else if(ret == 0)
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "File uploaded successfully.");
     }
-#endif
+    else 
+    {
+        bFailed = true;
+        g_pPlutoLogger->Write(LV_WARNING, "Failed to upload the file to the phone. Returned code: %d", ret);
+    }
+
+    if(bFailed)
+    {
+        CMD_Display_Dialog_Box_On_Orbiter CMD_Display_Dialog_Box_On_Orbiter_(m_dwPK_Device, pMessage->m_dwPK_Device_From, 
+            "<%=T" + StringUtils::itos(TEXT_FAILED_TO_UPLOAD_SIS_FILE_CONST) + "%>",
+            "Yes|" + StringUtils::ltos(pMessage->m_dwPK_Device_From) + " " + StringUtils::itos(m_dwPK_Device) + " 1 80 13 '" + sFilename + "' 47 '" + sMac_address + "' 58 '" + sIP_Address + "'|No|",
+            "" //all orbiters
+        );
+        SendCommand(CMD_Display_Dialog_Box_On_Orbiter_);
+    }
+    else
+    {
+        CMD_Display_Message_On_Orbiter CMD_Display_Message_On_Orbiter_(m_dwPK_Device, pMessage->m_dwPK_Device_From, 
+            "<%=T" + StringUtils::itos(TEXT_instructions_CONST) + "%>", "");
+        SendCommand(CMD_Display_Message_On_Orbiter_);
+    }
 }
 
 //<-dceag-createinst-b->!

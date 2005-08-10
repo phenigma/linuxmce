@@ -20,10 +20,10 @@ const char *g_szCompile_Date="<=compile_date=>";
 
 extern HWND	g_hWndList; //maindialog logger list
 
-#ifdef WIN32
-    static const string g_sOrbiterConfName = "Orbiter.conf";
-#else
+#ifdef WINCE
     static const string g_sOrbiterConfName = "Orbiter.txt";
+#else
+    static const string g_sOrbiterConfName = "Orbiter.conf";
 #endif
 
 #ifdef POCKETFROG

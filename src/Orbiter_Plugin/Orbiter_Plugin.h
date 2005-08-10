@@ -422,6 +422,19 @@ public:
 	virtual void CMD_Display_Message_On_Orbiter(string sText,string sPK_Device_List,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #686 - Display Dialog Box On Orbiter */
+	/** Display a dialog box on orbiters, or all orbiter, with 0-4 custom buttons. */
+		/** @param #9 Text */
+			/** The message to display */
+		/** @param #39 Options */
+			/** A pipe delimited list with options and messages like this: option1|message1|options2|message2 */
+		/** @param #103 PK_Device_List */
+			/** A comma delimited list of orbiters, or all orbiters if empty */
+
+	virtual void CMD_Display_Dialog_Box_On_Orbiter(string sText,string sOptions,string sPK_Device_List) { string sCMD_Result; CMD_Display_Dialog_Box_On_Orbiter(sText.c_str(),sOptions.c_str(),sPK_Device_List.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Display_Dialog_Box_On_Orbiter(string sText,string sOptions,string sPK_Device_List,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 };
 

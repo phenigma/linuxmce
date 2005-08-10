@@ -508,9 +508,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				//configuration info
                 if(g_bSmartPhone)
                 {
-                    CreateLabel(hWnd, 10, 10, 10, "1. "); 
+                    CreateLabel(hWnd, 10, 10, 13, "1. "); 
                     g_hWnd_FullScreenCheckBox = CreateCheckBox(hWnd, 25, 10, "Full screen", 120);
-                    CreateLabel(hWnd, 10, 30, 10, "2. "); 
+                    CreateLabel(hWnd, 10, 33, 13, "2. "); 
                     g_hWnd_LogToServerCheckBox = CreateCheckBox(hWnd, 25, 30, "Log to server for debugging", 120, 40);
                     CreateLabel(hWnd, 10, 75, 90, "3. Device ID:");	
                     g_hWnd_DeviceIDEdit = CreateEdit(hWnd, 105, 75, 50, "", true, true);
@@ -519,7 +519,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     CreateLabel(hWnd, 10, 140, 100, "5. Apply");	
                     CreateLabel(hWnd, 10, 160, 100, "6. Exit");	
 
-					//todo: why is this wrong on smartphones?
 					g_OldEditWndProc = ::GetWindowLong(g_hWnd_DeviceIDEdit, GWL_WNDPROC);
                     ::SetWindowLong(g_hWnd_DeviceIDEdit, GWL_WNDPROC, reinterpret_cast<long>(EditWndProc));
                     ::SetWindowLong(g_hWnd_RouterIPEdit, GWL_WNDPROC, reinterpret_cast<long>(EditWndProc));
@@ -594,9 +593,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				g_hWndRandom_StopButton = CreateButton(g_hWndPage3, 120, 230, "&Stop");
 
 				::SetWindowLong(g_hWndPage3, GWL_WNDPROC, reinterpret_cast<long>(PagesWndProc));
-
 				SetActivePage(piLogger);
-
 				LoadUI_From_ConfigurationData();
 			}
 			break;
