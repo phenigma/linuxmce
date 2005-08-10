@@ -896,7 +896,7 @@ void Orbiter_Plugin::CMD_New_Mobile_Orbiter(int iPK_Users,int iPK_DeviceTemplate
 //<-dceag-c78-e->
 {
     if( !iPK_DeviceTemplate )
-        iPK_DeviceTemplate = DEVICETEMPLATE_Nokia_36503660_CONST;  // hack - todo fix this
+        iPK_DeviceTemplate = DEVICETEMPLATE_Symbian_Series_60_mobile_CONST;  // hack - todo fix this
 //		send orbiter to prompt for mobile phone model
 
     printf("CMD_New_Mobile_Orbiter\n");

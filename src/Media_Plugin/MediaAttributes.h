@@ -61,6 +61,15 @@ public:
 typedef list<MediaAttribute *> listMediaAttribute;
 typedef list<MediaPicture *> listMediaPicture;
 
+/* For table: MediaType_AttributeType, Identifier means:
+1=this attribute should be included when identifying the media.  For music, song, artist
+2=this attribute should be included when identifying a collection of the media.  For music, album
+3=this attribute is worth mentioning, but don't include it as a primary identifier (genre, etc.)
+
+CombineAsOne, if 1, then if there are 2 files with the same attribute they will share the same entry in
+the attribute table.  If 0, there will be 2 entries in the attribute table with the same value
+*/
+
 /**
  * @brief documentation
  * @todo ask

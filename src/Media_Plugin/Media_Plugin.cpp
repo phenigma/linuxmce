@@ -2444,7 +2444,7 @@ void Media_Plugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string 
     	pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pEntertainArea->m_pMediaStream);
 	}
 
-	MediaInfoChanged(pEntertainArea->m_pMediaStream,false);  // Refresh the screen and re-draw the grid
+	MediaInfoChanged(pEntertainArea->m_pMediaStream,true);  // Refresh the screen and re-draw the grid
 //  StartMediaByPositionInPlaylist(pEntertainArea, pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos, 0, 0);
 }
 //<-dceag-c214-b->
@@ -4373,7 +4373,10 @@ void Media_Plugin::AddRippedDiscToDatabase(RippingJob *pRippingJob)
 	if( FileUtils::DirExists(pRippingJob->m_sName) )
 	{
 		Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->AddRow();
-		pRow_File->EK_MediaType_set(pRippingJob->m_iPK_MediaType);
+		if( pRippingJob->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
+			pRow_File->EK_MediaType_set(MEDIATYPE_pluto_StoredAudio_CONST);
+		else
+			pRow_File->EK_MediaType_set(pRippingJob->m_iPK_MediaType);
 		pRow_File->Path_set( FileUtils::BasePath(pRippingJob->m_sName) );
 		pRow_File->Filename_set( FileUtils::FilenameWithoutPath(pRippingJob->m_sName) );
 		pRow_File->IsDirectory_set(1);
