@@ -612,7 +612,7 @@ class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string 
 		pDataGrid->SetData( 0, s, pCellIcon );
 		pDataGrid->SetData( 1, s, pCellText );
 
-		string sMessage = "0 " + StringUtils::itos(pDevice_Orbiter_OSD->m_dwPK_Device) + " 1 4 16 " + StringUtils::itos(DESIGNOBJ_generic_app_with_options_CONST);
+		string sMessage = "0 " + StringUtils::itos(pDevice_Orbiter_OSD->m_dwPK_Device) + " 1 4 16 " + StringUtils::itos(DESIGNOBJ_generic_app_full_screen_CONST);
 		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,
 			pRow_Device_QuickStart->Binary_get(),"generic_app",pRow_Device_QuickStart->Arguments_get(),
 			sMessage,sMessage,true);
