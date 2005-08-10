@@ -142,7 +142,7 @@ void *GeneratorThread( void *p)
 		delay = iDelayMin + rand() % (iDelayMax - iDelayMin);
 		Simulator::SimulateActionDelay(delay);
 
-		if(Count == iButtonsPerClick)
+		if(Count >= iButtonsPerClick || !bGenerateKeyboardEvents)
 		{
 			Count = 0;
 
