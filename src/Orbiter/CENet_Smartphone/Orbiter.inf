@@ -23,7 +23,7 @@ CEShortcuts = Shortcuts
  
 [DestinationDirs]                   ; default destination directories for each operation section
 CopyToProgramFiles    = 0, %InstallDir%
-Shortcuts   = 0, "%CE14%"    ; \Windows\Start Menu\Programs\Games
+Shortcuts   = 0, "%CE17%"    ; WindowsStart Menu 
  
 [CopyToProgramFiles]                ; copy operation file list
 "PlutoMO.exe", OrbiterSmartphone.exe 
@@ -35,5 +35,5 @@ Shortcuts   = 0, "%CE14%"    ; \Windows\Start Menu\Programs\Games
 HKCU,Software\%AppName%,MajorVersion,0x00010001,2
 HKCU,Software\%AppName%,MinorVersion,0x00010001,26
  
-[Shortcuts]                         ; Shortcut created in destination dir, %CE14%
+[Shortcuts]                         ; Shortcut created in destination dir, %CE17%
 %AppName%,0,PlutoMO.exe
