@@ -538,7 +538,7 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
 			{
 				MediaFile *pMediaFile = new MediaFile(dequeFileNames[s]);
 				if( dequeFileNames.size()>1 )
-					pMediaFile->m_sDescription = "<%=T" + StringUtils::itos(TEXT_Unknown_Disc_CONST) + "%>" + StringUtils::itos(s+1);
+					pMediaFile->m_sDescription = "<%=T" + StringUtils::itos(TEXT_Unknown_Disc_CONST) + "%> " + StringUtils::itos(s+1);
 				else
 					pMediaFile->m_sDescription = "<%=T" + StringUtils::itos(TEXT_Unknown_Disc_CONST) + "%>";
 
@@ -1614,147 +1614,6 @@ g_pPlutoLogger->Write(LV_STATUS,"EA %d %s bound %d remotes",pEntertainArea->m_iP
     }
 }
 
-
-// #pragma warning( "put this in the mythtv plugin" )
-/*
-
-if( atoi( pEGO->Screen.c_str( ) )==OBJECT_MNUPVR_CONST )
-            {
-                pEntGroup->m_bPlutoTV=true;
-                if( !pEntGroup->m_pWatchingStream->pProvider_Station__Schedule )
-                {
-                    // This must be an md which defaults to non-pluto tv, and we're switching
-                    // to pluto tv for the first time
-                    // Stop this media, and restart it with PlutoTV
-                    pEntGroup->FindDefaultShowForController( pEGO->m_pDevice_Controller->m_ptrController_Iam, pEntGroup->m_pWatchingStream );
-                    if( pEntGroup->m_pWatchingStream->pProvider_Station__Schedule )
-                    {
-                        pEntGroup->m_pWatchingStream->m_Object_RemoteScreen=OBJECT_MNUPVR_CONST;
-                        pEntGroup->TurnOnAndTune( pEGO->m_pDevice_Controller->m_ptrController_Iam, pEntGroup->m_pWatchingStream->pProvider_Station__Schedule );
-                    }
-                    else
-                    {
-                        // Send the controller back to non-pluto tv
-                        // Do this within the queue because this can be called from within a mobile orbiter
-                        // show menu, and we don't want to loop right back around again
-                        pEntGroup->m_pWatchingStream->m_Object_RemoteScreen=OBJECT_MNUSATELLITECABLEBOX_CONST;
-                        AddMessageToQueue( new OCMessage( DEVICEID_SERVER, ( *SafetyMessage )->m_dwPK_Device_From, PRIORITY_NORMAL, MESSAGETYPE_COMMAND,
-                            ACTION_NAV_GOTO_CONST, 1, C_ACTIONPARAMETER_PK_OBJECT_HEADER_CONST, StringUtils::itos( OBJECT_MNUSATELLITECABLEBOX_CONST ).c_str( ) ) );
-                    }
-                }
-                pDeviceFrom->m_ptrController_Iam->SetVariable( VARIABLE_REMOTE_1_DEVICE_CONST, StringUtils::itos( pEntGroup->m_PK_EntGroup ) );
-                pDeviceFrom->m_ptrController_Iam->SetVariable( VARIABLE_PK_DEVICE_CONST, StringUtils::itos( pEntGroup->m_PK_EntGroup ) );
-            }
-            else if( atoi( pEGO->Screen.c_str( ) )==OBJECT_MNUSATELLITECABLEBOX_CONST ) // Non-pluto TV
-            {
-                if( pEntGroup->m_pWatchingStream )
-                    pEntGroup->m_pWatchingStream->m_Object_RemoteScreen=OBJECT_MNUSATELLITECABLEBOX_CONST;
-
-                pEntGroup->m_bPlutoTV=false;
-                pEGO->PVRInfo=( *SafetyMessage )->m_mapParameters[C_ACTIONPARAMETER_ID_PVR_SESSION_CONST];
-                m_pOCLogger->Write( LV_WARNING, "Switching to pvr with %s", pEGO->PVRInfo.c_str( ) );
-                if( pEGO->PVRInfo.length( )>1 ) // a tuner specified
-                {
-                    // Be sure the right inputs are set
-                    int PK_Device_Tuning = atoi( pEGO->PVRInfo.c_str( ) );
-                    if( pEntGroup->m_pWatchingStream )
-                        pEntGroup->m_pWatchingStream->m_PK_DeviceToSendTo=PK_Device_Tuning;
-                    ReceivedOCMessage( NULL, new OCMessage( ( *SafetyMessage )->m_dwPK_Device_From, PK_Device_Tuning,
-                        PRIORITY_NORMAL, MESSAGETYPE_COMMAND, ACTION_GEN_ON_CONST, 0 ) );
-
-                    // Help out the controller
-                    pDeviceFrom->m_ptrController_Iam->SetVariable( VARIABLE_REMOTE_1_DEVICE_CONST, StringUtils::itos( pEntGroup->m_pWatchingStream->m_PK_DeviceToSendTo ) );
-                    pDeviceFrom->m_ptrController_Iam->SetVariable( VARIABLE_PK_DEVICE_CONST, StringUtils::itos( pEntGroup->m_pWatchingStream->m_PK_DeviceToSendTo ) );
-                    if( pDeviceFrom->m_ptrController_Iam->m_pMobileOrbiter )
-                    {
-                        // Help out the mobile orbiter and send it back to it's menu
-                        pDeviceFrom->m_ptrController_Iam->GotoScreen( OBJECT_MNUSATELLITECABLEBOX_CONST );
-                    }
-                    return; // Nothing else to do--it's just a general notification
-                }
-                else
-                {
-                    if( pEntGroup->m_pWatchingStream )
-                    {
-                        Device *pDevice_Tuning=m_pPlutoEvents->m_mapDevice_Find( pEntGroup->m_pWatchingStream->m_PK_DeviceToSendTo );
-                        if( pDevice_Tuning && pDevice_Tuning->m_iPK_MasterDeviceList==MASTERDEVICELIST_ENTERTAIN_UNIT_CONST )
-                        {
-                            pEntGroup->m_pWatchingStream->m_PK_DeviceToSendTo=0; // This is no good anymore
-                            // We're coming to here after having been watching pluto tv
-                            // Figure out what tuning device to use
-                            if( pEntGroup->m_pWatchingStream->pProvider_Station__Schedule &&
-                                pEntGroup->m_pWatchingStream->pProvider_Station__Schedule->m_PK_Provider )
-                            {
-                                EPGProvider *pProvider = pEntGroup->m_mapProviders[pEntGroup->m_pWatchingStream->pProvider_Station__Schedule->m_PK_Provider];
-                                // The user was watching Pluto TV. Use that tuning device
-                                if( pProvider )
-                                    pEntGroup->m_pWatchingStream->m_PK_DeviceToSendTo = pProvider->m_PK_Device_TuningLive;
-                            }
-                        }
-                    }
-                    if( pEntGroup->m_pWatchingStream && !pEntGroup->m_pWatchingStream->m_PK_DeviceToSendTo )
-                    {
-m_pOCLogger->Write( LV_WARNING, "not watching anything, find a tuning device" );
-
-                        for( int i=0;i<( int ) pEntGroup->m_vectDevice_AV.size( );++i )
-                        {
-                            Device *pDevice = pEntGroup->m_vectDevice_AV[i];
-                            if( pDevice->m_iPK_DeviceCategory==DEVICECATEGORY_SATELLITE_CONST )
-                            {
-                                pEntGroup->m_pWatchingStream->m_PK_DeviceToSendTo = pDevice->m_dwPK_Device;
-                            }
-                        }
-                    }
-                    if( pEntGroup->m_pWatchingStream && pEntGroup->m_pWatchingStream->m_PK_DeviceToSendTo )
-                    {
-m_pOCLogger->Write( LV_WARNING, "setting tuning device to: %d", pEntGroup->m_pWatchingStream->m_PK_DeviceToSendTo );
-                        pDeviceFrom->m_ptrController_Iam->SetVariable( VARIABLE_REMOTE_1_DEVICE_CONST, StringUtils::itos( pEntGroup->m_pWatchingStream->m_PK_DeviceToSendTo ) );
-                        pDeviceFrom->m_ptrController_Iam->SetVariable( VARIABLE_PK_DEVICE_CONST, StringUtils::itos( pEntGroup->m_pWatchingStream->m_PK_DeviceToSendTo ) );
-                    }
-                }
-            }
-*/
-
-//<-dceag-sample-b->!
-
-/*
-    else if( ( *SafetyMessage )->m_MessageType==MESSAGETYPE_COMMAND && ( *SafetyMessage )->m_ID==ACTION_CREATED_MEDIA_CONST )
-    {
-        listMediaAttribute *listMA = MediaAttributes::AttributesFromString( ( *SafetyMessage )->m_Parameters[C_ACTIONPARAMETER_TEXT_CONST] );
-        listMediaPicture *listMP = MediaAttributes::PicturesFromString( ( *SafetyMessage )->m_Parameters[C_ACTIONPARAMETER_GRAPHIC_IMAGE_CONST] );
-        m_pMediaAttributes->CreatedMedia( atoi( ( *SafetyMessage )->m_Parameters[C_ACTIONPARAMETER_TYPE_CONST].c_str( ) ),
-            ( *SafetyMessage )->m_Parameters[C_ACTIONPARAMETER_PATH_CONST],
-            listMA, listMP );
-        delete listMA;
-        delete listMP;
-    }
-*/
-
-/*
-    string sMRL = ( *SafetyMessage )->m_Parameters[C_ACTIONPARAMETER_MEDIA_URL_CONST];
-        string sFilename = ( *SafetyMessage )->m_Parameters[C_ACTIONPARAMETER_FILE_NAME_CONST];
-        if( sFilename.length( )>0 )
-        {
-            if( sFilename[0]=='*' )
-            {
-                bPreview=true;
-                sFilename = sFilename.substr( 1 );
-            }
-            else if( sFilename[0]=='+' )
-            {
-                bAppend=true;
-                sFilename = sFilename.substr( 1 );
-            }
-            if( sFilename[0]=='#' )
-            {
-                int ID = atoi( sFilename.substr( 2 ).c_str( ) );
-                if( sFilename[1]=='F' )
-                    sFilename = m_pMediaAttributes->GetFilePathFromFileID( ID );
-                else if( sFilename[1]=='A' )
-                    sFilename = m_pMediaAttributes->GetFilePathsFromAttributeID( ID );
-            }
-        }
-*/
 
 class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
@@ -3776,7 +3635,7 @@ void Media_Plugin::Parse_Misc_Media_ID(MediaStream *pMediaStream,string sValue)
 	if( !m_pMediaAttributes->IsDiscAlreadyIdentified(vectAttributes[0],pMediaStream) )
 	{
 		Row_Attribute *pRow_Attribute;
-	    pRow_Attribute = m_pMediaAttributes->GetAttributeFromDescription(ATTRIBUTETYPE_Disc_ID_CONST,vectAttributes[0]); 
+	    pRow_Attribute = m_pMediaAttributes->GetAttributeFromDescription(pMediaStream->m_iPK_MediaType,ATTRIBUTETYPE_Disc_ID_CONST,vectAttributes[0]); 
 		pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Disc_ID_CONST] = pRow_Attribute->PK_Attribute_get();
 		for(size_t s=1;s<vectAttributes.size();++s)
 		{
@@ -3811,7 +3670,7 @@ void Media_Plugin::Parse_Misc_Media_ID(MediaStream *pMediaStream,string sValue)
 
 				StringUtils::TrimSpaces(sName);
 
-				pRow_Attribute = m_pMediaAttributes->GetAttributeFromDescription(PK_AttributeType,sName);
+				pRow_Attribute = m_pMediaAttributes->GetAttributeFromDescription(pMediaStream->m_iPK_MediaType,PK_AttributeType,sName);
 	g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::Parse_Misc_Media_ID added attribute %p %d %s",
 		pRow_Attribute, (pRow_Attribute ? pRow_Attribute->PK_Attribute_get() : 0), sName.c_str());
 
@@ -3843,7 +3702,7 @@ void Media_Plugin::Parse_CDDB_Media_ID(MediaStream *pMediaStream,string sValue)
 g_pPlutoLogger->Write(LV_STATUS,"Parse_CDDB_Media_ID not already id'd");
 
 		// The cddb info is space delimited
-	    pRow_Attribute = m_pMediaAttributes->GetAttributeFromDescription(ATTRIBUTETYPE_CDDB_CONST,StringUtils::Tokenize(sCDDBID," ",pos2)); 
+	    pRow_Attribute = m_pMediaAttributes->GetAttributeFromDescription(pMediaStream->m_iPK_MediaType,ATTRIBUTETYPE_CDDB_CONST,StringUtils::Tokenize(sCDDBID," ",pos2)); 
 		pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_CDDB_CONST] = pRow_Attribute->PK_Attribute_get();
 		int NumTracks=atoi(StringUtils::Tokenize(sCDDBID," ",pos2).c_str()); // cddb id
 
@@ -3851,21 +3710,21 @@ g_pPlutoLogger->Write(LV_STATUS,"Parse_CDDB_Media_ID not already id'd");
 		string s = StringUtils::Tokenize(sValue,"\t",pos);
 		if( s.size() )
 		{
-			pRow_Attribute = m_pMediaAttributes->GetAttributeFromDescription(ATTRIBUTETYPE_Performer_CONST,s); 
+			pRow_Attribute = m_pMediaAttributes->GetAttributeFromDescription(pMediaStream->m_iPK_MediaType,ATTRIBUTETYPE_Performer_CONST,s); 
 			pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Performer_CONST] = pRow_Attribute->PK_Attribute_get();
 		}
 
 		s = StringUtils::Tokenize(sValue,"\t",pos);
 		if( s.size() )
 		{
-			pRow_Attribute = m_pMediaAttributes->GetAttributeFromDescription(ATTRIBUTETYPE_Album_CONST,s); 
+			pRow_Attribute = m_pMediaAttributes->GetAttributeFromDescription(pMediaStream->m_iPK_MediaType,ATTRIBUTETYPE_Album_CONST,s); 
 			pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Album_CONST] = pRow_Attribute->PK_Attribute_get();
 		}
 
 		s = StringUtils::Tokenize(sValue,"\t",pos);
 		if( s.size() )
 		{
-			pRow_Attribute = m_pMediaAttributes->GetAttributeFromDescription(ATTRIBUTETYPE_Genre_CONST,s); 
+			pRow_Attribute = m_pMediaAttributes->GetAttributeFromDescription(pMediaStream->m_iPK_MediaType,ATTRIBUTETYPE_Genre_CONST,s); 
 			pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Genre_CONST] = pRow_Attribute->PK_Attribute_get();
 		}
 
@@ -3876,7 +3735,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Parse_CDDB_Media_ID not already id'd");
 			string str = StringUtils::Tokenize(sValue,"\t\n",pos);
 			if( str.size() )
 			{
-				pRow_Attribute = m_pMediaAttributes->GetAttributeFromDescription(ATTRIBUTETYPE_Song_CONST,str); 
+				pRow_Attribute = m_pMediaAttributes->GetAttributeFromDescription(pMediaStream->m_iPK_MediaType,ATTRIBUTETYPE_Song_CONST,str); 
 				pMediaFile->m_mapPK_Attribute[ATTRIBUTETYPE_Song_CONST] = pRow_Attribute->PK_Attribute_get();
 			}
 		}
@@ -3958,6 +3817,7 @@ void Media_Plugin::CMD_Set_Media_Attribute_Text(string sValue_To_Assign,int iEK_
 	{
 		pRow_Attribute->Name_set(sValue_To_Assign);
 		pRow_Attribute->Table_Attribute_get()->Commit();
+		m_pMediaAttributes->UpdateSearchTokens(pRow_Attribute);
 
 		for(MapMediaStream::iterator it=m_mapMediaStream.begin();it!=m_mapMediaStream.end();++it)
 		{
@@ -4274,7 +4134,7 @@ class DataGridTable *Media_Plugin::Bookmarks( string GridID, string Parms, void 
 		if( (pRow_Picture=pRow_Bookmark->FK_Picture_getrow())!=NULL )
 		{
 			size_t iSize;
-			char *pBuffer = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(pRow_Picture->PK_Picture_get()) + "." + pRow_Picture->Extension_get(),iSize);
+			char *pBuffer = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(pRow_Picture->PK_Picture_get()) + "_tn." + pRow_Picture->Extension_get(),iSize);
 			if( pBuffer )
 			{
 				pDataGridCell_Preview->m_pGraphicData = pBuffer;
@@ -4294,7 +4154,7 @@ class DataGridTable *Media_Plugin::Bookmarks( string GridID, string Parms, void 
 			if ( (result=attr_get( (pRow_File->Path_get() + "/" + pRow_File->Filename_get()).c_str( ), "PIC", value, &n, 0)) == 0 && (PK_Picture = atoi(value)) )
 			{
 				size_t iSize;
-				char *pBuffer = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(PK_Picture) + ".jpg",iSize);
+				char *pBuffer = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(PK_Picture) + "_tn.jpg",iSize);
 				if( pBuffer )
 				{
 					pDataGridCell_Cover->m_pGraphicData = pBuffer;
@@ -4335,7 +4195,7 @@ class DataGridTable *Media_Plugin::BookmarksByMediaType( string GridID, string P
 		if( (pRow_Picture=pRow_Bookmark->FK_Picture_getrow())!=NULL )
 		{
 			size_t iSize;
-			char *pBuffer = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(pRow_Picture->PK_Picture_get()) + "." + pRow_Picture->Extension_get(),iSize);
+			char *pBuffer = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(pRow_Picture->PK_Picture_get()) + "_tn." + pRow_Picture->Extension_get(),iSize);
 			if( pBuffer )
 			{
 				pDataGridCell->m_pGraphicData = pBuffer;
@@ -4415,23 +4275,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"size %d pos %d file %p %d",(int) pMediaStream
 	Row_Picture *pRow_Picture = NULL;
 	if( pData && iData_Size )
 	{
-		pRow_Picture = m_pDatabase_pluto_media->Picture_get()->AddRow();
-		pRow_Picture->Extension_set(StringUtils::ToLower(sFormat));
-		m_pDatabase_pluto_media->Picture_get()->Commit();
-
-		FILE *file = fopen( ("/home/mediapics/" + StringUtils::itos(pRow_Picture->PK_Picture_get()) + "." + StringUtils::ToLower(sFormat)).c_str(),"wb");
-		if( !file )
-		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot create bookmark pic file");
-			pRow_Picture->Delete();
-			m_pDatabase_pluto_media->Picture_get()->Commit();
-			pRow_Picture=NULL;
-		}
-		else
-		{
-			fwrite((void *) pData,iData_Size,1,file);
-			fclose(file);
-		}
+		pRow_Picture = m_pMediaAttributes->AddPicture(pData,iData_Size,sFormat);
 	}
 
 	Row_Bookmark *pRow_Bookmark = m_pDatabase_pluto_media->Bookmark_get()->AddRow();

@@ -970,7 +970,7 @@ g_pPlutoLogger->Write(LV_STATUS,"setting process flag to false");
 	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL( m_dwPK_Device, m_sPK_Device_AllOrbiters, StringUtils::itos(DESIGNOBJ_mnuNewPhoneDetected_CONST), "" );
     SendCommand(CMD_Remove_Screen_From_History_DL);
 
-	DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T1111%>",false);
+	DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T" + StringUtils::itos(TEXT_instructions_CONST) + "%>",false);
 	m_bNoUnknownDeviceIsProcessing = false;
     ProcessUnknownDevice();
 }
@@ -1469,11 +1469,8 @@ void Orbiter_Plugin::CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Resu
 		}
 
 		// Send this to all orbiters
-		DisplayMessageOnOrbiter("","Your new " + pRow_Device->Description_get() + " is ready to go.  "
-			"All your devices must be reset to use it.  Press Quick Reload Router to do it now.  "
-			"It takes about 20 seconds.  Phone calls will not be affected, but your media will.  "
-			"Otherwise press the 'back' arrow and you can do it another time by choosing the option "
-			"on the 'advanced' menu.",true,60);
+		DisplayMessageOnOrbiter("",pRow_Device->Description_get() + "\n<%=T" + StringUtils::itos(TEXT_Device_Ready_CONST) +
+			"%>",true);
 	}
 
 	g_pPlutoLogger->Write(LV_STATUS,"Regen finished for: %d size is: %d",iPK_Device,(int) m_listRegenCommands.size());

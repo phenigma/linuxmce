@@ -366,3 +366,81 @@ int UpdateMedia::HandleFileNotInDatabase(string sDirectory,string sFile,int PK_M
 	}
 	return PK_File;
 }
+
+void UpdateMedia::UpdateSearchTokens()
+{
+	string SQL = "DELETE FROM SearchToken_Attribute";
+	m_pDatabase_pluto_media->threaded_mysql_query(SQL);
+
+	SQL = "SELECT PK_Attribute,Name FROM Attribute";
+
+	PlutoSqlResult allresult,result;
+    MYSQL_ROW row,row2;
+    if( ( allresult.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) )
+	{
+		while( ( row=mysql_fetch_row( allresult.r ) ) )
+		{
+			string sName = row[1];
+			string::size_type pos=0;
+			while( pos<sName.size() )
+			{
+				string Token=StringUtils::ToUpper( StringUtils::Tokenize( sName, " ", pos ) );
+				if( Token.length( )==0 )
+					continue;
+				SQL = "SELECT PK_SearchToken FROM SearchToken WHERE Token='" +
+					StringUtils::SQLEscape( Token ) + "'";
+				int PK_SearchToken=0;
+				if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row2=mysql_fetch_row( result.r ) ) )
+				{
+					PK_SearchToken = atoi( row2[0] );
+					printf( "Found token ( %d ): %s\n", PK_SearchToken, Token.c_str( ) );
+				}
+				else
+				{
+					printf( "Didn't find token: %d %s ( %s )\n", PK_SearchToken, Token.c_str( ), SQL.c_str( ) );
+					SQL = "INSERT INTO SearchToken( Token ) VALUES( '" +
+						StringUtils::SQLEscape( Token ) + "' )";
+					PK_SearchToken = m_pDatabase_pluto_media->threaded_mysql_query_withID( SQL );
+				}
+				if( PK_SearchToken )
+				{
+					SQL = "INSERT INTO SearchToken_Attribute VALUES( " +
+						StringUtils::itos( PK_SearchToken ) + ", " +
+						row[0] + " )";
+					m_pDatabase_pluto_media->threaded_mysql_query( SQL, true );
+				}
+			}
+		}
+	}
+}
+
+void UpdateMedia::UpdateThumbnails()
+{
+	string SQL = "SELECT PK_Picture,Extension FROM Picture";
+	PlutoSqlResult result;
+    MYSQL_ROW row;
+    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) )
+	{
+		while( ( row=mysql_fetch_row( result.r ) ) )
+		{
+			time_t tModTime=0,tTnModTime=0;
+#ifndef WIN32
+			struct stat64 dirEntryStat;
+            if ( stat64((string("/home/mediapics/") + row[0] + "." + row[1]).c_str(), &dirEntryStat) != 0 )
+				tModTime = dirEntryStat.st_mtime;
+
+            if ( stat64((string("/home/mediapics/") + row[0] + "_tn." + row[1]).c_str(), &dirEntryStat) != 0 )
+				tTnModTime = dirEntryStat.st_mtime;
+#endif
+			if( tModTime>tTnModTime )
+			{
+				string Cmd = "convert -sample 75x75 /home/mediapics/" + string(row[0])  + "." + row[1] +
+					" /home/mediapics/" + row[0] + "_tn." + row[1];
+				int result;
+				if( ( result=system( Cmd.c_str( ) ) )!=0 )
+					g_pPlutoLogger->Write( LV_CRITICAL, "Thumbnail picture %s returned %d", Cmd.c_str( ), result );
+			}
+		}
+	}
+}
+

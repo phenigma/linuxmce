@@ -622,7 +622,7 @@ void Infrared_Plugin::CMD_Add_GC100(string &sCMD_Result,Message *pMessage)
 		g_pPlutoLogger->Write(LV_WARNING, "GC100 config did not found Template number");
 		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 Failed, invalid Template number",false,30);
 	} else {
-		g_pPlutoLogger->Write(LV_WARNING, "The config script returned weird error");
-		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 Failed, Weird answer",false,30);
+		g_pPlutoLogger->Write(LV_WARNING, "The config script returned weird error %d",returned);
+		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 Failed, Unkonwn response " + StringUtils::itos(returned),false,30);
 	}
 }

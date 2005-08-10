@@ -70,7 +70,7 @@ void GetDirContents(list<FileDetails *> &listFileNames,string Path, string sVali
             {
                 if (finddata.name[0] != '.')
                 {
-                    FileDetails *fi = new FileDetails(BasePath, finddata.name, true, iDirNumber, time(NULL));
+                    FileDetails *fi = new FileDetails(BasePath, finddata.name, true, iDirNumber, finddata.time_write);
                     listFileNames.push_back(fi);
                 }
             }
@@ -84,7 +84,7 @@ void GetDirContents(list<FileDetails *> &listFileNames,string Path, string sVali
                         s = s.substr(1);
                     if ( s.length()==0 || s == ".*" || strstr(finddata.name, s.c_str()) != NULL)
                     {
-                        FileDetails *fi = new FileDetails(BasePath, finddata.name, false, iDirNumber, time(NULL));
+                        FileDetails *fi = new FileDetails(BasePath, finddata.name, false, iDirNumber, finddata.time_write);
                         listFileNames.push_back(fi);
                         break;
                     }
@@ -128,7 +128,7 @@ g_pPlutoLogger->Write(LV_STATUS, "found dir entry %s", entry.d_name);
 #endif
                 if (entry.d_name[0] != '.') // ignore folders starting with . {hidden and the . .. ones}
                 {
-                    FileDetails *fi = new FileDetails(BasePath, entry.d_name, true, iDirNumber, time(NULL));
+                    FileDetails *fi = new FileDetails(BasePath, entry.d_name, true, iDirNumber, dirEntryStat.st_mtime);
 #ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS, "adding dir");
 #endif
@@ -148,7 +148,7 @@ g_pPlutoLogger->Write(LV_STATUS, "found file entry %s", entry.d_name);
                         s = s.substr(1);
                     if ( s.length()==0 || s == ".*" || strstr(entry.d_name, s.c_str()) != NULL)
                     {
-                        FileDetails *fi = new FileDetails(BasePath, entry.d_name, false, iDirNumber, time(NULL));
+                        FileDetails *fi = new FileDetails(BasePath, entry.d_name, false, iDirNumber, dirEntryStat.st_mtime);
 #ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS, "added file %s", entry.d_name);
 #endif

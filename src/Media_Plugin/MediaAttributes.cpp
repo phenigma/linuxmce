@@ -29,6 +29,7 @@
 
 #include "pluto_media/Table_Attribute.h"
 #include "pluto_media/Table_File_Attribute.h"
+#include "pluto_media/Table_MediaType_AttributeType.h"
 #include "pluto_media/Table_File.h"
 #include "pluto_media/Table_Bookmark.h"
 #include "pluto_media/Table_Playlist.h"
@@ -109,470 +110,12 @@ void MediaAttributes::TransformFilenameToDeque(string sFilename,deque<MediaFile 
 	}
 }
 
-int MediaAttributes::CreatedMedia( int PK_Type, string FilePath, listMediaAttribute *plistMediaAttribute, listMediaPicture *plistMediaPicture )
-{
-    PlutoSqlResult result;
-    MYSQL_ROW row;
-    int PK_File =0;
-
-    string Path = FileUtils::BasePath(FilePath);
-    string Name = FileUtils::FilenameWithoutPath(FilePath);
-
-    string SQL = "SELECT PK_File FROM File WHERE Path='" + StringUtils::SQLEscape( Path ) + "' AND Filename='" + StringUtils::SQLEscape( Name ) + "'";
-    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
-        PK_File = atoi( row[0] );
-    else
-    {
-        SQL = "INSERT INTO File( FK_Type, Path, Filename ) VALUES ( " + StringUtils::itos( PK_Type ) + ", '" + StringUtils::SQLEscape( Path ) + "', '" + StringUtils::SQLEscape( Name ) + "' )";
-        PK_File = m_pDatabase_pluto_media->threaded_mysql_query_withID( SQL );
-    }
-    if( !PK_File )
-    {
-        g_pPlutoLogger->Write( LV_CRITICAL, "failed: %s", SQL.c_str( ) );
-    }
-    else
-    {
-        UpdatedMedia( PK_File, 0, FilePath, plistMediaAttribute, plistMediaPicture );
-#ifndef WIN32
-        string value = StringUtils::itos( PK_File );
-        if ( attr_set( FilePath.c_str( ), "ID", value.c_str( ), value.length( ), 0 ) != 0 )
-            g_pPlutoLogger->Write(LV_STATUS, "Error setting attribute for file: %s", FilePath.c_str());
-#endif
-    }
-
-    printf( "Created Media %s returning %d\n", FilePath.c_str( ), PK_File );
-
-    return PK_File;
-}
-
-void MediaAttributes::UpdatedMedia( int PK_File, int PK_Type, string FilePath, listMediaAttribute *plistMediaAttribute, listMediaPicture *plistMediaPicture )
-{
-    if( PK_Type )
-    {
-        string SQL = "UPDATE File SET FK_Type=" + StringUtils::itos( PK_Type ) +
-            " WHERE PK_File=" + StringUtils::itos( PK_File );
-
-        m_pDatabase_pluto_media->threaded_mysql_query_withID( SQL );
-    }
-
-    string Path = FileUtils::BasePath(FilePath);
-    string Name = FileUtils::FilenameWithoutPath(FilePath);
-
-    if( Path.length( )!=0 )
-    {
-        string SQL = "UPDATE File SET Path='" + StringUtils::SQLEscape( Path ) + "', Filename='" + StringUtils::SQLEscape( Name ) + "', Missing = 0 " +
-            " WHERE PK_File=" + StringUtils::itos( PK_File );
-
-        cout << "Query: " << SQL << endl;
-        m_pDatabase_pluto_media->threaded_mysql_query_withID( SQL );
-    }
-
-    if( plistMediaAttribute )
-    {
-        for( listMediaAttribute::iterator it=plistMediaAttribute->begin( );it!=plistMediaAttribute->end( );++it )
-        {
-            MediaAttribute *ma = ( *it );
-            AddAttribute( PK_File, ma->PK_Attribute, ma->PK_AttributeType, ma->Name );
-        }
-    }
-    if( plistMediaPicture )
-    {
-        for( listMediaPicture::iterator it=plistMediaPicture->begin( );it!=plistMediaPicture->end( );++it )
-        {
-            MediaPicture *mp = ( *it );
-            if( mp->PK_Picture )
-                SetPicture( mp->PK_Picture, mp->Path );
-            else
-                AddPicture( mp->PK_File, mp->PK_Attribute, mp->Path );
-        }
-    }
-}
-
-int MediaAttributes::AddAttribute( int PK_File, int PK_Attribute, int PK_AttributeType, string Name )
-{
-    printf( "Add attribute file %d att %d Name %s \n", PK_File, PK_Attribute, Name.c_str( ) );
-
-    if( Name.length( )==0 || Name=="( null )" )
-        return 0;
-    PlutoSqlResult result;
-    MYSQL_ROW row;
-    if( !PK_Attribute )
-    {
-        bool bCombineAsOne=false;
-        string SQL = "SELECT CombineAsOne FROM File "\
-            "JOIN MediaType_AttributeType ON File.EK_MediaType=MediaType_AttributeType.EK_MediaType "\
-            "WHERE FK_AttributeType=" + StringUtils::itos( PK_AttributeType ) + " AND PK_File=" + StringUtils::itos( PK_File );
-        {
-        }
-        if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
-        {
-            if( atoi( row[0] )==1 )
-                bCombineAsOne=true;
-        }
-
-
-        if( bCombineAsOne )
-        {
-            SQL = "SELECT PK_Attribute FROM Attribute WHERE FK_AttributeType=" +
-                StringUtils::itos( PK_AttributeType ) + " AND Name='" +
-                StringUtils::SQLEscape( Name ) + "'";
-
-            if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
-            PK_Attribute = atoi( row[0] );
-        }
-
-        if( !PK_Attribute )
-        {
-            SQL = "INSERT INTO Attribute( FK_AttributeType, Name ) VALUES( " +
-                StringUtils::itos( PK_AttributeType ) + ", '" + StringUtils::SQLEscape( Name ) + "' )";
-            PK_Attribute = m_pDatabase_pluto_media->threaded_mysql_query_withID( SQL );
-        }
-    }
-    if( PK_Attribute ) // For sure we should have it now
-    {
-        string SQL = "INSERT INTO File_Attribute VALUES( " + StringUtils::itos( PK_File ) + ", " +
-            StringUtils::itos( PK_Attribute ) + " )";
-        m_pDatabase_pluto_media->threaded_mysql_query( SQL, true ); // If it fails, it just means the association is already there
-        UpdateSearchTokens( PK_Attribute );
-    }
-    return PK_Attribute;
-}
-
 void MediaAttributes::ChangeAttribute( int OldPK_AttributeType, int NewPK_AttributeType, string OldName, string NewName )
 {
 }
 
 void MediaAttributes::ChangeAttribute( int PK_Attribute, string NewName )
 {
-}
-
-void MediaAttributes::AddPicture( int PK_File, int PK_Attribute, string Path )
-{
-    // confirm the file exists
-    FILE *file = fopen( Path.c_str( ), "rb" );
-    if( !file )
-    {
-        g_pPlutoLogger->Write( LV_CRITICAL, "Picture file %s doesn't exist", Path.c_str( ) );
-        return;
-    }
-  fseek( file, 0L, SEEK_END );
-  size_t file_size=ftell( file );
-  fseek( file, 0L, SEEK_SET );
-    char *data_block=( char * )malloc( file_size+1 );
-  size_t bytesread=fread( data_block, 1, file_size, file );
-    fclose( file );
-    if( bytesread!=file_size )
-    {
-        g_pPlutoLogger->Write( LV_CRITICAL, "Picture file %s can't be read", Path.c_str( ) );
-        return;
-    }
-
-    PlutoSqlResult result;
-    MYSQL_ROW row;
-
-    int PK_Picture=0;
-
-    string SQL;
-    for( int loop=0;loop<=1;++loop )
-    {
-        if( loop==0 )
-        {
-            if( !PK_File )
-                continue;
-            else
-                SQL = "SELECT FK_Picture, Extension FROM Picture_File JOIN Picture ON FK_Picture=PK_Picture WHERE FK_File=" + StringUtils::itos( PK_File );
-        }
-        else
-        {
-            if( !PK_Attribute )
-                continue;
-            else
-                SQL = "SELECT FK_Picture, Extension FROM Picture_Attribute JOIN Picture ON FK_Picture=PK_Picture WHERE FK_Attribute=" + StringUtils::itos( PK_Attribute );
-        }
-        if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) )
-        {
-            while( ( row=mysql_fetch_row( result.r ) ) )
-            {
-                int PKID = atoi( row[0] );
-                char *Extension = row[1];
-#ifdef WIN32
-                file = fopen( ( "\\home\\mediapics\\" + StringUtils::itos( PKID ) + "." + Extension ).c_str( ), "rb" );
-#else
-                file = fopen( ( "/home/mediapics/" + StringUtils::itos( PKID ) + "." + Extension ).c_str( ), "rb" );
-#endif
-                if( !file ) // Can't find picture??
-                {
-                    SQL = "DELETE FROM Picture_File WHERE FK_Picture=" + StringUtils::itos( PKID );
-                    m_pDatabase_pluto_media->threaded_mysql_query( SQL );
-                    SQL = "DELETE FROM Picture_Attribute WHERE FK_Picture=" + StringUtils::itos( PKID );
-                    m_pDatabase_pluto_media->threaded_mysql_query( SQL );
-                    SQL = "DELETE FROM Picture WHERE PK_Picture=" + StringUtils::itos( PKID );
-                    m_pDatabase_pluto_media->threaded_mysql_query( SQL );
-                    continue;
-                }
-                fseek( file, 0L, SEEK_END );
-                size_t file_size2=ftell( file );
-                if( file_size2!=file_size )
-                {
-                    fclose( file );
-                    continue;
-                }
-
-                // They're the same size. compare them
-                fseek( file, 0L, SEEK_SET );
-                char *data_block2=( char * )malloc( file_size+1 );
-                fread( data_block2, 1, file_size, file );
-                fclose( file );
-
-                if( memcmp( data_block, data_block2, file_size )==0 )
-                {
-                    // This is the same file
-                    PK_Picture = PKID;
-                    delete[] data_block2;
-                    break;
-                }
-                delete[] data_block2;
-            }
-        }
-    }
-
-    if( !PK_Picture )
-    {
-        string Extension = FileUtils::FindExtension( Path );
-        string SQL = "INSERT INTO Picture( Extension ) VALUES( '" + Extension + "' )";
-        PK_Picture = m_pDatabase_pluto_media->threaded_mysql_query_withID( SQL );
-        FILE *file;
-#ifdef WIN32
-        file = fopen( ( "\\home\\mediapics\\" + StringUtils::itos( PK_Picture ) + "." + Extension ).c_str( ), "wb" );
-#else
-        file = fopen( ( "/home/mediapics/" + StringUtils::itos( PK_Picture ) + "." + Extension ).c_str( ), "wb" );
-#endif
-        if( !file )
-            g_pPlutoLogger->Write( LV_CRITICAL, "Cannot write out pic: %d", PK_Picture );
-        else
-        {
-            fwrite( data_block, 1, file_size, file );
-            fclose( file );
-        }
-    }
-    delete[] data_block;
-
-    if( PK_Picture ) // For sure we should have it now
-    {
-#ifdef WIN32
-        if( SetPicture( PK_Picture, Path ) || true ) // This will fail to do the compression
-#else
-        if( SetPicture( PK_Picture, Path )==0 )
-#endif
-        {
-            if( PK_File )
-            {
-                SQL = "INSERT INTO Picture_File VALUES( " + StringUtils::itos( PK_Picture ) + ", " +
-                    StringUtils::itos( PK_File ) + " )";
-                m_pDatabase_pluto_media->threaded_mysql_query( SQL, true );
-            }
-            if( PK_Attribute )
-            {
-                SQL = "INSERT INTO Picture_Attribute VALUES( " + StringUtils::itos( PK_Picture ) + ", " +
-                    StringUtils::itos( PK_Attribute ) + " )";
-                m_pDatabase_pluto_media->threaded_mysql_query( SQL, true );
-            }
-        }
-    }
-}
-
-int MediaAttributes::SetPicture( int PK_Picture, string Path )
-{
-    string Extension = FileUtils::FindExtension( Path );
-    int result;
-
-    // Make compressed copies
-    string Cmd = "/usr/local/pluto/bin/convert -sample 100x100 /home/mediapics/" + StringUtils::itos( PK_Picture ) + "." + Extension +
-        " /home/mediapics/" + StringUtils::itos( PK_Picture ) + "_tn." + Extension;
-    if( ( result=system( Cmd.c_str( ) ) )!=0 )
-    {
-        g_pPlutoLogger->Write( LV_CRITICAL, "Aborting thumbnail picture %s returned %d", Cmd.c_str( ), result );
-        return -1;
-    }
-/*
-    Cmd = "/usr/local/pluto/bin/convert -sample 300x300 /home/mediapics/" + StringUtils::itos( PK_Picture ) + "." + Extension +
-        " /home/mediapics/" + StringUtils::itos( PK_Picture ) + "_s." + Extension;
-    if( ( result=system( Cmd.c_str( ) ) )!=0 )
-    {
-        g_pPlutoLogger->Write( LV_CRITICAL, "Aborting small picture %s returned %d", Cmd.c_str( ), result );
-        return -1;
-    }
-*/
-    return 0;
-}
-
-void MediaAttributes::UpdateSearchTokens( int PK_Attribute )
-{
-    PlutoSqlResult result;
-    MYSQL_ROW row, row2;
-    string SQL = "SELECT Name FROM Attribute WHERE PK_Attribute=" + StringUtils::itos( PK_Attribute );
-    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
-    {
-        SQL = "DELETE FROM SearchToken_Attribute WHERE FK_Attribute=" + StringUtils::itos( PK_Attribute );
-        m_pDatabase_pluto_media->threaded_mysql_query( SQL );
-        char *ptr = row[0];
-        string::size_type pos=0;
-        while( ptr && *ptr )
-        {
-            string s( ptr );
-            string Token=StringUtils::ToUpper( StringUtils::Tokenize( s, " ", pos ) );
-            if( Token.length( )==0 )
-                break;
-            SQL = "SELECT PK_SearchToken FROM SearchToken WHERE Token='" +
-                StringUtils::SQLEscape( Token ) + "'";
-            int PK_SearchToken=0;
-            if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row2=mysql_fetch_row( result.r ) ) )
-            {
-                PK_SearchToken = atoi( row2[0] );
-                printf( "Found token ( %d ): %s\n", PK_SearchToken, Token.c_str( ) );
-            }
-            else
-            {
-                printf( "Didn't find token: %d %s ( %s )\n", PK_SearchToken, Token.c_str( ), SQL.c_str( ) );
-                SQL = "INSERT INTO SearchToken( Token ) VALUES( '" +
-                    StringUtils::SQLEscape( Token ) + "' )";
-                PK_SearchToken = m_pDatabase_pluto_media->threaded_mysql_query_withID( SQL );
-            }
-            if( PK_SearchToken )
-            {
-                SQL = "INSERT INTO SearchToken_Attribute VALUES( " +
-                    StringUtils::itos( PK_SearchToken ) + ", " +
-                    StringUtils::itos( PK_Attribute ) + " )";
-                m_pDatabase_pluto_media->threaded_mysql_query( SQL, true );
-            }
-        }
-    }
-    else
-        g_pPlutoLogger->Write( LV_CRITICAL, "Cannot update tokens for %d", PK_Attribute );
-}
-int macounter=0;
-void MediaAttributes::ScanDirectory( string Path )
-{
-if( macounter>50 )
-    return;
-#ifdef WIN32
-    intptr_t ptrFileList;
-    _finddata_t finddata;
-    ptrFileList = _findfirst( ( Path+"*.*" ).c_str( ), &finddata );
-    while( ptrFileList!=-1 )
-#else
-
-    DIR *dirp = opendir( Path.c_str( ) );
-    struct dirent entry;
-    struct dirent *direntp = &entry;
-    while ( dirp != NULL && ( readdir_r( dirp, direntp, &direntp ) == 0 ) && direntp )
-#endif
-    {
-#ifdef WIN32
-        if( ( finddata.attrib==_A_SUBDIR ) && finddata.name[0]!='.' )
-            ScanDirectory( Path + finddata.name + "\\" );
-        string FullPath = Path + finddata.name;
-        char *Name = finddata.name;
-#else
-        if( entry.d_type == DT_DIR && entry.d_name[0] != '.' )
-            ScanDirectory( Path + entry.d_name + "/" );
-        string FullPath = Path + entry.d_name;
-        char *Name = entry.d_name;
-#endif
-
-        // We've got a file
-        if( string( "discinfo" )==Name )
-        {
-    printf( "Foiund discinfo %d in directory: %s\n", macounter++, Path.c_str( ) );
-            char buffer[6000];
-            string::size_type start=0, stop=0;
-            FILE *file=fopen( FullPath.c_str( ), "rb" );
-            int bytes = ( int ) fread( buffer, 1, 6000, file );
-            fclose( file );
-            if( bytes==0 || bytes>5999 )
-            {
-                g_pPlutoLogger->Write( LV_CRITICAL, "Error with file in %s bytes: %d", Path.c_str( ), bytes );
-                exit( 1 );
-            }
-            buffer[bytes]=0;
-            string sBuffer( buffer ), Token;
-
-            // Asin
-            start=sBuffer.find( "=" );
-            stop=sBuffer.find( "DiscID=" );
-            string Asin=sBuffer.substr( start+1, stop-start-1 );
-
-            // DiscID
-            start=sBuffer.find( "=", stop );
-            stop=sBuffer.find( "Category=", start );
-            string DiscID =sBuffer.substr( start+1, stop-start-1 );
-
-            // Category
-            start=sBuffer.find( "=", stop );
-            stop=sBuffer.find( "Genre=", start );
-            string Category=sBuffer.substr( start+1, stop-start-1 );
-
-            // Genre
-            start=sBuffer.find( "=", stop );
-            stop=sBuffer.find( "Artist=", start );
-            string Genre=sBuffer.substr( start+1, stop-start-1 );
-
-            // Artist
-            start=sBuffer.find( "=", stop );
-            stop=sBuffer.find( "Title=", start );
-            string Artist=sBuffer.substr( start+1, stop-start-1 );
-
-            // Title
-            start=sBuffer.find( "=", stop );
-            stop=sBuffer.find( "Track1_Name=", start );
-            string Title=sBuffer.substr( start+1, stop-start-1 );
-
-            int iAlbum=0, iArtist=0, iAsin=0, iDisc=0, iCategory=0, iGenre=0;
-
-            for( int i=1;i<999;++i )
-            {
-                start = sBuffer.find( "Track" + StringUtils::itos( i ) + "_Name=" );
-                start = sBuffer.find( "=", start );
-                stop = sBuffer.find( "Track" + StringUtils::itos( i ) + "_Artist=", start );
-                string TrackName = sBuffer.substr( start+1, stop-start-1 );
-                start = sBuffer.find( "=", stop );
-                stop = sBuffer.find( "Track" + StringUtils::itos( i+1 ) + "_Name=", start );
-                string TrackArtist = ( stop==string::npos ) ? sBuffer.substr( start+1 ) : sBuffer.substr( start+1, stop-start-1 );
-
-                int PK_File = CreatedMedia( 1, Path + TrackName + ".flac", NULL, NULL );
-                if( PK_File )
-                {
-                    AddAttribute( PK_File, 0, 2, TrackArtist);
-                    iArtist=AddAttribute( PK_File, iArtist, 2, Artist);
-                    iAlbum=AddAttribute( PK_File, iAlbum, 3, Title);
-                    AddAttribute( PK_File, 0, 4, TrackName);
-                    AddAttribute( PK_File, 0, 5, StringUtils::itos( i ));
-                    iAsin=AddAttribute( PK_File, iAsin, 6, Asin);
-                    iDisc=AddAttribute( PK_File, iDisc, 7, DiscID);
-                    iCategory=AddAttribute( PK_File, iCategory, 8, Category);
-                    iGenre=AddAttribute( PK_File, iGenre, 8, Genre);
-                    AddPicture( PK_File, iAlbum, Path + "cover.jpg" );
-                }
-                else
-                    g_pPlutoLogger->Write( LV_CRITICAL, "xxxx" );
-
-
-                if( stop==string::npos )
-                    break;
-            }
-        }
-#ifdef WIN32
-        if( _findnext( ptrFileList, &finddata )<0 )
-            break;
-#endif
-
-    }
-#ifdef WIN32
-    _findclose( ptrFileList );
-#else
-    closedir( dirp );
-#endif
-
 }
 
 listMediaAttribute *MediaAttributes::AttributesFromString( string Input )
@@ -1078,13 +621,17 @@ void operator+= (deque<MediaFile *> &dTarget, deque<MediaFile *> &dAdditional)
         dTarget.push_back(dAdditional[s]);
 }
 
-Row_Attribute *MediaAttributes::GetAttributeFromDescription(int PK_AttributeType,string sName)
+Row_Attribute *MediaAttributes::GetAttributeFromDescription(int PK_MediaType,int PK_AttributeType,string sName)
 {
-	string::size_type posTab;
-	string sWhere = "FK_AttributeType=" + StringUtils::itos(PK_AttributeType) + " AND Name='" + StringUtils::SQLEscape(sName) + "'";
-
 	vector<Row_Attribute *> vectRow_Attribute;
-	m_pDatabase_pluto_media->Attribute_get()->GetRows(sWhere,&vectRow_Attribute);
+	Row_MediaType_AttributeType *pMediaType_AttributeType = m_pDatabase_pluto_media->MediaType_AttributeType_get()->GetRow(PK_MediaType,PK_AttributeType);
+	if( pMediaType_AttributeType && pMediaType_AttributeType->CombineAsOne_get()==1 )
+	{
+		string::size_type posTab;
+		string sWhere = "FK_AttributeType=" + StringUtils::itos(PK_AttributeType) + " AND Name='" + StringUtils::SQLEscape(sName) + "'";
+		m_pDatabase_pluto_media->Attribute_get()->GetRows(sWhere,&vectRow_Attribute);
+	}
+
 	if( vectRow_Attribute.size() )
 		return vectRow_Attribute[0];
 	else
@@ -1093,6 +640,7 @@ Row_Attribute *MediaAttributes::GetAttributeFromDescription(int PK_AttributeType
 		pRow_Attribute->FK_AttributeType_set(PK_AttributeType);
 		pRow_Attribute->Name_set(sName);
 		pRow_Attribute->Table_Attribute_get()->Commit();
+		UpdateSearchTokens(pRow_Attribute);
 		return pRow_Attribute;
 	}
 }
@@ -1140,16 +688,7 @@ int MediaAttributes::AddIdentifiedDiscToDB(string sIdentifiedDisc,MediaStream *p
 
 	if( pMediaStream->m_pPictureData && pMediaStream->m_iPictureSize )
 	{
-		Row_Picture *pRow_Picture = m_pDatabase_pluto_media->Picture_get()->AddRow();
-		pRow_Picture->Extension_set("jpg");
-		m_pDatabase_pluto_media->Picture_get()->Commit();
-
-		FILE *file = fopen(("/home/mediapics/" + StringUtils::itos(pRow_Picture->PK_Picture_get()) + "." + pRow_Picture->Extension_get()).c_str(),"wb");
-		if( file )
-		{
-			fwrite(pMediaStream->m_pPictureData,pMediaStream->m_iPictureSize,1,file);
-			fclose(file);
-		}
+		Row_Picture *pRow_Picture = AddPicture(pMediaStream->m_pPictureData, pMediaStream->m_iPictureSize, "jpg");
 
 		Row_Picture_Disc *pRow_Picture_Disc = m_pDatabase_pluto_media->Picture_Disc_get()->AddRow();
 		pRow_Picture_Disc->FK_Disc_set( pRow_Disc->PK_Disc_get() );
@@ -1307,3 +846,77 @@ void MediaAttributes::LoadStreamAttributes(MediaStream *pMediaStream)
 	}
 }
 
+Row_Picture * MediaAttributes::AddPicture(char *pData,int iData_Size,string sFormat)
+{
+	sFormat = StringUtils::ToLower(sFormat);
+	Row_Picture *pRow_Picture = m_pDatabase_pluto_media->Picture_get()->AddRow();
+	pRow_Picture->Extension_set(sFormat);
+	m_pDatabase_pluto_media->Picture_get()->Commit();
+
+	FILE *file = fopen( ("/home/mediapics/" + StringUtils::itos(pRow_Picture->PK_Picture_get()) + "." + sFormat).c_str(),"wb");
+	if( !file )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot create bookmark pic file");
+		pRow_Picture->Delete();
+		m_pDatabase_pluto_media->Picture_get()->Commit();
+		pRow_Picture=NULL;
+	}
+	else
+	{
+		fwrite((void *) pData,iData_Size,1,file);
+		fclose(file);
+		string Cmd = "convert -sample 75x75 /home/mediapics/" + StringUtils::itos( pRow_Picture->PK_Picture_get() ) + "." + sFormat +
+			" /home/mediapics/" + StringUtils::itos( pRow_Picture->PK_Picture_get() ) + "_tn." + sFormat;
+		int result;
+		if( ( result=system( Cmd.c_str( ) ) )!=0 )
+			g_pPlutoLogger->Write( LV_CRITICAL, "Thumbnail picture %s returned %d", Cmd.c_str( ), result );
+	}
+
+	return pRow_Picture;
+}
+
+void MediaAttributes::UpdateSearchTokens(Row_Attribute *pRow_Attribute)
+{
+	int PK_Attribute = pRow_Attribute->PK_Attribute_get();
+    PlutoSqlResult result;
+    MYSQL_ROW row, row2;
+    string SQL = "SELECT Name FROM Attribute WHERE PK_Attribute=" + StringUtils::itos( PK_Attribute );
+    if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+    {
+        SQL = "DELETE FROM SearchToken_Attribute WHERE FK_Attribute=" + StringUtils::itos( PK_Attribute );
+        m_pDatabase_pluto_media->threaded_mysql_query( SQL );
+        char *ptr = row[0];
+        string::size_type pos=0;
+        while( ptr && *ptr )
+        {
+            string s( ptr );
+            string Token=StringUtils::ToUpper( StringUtils::Tokenize( s, " ", pos ) );
+            if( Token.length( )==0 )
+                break;
+            SQL = "SELECT PK_SearchToken FROM SearchToken WHERE Token='" +
+                StringUtils::SQLEscape( Token ) + "'";
+            int PK_SearchToken=0;
+            if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) && ( row2=mysql_fetch_row( result.r ) ) )
+            {
+                PK_SearchToken = atoi( row2[0] );
+                printf( "Found token ( %d ): %s\n", PK_SearchToken, Token.c_str( ) );
+            }
+            else
+            {
+                printf( "Didn't find token: %d %s ( %s )\n", PK_SearchToken, Token.c_str( ), SQL.c_str( ) );
+                SQL = "INSERT INTO SearchToken( Token ) VALUES( '" +
+                    StringUtils::SQLEscape( Token ) + "' )";
+                PK_SearchToken = m_pDatabase_pluto_media->threaded_mysql_query_withID( SQL );
+            }
+            if( PK_SearchToken )
+            {
+                SQL = "INSERT INTO SearchToken_Attribute VALUES( " +
+                    StringUtils::itos( PK_SearchToken ) + ", " +
+                    StringUtils::itos( PK_Attribute ) + " )";
+                m_pDatabase_pluto_media->threaded_mysql_query( SQL, true );
+            }
+        }
+    }
+    else
+        g_pPlutoLogger->Write( LV_CRITICAL, "Cannot update tokens for %d", PK_Attribute );
+}

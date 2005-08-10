@@ -519,6 +519,7 @@
 #define TEXT_Never_Resume_CONST 1196
 #define TEXT_Unknown_Disc_CONST 1197
 #define TEXT_Mouse_CONST 1198
+#define TEXT_Device_Ready_CONST 1428
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

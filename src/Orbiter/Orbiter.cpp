@@ -1093,7 +1093,7 @@ bool Orbiter::RenderCell( class DesignObj_DataGrid *pObj,  class DataGridTable *
 		Text.m_iPK_HorizAlignment = pTextStyle->m_iPK_HorizAlignment;
 		Text.m_iPK_VertAlignment = pTextStyle->m_iPK_VertAlignment;
 
-        string sText = pCell->GetText(  );
+        string sText = SubstituteVariables(pCell->GetText(  ),pObj,0,0);
         RenderText( sText, &Text, pTextStyle, point );
     }
     else

@@ -28,6 +28,7 @@ namespace DCE
 class MediaFile;
 class Row_Attribute;
 class Row_Disc;
+class Row_Picture;
 
 /**
  * @brief the attributes of the media
@@ -74,14 +75,10 @@ public:
     /** @brief constructor */
     MediaAttributes(string host, string user, string pass, string db_name, int port);
     ~MediaAttributes();
-    int CreatedMedia(int PK_Type,string Path,listMediaAttribute *plistMediaAttribute,listMediaPicture *plistMediaPicture);
-    void UpdatedMedia(int PK_File,int PK_Type,string Path,listMediaAttribute *plistMediaAttribute,listMediaPicture *plistMediaPicture);
-    int AddAttribute(int PK_File,int PK_Attribute,int PK_AttributeType,string Name);
     void ChangeAttribute(int OldPK_AttributeType,int NewPK_AttributeType,string OldName,string NewName);
     void ChangeAttribute(int PK_Attribute,string NewName);
-    void AddPicture(int PK_File,int PK_Attribute,string Path);
-    int SetPicture(int PK_Picture,string Path);
-    void UpdateSearchTokens(int PK_Attribute);
+	Row_Picture *AddPicture(char *pData,int iData_Size,string sFormat);
+    void UpdateSearchTokens(Row_Attribute *pRow_Attribute);
     void ScanDirectory(string Path);
 
     // Utility functions
@@ -96,7 +93,7 @@ public:
     int GetAttributeFromFilePath(string File);
     int GetFileIDFromAttributeID(int PK_Attribute);
 	// First name can either be a separate parameter, or part of Name delimited by a tab
-    Row_Attribute *GetAttributeFromDescription(int PK_AttributeType,string sName); 
+    Row_Attribute *GetAttributeFromDescription(int PK_MediaType,int PK_AttributeType,string sName); 
 	void TransformFilenameToDeque(string sFilename,deque<MediaFile *> &dequeMediaFile);
 
 	MediaSection *GetMediaSection(deque<MediaSection *> *p_dequeMediaSection,int Section) 

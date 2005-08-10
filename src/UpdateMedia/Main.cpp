@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
 {
 	g_pPlutoLogger = new FileLogger("/var/log/pluto/UpdateMedia.newlog");
 	dceConfig.m_sDBName="pluto_media";
-	bool bError=false;
+	bool bError=false,bUpdateThumbnails=false,bUpdateSearchTokens=false;
 	string sDirectory="/home/";
 
 	char c;
@@ -68,6 +68,12 @@ int main(int argc, char *argv[])
 		case 'd':
 			sDirectory = argv[++optnum];
 			break;
+		case 's':
+			bUpdateSearchTokens=true;
+			break;
+		case 't':
+			bUpdateThumbnails=true;
+			break;
 		default:
 			cout << "Unknown: " << argv[optnum] << endl;
 			bError=true;
@@ -79,11 +85,13 @@ int main(int argc, char *argv[])
 	{
 		cout << "UpdateMedia, v." << VERSION << endl
 			<< "Usage: UpdateMedia [-h hostname] [-u username] [-p password] [-D database] [-P mysql port]" << endl
-			<< "[-d Directory]" << endl
+			<< "[-d Directory] [-s] [-t]" << endl
 			<< "hostname    -- address or DNS of database host, default is `dce_router`" << endl
 			<< "username    -- username for database connection" << endl
 			<< "password    -- password for database connection, default is `` (empty)" << endl
 			<< "database    -- database name.  default is pluto_main" << endl
+			<< "-s          -- Update all search tokens" << endl
+			<< "-t          -- Update all thumbnails" << endl
 			<< "Directory defaults to /home" << endl;
 
 		exit(0);
@@ -91,6 +99,13 @@ int main(int argc, char *argv[])
 
 	UpdateMedia UpdateMedia(dceConfig.m_sDBHost,dceConfig.m_sDBUser,dceConfig.m_sDBPassword,dceConfig.m_iDBPort,sDirectory);
 	UpdateMedia.DoIt();
+
+	if( bUpdateSearchTokens )
+		UpdateMedia.UpdateSearchTokens();
+
+	if( bUpdateThumbnails )
+		UpdateMedia.UpdateThumbnails();
+
 	return 0;
 }
 
