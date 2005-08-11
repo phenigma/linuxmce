@@ -562,10 +562,11 @@ bool FileUtils::FindFiles(list<string> &listFiles, string sDirectory, string sFi
             while(true)
             {
                 string s = StringUtils::Tokenize(sFileSpec_CSV, string(","), pos);
-//				if (s.substr(0,1) == "*")  // If it's a *.ext drop the *
-//					s = s.substr(1);
-//				if (s == ".*" || s == "*" || StringUtils::EndsWith(entry.d_name, s.c_str(),true) )
-				if (sFileSpec_CSV.size()==0 || fnmatch(s.c_str(), entry.d_name, 0) == 0 || StringUtils::EndsWith(entry.d_name, s.c_str(),true))
+
+				/* somebody didn't test fnmatch well.  file: "The Patriot [Special Edition].dvd" doesn't match "The Patriot [Special Edition].*"
+				so I added the StringUtils::StartsWith */
+				if (sFileSpec_CSV.size()==0 || fnmatch(s.c_str(), entry.d_name, 0) == 0 || StringUtils::EndsWith(entry.d_name, s.c_str(),true)
+					|| (sFileSpec_CSV[sFileSpec_CSV.size()==1]=='*' && StringUtils::StartsWith(entry.d_name,sFileSpec_CSV.substr(0,sFileSpec_CSV.size()-1))) )
 				{
 					if( bFullyQualifiedPath )
 						listFiles.push_back(sDirectory + entry.d_name);
