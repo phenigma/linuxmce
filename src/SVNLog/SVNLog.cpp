@@ -58,7 +58,10 @@ See the GNU General Public License for more details.
 
 using namespace std;
 
-class DCELogger *g_pDCELogger;
+namespace DCE
+{
+	class PlutoLogger *g_pPlutoLogger;
+};
 
 class Commit
 {
@@ -78,7 +81,7 @@ map<PAIR_SI,int> mapUsersWeeks;
 
 int main( int argc, char *argv[] )
 {
-	chdir("/home/Work");
+	chdir("/home/MakeRelease/trunk");
 	unlink("output");
 	cout << "About to execute command" << endl;
 	system("svn log -q | grep '^r' > output");
