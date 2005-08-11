@@ -81,12 +81,27 @@ map<PAIR_SI,int> mapUsersWeeks;
 
 int main( int argc, char *argv[] )
 {
+	{
+		int LinesChanged=0;
+string Filename = "foo";
+string File="@@ -6827,6 +6831,7 @@";
+			string::size_type first = File.find('-');
+			first = File.find(',',first+1);
+			int LinesMinus = first!=string::npos ? atoi(File.substr(first+1).c_str()) : 0;
+
+			first = File.find('+',first+1);
+			first = File.find(',',first+1);
+			int LinesPlus = first!=string::npos ? atoi(File.substr(first+1).c_str()) : 0;
+
+			cout << "Logging: " << Filename << " minus: " << LinesMinus << " plus: " << LinesPlus << " Lines: " << LinesChanged << endl;
+			LinesChanged += LinesMinus + LinesPlus;
+}
 	chdir("/home/MakeRelease/trunk");
 	unlink("output");
 	cout << "About to execute command" << endl;
 	system("svn log -q | grep '^r' > output");
 	cout << "About to sleep" << endl;
-	sleep(1);
+	Sleep(1000);
 	cout << "Slept" << endl;
 	
 	vector<string> vectLines;
@@ -137,7 +152,7 @@ retry:
 		string Cmd = "svn diff --revision " + StringUtils::itos(Revision-1) + ":" + StringUtils::itos(Revision) + " | grep '^Index:\\|^\\@\\@' > output";
 		cout << "cmd: " << Cmd << endl;
 		system(Cmd.c_str());
-		sleep(1);
+		Sleep(1000);
 		vector<string> vectFiles;
 		Lines = FileUtils::ReadFileIntoBuffer("output",size);
 		cout << "File is: " << Lines.size() << " bytes." << endl;
@@ -148,7 +163,7 @@ if( size==0 )
 	Cmd = "svn diff --revision " + StringUtils::itos(Revision-1) + ":" + StringUtils::itos(Revision) + " > output";
 	cout << "testing for death - cmd: " << Cmd << endl;
 	system(Cmd.c_str());
-	sleep(1);
+	Sleep(1000);
 	Lines = FileUtils::ReadFileIntoBuffer("output",size);
 	
 	if( size==0 )
@@ -161,9 +176,9 @@ if( size==0 )
 		{
 			RetryCount++;
 			cout << "SVN died again.  Retrying...." << endl;
-			sleep(1);
+			Sleep(1000);
 			system("/etc/init.d/inetd restart");
-			sleep(1);
+			Sleep(1000);
 			goto retry;
 		}
 	}
@@ -198,7 +213,7 @@ if( size==0 )
 			first = File.find(',',first+1);
 			int LinesPlus = first!=string::npos ? atoi(File.substr(first+1).c_str()) : 0;
 
-			cout << "Logging: " << Filename << " Lines: " << LinesChanged << endl;
+			cout << "Logging: " << Filename << " minus: " << LinesMinus << " plus: " << LinesPlus << " Lines: " << LinesChanged << endl;
 			LinesChanged += LinesMinus + LinesPlus;
 		}
 
