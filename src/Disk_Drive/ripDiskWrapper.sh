@@ -61,7 +61,7 @@ if [ "$command" == "" ]; then
 fi
 
 if [[ "$diskType" == 2 ]]; then
-	if ! eval $command; then
+	if eval $command; then
 		echo "Ripping successful"
 		mv -f "$targetFileName.in-progress-dvd" "$targetFileName.dvd";
 		exit 0;
