@@ -87,6 +87,9 @@ g_pPlutoLogger->Write(LV_STATUS,"loop 1 m_mapPhoneDevice_Detected size: %d",(int
 	struct pollfd p;
 	int i, dd, len, err = 0, cancel = 1, cur_rsp = 0;
 
+    time_t t_start;
+	bool bStartToTimeout = false;
+	
 	/* Check for unlimited responses */
 	if (num_rsp <= 0)
 		num_rsp = 255;
@@ -192,10 +195,45 @@ g_pPlutoLogger->Write(LV_STATUS,"loop 1 m_mapPhoneDevice_Detected size: %d",(int
 
 	g_pPlutoLogger->Write(LV_WARNING, "Inquiry started");	
 	
-	while (!__io_canceled && cancel && !m_bAbortScanLoop && !m_bScanningSuspended) {
+	while (!__io_canceled && cancel && !m_bAbortScanLoop && !m_bScanningSuspended) 
+	{
 		p.revents = 0;
+		int res = poll(&p, 1, 100);
 
-		if (poll(&p, 1, 100) > 0) {
+		if(res == 0)
+		{
+			if(!bStartToTimeout)
+			{
+				t_start = time(NULL);
+				bStartToTimeout = true;
+			}
+
+			if(time(NULL) - t_start > 10) //more then 10 sec while the poll keeps timing out
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL, "poll continued to time out last 10 seconds... reloading Bluetooth_Dongle");
+				exit(1);
+				return false;
+			}
+		}
+		else if(res < 0)
+		{
+			switch(errno)
+			{
+				case EBADF:		g_pPlutoLogger->Write(LV_CRITICAL, "An invalid file descriptor was given in one of the sets."); break;
+				case EFAULT:	g_pPlutoLogger->Write(LV_CRITICAL, "The  array given as argument was not contained in the calling program's address space."); break;
+				case EINVAL:	g_pPlutoLogger->Write(LV_CRITICAL, "The nfds value exceeds the RLIMIT_NOFILE value."); break;
+				case ENOMEM:	g_pPlutoLogger->Write(LV_CRITICAL, "There was no space to allocate file descriptor tables."); break;
+				case EINTR:     g_pPlutoLogger->Write(LV_STATUS, "A signal occurred before any requested event."); break;
+				default:		g_pPlutoLogger->Write(LV_CRITICAL, "Unknown error.");
+			}
+
+			if(errno != EINTR)
+				cancel = true;
+		}
+		else if(res > 0) 
+		{
+			bStartToTimeout = false;
+
 			printf("# in poll\n");
 			/* Read the next HCI event (in H4 format) */
 			len = read(dd, buf, sizeof(buf));
