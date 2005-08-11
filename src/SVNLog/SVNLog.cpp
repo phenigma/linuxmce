@@ -81,32 +81,17 @@ map<PAIR_SI,int> mapUsersWeeks;
 
 int main( int argc, char *argv[] )
 {
-	{
-		int LinesChanged=0;
-string Filename = "foo";
-string File="@@ -6827,6 +6831,7 @@";
-			string::size_type first = File.find('-');
-			first = File.find(',',first+1);
-			int LinesMinus = first!=string::npos ? atoi(File.substr(first+1).c_str()) : 0;
-
-			first = File.find('+',first+1);
-			first = File.find(',',first+1);
-			int LinesPlus = first!=string::npos ? atoi(File.substr(first+1).c_str()) : 0;
-
-			cout << "Logging: " << Filename << " minus: " << LinesMinus << " plus: " << LinesPlus << " Lines: " << LinesChanged << endl;
-			LinesChanged += LinesMinus + LinesPlus;
-}
 	chdir("/home/MakeRelease/trunk");
-	unlink("output");
+	unlink("output.all");
 	cout << "About to execute command" << endl;
-	system("svn log -q | grep '^r' > output");
+	system("svn log -q | grep '^r' > output.all");
 	cout << "About to sleep" << endl;
 	Sleep(1000);
 	cout << "Slept" << endl;
 	
 	vector<string> vectLines;
 	size_t size;
-	string Lines = FileUtils::ReadFileIntoBuffer("output",size);
+	string Lines = FileUtils::ReadFileIntoBuffer("output.all",size);
 //	cout << "File is: " << Lines.size() << " bytes." << endl;
 	StringUtils::Tokenize(Lines,"\r\n",vectLines);
 	cout << "File is: " << vectLines.size() << " lines" << endl;
@@ -149,51 +134,52 @@ string z = Line.substr(stop_pipe+10);
 
 retry:
 		cout << "Line: " << s << " of " << vectLines.size() << " REV: " << Revision << " WEEK: " << Week << endl;
-		string Cmd = "svn diff --revision " + StringUtils::itos(Revision-1) + ":" + StringUtils::itos(Revision) + " | grep '^Index:\\|^\\@\\@' > output";
+		string Cmd = "svn diff --revision " + StringUtils::itos(Revision-1) + ":" + StringUtils::itos(Revision) + " > output.diff";
 		cout << "cmd: " << Cmd << endl;
 		system(Cmd.c_str());
 		Sleep(1000);
 		vector<string> vectFiles;
-		Lines = FileUtils::ReadFileIntoBuffer("output",size);
+		Lines = FileUtils::ReadFileIntoBuffer("output.diff",size);
 		cout << "File is: " << Lines.size() << " bytes." << endl;
 		StringUtils::Tokenize(Lines,"\r\n",vectFiles);
 		cout << "File is: " << vectFiles.size() << " lines" << endl;
-if( size==0 )
-{
-	Cmd = "svn diff --revision " + StringUtils::itos(Revision-1) + ":" + StringUtils::itos(Revision) + " > output";
-	cout << "testing for death - cmd: " << Cmd << endl;
-	system(Cmd.c_str());
-	Sleep(1000);
-	Lines = FileUtils::ReadFileIntoBuffer("output",size);
-	
-	if( size==0 )
-	{
-		if( RetryCount>2 )
+		if( size==0 )
 		{
-			cout << "Tried restarting already.  Maybe there are no diffs?" << endl;
-		}
-		else
-		{
-			RetryCount++;
-			cout << "SVN died again.  Retrying...." << endl;
+			Cmd = "svn diff --revision " + StringUtils::itos(Revision-1) + ":" + StringUtils::itos(Revision) + " > output.diff";
+			cout << "testing for death - cmd: " << Cmd << endl;
+			system(Cmd.c_str());
 			Sleep(1000);
-			system("/etc/init.d/inetd restart");
-			Sleep(1000);
-			goto retry;
+			Lines = FileUtils::ReadFileIntoBuffer("output.diff",size);
+			
+			if( size==0 )
+			{
+				if( RetryCount>2 )
+				{
+					cout << "Tried restarting already.  Maybe there are no diffs?" << endl;
+				}
+				else
+				{
+					RetryCount++;
+					cout << "SVN died again.  Retrying...." << endl;
+					Sleep(1000);
+					system("/etc/init.d/inetd restart");
+					Sleep(1000);
+					goto retry;
+				}
+			}
+			else
+				cout << "SVN still alive.  Just nothing to report: size: " << size << endl;
 		}
-	}
-	else
-		cout << "SVN still alive.  Just nothing to report: size: " << size << endl;
-}
+
 		int LinesChanged=0;
 		string Filename;
 		for(size_t s2=0;s2<vectFiles.size();++s2)
 		{
 			string File = vectFiles[s2];
 			cout << "line: " << File << endl;
-			if( File.substr(0,2)!="@@" )
+			if( File.substr(0,6)=="Index:" )
 			{
-				Filename = vectFiles[s2].substr(7);
+				Filename = File.substr(7);
 				cout << "new file: " << File << "=" << Filename << endl;
 				continue;
 			}
@@ -205,16 +191,10 @@ if( size==0 )
           	   continue;
     		}
 
-			string::size_type first = File.find('-');
-			first = File.find(',',first+1);
-			int LinesMinus = first!=string::npos ? atoi(File.substr(first+1).c_str()) : 0;
-
-			first = File.find('+',first+1);
-			first = File.find(',',first+1);
-			int LinesPlus = first!=string::npos ? atoi(File.substr(first+1).c_str()) : 0;
-
-			cout << "Logging: " << Filename << " minus: " << LinesMinus << " plus: " << LinesPlus << " Lines: " << LinesChanged << endl;
-			LinesChanged += LinesMinus + LinesPlus;
+			if( File[0]=='-' && File[1]!='-' )
+				LinesChanged++;
+			else if( File[0]=='+' && File[1]!='+' )
+				LinesChanged++;
 		}
 
 		Commit *pCommit = new Commit();
