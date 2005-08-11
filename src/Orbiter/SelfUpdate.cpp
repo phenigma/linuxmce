@@ -18,7 +18,11 @@ using namespace std;
 using namespace DCE;
 
 #ifdef WINCE
-		const string csOrbiter_Update("/usr/pluto/bin/Orbiter_WinCE.dat");
+		#ifdef SMARTPHONE
+			const string csOrbiter_Update("/usr/pluto/bin/Orbiter_Smartphone.dat");
+		#else
+			const string csOrbiter_Update("/usr/pluto/bin/Orbiter_WinCE.dat");
+		#endif
 #else
 		const string csOrbiter_Update("/usr/pluto/bin/Orbiter_Win32.dat");
 #endif

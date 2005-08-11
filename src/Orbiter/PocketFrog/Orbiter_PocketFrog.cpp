@@ -852,6 +852,7 @@ void Orbiter_PocketFrog::WriteStatusOutput(const char* pMessage)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,Message *pMessage)
 {
+    /*
 	CHECK_STATUS();
 
 	HDC gdc;
@@ -867,10 +868,12 @@ void Orbiter_PocketFrog::WriteStatusOutput(const char* pMessage)
 		ExtEscape(gdc, SETPOWERMANAGEMENT, vpm.Length, (LPCSTR) &vpm, 0, NULL);
 	}
 	::ReleaseDC(NULL, gdc);
+    */
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
 {
+    /*
 	CHECK_STATUS();
 
 	HDC gdc;
@@ -886,6 +889,7 @@ void Orbiter_PocketFrog::WriteStatusOutput(const char* pMessage)
 		ExtEscape(gdc, SETPOWERMANAGEMENT, vpm.Length, (LPCSTR) &vpm, 0, NULL);
 	}
 	::ReleaseDC(NULL, gdc);
+    */
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::TryToUpdate()
