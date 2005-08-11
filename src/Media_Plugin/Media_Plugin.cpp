@@ -1681,7 +1681,7 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
         "WHERE Token like '" + AC + "%' " +
 		(AttributesFirstSearch.length() ? "AND PK_Attribute NOT IN (" + AttributesFirstSearch + ") " : "") +
 		" AND MediaType_AttributeType.EK_MediaType=" + StringUtils::itos(PK_MediaType) +
-		" AND File.EK_MediaType=" + StringUtils::itos(PK_MediaType) +
+		" AND File.EK_MediaType=" + StringUtils::itos(PK_MediaType) + " AND Identifier>0 " +
 		" ORDER BY Name "\
         "limit 30;";
 
