@@ -12,6 +12,7 @@ Table_Button.cpp \
 Table_CachedScreens.cpp \
 Table_CannedEvents.cpp \
 Table_CannedEvents_CriteriaParmList.cpp \
+Table_City.cpp \
 Table_CommMethod.cpp \
 Table_Command.cpp \
 Table_CommandCategory.cpp \
@@ -153,6 +154,7 @@ Table_PhoneLineType.cpp \
 Table_Pipe.cpp \
 Table_QuickStartCategory.cpp \
 Table_QuickStartTemplate.cpp \
+Table_Region.cpp \
 Table_RemoteControl.cpp \
 Table_RepositorySource.cpp \
 Table_RepositorySource_URL.cpp \

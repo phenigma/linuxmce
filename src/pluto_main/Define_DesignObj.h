@@ -330,7 +330,7 @@
 #define DESIGNOBJ_ieVoicemailManager_CONST 2046
 #define DESIGNOBJ_dgDVDAudioTracks_CONST 2048
 #define DESIGNOBJ_dgSubtitleTracks_CONST 2050
-#define DESIGNOBJ_mnuFileList_CONST 2071
+#define DESIGNOBJ_mnuFileList_Music_Movies_Video_CONST 2071
 #define DESIGNOBJ_objCloseBrowser_CONST 2112
 #define DESIGNOBJ_mnuPVR_CONST 2121
 #define DESIGNOBJ_arrEntGroupList_CONST 2128
@@ -735,8 +735,8 @@
 #define DESIGNOBJ_butGoToMainMenu_CONST 3222
 #define DESIGNOBJ_grpSeekFileList_CONST 3223
 #define DESIGNOBJ_grpPhoneSearchKeyboardlarge_CONST 3225
-#define DESIGNOBJ_mnuPlayList_CONST 3226
-#define DESIGNOBJ_dgFileList2_CONST 3227
+#define DESIGNOBJ_mnuFileList_PlayLists_CONST 3226
+#define DESIGNOBJ_dgFileList_Playlists_CONST 3227
 #define DESIGNOBJ_butLoadPlaylist_CONST 3228
 #define DESIGNOBJ_go_to_dvd_CONST 3229
 #define DESIGNOBJ_myth_tv_setup_CONST 3231
@@ -778,7 +778,7 @@
 #define DESIGNOBJ_butFloorsTelecom_CONST 3277
 #define DESIGNOBJ_mnuVideosRemote_CONST 3278
 #define DESIGNOBJ_pvr_full_screen_with_options_o_CONST 3279
-#define DESIGNOBJ_mnuFileList2_CONST 3282
+#define DESIGNOBJ_mnuFileList_Pictures_Docs_CONST 3282
 #define DESIGNOBJ_butView_CONST 3283
 #define DESIGNOBJ_butManagePlaylist_CONST 3285
 #define DESIGNOBJ_go_to_advanced_CONST 3286
@@ -788,7 +788,7 @@
 #define DESIGNOBJ_storedvideos_full_screen_CONST 3290
 #define DESIGNOBJ_storedvideos_full_screen_with_CONST 3291
 #define DESIGNOBJ_generic_app_full_screen_CONST 3292
-#define DESIGNOBJ_grpSeekPlaylist_CONST 3293
+#define DESIGNOBJ_grpSeekFileList_Playlists_CONST 3293
 #define DESIGNOBJ_dgCommands_CONST 3294
 #define DESIGNOBJ_temp_CONST 3295
 #define DESIGNOBJ_Follow_Me_Media_CONST 3296
@@ -843,13 +843,13 @@
 #define DESIGNOBJ_mnuGenericDvdRemote_CONST 3352
 #define DESIGNOBJ_butMoviesFileList_CONST 3353
 #define DESIGNOBJ_butVideosFileList_CONST 3354
-#define DESIGNOBJ_mnuPhonePlaylist_CONST 3355
+#define DESIGNOBJ_mnuViewPlaylist_Mobile_CONST 3355
 #define DESIGNOBJ_go_to_playlist_CONST 3356
 #define DESIGNOBJ_dvd_menu_full_screen_CONST 3358
 #define DESIGNOBJ_grpMediaNavigation4_CONST 3362
 #define DESIGNOBJ_pluto_logo_CONST 3368
 #define DESIGNOBJ_dgFileListPictures_CONST 3369
-#define DESIGNOBJ_mnuFileListPictureMobile_CONST 3370
+#define DESIGNOBJ_mnuFileList_withPictures_Mobil_CONST 3370
 #define DESIGNOBJ_go_to_filelistPictures_CONST 3371
 #define DESIGNOBJ_go_to_filelist_CONST 3372
 #define DESIGNOBJ_dvd_menu_full_screen_with_opti_CONST 3373
@@ -960,7 +960,7 @@
 #define DESIGNOBJ_objDatagridBookmarkUp_CONST 3561
 #define DESIGNOBJ_objDatagridBookmarkDown_CONST 3562
 #define DESIGNOBJ_grpNumberPadPhone_CONST 3563
-#define DESIGNOBJ_grpSeekFileList_Narrow_CONST 3567
+#define DESIGNOBJ_grpSeekFileList_PDA_CONST 3567
 #define DESIGNOBJ_grpUpDownBookmarks_Horiz_CONST 3568
 #define DESIGNOBJ_grpWideKeyboard_pda_CONST 3569
 #define DESIGNOBJ_mnuBookmarksByMediaType_CONST 3570
@@ -1232,6 +1232,9 @@
 #define DESIGNOBJ_mnuPVR_Myth_CONST 4265
 #define DESIGNOBJ_grpPhoneSearchKeyboardlargep_CONST 4266
 #define DESIGNOBJ_butKillApp_CONST 4267
+#define DESIGNOBJ_grpMediaMapControls_PDA_CONST 4268
+#define DESIGNOBJ_grpSeekFileLIst_Playlists_PDA_CONST 4272
+#define DESIGNOBJ_grpMediaAttributeSearch_PDA_CONST 4273
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

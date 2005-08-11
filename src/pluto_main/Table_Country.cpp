@@ -18,7 +18,9 @@ using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "Table_Country.h"
 
+#include "Table_City.h"
 #include "Table_Installation.h"
+#include "Table_Region.h"
 #include "Table_RepositorySource_URL.h"
 
 
@@ -878,11 +880,25 @@ sscanf(row[8], "%li", &(pRow->m_psc_restrict));
 
 
 
+void Row_Country::City_FK_Country_getrows(vector <class Row_City*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_City *pTable = table->database->City_get();
+pTable->GetRows("`FK_Country`=" + StringUtils::itos(m_PK_Country),rows);
+}
 void Row_Country::Installation_FK_Country_getrows(vector <class Row_Installation*> *rows)
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Installation *pTable = table->database->Installation_get();
+pTable->GetRows("`FK_Country`=" + StringUtils::itos(m_PK_Country),rows);
+}
+void Row_Country::Region_FK_Country_getrows(vector <class Row_Region*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Region *pTable = table->database->Region_get();
 pTable->GetRows("`FK_Country`=" + StringUtils::itos(m_PK_Country),rows);
 }
 void Row_Country::RepositorySource_URL_FK_Country_getrows(vector <class Row_RepositorySource_URL*> *rows)

@@ -139,7 +139,9 @@ void psc_restrict_setNull(bool val);
 		
 
 		// Return the rows in other tables with foreign keys pointing here
-		void Installation_FK_Country_getrows(vector <class Row_Installation*> *rows);
+		void City_FK_Country_getrows(vector <class Row_City*> *rows);
+void Installation_FK_Country_getrows(vector <class Row_Installation*> *rows);
+void Region_FK_Country_getrows(vector <class Row_Region*> *rows);
 void RepositorySource_URL_FK_Country_getrows(vector <class Row_RepositorySource_URL*> *rows);
 
 

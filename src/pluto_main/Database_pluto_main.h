@@ -31,6 +31,7 @@ class Table_Button* tblButton;
 class Table_CachedScreens* tblCachedScreens;
 class Table_CannedEvents* tblCannedEvents;
 class Table_CannedEvents_CriteriaParmList* tblCannedEvents_CriteriaParmList;
+class Table_City* tblCity;
 class Table_CommMethod* tblCommMethod;
 class Table_Command* tblCommand;
 class Table_CommandCategory* tblCommandCategory;
@@ -172,6 +173,7 @@ class Table_PhoneLineType* tblPhoneLineType;
 class Table_Pipe* tblPipe;
 class Table_QuickStartCategory* tblQuickStartCategory;
 class Table_QuickStartTemplate* tblQuickStartTemplate;
+class Table_Region* tblRegion;
 class Table_RemoteControl* tblRemoteControl;
 class Table_RepositorySource* tblRepositorySource;
 class Table_RepositorySource_URL* tblRepositorySource_URL;
@@ -249,6 +251,7 @@ class Table_Button* Button_get() { if( !tblButton ) CreateTable_Button(); return
 class Table_CachedScreens* CachedScreens_get() { if( !tblCachedScreens ) CreateTable_CachedScreens(); return tblCachedScreens; }
 class Table_CannedEvents* CannedEvents_get() { if( !tblCannedEvents ) CreateTable_CannedEvents(); return tblCannedEvents; }
 class Table_CannedEvents_CriteriaParmList* CannedEvents_CriteriaParmList_get() { if( !tblCannedEvents_CriteriaParmList ) CreateTable_CannedEvents_CriteriaParmList(); return tblCannedEvents_CriteriaParmList; }
+class Table_City* City_get() { if( !tblCity ) CreateTable_City(); return tblCity; }
 class Table_CommMethod* CommMethod_get() { if( !tblCommMethod ) CreateTable_CommMethod(); return tblCommMethod; }
 class Table_Command* Command_get() { if( !tblCommand ) CreateTable_Command(); return tblCommand; }
 class Table_CommandCategory* CommandCategory_get() { if( !tblCommandCategory ) CreateTable_CommandCategory(); return tblCommandCategory; }
@@ -390,6 +393,7 @@ class Table_PhoneLineType* PhoneLineType_get() { if( !tblPhoneLineType ) CreateT
 class Table_Pipe* Pipe_get() { if( !tblPipe ) CreateTable_Pipe(); return tblPipe; }
 class Table_QuickStartCategory* QuickStartCategory_get() { if( !tblQuickStartCategory ) CreateTable_QuickStartCategory(); return tblQuickStartCategory; }
 class Table_QuickStartTemplate* QuickStartTemplate_get() { if( !tblQuickStartTemplate ) CreateTable_QuickStartTemplate(); return tblQuickStartTemplate; }
+class Table_Region* Region_get() { if( !tblRegion ) CreateTable_Region(); return tblRegion; }
 class Table_RemoteControl* RemoteControl_get() { if( !tblRemoteControl ) CreateTable_RemoteControl(); return tblRemoteControl; }
 class Table_RepositorySource* RepositorySource_get() { if( !tblRepositorySource ) CreateTable_RepositorySource(); return tblRepositorySource; }
 class Table_RepositorySource_URL* RepositorySource_URL_get() { if( !tblRepositorySource_URL ) CreateTable_RepositorySource_URL(); return tblRepositorySource_URL; }
@@ -471,6 +475,7 @@ void CreateTable_Button();
 void CreateTable_CachedScreens();
 void CreateTable_CannedEvents();
 void CreateTable_CannedEvents_CriteriaParmList();
+void CreateTable_City();
 void CreateTable_CommMethod();
 void CreateTable_Command();
 void CreateTable_CommandCategory();
@@ -612,6 +617,7 @@ void CreateTable_PhoneLineType();
 void CreateTable_Pipe();
 void CreateTable_QuickStartCategory();
 void CreateTable_QuickStartTemplate();
+void CreateTable_Region();
 void CreateTable_RemoteControl();
 void CreateTable_RepositorySource();
 void CreateTable_RepositorySource_URL();
@@ -688,6 +694,7 @@ void DeleteTable_Button();
 void DeleteTable_CachedScreens();
 void DeleteTable_CannedEvents();
 void DeleteTable_CannedEvents_CriteriaParmList();
+void DeleteTable_City();
 void DeleteTable_CommMethod();
 void DeleteTable_Command();
 void DeleteTable_CommandCategory();
@@ -829,6 +836,7 @@ void DeleteTable_PhoneLineType();
 void DeleteTable_Pipe();
 void DeleteTable_QuickStartCategory();
 void DeleteTable_QuickStartTemplate();
+void DeleteTable_Region();
 void DeleteTable_RemoteControl();
 void DeleteTable_RepositorySource();
 void DeleteTable_RepositorySource_URL();

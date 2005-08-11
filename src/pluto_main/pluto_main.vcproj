@@ -136,6 +136,9 @@
 				RelativePath=".\Table_CannedEvents_CriteriaParmList.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_City.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_CommMethod.cpp">
 			</File>
 			<File
@@ -557,6 +560,9 @@
 			</File>
 			<File
 				RelativePath=".\Table_QuickStartTemplate.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Region.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_RemoteControl.cpp">
