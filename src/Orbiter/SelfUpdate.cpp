@@ -19,7 +19,7 @@ using namespace DCE;
 
 #ifdef WINCE
 		#ifdef SMARTPHONE
-			const string csOrbiter_Update("/usr/pluto/bin/Orbiter_Smartphone.dat");
+			const string csOrbiter_Update("/usr/pluto/bin/OrbiterSmartphone.dat");
 		#else
 			const string csOrbiter_Update("/usr/pluto/bin/Orbiter_WinCE.dat");
 		#endif
