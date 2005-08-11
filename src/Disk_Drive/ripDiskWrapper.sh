@@ -57,17 +57,18 @@ esac
 
 echo "$command"
 if [ "$command" == "" ]; then 
-	/usr/pluto/bin/MessageSend dcerouter $diskDriveDeviceID -1001 2 35 20 $result 35 "$targetFileName";
-	exit;
+	exit 1;
 fi
 
 if [[ "$diskType" == 2 ]]; then
-	if eval $command; then
-		/usr/pluto/bin/MessageSend dcerouter $diskDriveDeviceID -1001 2 35 20 $ERR_SUCCESS 35 "$targetFileName";
+	if ! eval $command; then
+		echo "Ripping successful"
 		mv -f "$targetFileName.in-progress-dvd" "$targetFileName.dvd";
+		exit 0;
 	else
-		/usr/pluto/bin/MessageSend dcerouter $diskDriveDeviceID -1001 2 35 20 $ERR_RESULT_FAILURE 35 "$targetFileName";
+		echo "Ripping failed"
 		rm "$targetFileName.in-progress-dvd";
+		exit 1;
 	fi
 elif [[ "$diskType" == 0 || "$diskType" == 1 || "$diskType" == 6 || "$diskType" == 7 || "$diskType" == 8 ]]; then
 	mkdir -p "$Dir"
@@ -83,14 +84,13 @@ elif [[ "$diskType" == 0 || "$diskType" == 1 || "$diskType" == 6 || "$diskType" 
 		echo "Executing: $(eval echo "\"$displaycmd\"")"
 		if ! eval "$command"; then
 			echo "Ripping failed"
-			/usr/pluto/bin/MessageSend dcerouter $diskDriveDeviceID -1001 2 35 20 $ERR_RESULT_FAILURE 35 "$FileName"
-			exit
+			exit 1;
 		fi
 		echo "First file ripped ok moving: $Dir/$FileName.in-progress-flac"
 		mv "$Dir/$FileName.in-progress-flac" "$Dir/$FileName.flac"
 	done
 	echo "Ripping successful"
-	/usr/pluto/bin/MessageSend dcerouter $diskDriveDeviceID -1001 2 35 20 $ERR_SUCCESS 35 "$targetFileName"
+	exit 0;
 fi
 
 echo "Exiting ripping script"
