@@ -1,8 +1,8 @@
 del c:\temp\plutomo\*.* /Q
 
-cd SmartphoneARMV4Dbg
+cd ..\..\bin
 copy OrbiterSmartphone.exe "c:\temp\plutomo"
-cd ..
+cd ..\Orbiter\CENet_Smartphone
 
 cd Misc
 copy AYGSHELL.DLL c:\temp\plutomo
