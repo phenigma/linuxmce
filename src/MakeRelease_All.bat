@@ -24,6 +24,7 @@ call "MakeRelease_WindowsCE.bat"
 cd "c:\pluto.makerelease\trunk\src\bin"
 copy Orbiter.exe Orbiter_Win32.dat
 copy OrbiterCE.exe Orbiter_WinCE.dat
+copy OrbiterSmartphone.exe OrbiterSmartphone.dat
 
 echo Copying EXE files...
 copy *.exe "\\10.0.0.150\builds\Windows_Output\src\bin"
@@ -33,6 +34,8 @@ echo Copying DAT files...
 copy *.dat "\\10.0.0.150\builds\Windows_Output\src\bin"
 echo Copying SIS files...
 copy *.sis "\\10.0.0.150\builds\Windows_Output\src\bin"
+echo Copying CAB files...
+copy *.cab "\\10.0.0.150\builds\Windows_Output\src\bin"
 
 echo Copying LIB files...
 cd "c:\pluto.makerelease\trunk\src\lib"
