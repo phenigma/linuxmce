@@ -184,8 +184,9 @@ retry:
 				continue;
 			}
 
-	        if( StringUtils::StartsWith(Filename,"Libraries") || StringUtils::StartsWith(Filename,"pluto_main") ||
-                   StringUtils::StartsWith(Filename,"Gen_Devices") || StringUtils::StartsWith(Filename,"pluto_media") )
+	        if( (!StringUtils::StartsWith(Filename,"src") && !StringUtils::StartsWith(Filename,"src"))
+				|| StringUtils::StartsWith(Filename,"src/pluto_main") || StringUtils::StartsWith(Filename,"src/Gen_Devices")
+				|| StringUtils::StartsWith(Filename,"src/pluto_media") )
    			{
 		       cout << "Skipping: " << Filename << endl;
           	   continue;
@@ -196,6 +197,10 @@ retry:
 			else if( File[0]=='+' && File[1]!='+' )
 				LinesChanged++;
 		}
+
+		cout << "============LOGGING COMMIT===============" << endl <<
+			"user: " << User << " lines: " << LinesChanged << endl <<
+			"===========================================" << endl;
 
 		Commit *pCommit = new Commit();
 		pCommit->date = t;
