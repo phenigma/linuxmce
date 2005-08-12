@@ -93,7 +93,8 @@ int main( int argc, char *argv[] )
 	size_t size;
 	char *ptr = FileUtils::ReadFileIntoBuffer("output.all",size);
 //	cout << "File is: " << Lines.size() << " bytes." << endl;
-	StringUtils::Tokenize(ptr,"\r\n",vectLines);
+	string Lines = ptr;
+	StringUtils::Tokenize(Lines,"\r\n",vectLines);
 	delete ptr;
 	cout << "File is: " << vectLines.size() << " lines" << endl;
 
@@ -141,7 +142,8 @@ retry:
 		Sleep(1000);
 		vector<string> vectFiles;
 		ptr = FileUtils::ReadFileIntoBuffer("output.diff",size);
-		cout << "File is: " << Lines.size() << " bytes." << endl;
+		cout << "File is: " << size << " bytes." << endl;
+		Lines = ptr;
 		StringUtils::Tokenize(Lines,"\r\n",vectFiles);
 		delete ptr;
 		cout << "File is: " << vectFiles.size() << " lines" << endl;
@@ -151,8 +153,8 @@ retry:
 			cout << "testing for death - cmd: " << Cmd << endl;
 			system(Cmd.c_str());
 			Sleep(1000);
-			Lines = FileUtils::ReadFileIntoBuffer("output.diff",size);
-			
+			ptr = FileUtils::ReadFileIntoBuffer("output.diff",size);
+			delete ptr;
 			if( size==0 )
 			{
 				if( RetryCount>2 )
