@@ -70,6 +70,7 @@ public:
 
 	/*
 			*****DATA***** accessors inherited from base class
+	int DATA_Get_PK_City();
 
 			*****EVENT***** accessors inherited from base class
 

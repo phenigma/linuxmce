@@ -134,6 +134,17 @@ string StringUtils::itos( int iNum )
 #endif
 }
 
+string StringUtils::itof( double dNum )
+{
+#ifndef SYMBIAN
+    char acS[81];
+    sprintf( acS, "%f", dNum);
+    return string( acS );
+#else
+    return string::DoubleToString( dNum );
+#endif
+}
+
 string StringUtils::Replace( string sInput, const string &sSearch, const string &sReplace )
 {
     string::size_type s=0;

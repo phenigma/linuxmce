@@ -40,13 +40,14 @@
 #endif
 
 
-#include <sys/time.h>
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
 
-
+#ifndef M_PI
+	#define M_PI 3.14159265358979323846f
+#endif
 
 
 
@@ -228,8 +229,8 @@ double calcJD(int year,int month,int day)
 			year -= 1;
 			month += 12;
 		}
-		int A = floor(year/100);
-		int B = 2 - A + floor(A/4);
+		int A = floor((double) year/100);
+		int B = 2 - A + floor((double) A/4);
 
 		double JD = floor(365.25*(year + 4716)) + floor(30.6001*(month+1)) + day + B - 1524.5;
 		return JD;
@@ -329,105 +330,49 @@ double calcSunsetUTC(double JD, double latitude, double longitude)
 
 
 
-int main(int argc, char **argv)
+bool GetSunriseSunset(time_t &tSunrise,time_t &tSunset,time_t &tSunriseTomorrow,time_t &tSunsetTomorrow,float latitude,float longitude)
 {
+	longitude*=-1; // For some reason this is reversed from all the databases I found
+	time_t rawtime;
+	tm * ptm;
+	time ( &rawtime );
+	ptm = gmtime ( &rawtime );
+	float JD=calcJD(ptm->tm_year+1900,ptm->tm_mon+1,ptm->tm_mday);
 
+	time_t seconds;
+	time_t tseconds;
+	struct tm  tm;
 
+	tm.tm_year= ptm->tm_year;
+	tm.tm_mon=ptm->tm_mon;  /* Jan = 0, Feb = 1,.. Dec = 11 */
+	tm.tm_mday=ptm->tm_mday;
+	tm.tm_hour=0;
+	tm.tm_min=0;
+	tm.tm_sec=0;
+	tm.tm_isdst=-1;  
 
-  time_t seconds;
-  time_t tseconds;
-  struct tm  *ptm=NULL;
-  struct tm  tm;
+	seconds = mktime(&tm);
+	int dst=tm.tm_isdst;
 
+	ptm = gmtime ( &seconds );
+	int delta= ptm->tm_hour;
 
-  int year=2004,month=8,day=21,dst=-1;
-  char buffer[30];
+	tseconds= seconds;
+	seconds= seconds + calcSunriseUTC( JD,  latitude,  longitude)*60;
+	tSunrise = seconds - delta*3600;
 
-  float JD=calcJD(year,month,day);
-  double latitude = 39.95;  //convert to just degrees.  No min/sec
-  double longitude = 75.15;
+	seconds=tseconds;
+	seconds+=calcSunsetUTC( JD,  latitude,  longitude)*60;
+	tSunset= seconds - delta*3600;
 
+	seconds=tseconds+86400; // 1 day forward
+	seconds= seconds + calcSunriseUTC( JD+1,  latitude,  longitude)*60;
+	tSunriseTomorrow = seconds - delta*3600;
 
-  if(argc == 6) {
-    year=atoi(argv[1]);
-    month=atoi(argv[2]);
-    day=atoi(argv[3]);
-    latitude = atof(argv[4]);
-    longitude = atof(argv[5]);
-    JD = calcJD(year,month,day);
+	seconds=tseconds+86400; // 1 day forward
+	seconds+=calcSunsetUTC( JD+1,  latitude,  longitude)*60;
+	tSunsetTomorrow= seconds - delta*3600;
 
-  } else {
-  printf("\nUsage: (note convert latitude and longitude to degrees) \n");
-  printf("./sunrise year month date latitude longitude \n\n");
-  printf(" Latitude and longitude must be in degrees and or fraction of degrees. Not min sec\n");
-  printf("\n US Listings Of Latitude and Longitude\n");
-  printf("    http://www.census.gov/geo/www/tiger/latlng.txt\n");
-  printf("    But use positive values for longitude for above listing\n");
-
-  printf("\n Example: (Just outside Philadelphia PA, USA)\n\n");
-  printf("./sunrise 2004 8 21 39.95 75.15 \n");
-  printf("./sunrise `date \"+%cY %cm %cd\"` 39.95 75.15\n\n",'%','%','%');
-  }
-
-
- if(DEBUG)
-  printf("Julian Date  %f \n",JD);
- if(DEBUG)
-  printf("Sunrise timeUTC %lf \n", calcSunriseUTC( JD,  latitude,  longitude));
- if(DEBUG)
-  printf("Sunset  timeUTC %lf \n", calcSunsetUTC( JD,  latitude,  longitude));
-
-
-
-  tm.tm_year= year-1900;
-  tm.tm_mon=month-1;  /* Jan = 0, Feb = 1,.. Dec = 11 */
-  tm.tm_mday=day;
-  tm.tm_hour=0;
-  tm.tm_min=0;
-  tm.tm_sec=0;
-  tm.tm_isdst=-1;  
-
-  seconds = mktime(&tm);
-  if(DEBUG)
-   printf("Number of seconds %ld\n",seconds);
-  if(DEBUG)
-   printf("Number of year %d\n",year);
-  int delta;
-
-  dst=tm.tm_isdst;
-
-
-  ptm = gmtime ( &seconds );
-  delta= ptm->tm_hour;
-
-  if(DEBUG)
-    printf("delta=%d dst=%d\n",delta,dst);
-  
-  tseconds= seconds;
-  if(DEBUG)
-   printf("Number of seconds %ld\n",seconds);
-  seconds= seconds + calcSunriseUTC( JD,  latitude,  longitude)*60;
-  seconds= seconds - delta*3600;
-
-
-
-
-  strftime(buffer,30,"%m-%d-%Y  %T",localtime(&seconds));
-  printf("Sunrise  %s   ",buffer);
-
-
-
-  seconds=tseconds;
-  seconds+=calcSunsetUTC( JD,  latitude,  longitude)*60;
-  seconds= seconds - delta*3600;
-
-
-  strftime(buffer,30,"%m-%d-%Y  %T",localtime(&seconds));
-  printf("Sunset %s\n",buffer);
-
-
-
-
-  return 0;
+	return true;
 
 }

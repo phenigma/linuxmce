@@ -29,6 +29,7 @@ using namespace DCE;
 
 #include "DataGrid.h"
 #include "TimedEvent.h"
+#include "sunrise.h"
 
 #define ALARM_TIMED_EVENT	1
 
@@ -39,7 +40,7 @@ Event_Plugin::Event_Plugin(int DeviceID, string ServerAddress,bool bConnectEvent
 //<-dceag-const-e->
 	, m_EventMutex("security")
 {
-    pthread_mutexattr_init( &m_MutexAttr );
+	pthread_mutexattr_init( &m_MutexAttr );
     pthread_mutexattr_settype( &m_MutexAttr,  PTHREAD_MUTEX_RECURSIVE_NP );
 	m_EventMutex.Init(&m_MutexAttr);
 
@@ -106,6 +107,14 @@ Event_Plugin::Event_Plugin(int DeviceID, string ServerAddress,bool bConnectEvent
 
 	m_pAlarmManager = new AlarmManager();
     m_pAlarmManager->Start(2);      //4 = number of worker threads
+
+
+	time_t tSunrise,tSunset,tSunriseTomorrow,tSunsetTomorrow;
+	GetSunriseSunset(tSunrise,tSunset,tSunriseTomorrow,tSunsetTomorrow,47.367,8.55);
+	g_pPlutoLogger->Write(LV_STATUS,"tSunrise: %s",asctime(localtime(&tSunrise)));
+	g_pPlutoLogger->Write(LV_STATUS,"tSunset: %s",asctime(localtime(&tSunset)));
+	g_pPlutoLogger->Write(LV_STATUS,"tSunriseTomorrow: %s",asctime(localtime(&tSunriseTomorrow)));
+	g_pPlutoLogger->Write(LV_STATUS,"tSunsetTomorrow: %s",asctime(localtime(&tSunsetTomorrow)));
 
 	PLUTO_SAFETY_LOCK(em,m_EventMutex);
 	SetNextTimedEventCallback();

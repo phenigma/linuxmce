@@ -152,6 +152,9 @@
 				RelativePath="Main.cpp">
 			</File>
 			<File
+				RelativePath=".\sunrise.cpp">
+			</File>
+			<File
 				RelativePath=".\TimedEvent.cpp">
 			</File>
 		</Filter>

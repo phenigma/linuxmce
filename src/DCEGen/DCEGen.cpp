@@ -1301,6 +1301,22 @@ void DCEGen::CreateFunctionParms(int iParameterID,int iParameterType,string sPar
 		else
 			sPassingToMessage+="," + StringUtils::itos(iParameterID)+",StringUtils::itos("+ Prefix + sParameterName + ").c_str()";
 	}
+	else if (iParameterType == PARAMETERTYPE_float_CONST)
+	{
+		sParmsWithType+= string(sParmsWithType.length()==0 ? "" : ",") + "float " + (bByReference ? "*" : "") + Prefix + sParameterName;
+		if( bByReference )
+			sAssignParmToLocal+= "\t\t\t\t\t\tpMessageOut->m_mapParameters["+StringUtils::ftos(iParameterID)+"]=StringUtils::ftos(" + Prefix + sParameterName + ");\n";
+		else
+			sAssignParmToLocal+= "\t\t\t\t\tfloat " + Prefix + sParameterName + "=atoi(pMessage->m_mapParameters["+StringUtils::ftos(iParameterID)+"].c_str());\n";
+		if( bByReference )
+			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + "&" + Prefix + sParameterName;
+		else
+			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + Prefix + sParameterName;
+		if( bByReference )
+			sPassingToMessage+="," + StringUtils::ftos(iParameterID)+",StringUtils::ftos(*"+ Prefix + sParameterName + ").c_str()";
+		else
+			sPassingToMessage+="," + StringUtils::ftos(iParameterID)+",StringUtils::ftos("+ Prefix + sParameterName + ").c_str()";
+	}
 	else if (iParameterType == PARAMETERTYPE_bool_CONST)
 	{
 		sParmsWithType+= string(sParmsWithType.length()==0 ? "" : ",") + "bool " + (bByReference ? "*" : "") + Prefix + sParameterName;
@@ -1576,6 +1592,8 @@ string DCEGen::GetPrefix(int PK_ParameterType)
 		return "p";
 	if( PK_ParameterType == PARAMETERTYPE_int_CONST )
 		return "i";
+	if( PK_ParameterType == PARAMETERTYPE_float_CONST )
+		return "f";
 	if( PK_ParameterType == PARAMETERTYPE_bool_CONST )
 		return "b";
 	if( PK_ParameterType == PARAMETERTYPE_PlutoColor_CONST )
@@ -1592,6 +1610,9 @@ string DCEGen::CastTypeToChar(string s,int PK_ParameterType)
 		break;
 	case PARAMETERTYPE_int_CONST:
 		return "StringUtils::itos(" + s + ").c_str()";
+		break;
+	case PARAMETERTYPE_float_CONST:
+		return "StringUtils::ftos(" + s + ").c_str()";
 		break;
 	case PARAMETERTYPE_bool_CONST:
 		return "(" + s + " ? : \"1\" : \"0\")";
@@ -1621,6 +1642,9 @@ string DCEGen::CastStringToType(string s,int PK_ParameterType)
 		break;
 	case PARAMETERTYPE_int_CONST:
 		return "atoi(" + s + ".c_str())";
+		break;
+	case PARAMETERTYPE_float_CONST:
+		return "atof(" + s + ".c_str())";
 		break;
 	case PARAMETERTYPE_bool_CONST:
 		return "(" + s + "==\"1\" ? true : false)";
