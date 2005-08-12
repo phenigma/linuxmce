@@ -91,9 +91,10 @@ int main( int argc, char *argv[] )
 	
 	vector<string> vectLines;
 	size_t size;
-	string Lines = FileUtils::ReadFileIntoBuffer("output.all",size);
+	char *ptr = FileUtils::ReadFileIntoBuffer("output.all",size);
 //	cout << "File is: " << Lines.size() << " bytes." << endl;
-	StringUtils::Tokenize(Lines,"\r\n",vectLines);
+	StringUtils::Tokenize(ptr,"\r\n",vectLines);
+	delete ptr;
 	cout << "File is: " << vectLines.size() << " lines" << endl;
 
 	int LowestWeek=0,HighestWeek=0;
@@ -139,9 +140,10 @@ retry:
 		system(Cmd.c_str());
 		Sleep(1000);
 		vector<string> vectFiles;
-		Lines = FileUtils::ReadFileIntoBuffer("output.diff",size);
+		ptr = FileUtils::ReadFileIntoBuffer("output.diff",size);
 		cout << "File is: " << Lines.size() << " bytes." << endl;
 		StringUtils::Tokenize(Lines,"\r\n",vectFiles);
+		delete ptr;
 		cout << "File is: " << vectFiles.size() << " lines" << endl;
 		if( size==0 )
 		{
