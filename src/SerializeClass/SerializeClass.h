@@ -70,6 +70,7 @@ public:
 #define SERIALIZE_DATA_TYPE_VECT_INT		9
 #define SERIALIZE_DATA_TYPE_STRING_STRING	10
 #define SERIALIZE_DATA_TYPE_VECT_PAIR_INT	11
+#define SERIALIZE_DATA_TYPE_FLOAT			12
 
 #define SERIALIZE_DATA_TYPE_COLOR			50
 #define SERIALIZE_DATA_TYPE_POINT			51
@@ -219,6 +220,7 @@ public:
 	SerializeClass &operator+ (unsigned long &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_UNSIGNED_LONG,(void *) &i)); return (*this); } /** < @brief overloading + to take an unsigned int */
 	SerializeClass &operator+ (bool &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_CHAR,(void *) &i)); return (*this); } /** < @brief overloading + to take an bool */
 	SerializeClass &operator+ (char &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_CHAR,(void *) &i)); return (*this); } /** < @brief overloading + to take an char */
+	SerializeClass &operator+ (float &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_FLOAT,(void *) &i)); return (*this); } /** < @brief overloading + to take an float */
 	SerializeClass &operator+ (short &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_SHORT,(void *) &i)); return (*this); } /** < @brief overloading + to take an short */
 	SerializeClass &operator+ (string &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_STRING,(void *) &i)); return (*this); } /** < @brief overloading + to take a string */
 	SerializeClass &operator+ (u_int64_t &i) { MYSTL_ADDTO_LIST(m_vectItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_INT64,(void *) &i)); return (*this); } /** < @brief overloading + to take an u_int64_t */
@@ -443,6 +445,13 @@ public:
 		m_pcCurrentPosition += sizeof(long);
 	}
 
+	void Write_float(float v) {
+		CheckWrite(sizeof(float));
+		float *ps = (float *) m_pcCurrentPosition;
+		*ps = v;
+		m_pcCurrentPosition += sizeof(float);
+	}
+
 	void Write_short(short v) {
 		CheckWrite(sizeof(short));
 		 short *ps = (short *) m_pcCurrentPosition;
@@ -556,6 +565,14 @@ public:
 #endif
 		//return (long)*pl;
 		return myval2;
+	}
+
+	float Read_float() {
+		if( !CheckRead(sizeof(float)) )
+			return 0;
+		float *pl = (float *) m_pcCurrentPosition;
+		m_pcCurrentPosition += sizeof(float);
+		return *pl;
 	}
 
 	short Read_short() {
