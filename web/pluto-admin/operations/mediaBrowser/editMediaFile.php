@@ -103,7 +103,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 				$out.='
 						<tr bgcolor="'.(($pos%2==0)?'#EEEEEE':'#FFFFFF').'">
 							<td><b>'.$rowAttributes['Description'].'</b></td>
-							<td><a href="index.php?section=mainMediaBrowser&attributeID='.$rowAttributes['PK_Attribute'].'&action=properties">'.$rowAttributes['Name'].(($rowAttributes['FirstName']!='')?', '.$rowAttributes['FirstName']:'').'</a></td>
+							<td><a href="index.php?section=mainMediaBrowser&attributeID='.$rowAttributes['PK_Attribute'].'&action=properties">'.$rowAttributes['Name'].'</a></td>
 							<td align="center"><a href="#" onClick="if(confirm(\'Are you sure you want to delete this attribute from the file?\'))self.location=\'index.php?section=editMediaFile&fileID='.$fileID.'&action=delete&dAtr='.$rowAttributes['PK_Attribute'].'\'">Remove</a></td>
 						</tr>';
 			}

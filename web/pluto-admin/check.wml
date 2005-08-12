@@ -1,5 +1,5 @@
 <?php 
-//Header( "Content-type: text/vnd.wap.wml"); 
+Header( "Content-type: text/vnd.wap.wml"); 
 echo "<?xml version=\"1.0\"?>"; 
 
 require('include/config/config.inc.php');

@@ -66,9 +66,9 @@ function wizardOrbiters($output,$dbADO) {
 			$orbiterDD[]=91;		// Main Menu
 			$orbiterDD[]=104;		// UI
 
-			$excludedData['standard_roaming_orbiters']=array(25);
+			$excludedData['standard_roaming_orbiters']=array(25,'state');
 			$excludedData['mobile_orbiters']=array(84,20,'room','wifi',56);
-			$excludedData['on_screen_orbiters']=array('dt','ip_mac','room','wifi');
+			$excludedData['on_screen_orbiters']=array('dt','ip_mac','room','wifi','state');
 			
 			$queryData='
 					SELECT 
@@ -159,6 +159,14 @@ function wizardOrbiters($output,$dbADO) {
 							</tr>
 							';
 					}
+					if(!in_array('state',$excludedData[$orbiterGroup])){
+						$content[$orbiterGroup].='
+							<tr>
+								<td align="right"><B>State</B></td>
+								<td>'.getStateFormElement($rowD['PK_Device'],'State_'.$rowD['PK_Device'],$rowD['State'],$dbADO).'</td>
+							</tr>
+							';
+					}					
 					if(!in_array('description',$excludedData[$orbiterGroup])){
 						$content[$orbiterGroup].='
 							<tr>
@@ -198,7 +206,7 @@ function wizardOrbiters($output,$dbADO) {
 				}
 												
 			}
-			
+
 			$content[$orbiterGroupDisplayed].='	
 					<tr>
 						<td align="center" colspan="2">'.displayButtons($orbiterDisplayed,$RegenInProgress).'</td>
@@ -314,11 +322,23 @@ function wizardOrbiters($output,$dbADO) {
 				}else{
 					$updateMacIp='';
 				}
-				$room=(@$_POST['room_'.$value]!=0)?(int)@$_POST['room_'.$value]:NULL;
-				$pingTest=(int)@$_POST['PingTest_'.$value];
+				$updateQuery='';
 				
-				$updateDevice='UPDATE Device SET Description=?, FK_Room=?, PingTest=? '.@$updateMacIp.' WHERE PK_Device=?';
-				$dbADO->Execute($updateDevice,array($description,$room,$pingTest,$value));
+				if(isset($_POST['room_'.$value])){
+					$room=(@$_POST['room_'.$value]!=0)?(int)@$_POST['room_'.$value]:NULL;
+					$updateQuery.=',FK_Room=\''.$room.'\'';
+				}
+				
+				if(isset($_POST['PingTest_'.$value])){
+					$pingTest=(int)@$_POST['PingTest_'.$value];
+					$updateQuery.=',PingTest='.$pingTest;
+				}
+				
+				$State= (isset($_POST['State_'.$value]))?cleanString($_POST['State_'.$value]):getStateValue('State_'.$value);
+				$updateQuery.=',State=\''.$State.'\'';
+				
+				$updateDevice='UPDATE Device SET Description=? '.$updateQuery.' '.@$updateMacIp.' WHERE PK_Device=?';
+				$dbADO->Execute($updateDevice,array($description,$value));
 
 				foreach($DeviceDataToDisplayArray as $ddValue){
 					if($ddValue!=91){

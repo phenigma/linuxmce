@@ -956,7 +956,7 @@ function multi_page($query, $params,$url, $page_no, $art_pagina,$dbADO)
 function multi_page_format($row, $art_index,$mediadbADO)
 {
 	$queryOtherAttributes='
-		SELECT PK_Attribute, AttributeType.Description AS AttributeName,Name,FirstName
+		SELECT PK_Attribute, AttributeType.Description AS AttributeName,Name
 		FROM File_Attribute
 			INNER JOIN Attribute ON File_Attribute.FK_Attribute=PK_Attribute
 			INNER JOIN AttributeType ON FK_AttributeType=PK_AttributeType
@@ -966,7 +966,7 @@ function multi_page_format($row, $art_index,$mediadbADO)
 	$otherAttributes='';
 	$resOtherAttributes=$mediadbADO->Execute($queryOtherAttributes,array($row['FK_File'],$GLOBALS['attrType']));
 	while($rowOtherAttributes=$resOtherAttributes->FetchRow()){
-		$otherAttributes.='<b>'.$rowOtherAttributes['AttributeName'].'</b>: <a href="index.php?section=mainMediaBrowser&attributeID='.$rowOtherAttributes['PK_Attribute'].'&action=properties" target="_self">'.$rowOtherAttributes['Name'].(($rowOtherAttributes['FirstName']!='')?', '.$rowOtherAttributes['FirstName']:'').'</a> ';
+		$otherAttributes.='<b>'.$rowOtherAttributes['AttributeName'].'</b>: <a href="index.php?section=mainMediaBrowser&attributeID='.$rowOtherAttributes['PK_Attribute'].'&action=properties" target="_self">'.$rowOtherAttributes['Name'].'</a> ';
 	}
 
 	$out='
@@ -3622,5 +3622,33 @@ function getOSDFromMD($mdID,$dbADO)
 		return $rowOrbiterChild;
 	}
 	return null;
+}
+
+// return an input box if device template is not orbiter or 2 checkboxes if it is
+function getStateFormElement($deviceID,$name,$State,$dbADO)
+{
+	if(isOrbiter($deviceID,$dbADO)){
+		$out='
+		<input type="checkbox" name="'.$name.'_app" value="1" '.((strpos($State,'APP')!==false)?'checked':'').'> Resend application to phone<br>
+		<input type="checkbox" name="'.$name.'_VMC" value="1" '.((strpos($State,'VMC')!==false)?'checked':'').'> Resend VMC to phone';
+	}else{
+		$out.='<input type="text" name="'.$name.'" value="'.$State.'">';
+	}
+	
+	return $out;
+}
+
+function getStateValue($name)
+{
+	$stateArray=array();
+	if(isset($_POST[$name.'_app'])){
+		$stateArray[]='NEED APP';
+	}
+	
+	if(isset($_POST[$name.'_VMC'])){
+		$stateArray[]='NEED VMC';
+	}
+
+	return join('|',$stateArray);
 }
 ?>

@@ -54,16 +54,16 @@ function mainMediaBrowser($output,$mediadbADO,$dbADO) {
 						SELECT Attribute.*, AttributeType.Description AS AttrType 
 							FROM Attribute 
 						INNER JOIN AttributeType ON FK_AttributeType=PK_AttributeType
-						WHERE (Name LIKE ? OR FirstName LIKE ?) AND FK_AttributeType IN ('.$_SESSION['checkedTypes'].') 
+						WHERE Name LIKE ? AND FK_AttributeType IN ('.$_SESSION['checkedTypes'].') 
 						ORDER BY Name ASC';
-				$resSearch=$mediadbADO->Execute($querySearch,array($_SESSION['searchString'],$_SESSION['searchString']));	
+				$resSearch=$mediadbADO->Execute($querySearch,array($_SESSION['searchString']));	
 			}
 			else{
 				$querySearch="
 						SELECT Attribute.*, AttributeType.Description AS AttrType 
 							FROM Attribute 
 						INNER JOIN AttributeType ON FK_AttributeType=PK_AttributeType
-						WHERE (Name REGEXP '^[0-9|\"|\']' OR FirstName REGEXP '^[0-9|\"|\']') AND FK_AttributeType IN (".$_SESSION['checkedTypes'].") 
+						WHERE (Name REGEXP '^[0-9|\"|\']') AND FK_AttributeType IN (".$_SESSION['checkedTypes'].") 
 						ORDER BY Name ASC";
 				$resSearch=$mediadbADO->Execute($querySearch);
 			}
@@ -77,7 +77,7 @@ function mainMediaBrowser($output,$mediadbADO,$dbADO) {
 			while($rowSearch=$resSearch->FetchRow()){
 				$out.='
 						<tr>
-							<td>'.$rowSearch['Name'].(($rowSearch['FirstName']!='')?', '.$rowSearch['FirstName']:'').'</td>
+							<td>'.$rowSearch['Name'].'</td>
 							<td>'.$rowSearch['AttrType'].'</td>
 							<td><a href="#" onClick="document.mainMediaBrowser.action.value=\'properties\';document.mainMediaBrowser.attributeID.value='.$rowSearch['PK_Attribute'].';document.mainMediaBrowser.submit();">Properties</a></td>
 						</tr>';
@@ -128,13 +128,11 @@ function mainMediaBrowser($output,$mediadbADO,$dbADO) {
 				<input type="hidden" name="attributeID" value="'.$attributeID.'">
 			<table border="0">
 				<tr>
-					<td colspan="6" align="left"><h3>Attribute</h3></td>
+					<td colspan="4" align="left"><h3>Attribute</h3></td>
 				</tr>		
 				<tr>
 					<td><B>Name:</B> </td>
 					<td><input type="text" name="attrName" value="'.$rowAttribute['Name'].'"></td>
-					<td><B>First Name:</B> </td>
-					<td><input type="text" name="attrFirstName" value="'.$rowAttribute['FirstName'].'"></td>
 					<td><B>Type:</B> </td>
 					<td><select name="attrType">
 							<option value="0"></option>';
@@ -146,13 +144,13 @@ function mainMediaBrowser($output,$mediadbADO,$dbADO) {
 			$out.='</select></td>
 				</tr>
 				<tr>
-					<td colspan="6" align="center"><input type="button" class="button" name="update" value="Update" onclick="document.mainMediaBrowser.action.value=\'update\';document.mainMediaBrowser.submit();"></td>
+					<td colspan="4" align="center"><input type="button" class="button" name="update" value="Update" onclick="document.mainMediaBrowser.action.value=\'update\';document.mainMediaBrowser.submit();"></td>
 				</tr>
 				<tr>
-					<td colspan="6" align="center">&nbsp;</td>
+					<td colspan="4" align="center">&nbsp;</td>
 				</tr>
 				<tr>
-					<td valign="top" align="left" colspan="6">';
+					<td valign="top" align="left" colspan="4">';
 			$queryFiles='
 				SELECT FK_File, FK_Attribute,EK_MediaType, Path, Filename,PK_File, Missing
 				FROM File_Attribute
@@ -208,8 +206,7 @@ function mainMediaBrowser($output,$mediadbADO,$dbADO) {
 		';
 		
 	}else{
-		$name=$_POST['attrName'];
-		$firstName=$_POST['attrFirstName'];
+		$name=stripslashes($_POST['attrName']);
 		$attrType=($_POST['attrType']!='0')?(int)$_POST['attrType']:NULL;
 		$attributeID=(int)$_POST['attributeID'];
 		
@@ -228,7 +225,6 @@ function mainMediaBrowser($output,$mediadbADO,$dbADO) {
 						<input type="hidden" name="searchType" value="">
 						<input type="hidden" name="action" value="update">
 						<input type="hidden" name="attrName" value="'.$name.'">
-						<input type="hidden" name="attrFirstName" value="'.$firstName.'">
 						<input type="hidden" name="attrType" value="'.$attrType.'">
 						<input type="hidden" name="attributeID" value="'.$attributeID.'">
 						<input type="hidden" name="existingAttributeID" value="'.$rowExistingAttribute['PK_Attribute'].'">
@@ -249,8 +245,8 @@ function mainMediaBrowser($output,$mediadbADO,$dbADO) {
 				';
 				$dontRedirect=true;
 			}else{
-				$updateAttribute='UPDATE Attribute SET Name=?, FirstName=?, FK_AttributeType=? WHERE PK_Attribute=?';
-				$mediadbADO->Execute($updateAttribute,array($name,$firstName,$attrType,$attributeID));
+				$updateAttribute='UPDATE Attribute SET Name=?, FK_AttributeType=? WHERE PK_Attribute=?';
+				$mediadbADO->Execute($updateAttribute,array($name,$attrType,$attributeID));
 			}
 				
 		}else{
@@ -272,8 +268,8 @@ function mainMediaBrowser($output,$mediadbADO,$dbADO) {
 
 		}		
 		
-		$newFile=cleanString(@$_POST['newFile']);
-		$newPath=cleanString(@$_POST['newPath']);
+		$newFile=stripslashes(@$_POST['newFile']);
+		$newPath=stripslashes(@$_POST['newPath']);
 		$newType=(@$_POST['newPath']!='0')?@$_POST['newPath']:NULL;
 		
 		if(($newFile!='' && $newPath!='')){

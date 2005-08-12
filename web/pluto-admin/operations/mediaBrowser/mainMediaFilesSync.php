@@ -108,7 +108,7 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 							</tr>';
 						if(@$inDB==1){	
 							$queryAttributes='
-								SELECT PK_Attribute, AttributeType.Description AS AttributeName,Name,FirstName
+								SELECT PK_Attribute, AttributeType.Description AS AttributeName,Name
 								FROM File_Attribute
 									INNER JOIN Attribute ON File_Attribute.FK_Attribute=PK_Attribute
 									INNER JOIN AttributeType ON FK_AttributeType=PK_AttributeType
@@ -117,7 +117,7 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 							$resAttributes=$mediadbADO->Execute($queryAttributes,$dbPKFiles[$key]);
 							$attributes='';
 							while($rowAttributes=$resAttributes->FetchRow()){
-								$attributes.='<b>'.$rowAttributes['AttributeName'].'</b>: <a href="index.php?section=mainMediaBrowser&attributeID='.$rowAttributes['PK_Attribute'].'&action=properties" target="_self">'.stripslashes($rowAttributes['Name']).(($rowAttributes['FirstName']!='')?', '.$rowAttributes['FirstName']:'').'</a> ';
+								$attributes.='<b>'.$rowAttributes['AttributeName'].'</b>: <a href="index.php?section=mainMediaBrowser&attributeID='.$rowAttributes['PK_Attribute'].'&action=properties" target="_self">'.stripslashes($rowAttributes['Name']).'</a> ';
 							}
 							$out.='
 							<tr style="background-color:'.(($physicalkey%2==0)?'#EEEEEE':'#EBEFF9').';">
@@ -138,7 +138,7 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 						</tr>';
 			foreach($dbonlyFiles as $dbkey => $filename){
 				$queryAttributes='
-					SELECT PK_Attribute, AttributeType.Description AS AttributeName,Name,FirstName
+					SELECT PK_Attribute, AttributeType.Description AS AttributeName,Name
 					FROM File_Attribute
 						INNER JOIN Attribute ON File_Attribute.FK_Attribute=PK_Attribute
 						INNER JOIN AttributeType ON FK_AttributeType=PK_AttributeType
@@ -147,7 +147,7 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 				$resAttributes=$mediadbADO->Execute($queryAttributes,$dbPKFiles[$dbkey]);
 				$attributes='';
 				while($rowAttributes=$resAttributes->FetchRow()){
-					$attributes.='<b>'.$rowAttributes['AttributeName'].'</b>: <a href="index.php?section=mainMediaBrowser&attributeID='.$rowAttributes['PK_Attribute'].'&action=properties" target="_self">'.stripslashes($rowAttributes['Name']).(($rowAttributes['FirstName']!='')?', '.$rowAttributes['FirstName']:'').'</a> ';
+					$attributes.='<b>'.$rowAttributes['AttributeName'].'</b>: <a href="index.php?section=mainMediaBrowser&attributeID='.$rowAttributes['PK_Attribute'].'&action=properties" target="_self">'.stripslashes($rowAttributes['Name']).'</a> ';
 				}
 	
 				$out.='	<tr style="background-color:'.(($dbkey%2==0)?'#EEEEEE':'#EBEFF9').';">

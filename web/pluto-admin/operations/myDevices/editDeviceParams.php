@@ -212,7 +212,7 @@ $installationID = (int)@$_SESSION['installationID'];
 				</tr>
 				<tr>
 					<td>State</td>
-					<td><input type="text" name="State" value="'.$State.'"></td>
+					<td>'.getStateFormElement($deviceID,'State',$State,$dbADO).'</td>
 				</tr>
 				<tr>
 					<td>Status</td>
@@ -493,7 +493,7 @@ $installationID = (int)@$_SESSION['installationID'];
 		$controlledVia = (@$_POST['controlledVia']!='0')?cleanInteger(@$_POST['controlledVia']):NULL;
 		$needConfigure = (isset($_POST['needConfigure']))?cleanInteger($_POST['needConfigure']):0;
 		$PingTest=(isset($_POST['PingTest']))?1:0;
-		$State= cleanString($_POST['State']);
+		$State= (isset($_POST['State']))?cleanString($_POST['State']):getStateValue('State');
 		$Status= cleanString($_POST['Status']);
 		
 		$addNewDeviceRelated = (int)$_POST['addNewDeviceRelated'];

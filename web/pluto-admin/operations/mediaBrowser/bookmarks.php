@@ -17,6 +17,7 @@ function bookmarks($output,$mediadbADO,$dbADO) {
 			<input type="hidden" name="section" value="bookmarks">
 			<input type="hidden" name="action" value="update">
 		
+
 		
 		</form>';
 	}else{
