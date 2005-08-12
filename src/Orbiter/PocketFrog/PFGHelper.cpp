@@ -29,10 +29,8 @@ Surface* PocketFrog_LoadPFG(char *pOCGData, size_t iOCGDataSize)
 			memcpy((char *)pPixels, pPixelsData, iPixelsDataSize);
 		}
 	}
-else
 
 	PLUTO_SAFE_DELETE(pRendererOCG);
-
 	return pSurface; 
 }
 //----------------------------------------------------------------------------------------------------------------
