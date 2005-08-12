@@ -9,7 +9,7 @@ del %LOG_PATH%\BuildCE.log
 
 %MAKERELEASE_PATH%\Debug\MakeRelease.exe -h 10.0.0.170 -o 12 -s %INPUT_PATH% -n / -c -k 119,138
 
-cd src\Orbiter\CENet_Smartphone
+cd "Orbiter\CENet_Smartphone"
 call build_cab.bat
 
 
