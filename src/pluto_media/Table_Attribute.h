@@ -80,7 +80,6 @@ class DECLSPECIFIER Row_Attribute : public TableRow, public SerializeClass
 		long int m_PK_Attribute;
 long int m_FK_AttributeType;
 string m_Name;
-string m_FirstName;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -88,13 +87,12 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[10];
+		bool is_null[9];
 	
 	public:
 		long int PK_Attribute_get();
 long int FK_AttributeType_get();
 string Name_get();
-string FirstName_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -106,7 +104,6 @@ long int psc_restrict_get();
 		void PK_Attribute_set(long int val);
 void FK_AttributeType_set(long int val);
 void Name_set(string val);
-void FirstName_set(string val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -116,7 +113,6 @@ void psc_restrict_set(long int val);
 
 		
 		bool FK_AttributeType_isNull();
-bool FirstName_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -125,7 +121,6 @@ bool psc_restrict_isNull();
 
 			
 		void FK_AttributeType_setNull(bool val);
-void FirstName_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -155,7 +150,7 @@ void SearchToken_Attribute_FK_Attribute_getrows(vector <class Row_SearchToken_At
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Attribute+ m_FK_AttributeType+ m_Name+ m_FirstName+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_Attribute+ m_FK_AttributeType+ m_Name+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -163,7 +158,6 @@ void SearchToken_Attribute_FK_Attribute_getrows(vector <class Row_SearchToken_At
 		string PK_Attribute_asSQL();
 string FK_AttributeType_asSQL();
 string Name_asSQL();
-string FirstName_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

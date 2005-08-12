@@ -9,8 +9,6 @@
 #define ATTRIBUTE_FK_ATTRIBUTETYPE_TABLE_FIELD "Attribute.FK_AttributeType"
 #define ATTRIBUTE_NAME_FIELD "Name"
 #define ATTRIBUTE_NAME_TABLE_FIELD "Attribute.Name"
-#define ATTRIBUTE_FIRSTNAME_FIELD "FirstName"
-#define ATTRIBUTE_FIRSTNAME_TABLE_FIELD "Attribute.FirstName"
 #define ATTRIBUTE_PSC_ID_FIELD "psc_id"
 #define ATTRIBUTE_PSC_ID_TABLE_FIELD "Attribute.psc_id"
 #define ATTRIBUTE_PSC_BATCH_FIELD "psc_batch"
