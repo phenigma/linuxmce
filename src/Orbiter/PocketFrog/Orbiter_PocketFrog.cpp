@@ -226,7 +226,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    Orbiter::Event orbiterEvent;
+	Orbiter::Event orbiterEvent;
     orbiterEvent.type = Orbiter::Event::NOT_PROCESSED;
     orbiterEvent.data.button.m_iPK_Button = 0;
 

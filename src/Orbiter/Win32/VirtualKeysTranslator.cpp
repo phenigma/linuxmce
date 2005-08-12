@@ -9,7 +9,6 @@ bool TranslateVirtualKeys2PlutoKeys(UINT uMsg, WPARAM wParam, LPARAM lParam,
     static bool bLastEvent_KeyDown = false;
 	static bool bWindows_Down = false;
 
-
     // Prevent auto-repeat
     if(uMsg == WM_KEYDOWN && bLastEvent_KeyDown && wOldParam == wParam) 
         return false;
@@ -65,17 +64,34 @@ bool TranslateVirtualKeys2PlutoKeys(UINT uMsg, WPARAM wParam, LPARAM lParam,
         case VK_W:      iPK_Button = BUTTON_Terminate_Text_CONST;    break;
 #endif 
 
+#ifdef SMARTPHONE
+		case 27:		iPK_Button = BUTTON_Phone_C_CONST;				break;
+		case 91:		iPK_Button = BUTTON_Phone_Pencil_CONST;			break;
+		case 114:		iPK_Button = BUTTON_Phone_Talk_CONST;			break;
+		case 115:		iPK_Button = BUTTON_Phone_End_CONST;			break;
+		case 112:		iPK_Button = BUTTON_Phone_Soft_left_CONST;		break;
+		case 113:		iPK_Button = BUTTON_Phone_Soft_right_CONST;		break;
+		case 104:       iPK_Button = BUTTON_Asterisk_CONST;				break;
+		case 105:       iPK_Button = BUTTON_Pound_CONST;				break;
+
+		//TODO!!! create logic to generate BUTTON_Terminate_Text_CONST or BUTTON_Enter_CONST
+		//iPK_Button = BUTTON_Terminate_Text_CONST;		break;
+#endif
+
+#ifndef SMARTPHONE
         case VK_F1:     iPK_Button = BUTTON_F1_CONST;            break;
         case VK_F2:     iPK_Button = BUTTON_F2_CONST;            break;
         case VK_F3:     iPK_Button = BUTTON_F3_CONST;            break;
         case VK_F4:     iPK_Button = BUTTON_F4_CONST;            break;
+#endif
+
         case VK_F5:     iPK_Button = BUTTON_F5_CONST;            break;
         case VK_UP:     iPK_Button = BUTTON_Up_Arrow_CONST;      break;
         case VK_DOWN:   iPK_Button = BUTTON_Down_Arrow_CONST;    break;
         case VK_LEFT:   iPK_Button = BUTTON_Left_Arrow_CONST;    break;
         case VK_RIGHT:  iPK_Button = BUTTON_Right_Arrow_CONST;   break;
         case VK_RETURN: iPK_Button = BUTTON_Enter_CONST;         break;
-        case VK_BACK:   iPK_Button = BUTTON_Back_CONST;          break;
+		case VK_BACK:   iPK_Button = BUTTON_Back_CONST;          break;
     }
 
     if( bShiftDown && !bControlDown && !bAltDown )
