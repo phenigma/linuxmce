@@ -56,7 +56,7 @@ namespace StringUtils
 	static
 #endif
     string itos( int iNum );
-    string itof( double dNum );
+    string ftos( double dNum );
 
 	/**
      * @brief replaces the sSearch string with the sReplace string in the sInput string

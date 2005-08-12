@@ -134,7 +134,7 @@ string StringUtils::itos( int iNum )
 #endif
 }
 
-string StringUtils::itof( double dNum )
+string StringUtils::ftos( double dNum )
 {
 #ifndef SYMBIAN
     char acS[81];
