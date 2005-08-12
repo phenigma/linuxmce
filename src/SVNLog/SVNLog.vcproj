@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="/mysql/Include;.."
+				AdditionalIncludeDirectories="/mysql/Include;../DCE;..;&quot;../../libs/Libraries/pthreads-win32/include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;GENERATOR"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -32,10 +32,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libmySQL.lib DCE.lib"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib DCE.lib pluto_main.lib"
 				OutputFile="../bin/SVNLog.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="/mysql/lib/Debug;../lib"
+				AdditionalLibraryDirectories="/mysql/lib/Debug;../../libs/Libraries/pthreads-win32/lib;../lib"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/SVNLog.pdb"
 				SubSystem="1"

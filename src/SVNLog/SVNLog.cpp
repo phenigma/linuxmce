@@ -46,6 +46,7 @@ See the GNU General Public License for more details.
 
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/FileUtils.h"
+#include "DCE/Logger.h"
 
 #ifdef WIN32
 #include <direct.h>
@@ -56,12 +57,13 @@ See the GNU General Public License for more details.
 
 #define  VERSION "<=version=>"
 
-using namespace std;
-
 namespace DCE
 {
-	class PlutoLogger *g_pPlutoLogger;
-};
+	Logger *g_pPlutoLogger;
+}
+
+using namespace std;
+using namespace DCE;
 
 class Commit
 {
@@ -81,6 +83,7 @@ map<PAIR_SI,int> mapUsersWeeks;
 
 int main( int argc, char *argv[] )
 {
+	g_pPlutoLogger = new FileLogger(stdout);
 	chdir("/home/MakeRelease/trunk");
 	unlink("output.all");
 	cout << "About to execute command" << endl;
@@ -94,6 +97,7 @@ int main( int argc, char *argv[] )
 	char *ptr = FileUtils::ReadFileIntoBuffer("output.all",size);
 //	cout << "File is: " << Lines.size() << " bytes." << endl;
 	string Lines = ptr;
+
 	StringUtils::Tokenize(Lines,"\r\n",vectLines);
 	delete ptr;
 	cout << "File is: " << vectLines.size() << " lines" << endl;

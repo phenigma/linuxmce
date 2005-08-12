@@ -55,11 +55,19 @@
     #endif
 #endif //#ifndef SYMBIAN
 
+#include "profiler.h"
+PlutoProfiler *g_PlutoProfiler;
+
 string StringUtils::Tokenize( string &sInput, string sToken, string::size_type &CurPos )
 {
+g_PlutoProfiler->Start("token2");
     if ( CurPos >= sInput.length() ) // allready extracted all the pices
+	{
+g_PlutoProfiler->Stop("token2");
         return "";
+	}
 
+g_PlutoProfiler->Start("token2c");
     string::size_type TokenPos;
 
     if ( sToken.length() > 1 )
@@ -69,7 +77,11 @@ string StringUtils::Tokenize( string &sInput, string sToken, string::size_type &
         for( string::size_type i=0; i < sToken.length(); i++ )
         {
             string::size_type NewPos = CurPos;
+g_PlutoProfiler->Stop("token2");
+g_PlutoProfiler->Stop("token2c");
             Tokenize( sInput, sToken.substr(i, 1), NewPos );
+g_PlutoProfiler->Start("token2");
+g_PlutoProfiler->Start("token2c");
             if ( NewPos < TokenPos )
                 TokenPos = NewPos;
         }
@@ -83,8 +95,13 @@ string StringUtils::Tokenize( string &sInput, string sToken, string::size_type &
             TokenPos = sInput.length();
         }
     }
+g_PlutoProfiler->Stop("token2c");
+
+g_PlutoProfiler->Start("token2b");
     string sReturnValue = sInput.substr( CurPos, (TokenPos - CurPos) );
+g_PlutoProfiler->Stop("token2b");
     CurPos = TokenPos + 1;
+g_PlutoProfiler->Stop("token2");
     return sReturnValue;
 }
 
@@ -160,16 +177,46 @@ string StringUtils::ltos( long lNum )
 
 void StringUtils::Tokenize(string &Input, string Tokens, vector<string> &vect_strings)
 {
-    string::size_type pos=0;
-    string sToken;
-    while( true )
+g_PlutoProfiler = new PlutoProfiler();
+g_PlutoProfiler->Start("total");
+
+	const char *pTokens = Tokens.c_str();
+	int Size=Tokens.size();
+	if( Size<1 || Size>3 )
+		return; // Not supported no tokens or more than 3
+
+	const char *pcPtr = Input.c_str();
+	char *pPtr_dup = strdup(pcPtr);
+	char *pPtr = pPtr_dup;
+	const char *pPtr_Start = pPtr;
+
+	while( *pPtr )
     {
-        sToken=StringUtils::Tokenize(Input,Tokens,pos);
-        if( sToken.length() )
-            vect_strings.push_back(sToken);
-        if( pos>=Input.length() )
-            return;
+g_PlutoProfiler->Start("inner");
+		while( *pPtr && *pPtr!=pTokens[0]
+			&& (Size<2 || *pPtr!=pTokens[1])
+			&& (Size<3 || *pPtr!=pTokens[2]) )
+				pPtr++;
+
+		// We're stopped on a token, terminate this string and skip over any more tokens
+		while( *pPtr && 
+			( *pPtr==pTokens[0] ||
+			  (Size>1 && *pPtr==pTokens[1]) ||
+			  (Size>2 && *pPtr==pTokens[2]) ) )
+		{
+			(*pPtr)=0;
+			pPtr++;
+		}
+
+		if( *pPtr_Start && pPtr_Start!=pPtr )
+            vect_strings.push_back(pPtr_Start);
+		pPtr_Start=pPtr;
+g_PlutoProfiler->Stop("inner");
+
     }
+	free(pPtr_dup);
+g_PlutoProfiler->Stop("total");
+g_PlutoProfiler->DumpResults();
 }
 
 void StringUtils::Tokenize(string &Input, string Tokens, deque<string> &deque_strings, bool bPushToFront)
