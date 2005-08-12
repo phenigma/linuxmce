@@ -192,7 +192,7 @@ retry:
 				continue;
 			}
 
-	        if( (!StringUtils::StartsWith(Filename,"src") && !StringUtils::StartsWith(Filename,"src"))
+	        if( (!StringUtils::StartsWith(Filename,"src") && !StringUtils::StartsWith(Filename,"web"))
 				|| StringUtils::StartsWith(Filename,"src/pluto_main") || StringUtils::StartsWith(Filename,"src/Gen_Devices")
 				|| StringUtils::StartsWith(Filename,"src/pluto_media") )
    			{
