@@ -539,8 +539,9 @@ g_pPlutoLogger->Write(LV_WARNING, "pl3 = %s %s",sPlaylistName.c_str(),pRow_Playl
 
     if ( !pRow_Playlist->Table_Playlist_get()->Commit(true,true) )
     {
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot save/create playlist with ID %d error: %s",iPK_Playlist,
-			pRow_Playlist->Table_Playlist_get()->Database_pluto_media_get()->m_sLastMySqlError.c_str());
+        g_pPlutoLogger->Write(LV_CRITICAL,"Cannot save/create playlist with ID %d error: %s",iPK_Playlist,
+	        m_pDatabase_pluto_media->m_sLastMySqlError.c_str());
+
 		return false;
     }
 
