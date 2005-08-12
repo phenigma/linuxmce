@@ -8,6 +8,7 @@
 #define PARAMETERTYPE_Data_CONST 5
 #define PARAMETERTYPE_PlutoColor_CONST 6
 #define PARAMETERTYPE_PlutoDate_CONST 7
+#define PARAMETERTYPE_float_CONST 8
 
 #define PARAMETERTYPE_TABLE "ParameterType"
 #define PARAMETERTYPE_PK_PARAMETERTYPE_FIELD "PK_ParameterType"

@@ -1235,6 +1235,7 @@
 #define DESIGNOBJ_grpMediaMapControls_PDA_CONST 4268
 #define DESIGNOBJ_grpSeekFileLIst_Playlists_PDA_CONST 4272
 #define DESIGNOBJ_grpMediaAttributeSearch_PDA_CONST 4273
+#define DESIGNOBJ_grpControls_lights_volume_CONST 4274
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
