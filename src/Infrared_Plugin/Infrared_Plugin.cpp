@@ -176,7 +176,7 @@ class DataGridTable *Infrared_Plugin::CommandsGrid(string GridID,string Parms,vo
 	vector<Row_DeviceTemplate_AV *> vectRow_DeviceTemplate_AV;
 	pDevice->m_pRow_Device->FK_DeviceTemplate_getrow()->DeviceTemplate_AV_FK_DeviceTemplate_getrows(&vectRow_DeviceTemplate_AV);
 	Row_DeviceTemplate_AV *pRow_DeviceTemplate_AV = vectRow_DeviceTemplate_AV.size() ? vectRow_DeviceTemplate_AV[0] : NULL;
-	bool bUsesIR = pRow_DeviceTemplate_AV && pRow_DeviceTemplate_AV->UsesIR_get()==1;
+	bool bUsesIR = true;//pRow_DeviceTemplate_AV && pRow_DeviceTemplate_AV->UsesIR_get()==1;
 
 	for(map<int,string>::iterator it=pDevice->m_mapCommands.begin();it!=pDevice->m_mapCommands.end();++it)
 	{
