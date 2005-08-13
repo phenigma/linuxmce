@@ -110,7 +110,7 @@ int main( int argc, char *argv[] )
 		int Revision = atoi(Line.substr(1).c_str());
 		if( Revision==1 )
 			continue;
-//s+=20; // temp
+s+=400; // temp
 		string::size_type start_pipe = Line.find('|');
 		string::size_type stop_pipe = Line.find('|',start_pipe+1);
 		string User = Line.substr(start_pipe+2,stop_pipe-start_pipe-3);
@@ -129,13 +129,14 @@ string z = Line.substr(stop_pipe+10);
 		tm_time.tm_min = 0;
 		tm_time.tm_sec = 0;
 		time_t t = mktime(&tm_time);
-		int Week = tm_time.tm_yday / 7;
+		int Week = ((Year-2004)*52) + (tm_time.tm_yday / 7);
 
 		if( Week > HighestWeek )
 			HighestWeek=Week;
 		if( Week < LowestWeek || LowestWeek==0 )
 			LowestWeek=Week;
-
+cout << Year << "/" << Month << "/" << Day << " yday: " << tm_time.tm_yday << " week: ";
+cout << Week << " Highest: " << HighestWeek << " LOwest: " << LowestWeek << endl;
 		int RetryCount=0;
 
 retry:
@@ -192,9 +193,10 @@ retry:
 				continue;
 			}
 
-	        if( (!StringUtils::StartsWith(Filename,"src") && !StringUtils::StartsWith(Filename,"web"))
-				|| StringUtils::StartsWith(Filename,"src/pluto_main") || StringUtils::StartsWith(Filename,"src/Gen_Devices")
-				|| StringUtils::StartsWith(Filename,"src/pluto_media") )
+	        if( StringUtils::StartsWith(Filename,"external/") || StringUtils::StartsWith(Filename,"libs/") ||
+				StringUtils::StartsWith(Filename,"installers/") || StringUtils::StartsWith(Filename,"misc_utils/") ||
+				StringUtils::StartsWith(Filename,"src/pluto_main") || StringUtils::StartsWith(Filename,"src/Gen_Devices") ||
+				StringUtils::StartsWith(Filename,"src/pluto_media") )
    			{
 		       cout << "Skipping: " << Filename << endl;
           	   continue;
@@ -207,7 +209,7 @@ retry:
 		}
 
 		cout << "============LOGGING COMMIT===============" << endl <<
-			"user: " << User << " lines: " << LinesChanged << endl <<
+			"user: " << User << " lines: " << LinesChanged << " week: " << Week << endl <<
 			"===========================================" << endl;
 
 		Commit *pCommit = new Commit();
@@ -222,13 +224,14 @@ retry:
 		int LinesSoFar = mapUsersWeeks[psi];
 		LinesSoFar += LinesChanged;
 		mapUsersWeeks[psi] = LinesSoFar;
-//cout << "pair: " << User << " week: " << Week << " lines: " << LinesSoFar << "  map: " << mapUsersWeeks.size() << endl;			
+cout << "pair: " << User << " week: " << Week << " lines: " << LinesSoFar << " lineschanged: " << LinesChanged << "  map: " << mapUsersWeeks.size() << endl;			
 	}
 
 	cout << "\t";
 	for(map<string,Commit *>::iterator it=mapUser.begin();it!=mapUser.end();++it)
 		cout << (*it).first << "\t";
 	cout << endl;
+cout << "we Highest: " << HighestWeek << " LOwest: " << LowestWeek << endl;
 	for(int i=LowestWeek;i<=HighestWeek;++i)
 	{
 		cout << i << "\t";
