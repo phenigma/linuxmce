@@ -78,7 +78,6 @@ class DECLSPECIFIER Row_DeviceTemplate_AV : public TableRow, public SerializeCla
 		Table_DeviceTemplate_AV *table;
 		
 		long int m_FK_DeviceTemplate;
-short int m_UsesIR;
 long int m_IR_PowerDelay;
 long int m_IR_ModeDelay;
 long int m_DigitDelay;
@@ -95,11 +94,10 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[17];
+		bool is_null[16];
 	
 	public:
 		long int FK_DeviceTemplate_get();
-short int UsesIR_get();
 long int IR_PowerDelay_get();
 long int IR_ModeDelay_get();
 long int DigitDelay_get();
@@ -118,7 +116,6 @@ long int psc_restrict_get();
 
 		
 		void FK_DeviceTemplate_set(long int val);
-void UsesIR_set(short int val);
 void IR_PowerDelay_set(long int val);
 void IR_ModeDelay_set(long int val);
 void DigitDelay_set(long int val);
@@ -170,13 +167,12 @@ void psc_restrict_setNull(bool val);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_FK_DeviceTemplate+ m_UsesIR+ m_IR_PowerDelay+ m_IR_ModeDelay+ m_DigitDelay+ m_TogglePower+ m_ToggleDSP+ m_ToggleInput+ m_ToggleOutput+ m_NumericEntry+ m_MonitorInputChanges+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_FK_DeviceTemplate+ m_IR_PowerDelay+ m_IR_ModeDelay+ m_DigitDelay+ m_TogglePower+ m_ToggleDSP+ m_ToggleInput+ m_ToggleOutput+ m_NumericEntry+ m_MonitorInputChanges+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
 		
 		string FK_DeviceTemplate_asSQL();
-string UsesIR_asSQL();
 string IR_PowerDelay_asSQL();
 string IR_ModeDelay_asSQL();
 string DigitDelay_asSQL();
