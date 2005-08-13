@@ -1299,13 +1299,13 @@ void DCEGen::CreateFunctionParms(int iParameterID,int iParameterType,string sPar
 		else
 			sPassingToMessage+="," + StringUtils::itos(iParameterID)+",StringUtils::itos("+ Prefix + sParameterName + ").c_str()";
 	}
-	else if (iParameterType == PARAMETERTYPE_float_CONST)
+	else if (iParameterType == PARAMETERTYPE_double_CONST)
 	{
-		sParmsWithType+= string(sParmsWithType.length()==0 ? "" : ",") + "float " + (bByReference ? "*" : "") + Prefix + sParameterName;
+		sParmsWithType+= string(sParmsWithType.length()==0 ? "" : ",") + "double " + (bByReference ? "*" : "") + Prefix + sParameterName;
 		if( bByReference )
 			sAssignParmToLocal+= "\t\t\t\t\t\tpMessageOut->m_mapParameters["+StringUtils::ftos(iParameterID)+"]=StringUtils::ftos(" + Prefix + sParameterName + ");\n";
 		else
-			sAssignParmToLocal+= "\t\t\t\t\tfloat " + Prefix + sParameterName + "=atoi(pMessage->m_mapParameters["+StringUtils::ftos(iParameterID)+"].c_str());\n";
+			sAssignParmToLocal+= "\t\t\t\t\tdouble " + Prefix + sParameterName + "=atoi(pMessage->m_mapParameters["+StringUtils::ftos(iParameterID)+"].c_str());\n";
 		if( bByReference )
 			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + "&" + Prefix + sParameterName;
 		else
@@ -1590,7 +1590,7 @@ string DCEGen::GetPrefix(int PK_ParameterType)
 		return "p";
 	if( PK_ParameterType == PARAMETERTYPE_int_CONST )
 		return "i";
-	if( PK_ParameterType == PARAMETERTYPE_float_CONST )
+	if( PK_ParameterType == PARAMETERTYPE_double_CONST )
 		return "f";
 	if( PK_ParameterType == PARAMETERTYPE_bool_CONST )
 		return "b";
@@ -1609,7 +1609,7 @@ string DCEGen::CastTypeToChar(string s,int PK_ParameterType)
 	case PARAMETERTYPE_int_CONST:
 		return "StringUtils::itos(" + s + ").c_str()";
 		break;
-	case PARAMETERTYPE_float_CONST:
+	case PARAMETERTYPE_double_CONST:
 		return "StringUtils::ftos(" + s + ").c_str()";
 		break;
 	case PARAMETERTYPE_bool_CONST:
@@ -1641,7 +1641,7 @@ string DCEGen::CastStringToType(string s,int PK_ParameterType)
 	case PARAMETERTYPE_int_CONST:
 		return "atoi(" + s + ".c_str())";
 		break;
-	case PARAMETERTYPE_float_CONST:
+	case PARAMETERTYPE_double_CONST:
 		return "atof(" + s + ".c_str())";
 		break;
 	case PARAMETERTYPE_bool_CONST:

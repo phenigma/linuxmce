@@ -25,6 +25,7 @@ using namespace DCE;
 #include "pluto_main/Table_CriteriaParmList.h"
 #include "pluto_main/Table_CriteriaParmNesting.h"
 #include "pluto_main/Table_EventHandler.h"
+#include "pluto_main/Table_City.h"
 #include "pluto_main/Define_DataGrid.h"
 
 #include "DataGrid.h"
@@ -32,6 +33,8 @@ using namespace DCE;
 #include "sunrise.h"
 
 #define ALARM_TIMED_EVENT	1
+#define ALARM_SUNRISE_SUNSET	2
+
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -108,15 +111,20 @@ Event_Plugin::Event_Plugin(int DeviceID, string ServerAddress,bool bConnectEvent
 	m_pAlarmManager = new AlarmManager();
     m_pAlarmManager->Start(2);      //4 = number of worker threads
 
-
-	time_t tSunrise,tSunset,tSunriseTomorrow,tSunsetTomorrow;
-	GetSunriseSunset(tSunrise,tSunset,tSunriseTomorrow,tSunsetTomorrow,47.367,8.55);
-	g_pPlutoLogger->Write(LV_STATUS,"tSunrise: %s",asctime(localtime(&tSunrise)));
-	g_pPlutoLogger->Write(LV_STATUS,"tSunset: %s",asctime(localtime(&tSunset)));
-	g_pPlutoLogger->Write(LV_STATUS,"tSunriseTomorrow: %s",asctime(localtime(&tSunriseTomorrow)));
-	g_pPlutoLogger->Write(LV_STATUS,"tSunsetTomorrow: %s",asctime(localtime(&tSunsetTomorrow)));
-
 	PLUTO_SAFETY_LOCK(em,m_EventMutex);
+	m_fLongitude = DATA_Get_Longitude();
+	m_fLatitude = DATA_Get_Latitude();
+
+	if( m_fLongitude==0 && m_fLatitude==0 )
+	{
+		Row_City *pRow_City = m_pDatabase_pluto_main->City_get()->GetRow(DATA_Get_PK_City());
+		if( pRow_City )
+		{
+			m_fLongitude = pRow_City->Longitude_get();
+			m_fLatitude = pRow_City->Latitude_get();
+		}
+	}
+	SetFirstSunriseSunset();
 	SetNextTimedEventCallback();
 }
 
@@ -306,6 +314,8 @@ void Event_Plugin::AlarmCallback(int id, void* param)
 		pTimedEvent->CalcNextTime();
 		SetNextTimedEventCallback();
 	}
+	else if( id==ALARM_SUNRISE_SUNSET )
+		FireSunriseSunsetEvent();
 }
 
 class DataGridTable *Event_Plugin::AlarmsInRoom( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
@@ -407,3 +417,84 @@ void Event_Plugin::CMD_Toggle_Event_Handler(int iPK_EventHandler,string &sCMD_Re
 	m_pDatabase_pluto_main->EventHandler_get()->Commit();
 }
 //<-dceag-createinst-b->!
+
+void Event_Plugin::SetFirstSunriseSunset()
+{
+	m_bIsDaytime=true;
+	m_tNextSunriseSunset=0;
+	if( m_fLongitude==0 && m_fLatitude==0 )
+		g_pPlutoLogger->Write(LV_WARNING,"No sunrise/sunset since no city or longitude/latitude set");
+	else
+	{
+		time_t tNow=time(NULL);
+		time_t tSunrise,tSunset,tSunriseTomorrow,tSunsetTomorrow;
+		GetSunriseSunset(tSunrise,tSunset,tSunriseTomorrow,tSunsetTomorrow,m_fLatitude,m_fLongitude);
+		g_pPlutoLogger->Write(LV_STATUS,"tSunrise: %s",asctime(localtime(&tSunrise)));
+		g_pPlutoLogger->Write(LV_STATUS,"tSunset: %s",asctime(localtime(&tSunset)));
+		g_pPlutoLogger->Write(LV_STATUS,"tSunriseTomorrow: %s",asctime(localtime(&tSunriseTomorrow)));
+		g_pPlutoLogger->Write(LV_STATUS,"tSunsetTomorrow: %s",asctime(localtime(&tSunsetTomorrow)));
+
+		if( tSunset>tSunrise )  // I think this is always the case unless in the Arctic somewhere sunset is at 1am and sunrise at 2am????
+		{
+			if( tNow<tSunrise )
+			{
+				m_bIsDaytime=false;
+				m_tNextSunriseSunset=tSunrise;
+			}
+			else if( tNow>=tSunrise && tNow<tSunset )
+				m_tNextSunriseSunset=tSunset;
+			else if( tNow>=tSunset && tNow<tSunriseTomorrow )
+			{
+				m_bIsDaytime=false;
+				m_tNextSunriseSunset=tSunriseTomorrow;
+			}
+			else
+				m_tNextSunriseSunset=tSunsetTomorrow; // Don't think this is possible
+		}
+		else // Don't think this is possible
+		{
+			if( tNow<tSunset )
+				m_tNextSunriseSunset=tSunset;
+			else if( tNow>=tSunset && tNow<tSunrise )
+			{
+				m_bIsDaytime=false;
+				m_tNextSunriseSunset=tSunrise;
+			}
+			else if( tNow>=tSunrise && tNow<tSunsetTomorrow )
+				m_tNextSunriseSunset=tSunsetTomorrow;
+			else
+			{
+				m_bIsDaytime=false;
+				m_tNextSunriseSunset=tSunriseTomorrow; // Don't think this is possible
+			}
+		}
+
+		g_pPlutoLogger->Write(LV_STATUS,"Currently %s next event in %d:%d",
+			(m_bIsDaytime ? "daytime" : "night"), (m_tNextSunriseSunset-tNow)/60, (m_tNextSunriseSunset-tNow)%60);
+
+		m_pAlarmManager->AddAbsoluteAlarm( m_tNextSunriseSunset, this, ALARM_SUNRISE_SUNSET, NULL );
+	}
+}
+
+void Event_Plugin::FireSunriseSunsetEvent()
+{
+	PLUTO_SAFETY_LOCK(em,m_EventMutex);
+	if( m_bIsDaytime )
+		EVENT_Sunset();
+	else
+		EVENT_Sunrise();
+
+	m_bIsDaytime=!m_bIsDaytime;
+
+	time_t tNow=time(NULL);
+	time_t tSunrise,tSunset,tSunriseTomorrow,tSunsetTomorrow;
+	GetSunriseSunset(tSunrise,tSunset,tSunriseTomorrow,tSunsetTomorrow,m_fLatitude,m_fLongitude);
+
+	if( m_bIsDaytime )
+		m_tNextSunriseSunset= tSunset>tNow ? tSunset : tSunsetTomorrow;
+	else
+		m_tNextSunriseSunset= tSunrise>tNow ? tSunrise : tSunriseTomorrow;
+
+	m_pAlarmManager->AddAbsoluteAlarm( m_tNextSunriseSunset, this, ALARM_SUNRISE_SUNSET, NULL );
+
+}

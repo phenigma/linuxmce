@@ -16,6 +16,16 @@ public:
 	Event_Plugin_Event(class ClientSocket *pOCClientSocket, int DeviceID) : Event_Impl(pOCClientSocket, DeviceID) {};
 	//Events
 	class Event_Impl *CreateEvent( unsigned long dwPK_DeviceTemplate, ClientSocket *pOCClientSocket, unsigned long dwDevice );
+	virtual void Sunrise()
+	{
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 51,0));
+	}
+
+	virtual void Sunset()
+	{
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 52,0));
+	}
+
 };
 
 
@@ -29,6 +39,8 @@ public:
 	virtual int GetPK_DeviceList() { return 52; } ;
 	virtual const char *GetDeviceDescription() { return "Event_Plugin"; } ;
 	int Get_PK_City() { return atoi(m_mapParameters[107].c_str());}
+	double Get_Longitude() { return atof(m_mapParameters[108].c_str());}
+	double Get_Latitude() { return atof(m_mapParameters[109].c_str());}
 };
 
 
@@ -72,7 +84,11 @@ public:
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
 	int DATA_Get_PK_City() { return GetData()->Get_PK_City(); }
+	double DATA_Get_Longitude() { return GetData()->Get_Longitude(); }
+	double DATA_Get_Latitude() { return GetData()->Get_Latitude(); }
 	//Event accessors
+	void EVENT_Sunrise() { GetEvents()->Sunrise(); }
+	void EVENT_Sunset() { GetEvents()->Sunset(); }
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Toggle_Event_Handler(int iPK_EventHandler,string &sCMD_Result,class Message *pMessage) {};
 

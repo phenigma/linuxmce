@@ -38,6 +38,9 @@ namespace DCE
 		int m_dwID_EventInstance;
 		TimedEvent *m_pTimedEvent_Next;
 	    class Datagrid_Plugin *m_pDatagrid_Plugin;
+		double m_fLongitude,m_fLatitude;
+		bool m_bIsDaytime;
+		time_t m_tNextSunriseSunset;
 
 		// Private methods
 public:
@@ -59,6 +62,9 @@ public:
         void AlarmCallback(int id, void* param);
 		void SetNextTimedEventCallback();
 
+		void SetFirstSunriseSunset();
+		void FireSunriseSunsetEvent();
+
 		// Datagrid
 		class DataGridTable *AlarmsInRoom( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 
@@ -71,8 +77,12 @@ public:
 	/*
 			*****DATA***** accessors inherited from base class
 	int DATA_Get_PK_City();
+	double DATA_Get_Longitude();
+	double DATA_Get_Latitude();
 
 			*****EVENT***** accessors inherited from base class
+	void EVENT_Sunrise();
+	void EVENT_Sunset();
 
 			*****COMMANDS***** we need to implement
 	*/
