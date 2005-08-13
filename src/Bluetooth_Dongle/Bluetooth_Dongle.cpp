@@ -822,7 +822,7 @@ void Bluetooth_Dongle::CMD_Send_File_To_Device(string sFilename,string sMac_addr
         bFailed = true;
         g_pPlutoLogger->Write(LV_WARNING, "Failed to upload the file to the phone. Returned code: %d", ret);
     }
-
+/*
     if(bFailed)
     {
         CMD_Display_Dialog_Box_On_Orbiter CMD_Display_Dialog_Box_On_Orbiter_(m_dwPK_Device, pMessage->m_dwPK_Device_From, 
@@ -838,6 +838,7 @@ void Bluetooth_Dongle::CMD_Send_File_To_Device(string sFilename,string sMac_addr
             "<%=T" + StringUtils::itos(TEXT_instructions_CONST) + "%>", "");
         SendCommand(CMD_Display_Message_On_Orbiter_);
     }
+*/
 }
 
 //<-dceag-createinst-b->!
