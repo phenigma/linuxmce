@@ -110,7 +110,7 @@ int main( int argc, char *argv[] )
 		int Revision = atoi(Line.substr(1).c_str());
 		if( Revision==1 )
 			continue;
-s+=400; // temp
+		
 		string::size_type start_pipe = Line.find('|');
 		string::size_type stop_pipe = Line.find('|',start_pipe+1);
 		string User = Line.substr(start_pipe+2,stop_pipe-start_pipe-3);
