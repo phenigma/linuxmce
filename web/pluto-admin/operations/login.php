@@ -29,12 +29,6 @@ $loginFormBig= '
 	      <td colspan="2" align="center">If you just installed Pluto, your username and password will be the same as the one you created on plutohome.com.</td>
 	    </tr>
 	    <tr>
-	      <td colspan="2" align="center"><h1>IMPORTANT:</h1> You need to enable popups to use this site.  Some web browsers block them, and you need to specifically
-	    add the IP address or domain name you use to access PlutoAdmin, such as 192.168.80.1, to the "allowed list".  If you\'re using the browser built into the
-	      media director we did this for you already.  To allow popups for this site in <b>Firefox</b>, click Tools, Options, Web Features.  
-	      If "Block Popup Windows" is checked, click "Allowed Sites".  In <b>Internet Explorer</b>, choose Tools, Pop-up Blocker, Popup-Blocker Settings.</td>
-	    </tr>
-	    <tr>
 	      <td colspan="2" align="center"><a href="/support/index.php?section=document&docID=35" target="_top">Help with the Pluto Admin site</a></td>
 	    </tr>
 	    <tr>
