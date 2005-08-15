@@ -4,8 +4,17 @@
 . /usr/pluto/bin/pluto.func
 
 cronCmd="/usr/pluto/bin/SetupRemoteAccess.sh"
+cronCmd_Special="/usr/pluto/bin/SetupRA-Special.sh"
 cronEntry="*/1 * * * * root $cronCmd"
+cronEntry_Special="*/10 * * * * root $cronCmd_Special"
 screenName="RemoteAssistance"
+
+PortBase=$((PK_Installation*4+10000))
+
+if [[ ! -L "$cronCmd_Special" ]]; then
+	rm -f "$cronCmd_Special"
+	ln -s "$cronCmd" "$cronCmd_Special"
+fi
 
 RAKey="/usr/pluto/keys/id_dsa_remoteassistance"
 [ -f "$RAKey" ] && chmod 700 "$RAKey" || exit
@@ -25,18 +34,42 @@ AddCronEntry()
 	else
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Crontab entry already present. Not adding."
 	fi
+	
+	if ! grep -qF "$cronCmd_Special" /etc/crontab; then
+		# add it to crontab
+		echo "$cronEntry_Special" >>/etc/crontab
+		/etc/init.d/cron reload
+		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Added crontab entry (special)"
+	else
+		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Crontab entry (special) already present. Not adding."
+	fi
 }
 
 DelCronEntry()
 {
+	local CronReload
+
 	# remove script from crontab
 	if grep -qF "$cronCmd" /etc/crontab; then
 		grep -vF "$cronCmd" /etc/crontab >/etc/crontab.$$
 		mv /etc/crontab.$$ /etc/crontab
-		/etc/init.d/cron reload
+		CronReload="1"
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Crontab entry found. Removed."
 	else
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Crontab entry not found. Not removing."
+	fi
+	
+	if grep -qF "$cronCmd_Special" /etc/crontab; then
+		grep -vF "$cronCmd_Special" /etc/crontab >/etc/crontab.$$
+		mv /etc/crontab.$$ /etc/crontab
+		CronReload="1"
+		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Crontab entry (special) found. Removed."
+	else
+		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Crontab entry (special) not found. Not removing."
+	fi
+
+	if [[ -n "$CronReload" ]]; then
+		/etc/init.d/cron reload
 	fi
 }
 
@@ -46,12 +79,15 @@ CreateTunnel()
 	LocalPort="$2"
 	RemotePort="$3"
 	Host="$4"
+	RAhost="$5"
+	RAport="$6"
+	Monitored="${7:-yes}"
 
 	Tunnel=$(echo /var/run/screen/S-root/*${screenName}_${Suffix}*)
 
 	# if tunnel is not active create it
 	Dead=0
-	if [[ "$RA_CheckRemotePort" == "1" ]]; then
+	if [[ "$Monitored" == yes && "$RA_CheckRemotePort" == "1" ]]; then
 		if [[ -z "$Tunnel" ]] || ! nc -z -w1 pf.plutohome.com "$RemotePort"; then
 			Dead=1
 		fi
@@ -70,7 +106,7 @@ CreateTunnel()
 		fi
 		if [[ "$FalseAlarm" -eq 0 ]]; then
 			[[ -n "$Tunnel" ]] && RemoveTunnel "$Suffix"
-			screen -d -m -S "${screenName}_${Suffix}" /usr/pluto/bin/RemoteAccess_Tunnel.sh "$RemotePort" "$LocalPort" "$RAKey" $Host
+			screen -d -m -S "${screenName}_${Suffix}" /usr/pluto/bin/RemoteAccess_Tunnel.sh "$RemotePort" "$LocalPort" "$RAKey" "$Host" "$RAhost" "$RAport"
 			Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "$Suffix tunnel enabled."
 		else
 			Logging "$TYPE" "$SEVERITY_WARNING" "$0" "$Suffix tunnel not down. False alarm"
@@ -83,7 +119,7 @@ CreateTunnel()
 RemoveTunnel()
 {
 	Suffix="$1"
-	Tunnel=$(echo /var/run/screen/S-root/*${screenName}_${Suffix}*)
+	Tunnel=$(echo /var/run/screen/S-root/*${screenName}_${Suffix})
 
 	# kill port forward if it exists
 	if [ -n "$Tunnel" ]; then
@@ -109,14 +145,22 @@ CreateTunnels()
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "User 'remote' already exists. Not adding."
 	fi
 
-	CreateTunnel "SSH" 22 $((PK_Installation*2+10000))
-	CreateTunnel "Web" 80 $((PK_Installation*2+10001))
+	CreateTunnel "SSH" 22 $PortBase
+	CreateTunnel "Web" 80 $((PortBase+1))
+	CreateTunnels_Special
+}
+
+CreateTunnels_Special()
+{
+	CreateTunnel "SSH_NoMon_pf" 22 $((PortBase+2)) "" "" 22 no
+	CreateTunnel "SSH_NoMon_ph" 22 $((PortBase+3)) "" pf2.plutohome.com 22 no
 }
 
 RemoveTunnels()
 {
 	RemoveTunnel "SSH"
 	RemoveTunnel "Web"
+	RemoveTunnels_Special
 	
 	if grep -q remote /etc/passwd; then
 		# delete user "remote" if it exists
@@ -126,17 +170,30 @@ RemoveTunnels()
 	fi
 }
 
-DeleteHostKey()
+RemoveTunnels_Special()
 {
-	sed -i '/pf\.plutohome\.com/d' /root/.ssh/known_hosts
+	RemoveTunnel "SSH_NoMon_pf"
+	RemoveTunnel "SSH_NoMon_ph"
 }
 
-DeleteHostKey
-if [ -n "$remote" ]; then
-	AddCronEntry
-	[ "$1" == "restart" ] && RemoveTunnels
-	CreateTunnels
-else
-	DelCronEntry
-	RemoveTunnels
+DeleteHostKey()
+{
+	sed -i '/pf2?\.plutohome\.com/d' /root/.ssh/known_hosts
+}
+
+Me="$(basename "$0")"
+
+if [[ "$Me" == "$(basename "$cronCmd")" ]]; then
+	DeleteHostKey
+	if [ -n "$remote" ]; then
+		AddCronEntry
+		[ "$1" == "restart" ] && RemoveTunnels
+		CreateTunnels
+	else
+		DelCronEntry
+		RemoveTunnels
+	fi
+elif [[ "$Me" == "$(basename "$cronCmd_Special")" ]]; then
+	RemoveTunnels_Special
+	CreateTunnels_Special
 fi
