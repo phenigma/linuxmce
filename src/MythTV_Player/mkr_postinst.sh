@@ -78,14 +78,13 @@ fi
 #Create a shortcut to MythTV Setup
 #Find the media director -- it could be a child if this is a hybrid
 Q="SELECT PK_Device FROM Device JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory=8 AND (PK_Device=$PK_Device OR FK_Device_ControlledVia=$PK_Device) LIMIT 1"
-PK_Device_MD=$(echo "$Q;" | /usr/bin/mysql pluto_main --skip-column-names)
+PK_Device_MD="$(RunSQL "$Q")"
 
 #Do we have a quick launch already?
 Q="SELECT PK_Device_QuickStart FROM Device_QuickStart where FK_Device=$PK_Device_MD AND Description='MythTV Setup'"
-PK_Device_QuickStart=$(echo "$Q;" | /usr/bin/mysql pluto_main --skip-column-names)
+PK_Device_QuickStart="$(RunSQL "$Q")"
 
 if [ "$PK_Device_QuickStart" = "" ]; then
 	Q="INSERT INTO Device_QuickStart(FK_Device,Description,SortOrder,\`Binary\`,Arguments) VALUES($PK_Device_MD,'MythTV Setup',1,'/bin/bash','-c\\t/usr/pluto/bin/launchMythSetup.sh')"
-	echo "$Q;" | /usr/bin/mysql pluto_main
+	RunSQL "$Q"
 fi
-
