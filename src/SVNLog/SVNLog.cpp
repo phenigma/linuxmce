@@ -193,10 +193,10 @@ retry:
 				continue;
 			}
 
-	        if( StringUtils::StartsWith(Filename,"external/") || StringUtils::StartsWith(Filename,"libs/") ||
-				StringUtils::StartsWith(Filename,"installers/") || StringUtils::StartsWith(Filename,"misc_utils/") ||
-				StringUtils::StartsWith(Filename,"src/pluto_main") || StringUtils::StartsWith(Filename,"src/Gen_Devices") ||
-				StringUtils::StartsWith(Filename,"src/pluto_media") )
+			if( Filename.find("external/")!=string::npos || Filename.find("libs/")!=string::npos ||
+				Filename.find("installers/")!=string::npos || Filename.find("misc_utils/")!=string::npos ||
+				Filename.find("pluto_main/")!=string::npos || Filename.find("Gen_Devices/")!=string::npos ||
+				Filename.find("pluto_media/")!=string::npos )
    			{
 		       cout << "Skipping: " << Filename << endl;
           	   continue;
