@@ -185,7 +185,6 @@ retry:
 		for(size_t s2=0;s2<vectFiles.size();++s2)
 		{
 			string File = vectFiles[s2];
-			cout << "line: " << File << endl;
 			if( File.substr(0,6)=="Index:" )
 			{
 				Filename = File.substr(7);
@@ -198,9 +197,10 @@ retry:
 				Filename.find("pluto_main/")!=string::npos || Filename.find("Gen_Devices/")!=string::npos ||
 				Filename.find("pluto_media/")!=string::npos )
    			{
-		       cout << "Skipping: " << Filename << endl;
           	   continue;
     		}
+
+			cout << "line: " << File << endl;
 
 			if( File[0]=='-' && File[1]!='-' )
 				LinesChanged++;
