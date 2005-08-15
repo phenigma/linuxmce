@@ -36,3 +36,4 @@ if [[ -n "$DeviceTemplate" && $DeviceTemplate -eq $DeviceTemplate_MD ]]; then
 	fi
 	update-rc.d hotplug start 81 1 2 3 4 5 . stop 89 0 6 . || /bin/true
 fi
+/usr/pluto/bin/PlutoVersion.sh

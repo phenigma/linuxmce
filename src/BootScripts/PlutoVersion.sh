@@ -23,8 +23,8 @@ elif [[ $DeviceTemplate -eq $DeviceTemplate_MD ]]; then
 	if [[ "$Version" != "$CoreVersion" ]]; then
 		Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "*************************************************"
 		Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "Core and MD version are different."
-		Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "Core version:          $CoreVersion"
-		Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "This machines version: $Version"
+		Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "Core version:           $CoreVersion"
+		Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "This machine's version: $Version"
 		Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "It's very possible that this MD updated and is now a newer version than the Core is. To match versions again, you need to reboot the Core so it updates too."
 		Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "*************************************************"
 		Logging "$TYPE" "$SEVERITY_WARNING" "$0" "The Media Director won't boot until it matches the Core's version"
