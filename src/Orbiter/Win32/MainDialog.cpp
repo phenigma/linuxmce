@@ -1445,6 +1445,9 @@ void LoadUI_From_ConfigurationData()
 	::SendMessage(g_hWndRandom_KeyboardCheckBox, BM_SETCHECK, 
 		Simulator::GetInstance()->m_bGenerateKeyboardEvents ? BST_CHECKED : BST_UNCHECKED, 0);
 
+	if(Simulator::GetInstance()->m_sDeviceID == "0")
+		Simulator::GetInstance()->m_sDeviceID = "";
+
 #ifdef WINCE
 	wchar_t wTextBuffer[MAX_STRING_LEN];
 
