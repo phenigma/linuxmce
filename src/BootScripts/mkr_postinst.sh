@@ -5,6 +5,7 @@ update-rc.d Startup_Scripts.sh defaults 22 10
 
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/SQL_Ops.sh
+. /usr/pluto/bin/PlutoVersion.h
 
 # /etc/apt/apt.conf.d/30pluto
 
@@ -19,21 +20,24 @@ Dpkg::Options { "--force-confold"; };
 
 echo -n "$pluto_apt_conf" >/etc/apt/apt.conf.d/30pluto
 
-Q="SELECT FK_DeviceTemplate FROM Device WHERE PK_Device=$PK_Device"
-DeviceTemplate=$(RunSQL "$Q")
+Q="SELECT FK_DeviceCategory FROM Device JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE PK_Device=$PK_Device"
+DeviceCategory=$(RunSQL "$Q")
 
-DeviceTemplate_Core=7
-DeviceTemplate_MD=28
+DeviceCategory_Core=7
+DeviceCategory_MD=8
 
-if [[ -n "$DeviceTemplate" && $DeviceTemplate -eq $DeviceTemplate_MD ]]; then
-	if ! update-rc.d -f discover remove; then
-		:
+if [[ -n "$DeviceCategory" ]]; then
+	if [[ $DeviceCategory -eq $DeviceCategory_MD ]]; then
+		if ! update-rc.d -f discover remove; then
+			:
+		fi
+		update-rc.d discover start 80 1 2 3 4 5 .
+
+		if ! update-rc.d -f hotplug remove; then
+			:
+		fi
+		update-rc.d hotplug start 81 1 2 3 4 5 . stop 89 0 6 . || /bin/true
+	elif [[ $DeviceCategory -eq $DeviceCategory_Core ]]; then
+		echo "$Version" >/home/pluto-version
 	fi
-	update-rc.d discover start 80 1 2 3 4 5 .
-
-	if ! update-rc.d -f hotplug remove; then
-		:
-	fi
-	update-rc.d hotplug start 81 1 2 3 4 5 . stop 89 0 6 . || /bin/true
 fi
-/usr/pluto/bin/PlutoVersion.sh

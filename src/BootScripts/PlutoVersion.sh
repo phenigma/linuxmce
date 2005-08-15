@@ -6,20 +6,18 @@
 
 . /usr/pluto/bin/PlutoVersion.h
 
-Q="SELECT FK_DeviceTemplate FROM Device WHERE PK_Device=$PK_Device"
-DeviceTemplate=$(RunSQL "$Q")
+Q="SELECT FK_DeviceCategory FROM Device JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE PK_Device=$PK_Device"
+DeviceCategory=$(RunSQL "$Q")
 
-DeviceTemplate_Core=7
-DeviceTemplate_MD=28
+DeviceCategory_Core=7
+DeviceCategory_MD=8
 
 trap : SIGINT
 
-if [[ -z "$DeviceTemplate" ]]; then
+if [[ -z "$DeviceCategory" ]]; then
 	Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "Can't determine Device Template"
-elif [[ $DeviceTemplate -eq $DeviceTemplate_Core ]]; then
-	echo "$Version" >/home/pluto-version
-elif [[ $DeviceTemplate -eq $DeviceTemplate_MD ]]; then
-	CoreVersion=$(</home/pluto-version)
+elif [[ $DeviceCategory -eq $DeviceCategory_MD ]]; then
+	CoreVersion="$(</home/pluto-version)"
 	if [[ "$Version" != "$CoreVersion" ]]; then
 		Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "*************************************************"
 		Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "Core and MD version are different."
