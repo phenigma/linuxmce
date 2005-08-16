@@ -15,7 +15,7 @@ DeviceCategory_MD=8
 trap : SIGINT
 
 if [[ -z "$DeviceCategory" ]]; then
-	Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "Can't determine Device Template"
+	Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "Can't determine Device Category"
 elif [[ $DeviceCategory -eq $DeviceCategory_MD ]]; then
 	CoreVersion="$(</home/pluto-version)"
 	if [[ "$Version" != "$CoreVersion" ]]; then
