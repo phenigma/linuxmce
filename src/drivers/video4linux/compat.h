@@ -1,6 +1,14 @@
 /*
- * $Id: compat.h,v 1.12 2005/06/13 08:42:51 nsh Exp $
+ * $Id: compat.h,v 1.14 2005/07/15 20:37:50 mchehab Exp $
  */
+
+#ifndef _COMPAT_H
+#define _COMPAT_H
+
+#include <linux/i2c-id.h>
+#include <linux/pm.h>
+#include <linux/version.h>
+#include <linux/utsname.h>
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,18)
 # define minor(x) MINOR(x)
@@ -31,10 +39,6 @@
 # define  I2C_CLASS_TV_ANALOG  I2C_ADAP_CLASS_TV_ANALOG
 # define  I2C_CLASS_TV_DIGITAL I2C_ADAP_CLASS_TV_DIGITAL
 #endif
-#if !defined(I2C_HW_B_CX2388x)
-# define I2C_HW_B_CX2388x I2C_HW_B_BT848
-#endif
-
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,9)
 # define __user
@@ -47,6 +51,9 @@
 # define pci_choose_state(pci_dev, state)  (state)
 # define PCI_D0                            (0)
 # define assert_spin_locked(foobar)
+#endif
+#if !defined(I2C_HW_B_CX2388x)
+# define I2C_HW_B_CX2388x I2C_HW_B_BT848
 #endif
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,9)
@@ -96,6 +103,11 @@ static inline unsigned long msleep_interruptible(unsigned int msecs)
 }
 #endif
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,11)
+#define pm_message_t u32
+#endif
+
+#endif
 /*
  * Local variables:
  * c-basic-offset: 8

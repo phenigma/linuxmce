@@ -1,5 +1,5 @@
 /*
- * $Id: cx88-vbi.c,v 1.17 2005/06/12 04:19:19 mchehab Exp $
+ * $Id: cx88-vbi.c,v 1.18 2005/07/15 21:44:14 mchehab Exp $
  */
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -7,6 +7,7 @@
 #include <linux/init.h>
 #include <linux/slab.h>
 
+#include "compat.h"
 #include "cx88.h"
 
 static unsigned int vbibufs = 4;

@@ -1,5 +1,5 @@
 /*
- * $Id: ir-common.c,v 1.11 2005/07/07 14:44:43 mchehab Exp $
+ * $Id: ir-common.c,v 1.12 2005/07/13 17:25:25 mchehab Exp $
  *
  * some common structs and functions to handle infrared remotes via
  * input layer ...
@@ -21,9 +21,9 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include "compat.h"
 #include <linux/module.h>
 #include <linux/moduleparam.h>
-#include <linux/version.h>
 #include <media/ir-common.h>
 
 /* -------------------------------------------------------------------------- */

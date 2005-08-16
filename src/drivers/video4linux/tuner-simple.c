@@ -1,14 +1,14 @@
 /*
- * $Id: tuner-simple.c,v 1.39 2005/07/07 01:49:30 mkrufky Exp $
+ * $Id: tuner-simple.c,v 1.44 2005/08/04 04:01:28 nsh Exp $
  *
  * i2c tv tuner chip device driver
  * controls all those simple 4-control-bytes style tuners.
  */
 #include <linux/delay.h>
 #include <linux/i2c.h>
+#include "compat.h"
 #include <linux/videodev.h>
 #include <media/tuner.h>
-#include "compat.h"
 
 /* ---------------------------------------------------------------------- */
 
@@ -246,6 +246,13 @@ static struct tunertype tuners[] = {
           /* see tea5767.c for details */},
 	{ "Philips FMD1216ME MK3 Hybrid Tuner", Philips, PAL,
 	  16*160.00,16*442.00,0x51,0x52,0x54,0x86,623 },
+
+	{ "LG TDVS-H062F/TUA6034", LGINNOTEK, NTSC,
+	  16*160.00,16*455.00,0x01,0x02,0x04,0x8e,732},
+	{ "Ymec TVF66T5-B/DFF", Philips, PAL,
+          16*160.25,16*464.25,0x01,0x02,0x08,0x8e,623},
+ 	{ "LG NTSC (TALN mini series)", LGINNOTEK, NTSC,
+	  16*150.00,16*425.00,0x01,0x02,0x08,0x8e,732 },
 };
 
 unsigned const int tuner_count = ARRAY_SIZE(tuners);

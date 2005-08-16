@@ -1,5 +1,5 @@
 /*
- * $Id: cx88-core.c,v 1.33 2005/07/07 14:17:47 mchehab Exp $
+ * $Id: cx88-core.c,v 1.34 2005/07/15 21:44:14 mchehab Exp $
  *
  * device driver for Conexant 2388x based TV cards
  * driver core
@@ -32,6 +32,7 @@
 #include <linux/interrupt.h>
 #include <linux/pci.h>
 #include <linux/delay.h>
+#include "compat.h"
 #include <linux/videodev.h>
 
 #include "cx88.h"
@@ -1166,7 +1167,7 @@ struct cx88_core* cx88_core_get(struct pci_dev *pci)
 	if (!core->radio_addr)
 		core->radio_addr = cx88_boards[core->board].radio_addr;
 
-	printk(KERN_INFO "TV tuner %d at 0x%02x, Radio tuner %d at 0x%02x\n",
+        printk(KERN_INFO "TV tuner %d at 0x%02x, Radio tuner %d at 0x%02x\n",
 		core->tuner_type, core->tuner_addr<<1,
 		core->radio_type, core->radio_addr<<1);
 
@@ -1237,5 +1238,4 @@ EXPORT_SYMBOL(cx88_core_put);
  * Local variables:
  * c-basic-offset: 8
  * End:
- * kate: eol "unix"; indent-width 3; remove-trailing-space on; replace-trailing-space-save on; tab-width 8; replace-tabs off; space-indent off; mixed-indent off
  */

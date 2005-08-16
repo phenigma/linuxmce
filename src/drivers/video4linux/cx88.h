@@ -1,5 +1,5 @@
 /*
- * $Id: cx88.h,v 1.68 2005/07/07 14:17:47 mchehab Exp $
+ * $Id: cx88.h,v 1.70 2005/07/24 17:44:09 mkrufky Exp $
  *
  * v4l2 device driver for cx2388x based TV cards
  *
@@ -36,8 +36,8 @@
 #include "btcx-risc.h"
 #include "cx88-reg.h"
 
-#include <linux/version.h>
-#define CX88_VERSION_CODE KERNEL_VERSION(0,0,4)
+#include <linux/utsname.h>
+#define CX88_VERSION_CODE KERNEL_VERSION(0,0,5)
 
 #ifndef TRUE
 # define TRUE (1==1)
@@ -175,6 +175,7 @@ extern struct sram_channel cx88_sram_channels[];
 #define CX88_BOARD_DVICO_FUSIONHDTV_3_GOLD_T  28
 #define CX88_BOARD_ADSTECH_DVB_T_PCI          29
 #define CX88_BOARD_TERRATEC_CINERGY_1400_DVB_T1  30
+#define CX88_BOARD_DVICO_FUSIONHDTV_5_GOLD 31
 
 enum cx88_itype {
 	CX88_VMUX_COMPOSITE1 = 1,

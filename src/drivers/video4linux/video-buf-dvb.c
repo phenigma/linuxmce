@@ -1,5 +1,5 @@
 /*
- * $Id: video-buf-dvb.c,v 1.11 2005/07/07 01:49:30 mkrufky Exp $
+ * $Id: video-buf-dvb.c,v 1.12 2005/07/15 21:44:14 mchehab Exp $
  *
  * some helper function for simple DVB cards which simply DMA the
  * complete transport stream and let the computer sort everything else
@@ -22,6 +22,7 @@
 #include <linux/file.h>
 #include <linux/suspend.h>
 
+#include "compat.h"
 #include <media/video-buf.h>
 #include <media/video-buf-dvb.h>
 
@@ -62,13 +63,13 @@ static int videobuf_dvb_thread(void *data)
 			break;
 		if (kthread_should_stop())
 			break;
-		if (current->flags & PF_FREEZE) {
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,12)
-			refrigerator (PF_FREEZE);
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,13)
+		try_to_freeze();
 #else
-			refrigerator ();
-#endif
+		if (current->flags & PF_FREEZE) {
+			refrigerator (PF_FREEZE);
 		}
+#endif
 
 		/* feed buffer data to demux */
 		if (buf->state == STATE_DONE)
@@ -156,14 +157,15 @@ int videobuf_dvb_register(struct videobuf_dvb *dvb,
 	}
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,12))
 	dvb->adapter.priv = adapter_priv;
+
 	/* register frontend */
 	result = dvb_register_frontend(&dvb->adapter, dvb->frontend);
 #else
 	dvb->adapter->priv = adapter_priv;
+
 	/* register frontend */
 	result = dvb_register_frontend(dvb->adapter, dvb->frontend);
 #endif
-
 	if (result < 0) {
 		printk(KERN_WARNING "%s: dvb_register_frontend failed (errno = %d)\n",
 		       dvb->name, result);

@@ -1,5 +1,5 @@
 /*
- * $Id: saa7134-oss.c,v 1.17 2005/06/28 23:41:47 mkrufky Exp $
+ * $Id: saa7134-oss.c,v 1.18 2005/07/15 21:44:14 mchehab Exp $
  *
  * device driver for philips saa7134 based TV cards
  * oss dsp interface
@@ -29,6 +29,7 @@
 #include <linux/slab.h>
 #include <linux/soundcard.h>
 
+#include "compat.h"
 #include "saa7134-reg.h"
 #include "saa7134.h"
 

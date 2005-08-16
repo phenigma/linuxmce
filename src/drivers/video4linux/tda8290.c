@@ -1,14 +1,14 @@
 /*
- * $Id: tda8290.c,v 1.15 2005/07/08 20:21:33 mchehab Exp $
+ * $Id: tda8290.c,v 1.16 2005/07/15 21:44:14 mchehab Exp $
  *
  * i2c tv tuner chip device driver
  * controls the philips tda8290+75 tuner chip combo.
  */
 #include <linux/i2c.h>
+#include "compat.h"
 #include <linux/videodev.h>
 #include <linux/delay.h>
 #include <media/tuner.h>
-#include "compat.h"
 
 /* ---------------------------------------------------------------------- */
 

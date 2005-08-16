@@ -1,5 +1,5 @@
 /*
- * $Id: saa7134-core.c,v 1.39 2005/07/05 17:37:35 nsh Exp $
+ * $Id: saa7134-core.c,v 1.40 2005/07/15 21:44:14 mchehab Exp $
  *
  * device driver for philips saa7134 based TV cards
  * driver core
@@ -33,6 +33,7 @@
 #include <linux/interrupt.h>
 #include <linux/delay.h>
 
+#include "compat.h"
 #include "saa7134-reg.h"
 #include "saa7134.h"
 

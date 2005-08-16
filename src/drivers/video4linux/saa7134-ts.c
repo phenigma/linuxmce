@@ -1,5 +1,5 @@
 /*
- * $Id: saa7134-ts.c,v 1.15 2005/06/14 22:48:18 hhackmann Exp $
+ * $Id: saa7134-ts.c,v 1.16 2005/07/15 21:44:14 mchehab Exp $
  *
  * device driver for philips saa7134 based TV cards
  * video4linux video interface
@@ -29,6 +29,7 @@
 #include <linux/slab.h>
 #include <linux/delay.h>
 
+#include "compat.h"
 #include "saa7134-reg.h"
 #include "saa7134.h"
 

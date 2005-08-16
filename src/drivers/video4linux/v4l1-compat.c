@@ -1,5 +1,5 @@
 /*
- * $Id: v4l1-compat.c,v 1.10 2005/06/22 22:58:04 mchehab Exp $
+ * $Id: v4l1-compat.c,v 1.11 2005/07/13 17:25:25 mchehab Exp $
  *
  *	Video for Linux Two
  *	Backward Compatibility Layer
@@ -19,7 +19,7 @@
 
 #include <linux/config.h>
 
-#include <linux/version.h>
+#include "compat.h"
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/moduleparam.h>

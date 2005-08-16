@@ -1,5 +1,5 @@
 /*
- * $Id: saa7134-input.c,v 1.21 2005/06/22 23:37:34 nsh Exp $
+ * $Id: saa7134-input.c,v 1.22 2005/07/15 21:44:14 mchehab Exp $
  *
  * handle saa7134 IR remotes via linux kernel input layer.
  *
@@ -27,6 +27,7 @@
 #include <linux/interrupt.h>
 #include <linux/input.h>
 
+#include "compat.h"
 #include "saa7134-reg.h"
 #include "saa7134.h"
 

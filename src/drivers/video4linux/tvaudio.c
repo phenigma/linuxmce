@@ -24,6 +24,7 @@
 #include <linux/delay.h>
 #include <linux/errno.h>
 #include <linux/slab.h>
+#include "compat.h"
 #include <linux/videodev.h>
 #include <linux/i2c.h>
 #include <linux/i2c-algo-bit.h>
@@ -302,6 +303,10 @@ static int chip_thread(void *data)
 			schedule();
 		}
 		remove_wait_queue(&chip->wq, &wait);
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,12)
+		try_to_freeze();
+#endif
+
 		if (chip->done || signal_pending(current))
 			break;
 		dprintk("%s: thread wakeup\n", i2c_clientname(&chip->c));

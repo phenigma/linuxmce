@@ -45,6 +45,7 @@
 #include <linux/errno.h>
 #include <linux/slab.h>
 #include <linux/i2c.h>
+#include "compat.h"
 #include <linux/videodev.h>
 #include <linux/init.h>
 #include <linux/smp_lock.h>
@@ -754,15 +755,16 @@ static int msp34xx_sleep(struct msp3400c *msp, int timeout)
 #endif
 		}
 	}
-	if (current->flags & PF_FREEZE) {
 #if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,12)
+	if (current->flags & PF_FREEZE) {
 		refrigerator (PF_FREEZE);
-#else
-		refrigerator ();
-#endif
 	}
+#endif
 
 	remove_wait_queue(&msp->wq, &wait);
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,12)
+	try_to_freeze();
+#endif
 	return msp->restart;
 }
 
@@ -1442,7 +1444,11 @@ static int msp_detach(struct i2c_client *client);
 static int msp_probe(struct i2c_adapter *adap);
 static int msp_command(struct i2c_client *client, unsigned int cmd, void *arg);
 
+#ifdef MM_KERNEL
+static int msp_suspend(struct device * dev, pm_message_t state, u32 level);
+#else
 static int msp_suspend(struct device * dev, u32 state, u32 level);
+#endif
 static int msp_resume(struct device * dev, u32 level);
 
 static void msp_wake_thread(struct i2c_client *client);
@@ -1847,7 +1853,11 @@ static int msp_command(struct i2c_client *client, unsigned int cmd, void *arg)
 	return 0;
 }
 
+#ifdef MM_KERNEL
+static int msp_suspend(struct device * dev, pm_message_t state, u32 level)
+#else
 static int msp_suspend(struct device * dev, u32 state, u32 level)
+#endif
 {
 	struct i2c_client *c = container_of(dev, struct i2c_client, dev);
 

@@ -1,3 +1,582 @@
+2005-08-07 17:35  mchehab
+
+	* cx88-tvaudio.c:
+	- Support for BTSC improved.
+
+	Signed-off-by: Torsten Seeboth <Torsten.Seeboth@t-online.de>
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-08-07 16:57  mchehab
+
+	* cx88-tvaudio.c:
+	- some clean up in cx88-tvaudio.c
+	- replaced hex values when writing to AUD_CTL to EN_xx for better reading.
+	- Moved writing to register AUD_CTL from "set_audio_start" to
+	  "set_audio_finish".
+	- Changed the order of writing Lang2 to work correctly
+	- Added an "#if 0"  to comment out existing code in "cx88_get_stereo"
+	  because simply reading from register "AUD_STATUS" is _not_ enough to
+	  auto-detect btsc-sap, dual-fm-stereo or nicam. It is simply not working.
+	- Using "EN_A2_AUTO_STEREO" does not work.
+	- Allow select by hand between Mono, Lang1, Lang2 and Stereo.
+	- *Bad side effect* is now if I'm selecting for example stereo but it is not
+	  supported from tv-channel I'm currently receiving loud noise.
+
+	Signed-off-by: Torsten Seeboth <Torsten.Seeboth@t-online.de>
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-08-07 09:16  mkrufky
+	* cx88-dvb.c, cx88-cards.c, tuner-core.c:
+	- Enable ATSC support for DViCO FusionHDTV5 Gold.
+
+	Signed-off-by: Mac Michaels <wmichaels1@earthlink.net>
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-08-06 14:51  mkrufky
+       * tda9887.c:
+       - Correct the deemphasis for NTSC to 75us.
+
+       Signed-off-by: Mac Michaels <wmichaels1@earthlink.net>
+       Signed-off-by: Hermann Pitton <hermann.pitton@onlinehome.de>
+       Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-08-05 08:26  mkrufky
+	* cx88-cards.c:
+	- Corrected GPIO values for cards #28 & #31 for s-video and composite.
+	- added tda9887_conf to DViCO FusionHDTV5 Gold (card #31).
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-08-04 04:00  nshmyrev
+	* saa7134-card.c, saa7134.h, tuner.h, tuner-simple.c:
+	- Add new Digimatrix card and LG TAPC Mini tuner for it 
+	
+	Signed-off-by: Hermann Pitton <hermann.pitton@onlinehome.de>	 
+
+2005-08-04 03:29  mkrufky
+	* cx88-cards.c:
+	- Corrected GPIO values based on regspy for the following cx88 cards:
+	  card=28 DViCO FusionHDTV3 Gold-T
+	  card=31 DViCO FusionHDTV5 Gold
+	  No noticeable change in behavior.
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-08-04 00:51  mchehab
+
+	* bttv-driver.c:
+	- New debug warn when no_overlay active.
+
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-08-03 21:10  mchehab
+
+	* bttv-cards, bttv-driver.c:
+	- no_overlay type changed to int.
+
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-08-03 20:39  mkrufky
+	* bttv-cards.c:
+	- Better wording in debug messages for no_overlay.
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-08-03 20:16  mchehab
+
+	* bttv-cards.c, bttv-driver.c:
+	- no_overlay now behaves as described on docs.
+
+	* doc/insmod-options:
+	- no_overlay flag description updated.
+
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-08-03 19:38  mchehab
+
+	* bttv-driver.c:
+	- Debug messages for no_overlay improved.
+
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-08-03 12:16  nshmyrev
+
+	* tveeprom.c: 
+	- Resolve more tuner types.
+	
+	Signed-off-by: Hermann Pitton <hermann.pitton@onlinehome.de>
+
+2005-08-03 03:19  mchehab
+
+	* scripts/buildpatch:
+	- treating MM_KERNEL as non-mm.
+
+	* bttv-cards.c,bttv-driver.c:
+	- no_overlay bttv insmod parameter now works.
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-08-01 16:36  mkrufky
+	* bttv-cards.c:
+	- Fixed audio GPIO on DViCO FusionHDTV5 Lite, bttv card # 0x87.
+	  Analog functions on this board are now fully supported.
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-08-01 02:56  mchehab
+	* tea5767.c:
+	- tea5767 autodetection fixed.
+
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-07-31 20:40  mkrufky
+	* Makefile, scripts/merge-trees.sh, scripts/unmerge-trees.sh:
+	- Better method for Makefile to detect compilation against -mm tree.
+	  Thanks to Sam Ravnborg <sam@ravnborg.org>
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-07-31 12:07  mchehab
+	* tea5767.c:
+	- removed #if 1 from newer tea autodetection code.
+
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-07-30 19:40  mkrufky
+	* bttv-driver.c, msp3400.c, tda9887.c, tuner-core.c:
+	* Makefile, scripts/merge-trees.sh, scripts/unmerge-trees.sh:
+	- Fix cvs compile to work for both latest -linus and -mm trees.
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-07-30 16:17  mkrufky
+	* cx88-dvb.c, scripts/merge-trees.sh, scripts/unmerge-trees.sh:
+	- Fix cvs compile for 2.6.13
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-07-29 12:45  mchehab
+	* bttv-cards.c:
+	- Acorp Y878F PCI identifier corrected. Board has radio.
+
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-07-29 05:10  mkrufky
+	* Makefile, scripts/merge-trees.sh, scripts/unmerge-trees.sh:
+	- Include logic to detect merged dvb/v4l cvs trees using
+	  tree merging scripts, adding DVB_CVS to EXTRA_CFLAGS.
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-07-28 18:29  mchehab
+	* bttv-cards.c, bttv.h, doc/CARDLIST.bttv:
+	- tuner_addr added.
+	- Added support for Acorp Y878F card.
+	- some spaces used for identation replaced by tabs.
+
+	* doc/CARDLIST.tuner,tuner-simple.c,tuner.h:
+	- Added support for tuner Ymec TVF66T5-B/DFF
+
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-07-28 18:17  mkrufky
+	* bttv.h, bttv-cards.c:
+	- #define BTTV_ADLINK_RTV24
+	  corrected from 0x85 --> 0x86
+
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-07-28 18:19  mchehab
+	* tuner-core.c:
+	- BTTV does generate some Unimplemented IOCTL log:
+	  0x40046d11(dir=1,tp=0x6d,nr=17,sz=4) means that it is sending 
+	  MSP3400 calls to non-msp3400 tuners. Warning eliminated.
+	  VIDIOSAUDIO is also called. debug messages updated. It is still 
+	  requiring IOCTL implementation.
+
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-07-28 05:19  mkrufky
+	* bttv-cards.c, bttv.h:
+	- Added card DViCO FusionHDTV5 Lite.
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-07-27 18:47  mkrufky
+	* cx88-dvb.c:
+	- Correct PLL programming for FusionHDTV5 Gold.
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-07-27 09:58  mchehab
+	* tea5767.c: 
+	- tea5767_autodetection improved.
+	  Newer code works with CX88. Should be tested with other chipsets
+	  tea5767_tuner_init doesn't probe tuner anymore, allowing forcing
+	  tuner to 5767.
+	* tuner-core.c:
+	- Debug messages simplified to allow printing on one 80 char line.
+
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-07-27 04:46  mkrufky
+	* Makefile:
+	- Include logic to detect compilation against -mm kernels,
+	  adding MM_KERNEL to EXTRA_CFLAGS. This test will be available
+	  in -mm kernels 2.6.13-rc3-mm2 and later.
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-07-27 02:42  mchehab
+	* tuner-core.c:
+	- Add new parameter to help identify radio chipsets:
+	  show_i2c=1 will show 16 reading bytes from detected tuners.
+
+	* tea5767.c:
+	- Improved autodetection code commented. Sometimes, it doesn't work.
+	
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-07-27 02:01  mkrufky
+	* cx88-mpeg.c:
+	- convert ugly if-else statement to switch-case.
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-07-27 01:41  mkrufky
+	* cx88-mpeg.c:
+	- update for FusionHDTV 5 Gold.
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-07-26 10:36  mchehab
+	* tea5767.c: 
+	- tea5767_autodetection improved. It requires more testing.
+
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-07-26 05:46  mkrufky
+	* cx88-dvb.c:
+	- adapt lgdt330x calls to structural changes within lgdt330x driver.
+	- add testing code for FusionHDTV5 Gold ATSC support. .dvb is #if 0'd
+	  in cx88-cards.c  It will be enabled after successful testing w/ hw.
+
+	Signed-off-By: Mac Michaels <wmichaels1@earthlink.net>
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-07-25 17:29  mchehab
+	* msp3400.c:
+	- try_to_freeze moved to the right place.
+	* tvaudio.c:
+	- Tvaudio lacks a refrigerator call. This patch fixes that.
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+	Signed-off-by: Nigel Cunningham <ncunningham@suspend2.net>
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-07-25 05:12  mkrufky
+	* cx88-dvb.c, cx88-i2c.c, Makefile:
+	- Undo accidental change in previous commit.
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-07-25 05:06  mkrufky
+	* cx88-dvb.c, cx88-i2c.c, Makefile:
+	* scripts/merge-trees.sh, scripts/unmerge-trees.sh:
+	- Rename lgdt3302 to lgdt330x.
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-07-24 22:08  mkrufky
+	* cx88-dvb.c, saa7134-dvb.c, Makefile:
+	- The #define CONFIG_DVB_* are actually CFLAGS set by Makefile.
+	  CONFIG_* namespace is reserved for Kconfig.
+	  This renames them back to HAVE_*.
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-07-24 19:02  mkrufky
+	* cx88-dvb.c:
+	- Added DVB card setup for DViCO FusionHDTV5 Gold using TUA6034 pll.
+	  This code is currently #if 0. It will be enabled
+	  when lgdt3303 (or lgdt330x) is ready.
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-07-24 17:39  mkrufky
+	* cx88-cards.c, cx88.h, tuner-simple.c, tuner.h:
+	- Added analog support for DViCO FusionHDTV5 Gold.
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-07-23 09:49  mkrufky
+	* cx88-dvb.c, saa7134-dvb.c:
+	* scripts/merge-trees.sh, scripts/unmerge-trees.sh:
+	- fix compilation warning for missing lgdt3302 when 
+	  compiling against kernel 2.6.12 without DVB tree.
+	- replaced #IF CONFIG_DVB_* with #IFDEF CONFIG_DVB_*
+	- include linux/config.h
+	- Let kconfig / Makefile decide to include frontend-specific code.
+	  (Properly functioning now)
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-07-22 16:27  mkrufky
+	* tveeprom.c:
+	- Recognize the MFPE05-2 Tuner.
+	- Setting confirmed by Hauppauge Tech Support.
+
+	Signed-off-by: Graham Bevan <graham.bevan@ntlworld.com>
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-07-22 05:07  mkrufky
+	* cx88-video.c:
+	- It is importand to write at first to MO_GP3_IO, see datasheet
+	  on page 77: "2.3.3 GPIO Normal Mode". Importand is Bit 25 (GP3_MODE),
+	  or it is already done in file "cx88-video.c" at
+	  "static int video_mux(struct cx8800_dev *dev, unsigned int input)".
+
+	From: Torsten Seeboth <Torsten.Seeboth@t-online.de>
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-07-22 03:51  mkrufky
+	* scripts/merge-trees.sh:
+	- New script to symlink DVB frontend code from dvb-kernel cvs tree
+	  into patched video4linux cvs tree for testing and development
+	  across both trees.
+
+	* scripts/unmerge-trees.sh:
+	- New script to be run after development, and before generating
+	  patches or making cvs commits.  This removes the symlinks to the
+	  frontend code, and reverts the patch to the video4linux tree
+	  created by merge-trees.sh .
+
+	* saa7134-i2c.c:
+	- Removed trailing whitespace.
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-07-22 00:50  mkrufky
+	* Makefile:
+	- Restore EXTRA_CFLAGS for DVB frontends previously removed in error.
+	  These flags do not determine whether frontends are built, instead
+	  they determine whether support for compatability with certain
+	  frontends is built-into cx88-dvb.c and saa7134-dvb.c . With all of
+	  these flags not set, both cx88-dvb and saa7134-dvb will report that
+	  the frontend is not supported, no matter what frontend is present.
+	  Both lgdt3302 and tda1004x are disabled within cx88-dvb and
+	  saa7134-dvb, respectively, for kernel versions less than 2.6.13.
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-07-21 21:53  mkrufky
+	* tveeprom.c, tveeprom.h:
+	- make two needlessly global structs static.
+	- #if 0 the EXPORT_SYMBOL'ed but unused function tveeprom_dump.
+
+	Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+2005-07-21 21:08  hhackmann
+	* saa7134-i2c.c:
+	- Ensure a sufficient I2C bus idle time between 2 messages
+
+	Signed-off-by: Hartmut Hackmann <hartmut.hackmann@t.online.de>    
+    
+2005-07-20 08:03  mkrufky
+	* cx88-cards.c:
+	- Add support for the SVideo input on the GDI Black Gold.
+
+	From: Peter Missel <peter.missel@onlinehome.de>
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-07-20 07:40  mkrufky
+	* bttv-driver.c:
+	- pci_dma_supported() is called after pci_set_dma_mask() which
+	  already did check that for us. The attached patch removes the
+	  unneeded call to pci_dma_supported()
+
+	Signed-off-by: Tobias Klauser <tklauser@nuerscht.ch>
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-07-20 05:35  mkrufky
+	* cx88-dvb.c:
+	- Removed unnecessary comment.
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-07-20 05:23  mkrufky
+	* cx88-dvb.c:
+	- Select the RF input connector based upon the type of
+	  demodulation selected. ANT RF connector is selected for
+	  8-VSB and CABLE RF connector is selected for QAM64/QAM256.
+	  This only affects the cards that use the Microtune 4042 tuner.
+	- This is patch #2 of a string of patches with counterparts in the
+	  dvb-kernel tree affecting lgdt3302.c and lgdt3302.h
+
+	Signed-off-by: Mac Michaels <wmichaels1@earthlink.net>
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-07-20 05:18  mkrufky
+	* cx88-dvb.c:
+	- Remove the dvb_pll_desc from the frontend and replace with a 
+	  pll_set-callback to isolate the tuner programming from the frontend.
+	- This is patch #1 of a string of patches with counterparts in the
+	  dvb-kernel tree affecting lgdt3302.c and lgdt3302.h
+
+	Signed-off-by: Mac Michaels <wmichaels1@earthlink.net>
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-07-19 18:18  mkrufky
+	* bttv-cards.c:
+	- Fix Bug 4395: modprobe bttv freezes the computer
+	  http://bugme.osdl.org/show_bug.cgi?id=4395.
+	  Date: Wed, 13 Apr 2005 03:20:08
+	  Patch by Manu Abraham and Gerd Knorr:
+	- Remove redundant bttv_reset_audio() which caused the computer to
+	  freeze with some bt8xx based DVB cards when loading the bttv driver.
+
+	This patch must have gotten lost during the orphaned v4l days...
+
+	Signed-off-by: Johannes Stezenbach <js@linuxtv.org>
+	Signed-off-by: Andrew Morton <akpm@osdl.org>
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-07-16 00:00  mchehab
+	* Makefile, cx88-dvb.c, saa7134-dvb.c:
+	- Now compiling also with linux-2.6.12 version.
+
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-07-15 21:32  mchehab
+	* videodev.h:
+	- linux/version.h removed at linux-2.6.13-rc3-mm1.
+
+	* bttv-driver.c,bttvp.h,cx88-alsa.c,cx88-blackbird.c,cx88-cards.c,
+	  cx88-core.c,cx88-dvb.c,cx88-i2c.c,cx88-mpeg.c,cx88-tvaudio.c,
+	  cx88-vbi.c,cx88-video.c,msp3400.c,mt20xx.c,saa6752hs.c,
+	  saa7134-cards.c,saa7134-core.c,saa7134-dvb.c,saa7134-empress.c,
+	  saa7134-i2c.c,saa7134-input.c,saa7134-oss.c,saa7134-ts.c,
+	  saa7134-tvaudio.c,saa7134-vbi.c,saa7134-video.c,tda8290.c,
+	  tda9887.c,tea5767.c,tea5761.c, tuner-core.c,tuner-simple.c,
+	  tvaudio.c,tvmixer.c,video-buf-dvb.c:
+	- All these changes are to include compat.h to include 
+	  linux/version.h when V4L is compiled standalone.
+
+	* doc/README.saa7134, doc/not-in-cx2388x-datasheet.txt:
+	- Removed trailing spaces.
+
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-07-15 20:31  mchehab
+	* .bp/2.6/dvb-cx22702,.bp/2.6/dvb-mt352, .bp/2.6/dvb-or51132,
+	  dvb-pll.c,dvb-pll.h,lgdt3302.c,lgdt3302.h,lgdt3302_priv.h,
+	  mt352.c,mt352.h,mt352_priv.h,or51132.c,or51132.h,tda1004x.c,
+	  tda1004x.h:
+	- DVB stuff. Removed from V4L tree. DVB support is only after 
+	  2.6.11 (Make.config). Kernel does provide interfaces.
+
+	* .buildpatch:
+	- Includes all V4L stuff.
+
+	* compat.h:
+	- Fixed a small bug when compiling with newer linux/version.h.
+
+	* Makefile:
+	- Modified to work without DVB code.
+
+	* scripts/prepare-Changelog.pl:
+	- New script to help adding a new log file.
+	- To use, it is needed some env vars like these:
+	  export CHANGE_LOG_NAME="My Full Name"
+	  export CHANGE_LOG_EMAIL_ADDRESS="my_addr@my_provider.com"
+	  export CHANGE_LOG_LOGIN="my_login"
+	  You can include it at .bashrc, .profile or .bash_profile
+
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-07-15 20:08  mchehab
+	* bttv-driver.c, msp3400.c, tda9887.c, tuner-core.c:
+	- driver.suspend API modified at 2.6.13-rc3-mm1.
+	- Warnings removed when compiling against 2.6.13-rc3-mm1. 
+
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-07-15 20:04  mchehab
+	* cx88-dvb.c:
+	- Fix corrected.
+
+	Signed-off-by: Patrick Boettcher <patrick.boettcher@desy.de>
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-07-15 12:35  mchehab
+	* cx88-dvb.c:
+	- The output_mode needs to be set for the Hauppauge Nova-T DVB-T
+	  (cx88-dvb.c) for versions after 2.6.12.
+
+	Signed-off-by: Patrick Boettcher <patrick.boettcher@desy.de>
+	Signed-off-by: Andrew Morton <akpm@osdl.org>
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-07-14 03:02  mchehab
+	* tea5767.c:
+	- Newer tea autodetection code is not stable. Restaured old
+	  behavior.
+	* tuner-core.c:
+	- new option no_autodetect to disable tuner autodetection codes.
+
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-07-14 01:20  mkrufky
+	* lgdt3302.c:
+	- fix QAM lock bug. Previously, it was necessary to first
+	  scan in VSB before attempting to get a QAM lock.
+
+	Signed-off-by: Mac Michaels <wmichaels1@earthlink.net>
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-07-13 17:11  mchehab
+	* bttvp.h,cx88.h,dpl3518.c,ir-common.c, ir-common.h,
+	  saa7134.h, tveeprom.c, v4l1-compat.c, v4l2-common.c:
+	- linux/version.h removed.
+	- incremented versions for CX88, BTTV and SAA7134.
+
+	* compat.h:
+	- Included linux/version.h.
+
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-07-13 13:22  mchehab
+	* tea5761.c:
+	- New tea chip added. Still needs testing and integration.
+	  Doesn't hurt CVS freeze, since it is not being compiled.
+
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-07-13 10:06  mchehab
+	* tea5767.c:
+	- Fixed newer tea autodetection code.
+
+	* tuner-core.c:
+	- unimplemented IOCTL msg now is clearer for developers.
+
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-07-13 10:06  mchehab
+	* tea5767.c:
+	- Improved tea autodetection to avoid troubles with other tuners.
+	- Eliminated some precision small troubles.
+	- Some debug messages fixed.
+
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-07-13 9:06  mchehab
+	* cx88-video.c:
+	- After changing channels, reconfigure audio parameters.
+
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
 2005-07-12 15:39  mkrufky
 	* cx88-dvb.c, saa7134-dvb.c:
 	- Always include dvb frontend code for hybrid cx88 and saa7134 boards.

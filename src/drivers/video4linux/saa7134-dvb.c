@@ -1,5 +1,5 @@
 /*
- * $Id: saa7134-dvb.c,v 1.19 2005/07/12 15:44:55 mkrufky Exp $
+ * $Id: saa7134-dvb.c,v 1.25 2005/07/25 05:13:50 mkrufky Exp $
  *
  * (c) 2004 Gerd Knorr <kraxel@bytesex.org> [SuSE Labs]
  *
@@ -29,18 +29,21 @@
 #include <linux/delay.h>
 #include <linux/kthread.h>
 #include <linux/suspend.h>
+#include <linux/config.h>
+#include "compat.h"
 
-#define CONFIG_DVB_MT352 1
-#define CONFIG_DVB_TDA1004X 1
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,13)
+#undef HAVE_TDA1004X
+#endif
 
 #include "saa7134-reg.h"
 #include "saa7134.h"
 
-#if CONFIG_DVB_MT352
+#ifdef HAVE_MT352
 # include "mt352.h"
 # include "mt352_priv.h" /* FIXME */
 #endif
-#if CONFIG_DVB_TDA1004X
+#ifdef HAVE_TDA1004X
 # include "tda1004x.h"
 #endif
 
@@ -54,7 +57,7 @@ MODULE_PARM_DESC(antenna_pwr,"enable antenna power (Pinnacle 300i)");
 
 /* ------------------------------------------------------------------ */
 
-#if CONFIG_DVB_MT352
+#ifdef HAVE_MT352
 static int pinnacle_antenna_pwr(struct saa7134_dev *dev, int on)
 {
 	u32 ok;
@@ -153,7 +156,7 @@ static struct mt352_config pinnacle_300i = {
 
 /* ------------------------------------------------------------------ */
 
-#if CONFIG_DVB_TDA1004X
+#ifdef HAVE_TDA1004X
 static int philips_tu1216_pll_init(struct dvb_frontend *fe)
 {
 	struct saa7134_dev *dev = fe->dvb->priv;
@@ -385,7 +388,7 @@ static int philips_fmd1216_pll_set(struct dvb_frontend *fe, struct dvb_frontend_
 	return 0;
 }
 
-
+#ifdef HAVE_TDA1004X
 static struct tda1004x_config medion_cardbus = {
 	.demod_address = 0x08,
 	.invert        = 1,
@@ -398,6 +401,7 @@ static struct tda1004x_config medion_cardbus = {
 	.pll_sleep	   = philips_fmd1216_analog,
 	.request_firmware = NULL,
 };
+#endif
 
 /* ------------------------------------------------------------------ */
 
@@ -547,14 +551,14 @@ static int dvb_init(struct saa7134_dev *dev)
 			    dev);
 
 	switch (dev->board) {
-#if CONFIG_DVB_MT352
+#ifdef HAVE_MT352
 	case SAA7134_BOARD_PINNACLE_300I_DVBT_PAL:
 		printk("%s: pinnacle 300i dvb setup\n",dev->name);
 		dev->dvb.frontend = mt352_attach(&pinnacle_300i,
 						 &dev->i2c_adap);
 		break;
 #endif
-#if CONFIG_DVB_TDA1004X
+#ifdef HAVE_TDA1004X
 	case SAA7134_BOARD_MD7134:
 		dev->dvb.frontend = tda10046_attach(&medion_cardbus,
 						    &dev->i2c_adap);

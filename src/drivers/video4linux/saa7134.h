@@ -1,5 +1,5 @@
 /*
- * $Id: saa7134.h,v 1.48 2005/07/01 08:22:24 nsh Exp $
+ * $Id: saa7134.h,v 1.50 2005/08/04 04:01:28 nsh Exp $
  *
  * v4l2 device driver for philips saa7134 based TV cards
  *
@@ -20,8 +20,8 @@
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include <linux/version.h>
-#define SAA7134_VERSION_CODE KERNEL_VERSION(0,2,13)
+#include <linux/utsname.h>
+#define SAA7134_VERSION_CODE KERNEL_VERSION(0,2,14)
 
 #include <linux/pci.h>
 #include <linux/i2c.h>
@@ -195,6 +195,7 @@ struct saa7134_format {
 #define SAA7134_BOARD_PHILIPS_TOUGH 61
 #define SAA7134_BOARD_VIDEOMATE_TV_GOLD_PLUSII 62
 #define SAA7134_BOARD_KWORLD_XPERT 63
+#define SAA7134_BOARD_FLYTV_DIGIMATRIX 64
 
 #define SAA7134_MAXBOARDS 8
 #define SAA7134_INPUT_MAX 8

@@ -1,5 +1,5 @@
 /*
- * $Id: saa7134-empress.c,v 1.11 2005/05/22 19:23:39 nsh Exp $
+ * $Id: saa7134-empress.c,v 1.12 2005/07/15 21:44:14 mchehab Exp $
  *
  * (c) 2004 Gerd Knorr <kraxel@bytesex.org> [SuSE Labs]
  *
@@ -26,6 +26,7 @@
 #include <linux/slab.h>
 #include <linux/delay.h>
 
+#include "compat.h"
 #include "saa7134-reg.h"
 #include "saa7134.h"
 

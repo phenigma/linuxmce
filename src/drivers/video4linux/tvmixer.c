@@ -1,5 +1,5 @@
 /*
- * $Id: tvmixer.c,v 1.8 2005/06/12 04:19:19 mchehab Exp $
+ * $Id: tvmixer.c,v 1.9 2005/07/15 21:44:14 mchehab Exp $
  */
 
 #include <linux/module.h>
@@ -12,6 +12,7 @@
 #include <linux/errno.h>
 #include <linux/slab.h>
 #include <linux/i2c.h>
+#include "compat.h"
 #include <linux/videodev.h>
 #include <linux/init.h>
 #include <linux/kdev_t.h>

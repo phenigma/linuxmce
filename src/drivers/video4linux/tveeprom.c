@@ -28,7 +28,7 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include <linux/version.h>
+#include "compat.h"
 
 #include <linux/module.h>
 #include <linux/moduleparam.h>
@@ -156,10 +156,10 @@ hauppauge_tuner[] =
 	{ TUNER_ABSENT,        "Philips FQ1216ME MK3"},
 	{ TUNER_ABSENT,        "Philips FI1236 MK3"},
 	{ TUNER_PHILIPS_FM1216ME_MK3, "Philips FM1216 ME MK3"},
-	{ TUNER_ABSENT,        "Philips FM1236 MK3"},
+	{ TUNER_PHILIPS_FM1236_MK3, "Philips FM1236 MK3"},
 	{ TUNER_ABSENT,        "Philips FM1216MP MK3"},
 	/* 60-69 */
-	{ TUNER_ABSENT,        "LG S001D MK3"},
+	{ TUNER_PHILIPS_FM1216ME_MK3, "LG S001D MK3"},
 	{ TUNER_ABSENT,        "LG M001D MK3"},
 	{ TUNER_ABSENT,        "LG S701D MK3"},
 	{ TUNER_ABSENT,        "LG M701D MK3"},
@@ -184,13 +184,13 @@ hauppauge_tuner[] =
 	{ TUNER_ABSENT,        "Philips FQ1216LME MK3"},
 	{ TUNER_ABSENT,        "LG TAPC G701D"},
 	{ TUNER_LG_NTSC_NEW_TAPC, "LG TAPC H791F"},
-	{ TUNER_ABSENT,        "TCL 2002MB 3"},
-	{ TUNER_ABSENT,        "TCL 2002MI 3"},
+	{ TUNER_LG_PAL_NEW_TAPC, "TCL 2002MB 3"},
+	{ TUNER_LG_PAL_NEW_TAPC, "TCL 2002MI 3"},
 	{ TUNER_TCL_2002N,     "TCL 2002N 6A"},
 	{ TUNER_ABSENT,        "Philips FQ1236 MK3"},
 	{ TUNER_ABSENT,        "Samsung TCPN 2121P30A"},
 	{ TUNER_ABSENT,        "Samsung TCPE 4121P30A"},
-	{ TUNER_ABSENT,        "TCL MFPE05 2"},
+	{ TUNER_PHILIPS_FM1216ME_MK3, "TCL MFPE05 2"},
 	/* 90-99 */
 	{ TUNER_ABSENT,        "LG TALN H202T"},
 	{ TUNER_PHILIPS_FQ1216AME_MK4, "Philips FQ1216AME MK4"},
@@ -454,6 +454,7 @@ int tveeprom_read(struct i2c_client *c, unsigned char *eedata, int len)
 }
 EXPORT_SYMBOL(tveeprom_read);
 
+#if 0
 int tveeprom_dump(unsigned char *eedata, int len)
 {
 	int i;
@@ -469,6 +470,7 @@ int tveeprom_dump(unsigned char *eedata, int len)
 	return 0;
 }
 EXPORT_SYMBOL(tveeprom_dump);
+#endif  /*  0  */
 
 /* ----------------------------------------------------------------------- */
 /* needed for ivtv.sf.net at the moment.  Should go away in the long       */
@@ -489,7 +491,7 @@ static unsigned short normal_i2c_range[] = { I2C_CLIENT_END };
 
 I2C_CLIENT_INSMOD;
 
-struct i2c_driver i2c_driver_tveeprom;
+static struct i2c_driver i2c_driver_tveeprom;
 
 static int
 tveeprom_command(struct i2c_client *client,
@@ -561,7 +563,7 @@ tveeprom_detach_client (struct i2c_client *client)
 	return 0;
 }
 
-struct i2c_driver i2c_driver_tveeprom = {
+static struct i2c_driver i2c_driver_tveeprom = {
 	.owner          = THIS_MODULE,
 	.name           = "tveeprom",
 	.id             = I2C_DRIVERID_TVEEPROM,

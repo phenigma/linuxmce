@@ -1,5 +1,5 @@
 /*
- * $Id: tuner-core.c,v 1.55 2005/07/08 13:20:33 mchehab Exp $
+ * $Id: tuner-core.c,v 1.66 2005/08/07 09:24:08 mkrufky Exp $
  *
  * i2c tv tuner chip device driver
  * core core, i.e. kernel interfaces, registering and so on
@@ -17,12 +17,14 @@
 #include <linux/poll.h>
 #include <linux/i2c.h>
 #include <linux/types.h>
+#include "compat.h"
 #include <linux/videodev.h>
 #include <linux/init.h>
 
 #include <media/tuner.h>
 #include <media/audiochip.h>
-#include "compat.h"
+
+#include "msp3400.h"
 
 #define UNSET (-1U)
 
@@ -42,6 +44,12 @@ I2C_CLIENT_INSMOD;
 /* insmod options used at init time => read/only */
 static unsigned int addr = 0;
 module_param(addr, int, 0444);
+
+static unsigned int no_autodetect = 0;
+module_param(no_autodetect, int, 0444);
+
+static unsigned int show_i2c = 0;
+module_param(show_i2c, int, 0444);
 
 /* insmod options used at runtime => read/write */
 unsigned int tuner_debug = 0;
@@ -181,6 +189,14 @@ static void set_type(struct i2c_client *c, unsigned int type,
 		mdelay(1);
 		buffer[2] = 0x86;
 		buffer[3] = 0x54;
+		i2c_master_send(c, buffer, 4);
+		default_tuner_init(c);
+		break;
+	case TUNER_LG_TDVS_H062F:
+		/* Set the Auxiliary Byte. */
+		buffer[2] &= ~0x20;
+		buffer[2] |= 0x18;
+		buffer[3] = 0x20;
 		i2c_master_send(c, buffer, 4);
 		default_tuner_init(c);
 		break;
@@ -327,18 +343,31 @@ static int tuner_attach(struct i2c_adapter *adap, int addr, int kind)
 
 	tuner_info("chip found @ 0x%x (%s)\n", addr << 1, adap->name);
 
-	/* TEA5767 autodetection code - only for addr = 0xc0 */
-	if (addr == 0x60) {
-		if (tea5767_autodetection(&t->i2c) != EINVAL) {
-			t->type = TUNER_TEA5767;
-			t->mode_mask = T_RADIO;
-			t->mode = T_STANDBY;
-			t->freq = 87.5 * 16; /* Sets freq to FM range */
-			default_mode_mask &= ~T_RADIO;
+	if (show_i2c) {
+		unsigned char buffer[16];
+		int i,rc;
 
-			i2c_attach_client (&t->i2c);
-			set_type(&t->i2c,t->type, t->mode_mask);
-			return 0;
+		memset(buffer, 0, sizeof(buffer));
+		rc = i2c_master_recv(&t->i2c, buffer, sizeof(buffer));
+		printk("tuner-%04x I2C RECV = ",addr);
+		for (i=0;i<rc;i++)
+			printk("%02x ",buffer[i]);
+		printk("\n");
+	}
+	/* TEA5767 autodetection code - only for addr = 0xc0 */
+	if (!no_autodetect) {
+		if (addr == 0x60) {
+			if (tea5767_autodetection(&t->i2c) != EINVAL) {
+				t->type = TUNER_TEA5767;
+				t->mode_mask = T_RADIO;
+				t->mode = T_STANDBY;
+				t->freq = 87.5 * 16; /* Sets freq to FM range */
+				default_mode_mask &= ~T_RADIO;
+
+				i2c_attach_client (&t->i2c);
+				set_type(&t->i2c,t->type, t->mode_mask);
+				return 0;
+			}
 		}
 	}
 
@@ -456,6 +485,17 @@ static int tuner_command(struct i2c_client *client, unsigned int cmd, void *arg)
 			break;
 		}
 		break;
+	case VIDIOCSAUDIO:
+		if (check_mode(t, "VIDIOCSAUDIO") == EINVAL)
+			return 0;
+		if (check_v4l2(t) == EINVAL)
+			return 0;
+
+		/* Should be implemented, since bttv calls it */
+		tuner_dbg("VIDIOCSAUDIO not implemented.\n");
+
+		break;
+	case MSP_SET_MATRIX:
 	case TDA9887_SET_CONFIG:
 		break;
 	/* --- v4l ioctls --- */
@@ -641,14 +681,20 @@ static int tuner_command(struct i2c_client *client, unsigned int cmd, void *arg)
 			break;
 		}
 	default:
-		tuner_dbg("Unimplemented IOCTL 0x%08x called to tuner.\n", cmd);
+		tuner_dbg("Unimplemented IOCTL 0x%08x(dir=%d,tp=0x%02x,nr=%d,sz=%d)\n",
+					 cmd, _IOC_DIR(cmd), _IOC_TYPE(cmd),
+					_IOC_NR(cmd), _IOC_SIZE(cmd));
 		break;
 	}
 
 	return 0;
 }
 
+#ifdef MM_KERNEL
+static int tuner_suspend(struct device *dev, pm_message_t state, u32 level)
+#else
 static int tuner_suspend(struct device *dev, u32 state, u32 level)
+#endif
 {
 	struct i2c_client *c = container_of (dev, struct i2c_client, dev);
 	struct tuner *t = i2c_get_clientdata (c);

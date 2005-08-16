@@ -1,5 +1,5 @@
 /*
- * $Id: saa7134-video.c,v 1.36 2005/06/28 23:41:47 mkrufky Exp $
+ * $Id: saa7134-video.c,v 1.37 2005/07/15 21:44:14 mchehab Exp $
  *
  * device driver for philips saa7134 based TV cards
  * video4linux video interface
@@ -28,6 +28,7 @@
 #include <linux/kernel.h>
 #include <linux/slab.h>
 
+#include "compat.h"
 #include "saa7134-reg.h"
 #include "saa7134.h"
 

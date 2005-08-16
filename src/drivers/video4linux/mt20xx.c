@@ -1,15 +1,15 @@
 /*
- * $Id: mt20xx.c,v 1.5 2005/06/16 08:29:49 nsh Exp $
+ * $Id: mt20xx.c,v 1.6 2005/07/15 21:44:14 mchehab Exp $
  *
  * i2c tv tuner chip device driver
  * controls microtune tuners, mt2032 + mt2050 at the moment.
  */
 #include <linux/delay.h>
 #include <linux/i2c.h>
+#include "compat.h"
 #include <linux/videodev.h>
 #include <linux/moduleparam.h>
 #include <media/tuner.h>
-#include "compat.h"
 
 /* ---------------------------------------------------------------------- */
 

@@ -3,7 +3,6 @@
 
 #include <linux/compiler.h>
 #include <linux/types.h>
-#include <linux/version.h>
 
 #define HAVE_V4L2 1
 #include <linux/videodev2.h>

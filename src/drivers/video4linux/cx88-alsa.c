@@ -1,5 +1,5 @@
 /*
- * $Id: cx88-alsa.c,v 1.3 2004/10/13 10:39:00 kraxel Exp $
+ * $Id: cx88-alsa.c,v 1.4 2005/07/15 21:44:14 mchehab Exp $
  *
  *  Support for audio capture
  *  PCI function #1 of the cx2388x.
@@ -27,6 +27,7 @@
 #include <linux/interrupt.h>
 #include <asm/delay.h>
 
+#include "compat.h"
 #include "cx88.h"
 
 /* ------------------------------------------------------------------ */

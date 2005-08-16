@@ -1,5 +1,5 @@
 /*
- * $Id: dpl3518.c,v 1.4 2005/06/18 06:00:36 nsh Exp $
+ * $Id: dpl3518.c,v 1.5 2005/07/13 17:25:25 mchehab Exp $
  *
  * programming the dpl3518a Dolby Pro Logic Processor
  *
@@ -32,7 +32,7 @@
 /* FIXME */
 #define DPL_MAJOR  127
 
-#include <linux/version.h>
+#include "compat.h"
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/kernel.h>

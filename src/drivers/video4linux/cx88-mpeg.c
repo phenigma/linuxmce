@@ -1,5 +1,5 @@
 /*
- * $Id: cx88-mpeg.c,v 1.31 2005/07/07 14:17:47 mchehab Exp $
+ * $Id: cx88-mpeg.c,v 1.34 2005/07/27 02:04:28 mkrufky Exp $
  *
  *  Support for the mpeg transport stream transfers
  *  PCI function #2 of the cx2388x.
@@ -30,6 +30,7 @@
 #include <linux/interrupt.h>
 #include <asm/delay.h>
 
+#include "compat.h"
 #include "cx88.h"
 
 /* ------------------------------------------------------------------ */
@@ -74,24 +75,31 @@ static int cx8802_start_dma(struct cx8802_dev    *dev,
 		udelay(100);
 		cx_write(MO_PINMUX_IO, 0x00);
 		cx_write(TS_HW_SOP_CNTRL,0x47<<16|188<<4|0x01);
-		if ((core->board == CX88_BOARD_DVICO_FUSIONHDTV_3_GOLD_Q) ||
-		    (core->board == CX88_BOARD_DVICO_FUSIONHDTV_3_GOLD_T)) {
+		switch (core->board) {
+		case CX88_BOARD_DVICO_FUSIONHDTV_3_GOLD_Q:
+		case CX88_BOARD_DVICO_FUSIONHDTV_3_GOLD_T:
+		case CX88_BOARD_DVICO_FUSIONHDTV_5_GOLD:
 			cx_write(TS_SOP_STAT, 1<<13);
-		} else {
+			break;
+		default:
 			cx_write(TS_SOP_STAT, 0x00);
+			break;
 		}
 		cx_write(TS_GEN_CNTRL, dev->ts_gen_cntrl);
 		udelay(100);
 	}
 
 	if (cx88_boards[core->board].blackbird) {
+		cx_write(MO_PINMUX_IO, 0x88); /* enable MPEG parallel IO */
+
 		// cx_write(TS_F2_CMD_STAT_MM, 0x2900106); /* F2_CMD_STAT_MM defaults + master + memory space */
 		cx_write(TS_GEN_CNTRL, 0x46); /* punctured clock TS & posedge driven & software reset */
 		udelay(100);
-		cx_write(MO_PINMUX_IO, 0x88); /* enable MPEG parallel IO */
+
 		cx_write(TS_HW_SOP_CNTRL, 0x408); /* mpeg start byte */
 		//cx_write(TS_HW_SOP_CNTRL, 0x2F0BC0); /* mpeg start byte ts: 0x2F0BC0 ? */
 		cx_write(TS_VALERR_CNTRL, 0x2000);
+
 		cx_write(TS_GEN_CNTRL, 0x06); /* punctured clock TS & posedge driven */
 		udelay(100);
 	}

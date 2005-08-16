@@ -1,5 +1,5 @@
 
-/* $Id: tuner.h,v 1.42 2005/07/06 09:42:19 mchehab Exp $
+/* $Id: tuner.h,v 1.46 2005/08/04 04:01:28 nsh Exp $
  *
     tuner.h - definition for different tuners
 
@@ -108,6 +108,10 @@
 
 #define TUNER_TEA5767         62	/* Only FM Radio Tuner */
 #define TUNER_PHILIPS_FMD1216ME_MK3 63
+#define TUNER_LG_TDVS_H062F   64	/* DViCO FusionHDTV 5 */
+#define TUNER_YMEC_TVF66T5_B_DFF 65	/* Acorp Y878F */
+
+#define TUNER_LG_NTSC_TALN_MINI 66
 
 #define NOTUNER 0
 #define PAL     1	/* PAL_BG */

@@ -9,6 +9,7 @@
 #include <linux/poll.h>
 #include <linux/i2c.h>
 #include <linux/types.h>
+#include "compat.h"
 #include <linux/videodev.h>
 #include <linux/init.h>
 #include <linux/crc32.h>
@@ -19,7 +20,6 @@
 #else
 #include <media/id.h>
 #endif
-#include "compat.h"
 
 #define MPEG_VIDEO_TARGET_BITRATE_MAX  27000
 #define MPEG_VIDEO_MAX_BITRATE_MAX     27000

@@ -3,6 +3,7 @@
 #include <linux/kernel.h>
 #include <linux/i2c.h>
 #include <linux/types.h>
+#include "compat.h"
 #include <linux/videodev.h>
 #include <linux/init.h>
 #include <linux/errno.h>
@@ -207,7 +208,7 @@ static struct tvnorm tvnorms[] = {
 		.b     = ( cNegativeFmTV  |
 			   cQSS           ),
 		.c     = ( cDeemphasisON  |
-			   cDeemphasis50  ),
+			   cDeemphasis75  ),
 		.e     = ( cGating_36     |
 			   cAudioIF_4_5   |
 			   cVideoIF_45_75 ),
@@ -791,7 +792,11 @@ tda9887_command(struct i2c_client *client, unsigned int cmd, void *arg)
 	return 0;
 }
 
+#ifdef MM_KERNEL
+static int tda9887_suspend(struct device * dev, pm_message_t state, u32 level)
+#else
 static int tda9887_suspend(struct device * dev, u32 state, u32 level)
+#endif
 {
 	dprintk("tda9887: suspend\n");
 	return 0;

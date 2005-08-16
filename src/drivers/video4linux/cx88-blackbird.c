@@ -1,5 +1,5 @@
 /*
- * $Id: cx88-blackbird.c,v 1.27 2005/06/03 13:31:50 mchehab Exp $
+ * $Id: cx88-blackbird.c,v 1.28 2005/07/15 21:44:14 mchehab Exp $
  *
  *  Support for a cx23416 mpeg encoder via cx2388x host port.
  *  "blackbird" reference design.
@@ -32,6 +32,7 @@
 #include <linux/device.h>
 #include <linux/firmware.h>
 
+#include "compat.h"
 #include "cx88.h"
 
 MODULE_DESCRIPTION("driver for cx2388x/cx23416 based mpeg encoder cards");
@@ -879,8 +880,11 @@ static void blackbird_codec_settings(struct cx8802_dev *dev)
 #endif
 
 	/* assign stream type */
+#if 1
 	blackbird_api_cmd(dev, BLACKBIRD_API_SET_STREAM_TYPE, 1, 0, BLACKBIRD_STREAM_PROGRAM);
-	/* blackbird_api_cmd(dev, BLACKBIRD_API_SET_STREAM_TYPE, 1, 0, BLACKBIRD_STREAM_TRANSPORT); */
+#else
+	blackbird_api_cmd(dev, BLACKBIRD_API_SET_STREAM_TYPE, 1, 0, BLACKBIRD_STREAM_TRANSPORT);
+#endif
 
 	/* assign output port */
 	blackbird_api_cmd(dev, BLACKBIRD_API_SET_OUTPUT_PORT, 1, 0, BLACKBIRD_OUTPUT_PORT_STREAMING); /* Host */
@@ -1292,9 +1296,9 @@ static int mpeg_do_ioctl(struct inode *inode, struct file *file,
 
 	if (debug > 1)
 		cx88_print_ioctl(dev->core->name,cmd);
-#if 0
+#if 1
 	cx88_print_ioctl(dev->core->name,cmd);
-	printk( KERN_INFO "IOCTL: 0x%x\n", cmd );
+	printk( KERN_INFO "_IOCTL_: 0x%x\n", cmd );
 #endif
 	dprintk( 1, "IOCTL: 0x%x\n", cmd );
 
@@ -1314,7 +1318,7 @@ static int mpeg_do_ioctl(struct inode *inode, struct file *file,
 		cap->capabilities =
 			V4L2_CAP_VIDEO_CAPTURE |
 			V4L2_CAP_READWRITE     |
-#if 0
+#if 1
 			V4L2_CAP_STREAMING     |
 			V4L2_CAP_VBI_CAPTURE   |
 			V4L2_CAP_VIDEO_OVERLAY |
@@ -1891,7 +1895,19 @@ static int __devinit blackbird_probe(struct pci_dev *pci_dev,
 #if 1
 	down(&dev->lock);
 	init_controls(dev);
+#if 1
+	{
+		int i;
+		for(i = 0; i < ARRAY_SIZE(tvnorms); i++)
+			if (tvnorms[i].id == V4L2_STD_PAL_BG)
+			{
+				cx88_set_tvnorm(dev->core,&tvnorms[i]);
+				break;
+			}
+	}
+#else
 	cx88_set_tvnorm(dev->core,tvnorms);
+#endif
 	video_mux(dev,0);
 	up(&dev->lock);
 #endif

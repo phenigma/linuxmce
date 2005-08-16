@@ -1,5 +1,5 @@
 /*
- * $Id: cx88-cards.c,v 1.85 2005/07/04 19:35:05 mkrufky Exp $
+ * $Id: cx88-cards.c,v 1.93 2005/08/07 09:24:08 mkrufky Exp $
  *
  * device driver for Conexant 2388x based TV cards
  * card-specific stuff.
@@ -26,6 +26,7 @@
 #include <linux/pci.h>
 #include <linux/delay.h>
 
+#include "compat.h"
 #include "cx88.h"
 
 /* ------------------------------------------------------------------ */
@@ -90,6 +91,9 @@ struct cx88_board cx88_boards[] = {
 		.input          = {{
 			.type   = CX88_VMUX_TELEVISION,
 			.vmux   = 0,
+		},{
+			.type   = CX88_VMUX_SVIDEO,
+			.vmux   = 2,
 		}},
 	},
 	[CX88_BOARD_PIXELVIEW] = {
@@ -608,12 +612,12 @@ struct cx88_board cx88_boards[] = {
 		.input          = {{
 			.type   = CX88_VMUX_TELEVISION,
 			.vmux   = 0,
-			.gpio0  = 0xed12,  // internal decoder
+			.gpio0  = 0xed12,  /* internal decoder */
 			.gpio2  = 0x00ff,
 		},{
 			.type   = CX88_VMUX_DEBUG,
 			.vmux   = 0,
-			.gpio0  = 0xff01,  // mono from tuner chip
+			.gpio0  = 0xff01,  /* mono from tuner chip */
 		},{
 			.type   = CX88_VMUX_COMPOSITE1,
 			.vmux   = 1,
@@ -682,9 +686,9 @@ struct cx88_board cx88_boards[] = {
 		.name           = "PixelView PlayTV Ultra Pro (Stereo)",
 		/* May be also TUNER_YMEC_TVF_5533MF for NTSC/M or PAL/M */
 		.tuner_type     = TUNER_PHILIPS_FM1216ME_MK3,
-		.radio_type     = TUNER_TEA5767,
-		.tuner_addr	= 0xc2>>1,
-		.radio_addr	= 0xc0>>1,
+		.radio_type     = UNSET,
+		.tuner_addr	= ADDR_UNSET,
+		.radio_addr	= ADDR_UNSET,
 		.input          = {{
 			.type   = CX88_VMUX_TELEVISION,
 			.vmux   = 0,
@@ -709,19 +713,18 @@ struct cx88_board cx88_boards[] = {
 		.radio_type     = UNSET,
 		.tuner_addr	= ADDR_UNSET,
 		.radio_addr	= ADDR_UNSET,
-		/*  See DViCO FusionHDTV 3 Gold-Q for GPIO documentation.  */
 		.input          = {{
                         .type   = CX88_VMUX_TELEVISION,
                         .vmux   = 0,
-                        .gpio0  = 0x0f0d,
+                        .gpio0  = 0x97ed,
                 },{
                         .type   = CX88_VMUX_COMPOSITE1,
                         .vmux   = 1,
-                        .gpio0  = 0x0f00,
+                        .gpio0  = 0x97e9,
                 },{
                         .type   = CX88_VMUX_SVIDEO,
                         .vmux   = 2,
-                        .gpio0  = 0x0f00,
+                        .gpio0  = 0x97e9,
                 }},
 		.dvb            = 1,
         },
@@ -751,6 +754,28 @@ struct cx88_board cx88_boards[] = {
 			.type   = CX88_VMUX_DVB,
 			.vmux   = 0,
 		}},
+		.dvb            = 1,
+	},
+	[CX88_BOARD_DVICO_FUSIONHDTV_5_GOLD] = {
+		.name           = "DViCO FusionHDTV 5 Gold",
+		.tuner_type     = TUNER_LG_TDVS_H062F,
+		.radio_type     = UNSET,
+		.tuner_addr	= ADDR_UNSET,
+		.radio_addr	= ADDR_UNSET,
+		.tda9887_conf   = TDA9887_PRESENT,
+		.input          = {{
+                        .type   = CX88_VMUX_TELEVISION,
+                        .vmux   = 0,
+                        .gpio0  = 0x87fd,
+                },{
+                        .type   = CX88_VMUX_COMPOSITE1,
+                        .vmux   = 1,
+                        .gpio0  = 0x87f9,
+                },{
+                        .type   = CX88_VMUX_SVIDEO,
+                        .vmux   = 2,
+                        .gpio0  = 0x87f9,
+                }},
 		.dvb            = 1,
 	},
 };
@@ -880,6 +905,10 @@ struct cx88_subid cx88_subids[] = {
 		.subvendor = 0x153b,
 		.subdevice = 0x1166,
 		.card      = CX88_BOARD_TERRATEC_CINERGY_1400_DVB_T1,
+ 	},{
+		.subvendor = 0x18ac,
+		.subdevice = 0xd500,
+		.card      = CX88_BOARD_DVICO_FUSIONHDTV_5_GOLD,
 	},
 };
 const unsigned int cx88_idcount = ARRAY_SIZE(cx88_subids);

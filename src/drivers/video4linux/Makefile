@@ -39,8 +39,8 @@ obj-$(CONFIG_VIDEO_IR)		+= ir-common.o
 obj-$(CONFIG_VIDEO_TUNER)	+= tuner.o tda9887.o
 obj-$(CONFIG_VIDEO_TVAUDIO)	+= msp3400.o tvaudio.o tvmixer.o
 
-obj-$(CONFIG_VIDEO_CX88_DVB)	+= video-buf-dvb.o cx88-dvb.o cx22702.o dvb-pll.o or51132.o lgdt3302.o mt352.o
-obj-$(CONFIG_VIDEO_SAA7134_DVB) += video-buf-dvb.o saa7134-dvb.o mt352.o tda1004x.o
+obj-$(CONFIG_VIDEO_CX88_DVB)	+= video-buf-dvb.o cx88-dvb.o
+obj-$(CONFIG_VIDEO_SAA7134_DVB) += video-buf-dvb.o saa7134-dvb.o
 
 # 2.6-only stuff
 ifeq ($(VERSION).$(PATCHLEVEL),2.6)
@@ -58,14 +58,14 @@ EXTRA_CFLAGS += -I$(srctree)/drivers/media/dvb/dvb-core/
 EXTRA_CFLAGS += -I$(srctree)/drivers/media/dvb/frontends/
 ifeq ($(CONFIG_VIDEO_CX88_DVB),m)
  EXTRA_CFLAGS += -DCONFIG_VIDEO_CX88_DVB_MODULE=1
- EXTRA_CFLAGS += -DCONFIG_DVB_CX22702=1
- EXTRA_CFLAGS += -DCONFIG_DVB_OR51132=1
- EXTRA_CFLAGS += -DCONFIG_DVB_LGDT3302=1
- EXTRA_CFLAGS += -DCONFIG_DVB_MT352=1
+ EXTRA_CFLAGS += -DHAVE_CX22702=1
+ EXTRA_CFLAGS += -DHAVE_OR51132=1
+ EXTRA_CFLAGS += -DHAVE_LGDT330X=1
+ EXTRA_CFLAGS += -DHAVE_MT352=1
 endif
 ifeq ($(CONFIG_VIDEO_SAA7134_DVB),m)
- EXTRA_CFLAGS += -DCONFIG_DVB_MT352=1
- EXTRA_CFLAGS += -DCONFIG_DVB_TDA1004X=1
+ EXTRA_CFLAGS += -DHAVE_MT352=1
+ EXTRA_CFLAGS += -DHAVE_TDA1004X=1
 endif
 
 #################################################
@@ -86,6 +86,8 @@ endif
 
 CC += -I$(obj)
 EXTRA_CFLAGS += -g
+
+EXTRA_CFLAGS += $(if $(wildcard $(srctree)/.mm), -DMM_KERNEL)
 
 snapshot := $(wildcard $(obj)/.snapshot)
 ifneq ($(snapshot),)
@@ -123,14 +125,13 @@ ifeq ($(inst-m),)
 endif
 
 inst_common := ir-common.ko
-inst_frontends := cx22702.ko dvb-pll.ko mt352.ko lgdt3302.ko or51132.ko tda1004x.ko
 inst_video := btcx-risc.ko bttv.ko tda9887.ko tuner.ko tvaudio.ko tveeprom.ko
 inst_video += tvmixer.ko v4l1-compat.ko v4l2-common.ko
 inst_video += video-buf.ko video-buf-dvb.ko
 inst_video += ir-kbd-gpio.ko ir-kbd-i2c.ko msp3400.ko
-inst_cx88 := cx8800.ko cx8801.ko cx88-dvb.ko cx8802.ko 
-inst_cx88 += cx88-blackbird.ko cx88xx.ko
-inst_saa7134 := saa6752hs.ko saa7134.ko saa7134-dvb.ko saa7134-empress.ko
+inst_cx88 := cx8800.ko cx8801.ko cx8802.ko 
+inst_cx88 += cx88-blackbird.ko cx88xx.ko cx88-dvb.ko
+inst_saa7134 := saa6752hs.ko saa7134.ko saa7134-empress.ko saa7134-dvb.ko
 
 v4l_modules := $(shell lsmod|cut -d' ' -f1 ) $(patsubst %.ko,%,$(inst-m))
 
@@ -149,9 +150,6 @@ install:: rminstall
 
 	-install -d $(KDIR26)/common
 	-install -m 644 -c $(inst_common) $(KDIR26)/common
-
-	-install -d $(KDIR26)/dvb/frontends
-	-install -m 644 -c $(inst_frontends) $(KDIR26)/dvb/frontends
 
 	-install -d $(KDIR26)/video
 	-install -m 644 -c $(inst_video) $(KDIR26)/video

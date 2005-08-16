@@ -62,6 +62,14 @@ sub filter_source ($$) {
 		if ($line =~ m/^#include \"compat.h\"/) {
 			next;
 		}
+		if ($line =~ /^#ifdef MM_KERNEL/) {
+			chomp($line);
+			$line =~ s@^#if\s*@@;
+			$state = "if";
+			$if = eval $line;
+			print OUT "/* BP #if $if ($line) */\n" if $DEBUG;
+			next;
+		}
 		if ($line =~ /^#if 0/) {
 			chomp($line);
 			$state = "if";
