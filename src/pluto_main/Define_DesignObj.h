@@ -1233,9 +1233,17 @@
 #define DESIGNOBJ_grpPhoneSearchKeyboardlargep_CONST 4266
 #define DESIGNOBJ_butKillApp_CONST 4267
 #define DESIGNOBJ_grpMediaMapControls_PDA_CONST 4268
-#define DESIGNOBJ_grpSeekFileLIst_Playlists_PDA_CONST 4272
-#define DESIGNOBJ_grpMediaAttributeSearch_PDA_CONST 4273
-#define DESIGNOBJ_grpControls_lights_volume_CONST 4274
+#define DESIGNOBJ_grpSeekFileLIst_Playlists_PDA_CONST 4269
+#define DESIGNOBJ_grpMediaAttributeSearch_PDA_CONST 4270
+#define DESIGNOBJ_grpControls_lights_volume_CONST 4271
+#define DESIGNOBJ_mnuMyth_all_commands_CONST 4272
+#define DESIGNOBJ_objMyth_watching_tv_CONST 4273
+#define DESIGNOBJ_objMyth_Live_tv_browse_mode_CONST 4274
+#define DESIGNOBJ_objMyth_playback_recording_CONST 4275
+#define DESIGNOBJ_mnuMytv_watching_tv_CONST 4276
+#define DESIGNOBJ_mnuMyth_live_tv_browse_mode_CONST 4277
+#define DESIGNOBJ_mnuMyth_playback_recording_CONST 4278
+#define DESIGNOBJ_objMyth_all_commands_CONST 4279
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

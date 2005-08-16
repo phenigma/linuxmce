@@ -521,6 +521,10 @@
 #define TEXT_Mouse_CONST 1198
 #define TEXT_Device_Ready_CONST 1428
 #define TEXT_FAILED_TO_UPLOAD_SIS_FILE_CONST 1429
+#define TEXT_Watching_TV_CONST 1430
+#define TEXT_Live_TV_Browse_Mode_CONST 1431
+#define TEXT_Playback_Recording_CONST 1432
+#define TEXT_All_MythTv_controls_CONST 1433
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

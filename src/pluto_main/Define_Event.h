@@ -51,6 +51,8 @@
 #define EVENT_Device_OnOff_CONST 48
 #define EVENT_AV_Input_Changed_CONST 49
 #define EVENT_Media_Description_Changed_CONST 50
+#define EVENT_Sunrise_CONST 51
+#define EVENT_Sunset_CONST 52
 
 #define EVENT_TABLE "Event"
 #define EVENT_PK_EVENT_FIELD "PK_Event"
