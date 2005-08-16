@@ -107,6 +107,7 @@ App_Server::App_Server(int DeviceID, string ServerAddress,bool bConnectEventHand
 		execl("/usr/bin/amixer", "amixer", "sset", "Master", "unmute", NULL);
 		exit(99);
 	}
+#endif
 }
 
 //<-dceag-const2-b->!
