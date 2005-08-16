@@ -1,6 +1,8 @@
 <?
 function irCodes($output)
 {
+	$time_start = getmicrotime();
+	
 	global $dbPlutoAdminServer,$dbPlutoAdminUser,$dbPlutoAdminPass,$dbPlutoAdminDatabase;
 	include_once('include/plutoAdminUtils.inc.php');
 
@@ -25,7 +27,7 @@ function irCodes($output)
 	}
 
 	if(!isset($_REQUEST['infraredGroupID'])){
-		$resDefaultIG=$publicADO->Execute('SELECT FK_InfraredGroup FROM DeviceTemplate_InfraredGroup WHERE FK_DeviceTemplate=?',$dtID);
+		$resDefaultIG=$publicADO->Execute('SELECT FK_InfraredGroup FROM DeviceTemplate WHERE PK_DeviceTemplate=?',$dtID);
 		if($resDefaultIG->RecordCount()>0){
 			$rowDefaultIG=$resDefaultIG->FetchRow();
 			$infraredGroupID=$rowDefaultIG['FK_InfraredGroup'];
@@ -82,10 +84,13 @@ function irCodes($output)
 				Manufacturer.Description AS Manufacturer, 
 				FK_Manufacturer,
 				FK_DeviceCategory,
-				DeviceTemplate.psc_user
+				DeviceTemplate.psc_user,
+				FK_InfraredGroup,
+				DeviceTemplate_AV.*
 			FROM DeviceTemplate
 			INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory
 			INNER JOIN Manufacturer ON FK_Manufacturer=PK_Manufacturer
+			LEFT JOIN DeviceTemplate_AV ON DeviceTemplate_AV.FK_DeviceTemplate=PK_DeviceTemplate
 			WHERE PK_DeviceTemplate=?';
 		$resDTData=$publicADO->Execute($selectDTData,$dtID);
 		if($resDTData->RecordCount()==0){
@@ -99,12 +104,8 @@ function irCodes($output)
 		$GLOBALS['btnEnabled']=(!isset($_SESSION['userID']) || $owner!=@$_SESSION['userID'])?'disabled':'';
 
 		$selectedIRGrops=array();
-		$resDT_IG=$publicADO->Execute('SELECT * FROM DeviceTemplate_InfraredGroup WHERE FK_DeviceTemplate=?',$dtID);
-		if($resDT_IG->RecordCount()>0){
-			while($rowDT_IG=$resDT_IG->FetchRow()){
-				$selectedIRGrops[]=$rowDT_IG['FK_InfraredGroup'];
-			}
-		}
+		$selectedIRGrops[]=$rowDTData['FK_InfraredGroup'];
+		
 
 		$excludedCommandsArray=array($GLOBALS['powerCommand'],$GLOBALS['genericONCommand'],$GLOBALS['genericOFFCommand'],$GLOBALS['DSPModeCommand'],$GLOBALS['inputSelectCommand'],$GLOBALS['outputSelectCommand']);
 		$resGrabOldValues = $publicADO->Execute('SELECT * FROM DeviceTemplate_AV WHERE FK_DeviceTemplate = ?',$dtID);
@@ -201,10 +202,26 @@ function irCodes($output)
 			</tr>
 			<tr>
 				<td valign="top" colspan="2">Device template <B>'.$rowDTData['Template'].'</B>, category <B>'.$rowDTData['Category'].'</B> and manufacturer <B>'.$rowDTData['Manufacturer'].'</B>.<td>
-			</tr>';
+			</tr>
+			<tr>
+				<td valign="top" colspan="2">Delays: Power: <B>'.$rowDTData['IR_PowerDelay'].'</B> seconds, Mode: <B>'.$rowDTData['IR_ModeDelay'].'</B> seconds, Other: <B>'.round(($rowDTData['DigitDelay']/1000),3).'</B> seconds  <a href="index.php?section=addModel&step=2&dtID='.$dtID.'">[change/explain]</a><td>
+			</tr>
+			<tr>
+				<td valign="top" colspan="2">Tuning: <B>'.((str_replace('E','',$rowDTData['NumericEntry'])=='')?'No fixed digits':'Fixed Digits: '.str_replace('E','',$rowDTData['NumericEntry'])).'</B>  ['.((strpos($rowDTData['NumericEntry'],'E')!==false)?'x':'').'] terminate with enter  <a href="index.php?section=addModel&step=3&dtID='.$dtID.'">[change/explain]</a><td>
+			</tr>		
+			<tr>
+				<td valign="top" colspan="2">Power: <B>'.(($rowDTData['TogglePower']==0)?'Discrete':'Toggle').'</B> <a href="index.php?section=addModel&step=4&dtID='.$dtID.'">[change/explain]</a><td>
+			</tr>		
+			<tr>
+				<td valign="top" colspan="2">Inputs: <B>'.join(', ',getAssocArray('Command','PK_Command','Command.Description',$publicADO,'INNER JOIN DeviceTemplate_Input ON FK_Command=PK_Command WHERE FK_DeviceTemplate='.$dtID,'ORDER BY Command.Description ASC')).'</B> <a href="index.php?section=addModel&step=5&dtID='.$dtID.'">[change/explain]</a><td>
+			</tr>		
+			<tr>
+				<td valign="top" colspan="2">DSP Modes: <B>'.join(', ',getAssocArray('Command','PK_Command','Command.Description',$publicADO,'INNER JOIN DeviceTemplate_DSPMode ON FK_Command=PK_Command WHERE FK_DeviceTemplate='.$dtID,'ORDER BY Command.Description ASC')).'</B> <a href="index.php?section=addModel&step=6&dtID='.$dtID.'">[change/explain]</a><td>
+			</tr>		
+		';
 			$out.='
 			<tr>
-				<td colspan="2">Uses '.$label.' group <select name="irGroup" onChange="document.irCodes.submit();">
+				<td colspan="2">Uses Group/Codeset <select name="irGroup" onChange="document.irCodes.submit();">
 					<option value="0" '.(($infraredGroupID==0)?'selected':'').'>I don\'t know the group</option>';
 			$queryIG='
 				SELECT PK_InfraredGroup,InfraredGroup.Description 
@@ -360,9 +377,8 @@ function irCodes($output)
 		$newIRGroup=((int)@$_POST['irGroup']>0)?(int)$_POST['irGroup']:NULL;
 		$oldIRGroup=(int)$_POST['oldIRGroup'];
 		if($newIRGroup!=$oldIRGroup){
-			$publicADO->Execute('DELETE FROM DeviceTemplate_InfraredGroup WHERE FK_DeviceTemplate=?',array($dtID));
-			if(!is_null($newIRGroup))
-				$publicADO->Execute('INSERT INTO DeviceTemplate_InfraredGroup (FK_DeviceTemplate, FK_InfraredGroup) VALUES (?,?)',array($dtID,$newIRGroup));
+
+			$publicADO->Execute('UPDATE DeviceTemplate SET FK_InfraredGroup=? WHERE PK_DeviceTemplate=?',array($newIRGroup,$dtID));
 			$publicADO->Execute('UPDATE InfraredGroup_Command SET FK_InfraredGroup=? WHERE FK_DeviceTemplate=? AND FK_InfraredGroup IS NOT NULL AND FK_Users=?',array($newIRGroup,$dtID,$userID));
 
 			header("Location: index.php?section=irCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$newIRGroup&msg=IR Group changed for selected device template.&label=".$GLOBALS['label']);
@@ -456,7 +472,9 @@ function irCodes($output)
 
 		header("Location: index.php?section=irCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&lastAction=".@$lastAction);
 	}
-
+	$time_end = getmicrotime();
+	$out.='<br><p class="normaltext">Page generated in '.round(($time_end-$time_start),3).' s.';
+	
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: IR Codes');
 	$output->output();

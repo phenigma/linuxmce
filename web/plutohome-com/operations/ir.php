@@ -14,19 +14,65 @@ function ir($output)
 
 	$out='
 	<span class="normaltext" style="padding:20px;">
-	<p>Find infrared code for your device in Pronto(1) format, or in Pluto\'s GSD format for devices with an RS232, RS485, USB,	or Ethernet control.  If you find errors, please <a href="http://plutohome.com/index.php?section=support">contact us</a>.</p>
-	<p><b>1.</b>  Choose the manufactuer of your device, and then choose the category.
-	<br><b>2a.</b>  If your model is shown in the list, select it, and click \'Show Model\' to get the codes and device properties.
-	<br><b>2b.</b>  If your model is not shown, look at the Infrared Groups list below the models, also known as codesets.  Normally manufacturers	use the same groups of infrared codes across all similar models.  Try some codes from each Infrared Group.  	If you find one that works with your model, please follow the instructions on that page to add your model to the database.</p>		<p>If there are no codes for your model, you will have to learn them using Pluto\'s I/R learning modules, 	or another device like the Philips Pronto that can learn codes in raw pronto format(1).  
-	Once you do, please take a moment to add them to this site.</p>
+	<p>Find infrared code for your device in Pronto<sup>1</sup> format, or in Pluto\'s GSD format for devices with an RS232, RS485, USB,
+	or Ethernet control.  If you find errors, please <a href="http://plutohome.com/index.php?section=support">contact us</a>.</p></span>';
 
-	<p><b><u>To add codes:</u></b>
-	<br><b>1.</b>  Select the manufacturer.  If your manufacturer is not in the list, type it in the box below the list and click "Add manufacturer".
-	<br><b>2.</b>  Select the category that best describes your device.  If you need a new category, please <a href="http://plutohome.com/index.php?section=support">contact us</a>.  	We\'ll add it right away.
-	<br><b>3.</b>  Type in the model below the model list and click "Add New model".</p>
+	$selectedManufacturer = (int)@$_REQUEST['manufacturers'];
+	$selectedDeviceCateg= (int)@$_REQUEST['deviceSelected'];
 	
+	if($selectedManufacturer==0 && $selectedDeviceCateg==0)
+	{
+		$out .= '<span class="title" style="padding:20px;"><p>Choose the manufacturer of your device and the category to see what models we have, or to add a new model.</p>
 	</span>';
+	}else{
+		$sql1='SELECT COUNT(PK_InfraredGroup) As NumGroups,min(DeviceCategory.Description) as DeviceCategory,min(Manufacturer.Description) as Manufacturer
+		FROM InfraredGroup
+		JOIN Manufacturer ON FK_Manufacturer=PK_Manufacturer
+		JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory
+		WHERE FK_Manufacturer=? and FK_DeviceCategory=?';
+		$resGroup=$publicADO->Execute($sql1,array($selectedManufacturer,$selectedDeviceCateg));
+		
+		$addButton='<input type="button" class="button" name="addDeviceTemplate" value="Add model" onClick="javascript:addModel();"/>';
+		
+		if($resGroup && ($rowGroup=$resGroup->FetchRow()) && $rowGroup['NumGroups']>0)
+		{
+			$sql2='SELECT COUNT(PK_InfraredGroup_Command) As NumCodes
+			FROM InfraredGroup_Command
+			JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup
+			WHERE FK_Manufacturer=? and FK_DeviceCategory=?';
+			$resCodes=$publicADO->Execute($sql2,array($selectedManufacturer,$selectedDeviceCateg));
+			$rowCodes=$resCodes->FetchRow();
+			
+			$out .= '<span class="title"><p><b>Good news!</b></span>' .
+			'<span class="normaltext" style="padding-left:20px;">  We have <b>' .
+			$rowCodes['NumCodes'] . '</b> codes in <b>' . 
+			$rowGroup['NumGroups'] . '</b> groups already in the database for <b>' . $rowGroup['DeviceCategory'] . 
+			'</b> by <b>' . $rowGroup['Manufacturer'] . '</b>.  Even if your exact model isn\'t listed below, you probably will
+			not need to learn any codes because normally ' . $rowGroup['Manufacturer'] . ' uses the same groups of codes for all their '
+			. $rowGroup['DeviceCategory'] . '.  If your model is shown, select it from the list and click \'Show Model\'.  If not,
+			click </span>'.$addButton.'<span class="normaltext"> to add your exact model and our wizard will help you confirm the correct infrared group, or codeset, and 
+			add any new codes that aren\'t in the database yet.</span>';
+		}
+		else
+		{
+			$sql2 = 'SELECT Description FROM Manufacturer WHERE PK_Manufacturer=?';
+			$sql3 = 'SELECT Description FROM DeviceCategory WHERE PK_DeviceCategory=?';
+            $resMfr=$publicADO->Execute($sql2,array($selectedManufacturer));
+			$rowMfr=$resMfr->FetchRow();
+            $resCat=$publicADO->Execute($sql3,array($selectedDeviceCateg));
+			$rowCat=$resCat->FetchRow();
+			
+			
+									
+			$out .= '<span class="title"> <b>Sorry</b></span> <span class="normaltext">There aren\'t yet any codes in the database for <b>' . $rowCat['Description'] . '</b> by <b>' . 
+			$rowMfr['Description'] . '</b>.  This is a free, public database.  Please take a moment to supply information and codes 
+			for your model by clicking '.$addButton.'</span>';
+		}
+		
+		
+	}
 	
+
 /*
 	if($userID==0){
 		$out='
@@ -43,7 +89,8 @@ function ir($output)
 	
 	$firstColLinks='';
 	$out.=pickDeviceTemplate($GLOBALS['rootAVEquipment'],1,0,0,0,0,'ir',$firstColLinks,$publicADO,1);
-	$out.='<span class="normaltext" style="padding:20px;"><p>Note: All infrared codes are provided by users and Pluto assumes no responsibility for the codes.  (1) <a href="http://www.pronto.philips.com/">Pronto</a> is a product and trademark of <a href="http://www.philips.com/index.html">Philips</a></p></span>';
+	$out.='<span class="normaltext" style="padding:20px;"><p>Note: All infrared codes are provided by users and Pluto assumes no responsibility for the codes.  <br>
+	<sup>1</sup> <a href="http://www.pronto.philips.com/">Pronto</a> is a product and trademark of <a href="http://www.philips.com/index.html">Philips</a></p></span>';
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME);
 	$output->output();

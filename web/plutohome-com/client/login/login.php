@@ -53,7 +53,7 @@ if (isset($_POST['username']) && $_POST['username']!='') {
 			}
 
 			$_SESSION['installationIDs'] = $installations;
-			$_SESSION['installationID'] = $installations[0];
+			$_SESSION['installationID'] = @$installations[0];
 			
 			$res=mysql_query("SELECT * FROM Users WHERE FK_MasterUsers='$MasterUsersID'",$conn);
 			if(mysql_num_rows($res)!=0){

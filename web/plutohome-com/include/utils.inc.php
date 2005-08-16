@@ -865,7 +865,11 @@ function getAssocArray($table,$keyField,$labelField,$dbADO,$whereClause='',$orde
 	$retArray=array();
 	$res=$dbADO->Execute("SELECT $keyField,$labelField FROM $table $whereClause $orderClause");
 	while($row=$res->FetchRow()){
-		$retArray[$row[$keyField]]=$row[$labelField];
+		$cleanField=(strpos($labelField,'.')!==false)?substr($labelField,strpos($labelField,'.')+1):$labelField;
+		$cleanField=(strpos($cleanField,' AS ')!==false)?substr($cleanField,strpos($cleanField,' AS ')+4):$cleanField;
+		$cleanField=trim($cleanField);
+
+		$retArray[$row[$keyField]]=$row[$cleanField];
 	}
 	return $retArray;
 }
@@ -911,11 +915,12 @@ function getFieldsAsArray($tableName,$fields,$dbADO,$filter='',$orderBy='')
 	while($row=$res->Fetchrow()){
 		foreach ($fieldsArray AS $field){
 			$cleanField=(strpos($field,'.')!==false)?substr($field,strpos($field,'.')+1):$field;
+			$cleanField=(strpos($cleanField,' AS ')!==false)?substr($cleanField,strpos($cleanField,' AS ')+4):$cleanField;
 			$cleanField=trim($cleanField);
+
 			$result[$cleanField][]=$row[$cleanField];
 		}
 	}
-	
 	return $result;	
 }
 
@@ -942,5 +947,12 @@ function print_array($arr)
 	print '<pre>';
 	print_r($arr);
 	print '</pre>';
+}
+
+
+function getmicrotime() 
+{ 
+    list($usec, $sec) = explode(" ", microtime()); 
+    return ((float)$usec + (float)$sec); 
 }
 ?>

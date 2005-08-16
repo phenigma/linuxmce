@@ -10,7 +10,7 @@ function editAVDevice($output)
 /* @var $publicADO ADOConnection */
 /* @var $rs ADORecordSet */
 $out='';
-$publicADO->debug=false;
+$publicADO->debug=true;
 
 $action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 $from = isset($_REQUEST['from'])?cleanString($_REQUEST['from']):'';

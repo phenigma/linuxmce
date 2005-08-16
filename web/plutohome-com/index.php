@@ -604,7 +604,20 @@ switch ($section) {
 		include_once('operations/irg_models.php');
 	    irg_models($output);
 	break;
-
+	case 'addModel':
+    	$output = new Template();
+    	$output->setConn($conn);
+       	$output->setTemplateFileType('nonews');
+		include_once('operations/addModel.php');
+	    addModel($output);
+	break;
+	case 'displayCode':
+    	$output = new Template();
+    	$output->setConn($conn);
+       	$output->setTemplateFileType('nonews');
+		include_once('operations/displayCode.php');
+	    displayCode($output);
+	break;
 	
 	default:			
 		$output = new Template();	
