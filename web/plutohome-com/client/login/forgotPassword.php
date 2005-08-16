@@ -52,7 +52,16 @@ function forgotPassword($output)
 			$queryMasterUsers=updateMasterUsersPassword($MasterUsersID,$pass,$changePassMasterUserUrl);
 			if($queryMasterUsers[0]){
 				$message='Hello,<br> Your new password for Plutohome Website is <b>'.$pass. '</b>  <br><br><a href="http://plutohome.com/index.php?section=login">Click here</a> to login and after that you can change the password by using the "Change Password" feature.<br><br>Best regards, <br>PlutoHome staff.';
-				$headers = "From: PlutoHome <website@plutohome.com>\nX-Priority: 1\nContent-Type: text/html; charset=iso-8859-1\n";
+			   	
+				$headers = "From: Pluto Home<website@plutohome.com>\n";
+				$headers .= "X-Sender: <website@plutohome.com>\n";
+				$headers .= "X-Mailer: PHP\n"; //mailer
+				$headers .= "X-Priority: 3\n"; //1 UrgentMessage, 3 Normal
+				$headers .= "Return-Path: <website@plutohome.com>\n";
+				$headers .= "Content-Type: text/html; charset=iso-8859-1\n";
+				$headers .= "cc: \n"; 
+				$headers .= "bcc: "; 
+
 				mail($ToEmail,$subject,$message,$headers);
 				$out='';
 			}else{
