@@ -3,8 +3,8 @@
 #include "Logger.h"
 
 using namespace DCE;
-#include "../IRTrans/Base.h"
-extern ../IRTrans/_Command *Create_../IRTrans/(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter);
+#include "IRTransBase.h"
+extern IRTrans_Command *Create_IRTrans(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter);
 DeviceData_Impl *IRTrans_Data::CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition)
 {
 	// Peek ahead in the stream.  We're going to pass in the above pointers anyway so it won't affect the position
@@ -14,8 +14,8 @@ DeviceData_Impl *IRTrans_Data::CreateData(DeviceData_Impl *Parent,char *pDataBlo
 	int iPK_Installation = b.Read_unsigned_long();
 	int iPK_DeviceTemplate = b.Read_unsigned_long();
 	switch(iPK_DeviceTemplate) {
-		case ../IRTrans/:
-			return new ../IRTrans/_Data();
+		case 1710:
+			return new IRTrans_Data();
 	};
 	g_pPlutoLogger->Write(LV_STATUS, "Got CreateData for unknown type %d.", iPK_DeviceTemplate);
 	return NULL;
@@ -25,7 +25,7 @@ Event_Impl *IRTrans_Event::CreateEvent( unsigned long dwPK_DeviceTemplate, Clien
 {
 	switch(dwPK_DeviceTemplate) {
 		case 1710:
-			return (Event_Impl *) new ../IRTrans/_Event(pOCClientSocket, dwDevice);
+			return (Event_Impl *) new IRTrans_Event(pOCClientSocket, dwDevice);
 	};
 	g_pPlutoLogger->Write(LV_STATUS, "Got CreateEvent for unknown type %d.", dwPK_DeviceTemplate);
 	return NULL;

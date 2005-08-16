@@ -728,9 +728,9 @@ int k=2;
 		Row_DeviceTemplate *p_Row_DeviceTemplate = (*itMDL).second;
 		string sName;
 		if( p_Row_DeviceTemplate->CommandLine_get().size() )
-			sName = "../" + p_Row_DeviceTemplate->CommandLine_get() + "/";  // They're going to be output within out directory
+			sName = p_Row_DeviceTemplate->CommandLine_get();
 		else
-			sName = "../" + FileUtils::ValidCPPName(p_Row_DeviceTemplate->Description_get()) + "/";  // They're going to be output within out directory
+			sName = FileUtils::ValidCPPName(p_Row_DeviceTemplate->Description_get());
 
 		fstr_DeviceCommand << "#include \"" + sName + "Base.h\"" << endl;
 		fstr_DeviceCommand << "extern " + sName + "_Command *Create_" + sName + "(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter);" << endl;
@@ -754,11 +754,11 @@ int k=2;
 			Row_DeviceTemplate *p_Row_DeviceTemplate = (*itMDL).second;
 			string sName;
 			if( p_Row_DeviceTemplate->CommandLine_get().size() )
-				sName = "../" + p_Row_DeviceTemplate->CommandLine_get() + "/";  // They're going to be output within out directory
+				sName = p_Row_DeviceTemplate->CommandLine_get();
 			else
-				sName = "../" + FileUtils::ValidCPPName(p_Row_DeviceTemplate->Description_get()) + "/";  // They're going to be output within out directory
+				sName = FileUtils::ValidCPPName(p_Row_DeviceTemplate->Description_get());
 
-			fstr_DeviceCommand << "\t\tcase " << sName << ":" << endl;
+			fstr_DeviceCommand << "\t\tcase " << StringUtils::itos(p_Row_DeviceTemplate->PK_DeviceTemplate_get()) << ":" << endl;
 			fstr_DeviceCommand << "\t\t\treturn new " << sName << "_Data();" << endl;
 		}
 
@@ -778,9 +778,9 @@ int k=2;
 			Row_DeviceTemplate *p_Row_DeviceTemplate = (*itMDL).second;
 			string sName;
 			if( p_Row_DeviceTemplate->CommandLine_get().size() )
-				sName = "../" + p_Row_DeviceTemplate->CommandLine_get() + "/";  // They're going to be output within out directory
+				sName = p_Row_DeviceTemplate->CommandLine_get();
 			else
-				sName = "../" + FileUtils::ValidCPPName(p_Row_DeviceTemplate->Description_get()) + "/";  // They're going to be output within out directory
+				sName = FileUtils::ValidCPPName(p_Row_DeviceTemplate->Description_get());
 
 			fstr_DeviceCommand << "\t\tcase " + StringUtils::itos(p_Row_DeviceTemplate->PK_DeviceTemplate_get()) + ":"<< endl;
 			fstr_DeviceCommand << "\t\t\treturn (Event_Impl *) new " + sName + "_Event(pOCClientSocket, dwDevice);"<< endl;
@@ -805,9 +805,9 @@ int k=2;
 			{
 				string sName;
 				if( p_Row_DeviceTemplate->CommandLine_get().size() )
-					sName = "../" + p_Row_DeviceTemplate->CommandLine_get() + "/";  // They're going to be output within out directory
+					sName = p_Row_DeviceTemplate->CommandLine_get();
 				else
-					sName = "../" + FileUtils::ValidCPPName(p_Row_DeviceTemplate->Description_get()) + "/";  // They're going to be output within out directory
+					sName = FileUtils::ValidCPPName(p_Row_DeviceTemplate->Description_get());
 				fstr_DeviceCommand << "\t\tcase " << StringUtils::itos(p_Row_DeviceTemplate->PK_DeviceTemplate_get()) << ":" << endl;
 				fstr_DeviceCommand << "\t\t\treturn (Command_Impl *) Create_" << sName << "(pPrimaryDeviceCommand, pData, pEvent, m_pRouter);" << endl;
 			}
