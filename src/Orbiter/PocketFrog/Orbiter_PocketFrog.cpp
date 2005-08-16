@@ -11,6 +11,7 @@
 
 #include "../pluto_main/Define_VertAlignment.h" 
 #include "../pluto_main/Define_HorizAlignment.h" 
+#include "../Orbiter/Win32/MainDialog.h"
 
 using namespace Frog;
 using namespace Frog::Internal;
@@ -233,10 +234,10 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
     if(uMsg == WM_KEYDOWN)
 	{
         orbiterEvent.type = Orbiter::Event::BUTTON_DOWN;
-#ifdef DEBUG
+//#ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"Key down %d bControlDown %d bAltDown %d bCapsLock %d bShiftDown %d",
 			wParam,(int) m_bControlDown,(int) m_bAltDown,(int) m_bCapsLock,(int) m_bShiftDown);
-#endif
+//#endif
 	}
     else if(uMsg == WM_KEYUP)
         orbiterEvent.type = Orbiter::Event::BUTTON_UP;
@@ -1049,5 +1050,42 @@ void Orbiter_PocketFrog::CalcTextRectangle(RECT &rectLocation,PlutoRectangle &rP
     }
 
     return false;
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void Orbiter_PocketFrog::OnUnexpectedDisconnect()
+{
+    //restarting orbiter
+    PROCESS_INFORMATION pi;
+    ::ZeroMemory(&pi, sizeof(PROCESS_INFORMATION));
+
+    STARTUPINFO si;
+    ::ZeroMemory(&si, sizeof(STARTUPINFO));
+    si.cb = sizeof(STARTUPINFO);
+    si.lpReserved = 0;
+
+    string sCmdLine;
+
+#ifdef WINCE
+    wchar_t pProcessNameW[256];
+    ::GetModuleFileName(NULL, pProcessNameW, sizeof(pProcessNameW));
+
+    sCmdLine += "-d " + StringUtils::ltos(m_dwPK_Device);
+    sCmdLine += " -r " + CmdLineParams.sRouter_IP;
+    sCmdLine += " -l \"" + CmdLineParams.sLogger + "\"";
+
+    if(CmdLineParams.bFullScreen)
+        sCmdLine += " -F";
+
+    wchar_t CmdLineW[256];
+    mbstowcs(CmdLineW, sCmdLine.c_str(), 256);
+
+    ::CreateProcess(pProcessNameW, CmdLineW, NULL, NULL, NULL, 0, NULL, NULL, &si, &pi);
+#else
+    sCmdLine = GetCommandLine();
+    ::CreateProcess(NULL, const_cast<char *>(sCmdLine.c_str()), NULL, NULL, NULL, 0, NULL, NULL, &si, &pi);
+#endif
+
+    m_bQuit = true;
+    exit(1); //die!!!
 }
 //-----------------------------------------------------------------------------------------------------

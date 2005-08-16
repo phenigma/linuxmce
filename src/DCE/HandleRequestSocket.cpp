@@ -34,11 +34,6 @@
 #include "Message.h"
 #include "HandleRequestSocket.h"
 
-#ifdef WIN32
-#include "../Orbiter/Win32/MainDialog.h"
-#include "Windows.h"
-#endif
-
 using namespace DCE;
 
 void *BeginHandleRequestThread( void *HRqSock )
@@ -219,41 +214,6 @@ void HandleRequestSocket::RunThread()
 	m_bRunning = false;
 	if ( m_bUnexpected )
 	{
-#ifdef WIN32
-		//restarting orbiter
-		PROCESS_INFORMATION pi;
-		::ZeroMemory(&pi, sizeof(PROCESS_INFORMATION));
-
-		STARTUPINFO si;
-		::ZeroMemory(&si, sizeof(STARTUPINFO));
-		si.cb = sizeof(STARTUPINFO);
-		si.lpReserved = 0;
-
-		string sCmdLine;
-	#ifdef WINCE
-		wchar_t pProcessNameW[256];
-		::GetModuleFileName(NULL, pProcessNameW, sizeof(pProcessNameW));
-
-		sCmdLine += "-d " + StringUtils::ltos(m_dwPK_Device);
-		sCmdLine += " -r " + CmdLineParams.sRouter_IP;
-		sCmdLine += " -l \"" + CmdLineParams.sLogger + "\"";
-
-		if(CmdLineParams.bFullScreen)
-			sCmdLine += " -F";
-
-		wchar_t CmdLineW[256];
-		mbstowcs(CmdLineW, sCmdLine.c_str(), 256);
-
-		::CreateProcess(pProcessNameW, CmdLineW, NULL, NULL, NULL, 0, NULL, NULL, &si, &pi);
-	#else
-		sCmdLine = GetCommandLine();
-		::CreateProcess(NULL, const_cast<char *>(sCmdLine.c_str()), NULL, NULL, NULL, 0, NULL, NULL, &si, &pi);
-	#endif
-
-		exit(1); //die!!!
-#endif
-
-		g_pPlutoLogger->Write(LV_STATUS, "OnUnexpectedDisconnect");
 		OnUnexpectedDisconnect();
 	}
 
