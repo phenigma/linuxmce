@@ -15,7 +15,7 @@ DeviceData_Impl *IRTrans_Data::CreateData(DeviceData_Impl *Parent,char *pDataBlo
 	int iPK_DeviceTemplate = b.Read_unsigned_long();
 	switch(iPK_DeviceTemplate) {
 		case 1710:
-			return new IRTrans_DIGN_case_Data();
+			return new IRTrans_Data();
 	};
 	g_pPlutoLogger->Write(LV_STATUS, "Got CreateData for unknown type %d.", iPK_DeviceTemplate);
 	return NULL;
@@ -25,7 +25,7 @@ Event_Impl *IRTrans_Event::CreateEvent( unsigned long dwPK_DeviceTemplate, Clien
 {
 	switch(dwPK_DeviceTemplate) {
 		case 1710:
-			return (Event_Impl *) new IRTrans_DIGN_case_Event(pOCClientSocket, dwDevice);
+			return (Event_Impl *) new IRTrans_Event(pOCClientSocket, dwDevice);
 	};
 	g_pPlutoLogger->Write(LV_STATUS, "Got CreateEvent for unknown type %d.", dwPK_DeviceTemplate);
 	return NULL;

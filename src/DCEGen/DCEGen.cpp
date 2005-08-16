@@ -745,7 +745,7 @@ int k=2;
 			Row_DeviceTemplate *p_Row_DeviceTemplate = (*itMDL).second;
 
 			fstr_DeviceCommand << "\t\tcase " << StringUtils::itos(p_Row_DeviceTemplate->PK_DeviceTemplate_get()) << ":" << endl;
-			fstr_DeviceCommand << "\t\t\treturn new " << FileUtils::ValidCPPName(p_Row_DeviceTemplate->Description_get()) << "_Data();" << endl;
+			fstr_DeviceCommand << "\t\t\treturn new " << Name << "_Data();" << endl;
 		}
 
 		fstr_DeviceCommand << "\t};" << endl;
@@ -763,7 +763,7 @@ int k=2;
 		{
 			Row_DeviceTemplate *p_Row_DeviceTemplate = (*itMDL).second;
 			fstr_DeviceCommand << "\t\tcase " + StringUtils::itos(p_Row_DeviceTemplate->PK_DeviceTemplate_get()) + ":"<< endl;
-			fstr_DeviceCommand << "\t\t\treturn (Event_Impl *) new " + FileUtils::ValidCPPName(p_Row_DeviceTemplate->Description_get()) + "_Event(pOCClientSocket, dwDevice);"<< endl;
+			fstr_DeviceCommand << "\t\t\treturn (Event_Impl *) new " + Name + "_Event(pOCClientSocket, dwDevice);"<< endl;
 		}
 		fstr_DeviceCommand << "\t};"<< endl;
 	}
