@@ -64,6 +64,8 @@ namespace sqlCVS
 		void Setup( );
 		void Remove( );
 		bool CheckIn( );
+		void RollbackBatch();
+		void RollbackBatch(Table *pTable,int psc_id,int psc_toc,int psc_batch,sqlCVSprocessor *p_sqlCVSprocessor);
 		bool Update( );
 		void Dump( );
 		bool DetermineDeletions( );

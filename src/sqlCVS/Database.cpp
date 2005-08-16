@@ -1619,6 +1619,12 @@ void Database::ListBatchContents()
 			return; /**< Do nothing */
 	}
 
+	if( g_GlobalConfig.m_mapRepository.size( )!=1 )
+	{
+		cerr << "You must specify 1 and only 1 repository for the batch to rollback" << endl;
+		throw "Parameter error";
+	}
+
 	Repository *pRepository = (*g_GlobalConfig.m_mapRepository.begin()).second;
 
 	std::ostringstream sSQL;
@@ -1726,4 +1732,27 @@ void Database::Revert()
 			pMaskedChange->m_pTable->RevertChange(pMaskedChange->m_psc_id,pMaskedChange->m_eTypeOfChange);
 	}
 	Commit();  // an exception would have been thrown if something went wrong
+}
+
+void Database::RollbackBatch()
+{
+	if( g_GlobalConfig.m_mapRepository.size()==0 && PromptForRepositories(true)!=1 )
+		return;  // User must have chosen quit
+
+	if( g_GlobalConfig.m_psc_batch==0 )
+	{
+		cout << "What batch number? (0 to quit) ";
+		cin >> g_GlobalConfig.m_psc_batch;
+		if( g_GlobalConfig.m_psc_batch==0 )
+			return; /**< Do nothing */
+	}
+
+	if( g_GlobalConfig.m_mapRepository.size( )!=1 )
+	{
+		cerr << "You must specify 1 and only 1 repository for the batch to rollback" << endl;
+		throw "Parameter error";
+	}
+
+	Repository *pRepository = (*g_GlobalConfig.m_mapRepository.begin()).second;
+	pRepository->RollbackBatch();
 }

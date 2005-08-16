@@ -1578,3 +1578,133 @@ bool Repository::ProcessSchemaUpdate(string sSQLCommand)
 	cout << "ProcessSchemaUpdate OK: " << sSQLCommand << endl;
 	return true; 
 }
+
+void Repository::RollbackBatch()
+{
+	m_pDatabase->StartTransaction();
+	map<int,ValidatedUser *> mapValidatedUsers;
+	sqlCVSprocessor c_sqlCVSprocessor(NULL);  // Simulate an incoming transaction so we can use all those functions
+	c_sqlCVSprocessor.m_i_psc_batch = CreateBatch( &c_sqlCVSprocessor, &mapValidatedUsers );
+
+	std::ostringstream sSQL;
+	sSQL << "SELECT DISTINCT Tablename FROM psc_" << m_sName << "_batdet WHERE FK_psc_" << m_sName << "_bathdr=" << g_GlobalConfig.m_psc_batch;
+	PlutoSqlResult result_set;
+	MYSQL_ROW row=NULL;
+	if( ( result_set.r=m_pDatabase->mysql_query_result( sSQL.str( ) ) ) )
+	{
+		while ( row = mysql_fetch_row( result_set.r ) )
+		{
+			string sTable = row[0];
+			if( g_GlobalConfig.m_mapTable.size() && g_GlobalConfig.m_mapTable.find(sTable)==g_GlobalConfig.m_mapTable.end() )
+			{
+				cout << "Skipping table: " << sTable << endl;
+				continue;
+			}
+
+			Table *pTable = m_mapTable_Find(sTable);
+			if( !pTable->m_pTable_History )
+			{
+				cout << "Cannot rollback table: " << sTable << ".  There is no history" << endl;
+				if( !g_GlobalConfig.m_bNoPrompts && !AskYNQuestion("Continue",false) )
+					throw "Rollback aborted";
+				continue;
+			}
+
+			std::ostringstream sSQL2;
+			sSQL2 << "SELECT psc_id,psc_toc FROM `" 
+				<< pTable->m_pTable_History->Name_get() << "` WHERE psc_batch=" << g_GlobalConfig.m_psc_batch;
+
+			PlutoSqlResult result_set2;
+			MYSQL_ROW row2=NULL;
+			cout << endl << "Table: " << sTable << endl << "=========================" << endl;
+			if( ( result_set2.r=m_pDatabase->mysql_query_result( sSQL2.str( ) ) ) )
+			{
+				while ( row2 = mysql_fetch_row( result_set2.r ) )
+					RollbackBatch(pTable,atoi(row2[0]),atoi(row2[1]),g_GlobalConfig.m_psc_batch,&c_sqlCVSprocessor); // Rollback this change
+			}
+			c_sqlCVSprocessor.m_pTable = pTable;
+			c_sqlCVSprocessor.RecordChangesToTable();
+		}
+	}
+	m_pDatabase->Commit();
+}
+
+void Repository::RollbackBatch(Table *pTable,int psc_id,int psc_toc,int psc_batch,sqlCVSprocessor *p_sqlCVSprocessor)
+{
+	int psc_batch_last=0;
+	std::ostringstream sSQL;
+	sSQL << "SELECT max(psc_batch) FROM `" << pTable->Name_get() << "_pschist` WHERE psc_id=" << psc_id << " AND psc_batch<>" << psc_batch;
+
+	PlutoSqlResult result_batch;
+	MYSQL_ROW row=NULL;
+	if( ( result_batch.r=m_pDatabase->mysql_query_result( sSQL.str( ) ) ) && ( row = mysql_fetch_row( result_batch.r ) ) && row[0] )
+		psc_batch_last = atoi( row[0] );
+
+	if( psc_batch_last>psc_batch )
+	{
+		cout << "Table: " << pTable->Name_get() << " psc_id: " << psc_id << " has been changed since batch " << psc_batch <<
+			endl << "Skipping..." << endl;
+		if( !g_GlobalConfig.m_bNoPrompts && !AskYNQuestion("Continue",false) )
+			throw "Rollback aborted";
+		return;
+	}
+
+	ChangedRow changedRow(pTable,toc_New,psc_id,p_sqlCVSprocessor->m_i_psc_batch);  // Treat this like a changed row
+	changedRow.m_psc_id=psc_id;
+	if( psc_toc==toc_New )
+	{
+		changedRow.m_eTypeOfChange=toc_Delete;
+		p_sqlCVSprocessor->m_iDel++;
+	}
+	else
+	{
+		if( psc_toc==toc_Delete )
+		{
+			changedRow.m_eTypeOfChange=toc_New;
+			p_sqlCVSprocessor->m_iNew++;
+		}
+		else
+		{
+			changedRow.m_eTypeOfChange=toc_Modify;
+			p_sqlCVSprocessor->m_iMod++;
+		}
+		sSQL.str("");
+		sSQL << "SELECT ";
+		bool bFirst=true;
+		for( MapField::iterator it=pTable->m_mapField.begin();it!=pTable->m_mapField.end();++it )
+		{
+			Field *pField = (*it).second;
+			if( pField->Name_get()!="psc_batch" )  // temp hack since this was added later
+			{
+				if( bFirst )
+					bFirst=false;
+				else
+					sSQL << ",";
+				sSQL << "`" << pField->Name_get() << "`";
+			}
+		}
+		sSQL << " FROM `" << pTable->m_pTable_History->Name_get() << "` WHERE psc_id=" << psc_id << " AND psc_batch=" << psc_batch_last;
+		PlutoSqlResult result_hist;
+		if( ( result_hist.r=m_pDatabase->mysql_query_result( sSQL.str( ) ) ) && ( row = mysql_fetch_row( result_hist.r ) ) )
+		{
+			int iFieldCount=0;
+			for( MapField::iterator it=pTable->m_mapField.begin();it!=pTable->m_mapField.end();++it )
+			{
+				Field *pField = (*it).second;
+				if( pField->Name_get()!="psc_batch" )  // temp hack since this was added later
+				{
+					changedRow.m_mapFieldValues[pField->Name_get()] = (row[iFieldCount] ? row[iFieldCount] : NULL_TOKEN);
+					iFieldCount++;
+				}
+			}
+		}
+		else
+		{
+			cerr << "Cannot retrieve history for rollback Table: " << pTable->Name_get() << " psc_id: " << psc_id << endl;
+			throw "Rollback failure";
+		}
+	}
+
+	pTable->ApplyChangedRow(&changedRow);
+	pTable->AddToHistory(&changedRow);
+}

@@ -508,6 +508,10 @@ int main( int argc, char *argv[] )
 			{
 				database.Revert();
 			}
+			else if( g_GlobalConfig.m_sCommand=="rollback" )
+			{
+				database.RollbackBatch();
+			}
 			else
 			{
 				cerr << "Unknown command: " << g_GlobalConfig.m_sCommand << endl;

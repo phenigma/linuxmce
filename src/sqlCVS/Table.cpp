@@ -873,8 +873,14 @@ cout << endl;
 				
 cout << "We deleted a row locally - pos: " << pos << " size: " << r_GetAll_psc_id.m_vectAll_psc_id.size( ) << 
 " local db psc_id: " << atoi( row[0] ) << " server psc_id deleted: " << r_GetAll_psc_id.m_vectAll_psc_id[pos].first << " batch: " << r_GetAll_psc_id.m_vectAll_psc_id[pos].second << endl;
+
+int foo=r_GetAll_psc_id.m_vectAll_psc_id[pos].second;
 if( r_GetAll_psc_id.m_vectAll_psc_id[pos].second>m_psc_batch_last_sync )
-cout << "Never mind, it's newer than what we've synced" << endl;
+{
+	cout << "Never mind, it's newer than what we've synced" << endl;
+	pos++;
+	continue;
+}
 
 itmp_RowsToDelete++;
 				ChangedRow *pChangedRow = new ChangedRow( this, r_GetAll_psc_id.m_vectAll_psc_id[pos].first );
@@ -1217,20 +1223,33 @@ void Table::PropagateUpdatedField( Field *pField_Changed, string NewValue, strin
 		Field *pField_FK = *itList;
 		PropagateUpdatedField( pField_Changed, NewValue, OldValue, pChangedRow, pField_FK );
 	}
-/** @test
 	for( ListField::iterator itList=pField_Changed->m_listField_ReferringToMe_Indirectly.begin( );itList!=pField_Changed->m_listField_ReferringToMe_Indirectly.end( );++itList )
 	{
-#pragma warning( "HANDLE INDIRECT" )
 		Field *pField_FK = *itList;
-		PropageUpdatedField( pField_Changed, pChangedRow, pField_FK );
+		PropagateUpdatedField( pField_Changed, NewValue, OldValue, pChangedRow, pField_FK );
 	}
-*/
 }
 
 void Table::PropagateUpdatedField( Field *pField_Changed, string NewValue, string OldValue, ChangedRow *pChangedRow, Field *pField_FK )
 {
 	std::ostringstream sSQL;
 	sSQL << "UPDATE `" << pField_FK->m_pTable->Name_get( ) << "` SET " << pField_FK->Name_get( ) << "='" << NewValue << "'" << " WHERE " << pField_FK->Name_get( ) << "='" << OldValue << "'";
+	if( pField_FK->Name_get( ).substr(0,3)=="IK_" )
+	{
+		// It's an indirect key
+		std::ostringstream sSQL_IK;
+		sSQL_IK << "SELECT `PK_" << pField_FK->Name_get( ).substr(3) << "` FROM `" << pField_FK->Name_get( ).substr(3) << "` WHERE Description='" << pField_Changed->Name_get() << "'";
+
+		PlutoSqlResult result_set;
+		MYSQL_ROW row=NULL;
+		if( ( result_set.r=m_pDatabase->mysql_query_result(sSQL_IK.str()) ) && ( row = mysql_fetch_row( result_set.r ) ) )
+			sSQL << " AND `FK_" << pField_FK->Name_get( ).substr(3) << "`=" << row[0];
+		else
+		{
+			cerr << "Failed to propagate indirect change: " << sSQL_IK.str( ) << endl;
+			throw "Failed to propagate indirect change";
+		}
+	}
 	if( pField_FK->m_pTable->m_s_psc_id_new_this_update.size() )
 		sSQL << " AND psc_id NOT IN(" << pField_FK->m_pTable->m_s_psc_id_new_this_update << ")";
 
@@ -1802,6 +1821,8 @@ void Table::AddToHistory( ChangedRow *pChangedRow )
 		if( m_pField_AutoIncrement && pChangedRow->m_eTypeOfChange==toc_New && (*it).first==m_pField_AutoIncrement->Name_get() )
 			continue;
 
+		if( it->first=="psc_toc" || it->first=="psc_id" || it->first=="psc_batch" || it->first=="psc_restrict" )
+			continue;
 		sSqlHistory << "`" << (*it).first << "`, ";
 		if( (*it).first=="psc_user" )
 			b_psc_user_passedin=true;
@@ -1825,6 +1846,9 @@ void Table::AddToHistory( ChangedRow *pChangedRow )
 		if( m_pField_AutoIncrement && pChangedRow->m_eTypeOfChange==toc_New && (*it).first==m_pField_AutoIncrement->Name_get() )
 			continue;
 
+		if( it->first=="psc_toc" || it->first=="psc_id" || it->first=="psc_batch" || it->first=="psc_restrict" )
+			continue;
+
 		if( (*it).second==NULL_TOKEN )
 			sSqlHistory << "NULL, ";
 		else
@@ -1845,7 +1869,7 @@ void Table::AddToHistory( ChangedRow *pChangedRow )
 		sSqlHistory << pChangedRow->m_iNewAutoIncrID << ", ";
 
 	sSqlHistory << pChangedRow->m_eTypeOfChange << "," << pChangedRow->m_psc_id << ", " << pChangedRow->m_psc_batch
-		<< (pChangedRow->m_psc_restrict ? StringUtils::itos(pChangedRow->m_psc_restrict) : "NULL");
+		<< "," << (pChangedRow->m_psc_restrict ? StringUtils::itos(pChangedRow->m_psc_restrict) : "NULL");
 		
 	if( !b_psc_user_passedin )
 		sSqlHistory << ", " << (pChangedRow->m_psc_user ? StringUtils::itos(pChangedRow->m_psc_user) : "NULL");
@@ -2192,7 +2216,8 @@ bool Table::ShowChanges(int psc_user)
 
 void Table::ApplyChangedRow(ChangedRow *pChangedRow)
 {
-	cout << "Apply changed row for id: " << pChangedRow->m_psc_id << " type: " << (int) pChangedRow->m_eTypeOfChange << " fields: " << 			cout << "Row has %d changed fields: " << (int) pChangedRow->m_mapFieldValues.size() << endl;
+	cout << "Apply changed row for id: " << pChangedRow->m_psc_id << " type: " << (int) pChangedRow->m_eTypeOfChange << " fields: " 
+		<< "Row has changed fields: " << (int) pChangedRow->m_mapFieldValues.size() << endl;
 
 	ostringstream sSql;
 	if( pChangedRow->m_eTypeOfChange==toc_Delete )
@@ -2210,7 +2235,11 @@ void Table::ApplyChangedRow(ChangedRow *pChangedRow)
 				bFirst=false;
 			else
 				sSql << ",";
-			sSql << "`" << (*it).first << "`='" << StringUtils::SQLEscape((*it).second) << "'";
+			sSql << "`" << (*it).first << "`=";
+			if( it->second==NULL_TOKEN )
+				sSql << "NULL";
+			else
+				sSql << "'" << StringUtils::SQLEscape((*it).second) << "'";
 			if( (*it).first=="psc_batch" )
 				bFound_psc_batch=true;
 		}
@@ -2253,7 +2282,10 @@ void Table::ApplyChangedRow(ChangedRow *pChangedRow)
 				bFirst=false;
 			else
 				sSql << ",";
-			sSql << "'" << StringUtils::SQLEscape((*it).second) << "'"; 
+			if( it->second==NULL_TOKEN )
+				sSql << "NULL";
+			else
+				sSql << "'" << StringUtils::SQLEscape((*it).second) << "'"; 
 		}
 		if( !bFound_psc_id )
 			sSql << "," << pChangedRow->m_psc_id;

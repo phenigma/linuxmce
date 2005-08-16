@@ -52,6 +52,9 @@ namespace sqlCVS
 		/** @brief Revert changes from a mask file */
 		void Revert();
 
+		/** @brief Rollback an entire batch */
+		void RollbackBatch();
+
 		/** 
 		 * @ brief This will create the repository 
 		 */
