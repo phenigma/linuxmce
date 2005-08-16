@@ -2909,17 +2909,18 @@ function getControlledViaDeviceTemplates($deviceID,$dtID,$deviceCategory,$dbADO)
 	if(in_array($dtID,$avArray)){
 		$queryDevice='
 			SELECT 
-				Device.*, DeviceTemplate_AV.UsesIR
+				Device.*,
+				FK_CommMethod
 			FROM Device 
 				INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate
-				LEFT JOIN DeviceTemplate_AV ON Device.FK_DeviceTemplate=DeviceTemplate_AV.FK_DeviceTemplate
+				LEFT JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup
 			WHERE PK_Device=?';	
 		$resDevice=$dbADO->Execute($queryDevice,$deviceID);
 		$rowD=$resDevice->FetchRow();
 
 		$tmpArray=array();
 		$tmpArray[$deviceID]=$rowD['Description'];
-		$devicesAllowedToControll=($rowD['UsesIR']==1)?array_diff($controlledByIfIR,$tmpArray):array_diff($controlledByIfNotIR,$tmpArray);
+		$devicesAllowedToControll=(@$rowD['FK_CommMethod']==1)?array_diff($controlledByIfIR,$tmpArray):array_diff($controlledByIfNotIR,$tmpArray);
 
 		foreach($devicesAllowedToControll as $key => $value){
 			$optionsArray[$key]=$value;
@@ -3005,7 +3006,11 @@ function getInfraredPlugin($installationID,$dbADO)
 
 function isInfrared($deviceTemplate,$dbADO)
 {
-	$res=$dbADO->Execute('SELECT * FROM DeviceTemplate_AV WHERE FK_DeviceTemplate=? AND UsesIR=1',$deviceTemplate);
+	$res=$dbADO->Execute('
+		SELECT FK_CommMethod 
+		FROM DeviceTemplate
+		LEFT JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup
+		WHERE PK_DeviceTemplate=? AND FK_CommMethod=1',$deviceTemplate);
 	if($res->RecordCount()>0){
 		return 1;
 	}else{
@@ -3627,6 +3632,7 @@ function getOSDFromMD($mdID,$dbADO)
 // return an input box if device template is not orbiter or 2 checkboxes if it is
 function getStateFormElement($deviceID,$name,$State,$dbADO)
 {
+	$out='';
 	if(isOrbiter($deviceID,$dbADO)){
 		$out='
 		<input type="checkbox" name="'.$name.'_app" value="1" '.((strpos($State,'APP')!==false)?'checked':'').'> Resend application to phone<br>

@@ -26,11 +26,15 @@ if ($action=='form') {
 	}
 	
 	
-	$queryModels = "SELECT DeviceTemplate.*,DeviceCategory.Description as deviceDescription,
-							Manufacturer.Description as manufacturerDescription 
+	$queryModels = "SELECT 
+						DeviceTemplate.*,
+						DeviceCategory.Description as deviceDescription,
+						Manufacturer.Description as manufacturerDescription,
+	 					FK_CommMethod
 					FROM DeviceTemplate 
-						INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory 
-						INNER JOIN Manufacturer ON PK_Manufacturer=FK_Manufacturer 
+						INNER JOIN DeviceCategory ON DeviceTemplate.FK_DeviceCategory=PK_DeviceCategory 
+						INNER JOIN Manufacturer ON PK_Manufacturer=DeviceTemplate.FK_Manufacturer 
+						LEFT JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup
 					WHERE PK_DeviceTemplate='$dtID'";
 
 	$rs = $dbADO->_Execute($queryModels);	
@@ -43,7 +47,7 @@ if ($action=='form') {
 	$grabOldValues = "SELECT * FROM DeviceTemplate_AV WHERE FK_DeviceTemplate = ?";
 	$resGrabOldValues = $dbADO->Execute($grabOldValues,array($dtID));
 	if ($resGrabOldValues->RecordCount()==0) {
-		$insertRecord = "INSERT INTO DeviceTemplate_AV (FK_DeviceTemplate,UsesIR) values(?,1)";
+		$insertRecord = "INSERT INTO DeviceTemplate_AV (FK_DeviceTemplate) values(?)";
 		$resInsertRecord = $dbADO->Execute($insertRecord,array($dtID));
 		$controlSQL='INSERT INTO DeviceTemplate_DeviceCategory_ControlledVia (FK_DeviceTemplate,FK_DeviceCategory) VALUES (?,?)';
 		$dbADO->Execute($controlSQL,array($dtID,$GLOBALS['specialized']));
@@ -66,7 +70,7 @@ if ($action=='form') {
 		$toggleDSP = $row['ToggleDSP'];
 		$toggleInput = $row['ToggleInput'];
 		$toggleOutput = $row['ToggleOutput'];
-		$usesIR = $row['UsesIR'];
+		$usesIR = (@$row['FK_CommMethod']==1)?1:0;
 	}
 	
 		
@@ -689,9 +693,16 @@ function deleteFromArray(toDelete,targetArray)
 	$outputOrdered=cleanString($_POST['Output__selectedOrdered']);
 
 	$updateBasicDetails = "UPDATE DeviceTemplate_AV SET 
-			IR_PowerDelay = ?,IR_ModeDelay = ?,DigitDelay =?,TogglePower=?,ToggleDSP=?,ToggleInput=?,ToggleOutput=?, UsesIR=?
+			IR_PowerDelay = ?,IR_ModeDelay = ?,DigitDelay =?,TogglePower=?,ToggleDSP=?,ToggleInput=?,ToggleOutput=?
 						WHERE  FK_DeviceTemplate = ? ";
-	$res = $dbADO->Execute($updateBasicDetails,array($powerDelay,$modeDelay,$digitDelay,$togglePower,$toggleDSP,$toggleInput,$toggleOutput,$usesIR,$dtID));
+	$res = $dbADO->Execute($updateBasicDetails,array($powerDelay,$modeDelay,$digitDelay,$togglePower,$toggleDSP,$toggleInput,$toggleOutput,$dtID));
+	if($usesIR>0){
+		$dtFields=getAssocArray('DeviceTemplate','PK_DeviceTemplate','FK_CommMethod',$dbADO,'INNER JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup WHERE PK_DeviceTemplate='.$dtID);
+		if(isset($dtFields['PK_DeviceTemplate'])){
+			$dbADO->Execute('UPDATE InfraredGroup SET FK_CommMethod=1 WHERE PK_InfraredGroup=?',$dtFields[PK_DeviceTemplate]);
+		}
+	}
+	
 	if($usesIR==1){
 		$dbADO->Execute('UPDATE DeviceTemplate_DeviceCategory_ControlledVia SET FK_DeviceCategory=? WHERE FK_DeviceTemplate=? AND FK_DeviceCategory=?',array($GLOBALS['InfraredInterface'],$dtID,$GLOBALS['rootComputerID']));
 	}else{

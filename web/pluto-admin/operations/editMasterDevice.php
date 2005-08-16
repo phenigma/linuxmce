@@ -759,7 +759,7 @@ $out='';
 		$newScreen=(int)@$_POST['newScreen'];
 		$newMacFrom=(int)@$_POST['mac_from'];
 		$newMacTo=(int)@$_POST['mac_to'];
-		$newManufacturer=((int)$_POST['manufacturerPnp']>0)?(int)$_POST['manufacturerPnp']:NULL;
+		$newManufacturer=((int)@$_POST['manufacturerPnp']>0)?(int)$_POST['manufacturerPnp']:NULL;
 		$manufacturerURL=($_POST['manufacturerURL']!='')?$_POST['manufacturerURL']:NULL;
 		$internalURLsufix=($_POST['internalURLsufix']!='')?$_POST['internalURLsufix']:NULL;
 		$newCategory=((int)@$_POST['categoryPnp']>0)?(int)$_POST['categoryPnp']:NULL;
@@ -994,7 +994,7 @@ $out='';
 
 		if ($isAVDevice!=$old_isAVDevice) {			
 			if($isAVDevice==1){
-				$insertRecord = "INSERT INTO DeviceTemplate_AV (FK_DeviceTemplate,UsesIR) VALUES(?,1)";
+				$insertRecord = "INSERT INTO DeviceTemplate_AV (FK_DeviceTemplate) VALUES(?)";
 				$resInsertRecord = $dbADO->Execute($insertRecord,array($deviceID));
 				$controlSQL='INSERT INTO DeviceTemplate_DeviceCategory_ControlledVia (FK_DeviceTemplate,FK_DeviceCategory) VALUES (?,?)';
 				$dbADO->Execute($controlSQL,array($deviceID,$GLOBALS['specialized']));

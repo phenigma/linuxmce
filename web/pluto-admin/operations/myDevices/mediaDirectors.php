@@ -151,7 +151,7 @@ function mediaDirectors($output,$dbADO) {
 						DeviceTemplate.Description AS TemplateName, 
 						DeviceCategory.Description AS CategoryName, 
 						Manufacturer.Description AS ManufacturerName, 
-						IsIPBased, DeviceTemplate_AV.UsesIR, 
+						IsIPBased, 
 						FK_DeviceCategory,
 						DeviceData.Description AS dd_Description, 
 						Device_DeviceData.FK_DeviceData,
