@@ -84,7 +84,7 @@ map<PAIR_SI,int> mapUsersWeeks;
 int main( int argc, char *argv[] )
 {
 	g_pPlutoLogger = new FileLogger(stdout);
-	chdir("/home/MakeRelease/trunk");
+	chdir("/home/users/builder/build/sources");
 	unlink("output.all");
 	cout << "About to execute command" << endl;
 	system("svn log -q | grep '^r' > output.all");
@@ -195,7 +195,7 @@ retry:
 			if( Filename.find("external/")!=string::npos || Filename.find("libs/")!=string::npos ||
 				Filename.find("installers/")!=string::npos || Filename.find("misc_utils/")!=string::npos ||
 				Filename.find("pluto_main/")!=string::npos || Filename.find("Gen_Devices/")!=string::npos ||
-				Filename.find("pluto_media/")!=string::npos )
+				Filename.find("pluto_media/")!=string::npos || Filename.find("Libraries/")!=string::npos )
    			{
           	   continue;
     		}
