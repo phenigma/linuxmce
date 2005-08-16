@@ -124,6 +124,13 @@ public:
 	virtual void CMD_Vol_Down(int iRepeat_Command,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #97 - Mute */
+	/** Toggle mute/unmute */
+
+	virtual void CMD_Mute() { string sCMD_Result; CMD_Mute(sCMD_Result,NULL);};
+	virtual void CMD_Mute(string &sCMD_Result,Message *pMessage);
+
+
 	/** @brief COMMAND: #313 - Set Volume */
 	/** Set the volume to a specific level between 0-100 */
 		/** @param #76 Level */

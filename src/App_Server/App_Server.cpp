@@ -100,7 +100,13 @@ App_Server::App_Server(int DeviceID, string ServerAddress,bool bConnectEventHand
 #ifndef WIN32
 	g_pAppServer = this;
     signal(SIGCHLD, sh); /* install handler */
-#endif
+
+	int pid = fork();
+	if (pid == 0)
+	{
+		execl("/usr/bin/amixer", "amixer", "sset", "Master", "unmute", NULL);
+		exit(99);
+	}
 }
 
 //<-dceag-const2-b->!
@@ -539,6 +545,32 @@ void App_Server::CMD_Set_Volume(string sLevel,string &sCMD_Result,Message *pMess
 	if (pid == 0)
 	{
 		execl("/usr/bin/amixer", "amixer", "sset", "Master", (sLevel.substr(bRelative ? 1 : 0) + "%" + (bRelative ? sLevel.substr(0, 1) : "")).c_str(), NULL);
+		exit(99);
+	}
+#endif
+
+	// TODO: check that the mixer actually worked
+	sCMD_Result = "OK";
+}
+
+//<-dceag-c97-b->
+
+	/** @brief COMMAND: #97 - Mute */
+	/** Toggle mute/unmute */
+
+void App_Server::CMD_Mute(string &sCMD_Result,Message *pMessage)
+//<-dceag-c97-e->
+{
+	static bool bLastMute=false;
+#ifndef WIN32
+	int pid = fork();
+	if (pid == 0)
+	{
+		if( bLastMute )
+			execl("/usr/bin/amixer", "amixer", "sset", "Master", "unmute", NULL);
+		else
+			execl("/usr/bin/amixer", "amixer", "sset", "Master", "mute", NULL);
+		bLastMute=!bLastMute;
 		exit(99);
 	}
 #endif

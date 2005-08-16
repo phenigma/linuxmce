@@ -31,6 +31,7 @@ public:
 	Database_pluto_main *m_pDatabase_pluto_main;
     class Datagrid_Plugin *m_pDatagrid_Plugin;
     class Orbiter_Plugin *m_pOrbiter_Plugin;
+    class Event_Plugin *m_pEvent_Plugin;
     pluto_pthread_mutex_t m_GipMutex; // Other classes may need this
     pthread_mutexattr_t m_MutexAttr;
 	bool m_bRerunConfigWhenDone;

@@ -42,6 +42,7 @@ using namespace DCE;
 #include "pluto_main/Define_Text.h"
 #include "DataGrid.h"
 #include "Orbiter_Plugin/Orbiter_Plugin.h"
+#include "Event_Plugin/Event_Plugin.h"
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -82,7 +83,8 @@ bool General_Info_Plugin::Register()
     // Get the datagrid plugin
 	m_pDatagrid_Plugin=( Datagrid_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Datagrid_Plugin_CONST);
 	m_pOrbiter_Plugin=( Orbiter_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Orbiter_Plugin_CONST);
-	if( !m_pDatagrid_Plugin || !m_pOrbiter_Plugin )
+	m_pEvent_Plugin=( Event_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Event_Plugin_CONST);
+	if( !m_pDatagrid_Plugin || !m_pOrbiter_Plugin || !m_pEvent_Plugin )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins");
 		return false;
@@ -535,11 +537,7 @@ void General_Info_Plugin::CMD_Get_Room_Description(int iPK_Device,string *sText,
 void General_Info_Plugin::CMD_Is_Daytime(bool *bTrueFalse,string &sCMD_Result,Message *pMessage)
 //<-dceag-c371-e->
 {
-
-	// Temporary hack.  I added a feature request to Radu to use the real sunrise/sunset
-	time_t t_t = time(NULL);
-    struct tm *t = localtime( &t_t );
-	(*bTrueFalse) = t->tm_hour>=8 && t->tm_hour<20;
+	(*bTrueFalse) = m_pEvent_Plugin->IsDaytime();
 }
 
 class DataGridTable *General_Info_Plugin::PendingTasks( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )

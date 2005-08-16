@@ -257,7 +257,10 @@ void DCEGen::GenerateDevice(int PK_DeviceTemplate,bool bTemplates)
 	// our direct category, but the parent's category as well
 	AddChildrenByCategory(p_Row_DeviceTemplate->FK_DeviceCategory_getrow(),&mapRow_MasterDevice_Children);
 
-	m_sTemplateOutput = "../" + FileUtils::ValidCPPName(p_Row_DeviceTemplate->Description_get()) + "/";  // They're going to be output within out directory
+	if( p_Row_DeviceTemplate->CommandLine_get().size() )
+		m_sTemplateOutput = "../" + p_Row_DeviceTemplate->CommandLine_get() + "/";  // They're going to be output within out directory
+	else
+		m_sTemplateOutput = "../" + FileUtils::ValidCPPName(p_Row_DeviceTemplate->Description_get()) + "/";  // They're going to be output within out directory
 
 	// We put our master device in this map already, and the embedded children too
 	map<int,Row_DeviceTemplate *>::iterator it;
@@ -283,7 +286,11 @@ void DCEGen::AddChildrenByCategory(class Row_DeviceCategory *p_Row_DeviceCategor
 
 void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map<int,class Row_DeviceTemplate *> *p_mapRow_MasterDevice_Children,bool bTemplates)
 {
-	string Name = FileUtils::ValidCPPName(p_Row_DeviceTemplate->Description_get());
+	string Name;
+	if( p_Row_DeviceTemplate->CommandLine_get().size() )
+		Name = p_Row_DeviceTemplate->CommandLine_get();
+	else
+		Name = FileUtils::ValidCPPName(p_Row_DeviceTemplate->Description_get());
 
 	DeviceInfo deviceInfo(p_Row_DeviceTemplate);
 

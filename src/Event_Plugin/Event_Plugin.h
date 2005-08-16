@@ -65,6 +65,8 @@ public:
 		void SetFirstSunriseSunset();
 		void FireSunriseSunsetEvent();
 
+		bool IsDaytime() { return m_bIsDaytime; }
+
 		// Datagrid
 		class DataGridTable *AlarmsInRoom( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 

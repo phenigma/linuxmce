@@ -85,9 +85,9 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
 	m_bIsPopup=false;
 	m_bPreserveAspectRatio=(m_pOrbiterGenerator->m_pRow_Size->PreserveAspectRatio_get()==1);
 	if( ocoParent )
-		m_iScale=ocoParent->m_iScale;
+		m_iScale=m_iScaleFromParent=ocoParent->m_iScale;
 	else
-		m_iScale=100;
+		m_iScaleFromParent=m_iScale=100;
 
 	m_bContainsFloorplans=false;
 
@@ -99,10 +99,10 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
     m_bDontShare=bDontShare;
     m_bUsingCache=false;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==3413 )/* ||  m_pRow_DesignObj->PK_DesignObj_get()==2212 || 
-   m_pRow_DesignObj->PK_DesignObj_get()==2213 ||  m_pRow_DesignObj->PK_DesignObj_get()==2211 ||
-   m_pRow_DesignObj->PK_DesignObj_get()==1881 ||  m_pRow_DesignObj->PK_DesignObj_get()==2228 ||
-   m_pRow_DesignObj->PK_DesignObj_get()==3531 ||  m_pRow_DesignObj->PK_DesignObj_get()==3534 )// || m_pRow_DesignObj->PK_DesignObj_get()==3471 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )*/
+if( m_pRow_DesignObj->PK_DesignObj_get()==1850 ||  m_pRow_DesignObj->PK_DesignObj_get()==2288 || 
+   m_pRow_DesignObj->PK_DesignObj_get()==4271 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==2211 ||
+//   m_pRow_DesignObj->PK_DesignObj_get()==1881 ||  m_pRow_DesignObj->PK_DesignObj_get()==2228 ||
+//   m_pRow_DesignObj->PK_DesignObj_get()==3531 ||  m_pRow_DesignObj->PK_DesignObj_get()==3534 )// || m_pRow_DesignObj->PK_DesignObj_get()==3471 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )*/
 {
     int k=2; 
 }
@@ -825,7 +825,11 @@ if( drOVO->PK_DesignObjVariation_DesignObj_get()==6312 )
     int k=2;
 }
             drDesignObj = drOVO->FK_DesignObj_Child_getrow();
-            if( (m_rPosition.X+drOVO->X_get())*m_iScale/100<m_pOrbiterGenerator->m_sizeScreen->Width && (m_rPosition.Y+drOVO->Y_get())*m_iScale/100<m_pOrbiterGenerator->m_sizeScreen->Height )
+if( drDesignObj->PK_DesignObj_get()==4271 )
+{
+int k=2;
+}
+            if( (m_rPosition.X+drOVO->X_get())*m_iScaleFromParent/100<m_pOrbiterGenerator->m_sizeScreen->Width && (m_rPosition.Y+drOVO->Y_get())*m_iScaleFromParent/100<m_pOrbiterGenerator->m_sizeScreen->Height )
             {
                 if( drDesignObj->FK_DesignObjType_get()==DESIGNOBJTYPE_Array_CONST )
                     alArrays.push_back(drOVO);
@@ -858,7 +862,7 @@ if( drOVO->PK_DesignObjVariation_DesignObj_get()==6312 )
                     }
                     else
                     {
-                        DesignObj_Generator *pDesignObj_Generator = new DesignObj_Generator(m_pOrbiterGenerator,drOVO->FK_DesignObj_Child_getrow(),PlutoRectangle(m_rPosition.X+drOVO->X_get(),m_rPosition.Y+drOVO->Y_get(),drOVO->Width_get(),drOVO->Height_get()),this,false,false);
+                        DesignObj_Generator *pDesignObj_Generator = new DesignObj_Generator(m_pOrbiterGenerator,drOVO->FK_DesignObj_Child_getrow(),PlutoRectangle(m_rPosition.X+(drOVO->X_get()*m_iScale/100),m_rPosition.Y+(drOVO->Y_get()*m_iScale/100),drOVO->Width_get(),drOVO->Height_get()),this,false,false);
                         if( !pDesignObj_Generator->m_pRow_DesignObjVariation )
                         {
                             cout << "Not adding object: " << drOVO->FK_DesignObj_Child_get() << " to object: " << drOVO->FK_DesignObjVariation_Parent_getrow()->FK_DesignObj_get() << " because there are no qualifying variations." << endl;
@@ -1592,22 +1596,26 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
 
 void DesignObj_Generator::ScaleAllValues(int FactorX_Input,int FactorY_Input,class DesignObj_Generator *pTopmostObject)
 {
-	int FactorX = FactorX_Input * m_iScale/100;
-	int FactorY = FactorY_Input * m_iScale/100;
-if( this->m_pRow_DesignObj->PK_DesignObj_get()==2634 )
+if( this->m_pRow_DesignObj->PK_DesignObj_get()==1850 )
 {
 int k=2;
 }
-    if( !m_bValuesScaled )
+
+	int FactorX = FactorX_Input * m_iScale/100;
+	int FactorY = FactorY_Input * m_iScale/100;
+	int FactorX_Origin = FactorX_Input;
+	int FactorY_Origin = FactorY_Input;
+
+	if( !m_bValuesScaled )
     {
         PlutoPoint p3(m_rBackgroundPosition.Location());
-        PlutoPoint p2(ScaleValue(&p3,FactorX,FactorY));
+        PlutoPoint p2(ScaleValue(&p3,FactorX_Origin,FactorY_Origin));
         m_rBackgroundPosition.Location(p2);
         PlutoSize plutoSize = m_rBackgroundPosition.Size();
         PlutoPoint p(plutoSize.Width,plutoSize.Height);
         PlutoSize plutoSize2(ScaleValue(&p,FactorX,FactorY));
         m_rBackgroundPosition.Size(plutoSize2);
-		p=ScaleValue(&m_rPosition.Location(),FactorX,FactorY);
+		p=ScaleValue(&m_rPosition.Location(),FactorX_Origin,FactorY_Origin);
         m_rPosition.Location(p);
 		PlutoSize plutoSize3=m_rPosition.Size();
         p=PlutoPoint(plutoSize3.Width,plutoSize3.Height);
@@ -1617,7 +1625,7 @@ int k=2;
         {
             CGText *ot = (CGText *) m_vectDesignObjText[s];
             PlutoPoint p5 = ot->m_rPosition.Location();
-            PlutoSize plutoSize4(*(ScaleValue(&p5,FactorX,FactorY)));
+            PlutoSize plutoSize4(*(ScaleValue(&p5,FactorX_Origin,FactorY_Origin)));
             ot->m_rPosition.Location(PlutoPoint(plutoSize4.Width,plutoSize4.Height));
             PlutoSize plutoSize5(ot->m_rPosition.Size());  // Linux won't let me pass these in
             //PlutoPoint p4(ot->m_rPosition.Size()); // Works on vs.net, but not gcc

@@ -1,24 +1,5 @@
-/* 
- Main
-
- Copyright (C) 2004 Pluto, Inc., a Florida Corporation
-
- www.plutohome.com
-
- Phone: +1 (877) 758-8648
-
- This program is free software; you can redistribute it 
- and/or modify it under the terms of the GNU General Public License.
- 
- This program is distributed in the hope that it will be useful, 
- but WITHOUT ANY WARRANTY; without even the implied warranty 
- of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-
- See the GNU General Public License for more details.
-*/
-
 //<-dceag-incl-b->
-#include "App_Server.h"
+#include "IRTrans.h"
 #include "DCE/Logger.h"
 #include "ServerLogger.h"
 #include "PlutoUtils/FileUtils.h"
@@ -83,6 +64,20 @@ void Plugin_SocketCrashHandler(Socket *pSocket)
 }
 //<-dceag-incl-e->
 
+extern "C" {
+	int IsRuntimePlugin() 
+	{ 
+		// If you want this plug-in to be able to register and be used even if it is not in the Device table, set this to true.
+		// Then the Router will scan for all .so or .dll files, and if found they will be registered with a temporary device number
+		bool bIsRuntimePlugin=false;
+		if( bIsRuntimePlugin )
+			return IRTrans::PK_DeviceTemplate_get_static();
+		else
+			return 0;
+	}
+}
+
+
 //<-dceag-plug-b->
 extern "C" {
 	class Command_Impl *RegisterAsPlugIn(class Router *pRouter,int PK_Device,Logger *pPlutoLogger)
@@ -90,30 +85,30 @@ extern "C" {
 		g_pPlutoLogger = pPlutoLogger;
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
-		App_Server *pApp_Server = new App_Server(PK_Device, "localhost",true,false,pRouter);
-		if( pApp_Server->m_bQuit )
+		IRTrans *pIRTrans = new IRTrans(PK_Device, "localhost",true,false,pRouter);
+		if( pIRTrans->m_bQuit )
 		{
-			delete pApp_Server;
+			delete pIRTrans;
 			return NULL;
 		}
 		else
 		{
-			g_pCommand_Impl=pApp_Server;
+			g_pCommand_Impl=pIRTrans;
 			g_pDeadlockHandler=Plugin_DeadlockHandler;
 			g_pSocketCrashHandler=Plugin_SocketCrashHandler;
 		}
-		return pApp_Server;
+		return pIRTrans;
 	}
 }
 //<-dceag-plug-e->
 
-//<-dceag-main-b->!
+//<-dceag-main-b->
 int main(int argc, char* argv[]) 
 {
 	g_sBinary = FileUtils::FilenameWithoutPath(argv[0]);
 	g_sBinaryPath = FileUtils::BasePath(argv[0]);
 
-	cout << "App_Server, v." << VERSION << endl
+	cout << "IRTrans, v." << VERSION << endl
 		<< "Visit www.plutohome.com for source code and license information" << endl << endl;
 
 	string sRouter_IP="dcerouter";
@@ -121,7 +116,6 @@ int main(int argc, char* argv[])
 	string sLogger="stdout";
 
 	bool bError=false; // An error parsing the command line
-	bool bHardDrive=false;
 	char c;
 	for(int optnum=1;optnum<argc;++optnum)
 	{
@@ -143,9 +137,6 @@ int main(int argc, char* argv[])
 		case 'l':
 			sLogger = argv[++optnum];
 			break;
-		case 'V':
-			bHardDrive = true;
-			break;
 		default:
 			bError=true;
 			break;
@@ -155,11 +146,10 @@ int main(int argc, char* argv[])
 	if (bError)
 	{
 		cout << "A Pluto DCE Device.  See www.plutohome.com/dce for details." << endl
-			<< "Usage: App_Server [-r Router's IP] [-d My Device ID] [-l dcerouter|stdout|null|filename] [-v]" << endl
+			<< "Usage: IRTrans [-r Router's IP] [-d My Device ID] [-l dcerouter|stdout|null|filename]" << endl
 			<< "-r -- the IP address of the DCE Router  Defaults to 'dcerouter'." << endl
 			<< "-d -- This device's ID number.  If not specified, it will be requested from the router based on our IP address." << endl
-			<< "-l -- Where to save the log files.  Specify 'dcerouter' to have the messages logged to the DCE Router.  Defaults to stdout." << endl
-			<< "-V -- This is being run from a hard drive boot--ie not a Pluto Media Director" << endl;
+			<< "-l -- Where to save the log files.  Specify 'dcerouter' to have the messages logged to the DCE Router.  Defaults to stdout." << endl;
 		exit(0);
 	}
 
@@ -180,7 +170,7 @@ int main(int argc, char* argv[])
 	try
 	{
 		if( sLogger=="dcerouter" )
-			g_pPlutoLogger = new ServerLogger(PK_Device, App_Server::PK_DeviceTemplate_get_static(), sRouter_IP);
+			g_pPlutoLogger = new ServerLogger(PK_Device, IRTrans::PK_DeviceTemplate_get_static(), sRouter_IP);
 		else if( sLogger=="null" )
 			g_pPlutoLogger = new NullLogger();
 		else if( sLogger=="stdout" )
@@ -198,16 +188,15 @@ int main(int argc, char* argv[])
 	bool bReload=false;
 	try
 	{
-		App_Server *pApp_Server = new App_Server(PK_Device, sRouter_IP);
-		pApp_Server->m_bHardDrive=bHardDrive;
-		if ( pApp_Server->Connect(pApp_Server->PK_DeviceTemplate_get()) ) 
+		IRTrans *pIRTrans = new IRTrans(PK_Device, sRouter_IP);	
+		if ( pIRTrans->Connect(pIRTrans->PK_DeviceTemplate_get()) ) 
 		{
-			g_pCommand_Impl=pApp_Server;
+			g_pCommand_Impl=pIRTrans;
 			g_pDeadlockHandler=DeadlockHandler;
 			g_pSocketCrashHandler=SocketCrashHandler;
 			g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
-			pApp_Server->CreateChildren();
-			pthread_join(pApp_Server->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
+			pIRTrans->CreateChildren();
+			pthread_join(pIRTrans->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
 			g_pDeadlockHandler=NULL;
 			g_pSocketCrashHandler=NULL;
 		} 
@@ -216,10 +205,10 @@ int main(int argc, char* argv[])
 			g_pPlutoLogger->Write(LV_CRITICAL, "Connect() Failed");
 		}
 
-		if( pApp_Server->m_bReload )
+		if( pIRTrans->m_bReload )
 			bReload=true;
 
-		delete pApp_Server;
+		delete pIRTrans;
 	}
 	catch(string s)
 	{
