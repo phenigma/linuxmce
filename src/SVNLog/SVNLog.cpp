@@ -84,7 +84,7 @@ map<PAIR_SI,int> mapUsersWeeks;
 int main( int argc, char *argv[] )
 {
 	g_pPlutoLogger = new FileLogger(stdout);
-	chdir("/home/users/builder/build/sources");
+	chdir("/home/MakeRelease/trunk");
 	unlink("output.all");
 	cout << "About to execute command" << endl;
 	system("svn log -q | grep '^r' > output.all");
