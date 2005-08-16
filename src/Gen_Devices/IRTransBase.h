@@ -27,7 +27,7 @@ public:
 	virtual ~IRTrans_Data() {};
 	class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition);
 	virtual int GetPK_DeviceList() { return 1710; } ;
-	virtual const char *GetDeviceDescription() { return "IRTrans_DIGN_case"; } ;
+	virtual const char *GetDeviceDescription() { return "IRTrans"; } ;
 };
 
 
