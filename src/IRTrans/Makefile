@@ -1,22 +1,62 @@
-SHELL = /bin/sh
+#<-dceag-mh-b->
+GENDEV=../Gen_Devices
 
-CC = gcc
+ROOT = ..
+CXX = g++
+CXXFLAGS = -Wall -fPIC -ggdb3
+CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -D_DEVEL_DEFINES
+LDFLAGS = -L$(ROOT)/lib
+BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
 
-CFLAGS = -m32
-CPPFLAGS = -DLINUX -ggdb3 -DIRTRANS_AS_LI
-LDFLAGS =
-LIBS =
+MYNAME = IRTrans
+VERSION = 2.0.0
+MYDEVTEMPLATEID = 1710mplateID
 
-IRSERVER_OBJS = fileio.o linuxserio.o lowlevel.o server.o errormessage.o flashrom.o webserver.o xap.o
+Gen_Dev_Files = $(GENDEV)/IRTransBase.cpp
+sources = Main.cpp IRTrans.cpp $(Gen_Dev_Files)
+#<-dceag-mh-e->
 
-irserver: $(IRSERVER_OBJS) ccf.o 
-	$(CC) $(CFLAGS) $(IRSERVER_OBJS) ccf.o -o irserver $(LDFLAGS)
+CXXFLAGS +=
+CPPFLAGS +=
+LDFLAGS +=
+XTRALDLIBS =
 
-clean:
-	rm $(IRSERVER_OBJS)
+Gen_Dev_Files +=
+sources +=
 
-%.o: %.c dbstruct.h fileio.h lowlevel.h ../Common/network.h serio.h pictures.h ../Common/remote.h
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+#<-dceag-mf-b->
+LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
 
-irclient: client.c
-	$(CC) $(CFLAGS) client.c -o irclient $(LDFLAGS)
+whattodo:
+	@echo "type 'make bin', 'make so' or 'make all'"
+
+all: bin so
+
+bin: IRTrans
+
+so: IRTrans.so
+
+IRTrans.so: $(sources:.cpp=.o)
+	$(CXX) -shared -o $(MYNAME).so $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
+	cp $@ ../bin
+	chmod +x post_make.sh
+	./post_make.sh $@
+		
+IRTrans: $(sources:.cpp=.o)
+	$(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
+	cp $@ ../bin
+	./post_make.sh $@
+
+clean: clean-recursive
+	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) IRTrans.bin IRTrans.so >/dev/null
+
+package:
+	chmod +x make_package.sh
+	./make_package.sh $(MYNAME) $(VERSION) $(MYDEVTEMPLATEID)
+
+include $(ROOT)/PlutoUtils/make.rules
+ifeq (,$(findstring clean, $(MAKECMDGOALS)))
+-include $(sources:.cpp=.d)
+endif
+#<-dceag-mf-e->
+
