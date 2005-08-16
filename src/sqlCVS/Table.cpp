@@ -1275,8 +1275,14 @@ int k=2;
 	// In that case, m_psc_id_last_sync will be < since we haven't yet pulled updates.  When we pull
 	// an update now, we will get the row and pA_UpdateRow->m_psc_id>m_psc_id_last_sync will be true
 	// So we need to also double check that we don't already have it !psc_id_exists(pA_UpdateRow->m_psc_id)
-	if( pA_UpdateRow->m_psc_id>m_psc_id_last_sync && !psc_id_exists(pA_UpdateRow->m_psc_id) )
+
+	// AB 2005-08-17 it was: if( pA_UpdateRow->m_psc_id>m_psc_id_last_sync && !psc_id_exists(pA_UpdateRow->m_psc_id) )
+	// but that means transactions rolled back never get included because the psc_id < sync
+	if( !psc_id_exists(pA_UpdateRow->m_psc_id) )
 	{
+		if( pA_UpdateRow->m_psc_id<=m_psc_id_last_sync )
+			cout << "WARNING: Adding back a row that should have already been there.  Probably was a rolled back batch" << endl;
+
 		cout << "Updating (insert) row id " << pA_UpdateRow->m_psc_id << " last sync: " << m_psc_id_last_sync << endl;
 
 		// It's possible that an incoming row is going to use the same primary key as one 
