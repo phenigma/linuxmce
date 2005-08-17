@@ -93,6 +93,7 @@ short int m_Animate;
 long int m_FK_StabilityStatus;
 long int m_FK_Document;
 short int m_CanGoBackToSameScreen;
+string m_ScreenType;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -100,7 +101,7 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[22];
+		bool is_null[23];
 	
 	public:
 		long int PK_DesignObj_get();
@@ -119,6 +120,7 @@ short int Animate_get();
 long int FK_StabilityStatus_get();
 long int FK_Document_get();
 short int CanGoBackToSameScreen_get();
+string ScreenType_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -143,6 +145,7 @@ void Animate_set(short int val);
 void FK_StabilityStatus_set(long int val);
 void FK_Document_set(long int val);
 void CanGoBackToSameScreen_set(short int val);
+void ScreenType_set(string val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -155,6 +158,7 @@ void psc_restrict_set(long int val);
 bool FK_DesignObj_IncludeIfOtherIncluded_isNull();
 bool TimeoutSeconds_isNull();
 bool FK_Document_isNull();
+bool ScreenType_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -166,6 +170,7 @@ bool psc_restrict_isNull();
 void FK_DesignObj_IncludeIfOtherIncluded_setNull(bool val);
 void TimeoutSeconds_setNull(bool val);
 void FK_Document_setNull(bool val);
+void ScreenType_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -222,7 +227,7 @@ void Skin_FK_DesignObj_ScreenSaver_getrows(vector <class Row_Skin*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_DesignObj+ m_Description+ m_Define+ m_FK_DesignObjType+ m_FK_DesignObjCategory+ m_FK_DesignObj_IncludeIfOtherIncluded+ m_Priority+ m_KeepGraphicInCache+ m_AlwaysInclude+ m_CantGoBack+ m_CommandsProcessedAtServer+ m_TimeoutSeconds+ m_Animate+ m_FK_StabilityStatus+ m_FK_Document+ m_CanGoBackToSameScreen+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_DesignObj+ m_Description+ m_Define+ m_FK_DesignObjType+ m_FK_DesignObjCategory+ m_FK_DesignObj_IncludeIfOtherIncluded+ m_Priority+ m_KeepGraphicInCache+ m_AlwaysInclude+ m_CantGoBack+ m_CommandsProcessedAtServer+ m_TimeoutSeconds+ m_Animate+ m_FK_StabilityStatus+ m_FK_Document+ m_CanGoBackToSameScreen+ m_ScreenType+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -243,6 +248,7 @@ string Animate_asSQL();
 string FK_StabilityStatus_asSQL();
 string FK_Document_asSQL();
 string CanGoBackToSameScreen_asSQL();
+string ScreenType_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

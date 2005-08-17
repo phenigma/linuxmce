@@ -175,6 +175,7 @@ class Table_QuickStartCategory* tblQuickStartCategory;
 class Table_QuickStartTemplate* tblQuickStartTemplate;
 class Table_Region* tblRegion;
 class Table_RemoteControl* tblRemoteControl;
+class Table_RemoteMapping* tblRemoteMapping;
 class Table_RepositorySource* tblRepositorySource;
 class Table_RepositorySource_URL* tblRepositorySource_URL;
 class Table_RepositoryType* tblRepositoryType;
@@ -395,6 +396,7 @@ class Table_QuickStartCategory* QuickStartCategory_get() { if( !tblQuickStartCat
 class Table_QuickStartTemplate* QuickStartTemplate_get() { if( !tblQuickStartTemplate ) CreateTable_QuickStartTemplate(); return tblQuickStartTemplate; }
 class Table_Region* Region_get() { if( !tblRegion ) CreateTable_Region(); return tblRegion; }
 class Table_RemoteControl* RemoteControl_get() { if( !tblRemoteControl ) CreateTable_RemoteControl(); return tblRemoteControl; }
+class Table_RemoteMapping* RemoteMapping_get() { if( !tblRemoteMapping ) CreateTable_RemoteMapping(); return tblRemoteMapping; }
 class Table_RepositorySource* RepositorySource_get() { if( !tblRepositorySource ) CreateTable_RepositorySource(); return tblRepositorySource; }
 class Table_RepositorySource_URL* RepositorySource_URL_get() { if( !tblRepositorySource_URL ) CreateTable_RepositorySource_URL(); return tblRepositorySource_URL; }
 class Table_RepositoryType* RepositoryType_get() { if( !tblRepositoryType ) CreateTable_RepositoryType(); return tblRepositoryType; }
@@ -619,6 +621,7 @@ void CreateTable_QuickStartCategory();
 void CreateTable_QuickStartTemplate();
 void CreateTable_Region();
 void CreateTable_RemoteControl();
+void CreateTable_RemoteMapping();
 void CreateTable_RepositorySource();
 void CreateTable_RepositorySource_URL();
 void CreateTable_RepositoryType();
@@ -838,6 +841,7 @@ void DeleteTable_QuickStartCategory();
 void DeleteTable_QuickStartTemplate();
 void DeleteTable_Region();
 void DeleteTable_RemoteControl();
+void DeleteTable_RemoteMapping();
 void DeleteTable_RepositorySource();
 void DeleteTable_RepositorySource_URL();
 void DeleteTable_RepositoryType();

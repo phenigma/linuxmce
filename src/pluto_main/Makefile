@@ -156,6 +156,7 @@ Table_QuickStartCategory.cpp \
 Table_QuickStartTemplate.cpp \
 Table_Region.cpp \
 Table_RemoteControl.cpp \
+Table_RemoteMapping.cpp \
 Table_RepositorySource.cpp \
 Table_RepositorySource_URL.cpp \
 Table_RepositoryType.cpp \
