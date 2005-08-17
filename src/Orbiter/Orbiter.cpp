@@ -247,7 +247,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
 			if( pDeviceData_Base->WithinCategory(DEVICECATEGORY_Infrared_Receivers_CONST) &&
 				pDeviceData_Base->m_dwPK_Device_ControlledVia==m_pData->m_dwPK_Device_ControlledVia )
 			{
-				m_dwPK_Device_IRReceiver=pDeviceData_Impl->m_dwPK_Device;
+				m_dwPK_Device_IRReceiver=pDeviceData_Base->m_dwPK_Device;
 				g_pPlutoLogger->Write(LV_STATUS,"Working with IRReceiver %d",m_dwPK_Device_IRReceiver);
 				break;
 			}
