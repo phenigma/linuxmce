@@ -108,7 +108,17 @@ int main( int argc, char *argv[] )
 	{
 		string Line = vectLines[s];
 		int Revision = atoi(Line.substr(1).c_str());
-		if( Revision==1 )
+		if( Revision==1 || Revision==2 || Revision==38 || Revision==98
+			|| Revision==109 || Revision==111 
+			|| Revision==219 
+			|| Revision==249 || Revision==307 
+			|| Revision==432
+			|| Revision==487
+			|| Revision==507 || Revision==534
+			|| Revision==599
+			|| Revision==1386 
+			|| Revision==1522 || Revision==1895 || Revision==1889 
+			|| Revision==4215 )
 			continue;
 		
 		string::size_type start_pipe = Line.find('|');
@@ -195,7 +205,10 @@ retry:
 			if( Filename.find("external/")!=string::npos || Filename.find("libs/")!=string::npos ||
 				Filename.find("installers/")!=string::npos || Filename.find("misc_utils/")!=string::npos ||
 				Filename.find("pluto_main/")!=string::npos || Filename.find("Gen_Devices/")!=string::npos ||
-				Filename.find("pluto_media/")!=string::npos || Filename.find("Libraries/")!=string::npos )
+				Filename.find("pluto_media/")!=string::npos || Filename.find("Libraries/")!=string::npos ||
+				Filename.find("pluto_security/")!=string::npos || Filename.find("pluto-support-modified/")!=string::npos ||
+				Filename.find("utilities/")!=string::npos || Filename.find("from-mythtv/")!=string::npos ||
+				Filename.find("CrossPlatform-Libs/")!=string::npos )
    			{
           	   continue;
     		}
