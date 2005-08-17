@@ -33,11 +33,11 @@ IRReceiverBase::IRReceiverBase(Command_Impl *pCommand_Impl,DeviceData_Impl *pDat
 		for(size_t s=0;s<vectButtons.size();++s)
 		{
 			string::size_type pos=0;
-			string sToken = StringUtils::Tokenize(vectButtons[s],";|",pos);
-			if( sToken.size()>0 )
+			// We got ourselves a valid one
+			string::size_type posSlash=vectButtons[s].find('|');
+			while( pos<vectButtons[s].size() )
 			{
-				// We got ourselves a valid one
-				string::size_type posSlash=vectButtons[s].find('|');
+				string sToken = StringUtils::Tokenize(vectButtons[s],";|",pos);
 				if( posSlash!=string::npos )  // Should always be true unless data is malformed
 				{
 					int iNumberOfArguments;
@@ -47,7 +47,6 @@ IRReceiverBase::IRReceiverBase(Command_Impl *pCommand_Impl,DeviceData_Impl *pDat
 						g_pPlutoLogger->Write(LV_STATUS,"LIRC button: %s will fire: %s",sToken.c_str(),vectButtons[s].substr(posSlash+1).c_str());
 						Message *pMessage = new Message(iNumberOfArguments,pArgs,pData->m_dwPK_Device);
 						pMessage->m_dwPK_Device_To = m_Virtual_Device_Translator.TranslateVirtualDevice(pMessage->m_dwPK_Device_To);
-						// TODO: Dan, if you want hex codes rather than strings, we can do the conversion here
 
 						MapKeysToMessages *pMapKeysToMessages = m_mapKeyMapping[StringUtils::ToUpper(sToken)];
 						if( !pMapKeysToMessages )
@@ -57,7 +56,7 @@ IRReceiverBase::IRReceiverBase(Command_Impl *pCommand_Impl,DeviceData_Impl *pDat
 						}
 
 						(*pMapKeysToMessages)[ make_pair<char,char> (cScreenType,cRemoteLayout) ] = pMessage;
-cout << "type " << cScreenType << " layout " << cRemoteLayout << endl;
+cout << sToken << " type " << cScreenType << " layout " << cRemoteLayout << endl;
 					}
 					if( posSlash<=pos )
 						break; // We already parsed the last one
