@@ -6,28 +6,30 @@
 
 #include "Gen_Devices/LIRC_DCEBase.h"
 //<-dceag-d-e->
+
+#include "IRReceiverBase.h"
 #include "DCE/DeviceData_Router.h"
 #ifndef WIN32
 #include <lirc/lirc_client.h>
 #endif
 class Database_pluto_main;
-#include "DCE/Virtual_Device_Translator.h"
 
-//<-dceag-decl-b->
+
+//<-dceag-decl-b->!
 namespace DCE
 {
-	class LIRC_DCE : public LIRC_DCE_Command
+	class LIRC_DCE : public LIRC_DCE_Command, IRReceiverBase
 	{
 //<-dceag-decl-e->
 		// Private member variables
-		Virtual_Device_Translator m_Virtual_Device_Translator;
 
 		// Private methods
 public:
 		// Public member variables
 		int lirc_leech(int DeviceID);
+		map<string,int> m_mapNameToDevice;
 
-//<-dceag-const-b->
+//<-dceag-const-b->!
 public:
 		// Constructors/Destructor
 		LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
@@ -37,16 +39,11 @@ public:
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
 
-		map<string,Message *> m_mapMessages;
 		Router *pRoute;
 		int m_DeviceID;
 		pthread_t m_LeechingThread;
 
-//<-dceag-const2-b->
-		// The following constructor is only used if this a class instance embedded within a DCE Device.  In that case, it won't create it's own connection to the router
-		// You can delete this whole section and put an ! after dceag-const2-b tag if you don't want this constructor.  Do the same in the implementation file
-		LIRC_DCE(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter);
-//<-dceag-const2-e->
+//<-dceag-const2-b->!
 
 //<-dceag-h-b->
 	/*
@@ -57,13 +54,21 @@ public:
 	/*
 			*****DATA***** accessors inherited from base class
 	string DATA_Get_Device();
-	string DATA_Get_Mapping();
 	string DATA_Get_Serial_Port();
 
 			*****EVENT***** accessors inherited from base class
 
 			*****COMMANDS***** we need to implement
 	*/
+
+
+	/** @brief COMMAND: #687 - Set Screen Type */
+	/** Sent by Orbiter when the screen changes to tells the i/r receiver what type of screen is displayed so it can adjust mappings if necessary. */
+		/** @param #48 Value */
+			/** a character: M=Main Menu, m=other menu, R=Pluto Remote, r=Non-pluto remote, F=File Listing */
+
+	virtual void CMD_Set_Screen_Type(int iValue) { string sCMD_Result; CMD_Set_Screen_Type(iValue,sCMD_Result,NULL);};
+	virtual void CMD_Set_Screen_Type(int iValue,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

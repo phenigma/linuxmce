@@ -1341,6 +1341,11 @@ g_pPlutoLogger->Write( LV_STATUS, "@@@ About to call maint for screen saver with
 #ifdef DEBUG
     g_pPlutoLogger->Write( LV_STATUS, "Changing screen to %s", m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str(  ) );
 #endif
+	if( m_bIsOSD && m_dwPK_Device_IRReceiver )
+	{
+		DCE::CMD_Set_ScreenType(m_pScreenHistory_Current->m_pObj->m_cScreenType);
+		SendCommand(CMD_Set_ScreenType);
+	}
     ObjectOnScreenWrapper(  );
 }
 //------------------------------------------------------------------------

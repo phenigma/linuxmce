@@ -120,6 +120,9 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
+				RelativePath=".\IRReceiverBase.cpp">
+			</File>
+			<File
 				RelativePath="LIRC_DCE.cpp">
 			</File>
 			<File

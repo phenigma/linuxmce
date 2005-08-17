@@ -38,96 +38,8 @@ void * StartLeeching(void * Arg)
 LIRC_DCE::LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: LIRC_DCE_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
-	, m_Virtual_Device_Translator(m_pData)
+	, IRReceiverBase(this,m_pData)
 {
-	vector<string> vectMapping,vectConfiguration;
-	string sMapping = DATA_Get_Mapping();
-	StringUtils::Tokenize(sMapping,"\r\n",vectMapping);
-	m_DeviceID = DeviceID;
-
-	// Find all our sibblings that are remote controls or Orbiters
-	for(Map_DeviceData_Base::iterator itD=m_pData->m_AllDevices.m_mapDeviceData_Base.begin();
-		itD!=m_pData->m_AllDevices.m_mapDeviceData_Base.end();++itD)
-	{
-		DeviceData_Base *pDevice = itD->second;
-		if( pDevice->m_dwPK_Device_ControlledVia==m_pData->m_dwPK_Device_ControlledVia &&
-			pDevice->m_dwPK_DeviceCategory==DEVICECATEGORY_LIRC_Remote_Controls_CONST )
-		{
-			string sConfiguration;
-			DCE::CMD_Get_Device_Data_Cat CMD_Get_Device_Data_Cat(m_dwPK_Device,DEVICECATEGORY_General_Info_Plugins_CONST,true,BL_SameHouse,
-				pDevice->m_dwPK_Device,DEVICEDATA_Configuration_CONST,true,&sConfiguration);
-			if( SendCommand(CMD_Get_Device_Data_Cat) && sConfiguration.size() )
-				StringUtils::Tokenize(sConfiguration,"\r\n",vectConfiguration);
-		}
-	}
-
-	bool bCodesBegan=false;
-	for(size_t s=0;s<vectConfiguration.size();++s)
-	{
-		if( vectConfiguration[s].size()==0 || vectConfiguration[s][0]=='#' )
-			continue;
-		if( !bCodesBegan )
-		{
-			bCodesBegan = StringUtils::ToUpper(vectConfiguration[s]).find("BEGIN CODES")!=string::npos;
-			continue;
-		}
-		if( StringUtils::ToUpper(vectConfiguration[s]).find("END CODES")!=string::npos )
-		{
-			bCodesBegan=false;
-			continue;
-		}
-
-		// We've got a valid code.  Trim it, and find the first white space
-		StringUtils::TrimSpaces(vectConfiguration[s]);
-
-		string::size_type pos_firstspace=vectConfiguration[s].find(' ');
-		string::size_type pos_tab=vectConfiguration[s].find('\t');
-		if( pos_tab!=string::npos && (pos_firstspace==string::npos || pos_tab<pos_firstspace) )
-			pos_firstspace = pos_tab;  // This is now the white space
-
-		m_mapMessages[StringUtils::ToUpper(vectConfiguration[s].substr(0,pos_firstspace))]=NULL;
-	}
-	//Pana aici avem in m_mapMessages o list cu Tokens-urile din Configuation file
-	//se apeleaza probabil m_mapMessages["VolUP"] = *pointer ro Message;
-
-	// Now find messages for those tokens
-	map<string,Message *>::iterator it;
-	for(size_t s=0;s<vectMapping.size();++s)
-	{
-	cout << vectMapping[s] << endl;
-		string::size_type pos=0;
-string x=vectMapping[s];
-int k=2;
-		while(pos<vectMapping[s].size() && pos!=string::npos)
-		{
-			string sToken = StringUtils::Tokenize(vectMapping[s],";|",pos);
-			if( sToken.size()>0 && (it=m_mapMessages.find(StringUtils::ToUpper(sToken)))!=m_mapMessages.end() )
-			{
-				// We got ourselves a valid one
-				string::size_type posSlash=vectMapping[s].find('|');
-				if( posSlash!=string::npos )  // Should always be true unless data is malformed
-				{
-					int iNumberOfArguments;
-					char **pArgs = StringUtils::ConvertStringToArgs(vectMapping[s].substr(posSlash+1),iNumberOfArguments);
-					if( iNumberOfArguments )  // Should always be true
-					{
-						g_pPlutoLogger->Write(LV_STATUS,"LIRC button: %s will fire: %s",sToken.c_str(),vectMapping[s].substr(posSlash+1).c_str());
-						Message *pMessage = new Message(iNumberOfArguments,pArgs,m_dwPK_Device);
-						pMessage->m_dwPK_Device_To = m_Virtual_Device_Translator.TranslateVirtualDevice(pMessage->m_dwPK_Device_To);
-// TODO: Dan, if you want hex codes rather than strings, we can do the conversion here
-						m_mapMessages[ (*it).first ] = pMessage;
-					}
-					if( posSlash<=pos )
-						break; // We already parsed the last one
-				}
-			}
-		}
-	}
-
-	for(map<string,Message *>::iterator it=m_mapMessages.begin();it!=m_mapMessages.end();++it)
-		if( it->second==NULL )
-			g_pPlutoLogger->Write(LV_STATUS,"No message for LIRC button: %s",it->first.c_str());
-
 	FILE *fp;
 	string sCOM1 = "1";
 	string sCOM2 = "2";
@@ -165,40 +77,49 @@ int k=2;
 		g_pPlutoLogger->Write(LV_STATUS, "No Driver selected, using 'default' as default");
 		sLIRCDriver = "default";
 	}
-	
+
 	g_pPlutoLogger->Write(LV_STATUS, "->Using Driver %s in database",sLIRCDriver.c_str());
-/*
-	system("rm -f /etc/lirc/hardware.conf");
-	g_pPlutoLogger->Write(LV_STATUS, "->Writing hardware Config file",sLIRCDriver.c_str());
-	fp = fopen("/etc/lirc/hardware.conf","wt");
-	if(fp == NULL) {
-		g_pPlutoLogger->Write(LV_STATUS, "->Can't open file",sLIRCDriver.c_str());
-		return;
-	}
-	fprintf(fp,"# /etc/lirc/hardware.conf\n");
-	fprintf(fp,"#\n");
-	fprintf(fp,"# Arguments which will be used when launching lircd\n");
-	fprintf(fp,"LIRCD_ARGS=\"\"\n");
-	fprintf(fp,"#Dont start lircmd even if there seams to be a good config file\n");
-	fprintf(fp,"START_LIRCMD=false\n");
-	fprintf(fp,"#Try to load appropriate kernel modules\n");
-	fprintf(fp,"LOAD_MODULES=true\n");
-	fprintf(fp,"# Run \"lircd --driver=help\" for a list of supported drivers.\n");
-	fprintf(fp,"DRIVER=\"%s\"\n",sLIRCDriver.c_str());
-	fprintf(fp,"DEVICE=\"%s\"\n",sSerialPort.c_str());
-	fprintf(fp,"MODULES=\"lirc_dev lirc_mceusb\"\n");
-	fprintf(fp,"# Default configuration files for your hardware if any\n");
-	fprintf(fp,"LIRCD_CONF=\"lircd.conf\"\n");
-	fprintf(fp,"LIRCMD_CONF=\"lircmd.conf\"\n");
-	fclose(fp);
-	g_pPlutoLogger->Write(LV_STATUS, "Making Software config");
-*/
-	
+
 	remove("/etc/lircd.conf");
 	fp = fopen("/etc/lircd.conf", "wt");
-	for(size_t s = 0; s < vectConfiguration.size(); ++s)
+	// Find all our sibblings that are remote controls 
+	for(Map_DeviceData_Base::iterator itD=m_pData->m_AllDevices.m_mapDeviceData_Base.begin();
+		itD!=m_pData->m_AllDevices.m_mapDeviceData_Base.end();++itD)
 	{
-		fprintf(fp, "%s\n", vectConfiguration[s].c_str());
+		DeviceData_Base *pDevice = itD->second;
+		if( pDevice->m_dwPK_Device_ControlledVia==m_pData->m_dwPK_Device_ControlledVia &&
+			pDevice->m_dwPK_DeviceCategory==DEVICECATEGORY_LIRC_Remote_Controls_CONST )
+		{
+			string sConfiguration;
+			DCE::CMD_Get_Device_Data_Cat CMD_Get_Device_Data_Cat(m_dwPK_Device,DEVICECATEGORY_General_Info_Plugins_CONST,true,BL_SameHouse,
+				pDevice->m_dwPK_Device,DEVICEDATA_Configuration_CONST,true,&sConfiguration);
+			if( SendCommand(CMD_Get_Device_Data_Cat) && sConfiguration.size() )
+			{
+				const char *pConfig = sConfiguration.c_str();
+				fwrite(pConfig,1,sConfiguration.size(),fp);
+				string sUpper = StringUtils::ToUpper(sConfiguration);
+				string::size_type pos_name=0;
+				while( (pos_name=sUpper.find("NAME"))!=string::npos )
+				{
+					// Be sure there's nothing but white space before this
+					string::size_type pos_space=pos_name-1;
+					while( pos_space>0 && (pConfig[pos_space]==' ' || pConfig[pos_space]=='\t') )
+						pos_space--;
+
+					if( pos_space>0 && pConfig[pos_space]!='\r' && pConfig[pos_space]!='\n' )
+						continue; // It's a name embedded somewhere in the file, not the name we want
+
+					pos_name += 4; // skip the name
+					while( pConfig[pos_name] && (pConfig[pos_name]==' ' || pConfig[pos_name]=='\t') )
+						pos_name++;
+
+					pos_space = pos_name +1;
+					while( pConfig[pos_space] && pConfig[pos_space]!='\n' && pConfig[pos_space]!='\r' && pConfig[pos_space]!='\t' )
+						pos_space++;
+					m_mapNameToDevice[ sConfiguration.substr(pos_name,pos_space-pos_name) ] = pDevice->m_dwPK_Device;
+				}
+			}
+		}
 	}
 	fclose(fp);
 
@@ -206,7 +127,7 @@ int k=2;
 	system("modprobe lirc_dev");
 	system("modprobe lirc_mceusb");
 	system((string("lircd") + " -H " + sLIRCDriver + " -d " + sSerialPort + " /etc/lircd.conf").c_str());
-//TODO: Check if it started*/
+//TODO: Check if it started
 	pRoute = pRouter;
 
 	g_pPlutoLogger->Write(LV_WARNING, "Creating Leeching Thread");
@@ -219,19 +140,11 @@ int k=2;
 }
 
 //<-dceag-const2-b->!
-// The constructor when the class is created as an embedded instance within another stand-alone device
-LIRC_DCE::LIRC_DCE(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)
-	: LIRC_DCE_Command(pPrimaryDeviceCommand, pData, pEvent, pRouter), m_Virtual_Device_Translator(m_pData)
-//<-dceag-const2-e->
-{
-}
 
 //<-dceag-dest-b->
 LIRC_DCE::~LIRC_DCE()
 //<-dceag-dest-e->
 {
-	for(map<string,Message *>::iterator it=m_mapMessages.begin();it!=m_mapMessages.end();++it)
-		delete (*it).second;
 }
 
 //<-dceag-reg-b->
@@ -242,15 +155,7 @@ bool LIRC_DCE::Register()
 	return Connect(PK_DeviceTemplate_get()); 
 }
 
-/*  Since several parents can share the same child class, and each has it's own implementation, the base class in Gen_Devices
-	cannot include the actual implementation.  Instead there's an extern function declared, and the actual new exists here.  You 
-	can safely remove this block (put a ! after the dceag-createinst-b block) if this device is not embedded within other devices. */
-//<-dceag-createinst-b->
-LIRC_DCE_Command *Create_LIRC_DCE(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)
-{
-	return new LIRC_DCE(pPrimaryDeviceCommand, pData, pEvent, pRouter);
-}
-//<-dceag-createinst-e->
+//<-dceag-createinst-b->!
 
 /*
 	When you receive commands that are destined to one of your children,
@@ -335,25 +240,40 @@ int LIRC_DCE::lirc_leech(int DeviceID) {
 		StringUtils::Tokenize(sCode," ",vectTrimmed);
 		int iRepeat = atoi(vectTrimmed[1].c_str());
 		string sToken = vectTrimmed[2];
-		g_pPlutoLogger->Write(LV_STATUS, "Key Pressed. %s (%s), repeat %d, time diff %lds%ldus",
-				sToken.c_str(), sCode.c_str(), iRepeat, time_diff.tv_sec, time_diff.tv_usec);
+		string sName = vectTrimmed[3];
+		if( sName[ sName.size()-1 ] == '\r' || sName[ sName.size()-1 ] == '\n' )
+			sName = sName.substr(0,sName.size()-1);
+
+		int PK_Device = m_mapNameToDevice[sName];
+
+		g_pPlutoLogger->Write(LV_STATUS, "Key Pressed. %s (%s), repeat %d, time diff %lds%ldus name %s device %d",
+				sToken.c_str(), sCode.c_str(), iRepeat, time_diff.tv_sec, time_diff.tv_usec,sName.c_str(),PK_Device);
 		
 		// ignore repeats and keys received in less than 100ms since the previous (processed) key
 		if (iRepeat != 0 || (time_diff.tv_sec == 0 && time_diff.tv_usec < 100000))
 			continue;
 		last_time = this_time;
 		
-		map<string,Message *>::iterator it=m_mapMessages.find(StringUtils::ToUpper(sToken));
-		if(it!=m_mapMessages.end() && it->second )
-			QueueMessageToRouter(new Message(it->second));
-		else
-			g_pPlutoLogger->Write(LV_WARNING, "Error Invalid Key."); 
+		ReceivedCode(PK_Device,sToken);
+
 		free(code);
 	}
 	lirc_deinit();
 #endif
+
 	g_pPlutoLogger->Write(0, "Over and out"); 
 	return 0;
 }
 
 
+//<-dceag-c687-b->
+
+	/** @brief COMMAND: #687 - Set Screen Type */
+	/** Sent by Orbiter when the screen changes to tells the i/r receiver what type of screen is displayed so it can adjust mappings if necessary. */
+		/** @param #48 Value */
+			/** a character: M=Main Menu, m=other menu, R=Pluto Remote, r=Non-pluto remote, F=File Listing */
+
+void LIRC_DCE::CMD_Set_Screen_Type(int iValue,string &sCMD_Result,Message *pMessage)
+//<-dceag-c687-e->
+{
+}

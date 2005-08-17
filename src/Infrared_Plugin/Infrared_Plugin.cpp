@@ -29,6 +29,7 @@ using namespace DCE;
 #include "pluto_main/Table_DeviceTemplate_AV.h"
 #include "pluto_main/Table_DeviceTemplate_Input.h"
 #include "pluto_main/Table_Manufacturer.h"
+#include "pluto_main/Table_RemoteMapping.h"
 #include "pluto_main/Define_DataGrid.h"
 #include "pluto_main/Define_Variable.h"
 #include "IR/IRDevice.h"
@@ -45,6 +46,15 @@ Infrared_Plugin::Infrared_Plugin(int DeviceID, string ServerAddress,bool bConnec
 		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot connect to database!");
 		m_bQuit=true;
 		return;
+	}
+
+	vector<Row_RemoteMapping *> vectRow_RemoteMapping;
+	m_pDatabase_pluto_main->RemoteMapping_get()->GetRows("1=1",&vectRow_RemoteMapping);
+	for(size_t s=0;s<vectRow_RemoteMapping.size();++s)
+	{
+		Row_RemoteMapping *pRow_RemoteMapping = vectRow_RemoteMapping[s];
+		m_sRemoteMapping += pRow_RemoteMapping->ScreenType_get() + "\t" + pRow_RemoteMapping->RemoteLayout_get() + "\t"
+			+ pRow_RemoteMapping->Mapping_get() + "\t";
 	}
 
 }
@@ -625,4 +635,16 @@ void Infrared_Plugin::CMD_Add_GC100(string &sCMD_Result,Message *pMessage)
 		g_pPlutoLogger->Write(LV_WARNING, "The config script returned weird error %d",returned);
 		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 Failed, Unkonwn response " + StringUtils::itos(returned),false,30);
 	}
+}
+//<-dceag-c688-b->
+
+	/** @brief COMMAND: #688 - Get Remote Control Mapping */
+	/** Returns a list of all the commands and mapping information for i/r remotes */
+		/** @param #5 Value To Assign */
+			/** A list with ScreenType\tRemoteLayout\tMapping */
+
+void Infrared_Plugin::CMD_Get_Remote_Control_Mapping(string *sValue_To_Assign,string &sCMD_Result,Message *pMessage)
+//<-dceag-c688-e->
+{
+	(*sValue_To_Assign) = m_sRemoteMapping;
 }

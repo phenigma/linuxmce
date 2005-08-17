@@ -214,6 +214,7 @@ bool DesignObj_Data::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 		Write_char(m_bAnimate);
 		Write_char(m_bHideByDefault);
 		Write_char(m_bKeepGraphicInCache);
+		Write_char(m_cScreenType);
 
 		Write_char(m_bTabStop);
 		Write_char(m_bRepeatParm);
@@ -327,6 +328,7 @@ bool DesignObj_Data::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 		m_bAnimate=Read_char()==1;
 		m_bHideByDefault=Read_char()==1;
 		m_bKeepGraphicInCache=Read_char()==1;
+		m_cScreenType=Read_char();
 
 		m_bTabStop=Read_char()==1;
 		m_bRepeatParm=Read_char()==1;

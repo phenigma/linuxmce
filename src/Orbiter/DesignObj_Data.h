@@ -132,6 +132,7 @@ public:
 	string m_sVisibleState;
 	int m_iPK_Button,m_dwTimeoutSeconds,m_Priority;
 	int m_iPK_Criteria;
+	char m_cScreenType;
 
 	string m_sBackgroundFile, m_sSelectedFile, m_sHighlightGraphicFilename;
 	vector<string> m_vectAltGraphicFilename;

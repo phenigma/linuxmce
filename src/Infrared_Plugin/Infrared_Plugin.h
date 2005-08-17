@@ -19,6 +19,8 @@ namespace DCE
 	{
 //<-dceag-decl-e->
 		// Private member variables
+		string m_sRemoteMapping; // Key mappings for i/r remote controls
+
 	private:
 		    class Orbiter_Plugin *m_pOrbiter_Plugin;
 		// Private methods
@@ -91,6 +93,15 @@ public:
 
 	virtual void CMD_Add_GC100() { string sCMD_Result; CMD_Add_GC100(sCMD_Result,NULL);};
 	virtual void CMD_Add_GC100(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #688 - Get Remote Control Mapping */
+	/** Returns a list of all the commands and mapping information for i/r remotes */
+		/** @param #5 Value To Assign */
+			/** A list with ScreenType\tRemoteLayout\tMapping */
+
+	virtual void CMD_Get_Remote_Control_Mapping(string *sValue_To_Assign) { string sCMD_Result; CMD_Get_Remote_Control_Mapping(sValue_To_Assign,sCMD_Result,NULL);};
+	virtual void CMD_Get_Remote_Control_Mapping(string *sValue_To_Assign,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

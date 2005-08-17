@@ -1452,6 +1452,8 @@ void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int Arr
 	ocDesignObj->m_bCantGoBack = ocDesignObj->m_pRow_DesignObj->CantGoBack_get()==1;
 	ocDesignObj->m_bKeepGraphicInCache = ocDesignObj->m_pRow_DesignObj->KeepGraphicInCache_get()==1 || 
 		(ocDesignObj->m_ocoParent && ocDesignObj->m_ocoParent->m_bKeepGraphicInCache);
+	string sScreenType = ocDesignObj->m_pRow_DesignObj->ScreenType_get();
+	ocDesignObj->m_cScreenType = sScreenType.size() ? sScreenType[0] : 0;
 	ocDesignObj->m_bCanGoBackToSameScreen = ocDesignObj->m_pRow_DesignObj->CanGoBackToSameScreen_get()==1;
 
 	//		StringUtils::itos(ocDesignObj->m_bChildrenBeforeText) << "|" << 
