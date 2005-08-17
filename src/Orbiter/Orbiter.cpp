@@ -238,6 +238,19 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
 	m_bBypassScreenSaver = false;
 	DeviceData_Base *pDevice_Parent = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(m_pData->m_dwPK_Device_ControlledVia);
 	m_bIsOSD = pDevice_Parent && pDevice_Parent->WithinCategory(DEVICECATEGORY_Media_Director_CONST);
+	m_dwPK_Device_IRReceiver=0;
+	if( m_bIsOSD )
+	{
+		for(size_t s=0;s<m_pData->m_vectDeviceData_Impl_Children.size();++s)
+		{
+			DeviceData_Impl *pDeviceData_Impl = m_pData->m_vectDeviceData_Impl_Children[s];
+			if( pDeviceData_Impl->WithinCategory(DEVICECATEGORY_Infrared_Receivers_CONST) )
+			{
+				m_dwPK_Device_IRReceiver=pDeviceData_Impl->m_dwPK_Device;
+				break;
+			}
+		}
+	}
 
 	string::size_type pos=0;
 	string sTimeout = DATA_Get_Timeout();
@@ -1341,10 +1354,10 @@ g_pPlutoLogger->Write( LV_STATUS, "@@@ About to call maint for screen saver with
 #ifdef DEBUG
     g_pPlutoLogger->Write( LV_STATUS, "Changing screen to %s", m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str(  ) );
 #endif
-	if( m_bIsOSD && m_dwPK_Device_IRReceiver )
+	if( m_dwPK_Device_IRReceiver )
 	{
-		DCE::CMD_Set_ScreenType(m_pScreenHistory_Current->m_pObj->m_cScreenType);
-		SendCommand(CMD_Set_ScreenType);
+		DCE::CMD_Set_Screen_Type CMD_Set_Screen_Type(m_dwPK_Device,m_dwPK_Device_IRReceiver,m_pScreenHistory_Current->m_pObj->m_cScreenType);
+		SendCommand(CMD_Set_Screen_Type);
 	}
     ObjectOnScreenWrapper(  );
 }

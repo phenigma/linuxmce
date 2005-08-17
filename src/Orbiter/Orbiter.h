@@ -169,6 +169,7 @@ protected:
 	bool m_bWeCanRepeat; /** < true if the rendering device we're using gives us Region Up Messages */
 	bool m_bRestrictedOp_IsUser;
 	int m_iRestrictedOp_ID;
+	int m_dwPK_Device_IRReceiver; /** < The device id of an infrared receiver connected to the same md if this is an osd */
     bool m_bShowShortcuts;
 	bool m_bIsOSD; // true if this is an on-screen display
 	bool m_bForward_local_kb_to_OSD; // true if this is orbiter should be used a remote keyboard for another
