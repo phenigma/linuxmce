@@ -56,7 +56,6 @@ IRReceiverBase::IRReceiverBase(Command_Impl *pCommand_Impl,DeviceData_Impl *pDat
 						}
 
 						(*pMapKeysToMessages)[ make_pair<char,char> (cRemoteLayout,cScreenType) ] = pMessage;
-cout << sToken << " type " << cScreenType << " layout " << cRemoteLayout << endl;
 					}
 					if( posSlash<=pos )
 						break; // We already parsed the last one
@@ -84,11 +83,12 @@ IRReceiverBase::~IRReceiverBase()
 void IRReceiverBase::ReceivedCode(int PK_Device_Remote,const char *pCode)
 {
 	char cRemoteLayout = m_mapRemoteLayout[PK_Device_Remote];
-	map<string,MapKeysToMessages *>::iterator it = m_mapKeyMapping.find(StringUtils::ToUpper("s"));
+	map<string,MapKeysToMessages *>::iterator it = m_mapKeyMapping.find(StringUtils::ToUpper(pCode));
 	if( it!=m_mapKeyMapping.end() )
 	{
 		MapKeysToMessages *pMapKeysToMessages = it->second;
 		MapKeysToMessages::iterator itMessage;
+		
 		itMessage = pMapKeysToMessages->find(make_pair<char,char> (cRemoteLayout,m_cCurrentScreen) );
 		if( itMessage==pMapKeysToMessages->end() )
 			itMessage = pMapKeysToMessages->find(make_pair<char,char> (cRemoteLayout,0) );
@@ -100,6 +100,7 @@ void IRReceiverBase::ReceivedCode(int PK_Device_Remote,const char *pCode)
 		if( itMessage!=pMapKeysToMessages->end() )
 		{
 			Message *pm = itMessage->second;
+			g_pPlutoLogger->Write(LV_STATUS,"Sending Message Type %d ID %d",pm->m_dwMessage_Type,pm->m_dwID);
 			m_pCommand_Impl->QueueMessageToRouter(new Message(pm));
 		}
 		else
