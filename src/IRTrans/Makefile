@@ -24,7 +24,7 @@ XTRALDLIBS =
 Gen_Dev_Files +=
 sources += fileio.c linuxserio.c lowlevel.c server.c errormessage.c flashrom.c webserver.c xap.c
 
-#<-dceag-mf-b->
+#<-dceag-mf-b->!
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
 
 whattodo:
@@ -36,19 +36,19 @@ bin: IRTrans
 
 so: IRTrans.so
 
-IRTrans.so: $(sources:.cpp=.o)
+IRTrans.so: $(sources:.c=.o)
 	$(CXX) -shared -o $(MYNAME).so $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
 		
-IRTrans: $(sources:.cpp=.o)
+IRTrans: $(sources:.c=.o)
 	$(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	./post_make.sh $@
 
 clean: clean-recursive
-	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) IRTrans.bin IRTrans.so >/dev/null
+	rm -f $(call cpath,$(sources:.c=.o) $(sources:.c=.d)) IRTrans.bin IRTrans.so >/dev/null
 
 package:
 	chmod +x make_package.sh
@@ -56,7 +56,7 @@ package:
 
 include $(ROOT)/PlutoUtils/make.rules
 ifeq (,$(findstring clean, $(MAKECMDGOALS)))
--include $(sources:.cpp=.d)
+-include $(sources:.c=.d)
 endif
 #<-dceag-mf-e->
 
