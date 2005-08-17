@@ -22,7 +22,7 @@ LDFLAGS +=
 XTRALDLIBS = -llirc_client
 
 Gen_Dev_Files +=
-sources +=
+sources += IRReceiverBase.cpp
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
