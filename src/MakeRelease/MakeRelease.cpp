@@ -1540,6 +1540,7 @@ string Makefile = "none:\n"
 	}
 	g_DebianPackages[Package_Name] = true;
 	cout << "Depends list: " << sDepends << endl;
+	cout << "Replaces: " << pRow_Package_Source->Replaces_get() << endl;  // This can be a comma-delimited list
 
 #ifndef WIN32
 	cout << string(("sed -i 's/^Depends:.*$/Depends: ${shlibs:Depends}, ${misc:Depends}" + sDepends + "/' " + Dir + "/debian/control")) << endl;
