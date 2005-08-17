@@ -1,5 +1,5 @@
 /*
- * $Id: cx88-dvb.c,v 1.58 2005/08/07 09:24:08 mkrufky Exp $
+ * $Id: cx88-dvb.c,v 1.59 2005/08/11 17:18:38 mkrufky Exp $
  *
  * device driver for Conexant 2388x based TV cards
  * MPEG Transport Stream (DVB) routines
@@ -225,15 +225,24 @@ static int lgdt330x_pll_set(struct dvb_frontend* fe,
 	 * frontends. Many share the same tuner with analog TV. */
 
 	struct cx8802_dev *dev= fe->dvb->priv;
+	struct cx88_core *core = dev->core;
 	u8 buf[4];
 	struct i2c_msg msg =
 		{ .addr = dev->core->pll_addr, .flags = 0, .buf = buf, .len = 4 };
 	int err;
 
-	dvb_pll_configure(dev->core->pll_desc, buf, params->frequency, 0);
+	/* Put the analog decoder in standby to keep it quiet */
+	/* FIXME: it is using a side effect to mute tuner instead of T_STANDBY */
+	if (core->tda9887_conf) {
+		v4l2_std_id std = V4L2_STD_ATSC;
+
+		cx88_call_i2c_clients(core, VIDIOC_S_STD, &std);
+	}
+
+	dvb_pll_configure(core->pll_desc, buf, params->frequency, 0);
 	dprintk(1, "%s: tuner at 0x%02x bytes: 0x%02x 0x%02x 0x%02x 0x%02x\n",
 			__FUNCTION__, msg.addr, buf[0],buf[1],buf[2],buf[3]);
-	if ((err = i2c_transfer(&dev->core->i2c_adap, &msg, 1)) != 1) {
+	if ((err = i2c_transfer(&core->i2c_adap, &msg, 1)) != 1) {
 		printk(KERN_WARNING "cx88-dvb: %s error "
 			   "(addr %02x <- %02x, err = %i)\n",
 			   __FUNCTION__, buf[0], buf[1], err);
@@ -242,12 +251,12 @@ static int lgdt330x_pll_set(struct dvb_frontend* fe,
 		else
 			return -EREMOTEIO;
 	}
-	if (dev->core->tuner_type == TUNER_LG_TDVS_H062F) {
+	if (core->tuner_type == TUNER_LG_TDVS_H062F) {
 		/* Set the Auxiliary Byte. */
 		buf[2] &= ~0x20;
 		buf[2] |= 0x18;
 		buf[3] = 0x50;
-		i2c_transfer(&dev->core->i2c_adap, &msg, 1);
+		i2c_transfer(&core->i2c_adap, &msg, 1);
 	}
 	return 0;
 }

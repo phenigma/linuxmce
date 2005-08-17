@@ -1,5 +1,5 @@
 /*
- * $Id: cx88.h,v 1.70 2005/07/24 17:44:09 mkrufky Exp $
+ * $Id: cx88.h,v 1.74 2005/08/16 16:29:52 catalin Exp $
  *
  * v4l2 device driver for cx2388x based TV cards
  *
@@ -48,6 +48,9 @@
 #define UNSET (-1U)
 
 #define CX88_MAXBOARDS 8
+
+/* Max number of inputs by card */
+#define MAX_CX88_INPUT 8
 
 /* ----------------------------------------------------------- */
 /* defines and enums                                           */
@@ -203,7 +206,7 @@ struct cx88_board {
 	unsigned char		tuner_addr;
 	unsigned char		radio_addr;
 	int                     tda9887_conf;
-	struct cx88_input       input[8];
+	struct cx88_input       input[MAX_CX88_INPUT];
 	struct cx88_input       radio;
 	int                     blackbird:1;
 	int                     dvb:1;
@@ -295,6 +298,13 @@ struct cx88_core {
 
 	/* IR remote control state */
 	struct cx88_IR             *ir;
+
+#if 0
+	struct semaphore           lock;
+#endif
+
+	/* various v4l controls */
+	u32                        freq;
 };
 
 struct cx8800_dev;
@@ -333,8 +343,11 @@ struct cx8800_suspend_state {
 struct cx8800_dev {
 	struct cx88_core           *core;
 	struct list_head           devlist;
-        struct semaphore           lock;
-       	spinlock_t                 slock;
+#if 1
+	/* moved to cx88_core */
+	struct semaphore           lock;
+#endif
+	spinlock_t                 slock;
 
 	/* various device info */
 	unsigned int               resources;
@@ -357,7 +370,10 @@ struct cx8800_dev {
 	struct cx88_dmaqueue       vbiq;
 
 	/* various v4l controls */
+#if 0
+	/* moved to cx88_core */
 	u32                        freq;
+#endif
 
 	/* other global state info */
 	struct cx8800_suspend_state state;
@@ -365,14 +381,8 @@ struct cx8800_dev {
 
 /* ----------------------------------------------------------- */
 /* function 1: audio/alsa stuff                                */
+/* =============> moved to cx88-alsa.c <====================== */
 
-struct cx8801_dev {
-	struct cx88_core           *core;
-
-	/* pci i/o */
-	struct pci_dev             *pci;
-	unsigned char              pci_rev,pci_lat;
-};
 
 /* ----------------------------------------------------------- */
 /* function 2: mpeg stuff                                      */
@@ -391,8 +401,11 @@ struct cx8802_suspend_state {
 
 struct cx8802_dev {
 	struct cx88_core           *core;
-        struct semaphore           lock;
-       	spinlock_t                 slock;
+#if 1
+	/* moved to cx88_core ? */
+	struct semaphore           lock;
+#endif
+	spinlock_t                 slock;
 
 	/* pci i/o */
 	struct pci_dev             *pci;
@@ -420,9 +433,6 @@ struct cx8802_dev {
 
 	/* for switching modulation types */
 	unsigned char              ts_gen_cntrl;
-
-	/* various v4l controls */
-	u32                        freq;
 };
 
 /* ----------------------------------------------------------- */
@@ -573,6 +583,22 @@ void cx8802_fini_common(struct cx8802_dev *dev);
 
 int cx8802_suspend_common(struct pci_dev *pci_dev, pm_message_t state);
 int cx8802_resume_common(struct pci_dev *pci_dev);
+
+/* ----------------------------------------------------------- */
+/* cx88-video.c                                                */
+extern struct cx88_tvnorm tvnorms[];
+extern const int TVNORMS;
+void init_controls(struct cx88_core *core);
+int video_mux(struct cx88_core *core, unsigned int input);
+int cx88_do_ioctl(struct inode *inode, struct file *file, int radio,
+			struct cx88_core *core, struct semaphore *lock,
+			unsigned int cmd, void *arg, v4l2_kioctl driver_ioctl);
+
+/* ----------------------------------------------------------- */
+/* cx88-blackbird.c                                            */
+extern int (*cx88_ioctl_hook)(struct inode *inode, struct file *file,
+				unsigned int cmd, void *arg);
+extern unsigned int (*cx88_ioctl_translator)(unsigned int cmd);
 
 /*
  * Local variables:

@@ -1,5 +1,5 @@
 /*
-    $Id: bttv-cards.c,v 1.66 2005/08/03 21:14:01 mchehab Exp $
+    $Id: bttv-cards.c,v 1.68 2005/08/11 17:41:17 mkrufky Exp $
 
     bttv-cards.c
 
@@ -300,6 +300,8 @@ static struct CARD {
 	{ 0x01071805, BTTV_PICOLO_TETRA_CHIP, "Picolo Tetra Chip #3" },
 	{ 0x01081805, BTTV_PICOLO_TETRA_CHIP, "Picolo Tetra Chip #4" },
 
+	{ 0x15409511, BTTV_ACORP_Y878F, "Acorp Y878F" },
+
 	/* likely broken, vendor id doesn't match the other magic views ...
 	 * { 0xa0fca04f, BTTV_MAGICTVIEW063, "Guillemot Maxi TV Video 3" }, */
 
@@ -313,7 +315,6 @@ static struct CARD {
 	{ 0x07711461, BTTV_AVDVBT_771,    "AVermedia AverTV DVB-T 771" },
 	{ 0xdb1018ac, BTTV_DVICO_DVBT_LITE,    "DVICO FusionHDTV DVB-T Lite" },
 	{ 0xd50018ac, BTTV_DVICO_FUSIONHDTV_5_LITE,    "DVICO FusionHDTV 5 Lite" },
-	{ 0x15409511, BTTV_ACORP_Y878F, "Acorp Y878F" },
 
 	{ 0, -1, NULL }
 };
@@ -2436,6 +2437,9 @@ struct tvcard bttv_tvcards[] = {
 	.muxsel		= { 2, 3 },
 	.gpiomask       = 0x00e00007,
 	.audiomux       = { 0x00400005, 0, 0, 0, 0, 0 },
+	.no_msp34xx     = 1,
+	.no_tda9875     = 1,
+	.no_tda7432     = 1,
 #if 0
 	.has_dvb        = 1,
 #endif
@@ -4598,9 +4602,13 @@ void __devinit bttv_check_chipset(void)
 	}
 	if (UNSET != latency)
 		printk(KERN_INFO "bttv: pci latency fixup [%d]\n",latency);
-
+#ifdef MM_KERNEL
+	while ((dev = pci_get_device(PCI_VENDOR_ID_INTEL,
+				      PCI_DEVICE_ID_INTEL_82441, dev))) {
+#else
 	while ((dev = pci_find_device(PCI_VENDOR_ID_INTEL,
 				      PCI_DEVICE_ID_INTEL_82441, dev))) {
+#endif
                 unsigned char b;
 		pci_read_config_byte(dev, 0x53, &b);
 		if (bttv_debug)

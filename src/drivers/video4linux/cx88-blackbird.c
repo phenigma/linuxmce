@@ -1,5 +1,5 @@
 /*
- * $Id: cx88-blackbird.c,v 1.28 2005/07/15 21:44:14 mchehab Exp $
+ * $Id: cx88-blackbird.c,v 1.32 2005/08/16 16:29:52 catalin Exp $
  *
  *  Support for a cx23416 mpeg encoder via cx2388x host port.
  *  "blackbird" reference design.
@@ -53,188 +53,6 @@ MODULE_PARM_DESC(debug,"enable debug messages [blackbird]");
 
 static LIST_HEAD(cx8802_devlist);
 
-/* ------------------------------------------------------------------- */
-/* static data                                                         */
-
-static struct cx88_tvnorm tvnorms[] = {
-	{
-		.name      = "NTSC-M",
-		.id        = V4L2_STD_NTSC_M,
-		.cxiformat = VideoFormatNTSC,
-		.cxoformat = 0x181f0008,
-	},{
-		.name      = "NTSC-JP",
-		.id        = V4L2_STD_NTSC_M_JP,
-		.cxiformat = VideoFormatNTSCJapan,
-		.cxoformat = 0x181f0008,
-#if 0
-	},{
-		.name      = "NTSC-4.43",
-		.id        = FIXME,
-		.cxiformat = VideoFormatNTSC443,
-		.cxoformat = 0x181f0008,
-#endif
-	},{
-		.name      = "PAL-BG",
-		.id        = V4L2_STD_PAL_BG,
-		.cxiformat = VideoFormatPAL,
-		.cxoformat = 0x181f0008,
-	},{
-		.name      = "PAL-DK",
-		.id        = V4L2_STD_PAL_DK,
-		.cxiformat = VideoFormatPAL,
-		.cxoformat = 0x181f0008,
-	},{
-		.name      = "PAL-I",
-		.id        = V4L2_STD_PAL_I,
-		.cxiformat = VideoFormatPAL,
-		.cxoformat = 0x181f0008,
-        },{
-		.name      = "PAL-M",
-		.id        = V4L2_STD_PAL_M,
-		.cxiformat = VideoFormatPALM,
-		.cxoformat = 0x1c1f0008,
-	},{
-		.name      = "PAL-N",
-		.id        = V4L2_STD_PAL_N,
-		.cxiformat = VideoFormatPALN,
-		.cxoformat = 0x1c1f0008,
-	},{
-		.name      = "PAL-Nc",
-		.id        = V4L2_STD_PAL_Nc,
-		.cxiformat = VideoFormatPALNC,
-		.cxoformat = 0x1c1f0008,
-	},{
-		.name      = "PAL-60",
-		.id        = V4L2_STD_PAL_60,
-		.cxiformat = VideoFormatPAL60,
-		.cxoformat = 0x181f0008,
-	},{
-		.name      = "SECAM-L",
-		.id        = V4L2_STD_SECAM_L,
-		.cxiformat = VideoFormatSECAM,
-		.cxoformat = 0x181f0008,
-	},{
-		.name      = "SECAM-DK",
-		.id        = V4L2_STD_SECAM_DK,
-		.cxiformat = VideoFormatSECAM,
-		.cxoformat = 0x181f0008,
-	}
-};
-
-/* ------------------------------------------------------------------- */
-
-static const struct v4l2_queryctrl no_ctl = {
-	.name  = "42",
-	.flags = V4L2_CTRL_FLAG_DISABLED,
-};
-
-static struct cx88_ctrl cx8800_ctls[] = {
-	/* --- video --- */
-	{
-		.v = {
-			.id            = V4L2_CID_BRIGHTNESS,
-			.name          = "Brightness",
-			.minimum       = 0x00,
-			.maximum       = 0xff,
-			.step          = 1,
-			.default_value = 0,
-			.type          = V4L2_CTRL_TYPE_INTEGER,
-		},
-		.off                   = 128,
-		.reg                   = MO_CONTR_BRIGHT,
-		.mask                  = 0x00ff,
-		.shift                 = 0,
-	},{
-		.v = {
-			.id            = V4L2_CID_CONTRAST,
-			.name          = "Contrast",
-			.minimum       = 0,
-			.maximum       = 0xff,
-			.step          = 1,
-			.default_value = 0,
-			.type          = V4L2_CTRL_TYPE_INTEGER,
-		},
-		.off                   = 0,
-		.reg                   = MO_CONTR_BRIGHT,
-		.mask                  = 0xff00,
-		.shift                 = 8,
-	},{
-		.v = {
-			.id            = V4L2_CID_HUE,
-			.name          = "Hue",
-			.minimum       = 0,
-			.maximum       = 0xff,
-			.step          = 1,
-			.default_value = 0,
-			.type          = V4L2_CTRL_TYPE_INTEGER,
-		},
-		.off                   = 128,
-		.reg                   = MO_HUE,
-		.mask                  = 0x00ff,
-		.shift                 = 0,
-	},{
-		/* strictly, this only describes only U saturation.
-		 * V saturation is handled specially through code.
-		 */
-		.v = {
-			.id            = V4L2_CID_SATURATION,
-			.name          = "Saturation",
-			.minimum       = 0,
-			.maximum       = 0xff,
-			.step          = 1,
-			.default_value = 0,
-			.type          = V4L2_CTRL_TYPE_INTEGER,
-		},
-		.off                   = 0,
-		.reg                   = MO_UV_SATURATION,
-		.mask                  = 0x00ff,
-		.shift                 = 0,
-	},{
-	/* --- audio --- */
-		.v = {
-			.id            = V4L2_CID_AUDIO_MUTE,
-			.name          = "Mute",
-			.minimum       = 0,
-			.maximum       = 1,
-			.type          = V4L2_CTRL_TYPE_BOOLEAN,
-		},
-		.reg                   = AUD_VOL_CTL,
-		.sreg                  = SHADOW_AUD_VOL_CTL,
-		.mask                  = (1 << 6),
-		.shift                 = 6,
-	},{
-		.v = {
-			.id            = V4L2_CID_AUDIO_VOLUME,
-			.name          = "Volume",
-			.minimum       = 0,
-			.maximum       = 0x3f,
-			.step          = 1,
-			.default_value = 0,
-			.type          = V4L2_CTRL_TYPE_INTEGER,
-		},
-		.reg                   = AUD_VOL_CTL,
-		.sreg                  = SHADOW_AUD_VOL_CTL,
-		.mask                  = 0x3f,
-		.shift                 = 0,
-	},{
-		.v = {
-			.id            = V4L2_CID_AUDIO_BALANCE,
-			.name          = "Balance",
-			.minimum       = 0,
-			.maximum       = 0x7f,
-			.step          = 1,
-			.default_value = 0x40,
-			.type          = V4L2_CTRL_TYPE_INTEGER,
-		},
-		.reg                   = AUD_BAL_CTL,
-		.sreg                  = SHADOW_AUD_BAL_CTL,
-		.mask                  = 0x7f,
-		.shift                 = 0,
-	}
-};
-static const int CX8800_CTLS = ARRAY_SIZE(cx8800_ctls);
-
 /* ------------------------------------------------------------------ */
 
 #define BLACKBIRD_FIRM_ENC_FILENAME "blackbird-fw-enc.bin"
@@ -245,7 +63,9 @@ static const int CX8800_CTLS = ARRAY_SIZE(cx8800_ctls);
 #define IVTV_CMD_HW_BLOCKS_RST 0xFFFFFFFF
 
 /* Firmware API commands */
-/* #define IVTV_API_STD_TIMEOUT 0x00010000 // 65536, units?? */
+#if 0
+#define IVTV_API_STD_TIMEOUT 0x00010000 /* 65536, units?? */
+#endif
 #define IVTV_API_STD_TIMEOUT 500
 
 #define BLACKBIRD_API_PING               0x80
@@ -1015,7 +835,8 @@ static int blackbird_initialize_codec(struct cx8802_dev *dev)
 			BLACKBIRD_CUSTOM_EXTENSION_USR_DATA,
 			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
-	blackbird_api_cmd(dev, BLACKBIRD_API_INIT_VIDEO_INPUT, 0, 0); /* initialize the video input */
+	/* initialize the video input */
+	blackbird_api_cmd(dev, BLACKBIRD_API_INIT_VIDEO_INPUT, 0, 0);
 
 	msleep(1);
 
@@ -1024,11 +845,12 @@ static int blackbird_initialize_codec(struct cx8802_dev *dev)
 	blackbird_api_cmd(dev, BLACKBIRD_API_MUTE_AUDIO, 1, 0, BLACKBIRD_UNMUTE);
 	msleep(1);
 
-	/* blackbird_api_cmd(dev, BLACKBIRD_API_BEGIN_CAPTURE, 2, 0, 0, 0x13); // start capturing to the host interface */
+	/* start capturing to the host interface */
+	/* blackbird_api_cmd(dev, BLACKBIRD_API_BEGIN_CAPTURE, 2, 0, 0, 0x13); */
 	blackbird_api_cmd(dev, BLACKBIRD_API_BEGIN_CAPTURE, 2, 0,
 			BLACKBIRD_MPEG_CAPTURE,
 			BLACKBIRD_RAW_BITS_NONE
-		); /* start capturing to the host interface */
+		);
 	msleep(10);
 
 	blackbird_api_cmd(dev, BLACKBIRD_API_REFRESH_INPUT, 0,0);
@@ -1042,8 +864,8 @@ static int bb_buf_setup(struct videobuf_queue *q,
 {
 	struct cx8802_fh *fh = q->priv_data;
 
-	fh->dev->ts_packet_size  = 188 * 4; /* was: 512; */
-	fh->dev->ts_packet_count = 32; /* was: 100; */
+	fh->dev->ts_packet_size  = 188 * 4; /* was: 512 */
+	fh->dev->ts_packet_count = 32; /* was: 100 */
 
 	*size = fh->dev->ts_packet_size * fh->dev->ts_packet_count;
 	if (0 == *count)
@@ -1086,205 +908,6 @@ static struct videobuf_queue_ops blackbird_qops = {
 
 /* ------------------------------------------------------------------ */
 
-static int video_mux(struct cx8802_dev *dev, unsigned int input)
-{
-	struct cx88_core *core = dev->core;
-
-	dprintk(1,"video_mux: %d [vmux=%d,gpio=0x%x,0x%x,0x%x,0x%x]\n",
-		input, INPUT(input)->vmux,
-		INPUT(input)->gpio0,INPUT(input)->gpio1,
-		INPUT(input)->gpio2,INPUT(input)->gpio3);
-	dev->core->input = input;
-	cx_andor(MO_INPUT_FORMAT, 0x03 << 14, INPUT(input)->vmux << 14);
-	cx_write(MO_GP3_IO, INPUT(input)->gpio3);
-	cx_write(MO_GP0_IO, INPUT(input)->gpio0);
-	cx_write(MO_GP1_IO, INPUT(input)->gpio1);
-	cx_write(MO_GP2_IO, INPUT(input)->gpio2);
-
-	switch (INPUT(input)->type) {
-	case CX88_VMUX_SVIDEO:
-		cx_set(MO_AFECFG_IO,    0x00000001);
-		cx_set(MO_INPUT_FORMAT, 0x00010010);
-		cx_set(MO_FILTER_EVEN,  0x00002020);
-		cx_set(MO_FILTER_ODD,   0x00002020);
-		break;
-	default:
-		cx_clear(MO_AFECFG_IO,    0x00000001);
-		cx_clear(MO_INPUT_FORMAT, 0x00010010);
-		cx_clear(MO_FILTER_EVEN,  0x00002020);
-		cx_clear(MO_FILTER_ODD,   0x00002020);
-		break;
-	}
-	return 0;
-}
-
-/* ------------------------------------------------------------------ */
-
-static int get_control(struct cx8802_dev *dev, struct v4l2_control *ctl)
-{
-	struct cx88_core *core = dev->core;
-	struct cx88_ctrl *c = NULL;
-	u32 value;
-	int i;
-
-	for (i = 0; i < CX8800_CTLS; i++)
-		if (cx8800_ctls[i].v.id == ctl->id)
-			c = &cx8800_ctls[i];
-	if (NULL == c)
-		return -EINVAL;
-
-	value = c->sreg ? cx_sread(c->sreg) : cx_read(c->reg);
-	switch (ctl->id) {
-	case V4L2_CID_AUDIO_BALANCE:
-		ctl->value = (value & 0x40) ? (value & 0x3f) : (0x40 - (value & 0x3f));
-		break;
-	case V4L2_CID_AUDIO_VOLUME:
-		ctl->value = 0x3f - (value & 0x3f);
-		break;
-	default:
-		ctl->value = ((value + (c->off << c->shift)) & c->mask) >> c->shift;
-		break;
-	}
-	return 0;
-}
-
-static int set_control(struct cx8802_dev *dev, struct v4l2_control *ctl)
-{
-	struct cx88_core *core = dev->core;
-	struct cx88_ctrl *c = NULL;
-        u32 v_sat_value;
-	u32 value;
-	int i;
-
-	for (i = 0; i < CX8800_CTLS; i++)
-		if (cx8800_ctls[i].v.id == ctl->id)
-			c = &cx8800_ctls[i];
-	if (NULL == c)
-		return -EINVAL;
-
-	switch (ctl->id) {
-	case V4L2_CID_HUE:
-		dprintk( 0, "HUE: 0x%02x, min: 0x%02x, max: 0x%02x\n", ctl->value, c->v.minimum, c->v.maximum );
-		/*ctl->value = 0x0;*/
-		break;
-	case V4L2_CID_CONTRAST:
-		dprintk( 1, "CONTRAST: 0x%02x\n", ctl->value );
-		break;
-	case V4L2_CID_BRIGHTNESS:
-		dprintk( 1, "BRIGHTNESS: 0x%02x\n", ctl->value );
-		break;
-	}
-
-	if (ctl->value < c->v.minimum)
-	{
-		dprintk( 0, "set_control: 0x%x < 0x%x\n", ctl->value, c->v.minimum );
-		return -ERANGE;
-	}
-	if (ctl->value > c->v.maximum)
-	{
-		dprintk( 0, "set_control: 0x%x > 0x%x\n", ctl->value, c->v.maximum );
-		/* clamp the value */
-		ctl->value = c->v.maximum;
-#if 0
-		return -ERANGE;
-#endif
-	}
-	switch (ctl->id) {
-	case V4L2_CID_AUDIO_BALANCE:
-		value = (ctl->value < 0x40) ? (0x40 - ctl->value) : ctl->value;
-		break;
-	case V4L2_CID_AUDIO_VOLUME:
-		value = 0x3f - (ctl->value & 0x3f);
-		break;
-	case V4L2_CID_SATURATION:
-		/* special v_sat handling */
-		v_sat_value = ctl->value - (0x7f - 0x5a);
-		if (v_sat_value > 0xff)
-			v_sat_value = 0xff;
-		if (v_sat_value < 0x00)
-			v_sat_value = 0x00;
-		cx_andor(MO_UV_SATURATION, 0xff00, v_sat_value << 8);
-		/* fall through to default route for u_sat */
-	default:
-		value = ((ctl->value - c->off) << c->shift) & c->mask;
-		break;
-	}
-	dprintk(1,"set_control id=0x%X reg=0x%x val=0x%x%s\n",
-		ctl->id, c->reg, value, c->sreg ? " [shadowed]" : "");
-	if (c->sreg) {
-		cx_sandor(c->sreg, c->reg, c->mask, value);
-	} else {
-		cx_andor(c->reg, c->mask, value);
-	}
-	return 0;
-}
-
-static void init_controls(struct cx8802_dev *dev)
-{
-	static struct v4l2_control mute = {
-		.id    = V4L2_CID_AUDIO_MUTE,
-		.value = 1,
-	};
-	static struct v4l2_control volume = {
-		.id    = V4L2_CID_AUDIO_VOLUME,
-		.value = 0x3f,
-	};
-	static struct v4l2_control hue = {
-		.id    = V4L2_CID_HUE,
-		.value = 0x80,
-	};
-	static struct v4l2_control contrast = {
-		.id    = V4L2_CID_CONTRAST,
-		.value = 0x80,
-	};
-	static struct v4l2_control brightness = {
-		.id    = V4L2_CID_BRIGHTNESS,
-		.value = 0x99,
-	};
-
-	set_control(dev,&mute);
-	set_control(dev,&volume);
-	set_control(dev,&hue);
-	set_control(dev,&contrast);
-	set_control(dev,&brightness);
-}
-
-/* --- IVTV emulation stuff ----------------------------------------- */
-
-/* For use with IVTV ioctl's */
-struct ivtv_ioctl_codec {
-        uint32_t aspect;
-        uint32_t audio_bitmask;
-        uint32_t bframes;
-        uint32_t bitrate_mode;
-        uint32_t bitrate;
-        uint32_t bitrate_peak;
-        uint32_t dnr_mode;
-        uint32_t dnr_spatial;
-        uint32_t dnr_temporal;
-        uint32_t dnr_type;
-        uint32_t framerate; /* read only, ignored on write */
-        uint32_t framespergop;  /* read only, ignored on write */
-        uint32_t gop_closure;
-        uint32_t pulldown;
-        uint32_t stream_type;
-};
-
-struct ivtv_sliced_vbi_format {
-    unsigned long service_set;  /* one or more of the IVTV_SLICED_ defines */
-    unsigned long packet_size;  /* the size in bytes of the ivtv_sliced_data packet */
-    unsigned long io_size;      /* maximum number of bytes passed by one read() call */
-    unsigned long reserved;
-};
-
-#define IVTV_IOC_G_CODEC           _IOR ('@', 48, struct ivtv_ioctl_codec)
-#define IVTV_IOC_S_CODEC           _IOW ('@', 49, struct ivtv_ioctl_codec)
-#define IVTV_IOC_S_VBI_MODE        _IOWR('@', 35, struct ivtv_sliced_vbi_format)
-#define IVTV_IOC_G_VBI_MODE        _IOR ('@', 36, struct ivtv_sliced_vbi_format)
-#define IVTV_IOC_S_VBI_EMBED       _IOW ('@', 54, int)
-
-/* ------------------------------------------------------------------ */
-
 static int mpeg_do_ioctl(struct inode *inode, struct file *file,
 			 unsigned int cmd, void *arg)
 {
@@ -1295,9 +918,9 @@ static int mpeg_do_ioctl(struct inode *inode, struct file *file,
 	int err;
 
 	if (debug > 1)
-		cx88_print_ioctl(dev->core->name,cmd);
+		cx88_print_ioctl(core->name,cmd);
 #if 1
-	cx88_print_ioctl(dev->core->name,cmd);
+	cx88_print_ioctl(core->name,cmd);
 	printk( KERN_INFO "_IOCTL_: 0x%x\n", cmd );
 #endif
 	dprintk( 1, "IOCTL: 0x%x\n", cmd );
@@ -1311,8 +934,7 @@ static int mpeg_do_ioctl(struct inode *inode, struct file *file,
 
 		memset(cap,0,sizeof(*cap));
 		strcpy(cap->driver, "cx88_blackbird");
-		strlcpy(cap->card, cx88_boards[core->board].name,
-			sizeof(cap->card));
+		strlcpy(cap->card, cx88_boards[core->board].name,sizeof(cap->card));
 		sprintf(cap->bus_info,"PCI:%s",pci_name(dev->pci));
 		cap->version = CX88_VERSION_CODE;
 		cap->capabilities =
@@ -1327,99 +949,6 @@ static int mpeg_do_ioctl(struct inode *inode, struct file *file,
 		if (UNSET != core->tuner_type)
 			cap->capabilities |= V4L2_CAP_TUNER;
 
-		return 0;
-	}
-
-	/* ---------- tv norms ---------- */
-	case VIDIOC_ENUMSTD:
-	{
-		struct v4l2_standard *e = arg;
-		unsigned int i;
-
-		i = e->index;
-		if (i >= ARRAY_SIZE(tvnorms))
-			return -EINVAL;
-		err = v4l2_video_std_construct(e, tvnorms[e->index].id,
-					       tvnorms[e->index].name);
-		e->index = i;
-		if (err < 0)
-			return err;
-		return 0;
-	}
-	case VIDIOC_G_STD:
-	{
-		v4l2_std_id *id = arg;
-
-		*id = core->tvnorm->id;
-		return 0;
-	}
-	case VIDIOC_S_STD:
-	{
-		v4l2_std_id *id = arg;
-		unsigned int i;
-
-		for(i = 0; i < ARRAY_SIZE(tvnorms); i++)
-			if (*id & tvnorms[i].id)
-				break;
-		if (i == ARRAY_SIZE(tvnorms))
-			return -EINVAL;
-
-		down(&dev->lock);
-		cx88_set_tvnorm(dev->core,&tvnorms[i]);
-		up(&dev->lock);
-		return 0;
-	}
-
-	/* ------ input switching ---------- */
-	case VIDIOC_ENUMINPUT:
-	{
-		static const char *iname[] = {
-			[ CX88_VMUX_COMPOSITE1 ] = "Composite1",
-			[ CX88_VMUX_COMPOSITE2 ] = "Composite2",
-			[ CX88_VMUX_COMPOSITE3 ] = "Composite3",
-			[ CX88_VMUX_COMPOSITE4 ] = "Composite4",
-			[ CX88_VMUX_SVIDEO     ] = "S-Video",
-			[ CX88_VMUX_TELEVISION ] = "Television",
-			[ CX88_VMUX_CABLE      ] = "Cable TV",
-			[ CX88_VMUX_DVB        ] = "DVB",
-			[ CX88_VMUX_DEBUG      ] = "for debug only",
-		};
-		struct v4l2_input *i = arg;
-		unsigned int n;
-
-		n = i->index;
-		if (n >= 4)
-			return -EINVAL;
-		if (0 == INPUT(n)->type)
-			return -EINVAL;
-		memset(i,0,sizeof(*i));
-		i->index = n;
-		i->type  = V4L2_INPUT_TYPE_CAMERA;
-		strcpy(i->name,iname[INPUT(n)->type]);
-		if ((CX88_VMUX_TELEVISION == INPUT(n)->type) ||
-		    (CX88_VMUX_CABLE      == INPUT(n)->type))
-			i->type = V4L2_INPUT_TYPE_TUNER;
-		for (n = 0; n < ARRAY_SIZE(tvnorms); n++)
-			i->std |= tvnorms[n].id;
-		return 0;
-	}
-	case VIDIOC_G_INPUT:
-	{
-		unsigned int *i = arg;
-
-		*i = dev->core->input;
-		return 0;
-	}
-	case VIDIOC_S_INPUT:
-	{
-		unsigned int *i = arg;
-
-		if (*i >= 4)
-			return -EINVAL;
-		down(&dev->lock);
-		cx88_newstation(core);
-		video_mux(dev,*i);
-		up(&dev->lock);
 		return 0;
 	}
 
@@ -1454,98 +983,8 @@ static int mpeg_do_ioctl(struct inode *inode, struct file *file,
 		f->fmt.pix.pixelformat  = V4L2_PIX_FMT_MPEG;
 		f->fmt.pix.field        = V4L2_FIELD_NONE;
 		f->fmt.pix.bytesperline = 0;
-		//f->fmt.pix.sizeimage    = 1024 * 512 /* FIXME: BUFFER_SIZE */;
-		f->fmt.pix.sizeimage    = 188 * 4 * 1024 /* FIXME: BUFFER_SIZE */;
+		f->fmt.pix.sizeimage    = 188 * 4 * 1024; /* 1024 * 512 */ /* FIXME: BUFFER_SIZE */;
 		f->fmt.pix.colorspace   = 0;
-		return 0;
-	}
-
-	/* --- controls ---------------------------------------------- */
-	case VIDIOC_QUERYCTRL:
-	{
-		struct v4l2_queryctrl *c = arg;
-		int i;
-
-		if (c->id <  V4L2_CID_BASE ||
-		    c->id >= V4L2_CID_LASTP1)
-			return -EINVAL;
-		for (i = 0; i < CX8800_CTLS; i++)
-			if (cx8800_ctls[i].v.id == c->id)
-				break;
-		if (i == CX8800_CTLS) {
-			*c = no_ctl;
-			return 0;
-		}
-		*c = cx8800_ctls[i].v;
-		return 0;
-	}
-	case VIDIOC_G_CTRL:
-		return get_control(dev,arg);
-	case VIDIOC_S_CTRL:
-		return set_control(dev,arg);
-
-	/* --- tuner ioctls ------------------------------------------ */
-	case VIDIOC_G_TUNER:
-	{
-		struct v4l2_tuner *t = arg;
-		u32 reg;
-
-		if (UNSET == core->tuner_type)
-			return -EINVAL;
-		if (0 != t->index)
-			return -EINVAL;
-
-		memset(t,0,sizeof(*t));
-		strcpy(t->name, "Television");
-		t->type       = V4L2_TUNER_ANALOG_TV;
-		t->capability = V4L2_TUNER_CAP_NORM;
-		t->rangehigh  = 0xffffffffUL;
-
-		cx88_get_stereo(core ,t);
-		reg = cx_read(MO_DEVICE_STATUS);
-                t->signal = (reg & (1<<5)) ? 0xffff : 0x0000;
-		return 0;
-	}
-	case VIDIOC_S_TUNER:
-	{
-		struct v4l2_tuner *t = arg;
-
-		if (UNSET == core->tuner_type)
-			return -EINVAL;
-		if (0 != t->index)
-			return -EINVAL;
-		cx88_set_stereo(core, t->audmode, 1);
-		return 0;
-	}
-	case VIDIOC_G_FREQUENCY:
-	{
-		struct v4l2_frequency *f = arg;
-
-		memset(f,0,sizeof(*f));
-
-		if (UNSET == core->tuner_type)
-			return -EINVAL;
-
-		f->type = V4L2_TUNER_ANALOG_TV;
-		f->frequency = dev->freq;
-
-		cx88_call_i2c_clients(dev->core,VIDIOC_G_FREQUENCY,f);
-
-		return 0;
-	}
-	case VIDIOC_S_FREQUENCY:
-	{
-		struct v4l2_frequency *f = arg;
-
-		if (UNSET == core->tuner_type)
-			return -EINVAL;
-		if (f->tuner != 0)
-			return -EINVAL;
-		down(&dev->lock);
-		dev->freq = f->frequency;
-		cx88_newstation(core);
-		cx88_call_i2c_clients(dev->core,VIDIOC_S_FREQUENCY,f);
-		up(&dev->lock);
 		return 0;
 	}
 
@@ -1569,131 +1008,28 @@ static int mpeg_do_ioctl(struct inode *inode, struct file *file,
 	case VIDIOC_STREAMOFF:
 		return videobuf_streamoff(&fh->mpegq);
 
-	/* --- IVTV emulation layer --------------------------- */
-	case IVTV_IOC_S_CODEC:
-		printk( KERN_INFO "IVTV_IOC_S_CODEC\n" );
-	case IVTV_IOC_G_CODEC:
-	{
-		struct ivtv_ioctl_codec *codec = arg;
-#if 1
-		printk( KERN_INFO "IVTV_IOC_G/S_CODEC\n" );
-		printk( KERN_INFO "CODEC: aspect: %d\n", codec->aspect );
-		printk( KERN_INFO "CODEC: audio : %d\n", codec->audio_bitmask );
-		printk( KERN_INFO "CODEC: bfrms : %d\n", codec->bframes );
-		printk( KERN_INFO "CODEC: br_mod: %d\n", codec->bitrate_mode );
-		printk( KERN_INFO "CODEC: btrate: %d\n", codec->bitrate );
-		printk( KERN_INFO "CODEC: btr_pk: %d\n", codec->bitrate_peak );
-		printk( KERN_INFO "CODEC: dnr_md: %d\n", codec->dnr_mode );
-		printk( KERN_INFO "CODEC: dnr_sp: %d\n", codec->dnr_spatial );
-		printk( KERN_INFO "CODEC: dnr_tp: %d\n", codec->dnr_temporal );
-		printk( KERN_INFO "CODEC: dnr_ty: %d\n", codec->dnr_type );
-		printk( KERN_INFO "CODEC: framer: %d\n", codec->framerate );
-		printk( KERN_INFO "CODEC: grmgop: %d\n", codec->framespergop );
-		printk( KERN_INFO "CODEC: gop_cl: %d\n", codec->gop_closure );
-		printk( KERN_INFO "CODEC: pulldn: %d\n", codec->pulldown );
-		printk( KERN_INFO "CODEC: strtyp: %d\n\n", codec->stream_type );
-#endif
-
-		codec->aspect = 2; /* 4:3 */
-		codec->audio_bitmask = (2 << 2) | (14 << 4); /* layer II | 384kbps */
-		codec->bframes = 2;
-		codec->bitrate_mode = 1; /* cbr */
-		codec->bitrate = 4500000; /* bps */
-		codec->bitrate_peak = 6000000; /* peak */
-		codec->dnr_mode = 0; /* spatial=manual | temporal=manual */
-		codec->dnr_spatial = 0;
-		codec->dnr_temporal = 0;
-		codec->dnr_type = 0; /* disabled */
-		codec->framerate = 1; /* 25fps */
-		codec->framespergop = 15;
-		codec->gop_closure = 0; /* open */
-		codec->pulldown = 0; /* enabled */
-		codec->stream_type = 0; /* program stream */
-#if 1
-		printk( KERN_INFO "CODEC: aspect: %d\n", codec->aspect );
-		printk( KERN_INFO "CODEC: audio : %d\n", codec->audio_bitmask );
-		printk( KERN_INFO "CODEC: bfrms : %d\n", codec->bframes );
-		printk( KERN_INFO "CODEC: br_mod: %d\n", codec->bitrate_mode );
-		printk( KERN_INFO "CODEC: btrate: %d\n", codec->bitrate );
-		printk( KERN_INFO "CODEC: btr_pk: %d\n", codec->bitrate_peak );
-		printk( KERN_INFO "CODEC: dnr_md: %d\n", codec->dnr_mode );
-		printk( KERN_INFO "CODEC: dnr_sp: %d\n", codec->dnr_spatial );
-		printk( KERN_INFO "CODEC: dnr_tp: %d\n", codec->dnr_temporal );
-		printk( KERN_INFO "CODEC: dnr_ty: %d\n", codec->dnr_type );
-		printk( KERN_INFO "CODEC: framer: %d\n", codec->framerate );
-		printk( KERN_INFO "CODEC: grmgop: %d\n", codec->framespergop );
-		printk( KERN_INFO "CODEC: gop_cl: %d\n", codec->gop_closure );
-		printk( KERN_INFO "CODEC: pulldn: %d\n", codec->pulldown );
-		printk( KERN_INFO "CODEC: strtyp: %d\n", codec->stream_type );
-#endif
-		return 0;
-	}
-	case IVTV_IOC_S_VBI_MODE:
-	{
-		struct ivtv_sliced_vbi_format *fmt = arg;
-		printk( KERN_INFO "IVTV_IOC_S_VBI_MODE: ss: %ld, ps: %ld, is: %ld\n",
-				fmt->service_set, fmt->packet_size, fmt->io_size );
-#if 0
-		fmt->service_set = 0;  /* one or more of the IVTV_SLICED_ defines */
-    		fmt->packet_size = 0;  /* the size in bytes of the ivtv_sliced_data packet */
-		fmt->io_size = 0;      /* maximum number of bytes passed by one read() call */
-#endif
-		return 0;
-	}
-	case IVTV_IOC_G_VBI_MODE:
-	{
-		struct ivtv_sliced_vbi_format *fmt = arg;
-
-		fmt->service_set = 1;  /* one or more of the IVTV_SLICED_ defines */
-    		fmt->packet_size = 0;  /* the size in bytes of the ivtv_sliced_data packet */
-		fmt->io_size = 0;      /* maximum number of bytes passed by one read() call */
-		return 0;
-	}
-	case IVTV_IOC_S_VBI_EMBED:
-	{
-		int *embed = arg;
-		printk( KERN_INFO "IVTV_IOC_S_VBI_EMBED: %d\n", *embed );
-		return 0;
-	}
-
 	default:
-	{
-		int err;
-		err = v4l_compat_translate_ioctl(inode,file,cmd,arg,
-						  mpeg_do_ioctl);
-		if( err < 0 )
-		{
-			printk( KERN_INFO "Unknown IOCTL: 0x%x\n", cmd );
-			cx88_print_ioctl(dev->core->name,cmd);
-		}
-		return err;
-		/*return -EINVAL;*/
-	}
-
+		return cx88_do_ioctl( inode, file, 0, dev->core, &dev->lock, cmd, arg, cx88_ioctl_hook );
 	}
 	return 0;
 }
 
-static int mpeg_ioctl(struct inode *inode, struct file *file,
-		       unsigned int cmd, unsigned long arg)
-{
-	switch( cmd )
-	{
-		case 0xFFEE7703: cmd = IVTV_IOC_G_CODEC; break;
-		case 0xFFEE7704: cmd = IVTV_IOC_S_CODEC; break;
-		case 0xFFEE7781: /*cmd = IVTV_IOC_PLAY; break;*/
-		case 0xFFEE7782: /*cmd = IVTV_IOC_PAUSE; break;*/
-		case 0xFFEE7783: /*cmd = IVTV_IOC_FRAMESYNC; break;*/
-		case 0xFFEE7784: /*cmd = IVTV_IOC_GET_TIMING; break;*/
-		case 0xFFEE7785: /*cmd = IVTV_IOC_S_SLOW_FAST; break;*/
-		case 0xFFEE7786: /*cmd = IVTV_IOC_S_START_DECODE; break;*/
-		case 0xFFEE7787: /*cmd = IVTV_IOC_S_STOP_DECODE; break;*/
-		case 0xFFEE7789: /*cmd = IVTV_IOC_GET_FB; break;*/
-			printk( KERN_INFO "IVTV: 0x%x\n", cmd );
-	}
+int (*cx88_ioctl_hook)(struct inode *inode, struct file *file,
+			unsigned int cmd, void *arg);
+unsigned int (*cx88_ioctl_translator)(unsigned int cmd);
 
+static unsigned int mpeg_translate_ioctl(unsigned int cmd)
+{
+	return cmd;
+}
+
+static int mpeg_ioctl(struct inode *inode, struct file *file,
+			unsigned int cmd, unsigned long arg)
+{
 	int rez;
-	rez = video_usercopy(inode, file, cmd, arg, mpeg_do_ioctl);
+
+	cmd = cx88_ioctl_translator( cmd );
+	rez = video_usercopy(inode, file, cmd, arg, cx88_ioctl_hook);
 	if( rez < 0 )
 	{
 		printk( KERN_INFO "_______: 0x%x ---> %d\n", cmd, rez );
@@ -1772,7 +1108,7 @@ mpeg_read(struct file *file, char __user *data, size_t count, loff_t *ppos)
 	ssize_t ret;
 
 	ret = videobuf_read_stream(&fh->mpegq, data, count, ppos, 0,
-				    file->f_flags & O_NONBLOCK );
+				    file->f_flags & O_NONBLOCK);
 
 #if 1
 	if( ret < 0 && debug >= 1 )
@@ -1894,21 +1230,21 @@ static int __devinit blackbird_probe(struct pci_dev *pci_dev,
 	/* initial device configuration: needed ? */
 #if 1
 	down(&dev->lock);
-	init_controls(dev);
+	init_controls(core);
 #if 1
 	{
 		int i;
-		for(i = 0; i < ARRAY_SIZE(tvnorms); i++)
+		for (i = 0; i < TVNORMS; i++)
 			if (tvnorms[i].id == V4L2_STD_PAL_BG)
 			{
-				cx88_set_tvnorm(dev->core,&tvnorms[i]);
+				cx88_set_tvnorm(core,&tvnorms[i]);
 				break;
 			}
 	}
 #else
-	cx88_set_tvnorm(dev->core,tvnorms);
+	cx88_set_tvnorm(core,tvnorms);
 #endif
-	video_mux(dev,0);
+	video_mux(core,0);
 	up(&dev->lock);
 #endif
 
@@ -1966,6 +1302,8 @@ static int blackbird_init(void)
 	printk(KERN_INFO "cx2388x: snapshot date %04d-%02d-%02d\n",
 	       SNAPSHOT/10000, (SNAPSHOT/100)%100, SNAPSHOT%100);
 #endif
+	cx88_ioctl_hook = mpeg_do_ioctl;
+	cx88_ioctl_translator = mpeg_translate_ioctl;
 	return pci_register_driver(&blackbird_pci_driver);
 }
 
@@ -1976,6 +1314,9 @@ static void blackbird_fini(void)
 
 module_init(blackbird_init);
 module_exit(blackbird_fini);
+
+EXPORT_SYMBOL(cx88_ioctl_hook);
+EXPORT_SYMBOL(cx88_ioctl_translator);
 
 /* ----------------------------------------------------------- */
 /*

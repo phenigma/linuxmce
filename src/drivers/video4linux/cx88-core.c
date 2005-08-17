@@ -1,5 +1,5 @@
 /*
- * $Id: cx88-core.c,v 1.34 2005/07/15 21:44:14 mchehab Exp $
+ * $Id: cx88-core.c,v 1.37 2005/08/16 16:29:52 catalin Exp $
  *
  * device driver for Conexant 2388x based TV cards
  * driver core
@@ -908,7 +908,7 @@ static int set_tvaudio(struct cx88_core *core)
 
 	cx_andor(MO_AFECFG_IO, 0x1f, 0x0);
 	cx88_set_tvaudio(core);
-	// cx88_set_stereo(dev,V4L2_TUNER_MODE_STEREO);
+	/* cx88_set_stereo(dev,V4L2_TUNER_MODE_STEREO); */
 
 	cx_write(MO_AUDD_LNGTH,    128); /* fifo size */
 	cx_write(MO_AUDR_LNGTH,    128); /* fifo size */
@@ -1123,10 +1123,19 @@ struct cx88_core* cx88_core_get(struct pci_dev *pci)
 	core->pci_bus  = pci->bus->number;
 	core->pci_slot = PCI_SLOT(pci->devfn);
 	core->pci_irqmask = 0x00fc00;
+#if 0
+	init_MUTEX(&core->lock);
+#endif
 
 	core->nr = cx88_devcount++;
 	sprintf(core->name,"cx88[%d]",core->nr);
 	if (0 != get_ressources(core,pci)) {
+		printk(KERN_ERR "CORE %s No more PCI ressources for "
+			"subsystem: %04x:%04x, board: %s\n",
+			core->name,pci->subsystem_vendor,
+			pci->subsystem_device,
+			cx88_boards[core->board].name);
+
 		cx88_devcount--;
 		goto fail_free;
 	}
@@ -1150,11 +1159,11 @@ struct cx88_core* cx88_core_get(struct pci_dev *pci)
 		core->board = CX88_BOARD_UNKNOWN;
 		cx88_card_list(core,pci);
 	}
-        printk(KERN_INFO "%s: subsystem: %04x:%04x, board: %s [card=%d,%s]\n",
-	       core->name,pci->subsystem_vendor,
-	       pci->subsystem_device,cx88_boards[core->board].name,
-	       core->board, card[core->nr] == core->board ?
-	       "insmod option" : "autodetected");
+	printk(KERN_INFO "CORE %s: subsystem: %04x:%04x, board: %s [card=%d,%s]\n",
+		core->name,pci->subsystem_vendor,
+		pci->subsystem_device,cx88_boards[core->board].name,
+		core->board, card[core->nr] == core->board ?
+		"insmod option" : "autodetected");
 
 	core->tuner_type = tuner[core->nr];
 	core->radio_type = radio[core->nr];
@@ -1238,4 +1247,5 @@ EXPORT_SYMBOL(cx88_core_put);
  * Local variables:
  * c-basic-offset: 8
  * End:
+ * kate: eol "unix"; indent-width 3; remove-trailing-space on; replace-trailing-space-save on; tab-width 8; replace-tabs off; space-indent off; mixed-indent off
  */

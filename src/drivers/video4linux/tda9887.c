@@ -390,7 +390,9 @@ static int tda9887_set_tvnorm(struct tda9887 *t, char *buf)
 		}
 	}
 	if (NULL == norm) {
-		dprintk(PREFIX "Oops: no tvnorm entry found\n");
+		/* FIXME: it is using a side effect to mute tuner instead of T_STANDBY */
+		dprintk(PREFIX "Unsupported tvnorm entry - audio muted\n");
+		buf[1] |= cForcedMuteAudioON;
 		return -1;
 	}
 

@@ -1,5 +1,5 @@
 /*
- * $Id: compat.h,v 1.14 2005/07/15 20:37:50 mchehab Exp $
+ * $Id: compat.h,v 1.15 2005/08/12 19:56:03 nsh Exp $
  */
 
 #ifndef _COMPAT_H
@@ -9,6 +9,7 @@
 #include <linux/pm.h>
 #include <linux/version.h>
 #include <linux/utsname.h>
+#include <linux/sched.h>
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,18)
 # define minor(x) MINOR(x)
@@ -90,6 +91,7 @@ static inline void msleep(unsigned int msecs)
 	}
 }
 #endif
+
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,9)
 static inline unsigned long msleep_interruptible(unsigned int msecs)
 {
