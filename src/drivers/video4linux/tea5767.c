@@ -2,7 +2,7 @@
  * For Philips TEA5767 FM Chip used on some TV Cards like Prolink Pixelview
  * I2C address is allways 0xC0.
  *
- * $Id: tea5767.c,v 1.28 2005/08/01 02:58:21 mchehab Exp $
+ * $Id: tea5767.c,v 1.29 2005/08/17 19:42:11 nsh Exp $
  *
  * Copyright (c) 2005 Mauro Carvalho Chehab (mchehab@brturbo.com.br)
  * This code is placed under the terms of the GNU General Public License
@@ -206,11 +206,6 @@ static void set_radio_freq(struct i2c_client *c, unsigned int frq)
 		    TEA5767_ST_NOISE_CTL | TEA5767_JAPAN_BAND;
 	buffer[4] = 0;
 
-	if (t->mode == T_STANDBY) {
-		tuner_dbg("TEA5767 set to standby mode\n");
-		buffer[3] |= TEA5767_STDBY;
-	}
-
 	if (t->audmode == V4L2_TUNER_MODE_MONO) {
 		tuner_dbg("TEA5767 set to mono\n");
 		buffer[2] |= TEA5767_MONO;
@@ -289,6 +284,24 @@ static int tea5767_stereo(struct i2c_client *c)
 	tuner_dbg("TEA5767 radio ST GET = %02x\n", rc);
 
 	return ((buffer[2] & TEA5767_STEREO_MASK) ? V4L2_TUNER_SUB_STEREO : 0);
+}
+
+static void tea5767_standby(struct i2c_client *c)
+{
+	unsigned char buffer[5];
+	struct tuner *t = i2c_get_clientdata(c);
+	unsigned div, rc;
+
+	div = (87500 * 4 + 700 + 225 + 25) / 50; /* Set frequency to 87.5 MHz */
+	buffer[0] = (div >> 8) & 0x3f;
+	buffer[1] = div & 0xff;
+	buffer[2] = TEA5767_PORT1_HIGH;
+	buffer[3] = TEA5767_PORT2_HIGH | TEA5767_HIGH_CUT_CTRL |
+		    TEA5767_ST_NOISE_CTL | TEA5767_JAPAN_BAND | TEA5767_STDBY;
+	buffer[4] = 0;
+
+	if (5 != (rc = i2c_master_send(c, buffer, 5)))
+		tuner_warn("i2c i/o error: rc == %d (should be 5)\n", rc);
 }
 
 int tea5767_autodetection(struct i2c_client *c)
@@ -375,6 +388,7 @@ int tea5767_tuner_init(struct i2c_client *c)
 	t->radio_freq = set_radio_freq;
 	t->has_signal = tea5767_signal;
 	t->is_stereo = tea5767_stereo;
+	t->standby = tea5767_standby;
 
 	return (0);
 }

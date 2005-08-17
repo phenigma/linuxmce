@@ -61,7 +61,7 @@ MODULE_LICENSE("GPL");
 struct tda9887 {
 	struct i2c_client  client;
 	v4l2_std_id        std;
-	unsigned int       radio;
+	enum tuner_mode    mode;
 	unsigned int       config;
 	unsigned int       pinnacle_id;
 	unsigned int       using_v4l2;
@@ -376,7 +376,7 @@ static int tda9887_set_tvnorm(struct tda9887 *t, char *buf)
 	struct tvnorm *norm = NULL;
 	int i;
 
-	if (t->radio) {
+	if (t->mode == T_RADIO) {
 		if (t->radio_mode == V4L2_TUNER_MODE_MONO)
 			norm = &radio_mono;
 		else
@@ -390,9 +390,7 @@ static int tda9887_set_tvnorm(struct tda9887 *t, char *buf)
 		}
 	}
 	if (NULL == norm) {
-		/* FIXME: it is using a side effect to mute tuner instead of T_STANDBY */
 		dprintk(PREFIX "Unsupported tvnorm entry - audio muted\n");
-		buf[1] |= cForcedMuteAudioON;
 		return -1;
 	}
 
@@ -582,6 +580,10 @@ static int tda9887_configure(struct tda9887 *t)
 	}
 	tda9887_set_config(t,buf);
 	tda9887_set_insmod(t,buf);
+	
+	if (t->mode == T_STANDBY) {
+		buf[1] |= cForcedMuteAudioON;
+	}
 
 #if 0
 	/* This as-is breaks some cards, must be fixed in a
@@ -687,10 +689,17 @@ tda9887_command(struct i2c_client *client, unsigned int cmd, void *arg)
 
 	/* --- configuration --- */
 	case AUDC_SET_RADIO:
-		t->radio = 1;
+	{
+		t->mode = T_RADIO;
 		tda9887_configure(t);
 		break;
-
+	}
+	case TUNER_SET_STANDBY:
+	{	
+		t->mode = T_STANDBY;
+		tda9887_configure(t);
+		break;
+	}
 	case AUDC_CONFIG_PINNACLE:
 	{
 		int *i = arg;
@@ -723,7 +732,7 @@ tda9887_command(struct i2c_client *client, unsigned int cmd, void *arg)
 		struct video_channel *vc = arg;
 
 		CHECK_V4L2;
-		t->radio = 0;
+		t->mode = T_ANALOG_TV;
 		if (vc->norm < ARRAY_SIZE(map))
 			t->std = map[vc->norm];
 		tda9887_fixup_std(t);
@@ -735,7 +744,7 @@ tda9887_command(struct i2c_client *client, unsigned int cmd, void *arg)
 		v4l2_std_id *id = arg;
 
 		SWITCH_V4L2;
-		t->radio = 0;
+		t->mode = T_ANALOG_TV;
 		t->std   = *id;
 		tda9887_fixup_std(t);
 		tda9887_configure(t);
@@ -747,14 +756,14 @@ tda9887_command(struct i2c_client *client, unsigned int cmd, void *arg)
 
 		SWITCH_V4L2;
 		if (V4L2_TUNER_ANALOG_TV == f->type) {
-			if (t->radio == 0)
+			if (t->mode == T_ANALOG_TV)
 				return 0;
-			t->radio = 0;
+			t->mode = T_ANALOG_TV;
 		}
 		if (V4L2_TUNER_RADIO == f->type) {
-			if (t->radio == 1)
+			if (t->mode == T_RADIO)
 				return 0;
-			t->radio = 1;
+			t->mode = T_RADIO;
 		}
 		tda9887_configure(t);
 		break;
@@ -769,7 +778,7 @@ tda9887_command(struct i2c_client *client, unsigned int cmd, void *arg)
 		};
 		struct v4l2_tuner* tuner = arg;
 
-		if (t->radio) {
+		if (t->mode == T_RADIO) {
 			__u8 reg = 0;
 			tuner->afc=0;
 			if (1 == i2c_master_recv(&t->client,&reg,1))
@@ -781,7 +790,7 @@ tda9887_command(struct i2c_client *client, unsigned int cmd, void *arg)
 	{
 		struct v4l2_tuner* tuner = arg;
 
-		if (t->radio) {
+		if (t->mode == T_RADIO) {
 			t->radio_mode = tuner->audmode;
 			tda9887_configure (t);
 		}

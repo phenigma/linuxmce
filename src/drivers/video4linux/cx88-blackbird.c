@@ -915,15 +915,8 @@ static int mpeg_do_ioctl(struct inode *inode, struct file *file,
 	struct cx8802_dev *dev = fh->dev;
 	struct cx88_core  *core = dev->core;
 
-	int err;
-
 	if (debug > 1)
 		cx88_print_ioctl(core->name,cmd);
-#if 1
-	cx88_print_ioctl(core->name,cmd);
-	printk( KERN_INFO "_IOCTL_: 0x%x\n", cmd );
-#endif
-	dprintk( 1, "IOCTL: 0x%x\n", cmd );
 
 	switch (cmd) {
 
@@ -1009,7 +1002,7 @@ static int mpeg_do_ioctl(struct inode *inode, struct file *file,
 		return videobuf_streamoff(&fh->mpegq);
 
 	default:
-		return cx88_do_ioctl( inode, file, 0, dev->core, &dev->lock, cmd, arg, cx88_ioctl_hook );
+		return cx88_do_ioctl( inode, file, 0, dev->core, cmd, arg, cx88_ioctl_hook );
 	}
 	return 0;
 }
@@ -1026,16 +1019,8 @@ static unsigned int mpeg_translate_ioctl(unsigned int cmd)
 static int mpeg_ioctl(struct inode *inode, struct file *file,
 			unsigned int cmd, unsigned long arg)
 {
-	int rez;
-
 	cmd = cx88_ioctl_translator( cmd );
-	rez = video_usercopy(inode, file, cmd, arg, cx88_ioctl_hook);
-	if( rez < 0 )
-	{
-		printk( KERN_INFO "_______: 0x%x ---> %d\n", cmd, rez );
-		cx88_print_ioctl( "_______", cmd );
-	}
-	return rez;
+	return video_usercopy(inode, file, cmd, arg, cx88_ioctl_hook);
 }
 
 static int mpeg_open(struct inode *inode, struct file *file)
@@ -1105,19 +1090,9 @@ static ssize_t
 mpeg_read(struct file *file, char __user *data, size_t count, loff_t *ppos)
 {
 	struct cx8802_fh *fh = file->private_data;
-	ssize_t ret;
 
-	ret = videobuf_read_stream(&fh->mpegq, data, count, ppos, 0,
+	return videobuf_read_stream(&fh->mpegq, data, count, ppos, 0,
 				    file->f_flags & O_NONBLOCK);
-
-#if 1
-	if( ret < 0 && debug >= 1 )
-		printk( KERN_DEBUG "mpeg_read: %d, count: %d, non-blocking: %d\n", ret, count, file->f_flags & O_NONBLOCK );
-
-	if( ret != count && !( file->f_flags & O_NONBLOCK ) && debug >= 1 )
-		printk( KERN_DEBUG "mpeg_read: %d, count: %d, non-blocking: %d\n", ret, count, file->f_flags & O_NONBLOCK );
-#endif
-	return ret;
 }
 
 static unsigned int
@@ -1228,10 +1203,11 @@ static int __devinit blackbird_probe(struct pci_dev *pci_dev,
 	blackbird_register_video(dev);
 
 	/* initial device configuration: needed ? */
-#if 1
+#if 0
 	down(&dev->lock);
 	init_controls(core);
 #if 1
+	/* force norm to PAL */
 	{
 		int i;
 		for (i = 0; i < TVNORMS; i++)

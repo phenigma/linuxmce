@@ -1,5 +1,5 @@
 /*
- * $Id: cx88-video.c,v 1.87 2005/08/16 17:23:46 catalin Exp $
+ * $Id: cx88-video.c,v 1.88 2005/08/17 19:42:11 nsh Exp $
  *
  * device driver for Conexant 2388x based TV cards
  * video4linux video interface
@@ -83,7 +83,7 @@ static LIST_HEAD(cx8800_devlist);
 /* ------------------------------------------------------------------- */
 /* static data                                                         */
 
-struct cx88_tvnorm tvnorms[] = {
+static struct cx88_tvnorm tvnorms[] = {
 	{
 		.name      = "NTSC-M",
 		.id        = V4L2_STD_NTSC_M,
@@ -148,7 +148,6 @@ struct cx88_tvnorm tvnorms[] = {
 		.cxoformat = 0x181f0008,
 	}
 };
-const int TVNORMS = ARRAY_SIZE(tvnorms);
 
 static struct cx8800_fmt formats[] = {
 	{
@@ -348,17 +347,17 @@ static int res_get(struct cx8800_dev *dev, struct cx8800_fh *fh, unsigned int bi
 		return 1;
 
 	/* is it free? */
-	down(&dev->lock);
+	down(&core->lock);
 	if (dev->resources & bit) {
 		/* no, someone else uses it */
-		up(&dev->lock);
+		up(&core->lock);
 		return 0;
 	}
 	/* it's free, grab it */
 	fh->resources  |= bit;
 	dev->resources |= bit;
 	dprintk(1,"res: get %d\n",bit);
-	up(&dev->lock);
+	up(&core->lock);
 	return 1;
 }
 
@@ -381,17 +380,17 @@ void res_free(struct cx8800_dev *dev, struct cx8800_fh *fh, unsigned int bits)
 	if ((fh->resources & bits) != bits)
 		BUG();
 
-	down(&dev->lock);
+	down(&core->lock);
 	fh->resources  &= ~bits;
 	dev->resources &= ~bits;
 	dprintk(1,"res: put %d\n",bits);
-	up(&dev->lock);
+	up(&core->lock);
 }
 
 /* ------------------------------------------------------------------ */
 
 /* static int video_mux(struct cx8800_dev *dev, unsigned int input) */
-int video_mux(struct cx88_core *core, unsigned int input)
+static int video_mux(struct cx88_core *core, unsigned int input)
 {
 	/* struct cx88_core *core = dev->core; */
 
@@ -1114,6 +1113,9 @@ static int video_release(struct inode *inode, struct file *file)
 	videobuf_mmap_free(&fh->vbiq);
 	file->private_data = NULL;
 	kfree(fh);
+
+	cx88_call_i2c_clients (dev->core, TUNER_SET_STANDBY, NULL);
+
 	return 0;
 }
 
@@ -1214,7 +1216,7 @@ static int set_control(struct cx88_core *core, struct v4l2_control *ctl)
 }
 
 /* static void init_controls(struct cx8800_dev *dev) */
-void init_controls(struct cx88_core *core)
+static void init_controls(struct cx88_core *core)
 {
 	static struct v4l2_control mute = {
 		.id    = V4L2_CID_AUDIO_MUTE,
@@ -1498,14 +1500,13 @@ static int video_do_ioctl(struct inode *inode, struct file *file,
 	}
 
 	default:
-		return cx88_do_ioctl( inode, file, fh->radio, core, &dev->lock, cmd, arg, video_do_ioctl );
+		return cx88_do_ioctl( inode, file, fh->radio, core, cmd, arg, video_do_ioctl );
 	}
 	return 0;
 }
 
 int cx88_do_ioctl(struct inode *inode, struct file *file, int radio,
-			struct cx88_core *core, struct semaphore *lock,
-			unsigned int cmd, void *arg, v4l2_kioctl driver_ioctl)
+                  struct cx88_core *core, unsigned int cmd, void *arg, v4l2_kioctl driver_ioctl)
 {
 #if 0
 	unsigned long flags;
@@ -1555,9 +1556,9 @@ int cx88_do_ioctl(struct inode *inode, struct file *file, int radio,
 		if (i == ARRAY_SIZE(tvnorms))
 			return -EINVAL;
 
-		down(lock);
+		down(&core->lock);
 		cx88_set_tvnorm(core,&tvnorms[i]);
-		up(lock);
+		up(&core->lock);
 		return 0;
 	}
 
@@ -1607,10 +1608,10 @@ int cx88_do_ioctl(struct inode *inode, struct file *file, int radio,
 
 		if (*i >= 4)
 			return -EINVAL;
-		down(lock);
+		down(&core->lock);
 		cx88_newstation(core);
 		video_mux(core,*i);
-		up(lock);
+		up(&core->lock);
 		return 0;
 	}
 
@@ -1732,7 +1733,7 @@ int cx88_do_ioctl(struct inode *inode, struct file *file, int radio,
 			return -EINVAL;
 		if (1 == radio && f->type != V4L2_TUNER_RADIO)
 			return -EINVAL;
-		down(lock);
+		down(&core->lock);
 		core->freq = f->frequency;
 		cx88_newstation(core);
 		cx88_call_i2c_clients(core,VIDIOC_S_FREQUENCY,f);
@@ -1741,12 +1742,13 @@ int cx88_do_ioctl(struct inode *inode, struct file *file, int radio,
 		msleep (10);
 		cx88_set_tvaudio(core);
 
-		up(lock);
+		up(&core->lock);
 		return 0;
 	}
 
 	default:
-		return v4l_compat_translate_ioctl(inode,file,cmd,arg,driver_ioctl);
+		return v4l_compat_translate_ioctl(inode,file,cmd,arg,
+						  driver_ioctl);
 	}
 	return 0;
 }
@@ -2133,7 +2135,7 @@ static int __devinit cx8800_initdev(struct pci_dev *pci_dev,
 	}
 
 	/* initialize driver struct */
-#if 1
+#if 0
 	/* moved to cx88_core_get */
 	init_MUTEX(&dev->lock);
 #endif
@@ -2217,11 +2219,11 @@ static int __devinit cx8800_initdev(struct pci_dev *pci_dev,
 	pci_set_drvdata(pci_dev,dev);
 
 	/* initial device configuration */
-	down(&dev->lock);
+	down(&core->lock);
 	init_controls(core);
 	cx88_set_tvnorm(core,tvnorms);
 	video_mux(core,0);
-	up(&dev->lock);
+	up(&core->lock);
 
 	/* start tvaudio thread */
 	if (core->tuner_type != TUNER_ABSENT)
@@ -2382,10 +2384,6 @@ static void cx8800_fini(void)
 module_init(cx8800_init);
 module_exit(cx8800_fini);
 
-EXPORT_SYMBOL(tvnorms);
-EXPORT_SYMBOL(TVNORMS);
-EXPORT_SYMBOL(init_controls);
-EXPORT_SYMBOL(video_mux);
 EXPORT_SYMBOL(cx88_do_ioctl);
 
 /* ----------------------------------------------------------- */

@@ -1,5 +1,5 @@
 
-/* $Id: tuner.h,v 1.46 2005/08/04 04:01:28 nsh Exp $
+/* $Id: tuner.h,v 1.47 2005/08/17 19:42:11 nsh Exp $
  *
     tuner.h - definition for different tuners
 
@@ -136,6 +136,7 @@
 #define THOMSON 12
 
 #define TUNER_SET_TYPE_ADDR          _IOW('T',3,int)
+#define TUNER_SET_STANDBY            _IOW('T',4,int)
 #define TDA9887_SET_CONFIG           _IOW('t',5,int)
 
 /* tv card specific */
@@ -154,9 +155,6 @@
 # define TDA9887_AUTOMUTE            (1<<18)
 
 #ifdef __KERNEL__
-
-#define I2C_ADDR_TDA8290        0x4b
-#define I2C_ADDR_TDA8275        0x61
 
 enum tuner_mode {
 	T_UNINITIALIZED = 0,
@@ -200,6 +198,7 @@ struct tuner {
 	void (*radio_freq)(struct i2c_client *c, unsigned int freq);
 	int  (*has_signal)(struct i2c_client *c);
 	int  (*is_stereo)(struct i2c_client *c);
+	void (*standby)(struct i2c_client *c);
 };
 
 extern unsigned int tuner_debug;

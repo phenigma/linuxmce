@@ -1,3 +1,33 @@
+2005-08-17 19:40  nsh
+
+	* cx88-dvb.c: (lgdt330x_pll_set):
+	* cx88-video.c: (video_release):
+	* mt20xx.c: (microtune_init):
+	* saa7134-video.c: (video_release):
+	* tda8290.c: (standby), (tda8290_init):
+	* tda9887.c: (tda9887_set_tvnorm), (tda9887_configure),
+	(tda9887_command):
+	* tea5767.c: (set_radio_freq), (tea5767_standby),
+	(tea5767_tuner_init):
+	* tuner-core.c: (set_addr), (check_mode), (set_mode),
+	(tuner_command):
+	* tuner-simple.c: (default_tuner_init):
+	* tuner.h:
+	
+	- New tuner standby API.
+
+	Signed-off-by: Nickolay V. Shmyrev <nshmyrev@yandex.ru>
+
+2005-08-17 09:58  mchehab
+
+	*cx88-reg.h:
+	- Added some registers to control PCI controller at CX2388x chips.
+
+	* cx88-tvaudio.c:
+	- BTSC Lang1 now is set to auto_stereo mode.
+
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
 2005-08-16 18:00 catalin
 
 	* cx88-blackbird.c:

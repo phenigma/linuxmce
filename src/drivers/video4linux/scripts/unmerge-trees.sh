@@ -17,10 +17,10 @@ rm tda1004x.c
 rm tda1004x.h
 patch -p1 <<'DIFF'
 diff -upr video4linux/Makefile video4linux.orig/Makefile
---- video4linux/Makefile	2005-07-29 21:44:41.000000000 +0000
-+++ video4linux.orig/Makefile	2005-07-29 21:45:09.000000000 +0000
-@@ -39,8 +39,8 @@ obj-$(CONFIG_VIDEO_IR)		+= ir-common.o
- obj-$(CONFIG_VIDEO_TUNER)	+= tuner.o tda9887.o
+--- video4linux/Makefile	2005-08-17 00:50:13.000000000 +0000
++++ video4linux.orig/Makefile	2005-08-17 00:48:25.000000000 +0000
+@@ -45,8 +45,8 @@ obj-$(CONFIG_VIDEO_IR)		+= ir-common.o
+ obj-$(CONFIG_VIDEO_TUNER)	+= tuner.o tda9887.o saa6588.o
  obj-$(CONFIG_VIDEO_TVAUDIO)	+= msp3400.o tvaudio.o tvmixer.o
  
 -obj-$(CONFIG_VIDEO_CX88_DVB)	+= video-buf-dvb.o cx88-dvb.o cx22702.o dvb-pll.o or51132.o lgdt330x.o mt352.o
@@ -30,7 +30,7 @@ diff -upr video4linux/Makefile video4linux.orig/Makefile
  
  # 2.6-only stuff
  ifeq ($(VERSION).$(PATCHLEVEL),2.6)
-@@ -54,7 +54,6 @@ ifeq ($(VERSION).$(PATCHLEVEL),2.6)
+@@ -60,7 +60,6 @@ ifeq ($(VERSION).$(PATCHLEVEL),2.6)
  endif
  
  # for DVB
@@ -38,15 +38,15 @@ diff -upr video4linux/Makefile video4linux.orig/Makefile
  EXTRA_CFLAGS += -I$(srctree)/drivers/media/dvb/dvb-core/
  EXTRA_CFLAGS += -I$(srctree)/drivers/media/dvb/frontends/
  ifeq ($(CONFIG_VIDEO_CX88_DVB),m)
-@@ -126,7 +125,6 @@ ifeq ($(inst-m),)
- endif
- 
- inst_common := ir-common.ko
+@@ -139,7 +138,6 @@ inst_video += ir-kbd-gpio.ko ir-kbd-i2c.
+ inst_cx88 := cx8800.ko cx8802.ko cx88-alsa.ko 
+ inst_cx88 += cx88-blackbird.ko cx88xx.ko cx88-dvb.ko
+ inst_saa7134 := saa6752hs.ko saa7134.ko saa7134-empress.ko saa7134-dvb.ko
 -inst_frontends := cx22702.ko dvb-pll.ko mt352.ko lgdt330x.ko or51132.ko tda1004x.ko
- inst_video := btcx-risc.ko bttv.ko tda9887.ko tuner.ko tvaudio.ko tveeprom.ko
- inst_video += tvmixer.ko v4l1-compat.ko v4l2-common.ko
- inst_video += video-buf.ko video-buf-dvb.ko
-@@ -153,9 +151,6 @@ install:: rminstall
+ 
+ v4l_modules := $(shell lsmod|cut -d' ' -f1 ) $(patsubst %.ko,%,$(inst-m))
+ 
+@@ -159,9 +157,6 @@ install:: rminstall
  	-install -d $(KDIR26)/common
  	-install -m 644 -c $(inst_common) $(KDIR26)/common
  
@@ -57,8 +57,8 @@ diff -upr video4linux/Makefile video4linux.orig/Makefile
  	-install -m 644 -c $(inst_video) $(KDIR26)/video
  
 diff -upr video4linux/cx88-dvb.c video4linux.orig/cx88-dvb.c
---- video4linux/cx88-dvb.c	2005-07-29 21:44:41.000000000 +0000
-+++ video4linux.orig/cx88-dvb.c	2005-07-29 21:44:31.000000000 +0000
+--- video4linux/cx88-dvb.c	2005-08-17 00:49:02.000000000 +0000
++++ video4linux.orig/cx88-dvb.c	2005-08-17 00:48:25.000000000 +0000
 @@ -32,6 +32,10 @@
  #include <linux/config.h>
  #include "compat.h"
@@ -79,7 +79,7 @@ diff -upr video4linux/cx88-dvb.c video4linux.orig/cx88-dvb.c
  static int lgdt330x_pll_set(struct dvb_frontend* fe,
  			    struct dvb_frontend_parameters* params)
  {
-@@ -285,7 +289,7 @@ static int lgdt330x_set_ts_param(struct 
+@@ -294,7 +298,7 @@ static int lgdt330x_set_ts_param(struct 
  
  static struct lgdt330x_config fusionhdtv_3_gold = {
  	.demod_address    = 0x0e,
@@ -88,7 +88,7 @@ diff -upr video4linux/cx88-dvb.c video4linux.orig/cx88-dvb.c
  	.demod_chip       = LGDT3302,
  	.serial_mpeg      = 0x04, /* TPSERIAL for 3302 in TOP_CONTROL */
  	.pll_set          = lgdt330x_pll_set,
-@@ -385,7 +389,7 @@ static int dvb_register(struct cx8802_de
+@@ -394,7 +398,7 @@ static int dvb_register(struct cx8802_de
  						    &dev->core->i2c_adap);
  		}
  		break;
@@ -98,8 +98,8 @@ diff -upr video4linux/cx88-dvb.c video4linux.orig/cx88-dvb.c
  		dev->ts_gen_cntrl = 0x08;
  		{
 diff -upr video4linux/saa7134-dvb.c video4linux.orig/saa7134-dvb.c
---- video4linux/saa7134-dvb.c	2005-07-29 21:44:41.000000000 +0000
-+++ video4linux.orig/saa7134-dvb.c	2005-07-29 21:44:31.000000000 +0000
+--- video4linux/saa7134-dvb.c	2005-08-17 00:49:02.000000000 +0000
++++ video4linux.orig/saa7134-dvb.c	2005-08-17 00:48:25.000000000 +0000
 @@ -32,6 +32,10 @@
  #include <linux/config.h>
  #include "compat.h"

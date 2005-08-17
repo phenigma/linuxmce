@@ -404,9 +404,9 @@ int cx8802_init_common(struct cx8802_dev *dev)
 	       dev->pci_lat,pci_resource_start(dev->pci,0));
 
 	/* initialize driver struct */
-#if 1
+#if 0
 	/* moved to cx88_core_get */
-	init_MUTEX(&dev->lock);
+	init_MUTEX(&core->lock);
 #endif
 	spin_lock_init(&dev->slock);
 

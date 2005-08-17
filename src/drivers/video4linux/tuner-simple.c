@@ -1,5 +1,5 @@
 /*
- * $Id: tuner-simple.c,v 1.44 2005/08/04 04:01:28 nsh Exp $
+ * $Id: tuner-simple.c,v 1.45 2005/08/17 19:42:11 nsh Exp $
  *
  * i2c tv tuner chip device driver
  * controls all those simple 4-control-bytes style tuners.
@@ -515,6 +515,7 @@ int default_tuner_init(struct i2c_client *c)
 	t->radio_freq = default_set_radio_freq;
 	t->has_signal = tuner_signal;
 	t->is_stereo  = tuner_stereo;
+	t->standby = NULL;
 
 	return 0;
 }

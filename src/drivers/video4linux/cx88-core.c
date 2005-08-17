@@ -1123,9 +1123,7 @@ struct cx88_core* cx88_core_get(struct pci_dev *pci)
 	core->pci_bus  = pci->bus->number;
 	core->pci_slot = PCI_SLOT(pci->devfn);
 	core->pci_irqmask = 0x00fc00;
-#if 0
 	init_MUTEX(&core->lock);
-#endif
 
 	core->nr = cx88_devcount++;
 	sprintf(core->name,"cx88[%d]",core->nr);

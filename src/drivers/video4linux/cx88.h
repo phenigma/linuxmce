@@ -299,9 +299,7 @@ struct cx88_core {
 	/* IR remote control state */
 	struct cx88_IR             *ir;
 
-#if 0
 	struct semaphore           lock;
-#endif
 
 	/* various v4l controls */
 	u32                        freq;
@@ -343,7 +341,7 @@ struct cx8800_suspend_state {
 struct cx8800_dev {
 	struct cx88_core           *core;
 	struct list_head           devlist;
-#if 1
+#if 0
 	/* moved to cx88_core */
 	struct semaphore           lock;
 #endif
@@ -401,7 +399,7 @@ struct cx8802_suspend_state {
 
 struct cx8802_dev {
 	struct cx88_core           *core;
-#if 1
+#if 0
 	/* moved to cx88_core ? */
 	struct semaphore           lock;
 #endif
@@ -586,13 +584,9 @@ int cx8802_resume_common(struct pci_dev *pci_dev);
 
 /* ----------------------------------------------------------- */
 /* cx88-video.c                                                */
-extern struct cx88_tvnorm tvnorms[];
-extern const int TVNORMS;
-void init_controls(struct cx88_core *core);
-int video_mux(struct cx88_core *core, unsigned int input);
-int cx88_do_ioctl(struct inode *inode, struct file *file, int radio,
-			struct cx88_core *core, struct semaphore *lock,
-			unsigned int cmd, void *arg, v4l2_kioctl driver_ioctl);
+extern int cx88_do_ioctl(struct inode *inode, struct file *file, int radio,
+				struct cx88_core *core, unsigned int cmd,
+				void *arg, v4l2_kioctl driver_ioctl);
 
 /* ----------------------------------------------------------- */
 /* cx88-blackbird.c                                            */

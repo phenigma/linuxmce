@@ -1,5 +1,5 @@
 /*
- * $Id: mt20xx.c,v 1.6 2005/07/15 21:44:14 mchehab Exp $
+ * $Id: mt20xx.c,v 1.7 2005/08/17 19:42:11 nsh Exp $
  *
  * i2c tv tuner chip device driver
  * controls microtune tuners, mt2032 + mt2050 at the moment.
@@ -495,6 +495,7 @@ int microtune_init(struct i2c_client *c)
 	memset(buf,0,sizeof(buf));
 	t->tv_freq    = NULL;
 	t->radio_freq = NULL;
+	t->standby    = NULL;
 	name = "unknown";
 
         i2c_master_send(c,buf,1);

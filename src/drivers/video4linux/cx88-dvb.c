@@ -1,5 +1,5 @@
 /*
- * $Id: cx88-dvb.c,v 1.59 2005/08/11 17:18:38 mkrufky Exp $
+ * $Id: cx88-dvb.c,v 1.60 2005/08/17 19:42:11 nsh Exp $
  *
  * device driver for Conexant 2388x based TV cards
  * MPEG Transport Stream (DVB) routines
@@ -232,11 +232,8 @@ static int lgdt330x_pll_set(struct dvb_frontend* fe,
 	int err;
 
 	/* Put the analog decoder in standby to keep it quiet */
-	/* FIXME: it is using a side effect to mute tuner instead of T_STANDBY */
 	if (core->tda9887_conf) {
-		v4l2_std_id std = V4L2_STD_ATSC;
-
-		cx88_call_i2c_clients(core, VIDIOC_S_STD, &std);
+		cx88_call_i2c_clients (dev->core, TUNER_SET_STANDBY, NULL);
 	}
 
 	dvb_pll_configure(core->pll_desc, buf, params->frequency, 0);

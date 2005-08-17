@@ -1,5 +1,5 @@
 /*
-    $Id: cx88-tvaudio.c,v 1.40 2005/08/07 17:36:20 mchehab Exp $
+    $Id: cx88-tvaudio.c,v 1.41 2005/08/17 09:56:30 mchehab Exp $
 
     cx88x-audio.c - Conexant CX23880/23881 audio downstream driver driver
 
@@ -808,7 +808,7 @@ void cx88_set_tvaudio(struct cx88_core *core)
 {
 	switch (core->tvaudio) {
 	case WW_BTSC:
-		set_audio_standard_BTSC(core, 0, EN_BTSC_FORCE_MONO);
+		set_audio_standard_BTSC(core, 0, EN_BTSC_AUTO_STEREO);
 		break;
 	case WW_NICAM_BGDKL:
 		set_audio_standard_NICAM_L(core,0);
@@ -942,8 +942,10 @@ void cx88_set_stereo(struct cx88_core *core, u32 mode, int manual)
 	case WW_BTSC:
 		switch (mode) {
 		case V4L2_TUNER_MODE_MONO:
-		case V4L2_TUNER_MODE_LANG1:
 			set_audio_standard_BTSC(core, 0, EN_BTSC_FORCE_MONO);
+			break;
+		case V4L2_TUNER_MODE_LANG1:
+			set_audio_standard_BTSC(core, 0, EN_BTSC_AUTO_STEREO);
 			break;
 		case V4L2_TUNER_MODE_LANG2:
 			set_audio_standard_BTSC(core, 1, EN_BTSC_FORCE_SAP);
