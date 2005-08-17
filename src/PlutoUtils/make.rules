@@ -14,6 +14,13 @@ clean-recursive:
 	rm -f $@.$$$$
 	@echo " done"
 
+%.d: %.c
+	@echo -n Computing dependencies for $< 
+	@$(CC) -MM $(CPPFLAGS) $< > $@.$$$$; \
+	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
+	rm -f $@.$$$$
+	@echo " done"
+
 #cpath = $(notdir $(1))
 #cpath = $(subst /,_,$(1))
 cpath = $(1)
@@ -22,3 +29,6 @@ cpath = $(1)
 #	@echo $(call cpath,$@)
 #	@read
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $< -o $(call cpath,$@)
+
+%.o: %.c
+	$(CC) -c $(CFLAGS) $< -o $(call cpath,$@)

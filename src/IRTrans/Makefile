@@ -1,4 +1,4 @@
-#<-dceag-mh-b->
+#<-dceag-mh-b->!
 GENDEV=../Gen_Devices
 
 ROOT = ..
@@ -7,6 +7,9 @@ CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -D_DEVEL_DEFINES
 LDFLAGS = -L$(ROOT)/lib
 BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
+
+CC = gcc
+CFLAGS = $(CXXFLAGS)
 
 MYNAME = IRTrans
 VERSION = 2.0.0
@@ -22,7 +25,8 @@ LDFLAGS +=
 XTRALDLIBS =
 
 Gen_Dev_Files +=
-sources += fileio.c linuxserio.c lowlevel.c server.c errormessage.c flashrom.c webserver.c xap.c
+sources += 
+Csources += fileio.c linuxserio.c lowlevel.c server.c errormessage.c flashrom.c webserver.c xap.c
 
 #<-dceag-mf-b->!
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
@@ -36,19 +40,19 @@ bin: IRTrans
 
 so: IRTrans.so
 
-IRTrans.so: $(sources:.c=.o)
+IRTrans.so: $(sources:.cpp=.o) $(Csources:.c=.o)
 	$(CXX) -shared -o $(MYNAME).so $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
 		
-IRTrans: $(sources:.c=.o)
+IRTrans: $(sources:.cpp=.o) $(Csources:.c=.o)
 	$(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	./post_make.sh $@
 
 clean: clean-recursive
-	rm -f $(call cpath,$(sources:.c=.o) $(sources:.c=.d)) IRTrans.bin IRTrans.so >/dev/null
+	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d) $(Csources:.c=.o) $(Csources:.c=.d)) IRTrans.bin IRTrans.so >/dev/null
 
 package:
 	chmod +x make_package.sh
@@ -56,7 +60,8 @@ package:
 
 include $(ROOT)/PlutoUtils/make.rules
 ifeq (,$(findstring clean, $(MAKECMDGOALS)))
--include $(sources:.c=.d)
+-include $(sources:.cpp=.d)
+-include $(Csources:.c=.d)
 endif
 #<-dceag-mf-e->
 
