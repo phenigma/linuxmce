@@ -479,7 +479,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Pluto Orbiter"
         "ProductCode" = "8:{5E034D48-00C3-4A5C-A47E-6CF50065622B}"
-        "PackageCode" = "8:{E3241CAF-F520-4776-9903-943EE811BB6B}"
+        "PackageCode" = "8:{3D02F961-481A-4745-BA8B-9F7877DA9D5D}"
         "UpgradeCode" = "8:{95F0F821-F3D5-40FE-B643-4A8FCFEFC8BF}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
