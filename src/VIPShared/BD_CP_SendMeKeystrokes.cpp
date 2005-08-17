@@ -59,7 +59,9 @@ bool BD_CP_SendMeKeystrokes::ProcessCommand(BDCommandProcessor *pProcessor)
 #ifdef VIPPHONE
 
 #ifndef SYMBIAN 
-	g_pPlutoConfig->m_bSendKeyStrokes = m_YesNo;
+	#ifndef SMARTPHONE
+		g_pPlutoConfig->m_bSendKeyStrokes = m_YesNo;
+	#endif
 #else
 	LOG("#	Received 'SendKeyStrokes' command  #\n");
 	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bSendKeyStrokes = m_YesNo;

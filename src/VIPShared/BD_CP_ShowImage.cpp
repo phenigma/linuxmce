@@ -38,6 +38,10 @@
 #include "Logger.h"
 #endif
 
+#ifdef SMARTPHONE
+#include "OrbiterApp.h"
+#endif
+
 #include "PlutoUtils/MyStl.h"
 #include "BD_CP_ShowImage.h"
 #include "BD_PC_GetSignalStrength.h"
@@ -108,6 +112,11 @@ void BD_CP_ShowImage::ParseCommand(unsigned long size,const char *data)
 	 LOG("Intercept repeated keys\n");
      ((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->InterceptRepeatedKeys(m_KeysListSize, m_pRepeatedKeysList);
 #endif //SYMBIAN
+
+#ifdef SMARTPHONE
+	 OrbiterApp::GetInstance()->ShowImage(m_iImageType, m_ImageSize, m_pImage);
+	 //todo: signal strength, intercepted keys?
+#endif
 
 #ifdef VIPDESIGN
 	g_pPlutoConfig->m_pDoc->m_pImageStatic_Type=m_iImageType;

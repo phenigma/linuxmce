@@ -82,7 +82,7 @@ LINK32=link.exe
 # ADD BASE RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "DEBUG" /d "UNICODE" /d "_UNICODE" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /d "ARMV4" /r
 # ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "DEBUG" /d "UNICODE" /d "_UNICODE" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /d "ARMV4" /r
 # ADD BASE CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /Yu"stdafx.h" /M$(CECrtMTDebug) /c
-# ADD CPP /nologo /Zi /Od /I "." /I ".." /I "../Win32" /I "../SDL" /I "../.." /I "../../DCE" /I "../../../libs/Libraries/pthreads-snap-2002-11-04" /I "../../../libs/Libraries/pthreads-win32/include" /I "../../../libs/CrossPlatform/sge030809-w32/src" /I "../../../libs/CrossPlatform/SDL_ttf-2.0.6" /I "../../../libs/CrossPlatform/SDL_image-1.2.3" /I "../../../libs/CrossPlatform/SDL-1.2.7/include" /I "../../Splitter" /I "../../../libs/CrossPlatform/zlib" /I "../../../libs/CrossPlatform/lpng127" /I "../../../libs/Libraries/STLport-4.5.3/stlport" /I "../../../libs/Libraries/STLport-4.5.3/src" /I "../../PlutoUtils" /I "../../../libs/CrossPlatform/SDL_rotozoom-1.6" /I "../../OrbiterGen" /I "../CENET" /I "../PocketFrog" /I "../../../libs/Libraries/PocketFrog" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /D "WIN32" /D "WINCE" /D "ORBITER" /D "__STL_NO_IOSTREAMS" /D "LOAD_PNG" /D "POCKETFROG" /D "SMARTPHONE" /FR /M$(CECrtMTDebug) /c
+# ADD CPP /nologo /Zi /Od /I "." /I ".." /I "../Win32" /I "../SDL" /I "../.." /I "../../DCE" /I "../../../libs/Libraries/pthreads-snap-2002-11-04" /I "../../../libs/Libraries/pthreads-win32/include" /I "../../../libs/CrossPlatform/sge030809-w32/src" /I "../../../libs/CrossPlatform/SDL_ttf-2.0.6" /I "../../../libs/CrossPlatform/SDL_image-1.2.3" /I "../../../libs/CrossPlatform/SDL-1.2.7/include" /I "../../Splitter" /I "../../../libs/CrossPlatform/zlib" /I "../../../libs/CrossPlatform/lpng127" /I "../../../libs/Libraries/STLport-4.5.3/stlport" /I "../../../libs/Libraries/STLport-4.5.3/src" /I "../../PlutoUtils" /I "../../../libs/CrossPlatform/SDL_rotozoom-1.6" /I "../../OrbiterGen" /I "../CENET" /I "../PocketFrog" /I "../../../libs/Libraries/PocketFrog" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /D "WIN32" /D "WINCE" /D "ORBITER" /D "__STL_NO_IOSTREAMS" /D "LOAD_PNG" /D "POCKETFROG" /D "SMARTPHONE" /D "VIPPHONE" /FR /M$(CECrtMTDebug) /c
 # SUBTRACT CPP /YX /Yc /Yu
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
@@ -260,6 +260,20 @@ NODEP_CPP_BD_CP_SE=\
 
 SOURCE=..\..\VIPShared\BD_CP_ShowImage.cpp
 DEP_CPP_BD_CP_SH=\
+	"..\..\..\libs\Libraries\PocketFrog\PocketFrog.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\config.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\defs.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\display.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_array.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_ptr.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\utility.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\framework\game.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\image.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\input.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\pocketpc.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\rasterizer.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\rect.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\surface.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
@@ -286,6 +300,8 @@ DEP_CPP_BD_CP_SH=\
 	"..\..\VIPShared\PlutoPhoneCommands.h"\
 	"..\..\VIPShared\VIPIncludes.h"\
 	"..\CENet\wince.h"\
+	"..\PocketFrog\PocketFrogWrapper.h"\
+	".\OrbiterApp.h"\
 	".\stdafx.h"\
 	
 NODEP_CPP_BD_CP_SH=\
@@ -470,7 +486,6 @@ DEP_CPP_BD_PC_=\
 	"..\..\BD\BDCommand.h"\
 	"..\..\BD\BDCommandProcessor.h"\
 	"..\..\BD\BDCommandProcessor_Linux_Bluetooth.h"\
-	"..\..\BD\BDCommandProcessor_Smartphone_Bluetooth.h"\
 	"..\..\BD\BDCommandProcessor_Windows_Bluetooth.h"\
 	"..\..\Bluetooth_Dongle\Bluetooth_Dongle.h"\
 	"..\..\DCE\ClientSocket.h"\
@@ -526,7 +541,6 @@ DEP_CPP_BD_PC_K=\
 	"..\..\BD\BDCommand.h"\
 	"..\..\BD\BDCommandProcessor.h"\
 	"..\..\BD\BDCommandProcessor_Linux_Bluetooth.h"\
-	"..\..\BD\BDCommandProcessor_Smartphone_Bluetooth.h"\
 	"..\..\BD\BDCommandProcessor_Windows_Bluetooth.h"\
 	"..\..\Bluetooth_Dongle\Bluetooth_Dongle.h"\
 	"..\..\DCE\ClientSocket.h"\
@@ -653,7 +667,6 @@ DEP_CPP_BD_PC_RE=\
 	"..\..\BD\BDCommand.h"\
 	"..\..\BD\BDCommandProcessor.h"\
 	"..\..\BD\BDCommandProcessor_Linux_Bluetooth.h"\
-	"..\..\BD\BDCommandProcessor_Smartphone_Bluetooth.h"\
 	"..\..\BD\BDCommandProcessor_Windows_Bluetooth.h"\
 	"..\..\Bluetooth_Dongle\Bluetooth_Dongle.h"\
 	"..\..\DCE\ClientSocket.h"\
@@ -713,7 +726,6 @@ DEP_CPP_BD_PC_S=\
 	"..\..\BD\BDCommand.h"\
 	"..\..\BD\BDCommandProcessor.h"\
 	"..\..\BD\BDCommandProcessor_Linux_Bluetooth.h"\
-	"..\..\BD\BDCommandProcessor_Smartphone_Bluetooth.h"\
 	"..\..\BD\BDCommandProcessor_Windows_Bluetooth.h"\
 	"..\..\Bluetooth_Dongle\Bluetooth_Dongle.h"\
 	"..\..\DCE\ClientSocket.h"\
@@ -779,7 +791,6 @@ DEP_CPP_BD_PC_SE=\
 	"..\..\BD\BDCommand.h"\
 	"..\..\BD\BDCommandProcessor.h"\
 	"..\..\BD\BDCommandProcessor_Linux_Bluetooth.h"\
-	"..\..\BD\BDCommandProcessor_Smartphone_Bluetooth.h"\
 	"..\..\BD\BDCommandProcessor_Windows_Bluetooth.h"\
 	"..\..\Bluetooth_Dongle\Bluetooth_Dongle.h"\
 	"..\..\DCE\ClientSocket.h"\
@@ -957,6 +968,7 @@ DEP_CPP_BDCOMMA=\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\BD\BDCommand.h"\
 	"..\..\BD\BDCommandProcessor.h"\
 	"..\..\BD\BDCommandProcessor_Smartphone_Bluetooth.h"\
 	"..\..\DCE\Logger.h"\
@@ -971,6 +983,8 @@ DEP_CPP_BDCOMMA=\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\VIPShared\BD_PC_ReportMyVersion.h"\
+	"..\..\VIPShared\PlutoPhoneCommands.h"\
 	"..\CENet\wince.h"\
 	{$(INCLUDE)}"bthapi.h"\
 	{$(INCLUDE)}"Ws2bth.h"\
@@ -1113,8 +1127,14 @@ DEP_CPP_ORBIT=\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\BD\BD_WhatDoYouHave.h"\
+	"..\..\BD\BDCommand.h"\
+	"..\..\BD\BDCommandProcessor.h"\
+	"..\..\BD\BDCommandProcessor_Smartphone_Bluetooth.h"\
+	"..\..\BD\BDCommandProcessor_Symbian_Base.h"\
 	"..\..\DCE\Logger.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
+	"..\..\pluto_main\Define_Button.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -1125,11 +1145,16 @@ DEP_CPP_ORBIT=\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\VIPShared\BD_PC_GetSignalStrength.h"\
+	"..\..\VIPShared\BD_PC_KeyWasPressed.h"\
+	"..\..\VIPShared\PlutoPhoneCommands.h"\
+	"..\..\VIPShared\VIPIncludes.h"\
 	"..\CENet\wince.h"\
 	"..\PocketFrog\PocketFrogWrapper.h"\
 	".\OrbiterApp.h"\
 	
 NODEP_CPP_ORBIT=\
+	"..\..\BD\VipMenu.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	
 # End Source File

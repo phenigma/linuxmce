@@ -89,7 +89,7 @@ bool BDCommandProcessor::SendCommand( bool &bImmediateCallback )
 	cm.Release();
 
 	m_pCommand_Sent->ConvertCommandToBinary();
-	g_pPlutoLogger->Write(LV_STATUS,"Sending %s command", m_pCommand_Sent->Description());
+g_pPlutoLogger->Write(LV_STATUS,"Sending %s command", m_pCommand_Sent->Description());
 
 	if(!SendLong( m_pCommand_Sent->ID() ))
 	{
@@ -200,7 +200,7 @@ bool BDCommandProcessor::ReceiveCommand( unsigned long dwType, unsigned long dwS
 	if( dwType )
 	{
 		BDCommand *pCommand = BuildCommandFromData( dwType ); // creates a new command to parse the data
-//		g_pPlutoLogger->Write(LV_WARNING,"# Received %s command #", pCommand->Description());
+g_pPlutoLogger->Write(LV_WARNING,"# Received %s command #", pCommand->Description());
 
 		pCommand->ParseCommand( dwSize, pcData );
 		pCommand->ProcessCommand( this ); // takes the command processor and processes it

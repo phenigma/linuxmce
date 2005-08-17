@@ -234,10 +234,10 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
     if(uMsg == WM_KEYDOWN)
 	{
         orbiterEvent.type = Orbiter::Event::BUTTON_DOWN;
-//#ifdef DEBUG
+#ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"Key down %d bControlDown %d bAltDown %d bCapsLock %d bShiftDown %d",
 			wParam,(int) m_bControlDown,(int) m_bAltDown,(int) m_bCapsLock,(int) m_bShiftDown);
-//#endif
+#endif
 	}
     else if(uMsg == WM_KEYUP)
         orbiterEvent.type = Orbiter::Event::BUTTON_UP;

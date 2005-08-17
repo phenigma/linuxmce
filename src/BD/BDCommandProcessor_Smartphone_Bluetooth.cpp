@@ -3,6 +3,8 @@
 #include "PlutoUtils/MultiThreadIncludes.h"
 #include "DCE/Logger.h"
 #include "BD/BDCommandProcessor.h"
+
+#include "VIPShared/BD_PC_ReportMyVersion.h"
 using namespace DCE;
 //------------------------------------------------------------------------------------------------------------
 #include <Ws2bth.h>
@@ -10,15 +12,30 @@ using namespace DCE;
 //------------------------------------------------------------------------------------------------------------
 #define RECV_TIMEDOUT 15 //seconds
 #define BLUETOOTH_PORT 19
+#define VERSION "bubu_Version"
+//---------------------------------------------------------------------------------------------------------
+void *ProcessCommandsThread(void *p)
+{
+	BDCommandProcessor_Smartphone_Bluetooth* pBDCommandProcessor = (BDCommandProcessor_Smartphone_Bluetooth* )p;
+
+	bool bDummy = false;
+
+	while( 
+		!pBDCommandProcessor->m_bDead && 
+		pBDCommandProcessor->SendCommand(bDummy)
+	); // loop for receiving commands 
+
+	return NULL;
+}
 //------------------------------------------------------------------------------------------------------------
 void *ServerThread(void *p)
 {
-	BDCommandProcessor_Smartphone_Bluetooth *pBDCommandProcess = (BDCommandProcessor_Smartphone_Bluetooth *)p;
-	pBDCommandProcess->m_bRunning = true;
+	BDCommandProcessor_Smartphone_Bluetooth *pBDCommandProcessor = (BDCommandProcessor_Smartphone_Bluetooth *)p;
+	pBDCommandProcessor->m_bRunning = true;
 
-	while(!pBDCommandProcess->m_bDead) 
+	while(!pBDCommandProcessor->m_bDead) 
 	{
-		if(pBDCommandProcess->m_bClientConnected)
+		if(pBDCommandProcessor->m_bClientConnected)
 		{
 			Sleep(1000);
 			break;
@@ -27,19 +44,24 @@ void *ServerThread(void *p)
 		SOCKADDR_BTH sab;
 		int ilen = sizeof(sab);
 
-		pBDCommandProcess->m_ClientSocket = accept(pBDCommandProcess->m_ServerSocket, (SOCKADDR *)&sab, &ilen);
-		if (pBDCommandProcess->m_ClientSocket == INVALID_SOCKET) 
+		pBDCommandProcessor->m_ClientSocket = accept(pBDCommandProcessor->m_ServerSocket, (SOCKADDR *)&sab, &ilen);
+		if (pBDCommandProcessor->m_ClientSocket == INVALID_SOCKET) 
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL, "Failed to accept connection, error %d", WSAGetLastError());
 			break;
 		}
 
-		pBDCommandProcess->m_bClientConnected = true;
+		pBDCommandProcessor->m_bClientConnected = true;
 		g_pPlutoLogger->Write(LV_WARNING, "Client successfully connected. Connection came from %04x%08x to channel %d",
 			GET_NAP(sab.btAddr), GET_SAP(sab.btAddr), sab.port);
+
+
+		pBDCommandProcessor->AddCommand(new BD_PC_ReportMyVersion(string(VERSION)));
+		pthread_create(&pBDCommandProcessor->m_ProcessCommandsThreadID, NULL, ProcessCommandsThread, 
+			(void*)pBDCommandProcessor); 
 	}
 
-	pBDCommandProcess->m_bRunning = false;
+	pBDCommandProcessor->m_bRunning = false;
 	return NULL;
 }
 //------------------------------------------------------------------------------------------------------------
@@ -57,7 +79,7 @@ BDCommandProcessor_Smartphone_Bluetooth::BDCommandProcessor_Smartphone_Bluetooth
 	BT_SetService();
 
 	//creating the socket
-	SOCKET m_ServerSocket = socket (AF_BTH, SOCK_STREAM, BTHPROTO_RFCOMM);
+	m_ServerSocket = socket (AF_BTH, SOCK_STREAM, BTHPROTO_RFCOMM);
 	if(m_ServerSocket == INVALID_SOCKET) 
 	{
 		m_bDead = true;
@@ -83,7 +105,10 @@ BDCommandProcessor_Smartphone_Bluetooth::BDCommandProcessor_Smartphone_Bluetooth
 	listen (m_ServerSocket, SOMAXCONN);
 
 	g_pPlutoLogger->Write(LV_WARNING, "Ready to accept connections!");
-
+}
+//------------------------------------------------------------------------------------------------------------
+void BDCommandProcessor_Smartphone_Bluetooth::Start()
+{
 	pthread_create(&m_ServerThreadID, NULL, ServerThread, (void*)this); 
 }
 //------------------------------------------------------------------------------------------------------------

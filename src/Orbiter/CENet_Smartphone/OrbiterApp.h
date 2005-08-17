@@ -10,6 +10,8 @@ using namespace Frog;
 class OrbiterApp: public PlutoGame
 {
 private:
+	static OrbiterApp *m_pInstance;
+
 	int m_iImageWidth, m_iImageHeight;
 
 	pthread_mutexattr_t m_MutexAttr; 
@@ -23,6 +25,8 @@ private:
 public:
 	OrbiterApp();
 	virtual ~OrbiterApp();
+
+	static OrbiterApp *GetInstance() { return m_pInstance; }
 
 	// Public virtual methods (from Game)
 	virtual void GameSuspend(); 
@@ -43,6 +47,11 @@ public:
 	virtual void HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 	virtual void TryToUpdate();
+
+
+	//this
+	void ShowImage(int iImageType, int iSize, char *pData);
+	void SendKey(int iKeyCode, int iEventType);
 };
 //---------------------------------------------------------------------------------------------------------
 #endif
