@@ -93,13 +93,14 @@ LIRC_DCE::LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler,
 			string sConfiguration;
 			DCE::CMD_Get_Device_Data_Cat CMD_Get_Device_Data_Cat(m_dwPK_Device,DEVICECATEGORY_General_Info_Plugins_CONST,true,BL_SameHouse,
 				pDevice->m_dwPK_Device,DEVICEDATA_Configuration_CONST,true,&sConfiguration);
+		
 			if( SendCommand(CMD_Get_Device_Data_Cat) && sConfiguration.size() )
 			{
 				const char *pConfig = sConfiguration.c_str();
 				fwrite(pConfig,1,sConfiguration.size(),fp);
 				string sUpper = StringUtils::ToUpper(sConfiguration);
 				string::size_type pos_name=0;
-				while( (pos_name=sUpper.find("NAME"))!=string::npos )
+				while( (pos_name=sUpper.find("NAME",pos_name))!=string::npos )
 				{
 					// Be sure there's nothing but white space before this
 					string::size_type pos_space=pos_name-1;
@@ -107,7 +108,10 @@ LIRC_DCE::LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler,
 						pos_space--;
 
 					if( pos_space>0 && pConfig[pos_space]!='\r' && pConfig[pos_space]!='\n' )
+					{
+						pos_name++;
 						continue; // It's a name embedded somewhere in the file, not the name we want
+					}
 
 					pos_name += 4; // skip the name
 					while( pConfig[pos_name] && (pConfig[pos_name]==' ' || pConfig[pos_name]=='\t') )
@@ -117,6 +121,8 @@ LIRC_DCE::LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler,
 					while( pConfig[pos_space] && pConfig[pos_space]!='\n' && pConfig[pos_space]!='\r' && pConfig[pos_space]!='\t' )
 						pos_space++;
 					m_mapNameToDevice[ sConfiguration.substr(pos_name,pos_space-pos_name) ] = pDevice->m_dwPK_Device;
+					g_pPlutoLogger->Write(LV_STATUS,"Added remote %s device %d",sConfiguration.substr(pos_name,pos_space-pos_name).c_str(),pDevice->m_dwPK_Device);
+					break;
 				}
 			}
 		}

@@ -95,4 +95,7 @@ void IRReceiverBase::ReceivedCode(int PK_Device_Remote,const char *pCode)
 			m_pCommand_Impl->QueueMessageToRouter(new Message(pm));
 		}
 	}
+	else
+		g_pPlutoLogger->Write(LV_WARNING,"Cannot find code %s",pCode);
 }
+
