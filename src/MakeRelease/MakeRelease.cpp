@@ -1540,12 +1540,20 @@ string Makefile = "none:\n"
 	}
 	g_DebianPackages[Package_Name] = true;
 	cout << "Depends list: " << sDepends << endl;
-	cout << "Replaces: " << pRow_Package_Source->Replaces_get() << endl;  // This can be a comma-delimited list
+	cout << "Replaces: " << pRow_Package_Source->Replaces_get() << endl;  // This is a comma-delimited list
 
 #ifndef WIN32
-	cout << string(("sed -i 's/^Depends:.*$/Depends: ${shlibs:Depends}, ${misc:Depends}" + sDepends + "/' " + Dir + "/debian/control")) << endl;
+	string sed_cmd = "s/^Depends:.*$/Depends: ${shlibs:Depends}, ${misc:Depends}" + sDepends + "/";
+	string replaces = pRow_Package_Source->Replaces_get();
+	if (replaces != "")
+	{
+		sed_cmd += "; /^Description: / { x; s/^.*$/Replaces: " + replaces + "/; p; s/^.*$/Conflicts: " + replaces + "/; p; x; }";
+	}
+	string cmd = string("sed -i '" + sed_cmd + "' " + Dir + "/debian/control");
+	
+	cout << cmd << endl;
 	cout << string(("dpkg-buildpackage -b -rfakeroot -us -uc")) << endl;
-	system(("sed -i 's/^Depends:.*$/Depends: ${shlibs:Depends}, ${misc:Depends}" + sDepends + "/' " + Dir + "/debian/control").c_str());
+	system(cmd.c_str());
 
 	if (!g_bSimulate)
 	{
