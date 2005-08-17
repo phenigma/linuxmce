@@ -23,7 +23,7 @@ XTRALDLIBS = -lpluto_main
 
 Gen_Dev_Files += 
 sources += Criteria.cpp  CriteriaParmNesting.cpp \
-	Criteria_EvaluateExpression.cpp TimedEvent.cpp 
+	Criteria_EvaluateExpression.cpp TimedEvent.cpp sunrise.cpp
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
