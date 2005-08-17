@@ -241,13 +241,11 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
 	m_dwPK_Device_IRReceiver=0;
 	if( m_bIsOSD )
 	{
-g_pPlutoLogger->Write(LV_STATUS,"Checking %d children",m_pData->m_vectDeviceData_Impl_Children.size());
-
-		for(size_t s=0;s<m_pData->m_vectDeviceData_Impl_Children.size();++s)
+		for(Map_DeviceData_Base::iterator it=m_pData->m_AllDevices.m_mapDeviceData_Base.begin();it!=m_pData->m_AllDevices.m_mapDeviceData_Base.end();++it)
 		{
-			DeviceData_Impl *pDeviceData_Impl = m_pData->m_vectDeviceData_Impl_Children[s];
-g_pPlutoLogger->Write(LV_STATUS,"Checking %d %d",pDeviceData_Impl->m_dwPK_Device,pDeviceData_Impl->m_dwPK_DeviceCategory);
-			if( pDeviceData_Impl->WithinCategory(DEVICECATEGORY_Infrared_Receivers_CONST) )
+			DeviceData_Base *pDeviceData_Base = it->second;
+			if( pDeviceData_Base->WithinCategory(DEVICECATEGORY_Infrared_Receivers_CONST) &&
+				pDeviceData_Base->m_dwPK_Device_ControlledVia==m_pData->m_dwPK_Device_ControlledVia )
 			{
 				m_dwPK_Device_IRReceiver=pDeviceData_Impl->m_dwPK_Device;
 				g_pPlutoLogger->Write(LV_STATUS,"Working with IRReceiver %d",m_dwPK_Device_IRReceiver);
