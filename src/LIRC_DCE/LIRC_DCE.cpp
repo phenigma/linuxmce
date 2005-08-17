@@ -90,10 +90,15 @@ LIRC_DCE::LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler,
 		if( pDevice->m_dwPK_Device_ControlledVia==m_pData->m_dwPK_Device_ControlledVia &&
 			pDevice->m_dwPK_DeviceCategory==DEVICECATEGORY_LIRC_Remote_Controls_CONST )
 		{
+			string sType;
+			DCE::CMD_Get_Device_Data_Cat CMD_Get_Device_Data_Cat2(m_dwPK_Device,DEVICECATEGORY_General_Info_Plugins_CONST,true,BL_SameHouse,
+				pDevice->m_dwPK_Device,DEVICEDATA_Remote_Layout_CONST,true,&sType);
+			SendCommand(CMD_Get_Device_Data_Cat2);
+
 			string sConfiguration;
 			DCE::CMD_Get_Device_Data_Cat CMD_Get_Device_Data_Cat(m_dwPK_Device,DEVICECATEGORY_General_Info_Plugins_CONST,true,BL_SameHouse,
 				pDevice->m_dwPK_Device,DEVICEDATA_Configuration_CONST,true,&sConfiguration);
-		
+	
 			if( SendCommand(CMD_Get_Device_Data_Cat) && sConfiguration.size() )
 			{
 				const char *pConfig = sConfiguration.c_str();
@@ -121,7 +126,9 @@ LIRC_DCE::LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler,
 					while( pConfig[pos_space] && pConfig[pos_space]!='\n' && pConfig[pos_space]!='\r' && pConfig[pos_space]!='\t' )
 						pos_space++;
 					m_mapNameToDevice[ sConfiguration.substr(pos_name,pos_space-pos_name) ] = pDevice->m_dwPK_Device;
-					g_pPlutoLogger->Write(LV_STATUS,"Added remote %s device %d",sConfiguration.substr(pos_name,pos_space-pos_name).c_str(),pDevice->m_dwPK_Device);
+					char cRemoteLayout = sType.size() ? sType[0] : 'W';
+					m_mapRemoteLayout[pDevice->m_dwPK_Device]= cRemoteLayout;
+					g_pPlutoLogger->Write(LV_STATUS,"Added remote %s device %d layout %c",sConfiguration.substr(pos_name,pos_space-pos_name).c_str(),pDevice->m_dwPK_Device,cRemoteLayout);
 					break;
 				}
 			}
@@ -282,4 +289,6 @@ int LIRC_DCE::lirc_leech(int DeviceID) {
 void LIRC_DCE::CMD_Set_Screen_Type(int iValue,string &sCMD_Result,Message *pMessage)
 //<-dceag-c687-e->
 {
+	m_cCurrentScreen=(char) iValue;
+	g_pPlutoLogger->Write(LV_STATUS,"Screen type now %c",m_cCurrentScreen);
 }

@@ -18,6 +18,7 @@ namespace DCE
 		Command_Impl *m_pCommand_Impl;
 		Virtual_Device_Translator m_Virtual_Device_Translator;
 		map<string,MapKeysToMessages *> m_mapKeyMapping;
+		char m_cCurrentScreen;
 
 		IRReceiverBase(Command_Impl *pCommand_Impl,DeviceData_Impl *pData);
 		~IRReceiverBase();

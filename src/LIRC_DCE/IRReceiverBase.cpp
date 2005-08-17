@@ -15,6 +15,7 @@ IRReceiverBase::IRReceiverBase(Command_Impl *pCommand_Impl,DeviceData_Impl *pDat
 : m_Virtual_Device_Translator(pData)
 {
 	m_pCommand_Impl=pCommand_Impl;
+	m_cCurrentScreen='M';
 
 	string sMapping;
 	DCE::CMD_Get_Remote_Control_Mapping_DT CMD_Get_Remote_Control_Mapping_DT(pData->m_dwPK_Device, DEVICETEMPLATE_Infrared_Plugin_CONST,
@@ -56,6 +57,7 @@ IRReceiverBase::IRReceiverBase(Command_Impl *pCommand_Impl,DeviceData_Impl *pDat
 						}
 
 						(*pMapKeysToMessages)[ make_pair<char,char> (cScreenType,cRemoteLayout) ] = pMessage;
+cout << "type " << cScreenType << " layout " << cRemoteLayout << endl;
 					}
 					if( posSlash<=pos )
 						break; // We already parsed the last one
@@ -82,18 +84,27 @@ IRReceiverBase::~IRReceiverBase()
 
 void IRReceiverBase::ReceivedCode(int PK_Device_Remote,const char *pCode)
 {
+	char cRemoteLayout = m_mapRemoteLayout[PK_Device_Remote];
 	map<string,MapKeysToMessages *>::iterator it = m_mapKeyMapping.find(StringUtils::ToUpper("s"));
 	if( it!=m_mapKeyMapping.end() )
 	{
 		MapKeysToMessages *pMapKeysToMessages = it->second;
 		MapKeysToMessages::iterator itMessage;
-		itMessage = pMapKeysToMessages->find(make_pair<char,char> ('c','d') );
+		itMessage = pMapKeysToMessages->find(make_pair<char,char> (cRemoteLayout,m_cCurrentScreen) );
+		if( itMessage==pMapKeysToMessages->end() )
+			itMessage = pMapKeysToMessages->find(make_pair<char,char> (cRemoteLayout,0) );
+		if( itMessage==pMapKeysToMessages->end() )
+			itMessage = pMapKeysToMessages->find(make_pair<char,char> (0,m_cCurrentScreen) );
+		if( itMessage==pMapKeysToMessages->end() )
+			itMessage = pMapKeysToMessages->find(make_pair<char,char> (0,0) );
 
 		if( itMessage!=pMapKeysToMessages->end() )
 		{
 			Message *pm = itMessage->second;
 			m_pCommand_Impl->QueueMessageToRouter(new Message(pm));
 		}
+		else
+			g_pPlutoLogger->Write(LV_WARNING,"No mapping for that code");
 	}
 	else
 		g_pPlutoLogger->Write(LV_WARNING,"Cannot find code %s",pCode);
