@@ -17,6 +17,8 @@
 #define PACKAGE_SOURCE_VERSION_TABLE_FIELD "Package_Source.Version"
 #define PACKAGE_SOURCE_PARMS_FIELD "Parms"
 #define PACKAGE_SOURCE_PARMS_TABLE_FIELD "Package_Source.Parms"
+#define PACKAGE_SOURCE_REPLACES_FIELD "Replaces"
+#define PACKAGE_SOURCE_REPLACES_TABLE_FIELD "Package_Source.Replaces"
 #define PACKAGE_SOURCE_PSC_ID_FIELD "psc_id"
 #define PACKAGE_SOURCE_PSC_ID_TABLE_FIELD "Package_Source.psc_id"
 #define PACKAGE_SOURCE_PSC_BATCH_FIELD "psc_batch"
