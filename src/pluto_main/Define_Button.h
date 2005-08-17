@@ -122,6 +122,7 @@
 #define BUTTON_F8_CONST 178
 #define BUTTON_F9_CONST 179
 #define BUTTON_F10_CONST 180
+#define BUTTON__CONST 181
 
 #define BUTTON_TABLE "Button"
 #define BUTTON_PK_BUTTON_FIELD "PK_Button"
