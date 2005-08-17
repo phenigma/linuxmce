@@ -55,7 +55,7 @@ IRReceiverBase::IRReceiverBase(Command_Impl *pCommand_Impl,DeviceData_Impl *pDat
 							m_mapKeyMapping[sToken] = pMapKeysToMessages;
 						}
 
-						(*pMapKeysToMessages)[ make_pair<char,char> (cScreenType,cRemoteLayout) ] = pMessage;
+						(*pMapKeysToMessages)[ make_pair<char,char> (cRemoteLayout,cScreenType) ] = pMessage;
 cout << sToken << " type " << cScreenType << " layout " << cRemoteLayout << endl;
 					}
 					if( posSlash<=pos )
