@@ -40,6 +40,8 @@
 #include "pthread.h"
 #include "implement.h"
 
+extern void ptw32_rwlock_cancelwrwait(void * arg);
+
 int
 pthread_rwlock_wrlock(pthread_rwlock_t * rwlock)
 {
