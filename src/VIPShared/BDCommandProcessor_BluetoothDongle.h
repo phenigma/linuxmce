@@ -12,7 +12,11 @@ using namespace DCE;
 #ifdef BT_SOCKET
 #else
 	#ifdef WIN32
-		#include "../BD/BDCommandProcessor_Windows_Bluetooth.h"
+		#ifdef SMARTPHONE
+			#include "../BD/BDCommandProcessor_Smartphone_Bluetooth.h"
+		#else
+			#include "../BD/BDCommandProcessor_Windows_Bluetooth.h"
+		#endif
 	#else
 		#include "../BD/BDCommandProcessor_Linux_Bluetooth.h"
 	#endif //WIN32
@@ -26,7 +30,11 @@ class BDCommandProcessor_BluetoothDongle : public BDCommandProcessor_Linux_Socke
 	#endif
 #else
 	#ifdef WIN32
+		#ifdef SMARTPHONE
+class BDCommandProcessor_BluetoothDongle : public BDCommandProcessor_Smartphone_Bluetooth
+		#else
 class BDCommandProcessor_BluetoothDongle : public BDCommandProcessor_Windows_Bluetooth
+		#endif
 	#else
 class BDCommandProcessor_BluetoothDongle : public BDCommandProcessor_Linux_Bluetooth
 	#endif //WIN32

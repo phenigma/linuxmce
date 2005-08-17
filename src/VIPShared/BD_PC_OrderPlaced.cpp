@@ -17,6 +17,7 @@ BD_PC_OrderPlaced::BD_PC_OrderPlaced(unsigned long MenuCollectionID)
 
 void BD_PC_OrderPlaced::ConvertCommandToBinary()
 {
+#ifndef SMARTPHONE
 	BDCommand::ConvertCommandToBinary();
 	Write_unsigned_long(m_iMenuCollectionID);
 	Write_unsigned_long((unsigned long) MYSTL_SIZEOF_LIST(m_listBasket));
@@ -38,10 +39,12 @@ void BD_PC_OrderPlaced::ConvertCommandToBinary()
 			Write_long(bo->m_iCost);
 		}
 	}
+#endif
 }
 
 void BD_PC_OrderPlaced::ParseCommand(unsigned long size,const char *data)
 {
+#ifndef SMARTPHONE
 	BDCommand::ParseCommand(size,data);
 	m_iMenuCollectionID = Read_unsigned_long();
 	unsigned long NumberOfBasketItems = Read_unsigned_long();
@@ -64,6 +67,7 @@ void BD_PC_OrderPlaced::ParseCommand(unsigned long size,const char *data)
 		}
 		MYSTL_ADDTO_LIST(m_listBasket,bi);
 	}
+#endif
 }
 
 bool BD_PC_OrderPlaced::ProcessCommand(BDCommandProcessor *pProcessor)

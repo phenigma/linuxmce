@@ -34,7 +34,11 @@ BDCommandProcessor_BluetoothDongle::BDCommandProcessor_BluetoothDongle(
 		BDCommandProcessor_Windows_Socket(sMacAddressPhone, pSocket)
 #else
 	#ifdef WIN32
-		BDCommandProcessor_Windows_Bluetooth(sMacAddressPhone, pBluetooth_Dongle->MacAddress())
+		#ifdef SMARTPHONE
+			BDCommandProcessor_Smartphone_Bluetooth()
+		#else
+			BDCommandProcessor_Windows_Bluetooth(sMacAddressPhone, pBluetooth_Dongle->MacAddress())
+		#endif //smartphone
 	#else
 		BDCommandProcessor_Linux_Bluetooth(sMacAddressPhone,pBluetooth_Dongle->MacAddress(),pPhoneDevice)
 	#endif //WIN32
