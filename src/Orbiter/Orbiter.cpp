@@ -241,12 +241,16 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
 	m_dwPK_Device_IRReceiver=0;
 	if( m_bIsOSD )
 	{
+g_pPlutoLogger->Write(LV_STATUS,"Checking %d children",m_pData->m_vectDeviceData_Impl_Children.size());
+
 		for(size_t s=0;s<m_pData->m_vectDeviceData_Impl_Children.size();++s)
 		{
 			DeviceData_Impl *pDeviceData_Impl = m_pData->m_vectDeviceData_Impl_Children[s];
+g_pPlutoLogger->Write(LV_STATUS,"Checking %d %d",pDeviceData_Impl->m_dwPK_Device,pDeviceData_Impl->m_dwPK_DeviceCategory);
 			if( pDeviceData_Impl->WithinCategory(DEVICECATEGORY_Infrared_Receivers_CONST) )
 			{
 				m_dwPK_Device_IRReceiver=pDeviceData_Impl->m_dwPK_Device;
+				g_pPlutoLogger->Write(LV_STATUS,"Working with IRReceiver %d",m_dwPK_Device_IRReceiver);
 				break;
 			}
 		}
@@ -1352,7 +1356,8 @@ g_pPlutoLogger->Write( LV_STATUS, "@@@ About to call maint for screen saver with
 		CallMaintenanceInMiliseconds( m_pScreenHistory_Current->m_pObj->m_dwTimeoutSeconds * 1000, &Orbiter::Timeout, (void *) m_pScreenHistory_Current->m_pObj, pe_ALL );
 
 #ifdef DEBUG
-    g_pPlutoLogger->Write( LV_STATUS, "Changing screen to %s", m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str(  ) );
+    g_pPlutoLogger->Write( LV_STATUS, "Changing screen to %s ir %d type %c", 
+		m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str(  ), m_dwPK_Device_IRReceiver, m_pScreenHistory_Current->m_pObj->m_cScreenType);
 #endif
 	if( m_dwPK_Device_IRReceiver )
 	{
