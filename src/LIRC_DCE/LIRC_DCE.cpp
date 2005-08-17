@@ -254,7 +254,7 @@ int LIRC_DCE::lirc_leech(int DeviceID) {
 			continue;
 		last_time = this_time;
 		
-		ReceivedCode(PK_Device,sToken);
+		ReceivedCode(PK_Device,sToken.c_str());
 
 		free(code);
 	}
