@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. /usr/pluto/bin/SQL_Ops.sh
+
 cronEntry="0 3 * * * root /usr/pluto/bin/Update_Packages.sh --download-only"
 cronNotify="0 */10 * * * root /usr/pluto/bin/Update_Notify.sh"
 
@@ -19,8 +21,16 @@ exec &> >(tee /var/log/pluto/upgrade.newlog)
 echo "Performing system update"
 apt-get update
 Fail=0
-if apt-get -f -y $DownloadOnly dist-upgrade && [[ -n "$DownloadOnly" ]]; then
-	date -R >"$Lock"
+
+Count=$(apt-get -f -y -s dist-upgrade | egrep -c '^Inst |^Conf ')
+
+if apt-get -f -y $DownloadOnly dist-upgrade; then
+	if [[ -n "$DownloadOnly" ]]; then
+		date -R >"$Lock"
+	elif [[ "$Count" != "0" ]]; then
+		Q="UPDATE Device SET NeedConfigure=1"
+		RunSQL "$Q"
+	fi
 else
 	Fail=1
 	cp /var/log/pluto/upgrade.newlog /usr/pluto/coredump/
