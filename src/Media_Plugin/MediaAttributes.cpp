@@ -783,6 +783,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Already in DB %p %p %d",pRow_Disc_Attribute,pRo
 
 void MediaAttributes::AddAttributeToStream(MediaStream *pMediaStream,Row_Attribute *pRow_Attribute,int File,int Title_Track,int Section)
 {
+	if( !pRow_Attribute )
+		return;
 	int PK_AttributeType=pRow_Attribute->FK_AttributeType_get();
 	// For CD's, the tracks are represented as files
 g_pPlutoLogger->Write(LV_STATUS,"MediaAttributes::AddAttributeToStream %p %d",pRow_Attribute,(pRow_Attribute ? pRow_Attribute->PK_Attribute_get() : 0));
