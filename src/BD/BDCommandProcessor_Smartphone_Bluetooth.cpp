@@ -3,8 +3,10 @@
 #include "PlutoUtils/MultiThreadIncludes.h"
 #include "DCE/Logger.h"
 #include "BD/BDCommandProcessor.h"
+#include "BD/BDCommand.h"
 
 #include "VIPShared/BD_PC_ReportMyVersion.h"
+#include "PlutoUtils/CommonIncludes.h"
 using namespace DCE;
 //------------------------------------------------------------------------------------------------------------
 #include <Ws2bth.h>
@@ -18,12 +20,28 @@ void *ProcessCommandsThread(void *p)
 {
 	BDCommandProcessor_Smartphone_Bluetooth* pBDCommandProcessor = (BDCommandProcessor_Smartphone_Bluetooth* )p;
 
-	bool bDummy = false;
+	bool bImmediateCallback = false;
+	while(!pBDCommandProcessor->m_bDead && pBDCommandProcessor->SendCommand(bImmediateCallback))
+	{
+		if(!bImmediateCallback) //nothing to process right now
+		{
+			timespec abstime;
+			abstime.tv_sec = (long) (time(NULL) + 1);
+			abstime.tv_nsec = 0;
+			
+			PLUTO_SAFETY_LOCK(csm, pBDCommandProcessor->m_ClientSocketMutex);
 
-	while( 
-		!pBDCommandProcessor->m_bDead && 
-		pBDCommandProcessor->SendCommand(bDummy)
-	); // loop for receiving commands 
+#ifdef DEBUG_BLUETOOTH
+			g_pPlutoLogger->Write(LV_STATUS, "Nothing to process right now, sleeping 1 sec");
+#endif
+			csm.TimedCondWait(abstime);
+		}
+	}
+
+	pBDCommandProcessor->m_bClientConnected = false;
+
+	g_pPlutoLogger->Write(LV_STATUS, "Client disconnected. Waking up server thread");
+	pthread_cond_broadcast(&pBDCommandProcessor->m_ServerSocketCond);
 
 	return NULL;
 }
@@ -35,12 +53,6 @@ void *ServerThread(void *p)
 
 	while(!pBDCommandProcessor->m_bDead) 
 	{
-		if(pBDCommandProcessor->m_bClientConnected)
-		{
-			Sleep(1000);
-			break;
-		}
-
 		SOCKADDR_BTH sab;
 		int ilen = sizeof(sab);
 
@@ -48,7 +60,7 @@ void *ServerThread(void *p)
 		if (pBDCommandProcessor->m_ClientSocket == INVALID_SOCKET) 
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL, "Failed to accept connection, error %d", WSAGetLastError());
-			break;
+			continue;
 		}
 
 		pBDCommandProcessor->m_bClientConnected = true;
@@ -59,6 +71,10 @@ void *ServerThread(void *p)
 		pBDCommandProcessor->AddCommand(new BD_PC_ReportMyVersion(string(VERSION)));
 		pthread_create(&pBDCommandProcessor->m_ProcessCommandsThreadID, NULL, ProcessCommandsThread, 
 			(void*)pBDCommandProcessor); 
+
+		PLUTO_SAFETY_LOCK(ssm, pBDCommandProcessor->m_ServerSocketMutex);
+		g_pPlutoLogger->Write(LV_STATUS, "Client connected. Sleeping until no client is connected.");
+		ssm.CondWait();
 	}
 
 	pBDCommandProcessor->m_bRunning = false;
@@ -66,8 +82,15 @@ void *ServerThread(void *p)
 }
 //------------------------------------------------------------------------------------------------------------
 BDCommandProcessor_Smartphone_Bluetooth::BDCommandProcessor_Smartphone_Bluetooth()
-	: BDCommandProcessor("dummy")/*, m_ReceiveBufferMutex("receive buffer")*/
+	: BDCommandProcessor("dummy"), m_ClientSocketMutex("client socket mutex"), 
+	m_ServerSocketMutex("sever socket mutex")
 {
+	pthread_cond_init(&m_ClientSocketCond, NULL);
+	m_ClientSocketMutex.Init(NULL,&m_ClientSocketCond);
+
+	pthread_cond_init(&m_ServerSocketCond, NULL);
+	m_ServerSocketMutex.Init(NULL,&m_ServerSocketCond);
+
 	m_ServerSocket = 0;
 	m_ClientSocket = 0;
 
@@ -105,10 +128,6 @@ BDCommandProcessor_Smartphone_Bluetooth::BDCommandProcessor_Smartphone_Bluetooth
 	listen (m_ServerSocket, SOMAXCONN);
 
 	g_pPlutoLogger->Write(LV_WARNING, "Ready to accept connections!");
-}
-//------------------------------------------------------------------------------------------------------------
-void BDCommandProcessor_Smartphone_Bluetooth::Start()
-{
 	pthread_create(&m_ServerThreadID, NULL, ServerThread, (void*)this); 
 }
 //------------------------------------------------------------------------------------------------------------
@@ -127,17 +146,24 @@ BDCommandProcessor_Smartphone_Bluetooth::~BDCommandProcessor_Smartphone_Bluetoot
 		closesocket(m_ClientSocket);
 		CloseHandle ((LPVOID)m_ClientSocket);
 	}
+
+	pthread_mutex_destroy(&m_ClientSocketMutex.mutex);
+	pthread_mutex_destroy(&m_ServerSocketMutex.mutex);
 }
 //------------------------------------------------------------------------------------------------------------
 bool BDCommandProcessor_Smartphone_Bluetooth::SendData(int size,const char *data)
 {
+	PROF_START();
+
 	if(!m_bClientConnected)
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"The client is not connected!");
 		return false;
 	}
 
+#ifdef DEBUG_BLUETOOTH
 	g_pPlutoLogger->Write(LV_STATUS,"Sending %d bytes of data", size);
+#endif
 	
 	int br;
 	int bytes_to_send = size;
@@ -159,12 +185,15 @@ bool BDCommandProcessor_Smartphone_Bluetooth::SendData(int size,const char *data
 			bytes_sent += br;
 			bytes_to_send -= br;
 
-			//g_pPlutoLogger->Write(LV_STATUS, "Sent %d bytes [total %d/%d]", br, bytes_sent, size);
+#ifdef DEBUG_BLUETOOTH
+			g_pPlutoLogger->Write(LV_STATUS, "Sent %d bytes [total %d/%d]", br, bytes_sent, size);
+#endif
 		}
 
-		if(bytes_to_send > 0)
+		if ( br == 0 || WSAGetLastError() == WSAECONNRESET ) 
 		{
-			//printf("@need to send more data... ");
+			g_pPlutoLogger->Write(LV_WARNING, "Connection closed");
+  		    return false;
 		}
 	}
 
@@ -174,12 +203,19 @@ bool BDCommandProcessor_Smartphone_Bluetooth::SendData(int size,const char *data
 		return false;
 	}
 
+#ifdef DEBUG_BLUETOOTH
 	g_pPlutoLogger->Write(LV_STATUS,"Sent %d bytes of data", size);
+#endif
+
+	PROF_STOP("Send data");
+
 	return true;
 }
 //------------------------------------------------------------------------------------------------------------
 char *BDCommandProcessor_Smartphone_Bluetooth::ReceiveData(int size)
 {
+	PROF_START();
+
 	if(!m_bClientConnected)
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"The client is not connected!");
@@ -188,8 +224,10 @@ char *BDCommandProcessor_Smartphone_Bluetooth::ReceiveData(int size)
 
 	char *buffer = (char *)malloc(size);
 
+#ifdef DEBUG_BLUETOOTH
 	g_pPlutoLogger->Write(LV_STATUS, "Ready to receive %d bytes of data", size);
-		
+#endif		
+
 	int br = 0;
 	int bytes_to_receive = size;
 	int bytes_received = 0;
@@ -208,13 +246,16 @@ char *BDCommandProcessor_Smartphone_Bluetooth::ReceiveData(int size)
 		{
 			bytes_received += br;
 			bytes_to_receive -= br;
-			
-//			g_pPlutoLogger->Write(LV_STATUS, "Received %d bytes [total %d/%d]", br, bytes_received, size);
+
+#ifdef DEBUG_BLUETOOTH			
+			g_pPlutoLogger->Write(LV_STATUS, "Received %d bytes [total %d/%d]", br, bytes_received, size);
+#endif
 		}
 
-		if(bytes_to_receive > 0)
+		if ( br == 0 || WSAGetLastError() == WSAECONNRESET ) 
 		{
-//			printf("@need to receive more data.. ");
+			g_pPlutoLogger->Write(LV_WARNING, "Connection closed");
+  		    return NULL;
 		}
 	}
 
@@ -223,7 +264,14 @@ char *BDCommandProcessor_Smartphone_Bluetooth::ReceiveData(int size)
 		m_bClientConnected = false;
 		return NULL;
 	}
-	
+
+#ifdef DEBUG_BLUETOOTH
+	g_pPlutoLogger->Write(LV_STATUS, "Received %d bytes of data", size);
+#endif		
+
+
+	PROF_STOP("Receive data");
+
 	return buffer; 
 }
 //------------------------------------------------------------------------------------------------------------
@@ -271,5 +319,16 @@ bool BDCommandProcessor_Smartphone_Bluetooth::BT_SetService()
    return WSASetService(&Service,RNRSERVICE_REGISTER,0) != SOCKET_ERROR;
    */
 	return true;
+}
+//------------------------------------------------------------------------------------------------------------
+void BDCommandProcessor_Smartphone_Bluetooth::AddCommand(BDCommand *pCommand)
+{
+	BDCommandProcessor::AddCommand(pCommand);
+
+#ifdef DEBUG_BLUETOOTH
+	g_pPlutoLogger->Write(LV_STATUS, "You got mail! Wake up and process the command, dear Mr. Socket.");
+#endif
+
+	pthread_cond_broadcast(&m_ClientSocketCond);
 }
 //------------------------------------------------------------------------------------------------------------

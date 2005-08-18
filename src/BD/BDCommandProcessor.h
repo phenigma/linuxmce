@@ -95,7 +95,7 @@ public:
 	/**
 	 * @brief adds the command to the command buffer
 	 */
-	void AddCommand( class BDCommand *pCommand );
+	virtual void AddCommand( class BDCommand *pCommand );
 
 	/**
 	 * @brief Returns a Pointer to BDCommand based on the given type.  Derived versions should override this for their specific types and call the base class to return standard types.

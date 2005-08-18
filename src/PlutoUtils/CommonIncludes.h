@@ -87,9 +87,15 @@ using namespace std;
 #ifdef PROFILING
 	#define PROFILE_START(x) clock_t x = clock();
 	#define PROFILE_STOP(x, Desc)	g_pPlutoLogger->Write(LV_WARNING, "%s took %d ms", Desc, clock()-x);
+
+	#define PROF_START() clock_t x = clock();
+	#define PROF_STOP(Desc) g_pPlutoLogger->Write(LV_STATUS, "%s took %d ms", Desc, clock() - x);
 #else
 	#define PROFILE_START(x) 
 	#define PROFILE_STOP(x, Desc)
+
+	#define PROF_START() 
+	#define PROF_STOP(Desc)
 #endif 
 
 #define CALL_MEMBER_FN(object,ptrToMember)  ((object).*(ptrToMember)) 

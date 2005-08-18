@@ -7,7 +7,6 @@
 #include "VIPShared/BD_PC_GetSignalStrength.h"
 #include "pluto_main/Define_Button.h"
 
-
 using namespace DCE;
 
 #include <string>
@@ -33,10 +32,8 @@ OrbiterApp::OrbiterApp() : m_ScreenMutex("rendering")
     pthread_mutexattr_settype( &m_MutexAttr,  PTHREAD_MUTEX_RECURSIVE_NP );
 	m_ScreenMutex.Init( &m_MutexAttr );
 
-	m_pBDCommandProcessor = new BDCommandProcessor_Smartphone_Bluetooth();
-	m_pBDCommandProcessor->Start();
-
 	m_pInstance = this;
+	m_pBDCommandProcessor = new BDCommandProcessor_Smartphone_Bluetooth();
 }
 //---------------------------------------------------------------------------------------------------------
 /*virtual*/ OrbiterApp::~OrbiterApp()
@@ -140,14 +137,6 @@ OrbiterApp::OrbiterApp() : m_ScreenMutex("rendering")
 /*virtual*/ bool OrbiterApp::PocketFrogButtonDown(int button)
 {
 	HandleKeyEvents(WM_KEYDOWN, button, 0L);
-
-
-	/*
-	m_bQuit = true;
-	::PostQuitMessage(0);
-	Shutdown();
-	*/
-
 	return true;
 }
 //---------------------------------------------------------------------------------------------------------
@@ -204,8 +193,18 @@ void OrbiterApp::SendKey(int iKeyCode, int iEventType)
 		//iPK_Button = BUTTON_Terminate_Text_CONST;		break;
 	}
 
+	if(BUTTON_Phone_End_CONST == iPK_Button && uMsg == WM_KEYUP)
+		OnQuit();
+
 	if(uMsg == WM_KEYUP)
 		SendKey(iPK_Button ? iPK_Button : - wParam, 2);
+}
+//---------------------------------------------------------------------------------------------------------
+void OrbiterApp::OnQuit()
+{
+	m_bQuit = true;
+	::PostQuitMessage(0);
+	Shutdown();
 }
 //---------------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterApp::TryToUpdate()
@@ -219,6 +218,8 @@ void OrbiterApp::SendKey(int iKeyCode, int iEventType)
 //---------------------------------------------------------------------------------------------------------
 void OrbiterApp::ShowImage(int iImageType, int iSize, char *pData)
 {
+	PROF_START();
+
 	if(m_bQuit)
 		return;
 	
@@ -232,6 +233,8 @@ void OrbiterApp::ShowImage(int iImageType, int iSize, char *pData)
 
 		delete pSurface;
 	}
+
+	PROF_STOP("Show Image");
 }
 //---------------------------------------------------------------------------------------------------------
 

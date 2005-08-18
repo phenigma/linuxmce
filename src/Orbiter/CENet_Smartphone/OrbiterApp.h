@@ -52,6 +52,7 @@ public:
 	//this
 	void ShowImage(int iImageType, int iSize, char *pData);
 	void SendKey(int iKeyCode, int iEventType);
+	void OnQuit();
 };
 //---------------------------------------------------------------------------------------------------------
 #endif

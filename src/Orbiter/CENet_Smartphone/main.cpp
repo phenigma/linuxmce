@@ -56,7 +56,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 	g_sBinary = FileUtils::FilenameWithoutPath(pFullPath);
 	g_sBinaryPath = FileUtils::BasePath(pFullPath) + "/";
 
-	string sLogger = g_sBinaryPath + "Orbiter.log";
+	string sLogger = g_sBinaryPath + "OrbiterLog.txt";
 	g_pPlutoLogger = NULL;
 
     try

@@ -5,12 +5,14 @@
 
 class BDCommandProcessor_Smartphone_Bluetooth : public BDCommandProcessor
 {
-	//char *m_pReceiveBuffer;
-	//unsigned long m_iSizeReceiveBuffer;
-	//pluto_pthread_mutex_t m_ReceiveBufferMutex;
 public:
 	SOCKET m_ServerSocket;
 	SOCKET m_ClientSocket;
+
+	pluto_pthread_mutex_t m_ClientSocketMutex;
+	pluto_pthread_mutex_t m_ServerSocketMutex;
+	pthread_cond_t m_ClientSocketCond;
+	pthread_cond_t m_ServerSocketCond;
 
 	bool m_bClientConnected;
 	bool m_bRunning;
@@ -20,11 +22,12 @@ public:
 
 	BDCommandProcessor_Smartphone_Bluetooth();
 	~BDCommandProcessor_Smartphone_Bluetooth();
-	void Start();
 
 	//from BDCommandProcessor
 	bool SendData(int size,const char *data);
 	char *ReceiveData(int size);
+
+	void AddCommand(class BDCommand *pCommand);
 
 private:
 	bool BT_SetService();
