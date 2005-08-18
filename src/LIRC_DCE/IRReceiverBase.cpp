@@ -52,7 +52,7 @@ IRReceiverBase::IRReceiverBase(Command_Impl *pCommand_Impl,DeviceData_Impl *pDat
 						if( !pMapKeysToMessages )
 						{
 							pMapKeysToMessages = new MapKeysToMessages();
-							m_mapKeyMapping[sToken] = pMapKeysToMessages;
+							m_mapKeyMapping[StringUtils::ToUpper(sToken)] = pMapKeysToMessages;
 						}
 
 						(*pMapKeysToMessages)[ make_pair<char,char> (cRemoteLayout,cScreenType) ] = pMessage;
