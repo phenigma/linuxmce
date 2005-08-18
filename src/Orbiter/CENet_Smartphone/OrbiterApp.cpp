@@ -34,6 +34,9 @@ OrbiterApp::OrbiterApp() : m_ScreenMutex("rendering")
 
 	m_pInstance = this;
 	m_pBDCommandProcessor = new BDCommandProcessor_Smartphone_Bluetooth();
+
+	m_uSignalStrength = 0;
+	m_bSignalStrengthScreen = 0;
 }
 //---------------------------------------------------------------------------------------------------------
 /*virtual*/ OrbiterApp::~OrbiterApp()
@@ -134,24 +137,24 @@ OrbiterApp::OrbiterApp() : m_ScreenMutex("rendering")
 {
 }
 //---------------------------------------------------------------------------------------------------------
-/*virtual*/ bool OrbiterApp::PocketFrogButtonDown(int button)
+/*virtual*/ bool OrbiterApp::PocketFrogButtonDown(int nButton)
 {
-	HandleKeyEvents(WM_KEYDOWN, button, 0L);
+	HandleKeyEvents(WM_KEYDOWN, nButton, 0L);
 	return true;
 }
 //---------------------------------------------------------------------------------------------------------
-/*virtual*/ bool OrbiterApp::PocketFrogButtonUp(int button)
+/*virtual*/ bool OrbiterApp::PocketFrogButtonUp(int nButton)
 {
-	HandleKeyEvents(WM_KEYUP, button, 0L);
+	HandleKeyEvents(WM_KEYUP, nButton, 0L);
 	return true;
 }
 //---------------------------------------------------------------------------------------------------------
-void OrbiterApp::SendKey(int iKeyCode, int iEventType)
+void OrbiterApp::SendKey(int nKeyCode, int nEventType)
 { 
 	if(!m_pBDCommandProcessor->m_bClientConnected)
 		return;
 
-	BDCommand *pCommand = new BD_PC_KeyWasPressed(iKeyCode, iEventType);
+	BDCommand *pCommand = new BD_PC_KeyWasPressed(nKeyCode, nEventType);
 	m_pBDCommandProcessor->AddCommand(pCommand);
 
 	BD_WhatDoYouHave *pBD_WhatDoYouHave = new BD_WhatDoYouHave();
@@ -160,44 +163,42 @@ void OrbiterApp::SendKey(int iKeyCode, int iEventType)
 //---------------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterApp::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    int iPK_Button = 0;
+	static int nTimeDown = 0;
+	static bool bIsLongKey = false;
 
     if(uMsg == WM_KEYDOWN)
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Key down %d", wParam);
+		nTimeDown = clock();
+		bIsLongKey = false;
+		//g_pPlutoLogger->Write(LV_STATUS,"Key down %d, time %d", wParam, nTimeDown);
+	}
+	else
+	{
+		int nTimeUp = clock();
+		bIsLongKey = (nTimeUp - nTimeDown) > 300;
+		//g_pPlutoLogger->Write(LV_STATUS,"Key up %d, diff %d", wParam, nTimeUp - nTimeDown);
+		int bau = 4;
 	}
 
-	switch (wParam)
-    {
-        case '0':       iPK_Button = BUTTON_0_CONST;     break;
-        case '1':       iPK_Button = BUTTON_1_CONST;     break;
-        case '2':       iPK_Button = BUTTON_2_CONST;     break;
-        case '3':       iPK_Button = BUTTON_3_CONST;     break;
-        case '4':       iPK_Button = BUTTON_4_CONST;     break;
-        case '5':       iPK_Button = BUTTON_5_CONST;     break;
-        case '6':       iPK_Button = BUTTON_6_CONST;     break;
-        case '7':       iPK_Button = BUTTON_7_CONST;     break;
-        case '8':       iPK_Button = BUTTON_8_CONST;     break;
-        case '9':       iPK_Button = BUTTON_9_CONST;     break;
-
-		case 27:		iPK_Button = BUTTON_Phone_C_CONST;				break;
-		case 91:		iPK_Button = BUTTON_Phone_Pencil_CONST;			break;
-		case 114:		iPK_Button = BUTTON_Phone_Talk_CONST;			break;
-		case 115:		iPK_Button = BUTTON_Phone_End_CONST;			break;
-		case 112:		iPK_Button = BUTTON_Phone_Soft_left_CONST;		break;
-		case 113:		iPK_Button = BUTTON_Phone_Soft_right_CONST;		break;
-		case 104:       iPK_Button = BUTTON_Asterisk_CONST;				break;
-		case 105:       iPK_Button = BUTTON_Pound_CONST;				break;
-
-		//TODO!!! create logic to generate BUTTON_Terminate_Text_CONST or BUTTON_Enter_CONST
-		//iPK_Button = BUTTON_Terminate_Text_CONST;		break;
+	int nPK_Button = nPK_Button = VirtualKey2PlutoKey(wParam, bIsLongKey);
+	if(IsRepeatedKey(wParam))
+	{
+		SendKey(nPK_Button ? nPK_Button : - wParam, uMsg == WM_KEYUP);
 	}
 
-	if(BUTTON_Phone_End_CONST == iPK_Button && uMsg == WM_KEYUP)
-		OnQuit();
+	//TODO!!! create logic to generate BUTTON_Terminate_Text_CONST or BUTTON_Enter_CONST
+	//iPK_Button = BUTTON_Terminate_Text_CONST;		break;
 
 	if(uMsg == WM_KEYUP)
-		SendKey(iPK_Button ? iPK_Button : - wParam, 2);
+	{
+		if(BUTTON_Rept_Phone_End_CONST == nPK_Button)
+		{
+			OnQuit();
+			return;
+		}
+
+		SendKey(nPK_Button ? nPK_Button : - wParam, 2);
+	}
 }
 //---------------------------------------------------------------------------------------------------------
 void OrbiterApp::OnQuit()
@@ -216,7 +217,7 @@ void OrbiterApp::OnQuit()
 	GetDisplay()->Update();
 }
 //---------------------------------------------------------------------------------------------------------
-void OrbiterApp::ShowImage(int iImageType, int iSize, char *pData)
+void OrbiterApp::ShowImage(int nImageType, int nSize, char *pData)
 {
 	PROF_START();
 
@@ -224,7 +225,7 @@ void OrbiterApp::ShowImage(int iImageType, int iSize, char *pData)
 		return;
 	
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
-	Surface *pSurface = LoadImage(GetDisplay(), (uint8_t*)pData, (uint8_t*)(pData + iSize));
+	Surface *pSurface = LoadImage(GetDisplay(), (uint8_t*)pData, (uint8_t*)(pData + nSize));
 
 	if(pSurface)
 	{
@@ -237,4 +238,144 @@ void OrbiterApp::ShowImage(int iImageType, int iSize, char *pData)
 	PROF_STOP("Show Image");
 }
 //---------------------------------------------------------------------------------------------------------
+void OrbiterApp::SetSignalStrength(int uSignalStrength)
+{
+	m_uSignalStrength = uSignalStrength;
+}
+//---------------------------------------------------------------------------------------------------------
+void OrbiterApp::SetSignalStrengthScreen(bool bSignalStrengthScreen)
+{
+	m_bSignalStrengthScreen = bSignalStrengthScreen;
+}
+//---------------------------------------------------------------------------------------------------------
+void OrbiterApp::InterceptRepeatedKeys(int nKeysListSize, char *pRepeatedKeysList)
+{
+	m_vectRepeatedKeys.clear();
 
+	if(nKeysListSize)
+	{
+		unsigned int msgpos = 0;
+		string token;
+		string sList = pRepeatedKeysList;
+
+		while((token = StringUtils::Tokenize(sList, ",", msgpos)) != "") 	
+		{
+			m_vectRepeatedKeys.push_back(PlutoKey2VirtualKey(atoi(token.c_str())));
+		}
+	}
+}
+//---------------------------------------------------------------------------------------------------------
+int OrbiterApp::PlutoKey2VirtualKey(int nPlutoKey)
+{
+	int nVirtualKey = 0;
+
+	switch (nVirtualKey)
+    {
+        case BUTTON_0_CONST:  nVirtualKey = '0';    break;
+        case BUTTON_1_CONST:  nVirtualKey = '1';    break;
+        case BUTTON_2_CONST:  nVirtualKey = '2';    break;
+        case BUTTON_3_CONST:  nVirtualKey = '3';    break;
+        case BUTTON_4_CONST:  nVirtualKey = '4';    break;
+        case BUTTON_5_CONST:  nVirtualKey = '5';    break;
+        case BUTTON_6_CONST:  nVirtualKey = '6';    break;
+        case BUTTON_7_CONST:  nVirtualKey = '7';    break;
+        case BUTTON_8_CONST:  nVirtualKey = '8';    break;
+        case BUTTON_9_CONST:  nVirtualKey = '9';    break;
+
+		case BUTTON_Phone_C_CONST: 			nVirtualKey = VK_ESCAPE;	break;
+		case BUTTON_Phone_Pencil_CONST:		nVirtualKey = VK_LWIN;		break;
+		case BUTTON_Phone_Talk_CONST: 		nVirtualKey = VK_F3;		break;
+		case BUTTON_Phone_End_CONST: 		nVirtualKey = VK_F4;		break;
+		case BUTTON_Phone_Soft_left_CONST:	nVirtualKey = VK_F2;		break;
+		case BUTTON_Phone_Soft_right_CONST: nVirtualKey = VK_F1; 		break;
+		case BUTTON_Asterisk_CONST:			nVirtualKey = VK_NUMPAD8;	break;
+		case BUTTON_Pound_CONST:			nVirtualKey = VK_NUMPAD9;	break;
+
+		case BUTTON_Up_Arrow_CONST:			nVirtualKey = VK_UP; 		break;
+		case BUTTON_Down_Arrow_CONST:		nVirtualKey = VK_DOWN;		break;
+		case BUTTON_Left_Arrow_CONST:		nVirtualKey = VK_LEFT;		break;
+		case BUTTON_Right_Arrow_CONST:		nVirtualKey = VK_RIGHT;		break;
+	}
+
+	return nPlutoKey;
+}
+//---------------------------------------------------------------------------------------------------------
+int OrbiterApp::VirtualKey2PlutoKey(int nVirtualKey, bool bLongKey)
+{
+	int nPK_Button = -nVirtualKey;
+
+	if(!bLongKey)
+	{
+		switch (nVirtualKey)
+		{
+			case '0':       nPK_Button = BUTTON_0_CONST;     break;
+			case '1':       nPK_Button = BUTTON_1_CONST;     break;
+			case '2':       nPK_Button = BUTTON_2_CONST;     break;
+			case '3':       nPK_Button = BUTTON_3_CONST;     break;
+			case '4':       nPK_Button = BUTTON_4_CONST;     break;
+			case '5':       nPK_Button = BUTTON_5_CONST;     break;
+			case '6':       nPK_Button = BUTTON_6_CONST;     break;
+			case '7':       nPK_Button = BUTTON_7_CONST;     break;
+			case '8':       nPK_Button = BUTTON_8_CONST;     break;
+			case '9':       nPK_Button = BUTTON_9_CONST;     break;
+
+			case VK_ESCAPE:		nPK_Button = BUTTON_Phone_C_CONST;			break;
+			case VK_LWIN:		nPK_Button = BUTTON_Phone_Pencil_CONST;		break;
+			case VK_F3:			nPK_Button = BUTTON_Phone_Talk_CONST;		break;
+			case VK_F4:			nPK_Button = BUTTON_Phone_End_CONST;		break;
+			case VK_F2:			nPK_Button = BUTTON_Phone_Soft_left_CONST;	break;
+			case VK_F1:			nPK_Button = BUTTON_Phone_Soft_right_CONST;	break;
+			case VK_NUMPAD8:    nPK_Button = BUTTON_Asterisk_CONST;			break;
+			case VK_NUMPAD9:    nPK_Button = BUTTON_Pound_CONST;			break;
+
+			case VK_UP:			nPK_Button = BUTTON_Up_Arrow_CONST;			break;
+			case VK_DOWN:		nPK_Button = BUTTON_Down_Arrow_CONST;		break;
+			case VK_LEFT:		nPK_Button = BUTTON_Left_Arrow_CONST;		break;
+			case VK_RIGHT:		nPK_Button = BUTTON_Right_Arrow_CONST;		break;
+
+			//case 117: //Smartphone's VOL_UP
+			//case 118: //Smartphone's VOL_DOWN
+		}
+	}
+	else
+	{
+		switch (nVirtualKey)
+		{
+			case '0':       nPK_Button = BUTTON_Rept_0_CONST;     break;
+			case '1':       nPK_Button = BUTTON_Rept_1_CONST;     break;
+			case '2':       nPK_Button = BUTTON_Rept_2_CONST;     break;
+			case '3':       nPK_Button = BUTTON_Rept_3_CONST;     break;
+			case '4':       nPK_Button = BUTTON_Rept_4_CONST;     break;
+			case '5':       nPK_Button = BUTTON_Rept_5_CONST;     break;
+			case '6':       nPK_Button = BUTTON_Rept_6_CONST;     break;
+			case '7':       nPK_Button = BUTTON_Rept_7_CONST;     break;
+			case '8':       nPK_Button = BUTTON_Rept_8_CONST;     break;
+			case '9':       nPK_Button = BUTTON_Rept_9_CONST;     break;
+
+			case VK_ESCAPE:		nPK_Button = BUTTON_Rept_Phone_C_CONST;			break;
+			case VK_LWIN:		nPK_Button = BUTTON_Rept_Phone_Pencil_CONST;	break;
+			case VK_F3:			nPK_Button = BUTTON_Rept_Phone_Talk_CONST;		break;
+			case VK_F4:
+			case 198:			nPK_Button = BUTTON_Rept_Phone_End_CONST;		break;
+			case VK_F2:			nPK_Button = BUTTON_Rept_Phone_Soft_left_CONST;	break;
+			case VK_F1:			nPK_Button = BUTTON_Rept_Phone_Soft_right_CONST;break;
+			case VK_NUMPAD8:    nPK_Button = BUTTON_Rept_Asterisk_CONST;		break;
+			case VK_NUMPAD9:    nPK_Button = BUTTON_Rept_Pound_CONST;			break;
+		}
+	}
+
+	return nPK_Button;
+}
+//---------------------------------------------------------------------------------------------------------
+bool OrbiterApp::IsRepeatedKey(int nVirtualKey)
+{
+	vector<int>::iterator it;
+	for(it = m_vectRepeatedKeys.begin(); it != m_vectRepeatedKeys.end(); it++)
+	{
+		if(*it == nVirtualKey)
+			return true;
+	}
+	return false;
+}
+
+//---------------------------------------------------------------------------------------------------------

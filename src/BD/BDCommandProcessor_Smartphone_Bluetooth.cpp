@@ -67,7 +67,6 @@ void *ServerThread(void *p)
 		g_pPlutoLogger->Write(LV_WARNING, "Client successfully connected. Connection came from %04x%08x to channel %d",
 			GET_NAP(sab.btAddr), GET_SAP(sab.btAddr), sab.port);
 
-
 		pBDCommandProcessor->AddCommand(new BD_PC_ReportMyVersion(string(VERSION)));
 		pthread_create(&pBDCommandProcessor->m_ProcessCommandsThreadID, NULL, ProcessCommandsThread, 
 			(void*)pBDCommandProcessor); 
@@ -126,6 +125,8 @@ BDCommandProcessor_Smartphone_Bluetooth::BDCommandProcessor_Smartphone_Bluetooth
 
 	//listening
 	listen (m_ServerSocket, SOMAXCONN);
+
+
 
 	g_pPlutoLogger->Write(LV_WARNING, "Ready to accept connections!");
 	pthread_create(&m_ServerThreadID, NULL, ServerThread, (void*)this); 

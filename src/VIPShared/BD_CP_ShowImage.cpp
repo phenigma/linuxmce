@@ -114,8 +114,9 @@ void BD_CP_ShowImage::ParseCommand(unsigned long size,const char *data)
 #endif //SYMBIAN
 
 #ifdef SMARTPHONE
+	 OrbiterApp::GetInstance()->SetSignalStrengthScreen(m_bSignalStrengthScreen);
 	 OrbiterApp::GetInstance()->ShowImage(m_iImageType, m_ImageSize, m_pImage);
-	 //todo: signal strength, intercepted keys?
+	 OrbiterApp::GetInstance()->InterceptRepeatedKeys(m_KeysListSize, m_pRepeatedKeysList);
 #endif
 
 #ifdef VIPDESIGN
