@@ -85,6 +85,7 @@ long int m_FK_Device;
 string m_IRData;
 long int m_FK_Users;
 long int m_FK_Installation;
+string m_OriginalKey;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -92,7 +93,7 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[14];
+		bool is_null[15];
 	
 	public:
 		long int PK_InfraredGroup_Command_get();
@@ -103,6 +104,7 @@ long int FK_Device_get();
 string IRData_get();
 long int FK_Users_get();
 long int FK_Installation_get();
+string OriginalKey_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -119,6 +121,7 @@ void FK_Device_set(long int val);
 void IRData_set(string val);
 void FK_Users_set(long int val);
 void FK_Installation_set(long int val);
+void OriginalKey_set(string val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -133,6 +136,7 @@ bool FK_Device_isNull();
 bool IRData_isNull();
 bool FK_Users_isNull();
 bool FK_Installation_isNull();
+bool OriginalKey_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -146,6 +150,7 @@ void FK_Device_setNull(bool val);
 void IRData_setNull(bool val);
 void FK_Users_setNull(bool val);
 void FK_Installation_setNull(bool val);
+void OriginalKey_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -177,7 +182,7 @@ class Row_Installation* FK_Installation_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_InfraredGroup_Command+ m_FK_InfraredGroup+ m_FK_Command+ m_FK_DeviceTemplate+ m_FK_Device+ m_IRData+ m_FK_Users+ m_FK_Installation+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_InfraredGroup_Command+ m_FK_InfraredGroup+ m_FK_Command+ m_FK_DeviceTemplate+ m_FK_Device+ m_IRData+ m_FK_Users+ m_FK_Installation+ m_OriginalKey+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -190,6 +195,7 @@ string FK_Device_asSQL();
 string IRData_asSQL();
 string FK_Users_asSQL();
 string FK_Installation_asSQL();
+string OriginalKey_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

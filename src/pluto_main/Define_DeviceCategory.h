@@ -83,6 +83,7 @@
 #define DEVICECATEGORY_Laser_Disc_CONST 135
 #define DEVICECATEGORY_OtherMisc_CONST 136
 #define DEVICECATEGORY_Obsolete_Device_CONST 137
+#define DEVICECATEGORY_IRTrans_Remote_Controls_CONST 138
 
 #define DEVICECATEGORY_TABLE "DeviceCategory"
 #define DEVICECATEGORY_PK_DEVICECATEGORY_FIELD "PK_DeviceCategory"
