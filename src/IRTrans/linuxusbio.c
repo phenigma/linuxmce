@@ -1,6 +1,6 @@
 #ifdef LINUX
 
-#include "../../Common/remote.h"
+#include "remote.h"
 
 
 

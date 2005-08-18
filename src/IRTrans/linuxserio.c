@@ -10,8 +10,8 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 
-#include "../../Common/remote.h"
-#include "../../Common/errcode.h"
+#include "remote.h"
+#include "errcode.h"
 #include "lowlevel.h"
 #include "serio.h"
 #include "global.h"

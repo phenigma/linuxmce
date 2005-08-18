@@ -29,10 +29,10 @@ typedef int WSAEVENT;
 #define closesocket		close
 #endif
 
-#include "../../Common/errcode.h"
-#include "../../Common/remote.h"
-#include "../../Common/network.h"
-#include "../../Common/dbstruct.h"
+#include "errcode.h"
+#include "remote.h"
+#include "network.h"
+#include "dbstruct.h"
 #include "fileio.h"
 #include "global.h"
 #include "lowlevel.h"

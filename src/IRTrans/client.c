@@ -20,9 +20,9 @@ typedef void* WSAEVENT;
 #endif
 
 #include <stdio.h>
-#include "../../Common/remote.h"
-#include "../../Common/network.h"
-#include "../../Common/errcode.h"
+#include "remote.h"
+#include "network.h"
+#include "errcode.h"
 
 
 int		InitClientSocket (char host[],SOCKET *sock,unsigned long id);

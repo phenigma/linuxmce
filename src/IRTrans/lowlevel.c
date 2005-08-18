@@ -29,10 +29,10 @@ typedef int WSAEVENT;
 #endif
 
 
-#include "../../Common/remote.h"
-#include "../../Common/errcode.h"
-#include "../../Common/network.h"
-#include "../../Common/dbstruct.h"
+#include "remote.h"
+#include "errcode.h"
+#include "network.h"
+#include "dbstruct.h"
 #include "lowlevel.h"
 #include "fileio.h"
 #include "global.h"

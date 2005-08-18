@@ -1,4 +1,4 @@
-#include "../../Common/ftd2xx.h"
+#include "ftd2xx.h"
 
 typedef unsigned short word;
 

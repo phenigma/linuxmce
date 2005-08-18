@@ -14,10 +14,10 @@ extern int hCom;
 
 #include <stdio.h>
 
-#include "../../Common/remote.h"
-#include "../../Common/errcode.h"
-#include "../../Common/dbstruct.h"
-#include "../../Common/network.h"
+#include "remote.h"
+#include "errcode.h"
+#include "dbstruct.h"
+#include "network.h"
 #include "lowlevel.h"
 #include "global.h"
 #include "fileio.h"
@@ -28,7 +28,7 @@ extern int hCom;
 #endif
 
 
-#include "../../Common/flash.h"
+#include "flash.h"
 
 
 void set_entry (char entry[],int pos,FLASH_CONTENT *content,byte type,byte remote,byte group,byte shift,byte setup,word sourcemask,word acc_timeout,word acc_repeat,char *version);

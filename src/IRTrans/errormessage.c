@@ -8,11 +8,11 @@
 
 #include <stdio.h>
 
-#include "../../Common/remote.h"
+#include "remote.h"
 #include "lowlevel.h"
 #include "global.h"
 
-#include "../../Common/errcode.h"
+#include "errcode.h"
 
 #ifdef WIN32
 #include "winio.h"

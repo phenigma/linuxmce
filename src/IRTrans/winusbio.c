@@ -5,8 +5,8 @@
 #include <stdio.h>
 #include <signal.h>
 
-#include "../../Common/errcode.h"
-#include "../../Common/remote.h"
+#include "errcode.h"
+#include "remote.h"
 #include "lowlevel.h"
 #include "global.h"
 #include "winusbio.h"

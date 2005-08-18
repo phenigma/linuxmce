@@ -3,8 +3,8 @@
 #include <windows.h>
 #include <stdio.h>
 
-#include "../../Common/remote.h"
-#include "../../Common/errcode.h"
+#include "remote.h"
+#include "errcode.h"
 #include "lowlevel.h"
 #include "global.h"
 

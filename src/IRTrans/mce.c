@@ -10,10 +10,10 @@
 #include <sys/timeb.h>
 
 
-#include "../../Common/remote.h"
+#include "remote.h"
 #include "global.h"
 #include "lowlevel.h"
-#include "../../Common/dbstruct.h"
+#include "dbstruct.h"
 
 #endif
 

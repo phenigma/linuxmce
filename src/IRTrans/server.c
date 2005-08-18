@@ -48,16 +48,16 @@ SOCKET local_socket;
 
 #endif
 
-#include "../../Common/remote.h"
-#include "../../Common/dbstruct.h"
-#include "../../Common/network.h"
-#include "../../Common/errcode.h"
+#include "remote.h"
+#include "dbstruct.h"
+#include "network.h"
+#include "errcode.h"
 #include "fileio.h"
 #include "lowlevel.h"
 #include "server.h"
 #include "global.h"
 #include "webserver.h"
-#include "../../Common/flash.h"
+#include "flash.h"
 #include "xap.h"
 
 #ifdef WIN32
