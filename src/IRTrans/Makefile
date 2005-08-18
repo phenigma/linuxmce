@@ -9,7 +9,7 @@ LDFLAGS = -L$(ROOT)/lib
 BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
 
 CC = gcc
-CFLAGS = $(CXXFLAGS)
+CFLAGS = $(CXXFLAGS) -m32 -DLINUX -ggdb3 -DIRTRANS_AS_LI
 
 MYNAME = IRTrans
 VERSION = 2.0.0
@@ -25,7 +25,7 @@ LDFLAGS +=
 XTRALDLIBS =
 
 Gen_Dev_Files +=
-sources += 
+sources += ../LIRC_DCE/IRReceiverBase.cpp
 Csources += fileio.c linuxserio.c lowlevel.c server.c errormessage.c flashrom.c webserver.c xap.c
 
 #<-dceag-mf-b->!

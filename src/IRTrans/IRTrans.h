@@ -7,17 +7,21 @@
 #include "Gen_Devices/IRTransBase.h"
 //<-dceag-d-e->
 
-//<-dceag-decl-b->
+#include "../LIRC_DCE/IRReceiverBase.h"
+
+//<-dceag-decl-b->!
 namespace DCE
 {
-	class IRTrans : public IRTrans_Command
+	class IRTrans : public IRTrans_Command, IRReceiverBase
 	{
 //<-dceag-decl-e->
 		// Private member variables
-
+		bool m_bIRServerRunning;
 		// Private methods
 public:
 		// Public member variables
+		void StartIRServer();
+		void GotIRCommand(const char *pCommand);
 
 //<-dceag-const-b->
 public:
@@ -29,11 +33,7 @@ public:
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
 
-//<-dceag-const2-b->
-		// The following constructor is only used if this a class instance embedded within a DCE Device.  In that case, it won't create it's own connection to the router
-		// You can delete this whole section and put an ! after dceag-const2-b tag if you don't want this constructor.  Do the same in the implementation file
-		IRTrans(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter);
-//<-dceag-const2-e->
+//<-dceag-const2-b->!
 
 //<-dceag-h-b->
 	/*
