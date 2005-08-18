@@ -18,7 +18,7 @@ extern "C"
 {
 	int libmain (int argc,char *argv[]);
 }
-extern void (*CallBackFn)(const char *pCommand);
+extern void (*CallBackFn)(const char *pRemote,const char *pCommand);
 IRTrans *g_pIRTrans=NULL;
 
 void *DoStartIRServer(void *pVoid)
@@ -28,9 +28,9 @@ void *DoStartIRServer(void *pVoid)
 	return NULL;
 }
 
-void DoGotIRCommand(const char *pCommand)
+void DoGotIRCommand(const char *pRemote,const char *pCommand)
 {
-	g_pIRTrans->GotIRCommand(pCommand);
+	g_pIRTrans->GotIRCommand(pRemote,pCommand);
 }
 
 //<-dceag-const-b->
@@ -100,7 +100,7 @@ IRTrans::IRTrans(int DeviceID, string ServerAddress,bool bConnectEventHandler,bo
 		}
 	}
 	pthread_t pthread_id; 
-	if(pthread_create( &pthread_id, NULL, DoStartIRServer, (void*) this)==0 )
+	if(pthread_create( &pthread_id, NULL, DoStartIRServer, (void*) this) )
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot start IRServer thread");
 }
 
@@ -178,13 +178,20 @@ void IRTrans::StartIRServer()
 {
 	CallBackFn=&DoGotIRCommand;
 	m_bIRServerRunning=true;
-	char *argv[]={"aaa","bbb","ccc"};
-	libmain(3,argv);
+	char *argv[]={"IRTrans","-loglevel","4","-debug_code","-no_lirc", "-no_web","/dev/ttyUSB0"};
+	libmain(7,argv);
 	m_bIRServerRunning=false;
 }
 
-void IRTrans::GotIRCommand(const char *pCommand)
+void IRTrans::GotIRCommand(const char *pRemote,const char *pCommand)
 {
-	g_pPlutoLogger->Write(LV_STATUS,"Got IR Command %s",pCommand);
+	int PK_Device = m_mapNameToDevice[pRemote];
+	if( !PK_Device )
+		g_pPlutoLogger->Write(LV_CRITICAL,"Got command %s from unknown remote %s",pCommand,pRemote);
+	else
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"Got IR Command %s from remote %d",pCommand,PK_Device);
+		ReceivedCode(PK_Device,pCommand);
+	}
 }
 

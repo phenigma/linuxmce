@@ -23,7 +23,7 @@ namespace DCE
 public:
 		// Public member variables
 		void StartIRServer();
-		void GotIRCommand(const char *pCommand);
+		void GotIRCommand(const char *pRemote,const char *pCommand);
 
 //<-dceag-const-b->
 public:

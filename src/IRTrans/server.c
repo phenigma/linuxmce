@@ -152,7 +152,7 @@ byte netcount = 0;
 
 NETWORKCLIENT sockinfo[CLIENT_COUNT];
 
-void (*CallBackFn)(const char *pCommand)=NULL;
+void (*CallBackFn)(const char *pRemote,const char *pCommand)=NULL;
 
 extern IRREMOTE *rem_pnt;
 extern long rem_cnt;
@@ -1430,8 +1430,7 @@ int ExecuteReceivedCommand (byte command[],int len,int bus)
 				}
 				i++;
 			}
-
-			if( CallBackFn ) (*CallBackFn)(name);
+			if( CallBackFn ) (*CallBackFn)(rem,name);
 				
 			if (udp_relay_port) udp_relay (rem,name,*command & 15);
 
