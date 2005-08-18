@@ -121,6 +121,7 @@ public:
 	vector<bool> m_bvectLoop_Alt;
 	int m_iCurrentFrame;
 	DesignObj_Orbiter *m_pObj_Screen;
+	PlutoPoint m_pMidPoint;
 
 	class Orbiter_CriteriaList *m_pCriteria;
 	ProntoCCF *m_pCCF;

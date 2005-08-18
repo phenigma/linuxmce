@@ -67,6 +67,7 @@ IRReceiverBase::IRReceiverBase(Command_Impl *pCommand_Impl,DeviceData_Impl *pDat
 
 IRReceiverBase::~IRReceiverBase()
 {
+	return; // Todo - this crashes???  not too important since it's just memory cleanup on exit
 	for(map<string,MapKeysToMessages *>::iterator it=m_mapKeyMapping.begin();it!=m_mapKeyMapping.end();++it)
 	{
 		MapKeysToMessages *pMapKeysToMessages = it->second;

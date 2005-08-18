@@ -90,6 +90,12 @@ if( DesignObj_Generator_Parent->m_pRow_DesignObj->PK_DesignObj_get()==2611 )
 		m_ocBack = new DesignObj_Generator(m_DesignObj_Generator_Parent->m_pOrbiterGenerator,
 			m_mds->DesignObj_get()->GetRow(atoi(m_drOVCP_MoreBack->Value_get().c_str())),
 			PlutoRectangle(m_ptNextPosition.X,m_ptNextPosition.Y,0,0),m_DesignObj_Generator_Parent,false,false);
+
+		m_ocBack->m_bChildrenBeforeText = drDesignObjVariation_DesignObj->DisplayChildrenBeforeText_get()==1;
+		m_ocBack->m_bChildrenBehind = drDesignObjVariation_DesignObj->DisplayChildrenBehindBackground_get()==1;
+		m_ocBack->m_bDontMergeBackground = drDesignObjVariation_DesignObj->DontMergeBackground_get()==1;
+		m_ocBack->m_bTabStop = drDesignObjVariation_DesignObj->IsTabStop_get()==1;
+
 		if( m_ocBack->m_pRow_DesignObjVariation )
 		{
 			m_ocBack->m_sDesignObjGoto = m_ocBack->m_pOrbiterGenerator->m_iPK_DesignObj_Screen + "." + StringUtils::itos(m_ocBack->m_iVersion) + "." + StringUtils::itos(m_iPage-1);
@@ -267,6 +273,11 @@ void CGArray::CheckLastEntry()
 			delete m_ocFwd;
 			return;
 		}
+
+		m_ocFwd->m_bChildrenBeforeText = m_drDesignObjVariation_DesignObj->DisplayChildrenBeforeText_get()==1;
+		m_ocFwd->m_bChildrenBehind = m_drDesignObjVariation_DesignObj->DisplayChildrenBehindBackground_get()==1;
+		m_ocFwd->m_bDontMergeBackground = m_drDesignObjVariation_DesignObj->DontMergeBackground_get()==1;
+		m_ocFwd->m_bTabStop = m_drDesignObjVariation_DesignObj->IsTabStop_get()==1;
 
 		// See if maybe we're just supposed to change screens rather than paging through all the options
 		if( m_ocFwd->m_DesignObj_GeneratorGoto!=NULL )

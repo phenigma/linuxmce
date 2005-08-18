@@ -173,6 +173,7 @@ protected:
     bool m_bShowShortcuts;
 	bool m_bIsOSD; // true if this is an on-screen display
 	bool m_bForward_local_kb_to_OSD; // true if this is orbiter should be used a remote keyboard for another
+	bool m_bAutoSelectFirstObject; // true means automatically highlight the first object when the screen changes
 
 	int  m_iCaptureKeyboard_PK_Variable; /** < capture keyboard variable (coresponds to primary key) @todo ask */
 	string m_sCaptureKeyboard_Text; /** < text for capture keyboard @todo ask */
@@ -243,7 +244,7 @@ protected:
 	vector < class DesignObj_Orbiter * > m_vectObjs_NeedRedraw;
 	vector < class DesignObjText * > m_vectTexts_NeedRedraw;
 
-	vector < class DesignObj_Orbiter * > m_vectObjs_TabStops; /** < All the tab stops */
+	vector < class DesignObj_Orbiter * > m_vectObjs_TabStops; /** < All the tab stops presently on the screen */
 	vector < class DesignObj_Orbiter * > m_vectObjs_Selected; /** < All the objects currently selected */
 	vector < class DesignObj_DataGrid * > m_vectObjs_GridsOnScreen; /** < All the grids currently on the screen */
 	vector < class DesignObj_Orbiter * > m_vectObjs_VideoOnScreen; /** < All the video on screen */
@@ -459,14 +460,9 @@ public: // temp - remove this
 	virtual void HighlightFirstObject();
 
 	/**
-	 * @brief A recursive loop for HighlightFirstObject
-	 */
-	virtual bool HighlightFirstChildObject( DesignObj_Orbiter* pObj );
-
-	/**
 	 * @brief This is used by the following function
 	 */
-	void FindObjectToHighlight( DesignObj_Orbiter **ppNextObjectToRight, DesignObj_Orbiter *pObj, int dwPK_Direction );
+	DesignObj_Orbiter *FindObjectToHighlight( DesignObj_Orbiter *pObjCurrent, int PK_Direction );
 
 	/**
 	 * @brief Given a direction ( UDLR ) find the object
@@ -920,6 +916,7 @@ public:
 	int DATA_Get_Rotation();
 	int DATA_Get_PK_UI();
 	string DATA_Get_Hard_Keys_mapping();
+	bool DATA_Get_Using_Infrared();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position);
@@ -1343,6 +1340,13 @@ public:
 	virtual void CMD_Guide(string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #190 - Enter/Go */
+	/** Select the highlighted item */
+
+	virtual void CMD_EnterGo() { string sCMD_Result; CMD_EnterGo(sCMD_Result,NULL);};
+	virtual void CMD_EnterGo(string &sCMD_Result,Message *pMessage);
+
+
 	/** @brief COMMAND: #192 - On */
 	/** Turn the device on */
 		/** @param #97 PK_Pipe */
@@ -1370,6 +1374,34 @@ public:
 
 	virtual void CMD_Toggle_Power(string sOnOff) { string sCMD_Result; CMD_Toggle_Power(sOnOff.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Toggle_Power(string sOnOff,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #200 - Move Up */
+	/** Move the highlight up */
+
+	virtual void CMD_Move_Up() { string sCMD_Result; CMD_Move_Up(sCMD_Result,NULL);};
+	virtual void CMD_Move_Up(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #201 - Move Down */
+	/** Move the highlight down */
+
+	virtual void CMD_Move_Down() { string sCMD_Result; CMD_Move_Down(sCMD_Result,NULL);};
+	virtual void CMD_Move_Down(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #202 - Move Left */
+	/** Move the highlight left */
+
+	virtual void CMD_Move_Left() { string sCMD_Result; CMD_Move_Left(sCMD_Result,NULL);};
+	virtual void CMD_Move_Left(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #203 - Move Right */
+	/** Move the highlight right */
+
+	virtual void CMD_Move_Right() { string sCMD_Result; CMD_Move_Right(sCMD_Result,NULL);};
+	virtual void CMD_Move_Right(string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #238 - Continuous Refresh */

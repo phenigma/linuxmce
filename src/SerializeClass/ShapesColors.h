@@ -1,7 +1,12 @@
 #ifndef ShapesColor_h
 #define ShapesColor_h
 
+#include <math.h>
 #include "SerializeClass/SerializeClass.h"
+#define DIRECTION_Up_CONST 1
+#define DIRECTION_Down_CONST 2
+#define DIRECTION_Left_CONST 3
+#define DIRECTION_Right_CONST 4
 
 class PlutoColor : public SerializeClass
 {
@@ -52,6 +57,70 @@ public:
 
 	PlutoPoint operator+ (PlutoPoint &p) { return PlutoPoint(X + p.X,Y + p.Y); }
 	bool operator==(PlutoPoint &p1) { return p1.X==X && p1.Y==Y; }
+
+	// Given another point, what is it's relative direction and distance
+	void RelativePosition(PlutoPoint &p,int &Direction_Primary,int &Direction_Secondary,int &Distance)
+	{
+		if( p.X>X )
+		{
+			if( p.Y>Y )
+			{
+				if( p.Y-Y > p.X-X )
+				{
+					Direction_Primary=DIRECTION_Down_CONST;
+					Direction_Secondary=DIRECTION_Right_CONST;
+				}
+				else
+				{
+					Direction_Primary=DIRECTION_Right_CONST;
+					Direction_Secondary=DIRECTION_Down_CONST;
+				}
+			}
+			else
+			{
+				if( Y-p.Y > p.X-X )
+				{
+					Direction_Primary=DIRECTION_Up_CONST;
+					Direction_Secondary=DIRECTION_Right_CONST;
+				}
+				else
+				{
+					Direction_Primary=DIRECTION_Right_CONST;
+					Direction_Secondary=DIRECTION_Up_CONST;
+				}
+			}
+		}
+		else
+		{
+			if( p.Y>Y )
+			{
+				if( p.Y-Y > X-p.X )
+				{
+					Direction_Primary=DIRECTION_Down_CONST;
+					Direction_Secondary=DIRECTION_Left_CONST;
+				}
+				else
+				{
+					Direction_Primary=DIRECTION_Left_CONST;
+					Direction_Secondary=DIRECTION_Down_CONST;
+				}
+			}
+			else
+			{
+				if( Y-p.Y > X-p.X )
+				{
+					Direction_Primary=DIRECTION_Up_CONST;
+					Direction_Secondary=DIRECTION_Left_CONST;
+				}
+				else
+				{
+					Direction_Primary=DIRECTION_Left_CONST;
+					Direction_Secondary=DIRECTION_Up_CONST;
+				}
+			}
+		}
+		Distance = (int) sqrt( (float) (abs(X-p.X)*abs(X-p.X) + abs(Y-p.Y)*abs(Y-p.Y)) );
+	}
 };
 
 class PlutoSize : public SerializeClass
