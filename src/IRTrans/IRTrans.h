@@ -17,6 +17,8 @@ namespace DCE
 //<-dceag-decl-e->
 		// Private member variables
 		bool m_bIRServerRunning;
+		map<string,int> m_mapNameToDevice;
+
 		// Private methods
 public:
 		// Public member variables
