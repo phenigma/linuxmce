@@ -14,7 +14,10 @@ using namespace DCE;
 
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_DeviceCategory.h"
-extern int libmain (int argc,char *argv[]);
+extern "C"
+{
+	int libmain (int argc,char *argv[]);
+}
 extern void (*CallBackFn)(const char *pCommand);
 IRTrans *g_pIRTrans=NULL;
 

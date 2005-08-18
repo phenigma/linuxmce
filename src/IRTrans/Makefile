@@ -40,13 +40,13 @@ bin: IRTrans
 
 so: IRTrans.so
 
-IRTrans.so: $(sources:.cpp=.o) $(Csources:.c=.o)
+IRTrans.so: $(sources:.cpp=.o) $(Csources:.c=.o) ccf.o
 	$(CXX) -shared -o $(MYNAME).so $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
 		
-IRTrans: $(sources:.cpp=.o) $(Csources:.c=.o)
+IRTrans: $(sources:.cpp=.o) $(Csources:.c=.o) ccf.o
 	$(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	./post_make.sh $@

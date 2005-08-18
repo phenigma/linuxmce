@@ -375,7 +375,7 @@ byte display_bus;
 #if defined LINUX || defined _CONSOLE
 
 #ifdef IRTRANS_AS_LIB
-	libmain (int argc,char *argv[])
+	int libmain (int argc,char *argv[])
 #else
 	main (int argc,char *argv[])
 #endif
