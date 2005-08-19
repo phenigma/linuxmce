@@ -266,6 +266,7 @@ protected:
 	pthread_t m_MaintThreadID;
 
 	CacheImageManager *m_pCacheImageManager;
+	PlutoGraphic *m_pGraphicBeforeHighlight;
 
 	// Be sure we're only reading the correct version
 	virtual bool OkayToDeserialize(int iSC_Version);
@@ -450,9 +451,10 @@ public: // temp - remove this
     virtual void SelectObject( class DesignObj_Orbiter *pObj, PlutoPoint point = PlutoPoint(0, 0) );
 
 	/**
-	 * @brief Highlight this object
+	 * @brief Do the Highlighting of the currently highlighted object, or remove the highlighting
 	 */
-	virtual void HighlightObject( class DesignObj_Orbiter *pObj,  PlutoPoint point = PlutoPoint(0, 0));
+	virtual void DoHighlightObject();
+	virtual void UnHighlightObject( bool bDeleteOnly=false );
 
 	/**
 	 * @brief Find the first 'tab stop' object on screen and highlight it
@@ -641,6 +643,7 @@ void RealRedraw( void *data );  // temp hack -- see comments
 	 * @brief We're going to be redrawing something on top of this object. Save it's state, so that during the next redraw this will be used
 	 */
 	virtual void SaveBackgroundForDeselect( DesignObj_Orbiter *pObj, PlutoPoint point ) = 0;
+	virtual PlutoGraphic *GetBackground( PlutoRectangle &rect ) = 0;
 
 /*
 	virtual void Initialize( GraphicType Type );

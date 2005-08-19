@@ -254,77 +254,23 @@ g_pPlutoLogger->Write(LV_STATUS, "~OrbiterSDL finished");
 
     pObj->m_pGraphicToUndoSelect = new SDLGraphic(pSDL_Surface);
 }
-//-----------------------------------------------------------------------------------------------------
-void OrbiterSDL::putpixel(SDL_Surface * pSDL_Surface, int x, int y, Uint32 pixel_color)
+
+PlutoGraphic *OrbiterSDL::GetBackground( PlutoRectangle &rect )
 {
-    // don't try to put a pixel outside the pSDL_Surface
-    if (x < 0 || x >= pSDL_Surface->w || y < 0 || y >= pSDL_Surface->h)
-        return;
+    SDL_Surface *pSDL_Surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
+		rect.Width, rect.Height, 32, rmask, gmask, bmask, amask);
 
-    int bpp = pSDL_Surface->format->BytesPerPixel;
-    Uint8 * pixel = (Uint8 *) pSDL_Surface->pixels + y * pSDL_Surface->pitch + x * bpp;
+	SDL_Rect SourceRect;
+	SourceRect.x = rect.Left(); SourceRect.y = rect.Top();
+	SourceRect.w = rect.Width; SourceRect.h = rect.Height;
 
-    switch(bpp)
-    {
-    case 1:
-        * pixel = pixel_color;
-        break;
+	SDL_SetAlpha(m_pScreenImage, 0, 0);
+	SDL_BlitSurface(m_pScreenImage, &SourceRect, pSDL_Surface, NULL);
 
-    case 2:
-        * (Uint16 *) pixel = pixel_color;
-        break;
-
-    case 3:
-        if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
-        {
-            pixel[0] = (pixel_color >> 16) & 0xff;
-            pixel[1] = (pixel_color >> 8) & 0xff;
-            pixel[2] = pixel_color & 0xff;
-        }
-        else
-        {
-            pixel[0] = pixel_color & 0xff;
-            pixel[1] = (pixel_color >> 8) & 0xff;
-            pixel[2] = (pixel_color >> 16) & 0xff;
-        }
-        break;
-
-    case 4:
-        * (Uint32 *) pixel = pixel_color;
-        break;
-    }
+    return new SDLGraphic(pSDL_Surface);
 }
-//-----------------------------------------------------------------------------------------------------
-Uint32 OrbiterSDL::getpixel(SDL_Surface * pSDL_Surface, int x, int y)
-{
-    // all pixels outside the pSDL_Surface are black
-    if (x < 0 || x >= pSDL_Surface->w || y < 0 || y >= pSDL_Surface->h)
-        return SDL_MapRGB(pSDL_Surface->format, 0, 0, 0);
 
-    int bpp = pSDL_Surface->format->BytesPerPixel;
-    Uint8 * pixel = (Uint8 *) pSDL_Surface->pixels + y * pSDL_Surface->pitch + x * bpp;
 
-    switch(bpp)
-    {
-    case 1:
-        return * pixel;
-
-    case 2:
-        return * (Uint16 *) pixel;
-
-    case 3:
-        if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
-            return pixel[0] << 16 | pixel[1] << 8 | pixel[2];
-        else
-            return pixel[0] | pixel[1] << 8 | pixel[2] << 16;
-
-    case 4:
-        return * (Uint32 *) pixel;
-
-    default:
-        return 0;       /* shouldn't happen, but avoids warnings */
-    }
-}
 //-----------------------------------------------------------------------------------------------------
 void OrbiterSDL::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainArea)
 {
@@ -351,12 +297,12 @@ void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, Pl
         for (int i = 0; i < width; i++)
         {
             // we may need locking on the surface
-			Pixel = getpixel(m_pScreenImage, i + x, j + y);
+			Pixel = SDLGraphic::getpixel(m_pScreenImage, i + x, j + y);
 			unsigned char *pPixel = (unsigned char *) &Pixel;
 			const int max_diff = 3;
 			if ( abs(Source[0]-pPixel[0])<max_diff && abs(Source[1]-pPixel[1])<max_diff && abs(Source[2]-pPixel[2])<max_diff && abs(Source[3]-pPixel[3])<max_diff )
 			{
-				putpixel(m_pScreenImage, i + x, j + y, PlutoPixelDest);
+				SDLGraphic::putpixel(m_pScreenImage,i + x, j + y, PlutoPixelDest);
 			}
 
         }

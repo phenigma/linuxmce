@@ -37,6 +37,7 @@ public:
 	virtual void FloodFill(int x, int y, PlutoColor ColorToReplace, PlutoColor ReplacementColor) {};
 	virtual void RenderText(string &sTextToDisplay,class DesignObjText *Text,class TextStyle *pTextStyle, PlutoPoint point = PlutoPoint(0, 0));
 	virtual void SaveBackgroundForDeselect(DesignObj_Orbiter *pObj, PlutoPoint point);
+	virtual PlutoGraphic *GetBackground( PlutoRectangle &rect );
 	virtual PlutoGraphic *CreateGraphic();
 
 	// Rendering
@@ -55,8 +56,6 @@ public:
 	// Other
 	virtual void Initialize(GraphicType Type, int iPK_Room=0, int iPK_EntertainArea=0);
 	virtual void SetTime(char *ServerTimeString) {};
-	void putpixel(SDL_Surface * pSDL_Surface, int x, int y, Uint32 pixel_color);
-	Uint32 getpixel(SDL_Surface * pSDL_Surface, int x, int y);
 
 protected:
 

@@ -69,6 +69,7 @@ public:
 	virtual bool IsEmpty()=0; //Must be implemented
 	virtual bool LoadGraphic(char *pData, size_t iSize,int iRotation=0) = 0; //Must be implemented
 	virtual void Clear() = 0; //Must be implemented
+	virtual PlutoGraphic *GetHighlightedVersion() { return NULL; } // Return the same object in a highlighted state
 
 	enum eGraphicManagement m_GraphicManagement;
 	enum eGraphicFormat m_GraphicFormat;
@@ -122,6 +123,7 @@ public:
 	int m_iCurrentFrame;
 	DesignObj_Orbiter *m_pObj_Screen;
 	PlutoPoint m_pMidPoint;
+	PlutoRectangle GetHighlightRegion();
 
 	class Orbiter_CriteriaList *m_pCriteria;
 	ProntoCCF *m_pCCF;

@@ -9,6 +9,8 @@
 #include <sge_surface.h>
 
 #include "SDLRendererOCGHelper.h"
+#include "PlutoSDLDefs.h"
+
 //-------------------------------------------------------------------------------------------------------
 SDLGraphic::SDLGraphic(string Filename, eGraphicManagement GraphicManagement,
 					   Orbiter *pOrbiter)
@@ -28,6 +30,8 @@ SDLGraphic::SDLGraphic(struct SDL_Surface *pSDL_Surface)
 	Initialize();
 
 	m_pSDL_Surface = pSDL_Surface;
+	Width = m_pSDL_Surface->w;
+	Height = m_pSDL_Surface->h;
 }
 //-------------------------------------------------------------------------------------------------------
 SDLGraphic::~SDLGraphic()
@@ -81,3 +85,103 @@ void SDLGraphic::Clear()
 	}
 }
 //-------------------------------------------------------------------------------------------------------
+
+PlutoGraphic *SDLGraphic::GetHighlightedVersion()
+{
+    SDL_Surface *pSDL_Surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
+		Width, Height, 32, rmask, gmask, bmask, amask);
+
+	SDL_Rect SourceRect;
+	SourceRect.x = 0; SourceRect.y = 0;
+	SourceRect.w = Width; SourceRect.h = Height;
+
+	SDL_SetAlpha(m_pSDL_Surface, 0, 0);
+	SDL_BlitSurface(m_pSDL_Surface, &SourceRect, pSDL_Surface, NULL);
+
+	for(int w=0;w<Width;w++)
+	{
+		for(int h=0;h<Height;h++)
+		{
+			PlutoColor pc(getpixel(m_pSDL_Surface,w,h));
+			pc.R(max(255,pc.R()+10));
+			pc.G(max(255,pc.G()+10));
+			pc.B(max(255,pc.B()+10));
+			putpixel(pSDL_Surface,w,h,pc.m_Value);
+		}
+	}
+
+    return new SDLGraphic(pSDL_Surface);
+}
+
+//-----------------------------------------------------------------------------------------------------
+Uint32 SDLGraphic::getpixel(SDL_Surface *pSDL_Surface,int x, int y)
+{
+    // all pixels outside the pSDL_Surface are black
+    if (x < 0 || x >= pSDL_Surface->w || y < 0 || y >= pSDL_Surface->h)
+        return SDL_MapRGB(pSDL_Surface->format, 0, 0, 0);
+
+    int bpp = pSDL_Surface->format->BytesPerPixel;
+    Uint8 * pixel = (Uint8 *) pSDL_Surface->pixels + y * pSDL_Surface->pitch + x * bpp;
+
+    switch(bpp)
+    {
+    case 1:
+        return * pixel;
+
+    case 2:
+        return * (Uint16 *) pixel;
+
+    case 3:
+        if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
+            return pixel[0] << 16 | pixel[1] << 8 | pixel[2];
+        else
+            return pixel[0] | pixel[1] << 8 | pixel[2] << 16;
+
+    case 4:
+        return * (Uint32 *) pixel;
+
+    default:
+        return 0;       /* shouldn't happen, but avoids warnings */
+    }
+}
+
+//-----------------------------------------------------------------------------------------------------
+void SDLGraphic::putpixel(SDL_Surface *pSDL_Surface,int x, int y, Uint32 pixel_color)
+{
+    // don't try to put a pixel outside the pSDL_Surface
+    if (x < 0 || x >= pSDL_Surface->w || y < 0 || y >= pSDL_Surface->h)
+        return;
+
+    int bpp = pSDL_Surface->format->BytesPerPixel;
+    Uint8 * pixel = (Uint8 *) pSDL_Surface->pixels + y * pSDL_Surface->pitch + x * bpp;
+
+    switch(bpp)
+    {
+    case 1:
+        * pixel = pixel_color;
+        break;
+
+    case 2:
+        * (Uint16 *) pixel = pixel_color;
+        break;
+
+    case 3:
+        if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
+        {
+            pixel[0] = (pixel_color >> 16) & 0xff;
+            pixel[1] = (pixel_color >> 8) & 0xff;
+            pixel[2] = pixel_color & 0xff;
+        }
+        else
+        {
+            pixel[0] = pixel_color & 0xff;
+            pixel[1] = (pixel_color >> 8) & 0xff;
+            pixel[2] = (pixel_color >> 16) & 0xff;
+        }
+        break;
+
+    case 4:
+        * (Uint32 *) pixel = pixel_color;
+        break;
+    }
+}

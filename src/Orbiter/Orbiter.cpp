@@ -208,7 +208,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
 
     m_pScreenHistory_Current=NULL;
     m_pObj_LastSelected=m_pObj_Highlighted=NULL;
-    m_LastActivityTime=time( NULL );
+	m_pGraphicBeforeHighlight=NULL;
+	m_LastActivityTime=time( NULL );
     m_iLastEntryInDeviceGroup=-1;
 
     pthread_mutexattr_init( &m_MutexAttr );
@@ -618,6 +619,9 @@ void Orbiter::RealRedraw( void *data )
 	if( m_bQuit )
 		return;
 
+	if(m_pGraphicBeforeHighlight)
+	    UnHighlightObject();
+
 #ifdef DEBUG
 	g_pPlutoLogger->Write( LV_STATUS, "In Redraw Objects: rerender %d",(int) m_bRerenderScreen );
 #endif
@@ -692,7 +696,10 @@ g_pPlutoLogger->Write( LV_STATUS, "Exiting Redraw Objects" );
 	//    HighlightFirstObject();
 
     if(NULL != m_pObj_Highlighted)
-    	HighlightObject( m_pObj_Highlighted );
+	{
+    	DoHighlightObject();
+	    UpdateRect(m_pObj_Highlighted->GetHighlightRegion(), AbsolutePosition);
+	}
 
     m_vectObjs_NeedRedraw.clear();
 	m_vectTexts_NeedRedraw.clear();
@@ -810,9 +817,6 @@ int k=2;
 }
         RenderGraphic( pObj,  rectTotal, pObj->m_bDisableAspectLock, point );
     }
-
-    if(pObj == m_pObj_Highlighted)
-        HighlightObject(pObj, point);
 
     // Matt is going to pass through the text before/after children
     /*  moving this block to the end to see if it puts text on top of icons
@@ -2242,21 +2246,43 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
     return false;
 }
 //------------------------------------------------------------------------
-/*virtual*/ void Orbiter::HighlightObject( class DesignObj_Orbiter *pObj, PlutoPoint point )
+/*virtual*/ void Orbiter::DoHighlightObject( )
 {
-    int x = point.X + pObj->m_rPosition.X;
-    int y = point.Y + pObj->m_rPosition.Y;
-    int w = pObj->m_rPosition.Width;
-    int h = pObj->m_rPosition.Height;
+	if( m_pGraphicBeforeHighlight )
+		UnHighlightObject();
+
+	if( !m_pObj_Highlighted )
+		return;
+	
+	PlutoRectangle rect = m_pObj_Highlighted->GetHighlightRegion();
+	m_pGraphicBeforeHighlight = GetBackground(rect);
+
+	PlutoGraphic *pPlutoGraphic = m_pGraphicBeforeHighlight->GetHighlightedVersion();
+	if( !pPlutoGraphic )
+		return;
+	RenderGraphic(pPlutoGraphic, rect);
 
     PlutoColor WhiteColor(255, 255, 255, 100);
     PlutoColor RedColor(255, 0, 0, 100);
 
-    HollowRectangle(x - 1, y - 1, w + 2, h + 2, RedColor);
-    HollowRectangle(x - 2, y - 2, w + 4, h + 4, RedColor);
-    HollowRectangle(x - 3, y - 3, w + 6, h + 6, WhiteColor);
-    HollowRectangle(x - 4, y - 4, w + 8, h + 8, WhiteColor);
+    HollowRectangle(rect.X, rect.Y, rect.Width, rect.Height, RedColor);
+    HollowRectangle(rect.X + 1, rect.Y + 1, rect.Width - 2, rect.Height - 2, RedColor);
+    HollowRectangle(rect.X + 2, rect.Y + 2, rect.Width - 4, rect.Height - 4, WhiteColor);
+    HollowRectangle(rect.X + 3, rect.Y + 3, rect.Width - 6, rect.Height - 6, WhiteColor);
 }
+
+/*virtual*/ void Orbiter::UnHighlightObject( bool bDeleteOnly )
+{
+	if( !m_pGraphicBeforeHighlight )
+		return;
+
+	if( !bDeleteOnly && m_pObj_Highlighted )
+		RenderGraphic(m_pGraphicBeforeHighlight, m_pObj_Highlighted->GetHighlightRegion());
+
+	delete m_pGraphicBeforeHighlight;
+	m_pGraphicBeforeHighlight=NULL;
+}
+
 //------------------------------------------------------------------------
 /*virtual*/ void Orbiter::SelectObject( class DesignObj_Orbiter *pObj, PlutoPoint point )
 {
@@ -6768,9 +6794,6 @@ int k=2;
 		g_pPlutoLogger->Write(LV_STATUS, "No graphic to render for object %s", pObj->m_ObjectID.c_str());
 #endif
 
-    if(pObj == m_pObj_Highlighted)
-        HighlightObject(pObj, point);
-
     if(!bIsMNG && pObj->m_GraphicToDisplay == GRAPHIC_SELECTED)
         SelectObject(pObj, point);
 }
@@ -6837,7 +6860,7 @@ int k=2;
 		RenderGraphic(pPlutoGraphic, pObj->m_rBackgroundPosition, pObj->m_bDisableAspectLock);
 
         if(pObj == m_pObj_Highlighted)
-            HighlightObject(pObj);
+            DoHighlightObject();
 
         UpdateRect(pObj->m_rPosition, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));
 		EndPaint();
