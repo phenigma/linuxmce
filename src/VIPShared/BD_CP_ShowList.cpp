@@ -36,7 +36,7 @@
 #include "Orbiter/CENet_Smartphone/OrbiterApp.h"
 #endif
 
-#ifndef SYMBIAN
+#if !defined(SYMBIAN) && !defined(SMARTPHONE)
 BD_CP_ShowList::BD_CP_ShowList(
 		unsigned long x, 
 		unsigned long y, 
@@ -57,7 +57,7 @@ BD_CP_ShowList::BD_CP_ShowList(
 	m_bTurnOn = bTurnOn;
 
 	for(list<string>::iterator it = DataGridList.begin(); it != DataGridList.end(); ++it)
-		m_vectDataGrid.push_back(*it);
+		m_DataGridList.push_back(*it);
 }
 #endif //SYMBIAN
 
