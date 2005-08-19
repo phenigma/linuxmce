@@ -86,7 +86,7 @@ public:
 
 	virtual void BeginPaint();
 	virtual void EndPaint();
-	virtual void UpdateRect(PlutoRectangle rect, PlutoPoint point);
+	virtual void UpdateRect(PlutoRectangle rect, PlutoPoint point=PlutoPoint(0,0));
 
 	virtual void ShowProgress();
 	virtual void OnQuit();

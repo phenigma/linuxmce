@@ -267,6 +267,7 @@ protected:
 
 	CacheImageManager *m_pCacheImageManager;
 	PlutoGraphic *m_pGraphicBeforeHighlight;
+	PlutoRectangle m_rectLastHighlight;
 
 	// Be sure we're only reading the correct version
 	virtual bool OkayToDeserialize(int iSC_Version);
@@ -300,7 +301,7 @@ protected:
 	virtual void RenderScreen();
 	virtual void BeginPaint() {};
 	virtual void EndPaint() {};
-	virtual void UpdateRect(PlutoRectangle rect, PlutoPoint point) {};
+	virtual void UpdateRect(PlutoRectangle rect, PlutoPoint point=PlutoPoint(0,0)) {};
 
 	/**
 	 * @brief These will redraw any objects in m_vectObjsToRedraw. Use this to queue objects to redraw, such as those tht
@@ -453,7 +454,7 @@ public: // temp - remove this
 	/**
 	 * @brief Do the Highlighting of the currently highlighted object, or remove the highlighting
 	 */
-	virtual void DoHighlightObject();
+	virtual void DoHighlightObject(PlutoPoint pt=PlutoPoint(0,0));
 	virtual void UnHighlightObject( bool bDeleteOnly=false );
 
 	/**

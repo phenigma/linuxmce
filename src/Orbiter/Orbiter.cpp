@@ -152,10 +152,9 @@ void *MaintThread(void *p);
 static bool bMaintThreadIsRunning = false;
 //------------------------------------------------------------------------
 
-
 /*
 	EXTRAINFO codes for datagrids:
-	'H' means allow the user to highlight cells without selecting them.
+	'H' means select a cell when a user highlights it
 	'R' or 'C' means only highlight/select whole rows/columns
 	Either 'A' means arrows scroll the grid.  If 'H' is not specified, the scrolling will be selecting cells.  Otherwise it will be highlighting them
 	'As' means arrows scroll the grid 1 cell at a time
@@ -619,9 +618,6 @@ void Orbiter::RealRedraw( void *data )
 	if( m_bQuit )
 		return;
 
-	if(m_pGraphicBeforeHighlight)
-	    UnHighlightObject();
-
 #ifdef DEBUG
 	g_pPlutoLogger->Write( LV_STATUS, "In Redraw Objects: rerender %d",(int) m_bRerenderScreen );
 #endif
@@ -632,11 +628,16 @@ void Orbiter::RealRedraw( void *data )
 		(m_vectObjs_NeedRedraw.size() || m_vectTexts_NeedRedraw.size()) ))
     {
 		PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
+		if(m_pGraphicBeforeHighlight)
+			UnHighlightObject(true);
         m_vectObjs_NeedRedraw.clear();
 		m_vectTexts_NeedRedraw.clear();
 		nd.Release();
 
         RenderScreen(  );
+		if(NULL != m_pObj_Highlighted)
+    		DoHighlightObject();
+
 		m_bRerenderScreen = false;
 #ifdef DEBUG
 g_pPlutoLogger->Write( LV_STATUS, "Exiting Redraw Objects" );
@@ -655,7 +656,10 @@ g_pPlutoLogger->Write( LV_STATUS, "Exiting Redraw Objects" );
 	BeginPaint();
 	size_t s;
 
-    PlutoPoint AbsolutePosition = NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0);
+	if(m_pGraphicBeforeHighlight)
+	    UnHighlightObject();
+
+	PlutoPoint AbsolutePosition = NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0);
 
 	//render objects
 	for( s = 0; s < m_vectObjs_NeedRedraw.size(); ++s )
@@ -696,10 +700,7 @@ g_pPlutoLogger->Write( LV_STATUS, "Exiting Redraw Objects" );
 	//    HighlightFirstObject();
 
     if(NULL != m_pObj_Highlighted)
-	{
-    	DoHighlightObject();
-	    UpdateRect(m_pObj_Highlighted->GetHighlightRegion(), AbsolutePosition);
-	}
+    	DoHighlightObject(AbsolutePosition);
 
     m_vectObjs_NeedRedraw.clear();
 	m_vectTexts_NeedRedraw.clear();
@@ -1199,11 +1200,15 @@ g_pPlutoLogger->Write(LV_WARNING,"RenderDataGrid %s %p",pObj->m_ObjectID.c_str()
                 {
                     int GraphicType = GRAPHIC_NORMAL;
                     if(  delSelections.length(  ) > 2 && delSelections.find( "|"+string( pCell->GetValue(  ) )+"|" )!=string::npos  )
+					{
                         GraphicType = GRAPHIC_SELECTED;
-                    else if(  ( pObj->m_iHighlightedRow!=-1 || pObj->m_iHighlightedColumn!=-1 ) &&
-                        ( pObj->m_iHighlightedColumn==-1 || pObj->m_iHighlightedColumn==j ) &&
-                        ( pObj->m_iHighlightedRow==-1 || pObj->m_iHighlightedRow==i )  )
-                        GraphicType = GRAPHIC_HIGHLIGHTED;
+						if( pObj->m_bHighlightSelectedCell )
+						{
+							pObj->m_iHighlightedRow = pObj->m_sExtraInfo.find( 'C' )==string::npos ? DGRow : -1;
+							pObj->m_iHighlightedColumn = pObj->m_sExtraInfo.find( 'R' )==string::npos ? DGColumn : -1;
+							pObj->m_bHighlightSelectedCell=false; // Only on the initial draw
+						}
+					}
 
                     RenderCell( pObj,  pT,  pCell,  j,  i + ( int ) bAddedUpButton,  GraphicType, point );
                 }
@@ -1517,6 +1522,7 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y)
 
     if ( pObj->m_ObjectType == DESIGNOBJTYPE_Datagrid_CONST )
 	{
+		PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
 		if( X>=0 && Y>=0 )
 		{
 	#ifdef DEBUG
@@ -1803,7 +1809,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Selected grid %s but m_pDataGridTable is NULL"
 //------------------------------------------------------------------------
 bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCell *pCell )
 {
-	pDesignObj_DataGrid->m_iHighlightedColumn=pDesignObj_DataGrid->m_iHighlightedRow=-1;
+// AB 2005-08-20 is this necessary?  It means you don't stay on the highlighted selection	pDesignObj_DataGrid->m_iHighlightedColumn=pDesignObj_DataGrid->m_iHighlightedRow=-1;
 	m_sLastSelectedDatagrid=pCell->GetText();
 
     PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
@@ -1829,7 +1835,7 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
                 {
                     pDesignObj_DataGrid_OnScreen=pDesignObj_DataGrid;
 					string::size_type posH;
-					if(  (posH=pDesignObj_DataGrid->m_sExtraInfo.find( 'H' ))!=string::npos && pDesignObj_DataGrid->sSelVariable.length()==0 )
+					if(  (posH=pDesignObj_DataGrid->m_sExtraInfo.find( 'H' ))==string::npos && pDesignObj_DataGrid->sSelVariable.length()==0 )
 					{
 						pDesignObj_DataGrid->m_iHighlightedRow = (posH==pDesignObj_DataGrid->m_sExtraInfo.length() || pDesignObj_DataGrid->m_sExtraInfo[posH+1]!='C') ? 0 : -1;
 						pDesignObj_DataGrid->m_iHighlightedColumn = (posH==pDesignObj_DataGrid->m_sExtraInfo.length() || pDesignObj_DataGrid->m_sExtraInfo[posH+1]!='R') ? 0 : -1;
@@ -2246,7 +2252,7 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
     return false;
 }
 //------------------------------------------------------------------------
-/*virtual*/ void Orbiter::DoHighlightObject( )
+/*virtual*/ void Orbiter::DoHighlightObject(PlutoPoint pt)
 {
 	if( m_pGraphicBeforeHighlight )
 		UnHighlightObject();
@@ -2254,21 +2260,52 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
 	if( !m_pObj_Highlighted )
 		return;
 	
-	PlutoRectangle rect = m_pObj_Highlighted->GetHighlightRegion();
-	m_pGraphicBeforeHighlight = GetBackground(rect);
+	if( m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
+	{
+		DesignObj_DataGrid *pGrid = (DesignObj_DataGrid *) m_pObj_Highlighted;
+	    PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
+		if( pGrid->m_iHighlightedRow==-1 && pGrid->m_iHighlightedColumn==-1 )
+			return;
+		DataGridCell *pCell = pGrid->m_pDataGridTable->GetData(pGrid->m_iHighlightedColumn==-1 ? 0 : pGrid->m_iHighlightedColumn,
+			pGrid->m_iHighlightedRow==-1 ? 0 : pGrid->m_iHighlightedRow);
+		PlutoRectangle r;
+		GetGridCellDimensions( pGrid,  
+			pGrid->m_iHighlightedColumn==-1 ? pGrid->m_MaxCol : pCell->m_Colspan, 
+			pGrid->m_iHighlightedRow==-1 ? pGrid->m_MaxRow : pCell->m_Rowspan,
+			pGrid->m_iHighlightedColumn==-1 ? 0 : pGrid->m_iHighlightedColumn, 
+			pGrid->m_iHighlightedRow==-1 ? 0 : pGrid->m_iHighlightedRow, 
+			r.X,  r.Y,  r.Width,  r.Height );
+		m_rectLastHighlight.X = max(0,r.X-4);
+		m_rectLastHighlight.Y = max(0,r.Y-4);
+		m_rectLastHighlight.Right( min(r.Right()+4,m_Width-1) );
+		m_rectLastHighlight.Bottom( min(r.Bottom()+4,m_Height-1) );
+
+	}
+	else
+		m_rectLastHighlight = m_pObj_Highlighted->GetHighlightRegion();
+
+	m_rectLastHighlight.X += pt.X;
+	m_rectLastHighlight.Y += pt.Y;
+
+	m_rectLastHighlight.Width++;  // GetBackground always seems to be 1 pixel to little
+	m_rectLastHighlight.Height++;
+
+	m_pGraphicBeforeHighlight = GetBackground(m_rectLastHighlight);
 
 	PlutoGraphic *pPlutoGraphic = m_pGraphicBeforeHighlight->GetHighlightedVersion();
 	if( !pPlutoGraphic )
 		return;
-	RenderGraphic(pPlutoGraphic, rect);
+	RenderGraphic(pPlutoGraphic, m_rectLastHighlight);
 
     PlutoColor WhiteColor(255, 255, 255, 100);
     PlutoColor RedColor(255, 0, 0, 100);
 
-    HollowRectangle(rect.X, rect.Y, rect.Width, rect.Height, RedColor);
-    HollowRectangle(rect.X + 1, rect.Y + 1, rect.Width - 2, rect.Height - 2, RedColor);
-    HollowRectangle(rect.X + 2, rect.Y + 2, rect.Width - 4, rect.Height - 4, WhiteColor);
-    HollowRectangle(rect.X + 3, rect.Y + 3, rect.Width - 6, rect.Height - 6, WhiteColor);
+	HollowRectangle(m_rectLastHighlight.X, m_rectLastHighlight.Y, m_rectLastHighlight.Width - 1, m_rectLastHighlight.Height - 1, RedColor);
+    HollowRectangle(m_rectLastHighlight.X + 1, m_rectLastHighlight.Y + 1, m_rectLastHighlight.Width - 3, m_rectLastHighlight.Height - 3, RedColor);
+    HollowRectangle(m_rectLastHighlight.X + 2, m_rectLastHighlight.Y + 2, m_rectLastHighlight.Width - 5, m_rectLastHighlight.Height - 5, WhiteColor);
+    HollowRectangle(m_rectLastHighlight.X + 3, m_rectLastHighlight.Y + 3, m_rectLastHighlight.Width - 7, m_rectLastHighlight.Height - 7, WhiteColor);
+
+	UpdateRect(m_rectLastHighlight);
 }
 
 /*virtual*/ void Orbiter::UnHighlightObject( bool bDeleteOnly )
@@ -2277,7 +2314,10 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
 		return;
 
 	if( !bDeleteOnly && m_pObj_Highlighted )
-		RenderGraphic(m_pGraphicBeforeHighlight, m_pObj_Highlighted->GetHighlightRegion());
+	{
+		RenderGraphic(m_pGraphicBeforeHighlight, m_rectLastHighlight);
+	    UpdateRect(m_rectLastHighlight);
+	}
 
 	delete m_pGraphicBeforeHighlight;
 	m_pGraphicBeforeHighlight=NULL;
@@ -2343,7 +2383,7 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
 	for(size_t s=0;s<m_vectObjs_TabStops.size();++s)
 	{
 		DesignObj_Orbiter *p = m_vectObjs_TabStops[s];
-		if( p==pObjCurrent )
+		if( p==pObjCurrent || p->IsHidden() )
 			continue;
 		int Direction_Primary,Direction_Secondary,Distance;
 		pObjCurrent->m_pMidPoint.RelativePosition(p->m_pMidPoint,Direction_Primary,Direction_Secondary,Distance);
@@ -2387,6 +2427,8 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
 		bool bScrolledOutsideGrid=false;  // Will be true if we scroll past the edge of the grid
 		PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
         DesignObj_DataGrid *pDesignObj_DataGrid = (DesignObj_DataGrid *) m_pObj_Highlighted;
+		if( !pDesignObj_DataGrid->m_pDataGridTable )
+			return;
         switch( PK_Direction )
         {
         case DIRECTION_Up_CONST:
@@ -2459,7 +2501,7 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
 			bScrolledOutsideGrid=false;
 
 		// Check that pDesignObj_DataGrid->m_pDataGridTable wasn't deleted
-	    if(  pDesignObj_DataGrid->m_sExtraInfo.find( 'H' )==string::npos )
+	    if(  pDesignObj_DataGrid->m_sExtraInfo.find( 'H' )!=string::npos )
 		{
 			if( pDesignObj_DataGrid->m_pDataGridTable )
 			{
@@ -2746,6 +2788,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 void Orbiter::InitializeGrid( DesignObj_DataGrid *pObj )
 {
     PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
+	pObj->m_bHighlightSelectedCell=false;
 	if( !pObj->m_bParsed )
 		ParseGrid(pObj);
 
@@ -2754,12 +2797,18 @@ void Orbiter::InitializeGrid( DesignObj_DataGrid *pObj )
     */
     // Initially the first row and column will be highlighted
     string::size_type posH;
-    if(  (posH=pObj->m_sExtraInfo.find( 'H' ))!=string::npos && pObj->sSelVariable.length()==0 )
+    if(  (posH=pObj->m_sExtraInfo.find( 'H' ))==string::npos && pObj->sSelVariable.length()==0 )
     {
         pObj->m_iHighlightedRow = (posH==pObj->m_sExtraInfo.length() || pObj->m_sExtraInfo[posH+1]!='C') ? 0 : -1;
         pObj->m_iHighlightedColumn = (posH==pObj->m_sExtraInfo.length() || pObj->m_sExtraInfo[posH+1]!='R') ? 0 : -1;
     }
-    else
+    else if( m_bAutoSelectFirstObject )
+    {
+        pObj->m_iHighlightedRow = pObj->m_sExtraInfo.find( 'C' )==string::npos ? 0 : -1;
+        pObj->m_iHighlightedColumn = pObj->m_sExtraInfo.find( 'R' )==string::npos ? 0 : -1;
+		pObj->m_bHighlightSelectedCell=true;
+    }
+	else
     {
         pObj->m_iHighlightedRow=-1;
         pObj->m_iHighlightedColumn=-1;
@@ -4997,6 +5046,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Forcing go to the main menu");
 void Orbiter::CMD_Show_Object(string sPK_DesignObj,int iPK_Variable,string sComparisson_Operator,string sComparisson_Value,string sOnOff,string &sCMD_Result,Message *pMessage)
 //<-dceag-c6-e->
 {
+g_pPlutoLogger->Write( LV_CRITICAL, "CMD_Show_Object: %s", sPK_DesignObj.c_str(  ) );
     if(  iPK_Variable ||
         sComparisson_Operator.length(  )==0 ||
         sComparisson_Value.length(  )==0 ||
@@ -5022,7 +5072,7 @@ void Orbiter::CMD_Show_Object(string sPK_DesignObj,int iPK_Variable,string sComp
 
         //PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex );
         if(  m_pObj_Highlighted==pObj && !bShow  )
-			m_pObj_Highlighted=NULL;
+			UnHighlightObject();
 
         pObj->m_bHidden = !bShow;
 #ifdef DEBUG
@@ -7872,7 +7922,7 @@ void Orbiter::CMD_Toggle_Power(string sOnOff,string &sCMD_Result,Message *pMessa
 		CMD_Display_OnOff("0",false);
 	else
 	{
-		DCE::CMD_Halt_Device CMD_Halt_Device(m_dwPK_Device,m_dwPK_Device_LocalAppServer,m_dwPK_Device,false);
+		DCE::CMD_Halt_Device CMD_Halt_Device(m_dwPK_Device,m_dwPK_Device_LocalAppServer,m_dwPK_Device,"0");
 		SendCommand(CMD_Halt_Device);
 	}
 }

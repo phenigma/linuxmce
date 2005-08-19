@@ -228,11 +228,11 @@ string DesignObj_Orbiter::GetParameterValue(int ParameterID)
 
 PlutoRectangle DesignObj_Orbiter::GetHighlightRegion()
 {
-	PlutoRectangle r = m_rBackgroundPosition;
-	r.X = max(0,r.X-4);
-	r.Y = max(0,r.Y-4);
-	r.Right( min(r.Right()+4,m_pCore->m_Width-1) );
-	r.Bottom( min(r.Bottom()+4,m_pCore->m_Height-1) );
+	PlutoRectangle r;
+	r.X = max(0,m_rPosition.X-4);
+	r.Y = max(0,m_rPosition.Y-4);
+	r.Right( min(m_rPosition.Right()+4,m_pCore->m_Width-1) );
+	r.Bottom( min(m_rPosition.Bottom()+4,m_pCore->m_Height-1) );
 	return r;
 }
 

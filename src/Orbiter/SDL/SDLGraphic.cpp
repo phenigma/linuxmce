@@ -88,7 +88,10 @@ void SDLGraphic::Clear()
 
 PlutoGraphic *SDLGraphic::GetHighlightedVersion()
 {
-    SDL_Surface *pSDL_Surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
+	if( m_pSDL_Surface->format->BytesPerPixel!=4 )
+		return NULL;
+
+	SDL_Surface *pSDL_Surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
 		Width, Height, 32, rmask, gmask, bmask, amask);
 
 	SDL_Rect SourceRect;
@@ -96,21 +99,21 @@ PlutoGraphic *SDLGraphic::GetHighlightedVersion()
 	SourceRect.w = Width; SourceRect.h = Height;
 
 	SDL_SetAlpha(m_pSDL_Surface, 0, 0);
-	SDL_BlitSurface(m_pSDL_Surface, &SourceRect, pSDL_Surface, NULL);
 
 	for(int w=0;w<Width;w++)
 	{
 		for(int h=0;h<Height;h++)
 		{
-			PlutoColor pc(getpixel(m_pSDL_Surface,w,h));
-			pc.R(max(255,pc.R()+10));
-			pc.G(max(255,pc.G()+10));
-			pc.B(max(255,pc.B()+10));
-			putpixel(pSDL_Surface,w,h,pc.m_Value);
+		    unsigned char *pS = (unsigned char *) m_pSDL_Surface->pixels + h * m_pSDL_Surface->pitch + w * 4;
+		    unsigned char *pD = (unsigned char *) pSDL_Surface->pixels + h * pSDL_Surface->pitch + w * 4;
+			pD[0] = min(255,pS[0] + 30);
+			pD[1] = min(255,pS[1] + 30);
+			pD[2] = min(255,pS[2] + 30);
+			pD[3] = 255;
 		}
 	}
 
-    return new SDLGraphic(pSDL_Surface);
+	return new SDLGraphic(pSDL_Surface);
 }
 
 //-----------------------------------------------------------------------------------------------------
