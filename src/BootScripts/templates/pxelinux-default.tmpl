@@ -1,0 +1,4 @@
+DEFAULT Pluto
+LABEL Pluto
+	KERNEL default/vmlinuz-%KERNEL_VERSION%
+	APPEND acpi=off vga=normal initrd=default/initrd.img-%KERNEL_VERSION% ramdisk_size=10240 rw ip=dhcp
