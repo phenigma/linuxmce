@@ -90,7 +90,7 @@ del $(outdir)\$(targetname).exp
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="..\..,..\..\..\zlib"
-				PreprocessorDefinitions="WIN32;NDEBUG;PNG_BUILD_DLL;ZLIB_DLL"
+				PreprocessorDefinitions="NDEBUG;WIN32;PNG_BUILD_DLL;ZLIB_DLL"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
@@ -106,10 +106,11 @@ del $(outdir)\$(targetname).exp
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
+				AdditionalDependencies="zlib1-pluto-r.lib"
 				OutputFile="$(OutDir)/libpng-pluto-r.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories=""
+				AdditionalLibraryDirectories="../../../zlib/projects/visualc6/Win32_Dll_Release"
 				ModuleDefinitionFile="..\..\scripts\pngw32.def"
 				ProgramDatabaseFile=".\Win32_DLL_Release/libpng13.pdb"
 				ImportLibrary="$(OutDir)/libpng-pluto-r.lib"/>
@@ -395,8 +396,10 @@ del $(outdir)\$(targetname).exp
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="zlib1-pluto-d.lib"
 				OutputFile="$(OutDir)/libpng-pluto-d.dll"
-				ModuleDefinitionFile="C:\pluto\trunk\CrossPlatform-Libs\lpng127\scripts\pngw32.def"
+				AdditionalLibraryDirectories="..\..\..\zlib\projects\visualc6\Win32_DLL_Debug\"
+				ModuleDefinitionFile="C:\pluto\trunk\libs\CrossPlatform\lpng127\scripts\pngw32.def"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)\libpng-pluto-d.pdb"
 				ImportLibrary="$(OutDir)/libpng-pluto-d.lib"/>

@@ -11,77 +11,41 @@ Build Log
 </h3>
 </pre></table><table width=100% bgcolor=#DFDFE5><tr><td><font face=arial size=+2>
 Command Lines
-</font></table><table width=* cellspacing=0 cellpadding=0><tr><td width=0 bgcolor=#EDEDF5>&nbsp;</td><td width=0 bgcolor=#FFFFFF>&nbsp;</td><td width=*><pre>Creating temporary file "c:\pluto\trunk\CrossPlatform-Libs\lpng127\projects\visualc6\Win32_DLL_Debug\RSP000006.rsp" with contents
+</font></table><table width=* cellspacing=0 cellpadding=0><tr><td width=0 bgcolor=#EDEDF5>&nbsp;</td><td width=0 bgcolor=#FFFFFF>&nbsp;</td><td width=*><pre>
+libpng : warning PRJ0041 : Cannot find missing dependency 'zlib.h' for file 'pngw32.rc'.  Your project may still build, but may continue to appear out of date until this file is found.
+
+Creating command line "rc.exe /d "_DEBUG" /d "PNG_DEBUG=1" /l 0x409 /I "..\.." /I "\ha\level4\CrossPlatform-Libs\lpng127\scripts" /fo".\Win32_DLL_Debug/pngw32.res" \pluto\trunk\libs\CrossPlatform\lpng127\scripts\pngw32.rc"
+Creating temporary file "c:\pluto\trunk\libs\CrossPlatform\lpng127\projects\visualc6\Win32_DLL_Debug\RSP00000D.rsp" with contents
 [
-/Od /I "..\.." /I "..\..\..\zlib" /D "WIN32" /D "_DEBUG" /D "DEBUG" /D "PNG_DEBUG=1" /D "PNG_BUILD_DLL" /D "ZLIB_DLL" /D "_WINDLL" /FD /EHsc /RTC1 /MDd /Fp".\Win32_DLL_Debug/libpng.pch" /Fo".\Win32_DLL_Debug/" /Fd".\Win32_DLL_Debug/" /W3 /c /ZI
-"\pluto\trunk\CrossPlatform-Libs\lpng127\pngwutil.c"
-"\pluto\trunk\CrossPlatform-Libs\lpng127\pngwtran.c"
-"\pluto\trunk\CrossPlatform-Libs\lpng127\pngwrite.c"
-"\pluto\trunk\CrossPlatform-Libs\lpng127\pngwio.c"
-"\pluto\trunk\CrossPlatform-Libs\lpng127\pngtrans.c"
-"\pluto\trunk\CrossPlatform-Libs\lpng127\pngset.c"
-"\pluto\trunk\CrossPlatform-Libs\lpng127\pngrutil.c"
-"\pluto\trunk\CrossPlatform-Libs\lpng127\pngrtran.c"
-"\pluto\trunk\CrossPlatform-Libs\lpng127\pngrio.c"
-"\pluto\trunk\CrossPlatform-Libs\lpng127\pngread.c"
-"\pluto\trunk\CrossPlatform-Libs\lpng127\pngpread.c"
-"\pluto\trunk\CrossPlatform-Libs\lpng127\pngmem.c"
-"\pluto\trunk\CrossPlatform-Libs\lpng127\pngget.c"
-"\pluto\trunk\CrossPlatform-Libs\lpng127\pngerror.c"
-"\pluto\trunk\CrossPlatform-Libs\lpng127\png.c"
+/OUT:".\Win32_DLL_Debug/libpng-pluto-d.dll" /NOLOGO /LIBPATH:"..\..\..\zlib\projects\visualc6\Win32_DLL_Debug\\" /DLL /DEF:"C:\pluto\trunk\libs\CrossPlatform\lpng127\scripts\pngw32.def" /DEBUG /PDB:".\Win32_DLL_Debug\libpng-pluto-d.pdb" /IMPLIB:".\Win32_DLL_Debug/libpng-pluto-d.lib" zlib1-pluto-d.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib "\pluto\trunk\libs\CrossPlatform\zlib\projects\visualc6\Win32_DLL_Debug\zlib1-pluto-d.lib"
+.\Win32_DLL_Debug\png.obj
+.\Win32_DLL_Debug\pngerror.obj
+.\Win32_DLL_Debug\pngget.obj
+.\Win32_DLL_Debug\pngmem.obj
+.\Win32_DLL_Debug\pngpread.obj
+.\Win32_DLL_Debug\pngread.obj
+.\Win32_DLL_Debug\pngrio.obj
+.\Win32_DLL_Debug\pngrtran.obj
+.\Win32_DLL_Debug\pngrutil.obj
+.\Win32_DLL_Debug\pngset.obj
+.\Win32_DLL_Debug\pngtrans.obj
+.\Win32_DLL_Debug\pngwio.obj
+.\Win32_DLL_Debug\pngwrite.obj
+.\Win32_DLL_Debug\pngwtran.obj
+.\Win32_DLL_Debug\pngwutil.obj
+.\Win32_DLL_Debug\pngw32.res
 ]
-Creating command line "cl.exe @"c:\pluto\trunk\CrossPlatform-Libs\lpng127\projects\visualc6\Win32_DLL_Debug\RSP000006.rsp" /nologo"
-Creating command line "rc.exe /d "_DEBUG" /d "PNG_DEBUG=1" /l 0x409 /I "..\.." /I "\ha\level4\CrossPlatform-Libs\lpng127\scripts" /fo".\Win32_DLL_Debug/pngw32.res" "\pluto\trunk\CrossPlatform-Libs\lpng127\scripts\pngw32.rc""
-Creating temporary file "c:\pluto\trunk\CrossPlatform-Libs\lpng127\projects\visualc6\Win32_DLL_Debug\RSP000007.rsp" with contents
-[
-/OUT:".\Win32_DLL_Debug/libpng-pluto-d.dll" /NOLOGO /DLL /DEF:"C:\pluto\trunk\CrossPlatform-Libs\lpng127\scripts\pngw32.def" /DEBUG /PDB:".\Win32_DLL_Debug\libpng-pluto-d.pdb" /IMPLIB:".\Win32_DLL_Debug/libpng-pluto-d.lib" kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib "\pluto\trunk\CrossPlatform-Libs\zlib\projects\visualc6\Win32_DLL_Debug\zlib1-pluto-d.lib"
-".\Win32_DLL_Debug\png.obj"
-".\Win32_DLL_Debug\pngerror.obj"
-".\Win32_DLL_Debug\pngget.obj"
-".\Win32_DLL_Debug\pngmem.obj"
-".\Win32_DLL_Debug\pngpread.obj"
-".\Win32_DLL_Debug\pngread.obj"
-".\Win32_DLL_Debug\pngrio.obj"
-".\Win32_DLL_Debug\pngrtran.obj"
-".\Win32_DLL_Debug\pngrutil.obj"
-".\Win32_DLL_Debug\pngset.obj"
-".\Win32_DLL_Debug\pngtrans.obj"
-".\Win32_DLL_Debug\pngwio.obj"
-".\Win32_DLL_Debug\pngwrite.obj"
-".\Win32_DLL_Debug\pngwtran.obj"
-".\Win32_DLL_Debug\pngwutil.obj"
-".\Win32_DLL_Debug\pngw32.res"
-]
-Creating command line "link.exe @"c:\pluto\trunk\CrossPlatform-Libs\lpng127\projects\visualc6\Win32_DLL_Debug\RSP000007.rsp""
+Creating command line "link.exe @c:\pluto\trunk\libs\CrossPlatform\lpng127\projects\visualc6\Win32_DLL_Debug\RSP00000D.rsp"
 </pre></table><table width=100% bgcolor=#DFDFE5><tr><td><font face=arial size=+2>
 Output Window
-</font></table><table width=* cellspacing=0 cellpadding=0><tr><td width=0 bgcolor=#EDEDF5>&nbsp;</td><td width=0 bgcolor=#FFFFFF>&nbsp;</td><td width=*><pre>Compiling...
-pngwutil.c
-pngwtran.c
-pngwrite.c
-pngwio.c
-pngtrans.c
-pngset.c
-pngrutil.c
-pngrtran.c
-pngrio.c
-pngread.c
-pngpread.c
-pngmem.c
-pngget.c
-pngerror.c
-png.c
-Generating Code...
-Compiling resources...
+</font></table><table width=* cellspacing=0 cellpadding=0><tr><td width=0 bgcolor=#EDEDF5>&nbsp;</td><td width=0 bgcolor=#FFFFFF>&nbsp;</td><td width=*><pre>Compiling resources...
 Linking...
-C:\pluto\trunk\CrossPlatform-Libs\lpng127\scripts\pngw32.def(6) : warning LNK4017: DESCRIPTION statement not supported for the target platform; ignored
-   Creating library .\Win32_DLL_Debug/libpng-pluto-d.lib and object .\Win32_DLL_Debug/libpng-pluto-d.exp
 
 libpng : warning PRJ0041 : Cannot find missing dependency 'zlib.h' for file 'pngw32.rc'.  Your project may still build, but may continue to appear out of date until this file is found.
 
 </pre></table><table width=100% bgcolor=#DFDFE5><tr><td><font face=arial size=+2>
 Results
 </font></table><table width=* cellspacing=0 cellpadding=0><tr><td width=0 bgcolor=#EDEDF5>&nbsp;</td><td width=0 bgcolor=#FFFFFF>&nbsp;</td><td width=*><pre>
-Build log was saved at "file://c:\pluto\trunk\CrossPlatform-Libs\lpng127\projects\visualc6\Win32_DLL_Debug\BuildLog.htm"
-libpng - 0 error(s), 1 warning(s)</pre></table><table   width=100% height=20 bgcolor=#CFCFE5><tr><td><font face=arial size=+2>
+Build log was saved at "file://c:\pluto\trunk\libs\CrossPlatform\lpng127\projects\visualc6\Win32_DLL_Debug\BuildLog.htm"
+libpng - 0 error(s), 0 warning(s)</pre></table><table   width=100% height=20 bgcolor=#CFCFE5><tr><td><font face=arial size=+2>
 </font></table></body></html>
