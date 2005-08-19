@@ -307,7 +307,7 @@ int main(int argc, char *argv[])
 
 	if (sCommand == "install")
 	{
-		cout << "#!/bin/sh" << endl;
+		cout << "#!/bin/bash" << endl;
 		cout << "error=0" << endl;
 	}
 
