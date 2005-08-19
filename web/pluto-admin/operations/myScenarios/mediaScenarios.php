@@ -168,7 +168,7 @@ function mediaScenarios($output,$dbADO) {
 					$optionLink='<a href="index.php?section=scenarioWizard&cgID='.$rowCG['PK_CommandGroup'].'&wizard=2&from=mediaScenarios">'.$value.'</a>';
 				}else
 					$optionLink=$value;
-				$checkBoxes.='<input type="checkbox" name="checkbox" value="1" '.(($resOptions->RecordCount()>0)?'checked':'').' onClick="javascript:document.mediaScenarios.optionEntArea.value=\''.$rowEntAreas['PK_EntertainArea'].'\';document.mediaScenarios.actionType.value=\''.(($resOptions->RecordCount()>0)?'deleteOption':'addOption').'\';document.mediaScenarios.optionName.value=\''.$value.'\';document.mediaScenarios.EntAreaDescription.value=\''.$rowEntAreas['Description'].'\';document.mediaScenarios.submit()"> '.$optionLink.' ';
+				$checkBoxes.='<input type="checkbox" name="checkbox" value="1" '.(($resOptions->RecordCount()>0)?'checked':'').' onClick="javascript:document.mediaScenarios.optionEntArea.value=\''.$rowEntAreas['PK_EntertainArea'].'\';document.mediaScenarios.actionType.value=\''.(($resOptions->RecordCount()>0)?'deleteOption':'addOption').'\';document.mediaScenarios.optionName.value=\''.$value.'\';document.mediaScenarios.EntAreaDescription.value=\''.addslashes($rowEntAreas['Description']).'\';document.mediaScenarios.submit()"> '.$optionLink.' ';
 			}
 
 			$out.='
@@ -337,7 +337,7 @@ function mediaScenarios($output,$dbADO) {
 							
 							
 							// Aaron program
-							$command='/usr/pluto/bin/UpdateEntArea -h localhost -i '.$installationID.' -D '.$dbPlutoMainDatabase.' -e '.$FK_EntertainArea.' -t '.$FK_Template;
+							$command='sudo -u root /usr/pluto/bin/UpdateEntArea -h localhost -i '.$installationID.' -D '.$dbPlutoMainDatabase.' -e '.$FK_EntertainArea.' -t '.$FK_Template;
 							exec($command);
 								
 							setOrbitersNeedConfigure($installationID,$dbADO);

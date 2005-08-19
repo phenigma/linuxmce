@@ -40,7 +40,7 @@
 	$GLOBALS['rootCoreID'] = 7; 				// Core
 	$GLOBALS['deviceTemplateOrbiter']=8;		// Orbiter
 	$GLOBALS['OrbiterPlugIn'] = 12; 			// Orbiter Plug In
-	$GLOBALS['XinePlayer'] = 13; 				// Xine Player
+	$GLOBALS['XinePlayer'] = 5; 				// Xine Player
 	$GLOBALS['rootMediaDirectorsID'] = 28; 		// Media Directors
 	$GLOBALS['SecurityPlugin'] = 33;	 		// Security plugin
 	$GLOBALS['TelecomPlugin'] = 34;	 			// Telecom plugin

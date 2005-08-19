@@ -133,9 +133,33 @@ function displaySecuritySelected($alertID,$dbADO,$securityADO)
 				updateNotification($_REQUEST['user'].': Ignore',$alertID,$securityADO);
 				break;
 			case 3:
+				if(isset($_REQUEST['number'])){
+					$securityDevicePlugin=getFieldsAsArray('Device','PK_Device',$dbADO,'WHERE FK_DeviceTemplate='.$GLOBALS['SecurityPlugin'].' AND FK_Installation='.$installationID);
+					$securityPluginID=(int)@$securityDevicePlugin['PK_Device'][0];
+					$telecomDevicePlugin=getFieldsAsArray('Device','PK_Device',$dbADO,'WHERE FK_DeviceTemplate='.$GLOBALS['TelecomPlugin'].' AND FK_Installation='.$installationID);
+					$telecomPluginID=(int)@$telecomDevicePlugin['PK_Device'][0];
+					$phone=$_REQUEST['phone'];
+					
+					$cmd='/usr/pluto/bin/MessageSend localhost -targetType device '.$securityPluginID.' '.$telecomPluginID.' 1 414 75 "'.$phone.'" 81 "pluto" 83 "'.$_REQUEST['number'].'"';
+					exec($cmd);
+					
+					$actionResult='SOS call to '.$_REQUEST['number'];
+				}else{
+					$sosForm=getSOSForm($installationID,$dbADO);
+				}
 				updateNotification($_REQUEST['user'].': SOS',$alertID,$securityADO);
 				break;
 			case 4:
+				$securityDevicePlugin=getFieldsAsArray('Device','PK_Device',$dbADO,'WHERE FK_DeviceTemplate='.$GLOBALS['SecurityPlugin'].' AND FK_Installation='.$installationID);
+				$securityPluginID=(int)@$securityDevicePlugin['PK_Device'][0];
+				$telecomDevicePlugin=getFieldsAsArray('Device','PK_Device',$dbADO,'WHERE FK_DeviceTemplate='.$GLOBALS['TelecomPlugin'].' AND FK_Installation='.$installationID);
+				$telecomPluginID=(int)@$telecomDevicePlugin['PK_Device'][0];
+				$phone=$_REQUEST['phone'];
+
+				$cmd='/usr/pluto/bin/MessageSend localhost -targetType device '.$securityDevicePlugin.' '.$telecomPluginID.' 1 414 75 "'.$phone.'" 81 "pluto" 83 "997"';
+				exec($cmd);
+		
+				$actionResult='Neighbours notified.';
 				updateNotification($_REQUEST['user'].': Neighbors',$alertID,$securityADO);
 				break;
 			case 5:
@@ -163,15 +187,21 @@ function displaySecuritySelected($alertID,$dbADO,$securityADO)
 		}
 		$row=$rs->FetchRow();
 		$alertDevice=getFieldsAsArray('Alert_Device','PK_Alert_Device',$securityADO,'WHERE FK_Alert='.$alertID.' AND EK_Device='.$row['EK_Device']);
-		
-		$msg.='<b>'.$row['Description'].'</b> ['.(!isset($roomsArray[$row['EK_Device']])?'No room':$roomsArray[$row['EK_Device']]).'] - '.date($DateFormat,$row['UnixTime']).'<br/>
+		$msg.='
+			<b>'.$row['Description'].'</b> ['.(!isset($roomsArray[$row['EK_Device']])?'No room':$roomsArray[$row['EK_Device']]).'] - '.date($DateFormat,$row['UnixTime']).'<br/>
 		<img src="security_images/'.$alertDevice['PK_Alert_Device'][0].'.jpg" alt="Loading..."/><br/>
-		<b>What to do?</b><br/>
+		<b>What to do?</b><br/>';
+		if(isset($sosForm)){
+			$msg.=$sosForm;
+		}else{
+		
+			$msg.='
 		a) <a href="check.wml?security='.$row['PK_Alert'].'&amp;action=1'.extraLinks().'">reseting the alarm</a><br/> 
 		b) <a href="check.wml?security='.$row['PK_Alert'].'&amp;action=2'.extraLinks().'">ignoring the alert (ie it continues to notify others)</a><br/> 
 		c) <a href="check.wml?security='.$row['PK_Alert'].'&amp;action=3'.extraLinks().'">fire an SOS event (which will call the police, for example)</a><br/>
 		d) <a href="check.wml?security='.$row['PK_Alert'].'&amp;action=4'.extraLinks().'">notifying the neighbors</a><br/> 
 		e) <a href="check.wml?security='.$row['PK_Alert'].'&amp;action=5'.extraLinks().'">speak to the person in the house</a><br/>';
+		}
 	}else{
 		return 'Invalid alert ID';
 	}
@@ -345,5 +375,36 @@ function speakInTheHouse($dbADO)
 	$msg='Speaking in progress ...';
 	
 	return $msg;
+}
+
+function getSOSForm($installationID,$dbADO){
+
+	$securityDevicePlugin=getFieldsAsArray('Device','PK_Device',$dbADO,'WHERE FK_DeviceTemplate='.$GLOBALS['SecurityPlugin'].' AND FK_Installation='.$installationID);
+	$securityPluginID=(int)@$securityDevicePlugin['PK_Device'][0];
+	
+	$queryDDD='SELECT * FROM Device_DeviceData WHERE FK_Device=? AND FK_DeviceData=?';
+	$resDDD=$dbADO->Execute($queryDDD,array($securityPluginID,$GLOBALS['EmergencyCalls']));
+	$ntcArray=array();
+	if($resDDD->RecordCount()>0){
+		$rowDDD=$resDDD->FetchRow();
+		$ecArray=explode(',',$rowDDD['IK_DeviceData']);
+	}	
+
+	$pulldown='<select name="number">';
+	for($i=0;$i<count($ecArray);$i=$i+2){
+		$pulldown.='<option value="'.$ecArray[$i+1].'">'.$ecArray[$i].'</option>';
+	}
+	$pulldown.='</select>';
+	$out='
+		Please choose SOS number to call<br/>
+		'.$pulldown.'<br/>
+		
+	<do type="accept" label="Submit">
+		<go method="get" href="check.wml?user='.$_REQUEST['user'].'&amp;pinuser='.$_REQUEST['pinuser'].'&amp;phone='.$_REQUEST['phone'].'&amp;pin='.$_REQUEST['pin'].'&amp;security='.$_REQUEST['security'].((isset($_REQUEST['installationID']))?'&amp;installationID='.$_REQUEST['installationID']:'').'&amp;number=$number&amp;action=3">
+		</go>
+	</do>	
+	';
+	
+	return $out;
 }
 ?>

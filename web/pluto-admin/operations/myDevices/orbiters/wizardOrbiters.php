@@ -27,7 +27,8 @@ function wizardOrbiters($output,$dbADO) {
 	<input type="hidden" name="section" value="wizardOrbiters">
 	<input type="hidden" name="action" value="add">	
 	<h3  align="left">Orbiters</h3>
-	Download <a href="index.php?section=orbitersWin">Orbiter Win Installer</a>
+	Download <a href="index.php?section=orbitersWin">Orbiter Win Installer</a><br>
+	Privacy settings: <a href="index.php?section=usersOrbiters">restrict acces to users</a>
 		<div id="preloader" style="display:;">
 			<table width="100%">
 				<tr>
@@ -289,7 +290,7 @@ function wizardOrbiters($output,$dbADO) {
 				deleteDevice($value,$dbADO); 
 			}
 			if(isset($_POST['quickRegen_'.$value])){
-				$updateOrbiter='UPDATE Orbiter SET Regen=1 WHERE PK_Orbiter=?';
+				$updateOrbiter='UPDATE Orbiter SET Regen=1,RegenInProgress=1 WHERE PK_Orbiter=?';
 				$dbADO->Execute($updateOrbiter,$value); 
 				$dbADO->Execute('UPDATE Device SET NeedConfigure=1 WHERE PK_Device=?',$value);
 				$updateOrbiters=true;
@@ -299,7 +300,7 @@ function wizardOrbiters($output,$dbADO) {
 				exec($commandToSend,$tmp);
 			}
 			if(isset($_POST['fullRegen_'.$value])){
-				$updateOrbiter='UPDATE Orbiter SET Modification_LastGen=0 WHERE PK_Orbiter=?';
+				$updateOrbiter='UPDATE Orbiter SET RegenInProgress=1,Modification_LastGen=0 WHERE PK_Orbiter=?';
 				$dbADO->Execute($updateOrbiter,$value); 
 				$dbADO->Execute('UPDATE Device SET NeedConfigure=1 WHERE PK_Device=?',$value);
 				$updateOrbiters=true;
@@ -325,8 +326,8 @@ function wizardOrbiters($output,$dbADO) {
 				$updateQuery='';
 				
 				if(isset($_POST['room_'.$value])){
-					$room=(@$_POST['room_'.$value]!=0)?(int)@$_POST['room_'.$value]:NULL;
-					$updateQuery.=',FK_Room=\''.$room.'\'';
+					$room=((int)@$_POST['room_'.$value]!=0)?(int)@$_POST['room_'.$value]:'NULL';
+					$updateQuery.=',FK_Room='.$room.'';
 				}
 				
 				if(isset($_POST['PingTest_'.$value])){

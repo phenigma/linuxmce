@@ -194,15 +194,15 @@ $output = "";
         return $output;
 } 
 
-function cleanString($string,$len=1000) {
+function cleanString($string,$len=100000) {
 	return substr(strip_tags(stripslashes(trim($string))),0,$len);
 }
 
-function cleanStringWithTags2Show($string,$len=1000) {
+function cleanStringWithTags2Show($string,$len=100000) {
 	return trim($string);
 }
 
-function cleanStringWithTags4DB($string,$len=1000) {
+function cleanStringWithTags4DB($string,$len=100000) {
 	return mysql_escape_string(trim($string));
 }
 
@@ -1750,7 +1750,7 @@ function setOrbitersNeedConfigure($installationID,$dbADO)
 	$orbitersArray=getValidOrbitersArray($installationID,$dbADO);
 	if(count($orbitersArray)!=0){
 		$dbADO->Execute('UPDATE Device SET NeedConfigure=1 WHERE PK_Device IN ('.join(',',$orbitersArray).') AND FK_Installation=?',$installationID);
-		$dbADO->Execute('UPDATE Orbiter SET Modification_LastGen=0 WHERE PK_Orbiter IN ('.join(',',$orbitersArray).')'); 
+		$dbADO->Execute('UPDATE Orbiter SET RegenInProgress=1,Modification_LastGen=0 WHERE PK_Orbiter IN ('.join(',',$orbitersArray).')'); 
 	}
 }
 
@@ -1848,7 +1848,8 @@ function pulldownFromArray($valuesArray,$name,$selectedValue,$extra='',$valueKey
 		$out.='<option value="0">'.$zeroValueDescription.'</option>';
 	foreach ($valuesArray AS $key=>$value){
 		$optionValue=($valueKey=='key')?$key:$value;
-		$out.='<option value="'.$optionValue.'" '.(($optionValue==$selectedValue)?'selected':'').' '.((in_array($optionValue,explode(',',$highlightValue)))?'style="background:lightgreen;"':'').'>'.$value.'</option>';
+		$out.='<option value="'.$optionValue.'" '.(($optionValue==$selectedValue)?'selected':'').' '.((in_array($optionValue,explode(',',$highlightValue)))?'style="background:lightgreen;"':'').'>'.$value.'</option>
+		';
 	}
 	$out.='</select>';
 	return $out;
