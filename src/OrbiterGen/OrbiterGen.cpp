@@ -1418,6 +1418,8 @@ void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int Arr
 	else
 		ocDesignObj->m_ObjectID = ParentScreen;
 
+/* AB 2005-08-19 this code caused a crash since an object was off the screen and therefore given
+	a negative width/height.  Don't know if this code was needed for anything anyway
 	if( ocDesignObj->m_rBackgroundPosition.Right()>m_Width )
 		ocDesignObj->m_rBackgroundPosition.Right(m_Width);
 	if( ocDesignObj->m_rPosition.Right()>m_Width )
@@ -1426,7 +1428,7 @@ void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int Arr
 		ocDesignObj->m_rBackgroundPosition.Bottom(m_Height);
 	if( ocDesignObj->m_rPosition.Bottom()>m_Height )
 		ocDesignObj->m_rPosition.Bottom(m_Height);
-
+*/
 	if( ocDesignObj->m_iFloorplanPage>0 && ocDesignObj->m_iFloorplanDevice>0 )
 	{
 		string PageList = "";
