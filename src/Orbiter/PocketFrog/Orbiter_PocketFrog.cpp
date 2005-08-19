@@ -153,15 +153,6 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 	if (!m_bLocalMode)
 		CreateChildren();
 
-	//loading font resources for wince
-#ifdef WINCE
-	HRSRC hResInfo	  = NULL;
-	HGLOBAL hResource = NULL;
-	hResInfo = FindResource(_Module.GetModuleInstance(), MAKEINTRESOURCE(IDR_VGAROM), TEXT("FONTS"));
-	hResource = LoadResource(_Module.GetModuleInstance(), hResInfo);
-	VGAROMFont = (unsigned char*)LockResource(hResource);
-#endif
-
 #ifndef WINCE
 	if(m_bFullScreen)
 	{
@@ -373,110 +364,6 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 {
 	CHECK_STATUS();
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
-
-	/*
-	//temp
-#ifdef WINCE
-
-#if ( defined( PROFILING ) )
-    clock_t clkStart = clock(  );
-#endif
-
-	int iNumChars = Text->m_rPosition.Width / ciCharWidth;
-	int i, iPos;
-
-	vector<string> vectStringsInterm;
-	while(string::npos != (iPos = TextToDisplay.find("\n")))
-	{
-		string FirstString = TextToDisplay.substr(0, iPos - 1);
-		string SecondString = TextToDisplay.substr(iPos + 1, TextToDisplay.length() - 1);
-
-		StringUtils::Replace(&FirstString, "\n", "");
-		StringUtils::Replace(&FirstString, "\r", "");
-
-		vectStringsInterm.push_back(FirstString);
-		TextToDisplay = SecondString;
-	}
-
-	StringUtils::Replace(&TextToDisplay, "\n", "");
-	StringUtils::Replace(&TextToDisplay, "\r", "");
-	vectStringsInterm.push_back(TextToDisplay);
-
-	vector<string> vectStrings;
-	for(i = 0; i < vectStringsInterm.size(); i++)
-	{
-		vector<string> vectStringsTemp;
-		StringUtils::BreakIntoLines( vectStringsInterm[i], &vectStringsTemp, iNumChars );
-
-		for(int j = 0; j < vectStringsTemp.size(); j++)
-			vectStrings.push_back(vectStringsTemp[j]);
-	}
-	vectStringsInterm.clear();
-
-	int Y = Text->m_rPosition.Y;
-	int iTextRectHeight = vectStrings.size() * ciCharHeight + (vectStrings.size() - 1) * ciSpaceHeight;
-
-	switch(Text->m_iPK_VertAlignment)
-	{
-		case VERTALIGNMENT_Top_CONST:
-			break; 
-		case VERTALIGNMENT_Middle_CONST:
-			Y += (Text->m_rPosition.Height - iTextRectHeight) / 2;
-			break;
-		case VERTALIGNMENT_Bottom_CONST:
-			Y += Text->m_rPosition.Height - iTextRectHeight;
-			break;
-	}
-
-	if(Y < Text->m_rPosition.Y)
-		Y = Text->m_rPosition.Y;
-
-	wchar_t TextW[4096];
-
-	Pixel color = GetColor16(pTextStyle->m_ForeColor);
-
-	//workaround: pocketfrog has a bug somewhere.. doesn't render black text (a mask issue?)
-	if(color == Color(0, 0, 0)) //it's black
-		color = Color(7, 7, 7); //almost black :)
-
-	for(i = 0; i < vectStrings.size(); i++)
-	{
-		mbstowcs(TextW, vectStrings[i].c_str(), 4096);	
-
-		int X = Text->m_rPosition.X;
-		int iTextRectWidth = ciCharWidth * vectStrings[i].length();
-
-		switch(Text->m_iPK_HorizAlignment)
-		{
-			case HORIZALIGNMENT_Left_CONST:
-				break;
-			case HORIZALIGNMENT_Right_CONST:
-				X += Text->m_rPosition.Width - iTextRectWidth;
-				break;
-            case HORIZALIGNMENT_Center_CONST:
-                X += (Text->m_rPosition.Width - iTextRectWidth) / 2;
-                break;
-            default:
-                X += (Text->m_rPosition.Width - iTextRectWidth) / 2;
-                break; //HORIZALIGNMENT_Center_CONST
-		}
-
-		if(Y + i * (ciCharHeight + ciSpaceHeight) + ciCharHeight >= Text->m_rPosition.Y + Text->m_rPosition.Height) 
-			break;
-
-		GetDisplay()->DrawVGAText(VGAROMFont, TextW, DVT_NONE, point.X + X, point.Y + Y + i * (ciCharHeight + ciSpaceHeight), color);
-	}
-	vectStrings.clear();
-
-#if ( defined( PROFILING ) )
-    clock_t clkFinished = clock(  );
-    g_pPlutoLogger->Write( LV_CONTROLLER, "RenderText_PocketFrog: %s took %d ms",
-	    TextToDisplay.c_str(), clkFinished-clkStart );
-#endif
-
-
-#else //winxp/2000
-  */
 
 	RECT rectLocation;
 	rectLocation.left   = 0;

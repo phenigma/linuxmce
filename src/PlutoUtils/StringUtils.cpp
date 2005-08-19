@@ -141,7 +141,7 @@ string StringUtils::ftos( double dNum )
     sprintf( acS, "%f", dNum);
     return string( acS );
 #else
-    return string::DoubleToString( dNum );
+    return "not implemented";//string::DoubleToString( dNum );
 #endif
 }
 
@@ -845,8 +845,6 @@ string StringUtils::makeUpPlayerAddressFromPlayerId(unsigned int playerId)
 	return Format( "00:00:%02x:%02x:%02x:%02x", values[3], values[2], values[1], values[0]);
 }
 
-#endif //#ifndef SYMBIAN
-
 string StringUtils::UpperAZ09Only(string sInput)
 {
 	string sOutput;
@@ -859,4 +857,7 @@ string StringUtils::UpperAZ09Only(string sInput)
 	}
 	return sOutput;
 }
+
+#endif //#ifndef SYMBIAN
+
 

@@ -33,14 +33,10 @@ protected:
 	bool m_bPoolRendering;
 	vector<TextToRenderInfo *> m_vectPooledTextToRender;
 
-    //bool m_bShiftDown, m_bControlDown, m_bAltDown, m_bRepeat, m_bCapsLock;
-    //clock_t m_cKeyDown;
 	bool m_bUpdating;
 	bool m_bFullScreen;
 
-	unsigned char* VGAROMFont;
 public:
-
 	DisplayDevice* GetOrbiterDisplay() { return GetDisplay(); }
 
 	Orbiter_PocketFrog(int DeviceID, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
@@ -112,11 +108,9 @@ public:
 	static inline BYTE GetGreenColor(Pixel pixel);
 	static inline BYTE GetBlueColor(Pixel pixel);
 
-
 	void WriteStatusOutput(const char* pMessage);
 
 	bool m_bConnectionLost;
-
     virtual void OnUnexpectedDisconnect();
 
 	virtual void CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,Message *pMessage);

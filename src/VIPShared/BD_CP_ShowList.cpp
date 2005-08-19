@@ -20,11 +20,6 @@
 #include "stdafx.h"
 #include "VIPDesign/VIPDesignDoc.h"
 #endif
-#else
-//#ifndef SYMBIAN
-//#include <iostream>
-//#include <fstream>
-//#endif
 #endif
 
 #ifndef SYMBIAN
@@ -37,6 +32,9 @@
 #include "PlutoUtils/MyStl.h"
 #include "BD_CP_ShowList.h"
 
+#ifdef SMARTPHONE
+#include "Orbiter/CENet_Smartphone/OrbiterApp.h"
+#endif
 
 #ifndef SYMBIAN
 BD_CP_ShowList::BD_CP_ShowList(
@@ -59,27 +57,20 @@ BD_CP_ShowList::BD_CP_ShowList(
 	m_bTurnOn = bTurnOn;
 
 	for(list<string>::iterator it = DataGridList.begin(); it != DataGridList.end(); ++it)
-		m_DataGridList.push_back(*it);
+		m_vectDataGrid.push_back(*it);
 }
 #endif //SYMBIAN
 
 BD_CP_ShowList::~BD_CP_ShowList()
 {
-#ifndef SYMBIAN
-	m_DataGridList.clear();
-#else
-	int i;
-//	for(i = 0; i < m_DataGridList.Count(); i++)
-//		delete m_DataGridList[i];
-
+#ifdef SYMBIAN
 	m_DataGridList.Close();
 #endif //SYMBIAN
 }
 
 void BD_CP_ShowList::ConvertCommandToBinary()
 {
-#ifndef SYMBIAN
-	
+#if !defined(SYMBIAN) && !defined(SMARTPHONE)
 	BDCommand::ConvertCommandToBinary();
 
 	Write_long(m_x);
@@ -95,16 +86,13 @@ void BD_CP_ShowList::ConvertCommandToBinary()
         Write_string(*it);
 
 	m_DataGridList.clear();
-
-#endif //SYMBIAN
+#endif 
 }
 
 void BD_CP_ShowList::ParseCommand(unsigned long size,const char *data)
 {
 	BDCommand::ParseCommand(size, data);
 #ifdef VIPPHONE
-
-#ifdef SYMBIAN
 
 	m_x = Read_long();
 	m_y = Read_long();
@@ -113,9 +101,9 @@ void BD_CP_ShowList::ParseCommand(unsigned long size,const char *data)
 	m_bSendSelectedOnMove = Read_long();
 	m_bTurnOn = Read_long();
 	m_SelectedIndex = Read_long();
-
 	unsigned long ListSize = Read_long();
 
+#ifdef SYMBIAN
 	for(int i = 0; i < ListSize; i++)
 	{
 		string *s = new string;
@@ -127,12 +115,20 @@ void BD_CP_ShowList::ParseCommand(unsigned long size,const char *data)
 	LOG("#	Received 'ShowList' command  #\n"); 
 	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->ShowList(m_x, m_y, m_Width, m_Height, m_DataGridList,
 		m_bSendSelectedOnMove, m_bTurnOn, m_SelectedIndex);
-
 #endif //SYMBIAN
 
-#ifdef VIPDESIGN
-	//TODO: implement this in VIPDESIGN too.
-#endif //VIPDESIGN
+#ifdef SMARTPHONE
+	m_vectDataGrid.clear();
+	string s;
+	for(int i = 0; i < ListSize; i++)
+	{
+		Read_string(s);
+		m_vectDataGrid.push_back(s);
+	}
+
+	OrbiterApp::GetInstance()->ShowList(m_x, m_y, m_Width, m_Height, m_vectDataGrid,
+		m_bSendSelectedOnMove, m_bTurnOn, m_SelectedIndex);
+#endif //SMARTPHONE
 
 #endif //VIPPHONE
 }

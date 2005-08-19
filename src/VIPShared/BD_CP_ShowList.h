@@ -11,7 +11,11 @@ class BD_CP_ShowList : public BDCommand
 	unsigned long m_SelectedIndex;
 
 #ifndef SYMBIAN
-	list<string> m_DataGridList;
+	#ifdef SMARTPHONE 
+		vector<string> m_vectDataGrid;
+	#else
+		list<string> m_DataGridList;
+	#endif
 #else
 	RPointerArray<string> m_DataGridList;
 #endif //SYMBIAN

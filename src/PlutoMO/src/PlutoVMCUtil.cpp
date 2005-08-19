@@ -419,7 +419,7 @@ void CPlutoVMCUtil::SetCaptureKeyboardCommand(
 	TRect ShadowRect(X, Y, X + Width, Y + RowHeight * VisibleItems);
 	m_pGC->DrawRect(ShadowRect);
 
-	//let's see how many item are visible right now
+	//let's see how many items are visible right now
 	for(int i = m_uGridTopItem; i < m_uGridTopItem + VisibleItems; i++)
 	{
 		if(i >= GridList.Count()) 
@@ -544,9 +544,6 @@ void CPlutoVMCUtil::SetCaptureKeyboardCommand(
 			DrawText(pStr2, RowRect2);			
 
 			iExpandOffset += RowHeight;
-
-//			if(!bLastItem)
-//				uGridBottomItem --; //one item less
 		}
 		else
 		{
