@@ -49,6 +49,8 @@ SOCKET local_socket;
 
 #endif
 
+extern "C"
+{
 #include "remote.h"
 #include "dbstruct.h"
 #include "network.h"
@@ -60,10 +62,6 @@ SOCKET local_socket;
 #include "webserver.h"
 #include "flash.h"
 #include "xap.h"
-
-
-extern "C"
-{
 	int libmain (int argc,char *argv[]);
 	void DoExecuteNetCommand (int client,NETWORKCOMMAND *com,STATUSBUFFER *stat);
 }
@@ -230,6 +228,7 @@ void IRTrans::StartIRServer()
 	m_bIRServerRunning=true;
 	char *argv[]={"IRTrans","-loglevel","4","-debug_code","-no_lirc", "-no_web","/dev/ttyUSB0"};
 	libmain(7,argv);
+	LCDBrightness(5);
 #endif
 	m_bIRServerRunning=false;
 }
@@ -248,6 +247,7 @@ void IRTrans::GotIRCommand(const char *pRemote,const char *pCommand)
 
 void IRTrans::DoUpdateDisplay(vector<string> *vectString)
 {
+
 	if( !vectString || vectString->size()==0 )
 		return;
 
