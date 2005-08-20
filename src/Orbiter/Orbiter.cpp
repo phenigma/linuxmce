@@ -2423,7 +2423,8 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
 			continue;
 
 		int Direction_Primary,Direction_Secondary,Distance;
-		(pObjCurrent->m_pMidPoint+pObjCurrent->m_pPopupPoint).RelativePosition(p->m_pMidPoint+p->m_pPopupPoint,Direction_Primary,Direction_Secondary,Distance);
+		PlutoPoint pp=p->m_pMidPoint+p->m_pPopupPoint;
+		(pObjCurrent->m_pMidPoint+pObjCurrent->m_pPopupPoint).RelativePosition(pp,Direction_Primary,Direction_Secondary,Distance);
 
 		if( Direction_Primary==PK_Direction )
 		{
