@@ -134,7 +134,7 @@ namespace StringUtils
 
 
     /**
-     * @brief @todo ask
+     * @brief Do a word wrap  on sInput, where the max line length is iNumChars, and the result is vectStrings lines.
      */
     void BreakIntoLines( string sInput, vector<string> *vectStrings, int iNumChars );
 

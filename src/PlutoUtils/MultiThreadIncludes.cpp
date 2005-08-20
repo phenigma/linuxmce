@@ -500,8 +500,9 @@ int PlutoLock::TimedCondWait(timespec &ts)
 int PlutoLock::TimedCondWait(int Seconds,int Nanoseconds)
 {
 	timespec ts;
-	ts.tv_sec=Seconds;
-	ts.tv_nsec=Nanoseconds;
+	gettimeofday(&ts,NULL);
+	ts.tv_sec+=Seconds;
+	ts.tv_nsec+=Nanoseconds;
 	return TimedCondWait(ts);
 }
 
