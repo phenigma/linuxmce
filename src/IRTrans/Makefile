@@ -25,7 +25,7 @@ LDFLAGS +=
 XTRALDLIBS =
 
 Gen_Dev_Files +=
-sources += ../LIRC_DCE/IRReceiverBase.cpp
+sources += ../LIRC_DCE/IRReceiverBase.cpp ../VFD_LCD/VFD_LCD_Base.cpp
 Csources += fileio.c linuxserio.c lowlevel.c server.c errormessage.c flashrom.c webserver.c xap.c
 
 #<-dceag-mf-b->!
