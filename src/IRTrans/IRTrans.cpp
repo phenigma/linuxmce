@@ -15,10 +15,48 @@ using namespace DCE;
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_DeviceCategory.h"
 
+#ifdef LINUX
+#include <time.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <sys/un.h>
+#include <sys/time.h>
+#include <arpa/inet.h>
+#include <dirent.h>
+#include <sys/stat.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <signal.h>
+#include <netdb.h>
+#include <stdint.h>
+
+typedef int DWORD;
 typedef int WSAEVENT;
-#include "global.h"
+
+
+extern int hCom;
+
+SOCKET local_socket;
+
+#define LIRCD                   "/dev/lircd"
+#define PERMISSIONS             0666
+
+
+#endif
+
 #include "remote.h"
+#include "dbstruct.h"
 #include "network.h"
+#include "errcode.h"
+#include "fileio.h"
+#include "lowlevel.h"
+#include "server.h"
+#include "global.h"
+#include "webserver.h"
+#include "flash.h"
+#include "xap.h"
+
 
 extern "C"
 {
@@ -211,7 +249,6 @@ void IRTrans::DoUpdateDisplay(string sMessage)
 	STATUSBUFFER statusBuffer;
 
 	lcdCommand.netcommand=COMMAND_LCD;
-	lcdCommand.netcommand=0;
 	lcdCommand.mode=3;
 	lcdCommand.lcdcommand=LCD_TEXT;
 	lcdCommand.timeout=3;
@@ -219,7 +256,9 @@ void IRTrans::DoUpdateDisplay(string sMessage)
 	lcdCommand.protocol_version=200;
 	lcdCommand.wid=40;
 	lcdCommand.hgt=4;
-	strcpy(lcdCommand.framebuffer,sMessage.c_str());
+	memset(lcdCommand.framebuffer,0,200);
+	strcpy((char *) lcdCommand.framebuffer,"012345   10 12345   20 12345   30 12345   40 12345   50 12345   60 12345   70 12345   80 12345   90 12345  100 12345   10 12345   20 12345  130 12345   40 12345   50 12345   60 12345  170 12345  180 12345  190");
+//	strcpy((char *) lcdCommand.framebuffer,sMessage.c_str());
 
 	DoExecuteNetCommand (0,(NETWORKCOMMAND *)&lcdCommand,&statusBuffer);
 }

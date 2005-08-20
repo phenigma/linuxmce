@@ -20,7 +20,7 @@ sources = Main.cpp IRTrans.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
 CXXFLAGS +=
-CPPFLAGS += -DIRTRANS_AS_LIB
+CPPFLAGS += -DIRTRANS_AS_LIB -DLINUX
 LDFLAGS +=
 XTRALDLIBS =
 
