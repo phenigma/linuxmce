@@ -18,11 +18,13 @@ void *VL_Thread(void *p)
 	return NULL;
 }
 
-VFD_LCD_Base::VFD_LCD_Base(int iNumColumns,int iNumLines) : m_VL_MessageMutex("m_VL_MessageMutex")
+VFD_LCD_Base::VFD_LCD_Base(int iNumColumns,int iNumLines,int iNumVisibleColumns) : m_VL_MessageMutex("m_VL_MessageMutex")
 {
 	m_iNumLines=iNumLines;
 	m_iNumColumns=iNumColumns;
+	m_iNumVisibleColumns=iNumVisibleColumns;
 	m_bQuit_VL=m_bVL_ThreadRunning=false;
+	m_pVFD_LCD_Message_new=NULL;
 
 	pthread_cond_init(&m_VL_MessageCond, NULL);
 	m_VL_MessageMutex.Init(NULL,&m_VL_MessageCond);
@@ -47,7 +49,8 @@ void VFD_LCD_Base::RunThread()
 		vl.Release();
 		int iSecondsToSleep=UpdateDisplay();
 		vl.Relock();
-		vl.TimedCondWait(iSecondsToSleep,0);
+g_pPlutoLogger->Write(LV_CRITICAL,"Sleeping for %d",iSecondsToSleep);
+		vl.TimedCondWait(iSecondsToSleep ? iSecondsToSleep : 60,0);  // Don't sleep indefinately, wake up each 60 secs at least
 	}
 }
 
@@ -59,14 +62,24 @@ void VFD_LCD_Base::NewMessage(int iMessageType,string sName,string sMessage,int 
 		MapMessages::iterator it=pMapMessages->find(sName);
 		if( it!=pMapMessages->end() )
 			delete it->second;
-		(*pMapMessages)[sName]=new VFD_LCD_Message(sMessage,ExpiresSeconds);
+		VFD_LCD_Message *pVFD_LCD_Message = new VFD_LCD_Message(iMessageType,sMessage,ExpiresSeconds);
+		m_pVFD_LCD_Message_new = pVFD_LCD_Message;
+		(*pMapMessages)[sName]=pVFD_LCD_Message;
 	}
 	else
 		pMapMessages->erase(sName);
+
+	pthread_cond_broadcast(&m_VL_MessageCond);
 }
 
 int VFD_LCD_Base::UpdateDisplay()
 {
+	if( m_pVFD_LCD_Message_new && (m_pVFD_LCD_Message_new->m_iMessageType==VL_MSGTYPE_RUNTIME_ERRORS || m_pVFD_LCD_Message_new->m_iMessageType==VL_MSGTYPE_RUNTIME_NOTICES ) )
+	{
+		DisplayMessage(m_pVFD_LCD_Message_new);
+		m_pVFD_LCD_Message_new=NULL;
+		return 5;  // After 5 seconds we'll see if something else belongs on the display
+	}
 	int SecondsToRedisplay;
 	if(	SecondsToRedisplay=DisplayErrorMessages() )
 		return SecondsToRedisplay;
@@ -86,24 +99,196 @@ int VFD_LCD_Base::UpdateDisplay()
 
 int VFD_LCD_Base::DisplayErrorMessages()
 {
-	return 0;
+	return DisplayStandardMessages(VL_MSGTYPE_RUNTIME_ERRORS);
 }
+
 
 int VFD_LCD_Base::DisplayNoticesMessages()
 {
-	return 0;
+	return DisplayStandardMessages(VL_MSGTYPE_RUNTIME_NOTICES);
 }
 
 int VFD_LCD_Base::DisplayNowPlayingRippingMessages()
 {
-	return 0;
+	MapMessages *pMapMessages_NowPlaying = m_mapMessages_Find(VL_MSGTYPE_NOW_PLAYING_MAIN);
+	MapMessages *pMapMessages_Ripping = m_mapMessages_Find(VL_MSGTYPE_RIPPING_NAME);
+
+	vector<string> str;
+	if( pMapMessages_NowPlaying && pMapMessages_NowPlaying->size() && 
+		pMapMessages_Ripping && pMapMessages_Ripping->size() )
+	{
+		// We've got to split between now playing and ripping, can split between 2 lines
+		// if we have them, otherwise we'll rotate
+		if( m_iNumLines>1 )
+		{
+			int iLinesNP = m_iNumLines/2;
+			GetNowPlaying(&str,iLinesNP);
+			GetRipping(&str,m_iNumLines-iLinesNP);
+		}
+		else
+		{
+			if( m_mapLastMessageByType[VL_MSGTYPE_NOW_PLAYING_MAIN]=="NP" )
+			{
+				GetRipping(&str,m_iNumLines);
+				m_mapLastMessageByType[VL_MSGTYPE_NOW_PLAYING_MAIN]="RIP";
+			}
+			else
+			{
+				GetNowPlaying(&str,m_iNumLines);
+				m_mapLastMessageByType[VL_MSGTYPE_NOW_PLAYING_MAIN]="NP";
+			}
+		}
+	}
+	else if( pMapMessages_NowPlaying && pMapMessages_NowPlaying->size() )
+		GetNowPlaying(&str,m_iNumLines);
+	else if( pMapMessages_Ripping && pMapMessages_Ripping->size() )
+		GetRipping(&str,m_iNumLines);
+
+	if( str.size() )
+	{
+		DoUpdateDisplay(&str);
+		return 3;
+	}
+	else
+		return 0;
 }
 
 int VFD_LCD_Base::DisplayStatusMessages()
 {
-	return 0;
+	return DisplayStandardMessages(VL_MSGTYPE_STATUS);
 }
 
 void VFD_LCD_Base::DisplayDate()
 {
+}
+
+int VFD_LCD_Base::DisplayStandardMessages(int iMessageType)
+{
+	MapMessages *pMapMessages = m_mapMessages_Find(iMessageType);
+	if( !pMapMessages || pMapMessages->size()==0 )
+		return 0;
+
+	VFD_LCD_Message *pVFD_LCD_Message=NULL;
+	MapMessages::iterator it;
+	if( pMapMessages->size()>1 )
+	{
+		string sLastMessage = m_mapLastMessageByType[iMessageType];
+		for( it = pMapMessages->begin();it!=pMapMessages->end();++it )
+		{
+			if( it->first == sLastMessage )
+				break;
+		}
+		if( it==pMapMessages->end() || ++it==pMapMessages->end() )
+			it = pMapMessages->begin();
+	}
+	else
+			it = pMapMessages->begin();
+
+	pVFD_LCD_Message = it->second;
+	m_mapLastMessageByType[iMessageType] = it->first;
+
+	time_t tNow=time(NULL);
+	if( pVFD_LCD_Message->m_tExpireTime && pVFD_LCD_Message->m_tExpireTime<tNow )
+	{
+		delete pVFD_LCD_Message;
+		pMapMessages->erase(it);
+		return DisplayStandardMessages(iMessageType);
+	}
+
+	pVFD_LCD_Message->m_tDisplayTime=tNow;
+	DisplayMessage(pVFD_LCD_Message);
+
+	if( pVFD_LCD_Message->m_tExpireTime && pVFD_LCD_Message->m_tExpireTime-tNow<5 )
+		return pVFD_LCD_Message->m_tExpireTime-tNow;
+    return 5;
+}
+
+
+void VFD_LCD_Base::DisplayMessage(VFD_LCD_Message *pVFD_LCD_Message)
+{
+	vector<string> str;
+	// See if we can fit this in the visible space
+	StringUtils::BreakIntoLines(pVFD_LCD_Message->m_sMessage,&str,m_iNumVisibleColumns);
+
+	if( str.size()>m_iNumLines && m_iNumColumns>m_iNumVisibleColumns )
+	{
+		str.clear();
+		StringUtils::BreakIntoLines(pVFD_LCD_Message->m_sMessage,&str,m_iNumColumns);
+	}
+
+	DoUpdateDisplay(&str);
+}
+
+void VFD_LCD_Base::GetNowPlaying(vector<string> *vectString,int iNumLines)
+{
+	static int iLastNP=1;
+	MapMessages *pMapMessages_NowPlaying = m_mapMessages_Find(VL_MSGTYPE_NOW_PLAYING_MAIN);
+	MapMessages *pMapMessages_Section = m_mapMessages_Find(VL_MSGTYPE_NOW_PLAYING_SECTION);
+	MapMessages *pMapMessages_TimeCode = m_mapMessages_Find(VL_MSGTYPE_NOW_PLAYING_TIME_CODE);
+	MapMessages *pMapMessages_Speed = m_mapMessages_Find(VL_MSGTYPE_NOW_PLAYING_SPEED);
+
+	if( pMapMessages_NowPlaying && pMapMessages_NowPlaying->size() && (iNumLines>1 || iLastNP==1) )
+	{
+		(*vectString).push_back( pMapMessages_NowPlaying->begin()->second->m_sMessage );
+		iLastNP=2;
+		if( iNumLines==1 )
+			return; // Nothing more to display
+	}
+	iLastNP=1;
+
+	if( pMapMessages_Section && pMapMessages_Section->size() )
+	{
+		if( ( (vectString->size() && iNumLines<3) || iNumLines==1 ) &&
+			( (pMapMessages_TimeCode && pMapMessages_TimeCode->size()) || (pMapMessages_Speed && pMapMessages_Speed->size()) )  )
+		{
+			int iSectionWidth=m_iNumVisibleColumns - 12;
+			string str = pMapMessages_Section->begin()->second->m_sMessage.substr(0,iSectionWidth);
+			if( str.size()<iSectionWidth )
+				str += string("                                  ").substr(0, iSectionWidth-str.size());
+			string strTimeCode;
+			if( pMapMessages_TimeCode && pMapMessages_TimeCode->size() )
+				strTimeCode = pMapMessages_TimeCode->begin()->second->m_sMessage.substr(0,7);
+			string strSpeed;
+			if( pMapMessages_Speed && pMapMessages_Speed->size() )
+				strSpeed = pMapMessages_Speed->begin()->second->m_sMessage.substr(0,3);
+			(*vectString).push_back(str + " " + strTimeCode + " " + strSpeed);
+			return; // Nothing more to display
+		}
+		vectString->push_back( pMapMessages_Section->begin()->second->m_sMessage );
+	}
+	if( (pMapMessages_TimeCode && pMapMessages_TimeCode->size()) || (pMapMessages_Speed && pMapMessages_Speed->size()) )
+	{
+		int WidthTimeCode = m_iNumVisibleColumns-4;
+		string str;
+		if( pMapMessages_TimeCode && pMapMessages_TimeCode->size() )
+			str = pMapMessages_TimeCode->begin()->second->m_sMessage.substr(0,WidthTimeCode);
+		if( str.size()<WidthTimeCode )
+			str += string("                                                                  ").substr(0, WidthTimeCode-str.size());
+		if( pMapMessages_Speed && pMapMessages_Speed->size() )
+			str += pMapMessages_Speed->begin()->second->m_sMessage.substr(0,4);
+		(*vectString).push_back(str);
+	}
+}
+
+void VFD_LCD_Base::GetRipping(vector<string> *vectString,int iNumLines)
+{
+	static int iLastRip=1;
+	MapMessages *pMapMessages_RippingName = m_mapMessages_Find(VL_MSGTYPE_RIPPING_NAME);
+	MapMessages *pMapMessages_RippingProgress = m_mapMessages_Find(VL_MSGTYPE_RIPPING_PROGRESS);
+	
+	if( iNumLines==1 && pMapMessages_RippingName && pMapMessages_RippingName->size() &&
+		pMapMessages_RippingProgress && pMapMessages_RippingProgress->size() )
+	{
+		if( iLastRip==1 )
+			(*vectString).push_back( pMapMessages_RippingName->begin()->second->m_sMessage );
+		else
+			(*vectString).push_back( pMapMessages_RippingProgress->begin()->second->m_sMessage );
+		iLastRip = !iLastRip;
+		return;
+	}
+
+	if( pMapMessages_RippingName && pMapMessages_RippingName->size() )
+		(*vectString).push_back( pMapMessages_RippingName->begin()->second->m_sMessage );
+	if( pMapMessages_RippingProgress && pMapMessages_RippingProgress->size() )
+		(*vectString).push_back( pMapMessages_RippingProgress->begin()->second->m_sMessage );
 }

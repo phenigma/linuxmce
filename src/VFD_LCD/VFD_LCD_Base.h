@@ -17,9 +17,11 @@ class VFD_LCD_Message
 public:
 	string m_sMessage;
 	time_t m_tExpireTime,m_tDisplayTime,m_tCreateTime;
+	int m_iMessageType;
 
-	VFD_LCD_Message(string sMessage,int ExpireTime)
+	VFD_LCD_Message(int iMessageType,string sMessage,int ExpireTime)
 	{
+		m_iMessageType=iMessageType;
 		m_sMessage=sMessage;
 		m_tCreateTime=time(NULL);
 		m_tExpireTime = m_tCreateTime+ExpireTime;
@@ -42,9 +44,12 @@ namespace DCE
 		pthread_cond_t m_VL_MessageCond;
 		pthread_t m_ptVL_Thread;
 		bool m_bQuit_VL;
-		int m_iNumColumns,m_iNumLines;
+		int m_iNumColumns,m_iNumLines,m_iNumVisibleColumns;
+		VFD_LCD_Message *m_pVFD_LCD_Message_new;
 
-		map<int,MapMessages *> m_mapMessages;
+		map<int,MapMessages *> m_mapMessages;  // All active messages, by type
+		map<int,string> m_mapLastMessageByType; // The last message shown per type/name
+
 		MapMessages *m_mapMessages_Find(int iMessageType) { map<int,MapMessages *>::iterator it = m_mapMessages.find(iMessageType); return it==m_mapMessages.end() ? NULL : (*it).second; }
 		MapMessages *m_mapMessages_Get(int iMessageType) { 
 			MapMessages *pMapMessages = m_mapMessages_Find(iMessageType); 
@@ -57,19 +62,24 @@ namespace DCE
 		}
 		bool ContainsMessagesOfType(int iMessageType) { MapMessages *p = m_mapMessages_Find(iMessageType); return p ? p->size()>0 : false; }
 
-		VFD_LCD_Base(int iNumColumns,int iNumLines);
-		~VFD_LCD_Base();
+		VFD_LCD_Base(int iNumColumns,int iNumLines,int iNumVisibleColumns);
+		virtual ~VFD_LCD_Base();
 
 		virtual void NewMessage(int iMessageType,string sName,string sMessage,int ExpiresSeconds);
 		virtual int UpdateDisplay();
+		virtual void DisplayMessage(VFD_LCD_Message *pVFD_LCD_Message);
 
-		int DisplayErrorMessages();
-		int DisplayNoticesMessages();
-		int DisplayNowPlayingRippingMessages();
-		int DisplayStatusMessages();
-		void DisplayDate();
+		virtual int DisplayErrorMessages();
+		virtual int DisplayNoticesMessages();
+		virtual int DisplayNowPlayingRippingMessages();
+		virtual int DisplayStatusMessages();
+		virtual void DisplayDate();
+		virtual int DisplayStandardMessages(int iMessageType);
 
-		virtual void DoUpdateDisplay(string sMessage) {} // A derived class is expected to implement this
+		virtual void GetNowPlaying(vector<string> *vectString,int iNumLines);
+		virtual void GetRipping(vector<string> *vectString,int iNumLines);
+
+		virtual void DoUpdateDisplay(vector<string> *vectString) {} // A derived class is expected to implement this
 	};
 
 }
