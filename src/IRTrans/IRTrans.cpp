@@ -15,6 +15,10 @@ using namespace DCE;
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_DeviceCategory.h"
 
+#ifdef WIN32
+typedef int WSAEVENT;
+#endif
+
 #ifdef LINUX
 #include <time.h>
 #include <sys/types.h>
@@ -78,11 +82,11 @@ void DoGotIRCommand(const char *pRemote,const char *pCommand)
 	g_pIRTrans->GotIRCommand(pRemote,pCommand);
 }
 
-//<-dceag-const-b->
+//<-dceag-const-b->!
 // The primary constructor when the class is created as a stand-alone device
 IRTrans::IRTrans(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
-	: IRTrans_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
-	, IRReceiverBase(this,m_pData), VFD_LCD_Base(2,40)
+        : IRTrans_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
+        , IRReceiverBase(this,m_pData), VFD_LCD_Base(40,2,20)
 //<-dceag-const-e->
 {
 	m_bIRServerRunning=false;
@@ -240,11 +244,13 @@ void IRTrans::GotIRCommand(const char *pRemote,const char *pCommand)
 		g_pPlutoLogger->Write(LV_STATUS,"Got IR Command %s from remote %d",pCommand,PK_Device);
 		ReceivedCode(PK_Device,pCommand);
 	}
-	DoUpdateDisplay(pCommand);
 }
 
-void IRTrans::DoUpdateDisplay(string sMessage)
+void IRTrans::DoUpdateDisplay(vector<string> *vectString)
 {
+	if( !vectString || vectString->size()==0 )
+		return;
+
 	LCDCOMMAND lcdCommand;
 	STATUSBUFFER statusBuffer;
 
@@ -257,9 +263,34 @@ void IRTrans::DoUpdateDisplay(string sMessage)
 	lcdCommand.wid=40;
 	lcdCommand.hgt=4;
 	memset(lcdCommand.framebuffer,0,200);
-	strcpy((char *) lcdCommand.framebuffer,"012345   10 12345   20 12345   30 12345   40 12345   50 12345   60 12345   70 12345   80 12345   90 12345  100 12345   10 12345   20 12345  130 12345   40 12345   50 12345   60 12345  170 12345  180 12345  190");
-//	strcpy((char *) lcdCommand.framebuffer,sMessage.c_str());
 
+	strncpy((char *) lcdCommand.framebuffer,(*vectString)[0].c_str(),40);
+	if( vectString->size()>1 )
+		strncpy((char *) (lcdCommand.framebuffer+40),(*vectString)[1].c_str(),40);
+
+	g_pPlutoLogger->Write(LV_WARNING,"%s",(char *) lcdCommand.framebuffer);
+#ifdef LINUX
 	DoExecuteNetCommand (0,(NETWORKCOMMAND *)&lcdCommand,&statusBuffer);
+#endif
 }
 
+//<-dceag-c406-b->
+
+	/** @brief COMMAND: #406 - Display Message */
+	/** Display a message on the lcd/vfd display */
+		/** @param #9 Text */
+			/** The message to display */
+		/** @param #14 Type */
+			/** For devices implementing VFD_LCD_Base, this is the message type defined in the header */
+		/** @param #50 Name */
+			/** you can give the message a name, such as "status", "error", etc */
+		/** @param #102 Time */
+			/** Number of seconds to display the message for */
+		/** @param #103 PK_Device_List */
+			/** If going to a plugin that wil relay messages to other devices (ie orbiter_plugin and orbiter), A comma delimited list of devices to display this message on.  If going to a display device directly (like vfd/lcd) this is ignored. */
+
+void IRTrans::CMD_Display_Message(string sText,string sType,string sName,string sTime,string sPK_Device_List,string &sCMD_Result,Message *pMessage)
+//<-dceag-c406-e->
+{
+	NewMessage(atoi(sType.c_str()),sName,sText,atoi(sTime.c_str()));
+}

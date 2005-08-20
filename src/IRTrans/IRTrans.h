@@ -2,7 +2,7 @@
 #ifndef IRTrans_h
 #define IRTrans_h
 
-//	DCE Implemenation for #1710 IRTrans - DIGN case
+//	DCE Implemenation for #1710 IRTrans - DIGN IR Receiver
 
 #include "Gen_Devices/IRTransBase.h"
 //<-dceag-d-e->
@@ -25,7 +25,7 @@ public:
 		// Public member variables
 		void StartIRServer();
 		void GotIRCommand(const char *pRemote,const char *pCommand);
-		void DoUpdateDisplay(string sMessage);  // Put this message on the VFD Display
+		void DoUpdateDisplay(vector<string> *vectString);  // Put this message on the VFD Display
 
 //<-dceag-const-b->
 public:
@@ -52,6 +52,23 @@ public:
 
 			*****COMMANDS***** we need to implement
 	*/
+
+
+	/** @brief COMMAND: #406 - Display Message */
+	/** Display a message on the lcd/vfd display */
+		/** @param #9 Text */
+			/** The message to display */
+		/** @param #14 Type */
+			/** For devices implementing VFD_LCD_Base, this is the message type defined in the header */
+		/** @param #50 Name */
+			/** you can give the message a name, such as "status", "error", etc */
+		/** @param #102 Time */
+			/** Number of seconds to display the message for */
+		/** @param #103 PK_Device_List */
+			/** If going to a plugin that wil relay messages to other devices (ie orbiter_plugin and orbiter), A comma delimited list of devices to display this message on.  If going to a display device directly (like vfd/lcd) this is ignored. */
+
+	virtual void CMD_Display_Message(string sText,string sType,string sName,string sTime,string sPK_Device_List) { string sCMD_Result; CMD_Display_Message(sText.c_str(),sType.c_str(),sName.c_str(),sTime.c_str(),sPK_Device_List.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Display_Message(string sText,string sType,string sName,string sTime,string sPK_Device_List,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #687 - Set Screen Type */
