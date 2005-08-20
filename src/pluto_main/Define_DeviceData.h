@@ -92,6 +92,8 @@
 #define DEVICEDATA_Longitude_CONST 108
 #define DEVICEDATA_Latitude_CONST 109
 #define DEVICEDATA_Remote_Layout_CONST 110
+#define DEVICEDATA_Using_Infrared_CONST 111
+#define DEVICEDATA_Architecture_CONST 112
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"
