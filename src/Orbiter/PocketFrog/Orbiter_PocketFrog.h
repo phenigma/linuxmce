@@ -76,6 +76,7 @@ public:
 	virtual void RenderText(HDC hdc,string &sTextToDisplay,PlutoRectangle &rPosition,int iPK_HorizAlignment,int iPK_VertAlignment,
 		string &sFont,PlutoColor &ForeColor,int iPixelHeight,bool bBold,bool bItalic,bool bUnderline,PlutoPoint point = PlutoPoint(0, 0));
 	virtual void SaveBackgroundForDeselect(DesignObj_Orbiter *pObj, PlutoPoint point);
+	virtual PlutoGraphic *GetBackground( PlutoRectangle &rect ) ;
 	virtual PlutoGraphic *CreateGraphic();
 
 	// Rendering

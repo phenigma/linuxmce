@@ -462,6 +462,7 @@ bool DesignObj_Data::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 	#endif
 
 				pDesignObj_Data->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition,pExtraSerializationData);
+				pDesignObj_Data->m_pParentObject=this;
 				m_ChildObjects.push_back(pDesignObj_Data);
 			}
 		}

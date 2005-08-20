@@ -1200,7 +1200,7 @@ namespace HADesigner
 		{
 			string strErrorMessage = "";
 
-			if (strPath == "" || strPath == " " ) return null;
+			if (strPath == "" || strPath == " " || strPath.IndexOf("<%")!=-1 ) return null;
 
 			Bitmap objReturnBitmap;
 

@@ -531,6 +531,21 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 
 	pObj->m_pGraphicToUndoSelect = new PocketFrogGraphic(pSurface);
 }
+
+PlutoGraphic *Orbiter_PocketFrog::GetBackground( PlutoRectangle &rect )
+{
+	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
+
+	Rect srcRect;
+	srcRect.Set(rect.X, rect.Y, rect.Right(), rect.Bottom());
+
+	Surface *pSurface = GetDisplay()->CreateSurface(rect.Width, rect.Height);
+	Rasterizer *pRasterizer = GetDisplay()->CreateRasterizer(pSurface);
+	pRasterizer->Blit(0, 0, GetDisplay()->GetBackBuffer(), &srcRect);
+	
+	return new PocketFrogGraphic(pSurface);
+}
+
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ PlutoGraphic *Orbiter_PocketFrog::CreateGraphic()
 {

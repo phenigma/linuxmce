@@ -380,7 +380,7 @@ public: // temp - remove this
 	 * @param pObj pointer to the object to put on screen
 	 * @todo ask (makesure)
 	 */
-	virtual void ObjectOnScreen( VectDesignObj_Orbiter *pVectDesignObj_Orbiter, DesignObj_Orbiter *pObj );
+	virtual void ObjectOnScreen( VectDesignObj_Orbiter *pVectDesignObj_Orbiter, DesignObj_Orbiter *pObj, PlutoPoint *ptPopup=NULL );
 	void HandleNewObjectsOnScreen(VectDesignObj_Orbiter *pVectDesignObj_Orbiter);
 
 	/**
@@ -454,7 +454,7 @@ public: // temp - remove this
 	/**
 	 * @brief Do the Highlighting of the currently highlighted object, or remove the highlighting
 	 */
-	virtual void DoHighlightObject(PlutoPoint pt=PlutoPoint(0,0));
+	virtual void DoHighlightObject();
 	virtual void UnHighlightObject( bool bDeleteOnly=false );
 
 	/**

@@ -700,7 +700,7 @@ g_pPlutoLogger->Write( LV_STATUS, "Exiting Redraw Objects" );
 	//    HighlightFirstObject();
 
     if(NULL != m_pObj_Highlighted)
-    	DoHighlightObject(AbsolutePosition);
+    	DoHighlightObject();
 
     m_vectObjs_NeedRedraw.clear();
 	m_vectTexts_NeedRedraw.clear();
@@ -1421,7 +1421,7 @@ void Orbiter::ObjectOnScreenWrapper(  )
 }
 //------------------------------------------------------------------------
 // If an object has the don't reset state true,  it won't reset to normal,  and it's children won't reset either
-void Orbiter::ObjectOnScreen( VectDesignObj_Orbiter *pVectDesignObj_Orbiter, DesignObj_Orbiter *pObj )
+void Orbiter::ObjectOnScreen( VectDesignObj_Orbiter *pVectDesignObj_Orbiter, DesignObj_Orbiter *pObj, PlutoPoint *ptPopup )
 {
 	// Do this again since sometimes there will be several grids with the same name within the application and if
 	// we're going to do a lookup, such as with seek grid, we want to find the one most recently on screen
@@ -1440,6 +1440,9 @@ void Orbiter::ObjectOnScreen( VectDesignObj_Orbiter *pVectDesignObj_Orbiter, Des
     // And this way we don't need to worry about the changing state of objects that are hidden/shown
     if(  pObj->m_bTabStop  ) 
         m_vectObjs_TabStops.push_back( pObj );
+
+	if( ptPopup )
+		pObj->m_pPopupPoint = *ptPopup;
 
 	if( pObj->m_ObjectType==DESIGNOBJTYPE_Broadcast_Video_CONST )
 	{
@@ -1465,7 +1468,7 @@ void Orbiter::ObjectOnScreen( VectDesignObj_Orbiter *pVectDesignObj_Orbiter, Des
 
     DesignObj_DataList::iterator iHao;
     for( iHao=pObj->m_ChildObjects.begin(  ); iHao != pObj->m_ChildObjects.end(  ); ++iHao )
-        ObjectOnScreen( pVectDesignObj_Orbiter, ( DesignObj_Orbiter * )( *iHao ) );
+        ObjectOnScreen( pVectDesignObj_Orbiter, ( DesignObj_Orbiter * )( *iHao ), ptPopup );
 }
 //------------------------------------------------------------------------
 void Orbiter::GraphicOffScreen(vector<class PlutoGraphic*> *pvectGraphic)
@@ -2252,7 +2255,7 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
     return false;
 }
 //------------------------------------------------------------------------
-/*virtual*/ void Orbiter::DoHighlightObject(PlutoPoint pt)
+/*virtual*/ void Orbiter::DoHighlightObject()
 {
 	if( m_pGraphicBeforeHighlight )
 		UnHighlightObject();
@@ -2284,8 +2287,8 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
 	else
 		m_rectLastHighlight = m_pObj_Highlighted->GetHighlightRegion();
 
-	m_rectLastHighlight.X += pt.X;
-	m_rectLastHighlight.Y += pt.Y;
+	m_rectLastHighlight.X += m_pObj_Highlighted->m_pPopupPoint.X;
+	m_rectLastHighlight.Y += m_pObj_Highlighted->m_pPopupPoint.Y;
 
 	m_rectLastHighlight.Width++;  // GetBackground always seems to be 1 pixel to little
 	m_rectLastHighlight.Height++;
@@ -2347,6 +2350,8 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
 	for(size_t s=0;s<m_vectObjs_TabStops.size();++s)
 	{
 		DesignObj_Orbiter *p = m_vectObjs_TabStops[s];
+		if( p->IsHidden() || !p->m_bOnScreen )
+			continue;
 		int ThisPosition = p->m_rPosition.X + p->m_rPosition.Y;
 		if( p->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
 		{
@@ -2383,14 +2388,59 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
 	for(size_t s=0;s<m_vectObjs_TabStops.size();++s)
 	{
 		DesignObj_Orbiter *p = m_vectObjs_TabStops[s];
-		if( p==pObjCurrent || p->IsHidden() )
+		if( p==pObjCurrent || p->IsHidden() || !p->m_bOnScreen )
 			continue;
-		int Direction_Primary,Direction_Secondary,Distance;
-		pObjCurrent->m_pMidPoint.RelativePosition(p->m_pMidPoint,Direction_Primary,Direction_Secondary,Distance);
-		if( Direction_Primary==PK_Direction && (Distance<Distance_Primary || Distance_Primary==-1) )
+
+		bool bSkip=false;
+		for(list<class PlutoPopup*>::reverse_iterator it=m_pScreenHistory_Current->m_pObj->m_listPopups.rbegin();it!=m_pScreenHistory_Current->m_pObj->m_listPopups.rend();++it)
 		{
-			Distance_Primary=Distance;
-			pObj_Primary=p;
+			PlutoPopup *pPopup = *it;
+			PlutoRectangle pos2=p->m_rPosition+p->m_pPopupPoint;
+
+			if( (pPopup->m_pObj->m_rPosition+pPopup->m_pObj->m_pPopupPoint).IntersectsWith(pos2) && p->TopMostObject()!=pPopup->m_pObj )
+			{
+				bSkip=true;
+				break;
+			}
+		}
+
+		if( bSkip )
+			continue;
+
+		for(list<class PlutoPopup*>::reverse_iterator it=m_listPopups.rbegin();it!=m_listPopups.rend();++it)
+		{
+			PlutoPopup *pPopup = *it;
+			PlutoRectangle pos2=p->m_rPosition+p->m_pPopupPoint;
+
+			if( (pPopup->m_pObj->m_rPosition+pPopup->m_pObj->m_pPopupPoint).IntersectsWith(pos2) && p->TopMostObject()!=pPopup->m_pObj )
+			{
+				bSkip=true;
+				break;
+			}
+		}
+
+		if( bSkip )
+			continue;
+
+		int Direction_Primary,Direction_Secondary,Distance;
+		(pObjCurrent->m_pMidPoint+pObjCurrent->m_pPopupPoint).RelativePosition(p->m_pMidPoint+p->m_pPopupPoint,Direction_Primary,Direction_Secondary,Distance);
+
+		if( Direction_Primary==PK_Direction )
+		{
+			int Test_Distance_Primary;
+			if( PK_Direction==DIRECTION_Left_CONST )
+				Test_Distance_Primary=(pObjCurrent->m_rPosition.X+pObjCurrent->m_pPopupPoint.X)-(p->m_rPosition.Right()+p->m_pPopupPoint.X);
+			else if( PK_Direction==DIRECTION_Right_CONST )
+				Test_Distance_Primary=(p->m_rPosition.X+p->m_pPopupPoint.X)-(pObjCurrent->m_rPosition.Right()+pObjCurrent->m_pPopupPoint.X);
+			else if( PK_Direction==DIRECTION_Up_CONST )
+				Test_Distance_Primary=(pObjCurrent->m_rPosition.Y+pObjCurrent->m_pPopupPoint.Y)-(p->m_rPosition.Bottom()+p->m_pPopupPoint.Y);
+			else if( PK_Direction==DIRECTION_Down_CONST )
+				Test_Distance_Primary=(p->m_rPosition.Y+p->m_pPopupPoint.Y)-(pObjCurrent->m_rPosition.Bottom()+pObjCurrent->m_pPopupPoint.Y);
+			if(Test_Distance_Primary+Distance<Distance_Primary || Distance_Primary==-1)
+			{
+				Distance_Primary=Test_Distance_Primary+Distance;
+				pObj_Primary=p;
+			}
 		}
 		else if( Direction_Secondary==PK_Direction && (Distance<Distance_Secondary || Distance_Secondary==-1) )
 		{
@@ -2446,6 +2496,8 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
                     pDesignObj_DataGrid->m_iHighlightedRow=iHighlightedAbsoluteRow - pDesignObj_DataGrid->m_GridCurRow;
                 }
             }
+			else
+				bScrolledOutsideGrid=true;
             break;
         case DIRECTION_Down_CONST:
 		    if(  pDesignObj_DataGrid->m_sExtraInfo.find( 'C' )!=string::npos )
@@ -2463,6 +2515,8 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
                     pDesignObj_DataGrid->m_iHighlightedRow=iHighlightedAbsoluteRow - pDesignObj_DataGrid->m_GridCurRow;
                 }
             }
+			else
+				bScrolledOutsideGrid=true;
             break;
         case DIRECTION_Left_CONST:
 		    if(  pDesignObj_DataGrid->m_sExtraInfo.find( 'R' )!=string::npos )
@@ -2477,6 +2531,8 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
                     pDesignObj_DataGrid->m_iHighlightedColumn=pDesignObj_DataGrid->m_MaxCol;
                 }
             }
+			else
+				bScrolledOutsideGrid=true;
             break;
         case DIRECTION_Right_CONST:
 		    if(  pDesignObj_DataGrid->m_sExtraInfo.find( 'R' )!=string::npos )
@@ -2493,6 +2549,8 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
                     pDesignObj_DataGrid->m_iHighlightedColumn=0;
                 }
             }
+			else
+				bScrolledOutsideGrid=true;
             break;
         };
 
@@ -3039,7 +3097,7 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
     {
         int k=2;
     }
-    if(  pObj->m_ObjectID.find( "1255.0.0.1687" )!=string::npos )// || pObj->m_ObjectID.find( "2071" )!=string::npos )
+    if(  pObj->m_ObjectID.find( "2211.0.2.2217" )!=string::npos )// || pObj->m_ObjectID.find( "2071" )!=string::npos )
     {
         int k=2;
     }
@@ -7423,7 +7481,7 @@ void Orbiter::CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_
 		return; // Popup must have already been there
 
     VectDesignObj_Orbiter vectDesignObj_Orbiter_OnScreen;
-	ObjectOnScreen( &vectDesignObj_Orbiter_OnScreen, pObj_Popup );
+	ObjectOnScreen( &vectDesignObj_Orbiter_OnScreen, pObj_Popup, &pt );
 	HandleNewObjectsOnScreen( &vectDesignObj_Orbiter_OnScreen );
 
 	pPopup->m_bDontAutohide = bDont_Auto_Hide;
@@ -7453,6 +7511,10 @@ if( sName=="remote" )
 int k=2;
 }
     PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
+
+	if( m_pObj_Highlighted )
+		UnHighlightObject();
+
 	DesignObj_Orbiter *pObj = FindObject(sPK_DesignObj_CurrentScreen);
 g_pPlutoLogger->Write(LV_CRITICAL,"remove popup %s",sName.c_str());
 
@@ -7466,6 +7528,10 @@ g_pPlutoLogger->Write(LV_CRITICAL,"remove popup %s",sName.c_str());
 					ObjectOffScreen((*it)->m_pObj);
 else
 g_pPlutoLogger->Write(LV_CRITICAL,"Popup %s was already off screen",(*it)->m_pObj->m_ObjectID.c_str());
+
+				if( m_pActivePopup==(*it) )
+					m_pActivePopup=NULL;
+
 				delete *it;
 				pObj->m_listPopups.erase(it);
 				break;
@@ -7482,12 +7548,18 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Popup %s was already off screen",(*it)->m_pOb
 					ObjectOffScreen((*it)->m_pObj);
 else
 g_pPlutoLogger->Write(LV_CRITICAL,"Popup %s was already off screen",(*it)->m_pObj->m_ObjectID.c_str());
+
+				if( m_pActivePopup==(*it) )
+					m_pActivePopup=NULL;
+
 				delete *it;
 				m_listPopups.erase(it);
 				break;
 			}
 		}
 	}
+	if( m_pObj_Highlighted )
+		HighlightFirstObject();
 	CMD_Refresh("");
 }
 

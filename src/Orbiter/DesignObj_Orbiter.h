@@ -122,7 +122,7 @@ public:
 	vector<bool> m_bvectLoop_Alt;
 	int m_iCurrentFrame;
 	DesignObj_Orbiter *m_pObj_Screen;
-	PlutoPoint m_pMidPoint;
+	PlutoPoint m_pMidPoint,m_pPopupPoint;
 	PlutoRectangle GetHighlightRegion();
 
 	class Orbiter_CriteriaList *m_pCriteria;

@@ -107,7 +107,7 @@ if( m_pRow_DesignObj->PK_DesignObj_get()==1850 ||  m_pRow_DesignObj->PK_DesignOb
     int k=2; 
 }
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==2147 )// || m_pRow_DesignObj->PK_DesignObj_get()==2211 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )
+if( m_pRow_DesignObj->PK_DesignObj_get()==2233 )// || m_pRow_DesignObj->PK_DesignObj_get()==2211 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )
 {
     int k=2; 
 }
@@ -748,6 +748,8 @@ int k=2;
                         break;
                     int X = atoi(StringUtils::Tokenize(FPInfo_Value,",",pos).c_str());
                     int Y = atoi(StringUtils::Tokenize(FPInfo_Value,",",pos).c_str());
+					if( X<0 || Y<0 )
+						continue;
                     if( atoi(sFloorplan.c_str())==m_pOrbiterGenerator->m_iFloorplanPage )
                     {
                         m_VariableMap[VARIABLE_Array_ID_CONST] = pRow_FloorplanObjectType->Description_get();
@@ -775,6 +777,7 @@ int k=2;
 								pDesignObj_Generator->m_bChildrenBeforeText = false;
 								pDesignObj_Generator->m_bChildrenBehind = false;
 								pDesignObj_Generator->m_bDontMergeBackground = false;
+								pDesignObj_Generator->m_bTabStop = true;
 								pDesignObj_Generator->m_iFloorplanPage = m_iFloorplanPage;
 								pDesignObj_Generator->m_iFloorplanDevice = PK_Device_EA;
 

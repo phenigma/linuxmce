@@ -241,7 +241,7 @@ bool EventLoop(ORBITER* pOrbiter)
 #endif //POCKETFROG vs. SDL
 
 	g_pPlutoLogger->Write(LV_STATUS, "About to quit EventLoop. Reload %d, ConnectionLost %d, Quit %d", 
-		pOrbiter->m_bReload, pOrbiter->m_bConnectionLost, pOrbiter->m_bQuit);
+		(int) pOrbiter->m_bReload, (int) pOrbiter->m_bConnectionLost, (int) pOrbiter->m_bQuit);
 
 	return !pOrbiter->m_bReload;
 }
