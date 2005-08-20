@@ -14,9 +14,16 @@ using namespace DCE;
 
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_DeviceCategory.h"
+
+typedef int WSAEVENT;
+#include "global.h"
+#include "remote.h"
+#include "network.h"
+
 extern "C"
 {
 	int libmain (int argc,char *argv[]);
+	void DoExecuteNetCommand (int client,NETWORKCOMMAND *com,STATUSBUFFER *stat);
 }
 extern void (*CallBackFn)(const char *pRemote,const char *pCommand);
 IRTrans *g_pIRTrans=NULL;
@@ -37,7 +44,7 @@ void DoGotIRCommand(const char *pRemote,const char *pCommand)
 // The primary constructor when the class is created as a stand-alone device
 IRTrans::IRTrans(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: IRTrans_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
-	, IRReceiverBase(this,m_pData)
+	, IRReceiverBase(this,m_pData), VFD_LCD_Base(2,40)
 //<-dceag-const-e->
 {
 	m_bIRServerRunning=false;
@@ -176,10 +183,12 @@ void IRTrans::CMD_Set_Screen_Type(int iValue,string &sCMD_Result,Message *pMessa
 
 void IRTrans::StartIRServer()
 {
+#ifndef WIN32
 	CallBackFn=&DoGotIRCommand;
 	m_bIRServerRunning=true;
 	char *argv[]={"IRTrans","-loglevel","4","-debug_code","-no_lirc", "-no_web","/dev/ttyUSB0"};
 	libmain(7,argv);
+#endif
 	m_bIRServerRunning=false;
 }
 
@@ -193,5 +202,25 @@ void IRTrans::GotIRCommand(const char *pRemote,const char *pCommand)
 		g_pPlutoLogger->Write(LV_STATUS,"Got IR Command %s from remote %d",pCommand,PK_Device);
 		ReceivedCode(PK_Device,pCommand);
 	}
+	DoUpdateDisplay(pCommand);
+}
+
+void IRTrans::DoUpdateDisplay(string sMessage)
+{
+	LCDCOMMAND lcdCommand;
+	STATUSBUFFER statusBuffer;
+
+	lcdCommand.netcommand=COMMAND_LCD;
+	lcdCommand.netcommand=0;
+	lcdCommand.mode=3;
+	lcdCommand.lcdcommand=LCD_TEXT;
+	lcdCommand.timeout=3;
+	lcdCommand.adress=76;
+	lcdCommand.protocol_version=200;
+	lcdCommand.wid=40;
+	lcdCommand.hgt=4;
+	strcpy(lcdCommand.framebuffer,sMessage.c_str());
+
+	DoExecuteNetCommand (0,(NETWORKCOMMAND *)&lcdCommand,&statusBuffer);
 }
 

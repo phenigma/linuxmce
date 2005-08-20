@@ -8,11 +8,12 @@
 //<-dceag-d-e->
 
 #include "../LIRC_DCE/IRReceiverBase.h"
+#include "../VFD_LCD/VFD_LCD_Base.h"
 
 //<-dceag-decl-b->!
 namespace DCE
 {
-	class IRTrans : public IRTrans_Command, IRReceiverBase
+	class IRTrans : public IRTrans_Command, IRReceiverBase, VFD_LCD_Base
 	{
 //<-dceag-decl-e->
 		// Private member variables
@@ -24,6 +25,7 @@ public:
 		// Public member variables
 		void StartIRServer();
 		void GotIRCommand(const char *pRemote,const char *pCommand);
+		void DoUpdateDisplay(string sMessage);  // Put this message on the VFD Display
 
 //<-dceag-const-b->
 public:
