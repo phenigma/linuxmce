@@ -1281,6 +1281,10 @@ g_pPlutoLogger->Write(LV_STATUS,"Need to change screens executed to %s (%d)",
     m_vectObjs_GridsOnScreen.clear(  );
 	m_vectObjs_VideoOnScreen.clear(  );
 	m_pObj_NowPlayingOnScreen=NULL;
+	m_pObj_NowPlaying_Section_OnScreen=NULL;
+	m_pObj_NowPlaying_TimeShort_OnScreen=NULL;
+	m_pObj_NowPlaying_TimeLong_OnScreen=NULL;
+
     dg.Release(  );
 
     PLUTO_SAFETY_LOCK( sm, m_ScreenMutex );
@@ -4337,6 +4341,27 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 			if( !m_pObj_NowPlayingOnScreen->m_pvectCurrentGraphic || m_pObj_NowPlayingOnScreen->m_pvectCurrentGraphic->size()==0 )
 				SaveBackgroundForDeselect( m_pObj_NowPlayingOnScreen, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
 		}
+        else if(  Variable=="NP_SEC" )
+		{
+            Output += m_sNowPlaying_Section;
+			m_pObj_NowPlaying_Section_OnScreen=pObj;
+			if( !m_pObj_NowPlaying_Section_OnScreen->m_pvectCurrentGraphic || m_pObj_NowPlaying_Section_OnScreen->m_pvectCurrentGraphic->size()==0 )
+				SaveBackgroundForDeselect( m_pObj_NowPlaying_Section_OnScreen, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
+		}
+        else if(  Variable=="NP_TIME_SHORT" )
+		{
+            Output += m_sNowPlaying_TimeShort;
+			m_pObj_NowPlaying_TimeShort_OnScreen=pObj;
+			if( !m_pObj_NowPlaying_TimeShort_OnScreen->m_pvectCurrentGraphic || m_pObj_NowPlaying_TimeShort_OnScreen->m_pvectCurrentGraphic->size()==0 )
+				SaveBackgroundForDeselect( m_pObj_NowPlaying_TimeShort_OnScreen, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
+		}
+        else if(  Variable=="NP_TIME_LONG" )
+		{
+            Output += m_sNowPlaying_TimeLong;
+			m_pObj_NowPlaying_TimeLong_OnScreen=pObj;
+			if( !m_pObj_NowPlaying_TimeLong_OnScreen->m_pvectCurrentGraphic || m_pObj_NowPlaying_TimeLong_OnScreen->m_pvectCurrentGraphic->size()==0 )
+				SaveBackgroundForDeselect( m_pObj_NowPlaying_TimeShort_OnScreen, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
+		}
         else if(  Variable=="NPD" )
 		{
 			Output += StringUtils::itos(m_dwPK_Device_NowPlaying);
@@ -6415,10 +6440,13 @@ void Orbiter::CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sVa
 		CMD_Show_Popup(StringUtils::itos(m_iPK_DesignObj_Remote_Popup),m_Popop_RemoteControl_X,m_Popop_RemoteControl_Y,pObj_Popop_RemoteControl->m_ObjectID,"remote",false,false);
 	else if( pObj_Popop_RemoteControl && m_iPK_DesignObj_Remote_Popup==0 )
 		CMD_Remove_Popup(pObj_Popop_RemoteControl->m_ObjectID,"remote");
-	else if( m_pObj_NowPlayingOnScreen )
+	else 
 	{
 		PLUTO_SAFETY_LOCK(rm,m_NeedRedrawVarMutex);
-		m_vectObjs_NeedRedraw.push_back(m_pObj_NowPlayingOnScreen);
+		if( m_pObj_NowPlayingOnScreen )
+			m_vectObjs_NeedRedraw.push_back(m_pObj_NowPlayingOnScreen);
+		if( m_pObj_NowPlaying_Section_OnScreen )
+			m_vectObjs_NeedRedraw.push_back(m_pObj_NowPlaying_Section_OnScreen);
 	}
 }
 
@@ -8087,4 +8115,57 @@ void Orbiter::CMD_Move_Right(string &sCMD_Result,Message *pMessage)
 //<-dceag-c203-e->
 {
 	HighlightNextObject( DIRECTION_Right_CONST );
+}
+//<-dceag-c689-b->
+
+	/** @brief COMMAND: #689 - Update Time Code */
+	/** Update the time code of the current media */
+		/** @param #41 StreamID */
+			/** The Stream to update */
+		/** @param #102 Time */
+			/** The current time.  If there is both a section time and total time, they should be \t delimited, like 1:03\t60:30 */
+		/** @param #132 Total */
+			/** The total time.   If there is both a section time and total time, they should be \t delimited, like 1:03\t60:30 */
+
+void Orbiter::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,string &sCMD_Result,Message *pMessage)
+//<-dceag-c689-e->
+{
+	if( !m_pObj_NowPlaying_TimeShort_OnScreen && !m_pObj_NowPlaying_TimeLong_OnScreen )
+		return;
+
+	string::size_type tabTime = sTime.find('\t');
+	string::size_type tabTotal = sTotal.find('\t');
+
+	if( tabTime==string::npos )
+	{
+		if( m_pObj_NowPlaying_TimeShort_OnScreen )
+			m_sNowPlaying_TimeShort = sTime;
+
+		if( m_pObj_NowPlaying_TimeLong_OnScreen )
+			m_sNowPlaying_TimeLong = sTime;
+	}
+	else
+	{
+		if( m_pObj_NowPlaying_TimeShort_OnScreen )
+			m_sNowPlaying_TimeShort = sTime.substr(0,tabTime);
+
+		if( m_pObj_NowPlaying_TimeLong_OnScreen )
+			m_sNowPlaying_TimeLong = m_sNowPlaying_TimeShort + " (" + sTime.substr(tabTime) + ")";
+	}
+	 
+	if( sTotal.size() )
+	{
+		m_sNowPlaying_TimeLong += m_mapTextString[TEXT_Total_CONST];
+
+		if( tabTotal==string::npos )
+			m_sNowPlaying_TimeLong += sTotal;
+		else
+			m_sNowPlaying_TimeLong = sTotal.substr(0,tabTotal) + " (" + sTime.substr(tabTotal) + ")";
+	}
+
+	PLUTO_SAFETY_LOCK(rm,m_NeedRedrawVarMutex);
+	if( m_pObj_NowPlaying_TimeShort_OnScreen )
+		m_vectObjs_NeedRedraw.push_back(m_pObj_NowPlaying_TimeShort_OnScreen);
+	if( m_pObj_NowPlaying_TimeLong_OnScreen )
+		m_vectObjs_NeedRedraw.push_back(m_pObj_NowPlaying_TimeLong_OnScreen);
 }

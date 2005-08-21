@@ -207,6 +207,7 @@ public:
 	virtual void CMD_Forward_local_kb_to_OSD(bool bTrueFalse,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Mouse_Position_Relative(int iPosition_X,int iPosition_Y,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Simulate_Mouse_Click_At_Present_Pos(string sType,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -2123,6 +2124,34 @@ public:
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Simulate_Mouse_Click_At_Present_Pos(sType.c_str(),sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case 689:
+					{
+						string sCMD_Result="OK";
+					int iStreamID=atoi(pMessage->m_mapParameters[41].c_str());
+					string sTime=pMessage->m_mapParameters[102];
+					string sTotal=pMessage->m_mapParameters[132];
+						CMD_Update_Time_Code(iStreamID,sTime.c_str(),sTotal.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Update_Time_Code(iStreamID,sTime.c_str(),sTotal.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

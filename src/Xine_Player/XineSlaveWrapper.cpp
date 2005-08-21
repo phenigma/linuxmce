@@ -87,12 +87,13 @@ void* DelayedPlaybackCompleted(void* param)
 	return NULL;
 }
 
-XineSlaveWrapper::XineSlaveWrapper()
+XineSlaveWrapper::XineSlaveWrapper(int iTimeCodeReportFrequency)
     : m_sWindowTitle("pluto-xine-playback-window"),
       XServerDisplay(NULL),
       m_pSameStream(NULL)
 {
     m_iCurrentWindow = 0;
+	m_iTimeCodeReportFrequency = iTimeCodeReportFrequency;
 
     m_sXineAudioDriverName = "alsa";
     m_sXineVideoDriverName = "xv";
@@ -795,6 +796,7 @@ void *XineSlaveWrapper::eventProcessingLoop(void *arguments)
 
 	Display *pDisplay = XOpenDisplay(getenv("DISPLAY"));
 
+	int iCounter_TimeCode=0;
 	int iCounter=0;  // A counter for the special seek
 	int iCounter_OneTimeSeek=0;
     XEvent  event;
@@ -844,8 +846,11 @@ void *XineSlaveWrapper::eventProcessingLoop(void *arguments)
 		{
 			g_pPlutoLogger->Write(LV_WARNING,"%s (seek %d),",pStream->m_pOwner->m_pAggregatorObject->GetPosition().c_str(),g_iSpecialSeekSpeed);
 			iCounter=0;
-			pStream->m_pOwner->m_pAggregatorObject->ReportTimecode(pStream->m_iStreamID);
-
+			if( iCounter_TimeCode++>m_iTimeCodeReportFrequency )
+			{
+				pStream->m_pOwner->m_pAggregatorObject->ReportTimecode(pStream->m_iStreamID);
+				iCounter_TimeCode=0;
+			}
 			if( g_iSpecialSeekSpeed )
 			{
 				// time to seek

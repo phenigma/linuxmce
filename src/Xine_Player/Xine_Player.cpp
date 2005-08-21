@@ -70,7 +70,7 @@ Xine_Player::Xine_Player(int DeviceID, string ServerAddress,bool bConnectEventHa
 
 	m_xineSlaveMutex.Init( &mutexAttr );
 
-	m_pXineSlaveControl = new XineSlaveWrapper();
+	m_pXineSlaveControl = new XineSlaveWrapper(DATA_Get_Time_Code_Report_Frequency());
 
 	m_pDeviceData_MediaPlugin = m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory(DEVICECATEGORY_Media_Plugins_CONST);
 
@@ -988,6 +988,7 @@ void Xine_Player::ReportTimecode(int iStreamID)
 	if( !m_pDeviceData_MediaPlugin )
 		return;
 
+	g_pPlutoLogger->Write(LV_WARNING,"reporting timecode");
     int currentTime, totalTime;
 	int iMediaPosition = m_pXineSlaveControl->getStreamPlaybackPosition(1, currentTime, totalTime);
 

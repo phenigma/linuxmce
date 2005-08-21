@@ -184,7 +184,7 @@ protected:
 
 	// The remotes for the current media
 	int m_iPK_DesignObj_Remote,m_iPK_DesignObj_Remote_Popup,m_iPK_DesignObj_FileList,m_iPK_DesignObj_FileList_Popup,m_iPK_DesignObj_RemoteOSD,m_iPK_DesignObj_Guide;
-	string m_sNowPlaying,m_sDefaultRippingName; /** < set by the media engine, this is whatever media is currently playing */
+	string m_sNowPlaying,m_sNowPlaying_Section,m_sNowPlaying_TimeShort,m_sNowPlaying_TimeLong,m_sDefaultRippingName; /** < set by the media engine, this is whatever media is currently playing */
 	int m_dwPK_Device_NowPlaying;  /** < set by the media engine, this is whatever media device is currently playing */
 	PlutoPopup *m_pActivePopup;
 
@@ -249,7 +249,7 @@ protected:
 	vector < class DesignObj_DataGrid * > m_vectObjs_GridsOnScreen; /** < All the grids currently on the screen */
 	vector < class DesignObj_Orbiter * > m_vectObjs_VideoOnScreen; /** < All the video on screen */
 	bool m_bAlreadyQueuedVideo; // We only put 1 GetVideFrame in the queue
-	class DesignObj_Orbiter *m_pObj_NowPlayingOnScreen; /** < The objects showing 'now playing' on screen */
+	class DesignObj_Orbiter *m_pObj_NowPlayingOnScreen,*m_pObj_NowPlaying_Section_OnScreen,*m_pObj_NowPlaying_TimeShort_OnScreen,*m_pObj_NowPlaying_TimeLong_OnScreen; /** < The objects showing 'now playing' on screen */
 
     list<class PlutoPopup*> m_listPopups;
 
@@ -1682,6 +1682,19 @@ light, climate, media, security, telecom */
 
 	virtual void CMD_Simulate_Mouse_Click_At_Present_Pos(string sType) { string sCMD_Result; CMD_Simulate_Mouse_Click_At_Present_Pos(sType.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Simulate_Mouse_Click_At_Present_Pos(string sType,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #689 - Update Time Code */
+	/** Update the time code of the current media */
+		/** @param #41 StreamID */
+			/** The Stream to update */
+		/** @param #102 Time */
+			/** The current time.  If there is both a section time and total time, they should be \t delimited, like 1:03\t60:30 */
+		/** @param #132 Total */
+			/** The total time.   If there is both a section time and total time, they should be \t delimited, like 1:03\t60:30 */
+
+	virtual void CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal) { string sCMD_Result; CMD_Update_Time_Code(iStreamID,sTime.c_str(),sTotal.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

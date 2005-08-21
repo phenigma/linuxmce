@@ -51,6 +51,7 @@ public:
 	void Set_Audio_Tracks(string Value) { SetParm(93,Value.c_str()); }
 	string Get_Angles() { return m_mapParameters[94];}
 	void Set_Angles(string Value) { SetParm(94,Value.c_str()); }
+	int Get_Time_Code_Report_Frequency() { return atoi(m_mapParameters[113].c_str());}
 };
 
 
@@ -101,6 +102,7 @@ public:
 	void DATA_Set_Audio_Tracks(string Value) { GetData()->Set_Audio_Tracks(Value); }
 	string DATA_Get_Angles() { return GetData()->Get_Angles(); }
 	void DATA_Set_Angles(string Value) { GetData()->Set_Angles(Value); }
+	int DATA_Get_Time_Code_Report_Frequency() { return GetData()->Get_Time_Code_Report_Frequency(); }
 	//Event accessors
 	void EVENT_Playback_Info_Changed(string sMediaDescription,string sSectionDescription,string sSynposisDescription) { GetEvents()->Playback_Info_Changed(sMediaDescription.c_str(),sSectionDescription.c_str(),sSynposisDescription.c_str()); }
 	void EVENT_Menu_Onscreen(int iStream_ID,bool bOnOff) { GetEvents()->Menu_Onscreen(iStream_ID,bOnOff); }

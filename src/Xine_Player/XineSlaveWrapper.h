@@ -106,6 +106,8 @@ private:
     int         m_iCurrentScreen;
     int         m_iCurrentWindow;
 
+	int			m_iTimeCodeReportFrequency;
+
     string      m_sXineVideoDriverName;
     string      m_sXineAudioDriverName;
 
@@ -220,7 +222,7 @@ public:
     /**
      * @brief constructor
      */
-    XineSlaveWrapper();
+    XineSlaveWrapper(int iTimeCodeReportFrequency);
 
     /**
      * @brief destructor

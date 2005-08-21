@@ -80,6 +80,7 @@ public:
 	void DATA_Set_Audio_Tracks(string Value);
 	string DATA_Get_Angles();
 	void DATA_Set_Angles(string Value);
+	int DATA_Get_Time_Code_Report_Frequency();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Playback_Info_Changed(string sMediaDescription,string sSectionDescription,string sSynposisDescription);
