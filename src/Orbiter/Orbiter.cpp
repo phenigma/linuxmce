@@ -4338,29 +4338,29 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 		{
             Output += m_sNowPlaying;
 			m_pObj_NowPlayingOnScreen=pObj;
-			if( !m_pObj_NowPlayingOnScreen->m_pvectCurrentGraphic || m_pObj_NowPlayingOnScreen->m_pvectCurrentGraphic->size()==0 )
-				SaveBackgroundForDeselect( m_pObj_NowPlayingOnScreen, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
+			if( !pObj->m_pvectCurrentGraphic || pObj->m_pvectCurrentGraphic->size()==0 && !pObj->m_pGraphicToUndoSelect )
+				SaveBackgroundForDeselect( pObj, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
 		}
         else if(  Variable=="NP_SEC" )
 		{
             Output += m_sNowPlaying_Section;
 			m_pObj_NowPlaying_Section_OnScreen=pObj;
-			if( !m_pObj_NowPlaying_Section_OnScreen->m_pvectCurrentGraphic || m_pObj_NowPlaying_Section_OnScreen->m_pvectCurrentGraphic->size()==0 )
-				SaveBackgroundForDeselect( m_pObj_NowPlaying_Section_OnScreen, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
+			if( !pObj->m_pvectCurrentGraphic || pObj->m_pvectCurrentGraphic->size()==0 && !pObj->m_pGraphicToUndoSelect )
+				SaveBackgroundForDeselect( pObj, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
 		}
         else if(  Variable=="NP_TIME_SHORT" )
 		{
             Output += m_sNowPlaying_TimeShort;
 			m_pObj_NowPlaying_TimeShort_OnScreen=pObj;
-			if( !m_pObj_NowPlaying_TimeShort_OnScreen->m_pvectCurrentGraphic || m_pObj_NowPlaying_TimeShort_OnScreen->m_pvectCurrentGraphic->size()==0 )
-				SaveBackgroundForDeselect( m_pObj_NowPlaying_TimeShort_OnScreen, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
+			if( !pObj->m_pvectCurrentGraphic || pObj->m_pvectCurrentGraphic->size()==0 && !pObj->m_pGraphicToUndoSelect )
+				SaveBackgroundForDeselect( pObj, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
 		}
         else if(  Variable=="NP_TIME_LONG" )
 		{
             Output += m_sNowPlaying_TimeLong;
 			m_pObj_NowPlaying_TimeLong_OnScreen=pObj;
-			if( !m_pObj_NowPlaying_TimeLong_OnScreen->m_pvectCurrentGraphic || m_pObj_NowPlaying_TimeLong_OnScreen->m_pvectCurrentGraphic->size()==0 )
-				SaveBackgroundForDeselect( m_pObj_NowPlaying_TimeShort_OnScreen, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
+			if( !pObj->m_pvectCurrentGraphic || pObj->m_pvectCurrentGraphic->size()==0 && !pObj->m_pGraphicToUndoSelect )
+				SaveBackgroundForDeselect( pObj, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
 		}
         else if(  Variable=="NPD" )
 		{
@@ -6421,6 +6421,8 @@ void Orbiter::CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sVa
 	m_iPK_DesignObj_RemoteOSD=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
 	m_iPK_DesignObj_Guide=atoi(StringUtils::Tokenize(sPK_DesignObj,",",pos).c_str());
 	m_sDefaultRippingName = sFilename;
+	m_sNowPlaying_TimeShort="";
+	m_sNowPlaying_TimeLong="";
 
 	if( bRetransmit )
 	{

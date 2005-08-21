@@ -187,7 +187,7 @@ void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
 	m_iTitle=m_iChapter=-1;
 	m_sCurrentFile=sFilename;
 
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() called for filename: %s with slave %p.", sFilename.c_str(),m_pXineSlaveControl);
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Play_Media() called for filename: %s (%s) with slave %p.", sFilename.c_str(),sMediaPosition.c_str(),m_pXineSlaveControl);
 	PLUTO_SAFETY_LOCK(xineSlaveLock, m_xineSlaveMutex);
 
     if ( ! m_pXineSlaveControl )
@@ -958,7 +958,7 @@ void Xine_Player::CMD_Angle(string sValue_To_Assign,string &sCMD_Result,Message 
 void Xine_Player::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c412-e->
 {
-	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Set_Media_Position() called for filename: %s with slave %p.", m_sCurrentFile.c_str(),m_pXineSlaveControl);
+	g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Set_Media_Position() called for filename: %s (%s) with slave %p.", m_sCurrentFile.c_str(),sMediaPosition.c_str(),m_pXineSlaveControl);
 	CMD_Play_Media(m_sCurrentFile,0,iStreamID,sMediaPosition,sCMD_Result,pMessage);
 }
 

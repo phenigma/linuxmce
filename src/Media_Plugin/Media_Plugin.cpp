@@ -1042,15 +1042,32 @@ class DataGridTable *Media_Plugin::CurrentMediaSections( string GridID, string P
     string sCurrentFile;
 
     int currentPos = 0;
-    for ( itFiles = pMediaStream->m_dequeMediaFile.begin(); itFiles != pMediaStream->m_dequeMediaFile.end(); itFiles++ )
-    {
-		MediaFile *pMediaFile = *itFiles;
-        // int index = itFiles - pMediaStream->m_dequeMediaFile.begin();
-		sCurrentFile = pMediaFile->m_sDescription.size() ? pMediaFile->m_sDescription : FileUtils::FilenameWithoutPath(pMediaFile->FullyQualifiedFile());
+	if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST && pMediaStream->m_dequeMediaFile.size()==1 )
+	{
+		for(size_t sTitle=0;sTitle<pMediaStream->m_dequeMediaTitle.size();++sTitle)
+		{
+			MediaTitle *pMediaTitle = pMediaStream->m_dequeMediaTitle[sTitle];
+			string sTitleName = m_pMediaAttributes->GetAttributeName(pMediaTitle->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Chapter_CONST));
+			for(size_t sSection=0;sSection<pMediaTitle->m_dequeMediaSection.size();++sSection)
+			{
+				MediaSection *pMediaSection = pMediaTitle->m_dequeMediaSection[sSection];
+				string sCell = StringUtils::itos(sTitle+1) + " " + sTitleName + "\n" + StringUtils::itos(sSection+1) + " " + m_pMediaAttributes->GetAttributeName(pMediaSection->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Chapter_CONST));
+				pDataGrid->SetData(0, currentPos++,new DataGridCell(sCell," TITLE:" + StringUtils::itos(sTitle+1) + " CHAPTER:" + StringUtils::itos(sSection+1)));
+			}
+		}
+	}
+	else
+	{
+		for ( itFiles = pMediaStream->m_dequeMediaFile.begin(); itFiles != pMediaStream->m_dequeMediaFile.end(); itFiles++ )
+		{
+			MediaFile *pMediaFile = *itFiles;
+			// int index = itFiles - pMediaStream->m_dequeMediaFile.begin();
+			sCurrentFile = pMediaFile->m_sDescription.size() ? pMediaFile->m_sDescription : FileUtils::FilenameWithoutPath(pMediaFile->FullyQualifiedFile());
 
-        pDataGrid->SetData(0, currentPos++,new DataGridCell(sCurrentFile, StringUtils::itos(itFiles - pMediaStream->m_dequeMediaFile.begin())));
-		g_pPlutoLogger->Write(LV_STATUS, "Returning data: (%d) -> %s", itFiles - pMediaStream->m_dequeMediaFile.begin(), ((*itFiles)->m_sFilename).c_str());
-    }
+			pDataGrid->SetData(0, currentPos++,new DataGridCell(sCurrentFile, StringUtils::itos(itFiles - pMediaStream->m_dequeMediaFile.begin())));
+			g_pPlutoLogger->Write(LV_STATUS, "Returning data: (%d) -> %s", itFiles - pMediaStream->m_dequeMediaFile.begin(), ((*itFiles)->m_sFilename).c_str());
+		}
+	}
 
     return pDataGrid;
 }
@@ -2434,6 +2451,14 @@ void Media_Plugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string 
         g_pPlutoLogger->Write(LV_STATUS, "Can't jump in an empty queue");
         return;
     }
+
+	if( sValue_To_Assign.find("CHAPTER:")!=string::npos || sValue_To_Assign.find("POS:")!=string::npos )
+	{
+		DCE::CMD_Set_Media_Position CMD_Set_Media_Position(m_dwPK_Device,pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
+			pEntertainArea->m_pMediaStream->m_iStreamID_get(),sValue_To_Assign);
+		SendCommand(CMD_Set_Media_Position);
+		return;
+	}
 
 	// If we don't have multiple files in the queue, this is treated as a skip forward/back to jump through chapters
 	if( pEntertainArea->m_pMediaStream->m_dequeMediaFile.size()<2 )
