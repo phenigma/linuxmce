@@ -1361,7 +1361,7 @@ void Media_Plugin::OverrideNowPlaying(MediaStream *pMediaStream,string sNowPlayi
         {
             OH_Orbiter *pOH_Orbiter = (*it).second;
             if( pOH_Orbiter->m_pEntertainArea==pEntertainArea )
-                SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, sNowPlaying, pMediaStream, false );
+                SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, sNowPlaying,"", pMediaStream, false );
         }
     }
 }
