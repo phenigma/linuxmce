@@ -993,7 +993,7 @@ void Xine_Player::ReportTimecode(int iStreamID)
 	int iMediaPosition = m_pXineSlaveControl->getStreamPlaybackPosition(1, currentTime, totalTime);
 
 	DCE::CMD_Update_Time_Code CMD_Update_Time_Code(m_dwPK_Device,m_pDeviceData_MediaPlugin->m_dwPK_Device,
-		iStreamID,StringUtils::SecondsAsTime(currentTime),StringUtils::SecondsAsTime(totalTime));
+		iStreamID,StringUtils::SecondsAsTime(currentTime/1000),StringUtils::SecondsAsTime(totalTime/1000));
 	SendCommand(CMD_Update_Time_Code);
 }
 

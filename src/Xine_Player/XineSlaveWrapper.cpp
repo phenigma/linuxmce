@@ -844,12 +844,12 @@ void *XineSlaveWrapper::eventProcessingLoop(void *arguments)
 
 		if( iCounter++>10 )  // Every second
 		{
-			g_pPlutoLogger->Write(LV_WARNING,"%s (seek %d),",pStream->m_pOwner->m_pAggregatorObject->GetPosition().c_str(),g_iSpecialSeekSpeed);
+			g_pPlutoLogger->Write(LV_WARNING,"%s (seek %d) t.c. ctr %d freq %d,",pStream->m_pOwner->m_pAggregatorObject->GetPosition().c_str(),g_iSpecialSeekSpeed,iCounter_TimeCode,pStream->m_pOwner->m_iTimeCodeReportFrequency);
 			iCounter=0;
-			if( iCounter_TimeCode++>pStream->m_pOwner->m_iTimeCodeReportFrequency )
+			if( pStream->m_pOwner->m_iTimeCodeReportFrequency && ++iCounter_TimeCode>=pStream->m_pOwner->m_iTimeCodeReportFrequency )
 			{
 				pStream->m_pOwner->m_pAggregatorObject->ReportTimecode(pStream->m_iStreamID);
-				iCounter_TimeCode=0;
+				iCounter_TimeCode=1;
 			}
 			if( g_iSpecialSeekSpeed )
 			{
@@ -1121,10 +1121,16 @@ void XineSlaveWrapper::changePlaybackSpeed(int iStreamID, PlayBackSpeedType desi
             xineSpeed = XINE_SPEED_NORMAL;
             break;
         case PLAYBACK_FF_2:
-            xineSpeed = XINE_SPEED_FAST_2;
+	    if( pStream->m_bHasVideo )
+	            xineSpeed = XINE_SPEED_FAST_2;
+	    else
+		    g_iSpecialSeekSpeed=desiredSpeed;
             break;
         case PLAYBACK_FF_4:
-            xineSpeed = XINE_SPEED_FAST_4;
+	    if( pStream->m_bHasVideo )
+            	xineSpeed = XINE_SPEED_FAST_4;
+	    else
+		    g_iSpecialSeekSpeed=desiredSpeed;
             break;
 		case PLAYBACK_REW_64:
 		case PLAYBACK_REW_32:
