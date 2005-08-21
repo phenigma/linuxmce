@@ -528,6 +528,8 @@
 #define TEXT_Change_Inputs_CONST 1434
 #define TEXT_Ripping_Instructions_CONST 1435
 #define TEXT_Total_CONST 1436
+#define TEXT_Now_Playing_Section_CONST 1437
+#define TEXT_Now_Playing_Timecode_CONST 1438
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
