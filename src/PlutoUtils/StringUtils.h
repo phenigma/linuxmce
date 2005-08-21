@@ -190,6 +190,9 @@ namespace StringUtils
 
 	// Convert Input to Upper and strip anything but A-Z and 0-9
 	string UpperAZ09Only(string sInput);
+
+	string SecondsAsTime(int iSeconds);
+
 #endif //#ifndef SYMBIAN
 };
 

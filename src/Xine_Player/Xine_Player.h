@@ -51,6 +51,7 @@ public:
 
 		bool Connect(int iPK_DeviceTemplate );
 		string GetPosition();
+		void ReportTimecode(int iStreamID);  // Report to the media plugin the current timecode
 
 		// Take the MRL and the position, adjust the MRL if necessary, such as adding title.chapter 
 		// and return the position in ms to seek to
@@ -61,6 +62,7 @@ public:
 		// Public member variables
 		int m_iTitle,m_iChapter;
 		string m_sCurrentFile;
+		DeviceData_Base *m_pDeviceData_MediaPlugin;
 
 	//<-dceag-h-b->
 	/*

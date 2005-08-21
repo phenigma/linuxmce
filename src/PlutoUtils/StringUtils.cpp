@@ -858,6 +858,16 @@ string StringUtils::UpperAZ09Only(string sInput)
 	return sOutput;
 }
 
+string StringUtils::SecondsAsTime(int iSeconds)
+{
+	int Hours = iSeconds / 3600;
+	iSeconds -= Hours * 3600;
+	int Minutes = iSeconds / 60;
+	iSeconds -= Minutes * 60;
+
+	return Format( "%02d:%02d:%02d", Hours,Minutes,iSeconds );
+}
+
 #endif //#ifndef SYMBIAN
 
 

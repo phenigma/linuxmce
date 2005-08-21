@@ -72,6 +72,8 @@ Xine_Player::Xine_Player(int DeviceID, string ServerAddress,bool bConnectEventHa
 
 	m_pXineSlaveControl = new XineSlaveWrapper();
 
+	m_pDeviceData_MediaPlugin = m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory(DEVICECATEGORY_Media_Plugins_CONST);
+
 	m_iTitle=m_iChapter=-1;
 
 	//m_pSlimServerClient = new SlimServerClient();
@@ -978,6 +980,20 @@ string Xine_Player::GetPosition()
 	sPosition += " AUDIO:" + StringUtils::itos(m_pXineSlaveControl->getAudio());
 
 	return sPosition;
+}
+
+// Report to the media plugin the current timecode
+void Xine_Player::ReportTimecode(int iStreamID)
+{
+	if( !m_pDeviceData_MediaPlugin )
+		return;
+
+    int currentTime, totalTime;
+	int iMediaPosition = m_pXineSlaveControl->getStreamPlaybackPosition(1, currentTime, totalTime);
+
+	DCE::CMD_Update_Time_Code CMD_Update_Time_Code(m_dwPK_Device,m_pDeviceData_MediaPlugin->m_dwPK_Device,
+		iStreamID,StringUtils::SecondsAsTime(currentTime),StringUtils::SecondsAsTime(totalTime));
+	SendCommand(CMD_Update_Time_Code);
 }
 
 int Xine_Player::CalculatePosition(string &sMediaPosition,string *sMRL,int *Subtitle,int *Angle,int *AudioTrack)
