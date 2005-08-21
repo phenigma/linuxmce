@@ -844,7 +844,7 @@ void *XineSlaveWrapper::eventProcessingLoop(void *arguments)
 		{
 			g_pPlutoLogger->Write(LV_WARNING,"%s (seek %d),",pStream->m_pOwner->m_pAggregatorObject->GetPosition().c_str(),g_iSpecialSeekSpeed);
 			iCounter=0;
-			pStream->m_pOwner->m_pAggregatorObject->Report();
+			pStream->m_pOwner->m_pAggregatorObject->ReportTimecode(pStream->m_iStreamID);
 
 			if( g_iSpecialSeekSpeed )
 			{
