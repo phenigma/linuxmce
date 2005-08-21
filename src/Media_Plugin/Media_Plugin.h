@@ -360,7 +360,8 @@ public:
 	/**
 	 * @brief EVENT_Ripping_Completed_CONST event interceptor.
 	 */
-	bool RippingCompleted( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
+	bool RippingProgress( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
+	void UpdateRippingStatus(RippingJob *pRippingJob,string sText,string sValue);
 
 	/**
 	 * @brief EVENT_Device_On_Off_CONST event interceptor, when some equipment was turned on or off manually
@@ -740,6 +741,19 @@ public:
 
 	virtual void CMD_Set_Auto_Resume_Options(string sValue_To_Assign,int iPK_Users,int iPK_MediaType) { string sCMD_Result; CMD_Set_Auto_Resume_Options(sValue_To_Assign.c_str(),iPK_Users,iPK_MediaType,sCMD_Result,NULL);};
 	virtual void CMD_Set_Auto_Resume_Options(string sValue_To_Assign,int iPK_Users,int iPK_MediaType,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #689 - Update Time Code */
+	/** Updates the current running time for a media stream. */
+		/** @param #41 StreamID */
+			/** The Stream to update */
+		/** @param #102 Time */
+			/** The current time.  If there is both a section time and total time, they should be \t delimited, like 1:03\t60:30 */
+		/** @param #132 Total */
+			/** The total time.   If there is both a section time and total time, they should be \t delimited, like 1:03\t60:30 */
+
+	virtual void CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal) { string sCMD_Result; CMD_Update_Time_Code(iStreamID,sTime.c_str(),sTotal.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

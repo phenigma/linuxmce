@@ -64,6 +64,7 @@ extern "C"
 #include "xap.h"
 	int libmain (int argc,char *argv[]);
 	void DoExecuteNetCommand (int client,NETWORKCOMMAND *com,STATUSBUFFER *stat);
+	void LCDBrightness (int val);
 }
 extern void (*CallBackFn)(const char *pRemote,const char *pCommand);
 IRTrans *g_pIRTrans=NULL;
@@ -245,9 +246,9 @@ void IRTrans::GotIRCommand(const char *pRemote,const char *pCommand)
 	}
 }
 
+char Brightness=0;
 void IRTrans::DoUpdateDisplay(vector<string> *vectString)
 {
-
 	if( !vectString || vectString->size()==0 )
 		return;
 

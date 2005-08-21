@@ -10869,5 +10869,21 @@ namespace DCE
 	public:
 		CMD_NOREP_Get_Remote_Control_Mapping_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,688,0); }
 	};
+	class CMD_Update_Time_Code : public PreformedCommand {
+	public:
+		CMD_Update_Time_Code(long DeviceIDFrom, long DeviceIDTo,int iStreamID,string sTime,string sTotal) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,689,3,41,StringUtils::itos(iStreamID).c_str(),102,sTime.c_str(),132,sTotal.c_str()); }
+	};
+	class CMD_Update_Time_Code_DL : public PreformedCommand {
+	public:
+		CMD_Update_Time_Code_DL(long DeviceIDFrom, string DeviceIDTo,int iStreamID,string sTime,string sTotal) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,689,3,41,StringUtils::itos(iStreamID).c_str(),102,sTime.c_str(),132,sTotal.c_str()); }
+	};
+	class CMD_Update_Time_Code_DT : public PreformedCommand {
+	public:
+		CMD_Update_Time_Code_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iStreamID,string sTime,string sTotal) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,689,3,41,StringUtils::itos(iStreamID).c_str(),102,sTime.c_str(),132,sTotal.c_str()); }
+	};
+	class CMD_Update_Time_Code_Cat : public PreformedCommand {
+	public:
+		CMD_Update_Time_Code_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iStreamID,string sTime,string sTotal) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,689,3,41,StringUtils::itos(iStreamID).c_str(),102,sTime.c_str(),132,sTotal.c_str()); }
+	};
 }
 #endif

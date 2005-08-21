@@ -82,7 +82,7 @@ using namespace DCE;
 #include "File_Grids_Plugin/FileListGrid.h"
 #include "SerializeClass/ShapesColors.h"
 #include "RippingJob.h"
-
+#include "../VFD_LCD/VFD_LCD_Base.h"
 #ifndef WIN32
 #include <dirent.h>
 #include <attr/attributes.h>
@@ -341,7 +341,7 @@ bool Media_Plugin::Register()
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::MediaIdentified ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Media_Identified_CONST );
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::PlaybackCompleted ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Playback_Completed_CONST );
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::MediaFollowMe ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Follow_Me_Media_CONST );
-	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::RippingCompleted ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Ripping_Completed_CONST );
+	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::RippingProgress ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Ripping_Progress_CONST );
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::DeviceOnOff ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Device_OnOff_CONST );
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::AvInputChanged ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_AV_Input_Changed_CONST );
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::MediaDescriptionChanged ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Media_Description_Changed_CONST );
@@ -484,6 +484,9 @@ g_pPlutoLogger->Write( LV_STATUS, "adding device %d %s to map ent area %d %s",pR
         pEntertainArea->m_mapMediaDeviceByTemplate[pRow_Device->FK_DeviceTemplate_get()]=pListMediaDevice;
     }
     pListMediaDevice->push_back(pMediaDevice);
+
+	if( pMediaDevice->m_pDeviceData_Router->WithinCategory(DEVICECATEGORY_LCDVFD_Displays_CONST) )
+		pEntertainArea->m_listVFD_LCD_Displays.push_back(pMediaDevice);
 }
 
 // Our message interceptor
@@ -3200,9 +3203,10 @@ g_pPlutoLogger->Write(LV_STATUS,"Transformed %s into %s",sTracks.c_str(),sNewTra
 		StreamEnded(pTmpMediaStream);
 	}
 
+	m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T" + StringUtils::itos(TEXT_Ripping_Instructions_CONST) + "%>");
 	DCE::CMD_Rip_Disk cmdRipDisk(m_dwPK_Device, pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device, iPK_Users, sName, sTracks, PK_Disc);
 	SendCommand(cmdRipDisk);
-	m_mapRippingJobs[sName] = new RippingJob(pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device, 
+	m_mapRippingJobs[sName] = new RippingJob(pDiskDriveMediaDevice, 
 		pMessage->m_dwPK_Device_From, PK_Disc, PK_MediaType, iPK_Users, sName, sTracks);
 	return;
 }
@@ -3215,10 +3219,11 @@ typedef enum {
 	RIP_RESULT_INVALID_DISC_TYPE,
 	RIP_RESULT_SUCCESS,
 	RIP_RESULT_FAILURE,
+	RIP_RESULT_STILLGOING,
 	RIP_RESULT_END_ENUM
 } rippingResult;
 
-bool Media_Plugin::RippingCompleted( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
+bool Media_Plugin::RippingProgress( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
     string 	sJobName = pMessage->m_mapParameters[EVENTPARAMETER_Name_CONST];
 	int		iResult  = atoi( pMessage->m_mapParameters[EVENTPARAMETER_Result_CONST].c_str( ) );
@@ -3256,7 +3261,14 @@ bool Media_Plugin::RippingCompleted( class Socket *pSocket, class Message *pMess
 	}
 
 	RippingJob *pRippingJob = m_mapRippingJobs[sJobName];
-	if( iResult==RIP_RESULT_SUCCESS )
+	if( iResult==RIP_RESULT_STILLGOING )
+	{
+		string sText = pMessage->m_mapParameters[EVENTPARAMETER_Text_CONST].c_str( );
+		string sValue = pMessage->m_mapParameters[EVENTPARAMETER_Value_CONST].c_str( );
+		UpdateRippingStatus(pRippingJob,sText,sValue);
+		return true;
+	}
+	else if( iResult==RIP_RESULT_SUCCESS )
 		AddRippedDiscToDatabase(pRippingJob);
 	else
 		g_pPlutoLogger->Write(LV_STATUS,"Ripping wasn't successful--not adding it to the database");
@@ -3266,6 +3278,10 @@ bool Media_Plugin::RippingCompleted( class Socket *pSocket, class Message *pMess
 	delete pRippingJob;
 	m_mapRippingJobs.erase(sJobName);
 	return true;
+}
+
+void Media_Plugin::UpdateRippingStatus(RippingJob *pRippingJob,string sText,string sValue)
+{
 }
 
 bool Media_Plugin::DeviceOnOff( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
@@ -3411,7 +3427,7 @@ bool Media_Plugin::DiskDriveIsRipping(int iPK_Device)
 
 	for ( itRippingJobs = m_mapRippingJobs.begin(); itRippingJobs != m_mapRippingJobs.end(); itRippingJobs++ )
 	{
-		if ( (*itRippingJobs).second->m_iPK_Device_Disk_Drive == iPK_Device)
+		if ( (*itRippingJobs).second->m_pMediaDevice_Disk_Drive->m_pDeviceData_Router->m_dwPK_Device == iPK_Device)
 			return true;
 	}
 
@@ -4772,85 +4788,55 @@ int Media_Plugin::CheckForAutoResume(MediaStream *pMediaStream)
 	return iPK_Device_Orbiter;
 }
 
-//<-dceag-sample-b->
-/*		**** SAMPLE ILLUSTRATING HOW TO USE THE BASE CLASSES ****
+//<-dceag-sample-b->!
 
-**** IF YOU DON'T WANT DCEGENERATOR TO KEEP PUTTING THIS AUTO-GENERATED SECTION ****
-**** ADD AN ! AFTER THE BEGINNING OF THE AUTO-GENERATE TAG, LIKE //<=dceag-sample-b->! ****
-Without the !, everything between <=dceag-sometag-b-> and <=dceag-sometag-e->
-will be replaced by DCEGenerator each time it is run with the normal merge selection.
-The above blocks are actually <- not <=.  We don't want a substitution here
+//<-dceag-c689-b->
 
-void Media_Plugin::SomeFunction()
+	/** @brief COMMAND: #689 - Update Time Code */
+	/** Updates the current running time for a media stream. */
+		/** @param #41 StreamID */
+			/** The Stream to update */
+		/** @param #102 Time */
+			/** The current time.  If there is both a section time and total time, they should be \t delimited, like 1:03\t60:30 */
+		/** @param #132 Total */
+			/** The total time.   If there is both a section time and total time, they should be \t delimited, like 1:03\t60:30 */
+
+void Media_Plugin::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,string &sCMD_Result,Message *pMessage)
+//<-dceag-c689-e->
 {
-	// If this is going to be loaded into the router as a plug-in, you can implement: 	virtual bool Register();
-	// to do all your registration, such as creating message interceptors
+    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+    MediaStream * pMediaStream = m_mapMediaStream_Find( iStreamID );
 
-	// If you use an IDE with auto-complete, after you type DCE:: it should give you a list of all
-	// commands and requests, including the parameters.  See "AllCommandsRequests.h"
+    if ( pMediaStream == NULL )
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "CMD_Update_Time_Code - Stream ID %d is not mapped to a media stream object", iStreamID);
+        return;
+    }
 
-	// Examples:
-	
-	// Send a specific the "CMD_Simulate_Mouse_Click" command, which takes an X and Y parameter.  We'll use 55,77 for X and Y.
-	DCE::CMD_Simulate_Mouse_Click CMD_Simulate_Mouse_Click(m_dwPK_Device,OrbiterID,55,77);
-	SendCommand(CMD_Simulate_Mouse_Click);
+	string::size_type pos_TimeCode = sTime.find('\t');
+	string::size_type pos_Total = sTotal.find('\t');
 
-	// Send the message to orbiters 32898 and 27283 (ie a device list, hence the _DL)
-	// And we want a response, which will be "OK" if the command was successfull
-	string sResponse;
-	DCE::CMD_Simulate_Mouse_Click_DL CMD_Simulate_Mouse_Click_DL(m_dwPK_Device,"32898,27283",55,77)
-	SendCommand(CMD_Simulate_Mouse_Click_DL,&sResponse);
+	pMediaStream->m_sTimecode = sTime;
+	pMediaStream->m_sTotalTime = sTotal;
 
-	// Send the message to all orbiters within the house, which is all devices with the category DEVICECATEGORY_Orbiter_CONST (see pluto_main/Define_DeviceCategory.h)
-	// Note the _Cat for category
-	DCE::CMD_Simulate_Mouse_Click_Cat CMD_Simulate_Mouse_Click_Cat(m_dwPK_Device,DEVICECATEGORY_Orbiter_CONST,true,BL_SameHouse,55,77)
-    SendCommand(CMD_Simulate_Mouse_Click_Cat);
+	for( map<int,class EntertainArea *>::iterator itEntAreas=pMediaStream->m_mapEntertainArea.begin(); itEntAreas != pMediaStream->m_mapEntertainArea.end(); itEntAreas++)
+	{
+		EntertainArea *pEntertainArea = itEntAreas->second;
+		for(ListMediaDevice::iterator itVFD=pEntertainArea->m_listVFD_LCD_Displays.begin();itVFD!=pEntertainArea->m_listVFD_LCD_Displays.end();++itVFD)
+		{
+			MediaDevice *pMediaDevice = *itVFD;
+			DCE::CMD_Display_Message CMD_Display_Message_TC(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
+				pos_TimeCode==string::npos ? sTime : sTime.substr(0,pos_TimeCode),
+				StringUtils::itos(VL_MSGTYPE_NOW_PLAYING_TIME_CODE),"tc","","");
+			SendCommand(CMD_Display_Message_TC);
+		}
 
-	// Send the message to all "DeviceTemplate_Orbiter_CONST" devices within the room (see pluto_main/Define_DeviceTemplate.h)
-	// Note the _DT.
-	DCE::CMD_Simulate_Mouse_Click_DT CMD_Simulate_Mouse_Click_DT(m_dwPK_Device,DeviceTemplate_Orbiter_CONST,true,BL_SameRoom,55,77);
-	SendCommand(CMD_Simulate_Mouse_Click_DT);
-
-	// This command has a normal string parameter, but also an int as an out parameter
-	int iValue;
-	DCE::CMD_Get_Signal_Strength CMD_Get_Signal_Strength(m_dwDeviceID, DestDevice, sMac_address,&iValue);
-	// This send command will wait for the destination device to respond since there is
-	// an out parameter
-	SendCommand(CMD_Get_Signal_Strength);  
-
-	// This time we don't care about the out parameter.  We just want the command to 
-	// get through, and don't want to wait for the round trip.  The out parameter, iValue,
-	// will not get set
-	SendCommandNoResponse(CMD_Get_Signal_Strength);  
-
-	// This command has an out parameter of a data block.  Any parameter that is a binary
-	// data block is a pair of int and char *
-	// We'll also want to see the response, so we'll pass a string for that too
-
-	int iFileSize;
-	char *pFileContents
-	string sResponse;
-	DCE::CMD_Request_File CMD_Request_File(m_dwDeviceID, DestDevice, "filename",&pFileContents,&iFileSize,&sResponse);
-	SendCommand(CMD_Request_File);
-
-	// If the device processed the command (in this case retrieved the file),
-	// sResponse will be "OK", and iFileSize will be the size of the file
-	// and pFileContents will be the file contents.  **NOTE**  We are responsible
-	// free deleting pFileContents.
-
-
-	// To access our data and events below, you can type this-> if your IDE supports auto complete to see all the data and events you can access
-
-	// Get our IP address from our data
-	string sIP = DATA_Get_IP_Address();
-
-	// Set our data "Filename" to "myfile"
-	DATA_Set_Filename("myfile");
-
-	// Fire the "Finished with file" event, which takes no parameters
-	EVENT_Finished_with_file();
-	// Fire the "Touch or click" which takes an X and Y parameter
-	EVENT_Touch_or_click(10,150);
+		for( MapBoundRemote::iterator itBR=pEntertainArea->m_mapBoundRemote.begin( );itBR!=pEntertainArea->m_mapBoundRemote.end( );++itBR )
+		{
+			BoundRemote *pBoundRemote = ( *itBR ).second;
+			Message *pMessage = new Message(pMessage);
+			pMessage->m_dwPK_Device_To = pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device;
+			QueueMessageToRouter(pMessage);
+		}
+	}
 }
-*/
-//<-dceag-sample-e->

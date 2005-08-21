@@ -834,9 +834,9 @@ void Bluetooth_Dongle::CMD_Send_File_To_Device(string sFilename,string sMac_addr
     }
     else
     {
-        CMD_Display_Message_On_Orbiter CMD_Display_Message_On_Orbiter_(m_dwPK_Device, pMessage->m_dwPK_Device_From, 
-            "<%=T" + StringUtils::itos(TEXT_instructions_CONST) + "%>", "");
-        SendCommand(CMD_Display_Message_On_Orbiter_);
+        CMD_Display_Message CMD_Display_Message_(m_dwPK_Device, pMessage->m_dwPK_Device_From, 
+            "<%=T" + StringUtils::itos(TEXT_instructions_CONST) + "%>", "", "", "", "");
+        SendCommand(CMD_Display_Message_);
     }
 }
 

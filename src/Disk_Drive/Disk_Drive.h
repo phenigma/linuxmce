@@ -32,7 +32,8 @@ typedef enum {
 	RIP_RESULT_INVALID_DISC_TYPE = 0x04,
 	RIP_RESULT_SUCCESS			 = 0x05,
 	RIP_RESULT_FAILURE			 = 0x06,
-	RIP_RESULT_END_ENUM			 = 0x07
+	RIP_RESULT_STILLGOING		 = 0x07,
+	RIP_RESULT_END_ENUM			 = 0x08
 } rippingResult;
 
 //<-dceag-decl-b->
@@ -99,7 +100,7 @@ public:
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Media_Inserted(int iFK_MediaType,string sMRL,string sID,string sName);
-	void EVENT_Ripping_Completed(int iResult,string sName,int iEK_Disc);
+	void EVENT_Ripping_Progress(string sText,int iResult,string sValue,string sName,int iEK_Disc);
 
 			*****COMMANDS***** we need to implement
 	*/

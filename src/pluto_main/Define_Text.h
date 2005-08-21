@@ -526,6 +526,7 @@
 #define TEXT_Playback_Recording_CONST 1432
 #define TEXT_All_MythTv_controls_CONST 1433
 #define TEXT_Change_Inputs_CONST 1434
+#define TEXT_Ripping_Instructions_CONST 1435
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

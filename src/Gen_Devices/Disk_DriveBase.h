@@ -21,9 +21,9 @@ public:
 		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 3,4,3,StringUtils::itos(iFK_MediaType).c_str(),4,sMRL.c_str(),7,sID.c_str(),35,sName.c_str()));
 	}
 
-	virtual void Ripping_Completed(int iResult,string sName,int iEK_Disc)
+	virtual void Ripping_Progress(string sText,int iResult,string sValue,string sName,int iEK_Disc)
 	{
-		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 35,3,20,StringUtils::itos(iResult).c_str(),35,sName.c_str(),43,StringUtils::itos(iEK_Disc).c_str()));
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 35,5,13,sText.c_str(),20,StringUtils::itos(iResult).c_str(),30,sValue.c_str(),35,sName.c_str(),43,StringUtils::itos(iEK_Disc).c_str()));
 	}
 
 };
@@ -86,7 +86,7 @@ public:
 	void DATA_Set_Drive(string Value) { GetData()->Set_Drive(Value); }
 	//Event accessors
 	void EVENT_Media_Inserted(int iFK_MediaType,string sMRL,string sID,string sName) { GetEvents()->Media_Inserted(iFK_MediaType,sMRL.c_str(),sID.c_str(),sName.c_str()); }
-	void EVENT_Ripping_Completed(int iResult,string sName,int iEK_Disc) { GetEvents()->Ripping_Completed(iResult,sName.c_str(),iEK_Disc); }
+	void EVENT_Ripping_Progress(string sText,int iResult,string sValue,string sName,int iEK_Disc) { GetEvents()->Ripping_Progress(sText.c_str(),iResult,sValue.c_str(),sName.c_str(),iEK_Disc); }
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Disk_Drive_Monitoring_ON(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Disk_Drive_Monitoring_OFF(string &sCMD_Result,class Message *pMessage) {};

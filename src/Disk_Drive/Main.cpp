@@ -77,8 +77,8 @@ void Plugin_SocketCrashHandler(Socket *pSocket)
 	if( g_pCommand_Impl && g_pCommand_Impl->m_pRouter )
 	{
 		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Plugin Deadlock problem.  %d Going to reload",g_pCommand_Impl->m_dwPK_Device);
-		g_pCommand_Impl->m_pRouter->CrashWithinPlugin(g_pCommand_Impl->m_dwPK_Device);
+			g_pPlutoLogger->Write(LV_CRITICAL,"Plugin Socket problem.  %d",g_pCommand_Impl->m_dwPK_Device);
+		// g_pCommand_Impl->m_pRouter->CrashWithinPlugin(g_pCommand_Impl->m_dwPK_Device);  // Don't reload plugins since sockets can fail
 	}
 }
 //<-dceag-incl-e->

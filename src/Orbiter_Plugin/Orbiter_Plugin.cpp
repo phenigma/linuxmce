@@ -1899,14 +1899,20 @@ void Orbiter_Plugin::CMD_Set_Auto_Switch_to_Remote(int iPK_Device,bool bTrueFals
 }
 //<-dceag-c406-b->
 
-	/** @brief COMMAND: #406 - Display Message On Orbiter */
+	/** @brief COMMAND: #406 - Display Message */
 	/** Displays a message on orbiters, or all orbiters. */
 		/** @param #9 Text */
 			/** The message to display */
+		/** @param #14 Type */
+			/** For devices implementing VFD_LCD_Base, this is the message type defined in the header */
+		/** @param #50 Name */
+			/** you can give the message a name, such as "status", "error", etc */
+		/** @param #102 Time */
+			/** Number of seconds to display the message for */
 		/** @param #103 PK_Device_List */
-			/** A comma delimited list of orbiters, or all orbiters if empty */
+			/** If going to a plugin that wil relay messages to other devices (ie orbiter_plugin and orbiter), A comma delimited list of devices to display this message on.  If going to a display device directly (like vfd/lcd) this is ignored. */
 
-void Orbiter_Plugin::CMD_Display_Message_On_Orbiter(string sText,string sPK_Device_List,string &sCMD_Result,Message *pMessage)
+void Orbiter_Plugin::CMD_Display_Message(string sText,string sType,string sName,string sTime,string sPK_Device_List,string &sCMD_Result,Message *pMessage)
 //<-dceag-c406-e->
 {
 	DisplayMessageOnOrbiter(sPK_Device_List,sText,false,60,true);

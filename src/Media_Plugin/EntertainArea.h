@@ -47,6 +47,7 @@ namespace DCE
 		MediaDevice *m_mapMediaDevice_Find(int PK_Device) { map<int,class MediaDevice *>::iterator it = m_mapMediaDevice.find(PK_Device); return it==m_mapMediaDevice.end() ? NULL : (*it).second; }
 		map<int, ListMediaDevice *> m_mapMediaDeviceByTemplate;  /** All the media devices in the area by device template */
 		ListMediaDevice *m_mapMediaDeviceByTemplate_Find(int PK_DeviceTemplate) { map<int,ListMediaDevice *>::iterator it = m_mapMediaDeviceByTemplate.find(PK_DeviceTemplate); return it==m_mapMediaDeviceByTemplate.end() ? NULL : (*it).second; }
+		ListMediaDevice m_listVFD_LCD_Displays;
 
 		/** If the user starts some media temporarily (like an announcement) and wants the prior
 		media to continue when it's done, the prior interrupted media streams are stored here */

@@ -117,7 +117,7 @@ public:
 	virtual void CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Room_For_Device(int iPK_Device,int iPK_Room,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Auto_Switch_to_Remote(int iPK_Device,bool bTrueFalse,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Display_Message_On_Orbiter(string sText,string sPK_Device_List,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Display_Message(string sText,string sType,string sName,string sTime,string sPK_Device_List,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Display_Dialog_Box_On_Orbiter(string sText,string sOptions,string sPK_Device_List,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
@@ -495,8 +495,11 @@ public:
 					{
 						string sCMD_Result="OK";
 					string sText=pMessage->m_mapParameters[9];
+					string sType=pMessage->m_mapParameters[14];
+					string sName=pMessage->m_mapParameters[50];
+					string sTime=pMessage->m_mapParameters[102];
 					string sPK_Device_List=pMessage->m_mapParameters[103];
-						CMD_Display_Message_On_Orbiter(sText.c_str(),sPK_Device_List.c_str(),sCMD_Result,pMessage);
+						CMD_Display_Message(sText.c_str(),sType.c_str(),sName.c_str(),sTime.c_str(),sPK_Device_List.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -513,7 +516,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Display_Message_On_Orbiter(sText.c_str(),sPK_Device_List.c_str(),sCMD_Result,pMessage);
+								CMD_Display_Message(sText.c_str(),sType.c_str(),sName.c_str(),sTime.c_str(),sPK_Device_List.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
