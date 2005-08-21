@@ -363,7 +363,7 @@
 #define COMMAND_Use_Popup_File_List_CONST 403
 #define COMMAND_Set_Auto_Switch_to_Remote_CONST 404
 #define COMMAND_Scale_this_object_CONST 405
-#define COMMAND_Display_Message_On_Orbiter_CONST 406
+#define COMMAND_Display_Message_CONST 406
 #define COMMAND_Set_Floorplan_CONST 407
 #define COMMAND_Show_Floorplan_CONST 408
 #define COMMAND_Save_Bookmark_CONST 409
@@ -645,6 +645,7 @@
 #define COMMAND_Display_Dialog_Box_On_Orbiter_CONST 686
 #define COMMAND_Set_Screen_Type_CONST 687
 #define COMMAND_Get_Remote_Control_Mapping_CONST 688
+#define COMMAND_Update_Time_Code_CONST 689
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

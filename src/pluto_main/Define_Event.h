@@ -35,7 +35,7 @@
 #define EVENT_Follow_Me_Media_CONST 32
 #define EVENT_Follow_Me_Telecom_CONST 33
 #define EVENT_Follow_Me_Security_CONST 34
-#define EVENT_Ripping_Completed_CONST 35
+#define EVENT_Ripping_Progress_CONST 35
 #define EVENT_Incoming_Call_CONST 36
 #define EVENT_Voice_Mail_Changed_CONST 37
 #define EVENT_Reload_Aborted_CONST 38
