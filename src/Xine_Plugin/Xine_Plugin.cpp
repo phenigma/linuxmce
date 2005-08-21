@@ -387,7 +387,7 @@ bool Xine_Plugin::MenuOnScreen( class Socket *pSocket, class Message *pMessage, 
 				continue;
 			g_pPlutoLogger->Write(LV_STATUS, "Processing remote: for orbiter: %d", pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
 			m_pMedia_Plugin->SetNowPlaying(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
-				pXineMediaStream->m_sMediaDescription,pXineMediaStream,false);
+				pXineMediaStream->m_sMediaDescription,"",pXineMediaStream,false);
 		}
 		m_pMedia_Plugin->WaitForMessageQueue();
 g_pPlutoLogger->Write(LV_WARNING, "Sent now playing to %d remoted for on: %d queue",

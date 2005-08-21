@@ -408,7 +408,7 @@ public:
 		EntertainArea *&pEntertainArea,MediaStream *&pMediaStream);
 
 	// This sends the set now playing command to an orbiter.  If pMessage is passed, it adds the command without sending it
-	void SetNowPlaying( int dwPK_Device, string sNowPlaying, MediaStream *pMediaStream, bool bRefreshScreen, Message *pMessage=NULL )
+	void SetNowPlaying( int dwPK_Device, string sNowPlaying, string sSection, MediaStream *pMediaStream, bool bRefreshScreen, Message *pMessage=NULL )
 	{
 		string sRemotes;
 		if( pMediaStream && pMediaStream->m_pRemoteControlSet )
@@ -441,7 +441,7 @@ public:
 			sFilename="";  // It's just a stock message--the user will have to pick
 
 		DCE::CMD_Set_Now_Playing CMD_Set_Now_Playing( m_dwPK_Device, dwPK_Device, PK_Device_Source,
-			sRemotes, sNowPlaying, sFilename, iDequeMediaFile, bRefreshScreen );
+			sRemotes, sNowPlaying, sSection, sFilename, iDequeMediaFile, bRefreshScreen );
 		if( pMessage )
 			pMessage->m_vectExtraMessages.push_back(CMD_Set_Now_Playing.m_pMessage);
 		else

@@ -70,7 +70,7 @@ void BoundRemote::UpdateOrbiter( MediaStream *pMediaStream, bool bRefreshScreen,
         CMD_Update_Object_Image.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Text.m_pMessage );
     }
 
-	m_pMedia_Plugin->SetNowPlaying(m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pMediaStream->m_sMediaDescription, pMediaStream, bRefreshScreen, CMD_Update_Object_Image.m_pMessage );
+	m_pMedia_Plugin->SetNowPlaying(m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pMediaStream->m_sMediaDescription, "", pMediaStream, bRefreshScreen, CMD_Update_Object_Image.m_pMessage );
 	if( p_pMessage )
 		*p_pMessage = CMD_Update_Object_Image.m_pMessage;
 	else

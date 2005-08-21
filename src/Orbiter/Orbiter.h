@@ -1432,6 +1432,8 @@ public:
 			/** 4 comma delimited objects: normal remote, popup remote, file list remote, popup file list remote, guide */
 		/** @param #5 Value To Assign */
 			/** The description of the media */
+		/** @param #9 Text */
+			/** The description of the current section (ie chapter in a dvd, etc.) */
 		/** @param #13 Filename */
 			/** The default name to use if the user wants to rip this.  Only applies to discs. */
 		/** @param #48 Value */
@@ -1439,8 +1441,8 @@ public:
 		/** @param #120 Retransmit */
 			/** If true, it will re-request the plist (current playlist) grid */
 
-	virtual void CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,string sFilename,int iValue,bool bRetransmit) { string sCMD_Result; CMD_Set_Now_Playing(iPK_Device,sPK_DesignObj.c_str(),sValue_To_Assign.c_str(),sFilename.c_str(),iValue,bRetransmit,sCMD_Result,NULL);};
-	virtual void CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,string sFilename,int iValue,bool bRetransmit,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,string sText,string sFilename,int iValue,bool bRetransmit) { string sCMD_Result; CMD_Set_Now_Playing(iPK_Device,sPK_DesignObj.c_str(),sValue_To_Assign.c_str(),sText.c_str(),sFilename.c_str(),iValue,bRetransmit,sCMD_Result,NULL);};
+	virtual void CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,string sText,string sFilename,int iValue,bool bRetransmit,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #254 - Bind Icon */
@@ -1691,7 +1693,7 @@ light, climate, media, security, telecom */
 		/** @param #102 Time */
 			/** The current time.  If there is both a section time and total time, they should be \t delimited, like 1:03\t60:30 */
 		/** @param #132 Total */
-			/** The total time.   If there is both a section time and total time, they should be \t delimited, like 1:03\t60:30 */
+			/** If there is both a section time and total time, they should be \t delimited, like 1:03\t60:30 */
 
 	virtual void CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal) { string sCMD_Result; CMD_Update_Time_Code(iStreamID,sTime.c_str(),sTotal.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,string &sCMD_Result,Message *pMessage);

@@ -1346,7 +1346,7 @@ g_pPlutoLogger->Write(LV_STATUS, "Ready to update bound remotes with %p %d",pMed
             OH_Orbiter *pOH_Orbiter = (*it).second;
             if( (pOH_Orbiter->m_pEntertainArea==pEntertainArea || pMediaStream->OrbiterIsOSD(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device))&& // UpdateOrbiter will have already set the now playing
 					pEntertainArea->m_mapBoundRemote.find(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device)==pEntertainArea->m_mapBoundRemote.end() )
-                SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pMediaStream->m_sMediaDescription, pMediaStream, bRefreshScreen );
+                SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pMediaStream->m_sMediaDescription, "", pMediaStream, bRefreshScreen );
         }
     }
 }
@@ -1513,7 +1513,7 @@ g_pPlutoLogger->Write( LV_STATUS, "Stream in ea %s ended %d remotes bound", pEnt
         if( pOH_Orbiter->m_pEntertainArea==pEntertainArea )
 		{
 g_pPlutoLogger->Write( LV_STATUS, "Orbiter %d %s in this ea to stop", pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_sDescription.c_str());
-            SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, "", NULL, false );
+            SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, "", "", NULL, false );
 		}
     }
 
@@ -4834,9 +4834,9 @@ void Media_Plugin::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal
 		for( MapBoundRemote::iterator itBR=pEntertainArea->m_mapBoundRemote.begin( );itBR!=pEntertainArea->m_mapBoundRemote.end( );++itBR )
 		{
 			BoundRemote *pBoundRemote = ( *itBR ).second;
-			Message *pMessage = new Message(pMessage);
-			pMessage->m_dwPK_Device_To = pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device;
-			QueueMessageToRouter(pMessage);
+			Message *pMessageOut = new Message(pMessage);
+			pMessageOut->m_dwPK_Device_To = pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device;
+			QueueMessageToRouter(pMessageOut);
 		}
 	}
 }
