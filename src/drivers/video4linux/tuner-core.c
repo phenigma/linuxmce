@@ -1,5 +1,5 @@
 /*
- * $Id: tuner-core.c,v 1.67 2005/08/17 19:42:11 nsh Exp $
+ * $Id: tuner-core.c,v 1.68 2005/08/18 02:06:25 mkrufky Exp $
  *
  * i2c tv tuner chip device driver
  * core core, i.e. kernel interfaces, registering and so on
@@ -226,7 +226,7 @@ static void set_addr(struct i2c_client *c, struct tuner_setup *tun_setup)
 {
 	struct tuner *t = i2c_get_clientdata(c);
 
-	if ((tun_setup->addr == ADDR_UNSET && 
+	if ((tun_setup->addr == ADDR_UNSET &&
 		(t->mode_mask & tun_setup->mode_mask)) ||
 		tun_setup->addr == c->addr) {
 			set_type(c, tun_setup->type, tun_setup->mode_mask);
@@ -238,7 +238,7 @@ static inline int check_mode(struct tuner *t, char *cmd)
 	if ((1 << t->mode & t->mode_mask) == 0) {
 		return EINVAL;
 	}
-	
+
 	switch (t->mode) {
 	case V4L2_TUNER_RADIO:
 		tuner_dbg("Cmd %s accepted for radio\n", cmd);
@@ -424,11 +424,11 @@ static int tuner_detach(struct i2c_client *client)
 
 static inline int set_mode(struct i2c_client *client, struct tuner *t, int mode, char *cmd)
 {
- 	if (mode == t->mode) 	
+ 	if (mode == t->mode)
  		return 0;
- 	
+
  	t->mode = mode;
- 
+
  	if (check_mode(t, cmd) == EINVAL) {
  		t->mode = T_STANDBY;
  		if (t->standby)

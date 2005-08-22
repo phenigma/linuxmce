@@ -580,7 +580,7 @@ static int tda9887_configure(struct tda9887 *t)
 	}
 	tda9887_set_config(t,buf);
 	tda9887_set_insmod(t,buf);
-	
+
 	if (t->mode == T_STANDBY) {
 		buf[1] |= cForcedMuteAudioON;
 	}
@@ -695,7 +695,7 @@ tda9887_command(struct i2c_client *client, unsigned int cmd, void *arg)
 		break;
 	}
 	case TUNER_SET_STANDBY:
-	{	
+	{
 		t->mode = T_STANDBY;
 		tda9887_configure(t);
 		break;

@@ -1,5 +1,5 @@
 /*
- * $Id: saa7134-cards.c,v 1.83 2005/08/04 04:01:28 nsh Exp $
+ * $Id: saa7134-cards.c,v 1.85 2005/08/22 18:47:58 mkrufky Exp $
  *
  * device driver for philips saa7134 based TV cards
  * card-specific stuff.
@@ -2035,6 +2035,80 @@ struct saa7134_board saa7134_boards[] = {
 		.radio = {
 			.name = name_radio,		/* radio unconfirmed */
 			.amux = LINE2,
+		},
+	},
+	[SAA7134_BOARD_KWORLD_TERMINATOR] = {
+		/* Kworld V-Stream Studio TV Terminator */
+		/* "James Webb <jrwebb@qwest.net> */
+		.name           = "V-Stream Studio TV Terminator",
+		.audio_clock    = 0x00187de7,
+		.tuner_type     = TUNER_PHILIPS_TDA8290,
+		.radio_type     = UNSET,
+		.tuner_addr     = ADDR_UNSET,
+		.radio_addr     = ADDR_UNSET,
+		.gpiomask       = 1 << 21,
+		.inputs         = {{
+			.name = name_tv,
+			.vmux = 1,
+			.amux = TV,
+			.gpio = 0x0000000,
+			.tv   = 1,
+		},{
+			.name = name_comp1,     /* Composite input */
+			.vmux = 3,
+			.amux = LINE2,
+			.gpio = 0x0000000,
+		},{
+			.name = name_svideo,    /* S-Video input */
+			.vmux = 8,
+			.amux = LINE2,
+			.gpio = 0x0000000,
+		}},
+		.radio = {
+			.name = name_radio,
+			.amux = TV,
+			.gpio = 0x0200000,
+		},
+	},
+	[SAA7134_BOARD_YUAN_TUN900] = {
+		/* FIXME:
+		 * S-Video and composite sources untested.
+		 * Radio not working.
+		 * Remote control not yet implemented.
+		 * From : codemaster@webgeeks.be */
+		.name           = "Yuan TUN-900 (saa7135)",
+		.audio_clock    = 0x00187de7,
+		.tuner_type     = TUNER_PHILIPS_TDA8290,
+		.radio_type     = UNSET,
+		.tuner_addr= ADDR_UNSET,
+		.radio_addr= ADDR_UNSET,
+		.gpiomask       = 0x00010003,
+		.inputs         = {{
+			.name = name_tv,
+			.vmux = 1,
+			.amux = TV,
+			.tv   = 1,
+			.gpio = 0x01,
+		},{
+			.name = name_comp1,
+			.vmux = 0,
+			.amux = LINE2,
+			.gpio = 0x02,
+		},{
+			.name = name_svideo,
+			.vmux = 6,
+			.amux = LINE2,
+			.gpio = 0x02,
+		}},
+		.radio = {
+			.name = name_radio,
+			.amux = LINE1,
+			.gpio = 0x00010003,
+		},
+		.mute = {
+			.name = name_mute,
+			.amux = TV,
+			.gpio = 0x01,
 		},
 	},
 };

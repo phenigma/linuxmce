@@ -1,5 +1,4 @@
-
-/* $Id: tuner.h,v 1.47 2005/08/17 19:42:11 nsh Exp $
+/* $Id: tuner.h,v 1.49 2005/08/20 14:31:39 mkrufky Exp $
  *
     tuner.h - definition for different tuners
 
@@ -210,12 +209,16 @@ extern int tea5767_tuner_init(struct i2c_client *c);
 extern int default_tuner_init(struct i2c_client *c);
 extern int tea5767_autodetection(struct i2c_client *c);
 
-#define tuner_warn(fmt, arg...) \
-	dev_printk(KERN_WARNING , &t->i2c.dev , fmt , ## arg)
-#define tuner_info(fmt, arg...) \
-	dev_printk(KERN_INFO , &t->i2c.dev , fmt , ## arg)
-#define tuner_dbg(fmt, arg...) \
-	if (tuner_debug) dev_printk(KERN_DEBUG , &t->i2c.dev , fmt , ## arg)
+#define tuner_warn(fmt, arg...) do {\
+	printk(KERN_WARNING "%s %d-%04x: " fmt, t->i2c.driver->name, \
+                        t->i2c.adapter->nr, t->i2c.addr, ## arg); } while (0)
+#define tuner_info(fmt, arg...) do {\
+	printk(KERN_INFO "%s %d-%04x: " fmt, t->i2c.driver->name, \
+                        t->i2c.adapter->nr, t->i2c.addr, ## arg); } while (0)
+#define tuner_dbg(fmt, arg...) do {\
+	if (tuner_debug) \
+                printk(KERN_DEBUG "%s %d-%04x: " fmt, t->i2c.driver->name, \
+                        t->i2c.adapter->nr, t->i2c.addr, ## arg); } while (0)
 
 #endif /* __KERNEL__ */
 

@@ -1,5 +1,5 @@
 /*
- * $Id: cx88-dvb.c,v 1.60 2005/08/17 19:42:11 nsh Exp $
+ * $Id: cx88-dvb.c,v 1.61 2005/08/19 15:55:16 mkrufky Exp $
  *
  * device driver for Conexant 2388x based TV cards
  * MPEG Transport Stream (DVB) routines
@@ -216,7 +216,6 @@ static struct or51132_config pchdtv_hd3000 = {
 #endif
 
 #ifdef HAVE_LGDT330X
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,13)
 static int lgdt330x_pll_set(struct dvb_frontend* fe,
 			    struct dvb_frontend_parameters* params)
 {
@@ -257,18 +256,6 @@ static int lgdt330x_pll_set(struct dvb_frontend* fe,
 	}
 	return 0;
 }
-#else
-static int lgdt330x_pll_set(struct dvb_frontend* fe,
-			    struct dvb_frontend_parameters* params, u8* pllbuf)
-{
-	struct cx8802_dev *dev= fe->dvb->priv;
-
-	pllbuf[0] = dev->core->pll_addr;
-	dvb_pll_configure(dev->core->pll_desc, &pllbuf[1],
-			  params->frequency, 0);
-	return 0;
-}
-#endif
 
 static int lgdt330x_pll_rf_set(struct dvb_frontend* fe, int index)
 {
@@ -295,7 +282,6 @@ static int lgdt330x_set_ts_param(struct dvb_frontend* fe, int is_punctured)
 
 static struct lgdt330x_config fusionhdtv_3_gold = {
 	.demod_address    = 0x0e,
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,13)
 	.demod_chip       = LGDT3302,
 	.serial_mpeg      = 0x04, /* TPSERIAL for 3302 in TOP_CONTROL */
 	.pll_set          = lgdt330x_pll_set,
@@ -306,7 +292,6 @@ static struct lgdt330x_config fusionhdtv_5_gold = {
 	.demod_address    = 0x0e,
 	.demod_chip       = LGDT3303,
 	.serial_mpeg      = 0x40, /* TPSERIAL for 3303 in TOP_CONTROL */
-#endif
 	.pll_set          = lgdt330x_pll_set,
 	.set_ts_params    = lgdt330x_set_ts_param,
 };
@@ -395,7 +380,6 @@ static int dvb_register(struct cx8802_dev *dev)
 						    &dev->core->i2c_adap);
 		}
 		break;
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,13)
 	case CX88_BOARD_DVICO_FUSIONHDTV_5_GOLD:
 		dev->ts_gen_cntrl = 0x08;
 		{
@@ -412,7 +396,6 @@ static int dvb_register(struct cx8802_dev *dev)
 						    &dev->core->i2c_adap);
 		}
 		break;
-#endif
 #endif
 	default:
 		printk("%s: The frontend of your DVB/ATSC card isn't supported yet\n",

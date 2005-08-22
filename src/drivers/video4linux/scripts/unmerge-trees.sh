@@ -70,33 +70,6 @@ diff -upr video4linux/cx88-dvb.c video4linux.orig/cx88-dvb.c
  #include "cx88.h"
  #include "dvb-pll.h"
  
-@@ -212,7 +216,7 @@ static struct or51132_config pchdtv_hd30
- #endif
- 
- #ifdef HAVE_LGDT330X
--#if 1
-+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,13)
- static int lgdt330x_pll_set(struct dvb_frontend* fe,
- 			    struct dvb_frontend_parameters* params)
- {
-@@ -294,7 +298,7 @@ static int lgdt330x_set_ts_param(struct 
- 
- static struct lgdt330x_config fusionhdtv_3_gold = {
- 	.demod_address    = 0x0e,
--#if 1
-+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,13)
- 	.demod_chip       = LGDT3302,
- 	.serial_mpeg      = 0x04, /* TPSERIAL for 3302 in TOP_CONTROL */
- 	.pll_set          = lgdt330x_pll_set,
-@@ -394,7 +398,7 @@ static int dvb_register(struct cx8802_de
- 						    &dev->core->i2c_adap);
- 		}
- 		break;
--#if 1
-+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,13)
- 	case CX88_BOARD_DVICO_FUSIONHDTV_5_GOLD:
- 		dev->ts_gen_cntrl = 0x08;
- 		{
 diff -upr video4linux/saa7134-dvb.c video4linux.orig/saa7134-dvb.c
 --- video4linux/saa7134-dvb.c	2005-08-17 00:49:02.000000000 +0000
 +++ video4linux.orig/saa7134-dvb.c	2005-08-17 00:48:25.000000000 +0000

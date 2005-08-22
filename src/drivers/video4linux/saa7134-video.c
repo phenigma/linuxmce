@@ -1,5 +1,5 @@
 /*
- * $Id: saa7134-video.c,v 1.38 2005/08/17 19:42:11 nsh Exp $
+ * $Id: saa7134-video.c,v 1.39 2005/08/18 02:06:25 mkrufky Exp $
  *
  * device driver for philips saa7134 based TV cards
  * video4linux video interface
@@ -1368,7 +1368,7 @@ static int video_release(struct inode *inode, struct file *file)
 	saa_andorb(SAA7134_OFMT_VIDEO_B, 0x1f, 0);
 	saa_andorb(SAA7134_OFMT_DATA_A, 0x1f, 0);
 	saa_andorb(SAA7134_OFMT_DATA_B, 0x1f, 0);
-	
+
 	saa7134_i2c_call_clients(dev, TUNER_SET_STANDBY, NULL);
 
 	/* free stuff */

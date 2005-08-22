@@ -32,7 +32,8 @@ list-multi	:= bttv.o saa7134.o cx88xx.o cx8800.o cx88-alsa.o cx8802.o
 obj-m				:= video-buf.o v4l1-compat.o v4l2-common.o
 obj-$(CONFIG_VIDEO_BTTV)	+= btcx-risc.o ir-common.o bttv.o tveeprom.o
 obj-$(CONFIG_VIDEO_CX88)	+= btcx-risc.o cx88xx.o cx8800.o cx8802.o \
-                                   cx88-blackbird.o tveeprom.o cx88-ivtv.o
+                                   cx88-blackbird.o tveeprom.o
+obj-$(CONFIG_VIDEO_CX88)	+= cx88-ivtv.o
 
 # THIS IS NOT FINISHED YET --- IT IS HERE ONLY FOR DEVELOPERS !!!!
 ifeq ($(CONFIG_VIDEO_ALSA),m)
@@ -42,7 +43,7 @@ endif
 
 obj-$(CONFIG_VIDEO_SAA7134)	+= saa7134.o saa7134-empress.o saa6752hs.o
 obj-$(CONFIG_VIDEO_IR)		+= ir-common.o
-obj-$(CONFIG_VIDEO_TUNER)	+= tuner.o tda9887.o
+obj-$(CONFIG_VIDEO_TUNER)	+= tuner.o tda9887.o saa6588.o
 obj-$(CONFIG_VIDEO_TVAUDIO)	+= msp3400.o tvaudio.o tvmixer.o
 
 obj-$(CONFIG_VIDEO_CX88_DVB)	+= video-buf-dvb.o cx88-dvb.o
@@ -131,12 +132,13 @@ ifeq ($(inst-m),)
 endif
 
 inst_common := ir-common.ko
-inst_video := btcx-risc.ko bttv.ko tda9887.ko tuner.ko tvaudio.ko tveeprom.ko
+inst_video := btcx-risc.ko bttv.ko tda9887.ko tuner.ko tvaudio.ko tveeprom.ko saa6588.ko
 inst_video += tvmixer.ko v4l1-compat.ko v4l2-common.ko
 inst_video += video-buf.ko video-buf-dvb.ko
 inst_video += ir-kbd-gpio.ko ir-kbd-i2c.ko msp3400.ko
 inst_cx88 := cx8800.ko cx8802.ko cx88-alsa.ko 
-inst_cx88 += cx88-blackbird.ko cx88xx.ko cx88-dvb.ko cx88-ivtv.ko
+inst_cx88 += cx88-blackbird.ko cx88xx.ko cx88-dvb.ko
+inst_cx88 += cx88-ivtv.ko
 inst_saa7134 := saa6752hs.ko saa7134.ko saa7134-empress.ko saa7134-dvb.ko
 
 v4l_modules := $(shell lsmod|cut -d' ' -f1 ) $(patsubst %.ko,%,$(inst-m))

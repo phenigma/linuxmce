@@ -1,5 +1,5 @@
 /*
- * $Id: cx88-video.c,v 1.88 2005/08/17 19:42:11 nsh Exp $
+ * $Id: cx88-video.c,v 1.89 2005/08/17 20:55:37 catalin Exp $
  *
  * device driver for Conexant 2388x based TV cards
  * video4linux video interface
@@ -1515,7 +1515,7 @@ int cx88_do_ioctl(struct inode *inode, struct file *file, int radio,
 
 	if (video_debug > 1)
 		cx88_print_ioctl(core->name,cmd);
-#if 1
+#if 0
 	printk( KERN_INFO "CORE IOCTL: 0x%x\n", cmd );
 	cx88_print_ioctl(core->name,cmd);
 #endif

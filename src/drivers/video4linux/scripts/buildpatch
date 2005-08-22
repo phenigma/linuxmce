@@ -48,7 +48,13 @@ sub kernel_version() {
 
 sub filter_source ($$) {
 	my ($in,$out) = @_;
-	my ($line,$if,$state);
+	my ($line,$if,$state,$mmkernel);
+
+	if (-e $LINUX . "/.mm") {
+		$mmkernel = 1;
+	} else {
+		$mmkernel = 0;
+	}
 
 	open IN,  "<$in";
 	open OUT, ">$out";
@@ -64,9 +70,8 @@ sub filter_source ($$) {
 		}
 		if ($line =~ /^#ifdef MM_KERNEL/) {
 			chomp($line);
-			$line =~ s@^#if\s*@@;
 			$state = "if";
-			$if = eval $line;
+			$if = $mmkernel;
 			print OUT "/* BP #if $if ($line) */\n" if $DEBUG;
 			next;
 		}

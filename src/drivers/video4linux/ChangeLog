@@ -1,3 +1,103 @@
+2005-08-22 18:29  mkrufky
+
+	* saa7134-cards.c, saa7134.h:
+	- Add saa713x card #66: Yuan TUN-900 (saa7135)
+	  PCI subsystem ID of this board is 12ab:0800, same as
+	  36 -> UPMOST PURPLE TV, which SHOULD be 1154:0522.
+	  We are applying this for now without autodetection based
+	  on PCI subsystem ID. This will be fixed later.
+
+	Signed-off-by: De Greef Sebastien <sebdg@hotmail.com>
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-08-21 16:36  mkrufky
+
+	* saa7134-cards.c, saa7134.h:
+	- Add saa713x card #65
+	  Kworld V-Stream Studio TV Terminator
+	  Thanks to: James R Webb <jrwebb@qwest.net>
+	  and Peter Missel <peter.missel@onlinehome.de>
+
+	Signed-off-by: Nickolay V. Shmyrev <nshmyrev@yandex.ru>
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-08-20 22:08  
+
+	* tuner-simple.c:
+        - correct LG NTSC TALN mini tuner takeover as far we can
+          empirically determine for now.
+
+        Signed-off-by: Hermann Pitton <hermann.pitton@onlinehome.de>
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-08-20 17:37  
+
+	* tveeprom.c: (tveeprom_command):
+	- This syncs the tuners list with the list from ivtv.
+	- Fixes the incorrect reporting of the radio presence.
+
+	Signed-off-by: Hans Verkuil <hverkuil@xs4all.nl>
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-08-20 17:30  
+
+	* msp3400.c: (msp_attach):
+	- Changes the prefix to 'msp34xx' instead of 'msp3400'.
+	- Changes the message 'error while reading chip version' to a 
+          debug printk. 
+
+	Signed-off-by: Hans Verkuil <hverkuil@xs4all.nl>
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-08-20 14:03  mkrufky
+
+	* bttv-i2c.c:
+	- added i2c address for lgdt330x.
+
+	* tuner.h:
+	- i2c-core.c uses hexadecimal for the i2c address,
+	  so we should stay consistent.
+
+	Signed-off-by: Hans Verkuil <hverkuil@xs4all.nl>
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-08-20 05:39  mkrufky
+
+	* scripts/buildpatch:
+	- evaluate #ifdef MM_KERNEL based on existance of $LINUX . "/.mm"
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-08-19 20:37  mchehab
+
+	* tuner.h:
+	- changed tuner_info from dev_printk to i2c_client info.
+	- used do { } while(0) according with CodingStyle
+
+	Signed-off-by: Hans Verkuil <hverkuil@xs4all.nl>
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-08-19 15:48  mkrufky
+
+	* cx88-dvb.c:
+	* scripts/merge-trees.sh, scripts/unmerge-trees.sh:
+	- fix compile of cx88-dvb for lgdt330x in 2.6.13
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-08-18 00:00  catalin
+
+	* cx88-blackbird.c:
+	- fix mpeg packet size & count
+	- add VIDIOC_QUERYCAP ioctl for the mpeg stream
+	- return more information in the struct v4l2_format
+	- fix default window height
+
+	* cx88-video.c:
+	- small cleanups
+
+	Signed-off-by: Catalin Climov <catalin@climov.com>
+
 2005-08-17 19:40  nsh
 
 	* cx88-dvb.c: (lgdt330x_pll_set):
@@ -13,7 +113,7 @@
 	(tuner_command):
 	* tuner-simple.c: (default_tuner_init):
 	* tuner.h:
-	
+
 	- New tuner standby API.
 
 	Signed-off-by: Nickolay V. Shmyrev <nshmyrev@yandex.ru>

@@ -397,6 +397,14 @@ struct cx8802_suspend_state {
 	int                        disabled;
 };
 
+/* TODO: move this to struct v4l2_mpeg_compression ? */
+struct blackbird_dnr {
+	u32                       mode;
+	u32                       type;
+	u32                       spatial;
+	u32                       temporal;
+};
+
 struct cx8802_dev {
 	struct cx88_core           *core;
 #if 0
@@ -431,6 +439,10 @@ struct cx8802_dev {
 
 	/* for switching modulation types */
 	unsigned char              ts_gen_cntrl;
+
+	/* mpeg params */
+	struct v4l2_mpeg_compression params;
+	struct blackbird_dnr       dnr_params;
 };
 
 /* ----------------------------------------------------------- */
@@ -572,7 +584,8 @@ void cx88_ir_irq(struct cx88_core *core);
 /* ----------------------------------------------------------- */
 /* cx88-mpeg.c                                                 */
 
-int cx8802_buf_prepare(struct cx8802_dev *dev, struct cx88_buffer *buf);
+int cx8802_buf_prepare(struct cx8802_dev *dev, struct cx88_buffer *buf,
+			enum v4l2_field field);
 void cx8802_buf_queue(struct cx8802_dev *dev, struct cx88_buffer *buf);
 void cx8802_cancel_buffers(struct cx8802_dev *dev);
 
@@ -593,6 +606,10 @@ extern int cx88_do_ioctl(struct inode *inode, struct file *file, int radio,
 extern int (*cx88_ioctl_hook)(struct inode *inode, struct file *file,
 				unsigned int cmd, void *arg);
 extern unsigned int (*cx88_ioctl_translator)(unsigned int cmd);
+void blackbird_set_params(struct cx8802_dev *dev,
+				struct v4l2_mpeg_compression *params);
+void blackbird_set_dnr_params(struct cx8802_dev *dev,
+				struct blackbird_dnr* dnr_params);
 
 /*
  * Local variables:
