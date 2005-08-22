@@ -205,18 +205,6 @@ bool SlimServer_PlugIn::StartMedia( class MediaStream *pMediaStream )
 	string mediaURL;
 	string Response;
 
-	// HACK: -- todo: get real informations.
-	if( pSlimServerMediaStream->m_dequeMediaFile.size()>pSlimServerMediaStream->m_iDequeMediaFile_Pos )
-	{
-		MediaFile *pMediaFile = pSlimServerMediaStream->m_dequeMediaFile[pSlimServerMediaStream->m_iDequeMediaFile_Pos];
-		if( pMediaFile && pMediaFile->m_sDescription.size() )
-			pSlimServerMediaStream->m_sMediaDescription = pMediaFile->m_sDescription;
-		else
-			pSlimServerMediaStream->m_sMediaDescription = FileUtils::FilenameWithoutPath(sFileToPlay);
-	}
-	else
-		pSlimServerMediaStream->m_sMediaDescription = FileUtils::FilenameWithoutPath(sFileToPlay);
-
 	mediaURL = sFileToPlay;
 
 	g_pPlutoLogger->Write(LV_WARNING, "Is streaming ?: %d", pSlimServerMediaStream->isStreaming() );

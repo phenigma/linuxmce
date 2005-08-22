@@ -64,6 +64,8 @@ namespace DCE
         deque<MediaTitle *>  m_dequeMediaTitle;      /** The titles, if this is something like a DVD */
         deque<MediaSection *>  m_dequeMediaSection;      /** The titles, if this is something like a DVD */
         unsigned int		m_iDequeMediaFile_Pos;   /** The play position in the m_dequeFilename deque. */
+        unsigned int		m_iDequeMediaTitle_Pos;  /** The play position in the m_dequeMediaTitle deque. */
+        unsigned int		m_iDequeMediaSection_Pos;/** The play position in the m_dequeMediaSection deque. */
         int					m_iPK_Playlist;          /** the ID of the playlist. nonZero if the playlist was loaded from database, zero otherwise. */
         string				m_sPlaylistName;       	 /** the name of the playlist which was loaded from the database. */
 		int m_discid;  /** A unique number to identify the disc inserted, if this is from a removable disc (CD/DVD) */
@@ -88,6 +90,7 @@ namespace DCE
 
 		int 	m_iPK_Users;        			/** Who started the media */
         bool 	m_bFollowMe;       				/** True if the media is supposed to follow the above user */
+		bool	m_bPlugInWillSetDescription;	/** True if the plugin will handle determining the description */
 
 		bool 	m_bIsMovable; 					/** < bCanMove - This if this media stream can be moved in a move media command */
 		int 	m_iOrder;  						/** This is used for the floorplans to order and color code the streams */
@@ -110,7 +113,7 @@ namespace DCE
         string m_sTotalTime;    		/** The handler may populate this with the total time */
 		string m_sLastPosition;			/** The handler may populate this with a seekable position showing the current location.  I should do this in StopMedia if possible so the media can be resumed */
 		string m_sStartPosition;		/** The position to start the stream at. */
-
+		string m_sPlaybackSpeed;		/** Like 2x, 1/4x, etc.  Normally leave blank for normal */
 
         /** @brief constructor*/
         MediaStream(class MediaHandlerInfo *pMediaHandlerInfo, int iPK_MediaProvider, MediaDevice *pMediaDevice, int PK_Users,enum SourceType sourceType,int iStreamID);
@@ -119,7 +122,11 @@ namespace DCE
         virtual ~MediaStream();
 
         virtual int GetType() { return MEDIASTREAM_TYPE_GENERIC; }
-        virtual void UpdateDescriptions() { m_sMediaDescription="Generic Media"; m_sSectionDescription=""; m_sMediaSynopsis=""; m_sTimecode=""; }
+		/**
+		 * @brief Goes through the attributes (song title, group, etc.) and determines the
+		 * appropriate description for the stream and each file in it
+		 */
+        virtual void UpdateDescriptions(bool bAllFiles=false,MediaFile *pMediaFile_In=NULL);
         int m_iStreamID_get() { return m_iStreamID; }
 
         void SetPicture(char *pPictureData,int iPictureSize) { delete[] m_pPictureData; m_pPictureData=pPictureData; m_iPictureSize=iPictureSize; }
@@ -153,12 +160,6 @@ namespace DCE
 		 */
 		virtual bool ProcessJumpPosition(string sJumpSpecification);
 	
-		/**
-		 * @brief Goes through the attributes (song title, group, etc.) and determines the
-		 * appropriate description for the stream and each file in it
-		 */
-		virtual void UpdateDescriptionsFromAttributes();
-
 		/**
 		* return a comma delimited list of all active destination ent areas
 		* except the one passed in, or all areas if the parameter is null

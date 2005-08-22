@@ -90,13 +90,12 @@ IRTrans::IRTrans(int DeviceID, string ServerAddress,bool bConnectEventHandler,bo
 {
 	m_bIRServerRunning=false;
 	g_pIRTrans=this;
+	FileUtils::DelDir("remotes");
+	system("mkdir remotes");
 	// Find all our sibblings that are remote controls 
 	for(Map_DeviceData_Base::iterator itD=m_pData->m_AllDevices.m_mapDeviceData_Base.begin();
 		itD!=m_pData->m_AllDevices.m_mapDeviceData_Base.end();++itD)
 	{
-		FileUtils::DelDir("remotes");
-		system("mkdir remotes");
-
 		DeviceData_Base *pDevice = itD->second;
 		if( pDevice->m_dwPK_Device_ControlledVia==m_pData->m_dwPK_Device_ControlledVia &&
 			pDevice->m_dwPK_DeviceCategory==DEVICECATEGORY_IRTrans_Remote_Controls_CONST )
@@ -246,7 +245,6 @@ void IRTrans::GotIRCommand(const char *pRemote,const char *pCommand)
 	}
 }
 
-char Brightness=0;
 void IRTrans::DoUpdateDisplay(vector<string> *vectString)
 {
 	if( !vectString || vectString->size()==0 )
@@ -269,7 +267,7 @@ void IRTrans::DoUpdateDisplay(vector<string> *vectString)
 	if( vectString->size()>1 )
 		strncpy((char *) (lcdCommand.framebuffer+40),(*vectString)[1].c_str(),40);
 
-	g_pPlutoLogger->Write(LV_WARNING,"%s",(char *) lcdCommand.framebuffer);
+	g_pPlutoLogger->Write(LV_WARNING,"setting display to: %s",(char *) lcdCommand.framebuffer);
 #ifdef LINUX
 	DoExecuteNetCommand (0,(NETWORKCOMMAND *)&lcdCommand,&statusBuffer);
 #endif

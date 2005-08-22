@@ -49,20 +49,6 @@ void BoundRemote::UpdateOrbiter( MediaStream *pMediaStream, bool bRefreshScreen,
 //  size_t size; char *pPic = FileUtils::ReadFileIntoBuffer( "/image.jpg", size );
     DCE::CMD_Update_Object_Image CMD_Update_Object_Image( 0, m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, m_sPK_DesignObj_GraphicImage, "jpg", pMediaStream->m_pPictureData, pMediaStream->m_iPictureSize, "0" );
 
-    if( m_iPK_Text_Description )
-    {
-        DCE::CMD_Set_Text CMD_Set_Text( m_pMedia_Plugin->m_dwPK_Device, m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, "",
-            ( pMediaStream ? pMediaStream->m_sMediaDescription : "*no media*" ), m_iPK_Text_Description );
-        CMD_Update_Object_Image.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Text.m_pMessage );
-    }
-
-    if( m_iPK_Text_Section )
-    {
-        DCE::CMD_Set_Text CMD_Set_Text( m_pMedia_Plugin->m_dwPK_Device, m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, "",
-            ( pMediaStream ? pMediaStream->m_sSectionDescription : "* no media *" ), m_iPK_Text_Section );
-        CMD_Update_Object_Image.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Text.m_pMessage );
-    }
-
     if( m_iPK_Text_Synopsis )
     {
         DCE::CMD_Set_Text CMD_Set_Text( m_pMedia_Plugin->m_dwPK_Device, m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, "",
@@ -70,7 +56,7 @@ void BoundRemote::UpdateOrbiter( MediaStream *pMediaStream, bool bRefreshScreen,
         CMD_Update_Object_Image.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Text.m_pMessage );
     }
 
-	m_pMedia_Plugin->SetNowPlaying(m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pMediaStream->m_sMediaDescription, "", pMediaStream, bRefreshScreen, CMD_Update_Object_Image.m_pMessage );
+	m_pMedia_Plugin->SetNowPlaying(m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pMediaStream, bRefreshScreen, CMD_Update_Object_Image.m_pMessage );
 	if( p_pMessage )
 		*p_pMessage = CMD_Update_Object_Image.m_pMessage;
 	else

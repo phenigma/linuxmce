@@ -57,6 +57,7 @@ public:
 		PLAYBACK_FF_1_4     =    250,
 		PLAYBACK_FF_1_2     =    500,
 		PLAYBACK_FF_1       =   1000,
+		PLAYBACK_NORMAL		=   1000,
 		PLAYBACK_FF_2       =   2000,
 		PLAYBACK_FF_4       =   4000,
 		PLAYBACK_FF_8       =   8000,

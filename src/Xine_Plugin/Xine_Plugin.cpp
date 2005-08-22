@@ -214,17 +214,6 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 	string Response;
 
 	MediaFile *pMediaFile = NULL;
-	// HACK: -- todo: get real informations.
-	if( pXineMediaStream->m_dequeMediaFile.size()>pXineMediaStream->m_iDequeMediaFile_Pos )
-	{
-		pMediaFile = pXineMediaStream->m_dequeMediaFile[pXineMediaStream->m_iDequeMediaFile_Pos];
-		if( pMediaFile && pMediaFile->m_sDescription.size() )
-			pXineMediaStream->m_sMediaDescription = pMediaFile->m_sDescription;
-		else
-			pXineMediaStream->m_sMediaDescription = FileUtils::FilenameWithoutPath(sFileToPlay);
-	}
-	else
-		pXineMediaStream->m_sMediaDescription = FileUtils::FilenameWithoutPath(sFileToPlay);
 
 	mediaURL = sFileToPlay;
 
@@ -387,7 +376,7 @@ bool Xine_Plugin::MenuOnScreen( class Socket *pSocket, class Message *pMessage, 
 				continue;
 			g_pPlutoLogger->Write(LV_STATUS, "Processing remote: for orbiter: %d", pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
 			m_pMedia_Plugin->SetNowPlaying(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
-				pXineMediaStream->m_sMediaDescription,"",pXineMediaStream,false);
+				pXineMediaStream,false);
 		}
 		m_pMedia_Plugin->WaitForMessageQueue();
 g_pPlutoLogger->Write(LV_WARNING, "Sent now playing to %d remoted for on: %d queue",

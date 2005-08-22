@@ -169,12 +169,6 @@ protected:
 	}
 
 	/**
-	 * Sometimes we just want to override the description with a
-	 * status like 'pause', '2x', etc.
-	 */
-	void OverrideNowPlaying(MediaStream *pMediaStream,string sNowPlaying);
-
-	/**
 	 * Parse media identification that came in CDDB Format 
 	 */
 
@@ -408,7 +402,7 @@ public:
 		EntertainArea *&pEntertainArea,MediaStream *&pMediaStream);
 
 	// This sends the set now playing command to an orbiter.  If pMessage is passed, it adds the command without sending it
-	void SetNowPlaying( int dwPK_Device, string sNowPlaying, string sSection, MediaStream *pMediaStream, bool bRefreshScreen, Message *pMessage=NULL )
+	void SetNowPlaying( int dwPK_Device, MediaStream *pMediaStream, bool bRefreshScreen, Message *pMessage=NULL )
 	{
 		string sRemotes;
 		if( pMediaStream && pMediaStream->m_pRemoteControlSet )
@@ -435,17 +429,27 @@ public:
 			}
 			else if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST )
 				sFilename = pMediaStream->m_sMediaDescription;
+			if( StringUtils::StartsWith(sFilename,"<%=") )
+				sFilename="";  // It's just a stock message--the user will have to pick
+
+			DCE::CMD_Set_Now_Playing CMD_Set_Now_Playing( m_dwPK_Device, dwPK_Device, PK_Device_Source,
+				sRemotes, pMediaStream->m_sMediaDescription, pMediaStream->m_sSectionDescription, sFilename, iDequeMediaFile, 
+				bRefreshScreen );
+			if( pMessage )
+				pMessage->m_vectExtraMessages.push_back(CMD_Set_Now_Playing.m_pMessage);
+			else
+				SendCommand( CMD_Set_Now_Playing );
+		}
+		else
+		{
+			DCE::CMD_Set_Now_Playing CMD_Set_Now_Playing( m_dwPK_Device, dwPK_Device, 0,
+				"", "", "", "", 0, bRefreshScreen );
+			if( pMessage )
+				pMessage->m_vectExtraMessages.push_back(CMD_Set_Now_Playing.m_pMessage);
+			else
+				SendCommand( CMD_Set_Now_Playing );
 		}
 
-		if( StringUtils::StartsWith(sFilename,"<%=") )
-			sFilename="";  // It's just a stock message--the user will have to pick
-
-		DCE::CMD_Set_Now_Playing CMD_Set_Now_Playing( m_dwPK_Device, dwPK_Device, PK_Device_Source,
-			sRemotes, sNowPlaying, sSection, sFilename, iDequeMediaFile, bRefreshScreen );
-		if( pMessage )
-			pMessage->m_vectExtraMessages.push_back(CMD_Set_Now_Playing.m_pMessage);
-		else
-			SendCommand( CMD_Set_Now_Playing );
 	}
 
 //<-dceag-h-b->
@@ -522,21 +526,15 @@ public:
 			/** If 1, bind (the Orbiter is sitting at the remote screen).  If 0, the orbiter has left the remote screen, and does not need media changed commands. */
 		/** @param #16 PK_DesignObj_CurrentScreen */
 			/** The current screen. */
-		/** @param #25 PK_Text */
-			/** The text object that contains the media description.  This will get set whenever the media changes, such as changing discs or channels. */
 		/** @param #39 Options */
 			/** Miscellaneous options.  These are not pre-defined, but are specific to a remote and the plug-in.  For example, the PVR plug-in needs to know what tuning device is active. */
 		/** @param #45 PK_EntertainArea */
 			/** The entertainment area the orbiter is controlling. */
-		/** @param #56 PK_Text_Timecode */
-			/** If the remote wants time code information, the object is stored here.  This can include an optional |n at the end, where n is the number of seconds to update (ie how often to update the counter). */
-		/** @param #62 PK_Text_SectionDesc */
-			/** The text object for the section description.  The section is tracks on a cd, or shows on a tv channel. */
 		/** @param #63 PK_Text_Synopsis */
 			/** The text object for the synopsis, a full description.  Examples are a DVD synopsis, or a description of a tv show. */
 
-	virtual void CMD_Bind_to_Media_Remote(int iPK_Device,string sPK_DesignObj,string sOnOff,string sPK_DesignObj_CurrentScreen,int iPK_Text,string sOptions,string sPK_EntertainArea,int iPK_Text_Timecode,int iPK_Text_SectionDesc,int iPK_Text_Synopsis) { string sCMD_Result; CMD_Bind_to_Media_Remote(iPK_Device,sPK_DesignObj.c_str(),sOnOff.c_str(),sPK_DesignObj_CurrentScreen.c_str(),iPK_Text,sOptions.c_str(),sPK_EntertainArea.c_str(),iPK_Text_Timecode,iPK_Text_SectionDesc,iPK_Text_Synopsis,sCMD_Result,NULL);};
-	virtual void CMD_Bind_to_Media_Remote(int iPK_Device,string sPK_DesignObj,string sOnOff,string sPK_DesignObj_CurrentScreen,int iPK_Text,string sOptions,string sPK_EntertainArea,int iPK_Text_Timecode,int iPK_Text_SectionDesc,int iPK_Text_Synopsis,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Bind_to_Media_Remote(int iPK_Device,string sPK_DesignObj,string sOnOff,string sPK_DesignObj_CurrentScreen,string sOptions,string sPK_EntertainArea,int iPK_Text_Synopsis) { string sCMD_Result; CMD_Bind_to_Media_Remote(iPK_Device,sPK_DesignObj.c_str(),sOnOff.c_str(),sPK_DesignObj_CurrentScreen.c_str(),sOptions.c_str(),sPK_EntertainArea.c_str(),iPK_Text_Synopsis,sCMD_Result,NULL);};
+	virtual void CMD_Bind_to_Media_Remote(int iPK_Device,string sPK_DesignObj,string sOnOff,string sPK_DesignObj_CurrentScreen,string sOptions,string sPK_EntertainArea,int iPK_Text_Synopsis,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #214 - Save playlist */
@@ -750,10 +748,16 @@ public:
 		/** @param #102 Time */
 			/** The current time.  If there is both a section time and total time, they should be \t delimited, like 1:03\t60:30 */
 		/** @param #132 Total */
-			/** The total time.   If there is both a section time and total time, they should be \t delimited, like 1:03\t60:30 */
+			/** If there is both a section time and total time, they should be \t delimited, like 1:03\t60:30 */
+		/** @param #133 Speed */
+			/** The current speed */
+		/** @param #134 Title */
+			/** For DVD's, the title */
+		/** @param #135 Section */
+			/** For DVD's, the section */
 
-	virtual void CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal) { string sCMD_Result; CMD_Update_Time_Code(iStreamID,sTime.c_str(),sTotal.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,string sSpeed,string sTitle,string sSection) { string sCMD_Result; CMD_Update_Time_Code(iStreamID,sTime.c_str(),sTotal.c_str(),sSpeed.c_str(),sTitle.c_str(),sSection.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,string sSpeed,string sTitle,string sSection,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

@@ -4363,6 +4363,13 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 			if( !pObj->m_pvectCurrentGraphic || pObj->m_pvectCurrentGraphic->size()==0 && !pObj->m_pGraphicToUndoSelect )
 				SaveBackgroundForDeselect( pObj, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
 		}
+        else if(  Variable=="NP_SPEED" )
+		{
+            Output += m_sNowPlaying_Speed;
+			m_pObj_NowPlaying_Speed_OnScreen=pObj;
+			if( !pObj->m_pvectCurrentGraphic || pObj->m_pvectCurrentGraphic->size()==0 && !pObj->m_pGraphicToUndoSelect )
+				SaveBackgroundForDeselect( pObj, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
+		}
         else if(  Variable=="NPD" )
 		{
 			Output += StringUtils::itos(m_dwPK_Device_NowPlaying);
@@ -8132,11 +8139,19 @@ void Orbiter::CMD_Move_Right(string &sCMD_Result,Message *pMessage)
 			/** The current time.  If there is both a section time and total time, they should be \t delimited, like 1:03\t60:30 */
 		/** @param #132 Total */
 			/** If there is both a section time and total time, they should be \t delimited, like 1:03\t60:30 */
+		/** @param #133 Speed */
+			/** The current speed */
+		/** @param #134 Title */
+			/** For DVD's, the title */
+		/** @param #135 Section */
+			/** For DVD's, the section */
 
-void Orbiter::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,string sSpeed,string sTitle,string sSection,string &sCMD_Result,Message *pMessage)
 //<-dceag-c689-e->
 {
-	if( !m_pObj_NowPlaying_TimeShort_OnScreen && !m_pObj_NowPlaying_TimeLong_OnScreen )
+	m_sNowPlaying_Speed = sSpeed;
+
+	if( !m_pObj_NowPlaying_TimeShort_OnScreen && !m_pObj_NowPlaying_TimeLong_OnScreen && !m_pObj_NowPlaying_Speed_OnScreen )
 		return;
 
 	string::size_type tabTime = sTime.find('\t');
@@ -8172,6 +8187,8 @@ void Orbiter::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,stri
 	PLUTO_SAFETY_LOCK(rm,m_NeedRedrawVarMutex);
 	if( m_pObj_NowPlaying_TimeShort_OnScreen )
 		m_vectObjs_NeedRedraw.push_back(m_pObj_NowPlaying_TimeShort_OnScreen);
-	if( m_pObj_NowPlaying_TimeLong_OnScreen )
+	if( m_pObj_NowPlaying_TimeLong_OnScreen && m_pObj_NowPlaying_TimeShort_OnScreen!=m_pObj_NowPlaying_TimeShort_OnScreen )
 		m_vectObjs_NeedRedraw.push_back(m_pObj_NowPlaying_TimeLong_OnScreen);
+	if( m_pObj_NowPlaying_Speed_OnScreen && m_pObj_NowPlaying_Speed_OnScreen!=m_pObj_NowPlaying_TimeShort_OnScreen )
+		m_vectObjs_NeedRedraw.push_back(m_pObj_NowPlaying_Speed_OnScreen);
 }

@@ -208,18 +208,6 @@ bool VideoLan_PlugIn::StartMedia( class MediaStream *pMediaStream )
 	string mediaURL;
 	string Response;
 
-	// HACK: -- todo: get real informations.
-	if( pVideoLanMediaStream->m_dequeMediaFile.size()>pVideoLanMediaStream->m_iDequeMediaFile_Pos )
-	{
-		MediaFile *pMediaFile = pVideoLanMediaStream->m_dequeMediaFile[pVideoLanMediaStream->m_iDequeMediaFile_Pos];
-		if( pMediaFile && pMediaFile->m_sDescription.size() )
-			pVideoLanMediaStream->m_sMediaDescription = pMediaFile->m_sDescription;
-		else
-			pVideoLanMediaStream->m_sMediaDescription = FileUtils::FilenameWithoutPath(sFileToPlay);
-	}
-	else
-		pVideoLanMediaStream->m_sMediaDescription = FileUtils::FilenameWithoutPath(sFileToPlay);
-
 	mediaURL = sFileToPlay;
 
 

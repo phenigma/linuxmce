@@ -89,7 +89,6 @@ class MediaStream *Generic_NonPluto_Media::CreateMediaStream( class MediaHandler
 							pMediaDevice, 
 							iPK_Users, st_RemovableMedia, StreamID );
 
-	pMediaStream->m_sMediaDescription = pMediaDevice->m_pDeviceData_Router->m_sDescription;
 	return pMediaStream;
 }
 

@@ -983,7 +983,7 @@ string Xine_Player::GetPosition()
 }
 
 // Report to the media plugin the current timecode
-void Xine_Player::ReportTimecode(int iStreamID)
+void Xine_Player::ReportTimecode(int iStreamID,int Speed)
 {
 	if( !m_pDeviceData_MediaPlugin )
 		return;
@@ -992,9 +992,11 @@ void Xine_Player::ReportTimecode(int iStreamID)
     int currentTime, totalTime;
 	int iMediaPosition = m_pXineSlaveControl->getStreamPlaybackPosition(1, currentTime, totalTime);
 
-	DCE::CMD_Update_Time_Code CMD_Update_Time_Code(m_dwPK_Device,m_pDeviceData_MediaPlugin->m_dwPK_Device,
-		iStreamID,StringUtils::SecondsAsTime(currentTime/1000),StringUtils::SecondsAsTime(totalTime/1000));
-	SendCommand(CMD_Update_Time_Code);
+	DCE::CMD_Update_Time_Code CMD_Update_Time_Code_(m_dwPK_Device,m_pDeviceData_MediaPlugin->m_dwPK_Device,
+		iStreamID,StringUtils::SecondsAsTime(currentTime/1000),StringUtils::SecondsAsTime(totalTime/1000),
+		(Speed==1000 ? string("") : StringUtils::itos(Speed/1000) + "x"),StringUtils::itos(m_iTitle),
+		StringUtils::itos(m_iChapter));
+	SendCommand(CMD_Update_Time_Code_);
 }
 
 int Xine_Player::CalculatePosition(string &sMediaPosition,string *sMRL,int *Subtitle,int *Angle,int *AudioTrack)

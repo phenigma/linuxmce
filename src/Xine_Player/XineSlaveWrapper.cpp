@@ -403,6 +403,7 @@ bool XineSlaveWrapper::playStream(int streamID, string mediaPosition, bool playb
 	if ( xineStream == NULL )
 		return false;
 
+	xineStream->m_iPlaybackSpeed=PLAYBACK_NORMAL;
 	time_t startTime = time(NULL);
 
 	int Subtitle=-2,Angle=-2,AudioTrack=-2;
@@ -424,6 +425,9 @@ g_pPlutoLogger->Write(LV_STATUS, "Playing... The command took %d seconds to comp
 			xine_set_param(xineStream->m_pStream, XINE_PARAM_SPEED, XINE_SPEED_PAUSE);
 		else
 			xine_set_param(xineStream->m_pStream, XINE_PARAM_SPEED, XINE_SPEED_NORMAL);
+
+		m_pAggregatorObject->ReportTimecode(xineStream->m_iStreamID,xineStream->m_iPlaybackSpeed);
+
 		return true;
 	}
     else
@@ -634,6 +638,8 @@ void XineSlaveWrapper::xineEventListener(void *userData, const xine_event_t *eve
         */
 			g_pPlutoLogger->Write(LV_STATUS, "Got XINE_EVENT_UI_PLAYBACK_FINISHED");
 			g_iSpecialSeekSpeed=0;
+			xineStream->m_iPlaybackSpeed=PLAYBACK_NORMAL;
+			xineStream->m_pOwner->m_pAggregatorObject->ReportTimecode(xineStream->m_iStreamID,xineStream->m_iPlaybackSpeed);
             xineStream->m_pOwner->playbackCompleted(xineStream->m_iStreamID,false);
             xineStream->m_bIsRendering = false;
             break;
@@ -652,6 +658,8 @@ void XineSlaveWrapper::xineEventListener(void *userData, const xine_event_t *eve
         case XINE_EVENT_UI_NUM_BUTTONS:
             {
 				g_iSpecialSeekSpeed=0;
+				xineStream->m_iPlaybackSpeed=PLAYBACK_NORMAL;
+				xineStream->m_pOwner->m_pAggregatorObject->ReportTimecode(xineStream->m_iStreamID,xineStream->m_iPlaybackSpeed);
                 int iButtons = ((xine_ui_data_t *)event->data)->num_buttons;
 
 				g_pPlutoLogger->Write(LV_STATUS, "Menu with %d buttons", iButtons);
@@ -848,7 +856,7 @@ void *XineSlaveWrapper::eventProcessingLoop(void *arguments)
 			iCounter=0;
 			if( pStream->m_pOwner->m_iTimeCodeReportFrequency && ++iCounter_TimeCode>=pStream->m_pOwner->m_iTimeCodeReportFrequency )
 			{
-				pStream->m_pOwner->m_pAggregatorObject->ReportTimecode(pStream->m_iStreamID);
+				pStream->m_pOwner->m_pAggregatorObject->ReportTimecode(pStream->m_iStreamID,pStream->m_iPlaybackSpeed);
 				iCounter_TimeCode=1;
 			}
 			if( g_iSpecialSeekSpeed )
@@ -865,11 +873,15 @@ void *XineSlaveWrapper::eventProcessingLoop(void *arguments)
 	{
 	g_pPlutoLogger->Write(LV_CRITICAL,"aborting seek");
 	g_iSpecialSeekSpeed=0;
+	pStream->m_iPlaybackSpeed=PLAYBACK_NORMAL;
+	pStream->m_pOwner->m_pAggregatorObject->ReportTimecode(pStream->m_iStreamID,pStream->m_iPlaybackSpeed);
 	}
 				else if( !xine_play(pStream->m_pStream, 0, positionTime + g_iSpecialSeekSpeed) )  // Pass in position as 2nd parameter
 	{
 	g_pPlutoLogger->Write(LV_CRITICAL,"special seek failed, normal speed");
 	g_iSpecialSeekSpeed=0;
+	pStream->m_iPlaybackSpeed=PLAYBACK_NORMAL;
+	pStream->m_pOwner->m_pAggregatorObject->ReportTimecode(pStream->m_iStreamID,pStream->m_iPlaybackSpeed);
 	}
 			}
 		}
@@ -1106,6 +1118,8 @@ void XineSlaveWrapper::changePlaybackSpeed(int iStreamID, PlayBackSpeedType desi
 
     int xineSpeed = XINE_SPEED_PAUSE;
 	g_iSpecialSeekSpeed=0;  // If this is a special speed we'll set it below
+	pStream->m_iPlaybackSpeed=desiredSpeed;
+	m_pAggregatorObject->ReportTimecode(pStream->m_iStreamID,pStream->m_iPlaybackSpeed);
     switch ( desiredSpeed )
     {
         case PLAYBACK_STOP:

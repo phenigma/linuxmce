@@ -1834,7 +1834,7 @@ void OrbiterGenerator::OutputText(DesignObj_Generator *ocDesignObj,CGText *p_Des
 	if( p_DesignObjText->m_rPosition.Bottom()>m_sScaledSize.Height )
 		p_DesignObjText->m_rPosition.Bottom(m_sScaledSize.Height);
 
-if( p_DesignObjText->m_PK_Text==795 )
+if( p_DesignObjText->m_PK_Text==740 )
 {
 	int k=2;
 }

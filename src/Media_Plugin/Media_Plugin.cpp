@@ -677,6 +677,7 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
         pMediaStream->ChangePositionInPlaylist(1);
 		g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from playback completed");
         pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pMediaStream);
+		MediaInfoChanged(pMediaStream,true);
     }
     else
     {
@@ -971,6 +972,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 		// See if there's a special screen for the OSD
 		pMediaStream->m_iPK_DesignObj_RemoteOSD = pMediaStream->SpecialOsdScreen();
 
+		pMediaStream->UpdateDescriptions(true);
 		MediaInfoChanged( pMediaStream, pMediaStream->m_dequeMediaFile.size()>1 );
 
 		for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
@@ -1107,7 +1109,7 @@ bool Media_Plugin::ReceivedMessage( class Message *pMessage )
 			MediaDevice *pMediaDevice = pEntertainArea->m_pMediaStream->m_pMediaDevice_Source;
 			if( pMessage->m_dwID==COMMAND_Pause_Media_CONST && pMediaDevice->m_iLastPlaybackSpeed!=0 )
 			{
-				OverrideNowPlaying(pEntertainArea->m_pMediaStream,"(pause) " + pEntertainArea->m_pMediaStream->m_sMediaDescription);
+				MediaInfoChanged(pEntertainArea->m_pMediaStream,false);
 				pMediaDevice->m_iLastPlaybackSpeed = 0;
 			}
 			else if( pMessage->m_dwID==COMMAND_Pause_Media_CONST )
@@ -1116,11 +1118,11 @@ bool Media_Plugin::ReceivedMessage( class Message *pMessage )
 				pMessage->m_dwID=COMMAND_Change_Playback_Speed_CONST;
 				pMessage->m_mapParameters[COMMANDPARAMETER_MediaPlaybackSpeed_CONST] = "1000";
 				pMediaDevice->m_iLastPlaybackSpeed = 1000;
-				OverrideNowPlaying(pEntertainArea->m_pMediaStream,pEntertainArea->m_pMediaStream->m_sMediaDescription);
+				MediaInfoChanged(pEntertainArea->m_pMediaStream,false);
 			}
 			else if( pMessage->m_dwID==COMMAND_Play_Media_CONST )
 			{
-				OverrideNowPlaying(pEntertainArea->m_pMediaStream,pEntertainArea->m_pMediaStream->m_sMediaDescription);
+				MediaInfoChanged(pEntertainArea->m_pMediaStream,false);
 				pMediaDevice->m_iLastPlaybackSpeed = 1000;
 			}
 			else if( pMessage->m_dwID==COMMAND_Change_Playback_Speed_CONST )
@@ -1176,11 +1178,6 @@ pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
 					else
 						pMediaDevice->m_iLastPlaybackSpeed = pMediaDevice->m_iLastPlaybackSpeed;
 				}
-				if( pMediaDevice->m_iLastPlaybackSpeed==1000 )
-					OverrideNowPlaying(pEntertainArea->m_pMediaStream,pEntertainArea->m_pMediaStream->m_sMediaDescription);
-				else
-					OverrideNowPlaying(pEntertainArea->m_pMediaStream,"(" +
-						StringUtils::itos(pMediaDevice->m_iLastPlaybackSpeed/1000) + "x) "+ pEntertainArea->m_pMediaStream->m_sMediaDescription);
 			}
 g_pPlutoLogger->Write(LV_STATUS,"Playback speed now %d for device %d %s",
 pMediaDevice->m_iLastPlaybackSpeed,
@@ -1280,6 +1277,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Just send it to the media device");
 
 void Media_Plugin::MediaInfoChanged( MediaStream *pMediaStream, bool bRefreshScreen )
 {
+	pMediaStream->UpdateDescriptions();
     delete[] pMediaStream->m_pPictureData;
 	pMediaStream->m_pPictureData = NULL;
     pMediaStream->m_iPictureSize = 0;
@@ -1363,23 +1361,21 @@ g_pPlutoLogger->Write(LV_STATUS, "Ready to update bound remotes with %p %d",pMed
             OH_Orbiter *pOH_Orbiter = (*it).second;
             if( (pOH_Orbiter->m_pEntertainArea==pEntertainArea || pMediaStream->OrbiterIsOSD(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device))&& // UpdateOrbiter will have already set the now playing
 					pEntertainArea->m_mapBoundRemote.find(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device)==pEntertainArea->m_mapBoundRemote.end() )
-                SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pMediaStream->m_sMediaDescription, "", pMediaStream, bRefreshScreen );
+                SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pMediaStream, bRefreshScreen );
         }
-    }
-}
+		for(ListMediaDevice::iterator itVFD=pEntertainArea->m_listVFD_LCD_Displays.begin();itVFD!=pEntertainArea->m_listVFD_LCD_Displays.end();++itVFD)
+		{
+			MediaDevice *pMediaDevice = *itVFD;
+			DCE::CMD_Display_Message CMD_Display_Message_TC(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
+				pMediaStream->m_sMediaDescription,
+				StringUtils::itos(VL_MSGTYPE_NOW_PLAYING_MAIN),"np","","");
+			SendCommand(CMD_Display_Message_TC);
 
-void Media_Plugin::OverrideNowPlaying(MediaStream *pMediaStream,string sNowPlaying)
-{
-    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
-    for( MapEntertainArea::iterator it=pMediaStream->m_mapEntertainArea.begin( );it!=pMediaStream->m_mapEntertainArea.end( );++it )
-    {
-        EntertainArea *pEntertainArea = ( *it ).second;
-        for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
-        {
-            OH_Orbiter *pOH_Orbiter = (*it).second;
-            if( pOH_Orbiter->m_pEntertainArea==pEntertainArea )
-                SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, sNowPlaying,"", pMediaStream, false );
-        }
+			DCE::CMD_Display_Message CMD_Display_Message_Section(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
+				pMediaStream->m_sSectionDescription,
+				StringUtils::itos(VL_MSGTYPE_NOW_PLAYING_SECTION),"np","","");
+			SendCommand(CMD_Display_Message_Section);
+		}
     }
 }
 
@@ -1530,7 +1526,7 @@ g_pPlutoLogger->Write( LV_STATUS, "Stream in ea %s ended %d remotes bound", pEnt
         if( pOH_Orbiter->m_pEntertainArea==pEntertainArea )
 		{
 g_pPlutoLogger->Write( LV_STATUS, "Orbiter %d %s in this ea to stop", pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_sDescription.c_str());
-            SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, "", "", NULL, false );
+            SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, NULL, false );
 		}
     }
 
@@ -1556,20 +1552,14 @@ g_pPlutoLogger->Write( LV_STATUS, "Orbiter %d %s is bound", pBoundRemote->m_pOH_
 			/** If 1, bind (the Orbiter is sitting at the remote screen).  If 0, the orbiter has left the remote screen, and does not need media changed commands. */
 		/** @param #16 PK_DesignObj_CurrentScreen */
 			/** The current screen. */
-		/** @param #25 PK_Text */
-			/** The text object that contains the media description.  This will get set whenever the media changes, such as changing discs or channels. */
 		/** @param #39 Options */
 			/** Miscellaneous options.  These are not pre-defined, but are specific to a remote and the plug-in.  For example, the PVR plug-in needs to know what tuning device is active. */
 		/** @param #45 PK_EntertainArea */
 			/** The entertainment area the orbiter is controlling. */
-		/** @param #56 PK_Text_Timecode */
-			/** If the remote wants time code information, the object is stored here.  This can include an optional |n at the end, where n is the number of seconds to update (ie how often to update the counter). */
-		/** @param #62 PK_Text_SectionDesc */
-			/** The text object for the section description.  The section is tracks on a cd, or shows on a tv channel. */
 		/** @param #63 PK_Text_Synopsis */
 			/** The text object for the synopsis, a full description.  Examples are a DVD synopsis, or a description of a tv show. */
 
-void Media_Plugin::CMD_Bind_to_Media_Remote(int iPK_Device,string sPK_DesignObj,string sOnOff,string sPK_DesignObj_CurrentScreen,int iPK_Text,string sOptions,string sPK_EntertainArea,int iPK_Text_Timecode,int iPK_Text_SectionDesc,int iPK_Text_Synopsis,string &sCMD_Result,Message *pMessage)
+void Media_Plugin::CMD_Bind_to_Media_Remote(int iPK_Device,string sPK_DesignObj,string sOnOff,string sPK_DesignObj_CurrentScreen,string sOptions,string sPK_EntertainArea,int iPK_Text_Synopsis,string &sCMD_Result,Message *pMessage)
 //<-dceag-c74-e->
 {
 g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::CMD_Bind_to_Media_Remote(). Binding (%s) orbiter %d to device %d with cover art on the object: %s",
@@ -1617,10 +1607,7 @@ g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::CMD_Bind_to_Media_Remote(). Bind
         pBoundRemote->m_sPK_DesignObj_Remote = sPK_DesignObj_CurrentScreen;
         pBoundRemote->m_sOptions = sOptions;
 
-        pBoundRemote->m_iPK_Text_Description = iPK_Text;
-        pBoundRemote->m_iPK_Text_Section = iPK_Text_SectionDesc;
         pBoundRemote->m_iPK_Text_Synopsis = iPK_Text_Synopsis;
-        pBoundRemote->m_iPK_Text_Timecode = iPK_Text_Timecode;
 		if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 		{
 g_pPlutoLogger->Write(LV_STATUS,"embedding set now playing");
@@ -3763,7 +3750,7 @@ void Media_Plugin::Parse_Misc_Media_ID(MediaStream *pMediaStream,string sValue)
 
 g_pPlutoLogger->Write(LV_STATUS,"Parse_misc_Media_ID done");
 
-	pMediaStream->UpdateDescriptionsFromAttributes();
+	pMediaStream->UpdateDescriptions(true);
 	MediaInfoChanged(pMediaStream,true);
 }
 
@@ -3822,7 +3809,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Parse_CDDB_Media_ID not already id'd");
 
 g_pPlutoLogger->Write(LV_STATUS,"Parse_CDDB_Media_ID done");
 
-	pMediaStream->UpdateDescriptionsFromAttributes();
+	pMediaStream->UpdateDescriptions(true);
 	MediaInfoChanged(pMediaStream,true);
 }
 //<-dceag-c388-b->
@@ -3899,7 +3886,6 @@ void Media_Plugin::CMD_Set_Media_Attribute_Text(string sValue_To_Assign,int iEK_
 
 		for(MapMediaStream::iterator it=m_mapMediaStream.begin();it!=m_mapMediaStream.end();++it)
 		{
-			it->second->UpdateDescriptionsFromAttributes();
 			MediaInfoChanged(it->second,true);
 		}
 	}
@@ -4824,9 +4810,15 @@ int Media_Plugin::CheckForAutoResume(MediaStream *pMediaStream)
 		/** @param #102 Time */
 			/** The current time.  If there is both a section time and total time, they should be \t delimited, like 1:03\t60:30 */
 		/** @param #132 Total */
-			/** The total time.   If there is both a section time and total time, they should be \t delimited, like 1:03\t60:30 */
+			/** If there is both a section time and total time, they should be \t delimited, like 1:03\t60:30 */
+		/** @param #133 Speed */
+			/** The current speed */
+		/** @param #134 Title */
+			/** For DVD's, the title */
+		/** @param #135 Section */
+			/** For DVD's, the section */
 
-void Media_Plugin::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,string &sCMD_Result,Message *pMessage)
+void Media_Plugin::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,string sSpeed,string sTitle,string sSection,string &sCMD_Result,Message *pMessage)
 //<-dceag-c689-e->
 {
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
@@ -4843,6 +4835,7 @@ void Media_Plugin::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal
 
 	pMediaStream->m_sTimecode = sTime;
 	pMediaStream->m_sTotalTime = sTotal;
+	pMediaStream->m_sPlaybackSpeed = sSpeed;
 
 	for( map<int,class EntertainArea *>::iterator itEntAreas=pMediaStream->m_mapEntertainArea.begin(); itEntAreas != pMediaStream->m_mapEntertainArea.end(); itEntAreas++)
 	{
@@ -4854,6 +4847,11 @@ void Media_Plugin::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal
 				pos_TimeCode==string::npos ? sTime : sTime.substr(0,pos_TimeCode),
 				StringUtils::itos(VL_MSGTYPE_NOW_PLAYING_TIME_CODE),"tc","","");
 			SendCommand(CMD_Display_Message_TC);
+
+			DCE::CMD_Display_Message CMD_Display_Message_SP(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
+				sSpeed,
+				StringUtils::itos(VL_MSGTYPE_NOW_PLAYING_SPEED),"tc","","");
+			SendCommand(CMD_Display_Message_SP);
 		}
 
 		for( MapBoundRemote::iterator itBR=pEntertainArea->m_mapBoundRemote.begin( );itBR!=pEntertainArea->m_mapBoundRemote.end( );++itBR )
@@ -4863,5 +4861,12 @@ void Media_Plugin::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal
 			pMessageOut->m_dwPK_Device_To = pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device;
 			QueueMessageToRouter(pMessageOut);
 		}
+	}
+
+	if( atoi(sTitle.c_str())!=pMediaStream->m_iDequeMediaTitle_Pos || atoi(sSection.c_str())!=pMediaStream->m_iDequeMediaSection_Pos )
+	{
+		pMediaStream->m_iDequeMediaTitle_Pos = atoi(sTitle.c_str());
+		pMediaStream->m_iDequeMediaSection_Pos = atoi(sSection.c_str());
+		MediaInfoChanged( pMediaStream, true );
 	}
 }
