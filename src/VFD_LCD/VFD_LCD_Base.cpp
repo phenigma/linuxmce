@@ -34,6 +34,7 @@ VFD_LCD_Base::VFD_LCD_Base(int iNumColumns,int iNumLines,int iNumVisibleColumns)
 
 VFD_LCD_Base::~VFD_LCD_Base()
 {
+	m_bQuit_VL=true;
 	while( m_bVL_ThreadRunning )
 	{
 		pthread_cond_broadcast(&m_VL_MessageCond);

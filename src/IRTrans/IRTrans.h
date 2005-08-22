@@ -37,6 +37,8 @@ public:
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
 
+		virtual void OnQuit() { m_bQuit_VL = true; Command_Impl::OnQuit(); };
+
 //<-dceag-const2-b->!
 
 //<-dceag-h-b->

@@ -622,12 +622,12 @@ void Orbiter::RealRedraw( void *data )
 	g_pPlutoLogger->Write( LV_STATUS, "In Redraw Objects: rerender %d",(int) m_bRerenderScreen );
 #endif
     PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
+	PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
 	// We don't have a good solution for rendering objects under popups--so re-render the whole screen if there are popups and we're going to render something else anyway
     if(  m_bRerenderScreen || 
 		((m_listPopups.size() || (m_pScreenHistory_Current && m_pScreenHistory_Current->m_pObj->m_listPopups.size())) &&
 		(m_vectObjs_NeedRedraw.size() || m_vectTexts_NeedRedraw.size()) ))
     {
-		PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
 		if(m_pGraphicBeforeHighlight)
 			UnHighlightObject(true);
         m_vectObjs_NeedRedraw.clear();
@@ -645,7 +645,6 @@ g_pPlutoLogger->Write( LV_STATUS, "Exiting Redraw Objects" );
         return;
     }
 
-	PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
 #ifdef DEBUG
 	g_pPlutoLogger->Write( LV_CONTROLLER, "I won't render the whole screen. Objects to be rendered: %d, texts to be rendered: %d",	m_vectObjs_NeedRedraw.size(), m_vectTexts_NeedRedraw.size()	);
 #endif
@@ -665,8 +664,7 @@ g_pPlutoLogger->Write( LV_STATUS, "Exiting Redraw Objects" );
 	for( s = 0; s < m_vectObjs_NeedRedraw.size(); ++s )
     {
 		class DesignObj_Orbiter *pObj = m_vectObjs_NeedRedraw[s];
-
-		if(pObj)
+		if(pObj && pObj->m_bOnScreen)
 		{
             RenderObject( pObj, m_pScreenHistory_Current->m_pObj, AbsolutePosition );
 		    UpdateRect(pObj->m_rPosition, AbsolutePosition);
@@ -1284,6 +1282,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Need to change screens executed to %s (%d)",
 	m_pObj_NowPlaying_Section_OnScreen=NULL;
 	m_pObj_NowPlaying_TimeShort_OnScreen=NULL;
 	m_pObj_NowPlaying_TimeLong_OnScreen=NULL;
+	m_pObj_NowPlaying_Speed_OnScreen=NULL;
 
     dg.Release(  );
 
@@ -1805,6 +1804,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Selected grid %s but m_pDataGridTable is NULL"
                     SelectedGrid( pDesignObj_DataGrid,  pCell );
                     bFinishLoop = true;
                     bFoundSelection = true; // Is this correct????  Hacked in this time
+					PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
 				    m_vectObjs_NeedRedraw.push_back(pDesignObj_DataGrid);
                 }
             }
@@ -8185,10 +8185,10 @@ void Orbiter::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,stri
 	}
 
 	PLUTO_SAFETY_LOCK(rm,m_NeedRedrawVarMutex);
-	if( m_pObj_NowPlaying_TimeShort_OnScreen )
+	if( m_pObj_NowPlaying_TimeShort_OnScreen && m_pObj_NowPlaying_TimeShort_OnScreen->m_bOnScreen )
 		m_vectObjs_NeedRedraw.push_back(m_pObj_NowPlaying_TimeShort_OnScreen);
-	if( m_pObj_NowPlaying_TimeLong_OnScreen && m_pObj_NowPlaying_TimeShort_OnScreen!=m_pObj_NowPlaying_TimeShort_OnScreen )
+	if( m_pObj_NowPlaying_TimeLong_OnScreen && m_pObj_NowPlaying_TimeLong_OnScreen->m_bOnScreen && m_pObj_NowPlaying_TimeShort_OnScreen!=m_pObj_NowPlaying_TimeShort_OnScreen )
 		m_vectObjs_NeedRedraw.push_back(m_pObj_NowPlaying_TimeLong_OnScreen);
-	if( m_pObj_NowPlaying_Speed_OnScreen && m_pObj_NowPlaying_Speed_OnScreen!=m_pObj_NowPlaying_TimeShort_OnScreen )
+	if( m_pObj_NowPlaying_Speed_OnScreen && m_pObj_NowPlaying_Speed_OnScreen->m_bOnScreen && m_pObj_NowPlaying_Speed_OnScreen!=m_pObj_NowPlaying_TimeShort_OnScreen )
 		m_vectObjs_NeedRedraw.push_back(m_pObj_NowPlaying_Speed_OnScreen);
 }

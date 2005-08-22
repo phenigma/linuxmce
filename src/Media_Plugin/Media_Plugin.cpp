@@ -985,8 +985,8 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 				(!pOH_Orbiter->m_pEntertainArea || pMediaStream->m_mapEntertainArea.find(pOH_Orbiter->m_pEntertainArea->m_iPK_EntertainArea)==pMediaStream->m_mapEntertainArea.end()) )
 				continue;  // Don't send an orbiter to the remote if it's not linked to an entertainment area where we're playing this stream unless it's the OSD
 
-			// We don't want to change to the remote screen on the orbiter that started playing this if it's audio, so that they can build a playlist
-			if( pOH_Orbiter && pOH_Orbiter == pMediaStream->m_pOH_Orbiter_StartedMedia && pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_StoredAudio_CONST )
+			// We don't want to change to the remote screen on the orbiter that started playing this if it's audio, so that they can build a playlist, unless this was a playlist
+			if( pOH_Orbiter && pOH_Orbiter == pMediaStream->m_pOH_Orbiter_StartedMedia && pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_StoredAudio_CONST && pMediaStream->m_iPK_Playlist<1 )
 				continue;
 
 			WaitForMessageQueue();  // Be sure all the Set Now Playing's are set
