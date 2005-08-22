@@ -2396,7 +2396,8 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
 			continue;
 
 		bool bSkip=false;
-		for(list<class PlutoPopup*>::reverse_iterator it=m_pScreenHistory_Current->m_pObj->m_listPopups.rbegin();it!=m_pScreenHistory_Current->m_pObj->m_listPopups.rend();++it)
+        list<class PlutoPopup*>::reverse_iterator it;
+		for(it=m_pScreenHistory_Current->m_pObj->m_listPopups.rbegin();it!=m_pScreenHistory_Current->m_pObj->m_listPopups.rend();++it)
 		{
 			PlutoPopup *pPopup = *it;
 			PlutoRectangle pos2=p->m_rPosition+p->m_pPopupPoint;
@@ -2411,7 +2412,7 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
 		if( bSkip )
 			continue;
 
-		for(list<class PlutoPopup*>::reverse_iterator it=m_listPopups.rbegin();it!=m_listPopups.rend();++it)
+		for(it=m_listPopups.rbegin();it!=m_listPopups.rend();++it)
 		{
 			PlutoPopup *pPopup = *it;
 			PlutoRectangle pos2=p->m_rPosition+p->m_pPopupPoint;
