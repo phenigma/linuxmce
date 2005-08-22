@@ -17,7 +17,7 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 	if($action=='form'){
 		if($path!=''){
 			$physicalFiles=grabFiles($path,'');
-			
+
 			$out.='
 			<script>
 			function windowOpen(locationA,attributes) 

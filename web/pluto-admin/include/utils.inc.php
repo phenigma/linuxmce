@@ -844,7 +844,7 @@ function grabFiles($path,$fileParm='-type f',$startingWith='') {
 	$filesArray=array();
 	// required to read files larger than 2G
 	$PathParm=($startingWith!='')?'"'.$path.$startingWith.'"*':$path;
-	exec('find '.$PathParm.' '.$fileParm.' -maxdepth 1',$retArray);
+	exec('find "'.$PathParm.'" '.$fileParm.' -maxdepth 1',$retArray);
 	foreach ($retArray AS $file){
 		if($file!=$path){
 			$filesArray[]=str_replace($path.'/','',$file);
