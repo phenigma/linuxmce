@@ -157,10 +157,6 @@ IRTrans::IRTrans(int DeviceID, string ServerAddress,bool bConnectEventHandler,bo
 IRTrans::~IRTrans()
 //<-dceag-dest-e->
 {
-	while( m_bIRServerRunning )
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"
-	}
 }
 
 //<-dceag-reg-b->
