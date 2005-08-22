@@ -50,7 +50,7 @@ case $diskType in
 	;;
 	0|1|6|7|8)
 		Dir="$targetFileName"
-		command="nice -n 15 cdparanoia -d $sourceDevice \$Track - | flac -o \"$Dir/\$FileName.in-progress-flac\" -"
+		command="nice -n 15 cdparanoia -d $sourceDevice \$Track - 2> >(/usr/pluto/bin/Paranoia_Progress.sh) | flac -o \"$Dir/\$FileName.in-progress-flac\" -"
 	;;
 	*)	result=$ERR_NOT_SUPPORTED_YET;;
 esac

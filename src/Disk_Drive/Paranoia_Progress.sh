@@ -28,7 +28,7 @@ while read line; do
 		fi
 		((Percentage = CurrentSector * 100 / TrackLength))
 		if ((Percentage != LastPercentage)); then
-			echo "$Percentage%"
+			#echo "$Percentage%"
 			LastPercentage="$Percentage"
 		fi
 		LastSector="$CurrentSector"
