@@ -25,9 +25,14 @@ private:
 	pluto_pthread_mutex_t m_ScreenMutex;
 
 	//flags
+	bool m_bNeedRefresh;
+	bool m_bRepeated;
+	bool m_bDeleteLastKey;
+	bool m_bDataKeys;
 	bool m_bQuit;
 	bool m_bSignalStrengthScreen;
 	int  m_nSignalStrength;
+	bool m_bScrollUp;
 
 	//misc
 	bool m_bRender_SignalStrengthOnly;
@@ -54,7 +59,6 @@ private:
 	bool m_bRedrawOnlyGrid;
 	bool m_bRedrawOnlyEdit;
 
-	void RefreshScreen();
 	void RenderImage(int nImageType, int nSize, char *pData);
 	void RenderDataGrid(unsigned long ulX, unsigned long ulY, unsigned long ulWidth, 
 		unsigned long ulHeight, vector<string> &vectGridList);
@@ -66,6 +70,9 @@ private:
 	int PlutoKey2VirtualKey(int nPlutoKey);
 	int VirtualKey2PlutoKey(int nVirtualKey, bool bLongKey);
 	bool IsRepeatedKey(int nVirtualKey);
+
+	bool SelectCurrentItem();
+	void AutomaticallyScrollDataGrid(bool bKeyUp);
 
 public:
 	OrbiterApp();
@@ -93,8 +100,17 @@ public:
 
 	virtual void TryToUpdate();
 
+	//rendering
+	void RefreshScreen();
+
+	//datagrid automatic scroll
+	bool ScrollListUp();
+	bool ScrollListDown();
+
 	//this
 	void OnQuit();
+	bool HandleDataGridKeys(int nPlutoKey, bool bKeyUp); //handles up, down and enter for data grid
+	bool HandleAutomaticDataGridScrolling(int nPlutoKey, bool bKeyUp); //handles data grid automatic scroll
 
 	//bd communications proxy functions:
 	// - incoming
@@ -105,6 +121,8 @@ public:
 	void ShowList(unsigned long ulX, unsigned long ulY, unsigned long ulWidth, 
 		unsigned long ulHeight, vector<string> vectDataGrid, bool bSendSelectedOnMove, 
 		bool bTurnOn, int nSelectedIndex);
+	bool IsScrollingUp() { return m_bScrollUp; } 
+	void SetCurrentSignalStrength(int nSignalStrength);
 
 	// - outgoing
 	void SendKey(int nKeyCode, int nEventType);

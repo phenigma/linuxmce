@@ -5,7 +5,9 @@
 #include "BD/BD_WhatDoYouHave.h"
 #include "VIPShared/BD_PC_KeyWasPressed.h"
 #include "VIPShared/BD_PC_GetSignalStrength.h"
+#include "VIPShared/BD_PC_SelectedFromList.h"
 #include "pluto_main/Define_Button.h"
+#include "SerializeClass/ShapesColors.h"
 
 using namespace DCE;
 
@@ -23,6 +25,8 @@ using namespace std;
 #define GREEN(color)	((0x0000FF00 & color) >> 8)
 #define BLUE(color)		(0x000000FF & color)
 
+#define ScrollTimerId 1
+//---------------------------------------------------------------------------------------------------------
 inline Pixel GetColor16(COLORREF color)
 {
 	return 
@@ -79,6 +83,11 @@ OrbiterApp::OrbiterApp() : m_ScreenMutex("rendering")
 
 	m_nSignalStrength = 0;
 	m_bSignalStrengthScreen = 0;
+
+	m_bRepeated = false;
+	m_bNeedRefresh = false;
+	m_bDeleteLastKey = false;
+	m_bDataKeys = false;
 
 //#define TEST_DATAGRID
 #ifdef TEST_DATAGRID
@@ -238,25 +247,47 @@ void OrbiterApp::SendKey(int nKeyCode, int nEventType)
     if(uMsg == WM_KEYDOWN)
 	{
 		nTimeDown = clock();
+		m_bDataKeys = false;
 		bIsLongKey = false;
-		//g_pPlutoLogger->Write(LV_STATUS,"Key down %d, time %d", wParam, nTimeDown);
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"Key down %d, time %d", wParam, nTimeDown);
+#endif
 	}
 	else
 	{
 		int nTimeUp = clock();
 		bIsLongKey = (nTimeUp - nTimeDown) > 300;
-		//g_pPlutoLogger->Write(LV_STATUS,"Key up %d, diff %d", wParam, nTimeUp - nTimeDown);
-		int bau = 4;
 	}
 
 	int nPK_Button = nPK_Button = VirtualKey2PlutoKey(wParam, bIsLongKey);
 	if(IsRepeatedKey(wParam))
 	{
 		SendKey(nPK_Button ? nPK_Button : - wParam, uMsg == WM_KEYUP);
+		return;
+	}
+
+	m_bNeedRefresh = false;
+
+	//handles data grid keys
+	bool bRes1 = HandleDataGridKeys(nPK_Button, uMsg == WM_KEYUP); //handles up, down and enter for data grid
+	bool bRes2 = HandleAutomaticDataGridScrolling(nPK_Button, uMsg == WM_KEYUP); //handles data grid automatic scroll
+
+	if(bRes1 || bRes2)
+	{
+		if(m_bNeedRefresh)
+			RefreshScreen(); 
+
+		return;
 	}
 
 	//TODO!!! create logic to generate BUTTON_Terminate_Text_CONST or BUTTON_Enter_CONST
 	//iPK_Button = BUTTON_Terminate_Text_CONST;		break;
+
+
+
+
+	if(m_bDataKeys)
+		return;
 
 	if(uMsg == WM_KEYUP)
 	{
@@ -391,6 +422,7 @@ int OrbiterApp::PlutoKey2VirtualKey(int nPlutoKey)
 		case BUTTON_Down_Arrow_CONST:		nVirtualKey = VK_DOWN;		break;
 		case BUTTON_Left_Arrow_CONST:		nVirtualKey = VK_LEFT;		break;
 		case BUTTON_Right_Arrow_CONST:		nVirtualKey = VK_RIGHT;		break;
+		case BUTTON_Enter_CONST:			nVirtualKey = VK_RETURN;	break;
 	}
 
 	return nPlutoKey;
@@ -428,6 +460,7 @@ int OrbiterApp::VirtualKey2PlutoKey(int nVirtualKey, bool bLongKey)
 			case VK_DOWN:		nPK_Button = BUTTON_Down_Arrow_CONST;		break;
 			case VK_LEFT:		nPK_Button = BUTTON_Left_Arrow_CONST;		break;
 			case VK_RIGHT:		nPK_Button = BUTTON_Right_Arrow_CONST;		break;
+			case VK_RETURN:		nPK_Button = BUTTON_Enter_CONST;			break;
 
 			//case 117: //Smartphone's VOL_UP
 			//case 118: //Smartphone's VOL_DOWN
@@ -457,6 +490,12 @@ int OrbiterApp::VirtualKey2PlutoKey(int nVirtualKey, bool bLongKey)
 			case VK_F2:			nPK_Button = BUTTON_Rept_Phone_Soft_right_CONST;break;
 			case VK_NUMPAD8:    nPK_Button = BUTTON_Rept_Asterisk_CONST;		break;
 			case VK_NUMPAD9:    nPK_Button = BUTTON_Rept_Pound_CONST;			break;
+
+			case VK_UP:			nPK_Button = BUTTON_Up_Arrow_CONST;			break;
+			case VK_DOWN:		nPK_Button = BUTTON_Down_Arrow_CONST;		break;
+			case VK_LEFT:		nPK_Button = BUTTON_Left_Arrow_CONST;		break;
+			case VK_RIGHT:		nPK_Button = BUTTON_Right_Arrow_CONST;		break;
+			case VK_RETURN:		nPK_Button = BUTTON_Enter_CONST;			break;
 		}
 	}
 
@@ -585,11 +624,13 @@ void OrbiterApp::RenderDataGrid(unsigned long ulX, unsigned long ulY, unsigned l
 			);
 		}
 
-		RenderText(s1, ulX + cnSmallOffsetX, ulY +  (i - m_ulGridTopItem) * nRowHeight + nExpandOffset, ulWidth, nRowHeight, white);
+		COLORREF ItemColor = m_ulGridSelectedItem == i ? black : white;
+
+		RenderText(s1, ulX + cnSmallOffsetX, ulY +  (i - m_ulGridTopItem) * nRowHeight + nExpandOffset, ulWidth, nRowHeight, ItemColor);
 		if(nBNpos != string::npos)
 		{
 			RenderText(s2, ulX + cnSmallOffsetX, ulY + (i - m_ulGridTopItem) * nRowHeight + nExpandOffset + nItemSizeOffset, 
-				ulWidth, nRowHeight, white);
+				ulWidth, nRowHeight, ItemColor);
 
 			nExpandOffset += nRowHeight;
 		}
@@ -686,11 +727,144 @@ void OrbiterApp::RenderSignalStrength(int nSignalStrength)
 {
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 
-	GetDisplay()->FillRect(m_nImageWidth - 40, m_nImageHeight - 45, m_nImageWidth - 1, m_nImageHeight - 30, blue_lite);
-	RenderText(StringUtils::ltos(nSignalStrength), m_nImageWidth - 30, m_nImageHeight - 30, 100, 20, white);
+	PlutoRectangle rect(m_nImageWidth - 31, m_nImageHeight - 58, 30, 16);
+
+	GetDisplay()->FillRect(rect.Left(), rect.Top(), rect.Right(), rect.Bottom(), white);
+	RenderText(StringUtils::ltos(nSignalStrength), rect.Left(), rect.Top(), rect.Right(), rect.Bottom(), black);
 
 	Rect rectUpdate;
-	rectUpdate.Set(m_nImageWidth - 40, m_nImageHeight - 45, m_nImageWidth - 1, m_nImageHeight - 30);
+	rectUpdate.Set(rect.Left(), rect.Top(), rect.Right(), rect.Bottom());
 	GetDisplay()->Update(&rectUpdate);
 }
 //---------------------------------------------------------------------------------------------------------
+bool OrbiterApp::HandleDataGridKeys(int nPlutoKey, bool bKeyUp)
+{
+	if(m_bGridExists && !bKeyUp)
+	{
+		if(nPlutoKey == BUTTON_Up_Arrow_CONST)
+		{
+			if(ScrollListUp())
+				m_bNeedRefresh = true;
+
+			m_bDataKeys = true;
+			return true;
+		}
+
+		if(nPlutoKey == BUTTON_Down_Arrow_CONST)
+		{
+			if(ScrollListDown())
+				m_bNeedRefresh = true; 
+
+			m_bDataKeys = true;
+			return true;
+		}
+
+		if(nPlutoKey == BUTTON_Enter_CONST)
+		{
+			if(SelectCurrentItem())
+				m_bNeedRefresh = true; 
+
+			return true;
+		}
+	}
+
+	return false;
+}
+//---------------------------------------------------------------------------------------------------------
+bool OrbiterApp::HandleAutomaticDataGridScrolling(int nPlutoKey, bool bKeyUp)
+{
+	if(m_bGridExists && !bKeyUp)
+	{
+		if(nPlutoKey == BUTTON_Up_Arrow_CONST)
+		{
+			AutomaticallyScrollDataGrid(true);
+			return true;
+		}
+		
+		if(nPlutoKey == BUTTON_Down_Arrow_CONST)
+		{
+			AutomaticallyScrollDataGrid(false);
+			return true;
+		}
+	}
+
+	::KillTimer(m_hWnd, ScrollTimerId);
+	return false;
+}
+//---------------------------------------------------------------------------------------------------------
+bool OrbiterApp::ScrollListUp()
+{
+	m_bRedrawOnlyGrid = true;
+	if(m_ulGridSelectedItem > 0)
+	{
+		m_ulGridSelectedItem--;
+		if(m_bGridSendSelectedOnMove)
+			SelectCurrentItem();
+
+		return true;
+	}
+	else
+		return false;
+}
+//---------------------------------------------------------------------------------------------------------
+bool OrbiterApp::ScrollListDown()
+{
+	m_bRedrawOnlyGrid = true;
+	if(m_ulGridSelectedItem < m_vectDataGrid.size() - 1)
+	{
+		m_ulGridSelectedItem++;
+		if(m_bGridSendSelectedOnMove)
+			SelectCurrentItem(); 
+		
+		return true;
+	}
+	else
+		return false;
+}
+//---------------------------------------------------------------------------------------------------------
+bool OrbiterApp::SelectCurrentItem()
+{
+	if(m_pBDCommandProcessor->m_bClientConnected)
+	{
+		BDCommand *pCommand = new BD_PC_SelectedFromList(m_ulGridSelectedItem); 
+		m_pBDCommandProcessor->AddCommand(pCommand);
+	}
+
+	return false; //don't redraw
+}
+//---------------------------------------------------------------------------------------------------------
+void CALLBACK ScrollTimerCallBack(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime)
+{
+	OrbiterApp *pOrbiter = OrbiterApp::GetInstance();
+
+	if(pOrbiter->IsScrollingUp())
+	{
+		if(pOrbiter->ScrollListUp())
+			pOrbiter->RefreshScreen();
+	}
+	else
+	{
+		if(pOrbiter->ScrollListDown())
+			pOrbiter->RefreshScreen();
+	}
+}
+//---------------------------------------------------------------------------------------------------------
+void OrbiterApp::AutomaticallyScrollDataGrid(bool bKeyUp)
+{
+	::KillTimer(m_hWnd, ScrollTimerId);
+
+	m_bScrollUp = bKeyUp;
+	::SetTimer(m_hWnd, ScrollTimerId, 250, ScrollTimerCallBack);
+}
+//------------------------------------------------------------------------------------------------------------------
+void OrbiterApp::SetCurrentSignalStrength(int nSignalStrength) 
+{ 
+	m_nSignalStrength = nSignalStrength; 
+
+	if(m_nSignalStrength)
+	{
+		m_bRender_SignalStrengthOnly = true;
+		RefreshScreen();
+	}
+}
+//------------------------------------------------------------------------------------------------------------------

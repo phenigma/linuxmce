@@ -30,6 +30,10 @@
 #include "BD_CP_CurrentSignalStrength.h"
 
 
+#ifdef SMARTPHONE
+#include "Orbiter/CENet_Smartphone/OrbiterApp.h"
+#endif
+
 BD_CP_CurrentSignalStrength::BD_CP_CurrentSignalStrength(int iSignalStrength) 
 {
     m_iSignalStrength = iSignalStrength;
@@ -51,10 +55,16 @@ void BD_CP_CurrentSignalStrength::ParseCommand(unsigned long size,const char *da
 bool BD_CP_CurrentSignalStrength::ProcessCommand(BDCommandProcessor *pProcessor)
 {
 #ifdef VIPPHONE
+
 #ifdef SYMBIAN 
 	LOG("#	Received 'BD_CP_CurrentSignalStrength' command  #\n");
     ((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->SetCurrentSignalStrength(m_iSignalStrength);
 #endif
+
+#ifdef SMARTPHONE
+	OrbiterApp::GetInstance()->SetCurrentSignalStrength(m_iSignalStrength);
+#endif
+
 #endif
 
 	return true;
