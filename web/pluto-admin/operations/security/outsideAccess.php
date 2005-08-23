@@ -213,7 +213,6 @@ function outsideAccess($output,$dbADO) {
 				}
 			}
 			$cmd='sudo -u root /usr/pluto/bin/SetupRemoteAccess.sh'.@$suffix;
-			echo $cmd;
 			exec($cmd);
 			
 			header("Location: index.php?section=outsideAccess&msg=Remote access was updated.");
