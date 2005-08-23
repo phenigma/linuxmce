@@ -1983,7 +1983,9 @@ bool Orbiter::SelectedGrid( int DGRow )
 	}
 
     DataGridCell *pCell = pDesignObj_DataGrid->m_pDataGridTable->GetData( iSelectedColumn,  DGRow );
-	pDesignObj_DataGrid->m_iHighlightedRow = DGRow;
+    m_pObj_Highlighted = pDesignObj_DataGrid;
+    pDesignObj_DataGrid->m_iHighlightedColumn = -1;
+    pDesignObj_DataGrid->m_iHighlightedRow = DGRow;
 	pDesignObj_DataGrid->m_GridCurCol = iSelectedColumn;
 
 #ifdef DEBUG
@@ -3439,10 +3441,9 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
                 //  m_sCaptureKeyboard_InternalBuffer );
             }
             else if( PK_Button == BUTTON_left_shift_CONST || PK_Button == BUTTON_right_shift_CONST  )
-                int k=2;// TODO: implement this
+                int k = 2; //todo
             else if( PK_Button == BUTTON_caps_lock_CONST )
-                int k=2;// TODO: implement this
-
+                int k = 2; //todo
             if(bHandled)
             {
                 if(NULL != m_pCaptureKeyboard_Text && NULL != m_pCaptureKeyboard_Text->m_pObject)
