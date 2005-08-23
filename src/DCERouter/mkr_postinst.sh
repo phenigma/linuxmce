@@ -1,6 +1,7 @@
 #!/bin/bash
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/SQL_Ops.sh
+. /usr/pluto/bin/PlutoVersion.h
 
 # 2005-04-11 * Disabled. Considered not needed anymore
 #echo "Converting all tables except 'mysql' to InnoDB (this may take a while)"
@@ -19,6 +20,8 @@
 
 device="$PK_Device"
 code="$Activation_Code"
+
+echo "$Version" >/home/pluto-version
 
 echo "setting up dce router2"
 hasRecords=$(RunSQL "SELECT count(PK_Installation) FROM Installation")
