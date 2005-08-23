@@ -131,6 +131,9 @@ public:
 	void ShowDisconnected();
 	void RefreshScreen();
 
+	void Hide();
+	void Show();
+
 	//datagrid automatic scroll
 	bool ScrollListUp();
 	bool ScrollListDown();

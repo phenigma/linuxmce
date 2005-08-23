@@ -79,6 +79,7 @@ OrbiterApp::OrbiterApp() : m_ScreenMutex("rendering")
 	m_vectDataGrid.clear();
 
 	m_CaptureKeyboardParam.bTextBox = false;
+	m_CaptureKeyboardParam.bOnOff = false;
 
 	pthread_mutexattr_init( &m_MutexAttr );
     pthread_mutexattr_settype( &m_MutexAttr,  PTHREAD_MUTEX_RECURSIVE_NP );
@@ -293,6 +294,13 @@ void OrbiterApp::LocalKeyPressed(int nKeyCode)
 			return;
 		}
 
+		/*
+		if(BUTTON_Rept_Phone_Pencil_CONST == nPK_Button)
+		{
+			Hide();
+			return;
+		}*/
+
 		SendKey(nPK_Button ? nPK_Button : - wParam, 2);
 	}
 }
@@ -463,7 +471,9 @@ int OrbiterApp::VirtualKey2PlutoKey(int nVirtualKey, bool bLongKey)
 			case VK_F4:			nPK_Button = BUTTON_Phone_End_CONST;		break;
 			case VK_F1:			nPK_Button = BUTTON_Phone_Soft_left_CONST;	break;
 			case VK_F2:			nPK_Button = BUTTON_Phone_Soft_right_CONST;	break;
+			case 119:
 			case VK_NUMPAD8:    nPK_Button = BUTTON_Asterisk_CONST;			break;
+			case 120:
 			case VK_NUMPAD9:    nPK_Button = BUTTON_Pound_CONST;			break;
 
 			case VK_UP:			nPK_Button = BUTTON_Up_Arrow_CONST;			break;
@@ -492,6 +502,7 @@ int OrbiterApp::VirtualKey2PlutoKey(int nVirtualKey, bool bLongKey)
 			case '9':       nPK_Button = BUTTON_Rept_9_CONST;     break;
 
 			case VK_ESCAPE:		nPK_Button = BUTTON_Rept_Phone_C_CONST;			break;
+			case 196:
 			case VK_LWIN:		nPK_Button = BUTTON_Rept_Phone_Pencil_CONST;	break;
 			case VK_F3:			nPK_Button = BUTTON_Rept_Phone_Talk_CONST;		break;
 			case VK_F4:
@@ -1296,8 +1307,7 @@ void OrbiterApp::SetCaptureKeyboard(bool bOnOff, bool bDataGrid, bool bReset, in
 	RECT rectLocation = { r.left, r.top, r.right, r.bottom };
     ::DrawText(hdc, wText, sText.length(), &rectLocation, DT_WORDBREAK | DT_NOPREFIX); 
 
-	GetDisplay()->GetBackBuffer()->ReleaseDC(hdc);	
-
+	GetDisplay()->GetBackBuffer()->ReleaseDC(hdc);
 	return true;
 }
 //------------------------------------------------------------------------------------------------------------------
@@ -1338,5 +1348,15 @@ void OrbiterApp::RenderEditBox()
 		sTextToRender = m_CaptureKeyboardParam.sVariableValue;
 
 	RenderText(sTextToRender, EditX, EditY, EditX + EditWidth, EditY + EditHeight, black);
+}
+//------------------------------------------------------------------------------------------------------------------
+void OrbiterApp::Hide()
+{
+	::ShowWindow(m_hWnd, SW_HIDE);
+}
+//------------------------------------------------------------------------------------------------------------------
+void OrbiterApp::Show()
+{
+	::ShowWindow(m_hWnd, SW_SHOW);
 }
 //------------------------------------------------------------------------------------------------------------------

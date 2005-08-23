@@ -37,6 +37,11 @@ using namespace DCE;
 
 #include "OrbiterApp.h"
 
+bool IsOrbiterAlreadyRunning();
+void BringOrbiterToFront();
+static HWND g_hWnd = NULL;
+#define MAX_STRING 1024
+
 //<-dceag-plug-b->! never a plug-in
 
 //<-dceag-main-b->!  **DON'T AUTOMATICALLY OVERWRITE THIS SECTIONS, IT'S CUSTOM
@@ -46,6 +51,12 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 					int       nCmdShow)
 {
     _Module.Init( 0, hInstance );
+
+	if(IsOrbiterAlreadyRunning())
+	{
+		BringOrbiterToFront();
+		return 0;
+	}
 
 	//get the binary name and the binary path
 	char pFullPath[256];
@@ -90,3 +101,37 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 	return 0;
 }
 //<-dceag-main-e-> 
+
+BOOL CALLBACK WindowsHandle(HWND hWnd, LPARAM lParam )
+{
+    static wchar_t pwTitle[MAX_STRING];
+    static wchar_t pwClassName[MAX_STRING];
+    ::GetWindowText(hWnd, pwTitle, MAX_STRING);
+    ::GetClassName(hWnd, pwClassName, MAX_STRING);
+
+	char pTitle[MAX_STRING];
+	wcstombs(pTitle, pwTitle, MAX_STRING);
+    string sTitle(pTitle);
+    if(sTitle == "PocketFrog") 
+    {
+        g_hWnd = hWnd;
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+
+bool IsOrbiterAlreadyRunning()
+{
+    ::EnumWindows(WindowsHandle, 0);
+	return g_hWnd != NULL;
+}
+
+void BringOrbiterToFront()
+{
+    ::SetActiveWindow(g_hWnd); 
+    ::SetForegroundWindow(g_hWnd); 
+    ::BringWindowToTop(g_hWnd); 
+    ::SetFocus(g_hWnd); 
+}

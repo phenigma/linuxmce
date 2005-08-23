@@ -22,6 +22,8 @@ void *ProcessCommandsThread(void *p)
 {
 	BDCommandProcessor_Smartphone_Bluetooth* pBDCommandProcessor = (BDCommandProcessor_Smartphone_Bluetooth* )p;
 
+	OrbiterApp::GetInstance()->Show();
+
 	bool bImmediateCallback = false;
 	while(!pBDCommandProcessor->m_bDead && pBDCommandProcessor->SendCommand(bImmediateCallback))
 	{
