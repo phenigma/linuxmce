@@ -97,6 +97,7 @@ App_Server::App_Server(int DeviceID, string ServerAddress,bool bConnectEventHand
 	, m_AppMutex("AppServer")
 {
 	m_AppMutex.Init(NULL);
+	m_bLastMute=false;
 #ifndef WIN32
 	g_pAppServer = this;
     signal(SIGCHLD, sh); /* install handler */
@@ -493,11 +494,11 @@ void App_Server::CMD_Vol_Up(int iRepeat_Command,string &sCMD_Result,Message *pMe
 	int pid = fork();
 	if (pid == 0)
 	{
-		if( bLastMute )
+		if( m_bLastMute )
 		{
 			g_pPlutoLogger->Write(LV_STATUS,"Unmuting");
 			execl("/usr/bin/amixer", "amixer", "sset", "Master", "unmute", NULL);
-			bLastMute=false;
+			m_bLastMute=false;
 		}
 		execl("/usr/bin/amixer", "amixer", "sset", "Master", (StringUtils::itos(iRepeat_Command) + "+").c_str(), NULL);
 		exit(99);
@@ -524,11 +525,11 @@ void App_Server::CMD_Vol_Down(int iRepeat_Command,string &sCMD_Result,Message *p
 	int pid = fork();
 	if (pid == 0)
 	{
-		if( bLastMute )
+		if( m_bLastMute )
 		{
 			g_pPlutoLogger->Write(LV_STATUS,"Unmuting");
 			execl("/usr/bin/amixer", "amixer", "sset", "Master", "unmute", NULL);
-			bLastMute=false;
+			m_bLastMute=false;
 		}
 		execl("/usr/bin/amixer", "amixer", "sset", "Master", (StringUtils::itos(iRepeat_Command) + "-").c_str(), NULL);
 		exit(99);
@@ -557,11 +558,11 @@ void App_Server::CMD_Set_Volume(string sLevel,string &sCMD_Result,Message *pMess
 	int pid = fork();
 	if (pid == 0)
 	{
-		if( bLastMute )
+		if( m_bLastMute )
 		{
 			g_pPlutoLogger->Write(LV_STATUS,"Unmuting");
 			execl("/usr/bin/amixer", "amixer", "sset", "Master", "unmute", NULL);
-			bLastMute=false;
+			m_bLastMute=false;
 		}
 		execl("/usr/bin/amixer", "amixer", "sset", "Master", (sLevel.substr(bRelative ? 1 : 0) + "%" + (bRelative ? sLevel.substr(0, 1) : "")).c_str(), NULL);
 		exit(99);
@@ -580,17 +581,16 @@ void App_Server::CMD_Set_Volume(string sLevel,string &sCMD_Result,Message *pMess
 void App_Server::CMD_Mute(string &sCMD_Result,Message *pMessage)
 //<-dceag-c97-e->
 {
-	static bool bLastMute=false;
 #ifndef WIN32
 	int pid = fork();
 	if (pid == 0)
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Mute is now %d",(int) bLastMute);
-		if( bLastMute )
+		g_pPlutoLogger->Write(LV_STATUS,"Mute is now %d",(int) m_bLastMute);
+		if( m_bLastMute )
 			execl("/usr/bin/amixer", "amixer", "sset", "Master", "unmute", NULL);
 		else
 			execl("/usr/bin/amixer", "amixer", "sset", "Master", "mute", NULL);
-		bLastMute=!bLastMute;
+		m_bLastMute=!m_bLastMute;
 		exit(99);
 	}
 #endif
