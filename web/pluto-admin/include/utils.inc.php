@@ -1075,7 +1075,7 @@ function getChilds($parentID,$dbADO) {
 	return $jsTree;
 }
 
-function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDeviceTemplate,$returnValue,$defaultAll,$section,$firstColText,$dbADO,$useframes=0,$genericSerialDevicesOnly=0)
+function pickDeviceTemplate_old($categoryID, $boolManufacturer,$boolCategory,$boolDeviceTemplate,$returnValue,$defaultAll,$section,$firstColText,$dbADO,$useframes=0,$genericSerialDevicesOnly=0)
 {
 	global $dbPlutoMainDatabase;
 	$out='
@@ -3019,7 +3019,7 @@ function isInfrared($deviceTemplate,$dbADO)
 	}
 }
 
-function getCheckedDeviceCommandGroup($deviceTemplate,$deviceCategory,$dbADO)
+function getCheckedDeviceCommandGroup_old($deviceTemplate,$deviceCategory,$dbADO)
 {
 	$querySelCheckedCommandGroups = 'SELECT FK_DeviceCommandGroup FROM DeviceTemplate_DeviceCommandGroup WHERE  FK_DeviceTemplate = ?';
 	$resSelCheckedCommandGroups = $dbADO->Execute($querySelCheckedCommandGroups,$deviceTemplate);
@@ -3304,17 +3304,20 @@ function getArrayFromTable($tableName,$primary,$secundary,$dbADO,$filter='',$ord
 
 function getFieldsAsArray($tableName,$fields,$dbADO,$filter='',$orderBy='')
 {
-	$fieldsArray=explode(',',$fields);
 	$res=$dbADO->execute("SELECT $fields FROM $tableName $filter $orderBy");
+	$fields=str_replace('DISTINCT ','',$fields);
+	$fieldsArray=explode(',',$fields);
+
 	$result=array();
 	while($row=$res->Fetchrow()){
 		foreach ($fieldsArray AS $field){
 			$cleanField=(strpos($field,'.')!==false)?substr($field,strpos($field,'.')+1):$field;
-			$cleanField=str_replace('`','',$cleanField);
+			$cleanField=(strpos($cleanField,' AS ')!==false)?substr($cleanField,strpos($cleanField,' AS ')+4):$cleanField;
+			$cleanField=trim($cleanField);
+
 			$result[$cleanField][]=$row[$cleanField];
 		}
 	}
-	
 	return $result;	
 }
 
@@ -3658,4 +3661,643 @@ function getStateValue($name)
 
 	return join('|',$stateArray);
 }
+
+function getCheckedDeviceCommandGroup($dtID,$deviceCategory,$dbADO)
+{
+	$querySelCheckedCommandGroups = '
+		SELECT 
+		PK_DeviceCommandGroup,
+		DeviceCommandGroup.Description,
+		FK_DeviceTemplate,
+		FK_Command,
+		Command.Description AS Command
+		FROM DeviceCommandGroup
+		LEFT JOIN DeviceTemplate_DeviceCommandGroup ON DeviceTemplate_DeviceCommandGroup.FK_DeviceCommandGroup=PK_DeviceCommandGroup AND FK_DeviceTemplate=?
+		LEFT JOIN DeviceCategory ON (FK_DeviceCategory=PK_DeviceCategory OR FK_DeviceCategory=FK_DeviceCategory_Parent)
+		INNER JOIN DeviceCommandGroup_Command ON DeviceCommandGroup_Command.FK_DeviceCommandGroup=PK_DeviceCommandGroup
+		INNER JOIN Command ON FK_Command=PK_Command
+		WHERE PK_DeviceCategory=? OR FK_DeviceCategory IS NULL
+		ORDER BY Description,Command ASC';
+	$resSelCheckedCommandGroups = $dbADO->Execute($querySelCheckedCommandGroups,array($dtID,$deviceCategory));
+	$dcgArray=array();
+	while ($row= $resSelCheckedCommandGroups->FetchRow()) {
+		$dcgArray[$row['PK_DeviceCommandGroup']]['Description']=$row['Description'];
+		$dcgArray[$row['PK_DeviceCommandGroup']]['Checked']=(is_null($row['FK_DeviceTemplate']))?0:1;
+		$dcgArray[$row['PK_DeviceCommandGroup']]['Commands'][]=$row['Command'];
+		$dcgArray[$row['PK_DeviceCommandGroup']]['CommandIDs'][]=$row['FK_Command'];
+	}
+	
+	return $dcgArray;
+}
+
+function DeviceCommandGroupTable($dtID,$deviceCategory,$dbADO){
+	$dcgArray=getCheckedDeviceCommandGroup($dtID,$deviceCategory,$dbADO);
+	$out='<table>';
+	$oldCheckedDCG=array();
+	foreach ($dcgArray AS $dcg=>$value){
+		if($value['Checked']==1){
+			$oldCheckedDCG[]=$dcg;
+		}
+		$out.='
+		<tr>
+			<td><input type="checkbox" name="dcg_'.$dcg.'" value="1" '.(($value['Checked']==1)?'checked':'').'></td>
+			<td title="'.join(', ',$value['Commands']).'">'.$value['Description'].'</td>
+		</tr>
+		<input type="hidden" name="commands_'.$dcg.'" value="'.join(',',$value['CommandIDs']).'">
+		';
+	}
+	$out.='</table>
+		<input type="hidden" name="deviceCG" value="'.join(',',array_keys($dcgArray)).'">
+		<input type="hidden" name="oldCheckedDCG" value="'.join(',',$oldCheckedDCG).'">
+	';
+	
+	return $out;
+}
+
+function reorderMultiPulldownJs()
+{
+	$jsFunctions='
+	<script>
+	function moveUp(srcList)
+	{
+		try{
+			eval("selectedPos="+srcList+".selectedIndex");
+			eval("selectedElement="+srcList+"["+srcList+".selectedIndex].value");
+			eval("srcLen="+srcList+".length");
+		}catch(e){
+			alert("Please select the command to move.");
+		}
+	
+	
+		len=0;
+		for( var i = 0; i < srcLen; i++ ) { 
+			if(selectedPos==len){
+				if(len>0){
+					tmpText=eval(srcList+"["+(len-1)+"].text");
+					tmpValue=eval(srcList+"["+(len-1)+"].value");
+					
+					eval(srcList+"["+(len-1)+"].text="+srcList+"["+len+"].text");
+					eval(srcList+"["+(len-1)+"].value="+srcList+"["+len+"].value");
+
+					eval(srcList+"["+len+"].text=\'"+tmpText+"\'");
+					eval(srcList+"["+len+"].value=\""+tmpValue+"\"");
+					
+					eval(srcList+"["+len+"].selected=false");
+					eval(srcList+"["+(len-1)+"].selected=true");
+				}
+			}
+			len++;
+		}	
+	}
+
+	function moveDown(srcList)
+	{
+		try{
+			eval("selectedPos="+srcList+".selectedIndex");
+			eval("selectedElement="+srcList+"["+srcList+".selectedIndex].value");
+			eval("srcLen="+srcList+".length");
+		}catch(e){
+			alert("Please select the command to move.");
+		}
+	
+	
+		len=0;
+		for( var i = 0; i < srcLen; i++ ) { 
+			if(selectedPos==len){
+				if(len!=(srcLen-1)){
+					tmpText=eval(srcList+"["+(len+1)+"].text");
+					tmpValue=eval(srcList+"["+(len+1)+"].value");
+					
+					eval(srcList+"["+(len+1)+"].text="+srcList+"["+len+"].text");
+					eval(srcList+"["+(len+1)+"].value="+srcList+"["+len+"].value");
+
+					eval(srcList+"["+len+"].text=\'"+tmpText+"\'");
+					eval(srcList+"["+len+"].value=\""+tmpValue+"\"");
+					
+					eval(srcList+"["+len+"].selected=false");
+					eval(srcList+"["+(len+1)+"].selected=true");
+				}
+			}
+			len++;
+		}	
+	}
+	
+	function addToPulldown(srcList,newVal,newText){
+		try{
+			eval("srcLen="+srcList+".length");
+		}catch(e){
+			//alert("Invalid pulldown.");
+		}
+	
+	
+
+		alreadyInPulldown=0;
+		for( var i = 0; i < srcLen; i++ ) { 
+			tmpValue=eval(srcList+"["+i+"].value");
+			if(tmpValue==newVal){
+				alreadyInPulldown=1;
+			}
+		}	
+		if(alreadyInPulldown==0){
+			eval(srcList+".options["+srcLen+"] = new Option( \""+newText+"\", \""+newVal+"\")");
+		}
+	}
+	
+	function removeFromPulldown(srcList,delVal){
+		try{
+			eval("srcLen="+srcList+".length");
+		}catch(e){
+			//alert("Invalid pulldown.");
+		}
+	
+	
+
+		for( var i = 0; i < srcLen; i++ ) { 
+			tmpValue=eval(srcList+"["+i+"].value");
+			if(tmpValue==delVal){
+				eval(srcList+".options["+i+"] = null");
+			}
+		}	
+	}	
+	</script>
+	';
+	
+	return $jsFunctions;
+}
+
+// retrieve a matrix table with all commands and infrared groups
+function getIrGroup_CommandsMatrix($dtID,$InfraredGroupsArray,$userID,$comMethod,$publicADO)
+{
+	$restrictedCommandsArray=array(192=>'On',193=>'Off',205=>'1',89=>'Vol Up',90=>'Vol down',63=>'Skip Fwd',64=>'Skip Back');
+	$out='';
+	if(count($InfraredGroupsArray)==0){
+		return '';
+	}
+	$comMethodFilter=(!is_null($comMethod))?' AND FK_CommMethod='.$comMethod:'';	
+	$codesData=getFieldsAsArray('InfraredGroup_Command','PK_InfraredGroup_Command,IRData,FK_InfraredGroup,FK_Command,InfraredGroup.Description AS IRG_Name',$publicADO,'INNER JOIN Command ON FK_Command=PK_Command INNER JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup WHERE FK_InfraredGroup IN ('.join(',',$InfraredGroupsArray).') AND FK_Command IN ('.join(',',array_keys($restrictedCommandsArray)).')'.$comMethodFilter,'ORDER BY FK_InfraredGroup ASC,FK_Command ASC');
+	
+	$commandGrouped=array();
+	$irgNames=array();
+	for($i=0;$i<count($codesData['FK_InfraredGroup']);$i++){
+		$commandGrouped[$codesData['FK_InfraredGroup'][$i]][$codesData['FK_Command'][$i]]=$codesData['IRData'][$i];
+		$irgNames[$codesData['FK_InfraredGroup'][$i]]=$codesData['IRG_Name'][$i];
+	}
+
+	// display table header
+	$out='
+	<table cellpadding="3" cellspacing="0" border="0">
+		<tr class="normaltext" bgcolor="lightblue">
+			<td><B>Infrared Group</B></td>';
+	foreach ($restrictedCommandsArray AS $cmdID=>$cmdName){
+		$out.='
+			<td><B>'.$cmdName.'</B></td>';
+	}
+	$out.='</tr>';
+	
+	// display codes/commands
+	$keysArray=array_keys($commandGrouped);
+	for($i=0;$i<count($commandGrouped);$i++){
+		$color=($i%2==0)?'#F0F3F8':'#FFFFFF';
+		$out.='
+		<tr class="normaltext" bgcolor="'.$color.'">
+			<td><B><a href="index.php?section=editAVDevice&dtID='.$dtID.'&infraredGroupID='.$keysArray[$i].'">'.$irgNames[$keysArray[$i]].'</a></B></td>';
+		foreach ($restrictedCommandsArray AS $cmdID=>$cmdName){
+			$out.='<td align="center">'.((isset($commandGrouped[$keysArray[$i]][$cmdID]))?'<input type="button" class="button" name="copyCB" value="V" onClick="window.open(\'index.php?section=displayCode&irgcID='.$codesData['PK_InfraredGroup_Command'][$i].'\',\'_blank\',\'\');;">':'N/A').'</td>';
+		}
+		$out.='
+		</tr>';
+	}
+	
+	$out.='
+	</table>';
+	
+	
+	return $out;
+}
+
+
+function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDeviceTemplate,$returnValue,$defaultAll,$section,$firstColText,$dbADO,$useframes=0,$genericSerialDevicesOnly=0)
+{
+	$redirectUrl='index.php?section='.$section;
+
+	global $dbPlutoMainDatabase;
+	$out='
+	<script>
+	function windowOpen(locationA,attributes) {
+		window.open(locationA,\'\',attributes);
+	}
+	</script>';
+	
+	$selectedManufacturer = (int)@$_REQUEST['manufacturers'];
+	$selectedDeviceCateg= (int)@$_REQUEST['deviceCategSelected'];
+	$selectedDevice= (int)@$_REQUEST['deviceSelected'];
+	$selectedModel= (int)@$_REQUEST['model'];
+	$justAddedNode = (int)@$_GET['justAddedNode'];
+
+	$actionX = (isset($_REQUEST['actionX']) && cleanString($_REQUEST['actionX'])!='null')?cleanString($_REQUEST['actionX']):'form';
+	
+	$manufacturersArray=getAssocArray('Manufacturer','PK_Manufacturer','Description',$dbADO,'','ORDER BY Description ASC');
+	$categsArray=getAssocArray('DeviceCategory','PK_DeviceCategory','Description',$dbADO,'WHERE PK_DeviceCategory='.$selectedDevice,'ORDER BY Description ASC');
+	$selectedDeviceCategName=@$categsArray[$selectedDevice];
+	$formName=str_replace('operations/','',$section);	
+	
+	if ($actionX=='form') {
+	
+		$AVDeviceCategories=getDeviceCategoryChildsArray($GLOBALS['rootAVEquipment'],$dbADO);
+		$jsTree = '';
+		if(is_null($categoryID))
+			$selectDeviceCategories = "SELECT * FROM DeviceCategory WHERE FK_DeviceCategory_Parent IS NULL ORDER BY Description";
+		else 
+			$selectDeviceCategories = "SELECT * FROM DeviceCategory WHERE FK_DeviceCategory_Parent ='$categoryID' ORDER BY Description";
+		$rs = $dbADO->_Execute($selectDeviceCategories);
+			while ($row = $rs->FetchRow()) {		
+				$jsTree.='
+				auxS'.$row['PK_DeviceCategory'].' = insFld(foldersTree, gFld("'.$row['Description'].' #'.$row['PK_DeviceCategory'].'", "javascript:setPicker('.$row['PK_DeviceCategory'].',\"'.$row['Description'].'\");"));
+				auxS'.$row['PK_DeviceCategory'].'.xID = '.$row['PK_DeviceCategory'].';
+				';
+				$jsTree.=getChilds($row['PK_DeviceCategory'],$dbADO);
+			}
+		$rs->Close();
+		
+		
+		$selectModels = '';
+		$modelsJsArray = '
+				modelsArray = new Array();
+		';
+
+		$where = " AND 1=1 ";
+		$manufOrDevice = 0;
+		if ($selectedManufacturer!=0) {	
+			$where.=" AND FK_Manufacturer = '$selectedManufacturer'";
+			$manufOrDevice = 1;
+		}
+
+		if ($selectedDevice!=0) {
+			$where.=" AND FK_DeviceCategory = ".$selectedDevice;
+		}
+		
+		$where.=(($genericSerialDevicesOnly==1)?' AND CommandLine=\''.$GLOBALS['GenericSerialDeviceCommandLine'].'\'':'');
+		
+		if ($manufOrDevice || $defaultAll==1)	{
+		
+			$queryModels = "SELECT DeviceTemplate.*
+							FROM DeviceTemplate 
+							WHERE 1=1 $where ORDER BY Description";	
+			$rs = $dbADO->_Execute($queryModels);
+			
+			$arJsPos=0;
+				$avDT=getAssocArray('DeviceTemplate','PK_DeviceTemplate','FK_CommMethod',$dbADO,'LEFT JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup');
+				while ($row = $rs->FetchRow()) {
+					$irHighlight=(in_array($row['PK_DeviceTemplate'],array_keys($avDT)) && $avDT[$row['PK_DeviceTemplate']]==1)?'style="background-color:#FFDFDF;"':'';
+					
+					$selectModels.="<option ".($selectedModel==$row['PK_DeviceTemplate']?" selected ":"")." value='{$row['PK_DeviceTemplate']}' ".(($row['IsPlugAndPlay']==1)?'style="background-color:lightgreen;"':'')." $irHighlight>{$row['Description']}</option>";
+					
+					if ($row['PK_DeviceTemplate']>0) {
+					$modelsJsArray.='
+					
+						model'.$row['PK_DeviceTemplate'].' = new Array();
+					    model'.$row['PK_DeviceTemplate'].'.userID = \''.@$_SESSION['userID'].'\';
+						modelsArray['.$row['PK_DeviceTemplate'].'] = model'.$row['PK_DeviceTemplate'].';			
+						';
+					}
+					$arJsPos++;
+				}
+			$rs->Close();
+		
+		
+		}
+			
+		
+		$scriptInHead = "
+		</style>
+		
+		<!-- As in a client-side built tree, all the tree infrastructure is put in place
+		     within the HEAD block, but the actual tree rendering is trigered within the
+		     BODY -->
+		
+		<!-- Code for browser detection -->
+		<script src=\"scripts/treeview/treeview/ua.js\"></script>
+		
+		<!-- Infrastructure code for the tree -->
+		<script src=\"scripts/treeview/ftiens4.js\"></script>
+		
+		<!-- Execution of the code that actually builds the specific tree.
+		     The variable foldersTree creates its structure with calls to
+			 gFld, insFld, and insDoc -->
+		<script>
+		cssClass='normaltext'
+		USETEXTLINKS = 1
+		STARTALLOPEN = 0
+		USEFRAMES = 0
+		USEICONS = 0
+		WRAPTEXT = 1
+		PRESERVESTATE = 1
+		ICONPATH = 'scripts/treeview/' 
+		HIGHLIGHT = 1
+		
+		";
+		if(is_null($categoryID)){
+			$scriptInHead.="
+				foldersTree = gFld('<b>Device Category</b>', \"javascript:setPicker(0,'');\");";
+		}else{
+			$queryCategoryName='SELECT Description FROM DeviceCategory WHERE PK_DeviceCategory=?';
+			$resCategoryName=$dbADO->Execute($queryCategoryName,$categoryID);
+			$rowCategoryName=$resCategoryName->FetchRow();
+			$scriptInHead.="
+				foldersTree = gFld('<b>".$rowCategoryName['Description']."</b>', 'javascript:setPicker($categoryID,\"".$rowCategoryName['Description']."\");');";
+		}
+		$scriptInHead.="
+		foldersTree.xID = 1001635872;
+		$jsTree
+		
+		foldersTree.treeID = 't2'
+		
+		function getObj(obj) {
+				if (document.layers) {
+					if (typeof obj == 'string') {
+						return document.layers[obj];
+					} else 	{
+						return obj;
+					}
+				}
+				if (document.all) {
+					if (typeof obj == 'string') {
+						return document.all(obj);
+					} else {
+						return obj;
+					}
+				}
+
+				return null;	
+			} 
+
+			function showHideObject(obj) {
+				obj = getObj(obj);					
+				if(document.all || getObj) {  			
+						if (obj.style.visibility == \"visible\") {
+							obj.style.visibility = \"hidden\";
+							obj.style.display = \"none\";
+						} else {
+						    obj.style.visibility = \"visible\";
+							obj.style.display = \"block\";
+						}
+				} else if (document.layers) {
+						if (obj.style.visibility == \"visible\") {
+							obj.visibility = \"hide\";	
+						} else {
+						obj.visibility = \"show\";	
+						}
+				}
+			} 
+		
+		function setPicker(val,descr){
+			if(document.$formName.manufacturers.selectedIndex!=0 && document.$formName.manufacturers.selectedIndex!=-1){
+				document.getElementById('manufInfo').innerHTML=document.$formName.manufacturers.options[document.$formName.manufacturers.selectedIndex].text;
+			}
+			if(val!='manufacturers'){
+				document.getElementById('categInfo').innerHTML=descr;
+				document.$formName.deviceSelected.value=val;
+			}
+
+			if(document.$formName.deviceSelected.value!=0 && document.$formName.manufacturers.selectedIndex!=0 && document.$formName.manufacturers.selectedIndex!=-1){
+				document.$formName.actionX.value='form';
+				document.$formName.submit();
+			}
+
+		}
+
+		function addModel(){
+			if(document.$formName.deviceSelected.value!=0 && document.$formName.manufacturers.selectedIndex!=0 && document.$formName.manufacturers.selectedIndex!=-1){
+				self.location='index.php?section=addModel&mID='+document.$formName.manufacturers[document.$formName.manufacturers.selectedIndex].value+'&dcID='+document.$formName.deviceSelected.value+'&step=1';
+			}
+		}
+		
+		
+		$modelsJsArray
+		
+		</script>
+		";
+		$out.=$scriptInHead;
+		$out.='
+		<div class="err">'.(isset($_GET['error'])&&$_GET['error']!='password'?strip_tags($_GET['error']):'').'</div>	
+		<div class="confirm"><B>'.stripslashes(@$_GET['msg']).'</B></div>	
+		
+		<form action="index.php" method="POST" name="'.$formName.'">
+		<input type="hidden" name="section" value="'.$section.'">
+		<input type="hidden" name="actionX" value="add">
+		<input type="hidden" name="deviceCategSelected" value="'.$selectedDeviceCateg.'">
+		<input type="hidden" name="deviceSelected" value="'.$selectedDevice.'">
+		<input type="hidden" name="modelSelected" value="'.$selectedModel.'">
+		<input type="hidden" name="allowAdd" value="'.(int)@$_REQUEST['allowAdd'].'">
+		
+		<table cellpadding="5" cellspacing="0" border="0" align="center">
+				<input type="hidden" name="selectedField" value="" />
+					<tr>
+						<th width="25%">Manufacturers</th>
+						<th width="25%">Device Category</th>
+						<th width="25%">
+						Models
+						
+						</th>				
+					</tr>
+					<tr valign="top">
+						<td width="25%" align="center"  valign="top">
+							<span id="manufInfo" class="confirm">&nbsp;'.@$manufacturersArray[$selectedManufacturer].'</span><br>
+							'.pulldownFromArray($manufacturersArray,'manufacturers',$selectedManufacturer,'multiple onchange="setPicker(\'manufacturers\',\'\');" size="10" style="z-index:1;"').'<br /><br />';
+					if($boolManufacturer==1 && isset($_SESSION['userID'])){
+						$out.='
+							<input type="text" name="Manufacturer_Description" size="15" />
+							<input type="submit" class="button" name="addManufacturer" value="Add"  />';
+					}
+					$out.=$firstColText.'
+						</td>
+						<td width="25%" align="left" valign="top">
+							<span id="categInfo" class="confirm">&nbsp;'.@$selectedDeviceCategName.'</span><br>
+							<span style="display:none;">
+								<table border=0>
+									<tr>
+										<td><font size=-2><a style="font-size:7pt;text-decoration:none;color:#FFFFFF" href="http://www.treemenu.net/" target=_blank>JavaScript Tree Menu</a></font></td>
+									</tr>
+								</table>
+							</span>
+							<span>
+							<script>
+								initializeDocument();						
+							</script>
+							<noscript>
+							A tree for site navigation will open here if you enable JavaScript in your browser.
+							</noscript>
+							</span>
+							<br /><br />';
+						if($boolCategory==1){
+							$out.='
+							<input type="text" name="DeviceCategory_Description" size="15" />
+							<input type="submit" class="button" name="addDeviceCategory"   value="Add '.($selectedDevice==0?' Top Level Child':' Child').'" />
+							'.($selectedDevice!=0?'<input type="button" class="button" name="editDeviceCategory" value="Edit" onClick="javascript: windowOpen(\'index.php?section=editDeviceCategory&from='.$section.'&manufacturers='.$selectedManufacturer.'&deviceCategSelected='.$selectedDeviceCateg.'&deviceSelected='.$selectedDevice.'&model='.$selectedModel.'\',\'status=0,resizable=1,width=600,height=250,toolbars=true\');" />':'<input   type="submit" class="button" name="editDeviceCategory" value="Edit" disabled="disabled" />').'';
+							getDeviceCategoryChildsNo($selectedDevice,$dbADO);					
+							$childsToDelete = $GLOBALS['childsDeviceCategoryNo'];
+							$out.='
+							&nbsp;&nbsp;'.($selectedDevice!=0?'<input type="button" class="button" name="deleteDeviceCategory" value="Delete" onClick="javascript: if (confirm(\'Are you sure you want to delete this device category?'.($childsToDelete==1?'There is 1 child to delete!':($childsToDelete>0?'There are '.$childsToDelete.' childs to delete!':'')).'\')) self.location=\'index.php?section='.$section.'&manufacturers='.$selectedManufacturer.'&deviceCategSelected='.$selectedDeviceCateg.'&deviceSelected='.$selectedDevice.'&model='.$selectedModel.'&actionX=del\';" />':'<input type="submit" class="button" name="deleteDeviceCategory"   value="Delete" disabled="disabled" />');
+						}
+						$out.='
+						</td>
+						<td width="25%" align="center"  valign="top" class="normaltext">
+							<script>
+								function checkEdit(targetSection) {
+									if(document.'.$formName.'.model.selectedIndex!=0){							
+										self.location=\'index.php?section=deviceTemplatePicker&dtID=\'+document.'.$formName.'.model[document.'.$formName.'.model.selectedIndex].value;
+									}
+								}
+		
+								function updateModelDetail(byItem) {
+									objF=document.'.$formName.';
+									eval("tmpFlag=objF."+byItem+".selectedIndex");
+									eval("targetObj=objF."+byItem);
+									eval("targetArray="+byItem+"sArray");
+									if (tmpFlag!= "undefined") {
+										document.getElementById(\'modelManuf\').innerHTML = \'<br />Manufacturer: \'+targetArray[targetObj[tmpFlag].value].manufacturerName;
+										document.getElementById(\'modelDeviceDescription\').innerHTML = \'<br />Category: \'+targetArray[targetObj[tmpFlag].value].deviceDescription;
+									} else {
+										document.getElementById(\'modelManuf\').innerHTML = \'\';
+										document.getElementById(\'modelDeviceDescription\').innerHTML = \'\';
+									} 					
+								}
+
+							</script>
+							<select name="model" id="model" size="10">
+									<option value="" selected="selected">'.(($section=='deviceTemplatePicker')?'- Please select -':'All').'</option>
+									'.$selectModels.'	
+							</select>';
+							if($returnValue==0){
+								$out.='<br><input type="button" class="button" name="edit_DeviceTemplate" value="Show Model" onClick="javascript:checkEdit(\'model\');" />';
+							}else{
+								$out.='<br><input type="button" class="button" name="pickDT" value="Add device" onClick="opener.location=\'index.php?section='.$_SESSION['from'].'&deviceTemplate=\'+document.'.$section.'.model[document.'.$section.'.model.selectedIndex].value+\'&action=add&add=1\';self.close();" />';
+							}
+							$out.='
+							<hr />
+							<em>* Models in red use IR codes, in white use Pluto\'s GSD.  Models in green are plug and play.</em><br>
+						<b><span id="modelManuf"></span><span id="modelDeviceDescription"></span></b><br />
+							
+							';
+							
+							if ($selectedManufacturer!=0 && $selectedDevice!=0) {
+								$disabledAdd=' ';
+							} else {
+								$disabledAdd=' disabled="disabled" ';
+							}
+					
+							$disabled_str = "disabled";
+				
+				
+				$out.='
+						</td>				
+					</tr>';
+				if($returnValue!=0){
+					$out.='
+					<tr>
+						<td colspan="3">To add a device, choose the manufacturer and the category to see all models for you selection. Pick the model you want and click <B>"Add device"</B>.</td>
+					</tr>';
+				}
+				if($boolDeviceTemplate==1 && $disabledAdd!=''){
+					$out.='
+					<tr>
+						<td colspan="3" class="normaltext">If your model is not listed, pick the manufacturer and the category and click to <input type="button" class="button" name="addDeviceTemplate" value="Add"'. $disabledAdd .'  onClick="javascript:addModel();"/></td>
+					</tr>';
+				}
+				if($categoryID==$GLOBALS['rootAVEquipment']){
+					$out.='
+					<tr>
+						<td colspan="3" class="normaltext">After you add the device you\'ll to choose the A/V properties button and then I/R codes.</td>
+					</tr>';
+				}
+				$out.='
+				</table>
+							
+		</form>
+		';
+	}elseif($actionX=='del'){
+		deleteDeviceCategory($selectedDevice,$dbADO);
+		$out.="
+			<script>
+				self.location='$redirectUrl&manufacturers=$selectedManufacturer&deviceCategSelected=$selectedDeviceCateg&deviceSelected=$selectedDevice&model=$selectedModel&allowAdd=$boolDeviceTemplate&msg=Device category deleted.';
+			</script>";
+	} else {
+		
+		 $addDeviceCategory = @cleanString($_POST['addDeviceCategory']);
+		 $deviceCategoryDesc = cleanString(@$_POST['DeviceCategory_Description']);
+		 
+		 $addDeviceTemplate = @cleanString($_POST['addDeviceTemplate']);
+		 $DeviceTemplate_Desc = @cleanString($_POST['DeviceTemplate_Description']);
+	
+		 $addManufacturer = @cleanString($_POST['addManufacturer']);
+		 $Manufacturer_Description = @cleanString($_POST['Manufacturer_Description']);	 
+		
+		 $deviceCategSelected = (int)$_POST['deviceCategSelected'];
+		 $deviceSelected = (int)$_POST['deviceSelected'];
+		 $manufacturerSelected = (int)$_POST['manufacturers'];
+	
+		 // process form only if user is logged
+		 if (isset($_SESSION['userLoggedIn']) && $_SESSION['userLoggedIn']===true) {
+	
+			 // add new category
+			 $justAddedNode = 0;
+			 if (strstr($addDeviceCategory,'Add')) {
+			 	if ($deviceCategoryDesc!='') {
+			 		$queryInsertCategoryDesc = "insert into DeviceCategory(FK_DeviceCategory_Parent,Description,IsAV)
+			 				values(?,?,0)";
+			 		$deviceCategParent=($deviceSelected==0)?$categoryID:$deviceSelected;
+			 		$dbADO->Execute($queryInsertCategoryDesc,array($deviceCategParent,$deviceCategoryDesc));	 			
+			 		$justAddedNode = $deviceSelected;
+			 		header("Location: $redirectUrl&manufacturers=$manufacturerSelected&deviceCategSelected=$selectedDeviceCateg&deviceSelected=$selectedDevice&model=$selectedModel&allowAdd=$boolDeviceTemplate&justAddedNode=$justAddedNode");	 			 		
+				}
+			 }	
+			 	 
+			 //add new master device list
+			 if (strstr($addDeviceTemplate,'Add')) {
+			 	
+			 	if ($DeviceTemplate_Desc!='') {
+			 		if ($deviceSelected!=0 && $manufacturerSelected!=0) {	 			
+			 			$queryInsertMasterDevice = 'INSERT INTO DeviceTemplate (Description,FK_DeviceCategory,FK_Manufacturer) values(?,?,?)';
+			 			$res = $dbADO->Execute($queryInsertMasterDevice,array($DeviceTemplate_Desc,$deviceSelected,$manufacturerSelected));	 			
+			 			$dtID=$dbADO->Insert_ID();
+
+			 			if(in_array($deviceSelected,$GLOBALS['TVdevicesArray'])){
+							$openTunerConfig='windowOpen(\'index.php?section=tunerConfig&categoryID='.$deviceSelected.'&dtID='.$dtID.'\',\'width=600,height=400,toolbars=true,scrollbars=1,resizable=1\')';
+						}else
+							$openTunerConfig='';
+
+		 				$out.='
+		 				
+							<script>
+								'.$openTunerConfig.'
+								self.location="index.php?section='.$section.'&manufacturers='.$manufacturerSelected.'&deviceCategSelected='.$selectedDeviceCateg.'&deviceSelected='.$selectedDevice.'&model='.$selectedModel.'&allowAdd='.$boolDeviceTemplate.'&justAddedNode='.$justAddedNode.'";
+							</script>';
+		 			
+			 		}	 			 		
+			 	}
+			 }
+			 
+			 // add new manufacturer
+			 if (strstr($addManufacturer,'Add')){
+			 	if ($Manufacturer_Description!='') {
+		 			$queryInsertManufacturer = 'INSERT INTO Manufacturer (Description) values(?)';
+		 			$res = $dbADO->Execute($queryInsertManufacturer,array($Manufacturer_Description));	 			
+		 			header("Location: $redirectUrl&manufacturers=$manufacturerSelected&deviceCategSelected=$selectedDeviceCateg&deviceSelected=$selectedDevice&model=$selectedModel&allowAdd=$boolDeviceTemplate&justAddedNode=$justAddedNode");
+		 		}	 			 		
+			 }
+			 
+			$out.="
+				<script>
+					self.location='$redirectUrl&manufacturers=$manufacturerSelected&deviceCategSelected=$selectedDeviceCateg&deviceSelected=$selectedDevice&model=$selectedModel&allowAdd=$boolDeviceTemplate&justAddedNode=$justAddedNode';
+				</script>";
+		}else{
+			$out.="
+				<script>
+					self.location='$redirectUrl&manufacturers=$manufacturerSelected&deviceCategSelected=$selectedDeviceCateg&deviceSelected=$selectedDevice&model=$selectedModel&allowAdd=$boolDeviceTemplate&error=Please login if you want to change device templates.';
+				</script>";
+		}
+	}
+	return $out;
+}
+
 ?>

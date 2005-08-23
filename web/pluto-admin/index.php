@@ -972,6 +972,14 @@ switch ($section) {
 	    include_once('operations/infrared/learnCode.php');
 	    learnCode($output,$dbADO);
 	break;	
+	// changed name to preserve compatibility between pluto admin and plutohome
+	case 'newIRCode';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/infrared/learnCode.php');
+	    learnCode($output,$dbADO);
+	break;	
+	
 	case 'mobileScenarios';
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
@@ -1237,6 +1245,18 @@ switch ($section) {
 		$output->setTemplateFileType('large');
 	    include_once('operations/mediaBrowser/bookmarks.php');
 	    bookmarks($output,$mediadbADO,$dbADO);
+	break;
+	case 'addModel';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/infrared/addModel.php');
+	    addModel($output,$dbADO);
+	break;
+	case 'displayCode';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/infrared/displayCode.php');
+	    displayCode($output,$dbADO);
 	break;
 	
 	case '';

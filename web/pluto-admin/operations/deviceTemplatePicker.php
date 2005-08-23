@@ -15,9 +15,9 @@ function deviceTemplatePicker($output,$dbADO) {
 	
 	$genericSerialDevices=(isset($_REQUEST['from']) && $_REQUEST['from']=='genericSerialDevices')?1:0;
 	
-	$out.=pickDeviceTemplate($_SESSION['categoryID'],1,0,$allowAddDT,1,1,'deviceTemplatePicker','',$dbADO,0,$genericSerialDevices);
+	//$out.=pickDeviceTemplate($_SESSION['categoryID'],1,0,$allowAddDT,1,1,'deviceTemplatePicker','',$dbADO,0,$genericSerialDevices);
+	$out.=pickDeviceTemplate($_SESSION['categoryID'],1,0,$allowAddDT,1,0,'deviceTemplatePicker','',$dbADO,0);
 	
-	$output->setScriptCalendar('null');
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: Pick Device Template');			
 	$output->output();  		

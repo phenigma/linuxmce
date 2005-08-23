@@ -2,877 +2,383 @@
 function editAVDevice($output,$dbADO,$mediaADO) {
 /* @var $dbADO ADOConnection */
 /* @var $rs ADORecordSet */
-$out='';
-//$dbADO->debug=true;
 
-$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
-$from = isset($_REQUEST['from'])?cleanString($_REQUEST['from']):'';
+	$time_start = getmicrotime();
 	
-$dtID = (int)$_REQUEST['dtID'];
-$deviceID = (int)@$_REQUEST['deviceID'];
-	$selectedInstallation = (int)@$_REQUEST['installation'];
+
+	/* @var $dbADO ADOConnection */
+	/* @var $rs ADORecordSet */
 	
+	$out='';
+//	$dbADO->debug=true;;
+	$installationID = 0;
+	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
+	$from = isset($_REQUEST['from'])?cleanString($_REQUEST['from']):'';
+	$label=(isset($_REQUEST['label']))?$_REQUEST['label']:'infrared';
+	$GLOBALS['label']=$label;
+	
+	$dtID = (int)$_REQUEST['dtID'];
+	$deviceID = (isset($_REQUEST['deviceID']) && (int)@$_REQUEST['deviceID']!=0)?(int)$_REQUEST['deviceID']:NULL;
+	$userID = (int)@$_SESSION['userID'];
 	if ($dtID==0) {
-		header("Location: index.php?section=userHome");
+		header("Location: index.php?section=login");
 	}
-	
 
-if ($action=='form') {
-	
-	$connectorsArray=array();
-	$resConnectors=$dbADO->Execute('SELECT * FROM ConnectorType ORDER BY Description ASC');
-	while($rowConnectors=$resConnectors->FetchRow()){
-		$connectorsArray[$rowConnectors['PK_ConnectorType']]=$rowConnectors['Description'];
-	}
-	
-	
-	$queryModels = "SELECT 
-						DeviceTemplate.*,
-						DeviceCategory.Description as deviceDescription,
-						Manufacturer.Description as manufacturerDescription,
-	 					FK_CommMethod
-					FROM DeviceTemplate 
-						INNER JOIN DeviceCategory ON DeviceTemplate.FK_DeviceCategory=PK_DeviceCategory 
-						INNER JOIN Manufacturer ON PK_Manufacturer=DeviceTemplate.FK_Manufacturer 
-						LEFT JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup
-					WHERE PK_DeviceTemplate='$dtID'";
+	if(!isset($_REQUEST['infraredGroupID'])){
+		$resDefaultIG=$dbADO->Execute('SELECT FK_InfraredGroup FROM DeviceTemplate WHERE PK_DeviceTemplate=?',$dtID);
+		if($resDefaultIG->RecordCount()>0){
+			$rowDefaultIG=$resDefaultIG->FetchRow();
+			$infraredGroupID=$rowDefaultIG['FK_InfraredGroup'];
+		}else{
+			$infraredGroupID=0;
+		}
+	}else
+		$infraredGroupID=(int)$_REQUEST['infraredGroupID'];
+	$GLOBALS['displayedIRGC']=array();
+	$GLOBALS['preferredIGC']=array();
+	$GLOBALS['igcPrefered']=array();	
+	$GLOBALS['displayedCommands']=array();
 
-	$rs = $dbADO->_Execute($queryModels);	
-		while ($row = $rs->FetchRow()) {			
-			$deviceTemplateName = $row['Description'];			
-			$deviceCategID = $row['FK_DeviceCategory'];
-		}
-	$rs->Close();
-		
-	$grabOldValues = "SELECT * FROM DeviceTemplate_AV WHERE FK_DeviceTemplate = ?";
-	$resGrabOldValues = $dbADO->Execute($grabOldValues,array($dtID));
-	if ($resGrabOldValues->RecordCount()==0) {
-		$insertRecord = "INSERT INTO DeviceTemplate_AV (FK_DeviceTemplate) values(?)";
-		$resInsertRecord = $dbADO->Execute($insertRecord,array($dtID));
-		$controlSQL='INSERT INTO DeviceTemplate_DeviceCategory_ControlledVia (FK_DeviceTemplate,FK_DeviceCategory) VALUES (?,?)';
-		$dbADO->Execute($controlSQL,array($dtID,$GLOBALS['specialized']));
-		$dbADO->Execute($controlSQL,array($dtID,$GLOBALS['InfraredInterface']));
-		
-		$irPowerDelay = 0;
-		$irModeDelay = 0;
-		$digitDelay = 0;
-		$togglePower = 0;
-		$toggleDSP = 0;
-		$toggleInput = 0;
-		$toggleOutput = 0;
-		$usesIR=1;
-	} else {
-		$row=$resGrabOldValues->FetchRow();
-		$irPowerDelay = $row['IR_PowerDelay'];
-		$irModeDelay = $row['IR_ModeDelay'];
-		$digitDelay = $row['DigitDelay'];
-		$togglePower = $row['TogglePower'];
-		$toggleDSP = $row['ToggleDSP'];
-		$toggleInput = $row['ToggleInput'];
-		$toggleOutput = $row['ToggleOutput'];
-		$usesIR = (@$row['FK_CommMethod']==1)?1:0;
-	}
-	
-		
-	
-	$dspSelectedTxt='';
-	$dspUnselectedTxt='';
-	
-	$dspSelected=array();
-	$dspSelected[]=0;
-	$queryDspSelected = "SELECT DeviceTemplate_DSPMode.*,Command.Description as DSP_Desc
-							FROM DeviceTemplate_DSPMode 
-								INNER JOIN Command on PK_Command = FK_Command							
-							WHERE FK_DeviceTemplate='$dtID' ORDER BY OrderNO ASC";
-	$resDspSelected = $dbADO->_Execute($queryDspSelected);
-		if ($resDspSelected) {
-			while ($row=$resDspSelected->FetchRow()) {				
-				$dspSelectedTxt.='<option value="'.$row['FK_Command'].'">'.$row['DSP_Desc'].'</option>';
-				$dspSelected[]=$row['FK_Command'];
+	if ($action=='form') {
+		$out.='
+		<script>
+			function windowOpen(locationA,attributes) {
+				window.open(locationA,\'\',attributes);
 			}
-		}
-	$resDspSelected->close();	
-	
-	
 		
-	$dspUnselected=array();
-	$dspUnselected[]=0;
-	$jsArray='
-		var DSPModeArray=new Array();
-		var Input__Array=new Array();
-		var Output_Array=new Array();
-	';
-	$queryDsp="SELECT * FROM Command WHERE FK_CommandCategory=21 ORDER BY Description";
-	$ckb=0;
-	$resDsp= $dbADO->_Execute($queryDsp);
-		if ($resDsp) {
-			while ($row=$resDsp->FetchRow()) {
-				$onclickFunction='if(document.editAVDevice.DSPMode__available['.$ckb.'].checked)moveDualList(this.form.DSPMode__available,this.form.DSPMode__selected,false,this.form.DSPMode__selectedOrdered,this.form.DSPMode__selected);else eraseElement('.$row['PK_Command'].',this.form.DSPMode__selected);';
-				$jsArray.='DSPModeArray['.$row['PK_Command'].']="'.$row['Description'].'";';
-				$dspUnselectedTxt.='<input type="checkbox" name="DSPMode__available" value="'.$row['PK_Command'].'" '.((in_array($row['PK_Command'],$dspSelected))?'checked':'').' onClick="'.$onclickFunction.'">'.$row['Description'].'<br>';
-				$dspUnselected[]=$row['PK_Command'];
-				$ckb++;
-			}
-		}
-	$resDsp->close();
-	
-	
-	$inputSelectedTxt='';
-	$inputUnselectedTxt='';
-	
-	$inputSelected=array();
-	$inputSelected[]=0;
-	$inputConnectorsArray=array();
-	
-	$queryInputSelected = "SELECT DeviceTemplate_Input.*,Command.Description as Input_Desc, FK_ConnectorType
-								FROM DeviceTemplate_Input 	
-									INNER JOIN Command on PK_Command = FK_Command
-						   WHERE FK_DeviceTemplate='$dtID' order by OrderNo ASC";
-	
-	$resInputSelected = $dbADO->_Execute($queryInputSelected);
-		if ($resInputSelected) {
-			while ($row=$resInputSelected->FetchRow()) {				
-			
-				$inputSelectedTxt.='<option value="'.$row['FK_Command'].'">'.$row['Input_Desc'].'</option>';
-				$inputSelected[]=$row['FK_Command'];
-				$inputConnectorsArray[$row['FK_Command']]=$row['FK_ConnectorType'];
-			}
-		}
-	$resInputSelected->close();
-
-	$inputUnselectedTxt='<table>';
-	$queryInput="SELECT * FROM Command WHERE FK_CommandCategory=22 AND PK_Command ORDER BY Description ASC";
-	$resInput= $dbADO->_Execute($queryInput);
-		if ($resInput) {
-			$ckb=0;
-			while ($row=$resInput->FetchRow()) {				
-				
-				$onclickFunction='if(document.editAVDevice.Input__available['.$ckb.'].checked) moveDualList(this.form.Input__available,this.form.Input__selected,false,this.form.Input__selectedOrdered,this.form.Input__selected); else eraseElement('.$row['PK_Command'].',this.form.Input__selected);';
-				$jsArray.='Input__Array['.$row['PK_Command'].']="'.$row['Description'].'";';
-				$connectorPullDown='<select name="connector_'.$row['PK_Command'].'" style="display:'.((in_array($row['PK_Command'],$inputSelected))?'':'none').';">
-					<option value="0">- Please select -</option>';
-				foreach ($connectorsArray AS $connectorID=>$connectorDescription){
-					$connectorPullDown.='<option value="'.$connectorID.'" '.(($connectorID==@$inputConnectorsArray[$row['PK_Command']])?'selected':'').'>'.$connectorDescription.'</option>';
+			function setPreferred(radioGroup,value)
+			{
+				eval("len=document.editAVDevice."+radioGroup+".length");
+				for(i=0;i<len;i++){
+					eval("if(document.editAVDevice."+radioGroup+"["+i+"].value=="+value+") document.editAVDevice."+radioGroup+"["+i+"].checked=true;");
 				}
-				$connectorPullDown.='</select>';
 				
-				$inputUnselectedTxt.='
-					<tr>
-						<td><input type="checkbox" name="Input__available" value="'.$row['PK_Command'].'" '.((in_array($row['PK_Command'],$inputSelected))?'checked':'').' onClick="'.$onclickFunction.'if(this.checked)showPulldown(\'connector_'.$row['PK_Command'].'\',\'\')">'.$row['Description'].'</td>
-						<td>'.$connectorPullDown.'</td>
-					</tr>';
-				$inputUnselected[]=$row['PK_Command'];
-				$ckb++;
 			}
+		</script>	
+		
+	<div class="err"><br>'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
+	<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>	
+		
+		<form action="index.php" method="POST" name="editAVDevice">
+			<input type="hidden" name="section" value="editAVDevice">
+			<input type="hidden" name="action" value="update">
+			<input type="hidden" name="dtID" value="'.$dtID.'">
+			<input type="hidden" name="deviceID" value="'.$deviceID.'">
+			<input type="hidden" name="infraredGroupID" value="'.$infraredGroupID.'">
+			<input type="hidden" name="irgroup_command" value="">
+			<input type="hidden" name="label" value="'.$label.'">';
+		$selectDTData='
+			SELECT 
+				DeviceTemplate.Description AS Template, 
+				DeviceCategory.Description AS Category,
+				Manufacturer.Description AS Manufacturer, 
+				FK_Manufacturer,
+				FK_DeviceCategory,
+				DeviceTemplate.psc_user AS User,
+				FK_InfraredGroup,
+				DeviceTemplate_AV.*
+			FROM DeviceTemplate
+			INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory
+			INNER JOIN Manufacturer ON FK_Manufacturer=PK_Manufacturer
+			LEFT JOIN DeviceTemplate_AV ON DeviceTemplate_AV.FK_DeviceTemplate=PK_DeviceTemplate
+			WHERE PK_DeviceTemplate=?';
+		$resDTData=$dbADO->Execute($selectDTData,$dtID);
+		if($resDTData->RecordCount()==0){
+			header("Location: index.php?section=userHome");
+			exit();
 		}
-	$resInput->close();
-	$inputUnselectedTxt.='</table>';
-	
-	$outputSelectedTxt='';
-	$outputUnselectedTxt='';
-	
-	$outputSelected=array();
-	$outputSelected[]=0;
-	$outputConnectorsArray=array();
-	$queryOutputSelected = "SELECT DeviceTemplate_Output.*,Command.Description as Output_Desc,FK_ConnectorType
-								FROM DeviceTemplate_Output 	
-									INNER JOIN Command on PK_Command = FK_Command
-						   WHERE FK_DeviceTemplate='$dtID' order by OrderNo ASC";
-	
-	$resOutputSelected = $dbADO->_Execute($queryOutputSelected);
-		if ($resOutputSelected) {
-			while ($row=$resOutputSelected->FetchRow()) {				
-				$outputSelectedTxt.='<option value="'.$row['FK_Command'].'">'.$row['Output_Desc'].'</option>';
-				$outputSelected[]=$row['FK_Command'];
-				$outputConnectorsArray[$row['FK_Command']]=$row['FK_ConnectorType'];
-			}
-		}
-	$resOutputSelected->close();
-	
-	$outputUnselectedTxt='<table>';
-	$queryOutput="SELECT * FROM Command WHERE FK_CommandCategory=27 AND PK_Command ORDER BY Description ASC";
-	$resOutput= $dbADO->_Execute($queryOutput);
-		if ($resOutput) {
-			$ckb=0;
-			while ($row=$resOutput->FetchRow()) {				
-				$onclickFunction='if(document.editAVDevice.Output__available['.$ckb.'].checked) moveDualList(this.form.Output__available,this.form.Output__selected,false,this.form.Output__selectedOrdered,this.form.Output__selected);else eraseElement('.$row['PK_Command'].',this.form.Output__selected);';
-				$jsArray.='Output_Array['.$row['PK_Command'].']="'.$row['Description'].'";';
-				$connectorPullDown='<select name="connector_'.$row['PK_Command'].'" style="display:'.((in_array($row['PK_Command'],$outputSelected))?'':'none').';">
-					<option value="0">- Please select -</option>';
-				foreach ($connectorsArray AS $connectorID=>$connectorDescription){
-					$connectorPullDown.='<option value="'.$connectorID.'" '.(($connectorID==@$outputConnectorsArray[$row['PK_Command']])?'selected':'').'>'.$connectorDescription.'</option>';
-				}
-				$connectorPullDown.='</select>';
-				
-				$outputUnselectedTxt.='
-					<tr>
-						<td><input type="checkbox" name="Output__available" value="'.$row['PK_Command'].'" '.((in_array($row['PK_Command'],$outputSelected))?'checked':'').' onClick="'.$onclickFunction.'if(this.checked)showPulldown(\'connector_'.$row['PK_Command'].'\',\'\')">'.$row['Description'].'</td>
-						<td>'.$connectorPullDown.'</td>
-					</tr>';
-				$outputUnselected[]=$row['PK_Command'];
-				$ckb++;
-			}
-		}
-	$resOutput->close();
-	$outputUnselectedTxt.='</table>';
-	
-	$checkedTogglePower = $togglePower>0?"checked":"";
-	$checkedDSPModes = $toggleDSP>0?"checked":"";
-	$checkedInput = $toggleInput>0?"checked":"";
-	$checkedOutput = $toggleOutput>0?"checked":"";
-	$checkedUsesIR = $usesIR>0?"checked":"";
-	$enabledIROptions=($usesIR>0)?'':'disabled';
-	
-	$mediaTypeCheckboxes='<table>';
-	$resMT=$dbADO->Execute('
-		SELECT MediaType.Description, PK_MediaType, FK_DeviceTemplate 
-		FROM MediaType 
-		LEFT JOIN DeviceTemplate_MediaType ON FK_MediaType=PK_MediaType AND FK_DeviceTemplate=?
-		WHERE DCEaware=0',$dtID);
-	$displayedMT=array();
-	$checkedMT=array();
-	while($rowMT=$resMT->FetchRow()){
-		$displayedMT[]=$rowMT['PK_MediaType'];
-		if(!is_null($rowMT['FK_DeviceTemplate']))
-			$checkedMT[]=$rowMT['PK_MediaType'];
-		$mediaTypeCheckboxes.='
+		$rowDTData=$resDTData->FetchRow();
+		$manufacturerID=$rowDTData['FK_Manufacturer'];
+		$deviceCategoryID=$rowDTData['FK_DeviceCategory'];
+		$owner=$rowDTData['User'];
+
+		$GLOBALS['btnEnabled']=(!isset($_SESSION['userID']) || $owner!=@$_SESSION['userID'] )?'disabled':'';
+
+		$selectedIRGrops=array();
+		$selectedIRGrops[]=$rowDTData['FK_InfraredGroup'];
+
+		$inputCommandsArray=getAssocArray('Command','PK_Command','Command.Description',$dbADO,'INNER JOIN DeviceTemplate_Input ON FK_Command=PK_Command WHERE FK_DeviceTemplate='.$dtID,'ORDER BY Command.Description ASC');
+		$dspmodeCommandsArray=getAssocArray('Command','PK_Command','Command.Description',$dbADO,'INNER JOIN DeviceTemplate_DSPMode ON FK_Command=PK_Command WHERE FK_DeviceTemplate='.$dtID,'ORDER BY Command.Description ASC');
+		
+		$out.='
+		<input type="hidden" name="oldIRGroup" value="'.@$infraredGroupID.'">
+		<h3>Edit '.$label.' codes</h3>
+		<table border="0" width="100%" class="normaltext">
 			<tr>
-				<td><input type="checkbox" name="mediaType_'.$rowMT['PK_MediaType'].'" '.(($rowMT['FK_DeviceTemplate']!='')?'checked':'').'></td>
-				<td>'.cleanMediaType($rowMT['Description']).'</td>';
-		if($rowMT['FK_DeviceTemplate']!=''){
-			$mediaProvidersArray=getAssocArray('MediaProvider','PK_MediaProvider','Description',$mediaADO,'WHERE EK_MediaType='.$rowMT['PK_MediaType']);
-			if($deviceID!=0){
-				$ddMediaProvider=getFieldsAsArray('Device_DeviceData','IK_DeviceData',$dbADO,'WHERE FK_Device='.$deviceID.' AND FK_DeviceData='.$GLOBALS['MediaProvider']);
-				$ddParts=explode(',',$ddMediaProvider['IK_DeviceData'][0]);
-				$currentMediaProvider=array();
-				foreach ($ddParts AS $mpForMediaType){
-					$mpParts=explode(':',$mpForMediaType);
-					@$currentMediaProvider[$mpParts[0]]=@$mpParts[1];
-				}
-				if(count($mediaProvidersArray)==0){
-					$puldown='&nbsp;';
-				}else{
-					$puldown=pulldownFromArray($mediaProvidersArray,'mediaProvider_'.$rowMT['PK_MediaType'],@$currentMediaProvider[$rowMT['PK_MediaType']]);
-				}
-			}
-			$mediaTypeCheckboxes.='<td>'.@$puldown.'</td>';
-		}
-		else{ 
-			$mediaTypeCheckboxes.='<td>&nbsp;</td>';
-		}
-		$mediaTypeCheckboxes.='	
-			</tr>';
-	}
-	$mediaTypeCheckboxes.='</table>';
-$out.='
-
-<form action="index.php" method="POST" name="editAVDevice" onSubmit="setCheckboxes();">
-<input type="hidden" name="section" value="editAVDevice">
-<input type="hidden" name="action" value="update">
-<input type="hidden" name="dtID" value="'.$dtID.'">
-<input type="hidden" name="deviceID" value="'.$deviceID.'">
-<input type="hidden" name="displayedMT" value="'.join(',',$displayedMT).'">
-<input type="hidden" name="checkedMT" value="'.join(',',$checkedMT).'">
-<br>';
-
-if(ereg('devices',$from))
-	$out.='<div class="err" align="center"><B>WARNING</B>: the changes will affect all devices from <B>'.$deviceTemplateName.'</B> category.</div>';
-
-$out.='
-<br>		
-<div align="center">
-		<b>'.$deviceTemplateName.'</b>
-	<br />
-</div>
-	
-<br />
-	<table align="center">
-		<tr>
-			<td align="right" width="50%">Uses IR: </td>
-			<td><input type="checkbox" name="usesIR" value="1" '.$checkedUsesIR.' onclick="document.editAVDevice.action.value=\'update\';setCheckboxes();document.editAVDevice.submit();">
-		</td>
-		</tr>
-		<tr>
-			<td colspan="2" align="center"> Power Delay: <input type="text" name="irPowerDelay" value="'.$irPowerDelay.'" size="5" /> Mode Delay: <input type="text" name="irModeDelay" value="'.$irModeDelay.'" size="5" /> Digit Delay (ms): <input type="text" name="irDigitDelay" value="'.$digitDelay.'" size="5" /></td>
-		</tr>
-		<tr>
-			<td align="right"><span class="'.(($usesIR>0)?'':'grayout').'">Toggle Power: </span></td>
-			<td><input type="checkbox" name="toggle_power" value="1" '.$checkedTogglePower.' '.$enabledIROptions.' onClick="setCheckboxes();document.editAVDevice.submit();"></td>
-		</tr>
-		<tr>
-			<td align="center" colspan="2"><B>Media Type</B></td>
-		</tr>
-		<tr>
-			<td align="center" colspan="2">'.$mediaTypeCheckboxes.'</td>
-		</tr>
-	</table>
-<div align="center"><input type="submit" class="button" name="mdl" value="Update"  /></div>
-		<table cellpadding="5" cellspacing="0" border="1" align="center">
-		<tr>
-			<th>DSP Modes</th><th>Inputs</th><th>Outputs</th>
-		</tr>
-		<tr>
-			<td valign="top" align="center">
-				<input type="checkbox" value="1" name="toggle_dsp" '.$checkedDSPModes.' onClick="setCheckboxes();document.editAVDevice.submit();"/>Toggle (no discrete codes)
-				<br />
-				<table cellpadding="2" cellspacing="0" border="0">
-						<tr>
-							<td>
-								'.$dspUnselectedTxt.'
-							</td>';
-			if($toggleDSP>0){
-				$out.='
-							<td><B>Confirm the order</B><br>
-								<select name="DSPMode__selected" size="10">
-									'.$dspSelectedTxt.'
-								</select>
-							</td>
-							<td>
-								<input type="button" class="button" value="U" onClick="move(this.form.DSPMode__selected,this.form.DSPMode__selected.selectedIndex,-1,this.form.DSPMode__selectedOrdered)"><br><br>
-								<input type="button" class="button" value="D" onClick="move(this.form.DSPMode__selected,this.form.DSPMode__selected.selectedIndex,+1,this.form.DSPMode__selectedOrdered)">
-							</td>';
+				<td class="err" colspan="2">WARNING: the changes will afect all devices created from <B>'.$rowDTData['Template'].'</B> template.</td>
+			</tr>
+			<tr>
+				<td valign="top" colspan="2">Device template <B>'.$rowDTData['Template'].'</B>, category <B>'.$rowDTData['Category'].'</B> and manufacturer <B>'.$rowDTData['Manufacturer'].'</B>.<td>
+			</tr>
+			<tr>
+				<td valign="top" colspan="2">Delays: Power: <B>'.$rowDTData['IR_PowerDelay'].'</B> seconds, Mode: <B>'.$rowDTData['IR_ModeDelay'].'</B> seconds, Other: <B>'.round(($rowDTData['DigitDelay']/1000),3).'</B> seconds  <a href="index.php?section=addModel&step=2&dtID='.$dtID.'">[change/explain]</a><td>
+			</tr>
+			<tr>
+				<td valign="top" colspan="2">Tuning: <B>'.((str_replace('E','',$rowDTData['NumericEntry'])=='')?'No fixed digits':'Fixed Digits: '.str_replace('E','',$rowDTData['NumericEntry'])).'</B>  ['.((strpos($rowDTData['NumericEntry'],'E')!==false)?'x':'').'] terminate with enter  <a href="index.php?section=addModel&step=3&dtID='.$dtID.'">[change/explain]</a><td>
+			</tr>		
+			<tr>
+				<td valign="top" colspan="2">Power: <B>'.(($rowDTData['TogglePower']==0)?'Discrete':'Toggle').'</B> <a href="index.php?section=addModel&step=4&dtID='.$dtID.'">[change/explain]</a><td>
+			</tr>		
+			<tr>
+				<td valign="top" colspan="2">Inputs: <B>'.join(', ',$inputCommandsArray).'</B> <a href="index.php?section=addModel&step=5&dtID='.$dtID.'">[change/explain]</a><td>
+			</tr>		
+			<tr>
+				<td valign="top" colspan="2">DSP Modes: <B>'.join(', ',$dspmodeCommandsArray).'</B> <a href="index.php?section=addModel&step=6&dtID='.$dtID.'">[change/explain]</a><td>
+			</tr>		
+		';
+			$out.='
+			<tr>
+				<td colspan="2">Uses Group/Codeset <select name="irGroup" onChange="document.editAVDevice.submit();">
+					<option value="0" '.(($infraredGroupID==0)?'selected':'').'>I don\'t know the group</option>';
+			$queryIG='
+				SELECT PK_InfraredGroup,InfraredGroup.Description 
+				FROM InfraredGroup 
+				WHERE FK_Manufacturer=? AND FK_DeviceCategory=?
+				ORDER BY Description ASC';
+			$resIG=$dbADO->Execute($queryIG,array($manufacturerID,$deviceCategoryID));
+			while($rowIG=$resIG->FetchRow()){
+				$out.='<option value="'.$rowIG['PK_InfraredGroup'].'" '.(($rowIG['PK_InfraredGroup']==$infraredGroupID)?'selected':'').'>'.$rowIG['Description'].'</option>';
 			}
 			$out.='
-					<input type="hidden" name="DSPMode__selectedOrdered" value="">
-						</tr>
-				</table><br>
-				<B>Add new DSP Mode command</B><br><br>
-				<input type="text" name="newDSPMode" value=""> <input type="submit" class="button" name="addDSPMode" value="Add">
-			</td>
-
-
-			<td valign="top">
-				<input type="checkbox" name="toggle_input" value="1" '.$checkedInput.' onClick="setCheckboxes();document.editAVDevice.submit();"/>Toggle (no discrete codes)
-				<br />
-				<table cellpadding="2" cellspacing="0" border="0">
-						<tr>
-							<td>'.$inputUnselectedTxt.'</td>';
-			if($toggleInput>0){
-				$out.='
-							<td valign="top"><B>Confirm the order</B><br>
-								<select name="Input__selected" size="10">
-									'.$inputSelectedTxt.'
-								</select>
-							</td>
-							<td valign="top">
-								<input type="button" class="button" value="U" onClick="move(this.form.Input__selected,this.form.Input__selected.selectedIndex,-1,this.form.Input__selectedOrdered)"><br><br>
-								<input type="button" class="button" value="D" onClick="move(this.form.Input__selected,this.form.Input__selected.selectedIndex,+1,this.form.Input__selectedOrdered)">
-							</td>
-						</tr>';
-			}
-			$out.='
-					<input type="hidden" name="Input__selectedOrdered" value="">
-				</table>
-				<B>Add new Input command</B><br><br>
-				<input type="text" name="newInput" value=""> <input type="submit" class="button" name="addInput" value="Add">
-			</td>
-
-			<td valign="top">
-				<input type="checkbox" name="toggle_output" value="1" '.$checkedOutput.' onClick="setCheckboxes();document.editAVDevice.submit();"/>Toggle (no discrete codes)
-				<br />
-				<table cellpadding="2" cellspacing="0" border="0">
-						<tr>
-							<td valign="top">'.$outputUnselectedTxt.'</td>';
-			if($toggleOutput>0){
-				$out.='
-							<td><B>Confirm the order</B><br>
-								<select name="Output__selected" size="10">
-									'.$outputSelectedTxt.'
-								</select>
-							</td>
-							<td>
-								<input type="button" class="button" value="U" onClick="move(this.form.Output__selected,this.form.Output__selected.selectedIndex,-1,this.form.Output__selectedOrdered)"><br><br>
-								<input type="button" class="button" value="D" onClick="move(this.form.Output__selected,this.form.Output__selected.selectedIndex,+1,this.form.Output__selectedOrdered)">
-							</td>
-						</tr>';
-			}
-			$out.='
-				<input type="hidden" name="Output__selectedOrdered" value="">
-				</table>
-			<B>Add new Output command</B><br><br>
-				<input type="text" name="newOutput" value=""> <input type="submit" class="button" name="addOutput" value="Add">
-			</td>
-
-		</tr>
-		</table><br />
-		<div align="center"><input type="submit" class="button" name="mdl" value="Update"  /></div>
-		
-	</form>
-';
-//$output->setLeftMenu($leftMenu);
-
-$output->setScriptCalendar('null');
-
-$scriptInHead = '
-<SCRIPT LANGUAGE="JavaScript">
-
-'.$jsArray.'
-
-function showPulldown(pullDownName,value)
-{
-	eval("document.editAVDevice."+pullDownName+".style.display=\'"+value+"\';");
-}
-
-
-function setCheckboxes()
-{
-	try{
-		if(document.editAVDevice.DSPMode__selectedOrdered.value==""){
-			pos=0;
-			for(i=0;i<document.editAVDevice.DSPMode__available.length;i++){
-				if(document.editAVDevice.DSPMode__available[i].checked){
-					document.editAVDevice.DSPMode__selectedOrdered.value+=pos+"-"+DSPModeArray[document.editAVDevice.DSPMode__available[i].value]+",";
-					pos++;
-				}
-			}
-			document.editAVDevice.DSPMode__selectedOrdered.value=document.editAVDevice.DSPMode__selectedOrdered.value.substr(0,document.editAVDevice.DSPMode__selectedOrdered.value.length-1)
-		}
-		
-		if(document.editAVDevice.Input__selectedOrdered.value==""){
-			pos=0;
-			for(i=0;i<document.editAVDevice.Input__available.length;i++){
-				if(document.editAVDevice.Input__available[i].checked){
-					document.editAVDevice.Input__selectedOrdered.value+=pos+"-"+Input__Array[document.editAVDevice.Input__available[i].value]+",";
-					pos++;
-				}
-			}
-			document.editAVDevice.Input__selectedOrdered.value=document.editAVDevice.Input__selectedOrdered.value.substr(0,document.editAVDevice.Input__selectedOrdered.value.length-1)
-		}	
-	
-		if(document.editAVDevice.Output__selectedOrdered.value==""){
-			pos=0;
-			for(i=0;i<document.editAVDevice.Output__available.length;i++){
-				if(document.editAVDevice.Output__available[i].checked){
-					document.editAVDevice.Output__selectedOrdered.value+=pos+"-"+Output_Array[document.editAVDevice.Output__available[i].value]+",";
-					pos++;
-				}
-			}
-			document.editAVDevice.Output__selectedOrdered.value=document.editAVDevice.Output__selectedOrdered.value.substr(0,document.editAVDevice.Output__selectedOrdered.value.length-1)
-		}	
-	}catch(e){
-		// no commands
-	}
-}
-
-
-function compareOptionValues(a, b) { 
-
-  // Radix 10: for numeric values
-  // Radix 36: for alphanumeric values
-
-  var sA = parseInt( a.value, 36 );  
-  var sB = parseInt( b.value, 36 );  
-
-  return sA - sB;
-}
-
-
-
-// Compare two options within a list by TEXT
-
-function compareOptionText(a, b) { 
-
-  // Radix 10: for numeric values
-  // Radix 36: for alphanumeric values
-
-  var sA = parseInt( a.text, 36 );  
-  var sB = parseInt( b.text, 36 );  
-
-  return sA - sB;
-
-}
-
-
-
-// Dual list move function
-
-function moveDualList( srcList, destList, moveAll,saveToField,fieldThatWillBeOrdered) {
-  // Do nothing if nothing is selected
-	try{
-		var srcIsCheckbox=(srcList[0].type=="checkbox")?1:0;
-	}catch(e){
-		var srcIsCheckbox=(srcList.type=="checkbox")?1:0;
-	}
-
-	if(srcIsCheckbox==1){
-
-		newDestList = new Array( destList.options.length );
-		var len = 0;
-
-		for( len = 0; len < destList.options.length; len++ ) {
-			if ( destList.options[ len ] != null ) {
-				newDestList[ len ] = new Option( destList.options[ len ].text, destList.options[ len ].value, destList.options[ len ].defaultSelected, destList.options[ len ].selected );
-			}
-		}
-		
-		// get source elements
-		for( var i = 0; i < srcList.length; i++ ) { 
-	    	if ((srcList[i].checked || moveAll) && !inCheckboxArray(srcList[i].value,newDestList)) {    
-				try{
-					eval("tmpval="+srcList[0].name.substr(0,7)+"Array["+srcList[i].value+"]");
-				}catch(e){
-					eval("tmpval="+srcList.name.substr(0,7)+"Array["+srcList[i].value+"]");
-				}
-	       		newDestList[ len ] = new Option( tmpval, srcList[i].value);
-	       		len++;
-	    	}
-	 	}
-
-		// Populate the destination with the items from the new array
-		for (var j = 0;j < newDestList.length; j++) {
-			if ( newDestList[ j ] != null ){
-		    	destList.options[ j ] = newDestList[ j ];
-			}
-		}
-
-		if(moveAll == true){
-			for(i=0;i<srcList.length;i++)
-				srcList[i].checked=true;
-		}
-	}else{
-		if (( srcList.selectedIndex == -1) && (moveAll == false))  {
-    		return;
-		}
-
-		newDestList = new Array( destList.length );
-		var len = 0;
-
-		for( len = 0; len < destList.length; len++ ) {
-			if ( destList[len].checked ) {
-				newDestList[ len ] = destList[len].value;
-			}
-		}
-		
-		// get source elements
-	  	for( var i = 0; i < srcList.options.length; i++ ) { 
-	    	if (srcList.options[i] != null && (srcList.options[i].selected == true || moveAll)) {       
-	       		newDestList = deleteFromArray(srcList.options[i].value,newDestList);
-	       		len++;
-	    	}
-	 	}
-
-		// Populate the destination with the items from the new array
-		for (var j = 0;j < destList.length; j++) {
-			if ( inArray(destList[ j ].value,newDestList) ){
-		    	destList[j].checked = true;
-			}else{
-				destList[j].checked = false;
-				try{
-					showPulldown(\'connector_\'+destList[ j ].value,\'none\');
-				}catch(e){
-				}
-			}
-		}
-
-		// Erase source list selected elements
-		for( var i = srcList.options.length - 1; i >= 0; i-- ) { 
-	    	if ( srcList.options[i] != null && ( srcList.options[i].selected == true || moveAll ) ) {
-	
-	       		// Erase Source
-	       		//srcList.options[i].value = "";
-	       		//srcList.options[i].text  = "";
-				srcList.options[i]       = null;
-	    	}
-		}
-	}
-
-	
-  // Sort out the new destination list
-
-  //newDestList.sort( compareOptionValues );   // BY VALUES
-
-  //newDestList.sort( compareOptionText );   // BY TEXT
-
-  saveOrdered(fieldThatWillBeOrdered,saveToField);
-} 
-
-function eraseElement(value,destList)
-{
-	// Erase source list selected elements
-	for( var i = destList.options.length - 1; i >= 0; i-- ) { 
-		if ( destList.options[i].value==value) {
-			destList.options[i] = null;
-    	}
-	}
-}
-
-function move(formObj,index,to,saveToField) {
-
-	var list = formObj;
-	var total = list.options.length-1;
-
-	if (index == -1) return false;
-	if (to == +1 && index == total) return false;
-	if (to == -1 && index == 0) return false;
-
-		var items = new Array;
-		var values = new Array;
-			for (i = total; i >= 0; i--) {
-				items[i] = list.options[i].text;
-				values[i] = list.options[i].value;
-			}
-			for (i = total; i >= 0; i--) {
-				if (index == i) {
-					list.options[i + to] = new Option(items[i],values[i + to], 0, 1);
-					list.options[i] = new Option(items[i + to], values[i]);
-					i--;
-				} else {
-					list.options[i] = new Option(items[i], values[i]);
-   				}
-			}
-		//save order into field
-	list.focus();
-	saveOrdered(list,saveToField);
-}
-
-function saveOrdered(listA,saveToFieldA) {
-	var theList = "";
-	// start with a "?" to make it look like a real query-string
-		for (i = 0; i <= listA.options.length-1; i++) { 
-			theList += i+\'-\'+listA.options[i].text;//listA.options[i].value
-			if (i != listA.options.length-1) theList += ",";
-	}
-	saveToFieldA.value = theList;   
-	//alert(theList);
-}
-function inCheckboxArray(toFind,targetList)
-{
-	for(i=0;i<targetList.length;i++){
-		if(toFind==targetList[i].value)
-			return true;
-	}
-	return false;
-}
-
-function inArray(toFind,targetList)
-{
-	for(i=0;i<targetList.length;i++){
-		if(toFind==targetList[i])
-			return true;
-	}
-	return false;
-}
-
-function deleteFromArray(toDelete,targetArray)
-{
-	retArray=new Array();
-	len=0;
-	for(i=0;i<targetArray.length;i++){
-		if(targetArray[i]!=toDelete){
-			retArray[len]=targetArray[i];
-			len++;
-		}
-	}
-	return retArray;
-}
-</script>
-
-';
-	$onLoad='onLoad=';
-	if($toggleDSP>0)
-		$onLoad .= "saveOrdered(document.forms.editAVDevice.DSPMode__selected,document.forms.editAVDevice.DSPMode__selectedOrdered);";
-	if($toggleInput>0)
-		$onLoad .="saveOrdered(document.forms.editAVDevice.Input__selected,document.forms.editAVDevice.Input__selectedOrdered);";
-	if($toggleOutput>0)
-		$onLoad.="saveOrdered(document.forms.editAVDevice.Output__selected,document.forms.editAVDevice.Output__selectedOrdered);";
-	$output->setScriptInHead($scriptInHead);
-	$output->setScriptInBody($onLoad);
-} else {
-	$powerDelay = cleanInteger(@$_POST['irPowerDelay']);
-	$modeDelay = cleanInteger(@$_POST['irModeDelay']);
-	$digitDelay = cleanInteger(@$_POST['irDigitDelay']);
-
-	$togglePower = cleanInteger(@$_POST['toggle_power']);
-	$toggleDSP = cleanInteger(@$_POST['toggle_dsp']);
-	$toggleInput = cleanInteger(@$_POST['toggle_input']);
-	$toggleOutput = cleanInteger(@$_POST['toggle_output']);
-	$usesIR = cleanInteger(@$_POST['usesIR']);
-	
-	$dspOrdered=cleanString(@$_POST['DSPMode__selectedOrdered']);
-	$inputOrdered=cleanString($_POST['Input__selectedOrdered']);
-	$outputOrdered=cleanString($_POST['Output__selectedOrdered']);
-
-	$updateBasicDetails = "UPDATE DeviceTemplate_AV SET 
-			IR_PowerDelay = ?,IR_ModeDelay = ?,DigitDelay =?,TogglePower=?,ToggleDSP=?,ToggleInput=?,ToggleOutput=?
-						WHERE  FK_DeviceTemplate = ? ";
-	$res = $dbADO->Execute($updateBasicDetails,array($powerDelay,$modeDelay,$digitDelay,$togglePower,$toggleDSP,$toggleInput,$toggleOutput,$dtID));
-	if($usesIR>0){
-		$dtFields=getAssocArray('DeviceTemplate','PK_DeviceTemplate','FK_CommMethod',$dbADO,'INNER JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup WHERE PK_DeviceTemplate='.$dtID);
-		if(isset($dtFields['PK_DeviceTemplate'])){
-			$dbADO->Execute('UPDATE InfraredGroup SET FK_CommMethod=1 WHERE PK_InfraredGroup=?',$dtFields[PK_DeviceTemplate]);
-		}
-	}
-	
-	if($usesIR==1){
-		$dbADO->Execute('UPDATE DeviceTemplate_DeviceCategory_ControlledVia SET FK_DeviceCategory=? WHERE FK_DeviceTemplate=? AND FK_DeviceCategory=?',array($GLOBALS['InfraredInterface'],$dtID,$GLOBALS['rootComputerID']));
-	}else{
-		$dbADO->Execute('UPDATE DeviceTemplate_DeviceCategory_ControlledVia SET FK_DeviceCategory=? WHERE FK_DeviceTemplate=? AND FK_DeviceCategory=?',array($GLOBALS['rootComputerID'],$dtID,$GLOBALS['InfraredInterface']));
-	}
-	
-	$dspOrderedArray = explode(",",$dspOrdered);
-	$inputOrderedArray = explode(",",$inputOrdered);
-	$outputOrderedArray = explode(",",$outputOrdered);
-		
-	$dspOrderedArray=cleanArray($dspOrderedArray);
-	$inputOrderedArray=cleanArray($inputOrderedArray);
-	$outputOrderedArray=cleanArray($outputOrderedArray);
-	
-	$newDSPMode=cleanString($_POST['newDSPMode']);
-	$newInput=cleanString($_POST['newInput']);
-	$newOutput=cleanString($_POST['newOutput']);
-
-	if($newDSPMode!=''){
-		$dbADO->Execute('INSERT INTO Command (Description, FK_CommandCategory) VALUES (?,?)',array($newDSPMode,21));
-	}
-	if($newInput!=''){
-		$dbADO->Execute('INSERT INTO Command (Description, FK_CommandCategory) VALUES (?,?)',array($newInput,22));
-	}
-	if($newOutput!=''){
-		$dbADO->Execute('INSERT INTO Command (Description, FK_CommandCategory) VALUES (?,?)',array($newOutput,27));
-	}
-
-	
-	//grab id's for dsp
-	$dspOrderedArrayIDs=array();
-	foreach ($dspOrderedArray as $dspModeElem) {
-		list($order,$name) = explode("-",$dspModeElem);
-		$query = 'SELECT * FROM Command WHERE FK_CommandCategory=21 AND Description = ?';		
-		$res=$dbADO->Execute($query,array(cleanString($name)));
-		if ($res && $res->RecordCount()==1) {
-			$row=$res->FetchRow();
-			$dspOrderedArrayIDs[]=$row['PK_Command'];
-		}
-	}
-	$dspOrderedArrayIDs[]=0;
-	
-	//delete dsp that are now unselected 
-	$cleanDSPMode = "
-		DELETE FROM DeviceTemplate_DSPMode WHERE FK_DeviceTemplate = ? AND FK_Command NOT IN (".join(",",$dspOrderedArrayIDs).")";
-	$dbADO->Execute($cleanDSPMode,array($dtID));
-	
-	$pos=1;
-	foreach ($dspOrderedArrayIDs as $dspModeElem) {
-		$checkIfExists='SELECT * FROM DeviceTemplate_DSPMode WHERE FK_DeviceTemplate = ? AND FK_Command = ?';
-		$resCheckIfExists = $dbADO->Execute($checkIfExists,array($dtID,$dspModeElem));
-		if ($resCheckIfExists->RecordCount()==1) {
-			$updateOrder = "UPDATE DeviceTemplate_DSPMode SET OrderNo = ? WHERE FK_DeviceTemplate= ? AND FK_Command = ? ";
-			$resUpdateOrder = $dbADO->Execute($updateOrder,array($pos,$dtID,$dspModeElem));
-		} else {
-			if ($dspModeElem!=0) {
-				$insertRecord = "INSERT INTO DeviceTemplate_DSPMode (FK_DeviceTemplate,FK_Command,OrderNo) values(?,?,?)";
-				$resInsertRecord = $dbADO->Execute($insertRecord,array($dtID,$dspModeElem,$pos));
-			}
-		}
-		$pos++;	
-	}
-	
-	//grab id's for input
-	$inputOrderedArrayIDs=array();
-	foreach ($inputOrderedArray as $inputElem) {
-		list($order,$name) = explode("-",$inputElem);
-		$query = 'SELECT * FROM Command WHERE FK_CommandCategory=22 AND Description = ?';		
-		$res=$dbADO->Execute($query,array(cleanString($name)));
-		if ($res && $res->RecordCount()==1) {
-			$row=$res->FetchRow();
-			$inputOrderedArrayIDs[]=$row['PK_Command'];
-		}
-	}
-	
-	$inputOrderedArrayIDs[]=0;
-		
-	//delete input that are now unselected 
-	$cleanInput = "
-		DELETE FROM DeviceTemplate_Input WHERE FK_DeviceTemplate = ? AND FK_Command NOT IN (".join(",",$inputOrderedArrayIDs).")
-				
-	";
-	$dbADO->Execute($cleanInput,array($dtID));
-	
-	$pos=1;
-	foreach ($inputOrderedArrayIDs as $inputElem) {
-		$connectorID=((int)@$_POST['connector_'.$inputElem]!=0)?(int)@$_POST['connector_'.$inputElem]:NULL;
-		$checkIfExists='SELECT * FROM DeviceTemplate_Input WHERE FK_DeviceTemplate = ? AND FK_Command = ?';
-		$resCheckIfExists = $dbADO->Execute($checkIfExists,array($dtID,$inputElem));
-		if ($resCheckIfExists->RecordCount()==1) {
-			$updateOrder = "UPDATE DeviceTemplate_Input SET OrderNo = ?, FK_ConnectorType=? WHERE FK_DeviceTemplate= ? AND FK_Command = ? ";
-			$resUpdateOrder = $dbADO->Execute($updateOrder,array($pos,$connectorID,$dtID,$inputElem));
-		} else {
-			if ($inputElem!=0) {
-				$insertRecord = "INSERT INTO DeviceTemplate_Input (FK_DeviceTemplate,FK_Command,OrderNo,FK_ConnectorType) values(?,?,?,?)";
-				$resInsertRecord = $dbADO->Execute($insertRecord,array($dtID,$inputElem,$pos,$connectorID));
-			}
-		}
-		$pos++;	
-	}
-	
-	//grab id's for output
-	$outputOrderedArrayIDs=array();
-	foreach ($outputOrderedArray as $outputElem) {
-		list($order,$name) = explode("-",$outputElem);
-		$query = 'SELECT * FROM Command WHERE FK_CommandCategory=27 AND Description = ?';		
-		$res=$dbADO->Execute($query,array(cleanString($name)));
-		if ($res && $res->RecordCount()==1) {
-			$row=$res->FetchRow();
-			$outputOrderedArrayIDs[]=$row['PK_Command'];
-		}
-	}
-	$outputOrderedArrayIDs[]=0;
-	
-	
-	//delete output that are now unselected 
-	$cleanOutput = "
-		DELETE FROM DeviceTemplate_Output WHERE FK_DeviceTemplate = ? AND FK_Command NOT IN (".join(",",$outputOrderedArrayIDs).")
+				</select></td>
+		</tr>';
 			
-	";
-	$dbADO->Execute($cleanOutput,array($dtID));
-	
-	$pos=1;
-	foreach ($outputOrderedArrayIDs as $outputElem) {
-		$connectorID=((int)@$_POST['connector_'.$outputElem]!=0)?(int)@$_POST['connector_'.$outputElem]:NULL;
-		$checkIfExists='SELECT * FROM DeviceTemplate_Output WHERE FK_DeviceTemplate = ? AND FK_Command = ?';
-		$resCheckIfExists = $dbADO->Execute($checkIfExists,array($dtID,$outputElem));
-		if ($resCheckIfExists->RecordCount()==1) {
-			$updateOrder = "UPDATE DeviceTemplate_Output SET FK_ConnectorType=?,OrderNo = ? WHERE FK_DeviceTemplate= ? AND FK_Command = ? ";
-			$resUpdateOrder = $dbADO->Execute($updateOrder,array($connectorID,$pos,$dtID,$outputElem));
-		} else {
-			if ($outputElem!=0) {
-				$insertRecord = "INSERT INTO DeviceTemplate_Output (FK_DeviceTemplate,FK_Command,OrderNo,FK_ConnectorType) values(?,?,?,?)";
-				$resInsertRecord = $dbADO->Execute($insertRecord,array($dtID,$outputElem,$pos,$connectorID));
+		$out.='
+			<tr>
+				<td valign="top" width="250">Implement Command Groups </td>
+				<td>'.DeviceCommandGroupTable($dtID,$deviceCategoryID,$dbADO).'</td>
+		</tr>
+		';
+		
+		$out.='		
+			<tr>
+				<td colspan="3" align="center"><input type="button" class="button" name="button" value="Add/Remove commands" '.$GLOBALS['btnEnabled'].' onClick="windowOpen(\'index.php?section=infraredCommands&infraredGroup='.$infraredGroupID.'&deviceID='.$deviceID.'&dtID='.$dtID.(($GLOBALS['label']!='infrared')?'&rootNode=1':'').'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"> <input type="submit" class="button" name="update" value="Update" '.((!isset($_SESSION['userID']))?'disabled':'').'></td>
+			</tr>';
+
+		$codesQuery='
+			SELECT 
+				PK_InfraredGroup_Command,
+				FK_DeviceTemplate,
+				FK_Device,
+				InfraredGroup_Command.psc_user,
+				IRData,
+				Command.Description,
+				IF(PK_Command=192 OR PK_Command=193 OR PK_Command=194,1, IF(FK_CommandCategory=22,2, IF(FK_CommandCategory=27,3, IF(FK_CommandCategory=21,4,5) ) ) ) AS GroupOrder,
+				IF( InfraredGroup_Command.psc_user=?,2, IF( FK_DeviceTemplate IS NULL AND FK_Device IS NULL,1,3) ) As DefaultOrder,
+				CommandCategory.Description AS CommandCategory,
+				FK_Command 
+			FROM InfraredGroup_Command 
+			JOIN Command ON FK_Command=PK_Command JOIN CommandCategory ON FK_CommandCategory=PK_CommandCategory 
+			WHERE '.(($infraredGroupID==0)?'FK_InfraredGroup IS NULL':'FK_InfraredGroup='.$infraredGroupID).' 
+			ORDER BY GroupOrder,CommandCategory.Description,Description,DefaultOrder';
+
+		$res=$dbADO->Execute($codesQuery,array($userID));
+		$codesArray=array();
+		while($row=$res->FetchRow()){
+			$codesArray[$row['CommandCategory']]['FK_DeviceTemplate'][$row['PK_InfraredGroup_Command']]=$row['FK_DeviceTemplate'];
+			$codesArray[$row['CommandCategory']]['FK_Device'][$row['PK_InfraredGroup_Command']]=$row['FK_Device'];
+			$codesArray[$row['CommandCategory']]['psc_user'][$row['PK_InfraredGroup_Command']]=$row['psc_user'];
+			$codesArray[$row['CommandCategory']]['Description'][$row['PK_InfraredGroup_Command']]=$row['Description'];
+			$codesArray[$row['CommandCategory']]['CommandCategory'][$row['PK_InfraredGroup_Command']]=$row['CommandCategory'];
+			$codesArray[$row['CommandCategory']]['FK_Command'][$row['PK_InfraredGroup_Command']]=$row['FK_Command'];
+			$codesArray[$row['CommandCategory']]['IRData'][$row['PK_InfraredGroup_Command']]=$row['IRData'];
+			$codesArray[$row['CommandCategory']]['DefaultOrder'][$row['PK_InfraredGroup_Command']]=$row['DefaultOrder'];
+			$GLOBALS['displayedIRGC'][]=$row['PK_InfraredGroup_Command'];
+			$GLOBALS['displayedCommands'][]=$row['FK_Command'];
+			
+			if(in_array($row['FK_Command'],array_keys($inputCommandsArray))){
+				unset ($inputCommandsArray[$row['FK_Command']]);
+			}
+			
+			if(in_array($row['FK_Command'],array_keys($dspmodeCommandsArray))){
+				unset ($dspmodeCommandsArray[$row['FK_Command']]);
 			}
 		}
-		$pos++;	
-	}
-
-	// add or delete records in DeviceTemplate_MediaType
-	// if device parameter is set, also set device_DeviceData for media provider
-	if($deviceID!=0){
-		$newMediaProvider=array();
-	}
-	$displayedMTArray=explode(',',$_POST['displayedMT']);
-	$checkedMTArray=explode(',',$_POST['checkedMT']);
-	foreach ($displayedMTArray AS $mediaType){
-		if(isset($_POST['mediaType_'.$mediaType])){
-			if($deviceID!=0){
-				if((int)@$_POST['mediaProvider_'.$mediaType]!=0)
-					$newMediaProvider[]=$mediaType.':'.(int)$_POST['mediaProvider_'.$mediaType];
-			}
-			if(!in_array($mediaType,$checkedMTArray)){
-				$dbADO->Execute('INSERT INTO DeviceTemplate_MediaType (FK_DeviceTemplate,FK_MediaType) VALUES (?,?)',array($dtID,$mediaType));
-			}
-		}elseif(in_array($mediaType,$checkedMTArray)){
-			$dbADO->Execute('DELETE FROM DeviceTemplate_MediaType WHERE FK_DeviceTemplate=? AND FK_MediaType=?',array($dtID,$mediaType));
+		
+		
+		$categNames=array_keys($codesArray);
+		if(!in_array('Inputs',$categNames)){
+			$categNames[]='Inputs';
 		}
-	}
-	if($deviceID!=0){
-		$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array(join(',',$newMediaProvider),$deviceID,$GLOBALS['MediaProvider']));
-	}
+		if(!in_array('DSP Modes',$categNames)){
+			$categNames[]='DSP Modes';
+		}
+		
+		
+		for($i=0;$i<count($categNames);$i++){
+			$out.='
+			<tr>
+				<td colspan="3" align="center">
+					<fieldset style="width:98%">
+						<legend><B>'.$categNames[$i].'</B></legend>';
+			// display input commands not implemented
+			if($categNames[$i]=='Inputs'){
+				if(count($inputCommandsArray)>0){
+					$out.='Input commands not implemented: ';
+					foreach ($inputCommandsArray AS $inputId=>$inputName){
+						$inputCommandsArray[$inputId]='<a href="javascript:windowOpen(\'index.php?section=newIRCode&deviceID=0&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$inputId.'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');">'.$inputName.'</a>';
+					}
+					$out.='<b>'.join(', ',$inputCommandsArray).'</b> <em>(Click to add)</em>';
+				}		
+			}
+			
+			// display DSP modes commands not implemented
+			if($categNames[$i]=='DSP Modes'){
+				if(count($dspmodeCommandsArray)>0){
+					$out.='DSP Mode commands not implemented: ';
+					foreach ($dspmodeCommandsArray AS $dspmId=>$dspmName){
+						$dspmodeCommandsArray[$dspmId]='<a href="javascript:windowOpen(\'index.php?section=newIRCode&deviceID=0&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$dspmId.'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');">'.$dspmName.'</a>';
+					}
+					$out.='<b>'.join(', ',$dspmodeCommandsArray).'</b> <em>(Click to add)</em>';
+				}		
+			}
+			
+			if(isset($codesArray[$categNames[$i]]['FK_DeviceTemplate'])){
+				for($pos=0;$pos<count($codesArray[$categNames[$i]]['FK_DeviceTemplate']);$pos++){
+					$codeCommandsKeys=array_keys($codesArray[$categNames[$i]]['FK_DeviceTemplate']);
+					$irg_c=$codeCommandsKeys[$pos];
+					$out.=formatCode($codesArray[$categNames[$i]],$irg_c,$infraredGroupID,$dtID);
+				}
+			}
+						
+			$out.='
+					</fieldset>
+				</td>
+			</tr>	
+			';
+		}
+			$out.='
+			<tr>
+				<td colspan="3" align="center"><table>
+					<tr>
+						<td><B>Legend:</B> </td>
+						<td width="20" bgcolor="lightblue">&nbsp;</td>
+						<td>Standard codes</td>
+						<td width="20" bgcolor="yellow">&nbsp;</td>
+						<td>My custom codes</td>
+						<td width="20" bgcolor="lightyellow">&nbsp;</td>
+						<td>Other users custom codes</td>
+					</tr>
+				</table></td>
+			</tr>
+			<tr>
+				<td colspan="3" align="center"><input type="submit" class="button" name="update" value="Update" '.((!isset($_SESSION['userID']))?'disabled':'').'></td>
+			</tr>
+	';
+		$out.='
+		</table>
+			<input type="hidden" name="displayedCommands" value="'.join(',',$GLOBALS['displayedCommands']).'">
+			<input type="hidden" name="displayedIRGC" value="'.join(',',$GLOBALS['displayedIRGC']).'">
+		</form>
+	<span class="normaltext">If you have question or comments, please contact us by <a href="mailto:support@plutohome.com?subject=IR Group '.$infraredGroupID.' x Device Template '.$dtID.' x UserID '.$userID.'">email</a>.</span><br><br>		
+	';	
+		$out.=(($GLOBALS['btnEnabled']=='disabled')?'<span class="normaltext"><em>* Add/Edit options are available only for your own device templates.</em></span>':'');		
+	} else {
+		$time_start = getmicrotime();
+		//$dbADO->debug=true;
+		
+		$newIRGroup=((int)@$_POST['irGroup']>0)?(int)$_POST['irGroup']:NULL;
+		$oldIRGroup=(int)$_POST['oldIRGroup'];
+		if($newIRGroup!=$oldIRGroup){
 
+			$dbADO->Execute('UPDATE DeviceTemplate SET FK_InfraredGroup=? WHERE PK_DeviceTemplate=?',array($newIRGroup,$dtID));
+			$dbADO->Execute('UPDATE InfraredGroup_Command SET FK_InfraredGroup=? WHERE FK_DeviceTemplate=? AND FK_InfraredGroup IS NOT NULL AND psc_user=?',array($newIRGroup,$dtID,$userID));
+
+			header("Location: index.php?section=editAVDevice&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$newIRGroup&msg=IR Group changed for selected device template.&label=".$GLOBALS['label']);
+			exit();
+		}
+		
+		if(isset($_POST['irgroup_command']) && (int)$_POST['irgroup_command']>0){
+			$irg_c=(int)$_POST['irgroup_command'];
+			if($action!='delete'){
+				$dbADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command,FK_Device,FK_DeviceTemplate,IRData,FK_Users,psc_user) SELECT FK_InfraredGroup,FK_Command,'.$deviceID.','.$dtID.',IRData,'.$_SESSION['userID'].','.$_SESSION['userID'].' FROM InfraredGroup_Command WHERE PK_InfraredGroup_Command=?',$irg_c);
+
+				header("Location: index.php?section=editAVDevice&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&msg=Custom code added.&label=".$GLOBALS['label']);
+				exit();
+			}else{
+				$dbADO->Execute('DELETE FROM InfraredGroup_Command WHERE PK_InfraredGroup_Command=?',$irg_c);
+				
+				header("Location: index.php?section=editAVDevice&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&msg=Custom code deleted.&label=".$GLOBALS['label']);
+				exit();
+			}
+		}
+		
+		if(isset($_POST['update']) && isset($_SESSION['userID'])){
+			
+			$deviceCGArray=explode(',',$_POST['deviceCG']);
+			$oldCheckedDCG=explode(',',$_POST['oldCheckedDCG']);
+			$displayedCommands=explode(',',$_POST['displayedCommands']);
+			$infraredGroupID=($infraredGroupID==0)?NULL:$infraredGroupID;
+			
+			foreach ($deviceCGArray AS $deviceCG){
+				if(isset($_POST['dcg_'.$deviceCG])){
+
+					$commands=explode(',',$_POST['commands_'.$deviceCG]);
+					
+					foreach ($commands AS $commandID){
+						if(!in_array($commandID,$displayedCommands)){			
+							$dbADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command,FK_Device,FK_DeviceTemplate,IRData,FK_Users,psc_user) VALUES (?,?,?,?,?,?,?)',array($infraredGroupID,$commandID,$deviceID,$dtID,'',$_SESSION['userID'],$_SESSION['userID']));
+						}
+					}
+					if(!in_array($deviceCG,$oldCheckedDCG))
+						$dbADO->Execute('INSERT INTO DeviceTemplate_DeviceCommandGroup (FK_DeviceTemplate, FK_DeviceCommandGroup) VALUES (?,?)',array($dtID,$deviceCG));
+
+				}elseif(!isset($_POST['dcg_'.$deviceCG]) && in_array($deviceCG,$oldCheckedDCG)){
+					// delete from IRG_C
+					$commands=explode(',',$_POST['commands_'.$deviceCG]);
+					if(count($commands)>0){
+						$dbADO->Execute('DELETE FROM InfraredGroup_Command WHERE FK_Command in ('.join(',',$commands).') AND FK_Users=? AND psc_user=?',array($_SESSION['userID'],$_SESSION['userID']));
+
+					}
+					$dbADO->Execute('DELETE FROM DeviceTemplate_DeviceCommandGroup WHERE FK_DeviceTemplate=? AND FK_DeviceCommandGroup=?',array($dtID,$deviceCG));
+				}
+			}
+			
+			
+			$customCodesNoArray=explode(',',@$_POST['displayedIRGC']);
+			foreach ($customCodesNoArray as $ig_c){
+				if(isset($_POST['irData_'.$ig_c])){
+					$irData=stripslashes($_POST['irData_'.$ig_c]);
+					$dbADO->Execute('UPDATE InfraredGroup_Command SET IRData=? WHERE PK_InfraredGroup_Command=? AND psc_user=?',array($irData,$ig_c,(int)$_SESSION['userID']));
+				}
+			}
+			$time_end= getmicrotime();
+			//print '<p class="normaltext">Page generated in '.round(($time_end-$time_start),3).' s.';
+			
+			header("Location: index.php?section=editAVDevice&from=$from&deviceID=$deviceID&dtID=$dtID&infraredGroupID=$infraredGroupID&msg=IR codes updated.&label=".$GLOBALS['label']);
+			exit();
+		}
+
+		header("Location: index.php?section=editAVDevice&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&lastAction=".@$lastAction);
+	}
+	$time_end = getmicrotime();
+	$out.='<br><p class="normaltext">Page generated in '.round(($time_end-$time_start),3).' s.';
 	
-	header("Location: index.php?section=editAVDevice&dtID=$dtID&deviceID=$deviceID&from=$from");
+	$output->setBody($out);
+	$output->setTitle(APPLICATION_NAME.' :: IR Codes');
+	$output->output();
 }
 
-$output->setBody($out);
-$output->setTitle(APPLICATION_NAME);			
-$output->output();  
+function formatCode($dataArray,$pos,$infraredGroupID,$dtID){
+
+	if($dataArray['DefaultOrder'][$pos]==1){
+		$RowColor='lightblue';
+	}
+	else{
+		$RowColor=(isset($_SESSION['userID']) && $dataArray['psc_user'][$pos]==@$_SESSION['userID'])?'yellow':'lightyellow';
+	}
+	$deleteButton=(isset($_SESSION['userID']) && $dataArray['psc_user'][$pos]==@$_SESSION['userID'])?'<input type="button" class="button" name="delCustomCode" value="Delete code" onClick="if(confirm(\'Are you sure you want to delete this code?\')){document.editAVDevice.action.value=\'delete\';document.editAVDevice.irgroup_command.value='.$pos.';document.editAVDevice.submit();}">':'';
+
+	$out='
+		<table width="100%">
+			<tr bgcolor="'.$RowColor.'">
+				<td align="center" width="100"><B>'.$dataArray['Description'][$pos].'</B> <br><input type="button" class="button" name="learnCode" value="New code" onClick="windowOpen(\'index.php?section=newIRCode&deviceID='.$dataArray['FK_Device'][$pos].'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$dataArray['FK_Command'][$pos].'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');" '.((!isset($_SESSION['userID']))?'disabled':'').'></td>
+				<td><textarea name="irData_'.$pos.'" rows="2" style="width:100%">'.$dataArray['IRData'][$pos].'</textarea></td>
+				<td align="center" width="100">'.$deleteButton.'</td>
+			</tr>
+		</table>';
+
+	return $out;
 
 }
 ?>

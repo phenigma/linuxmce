@@ -139,7 +139,7 @@ function learnCode($output,$dbADO) {
 				$rowOther=$isOtherCustomCode->FetchRow();
 				$dbADO->Execute('UPDATE InfraredGroup_Command SET IRData=? WHERE PK_InfraredGroup_Command=?',array($irData,$rowOther['PK_InfraredGroup_Command']));
 			}else
-				$dbADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command, FK_Device, FK_DeviceTemplate, FK_Users,IRData) VALUES (?,?,?,?,?,?)',array($infraredGroupID,$commandID, $deviceID,$dtID,$_SESSION['userID'],$irData));
+				$dbADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command, FK_Device, FK_DeviceTemplate, FK_Users,IRData,psc_user) VALUES (?,?,?,?,?,?,?)',array($infraredGroupID,$commandID, $deviceID,$dtID,$_SESSION['userID'],$irData,$_SESSION['userID']));
 			$igcID=$dbADO->Insert_ID();
 			
 			if($isSingleCode->RecordCount()==0){
