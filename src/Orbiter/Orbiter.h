@@ -291,6 +291,11 @@ protected:
     virtual void RenderPopup(PlutoPopup *pPopup, PlutoPoint point);
 
     /**
+    * @brief Render a shortcut for an object
+    */
+    void RenderShortcut(DesignObj_Orbiter *pObj);
+
+    /**
     * @brief Get the popup with the id or name specified
     */
     PlutoPopup *FindPopupByName(DesignObj_Orbiter *pObj,string sPopupName);

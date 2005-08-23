@@ -747,6 +747,9 @@ int k=2;
 #ifdef DEBUG
 g_pPlutoLogger->Write( LV_STATUS, "object: %s  not visible: %d", pObj->m_ObjectID.c_str(), (int) pObj->m_bHidden );
 #endif
+        if(m_bShowShortcuts && pObj->m_iPK_Button)
+            RenderShortcut(pObj);
+        
         return;
 	}
 
@@ -1007,29 +1010,8 @@ int k=2;
         UpdateRect(rect, NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0));
     }
 
-    if(m_bShowShortcuts)
-    {
-        string sCharToRender;
-        if(pObj->m_iPK_Button >= BUTTON_1_CONST && pObj->m_iPK_Button <= BUTTON_9_CONST)
-            sCharToRender += '0' + pObj->m_iPK_Button - BUTTON_1_CONST + 1;
-        else if(pObj->m_iPK_Button == BUTTON_0_CONST)
-            sCharToRender += '0';
-                
-        if(sCharToRender != "")
-        {
-            PlutoPoint AbsPos = NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0);
-            PlutoPoint textPos(AbsPos.X + pObj->m_rPosition.X + 5, AbsPos.Y + pObj->m_rPosition.Y + 5);
-
-            PlutoRectangle rect(textPos.X, textPos.Y, 20, 20);
-            DesignObjText text(m_pScreenHistory_Current->m_pObj);
-            text.m_rPosition = rect;
-            TextStyle *pTextStyle = m_mapTextStyle_Find(1);
-            PlutoColor OldColor = pTextStyle->m_ForeColor;
-            pTextStyle->m_ForeColor.m_Value = 0x808080;
-            RenderText(sCharToRender,&text, pTextStyle);
-            pTextStyle->m_ForeColor = OldColor;
-        }
-    }
+    if(m_bShowShortcuts && pObj->m_iPK_Button)
+        RenderShortcut(pObj);
 }
 //-----------------------------------------------------------------------------------------------------------
 bool Orbiter::RenderCell( class DesignObj_DataGrid *pObj,  class DataGridTable *pT,  class DataGridCell *pCell,  int j,  int i,  int GraphicToDisplay, PlutoPoint point )
@@ -8227,4 +8209,30 @@ void Orbiter::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,stri
 		m_vectObjs_NeedRedraw.push_back(m_pObj_NowPlaying_TimeLong_OnScreen);
 	if( m_pObj_NowPlaying_Speed_OnScreen && m_pObj_NowPlaying_Speed_OnScreen->m_bOnScreen && m_pObj_NowPlaying_Speed_OnScreen!=m_pObj_NowPlaying_TimeShort_OnScreen )
 		m_vectObjs_NeedRedraw.push_back(m_pObj_NowPlaying_Speed_OnScreen);
+}
+
+void Orbiter::RenderShortcut(DesignObj_Orbiter *pObj)
+{
+    string sCharToRender;
+    if(pObj->m_iPK_Button >= BUTTON_1_CONST && pObj->m_iPK_Button <= BUTTON_9_CONST)
+        sCharToRender += '0' + pObj->m_iPK_Button - BUTTON_1_CONST + 1;
+    else if(pObj->m_iPK_Button == BUTTON_0_CONST)
+        sCharToRender += '0';
+
+    if(sCharToRender != "")
+    {
+        PlutoPoint AbsPos = NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0);
+        PlutoPoint textPos(AbsPos.X + pObj->m_rPosition.X + 5, AbsPos.Y + pObj->m_rPosition.Y + 5);
+
+        PlutoRectangle rect(textPos.X, textPos.Y, 30, 30);
+        DesignObjText text(m_pScreenHistory_Current->m_pObj);
+        text.m_rPosition = rect;
+        TextStyle *pTextStyle = m_mapTextStyle_Find(1);
+        PlutoColor OldColor = pTextStyle->m_ForeColor;
+        pTextStyle->m_ForeColor.m_Value = 0xFF2020;
+        pTextStyle->m_iPixelHeight += 15;
+        RenderText(sCharToRender,&text, pTextStyle);
+        pTextStyle->m_iPixelHeight -= 15;
+        pTextStyle->m_ForeColor = OldColor;
+    }
 }
