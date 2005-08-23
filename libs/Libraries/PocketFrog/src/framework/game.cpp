@@ -432,7 +432,7 @@ LRESULT Game::OnActivate( UINT msg, WPARAM wparam, LPARAM lparam, BOOL& bHandled
         {
             PocketPC::Suspend();
             m_bSuspended = true;
-						Game::GameSuspend(); // Added 6/10/2003 by Frank W. Zammetti
+			Game::GameSuspend(); // Added 6/10/2003 by Frank W. Zammetti
         }
     }
     else
@@ -446,7 +446,6 @@ LRESULT Game::OnActivate( UINT msg, WPARAM wparam, LPARAM lparam, BOOL& bHandled
 			TryToUpdate();
 		}
     }
-    
 
     ShowTaskbar( LOWORD(wparam) == WA_INACTIVE );
 
@@ -457,17 +456,15 @@ LRESULT Game::OnActivate( UINT msg, WPARAM wparam, LPARAM lparam, BOOL& bHandled
 
 LRESULT Game::OnSetFocus( UINT msg, WPARAM wparam, LPARAM lparam, BOOL& bHandled )
 {
-    return OnActivate( WM_ACTIVATE, WA_ACTIVE, 0, bHandled );
+    return 0; //return OnActivate( WM_ACTIVATE, WA_ACTIVE, 0, bHandled );
 }
 
 
 
 LRESULT Game::OnKillFocus( UINT msg, WPARAM wparam, LPARAM lparam, BOOL& bHandled )
 {
-    return OnActivate( WM_ACTIVATE, WA_INACTIVE, 0, bHandled );
+    return 0; //return OnActivate( WM_ACTIVATE, WA_INACTIVE, 0, bHandled );
 }
-
-
 
 LRESULT Game::OnPaint( UINT msg, WPARAM wparam, LPARAM lparam, BOOL& bHandled )
 {
