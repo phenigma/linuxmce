@@ -493,6 +493,12 @@ void App_Server::CMD_Vol_Up(int iRepeat_Command,string &sCMD_Result,Message *pMe
 	int pid = fork();
 	if (pid == 0)
 	{
+		if( bLastMute )
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"Unmuting");
+			execl("/usr/bin/amixer", "amixer", "sset", "Master", "unmute", NULL);
+			bLastMute=false;
+		}
 		execl("/usr/bin/amixer", "amixer", "sset", "Master", (StringUtils::itos(iRepeat_Command) + "+").c_str(), NULL);
 		exit(99);
 	}
@@ -518,6 +524,12 @@ void App_Server::CMD_Vol_Down(int iRepeat_Command,string &sCMD_Result,Message *p
 	int pid = fork();
 	if (pid == 0)
 	{
+		if( bLastMute )
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"Unmuting");
+			execl("/usr/bin/amixer", "amixer", "sset", "Master", "unmute", NULL);
+			bLastMute=false;
+		}
 		execl("/usr/bin/amixer", "amixer", "sset", "Master", (StringUtils::itos(iRepeat_Command) + "-").c_str(), NULL);
 		exit(99);
 	}
@@ -545,6 +557,12 @@ void App_Server::CMD_Set_Volume(string sLevel,string &sCMD_Result,Message *pMess
 	int pid = fork();
 	if (pid == 0)
 	{
+		if( bLastMute )
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"Unmuting");
+			execl("/usr/bin/amixer", "amixer", "sset", "Master", "unmute", NULL);
+			bLastMute=false;
+		}
 		execl("/usr/bin/amixer", "amixer", "sset", "Master", (sLevel.substr(bRelative ? 1 : 0) + "%" + (bRelative ? sLevel.substr(0, 1) : "")).c_str(), NULL);
 		exit(99);
 	}
@@ -567,6 +585,7 @@ void App_Server::CMD_Mute(string &sCMD_Result,Message *pMessage)
 	int pid = fork();
 	if (pid == 0)
 	{
+		g_pPlutoLogger->Write(LV_STATUS,"Mute is now %d",(int) bLastMute);
 		if( bLastMute )
 			execl("/usr/bin/amixer", "amixer", "sset", "Master", "unmute", NULL);
 		else
