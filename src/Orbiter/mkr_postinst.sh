@@ -4,6 +4,26 @@
 . /usr/pluto/bin/SQL_Ops.sh
 . /usr/pluto/bin/PlutoVersion.h
 
+Q="SELECT FK_DeviceCategory FROM Device JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE PK_Device=$PK_Device"
+DeviceCategory=$(RunSQL "$Q")
+
+DeviceCategory_Core=7
+DeviceCategory_MD=8
+
+if [[ -n "$DeviceCategory" ]]; then
+	if [[ $DeviceCategory -eq $DeviceCategory_MD ]]; then
+		if ! update-rc.d -f discover remove; then
+			:
+		fi
+		update-rc.d discover start 80 1 2 3 4 5 .
+
+		if ! update-rc.d -f hotplug remove; then
+			:
+		fi
+		update-rc.d hotplug start 81 1 2 3 4 5 . stop 89 0 6 . || /bin/true
+	fi
+fi
+
 PrevVer="$2"
 
 if [ -n "$PrevVer" ]; then
@@ -65,25 +85,5 @@ section == 1 {
 	# only ony standalone MDs, not hybrids
 	if ! PackageIsInstalled pluto-dcerouter; then
 		sed -i 's/^NTPSERVERS=.*$/NTPSERVERS="dcerouter"/' /etc/default/ntpdate
-	fi
-fi
-
-Q="SELECT FK_DeviceCategory FROM Device JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE PK_Device=$PK_Device"
-DeviceCategory=$(RunSQL "$Q")
-
-DeviceCategory_Core=7
-DeviceCategory_MD=8
-
-if [[ -n "$DeviceCategory" ]]; then
-	if [[ $DeviceCategory -eq $DeviceCategory_MD ]]; then
-		if ! update-rc.d -f discover remove; then
-			:
-		fi
-		update-rc.d discover start 80 1 2 3 4 5 .
-
-		if ! update-rc.d -f hotplug remove; then
-			:
-		fi
-		update-rc.d hotplug start 81 1 2 3 4 5 . stop 89 0 6 . || /bin/true
 	fi
 fi
