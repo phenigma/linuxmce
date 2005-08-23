@@ -67,9 +67,9 @@ function wizardOrbiters($output,$dbADO) {
 			$orbiterDD[]=91;		// Main Menu
 			$orbiterDD[]=104;		// UI
 
-			$excludedData['standard_roaming_orbiters']=array(25,'state');
+			$excludedData['standard_roaming_orbiters']=array('state');
 			$excludedData['mobile_orbiters']=array(84,20,'room','wifi',56);
-			$excludedData['on_screen_orbiters']=array('dt','ip_mac','room','wifi','state');
+			$excludedData['on_screen_orbiters']=array('dt','ip_mac','wifi','state');
 			
 			$queryData='
 					SELECT 
