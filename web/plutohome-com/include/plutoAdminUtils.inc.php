@@ -555,7 +555,59 @@ function generatePullDown($name,$tableName,$valueField,$labelField,$selectedValu
 	return $pullDown;
 }
 
-function getCheckedDeviceCommandGroup($deviceTemplate,$deviceCategory,$dbADO)
+function getCheckedDeviceCommandGroup($dtID,$deviceCategory,$dbADO)
+{
+	$querySelCheckedCommandGroups = '
+		SELECT 
+		PK_DeviceCommandGroup,
+		DeviceCommandGroup.Description,
+		FK_DeviceTemplate,
+		FK_Command,
+		Command.Description AS Command
+		FROM DeviceCommandGroup
+		LEFT JOIN DeviceTemplate_DeviceCommandGroup ON DeviceTemplate_DeviceCommandGroup.FK_DeviceCommandGroup=PK_DeviceCommandGroup AND FK_DeviceTemplate=?
+		LEFT JOIN DeviceCategory ON (FK_DeviceCategory=PK_DeviceCategory OR FK_DeviceCategory=FK_DeviceCategory_Parent)
+		INNER JOIN DeviceCommandGroup_Command ON DeviceCommandGroup_Command.FK_DeviceCommandGroup=PK_DeviceCommandGroup
+		INNER JOIN Command ON FK_Command=PK_Command
+		WHERE PK_DeviceCategory=? OR FK_DeviceCategory IS NULL
+		ORDER BY Description,Command ASC';
+	$resSelCheckedCommandGroups = $dbADO->Execute($querySelCheckedCommandGroups,array($dtID,$deviceCategory));
+	$dcgArray=array();
+	while ($row= $resSelCheckedCommandGroups->FetchRow()) {
+		$dcgArray[$row['PK_DeviceCommandGroup']]['Description']=$row['Description'];
+		$dcgArray[$row['PK_DeviceCommandGroup']]['Checked']=(is_null($row['FK_DeviceTemplate']))?0:1;
+		$dcgArray[$row['PK_DeviceCommandGroup']]['Commands'][]=$row['Command'];
+		$dcgArray[$row['PK_DeviceCommandGroup']]['CommandIDs'][]=$row['FK_Command'];
+	}
+	
+	return $dcgArray;
+}
+
+function DeviceCommandGroupTable($dtID,$deviceCategory,$dbADO){
+	$dcgArray=getCheckedDeviceCommandGroup($dtID,$deviceCategory,$dbADO);
+	$out='<table>';
+	$oldCheckedDCG=array();
+	foreach ($dcgArray AS $dcg=>$value){
+		if($value['Checked']==1){
+			$oldCheckedDCG[]=$dcg;
+		}
+		$out.='
+		<tr>
+			<td><input type="checkbox" name="dcg_'.$dcg.'" value="1" '.(($value['Checked']==1)?'checked':'').'></td>
+			<td title="'.join(', ',$value['Commands']).'">'.$value['Description'].'</td>
+		</tr>
+		<input type="hidden" name="commands_'.$dcg.'" value="'.join(',',$value['CommandIDs']).'">
+		';
+	}
+	$out.='</table>
+		<input type="hidden" name="deviceCG" value="'.join(',',array_keys($dcgArray)).'">
+		<input type="hidden" name="oldCheckedDCG" value="'.join(',',$oldCheckedDCG).'">
+	';
+	
+	return $out;
+}
+
+function getCheckedDeviceCommandGroup_bad($deviceTemplate,$deviceCategory,$dbADO)
 {
 	$querySelCheckedCommandGroups = 'SELECT FK_DeviceCommandGroup FROM DeviceTemplate_DeviceCommandGroup WHERE  FK_DeviceTemplate = ?';
 	$resSelCheckedCommandGroups = $dbADO->Execute($querySelCheckedCommandGroups,$deviceTemplate);
@@ -1207,10 +1259,12 @@ function getIrGroup_CommandsMatrix($dtID,$InfraredGroupsArray,$userID,$comMethod
 	$codesData=getFieldsAsArray('InfraredGroup_Command','PK_InfraredGroup_Command,IRData,FK_InfraredGroup,FK_Command,InfraredGroup.Description AS IRG_Name',$publicADO,'INNER JOIN Command ON FK_Command=PK_Command INNER JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup WHERE FK_InfraredGroup IN ('.join(',',$InfraredGroupsArray).') AND FK_Command IN ('.join(',',array_keys($restrictedCommandsArray)).')'.$comMethodFilter,'ORDER BY FK_InfraredGroup ASC,FK_Command ASC');
 	
 	$commandGrouped=array();
+	$irgNames=array();
 	for($i=0;$i<count($codesData['FK_InfraredGroup']);$i++){
 		$commandGrouped[$codesData['FK_InfraredGroup'][$i]][$codesData['FK_Command'][$i]]=$codesData['IRData'][$i];
+		$irgNames[$codesData['FK_InfraredGroup'][$i]]=$codesData['IRG_Name'][$i];
 	}
-	
+
 	// display table header
 	$out='
 	<table cellpadding="3" cellspacing="0" border="0">
@@ -1228,9 +1282,9 @@ function getIrGroup_CommandsMatrix($dtID,$InfraredGroupsArray,$userID,$comMethod
 		$color=($i%2==0)?'#F0F3F8':'#FFFFFF';
 		$out.='
 		<tr class="normaltext" bgcolor="'.$color.'">
-			<td><B><a href="index.php?section=irCodes&dtID='.$dtID.'&infraredGroupID='.$codesData['FK_InfraredGroup'][$i].'">'.$codesData['IRG_Name'][$i].'</a></B></td>';
+			<td><B><a href="index.php?section=irCodes&dtID='.$dtID.'&infraredGroupID='.$keysArray[$i].'">'.$irgNames[$keysArray[$i]].'</a></B></td>';
 		foreach ($restrictedCommandsArray AS $cmdID=>$cmdName){
-			$out.='<td align="center">'.((isset($commandGrouped[$keysArray[$i]][$cmdID]))?'<input type="button" name="copyCB" value="V" onClick="window.open(\'index.php?section=displayCode&irgcID='.$codesData['PK_InfraredGroup_Command'][$i].'\',\'_blank\',\'\');;">':'N/A').'</td>';
+			$out.='<td align="center">'.((isset($commandGrouped[$keysArray[$i]][$cmdID]))?'<input type="button" class="button" name="copyCB" value="V" onClick="window.open(\'index.php?section=displayCode&irgcID='.$codesData['PK_InfraredGroup_Command'][$i].'\',\'_blank\',\'\');;">':'N/A').'</td>';
 		}
 		$out.='
 		</tr>';

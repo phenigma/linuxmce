@@ -6,7 +6,7 @@
 	}
 	
 	$cdCategsArray=array(104,106,107,129,137);
-	$dtDataArray=getFieldsAsArray('DeviceTemplate','FK_DeviceCategory,DeviceCategory.Description',$publicADO,'INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory WHERE PK_DeviceTemplate='.$dtID);
+	$dtDataArray=getFieldsAsArray('DeviceTemplate','DeviceTemplate.FK_DeviceCategory,DeviceCategory.Description,FK_CommMethod',$publicADO,'INNER JOIN DeviceCategory ON DeviceTemplate.FK_DeviceCategory=PK_DeviceCategory LEFT JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup WHERE PK_DeviceTemplate='.$dtID);
 	if(count($dtDataArray)==0){
 		header('Location: index.php');
 		exit();
@@ -22,11 +22,13 @@
 	$cdContent=(in_array($dtDataArray['FK_DeviceCategory'][0],$dtDataArray))?'<p class="normaltext">'.$dtDataArray['Description'][0].' devices don’t normally tune to stations or channels, so you can probably ignore this step and just click next.':'';
 	
 	
-	if($_SESSION['selectedCommMethod']!=1){
+	if(@$_SESSION['selectedCommMethod']!=1){
+		$comMethod=(isset($_SESSION['selectedCommMethod']))?$_SESSION['selectedCommMethod']:$dtDataArray['FK_CommMethod'][0];
 		$commMethodArray=getAssocArray('CommMethod','PK_CommMethod','Description',$publicADO,'','ORDER BY PK_CommMethod ASC');
+		$comMethodName=($comMethod!=0)?$commMethodArray[$comMethod]:'This';
 		$Content='
-			<p class="normaltext">'.$commMethodArray[$_SESSION['selectedCommMethod']].' devices don’t normally require any special rules to tune.<br><br><br>
-			<div align="center"><input type="button" name="next" value="Next" onClick="self.location=\'index.php?section=addModel&step=4&dtID='.$dtID.'\'"></div>';
+			<p class="normaltext">'.$comMethodName.' devices don’t normally require any special rules to tune.<br><br><br>
+			<div align="center"><input type="button" class="button" name="next" value="Next" onClick="self.location=\'index.php?section=addModel&step=4&dtID='.$dtID.'\'"></div>';
 	}else{
 		$Content='
 		<table class="normaltext">
@@ -50,7 +52,7 @@
 				<td align="center">&nbsp;</td>
 			</tr>		
 			<tr>
-				<td align="center"><input type="submit" name="next" value="Next"> <input type="button" name="skip" value="Go to IR Codes" onclick="self.location=\'index.php?section=irCodes&dtID='.$dtID.'\'"></td>
+				<td align="center"><input type="submit" class="button" name="next" value="Next"> <input type="button" class="button" name="skip" value="Go to IR Codes" onclick="self.location=\'index.php?section=irCodes&dtID='.$dtID.'\'"></td>
 			</tr>
 		
 		</table>		

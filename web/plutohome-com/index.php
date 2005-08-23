@@ -405,7 +405,7 @@ switch ($section) {
     	$output->setConn($conn);
        	$output->setTemplateFileType('home');
 		include_once('client/login/forgotPassword.php');
-	    forgotPassword($output,$conn);
+	    forgotPassword($output,$dbADO);
 	break; 
 	case 'changePassword':
     	$output = new Template();
@@ -617,6 +617,13 @@ switch ($section) {
        	$output->setTemplateFileType('nonews');
 		include_once('operations/displayCode.php');
 	    displayCode($output);
+	break;
+	case 'infraredCommands':
+    	$output = new Template();
+    	$output->setConn($conn);
+       	$output->setTemplateFileType('popup');
+		include_once('operations/infraredCommands.php');
+	    infraredCommands($output);
 	break;
 	
 	default:			

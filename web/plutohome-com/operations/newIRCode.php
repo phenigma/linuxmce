@@ -37,7 +37,7 @@ function newIRCode($output)
 		<input type="hidden" name="dtID" value="'.$dtID.'">
 		<input type="hidden" name="commandID" value="'.$commandID.'">
 		<input type="hidden" name="infraredGroupID" value="'.$infraredGroupID.'">
-		<table>
+		<table class="normaltext">
 			<tr>
 				<td align="center" colspan="2" height="60">Device <B>'.$rowDevice['Description'].'</B>, device template <B>'.$rowDevice['Template'].'</B>, category <B>'.$rowDevice['Category'].'</B>, manufacturer <B>'.$rowDevice['Manufacturer'].'</B></td>
 			</tr>
@@ -73,12 +73,14 @@ function newIRCode($output)
 					FROM InfraredGroup_Command_Preferred
 					INNER JOIN InfraredGroup_Command ON FK_InfraredGroup_Command=PK_InfraredGroup_Command
 					WHERE FK_Command=? AND FK_DeviceTemplate=? AND FK_InfraredGroup IS NULL',array($commandID,$dtID));
+/*
 			$isOtherCustomCode=$publicADO->Execute('SELECT * FROM InfraredGroup_Command WHERE FK_InfraredGroup=? AND FK_Command=? AND FK_Device=? AND FK_DeviceTemplate=? AND FK_Users=?',array($infraredGroupID,$commandID, $deviceID,$dtID,$_SESSION['userID']));
 			if($isOtherCustomCode->RecordCount()>0){
 				$rowOther=$isOtherCustomCode->FetchRow();
 				$publicADO->Execute('UPDATE InfraredGroup_Command SET IRData=? WHERE PK_InfraredGroup_Command=?',array($irData,$rowOther['PK_InfraredGroup_Command']));
 			}else
-				$publicADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command, FK_Device, FK_DeviceTemplate, FK_Users,IRData) VALUES (?,?,?,?,?,?)',array($infraredGroupID,$commandID, $deviceID,$dtID,$_SESSION['userID'],$irData));
+*/
+				$publicADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command, FK_Device, FK_DeviceTemplate, FK_Users,IRData,psc_user) VALUES (?,?,?,?,?,?,?)',array($infraredGroupID,$commandID, $deviceID,$dtID,$_SESSION['userID'],$irData,$_SESSION['userID']));
 			$igcID=$publicADO->Insert_ID();
 			
 			if($isSingleCode->RecordCount()==0){

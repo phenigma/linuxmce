@@ -97,13 +97,13 @@
 		<input type="hidden" name="oldCheckedCommands" value="'.join(',',array_keys($checkedCommandsAssoc)).'">';
 		
 		if(!isset($_REQUEST['is'])){
-			if(count($checkedCommandsAssoc)==0 || count($checkedCommandsAssoc)==1){
-				$is=1;
+			if(count($checkedCommandsAssoc)==0){
+				// hard coded: if receivers, default 2
+				$is=($dtDataArray['FK_DeviceCategory'][0]==103)?2:1;
 			}else{
 				$is=($dtDataArray['ToggleInput'][0]==0)?2:3;
 			}	
 		}
-
 		
 		
 		$out='
@@ -177,7 +177,7 @@ If this device is something like a receiver or tv where you can connect other de
 		
 			$out.='
 			<tr>
-				<td align="center"><input type="submit" name="next" value="Next"> <input type="button" name="skip" value="Go to IR Codes" onclick="self.location=\'index.php?section=irCodes&dtID='.$dtID.'\'"></td>
+				<td align="center"><input type="submit" class="button" name="next" value="Next"> <input type="button" class="button" name="skip" value="Go to IR Codes" onclick="self.location=\'index.php?section=irCodes&dtID='.$dtID.'\'"></td>
 			</tr>
 		</table>
 		<br>

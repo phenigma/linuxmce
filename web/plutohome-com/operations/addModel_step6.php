@@ -63,13 +63,12 @@
 
 		
 		if(!isset($_REQUEST['dsp'])){
-			if(count($checkedCommandsAssoc)==0 || count($checkedCommandsAssoc)==1){
+			if(count($checkedCommandsAssoc)==0){
 				$dsp=1;
 			}else{
 				$dsp=($dtDataArray['ToggleDSP'][0]==0)?2:3;
 			}	
 		}
-
 		
 		$out='
 		<script>
@@ -147,7 +146,7 @@
 		
 			$out.='
 			<tr>
-				<td align="center"><input type="submit" name="next" value="Next"> <input type="button" name="skip" value="Go to IR Codes" onclick="self.location=\'index.php?section=irCodes&dtID='.$dtID.'\'"></td>
+				<td align="center"><input type="submit" class="button" name="next" value="Next"> <input type="button" class="button" name="skip" value="Go to IR Codes" onclick="self.location=\'index.php?section=irCodes&dtID='.$dtID.'\'"></td>
 			</tr>
 		</table>
 		<br>

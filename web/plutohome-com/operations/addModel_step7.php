@@ -85,7 +85,7 @@
 				<td align="center">Type in a description for the infrared group and click Add i/r group: <input type="text" name="description" value=""></td>
 			</tr>
 			<tr>
-				<td align="center"><input type="submit" name="next" value="Add i/r group"></td>
+				<td align="center"><input type="submit" class="button" name="next" value="Add i/r group"></td>
 			</tr>
 		</table>
 		<p class="normaltext"><B>Note:</B> when adding a i/r new group, if you know the codeset as used in a universal remote control, please use that as the description.  Example: “Pronto Codeset – 9999”, or “OFA Codeset – 999”.  For GSD devices, an example would be: “Denon AVR/AVC protocol”.
@@ -101,9 +101,8 @@
 			$irgID=$publicADO->Insert_ID();
 			
 			$publicADO->Execute('UPDATE DeviceTemplate SET FK_InfraredGroup=? WHERE PK_Devicetemplate=?',array($irgID,$dtID));
-			$irgID=$publicADO->Insert_ID();
 			
-			header('Location: index.php?section=irCodes&dtID='.$dtID.'&infraredGourpID='.$irgID);
+			header('Location: index.php?section=irCodes&dtID='.$dtID.'&infraredGroupID='.$irgID);
 			exit();
 		}else{
 			header('Location: index.php?section=addModel&step=7&dtID='.$dtID);

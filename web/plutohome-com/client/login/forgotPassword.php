@@ -1,5 +1,5 @@
 <?
-function forgotPassword($output)
+function forgotPassword($output,$dbADO)
 {
 	global $checkMasterUserUrl,$changePassMasterUserUrl;
 	$out='';
@@ -44,6 +44,7 @@ function forgotPassword($output)
 		else
 		{
 			parse_str($queryMasterUsers[1]);	// SET $MasterUsersID=PK_MasterUsers
+			$userNameArray=getAssocArray('Users','PK_Users','UserName',$dbADO,'WHERE Pk_Users='.$MasterUsersID);
 			
 			$ToEmail=$_POST['Email'];
 			$subject="Your password for PlutoHome";
@@ -51,7 +52,7 @@ function forgotPassword($output)
 			// try to change password in MasterUsers table
 			$queryMasterUsers=updateMasterUsersPassword($MasterUsersID,$pass,$changePassMasterUserUrl);
 			if($queryMasterUsers[0]){
-				$message='Hello,<br> Your new password for Plutohome Website is <b>'.$pass. '</b>  <br><br><a href="http://plutohome.com/index.php?section=login">Click here</a> to login and after that you can change the password by using the "Change Password" feature.<br><br>Best regards, <br>PlutoHome staff.';
+				$message='Hello <B>'.$userNameArray[$MasterUsersID].'</B>,<br> Your new password for Plutohome Website is <b>'.$pass. '</b>  <br><br><a href="http://plutohome.com/index.php?section=login">Click here</a> to login and after that you can change the password by using the "Change Password" feature.<br><br>Best regards, <br>PlutoHome staff.';
 			   	
 				$headers = "From: Pluto Home<website@plutohome.com>\n";
 				$headers .= "X-Sender: <website@plutohome.com>\n";
