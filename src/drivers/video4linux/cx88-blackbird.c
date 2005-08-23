@@ -722,8 +722,8 @@ static struct v4l2_mpeg_compression default_mpeg_params = {
 	.vi_bitrate        = {
 		.mode      = V4L2_BITRATE_CBR,
 		.min       = 4000,
-		.target    = 4000,
-		.max       = 4000
+		.target    = 4500,
+		.max       = 6000
 	},
 	.vi_frame_rate     = 25,
 	.vi_frames_per_gop = 15,
@@ -914,25 +914,31 @@ static void blackbird_set_default_params(struct cx8802_dev *dev)
 	if( params->vi_bitrate.mode )
 	{
 		/* bitrate is set, let's figure out the cbr/vbr mess */
-		if( params->vi_bitrate.mode == V4L2_BITRATE_CBR )
-			params->vi_bitrate.max = params->vi_bitrate.target;
-		else
-			params->vi_bitrate.target = params->vi_bitrate.max;
+		if( params->vi_bitrate.max < params->vi_bitrate.target )
+		{
+			if( params->vi_bitrate.mode == V4L2_BITRATE_CBR )
+				params->vi_bitrate.max = params->vi_bitrate.target;
+			else
+				params->vi_bitrate.target = params->vi_bitrate.max;
+		}
 	}
 	else
 	{
-		if( params->st_bitrate.mode == V4L2_BITRATE_VBR )
-			params->st_bitrate.target = params->st_bitrate.max;
-		else
-			params->st_bitrate.max = params->st_bitrate.target;
+		if( params->st_bitrate.max < params->st_bitrate.target )
+		{
+			if( params->st_bitrate.mode == V4L2_BITRATE_VBR )
+				params->st_bitrate.target = params->st_bitrate.max;
+			else
+				params->st_bitrate.max = params->st_bitrate.target;
+		}
 		/* calculate vi_bitrate = st_bitrate - au_bitrate */
 		params->vi_bitrate.max = params->st_bitrate.max - params->au_bitrate.max;
 		params->vi_bitrate.target = params->st_bitrate.target - params->au_bitrate.target;
 	}
 	blackbird_api_cmd(dev, BLACKBIRD_API_SET_VIDEO_BITRATE, 4, 0,
 				mpeg_video_bitrates[params->vi_bitrate.mode],
-				params->vi_bitrate.target * 1024, /* kbps -> bps */
-				params->vi_bitrate.max * 1024 / BLACKBIRD_PEAK_RATE_DIVISOR, /* peak/400 */
+				params->vi_bitrate.target * 1000, /* kbps -> bps */
+				params->vi_bitrate.max * 1000 / BLACKBIRD_PEAK_RATE_DIVISOR, /* peak/400 */
 				BLACKBIRD_MUX_RATE_DEFAULT /*, 0x70*/); /* encoding buffer, ckennedy */
 
 	/* TODO: implement the stream ID stuff:
@@ -1105,17 +1111,23 @@ void blackbird_set_params(struct cx8802_dev *dev, struct v4l2_mpeg_compression *
 	if( params->vi_bitrate.mode )
 	{
 		/* bitrate is set, let's figure out the cbr/vbr mess */
-		if( params->vi_bitrate.mode == V4L2_BITRATE_CBR )
-			params->vi_bitrate.max = params->vi_bitrate.target;
-		else
-			params->vi_bitrate.target = params->vi_bitrate.max;
+		if( params->vi_bitrate.max < params->vi_bitrate.target )
+		{
+			if( params->vi_bitrate.mode == V4L2_BITRATE_CBR )
+				params->vi_bitrate.max = params->vi_bitrate.target;
+			else
+				params->vi_bitrate.target = params->vi_bitrate.max;
+		}
 	}
 	else
 	{
-		if( params->st_bitrate.mode == V4L2_BITRATE_VBR )
-			params->st_bitrate.target = params->st_bitrate.max;
-		else
-			params->st_bitrate.max = params->st_bitrate.target;
+		if( params->st_bitrate.max < params->st_bitrate.target )
+		{
+			if( params->st_bitrate.mode == V4L2_BITRATE_VBR )
+				params->st_bitrate.target = params->st_bitrate.max;
+			else
+				params->st_bitrate.max = params->st_bitrate.target;
+		}
 		/* calculate vi_bitrate = st_bitrate - au_bitrate */
 		params->vi_bitrate.max = params->st_bitrate.max - params->au_bitrate.max;
 		params->vi_bitrate.target = params->st_bitrate.target - params->au_bitrate.target;
@@ -1128,8 +1140,8 @@ void blackbird_set_params(struct cx8802_dev *dev, struct v4l2_mpeg_compression *
 		UPDATE_PARAM( vi_bitrate );
 		blackbird_api_cmd(dev, BLACKBIRD_API_SET_VIDEO_BITRATE, 4, 0,
 				mpeg_video_bitrates[params->vi_bitrate.mode],
-				params->vi_bitrate.target * 1024, /* kbps -> bps */
-				params->vi_bitrate.max * 1024 / BLACKBIRD_PEAK_RATE_DIVISOR, /* peak/400 */
+				params->vi_bitrate.target * 1000, /* kbps -> bps */
+				params->vi_bitrate.max * 1000 / BLACKBIRD_PEAK_RATE_DIVISOR, /* peak/400 */
 				BLACKBIRD_MUX_RATE_DEFAULT /*, 0x70*/); /* encoding buffer, ckennedy */
 	}
 

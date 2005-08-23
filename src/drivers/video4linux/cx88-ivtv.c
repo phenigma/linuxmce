@@ -289,8 +289,8 @@ static int ivtv_do_ioctl(struct inode *inode, struct file *file,
 		memcpy(dnr,dnr_params,sizeof(*dnr));
 
 		mpeg->vi_bframes_count  = codec->bframes;
-		mpeg->vi_bitrate.target = codec->bitrate/1024;
-		mpeg->vi_bitrate.max    = codec->bitrate_peak/1024;
+		mpeg->vi_bitrate.target = codec->bitrate/1000;
+		mpeg->vi_bitrate.max    = codec->bitrate_peak/1000;
 		mpeg->vi_frames_per_gop = codec->framespergop;
 		mpeg->closed_gops       = codec->gop_closure;
 		mpeg->pulldown          = codec->pulldown;
@@ -355,8 +355,8 @@ static int ivtv_do_ioctl(struct inode *inode, struct file *file,
 		memset(codec, 0, sizeof( codec ));
 
 		codec->bframes      = params->vi_bframes_count;
-		codec->bitrate      = params->vi_bitrate.target * 1024; /* bps */
-		codec->bitrate_peak = params->vi_bitrate.max * 1024;
+		codec->bitrate      = params->vi_bitrate.target * 1000; /* bps */
+		codec->bitrate_peak = params->vi_bitrate.max * 1000;
 		codec->framespergop = params->vi_frames_per_gop;
 		codec->gop_closure  = params->closed_gops;
 		codec->pulldown     = params->pulldown;
