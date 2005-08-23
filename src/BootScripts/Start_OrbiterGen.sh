@@ -25,9 +25,8 @@ JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
 JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory
 LEFT JOIN Orbiter ON PK_Device=PK_Orbiter
 WHERE (FK_DeviceCategory=5 OR FK_DeviceCategory_Parent=5)
-AND (Regen IS Null Or Regen=1)
-AND FK_Installation=$installation
-AND Device.NeedConfigure=1"
+AND (Regen IS Null Or Regen=1 OR PK_Orbiter IS NULL OR Device.NeedConfigure=1)
+AND FK_Installation=$installation"
 
 	Orbiters=$(echo "$Q;" | /usr/bin/mysql -h $MySqlHost pluto_main | tail +2 | tr '\n' ' ')
 
