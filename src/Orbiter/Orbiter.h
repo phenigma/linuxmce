@@ -185,6 +185,7 @@ protected:
 	// The remotes for the current media
 	int m_iPK_DesignObj_Remote,m_iPK_DesignObj_Remote_Popup,m_iPK_DesignObj_FileList,m_iPK_DesignObj_FileList_Popup,m_iPK_DesignObj_RemoteOSD,m_iPK_DesignObj_Guide;
 	string m_sNowPlaying,m_sNowPlaying_Section,m_sNowPlaying_TimeShort,m_sNowPlaying_TimeLong,m_sNowPlaying_Speed,m_sDefaultRippingName; /** < set by the media engine, this is whatever media is currently playing */
+	int m_iPK_MediaType;
 	int m_dwPK_Device_NowPlaying;  /** < set by the media engine, this is whatever media device is currently playing */
 	PlutoPopup *m_pActivePopup;
 
@@ -1441,13 +1442,15 @@ public:
 			/** The description of the current section (ie chapter in a dvd, etc.) */
 		/** @param #13 Filename */
 			/** The default name to use if the user wants to rip this.  Only applies to discs. */
+		/** @param #29 PK_MediaType */
+			/** The type of media playing */
 		/** @param #48 Value */
 			/** The track number or position in the playlist */
 		/** @param #120 Retransmit */
 			/** If true, it will re-request the plist (current playlist) grid */
 
-	virtual void CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,string sText,string sFilename,int iValue,bool bRetransmit) { string sCMD_Result; CMD_Set_Now_Playing(iPK_Device,sPK_DesignObj.c_str(),sValue_To_Assign.c_str(),sText.c_str(),sFilename.c_str(),iValue,bRetransmit,sCMD_Result,NULL);};
-	virtual void CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,string sText,string sFilename,int iValue,bool bRetransmit,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,string sText,string sFilename,int iPK_MediaType,int iValue,bool bRetransmit) { string sCMD_Result; CMD_Set_Now_Playing(iPK_Device,sPK_DesignObj.c_str(),sValue_To_Assign.c_str(),sText.c_str(),sFilename.c_str(),iPK_MediaType,iValue,bRetransmit,sCMD_Result,NULL);};
+	virtual void CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,string sText,string sFilename,int iPK_MediaType,int iValue,bool bRetransmit,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #254 - Bind Icon */

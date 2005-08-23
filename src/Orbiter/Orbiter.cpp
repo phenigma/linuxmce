@@ -204,6 +204,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
     m_bShowShortcuts = false;
 	m_bAutoSelectFirstObject = DATA_Get_Using_Infrared();
 	m_iPK_DesignObj_Remote=m_iPK_DesignObj_Remote_Popup=m_iPK_DesignObj_FileList=m_iPK_DesignObj_FileList_Popup=m_iPK_DesignObj_RemoteOSD=m_iPK_DesignObj_Guide=0;
+	m_iPK_MediaType=0;
 
     m_pScreenHistory_Current=NULL;
     m_pObj_LastSelected=m_pObj_Highlighted=NULL;
@@ -4323,7 +4324,11 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
             Output += m_sLastSelectedDatagrid;
         else if(  Variable=="V" )
 			Output += string(VERSION) + "(" + g_szCompile_Date + ")";
-        else if(  Variable=="NP" )
+		else if(  Variable=="MT" )
+		{
+			Output += StringUtils::itos(m_iPK_MediaType);
+		}
+		else if(  Variable=="NP" )
 		{
             Output += m_sNowPlaying;
 			m_pObj_NowPlayingOnScreen=pObj;
@@ -6422,16 +6427,19 @@ g_pPlutoLogger->Write(LV_STATUS,"Need to change screens logged to %s",pScreenHis
 			/** The description of the current section (ie chapter in a dvd, etc.) */
 		/** @param #13 Filename */
 			/** The default name to use if the user wants to rip this.  Only applies to discs. */
+		/** @param #29 PK_MediaType */
+			/** The type of media playing */
 		/** @param #48 Value */
 			/** The track number or position in the playlist */
 		/** @param #120 Retransmit */
 			/** If true, it will re-request the plist (current playlist) grid */
 
-void Orbiter::CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,string sText,string sFilename,int iValue,bool bRetransmit,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,string sText,string sFilename,int iPK_MediaType,int iValue,bool bRetransmit,string &sCMD_Result,Message *pMessage)
 //<-dceag-c242-e->
 {
     PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
 
+	m_iPK_MediaType=iPK_MediaType;
 	m_sNowPlaying = SubstituteVariables(sValue_To_Assign, NULL, 0, 0);
 	m_sNowPlaying_Section = SubstituteVariables(sText, NULL, 0, 0);
 	m_dwPK_Device_NowPlaying = iPK_Device;

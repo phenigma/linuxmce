@@ -433,8 +433,8 @@ public:
 				sFilename="";  // It's just a stock message--the user will have to pick
 
 			DCE::CMD_Set_Now_Playing CMD_Set_Now_Playing( m_dwPK_Device, dwPK_Device, PK_Device_Source,
-				sRemotes, pMediaStream->m_sMediaDescription, pMediaStream->m_sSectionDescription, sFilename, iDequeMediaFile, 
-				bRefreshScreen );
+				sRemotes, pMediaStream->m_sMediaDescription, pMediaStream->m_sSectionDescription, sFilename, 
+				pMediaStream->m_iPK_MediaType, iDequeMediaFile, bRefreshScreen );
 			if( pMessage )
 				pMessage->m_vectExtraMessages.push_back(CMD_Set_Now_Playing.m_pMessage);
 			else
@@ -443,7 +443,7 @@ public:
 		else
 		{
 			DCE::CMD_Set_Now_Playing CMD_Set_Now_Playing( m_dwPK_Device, dwPK_Device, 0,
-				"", "", "", "", 0, bRefreshScreen );
+				"", "", "", "", 0, 0, bRefreshScreen );
 			if( pMessage )
 				pMessage->m_vectExtraMessages.push_back(CMD_Set_Now_Playing.m_pMessage);
 			else

@@ -3879,19 +3879,19 @@ namespace DCE
 	};
 	class CMD_Set_Now_Playing : public PreformedCommand {
 	public:
-		CMD_Set_Now_Playing(long DeviceIDFrom, long DeviceIDTo,int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,string sText,string sFilename,int iValue,bool bRetransmit) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,242,7,2,StringUtils::itos(iPK_Device).c_str(),3,sPK_DesignObj.c_str(),5,sValue_To_Assign.c_str(),9,sText.c_str(),13,sFilename.c_str(),48,StringUtils::itos(iValue).c_str(),120,(bRetransmit ? "1" : "0")); }
+		CMD_Set_Now_Playing(long DeviceIDFrom, long DeviceIDTo,int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,string sText,string sFilename,int iPK_MediaType,int iValue,bool bRetransmit) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,242,8,2,StringUtils::itos(iPK_Device).c_str(),3,sPK_DesignObj.c_str(),5,sValue_To_Assign.c_str(),9,sText.c_str(),13,sFilename.c_str(),29,StringUtils::itos(iPK_MediaType).c_str(),48,StringUtils::itos(iValue).c_str(),120,(bRetransmit ? "1" : "0")); }
 	};
 	class CMD_Set_Now_Playing_DL : public PreformedCommand {
 	public:
-		CMD_Set_Now_Playing_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,string sText,string sFilename,int iValue,bool bRetransmit) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,242,7,2,StringUtils::itos(iPK_Device).c_str(),3,sPK_DesignObj.c_str(),5,sValue_To_Assign.c_str(),9,sText.c_str(),13,sFilename.c_str(),48,StringUtils::itos(iValue).c_str(),120,(bRetransmit ? "1" : "0")); }
+		CMD_Set_Now_Playing_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,string sText,string sFilename,int iPK_MediaType,int iValue,bool bRetransmit) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,242,8,2,StringUtils::itos(iPK_Device).c_str(),3,sPK_DesignObj.c_str(),5,sValue_To_Assign.c_str(),9,sText.c_str(),13,sFilename.c_str(),29,StringUtils::itos(iPK_MediaType).c_str(),48,StringUtils::itos(iValue).c_str(),120,(bRetransmit ? "1" : "0")); }
 	};
 	class CMD_Set_Now_Playing_DT : public PreformedCommand {
 	public:
-		CMD_Set_Now_Playing_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,string sText,string sFilename,int iValue,bool bRetransmit) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,242,7,2,StringUtils::itos(iPK_Device).c_str(),3,sPK_DesignObj.c_str(),5,sValue_To_Assign.c_str(),9,sText.c_str(),13,sFilename.c_str(),48,StringUtils::itos(iValue).c_str(),120,(bRetransmit ? "1" : "0")); }
+		CMD_Set_Now_Playing_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,string sText,string sFilename,int iPK_MediaType,int iValue,bool bRetransmit) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,242,8,2,StringUtils::itos(iPK_Device).c_str(),3,sPK_DesignObj.c_str(),5,sValue_To_Assign.c_str(),9,sText.c_str(),13,sFilename.c_str(),29,StringUtils::itos(iPK_MediaType).c_str(),48,StringUtils::itos(iValue).c_str(),120,(bRetransmit ? "1" : "0")); }
 	};
 	class CMD_Set_Now_Playing_Cat : public PreformedCommand {
 	public:
-		CMD_Set_Now_Playing_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,string sText,string sFilename,int iValue,bool bRetransmit) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,242,7,2,StringUtils::itos(iPK_Device).c_str(),3,sPK_DesignObj.c_str(),5,sValue_To_Assign.c_str(),9,sText.c_str(),13,sFilename.c_str(),48,StringUtils::itos(iValue).c_str(),120,(bRetransmit ? "1" : "0")); }
+		CMD_Set_Now_Playing_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Device,string sPK_DesignObj,string sValue_To_Assign,string sText,string sFilename,int iPK_MediaType,int iValue,bool bRetransmit) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,242,8,2,StringUtils::itos(iPK_Device).c_str(),3,sPK_DesignObj.c_str(),5,sValue_To_Assign.c_str(),9,sText.c_str(),13,sFilename.c_str(),29,StringUtils::itos(iPK_MediaType).c_str(),48,StringUtils::itos(iValue).c_str(),120,(bRetransmit ? "1" : "0")); }
 	};
 	class CMD_Output_Select : public PreformedCommand {
 	public:
