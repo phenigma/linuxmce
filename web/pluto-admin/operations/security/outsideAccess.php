@@ -193,11 +193,13 @@ function outsideAccess($output,$dbADO) {
 
 			if(isset($_POST['RAport'])){
 				if(@$RAport!=22){
-					writeToFile($accessFile, 'RAport',0,22);	
+					writeToFile($accessFile, 'RAport',0,22);
+					$suffix=' restart';
 				}
 			}else{
 				if(@$RAport==22){
 					removeFromFile('RAport',$accessFile);
+					$suffix=' restart';
 				}
 			}
 						
@@ -210,8 +212,10 @@ function outsideAccess($output,$dbADO) {
 					writeToFile($accessFile, 'RA_CheckRemotePort',0,1);
 				}
 			}
-
-			exec('sudo -u root /usr/pluto/bin/SetupRemoteAccess.sh');
+			$cmd='sudo -u root /usr/pluto/bin/SetupRemoteAccess.sh'.@$suffix;
+			echo $cmd;
+			exec($cmd);
+			
 			header("Location: index.php?section=outsideAccess&msg=Remote access was updated.");
 			exit();
 		}
