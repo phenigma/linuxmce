@@ -90,14 +90,18 @@ void BD_CP_ShowImage::ParseCommand(unsigned long size,const char *data)
 
 	BDCommand::ParseCommand(size, data);
 
-#ifdef VIPPHONE
+
 	m_iImageType = Read_unsigned_char();
 	m_ImageSize = Read_long();
 	m_pImage = Read_block(m_ImageSize);
     m_KeysListSize = Read_long();
     m_pRepeatedKeysList = Read_block(m_KeysListSize);
     m_bSignalStrengthScreen = Read_unsigned_char();
+}
 
+bool BD_CP_ShowImage::ProcessCommand(BDCommandProcessor *pProcessor)
+{
+#ifdef VIPPHONE
 #ifdef SYMBIAN
 	 LOG("#	Received 'ShowImage' command  #\n");
 
@@ -111,6 +115,16 @@ void BD_CP_ShowImage::ParseCommand(unsigned long size,const char *data)
 
 	 LOG("Intercept repeated keys\n");
      ((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->InterceptRepeatedKeys(m_KeysListSize, m_pRepeatedKeysList);
+
+	//request signal strength
+	BDCommandProcessor_Symbian_Base* pBDCommandProcessor = 
+		((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_pBDCommandProcessor;
+
+	if(pBDCommandProcessor && m_bSignalStrengthScreen)
+	{
+		BDCommand *pCommand = new BD_PC_GetSignalStrength();
+		pBDCommandProcessor->AddCommand(pCommand);
+	}
 #endif //SYMBIAN
 
 #ifdef SMARTPHONE
@@ -128,21 +142,6 @@ void BD_CP_ShowImage::ParseCommand(unsigned long size,const char *data)
 #endif //VIPDESIGN
 
 #endif //VIPPHONE
-}
-
-bool BD_CP_ShowImage::ProcessCommand(BDCommandProcessor *pProcessor)
-{
-#ifdef SYMBIAN
-	//request signal strength
-	BDCommandProcessor_Symbian_Base* pBDCommandProcessor = 
-		((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_pBDCommandProcessor;
-
-	if(pBDCommandProcessor && m_bSignalStrengthScreen)
-	{
-		BDCommand *pCommand = new BD_PC_GetSignalStrength();
-		pBDCommandProcessor->AddCommand(pCommand);
-	}
-#endif
 
 	return true;
 }

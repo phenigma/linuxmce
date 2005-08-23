@@ -92,7 +92,6 @@ void BD_CP_ShowList::ConvertCommandToBinary()
 void BD_CP_ShowList::ParseCommand(unsigned long size,const char *data)
 {
 	BDCommand::ParseCommand(size, data);
-#ifdef VIPPHONE
 
 	m_x = Read_long();
 	m_y = Read_long();
@@ -103,6 +102,8 @@ void BD_CP_ShowList::ParseCommand(unsigned long size,const char *data)
 	m_SelectedIndex = Read_long();
 	unsigned long ListSize = Read_long();
 
+#ifdef VIPPHONE
+
 #ifdef SYMBIAN
 	for(int i = 0; i < ListSize; i++)
 	{
@@ -111,10 +112,6 @@ void BD_CP_ShowList::ParseCommand(unsigned long size,const char *data)
 
 		m_DataGridList.Append(s);
 	}
-
-	LOG("#	Received 'ShowList' command  #\n"); 
-	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->ShowList(m_x, m_y, m_Width, m_Height, m_DataGridList,
-		m_bSendSelectedOnMove, m_bTurnOn, m_SelectedIndex);
 #endif //SYMBIAN
 
 #ifdef SMARTPHONE
@@ -125,9 +122,6 @@ void BD_CP_ShowList::ParseCommand(unsigned long size,const char *data)
 		Read_string(s);
 		m_vectDataGrid.push_back(s);
 	}
-
-	OrbiterApp::GetInstance()->ShowList(m_x, m_y, m_Width, m_Height, m_vectDataGrid,
-		m_bSendSelectedOnMove, m_bTurnOn, m_SelectedIndex);
 #endif //SMARTPHONE
 
 #endif //VIPPHONE
@@ -135,5 +129,21 @@ void BD_CP_ShowList::ParseCommand(unsigned long size,const char *data)
 
 bool BD_CP_ShowList::ProcessCommand(BDCommandProcessor *pProcessor)
 {
+#ifdef VIPPHONE
+
+#ifdef SYMBIAN
+	LOG("#	Received 'ShowList' command  #\n"); 
+	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->ShowList(m_x, m_y, m_Width, m_Height, m_DataGridList,
+		m_bSendSelectedOnMove, m_bTurnOn, m_SelectedIndex);
+#endif //SYMBIAN
+
+#ifdef SMARTPHONE
+	OrbiterApp::GetInstance()->ShowList(m_x, m_y, m_Width, m_Height, m_vectDataGrid,
+		m_bSendSelectedOnMove, m_bTurnOn, m_SelectedIndex);
+#endif //SMARTPHONE
+
+#endif //VIPPHONE
+
+
 	return true;
 }

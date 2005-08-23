@@ -106,6 +106,20 @@ LINK32=link.exe
 
 SOURCE=..\..\VIPShared\BD_CP_CaptureKeyboard.cpp
 DEP_CPP_BD_CP=\
+	"..\..\..\libs\Libraries\PocketFrog\PocketFrog.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\config.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\defs.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\display.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_array.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_ptr.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\utility.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\framework\game.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\image.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\input.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\pocketpc.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\rasterizer.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\rect.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\surface.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
@@ -128,6 +142,8 @@ DEP_CPP_BD_CP=\
 	"..\..\VIPShared\PlutoPhoneCommands.h"\
 	"..\..\VIPShared\VIPIncludes.h"\
 	"..\CENet\wince.h"\
+	"..\PocketFrog\PocketFrogWrapper.h"\
+	".\OrbiterApp.h"\
 	
 NODEP_CPP_BD_CP=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
@@ -138,6 +154,20 @@ NODEP_CPP_BD_CP=\
 
 SOURCE=..\..\VIPShared\BD_CP_CurrentSignalStrength.cpp
 DEP_CPP_BD_CP_=\
+	"..\..\..\libs\Libraries\PocketFrog\PocketFrog.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\config.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\defs.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\display.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_array.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_ptr.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\utility.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\framework\game.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\image.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\input.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\pocketpc.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\rasterizer.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\rect.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\surface.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
@@ -160,6 +190,8 @@ DEP_CPP_BD_CP_=\
 	"..\..\VIPShared\PlutoPhoneCommands.h"\
 	"..\..\VIPShared\VIPIncludes.h"\
 	"..\CENet\wince.h"\
+	"..\PocketFrog\PocketFrogWrapper.h"\
+	".\OrbiterApp.h"\
 	
 NODEP_CPP_BD_CP_=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
@@ -191,6 +223,20 @@ NODEP_CPP_BD_CP_D=\
 
 SOURCE=..\..\VIPShared\BD_CP_SendFile.cpp
 DEP_CPP_BD_CP_S=\
+	"..\..\..\libs\Libraries\PocketFrog\PocketFrog.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\config.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\defs.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\display.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_array.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_ptr.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\utility.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\framework\game.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\image.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\input.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\pocketpc.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\rasterizer.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\rect.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\surface.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
@@ -216,6 +262,8 @@ DEP_CPP_BD_CP_S=\
 	"..\..\VIPShared\PlutoPhoneCommands.h"\
 	"..\..\VIPShared\VIPIncludes.h"\
 	"..\CENet\wince.h"\
+	"..\PocketFrog\PocketFrogWrapper.h"\
+	".\OrbiterApp.h"\
 	".\stdafx.h"\
 	
 NODEP_CPP_BD_CP_S=\
@@ -227,6 +275,20 @@ NODEP_CPP_BD_CP_S=\
 
 SOURCE=..\..\VIPShared\BD_CP_SendMeKeystrokes.cpp
 DEP_CPP_BD_CP_SE=\
+	"..\..\..\libs\Libraries\PocketFrog\PocketFrog.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\config.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\defs.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\display.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_array.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_ptr.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\utility.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\framework\game.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\image.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\input.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\pocketpc.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\rasterizer.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\rect.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\surface.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
@@ -250,6 +312,8 @@ DEP_CPP_BD_CP_SE=\
 	"..\..\VIPShared\PlutoPhoneCommands.h"\
 	"..\..\VIPShared\VIPIncludes.h"\
 	"..\CENet\wince.h"\
+	"..\PocketFrog\PocketFrogWrapper.h"\
+	".\OrbiterApp.h"\
 	
 NODEP_CPP_BD_CP_SE=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
@@ -313,6 +377,20 @@ NODEP_CPP_BD_CP_SH=\
 
 SOURCE=..\..\VIPShared\BD_CP_ShowList.cpp
 DEP_CPP_BD_CP_SHO=\
+	"..\..\..\libs\Libraries\PocketFrog\PocketFrog.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\config.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\defs.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\display.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_array.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_ptr.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\utility.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\framework\game.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\image.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\input.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\pocketpc.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\rasterizer.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\rect.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\surface.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
@@ -335,6 +413,8 @@ DEP_CPP_BD_CP_SHO=\
 	"..\..\VIPShared\BD_CP_ShowList.h"\
 	"..\..\VIPShared\PlutoPhoneCommands.h"\
 	"..\CENet\wince.h"\
+	"..\PocketFrog\PocketFrogWrapper.h"\
+	".\OrbiterApp.h"\
 	".\stdafx.h"\
 	
 NODEP_CPP_BD_CP_SHO=\
@@ -964,6 +1044,20 @@ NODEP_CPP_BDCOMM=\
 
 SOURCE=..\..\BD\BDCommandProcessor_Smartphone_Bluetooth.cpp
 DEP_CPP_BDCOMMA=\
+	"..\..\..\libs\Libraries\PocketFrog\PocketFrog.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\config.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\defs.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\display.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_array.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_ptr.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\utility.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\framework\game.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\image.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\input.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\pocketpc.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\rasterizer.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\rect.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\surface.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
@@ -986,6 +1080,8 @@ DEP_CPP_BDCOMMA=\
 	"..\..\VIPShared\BD_PC_ReportMyVersion.h"\
 	"..\..\VIPShared\PlutoPhoneCommands.h"\
 	"..\CENet\wince.h"\
+	"..\PocketFrog\PocketFrogWrapper.h"\
+	".\OrbiterApp.h"\
 	{$(INCLUDE)}"bthapi.h"\
 	{$(INCLUDE)}"Ws2bth.h"\
 	
@@ -1145,8 +1241,10 @@ DEP_CPP_ORBIT=\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
 	"..\..\VIPShared\BD_PC_GetSignalStrength.h"\
 	"..\..\VIPShared\BD_PC_KeyWasPressed.h"\
+	"..\..\VIPShared\BD_PC_SelectedFromList.h"\
 	"..\..\VIPShared\PlutoPhoneCommands.h"\
 	"..\..\VIPShared\VIPIncludes.h"\
 	"..\CENet\wince.h"\
@@ -1240,6 +1338,59 @@ DEP_CPP_POCKE=\
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\VIPShared\RenderMenu.cpp
+DEP_CPP_RENDE=\
+	"..\..\..\libs\Libraries\PocketFrog\PocketFrog.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\config.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\defs.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\display.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_array.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_ptr.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\utility.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\framework\game.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\image.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\input.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\pocketpc.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\rasterizer.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\rect.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\surface.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\BD\BDCommand.h"\
+	"..\..\BD\BDCommandProcessor.h"\
+	"..\..\pluto_main\Define_Button.h"\
+	"..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\PlutoUtils\FileUtils.h"\
+	"..\..\PlutoUtils\getch.h"\
+	"..\..\PlutoUtils\MultiThreadIncludes.h"\
+	"..\..\PlutoUtils\MyMap.h"\
+	"..\..\PlutoUtils\MyStl.h"\
+	"..\..\PlutoUtils\MyString.h"\
+	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\VIPShared\BD_PC_KeyWasPressed.h"\
+	"..\..\VIPShared\PlutoConfig.h"\
+	"..\..\VIPShared\PlutoPhoneCommands.h"\
+	"..\..\VIPShared\RenderMenu.h"\
+	"..\..\VIPShared\VIPIncludes.h"\
+	"..\..\VIPShared\VipMenu.h"\
+	"..\PocketFrog\PocketFrogWrapper.h"\
+	".\OrbiterApp.h"\
+	
+NODEP_CPP_RENDE=\
+	"..\..\PlutoUtils\PKFUNCS.H"\
+	"..\..\VIPShared\PlutoMOAppUi.h"\
+	
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\VIPShared\RenderMenu.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\SerializeClass\SerializeClass.cpp
 DEP_CPP_SERIA=\
 	"..\..\PlutoUtils\CommonIncludes.h"\
@@ -1268,6 +1419,60 @@ DEP_CPP_STRIN=\
 	"..\..\PlutoUtils\StringUtils.h"\
 	"..\CENet\wince.h"\
 	
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\VIPShared\VIPIncludes.cpp
+DEP_CPP_VIPIN=\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\PlutoUtils\FileUtils.h"\
+	"..\..\PlutoUtils\getch.h"\
+	"..\..\PlutoUtils\MultiThreadIncludes.h"\
+	"..\..\PlutoUtils\MyMap.h"\
+	"..\..\PlutoUtils\MyStl.h"\
+	"..\..\PlutoUtils\MyString.h"\
+	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\VIPShared\VIPIncludes.h"\
+	
+NODEP_CPP_VIPIN=\
+	"..\..\PlutoUtils\PKFUNCS.H"\
+	
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\VIPShared\VIPMenu.cpp
+DEP_CPP_VIPME=\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\PlutoUtils\FileUtils.h"\
+	"..\..\PlutoUtils\getch.h"\
+	"..\..\PlutoUtils\MultiThreadIncludes.h"\
+	"..\..\PlutoUtils\MyMap.h"\
+	"..\..\PlutoUtils\MyStl.h"\
+	"..\..\PlutoUtils\MyString.h"\
+	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\VIPShared\PlutoConfig.h"\
+	"..\..\VIPShared\VIPIncludes.h"\
+	"..\..\VIPShared\VipMenu.h"\
+	
+NODEP_CPP_VIPME=\
+	"..\..\PlutoUtils\PKFUNCS.H"\
+	
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\VIPShared\VipMenu.h
 # End Source File
 # Begin Source File
 

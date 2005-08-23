@@ -385,7 +385,7 @@ void CPlutoMOAppUi::MakeViewerVisible(bool Value)
 	m_bVMCViewerVisible = true;
 }
 //----------------------------------------------------------------------------------------------
-void CPlutoMOAppUi::OpenImage(unsigned char Type, unsigned long Size, const char *Data) //fullscreen (!)
+void CPlutoMOAppUi::OpenImage(unsigned char Type, unsigned long Size, char *Data) //fullscreen (!)
 {
 	CreateVMCView();
 

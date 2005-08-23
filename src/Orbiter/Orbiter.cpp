@@ -3552,6 +3552,11 @@ bool Orbiter::ButtonUp( int iPK_Button )
     }
 
     //this is not a repeated button
+    if(iPK_Button == BUTTON_left_shift_CONST || iPK_Button == BUTTON_right_shift_CONST)
+        m_bShiftDown = !m_bShiftDown; //different logic with the on screen keyboard
+    else if(iPK_Button == BUTTON_caps_lock_CONST)
+        m_bCapsLock = !m_bCapsLock;
+
     timespec m_tButtonUp;  
     gettimeofday(&m_tButtonUp,NULL);
     timespec m_tInterval = m_tButtonUp - m_tButtonDown;
@@ -6149,6 +6154,36 @@ bool Orbiter::CaptureKeyboard_EditText_DeleteLastChar(  )
 //------------------------------------------------------------------------------------------------------------
 bool Orbiter::CaptureKeyboard_EditText_AppendChar( char ch )
 {
+    if((!m_bShiftDown && m_bCapsLock) || (m_bShiftDown && !m_bCapsLock))
+    {
+        if(ch >= 'A' && ch <= 'Z')
+            ch = ch - 'A' + 'a';
+        if(ch >= 'a' && ch <= 'z')
+            ch = ch - 'a' + 'A';
+    }
+
+    if(m_bShiftDown)
+    {
+        char cOldCh = ch;
+        switch(cOldCh)
+        {
+            case '0': ch = ')'; break;
+            case '1': ch = '!'; break;
+            case '2': ch = '@'; break;
+            case '3': ch = '#'; break;
+            case '4': ch = '$'; break;
+            case '5': ch = '%'; break;
+            case '6': ch = '^'; break;
+            case '7': ch = '&'; break;
+            case '8': ch = '*'; break;
+            case '9': ch = '('; break;
+            case '-': ch = '_'; break;
+            case '+': ch = '='; break;
+            case ';': ch = ':'; break;
+            case '\'': ch = '"'; break;
+        }
+    }
+
 	PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
     string OldValue = m_mapVariable[m_iCaptureKeyboard_PK_Variable];
     string NewValue = OldValue + ch;

@@ -65,6 +65,12 @@ void BD_CP_SimulateEvent::ParseCommand(unsigned long size, const char *data)
 {
 	BDCommand::ParseCommand(size, data);
 
+	m_EventType = Read_long();
+	m_key = Read_long();
+}
+
+bool BD_CP_SimulateEvent::ProcessCommand(BDCommandProcessor *pProcessor)
+{
 #ifdef VIPPHONE
 
 #ifdef SYMBIAN
@@ -81,9 +87,6 @@ void BD_CP_SimulateEvent::ParseCommand(unsigned long size, const char *data)
 #endif //VIPDESIGN
 
 #endif //VIPPHONE
-}
 
-bool BD_CP_SimulateEvent::ProcessCommand(BDCommandProcessor *pProcessor)
-{
 	return true;
 }

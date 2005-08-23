@@ -6,12 +6,17 @@
 #include "VIPShared/BD_PC_KeyWasPressed.h"
 #include "VIPShared/BD_PC_GetSignalStrength.h"
 #include "VIPShared/BD_PC_SelectedFromList.h"
+#include "VIPShared/BD_PC_SetVariable.h"
 #include "pluto_main/Define_Button.h"
 #include "SerializeClass/ShapesColors.h"
+#include "PlutoUtils/FileUtils.h"
+#include "PlutoUtils/StringUtils.h"
+#include "DCE/Logger.h"
 
 using namespace DCE;
 
 #include <string>
+#include <algorithm>
 using namespace std;
 
 #define APP_WIDTH  176
@@ -26,6 +31,7 @@ using namespace std;
 #define BLUE(color)		(0x000000FF & color)
 
 #define ScrollTimerId 1
+#define KeyTimerId    2
 //---------------------------------------------------------------------------------------------------------
 inline Pixel GetColor16(COLORREF color)
 {
@@ -57,8 +63,6 @@ OrbiterApp::OrbiterApp() : m_ScreenMutex("rendering")
 	m_nImageWidth = APP_WIDTH;
 	m_nImageHeight = APP_HEIGHT;
 
-	m_pImageData = NULL;
-	m_nImageSize = 0;
 	m_nImageType = 0;
 
 	//m_bSimulation = false;
@@ -74,7 +78,9 @@ OrbiterApp::OrbiterApp() : m_ScreenMutex("rendering")
 	m_ulGridTopItem = 0;
 	m_vectDataGrid.clear();
 
-    pthread_mutexattr_init( &m_MutexAttr );
+	m_CaptureKeyboardParam.bTextBox = false;
+
+	pthread_mutexattr_init( &m_MutexAttr );
     pthread_mutexattr_settype( &m_MutexAttr,  PTHREAD_MUTEX_RECURSIVE_NP );
 	m_ScreenMutex.Init( &m_MutexAttr );
 
@@ -88,6 +94,10 @@ OrbiterApp::OrbiterApp() : m_ScreenMutex("rendering")
 	m_bNeedRefresh = false;
 	m_bDeleteLastKey = false;
 	m_bDataKeys = false;
+
+	m_nLastTick = 0;
+	m_nLastKeyCode = 0;
+	m_nRepeatStep = 0;
 
 //#define TEST_DATAGRID
 #ifdef TEST_DATAGRID
@@ -111,6 +121,20 @@ OrbiterApp::OrbiterApp() : m_ScreenMutex("rendering")
 
 	m_bGridSendSelectedOnMove = 0;
 	m_ulGridSelectedItem = 2;
+
+	m_CaptureKeyboardParam.bOnOff = true;
+	m_CaptureKeyboardParam.bDataGrid = false;
+	m_CaptureKeyboardParam.bReset = true;
+	m_CaptureKeyboardParam.bTypePin = false;
+	m_CaptureKeyboardParam.bNumbersOnly = false;
+	m_CaptureKeyboardParam.bTextBox = true;
+	m_CaptureKeyboardParam.iVariable = 17;
+	m_CaptureKeyboardParam.sVariableValue = "";
+	m_CaptureKeyboardParam.TextX = 0;
+	m_CaptureKeyboardParam.TextY = 0;
+	m_CaptureKeyboardParam.TextWidth = 175;
+	m_CaptureKeyboardParam.TextHeight = 25;
+	m_CaptureKeyboardParam.Reset();	
 #endif
 }
 //---------------------------------------------------------------------------------------------------------
@@ -147,49 +171,7 @@ OrbiterApp::OrbiterApp() : m_ScreenMutex("rendering")
 //---------------------------------------------------------------------------------------------------------
 /*virtual*/ bool OrbiterApp::GameInit()
 {
-	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
-
-	Rect r;
-	::GetClientRect( m_hWnd, &r );
-	Surface* pLogoSurface = NULL;
-
-    string sLogoPath = g_sBinaryPath + "logo.gif";
-    sLogoPath = StringUtils::Replace(sLogoPath, "/", "\\");
-
-    wchar_t wPath[4096];
-    mbstowcs(wPath, sLogoPath.c_str(), 4096);	
-
-	pLogoSurface = LoadImage( GetDisplay(), wPath);
-
-	if(pLogoSurface) 
-	{
-        if(pLogoSurface->m_height == m_nImageHeight && pLogoSurface->m_width == m_nImageWidth)
-		    GetDisplay()->Blit( 0, 0, pLogoSurface );
-        else //zoom
-        {
-            Rect dest;	
-            dest.Set(0, 0, m_nImageWidth, m_nImageHeight);
-
-            double ZoomX = m_nImageWidth / double(pLogoSurface->GetWidth());
-            double ZoomY = m_nImageHeight / double(pLogoSurface->GetHeight());
-
-            dest.right = dest.left + int(pLogoSurface->GetWidth() * ZoomX);
-            dest.bottom = dest.top + int(pLogoSurface->GetHeight() * ZoomY);     
-            
-            if( dest.right-dest.left>0 && dest.bottom-dest.top>0 )  // PF crashes with 0 width/height
-                GetDisplay()->BlitStretch(dest, pLogoSurface); 
-        }
-	}
-	else
-	{
-		GetDisplay()->FillRect(0, 0, m_nImageWidth, m_nImageHeight, 0x00);
-	}
-
-	if(pLogoSurface)
-		delete pLogoSurface;
-
-	GetDisplay()->Update();
-
+	ShowDisconnected();
 	RefreshScreen();
 
 	return true;
@@ -229,7 +211,7 @@ OrbiterApp::OrbiterApp() : m_ScreenMutex("rendering")
 //---------------------------------------------------------------------------------------------------------
 void OrbiterApp::SendKey(int nKeyCode, int nEventType)
 { 
-	if(!m_pBDCommandProcessor->m_bClientConnected)
+	if(!m_pBDCommandProcessor->m_bClientConnected || !m_bSendKeyStrokes)
 		return;
 
 	BDCommand *pCommand = new BD_PC_KeyWasPressed(nKeyCode, nEventType);
@@ -237,6 +219,17 @@ void OrbiterApp::SendKey(int nKeyCode, int nEventType)
 
 	BD_WhatDoYouHave *pBD_WhatDoYouHave = new BD_WhatDoYouHave();
 	m_pBDCommandProcessor->AddCommand(pBD_WhatDoYouHave);
+}
+//---------------------------------------------------------------------------------------------------------
+void OrbiterApp::LocalKeyPressed(int nKeyCode)
+{
+	RenderMenu::KeyPressed(nKeyCode);
+
+	if(!m_pBDCommandProcessor->m_bClientConnected)
+	{
+		BD_WhatDoYouHave *pBD_WhatDoYouHave = new BD_WhatDoYouHave();
+		m_pBDCommandProcessor->AddCommand(pBD_WhatDoYouHave);
+	}
 }
 //---------------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterApp::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -280,11 +273,14 @@ void OrbiterApp::SendKey(int nKeyCode, int nEventType)
 		return;
 	}
 
-	//TODO!!! create logic to generate BUTTON_Terminate_Text_CONST or BUTTON_Enter_CONST
-	//iPK_Button = BUTTON_Terminate_Text_CONST;		break;
+	//handles capture keyboard keys
+	if(HandleCaptureKeyboardKeys(nPK_Button, uMsg == WM_KEYUP, bIsLongKey))
+	{
+		if(m_bNeedRefresh)
+			RefreshScreen(); 
 
-
-
+		return; 
+	}
 
 	if(m_bDataKeys)
 		return;
@@ -317,50 +313,64 @@ void OrbiterApp::OnQuit()
 	GetDisplay()->Update();
 }
 //---------------------------------------------------------------------------------------------------------
-void OrbiterApp::RenderImage(int nImageType, int nSize, char *pData)
+void OrbiterApp::RenderImage(int nImageType, int nSize, char *pData, int nX, int nY, int nWidth, int nHeight)
 {
-	//PROF_START();
-
 	if(m_bQuit)
 		return;
+
+	if(nWidth == 0 && nHeight == 0)
+	{
+		nWidth = m_nImageWidth;
+		nHeight = m_nImageHeight;
+	}
 	
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 	Surface *pSurface = LoadImage(GetDisplay(), (uint8_t*)pData, (uint8_t*)(pData + nSize));
 
 	if(pSurface)
 	{
-	    GetDisplay()->Blit( 0, 0, pSurface);
-		GetDisplay()->Update();
+		if(pSurface->m_width == nWidth && pSurface->m_height == nHeight)
+			GetDisplay()->Blit( nX, nY, pSurface );
+		else //zoom
+		{
+			Rect dest;	
+			dest.Set(nX, nY, nWidth, nHeight);
+
+			double ZoomX = nWidth / double(pSurface->GetWidth());
+			double ZoomY = nHeight / double(pSurface->GetHeight());
+
+			dest.right = dest.left + int(pSurface->GetWidth() * ZoomX);
+			dest.bottom = dest.top + int(pSurface->GetHeight() * ZoomY);     
+        
+			if( dest.right-dest.left>0 && dest.bottom-dest.top>0 ) 
+				GetDisplay()->BlitStretch(dest, pSurface); 
+		}
 
 		delete pSurface;
 	}
-
-	//PROF_STOP("Show Image");
 }
 //---------------------------------------------------------------------------------------------------------
 void OrbiterApp::ShowImage(int nImageType, int nSize, char *pData)
 {
 	m_bRender_SignalStrengthOnly = false;
 
-	if(NULL != m_pImageData)
+	if(NULL != m_pImageStatic_Data)
 	{
-		delete[] m_pImageData;
-		m_pImageData = NULL;
+		delete[] m_pImageStatic_Data;
+		m_pImageStatic_Data = NULL;
 	}
 
-	/*
 	if(NULL != m_pMenuCollection)
 	{
 		delete m_pMenuCollection;
 		m_pMenuCollection = NULL;
 	}
-	*/
 
 	m_nImageType = nImageType; 
-	m_nImageSize = nSize;
+	m_pImageStatic_Size = nSize;
 
-	m_pImageData = new char[nSize];
-	memcpy(m_pImageData, pData, nSize);
+	m_pImageStatic_Data = new char[nSize];
+	memcpy(m_pImageStatic_Data, pData, nSize);
 
 	RefreshScreen();
 }
@@ -660,6 +670,7 @@ void OrbiterApp::ShowList(unsigned long ulX, unsigned long ulY, unsigned long ul
 	unsigned long ulHeight, vector<string> vectDataGrid, bool bSendSelectedOnMove, 
 	bool bTurnOn, int nSelectedIndex)
 {
+	m_bRedrawOnlyGrid = false;
 	m_bGridExists = bTurnOn;
 	m_bGridSendSelectedOnMove = bSendSelectedOnMove;
 
@@ -681,14 +692,15 @@ void OrbiterApp::ShowList(unsigned long ulX, unsigned long ulY, unsigned long ul
 //---------------------------------------------------------------------------------------------------------
 void OrbiterApp::RefreshScreen()
 {
-	if(/*NULL != m_pMenu ||*/ (m_nImageSize && m_pImageData))
+	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
+
+	if(NULL != m_pMenu || (m_pImageStatic_Size && m_pImageStatic_Data))
 	{
 		if(!m_bRender_SignalStrengthOnly)
 		{
 			if(!m_bRedrawOnlyGrid && !m_bRedrawOnlyEdit)
 			{
-				//temp - use RenderMenu
-				RenderImage(m_nImageType, m_nImageSize, m_pImageData);
+				DoRender();
 			}
 
 			if(m_bGridExists)
@@ -696,9 +708,8 @@ void OrbiterApp::RefreshScreen()
 				RenderDataGrid(m_ulGridX, m_ulGridY, m_ulGridWidth, m_ulGridHeight, m_vectDataGrid);
 			}			
 
-			//TODO 
-			//if(m_CaptureKeyboardParam.bTextBox)
-			//	DrawEdit();
+			if(m_CaptureKeyboardParam.bTextBox)
+				RenderEditBox();
 		}
 
 		if(m_bSignalStrengthScreen)
@@ -718,16 +729,19 @@ void OrbiterApp::RefreshScreen()
 
 #ifdef TEST_DATAGRID
 	RenderDataGrid(m_ulGridX, m_ulGridY, m_ulGridWidth, m_ulGridHeight, m_vectDataGrid);
+
+	if(m_CaptureKeyboardParam.bTextBox)
+		RenderEditBox();
 #endif
 
-	GetDisplay()->Update();
+	TryToUpdate();
 }
 //---------------------------------------------------------------------------------------------------------
 void OrbiterApp::RenderSignalStrength(int nSignalStrength)
 {
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 
-	PlutoRectangle rect(m_nImageWidth - 31, m_nImageHeight - 58, 30, 16);
+	PlutoRectangle rect(m_nImageWidth - 31, m_nImageHeight - 48, 30, 16);
 
 	GetDisplay()->FillRect(rect.Left(), rect.Top(), rect.Right(), rect.Bottom(), white);
 	RenderText(StringUtils::ltos(nSignalStrength), rect.Left(), rect.Top(), rect.Right(), rect.Bottom(), black);
@@ -792,6 +806,302 @@ bool OrbiterApp::HandleAutomaticDataGridScrolling(int nPlutoKey, bool bKeyUp)
 	return false;
 }
 //---------------------------------------------------------------------------------------------------------
+bool OrbiterApp::HandleCaptureKeyboardKeys(int KeyCode, bool bKeyUp, bool bLongKey)
+{
+	//is capture keyboard command on ?
+	if(!m_CaptureKeyboardParam.bOnOff || !bKeyUp || KeyCode <= 0)
+		return false;
+
+	//enter keys & text not empty
+	if(BUTTON_Enter_CONST == KeyCode && m_CaptureKeyboardParam.sVariableValue.length() > 0)
+	{
+		SetVariable();
+		LocalKeyPressed(BUTTON_Terminate_Text_CONST);
+		m_bRedrawOnlyEdit = true;
+		m_bRedrawOnlyGrid = true;
+		m_bNeedRefresh = true;	
+		return true;
+	}
+
+	//verify is there is an 'interesting' key
+	if(
+		!IsNumberKey(KeyCode)					&&
+		BUTTON_Rept_Phone_C_CONST != KeyCode	&&
+		BUTTON_Phone_C_CONST != KeyCode			
+	)
+	{
+		m_nLastKeyCode = 0;
+		SetVariable();
+		return false;  
+	}
+
+	//if user pressed 'Cancel' button and the text buffer is empty
+	if(
+		(BUTTON_Phone_C_CONST == KeyCode || BUTTON_Rept_Phone_C_CONST == KeyCode)	&&
+		m_CaptureKeyboardParam.sVariableValue.length() == 0
+	)
+	{
+		m_nLastKeyCode = 0;
+		SetVariable();
+		return false; 
+	}
+
+	if(BUTTON_Phone_C_CONST == KeyCode)
+		if(ClearEdit())
+		{
+			m_bRedrawOnlyEdit = true;
+			m_bRedrawOnlyGrid = true;
+			m_bNeedRefresh = true;	
+			return true;
+		}
+
+	if(BUTTON_Rept_Phone_C_CONST == KeyCode)
+		if(ClearAllEdit())
+		{
+			m_bRedrawOnlyEdit = true;
+			m_bRedrawOnlyGrid = true;
+			m_bNeedRefresh = true;		
+			return true;
+		}
+
+	char KeyChar = GetKeyChar(KeyCode);
+
+	if(m_bDeleteLastKey)
+	{
+		m_CaptureKeyboardParam.sVariableValue = m_CaptureKeyboardParam.sVariableValue.substr(0, m_CaptureKeyboardParam.sVariableValue.length() - 1);
+		m_bDeleteLastKey = 0;
+	}
+
+	if(KeyChar)
+	{
+		m_CaptureKeyboardParam.sVariableValue += KeyChar;	
+		if(m_CaptureKeyboardParam.bDataGrid)
+		{
+			if(ScrollListPartialMatch())
+			{
+				m_bRedrawOnlyGrid = true;
+				m_bNeedRefresh = true;
+			}
+		}
+
+		if(m_CaptureKeyboardParam.bTextBox)
+		{
+			m_bRedrawOnlyEdit = true;
+			m_bNeedRefresh = true;
+		}
+	}
+	
+	return true;
+}
+//------------------------------------------------------------------------------------------------------------------
+bool OrbiterApp::ScrollListPartialMatch()
+{
+	bool bResult = false;
+	string s = m_CaptureKeyboardParam.sVariableValue;	
+
+	for(int i = 0; i < m_vectDataGrid.size(); i++)
+	{
+		string item = m_vectDataGrid[i];
+		if(s.length() > item.length())
+			continue;
+
+		bool bMatch = true;
+		for(int j = 0; j < s.length(); j++)
+		{
+			char c = item[j];
+
+			if('A' <= c && c <= 'Z') 
+				c = c - 'A' + 'a';
+
+			if(s[j] != c)
+			{
+				bMatch = false;
+				break;
+			}
+		}
+
+		if(bMatch)
+		{
+			if(m_ulGridSelectedItem != i)
+				bResult = true;
+
+			m_ulGridSelectedItem = i;
+			return bResult;
+		}
+	}	
+
+	if(m_ulGridSelectedItem != 0)
+		bResult = true;
+
+	m_ulGridSelectedItem = 0;
+	return bResult;
+}
+//------------------------------------------------------------------------------------------------------------------
+void CALLBACK KeyTimerCallBack(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime)
+{
+	OrbiterApp::GetInstance()->m_nRepeatStep = 0;
+	OrbiterApp::GetInstance()->m_nLastTick = 0;
+	OrbiterApp::GetInstance()->m_nLastKeyCode = 0;
+
+	::KillTimer(OrbiterApp::GetInstance()->m_hWnd, KeyTimerId);
+}
+//------------------------------------------------------------------------------------------------------------------
+char OrbiterApp::GetKeyChar(int KeyCode)
+{
+	const char *KeysMap[]			 = {".0",".1","abc2","def3","ghi4","jkl5","mno6","pqrs7","tuv8","wxyz9"}; 
+	int KeysMapIndex[]				 = {2,   2,   4,     4,     4,      4,    4,     5,      4,      5     }; 
+
+	const int nDiff = 800;
+	char KeyChar = 0;
+	int nNow = ::GetTickCount();
+
+	m_bDeleteLastKey = false;
+
+	//numeric button? (0, 1, ... 9)
+	if(IsNumberKey(KeyCode))
+	{
+		//only digits
+		if(m_CaptureKeyboardParam.bTypePin || m_CaptureKeyboardParam.bNumbersOnly)
+			return '0' + NumberKeyIndex(KeyCode);
+
+		int KeyIndex = NumberKeyIndex(m_nLastKeyCode);
+		if(KeyIndex == 0 || KeyIndex == 1)
+		{
+			KeyChar = KeysMap[KeyIndex][0];
+		}
+
+		//first key ? start the timer!
+		if(m_nLastKeyCode == 0) 
+		{
+			m_nRepeatStep = 0;
+			::KillTimer(m_hWnd, KeyTimerId);
+			::SetTimer(m_hWnd, KeyTimerId, nDiff, KeyTimerCallBack);
+			KeyChar = KeysMap[NumberKeyIndex(KeyCode)][m_nRepeatStep];
+		}
+		else
+		{
+			//different button then last one or time's up - stop the timer, we have a key
+			if(m_nLastKeyCode != KeyCode || nNow - m_nLastTick > nDiff)
+			{
+				if(m_nLastKeyCode != KeyCode)
+					m_nRepeatStep = 0;
+				else
+					m_nRepeatStep %= KeysMapIndex[NumberKeyIndex(KeyCode)];
+
+				KeyChar = KeysMap[NumberKeyIndex(KeyCode)][m_nRepeatStep];
+
+				::KillTimer(m_hWnd, KeyTimerId);
+				m_nRepeatStep = 0;
+				m_nLastTick = 0;
+				m_nLastKeyCode = 0;
+			}
+			else //same button, just shift keys and start again the timer
+			{
+				m_bDeleteLastKey = true;
+				m_nRepeatStep++;
+				m_nRepeatStep %= KeysMapIndex[NumberKeyIndex(KeyCode)];
+				::KillTimer(m_hWnd, KeyTimerId);
+				::SetTimer(m_hWnd, KeyTimerId, nDiff, KeyTimerCallBack);
+				KeyChar = KeysMap[NumberKeyIndex(KeyCode)][m_nRepeatStep];
+			}
+		}
+		
+		m_nLastKeyCode = KeyCode;
+		m_nLastTick = nNow;
+	}
+	else 
+		if(m_nLastKeyCode)
+		{
+			KeyChar = KeysMap[NumberKeyIndex(m_nLastKeyCode)][m_nRepeatStep];
+
+			m_nLastKeyCode = 0;
+			m_nLastTick = 0;
+		}
+
+	return KeyChar;
+}
+//---------------------------------------------------------------------------------------------------------
+int OrbiterApp::NumberKeyIndex(int KeyCode)
+{
+	switch(KeyCode)
+	{
+		case BUTTON_0_CONST:	return 0;
+		case BUTTON_1_CONST:	return 1;
+		case BUTTON_2_CONST:	return 2;
+		case BUTTON_3_CONST:	return 3;
+		case BUTTON_4_CONST:	return 4;
+
+		case BUTTON_5_CONST:	return 5;
+		case BUTTON_6_CONST:	return 6;
+		case BUTTON_7_CONST:	return 7;
+		case BUTTON_8_CONST:	return 8;
+		case BUTTON_9_CONST:	return 9;
+	}
+
+	return -1;
+}
+//---------------------------------------------------------------------------------------------------------
+bool OrbiterApp::IsNumberKey(int KeyCode)
+{
+	switch(KeyCode)
+	{
+		case BUTTON_0_CONST:
+		case BUTTON_1_CONST:
+		case BUTTON_2_CONST:
+		case BUTTON_3_CONST:
+		case BUTTON_4_CONST:
+		case BUTTON_5_CONST:
+		case BUTTON_6_CONST:
+		case BUTTON_7_CONST:
+		case BUTTON_8_CONST:
+		case BUTTON_9_CONST:
+			return true;
+	}
+
+	return false;
+}
+//---------------------------------------------------------------------------------------------------------
+bool OrbiterApp::SetVariable()
+{
+	if(m_CaptureKeyboardParam.iVariable != 0)
+	{
+		if(m_pBDCommandProcessor->m_bClientConnected)
+		{
+			BDCommand *pCommand = new BD_PC_SetVariable(m_CaptureKeyboardParam.iVariable, m_CaptureKeyboardParam.sVariableValue);
+			m_pBDCommandProcessor->AddCommand(pCommand);
+		}
+	}
+
+	return false;
+}
+//---------------------------------------------------------------------------------------------------------
+bool OrbiterApp::ClearEdit()
+{
+	if(m_CaptureKeyboardParam.sVariableValue.length() == 0)
+		return false;
+
+	string s = m_CaptureKeyboardParam.sVariableValue;
+	m_CaptureKeyboardParam.sVariableValue = "";
+
+	for(int i = 0; i < s.length() - 1; i++)
+		m_CaptureKeyboardParam.sVariableValue += s[i];
+
+	ScrollListPartialMatch();
+
+	return true;
+}
+//------------------------------------------------------------------------------------------------------------------
+bool OrbiterApp::ClearAllEdit()
+{
+	if(m_CaptureKeyboardParam.sVariableValue.length() == 0)
+		return false;
+
+	m_CaptureKeyboardParam.sVariableValue = "";
+	ScrollListPartialMatch();
+
+	return true;
+}
+//------------------------------------------------------------------------------------------------------------------
 bool OrbiterApp::ScrollListUp()
 {
 	m_bRedrawOnlyGrid = true;
@@ -866,5 +1176,167 @@ void OrbiterApp::SetCurrentSignalStrength(int nSignalStrength)
 		m_bRender_SignalStrengthOnly = true;
 		RefreshScreen();
 	}
+}
+//------------------------------------------------------------------------------------------------------------------
+void OrbiterApp::SendKeyStrokes(bool bValue)
+{
+	m_bSendKeyStrokes = bValue;
+}
+//------------------------------------------------------------------------------------------------------------------
+void OrbiterApp::SaveFile(unsigned long ulFileNameSize, char *pFileName, unsigned long ulFileDataSize, char *pFileData)
+{
+	string sFileName = g_sBinaryPath + pFileName;
+	if(!FileUtils::WriteBufferIntoFile(sFileName, pFileData, ulFileDataSize))
+		g_pPlutoLogger->Write(LV_WARNING, "Failed to save %s file", sFileName);
+}
+//------------------------------------------------------------------------------------------------------------------
+void OrbiterApp::ShowDisconnected()
+{
+	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
+
+    string sLogoPath = g_sBinaryPath + "logo.gif";
+    sLogoPath = StringUtils::Replace(sLogoPath, "/", "\\");
+	DrawImage(sLogoPath.c_str(), 0, 0, m_nImageWidth, m_nImageHeight);
+
+	TryToUpdate();
+}
+//------------------------------------------------------------------------------------------------------------------
+void OrbiterApp::SetCaptureKeyboard(bool bOnOff, bool bDataGrid, bool bReset, int nEditType, int nVariable, string sText)
+{
+	m_CaptureKeyboardParam.bOnOff = bOnOff;
+
+	if(bOnOff)
+	{
+		m_CaptureKeyboardParam.bDataGrid = bDataGrid;
+		m_CaptureKeyboardParam.bReset = bReset;
+
+		m_CaptureKeyboardParam.bTypePin = 2 == nEditType; 
+		m_CaptureKeyboardParam.bNumbersOnly = 1 == nEditType;
+
+		m_CaptureKeyboardParam.iVariable = nVariable;
+
+		unsigned int msgpos = 0;
+		string token;
+
+		m_CaptureKeyboardParam.bTextBox = 0 != sText.length();
+
+		if((token = StringUtils::Tokenize(sText, ",", msgpos)) != "") 	
+			m_CaptureKeyboardParam.TextX = atoi(token.c_str());
+
+		if((token = StringUtils::Tokenize(sText, ",", msgpos)) != "") 	
+			m_CaptureKeyboardParam.TextY = atoi(token.c_str());
+
+		if((token = StringUtils::Tokenize(sText, ",", msgpos)) != "") 	
+			m_CaptureKeyboardParam.TextWidth = atoi(token.c_str());
+
+		if((token = StringUtils::Tokenize(sText, ",", msgpos)) != "") 	
+			m_CaptureKeyboardParam.TextHeight = atoi(token.c_str());
+	}
+	else
+	{
+		m_CaptureKeyboardParam.bDataGrid = false;
+		m_CaptureKeyboardParam.bReset = false;
+		m_CaptureKeyboardParam.bTypePin = false;
+		m_CaptureKeyboardParam.bTextBox = false;
+
+		m_CaptureKeyboardParam.iVariable = 0;
+	}
+
+	m_CaptureKeyboardParam.Reset();
+}
+//------------------------------------------------------------------------------------------------------------------
+/*virtual*/ void OrbiterApp::Redraw()
+{
+	RefreshScreen();
+}
+//------------------------------------------------------------------------------------------------------------------
+/*virtual*/ void OrbiterApp::MessageBox(const char *Message,const char *Title)
+{
+//	::MessageBox(0, Title, Message, 0);
+}
+//------------------------------------------------------------------------------------------------------------------
+/*virtual*/ bool OrbiterApp::DrawImage(const char *Filename,int X,int Y,int Width,int Height)
+{
+	size_t nSize = 0;
+	char *pData = FileUtils::ReadFileIntoBuffer(Filename, nSize);
+
+	if(pData)
+	{
+		DrawImage(0, pData, nSize, X, Y, Width, Height);
+		delete pData;
+	}
+	else 
+		return false;
+
+	return true;
+}
+//------------------------------------------------------------------------------------------------------------------
+/*virtual*/ bool OrbiterApp::DrawImage(unsigned char ImageType,void *pGraphic,int GraphicSize,int X,int Y,int Width,int Height)
+{
+	RenderImage(ImageType, GraphicSize, (char *)pGraphic, X, Y, Width, Height);
+
+	return true;
+}
+//------------------------------------------------------------------------------------------------------------------
+/*virtual*/ bool OrbiterApp::Draw3dRect(MyRect &r)
+{
+	return true;
+}
+//------------------------------------------------------------------------------------------------------------------
+/*virtual*/ bool OrbiterApp::DrawText(const char *Text, MyRect &r)
+{
+	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
+
+	HDC hdc = GetDisplay()->GetBackBuffer()->GetDC(false);
+
+	string sText(Text);
+    wchar_t wText[1024];
+    mbstowcs(wText, sText.c_str(), 1024);
+	
+	RECT rectLocation = { r.left, r.top, r.right, r.bottom };
+    ::DrawText(hdc, wText, sText.length(), &rectLocation, DT_WORDBREAK | DT_NOPREFIX); 
+
+	GetDisplay()->GetBackBuffer()->ReleaseDC(hdc);	
+
+	return true;
+}
+//------------------------------------------------------------------------------------------------------------------
+/*virtual*/ void OrbiterApp::SetTextProperties(int Size,const char *Font,int R, int G, int B)
+{
+	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
+
+	HDC hdc = GetDisplay()->GetBackBuffer()->GetDC(false);
+
+ 	::SetTextColor(hdc, RGB(R, G, B));
+	::SetBkMode(hdc, TRANSPARENT);
+
+	GetDisplay()->GetBackBuffer()->ReleaseDC(hdc);
+}
+//------------------------------------------------------------------------------------------------------------------
+/*virtual*/ void OrbiterApp::SwitchToMenu(VIPMenu *pMenu)
+{
+}
+//------------------------------------------------------------------------------------------------------------------
+/*virtual*/ void OrbiterApp::OpenProgram(string ProgramName)
+{
+}
+//------------------------------------------------------------------------------------------------------------------
+void OrbiterApp::RenderEditBox()
+{
+	int EditX = m_CaptureKeyboardParam.TextX;
+	int EditY = m_CaptureKeyboardParam.TextY;
+	int EditWidth = m_CaptureKeyboardParam.TextWidth;
+	int EditHeight = m_CaptureKeyboardParam.TextHeight;
+
+	GetDisplay()->FillRect(EditX, EditY, EditX + EditWidth, EditY + EditHeight, GetColor16(black));
+	GetDisplay()->FillRect(EditX + 1, EditY + 1, EditX + EditWidth - 1, EditY + EditHeight - 1, GetColor16(blue_lite));
+
+	string sTextToRender;
+	if(m_CaptureKeyboardParam.bTypePin)
+		fill_n(sTextToRender.begin(), m_CaptureKeyboardParam.sVariableValue.length(), '*');
+	else
+		sTextToRender = m_CaptureKeyboardParam.sVariableValue;
+
+	RenderText(sTextToRender, EditX, EditY, EditX + EditWidth, EditY + EditHeight, black);
 }
 //------------------------------------------------------------------------------------------------------------------

@@ -81,7 +81,7 @@ public:
 
 	void OpenVMC(bool bParsed, TFileName& iFileName, 
 								 VIPMenuCollection *pVMC); 
-	void OpenImage(unsigned char Type, unsigned long Size, const char *Data);
+	void OpenImage(unsigned char Type, unsigned long Size, char *Data);
 	void InterceptRepeatedKeys(unsigned long  KeysListSize, const char *pRepeatedKeysList);
 	void CloseVMC();
 

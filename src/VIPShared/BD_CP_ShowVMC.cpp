@@ -76,16 +76,18 @@ void BD_CP_ShowVMC::ParseCommand(unsigned long size,const char *data)
 {
 	BDCommand::ParseCommand(size, data);
 
-#ifdef VIPPHONE
-
 	m_iStore = Read_unsigned_char();
 	m_iVMCSize = Read_long();
 	m_pVMC = Read_block(m_iVMCSize);
 	m_iVMCFileNameSize = Read_long();
 	m_pVMCFileName = Read_block(m_iVMCFileNameSize);
+}
+
+bool BD_CP_ShowVMC::ProcessCommand(BDCommandProcessor *pProcessor)
+{
+#ifdef VIPPHONE
 
 #ifdef SYMBIAN
-
 	LOG("#	Received 'ShowVMC' command  #\n");
 	
 	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->UpdateScreen(m_iStore, m_iVMCSize, m_pVMC, 
@@ -94,8 +96,6 @@ void BD_CP_ShowVMC::ParseCommand(unsigned long size,const char *data)
 #endif
 
 #ifdef VIPDESIGN
-
-	//@todo
 	VIPMenuCollection *pVMC = new VIPMenuCollection(VMCSize, m_pcCurrentPosition);
 	g_pPlutoConfig->m_pDoc->m_pMenuCollection=pVMC;
 	g_pPlutoConfig->m_pDoc->m_pMenu=pVMC->m_pMenu_Starting;
@@ -103,9 +103,6 @@ void BD_CP_ShowVMC::ParseCommand(unsigned long size,const char *data)
 #endif
 
 #endif
-}
 
-bool BD_CP_ShowVMC::ProcessCommand(BDCommandProcessor *pProcessor)
-{
 	return true;
 }

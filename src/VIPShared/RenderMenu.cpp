@@ -10,12 +10,12 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 */
 
 #include "VIPIncludes.h"
-#include "VIPShared/PlutoConfig.h"
 #include "VIPShared/VIPMenu.h"
 #include "VIPShared/RenderMenu.h"
 #include "VIPShared/BD_PC_KeyWasPressed.h"
 
-#ifndef SYMBIAN
+#if !defined(SYMBIAN) && !defined(SMARTPHONE)
+	#include "VIPShared/PlutoConfig.h"
 	#include "BD/BDCommandProcessor.h"
 #endif
 
@@ -24,6 +24,10 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 #ifdef SYMBIAN
 	#define SYMBIAN_ALL
 	#include "PlutoMOAppUi.h"
+#endif
+
+#ifdef SMARTPHONE
+	#include "Orbiter/CENet_Smartphone/OrbiterApp.h"
 #endif
 
 bool KeyCodeInString(string str, char key)
@@ -395,7 +399,10 @@ void RenderMenu::DoRender()
 void RenderMenu::KeyPressed(int KeyCode)
 {
 	bool bRedrawScreen = false;
-#ifndef SYMBIAN
+
+
+
+#if !defined(SYMBIAN) && !defined(SMARTPHONE)
 #ifdef EMULATOR
 	if( g_pPlutoConfig->m_bSendKeyStrokes && g_pPlutoConfig->m_pBDCommandProcessor )
 	{
@@ -403,7 +410,10 @@ void RenderMenu::KeyPressed(int KeyCode)
 		g_pPlutoConfig->m_pBDCommandProcessor->AddCommand(pCommand);
 	}
 #endif
-#else
+#endif
+
+
+#ifdef SYMBIAN
 	if(
 		((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bSendKeyStrokes     && 
 		((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_pBDCommandProcessor
@@ -412,6 +422,10 @@ void RenderMenu::KeyPressed(int KeyCode)
 		BDCommand *pCommand = new BD_PC_KeyWasPressed(KeyCode, 2 /*execute*/);
 		((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_pBDCommandProcessor->AddCommand(pCommand);
 	}
+#endif
+
+#ifdef SMARTPHONE
+	OrbiterApp::GetInstance()->SendKey(KeyCode, 2);
 #endif
 
 	if( !m_pMenu || !m_pMenuCollection )
@@ -606,8 +620,8 @@ void RenderMenu::KeyPressed(int KeyCode)
 
 				sUrl += sParams;	
 
-#ifndef SYMBIAN
-				MessageBox(sUrl.c_str(), "Running program");
+#if !defined(SYMBIAN) && !defined(SMARTPHONE)
+				MessageBox(sUrl.c_str(), "Running program"); //debugging
 #endif
 
 				OpenProgram(sUrl);
@@ -709,7 +723,8 @@ void RenderMenu::KeyPressed(int KeyCode)
 			{
 				VIPMenu *pMenu=m_pMenuCollection->m_mapMenus_Find(pRes->m_iMenuNumber_Goto);
 				SwitchToMenu(pMenu);
-#ifdef SYMBIAN
+
+#if defined(SYMBIAN) || defined(SMARTPHONE)
 				bRedrawScreen = true;
 #endif
 				m_pBasketItem_First=m_pBasketItem_Last=NULL;
@@ -768,7 +783,8 @@ char RenderMenu::NumericToText(int Key,const char *Value)
 {
 	char *Keys[] = {".",".","abc","def","ghi","jkl","mno","pqrs","tuv","wxyz"};
 	char *Values = Keys[ButtonToNumeric(Key)];
-#ifdef SYMBIAN
+
+#if defined(SYMBIAN) || defined(SMARTPHONE)
 	bool bNewCharacter = true;
 #else
 	bool bNewCharacter=(Value[0]==0 || m_ctLastKey + (CLOCKS_PER_SEC/2) < clock());

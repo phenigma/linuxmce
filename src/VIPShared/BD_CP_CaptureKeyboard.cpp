@@ -26,6 +26,10 @@
 #include "Logger.h"
 #endif
 
+#ifdef SMARTPHONE
+#include "Orbiter/CENet_Smartphone/OrbiterApp.h"
+#endif
+
 #include "PlutoUtils/MyStl.h"
 #include "BD_CP_CaptureKeyboard.h"
 
@@ -70,15 +74,13 @@ bool BD_CP_CaptureKeyboard::ProcessCommand(BDCommandProcessor *pProcessor)
 {
 #ifdef VIPPHONE
 
-#ifndef SYMBIAN 
-	//
-#else
+#ifdef SYMBIAN 
 	LOG("#	Received 'CaptureKeyboard' command  #\n");
+	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->SetCaptureKeyboardCommand(m_bOnOff, m_bDataGrid, m_bReset, m_iEditType, m_iVariable, m_sText);
+#endif
 
-	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->SetCaptureKeyboardCommand(
-		m_bOnOff, m_bDataGrid, m_bReset, m_iEditType, m_iVariable, m_sText
-	);
-
+#ifdef SMARTPHONE
+	OrbiterApp::GetInstance()->SetCaptureKeyboard(m_bOnOff, m_bDataGrid, m_bReset, m_iEditType, m_iVariable, m_sText);
 #endif
 
 #endif

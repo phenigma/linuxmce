@@ -30,7 +30,7 @@ public:
 
 		void Parse(TFileName iFileName);
 		void SetAndSwitchToMenu(VIPMenuCollection *pVMC);
-		void SetImage(unsigned char Type, unsigned long Size, const char *ImageBuf);
+		void SetImage(unsigned char Type, unsigned long Size, char *ImageBuf);
 		void SetList(
 			unsigned long x, 
 			unsigned long y, 

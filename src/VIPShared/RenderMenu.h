@@ -71,7 +71,7 @@ protected:
 	// The current static image (which we will show instead of the collection if we have one)
 	unsigned char m_pImageStatic_Type;
 	unsigned long m_pImageStatic_Size;
-	const char *m_pImageStatic_Data;
+	char *m_pImageStatic_Data;
 
 	// For scrolling through a basket, here are the first and last items on the screen
 	class BasketItem *m_pBasketItem_First,*m_pBasketItem_Last;
@@ -89,7 +89,7 @@ protected:
 		m_pMenu=pMenu; m_pMenuCollection=pMenuCollection; m_pInput=pInput;
 	}
 
-	virtual void SetStatic(unsigned char pImageStatic_Type,unsigned long pImageStatic_Size,const char *pImageStatic_Data)
+	virtual void SetStatic(unsigned char pImageStatic_Type,unsigned long pImageStatic_Size,char *pImageStatic_Data)
 	{
 		m_pImageStatic_Type=pImageStatic_Type;
 		m_pImageStatic_Size=pImageStatic_Size;

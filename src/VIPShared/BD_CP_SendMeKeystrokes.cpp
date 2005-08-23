@@ -32,6 +32,10 @@
 #endif
 #endif
 
+#ifdef SMARTPHONE
+#include "Orbiter/CENet_Smartphone/OrbiterApp.h"
+#endif
+
 #include "PlutoUtils/MyStl.h"
 #include "BD_CP_SendMeKeystrokes.h"
 
@@ -58,11 +62,13 @@ bool BD_CP_SendMeKeystrokes::ProcessCommand(BDCommandProcessor *pProcessor)
 {
 #ifdef VIPPHONE
 
-#ifndef SYMBIAN 
-	#ifndef SMARTPHONE
-		g_pPlutoConfig->m_bSendKeyStrokes = m_YesNo;
-	#endif
-#else
+//g_pPlutoConfig->m_bSendKeyStrokes = m_YesNo;
+
+#ifdef SMARTPHONE
+	OrbiterApp::GetInstance()->SendKeyStrokes(m_YesNo);
+#endif
+
+#ifdef SYMBIAN 
 	LOG("#	Received 'SendKeyStrokes' command  #\n");
 	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bSendKeyStrokes = m_YesNo;
 #endif

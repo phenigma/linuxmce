@@ -255,6 +255,7 @@ bool CPlutoVMCContainer::HandleCommonKeys(const TKeyEvent& aKeyEvent, TEventCode
 //------------------------------------------------------------------------------------------------------------------
 bool CPlutoVMCContainer::HandleDataGridKeys(const TKeyEvent& aKeyEvent, TEventCode aType)
 {
+	LOG("HandleDataGridKeys");
 	CPlutoVMCUtil *pVMCUtil = (CPlutoVMCUtil *)CCoeEnv::Static(KCPlutoVMCUtilId);
 	
 	if(pVMCUtil->GridExists() && aType == EEventKeyDown)
@@ -281,7 +282,7 @@ bool CPlutoVMCContainer::HandleDataGridKeys(const TKeyEvent& aKeyEvent, TEventCo
 
 		if(aKeyEvent.iScanCode == /*EStdKeyEnter*/ 167)
 		{
-			//LOG("ENTER-sending selected");
+			LOG("ENTER-sending selected");
 			if(pVMCUtil->SelectCurrentItem())
 				m_bNeedRefresh = true; 
 

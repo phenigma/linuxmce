@@ -7,6 +7,8 @@
 
 #include "VIPShared/BD_PC_ReportMyVersion.h"
 #include "PlutoUtils/CommonIncludes.h"
+
+#include "Orbiter/CENet_Smartphone/OrbiterApp.h"
 using namespace DCE;
 //------------------------------------------------------------------------------------------------------------
 #include <Ws2bth.h>
@@ -42,6 +44,8 @@ void *ProcessCommandsThread(void *p)
 
 	g_pPlutoLogger->Write(LV_STATUS, "Client disconnected. Waking up server thread");
 	pthread_cond_broadcast(&pBDCommandProcessor->m_ServerSocketCond);
+
+	OrbiterApp::GetInstance()->ShowDisconnected();
 
 	return NULL;
 }
@@ -154,7 +158,9 @@ BDCommandProcessor_Smartphone_Bluetooth::~BDCommandProcessor_Smartphone_Bluetoot
 //------------------------------------------------------------------------------------------------------------
 bool BDCommandProcessor_Smartphone_Bluetooth::SendData(int size,const char *data)
 {
+#ifdef DEBUG_BLUETOOTH
 	PROF_START();
+#endif
 
 	if(!m_bClientConnected)
 	{
@@ -208,14 +214,18 @@ bool BDCommandProcessor_Smartphone_Bluetooth::SendData(int size,const char *data
 	g_pPlutoLogger->Write(LV_STATUS,"Sent %d bytes of data", size);
 #endif
 
+#ifdef DEBUG_BLUETOOTH
 	PROF_STOP("Send data");
+#endif
 
 	return true;
 }
 //------------------------------------------------------------------------------------------------------------
 char *BDCommandProcessor_Smartphone_Bluetooth::ReceiveData(int size)
 {
+#ifdef DEBUG_BLUETOOTH
 	PROF_START();
+#endif
 
 	if(!m_bClientConnected)
 	{
@@ -270,8 +280,9 @@ char *BDCommandProcessor_Smartphone_Bluetooth::ReceiveData(int size)
 	g_pPlutoLogger->Write(LV_STATUS, "Received %d bytes of data", size);
 #endif		
 
-
+#ifdef DEBUG_BLUETOOTH
 	PROF_STOP("Receive data");
+#endif
 
 	return buffer; 
 }
@@ -283,16 +294,16 @@ bool BDCommandProcessor_Smartphone_Bluetooth::BT_SetService()
    #define SDP_RECORD_SIZE   0x0000004f
 
    BYTE rgbSdpRecord[] = {
-         0x35, 0x4d, 0x09, 0x00, 0x01, 0x35, 0x11, 0x1c,
+         0x15, 0x4d, 0x09, 0x00, 0x01, 0x35, 0x11, 0x1c,
          0x29, 0xf9, 0xc0, 0xfd, 0xbb, 0x6e, 0x47, 0x97,
          0x9f, 0xa9, 0x3e, 0xc9, 0xa8, 0x54, 0x29, 0x0c,
-         0x09, 0x00, 0x04, 0x35, 0x0c, 0x35, 0x03, 0x19,
+         0x09, 0x00, 0x04, 0x35, 0x0c, 0x31, 0x03, 0x19,
          0x01, 0x00, 0x35, 0x05, 0x19, 0x00, 0x03, 0x08,
          0x1a, 0x09, 0x00, 0x06, 0x35, 0x09, 0x09, 0x65,
-         0x6e, 0x09, 0x00, 0x6a, 0x09, 0x01, 0x00, 0x09,
+         0x6e, 0x09, 0x00, 0x6f, 0x09, 0x01, 0x00, 0x09,
          0x00, 0x09, 0x35, 0x08, 0x35, 0x06, 0x19, 0x11,
          0x05, 0x09, 0x01, 0x00, 0x09, 0x01, 0x00, 0x25,
-         0x06, 0x53, 0x65, 0x72, 0x69, 0x61, 0x6c
+         0x06, 0x53, 0x65, 0x72, 0x69, 0x61, 0x6a
    };
    struct 
    {

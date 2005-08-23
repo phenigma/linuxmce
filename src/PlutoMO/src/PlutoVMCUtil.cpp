@@ -39,7 +39,7 @@
 #include "VIPShared/BD_PC_GetSignalStrength.h"
 //------------------------------------------------------------------------------------------------------------------
 #ifdef __WINS__
-//#define TEST_DATAGRID
+#define TEST_DATAGRID
 #endif
 //------------------------------------------------------------------------------------------------------------------
 CPlutoVMCUtil::CPlutoVMCUtil(TUid aUid, TScope scop/*=EThread*/) : CCoeStatic(aUid, scop)
@@ -722,7 +722,7 @@ void CPlutoVMCUtil::LocalDoRender()
 	}
 }
 //------------------------------------------------------------------------------------------------------------------
-void CPlutoVMCUtil::SetImage(unsigned char Type, unsigned long Size, const char *ImageBuf)
+void CPlutoVMCUtil::SetImage(unsigned char Type, unsigned long Size, char *ImageBuf)
 {	
 	
 	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bRender_SignalStrengthOnly = false;
