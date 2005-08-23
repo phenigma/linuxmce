@@ -522,7 +522,7 @@
 #define DESIGNOBJ_objNowPlayingLong_CONST 2455
 #define DESIGNOBJ_grpMediaNavigation_CONST 2456
 #define DESIGNOBJ_butAdvancedPlutoDVD_CONST 2457
-#define DESIGNOBJ_butMusicFileList_CONST 2458
+#define DESIGNOBJ_butFileList_CONST 2458
 #define DESIGNOBJ_butIndexE_CONST 2459
 #define DESIGNOBJ_butIndexF_CONST 2460
 #define DESIGNOBJ_butIndexG_CONST 2461
@@ -841,8 +841,6 @@
 #define DESIGNOBJ_appDesktopMozilla_CONST 3349
 #define DESIGNOBJ_dvd_menu_CONST 3350
 #define DESIGNOBJ_mnuGenericDvdRemote_CONST 3352
-#define DESIGNOBJ_butMoviesFileList_CONST 3353
-#define DESIGNOBJ_butVideosFileList_CONST 3354
 #define DESIGNOBJ_mnuViewPlaylist_Mobile_CONST 3355
 #define DESIGNOBJ_go_to_playlist_CONST 3356
 #define DESIGNOBJ_dvd_menu_full_screen_CONST 3358
