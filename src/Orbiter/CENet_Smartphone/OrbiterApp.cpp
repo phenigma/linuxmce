@@ -294,12 +294,11 @@ void OrbiterApp::LocalKeyPressed(int nKeyCode)
 			return;
 		}
 
-		/*
 		if(BUTTON_Rept_Phone_Pencil_CONST == nPK_Button)
 		{
 			Hide();
 			return;
-		}*/
+		}
 
 		SendKey(nPK_Button ? nPK_Button : - wParam, 2);
 	}
@@ -1353,6 +1352,9 @@ void OrbiterApp::RenderEditBox()
 void OrbiterApp::Hide()
 {
 	::ShowWindow(m_hWnd, SW_HIDE);
+
+	::SetForegroundWindow(::GetDesktopWindow());
+	::ShowWindow(::GetDesktopWindow(), SW_SHOW);
 }
 //------------------------------------------------------------------------------------------------------------------
 void OrbiterApp::Show()

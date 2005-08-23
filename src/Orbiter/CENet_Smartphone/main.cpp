@@ -130,8 +130,6 @@ bool IsOrbiterAlreadyRunning()
 
 void BringOrbiterToFront()
 {
-    ::SetActiveWindow(g_hWnd); 
     ::SetForegroundWindow(g_hWnd); 
-    ::BringWindowToTop(g_hWnd); 
-    ::SetFocus(g_hWnd); 
+	::ShowWindow(g_hWnd, SW_SHOW);
 }
