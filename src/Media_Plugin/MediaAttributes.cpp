@@ -848,7 +848,8 @@ void MediaAttributes::LoadStreamAttributes(MediaStream *pMediaStream)
 		for(size_t sA=0;sA<vectRow_File_Attribute.size();++sA)
 		{
 			Row_File_Attribute *pRow_File_Attribute=vectRow_File_Attribute[sA];
-			AddAttributeToStream(pMediaStream,pRow_File_Attribute->FK_Attribute_getrow(),s+1,
+			AddAttributeToStream(pMediaStream,pRow_File_Attribute->FK_Attribute_getrow(),
+				pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST && pMediaStream->m_dequeMediaFile.size()==1 ? 0 : s+1,  // For DVD's, we don't use the file since the 1 file is just a stored image
 				pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_StoredAudio_CONST ? 0 : pRow_File_Attribute->Track_get(),  // We don't use tracks now that it's ripped
 				pRow_File_Attribute->Section_get());
 		}

@@ -4870,10 +4870,10 @@ void Media_Plugin::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal
 		}
 	}
 
-	if( atoi(sTitle.c_str())!=pMediaStream->m_iDequeMediaTitle_Pos || atoi(sSection.c_str())!=pMediaStream->m_iDequeMediaSection_Pos )
+	if( atoi(sTitle.c_str())-1!=pMediaStream->m_iDequeMediaTitle_Pos || atoi(sSection.c_str())-1!=pMediaStream->m_iDequeMediaSection_Pos )
 	{
-		pMediaStream->m_iDequeMediaTitle_Pos = atoi(sTitle.c_str());
-		pMediaStream->m_iDequeMediaSection_Pos = atoi(sSection.c_str());
+		pMediaStream->m_iDequeMediaTitle_Pos = atoi(sTitle.c_str())-1;
+		pMediaStream->m_iDequeMediaSection_Pos = atoi(sSection.c_str())-1;
 		MediaInfoChanged( pMediaStream, true );
 	}
 }
