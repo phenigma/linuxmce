@@ -4837,7 +4837,9 @@ void Media_Plugin::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal
 
 	pMediaStream->m_sTimecode = sTime;
 	pMediaStream->m_sTotalTime = sTotal;
-	pMediaStream->m_sPlaybackSpeed = sSpeed;
+	bool bSpeedChanged = pMediaStream->m_sPlaybackSpeed != sSpeed;
+	if( bSpeedChanged )
+		pMediaStream->m_sPlaybackSpeed = sSpeed;
 
 	for( map<int,class EntertainArea *>::iterator itEntAreas=pMediaStream->m_mapEntertainArea.begin(); itEntAreas != pMediaStream->m_mapEntertainArea.end(); itEntAreas++)
 	{
@@ -4859,9 +4861,12 @@ void Media_Plugin::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal
 		for( MapBoundRemote::iterator itBR=pEntertainArea->m_mapBoundRemote.begin( );itBR!=pEntertainArea->m_mapBoundRemote.end( );++itBR )
 		{
 			BoundRemote *pBoundRemote = ( *itBR ).second;
-			Message *pMessageOut = new Message(pMessage);
-			pMessageOut->m_dwPK_Device_To = pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device;
-			QueueMessageToRouter(pMessageOut);
+			if( bSpeedChanged || pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_DeviceCategory!=DEVICECATEGORY_Mobile_Orbiter_CONST )
+			{
+				Message *pMessageOut = new Message(pMessage);
+				pMessageOut->m_dwPK_Device_To = pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device;
+				QueueMessageToRouter(pMessageOut);
+			}
 		}
 	}
 
