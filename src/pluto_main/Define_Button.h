@@ -122,10 +122,12 @@
 #define BUTTON_F8_CONST 178
 #define BUTTON_F9_CONST 179
 #define BUTTON_F10_CONST 180
-#define BUTTON__CONST 181
+#define BUTTON_slash_CONST 181
 #define BUTTON_dash_CONST 182
 #define BUTTON_plus_CONST 183
-#define BUTTON_;_CONST 184
+#define BUTTON_semicolumn_CONST 184
+#define BUTTON_quote_CONST 185
+#define BUTTON_dot_CONST 186
 
 #define BUTTON_TABLE "Button"
 #define BUTTON_PK_BUTTON_FIELD "PK_Button"
