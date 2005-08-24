@@ -134,16 +134,7 @@ RemoveTunnel()
 
 CreateTunnels()
 {
-	# if user doesn't exist
-	if ! grep -q remote /etc/passwd; then
-		# add user "remote" w/ the password specified (var value)
-		Pass=$(mkpasswd -H md5 "$remote" 'RAPlutoP')
-		useradd -u 0 -g 0 -o -d /root -c "Pluto Remote Assistance Account" -p "$Pass" remote || Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Failed to add user 'remote' with exit code '$?'"
-		SCRvar="export SCREENDIR=/var/run/screen/S-root"
-		grep -qF "$SCRvar" /root/.bashrc || echo "$SCRvar" >>/root/.bashrc
-	else
-		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "User 'remote' already exists. Not adding."
-	fi
+	/usr/pluto/bin/RA_ChangePassword.sh
 
 	CreateTunnel "SSH" 22 $PortBase
 	CreateTunnel "Web" 80 $((PortBase+1))
@@ -162,12 +153,7 @@ RemoveTunnels()
 	RemoveTunnel "Web"
 	RemoveTunnels_Special
 	
-	if grep -q remote /etc/passwd; then
-		# delete user "remote" if it exists
-		userdel remote || Logging "$TYPE" "$SEVERITY_WARNING" "$0" "Failed to remove user 'remote' with exit code '$?'"
-	else
-		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "User 'remote' not present. Nothing to remove"
-	fi
+	/usr/pluto/bin/RA_ChangePassword.sh
 }
 
 RemoveTunnels_Special()
