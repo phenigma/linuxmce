@@ -44,6 +44,17 @@
 using namespace std;
 using namespace DCE;
 
+void trim(string& str)
+{
+  string::size_type pos = str.find_last_not_of(' ');
+  if(pos != string::npos) {
+    str.erase(pos + 1);
+    pos = str.find_first_not_of(' ');
+    if(pos != string::npos) str.erase(0, pos);
+  }
+  else str.erase(str.begin(), str.end());
+}
+
 bdaddr_t bdaddr;
 
 static volatile sig_atomic_t __io_canceled = 0;
@@ -283,8 +294,11 @@ g_pPlutoLogger->Write(LV_STATUS,"loop 1 m_mapPhoneDevice_Detected size: %d",(int
                         strcpy(name, pData);
                     delete pData;
 
-                    printf("device name: %s\n", name);
                     pDNew->m_sID = name;
+					pDNew->m_sID = StringUtils::Replace(pDNew->m_sID, "\n", "");
+					pDNew->m_sID = StringUtils::Replace(pDNew->m_sID, "\r", "");
+					trim(pDNew->m_sID);					
+                    printf("device name: '%s'\n", pDNew->m_sID.c_str());
 
                     g_pPlutoLogger->Write(LV_STATUS, "Device %s, %s responded.", pDNew->m_sMacAddress.c_str(), pDNew->m_sID.c_str());
 
