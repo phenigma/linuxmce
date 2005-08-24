@@ -531,6 +531,7 @@
 #define TEXT_Now_Playing_Section_CONST 1437
 #define TEXT_Now_Playing_Timecode_CONST 1438
 #define TEXT_Now_Playing_Speed_CONST 1442
+#define TEXT_Playlist_Saved_CONST 1443
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

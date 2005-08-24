@@ -2530,6 +2530,8 @@ g_pPlutoLogger->Write(LV_WARNING, "pl2 = %s",sName.c_str());
 
     pEntertainArea->m_pMediaStream->m_iPK_Playlist = iPK_Playlist;
     pEntertainArea->m_pMediaStream->m_sPlaylistName = sName;
+	m_pOrbiter_Plugin->DisplayMessageOnOrbiter(StringUtils::itos(pMessage->m_dwPK_Device_From),
+		"<%=T" + StringUtils::itos(TEXT_Playlist_Saved_CONST) + "%>");
 }
 //<-dceag-c231-b->
 

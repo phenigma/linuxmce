@@ -985,7 +985,7 @@ string Xine_Player::GetPosition()
 // Report to the media plugin the current timecode
 void Xine_Player::ReportTimecode(int iStreamID,int Speed)
 {
-	if( !m_pDeviceData_MediaPlugin )
+	if( !m_pDeviceData_MediaPlugin || !m_pXineSlaveControl->m_iTimeCodeReportFrequency )
 		return;
 
 	g_pPlutoLogger->Write(LV_WARNING,"reporting timecode");
