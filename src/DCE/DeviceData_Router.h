@@ -27,10 +27,20 @@ namespace DCE
 	class Command
 	{
 	public:
-		Command(int PK_Command,string sDescription) { m_dwPK_Command=PK_Command; m_sDescription=sDescription; }
+		Command(int PK_Command,string sDescription,bool bLog) { m_dwPK_Command=PK_Command; m_sDescription=sDescription; m_bLog=bLog; }
+		bool m_bLog;
 		int m_dwPK_Command;
 		string m_sDescription;
 		list<int> m_listPipe;
+	};
+
+	class Event_Router
+	{
+	public:
+		Event_Router(int PK_Event,string sDescription,bool bLog) { m_dwPK_Event=PK_Event; m_sDescription=sDescription; m_bLog=bLog; }
+		bool m_bLog;
+		int m_dwPK_Event;
+		string m_sDescription;
 	};
 
 	class CommandGroup_Command

@@ -274,7 +274,11 @@ Router::~Router()
 		delete (*it).second;
 	m_mapCommand.clear();
 
-    for(map<int,class CommandGroup *>::iterator it=m_mapCommandGroup.begin();it!=m_mapCommandGroup.end();++it)
+    for(map<int,class Event_Router *>::iterator it=m_mapEvent_Router.begin();it!=m_mapEvent_Router.end();++it)
+		delete (*it).second;
+	m_mapEvent_Router.clear();
+
+	for(map<int,class CommandGroup *>::iterator it=m_mapCommandGroup.begin();it!=m_mapCommandGroup.end();++it)
 		delete (*it).second;
 	m_mapCommandGroup.clear();
 
@@ -317,7 +321,6 @@ Router::~Router()
     m_RunningDevices.clear();
     m_MessageQueue.clear();
     m_mapCommandParmNames.clear();
-    m_mapEventNames.clear();
 	m_mapEventParmNames.clear();
 
     m_pAlarmManager->Stop();
@@ -769,6 +772,7 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 
 		string Desc="",sCommand="";
 		Command *pCommand=NULL;
+		Event_Router *pEvent_Router=NULL;
 
 		if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND )
 		{
@@ -780,85 +784,92 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 			}
 		}
 		else if( pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT )
-			Desc = "Event:\x1b[32;1m" + m_mapEventNames[pMessage->m_dwID] + "\x1b[0m";
-
-		int LogType = pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT ? LV_EVENT : (pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND ? LV_ACTION : LV_STATUS);
-		if( pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT || pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND )
 		{
-			if (pMessage->m_dwPK_Device_To == DEVICEID_LIST)
-			{
-				string DeviceList;
-				string::size_type pos=0;
-				while(true)
-				{
-					string Device = StringUtils::Tokenize(pMessage->m_sPK_Device_List_To,",",pos);
-					if( !Device.size() )
-						break;
-					DeviceData_Router *pDeviceData_Router = m_mapDeviceData_Router_Find( atoi(Device.c_str()) );
-					if( pDeviceData_Router )
-						DeviceList += pDeviceData_Router->m_sDescription + "(" + Device + "),";
-					else
-						DeviceList += "**unknown dev: " + Device + ",";
-				}
-
-				g_pPlutoLogger->Write(LogType, "Received Message from %d (\x1b[36;1m%s / %s\x1b[0m) to %s type %d id %d %s, parameters:",
-					pMessage->m_dwPK_Device_From,
-					(pDeviceFrom ? pDeviceFrom->m_sDescription.c_str() : "unknown"),
-					(pDeviceFrom  && pDeviceFrom->m_pRoom ? pDeviceFrom->m_pRoom->m_sDescription.c_str() : ""),
-					DeviceList.c_str(),
-					pMessage->m_dwMessage_Type, pMessage->m_dwID,Desc.c_str());
-			}
-			else if (pMessage->m_dwPK_Device_To != DEVICEID_LOGGER)
-				g_pPlutoLogger->Write(LogType, "Received Message from %d (\x1b[36;1m%s / %s\x1b[0m) to %d (\x1b[36;1m%s / %s\x1b[0m), type %d id %d %s, parameters:",
-					pMessage->m_dwPK_Device_From,
-					(pDeviceFrom ? pDeviceFrom->m_sDescription.c_str() : "unknown"),
-					(pDeviceFrom  && pDeviceFrom->m_pRoom ? pDeviceFrom->m_pRoom->m_sDescription.c_str() : ""),
-					pMessage->m_dwPK_Device_To,
-					(pDeviceTo ? pDeviceTo->m_sDescription.c_str() : "unknown"),
-					(pDeviceTo && pDeviceTo->m_pRoom ? pDeviceTo->m_pRoom->m_sDescription.c_str() : ""),
-					pMessage->m_dwMessage_Type, pMessage->m_dwID,Desc.c_str());
+			pEvent_Router = m_mapEvent_Router_Find(pMessage->m_dwID);
+			if( pEvent_Router )
+				Desc = "Event:\x1b[32;1m" + pEvent_Router->m_sDescription + "\x1b[0m";
 		}
-		else if( pMessage->m_dwMessage_Type != MESSAGETYPE_LOG )
-			g_pPlutoLogger->Write(LV_STATUS, "Received Message from %d (\x1b[36;1m%s\x1b[0m) to %d (\x1b[36;1m%s\x1b[0m), type %d id %d, parameters:",
-				pMessage->m_dwPK_Device_From,
-				(pDeviceFrom ? pDeviceFrom->m_sDescription.c_str() : "unknown"),pMessage->m_dwPK_Device_To,
-				(pDeviceTo ? pDeviceTo->m_sDescription.c_str() : "unknown"),
-				pMessage->m_dwMessage_Type, pMessage->m_dwID);
 
-		if (pMessage->m_dwPK_Device_To != DEVICEID_LOGGER)
+		if( (!pCommand || pCommand->m_bLog) && (!pEvent_Router || pEvent_Router->m_bLog) )
 		{
-			map<long,string>::iterator i;
-			for(i=pMessage->m_mapParameters.begin();i!=pMessage->m_mapParameters.end();++i)
+			int LogType = pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT ? LV_EVENT : (pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND ? LV_ACTION : LV_STATUS);
+			if( pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT || pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND )
 			{
-				Desc="";
-				if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND )
-					Desc = m_mapCommandParmNames[(*i).first];
-				else if( pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT )
-					Desc = m_mapEventParmNames[(*i).first];
-
-				if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && 
-					((*i).first==COMMANDPARAMETER_PK_Command_Input_CONST ||
-					(*i).first==COMMANDPARAMETER_PK_Command_Output_CONST ) )
+				if (pMessage->m_dwPK_Device_To == DEVICEID_LIST)
 				{
-					Command *pCommand = m_mapCommand_Find(atoi((*i).second.c_str()));
-					if( pCommand )
-						Desc += "(" + pCommand->m_sDescription + ")";
+					string DeviceList;
+					string::size_type pos=0;
+					while(true)
+					{
+						string Device = StringUtils::Tokenize(pMessage->m_sPK_Device_List_To,",",pos);
+						if( !Device.size() )
+							break;
+						DeviceData_Router *pDeviceData_Router = m_mapDeviceData_Router_Find( atoi(Device.c_str()) );
+						if( pDeviceData_Router )
+							DeviceList += pDeviceData_Router->m_sDescription + "(" + Device + "),";
+						else
+							DeviceList += "**unknown dev: " + Device + ",";
+					}
+
+					g_pPlutoLogger->Write(LogType, "Received Message from %d (\x1b[36;1m%s / %s\x1b[0m) to %s type %d id %d %s, parameters:",
+						pMessage->m_dwPK_Device_From,
+						(pDeviceFrom ? pDeviceFrom->m_sDescription.c_str() : "unknown"),
+						(pDeviceFrom  && pDeviceFrom->m_pRoom ? pDeviceFrom->m_pRoom->m_sDescription.c_str() : ""),
+						DeviceList.c_str(),
+						pMessage->m_dwMessage_Type, pMessage->m_dwID,Desc.c_str());
 				}
-
-
-				if( pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT || pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND )
-					g_pPlutoLogger->Write(LogType, "  Parameter %d(%s): %s", (*i).first, Desc.c_str(), (*i).second.c_str());
+				else if (pMessage->m_dwPK_Device_To != DEVICEID_LOGGER)
+					g_pPlutoLogger->Write(LogType, "Received Message from %d (\x1b[36;1m%s / %s\x1b[0m) to %d (\x1b[36;1m%s / %s\x1b[0m), type %d id %d %s, parameters:",
+						pMessage->m_dwPK_Device_From,
+						(pDeviceFrom ? pDeviceFrom->m_sDescription.c_str() : "unknown"),
+						(pDeviceFrom  && pDeviceFrom->m_pRoom ? pDeviceFrom->m_pRoom->m_sDescription.c_str() : ""),
+						pMessage->m_dwPK_Device_To,
+						(pDeviceTo ? pDeviceTo->m_sDescription.c_str() : "unknown"),
+						(pDeviceTo && pDeviceTo->m_pRoom ? pDeviceTo->m_pRoom->m_sDescription.c_str() : ""),
+						pMessage->m_dwMessage_Type, pMessage->m_dwID,Desc.c_str());
 			}
-			map<long,unsigned long>::iterator il;
-			for(il=pMessage->m_mapData_Lengths.begin();il!=pMessage->m_mapData_Lengths.end();++il)
+			else if( pMessage->m_dwMessage_Type != MESSAGETYPE_LOG )
+				g_pPlutoLogger->Write(LV_STATUS, "Received Message from %d (\x1b[36;1m%s\x1b[0m) to %d (\x1b[36;1m%s\x1b[0m), type %d id %d, parameters:",
+					pMessage->m_dwPK_Device_From,
+					(pDeviceFrom ? pDeviceFrom->m_sDescription.c_str() : "unknown"),pMessage->m_dwPK_Device_To,
+					(pDeviceTo ? pDeviceTo->m_sDescription.c_str() : "unknown"),
+					pMessage->m_dwMessage_Type, pMessage->m_dwID);
+
+			if (pMessage->m_dwPK_Device_To != DEVICEID_LOGGER)
 			{
-				Desc="";
-				if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND )
-					Desc = m_mapCommandParmNames[(*il).first];
-				else if( pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT )
-					Desc = m_mapEventParmNames[(*il).first];
-				if( pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT || pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND )
-					g_pPlutoLogger->Write(LogType, "  Data Parm %d(%s): %d bytes", (*il).first, Desc.c_str(), (*il).second);
+				map<long,string>::iterator i;
+				for(i=pMessage->m_mapParameters.begin();i!=pMessage->m_mapParameters.end();++i)
+				{
+					Desc="";
+					if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND )
+						Desc = m_mapCommandParmNames[(*i).first];
+					else if( pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT )
+						Desc = m_mapEventParmNames[(*i).first];
+
+					if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && 
+						((*i).first==COMMANDPARAMETER_PK_Command_Input_CONST ||
+						(*i).first==COMMANDPARAMETER_PK_Command_Output_CONST ) )
+					{
+						Command *pCommand = m_mapCommand_Find(atoi((*i).second.c_str()));
+						if( pCommand )
+							Desc += "(" + pCommand->m_sDescription + ")";
+					}
+
+
+					if( pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT || pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND )
+						g_pPlutoLogger->Write(LogType, "  Parameter %d(%s): %s", (*i).first, Desc.c_str(), (*i).second.c_str());
+				}
+				map<long,unsigned long>::iterator il;
+				for(il=pMessage->m_mapData_Lengths.begin();il!=pMessage->m_mapData_Lengths.end();++il)
+				{
+					Desc="";
+					if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND )
+						Desc = m_mapCommandParmNames[(*il).first];
+					else if( pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT )
+						Desc = m_mapEventParmNames[(*il).first];
+					if( pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT || pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND )
+						g_pPlutoLogger->Write(LogType, "  Data Parm %d(%s): %d bytes", (*il).first, Desc.c_str(), (*il).second);
+				}
 			}
 		}
 	}
@@ -2240,7 +2251,7 @@ void Router::Configure()
     for(size_t s=0;s<vectRow_Command.size();++s)
     {
         Row_Command *pRow_Command = vectRow_Command[s];
-        Command *pCommand = new Command(pRow_Command->PK_Command_get(),pRow_Command->Description_get());
+        Command *pCommand = new Command(pRow_Command->PK_Command_get(),pRow_Command->Description_get(),pRow_Command->Log_get());
         vector<Row_Command_Pipe *> vectRow_Command_Pipe;
         pRow_Command->Command_Pipe_FK_Command_getrows(&vectRow_Command_Pipe);
         for(size_t sp=0;sp<vectRow_Command_Pipe.size();++sp)
@@ -2251,7 +2262,17 @@ void Router::Configure()
         m_mapCommand[pRow_Command->PK_Command_get()]=pCommand;
     }
 
-    // Build all the command groups
+    // Build some static arrays
+    vector<Row_Event *> vectRow_Event;
+    GetDatabase()->Event_get()->GetRows("1=1",&vectRow_Event);  // All rows
+    for(size_t s=0;s<vectRow_Event.size();++s)
+    {
+        Row_Event *pRow_Event = vectRow_Event[s];
+        Event_Router *pEvent_Router = new Event_Router(pRow_Event->PK_Event_get(),pRow_Event->Description_get(),pRow_Event->Log_get());
+        m_mapEvent_Router[pRow_Event->PK_Event_get()]=pEvent_Router;
+    }
+
+	// Build all the command groups
     vector<Row_CommandGroup *> vectRow_CommandGroup;
 	Row_Installation *pRow_Installation = GetDatabase()->Installation_get()->GetRow(m_dwPK_Installation);
     pRow_Installation->CommandGroup_FK_Installation_getrows(&vectRow_CommandGroup);  // All rows
@@ -2287,14 +2308,6 @@ void Router::Configure()
 
         }
 
-    }
-
-    vector<Row_Event *> vectRow_Event;
-    GetDatabase()->Event_get()->GetRows("1=1",&vectRow_Event);  // All rows
-    for(size_t s=0;s<vectRow_Event.size();++s)
-    {
-        Row_Event *pRow_Event = vectRow_Event[s];
-        m_mapEventNames[pRow_Event->PK_Event_get()]=pRow_Event->Description_get();
     }
 
     vector<Row_CommandParameter *> vectRow_CommandParameter;

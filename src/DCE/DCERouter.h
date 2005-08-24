@@ -174,9 +174,9 @@ namespace DCE
         // Lots of maps
         map<int,class Room *> m_mapRoom;
         map<int,class Command *> m_mapCommand;
+        map<int,class Event_Router *> m_mapEvent_Router;
         map<int,class CommandGroup *> m_mapCommandGroup;
         map<int,string> m_mapCommandParmNames;
-        map<int,string> m_mapEventNames;
         map<int,string> m_mapEventParmNames;
         map<int,class DeviceData_Router *> m_mapDeviceData_Router;
         map<int,ListDeviceData_Router *> m_mapDeviceByTemplate;
@@ -195,6 +195,7 @@ namespace DCE
         DeviceData_Router *m_mapDeviceData_Router_Find(int PK_Device) { map<int,class DeviceData_Router *>::iterator it = m_mapDeviceData_Router.find(PK_Device); return it==m_mapDeviceData_Router.end() ? NULL : (*it).second; }
         CommandGroup *m_mapCommandGroup_Find(int PK_CommandGroup) { map<int,class CommandGroup *>::iterator it = m_mapCommandGroup.find(PK_CommandGroup); return it==m_mapCommandGroup.end() ? NULL : (*it).second;}
         Command *m_mapCommand_Find(int PK_Command) { map<int,class Command *>::iterator it = m_mapCommand.find(PK_Command); return it==m_mapCommand.end() ? NULL : (*it).second; }
+        Event_Router *m_mapEvent_Router_Find(int PK_Event_Router) { map<int,class Event_Router *>::iterator it = m_mapEvent_Router.find(PK_Event_Router); return it==m_mapEvent_Router.end() ? NULL : (*it).second; }
         Room *m_mapRoom_Find(int PK_Room) { map<int,class Room *>::iterator it = m_mapRoom.find(PK_Room); return it==m_mapRoom.end() ? NULL : (*it).second; }
         const map<int,class DeviceData_Router *> *m_mapDeviceData_Router_get() { return &m_mapDeviceData_Router; };
         const map<int,class DeviceGroup *> *m_mapDeviceGroup_get() { return &m_mapDeviceGroup; };
