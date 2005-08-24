@@ -3396,6 +3396,16 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
                 bHandled |= CaptureKeyboard_EditText_AppendChar( ' ' );
             else if( PK_Button == BUTTON_comma_CONST )
                 bHandled |= CaptureKeyboard_EditText_AppendChar( ',' );
+            else if( PK_Button == BUTTON_dash_CONST )
+                bHandled |= CaptureKeyboard_EditText_AppendChar( '-' );
+            else if( PK_Button == BUTTON_plus_CONST )
+                bHandled |= CaptureKeyboard_EditText_AppendChar( '+' );
+            else if( PK_Button == BUTTON_semicolumn_CONST )
+                bHandled |= CaptureKeyboard_EditText_AppendChar( ';' );
+            else if( PK_Button == BUTTON_quote_CONST )
+                bHandled |= CaptureKeyboard_EditText_AppendChar( '\'' );
+            else if( PK_Button == BUTTON_dot_CONST )
+                bHandled |= CaptureKeyboard_EditText_AppendChar( '.' );
             else if(
                 ( PK_Button >= BUTTON_a_CONST && PK_Button <= BUTTON_z_CONST ) ||
                 ( PK_Button >= BUTTON_A_CONST && PK_Button <= BUTTON_Z_CONST ) ||
@@ -3423,10 +3433,7 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
                 //CaptureKeyboard_UpdateVariableAndText( m_iCaptureKeyboard_PK_Variable,
                 //  m_sCaptureKeyboard_InternalBuffer );
             }
-            else if( PK_Button == BUTTON_left_shift_CONST || PK_Button == BUTTON_right_shift_CONST  )
-                int k = 2; //todo
-            else if( PK_Button == BUTTON_caps_lock_CONST )
-                int k = 2; //todo
+
             if(bHandled)
             {
                 if(NULL != m_pCaptureKeyboard_Text && NULL != m_pCaptureKeyboard_Text->m_pObject)
