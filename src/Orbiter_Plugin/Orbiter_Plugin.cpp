@@ -389,7 +389,10 @@ g_pPlutoLogger->Write(LV_STATUS,"in process");
 
     g_pPlutoLogger->Write(LV_WARNING, "Detected unknown bluetooth device %s", sMacAddress.c_str());
 
-	string Description;
+	if( pRow_DHCPDevice && pRow_DHCPDevice->FK_DeviceTemplate_get() )
+        pUnknownDeviceInfos->m_iPK_DeviceTemplate = pRow_DHCPDevice->FK_DeviceTemplate_get();
+
+    string Description;
 	if( pRow_DHCPDevice && pRow_DHCPDevice->FK_Manufacturer_get() )
 		Description += "  Manufacturer: " + pRow_DHCPDevice->FK_Manufacturer_getrow()->Description_get();
 	if( pRow_DHCPDevice && pRow_DHCPDevice->FK_DeviceCategory_get() )
@@ -423,13 +426,6 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
 
     if(!pOH_Orbiter)
     {
-        PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
-
-        if(NULL == m_mapUnknownDevices_Find(sMacAddress))
-            m_mapUnknownDevices[sMacAddress] = new UnknownDeviceInfos((DeviceData_Router *) pDeviceFrom, pMessage->m_dwPK_Device_From, sID);  // We need to remember who detected this device
-
-        mm.Release();
-
         // We don't know what this is.  Let's see if it's a known phone, or anything else we recognize
         vector<Row_Device *> vectRow_Device;
         m_pDatabase_pluto_main->Device_get()->GetRows( DEVICE_MACADDRESS_FIELD + string("='") + sMacAddress + "' ", &vectRow_Device );
@@ -448,13 +444,22 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
             // we need to ask the user if it's a phone that he wants to use on the system.
             if( !vectRow_UnknownDevices.size() )
             {
+                PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
+                if(NULL == m_mapUnknownDevices_Find(sMacAddress))
+                    m_mapUnknownDevices[sMacAddress] = new UnknownDeviceInfos((DeviceData_Router *) pDeviceFrom, pMessage->m_dwPK_Device_From, sID);  // We need to remember who detected this device
+                mm.Release();
+
 				g_pPlutoLogger->Write(LV_STATUS,"Need to process.  Bit flag is: %d",(int) m_bNoUnknownDeviceIsProcessing);
 
                 if(!m_bNoUnknownDeviceIsProcessing) //the list was empty... we are processing the first unknown device
                     ProcessUnknownDevice();
             }
 			else
-				g_pPlutoLogger->Write(LV_STATUS,"Ignoring unknown device %s",sMacAddress.c_str());
+            {
+                //this is a known 'unknown device' :)
+                g_pPlutoLogger->Write(LV_STATUS,"Ignoring unknown device %s",sMacAddress.c_str());
+            }
+				
         }
     }
     else
@@ -895,18 +900,26 @@ void Orbiter_Plugin::CMD_Set_Current_Room(int iPK_Room,string &sCMD_Result,Messa
 void Orbiter_Plugin::CMD_New_Mobile_Orbiter(int iPK_Users,int iPK_DeviceTemplate,string sMac_address,string &sCMD_Result,Message *pMessage)
 //<-dceag-c78-e->
 {
-    if( !iPK_DeviceTemplate )
-        iPK_DeviceTemplate = DEVICETEMPLATE_Symbian_Series_60_mobile_CONST;  // hack - todo fix this
-//		send orbiter to prompt for mobile phone model
+    //todo: remove 'iPK_DeviceTemplate' from the parameters list
 
-    printf("CMD_New_Mobile_Orbiter\n");
+    UnknownDeviceInfos *pUnknownDevice = m_mapUnknownDevices_Find(sMac_address);
 
-    int iFK_Room = 1;
+    if(pUnknownDevice)
+        iPK_DeviceTemplate = pUnknownDevice->m_iPK_DeviceTemplate;
+    else
+        g_pPlutoLogger->Write(LV_WARNING, "The unknown device info for this mac %s! wasn't found!", sMac_address.c_str());
+
+    if(!iPK_DeviceTemplate)
+    {
+        g_pPlutoLogger->Write(LV_CRITICAL, "No device template set for this mac %s! Assuming that is a nokia...", sMac_address.c_str());
+        iPK_DeviceTemplate = DEVICETEMPLATE_Symbian_Series_60_mobile_CONST;
+    }
 
 	PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);	
 	UnknownDeviceInfos *pUnknownDeviceInfos = m_mapUnknownDevices[sMac_address];
 	mm.Release();
 
+    int iFK_Room = 1;
     if( pUnknownDeviceInfos && pUnknownDeviceInfos->m_iDeviceIDFrom && pUnknownDeviceInfos->m_pDeviceFrom->m_pRoom)
         iFK_Room = pUnknownDeviceInfos->m_pDeviceFrom->m_pRoom->m_dwPK_Room;
 
