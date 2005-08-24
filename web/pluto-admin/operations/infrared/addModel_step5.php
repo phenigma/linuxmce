@@ -1,6 +1,6 @@
 <?
 	$multiInputsCategs=array(103,77,126,98,109);
-	$mediaTypesDT=array(106,104,107,105,108,135);
+	$mediaTypesDT=array(77,106,104,107,105,108,135);
 	
 	$dtID=$_REQUEST['dtID'];
 	if($dtID==0){
@@ -188,7 +188,23 @@ If this device is something like a receiver or tv where you can connect other de
 		// process
 
 		if($dtID!=0){
+			if(isset($_POST['displayedMT'])){
+				// process media type checkboxes if available
+				$displayedMTArray=explode(',',$_POST['displayedMT']);
+				$checkedMTArray=explode(',',$_POST['checkedMT']);
+				foreach ($displayedMTArray AS $mediaType){
+					if(isset($_POST['mediaType_'.$mediaType])){
+						if(!in_array($mediaType,$checkedMTArray)){
+							$publicADO->Execute('INSERT INTO DeviceTemplate_MediaType (FK_DeviceTemplate,FK_MediaType) VALUES (?,?)',array($dtID,$mediaType));
+						}
+					}elseif(in_array($mediaType,$checkedMTArray)){
+						$publicADO->Execute('DELETE FROM DeviceTemplate_MediaType WHERE FK_DeviceTemplate=? AND FK_MediaType=?',array($dtID,$mediaType));
+					}
+				}
+			}
+			
 			if($is==1){
+				$publicADO->debug=true;
 				$dtMediaType=(int)$_POST['dtMediaType'];
 				if($dtMediaType>0){
 					$publicADO->Execute('INSERT INTO DeviceTemplate_MediaType (FK_DeviceTemplate,FK_MediaType) VALUES (?,?)',array($dtID,$dtMediaType));	

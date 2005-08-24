@@ -15,7 +15,7 @@ function addModel($output,$dbADO)
 	getDeviceCategoryChildsArray($GLOBALS['rootAVEquipment'],$dbADO);
 	$avDeviceCategories=cleanArray($GLOBALS['childsDeviceCategoryArray']);
 	
-	if(in_array($dcID,$avDeviceCategories)){
+	if(!in_array($dcID,$avDeviceCategories)){
 		include('operations/addBasicModel.php');
 	}else{
 		if(file_exists('operations/infrared/addModel_step'.$step.'.php'))

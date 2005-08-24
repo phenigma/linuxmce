@@ -2896,9 +2896,11 @@ function getControlledViaDeviceTemplates($deviceID,$dtID,$deviceCategory,$dbADO)
 		WHERE FK_Installation=? $whereClause order by Device.Description asc";
 	$resDeviceTemplate = $dbADO->Execute($queryDeviceTemplate,$installationID);
 	$optionsArray=array();
+	$optionsArrayLowerCase=array();
 	if($resDeviceTemplate) {
 		while ($row=$resDeviceTemplate->FetchRow()) {
 			$optionsArray[$row['PK_Device']]=$row['Description'];
+			$optionsArrayLowerCase[$row['PK_Device']]=strtolower($row['Description']);
 		}
 	}
 	
@@ -2926,12 +2928,16 @@ function getControlledViaDeviceTemplates($deviceID,$dtID,$deviceCategory,$dbADO)
 
 		foreach($devicesAllowedToControll as $key => $value){
 			$optionsArray[$key]=$value;
-			//$selectOptions.='<option value="'.$key.'" '.(($rowD['FK_Device_ControlledVia']==$key)?'selected':'').'>'.$value.'</option>';
+			$optionsArrayLowerCase[$key]=strtolower($value);
 		}
 	}
-	asort ($optionsArray, SORT_STRING);
+	asort ($optionsArrayLowerCase, SORT_STRING);
+	$optionsArrayOriginal=array();
+	foreach ($optionsArrayLowerCase As $id=>$label){
+		$optionsArrayOriginal[$id]=$optionsArray[$id];
+	}
 
-	return $optionsArray;
+	return $optionsArrayOriginal;
 }
 
 
@@ -4300,6 +4306,34 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 		}
 	}
 	return $out;
+}
+
+function getMediaTypeCheckboxes($dtID,$publicADO)
+{
+	$mediaTypeCheckboxes='';
+	$resMT=$publicADO->Execute('
+		SELECT MediaType.Description, PK_MediaType, FK_DeviceTemplate 
+		FROM MediaType 
+		LEFT JOIN DeviceTemplate_MediaType ON FK_MediaType=PK_MediaType AND FK_DeviceTemplate=?
+		WHERE DCEaware=0',$dtID);
+	$displayedMT=array();
+	$checkedMT=array();
+	while($rowMT=$resMT->FetchRow()){
+		$checked='';
+		$displayedMT[]=$rowMT['PK_MediaType'];
+		if($rowMT['FK_DeviceTemplate']!=''){
+			$checked='checked';
+			$checkedMT[]=$rowMT['PK_MediaType'];
+		}
+			
+		$mediaTypeCheckboxes.='<input type="checkbox" name="mediaType_'.$rowMT['PK_MediaType'].'" '.@$checked.'>'.str_replace('np_','',$rowMT['Description']).' ';
+		$mediaTypeCheckboxes.=((count($displayedMT))%5==0)?'<br>':'';
+	}
+	$mediaTypeCheckboxes.='
+	<input type="hidden" name="displayedMT" value="'.join(',',$displayedMT).'">
+	<input type="hidden" name="checkedMT" value="'.join(',',$checkedMT).'">';
+	
+	return $mediaTypeCheckboxes;
 }
 
 ?>

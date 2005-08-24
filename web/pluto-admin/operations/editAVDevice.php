@@ -237,7 +237,7 @@ function editAVDevice($output,$dbADO,$mediaADO) {
 				for($pos=0;$pos<count($codesArray[$categNames[$i]]['FK_DeviceTemplate']);$pos++){
 					$codeCommandsKeys=array_keys($codesArray[$categNames[$i]]['FK_DeviceTemplate']);
 					$irg_c=$codeCommandsKeys[$pos];
-					$out.=formatCode($codesArray[$categNames[$i]],$irg_c,$infraredGroupID,$dtID);
+					$out.=formatCode($codesArray[$categNames[$i]],$irg_c,$infraredGroupID,$dtID,$deviceID);
 				}
 			}
 						
@@ -372,7 +372,7 @@ function editAVDevice($output,$dbADO,$mediaADO) {
 	$output->output();
 }
 
-function formatCode($dataArray,$pos,$infraredGroupID,$dtID){
+function formatCode($dataArray,$pos,$infraredGroupID,$dtID,$deviceID){
 
 	if($dataArray['DefaultOrder'][$pos]==1){
 		$RowColor='lightblue';
@@ -387,7 +387,7 @@ function formatCode($dataArray,$pos,$infraredGroupID,$dtID){
 			<tr bgcolor="'.$RowColor.'">
 				<td align="center" width="100"><B>'.$dataArray['Description'][$pos].'</B> <br><input type="button" class="button" name="learnCode" value="New code" onClick="windowOpen(\'index.php?section=newIRCode&deviceID='.$dataArray['FK_Device'][$pos].'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$dataArray['FK_Command'][$pos].'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');" '.((!isset($_SESSION['userID']))?'disabled':'').'></td>
 				<td><textarea name="irData_'.$pos.'" rows="2" style="width:100%">'.$dataArray['IRData'][$pos].'</textarea></td>
-				<td align="center" width="100">'.$deleteButton.' <br> <input type="button" class="button" name="testCode" value="Test code" onClick="self.location=\'index.php?section=editAVDevice&from=avWizard&dtID='.$dtID.'&deviceID='.$dataArray['FK_Device'][$pos].'&infraredGroupID='.$infraredGroupID.'&action=testCode&owner='.$dataArray['psc_user'][$pos].'&ig_c='.$pos.'&irCode=\'+escape(document.editAVDevice.irData_'.$pos.'.value);"> <a name="test_'.$pos.'"></td>
+				<td align="center" width="100">'.$deleteButton.' <br> <input type="button" class="button" name="testCode" value="Test code" onClick="self.location=\'index.php?section=editAVDevice&from=avWizard&dtID='.$dtID.'&deviceID='.$deviceID.'&infraredGroupID='.$infraredGroupID.'&action=testCode&owner='.$dataArray['psc_user'][$pos].'&ig_c='.$pos.'&irCode=\'+escape(document.editAVDevice.irData_'.$pos.'.value);"> <a name="test_'.$pos.'"></td>
 			</tr>
 		</table>';
 

@@ -13,10 +13,10 @@
 	}
 	$dtArray=getFieldsAsArray('DeviceTemplate_AV','NumericEntry',$publicADO,'WHERE FK_DeviceTemplate='.$dtID);
 	
-	$isEnter=(strpos($dtArray['NumericEntry'][0],'E')!==false)?1:0;
+	$isEnter=(strpos(@$dtArray['NumericEntry'][0],'E')!==false)?1:0;
 	$isEnter=((int)@$_REQUEST['isDef']==1)?1:$isEnter;
 	
-	$digits=str_replace('E','',$dtArray['NumericEntry'][0]);
+	$digits=str_replace('E','',@$dtArray['NumericEntry'][0]);
 	$digits=((int)@$_REQUEST['isDef']==1)?'':$digits;
 	
 	$cdContent=(in_array($dtDataArray['FK_DeviceCategory'][0],$dtDataArray))?'<p class="normaltext">'.$dtDataArray['Description'][0].' devices don’t normally tune to stations or channels, so you can probably ignore this step and just click next.':'';

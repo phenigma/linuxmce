@@ -25,8 +25,8 @@
 				<td>Toggle means there is only 1 button which toggles between on and off, called ‘Toggle Power’.  You hit it once and it’s on, hit it again and it’s off.  Whenever possible avoid devices with toggle because then it’s possible to get out of sync, where the system sends a Toggle Power to turn it on, but in fact it really turned it off.</td>
 			</tr>
 			<tr>
-				<td style="padding-left:50px;"><input type="radio" name="TogglePower" value="0" '.(($dtArray['TogglePower'][0]==0)?'checked':'').'> My device has discrete, separate on/off commands<br>
-					<input type="radio" name="TogglePower" value="1" '.(($dtArray['TogglePower'][0]==1)?'checked':'').'> My device only has a single toggle power button</td>
+				<td style="padding-left:50px;"><input type="radio" name="TogglePower" value="0" '.((@$dtArray['TogglePower'][0]==0)?'checked':'').'> My device has discrete, separate on/off commands<br>
+					<input type="radio" name="TogglePower" value="1" '.((@$dtArray['TogglePower'][0]==1)?'checked':'').'> My device only has a single toggle power button</td>
 			</tr>
 			<tr>
 				<td align="center">&nbsp;</td>

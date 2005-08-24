@@ -732,6 +732,11 @@ $out='';
 		</script>
 		';
 	} else {
+		if(isset($_SESSION['userID'])){
+			header("Location: index.php?section=editMasterDevice&model=".$deviceID.'&error=You must be logged in in order to modify device templates.');
+			exit();
+		}
+		
 		if(isset($_REQUEST['doID'])){
 			$doID=(int)$_REQUEST['doID'];
 			$dbADO->Execute('DELETE FROM DeviceTemplate_DesignObj WHERE FK_DeviceTemplate=? AND FK_DesignObj=?',array($deviceID,$doID));

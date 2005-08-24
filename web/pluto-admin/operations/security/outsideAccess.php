@@ -187,6 +187,10 @@ function outsideAccess($output,$dbADO) {
 			if(isset($_POST['allowOnPassword'])){
 				$password=$_POST['password'];
 				writeToFile($accessFile, 'remote',@$remote,$password);
+				if(isset($remote) && $remote!=$password){
+					$cmd='sudo -u root /usr/pluto/bin/RA_ChangePassword.sh';
+					exec($cmd);
+				}
 			}else {
 				removeFromFile('remote',$accessFile);
 			}

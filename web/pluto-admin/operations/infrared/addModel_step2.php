@@ -18,13 +18,13 @@
 		
 		<table class="normaltext" align="center">
 			<tr>
-				<td>After sending a code to turn the power on wait <input type="text" name="IR_PowerDelay" value="'.(((int)@$_REQUEST['isDef']==1)?'7':$dtArray['IR_PowerDelay'][0]).'" size="2"> seconds for the device to warm up before sending other codes.</td>
+				<td>After sending a code to turn the power on wait <input type="text" name="IR_PowerDelay" value="'.(((int)@$_REQUEST['isDef']==1)?'7':@$dtArray['IR_PowerDelay'][0]).'" size="2"> seconds for the device to warm up before sending other codes.</td>
 			</tr>
 			<tr>
-				<td>After changing inputs or modes on this device wait <input type="text" name="IR_ModeDelay" value="2" size="'.(((int)@$_REQUEST['isDef']==1)?'2':$dtArray['IR_ModeDelay'][0]).'"> seconds before sending other codes.</td>
+				<td>After changing inputs or modes on this device wait <input type="text" name="IR_ModeDelay" value="2" size="'.(((int)@$_REQUEST['isDef']==1)?'2':@$dtArray['IR_ModeDelay'][0]).'"> seconds before sending other codes.</td>
 			</tr>		
 			<tr>
-				<td>When sending a series of codes, such as a sequence of digits to tune to a channel, wait <input type="text" name="DigitDelay" value="'.(((int)@$_REQUEST['isDef']==1)?'0.250':round($dtArray['DigitDelay'][0]/1000,3)).'" size="2"> seconds* between commands (up to 3 decimal places).</td>
+				<td>When sending a series of codes, such as a sequence of digits to tune to a channel, wait <input type="text" name="DigitDelay" value="'.(((int)@$_REQUEST['isDef']==1)?'0.250':round(@$dtArray['DigitDelay'][0]/1000,3)).'" size="2"> seconds* between commands (up to 3 decimal places).</td>
 			</tr>		
 			<tr>
 				<td align="center"><input type="submit" class="button" name="add" value="next"> <input type="button" class="button" name="skip" value="skip a/v properties wizard and just show me i/r codes" onclick="self.location=\'index.php?section=irCodes&dtID='.$dtID.'\'"></td>
