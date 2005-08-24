@@ -63,6 +63,8 @@
 #define EVENT_DESCRIPTION_TABLE_FIELD "Event.Description"
 #define EVENT_DEFINE_FIELD "Define"
 #define EVENT_DEFINE_TABLE_FIELD "Event.Define"
+#define EVENT_LOG_FIELD "Log"
+#define EVENT_LOG_TABLE_FIELD "Event.Log"
 #define EVENT_PSC_ID_FIELD "psc_id"
 #define EVENT_PSC_ID_TABLE_FIELD "Event.psc_id"
 #define EVENT_PSC_BATCH_FIELD "psc_batch"

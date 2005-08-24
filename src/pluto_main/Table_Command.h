@@ -83,6 +83,7 @@ string m_Define;
 long int m_FK_CommandCategory;
 short int m_AVCommand;
 string m_Comments;
+short int m_Log;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -90,7 +91,7 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[12];
+		bool is_null[13];
 	
 	public:
 		long int PK_Command_get();
@@ -99,6 +100,7 @@ string Define_get();
 long int FK_CommandCategory_get();
 short int AVCommand_get();
 string Comments_get();
+short int Log_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -113,6 +115,7 @@ void Define_set(string val);
 void FK_CommandCategory_set(long int val);
 void AVCommand_set(short int val);
 void Comments_set(string val);
+void Log_set(short int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -173,7 +176,7 @@ void InfraredGroup_Command_FK_Command_getrows(vector <class Row_InfraredGroup_Co
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Command+ m_Description+ m_Define+ m_FK_CommandCategory+ m_AVCommand+ m_Comments+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_Command+ m_Description+ m_Define+ m_FK_CommandCategory+ m_AVCommand+ m_Comments+ m_Log+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -184,6 +187,7 @@ string Define_asSQL();
 string FK_CommandCategory_asSQL();
 string AVCommand_asSQL();
 string Comments_asSQL();
+string Log_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

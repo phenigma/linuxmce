@@ -660,6 +660,8 @@
 #define COMMAND_AVCOMMAND_TABLE_FIELD "Command.AVCommand"
 #define COMMAND_COMMENTS_FIELD "Comments"
 #define COMMAND_COMMENTS_TABLE_FIELD "Command.Comments"
+#define COMMAND_LOG_FIELD "Log"
+#define COMMAND_LOG_TABLE_FIELD "Command.Log"
 #define COMMAND_PSC_ID_FIELD "psc_id"
 #define COMMAND_PSC_ID_TABLE_FIELD "Command.psc_id"
 #define COMMAND_PSC_BATCH_FIELD "psc_batch"
