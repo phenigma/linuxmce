@@ -4324,9 +4324,25 @@ function getMediaTypeCheckboxes($dtID,$publicADO)
 		if($rowMT['FK_DeviceTemplate']!=''){
 			$checked='checked';
 			$checkedMT[]=$rowMT['PK_MediaType'];
+
+			$mediaProvidersArray=getAssocArray('MediaProvider','PK_MediaProvider','Description',$mediaADO,'WHERE EK_MediaType='.$rowMT['PK_MediaType']);
+			if($deviceID!=0){
+				$ddMediaProvider=getFieldsAsArray('Device_DeviceData','IK_DeviceData',$dbADO,'WHERE FK_Device='.$deviceID.' AND FK_DeviceData='.$GLOBALS['MediaProvider']);
+				$ddParts=explode(',',$ddMediaProvider['IK_DeviceData'][0]);
+				$currentMediaProvider=array();
+				foreach ($ddParts AS $mpForMediaType){
+					$mpParts=explode(':',$mpForMediaType);
+					@$currentMediaProvider[$mpParts[0]]=@$mpParts[1];
+				}
+				if(count($mediaProvidersArray)==0){
+					$puldown='&nbsp;';
+				}else{
+					$puldown=pulldownFromArray($mediaProvidersArray,'mediaProvider_'.$rowMT['PK_MediaType'],@$currentMediaProvider[$rowMT['PK_MediaType']]);
+				}
+			}
 		}
 			
-		$mediaTypeCheckboxes.='<input type="checkbox" name="mediaType_'.$rowMT['PK_MediaType'].'" '.@$checked.'>'.str_replace('np_','',$rowMT['Description']).' ';
+		$mediaTypeCheckboxes.='<input type="checkbox" name="mediaType_'.$rowMT['PK_MediaType'].'" '.@$checked.'>'.str_replace('np_','',$rowMT['Description']).' '.@$puldown;
 		$mediaTypeCheckboxes.=((count($displayedMT))%5==0)?'<br>':'';
 	}
 	$mediaTypeCheckboxes.='

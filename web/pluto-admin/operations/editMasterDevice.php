@@ -732,7 +732,7 @@ $out='';
 		</script>
 		';
 	} else {
-		if(isset($_SESSION['userID'])){
+		if(!isset($_SESSION['userID'])){
 			header("Location: index.php?section=editMasterDevice&model=".$deviceID.'&error=You must be logged in in order to modify device templates.');
 			exit();
 		}
