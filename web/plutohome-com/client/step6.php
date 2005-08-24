@@ -87,11 +87,12 @@ $videoArray=getAssocArray('DeviceTemplate','PK_DeviceTemplate','Description',$db
 											<td>&nbsp;</td>
 										</tr>';
 		$queryMediaDirectors='
-							SELECT Device.*, Room.Description AS Room
-							FROM Device
-							LEFT JOIN Room ON FK_Room=PK_Room
-							WHERE FK_DeviceTemplate=? AND Device.FK_Installation=?';
-		$resMediaDirectors=$dbADO->Execute($queryMediaDirectors,array($GLOBALS['rootGenericMediaDirector'],$installationID));
+			SELECT Device.*, Room.Description AS Room
+			FROM Device
+			LEFT JOIN Room ON FK_Room=PK_Room
+			INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
+			WHERE FK_DeviceCategory=? AND Device.FK_Installation=?';
+		$resMediaDirectors=$dbADO->Execute($queryMediaDirectors,array($GLOBALS['rootMediaDirectorID'],$installationID));
 		$displayedDevices=array();
 		if($resMediaDirectors->RecordCount()==0){
 			$out.='		<tr class="normaltext">
@@ -285,7 +286,6 @@ $videoArray=getAssocArray('DeviceTemplate','PK_DeviceTemplate','Description',$db
 				$rowRoom=$resRoom->FetchRow();
 				$roomID=$rowRoom['PK_Room'];
 			}
-	
 	
 			$diskless=(isset($_POST['disklessBoot_']))?$_POST['disklessBoot_']:0;
 			$macAddress=($diskless!=0)?$_POST['mdMAC']:NULL;
