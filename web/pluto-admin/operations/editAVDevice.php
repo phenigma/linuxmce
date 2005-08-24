@@ -277,6 +277,19 @@ function editAVDevice($output,$dbADO,$mediaADO) {
 		$time_start = getmicrotime();
 		//$dbADO->debug=true;
 		
+		if($action=='testCode'){
+			$irCode=stripslashes($_REQUEST['irCode']);
+			$ig_c=(int)$_REQUEST['ig_c'];
+			$owner=(int)$_REQUEST['owner'];
+			if($owner==$userID){
+				$dbADO->Execute('UPDATE InfraredGroup_Command SET IRData=? WHERE PK_InfraredGroup_Command=?',array($irCode,$ig_c));
+			}
+			$commandToTest='/usr/pluto/bin/MessageSend localhost 0 '.$deviceID.' 1 191 70 "'.$irCode.'"';
+			exec($commandToTest);
+			header("Location: index.php?section=editAVDevice&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&msg=The command was sent.&label=".$GLOBALS['label'].'#test_'.$ig_c);
+			exit();
+		}		
+		
 		$newIRGroup=((int)@$_POST['irGroup']>0)?(int)$_POST['irGroup']:NULL;
 		$oldIRGroup=(int)$_POST['oldIRGroup'];
 		if($newIRGroup!=$oldIRGroup){
@@ -374,7 +387,7 @@ function formatCode($dataArray,$pos,$infraredGroupID,$dtID){
 			<tr bgcolor="'.$RowColor.'">
 				<td align="center" width="100"><B>'.$dataArray['Description'][$pos].'</B> <br><input type="button" class="button" name="learnCode" value="New code" onClick="windowOpen(\'index.php?section=newIRCode&deviceID='.$dataArray['FK_Device'][$pos].'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$dataArray['FK_Command'][$pos].'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');" '.((!isset($_SESSION['userID']))?'disabled':'').'></td>
 				<td><textarea name="irData_'.$pos.'" rows="2" style="width:100%">'.$dataArray['IRData'][$pos].'</textarea></td>
-				<td align="center" width="100">'.$deleteButton.'</td>
+				<td align="center" width="100">'.$deleteButton.' <br> <input type="button" class="button" name="testCode" value="Test code" onClick="self.location=\'index.php?section=editAVDevice&from=avWizard&dtID='.$dtID.'&deviceID='.$dataArray['FK_Device'][$pos].'&infraredGroupID='.$infraredGroupID.'&action=testCode&owner='.$dataArray['psc_user'][$pos].'&ig_c='.$pos.'&irCode=\'+escape(document.editAVDevice.irData_'.$pos.'.value);"> <a name="test_'.$pos.'"></td>
 			</tr>
 		</table>';
 

@@ -56,7 +56,7 @@ function wizardOrbiters($output,$dbADO) {
 			// WARNING: hard-coded values
 			$orbiterDD[]=3;			// default user
 			$orbiterDD[]=20;		// No effects
-			$orbiterDD[]=21;		// Main menu
+			$orbiterDD[]=21;		// Main 
 			$orbiterDD[]=22;		// Sleeping menu
 			$orbiterDD[]=23;		// Screen saver menu
 			$orbiterDD[]=24;		// Skin
@@ -267,7 +267,7 @@ function wizardOrbiters($output,$dbADO) {
 			header("Location: index.php?section=devices&error=You are not authorised to change the installation.");
 			exit(0);
 		}
-		
+$dbADO->debug=true;
 		if(isset($_POST['QuickRegenAll'])){
 			$ResetRouter=((int)@$_POST['reset_all']==1)?' 24 1':'';
 			setOrbitersNeedConfigure($installationID,$dbADO);
@@ -462,13 +462,15 @@ function formatDDRows($rowD,$dbADO)
 			if($selSkin!=0){
 				$defMenuArray=getFieldsAsArray('Skin','FK_DesignObj_MainMenu',$dbADO,'WHERE PK_Skin='.$selSkin);
 				$defaultMenuValue=$defMenuArray['FK_DesignObj_MainMenu'][0];
-
+				$selectedMenuArray=getFieldsAsArray('Device_DeviceData','IK_DeviceData',$dbADO,'WHERE FK_Device='.$rowD['PK_Device'].' AND FK_DeviceData=91');
+				$selectedMenu=(isset($selectedMenuArray['IK_DeviceData'][0]))?$selectedMenuArray['IK_DeviceData'][0]:$selectedMenu;
+				
 				$objArray=getArrayFromTable('DeviceTemplate_DesignObj','FK_DesignObj','Description',$dbADO,'INNER JOIN DesignObj ON FK_DesignObj=PK_DesignObj WHERE FK_DeviceTemplate=8','ORDER BY Description ASC');
 				$ddHTML.='
-										<tr>
-											<td align="right"><B>Main menu</B></td>
-											<td>'.pulldownFromArray($objArray,'mainMenu_'.$rowD['PK_Device'],$selectedMenu,'','key','- Please select -',$defaultMenuValue).'</td>
-										</tr>';
+						<tr>
+							<td align="right"><B>Main menu</B></td>
+							<td>'.pulldownFromArray($objArray,'mainMenu_'.$rowD['PK_Device'],$selectedMenu,'','key','- Please select -',$defaultMenuValue).'</td>
+						</tr>';
 			}
 		}
 		unset($ddValue);

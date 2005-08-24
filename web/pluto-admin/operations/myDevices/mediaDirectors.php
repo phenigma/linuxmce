@@ -369,6 +369,9 @@ function mediaDirectors($output,$dbADO) {
 		$displayedDevicesArray=explode(',',@$_POST['displayedDevices']);
 		foreach($displayedDevicesArray as $value){
 			if(isset($_POST['delete_'.$value])){
+				$mdData=getFieldsAsArray('Device','IPaddress,MACaddress',$dbADO,'WHERE PK_Device='.$value);
+				$cmd='sudo -u root /usr/pluto/bin/DeleteMD.sh "'.$mdData['IPaddress'][0].'" "'.$mdData['MACaddress'][0].'"';
+				exec($cmd);
 				deleteDevice($value,$dbADO);
 			}
 		}

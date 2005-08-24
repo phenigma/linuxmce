@@ -1066,7 +1066,7 @@ function getChilds($parentID,$dbADO) {
 		$jsTree='';
 			while ($row2 = $rs2->FetchRow()) {		
 				$jsTree.= '
-					auxS'.$row2['PK_DeviceCategory'].' = insFld(auxS'.$parentID.', gFld("'.$row2['Description'].' #'.$row2['PK_DeviceCategory'].'", "javascript:document.forms[0].deviceCategSelected.value='.$parentID.';document.forms[0].deviceSelected.value='.$row2['PK_DeviceCategory'].';document.forms[0].actionX.value=null;document.forms[0].submit();"))
+					auxS'.$row2['PK_DeviceCategory'].' = insFld(auxS'.$parentID.', gFld("'.$row2['Description'].' #'.$row2['PK_DeviceCategory'].'", "javascript:setPicker('.$row2['PK_DeviceCategory'].',\"'.$row2['Description'].'\");"))
 					auxS'.$row2['PK_DeviceCategory'].'.xID = '.$row2['PK_DeviceCategory'].';
 				';
 				$jsTree.=getChilds($row2['PK_DeviceCategory'],$dbADO);
@@ -1363,6 +1363,7 @@ function pickDeviceTemplate_old($categoryID, $boolManufacturer,$boolCategory,$bo
 								function checkEdit(objF) {
 										if(document.'.$section.'.model.selectedIndex!=0){							
 											objF.section.value=\'editMasterDevice\';
+						
 											objF.submit();
 										}
 								}
@@ -3988,7 +3989,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 		cssClass='normaltext'
 		USETEXTLINKS = 1
 		STARTALLOPEN = 0
-		USEFRAMES = 0
+		USEFRAMES = $useframes
 		USEICONS = 0
 		WRAPTEXT = 1
 		PRESERVESTATE = 1
@@ -3998,7 +3999,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 		";
 		if(is_null($categoryID)){
 			$scriptInHead.="
-				foldersTree = gFld('<b>Device Category</b>', \"javascript:setPicker(0,'');\");";
+				foldersTree = gFld('<b>Device Category</b>', 'javascript:setPicker(0,\"\");');";
 		}else{
 			$queryCategoryName='SELECT Description FROM DeviceCategory WHERE PK_DeviceCategory=?';
 			$resCategoryName=$dbADO->Execute($queryCategoryName,$categoryID);
@@ -4054,6 +4055,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 			if(document.$formName.manufacturers.selectedIndex!=0 && document.$formName.manufacturers.selectedIndex!=-1){
 				document.getElementById('manufInfo').innerHTML=document.$formName.manufacturers.options[document.$formName.manufacturers.selectedIndex].text;
 			}
+
 			if(val!='manufacturers'){
 				document.getElementById('categInfo').innerHTML=descr;
 				document.$formName.deviceSelected.value=val;
@@ -4145,7 +4147,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 							<script>
 								function checkEdit(targetSection) {
 									if(document.'.$formName.'.model.selectedIndex!=0){							
-										self.location=\'index.php?section=deviceTemplatePicker&dtID=\'+document.'.$formName.'.model[document.'.$formName.'.model.selectedIndex].value;
+										self.location=\'index.php?section=editMasterDevice&model=\'+document.'.$formName.'.model[document.'.$formName.'.model.selectedIndex].value;
 									}
 								}
 		
@@ -4234,7 +4236,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 		
 		 $deviceCategSelected = (int)$_POST['deviceCategSelected'];
 		 $deviceSelected = (int)$_POST['deviceSelected'];
-		 $manufacturerSelected = (int)$_POST['manufacturers'];
+		 $manufacturerSelected = (int)@$_POST['manufacturers'];
 	
 		 // process form only if user is logged
 		 if (isset($_SESSION['userLoggedIn']) && $_SESSION['userLoggedIn']===true) {
