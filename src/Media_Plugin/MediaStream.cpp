@@ -397,6 +397,11 @@ void MediaStream::UpdateDescriptions(bool bAllFiles,MediaFile *pMediaFile_In)
 			m_sMediaDescription = pRow_Attribute_Title->Name_get();
 		if( pRow_Attribute_Chapter )
 			m_sSectionDescription = pRow_Attribute_Chapter->Name_get();
+		else if( m_iDequeMediaTitle_Pos!=-1 && m_iDequeMediaSection_Pos!=-1 )
+			m_sSectionDescription = "Title: " + StringUtils::itos(m_iDequeMediaTitle_Pos+1) + "\n"
+				+ "Chapter: " + StringUtils::itos(m_iDequeMediaSection_Pos+1);
+		else
+			m_sSectionDescription = "";
 	}
 	else
 	{
