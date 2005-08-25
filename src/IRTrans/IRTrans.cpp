@@ -181,6 +181,14 @@ bool IRTrans::Register()
 void IRTrans::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
+	// Let the IR Base class try to handle the message
+	if (IRBase::ProcessMessage(pMessage))
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"Message %d processed by IRBase class",pMessage->m_dwID);
+		sCMD_Result = "OK";
+		return;
+	}
+
 	sCMD_Result = "UNHANDLED CHILD";
 }
 
@@ -291,4 +299,24 @@ void IRTrans::CMD_Display_Message(string sText,string sType,string sName,string 
 //<-dceag-c406-e->
 {
 	NewMessage(atoi(sType.c_str()),sName,sText,atoi(sTime.c_str()));
+}
+
+void IRTrans::SendIR(string Port, string IRCode)
+{
+	g_pPlutoLogger->Write(LV_STATUS,"IRTrans Sending: %s",IRCode.c_str());
+#ifdef LINUX
+	int res;
+	IRDATA ird;
+		
+	res = DecodeCCF (szProntoCode,&ird,START);
+	if (res <= 0) {
+		sprintf (err,"Illegal Pronto command\n");
+		log_print (err, LOG_ERROR);
+		return;
+	}
+
+	ird.address = 0;
+	ird.target_mask = 0xffff;
+	DoSendIR (&ird,0,0);
+#endif
 }
