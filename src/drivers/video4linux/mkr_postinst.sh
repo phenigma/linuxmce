@@ -7,3 +7,8 @@
 	echo -n "Running depmod .... "
 	depmod -a
 	echo "done"
+
+	if ! grep -q '^cx88-ivtv$' /etc/modules; then
+		echo cx88-ivtv >>/etc/modules
+	fi
+	modprobe cx88-ivtv || /bin/true
