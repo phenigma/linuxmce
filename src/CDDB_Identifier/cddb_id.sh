@@ -77,7 +77,13 @@ Tag="$DiscID$Tab$DARTIST$Tab$DALBUM$Tab$CDGENRE"
 
 for ((i = 1; i <= $TrackCount; i++)); do
 	Title="$(eval echo \$TRACK$i)"
-	[[ -z "$Title" ]] && Title="Track $i"
+	if [[ -z "$Title" ]]; then
+		if ((i < 10)); then
+			Title="Track 0$i"
+		else
+			Title="Track $i"
+		fi
+	fi
 	Tag="$Tag$Tab$Title"
 done
 output "$Tag"
