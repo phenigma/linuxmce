@@ -62,6 +62,8 @@ extern "C"
 #include "webserver.h"
 #include "flash.h"
 #include "xap.h"
+#include "ccf.h"
+	
 	int libmain (int argc,char *argv[]);
 	void DoExecuteNetCommand (int client,NETWORKCOMMAND *com,STATUSBUFFER *stat);
 	void LCDBrightness (int val);
@@ -308,10 +310,9 @@ void IRTrans::SendIR(string Port, string IRCode)
 	int res;
 	IRDATA ird;
 		
-	res = DecodeCCF (szProntoCode,&ird,START);
+	res = DecodeCCF ((char *) IRCode.c_str(),&ird,START);
 	if (res <= 0) {
-		sprintf (err,"Illegal Pronto command\n");
-		log_print (err, LOG_ERROR);
+		g_pPlutoLogger->Write(LV_CRITICAL,"Illegal Pronto command %s",IRCode.c_str());
 		return;
 	}
 
