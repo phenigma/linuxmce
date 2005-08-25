@@ -147,6 +147,8 @@ protected:
 	virtual void handleStart() {};
 	virtual void handleStop() {};
 
+	virtual void Start();
+
 private:
 /*	bool IsMessageProcessed(MessageReplicator& repl);
 	void MarkMessageProcessed(MessageReplicator& repl);

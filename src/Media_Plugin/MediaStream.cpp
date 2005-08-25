@@ -371,6 +371,9 @@ void MediaStream::UpdateDescriptions(bool bAllFiles,MediaFile *pMediaFile_In)
 
 		if( pMediaFile && pMediaFile->m_sDescription.size()==0 )
 			pMediaFile->m_sDescription = pMediaFile->m_sFilename;
+
+		if( m_sMediaDescription.size()==0 )
+			m_sMediaDescription = "<%=T" + StringUtils::itos(TEXT_Unknown_Disc_CONST) + "%>";
 	}
 	else if( MEDIATYPE_pluto_DVD_CONST )
 	{
@@ -402,14 +405,19 @@ void MediaStream::UpdateDescriptions(bool bAllFiles,MediaFile *pMediaFile_In)
 				+ "Chapter: " + StringUtils::itos(m_iDequeMediaSection_Pos+1);
 		else
 			m_sSectionDescription = "";
+
+		if( m_sMediaDescription.size()==0 )
+			m_sMediaDescription = "<%=T" + StringUtils::itos(TEXT_Unknown_Disc_CONST) + "%>";
 	}
 	else
 	{
 	}
 
-
-	if( m_sMediaDescription.size()==0 )
-		m_sMediaDescription = "<%=T" + StringUtils::itos(TEXT_Unknown_Disc_CONST) + "%>";
+	if( m_sMediaDescription.size()==0 && m_dequeMediaFile.size() && m_iDequeMediaFile_Pos<m_dequeMediaFile.size() )
+	{
+		MediaFile *pMediaFile = m_dequeMediaFile[m_iDequeMediaFile_Pos];
+		m_sMediaDescription = pMediaFile->m_sFilename;
+	}
 }
 
 string MediaStream::GetEntAreasWithout(EntertainArea *pEntertainArea)

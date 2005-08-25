@@ -90,6 +90,7 @@ IRTrans::IRTrans(int DeviceID, string ServerAddress,bool bConnectEventHandler,bo
         , IRReceiverBase(this,m_pData), VFD_LCD_Base(40,2,20)
 //<-dceag-const-e->
 {
+	IRBase::setCommandImpl(this);
 	m_bIRServerRunning=false;
 	g_pIRTrans=this;
 	FileUtils::DelDir("remotes");
@@ -192,6 +193,13 @@ void IRTrans::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &
 	}
 
 	sCMD_Result = "UNHANDLED CHILD";
+}
+
+// Must override so we can call IRBase::Start() after creating children
+void IRTrans::CreateChildren()
+{
+	IRTrans_Command::CreateChildren();
+	Start();
 }
 
 /*

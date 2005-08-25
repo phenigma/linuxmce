@@ -15,6 +15,7 @@
 #include "MessageTranslation.h"
 
 #include <assert.h>
+#include "DCE/Logger.h"
 
 #define POOL_IDLE_SLEEP					50
 #define MARKPARAM_MESSAGE_PROCESS		((unsigned long)-1)
@@ -105,7 +106,8 @@ MessageTranslationManager::ProcessMessage(Message* pmsg) {
 	};
 
 	if(threadid_ == 0) {
-		pthread_create(&threadid_, NULL, _queueproc, (void*)this);
+		g_pPlutoLogger->Write(LV_CRITICAL,"MessageTranslationManager::Start was never called");
+		return false;
 	}
 
 	bool ret = false;
@@ -115,6 +117,13 @@ MessageTranslationManager::ProcessMessage(Message* pmsg) {
 	ret = ProcessReplicator(msgrepl, msgqueue_);
 	msgqueue_.unlock();
 	return ret;
+}
+
+void 
+MessageTranslationManager::Start() {
+	if(threadid_ == 0) {
+		pthread_create(&threadid_, NULL, _queueproc, (void*)this);
+	}
 }
 
 bool

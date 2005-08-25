@@ -29,6 +29,7 @@ protected:
 	virtual void SendIR(string Port, string IRCode) = 0;
 
 	virtual void handleStart();
+	virtual void handleStart(Command_Impl *pCommand_Impl);
 	virtual void handleStop();
 
 private:

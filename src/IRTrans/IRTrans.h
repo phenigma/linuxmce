@@ -28,6 +28,7 @@ public:
 		void GotIRCommand(const char *pRemote,const char *pCommand);
 		void DoUpdateDisplay(vector<string> *vectString);  // Put this message on the VFD Display
 		virtual void SendIR(string Port, string IRCode); // Required from IRBase
+		virtual void CreateChildren(); // Must override so we can call IRBase::Start() after creating children
 
 //<-dceag-const-b->
 public:

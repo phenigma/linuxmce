@@ -35,35 +35,46 @@ void
 IRBase::handleStart() {
 	// get details (IR sequences, Delays, etc.) of all child devices
 	g_pPlutoLogger->Write(LV_STATUS, "In IRBase::ParseDevices");
-	if(!getCommandImpl()) {
+	Command_Impl *pCommand_Impl = getCommandImpl();
+	if(!pCommand_Impl) {
 		return;
 	}
-	
-	// pair: {long (DeviceID), Command_Impl *}
-	MapCommand_Impl::iterator it;
-	for(MapCommand_Impl::iterator it = getCommandImpl()->m_mapCommandImpl_Children.begin(); 
-			it != getCommandImpl()->m_mapCommandImpl_Children.end(); ++it)
-	{
-		long devid = (*it).first;
 
-		g_pPlutoLogger->Write(LV_STATUS, "Requested IR cored for device: %lu", devid);
-		
-		map<int,string> mapClass;  
-		// this will have all the Ruby code, where int is the PK_Command and string is the codeint 
-		int iSize=0; char* pData = NULL; // Place holders for the 'out' parameter
-		DCE::CMD_Get_Infrared_Codes_DT CMD_Get_Infrared_Codes_DT(devid, DEVICETEMPLATE_Infrared_Plugin_CONST,
-					BL_SameHouse, devid, &pData, &iSize);
-		getCommandImpl()->SendCommand(CMD_Get_Infrared_Codes_DT);  // Get the codes from I/R Plugin
-		IRDevice irDevice;
-		irDevice.SerializeRead(iSize, pData); // De-serialize the data
-		
-		g_pPlutoLogger->Write(LV_STATUS, "IR Code count: %d", mapClass.size());
-				
-		for(map<int,string>::iterator it = irDevice.m_mapCodes.begin(); it != irDevice.m_mapCodes.end(); it++ ) {
-			long cmdid = (*it).first;
-			codemap_[longPair(devid, cmdid)] = (*it).second;
-			g_pPlutoLogger->Write(LV_STATUS, "Loaded IR code for Device %ld, Action %ld", devid, cmdid);
-		}
+	MapCommand_Impl::iterator it;
+	for(MapCommand_Impl::iterator it = pCommand_Impl->m_mapCommandImpl_Children.begin(); 
+			it != pCommand_Impl->m_mapCommandImpl_Children.end(); ++it)
+	{
+		handleStart(it->second);
+	}
+}
+
+void 
+IRBase::handleStart(Command_Impl *pCommand_Impl) {
+	long devid = pCommand_Impl->m_pData->m_dwPK_Device;
+
+	g_pPlutoLogger->Write(LV_STATUS, "Requested IR cored for device: %lu", devid);
+	
+	map<int,string> mapClass;  
+	// this will have all the Ruby code, where int is the PK_Command and string is the codeint 
+	int iSize=0; char* pData = NULL; // Place holders for the 'out' parameter
+	DCE::CMD_Get_Infrared_Codes_DT CMD_Get_Infrared_Codes_DT(devid, DEVICETEMPLATE_Infrared_Plugin_CONST,
+				BL_SameHouse, devid, &pData, &iSize);
+	getCommandImpl()->SendCommand(CMD_Get_Infrared_Codes_DT);  // Get the codes from I/R Plugin
+	IRDevice irDevice;
+	irDevice.SerializeRead(iSize, pData); // De-serialize the data
+	
+	g_pPlutoLogger->Write(LV_STATUS, "IR Code count: %d", mapClass.size());
+			
+	for(map<int,string>::iterator it = irDevice.m_mapCodes.begin(); it != irDevice.m_mapCodes.end(); it++ ) {
+		long cmdid = (*it).first;
+		codemap_[longPair(devid, cmdid)] = (*it).second;
+		g_pPlutoLogger->Write(LV_STATUS, "Loaded IR code for Device %ld, Action %ld", devid, cmdid);
+	}
+	MapCommand_Impl::iterator it;
+	for(MapCommand_Impl::iterator it = pCommand_Impl->m_mapCommandImpl_Children.begin(); 
+			it != pCommand_Impl->m_mapCommandImpl_Children.end(); ++it)
+	{
+		handleStart(it->second);
 	}
 }
 

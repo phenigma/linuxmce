@@ -67,6 +67,7 @@ public:
 	void setCommandImpl(Command_Impl* pcmdimpl) {
 		pcmdimpl_ = pcmdimpl;
 	}
+
 private:
 	Command_Impl* pcmdimpl_;
 };
