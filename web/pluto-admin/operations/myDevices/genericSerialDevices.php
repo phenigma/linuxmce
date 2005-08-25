@@ -127,7 +127,7 @@ function genericSerialDevices($output,$dbADO) {
 				$DDTypesToDisplay=array();	
 							$queryDevice='
 					SELECT 
-						Device.*, DeviceTemplate.Description AS TemplateName, DeviceCategory.Description AS CategoryName,Manufacturer.Description AS ManufacturerName,IsIPBased,DeviceTemplate_AV.UsesIR
+						Device.*, DeviceTemplate.Description AS TemplateName, DeviceCategory.Description AS CategoryName,Manufacturer.Description AS ManufacturerName,IsIPBased
 					FROM Device 
 						INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate
 						LEFT JOIN DeviceTemplate_AV ON Device.FK_DeviceTemplate=DeviceTemplate_AV.FK_DeviceTemplate
@@ -252,7 +252,7 @@ function genericSerialDevices($output,$dbADO) {
 					}
 					
 					$buttons='';
-					$buttons.='	<input type="button" class="button" name="btn" value="Ruby Source Code" onClick="windowOpen(\'index.php?section=irCodes&from=genericSerialDevices&deviceID='.$rowD['PK_Device'].'&dtID='.$rowD['FK_DeviceTemplate'].'&from=genericSerialDevices&label=ruby\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');"> ';
+					$buttons.='	<input type="button" class="button" name="btn" value="Ruby Source Code" onClick="windowOpen(\'index.php?section=rubyCodes&from=genericSerialDevices&deviceID='.$rowD['PK_Device'].'&dtID='.$rowD['FK_DeviceTemplate'].'&from=genericSerialDevices&label=ruby\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');"> ';
 					$buttons.=' <input type="submit" class="button" name="delete_'.$rowD['PK_Device'].'" value="Delete"  onclick="return confirm(\'Are you sure you want to delete this device?\');"></td>';
 					
 					$controlledByPulldown='<select name="controlledBy_'.$rowD['PK_Device'].'">

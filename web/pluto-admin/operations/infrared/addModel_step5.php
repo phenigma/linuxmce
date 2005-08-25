@@ -1,7 +1,7 @@
 <?
 	$multiInputsCategs=array(103,77,126,98,109);
 	$mediaTypesDT=array(77,106,104,107,105,108,135);
-	
+
 	$dtID=$_REQUEST['dtID'];
 	if($dtID==0){
 		header('Location: index.php');
@@ -130,6 +130,7 @@
 			<input type="hidden" name="action" value="add">
 			<input type="hidden" name="dtID" value="'.$dtID.'">
 			<input type="hidden" name="commandsOrder" value="">
+			<input type="hidden" name="deviceID" value="'.$deviceID.'">
 
 		';
 		if(!in_array($dtDataArray['FK_DeviceCategory'][0],$multiInputsCategs)){
@@ -139,7 +140,7 @@
 If this device is something like a receiver or tv where you can connect other devices to it, then you will need to assign inputs.  A VCR also has multiple inputs, or sources, because it has two built in sources: a video cassette player and also a tuner for live tv, and there is usually a ‘toggle input’ button to switch between those 2 sources.';
 		}
 		if(in_array($dtDataArray['FK_DeviceCategory'][0],$mediaTypesDT)){
-			$out.='<div class="normaltext" align="center"><B>Media Type:</B><br>'.getMediaTypeCheckboxes($dtID,$publicADO).'</div>';
+			$out.='<div class="normaltext" align="center"><B>Media Type:</B><br>'.getMediaTypeCheckboxes($dtID,$publicADO,$mediadbADO,$deviceID).'</div>';
 		}
 		
 		$out.='
@@ -190,16 +191,28 @@ If this device is something like a receiver or tv where you can connect other de
 		if($dtID!=0){
 			if(isset($_POST['displayedMT'])){
 				// process media type checkboxes if available
+				
+				if($deviceID!=0){
+					$newMediaProvider=array();
+				}				
 				$displayedMTArray=explode(',',$_POST['displayedMT']);
 				$checkedMTArray=explode(',',$_POST['checkedMT']);
 				foreach ($displayedMTArray AS $mediaType){
 					if(isset($_POST['mediaType_'.$mediaType])){
+						if($deviceID!=0){
+							if((int)@$_POST['mediaProvider_'.$mediaType]!=0)
+								$newMediaProvider[]=$mediaType.':'.(int)$_POST['mediaProvider_'.$mediaType];
+						}
+						
 						if(!in_array($mediaType,$checkedMTArray)){
 							$publicADO->Execute('INSERT INTO DeviceTemplate_MediaType (FK_DeviceTemplate,FK_MediaType) VALUES (?,?)',array($dtID,$mediaType));
 						}
 					}elseif(in_array($mediaType,$checkedMTArray)){
 						$publicADO->Execute('DELETE FROM DeviceTemplate_MediaType WHERE FK_DeviceTemplate=? AND FK_MediaType=?',array($dtID,$mediaType));
 					}
+				}
+				if($deviceID!=0){
+					$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array(join(',',$newMediaProvider),$deviceID,$GLOBALS['MediaProvider']));
 				}
 			}
 			

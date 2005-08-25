@@ -103,7 +103,7 @@ function mediaScenarios($output,$dbADO) {
 					$out.='<option value="'.$deviceID.'-'.@$deviceTemplatesArray[$deviceID].'" '.((@$_POST['MSDevice']==$deviceID.'-'.@$deviceTemplatesArray[$deviceID])?'selected':'').' '.((!isset($deviceTemplatesArray[$deviceID]))?'style="background:red;"':'style="background:white;"').'>'.$description.'</option>';
 				}
 				$out.='
-						</select>'.((count($devicesMediaType)!=count($deviceTemplatesArray))?' Devices in red do not have any media types set on the A/V Properties page.  Go to the <a href="index.php?section=avWizard">A/V Equipment</a> page and choose A/V Properties to set them.':'').'</td>
+						</select>'.((count($devicesMediaType)!=count($deviceTemplatesArray))?' Devices in red do not have any media types set on the A/V Properties page or they are not assigned to this entertain area.  Go to the <a href="index.php?section=avWizard">A/V Equipment</a> page and choose A/V Properties to set them.':'').'</td>
 					</tr>';
 			if($resDevices->RecordCount()==0){
 				$out.='

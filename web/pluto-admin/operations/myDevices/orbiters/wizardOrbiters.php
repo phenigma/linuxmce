@@ -66,6 +66,7 @@ function wizardOrbiters($output,$dbADO) {
 			$orbiterDD[]=84;		// Leave Monitor on for OSD
 			$orbiterDD[]=91;		// Main Menu
 			$orbiterDD[]=104;		// UI
+			$orbiterDD[]=111;		// Using Infrared
 
 			$excludedData['standard_roaming_orbiters']=array('state');
 			$excludedData['mobile_orbiters']=array(84,20,'room','wifi',56);
@@ -267,7 +268,7 @@ function wizardOrbiters($output,$dbADO) {
 			header("Location: index.php?section=devices&error=You are not authorised to change the installation.");
 			exit(0);
 		}
-$dbADO->debug=true;
+
 		if(isset($_POST['QuickRegenAll'])){
 			$ResetRouter=((int)@$_POST['reset_all']==1)?' 24 1':'';
 			setOrbitersNeedConfigure($installationID,$dbADO);

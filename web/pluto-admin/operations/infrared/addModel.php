@@ -1,9 +1,11 @@
 <?
-function addModel($output,$dbADO)
+function addModel($output,$dbADO,$mediadbADO)
 {
 
 	/* @var $dbADO ADOConnection */
 	global $PlutoHomeHost;
+	
+	$deviceID=(int)@$_REQUEST['deviceID'];
 	$userID=(int)@$_SESSION['userID'];
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$step=$_REQUEST['step'];
@@ -15,7 +17,7 @@ function addModel($output,$dbADO)
 	getDeviceCategoryChildsArray($GLOBALS['rootAVEquipment'],$dbADO);
 	$avDeviceCategories=cleanArray($GLOBALS['childsDeviceCategoryArray']);
 	
-	if(!in_array($dcID,$avDeviceCategories)){
+	if(isset($_REQUEST['dcID']) && !in_array($dcID,$avDeviceCategories)){
 		include('operations/addBasicModel.php');
 	}else{
 		if(file_exists('operations/infrared/addModel_step'.$step.'.php'))

@@ -797,12 +797,12 @@ switch ($section) {
 	    include_once('operations/deviceTemplatePicker.php');
 	    deviceTemplatePicker($output,$dbADO);
 	break;
-	case 'irCodes':
+	case 'rubyCodes':
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('small');
-	    include_once('operations/irCodes.php');
+	    include_once('operations/rubyCodes.php');
 	    $output->setHelpSrc('/support/index.php?section=document&docID=132');
-	    irCodes($output,$dbADO);
+	    rubyCodes($output,$dbADO,$mediadbADO);
 	break;
 	case 'avWizard':
 		$output = new Template($dbADO);
@@ -1250,7 +1250,7 @@ switch ($section) {
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('small');
 	    include_once('operations/infrared/addModel.php');
-	    addModel($output,$dbADO);
+	    addModel($output,$dbADO,$mediadbADO);
 	break;
 	case 'displayCode';
 		$output = new Template($dbADO);

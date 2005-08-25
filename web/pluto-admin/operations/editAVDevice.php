@@ -8,6 +8,7 @@ function editAVDevice($output,$dbADO,$mediaADO) {
 
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
+	global $inputCommandsArray, $dspmodeCommandsArray;
 	
 	$out='';
 //	$dbADO->debug=true;;
@@ -120,27 +121,16 @@ function editAVDevice($output,$dbADO,$mediaADO) {
 				<td valign="top" colspan="2">Power: <B>'.(($rowDTData['TogglePower']==0)?'Discrete':'Toggle').'</B> <a href="index.php?section=addModel&step=4&dtID='.$dtID.'">[change/explain]</a><td>
 			</tr>		
 			<tr>
-				<td valign="top" colspan="2">Inputs: <B>'.join(', ',$inputCommandsArray).'</B> <a href="index.php?section=addModel&step=5&dtID='.$dtID.'">[change/explain]</a><td>
+				<td valign="top" colspan="2">Inputs: <B>'.join(', ',$inputCommandsArray).'</B> <a href="index.php?section=addModel&step=5&dtID='.$dtID.'&deviceID='.$deviceID.'">[change/explain]</a><td>
 			</tr>		
 			<tr>
 				<td valign="top" colspan="2">DSP Modes: <B>'.join(', ',$dspmodeCommandsArray).'</B> <a href="index.php?section=addModel&step=6&dtID='.$dtID.'">[change/explain]</a><td>
 			</tr>		
 		';
+			$irGroups=getAssocArray('InfraredGroup','PK_InfraredGroup','Description',$dbADO,'WHERE FK_Manufacturer='.$manufacturerID.' AND FK_DeviceCategory='.$deviceCategoryID,'ORDER BY Description ASC');
 			$out.='
 			<tr>
-				<td colspan="2">Uses Group/Codeset <select name="irGroup" onChange="document.editAVDevice.submit();">
-					<option value="0" '.(($infraredGroupID==0)?'selected':'').'>I don\'t know the group</option>';
-			$queryIG='
-				SELECT PK_InfraredGroup,InfraredGroup.Description 
-				FROM InfraredGroup 
-				WHERE FK_Manufacturer=? AND FK_DeviceCategory=?
-				ORDER BY Description ASC';
-			$resIG=$dbADO->Execute($queryIG,array($manufacturerID,$deviceCategoryID));
-			while($rowIG=$resIG->FetchRow()){
-				$out.='<option value="'.$rowIG['PK_InfraredGroup'].'" '.(($rowIG['PK_InfraredGroup']==$infraredGroupID)?'selected':'').'>'.$rowIG['Description'].'</option>';
-			}
-			$out.='
-				</select></td>
+				<td colspan="2">Uses Group/Codeset '.pulldownFromArray($irGroups,'irGroup',$infraredGroupID,'onChange="document.editAVDevice.submit();"','key','I don\'t know the group').'</td>
 		</tr>';
 			
 		$out.='
@@ -154,100 +144,15 @@ function editAVDevice($output,$dbADO,$mediaADO) {
 			<tr>
 				<td colspan="3" align="center"><input type="button" class="button" name="button" value="Add/Remove commands" '.$GLOBALS['btnEnabled'].' onClick="windowOpen(\'index.php?section=infraredCommands&infraredGroup='.$infraredGroupID.'&deviceID='.$deviceID.'&dtID='.$dtID.(($GLOBALS['label']!='infrared')?'&rootNode=1':'').'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"> <input type="submit" class="button" name="update" value="Update" '.((!isset($_SESSION['userID']))?'disabled':'').'></td>
 			</tr>';
+		
+		// extract data from InfraredGroup_Command an put it in multi-dimmensional array
+		$codesArray=extractCodesTree($infraredGroupID,$dbADO);
+		
+		// display the html rows 
+		$out.=getCodesTableRows($infraredGroupID,$dtID,$deviceID,$codesArray);
+		
 
-		$codesQuery='
-			SELECT 
-				PK_InfraredGroup_Command,
-				FK_DeviceTemplate,
-				FK_Device,
-				InfraredGroup_Command.psc_user,
-				IRData,
-				Command.Description,
-				IF(PK_Command=192 OR PK_Command=193 OR PK_Command=194,1, IF(FK_CommandCategory=22,2, IF(FK_CommandCategory=27,3, IF(FK_CommandCategory=21,4,5) ) ) ) AS GroupOrder,
-				IF( InfraredGroup_Command.psc_user=?,2, IF( FK_DeviceTemplate IS NULL AND FK_Device IS NULL,1,3) ) As DefaultOrder,
-				CommandCategory.Description AS CommandCategory,
-				FK_Command 
-			FROM InfraredGroup_Command 
-			JOIN Command ON FK_Command=PK_Command JOIN CommandCategory ON FK_CommandCategory=PK_CommandCategory 
-			WHERE '.(($infraredGroupID==0)?'FK_InfraredGroup IS NULL':'FK_InfraredGroup='.$infraredGroupID).' 
-			ORDER BY GroupOrder,CommandCategory.Description,Description,DefaultOrder';
-
-		$res=$dbADO->Execute($codesQuery,array($userID));
-		$codesArray=array();
-		while($row=$res->FetchRow()){
-			$codesArray[$row['CommandCategory']]['FK_DeviceTemplate'][$row['PK_InfraredGroup_Command']]=$row['FK_DeviceTemplate'];
-			$codesArray[$row['CommandCategory']]['FK_Device'][$row['PK_InfraredGroup_Command']]=$row['FK_Device'];
-			$codesArray[$row['CommandCategory']]['psc_user'][$row['PK_InfraredGroup_Command']]=$row['psc_user'];
-			$codesArray[$row['CommandCategory']]['Description'][$row['PK_InfraredGroup_Command']]=$row['Description'];
-			$codesArray[$row['CommandCategory']]['CommandCategory'][$row['PK_InfraredGroup_Command']]=$row['CommandCategory'];
-			$codesArray[$row['CommandCategory']]['FK_Command'][$row['PK_InfraredGroup_Command']]=$row['FK_Command'];
-			$codesArray[$row['CommandCategory']]['IRData'][$row['PK_InfraredGroup_Command']]=$row['IRData'];
-			$codesArray[$row['CommandCategory']]['DefaultOrder'][$row['PK_InfraredGroup_Command']]=$row['DefaultOrder'];
-			$GLOBALS['displayedIRGC'][]=$row['PK_InfraredGroup_Command'];
-			$GLOBALS['displayedCommands'][]=$row['FK_Command'];
-			
-			if(in_array($row['FK_Command'],array_keys($inputCommandsArray))){
-				unset ($inputCommandsArray[$row['FK_Command']]);
-			}
-			
-			if(in_array($row['FK_Command'],array_keys($dspmodeCommandsArray))){
-				unset ($dspmodeCommandsArray[$row['FK_Command']]);
-			}
-		}
-		
-		
-		$categNames=array_keys($codesArray);
-		if(!in_array('Inputs',$categNames)){
-			$categNames[]='Inputs';
-		}
-		if(!in_array('DSP Modes',$categNames)){
-			$categNames[]='DSP Modes';
-		}
-		
-		
-		for($i=0;$i<count($categNames);$i++){
-			$out.='
-			<tr>
-				<td colspan="3" align="center">
-					<fieldset style="width:98%">
-						<legend><B>'.$categNames[$i].'</B></legend>';
-			// display input commands not implemented
-			if($categNames[$i]=='Inputs'){
-				if(count($inputCommandsArray)>0){
-					$out.='Input commands not implemented: ';
-					foreach ($inputCommandsArray AS $inputId=>$inputName){
-						$inputCommandsArray[$inputId]='<a href="javascript:windowOpen(\'index.php?section=newIRCode&deviceID=0&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$inputId.'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');">'.$inputName.'</a>';
-					}
-					$out.='<b>'.join(', ',$inputCommandsArray).'</b> <em>(Click to add)</em>';
-				}		
-			}
-			
-			// display DSP modes commands not implemented
-			if($categNames[$i]=='DSP Modes'){
-				if(count($dspmodeCommandsArray)>0){
-					$out.='DSP Mode commands not implemented: ';
-					foreach ($dspmodeCommandsArray AS $dspmId=>$dspmName){
-						$dspmodeCommandsArray[$dspmId]='<a href="javascript:windowOpen(\'index.php?section=newIRCode&deviceID=0&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$dspmId.'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');">'.$dspmName.'</a>';
-					}
-					$out.='<b>'.join(', ',$dspmodeCommandsArray).'</b> <em>(Click to add)</em>';
-				}		
-			}
-			
-			if(isset($codesArray[$categNames[$i]]['FK_DeviceTemplate'])){
-				for($pos=0;$pos<count($codesArray[$categNames[$i]]['FK_DeviceTemplate']);$pos++){
-					$codeCommandsKeys=array_keys($codesArray[$categNames[$i]]['FK_DeviceTemplate']);
-					$irg_c=$codeCommandsKeys[$pos];
-					$out.=formatCode($codesArray[$categNames[$i]],$irg_c,$infraredGroupID,$dtID,$deviceID);
-				}
-			}
-						
-			$out.='
-					</fieldset>
-				</td>
-			</tr>	
-			';
-		}
-			$out.='
+		$out.='
 			<tr>
 				<td colspan="3" align="center"><table>
 					<tr>
@@ -372,26 +277,4 @@ function editAVDevice($output,$dbADO,$mediaADO) {
 	$output->output();
 }
 
-function formatCode($dataArray,$pos,$infraredGroupID,$dtID,$deviceID){
-
-	if($dataArray['DefaultOrder'][$pos]==1){
-		$RowColor='lightblue';
-	}
-	else{
-		$RowColor=(isset($_SESSION['userID']) && $dataArray['psc_user'][$pos]==@$_SESSION['userID'])?'yellow':'lightyellow';
-	}
-	$deleteButton=(isset($_SESSION['userID']) && $dataArray['psc_user'][$pos]==@$_SESSION['userID'])?'<input type="button" class="button" name="delCustomCode" value="Delete code" onClick="if(confirm(\'Are you sure you want to delete this code?\')){document.editAVDevice.action.value=\'delete\';document.editAVDevice.irgroup_command.value='.$pos.';document.editAVDevice.submit();}">':'';
-
-	$out='
-		<table width="100%">
-			<tr bgcolor="'.$RowColor.'">
-				<td align="center" width="100"><B>'.$dataArray['Description'][$pos].'</B> <br><input type="button" class="button" name="learnCode" value="New code" onClick="windowOpen(\'index.php?section=newIRCode&deviceID='.$dataArray['FK_Device'][$pos].'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$dataArray['FK_Command'][$pos].'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');" '.((!isset($_SESSION['userID']))?'disabled':'').'></td>
-				<td><textarea name="irData_'.$pos.'" rows="2" style="width:100%">'.$dataArray['IRData'][$pos].'</textarea></td>
-				<td align="center" width="100">'.$deleteButton.' <br> <input type="button" class="button" name="testCode" value="Test code" onClick="self.location=\'index.php?section=editAVDevice&from=avWizard&dtID='.$dtID.'&deviceID='.$deviceID.'&infraredGroupID='.$infraredGroupID.'&action=testCode&owner='.$dataArray['psc_user'][$pos].'&ig_c='.$pos.'&irCode=\'+escape(document.editAVDevice.irData_'.$pos.'.value);"> <a name="test_'.$pos.'"></td>
-			</tr>
-		</table>';
-
-	return $out;
-
-}
 ?>

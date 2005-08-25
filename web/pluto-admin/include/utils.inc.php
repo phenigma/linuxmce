@@ -4308,7 +4308,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 	return $out;
 }
 
-function getMediaTypeCheckboxes($dtID,$publicADO)
+function getMediaTypeCheckboxes($dtID,$publicADO,$mediaADO,$deviceID)
 {
 	$mediaTypeCheckboxes='';
 	$resMT=$publicADO->Execute('
@@ -4321,13 +4321,14 @@ function getMediaTypeCheckboxes($dtID,$publicADO)
 	while($rowMT=$resMT->FetchRow()){
 		$checked='';
 		$displayedMT[]=$rowMT['PK_MediaType'];
+		$puldown='&nbsp;';
 		if($rowMT['FK_DeviceTemplate']!=''){
 			$checked='checked';
 			$checkedMT[]=$rowMT['PK_MediaType'];
 
 			$mediaProvidersArray=getAssocArray('MediaProvider','PK_MediaProvider','Description',$mediaADO,'WHERE EK_MediaType='.$rowMT['PK_MediaType']);
 			if($deviceID!=0){
-				$ddMediaProvider=getFieldsAsArray('Device_DeviceData','IK_DeviceData',$dbADO,'WHERE FK_Device='.$deviceID.' AND FK_DeviceData='.$GLOBALS['MediaProvider']);
+				$ddMediaProvider=getFieldsAsArray('Device_DeviceData','IK_DeviceData',$publicADO,'WHERE FK_Device='.$deviceID.' AND FK_DeviceData='.$GLOBALS['MediaProvider']);
 				$ddParts=explode(',',$ddMediaProvider['IK_DeviceData'][0]);
 				$currentMediaProvider=array();
 				foreach ($ddParts AS $mpForMediaType){
@@ -4350,6 +4351,139 @@ function getMediaTypeCheckboxes($dtID,$publicADO)
 	<input type="hidden" name="checkedMT" value="'.join(',',$checkedMT).'">';
 	
 	return $mediaTypeCheckboxes;
+}
+
+// extract codes and put them in a multi dimensional array
+function extractCodesTree($infraredGroupID,$dbADO,$restriction=''){
+	global $inputCommandsArray, $dspmodeCommandsArray;
+
+	$userID=(int)@$_SESSION['userID'];
+	$codesQuery='
+			SELECT 
+				PK_InfraredGroup_Command,
+				FK_DeviceTemplate,
+				FK_Device,
+				InfraredGroup_Command.psc_user,
+				IRData,
+				Command.Description,
+				IF(PK_Command=192 OR PK_Command=193 OR PK_Command=194,1, IF(FK_CommandCategory=22,2, IF(FK_CommandCategory=27,3, IF(FK_CommandCategory=21,4,5) ) ) ) AS GroupOrder,
+				IF( InfraredGroup_Command.psc_user=?,2, IF( FK_DeviceTemplate IS NULL AND FK_Device IS NULL,1,3) ) As DefaultOrder,
+				CommandCategory.Description AS CommandCategory,
+				FK_Command 
+			FROM InfraredGroup_Command 
+			JOIN Command ON FK_Command=PK_Command JOIN CommandCategory ON FK_CommandCategory=PK_CommandCategory 
+			WHERE '.(($infraredGroupID==0)?'FK_InfraredGroup IS NULL':'FK_InfraredGroup='.$infraredGroupID).$restriction.'
+			ORDER BY GroupOrder,CommandCategory.Description,Description,DefaultOrder';
+
+	$res=$dbADO->Execute($codesQuery,array($userID));
+	$codesArray=array();
+	while($row=$res->FetchRow()){
+		$codesArray[$row['CommandCategory']]['FK_DeviceTemplate'][$row['PK_InfraredGroup_Command']]=$row['FK_DeviceTemplate'];
+		$codesArray[$row['CommandCategory']]['FK_Device'][$row['PK_InfraredGroup_Command']]=$row['FK_Device'];
+		$codesArray[$row['CommandCategory']]['psc_user'][$row['PK_InfraredGroup_Command']]=$row['psc_user'];
+		$codesArray[$row['CommandCategory']]['Description'][$row['PK_InfraredGroup_Command']]=$row['Description'];
+		$codesArray[$row['CommandCategory']]['CommandCategory'][$row['PK_InfraredGroup_Command']]=$row['CommandCategory'];
+		$codesArray[$row['CommandCategory']]['FK_Command'][$row['PK_InfraredGroup_Command']]=$row['FK_Command'];
+		$codesArray[$row['CommandCategory']]['IRData'][$row['PK_InfraredGroup_Command']]=$row['IRData'];
+		$codesArray[$row['CommandCategory']]['DefaultOrder'][$row['PK_InfraredGroup_Command']]=$row['DefaultOrder'];
+		$GLOBALS['displayedIRGC'][]=$row['PK_InfraredGroup_Command'];
+		$GLOBALS['displayedCommands'][]=$row['FK_Command'];
+
+		// remove input commands from input array if they are implemented
+		if(in_array($row['FK_Command'],array_keys($inputCommandsArray))){
+			unset ($inputCommandsArray[$row['FK_Command']]);
+		}
+
+		// remove DSP mode commands from input array if they are implemented
+		if(in_array($row['FK_Command'],array_keys($dspmodeCommandsArray))){
+			unset ($dspmodeCommandsArray[$row['FK_Command']]);
+		}
+	}
+	
+	return $codesArray;
+}
+
+// parse the multidimensiona array with codes and return html code for table rows
+function getCodesTableRows($infraredGroupID,$dtID,$deviceID,$codesArray){
+	global $inputCommandsArray, $dspmodeCommandsArray;
+	
+	$categNames=array_keys($codesArray);
+	if(!in_array('Inputs',$categNames)){
+		$categNames[]='Inputs';
+	}
+	if(!in_array('DSP Modes',$categNames)){
+		$categNames[]='DSP Modes';
+	}
+
+	$out='';
+	for($i=0;$i<count($categNames);$i++){
+		$out.='
+			<tr>
+				<td colspan="3" align="center">
+					<fieldset style="width:98%">
+						<legend><B>'.$categNames[$i].'</B></legend>';
+		// display input commands not implemented
+		if($categNames[$i]=='Inputs'){
+			if(count($inputCommandsArray)>0){
+				$out.='Input commands not implemented: ';
+				foreach ($inputCommandsArray AS $inputId=>$inputName){
+					$inputCommandsArray[$inputId]='<a href="javascript:windowOpen(\'index.php?section=newIRCode&deviceID=0&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$inputId.'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');">'.$inputName.'</a>';
+				}
+				$out.='<b>'.join(', ',$inputCommandsArray).'</b> <em>(Click to add)</em>';
+			}
+		}
+
+		// display DSP modes commands not implemented
+		if($categNames[$i]=='DSP Modes'){
+			if(count($dspmodeCommandsArray)>0){
+				$out.='DSP Mode commands not implemented: ';
+				foreach ($dspmodeCommandsArray AS $dspmId=>$dspmName){
+					$dspmodeCommandsArray[$dspmId]='<a href="javascript:windowOpen(\'index.php?section=newIRCode&deviceID=0&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$dspmId.'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');">'.$dspmName.'</a>';
+				}
+				$out.='<b>'.join(', ',$dspmodeCommandsArray).'</b> <em>(Click to add)</em>';
+			}
+		}
+
+		if(isset($codesArray[$categNames[$i]]['FK_DeviceTemplate'])){
+			for($pos=0;$pos<count($codesArray[$categNames[$i]]['FK_DeviceTemplate']);$pos++){
+				$codeCommandsKeys=array_keys($codesArray[$categNames[$i]]['FK_DeviceTemplate']);
+				$irg_c=$codeCommandsKeys[$pos];
+				$out.=formatCode($codesArray[$categNames[$i]],$irg_c,$infraredGroupID,$dtID,$deviceID);
+			}
+		}
+
+		$out.='
+					</fieldset>
+				</td>
+			</tr>	
+			';
+	}
+	
+	return $out;
+}
+
+
+function formatCode($dataArray,$pos,$infraredGroupID,$dtID,$deviceID){
+
+	if($dataArray['DefaultOrder'][$pos]==1){
+		$RowColor='lightblue';
+	}
+	else{
+		$RowColor=(isset($_SESSION['userID']) && $dataArray['psc_user'][$pos]==@$_SESSION['userID'])?'yellow':'lightyellow';
+	}
+	$deleteButton=(isset($_SESSION['userID']) && $dataArray['psc_user'][$pos]==@$_SESSION['userID'])?'<input type="button" class="button" name="delCustomCode" value="Delete code" onClick="if(confirm(\'Are you sure you want to delete this code?\')){document.editAVDevice.action.value=\'delete\';document.editAVDevice.irgroup_command.value='.$pos.';document.editAVDevice.submit();}">':'';
+
+	$out='
+		<table width="100%">
+			<tr bgcolor="'.$RowColor.'">
+				<td align="center" width="100"><B>'.$dataArray['Description'][$pos].'</B> <br><input type="button" class="button" name="learnCode" value="New code" onClick="windowOpen(\'index.php?section=newIRCode&deviceID='.$dataArray['FK_Device'][$pos].'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$dataArray['FK_Command'][$pos].'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');" '.((!isset($_SESSION['userID']))?'disabled':'').'></td>
+				<td><textarea name="irData_'.$pos.'" rows="2" style="width:100%">'.$dataArray['IRData'][$pos].'</textarea></td>
+				<td align="center" width="100">'.$deleteButton.' <br> <input type="button" class="button" name="testCode" value="Test code" onClick="self.location=\'index.php?section=editAVDevice&from=avWizard&dtID='.$dtID.'&deviceID='.$deviceID.'&infraredGroupID='.$infraredGroupID.'&action=testCode&owner='.$dataArray['psc_user'][$pos].'&ig_c='.$pos.'&irCode=\'+escape(document.editAVDevice.irData_'.$pos.'.value);"> <a name="test_'.$pos.'"></td>
+			</tr>
+		</table>';
+
+	return $out;
+
 }
 
 ?>
