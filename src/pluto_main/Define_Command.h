@@ -646,7 +646,7 @@
 #define COMMAND_Set_Screen_Type_CONST 687
 #define COMMAND_Get_Remote_Control_Mapping_CONST 688
 #define COMMAND_Update_Time_Code_CONST 689
-#define COMMAND_Send_File_To_Phone_CONST 690
+#define COMMAND_Send_File_To_Phone_CONST 693
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
