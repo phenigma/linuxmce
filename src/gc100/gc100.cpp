@@ -1571,12 +1571,14 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 	g_pPlutoLogger->Write(LV_STATUS, "Learning thread finished");
 }
 
+// Must override so we can call IRBase::Start() after creating children
 void gc100::CreateChildren()
 {
 	string device_data;
 
 	gc100_Command::CreateChildren();
 	IRBase::setCommandImpl(this);
+	Start();
 
 	send_to_gc100("getdevices");
 

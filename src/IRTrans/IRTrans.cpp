@@ -278,7 +278,7 @@ void IRTrans::DoUpdateDisplay(vector<string> *vectString)
 	lcdCommand.protocol_version=200;
 	lcdCommand.wid=40;
 	lcdCommand.hgt=4;
-	memset(lcdCommand.framebuffer,0,200);
+	memset(lcdCommand.framebuffer,32,200);
 
 	strncpy((char *) lcdCommand.framebuffer,(*vectString)[0].c_str(),40);
 	if( vectString->size()>1 )

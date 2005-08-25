@@ -183,7 +183,7 @@ int itmp_RowsToDelete;
 		void AddToHistory( ChangedRow *pChangedRow );
 
 		void PropagateUpdatedField( Field *pField_Changed, string NewValue, string OldValue, ChangedRow *pChangedRow );
-		void PropagateUpdatedField( Field *pField_Changed, string NewValue, string OldValue, ChangedRow *pChangedRow, Field *pField_FK );
+		void PropagateUpdatedField( Field *pField_Changed, string NewValue, string OldValue, ChangedRow *pChangedRow, Field *pField_FK, string sIndirectFieldName="" );
 
 		bool TrackChanges_get( ) { return m_pField_id && m_pField_batch && m_pField_user && m_pField_frozen && m_pField_mod && m_pField_restrict; }
 		void TrackChanges_set( bool bOn );

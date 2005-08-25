@@ -455,7 +455,7 @@ int k=2;
 						class Table *pTable = m_pDatabase->GetTableFromForeignKeyString( this, FieldName );
 						Field *pField_PrimaryKey = pTable->m_mapField_Find( "PK_" + pTable->Name_get( ) );
 						pField->m_listField_IReferTo_Indirectly.push_back( make_pair<string,Field *> (FieldName,pField_PrimaryKey) );
-						pField_PrimaryKey->m_listField_ReferringToMe_Indirectly.push_back( pField );
+						pField_PrimaryKey->m_listField_ReferringToMe_Indirectly.push_back(  make_pair<string,Field *> (FieldName,pField) );
 					}
 				}
 			}
@@ -1223,14 +1223,14 @@ void Table::PropagateUpdatedField( Field *pField_Changed, string NewValue, strin
 		Field *pField_FK = *itList;
 		PropagateUpdatedField( pField_Changed, NewValue, OldValue, pChangedRow, pField_FK );
 	}
-	for( ListField::iterator itList=pField_Changed->m_listField_ReferringToMe_Indirectly.begin( );itList!=pField_Changed->m_listField_ReferringToMe_Indirectly.end( );++itList )
+	for( list< pair<string,Field *> >::iterator itList=pField_Changed->m_listField_ReferringToMe_Indirectly.begin( );itList!=pField_Changed->m_listField_ReferringToMe_Indirectly.end( );++itList )
 	{
-		Field *pField_FK = *itList;
-		PropagateUpdatedField( pField_Changed, NewValue, OldValue, pChangedRow, pField_FK );
+		Field *pField_FK = itList->second;
+		PropagateUpdatedField( pField_Changed, NewValue, OldValue, pChangedRow, pField_FK, itList->first );
 	}
 }
 
-void Table::PropagateUpdatedField( Field *pField_Changed, string NewValue, string OldValue, ChangedRow *pChangedRow, Field *pField_FK )
+void Table::PropagateUpdatedField( Field *pField_Changed, string NewValue, string OldValue, ChangedRow *pChangedRow, Field *pField_FK, string sIndirectFieldName )
 {
 	std::ostringstream sSQL;
 	sSQL << "UPDATE `" << pField_FK->m_pTable->Name_get( ) << "` SET " << pField_FK->Name_get( ) << "='" << NewValue << "'" << " WHERE " << pField_FK->Name_get( ) << "='" << OldValue << "'";
@@ -1238,7 +1238,7 @@ void Table::PropagateUpdatedField( Field *pField_Changed, string NewValue, strin
 	{
 		// It's an indirect key
 		std::ostringstream sSQL_IK;
-		sSQL_IK << "SELECT `PK_" << pField_FK->Name_get( ).substr(3) << "` FROM `" << pField_FK->Name_get( ).substr(3) << "` WHERE Description='" << pField_Changed->Name_get() << "'";
+		sSQL_IK << "SELECT `PK_" << pField_FK->Name_get( ).substr(3) << "` FROM `" << pField_FK->Name_get( ).substr(3) << "` WHERE Description='" << sIndirectFieldName << "'";
 
 		PlutoSqlResult result_set;
 		MYSQL_ROW row=NULL;
