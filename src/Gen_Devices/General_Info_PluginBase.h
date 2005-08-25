@@ -72,7 +72,6 @@ public:
 	//Data accessors
 	//Event accessors
 	//Commands - Override these to handle commands from the server
-	virtual void CMD_Spawn_Application(string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,bool bShow_logo,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Device_Data(int iPK_Device,int iPK_DeviceData,bool bUseDefault,string *sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Request_File(string sFilename,char **pData,int *iData_Size,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Add_Unknown_Device(string sText,string sID,string sMac_address,string &sCMD_Result,class Message *pMessage) {};
@@ -80,7 +79,7 @@ public:
 	virtual void CMD_Set_Device_Data(int iPK_Device,string sValue_To_Assign,int iPK_DeviceData,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Device_State(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Device_Status(string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Restart_DCERouter(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Restart_DCERouter(string sForce,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Wake_Device(int iPK_Device,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Halt_Device(int iPK_Device,string sForce,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Room_Description(int iPK_Device,string *sText,int *iPK_Room,string &sCMD_Result,class Message *pMessage) {};
@@ -102,37 +101,6 @@ public:
 			{
 				switch(pMessage->m_dwID)
 				{
-				case 67:
-					{
-						string sCMD_Result="OK";
-					string sFilename=pMessage->m_mapParameters[13];
-					string sName=pMessage->m_mapParameters[50];
-					string sArguments=pMessage->m_mapParameters[51];
-					string sSendOnFailure=pMessage->m_mapParameters[94];
-					string sSendOnSuccess=pMessage->m_mapParameters[95];
-					bool bShow_logo=(pMessage->m_mapParameters[115]=="1" ? true : false);
-						CMD_Spawn_Application(sFilename.c_str(),sName.c_str(),sArguments.c_str(),sSendOnFailure.c_str(),sSendOnSuccess.c_str(),bShow_logo,sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
-						{
-							pMessage->m_bRespondedToMessage=true;
-							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
-							pMessageOut->m_mapParameters[0]=sCMD_Result;
-							SendMessage(pMessageOut);
-						}
-						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
-						{
-							pMessage->m_bRespondedToMessage=true;
-							SendString(sCMD_Result);
-						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
-						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
-							for(int i=2;i<=iRepeat;++i)
-								CMD_Spawn_Application(sFilename.c_str(),sName.c_str(),sArguments.c_str(),sSendOnFailure.c_str(),sSendOnSuccess.c_str(),bShow_logo,sCMD_Result,pMessage);
-						}
-					};
-					iHandled++;
-					continue;
 				case 68:
 					{
 						string sCMD_Result="OK";
@@ -334,7 +302,8 @@ public:
 				case 272:
 					{
 						string sCMD_Result="OK";
-						CMD_Restart_DCERouter(sCMD_Result,pMessage);
+					string sForce=pMessage->m_mapParameters[21];
+						CMD_Restart_DCERouter(sForce.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -351,7 +320,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Restart_DCERouter(sCMD_Result,pMessage);
+								CMD_Restart_DCERouter(sForce.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

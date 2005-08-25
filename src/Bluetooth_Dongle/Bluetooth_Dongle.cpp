@@ -778,69 +778,6 @@ void Bluetooth_Dongle::CMD_Create_Mobile_Orbiter(int iPK_Device,string sPK_Enter
     ResumeScanning();
 }
 
-//-----------------------------------------------------------------------------------------------------
-
-//<-dceag-sample-b->! no sample
-//<-dceag-c80-b->
-
-	/** @brief COMMAND: #80 - Send File To Device */
-	/** Send a file to a Bluetooth device. */
-		/** @param #13 Filename */
-			/** The file to send */
-		/** @param #47 Mac address */
-			/** The MAC Address */
-		/** @param #58 IP Address */
-			/** The IP Address */
-
-void Bluetooth_Dongle::CMD_Send_File_To_Device(string sFilename,string sMac_address,string sIP_Address,string &sCMD_Result,Message *pMessage)
-//<-dceag-c80-e->
-{
-	g_pPlutoLogger->Write( LV_STATUS, "Send File: %s to %s", sFilename.c_str(), sMac_address.c_str() );
-
-    bool bFailed = false;
-    string Command;
-	string ObexPushScriptPath = "/usr/pluto/bin/";
-
-    Command += ObexPushScriptPath + "PhoneInstall.sh ";
-	Command += sMac_address + " ";
-	Command += ObexPushScriptPath + sFilename;
-
-    g_pPlutoLogger->Write(LV_WARNING, "Executing command: %s", Command.c_str());
-    int ret = system( Command.c_str() );
-
-    if(ret == -1)
-    {
-        bFailed = true;
-        g_pPlutoLogger->Write(LV_CRITICAL, "Script not found.");
-    } 
-    else if(ret == 0)
-    {
-        g_pPlutoLogger->Write(LV_WARNING, "File uploaded successfully.");
-    }
-    else 
-    {
-        bFailed = true;
-        g_pPlutoLogger->Write(LV_WARNING, "Failed to upload the file to the phone. Returned code: %d", ret);
-    }
-
-    if(bFailed)
-    {
-        CMD_Display_Dialog_Box_On_Orbiter CMD_Display_Dialog_Box_On_Orbiter_(m_dwPK_Device, pMessage->m_dwPK_Device_From, 
-            "<%=T" + StringUtils::itos(TEXT_FAILED_TO_UPLOAD_SIS_FILE_CONST) + "%>",
-            "Yes|" + StringUtils::ltos(pMessage->m_dwPK_Device_From) + " " + StringUtils::itos(m_dwPK_Device) + " 1 80 13 '" + sFilename + "' 47 '" + sMac_address + "' 58 '" + sIP_Address + "'|No|",
-            "" //all orbiters
-        );
-        SendCommand(CMD_Display_Dialog_Box_On_Orbiter_);
-    }
-    else
-    {
-        CMD_Display_Message CMD_Display_Message_(m_dwPK_Device, pMessage->m_dwPK_Device_From, 
-            "<%=T" + StringUtils::itos(TEXT_instructions_CONST) + "%>", "", "", "", "");
-        SendCommand(CMD_Display_Message_);
-    }
-}
-
-//<-dceag-createinst-b->!
 //<-dceag-c332-b->
 
 	/** @brief COMMAND: #332 - Ignore MAC Address */

@@ -72,25 +72,6 @@ public:
 	*/
 
 
-	/** @brief COMMAND: #67 - Spawn Application */
-	/** Spawns on application */
-		/** @param #13 Filename */
-			/** The name of the executable file to spawn */
-		/** @param #50 Name */
-			/** A name that we'll remember the application by for future kill commands */
-		/** @param #51 Arguments */
-			/** Command arguments, tab delimited */
-		/** @param #94 SendOnFailure */
-			/** Send this messages if the process exited with failure error code. */
-		/** @param #95 SendOnSuccess */
-			/** Send this messages if the process exited with success error code. */
-		/** @param #115 Show logo */
-			/** If this is set then we will first select the logo  before spawning the application. */
-
-	virtual void CMD_Spawn_Application(string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,bool bShow_logo) { string sCMD_Result; CMD_Spawn_Application(sFilename.c_str(),sName.c_str(),sArguments.c_str(),sSendOnFailure.c_str(),sSendOnSuccess.c_str(),bShow_logo,sCMD_Result,NULL);};
-	virtual void CMD_Spawn_Application(string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,bool bShow_logo,string &sCMD_Result,Message *pMessage);
-
-
 	/** @brief COMMAND: #68 - Get Device Data */
 	/** Return the device data for a device. */
 		/** @param #2 PK_Device */
@@ -174,9 +155,10 @@ public:
 
 	/** @brief COMMAND: #272 - Restart DCERouter */
 	/** Causes DCERouter to exit and restart. */
+		/** @param #21 Force */
 
-	virtual void CMD_Restart_DCERouter() { string sCMD_Result; CMD_Restart_DCERouter(sCMD_Result,NULL);};
-	virtual void CMD_Restart_DCERouter(string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Restart_DCERouter(string sForce) { string sCMD_Result; CMD_Restart_DCERouter(sForce.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Restart_DCERouter(string sForce,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #322 - Wake Device */

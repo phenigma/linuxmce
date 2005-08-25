@@ -148,6 +148,7 @@ public:
 	bool OSD_OnOff( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 
     void ProcessUnknownDevice();
+    bool IdentifyDevice(const string& sMacAddress, string &sDeviceCategoryDesc, int &iPK_DeviceTemplate, string &sManufacturerDesc);
 	void DoneCheckingForUpdates()
 	{
 		PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
@@ -441,6 +442,17 @@ public:
 
 	virtual void CMD_Display_Dialog_Box_On_Orbiter(string sText,string sOptions,string sPK_Device_List) { string sCMD_Result; CMD_Display_Dialog_Box_On_Orbiter(sText.c_str(),sOptions.c_str(),sPK_Device_List.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Display_Dialog_Box_On_Orbiter(string sText,string sOptions,string sPK_Device_List,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #690 - Send File To Phone */
+	/** It send a file to a phone (based on mac address). */
+		/** @param #47 Mac address */
+			/** Phone's mac address */
+		/** @param #136 Command Line */
+			/** Command line to be sent */
+
+	virtual void CMD_Send_File_To_Phone(string sMac_address,string sCommand_Line) { string sCMD_Result; CMD_Send_File_To_Phone(sMac_address.c_str(),sCommand_Line.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Send_File_To_Phone(string sMac_address,string sCommand_Line,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

@@ -369,36 +369,26 @@ g_pPlutoLogger->Write(LV_STATUS,"in process");
         return; //no new unknown device to process
 	}
 
-	PhoneDevice pd("",sMacAddress,0);
-	vector<Row_DHCPDevice *> vectRow_DHCPDevice;
-	ostringstream sql;
-	sql << "Mac_Range_Low<=" << pd.m_iMacAddress << " AND Mac_Range_High>=" << pd.m_iMacAddress;
-	m_pDatabase_pluto_main->DHCPDevice_get()->GetRows(sql.str(),&vectRow_DHCPDevice);
-    g_pPlutoLogger->Write(LV_WARNING, "search %s returned %d rows", sql.str().c_str(), (int) vectRow_DHCPDevice.size() );
+    string sDeviceCategory;
+    int iPK_DeviceTemplate;
+    string sManufacturer;
 
-	Row_DHCPDevice *pRow_DHCPDevice = vectRow_DHCPDevice.size() ? vectRow_DHCPDevice[0] : NULL;
-
-	if( pRow_DHCPDevice && pRow_DHCPDevice->FK_DeviceCategory_get()==DEVICECATEGORY_Bluetooth_Dongles_CONST )
-	{
-	    g_pPlutoLogger->Write(LV_STATUS, "skipping detection of %s.  it's just a dongle",sMacAddress.c_str());
-		DCE::CMD_Ignore_MAC_Address CMD_Ignore_MAC_Address(m_dwPK_Device,pUnknownDeviceInfos->m_iDeviceIDFrom,sMacAddress);
-		SendCommand(CMD_Ignore_MAC_Address);
-		m_bNoUnknownDeviceIsProcessing = false;
-		return;
-	}
+    if(!IdentifyDevice(sMacAddress, sDeviceCategory, iPK_DeviceTemplate, sManufacturer))
+    {
+        g_pPlutoLogger->Write(LV_STATUS, "skipping detection of %s.  it's just a dongle",sMacAddress.c_str());
+        DCE::CMD_Ignore_MAC_Address CMD_Ignore_MAC_Address(m_dwPK_Device,pUnknownDeviceInfos->m_iDeviceIDFrom,sMacAddress);
+        SendCommand(CMD_Ignore_MAC_Address);
+        m_bNoUnknownDeviceIsProcessing = false;
+        return;
+    }
 
     g_pPlutoLogger->Write(LV_WARNING, "Detected unknown bluetooth device %s", sMacAddress.c_str());
-
-	if( pRow_DHCPDevice && pRow_DHCPDevice->FK_DeviceTemplate_get() )
-        pUnknownDeviceInfos->m_iPK_DeviceTemplate = pRow_DHCPDevice->FK_DeviceTemplate_get();
+    pUnknownDeviceInfos->m_iPK_DeviceTemplate = iPK_DeviceTemplate;
 
     string Description;
-	if( pRow_DHCPDevice && pRow_DHCPDevice->FK_Manufacturer_get() )
-		Description += "  Manufacturer: " + pRow_DHCPDevice->FK_Manufacturer_getrow()->Description_get();
-	if( pRow_DHCPDevice && pRow_DHCPDevice->FK_DeviceCategory_get() )
-		Description += "  Category: " + pRow_DHCPDevice->FK_DeviceCategory_getrow()->Description_get();
-	if( pUnknownDeviceInfos->m_sID.length() )
-		Description += "  Bluetooth ID: " + pUnknownDeviceInfos->m_sID;
+	Description += "  Manufacturer: " + sManufacturer;
+	Description += "  Category: " + sDeviceCategory;
+	Description += "  Bluetooth ID: " + pUnknownDeviceInfos->m_sID;
 
     DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL(m_dwPK_Device, m_sPK_Device_AllOrbiters, VARIABLE_Misc_Data_1_CONST, sMacAddress);
     DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL2(m_dwPK_Device, m_sPK_Device_AllOrbiters, VARIABLE_Misc_Data_2_CONST, Description);
@@ -408,6 +398,26 @@ g_pPlutoLogger->Write(LV_STATUS,"in process");
     CMD_Goto_Screen_DL.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Variable_DL.m_pMessage );
     CMD_Goto_Screen_DL.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Variable_DL2.m_pMessage );
     QueueMessageToRouter(CMD_Goto_Screen_DL.m_pMessage);
+}
+
+bool Orbiter_Plugin::IdentifyDevice(const string& sMacAddress, string &sDeviceCategoryDesc, int &iPK_DeviceTemplate, string &sManufacturerDesc)
+{
+	PhoneDevice pd("", sMacAddress, 0);
+    vector<Row_DHCPDevice *> vectRow_DHCPDevice;
+    ostringstream sql;
+    sql << "Mac_Range_Low<=" << pd.m_iMacAddress << " AND Mac_Range_High>=" << pd.m_iMacAddress;
+    m_pDatabase_pluto_main->DHCPDevice_get()->GetRows(sql.str(),&vectRow_DHCPDevice);
+    g_pPlutoLogger->Write(LV_WARNING, "Search %s returned %d rows", sql.str().c_str(), (int) vectRow_DHCPDevice.size() );
+	Row_DHCPDevice *pRow_DHCPDevice = vectRow_DHCPDevice.size() ? vectRow_DHCPDevice[0] : NULL;
+
+    if(!pRow_DHCPDevice || pRow_DHCPDevice->FK_DeviceCategory_get() == DEVICECATEGORY_Bluetooth_Dongles_CONST)
+        return false;
+
+    sDeviceCategoryDesc = pRow_DHCPDevice->FK_DeviceCategory_getrow()->Description_get();
+    iPK_DeviceTemplate = pRow_DHCPDevice->FK_DeviceTemplate_get();
+    sManufacturerDesc = pRow_DHCPDevice->FK_Manufacturer_getrow()->Description_get();
+    
+    return true;
 }
 
 bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
@@ -965,19 +975,11 @@ void Orbiter_Plugin::CMD_New_Mobile_Orbiter(int iPK_Users,int iPK_DeviceTemplate
 		pRow_Device->State_set(""); //let's be sure no state is set
 		pRow_Device->Table_Device_get()->Commit();
 		
+        static const string csMacToken = "<mac>";
 		Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(iPK_DeviceTemplate);
-        string PlutoMOInstaller = pRow_DeviceTemplate->CommandLine_get();
-
-        DCE::CMD_Send_File_To_Device CMD_Send_File_To_Device(
-            m_dwPK_Device,
-            pUnknownDeviceInfos->m_iDeviceIDFrom,
-            PlutoMOInstaller,
-            sMac_address,
-            ""
-        );
-        SendCommand(CMD_Send_File_To_Device);
-
-        g_pPlutoLogger->Write(LV_WARNING, "Sending command1 CMD_Send_File_To_Device... PlutoMO file: %s, mac: %s", PlutoMOInstaller.c_str(), sMac_address.c_str());
+        string sPlutoMOInstallCmdLine = pRow_DeviceTemplate->Comments_get();
+        sPlutoMOInstallCmdLine = StringUtils::Replace(sPlutoMOInstallCmdLine, csMacToken, sMac_address);
+        CMD_Send_File_To_Phone(sMac_address, sPlutoMOInstallCmdLine);
     }
 
 g_pPlutoLogger->Write(LV_STATUS,"setting process flag to false");
@@ -1695,21 +1697,21 @@ void Orbiter_Plugin::SendAppToPhone(OH_Orbiter *pOH_Orbiter,DeviceData_Base *pDe
 	pOH_Orbiter->NeedApp(false);
 	pOH_Orbiter->m_tSendAppTime = time(NULL);
 
-    Row_DeviceTemplate *pRow_DeviceTemplate = pOH_Orbiter->m_pDeviceData_Router->m_pRow_Device->FK_DeviceTemplate_getrow();
-    string PlutoMOInstaller = pRow_DeviceTemplate->CommandLine_get();
+    string sMacAddress = pDevice_Dongle->m_sMacAddress;
+    string sDeviceCategoryDesc;
+    int iPK_DeviceTemplate;
+    string sManufacturerDesc;
 
-    DCE::CMD_Send_File_To_Device CMD_Send_File_To_Device(
-        m_dwPK_Device,
-		pDevice_Dongle->m_dwPK_Device,
-        PlutoMOInstaller,
-        pOH_Orbiter->m_pDeviceData_Router->m_sMacAddress,
-        ""
-    );
-
-    SendCommand(CMD_Send_File_To_Device);
-
-    g_pPlutoLogger->Write(LV_WARNING, "Sending command2 CMD_Send_File_To_Device... PlutoMO file: %s, mac: %s", 
-		PlutoMOInstaller.c_str(), pOH_Orbiter->m_pDeviceData_Router->m_sMacAddress.c_str());
+    if(IdentifyDevice(sMacAddress, sDeviceCategoryDesc, iPK_DeviceTemplate, sManufacturerDesc))
+    {
+        static const string csMacToken = "<mac>";
+        Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(iPK_DeviceTemplate);
+        string sPlutoMOInstallCmdLine = pRow_DeviceTemplate->Comments_get();
+        sPlutoMOInstallCmdLine = StringUtils::Replace(sPlutoMOInstallCmdLine, csMacToken, sMacAddress);
+        CMD_Send_File_To_Phone(sMacAddress, sPlutoMOInstallCmdLine);
+    }
+    else
+        g_pPlutoLogger->Write(LV_CRITICAL, "This is not a phone! Mac address: %s", sMacAddress.c_str());
 }
 
 void Orbiter_Plugin::GenerateVMCFiles()
@@ -1962,4 +1964,53 @@ void Orbiter_Plugin::CMD_Display_Dialog_Box_On_Orbiter(string sText,string sOpti
     DisplayMessageOnOrbiter(sPK_Device_List, sText, false, 0, false,
         vectOptions[0], vectOptions[1], vectOptions[2], vectOptions[3], 
         vectOptions[4], vectOptions[5], vectOptions[6], vectOptions[7]);
+}
+//<-dceag-c690-b->
+
+	/** @brief COMMAND: #690 - Send File To Phone */
+	/** It send a file to a phone (based on mac address). */
+		/** @param #47 Mac address */
+			/** Phone's mac address */
+		/** @param #136 Command Line */
+			/** Command line to be sent */
+
+void Orbiter_Plugin::CMD_Send_File_To_Phone(string sMac_address,string sCommand_Line,string &sCMD_Result,Message *pMessage)
+//<-dceag-c690-e->
+{
+    g_pPlutoLogger->Write(LV_STATUS, "About to send file to phone. Command line: '%s', device %s.", sCommand_Line.c_str(), sMac_address.c_str());
+
+    string sParameters, sCommOnFailure, sCommOnSuccess;
+    string sName("Phone Install");
+
+    sCommOnFailure = 
+        StringUtils::itos(m_dwPK_Device) + " " + 
+        StringUtils::itos(m_dwPK_Device) + " " + 
+        StringUtils::itos(MESSAGETYPE_COMMAND) + " " + 
+        StringUtils::itos(COMMAND_Display_Dialog_Box_On_Orbiter_CONST) + " " + 
+        StringUtils::itos(COMMANDPARAMETER_Text_CONST) + " " + "\"<%=T" + StringUtils::itos(TEXT_FAILED_TO_UPLOAD_SIS_FILE_CONST) + "%>\"" + " " + 
+        StringUtils::itos(COMMANDPARAMETER_Options_CONST) + " " + 
+            "\"Yes|" + 
+            StringUtils::ltos(m_dwPK_Device) + " " + StringUtils::itos(m_dwPK_Device) + " " + 
+            StringUtils::itos(MESSAGETYPE_COMMAND) + " " + StringUtils::itos(COMMAND_Send_File_To_Phone_CONST) + " " + 
+            StringUtils::itos(COMMANDPARAMETER_Mac_address_CONST) + " '" + sMac_address + "'" + " " + 
+            StringUtils::itos(COMMANDPARAMETER_Command_Line_CONST) + " '" + sCommand_Line + "'" + " " + 
+            "|No|\"" + " " + 
+        StringUtils::itos(COMMANDPARAMETER_PK_Device_List_CONST) + " " + m_sPK_Device_AllOrbiters;
+
+    sCommOnSuccess = 
+        StringUtils::itos(m_dwPK_Device) + " " + 
+        StringUtils::itos(m_dwPK_Device) + " " + 
+        StringUtils::itos(MESSAGETYPE_COMMAND) + " " + 
+        StringUtils::itos(COMMAND_Display_Message_CONST) + " " + 
+        StringUtils::itos(COMMANDPARAMETER_Text_CONST) + " " + "\"<%=T" + StringUtils::itos(TEXT_instructions_CONST) + "%>\"" + " " + 
+        StringUtils::itos(COMMANDPARAMETER_Type_CONST) + " " + "\" \"" + " " + 
+        StringUtils::itos(COMMANDPARAMETER_Name_CONST) + " " + "\" \"" + " " + 
+        StringUtils::itos(COMMANDPARAMETER_Time_CONST) + " " + "\" \"" + " " + 
+        StringUtils::itos(COMMANDPARAMETER_PK_Device_List_CONST) + " " + m_sPK_Device_AllOrbiters;
+
+    g_pPlutoLogger->Write(LV_STATUS, "Launching send to phone job: \"%s\"", sName.c_str());
+
+    DCE::CMD_Spawn_Application_DT cmd_Spawn_Application_DT(m_dwPK_Device, DEVICETEMPLATE_App_Server_CONST,
+        BL_SameHouse, sCommand_Line, sName.c_str(), string(), sCommOnFailure, sCommOnSuccess, false);
+    SendCommand(cmd_Spawn_Application_DT);
 }

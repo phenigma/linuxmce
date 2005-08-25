@@ -10885,5 +10885,21 @@ namespace DCE
 	public:
 		CMD_Update_Time_Code_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iStreamID,string sTime,string sTotal,string sSpeed,string sTitle,string sSection) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,689,6,41,StringUtils::itos(iStreamID).c_str(),102,sTime.c_str(),132,sTotal.c_str(),133,sSpeed.c_str(),134,sTitle.c_str(),135,sSection.c_str()); }
 	};
+	class CMD_Send_File_To_Phone : public PreformedCommand {
+	public:
+		CMD_Send_File_To_Phone(long DeviceIDFrom, long DeviceIDTo,string sMac_address,string sCommand_Line) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,690,2,47,sMac_address.c_str(),136,sCommand_Line.c_str()); }
+	};
+	class CMD_Send_File_To_Phone_DL : public PreformedCommand {
+	public:
+		CMD_Send_File_To_Phone_DL(long DeviceIDFrom, string DeviceIDTo,string sMac_address,string sCommand_Line) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,690,2,47,sMac_address.c_str(),136,sCommand_Line.c_str()); }
+	};
+	class CMD_Send_File_To_Phone_DT : public PreformedCommand {
+	public:
+		CMD_Send_File_To_Phone_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sMac_address,string sCommand_Line) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,690,2,47,sMac_address.c_str(),136,sCommand_Line.c_str()); }
+	};
+	class CMD_Send_File_To_Phone_Cat : public PreformedCommand {
+	public:
+		CMD_Send_File_To_Phone_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sMac_address,string sCommand_Line) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,690,2,47,sMac_address.c_str(),136,sCommand_Line.c_str()); }
+	};
 }
 #endif

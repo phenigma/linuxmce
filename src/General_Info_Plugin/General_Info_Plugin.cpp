@@ -310,8 +310,9 @@ void General_Info_Plugin::CMD_Get_Device_Status(string &sCMD_Result,Message *pMe
 
 	/** @brief COMMAND: #272 - Restart DCERouter */
 	/** Causes DCERouter to exit and restart. */
+		/** @param #21 Force */
 
-void General_Info_Plugin::CMD_Restart_DCERouter(string &sCMD_Result,Message *pMessage)
+void General_Info_Plugin::CMD_Restart_DCERouter(string sForce,string &sCMD_Result,Message *pMessage)
 //<-dceag-c272-e->
 {
 // temp debugging since this wasn't going through
@@ -319,98 +320,6 @@ g_pPlutoLogger->Write(LV_STATUS, "Forwarding reload to router");
 	Message *pMessageOut = new Message(pMessage->m_dwPK_Device_From,DEVICEID_DCEROUTER,PRIORITY_NORMAL,MESSAGETYPE_SYSCOMMAND,SYSCOMMAND_RELOAD,0);
 	SendMessageToRouter(pMessageOut);
 }
-//<-dceag-c67-b->
-
-	/** @brief COMMAND: #67 - Spawn Application */
-	/** Spawns on application */
-		/** @param #13 Filename */
-			/** The name of the executable file to spawn */
-		/** @param #50 Name */
-			/** A name that we'll remember the application by for future kill commands */
-		/** @param #51 Arguments */
-			/** Command arguments, tab delimited */
-		/** @param #94 SendOnFailure */
-			/** Send this messages if the process exited with failure error code. */
-		/** @param #95 SendOnSuccess */
-			/** Send this messages if the process exited with success error code. */
-		/** @param #115 Show logo */
-			/** If this is set then we will first select the logo  before spawning the application. */
-
-void General_Info_Plugin::CMD_Spawn_Application(string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,bool bShow_logo,string &sCMD_Result,Message *pMessage)
-//<-dceag-c67-e->
-{
-    if ( sName == "" )
-        sName = "not named";
-
-    if (sFilename == "" && sArguments == "")
-    {
-        g_pPlutoLogger->Write(LV_WARNING, "StartApp: Received empty Executable and Parameters for '%s'", sName.c_str());
-        return;
-    }
-
-#ifndef WIN32
-    //parse the args
-    const int MaxArgs = 32;
-
-    char * ptr;
-    char * params;
-    params = ptr = (char *) sArguments.c_str();
-    char * args[MaxArgs];
-    int i = 0;
-
-    args[0] = (char *) sArguments.c_str();
-    args[1] = params;
-    while (++i < MaxArgs - 1)
-    {
-        ptr = strchr(ptr, ' ');
-        if (ptr == NULL)
-            break;
-        * ptr = 0;
-        args[i] = params;
-        params = ++ptr;
-    }
-    if (i == 1) i++;
-    args[i] = NULL;
-    g_pPlutoLogger->Write(LV_STATUS, "Found %d arguments", i);
-
-    for (int x = 0 ; x < i; x++)
-        g_pPlutoLogger->Write(LV_STATUS, "Argument %d: %s", x, args[x]);
-
-    pid_t pid = fork();
-    switch (pid)
-    {
-        case 0: //child
-        {
-            g_pPlutoLogger->Write(LV_STATUS, "Waiting two seconds (in the forked process).");
-            sleep(2); // sleep so that the signal doesn't get in until later.
-
-            setenv("DISPLAY", ":0", 1);
-            //now, exec the process
-            g_pPlutoLogger->Write(LV_STATUS, "Spawning");
-
-            if ( execvp(sName.c_str(), args) == -1)
-                exit(99);
-        }
-
-        case -1:
-            g_pPlutoLogger->Write(LV_CRITICAL, "Error starting %s, err: %s", sFilename.c_str(), strerror(errno));
-            return;
-            break;
-
-        default:
-            return;
-    }
-#else
-    STARTUPINFO si;
-    PROCESS_INFORMATION pi;
-    ZeroMemory (&si, sizeof(si));
-    si.cb = sizeof(si);
-    ZeroMemory (&pi, sizeof(pi));
-    CreateProcess("C:\\WINDOWS\\system32\\cmd.exe", "/c bogus.bat", NULL, NULL, false, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi);
-	return;
-#endif
-}
-//<-dceag-c274-b->
 //<-dceag-c322-b->
 
 	/** @brief COMMAND: #322 - Wake Device */
