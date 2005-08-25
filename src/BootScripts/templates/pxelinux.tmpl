@@ -1,4 +1,4 @@
 DEFAULT Pluto
 LABEL Pluto
 	KERNEL %MOON_IP%/vmlinuz-%KERNEL_VERSION%
-	APPEND root=/dev/nfs acpi=off vga=normal initrd=%MOON_IP%/initrd.img-%KERNEL_VERSION% ramdisk_size=10240 rw nfsroot=%CORE_INTERNAL_ADDRESS%:/usr/pluto/diskless/%MOON_IP% ip=dhcp 
+	APPEND root=/dev/nfs acpi=off vga=normal initrd=%MOON_IP%/initrd.img-%KERNEL_VERSION% ramdisk_size=10240 rw nfsroot=%CORE_INTERNAL_ADDRESS%:/usr/pluto/diskless/%MOON_IP% noirqdebug ip=%MOON_IP% 
