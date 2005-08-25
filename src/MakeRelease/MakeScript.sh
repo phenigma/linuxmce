@@ -44,18 +44,13 @@ echo Using version with id: "$version"
 
 if [ "$nobuild" = "" ]; then
 	rm /tmp/main_sqlcvs.dump
-    if [ $version -eq 1 ]; then
-		#This is an hourly build, so we're going to dump the pluto_main database and make it our sqlCVS database
-		mysqldump --quote-names --allow-keywords --add-drop-table pluto_main > /tmp/main_sqlcvs.dump
-	else
-		#This is a release build, so we want to get a real sqlCVS
-		bash -x /home/database-dumps/sync-sqlcvs.sh
-		rm /tmp/main_sqlcvs.tar.gz
-		ssh uploads@plutohome.com "rm /tmp/main_sqlcvs.dump /home/uploads/main_sqlcvs.tar.gz; mysqldump --quote-names --allow-keywords --add-drop-table -u root -pmoscow70bogata main_sqlcvs > /tmp/main_sqlcvs.dump; cd /tmp; tar zcvf /home/uploads/main_sqlcvs.tar.gz main_sqlcvs.dump"
-		scp uploads@plutohome.com:/home/uploads/main_sqlcvs.tar.gz /tmp/
-		cd /tmp
-		tar zxvf main_sqlcvs.tar.gz
-    fi
+	#This is a release build, so we want to get a real sqlCVS
+	#bash -x /home/database-dumps/sync-sqlcvs.sh
+	rm /tmp/main_sqlcvs.tar.gz
+	ssh uploads@plutohome.com "rm /tmp/main_sqlcvs.dump /home/uploads/main_sqlcvs.tar.gz; mysqldump --quote-names --allow-keywords --add-drop-table -u root -pmoscow70bogata main_sqlcvs > /tmp/main_sqlcvs.dump; cd /tmp; tar zcvf /home/uploads/main_sqlcvs.tar.gz main_sqlcvs.dump"
+	scp uploads@plutohome.com:/home/uploads/main_sqlcvs.tar.gz /tmp/
+	cd /tmp
+	tar zxvf main_sqlcvs.tar.gz
 
 	if [ ! -f /tmp/main_sqlcvs.dump ]; then
 		echo "sqlcvs.dump not found.  aborting"
