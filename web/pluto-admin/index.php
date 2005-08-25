@@ -1129,6 +1129,7 @@ switch ($section) {
 	case 'wapSettings';
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
+		$output->setHelpSrc('http://plutohome.com/support/phpbb2/viewtopic.php?t=212');
 	    include_once('operations/network/wapSettings.php');
 	    wapSettings($output,$dbADO);
 	break;	

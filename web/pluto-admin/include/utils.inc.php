@@ -3283,7 +3283,7 @@ function processRemotes($dbADO)
 	global $dbPlutoMainDatabase;
 	$installationID=(int)$_SESSION['installationID'];
 	$mdID=(int)@$_REQUEST['mdID'];
-	
+
 	unset($_SESSION['from']);
 	$deviceTemplate=(int)@$_REQUEST['deviceTemplate'];
 	if($deviceTemplate!=0 && $mdID!=0){
@@ -3697,7 +3697,7 @@ function getCheckedDeviceCommandGroup($dtID,$deviceCategory,$dbADO)
 	return $dcgArray;
 }
 
-function DeviceCommandGroupTable($dtID,$deviceCategory,$dbADO){
+function DeviceCommandGroupTable($dtID,$deviceCategory,$dbADO,$disabled=''){
 	$dcgArray=getCheckedDeviceCommandGroup($dtID,$deviceCategory,$dbADO);
 	$out='<table>';
 	$oldCheckedDCG=array();
@@ -3707,14 +3707,14 @@ function DeviceCommandGroupTable($dtID,$deviceCategory,$dbADO){
 		}
 		$out.='
 		<tr>
-			<td><input type="checkbox" name="dcg_'.$dcg.'" value="1" '.(($value['Checked']==1)?'checked':'').'></td>
+			<td><input type="checkbox" name="dcg_'.$dcg.'" value="1" '.(($value['Checked']==1)?'checked':'').' '.$disabled.'></td>
 			<td title="'.join(', ',$value['Commands']).'">'.$value['Description'].'</td>
 		</tr>
 		<input type="hidden" name="commands_'.$dcg.'" value="'.join(',',$value['CommandIDs']).'">
 		';
 	}
 	$out.='</table>
-		<input type="hidden" name="deviceCG" value="'.join(',',array_keys($dcgArray)).'">
+		<input type="hidden" name="deviceCG" value="'.join(',',array_keys($dcgArray)).'" '.$disabled.'>
 		<input type="hidden" name="oldCheckedDCG" value="'.join(',',$oldCheckedDCG).'">
 	';
 	
@@ -3900,7 +3900,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 	$selectedDevice= (int)@$_REQUEST['deviceSelected'];
 	$selectedModel= (int)@$_REQUEST['model'];
 	$justAddedNode = (int)@$_GET['justAddedNode'];
-
+echo $_REQUEST['parmToKeep'];
 	$actionX = (isset($_REQUEST['actionX']) && cleanString($_REQUEST['actionX'])!='null')?cleanString($_REQUEST['actionX']):'form';
 	
 	$manufacturersArray=getAssocArray('Manufacturer','PK_Manufacturer','Description',$dbADO,'','ORDER BY Description ASC');
@@ -3940,11 +3940,33 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 		}
 
 		if ($selectedDevice!=0) {
-			$where.=" AND FK_DeviceCategory = ".$selectedDevice;
-		}
+			if ($selectedDeviceCateg==0) {
+				$GLOBALS['childsDeviceCategoryArray'] = array();
+				
+				getDeviceCategoryChildsArray($selectedDevice,$dbADO);
+				$GLOBALS['childsDeviceCategoryArray']=cleanArray($GLOBALS['childsDeviceCategoryArray']);
+				$GLOBALS['childsDeviceCategoryArray'][]=$selectedDevice;
+				
+				$childArray = join(",",$GLOBALS['childsDeviceCategoryArray']);		
+				
+				$where.=" and FK_DeviceCategory in ($childArray)";
+			} else {		
+				$where .= " and FK_DeviceCategory = '$selectedDevice'";	
+			}
+			$manufOrDevice = 1;
+		}elseif(!is_null($categoryID)){
+			$GLOBALS['childsDeviceCategoryArray'] = array();
+				
+			getDeviceCategoryChildsArray($categoryID,$dbADO);
+			$GLOBALS['childsDeviceCategoryArray']=cleanArray($GLOBALS['childsDeviceCategoryArray']);
+			$GLOBALS['childsDeviceCategoryArray'][]=$categoryID;
+			
+			$childArray = join(",",$GLOBALS['childsDeviceCategoryArray']);		
+			$where.=" and FK_DeviceCategory in ($childArray)";
+		}		
 		
 		$where.=(($genericSerialDevicesOnly==1)?' AND CommandLine=\''.$GLOBALS['GenericSerialDeviceCommandLine'].'\'':'');
-		
+
 		if ($manufOrDevice || $defaultAll==1)	{
 		
 			$queryModels = "SELECT DeviceTemplate.*
@@ -4067,11 +4089,8 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 				document.$formName.deviceSelected.value=val;
 			}
 
-			if(document.$formName.deviceSelected.value!=0 && document.$formName.manufacturers.selectedIndex!=0 && document.$formName.manufacturers.selectedIndex!=-1){
-				document.$formName.actionX.value='form';
-				document.$formName.submit();
-			}
-
+			document.$formName.actionX.value='form';
+			document.$formName.submit();
 		}
 
 		function addModel(){
@@ -4179,7 +4198,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 							if($returnValue==0){
 								$out.='<br><input type="button" class="button" name="edit_DeviceTemplate" value="Show Model" onClick="javascript:checkEdit(\'model\');" />';
 							}else{
-								$out.='<br><input type="button" class="button" name="pickDT" value="Add device" onClick="opener.location=\'index.php?section='.$_SESSION['from'].'&deviceTemplate=\'+document.'.$section.'.model[document.'.$section.'.model.selectedIndex].value+\'&action=add&add=1\';self.close();" />';
+								$out.='<br><input type="button" class="button" name="pickDT" value="Add device" onClick="opener.location=\'index.php?section='.$_SESSION['from'].'&deviceTemplate=\'+document.'.$section.'.model[document.'.$section.'.model.selectedIndex].value+\'&action=add&add=1&'.@$_REQUEST['parmToKeep'].'\';self.close();" />';
 							}
 							$out.='
 							<hr />
