@@ -241,3 +241,4 @@ awk '!/^#/ && ($3 == "ext2" || $3 == "ext3" || $3 == "xfs") {print $2}' /etc/fst
 done
 
 [[ -z "$RA_CheckRemotePort" ]] && ConfSet RA_CheckRemotePort 1
+rm -rf /var/cache/polipo/* || /bin/true
