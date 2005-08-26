@@ -22,6 +22,9 @@ echo "Performing system update"
 apt-get update
 Fail=0
 
+# Harmless, and it cleans up the dpkg journal too
+dpkg --forget-old-unavail
+
 Count=$(apt-get -f -y -s dist-upgrade | egrep -c '^Inst |^Conf ')
 
 if apt-get -f -y $DownloadOnly dist-upgrade; then
