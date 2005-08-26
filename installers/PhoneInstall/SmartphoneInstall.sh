@@ -19,7 +19,7 @@ if [ ! -f "$SIS" -o ! -r "$SIS" ]; then
 	exit
 fi
 
-(echo "c"; echo "p"; echo "$SIS Orbiter.cab"; echo "q") | obex_test -b $MAC 3 |grep -qF 'PUT successful!'
+(echo "c"; echo "p"; echo "$SIS Orbiter.cab"; echo "q") | obex_test -b $MAC 2 |grep -qF 'PUT successful!'
 Ret=$?
 
 if [[ "$Ret" -eq 0 ]]; then
