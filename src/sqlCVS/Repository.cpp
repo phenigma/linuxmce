@@ -821,7 +821,10 @@ int Repository::psc_batch_last_sync_get( Table *pTable )
 void Repository::psc_batch_last_sync_set( Table *pTable, int psc_batch )
 {
 	if( pTable->Repository_get( )!=this || !m_pTable_Tables || pTable->bIsSystemTable_get( ) )
+	{
+		cerr << "Error table: " << pTable->Name_get() << " psc_batch: " << psc_batch << " m_pTable_Tables " << m_pTable_Tables << " system: " << pTable->bIsSystemTable_get( ) << endl;
 		throw "Internal error Repository::psc_batch_set";
+	}
 
 cout << "psc_batch_last_sync_get: table: " << pTable->Name_get() << " psc_batch: " << psc_batch << endl;
 
