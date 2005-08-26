@@ -877,9 +877,14 @@ cout << "We deleted a row locally - pos: " << pos << " size: " << r_GetAll_psc_i
 int foo=r_GetAll_psc_id.m_vectAll_psc_id[pos].second;
 if( r_GetAll_psc_id.m_vectAll_psc_id[pos].second>m_psc_batch_last_sync )
 {
-	cout << "Never mind, it's newer than what we've synced" << endl;
-	pos++;
-	continue;
+	if( !DoWeHaveBatch(r_GetAll_psc_id.m_vectAll_psc_id[pos].second) )
+	{
+		cout << "Never mind, it's newer than what we've synced" << endl;
+		pos++;
+		continue;
+	}
+	else
+		cout << "It's newer than what we've synced, but we added it" << endl;
 }
 
 itmp_RowsToDelete++;
@@ -927,9 +932,6 @@ itmp_RowsToDelete++;
 
 cout << "Still rows in server's vect - pos: " << pos << " size: " << r_GetAll_psc_id.m_vectAll_psc_id.size( ) << 
 " psc_id: " << r_GetAll_psc_id.m_vectAll_psc_id[pos].first << " batch: " << r_GetAll_psc_id.m_vectAll_psc_id[pos].second << endl;
-
-if( r_GetAll_psc_id.m_vectAll_psc_id[pos].second>m_psc_batch_last_sync )
-cout << "Never mind, it's newer than what we've synced" << endl;
 
 itmp_RowsToDelete++;
 			ChangedRow *pChangedRow = new ChangedRow( this, r_GetAll_psc_id.m_vectAll_psc_id[pos].first );
