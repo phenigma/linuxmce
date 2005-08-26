@@ -972,7 +972,7 @@ void Orbiter_Plugin::CMD_New_Mobile_Orbiter(int iPK_Users,int iPK_DeviceTemplate
     {
         Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(PK_Device);
 		pRow_Device->Reload(); // Just in case it's been changed
-		pRow_Device->State_set(""); //let's be sure no state is set
+		pRow_Device->State_set(NEED_VMC_TOKEN); //first time the app is connected, the vmc file is sent
 		pRow_Device->Table_Device_get()->Commit();
 		
         static const string csMacToken = "<mac>";

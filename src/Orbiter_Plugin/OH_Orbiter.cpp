@@ -1,9 +1,6 @@
 #include "DeviceData_Router.h"
 #include "OH_Orbiter.h"
 
-#define NEED_VMC_TOKEN "NEED VMC"
-#define NEED_APP_TOKEN "NEED APP"
-
 using namespace DCE;
 
 bool OH_Orbiter::NeedVMC()

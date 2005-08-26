@@ -4,6 +4,9 @@
 #include "OH_User.h"
 #include "Orbiter/Floorplan.h"
 
+#define NEED_VMC_TOKEN "NEED VMC"
+#define NEED_APP_TOKEN "NEED APP"
+
 namespace DCE
 {
 	// Store an orbiter list within the handler
