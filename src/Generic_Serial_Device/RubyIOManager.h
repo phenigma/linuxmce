@@ -71,6 +71,7 @@ public:
 	
 public:
 	int RouteMessage(DeviceData_Base* pdevdata, Message *pMessage);
+	virtual void SendMessage(Message* pmsg);
 	
 protected:
 	/*methods for comunicating with DCE, accessed by wrappers */

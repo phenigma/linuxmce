@@ -53,6 +53,7 @@ public:
 	}
 	int getParamsOrderForCmd(unsigned devid, /*in*/int cmd, /*out*/std::list<int>& params);
 	int getParamsNamesForCmd(unsigned devid, /*in*/int cmd, /*out*/std::list<std::string>& params);
+	int getParamType(int param);
 	
 private:
 	std::string TranslateCommandToRuby(const std::string& cmdtxt);
@@ -72,6 +73,7 @@ private:
 	std::map<unsigned, bool> privateassigned_;
 	std::map<unsigned, bool> procchildcmdassigned_;
 	bool commandassigned_;
+    std::map<int,int> param_type_map;
 
 private:
 	std::string rcode_;

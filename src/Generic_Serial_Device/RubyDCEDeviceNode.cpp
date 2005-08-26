@@ -192,7 +192,8 @@ RubyDCEDeviceNode::PopulateDevice(DeviceData_Impl* pdevdata, Database_pluto_main
 		else
 			devwrap.setData(FileUtils::ValidCPPName(p_Row_DeviceData->Description_get()).c_str(), (*it).second.c_str());
 		it++; numparams++;
-	}*/
+	}
+	*/
 	g_pPlutoLogger->Write(LV_STATUS, "Added %d data params to device %d.", numparams, pdevdata->m_dwPK_Device);
 		
 	std::map<int, RubyDeviceWrapper>& childdevices = devwrap.getChildDevices();

@@ -51,6 +51,11 @@ public:
 	}
 
 	bool Reconnect();
+	
+	void Close() {
+		BufferedIOConnection::Close();
+	}
+	
 };
 
 };

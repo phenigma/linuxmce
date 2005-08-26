@@ -39,7 +39,7 @@ RubyDCECodeSupplier::addCode(Database_pluto_main* pdb, Command_Impl *pcmdimpl, D
 	unsigned long devtemplid = pdevicedata->m_dwPK_DeviceTemplate;
 	unsigned long devid = pdevicedata->m_dwPK_Device;
 	
-	devtemplid;
+//	devtemplid;
 
 	privateassigned_[devid] = procchildcmdassigned_[devid] = false;
 	
@@ -75,6 +75,7 @@ RubyDCECodeSupplier::addCode(Database_pluto_main* pdb, Command_Impl *pcmdimpl, D
 	irDevice.SerializeRead(iSize, pData); // De-serialize the data
 	
 	g_pPlutoLogger->Write(LV_STATUS, "Fetched %d commands...", irDevice.m_mapCodes.size());
+	std::map<std::string,std::string> rcode_setoutputparam;
 
 	for(map<int,string>::iterator it = irDevice.m_mapCodes.begin(); it != irDevice.m_mapCodes.end(); it++ ) {
 		int cmdid = (*it).first;
@@ -103,7 +104,7 @@ RubyDCECodeSupplier::addCode(Database_pluto_main* pdb, Command_Impl *pcmdimpl, D
 					rcode_ += "def cmd_"; rcode_ += scmdid; rcode_ += "(";
 		
 					/*add command parameters*/
-					std::string sql = "select PK_CommandParameter, CommandParameter.Description "
+					std::string sql = "select PK_CommandParameter, CommandParameter.Description, Command_CommandParameter.IsOut, CommandParameter.FK_ParameterType "
 										"from CommandParameter "
 											"inner join Command_CommandParameter on FK_CommandParameter=PK_CommandParameter "
 											"inner join Command on FK_Command=PK_Command "
@@ -125,17 +126,23 @@ RubyDCECodeSupplier::addCode(Database_pluto_main* pdb, Command_Impl *pcmdimpl, D
 							paramlist.push_back(parampair);
 							
 							rcode_ += rbparam;
+							if(atoi(rowparam[2]) == 1)
+							{
+								rcode_setoutputparam[rbparam] = "def "+rbparam+"_set(value)\n@returnParamArray["+rowparam[0]+"]=value\nend\n";
+								param_type_map[atoi(rowparam[0])]=atoi(rowparam[3]);
+							}
 						}
 					}
 					
 					g_pPlutoLogger->Write(LV_STATUS, "Added %d parameeters for Command %s: ", paramlist.size(), scmdid.c_str());
 					
 					rcode_ += ")""\n"; // SetLevel(
-					
+					rcode_ += "@returnParamArray.clear\n"; 
 					//rcode_ += "conn_ = getConn()""\n";
 					rcode_ += TranslateCommandToRuby(scmdtext);
 					/*insert ruby code for the method*/
-					rcode_ += "\n""end""\n"; // def
+					rcode_ += "\nreturn @returnParamArray\n";
+					rcode_ += "end\n"; // def
 				}
 			}
 		}
@@ -145,7 +152,12 @@ RubyDCECodeSupplier::addCode(Database_pluto_main* pdb, Command_Impl *pcmdimpl, D
 	FillClassMembersFromDevice(pdb, devid, false);
 	FillClassMembersFromDevice(pdb, devtemplid, true);
 	*/
-	
+	rcode_ += "#### START SETTERS ####################################################################\n";
+	rcode_ += "def initialize()\nsuper\n@returnParamArray=Array.new\nend\n";
+	for(map<std::string,std::string>::iterator it = rcode_setoutputparam.begin(); it != rcode_setoutputparam.end(); it++ ) {	
+		rcode_ += (*it).second;
+	}
+	rcode_ += "####  END  SETTERS ####################################################################\n";
 	rcode_ += "end""\n"; // class
 }
 
@@ -229,6 +241,10 @@ RubyDCECodeSupplier::TranslateCommandToRuby(const std::string& cmdtxt) {
 	return ret;
 }
 
+int 
+RubyDCECodeSupplier::getParamType(int param) {
+	return param_type_map[param];
+}
 
 };
 
