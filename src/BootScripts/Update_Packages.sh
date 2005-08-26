@@ -27,7 +27,7 @@ dpkg --forget-old-unavail
 
 Count=$(apt-get -f -y -s dist-upgrade | egrep -c '^Inst |^Conf ')
 
-if apt-get -f -y $DownloadOnly dist-upgrade; then
+if apt-get -V -f -y $DownloadOnly dist-upgrade; then
 	if [[ -n "$DownloadOnly" ]]; then
 		date -R >"$Lock"
 	elif [[ "$Count" != "0" ]]; then
