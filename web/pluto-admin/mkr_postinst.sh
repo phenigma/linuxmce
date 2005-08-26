@@ -105,7 +105,6 @@ NameVirtualHost *
 
 echo "$Site" >/etc/apache2/sites-available/pluto
 a2ensite pluto
-/etc/init.d/apache2 reload
 
 #cmd_alias="Cmnd_Alias	PLUTO_WEBCMD = /usr/pluto/bin/SetupRemoteAccess.sh, /usr/pluto/bin/Network_Firewall.sh, /usr/pluto/bin/SetupUsers.sh, /usr/pluto/bin/Diskless_Setup.sh, /usr/pluto/bin/LaunchRemoteCmd.sh, /usr/pluto/bin/SetTimeZone.sh, /usr/pluto/bin/Update_StartupScrips.sh, /usr/pluto/bin/UpdateMedia"
 cmd_alias="Cmnd_Alias	PLUTO_WEBCMD = /usr/pluto/bin/*"
