@@ -130,7 +130,7 @@ function editAVDevice($output,$dbADO,$mediaADO) {
 			$irGroups=getAssocArray('InfraredGroup','PK_InfraredGroup','Description',$dbADO,'WHERE FK_Manufacturer='.$manufacturerID.' AND FK_DeviceCategory='.$deviceCategoryID,'ORDER BY Description ASC');
 			$out.='
 			<tr>
-				<td colspan="2">Uses Group/Codeset '.pulldownFromArray($irGroups,'irGroup',$infraredGroupID,'onChange="document.editAVDevice.submit();"','key','I don\'t know the group').' <input type="button" class="button" name="step7" value="Help me choose" onclick="self.location=\'index.php?section=addModel&step=7&dtID='.$dtID.'\'"></td>
+				<td colspan="2">Uses Group/Codeset '.pulldownFromArray($irGroups,'irGroup',$infraredGroupID,'onChange="document.editAVDevice.submit();"','key','I don\'t know the group').' <input type="button" class="button" name="step7" value="Help me choose" onclick="self.location=\'index.php?section=addModel&step=7&dtID='.$dtID.'&deviceID='.$deviceID.'\'"></td>
 		</tr>';
 			
 		$out.='

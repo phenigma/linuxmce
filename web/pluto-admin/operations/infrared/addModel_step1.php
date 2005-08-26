@@ -70,7 +70,15 @@
 			if(isset($dc_mtArray[$dcID])){
 				$publicADO->Execute('INSERT IGNORE INTO DeviceTemplate_MediaType (FK_DeviceTemplate,FK_MediaType) VALUES (?,?)',array($dtID,$dc_mtArray[$dcID]));
 			}
+			// hardcoded: add embedded tv and vcr if device category is TV/VCR combo
 			
+			if($dcID==109){
+				$publicADO->Execute('INSERT INTO DeviceTemplate_Input (FK_DeviceTemplate,FK_Command) VALUES (?,?)',array($dtID,161));
+				createEmbeddedDeviceTemplate('TV - LiveTV',$mID,$dcID,$userID,$dtID,161,11,$publicADO);
+				
+				$publicADO->Execute('INSERT INTO DeviceTemplate_Input (FK_DeviceTemplate,FK_Command) VALUES (?,?)',array($dtID,282));
+				createEmbeddedDeviceTemplate('VCR-1 - Video Tape',$mID,$dcID,$userID,$dtID,282,16,$publicADO);
+			}			
 			header('Location: index.php?section=addModel&step=2&dtID='.$dtID.'&isDef=1');
 			exit();
 		}

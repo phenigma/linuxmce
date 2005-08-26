@@ -3857,7 +3857,7 @@ function getIrGroup_CommandsMatrix($dtID,$InfraredGroupsArray,$userID,$comMethod
 			<td><B>Infrared Group</B></td>';
 	foreach ($restrictedCommandsArray AS $cmdID=>$cmdName){
 		$out.='
-			<td><B>'.$cmdName.'</B></td>';
+			<td align="center"><B>'.$cmdName.'</B></td>';
 	}
 	$out.='</tr>';
 	
@@ -3869,7 +3869,8 @@ function getIrGroup_CommandsMatrix($dtID,$InfraredGroupsArray,$userID,$comMethod
 		<tr class="normaltext" bgcolor="'.$color.'">
 			<td><B><a href="index.php?section=editAVDevice&dtID='.$dtID.'&infraredGroupID='.$keysArray[$i].'">'.$irgNames[$keysArray[$i]].'</a></B></td>';
 		foreach ($restrictedCommandsArray AS $cmdID=>$cmdName){
-			$out.='<td align="center">'.((isset($commandGrouped[$keysArray[$i]][$cmdID]))?'<input type="button" class="button" name="copyCB" value="V" onClick="window.open(\'index.php?section=displayCode&irgcID='.$codesData['PK_InfraredGroup_Command'][$i].'\',\'_blank\',\'\');;">':'N/A').'</td>';
+			$testCodeBtn=' <input type="button" class="button" name="testCode" value="T" onClick="self.location=\'index.php?section=testCode&irg_c='.$codesData['PK_InfraredGroup_Command'][$i].'&deviceID='.$_REQUEST['deviceID'].'\';">';
+			$out.='<td align="center">'.((isset($commandGrouped[$keysArray[$i]][$cmdID]))?'<input type="button" class="button" name="copyCB" value="V" onClick="window.open(\'index.php?section=displayCode&irgcID='.$codesData['PK_InfraredGroup_Command'][$i].'\',\'_blank\',\'\');;">'.$testCodeBtn:'N/A').'</td>';
 		}
 		$out.='
 		</tr>';

@@ -1259,6 +1259,12 @@ switch ($section) {
 	    include_once('operations/infrared/displayCode.php');
 	    displayCode($output,$dbADO);
 	break;
+	case 'testCode';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/infrared/testCode.php');
+	    testCode($output,$dbADO);
+	break;
 	
 	case '';
 		$output = new Template($dbADO);	
