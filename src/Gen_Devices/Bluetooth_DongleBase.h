@@ -43,6 +43,8 @@ public:
 	class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition);
 	virtual int GetPK_DeviceList() { return 13; } ;
 	virtual const char *GetDeviceDescription() { return "Bluetooth_Dongle"; } ;
+	string Get_Paired_phones() { return m_mapParameters[116];}
+	void Set_Paired_phones(string Value) { SetParm(116,Value.c_str()); }
 };
 
 
@@ -85,6 +87,8 @@ public:
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
+	string DATA_Get_Paired_phones() { return GetData()->Get_Paired_phones(); }
+	void DATA_Set_Paired_phones(string Value) { GetData()->Set_Paired_phones(Value); }
 	//Event accessors
 	void EVENT_Mobile_orbiter_detected(string sMac_Address,int iSignal_Strength,string sID) { GetEvents()->Mobile_orbiter_detected(sMac_Address.c_str(),iSignal_Strength,sID.c_str()); }
 	void EVENT_Mobile_orbiter_linked(string sMac_Address,string sVersion) { GetEvents()->Mobile_orbiter_linked(sMac_Address.c_str(),sVersion.c_str()); }
