@@ -10887,19 +10887,19 @@ namespace DCE
 	};
 	class CMD_Send_File_To_Phone : public PreformedCommand {
 	public:
-		CMD_Send_File_To_Phone(long DeviceIDFrom, long DeviceIDTo,string sMac_address,string sCommand_Line) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,690,2,47,sMac_address.c_str(),136,sCommand_Line.c_str()); }
+		CMD_Send_File_To_Phone(long DeviceIDFrom, long DeviceIDTo,string sMac_address,string sCommand_Line,int iApp_Server_Device_ID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,693,3,47,sMac_address.c_str(),137,sCommand_Line.c_str(),138,StringUtils::itos(iApp_Server_Device_ID).c_str()); }
 	};
 	class CMD_Send_File_To_Phone_DL : public PreformedCommand {
 	public:
-		CMD_Send_File_To_Phone_DL(long DeviceIDFrom, string DeviceIDTo,string sMac_address,string sCommand_Line) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,690,2,47,sMac_address.c_str(),136,sCommand_Line.c_str()); }
+		CMD_Send_File_To_Phone_DL(long DeviceIDFrom, string DeviceIDTo,string sMac_address,string sCommand_Line,int iApp_Server_Device_ID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,693,3,47,sMac_address.c_str(),137,sCommand_Line.c_str(),138,StringUtils::itos(iApp_Server_Device_ID).c_str()); }
 	};
 	class CMD_Send_File_To_Phone_DT : public PreformedCommand {
 	public:
-		CMD_Send_File_To_Phone_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sMac_address,string sCommand_Line) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,690,2,47,sMac_address.c_str(),136,sCommand_Line.c_str()); }
+		CMD_Send_File_To_Phone_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sMac_address,string sCommand_Line,int iApp_Server_Device_ID) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,693,3,47,sMac_address.c_str(),137,sCommand_Line.c_str(),138,StringUtils::itos(iApp_Server_Device_ID).c_str()); }
 	};
 	class CMD_Send_File_To_Phone_Cat : public PreformedCommand {
 	public:
-		CMD_Send_File_To_Phone_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sMac_address,string sCommand_Line) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,690,2,47,sMac_address.c_str(),136,sCommand_Line.c_str()); }
+		CMD_Send_File_To_Phone_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sMac_address,string sCommand_Line,int iApp_Server_Device_ID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,693,3,47,sMac_address.c_str(),137,sCommand_Line.c_str(),138,StringUtils::itos(iApp_Server_Device_ID).c_str()); }
 	};
 }
 #endif

@@ -325,7 +325,7 @@ bool Orbiter_Plugin::SafeToReload(string *sPendingTasks)
 			OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(*it);
 			if( pOH_Orbiter )
 			{
-				int Minutes = (time(NULL) - pOH_Orbiter->m_tRegenTime) /60;
+				int Minutes = (int)(time(NULL) - pOH_Orbiter->m_tRegenTime) /60;
 				(*sPendingTasks) += " (" + pOH_Orbiter->m_pDeviceData_Router->m_sDescription + 
 					") " + StringUtils::itos(Minutes) + " minutes";
 			}
@@ -979,7 +979,10 @@ void Orbiter_Plugin::CMD_New_Mobile_Orbiter(int iPK_Users,int iPK_DeviceTemplate
 		Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(iPK_DeviceTemplate);
         string sPlutoMOInstallCmdLine = pRow_DeviceTemplate->Comments_get();
         sPlutoMOInstallCmdLine = StringUtils::Replace(sPlutoMOInstallCmdLine, csMacToken, sMac_address);
-        CMD_Send_File_To_Phone(sMac_address, sPlutoMOInstallCmdLine);
+
+        DeviceData_Base *pDevice_MD = pUnknownDevice->m_pDeviceFrom->m_pDevice_MD;
+        DeviceData_Base *pDevice_AppServer = ((DeviceData_Impl *)pDevice_MD)->FindSelfOrChildWithinCategory(DEVICECATEGORY_App_Server_CONST);
+        CMD_Send_File_To_Phone(sMac_address, sPlutoMOInstallCmdLine, pDevice_AppServer->m_dwPK_Device);
     }
 
 g_pPlutoLogger->Write(LV_STATUS,"setting process flag to false");
@@ -1443,7 +1446,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Starting regen orbiter with %d size",(int) m_li
 		{
 			if( pOH_Orbiter->m_tRegenTime )
 			{
-				int Minutes = (time(NULL) - pOH_Orbiter->m_tRegenTime) /60;
+				int Minutes = (int)(time(NULL) - pOH_Orbiter->m_tRegenTime) /60;
 				DisplayMessageOnOrbiter(iPK_Device,"We already started regenerating the orbiter " + pOH_Orbiter->m_pDeviceData_Router->m_sDescription + " " + StringUtils::itos(Minutes) +
 					" minutes ago.  When it is finished, it will return to the main menu automatically.  If you think it is stuck, you may want to reset the Pluto system");
 				return;
@@ -1708,7 +1711,10 @@ void Orbiter_Plugin::SendAppToPhone(OH_Orbiter *pOH_Orbiter,DeviceData_Base *pDe
         Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(iPK_DeviceTemplate);
         string sPlutoMOInstallCmdLine = pRow_DeviceTemplate->Comments_get();
         sPlutoMOInstallCmdLine = StringUtils::Replace(sPlutoMOInstallCmdLine, csMacToken, sMacAddress);
-        CMD_Send_File_To_Phone(sMacAddress, sPlutoMOInstallCmdLine);
+
+        DeviceData_Base *pDevice_MD = pDevice_Dongle->m_pDevice_MD;
+        DeviceData_Base *pDevice_AppServer = ((DeviceData_Impl *)pDevice_MD)->FindSelfOrChildWithinCategory(DEVICECATEGORY_App_Server_CONST);
+        CMD_Send_File_To_Phone(sMacAddress, sPlutoMOInstallCmdLine, pDevice_AppServer->m_dwPK_Device);
     }
     else
         g_pPlutoLogger->Write(LV_CRITICAL, "This is not a phone! Mac address: %s", sMacAddress.c_str());
@@ -1965,17 +1971,20 @@ void Orbiter_Plugin::CMD_Display_Dialog_Box_On_Orbiter(string sText,string sOpti
         vectOptions[0], vectOptions[1], vectOptions[2], vectOptions[3], 
         vectOptions[4], vectOptions[5], vectOptions[6], vectOptions[7]);
 }
-//<-dceag-c690-b->
 
-	/** @brief COMMAND: #690 - Send File To Phone */
-	/** It send a file to a phone (based on mac address). */
+//<-dceag-c693-b->
+
+	/** @brief COMMAND: #693 - Send File To Phone */
+	/** Send a file to the phone. */
 		/** @param #47 Mac address */
 			/** Phone's mac address */
-		/** @param #136 Command Line */
+		/** @param #137 Command Line */
 			/** Command line to be sent */
+		/** @param #138 App_Server_Device_ID */
+			/** App_Server which will spawn the application */
 
-void Orbiter_Plugin::CMD_Send_File_To_Phone(string sMac_address,string sCommand_Line,string &sCMD_Result,Message *pMessage)
-//<-dceag-c690-e->
+void Orbiter_Plugin::CMD_Send_File_To_Phone(string sMac_address,string sCommand_Line,int iApp_Server_Device_ID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c693-e->
 {
     g_pPlutoLogger->Write(LV_STATUS, "About to send file to phone. Command line: '%s', device %s.", sCommand_Line.c_str(), sMac_address.c_str());
 
@@ -1994,6 +2003,7 @@ void Orbiter_Plugin::CMD_Send_File_To_Phone(string sMac_address,string sCommand_
             StringUtils::itos(MESSAGETYPE_COMMAND) + " " + StringUtils::itos(COMMAND_Send_File_To_Phone_CONST) + " " + 
             StringUtils::itos(COMMANDPARAMETER_Mac_address_CONST) + " '" + sMac_address + "'" + " " + 
             StringUtils::itos(COMMANDPARAMETER_Command_Line_CONST) + " '" + sCommand_Line + "'" + " " + 
+            StringUtils::itos(COMMANDPARAMETER_App_Server_Device_ID_CONST) + " " + StringUtils::itos(iApp_Server_Device_ID) + " " +
             "|No|\"" + " " + 
         StringUtils::itos(COMMANDPARAMETER_PK_Device_List_CONST) + " " + m_sPK_Device_AllOrbiters;
 
@@ -2010,7 +2020,7 @@ void Orbiter_Plugin::CMD_Send_File_To_Phone(string sMac_address,string sCommand_
 
     g_pPlutoLogger->Write(LV_STATUS, "Launching send to phone job: \"%s\"", sName.c_str());
 
-    DCE::CMD_Spawn_Application_DT cmd_Spawn_Application_DT(m_dwPK_Device, DEVICETEMPLATE_App_Server_CONST,
-        BL_SameHouse, sCommand_Line, sName.c_str(), string(), sCommOnFailure, sCommOnSuccess, false);
-    SendCommand(cmd_Spawn_Application_DT);
+    DCE::CMD_Spawn_Application cmd_Spawn_Application(m_dwPK_Device, iApp_Server_Device_ID,
+        sCommand_Line, sName.c_str(), string(), sCommOnFailure, sCommOnSuccess, false);
+    SendCommand(cmd_Spawn_Application);
 }

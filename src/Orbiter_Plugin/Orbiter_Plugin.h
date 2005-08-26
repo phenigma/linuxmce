@@ -444,15 +444,17 @@ public:
 	virtual void CMD_Display_Dialog_Box_On_Orbiter(string sText,string sOptions,string sPK_Device_List,string &sCMD_Result,Message *pMessage);
 
 
-	/** @brief COMMAND: #690 - Send File To Phone */
-	/** It send a file to a phone (based on mac address). */
+	/** @brief COMMAND: #693 - Send File To Phone */
+	/** Send a file to the phone. */
 		/** @param #47 Mac address */
 			/** Phone's mac address */
-		/** @param #136 Command Line */
+		/** @param #137 Command Line */
 			/** Command line to be sent */
+		/** @param #138 App_Server_Device_ID */
+			/** App_Server which will spawn the application */
 
-	virtual void CMD_Send_File_To_Phone(string sMac_address,string sCommand_Line) { string sCMD_Result; CMD_Send_File_To_Phone(sMac_address.c_str(),sCommand_Line.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Send_File_To_Phone(string sMac_address,string sCommand_Line,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Send_File_To_Phone(string sMac_address,string sCommand_Line,int iApp_Server_Device_ID) { string sCMD_Result; CMD_Send_File_To_Phone(sMac_address.c_str(),sCommand_Line.c_str(),iApp_Server_Device_ID,sCMD_Result,NULL);};
+	virtual void CMD_Send_File_To_Phone(string sMac_address,string sCommand_Line,int iApp_Server_Device_ID,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->
