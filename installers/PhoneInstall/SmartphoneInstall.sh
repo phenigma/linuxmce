@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#. /usr/pluto/bin/pluto.func
+. /usr/pluto/bin/pluto.func
 
 #$0 <MAC> <path_to_sis>
 
@@ -19,13 +19,20 @@ if [ ! -f "$SIS" -o ! -r "$SIS" ]; then
 	exit
 fi
 
+echo "Trying to send the file using '2' channel..."
 (echo "c"; echo "p"; echo "$SIS Orbiter.cab"; echo "q") | obex_test -b $MAC 2 |grep -qF 'PUT successful!'
 Ret=$?
 
+if [[ "$Ret" -eq 1 ]]; then
+	echo "Trying to send the file using '3' channel..."
+	(echo "c"; echo "p"; echo "$SIS Orbiter.cab"; echo "q") | obex_test -b $MAC 3 |grep -qF 'PUT successful!'
+	Ret=$?
+fi
+
 if [[ "$Ret" -eq 0 ]]; then
-	echo Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "SIS '$SIS' uploaded to '$MAC'"
+	Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "SIS '$SIS' uploaded to '$MAC'"
 	exit 0
 else
-	echo Logging "$TYPE" "$SEVERITY_WARNING" "$0" "SIS '$SIS' failed to upload to '$MAC'"
+	Logging "$TYPE" "$SEVERITY_WARNING" "$0" "SIS '$SIS' failed to upload to '$MAC'"
 	exit 1
-fi
+fi 
