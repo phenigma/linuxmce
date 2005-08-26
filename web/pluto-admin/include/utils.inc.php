@@ -1424,7 +1424,7 @@ function pickDeviceTemplate_old($categoryID, $boolManufacturer,$boolCategory,$bo
 				if($categoryID==$GLOBALS['rootAVEquipment']){
 					$out.='
 					<tr>
-						<td colspan="3">After you add the device you\'ll to choose the A/V properties button and then I/R codes.</td>
+						<td colspan="3">After you add a new model you'll be able to choose the A/V properties and set I/R codes.</td>
 					</tr>';
 				}
 				$out.='
@@ -4239,7 +4239,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 				if($categoryID==$GLOBALS['rootAVEquipment']){
 					$out.='
 					<tr>
-						<td colspan="3" class="normaltext">After you add the device you\'ll to choose the A/V properties button and then I/R codes.</td>
+						<td colspan="3" class="normaltext">After you add a new model you'll be able to choose the A/V properties and set I/R codes.</td>
 					</tr>';
 				}
 				$out.='

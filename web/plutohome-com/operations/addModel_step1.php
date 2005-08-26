@@ -61,14 +61,14 @@
 			$_SESSION['selectedCommMethod']=(int)$_POST['commMethod'];
 			
 			// hardcoded corespondence between AV categories cd, casette, dvd etc. and media types
-			$dc_mtArray=array(106=>19,107=>12,108=>14,105=>15,135=>17,77=>11);
+			$dc_mtArray=array(106=>19,107=>12,108=>11,105=>11,135=>17);
 
 			if(isset($dc_mtArray[$dcID])){
 				$publicADO->Execute('INSERT IGNORE INTO DeviceTemplate_MediaType (FK_DeviceTemplate,FK_MediaType) VALUES (?,?)',array($dtID,$dc_mtArray[$dcID]));
 			}
 			// hardcoded: add embedded tv and vcr if device category is TV/VCR combo
 			
-			if($dcID==109){
+			if($dcID==109 || $dcID==98){
 				$publicADO->Execute('INSERT INTO DeviceTemplate_Input (FK_DeviceTemplate,FK_Command) VALUES (?,?)',array($dtID,161));
 				createEmbeddedDeviceTemplate('TV - LiveTV',$mID,$dcID,$userID,$dtID,161,11,$publicADO);
 				

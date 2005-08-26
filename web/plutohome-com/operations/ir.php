@@ -14,8 +14,8 @@ function ir($output)
 
 	$out='
 	<span class="normaltext" style="padding:20px;">
-	<p>Find infrared code for your device in Pronto<sup>1</sup> format, or in Pluto\'s GSD format for devices with an RS232, RS485, USB,
-	or Ethernet control.  If you find errors, please <a href="http://plutohome.com/index.php?section=support">contact us</a>.</p></span>';
+	<p>Find infrared codes in Pronto<sup>1</sup> format, or in Pluto\'s GSD format for devices with an RS232, RS485, USB,
+	or Ethernet control.  We have <b>over 100,000 codes</b> for devices from <b>more than 1,000 manufacturers</b>.  If you find errors, please <a href="http://plutohome.com/index.php?section=support">contact us</a>.</p></span>';
 
 	$selectedManufacturer = (int)@$_REQUEST['manufacturers'];
 	$selectedDeviceCateg= (int)@$_REQUEST['deviceSelected'];
