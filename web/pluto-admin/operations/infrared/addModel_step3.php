@@ -33,7 +33,7 @@
 		$Content='
 		<table class="normaltext">
 			<tr>
-				<td>By default when it’s time to tune to a station, channel or frequency, we assume this device wants you to punch in the number on the remote, and then hit ‘enter’.  If that’s not the way this device works, please change these values:</td>
+				<td>By default when it’s time to tune to a station, channel or frequency, we assume this device wants you to punch in the number on the remote, and then hit ‘enter’.  If that’s correct, or if this device doesn't tune to anything, click next.  Otherwise:</td>
 			</tr>
 			<tr>
 				<td>&nbsp;</td>
@@ -52,7 +52,7 @@
 				<td align="center">&nbsp;</td>
 			</tr>		
 			<tr>
-				<td align="center"><input type="submit" class="button" name="next" value="Next"> <input type="button" class="button" name="skip" value="Go to IR Codes" onclick="self.location=\'index.php?section=irCodes&dtID='.$dtID.'\'"></td>
+				<td align="center"><input type="submit" class="button" name="next" value="Next"> </td>
 			</tr>
 		
 		</table>		
@@ -63,7 +63,7 @@
 	if($action=='form'){
 		$out='<br>
 		<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step-1).(((int)@$_REQUEST['isDef']==1)?'&isDef=1':'').'">&lt;&lt;</a> <a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step+1).(((int)@$_REQUEST['isDef']==1)?'&isDef=1':'').'">&gt;&gt;</a></div>
-		<B>Step 3 - Tuning</B><br><br>
+		<B>Question 3 of 6 - How to tune?</B><br><br>
 		'.$cdContent.'
 		
 		<form action="index.php" method="POST" name="addModel">

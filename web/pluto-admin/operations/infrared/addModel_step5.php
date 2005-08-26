@@ -192,7 +192,7 @@
 		
 		<br>
 		<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step-1).'">&lt;&lt;</a> <a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step+1).'">&gt;&gt;</a></div>
-		<B>Step 5 - Inputs</B><br><br>';
+		<B>Question 5 of 6 - What Inputs?</B><br><br>';
 		$out.='
 		<p class="normaltext">If this device has multiple inputs, or sources, you will check off all the inputs, and for each indicate if it is a built-in source, or a hookup for an external device.
 		<p class="normaltext">'.$categoryInfo.'
@@ -245,7 +245,7 @@ If this device is something like a receiver or tv where you can connect other de
 		
 			$out.='
 			<tr>
-				<td align="center"><input type="submit" class="button" name="next" value="Next"> <input type="button" class="button" name="skip" value="Go to IR Codes" onclick="self.location=\'index.php?section=irCodes&dtID='.$dtID.'\'"></td>
+				<td align="center"><input type="submit" class="button" name="next" value="Next"></td>
 			</tr>
 		</table>
 		<br>

@@ -6,7 +6,7 @@
 	if($action=='form'){
 		$out='<br>
 		<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step+1).(((int)@$_REQUEST['isDef']==1)?'&isDef=1':'').'">&gt;&gt;</a></div>
-		<B>Step 2 - Delays</B><br>
+		<B>Question 2 - What Delays?</B><br>
 		<p class="normaltext">Most devices need some delays between commands.  We filled in the most common values for you.  Change them if necessary; you can also make changes later if these values do not work:
 		
 		<form action="index.php" method="POST" name="addModel">
@@ -27,7 +27,7 @@
 				<td>When sending a series of codes, such as a sequence of digits to tune to a channel, wait <input type="text" name="DigitDelay" value="'.(((int)@$_REQUEST['isDef']==1)?'0.250':round(@$dtArray['DigitDelay'][0]/1000,3)).'" size="2"> seconds* between commands (up to 3 decimal places).</td>
 			</tr>		
 			<tr>
-				<td align="center"><input type="submit" class="button" name="add" value="next"> <input type="button" class="button" name="skip" value="skip a/v properties wizard and just show me i/r codes" onclick="self.location=\'index.php?section=irCodes&dtID='.$dtID.'\'"></td>
+				<td align="center"><input type="submit" class="button" name="add" value="next"> </td>
 			</tr>
 			<tr>
 				<td align="center">&nbsp;</td>

@@ -16,8 +16,9 @@
 	if($action=='form'){
 		$out='
 		<h3 align="center">Add model</h3><br>
-		<B>Step 1 - how to control</B><br>
-		<p class="normaltext">We need to ask a few basic questions about this device.  This should only take a minute or two and we’ll try to fill in default answers for you whenever possible.  You can click the ‘skip a/v properties’ button at any time, but then the control of this model will be limited and someone else will need to do this anyway.
+		<B>Question 1 of 6 - How to control?</B><br>
+		<p class="normaltext">We need to ask a few basic questions about this device, which allows you to control it much more intuitively <a href="http://plutohome.com/support/index.php?section=document&docID=216">without having to write macros!</a> 
+		 This should only take a minute or two and we’ll try to fill in default answers for you whenever possible.
 		
 		<form action="index.php" method="POST" name="addModel">
 			<input type="hidden" name="section" value="addModel">

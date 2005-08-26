@@ -9,7 +9,7 @@
 	if($action=='form'){
 		$out='<br>
 		<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step-1).'">&lt;&lt;</a> <a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step+1).'">&gt;&gt;</a></div>
-		<B>Step 4 - Toggle power</B><br><br>
+		<B>Question 4 of 6 - Toggle power or discrete?</B><br><br>
 		
 		<form action="index.php" method="POST" name="addModel">
 			<input type="hidden" name="section" value="addModel">
@@ -32,7 +32,7 @@
 				<td align="center">&nbsp;</td>
 			</tr>		
 			<tr>
-				<td align="center"><input type="submit" class="button" name="next" value="Next"> <input type="button" class="button" name="skip" value="Go to IR Codes" onclick="self.location=\'index.php?section=irCodes&dtID='.$dtID.'\'"></td>
+				<td align="center"><input type="submit" class="button" name="next" value="Next"> </td>
 			</tr>
 		
 		</table>

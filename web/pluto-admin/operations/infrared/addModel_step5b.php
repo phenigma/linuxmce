@@ -69,7 +69,7 @@
 		
 		<br>
 		<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step=5">&lt;&lt;</a> <a href="index.php?section=addModel&dtID='.$dtID.'&step=6">&gt;&gt;</a></div>
-		<B>Step 5B - Inputs</B><br><br>
+		<B>Question 5b - What Order?</B><br><br>
 		
 		<form action="index.php" method="POST" name="addModel" onSubmit="setOrder();">
 			<input type="hidden" name="section" value="addModel">
@@ -83,7 +83,7 @@
 					<td colspan="2"><B>Change order</B></td>
 				</tr>
 				<tr>
-					<td colspan="2"><!--For Aaron: insert you comments here --></td>
+					<td colspan="2">Since this device uses 1 button to <b>toggle</b> inputs, we need to know what order those inputs are in so we can cycle through them.  Please confirm the order and click next.</td>
 				</tr>
 				<tr>				
 					<td valign="top" align="right" width="50%">'.pulldownFromArray($checkedCommands,'orderItem',0,'size="10"','key','').'</td>
@@ -93,7 +93,7 @@
 					<td colspan="2" class="normaltext"><input type="hidden" name="checkedCommands" value="'.urlencode(serialize($checkedCommands)).'"></td>
 				</tr>
 				<tr>
-					<td align="center" colspan="2"><input type="submit" class="button" name="next" value="Next"> <input type="button" class="button" name="skip" value="Go to IR Codes" onclick="self.location=\'index.php?section=irCodes&dtID='.$dtID.'\'"></td>
+					<td align="center" colspan="2"><input type="submit" class="button" name="next" value="Next"></td>
 				</tr>
 			</table>
 		<br>

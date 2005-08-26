@@ -101,7 +101,7 @@
 		
 		<br>
 		<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step-1).'">&lt;&lt;</a> <a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step+1).'">&gt;&gt;</a></div>
-		<B>Step 6 - DSP mode</B><br><br>
+		<B>Last Question, 6 - DSP mode?</B><br><br>
 		
 		<form action="index.php" method="POST" name="addModel" onSubmit="setOrder();">
 			<input type="hidden" name="section" value="addModel">
@@ -112,7 +112,7 @@
 
 		';
 		if(!in_array($dtDataArray['FK_DeviceCategory'][0],$ampReceivers)){
-			$out.='<p class="normaltext">'.$dtDataArray['Description'][0].' devices normally don’t have multiple DSP Modes, like “Church”, “Concert hall”, “Dolby Digital”, etc.  You can probably ignore this step.<br><br>';
+			$out.='<p class="normaltext">'.$dtDataArray['Description'][0].' devices normally don’t have multiple DSP Modes, like “Church”, “Concert hall”, “Dolby Digital”, etc.  You can probably ignore this step and click next.<br><br>';
 		}else{
 			$out.='<p class="normaltext">If this device has multiple DSP Modes, like “Church”, “Concert hall”, “Dolby Digital”, please check off all the modes. .  If your device has a dspmode that is not on the list, but there is a close match, choose that.  It’s not important that the wording be exactly the same.  Only add a new dsp mode if your device’s input is totally unlike anything on this list.';
 		}
@@ -146,7 +146,7 @@
 		
 			$out.='
 			<tr>
-				<td align="center"><input type="submit" class="button" name="next" value="Next"> <input type="button" class="button" name="skip" value="Go to IR Codes" onclick="self.location=\'index.php?section=irCodes&dtID='.$dtID.'\'"></td>
+				<td align="center"><input type="submit" class="button" name="next" value="Next"></td>
 			</tr>
 		</table>
 		<br>
