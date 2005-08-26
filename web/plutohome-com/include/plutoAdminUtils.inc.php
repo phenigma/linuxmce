@@ -1107,10 +1107,10 @@ function getChilds($parentID,$dbADO) {
 		$rs2 = $dbADO->_Execute($selectDevicesFromCategories);
 		$jsTree='';
 			while ($row2 = $rs2->FetchRow()) {		
-				$jsTree.= '
-					auxS'.$row2['PK_DeviceCategory'].' = insFld(auxS'.$parentID.', gFld("'.$row2['Description'].' #'.$row2['PK_DeviceCategory'].'", "javascript:setPicker('.$row2['PK_DeviceCategory'].',\'\');"))
-					auxS'.$row2['PK_DeviceCategory'].'.xID = '.$row2['PK_DeviceCategory'].';
-				';
+				$jsTree.= "
+					auxS".$row2['PK_DeviceCategory']." = insFld(auxS".$parentID.", gFld(\"".$row2["Description"]." #".$row2["PK_DeviceCategory"]."\", 'javascript:setPicker(".$row2["PK_DeviceCategory"].",\"".$row2["Description"]."\");'))
+					auxS".$row2['PK_DeviceCategory'].".xID = ".$row2['PK_DeviceCategory'].";
+				";
 				$jsTree.=getChilds($row2['PK_DeviceCategory'],$dbADO);
 			}
 
@@ -1126,12 +1126,21 @@ function getMediaTypeCheckboxes($dtID,$publicADO)
 		LEFT JOIN DeviceTemplate_MediaType ON FK_MediaType=PK_MediaType AND FK_DeviceTemplate=?
 		WHERE DCEaware=0',$dtID);
 	$displayedMT=array();
+	$checkedMT=array();
 	while($rowMT=$resMT->FetchRow()){
+		$checked='';
 		$displayedMT[]=$rowMT['PK_MediaType'];
+		if($rowMT['FK_DeviceTemplate']!=''){
+			$checked='checked';
+			$checkedMT[]=$rowMT['PK_MediaType'];
+		}
 			
-		$mediaTypeCheckboxes.='<input type="checkbox" name="mediaType_'.$rowMT['PK_MediaType'].'" '.(($rowMT['FK_DeviceTemplate']!='')?'checked':'').'>'.str_replace('np_','',$rowMT['Description']).' ';
+		$mediaTypeCheckboxes.='<input type="checkbox" name="mediaType_'.$rowMT['PK_MediaType'].'" '.@$checked.'>'.str_replace('np_','',$rowMT['Description']).' ';
 		$mediaTypeCheckboxes.=((count($displayedMT))%5==0)?'<br>':'';
 	}
+	$mediaTypeCheckboxes.='
+	<input type="hidden" name="displayedMT" value="'.join(',',$displayedMT).'">
+	<input type="hidden" name="checkedMT" value="'.join(',',$checkedMT).'">';
 	
 	return $mediaTypeCheckboxes;
 }
@@ -1297,4 +1306,53 @@ function getIrGroup_CommandsMatrix($dtID,$InfraredGroupsArray,$userID,$comMethod
 	return $out;
 }
 
+// create an embedded device template for selected device template 
+function createEmbeddedDeviceTemplate($name,$manufacturer,$deviceCategory,$userID,$parentID,$commandID,$mediaType,$publicADO){
+	$publicADO->Execute('
+		INSERT INTO DeviceTemplate 
+			(Description,FK_Manufacturer,FK_DeviceCategory,psc_user) 
+		VALUES 
+			(?,?,?,?)',
+	array($name,$manufacturer,$deviceCategory,$userID));
+	$embeddedID=$publicADO->Insert_ID();
+
+	$publicADO->Execute('
+		INSERT INTO DeviceTemplate_DeviceTemplate_ControlledVia 
+			(FK_DeviceTemplate,FK_DeviceTemplate_ControlledVia,RerouteMessagesToParent,AutoCreateChildren)
+		VALUES
+			(?,?,1,1)',
+	array($embeddedID,$parentID));
+	$insertID=$publicADO->Insert_ID();
+
+	$publicADO->Execute('
+		INSERT INTO DeviceTemplate_DeviceTemplate_ControlledVia_Pipe
+			(FK_DeviceTemplate_DeviceTemplate_ControlledVia,FK_Pipe,FK_Command_Input)
+		VALUES 
+			(?,?,?)',
+	array($insertID,1,$commandID));
+	
+	$publicADO->Execute('
+		INSERT INTO DeviceTemplate_DeviceTemplate_ControlledVia_Pipe
+			(FK_DeviceTemplate_DeviceTemplate_ControlledVia,FK_Pipe,FK_Command_Input)
+		VALUES 
+			(?,?,?)',
+	array($insertID,2,$commandID));
+	
+	$publicADO->Execute('
+		INSERT INTO DeviceTemplate_Input 
+			(FK_DeviceTemplate,FK_Command) 
+		VALUES 
+			(?,?)',
+	array($embeddedID,$commandID));
+	
+	if(!is_null($mediaType)){
+		$publicADO->Execute('
+			INSERT INTO DeviceTemplate_MediaType 
+				(FK_DeviceTemplate,FK_MediaType) 
+			VALUES 
+				(?,?)',
+		array($embeddedID,$mediaType));
+	}
+
+}
 ?>

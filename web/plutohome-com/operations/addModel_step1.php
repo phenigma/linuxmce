@@ -1,7 +1,4 @@
 <?
-	$mID=$_REQUEST['mID'];
-	$dcID=$_REQUEST['dcID'];
-
 	$manufArray=getAssocArray('Manufacturer','PK_Manufacturer','Description',$publicADO,'WHERE PK_Manufacturer='.$mID,'ORDER BY Description ASC');
 	$categArray=getAssocArray('DeviceCategory','PK_DeviceCategory','Description',$publicADO,'WHERE PK_DeviceCategory='.$dcID,'ORDER BY Description ASC');
 	
@@ -11,7 +8,6 @@
 	foreach ($commMethodArray AS $key=>$value){
 		$commMethodRadioButtons.='<input type="radio" name="commMethod" value="'.$key.'" '.(($key==$selectedCommMethod)?'checked':'').'>'.$value.'<br>';
 	}
-	
 	
 	if($action=='form'){
 		$out='
@@ -65,10 +61,19 @@
 			$_SESSION['selectedCommMethod']=(int)$_POST['commMethod'];
 			
 			// hardcoded corespondence between AV categories cd, casette, dvd etc. and media types
-			$dc_mtArray=array(106=>19,107=>12,108=>14,105=>15,135=>17);
+			$dc_mtArray=array(106=>19,107=>12,108=>14,105=>15,135=>17,77=>11);
 
 			if(isset($dc_mtArray[$dcID])){
 				$publicADO->Execute('INSERT IGNORE INTO DeviceTemplate_MediaType (FK_DeviceTemplate,FK_MediaType) VALUES (?,?)',array($dtID,$dc_mtArray[$dcID]));
+			}
+			// hardcoded: add embedded tv and vcr if device category is TV/VCR combo
+			
+			if($dcID==109){
+				$publicADO->Execute('INSERT INTO DeviceTemplate_Input (FK_DeviceTemplate,FK_Command) VALUES (?,?)',array($dtID,161));
+				createEmbeddedDeviceTemplate('TV - LiveTV',$mID,$dcID,$userID,$dtID,161,11,$publicADO);
+				
+				$publicADO->Execute('INSERT INTO DeviceTemplate_Input (FK_DeviceTemplate,FK_Command) VALUES (?,?)',array($dtID,282));
+				createEmbeddedDeviceTemplate('VCR-1 - Video Tape',$mID,$dcID,$userID,$dtID,282,16,$publicADO);
 			}
 			
 			header('Location: index.php?section=addModel&step=2&dtID='.$dtID.'&isDef=1');

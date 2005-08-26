@@ -4,6 +4,7 @@ function login($output,$dbADO,$conn) {
 /* @var $dbADO ADOConnection */
 global $checkMasterUserUrl;
 $return=@$_REQUEST['return'];
+$back=@$_REQUEST['back'];
 
 if(isset($_SESSION['userIsLogged']) && $_SESSION['userIsLogged']=="yes"){
 	// the user is already logged
@@ -68,6 +69,12 @@ if (isset($_POST['username']) && $_POST['username']!='') {
 				header("Location: support/mantis/login.php?username=".$_SESSION['username']."&password=".$_SESSION['extPassword']."&login=1&return=".$return);
 				exit();
 			}
+			
+			if($back!=''){
+				header("Location: index.php?$back");
+				exit();
+			}
+
 			header("Location: index.php?section=myPluto");
 			exit();
 		} else {
@@ -84,6 +91,7 @@ if (isset($_POST['username']) && $_POST['username']!='') {
 	<form name="login" id="login" method="post" action="index.php">
 	<input type="hidden" name="section" value="login">
 	<input type="hidden" name="return" value="'.$return.'">
+	<input type="hidden" name="back" value="'.$back.'">
 		<table width="100%">
      		<tr>
 				<td align="left" colspan="2" class="insidetable"><img src="images/titles/login.gif" border="0"> <span class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</span></td>
