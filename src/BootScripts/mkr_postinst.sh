@@ -7,7 +7,7 @@ update-rc.d Startup_Scripts.sh defaults 22 10
 . /usr/pluto/bin/SQL_Ops.sh
 
 # /etc/apt/apt.conf.d/30pluto
-
+rm -rf /var/cache/polipo/*
 pluto_apt_conf='// Pluto apt conf add-on
 //Acquire::http::Proxy "http://'"$DCERouter"':8123";
 //Acquire::ftp::Proxy "ftp://'"$DCERouter"':8124";
