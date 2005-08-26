@@ -1,7 +1,9 @@
 <?
-function infraredCommands($output,$dbADO) {
-	/* @var $dbADO ADOConnection */
+function infraredCommands($output,$publicADO) {
+	
+	/* @var $publicADO ADOConnection */
 	/* @var $rs ADORecordSet */
+
 	$out='';
 	$action = (isset($_REQUEST['action']) && $_REQUEST['action']!='')?cleanString($_REQUEST['action']):'form';
 	$installationID = (int)@$_SESSION['installationID'];
@@ -29,39 +31,62 @@ function infraredCommands($output,$dbADO) {
 			<input type="hidden" name="deviceID" value="'.$GLOBALS['deviceID'].'">
 			<input type="hidden" name="dtID" value="'.$GLOBALS['dtID'].'">
 		
-		<table cellpadding="3" align="center">
+		<table cellpadding="3" align="center" class="normaltext">
 			<tr bgcolor="lightblue">
 				<td align="center" width="120"><B>Command category</B></td>
+				<td><B>#</B></td>
 				<td align="center"><B>Command description</b></td>
 				<td align="center"><B>Action</b></td>
 			</tr>
 		';
-		$GLOBALS['displayedCommands']=array();
 		$GLOBALS['oldCheckedCommands']=array();
-		if(!isset($_REQUEST['rootNode'])){
-			$queryRootCC='
-				SELECT Description,PK_CommandCategory
-				FROM CommandCategory
-				WHERE FK_CommandCategory_Parent =? AND PK_CommandCategory NOT IN ('.join(',',$GLOBALS['excludedCategories']).')
-				ORDER BY CommandCategory.Description ASC';
-			$resRootCC=$dbADO->Execute($queryRootCC,$GLOBALS['AVCommandCategory']);
-		}else{
-			$queryRootCC='
-				SELECT Description,PK_CommandCategory
-				FROM CommandCategory
-				WHERE FK_CommandCategory_Parent IS NULL 
-				ORDER BY CommandCategory.Description ASC';
-			$resRootCC=$dbADO->Execute($queryRootCC);
-		
+		$queryOld='SELECT DISTINCT FK_Command FROM InfraredGroup_Command WHERE (FK_Device=? OR FK_Device IS NULL) AND FK_DeviceTemplate=?';
+		$resOld=$publicADO->Execute($queryOld,array($GLOBALS['deviceID'],$GLOBALS['dtID']));
+		while($row=$resOld->FetchRow()){
+			$GLOBALS['oldCheckedCommands'][]=$row['FK_Command'];
 		}
-		$out.=formatOutput($resRootCC,$dbADO,0);
+
+		$GLOBALS['displayedCommands']=array();
+		$query='
+			SELECT DISTINCT
+				Command.Description,
+				PK_Command, 
+				CommandCategory.PK_CommandCategory, 
+				CommandCategory.Description AS CommandCategory ,
+				Parent.Description AS Parent,if(Parent.Description IS NULL,CommandCategory.Description,concat(Parent.Description,\'-\',CommandCategory.Description)) AS Categ
+			FROM Command
+			INNER JOIN CommandCategory ON FK_CommandCategory=CommandCategory.PK_CommandCategory 
+			LEFT JOIN CommandCategory Parent ON CommandCategory.FK_CommandCategory_Parent=Parent.PK_CommandCategory
+			WHERE '.((isset($_REQUEST['rootNode']))?'1=1':'CommandCategory.FK_CommandCategory_Parent='.$GLOBALS['AVCommandCategory']).' AND CommandCategory.PK_CommandCategory NOT IN ('.join(',',$GLOBALS['excludedCategories']).') 
+			ORDER BY Categ,CommandCategory.Description ASC';
+		$resRootCC=$publicADO->Execute($query);
+		$cc=0;
+		$cmdPos=0;
+		while($rowRootCC=$resRootCC->FetchRow()){
+			$GLOBALS['displayedCommands'][]=$rowRootCC['PK_Command'];
+			if($cc!=$rowRootCC['PK_CommandCategory']){
+				$cc=$rowRootCC['PK_CommandCategory'];
+				$cmdPos=0;
+				$out.='
+				<tr bgcolor="#EEEEEE">
+					<td colspan="4"><B>'.$rowRootCC['Categ'].'</B></td>
+				</tr>';
+			}
+			$cmdPos++;
+			
+			$out.='
+				<tr>
+					<td>&nbsp;</td>
+					<td bgcolor="'.(($cmdPos%2==0)?'#FFFFFF':'#EBEFF9').'">'.$rowRootCC['PK_Command'].'</td>
+					<td bgcolor="'.(($cmdPos%2==0)?'#FFFFFF':'#EBEFF9').'">'.$rowRootCC['Description'].'</td>
+					<td bgcolor="'.(($cmdPos%2==0)?'#FFFFFF':'#EBEFF9').'" align="center"><input type="checkbox" name="command_'.$rowRootCC['PK_Command'].'" value="1" '.((in_array($rowRootCC['PK_Command'],$GLOBALS['oldCheckedCommands']))?'checked':'').'></td>
+				</tr>';
+		}
+
 		$out.='
 			<tr>
-				<td colspan="3" align="center"><input type="submit" name="submit" class="button" value="Save"></td>
+				<td colspan="4" align="center"><input type="submit" name="submit" class="button" value="Save"></td>
 			</tr>		
-			<tr>
-				<td align="left" colspan="3"><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addCommandCategory&from=infraredCommands\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');">Add Command Category</a></td>
-			</tr>
 		</table>
 			<input type="hidden" name="displayedCommands" value="'.join(',',$GLOBALS['displayedCommands']).'">
 			<input type="hidden" name="oldCheckedCommands" value="'.join(',',$GLOBALS['oldCheckedCommands']).'">
@@ -75,19 +100,13 @@ function infraredCommands($output,$dbADO) {
 			if(isset($_POST['command_'.$commandID])){
 				$GLOBALS['infraredGroup']=($GLOBALS['infraredGroup']==0)?NULL:$GLOBALS['infraredGroup'];
 				if(!in_array($commandID,$oldCheckedCommands)){
-					$dbADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command, FK_Device, FK_DeviceTemplate, FK_Users) VALUES (?,?,?,?,?)',array($GLOBALS['infraredGroup'],$commandID, $GLOBALS['deviceID'],$GLOBALS['dtID'],$_SESSION['userID']));
+					$publicADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command, FK_Device, FK_DeviceTemplate, FK_Users,psc_user) VALUES (?,?,?,?,?,?)',array($GLOBALS['infraredGroup'],$commandID, $GLOBALS['deviceID'],$GLOBALS['dtID'],$_SESSION['userID'],$_SESSION['userID']));
 					
-					$igcID=$dbADO->Insert_ID();
-					$dbADO->Execute('INSERT IGNORE INTO InfraredGroup_Command_Preferred (FK_InfraredGroup_Command,FK_Installation) VALUES (?,?)',array($igcID,$_SESSION['installationID']));
+					$igcID=$publicADO->Insert_ID();
 				}
 			}else{
 				if(in_array($commandID,$oldCheckedCommands)){
-					$dbADO->Execute('
-						DELETE InfraredGroup_Command_Preferred 
-						FROM InfraredGroup_Command_Preferred
-						INNER JOIN InfraredGroup_Command ON FK_InfraredGroup_Command=PK_InfraredGroup_Command
-						WHERE FK_InfraredGroup=?',$GLOBALS['infraredGroup']);
-					$dbADO->Execute('DELETE FROM InfraredGroup_Command WHERE (FK_InfraredGroup=? OR FK_InfraredGroup IS NULL) AND FK_Command=? AND FK_Users=?',array($GLOBALS['infraredGroup'],$commandID,$_SESSION['userID']));
+					$publicADO->Execute('DELETE FROM InfraredGroup_Command WHERE (FK_InfraredGroup=? OR FK_InfraredGroup IS NULL) AND FK_Command=? AND FK_Users=? AND psc_user=?',array($GLOBALS['infraredGroup'],$commandID,$_SESSION['userID'],$_SESSION['userID']));
 				}
 			}
 		}
@@ -104,60 +123,5 @@ function infraredCommands($output,$dbADO) {
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME);
 	$output->output();
-}
-
-
-function getCommandCategoryChilds($CommandCategory,$dbADO,$level)
-{
-	$out='';
-	$queryCC='
-			SELECT Description,PK_CommandCategory
-			FROM CommandCategory
-			WHERE FK_CommandCategory_Parent=? AND PK_CommandCategory NOT IN ('.join(',',$GLOBALS['excludedCategories']).')
-			ORDER BY CommandCategory.Description ASC';
-	$resCC=$dbADO->Execute($queryCC,$CommandCategory);
-	$out.=formatOutput($resCC,$dbADO,$level);
-	return $out;
-}
-
-function formatOutput($resRootCC,$dbADO,$level)
-{
-	$installationID = (int)@$_SESSION['installationID'];
-	$out='';
-	$pos=0;
-	while($rowRootCC=$resRootCC->FetchRow()){
-		$pos++;
-		$indent='';
-		for($i=0;$i<3*$level;$i++)
-			$indent.='&nbsp;-';
-
-		$out.='
-			<tr bgcolor="#EEEEEE">
-				<td colspan="3">'.$indent.' <a href="#" onClick="windowOpen(\'index.php?section=editCommandCategory&from=infraredCommands&ccID='.$rowRootCC['PK_CommandCategory'].'\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');"><B>'.$rowRootCC['Description'].'</B></a></td>
-			</tr>';
-//		$dbADO->debug=true;
-		$resCommands=$dbADO->Execute('
-			SELECT Command.*,PK_InfraredGroup_Command 
-			FROM Command
-			LEFT JOIN InfraredGroup_Command ON FK_Command=PK_Command AND (FK_InfraredGroup=? OR FK_InfraredGroup IS NULL) AND FK_Device=? AND FK_DeviceTemplate=?
-			WHERE FK_CommandCategory=? AND PK_Command NOT IN ('.join(',',$GLOBALS['excludedCommands']).')
-			ORDER BY Description ASC',array($GLOBALS['infraredGroup'],$GLOBALS['deviceID'],$GLOBALS['dtID'],$rowRootCC['PK_CommandCategory']));
-		$dbADO->debug=false;
-		$cmdPos=0;
-		while($rowCommands=$resCommands->FetchRow()){
-			$cmdPos++;
-			$out.='
-				<tr>
-					<td>&nbsp;</td>
-					<td bgcolor="'.(($cmdPos%2==0)?'#FFFFFF':'#EBEFF9').'"><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editCommand&from=infraredCommands&commandID='.$rowCommands['PK_Command'].'\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');">'.$rowCommands['Description'].'<a></td>
-					<td bgcolor="'.(($cmdPos%2==0)?'#FFFFFF':'#EBEFF9').'" align="center"><input type="checkbox" name="command_'.$rowCommands['PK_Command'].'" value="1" '.(($rowCommands['PK_InfraredGroup_Command']!='')?'checked':'').'></td>
-				</tr>';
-			$GLOBALS['displayedCommands'][]=$rowCommands['PK_Command'];
-			if($rowCommands['PK_InfraredGroup_Command']!='')
-				$GLOBALS['oldCheckedCommands'][]=$rowCommands['PK_Command'];
-		}
-		$out.=getCommandCategoryChilds($rowRootCC['PK_CommandCategory'],$dbADO,$level+1);
-	}
-	return $out;
 }
 ?>

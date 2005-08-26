@@ -130,7 +130,7 @@ function editAVDevice($output,$dbADO,$mediaADO) {
 			$irGroups=getAssocArray('InfraredGroup','PK_InfraredGroup','Description',$dbADO,'WHERE FK_Manufacturer='.$manufacturerID.' AND FK_DeviceCategory='.$deviceCategoryID,'ORDER BY Description ASC');
 			$out.='
 			<tr>
-				<td colspan="2">Uses Group/Codeset '.pulldownFromArray($irGroups,'irGroup',$infraredGroupID,'onChange="document.editAVDevice.submit();"','key','I don\'t know the group').'</td>
+				<td colspan="2">Uses Group/Codeset '.pulldownFromArray($irGroups,'irGroup',$infraredGroupID,'onChange="document.editAVDevice.submit();"','key','I don\'t know the group').' <input type="button" class="button" name="step7" value="Help me choose" onclick="self.location=\'index.php?section=addModel&step=7&dtID='.$dtID.'\'"></td>
 		</tr>';
 			
 		$out.='
@@ -142,7 +142,7 @@ function editAVDevice($output,$dbADO,$mediaADO) {
 		
 		$out.='		
 			<tr>
-				<td colspan="3" align="center"><input type="button" class="button" name="button" value="Add/Remove commands" '.$GLOBALS['btnEnabled'].' onClick="windowOpen(\'index.php?section=infraredCommands&infraredGroup='.$infraredGroupID.'&deviceID='.$deviceID.'&dtID='.$dtID.(($GLOBALS['label']!='infrared')?'&rootNode=1':'').'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"> <input type="submit" class="button" name="update" value="Update" '.((!isset($_SESSION['userID']))?'disabled':'').'></td>
+				<td colspan="3" align="center"><input type="button" class="button" name="button" value="Add/Remove commands" onClick="windowOpen(\'index.php?section=infraredCommands&infraredGroup='.$infraredGroupID.'&deviceID='.$deviceID.'&dtID='.$dtID.(($GLOBALS['label']!='infrared')?'&rootNode=1':'').'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"> <input type="submit" class="button" name="update" value="Update" '.((!isset($_SESSION['userID']))?'disabled':'').'></td>
 			</tr>';
 		
 		// extract data from InfraredGroup_Command an put it in multi-dimmensional array
@@ -260,6 +260,19 @@ function editAVDevice($output,$dbADO,$mediaADO) {
 					$dbADO->Execute('UPDATE InfraredGroup_Command SET IRData=? WHERE PK_InfraredGroup_Command=? AND psc_user=?',array($irData,$ig_c,(int)$_SESSION['userID']));
 				}
 			}
+			
+			$commandsDisplayed=explode(',',$_POST['displayedCommands']);
+			foreach ($commandsDisplayed AS $commandID){
+				$preferredCommand=(int)@$_POST['prefered_'.$commandID];
+				if($preferredCommand>0){
+					if(isset($GLOBALS['igcPrefered'][$commandID]) && $GLOBALS['igcPrefered'][$commandID]!=$preferredCommand){
+						$dbADO->Execute('DELETE FROM InfraredGroup_Command_Preferred WHERE FK_InfraredGroup_Command=? AND FK_Installation=?',array($preferredCommand,$installationID));
+						$dbADO->Execute('UPDATE InfraredGroup_Command_Preferred SET FK_InfraredGroup_Command=? WHERE FK_InfraredGroup_Command=? AND FK_Installation=?',array($preferredCommand,$GLOBALS['igcPrefered'][$commandID],$installationID));
+					}elseif(!isset($GLOBALS['igcPrefered'][$commandID])){
+						$dbADO->Execute('INSERT IGNORE INTO InfraredGroup_Command_Preferred (FK_InfraredGroup_Command,FK_Installation) VALUES (?,?)',array($preferredCommand,$installationID));
+					}
+				}
+			}			
 			$time_end= getmicrotime();
 			//print '<p class="normaltext">Page generated in '.round(($time_end-$time_start),3).' s.';
 			

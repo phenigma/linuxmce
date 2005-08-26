@@ -3900,7 +3900,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 	$selectedDevice= (int)@$_REQUEST['deviceSelected'];
 	$selectedModel= (int)@$_REQUEST['model'];
 	$justAddedNode = (int)@$_GET['justAddedNode'];
-echo $_REQUEST['parmToKeep'];
+
 	$actionX = (isset($_REQUEST['actionX']) && cleanString($_REQUEST['actionX'])!='null')?cleanString($_REQUEST['actionX']):'form';
 	
 	$manufacturersArray=getAssocArray('Manufacturer','PK_Manufacturer','Description',$dbADO,'','ORDER BY Description ASC');
@@ -3974,12 +3974,16 @@ echo $_REQUEST['parmToKeep'];
 							WHERE 1=1 $where ORDER BY Description";	
 			$rs = $dbADO->_Execute($queryModels);
 			
+			if(ereg('parentID',@$_SESSION['from']) && @$_SESSION['parentID']!=0){
+				$allowedDevices=getDeviceTemplatesControlledBy($_SESSION['parentID'],$dbADO);
+			}
 			$arJsPos=0;
 				$avDT=getAssocArray('DeviceTemplate','PK_DeviceTemplate','FK_CommMethod',$dbADO,'LEFT JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup');
 				while ($row = $rs->FetchRow()) {
 					$irHighlight=(in_array($row['PK_DeviceTemplate'],array_keys($avDT)) && $avDT[$row['PK_DeviceTemplate']]==1)?'style="background-color:#FFDFDF;"':'';
-					
-					$selectModels.="<option ".($selectedModel==$row['PK_DeviceTemplate']?" selected ":"")." value='{$row['PK_DeviceTemplate']}' ".(($row['IsPlugAndPlay']==1)?'style="background-color:lightgreen;"':'')." $irHighlight>{$row['Description']}</option>";
+					if(count(@$allowedDevices)==0 || (count(@$allowedDevices)>0 && in_array($row['PK_DeviceTemplate'],@$allowedDevices))){
+						$selectModels.="<option ".($selectedModel==$row['PK_DeviceTemplate']?" selected ":"")." value='{$row['PK_DeviceTemplate']}' ".(($row['IsPlugAndPlay']==1)?'style="background-color:lightgreen;"':'')." $irHighlight>{$row['Description']}</option>";
+					}
 					
 					if ($row['PK_DeviceTemplate']>0) {
 					$modelsJsArray.='
@@ -4375,6 +4379,8 @@ function getMediaTypeCheckboxes($dtID,$publicADO,$mediaADO,$deviceID)
 // extract codes and put them in a multi dimensional array
 function extractCodesTree($infraredGroupID,$dbADO,$restriction=''){
 	global $inputCommandsArray, $dspmodeCommandsArray;
+	$installationID=(int)$_SESSION['installationID'];
+	$GLOBALS['igcPrefered']=getAssocArray('InfraredGroup_Command_Preferred','FK_Command','FK_InfraredGroup_Command',$dbADO,' INNER JOIN InfraredGroup_Command ON FK_InfraredGroup_Command=PK_InfraredGroup_Command WHERE InfraredGroup_Command_Preferred.FK_Installation='.$installationID);
 
 	$userID=(int)@$_SESSION['userID'];
 	$codesQuery='
@@ -4438,7 +4444,7 @@ function getCodesTableRows($infraredGroupID,$dtID,$deviceID,$codesArray){
 	for($i=0;$i<count($categNames);$i++){
 		$out.='
 			<tr>
-				<td colspan="3" align="center">
+				<td colspan="4" align="center">
 					<fieldset style="width:98%">
 						<legend><B>'.$categNames[$i].'</B></legend>';
 		// display input commands not implemented
@@ -4496,6 +4502,7 @@ function formatCode($dataArray,$pos,$infraredGroupID,$dtID,$deviceID){
 		<table width="100%">
 			<tr bgcolor="'.$RowColor.'">
 				<td align="center" width="100"><B>'.$dataArray['Description'][$pos].'</B> <br><input type="button" class="button" name="learnCode" value="New code" onClick="windowOpen(\'index.php?section=newIRCode&deviceID='.$dataArray['FK_Device'][$pos].'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$dataArray['FK_Command'][$pos].'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');" '.((!isset($_SESSION['userID']))?'disabled':'').'></td>
+				<td align="center" width="20"><input type="radio" name="prefered_'.$dataArray['FK_Command'][$pos].'" value="'.$pos.'" '.(($pos==@$GLOBALS['igcPrefered'][$dataArray['FK_Command'][$pos]])?'checked':'').'></td>
 				<td><textarea name="irData_'.$pos.'" rows="2" style="width:100%">'.$dataArray['IRData'][$pos].'</textarea></td>
 				<td align="center" width="100">'.$deleteButton.' <br> <input type="button" class="button" name="testCode" value="Test code" onClick="self.location=\'index.php?section=editAVDevice&from=avWizard&dtID='.$dtID.'&deviceID='.$deviceID.'&infraredGroupID='.$infraredGroupID.'&action=testCode&owner='.$dataArray['psc_user'][$pos].'&ig_c='.$pos.'&irCode=\'+escape(document.editAVDevice.irData_'.$pos.'.value);"> <a name="test_'.$pos.'"></td>
 			</tr>
