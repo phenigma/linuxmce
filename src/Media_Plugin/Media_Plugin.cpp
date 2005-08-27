@@ -3360,7 +3360,7 @@ bool Media_Plugin::HandleDeviceOnOffEvent(MediaDevice *pMediaDevice,bool bIsOn)
 		// We don't have a specific command to do this, but since watching tv is such a common task
 		// we've got a special case for it.  Don't bother if it's not just a simple tv in a single
 		// entertainment area
-		if( pMediaDevice->m_pDeviceData_Router->WithinCategory(DEVICECATEGORY_TVs_CONST) &&
+		if( pMediaDevice->m_pDeviceData_Router->WithinCategory(DEVICECATEGORY_TVsPlasmasLCDsProjectors_CONST) &&
 			pMediaDevice->m_mapEntertainArea.size()==1 )
 		{
 			vector<EntertainArea *> vectEntertainArea;
