@@ -345,7 +345,7 @@ int OrbiterGenerator::DoIt()
 	m_pRow_DesignObj_Sleeping = mds.DesignObj_get()->GetRow(m_pRow_Skin->FK_DesignObj_Sleeping_get());
 
 	if( !m_pRow_DesignObj_Sleeping )
-		m_pRow_DesignObj_Sleeping = m_pRow_DesignObj_MainMenu;
+		m_pRow_DesignObj_Sleeping = mds.DesignObj_get()->GetRow(DESIGNOBJ_mnuSleeping_CONST);;
 
 	m_pRow_DesignObj_ScreenSaver = mds.DesignObj_get()->GetRow(m_pRow_Skin->FK_DesignObj_ScreenSaver_get());
 

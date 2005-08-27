@@ -172,9 +172,9 @@ public:
 	PlutoRectangle(const PlutoRectangle &Rect) { X = Rect.X; Y=Rect.Y; Width=Rect.Width; Height=Rect.Height; }
 	
 	int Top() { return Y; }
-	int Bottom() { return Y + Height; }
+	int Bottom() { return Y + Height - 1; }
 	int Left() { return X; }
-	int Right() { return X + Width; }
+	int Right() { return X + Width - 1; }
 
 	void Bottom(int Bottom) { Height = Bottom-Y; }
 	void Right(int Right) { Width = Right-X; }
@@ -187,8 +187,6 @@ public:
 	bool Contains(int dX, int dY) { return (dX >= X && dY >=Y && dX < (X+Width) && dY < (Y+Height)); };
 	PlutoRectangle& operator=(const PlutoRectangle& Rect) { X = Rect.X; Y=Rect.Y; Width=Rect.Width; Height=Rect.Height;return *this; };
 	PlutoRectangle operator+ (PlutoPoint &p) { return PlutoRectangle(X + p.X,Y + p.Y,Width,Height); }
-	int X2() {return X+Width;};
-	int Y2() {return Y+Height;};
 
 	void SetupSerialization(int iSC_Version)
 	{
@@ -197,8 +195,8 @@ public:
 
 	bool IntersectsWith(PlutoRectangle &r)
 	{
-		if (((r.X >= X && r.X <= X2()) || (r.X2() >= X && r.X2() <= X2())) &&
-			((r.Y >= Y && r.Y <= Y2()) || (r.Y2() >= Y && r.Y2() <= Y2())))
+		if (((r.X >= X && r.X <= Right()) || (r.Right() >= X && r.Right() <= Right())) &&
+			((r.Y >= Y && r.Y <= Bottom()) || (r.Bottom() >= Y && r.Bottom() <= Bottom())))
 			return true;
 		
 		return false;
@@ -217,15 +215,15 @@ public:
 		else
 			NewRect.Y = Y;
 
-		if (RectToUnite.X2() > X2())
-			NewRect.Width = RectToUnite.X2() - NewRect.X;
+		if (RectToUnite.Right() > Right())
+			NewRect.Width = RectToUnite.Right() - NewRect.X;
 		else
-			NewRect.Width = X2() - NewRect.X;
+			NewRect.Width = Right() - NewRect.X;
 
-		if (RectToUnite.Y2() > Y2())
-			NewRect.Height = RectToUnite.Y2() - NewRect.Y;
+		if (RectToUnite.Bottom() > Bottom())
+			NewRect.Height = RectToUnite.Bottom() - NewRect.Y;
 		else
-			NewRect.Height= Y2() - NewRect.Y;
+			NewRect.Height= Bottom() - NewRect.Y;
 
 		*this = NewRect;
 	}

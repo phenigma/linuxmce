@@ -99,8 +99,8 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
     m_bDontShare=bDontShare;
     m_bUsingCache=false;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==1850 ||  m_pRow_DesignObj->PK_DesignObj_get()==2288 || 
-   m_pRow_DesignObj->PK_DesignObj_get()==4271 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==2211 ||
+if( m_pRow_DesignObj->PK_DesignObj_get()==1255 ||  m_pRow_DesignObj->PK_DesignObj_get()==1778 )// || 
+//   m_pRow_DesignObj->PK_DesignObj_get()==4271 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==2211 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==1881 ||  m_pRow_DesignObj->PK_DesignObj_get()==2228 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==3531 ||  m_pRow_DesignObj->PK_DesignObj_get()==3534 )// || m_pRow_DesignObj->PK_DesignObj_get()==3471 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )*/
 {
@@ -125,7 +125,7 @@ if( m_pRow_DesignObj->PK_DesignObj_get()==2233 )// || m_pRow_DesignObj->PK_Desig
 
 	if( m_pOrbiterGenerator->m_mapDesignObjVariation_WithArrays.find(m_pRow_DesignObjVariation_Standard->PK_DesignObjVariation_get())!=
 		m_pOrbiterGenerator->m_mapDesignObjVariation_WithArrays.end() ||
-		m_pOrbiterGenerator->m_pRow_DesignObj_MainMenu==m_pRow_DesignObj )
+		m_pOrbiterGenerator->m_pRow_DesignObj_MainMenu==m_pRow_DesignObj || m_pOrbiterGenerator->m_pRow_DesignObj_Sleeping==m_pRow_DesignObj )
 	{
 		bAddToGenerated = true;
 		m_bDontShare = true;

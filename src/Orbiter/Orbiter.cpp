@@ -207,7 +207,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
 	m_iPK_MediaType=0;
 
     m_pScreenHistory_Current=NULL;
-    m_pObj_LastSelected=m_pObj_Highlighted=NULL;
+    m_pObj_LastSelected=m_pObj_Highlighted=m_pObj_Highlighted_Last=NULL;
 	m_pGraphicBeforeHighlight=NULL;
 	m_LastActivityTime=time( NULL );
     m_iLastEntryInDeviceGroup=-1;
@@ -656,8 +656,12 @@ g_pPlutoLogger->Write( LV_STATUS, "Exiting Redraw Objects" );
 	BeginPaint();
 	size_t s;
 
-	if(m_pGraphicBeforeHighlight)
+	bool bRehighlight=false;
+	if(m_pGraphicBeforeHighlight && NULL != m_pObj_Highlighted && m_pObj_Highlighted != m_pObj_Highlighted_Last)
+	{
+		bRehighlight=true;
 	    UnHighlightObject();
+	}
 
 	PlutoPoint AbsolutePosition = NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0);
 
@@ -667,6 +671,11 @@ g_pPlutoLogger->Write( LV_STATUS, "Exiting Redraw Objects" );
 		class DesignObj_Orbiter *pObj = m_vectObjs_NeedRedraw[s];
 		if(pObj && pObj->m_bOnScreen)
 		{
+			if( !bRehighlight && m_rectLastHighlight.IntersectsWith(pObj->m_rPosition) )
+			{
+				bRehighlight=true;
+				UnHighlightObject();
+			}
             RenderObject( pObj, m_pScreenHistory_Current->m_pObj, AbsolutePosition );
 		    UpdateRect(pObj->m_rPosition, AbsolutePosition);
 		}
@@ -698,8 +707,11 @@ g_pPlutoLogger->Write( LV_STATUS, "Exiting Redraw Objects" );
     //if(!m_pObj_Highlighted && m_vectObjs_TabStops.size(  )  )
 	//    HighlightFirstObject();
 
-    if(NULL != m_pObj_Highlighted)
+    if(bRehighlight || (NULL != m_pObj_Highlighted && m_pObj_Highlighted != m_pObj_Highlighted_Last) )
+	{
+		m_pObj_Highlighted_Last = m_pObj_Highlighted;
     	DoHighlightObject();
+	}
 
     m_vectObjs_NeedRedraw.clear();
 	m_vectTexts_NeedRedraw.clear();
@@ -2260,6 +2272,13 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
 			return;
 		DataGridCell *pCell = pGrid->m_pDataGridTable->GetData(pGrid->m_iHighlightedColumn==-1 ? 0 : pGrid->m_iHighlightedColumn,
 			pGrid->m_iHighlightedRow==-1 ? 0 : pGrid->m_iHighlightedRow);
+		if( !pCell )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Orbiter::DoHighlightObject cell is null.  obj %s col %d row %d",
+				m_pObj_Highlighted->m_ObjectID.c_str(),pGrid->m_iHighlightedColumn,pGrid->m_iHighlightedRow);
+			return;
+
+		}
 		PlutoRectangle r;
 		GetGridCellDimensions( pGrid,  
 			pGrid->m_iHighlightedColumn==-1 ? pGrid->m_MaxCol : pCell->m_Colspan, 
@@ -2577,6 +2596,7 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
 		dg.Release();
 		PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
         m_vectObjs_NeedRedraw.push_back( pDesignObj_DataGrid );
+		m_pObj_Highlighted_Last=NULL; // Be sure we always re-highlight this object since the grid changed
 		nd.Release();
 
 		if( !bScrolledOutsideGrid )
