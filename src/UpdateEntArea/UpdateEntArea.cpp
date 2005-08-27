@@ -133,10 +133,10 @@ void UpdateEntArea::DoIt()
 					Row_Device *pRow_Device = vectRow_Device[s];
 
 					// Check up 3 generations of DeviceCategories to see if this is a tv
-					if( pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_TVs_CONST ||
-						pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_getrow()->FK_DeviceCategory_Parent_get()==DEVICECATEGORY_TVs_CONST ||
+					if( pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_TVsPlasmasLCDsProjectors_CONST ||
+						pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_getrow()->FK_DeviceCategory_Parent_get()==DEVICECATEGORY_TVsPlasmasLCDsProjectors_CONST ||
 						(pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_getrow()->FK_DeviceCategory_Parent_get() &&
-						pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_getrow()->FK_DeviceCategory_Parent_getrow()->FK_DeviceCategory_Parent_get()==DEVICECATEGORY_TVs_CONST) )
+						pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_getrow()->FK_DeviceCategory_Parent_getrow()->FK_DeviceCategory_Parent_get()==DEVICECATEGORY_TVsPlasmasLCDsProjectors_CONST) )
 					{
 						bContainsOtherVideo = true;
 						break;
