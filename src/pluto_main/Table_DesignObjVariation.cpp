@@ -157,17 +157,19 @@ m_RepeatMS = 0;
 is_null[13] = false;
 m_RepeatParm = 0;
 is_null[14] = false;
-is_null[15] = true;
-m_psc_id = 0;
+m_PreserveTransparencies = 0;
+is_null[15] = false;
 is_null[16] = true;
-m_psc_batch = 0;
+m_psc_id = 0;
 is_null[17] = true;
+m_psc_batch = 0;
+is_null[18] = true;
 m_psc_user = 0;
 m_psc_frozen = 0;
-is_null[18] = false;
-m_psc_mod = "00000000000000";
 is_null[19] = false;
-is_null[20] = true;
+m_psc_mod = "00000000000000";
+is_null[20] = false;
+is_null[21] = true;
 m_psc_restrict = 0;
 
 
@@ -221,6 +223,9 @@ return m_RepeatMS;}
 short int Row_DesignObjVariation::RepeatParm_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_RepeatParm;}
+short int Row_DesignObjVariation::PreserveTransparencies_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_PreserveTransparencies;}
 long int Row_DesignObjVariation::psc_id_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_psc_id;}
@@ -286,24 +291,27 @@ m_RepeatMS = val; is_modified=true; is_null[13]=false;}
 void Row_DesignObjVariation::RepeatParm_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 m_RepeatParm = val; is_modified=true; is_null[14]=false;}
+void Row_DesignObjVariation::PreserveTransparencies_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_PreserveTransparencies = val; is_modified=true; is_null[15]=false;}
 void Row_DesignObjVariation::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_id = val; is_modified=true; is_null[15]=false;}
+m_psc_id = val; is_modified=true; is_null[16]=false;}
 void Row_DesignObjVariation::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_batch = val; is_modified=true; is_null[16]=false;}
+m_psc_batch = val; is_modified=true; is_null[17]=false;}
 void Row_DesignObjVariation::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_user = val; is_modified=true; is_null[17]=false;}
+m_psc_user = val; is_modified=true; is_null[18]=false;}
 void Row_DesignObjVariation::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_frozen = val; is_modified=true; is_null[18]=false;}
+m_psc_frozen = val; is_modified=true; is_null[19]=false;}
 void Row_DesignObjVariation::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_mod = val; is_modified=true; is_null[19]=false;}
+m_psc_mod = val; is_modified=true; is_null[20]=false;}
 void Row_DesignObjVariation::psc_restrict_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_restrict = val; is_modified=true; is_null[20]=false;}
+m_psc_restrict = val; is_modified=true; is_null[21]=false;}
 
 		
 bool Row_DesignObjVariation::FK_UI_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -335,19 +343,19 @@ bool Row_DesignObjVariation::FK_Criteria_Orbiter_isNull() {PLUTO_SAFETY_LOCK_ERR
 return is_null[10];}
 bool Row_DesignObjVariation::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return is_null[15];}
+return is_null[16];}
 bool Row_DesignObjVariation::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return is_null[16];}
+return is_null[17];}
 bool Row_DesignObjVariation::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return is_null[17];}
+return is_null[18];}
 bool Row_DesignObjVariation::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return is_null[18];}
+return is_null[19];}
 bool Row_DesignObjVariation::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return is_null[20];}
+return is_null[21];}
 
 			
 void Row_DesignObjVariation::FK_UI_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -387,23 +395,23 @@ is_null[10]=val;
 is_modified=true;
 }
 void Row_DesignObjVariation::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-is_null[15]=val;
-is_modified=true;
-}
-void Row_DesignObjVariation::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[16]=val;
 is_modified=true;
 }
-void Row_DesignObjVariation::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[17]=val;
 is_modified=true;
 }
-void Row_DesignObjVariation::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_DesignObjVariation::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[18]=val;
 is_modified=true;
 }
+void Row_DesignObjVariation::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[19]=val;
+is_modified=true;
+}
 void Row_DesignObjVariation::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-is_null[20]=val;
+is_null[21]=val;
 is_modified=true;
 }
 	
@@ -603,11 +611,24 @@ sprintf(buf, "%hi", m_RepeatParm);
 return buf;
 }
 
-string Row_DesignObjVariation::psc_id_asSQL()
+string Row_DesignObjVariation::PreserveTransparencies_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 if (is_null[15])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%hi", m_PreserveTransparencies);
+
+return buf;
+}
+
+string Row_DesignObjVariation::psc_id_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[16])
 return "NULL";
 
 char buf[32];
@@ -620,7 +641,7 @@ string Row_DesignObjVariation::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[16])
+if (is_null[17])
 return "NULL";
 
 char buf[32];
@@ -633,7 +654,7 @@ string Row_DesignObjVariation::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[17])
+if (is_null[18])
 return "NULL";
 
 char buf[32];
@@ -646,7 +667,7 @@ string Row_DesignObjVariation::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[18])
+if (is_null[19])
 return "NULL";
 
 char buf[32];
@@ -659,7 +680,7 @@ string Row_DesignObjVariation::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[19])
+if (is_null[20])
 return "NULL";
 
 char *buf = new char[29];
@@ -673,7 +694,7 @@ string Row_DesignObjVariation::psc_restrict_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[20])
+if (is_null[21])
 return "NULL";
 
 char buf[32];
@@ -720,10 +741,10 @@ bool Table_DesignObjVariation::Commit(bool bDeleteFailedModifiedRow,bool bDelete
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_DesignObjVariation_asSQL()+", "+pRow->FK_DesignObj_asSQL()+", "+pRow->FK_UI_asSQL()+", "+pRow->FK_DesignObj_Goto_asSQL()+", "+pRow->FK_CommandGroup_D_OnActivate_asSQL()+", "+pRow->FK_CommandGroup_D_OnLoad_asSQL()+", "+pRow->FK_CommandGroup_D_OnUnload_asSQL()+", "+pRow->FK_CommandGroup_D_OnTimeout_asSQL()+", "+pRow->FK_CommandGroup_D_OnStartup_asSQL()+", "+pRow->FK_Button_asSQL()+", "+pRow->FK_Criteria_Orbiter_asSQL()+", "+pRow->DontResetSelectedState_asSQL()+", "+pRow->FK_StabilityStatus_asSQL()+", "+pRow->RepeatMS_asSQL()+", "+pRow->RepeatParm_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_DesignObjVariation_asSQL()+", "+pRow->FK_DesignObj_asSQL()+", "+pRow->FK_UI_asSQL()+", "+pRow->FK_DesignObj_Goto_asSQL()+", "+pRow->FK_CommandGroup_D_OnActivate_asSQL()+", "+pRow->FK_CommandGroup_D_OnLoad_asSQL()+", "+pRow->FK_CommandGroup_D_OnUnload_asSQL()+", "+pRow->FK_CommandGroup_D_OnTimeout_asSQL()+", "+pRow->FK_CommandGroup_D_OnStartup_asSQL()+", "+pRow->FK_Button_asSQL()+", "+pRow->FK_Criteria_Orbiter_asSQL()+", "+pRow->DontResetSelectedState_asSQL()+", "+pRow->FK_StabilityStatus_asSQL()+", "+pRow->RepeatMS_asSQL()+", "+pRow->RepeatParm_asSQL()+", "+pRow->PreserveTransparencies_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
 
 	
-		string query = "insert into DesignObjVariation (`PK_DesignObjVariation`, `FK_DesignObj`, `FK_UI`, `FK_DesignObj_Goto`, `FK_CommandGroup_D_OnActivate`, `FK_CommandGroup_D_OnLoad`, `FK_CommandGroup_D_OnUnload`, `FK_CommandGroup_D_OnTimeout`, `FK_CommandGroup_D_OnStartup`, `FK_Button`, `FK_Criteria_Orbiter`, `DontResetSelectedState`, `FK_StabilityStatus`, `RepeatMS`, `RepeatParm`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
+		string query = "insert into DesignObjVariation (`PK_DesignObjVariation`, `FK_DesignObj`, `FK_UI`, `FK_DesignObj_Goto`, `FK_CommandGroup_D_OnActivate`, `FK_CommandGroup_D_OnLoad`, `FK_CommandGroup_D_OnUnload`, `FK_CommandGroup_D_OnTimeout`, `FK_CommandGroup_D_OnStartup`, `FK_Button`, `FK_Criteria_Orbiter`, `DontResetSelectedState`, `FK_StabilityStatus`, `RepeatMS`, `RepeatParm`, `PreserveTransparencies`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -779,7 +800,7 @@ condition = condition + "`PK_DesignObjVariation`=" + tmp_PK_DesignObjVariation;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`PK_DesignObjVariation`="+pRow->PK_DesignObjVariation_asSQL()+", `FK_DesignObj`="+pRow->FK_DesignObj_asSQL()+", `FK_UI`="+pRow->FK_UI_asSQL()+", `FK_DesignObj_Goto`="+pRow->FK_DesignObj_Goto_asSQL()+", `FK_CommandGroup_D_OnActivate`="+pRow->FK_CommandGroup_D_OnActivate_asSQL()+", `FK_CommandGroup_D_OnLoad`="+pRow->FK_CommandGroup_D_OnLoad_asSQL()+", `FK_CommandGroup_D_OnUnload`="+pRow->FK_CommandGroup_D_OnUnload_asSQL()+", `FK_CommandGroup_D_OnTimeout`="+pRow->FK_CommandGroup_D_OnTimeout_asSQL()+", `FK_CommandGroup_D_OnStartup`="+pRow->FK_CommandGroup_D_OnStartup_asSQL()+", `FK_Button`="+pRow->FK_Button_asSQL()+", `FK_Criteria_Orbiter`="+pRow->FK_Criteria_Orbiter_asSQL()+", `DontResetSelectedState`="+pRow->DontResetSelectedState_asSQL()+", `FK_StabilityStatus`="+pRow->FK_StabilityStatus_asSQL()+", `RepeatMS`="+pRow->RepeatMS_asSQL()+", `RepeatParm`="+pRow->RepeatParm_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
+update_values_list = update_values_list + "`PK_DesignObjVariation`="+pRow->PK_DesignObjVariation_asSQL()+", `FK_DesignObj`="+pRow->FK_DesignObj_asSQL()+", `FK_UI`="+pRow->FK_UI_asSQL()+", `FK_DesignObj_Goto`="+pRow->FK_DesignObj_Goto_asSQL()+", `FK_CommandGroup_D_OnActivate`="+pRow->FK_CommandGroup_D_OnActivate_asSQL()+", `FK_CommandGroup_D_OnLoad`="+pRow->FK_CommandGroup_D_OnLoad_asSQL()+", `FK_CommandGroup_D_OnUnload`="+pRow->FK_CommandGroup_D_OnUnload_asSQL()+", `FK_CommandGroup_D_OnTimeout`="+pRow->FK_CommandGroup_D_OnTimeout_asSQL()+", `FK_CommandGroup_D_OnStartup`="+pRow->FK_CommandGroup_D_OnStartup_asSQL()+", `FK_Button`="+pRow->FK_Button_asSQL()+", `FK_Criteria_Orbiter`="+pRow->FK_Criteria_Orbiter_asSQL()+", `DontResetSelectedState`="+pRow->DontResetSelectedState_asSQL()+", `FK_StabilityStatus`="+pRow->FK_StabilityStatus_asSQL()+", `RepeatMS`="+pRow->RepeatMS_asSQL()+", `RepeatParm`="+pRow->RepeatParm_asSQL()+", `PreserveTransparencies`="+pRow->PreserveTransparencies_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
 
 	
 		string query = "update DesignObjVariation set " + update_values_list + " where " + condition;
@@ -1056,67 +1077,78 @@ sscanf(row[14], "%hi", &(pRow->m_RepeatParm));
 if (row[15] == NULL)
 {
 pRow->is_null[15]=true;
-pRow->m_psc_id = 0;
+pRow->m_PreserveTransparencies = 0;
 }
 else
 {
 pRow->is_null[15]=false;
-sscanf(row[15], "%li", &(pRow->m_psc_id));
+sscanf(row[15], "%hi", &(pRow->m_PreserveTransparencies));
 }
 
 if (row[16] == NULL)
 {
 pRow->is_null[16]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[16]=false;
-sscanf(row[16], "%li", &(pRow->m_psc_batch));
+sscanf(row[16], "%li", &(pRow->m_psc_id));
 }
 
 if (row[17] == NULL)
 {
 pRow->is_null[17]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[17]=false;
-sscanf(row[17], "%li", &(pRow->m_psc_user));
+sscanf(row[17], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[18] == NULL)
 {
 pRow->is_null[18]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[18]=false;
-sscanf(row[18], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[18], "%li", &(pRow->m_psc_user));
 }
 
 if (row[19] == NULL)
 {
 pRow->is_null[19]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[19]=false;
-pRow->m_psc_mod = string(row[19],lengths[19]);
+sscanf(row[19], "%hi", &(pRow->m_psc_frozen));
 }
 
 if (row[20] == NULL)
 {
 pRow->is_null[20]=true;
-pRow->m_psc_restrict = 0;
+pRow->m_psc_mod = "";
 }
 else
 {
 pRow->is_null[20]=false;
-sscanf(row[20], "%li", &(pRow->m_psc_restrict));
+pRow->m_psc_mod = string(row[20],lengths[20]);
+}
+
+if (row[21] == NULL)
+{
+pRow->is_null[21]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[21]=false;
+sscanf(row[21], "%li", &(pRow->m_psc_restrict));
 }
 
 
@@ -1395,67 +1427,78 @@ sscanf(row[14], "%hi", &(pRow->m_RepeatParm));
 if (row[15] == NULL)
 {
 pRow->is_null[15]=true;
-pRow->m_psc_id = 0;
+pRow->m_PreserveTransparencies = 0;
 }
 else
 {
 pRow->is_null[15]=false;
-sscanf(row[15], "%li", &(pRow->m_psc_id));
+sscanf(row[15], "%hi", &(pRow->m_PreserveTransparencies));
 }
 
 if (row[16] == NULL)
 {
 pRow->is_null[16]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[16]=false;
-sscanf(row[16], "%li", &(pRow->m_psc_batch));
+sscanf(row[16], "%li", &(pRow->m_psc_id));
 }
 
 if (row[17] == NULL)
 {
 pRow->is_null[17]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[17]=false;
-sscanf(row[17], "%li", &(pRow->m_psc_user));
+sscanf(row[17], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[18] == NULL)
 {
 pRow->is_null[18]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[18]=false;
-sscanf(row[18], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[18], "%li", &(pRow->m_psc_user));
 }
 
 if (row[19] == NULL)
 {
 pRow->is_null[19]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[19]=false;
-pRow->m_psc_mod = string(row[19],lengths[19]);
+sscanf(row[19], "%hi", &(pRow->m_psc_frozen));
 }
 
 if (row[20] == NULL)
 {
 pRow->is_null[20]=true;
-pRow->m_psc_restrict = 0;
+pRow->m_psc_mod = "";
 }
 else
 {
 pRow->is_null[20]=false;
-sscanf(row[20], "%li", &(pRow->m_psc_restrict));
+pRow->m_psc_mod = string(row[20],lengths[20]);
+}
+
+if (row[21] == NULL)
+{
+pRow->is_null[21]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[21]=false;
+sscanf(row[21], "%li", &(pRow->m_psc_restrict));
 }
 
 
