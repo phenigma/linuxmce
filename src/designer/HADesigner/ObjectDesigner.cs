@@ -231,6 +231,8 @@ namespace HADesigner
 		private System.Windows.Forms.CheckBox chDontResetSelectedState;
 		private System.Windows.Forms.Label label21;
 		private System.Windows.Forms.TextBox tbVisibleStates;
+		private System.Windows.Forms.Button btnChildUp;
+		private System.Windows.Forms.Button btnChildDown;
 
 		private CommonMethods m_objCommon = new CommonMethods();
 
@@ -899,6 +901,10 @@ namespace HADesigner
 			this.lVariationOwner = new System.Windows.Forms.Label();
 			this.label11 = new System.Windows.Forms.Label();
 			this.tabChildren = new System.Windows.Forms.TabPage();
+			this.btnChildDown = new System.Windows.Forms.Button();
+			this.btnChildUp = new System.Windows.Forms.Button();
+			this.tbVisibleStates = new System.Windows.Forms.TextBox();
+			this.label21 = new System.Windows.Forms.Label();
 			this.tbTiedTo = new System.Windows.Forms.TextBox();
 			this.label19 = new System.Windows.Forms.Label();
 			this.tbTS_Right = new System.Windows.Forms.TextBox();
@@ -947,8 +953,6 @@ namespace HADesigner
 			this.nudPriority = new System.Windows.Forms.NumericUpDown();
 			this.lblPriority = new System.Windows.Forms.Label();
 			this.cbAnimate = new System.Windows.Forms.CheckBox();
-			this.label21 = new System.Windows.Forms.Label();
-			this.tbVisibleStates = new System.Windows.Forms.TextBox();
 			this.tabButtons.SuspendLayout();
 			this.tabAllPages.SuspendLayout();
 			this.tabParameters.SuspendLayout();
@@ -1029,7 +1033,7 @@ namespace HADesigner
 			// 
 			this.btnLoadSelectedDesignObj.Location = new System.Drawing.Point(0, 152);
 			this.btnLoadSelectedDesignObj.Name = "btnLoadSelectedDesignObj";
-			this.btnLoadSelectedDesignObj.Size = new System.Drawing.Size(56, 23);
+			this.btnLoadSelectedDesignObj.Size = new System.Drawing.Size(40, 23);
 			this.btnLoadSelectedDesignObj.TabIndex = 11;
 			this.btnLoadSelectedDesignObj.Text = "Load";
 			this.btnLoadSelectedDesignObj.Click += new System.EventHandler(this.btnLoadSelectedDesignObj_Click);
@@ -1045,9 +1049,9 @@ namespace HADesigner
 			// 
 			// btnRemoveDesignObj
 			// 
-			this.btnRemoveDesignObj.Location = new System.Drawing.Point(160, 152);
+			this.btnRemoveDesignObj.Location = new System.Drawing.Point(104, 152);
 			this.btnRemoveDesignObj.Name = "btnRemoveDesignObj";
-			this.btnRemoveDesignObj.Size = new System.Drawing.Size(64, 23);
+			this.btnRemoveDesignObj.Size = new System.Drawing.Size(56, 23);
 			this.btnRemoveDesignObj.TabIndex = 14;
 			this.btnRemoveDesignObj.Text = "Remove";
 			this.btnRemoveDesignObj.Click += new System.EventHandler(this.btnRemoveDesignObj_Click);
@@ -1314,9 +1318,9 @@ namespace HADesigner
 			// 
 			// btnSelectDesignObjInTree
 			// 
-			this.btnSelectDesignObjInTree.Location = new System.Drawing.Point(80, 152);
+			this.btnSelectDesignObjInTree.Location = new System.Drawing.Point(48, 152);
 			this.btnSelectDesignObjInTree.Name = "btnSelectDesignObjInTree";
-			this.btnSelectDesignObjInTree.Size = new System.Drawing.Size(56, 23);
+			this.btnSelectDesignObjInTree.Size = new System.Drawing.Size(48, 23);
 			this.btnSelectDesignObjInTree.TabIndex = 36;
 			this.btnSelectDesignObjInTree.Text = "Select";
 			this.btnSelectDesignObjInTree.Click += new System.EventHandler(this.btnSelectDesignObjInTree_Click);
@@ -1494,6 +1498,8 @@ namespace HADesigner
 			// 
 			// tabChildren
 			// 
+			this.tabChildren.Controls.Add(this.btnChildDown);
+			this.tabChildren.Controls.Add(this.btnChildUp);
 			this.tabChildren.Controls.Add(this.tbVisibleStates);
 			this.tabChildren.Controls.Add(this.label21);
 			this.tabChildren.Controls.Add(this.tbTiedTo);
@@ -1545,6 +1551,41 @@ namespace HADesigner
 			this.tabChildren.Size = new System.Drawing.Size(760, 190);
 			this.tabChildren.TabIndex = 7;
 			this.tabChildren.Text = "Children";
+			// 
+			// btnChildDown
+			// 
+			this.btnChildDown.Location = new System.Drawing.Point(200, 152);
+			this.btnChildDown.Name = "btnChildDown";
+			this.btnChildDown.Size = new System.Drawing.Size(24, 23);
+			this.btnChildDown.TabIndex = 66;
+			this.btnChildDown.Text = "D";
+			this.btnChildDown.Click += new System.EventHandler(this.btnChildDown_Click);
+			// 
+			// btnChildUp
+			// 
+			this.btnChildUp.Location = new System.Drawing.Point(168, 152);
+			this.btnChildUp.Name = "btnChildUp";
+			this.btnChildUp.Size = new System.Drawing.Size(24, 23);
+			this.btnChildUp.TabIndex = 65;
+			this.btnChildUp.Text = "U";
+			this.btnChildUp.Click += new System.EventHandler(this.btnChildUp_Click);
+			// 
+			// tbVisibleStates
+			// 
+			this.tbVisibleStates.Location = new System.Drawing.Point(648, 144);
+			this.tbVisibleStates.Name = "tbVisibleStates";
+			this.tbVisibleStates.Size = new System.Drawing.Size(88, 20);
+			this.tbVisibleStates.TabIndex = 64;
+			this.tbVisibleStates.Text = "";
+			this.tbVisibleStates.TextChanged += new System.EventHandler(this.tbVisibleStates_TextChanged);
+			// 
+			// label21
+			// 
+			this.label21.Location = new System.Drawing.Point(648, 128);
+			this.label21.Name = "label21";
+			this.label21.Size = new System.Drawing.Size(80, 16);
+			this.label21.TabIndex = 63;
+			this.label21.Text = "Visible States:";
 			// 
 			// tbTiedTo
 			// 
@@ -2009,23 +2050,6 @@ namespace HADesigner
 			this.cbAnimate.Text = "Animate";
 			this.cbAnimate.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			this.cbAnimate.Click += new System.EventHandler(this.cbAnimate_Click);
-			// 
-			// label21
-			// 
-			this.label21.Location = new System.Drawing.Point(648, 128);
-			this.label21.Name = "label21";
-			this.label21.Size = new System.Drawing.Size(80, 16);
-			this.label21.TabIndex = 63;
-			this.label21.Text = "Visible States:";
-			// 
-			// tbVisibleStates
-			// 
-			this.tbVisibleStates.Location = new System.Drawing.Point(648, 144);
-			this.tbVisibleStates.Name = "tbVisibleStates";
-			this.tbVisibleStates.Size = new System.Drawing.Size(88, 20);
-			this.tbVisibleStates.TabIndex = 64;
-			this.tbVisibleStates.Text = "";
-			this.tbVisibleStates.TextChanged += new System.EventHandler(this.tbVisibleStates_TextChanged);
 			// 
 			// DesignObjDesigner
 			// 
@@ -3757,6 +3781,34 @@ namespace HADesigner
 				this.selectedUIDesignObj.VisibleStates = this.tbVisibleStates.Text;
 			}
 		
+		}
+
+		private void btnChildDown_Click(object sender, System.EventArgs e)
+		{
+			if(selectedUIDesignObj != null && selectedUIDesignObjVariation != null && lbChildrenDesignObjs.SelectedIndex<lbChildrenDesignObjs.Items.Count-1 )
+			{
+				UIDesignObj UIDesignObj_Next = (UIDesignObj) lbChildrenDesignObjs.Items[ lbChildrenDesignObjs.SelectedIndex+1 ];
+				int i = UIDesignObj_Next.ParentDisplayOrder;
+				UIDesignObj_Next.ParentDisplayOrder = selectedUIDesignObj.ParentDisplayOrder;
+				selectedUIDesignObj.ParentDisplayOrder = i;
+				lbChildrenDesignObjs.Items[ lbChildrenDesignObjs.SelectedIndex+1 ] = selectedUIDesignObj;
+				lbChildrenDesignObjs.Items[ lbChildrenDesignObjs.SelectedIndex ] = UIDesignObj_Next;
+				lbChildrenDesignObjs.SelectedIndex++;
+			}
+		}
+
+		private void btnChildUp_Click(object sender, System.EventArgs e)
+		{
+			if(selectedUIDesignObj != null && selectedUIDesignObjVariation != null && lbChildrenDesignObjs.SelectedIndex>0 )
+			{
+				UIDesignObj UIDesignObj_Prior = (UIDesignObj) lbChildrenDesignObjs.Items[ lbChildrenDesignObjs.SelectedIndex-1 ];
+				int i = UIDesignObj_Prior.ParentDisplayOrder;
+				UIDesignObj_Prior.ParentDisplayOrder = selectedUIDesignObj.ParentDisplayOrder;
+				selectedUIDesignObj.ParentDisplayOrder = i;
+				lbChildrenDesignObjs.Items[ lbChildrenDesignObjs.SelectedIndex-1 ] = selectedUIDesignObj;
+				lbChildrenDesignObjs.Items[ lbChildrenDesignObjs.SelectedIndex ] = UIDesignObj_Prior;
+				lbChildrenDesignObjs.SelectedIndex--;
+			}
 		}
 
 	}

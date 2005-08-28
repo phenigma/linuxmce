@@ -55,6 +55,7 @@ namespace HADesigner
 		//		private int m_intCommandGroupID = -1;
 		private int m_intCommandGroup_D_TouchID = -1,m_intCommandGroup_D_LoadID = -1,m_intCommandGroup_D_UnloadID = -1, m_intCommandGroup_D_StartupID = -1, m_intCommandGroup_D_TimeoutID = -1;
 		private int m_intCButton = -1;
+		public int m_iLastDisplayOrder = -1;
 		private bool m_boolDontResetSelectedState = false;
 
 
@@ -686,6 +687,7 @@ namespace HADesigner
 
 
 			//get the objects
+			m_iLastDisplayOrder=0;  // Be sure each one has a unique display order
 			DataRow[] drDesignObjs = mds.tDesignObjVariation_DesignObj.Select(DesignObjVariation_DesignObjData.FK_DESIGNOBJVARIATION_PARENT_FIELD + "=" + m_intID, DesignObjVariation_DesignObjData.DISPLAYORDER_FIELD);
 			foreach(DataRow dr in drDesignObjs)
 			{
@@ -718,11 +720,14 @@ namespace HADesigner
 				objChildUIDesignObj.Width = (drDesignObj.fWidthIsNull) ? -1 : drDesignObj.fWidth;
 				objChildUIDesignObj.Height = (drDesignObj.fHeightIsNull) ? -1 : drDesignObj.fHeight;
 
-
 				objChildUIDesignObj.ParentDisplayOrder = drDesignObj.fDisplayOrder;
 
 				//set the originals
 				objChildUIDesignObj.ResetLinkOriginals();
+
+				if( m_iLastDisplayOrder >= drDesignObj.fDisplayOrder )
+					objChildUIDesignObj.ParentDisplayOrder = m_iLastDisplayOrder+1;  // We had some duplicates
+				m_iLastDisplayOrder = objChildUIDesignObj.ParentDisplayOrder;
 
 				m_alDesignObjs.Add(objChildUIDesignObj);
 			}
