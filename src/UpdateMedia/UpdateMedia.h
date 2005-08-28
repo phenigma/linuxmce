@@ -5,7 +5,7 @@
 #include "pluto_main/Database_pluto_main.h"
 
 #ifndef WIN32
-#include <direct.h>
+#include <dirent.h>
 #endif
 
 class UpdateMedia 
