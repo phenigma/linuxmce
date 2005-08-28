@@ -1,7 +1,7 @@
 <-dceag-p-b->
 Package = DCE_Destination_Package
 Dir = 
-desc = DCE Implemenation for #1710 IRTrans - DIGN case
+desc = DCE Implemenation for #1715 IRT-USB Transmit/Receiver
 Maintainer = DCE_MaintainerName
 Email = DCE_MaintainerEmail
 Depend = DCE_Dependencies

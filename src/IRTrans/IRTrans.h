@@ -2,7 +2,7 @@
 #ifndef IRTrans_h
 #define IRTrans_h
 
-//	DCE Implemenation for #1710 IRTrans - DIGN IR Receiver
+//	DCE Implemenation for #1715 IRT-USB Transmit/Receiver
 
 #include "Gen_Devices/IRTransBase.h"
 //<-dceag-d-e->
@@ -57,6 +57,38 @@ public:
 
 			*****COMMANDS***** we need to implement
 	*/
+
+
+	/** @brief COMMAND: #191 - Send Code */
+	/** Sends an I/R code to a device. */
+		/** @param #9 Text */
+			/** The I/R code -- usually in Pronto format */
+
+	virtual void CMD_Send_Code(string sText) { string sCMD_Result; CMD_Send_Code(sText.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Send_Code(string sText,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #194 - Toggle Power */
+	/** Set relay state (0 or 1) */
+		/** @param #8 On/Off */
+			/** Depending on each device On/Off can be interpreted differently, but in genereal On/Off has a value of 1 for on and 0 for Off */
+
+	virtual void CMD_Toggle_Power(string sOnOff) { string sCMD_Result; CMD_Toggle_Power(sOnOff.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Toggle_Power(string sOnOff,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #245 - Learn IR */
+	/** Put gc100 into IR Learning mode */
+		/** @param #8 On/Off */
+			/** Turn IR Learning mode on or off
+0, 1 */
+		/** @param #25 PK_Text */
+			/** If specified, the text object  which should contain the result of the learn command */
+		/** @param #71 PK_Command_Input */
+			/** Command ID for which the learning is done for */
+
+	virtual void CMD_Learn_IR(string sOnOff,int iPK_Text,int iPK_Command_Input) { string sCMD_Result; CMD_Learn_IR(sOnOff.c_str(),iPK_Text,iPK_Command_Input,sCMD_Result,NULL);};
+	virtual void CMD_Learn_IR(string sOnOff,int iPK_Text,int iPK_Command_Input,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #406 - Display Message */

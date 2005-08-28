@@ -329,3 +329,44 @@ void IRTrans::SendIR(string Port, string IRCode)
 	DoSendIR (&ird,0,0);
 #endif
 }
+//<-dceag-c191-b->
+
+	/** @brief COMMAND: #191 - Send Code */
+	/** Sends an I/R code to a device. */
+		/** @param #9 Text */
+			/** The I/R code -- usually in Pronto format */
+
+void IRTrans::CMD_Send_Code(string sText,string &sCMD_Result,Message *pMessage)
+//<-dceag-c191-e->
+{
+	SendIR("",sText);
+}
+
+//<-dceag-c194-b->
+
+	/** @brief COMMAND: #194 - Toggle Power */
+	/** Set relay state (0 or 1) */
+		/** @param #8 On/Off */
+			/** Depending on each device On/Off can be interpreted differently, but in genereal On/Off has a value of 1 for on and 0 for Off */
+
+void IRTrans::CMD_Toggle_Power(string sOnOff,string &sCMD_Result,Message *pMessage)
+//<-dceag-c194-e->
+{
+}
+
+//<-dceag-c245-b->
+
+	/** @brief COMMAND: #245 - Learn IR */
+	/** Put gc100 into IR Learning mode */
+		/** @param #8 On/Off */
+			/** Turn IR Learning mode on or off
+0, 1 */
+		/** @param #25 PK_Text */
+			/** If specified, the text object  which should contain the result of the learn command */
+		/** @param #71 PK_Command_Input */
+			/** Command ID for which the learning is done for */
+
+void IRTrans::CMD_Learn_IR(string sOnOff,int iPK_Text,int iPK_Command_Input,string &sCMD_Result,Message *pMessage)
+//<-dceag-c245-e->
+{
+}
