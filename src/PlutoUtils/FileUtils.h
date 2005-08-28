@@ -60,7 +60,7 @@ namespace FileUtils
 	a temporary map will be created to ensure that we do not get into any infinite recursive loops.  */
 	bool FindFiles(list<string> &listFiles,string sDirectory,string sFileSpec_CSV,bool bRecurse=false,bool bFullyQualifiedPath=false, int iMaxFileCount = 0, string PrependedPath=""
 #ifndef WIN32
-		,map<ino_t,bool> *pMapInodes=NULL
+		,map<u_int64_t,bool> *pMapInodes=NULL
 #endif
 	); 
 	/** < same thing as FindFiles, but returns Directories instead */
