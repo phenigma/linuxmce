@@ -4,9 +4,6 @@
 #include "pluto_media/Database_pluto_media.h"
 #include "pluto_main/Database_pluto_main.h"
 
-#ifndef WIN32
-#include <dirent.h>
-#endif
 
 class UpdateMedia 
 {
@@ -14,7 +11,7 @@ class UpdateMedia
 	map<string,int> m_mapExtensions;
 
 #ifndef WIN32
-	map<ino_t,bool> m_MapInodes;
+	map<u_int64_t,bool> m_MapInodes;
 #endif
 
 public:
