@@ -545,9 +545,13 @@ bool FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
     int x;
     while (dirp != NULL && (readdir_r(dirp, direntp, & direntp) == 0) && direntp)
     {
-		if( pMapInodes && (itInode=pMapInodes->find(entry.d_ino))!=pMapInodes->end() )
-			continue;
-		(*pMapInodes)[entry.d_ino]=true;
+		if( pMapInodes )
+		{
+			if (itInode=pMapInodes->find(entry.d_ino))!=pMapInodes->end() )
+				continue;
+			else
+				(*pMapInodes)[entry.d_ino]=true;
+		}
 
 		struct stat s;
 		lstat((sDirectory + entry.d_name).c_str(), &s);
@@ -673,9 +677,13 @@ bool FileUtils::FindDirectories(list<string> &listDirectories,string sDirectory,
     int x;
     while (dirp != NULL && (readdir_r(dirp, direntp, & direntp) == 0) && direntp)
     {
-		if( pMapInodes && (itInode=pMapInodes->find(entry.d_ino))!=pMapInodes->end() )
-			continue;
-		(*pMapInodes)[entry.d_ino]=true;
+		if( pMapInodes )
+		{
+			if (itInode=pMapInodes->find(entry.d_ino))!=pMapInodes->end() )
+				continue;
+			else
+				(*pMapInodes)[entry.d_ino]=true;
+		}
 
 		struct stat s;
 		lstat((sDirectory + entry.d_name).c_str(), &s);
