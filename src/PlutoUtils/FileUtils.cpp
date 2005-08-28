@@ -479,7 +479,7 @@ bool FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
 #ifndef WIN32
 		,map<ino_t,bool> *pMapInodes
 #endif
-	); 
+	) 
 {
     if( !StringUtils::EndsWith(sDirectory,"/") )
         sDirectory += "/";
@@ -547,7 +547,7 @@ bool FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
     {
 		if( pMapInodes && (itInode=pMapInodes->find(entry.d_ino))!=pMapInodes->end() )
 			continue;
-		(*pMapInodes)[direntp.d_ino]=true;
+		(*pMapInodes)[entry.d_ino]=true;
 
 		struct stat s;
 		lstat((sDirectory + entry.d_name).c_str(), &s);
@@ -675,7 +675,7 @@ bool FindDirectories(list<string> &listDirectories,string sDirectory,bool bRecur
     {
 		if( pMapInodes && (itInode=pMapInodes->find(entry.d_ino))!=pMapInodes->end() )
 			continue;
-		(*pMapInodes)[direntp.d_ino]=true;
+		(*pMapInodes)[entry.d_ino]=true;
 
 		struct stat s;
 		lstat((sDirectory + entry.d_name).c_str(), &s);

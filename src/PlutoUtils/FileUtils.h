@@ -15,6 +15,7 @@
 #ifndef SYMBIAN
 #include <string>
 #include <vector>
+#include <map>
 #include <list>
 using namespace ::std;
 #else
@@ -25,6 +26,10 @@ using namespace ::std;
 #define atoi(x) SymbianAtoi(x, 0)
 #define itos(x) SymbianItoa(x)
 #define strchr(x, y) (x)
+
+#ifndef WIN32
+#include <dirent.h>
+#endif
 
 #endif
 
