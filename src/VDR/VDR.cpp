@@ -12,21 +12,28 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
+#include "pluto_main/Define_DeviceTemplate.h"
+
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 VDR::VDR(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: VDR_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
+	// Find all other VDR's
+	for(Map_DeviceData_Base::iterator itD=m_pData->m_AllDevices.m_mapDeviceData_Base.begin();
+		itD!=m_pData->m_AllDevices.m_mapDeviceData_Base.end();++itD)
+	{
+		DeviceData_Base *pDevice = itD->second;
+		if( pDevice->m_dwPK_DeviceTemplate==DEVICETEMPLATE_VDR_CONST )
+		{
+			string s=pDevice->m_sIPAddress;
+		}
+	}
+
 }
 
-//<-dceag-const2-b->
-// The constructor when the class is created as an embedded instance within another stand-alone device
-VDR::VDR(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)
-	: VDR_Command(pPrimaryDeviceCommand, pData, pEvent, pRouter)
-//<-dceag-const2-e->
-{
-}
+//<-dceag-const2-b->!
 
 //<-dceag-dest-b->
 VDR::~VDR()
@@ -43,15 +50,7 @@ bool VDR::Register()
 	return Connect(PK_DeviceTemplate_get()); 
 }
 
-/*  Since several parents can share the same child class, and each has it's own implementation, the base class in Gen_Devices
-	cannot include the actual implementation.  Instead there's an extern function declared, and the actual new exists here.  You 
-	can safely remove this block (put a ! after the dceag-createinst-b block) if this device is not embedded within other devices. */
-//<-dceag-createinst-b->
-VDR_Command *Create_VDR(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)
-{
-	return new VDR(pPrimaryDeviceCommand, pData, pEvent, pRouter);
-}
-//<-dceag-createinst-e->
+//<-dceag-createinst-b->!
 
 /*
 	When you receive commands that are destined to one of your children,
@@ -80,87 +79,8 @@ void VDR::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 	sCMD_Result = "UNKNOWN DEVICE";
 }
 
-//<-dceag-sample-b->
-/*		**** SAMPLE ILLUSTRATING HOW TO USE THE BASE CLASSES ****
+//<-dceag-sample-b->!
 
-**** IF YOU DON'T WANT DCEGENERATOR TO KEEP PUTTING THIS AUTO-GENERATED SECTION ****
-**** ADD AN ! AFTER THE BEGINNING OF THE AUTO-GENERATE TAG, LIKE //<=dceag-sample-b->! ****
-Without the !, everything between <=dceag-sometag-b-> and <=dceag-sometag-e->
-will be replaced by DCEGenerator each time it is run with the normal merge selection.
-The above blocks are actually <- not <=.  We don't want a substitution here
-
-void VDR::SomeFunction()
-{
-	// If this is going to be loaded into the router as a plug-in, you can implement: 	virtual bool Register();
-	// to do all your registration, such as creating message interceptors
-
-	// If you use an IDE with auto-complete, after you type DCE:: it should give you a list of all
-	// commands and requests, including the parameters.  See "AllCommandsRequests.h"
-
-	// Examples:
-	
-	// Send a specific the "CMD_Simulate_Mouse_Click" command, which takes an X and Y parameter.  We'll use 55,77 for X and Y.
-	DCE::CMD_Simulate_Mouse_Click CMD_Simulate_Mouse_Click(m_dwPK_Device,OrbiterID,55,77);
-	SendCommand(CMD_Simulate_Mouse_Click);
-
-	// Send the message to orbiters 32898 and 27283 (ie a device list, hence the _DL)
-	// And we want a response, which will be "OK" if the command was successfull
-	string sResponse;
-	DCE::CMD_Simulate_Mouse_Click_DL CMD_Simulate_Mouse_Click_DL(m_dwPK_Device,"32898,27283",55,77)
-	SendCommand(CMD_Simulate_Mouse_Click_DL,&sResponse);
-
-	// Send the message to all orbiters within the house, which is all devices with the category DEVICECATEGORY_Orbiter_CONST (see pluto_main/Define_DeviceCategory.h)
-	// Note the _Cat for category
-	DCE::CMD_Simulate_Mouse_Click_Cat CMD_Simulate_Mouse_Click_Cat(m_dwPK_Device,DEVICECATEGORY_Orbiter_CONST,true,BL_SameHouse,55,77)
-    SendCommand(CMD_Simulate_Mouse_Click_Cat);
-
-	// Send the message to all "DeviceTemplate_Orbiter_CONST" devices within the room (see pluto_main/Define_DeviceTemplate.h)
-	// Note the _DT.
-	DCE::CMD_Simulate_Mouse_Click_DT CMD_Simulate_Mouse_Click_DT(m_dwPK_Device,DeviceTemplate_Orbiter_CONST,true,BL_SameRoom,55,77);
-	SendCommand(CMD_Simulate_Mouse_Click_DT);
-
-	// This command has a normal string parameter, but also an int as an out parameter
-	int iValue;
-	DCE::CMD_Get_Signal_Strength CMD_Get_Signal_Strength(m_dwDeviceID, DestDevice, sMac_address,&iValue);
-	// This send command will wait for the destination device to respond since there is
-	// an out parameter
-	SendCommand(CMD_Get_Signal_Strength);  
-
-	// This time we don't care about the out parameter.  We just want the command to 
-	// get through, and don't want to wait for the round trip.  The out parameter, iValue,
-	// will not get set
-	SendCommandNoResponse(CMD_Get_Signal_Strength);  
-
-	// This command has an out parameter of a data block.  Any parameter that is a binary
-	// data block is a pair of int and char *
-	// We'll also want to see the response, so we'll pass a string for that too
-
-	int iFileSize;
-	char *pFileContents
-	string sResponse;
-	DCE::CMD_Request_File CMD_Request_File(m_dwDeviceID, DestDevice, "filename",&pFileContents,&iFileSize,&sResponse);
-	SendCommand(CMD_Request_File);
-
-	// If the device processed the command (in this case retrieved the file),
-	// sResponse will be "OK", and iFileSize will be the size of the file
-	// and pFileContents will be the file contents.  **NOTE**  We are responsible
-	// free deleting pFileContents.
-
-
-	// To access our data and events below, you can type this-> if your IDE supports auto complete to see all the data and events you can access
-
-	// Get our IP address from our data
-	string sIP = DATA_Get_IP_Address();
-
-	// Set our data "Filename" to "myfile"
-	DATA_Set_Filename("myfile");
-
-	// Fire the "Finished with file" event, which takes no parameters
-	EVENT_Finished_with_file();
-	// Fire the "Touch or click" which takes an X and Y parameter
-	EVENT_Touch_or_click(10,150);
-}
-*/
 //<-dceag-sample-e->
 
 /*
@@ -254,50 +174,6 @@ void VDR::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpeed,string
 	cout << "Parm #43 - MediaPlaybackSpeed=" << iMediaPlaybackSpeed << endl;
 }
 
-//<-dceag-c63-b->
-
-	/** @brief COMMAND: #63 - Skip Fwd - Channel/Track Greater */
-	/** Chapter/Track Next/Down/Forward */
-
-void VDR::CMD_Skip_Fwd_ChannelTrack_Greater(string &sCMD_Result,Message *pMessage)
-//<-dceag-c63-e->
-{
-	cout << "Need to implement command #63 - Skip Fwd - Channel/Track Greater" << endl;
-}
-
-//<-dceag-c64-b->
-
-	/** @brief COMMAND: #64 - Skip Back - Channel/Track Lower */
-	/** Chapter/Track Back/Up/Prior */
-
-void VDR::CMD_Skip_Back_ChannelTrack_Lower(string &sCMD_Result,Message *pMessage)
-//<-dceag-c64-e->
-{
-	cout << "Need to implement command #64 - Skip Back - Channel/Track Lower" << endl;
-}
-
-//<-dceag-c75-b->
-
-	/** @brief COMMAND: #75 - Start TV */
-	/** Start TV playback on this device. */
-
-void VDR::CMD_Start_TV(string &sCMD_Result,Message *pMessage)
-//<-dceag-c75-e->
-{
-	cout << "Need to implement command #75 - Start TV" << endl;
-}
-
-//<-dceag-c76-b->
-
-	/** @brief COMMAND: #76 - Stop TV */
-	/** Stop TV playback on this device. */
-
-void VDR::CMD_Stop_TV(string &sCMD_Result,Message *pMessage)
-//<-dceag-c76-e->
-{
-	cout << "Need to implement command #76 - Stop TV" << endl;
-}
-
 //<-dceag-c84-b->
 
 	/** @brief COMMAND: #84 - Get Video Frame */
@@ -327,44 +203,6 @@ void VDR::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,int iWid
 	cout << "Parm #61 - Height=" << iHeight << endl;
 }
 
-//<-dceag-c89-b->
-
-	/** @brief COMMAND: #89 - Vol Up */
-	/** Make the sound go up. */
-		/** @param #72 Repeat Command */
-			/** If specified, repeat the volume up this many times */
-
-void VDR::CMD_Vol_Up(int iRepeat_Command,string &sCMD_Result,Message *pMessage)
-//<-dceag-c89-e->
-{
-	cout << "Need to implement command #89 - Vol Up" << endl;
-	cout << "Parm #72 - Repeat_Command=" << iRepeat_Command << endl;
-}
-
-//<-dceag-c90-b->
-
-	/** @brief COMMAND: #90 - Vol Down */
-	/** Make the sound go down. */
-		/** @param #72 Repeat Command */
-			/** If specified, repeat the volume down this many times. */
-
-void VDR::CMD_Vol_Down(int iRepeat_Command,string &sCMD_Result,Message *pMessage)
-//<-dceag-c90-e->
-{
-	cout << "Need to implement command #90 - Vol Down" << endl;
-	cout << "Parm #72 - Repeat_Command=" << iRepeat_Command << endl;
-}
-
-//<-dceag-c97-b->
-
-	/** @brief COMMAND: #97 - Mute */
-	/** Mute the sound. */
-
-void VDR::CMD_Mute(string &sCMD_Result,Message *pMessage)
-//<-dceag-c97-e->
-{
-	cout << "Need to implement command #97 - Mute" << endl;
-}
 
 //<-dceag-c129-b->
 
@@ -388,47 +226,6 @@ void VDR::CMD_PIP_Channel_Down(string &sCMD_Result,Message *pMessage)
 	cout << "Need to implement command #130 - PIP - Channel Down" << endl;
 }
 
-//<-dceag-c140-b->
-
-	/** @brief COMMAND: #140 - Audio Track */
-	/** Go to an audio track */
-		/** @param #5 Value To Assign */
-			/** The audio track to go to.  Simple A/V equipment ignores this and just toggles. */
-
-void VDR::CMD_Audio_Track(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
-//<-dceag-c140-e->
-{
-	cout << "Need to implement command #140 - Audio Track" << endl;
-	cout << "Parm #5 - Value_To_Assign=" << sValue_To_Assign << endl;
-}
-
-//<-dceag-c141-b->
-
-	/** @brief COMMAND: #141 - Subtitle */
-	/** Go to a subtitle */
-		/** @param #5 Value To Assign */
-			/** The subtitle to go to.  Simple A/V equipment ignores this and just toggles. */
-
-void VDR::CMD_Subtitle(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
-//<-dceag-c141-e->
-{
-	cout << "Need to implement command #141 - Subtitle" << endl;
-	cout << "Parm #5 - Value_To_Assign=" << sValue_To_Assign << endl;
-}
-
-//<-dceag-c142-b->
-
-	/** @brief COMMAND: #142 - Angle */
-	/** Go to an angle */
-		/** @param #5 Value To Assign */
-			/** The angle to go to.  Simple A/V equipment ignores this and just toggles. */
-
-void VDR::CMD_Angle(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
-//<-dceag-c142-e->
-{
-	cout << "Need to implement command #142 - Angle" << endl;
-	cout << "Parm #5 - Value_To_Assign=" << sValue_To_Assign << endl;
-}
 
 //<-dceag-c187-b->
 
@@ -447,22 +244,6 @@ void VDR::CMD_Tune_to_channel(string sOptions,string sProgramID,string &sCMD_Res
 	cout << "Parm #68 - ProgramID=" << sProgramID << endl;
 }
 
-//<-dceag-c243-b->
-
-	/** @brief COMMAND: #243 - Enable Broadcasting */
-	/** Enable broadcasting from here. */
-		/** @param #41 StreamID */
-			/** The stream to enable broadcast for */
-		/** @param #59 MediaURL */
-			/** The media url from which this stream can be played. */
-
-void VDR::CMD_Enable_Broadcasting(int iStreamID,string *sMediaURL,string &sCMD_Result,Message *pMessage)
-//<-dceag-c243-e->
-{
-	cout << "Need to implement command #243 - Enable Broadcasting" << endl;
-	cout << "Parm #41 - StreamID=" << iStreamID << endl;
-	cout << "Parm #59 - MediaURL=" << sMediaURL << endl;
-}
 
 //<-dceag-c259-b->
 
@@ -514,6 +295,9 @@ void VDR::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,string &sCM
 
 void VDR::CMD_Jump_to_Position_in_Stream(string sValue_To_Assign,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c42-e->
+{
+}
+
 //<-dceag-c65-b->
 
 	/** @brief COMMAND: #65 - Jump Position In Playlist */
@@ -523,3 +307,5 @@ void VDR::CMD_Jump_to_Position_in_Stream(string sValue_To_Assign,int iStreamID,s
 
 void VDR::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c65-e->
+{
+}
