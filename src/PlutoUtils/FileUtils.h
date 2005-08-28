@@ -49,12 +49,25 @@ namespace FileUtils
 #ifndef WINCE
     string ValidCPPName( string sInput ); /** < converts the input file name to a valid CPP file name */
     time_t FileDate(string sFileName); /** < returns the date of the last file modification or 0 if error */
+
 	/** < scan sDirectory, for files matching any of the sFilespec_CSV (ie *.jpg,a*,bcd*.mpg), and store the names in listFiles.  
 	Optionally recurse into sub-directories up to a level (500 by default). If the max depth was hit return true. 
-	The prepended path will be prepended to any files that are found.  Normally this is for internal use only while recursing. */
-	bool FindFiles(list<string> &listFiles,string sDirectory,string sFileSpec_CSV,bool bRecurse=false,bool bFullyQualifiedPath=false, int iMaxFileCount = 0, string PrependedPath=""); 
+	The prepended path will be prepended to any files that are found.  Normally this is for internal use only while recursing. 
+	if pMapInodes is supplied, it will be filled in with the inodes all all files, and any files that are already in the map
+	will be skipped.  This way the calling program can create such a map and pass it in, ensuring that the same files
+	will not be included twice, handling self recursive symbolic links.  For Linux, if bRecurse=true and pMapInodes=NULL,
+	a temporary map will be created to ensure that we do not get into any infinite recursive loops.  */
+	bool FindFiles(list<string> &listFiles,string sDirectory,string sFileSpec_CSV,bool bRecurse=false,bool bFullyQualifiedPath=false, int iMaxFileCount = 0, string PrependedPath=""
+#ifndef WIN32
+		,map<ino_t,bool> *pMapInodes=NULL
+#endif
+	); 
 	/** < same thing as FindFiles, but returns Directories instead */
-	bool FindDirectories(list<string> &listFiles,string sDirectory,bool bRecurse=false,bool bFullyQualifiedPath=false, int iMaxFileCount = 0, string PrependedPath=""); 
+	bool FindDirectories(list<string> &listFiles,string sDirectory,bool bRecurse=false,bool bFullyQualifiedPath=false, int iMaxFileCount = 0, string PrependedPath=""
+#ifndef WIN32
+		,map<ino_t,bool> *pMapInodes=NULL
+#endif
+	); 
 	bool PUCopyFile(string sSource,string sDestination); /** < Copies a file from sSource to sDestination.  returns false if it fails, true otherwise */
 	bool LaunchProcessInBackground(string sCommandLine);
     string FileChecksum( string sFileName); /** < returns file's checksum */

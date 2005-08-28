@@ -476,7 +476,11 @@ time_t FileUtils::FileDate(string sFile)
 #include <iostream>
 using namespace std;
 
-bool FileUtils::FindFiles(list<string> &listFiles, string sDirectory, string sFileSpec_CSV, bool bRecurse, bool bFullyQualifiedPath, int iMaxFileCount, string PrependedPath)
+bool FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFileSpec_CSV,bool bRecurse,bool bFullyQualifiedPath, int iMaxFileCount, string PrependedPath
+#ifndef WIN32
+		,map<ino_t,bool> *pMapInodes
+#endif
+	); 
 {
     if( !StringUtils::EndsWith(sDirectory,"/") )
         sDirectory += "/";
@@ -523,6 +527,13 @@ bool FileUtils::FindFiles(list<string> &listFiles, string sDirectory, string sFi
 
     _findclose(ptrFileList);
 #else // Linux
+	bool bCreatedTempMap=false;
+	map<ino_t,bool>::iterator itInode;
+	if( bRecurse && pMapInodes==NULL )
+	{
+		bCreatedTempMap=true;
+		pMapInodes = new map<ino_t,bool>;
+	}
     DIR * dirp = opendir(sDirectory.c_str());
     struct dirent entry;
     struct dirent * direntp = & entry;
@@ -535,6 +546,10 @@ bool FileUtils::FindFiles(list<string> &listFiles, string sDirectory, string sFi
     int x;
     while (dirp != NULL && (readdir_r(dirp, direntp, & direntp) == 0) && direntp)
     {
+		if( pMapInodes && (itInode=pMapInodes->find(direntp.d_ino))!=pMapInodes->end() )
+			continue;
+		(*pMapInodes)[direntp.d_ino]=true;
+
 		struct stat s;
 		lstat((sDirectory + entry.d_name).c_str(), &s);
 
@@ -580,15 +595,26 @@ bool FileUtils::FindFiles(list<string> &listFiles, string sDirectory, string sFi
             }
 
 			if ( iMaxFileCount && iMaxFileCount < listFiles.size() )
+			{
+				if( bCreatedTempMap )
+					delete pMapInodes;
 				return true;
+			}
         }
         else if (bRecurse && S_ISDIR(s.st_mode) && entry.d_name[0] != '.')
 		{
 			if ( FindFiles( listFiles, sDirectory + entry.d_name, sFileSpec_CSV, true, bFullyQualifiedPath, iMaxFileCount, PrependedPath + entry.d_name + "/" ) )
+			{
+				if( bCreatedTempMap )
+					delete pMapInodes;
 				return true;
+			}
 		}
     }
     closedir (dirp);
+
+	if( bCreatedTempMap )
+		delete pMapInodes;
 #endif
 
 	return false; // if we are here it means we didn't hit the bottom return false.
