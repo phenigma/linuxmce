@@ -619,7 +619,7 @@ bool FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
 	return false; // if we are here it means we didn't hit the bottom return false.
 }
 
-bool FindDirectories(list<string> &listFiles,string sDirectory,bool bRecurse,bool bFullyQualifiedPath, int iMaxFileCount, string PrependedPath
+bool FindDirectories(list<string> &listDirectories,string sDirectory,bool bRecurse,bool bFullyQualifiedPath, int iMaxFileCount, string PrependedPath
 #ifndef WIN32
 	,map<ino_t,bool> *pMapInodes=NULL
 #endif
@@ -653,7 +653,15 @@ bool FindDirectories(list<string> &listFiles,string sDirectory,bool bRecurse,boo
 
     _findclose(ptrFileList);
 #else // Linux
-    DIR * dirp = opendir(sDirectory.c_str());
+	bool bCreatedTempMap=false;
+	map<ino_t,bool>::iterator itInode;
+	if( bRecurse && pMapInodes==NULL )
+	{
+		bCreatedTempMap=true;
+		pMapInodes = new map<ino_t,bool>;
+	}
+
+	DIR * dirp = opendir(sDirectory.c_str());
     struct dirent entry;
     struct dirent * direntp = & entry;
 
@@ -665,6 +673,10 @@ bool FindDirectories(list<string> &listFiles,string sDirectory,bool bRecurse,boo
     int x;
     while (dirp != NULL && (readdir_r(dirp, direntp, & direntp) == 0) && direntp)
     {
+		if( pMapInodes && (itInode=pMapInodes->find(entry.d_ino))!=pMapInodes->end() )
+			continue;
+		(*pMapInodes)[direntp.d_ino]=true;
+
 		struct stat s;
 		lstat((sDirectory + entry.d_name).c_str(), &s);
 
@@ -695,12 +707,22 @@ bool FindDirectories(list<string> &listFiles,string sDirectory,bool bRecurse,boo
 				listDirectories.push_back(PrependedPath + entry.d_name);
 
 			if ( iMaxFileCount && iMaxFileCount < listDirectories.size() )
+			{
+				if( bCreatedTempMap )
+					delete pMapInodes;
 				return true;
+			}
         
 			if (bRecurse && FindDirectories( listDirectories, sDirectory + entry.d_name, true, bFullyQualifiedPath, iMaxFileCount, PrependedPath + entry.d_name + "/" ) )
+			{
+				if( bCreatedTempMap )
+					delete pMapInodes;
 				return true;
+			}
 		}
     }
+	if( bCreatedTempMap )
+		delete pMapInodes;
     closedir (dirp);
 #endif
 

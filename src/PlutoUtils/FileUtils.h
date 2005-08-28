@@ -63,7 +63,7 @@ namespace FileUtils
 #endif
 	); 
 	/** < same thing as FindFiles, but returns Directories instead */
-	bool FindDirectories(list<string> &listFiles,string sDirectory,bool bRecurse=false,bool bFullyQualifiedPath=false, int iMaxFileCount = 0, string PrependedPath=""
+	bool FindDirectories(list<string> &listDirectories,string sDirectory,bool bRecurse=false,bool bFullyQualifiedPath=false, int iMaxFileCount = 0, string PrependedPath=""
 #ifndef WIN32
 		,map<ino_t,bool> *pMapInodes=NULL
 #endif
