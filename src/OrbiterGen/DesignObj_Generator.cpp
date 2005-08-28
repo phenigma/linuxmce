@@ -819,7 +819,9 @@ int k=2;
         Row_DesignObjVariation * drOV=m_alDesignObjVariations[s];
 
         vector<Row_DesignObjVariation_DesignObj *> vectovo;
-        drOV->DesignObjVariation_DesignObj_FK_DesignObjVariation_Parent_getrows(&vectovo);
+		m_mds->DesignObjVariation_DesignObj_get()->GetRows(
+			"WHERE FK_DesignObjVariation_Parent=" + StringUtils::itos(drOV->PK_DesignObjVariation_get()) + " ORDER BY DisplayOrder",
+			&vectovo);
         for(size_t s2=0;s2<vectovo.size();++s2)
         {
             Row_DesignObjVariation_DesignObj * drOVO = vectovo[s2];
