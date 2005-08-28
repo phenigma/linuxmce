@@ -226,10 +226,10 @@ bool VDRPlugin::StartMedia( class MediaStream *pMediaStream )
 	g_pPlutoLogger->Write( LV_STATUS, "VDRPlugin::StartMedia() Starting media stream playback. pos: %d", pMediaStream->m_iDequeMediaFile_Pos );
 	int PK_Device = pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
 	int StreamID = pMediaStream->m_iStreamID_get( );
-	DCE::CMD_Start_TV CMD_Start_TV(m_dwPK_Device,                          // Send from us
-							PK_Device);
+	DCE::CMD_Play_Media CMD_Play_Media(m_dwPK_Device,PK_Device,"",pMediaStream->m_iPK_MediaType,
+		pMediaStream->m_iStreamID_get(), "");
 
-	SendCommand(CMD_Start_TV);
+	SendCommand(CMD_Play_Media);
 	return true;
 }
 
@@ -242,13 +242,12 @@ bool VDRPlugin::StopMedia( class MediaStream *pMediaStream )
 	string SavedPosition;
 	int PK_Device = pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
 	int StreamID = pMediaStream->m_iStreamID_get( );
-	DCE::CMD_Stop_TV CMD_Stop_TV(m_dwPK_Device,                          // Send from us
-							PK_Device);
+	DCE::CMD_Stop_Media CMD_Stop_Media(m_dwPK_Device,PK_Device,pMediaStream->m_iStreamID_get(),&SavedPosition);
 
 
 	// TODO: Remove the device from the list of players also.
 	string Response;
-	if( !SendCommand( CMD_Stop_TV ) ) // hack - todo see above, &Response ) )
+	if( !SendCommand( CMD_Stop_Media ) ) // hack - todo see above, &Response ) )
 	{
 		// TODO: handle failure when sending the command. This is ignored now.
 		g_pPlutoLogger->Write( LV_CRITICAL, "The target device %d didn't respond to stop media command!", PK_Device );
@@ -291,6 +290,9 @@ MediaDevice *VDRPlugin::FindMediaDeviceForEntertainArea(EntertainArea *pEntertai
 
 void VDRPlugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c65-e->
+{
+}
+
 //<-dceag-c185-b->
 
 	/** @brief COMMAND: #185 - Schedule Recording */
@@ -300,3 +302,5 @@ void VDRPlugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sC
 
 void VDRPlugin::CMD_Schedule_Recording(string sProgramID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c185-e->
+{
+}
