@@ -547,7 +547,7 @@ bool FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
     {
 		if( pMapInodes )
 		{
-			if (itInode=pMapInodes->find(entry.d_ino))!=pMapInodes->end() )
+			if( (itInode=pMapInodes->find(entry.d_ino))!=pMapInodes->end() )
 				continue;
 			else
 				(*pMapInodes)[entry.d_ino]=true;
@@ -679,7 +679,7 @@ bool FileUtils::FindDirectories(list<string> &listDirectories,string sDirectory,
     {
 		if( pMapInodes )
 		{
-			if (itInode=pMapInodes->find(entry.d_ino))!=pMapInodes->end() )
+			if ( (itInode=pMapInodes->find(entry.d_ino))!=pMapInodes->end() )
 				continue;
 			else
 				(*pMapInodes)[entry.d_ino]=true;
