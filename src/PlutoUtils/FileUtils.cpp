@@ -517,7 +517,7 @@ bool FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
         }
         else if (bRecurse && (finddata.attrib & _A_SUBDIR) && finddata.name[0] != '.')
 		{
-			if ( FindFiles(listFiles, sDirectory + finddata.name, sFileSpec_CSV, true, bFullyQualifiedPath, iMaxFileCount, PrependedPath + finddata.name + "/") )
+			if ( FindFiles(listFiles, sDirectory + finddata.name, sFileSpec_CSV, true, bFullyQualifiedPath, iMaxFileCount, PrependedPath + finddata.name + "/",pMapInodes) )
 				return true; // if one recursive call hit the maximum depth then return now.
 		}
         if (_findnext(ptrFileList, & finddata) < 0)
@@ -602,7 +602,7 @@ bool FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
         }
         else if (bRecurse && S_ISDIR(s.st_mode) && entry.d_name[0] != '.')
 		{
-			if ( FindFiles( listFiles, sDirectory + entry.d_name, sFileSpec_CSV, true, bFullyQualifiedPath, iMaxFileCount, PrependedPath + entry.d_name + "/" ) )
+			if ( FindFiles( listFiles, sDirectory + entry.d_name, sFileSpec_CSV, true, bFullyQualifiedPath, iMaxFileCount, PrependedPath + entry.d_name + "/",pMapInodes ) )
 			{
 				if( bCreatedTempMap )
 					delete pMapInodes;
@@ -644,7 +644,7 @@ bool FileUtils::FindDirectories(list<string> &listDirectories,string sDirectory,
 
 			if ( iMaxFileCount && iMaxFileCount < listDirectories.size() )
 				return true; // max depth hit
-			if (bRecurse && FindDirectories(listDirectories, sDirectory + finddata.name, true, bFullyQualifiedPath, iMaxFileCount, PrependedPath + finddata.name + "/") )
+			if (bRecurse && FindDirectories(listDirectories, sDirectory + finddata.name, true, bFullyQualifiedPath, iMaxFileCount, PrependedPath + finddata.name + "/",pMapInodes) )
 					return true; // if one recursive call hit the maximum depth then return now.
 		}
         if (_findnext(ptrFileList, & finddata) < 0)
@@ -713,7 +713,7 @@ bool FileUtils::FindDirectories(list<string> &listDirectories,string sDirectory,
 				return true;
 			}
         
-			if (bRecurse && FindDirectories( listDirectories, sDirectory + entry.d_name, true, bFullyQualifiedPath, iMaxFileCount, PrependedPath + entry.d_name + "/" ) )
+			if (bRecurse && FindDirectories( listDirectories, sDirectory + entry.d_name, true, bFullyQualifiedPath, iMaxFileCount, PrependedPath + entry.d_name + "/",pMapInodes ) )
 			{
 				if( bCreatedTempMap )
 					delete pMapInodes;
