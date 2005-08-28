@@ -52,7 +52,6 @@
 			#include <io.h>
 		#endif
 	#else
-		#include <dirent.h>
 		#include <unistd.h>
 		#include <fcntl.h>
 	#endif
@@ -546,7 +545,7 @@ bool FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
     int x;
     while (dirp != NULL && (readdir_r(dirp, direntp, & direntp) == 0) && direntp)
     {
-		if( pMapInodes && (itInode=pMapInodes->find(direntp.d_ino))!=pMapInodes->end() )
+		if( pMapInodes && (itInode=pMapInodes->find(entry.d_ino))!=pMapInodes->end() )
 			continue;
 		(*pMapInodes)[direntp.d_ino]=true;
 
@@ -620,7 +619,11 @@ bool FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
 	return false; // if we are here it means we didn't hit the bottom return false.
 }
 
-bool FileUtils::FindDirectories(list<string> &listDirectories, string sDirectory, bool bRecurse, bool bFullyQualifiedPath, int iMaxFileCount, string PrependedPath)
+bool FindDirectories(list<string> &listFiles,string sDirectory,bool bRecurse,bool bFullyQualifiedPath, int iMaxFileCount, string PrependedPath
+#ifndef WIN32
+	,map<ino_t,bool> *pMapInodes=NULL
+#endif
+	)
 {
     if( !StringUtils::EndsWith(sDirectory,"/") )
         sDirectory += "/";
