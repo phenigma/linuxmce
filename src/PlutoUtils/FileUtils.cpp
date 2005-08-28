@@ -477,7 +477,7 @@ using namespace std;
 
 bool FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFileSpec_CSV,bool bRecurse,bool bFullyQualifiedPath, int iMaxFileCount, string PrependedPath
 #ifndef WIN32
-		,map<ino_t,bool> *pMapInodes
+		,map<u_int64_t,bool> *pMapInodes
 #endif
 	) 
 {
@@ -527,11 +527,11 @@ bool FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
     _findclose(ptrFileList);
 #else // Linux
 	bool bCreatedTempMap=false;
-	map<ino_t,bool>::iterator itInode;
+	map<u_int64_t,bool>::iterator itInode;
 	if( bRecurse && pMapInodes==NULL )
 	{
 		bCreatedTempMap=true;
-		pMapInodes = new map<ino_t,bool>;
+		pMapInodes = new map<u_int64_t,bool>;
 	}
     DIR * dirp = opendir(sDirectory.c_str());
     struct dirent entry;
@@ -621,7 +621,7 @@ bool FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
 
 bool FileUtils::FindDirectories(list<string> &listDirectories,string sDirectory,bool bRecurse,bool bFullyQualifiedPath, int iMaxFileCount, string PrependedPath
 #ifndef WIN32
-	,map<ino_t,bool> *pMapInodes
+	,map<u_int64_t,bool> *pMapInodes
 #endif
 	)
 {
@@ -654,11 +654,11 @@ bool FileUtils::FindDirectories(list<string> &listDirectories,string sDirectory,
     _findclose(ptrFileList);
 #else // Linux
 	bool bCreatedTempMap=false;
-	map<ino_t,bool>::iterator itInode;
+	map<u_int64_t,bool>::iterator itInode;
 	if( bRecurse && pMapInodes==NULL )
 	{
 		bCreatedTempMap=true;
-		pMapInodes = new map<ino_t,bool>;
+		pMapInodes = new map<u_int64_t,bool>;
 	}
 
 	DIR * dirp = opendir(sDirectory.c_str());

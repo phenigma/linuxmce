@@ -27,10 +27,6 @@ using namespace ::std;
 #define itos(x) SymbianItoa(x)
 #define strchr(x, y) (x)
 
-#ifndef WIN32
-#include <dirent.h>
-#endif
-
 #endif
 
 namespace FileUtils
@@ -70,7 +66,7 @@ namespace FileUtils
 	/** < same thing as FindFiles, but returns Directories instead */
 	bool FindDirectories(list<string> &listDirectories,string sDirectory,bool bRecurse=false,bool bFullyQualifiedPath=false, int iMaxFileCount = 0, string PrependedPath=""
 #ifndef WIN32
-		,map<ino_t,bool> *pMapInodes=NULL
+		,map<u_int64_t,bool> *pMapInodes=NULL
 #endif
 	); 
 	bool PUCopyFile(string sSource,string sDestination); /** < Copies a file from sSource to sDestination.  returns false if it fails, true otherwise */
