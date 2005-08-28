@@ -621,7 +621,7 @@ bool FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
 
 bool FileUtils::FindDirectories(list<string> &listDirectories,string sDirectory,bool bRecurse,bool bFullyQualifiedPath, int iMaxFileCount, string PrependedPath
 #ifndef WIN32
-	,map<ino_t,bool> *pMapInodes=NULL
+	,map<ino_t,bool> *pMapInodes
 #endif
 	)
 {
