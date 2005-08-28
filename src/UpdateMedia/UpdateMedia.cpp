@@ -107,11 +107,7 @@ int UpdateMedia::ReadDirectory(string sDirectory)
 	// Build a list of the files on disk, and a map of those in the database
 	int PK_Picture=0;
 	list<string> listFilesOnDisk;
-	FileUtils::FindFiles(listFilesOnDisk,sDirectory,m_sExtensions,false,false,0,""
-#ifndef WIN32
-		,&m_MapInodes
-#endif
-	);
+	FileUtils::FindFiles(listFilesOnDisk,sDirectory,m_sExtensions,false,false,0,"");
 
 	map<string,pair<Row_File *,bool> > mapFiles;
 
