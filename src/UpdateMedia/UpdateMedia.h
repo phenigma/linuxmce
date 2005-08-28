@@ -4,10 +4,18 @@
 #include "pluto_media/Database_pluto_media.h"
 #include "pluto_main/Database_pluto_main.h"
 
+#ifndef WIN32
+#include <direct.h>
+#endif
+
 class UpdateMedia 
 {
 	string m_sDirectory,m_sExtensions;
 	map<string,int> m_mapExtensions;
+
+#ifndef WIN32
+	map<ino_t,bool> m_MapInodes;
+#endif
 
 public:
     Database_pluto_media *m_pDatabase_pluto_media ;
