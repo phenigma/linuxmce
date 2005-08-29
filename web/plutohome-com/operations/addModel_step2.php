@@ -1,12 +1,13 @@
 <?
 	$dtID=$_REQUEST['dtID'];
+	$deviceID=(int)@$_REQUEST['deviceID'];
 	
 	$dtArray=getFieldsAsArray('DeviceTemplate_AV','IR_PowerDelay,IR_ModeDelay, DigitDelay',$publicADO,'WHERE FK_DeviceTemplate='.$dtID);
 
 	if($action=='form'){
 		$out='<br>
-		<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step+1).(((int)@$_REQUEST['isDef']==1)?'&isDef=1':'').'">&gt;&gt;</a></div>
-		<B>Step 2 - Delays</B><br>
+		<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step+1).(((int)@$_REQUEST['isDef']==1)?'&isDef=1':'').'&deviceID='.$deviceID.'">&gt;&gt;</a></div>
+		<B>Question 2 - What Delays?</B><br>
 		<p class="normaltext">Most devices need some delays between commands.  We filled in the most common values for you.  Change them if necessary; you can also make changes later if these values do not work:
 		
 		<form action="index.php" method="POST" name="addModel">
@@ -15,19 +16,20 @@
 			<input type="hidden" name="action" value="add">
 			<input type="hidden" name="dtID" value="'.$dtID.'">
 			<input type="hidden" name="isDef" value="'.@$_REQUEST['isDef'].'">
+			<input type="hidden" name="deviceID" value="'.$deviceID.'">
 		
 		<table class="normaltext" align="center">
 			<tr>
-				<td>After sending a code to turn the power on wait <input type="text" name="IR_PowerDelay" value="'.(((int)@$_REQUEST['isDef']==1)?'7':$dtArray['IR_PowerDelay'][0]).'" size="2"> seconds for the device to warm up before sending other codes.</td>
+				<td>After sending a code to turn the power on wait <input type="text" name="IR_PowerDelay" value="'.(((int)@$_REQUEST['isDef']==1)?'7':@$dtArray['IR_PowerDelay'][0]).'" size="2"> seconds for the device to warm up before sending other codes.</td>
 			</tr>
 			<tr>
-				<td>After changing inputs or modes on this device wait <input type="text" name="IR_ModeDelay" value="2" size="'.(((int)@$_REQUEST['isDef']==1)?'2':$dtArray['IR_ModeDelay'][0]).'"> seconds before sending other codes.</td>
+				<td>After changing inputs or modes on this device wait <input type="text" name="IR_ModeDelay" value="2" size="'.(((int)@$_REQUEST['isDef']==1)?'2':@$dtArray['IR_ModeDelay'][0]).'"> seconds before sending other codes.</td>
 			</tr>		
 			<tr>
-				<td>When sending a series of codes, such as a sequence of digits to tune to a channel, wait <input type="text" name="DigitDelay" value="'.(((int)@$_REQUEST['isDef']==1)?'0.250':round($dtArray['DigitDelay'][0]/1000,3)).'" size="2"> seconds* between commands (up to 3 decimal places).</td>
+				<td>When sending a series of codes, such as a sequence of digits to tune to a channel, wait <input type="text" name="DigitDelay" value="'.(((int)@$_REQUEST['isDef']==1)?'0.250':round(@$dtArray['DigitDelay'][0]/1000,3)).'" size="2"> seconds* between commands (up to 3 decimal places).</td>
 			</tr>		
 			<tr>
-				<td align="center"><input type="submit" name="add" value="next"> <input type="button" name="skip" value="skip a/v properties wizard and just show me i/r codes" onclick="self.location=\'index.php?section=irCodes&dtID='.$dtID.'\'"></td>
+				<td align="center"><input type="submit" class="button" name="add" value="next"> </td>
 			</tr>
 			<tr>
 				<td align="center">&nbsp;</td>
@@ -47,10 +49,10 @@
 			$DigitDelay=1000*$_POST['DigitDelay'];
 			
 			$publicADO->Execute('UPDATE DeviceTemplate_AV SET IR_PowerDelay=?, IR_ModeDelay=?, DigitDelay=? WHERE FK_DeviceTemplate=?',array($IR_PowerDelay,$IR_ModeDelay,$DigitDelay,$dtID));
-			header('Location: index.php?section=addModel&step=3&dtID='.$dtID.(((int)@$_REQUEST['isDef']==1)?'&isDef=1':''));
+			header('Location: index.php?section=addModel&step=3&dtID='.$dtID.(((int)@$_REQUEST['isDef']==1)?'&isDef=1':'').'&deviceID='.$deviceID);
 			exit();
 		}
 		
-		header('Location: index.php?section=addModel&step=2&dtID='.$dtID.(((int)@$_REQUEST['isDef']==1)?'&isDef=1':''));
+		header('Location: index.php?section=addModel&step=2&dtID='.$dtID.(((int)@$_REQUEST['isDef']==1)?'&isDef=1':'').'&deviceID='.$deviceID);
 	}
 ?>

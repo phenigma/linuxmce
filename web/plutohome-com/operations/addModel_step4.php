@@ -1,5 +1,6 @@
 <?
 	$dtID=$_REQUEST['dtID'];
+	$deviceID=(int)@$_REQUEST['deviceID'];
 	if($dtID==0){
 		header('Location: index.php');
 		exit();
@@ -8,14 +9,15 @@
 	
 	if($action=='form'){
 		$out='<br>
-		<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step-1).'">&lt;&lt;</a> <a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step+1).'">&gt;&gt;</a></div>
-		<B>Step 4 - Toggle power</B><br><br>
+		<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step-1).'&deviceID='.$deviceID.'">&lt;&lt;</a> <a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step+1).'&deviceID='.$deviceID.'">&gt;&gt;</a></div>
+		<B>Question 4 of 6 - Toggle power or discrete?</B><br><br>
 		
 		<form action="index.php" method="POST" name="addModel">
 			<input type="hidden" name="section" value="addModel">
 			<input type="hidden" name="step" value="'.$step.'">
 			<input type="hidden" name="action" value="add">
 			<input type="hidden" name="dtID" value="'.$dtID.'">
+			<input type="hidden" name="deviceID" value="'.$deviceID.'">
 
 		<table class="normaltext" cellpadding="10" cellspacing="0">
 			<tr>
@@ -25,14 +27,14 @@
 				<td>Toggle means there is only 1 button which toggles between on and off, called ‘Toggle Power’.  You hit it once and it’s on, hit it again and it’s off.  Whenever possible avoid devices with toggle because then it’s possible to get out of sync, where the system sends a Toggle Power to turn it on, but in fact it really turned it off.</td>
 			</tr>
 			<tr>
-				<td style="padding-left:50px;"><input type="radio" name="TogglePower" value="0" '.(($dtArray['TogglePower'][0]==0)?'checked':'').'> My device has discrete, separate on/off commands<br>
-					<input type="radio" name="TogglePower" value="1" '.(($dtArray['TogglePower'][0]==1)?'checked':'').'> My device only has a single toggle power button</td>
+				<td style="padding-left:50px;"><input type="radio" name="TogglePower" value="0" '.((@$dtArray['TogglePower'][0]==0)?'checked':'').'> My device has discrete, separate on/off commands<br>
+					<input type="radio" name="TogglePower" value="1" '.((@$dtArray['TogglePower'][0]==1)?'checked':'').'> My device only has a single toggle power button</td>
 			</tr>
 			<tr>
 				<td align="center">&nbsp;</td>
 			</tr>		
 			<tr>
-				<td align="center"><input type="submit" class="button" name="next" value="Next"> <input type="button" class="button" name="skip" value="Go to IR Codes" onclick="self.location=\'index.php?section=irCodes&dtID='.$dtID.'\'"></td>
+				<td align="center"><input type="submit" class="button" name="next" value="Next"> </td>
 			</tr>
 		
 		</table>
@@ -49,7 +51,7 @@
 			
 			$publicADO->Execute('UPDATE DeviceTemplate_AV SET TogglePower=? WHERE FK_DeviceTemplate=?',array($TogglePower,$dtID));
 			
-			header('Location: index.php?section=addModel&step=5&dtID='.$dtID);
+			header('Location: index.php?section=addModel&step=5&dtID='.$dtID.'&deviceID='.$deviceID);
 			exit();
 		}
 	}

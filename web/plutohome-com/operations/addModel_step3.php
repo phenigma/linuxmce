@@ -1,5 +1,6 @@
 <?
 	$dtID=$_REQUEST['dtID'];
+	$deviceID=(int)@$_REQUEST['deviceID'];
 	if($dtID==0){
 		header('Location: index.php');
 		exit();
@@ -13,10 +14,10 @@
 	}
 	$dtArray=getFieldsAsArray('DeviceTemplate_AV','NumericEntry',$publicADO,'WHERE FK_DeviceTemplate='.$dtID);
 	
-	$isEnter=(strpos($dtArray['NumericEntry'][0],'E')!==false)?1:0;
+	$isEnter=(strpos(@$dtArray['NumericEntry'][0],'E')!==false)?1:0;
 	$isEnter=((int)@$_REQUEST['isDef']==1)?1:$isEnter;
 	
-	$digits=str_replace('E','',$dtArray['NumericEntry'][0]);
+	$digits=str_replace('E','',@$dtArray['NumericEntry'][0]);
 	$digits=((int)@$_REQUEST['isDef']==1)?'':$digits;
 	
 	$cdContent=(in_array($dtDataArray['FK_DeviceCategory'][0],$dtDataArray))?'<p class="normaltext">'.$dtDataArray['Description'][0].' devices don’t normally tune to stations or channels, so you can probably ignore this step and just click next.':'';
@@ -28,12 +29,12 @@
 		$comMethodName=($comMethod!=0)?$commMethodArray[$comMethod]:'This';
 		$Content='
 			<p class="normaltext">'.$comMethodName.' devices don’t normally require any special rules to tune.<br><br><br>
-			<div align="center"><input type="button" class="button" name="next" value="Next" onClick="self.location=\'index.php?section=addModel&step=4&dtID='.$dtID.'\'"></div>';
+			<div align="center"><input type="button" class="button" name="next" value="Next" onClick="self.location=\'index.php?section=addModel&step=4&dtID='.$dtID.'&deviceID='.$deviceID.'\'"></div>';
 	}else{
 		$Content='
 		<table class="normaltext">
 			<tr>
-				<td>By default when it’s time to tune to a station, channel or frequency, we assume this device wants you to punch in the number on the remote, and then hit ‘enter’.  If that’s not the way this device works, please change these values:</td>
+				<td>By default when it’s time to tune to a station, channel or frequency, we assume this device wants you to punch in the number on the remote, and then hit ‘enter’.  If that’s correct, or if there are no number buttons on the remote for this device, click next.  Otherwise:</td>
 			</tr>
 			<tr>
 				<td>&nbsp;</td>
@@ -52,7 +53,7 @@
 				<td align="center">&nbsp;</td>
 			</tr>		
 			<tr>
-				<td align="center"><input type="submit" class="button" name="next" value="Next"> <input type="button" class="button" name="skip" value="Go to IR Codes" onclick="self.location=\'index.php?section=irCodes&dtID='.$dtID.'\'"></td>
+				<td align="center"><input type="submit" class="button" name="next" value="Next"> </td>
 			</tr>
 		
 		</table>		
@@ -62,8 +63,8 @@
 	
 	if($action=='form'){
 		$out='<br>
-		<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step-1).(((int)@$_REQUEST['isDef']==1)?'&isDef=1':'').'">&lt;&lt;</a> <a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step+1).(((int)@$_REQUEST['isDef']==1)?'&isDef=1':'').'">&gt;&gt;</a></div>
-		<B>Step 3 - Tuning</B><br><br>
+		<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step-1).(((int)@$_REQUEST['isDef']==1)?'&isDef=1':'').'&deviceID='.$deviceID.'">&lt;&lt;</a> <a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step+1).(((int)@$_REQUEST['isDef']==1)?'&isDef=1':'').'&deviceID='.$deviceID.'">&gt;&gt;</a></div>
+		<B>Question 3 of 6 - How to tune?</B><br><br>
 		'.$cdContent.'
 		
 		<form action="index.php" method="POST" name="addModel">
@@ -72,7 +73,8 @@
 			<input type="hidden" name="action" value="add">
 			<input type="hidden" name="dtID" value="'.$dtID.'">
 			<input type="hidden" name="isDef" value="'.@$_REQUEST['isDef'].'">
-
+			<input type="hidden" name="deviceID" value="'.$deviceID.'">
+		
 		'.$Content.'
 		
 		<br>
@@ -86,11 +88,9 @@
 			$enterButton=$_POST['enterButton'];
 			$digits=$_POST['digits'];
 			$NumericEntry=$digits.$enterButton;
-			
 			$publicADO->Execute('UPDATE DeviceTemplate_AV SET NumericEntry=? WHERE FK_DeviceTemplate=?',array($NumericEntry,$dtID));
-			header('Location: index.php?section=addModel&step=4&dtID='.$dtID.(((int)@$_REQUEST['isDef']==1)?'&isDef=1':''));
+			header('Location: index.php?section=addModel&step=4&dtID='.$dtID.(((int)@$_REQUEST['isDef']==1)?'&isDef=1':'').'&deviceID='.$deviceID);
 			exit();
 		}
-		
 	}
 ?>

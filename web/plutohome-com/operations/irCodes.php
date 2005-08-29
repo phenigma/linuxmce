@@ -80,7 +80,8 @@ function irCodes($output)
 				FK_DeviceCategory,
 				DeviceTemplate.psc_user AS User,
 				FK_InfraredGroup,
-				DeviceTemplate_AV.*
+				DeviceTemplate_AV.*,
+				DeviceTemplate_AV.FK_DeviceTemplate AS AVTemplate
 			FROM DeviceTemplate
 			INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory
 			INNER JOIN Manufacturer ON FK_Manufacturer=PK_Manufacturer
@@ -92,6 +93,11 @@ function irCodes($output)
 			exit();
 		}
 		$rowDTData=$resDTData->FetchRow();
+		// create the record in DeviceTemplate_AV for templates who doesn't have it
+		if(is_null($rowDTData['AVTemplate'][0])){
+			$publicADO->Execute('INSERT INTO DeviceTemplate_AV (FK_DeviceTemplate) VALUES (?)',$dtID);
+		}		
+		
 		$manufacturerID=$rowDTData['FK_Manufacturer'];
 		$deviceCategoryID=$rowDTData['FK_DeviceCategory'];
 		$owner=$rowDTData['User'];
@@ -144,7 +150,7 @@ function irCodes($output)
 				$out.='<option value="'.$rowIG['PK_InfraredGroup'].'" '.(($rowIG['PK_InfraredGroup']==$infraredGroupID)?'selected':'').'>'.$rowIG['Description'].'</option>';
 			}
 			$out.='
-				</select></td>
+				</select> <input type="button" class="button" name="step7" value="Help me choose" onclick="self.location=\'index.php?section=addModel&step=7&dtID='.$dtID.'&deviceID='.$deviceID.'\'"></td>
 		</tr>';
 			
 		$out.='
