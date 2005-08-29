@@ -109,7 +109,8 @@ RubyDCEEmbededClass::CallCmdHandler(Message *pMessage) {
 					}
 				}
 			}
-			pMessageOut->m_mapParameters[0]="OK";
+			string sCMD_Result="OK";
+			pMessageOut->m_mapParameters[0]=sCMD_Result;
 			RubyIOManager* pmanager = RubyIOManager::getInstance();
 			pmanager->SendMessage(pMessageOut);
 			if(TYPE(result)==T_ARRAY)

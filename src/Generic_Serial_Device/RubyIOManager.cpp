@@ -21,6 +21,7 @@
 #include "DCE/DeviceData_Impl.h"
 #include "DCE/Logger.h"
 #include "DCE/Message.h"
+#include "DCE/Command_Impl.h"
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Table_DeviceData.h"
@@ -56,7 +57,7 @@ RubyIOManager::getInstance() {
 RubyDCEDeviceNode* 
 RubyIOManager::InstantiateNode(Command_Impl* pcmdimpl, DeviceData_Impl* pdevdata) {
 	RubyDCEDeviceNode* pNode = NULL;
-
+	pcmdimpl_=pcmdimpl;
 	string sport = pdevdata->m_mapParameters[DEVICEDATA_COM_Port_on_PC_CONST];
 	PORTTYPE porttype = PORTTYPE_UNKNOWN;
 	if(!sport.empty() && sport != "0") {
@@ -327,7 +328,7 @@ RubyIOManager::SendCommand(RubyCommandWrapper* pcmd) {
 void 
 RubyIOManager::SendMessage(Message* pmsg) {
 	g_pPlutoLogger->Write(LV_STATUS, "Ruby code sending message...");
-	if(!pevdisp_->SendMessage(pmsg))
+	if(!pcmdimpl_->SendMessage(pmsg))
 		g_pPlutoLogger->Write(LV_WARNING, "Failed to send message.");
 	else
 		g_pPlutoLogger->Write(LV_STATUS, "Message was sent.");

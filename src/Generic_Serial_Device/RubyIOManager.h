@@ -101,7 +101,7 @@ private:
 	RubyDCECodeSupplier cs_;
 	Database_pluto_main* pdb_;
 	Event_Impl* pevdisp_;
-	
+	Command_Impl* pcmdimpl_;
 	typedef std::list< std::pair<unsigned, Message> > MESSAGEQUEUE;
 	MESSAGEQUEUE msgqueue_;
 	IOMutex mmsg_;
