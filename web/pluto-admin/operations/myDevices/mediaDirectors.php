@@ -463,11 +463,11 @@ function mediaDirectors($output,$dbADO) {
 			exec($commandToSend);
 		}
 		processRemotes($dbADO);
-		
-		if(isset($_REQUEST['add'])){
+		if(isset($_REQUEST['add']) && !isset($_REQUEST['mdID'])){
 			unset($_SESSION['from']);
 			$deviceTemplate=(int)$_REQUEST['deviceTemplate'];
 			if($deviceTemplate!=0){
+				echo 'shouldn\'t be here';
 				$insertID=exec('sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID,$ret);	
 				setDCERouterNeedConfigure($_SESSION['installationID'],$dbADO);
 				$commandToSend='/usr/pluto/bin/UpdateEntArea -h localhost';

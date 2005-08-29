@@ -50,7 +50,7 @@ function newRubyCode($output,$dbADO) {
 		</form>';
 	
 	} else {
-		$dbADO->debug=true;
+
 		if(isset($_POST['add'])){
 			$irData=stripslashes($_POST['irData']);
 			$infraredGroupID=($infraredGroupID==0)?NULL:$infraredGroupID;
@@ -71,7 +71,7 @@ function newRubyCode($output,$dbADO) {
 				$rowOther=$isOtherCustomCode->FetchRow();
 				$dbADO->Execute('UPDATE InfraredGroup_Command SET IRData=? WHERE PK_InfraredGroup_Command=?',array($irData,$rowOther['PK_InfraredGroup_Command']));
 			}else
-				$dbADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command, FK_Device, FK_DeviceTemplate, FK_Users,IRData) VALUES (?,?,?,?,?,?)',array($infraredGroupID,$commandID, $deviceID,$dtID,$_SESSION['userID'],$irData));
+				$dbADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command, FK_Device, FK_DeviceTemplate, FK_Users,IRData,psc_user) VALUES (?,?,?,?,?,?,?)',array($infraredGroupID,$commandID, $deviceID,$dtID,$_SESSION['userID'],$irData,$_SESSION['userID']));
 			$igcID=$dbADO->Insert_ID();
 			
 			if($isSingleCode->RecordCount()==0){
@@ -79,12 +79,13 @@ function newRubyCode($output,$dbADO) {
 			}
 			$out.='<script>
 					opener.location.reload();
-					//self.close();
+					self.close();
 				</script>
 			';
 		}	
 		else{
 			header("Location: index.php?section=newRubyCode&deviceID=$deviceID&dtID=$dtID&infraredGroupID=$infraredGroupID&commandID=".$commandID);
+			exit();
 		}
 			
 	}

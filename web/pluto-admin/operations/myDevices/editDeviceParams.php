@@ -454,7 +454,7 @@ $installationID = (int)@$_SESSION['installationID'];
 				
 			$out.="
 				<tr>
-					<td>{$rowDevicedata['DD_desc']}({$rowDevicedata['PT_Desc']})</td>
+					<td>#{$rowDevicedata['PK_DD']} {$rowDevicedata['DD_desc']}({$rowDevicedata['PT_Desc']})</td>
 					<td>".$formElement."</td>
 				</tr>";
 			$deviceData[]=$rowDevicedata['PK_DD'];

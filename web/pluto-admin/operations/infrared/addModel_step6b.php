@@ -1,4 +1,5 @@
 <?
+	$deviceID=(int)@$_REQUEST['deviceID'];
 	$multiInputsCategs=array(103,77,126,98,109);
 	$mediaTypesDT=array(106,104,107,105,108,135);
 	
@@ -68,7 +69,7 @@
 		</script>
 		
 		<br>
-		<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step=5">&lt;&lt;</a> <a href="index.php?section=addModel&dtID='.$dtID.'&step=6">&gt;&gt;</a></div>
+		<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step=6&deviceID='.$deviceID.'">&lt;&lt;</a> <a href="index.php?section=addModel&dtID='.$dtID.'&step=7&deviceID='.$deviceID.'">&gt;&gt;</a></div>
 		<B>Last Question, 6 - DSP mode order?</B><br><br>
 		
 		<form action="index.php" method="POST" name="addModel" onSubmit="setOrder();">
@@ -77,7 +78,8 @@
 			<input type="hidden" name="action" value="add">
 			<input type="hidden" name="dtID" value="'.$dtID.'">
 			<input type="hidden" name="commandsOrder" value="">
-
+			<input type="hidden" name="deviceID" value="'.$deviceID.'">
+			
 			<table align="center">
 				<tr>
 					<td colspan="2"><B>Change order</B></td>
@@ -113,7 +115,7 @@
 	
 		}
 		
-		header('Location: index.php?section=addModel&step=7&dtID='.$dtID);
+		header('Location: index.php?section=addModel&step=7&dtID='.$dtID.'&deviceID='.$deviceID);
 		exit();
 	}
 ?>

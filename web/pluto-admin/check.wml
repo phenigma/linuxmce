@@ -73,7 +73,7 @@ function executeScenario($cgid,$dbADO)
 			if($res->RecordCount()>0){
 				$row=$res->FetchRow();
 				
-				$commandToSend='/usr/pluto/bin/MessageSend localhost 0 0 10 '.$cgid;
+				$commandToSend='/usr/pluto/bin/MessageSend localhost 0 0 1 '.$cgid;
 				exec($commandToSend);
 				$msg=$ScenariosArray[$row['FK_Template']].': Scenario <b>'.$row['Description'].'</b> was executed.';
 			}else {

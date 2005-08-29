@@ -1,6 +1,6 @@
 <?
 	$multiInputsCategs=array(103,77,126,98,109);
-
+	$deviceID=(int)@$_REQUEST['deviceID'];
 	$dtID=$_REQUEST['dtID'];
 	if($dtID==0){
 		header('Location: index.php');
@@ -94,7 +94,7 @@
 		$mediaTypesArray=getAssocArray('MediaType','PK_MediaType','Description',$publicADO,'WHERE DCEAware=0','ORDER BY Description ASC');
 
 		$inputSelectedTxt='
-			<p class="normaltext"> Please select all the inputs this device has.  If your device has an input that is not on the list, but there is a close match, choose that.  It’s not important that the wording be exactly the same.  Only add a new input if your device’s input is totally unlike anything on this list.
+			<p class="normaltext"> Please select all the inputs this device has.  If your device has an input that is not on the list, but there is a close match, choose that.  It’s not important that the wording be exactly the same.  Only add a new input if your device’s input is totally unlike anything on this list.  Connector is optional.
 			<table border="0" class="normaltext" align="center" cellpadding="3" cellspacing="0">
 				<tr bgcolor="lightblue">
 					<td align="center"><B>Inputs</b><br> (check all that apply)</td>
@@ -123,8 +123,7 @@
 			while ($row=$resInput->FetchRow()) {
 				$commandsArray[$row['PK_Command']]=$row['Input_Desc'];
 				if(!is_null($row['FK_DeviceTemplate'])){
-					$checkedCommands['PK_Command'][$row['OrderNo']]=$row['PK_Command'];
-					$checkedCommands['Description'][$row['OrderNo']]=$row['Input_Desc'];
+					$checkedCommands[$row['PK_Command']]=$row['Input_Desc'];
 					$rs=$publicADO->Execute('
 					SELECT 
 					FK_DeviceTemplate_ControlledVia,
@@ -152,17 +151,11 @@
 		}
 		
 		$resInput->close();
-		@ksort($checkedCommands['PK_Command']);
 
-		if(count(@$checkedCommands['PK_Command'])>0){
-			foreach ($checkedCommands['PK_Command'] AS $key=>$value){
-				$checkedCommandsAssoc[$checkedCommands['PK_Command'][$key]]=$checkedCommands['Description'][$key];
-			}
-		}
-		
+
 		$inputSelectedTxt.='</table>
 		<input type="hidden" name="oldMTArray" value="'.urlencode(serialize($oldMTArray)).'">
-		<input type="hidden" name="oldCheckedCommands" value="'.join(',',array_keys($checkedCommandsAssoc)).'">';
+		<input type="hidden" name="oldCheckedCommands" value="'.join(',',array_keys($checkedCommands)).'">';
 		
 		if(!isset($_REQUEST['is'])){
 			if(is_null($dtDataArray['FK_MediaType'][0])){
@@ -191,40 +184,35 @@
 		</script>
 		
 		<br>
-		<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step-1).'">&lt;&lt;</a> <a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step+1).'">&gt;&gt;</a></div>
+		<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step-1).'&deviceID='.$deviceID.'">&lt;&lt;</a> <a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step+1).'&deviceID='.$deviceID.'">&gt;&gt;</a></div>
 		<B>Question 5 of 6 - What Inputs?</B><br><br>';
 		$out.='
-		<p class="normaltext">If this device has multiple inputs, or sources, you will check off all the inputs, and for each indicate if it is a built-in source, or a hookup for an external device.
+		<p class="normaltext">If this device has multiple inputs, or sources, you will check off all the inputs, and for each indicate if it is a built-in source, or if the input is for connecting an external device to.
 		<p class="normaltext">'.$categoryInfo.'
 		<form action="index.php" method="POST" name="addModel" onSubmit="setOrder();">
 			<input type="hidden" name="section" value="addModel">
 			<input type="hidden" name="step" value="'.$step.'">
 			<input type="hidden" name="action" value="add">
 			<input type="hidden" name="dtID" value="'.$dtID.'">
+			<input type="hidden" name="deviceID" value="'.$deviceID.'">
 			<input type="hidden" name="commandsOrder" value="">
 		';
-		if(!in_array($dtDataArray['FK_DeviceCategory'][0],$multiInputsCategs)){
-			$out.='<p class="normaltext">'.$dtDataArray['Description'][0].' devices normally don’t have multiple inputs that other devices can connect to, or multiple sources.  They just do one thing.<br><br>
- 
-
-If this device is something like a receiver or tv where you can connect other devices to it, then you will need to assign inputs.  A VCR also has multiple inputs, or sources, because it has two built in sources: a video cassette player and also a tuner for live tv, and there is usually a ‘toggle input’ button to switch between those 2 sources.';
-		}
 		
 		$out.='
 		<table class="normaltext" cellpadding="5" cellspacing="0">
 			<tr>
 				<td>
-					<input type="radio" name="is" value="1" '.(($is==1)?'checked':'').' onClick="self.location=\'index.php?section=addModel&step=5&dtID='.$dtID.'&is=1\'"> My device does not have multiple input sources, it only provides this 1 type of media: '.pulldownFromArray($mediaTypesArray,'dtMediaType',@$dtDataArray['FK_MediaType'][0]).'
+					<input type="radio" name="is" value="1" '.(($is==1)?'checked':'').' onClick="self.location=\'index.php?section=addModel&step=5&dtID='.$dtID.'&is=1&deviceID='.$deviceID.'\'"> #1 - My device does not have multiple input sources, it only provides this 1 type of media: '.pulldownFromArray($mediaTypesArray,'dtMediaType',@$dtDataArray['FK_MediaType'][0],($is!=1)?'disabled':'').'
 				</td>
 			</tr>
 			<tr>
 				<td>
-					<input type="radio" name="is" value="2" '.(($is==2)?'checked':'').' onClick="self.location=\'index.php?section=addModel&step=5&dtID='.$dtID.'&is=2\'"> My device does have multiple inputs, and there are separate, discrete buttons or commands to select the correct input (discrete inputs work well).
+					<input type="radio" name="is" value="2" '.(($is==2)?'checked':'').' onClick="self.location=\'index.php?section=addModel&step=5&dtID='.$dtID.'&is=2&deviceID='.$deviceID.'\'"> #2 - My device does have multiple inputs, and there are separate, discrete buttons or commands to select the correct input (this type of device works well).
 				</td>
 			</tr>
 			<tr>
 				<td>
-					<input type="radio" name="is" value="3" '.(($is==3)?'checked':'').' onClick="self.location=\'index.php?section=addModel&step=5&dtID='.$dtID.'&is=3\'"> My device does have multiple inputs, but unfortunately there is only a single button or command that toggles between all the inputs.  VCR’s are almost always like this.  Note it is especially difficult to control a device, like a TV, that has lots of inputs and only has a single toggle button.  When hooking your equipment up you will likely want to use another device, like a receiver, that can handle the inputs.  Regardless of how you hook it up, please specify the inputs this device has.		
+					<input type="radio" name="is" value="3" '.(($is==3)?'checked':'').' onClick="self.location=\'index.php?section=addModel&step=5&dtID='.$dtID.'&is=3&deviceID='.$deviceID.'\'"> #3 - My device does have multiple inputs, but unfortunately there is only a single button or command that toggles between all the inputs.  Note it is especially difficult to control a device, like a TV, that has lots of inputs and only has a single toggle button.  When hooking your equipment up you will likely want to use another device, like a receiver, that can handle the inputs discretely.  Regardless of how you hook it up, please specify the inputs this device has.		
 				</td>
 			</tr>';
 		if($is>1){
@@ -238,9 +226,11 @@ If this device is something like a receiver or tv where you can connect other de
 			</tr>
 			<input type="hidden" name="commandsArray" value="'.urlencode(serialize($commandsArray)).'">
 			<tr>
-				<td class="normaltext"><B> NOTE:</B> <em>If the device has a built-in source on that input, be sure you choose it from the ‘source’ list.  For example, if you have a receiver, normally the ‘am’ and ‘fm’ inputs have a built in source (over the air radio), but the ‘cd’ input is for an external device.  If you have a TV, normally the ‘tuner’ input is a built-in source (live tv) and video 1, 2, etc. are external.  For VCR’s there are normally only 2 inputs, tuner and VHS, and both have built-in sources (Live tv and videotape).  You may have a combo unit that has lots of built-in sources, like a built-in radio, vcr, dvd.  In that case be sure to indicate which inputs have built-in sources vs. external.  You don’t need to specify the connector type if you don’t know it; it’s only used when displaying a visual diagram of your equipment’s connections.</em></td>
+				<td class="normaltext"><B> REMEMBER:</B> <em>If the device has a built-in source of media on that input, be sure you choose it from the ‘source’ list.  For example, if you have a receiver, normally the ‘am’ and ‘fm’ inputs have a built in source (over the air radio), but the ‘cd’ input is for an external device.  If you have a TV, normally the ‘tuner’ input is a built-in source (live tv) and video 1, 2, etc. are external.  For VCR’s there are normally only 2 inputs, tuner and VHS, and both have built-in sources (Live tv and videotape).  You may have a combo unit that has lots of built-in sources, like a built-in radio, vcr, dvd.  In that case be sure to indicate which inputs have built-in sources vs. external.  You don’t need to specify the connector type if you don’t know it; it’s only used when displaying a visual diagram of your equipment’s connections.</em></td>
 			</tr>
 			';
+		}else{
+			$out.='<input type="hidden" name="oldDT_MT" value="'.@$dtDataArray['FK_MediaType'][0].'">';
 		}
 		
 			$out.='
@@ -256,25 +246,16 @@ If this device is something like a receiver or tv where you can connect other de
 		// process
 
 		if($dtID!=0){
-			if(isset($_POST['displayedMT'])){
-				// process media type checkboxes if available
-				$displayedMTArray=explode(',',$_POST['displayedMT']);
-				$checkedMTArray=explode(',',$_POST['checkedMT']);
-				foreach ($displayedMTArray AS $mediaType){
-					if(isset($_POST['mediaType_'.$mediaType])){
-						if(!in_array($mediaType,$checkedMTArray)){
-							$publicADO->Execute('INSERT INTO DeviceTemplate_MediaType (FK_DeviceTemplate,FK_MediaType) VALUES (?,?)',array($dtID,$mediaType));
-						}
-					}elseif(in_array($mediaType,$checkedMTArray)){
-						$publicADO->Execute('DELETE FROM DeviceTemplate_MediaType WHERE FK_DeviceTemplate=? AND FK_MediaType=?',array($dtID,$mediaType));
-					}
-				}
-			}
-						
+			$is=(int)$_REQUEST['is'];
 			if($is==1){
 				$dtMediaType=(int)$_POST['dtMediaType'];
+				$oldDT_MT=(int)$_POST['oldDT_MT'];
 				if($dtMediaType>0){
-					$publicADO->Execute('INSERT INTO DeviceTemplate_MediaType (FK_DeviceTemplate,FK_MediaType) VALUES (?,?)',array($dtID,$dtMediaType));	
+					if($oldDT_MT==0){
+						$publicADO->Execute('INSERT INTO DeviceTemplate_MediaType (FK_DeviceTemplate,FK_MediaType) VALUES (?,?)',array($dtID,$dtMediaType));	
+					}else{
+						$publicADO->Execute('UPDATE DeviceTemplate_MediaType SET FK_MediaType=? WHERE FK_DeviceTemplate=? AND FK_MediaType=?',array($dtMediaType,$dtID,$oldDT_MT));	
+					}
 				}
 			}else{
 				$publicADO->Execute('DELETE FROM DeviceTemplate_MediaType WHERE FK_DeviceTemplate=?',$dtID);
@@ -313,6 +294,9 @@ If this device is something like a receiver or tv where you can connect other de
 							}
 						}
 					}else{
+						if(isset($oldMTArray[$commandID]['FK_MediaType']) && $oldMTArray[$commandID]['FK_MediaType']!=0){
+							deleteEmbeddedDT($oldMTArray[$commandID]['FK_EmbeddedDevice'],$publicADO);
+						}
 						
 						if(in_array($commandID,$oldCheckedCommands)){
 							$publicADO->Execute('DELETE FROM DeviceTemplate_Input WHERE FK_DeviceTemplate=? AND FK_Command=?',array($dtID,$commandID));
@@ -325,7 +309,7 @@ If this device is something like a receiver or tv where you can connect other de
 		}
 		
 		$nextStep=($is==3)?'5b':6;
-		header('Location: index.php?section=addModel&step='.$nextStep.'&dtID='.$dtID);
+		header('Location: index.php?section=addModel&step='.$nextStep.'&dtID='.$dtID.'&deviceID='.$deviceID);
 		exit();
 	}
 	

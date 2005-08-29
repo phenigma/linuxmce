@@ -41,11 +41,11 @@ switch ($section) {
 	    include_once('operations/deviceTemplates.php');
 	    deviceTemplates($output,$dbADO);
 	break;
-	case 'editAVDevice':
+	case 'irCodes':
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('small');
-	    include_once('operations/editAVDevice.php');
-	    editAVDevice($output,$dbADO,$mediadbADO);
+	    include_once('operations/irCodes.php');
+	    irCodes($output,$dbADO,$mediadbADO);
 	break;
 	case 'addManufacturer':
 		$output = new Template($dbADO);

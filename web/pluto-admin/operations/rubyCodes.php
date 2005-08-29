@@ -134,7 +134,7 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 		$codesArray=extractCodesTree($infraredGroupID,$dbADO);
 		
 		// display the html rows 
-		$out.=getCodesTableRows($infraredGroupID,$dtID,$deviceID,$codesArray);
+		$out.=getCodesTableRows('rubyCodes',$infraredGroupID,$dtID,$deviceID,$codesArray);
 		
 
 		$out.='
@@ -157,6 +157,7 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 	';
 		$out.='
 		</table>
+			<input type="hidden" name="igcPrefered" value="'.urlencode(serialize($GLOBALS['igcPrefered'])).'">
 			<input type="hidden" name="displayedCommands" value="'.join(',',$GLOBALS['displayedCommands']).'">
 			<input type="hidden" name="displayedIRGC" value="'.join(',',$GLOBALS['displayedIRGC']).'">
 		</form>
@@ -247,12 +248,12 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 				}
 			}
 
-			$commandsDisplayed=explode(',',$_POST['displayedCommands']);
+			$commandsDisplayed=array_unique(explode(',',$_POST['displayedCommands']));
+			$GLOBALS['igcPrefered']=unserialize(urldecode($_POST['igcPrefered']));
 			foreach ($commandsDisplayed AS $commandID){
 				$preferredCommand=(int)@$_POST['prefered_'.$commandID];
 				if($preferredCommand>0){
 					if(isset($GLOBALS['igcPrefered'][$commandID]) && $GLOBALS['igcPrefered'][$commandID]!=$preferredCommand){
-						$dbADO->Execute('DELETE FROM InfraredGroup_Command_Preferred WHERE FK_InfraredGroup_Command=? AND FK_Installation=?',array($preferredCommand,$installationID));
 						$dbADO->Execute('UPDATE InfraredGroup_Command_Preferred SET FK_InfraredGroup_Command=? WHERE FK_InfraredGroup_Command=? AND FK_Installation=?',array($preferredCommand,$GLOBALS['igcPrefered'][$commandID],$installationID));
 					}elseif(!isset($GLOBALS['igcPrefered'][$commandID])){
 						$dbADO->Execute('INSERT IGNORE INTO InfraredGroup_Command_Preferred (FK_InfraredGroup_Command,FK_Installation) VALUES (?,?)',array($preferredCommand,$installationID));

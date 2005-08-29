@@ -3835,21 +3835,20 @@ function reorderMultiPulldownJs()
 // retrieve a matrix table with all commands and infrared groups
 function getIrGroup_CommandsMatrix($dtID,$InfraredGroupsArray,$userID,$comMethod,$publicADO)
 {
-	$restrictedCommandsArray=array(192=>'On',193=>'Off',205=>'1',89=>'Vol Up',90=>'Vol down',63=>'Skip Fwd',64=>'Skip Back');
+	$restrictedCommandsArray=array(194=>'Toggle power',192=>'On',193=>'Off',205=>'1',89=>'Vol Up',90=>'Vol down',63=>'Skip Fwd',64=>'Skip Back');
 	$out='';
 	if(count($InfraredGroupsArray)==0){
 		return '';
 	}
 	$comMethodFilter=(!is_null($comMethod))?' AND FK_CommMethod='.$comMethod:'';	
-	$codesData=getFieldsAsArray('InfraredGroup_Command','PK_InfraredGroup_Command,IRData,FK_InfraredGroup,FK_Command,InfraredGroup.Description AS IRG_Name',$publicADO,'INNER JOIN Command ON FK_Command=PK_Command INNER JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup WHERE FK_InfraredGroup IN ('.join(',',$InfraredGroupsArray).') AND FK_Command IN ('.join(',',array_keys($restrictedCommandsArray)).')'.$comMethodFilter,'ORDER BY FK_InfraredGroup ASC,FK_Command ASC');
+	$codesData=getFieldsAsArray('InfraredGroup_Command','PK_InfraredGroup_Command,IRData,FK_InfraredGroup,FK_Command,InfraredGroup.Description AS IRG_Name',$publicADO,'INNER JOIN Command ON FK_Command=PK_Command INNER JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup WHERE FK_DeviceTemplate IS NULL AND FK_InfraredGroup IN ('.join(',',$InfraredGroupsArray).') AND FK_Command IN ('.join(',',array_keys($restrictedCommandsArray)).')'.$comMethodFilter,'ORDER BY FK_InfraredGroup ASC,FK_Command ASC');
 	
 	$commandGrouped=array();
 	$irgNames=array();
 	for($i=0;$i<count($codesData['FK_InfraredGroup']);$i++){
-		$commandGrouped[$codesData['FK_InfraredGroup'][$i]][$codesData['FK_Command'][$i]]=$codesData['IRData'][$i];
+		$commandGrouped[$codesData['FK_InfraredGroup'][$i]][$codesData['FK_Command'][$i]]=$codesData['PK_InfraredGroup_Command'][$i];
 		$irgNames[$codesData['FK_InfraredGroup'][$i]]=$codesData['IRG_Name'][$i];
 	}
-
 	// display table header
 	$out='
 	<table cellpadding="3" cellspacing="0" border="0">
@@ -3867,10 +3866,11 @@ function getIrGroup_CommandsMatrix($dtID,$InfraredGroupsArray,$userID,$comMethod
 		$color=($i%2==0)?'#F0F3F8':'#FFFFFF';
 		$out.='
 		<tr class="normaltext" bgcolor="'.$color.'">
-			<td><B><a href="index.php?section=editAVDevice&dtID='.$dtID.'&infraredGroupID='.$keysArray[$i].'">'.$irgNames[$keysArray[$i]].'</a></B></td>';
+			<td><B><a href="index.php?section=irCodes&dtID='.$dtID.'&infraredGroupID='.$keysArray[$i].'&deviceID='.@$_REQUEST['deviceID'].'">'.$irgNames[$keysArray[$i]].'</a></B></td>';
 		foreach ($restrictedCommandsArray AS $cmdID=>$cmdName){
-			$testCodeBtn=' <input type="button" class="button" name="testCode" value="T" onClick="self.location=\'index.php?section=testCode&irg_c='.$codesData['PK_InfraredGroup_Command'][$i].'&deviceID='.$_REQUEST['deviceID'].'\';">';
-			$out.='<td align="center">'.((isset($commandGrouped[$keysArray[$i]][$cmdID]))?'<input type="button" class="button" name="copyCB" value="V" onClick="window.open(\'index.php?section=displayCode&irgcID='.$codesData['PK_InfraredGroup_Command'][$i].'\',\'_blank\',\'\');;">'.$testCodeBtn:'N/A').'</td>';
+			$pk_irgc=@$commandGrouped[$keysArray[$i]][$cmdID];
+			$testCodeBtn=(session_name()=='Pluto-admin')?' <input type="button" class="button" name="testCode" value="T" onClick="window.open(\'index.php?section=displayCode&irgcID='.$pk_irgc.'&deviceID='.@$_REQUEST['deviceID'].'\',\'_blank\',\'\');">':'';
+			$out.='<td align="center">'.((isset($commandGrouped[$keysArray[$i]][$cmdID]))?'<input type="button" class="button" name="copyCB" value="V" onClick="window.open(\'index.php?section=displayCode&irgcID='.$pk_irgc.'\',\'_blank\',\'\');;">'.$testCodeBtn:'N/A').'</td>';
 		}
 		$out.='
 		</tr>';
@@ -4430,7 +4430,7 @@ function extractCodesTree($infraredGroupID,$dbADO,$restriction=''){
 }
 
 // parse the multidimensiona array with codes and return html code for table rows
-function getCodesTableRows($infraredGroupID,$dtID,$deviceID,$codesArray){
+function getCodesTableRows($section,$infraredGroupID,$dtID,$deviceID,$codesArray){
 	global $inputCommandsArray, $dspmodeCommandsArray;
 	
 	$categNames=array_keys($codesArray);
@@ -4474,7 +4474,7 @@ function getCodesTableRows($infraredGroupID,$dtID,$deviceID,$codesArray){
 			for($pos=0;$pos<count($codesArray[$categNames[$i]]['FK_DeviceTemplate']);$pos++){
 				$codeCommandsKeys=array_keys($codesArray[$categNames[$i]]['FK_DeviceTemplate']);
 				$irg_c=$codeCommandsKeys[$pos];
-				$out.=formatCode($codesArray[$categNames[$i]],$irg_c,$infraredGroupID,$dtID,$deviceID);
+				$out.=formatCode($section,$codesArray[$categNames[$i]],$irg_c,$infraredGroupID,$dtID,$deviceID);
 			}
 		}
 
@@ -4489,27 +4489,76 @@ function getCodesTableRows($infraredGroupID,$dtID,$deviceID,$codesArray){
 }
 
 
-function formatCode($dataArray,$pos,$infraredGroupID,$dtID,$deviceID){
-
+function formatCode($section,$dataArray,$pos,$infraredGroupID,$dtID,$deviceID){
 	if($dataArray['DefaultOrder'][$pos]==1){
 		$RowColor='lightblue';
 	}
 	else{
 		$RowColor=(isset($_SESSION['userID']) && $dataArray['psc_user'][$pos]==@$_SESSION['userID'])?'yellow':'lightyellow';
 	}
-	$deleteButton=(isset($_SESSION['userID']) && $dataArray['psc_user'][$pos]==@$_SESSION['userID'])?'<input type="button" class="button" name="delCustomCode" value="Delete code" onClick="if(confirm(\'Are you sure you want to delete this code?\')){document.editAVDevice.action.value=\'delete\';document.editAVDevice.irgroup_command.value='.$pos.';document.editAVDevice.submit();}">':'';
+	$deleteButton=(isset($_SESSION['userID']) && $dataArray['psc_user'][$pos]==@$_SESSION['userID'])?'<input type="button" class="button" name="delCustomCode" value="Delete code" onClick="if(confirm(\'Are you sure you want to delete this code?\')){document.'.$section.'.action.value=\'delete\';document.'.$section.'.irgroup_command.value='.$pos.';document.'.$section.'.submit();}">':'';
 
 	$out='
 		<table width="100%">
 			<tr bgcolor="'.$RowColor.'">
-				<td align="center" width="100"><B>'.$dataArray['Description'][$pos].'</B> <br><input type="button" class="button" name="learnCode" value="New code" onClick="windowOpen(\'index.php?section=newIRCode&deviceID='.$dataArray['FK_Device'][$pos].'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$dataArray['FK_Command'][$pos].'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');" '.((!isset($_SESSION['userID']))?'disabled':'').'></td>
+				<td align="center" width="100"><B>'.$dataArray['Description'][$pos].'</B> <br><input type="button" class="button" name="learnCode" value="New code" onClick="windowOpen(\'index.php?section='.(($section=='rubyCodes')?'newRubyCode':'newIRCode').'&deviceID='.$dataArray['FK_Device'][$pos].'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$dataArray['FK_Command'][$pos].'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');" '.((!isset($_SESSION['userID']))?'disabled':'').'></td>
 				<td align="center" width="20"><input type="radio" name="prefered_'.$dataArray['FK_Command'][$pos].'" value="'.$pos.'" '.(($pos==@$GLOBALS['igcPrefered'][$dataArray['FK_Command'][$pos]])?'checked':'').'></td>
 				<td><textarea name="irData_'.$pos.'" rows="2" style="width:100%">'.$dataArray['IRData'][$pos].'</textarea></td>
-				<td align="center" width="100">'.$deleteButton.' <br> <input type="button" class="button" name="testCode" value="Test code" onClick="self.location=\'index.php?section=editAVDevice&from=avWizard&dtID='.$dtID.'&deviceID='.$deviceID.'&infraredGroupID='.$infraredGroupID.'&action=testCode&owner='.$dataArray['psc_user'][$pos].'&ig_c='.$pos.'&irCode=\'+escape(document.editAVDevice.irData_'.$pos.'.value);"> <a name="test_'.$pos.'"></td>
+				<td align="center" width="100">'.$deleteButton.' <br> <input type="button" class="button" name="testCode" value="Test code" onClick="window.open(\'index.php?section=displayCode&irgcID='.$pos.'&deviceID='.$deviceID.'\',\'_blank\',\'\');"> <a name="test_'.$pos.'"></td>
 			</tr>
 		</table>';
 
 	return $out;
+
+}
+
+// create an embedded device template for selected device template 
+function createEmbeddedDeviceTemplate($name,$manufacturer,$deviceCategory,$userID,$parentID,$commandID,$mediaType,$publicADO){
+	$publicADO->Execute('
+		INSERT INTO DeviceTemplate 
+			(Description,FK_Manufacturer,FK_DeviceCategory,psc_user) 
+		VALUES 
+			(?,?,?,?)',
+	array($name,$manufacturer,$deviceCategory,$userID));
+	$embeddedID=$publicADO->Insert_ID();
+
+	$publicADO->Execute('
+		INSERT INTO DeviceTemplate_DeviceTemplate_ControlledVia 
+			(FK_DeviceTemplate,FK_DeviceTemplate_ControlledVia,RerouteMessagesToParent,AutoCreateChildren)
+		VALUES
+			(?,?,1,1)',
+	array($embeddedID,$parentID));
+	$insertID=$publicADO->Insert_ID();
+
+	$publicADO->Execute('
+		INSERT INTO DeviceTemplate_DeviceTemplate_ControlledVia_Pipe
+			(FK_DeviceTemplate_DeviceTemplate_ControlledVia,FK_Pipe,FK_Command_Input)
+		VALUES 
+			(?,?,?)',
+	array($insertID,1,$commandID));
+	
+	$publicADO->Execute('
+		INSERT INTO DeviceTemplate_DeviceTemplate_ControlledVia_Pipe
+			(FK_DeviceTemplate_DeviceTemplate_ControlledVia,FK_Pipe,FK_Command_Input)
+		VALUES 
+			(?,?,?)',
+	array($insertID,2,$commandID));
+	
+	$publicADO->Execute('
+		INSERT INTO DeviceTemplate_Input 
+			(FK_DeviceTemplate,FK_Command) 
+		VALUES 
+			(?,?)',
+	array($embeddedID,$commandID));
+	
+	if(!is_null($mediaType)){
+		$publicADO->Execute('
+			INSERT INTO DeviceTemplate_MediaType 
+				(FK_DeviceTemplate,FK_MediaType) 
+			VALUES 
+				(?,?)',
+		array($embeddedID,$mediaType));
+	}
 
 }
 

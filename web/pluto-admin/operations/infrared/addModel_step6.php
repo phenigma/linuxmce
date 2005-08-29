@@ -1,12 +1,11 @@
 <?
 	$ampReceivers=array(103);
-	
+	$deviceID=(int)@$_REQUEST['deviceID'];
 	$dtID=$_REQUEST['dtID'];
 	if($dtID==0){
 		header('Location: index.php');
 		exit();
 	}
-	
 	$dtDataArray=getFieldsAsArray('DeviceTemplate','FK_DeviceCategory,DeviceCategory.Description,FK_Manufacturer,FK_DeviceCategory,ToggleDSP',$publicADO,'INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory LEFT JOIN DeviceTemplate_AV ON DeviceTemplate_AV.FK_DeviceTemplate=PK_DeviceTemplate  WHERE PK_DeviceTemplate='.$dtID);
 	if(count($dtDataArray)==0){
 		header('Location: index.php');
@@ -33,43 +32,32 @@
 				ORDER BY DSPMode_Desc ASC";
 		$commandsArray=array();
 		$checkedCommands=array();
-		$checkedCommandsAssoc=array();
 
 		$resDSPMode= $publicADO->Execute($queryDSPMode);
 		if ($resDSPMode) {
 			while ($row=$resDSPMode->FetchRow()) {
 				$commandsArray[$row['PK_Command']]=$row['DSPMode_Desc'];
 				if(!is_null($row['FK_DeviceTemplate'])){
-					$checkedCommands['PK_Command'][$row['OrderNo']]=$row['PK_Command'];
-					$checkedCommands['Description'][$row['OrderNo']]=$row['DSPMode_Desc'];
+					$checkedCommands['PK_Command'][$row['PK_Command']]=$row['DSPMode_Desc'];
 				}
 				$inputSelectedTxt.='
-							<tr>
-								<td><input type="checkbox" name="cmd_'.$row['PK_Command'].'" value="'.$row['DSPMode_Desc'].'" '.((!is_null($row['FK_DeviceTemplate']))?'checked':'').' onClick="enableObjects('.$row['PK_Command'].');">'.$row['DSPMode_Desc'].'</td>
-							</tr>';
+					<tr>
+						<td><input type="checkbox" name="cmd_'.$row['PK_Command'].'" value="'.$row['DSPMode_Desc'].'" '.((!is_null($row['FK_DeviceTemplate']))?'checked':'').' onClick="enableObjects('.$row['PK_Command'].');">'.$row['DSPMode_Desc'].'</td>
+					</tr>';
 			}
 		}
 		$resDSPMode->close();
-		@ksort($checkedCommands['PK_Command']);
 
-		if(count(@$checkedCommands['PK_Command'])>0){
-			foreach ($checkedCommands['PK_Command'] AS $key=>$value){
-				$checkedCommandsAssoc[$checkedCommands['PK_Command'][$key]]=$checkedCommands['Description'][$key];
-			}
-		}
 
 		$inputSelectedTxt.='</table>
-			<input type="hidden" name="oldCheckedCommands" value="'.join(',',array_keys($checkedCommandsAssoc)).'">';
+			<input type="hidden" name="oldCheckedCommands" value="'.join(',',array_keys($checkedCommands)).'">';
 
 		
 		if(!isset($_REQUEST['dsp'])){
-			if(count($checkedCommandsAssoc)==0){
-				$dsp=1;
-			}else{
+			if(count($checkedCommands)!=0){
 				$dsp=($dtDataArray['ToggleDSP'][0]==0)?2:3;
 			}	
 		}
-		
 		$out='
 		<script>
 		function enableObjects(val)
@@ -100,7 +88,7 @@
 		</script>		
 		
 		<br>
-		<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step-1).'">&lt;&lt;</a> <a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step+1).'">&gt;&gt;</a></div>
+		<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step-1).'&deviceID='.$deviceID.'">&lt;&lt;</a> <a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step+1).'&deviceID='.$deviceID.'">&gt;&gt;</a></div>
 		<B>Last Question, 6 - DSP mode?</B><br><br>
 		
 		<form action="index.php" method="POST" name="addModel" onSubmit="setOrder();">
@@ -109,7 +97,8 @@
 			<input type="hidden" name="action" value="add">
 			<input type="hidden" name="dtID" value="'.$dtID.'">
 			<input type="hidden" name="commandsOrder" value="">
-
+			<input type="hidden" name="deviceID" value="'.$deviceID.'">
+		
 		';
 		if(!in_array($dtDataArray['FK_DeviceCategory'][0],$ampReceivers)){
 			$out.='<p class="normaltext">'.$dtDataArray['Description'][0].' devices normally don’t have multiple DSP Modes, like “Church”, “Concert hall”, “Dolby Digital”, etc.  You can probably ignore this step and click next.<br><br>';
@@ -121,17 +110,17 @@
 		<table class="normaltext" cellpadding="5" cellspacing="0">
 			<tr>
 				<td>
-					<input type="radio" name="dsp" value="1" '.(($dsp==1)?'checked':'').' onClick="self.location=\'index.php?section=addModel&step=6&dtID='.$dtID.'&dsp=1\'"> My device doesn’t have DSP Modes
+					<input type="radio" name="dsp" value="1" '.(($dsp==1)?'checked':'').' onClick="self.location=\'index.php?section=addModel&step=6&dtID='.$dtID.'&dsp=1&deviceID='.$deviceID.'\'"> My device doesn’t have DSP Modes
 				</td>
 			</tr>
 			<tr>
 				<td>
-					<input type="radio" name="dsp" value="2" '.(($dsp==2)?'checked':'').' onClick="self.location=\'index.php?section=addModel&step=6&dtID='.$dtID.'&dsp=2\'"> My device does have DSP Modes, and there are separate, discrete buttons to select the modes (this works well)
+					<input type="radio" name="dsp" value="2" '.(($dsp==2)?'checked':'').' onClick="self.location=\'index.php?section=addModel&step=6&dtID='.$dtID.'&dsp=2&deviceID='.$deviceID.'\'"> My device does have DSP Modes, and there are separate, discrete buttons to select the modes (this works well)
 				</td>
 			</tr>
 			<tr>
 				<td>
-					<input type="radio" name="dsp" value="3" '.(($dsp==3)?'checked':'').' onClick="self.location=\'index.php?section=addModel&step=6&dtID='.$dtID.'&dsp=3\'"> My device does have DSP Modes, but unfortunately there’s just 1 button that toggles through all the modes so it will be difficult to control		
+					<input type="radio" name="dsp" value="3" '.(($dsp==3)?'checked':'').' onClick="self.location=\'index.php?section=addModel&step=6&dtID='.$dtID.'&dsp=3&deviceID='.$deviceID.'\'"> My device does have DSP Modes, but unfortunately there’s just 1 button that toggles through all the modes so it will be difficult to control		
 				</td>
 			</tr>';
 		if($dsp>1){
@@ -155,14 +144,10 @@
 		';
 	}else{
 		// process
-		
 		if($dtID!=0){
 			if($dsp!=1){
 				$commandsArray=unserialize(urldecode($_POST['commandsArray']));
 				$oldCheckedCommands=explode(',',$_POST['oldCheckedCommands']);
-				if($dsp==3){
-					$commandOrder=array_flip(explode(',',$_POST['commandsOrder']));
-				}
 				foreach ($commandsArray AS $commandID=>$commandName){
 					if(isset($_POST['cmd_'.$commandID])){
 						if(!in_array($commandID,$oldCheckedCommands)){
@@ -179,10 +164,12 @@
 				$ToggleDSP=($dsp==2)?0:1;
 				$publicADO->Execute('UPDATE DeviceTemplate_AV SET ToggleDSP=? WHERE FK_DeviceTemplate=?',array($ToggleDSP,$dtID));
 				
+			}else{
+				$publicADO->Execute('DELETE FROM DeviceTemplate_DSPMode WHERE FK_DeviceTemplate=?',array($dtID));
 			}
 
 			$nextStep=($dsp==3)?'6b':7;
-			header('Location: index.php?section=addModel&step='.$nextStep.'&dtID='.$dtID);
+			header('Location: index.php?section=addModel&step='.$nextStep.'&dtID='.$dtID.'&deviceID='.$deviceID);
 			exit();
 		}
 	}

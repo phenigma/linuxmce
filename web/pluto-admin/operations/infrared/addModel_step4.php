@@ -1,5 +1,6 @@
 <?
 	$dtID=$_REQUEST['dtID'];
+	$deviceID=(int)@$_REQUEST['deviceID'];
 	if($dtID==0){
 		header('Location: index.php');
 		exit();
@@ -8,7 +9,7 @@
 	
 	if($action=='form'){
 		$out='<br>
-		<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step-1).'">&lt;&lt;</a> <a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step+1).'">&gt;&gt;</a></div>
+		<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step-1).'&deviceID='.$deviceID.'">&lt;&lt;</a> <a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step+1).'&deviceID='.$deviceID.'">&gt;&gt;</a></div>
 		<B>Question 4 of 6 - Toggle power or discrete?</B><br><br>
 		
 		<form action="index.php" method="POST" name="addModel">
@@ -16,6 +17,7 @@
 			<input type="hidden" name="step" value="'.$step.'">
 			<input type="hidden" name="action" value="add">
 			<input type="hidden" name="dtID" value="'.$dtID.'">
+			<input type="hidden" name="deviceID" value="'.$deviceID.'">
 
 		<table class="normaltext" cellpadding="10" cellspacing="0">
 			<tr>
@@ -49,7 +51,7 @@
 			
 			$publicADO->Execute('UPDATE DeviceTemplate_AV SET TogglePower=? WHERE FK_DeviceTemplate=?',array($TogglePower,$dtID));
 			
-			header('Location: index.php?section=addModel&step=5&dtID='.$dtID);
+			header('Location: index.php?section=addModel&step=5&dtID='.$dtID.'&deviceID='.$deviceID);
 			exit();
 		}
 	}

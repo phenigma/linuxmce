@@ -1,5 +1,6 @@
 <?
 	$dtID=$_REQUEST['dtID'];
+	$deviceID=(int)@$_REQUEST['deviceID'];
 	if($dtID==0){
 		header('Location: index.php');
 		exit();
@@ -45,7 +46,7 @@
 		}
 		</script>
 		<br>
-		<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step-1).'">&lt;&lt;</a></div>
+		<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step-1).'&deviceID='.$deviceID.'">&lt;&lt;</a></div>
 		<B>Step 7 - Infrared groups</B><br><br>
 		
 		<form action="index.php" method="POST" name="addModel">
@@ -53,6 +54,7 @@
 			<input type="hidden" name="step" value="'.$step.'">
 			<input type="hidden" name="action" value="add">
 			<input type="hidden" name="dtID" value="'.$dtID.'">
+			<input type="hidden" name="deviceID" value="'.$deviceID.'">
 		';
 
 		$rs=$publicADO->Execute('
@@ -102,10 +104,10 @@
 			
 			$publicADO->Execute('UPDATE DeviceTemplate SET FK_InfraredGroup=? WHERE PK_Devicetemplate=?',array($irgID,$dtID));
 			
-			header('Location: index.php?section=editAVDevice&dtID='.$dtID.'&infraredGroupID='.$irgID);
+			header('Location: index.php?section=irCodes&dtID='.$dtID.'&infraredGroupID='.$irgID.'&deviceID='.$deviceID);
 			exit();
 		}else{
-			header('Location: index.php?section=addModel&step=7&dtID='.$dtID);
+			header('Location: index.php?section=addModel&step=7&dtID='.$dtID.'&deviceID='.$deviceID);
 			exit();
 		
 		}

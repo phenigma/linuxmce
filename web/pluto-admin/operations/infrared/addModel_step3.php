@@ -1,5 +1,6 @@
 <?
 	$dtID=$_REQUEST['dtID'];
+	$deviceID=(int)@$_REQUEST['deviceID'];
 	if($dtID==0){
 		header('Location: index.php');
 		exit();
@@ -28,12 +29,12 @@
 		$comMethodName=($comMethod!=0)?$commMethodArray[$comMethod]:'This';
 		$Content='
 			<p class="normaltext">'.$comMethodName.' devices don’t normally require any special rules to tune.<br><br><br>
-			<div align="center"><input type="button" class="button" name="next" value="Next" onClick="self.location=\'index.php?section=addModel&step=4&dtID='.$dtID.'\'"></div>';
+			<div align="center"><input type="button" class="button" name="next" value="Next" onClick="self.location=\'index.php?section=addModel&step=4&dtID='.$dtID.'&deviceID='.$deviceID.'\'"></div>';
 	}else{
 		$Content='
 		<table class="normaltext">
 			<tr>
-				<td>By default when it’s time to tune to a station, channel or frequency, we assume this device wants you to punch in the number on the remote, and then hit ‘enter’.  If that’s correct, or if this device doesn't tune to anything, click next.  Otherwise:</td>
+				<td>By default when it’s time to tune to a station, channel or frequency, we assume this device wants you to punch in the number on the remote, and then hit ‘enter’.  If that’s correct, or if there are no number buttons on the remote for this device, click next.  Otherwise:</td>
 			</tr>
 			<tr>
 				<td>&nbsp;</td>
@@ -62,7 +63,7 @@
 	
 	if($action=='form'){
 		$out='<br>
-		<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step-1).(((int)@$_REQUEST['isDef']==1)?'&isDef=1':'').'">&lt;&lt;</a> <a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step+1).(((int)@$_REQUEST['isDef']==1)?'&isDef=1':'').'">&gt;&gt;</a></div>
+		<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step-1).(((int)@$_REQUEST['isDef']==1)?'&isDef=1':'').'&deviceID='.$deviceID.'">&lt;&lt;</a> <a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step+1).(((int)@$_REQUEST['isDef']==1)?'&isDef=1':'').'&deviceID='.$deviceID.'">&gt;&gt;</a></div>
 		<B>Question 3 of 6 - How to tune?</B><br><br>
 		'.$cdContent.'
 		
@@ -72,7 +73,8 @@
 			<input type="hidden" name="action" value="add">
 			<input type="hidden" name="dtID" value="'.$dtID.'">
 			<input type="hidden" name="isDef" value="'.@$_REQUEST['isDef'].'">
-
+			<input type="hidden" name="deviceID" value="'.$deviceID.'">
+		
 		'.$Content.'
 		
 		<br>
@@ -86,11 +88,9 @@
 			$enterButton=$_POST['enterButton'];
 			$digits=$_POST['digits'];
 			$NumericEntry=$digits.$enterButton;
-			
 			$publicADO->Execute('UPDATE DeviceTemplate_AV SET NumericEntry=? WHERE FK_DeviceTemplate=?',array($NumericEntry,$dtID));
-			header('Location: index.php?section=addModel&step=4&dtID='.$dtID.(((int)@$_REQUEST['isDef']==1)?'&isDef=1':''));
+			header('Location: index.php?section=addModel&step=4&dtID='.$dtID.(((int)@$_REQUEST['isDef']==1)?'&isDef=1':'').'&deviceID='.$deviceID);
 			exit();
 		}
-		
 	}
 ?>
