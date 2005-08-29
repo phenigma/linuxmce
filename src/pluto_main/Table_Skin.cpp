@@ -26,6 +26,8 @@ using namespace std;
 #include "Table_DesignObj.h"
 
 #include "Table_DesignObjVariation_Text_Skin_Language.h"
+#include "Table_DeviceTemplate_MediaType_DesignObj.h"
+#include "Table_MediaType_DesignObj.h"
 #include "Table_Skin.h"
 #include "Table_StyleVariation.h"
 
@@ -1354,6 +1356,20 @@ void Row_Skin::DesignObjVariation_Text_Skin_Language_FK_Skin_getrows(vector <cla
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_DesignObjVariation_Text_Skin_Language *pTable = table->database->DesignObjVariation_Text_Skin_Language_get();
+pTable->GetRows("`FK_Skin`=" + StringUtils::itos(m_PK_Skin),rows);
+}
+void Row_Skin::DeviceTemplate_MediaType_DesignObj_FK_Skin_getrows(vector <class Row_DeviceTemplate_MediaType_DesignObj*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_DeviceTemplate_MediaType_DesignObj *pTable = table->database->DeviceTemplate_MediaType_DesignObj_get();
+pTable->GetRows("`FK_Skin`=" + StringUtils::itos(m_PK_Skin),rows);
+}
+void Row_Skin::MediaType_DesignObj_FK_Skin_getrows(vector <class Row_MediaType_DesignObj*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_MediaType_DesignObj *pTable = table->database->MediaType_DesignObj_get();
 pTable->GetRows("`FK_Skin`=" + StringUtils::itos(m_PK_Skin),rows);
 }
 void Row_Skin::Skin_FK_Skin_TextPlacement_getrows(vector <class Row_Skin*> *rows)

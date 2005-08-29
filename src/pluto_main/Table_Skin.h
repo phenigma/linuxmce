@@ -182,6 +182,8 @@ class Row_DesignObj* FK_DesignObj_ScreenSaver_getrow();
 
 		// Return the rows in other tables with foreign keys pointing here
 		void DesignObjVariation_Text_Skin_Language_FK_Skin_getrows(vector <class Row_DesignObjVariation_Text_Skin_Language*> *rows);
+void DeviceTemplate_MediaType_DesignObj_FK_Skin_getrows(vector <class Row_DeviceTemplate_MediaType_DesignObj*> *rows);
+void MediaType_DesignObj_FK_Skin_getrows(vector <class Row_MediaType_DesignObj*> *rows);
 void Skin_FK_Skin_TextPlacement_getrows(vector <class Row_Skin*> *rows);
 void StyleVariation_FK_Skin_getrows(vector <class Row_StyleVariation*> *rows);
 

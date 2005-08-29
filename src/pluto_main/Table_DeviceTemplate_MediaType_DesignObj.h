@@ -84,6 +84,7 @@ long int m_FK_DesignObj_Popup;
 long int m_FK_DesignObj_FileList;
 long int m_FK_DesignObj_FileList_Popup;
 long int m_FK_DesignObj_Guide;
+long int m_FK_Skin;
 string m_Description;
 long int m_psc_id;
 long int m_psc_batch;
@@ -92,7 +93,7 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[14];
+		bool is_null[15];
 	
 	public:
 		long int PK_DeviceTemplate_MediaType_DesignObj_get();
@@ -102,6 +103,7 @@ long int FK_DesignObj_Popup_get();
 long int FK_DesignObj_FileList_get();
 long int FK_DesignObj_FileList_Popup_get();
 long int FK_DesignObj_Guide_get();
+long int FK_Skin_get();
 string Description_get();
 long int psc_id_get();
 long int psc_batch_get();
@@ -118,6 +120,7 @@ void FK_DesignObj_Popup_set(long int val);
 void FK_DesignObj_FileList_set(long int val);
 void FK_DesignObj_FileList_Popup_set(long int val);
 void FK_DesignObj_Guide_set(long int val);
+void FK_Skin_set(long int val);
 void Description_set(string val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
@@ -131,6 +134,7 @@ void psc_restrict_set(long int val);
 bool FK_DesignObj_FileList_isNull();
 bool FK_DesignObj_FileList_Popup_isNull();
 bool FK_DesignObj_Guide_isNull();
+bool FK_Skin_isNull();
 bool Description_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
@@ -143,6 +147,7 @@ bool psc_restrict_isNull();
 void FK_DesignObj_FileList_setNull(bool val);
 void FK_DesignObj_FileList_Popup_setNull(bool val);
 void FK_DesignObj_Guide_setNull(bool val);
+void FK_Skin_setNull(bool val);
 void Description_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
@@ -166,6 +171,7 @@ class Row_DesignObj* FK_DesignObj_getrow();
 class Row_DesignObj* FK_DesignObj_Popup_getrow();
 class Row_DesignObj* FK_DesignObj_FileList_getrow();
 class Row_DesignObj* FK_DesignObj_Guide_getrow();
+class Row_Skin* FK_Skin_getrow();
 
 
 		// Return the rows in other tables with foreign keys pointing here
@@ -174,7 +180,7 @@ class Row_DesignObj* FK_DesignObj_Guide_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_DeviceTemplate_MediaType_DesignObj+ m_FK_DeviceTemplate_MediaType+ m_FK_DesignObj+ m_FK_DesignObj_Popup+ m_FK_DesignObj_FileList+ m_FK_DesignObj_FileList_Popup+ m_FK_DesignObj_Guide+ m_Description+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_DeviceTemplate_MediaType_DesignObj+ m_FK_DeviceTemplate_MediaType+ m_FK_DesignObj+ m_FK_DesignObj_Popup+ m_FK_DesignObj_FileList+ m_FK_DesignObj_FileList_Popup+ m_FK_DesignObj_Guide+ m_FK_Skin+ m_Description+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -186,6 +192,7 @@ string FK_DesignObj_Popup_asSQL();
 string FK_DesignObj_FileList_asSQL();
 string FK_DesignObj_FileList_Popup_asSQL();
 string FK_DesignObj_Guide_asSQL();
+string FK_Skin_asSQL();
 string Description_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
