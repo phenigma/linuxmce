@@ -242,15 +242,15 @@ g_pPlutoLogger->Write(LV_STATUS, "~OrbiterSDL finished");
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::SaveBackgroundForDeselect(DesignObj_Orbiter *pObj, PlutoPoint point)
 {
+    SDL_Rect SourceRect;
+    SourceRect.x = point.X + pObj->m_rPosition.Left(); SourceRect.y = point.Y + pObj->m_rPosition.Top();
+    SourceRect.w = pObj->m_rPosition.Width; SourceRect.h = pObj->m_rPosition.Height;
+
     SDL_Surface *pSDL_Surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
 		pObj->m_rPosition.Width, pObj->m_rPosition.Height, 32, rmask, gmask, bmask, amask);
 
-	SDL_Rect SourceRect;
-	SourceRect.x = point.X + pObj->m_rPosition.Left(); SourceRect.y = point.Y + pObj->m_rPosition.Top();
-	SourceRect.w = pObj->m_rPosition.Width; SourceRect.h = pObj->m_rPosition.Height;
-
-	SDL_SetAlpha(m_pScreenImage, 0, 0);
-	SDL_BlitSurface(m_pScreenImage, &SourceRect, pSDL_Surface, NULL);
+    SDL_BlitSurface(m_pScreenImage, &SourceRect, pSDL_Surface, NULL);
+    SDL_SetAlpha(pSDL_Surface, SDL_RLEACCEL , SDL_ALPHA_OPAQUE);
 
     pObj->m_pGraphicToUndoSelect = new SDLGraphic(pSDL_Surface);
 }
