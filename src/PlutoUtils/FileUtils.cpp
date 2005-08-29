@@ -517,7 +517,7 @@ bool FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
         }
         else if (bRecurse && (finddata.attrib & _A_SUBDIR) && finddata.name[0] != '.')
 		{
-			if ( FindFiles(listFiles, sDirectory + finddata.name, sFileSpec_CSV, true, bFullyQualifiedPath, iMaxFileCount, PrependedPath + finddata.name + "/",pMapInodes) )
+			if ( FindFiles(listFiles, sDirectory + finddata.name, sFileSpec_CSV, true, bFullyQualifiedPath, iMaxFileCount, PrependedPath + finddata.name + "/") )
 				return true; // if one recursive call hit the maximum depth then return now.
 		}
         if (_findnext(ptrFileList, & finddata) < 0)
@@ -648,7 +648,7 @@ bool FileUtils::FindDirectories(list<string> &listDirectories,string sDirectory,
 
 			if ( iMaxFileCount && iMaxFileCount < listDirectories.size() )
 				return true; // max depth hit
-			if (bRecurse && FindDirectories(listDirectories, sDirectory + finddata.name, true, bFullyQualifiedPath, iMaxFileCount, PrependedPath + finddata.name + "/",pMapInodes) )
+			if (bRecurse && FindDirectories(listDirectories, sDirectory + finddata.name, true, bFullyQualifiedPath, iMaxFileCount, PrependedPath + finddata.name + "/") )
 					return true; // if one recursive call hit the maximum depth then return now.
 		}
         if (_findnext(ptrFileList, & finddata) < 0)
