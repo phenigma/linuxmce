@@ -124,6 +124,24 @@ Renderer::~Renderer()
 
 #ifndef ORBITER
 
+/*static*/ void Renderer::SetTransparentColor(SDL_Surface *pSurface, int R, int G, int B)
+{
+    for(int w = 0; w < pSurface->w; w++)
+    {
+        for(int h = 0; h < pSurface->h; h++)
+        {
+            unsigned char *pD = (unsigned char *) pSurface->pixels + h * pSurface->pitch + w * 4;
+            if(pD[0] == R && pD[1] == G && pD[2] == B)
+            {
+                pD[0] = 0xFF;
+                pD[1] = 0xFF;
+                pD[2] = 0xFF;
+                pD[3] = 0x00;
+            }
+        }
+    }  
+}
+
 // This takes an incoming pRenderImage of what's been rendered so far, and will add this new object and it's
 // children to it, or save them separately if set to can hide, or if rendering a selected, highlighted or alt versions
 // If iRenderStandard==1, render the standard version only, if ==0, everything but the standard, if -1, do all
@@ -134,6 +152,7 @@ Renderer::~Renderer()
 void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint Position,int iRenderStandard,int iOnlyVersion)
 {
 	bool bPreserveAspectRatio = pDesignObj_Generator->m_bPreserveAspectRatio;
+    bool bPreserveTransparencies = pDesignObj_Generator->m_bPreserveTransparencies;
 
     //  cout << "Rendering " << pDesignObj_Generator->m_ObjectID << endl;
 	if( pDesignObj_Generator->m_ObjectID.find("1850")!=string::npos )//|| pDesignObj_Generator->m_ObjectID.find("1276")!=string::npos )
@@ -349,12 +368,16 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 			if( pRendererMNG )
 				pRendererMNG->ReplaceFrame(iFrame, pRenderImageClone);
 		}
+
         // If this is a screen (ie top level object) then we should always save something even
         // if there was no input file.
         if( sInputFile.length() || pRenderImageOriginal==NULL || pDesignObj_Generator->m_bCanBeHidden || bForceOutput )
         {
             if( sSaveToFile.length()>0 )
             {
+                if(bPreserveTransparencies)
+                    SetTransparentColor(pRenderImage->m_pSDL_Surface, 0, 0, 0);
+
 				if( pRendererMNG )
 					SaveMNGToFile(m_sOutputDirectory + sSaveToFile,pRendererMNG);
 				else

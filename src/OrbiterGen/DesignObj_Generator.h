@@ -32,7 +32,7 @@ public:
 	DesignObj_Generator *m_DesignObj_GeneratorGoto;
 	string m_sDesignObjGoto;
 	bool m_bContainsArrays;
-	bool m_bDontShare,m_bUsingCache,m_bRendered,m_bPreserveAspectRatio;
+	bool m_bDontShare,m_bUsingCache,m_bRendered,m_bPreserveAspectRatio,m_bPreserveTransparencies;
 	bool m_bCanBeHidden,m_bChildrenBehind,m_bDontMergeBackground;
 	bool m_bValuesScaled,m_bContainsFloorplans;
 	bool m_bUseOCG,m_bIsPopup;

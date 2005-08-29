@@ -83,7 +83,9 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
     m_bRendered=false;
 	m_bUseOCG=pGenerator->m_bUseOCG;
 	m_bIsPopup=false;
-	m_bPreserveAspectRatio=(m_pOrbiterGenerator->m_pRow_Size->PreserveAspectRatio_get()==1);
+
+	m_bPreserveAspectRatio = m_pOrbiterGenerator->m_pRow_Size->PreserveAspectRatio_get() == 1;
+
 	if( ocoParent )
 		m_iScale=m_iScaleFromParent=ocoParent->m_iScale;
 	else
@@ -1046,6 +1048,8 @@ int k=2;
         Thread.Sleep(250);  // see if this does something to let the gc work, becuase it doesn't seem to be working!!!!!
     }
     */
+
+    m_bPreserveTransparencies = m_pRow_DesignObjVariation->PreserveTransparencies_get();
 }
 
 DesignObj_Generator::~DesignObj_Generator()

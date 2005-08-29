@@ -72,6 +72,7 @@ public:
 	static RendererMNG * CreateMNGFromFile(string FileName, PlutoSize Size);
 	static RendererMNG * CreateMNGFromFiles(const vector<string> & FileNames, PlutoSize Size);
 	static void SaveMNGToFile(string FileName, RendererMNG * MNG);
+    static void SetTransparentColor(SDL_Surface *pSurface, int R, int G, int B);
 #endif
 
 protected:
