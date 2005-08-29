@@ -72,11 +72,17 @@ export DEBIAN_FRONTEND=noninteractive
 
 case "$URL_TYPE" in
 	apt)
+		if [[ -z "$REPOS" ]]; then
+			echo "$0: Blank repository entry" >&2
+			exit $ERR_APT
+		fi
+		
 		TMP_SECT=$(echo -n "$REPOS" | cut -d' ' -sf2-)
 		if [ -n "$TMP_SECT" ]; then
 			SECTIONS="$TMP_SECT"
 			REPOS=$(echo -n "$REPOS" | cut -d' ' -f1)
 		fi
+		
 		SingleEndSlash='s!//*!/!g; s!/*$!/!g; s!^http:/!http://!g; s!^ftp:/!ftp://!g'
 		FilteredRepos=$(echo "$REPOS_SRC" | sed 's/[^A-Za-z0-9_./+=:-]/-/g; '"$SingleEndSlash")
 		EndSlashRepos=$(echo "$REPOS_SRC" | sed "$SingleEndSlash")
