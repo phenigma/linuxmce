@@ -3993,10 +3993,6 @@ void Media_Plugin::RegisterMediaPlugin(class Command_Impl *pCommand_Impl,class M
 
 			m_vectMediaHandlerInfo.push_back(pMediaHandlerInfo);
 			pMediaHandlerBase->m_vectMediaHandlerInfo.push_back(pMediaHandlerInfo);
-
-			// Find a default remote control for this.  If one is specified by the DeviceTemplate, use that, and then revert to one that matches the media type
-			vector<Row_DeviceTemplate_MediaType_DesignObj *> vectRow_DeviceTemplate_MediaType_DesignObj;
-			pRow_DeviceTemplate_MediaType->DeviceTemplate_MediaType_DesignObj_FK_DeviceTemplate_MediaType_getrows(&vectRow_DeviceTemplate_MediaType_DesignObj);
 		}
 	}
 }
@@ -4008,6 +4004,8 @@ void Media_Plugin::PopulateRemoteControlMaps()
 	for(size_t s=0;s<vectRow_DeviceTemplate_MediaType_DesignObj.size();++s)
 	{
 		Row_DeviceTemplate_MediaType_DesignObj *pRow_DeviceTemplate_MediaType_DesignObj = vectRow_DeviceTemplate_MediaType_DesignObj[s];
+		if( !pRow_DeviceTemplate_MediaType_DesignObj->FK_Skin_isNull() )
+			continue;  // This applies to a particular skin.  Come back and check these against the orbiters below
 		m_mapDeviceTemplate_MediaType_RemoteControl[ 
 			make_pair<int,int> ( pRow_DeviceTemplate_MediaType_DesignObj->FK_DeviceTemplate_MediaType_getrow()->FK_DeviceTemplate_get(),
 				pRow_DeviceTemplate_MediaType_DesignObj->FK_DeviceTemplate_MediaType_getrow()->FK_MediaType_get() )
@@ -4020,8 +4018,42 @@ void Media_Plugin::PopulateRemoteControlMaps()
 	for(size_t s=0;s<vectRow_MediaType_DesignObj.size();++s)
 	{
 		Row_MediaType_DesignObj *pRow_MediaType_DesignObj = vectRow_MediaType_DesignObj[s];
+		if( !pRow_MediaType_DesignObj->FK_Skin_isNull() )
+			continue;  // This applies to a particular skin.  Come back and check these against the orbiters below
 		m_mapMediaType_RemoteControl[pRow_MediaType_DesignObj->FK_MediaType_get()]
 			= new RemoteControlSet(pRow_MediaType_DesignObj);
+	}
+
+	// Now check each orbiter to see if there is something specific for a skin that overwrites these settings
+    for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
+    {
+        OH_Orbiter *pOH_Orbiter = (*it).second;
+		for(size_t s=0;s<vectRow_DeviceTemplate_MediaType_DesignObj.size();++s)
+		{
+			Row_DeviceTemplate_MediaType_DesignObj *pRow_DeviceTemplate_MediaType_DesignObj = vectRow_DeviceTemplate_MediaType_DesignObj[s];
+			if( pRow_DeviceTemplate_MediaType_DesignObj->FK_Skin_isNull() || pRow_DeviceTemplate_MediaType_DesignObj->FK_Skin_isNull()!=pOH_Orbiter->m_dwPK_Skin )
+				continue;  // No skin to overwrite for this orbiter
+
+			m_mapOrbiter_DeviceTemplate_MediaType_RemoteControl[ 
+				make_pair< int, pair<int,int> > ( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
+					make_pair< int, int > (
+						pRow_DeviceTemplate_MediaType_DesignObj->FK_DeviceTemplate_MediaType_getrow()->FK_DeviceTemplate_get(),
+						pRow_DeviceTemplate_MediaType_DesignObj->FK_DeviceTemplate_MediaType_getrow()->FK_MediaType_get() ) )
+				] 
+				= new RemoteControlSet(pRow_DeviceTemplate_MediaType_DesignObj);
+		}
+
+		for(size_t s=0;s<vectRow_MediaType_DesignObj.size();++s)
+		{
+			Row_MediaType_DesignObj *pRow_MediaType_DesignObj = vectRow_MediaType_DesignObj[s];
+			if( pRow_MediaType_DesignObj->FK_Skin_isNull() || pRow_MediaType_DesignObj->FK_Skin_isNull()!=pOH_Orbiter->m_dwPK_Skin )
+				continue;  // No skin to overwrite for this orbiter
+			m_mapOrbiter_MediaType_RemoteControl[
+				make_pair<int,int> (pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
+					pRow_MediaType_DesignObj->FK_MediaType_get() )
+				]
+				= new RemoteControlSet(pRow_MediaType_DesignObj);
+		}
 	}
 
 	// Do these last since these are the customer's individual preferences that should override the defaults

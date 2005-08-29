@@ -313,6 +313,7 @@ namespace DCE
         int DynamicallyLoadPlugin(string sFile);
         string GetDevicesByDeviceTemplate(DeviceData_Router *pDeviceData_From,int PK_DeviceTemplate,eBroadcastLevel BroadcastLevel);
 		string GetDevicesByCategory(DeviceData_Router *pDeviceData_From,int PK_DeviceCategory,eBroadcastLevel BroadcastLevel);
+		string GetDevicesByGroup(int PK_DeviceGroup);
         void ErrorResponse(Socket *pSocket,Message *pMessage); // Respond with an error condition if the sender is waiting for a response
 
         // Public
@@ -330,10 +331,8 @@ namespace DCE
         void CleanFileName(string &FileName);
         Message *GetActionForInput(int PK_Device,int PK_Input);
         bool DeviceIsRegistered(int PK_Device);
-        void ExecuteCommandGroup(CommandGroup *pCommandGroup);
 
-        void ExecuteCommandGroup(int PK_CommandGroup,size_t sStartingCommand=0);
-        void SendCommand(CommandGroup_Command *pCommandGroup_Command);
+        void ExecuteCommandGroup(int PK_CommandGroup,int sStartingCommand=0);
 
         Database_pluto_main *GetDatabase() { return m_pDatabase_pluto_main; }
         void StartListening() { SocketListener::StartListening(m_Port); }

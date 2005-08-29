@@ -621,49 +621,76 @@ void Router::RegisterMsgInterceptor(Message *pMessage)
             PK_Device_From,PK_Device_To,PK_DeviceTemplate,PK_DeviceCategory,MessageType,MessageID );
 }
 
-void Router::ExecuteCommandGroup(int PK_CommandGroup,size_t sStartingCommand)
+void Router::ExecuteCommandGroup(int PK_CommandGroup,int sStartingCommand)
 {
-	CommandGroup *pCommandGroup = m_mapCommandGroup_Find( PK_CommandGroup );
-	if( !pCommandGroup )
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot execute command group: %d",PK_CommandGroup);
-		return;
-	}
+	string sSql = "SELECT PK_CommandGroup_Command,FK_Command,FK_Device,FK_DeviceGroup,DeliveryConfirmation "
+		"FROM CommandGroup_Command WHERE FK_CommandGroup=" + StringUtils::itos(PK_CommandGroup);
 
-	for(size_t s=sStartingCommand;s<pCommandGroup->m_vectCommandGroup_Command.size();++s)
+	int RowCount=0;
+	PlutoSqlResult result_set;
+    MYSQL_ROW row;
+	if( (result_set.r=mysql_query_result(sSql)) )
 	{
-		CommandGroup_Command *pCommandGroup_Command = pCommandGroup->m_vectCommandGroup_Command[s];
-		if( !pCommandGroup_Command->m_pCommand )
+		g_pPlutoLogger->Write(LV_STATUS,"Execute command group: %d with %d commands from %d",
+			PK_CommandGroup,result_set.r->row_count,sStartingCommand);
+		while ((row = mysql_fetch_row(result_set.r)))
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Exec Command Group: %d has invalid command",PK_CommandGroup);
-			continue;
+			if( ++RowCount<sStartingCommand )
+				continue;
+
+			if( atoi(row[1])==COMMAND_Delay_CONST )
+			{
+				sSql = "SELECT IK_CommandParameter FROM CommandGroup_Command_CommandParameter "
+					"WHERE FK_CommandGroup_Command=" + string(row[0]) + " AND FK_CommandParameter="
+					+ StringUtils::itos(COMMANDPARAMETER_Time_CONST);
+
+				PlutoSqlResult result_set2;
+				if( (result_set.r=mysql_query_result(sSql)) && (row = mysql_fetch_row(result_set.r)) )
+				{
+					int Milliseconds = atoi(row[0]);
+					DelayedCommandInfo *pDelayedCommandInfo = new DelayedCommandInfo;
+					pDelayedCommandInfo->m_PK_CommandGroup=PK_CommandGroup;
+					pDelayedCommandInfo->m_iStartingCommand=RowCount+1;
+					m_pAlarmManager->AddRelativeAlarm(Milliseconds/1000,this,ALARM_DELAYED_COMMAND_EXECUTION,pDelayedCommandInfo);
+					return;
+				}
+				else
+					g_pPlutoLogger->Write(LV_CRITICAL,"Cannot execute command group delay: %d",PK_CommandGroup);
+			}
+			else
+			{
+				Message *pMessage = new Message();
+				pMessage->m_dwPK_Device_From = m_dwPK_Device;
+				pMessage->m_dwMessage_Type = MESSAGETYPE_COMMAND;
+				pMessage->m_dwID = atoi(row[1]);
+				if( row[4][0]=='1' )
+					pMessage->m_eExpectedResponse = ER_DeliveryConfirmation;
+				if( row[3] && atoi(row[3]) )
+				{
+					pMessage->m_dwPK_Device_To = DEVICEID_GROUP;
+					pMessage->m_dwPK_Device_Group_ID_To = atoi(row[3]);
+				}
+				else
+					pMessage->m_dwPK_Device_To = atoi(row[2]);
+
+				sSql = "SELECT FK_CommandParameter,IK_CommandParameter FROM CommandGroup_Command_CommandParameter "
+					"WHERE FK_CommandGroup_Command=" + string(row[0]);
+
+				PlutoSqlResult result_set2;
+				if( (result_set2.r=mysql_query_result(sSql)) )
+				{
+					while ((row = mysql_fetch_row(result_set2.r)))
+					{
+						if( row[0] && row[1] )
+							pMessage->m_mapParameters[ atoi(row[0]) ] = row[1];
+					}
+				}
+				ReceivedMessage(NULL,pMessage);
+			}
 		}
-		if( pCommandGroup_Command->m_pCommand->m_dwPK_Command==COMMAND_Delay_CONST )
-		{
-			int Milliseconds = atoi(pCommandGroup_Command->m_mapParameter[COMMANDPARAMETER_Time_CONST].c_str());
-
-			DelayedCommandInfo *pDelayedCommandInfo = new DelayedCommandInfo;
-			pDelayedCommandInfo->m_PK_CommandGroup=PK_CommandGroup;
-			pDelayedCommandInfo->m_iStartingCommand=s+1;
-			m_pAlarmManager->AddRelativeAlarm(Milliseconds/1000,this,ALARM_DELAYED_COMMAND_EXECUTION,pDelayedCommandInfo);
-			return;
-		}
-		SendCommand(pCommandGroup_Command);
 	}
-}
-
-void Router::SendCommand(CommandGroup_Command *pCommandGroup_Command)
-{
-	if( !pCommandGroup_Command->m_pDeviceData_Router )
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Tried to execute commandgroup_command with no dest device");
-		return;
-	}
-	Message *pMessage = new Message(0,pCommandGroup_Command->m_pDeviceData_Router->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,pCommandGroup_Command->m_pCommand->m_dwPK_Command,0);
-	for(map<int,string>::iterator it=pCommandGroup_Command->m_mapParameter.begin();it!=pCommandGroup_Command->m_mapParameter.end();++it)
-		pMessage->m_mapParameters[(*it).first]=(*it).second;
-
-	ReceivedMessage(NULL,pMessage);
+	else
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot execute command group db error: %d",PK_CommandGroup);
 }
 
 void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
@@ -693,8 +720,8 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
             (*SafetyMessage)->m_sPK_Device_List_To=GetDevicesByDeviceTemplate((*SafetyMessage)->m_bRelativeToSender ? pDeviceFrom : pDeviceTo,(*SafetyMessage)->m_dwPK_Device_Template,(*SafetyMessage)->m_eBroadcastLevel);
         else if( (*SafetyMessage)->m_dwPK_Device_To==DEVICEID_CATEGORY )
             (*SafetyMessage)->m_sPK_Device_List_To=GetDevicesByCategory(pDeviceFrom,(*SafetyMessage)->m_dwPK_Device_Category_To,(*SafetyMessage)->m_eBroadcastLevel);
-//      else if( (*SafetyMessage)->m_dwPK_Device_To==DEVICEID_GROUP )  TODO
-//          (*SafetyMessage)->m_sDeviceIDTo=GetDevicesByDeviceTemplate((*SafetyMessage)->m_PK_DeviceTemplate,(*SafetyMessage)->m_eBroadcastLevel);
+		else if( (*SafetyMessage)->m_dwPK_Device_To==DEVICEID_GROUP )
+            (*SafetyMessage)->m_sPK_Device_List_To=GetDevicesByGroup((*SafetyMessage)->m_dwPK_Device_Group_ID_To);
 
         (*SafetyMessage)->m_dwPK_Device_To=DEVICEID_LIST;
     }
@@ -2402,9 +2429,16 @@ continue;
     return Result;
 }
 
-void Router::ExecuteCommandGroup(CommandGroup *pCommandGroup)
+string Router::GetDevicesByGroup(int PK_DeviceGroup)
 {
-
+	string sResult;
+	DeviceGroup *pDeviceGroup = m_mapDeviceGroup_Find(PK_DeviceGroup);
+	if( pDeviceGroup )
+	{
+		for(size_t s=0;s<pDeviceGroup->m_vectPK_Device.size();++s)
+			sResult += StringUtils::itos(pDeviceGroup->m_vectPK_Device[s]) + ",";
+	}
+	return sResult;
 }
 
 void Router::AlarmCallback(int id, void* param)

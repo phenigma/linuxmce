@@ -3,6 +3,8 @@
 
 #include "OH_User.h"
 #include "Orbiter/Floorplan.h"
+#include "DCE/DeviceData_Router.h"
+#include "pluto_main/Define_DeviceData.h"
 
 #define NEED_VMC_TOKEN "NEED VMC"
 #define NEED_APP_TOKEN "NEED APP"
@@ -22,6 +24,7 @@ namespace DCE
 		OH_User *m_pOH_User;  // The current user
 		class EntertainArea *m_pEntertainArea,*m_pEntertainArea_Locked;  // The current entertain area
 		int m_dwPK_Room,m_dwPK_Room_Locked;  // The current room
+		int m_dwPK_Skin;
 
 		int m_iLastSignalStrength;
 		int m_iFailedToConnectCount;
@@ -46,6 +49,7 @@ namespace DCE
 			m_tSendAppTime=m_tRegenTime=0;
 			m_pOH_User=NULL;
 			m_bDontAutoShowRemote=false;
+			m_dwPK_Skin = atoi(m_pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_PK_Skin_CONST).c_str());
 		}
 
         bool NeedVMC();
