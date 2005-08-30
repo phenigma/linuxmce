@@ -90,6 +90,19 @@ bool R_UpdateTable::ProcessRequest( class RA_Processor *pRA_Processor )
 		return true;
 	}
 
+	// See if the client sent us a psc_batch from their list.  If so, and if it's > than
+	// what we're sending back, this is the new last sync since we synchronized everything
+	// up to this point
+	int psc_batch_max_from_user=0;
+	for(size_t s=0;s<m_vect_psc_batch.size();++s)
+		psc_batch_max_from_user = max(psc_batch_max_from_user,m_vect_psc_batch[s]);
+
+	if( psc_batch_max_from_user > m_psc_batch_last_sync )
+	{
+		m_psc_batch_last_sync = psc_batch_max_from_user;
+		cout << m_sTableName << " / Setting m_psc_batch_last_sync to psc_batch_max_from_user: " << psc_batch_max_from_user << endl;
+	}
+
 	cout << "R_Update end table: " << m_sTableName << " m_psc_batch_last_sync: " <<
 		m_psc_batch_last_sync << " m_psc_id_last_sync: " << m_psc_id_last_sync << endl;
 

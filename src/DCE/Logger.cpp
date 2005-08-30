@@ -112,7 +112,7 @@ void Logger::Write( int iLevel, const char *pcFormat, ... )
     //LACA_B4_3("logger::before va_list entry clock: %d thread: %p format: %s",clock(),pthread_self(),Format);
 #endif
 
-    static char s[1024];
+    static char s[1500];  // Max size of a log message
     memset(s, 0, sizeof(s));
     va_list argList;
     va_start( argList, pcFormat );
