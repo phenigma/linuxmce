@@ -2,7 +2,8 @@
 
 . /usr/pluto/bin/SQL_Ops.sh
 
-/usr/pluto/bin/UpdateMedia -d /home/public/data/documents
+# One time also update the thumbnails and search tokens
+/usr/pluto/bin/UpdateMedia -d -t -s /home/public/data/documents
 /usr/pluto/bin/UpdateMedia -d /home/public/data/movies
 /usr/pluto/bin/UpdateMedia -d /home/public/data/music
 /usr/pluto/bin/UpdateMedia -d /home/public/data/pictures
