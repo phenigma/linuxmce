@@ -61,6 +61,11 @@ function mediaDirectors($output,$dbADO) {
 	}
 
 	if(isset($_REQUEST['lastAdded']) && (int)$_REQUEST['lastAdded']!=0){
+		$out.='
+		<script>
+			alert("This device requires some advance preparation, which can take several minutes. Your Core is doing this now and you will see a message on all orbiters and media directors notifying you when it\'s done. Please wait to use the device until then.")
+		</script>';
+
 		$rs=$dbADO->Execute('SELECT Comments FROM DeviceTemplate WHERE PK_DeviceTemplate=?',(int)$_REQUEST['lastAdded']);
 		$row=$rs->FetchRow();
 		if($row['Comments']!=''){
@@ -467,7 +472,6 @@ function mediaDirectors($output,$dbADO) {
 			unset($_SESSION['from']);
 			$deviceTemplate=(int)$_REQUEST['deviceTemplate'];
 			if($deviceTemplate!=0){
-				echo 'shouldn\'t be here';
 				$insertID=exec('sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID,$ret);	
 				setDCERouterNeedConfigure($_SESSION['installationID'],$dbADO);
 				$commandToSend='/usr/pluto/bin/UpdateEntArea -h localhost';

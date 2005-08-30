@@ -14,12 +14,18 @@ function wizardOrbiters($output,$dbADO) {
 	$orbitersDTArray=getDeviceTemplatesFromCategory($deviceCategory,$dbADO,1);
 	$roomsArray=getAssocArray('Room','PK_Room','Description',$dbADO,'WHERE FK_Installation='.$installationID, 'ORDER BY Description ASC');
 
+	if(isset($_REQUEST['lastAdded'])){
+		$newOrbiterAlert='alert("This device requires some advance preparation, which can take several minutes. Your Core is doing this now and you will see a message on all orbiters and media directors notifying you when it\'s done. Please wait to use the device until then.");
+		';
+	}
 	if ($action == 'form') {
 		$out.=setLeftMenu($dbADO).'
 	<script>
 			function windowOpen(locationA,attributes) {
 				window.open(locationA,\'\',attributes);
 			}
+		'.@$newOrbiterAlert.'
+
 	</script>
 	<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
 	<div class="confirm"><B>'.@stripslashes($_GET['msg']).'</B></div>
@@ -391,10 +397,17 @@ function wizardOrbiters($output,$dbADO) {
 			$deviceTemplate=(int)$_POST['deviceTemplate'];
 			if($deviceTemplate!=0){
 				$insertID=exec('sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID);				
+				$suffix='&lastAdded='.$insertID;
+				
+				// full regen
+				$regenCmd='/usr/pluto/bin/MessageSend localhost -targetType template '.$insertID.' '.$GLOBALS['OrbiterPlugIn'].' 1 266 2 '.$insertID.' 21 "-r"';
+				exec($regenCmd);
+				
 			}
 		}
+		
 		$commandMessage=(isset($commandToSend))?'<br>Command sent: '.$commandToSend:'';
-		header("Location: index.php?section=wizardOrbiters&msg=Orbiters updated.".$commandMessage);		
+		header("Location: index.php?section=wizardOrbiters&msg=Orbiters updated.".$commandMessage.@$suffix);		
 	}
 
 	$output->setScriptCalendar('null');

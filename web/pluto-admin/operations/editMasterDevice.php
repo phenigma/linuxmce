@@ -198,7 +198,7 @@ $out='';
 				<tr>
 					<td valign="top"><a name="isAVDevice_link"></a>Audio/Video Device</td>
 					<td>
-						<input type="hidden" value="'.$isAVDevice.'" name="old_isAVDevice"><input type="checkbox" name="isAVDevice" '.($isAVDevice==1?" checked='checked' ":"").' value="1" onClick="javascript:this.form.submit();"><input type="button" class="button" name="isAV"  '.($isAVDevice!=1?'value="Is NOT Audio/Video" disabled="disabled" ':" value=\"Edit Audio/Video Properties\" onClick=\"windowOpen('index.php?section=editAVDevice&from=editMasterDevice&dtID={$deviceID}','status=0,resizable=1,width=800,height=600,toolbars=true,scrollbars=1,resizable=1');\"").'>
+						<input type="hidden" value="'.$isAVDevice.'" name="old_isAVDevice"><input type="checkbox" name="isAVDevice" '.($isAVDevice==1?" checked='checked' ":"").' value="1" onClick="javascript:this.form.submit();"><input type="button" class="button" name="isAV"  '.($isAVDevice!=1?'value="Is NOT Audio/Video" disabled="disabled" ':" value=\"Edit Audio/Video Properties\" onClick=\"windowOpen('index.php?section=irCodes&from=editMasterDevice&dtID={$deviceID}','status=0,resizable=1,width=800,height=600,toolbars=true,scrollbars=1,resizable=1');\"").'>
 					</td>
 				</tr>
 				<tr>

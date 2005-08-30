@@ -38,7 +38,7 @@
 			while ($row=$resDSPMode->FetchRow()) {
 				$commandsArray[$row['PK_Command']]=$row['DSPMode_Desc'];
 				if(!is_null($row['FK_DeviceTemplate'])){
-					$checkedCommands['PK_Command'][$row['PK_Command']]=$row['DSPMode_Desc'];
+					$checkedCommands[$row['PK_Command']]=$row['DSPMode_Desc'];
 				}
 				$inputSelectedTxt.='
 					<tr>
@@ -148,6 +148,7 @@
 			if($dsp!=1){
 				$commandsArray=unserialize(urldecode($_POST['commandsArray']));
 				$oldCheckedCommands=explode(',',$_POST['oldCheckedCommands']);
+				
 				foreach ($commandsArray AS $commandID=>$commandName){
 					if(isset($_POST['cmd_'.$commandID])){
 						if(!in_array($commandID,$oldCheckedCommands)){

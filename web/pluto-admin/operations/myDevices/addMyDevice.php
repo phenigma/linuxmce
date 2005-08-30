@@ -13,11 +13,13 @@ function addMyDevice($output,$dbADO) {
 	if ($action == 'form') {
 		$parentID = (int)@$_SESSION['parentID'];
 		$parentID = isset($_REQUEST['parentID'])?cleanInteger($_REQUEST['parentID']):$parentID;
+		
 		$out.='
 	<script>
 			function windowOpen(locationA,attributes) {
 				window.open(locationA,\'\',attributes);
 			}
+		'.@$Alert.'
 	</script>
 		
 	<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
@@ -76,10 +78,12 @@ function addMyDevice($output,$dbADO) {
 			unset($_SESSION['IPaddressMyDevice']);
 			unset($_SESSION['MACaddressMyDevice']);
 			unset($_SESSION['ignoreOnOff']);
+
+			$suffix=(isOrbiter($insertID,$dbADO) || isMediaDirector($insertID,$dbADO))?'&showNote=1':'';
 			
 			$out.="<script>
 			top.frames['treeframe'].location='index.php?section=leftMenu&deviceID=$insertID';
-			self.location.href=\"index.php?section=editDeviceParams&deviceID=$insertID&parentID=$parentID&msg=New device added.\";
+			self.location.href=\"index.php?section=editDeviceParams&deviceID=$insertID&parentID=$parentID&msg=New device added.$suffix\";
 		</script>";
 		}else{
 			$_SESSION['Description']=cleanString(@$_POST['Description']);

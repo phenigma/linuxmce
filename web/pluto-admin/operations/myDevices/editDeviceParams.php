@@ -103,11 +103,17 @@ $installationID = (int)@$_SESSION['installationID'];
 	
 	$manufHomeLink=($ManufacturerURL!='')?'<a href="'.$ManufacturerURL.'" target="_blank" title="Manufacturer URL"><img src="include/images/home.png" border="0" align="middle"></a>':'';
 	$internalLink=($ManufacturerURL!='' && $InternalURLSuffix!='')?'<a href="'.$ManufacturerURL.$InternalURLSuffix.'" title="Device URL on manufacturer site" target="_blank"><img src="include/images/file.png" border="0" align="middle"></a>':'';
+	
+	if(isset($_REQUEST['showNote'])){
+		$Alert='alert("This device requires some advance preparation, which can take several minutes. Your Core is doing this now and you will see a message on all orbiters and media directors notifying you when it\'s done. Please wait to use the device until then.");
+		';
+	}	
 	$out.='
 	<script>
 			function windowOpen(locationA,attributes) {
 				window.open(locationA,\'\',attributes);
 			}
+		'.@$Alert.'
 	</script>
 	
 	

@@ -4381,7 +4381,7 @@ function getMediaTypeCheckboxes($dtID,$publicADO,$mediaADO,$deviceID)
 function extractCodesTree($infraredGroupID,$dbADO,$restriction=''){
 	global $inputCommandsArray, $dspmodeCommandsArray;
 	$installationID=(int)$_SESSION['installationID'];
-	$GLOBALS['igcPrefered']=getAssocArray('InfraredGroup_Command_Preferred','FK_Command','FK_InfraredGroup_Command',$dbADO,' INNER JOIN InfraredGroup_Command ON FK_InfraredGroup_Command=PK_InfraredGroup_Command WHERE InfraredGroup_Command_Preferred.FK_Installation='.$installationID);
+	$GLOBALS['igcPrefered']=getAssocArray('InfraredGroup_Command_Preferred','FK_Command','FK_InfraredGroup_Command',$dbADO,' INNER JOIN InfraredGroup_Command ON FK_InfraredGroup_Command=PK_InfraredGroup_Command WHERE InfraredGroup_Command_Preferred.FK_Installation='.$installationID.(((int)$infraredGroupID!=0)?' AND FK_InfraredGroup='.$infraredGroupID:''));
 
 	$userID=(int)@$_SESSION['userID'];
 	$codesQuery='
