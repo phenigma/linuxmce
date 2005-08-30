@@ -164,7 +164,7 @@ RemoveTunnels_Special()
 
 DeleteHostKey()
 {
-	sed -i '/pf2?\.plutohome\.com/d' /root/.ssh/known_hosts
+	sed -i '/pf2\?\.plutohome\.com/d' /root/.ssh/known_hosts
 }
 
 Me="$(basename "$0")"
