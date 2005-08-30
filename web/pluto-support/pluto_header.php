@@ -1,5 +1,6 @@
 <?
-session_start('Pluto');
+session_name('Pluto');
+session_start();
 
 include($_SERVER['DOCUMENT_ROOT'].'/support/include/config/config.inc.php');
 require($_SERVER['DOCUMENT_ROOT'].'/support/include/utils.inc.php');
