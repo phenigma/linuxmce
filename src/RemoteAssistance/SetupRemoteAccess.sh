@@ -88,7 +88,7 @@ CreateTunnel()
 	# if tunnel is not active create it
 	Dead=0
 	if [[ "$Monitored" == yes && "$RA_CheckRemotePort" == "1" ]]; then
-		if [[ -z "$Tunnel" ]] || ! nc -z -w1 pf.plutohome.com "$RemotePort"; then
+		if [[ -z "$Tunnel" ]] || ! nc -z -w1 "$RAhost" "$RemotePort"; then
 			Dead=1
 		fi
 	else
@@ -98,7 +98,7 @@ CreateTunnel()
 	fi
 	if [[ "$Dead" -eq 1 ]]; then
 		FalseAlarm=0
-		if [[ -n "$Tunnel" && "$RA_CheckRemotePort" == "1" ]]; then
+		if [[ -n "$Tunnel" && "$RA_CheckRemotePort" == "1" && "$Monitored" == yes ]]; then
 			for ((i=0;i<5;i++)); do
 				nc -z -w1 pf.plutohome.com "$RemotePort" && FalseAlarm=1 && break
 				sleep 1
