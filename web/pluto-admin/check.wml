@@ -73,7 +73,7 @@ function executeScenario($cgid,$dbADO)
 			if($res->RecordCount()>0){
 				$row=$res->FetchRow();
 				
-				$commandToSend='/usr/pluto/bin/MessageSend localhost 0 0 1 '.$cgid;
+				$commandToSend='/usr/pluto/bin/MessageSend localhost 0 0 10 '.$cgid;
 				exec($commandToSend);
 				$msg=$ScenariosArray[$row['FK_Template']].': Scenario <b>'.$row['Description'].'</b> was executed.';
 			}else {
@@ -222,8 +222,8 @@ function indexLogged()
 		2. <a href="check.wml?opt=2'.extraLinks().@$shmSufix.'">Set house mode</a><br/>
 		3. <a href="check.wml?opt=3'.extraLinks().'">Speak in the house</a><br/>
 		4. <a href="check.wml?opt=4'.extraLinks().'">View Cameras</a><br/>
-		5. <a href="check.wml?opt=5'.extraLinks().'">All Orbiter Scenarios</a><br/>
-		6. <a href="check.wml?opt=6'.extraLinks().'">Advanced options</a><br/>
+<!--		5. <a href="check.wml?opt=5'.extraLinks().'">All Orbiter Scenarios</a><br/>
+		6. <a href="check.wml?opt=6'.extraLinks().'">Advanced options</a><br/>-->
 		';
 		
 	return $msg;
@@ -259,7 +259,7 @@ function displayScreens($dbADO)
 			if(isset($_REQUEST['mode'])){
 				$pin=(@$_REQUEST['formSubmit']==1)?$_REQUEST['pin']:$_REQUEST['pinuser'];
 				$securityDevicePlugin=getFieldsAsArray('Device','PK_Device',$dbADO,'WHERE FK_DeviceTemplate='.$GLOBALS['SecurityPlugin'].' AND FK_Installation='.$installationID);
-				$cmd='/usr/pluto/bin/MessageSend localhost -targetType device 0 '.(int)@$securityDevicePlugin['PK_Device'][0].' 1 5 '.(int)$_REQUEST['mode'].' 17 '.$_REQUEST['user'].' 99 '.$pin.' 100 0 101 "R"';
+				$cmd='/usr/pluto/bin/MessageSend localhost -targetType device 0 '.(int)@$securityDevicePlugin['PK_Device'][0].' 1 19 5 '.(int)$_REQUEST['mode'].' 17 '.$_REQUEST['user'].' 99 '.$pin.' 100 0 101 "R"';
 				exec($cmd);
 				$msg='Set house mode command completed.';
 			}else{
@@ -370,7 +370,7 @@ function speakInTheHouse($dbADO)
 	$telecomPluginID=(int)@$telecomDevicePlugin['PK_Device'][0];
 	$phone=$_REQUEST['phone'];
 
-	$cmd='/usr/pluto/bin/MessageSend localhost -targetType device '.$securityPluginID.' '.$telecomPluginID.' 1 413 75 '.$phone.' 81 "pluto" 83 "000"';
+	$cmd='/usr/pluto/bin/MessageSend localhost -targetType device '.$securityPluginID.' '.$telecomPluginID.' 1 414 75 '.$phone.' 81 "pluto" 83 "998"';
 	exec($cmd);
 	$msg='Speaking in progress ...';
 	
