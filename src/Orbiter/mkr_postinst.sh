@@ -10,19 +10,19 @@ DeviceCategory=$(RunSQL "$Q")
 DeviceCategory_Core=7
 DeviceCategory_MD=8
 
-if [[ -n "$DeviceCategory" ]]; then
-	if [[ $DeviceCategory -eq $DeviceCategory_MD ]]; then
-		if ! update-rc.d -f discover remove; then
-			:
-		fi
-		update-rc.d discover start 80 1 2 3 4 5 .
-
-		if ! update-rc.d -f hotplug remove; then
-			:
-		fi
-		update-rc.d hotplug start 81 1 2 3 4 5 . stop 89 0 6 . || /bin/true
-	fi
-fi
+#if [[ -n "$DeviceCategory" ]]; then
+#	if [[ $DeviceCategory -eq $DeviceCategory_MD ]]; then
+#		if ! update-rc.d -f discover remove; then
+#			:
+#		fi
+#		update-rc.d discover start 80 1 2 3 4 5 .
+#
+#		if ! update-rc.d -f hotplug remove; then
+#			:
+#		fi
+#		update-rc.d hotplug start 81 1 2 3 4 5 . stop 89 0 6 . || /bin/true
+#	fi
+#fi
 
 PrevVer="$2"
 
