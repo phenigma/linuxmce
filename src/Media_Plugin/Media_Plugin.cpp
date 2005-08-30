@@ -155,6 +155,8 @@ Media_Plugin::Media_Plugin( int DeviceID, string ServerAddress, bool bConnectEve
     pthread_mutexattr_settype( &m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP );
     m_MediaMutex.Init( &m_MutexAttr );
 
+	srand((int) time(NULL)); // Shuffle uses a random generator
+
     m_iStreamID=0;
 
     m_pDatabase_pluto_main = new Database_pluto_main( );
@@ -2585,7 +2587,7 @@ void Media_Plugin::CMD_Load_Playlist(string sPK_EntertainArea,int iEK_Playlist,s
 	for(map<int,MediaHandlerInfo *>::iterator it=mapMediaHandlerInfo.begin();it!=mapMediaHandlerInfo.end();++it)
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from Load Playlist");
-	    StartMedia(it->second,pMessage->m_dwPK_Device_From,0,vectEntertainArea,0,&dequeMediaFile,false,0,"",iEK_Playlist);  // We'll let the plug-in figure out the source, and we'll use the default remote
+	    StartMedia(it->second,pMessage->m_dwPK_Device_From,pMessage->m_dwPK_Device_From,vectEntertainArea,0,&dequeMediaFile,false,0,"",iEK_Playlist);  // We'll let the plug-in figure out the source, and we'll use the default remote
 	}
 }
 
@@ -4922,4 +4924,36 @@ void Media_Plugin::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal
 void Media_Plugin::CMD_Shuffle(string &sCMD_Result,Message *pMessage)
 //<-dceag-c623-e->
 {
+    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+
+	vector<EntertainArea *> vectEntertainArea;
+	// Only an Orbiter will tell us to shuffle
+    DetermineEntArea( pMessage->m_dwPK_Device_From, 0, "", vectEntertainArea );
+	for(size_t s=0;s<vectEntertainArea.size();++s)
+	{
+		EntertainArea *pEntertainArea = vectEntertainArea[s];
+		if( !pEntertainArea->m_pMediaStream )
+			continue; // Don't know what area it should be played in, or there's no media playing there
+
+		int NumFiles=pEntertainArea->m_pMediaStream->m_dequeMediaFile.size();
+		if( NumFiles<2 )
+			return;
+
+		for(size_t sPos=0;sPos<NumFiles;++sPos)
+		{
+			int NewPos = (int) ((double) rand() * NumFiles / RAND_MAX);
+			if( NewPos>=NumFiles )
+				NewPos=NumFiles-1;
+			if( NewPos==sPos )
+				continue;  // Don't move this
+			// Swap positions
+			MediaFile *pMediaFile = pEntertainArea->m_pMediaStream->m_dequeMediaFile[sPos];
+			pEntertainArea->m_pMediaStream->m_dequeMediaFile[sPos] = pEntertainArea->m_pMediaStream->m_dequeMediaFile[NewPos];
+			pEntertainArea->m_pMediaStream->m_dequeMediaFile[NewPos] = pMediaFile;
+		}
+		pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos=0;
+		g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from shuffle");
+		pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pEntertainArea->m_pMediaStream);
+		MediaInfoChanged(pEntertainArea->m_pMediaStream,true);
+	}
 }
