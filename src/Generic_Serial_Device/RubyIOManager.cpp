@@ -328,7 +328,7 @@ RubyIOManager::SendCommand(RubyCommandWrapper* pcmd) {
 void 
 RubyIOManager::SendMessage(Message* pmsg) {
 	g_pPlutoLogger->Write(LV_STATUS, "Ruby code sending message...");
-	if(!pcmdimpl_->SendMessage(pmsg))
+	if(!pevdisp_->SendMessage(pmsg))
 		g_pPlutoLogger->Write(LV_WARNING, "Failed to send message.");
 	else
 		g_pPlutoLogger->Write(LV_STATUS, "Message was sent.");
