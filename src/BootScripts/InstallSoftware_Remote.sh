@@ -5,14 +5,23 @@ PackageName="$2"
 RepositoryURL="$3"
 RepositoryName="$4"
 
-[ "${RepositoryURL#deb }" != "$RepositoryURL" ] && IsDeb="y"
+IsDeb=
+NoAptSource=
+if [[ "$RepositoryURL" == "deb "* ]]; then
+	IsDeb="y"
+fi
+
+if [[ -z "$RepositoryURL" && -z "$RepositoryURL" && -z "$RepositoryName" ]]; then
+	IsDeb="y"
+	NoAptSource="y"
+fi
 
 date -R >>/var/log/pluto/remote_install.newlog
 
 Result=""
 if [ -n "$IsDeb" ]; then
-	[ "${RepositoryName/ }" == "$RepositoryName" ] && RepositoryName="$RepositoryName main contrib non-free"
-	if ! grep -qF "$RepositoryURL $RepositoryName" /etc/apt/sources.list; then
+	[[ "$RepositoryName" != *" "* ]] && RepositoryName="$RepositoryName main contrib non-free"
+	if [[ -z "$NoAptSource" ]] && ! grep -qF "$RepositoryURL $RepositoryName" /etc/apt/sources.list; then
 		echo "$RepositoryURL $RepositoryName" >>/etc/apt/sources.list
 	fi
 	apt-get update &> >(tee -a /var/log/pluto/remote_install.newlog)

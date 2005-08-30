@@ -10,22 +10,22 @@ PackageName="$(TrimSpace "$2")"
 RepositoryURL="$(TrimSpace "$3")"
 RepositoryName="$(TrimSpace "$4")"
 
-if [ -z "$IP" ]; then
+if [[ -z "$IP" ]]; then
 	echo "Invalid device selected"
 	exit 1
 fi
 
-if [ -z "$PackageName" ]; then
+if [[ -z "$PackageName" ]]; then
 	echo "Please input a package name"
 	exit 1
 fi
 
-if [ -z "$RepositoryURL" ]; then
+if [[ -z "$RepositoryURL" && -n "$RepositoryName" ]]; then
 	echo "Please input a repository URL"
 	exit 1
 fi
 
-if [ "${RepositoryURL#deb }" != "$RepositoryURL" -a -z "$RepositoryName" ]; then
+if [[ "$RepositoryURL" == "deb "* && -z "$RepositoryName" ]]; then
 	echo "You specified a Debian repository but didn't specify the name/section"
 	exit 1
 fi
