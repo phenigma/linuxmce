@@ -421,6 +421,27 @@ bool Bluetooth_Dongle::ScanningLoop()
 	}
 
 #ifdef SIMULATE_DETECTION
+    bool bResult = PhoneDetection_Simulate::ScanningLoop();
+#else
+    #ifdef WIN32
+        bool bResult = PhoneDetection_Bluetooth_Windows::ScanningLoop();
+    #else
+        bool bResult = PhoneDetection_Bluetooth_Linux::ScanningLoop();
+    #endif
+#endif
+
+    if(!bResult) //something wrong happened
+    {
+        g_pPlutoLogger->Write(LV_CRITICAL, "The detection loop is broken. Going to reload...");
+        extern Command_Impl *g_pCommand_Impl;
+        g_pCommand_Impl->OnReload();
+    }
+
+    return bResult;
+
+
+/*
+#ifdef SIMULATE_DETECTION
 	return PhoneDetection_Simulate::ScanningLoop();
 #else
 	#ifdef WIN32
@@ -428,7 +449,8 @@ bool Bluetooth_Dongle::ScanningLoop()
 	#else
 		return PhoneDetection_Bluetooth_Linux::ScanningLoop();
 	#endif
-#endif	
+#endif
+*/
 }
 
 //-----------------------------------------------------------------------------------------------------
