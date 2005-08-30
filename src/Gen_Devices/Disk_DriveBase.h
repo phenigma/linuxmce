@@ -101,7 +101,7 @@ public:
 	virtual void CMD_Abort_Ripping(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Format_Drive(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Close_Tray(string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,int iEK_Disc,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -449,10 +449,11 @@ public:
 					{
 						string sCMD_Result="OK";
 					int iPK_Users=atoi(pMessage->m_mapParameters[17].c_str());
+					string sFormat=pMessage->m_mapParameters[20];
 					string sName=pMessage->m_mapParameters[50];
 					string sTracks=pMessage->m_mapParameters[121];
 					int iEK_Disc=atoi(pMessage->m_mapParameters[131].c_str());
-						CMD_Rip_Disk(iPK_Users,sName.c_str(),sTracks.c_str(),iEK_Disc,sCMD_Result,pMessage);
+						CMD_Rip_Disk(iPK_Users,sFormat.c_str(),sName.c_str(),sTracks.c_str(),iEK_Disc,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -469,7 +470,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Rip_Disk(iPK_Users,sName.c_str(),sTracks.c_str(),iEK_Disc,sCMD_Result,pMessage);
+								CMD_Rip_Disk(iPK_Users,sFormat.c_str(),sName.c_str(),sTracks.c_str(),iEK_Disc,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

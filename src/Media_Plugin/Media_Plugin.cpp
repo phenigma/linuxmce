@@ -3074,6 +3074,8 @@ bool Media_Plugin::MediaFollowMe( class Socket *pSocket, class Message *pMessage
 	/** This will try to RIP a DVD to the HDD. */
 		/** @param #17 PK_Users */
 			/** The user who needs this rip in his private area. */
+		/** @param #20 Format */
+			/** wav, flac, ogg, etc. */
 		/** @param #50 Name */
 			/** The target disk name, or for cd's, a comma-delimited list of names for each track. */
 		/** @param #121 Tracks */
@@ -3081,7 +3083,7 @@ bool Media_Plugin::MediaFollowMe( class Socket *pSocket, class Message *pMessage
 		/** @param #131 EK_Disc */
 			/** The ID of the disc to rip */
 
-void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,int iEK_Disc,string &sCMD_Result,Message *pMessage)
+void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,string &sCMD_Result,Message *pMessage)
 //<-dceag-c337-e->
 {
 	// we only have the sources device. This should be an orbiter
@@ -3219,8 +3221,11 @@ g_pPlutoLogger->Write(LV_STATUS,"Transformed %s into %s",sTracks.c_str(),sNewTra
 		StreamEnded(pTmpMediaStream);
 	}
 
+	if( sFormat.size()==0 )
+		sFormat = DATA_Get_Type();
 	m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T" + StringUtils::itos(TEXT_Ripping_Instructions_CONST) + "%>");
-	DCE::CMD_Rip_Disk cmdRipDisk(m_dwPK_Device, pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device, iPK_Users, sName, sTracks, PK_Disc);
+	DCE::CMD_Rip_Disk cmdRipDisk(m_dwPK_Device, pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device, iPK_Users, 
+		sFormat, sName, sTracks, PK_Disc);
 	SendCommand(cmdRipDisk);
 	m_mapRippingJobs[sName] = new RippingJob(pDiskDriveMediaDevice, 
 		pMessage->m_dwPK_Device_From, PK_Disc, PK_MediaType, iPK_Users, sName, sTracks);

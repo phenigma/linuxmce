@@ -48,6 +48,7 @@ public:
 	class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition);
 	virtual int GetPK_DeviceList() { return 2; } ;
 	virtual const char *GetDeviceDescription() { return "Media_Plugin"; } ;
+	string Get_Type() { return m_mapParameters[47];}
 };
 
 
@@ -90,6 +91,7 @@ public:
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
+	string DATA_Get_Type() { return GetData()->Get_Type(); }
 	//Event accessors
 	void EVENT_Watching_Media(int iPK_Room) { GetEvents()->Watching_Media(iPK_Room); }
 	void EVENT_Stopped_Watching_Media(int iPK_Room) { GetEvents()->Stopped_Watching_Media(iPK_Room); }
@@ -107,7 +109,7 @@ public:
 	virtual void CMD_Move_Playlist_entry_Down(int iValue,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Remove_playlist_entry(int iValue,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_EntAreas_For_Device(int iPK_Device,string *sText,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,int iEK_Disc,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_MH_Set_Volume(string sPK_EntertainArea,string sLevel,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Media_Private(string sPK_EntertainArea,bool bTrueFalse,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Add_Media_Attribute(string sValue_To_Assign,int iStreamID,string sTracks,int iEK_AttributeType,string &sCMD_Result,class Message *pMessage) {};
@@ -447,10 +449,11 @@ public:
 					{
 						string sCMD_Result="OK";
 					int iPK_Users=atoi(pMessage->m_mapParameters[17].c_str());
+					string sFormat=pMessage->m_mapParameters[20];
 					string sName=pMessage->m_mapParameters[50];
 					string sTracks=pMessage->m_mapParameters[121];
 					int iEK_Disc=atoi(pMessage->m_mapParameters[131].c_str());
-						CMD_Rip_Disk(iPK_Users,sName.c_str(),sTracks.c_str(),iEK_Disc,sCMD_Result,pMessage);
+						CMD_Rip_Disk(iPK_Users,sFormat.c_str(),sName.c_str(),sTracks.c_str(),iEK_Disc,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -467,7 +470,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Rip_Disk(iPK_Users,sName.c_str(),sTracks.c_str(),iEK_Disc,sCMD_Result,pMessage);
+								CMD_Rip_Disk(iPK_Users,sFormat.c_str(),sName.c_str(),sTracks.c_str(),iEK_Disc,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

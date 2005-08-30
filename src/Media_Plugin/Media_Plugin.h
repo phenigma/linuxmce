@@ -460,6 +460,7 @@ public:
 
 	/*
 			*****DATA***** accessors inherited from base class
+	string DATA_Get_Type();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Watching_Media(int iPK_Room);
@@ -616,6 +617,8 @@ public:
 	/** This will try to RIP a DVD to the HDD. */
 		/** @param #17 PK_Users */
 			/** The user who needs this rip in his private area. */
+		/** @param #20 Format */
+			/** wav, flac, ogg, etc. */
 		/** @param #50 Name */
 			/** The target disk name, or for cd's, a comma-delimited list of names for each track. */
 		/** @param #121 Tracks */
@@ -623,8 +626,8 @@ public:
 		/** @param #131 EK_Disc */
 			/** The ID of the disc to rip */
 
-	virtual void CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,int iEK_Disc) { string sCMD_Result; CMD_Rip_Disk(iPK_Users,sName.c_str(),sTracks.c_str(),iEK_Disc,sCMD_Result,NULL);};
-	virtual void CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,int iEK_Disc,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc) { string sCMD_Result; CMD_Rip_Disk(iPK_Users,sFormat.c_str(),sName.c_str(),sTracks.c_str(),iEK_Disc,sCMD_Result,NULL);};
+	virtual void CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #372 - MH Set Volume */

@@ -788,6 +788,8 @@ bool Disk_Drive::internal_reset_drive(bool bFireEvent)
 	/** This will try to RIP a DVD to the HDD. */
 		/** @param #17 PK_Users */
 			/** The user who needs this rip in his private area. */
+		/** @param #20 Format */
+			/** wav, flac, ogg, etc. */
 		/** @param #50 Name */
 			/** The target disk name, or for cd's, a comma-delimited list of names for each track. */
 		/** @param #121 Tracks */
@@ -795,7 +797,7 @@ bool Disk_Drive::internal_reset_drive(bool bFireEvent)
 		/** @param #131 EK_Disc */
 			/** The ID of the disc to rip */
 
-void Disk_Drive::CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,int iEK_Disc,string &sCMD_Result,Message *pMessage)
+void Disk_Drive::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,string &sCMD_Result,Message *pMessage)
 //<-dceag-c337-e->
 {
 	g_pPlutoLogger->Write(LV_STATUS, "Going to rip %s", sName.c_str() );
@@ -820,12 +822,13 @@ void Disk_Drive::CMD_Rip_Disk(int iPK_Users,string sName,string sTracks,int iEK_
 
 	string strParameters, strCommOnFailure, strCommOnSuccess;
 
-	strParameters = StringUtils::Format("%d\t%d\t%s\t%s\t%d\t%d\t%s",
+	strParameters = StringUtils::Format("%d\t%d\t%s\t%s\t%d\t%d\t%s\t%s",
 			m_dwPK_Device,
 			pMessage->m_dwPK_Device_From,
 			sName.c_str(),
 			m_sDrive.c_str(),
 			m_mediaDiskStatus, iPK_Users,
+			sFormat.c_str(),
 			sTracks.c_str());
 
 	g_pPlutoLogger->Write(LV_STATUS, "Launching ripping job2 with name \"%s\" for disk with type \"%d\" parms %s", sName.c_str(), m_mediaDiskStatus, strParameters.c_str() );
