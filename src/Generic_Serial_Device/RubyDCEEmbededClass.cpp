@@ -65,6 +65,8 @@ RubyDCEEmbededClass::CallCmdHandler(Message *pMessage) {
 	sprintf(buff, "cmd_%d", (int)pMessage->m_dwID);
 	try {
 		result=callmethod(buff, params);
+		RubyIOManager* pmanager = RubyIOManager::getInstance();
+		PLUTO_SAFETY_LOCK_ERRORSONLY(mm,pmanager->m_MsgMutex);
 		if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 		{
 			pMessage->m_bRespondedToMessage=true;
@@ -111,7 +113,6 @@ RubyDCEEmbededClass::CallCmdHandler(Message *pMessage) {
 			}
 			string sCMD_Result="OK";
 			pMessageOut->m_mapParameters[0]=sCMD_Result;
-			RubyIOManager* pmanager = RubyIOManager::getInstance();
 			pmanager->SendMessage(pMessageOut);
 			if(TYPE(result)==T_ARRAY)
 			{

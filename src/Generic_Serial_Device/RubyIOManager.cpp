@@ -31,13 +31,14 @@ using namespace EMBRUBY;
 
 #define DEFAULT_POOL_TIME		500
 #define DEFAULT_DELAY_TIME		2000
+#define DEFAULT_RESPONSE_TIME	20
 
 namespace DCE {
 
 RubyIOManager* RubyIOManager::s_instance_ = NULL;
 
 RubyIOManager::RubyIOManager()
-	: pdb_(NULL), pevdisp_(NULL), rootnode_(NULL)
+	: m_MsgMutex("message mutex"), pdb_(NULL), pevdisp_(NULL), rootnode_(NULL)
 {
 }
 
@@ -260,10 +261,28 @@ RubyIOManager::RouteMessage(DeviceData_Base* pdevdata, Message *pMessage) {
 		
     g_pPlutoLogger->Write(LV_STATUS, "Routing message to device %d.", ptmpdevdata->m_dwPK_Device);
 	mmsg_.Lock();
-	std::pair<unsigned, Message> msg(ptmpdevdata->m_dwPK_Device, *pMessage);
+	std::pair<unsigned, Message*> msg(ptmpdevdata->m_dwPK_Device, pMessage);
 	msgqueue_.push_back(msg);
 	mmsg_.Unlock();
 	emsg_.Signal();
+	if(pMessage->m_eExpectedResponse==ER_ReplyMessage)
+	{
+		time_t tTimeout=time(NULL)+DEFAULT_RESPONSE_TIME;
+		while( tTimeout>time(NULL) )
+		{
+			PLUTO_SAFETY_LOCK_ERRORSONLY(mm,m_MsgMutex);
+			if( pMessage->m_bRespondedToMessage )
+				return 0;
+			mm.Release();
+			Sleep(100);
+		}
+		PLUTO_SAFETY_LOCK_ERRORSONLY(mm,m_MsgMutex);
+		if( !pMessage->m_bRespondedToMessage )
+		{
+			pMessage->m_bRespondedToMessage=true;
+			g_pPlutoLogger->Write(LV_CRITICAL,"Ruby was unable to handle the command in reasonable amount of time");
+		}
+	}
 	return 0;
 }
 
@@ -296,7 +315,8 @@ RubyIOManager::_Run() {
 				mmsg_.Lock();
 				if(msgqueue_.size() > 0) {
 					deviceid = (*msgqueue_.begin()).first;
-					pmsg = new Message((*msgqueue_.begin()).second);
+//					pmsg = new Message((*msgqueue_.begin()).second);
+					pmsg = (*msgqueue_.begin()).second;
 					msgqueue_.pop_front();
 				}
 				mmsg_.Unlock();
@@ -304,7 +324,7 @@ RubyIOManager::_Run() {
 				if(pmsg != NULL) {
 					g_pPlutoLogger->Write(LV_STATUS, "Routing message to Ruby Interpreter...");
 					rootnode_->handleMessage(pmsg);
-					delete pmsg;
+//					delete pmsg;
 					pmsg = NULL;
 				} else {
 					break;
@@ -328,7 +348,7 @@ RubyIOManager::SendCommand(RubyCommandWrapper* pcmd) {
 void 
 RubyIOManager::SendMessage(Message* pmsg) {
 	g_pPlutoLogger->Write(LV_STATUS, "Ruby code sending message...");
-	if(!pevdisp_->SendMessage(pmsg))
+	if(!pcmdimpl_->SendMessage(pmsg))
 		g_pPlutoLogger->Write(LV_WARNING, "Failed to send message.");
 	else
 		g_pPlutoLogger->Write(LV_STATUS, "Message was sent.");

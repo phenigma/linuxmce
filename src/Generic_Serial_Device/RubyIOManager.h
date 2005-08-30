@@ -23,6 +23,7 @@
 #include "RubyDCEConnector.h"
 #include "RubyDCECodeSupplier.h"
 #include "RubyIOPool.h"
+#include "PlutoUtils/MultiThreadIncludes.h"
 
 class Database_pluto_main;
 
@@ -72,6 +73,7 @@ public:
 public:
 	int RouteMessage(DeviceData_Base* pdevdata, Message *pMessage);
 	virtual void SendMessage(Message* pmsg);
+	pluto_pthread_mutex_t m_MsgMutex;
 	
 protected:
 	/*methods for comunicating with DCE, accessed by wrappers */
@@ -102,7 +104,7 @@ private:
 	Database_pluto_main* pdb_;
 	Event_Impl* pevdisp_;
 	Command_Impl* pcmdimpl_;
-	typedef std::list< std::pair<unsigned, Message> > MESSAGEQUEUE;
+	typedef std::list< std::pair<unsigned, Message*> > MESSAGEQUEUE;
 	MESSAGEQUEUE msgqueue_;
 	IOMutex mmsg_;
 	IOEvent emsg_;
