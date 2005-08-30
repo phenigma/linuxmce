@@ -1,0 +1,9 @@
+#! /bin/sh
+set -e
+
+# Remove cache files
+if [ "$1" = "purge" ]; then
+    /bin/rm -rf /var/cache/vdr-plugin-mp3/images
+fi
+
+#DEBHELPER#

@@ -1,0 +1,160 @@
+vdrdevel-plugin-streamdev (0.3.1+cvs20050522-6) unstable; urgency=low
+
+  * VDR-1.3.30
+
+ -- Thomas Günther <tom@toms-cafe.de>  Mon, 22 Aug 2005 20:07:20 +0200
+
+vdrdevel-plugin-streamdev (0.3.1+cvs20050522-5) unstable; urgency=low
+
+  * VDR-1.3.29
+
+ -- Thomas Günther <tom@toms-cafe.de>  Sat, 20 Aug 2005 16:52:43 +0200
+
+vdrdevel-plugin-streamdev (0.3.1+cvs20050522-4) unstable; urgency=low
+
+  * VDR-1.3.28
+
+ -- Thomas Günther <tom@toms-cafe.de>  Mon,  8 Aug 2005 03:24:58 +0200
+
+vdrdevel-plugin-streamdev (0.3.1+cvs20050522-3) unstable; urgency=low
+
+  * VDR-1.3.27
+
+ -- Thomas Günther <tom@toms-cafe.de>  Tue, 21 Jun 2005 00:21:21 +0200
+
+vdrdevel-plugin-streamdev (0.3.1+cvs20050522-2) unstable; urgency=low
+
+  * VDR-1.3.26
+
+ -- Thomas Günther <tom@toms-cafe.de>  Fri, 17 Jun 2005 12:49:55 +0200
+
+vdrdevel-plugin-streamdev (0.3.1+cvs20050522-1) unstable; urgency=low
+
+  * New upstream cvs release
+  * Removed patches: cvs20050213, streamdev-enAIO
+  * Upgraded 95_vdrdevel.dpatch to version 0.1.0
+
+ -- Thomas Günther <tom@toms-cafe.de>  Tue,  7 Jun 2005 18:53:31 +0200
+
+vdrdevel-plugin-streamdev (0.3.1-10) unstable; urgency=low
+
+  * VDR-1.3.22-4
+
+ -- Thomas Günther <tom@toms-cafe.de>  Thu, 10 Mar 2005 01:49:32 +0100
+
+vdrdevel-plugin-streamdev (0.3.1-9) unstable; urgency=low
+
+  * VDR-1.3.22
+
+ -- Thomas Günther <tom@toms-cafe.de>  Mon, 28 Feb 2005 02:42:06 +0100
+
+vdrdevel-plugin-streamdev (0.3.1-8) unstable; urgency=low
+
+  * VDR-1.3.21
+  * Converted changes from CVS to dpatch cvs20050213
+  * Removed patches: streamdev-0.3.1-0.3.3-pre4, streamdev-1.3.14up-0.3,
+    fix-HasLock and streamdev-1.3.18
+  * Adapted Makefile-fPIC-fix to cvs20050213
+  * Adapted streamdev-enAIO to cvs20050213 for plain vdr and vdr with enAIO-2.1
+  * Updated 95_vdrdevel.dpatch to version 0.0.8
+
+ -- Thomas Günther <tom@toms-cafe.de>  Tue, 22 Feb 2005 21:02:42 +0100
+
+vdrdevel-plugin-streamdev (0.3.1-7) unstable; urgency=low
+
+  * VDR 1.3.18
+  * Added fix-HasLock patch
+  * Added streamdev-1.3.18 patch
+  * Updated 95_vdrdevel.dpatch to version 0.0.6
+
+ -- Thomas Günther <tom@toms-cafe.de>  Thu, 13 Jan 2005 19:09:23 +0100
+
+vdrdevel-plugin-streamdev (0.3.1-6) unstable; urgency=low
+
+  * vdrdevel-1.3.17-5: changed patchlevel
+
+ -- Thomas Günther <tom@toms-cafe.de>  Mon,  3 Jan 2005 16:28:19 +0100
+
+vdrdevel-plugin-streamdev (0.3.1-5) unstable; urgency=low
+
+  * VDR 1.3.17
+  * Added patches streamdev-0.3.1-0.3.3-pre4, streamdev-1.3.14up-0.3
+    and streamdev-enAIO to make it compile with VDR 1.3.17
+  * Adapted patches for new dpatch >= 2.0.9
+  * Using debian/compat now
+  * Converted changelog to UTF-8
+
+ -- Thomas Günther <tom@toms-cafe.de>  Sat,  4 Dec 2004 23:52:45 +0100
+
+vdrdevel-plugin-streamdev (0.3.1-4) unstable; urgency=low
+
+  * Adapted to new FHS-conform directory structure
+  * Updated 95_vdrdevel.dpatch to version 0.0.5
+
+ -- Thomas Günther <tom@toms-cafe.de>  Thu,  7 Oct 2004 01:22:37 +0200
+
+vdrdevel-plugin-streamdev (0.3.1-3) unstable; urgency=low
+
+  * VDR 1.3.12
+  * Adapted directory structure to vdrdevel-1.3.12
+  * Adapted control file to alioth packages
+  * Using patchlevel.sh and custom control field "vdr-patchlevel"
+  * Added Makefile-fPIC-fix patch to fix potential FTBFS
+
+ -- Thomas Günther <tom@toms-cafe.de>  Sun,  5 Sep 2004 21:12:44 +0200
+
+vdrdevel-plugin-streamdev (0.3.1-2) unstable; urgency=low
+
+  * Fixed rules, *.install, *.docs, *.examples
+  * Added debian/watch file for uscan
+
+ -- Thomas Günther <tom@toms-cafe.de>  Wed,  7 Jul 2004 03:03:20 +0200
+
+vdrdevel-plugin-streamdev (0.3.1-1) unstable; urgency=low
+
+  * vdr -> vdrdevel
+  * Using dh_install
+
+ -- Wolfgang Schäfer <wolfi.schaefer@web.de>  Tue,  6 Jul 2004 18:02:42 +0200
+
+vdr-plugin-streamdev (0.3.1-1) unstable; urgency=low
+
+  * New upstream release (breaks it into two, client and server)
+
+ -- Peter Siering <ps@ctmagazin.de>  Fri, 20 Feb 2004 19:34:00 +0100
+
+vdr-plugin-streamdev (0.3.0-2) unstable; urgency=low
+
+  * integrated patchlevel info
+
+ -- Peter Siering <ps@ctmagazin.de>  Tue, 13 Jan 2004 23:45:00 +0200
+
+vdr-plugin-streamdev (0.3.0-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Peter Siering <ps@ctmagazin.de>  Thu, 8 Jan 2004 21:47:54 +0100
+
+vdr-plugin-streamdev (0.2.0-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Peter Siering <ps@ctmagazin.de>  Mon,  6 Oct 2003 18:28:08 +0200
+
+vdr-plugin-streamdev (0.1.0beta4-3) unstable; urgency=low
+
+  * move plugin from /usr/share to /usr/lib
+
+ -- Peter Siering <ps@ctmagazin.de>  Thu, 04 Oct 2003 12:00:00 +0200
+
+vdr-plugin-streamdev (0.1.0beta4-2) unstable; urgency=low
+
+  * fixed depends, fixed control file
+
+ -- Peter Siering <ps@ctmagazin.de>  Thu, 29 Sep 2003 15:00:00 +0200
+
+vdr-plugin-streamdev (0.1.0beta4-1) unstable; urgency=low
+
+  * debianized
+
+ -- Peter Siering <ps@ctmagazin.de>  Thu, 17 Sep 2003 22:00:00 +0200

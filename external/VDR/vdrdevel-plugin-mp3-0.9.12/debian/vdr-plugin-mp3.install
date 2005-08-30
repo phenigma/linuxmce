@@ -1,0 +1,6 @@
+libvdr-mp3.so.*                 usr/lib/vdr/plugins/
+
+debian/plugin.mp3.conf          etc/vdr/plugins/
+debian/mp3sources.conf          etc/vdr/plugins/
+
+debian/mount.sh                 usr/lib/vdr-plugin-mp3/

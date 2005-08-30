@@ -1,0 +1,211 @@
+
+This is a dual-plugin for VDR.
+The "MP3-Plugin" allows playback of MP3 and other audio files.
+The "MPlayer-Plugin" is used to call MPlayer for playback of video
+files (e.g. DivX)
+
+Written by:                  Stefan Hülswitt <s.huelswitt@gmx.de>
+Project's homepage:          http://www.muempf.de/
+Latest version available at: http://www.muempf.de/down/
+
+See the file COPYING for license information.
+
+----------------------------------------------------------------------
+
+For the user manual see the MANUAL file.
+
+This is the development branch. 
+Current limitations:
+- Back buttons doesn't works while playback.
+- Mplayer only works together with VDR if you have set your first DVB card
+  (/dev/dvb/adapter0/video0) as primary device.
+
+Installing:
+-----------
+
+By default the Makefile builds both plugins. If you want to use only one of
+them, you can add one of "WITHOUT_MP3=1" or "WITHOUT_MPLAYER=1" to your
+Make.config.
+
+Currently the plugins can be build with VDR 1.1.29 or later, but you should not
+use version 1.1.31 as this will cause high CPU load during network streaming.
+Main development platform is now VDR 1.3.x, but the plugins should work fine
+under VDR 1.2.6 too..
+
+Any mentioned plugin config file should be located in the "plugins"
+subdirectory of your VDR config directory. For a complete description of the
+config files, see the MANUAL file.
+
+The MP3 plugin needs some external libraries (some optionally):
+
+You must have installed libmad and libid3tag from
+<http://www.underbit.com/products/mad/> for decoding MP3 and ID3 support.
+Recommended version is 0.15.1b. To compile and install I suggest the following
+sequence from the source directory (libmad and libid3tag are installed
+separately, so you must execute this once for each directory):
+
+> configure
+> make
+> make install
+> ldconfig
+
+You must have installed zlib on your system, too (zlib is used internally by
+libid3tag for compressed tags). This should be no problem, as virtually every
+Linux distribution includes this library.
+
+For playback of WAV and other sound files you must have installed libsndfile
+<http://www.mega-nerd.com/libsndfile/> on your system. Recommended version
+is 1.0.11. The old 0.0.x series doesn't work due to some API changes. To
+compile and install libsndfile I suggest the following sequence from the
+libsndfile source directory:
+
+> configure
+> make
+> make install
+> ldconfig
+
+If you don't want to install libsndfile, you must add "WITHOUT_LIBSNDFILE=1" to
+your Make.config.
+
+If you want to listen to CD audio, you can use cdfs
+<http://www.elis.rug.ac.be/~ronsse/cdfs/> (version 0.5c suggested). I suggest
+that you create a new entry in /etc/fstab and mp3sources.conf for cdfs. The
+/etc/fstab entry could look like:
+  /dev/hdc	/mnt/cdfs	cdfs	ro,noauto,user 0 0
+The entry for mp3sources.conf could look like:
+  /mnt/cdfs;CD-Audio;1
+Or if you want only WAV files to be displayed:
+  /mnt/cdfs;CD-Audio;1;*.wav
+If you don't like cdfs, you could use any other filesystems which allows to
+access the CD audio data as WAV files.
+
+For playback of OGG files you must have installed libvorbis and libvorbisfile
+<http://www.xiph.org/ogg/vorbis/> on your system. Most Linux distributions
+include packages for this.
+If you don't want to install the vorbis libraries, you must add
+"WITHOUT_LIBVORBISFILE=1" to your Make.config.
+
+The MP3 plugin can output the sound to an OSS soundcard. To compile this
+support add "WITH_OSS_OUTPUT=1" to your Make.config. The output device defaults
+to "/dev/dsp" (see command line option -D too). Don't forget to enable OSS
+output in the plugin setup menu.
+
+Before compiling the plugin, you could have a look at "mp3-config.h". This file
+includes a number of defines to set options and values at compile time. You
+should only change defines, if you have understand the source code parts which
+deal with the define. Improper settings can make the MP3 plugin to fail or to
+operate unsmoothly. So you should know what you are doing.
+
+To build the plugin(s) type:
+"make plugins"
+from the VDR source directory.
+
+To make the progressbar work with the MPlayer plugin and slave mode you need to
+apply a small patch to mplayer. Select an appropriate patch file for your
+MPlayer version from the patches subdirectory. Apply the patch and recompile
+MPlayer.
+
+Early 0.90rc versions of MPlayer need a patch to enabled HEAD driver support
+too. You will find one for 0.90rc1 in the patches subdirectory. Probably you'll
+have to point configure to the new DVB include files with
+--with-extraincdir=/usr/local/src/DVB/include or where ever you have stored the
+files. MPlayer versions later as 0.90rc5 allow to select HEAD support with a
+configure option or even detect this automatically.
+
+Command line options:
+---------------------
+
+Both plugins have a command line option -m/--mount to define the name and
+location of the mount script. The default mount script is "mount.sh". This
+script is called from the plugin with 2 options on the command line. The first
+is one of mount/unmount/eject/status and gives the action to perform. The
+second one is the base directory as defined in "mp3sources.conf" or
+"mplayersources.conf". The script must return the exit code 0 if the action was
+successful and 1 if the action failed (see the comments in the example
+"mount.sh" script which comes with the archive).
+
+The MP3 plugin maintains a cache for information scanned from song files (e.g.
+ID3 tags). This information is saved to the id3info.cache file by default
+located in the video directory. You can use command line option -C/--cache to
+specify a different directory for this file.
+
+If you are using cdfs, the MP3 plugin is able to query a CDDB database for the
+song information (like title, artist). Local CDDB lookups can be enable from
+the setup menu and you must give the path to your local CDDB files with
+commandline option -B/--cddb. The database layout follows the xmcd standard
+(one subdirectory level for the categories, individual files for every disc).
+The settings for remote CDDB lookups can be found in the setup menu, too. Any
+information retrieved from a remote host is stored to your local CDDB database,
+so the user running VDR needs write access to this directory.
+
+If you are using any of the networking capabilities and you have a dial-up
+network, you can use the commandline option -n/--network to give a script name.
+This script is called before and after any network access and receives one
+option on commandline. This can either be "up" or "down", depending on if it's
+before or after the network access. In the "up" case the script should not
+return before the network is connected and useable. By default the plugin
+assumes that network access can be done at any time without prior action.
+
+If you want to use the OSS output capability but your soundcard device is not
+"/dev/dsp" (which is the default) you can use the commandline option -D/--dsp
+to give an alternative soundcard device.
+
+If you want to use the cover image display, you have to provide an image
+converting script. Usually your covers are in a common image format like e.g.
+JPEG or PNG, but the MP3 plugin can only display MPEG (still) frames. The
+conversion is done by the script, which takes two arguments: first the filename
+of the image file and second the filename or the resulting MPEG file. The
+script also has to take care that any needed subdirectories in the cache are
+created e.g. mkdir -p. You will find an example script in the examples
+subdirectory. By default the script is called "image_convert.sh", but you can
+use the commandline option -i/--iconv to change the name and location of the
+script.
+To speed up consecutive accesses to the same image, the converted frames are
+cached on disk. The default cache directory is "/var/cache/images/mp3". You can
+change this location with the commandline option -c/--icache.
+Don't forget to enable the image display in the plugin setup menu.
+The search order for images is:
+- An image in the same directory as the song, named like the song but with the
+  song extension replaced with the image format extension
+  e.g. test.mp3 -> test.jpg
+- An image named "cover" with the image format extension in the same directory
+  as the song (album cover).
+  e.g. cover.gif
+- An image named "artist" with the image format extension in the parent
+  directory of the song (artist image).
+  e.g. artist.png
+- An image named "background" with the image format extension in the base
+  directory of the MP3 source.
+For all locations the extensions "jpg", "png" & "gif" are checked (in that
+order). If no image can be found, a full screen black image is displayed (this
+is included statically in the plugin).
+
+MPlayer is called through a script called "mplayer.sh" with the filename to
+play as first argument and the phrase SLAVE as second argument if slave mode is
+enabled. You can use the commandline option -M/--mplayer to change the name and
+location of the mplayer script. The script has to call MPlayer with all the
+necessary options.
+
+The script should parse the SLAVE keyword too and give appropriate options to
+MPlayer. To enable slave mode you must give at least the "-slave" option, while
+I suggest "-slave -nolirc -quiet".
+
+You can use the mplayer.sh.example file, which comes with the archive, as a
+starting point. Juri Haberland maintains a full featured mplayer.sh file which
+is available at <http://batleth.sapienti-sat.org/projects/VDR/>.
+
+Summary of commandline options:
+-------------------------------
+
+MP3 Plugin:
+-m CMD,  --mount=CMD    use CMD to mount/unmount/eject mp3 sources
+-n CMD,  --network=CMD  execute CMD before & after network access
+-B DIR,  --cddb=DIR     search CDDB files in DIR
+-C DIR,  --cache=DIR    store ID3 cache file in DIR
+-D DIR,  --dsp=DIR      device for OSS output
+-i CMD,  --iconv=CMD    use CMD to convert background images
+-c DIR,  --icache=DIR   cache converted images in DIR
+
+MPlayer plugin:
+-m CMD,  --mount=CMD    use CMD to mount/unmount/eject mplayer sources
+-M CMD,  --mplayer=CMD  use CMD when calling MPlayer

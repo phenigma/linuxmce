@@ -1,0 +1,20 @@
+#!/bin/sh /usr/share/dpatch/dpatch-run
+
+## Makefile-fPIC-fix patch
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Adds -fPIC to Makefile to fix potential FTBFS.
+
+@DPATCH@
+diff -urNad /usr/src/cvs/vdrdevel-plugin-tvonscreen/Makefile vdrdevel-plugin-tvonscreen/Makefile
+--- /usr/src/cvs/vdrdevel-plugin-tvonscreen/Makefile	Wed Mar  3 01:22:47 2004
++++ vdrdevel-plugin-tvonscreen/Makefile	Sat Sep 11 17:51:26 2004
+@@ -16,7 +16,7 @@
+ ### The C++ compiler and options:
+ 
+ CXX      ?= g++
+-CXXFLAGS ?= -g -O2 -Wall -Woverloaded-virtual
++CXXFLAGS ?= -fPIC -g -O2 -Wall -Woverloaded-virtual
+ 
+ ### The directory environment:
+ 

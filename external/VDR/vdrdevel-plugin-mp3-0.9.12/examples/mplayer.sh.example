@@ -1,0 +1,48 @@
+#!/bin/bash
+#
+# This script is called from VDR to start MPlayer
+#
+# argument 1: the file to play
+# argument 2: (optional) the phrase SLAVE if SlaveMode is enabled
+# argument 3: (optional) the phrase AID x to select audio stream x
+
+# where to find mplayer
+MPLAYER="mplayer"
+
+# mplayer options, -vc will be added below
+# add "-lircconf <lircrc>" to enable LIRC support
+OPTS="-vo mpegpes"
+
+# mplayer options for SlaveMode
+SLAVE="-slave -quiet -nolirc"
+
+#####################
+
+FILE=$1
+type=`file "$FILE"`
+
+while shift; do
+  if [ "$1" = "SLAVE" ]; then
+    sopt=$SLAVE
+  elif [ "$1" = "AID" ]; then
+    aopt="-aid $2"
+    shift
+  fi
+done
+
+case "$type" in
+*AVI*)
+  VC="ffdivx"
+  ;;
+*MPEG*)
+  VC="mpegpes"
+  ;;
+*)
+  echo "Unknown video file format $type"
+  echo "Edit mplayer.sh to support this file type"
+  exit 1
+  ;;
+esac
+
+exec $MPLAYER $OPTS -vc $VC $sopt $aopt "$FILE"
+

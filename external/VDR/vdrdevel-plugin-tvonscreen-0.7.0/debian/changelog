@@ -1,0 +1,188 @@
+vdrdevel-plugin-tvonscreen (0.7.0-18) unstable; urgency=low
+
+  * Added 11_fix-for-livebuffer.dpatch to fix crash with livebuffer patch
+
+ -- Thomas Günther <tom@toms-cafe.de>  Wed, 24 Aug 2005 18:17:04 +0200
+
+vdrdevel-plugin-tvonscreen (0.7.0-17) unstable; urgency=low
+
+  * VDR-1.3.30
+
+ -- Thomas Günther <tom@toms-cafe.de>  Mon, 22 Aug 2005 20:07:23 +0200
+
+vdrdevel-plugin-tvonscreen (0.7.0-16) unstable; urgency=low
+
+  * VDR-1.3.29
+
+ -- Thomas Günther <tom@toms-cafe.de>  Sat, 20 Aug 2005 16:52:46 +0200
+
+vdrdevel-plugin-tvonscreen (0.7.0-15) unstable; urgency=low
+
+  * VDR-1.3.28
+
+ -- Thomas Günther <tom@toms-cafe.de>  Mon,  8 Aug 2005 03:25:00 +0200
+
+vdrdevel-plugin-tvonscreen (0.7.0-14) unstable; urgency=low
+
+  * VDR-1.3.27
+
+ -- Thomas Günther <tom@toms-cafe.de>  Tue, 21 Jun 2005 00:21:23 +0200
+
+vdrdevel-plugin-tvonscreen (0.7.0-13) unstable; urgency=low
+
+  * VDR-1.3.26
+  * Upgraded 95_vdrdevel.dpatch to version 0.1.0
+
+ -- Thomas Günther <tom@toms-cafe.de>  Fri, 17 Jun 2005 12:49:59 +0200
+
+vdrdevel-plugin-tvonscreen (0.7.0-12) unstable; urgency=low
+
+  * VDR-1.3.25
+  * Upgraded 95_vdrdevel.dpatch to version 0.0.9
+
+ -- Thomas Günther <tom@toms-cafe.de>  Mon, 30 May 2005 23:56:55 +0200
+
+vdrdevel-plugin-tvonscreen (0.7.0-11) unstable; urgency=low
+
+  * VDR-1.3.24
+
+ -- Thomas Günther <tom@toms-cafe.de>  Tue, 10 May 2005 02:41:40 +0200
+
+vdrdevel-plugin-tvonscreen (0.7.0-10) unstable; urgency=low
+
+  * VDR-1.3.23
+
+ -- Thomas Günther <tom@toms-cafe.de>  Wed, 30 Mar 2005 23:21:52 +0200
+
+vdrdevel-plugin-tvonscreen (0.7.0-9) unstable; urgency=low
+
+  * Added fix-noepg patch
+
+ -- Thomas Günther <tom@toms-cafe.de>  Wed, 30 Mar 2005 23:15:19 +0200
+
+vdrdevel-plugin-tvonscreen (0.7.0-8) unstable; urgency=low
+
+  * VDR-1.3.23
+
+ -- Thomas Günther <tom@toms-cafe.de>  Sun, 20 Mar 2005 23:27:30 +0100
+
+vdrdevel-plugin-tvonscreen (0.7.0-7) unstable; urgency=low
+
+  * VDR-1.3.22-4
+
+ -- Thomas Günther <tom@toms-cafe.de>  Thu, 10 Mar 2005 01:49:35 +0100
+
+vdrdevel-plugin-tvonscreen (0.7.0-6) unstable; urgency=low
+
+  * VDR-1.3.22
+
+ -- Thomas Günther <tom@toms-cafe.de>  Mon, 28 Feb 2005 02:42:09 +0100
+
+vdrdevel-plugin-tvonscreen (0.7.0-5) unstable; urgency=low
+
+  * VDR-1.3.21
+
+ -- Thomas Günther <tom@toms-cafe.de>  Tue, 15 Feb 2005 17:37:25 +0100
+
+vdrdevel-plugin-tvonscreen (0.7.0-4) unstable; urgency=low
+
+  * VDR-1.3.20
+  * Updated 95_vdrdevel.dpatch to version 0.0.8
+
+ -- Thomas Günther <tom@toms-cafe.de>  Tue,  8 Feb 2005 11:33:59 +0100
+
+vdrdevel-plugin-tvonscreen (0.7.0-3) unstable; urgency=low
+
+  * VDR 1.3.19
+
+ -- Thomas Günther <tom@toms-cafe.de>  Tue, 25 Jan 2005 01:21:44 +0100
+
+vdrdevel-plugin-tvonscreen (0.7.0-2) unstable; urgency=low
+
+  * Added support for xpmlogos
+  * Added support for vdradmin autotimer
+  * Made tvonscreen-1.3.18 patch compatible with VDR < 1.3.18
+  * Updated 95_vdrdevel.dpatch to version 0.0.7
+
+ -- Thomas Günther <tom@toms-cafe.de>  Fri, 21 Jan 2005 20:37:34 +0100
+
+vdrdevel-plugin-tvonscreen (0.7.0-1) unstable; urgency=low
+
+  * New upstream release
+  * VDR 1.3.18
+  * Added tvonscreen-1.3.18 patch
+  * Updated 95_vdrdevel.dpatch to version 0.0.6
+
+ -- Thomas Günther <tom@toms-cafe.de>  Wed, 12 Jan 2005 23:50:59 +0100
+
+vdrdevel-plugin-tvonscreen (0.6.0-6) unstable; urgency=low
+
+  * vdrdevel-1.3.17-5: changed patchlevel
+
+ -- Thomas Günther <tom@toms-cafe.de>  Mon,  3 Jan 2005 16:28:20 +0100
+
+vdrdevel-plugin-tvonscreen (0.6.0-5) unstable; urgency=low
+
+  * VDR 1.3.17
+  * Converted changelog to UTF-8
+
+ -- Thomas Günther <tom@toms-cafe.de>  Mon, 22 Nov 2004 02:49:35 +0100
+
+vdrdevel-plugin-tvonscreen (0.6.0-4) unstable; urgency=low
+
+  * VDR 1.3.16
+
+ -- Thomas Günther <tom@toms-cafe.de>  Sun, 14 Nov 2004 21:41:34 +0100
+
+vdrdevel-plugin-tvonscreen (0.6.0-3) unstable; urgency=low
+
+  * VDR 1.3.15
+
+ -- Thomas Günther <tom@toms-cafe.de>  Tue,  2 Nov 2004 01:38:39 +0100
+
+vdrdevel-plugin-tvonscreen (0.6.0-2) unstable; urgency=low
+
+  * VDR 1.3.14
+  * Adapted patches for new dpatch >= 2.0.9
+  * Using debian/compat now
+
+ -- Thomas Günther <tom@toms-cafe.de>  Mon, 25 Oct 2004 03:18:58 +0200
+
+vdrdevel-plugin-tvonscreen (0.6.0-1) unstable; urgency=low
+
+  * New upstream release
+  * Updated 95_vdrdevel.dpatch to version 0.0.5
+
+ -- Thomas Günther <tom@toms-cafe.de>  Fri,  8 Oct 2004 02:42:52 +0200
+
+vdrdevel-plugin-tvonscreen (0.5.1-3) unstable; urgency=low
+
+  * VDR 1.3.12
+  * Adapted directory structure to vdrdevel-1.3.12
+  * Adapted control file to alioth packages
+  * Using patchlevel.sh and custom control field "vdr-patchlevel"
+  * Added Makefile-fPIC-fix patch to fix potential FTBFS
+
+ -- Thomas Günther <tom@toms-cafe.de>  Sun,  5 Sep 2004 21:13:04 +0200
+
+vdrdevel-plugin-tvonscreen (0.5.1-2) unstable; urgency=low
+
+  * vdr -> vdrdevel
+  * Fixed debhelper version in Build-Depends
+  * Removed debian/dirs
+  * Fixed debian/watch
+  * Using dpatch
+
+ -- Thomas Günther <tom@toms-cafe.de>  Sun,  4 Jul 2004 21:01:37 +0200
+
+vdr-plugin-tvonscreen (0.5.1-1) unstable; urgency=low
+
+  * new upstream release
+
+ -- Tobias Grimm <tg@e-tobi.net>  Tue, 23 Mar 2004 19:00:00 +0100
+
+vdr-plugin-tvonscreen (0.5.0-1) unstable; urgency=low
+
+  * Initial Release
+
+ -- Tobias Grimm <tg@e-tobi.net>  Mon, 22 Mar 2004 22:52:03 +0100

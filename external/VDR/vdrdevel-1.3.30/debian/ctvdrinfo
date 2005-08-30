@@ -1,0 +1,60 @@
+#!/bin/sh
+
+export COLUMNS=512 
+PLUGINDIR=/usr/lib/vdr/plugins
+PLUGINPREFIX="libvdr-"
+LOG=/var/log/vdrinfo.log
+
+vdr_package_version=`dpkg -s vdr | grep "Version:" | sed "s/.*Version: \(.*\)/\1/"`
+vdr_version=`echo $vdr_package_version | sed "s/\(.*\..*\..*\)-.*/\1/"`
+plugins=`find $PLUGINDIR -name "$PLUGINPREFIX*.so.$vdr_version" -printf "%f\n"\
+  | sed "s/^$PLUGINPREFIX\(..*\)\.so\.$vdr_version$/vdr-plugin-\1/"`
+kernelversion=`uname -r`
+
+echo "**************************************" | tee $LOG
+echo "*        c't VDR Übersicht           *" | tee -a $LOG
+echo "**************************************" | tee -a $LOG
+echo | tee -a $LOG
+echo "c't VDR: $vdr_package_version" | tee -a $LOG
+echo "Kernel : $kernelversion" | tee -a $LOG
+echo | tee -a $LOG
+echo "Patches:" | tee -a $LOG
+echo "--------------------------------------" | tee -a $LOG
+vdr_patchlevel=`dpkg -s vdr | grep "vdr-patchlevel:" | sed "s/.*vdr-patchlevel: \(.*\)/\1/"`
+for patch in $vdr_patchlevel
+do
+  echo $patch | tee -a $LOG
+done
+echo | tee -a $LOG
+echo "Plugins:" | tee -a $LOG
+echo "( N = Native Plugin       )" | tee -a $LOG
+echo "( ! = Falscher Patchlevel )" | tee -a $LOG
+echo "--------------------------------------" | tee -a $LOG
+for plugin in $plugins
+do
+  plugin_version=`dpkg -s $plugin 2>/dev/null | grep "Version:" | sed "s/.*Version: \(.*\)/\1/"`
+  if [ ! $plugin_version ]; then
+    echo -n "N " | tee -a $LOG
+    plugin_version="n/a" 
+  else
+    plugin_patchlevel=`dpkg -s $plugin | grep "vdr-patchlevel:" | sed "s/.*vdr-patchlevel: \(.*\)/\1/"`
+    if [ "$vdr_patchlevel" != "$plugin_patchlevel" ] ; then
+      echo -n "! " | tee -a $LOG
+    else
+      echo -n "  " | tee -a $LOG
+    fi
+  fi  
+  echo "$plugin ($plugin_version)" | tee -a $LOG
+done
+echo | tee -a $LOG
+echo "Addon­Packages:" | tee -a $LOG
+echo "--------------------------------------" | tee -a $LOG
+dpkg -l vdr-addon* | awk '/ii/ {printf ("%s (%s)\n", $2, $3)}' | tee -a $LOG
+
+
+
+echo
+echo "......................................"
+echo "Eine Kopie dieser Ausgaben wurde"
+echo "erzeugt in: /var/log/vdrinfo.log"
+echo "......................................"

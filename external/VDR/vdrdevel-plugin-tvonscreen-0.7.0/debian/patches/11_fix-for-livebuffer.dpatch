@@ -1,0 +1,29 @@
+#!/bin/sh /usr/share/dpatch/dpatch-run
+
+## 11_fix-for-livebuffer.dpatch by Thomas Günther <tom@toms-cafe.de>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Fixes crash with livebuffer patch.
+
+@DPATCH@
+--- tvonscreen-0.7.0/timer.h
++++ tvonscreen-0.7.0/timer.h
+@@ -37,12 +37,18 @@
+ 
+ class cMenuEditTimer : public cOsdMenu {
+ private:
++#ifdef LIFEBUFFERVERSION
++  int withBuffer;
++#endif
+   cTimer *timer;
+   cTimer data;
+   int channel;
+   bool addIfConfirmed;
+   class cMenuEditDateItem *firstday;
+   void SetFirstDayItem(void);
++#ifdef LIFEBUFFERVERSION
++  void Setup(void);
++#endif
+ public:
+   cMenuEditTimer(cTimer *Timer, bool New = false);
+   virtual ~cMenuEditTimer();

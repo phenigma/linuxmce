@@ -1,0 +1,439 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 03_network.dpatch by Tobias Grimm <tg@e-tobi.net>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: This patch allows to provide a vdr stream via a
+## DP: sockets interface This patch is based on Peter Webers
+## DP: xine-0-7-4-network. 
+
+@DPATCH@
+diff -urNad vdr-plugin-xine-0.7.4/xine.c /tmp/dpep.y7amrL/vdr-plugin-xine-0.7.4/xine.c
+--- vdr-plugin-xine-0.7.4/xine.c	2005-07-03 15:36:57.000000000 +0200
++++ /tmp/dpep.y7amrL/vdr-plugin-xine-0.7.4/xine.c	2005-07-03 15:37:18.000000000 +0200
+@@ -17,8 +17,8 @@
+ 
+ 
+ 
+-static const char *VERSION        = "0.7.4";
+-static const char *DESCRIPTION    = "Software based playback using xine";
++static const char *VERSION        = "0.7.4-net";
++static const char *DESCRIPTION    = "Software based playback using xine over network";
+ //static const char *MAINMENUENTRY  = "xine - Toggle prebuffer setting";
+ 
+ 
+@@ -77,6 +77,7 @@
+     "  -q                       turn off debug messages on console\n"
+     "  -r                       turn on remote (pressing keys in xine controls VDR)\n"
+     "  -s                       switch to curses skin, while xine is disconnected\n"
++    "  -n                       use network interface\n"
+     ;
+ }
+ 
+@@ -85,7 +86,7 @@
+   ::optind = 0;
+   ::opterr = 0;
+ 
+-  for (int r = -1; (r = ::getopt(argc, argv, "i:qrs")) >= 0; )
++  for (int r = -1; (r = ::getopt(argc, argv, "i:qrsn")) >= 0; )
+   {
+     switch (r)
+     {
+@@ -111,6 +112,10 @@
+       m_settings.SetBeQuiet(true);
+       break;
+       
++    case 'n':
++      m_settings.SetUseSocketInterface(true);
++      break;
++      
+     default:
+       return false;
+     }
+diff -urNad vdr-plugin-xine-0.7.4/xineLib.c /tmp/dpep.y7amrL/vdr-plugin-xine-0.7.4/xineLib.c
+--- vdr-plugin-xine-0.7.4/xineLib.c	2005-07-03 15:37:01.000000000 +0200
++++ /tmp/dpep.y7amrL/vdr-plugin-xine-0.7.4/xineLib.c	2005-07-03 15:37:01.000000000 +0200
+@@ -1834,6 +1834,10 @@
+       , m_plugin(plugin)
+       , m_settings(settings)
+       , m_osdFlushRequired(false)
++      , fd_fifo0_serv(-1)
++      , fd_result_serv(-1)
++      , fd_control_serv(-1)
++      , fd_remote_serv(-1)
+       , fd_fifo0(-1)
+       , fd_result(-1)
+       , fd_control(-1)
+@@ -1918,6 +1922,34 @@
+     m_eventSink = eventSink;
+   }
+ 
++  int cXineLib::CreateServerSocket(unsigned short port)
++  {
++	int fd;
++	int onoff = 1;
++	struct sockaddr_in sain;
++
++	if ((fd = ::socket(PF_INET,SOCK_STREAM,0)) < 0) {
++		perror("socket failed.");
++		return -1;
++	}
++
++	sain.sin_addr.s_addr = 0;
++	sain.sin_port = htons(port);
++
++	::setsockopt(fd,SOL_SOCKET,SO_REUSEADDR,&onoff, sizeof(int) );
++
++	if (::bind(fd,(struct sockaddr*)&sain, sizeof(sain)) != 0) {
++		perror("bind failed.");
++		return -1;
++	}
++
++	if (::listen(fd,1) != 0) {
++		printf("listen failed.");
++		return -1;
++	}
++	return fd;
++  }
++  
+   bool cXineLib::Open()
+   {
+     ::unlink(m_fifoNameExtControl.c_str());
+@@ -1928,73 +1960,101 @@
+     ::unlink(m_fifoNameStream.c_str());
+     ::rmdir(m_fifoDir.c_str());
+ 
+-    const mode_t origUmask = ::umask(0);
+-    
+-    if (::mkdir(m_fifoDir.c_str(), 0755) < 0)
++    if (! m_settings.ShallUseSocketInterface())
+     {
+-      perror(("vdr-xine: error: couldn't create directory '" + m_fifoDir + "'").c_str());
+-      esyslog(("vdr-xine: error: couldn't create directory '" + m_fifoDir + "'").c_str());
+ 
+-      ::umask(origUmask);
+-      return false;
+-    }
++      const mode_t origUmask = ::umask(0);
+     
+-    if (::mknod(m_fifoNameExtControl.c_str(), 0666 | S_IFIFO, 0) < 0)
+-    {
+-      perror(("vdr-xine: error: couldn't create fifo '" + m_fifoNameExtControl + "'").c_str());
+-      esyslog(("vdr-xine: error: couldn't create fifo '" + m_fifoNameExtControl + "'").c_str());
++      if (::mkdir(m_fifoDir.c_str(), 0755) < 0)
++      {
++        perror(("vdr-xine: error: couldn't create directory '" + m_fifoDir + "'").c_str());
++        esyslog(("vdr-xine: error: couldn't create directory '" + m_fifoDir + "'").c_str());
+ 
+-      ::umask(origUmask);
+-      return false;
+-    }
++        ::umask(origUmask);
++        return false;
++      }
++    
++      if (::mknod(m_fifoNameExtControl.c_str(), 0666 | S_IFIFO, 0) < 0)
++      {
++        perror(("vdr-xine: error: couldn't create fifo '" + m_fifoNameExtControl + "'").c_str());
++        esyslog(("vdr-xine: error: couldn't create fifo '" + m_fifoNameExtControl + "'").c_str());
+ 
+-    if (::mknod(m_fifoNameExtResult.c_str(), 0644 | S_IFIFO, 0) < 0)
+-    {
+-      perror(("vdr-xine: error: couldn't create fifo '" + m_fifoNameExtResult + "'").c_str());
+-      esyslog(("vdr-xine: error: couldn't create fifo '" + m_fifoNameExtResult + "'").c_str());
++        ::umask(origUmask);
++        return false;
++      }
+ 
+-      ::umask(origUmask);
+-      return false;
+-    }
++      if (::mknod(m_fifoNameExtResult.c_str(), 0644 | S_IFIFO, 0) < 0)
++      {
++        perror(("vdr-xine: error: couldn't create fifo '" + m_fifoNameExtResult + "'").c_str());
++        esyslog(("vdr-xine: error: couldn't create fifo '" + m_fifoNameExtResult + "'").c_str());
+ 
+-    if (::mknod(m_fifoNameControl.c_str(), 0644 | S_IFIFO, 0) < 0)
+-    {
+-      perror(("vdr-xine: error: couldn't create fifo '" + m_fifoNameControl + "'").c_str());
+-      esyslog(("vdr-xine: error: couldn't create fifo '" + m_fifoNameControl + "'").c_str());
++        ::umask(origUmask);
++        return false;
++      }
+ 
+-      ::umask(origUmask);
+-      return false;
+-    }
++      if (::mknod(m_fifoNameControl.c_str(), 0644 | S_IFIFO, 0) < 0)
++      {
++        perror(("vdr-xine: error: couldn't create fifo '" + m_fifoNameControl + "'").c_str());
++        esyslog(("vdr-xine: error: couldn't create fifo '" + m_fifoNameControl + "'").c_str());
+ 
+-    if (::mknod(m_fifoNameResult.c_str(), 0666 | S_IFIFO, 0) < 0)
+-    {
+-      perror(("vdr-xine: error: couldn't create fifo '" + m_fifoNameResult + "'").c_str());
+-      esyslog(("vdr-xine: error: couldn't create fifo '" + m_fifoNameResult + "'").c_str());
++        ::umask(origUmask);
++        return false;
++      }
+ 
+-      ::umask(origUmask);
+-      return false;
+-    }
++      if (::mknod(m_fifoNameResult.c_str(), 0666 | S_IFIFO, 0) < 0)
++      {
++        perror(("vdr-xine: error: couldn't create fifo '" + m_fifoNameResult + "'").c_str());
++        esyslog(("vdr-xine: error: couldn't create fifo '" + m_fifoNameResult + "'").c_str());
+ 
+-    if (::mknod(m_fifoNameRemote.c_str(), 0666 | S_IFIFO, 0) < 0)
+-    {
+-      perror(("vdr-xine: error: couldn't create fifo '" + m_fifoNameRemote + "'").c_str());
+-      esyslog(("vdr-xine: error: couldn't create fifo '" + m_fifoNameRemote + "'").c_str());
++        ::umask(origUmask);
++        return false;
++      }
++
++      if (::mknod(m_fifoNameRemote.c_str(), 0666 | S_IFIFO, 0) < 0)
++      {
++        perror(("vdr-xine: error: couldn't create fifo '" + m_fifoNameRemote + "'").c_str());
++        esyslog(("vdr-xine: error: couldn't create fifo '" + m_fifoNameRemote + "'").c_str());
++
++        ::umask(origUmask);
++        return false;
++      }
++
++      if (::mknod(m_fifoNameStream.c_str(), 0644 | S_IFIFO, 0) < 0)
++      {
++        perror(("vdr-xine: error: couldn't create fifo '" + m_fifoNameStream + "'").c_str());
++        esyslog(("vdr-xine: error: couldn't create fifo '" + m_fifoNameStream + "'").c_str());
+ 
++        ::umask(origUmask);
++        return false;
++      }
++    
+       ::umask(origUmask);
+-      return false;
+-    }
+ 
+-    if (::mknod(m_fifoNameStream.c_str(), 0644 | S_IFIFO, 0) < 0)
++    }
++    else
+     {
+-      perror(("vdr-xine: error: couldn't create fifo '" + m_fifoNameStream + "'").c_str());
+-      esyslog(("vdr-xine: error: couldn't create fifo '" + m_fifoNameStream + "'").c_str());
+ 
+-      ::umask(origUmask);
+-      return false;
++/*
++{ .path = FIFO_STREAM,           .mode = 0644, .port = 18701 },
++{ .path = FIFO_STREAM_CONTROL,   .mode = 0644, .port = 18702 },
++{ .path = FIFO_STREAM_RESULT,    .mode = 0666, .port = 18703 },
++{ .path = FIFO_STREAM_EVENT,     .mode = 0666, .port = 18704 },
++	
++*/
++	/* sockets - create the server sockets */
++	if ((fd_fifo0_serv = CreateServerSocket(18701)) == -1) 
++		return false;
++		
++	if ((fd_control_serv = CreateServerSocket(18702)) == -1)
++		return false;
++		
++	if ((fd_result_serv = CreateServerSocket(18703)) == -1)
++		return false;
++
++	if ((fd_remote_serv = CreateServerSocket(18704)) == -1)
++		return false;
+     }
+     
+-    ::umask(origUmask);
+-    
+     if (!Start())
+       return false;
+ 
+@@ -2026,6 +2086,11 @@
+     ::unlink(m_fifoNameRemote.c_str());
+     ::unlink(m_fifoNameStream.c_str());
+     ::rmdir(m_fifoDir.c_str());
++
++	::close(fd_remote_serv);
++	::close(fd_result_serv);
++	::close(fd_control_serv);
++	::close(fd_fifo0_serv);
+   }
+ 
+   void cXineLib::internalPaused(const bool paused)
+@@ -2087,7 +2152,13 @@
+       int myErrno = errno;
+       
+       ::signal(SIGPIPE, sigPipeHandler);
+-      
++            if (r == 0)
++      {
++	  fprintf(stderr, "deadlock! (no more)\n");
++	  disconnect();
++	  return -1;
++      }
++
+       if (r <= 0)
+       {
+         if (EAGAIN == myErrno || EINTR == myErrno)
+@@ -2095,7 +2166,7 @@
+ 
+         xfprintf(stderr, "read(%d) returned %d, error %d: ", n, r, myErrno);
+         errno = myErrno;
+-        if (!m_settings.ShallBeQuiet())
++        if (! m_settings.ShallBeQuiet())
+           perror("");
+ 
+         disconnect();
+@@ -2277,27 +2348,74 @@
+ //    fprintf(stderr, "Action done\n");
+   }
+   
++  int cXineLib::SocketAcceptHelper(int fd)
++  {
++	  // use cPoller for checking server socket for incoming requests
++	  cPoller poller(fd,0); /* POLLIN */
++	  struct sockaddr sain;
++	  socklen_t len = sizeof(sain);
++	  int client;
++	  
++	  //::fprintf(stderr,"vdr-xine: polling for connection on %d...\n",fd);
++	  if (!poller.Poll(100))
++		  return -1;
++
++	  //::fprintf(stderr,"vdr-xine: incoming requests on %d\n",fd);
++	  if ((client = ::accept(fd,(struct sockaddr *) &sain,&len)) == -1) {
++		  ::fprintf(stderr,"vdr-xine: fifo0 failed to accept...\n");
++		  return -1;
++	  }
++	  //::fprintf(stderr,"vdr-xine: successful request on %d (client: %d)\n",fd,client);
++	  return client;
++  }
++
+   bool cXineLib::checkConnect()
+   {
++
++	  /* files */
+ //    bool reinit = false;
+       
+ //    if (-1 == fd_fifo0)
+ //    {
+-      fd_fifo0 = ::open(m_fifoNameStream.c_str(), O_WRONLY | O_NONBLOCK);
+-      if (-1 == fd_fifo0)
++//
++     if (! m_settings.ShallUseSocketInterface())
++     {
++
++        fd_fifo0 = ::open(m_fifoNameStream.c_str(), O_WRONLY | O_NONBLOCK);
++        if (-1 == fd_fifo0)
+         return false;
+ 
+-      xfprintf(stderr, "vdr-xine: Client connecting ...\n");
++        xfprintf(stderr, "vdr-xine: Client connecting ...\n");
+ 
+-      char zero = 0;
+-      xwrite(fd_fifo0, &zero, sizeof (zero));
++        char zero = 0;
++        xwrite(fd_fifo0, &zero, sizeof (zero));
+ 
+-      fd_remote = ::open(m_fifoNameRemote.c_str(), O_RDONLY | O_NONBLOCK);
+-      fd_control = ::open(m_fifoNameControl.c_str(), O_WRONLY);
+-      fd_result  = ::open(m_fifoNameResult.c_str() , O_RDONLY);
++        fd_remote = ::open(m_fifoNameRemote.c_str(), O_RDONLY | O_NONBLOCK);
++        fd_control = ::open(m_fifoNameControl.c_str(), O_WRONLY);
++        fd_result  = ::open(m_fifoNameResult.c_str() , O_RDONLY);
+ 
+-      ::fcntl(fd_fifo0 , F_SETFL, ~O_NONBLOCK & ::fcntl(fd_fifo0 , F_GETFL, 0));
+-      ::fcntl(fd_remote, F_SETFL, ~O_NONBLOCK & ::fcntl(fd_remote, F_GETFL, 0));
++        ::fcntl(fd_fifo0 , F_SETFL, ~O_NONBLOCK & ::fcntl(fd_fifo0 , F_GETFL, 0));
++        ::fcntl(fd_remote, F_SETFL, ~O_NONBLOCK & ::fcntl(fd_remote, F_GETFL, 0));
++     }
++     else
++     {
++	  /* sockets */
++
++	  if (fd_fifo0_serv == -1)
++		  return false;
++	 
++	  if ((fd_fifo0 = SocketAcceptHelper(fd_fifo0_serv)) == -1)
++		  return false;
++
++	  if ((fd_control = SocketAcceptHelper(fd_control_serv)) == -1)
++		  return false;
++		
++	  if ((fd_result = SocketAcceptHelper(fd_result_serv)) == -1)
++		  return false;
++	  
++	  if ((fd_remote = SocketAcceptHelper(fd_remote_serv)) == -1)
++		  return false;
++     }
+       
+       internalPaused(false);
+       
+diff -urNad vdr-plugin-xine-0.7.4/xineLib.h /tmp/dpep.y7amrL/vdr-plugin-xine-0.7.4/xineLib.h
+--- vdr-plugin-xine-0.7.4/xineLib.h	2005-07-03 15:36:57.000000000 +0200
++++ /tmp/dpep.y7amrL/vdr-plugin-xine-0.7.4/xineLib.h	2005-07-03 15:37:01.000000000 +0200
+@@ -132,8 +132,15 @@
+       return fd_remote;
+     }
+     
+-  private:    
++  private:
++/* sockets */
++	int CreateServerSocket(unsigned short port);
++	int SocketAcceptHelper(int fd);
++	int fd_fifo0_serv, fd_result_serv, fd_control_serv, fd_remote_serv;
++
+     int fd_fifo0, fd_result, fd_control, fd_remote;
++
++
+     cMutex m_ioMutex, m_dataMutex, m_disconnectMutex;
+     cMutex &m_osdMutex;
+ 
+diff -urNad vdr-plugin-xine-0.7.4/xineSettings.c /tmp/dpep.y7amrL/vdr-plugin-xine-0.7.4/xineSettings.c
+--- vdr-plugin-xine-0.7.4/xineSettings.c	2005-07-03 15:36:57.000000000 +0200
++++ /tmp/dpep.y7amrL/vdr-plugin-xine-0.7.4/xineSettings.c	2005-07-03 15:37:01.000000000 +0200
+@@ -57,6 +57,7 @@
+   cXineSettings::cXineSettings()
+     : m_switchSkin(false)
+     , m_beQuiet(false)
++    , m_useSocketInterface(false)
+     , m_osdMode(osdBlendScaledAuto)
+     , m_usageMode(modeLiveTV)
+ //    , m_usageModeDefault(modeLiveTV)
+@@ -479,4 +480,14 @@
+     return m_beQuiet;
+   }
+   
++  void cXineSettings::SetUseSocketInterface(const bool useSocketInterface)
++  {
++    m_useSocketInterface = useSocketInterface;
++  }
++  
++  bool cXineSettings::ShallUseSocketInterface() const
++  {
++    return m_useSocketInterface;
++  }
++  
+ };
+diff -urNad vdr-plugin-xine-0.7.4/xineSettings.h /tmp/dpep.y7amrL/vdr-plugin-xine-0.7.4/xineSettings.h
+--- vdr-plugin-xine-0.7.4/xineSettings.h	2005-07-03 15:36:57.000000000 +0200
++++ /tmp/dpep.y7amrL/vdr-plugin-xine-0.7.4/xineSettings.h	2005-07-03 15:37:01.000000000 +0200
+@@ -74,6 +74,7 @@
+   private:
+     bool m_switchSkin;
+     bool m_beQuiet;
++    bool m_useSocketInterface;
+     
+     eOsdMode m_osdMode;
+     eUsageMode m_usageMode /* , m_usageModeDefault */;
+@@ -148,6 +149,9 @@
+ 
+     void SetBeQuiet(const bool beQuiet);
+     bool ShallBeQuiet() const;
++
++    void SetUseSocketInterface(const bool useSocketInterface);
++    bool ShallUseSocketInterface() const;
+   };
+ 
+ };

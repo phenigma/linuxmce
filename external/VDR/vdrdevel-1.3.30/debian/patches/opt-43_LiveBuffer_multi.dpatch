@@ -1,0 +1,2371 @@
+#!/bin/sh /usr/share/dpatch/dpatch-run
+
+## opt-43_LiveBuffer_multi.dpatch by Thomas Bergwinkl <Thomas.Bergwinkl@t-online.de>
+##
+## downloaded from http://vdrportal.de/board/thread.php?postid=346440#post346440
+## original filename: vdr-1.3.29-LiveBuffer-0.0.8.diff.bz2
+##
+## Thomas Günther <tom@toms-cafe.de>:
+##   - adapted to following patches:
+##     - dd-record-option
+##     - enAIO-2.4
+##     - jumpplay-0.6
+##     - subtitles-ttxtsubs
+##     - submenu
+##     - stuttering
+##   - fixed adaption to subtitles-ttxtsubs taken from:
+##     http://www.saunalahti.fi/~rahrenbe/vdr/patches/vdr-1.3.30-enAIO-2.5-and-subtitles-0.3.8-and-ttxtsubs-0.0.5-and-Livebuffer-0.0.8.diff.gz
+##   - integrated version number define to fix a crash in tvonscreen plugin
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: This patch implements a livebuffer to allow permanent timeshifting.
+
+@DPATCH@
+diff -Naur vdr.orig/config.c vdr/config.c
+--- vdr.orig/config.c	2005-08-22 18:44:35.000000000 +0200
++++ vdr/config.c	2005-08-22 18:45:21.000000000 +0200
+@@ -362,6 +362,10 @@
+   PauseLifetime = 1;
+   UseSubtitle = 1;
+   UseVps = 0;
++  LiveBuffer = 0;
++  LiveBufferSize = 10;
++  LiveReplay = 0;
++  KeepBuffer = 0;
+   VpsMargin = 120;
+   RecordingDirs = 1;
+   VideoDisplayFormat = 1;
+@@ -537,6 +541,10 @@
+   else if (!strcasecmp(Name, "UseSubtitle"))         UseSubtitle        = atoi(Value);
+   else if (!strcasecmp(Name, "UseVps"))              UseVps             = atoi(Value);
+   else if (!strcasecmp(Name, "VpsMargin"))           VpsMargin          = atoi(Value);
++  else if (!strcasecmp(Name, "LiveBuffer"))	     LiveBuffer         = atoi(Value);
++  else if (!strcasecmp(Name, "LiveBufferSize"))      LiveBufferSize     = atoi(Value);
++  else if (!strcasecmp(Name, "LiveReplay"))          LiveReplay         = atoi(Value);
++  else if (!strcasecmp(Name, "KeepBuffer"))          KeepBuffer         = atoi(Value);
+   else if (!strcasecmp(Name, "RecordingDirs"))       RecordingDirs      = atoi(Value);
+   else if (!strcasecmp(Name, "VideoDisplayFormat"))  VideoDisplayFormat = atoi(Value);
+   else if (!strcasecmp(Name, "VideoFormat"))         VideoFormat        = atoi(Value);
+@@ -618,6 +626,10 @@
+   Store("UseSubtitle",        UseSubtitle);
+   Store("UseVps",             UseVps);
+   Store("VpsMargin",          VpsMargin);
++  Store("LiveBuffer",         LiveBuffer);
++  Store("LiveBufferSize",     LiveBufferSize);
++  Store("LiveReplay",         LiveReplay);
++  Store("KeepBuffer",         KeepBuffer);
+   Store("RecordingDirs",      RecordingDirs);
+   Store("VideoDisplayFormat", VideoDisplayFormat);
+   Store("VideoFormat",        VideoFormat);
+diff -Naur vdr.orig/config.h vdr/config.h
+--- vdr.orig/config.h	2005-08-22 18:44:35.000000000 +0200
++++ vdr/config.h	2005-08-22 18:45:21.000000000 +0200
+@@ -25,6 +25,8 @@
+
+ #define ENAIOVERSION 25
+
++#define LIFEBUFFERVERSION 8
++
+ #define MAXPRIORITY 99
+ #define MAXLIFETIME 99
+
+@@ -260,6 +262,10 @@
+   int UseSubtitle;
+   int UseVps;
+   int VpsMargin;
++  int LiveBuffer;
++  int LiveBufferSize;
++  int LiveReplay;
++  int KeepBuffer;
+   int RecordingDirs;
+   int VideoDisplayFormat;
+   int VideoFormat;
+diff -Naur vdr.orig/cutter.c vdr/cutter.c
+--- vdr.orig/cutter.c	2005-08-16 18:17:32.000000000 +0200
++++ vdr/cutter.c	2005-08-22 18:45:21.000000000 +0200
+@@ -12,27 +12,34 @@
+ #include "remux.h"
+ #include "thread.h"
+ #include "videodir.h"
++#include "recorder.h"
++#include "menu.h"
+ 
+ // --- cCuttingThread --------------------------------------------------------
+ 
+ class cCuttingThread : public cThread {
+ private:
++  bool needsLiveBuffer;
+   const char *error;
+   int fromFile, toFile;
+   cFileName *fromFileName, *toFileName;
+   cIndexFile *fromIndex, *toIndex;
+   cMarks fromMarks, toMarks;
++  cFileWriter *writer;
+ protected:
+   virtual void Action(void);
+ public:
+-  cCuttingThread(const char *FromFileName, const char *ToFileName);
++  cCuttingThread(const char *FromFileName, const char *ToFileName, cFileWriter *Writer, bool NeedsLiveBuffer = false);
+   virtual ~cCuttingThread();
+   const char *Error(void) { return error; }
++  bool NeedsLiveBuffer() {return needsLiveBuffer;}
+   };
+ 
+-cCuttingThread::cCuttingThread(const char *FromFileName, const char *ToFileName)
++cCuttingThread::cCuttingThread(const char *FromFileName, const char *ToFileName, cFileWriter *Writer, bool NeedsLiveBuffer)
+ :cThread("video cutting")
+ {
++  writer=Writer;
++  needsLiveBuffer=NeedsLiveBuffer;
+   error = NULL;
+   fromFile = toFile = -1;
+   fromFileName = toFileName = NULL;
+@@ -76,6 +83,7 @@
+      uchar buffer[MAXFRAMESIZE];
+      bool LastMark = false;
+      bool cutIn = true;
++     bool lIFrame = false;
+      while (Running()) {
+            uchar FileNumber;
+            int FileOffset, Length;
+@@ -87,7 +95,14 @@
+ 
+            // Read one frame:
+ 
++           if (Index>=fromIndex->Last())
++             continue;
+            if (fromIndex->Get(Index++, &FileNumber, &FileOffset, &PictureType, &Length)) {
++              if (Length==0)
++              {
++                Index++;
++                continue;
++              }
+               if (FileNumber != CurrentFileNumber) {
+                  fromFile = fromFileName->SetOffset(FileNumber, FileOffset);
+                  CurrentFileNumber = FileNumber;
+@@ -114,6 +129,17 @@
+            // Write one frame:
+ 
+            if (PictureType == I_FRAME) { // every file shall start with an I_FRAME
++                 if (writer)
++                   if (!lIFrame)
++                   {
++                     if (fromIndex->GetLast() - Index <= 1)
++                     {
++                       writer->RecordNextIFrame(((u_int64_t)(buffer[9]&0x0E)<<29)+((u_int64_t)buffer[10]<<22)+((u_int64_t)(buffer[11]&0xFE)<<14)+((u_int64_t)buffer[12]<<7)+((u_int64_t)(buffer[13]&0xFE)>>1));
++                       lIFrame=true;
++                     }
++                   }
++                   else
++                     break;
+               if (LastMark) // edited version shall end before next I-frame
+                  break;
+               if (FileSize > MEGABYTE(Setup.MaxVideoFileSize)) {
+@@ -181,14 +207,22 @@
+ bool cCutter::error = false;
+ bool cCutter::ended = false;
+ 
+-bool cCutter::Start(const char *FileName)
++bool cCutter::Start(const char *FileName, bool IsLiveRec, bool IsBeginning, cTimer *Timer)
+ {
+   if (!cuttingThread) {
+      error = false;
+      ended = false;
+      cRecording Recording(FileName);
+-     const char *evn = Recording.PrefixFileName('%');
+-     if (evn && RemoveVideoFile(evn) && MakeDirs(evn, true)) {
++     const char *evn = Recording.PrefixFileName('%',IsLiveRec);
++     if (Timer && !IsBeginning)
++     {
++       cRecordControl *temp = new cRecordControl(NULL,Timer,false,false,true);
++       evn = strdup(temp->FileName());
++       delete temp;
++     }
++     if (IsBeginning)
++       cRecordControls::Start(Timer,false,&evn);
++     if (evn && (IsBeginning || RemoveVideoFile(evn)) && MakeDirs(evn, true)) {
+         // XXX this can be removed once RenameVideoFile() follows symlinks (see videodir.c)
+         // remove a possible deleted recording with the same name to avoid symlink mixups:
+         char *s = strdup(evn);
+@@ -204,7 +238,7 @@
+         editedVersionName = strdup(evn);
+         Recording.WriteInfo();
+         Recordings.AddByName(editedVersionName);
+-        cuttingThread = new cCuttingThread(FileName, editedVersionName);
++        cuttingThread = new cCuttingThread(FileName, editedVersionName, IsBeginning ? cRecordControls::GetRecordControl(evn)->GetWriter() : NULL, IsLiveRec || IsBeginning || Timer);
+         return true;
+         }
+      }
+@@ -227,11 +261,14 @@
+      }
+ }
+ 
+-bool cCutter::Active(void)
++bool cCutter::Active(bool *needsLiveBuffer)
+ {
+   if (cuttingThread) {
+-     if (cuttingThread->Active())
++     if (cuttingThread->Active()) {
++        if (needsLiveBuffer)
++          *needsLiveBuffer = cuttingThread->NeedsLiveBuffer();
+         return true;
++        }
+      error = cuttingThread->Error();
+      Stop();
+      if (!error)
+diff -Naur vdr.orig/cutter.h vdr/cutter.h
+--- vdr.orig/cutter.h	2002-06-22 12:03:15.000000000 +0200
++++ vdr/cutter.h	2005-08-22 18:45:21.000000000 +0200
+@@ -10,6 +10,8 @@
+ #ifndef __CUTTER_H
+ #define __CUTTER_H
+ 
++#include "timers.h"
++
+ class cCuttingThread;
+ 
+ class cCutter {
+@@ -19,9 +21,9 @@
+   static bool error;
+   static bool ended;
+ public:
+-  static bool Start(const char *FileName);
++  static bool Start(const char *FileName, bool IsLiveRec = false, bool IsBeginning = false, cTimer *Timer = NULL);
+   static void Stop(void);
+-  static bool Active(void);
++  static bool Active(bool *needsLiveBuffer = NULL);
+   static bool Error(void);
+   static bool Ended(void);
+   };
+diff -Naur vdr.orig/device.c vdr/device.c
+--- vdr.orig/device.c	2005-08-22 18:44:35.000000000 +0200
++++ vdr/device.c	2005-08-22 18:45:21.000000000 +0200
+@@ -18,6 +18,7 @@
+ #include "receiver.h"
+ #include "status.h"
+ #include "transfer.h"
++#include "cutter.h"
+ 
+ // --- cPesAssembler ---------------------------------------------------------
+ 
+@@ -531,6 +532,12 @@
+   return false;
+ }
+ 
++bool cDevice::ProvidesChannelAndLiveBuffer(const cChannel *Channel, int Priority, bool *NeedsDetachReceivers, bool LiveRec) const
++{
++  return false;
++}
++
++
+ bool cDevice::SwitchChannel(const cChannel *Channel, bool LiveView)
+ {
+   if (LiveView)
+@@ -580,25 +587,33 @@
+ 
+ eSetChannelResult cDevice::SetChannel(const cChannel *Channel, bool LiveView)
+ {
+-  if (LiveView)
++  bool needsLiveBuffer;   // TODO: Nicht immer blocken!
++  if (cCutter::Active(&needsLiveBuffer))
++     if (needsLiveBuffer) {
++       Skins.Message(mtError, tr("LiveBuffer is still needed, try again later!")); 
++       return scrFailed;
++       }
++  if (LiveView && !(Setup.LiveBuffer && cLiveRecorderControl::GetLiveRecorder())) 
+      StopReplay();
+ 
+   // If this card can't receive this channel, we must not actually switch
+   // the channel here, because that would irritate the driver when we
+   // start replaying in Transfer Mode immediately after switching the channel:
+-  bool NeedsTransferMode = (LiveView && IsPrimaryDevice() && !ProvidesChannel(Channel, Setup.PrimaryLimit));
++  bool NeedsTransferMode = (LiveView && IsPrimaryDevice() && !ProvidesChannelAndLiveBuffer(Channel, Setup.PrimaryLimit, NULL, Setup.LiveBuffer));
+ 
+   eSetChannelResult Result = scrOk;
+ 
+   // If this DVB card can't receive this channel, let's see if we can
+   // use the card that actually can receive it and transfer data from there:
+ 
++
+   if (NeedsTransferMode) {
+      cDevice *CaDevice = GetDevice(Channel, 0);
+      if (CaDevice && CanReplay()) {
+         cStatus::MsgChannelSwitch(this, 0); // only report status if we are actually going to switch the channel
+-        if (CaDevice->SetChannel(Channel, false) == scrOk) // calling SetChannel() directly, not SwitchChannel()!
+-           cControl::Launch(new cTransferControl(CaDevice, Channel->Vpid(), Channel->Apids(), Channel->Dpids(), Channel->Spids(), Channel->Caids()));
++        if (CaDevice->SetChannel(Channel, false) == scrOk) { // calling SetChannel() directly, not SwitchChannel()!
++           Setup.LiveBuffer ? cLiveRecorderControl::Add(CaDevice, Channel/*->Vpid(), Channel->Apids(), Channel->Dpids(), Channel->Spids(), Channel->Name()*/) : cControl::Launch(new cTransferControl(CaDevice, Channel->Vpid(), Channel->Apids(), Channel->Dpids(), Channel->Spids(), Channel->Caids()));
++           }
+         else
+            Result = scrNoTransfer;
+         }
+@@ -886,8 +901,8 @@
+ void cDevice::Detach(cPlayer *Player)
+ {
+   if (Player && player == Player) {
+-     player->Activate(false);
+      player->device = NULL;
++     player->Activate(false);
+      player = NULL;
+      SetPlayMode(pmNone);
+      SetVideoDisplayFormat(eVideoDisplayFormat(Setup.VideoDisplayFormat));
+@@ -1073,10 +1088,16 @@
+ int cDevice::Priority(void) const
+ {
+   int priority = IsPrimaryDevice() ? Setup.PrimaryLimit - 1 : DEFAULTPRIORITY;
++  bool livebuffer = false;
+   for (int i = 0; i < MAXRECEIVERS; i++) {
+-      if (receiver[i])
++      if (receiver[i]) { 
++         if (receiver[i]->priority==-2)      
++           livebuffer=true;      
+          priority = max(receiver[i]->priority, priority);
+       }
++      }
++  if (priority < 0 && livebuffer)
++    priority = -2;
+   return priority;
+ }
+ 
+@@ -1135,7 +1156,7 @@
+ bool cDevice::Receiving(bool CheckAny) const
+ {
+   for (int i = 0; i < MAXRECEIVERS; i++) {
+-      if (receiver[i] && (CheckAny || receiver[i]->priority >= 0)) // cReceiver with priority < 0 doesn't count
++      if (receiver[i] && (CheckAny || receiver[i]->priority >= 0 || receiver[i]->priority==-2)) // cReceiver with priority < 0 doesn't count, but -2 counts (LiveBuffer)
+          return true;
+       }
+   return false;
+@@ -1234,7 +1255,9 @@
+          receiversLeft = true;
+       }
+   if (!receiversLeft)
+-     Cancel(3);
++  {
++ //     Cancel(3); 
++  }
+ }
+ 
+ void cDevice::DetachAll(int Pid)
+diff -Naur vdr.orig/device.h vdr/device.h
+--- vdr.orig/device.h	2005-08-21 23:42:47.000000000 +0200
++++ vdr/device.h	2005-08-22 18:45:21.000000000 +0200
+@@ -215,6 +215,7 @@
+          ///< function itself actually returns true.
+          ///< The default implementation always returns false, so a derived cDevice
+          ///< class that can provide channels must implement this function.
++  virtual bool ProvidesChannelAndLiveBuffer(const cChannel *Channel, int Priority = -1, bool *NeedsDetachReceivers = NULL, bool LiveRec = false) const;
+   bool SwitchChannel(const cChannel *Channel, bool LiveView);
+          ///< Switches the device to the given Channel, initiating transfer mode
+          ///< if necessary.
+diff -Naur vdr.orig/dvbdevice.c vdr/dvbdevice.c
+--- vdr.orig/dvbdevice.c	2005-08-22 18:44:35.000000000 +0200
++++ vdr/dvbdevice.c	2005-08-22 18:45:21.000000000 +0200
+@@ -770,13 +770,18 @@
+ 
+ bool cDvbDevice::ProvidesChannel(const cChannel *Channel, int Priority, bool *NeedsDetachReceivers) const
+ {
++  return ProvidesChannelAndLiveBuffer(Channel,Priority,NeedsDetachReceivers);
++}
++
++bool cDvbDevice::ProvidesChannelAndLiveBuffer(const cChannel *Channel, int Priority, bool *NeedsDetachReceivers, bool LiveRec) const
++{
+   bool result = false;
+   bool hasPriority = Priority < 0 || Priority > this->Priority();
+   bool needsDetachReceivers = false;
+ 
+   if (ProvidesSource(Channel->Source()) && ProvidesCa(Channel)) {
+-     result = hasPriority;
+-     if (Priority >= 0 && Receiving(true)) {
++     result = hasPriority && !(LiveRec && this->Priority()==-2);
++     if ((Priority >= 0 || this->Priority() == -2) && Receiving(true)) {
+         if (dvbTuner->IsTunedTo(Channel)) {
+            if (Channel->Vpid() && !HasPid(Channel->Vpid()) || Channel->Apid(0) && !HasPid(Channel->Apid(0))) {
+ #ifdef DO_MULTIPLE_RECORDINGS
+@@ -813,11 +818,12 @@
+                             || pidHandles[ptVideo].pid == Channel->Vpid() // for recording the PIDs must be shifted from DMX_PES_AUDIO/VIDEO to DMX_PES_OTHER
+                             );
+ 
+-  bool StartTransferMode = IsPrimaryDevice() && !DoTune
+-                           && (LiveView && HasPid(Channel->Vpid() ? Channel->Vpid() : Channel->Apid(0)) && (pidHandles[ptVideo].pid != Channel->Vpid() || pidHandles[ptAudio].pid != Channel->Apid(0))// the PID is already set as DMX_PES_OTHER
++  bool StartTransferMode = IsPrimaryDevice() && (!DoTune || Setup.LiveBuffer)
++                           && (LiveView && (Setup.LiveBuffer || HasPid(Channel->Vpid() ? Channel->Vpid() : Channel->Apid(0)) && (pidHandles[ptVideo].pid != Channel->Vpid() || pidHandles[ptAudio].pid != Channel->Apid(0)))// the PID is already set as DMX_PES_OTHER
+                               || !LiveView && (pidHandles[ptVideo].pid == Channel->Vpid() || pidHandles[ptAudio].pid == Channel->Apid(0)) // a recording is going to shift the PIDs from DMX_PES_AUDIO/VIDEO to DMX_PES_OTHER
+                               );
+ 
++
+   bool TurnOnLivePIDs = HasDecoder() && !StartTransferMode && LiveView;
+ 
+ #ifndef DO_MULTIPLE_RECORDINGS
+@@ -832,6 +838,11 @@
+ 
+   // Set the tuner:
+ 
++  if (!Setup.LiveBuffer)
++    cLiveRecorderControl::Shutdown();
++  if (DoTune)
++    cLiveRecorderControl::DetachReceivers(this);
++
+   dvbTuner->Set(Channel, DoTune, !EITScanner.UsesDevice(this)); //XXX 1.3: this is an ugly hack - find a cleaner solution//XXX
+ 
+   // If this channel switch was requested by the EITScanner we don't wait for
+@@ -856,7 +867,9 @@
+      CHECK(ioctl(fd_audio, AUDIO_SET_AV_SYNC, true));
+      }
+   else if (StartTransferMode)
+-     cControl::Launch(new cTransferControl(this, Channel->Vpid(), Channel->Apids(), Channel->Dpids(), Channel->Spids(), Channel->Caids() ));
++  {
++     Setup.LiveBuffer ? cLiveRecorderControl::Add(this, Channel /*->Vpid(), Channel->Apids(), Channel->Dpids(), Channel->Spids(), Channel->Name()*/) : cControl::Launch(new cTransferControl(this, Channel->Vpid(), Channel->Apids(), Channel->Dpids(), Channel->Spids(), Channel->Caids() ));
++  }
+ 
+   return true;
+ }
+diff -Naur vdr.orig/dvbdevice.h vdr/dvbdevice.h
+--- vdr.orig/dvbdevice.h	2005-08-21 23:42:47.000000000 +0200
++++ vdr/dvbdevice.h	2005-08-22 18:45:21.000000000 +0200
+@@ -62,6 +62,7 @@
+   virtual bool ProvidesSource(int Source) const;
+   virtual bool ProvidesTransponder(const cChannel *Channel) const;
+   virtual bool ProvidesChannel(const cChannel *Channel, int Priority = -1, bool *NeedsDetachReceivers = NULL) const;
++  virtual bool ProvidesChannelAndLiveBuffer(const cChannel *Channel, int Priority = -1, bool *NeedsDetachReceivers = NULL, bool LiveRec = false) const;
+ protected:
+   virtual bool SetChannelDevice(const cChannel *Channel, bool LiveView);
+ public:
+diff -Naur vdr.orig/dvbplayer.c vdr/dvbplayer.c
+--- vdr.orig/dvbplayer.c	2005-08-22 18:44:35.000000000 +0200
++++ vdr/dvbplayer.c	2005-08-22 18:45:21.000000000 +0200
+@@ -176,6 +176,8 @@
+ 
+ class cDvbPlayer : public cPlayer, cThread {
+ private:
++  bool isLiveRec;
++  bool rew;
+   enum ePlayModes { pmPlay, pmPause, pmSlow, pmFast, pmStill };
+   enum ePlayDirs { pdForward, pdBackward };
+   static int Speeds[];
+@@ -183,6 +185,7 @@
+   cRingBufferFrame *ringBuffer;
+   cBackTrace *backTrace;
+   cMarks *marks;
++  char* filename;
+   cFileName *fileName;
+   cIndexFile *index;
+   int replayFile;
+@@ -203,7 +206,7 @@
+   virtual void Activate(bool On);
+   virtual void Action(void);
+ public:
+-  cDvbPlayer(const char *FileName, cMarks *Marks = NULL);
++  cDvbPlayer(const char *FileName, cMarks *Marks = NULL, bool IsLiveRec = false);
+   virtual ~cDvbPlayer();
+   bool Active(void) { return cThread::Running(); }
+   void Pause(void);
+@@ -214,7 +217,9 @@
+   void SkipSeconds(int Seconds);
+   void Goto(int Position, bool Still = false);
+   virtual bool GetIndex(int &Current, int &Total, bool SnapToIFrame = false);
++  virtual int GetIndexOffset(void) { return index->GetFirstFrame(); }
+   virtual bool GetReplayMode(bool &Play, bool &Forward, int &Speed);
++  void Rew(bool On);
+   };
+ 
+ #define MAX_VIDEO_SLOWMOTION 63 // max. arg to pass to VIDEO_SLOWMOTION // TODO is this value correct?
+@@ -222,10 +227,14 @@
+ #define MAX_SPEEDS    3 // the offset of the maximum speed from normal speed in either direction
+ #define SPEED_MULT   12 // the speed multiplier
+ int cDvbPlayer::Speeds[] = { 0, -2, -4, -8, 1, 2, 4, 12, 0 };
++#define FRAMESWAIT    -1
+ 
+-cDvbPlayer::cDvbPlayer(const char *FileName, cMarks *Marks)
++cDvbPlayer::cDvbPlayer(const char *FileName, cMarks *Marks, bool IsLiveRec)
+ :cThread("dvbplayer")
+ {
++  DeviceClear();
++  isLiveRec=IsLiveRec;
++  rew=false;
+   nonBlockingFileReader = NULL;
+   ringBuffer = NULL;
+   backTrace = NULL;
+@@ -238,6 +247,7 @@
+   readIndex = writeIndex = -1;
+   readFrame = NULL;
+   playFrame = NULL;
++  filename = strdup(FileName);
+   isyslog("replay %s", FileName);
+   fileName = new cFileName(FileName, false);
+   replayFile = fileName->Open();
+@@ -245,7 +255,7 @@
+      return;
+   ringBuffer = new cRingBufferFrame(PLAYERBUFSIZE);
+   // Create the index file:
+-  index = new cIndexFile(FileName, false);
++  index = new cIndexFile(FileName, false, isLiveRec);
+   if (!index)
+      esyslog("ERROR: can't allocate index");
+   else if (!index->Ok()) {
+@@ -260,6 +270,7 @@
+ {
+   Detach();
+   Save();
++  free(filename);
+   delete readFrame; // might not have been stored in the buffer in Action()
+   delete index;
+   delete fileName;
+@@ -350,6 +361,8 @@
+ {
+   if (index) {
+      int Index = index->GetResume();
++     if (Index == -2)
++       Index = index->GetLast()-6;
+      if (Index >= 0) {
+         uchar FileNumber;
+         int FileOffset;
+@@ -365,11 +378,13 @@
+   if (index) {
+      int Index = writeIndex;
+      if (Index >= 0) {
+-        Index -= RESUMEBACKUP;
++        Index -= isLiveRec ? 25 : RESUMEBACKUP;
+         if (Index > 0)
+            Index = index->GetNextIFrame(Index, false);
+         else
+            Index = 0;
++        if (isLiveRec && !rew)
++           return index->StoreResume(-2);
+         if (Index >= 0)
+            return index->StoreResume(Index);
+         }
+@@ -586,10 +601,25 @@
+   bool Sleep = false;
+ 
+   while (Running() && (NextFile() || readIndex >= 0 || ringBuffer->Available() || !DeviceFlush(100))) {
++         if (!index && isLiveRec)
++         {
++           index = new cIndexFile(filename, false, true);
++           if (!index->Ok())
++           {
++             delete index;
++             index=NULL;
++           }
++           usleep(100);
++           continue;
++        }
+         if (Sleep) {
+            cCondWait::SleepMs(3); // this keeps the CPU load low
+            Sleep = false;
+            }
++        if (isLiveRec && index->GetLast()<FRAMESWAIT) {
++           Sleep=true;
++           continue;
++           }
+         cPoller Poller;
+         if (DevicePoll(Poller, 100)) {
+ 
+@@ -597,6 +627,19 @@
+ 
+            // Read the next frame from the file:
+ 
++           if (isLiveRec && index->GetLast()>100 && readIndex <= (index->GetFirstFrame()+25))
++           {
++             if (playMode == pmStill || playMode == pmPause)
++             {
++               if (playMode == pmStill)
++                  Empty();
++               DevicePlay();
++               playMode = pmPlay;
++               playDir = pdForward;
++             }
++             if (readIndex<=index->GetFirstFrame()+12)
++               Goto(index->GetFirstFrame()+25,false);
++           }
+            if (playMode != pmStill && playMode != pmPause) {
+               if (!readFrame && (replayFile >= 0 || readIndex >= 0)) {
+                  if (!nonBlockingFileReader->Reading()) {
+@@ -665,11 +708,23 @@
+                            PictureType == I_FRAME)
+                           total = index->Last();
+                        if (!(index->Get(readIndex, &FileNumber, &FileOffset, NULL, &Length) && NextFile(FileNumber, FileOffset))) {
++                            if (isLiveRec)
++                            {
++                              readIndex--;
++                              Sleep=true; 
++                              continue;
++                            }
+                           readIndex = -1;
+                           eof = true;
+                           continue;
+                           }
++                          if (!Length)
++                          { 
++                            readIndex+=2;
++                            while(!(index->Get(readIndex, &FileNumber, &FileOffset, NULL, &Length) && NextFile(FileNumber, FileOffset))); 
++                          }
+                        }
++                         
+                     else // allows replay even if the index file is missing
+                        Length = MAXFRAMESIZE;
+                     if (Length == -1)
+@@ -687,7 +742,7 @@
+                     readFrame = new cFrame(b, -r, ftUnknown, readIndex); // hands over b to the ringBuffer
+                     b = NULL;
+                     }
+-                 else if (r == 0)
++                 else if (r == 0 && !isLiveRec)
+                     eof = true;
+                  else if (r < 0 && FATALERRNO) {
+                     LOG_ERROR;
+@@ -696,7 +751,6 @@
+                  }
+ 
+               // Store the frame in the buffer:
+-
+               if (readFrame) {
+                  if (cutIn) {
+                     cRemux::SetBrokenLink(readFrame->Data(), readFrame->Count());
+@@ -990,15 +1044,20 @@
+   return true;
+ }
+ 
++void cDvbPlayer::Rew(bool On)
++{
++  rew=On;
++}
++
+ // --- cDvbPlayerControl -----------------------------------------------------
+ 
+-cDvbPlayerControl::cDvbPlayerControl(const char *FileName)
+-:cControl(player = new cDvbPlayer(FileName))
++cDvbPlayerControl::cDvbPlayerControl(const char *FileName, bool IsLiveRec)
++:cControl(player = new cDvbPlayer(FileName, NULL, IsLiveRec))
+ {
+ }
+ 
+-cDvbPlayerControl::cDvbPlayerControl(const char *FileName, cMarks *Marks)
+-:cControl(player = new cDvbPlayer(FileName, Marks))
++cDvbPlayerControl::cDvbPlayerControl(const char *FileName, cMarks *Marks, bool IsLiveRec)
++:cControl(player = new cDvbPlayer(FileName, Marks, IsLiveRec))
+ {
+ }
+ 
+@@ -1055,10 +1114,16 @@
+   return -1;
+ }
+ 
+-bool cDvbPlayerControl::GetIndex(int &Current, int &Total, bool SnapToIFrame)
++bool cDvbPlayerControl::GetIndex(int &Current, int &Total, bool SnapToIFrame, bool onlyExisting)
+ {
+   if (player) {
+      player->GetIndex(Current, Total, SnapToIFrame);
++     if (onlyExisting)
++     {
++       int i=player->GetIndexOffset();
++       Total-=i;
++       Current-=i;
++     }
+      return true;
+      }
+   return false;
+@@ -1074,3 +1139,8 @@
+   if (player)
+      player->Goto(Position, Still);
+ }
++
++void cDvbPlayerControl::Rew(bool On)
++{
++  player->Rew(On);
++}
+diff -Naur vdr.orig/dvbplayer.h vdr/dvbplayer.h
+--- vdr.orig/dvbplayer.h	2005-08-22 18:44:35.000000000 +0200
++++ vdr/dvbplayer.h	2005-08-22 18:45:21.000000000 +0200
+@@ -19,8 +19,8 @@
+ private:
+   cDvbPlayer *player;
+ public:
+-  cDvbPlayerControl(const char *FileName);
+-  cDvbPlayerControl(const char *FileName, cMarks *Marks);
++  cDvbPlayerControl(const char *FileName, bool IsLiveRec = false);
++  cDvbPlayerControl(const char *FileName, cMarks *Marks, bool IsLiveRec = false);
+        // Sets up a player for the given file.
+   virtual ~cDvbPlayerControl();
+   bool Active(void);
+@@ -43,7 +43,7 @@
+        // The sign of 'Seconds' determines the direction in which to skip.
+        // Use a very large negative value to go all the way back to the
+        // beginning of the recording.
+-  bool GetIndex(int &Current, int &Total, bool SnapToIFrame = false);
++  bool GetIndex(int &Current, int &Total, bool SnapToIFrame = false, bool onlyExisting = false);
+        // Returns the current and total frame index, optionally snapped to the
+        // nearest I-frame.
+   bool GetReplayMode(bool &Play, bool &Forward, int &Speed);
+@@ -55,6 +55,9 @@
+   void Goto(int Index, bool Still = false);
+        // Positions to the given index and displays that frame as a still picture
+        // if Still is true.
++  virtual bool IsLiveRecording() {return false;}
++  virtual void LiveReplay() {};
++  void Rew(bool On = true);
+   };
+ 
+ #endif //__DVBPLAYER_H
+diff -Naur vdr.orig/dvbsub.h vdr/dvbsub.h
+--- vdr.orig/dvbsub.h	2005-08-22 18:44:35.000000000 +0200
++++ vdr/dvbsub.h	2005-08-22 18:52:42.000000000 +0200
+@@ -14,6 +14,7 @@
+   void Subscribe(iPidQuery* listener);
+ private:
+   friend class cRecordControl;
++  friend class cLiveRecorder;
+   int GetPidByChannel( int DevNr, const cChannel* Channel, int Language );
+   iPidQuery* query;
+ };
+diff -Naur vdr.orig/eitscan.c vdr/eitscan.c
+--- vdr.orig/eitscan.c	2005-08-07 20:47:53.000000000 +0200
++++ vdr/eitscan.c	2005-08-22 18:45:21.000000000 +0200
+@@ -150,7 +150,7 @@
+                          if (!Channel->Ca() || Channel->Ca() == Device->DeviceNumber() + 1 || Channel->Ca() >= 0x0100) {
+                             if (Device->ProvidesTransponder(Channel)) {
+                                if (!Device->Receiving()) {
+-                                  bool IsPrimaryDeviceReplaying = Device == cDevice::PrimaryDevice() && Device->Replaying();
++                                  bool IsPrimaryDeviceReplaying = Device == cDevice::PrimaryDevice() && Device->Replaying() && !Device->Receiving(true);
+                                   if (Device != cDevice::ActualDevice() || (Device->ProvidesTransponderExclusively(Channel) && (IsPrimaryDeviceReplaying || now - lastActivity > Setup.EPGScanTimeout * 3600))) {
+                                      if (!IsPrimaryDeviceReplaying && Device == cDevice::ActualDevice() && !currentChannel) {
+                                         if (cTransferControl::ReceiverDevice())
+diff -Naur vdr.orig/i18n.c vdr/i18n.c
+--- vdr.orig/i18n.c	2005-08-22 18:44:35.000000000 +0200
++++ vdr/i18n.c	2005-08-22 18:45:21.000000000 +0200
+@@ -3921,6 +3921,90 @@
+     "Redigeeritud failide tükeldamine",
+     "Opdel redigerede filer",
+   },
++ { "Setup.Recording$LiveBuffer",
++   "Live-Puffer",
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "Käytä Live-puskurointia",
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++ },
++ { "Setup.Recording$LiveBufferSize",
++   "Größe des Live-Puffers (MB)",
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "Live-puskuroinnin koko",
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++ },
++ { "Setup.Recording$Go automatically into Replaymode",
++   "Automatisch Wiedergabemodus starten",
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "Live-puskuroinnin automaattinen toistotila",
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++ },
++ { "Setup.Recording$Keep paused LiveBuffer",
++   "Pausierten Live-Puffer beibehalten",
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "Live-puskuroinnin pysäytyskuva",
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++   "",//TODO
++ },
+   { "Setup.Replay$Multi speed mode",
+     "MultiSpeed Modus",
+     "Rezim z vec hitrostmi",
+diff -Naur vdr.orig/menu.c vdr/menu.c
+--- vdr.orig/menu.c	2005-08-22 18:44:35.000000000 +0200
++++ vdr/menu.c	2005-08-22 18:45:21.000000000 +0200
+@@ -743,12 +743,14 @@
+ 
+ class cMenuEditTimer : public cOsdMenu {
+ private:
++  int withBuffer;
+   cTimer *timer;
+   cTimer data;
+   int channel;
+   bool addIfConfirmed;
+   cMenuEditDateItem *firstday;
+   void SetFirstDayItem(void);
++  void Setup(void);
+ public:
+   cMenuEditTimer(cTimer *Timer, bool New = false);
+   virtual ~cMenuEditTimer();
+@@ -758,6 +760,7 @@
+ cMenuEditTimer::cMenuEditTimer(cTimer *Timer, bool New)
+ :cOsdMenu(tr("Edit timer"), 12)
+ {
++  withBuffer=false;
+   firstday = NULL;
+   timer = Timer;
+   addIfConfirmed = New;
+@@ -766,8 +769,24 @@
+      if (New)
+         data.SetFlags(tfActive);
+      channel = data.Channel()->Number();
++     Setup();
++     SetFirstDayItem();
++     }
++  Timers.IncBeingEdited();
++}
++
++void cMenuEditTimer::Setup()
++{
++  int current = Current();
++  Clear(); 
+      Add(new cMenuEditBitItem( tr("Active"),       &data.flags, tfActive));
+      Add(new cMenuEditChanItem(tr("Channel"),      &channel));
++  if (cLiveRecorderControl::GetLiveRecorder(Channels.GetByNumber(channel)) && !timer->Recording())
++  {
++    Add(new cMenuEditBoolItem(tr("LiveBuffer"), &withBuffer));
++  }
++  else
++    withBuffer=false;
+      Add(new cMenuEditDateItem(tr("Day"),          &data.day, &data.weekdays));
+      Add(new cMenuEditTimeItem(tr("Start"),        &data.start));
+      Add(new cMenuEditTimeItem(tr("Stop"),         &data.stop));
+@@ -775,9 +794,8 @@
+      Add(new cMenuEditIntItem( tr("Priority"),     &data.priority, 0, MAXPRIORITY));
+      Add(new cMenuEditIntItem( tr("Lifetime"),     &data.lifetime, 0, MAXLIFETIME));
+      Add(new cMenuEditStrItem( tr("File"),          data.file, sizeof(data.file), tr(FileNameChars)));
+-     SetFirstDayItem();
+-     }
+-  Timers.IncBeingEdited();
++  SetCurrent(Get(current));
++  Display();
+ }
+ 
+ cMenuEditTimer::~cMenuEditTimer()
+@@ -802,8 +820,10 @@
+ 
+ eOSState cMenuEditTimer::ProcessKey(eKeys Key)
+ {
++  int oldchannel = channel;
+   eOSState state = cOsdMenu::ProcessKey(Key);
+-
++  if (oldchannel!=channel)
++    Setup();
+   if (state == osUnknown) {
+      switch (Key) {
+        case kOk:     {
+@@ -827,6 +847,50 @@
+                           timer->Matches();
+                           Timers.SetModified();
+                           isyslog("timer %s %s (%s)", *timer->ToDescr(), addIfConfirmed ? "added" : "modified", timer->HasFlags(tfActive) ? "active" : "inactive");
++                          if (!timer->Recording() && withBuffer) 
++                          {
++                            if (data.StartTime() < time(NULL))
++                            {
++                              cIndexFile *index = new cIndexFile(cLiveRecorderControl::GetLiveRecorder(Channels.GetByNumber(channel))->GetFileName(),false);
++                              int now=index->GetLast() - 1;
++                              cMarks marks;
++                              marks.Load(cLiveRecorderControl::GetLiveRecorder(Channels.GetByNumber(channel))->GetFileName());
++                              marks.Add(now-(time(NULL)-data.StartTime())*FRAMESPERSEC > index->GetFirstFrame() ? now-(time(NULL)-data.StartTime())*FRAMESPERSEC : index->GetFirstFrame()+12 );
++                              marks.Save();
++                              if (data.StopTime() < time(NULL))
++                              {
++                                if (now-(time(NULL)-data.StopTime())*FRAMESPERSEC > index->GetFirstFrame())
++                                { 
++                                marks.Add(now-(time(NULL)-data.StopTime())*FRAMESPERSEC);
++                                marks.Save();
++                                if (!cCutter::Active()) {
++                                   if (!marks.Count())
++                                      Skins.Message(mtError, tr("No editing marks defined!"));
++                                   else if (!cCutter::Start(cLiveRecorderControl::GetLiveRecorder(Channels.GetByNumber(channel))->GetFileName(),true, false,timer)) 
++                                      Skins.Message(mtError, tr("Can't start editing process!"));
++                                   else
++                                      Skins.Message(mtInfo, tr("Editing process started"));
++                                   }
++                                else
++                                   Skins.Message(mtError, tr("Editing process already active!"));
++                                }
++                              }
++                              else
++                              {
++                                if (!cCutter::Active()) {
++                                   if (!marks.Count())
++                                      Skins.Message(mtError, tr("No editing marks defined!"));
++                                   else if (!cCutter::Start(cLiveRecorderControl::GetLiveRecorder(Channels.GetByNumber(channel))->GetFileName(),true,true,timer))
++                                      Skins.Message(mtError, tr("Can't start editing process!"));
++                                   else
++                                      Skins.Message(mtInfo, tr("Editing process started"));
++                                   }
++                                else
++                                   Skins.Message(mtError, tr("Editing process already active!"));
++                              }
++                              delete index;
++                            }
++                          }
+                           addIfConfirmed = false;
+                           }
+                      }
+@@ -2673,13 +2737,23 @@
+ // --- cMenuSetupRecord ------------------------------------------------------
+ 
+ class cMenuSetupRecord : public cMenuSetupBase {
++private:
++  void Setup();
+ public:
+   cMenuSetupRecord(void);
++  eOSState ProcessKey(eKeys Key);
+   };
+ 
+ cMenuSetupRecord::cMenuSetupRecord(void)
+ {
+   SetSection(tr("Recording"));
++  Setup();
++}
++
++void cMenuSetupRecord::Setup(void)
++{
++  int current=Current();
++  Clear();
+   Add(new cMenuEditIntItem( tr("Setup.Recording$Margin at start (min)"),     &data.MarginStart));
+   Add(new cMenuEditIntItem( tr("Setup.Recording$Margin at stop (min)"),      &data.MarginStop));
+   Add(new cMenuEditIntItem( tr("Setup.Recording$Primary limit"),             &data.PrimaryLimit, 0, MAXPRIORITY));
+@@ -2698,8 +2772,27 @@
+   Add(new cMenuEditBoolItem(tr("Setup.Recording$Show date"),                 &data.ShowRecDate));
+   Add(new cMenuEditBoolItem(tr("Setup.Recording$Show time"),                 &data.ShowRecTime));
+   Add(new cMenuEditBoolItem(tr("Setup.Recording$Show length"),               &data.ShowRecLength));
++  Add(new cMenuEditBoolItem(tr("Setup.Recording$LiveBuffer"),		     &data.LiveBuffer));
++  if (data.LiveBuffer) {
++    Add(new cMenuEditIntItem(tr("Setup.Recording$LiveBufferSize"),           &data.LiveBufferSize));
++    Add(new cMenuEditBoolItem(tr("Setup.Recording$Go automatically into Replaymode"),&data.LiveReplay));
++    Add(new cMenuEditBoolItem(tr("Setup.Recording$Keep paused LiveBuffer"),&data.KeepBuffer));
++}
++  SetCurrent(Get(current));
++  Display();
++}
++
++eOSState cMenuSetupRecord::ProcessKey(eKeys Key)
++{
++  int oldLiveBuffer = data.LiveBuffer;
++  eOSState state = cMenuSetupBase::ProcessKey(Key);
++
++  if (Key != kNone && data.LiveBuffer != oldLiveBuffer)
++     Setup();
++  return state;
+ }
+ 
++
+ // --- cMenuSetupReplay ------------------------------------------------------
+ 
+ class cMenuSetupReplay : public cMenuSetupBase {
+@@ -2908,6 +3001,7 @@
+ :cOsdMenu("")
+ {
+   replaying = Replaying;
++  isLiveRec = cControl::Control() ? cControl::Control()->IsLiveRecording() : false;
+   Set(Plugin);
+ 
+   // Initial submenus:
+@@ -2951,7 +3045,7 @@
+   if (Setup.MenuCmdPosition) {
+   // Replay control:
+ 
+-  if (replaying)
++  if (replaying && !isLiveRec)
+      Add(new cOsdItem(tr(" Stop replaying"), osStopReplay));
+ 
+   // Record control:
+@@ -3136,7 +3230,7 @@
+ 
+   // Color buttons:
+ 
+-  SetHelp(!replaying ? tr("Record") : NULL, tr("Audio"), replaying ? NULL : tr("Pause"), replaying ? tr("Button$Stop") : cReplayControl::LastReplayed() ? tr("Resume") : NULL);
++  SetHelp(!replaying || isLiveRec ? tr("Record") : NULL, tr("Audio"), replaying ? NULL : tr("Pause"), replaying ? isLiveRec ? tr("Replaymode") : tr("Button$Stop") : cReplayControl::LastReplayed() ? tr("Resume") : NULL);
+   Display();
+   lastActivity = time(NULL);
+ }
+@@ -3212,7 +3306,7 @@
+     default: switch (Key) {
+                case kRecord:
+                case kRed:    if (!HadSubMenu)
+-                                state = replaying ? osContinue : osRecord;
++                                state = replaying && !isLiveRec ? osContinue : osRecord;
+                              break;
+                case kGreen:  if (!HadSubMenu) {
+                                 cRemote::Put(kAudio, true);
+@@ -3222,8 +3316,15 @@
+                case kYellow: if (!HadSubMenu)
+                                 state = replaying ? osContinue : osPause;
+                              break;
+-               case kBlue:   if (!HadSubMenu)
++               case kBlue:   if (!HadSubMenu) {
++                                if (isLiveRec)
++                                {
++                                  cControl::Control()->LiveReplay();
++                                  state = osEnd;
++                                }
++                                else
+                                 state = replaying ? osStopReplay : cReplayControl::LastReplayed() ? osReplay : osContinue;
++                                }
+                              break;
+                default:      break;
+                }
+@@ -3676,7 +3777,7 @@
+ 
+ // --- cRecordControl --------------------------------------------------------
+ 
+-cRecordControl::cRecordControl(cDevice *Device, cTimer *Timer, bool Pause)
++cRecordControl::cRecordControl(cDevice *Device, cTimer *Timer, bool Pause, bool IsBeginning, bool IsBufferRec)
+ {
+   // We're going to manipulate an event here, so we need to prevent
+   // others from modifying any EPG data:
+@@ -3705,6 +3806,9 @@
+   cRecording Recording(timer, event);
+   fileName = strdup(Recording.FileName());
+ 
++  if (IsBufferRec)
++    return;
++
+   // crude attempt to avoid duplicate recordings:
+   if (cRecordControls::GetRecordControl(fileName)) {
+      isyslog("already recording: '%s'", fileName);
+@@ -3729,7 +3833,7 @@
+      const cChannel *ch = timer->Channel();
+      cTtxtSubsRecorderBase *subsRecorder = cVDRTtxtsubsHookListener::Hook()->NewTtxtSubsRecorder(device, ch);
+      int SubPids[3] = {DvbSubtitlesRecording.GetPidByChannel(device->DeviceNumber(), ch, 1), DvbSubtitlesRecording.GetPidByChannel(device->DeviceNumber(), ch, 2), 0};
+-     recorder = new cRecorder(fileName, ch->Ca(), timer->Priority(), ch->Vpid(), ch->Apids(), ch->Dpids(), SubPids, subsRecorder);
++     recorder = new cRecorder(fileName, ch->Ca(), timer->Priority(), ch->Vpid(), ch->Apids(), ch->Dpids(), SubPids, subsRecorder, false, IsBeginning);
+      if (device->AttachReceiver(recorder)) {
+         if (subsRecorder) subsRecorder->DeviceAttach();
+         Recording.WriteInfo();
+@@ -3809,7 +3913,7 @@
+ 
+ cRecordControl *cRecordControls::RecordControls[MAXRECORDCONTROLS] = { NULL };
+ 
+-bool cRecordControls::Start(cTimer *Timer, bool Pause)
++bool cRecordControls::Start(cTimer *Timer, bool Pause, const char **fileName)
+ {
+   int ch = Timer ? Timer->Channel()->Number() : cDevice::CurrentChannel();
+   cChannel *channel = Channels.GetByNumber(ch);
+@@ -3832,7 +3936,9 @@
+         if (!Timer || Timer->Matches()) {
+            for (int i = 0; i < MAXRECORDCONTROLS; i++) {
+                if (!RecordControls[i]) {
+-                  RecordControls[i] = new cRecordControl(device, Timer, Pause);
++                  RecordControls[i] = new cRecordControl(device, Timer, Pause, fileName!=NULL);
++                  if (fileName)
++                    *fileName = RecordControls[i]->FileName();
+                   return RecordControls[i]->Process(time(NULL));
+                   }
+                }
+@@ -3977,9 +4083,12 @@
+ char *cReplayControl::fileName = NULL;
+ char *cReplayControl::title = NULL;
+ 
+-cReplayControl::cReplayControl(void)
+-:cDvbPlayerControl(fileName, &marks)
++cReplayControl::cReplayControl(bool IsLiveRec,cLiveRecorder* Recorder)
++:cDvbPlayerControl(fileName, &marks, IsLiveRec)
+ {
++  isLiveRec=IsLiveRec;
++  livereplay=false;
++  recorder=Recorder;
+   displayReplay = NULL;
+   visible = modeOnly = shown = displayFrames = false;
+   lastCurrent = lastTotal = -1;
+@@ -4078,7 +4187,7 @@
+ {
+   int Current, Total;
+ 
+-  if (GetIndex(Current, Total) && Total > 0) {
++  if (GetIndex(Current, Total, false, true) && Total > 0) {
+      if (!visible) {
+         displayReplay = Skins.Current()->DisplayReplay(modeOnly);
+         displayReplay->SetMarks(&marks);
+@@ -4145,6 +4254,8 @@
+     case kLeft:
+     case kFastFwd:
+     case kRight: {
++         if (isLiveRec)
++           recorder->rew();
+          int dir = ((Key == kRight || Key == kFastFwd) ? 1 : -1);
+          if (dir > 0)
+             Seconds = min(Total - Current - STAY_SECONDS_OFF_END, Seconds);
+@@ -4156,6 +4267,8 @@
+     case kUp:
+     case kPause:
+     case kDown:
++         if (isLiveRec)
++            recorder->rew();
+          Seconds = min(Total - STAY_SECONDS_OFF_END, Seconds);
+          Goto(Seconds * FRAMESPERSEC, Key == kDown || Key == kPause);
+          timeSearchActive = false;
+@@ -4263,11 +4376,27 @@
+ void cReplayControl::EditCut(void)
+ {
+   if (fileName) {
++     cTimer *timer=NULL;
++     if (isLiveRec)
++     {
++       time_t t = time(NULL);
++       struct tm tm_r;
++       struct tm *now = localtime_r(&t, &tm_r);
++       timer = new cTimer;
++       cIndexFile index(cLiveRecorderControl::GetLiveRecorder()->GetFileName(),false);
++       int last = index.GetLast();
++       int temp = now->tm_min - (last-marks.First()->position)/FRAMESPERSEC/60;
++       timer->start = (now->tm_hour + temp/60)*100 + temp%60;
++       temp = now->tm_min - (last-marks.Last()->position)/FRAMESPERSEC/60;
++       timer->stop  = (now->tm_hour + temp/60)*100 + now->tm_min + temp%60;
++       timer->day = timer->SetTime(t-(last-marks.First()->position)/FRAMESPERSEC,0);
++       snprintf(timer->file, sizeof(timer->file), "%s", *Setup.NameInstantRecord ? Setup.NameInstantRecord : timer->channel->Name());
++     } 
+      Hide();
+      if (!cCutter::Active()) {
+         if (!marks.Count())
+            Skins.Message(mtError, tr("No editing marks defined!"));
+-        else if (!cCutter::Start(fileName))
++        else if (!cCutter::Start(fileName,isLiveRec,false,timer))
+            Skins.Message(mtError, tr("Can't start editing process!"));
+         else
+            Skins.Message(mtInfo, tr("Editing process started"));
+@@ -4278,6 +4407,22 @@
+      }
+ }
+ 
++void cReplayControl::AddBeginning(void)
++{
++  Hide();
++  if (!cCutter::Active()) {
++    if (!marks.Count())
++      Skins.Message(mtError, tr("No editing marks defined!"));
++    else if (!cCutter::Start(fileName,isLiveRec,true))
++      Skins.Message(mtError, tr("Can't start editing process!"));
++    else
++      Skins.Message(mtInfo, tr("Editing process started"));
++    }
++  else
++    Skins.Message(mtError, tr("Editing process already active!"));
++  ShowMode();
++}
++
+ void cReplayControl::EditTest(void)
+ {
+   int Current, Total;
+@@ -4298,7 +4443,7 @@
+ 
+ eOSState cReplayControl::ProcessKey(eKeys Key)
+ {
+-  if (!Active())
++  if (!Active() && !isLiveRec)
+      return osEnd;
+   if (Setup.LoadMarksInterval &&
+       time(NULL) >= lastLoadMarks + Setup.LoadMarksInterval) {
+@@ -4325,31 +4470,70 @@
+   bool DoShowMode = true;
+   switch (Key) {
+     // Positioning:
+-    case kPlay:
+-    case kUp:      Play(); break;
+-    case kPause:
+-    case kDown:    Pause(); break;
++    case kPlay:    if (isLiveRec && Setup.LiveReplay)
++                     livereplay=true;                 
++                   Play(); break;
++    case kUp:      if (isLiveRec && !livereplay)
++                     return osBUnknown;
++                   Play(); break;
++    case kPause:   if (isLiveRec && Setup.LiveReplay)
++                     livereplay=true;
++                   if (isLiveRec)
++                     recorder->rew();
++                   Pause(); break;
++    case kDown:    if (isLiveRec && !livereplay)
++                     return osBUnknown;
++                   if (isLiveRec)
++                     recorder->rew();
++                   Pause(); break;
+     case kFastRew|k_Release:
+     case kLeft|k_Release:
+                    if (Setup.MultiSpeedMode) break;
+-    case kFastRew:
+-    case kLeft:    Backward(); break;
++    case kFastRew: if (isLiveRec && Setup.LiveReplay)
++                     livereplay=true;
++                   if (isLiveRec)
++                     recorder->rew();
++                   Backward(); break;
++    case kLeft:    if (isLiveRec && !livereplay)
++                     return osBUnknown;
++                   if (isLiveRec)
++                     recorder->rew();
++                   Backward(); break;
+     case kFastFwd|k_Release:
+     case kRight|k_Release:
+                    if (Setup.MultiSpeedMode) break;
+-    case kFastFwd:
+-    case kRight:   Forward(); break;
+-    case kRed:     TimeSearch(); break;
++    case kFastFwd: if (isLiveRec && Setup.LiveReplay)
++                     livereplay=true;
++                   Forward(); break;
++    case kRight:   if (isLiveRec && !livereplay)
++                     return osBUnknown;
++                   Forward(); break;
++    case kRed:     if (isLiveRec && !livereplay)
++                     return osBUnknown;
++                   TimeSearch(); break;
+     case kGreen|k_Repeat:
+-    case kGreen:   SkipSeconds(-60); break;
++    case kGreen:   if (isLiveRec && !livereplay)
++                     return osBUnknown;
++                   if (isLiveRec)
++                     recorder->rew();
++                   SkipSeconds(-60); break;
+     case kYellow|k_Repeat:
+-    case kYellow:  SkipSeconds( 60); break;
+-    case kStop:
+-    case kBlue:    Hide();
++    case kYellow:  if (isLiveRec && !livereplay)
++                     return osBUnknown;
++                   SkipSeconds( 60); break;
++    case kStop:    if (isLiveRec && !livereplay)
++                     return osStopReplay;
++    case kBlue:    if (isLiveRec && !livereplay)
++                     return osBUnknown;
++                   if (isLiveRec)
++                     cLiveRecorderControl::GetLiveRecorder()->rew(false);
++                   Hide();
+                    Stop();
+                    return osEnd;
+     default: {
+       DoShowMode = false;
++      if (isLiveRec && !livereplay)
++         return osBUnknown;
+       switch (Key) {
+         // Editing:
+         case kMarkToggle:      MarkToggle(); break;
+@@ -4363,18 +4547,27 @@
+         case kMarkMoveForward: MarkMove(true); break;
+         case kEditCut:         EditCut(); break;
+         case kEditTest:        EditTest(); break;
++        case k1:               if (isLiveRec)
++                               {
++                                 AddBeginning();  
++                                 break;
++                               }
+         default: {
+           displayFrames = DisplayedFrames;
+           switch (Key) {
+             // Menu control:
+-            case kOk:      if (visible && !modeOnly) {
++            case kOk:      if (isLiveRec && !livereplay)
++                             return osBUnknown;
++                           if (visible && !modeOnly) {
+                               Hide();
+                               DoShowMode = true;
+                               }
+                            else
+                               Show();
+                            break;
+-            case kBack:    return osRecordings;
++            case kBack:    if (isLiveRec)
++                             return osBUnknown;    
++                           return osRecordings;
+             default:       return osUnknown;
+             }
+           }
+diff -Naur vdr.orig/menu.h vdr/menu.h
+--- vdr.orig/menu.h	2005-08-22 18:44:35.000000000 +0200
++++ vdr/menu.h	2005-08-22 18:45:21.000000000 +0200
+@@ -18,6 +18,7 @@
+ #include "recorder.h"
+ #include "skins.h"
+ #include "submenu.h"
++#include "transfer.h"
+ 
+ class cMenuText : public cOsdMenu {
+ private:
+@@ -35,6 +36,7 @@
+   time_t lastActivity;
+   cSubMenu submenu;
+   bool replaying;
++  bool isLiveRec;
+   static cOsdObject *pluginOsdObject;
+   void Set(const char *Plugin = NULL);
+ public:
+@@ -154,7 +156,7 @@
+   char *fileName;
+   bool GetEvent(void);
+ public:
+-  cRecordControl(cDevice *Device, cTimer *Timer = NULL, bool Pause = false);
++  cRecordControl(cDevice *Device, cTimer *Timer = NULL, bool Pause = false, bool IsBeginning = false, bool IsBufferRec = false);
+   virtual ~cRecordControl();
+   bool Process(time_t t);
+   cDevice *Device(void) { return device; }
+@@ -162,13 +164,14 @@
+   const char *InstantId(void) { return instantId; }
+   const char *FileName(void) { return fileName; }
+   cTimer *Timer(void) { return timer; }
++  cFileWriter *GetWriter(void) {return recorder->GetWriter();}
+   };
+ 
+ class cRecordControls {
+ private:
+   static cRecordControl *RecordControls[];
+ public:
+-  static bool Start(cTimer *Timer = NULL, bool Pause = false);
++  static bool Start(cTimer *Timer = NULL, bool Pause = false, const char **fileName = NULL);
+   static void Stop(const char *InstantId);
+   static void Stop(cDevice *Device);
+   static bool StopPrimary(bool DoIt = false);
+@@ -183,6 +186,9 @@
+ 
+ class cReplayControl : public cDvbPlayerControl {
+ private:
++  bool isLiveRec;
++  bool livereplay;
++  cLiveRecorder* recorder;
+   cSkinDisplayReplay *displayReplay;
+   cMarks marks;
+   bool visible, modeOnly, shown, displayFrames;
+@@ -205,13 +211,16 @@
+   void MarkJump(bool Forward);
+   void MarkMove(bool Forward);
+   void EditCut(void);
++  void AddBeginning(void);
+   void EditTest(void);
+ public:
+-  cReplayControl(void);
++  cReplayControl(bool IsLiveRec=false, cLiveRecorder* Recorder=NULL);
+   virtual ~cReplayControl();
+   virtual eOSState ProcessKey(eKeys Key);
+   virtual void Show(void);
+   virtual void Hide(void);
++  virtual bool IsLiveRecording() {return isLiveRec && !livereplay;}
++  virtual void LiveReplay() {livereplay=true;}
+   bool Visible(void) { return visible; }
+   static void SetRecording(const char *FileName, const char *Title);
+   static const char *LastReplayed(void);
+diff -Naur vdr.orig/osdbase.h vdr/osdbase.h
+--- vdr.orig/osdbase.h	2005-08-22 18:44:35.000000000 +0200
++++ vdr/osdbase.h	2005-08-22 18:45:21.000000000 +0200
+@@ -44,6 +44,7 @@
+                 osUser8,
+                 osUser9,
+                 osUser10,
++                osBUnknown,
+               };
+ 
+ class cOsdItem : public cListObject {
+diff -Naur vdr.orig/player.h vdr/player.h
+--- vdr.orig/player.h	2005-05-29 18:34:04.000000000 +0200
++++ vdr/player.h	2005-08-22 18:45:21.000000000 +0200
+@@ -47,6 +47,7 @@
+   virtual bool GetIndex(int &Current, int &Total, bool SnapToIFrame = false) { return false; }
+        // Returns the current and total frame index, optionally snapped to the
+        // nearest I-frame.
++  virtual int GetIndexOffset(void) { return 0; }
+   virtual bool GetReplayMode(bool &Play, bool &Forward, int &Speed) { return false; }
+        // Returns the current replay mode (if applicable).
+        // 'Play' tells whether we are playing or pausing, 'Forward' tells whether
+@@ -70,6 +71,8 @@
+   cControl(cPlayer *Player, bool Hidden = false);
+   virtual ~cControl();
+   virtual void Hide(void) = 0;
++  virtual bool IsLiveRecording() { return false;}
++  virtual void LiveReplay() {}
+   bool GetIndex(int &Current, int &Total, bool SnapToIFrame = false) { return player->GetIndex(Current, Total, SnapToIFrame); }
+   bool GetReplayMode(bool &Play, bool &Forward, int &Speed) { return player->GetReplayMode(Play, Forward, Speed); }
+   static void Launch(cControl *Control);
+diff -Naur vdr.orig/receiver.c vdr/receiver.c
+--- vdr.orig/receiver.c	2005-03-20 17:15:32.000000000 +0100
++++ vdr/receiver.c	2005-08-22 18:45:21.000000000 +0200
+@@ -18,6 +18,17 @@
+   ca = Ca;
+   priority = Priority;
+   numPids = 0;
++  SetPIDs(Pid,Pids1,Pids2,Pids3);
++}
++
++cReceiver::~cReceiver()
++{
++  Detach();
++}
++
++void cReceiver::SetPIDs(int Pid, const int *Pids1, const int *Pids2, const int *Pids3)
++{
++  numPids = 0;
+   if (Pid)
+      pids[numPids++] = Pid;
+   if (Pids1) {
+@@ -36,11 +47,6 @@
+      dsyslog("too many PIDs in cReceiver");
+ }
+ 
+-cReceiver::~cReceiver()
+-{
+-  Detach();
+-}
+-
+ bool cReceiver::WantsPid(int Pid)
+ {
+   if (Pid) {
+diff -Naur vdr.orig/receiver.h vdr/receiver.h
+--- vdr.orig/receiver.h	2005-03-20 17:15:32.000000000 +0100
++++ vdr/receiver.h	2005-08-22 18:45:21.000000000 +0200
+@@ -25,6 +25,7 @@
+   bool WantsPid(int Pid);
+ protected:
+   void Detach(void);
++  void SetPIDs(int Pid, const int *Pids1 = NULL, const int *Pids2 = NULL, const int *Pids3 = NULL);
+   virtual void Activate(bool On) {}
+                ///< This function is called just before the cReceiver gets attached to
+                ///< (On == true) or detached from (On == false) a cDevice. It can be used
+@@ -48,6 +49,7 @@
+                ///< that this cReceiver may be detached at any time (without blocking the
+                ///< cDevice it is attached to).
+   virtual ~cReceiver();
++  void ChangePriority(int Priority) {priority = Priority;}
+   };
+ 
+ #endif //__RECEIVER_H
+diff -Naur vdr.orig/recorder.c vdr/recorder.c
+--- vdr.orig/recorder.c	2005-08-22 18:44:35.000000000 +0200
++++ vdr/recorder.c	2005-08-22 18:45:21.000000000 +0200
+@@ -12,6 +12,7 @@
+ #include <unistd.h>
+ #include <stdint.h>
+ #include "recorder.h"
++#include "cutter.h"
+ 
+ #define RECORDERBUFSIZE  MEGABYTE(5)
+ 
+@@ -22,29 +23,15 @@
+ #define MINFREEDISKSPACE    (512) // MB
+ #define DISKCHECKINTERVAL   100 // seconds
+ 
+-class cFileWriter : public cThread {
+-private:
+-  cTtxtSubsRecorderBase *ttxtSubsRecorder;
+-  cRemux *remux;
+-  cFileName *fileName;
+-  cIndexFile *index;
+-  uchar pictureType;
+-  int fileSize;
+-  int recordFile;
+-  time_t lastDiskSpaceCheck;
+-  bool RunningLowOnDiskSpace(void);
+-  bool NextFile(void);
+-protected:
+-  virtual void Action(void);
+-public:
+-  cFileWriter(const char *FileName, cRemux *Remux, cTtxtSubsRecorderBase *tsr);
+-  virtual ~cFileWriter();
+-  };
+-
+-cFileWriter::cFileWriter(const char *FileName, cRemux *Remux, cTtxtSubsRecorderBase *tsr)
++cFileWriter::cFileWriter(const char *FileName, cRemux *Remux, cTtxtSubsRecorderBase *tsr, bool IsLiveRec, bool IsBeginning)
+ :cThread("file writer")
+ {
+   ttxtSubsRecorder = tsr;
++  Rew=false;
++  isLiveRec = IsLiveRec;
++  isBeginning=IsBeginning;
++  ResumeLiveRec=false;
++  filename=strdup(FileName);
+   fileName = NULL;
+   remux = Remux;
+   index = NULL;
+@@ -56,6 +43,7 @@
+   if (recordFile < 0)
+      return;
+   // Create the index file:
++  if (!IsBeginning)
+   index = new cIndexFile(FileName, true);
+   if (!index)
+      esyslog("ERROR: can't allocate index");
+@@ -67,6 +55,7 @@
+   Cancel(3);
+   delete index;
+   delete fileName;
++  free(filename);
+   if (ttxtSubsRecorder)
+      delete ttxtSubsRecorder;
+ }
+@@ -76,7 +65,7 @@
+   if (time(NULL) > lastDiskSpaceCheck + DISKCHECKINTERVAL) {
+      int Free = FreeDiskSpaceMB(fileName->Name());
+      lastDiskSpaceCheck = time(NULL);
+-     if (Free < MINFREEDISKSPACE) {
++     if (Free < MINFREEDISKSPACE && (!isLiveRec || Free == 0)) {
+         dsyslog("low disk space (%d MB, limit is %d MB)", Free, MINFREEDISKSPACE);
+         return true;
+         }
+@@ -88,7 +77,12 @@
+ {
+   if (recordFile >= 0 && pictureType == I_FRAME) { // every file shall start with an I_FRAME
+      if (fileSize > MEGABYTE(Setup.MaxVideoFileSize) || RunningLowOnDiskSpace()) {
+-        recordFile = fileName->NextFile();
++        if (isLiveRec && !Rew && fileSize)
++        {
++          index->Write(NO_PICTURE, fileName->Number(), fileSize);
++          index->Write(NO_PICTURE, fileName->Number(), fileSize);
++        }
++        recordFile = fileName->SetOffset(fileName->Number()+1,0,isLiveRec && !Rew && fileName->Number()>=0);
+         fileSize = 0;
+         }
+      }
+@@ -98,12 +92,45 @@
+ void cFileWriter::Action(void)
+ {
+   time_t t = time(NULL);
++  bool Rewed=false;
+   while (Running()) {
+         int Count;
++        u_int64_t PTS;
+         uchar *p = remux->Get(Count, &pictureType);
++        if (ResumeLiveRec &&  pictureType == I_FRAME && pts<(PTS=((u_int64_t)(p[9]&0x0E)<<29)+((u_int64_t)p[10]<<22)+((u_int64_t)(p[11]&0xFE)<<14)+((u_int64_t)p[12]<<7)+((u_int64_t)(p[13]&0xFE)>>1) ) )
++        {
++          while (cCutter::Active())
++            usleep(1);
++          index = new cIndexFile(filename, true);
++          ResumeLiveRec=false;
++          isBeginning=false; 
++        }
++        if (isBeginning && p)
++        {
++          remux->Del(Count);
++          p=NULL;
++          t = time(NULL);
++        }
+         if (p) {
+            if (!Running() && pictureType == I_FRAME) // finish the recording before the next 'I' frame
+               break;
++           if (Rew && !Rewed && pictureType == I_FRAME)
++           {
++             index->Write(NO_PICTURE, fileName->Number(), fileSize);
++             index->Write(NO_PICTURE, fileName->Number(), fileSize);
++             recordFile = fileName->NextFile();
++             lseek(recordFile,fileSize = 0,0);
++             Rewed=true;
++           }
++           if (!Rew && Rewed)
++             Rewed=false; 
++           if (isLiveRec && !Rew && (fileSize/1024/1024)>=(Setup.LiveBufferSize-Setup.MaxVideoFileSize*(fileName->Number()-1)) && pictureType == I_FRAME)
++           {
++              index->Write(NO_PICTURE, fileName->Number(), fileSize);
++              index->Write(NO_PICTURE, fileName->Number(), fileSize);
++              recordFile = fileName->SetOffset(1,fileSize=0,isLiveRec && !Rew);
++              lseek(recordFile,0,0);
++           }
+            if (NextFile()) {
+               if (index && pictureType != NO_PICTURE)
+                  index->Write(pictureType, fileName->Number(), fileSize);
+@@ -128,7 +155,7 @@
+               break;
+            t = time(NULL);
+            }
+-        else if (time(NULL) - t > MAXBROKENTIMEOUT) {
++        else if (!isLiveRec && time(NULL) - t > MAXBROKENTIMEOUT) {
+            esyslog("ERROR: video data stream broken");
+            cThread::EmergencyExit(true);
+            t = time(NULL);
+@@ -136,18 +163,33 @@
+         }
+ }
+ 
+-cRecorder::cRecorder(const char *FileName, int Ca, int Priority, int VPid, const int *APids, const int *DPids, const int *SPids, cTtxtSubsRecorderBase *tsr)
++bool cFileWriter::rew(bool On)
++{
++  if (On && !FreeDiskSpaceMB(fileName->Name())>2000)   // On a Ramdisk is not enough memory  
++    return Rew=false;
++  Rew=On;
++  return true;
++}
++
++void cFileWriter::RecordNextIFrame(u_int64_t PTS)
++{
++  recordFile = fileName->NextFile();
++  fileSize = 0;
++  ResumeLiveRec = true;  
++  pts=PTS;
++}
++
++cRecorder::cRecorder(const char *FileName, int Ca, int Priority, int VPid, const int *APids, const int *DPids, const int *SPids, cTtxtSubsRecorderBase *tsr, bool IsLiveRec, bool IsBeginning)
+ :cReceiver(Ca, Priority, VPid, APids, Setup.RecordDolbyDigital ? DPids : NULL, SPids)
+ ,cThread("recording")
+ {
++  isLiveRec=IsLiveRec;
+   // Make sure the disk is up and running:
+-
+   SpinUpDisk(FileName);
+-
+   ringBuffer = new cRingBufferLinear(RECORDERBUFSIZE, TS_SIZE * 2, true, "Recorder");
+   ringBuffer->SetTimeouts(0, 100);
+   remux = new cRemux(VPid, APids, Setup.RecordDolbyDigital ? DPids : NULL, SPids, true);
+-  writer = new cFileWriter(FileName, remux, tsr);
++  writer = new cFileWriter(FileName, remux, tsr, IsLiveRec, IsBeginning);
+ }
+ 
+ cRecorder::~cRecorder()
+@@ -170,13 +212,24 @@
+ 
+ void cRecorder::Receive(uchar *Data, int Length)
+ {
+-  if (Running()) {
++  if (Running() || isLiveRec) {
+      int p = ringBuffer->Put(Data, Length);
+      if (p != Length && Running())
+         ringBuffer->ReportOverflow(Length - p);
+      }
+ }
+ 
++void cRecorder::ChangePIDs(cDevice *Device, int VPid, const int *APids, const int *DPids, const int *SPids)
++{
++  Detach();
++  SetPIDs(VPid, APids, Setup.RecordDolbyDigital ? DPids : NULL, SPids);
++  Device->AttachReceiver(this);
++  cRemux *oldRemux = remux;
++  writer->SetNewRemux(remux = new cRemux(VPid, APids, Setup.RecordDolbyDigital ? DPids : NULL, SPids, true));
++  delete oldRemux;
++  Start();
++}
++
+ void cRecorder::Action(void)
+ {
+   while (Running()) {
+@@ -189,3 +242,9 @@
+            }
+         }
+ }
++
++bool cRecorder::rew(bool On)
++{
++  return writer->rew(On);
++}
++
+diff -Naur vdr.orig/recorder.h vdr/recorder.h
+--- vdr.orig/recorder.h	2005-08-22 18:44:35.000000000 +0200
++++ vdr/recorder.h	2005-08-22 18:45:21.000000000 +0200
+@@ -17,10 +17,38 @@
+ #include "thread.h"
+ #include "vdrttxtsubshooks.h"
+ 
+-class cFileWriter;
++class cFileWriter : public cThread {
++friend class cCuttingThread;
++private:
++  cTtxtSubsRecorderBase *ttxtSubsRecorder;
++  bool isLiveRec;
++  bool Rew;
++  bool isBeginning;
++  bool ResumeLiveRec;
++  char* filename;
++  u_int64_t pts;
++  cRemux *remux;
++  cFileName *fileName;
++  cIndexFile *index;
++  uchar pictureType;
++  int fileSize;
++  int recordFile;
++  time_t lastDiskSpaceCheck;
++  bool RunningLowOnDiskSpace(void);
++  bool NextFile(void);
++protected:
++  virtual void Action(void);
++public:
++  cFileWriter(const char *FileName, cRemux *Remux, cTtxtSubsRecorderBase *tsr, bool IsLiveRec = false, bool IsBeginning = false);
++  virtual ~cFileWriter();
++  void SetNewRemux(cRemux *Remux) {remux=Remux;}
++  bool rew(bool On);
++  void RecordNextIFrame(u_int64_t PTS);
++  };
+ 
+ class cRecorder : public cReceiver, cThread {
+ private:
++  bool isLiveRec;
+   cRingBufferLinear *ringBuffer;
+   cRemux *remux;
+   cFileWriter *writer;
+@@ -29,10 +57,13 @@
+   virtual void Receive(uchar *Data, int Length);
+   virtual void Action(void);
+ public:
+-  cRecorder(const char *FileName, int Ca, int Priority, int VPid, const int *APids, const int *DPids, const int *SPids, cTtxtSubsRecorderBase *tsr);
++  cRecorder(const char *FileName, int Ca, int Priority, int VPid, const int *APids, const int *DPids, const int *SPids, cTtxtSubsRecorderBase *tsr, bool IsLiveRec = false, bool IsBeginning = false);
+                // Creates a new recorder that requires conditional access Ca, has
+                // the given Priority and will record the given PIDs into the file FileName.
+   virtual ~cRecorder();
++  void ChangePIDs(cDevice *Device, int VPid, const int *APids, const int *DPids, const int *SPids);
++  bool rew(bool On);
++  cFileWriter *GetWriter() {return writer;}
+   };
+ 
+ #endif //__RECORDER_H
+diff -Naur vdr.orig/recording.c vdr/recording.c
+--- vdr.orig/recording.c	2005-08-22 18:44:35.000000000 +0200
++++ vdr/recording.c	2005-08-22 18:45:21.000000000 +0200
+@@ -685,8 +685,18 @@
+   return titleBuffer;
+ }
+ 
+-const char *cRecording::PrefixFileName(char Prefix)
++const char *cRecording::PrefixFileName(char Prefix, bool IsLiveRec)
+ {
++  if (IsLiveRec)
++  {
++    free(name);
++    name=strdup(strrchr(fileName,'/')+1);
++    start = time(NULL);
++    priority=50;
++    lifetime=50;
++    free(fileName);
++    fileName=NULL;
++  }
+   cString p = PrefixVideoFileName(FileName(), Prefix);
+   if (*p) {
+      free(fileName);
+@@ -1044,9 +1054,10 @@
+ // The minimum age of an index file for considering it no longer to be written:
+ #define MININDEXAGE    3600 // seconds
+ 
+-cIndexFile::cIndexFile(const char *FileName, bool Record)
++cIndexFile::cIndexFile(const char *FileName, bool Record, bool IsLiveRec)
+ :resumeFile(FileName)
+ {
++  isLiveRec = IsLiveRec;
+   f = -1;
+   fileName = NULL;
+   size = 0;
+@@ -1165,6 +1176,8 @@
+             }
+          else
+             LOG_ERROR_STR(fileName);
++         if (isLiveRec)
++           break;
+          if (Index < last - (i ? 2 * INDEXSAFETYLIMIT : 0) || Index > 10 * INDEXSAFETYLIMIT) // keep off the end in case of "Pause live video"
+             break;
+          cCondWait::SleepMs(1000);
+@@ -1212,11 +1225,12 @@
+ 
+ int cIndexFile::GetNextIFrame(int Index, bool Forward, uchar *FileNumber, int *FileOffset, int *Length, bool StayOffEnd)
+ {
++  int fIndex=GetFirstFrame();
+   if (CatchUp()) {
+      int d = Forward ? 1 : -1;
+      for (;;) {
+          Index += d;
+-         if (Index >= 0 && Index < last - ((Forward && StayOffEnd) ? INDEXSAFETYLIMIT : 0)) {
++         if (Index >= 0 && (Forward || Index>=fIndex ) && Index < last - ((Forward && StayOffEnd) ? INDEXSAFETYLIMIT : 0)) {
+             if (index[Index].type == I_FRAME) {
+                if (FileNumber)
+                   *FileNumber = index[Index].number;
+@@ -1247,6 +1261,29 @@
+   return -1;
+ }
+ 
++int cIndexFile::GetFirstFrame()
++{
++  int Index=last;
++  int offs[256];
++  memset(offs,0,256); 
++  offs[index[Index].number]=index[Index].offset;
++  do
++  {
++    if (!offs[index[Index].number] && index[Index].offset==index[Index-1].offset)
++      offs[index[Index--].number]=index[Index].offset;
++    Index--;
++  } while (Index && (!offs[index[Index].number] || index[Index].offset < offs[index[Index].number] ||  (unsigned) index[Index].offset > (unsigned) (offs[index[Index].number] + MAXFRAMESIZE)));
++  return Index+1;
++}
++
++int cIndexFile::GetLast()
++{
++  struct stat buf;
++  if (fstat(f, &buf))
++    LOG_ERROR_STR(fileName);
++  return buf.st_size / sizeof(tIndex) - 1;
++}
++
+ int cIndexFile::Get(uchar FileNumber, int FileOffset)
+ {
+   if (CatchUp()) {
+@@ -1327,7 +1364,7 @@
+      }
+ }
+ 
+-int cFileName::SetOffset(int Number, int Offset)
++int cFileName::SetOffset(int Number, int Offset, bool overwrite)
+ {
+   if (fileNumber != Number)
+      Close();
+@@ -1335,7 +1372,7 @@
+      fileNumber = Number;
+      sprintf(pFileNumber, RECORDFILESUFFIX, fileNumber);
+      if (record) {
+-        if (access(fileName, F_OK) == 0) {
++        if (!overwrite && access(fileName, F_OK) == 0) {
+            // files exists, check if it has non-zero size
+            struct stat buf;
+            if (stat(fileName, &buf) == 0) {
+@@ -1350,7 +1387,7 @@
+            else
+               return SetOffset(Number + 1); // error with fstat - should not happen, just to be on the safe side
+            }
+-        else if (errno != ENOENT) { // something serious has happened
++        else if (!overwrite && errno != ENOENT) { // something serious has happened
+            LOG_ERROR_STR(fileName);
+            return -1;
+            }
+diff -Naur vdr.orig/recording.h vdr/recording.h
+--- vdr.orig/recording.h	2005-08-22 18:44:35.000000000 +0200
++++ vdr/recording.h	2005-08-22 18:45:21.000000000 +0200
+@@ -75,7 +75,7 @@
+   const char *FileName(void) const;
+   const char *Title(char Delimiter = ' ', bool NewIndicator = false, int Level = -1, bool Original = false) const;
+   const cRecordingInfo *Info(void) const { return info; }
+-  const char *PrefixFileName(char Prefix);
++  const char *PrefixFileName(char Prefix, bool IsLiveRec = false);
+   int HierarchyLevels(void) const;
+   bool IsNew(void) const { return GetResume() <= 0; }
+   void ResetResume(void) const;
+@@ -163,6 +163,7 @@
+ 
+ class cIndexFile {
+ private:
++  bool isLiveRec;
+   struct tIndex { int offset; uchar type; uchar number; short reserved; };
+   int f;
+   char *fileName;
+@@ -172,14 +173,16 @@
+   cMutex mutex;
+   bool CatchUp(int Index = -1);
+ public:
+-  cIndexFile(const char *FileName, bool Record);
++  cIndexFile(const char *FileName, bool Record,bool IsLiveRec = false);
+   ~cIndexFile();
+   bool Ok(void) { return index != NULL; }
+   bool Write(uchar PictureType, uchar FileNumber, int FileOffset);
+   bool Get(int Index, uchar *FileNumber, int *FileOffset, uchar *PictureType = NULL, int *Length = NULL);
+   int GetNextIFrame(int Index, bool Forward, uchar *FileNumber = NULL, int *FileOffset = NULL, int *Length = NULL, bool StayOffEnd = false);
++  int GetFirstFrame();
+   int Get(uchar FileNumber, int FileOffset);
+   int Last(void) { CatchUp(); return last; }
++  int GetLast(void);
+   int GetResume(void) { return resumeFile.Read(); }
+   bool StoreResume(int Index) { return resumeFile.Save(Index); }
+   };
+@@ -198,7 +201,7 @@
+   int Number(void) { return fileNumber; }
+   int Open(void);
+   void Close(void);
+-  int SetOffset(int Number, int Offset = 0);
++  int SetOffset(int Number, int Offset = 0, bool overwrite = false);
+   int NextFile(void);
+   };
+ 
+diff -Naur vdr.orig/remux.c vdr/remux.c
+--- vdr.orig/remux.c	2005-08-22 18:44:35.000000000 +0200
++++ vdr/remux.c	2005-08-22 18:45:21.000000000 +0200
+@@ -1309,7 +1309,7 @@
+   resultBuffer = new cRingBufferLinear(RESULTBUFFERSIZE, IPACKS, false, "Result");
+   resultBuffer->SetTimeouts(0, 100);
+   if (VPid)
+-#define TEST_cVideoRepacker
++//#define TEST_cVideoRepacker
+ #ifdef TEST_cVideoRepacker
+      ts2pes[numTracks++] = new cTS2PES(VPid, resultBuffer, IPACKS, 0x00, 0x00, new cVideoRepacker);
+ #else
+diff -Naur vdr.orig/timers.h vdr/timers.h
+--- vdr.orig/timers.h	2005-05-09 21:36:57.000000000 +0200
++++ vdr/timers.h	2005-08-22 18:45:21.000000000 +0200
+@@ -26,6 +26,7 @@
+ 
+ class cTimer : public cListObject {
+   friend class cMenuEditTimer;
++  friend class cReplayControl;
+ private:
+   mutable time_t startTime, stopTime;
+   bool recording, pending, inVpsMargin;
+diff -Naur vdr.orig/transfer.c vdr/transfer.c
+--- vdr.orig/transfer.c	2005-08-22 18:44:35.000000000 +0200
++++ vdr/transfer.c	2005-08-22 18:59:18.000000000 +0200
+@@ -8,6 +8,10 @@
+  */
+ 
+ #include "transfer.h"
++#include "videodir.h"
++#include "menu.h"
++#include "vdrttxtsubshooks.h"
++#include "dvbsub.h"
+ 
+ #define TRANSFERBUFSIZE  MEGABYTE(2)
+ #define POLLTIMEOUTS_BEFORE_DEVICECLEAR 6
+@@ -145,6 +149,205 @@
+         }
+ }
+ 
++// --- cLiveRecorder ---------------------------------------------------------
++
++cLiveRecorder *cLiveRecorderControl::liveRecorder[MAXLIVERECORDERS] = {NULL};
++cLiveRecorder *cLiveRecorder::ActiveLiveRecorder = NULL;
++cLiveRecorderControl *cLiveRecorderControl::LiveThread = NULL;
++
++cLiveRecorder::cLiveRecorder(cDevice *ReceiverDevice, const cChannel *Channel)
++{
++  receiverDevice = ReceiverDevice;
++  channelID = tChannelID::tChannelID(Channel->Source(),Channel->Nid(),Channel->Tid(),Channel->Sid(),Channel->Rid());
++  Pids.VPid=Channel->Vpid();
++  for (int i=0; i<=MAXAPIDS; i++) 
++     Pids.APids[i] = Channel->Apid(i);
++  for (int i=0; i<=MAXDPIDS; i++)
++     Pids.DPids[i] = Channel->Dpid(i);
++  for (int i=0; i<=MAXSPIDS; i++)
++     Pids.SPids[i] = Channel->Spid(i);
++  Rew=false;
++  sprintf(FileName,"%s/LiveBuffer/%s",BufferDirectory,Channel->Name());
++  MakeDirs(FileName,true);
++  cTtxtSubsRecorderBase *subsRecorder = cVDRTtxtsubsHookListener::Hook()->NewTtxtSubsRecorder(ReceiverDevice, Channel);
++  int SubPids[3] = {DvbSubtitlesRecording.GetPidByChannel(receiverDevice->DeviceNumber(), Channel, 1), DvbSubtitlesRecording.GetPidByChannel(receiverDevice->DeviceNumber(), Channel, 2), 0};
++  Recorder=new cRecorder(FileName, 0, -1,Channel->Vpid(), Channel->Apids(), Channel->Dpids(), SubPids, subsRecorder, true);
++  ReceiverDevice->AttachReceiver(Recorder);
++  if (subsRecorder) subsRecorder->DeviceAttach();
++  attached = true;
++  cControl::Shutdown();
++  cReplayControl::SetRecording(FileName,"LiveBuffer");
++  replay=NULL;
++  if (!cLiveRecorderControl::LiveThread->wantadd)
++    cControl::Launch(replay = new cReplayControl(true,this));
++}
++
++cLiveRecorder::~cLiveRecorder()
++{
++  delete Recorder;
++  RemoveFileOrDir(FileName,true);
++}
++
++void cLiveRecorder::DetachReceiver()
++{
++  receiverDevice->Detach(Recorder);
++  attached = false;
++}
++
++void cLiveRecorder::rew(bool On)
++{
++  if (!Setup.KeepBuffer)
++    return;
++  Recorder->ChangePriority(On ? -2 : -1); 
++  Rew=On;
++  if (Recorder->rew(On))
++    replay->Rew(On);
++}
++
++bool cLiveRecorder::IsAlreadyRecording(tChannelID ChannelID)
++{
++  return channelID==ChannelID;
++}
++
++bool cLiveRecorder::PIDsChanged(const cChannel *Channel)
++{
++  bool changed=false;
++  if (Pids.VPid != Channel->Vpid())
++    changed=true;
++  Pids.VPid=Channel->Vpid();
++  for (int i=0; i<=MAXAPIDS; i++)
++  {
++    if (Pids.APids[i] != Channel->Apid(i))
++      changed=true;
++    Pids.APids[i]=Channel->Apid(i);
++  }
++  for (int i=0; i<=MAXDPIDS; i++)
++  {
++    if (Pids.DPids[i] != Channel->Dpid(i))
++      changed=true;
++    Pids.DPids[i]=Channel->Dpid(i);
++  }
++  for (int i=0; i<=MAXSPIDS; i++)
++  {
++    if (Pids.SPids[i] != Channel->Spid(i))
++      changed=true;
++    Pids.SPids[i]=Channel->Spid(i);
++  }
++  return changed;
++}
++
++void cLiveRecorder::Resume()
++{
++  cControl::Shutdown();
++  cReplayControl::SetRecording(FileName,"LiveBuffer");
++  cControl::Launch(replay = new cReplayControl(true,this));
++  if (Rew)
++    replay->Rew(true);
++}
++
++void cLiveRecorderControl::Add(cDevice *ReceiverDevice, const cChannel *Channel)
++{
++  if (!LiveThread)
++    LiveThread = new cLiveRecorderControl;
++  LiveThread->wantadd=true;
++  while (LiveThread->wantadd)
++    usleep(10);
++  LiveThread->ReceiverDevice=ReceiverDevice;
++  LiveThread->Channel=Channel;
++  LiveThread->add=true;
++}
++
++void cLiveRecorderControl::DetachReceivers(cDevice *Device)
++{
++  for (int i=0; i<MAXLIVERECORDERS; i++)
++    if (liveRecorder[i] && liveRecorder[i]->receiverDevice == Device)
++      liveRecorder[i]->DetachReceiver();
++}
++
++cLiveRecorder* cLiveRecorderControl::GetLiveRecorder(cChannel *Channel)
++{
++  if (Channel)
++  {
++    for (int i=0; i<MAXLIVERECORDERS; i++)
++      if (liveRecorder[i] && liveRecorder[i]->IsAlreadyRecording(tChannelID::tChannelID(Channel->Source(),Channel->Nid(),Channel->Tid(),Channel->Sid(),Channel->Rid())))
++      {
++        return liveRecorder[i];
++        break;
++      }
++    return NULL;
++  }
++  else
++    return cLiveRecorder::ActiveLiveRecorder;
++}
++
++void cLiveRecorderControl::Shutdown()
++{
++  if (LiveThread)
++    LiveThread->Cancel(3);  
++  LiveThread=NULL;
++}
++
++cLiveRecorderControl::cLiveRecorderControl()
++{
++  wantadd=false;
++  add=false;
++  Start();
++}
++
++void cLiveRecorderControl::Action()
++{
++  while (Running())
++  {
++   if (!add)
++    {
++      wantadd=false;
++      usleep(100);
++      continue;
++    }
++    add=false;
++    cLiveRecorder *OldRecorder=NULL;
++    cLiveRecorder::ActiveLiveRecorder=NULL;
++    for (int i=0; i<MAXLIVERECORDERS; i++)
++    {
++      if (liveRecorder[i] && (!liveRecorder[i]->attached || (!liveRecorder[i]->IsAlreadyRecording(tChannelID::tChannelID(Channel->Source(),Channel->Nid(),Channel->Tid(),Channel->Sid(),Channel->Rid())) && !liveRecorder[i]->Rew)))
++      {
++        if (!OldRecorder)
++          OldRecorder=liveRecorder[i];
++        else
++          delete liveRecorder[i];
++        liveRecorder[i]=NULL;
++      }
++      if (liveRecorder[i] && liveRecorder[i]->IsAlreadyRecording(tChannelID::tChannelID(Channel->Source(),Channel->Nid(),Channel->Tid(),Channel->Sid(),Channel->Rid())))
++        cLiveRecorder::ActiveLiveRecorder = liveRecorder[i];
++    }
++    if (cLiveRecorder::ActiveLiveRecorder)
++    {
++      if (cLiveRecorder::ActiveLiveRecorder->PIDsChanged(Channel))
++        cLiveRecorder::ActiveLiveRecorder->Recorder->ChangePIDs(ReceiverDevice,Channel->Vpid(), Channel->Apids(),Channel->Dpids(),Channel->Spids());
++      cLiveRecorder::ActiveLiveRecorder->Resume();
++    }
++    else
++      for (int i=0; i<MAXLIVERECORDERS; i++)
++        if (!liveRecorder[i])
++        {
++          cLiveRecorder::ActiveLiveRecorder = liveRecorder[i] = new cLiveRecorder(ReceiverDevice, Channel);
++          break;
++        } // TODO: Wenn alle schon benutzt?
++    if (OldRecorder)
++      delete OldRecorder;
++    cTransferControl::receiverDevice = ReceiverDevice;
++    wantadd=false;
++  }
++  for (int i=0; i<MAXLIVERECORDERS; i++)
++    if (liveRecorder[i])
++    {
++      delete liveRecorder[i];
++      liveRecorder[i]=NULL;
++    }
++  cTransferControl::receiverDevice = NULL;
++  cLiveRecorder::ActiveLiveRecorder=NULL;
++}
++
+ // --- cTransferControl ------------------------------------------------------
+ 
+ cDevice *cTransferControl::receiverDevice = NULL;
+diff -Naur vdr.orig/transfer.h vdr/transfer.h
+--- vdr.orig/transfer.h	2005-08-22 18:44:35.000000000 +0200
++++ vdr/transfer.h	2005-08-22 18:45:21.000000000 +0200
+@@ -15,6 +15,7 @@
+ #include "remux.h"
+ #include "ringbuffer.h"
+ #include "thread.h"
++#include "recorder.h"
+ 
+ class cTransfer : public cReceiver, public cPlayer, public cThread {
+ private:
+@@ -31,7 +32,58 @@
+   virtual ~cTransfer();
+   };
+ 
++class cReplayControl;
++
++#define MAXLIVERECORDERS 8
++
++class cLiveRecorder {
++friend class cLiveRecorderControl;
++private:
++  struct PIDs
++  {
++    int VPid;
++    int APids[MAXAPIDS+1];
++    int DPids[MAXDPIDS+1];
++    int SPids[MAXSPIDS+1];
++  } Pids;
++  static cLiveRecorder *ActiveLiveRecorder;
++  bool Rew,attached;
++  tChannelID channelID; 
++  cReplayControl *replay;
++  cDevice *receiverDevice;
++  char FileName[256];
++  cRecorder* Recorder;
++  cLiveRecorder(cDevice *ReceiverDevice, const cChannel *Channel);
++  ~cLiveRecorder();
++  bool PIDsChanged(const cChannel *Channel);
++  void DetachReceiver();
++public:
++  void rew(bool On = true);
++  const char* GetFileName(void) {return FileName;}
++  bool IsAlreadyRecording(tChannelID ChannelID);
++  void Resume();
++};
++
++class cLiveRecorderControl : public cThread {
++friend class cLiveRecorder;
++private:
++  bool wantadd,add;
++  static cLiveRecorderControl *LiveThread; 
++  static cLiveRecorder *liveRecorder[MAXLIVERECORDERS];
++  cDevice *ReceiverDevice;
++  const cChannel *Channel;
++  cLiveRecorderControl();
++protected:
++  virtual void Action(void);
++public:
++  static void Add(cDevice *ReceiverDevice, const cChannel *Channel);
++  static void Shutdown();
++  static void DetachReceivers(cDevice *Device);
++  static cLiveRecorder* GetLiveRecorder(cChannel *Channel = NULL);
++};  
++
+ class cTransferControl : public cControl {
++friend class cLiveRecorderControl;
+ private:
+   cTransfer *transfer;
+   static cDevice *receiverDevice;
+diff -Naur vdr.orig/vdr.c vdr/vdr.c
+--- vdr.orig/vdr.c	2005-08-22 18:44:35.000000000 +0200
++++ vdr/vdr.c	2005-08-22 18:45:21.000000000 +0200
+@@ -136,6 +136,7 @@
+ 
+   static struct option long_options[] = {
+       { "audio",    required_argument, NULL, 'a' },
++      { "buffer",   required_argument, NULL, 'b' },
+       { "config",   required_argument, NULL, 'c' },
+       { "daemon",   no_argument,       NULL, 'd' },
+       { "device",   required_argument, NULL, 'D' },
+@@ -159,10 +160,14 @@
+     };
+ 
+   int c;
+-  while ((c = getopt_long(argc, argv, "a:c:dD:E:hl:L:mp:P:r:s:t:v:Vw:", long_options, NULL)) != -1) {
++  while ((c = getopt_long(argc, argv, "a:b:c:dD:E:hl:L:mp:P:r:s:t:v:Vw:", long_options, NULL)) != -1) {
+         switch (c) {
+           case 'a': AudioCommand = optarg;
+                     break;
++          case 'b': BufferDirectory = optarg;
++                    while (optarg && *optarg && optarg[strlen(optarg) - 1] == '/')
++                          optarg[strlen(optarg) - 1] = 0;
++                    break;
+           case 'c': ConfigDirectory = optarg;
+                     break;
+           case 'd': DaemonMode = true; break;
+@@ -271,6 +276,8 @@
+      if (DisplayHelp) {
+         printf("Usage: vdr [OPTIONS]\n\n"          // for easier orientation, this is column 80|
+                "  -a CMD,   --audio=CMD    send Dolby Digital audio to stdin of command CMD\n"
++               "  -b DIR,   --buffer=DIR   use DIR as LiveBuffer directory (default is to write\n"
++               "                           it to the video directory)\n"
+                "  -c DIR,   --config=DIR   read config files from DIR (default is to read them\n"
+                "                           from the video directory)\n"
+                "  -d,       --daemon       run in daemon mode\n"
+@@ -403,6 +410,9 @@
+   if (!PluginManager.LoadPlugins(true))
+      EXIT(2);
+ 
++  if (!BufferDirectory)
++     BufferDirectory = VideoDirectory;
++
+   // Configuration data:
+ 
+   if (!ConfigDirectory)
+@@ -762,7 +772,7 @@
+                break;
+           // Instant recording:
+           case kRecord:
+-               if (!cControl::Control()) {
++               if (!cControl::Control() || cControl::Control()->IsLiveRecording()) {
+                   if (cRecordControls::Start())
+                      ;//XXX Skins.Message(mtInfo, tr("Recording"));
+                   else
+@@ -788,8 +798,9 @@
+           default: break;
+           }
+         Interact = Menu ? Menu : cControl::Control(); // might have been closed in the mean time
++        eOSState state=osUnknown;
+         if (Interact) {
+-           eOSState state = Interact->ProcessKey(key);
++           state = Interact->ProcessKey(key);
+            if (state == osUnknown && ISMODELESSKEY(key) && cControl::Control() && Interact != cControl::Control())
+               state = cControl::Control()->ProcessKey(key);
+            switch (state) {
+@@ -819,6 +830,8 @@
+                             break;
+              case osStopReplay:
+                             DELETENULL(Menu);
++                            if (cLiveRecorderControl::GetLiveRecorder())
++                              cLiveRecorderControl::GetLiveRecorder()->rew(false);
+                             cControl::Shutdown();
+                             Temp = NULL;
+                             break;
+@@ -844,7 +857,7 @@
+              default:       ;
+              }
+            }
+-        else {
++        if (!Interact || state==osBUnknown) {
+            // Key functions in "normal" viewing mode:
+            switch (key) {
+              // Toggle channels:
+@@ -900,7 +913,7 @@
+                  Skins.Message(mtInfo, tr("Editing process finished"));
+               }
+            }
+-        if (!Interact && ((!cRecordControls::Active() && !cCutter::Active() && (!Interface->HasSVDRPConnection() || UserShutdown)) || ForceShutdown)) {
++        if ((!Interact || cLiveRecorderControl::GetLiveRecorder()) && ((!cRecordControls::Active() && !cCutter::Active() && (!Interface->HasSVDRPConnection() || UserShutdown)) || ForceShutdown)) {
+            time_t Now = time(NULL);
+            if (Now - LastActivity > ACTIVITYTIMEOUT) {
+               // Shutdown:
+@@ -972,6 +985,7 @@
+   cRecordControls::Shutdown();
+   cCutter::Stop();
+   delete Menu;
++  cLiveRecorderControl::Shutdown();
+   cControl::Shutdown();
+   delete Interface;
+   cOsdProvider::Shutdown();
+diff -Naur vdr.orig/videodir.c vdr/videodir.c
+--- vdr.orig/videodir.c	2005-08-22 18:44:35.000000000 +0200
++++ vdr/videodir.c	2005-08-22 18:45:21.000000000 +0200
+@@ -20,6 +20,7 @@
+ #include "recording.h"
+ 
+ const char *VideoDirectory = VIDEODIR;
++const char *BufferDirectory = NULL;
+ 
+ class cVideoDirectory {
+ private:
+@@ -106,17 +107,22 @@
+ int OpenVideoFile(const char *FileName, int Flags)
+ {
+   const char *ActualFileName = FileName;
++  bool SepBufferDir = false;
+ 
+   // Incoming name must be in base video directory:
+   if (strstr(FileName, VideoDirectory) != FileName) {
++     if (strstr(FileName, BufferDirectory) == FileName)
++        SepBufferDir = true;
++     else {
+      esyslog("ERROR: %s not in %s", FileName, VideoDirectory);
+      errno = ENOENT; // must set 'errno' - any ideas for a better value?
+      return -1;
+      }
++     }
+   // Are we going to create a new file?
+   if ((Flags & O_CREAT) != 0) {
+      cVideoDirectory Dir;
+-     if (Dir.IsDistributed()) {
++     if (Dir.IsDistributed() && !SepBufferDir) {
+         // Find the directory with the most free space:
+         int MaxFree = Dir.FreeMB();
+         while (Dir.Next()) {
+diff -Naur vdr.orig/videodir.h vdr/videodir.h
+--- vdr.orig/videodir.h	2005-08-22 18:44:35.000000000 +0200
++++ vdr/videodir.h	2005-08-22 18:45:21.000000000 +0200
+@@ -14,6 +14,7 @@
+ #include "tools.h"
+ 
+ extern const char *VideoDirectory;
++extern const char *BufferDirectory;
+ 
+ int OpenVideoFile(const char *FileName, int Flags);
+ int CloseVideoFile(int FileHandle);

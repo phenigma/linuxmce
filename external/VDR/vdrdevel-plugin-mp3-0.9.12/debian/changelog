@@ -1,0 +1,338 @@
+vdrdevel-plugin-mp3 (0.9.12-9) unstable; urgency=low
+
+  * VDR-1.3.30
+
+ -- Thomas Günther <tom@toms-cafe.de>  Mon, 22 Aug 2005 20:07:13 +0200
+
+vdrdevel-plugin-mp3 (0.9.12-8) unstable; urgency=low
+
+  * VDR-1.3.29
+
+ -- Thomas Günther <tom@toms-cafe.de>  Sat, 20 Aug 2005 16:52:36 +0200
+
+vdrdevel-plugin-mp3 (0.9.12-7) unstable; urgency=low
+
+  * VDR-1.3.28
+
+ -- Thomas Günther <tom@toms-cafe.de>  Mon,  8 Aug 2005 03:24:53 +0200
+
+vdrdevel-plugin-mp3 (0.9.12-6) unstable; urgency=low
+
+  * VDR-1.3.27
+
+ -- Thomas Günther <tom@toms-cafe.de>  Tue, 21 Jun 2005 00:21:14 +0200
+
+vdrdevel-plugin-mp3 (0.9.12-5) unstable; urgency=low
+
+  * VDR-1.3.26
+  * Upgraded 95_vdrdevel.dpatch to version 0.1.0
+
+ -- Thomas Günther <tom@toms-cafe.de>  Fri, 17 Jun 2005 12:49:44 +0200
+
+vdrdevel-plugin-mp3 (0.9.12-4) unstable; urgency=low
+
+  * VDR-1.3.25
+  * Upgraded 95_vdrdevel.dpatch to version 0.0.9
+
+ -- Thomas Günther <tom@toms-cafe.de>  Mon, 30 May 2005 23:56:41 +0200
+
+vdrdevel-plugin-mp3 (0.9.12-3) unstable; urgency=low
+
+  * VDR-1.3.24
+
+ -- Thomas Günther <tom@toms-cafe.de>  Tue, 10 May 2005 02:41:32 +0200
+
+vdrdevel-plugin-mp3 (0.9.12-2) unstable; urgency=low
+
+  * VDR-1.3.23
+
+ -- Thomas Günther <tom@toms-cafe.de>  Mon, 28 Mar 2005 13:54:21 +0200
+
+vdrdevel-plugin-mp3 (0.9.12-1) unstable; urgency=low
+
+  * New upstream release
+  * Removed image patch (functionality now integrated in upstream)
+
+ -- Thomas Günther <tom@toms-cafe.de>  Mon, 28 Mar 2005 02:51:46 +0200
+
+vdrdevel-plugin-mp3 (0.9.10-5) unstable; urgency=low
+
+  * VDR-1.3.23
+
+ -- Thomas Günther <tom@toms-cafe.de>  Thu, 24 Mar 2005 04:11:47 +0100
+
+vdrdevel-plugin-mp3 (0.9.10-4) unstable; urgency=low
+
+  * VDR-1.3.22-4
+
+ -- Thomas Günther <tom@toms-cafe.de>  Thu, 10 Mar 2005 01:49:24 +0100
+
+vdrdevel-plugin-mp3 (0.9.10-3) unstable; urgency=low
+
+  * VDR-1.3.22
+
+ -- Thomas Günther <tom@toms-cafe.de>  Mon, 28 Feb 2005 02:41:59 +0100
+
+vdrdevel-plugin-mp3 (0.9.10-2) unstable; urgency=low
+
+  * VDR-1.3.21
+
+ -- Thomas Günther <tom@toms-cafe.de>  Sat, 19 Feb 2005 16:14:37 +0100
+
+vdrdevel-plugin-mp3 (0.9.10-1) unstable; urgency=low
+
+  * New upstream release
+  * Removed broken_pcm patch (integrated in upstream, set BROKEN_PCM in rules)
+  * Removed mp3-1.3.19 patch (integrated in upstream)
+  * Adapted image patch to mp3-0.9.10
+
+ -- Thomas Günther <tom@toms-cafe.de>  Sat, 19 Feb 2005 16:09:51 +0100
+
+vdrdevel-plugin-mp3 (0.9.9-8) unstable; urgency=low
+
+  * VDR-1.3.21
+
+ -- Thomas Günther <tom@toms-cafe.de>  Tue, 15 Feb 2005 17:37:20 +0100
+
+vdrdevel-plugin-mp3 (0.9.9-7) unstable; urgency=low
+
+  * VDR-1.3.20
+
+ -- Thomas Günther <tom@toms-cafe.de>  Tue,  8 Feb 2005 11:33:55 +0100
+
+vdrdevel-plugin-mp3 (0.9.9-6) unstable; urgency=low
+
+  * Updated 95_vdrdevel.dpatch to version 0.0.8
+
+ -- Thomas Günther <tom@toms-cafe.de>  Sun, 30 Jan 2005 16:33:57 +0100
+
+vdrdevel-plugin-mp3 (0.9.9-5) unstable; urgency=low
+
+  * Fixed mount.sh to not fail on closing the tray with eject -t
+    before mount (thx to Stefan)
+  * Made broken_pcm patch compatible with VDR < 1.3.18
+
+ -- Thomas Günther <tom@toms-cafe.de>  Sun, 30 Jan 2005 16:05:47 +0100
+
+vdrdevel-plugin-mp3 (0.9.9-4) unstable; urgency=low
+
+  * Added broken_pcm patch
+
+ -- Thomas Günther <tom@toms-cafe.de>  Fri, 28 Jan 2005 11:51:02 +0100
+
+vdrdevel-plugin-mp3 (0.9.9-3) unstable; urgency=low
+
+  * Added mp3-1.3.19 patch
+
+ -- Thomas Günther <tom@toms-cafe.de>  Wed, 26 Jan 2005 00:40:34 +0100
+
+vdrdevel-plugin-mp3 (0.9.9-2) unstable; urgency=low
+
+  * VDR-1.3.19
+  * Updated 95_vdrdevel.dpatch to version 0.0.7
+
+ -- Thomas Günther <tom@toms-cafe.de>  Sun, 23 Jan 2005 22:48:17 +0100
+
+vdrdevel-plugin-mp3 (0.9.9-1) unstable; urgency=low
+
+  * New upstream release
+  * VDR 1.3.18
+  * Removed thread-fix patch (integrated in upstream)
+  * Adapted image patch to VDR-1.3.18
+  * Updated 95_vdrdevel.dpatch to version 0.0.6
+
+ -- Thomas Günther <tom@toms-cafe.de>  Wed, 12 Jan 2005 21:05:53 +0100
+
+vdrdevel-plugin-mp3 (0.9.8-3) unstable; urgency=low
+
+  * Added patch to fix bug with thread synchronization
+
+ -- Thomas Günther <tom@toms-cafe.de>  Sat,  8 Jan 2005 15:20:22 +0100
+
+vdrdevel-plugin-mp3 (0.9.8-2) unstable; urgency=low
+
+  * vdrdevel-1.3.17-5: changed patchlevel
+
+ -- Thomas Günther <tom@toms-cafe.de>  Mon,  3 Jan 2005 16:28:16 +0100
+
+vdrdevel-plugin-mp3 (0.9.8-1) unstable; urgency=low
+
+  * New upstream release
+  * dummy files DVD and VCD have a content now, because 0-byte files
+    don't work with dpkg-source
+
+ -- Thomas Günther <tom@toms-cafe.de>  Tue, 30 Nov 2004 00:26:20 +0100
+
+vdrdevel-plugin-mp3 (0.9.7-5) unstable; urgency=low
+
+  * VDR 1.3.17
+  * Converted changelog to UTF-8
+
+ -- Thomas Günther <tom@toms-cafe.de>  Mon, 22 Nov 2004 02:49:33 +0100
+
+vdrdevel-plugin-mp3 (0.9.7-4) unstable; urgency=low
+
+  * VDR 1.3.16
+  * Installing dummy files and mplayersources.conf entry for playing
+    a DVD or (S)VCD with mplayer
+  * Upgraded mplayer.sh to version 0.8.6
+
+ -- Thomas Günther <tom@toms-cafe.de>  Sun,  7 Nov 2004 01:47:41 +0100
+
+vdrdevel-plugin-mp3 (0.9.7-3) unstable; urgency=low
+
+  * VDR 1.3.15
+
+ -- Thomas Günther <tom@toms-cafe.de>  Tue,  2 Nov 2004 01:38:38 +0100
+
+vdrdevel-plugin-mp3 (0.9.7-2) unstable; urgency=low
+
+  * VDR 1.3.14
+  * Adapted patches for new dpatch >= 2.0.9
+  * Using debian/compat now
+
+ -- Thomas Günther <tom@toms-cafe.de>  Mon, 25 Oct 2004 02:48:07 +0200
+
+vdrdevel-plugin-mp3 (0.9.7-1) unstable; urgency=low
+
+  * New upstream release
+  * Adapted to new FHS-conform directory structure
+  * Updated 95_vdrdevel.dpatch to version 0.0.5
+  * Updated image patch with vdr-1.3.11_mp3-0.9.4_image-0.1.diff from eloy
+
+ -- Thomas Günther <tom@toms-cafe.de>  Wed,  6 Oct 2004 23:12:12 +0200
+
+vdrdevel-plugin-mp3 (0.9.5-1) unstable; urgency=low
+
+  * New upstream release
+  * Removed upstream patches fix-mp3-stream-progress, fix-mplayer-green-button
+  * Took over Makefile-fPIC-fix patch from alioth
+
+ -- Thomas Günther <tom@toms-cafe.de>  Wed,  8 Sep 2004 09:50:29 +0200
+
+vdrdevel-plugin-mp3 (0.9.4-1) unstable; urgency=low
+
+  * Thomas Günther <tom@toms-cafe.de>:
+    - New upstream release
+    - Adapted 10_image.dpatch and 12_image_fix_cachedir.dpatch to mp3-0.9.4
+    - Removed 91_mp3-0.8.3-1.3.7.dpatch
+    - VDR 1.3.12
+    - Fixed debhelper version in Build-Depends
+    - Adapted directory structure to vdrdevel-1.3.12
+    - Adapted control file to alioth packages
+    - Using patchlevel.sh and custom control field "vdr-patchlevel"
+    - Added upstream patches fix-mp3-stream-progress, fix-mplayer-green-button
+    - Enabled oss output
+
+  * Tobias Grimm <tg@e-tobi.net>:
+    - moved scripts called by the plugins to /usr/lib/<package-name>
+    - renamed mount scripts to single mount.sh installed at two locations now
+      for each package
+    - renamed vdrmplayer.sh back to original filename mplayer.sh
+    - removed unnecessary debian/docs, added MANUAL do debian/<package>.docs
+    - added watch file
+
+ -- Thomas Günther <tom@toms-cafe.de>  Sun,  5 Sep 2004 00:35:01 +0200
+
+vdrdevel-plugin-mp3 (0.8.3-6) unstable; urgency=low
+
+  * VDR 1.3.11
+  * Changed 92_vdrdevel.dpatch with improved version 95_vdrdevel.dpatch
+
+ -- Thomas Günther <tom@toms-cafe.de>  Sun, 20 Jun 2004 01:33:37 +0200
+
+vdrdevel-plugin-mp3 (0.8.3-5) unstable; urgency=low
+
+  * vdr -> vdrdevel
+  * Use dh_install
+  * Removed *.preinst, *.postrm (vdrmp3mount.sh -> vdrmplayermount.sh)
+  * Fixed *.postinst
+  * Updated and improved 10_image.dpatch:
+    - Backport of vdr-1.3.6_mp3-0.9.0_image_0.1.tar.bz2 (eloy at vdrportal.de)
+      for mp3-0.8.3,
+    - Modification from Tobias Grimm: suffix of background image png/gif/jpg,
+    - Fixed loading mp3.ImageCacheDir from setup.conf (Thomas Günther).
+  * Improved 11_image_pathes.dpatch: Defines IMAGE_CACHE_DIR, IMAGE_CONVERT_SH
+
+ -- Thomas Günther <tom@toms-cafe.de>  Sat, 12 Jun 2004 17:03:49 +0200
+
+vdr-plugin-mp3 (0.8.3-4) unstable; urgency=low
+
+  * fixed image patch, causing everything else than *.mp3 or *.ogg
+    not beeing played ("Error Creating Playlist"-Error)
+
+ -- Tobias Grimm <tg@e-tobi.net>  Fri, 06 May 2004 01:34:00 +0100
+
+vdr-plugin-mp3 (0.8.3-3) unstable; urgency=low
+
+  * added image patch
+  * fixed dependencies in binary packages
+
+ -- Tobias Grimm <tg@e-tobi.net>  Fri, 02 Apr 2004 22:20:00 +0100
+
+vdr-plugin-mp3 (0.8.3-2) unstable; urgency=low
+
+  * moved vdrmplayer.sh.conf to /etc/vdr/plugins
+
+ -- Tobias Grimm <tg@e-tobi.net>  Sun, 14 Mar 2004 22:06:00 +0200
+
+vdr-plugin-mp3 (0.8.3-1) unstable; urgency=low
+
+  * new upstream release
+  * updated (vdr)mplayer.sh to version 0.8.4
+  * added mplayer.sh credits
+                                                                                                 
+ -- Tobias Grimm <tg@e-tobi.net>  Sun, 14 Mar 2004 22:06:00 +0200
+
+vdr-plugin-mp3 (0.8.2-4) unstable; urgency=low
+
+  * dpkg-divert for vdrmp3mount.sh in vdr-plugin-mplayer 
+                                                                                                 
+ -- Tobias Grimm <tg@e-tobi.net>  Sun, 18 Jan 2004 18:10:00 +0200
+
+vdr-plugin-mp3 (0.8.2-3) unstable; urgency=low
+
+  * integrated patchlevel info
+                                                                                                 
+ -- Peter Siering <ps@ctmagazin.de>  Tue, 13 Jan 2004 23:45:00 +0200
+
+vdr-plugin-mp3 (0.8.2-2) unstable; urgency=low
+
+  * separated mp3 and mplayer plugin into two binary packages
+  * changed pre/postinst: now just install mp3/layersources 
+    from /usr/doc/.../examples, if missing
+
+ -- Peter Siering <ps@ctmagazin.de>  Wed,  7 Jan 2004 23:00:00 +0200
+
+vdr-plugin-mp3 (0.8.2-1) unstable; urgency=low
+
+  * removed libmad0, zlib1g libid3tag0, libvorbis0 dependencies 
+    from control file (added automatically by ${shlibs:Depends})
+  * New upstream release
+
+ -- Tobias Grimm <tg@e-tobi.net>  Tue,  6 Jan 2004 22:53:32 +0100
+
+vdr-plugin-mp3 (0.8.1-3) unstable; urgency=low
+
+  * included ogg support
+
+ -- Peter Siering <ps@ctmagazin.de>  Thu, 11 Dec 2003 09:00:00 +0200
+
+vdr-plugin-mp3 (0.8.1-2) unstable; urgency=low
+
+  * mplayer fine tuning
+
+ -- Peter Siering <ps@ctmagazin.de>  Wed, 14 Oct 2003 23:00:00 +0200
+
+vdr-plugin-mp3 (0.8.1-1) unstable; urgency=low
+
+  * moved plugins from /usr/share to /usr/lib
+  * now provides minimal default config files
+
+ -- Peter Siering <ps@ctmagazin.de>  Wed, 04 Oct 2003 12:00:00 +0200
+
+vdr-plugin-mp3 (0.8.1) unstable; urgency=low
+
+  * debianized
+
+ -- Peter Siering <ps@ctmagazin.de>  Wed, 17 Sep 2003 22:00:00 +0200

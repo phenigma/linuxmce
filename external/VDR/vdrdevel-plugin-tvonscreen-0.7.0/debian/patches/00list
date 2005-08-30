@@ -1,0 +1,8 @@
+01_Makefile-fPIC-fix
+10_fix-noepg
+11_fix-for-livebuffer
+
+92_tvonscreen-1.3.18
+
+# convert package to vdrdevel
+95_vdrdevel

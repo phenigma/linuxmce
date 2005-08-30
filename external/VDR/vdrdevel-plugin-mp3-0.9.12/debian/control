@@ -1,0 +1,22 @@
+Source: vdrdevel-plugin-mp3
+Section: misc
+Priority: extra
+Maintainer: Peter Siering <ps@ctmagazin.de>
+Origin: ctvdr
+Bugs: mailto:pkg-vdr-dvb-devel@lists.alioth.debian.org
+Build-Depends: debhelper (>> 4.1.16), vdrdevel-dev (>= 1.3.12), libvorbis-dev (>=1.0rc3-1), libmad0-dev (>=0.14.2b-3), zlib1g-dev (>=1.1.4-1), libsndfile1-dev (>=1.0.3), libogg-dev (>=1.0rc3-1), libid3tag0-dev (>=0.14.2b-3), dpatch (>= 2.0.9)
+Standards-Version: 3.6.1
+
+Package: vdrdevel-plugin-mp3
+Architecture: any
+Depends: ${shlibs:Depends}, vdrdevel (>= 1.3.12-2), eject (>=2.0.3-1), mjpegtools, netpbm
+Description: Plugin to vdr that implements a mp3 player
+ This plugin for vdr implements mp3 selection and playing.
+XB-VDR-Patchlevel: ${patchlevel}
+
+Package: vdrdevel-plugin-mplayer
+Architecture: any
+Depends: ${shlibs:Depends}, vdrdevel (>= 1.3.12-2), eject (>=2.0.3-1), mplayer
+Description: Plugin to vdr that integrates mplayer
+ This plugin for vdr contains an interface to mplayer. 
+XB-VDR-Patchlevel: ${patchlevel}

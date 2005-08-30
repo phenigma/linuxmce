@@ -1,0 +1,103 @@
+Dies ist ein "plugin" für den Video Disk Recorder (VDR).
+
+Geschrieben von:               Sascha Volkenandt <sascha@akv-soft.de>
+
+Projekthomepage:               http://www.magoa.net/linux/contrib/
+
+Letzte Version verfügbar auf: http://www.magoa.net/linux/contrib/
+
+Siehe COPYING für Linzensierungsinformationen.
+
+
+Beschreibung:
+-------------
+
+Dieses Plugin wurde designed um eine Reihe von Dateien zu laden und zu 
+interpretieren, die das Aussehen des On Screen Display beschreiben, und diese 
+dem VDR via Einstellungen -> OSD zur Verfügung zu stellen. Natürlich ist es
+möglich mehrere textbasierte Skins auf diesem Wege zu laden, und unter diesen
+bei laufendem VDR auszuwählen. Alle Skins können Themeable (die Farbvarianten
+können geändert werden) und Übersetzbar sein, wenn der Autor des Skins dies
+möchte.
+
+
+Voraussetzungen:
+----------------
+
+Um andere Bildformate als einfaches XPM zu laden, brauchen Sie eine 
+Grafikbibliothek. Es werden zwei Bibliotheken unterstützt, aus der Sie eine
+zu benutzende wählen können. Dies sind ImageMagick oder Imlib2, wobei erstere
+standardmäßig herangezogen wird. Sie können beeinflussen, welche Bibliothek
+(wenn überhaupt eine) genutzt werden soll, indem Sie die ersten paar Zeilen
+der Datei Makefile ändern. Hier ist eine Übersicht über Möglichkeiten und 
+Nachteile jeder möglichen Lösung:
+
+Keine Bibliothek
+ - Sie können nur XPM Dateien laden
+ - XPMs haben weder Teiltransparenzen noch Alphakanäle
+ 
+ImageMagick
+ + Sie können viele verschiedene Bildformate laden
+ - ist aber etwas langsamer als Imlib2
+
+Imlib2
+ + Sie können viele verschiedene Bildformate laden
+ - STÜRZT AB, WENN ES ZUSAMMEN MIT DEM GRAPHTFT-PLUGIN ZUM EINSATZ KOMMT!
+
+Beide Bibliotheken gleichzeitig zu benutzen macht keinen Sinn.
+
+HINWEIS: Obwohl das Handbuch von ImageMagick behauptet, dass die hier benutzte
+Bibliothek Magick++ integraler Bestandteil der Quellen sind, muss auf manchen
+Distributionen das Paket Magick++ zusätzlich installiert werden.
+
+
+Installation:
+-------------
+
+Installieren Sie text2skin wie jedes andere Plugin. In diesem Beispiel nehme
+ich an Sie sind in den Ordner gewechselt, in dem VDR's Quelltext liegt, und
+Sie wollen Version 0.0.1 des Plugins installieren.
+
+root@linux # cd PLUGINS/src
+root@linux # wget http://www.magoa.net/linux/contrib/vdr-text2skin-0.0.1.tgz
+root@linux # tar -xfz vdr-text2skin-0.0.1.tgz
+root@linux # ln -s text2skin-0.0.1 text2skin
+root@linux # cd ../..
+root@linux # make plugins
+root@linux # ./vdr -P text2skin
+
+Wenn Sie VDR 1.3.9 benutzen, müssen Sie auch noch einen Patch anwenden. Dieser
+Patch wird in VDR 1.3.10 aber enthalten sein.
+
+root@linux # patch -p1 < PLUGINS/src/text2skin/patches/vdr-1.3.9-osd.diff
+root@linux # make vdr
+root@linux # ./vdr -P text2skin
+
+
+Wo die Skins hingehören:
+------------------------
+
+Wie Sie vielleicht wissen, hat VDR einen Unterordner "plugins" innerhalb seines
+Konfigurationsordners, in dem alle Dateien, die zu Plugins gehören, enthalten
+sein sollten. Wenn Sie nicht wissen, wo das sein könnte, schauen Sie in dem
+Ordner nach, den Sie VDR beim Starten mit -v (oder -c, falls gegeben) übergeben
+haben. "plugins" sollte in diesem Ordner enthalten sein.
+
+Innerhalb dieses "plugins" Ordners erstellen Sie einen Ordner namens 
+"text2skin". In "text2skin" erstellen Sie einen weiteren Ordner pro Skin. Diese
+Skin-Ordner müssen den gleichen Namen tragen wie die Skins in ihnen. Jedes 
+Skin muss mindestens eine Datei enthalten, die denselben Namen trägt, aber mit
+der Endung ".skin".
+
+Beispiel (das Skin heisst myskin):
+/video0/plugins/text2skin/
+/video0/plugins/text2skin/myskin/
+/video0/plugins/text2skin/msykin/msykin.skin
+/video0/plugins/text2skin/myskin/channeldisplay.png
+
+Die anderen Dateien in dem Skin-Ordner sind weitere Beschreibungsdateien (für
+Farben und Übersetzungen) sowie Bilder, Logos und Symbole.
+
+Wenn Sie ein Skin herunterladen, wechseln Sie normalerweise einfach in den
+plugins/text2skin Ordner und entpacken es dort.
+

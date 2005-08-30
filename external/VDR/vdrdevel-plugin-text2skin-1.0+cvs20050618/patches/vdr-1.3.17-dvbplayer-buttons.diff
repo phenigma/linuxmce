@@ -1,0 +1,10 @@
+--- menu.c.orig	Fri Dec 17 18:31:27 2004
++++ menu.c	Fri Dec 17 18:37:18 2004
+@@ -3331,6 +3331,7 @@
+      if (Initial) {
+         if (title)
+            displayReplay->SetTitle(title);
++        displayReplay->SetButtons(tr("Jump"), tr("Skip +60s"), tr("Skip -60s"), tr("Button$Stop"));
+         lastCurrent = lastTotal = -1;
+         }
+      if (Total != lastTotal) {

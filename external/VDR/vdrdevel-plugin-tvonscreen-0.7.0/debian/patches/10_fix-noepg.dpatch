@@ -1,0 +1,57 @@
+#!/bin/sh /usr/share/dpatch/dpatch-run
+
+## fix-noepg patch - by Thomas Günther <tom@toms-cafe.de>
+## http://toms-cafe.de/vdr/download/tvonscreen-0.7.0-fix-noepg.diff
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Fixes segmentation fault without any epg data.
+
+@DPATCH@
+--- tvonscreen-0.7.0/magazine.c
++++ tvonscreen-0.7.0/magazine.c
+@@ -1484,9 +1484,9 @@
+ 	{
+ 		state = cOsdObject::ProcessKey(Key);
+ 	
+-		if (state == osUnknown)
++		if (state == osUnknown && schedArrayNum>currentFirst)
+ 		{
+-			if (curmode==SHOW && schedArrayNum>currentFirst)
++			if (curmode==SHOW)
+ 			{
+ 				switch (Key & ~k_Repeat)
+ 				{
+@@ -1522,6 +1522,8 @@
+ 						currentFirst++;
+ 						if (currentFirst>schedArrayNum-3)
+ 							currentFirst=schedArrayNum-3;
++						if (currentFirst<0)
++							currentFirst=0;
+ 						output();
+ 						break;
+ 					case kUp:
+@@ -1556,6 +1558,8 @@
+ 						currentFirst+=3;
+ 						if (currentFirst>schedArrayNum-3)
+ 							currentFirst=schedArrayNum-3;
++						if (currentFirst<0)
++							currentFirst=0;
+ 						output();
+ 						break;
+ 					case k8: // zum aktuellen Sender
+@@ -1657,11 +1661,15 @@
+ 							EDIT_curChannel++;
+ 						if (EDIT_curChannel>schedArrayNum-1)
+ 							EDIT_curChannel=schedArrayNum-1;
++						if (EDIT_curChannel<0)
++							EDIT_curChannel=0;
+ 						if (EDIT_curChannel>currentFirst+2)
+ 						{
+ 							currentFirst++;
+ 							if (currentFirst>schedArrayNum-3)
+ 								currentFirst=schedArrayNum-3;
++							if (currentFirst<0)
++								currentFirst=0;
+ 							EDIT_curChannel=currentFirst+2;
+ 						}
+ 						outputLR();

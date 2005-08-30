@@ -1,0 +1,118 @@
+This is a "plugin" for the Video Disk Recorder (VDR).
+
+Written by:                  Sascha Volkenandt <sascha@akv-soft.de>
+
+Project's homepage:          http://www.magoa.net/linux/contrib/
+
+Latest version available at: http://www.magoa.net/linux/contrib/
+
+See the file COPYING for license information.
+
+
+Description:
+------------
+
+This plugin is designed to load and interpret a set of files describing the
+layout of the On Screen Display and to make this "Skin" available to VDR via
+Setup -> OSD in the main menu. Of course it is possible to load more than one
+text-based skin this way and to choose between them while running VDR. All 
+skins may be themeable (you can create your own color-theme) and translateable
+as the author of the skin wishes.
+
+
+Prerequisites:
+--------------
+
+For loading images in format other than simple XPM, you will need an image 
+library. You can choose between two supported libraries, ImageMagick or Imlib2,
+from which the first one is the default. You can specify which library to use
+(if any) in the first few lines of the Makefile. Here is an overview of the
+advantages and drawbacks of each solution:
+
+No library
+ - you can only load XPM files
+ - XPMs don't support partial transparency / alpha channels
+
+ImageMagick 
+ + you can load many different image types including animations
+
+Imlib2
+ + you can load many different image types
+ - CRASHES WHEN USED TOGETHER WITH THE GRAPHTFT-PLUGIN!
+
+Using both libraries at the same time doesn't make sense anyway.
+
+HINT: Although the manual of ImageMagick claims that the used library Magick++
+is part of the source distribution, some binary distributions may have to 
+install Magick++ separately.
+
+Some skins may use True Type Fonts, which requires the FreeType package to be
+installed. If you don't want to use FreeType font rendering, you may disable
+that in the Makefile, too.
+
+
+Installation:
+-------------
+
+Install text2skin like any other plugin. In this example I assume that you have
+changed to the folder where the VDR sourcecode is located, and that it is 
+version 0.0.1 of the plugin you wish to install. During the build process, 
+there will be generated two files called SKINS and SKINS.de, the skin format
+documentation.
+
+root@linux # cd PLUGINS/src
+root@linux # wget http://www.magoa.net/linux/contrib/vdr-text2skin-1.0.tgz
+root@linux # tar -xfz vdr-text2skin-1.0.tgz
+root@linux # cd ../..
+root@linux # make plugins
+root@linux # ./vdr -P text2skin
+
+There are several patches included, which can be applied to VDR, but all of 
+them are considered optional.
+
+vdr-1.3.17-dvbplayer-buttons.diff
+ - demonstration on how to use the colorbuttons in replay mode (no skin makes
+   use of that so far)
+
+vdr-1.3.17-osdbase-maxitems.diff
+ - allows dynamic height menu lists, i.e. when some part of the list is 
+   overpainted with a special message
+
+
+Where to put the skins:
+-----------------------
+
+As you might know, VDR has a subfolder "plugins" inside it's configuration 
+folder, where all plugin-related files should reside. If you don't know, where
+this could be, look into the folder you gave to VDR with the -v parameter 
+(or the -c parameter, if that was given). "plugins" should be inside that 
+folder.
+
+Inside that "plugins" folder, create a subfolder called "text2skin". Inside
+"text2skin", create one folder for each skin. These skin-folders must have the
+same names as the skins residing in them.  Each skin must at least have a file
+carrying the same name, but ending in ".skin".
+
+Example (the Skin is called myskin):
+/video0/plugins/text2skin/
+/video0/plugins/text2skin/myskin/
+/video0/plugins/text2skin/msykin/msykin.skin
+/video0/plugins/text2skin/myskin/channeldisplay.png
+
+The other files inside the skin-folder are additional description files (for
+Themeing and Translation), images, logos and symbols.
+
+If you download a skin, you usually just change to plugins/text2skin and unpack
+it there.
+
+
+Where to put the fonts:
+-----------------------
+
+Font files (.ttf) can be placed either in the directory of the skin itself or 
+in a subfolder fonts inside the text2skin directory.
+
+Example:
+/video0/plugins/text2skin/fonts/arial.ttf
+/video0/plugins/text2skin/myskin/arial.ttf
+

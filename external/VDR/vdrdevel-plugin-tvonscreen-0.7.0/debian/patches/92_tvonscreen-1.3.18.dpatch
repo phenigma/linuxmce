@@ -1,0 +1,109 @@
+#!/bin/sh /usr/share/dpatch/dpatch-run
+
+## tvonscreen-1.3.18 patch by vdrportal users in thread
+## http://www.vdrportal.de/board/thread.php?threadid=28040
+##
+## downloaded from http://www.vdrportal.de/board/thread.php?postid=246219#post246219
+## original file: vdr-tvonscreen-0.7.0-1.3.18.diff
+##
+## added compatibility to VDR < 1.3.18 by Thomas Günther <tom@toms-cafe.de>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Changes for VDR >= 1.3.18.
+
+@DPATCH@
+--- tvonscreen-0.7.0/gfxtools.c
++++ tvonscreen-0.7.0/gfxtools.c
+@@ -7,6 +7,7 @@
+  *
+  */
+ 
++#include <vdr/tools.h>
+ #include <vdr/plugin.h>
+ #include "gfxtools.h"
+ #include <string.h>
+@@ -24,7 +25,12 @@
+ 		int index = 0;
+ 		char *s;
+ 
++#if VDRVERSNUM >= 10318
++		cReadLine ReadLine;
++		while ( (s = ReadLine.Read(f) ) != NULL )
++#else
+ 		while ((s = readline(f)) != NULL) 
++#endif
+ 		{
+ 			s = skipspace(s);
+ 			if (!isXpm)
+--- tvonscreen-0.7.0/magazine.c
++++ tvonscreen-0.7.0/magazine.c
+@@ -475,7 +475,12 @@
+ #endif
+ 
+ 	int j=0;
++#if VDRVERSNUM >= 10318
++	const char *txt;
++	cString timetxt;
++#else
+ 	const char *txt,*timetxt;
++#endif
+ 	int lh=-1;
+ 	int lhc=0;
+ #if VDRVERSNUM >= 10307
+@@ -539,7 +544,11 @@
+ 					col=clrYellow;
+ 					EDIT_curEVI=i;
+ 				}
++#if VDRVERSNUM >= 10318
++				timetxt=*cev->GetTimeString();
++#else
+ 				timetxt=cev->GetTimeString();
++#endif
+ #if VDRVERSNUM >= 10300
+ 				txt=cev->Title();
+ #else
+--- tvonscreen-0.7.0/search.c
++++ tvonscreen-0.7.0/search.c
+@@ -17,7 +17,12 @@
+ #endif
+ {
+ 	char buf[200];
++#if VDRVERSNUM >= 10318
++	const char *txt,*chan;
++	cString time1,time2,date;
++#else
+ 	const char *txt,*time1,*time2,*date,*chan;
++#endif
+ 	cChannel *channel;
+ 		
+ 	myev=ev;
+@@ -26,9 +31,16 @@
+ #else
+ 	channel = Channels.GetByChannelID(ev->GetChannelID(), true);
+ #endif
++#if VDRVERSNUM >= 10318
++	time1=*ev->GetTimeString();
++	time2=*ev->GetEndTimeString();
++#else
+ 	time1=ev->GetTimeString();
+ 	time2=ev->GetEndTimeString();
+-#if VDRVERSNUM >= 10308
++#endif
++#if VDRVERSNUM >= 10318
++	date=*ev->GetDateString();
++#elif VDRVERSNUM >= 10308
+ 	date=ev->GetDateString();
+ #else
+ 	date=ev->GetDate();
+@@ -44,7 +56,11 @@
+ 	txt=ev->GetTitle();
+ #endif
+ 
++#if VDRVERSNUM >= 10318
++	snprintf(buf,sizeof(buf)-1,"%.6s %s - %s %s/%s",*date,*time1,*time2,chan,txt);
++#else
+ 	snprintf(buf,sizeof(buf)-1,"%.6s %s - %s %s/%s",date,time1,time2,chan,txt);
++#endif
+ 	SetText(buf);
+ }
+ 

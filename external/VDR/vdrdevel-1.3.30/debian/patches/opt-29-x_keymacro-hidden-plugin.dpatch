@@ -1,0 +1,23 @@
+#!/bin/sh /usr/share/dpatch/dpatch-run
+
+## opt-29_keymacro-hidden-plugin.dpatch by Joachim Wilke <vdr@joachim-wilke.de>
+##
+## extracted from the screenshot plugin 0.0.5
+## original file: patch-keymacros-for-hidden-plugins.diff
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: This patch allows using keymacros for hidden plugin mainmenu entries.
+
+@DPATCH@
+diff -ru menu.c.sav menu.c
+--- old/menu.c.sav	Tue Feb 10 12:54:38 2004
++++ new/menu.c	Thu Mar 11 18:42:53 2004
+@@ -3117,6 +3213,8 @@
+       cPlugin *p = cPluginManager::GetPlugin(i);
+       if (p) {
+          const char *item = p->MainMenuEntry();
++         if (!item && Plugin && strcmp(Plugin, p->Name()) == 0)
++            item = p->Name();
+          if (item)
+             Add(new cMenuPluginItem(hk(item), i), Plugin && strcmp(Plugin, p->Name()) == 0);
+          }
