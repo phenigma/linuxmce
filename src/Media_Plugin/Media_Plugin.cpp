@@ -4914,3 +4914,12 @@ void Media_Plugin::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal
 		MediaInfoChanged( pMediaStream, true );
 	}
 }
+//<-dceag-c623-b->
+
+	/** @brief COMMAND: #623 - Shuffle */
+	/** Randomizes the order of the current playlist. */
+
+void Media_Plugin::CMD_Shuffle(string &sCMD_Result,Message *pMessage)
+//<-dceag-c623-e->
+{
+}

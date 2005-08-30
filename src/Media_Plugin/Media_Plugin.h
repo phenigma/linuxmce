@@ -741,6 +741,13 @@ public:
 	virtual void CMD_Set_Auto_Resume_Options(string sValue_To_Assign,int iPK_Users,int iPK_MediaType,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #623 - Shuffle */
+	/** Randomizes the order of the current playlist. */
+
+	virtual void CMD_Shuffle() { string sCMD_Result; CMD_Shuffle(sCMD_Result,NULL);};
+	virtual void CMD_Shuffle(string &sCMD_Result,Message *pMessage);
+
+
 	/** @brief COMMAND: #689 - Update Time Code */
 	/** Updates the current running time for a media stream. */
 		/** @param #41 StreamID */
