@@ -31,6 +31,13 @@ class OrbiterFileBrowser_Collection;
 namespace DCE
 {
 
+enum SelectionBehaviour
+{
+    sbSelectOnFirstMove,
+    sbAllowsSelected,
+    sbNoSelection
+};
+
 /**
  * @brief Contains a snapshot of the screen that was viewed and the state so that it can be restored with GoBack
  */
@@ -173,7 +180,9 @@ protected:
     bool m_bShowShortcuts;
 	bool m_bIsOSD; // true if this is an on-screen display
 	bool m_bForward_local_kb_to_OSD; // true if this is orbiter should be used a remote keyboard for another
-	bool m_bAutoSelectFirstObject; // true means automatically highlight the first object when the screen changes
+	int m_nSelectionBehaviour;    // '0' - no item is selected until the user moves the arrows
+                                  // '1' - automatically highlight the first object when the screen changes
+                                  // '2' - selection/hightlighing routines disabled
 
 	int  m_iCaptureKeyboard_PK_Variable; /** < capture keyboard variable (coresponds to primary key) @todo ask */
 	string m_sCaptureKeyboard_Text; /** < text for capture keyboard @todo ask */
@@ -926,7 +935,7 @@ public:
 	int DATA_Get_Rotation();
 	int DATA_Get_PK_UI();
 	string DATA_Get_Hard_Keys_mapping();
-	bool DATA_Get_Using_Infrared();
+	int DATA_Get_Using_Infrared();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position);

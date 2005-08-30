@@ -202,7 +202,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
 	m_bWeCanRepeat=false;
 	m_bRepeatingObject=false;
     m_bShowShortcuts = false;
-	m_bAutoSelectFirstObject = DATA_Get_Using_Infrared();
+	m_nSelectionBehaviour = DATA_Get_Using_Infrared();
 	m_iPK_DesignObj_Remote=m_iPK_DesignObj_Remote_Popup=m_iPK_DesignObj_FileList=m_iPK_DesignObj_FileList_Popup=m_iPK_DesignObj_RemoteOSD=m_iPK_DesignObj_Guide=0;
 	m_iPK_MediaType=0;
 
@@ -1401,10 +1401,18 @@ void Orbiter::ObjectOnScreenWrapper(  )
 	    ObjectOnScreen( &vectDesignObj_Orbiter_OnScreen, pPlutoPopup->m_pObj );
 	}
 
-	if( m_bAutoSelectFirstObject )
-		HighlightFirstObject();
-	else
-		m_pObj_Highlighted=NULL;
+	switch(m_nSelectionBehaviour)
+    {
+        case sbAllowsSelected:
+            HighlightFirstObject();
+            break;
+
+        case sbSelectOnFirstMove:
+        case sbNoSelection:
+            m_pObj_Highlighted=NULL;
+            break;
+    }
+		
 
 	// Do the on load actions for the screen itself,  and objects on it
     ExecuteCommandsInList( &m_pScreenHistory_Current->m_pObj->m_Action_LoadList, m_pScreenHistory_Current->m_pObj, 0, 0 );
@@ -2257,7 +2265,10 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
 }
 //------------------------------------------------------------------------
 /*virtual*/ void Orbiter::DoHighlightObject()
-{
+{   
+    if(sbNoSelection == m_nSelectionBehaviour)
+        return;
+
 	if( m_pGraphicBeforeHighlight )
 		UnHighlightObject();
 
@@ -2337,18 +2348,21 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
 //------------------------------------------------------------------------
 /*virtual*/ void Orbiter::SelectObject( class DesignObj_Orbiter *pObj, PlutoPoint point )
 {
-    int x = point.X + pObj->m_rBackgroundPosition.X;
-    int y = point.Y + pObj->m_rBackgroundPosition.Y;
-    int w = pObj->m_rBackgroundPosition.Width;
-    int h = pObj->m_rBackgroundPosition.Height;
+    if(sbNoSelection != m_nSelectionBehaviour)
+    {
+        int x = point.X + pObj->m_rBackgroundPosition.X;
+        int y = point.Y + pObj->m_rBackgroundPosition.Y;
+        int w = pObj->m_rBackgroundPosition.Width;
+        int h = pObj->m_rBackgroundPosition.Height;
 
-    PlutoColor WhiteColor(255, 255, 255, 100);
-    PlutoColor BlueColor(0, 0, 255, 100);
+        PlutoColor WhiteColor(255, 255, 255, 100);
+        PlutoColor BlueColor(0, 0, 255, 100);
 
-    HollowRectangle(x    , y    , w - 1, h - 1, BlueColor);
-    HollowRectangle(x + 1, y + 1, w - 3, h - 3, BlueColor);
-    HollowRectangle(x + 2, y + 2, w - 5, h - 5, WhiteColor);
-    HollowRectangle(x + 3, y + 3, w - 7, h - 7, WhiteColor);
+        HollowRectangle(x    , y    , w - 1, h - 1, BlueColor);
+        HollowRectangle(x + 1, y + 1, w - 3, h - 3, BlueColor);
+        HollowRectangle(x + 2, y + 2, w - 5, h - 5, WhiteColor);
+        HollowRectangle(x + 3, y + 3, w - 7, h - 7, WhiteColor);
+    }
 }
 //------------------------------------------------------------------------
 /*virtual*/ void Orbiter::HighlightFirstObject()
@@ -2471,7 +2485,8 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
 	// Nothing is selected, select the first object
     if(NULL == m_pObj_Highlighted || (m_pObj_Highlighted && (!m_pObj_Highlighted->m_bOnScreen || m_pObj_Highlighted->IsHidden())))
     {
-        HighlightFirstObject();
+        if(sbNoSelection != m_nSelectionBehaviour)
+            HighlightFirstObject();
 
         PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
         if(m_pObj_Highlighted)
@@ -2871,7 +2886,7 @@ void Orbiter::InitializeGrid( DesignObj_DataGrid *pObj )
         pObj->m_iHighlightedRow = (posH==pObj->m_sExtraInfo.length() || pObj->m_sExtraInfo[posH+1]!='C') ? 0 : -1;
         pObj->m_iHighlightedColumn = (posH==pObj->m_sExtraInfo.length() || pObj->m_sExtraInfo[posH+1]!='R') ? 0 : -1;
     }
-    else if( m_bAutoSelectFirstObject )
+    else if(sbAllowsSelected == m_nSelectionBehaviour)
     {
         pObj->m_iHighlightedRow = pObj->m_sExtraInfo.find( 'C' )==string::npos ? 0 : -1;
         pObj->m_iHighlightedColumn = pObj->m_sExtraInfo.find( 'R' )==string::npos ? 0 : -1;
