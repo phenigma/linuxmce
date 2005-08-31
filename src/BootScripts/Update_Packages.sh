@@ -25,6 +25,15 @@ Fail=0
 # Harmless, and it cleans up the dpkg journal too
 dpkg --forget-old-unavail
 
+InstPkgs="$(apt-get -s -f dist-upgrade | grep "^Conf " | cut -d' ' -f2 | tr '\n' ' ')"
+RebootPkg="pluto-kernel-upgrade"
+for Pkg in $RebootPkg; do
+	if [[ "$InstPkgs" == *"$Pkg"* ]]; then
+		DoReboot=y
+		break
+	fi
+done
+
 Count=$(apt-get -f -y -s dist-upgrade | egrep -c '^Inst |^Conf ')
 
 if apt-get -V -f -y $DownloadOnly dist-upgrade; then
@@ -33,6 +42,9 @@ if apt-get -V -f -y $DownloadOnly dist-upgrade; then
 	elif [[ "$Count" != "0" ]]; then
 		Q="UPDATE Device SET NeedConfigure=1"
 		RunSQL "$Q"
+		if [[ "$DoReboot" == y ]]; then
+			reboot
+		fi
 	fi
 else
 	Fail=1
