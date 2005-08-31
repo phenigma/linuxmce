@@ -1075,441 +1075,6 @@ function getChilds($parentID,$dbADO) {
 	return $jsTree;
 }
 
-function pickDeviceTemplate_old($categoryID, $boolManufacturer,$boolCategory,$boolDeviceTemplate,$returnValue,$defaultAll,$section,$firstColText,$dbADO,$useframes=0,$genericSerialDevicesOnly=0)
-{
-	global $dbPlutoMainDatabase;
-	$out='
-	<script>
-	function windowOpen(locationA,attributes) {
-		window.open(locationA,\'\',attributes);
-	}
-	</script>';
-	
-	$selectedManufacturer = (int)@$_REQUEST['manufacturers'];
-	$selectedDeviceCateg= (int)@$_REQUEST['deviceCategSelected'];
-	$selectedDevice= (int)@$_REQUEST['deviceSelected'];
-	$selectedModel= (int)@$_REQUEST['model'];
-	$justAddedNode = (int)@$_GET['justAddedNode'];
-
-	$actionX = (isset($_REQUEST['actionX']) && cleanString($_REQUEST['actionX'])!='null')?cleanString($_REQUEST['actionX']):'form';
-	
-	$selectManufacturersTxt = '';
-	$queryManufacturers = "SELECT * FROM Manufacturer ORDER BY Description";
-	$rs = $dbADO->_Execute($queryManufacturers);
-		while ($row = $rs->FetchRow()) {
-			$selectManufacturersTxt.="<option ".($selectedManufacturer==$row['PK_Manufacturer']?" selected ":"")." value='{$row['PK_Manufacturer']}'>{$row['Description']}</option>";
-		}
-	$rs->Close();
-	
-	if ($actionX=='form') {
-	
-	
-		$jsTree = '';
-		if(is_null($categoryID))
-			$selectDeviceCategories = "SELECT * FROM DeviceCategory WHERE FK_DeviceCategory_Parent IS NULL ORDER BY Description";
-		else 
-			$selectDeviceCategories = "SELECT * FROM DeviceCategory WHERE FK_DeviceCategory_Parent ='$categoryID' ORDER BY Description";
-		$rs = $dbADO->_Execute($selectDeviceCategories);
-			while ($row = $rs->FetchRow()) {		
-				$jsTree.='
-				auxS'.$row['PK_DeviceCategory'].' = insFld(foldersTree, gFld("'.$row['Description'].' #'.$row['PK_DeviceCategory'].'", "javascript:document.forms[0].deviceCategSelected.value=0;document.forms[0].deviceSelected.value='.$row['PK_DeviceCategory'].';document.forms[0].actionX.value=null;document.forms[0].submit();"));
-				auxS'.$row['PK_DeviceCategory'].'.xID = '.$row['PK_DeviceCategory'].';
-				';
-				$jsTree.=getChilds($row['PK_DeviceCategory'],$dbADO);
-			}
-		$rs->Close();
-		
-		
-		$selectModels = '';
-		$modelsJsArray = '
-				modelsArray = new Array();
-		';
-		$where = " AND 1=1 ";
-		$manufOrDevice = 0;
-		if ($selectedManufacturer!=0) {	
-			$where.=" AND FK_Manufacturer = '$selectedManufacturer'";
-			$manufOrDevice = 1;
-		}
-
-		if ($selectedDevice!=0) {
-			if ($selectedDeviceCateg==0) {
-				$GLOBALS['childsDeviceCategoryArray'] = array();
-				
-				getDeviceCategoryChildsArray($selectedDevice,$dbADO);
-				$GLOBALS['childsDeviceCategoryArray']=cleanArray($GLOBALS['childsDeviceCategoryArray']);
-				$GLOBALS['childsDeviceCategoryArray'][]=$selectedDevice;
-				
-				$childArray = join(",",$GLOBALS['childsDeviceCategoryArray']);		
-				
-				$where.=" and DeviceCategory.PK_DeviceCategory in ($childArray)";
-			} else {		
-				$where .= " and DeviceCategory.PK_DeviceCategory = '$selectedDevice'";	
-			}
-			$manufOrDevice = 1;
-		}elseif(!is_null($categoryID)){
-			$GLOBALS['childsDeviceCategoryArray'] = array();
-				
-			getDeviceCategoryChildsArray($categoryID,$dbADO);
-			$GLOBALS['childsDeviceCategoryArray']=cleanArray($GLOBALS['childsDeviceCategoryArray']);
-			$GLOBALS['childsDeviceCategoryArray'][]=$categoryID;
-			
-			$childArray = join(",",$GLOBALS['childsDeviceCategoryArray']);		
-			$where.=" and DeviceCategory.PK_DeviceCategory in ($childArray)";
-		}
-
-		$where.=(($genericSerialDevicesOnly==1)?' AND CommandLine=\''.$GLOBALS['GenericSerialDeviceCommandLine'].'\'':'');
-		
-		if ($manufOrDevice || $defaultAll==1)	{
-		
-			$queryModels = "SELECT 
-								DeviceTemplate.*,
-								DeviceCategory.Description as deviceDescription,
-								Manufacturer.Description as manufacturerDescription 
-							FROM DeviceTemplate 
-							INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory
-							INNER JOIN Manufacturer ON PK_Manufacturer=FK_Manufacturer
-							WHERE 1=1 $where ORDER BY Description";	
-			$rs = $dbADO->_Execute($queryModels);
-			
-			$arJsPos=0;
-
-			// if call come from addMyDevice, aply controlled by filter
-			$allowedDevices=array();
-			if(ereg('parentID',@$_SESSION['from']) && @$_SESSION['parentID']!=0){
-				$allowedDevices=getDeviceTemplatesControlledBy($_SESSION['parentID'],$dbADO);
-			}
-
-			while ($row = $rs->FetchRow()) {
-			
-				if(count($allowedDevices)==0 || (count($allowedDevices)>0 && in_array($row['PK_DeviceTemplate'],$allowedDevices)))			
-					$selectModels.="<option ".($selectedModel==$row['PK_DeviceTemplate']?" selected ":"")." value='{$row['PK_DeviceTemplate']}' ".(($row['IsPlugAndPlay']==1)?'style="background-color:lightgreen;"':'').">{$row['Description']}</option>";
-					
-					if ($row['PK_DeviceTemplate']>0) {
-					$modelsJsArray.='
-					
-					model'.$row['PK_DeviceTemplate'].' = new Array();
-						model'.$row['PK_DeviceTemplate'].'.manufacturerName = \''.$row['manufacturerDescription'].'\';
-						model'.$row['PK_DeviceTemplate'].'.deviceDescription = \''.$row['deviceDescription'].'\';
-					    model'.$row['PK_DeviceTemplate'].'.userID = \''.@$_SESSION['userID'].'\';
-					
-					modelsArray['.$row['PK_DeviceTemplate'].'] = model'.$row['PK_DeviceTemplate'].';			
-					
-					';
-					}
-					$arJsPos++;
-				}
-			$rs->Close();
-		}
-		
-			
-		
-		$scriptInHead = "
-		
-	
-		<!-- As in a client-side built tree, all the tree infrastructure is put in place
-		     within the HEAD block, but the actual tree rendering is trigered within the
-		     BODY -->
-		
-		<!-- Code for browser detection -->
-		<script src=\"scripts/treeview/ua.js\"></script>
-		
-		<!-- Infrastructure code for the tree -->
-		<script src=\"scripts/treeview/ftiens4.js\"></script>
-		
-		<!-- Execution of the code that actually builds the specific tree.
-		     The variable foldersTree creates its structure with calls to
-			 gFld, insFld, and insDoc -->
-		<script>
-		
-		USETEXTLINKS = 1
-		STARTALLOPEN = 0
-		USEFRAMES = ".$useframes."
-		USEICONS = 0
-		WRAPTEXT = 1
-		PRESERVESTATE = 1
-		ICONPATH = 'scripts/treeview/' 
-		HIGHLIGHT = 1
-		
-		";
-		if(is_null($categoryID)){
-			$scriptInHead.="
-				foldersTree = gFld('<b>Device Category</b>', \"javascript:document.forms[0].deviceSelected.value=0;document.forms[0].deviceCategSelected.value=0;document.forms[0].actionX.value=null;document.forms[0].submit();\");";
-		}else{
-			$queryCategoryName='SELECT Description FROM DeviceCategory WHERE PK_DeviceCategory=?';
-			$resCategoryName=$dbADO->Execute($queryCategoryName,$categoryID);
-			$rowCategoryName=$resCategoryName->FetchRow();
-			$scriptInHead.="
-				foldersTree = gFld('<b>".$rowCategoryName['Description']."</b>', \"javascript:document.forms[0].deviceSelected.value=0;document.forms[0].deviceCategSelected.value=".$categoryID.";document.forms[0].actionX.value=null;document.forms[0].submit();\");";
-		}
-		$scriptInHead.="
-		foldersTree.xID = 1001635872;
-		$jsTree
-		
-		foldersTree.treeID = 't2'
-		
-		function getObj(obj) {
-				if (document.layers) {
-					if (typeof obj == 'string') {
-						return document.layers[obj];
-					} else 	{
-						return obj;
-					}
-				}
-				if (document.all) {
-					if (typeof obj == 'string') {
-						return document.all(obj);
-					} else {
-						return obj;
-					}
-				}
-				if (getObj) {
-					if (typeof obj == 'string') {
-						return getObj(obj);
-					} else {
-						return obj;
-					}
-				}
-				return null;	
-			} 
-
-			function showHideObject(obj) {
-				obj = getObj(obj);					
-				if(document.all || getObj) {  			
-						if (obj.style.visibility == \"visible\") {
-							obj.style.visibility = \"hidden\";
-							obj.style.display = \"none\";
-						} else {
-						    obj.style.visibility = \"visible\";
-							obj.style.display = \"block\";
-						}
-				} else if (document.layers) {
-						if (obj.style.visibility == \"visible\") {
-							obj.visibility = \"hide\";	
-						} else {
-						obj.visibility = \"show\";	
-						}
-				}
-			} 
-		$modelsJsArray
-		
-		
-		</script>
-		";
-		$out.=$scriptInHead;
-		$out.='
-		<div class="err">'.(isset($_GET['error'])&&$_GET['error']!='password'?strip_tags($_GET['error']):'').'</div>	
-		<form action="index.php" method="POST" name="'.$section.'">
-		<input type="hidden" name="section" value="'.$section.'">
-		<input type="hidden" name="actionX" value="add">
-		<input type="hidden" name="deviceCategSelected" value="'.$selectedDeviceCateg.'">
-		<input type="hidden" name="deviceSelected" value="'.$selectedDevice.'">
-		<input type="hidden" name="modelSelected" value="'.$selectedModel.'">
-		<input type="hidden" name="allowAdd" value="'.(int)@$_REQUEST['allowAdd'].'">
-		<input type="hidden" name="parmToKeep" value="'.@$_REQUEST['parmToKeep'].'">
-		
-		<table cellpadding="5" cellspacing="0" border="0" align="center">
-				<input type="hidden" name="selectedField" value="" />
-					<tr>
-						<th width="25%">Manufacturers</th>
-						<th width="25%">Device Category</th>
-						<th width="25%">
-						Models ';
-						if(ereg('parentID',@$_SESSION['from']) && @$_SESSION['parentID']!=0){
-							$parentFields=getProperties($_SESSION['parentID'],'Device','FK_DeviceTemplate','PK_Device',$dbADO);
-							$dtFields=getProperties($parentFields['FK_DeviceTemplate'],'DeviceTemplate','Description','PK_DeviceTemplate',$dbADO);
-							$out.=' controlled by '.$dtFields['Description'];
-						}
-						$out.='
-						</th>				
-					</tr>
-					<tr valign="top">
-						<td width="25%" align="center"  valign="top">
-							<select name="manufacturers" id="select_Manufacturer" onchange="this.form.selectedField.value=\'manufacturers\';this.form.actionX.value=\'form\';this.form.submit();" size="10" style="z-index:1;">
-								<option value="" selected="selected">All</option>
-								'.$selectManufacturersTxt.'						
-							</select><br /><br />';
-					if($boolManufacturer==1){
-						$out.='
-							<input type="text" name="Manufacturer_Description" size="15" />
-							<input type="submit" class="button" name="addManufacturer" value="Add"  />';
-					}
-					$out.=$firstColText.'
-						</td>
-						<td width="25%" align="center" valign="top">
-							<span style="display:none;"><table border=0><tr><td><font size=-2><a style="font-size:7pt;text-decoration:none;color:#FFFFFF" href="http://www.treemenu.net/" target=_blank>JavaScript Tree Menu</a></font></td></tr></table></span>
-							<span>
-							<script>
-								initializeDocument();						
-							</script>
-							<noscript>
-							A tree for site navigation will open here if you enable JavaScript in your browser.
-							</noscript>
-							</span>
-							<br /><br />';
-						if($boolCategory==1){
-							$out.='
-							<input type="text" name="DeviceCategory_Description" size="15" />
-							<input type="submit" class="button" name="addDeviceCategory"   value="Add '.($selectedDevice==0?' Top Level Child':' Child').'" />
-							'.($selectedDevice!=0?'<input type="button" class="button" name="editDeviceCategory" value="Edit" onClick="javascript: windowOpen(\'index.php?section=editDeviceCategory&from='.$section.'&manufacturers='.$selectedManufacturer.'&deviceCategSelected='.$selectedDeviceCateg.'&deviceSelected='.$selectedDevice.'&model='.$selectedModel.'\',\'status=0,resizable=1,width=600,height=250,toolbars=true\');" />':'<input   type="submit" class="button" name="editDeviceCategory" value="Edit" disabled="disabled" />').'';
-							getDeviceCategoryChildsNo($selectedDevice,$dbADO);					
-							$childsToDelete = $GLOBALS['childsDeviceCategoryNo'];
-							$out.='
-							&nbsp;&nbsp;'.($selectedDevice!=0?'<input type="button" class="button" name="deteleDeviceCategory" value="Delete" onClick="javascript: if (confirm(\'Are you sure you want to delete this device category?'.($childsToDelete==1?'There is 1 child to delete!':($childsToDelete>0?'There are '.$childsToDelete.' childs to delete!':'')).'\')) windowOpen(\'index.php?section=deleteDeviceCategory&from='.$section.'&manufacturers='.$selectedManufacturer.'&deviceCategSelected='.$selectedDeviceCateg.'&deviceSelected='.$selectedDevice.'&model='.$selectedModel.'\',\'status=0,resizable=1,width=100,height=100,toolbars=0\');" />':'<input type="submit" class="button" name="deleteDeviceCategory"   value="Delete" disabled="disabled" />');
-						}
-						$out.='
-						</td>
-						<td width="25%" align="center"  valign="top">
-							<script>
-								function checkEdit(objF) {
-										if(document.'.$section.'.model.selectedIndex!=0){							
-											objF.section.value=\'editMasterDevice\';
-						
-											objF.submit();
-										}
-								}
-		
-								function updateModelDetail(objF) {
-									if (typeof modelsArray[objF.model[objF.model.selectedIndex].value] != "undefined") {
-										getObj(\'modelManuf\').innerHTML = \'<br />\'+modelsArray[objF.model[objF.model.selectedIndex].value].manufacturerName;
-										getObj(\'modelDeviceDescription\').innerHTML = \'<br />\'+modelsArray[objF.model[objF.model.selectedIndex].value].deviceDescription;
-									} else {
-										getObj(\'modelManuf\').innerHTML = \'\';
-										getObj(\'modelDeviceDescription\').innerHTML = \'\';
-									} 					
-								}
-								
-							</script>
-							<select name="model" id="model" 
-									onChange="updateModelDetail(this.form);"
-									 size="10">
-									<option value="" selected="selected">'.(($section=='deviceTemplatePicker')?'- Please select -':'All').'</option>
-									'.$selectModels.'	
-							</select>';
-							if($returnValue==0){
-								$out.='<input type="button" class="button" name="edit_DeviceTemplate" value="Edit" onClick="javascript:checkEdit(this.form);" />';
-							}else{
-								$out.='<br><input type="button" class="button" name="pickDT" value="Add device" onClick="opener.location=\'index.php?section='.$_SESSION['from'].'&deviceTemplate=\'+document.'.$section.'.model[document.'.$section.'.model.selectedIndex].value+\'&action=add&add=1&'.@$_REQUEST['parmToKeep'].'\';self.close();" />';
-							}
-							$out.='
-							<hr />
-						<b><span id="modelManuf"></span><span id="modelDeviceDescription"></span></b><br />
-							
-							';
-							
-							if ($selectedManufacturer!=0 && $selectedDevice!=0) {
-								$disabledAdd=' ';
-							} else {
-								$disabledAdd=' disabled="disabled" ';
-							}
-					
-							$disabled_str = "disabled";
-				
-				$out.='	<b>Device templates highlighted are plug and play.';
-			if($boolDeviceTemplate==1){
-					$out.='
-						<br><br>If your model is not listed, pick the manufacturer and the category and then type the model here: <input type="text" name="DeviceTemplate_Description" size="15"'.$disabledAdd.' />
-							<input type="submit" class="button" name="addDeviceTemplate" value="Add"'. $disabledAdd .'  />';
-				}
-					
-				
-				$out.='
-						</td>				
-					</tr>';
-				if($returnValue!=0){
-					$out.='
-					<tr>
-						<td colspan="3">To add a device, choose the manufacturer and the category to see all models for you selection. Pick the model you want and click <B>"Add device"</B>.</td>
-					</tr>';
-				}
-				if($categoryID==$GLOBALS['rootAVEquipment']){
-					$out.='
-					<tr>
-						<td colspan="3">After you add a new model you\'ll be able to choose the A/V properties and set I/R codes.</td>
-					</tr>';
-				}
-				$out.='
-				</table>
-							
-		</form>
-		';
-	} else {
-		
-		 $addDeviceCategory = @cleanString($_POST['addDeviceCategory']);
-		 $deviceCategoryDesc = cleanString(@$_POST['DeviceCategory_Description']);
-		 
-		 $addDeviceTemplate = @cleanString($_POST['addDeviceTemplate']);
-		 $DeviceTemplate_Desc = @cleanString($_POST['DeviceTemplate_Description']);
-	
-		 $addManufacturer = @cleanString($_POST['addManufacturer']);
-		 $Manufacturer_Description = @cleanString($_POST['Manufacturer_Description']);	 
-		
-		 $deviceCategSelected = (int)$_POST['deviceCategSelected'];
-		 $deviceSelected = (int)$_POST['deviceSelected'];
-		 $manufacturerSelected = (int)$_POST['manufacturers'];
-	
-
-		 // process form only if user is logged
-		 if (isset($_SESSION['userLoggedIn']) && $_SESSION['userLoggedIn']==true) {
-	
-			 // add new category
-			 $justAddedNode = 0;
-			 if (strstr($addDeviceCategory,'Add')) {
-			 	if ($deviceCategoryDesc!='') {
-			 		$queryInsertCategoryDesc = "insert into DeviceCategory(FK_DeviceCategory_Parent,Description,IsAV)
-			 				values(?,?,0)";
-			 		$deviceCategParent=($deviceSelected==0)?$categoryID:$deviceSelected;
-			 		$dbADO->Execute($queryInsertCategoryDesc,array($deviceCategParent,$deviceCategoryDesc));	 			
-			 		$justAddedNode = $deviceSelected;
-			 		header("Location: index.php?section=$section&manufacturers=$manufacturerSelected&deviceCategSelected=$selectedDeviceCateg&deviceSelected=$selectedDevice&model=$selectedModel&allowAdd=$boolDeviceTemplate&justAddedNode=$justAddedNode");	 			 		
-				}
-			 }	
-			 	 
-			 //add new master device list
-			 if (strstr($addDeviceTemplate,'Add')) {
-			 	
-			 	if ($DeviceTemplate_Desc!='') {
-			 		if ($deviceSelected!=0 && $manufacturerSelected!=0) {	 			
-			 			$queryInsertMasterDevice = 'INSERT INTO DeviceTemplate (Description,FK_DeviceCategory,FK_Manufacturer) values(?,?,?)';
-			 			$res = $dbADO->Execute($queryInsertMasterDevice,array($DeviceTemplate_Desc,$deviceSelected,$manufacturerSelected));	 			
-			 			$dtID=$dbADO->Insert_ID();
-
-			 			if(in_array($deviceSelected,$GLOBALS['TVdevicesArray'])){
-							$openTunerConfig='windowOpen(\'index.php?section=tunerConfig&categoryID='.$deviceSelected.'&dtID='.$dtID.'\',\'width=600,height=400,toolbars=true,scrollbars=1,resizable=1\')';
-						}else
-							$openTunerConfig='';
-			 			
-		 				$out.='
-							<script>
-								'.$openTunerConfig.'
-								self.location="index.php?section='.$section.'&manufacturers='.$manufacturerSelected.'&deviceCategSelected='.$selectedDeviceCateg.'&deviceSelected='.$selectedDevice.'&model='.$selectedModel.'&allowAdd='.$boolDeviceTemplate.'&justAddedNode='.$justAddedNode.'";
-							</script>';
-		 			
-			 		}	 			 		
-			 	}
-			 }
-			 
-			 // add new manufacturer
-			 if (strstr($addManufacturer,'Add')){
-			 	if ($Manufacturer_Description!='') {
-		 			$queryInsertManufacturer = 'INSERT INTO Manufacturer (Description) values(?)';
-		 			$res = $dbADO->Execute($queryInsertManufacturer,array($Manufacturer_Description));	 			
-		 			header("Location: index.php?section=$section&manufacturers=$manufacturerSelected&deviceCategSelected=$selectedDeviceCateg&deviceSelected=$selectedDevice&model=$selectedModel&allowAdd=$boolDeviceTemplate&justAddedNode=$justAddedNode");
-		 			exit();
-		 		}	 			 		
-			 }
-			$out.="
-				<script>
-					self.location='index.php?section=$section&manufacturers=$manufacturerSelected&deviceCategSelected=$selectedDeviceCateg&deviceSelected=$selectedDevice&model=$selectedModel&allowAdd=$boolDeviceTemplate&justAddedNode=".$justAddedNode.'&'.$_REQUEST['parmToKeep']."';
-				</script>";
-		}else{
-			$out.="
-				<script>
-					self.location='index.php?section=$section&manufacturers=$manufacturerSelected&deviceCategSelected=$selectedDeviceCateg&deviceSelected=$selectedDevice&model=$selectedModel&allowAdd=$boolDeviceTemplate&error=Please login if you want to change device templates.';
-				</script>";
-		}
-	}
-	return $out;
-}
 
 function builtTopMenu($website,$dbADO)
 {
@@ -3026,65 +2591,6 @@ function isInfrared($deviceTemplate,$dbADO)
 	}
 }
 
-function getCheckedDeviceCommandGroup_old($deviceTemplate,$deviceCategory,$dbADO)
-{
-	$querySelCheckedCommandGroups = 'SELECT FK_DeviceCommandGroup FROM DeviceTemplate_DeviceCommandGroup WHERE  FK_DeviceTemplate = ?';
-	$resSelCheckedCommandGroups = $dbADO->Execute($querySelCheckedCommandGroups,$deviceTemplate);
-	$selCheckedCommandsGroups = array();
-	if ($resSelCheckedCommandGroups) {
-		while ($rowSelCheckedCommandGroups = $resSelCheckedCommandGroups->FetchRow()) {
-			$selCheckedCommandsGroups[]=$rowSelCheckedCommandGroups['FK_DeviceCommandGroup'];
-		}
-	}
-
-	if (!is_array($selCheckedCommandsGroups)) {
-		$selCheckedCommandsGroups=array();
-		$selCheckedCommandsGroups[]=0;
-	}
-	if (count($selCheckedCommandsGroups)==0) {
-		$selCheckedCommandsGroups[]=0;
-	}
-
-	$query = "
-		SELECT  ".$dbADO->IfNull('FK_DeviceCategory_Parent','0')." AS parent 
-		FROM DeviceCategory
-		WHERE PK_DeviceCategory = ?";
-	$deviceParent=0;
-	$res = $dbADO->Execute($query,array($deviceCategory));
-	if ($res) {
-		while ($row = $res->FetchRow()) {
-			$deviceParent=$row['parent'];
-		}
-	}
-
-	$deviceParent=(int)$deviceParent;
-	$deviceCG = array();
-	$query = "
-		SELECT DeviceCommandGroup.* 
-		FROM DeviceCommandGroup
-		INNER JOIN DeviceCategory on FK_DeviceCategory = PK_DeviceCategory
-		WHERE 
-			FK_DeviceCategory in ($deviceParent,$deviceCategory) OR
-			PK_DeviceCommandGroup in (".join(",",$selCheckedCommandsGroups).") 
-		ORDER BY DeviceCommandGroup.Description Asc	";
-	$resCommands = $dbADO->_Execute($query);
-				
-	$groups = array();
-	if ($resCommands) {
-		while ($row = $resCommands->FetchRow()) {
-			$groups[$row['PK_DeviceCommandGroup']]['checked']=(in_array($row['PK_DeviceCommandGroup'],$selCheckedCommandsGroups))?1:0;
-			$groups[$row['PK_DeviceCommandGroup']]['Description']=$row['Description'];
-		}
-	}
-	
-	$resN=$dbADO->Execute('SELECT * FROM DeviceCommandGroup WHERE FK_DeviceCategory IS NULL');
-	while($rowN=$resN->FetchRow()){
-		$groups[$rowN['PK_DeviceCommandGroup']]['checked']=(in_array($rowN['PK_DeviceCommandGroup'],$selCheckedCommandsGroups))?1:0;
-		$groups[$rowN['PK_DeviceCommandGroup']]['Description']=$rowN['Description'];
-	}
-	
-	return $groups;
-}
 
 function getDeviceInformation($deviceID,$dbADO)
 {
@@ -3485,11 +2991,11 @@ function formatDeviceData($deviceID,$DeviceDataArray,$dbADO,$isIPBased=0)
 		$deviceDataBox.='
 			<tr>
 				<td align="right"><B>IP</B></td>
-				<td><input type="text" name="ip_'.$deviceID.'" value="'.$rowDDforDevice['IPaddress'].'"></td>
+				<td><input type="text" name="ip_'.$deviceID.'" value="'.@$rowDDforDevice['IPaddress'].'"></td>
 			</tr>
 			<tr>
 				<td align="right"><B>MAC</B></td>
-				<td><input type="text" name="mac_'.$deviceID.'" value="'.$rowDDforDevice['MACaddress'].'"></td>
+				<td><input type="text" name="mac_'.$deviceID.'" value="'.@$rowDDforDevice['MACaddress'].'"></td>
 			</tr>';
 	}
 	$deviceDataBox.='</table>';
@@ -3853,12 +3359,14 @@ function getIrGroup_CommandsMatrix($dtID,$InfraredGroupsArray,$userID,$comMethod
 	$out='
 	<table cellpadding="3" cellspacing="0" border="0">
 		<tr class="normaltext" bgcolor="lightblue">
-			<td><B>Infrared Group</B></td>';
+			<td align="center"><B>Infrared Group</B></td>';
 	foreach ($restrictedCommandsArray AS $cmdID=>$cmdName){
 		$out.='
 			<td align="center"><B>'.$cmdName.'</B></td>';
 	}
-	$out.='</tr>';
+	$out.='
+			<td><B>Action</B></td>
+		</tr>';
 	
 	// display codes/commands
 	$keysArray=array_keys($commandGrouped);
@@ -3869,10 +3377,11 @@ function getIrGroup_CommandsMatrix($dtID,$InfraredGroupsArray,$userID,$comMethod
 			<td><B><a href="index.php?section=irCodes&dtID='.$dtID.'&infraredGroupID='.$keysArray[$i].'&deviceID='.@$_REQUEST['deviceID'].'">'.$irgNames[$keysArray[$i]].'</a></B></td>';
 		foreach ($restrictedCommandsArray AS $cmdID=>$cmdName){
 			$pk_irgc=@$commandGrouped[$keysArray[$i]][$cmdID];
-			$testCodeBtn=(session_name()=='Pluto-admin')?' <input type="button" class="button" name="testCode" value="T" onClick="window.open(\'index.php?section=displayCode&irgcID='.$pk_irgc.'&deviceID='.@$_REQUEST['deviceID'].'\',\'_blank\',\'\');">':'';
+			$testCodeBtn=(session_name()=='Pluto-admin')?' <input type="button" class="button" name="testCode" value="T" onClick="frames[\'codeTester\'].location=\'index.php?section=testCode&irgcID='.$pk_irgc.'&deviceID='.@$_REQUEST['deviceID'].'\';">':'';
 			$out.='<td align="center">'.((isset($commandGrouped[$keysArray[$i]][$cmdID]))?'<input type="button" class="button" name="copyCB" value="V" onClick="window.open(\'index.php?section=displayCode&irgcID='.$pk_irgc.'\',\'_blank\',\'\');;">'.$testCodeBtn:'N/A').'</td>';
 		}
 		$out.='
+			<td><input type="button" class="button" name="btn" onClick="self.location=\'index.php?section=irCodes&dtID='.$dtID.'&infraredGroupID='.$keysArray[$i].'&deviceID='.@$_REQUEST['deviceID'].'\';" value="This works"></td>
 		</tr>';
 	}
 	
@@ -4109,6 +3618,12 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 		
 		</script>
 		";
+		if ($selectedManufacturer!=0 && $selectedDevice!=0) {
+			$disabledAdd=' ';
+		} else {
+			$disabledAdd=' disabled="disabled" ';
+		}
+
 		$out.=$scriptInHead;
 		$out.='
 		<div class="err">'.(isset($_GET['error'])&&$_GET['error']!='password'?strip_tags($_GET['error']):'').'</div>	
@@ -4123,7 +3638,20 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 		<input type="hidden" name="allowAdd" value="'.(int)@$_REQUEST['allowAdd'].'">
 		
 		<table cellpadding="5" cellspacing="0" border="0" align="center">
-				<input type="hidden" name="selectedField" value="" />
+				<input type="hidden" name="selectedField" value="" />';
+				if($returnValue!=0){
+					$out.='
+					<tr>
+						<td colspan="3">To add a device, choose the manufacturer and the category to see all models for you selection. Pick the model you want and click <B>"Add device"</B>.</td>
+					</tr>';
+				}
+				if($boolDeviceTemplate==1 && $disabledAdd!=''){
+					$out.='
+					<tr>
+						<td colspan="3" class="normaltext">If your model is not listed, pick the manufacturer and the category and click to <input type="button" class="button" name="addDeviceTemplate" value="Add"'. $disabledAdd .'  onClick="javascript:addModel();"/></td>
+					</tr>';
+				}
+				$out.='		
 					<tr>
 						<th width="25%">Manufacturers</th>
 						<th width="25%">Device Category</th>
@@ -4212,11 +3740,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 							
 							';
 							
-							if ($selectedManufacturer!=0 && $selectedDevice!=0) {
-								$disabledAdd=' ';
-							} else {
-								$disabledAdd=' disabled="disabled" ';
-							}
+					
 					
 							$disabled_str = "disabled";
 				
@@ -4224,24 +3748,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 				$out.='
 						</td>				
 					</tr>';
-				if($returnValue!=0){
-					$out.='
-					<tr>
-						<td colspan="3">To add a device, choose the manufacturer and the category to see all models for you selection. Pick the model you want and click <B>"Add device"</B>.</td>
-					</tr>';
-				}
-				if($boolDeviceTemplate==1 && $disabledAdd!=''){
-					$out.='
-					<tr>
-						<td colspan="3" class="normaltext">If your model is not listed, pick the manufacturer and the category and click to <input type="button" class="button" name="addDeviceTemplate" value="Add"'. $disabledAdd .'  onClick="javascript:addModel();"/></td>
-					</tr>';
-				}
-				if($categoryID==$GLOBALS['rootAVEquipment']){
-					$out.='
-					<tr>
-						<td colspan="3" class="normaltext">After you add a new model you\'ll be able to choose the A/V properties and set I/R codes.</td>
-					</tr>';
-				}
+
 				$out.='
 				</table>
 							
@@ -4404,14 +3911,20 @@ function extractCodesTree($infraredGroupID,$dbADO,$restriction=''){
 	$res=$dbADO->Execute($codesQuery,array($userID));
 	$codesArray=array();
 	while($row=$res->FetchRow()){
-		$codesArray[$row['CommandCategory']]['FK_DeviceTemplate'][$row['PK_InfraredGroup_Command']]=$row['FK_DeviceTemplate'];
-		$codesArray[$row['CommandCategory']]['FK_Device'][$row['PK_InfraredGroup_Command']]=$row['FK_Device'];
-		$codesArray[$row['CommandCategory']]['psc_user'][$row['PK_InfraredGroup_Command']]=$row['psc_user'];
-		$codesArray[$row['CommandCategory']]['Description'][$row['PK_InfraredGroup_Command']]=$row['Description'];
-		$codesArray[$row['CommandCategory']]['CommandCategory'][$row['PK_InfraredGroup_Command']]=$row['CommandCategory'];
-		$codesArray[$row['CommandCategory']]['FK_Command'][$row['PK_InfraredGroup_Command']]=$row['FK_Command'];
-		$codesArray[$row['CommandCategory']]['IRData'][$row['PK_InfraredGroup_Command']]=$row['IRData'];
-		$codesArray[$row['CommandCategory']]['DefaultOrder'][$row['PK_InfraredGroup_Command']]=$row['DefaultOrder'];
+		$categoryLabel=($row['CommandCategory']=='Generic')?'Power':$row['CommandCategory'];
+		// move input select commands to inputs category
+		$categoryLabel=($row['FK_Command']==$GLOBALS['inputSelectCommand'])?'Inputs':$categoryLabel;
+		// move DSP mode commands to DSP mode
+		$categoryLabel=($row['FK_Command']==$GLOBALS['DSPModeCommand'])?'DSP Modes':$categoryLabel;
+		
+		$codesArray[$categoryLabel]['FK_DeviceTemplate'][$row['PK_InfraredGroup_Command']]=$row['FK_DeviceTemplate'];
+		$codesArray[$categoryLabel]['FK_Device'][$row['PK_InfraredGroup_Command']]=$row['FK_Device'];
+		$codesArray[$categoryLabel]['psc_user'][$row['PK_InfraredGroup_Command']]=$row['psc_user'];
+		$codesArray[$categoryLabel]['Description'][$row['PK_InfraredGroup_Command']]=$row['Description'];
+		$codesArray[$categoryLabel]['CommandCategory'][$row['PK_InfraredGroup_Command']]=$categoryLabel;
+		$codesArray[$categoryLabel]['FK_Command'][$row['PK_InfraredGroup_Command']]=$row['FK_Command'];
+		$codesArray[$categoryLabel]['IRData'][$row['PK_InfraredGroup_Command']]=$row['IRData'];
+		$codesArray[$categoryLabel]['DefaultOrder'][$row['PK_InfraredGroup_Command']]=$row['DefaultOrder'];
 		$GLOBALS['displayedIRGC'][]=$row['PK_InfraredGroup_Command'];
 		$GLOBALS['displayedCommands'][]=$row['FK_Command'];
 
@@ -4425,14 +3938,14 @@ function extractCodesTree($infraredGroupID,$dbADO,$restriction=''){
 			unset ($dspmodeCommandsArray[$row['FK_Command']]);
 		}
 	}
-	
+
 	return $codesArray;
 }
 
 // parse the multidimensiona array with codes and return html code for table rows
-function getCodesTableRows($section,$infraredGroupID,$dtID,$deviceID,$codesArray){
+function getCodesTableRows($section,$infraredGroupID,$dtID,$deviceID,$codesArray,$togglePower,$toggleInput,$toggleDSP){
 	global $inputCommandsArray, $dspmodeCommandsArray;
-	
+	//print_array($codesArray);
 	$categNames=array_keys($codesArray);
 	if(!in_array('Inputs',$categNames)){
 		$categNames[]='Inputs';
@@ -4448,9 +3961,21 @@ function getCodesTableRows($section,$infraredGroupID,$dtID,$deviceID,$codesArray
 				<td colspan="4" align="center">
 					<fieldset style="width:98%">
 						<legend><B>'.$categNames[$i].'</B></legend>';
+		if($categNames[$i]=='Power'){
+			if($togglePower==1 && !in_array(194,$codesArray['Power']['FK_Command'])){
+				$out.='Toggle power not implemented: ';
+				$out.='<b><a href="javascript:windowOpen(\'index.php?section=newIRCode&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID=194&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');">Click to add</a>';
+			}
+		}
+				
 		// display input commands not implemented
 		if($categNames[$i]=='Inputs'){
-			if(count($inputCommandsArray)>0){
+			if($toggleInput==1){
+				if(@!in_array($GLOBALS['inputSelectCommand'],$codesArray['Inputs']['FK_Command'])){
+					$out.='Input select not implemented: ';
+					$out.='<b><a href="javascript:windowOpen(\'index.php?section=newIRCode&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$GLOBALS['inputSelectCommand'].'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');">Click to add</a>';
+				}
+			}elseif(count($inputCommandsArray)>0){
 				$out.='Input commands not implemented: ';
 				foreach ($inputCommandsArray AS $inputId=>$inputName){
 					$inputCommandsArray[$inputId]='<a href="javascript:windowOpen(\'index.php?section=newIRCode&deviceID=0&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$inputId.'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');">'.$inputName.'</a>';
@@ -4461,10 +3986,15 @@ function getCodesTableRows($section,$infraredGroupID,$dtID,$deviceID,$codesArray
 
 		// display DSP modes commands not implemented
 		if($categNames[$i]=='DSP Modes'){
-			if(count($dspmodeCommandsArray)>0){
+			if($toggleDSP==1){
+				if(@!in_array($GLOBALS['DSPModeCommand'],@$codesArray['DSP Modes']['FK_Command'])){
+					$out.='DSP Mode not implemented: ';
+					$out.='<b><a href="javascript:windowOpen(\'index.php?section=newIRCode&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$GLOBALS['DSPModeCommand'].'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');">Click to add</a>';
+				}
+			}elseif(count($dspmodeCommandsArray)>0){
 				$out.='DSP Mode commands not implemented: ';
 				foreach ($dspmodeCommandsArray AS $dspmId=>$dspmName){
-					$dspmodeCommandsArray[$dspmId]='<a href="javascript:windowOpen(\'index.php?section=newIRCode&deviceID=0&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$dspmId.'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');">'.$dspmName.'</a>';
+					$dspmodeCommandsArray[$dspmId]='<a href="javascript:windowOpen(\'index.php?section=newIRCode&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$dspmId.'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');">'.$dspmName.'</a>';
 				}
 				$out.='<b>'.join(', ',$dspmodeCommandsArray).'</b> <em>(Click to add)</em>';
 			}
@@ -4501,10 +4031,10 @@ function formatCode($section,$dataArray,$pos,$infraredGroupID,$dtID,$deviceID){
 	$out='
 		<table width="100%">
 			<tr bgcolor="'.$RowColor.'">
-				<td align="center" width="100"><B>'.$dataArray['Description'][$pos].'</B> <br><input type="button" class="button" name="learnCode" value="New code" onClick="windowOpen(\'index.php?section='.(($section=='rubyCodes')?'newRubyCode':'newIRCode').'&deviceID='.$dataArray['FK_Device'][$pos].'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$dataArray['FK_Command'][$pos].'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');" '.((!isset($_SESSION['userID']))?'disabled':'').'></td>
+				<td align="center" width="100"><B>'.$dataArray['Description'][$pos].'</B> <br><input type="button" class="button" name="learnCode" value="New code" onClick="windowOpen(\'index.php?section='.(($section=='rubyCodes')?'newRubyCode':'newIRCode').'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$dataArray['FK_Command'][$pos].'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');" '.((!isset($_SESSION['userID']))?'disabled':'').'></td>
 				<td align="center" width="20"><input type="radio" name="prefered_'.$dataArray['FK_Command'][$pos].'" value="'.$pos.'" '.(($pos==@$GLOBALS['igcPrefered'][$dataArray['FK_Command'][$pos]])?'checked':'').'></td>
 				<td><textarea name="irData_'.$pos.'" rows="2" style="width:100%">'.$dataArray['IRData'][$pos].'</textarea></td>
-				<td align="center" width="100">'.$deleteButton.' <br> <input type="button" class="button" name="testCode" value="Test code" onClick="window.open(\'index.php?section=displayCode&irgcID='.$pos.'&deviceID='.$deviceID.'\',\'_blank\',\'\');"> <a name="test_'.$pos.'"></td>
+				<td align="center" width="100">'.$deleteButton.' <br> <input type="button" class="button" name="testCode" value="Test code" onClick="frames[\'codeTester\'].location=\'index.php?section=testCode&irgcID='.$pos.'&deviceID='.$deviceID.'\';"> <a name="test_'.$pos.'"></td>
 			</tr>
 		</table>';
 

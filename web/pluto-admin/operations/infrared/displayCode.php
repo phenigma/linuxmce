@@ -7,22 +7,26 @@ function displayCode($output,$publicADO)
 	$userID=(int)@$_SESSION['userID'];
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	
-	$out='<p><b>Infrared code</b>';
+	$out='<p><b>Infrared code</b><br>';
 	$irgcID=(int)$_REQUEST['irgcID'];
 
 	if($irgcID==0){
 		$out.='<p class="normaltext">Invalid code specified.<br><br>';
 	}else{
-		$data=getFieldsAsArray('InfraredGroup_Command','InfraredGroup.Description AS Description,IRData,Command.Description AS Command',$publicADO,'INNER JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup INNER JOIN Command ON FK_Command=PK_Command WHERE PK_InfraredGroup_Command='.$irgcID);
+		$publicADO->debug=true;
+		$data=getFieldsAsArray('InfraredGroup_Command','InfraredGroup.Description AS Description,IRData,Command.Description AS Command',$publicADO,'LEFT JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup INNER JOIN Command ON FK_Command=PK_Command WHERE PK_InfraredGroup_Command='.$irgcID);
 		if(isset($_REQUEST['deviceID']) && (int)$_REQUEST['deviceID']!=0){
 			$deviceID=$_REQUEST['deviceID'];
-			$commandToTest='/usr/pluto/bin/MessageSend localhost 0 '.$deviceID.' 1 191 70 "'.$data['IRData'][0].'"';
-			//print $commandToTest;
+			$deviceInfo=getFieldsAsArray('Device','FK_Device_ControlledVia',$publicADO,'WHERE PK_Device='.$deviceID);
+			$parentDevice=$deviceInfo['FK_Device_ControlledVia'][0];
+			
+			$commandToTest='/usr/pluto/bin/MessageSend localhost 0 '.$parentDevice.' 1 191 70 "'.$data['IRData'][0].'"';
+			print $commandToTest;
 			exec($commandToTest);
-			$message='The command was sent to device #'.$deviceID;		
+			$message='The command was sent to device #'.$parentDevice;		
 		}
 		
-		if(!isset($data['IRData'])){
+		if(!isset($data['IRData'][0])){
 			$out.='Specified code doesn\'t have a IR code.';
 		}else{
 			$out.='<p class="normaltext"><b>Infrared Group:</b> '.$data['Description'][0].'<br>

@@ -93,8 +93,10 @@
 		<p class="normaltext"><B>Note:</B> when adding a i/r new group, if you know the codeset as used in a universal remote control, please use that as the description.  Example: “Pronto Codeset – 9999”, or “OFA Codeset – 999”.  For GSD devices, an example would be: “Denon AVR/AVC protocol”.
 		<br>
 		</form>
-	
 		';
+		if(session_name()=='Pluto-admin'){
+			$out.='<iframe name="codeTester" src="" style="display:none;"></iframe>';
+		}
 	}else{
 		// process
 		$description=stripslashes($_POST['description']);

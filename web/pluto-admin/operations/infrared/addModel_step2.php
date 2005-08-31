@@ -1,12 +1,19 @@
 <?
 	$dtID=$_REQUEST['dtID'];
 	$deviceID=(int)@$_REQUEST['deviceID'];
+	$return=(int)@$_REQUEST['return'];
 	
 	$dtArray=getFieldsAsArray('DeviceTemplate_AV','IR_PowerDelay,IR_ModeDelay, DigitDelay',$publicADO,'WHERE FK_DeviceTemplate='.$dtID);
-
+	if($return==0){
+		$navigationButtons='<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step+1).(((int)@$_REQUEST['isDef']==1)?'&isDef=1':'').'&deviceID='.$deviceID.'">&gt;&gt;</a></div>';
+		$submitLabel='Next';
+	}else{
+		$submitLabel='Save';
+	}
+	
 	if($action=='form'){
 		$out='<br>
-		<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step+1).(((int)@$_REQUEST['isDef']==1)?'&isDef=1':'').'&deviceID='.$deviceID.'">&gt;&gt;</a></div>
+		'.@$navigationButtons.'
 		<B>Question 2 - What Delays?</B><br>
 		<p class="normaltext">Most devices need some delays between commands.  We filled in the most common values for you.  Change them if necessary; you can also make changes later if these values do not work:
 		
@@ -17,6 +24,7 @@
 			<input type="hidden" name="dtID" value="'.$dtID.'">
 			<input type="hidden" name="isDef" value="'.@$_REQUEST['isDef'].'">
 			<input type="hidden" name="deviceID" value="'.$deviceID.'">
+			<input type="hidden" name="return" value="'.$return.'">
 		
 		<table class="normaltext" align="center">
 			<tr>
@@ -29,7 +37,7 @@
 				<td>When sending a series of codes, such as a sequence of digits to tune to a channel, wait <input type="text" name="DigitDelay" value="'.(((int)@$_REQUEST['isDef']==1)?'0.250':round(@$dtArray['DigitDelay'][0]/1000,3)).'" size="2"> seconds* between commands (up to 3 decimal places).</td>
 			</tr>		
 			<tr>
-				<td align="center"><input type="submit" class="button" name="add" value="next"> </td>
+				<td align="center"><input type="submit" class="button" name="add" value="'.$submitLabel.'"> </td>
 			</tr>
 			<tr>
 				<td align="center">&nbsp;</td>
@@ -49,7 +57,11 @@
 			$DigitDelay=1000*$_POST['DigitDelay'];
 			
 			$publicADO->Execute('UPDATE DeviceTemplate_AV SET IR_PowerDelay=?, IR_ModeDelay=?, DigitDelay=? WHERE FK_DeviceTemplate=?',array($IR_PowerDelay,$IR_ModeDelay,$DigitDelay,$dtID));
-			header('Location: index.php?section=addModel&step=3&dtID='.$dtID.(((int)@$_REQUEST['isDef']==1)?'&isDef=1':'').'&deviceID='.$deviceID);
+			if($return==0){
+				header('Location: index.php?section=addModel&step=3&dtID='.$dtID.(((int)@$_REQUEST['isDef']==1)?'&isDef=1':'').'&deviceID='.$deviceID);
+			}else{
+				header('Location: index.php?section=irCodes&dtID='.$dtID.'&deviceID='.$deviceID);
+			}
 			exit();
 		}
 		

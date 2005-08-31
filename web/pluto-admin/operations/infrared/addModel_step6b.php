@@ -2,6 +2,7 @@
 	$deviceID=(int)@$_REQUEST['deviceID'];
 	$multiInputsCategs=array(103,77,126,98,109);
 	$mediaTypesDT=array(106,104,107,105,108,135);
+	$return=(int)@$_REQUEST['return'];
 	
 	$dtID=$_REQUEST['dtID'];
 	if($dtID==0){
@@ -22,7 +23,12 @@
 
 	$is=(isset($_REQUEST['is']))?(int)$_REQUEST['is']:1;
 	
-	
+	if($return==0){
+		$navigationButtons='<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step=6&deviceID='.$deviceID.'">&lt;&lt;</a> <a href="index.php?section=addModel&dtID='.$dtID.'&step=7&deviceID='.$deviceID.'">&gt;&gt;</a></div>';
+		$submitLabel='Next';
+	}else{
+		$submitLabel='Save';
+	}	
 	if($action=='form'){
 		
 		$connectorsArray=getAssocArray('ConnectorType','PK_ConnectorType','Description',$publicADO,'','ORDER BY Description ASC');
@@ -69,7 +75,7 @@
 		</script>
 		
 		<br>
-		<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step=6&deviceID='.$deviceID.'">&lt;&lt;</a> <a href="index.php?section=addModel&dtID='.$dtID.'&step=7&deviceID='.$deviceID.'">&gt;&gt;</a></div>
+		'.@$navigationButtons.'
 		<B>Last Question, 6 - DSP mode order?</B><br><br>
 		
 		<form action="index.php" method="POST" name="addModel" onSubmit="setOrder();">
@@ -79,6 +85,7 @@
 			<input type="hidden" name="dtID" value="'.$dtID.'">
 			<input type="hidden" name="commandsOrder" value="">
 			<input type="hidden" name="deviceID" value="'.$deviceID.'">
+			<input type="hidden" name="return" value="'.$return.'">
 			
 			<table align="center">
 				<tr>
@@ -95,7 +102,7 @@
 					<td colspan="2" class="normaltext"><input type="hidden" name="checkedCommands" value="'.urlencode(serialize($checkedCommands)).'"></td>
 				</tr>
 				<tr>
-					<td align="center" colspan="2"><input type="submit" class="button" name="next" value="Next"></td>
+					<td align="center" colspan="2"><input type="submit" class="button" name="next" value="'.$submitLabel.'"></td>
 				</tr>
 			</table>
 		<br>
@@ -114,8 +121,13 @@
 				}
 	
 		}
+
+		if($return==0){
+			header('Location: index.php?section=addModel&step=7&dtID='.$dtID.'&deviceID='.$deviceID);
+		}else{
+			header('Location: index.php?section=irCodes&dtID='.$dtID.'&deviceID='.$deviceID);
+		}
 		
-		header('Location: index.php?section=addModel&step=7&dtID='.$dtID.'&deviceID='.$deviceID);
 		exit();
 	}
 ?>

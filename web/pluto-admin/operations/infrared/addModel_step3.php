@@ -1,6 +1,7 @@
 <?
 	$dtID=$_REQUEST['dtID'];
 	$deviceID=(int)@$_REQUEST['deviceID'];
+	$return=(int)@$_REQUEST['return'];
 	if($dtID==0){
 		header('Location: index.php');
 		exit();
@@ -22,7 +23,13 @@
 	
 	$cdContent=(in_array($dtDataArray['FK_DeviceCategory'][0],$dtDataArray))?'<p class="normaltext">'.$dtDataArray['Description'][0].' devices don’t normally tune to stations or channels, so you can probably ignore this step and just click next.':'';
 	
-	
+	if($return==0){
+		$navigationButtons='<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step-1).(((int)@$_REQUEST['isDef']==1)?'&isDef=1':'').'&deviceID='.$deviceID.'">&lt;&lt;</a> <a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step+1).(((int)@$_REQUEST['isDef']==1)?'&isDef=1':'').'&deviceID='.$deviceID.'">&gt;&gt;</a></div>';
+		$submitLabel='Next';
+	}else{
+		$submitLabel='Save';
+	}
+		
 	if(@$_SESSION['selectedCommMethod']!=1){
 		$comMethod=(isset($_SESSION['selectedCommMethod']))?$_SESSION['selectedCommMethod']:$dtDataArray['FK_CommMethod'][0];
 		$commMethodArray=getAssocArray('CommMethod','PK_CommMethod','Description',$publicADO,'','ORDER BY PK_CommMethod ASC');
@@ -53,7 +60,7 @@
 				<td align="center">&nbsp;</td>
 			</tr>		
 			<tr>
-				<td align="center"><input type="submit" class="button" name="next" value="Next"> </td>
+				<td align="center"><input type="submit" class="button" name="next" value="'.$submitLabel.'"> </td>
 			</tr>
 		
 		</table>		
@@ -61,9 +68,10 @@
 		';
 	}
 	
+	
 	if($action=='form'){
 		$out='<br>
-		<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step-1).(((int)@$_REQUEST['isDef']==1)?'&isDef=1':'').'&deviceID='.$deviceID.'">&lt;&lt;</a> <a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step+1).(((int)@$_REQUEST['isDef']==1)?'&isDef=1':'').'&deviceID='.$deviceID.'">&gt;&gt;</a></div>
+		'.@$navigationButtons.'
 		<B>Question 3 of 6 - How to tune?</B><br><br>
 		'.$cdContent.'
 		
@@ -74,6 +82,7 @@
 			<input type="hidden" name="dtID" value="'.$dtID.'">
 			<input type="hidden" name="isDef" value="'.@$_REQUEST['isDef'].'">
 			<input type="hidden" name="deviceID" value="'.$deviceID.'">
+			<input type="hidden" name="return" value="'.$return.'">
 		
 		'.$Content.'
 		
@@ -89,7 +98,11 @@
 			$digits=$_POST['digits'];
 			$NumericEntry=$digits.$enterButton;
 			$publicADO->Execute('UPDATE DeviceTemplate_AV SET NumericEntry=? WHERE FK_DeviceTemplate=?',array($NumericEntry,$dtID));
-			header('Location: index.php?section=addModel&step=4&dtID='.$dtID.(((int)@$_REQUEST['isDef']==1)?'&isDef=1':'').'&deviceID='.$deviceID);
+			if($return==0){
+				header('Location: index.php?section=addModel&step=4&dtID='.$dtID.(((int)@$_REQUEST['isDef']==1)?'&isDef=1':'').'&deviceID='.$deviceID);
+			}else{
+				header('Location: index.php?section=irCodes&dtID='.$dtID.'&deviceID='.$deviceID);
+			}
 			exit();
 		}
 	}

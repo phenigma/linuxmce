@@ -1,40 +1,48 @@
 <?
-function testCode($output,$dbADO) {
-/* @var $dbADO ADOConnection */
-/* @var $rs ADORecordSet */
+function testCode($output,$publicADO)
+{
 
-	$installationID = (int)@$_SESSION['installationID'];
-	$irg_c=(int)$_REQUEST['irg_c'];
-	$deviceID=(int)$_REQUEST['deviceID'];
+	/* @var $dbADO ADOConnection */
+	global $PlutoHomeHost;
+	$userID=(int)@$_SESSION['userID'];
+	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	
-	if($irg_c>0){
-		$codeArray=getFieldsAsArray('InfraredGroup_Command','IRData',$dbADO,'WHERE PK_InfraredGroup_Command='.$irg_c);
-		if(!isset($codeArray['IRData'][0])){
-			$_GET['error']='Code not found';
-		}else{
-			$commandToTest='/usr/pluto/bin/MessageSend localhost 0 '.$deviceID.' 1 191 70 "'.$codeArray['IRData'][0].'"';
-			print $commandToTest;
-			exec($commandToTest);
-			$message='The command was sent.';
-		}
+	$irgcID=(int)$_REQUEST['irgcID'];
+
+	if($irgcID==0){
+		$alert='Invalid code specified.<br>';
 	}else{
-		$_GET['error']='Code not found';
+		$data=getFieldsAsArray('InfraredGroup_Command','InfraredGroup.Description AS Description,IRData,Command.Description AS Command',$publicADO,'LEFT JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup INNER JOIN Command ON FK_Command=PK_Command WHERE PK_InfraredGroup_Command='.$irgcID);
+		if(isset($_REQUEST['deviceID']) && (int)$_REQUEST['deviceID']!=0){
+			if(@$data['IRData'][0]==''){
+				$alert='ERROR: Specified command had empty IR data.';
+			}else{
+
+				$deviceID=$_REQUEST['deviceID'];
+				$deviceInfo=getFieldsAsArray('Device','FK_Device_ControlledVia',$publicADO,'WHERE PK_Device='.$deviceID);
+				if((int)@$deviceInfo['FK_Device_ControlledVia'][0]>0){
+					$parentDevice=$deviceInfo['FK_Device_ControlledVia'][0];
+					
+					$commandToTest='/usr/pluto/bin/MessageSend localhost 0 '.$parentDevice.' 1 191 70 "'.$data['IRData'][0].'"';
+		
+					exec($commandToTest);
+					$alert='The command was sent to device #'.$parentDevice;		
+				}else{
+					$alert='ERROR: the device it\'s not controlled via infrared interface.';
+				}
+			}
+		}else{
+			$alert='ERROR: No device specified;';
+		}
 	}
 
-
-
 	$out='
-	
-	<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
-	<div class="confirm"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg']):'').'</B></div>
-	
-	<b>'.$message.'</b><br><br>
-	<input type="button" class="button" name="close" value="Close" onClick="javascript:self.close();">';
-		
-		
+	<script>
+		alert(\''.addslashes($alert).'\');
+	</script>';
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);			
-	$output->output();  		
+	$output->setTitle(APPLICATION_NAME);
+	$output->output();
 }
 ?>

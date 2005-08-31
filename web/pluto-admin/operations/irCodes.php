@@ -78,18 +78,25 @@ function irCodes($output,$dbADO,$mediaADO) {
 				DeviceTemplate.psc_user AS User,
 				FK_InfraredGroup,
 				DeviceTemplate_AV.*,
-				DeviceTemplate_AV.FK_DeviceTemplate AS AVTemplate
-			FROM DeviceTemplate
+				DeviceTemplate_AV.FK_DeviceTemplate AS AVTemplate,
+				Device.FK_Device_ControlledVia AS Parent
+			FROM Device
+			INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate
 			INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory
 			INNER JOIN Manufacturer ON FK_Manufacturer=PK_Manufacturer
 			LEFT JOIN DeviceTemplate_AV ON DeviceTemplate_AV.FK_DeviceTemplate=PK_DeviceTemplate
-			WHERE PK_DeviceTemplate=?';
-		$resDTData=$dbADO->Execute($selectDTData,$dtID);
+			WHERE PK_Device=?';
+
+		$resDTData=$dbADO->Execute($selectDTData,array($deviceID));
 		if($resDTData->RecordCount()==0){
 			header("Location: index.php?section=userHome");
 			exit();
 		}
 		$rowDTData=$resDTData->FetchRow();
+		$togglePower=(@$rowDTData['TogglePower']==1)?1:0;
+		$toggleInput=(@$rowDTData['ToggleInput']==1)?1:0;
+		$toggleDSP=(@$rowDTData['ToggleDSP']==1)?1:0;
+		
 		// create the record in DeviceTemplate_AV for templates who doesn't have it
 		if(is_null($rowDTData['AVTemplate'][0])){
 			$dbADO->Execute('INSERT INTO DeviceTemplate_AV (FK_DeviceTemplate) VALUES (?)',$dtID);
@@ -98,6 +105,7 @@ function irCodes($output,$dbADO,$mediaADO) {
 		$manufacturerID=$rowDTData['FK_Manufacturer'];
 		$deviceCategoryID=$rowDTData['FK_DeviceCategory'];
 		$owner=$rowDTData['User'];
+		$deviceParent=$rowDTData['Parent'];
 
 		$GLOBALS['btnEnabled']=(!isset($_SESSION['userID']) || $owner!=@$_SESSION['userID'] )?'disabled':'';
 
@@ -118,25 +126,30 @@ function irCodes($output,$dbADO,$mediaADO) {
 				<td valign="top" colspan="2">Device template <B>'.$rowDTData['Template'].'</B>, category <B>'.$rowDTData['Category'].'</B> and manufacturer <B>'.$rowDTData['Manufacturer'].'</B>.<td>
 			</tr>
 			<tr>
-				<td valign="top" colspan="2">Delays: Power: <B>'.$rowDTData['IR_PowerDelay'].'</B> seconds, Mode: <B>'.$rowDTData['IR_ModeDelay'].'</B> seconds, Other: <B>'.round(($rowDTData['DigitDelay']/1000),3).'</B> seconds  <a href="index.php?section=addModel&step=2&dtID='.$dtID.'&deviceID='.$deviceID.'">[change/explain]</a><td>
+				<td valign="top" colspan="2">Delays: Power: <B>'.$rowDTData['IR_PowerDelay'].'</B> seconds, Mode: <B>'.$rowDTData['IR_ModeDelay'].'</B> seconds, Other: <B>'.round(($rowDTData['DigitDelay']/1000),3).'</B> seconds  <a href="index.php?section=addModel&step=2&dtID='.$dtID.'&deviceID='.$deviceID.'&return=1">[change/explain]</a><td>
 			</tr>
 			<tr>
-				<td valign="top" colspan="2">Tuning: <B>'.((str_replace('E','',$rowDTData['NumericEntry'])=='')?'No fixed digits':'Fixed Digits: '.str_replace('E','',$rowDTData['NumericEntry'])).'</B>  ['.((strpos($rowDTData['NumericEntry'],'E')!==false)?'x':'').'] terminate with enter  <a href="index.php?section=addModel&step=3&dtID='.$dtID.'&deviceID='.$deviceID.'">[change/explain]</a><td>
+				<td valign="top" colspan="2">Tuning: <B>'.((str_replace('E','',$rowDTData['NumericEntry'])=='')?'No fixed digits':'Fixed Digits: '.str_replace('E','',$rowDTData['NumericEntry'])).'</B>  ['.((strpos($rowDTData['NumericEntry'],'E')!==false)?'x':'').'] terminate with enter  <a href="index.php?section=addModel&step=3&dtID='.$dtID.'&deviceID='.$deviceID.'&return=1">[change/explain]</a><td>
 			</tr>		
 			<tr>
-				<td valign="top" colspan="2">Power: <B>'.(($rowDTData['TogglePower']==0)?'Discrete':'Toggle').'</B> <a href="index.php?section=addModel&step=4&dtID='.$dtID.'&deviceID='.$deviceID.'">[change/explain]</a><td>
+				<td valign="top" colspan="2">Power: <B>'.(($rowDTData['TogglePower']==0)?'Discrete':'Toggle').'</B> <a href="index.php?section=addModel&step=4&dtID='.$dtID.'&deviceID='.$deviceID.'&return=1">[change/explain]</a><td>
 			</tr>		
 			<tr>
-				<td valign="top" colspan="2">Inputs: <B>'.join(', ',$inputCommandsArray).'</B> <a href="index.php?section=addModel&step=5&dtID='.$dtID.'&deviceID='.$deviceID.'">[change/explain]</a><td>
+				<td valign="top" colspan="2">Inputs <B>'.(($rowDTData['ToggleInput']==0)?'Discrete':'Toggle').'</B>: <B>'.join(', ',$inputCommandsArray).'</B> <a href="index.php?section=addModel&step=5&dtID='.$dtID.'&deviceID='.$deviceID.'&return=1">[change/explain]</a><td>
 			</tr>		
 			<tr>
-				<td valign="top" colspan="2">DSP Modes: <B>'.join(', ',$dspmodeCommandsArray).'</B> <a href="index.php?section=addModel&step=6&dtID='.$dtID.'&deviceID='.$deviceID.'">[change/explain]</a><td>
+				<td valign="top" colspan="2">DSP Modes <B>'.(($rowDTData['ToggleDSP']==0)?'Discrete':'Toggle').'</B>: <B>'.join(', ',$dspmodeCommandsArray).'</B> <a href="index.php?section=addModel&step=6&dtID='.$dtID.'&deviceID='.$deviceID.'&return=1">[change/explain]</a><td>
+			</tr>		
+			<tr>
+				<td valign="top">This device is controlled via: </td>
+				<td valign="top">'.controlledViaPullDown('controlledVia',$deviceID,$dtID,$deviceCategoryID,$deviceParent,$dbADO).'<td>
 			</tr>		
 		';
 			$irGroups=getAssocArray('InfraredGroup','PK_InfraredGroup','Description',$dbADO,'WHERE FK_Manufacturer='.$manufacturerID.' AND FK_DeviceCategory='.$deviceCategoryID,'ORDER BY Description ASC');
 			$out.='
 			<tr>
-				<td colspan="2">Uses Group/Codeset '.pulldownFromArray($irGroups,'irGroup',$infraredGroupID,'onChange="document.irCodes.submit();"','key','I don\'t know the group').' <input type="button" class="button" name="step7" value="Help me choose" onclick="self.location=\'index.php?section=addModel&step=7&dtID='.$dtID.'&deviceID='.$deviceID.'\'"></td>
+				<td>Uses Group/Codeset </td>
+				<td>'.pulldownFromArray($irGroups,'irGroup',$infraredGroupID,'onChange="document.irCodes.submit();"','key','I don\'t know the group').' <input type="button" class="button" name="step7" value="Help me choose" onclick="self.location=\'index.php?section=addModel&step=7&dtID='.$dtID.'&deviceID='.$deviceID.'\'"></td>
 		</tr>';
 			
 		$out.='
@@ -155,7 +168,7 @@ function irCodes($output,$dbADO,$mediaADO) {
 		$codesArray=extractCodesTree($infraredGroupID,$dbADO);
 		
 		// display the html rows 
-		$out.=getCodesTableRows('irCodes',$infraredGroupID,$dtID,$deviceID,$codesArray);
+		$out.=getCodesTableRows('irCodes',$infraredGroupID,$dtID,$deviceID,$codesArray,$togglePower,$toggleInput,$toggleDSP);
 		
 
 		$out.='
@@ -182,6 +195,7 @@ function irCodes($output,$dbADO,$mediaADO) {
 			<input type="hidden" name="displayedCommands" value="'.join(',',$GLOBALS['displayedCommands']).'">
 			<input type="hidden" name="displayedIRGC" value="'.join(',',$GLOBALS['displayedIRGC']).'">
 		</form>
+		<iframe name="codeTester" src="" style="display:none;"></iframe>
 	<span class="normaltext">If you have question or comments, please contact us by <a href="mailto:support@plutohome.com?subject=IR Group '.$infraredGroupID.' x Device Template '.$dtID.' x UserID '.$userID.'">email</a>.</span><br><br>		
 	';	
 		$out.=(($GLOBALS['btnEnabled']=='disabled')?'<span class="normaltext"><em>* Add/Edit options are available only for your own device templates.</em></span>':'');		
@@ -207,7 +221,7 @@ function irCodes($output,$dbADO,$mediaADO) {
 		if($newIRGroup!=$oldIRGroup){
 
 			$dbADO->Execute('UPDATE DeviceTemplate SET FK_InfraredGroup=? WHERE PK_DeviceTemplate=?',array($newIRGroup,$dtID));
-			$dbADO->Execute('UPDATE InfraredGroup_Command SET FK_InfraredGroup=? WHERE FK_DeviceTemplate=? AND FK_InfraredGroup IS NOT NULL AND psc_user=?',array($newIRGroup,$dtID,$userID));
+			$dbADO->Execute('UPDATE InfraredGroup_Command SET FK_InfraredGroup=? WHERE FK_DeviceTemplate=? AND (FK_InfraredGroup IS NULL OR FK_InfraredGroup=?) AND psc_user=?',array($newIRGroup,$dtID,$oldIRGroup,$userID));
 
 			header("Location: index.php?section=irCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$newIRGroup&msg=IR Group changed for selected device template.&label=".$GLOBALS['label']);
 			exit();
@@ -222,6 +236,7 @@ function irCodes($output,$dbADO,$mediaADO) {
 				exit();
 			}else{
 				$dbADO->Execute('DELETE FROM InfraredGroup_Command WHERE PK_InfraredGroup_Command=?',$irg_c);
+				$dbADO->Execute('DELETE FROM InfraredGroup_Command_Preferred WHERE FK_InfraredGroup_Command=?',$irg_c);
 				
 				header("Location: index.php?section=irCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&msg=Custom code deleted.&label=".$GLOBALS['label']);
 				exit();
@@ -281,6 +296,9 @@ function irCodes($output,$dbADO,$mediaADO) {
 				}
 			}
 			
+			// update device controlled via
+			$controlledVia=((int)$_POST['controlledVia']>0)?(int)$_POST['controlledVia']:NULL;
+			$dbADO->Execute('UPDATE Device SET FK_Device_ControlledVia=? WHERE PK_Device=?',array($controlledVia,$deviceID));
 			
 			$time_end= getmicrotime();
 			//print '<p class="normaltext">Page generated in '.round(($time_end-$time_start),3).' s.';

@@ -2,6 +2,8 @@
 	$ampReceivers=array(103);
 	$deviceID=(int)@$_REQUEST['deviceID'];
 	$dtID=$_REQUEST['dtID'];
+	$return=(int)@$_REQUEST['return'];
+	
 	if($dtID==0){
 		header('Location: index.php');
 		exit();
@@ -58,6 +60,14 @@
 				$dsp=($dtDataArray['ToggleDSP'][0]==0)?2:3;
 			}	
 		}
+		
+		if($return==0){
+			$navigationButtons='<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step-1).'&deviceID='.$deviceID.'">&lt;&lt;</a> <a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step+1).'&deviceID='.$deviceID.'">&gt;&gt;</a></div>';
+			$submitLabel='Next';
+		}else{
+			$submitLabel='Save';
+		}		
+		
 		$out='
 		<script>
 		function enableObjects(val)
@@ -88,7 +98,7 @@
 		</script>		
 		
 		<br>
-		<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step-1).'&deviceID='.$deviceID.'">&lt;&lt;</a> <a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step+1).'&deviceID='.$deviceID.'">&gt;&gt;</a></div>
+		'.@$navigationButtons.'
 		<B>Last Question, 6 - DSP mode?</B><br><br>
 		
 		<form action="index.php" method="POST" name="addModel" onSubmit="setOrder();">
@@ -98,6 +108,7 @@
 			<input type="hidden" name="dtID" value="'.$dtID.'">
 			<input type="hidden" name="commandsOrder" value="">
 			<input type="hidden" name="deviceID" value="'.$deviceID.'">
+			<input type="hidden" name="return" value="'.$return.'">
 		
 		';
 		if(!in_array($dtDataArray['FK_DeviceCategory'][0],$ampReceivers)){
@@ -110,17 +121,17 @@
 		<table class="normaltext" cellpadding="5" cellspacing="0">
 			<tr>
 				<td>
-					<input type="radio" name="dsp" value="1" '.(($dsp==1)?'checked':'').' onClick="self.location=\'index.php?section=addModel&step=6&dtID='.$dtID.'&dsp=1&deviceID='.$deviceID.'\'"> My device doesn’t have DSP Modes
+					<input type="radio" name="dsp" value="1" '.(($dsp==1)?'checked':'').' onClick="self.location=\'index.php?section=addModel&step=6&dtID='.$dtID.'&dsp=1&deviceID='.$deviceID.'&return='.$return.'\'"> My device doesn’t have DSP Modes
 				</td>
 			</tr>
 			<tr>
 				<td>
-					<input type="radio" name="dsp" value="2" '.(($dsp==2)?'checked':'').' onClick="self.location=\'index.php?section=addModel&step=6&dtID='.$dtID.'&dsp=2&deviceID='.$deviceID.'\'"> My device does have DSP Modes, and there are separate, discrete buttons to select the modes (this works well)
+					<input type="radio" name="dsp" value="2" '.(($dsp==2)?'checked':'').' onClick="self.location=\'index.php?section=addModel&step=6&dtID='.$dtID.'&dsp=2&deviceID='.$deviceID.'&return='.$return.'\'"> My device does have DSP Modes, and there are separate, discrete buttons to select the modes (this works well)
 				</td>
 			</tr>
 			<tr>
 				<td>
-					<input type="radio" name="dsp" value="3" '.(($dsp==3)?'checked':'').' onClick="self.location=\'index.php?section=addModel&step=6&dtID='.$dtID.'&dsp=3&deviceID='.$deviceID.'\'"> My device does have DSP Modes, but unfortunately there’s just 1 button that toggles through all the modes so it will be difficult to control		
+					<input type="radio" name="dsp" value="3" '.(($dsp==3)?'checked':'').' onClick="self.location=\'index.php?section=addModel&step=6&dtID='.$dtID.'&dsp=3&deviceID='.$deviceID.'&return='.$return.'\'"> My device does have DSP Modes, but unfortunately there’s just 1 button that toggles through all the modes so it will be difficult to control		
 				</td>
 			</tr>';
 		if($dsp>1){
@@ -135,7 +146,7 @@
 		
 			$out.='
 			<tr>
-				<td align="center"><input type="submit" class="button" name="next" value="Next"></td>
+				<td align="center"><input type="submit" class="button" name="next" value="'.$submitLabel.'"></td>
 			</tr>
 		</table>
 		<br>
@@ -170,7 +181,14 @@
 			}
 
 			$nextStep=($dsp==3)?'6b':7;
-			header('Location: index.php?section=addModel&step='.$nextStep.'&dtID='.$dtID.'&deviceID='.$deviceID);
+			if($return==0){
+				header('Location: index.php?section=addModel&step='.$nextStep.'&dtID='.$dtID.'&deviceID='.$deviceID);
+			}elseif($dsp==3){
+				header('Location: index.php?section=addModel&step='.$nextStep.'&dtID='.$dtID.'&deviceID='.$deviceID.'&return=1');
+			}else{
+				header('Location: index.php?section=irCodes&dtID='.$dtID.'&deviceID='.$deviceID);
+			}			
+			
 			exit();
 		}
 	}

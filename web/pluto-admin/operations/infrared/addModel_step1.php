@@ -1,7 +1,6 @@
 <?
 	$mID=$_REQUEST['mID'];
 	$dcID=$_REQUEST['dcID'];
-	$deviceID=(int)@$_REQUEST['deviceID'];
 
 	$manufArray=getAssocArray('Manufacturer','PK_Manufacturer','Description',$publicADO,'WHERE PK_Manufacturer='.$mID,'ORDER BY Description ASC');
 	$categArray=getAssocArray('DeviceCategory','PK_DeviceCategory','Description',$publicADO,'WHERE PK_DeviceCategory='.$dcID,'ORDER BY Description ASC');
@@ -27,7 +26,6 @@
 			<input type="hidden" name="action" value="add">
 			<input type="hidden" name="mID" value="'.$mID.'">
 			<input type="hidden" name="dcID" value="'.$dcID.'">
-			<input type="hidden" name="deviceID" value="'.$deviceID.'">
 		
 		<table class="normaltext" align="center">
 			<tr>
@@ -62,6 +60,9 @@
 		if($dcID!=0 && $mID!=0 && $description!=''){
 			$publicADO->Execute('INSERT INTO DeviceTemplate (Description,FK_DeviceCategory,FK_Manufacturer,psc_user) values(?,?,?,?)',array($description,$dcID,$mID,$userID));
 			$dtID=$publicADO->Insert_ID();
+
+			// add controlled via Infrared Interface		
+			$publicADO->Execute('INSERT INTO DeviceTemplate_DeviceCategory_ControlledVia (FK_DeviceTemplate,FK_DeviceCategory) values(?,?)',array($dtID,$GLOBALS['InfraredInterface']));
 			
 			$publicADO->Execute('INSERT INTO DeviceTemplate_AV (FK_DeviceTemplate,psc_user) VALUES (?,?)',array($dtID,$userID));			
 			$_SESSION['selectedCommMethod']=(int)$_POST['commMethod'];
@@ -82,10 +83,18 @@
 				createEmbeddedDeviceTemplate('VCR-1 - Video Tape',$mID,$dcID,$userID,$dtID,282,16,$publicADO);
 			}
 			
-			header('Location: index.php?section=addModel&step=2&dtID='.$dtID.'&isDef=1&deviceID='.$deviceID);
+			
+			if(session_name()=='Pluto-admin'){
+				// add the device
+				global $dbPlutoMainDatabase;
+				$installationID=(int)$_SESSION['installationID'];
+				$deviceID=exec('sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$dtID.' -i '.$installationID);				
+			}
+			
+			header('Location: index.php?section=addModel&step=2&dtID='.$dtID.'&isDef=1&deviceID='.@$deviceID);
 			exit();
 		}
 		
-		header('Location: index.php?section=addModel&step=1&mID='.$mID.'&dcID='.$dcID.'&deviceID='.$deviceID);
+		header('Location: index.php?section=addModel&step=1&mID='.$mID.'&dcID='.$dcID.'&deviceID='.@$deviceID);
 	}
 ?>

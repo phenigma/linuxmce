@@ -341,7 +341,6 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 				$HideFromOrbiter = cleanInteger(@$_POST['HideFromOrbiter_'.$user]);
 				
 
-				$userMainInstallation = ((int)($_POST['userMainInstallation_'.$user])==0?NULL:cleanInteger($_POST['userMainInstallation_'.$user]));
 				$query = 'UPDATE Users set
 									HasMailbox =?,
 									AccessGeneralMailbox =?,
@@ -351,12 +350,11 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 									Nickname=?,
 									ForwardEmail=?,
 									FK_Language=?,
-									FK_Installation_Main=?,
 									HideFromOrbiter=?
 							WHERE PK_Users = ?';
 				$resUpdUser = $dbADO->Execute($query,array($hasMailbox,$userAccessGeneralMailbox,
 				$userExtension,$userFirstName,$userLastName,$userNickname,
-				$userForwardEmail,$userLanguage,$userMainInstallation,$HideFromOrbiter,$user));
+				$userForwardEmail,$userLanguage,$HideFromOrbiter,$user));
 
 				// check if is the last user who could modify this installation
 				$resLastUser=$dbADO->Execute('SELECT FK_Users FROM Installation_Users WHERE userCanModifyInstallation=1 AND FK_Installation =?',array($installationID));
