@@ -31,7 +31,9 @@
 #include "DCERouter.h"
 #endif
 
+#ifdef WIN32
 #include <conio.h>
+#endif
 #include "DeviceData_Impl.h"
 #include "Command_Impl.h"
 #include "Event_Impl.h"
