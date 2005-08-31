@@ -25,13 +25,14 @@ for i in "$@"; do
 	echo "Parameter: $i"
 done
 
-diskDriveDeviceID=$1;
-mediaPluginDeviceID=$2;
-targetFileName=$3;
-sourceDevice=$4;
-diskType=$5;
-ownerID=$6;
-trackList="$7";
+diskDriveDeviceID=$1
+mediaPluginDeviceID=$2
+targetFileName=$3
+sourceDevice=$4
+diskType=$5
+ownerID=$6
+ripFormat=$7 # mp3, ogg, flac, wav
+trackList="$8"
 
 # Disk type possbile values:
 #	0 DISCTYPE_CD_AUDIO 
