@@ -227,6 +227,59 @@ bool DownloadFileHelper(wchar_t *wcPath, wchar_t *wcServername, wchar_t *wcUrl, 
 	return true;
 }
 
+bool IsCoreAddress(TCHAR *wcServername, bool bLog = false)
+{
+	wchar_t FullUrlW[MAX_STRING_LEN];
+	wcscpy(FullUrlW, TEXT("http://"));
+	wcscat(FullUrlW, wcServername);
+	wcscat(FullUrlW, TEXT("/pluto-admin/fdownload.php?filepath=bin/OrbiterCE.exe")); //for testing
+	
+	bool bResult = false;
+	HINTERNET hInternet = InternetOpen(TEXT("Pluto OrbiterCE Installer"), INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
+
+	if(hInternet)
+	{
+	    TCHAR canonicalURL[1024];
+	    DWORD nSize = 1024;
+	    InternetCanonicalizeUrl(FullUrlW, canonicalURL, &nSize, ICU_BROWSER_MODE);
+
+	    DWORD options = INTERNET_FLAG_NEED_FILE|INTERNET_FLAG_HYPERLINK|
+					   INTERNET_FLAG_RESYNCHRONIZE|INTERNET_FLAG_RELOAD;
+
+		HINTERNET hFile = InternetOpenUrl(hInternet, canonicalURL, NULL, NULL, options, 0);
+			
+		if(hFile)
+		{
+			CHAR buffer[1024];
+			::ZeroMemory(buffer, sizeof(buffer));
+
+			DWORD dwRead = 0;
+			InternetReadFile(hFile, buffer, 1023, &dwRead);
+
+			if(dwRead)
+				bResult = true;
+			else
+			{
+				if(bLog)
+				{
+					::SetWindowText(g_wndStatusStatic, TEXT("ERROR: The PC with this ip exists, but it’s not a Pluto core/hybrid.")); 
+					::UpdateWindow(g_wndStatusStatic);
+				}
+			}
+
+			InternetCloseHandle(hFile);
+		}
+		else
+			if(bLog)
+			{
+				ErrorHandler();
+			}
+	}
+	
+	InternetCloseHandle(hInternet);
+	return bResult;	
+}
+
 void OnInstall()
 {
 	wchar_t wcPath[MAX_STRING_LEN];
@@ -246,6 +299,12 @@ void OnInstall()
 		}
 
 		bool bResult = true;
+
+		::SetWindowText(g_wndStatusStatic, TEXT("Connecting to server..."));
+		::UpdateWindow(g_wndStatusStatic);
+
+		if(!IsCoreAddress(wcServername, true))
+			return;
 
 		if(bResult)
 			bResult = DownloadFileHelper(wcPath, wcServername, TEXT("/pluto-admin/fdownload.php?filepath=orbiter/binaries/AYGSHELL.DLL"), TEXT("AYGSHELL.DLL"));
@@ -282,46 +341,6 @@ void OnInstall()
 		::CreateProcess(wcPath, TEXT(""), NULL, NULL, NULL, 0, NULL, NULL, &si, &pi);
 		exit(0);
 	}
-}
-
-bool IsCoreAddress(TCHAR *wcServername)
-{
-	wchar_t FullUrlW[MAX_STRING_LEN];
-	wcscpy(FullUrlW, TEXT("http://"));
-	wcscat(FullUrlW, wcServername);
-	wcscat(FullUrlW, TEXT("/pluto-admin/fdownload.php?filepath=bin/OrbiterCE.exe")); //for testing
-	
-	bool bResult = false;
-	HINTERNET hInternet = InternetOpen(TEXT("Pluto OrbiterCE Installer"), INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
-
-	if(hInternet)
-	{
-	    TCHAR canonicalURL[1024];
-	    DWORD nSize = 1024;
-	    InternetCanonicalizeUrl(FullUrlW, canonicalURL, &nSize, ICU_BROWSER_MODE);
-
-	    DWORD options = INTERNET_FLAG_NEED_FILE|INTERNET_FLAG_HYPERLINK|
-					   INTERNET_FLAG_RESYNCHRONIZE|INTERNET_FLAG_RELOAD;
-
-		HINTERNET hFile = InternetOpenUrl(hInternet, canonicalURL, NULL, NULL, options, 0);
-			
-		if(hFile)
-		{
-			CHAR buffer[1024];
-			::ZeroMemory(buffer, sizeof(buffer));
-
-			DWORD dwRead = 0;
-			InternetReadFile(hFile, buffer, 1023, &dwRead);
-
-			if(dwRead)
-				bResult = true;
-
-			InternetCloseHandle(hFile);
-		}
-	}
-	
-	InternetCloseHandle(hInternet);
-	return bResult;	
 }
 
 void OnQuery()
