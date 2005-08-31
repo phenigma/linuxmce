@@ -3223,6 +3223,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Transformed %s into %s",sTracks.c_str(),sNewTra
 
 	if( sFormat.size()==0 )
 		sFormat = DATA_Get_Type();
+	if( sFormat.size()==0 )
+		sFormat = "flac";
 	m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T" + StringUtils::itos(TEXT_Ripping_Instructions_CONST) + "%>");
 	DCE::CMD_Rip_Disk cmdRipDisk(m_dwPK_Device, pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device, iPK_Users, 
 		sFormat, sName, sTracks, PK_Disc);
