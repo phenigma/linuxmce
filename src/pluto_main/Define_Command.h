@@ -647,6 +647,7 @@
 #define COMMAND_Get_Remote_Control_Mapping_CONST 688
 #define COMMAND_Update_Time_Code_CONST 689
 #define COMMAND_Send_File_To_Phone_CONST 693
+#define COMMAND_Get_Orbiter_Status_CONST 694
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
