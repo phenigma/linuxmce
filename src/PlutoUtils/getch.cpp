@@ -27,7 +27,7 @@
 #include <iostream>
 using namespace std;
 
-int THE_getch(bool echo) // :P
+int THE_getch(bool echo,int iTimeoutInSeconds) // :P
 {
 	struct termios ts;
 	struct termios new_ts;
@@ -59,13 +59,13 @@ int THE_getch(bool echo) // :P
 	return c;
 }
 
-int getch()
+int getch(int iTimeoutInSeconds)
 {
-	return THE_getch(false);
+	return THE_getch(false,iTimeoutInSeconds);
 }
 
-int getche()
+int getche(int iTimeoutInSeconds)
 {
-	return THE_getch(true);
+	return THE_getch(true,iTimeoutInSeconds);
 }
 #endif
