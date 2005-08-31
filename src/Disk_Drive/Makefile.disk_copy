@@ -1,0 +1,4 @@
+CC=gcc
+CFLAGS=-W -Wall -ggdb3
+
+all: disk_copy
