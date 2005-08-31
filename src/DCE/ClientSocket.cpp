@@ -49,7 +49,7 @@ using namespace DCE;
 ClientSocket::ClientSocket( int iDeviceID, string sIPAddress, string sName ) : Socket( sName, sIPAddress )
 {
 	m_dwPK_Device = iDeviceID;
-
+	m_eLastError = cs_err_None;
 	/** @todo check comment */
 	//	if( g_pDCELogger ) // This won't be created yet if this is the server logger socket
 	//		g_pDCELogger->Write(LV_SOCKET,"Created client socket %p device: %d ip: %s",this,m_DeviceID,m_IPAddress.c_str());
@@ -212,11 +212,17 @@ bool ClientSocket::OnConnect( int PK_DeviceTemplate,string sExtraInfo )
 	}
 	else if ( sResponse.length()<2 || sResponse.substr(0,2) != "OK" )
 	{
+		if( sResponse=="NEED RELOAD" )
+			m_eLastError=cs_err_NeedReload;
+		else if( sResponse=="NOT IN THIS INSTALLATION" || sResponse=="BAD DEVICE" )
+			m_eLastError=cs_err_BadDevice;
 		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write( LV_CRITICAL, "Connection for client socket reported %s, device %d", sResponse.c_str(), m_dwPK_Device );
+			g_pPlutoLogger->Write( LV_CRITICAL, "Connection for client socket reported %s, device %d last error %d", 
+				sResponse.c_str(), m_dwPK_Device,(int) m_eLastError );
 		SendString( "CORRUPT SOCKET" );
 		Sleep( 500 );
 		Disconnect();
+		return false;
 	}
 
 	int PK_Device_New = 0;

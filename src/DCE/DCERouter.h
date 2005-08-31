@@ -296,6 +296,7 @@ namespace DCE
         void CreatedDevice(DeviceData_Router *pDevice);
         void ParseDevice(int MasterDeviceID, int ParentDeviceID, class DeviceData_Impl *pDevice);
         void DoReload();
+		bool RequestReload(int PK_Device_Requesting);
         void OutputChildren(class DeviceData_Impl *pDevice,string &Response);
         void AlarmCallback(int id, void* param);
         void Configure(); // Build the config information from the database

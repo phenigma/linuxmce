@@ -188,7 +188,14 @@ bool ServerSocket::_Run()
 			else
 			{
 				int iResponse = m_pListener->ConfirmDeviceTemplate( m_dwPK_Device, PK_DeviceTemplate );
-				if( iResponse==0 )
+				if( iResponse==3 )
+				{
+					SendString( "NEED RELOAD" );
+					g_pPlutoLogger->Write(LV_WARNING,"Device %d registered but the router needs to be reloaded",m_dwPK_Device);
+					m_bThreadRunning=false;
+					return true;
+				}
+				else if( iResponse==0 )
 				{
 					SendString( "NOT IN THIS INSTALLATION" );
 					g_pPlutoLogger->Write(LV_CRITICAL,"Device %d registered but it doesn't exist",m_dwPK_Device);

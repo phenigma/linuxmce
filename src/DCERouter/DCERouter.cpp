@@ -917,35 +917,9 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
                 break;
             case SYSCOMMAND_RELOAD:
 			case SYSCOMMAND_RELOAD_FORCED:
-				{
-					g_pPlutoLogger->Write(LV_STATUS,"Received reload command");
-					if( (*SafetyMessage)->m_dwID!=SYSCOMMAND_RELOAD_FORCED )
-					{
-					    PLUTO_SAFETY_LOCK(mm,m_MessageQueueMutex);
-g_pPlutoLogger->Write(LV_CRITICAL,"Checking %d plugins",(int)m_mapPlugIn.size()); 
-						map<int,class Command_Impl *>::iterator it;
-						for(it=m_mapPlugIn.begin();it!=m_mapPlugIn.end();++it)
-						{
-							Command_Impl *pPlugIn = (*it).second;
-							vector<string> vectPendingTasks;
-g_pPlutoLogger->Write(LV_CRITICAL,"Checking plugin %d for reload",pPlugIn->m_dwPK_Device);
-							if( !pPlugIn->PendingTasks(&vectPendingTasks) )
-							{
-								string sPendingTasks;
-								for(size_t s=0;s<vectPendingTasks.size();++s)
-									sPendingTasks += pPlugIn->m_sName + ": " + vectPendingTasks[s];
-								ReceivedMessage(NULL,new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
-									EVENT_Reload_Aborted_CONST,3,
-									EVENTPARAMETER_PK_Device_CONST,StringUtils::itos(pPlugIn->m_dwPK_Device).c_str(),
-									EVENTPARAMETER_Text_CONST,sPendingTasks.c_str(),
-									EVENTPARAMETER_PK_Orbiter_CONST,StringUtils::itos((*SafetyMessage)->m_dwPK_Device_From).c_str()));
-								return;
-							}
-						}
-g_pPlutoLogger->Write(LV_CRITICAL,"PLUGINS OK");
-					}
-				}
-                m_bReload=true;
+				if( (*SafetyMessage)->m_dwID!=SYSCOMMAND_RELOAD_FORCED && !RequestReload((*SafetyMessage)->m_dwPK_Device_From) )
+					return;
+				m_bReload = true;
                 break;
             case SYSCOMMAND_SEGFAULT:
 				{
@@ -1107,6 +1081,41 @@ bool Router::ReceivedString(Socket *pSocket, string Line)
 			pSocket->SendString( "BAD DEVICE" );
 		}
         return true;
+	}
+    else if( Line.substr(0,6)=="RELOAD" )
+	{
+		if( RequestReload(0) )
+		{
+		    pSocket->SendString("OK");
+			m_bReload=true;
+		}
+		else
+		    pSocket->SendString("PLUGINS DENIED RELOAD REQUEST");
+	}
+    else if( Line.substr(0,20)=="DEVICES BY TEMPLATE " )
+	{
+		string sResponse;
+
+		string sSQL = "SELECT PK_Device,Device.Description,Room.Description as Room,IPAddress FROM Device JOIN Room on FK_Room=PK_Room WHERE FK_DeviceTemplate=" + Line.substr(19);
+		PlutoSqlResult result_set;
+		MYSQL_ROW row;
+		if( (result_set.r=mysql_query_result(sSQL)) )
+		{
+			sResponse = StringUtils::itos(result_set.r->row_count) + "\t";
+	        PLUTO_SAFETY_LOCK(slListener,m_CoreMutex);
+			DeviceClientMap::iterator iDeviceConnection;
+			while ((row = mysql_fetch_row(result_set.r)))
+			{
+				sResponse += string(row[0]) + "\t" + row[1] + "\t" + (row[2] ? row[2] : "") + "\t" + (row[3] ? row[3] : "") + "\t";
+				if( (iDeviceConnection = m_mapCommandHandlers.find(atoi(row[0])))!=m_mapCommandHandlers.end())
+		        {
+				    ServerSocket *pServerSocket = (*iDeviceConnection).second;
+					sResponse += pServerSocket->m_sIPAddress;
+				}
+				sResponse += "\t";
+			}
+		}
+	    pSocket->SendString(sResponse);
 	}
 
     g_pPlutoLogger->Write(LV_WARNING, "Router: Don't know how to handle %s.", Line.c_str());
@@ -2487,7 +2496,12 @@ int Router::ConfirmDeviceTemplate( int iPK_Device, int iPK_DeviceTemplate )
 {
 	DeviceData_Router *pDevice = m_mapDeviceData_Router_Find( iPK_Device );
 	if( !pDevice )
+	{
+		Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow( iPK_Device );
+		if( pRow_Device && pRow_Device->FK_Installation_get()==m_dwPK_Installation )
+			return 3;
 		return 0;
+	}
 	return pDevice->m_dwPK_DeviceTemplate == iPK_DeviceTemplate ? 2 : 1;
 }
 
@@ -2613,4 +2627,35 @@ void Router::CheckForRecursivePipes(DeviceData_Router *pDevice,vector<int> *pvec
 
 	for(size_t s=0;s<vectDevice.size();++s)
 		CheckForRecursivePipes(vectDevice[s],pvect_Device_Pipe);
+}
+
+bool Router::RequestReload(int PK_Device_Requesting)
+{
+	g_pPlutoLogger->Write(LV_STATUS,"Received reload command");
+	PLUTO_SAFETY_LOCK(mm,m_MessageQueueMutex);
+	g_pPlutoLogger->Write(LV_STATUS,"Checking %d plugins",(int)m_mapPlugIn.size()); 
+	map<int,class Command_Impl *>::iterator it;
+	for(it=m_mapPlugIn.begin();it!=m_mapPlugIn.end();++it)
+	{
+		Command_Impl *pPlugIn = (*it).second;
+		vector<string> vectPendingTasks;
+		g_pPlutoLogger->Write(LV_CRITICAL,"Checking plugin %d for reload",pPlugIn->m_dwPK_Device);
+		if( !pPlugIn->PendingTasks(&vectPendingTasks) )
+		{
+			if( PK_Device_Requesting )
+			{
+				string sPendingTasks;
+				for(size_t s=0;s<vectPendingTasks.size();++s)
+					sPendingTasks += pPlugIn->m_sName + ": " + vectPendingTasks[s];
+				ReceivedMessage(NULL,new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
+					EVENT_Reload_Aborted_CONST,3,
+					EVENTPARAMETER_PK_Device_CONST,StringUtils::itos(pPlugIn->m_dwPK_Device).c_str(),
+					EVENTPARAMETER_Text_CONST,sPendingTasks.c_str(),
+					EVENTPARAMETER_PK_Orbiter_CONST,StringUtils::itos(PK_Device_Requesting)));
+			}
+			return false;
+		}
+	}
+	g_pPlutoLogger->Write(LV_STATUS,"PLUGINS OK");
+	return true;
 }

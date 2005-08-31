@@ -328,6 +328,14 @@ bool Orbiter_Plugin::PendingTasks(vector<string> *vectPendingTasks)
 				int Minutes = (int)(time(NULL) - pOH_Orbiter->m_tRegenTime) /60;
 				sProgress += " (" + pOH_Orbiter->m_pDeviceData_Router->m_sDescription + 
 					") " + StringUtils::itos(Minutes) + " minutes";
+
+				Row_Orbiter *pRow_Orbiter = m_pDatabase_pluto_main->Orbiter_get()->GetRow(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+				if( pRow_Orbiter )
+				{
+					pRow_Orbiter->Reload();
+					sProgress += "\n" + pRow_Orbiter->RegenStatus_get() + " " + 
+						StringUtils::itos(pRow_Orbiter->RegenPercent_get()) + "%";
+				}
 			}
 
 			vectPendingTasks->push_back(sProgress);

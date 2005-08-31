@@ -31,6 +31,7 @@
 #include "DCERouter.h"
 #endif
 
+#include <conio.h>
 #include "DeviceData_Impl.h"
 #include "Command_Impl.h"
 #include "Event_Impl.h"
@@ -403,6 +404,97 @@ bool Command_Impl::Connect(int iPK_DeviceTemplate)
 #endif
 
 	return bResult;
+}
+
+bool Command_Impl::RouterNeedsReload()
+{
+	return AskYNQuestion("This device is new and the Router needs to reload\nbefore it can register.  This will cause all devices to reset.\nDo this now?",false,30);
+}
+
+int Command_Impl::DeviceIdInvalid()
+{
+	map<int,string> mapDevices;
+	GetDevicesByTemplate(PK_DeviceTemplate_get(),&mapDevices);
+	cout << "A valid device ID is required to connect to the router." << endl
+		<< "Note that 2 devices cannot share the same ID." << endl;
+
+	if( mapDevices.size()==0 )
+		return 0;
+
+	cout << "Enter 0 and run this with -d [DeviceID] or enter" << endl
+		<< "a device ID.  Here is a list of devices with this" << endl
+		<< "device template.  Devices with an * already" << endl
+		<< "have registered and should not be used." << endl;
+
+	for(map<int,string>::iterator it=mapDevices.begin();it!=mapDevices.end();++it)
+		cout << it->first << " " << it->second << endl;
+#ifdef WIN32
+	int Response;
+	cin >> Response;
+	return Response;
+#else
+	return atoi(GetPrompt(30).c_str());
+#endif
+}
+
+void Command_Impl::GetDevicesByTemplate(int PK_DeviceTemplate,map<int,string> *p_mapDevices)
+{
+	Event_Impl *pEvent = new Event_Impl(DEVICEID_MESSAGESEND, 0, m_sHostName);
+	pEvent->m_pClientSocket->SendString("DEVICES BY TEMPLATE " + StringUtils::itos(PK_DeviceTemplate));
+	string sResponse;
+	if ( pEvent->m_pClientSocket->ReceiveString( sResponse ) )
+	{
+		string::size_type pos=0;
+		int NumDevices = atoi(StringUtils::Tokenize(sResponse,"\t",pos).c_str());
+		for(int iCount=0;iCount<NumDevices;++iCount)
+		{
+			int DeviceID = atoi(StringUtils::Tokenize(sResponse,"\t",pos).c_str());
+			string sName = StringUtils::Tokenize(sResponse,"\t",pos);
+			string sRoom = StringUtils::Tokenize(sResponse,"\t",pos);
+			string sDefaultIP = StringUtils::Tokenize(sResponse,"\t",pos);
+			string sRegisteredIP = StringUtils::Tokenize(sResponse,"\t",pos);
+
+			(*p_mapDevices)[DeviceID] =
+				(sRegisteredIP.size() ? "* " + sRegisteredIP : "")
+				+ " " + sName + " (" + sRoom + ")";
+		}
+	}
+	delete pEvent;
+}
+
+void Command_Impl::GetDevicesByCategory(int PK_DeviceCategory,map<int,string> *p_mapDevices)
+{
+	m_pEvent->m_pClientSocket->SendString("DEVICES BY CATEGORY " + StringUtils::itos(PK_DeviceCategory));
+	string sResponse;
+	if ( ReceiveString( sResponse ) )
+	{
+		string::size_type pos=0;
+		int NumDevices = atoi(StringUtils::Tokenize(sResponse,"\t",pos).c_str());
+		for(int iCount=0;iCount<NumDevices;++iCount)
+		{
+			int DeviceID = atoi(StringUtils::Tokenize(sResponse,"\t",pos).c_str());
+			string sName = StringUtils::Tokenize(sResponse,"\t",pos);
+			string sRoom = StringUtils::Tokenize(sResponse,"\t",pos);
+			string sDefaultIP = StringUtils::Tokenize(sResponse,"\t",pos);
+			string sRegisteredIP = StringUtils::Tokenize(sResponse,"\t",pos);
+
+			(*p_mapDevices)[DeviceID] =
+				(sRegisteredIP.size() ? "* " + sRegisteredIP : "")
+				+ " " + sName + " (" + sRoom + ")";
+		}
+	}
+}
+
+void Command_Impl::CannotReloadRouter()
+{
+	cout << "The router cannot reload now.  Please try later." << endl
+		<< "Press any key to continue...";
+#ifndef WIN32
+	getch_timeout(30);
+#else
+	getch();
+#endif
+	cout << endl;
 }
 
 void Command_Impl::ReceivedString( string sLine )

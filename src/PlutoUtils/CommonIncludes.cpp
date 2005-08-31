@@ -24,7 +24,7 @@
 #include <conio.h>
 #endif
 
-bool AskYNQuestion(string Question,bool bDefault)
+bool AskYNQuestion(string Question,bool bDefault,int Timeout)
 {
 	while(true)
 	{
@@ -32,7 +32,11 @@ bool AskYNQuestion(string Question,bool bDefault)
 		cout << Question << (bDefault ? " [Y/n] " : " [N/y] ");
 		while (true)
 		{
+#ifndef WIN32
+			char c = Timeout ? getch_timeout(Timeout) : getch();
+#else
 			char c = getch();
+#endif
 			cout << endl;
 			if( c==3 )
 				exit(1);
@@ -49,7 +53,26 @@ bool AskYNQuestion(string Question,bool bDefault)
 	}
 }
 
-char AskMCQuestion(string Question,string Prompts)
+string GetPrompt(int Timeout)
+{
+	string sResponse;
+	char c=0;
+	while (true)
+	{
+#ifndef WIN32
+		c = Timeout ? getch_timeout(Timeout) : getch();
+#else
+		c = getch();
+#endif
+
+		if( c=='\n' || c=='\r' || c==3 || c==0 )
+			return sResponse;
+
+		sResponse += c;
+	}
+}
+
+char AskMCQuestion(string Question,string Prompts,int Timeout)
 {
 	char cDefault=0;
 	while(true)
@@ -68,7 +91,12 @@ char AskMCQuestion(string Question,string Prompts)
 			bFirst=false;
 		}
 		cout << "] ";
-		char c = (char) getch();
+#ifndef WIN32
+			char c = Timeout ? getch_timeout(Timeout) : getch();
+#else
+			char c = getch();
+#endif
+
 //#pragma warning("need something unbuffered && need to clear the buffer, otherwise it uses old keystrokes")
 //		cin.read( &c[0], 1 );
 		if( c==3 )

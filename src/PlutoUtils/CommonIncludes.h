@@ -127,7 +127,7 @@ public:
 	}; 
 #endif
 
-bool AskYNQuestion(string Question,bool bDefault);
-char AskMCQuestion(string Question,string Prompts);
-
+bool AskYNQuestion(string Question,bool bDefault,int Timeout=0);
+char AskMCQuestion(string Question,string Prompts,int Timeout=0);
+string GetPrompt(int Timeout);
 #endif

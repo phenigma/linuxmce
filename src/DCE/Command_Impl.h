@@ -140,6 +140,36 @@ namespace DCE
 		 */		 
 		virtual bool Connect(int iPK_DeviceTemplate );
 		
+		/**
+		 * @brief Reports to the user on the console that the device cannot load because
+		 * the router needs to be reloaded, and asks the user if he wants to
+		 * reload the router.  Returns true if the user chose yes and the reload was sent
+		 * and connection should be re-attempted.  False means abort.
+		 */		 
+		virtual bool RouterNeedsReload();
+
+		/**
+		 * @brief Reports to the user on the console that the device ID is invalid.  It will
+		 * ask the server for a list of devices with this template and ask the user which device
+		 * to use.  Returns 0 meaning abort, or a positive number representing the new device ID
+		 */		 
+		virtual int DeviceIdInvalid();
+
+		/**
+		 * @brief Reports to the user that the router cannot be reloaded now
+		 */		 
+		virtual void CannotReloadRouter();
+
+		/**
+		 * @brief Fill the map with a list of all devices matching the template
+		 */		 
+		virtual void GetDevicesByTemplate(int PK_DeviceTemplate,map<int,string> *p_mapDevices);
+
+		/**
+		 * @brief Fill the map with a list of all devices matching the category
+		 */		 
+		virtual void GetDevicesByCategory(int PK_DeviceTemplate,map<int,string> *p_mapDevices);
+
 		/** events */
 		
 		/**
