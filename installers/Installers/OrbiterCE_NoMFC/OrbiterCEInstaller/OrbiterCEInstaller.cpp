@@ -10,10 +10,12 @@
 // Global Variables:
 HINSTANCE			hInst;			// The current instance
 HWND				hwndCB;			// The command bar handle
-HWND				g_wndEdit;
+HWND				g_wndComboBox;
 HWND				g_wndStatus;
 HWND				g_wndInstall;
 HWND				g_wndServerEdit;
+
+bool g_bInstalled;
 
 // Forward declarations of functions included in this code module:
 ATOM				MyRegisterClass	(HINSTANCE, LPTSTR);
@@ -27,6 +29,18 @@ LRESULT CALLBACK	About			(HWND, UINT, WPARAM, LPARAM);
 
 #include "Wininet.h"
 #pragma comment(lib, "Wininet.lib")
+
+bool DirectoryExists(TCHAR *tcPath)
+{
+	WIN32_FIND_DATA find_data;
+	HANDLE hFindFile = FindFirstFile(tcPath, &find_data);
+
+	if(hFindFile == INVALID_HANDLE_VALUE)
+		return false;
+
+	FindClose(hFindFile);
+	return true;
+}
 
 HWND CreateButton(HWND hParentWnd, int x, int y, const char* caption, int width=50)
 {
@@ -45,9 +59,24 @@ HWND CreateButton(HWND hParentWnd, int x, int y, const char* caption, int width=
 	return hWndList;
 }
 //-----------------------------------------------------------------------------------------------------
-HWND CreateLabel(HWND hParentWnd, int x, int y, int width, char* caption)
+HWND CreateComboBox(HWND hParentWnd, int x, int y, int width = 50, int height = 18)
 {
-	RECT rt_label = { x, y, width, 18 };
+	RECT rt_edit = { x, y, width, height };
+
+	HWND hWndList = 
+		CreateWindow(
+			TEXT("COMBOBOX"), TEXT(""), 
+			WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_BORDER | CBS_DISABLENOSCROLL,
+			rt_edit.left, rt_edit.top, rt_edit.right, rt_edit.bottom, 
+			hParentWnd, NULL, hInst, NULL
+		);
+
+	return hWndList;	
+}
+//-----------------------------------------------------------------------------------------------------
+HWND CreateLabel(HWND hParentWnd, int x, int y, int width, int height, char* caption)
+{
+	RECT rt_label = { x, y, width, height };
 
 	wchar_t wTextBuffer[MAX_STRING_LEN];
 	mbstowcs(wTextBuffer, caption, MAX_STRING_LEN);
@@ -82,6 +111,27 @@ HWND CreateEdit(HWND hParentWnd, int x, int y,  int width, char* caption, bool b
 	return hWndList;
 }
 
+void ErrorHandler(void)
+{
+	DWORD dwErrorCode = GetLastError();
+
+	switch(dwErrorCode)
+	{
+		case ERROR_INTERNET_NAME_NOT_RESOLVED: 
+			::SetWindowText(g_wndStatus, TEXT("ERROR: The server name could not be resolved.")); 
+			break;
+
+		case ERROR_INTERNET_TIMEOUT:
+			::SetWindowText(g_wndStatus, TEXT("ERROR: The request has timed out.")); 
+			break;
+
+		default:
+			::SetWindowText(g_wndStatus, TEXT("ERROR: Unknown internet error.")); 
+			break;
+	}
+
+	::UpdateWindow(g_wndStatus);
+}
 
 bool DownloadFile(wchar_t *pUrl, wchar_t *pDestFile)
 {
@@ -90,30 +140,61 @@ bool DownloadFile(wchar_t *pUrl, wchar_t *pDestFile)
 
 	if(hInternet)
 	{
-		HINTERNET hFile = InternetOpenUrl(hInternet, pUrl,
-			NULL, 0, 0, 0);
+	    // Canonicalization of the URL converts
+	    // unsafe characters into escape character equivalents
+	    TCHAR canonicalURL[1024];
+	    DWORD nSize = 1024;
+	    InternetCanonicalizeUrl(pUrl, canonicalURL, &nSize, ICU_BROWSER_MODE);
+
+	    DWORD options = INTERNET_FLAG_NEED_FILE|INTERNET_FLAG_HYPERLINK|
+					   INTERNET_FLAG_RESYNCHRONIZE|INTERNET_FLAG_RELOAD;
+
+		HINTERNET hFile = InternetOpenUrl(hInternet, canonicalURL, NULL, NULL, options, 0);
 			
 		if(hFile)
 		{
 			CHAR buffer[1024];
 			::ZeroMemory(buffer, sizeof(buffer));
 			DWORD dwRead;
+			DWORD dwTotalSize = 0;
 
 			FILE *file = _wfopen(pDestFile, TEXT("wb"));
-			while(InternetReadFile(hFile, buffer, 1023, &dwRead))
+
+			if(!file)
 			{
-				if(!dwRead)
-					break;
-
-				buffer[dwRead] = 0;
-
-				fwrite(buffer, sizeof(CHAR), dwRead, file);
+				::SetWindowText(g_wndStatus, TEXT("ERROR: Cannot save the file on the specified folder.")); 
+				::UpdateWindow(g_wndStatus);				
 			}
-			fclose(file);
-			bResult = true;
-		}
+			else
+			{
+				while(InternetReadFile(hFile, buffer, 1023, &dwRead))
+				{
+					dwTotalSize += dwRead;
 
-		InternetCloseHandle(hFile);
+					if(!dwRead)
+						break;
+
+					buffer[dwRead] = 0;
+
+					fwrite(buffer, sizeof(CHAR), dwRead, file);
+				}
+				fclose(file);
+
+				if(dwTotalSize)
+					bResult = true;
+				else
+				{
+					::SetWindowText(g_wndStatus, TEXT("ERROR: The specified file wasn't found on the server.")); 
+					::UpdateWindow(g_wndStatus);
+				}
+			}
+
+			InternetCloseHandle(hFile);
+		}
+		else
+		{
+			ErrorHandler();
+		}
 	}
 	
 	InternetCloseHandle(hInternet);
@@ -141,11 +222,11 @@ bool DownloadFileHelper(wchar_t *wcPath, wchar_t *wcServername, wchar_t *wcUrl, 
 	::UpdateWindow(g_wndStatus);
 	if(!DownloadFile(FullUrlW, DestFileW))
 	{
-		wcscpy(StatusW, TEXT("Failed to download file: "));
-		wcscat(StatusW, DestFileW);
+		//wcscpy(StatusW, TEXT("Failed to download file: "));
+		//wcscat(StatusW, DestFileW);
 
-		::SetWindowText(g_wndStatus, StatusW);
-		::UpdateWindow(g_wndStatus);
+		//::SetWindowText(g_wndStatus, StatusW);
+		//::UpdateWindow(g_wndStatus);
 		return false;
 	}
 
@@ -155,35 +236,57 @@ bool DownloadFileHelper(wchar_t *wcPath, wchar_t *wcServername, wchar_t *wcUrl, 
 void OnInstall()
 {
 	wchar_t wcPath[MAX_STRING_LEN];
-	GetWindowText(g_wndEdit, wcPath, MAX_STRING_LEN);
+	GetWindowText(g_wndComboBox, wcPath, MAX_STRING_LEN);
+	wcscat(wcPath, TEXT("/Pluto"));
 
 	wchar_t wcServername[MAX_STRING_LEN];
 	GetWindowText(g_wndServerEdit, wcServername, MAX_STRING_LEN);
-
-	bool bResult = true;
-
-	if(bResult)
-		bResult = DownloadFileHelper(wcPath, wcServername, TEXT("/pluto-admin/fdownload.php?filepath=orbiter/binaries/AYGSHELL.DLL"), TEXT("AYGSHELL.DLL"));
-
-	if(bResult)
-		bResult = DownloadFileHelper(wcPath, wcServername, TEXT("/pluto-admin/fdownload.php?filepath=orbiter/binaries/PthreadsCE.dll"), TEXT("PthreadsCE.dll"));
-
-//	if(bResult)
-//		bResult = DownloadFileHelper(wcPath, wcServername, TEXT("/pluto-admin/fdownload.php?filepath=orbiter/binaries/SDL.dll"), TEXT("SDL.dll"));
-
-	if(bResult)
-		bResult = DownloadFileHelper(wcPath, wcServername, TEXT("/pluto-admin/fdownload.php?filepath=orbiter/binaries/Orbiter.MD5"), TEXT("Orbiter.MD5"));
-
-	if(bResult)
-		bResult = DownloadFileHelper(wcPath, wcServername, TEXT("/pluto-admin/fdownload.php?filepath=bin/OrbiterCE.exe"), TEXT("OrbiterCE.exe"));
-
-	if(bResult)
-		bResult = DownloadFileHelper(wcPath, wcServername, TEXT("/pluto-admin/fdownload.php?filepath=orbiter/binaries/logo.gif"), TEXT("logo.gif"));
-
-	if(bResult)
+	
+	if(!g_bInstalled)
 	{
-		::SetWindowText(g_wndStatus, TEXT("Installation completed successfully!"));
-		::UpdateWindow(g_wndStatus);
+		if(!DirectoryExists(wcPath) && !::CreateDirectory(wcPath, NULL))
+		{
+			::SetWindowText(g_wndStatus, TEXT("ERROR: The specified folder is invalid!"));
+			::UpdateWindow(g_wndStatus);
+			return;
+		}
+
+		bool bResult = true;
+
+		if(bResult)
+			bResult = DownloadFileHelper(wcPath, wcServername, TEXT("/pluto-admin/fdownload.php?filepath=orbiter/binaries/AYGSHELL.DLL"), TEXT("AYGSHELL.DLL"));
+
+		if(bResult)
+			bResult = DownloadFileHelper(wcPath, wcServername, TEXT("/pluto-admin/fdownload.php?filepath=orbiter/binaries/PthreadsCE.dll"), TEXT("PthreadsCE.dll"));
+
+		if(bResult)
+			bResult = DownloadFileHelper(wcPath, wcServername, TEXT("/pluto-admin/fdownload.php?filepath=bin/OrbiterCE.exe"), TEXT("OrbiterCE.exe"));
+
+		if(bResult)
+			bResult = DownloadFileHelper(wcPath, wcServername, TEXT("/pluto-admin/fdownload.php?filepath=orbiter/binaries/logo.gif"), TEXT("logo.gif"));
+
+		if(bResult)
+		{
+			::SetWindowText(g_wndInstall, TEXT("Run"));
+			::SetWindowText(g_wndStatus, TEXT("Installation completed successfully! Press 'Run' to start Orbiter."));
+			::UpdateWindow(g_wndStatus);
+		}
+
+		g_bInstalled = true;
+	}
+	else
+	{
+		PROCESS_INFORMATION pi;
+		::ZeroMemory(&pi, sizeof(PROCESS_INFORMATION));
+
+		STARTUPINFO si;
+		::ZeroMemory(&si, sizeof(STARTUPINFO));
+		si.cb = sizeof(STARTUPINFO);
+		si.lpReserved = 0;
+
+		wcscat(wcPath, TEXT("/OrbiterCE.exe"));
+		::CreateProcess(wcPath, TEXT(""), NULL, NULL, NULL, 0, NULL, NULL, &si, &pi);
+		exit(0);
 	}
 }
 
@@ -195,6 +298,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 {
 	MSG msg;
 	HACCEL hAccelTable;
+	g_bInstalled = false;
 
 	// Perform application initialization:
 	if (!InitInstance (hInstance, nCmdShow)) 
@@ -287,6 +391,35 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	return TRUE;
 }
 
+void FillDestinationFolders()
+{
+	TCHAR *Folders[] = 
+	{
+		TEXT("/Program Files"),
+		TEXT("/Storage Card"),
+		TEXT("/Built-in Storage"),
+		TEXT("/Internal Storage"),
+		TEXT("/Programs"),
+		TEXT("/My Documents")
+	};
+
+	int nCount = sizeof(Folders)/sizeof(TCHAR *);
+	int nFirstGood = -1;
+	for(int i = 0; i < nCount; i++)
+	{
+		if(DirectoryExists(Folders[i]))
+		{
+			::SendMessage(g_wndComboBox, CB_ADDSTRING, 0, (long)Folders[i]);
+
+			if(-1 == nFirstGood)
+				nFirstGood = i;
+		}
+	}
+
+	if(-1 != nFirstGood)
+		SetWindowText(g_wndComboBox, Folders[nFirstGood]);
+}
+
 //
 //  FUNCTION: WndProc(HWND, unsigned, WORD, LONG)
 //
@@ -342,14 +475,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			RECT rt;
 			GetClientRect(hWnd, &rt);
 
-			CreateLabel(hWnd, 10, 30, WND_WIDTH - 80, "Core IP address or name:");	
+			CreateLabel(hWnd, 10, 30, WND_WIDTH - 80, 18, "Core IP address or name:");	
 			g_wndServerEdit = CreateEdit(hWnd, 10, 50,  WND_WIDTH - 80, "dcerouter", false, false);
 
-			CreateLabel(hWnd, 10, 75, WND_WIDTH - 80, "Destination folder:");	
-			g_wndEdit = CreateEdit(hWnd, 10, 95,  WND_WIDTH - 80, "/Storage Card", false, false);
+			CreateLabel(hWnd, 10, 75, WND_WIDTH - 80, 18, "Destination folder:");	
+			g_wndComboBox = CreateComboBox(hWnd, 10, 95, WND_WIDTH - 80, 70);
+			::SendMessage(g_wndComboBox, CB_SETDROPPEDWIDTH, 50, 0); 
 
-			g_wndStatus = CreateLabel(hWnd, 0, WND_HEIGHT - 18, WND_WIDTH, "Please enter the path where you would like to install Orbiter.");	
+			g_wndStatus = CreateLabel(hWnd, 0, WND_HEIGHT - 30, WND_WIDTH, 30, "Please enter the path where you would like to install Orbiter.");	
 			g_wndInstall = CreateButton(hWnd, WND_WIDTH - 65, 95, "Install");
+
+			FillDestinationFolders();
 
 			break;
 		case WM_PAINT:
