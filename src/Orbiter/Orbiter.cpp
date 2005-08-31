@@ -8344,3 +8344,23 @@ int Orbiter::HandleNotOKStatus(string sStatus)
 	return 0;
 }
 
+bool Orbiter::RouterNeedsReload()
+{
+	string sStatus;
+	DCE::CMD_Get_Orbiter_Status CMD_Get_Orbiter_Status( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, 
+		m_dwPK_Device,&sStatus);
+	SendCommand(CMD_Get_Orbiter_Status);
+	int iResponse;
+	if( (iResponse=HandleNotOKStatus(sStatus))==0 )
+		return false;
+	return true;
+}
+
+int Orbiter::DeviceIdInvalid()
+{
+	map<int,string> mapDevices;
+	GetDevicesByCategory(DEVICECATEGORY_Orbiter_CONST,&mapDevices);
+	return 0;
+}
+
+
