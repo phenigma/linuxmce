@@ -442,7 +442,7 @@ input.file_origin_path:/home/public/data/music/AC-DC/The Razors Edge
 
 # path to the title key cache
 # string, default: /root/.dvdcss/
-#input.css_cache_path:/root/.dvdcss/
+input.css_cache_path:/home/.dvdcss/
 
 # use A/52 dynamic range compression
 # bool, default: 0
@@ -687,3 +687,9 @@ misc.memcpy_method:sse
 
 mkdir -p /etc/pluto
 echo "$xine_conf" >/etc/pluto/xine.conf
+
+if [[ -d /root/.dvdcss ]]; then
+	mkdir -p /home/.dvdcss
+	mv /root/.dvdcss/* /home/.dvdcss/*
+	rm -rf /root/.dvdcss
+fi
