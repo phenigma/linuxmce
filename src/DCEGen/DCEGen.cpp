@@ -329,6 +329,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	fstr_DeviceCommand << "#include \"DeviceData_Impl.h\"" << endl;
 	fstr_DeviceCommand << "#include \"Message.h\"" << endl;
 	fstr_DeviceCommand << "#include \"Command_Impl.h\"" << endl;
+	fstr_DeviceCommand << "#include \"Logger.h\"" << endl;
 	fstr_DeviceCommand << endl << endl;
 	fstr_DeviceCommand << "namespace DCE" << endl;
 	fstr_DeviceCommand << "{" << endl;
@@ -458,6 +459,38 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	fstr_DeviceCommand << "\t\tm_pEvent = new "  << Name  << "_Event(DeviceID, ServerAddress);" << endl;
 	fstr_DeviceCommand << "\t\tif( m_pEvent->m_dwPK_Device )" << endl;
 	fstr_DeviceCommand << "\t\t\tm_dwPK_Device = m_pEvent->m_dwPK_Device;" << endl;
+
+	fstr_DeviceCommand << "\t\tif( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None )" << endl;
+	fstr_DeviceCommand << "\t\t{" << endl;
+	fstr_DeviceCommand << "\t\t\tif( m_pEvent->m_pClientSocket->m_eLastError==cs_err_NeedReload )" << endl;
+	fstr_DeviceCommand << "\t\t\t{" << endl;
+	fstr_DeviceCommand << "\t\t\t\tif( RouterNeedsReload() )" << endl;
+	fstr_DeviceCommand << "\t\t\t\t{" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\tstring sResponse;" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\tm_pEvent->m_pClientSocket->SendString( \"RELOAD\" );" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\tif( m_pEvent->m_pClientSocket->ReceiveString( sResponse ) && sResponse!=\"OK\" )" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\t{" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\t\tCannotReloadRouter();" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\t\tg_pPlutoLogger->Write(LV_WARNING,\"Reload request denied: %s\",sResponse.c_str());" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\t}" << endl;
+	fstr_DeviceCommand << "\t\t\t\t}\t" << endl;
+	fstr_DeviceCommand << "\t\t\t}" << endl;
+	fstr_DeviceCommand << "\t\t\telse if( m_pEvent->m_pClientSocket->m_eLastError==cs_err_BadDevice )" << endl;
+	fstr_DeviceCommand << "\t\t\t{" << endl;
+	fstr_DeviceCommand << "\t\t\t\twhile( m_pEvent->m_pClientSocket->m_eLastError==cs_err_BadDevice && (DeviceID = DeviceIdInvalid())!=0 )" << endl;
+	fstr_DeviceCommand << "\t\t\t\t{" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\tdelete m_pEvent;" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\tm_pEvent = new "  << Name  << "_Event(DeviceID, ServerAddress);" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\tif( m_pEvent->m_dwPK_Device )" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\t\tm_dwPK_Device = m_pEvent->m_dwPK_Device;" << endl;
+	fstr_DeviceCommand << "\t\t\t\t}" << endl;
+	fstr_DeviceCommand << "\t\t\t}" << endl;
+	fstr_DeviceCommand << "\t\t}" << endl;
+	fstr_DeviceCommand << "\t\t" << endl;
+	fstr_DeviceCommand << "\t\tif( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None )" << endl;
+	fstr_DeviceCommand << "\t\t\tthrow \"Cannot connect\";" << endl;
+	fstr_DeviceCommand << endl;
+
 	fstr_DeviceCommand << "\t\tint Size; char *pConfig = m_pEvent->GetConfig(Size);" << endl;
 	fstr_DeviceCommand << "\t\tif( !pConfig )" << endl;
 	fstr_DeviceCommand << "\t\t\tthrow \"Cannot get configuration data\";" << endl;

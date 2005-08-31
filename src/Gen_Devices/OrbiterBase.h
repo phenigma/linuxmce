@@ -3,6 +3,7 @@
 #include "DeviceData_Impl.h"
 #include "Message.h"
 #include "Command_Impl.h"
+#include "Logger.h"
 
 
 namespace DCE
@@ -80,6 +81,36 @@ public:
 		m_pEvent = new Orbiter_Event(DeviceID, ServerAddress);
 		if( m_pEvent->m_dwPK_Device )
 			m_dwPK_Device = m_pEvent->m_dwPK_Device;
+		if( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None )
+		{
+			if( m_pEvent->m_pClientSocket->m_eLastError==cs_err_NeedReload )
+			{
+				if( RouterNeedsReload() )
+				{
+					string sResponse;
+					m_pEvent->m_pClientSocket->SendString( "RELOAD" );
+					if( m_pEvent->m_pClientSocket->ReceiveString( sResponse ) && sResponse!="OK" )
+					{
+						CannotReloadRouter();
+						g_pPlutoLogger->Write(LV_WARNING,"Reload request denied: %s",sResponse.c_str());
+					}
+				}	
+			}
+			else if( m_pEvent->m_pClientSocket->m_eLastError==cs_err_BadDevice )
+			{
+				while( m_pEvent->m_pClientSocket->m_eLastError==cs_err_BadDevice && (DeviceID = DeviceIdInvalid())!=0 )
+				{
+					delete m_pEvent;
+					m_pEvent = new Orbiter_Event(DeviceID, ServerAddress);
+					if( m_pEvent->m_dwPK_Device )
+						m_dwPK_Device = m_pEvent->m_dwPK_Device;
+				}
+			}
+		}
+		
+		if( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None )
+			throw "Cannot connect";
+
 		int Size; char *pConfig = m_pEvent->GetConfig(Size);
 		if( !pConfig )
 			throw "Cannot get configuration data";
