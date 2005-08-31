@@ -21,6 +21,7 @@
 device="$PK_Device"
 code="$Activation_Code"
 
+Logging "$TYPE" "$SEVERITY_WARNING" "$0 $module" "Writing Version: $Version"
 echo "$Version" >/home/pluto-version
 
 echo "setting up dce router2"
