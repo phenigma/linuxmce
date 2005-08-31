@@ -12,11 +12,12 @@ HINSTANCE			hInst;			// The current instance
 HWND				hwndCB;			// The command bar handle
 HWND				g_wndStatusStatic;
 HWND				g_wndInstallButton;
-HWND				g_wndQueryButton;
 HWND				g_wndServerComboBox;
 HWND				g_wndFolderComboBox;
+HWND				g_wndMain;
 
-bool g_bInstalled;
+bool g_bInstalled = false;
+int EventTimerId = 1;
 
 // Forward declarations of functions included in this code module:
 ATOM				MyRegisterClass	(HINSTANCE, LPTSTR);
@@ -345,7 +346,7 @@ void OnInstall()
 
 void OnQuery()
 {
-	::SetWindowText(g_wndStatusStatic, TEXT("Searching the router, please wait...")); 
+	::SetWindowText(g_wndStatusStatic, TEXT("Searching for routers, please wait...")); 
 	::UpdateWindow(g_wndStatusStatic);
 
 	TCHAR *Addresses[] = 
@@ -378,8 +379,6 @@ void OnQuery()
 		::SetWindowText(g_wndStatusStatic, TEXT("Unable to determine the router's address. Please write the router's ip.")); 
 		::SendMessage(g_wndServerComboBox, CB_ADDSTRING, 0, (long)TEXT("(no address)"));
 		SetWindowText(g_wndServerComboBox, TEXT("(no address)"));
-		::EnableWindow(g_wndQueryButton, false);
-		//TODO: disable "Search"
 	}
 
 	::UpdateWindow(g_wndStatusStatic);
@@ -514,6 +513,12 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	return TRUE;
 }
 
+void CALLBACK QueryTimerCallBack(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime)
+{
+	::KillTimer(hwnd, idEvent);
+	OnQuery();
+}
+
 //
 //  FUNCTION: WndProc(HWND, unsigned, WORD, LONG)
 //
@@ -542,10 +547,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				{
 					if(lParam == (LPARAM)g_wndInstallButton)
 						OnInstall();
-
-					if(lParam == (LPARAM)g_wndQueryButton)
-						OnQuery();
-
 					break;
 				}
 			}
@@ -565,6 +566,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 			break;
 		case WM_CREATE:
+			g_wndMain = hWnd;
 			hwndCB = CommandBar_Create(hInst, hWnd, 1);			
 			CommandBar_InsertMenubar(hwndCB, hInst, IDM_MENU, 0);
 			CommandBar_AddAdornments(hwndCB, 0, 0);
@@ -575,8 +577,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			CreateLabel(hWnd, 10, 30, WND_WIDTH - 80, 18, "Core IP address or name:");	
 			g_wndServerComboBox = CreateComboBox(hWnd, 10, 50,  WND_WIDTH - 80, 70);
 			::SendMessage(g_wndServerComboBox, CB_SETDROPPEDWIDTH, 50, 0); 
-
-			g_wndQueryButton = CreateButton(hWnd, WND_WIDTH - 65, 50, "Search");
 
 			CreateLabel(hWnd, 10, 75, WND_WIDTH - 80, 18, "Destination folder:");	
 			g_wndFolderComboBox = CreateComboBox(hWnd, 10, 95, WND_WIDTH - 80, 70);
@@ -596,11 +596,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				hdc = BeginPaint(hWnd, &ps);
 				FillRect(hdc, &rt, (HBRUSH)::GetStockObject(GRAY_BRUSH));
 				EndPaint(hWnd, &ps);
+
+				static bFirstTime = true;
+				if(bFirstTime)
+				{
+					::SetTimer(g_wndMain, EventTimerId, 100, QueryTimerCallBack);
+					bFirstTime = false;
+				}
 			}
 			break;
 		case WM_DESTROY:
 			CommandBar_Destroy(hwndCB);
 			PostQuitMessage(0);
+			exit(0);
 			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
