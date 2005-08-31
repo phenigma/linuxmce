@@ -120,6 +120,7 @@ public:
 	virtual void CMD_Display_Message(string sText,string sType,string sName,string sTime,string sPK_Device_List,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Display_Dialog_Box_On_Orbiter(string sText,string sOptions,string sPK_Device_List,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Send_File_To_Phone(string sMac_address,string sCommand_Line,int iApp_Server_Device_ID,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Get_Orbiter_Status(int iPK_Device,string *sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -555,7 +556,7 @@ public:
 						string sCMD_Result="OK";
 					string sMac_address=pMessage->m_mapParameters[47];
 					string sCommand_Line=pMessage->m_mapParameters[137];
-					int iApp_Server_Device_ID=atoi(pMessage->m_mapParameters[138].c_str());
+					int iApp_Server_Device_ID=atoi(pMessage->m_mapParameters[140].c_str());
 						CMD_Send_File_To_Phone(sMac_address.c_str(),sCommand_Line.c_str(),iApp_Server_Device_ID,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
@@ -574,6 +575,34 @@ public:
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Send_File_To_Phone(sMac_address.c_str(),sCommand_Line.c_str(),iApp_Server_Device_ID,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case 694:
+					{
+						string sCMD_Result="OK";
+					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
+					string sValue_To_Assign=pMessage->m_mapParameters[5];
+						CMD_Get_Orbiter_Status(iPK_Device,&sValue_To_Assign,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+						pMessageOut->m_mapParameters[5]=sValue_To_Assign;
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Get_Orbiter_Status(iPK_Device,&sValue_To_Assign,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

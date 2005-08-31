@@ -242,6 +242,7 @@ public:
 
 	void FireFollowMe(string sMask,int iPK_Orbiter,int iPK_Users,int iPK_RoomOrEntArea,int iPK_RoomOrEntArea_Left);
 	void SetBoundIcons(int iPK_Users,bool bOnOff,string sType);
+	bool IsRegenerating(OH_Orbiter *pOH_Orbiter);  // Is this orbiter's skin being generated?
 
     void GenerateVMCFiles();
     void GeneratePlutoMOConfig();
@@ -450,11 +451,22 @@ public:
 			/** Phone's mac address */
 		/** @param #137 Command Line */
 			/** Command line to be sent */
-		/** @param #138 App_Server_Device_ID */
+		/** @param #140 App_Server_Device_ID */
 			/** App_Server which will spawn the application */
 
 	virtual void CMD_Send_File_To_Phone(string sMac_address,string sCommand_Line,int iApp_Server_Device_ID) { string sCMD_Result; CMD_Send_File_To_Phone(sMac_address.c_str(),sCommand_Line.c_str(),iApp_Server_Device_ID,sCMD_Result,NULL);};
 	virtual void CMD_Send_File_To_Phone(string sMac_address,string sCommand_Line,int iApp_Server_Device_ID,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #694 - Get Orbiter Status */
+	/** Reports the status of the given orbiter */
+		/** @param #2 PK_Device */
+			/** The orbiter */
+		/** @param #5 Value To Assign */
+			/** The status: O=OK to load, N=New, skin generated, need router reset, n=new, no skins at all, R=Regenerating skin now, r=Regenerating skin for new orbiter, U=Unknown, D=Device is not an orbiter */
+
+	virtual void CMD_Get_Orbiter_Status(int iPK_Device,string *sValue_To_Assign) { string sCMD_Result; CMD_Get_Orbiter_Status(iPK_Device,sValue_To_Assign,sCMD_Result,NULL);};
+	virtual void CMD_Get_Orbiter_Status(int iPK_Device,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

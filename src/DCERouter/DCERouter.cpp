@@ -1092,11 +1092,15 @@ bool Router::ReceivedString(Socket *pSocket, string Line)
 		else
 		    pSocket->SendString("PLUGINS DENIED RELOAD REQUEST");
 	}
-    else if( Line.substr(0,20)=="DEVICES BY TEMPLATE " )
+    else if( Line.substr(0,20)=="DEVICES BY TEMPLATE " || Line.substr(0,20)=="DEVICES BY CATEGORY ")
 	{
 		string sResponse;
 
-		string sSQL = "SELECT PK_Device,Device.Description,Room.Description as Room,IPAddress FROM Device JOIN Room on FK_Room=PK_Room WHERE FK_DeviceTemplate=" + Line.substr(19);
+		string sSQL;
+		if( Line.substr(0,20)=="DEVICES BY TEMPLATE " )
+			sSQL = "SELECT PK_Device,Device.Description,Room.Description as Room,IPAddress FROM Device JOIN Room on FK_Room=PK_Room WHERE FK_DeviceTemplate=" + Line.substr(19);
+		else
+			sSQL = "SELECT PK_Device,Device.Description,Room.Description as Room,IPAddress FROM Device JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate JOIN Room on FK_Room=PK_Room WHERE FK_DeviceCategory=" + Line.substr(19);
 		PlutoSqlResult result_set;
 		MYSQL_ROW row;
 		if( (result_set.r=mysql_query_result(sSQL)) )
@@ -1117,7 +1121,7 @@ bool Router::ReceivedString(Socket *pSocket, string Line)
 		}
 	    pSocket->SendString(sResponse);
 	}
-
+  
     g_pPlutoLogger->Write(LV_WARNING, "Router: Don't know how to handle %s.", Line.c_str());
     pSocket->SendString("ERROR");
     return false;

@@ -2675,6 +2675,24 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 	{
 		m_bStartingUp=true;
 		{
+			while(true)
+			{
+				string sStatus;
+				DCE::CMD_Get_Orbiter_Status CMD_Get_Orbiter_Status( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, 
+					m_dwPK_Device,&sStatus);
+				SendCommand(CMD_Get_Orbiter_Status);
+				int iResponse;
+				if( sStatus!="O" )
+				{
+					if( (iResponse=HandleNotOKStatus(sStatus))==0 )
+						m_bQuit = true;
+					else if( iResponse==1 )
+						break;
+				}
+				else
+					break;
+			}
+
 			NeedToRender render( this, "Initial config" );
 			Message *pMessage=NULL;
 			string Filename = "C" + StringUtils::itos( m_dwPK_Device ) + ".info";
@@ -8320,3 +8338,9 @@ void Orbiter::RenderShortcut(DesignObj_Orbiter *pObj)
         pTextStyle->m_ForeColor = OldColor;
     }
 }
+
+int Orbiter::HandleNotOKStatus(string sStatus)
+{
+	return 0;
+}
+

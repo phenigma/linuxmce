@@ -1997,7 +1997,7 @@ void Orbiter_Plugin::CMD_Display_Dialog_Box_On_Orbiter(string sText,string sOpti
 			/** Phone's mac address */
 		/** @param #137 Command Line */
 			/** Command line to be sent */
-		/** @param #138 App_Server_Device_ID */
+		/** @param #140 App_Server_Device_ID */
 			/** App_Server which will spawn the application */
 
 void Orbiter_Plugin::CMD_Send_File_To_Phone(string sMac_address,string sCommand_Line,int iApp_Server_Device_ID,string &sCMD_Result,Message *pMessage)
@@ -2040,4 +2040,74 @@ void Orbiter_Plugin::CMD_Send_File_To_Phone(string sMac_address,string sCommand_
     DCE::CMD_Spawn_Application cmd_Spawn_Application(m_dwPK_Device, iApp_Server_Device_ID,
         sCommand_Line, sName.c_str(), string(), sCommOnFailure, sCommOnSuccess, false);
     SendCommand(cmd_Spawn_Application);
+}
+
+//<-dceag-c694-b->
+
+	/** @brief COMMAND: #694 - Get Orbiter Status */
+	/** Reports the status of the given orbiter */
+		/** @param #2 PK_Device */
+			/** The orbiter */
+		/** @param #5 Value To Assign */
+			/** The status: O=OK to load, N=New, skin generated, need router reset, n=new, no skins at all, R=Regenerating skin now, r=Regenerating skin for new orbiter, U=Unknown, D=Device is not an orbiter */
+
+void Orbiter_Plugin::CMD_Get_Orbiter_Status(int iPK_Device,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage)
+//<-dceag-c694-e->
+{
+	OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(iPK_Device);
+	if( pOH_Orbiter )
+	{
+		if( IsRegenerating(pOH_Orbiter) )
+			*sValue_To_Assign = "R";
+		else
+			*sValue_To_Assign = "O";
+		return;
+	}
+
+	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(iPK_Device);
+	if( !pRow_Device )  // We know nothing about this
+	{
+		*sValue_To_Assign = "U";
+		return;
+	}
+
+	bool bIsOrbiter=false;
+	Row_DeviceCategory *pRow_DeviceCategory = pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_getrow();
+	while( pRow_DeviceCategory )
+	{
+		if( pRow_DeviceCategory->PK_DeviceCategory_get()==DEVICECATEGORY_Orbiter_CONST )
+		{
+			bIsOrbiter=true;
+			break;
+		}
+		pRow_DeviceCategory = pRow_DeviceCategory->FK_DeviceCategory_Parent_getrow();
+	}
+
+	if( !bIsOrbiter )
+	{
+		*sValue_To_Assign = "D";  // Not an orbiter
+		return;
+	}
+
+	if( IsRegenerating(pOH_Orbiter) )
+	{
+		*sValue_To_Assign = "r";  // Regenerating
+		return;
+	}
+
+	if( FileUtils::FileExists("/usr/pluto/orbiter/C" + StringUtils::itos(iPK_Device) + "/C" + StringUtils::itos(iPK_Device) + ".info") )
+		*sValue_To_Assign = "N";
+	else
+		*sValue_To_Assign = "n";
+}
+
+bool Orbiter_Plugin::IsRegenerating(OH_Orbiter *pOH_Orbiter)
+{
+	PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
+	for(list<int>::iterator it=m_listRegenCommands.begin();it!=m_listRegenCommands.end();++it)
+		if( *it == pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device )
+			return true;
+
+	return false;
+	
 }
