@@ -1170,6 +1170,10 @@ m_bNoEffects = true;
 		else
 			m_mapTextString[pRow_Text->PK_Text_get()] = pRow_Text_LS->Description_get();
 	}
+
+	m_iScreensTotal=m_iScreensToRender;
+	m_iScreensToRender=m_iLastReportedPercentage=0;
+
 	for(itgs=m_htGeneratedScreens.begin();itgs!=m_htGeneratedScreens.end();++itgs)
 	{
 		listDesignObj_Generator *o = (*itgs).second;
@@ -1182,6 +1186,15 @@ int k=2;
 }
 			if( !oco->m_bUsingCache )
 			{
+				int Percent = m_iScreensToRender * 100 / m_iScreensTotal;
+				if( !m_iLastReportedPercentage || Percent - m_iLastReportedPercentage > 10 )
+				{
+					m_iLastReportedPercentage = min(1,Percent);
+					m_pRow_Orbiter->Reload();
+					m_pRow_Orbiter->RegenStatus_set("Stage 2 of 2 - Rendering screen " + StringUtils::itos(m_iScreensToRender));
+					m_pRow_Orbiter->RegenPercent_set(m_iLastReportedPercentage);
+					m_pRow_Orbiter->Table_Orbiter_get()->Commit();
+				}
 				OutputScreen(oco);
 				// Don't force popups to be full-screen
 				if( m_mapPopups.find(oco->m_pRow_DesignObj->PK_DesignObj_get())==m_mapPopups.end() )

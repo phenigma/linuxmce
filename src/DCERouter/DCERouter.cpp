@@ -927,11 +927,12 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Checking %d plugins",(int)m_mapPlugIn.size())
 						for(it=m_mapPlugIn.begin();it!=m_mapPlugIn.end();++it)
 						{
 							Command_Impl *pPlugIn = (*it).second;
-							string sPendingTasks;
+							vector<string> vectPendingTasks;
 g_pPlutoLogger->Write(LV_CRITICAL,"Checking plugin %d for reload",pPlugIn->m_dwPK_Device);
-							if( !pPlugIn->SafeToReload(&sPendingTasks) )
+							if( !pPlugIn->PendingTasks(&vectPendingTasks) )
 							{
-								g_pPlutoLogger->Write(LV_STATUS,"Aborting reload as per %s %s",pPlugIn->m_sName.c_str(),sPendingTasks.c_str());
+								for(size_t s=0;s<vectPendingTasks.size();++s)
+									g_pPlutoLogger->Write(LV_STATUS,"Aborting reload as per %s %s",pPlugIn->m_sName.c_str(),vectPendingTasks[s].c_str());
 								ReceivedMessage(NULL,new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
 									EVENT_Reload_Aborted_CONST,3,
 									EVENTPARAMETER_PK_Device_CONST,StringUtils::itos(pPlugIn->m_dwPK_Device).c_str(),

@@ -355,7 +355,6 @@ public:
 	 * @brief EVENT_Ripping_Completed_CONST event interceptor.
 	 */
 	bool RippingProgress( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
-	void UpdateRippingStatus(RippingJob *pRippingJob,string sText,string sValue);
 
 	/**
 	 * @brief EVENT_Device_On_Off_CONST event interceptor, when some equipment was turned on or off manually
@@ -391,7 +390,7 @@ public:
 	void StreamEnded(MediaStream *pMediaStream,bool bSendOff=true,bool bDeleteStream=true,MediaStream *pMediaStream_Replacement=NULL,vector<EntertainArea *> *p_vectEntertainArea=NULL);
 	void MediaInEAEnded(EntertainArea *pEntertainArea,bool bFireEvent=true);
 
-	virtual bool SafeToReload(string *sPendingTasks=NULL);
+	virtual bool PendingTasks(vector<string> *vectPendingTasks=NULL);
 
 	// Given pMediaDevice, this function will find out if that device is presently being used by any media streams
 	// and return a 1 if it's involved as the source, and 2 if the destination, or 0 if there's no involvement.

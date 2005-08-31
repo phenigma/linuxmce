@@ -61,6 +61,8 @@
 #include "pluto_main/Table_DeviceTemplate.h"
 #include "pluto_main/Table_DeviceTemplate_DesignObj.h"
 
+#define TOTAL_ESTIMATED_SCREENS 150
+
 DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_DesignObj * drDesignObj,class PlutoRectangle rPosition,class DesignObj_Generator *ocoParent,bool bAddToGenerated,bool bDontShare)
 {
     m_pRow_DesignObjVariation=NULL;
@@ -136,6 +138,16 @@ if( m_pRow_DesignObj->PK_DesignObj_get()==2233 )// || m_pRow_DesignObj->PK_Desig
 
 	if( bAddToGenerated )
     {
+		int Percent = ++m_pOrbiterGenerator->m_iScreensTotal * 100 / TOTAL_ESTIMATED_SCREENS;
+		if( !m_pOrbiterGenerator->m_iLastReportedPercentage || Percent - m_pOrbiterGenerator->m_iLastReportedPercentage > 10 )
+		{
+			m_pOrbiterGenerator->m_iLastReportedPercentage = min(1,Percent);
+			m_pOrbiterGenerator->m_pRow_Orbiter->Reload();
+			m_pOrbiterGenerator->m_pRow_Orbiter->RegenStatus_set("Stage 1 of 2 - Generating screen " + StringUtils::itos(m_pOrbiterGenerator->m_iScreensTotal));
+			m_pOrbiterGenerator->m_pRow_Orbiter->RegenPercent_set(m_pOrbiterGenerator->m_iLastReportedPercentage);
+			m_pOrbiterGenerator->m_pRow_Orbiter->Table_Orbiter_get()->Commit();
+		}
+
 		cout << "Generating screen: " << drDesignObj->PK_DesignObj_get() << " in orbiter: " << pGenerator->m_pRow_Device->PK_Device_get() << endl;
 		if( m_pOrbiterGenerator->m_pRow_Size->PreserveAspectRatio_get()==2 )  // Means only preserve the backgrounds
 			m_bPreserveAspectRatio=true;
@@ -211,6 +223,8 @@ int k=2;
         system( ("rm " + Filespec + " 2>/dev/null").c_str() );
         system( ("rm " + Filespec2 + " 2>/dev/null").c_str() );
 #endif
+
+		m_pOrbiterGenerator->m_iScreensToRender++;
     }
 
     if( !m_pRow_DesignObjVariation->FK_Criteria_Orbiter_isNull() )

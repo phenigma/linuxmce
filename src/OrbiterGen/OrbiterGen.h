@@ -41,6 +41,7 @@ public:
 	int m_iFloorplanPage;
 	map<int,bool> m_map_PK_DesignObj_SoleScreenToGen; // Only re-generate this one screen
 	int m_iPK_Orbiter;
+	int m_iScreensTotal,m_iScreensToRender,m_iLastReportedPercentage;  // Keep track of screens we're going to need to render
 	bool m_bDontAutoRegenArrays;
 	string m_sDesc_Array;
 	class Row_Icon * m_pRow_Icon;
@@ -76,6 +77,7 @@ public:
 		m_iPK_DesignObj_Screen=0;
 		m_iPK_CommandGroup=0; // If this is an array and we are supposed to execute an action group, this will be non-zero
 		m_iFloorplanPage=0;
+		m_iScreensToRender=m_iScreensTotal=m_iLastReportedPercentage=0;
 		m_pRow_Icon=NULL;
 	}
 

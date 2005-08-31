@@ -3286,9 +3286,8 @@ bool Media_Plugin::RippingProgress( class Socket *pSocket, class Message *pMessa
 	RippingJob *pRippingJob = m_mapRippingJobs[sJobName];
 	if( iResult==RIP_RESULT_STILLGOING )
 	{
-		string sText = pMessage->m_mapParameters[EVENTPARAMETER_Text_CONST].c_str( );
-		string sValue = pMessage->m_mapParameters[EVENTPARAMETER_Value_CONST].c_str( );
-		UpdateRippingStatus(pRippingJob,sText,sValue);
+		pRippingJob->m_sStatus = pMessage->m_mapParameters[EVENTPARAMETER_Text_CONST].c_str( );
+		pRippingJob->m_sPercentage = pMessage->m_mapParameters[EVENTPARAMETER_Value_CONST].c_str( );
 		return true;
 	}
 	else if( iResult==RIP_RESULT_SUCCESS )
@@ -3303,9 +3302,6 @@ bool Media_Plugin::RippingProgress( class Socket *pSocket, class Message *pMessa
 	return true;
 }
 
-void Media_Plugin::UpdateRippingStatus(RippingJob *pRippingJob,string sText,string sValue)
-{
-}
 
 bool Media_Plugin::DeviceOnOff( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
@@ -3457,7 +3453,7 @@ bool Media_Plugin::DiskDriveIsRipping(int iPK_Device)
 	return false;
 }
 
-bool Media_Plugin::SafeToReload(string *sPendingTasks)
+bool Media_Plugin::PendingTasks(vector<string> *vectPendingTasks)
 {
 	g_pPlutoLogger->Write( LV_STATUS, "safe to reload before lock %d %s %d",m_MediaMutex.m_NumLocks,m_MediaMutex.m_sFileName.c_str(),m_MediaMutex.m_Line);
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
@@ -3465,10 +3461,10 @@ bool Media_Plugin::SafeToReload(string *sPendingTasks)
 	if( m_mapRippingJobs.size() )
 	{
 		string sJobs;
-		if( sPendingTasks )
+		if( vectPendingTasks )
 		{
 			for(map<string, class RippingJob *>::iterator it=m_mapRippingJobs.begin();it!=m_mapRippingJobs.end();++it)
-				(*sPendingTasks) += "Ripping: " + (*it).first + "\n";
+				vectPendingTasks->push_back("Ripping: " + (*it).first + "\n" + it->second->m_sStatus + "  " + it->second->m_sPercentage);
 		}
 		return false;
 	}

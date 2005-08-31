@@ -451,24 +451,22 @@ void General_Info_Plugin::CMD_Is_Daytime(bool *bTrueFalse,string &sCMD_Result,Me
 
 class DataGridTable *General_Info_Plugin::PendingTasks( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
-	string sPendingTasks;
+	vector<string> vectPendingTasks;
 
     for(map<int,class Command_Impl *>::const_iterator it=m_pRouter->m_mapPlugIn_get()->begin();it!=m_pRouter->m_mapPlugIn_get()->end();++it)
     {
 		Command_Impl *pPlugIn = (*it).second;
 		// We don't care about the return code, just what tasks are pending
-		pPlugIn->SafeToReload(&sPendingTasks);
+		pPlugIn->PendingTasks(&vectPendingTasks);
 	}
 
     DataGridTable *pDataGrid = new DataGridTable( );
     DataGridCell *pCell;
 
 	int RowCount=0;
-	string::size_type pos=0;
-	while(pos<sPendingTasks.size() && pos!=string::npos)
+	for(size_t s=0;s<vectPendingTasks.size();++s)
 	{
-		string sTask = StringUtils::Tokenize(sPendingTasks,"\n",pos);
-        pCell = new DataGridCell( sTask );
+        pCell = new DataGridCell( vectPendingTasks[s] );
         pDataGrid->SetData( 0, RowCount++, pCell );
 	}
 

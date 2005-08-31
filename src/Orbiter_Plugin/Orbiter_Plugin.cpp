@@ -309,7 +309,7 @@ bool Orbiter_Plugin::RouteToOrbitersInRoom(class Socket *pSocket,class Message *
     return false;  // Continue to process it
 }
 
-bool Orbiter_Plugin::SafeToReload(string *sPendingTasks)
+bool Orbiter_Plugin::PendingTasks(vector<string> *vectPendingTasks)
 {
     PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
 	if( m_listRegenCommands.size()==0 )
@@ -317,21 +317,20 @@ bool Orbiter_Plugin::SafeToReload(string *sPendingTasks)
 
 	string sOrbiters;
 	g_pPlutoLogger->Write(LV_STATUS,"Cannot reboot %d pending",(int) m_listRegenCommands.size());
-	if( sPendingTasks )
+	if( vectPendingTasks )
 	{
 		for(list<int>::iterator it=m_listRegenCommands.begin();it!=m_listRegenCommands.end();++it)
 		{
-			(*sPendingTasks) += "Regen Orbiter " + StringUtils::itos(*it);
+			string sProgress = "Regen Orbiter " + StringUtils::itos(*it);
 			OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(*it);
 			if( pOH_Orbiter )
 			{
 				int Minutes = (int)(time(NULL) - pOH_Orbiter->m_tRegenTime) /60;
-				(*sPendingTasks) += " (" + pOH_Orbiter->m_pDeviceData_Router->m_sDescription + 
+				sProgress += " (" + pOH_Orbiter->m_pDeviceData_Router->m_sDescription + 
 					") " + StringUtils::itos(Minutes) + " minutes";
 			}
 
-			(*sPendingTasks) += "\n";
-	g_pPlutoLogger->Write(LV_STATUS,"Cannot reboot becaues of %d ",*it);
+			vectPendingTasks->push_back(sProgress);
 		}
 	}
 
