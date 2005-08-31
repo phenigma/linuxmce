@@ -71,11 +71,10 @@ RubyDCEEmbededClass::CallCmdHandler(Message *pMessage) {
 		{
 			pMessage->m_bRespondedToMessage=true;
 			Message *pMessageOut=new Message(pMessage->m_dwPK_Device_To,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
-			char** tmpbuf;
 			if(TYPE(result)==T_ARRAY)
 			{
 				g_pPlutoLogger->Write(LV_STATUS, "Got returnParamArray from Ruby");
-		    	tmpbuf=(char**)calloc(RARRAY(result)->len,sizeof(char*));
+		    	char *tmpbuf[RARRAY(result)->len];
 				for(int i=0;i<RARRAY(result)->len;i++)
 				{
 					VALUE v=RARRAY(result)->ptr[i];
@@ -84,7 +83,8 @@ RubyDCEEmbededClass::CallCmdHandler(Message *pMessage) {
 						switch(this->pcs_->getParamType(i))
 						{
 							case PARAMETERTYPE_string_CONST:
-								pMessageOut->m_mapParameters[i]=STR2CSTR(v);
+								tmpbuf[i]=strdup(STR2CSTR(v));
+								pMessageOut->m_mapParameters[i]=tmpbuf[i];
 								break;
 							case PARAMETERTYPE_int_CONST:
 						    	tmpbuf[i]=(char*)malloc(20);
@@ -95,7 +95,9 @@ RubyDCEEmbededClass::CallCmdHandler(Message *pMessage) {
 								pMessageOut->m_mapParameters[i]=(TYPE(v)==T_TRUE?true:false);
 								break;
 							case PARAMETERTYPE_Data_CONST:
-								pMessageOut->m_mapData_Parameters[i]=RSTRING(v)->ptr;
+							    tmpbuf[i]=(char*)calloc(RSTRING(v)->len,sizeof(char));
+								memcpy(tmpbuf[i],RSTRING(v)->ptr,RSTRING(v)->len);
+								pMessageOut->m_mapData_Parameters[i]=tmpbuf[i];
 								pMessageOut->m_mapData_Lengths[i]=RSTRING(v)->len;
 								break;
 							case PARAMETERTYPE_double_CONST:
@@ -114,16 +116,6 @@ RubyDCEEmbededClass::CallCmdHandler(Message *pMessage) {
 			string sCMD_Result="OK";
 			pMessageOut->m_mapParameters[0]=sCMD_Result;
 			pmanager->SendMessage(pMessageOut);
-			if(TYPE(result)==T_ARRAY)
-			{
-				for(int i=0;i<RARRAY(result)->len;i++)
-				{
-					if(tmpbuf[i])
-						free(tmpbuf[i]);
-				}
-				if(tmpbuf)
-					free(tmpbuf);
-			}
 		}
 	} catch(RubyException e) {
 		g_pPlutoLogger->Write(LV_CRITICAL, (string("Error while calling method: ") + e.getMessage()).c_str());
