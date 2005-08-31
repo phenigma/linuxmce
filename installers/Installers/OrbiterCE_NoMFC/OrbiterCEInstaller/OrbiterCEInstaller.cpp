@@ -10,10 +10,11 @@
 // Global Variables:
 HINSTANCE			hInst;			// The current instance
 HWND				hwndCB;			// The command bar handle
-HWND				g_wndComboBox;
-HWND				g_wndStatus;
-HWND				g_wndInstall;
-HWND				g_wndServerEdit;
+HWND				g_wndStatusStatic;
+HWND				g_wndInstallButton;
+HWND				g_wndQueryButton;
+HWND				g_wndServerComboBox;
+HWND				g_wndFolderComboBox;
 
 bool g_bInstalled;
 
@@ -118,19 +119,19 @@ void ErrorHandler(void)
 	switch(dwErrorCode)
 	{
 		case ERROR_INTERNET_NAME_NOT_RESOLVED: 
-			::SetWindowText(g_wndStatus, TEXT("ERROR: The server name could not be resolved.")); 
+			::SetWindowText(g_wndStatusStatic, TEXT("ERROR: The server name could not be resolved.")); 
 			break;
 
 		case ERROR_INTERNET_TIMEOUT:
-			::SetWindowText(g_wndStatus, TEXT("ERROR: The request has timed out.")); 
+			::SetWindowText(g_wndStatusStatic, TEXT("ERROR: The request has timed out.")); 
 			break;
 
 		default:
-			::SetWindowText(g_wndStatus, TEXT("ERROR: Unknown internet error.")); 
+			::SetWindowText(g_wndStatusStatic, TEXT("ERROR: Unknown internet error.")); 
 			break;
 	}
 
-	::UpdateWindow(g_wndStatus);
+	::UpdateWindow(g_wndStatusStatic);
 }
 
 bool DownloadFile(wchar_t *pUrl, wchar_t *pDestFile)
@@ -162,8 +163,8 @@ bool DownloadFile(wchar_t *pUrl, wchar_t *pDestFile)
 
 			if(!file)
 			{
-				::SetWindowText(g_wndStatus, TEXT("ERROR: Cannot save the file on the specified folder.")); 
-				::UpdateWindow(g_wndStatus);				
+				::SetWindowText(g_wndStatusStatic, TEXT("ERROR: Cannot save the file on the specified folder.")); 
+				::UpdateWindow(g_wndStatusStatic);				
 			}
 			else
 			{
@@ -184,8 +185,8 @@ bool DownloadFile(wchar_t *pUrl, wchar_t *pDestFile)
 					bResult = true;
 				else
 				{
-					::SetWindowText(g_wndStatus, TEXT("ERROR: The specified file wasn't found on the server.")); 
-					::UpdateWindow(g_wndStatus);
+					::SetWindowText(g_wndStatusStatic, TEXT("ERROR: The PC with this ip exists, but it’s not a Pluto core/hybrid.")); 
+					::UpdateWindow(g_wndStatusStatic);
 				}
 			}
 
@@ -218,17 +219,10 @@ bool DownloadFileHelper(wchar_t *wcPath, wchar_t *wcServername, wchar_t *wcUrl, 
 	wcscpy(StatusW, TEXT("Downloading file: "));
 	wcscat(StatusW, DestFileW);
 
-	::SetWindowText(g_wndStatus, StatusW);
-	::UpdateWindow(g_wndStatus);
+	::SetWindowText(g_wndStatusStatic, StatusW);
+	::UpdateWindow(g_wndStatusStatic);
 	if(!DownloadFile(FullUrlW, DestFileW))
-	{
-		//wcscpy(StatusW, TEXT("Failed to download file: "));
-		//wcscat(StatusW, DestFileW);
-
-		//::SetWindowText(g_wndStatus, StatusW);
-		//::UpdateWindow(g_wndStatus);
 		return false;
-	}
 
 	return true;
 }
@@ -236,18 +230,18 @@ bool DownloadFileHelper(wchar_t *wcPath, wchar_t *wcServername, wchar_t *wcUrl, 
 void OnInstall()
 {
 	wchar_t wcPath[MAX_STRING_LEN];
-	GetWindowText(g_wndComboBox, wcPath, MAX_STRING_LEN);
+	GetWindowText(g_wndFolderComboBox, wcPath, MAX_STRING_LEN);
 	wcscat(wcPath, TEXT("/Pluto"));
 
 	wchar_t wcServername[MAX_STRING_LEN];
-	GetWindowText(g_wndServerEdit, wcServername, MAX_STRING_LEN);
+	GetWindowText(g_wndServerComboBox, wcServername, MAX_STRING_LEN);
 	
 	if(!g_bInstalled)
 	{
 		if(!DirectoryExists(wcPath) && !::CreateDirectory(wcPath, NULL))
 		{
-			::SetWindowText(g_wndStatus, TEXT("ERROR: The specified folder is invalid!"));
-			::UpdateWindow(g_wndStatus);
+			::SetWindowText(g_wndStatusStatic, TEXT("ERROR: The specified folder is invalid!"));
+			::UpdateWindow(g_wndStatusStatic);
 			return;
 		}
 
@@ -267,12 +261,12 @@ void OnInstall()
 
 		if(bResult)
 		{
-			::SetWindowText(g_wndInstall, TEXT("Run"));
-			::SetWindowText(g_wndStatus, TEXT("Installation completed successfully! Press 'Run' to start Orbiter."));
-			::UpdateWindow(g_wndStatus);
+			::SetWindowText(g_wndInstallButton, TEXT("Run"));
+			::SetWindowText(g_wndStatusStatic, TEXT("Installation completed successfully! Press 'Run' to start Orbiter."));
+			::UpdateWindow(g_wndStatusStatic);
+			g_bInstalled = true;
+			::UpdateWindow(g_wndInstallButton);
 		}
-
-		g_bInstalled = true;
 	}
 	else
 	{
@@ -290,6 +284,116 @@ void OnInstall()
 	}
 }
 
+bool IsCoreAddress(TCHAR *wcServername)
+{
+	wchar_t FullUrlW[MAX_STRING_LEN];
+	wcscpy(FullUrlW, TEXT("http://"));
+	wcscat(FullUrlW, wcServername);
+	wcscat(FullUrlW, TEXT("/pluto-admin/fdownload.php?filepath=bin/OrbiterCE.exe")); //for testing
+	
+	bool bResult = false;
+	HINTERNET hInternet = InternetOpen(TEXT("Pluto OrbiterCE Installer"), INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
+
+	if(hInternet)
+	{
+	    TCHAR canonicalURL[1024];
+	    DWORD nSize = 1024;
+	    InternetCanonicalizeUrl(FullUrlW, canonicalURL, &nSize, ICU_BROWSER_MODE);
+
+	    DWORD options = INTERNET_FLAG_NEED_FILE|INTERNET_FLAG_HYPERLINK|
+					   INTERNET_FLAG_RESYNCHRONIZE|INTERNET_FLAG_RELOAD;
+
+		HINTERNET hFile = InternetOpenUrl(hInternet, canonicalURL, NULL, NULL, options, 0);
+			
+		if(hFile)
+		{
+			CHAR buffer[1024];
+			::ZeroMemory(buffer, sizeof(buffer));
+
+			DWORD dwRead = 0;
+			InternetReadFile(hFile, buffer, 1023, &dwRead);
+
+			if(dwRead)
+				bResult = true;
+
+			InternetCloseHandle(hFile);
+		}
+	}
+	
+	InternetCloseHandle(hInternet);
+	return bResult;	
+}
+
+void OnQuery()
+{
+	::SetWindowText(g_wndStatusStatic, TEXT("Searching the router, please wait...")); 
+	::UpdateWindow(g_wndStatusStatic);
+
+	TCHAR *Addresses[] = 
+	{
+		TEXT("dcerouter"),
+		TEXT("192.168.80.1")
+	};
+
+	int nCount = sizeof(Addresses)/sizeof(TCHAR *);
+	int nFirstGood = -1;
+	for(int i = 0; i < nCount; i++)
+	{
+		if(IsCoreAddress(Addresses[i]))
+		{
+			::SendMessage(g_wndServerComboBox, CB_ADDSTRING, 0, (long)Addresses[i]);
+
+			if(-1 == nFirstGood)
+				nFirstGood = i;
+		}
+	}
+
+	if(-1 != nFirstGood)
+	{
+		SetWindowText(g_wndServerComboBox, Addresses[nFirstGood]);
+		::SetWindowText(g_wndStatusStatic, TEXT("Choose an address from the dropdown for the router and press 'Install'"));
+	}
+	else
+	{
+		//no core found
+		::SetWindowText(g_wndStatusStatic, TEXT("Unable to determine the router's address. Please write the router's ip.")); 
+		::SendMessage(g_wndServerComboBox, CB_ADDSTRING, 0, (long)TEXT("(no address)"));
+		SetWindowText(g_wndServerComboBox, TEXT("(no address)"));
+		::EnableWindow(g_wndQueryButton, false);
+		//TODO: disable "Search"
+	}
+
+	::UpdateWindow(g_wndStatusStatic);
+}
+
+void FillDestinationFolders()
+{
+	TCHAR *Folders[] = 
+	{
+		TEXT("/Program Files"),
+		TEXT("/Storage Card"),
+		TEXT("/Built-in Storage"),
+		TEXT("/Internal Storage"),
+		TEXT("/Programs"),
+		TEXT("/My Documents")
+	};
+
+	int nCount = sizeof(Folders)/sizeof(TCHAR *);
+	int nFirstGood = -1;
+	for(int i = 0; i < nCount; i++)
+	{
+		if(DirectoryExists(Folders[i]))
+		{
+			::SendMessage(g_wndFolderComboBox, CB_ADDSTRING, 0, (long)Folders[i]);
+
+			if(-1 == nFirstGood)
+				nFirstGood = i;
+		}
+	}
+
+	if(-1 != nFirstGood)
+		SetWindowText(g_wndFolderComboBox, Folders[nFirstGood]);
+}
 
 int WINAPI WinMain(	HINSTANCE hInstance,
 					HINSTANCE hPrevInstance,
@@ -391,35 +495,6 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	return TRUE;
 }
 
-void FillDestinationFolders()
-{
-	TCHAR *Folders[] = 
-	{
-		TEXT("/Program Files"),
-		TEXT("/Storage Card"),
-		TEXT("/Built-in Storage"),
-		TEXT("/Internal Storage"),
-		TEXT("/Programs"),
-		TEXT("/My Documents")
-	};
-
-	int nCount = sizeof(Folders)/sizeof(TCHAR *);
-	int nFirstGood = -1;
-	for(int i = 0; i < nCount; i++)
-	{
-		if(DirectoryExists(Folders[i]))
-		{
-			::SendMessage(g_wndComboBox, CB_ADDSTRING, 0, (long)Folders[i]);
-
-			if(-1 == nFirstGood)
-				nFirstGood = i;
-		}
-	}
-
-	if(-1 != nFirstGood)
-		SetWindowText(g_wndComboBox, Folders[nFirstGood]);
-}
-
 //
 //  FUNCTION: WndProc(HWND, unsigned, WORD, LONG)
 //
@@ -446,8 +521,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			{
 			case BN_CLICKED:
 				{
-					if(lParam == (LPARAM)g_wndInstall)
+					if(lParam == (LPARAM)g_wndInstallButton)
 						OnInstall();
+
+					if(lParam == (LPARAM)g_wndQueryButton)
+						OnQuery();
 
 					break;
 				}
@@ -476,14 +554,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			GetClientRect(hWnd, &rt);
 
 			CreateLabel(hWnd, 10, 30, WND_WIDTH - 80, 18, "Core IP address or name:");	
-			g_wndServerEdit = CreateEdit(hWnd, 10, 50,  WND_WIDTH - 80, "dcerouter", false, false);
+			g_wndServerComboBox = CreateComboBox(hWnd, 10, 50,  WND_WIDTH - 80, 70);
+			::SendMessage(g_wndServerComboBox, CB_SETDROPPEDWIDTH, 50, 0); 
+
+			g_wndQueryButton = CreateButton(hWnd, WND_WIDTH - 65, 50, "Search");
 
 			CreateLabel(hWnd, 10, 75, WND_WIDTH - 80, 18, "Destination folder:");	
-			g_wndComboBox = CreateComboBox(hWnd, 10, 95, WND_WIDTH - 80, 70);
-			::SendMessage(g_wndComboBox, CB_SETDROPPEDWIDTH, 50, 0); 
+			g_wndFolderComboBox = CreateComboBox(hWnd, 10, 95, WND_WIDTH - 80, 70);
+			::SendMessage(g_wndFolderComboBox, CB_SETDROPPEDWIDTH, 50, 0); 
 
-			g_wndStatus = CreateLabel(hWnd, 0, WND_HEIGHT - 30, WND_WIDTH, 30, "Please enter the path where you would like to install Orbiter.");	
-			g_wndInstall = CreateButton(hWnd, WND_WIDTH - 65, 95, "Install");
+			g_wndStatusStatic = CreateLabel(hWnd, 0, WND_HEIGHT - 30, WND_WIDTH, 30, 
+				"Press 'Search' to automatically find the router.");	
+			g_wndInstallButton = CreateButton(hWnd, WND_WIDTH - 65, 95, "Install");
 
 			FillDestinationFolders();
 
