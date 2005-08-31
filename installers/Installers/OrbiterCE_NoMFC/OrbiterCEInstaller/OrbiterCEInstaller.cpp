@@ -560,6 +560,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				   break;
 				case IDM_FILE_EXIT:
 				   DestroyWindow(hWnd);
+				   exit(0);
 				   break;
 				default:
 				   return DefWindowProc(hWnd, message, wParam, lParam);
@@ -582,8 +583,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			g_wndFolderComboBox = CreateComboBox(hWnd, 10, 95, WND_WIDTH - 80, 70);
 			::SendMessage(g_wndFolderComboBox, CB_SETDROPPEDWIDTH, 50, 0); 
 
-			g_wndStatusStatic = CreateLabel(hWnd, 0, WND_HEIGHT - 30, WND_WIDTH, 30, 
-				"Press 'Search' to automatically find the router.");	
+			g_wndStatusStatic = CreateLabel(hWnd, 0, WND_HEIGHT - 30, WND_WIDTH, 30, "Starting scanning...");	
 			g_wndInstallButton = CreateButton(hWnd, WND_WIDTH - 65, 95, "Install");
 
 			FillDestinationFolders();
@@ -605,10 +605,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				}
 			}
 			break;
+
 		case WM_DESTROY:
 			CommandBar_Destroy(hwndCB);
 			PostQuitMessage(0);
-			exit(0);
+			//exit(0);
 			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
