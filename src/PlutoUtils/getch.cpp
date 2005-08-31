@@ -17,7 +17,6 @@
 #ifdef WIN32
 #include <conio.h>
 #else
-#include <stdio.h>
 #include <termios.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
@@ -27,11 +26,13 @@
 #include <iostream>
 using namespace std;
 
-int THE_getch(bool echo,int iTimeoutInSeconds) // :P
+int THE_getch(bool echo, struct timeval * timeout) // :P
 {
 	struct termios ts;
 	struct termios new_ts;
 	char c;
+	fd_set fdset;
+	size_t bytes;
 	
 	fflush(stdout);
 	
@@ -42,10 +43,14 @@ int THE_getch(bool echo,int iTimeoutInSeconds) // :P
 		new_ts.c_lflag &= !ECHO;
 	ioctl(0, TCSETS, &new_ts);
 
-	size_t bytes;
+	c = 0;
 	do
 	{
-		bytes = read(0, &c, 1);
+		FD_ZERO(&fdset);
+		FD_SET(0, &fdset);
+		bytes = 0;
+		if (select(1, &fdset, NULL, NULL, timeout) > 0)
+			bytes = read(0, &c, 1);
 	} while (/*bytes == 0 ||*/ c == '\r');
 
 //	while ((c = getchar()) == '\r') {}
@@ -59,13 +64,28 @@ int THE_getch(bool echo,int iTimeoutInSeconds) // :P
 	return c;
 }
 
-int getch(int iTimeoutInSeconds)
+int getch()
 {
-	return THE_getch(false,iTimeoutInSeconds);
+	return THE_getch(false, NULL);
 }
 
-int getche(int iTimeoutInSeconds)
+int getche()
 {
-	return THE_getch(true,iTimeoutInSeconds);
+	return THE_getch(true, NULL);
+}
+
+// extentions:
+// getch and getche with timeout
+// return: -1 on timeout, key code on received key
+int getch_timeout(int seconds)
+{
+	struct timeval timeout = {seconds, 0};
+	return THE_getch(false, &timeout);
+}
+
+int getche_timeout(int seconds)
+{
+	struct timeval timeout = {seconds, 0};
+	return THE_getch(true, &timeout);
 }
 #endif
