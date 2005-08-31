@@ -3886,9 +3886,8 @@ function getMediaTypeCheckboxes($dtID,$publicADO,$mediaADO,$deviceID)
 
 // extract codes and put them in a multi dimensional array
 function extractCodesTree($infraredGroupID,$dbADO,$restriction=''){
-	global $inputCommandsArray, $dspmodeCommandsArray;
+	global $inputCommandsArray, $dspmodeCommandsArray,$powerCommands;
 	$installationID=(int)$_SESSION['installationID'];
-	$GLOBALS['igcPrefered']=getAssocArray('InfraredGroup_Command_Preferred','FK_Command','FK_InfraredGroup_Command',$dbADO,' INNER JOIN InfraredGroup_Command ON FK_InfraredGroup_Command=PK_InfraredGroup_Command WHERE InfraredGroup_Command_Preferred.FK_Installation='.$installationID.(((int)$infraredGroupID!=0)?' AND FK_InfraredGroup='.$infraredGroupID:''));
 
 	$userID=(int)@$_SESSION['userID'];
 	$codesQuery='
@@ -3937,14 +3936,32 @@ function extractCodesTree($infraredGroupID,$dbADO,$restriction=''){
 		if(in_array($row['FK_Command'],array_keys($dspmodeCommandsArray))){
 			unset ($dspmodeCommandsArray[$row['FK_Command']]);
 		}
+		
+		// remove power commands from power commands array if they are implemented
+		if(in_array($row['FK_Command'],array_keys($powerCommands))){
+			unset ($powerCommands[$row['FK_Command']]);
+		}
 	}
-
+	$GLOBALS['igcPrefered']=getPreferredIRGC($installationID,$infraredGroupID,$dbADO);
+	
 	return $codesArray;
+}
+
+function getPreferredIRGC($installationID,$infraredGroupID,$dbADO){
+	$preferred=getFieldsAsArray('InfraredGroup_Command_Preferred','FK_Command,FK_InfraredGroup_Command',$dbADO,' INNER JOIN InfraredGroup_Command ON FK_InfraredGroup_Command=PK_InfraredGroup_Command WHERE InfraredGroup_Command_Preferred.FK_Installation='.$installationID.(((int)$infraredGroupID!=0)?' AND FK_InfraredGroup='.$infraredGroupID:''));	
+	$preferredByCategory=array();
+	for($i=0;$i<count(@$preferred['FK_Command']);$i++){
+		// only the preferred which I display are used
+		if(in_array($preferred['FK_InfraredGroup_Command'][$i],$GLOBALS['displayedIRGC']))
+			$preferredByCategory[$preferred['FK_Command'][$i]][]=$preferred['FK_InfraredGroup_Command'][$i];
+	}
+	
+	return $preferredByCategory;
 }
 
 // parse the multidimensiona array with codes and return html code for table rows
 function getCodesTableRows($section,$infraredGroupID,$dtID,$deviceID,$codesArray,$togglePower,$toggleInput,$toggleDSP){
-	global $inputCommandsArray, $dspmodeCommandsArray;
+	global $inputCommandsArray, $dspmodeCommandsArray,$powerCommands;
 	//print_array($codesArray);
 	$categNames=array_keys($codesArray);
 	if(!in_array('Inputs',$categNames)){
@@ -3962,9 +3979,17 @@ function getCodesTableRows($section,$infraredGroupID,$dtID,$deviceID,$codesArray
 					<fieldset style="width:98%">
 						<legend><B>'.$categNames[$i].'</B></legend>';
 		if($categNames[$i]=='Power'){
-			if($togglePower==1 && !in_array(194,$codesArray['Power']['FK_Command'])){
-				$out.='Toggle power not implemented: ';
-				$out.='<b><a href="javascript:windowOpen(\'index.php?section=newIRCode&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID=194&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');">Click to add</a>';
+			if($togglePower==1){
+				if(!in_array(194,$codesArray['Power']['FK_Command'])){
+					$out.='Toggle power not implemented: ';
+					$out.='<b><a href="javascript:windowOpen(\'index.php?section=newIRCode&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID=194&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');">Click to add</a>';
+				}
+			}elseif(count($powerCommands)>0){
+				$out.='Power commands not implemented: ';
+				foreach ($powerCommands AS $inputId=>$inputName){
+					$powerCommands[$inputId]='<a href="javascript:windowOpen(\'index.php?section=newIRCode&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$inputId.'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');">'.$inputName.'</a>';
+				}
+				$out.='<b>'.join(', ',$powerCommands).'</b> <em>(Click to add)</em>';
 			}
 		}
 				
@@ -3978,7 +4003,7 @@ function getCodesTableRows($section,$infraredGroupID,$dtID,$deviceID,$codesArray
 			}elseif(count($inputCommandsArray)>0){
 				$out.='Input commands not implemented: ';
 				foreach ($inputCommandsArray AS $inputId=>$inputName){
-					$inputCommandsArray[$inputId]='<a href="javascript:windowOpen(\'index.php?section=newIRCode&deviceID=0&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$inputId.'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');">'.$inputName.'</a>';
+					$inputCommandsArray[$inputId]='<a href="javascript:windowOpen(\'index.php?section=newIRCode&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$inputId.'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');">'.$inputName.'</a>';
 				}
 				$out.='<b>'.join(', ',$inputCommandsArray).'</b> <em>(Click to add)</em>';
 			}
@@ -4032,7 +4057,7 @@ function formatCode($section,$dataArray,$pos,$infraredGroupID,$dtID,$deviceID){
 		<table width="100%">
 			<tr bgcolor="'.$RowColor.'">
 				<td align="center" width="100"><B>'.$dataArray['Description'][$pos].'</B> <br><input type="button" class="button" name="learnCode" value="New code" onClick="windowOpen(\'index.php?section='.(($section=='rubyCodes')?'newRubyCode':'newIRCode').'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$dataArray['FK_Command'][$pos].'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');" '.((!isset($_SESSION['userID']))?'disabled':'').'></td>
-				<td align="center" width="20"><input type="radio" name="prefered_'.$dataArray['FK_Command'][$pos].'" value="'.$pos.'" '.(($pos==@$GLOBALS['igcPrefered'][$dataArray['FK_Command'][$pos]])?'checked':'').'></td>
+				<td align="center" width="20"><input type="radio" name="prefered_'.$dataArray['FK_Command'][$pos].'" value="'.$pos.'" '.((@in_array($pos,@$GLOBALS['igcPrefered'][$dataArray['FK_Command'][$pos]]))?'checked':'').'></td>
 				<td><textarea name="irData_'.$pos.'" rows="2" style="width:100%">'.$dataArray['IRData'][$pos].'</textarea></td>
 				<td align="center" width="100">'.$deleteButton.' <br> <input type="button" class="button" name="testCode" value="Test code" onClick="frames[\'codeTester\'].location=\'index.php?section=testCode&irgcID='.$pos.'&deviceID='.$deviceID.'\';"> <a name="test_'.$pos.'"></td>
 			</tr>

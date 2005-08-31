@@ -85,7 +85,7 @@
 	$GLOBALS['DSPModeCommand']=116;					// DSP Mode
 	$GLOBALS['genericONCommand']=192;				// Generic On
 	$GLOBALS['genericOFFCommand']=193;				// Generic OFF
-	$GLOBALS['powerCommand']=194;					// Generic OFF
+	$GLOBALS['powerCommand']=194;					// toggle power
 	$GLOBALS['genericSetLevelCommand']=184;			// Set Level
 	$GLOBALS['genericHeatCommand']=197;				// Generic Heat
 	$GLOBALS['genericCoolCommand']=196;				// Generic Cool

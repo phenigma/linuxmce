@@ -8,7 +8,7 @@ function irCodes($output,$dbADO,$mediaADO) {
 
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
-	global $inputCommandsArray, $dspmodeCommandsArray;
+	global $inputCommandsArray, $dspmodeCommandsArray,$powerCommands;
 	
 	$out='';
 //	$dbADO->debug=true;;
@@ -114,6 +114,7 @@ function irCodes($output,$dbADO,$mediaADO) {
 
 		$inputCommandsArray=getAssocArray('Command','PK_Command','Command.Description',$dbADO,'INNER JOIN DeviceTemplate_Input ON FK_Command=PK_Command WHERE FK_DeviceTemplate='.$dtID,'ORDER BY Command.Description ASC');
 		$dspmodeCommandsArray=getAssocArray('Command','PK_Command','Command.Description',$dbADO,'INNER JOIN DeviceTemplate_DSPMode ON FK_Command=PK_Command WHERE FK_DeviceTemplate='.$dtID,'ORDER BY Command.Description ASC');
+		$powerCommands=array($GLOBALS['genericONCommand']=>'ON',$GLOBALS['genericOFFCommand']=>'OFF');
 		
 		$out.='
 		<input type="hidden" name="oldIRGroup" value="'.@$infraredGroupID.'">
@@ -189,6 +190,7 @@ function irCodes($output,$dbADO,$mediaADO) {
 				<td colspan="3" align="center"><input type="submit" class="button" name="update" value="Update" '.((!isset($_SESSION['userID']))?'disabled':'').'></td>
 			</tr>
 	';
+
 		$out.='
 		</table>
 			<input type="hidden" name="igcPrefered" value="'.urlencode(serialize($GLOBALS['igcPrefered'])).'">		
@@ -285,14 +287,16 @@ function irCodes($output,$dbADO,$mediaADO) {
 
 			$commandsDisplayed=array_unique(explode(',',$_POST['displayedCommands']));
 			$GLOBALS['igcPrefered']=unserialize(urldecode($_POST['igcPrefered']));
+
 			foreach ($commandsDisplayed AS $commandID){
 				$preferredCommand=(int)@$_POST['prefered_'.$commandID];
 				if($preferredCommand>0){
-					if(isset($GLOBALS['igcPrefered'][$commandID]) && $GLOBALS['igcPrefered'][$commandID]!=$preferredCommand){
-						$dbADO->Execute('UPDATE InfraredGroup_Command_Preferred SET FK_InfraredGroup_Command=? WHERE FK_InfraredGroup_Command=? AND FK_Installation=?',array($preferredCommand,$GLOBALS['igcPrefered'][$commandID],$installationID));
-					}elseif(!isset($GLOBALS['igcPrefered'][$commandID])){
-						$dbADO->Execute('INSERT IGNORE INTO InfraredGroup_Command_Preferred (FK_InfraredGroup_Command,FK_Installation) VALUES (?,?)',array($preferredCommand,$installationID));
+					if(isset($GLOBALS['igcPrefered'][$commandID])){
+						foreach ($GLOBALS['igcPrefered'][$commandID] AS $pos=>$key){
+							$dbADO->Execute('DELETE FROM InfraredGroup_Command_Preferred WHERE FK_InfraredGroup_Command=? AND FK_Installation=?',array($key,$installationID));
+						}
 					}
+					$dbADO->Execute('INSERT INTO InfraredGroup_Command_Preferred (FK_InfraredGroup_Command,FK_Installation) VALUES (?,?)',array($preferredCommand,$installationID));
 				}
 			}
 			
