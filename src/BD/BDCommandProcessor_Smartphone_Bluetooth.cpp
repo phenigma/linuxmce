@@ -62,6 +62,9 @@ void *ServerThread(void *p)
 		SOCKADDR_BTH sab;
 		int ilen = sizeof(sab);
 
+		Sleep(5000);
+		OrbiterApp::GetInstance()->Hide();
+
 		pBDCommandProcessor->m_ClientSocket = accept(pBDCommandProcessor->m_ServerSocket, (SOCKADDR *)&sab, &ilen);
 		if (pBDCommandProcessor->m_ClientSocket == INVALID_SOCKET) 
 		{

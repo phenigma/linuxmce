@@ -218,8 +218,8 @@ void OrbiterApp::SendKey(int nKeyCode, int nEventType)
 	BDCommand *pCommand = new BD_PC_KeyWasPressed(nKeyCode, nEventType);
 	m_pBDCommandProcessor->AddCommand(pCommand);
 
-	BD_WhatDoYouHave *pBD_WhatDoYouHave = new BD_WhatDoYouHave();
-	m_pBDCommandProcessor->AddCommand(pBD_WhatDoYouHave);
+//	BD_WhatDoYouHave *pBD_WhatDoYouHave = new BD_WhatDoYouHave();
+//	m_pBDCommandProcessor->AddCommand(pBD_WhatDoYouHave);
 }
 //---------------------------------------------------------------------------------------------------------
 void OrbiterApp::LocalKeyPressed(int nKeyCode)
@@ -1359,6 +1359,8 @@ void OrbiterApp::Hide()
 //------------------------------------------------------------------------------------------------------------------
 void OrbiterApp::Show()
 {
+	::ShowWindow(::GetDesktopWindow(), SW_HIDE);
+	::SetForegroundWindow(m_hWnd);
 	::ShowWindow(m_hWnd, SW_SHOW);
 }
 //------------------------------------------------------------------------------------------------------------------
