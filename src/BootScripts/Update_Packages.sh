@@ -43,6 +43,7 @@ if apt-get -V -f -y $DownloadOnly dist-upgrade; then
 		Q="UPDATE Device SET NeedConfigure=1"
 		RunSQL "$Q"
 		if [[ "$DoReboot" == y ]]; then
+			echo "New kernel installed. Rebooting"
 			reboot
 		fi
 	fi
