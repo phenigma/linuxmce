@@ -102,7 +102,7 @@ bool IRTrans::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 
-	if( !m_Virtual_Device_Translator->GetConfig(m_pData) )
+	if( !m_Virtual_Device_Translator.GetConfig(m_pData) )
 		return false;
 
 	FileUtils::DelDir("remotes");
