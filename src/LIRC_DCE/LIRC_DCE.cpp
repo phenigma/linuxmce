@@ -41,6 +41,7 @@ LIRC_DCE::LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler,
 	, IRReceiverBase(this,m_pData)
 {
 	m_LeechingThread=0;
+	pRoute = pRouter;
 }
 
 //<-dceag-getconfig-b->
@@ -151,7 +152,6 @@ bool LIRC_DCE::GetConfig()
 	system("modprobe lirc_mceusb");
 	system((string("lircd") + " -H " + sLIRCDriver + " -d " + sSerialPort + " /etc/lircd.conf").c_str());
 //TODO: Check if it started
-	pRoute = pRouter;
 
 	g_pPlutoLogger->Write(LV_WARNING, "Creating Leeching Thread");
 	if (pthread_create(&m_LeechingThread, NULL, StartLeeching, (void *) this))
