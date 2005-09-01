@@ -102,7 +102,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		Media_Plugin *pMedia_Plugin = new Media_Plugin(PK_Device, "localhost",true,false,pRouter);
-		if( pMedia_Plugin->m_bQuit )
+		if( pMedia_Plugin->m_bQuit || !pMedia_Plugin->GetConfig() )
 		{
 			delete pMedia_Plugin;
 			return NULL;
@@ -204,8 +204,8 @@ int main(int argc, char* argv[])
 	bool bReload=false;
 	try
 	{
-		Media_Plugin *pMedia_Plugin = new Media_Plugin(PK_Device, sRouter_IP);	
-		if ( pMedia_Plugin->Connect(pMedia_Plugin->PK_DeviceTemplate_get()) ) 
+		Media_Plugin *pMedia_Plugin = new Media_Plugin(PK_Device, sRouter_IP);
+		if ( pMedia_Plugin->GetConfig() && pMedia_Plugin->Connect(pMedia_Plugin->PK_DeviceTemplate_get()) ) 
 		{
 			g_pCommand_Impl=pMedia_Plugin;
 			g_pDeadlockHandler=DeadlockHandler;

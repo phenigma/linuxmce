@@ -102,7 +102,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		Lighting_Plugin *pLighting_Plugin = new Lighting_Plugin(PK_Device, "localhost",true,false,pRouter);
-		if( pLighting_Plugin->m_bQuit )
+		if( pLighting_Plugin->m_bQuit || !pLighting_Plugin->GetConfig() )
 		{
 			delete pLighting_Plugin;
 			return NULL;
@@ -204,8 +204,8 @@ int main(int argc, char* argv[])
 	bool bReload=false;
 	try
 	{
-		Lighting_Plugin *pLighting_Plugin = new Lighting_Plugin(PK_Device, sRouter_IP);	
-		if ( pLighting_Plugin->Connect(pLighting_Plugin->PK_DeviceTemplate_get()) ) 
+		Lighting_Plugin *pLighting_Plugin = new Lighting_Plugin(PK_Device, sRouter_IP);
+		if ( pLighting_Plugin->GetConfig() && pLighting_Plugin->Connect(pLighting_Plugin->PK_DeviceTemplate_get()) ) 
 		{
 			g_pCommand_Impl=pLighting_Plugin;
 			g_pDeadlockHandler=DeadlockHandler;

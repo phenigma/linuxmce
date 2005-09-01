@@ -39,6 +39,16 @@ Generic_Serial_Device::Generic_Serial_Device(int DeviceID, string ServerAddress,
 	: Generic_Serial_Device_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
+	m_pdbPlutoMain = NULL;
+}
+
+//<-dceag-getconfig-b->
+bool Generic_Serial_Device::GetConfig()
+{
+	if( !Generic_Serial_Device_Command::GetConfig() )
+		return false;
+//<-dceag-getconfig-e->
+
 	DCEConfig dceconf;
 
 	m_pdbPlutoMain = new Database_pluto_main();
@@ -46,7 +56,7 @@ Generic_Serial_Device::Generic_Serial_Device(int DeviceID, string ServerAddress,
 									dceconf.m_sDBName,dceconf.m_iDBPort) )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot connect to database!");
-		return;
+		return false;
 	}
 	g_pPlutoLogger->Write(LV_STATUS, "Successfully connected to database!");
 	
@@ -55,6 +65,7 @@ Generic_Serial_Device::Generic_Serial_Device(int DeviceID, string ServerAddress,
 	pmanager->setEventDispatcher(GetEvents());
 	
 	GSDMessageProcessor::setCommandImpl(this);
+	return true;
 }
 
 //<-dceag-const2-b->!
@@ -186,3 +197,150 @@ void Generic_Serial_Device::ParseDeviceHierarchy(DeviceData_Impl *pdevdata) {
 						pdevdata->m_dwPK_Device);
 	}
 }
+//<-dceag-c63-b->
+
+	/** @brief COMMAND: #63 - Skip Fwd - Channel/Track Greater */
+	/** The "seek" variant which scans and stops on valid stations. */
+
+void Generic_Serial_Device::CMD_Skip_Fwd_ChannelTrack_Greater(string &sCMD_Result,Message *pMessage)
+//<-dceag-c63-e->
+{
+}
+//<-dceag-c64-b->
+
+	/** @brief COMMAND: #64 - Skip Back - Channel/Track Lower */
+	/** The "seek" variant which scans and stops on valid stations. */
+
+void Generic_Serial_Device::CMD_Skip_Back_ChannelTrack_Lower(string &sCMD_Result,Message *pMessage)
+//<-dceag-c64-e->
+{
+}
+//<-dceag-c89-b->
+
+	/** @brief COMMAND: #89 - Vol Up */
+	/**  */
+		/** @param #72 Repeat Command */
+			/** If specified, repeat the volume up this many times */
+
+void Generic_Serial_Device::CMD_Vol_Up(int iRepeat_Command,string &sCMD_Result,Message *pMessage)
+//<-dceag-c89-e->
+{
+}
+//<-dceag-c90-b->
+
+	/** @brief COMMAND: #90 - Vol Down */
+	/**  */
+		/** @param #72 Repeat Command */
+			/** If specified, repeat the volume down this many times. */
+
+void Generic_Serial_Device::CMD_Vol_Down(int iRepeat_Command,string &sCMD_Result,Message *pMessage)
+//<-dceag-c90-e->
+{
+}
+//<-dceag-c93-b->
+
+	/** @brief COMMAND: #93 - Scan Fwd/Fast Fwd */
+	/** The "fine tune" command which increases the frequency 1 notch a time regardless of signal strength. */
+
+void Generic_Serial_Device::CMD_Scan_FwdFast_Fwd(string &sCMD_Result,Message *pMessage)
+//<-dceag-c93-e->
+{
+}
+//<-dceag-c97-b->
+
+	/** @brief COMMAND: #97 - Mute */
+	/**  */
+
+void Generic_Serial_Device::CMD_Mute(string &sCMD_Result,Message *pMessage)
+//<-dceag-c97-e->
+{
+}
+
+//<-dceag-c125-b->
+
+	/** @brief COMMAND: #125 - Scan Back/Rewind */
+	/** The "fine tune" command which decreases the frequency 1 notch a time regardless of signal strength. */
+
+void Generic_Serial_Device::CMD_Scan_BackRewind(string &sCMD_Result,Message *pMessage)
+//<-dceag-c125-e->
+{
+}
+//<-dceag-c192-b->
+
+	/** @brief COMMAND: #192 - On */
+	/**  */
+		/** @param #97 PK_Pipe */
+			/** Normally when a device is turned on all the inputs and outputs are selected automatically.  If this parameter is specified, only the settings along this pipe will be set. */
+		/** @param #98 PK_Device_Pipes */
+			/** Normally when a device is turned on the corresponding "pipes" are enabled by default. if this parameter is blank.  If this parameter is 0, no pipes will be enabled.  This can also be a comma seperated list of devices, meaning only the pipes to those devic */
+
+void Generic_Serial_Device::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,Message *pMessage)
+//<-dceag-c192-e->
+{
+}
+//<-dceag-c193-b->
+
+	/** @brief COMMAND: #193 - Off */
+	/**  */
+		/** @param #97 PK_Pipe */
+			/** Normally when a device is turned on all the inputs and outputs are selected automatically.  If this parameter is specified, only the settings along this pipe will be set. */
+
+void Generic_Serial_Device::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
+//<-dceag-c193-e->
+{
+}
+//<-dceag-c350-b->
+
+	/** @brief COMMAND: #350 - Process Incoming Data */
+	/** This Internal command is sent to Ruby interpreter when data is availabe on input. Is used only in Generic Serial Devices. */
+
+void Generic_Serial_Device::CMD_Process_Incoming_Data(string &sCMD_Result,Message *pMessage)
+//<-dceag-c350-e->
+{
+}
+//<-dceag-c351-b->
+
+	/** @brief COMMAND: #351 - Process IDLE */
+	/** This Internal command is sent to Ruby interpreter when it is in IDLE state. */
+
+void Generic_Serial_Device::CMD_Process_IDLE(string &sCMD_Result,Message *pMessage)
+//<-dceag-c351-e->
+{
+}
+//<-dceag-c355-b->
+
+	/** @brief COMMAND: #355 - Process Initialize */
+	/** This Internal command is sent to Ruby interpreter when initialize occurs. */
+
+void Generic_Serial_Device::CMD_Process_Initialize(string &sCMD_Result,Message *pMessage)
+//<-dceag-c355-e->
+{
+}
+//<-dceag-c356-b->
+
+	/** @brief COMMAND: #356 - Process Release */
+	/** This Internal command is sent to Ruby interpreter when release occurs. */
+
+void Generic_Serial_Device::CMD_Process_Release(string &sCMD_Result,Message *pMessage)
+//<-dceag-c356-e->
+{
+}
+//<-dceag-c373-b->
+
+	/** @brief COMMAND: #373 - Private Method Listing */
+	/** Used for ruby code mapping where user can add several private helper members. */
+
+void Generic_Serial_Device::CMD_Private_Method_Listing(string &sCMD_Result,Message *pMessage)
+//<-dceag-c373-e->
+{
+}
+//<-dceag-c384-b->
+
+	/** @brief COMMAND: #384 - Process Receive Command For Child */
+	/** Method that will be called when command arrives for child device */
+
+void Generic_Serial_Device::CMD_Process_Receive_Command_For_Child(string &sCMD_Result,Message *pMessage)
+//<-dceag-c384-e->
+{
+}
+

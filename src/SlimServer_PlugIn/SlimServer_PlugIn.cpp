@@ -22,6 +22,14 @@ SlimServer_PlugIn::SlimServer_PlugIn(int DeviceID, string ServerAddress,bool bCo
 {
 }
 
+//<-dceag-getconfig-b->
+bool SlimServer_PlugIn::GetConfig()
+{
+	if( !SlimServer_PlugIn_Command::GetConfig() )
+		return false;
+//<-dceag-getconfig-e->
+}
+
 //<-dceag-const2-b->
 // The constructor when the class is created as an embedded instance within another stand-alone device
 SlimServer_PlugIn::SlimServer_PlugIn(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)

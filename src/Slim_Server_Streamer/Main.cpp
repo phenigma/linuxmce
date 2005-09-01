@@ -9,9 +9,9 @@
 
 // In source files stored in archives and packages, these 2 lines will have the release version (build)
 // and the svn revision as a global variable that can be inspected within a core dump
-#define  VERSION "2.0.0.27.05080622"
-const char *g_szCompile_Date="Sun Aug  7 08:11:40 2005";
-int g_SvnRevision=4478;
+#define  VERSION "<=version=>"
+const char *g_szCompile_Date="<=compile_date=>";
+/*SVN_REVISION*/
 
 namespace DCE
 {
@@ -73,7 +73,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		Slim_Server_Streamer *pSlim_Server_Streamer = new Slim_Server_Streamer(PK_Device, "localhost",true,false,pRouter);
-		if( pSlim_Server_Streamer->m_bQuit )
+		if( pSlim_Server_Streamer->m_bQuit || !pSlim_Server_Streamer->GetConfig() )
 		{
 			delete pSlim_Server_Streamer;
 			return NULL;
@@ -175,8 +175,8 @@ int main(int argc, char* argv[])
 	bool bReload=false;
 	try
 	{
-		Slim_Server_Streamer *pSlim_Server_Streamer = new Slim_Server_Streamer(PK_Device, sRouter_IP);	
-		if ( pSlim_Server_Streamer->Connect(pSlim_Server_Streamer->PK_DeviceTemplate_get()) ) 
+		Slim_Server_Streamer *pSlim_Server_Streamer = new Slim_Server_Streamer(PK_Device, sRouter_IP);
+		if ( pSlim_Server_Streamer->GetConfig() && pSlim_Server_Streamer->Connect(pSlim_Server_Streamer->PK_DeviceTemplate_get()) ) 
 		{
 			g_pCommand_Impl=pSlim_Server_Streamer;
 			g_pDeadlockHandler=DeadlockHandler;

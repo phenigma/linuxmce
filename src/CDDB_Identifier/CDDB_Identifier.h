@@ -24,6 +24,7 @@ public:
 		// Constructors/Destructor
 		CDDB_Identifier(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
 		virtual ~CDDB_Identifier();
+		virtual bool GetConfig();
 		virtual bool Register();
 		virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage);
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
@@ -43,9 +44,10 @@ public:
 
 	/*
 			*****DATA***** accessors inherited from base class
+	int DATA_Get_Priority();
 
 			*****EVENT***** accessors inherited from base class
-	void EVENT_Media_Identified(string sMRL,string sID,int iPK_Device,string sValue,string sFormat);
+	void EVENT_Media_Identified(string sMRL,string sID,int iPK_Device,string sValue,string sFormat,char *pImage,int iImage_Size);
 
 			*****COMMANDS***** we need to implement
 	*/

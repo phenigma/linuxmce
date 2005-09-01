@@ -26,6 +26,16 @@ SqueezeBox_Player::SqueezeBox_Player(int DeviceID, string ServerAddress,bool bCo
 
 }
 
+//<-dceag-getconfig-b->
+bool SqueezeBox_Player::GetConfig()
+{
+	if( !SqueezeBox_Player_Command::GetConfig() )
+		return false;
+//<-dceag-getconfig-e->
+	return true;
+}
+
+
 //<-dceag-const2-b->
 // The constructor when the class is created as an embedded instance within another stand-alone device
 SqueezeBox_Player::SqueezeBox_Player(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)

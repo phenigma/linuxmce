@@ -111,6 +111,16 @@ App_Server::App_Server(int DeviceID, string ServerAddress,bool bConnectEventHand
 #endif
 }
 
+//<-dceag-getconfig-b->
+bool App_Server::GetConfig()
+{
+	if( !App_Server_Command::GetConfig() )
+		return false;
+//<-dceag-getconfig-e->
+
+	return true;
+}
+
 //<-dceag-const2-b->!
 
 //<-dceag-dest-b->

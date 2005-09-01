@@ -91,7 +91,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		App_Server *pApp_Server = new App_Server(PK_Device, "localhost",true,false,pRouter);
-		if( pApp_Server->m_bQuit )
+		if( pApp_Server->m_bQuit || !pApp_Server->GetConfig() )
 		{
 			delete pApp_Server;
 			return NULL;

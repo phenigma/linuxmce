@@ -19,6 +19,14 @@ VDRPlugin::VDRPlugin(int DeviceID, string ServerAddress,bool bConnectEventHandle
 //<-dceag-const-e->
 {
 }
+//<-dceag-getconfig-b->
+bool VDRPlugin::GetConfig()
+{
+	if( !VDRPlugin_Command::GetConfig() )
+		return false;
+//<-dceag-getconfig-e->
+	return true;
+}
 
 //<-dceag-const2-b->
 // The constructor when the class is created as an embedded instance within another stand-alone device

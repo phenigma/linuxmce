@@ -20,6 +20,15 @@ VideoLan_PlugIn::VideoLan_PlugIn(int DeviceID, string ServerAddress,bool bConnec
 {
 }
 
+//<-dceag-getconfig-b->
+bool VideoLan_PlugIn::GetConfig()
+{
+	if( !VideoLan_PlugIn_Command::GetConfig() )
+		return false;
+//<-dceag-getconfig-e->
+	return true;
+}
+
 //<-dceag-const2-b->
 // The constructor when the class is created as an embedded instance within another stand-alone device
 VideoLan_PlugIn::VideoLan_PlugIn(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)

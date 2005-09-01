@@ -108,7 +108,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		Datagrid_Plugin *pDatagrid_Plugin = new Datagrid_Plugin(PK_Device, "localhost",true,false,pRouter);
-		if( pDatagrid_Plugin->m_bQuit )
+		if( pDatagrid_Plugin->m_bQuit || !pDatagrid_Plugin->GetConfig() )
 		{
 			delete pDatagrid_Plugin;
 			return NULL;
@@ -210,8 +210,8 @@ int main(int argc, char* argv[])
 	bool bReload=false;
 	try
 	{
-		Datagrid_Plugin *pDatagrid_Plugin = new Datagrid_Plugin(PK_Device, sRouter_IP);	
-		if ( pDatagrid_Plugin->Connect(pDatagrid_Plugin->PK_DeviceTemplate_get()) ) 
+		Datagrid_Plugin *pDatagrid_Plugin = new Datagrid_Plugin(PK_Device, sRouter_IP);
+		if ( pDatagrid_Plugin->GetConfig() && pDatagrid_Plugin->Connect(pDatagrid_Plugin->PK_DeviceTemplate_get()) ) 
 		{
 			g_pCommand_Impl=pDatagrid_Plugin;
 			g_pDeadlockHandler=DeadlockHandler;

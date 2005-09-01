@@ -55,12 +55,11 @@ void Plugin_DeadlockHandler(PlutoLock *pPlutoLock)
 }
 void Plugin_SocketCrashHandler(Socket *pSocket)
 {
-	// This isn't graceful, but for the moment in the event of a socket crash we'll just kill everything and force a reload
 	if( g_pCommand_Impl && g_pCommand_Impl->m_pRouter )
 	{
 		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Plugin Deadlock problem.  %d Going to reload",g_pCommand_Impl->m_dwPK_Device);
-		g_pCommand_Impl->m_pRouter->CrashWithinPlugin(g_pCommand_Impl->m_dwPK_Device);
+			g_pPlutoLogger->Write(LV_CRITICAL,"Plugin Socket problem.  %d",g_pCommand_Impl->m_dwPK_Device);
+		// g_pCommand_Impl->m_pRouter->CrashWithinPlugin(g_pCommand_Impl->m_dwPK_Device);  // Don't reload plugins since sockets can fail
 	}
 }
 //<-dceag-incl-e->
@@ -74,7 +73,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		Text_To_Speech *pText_To_Speech = new Text_To_Speech(PK_Device, "localhost",true,false,pRouter);
-		if( pText_To_Speech->m_bQuit )
+		if( pText_To_Speech->m_bQuit || !pText_To_Speech->GetConfig() )
 		{
 			delete pText_To_Speech;
 			return NULL;
@@ -176,8 +175,8 @@ int main(int argc, char* argv[])
 	bool bReload=false;
 	try
 	{
-		Text_To_Speech *pText_To_Speech = new Text_To_Speech(PK_Device, sRouter_IP);	
-		if ( pText_To_Speech->Connect(pText_To_Speech->PK_DeviceTemplate_get()) ) 
+		Text_To_Speech *pText_To_Speech = new Text_To_Speech(PK_Device, sRouter_IP);
+		if ( pText_To_Speech->GetConfig() && pText_To_Speech->Connect(pText_To_Speech->PK_DeviceTemplate_get()) ) 
 		{
 			g_pCommand_Impl=pText_To_Speech;
 			g_pDeadlockHandler=DeadlockHandler;

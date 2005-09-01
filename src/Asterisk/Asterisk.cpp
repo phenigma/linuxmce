@@ -22,6 +22,14 @@ Asterisk::Asterisk(int DeviceID, string ServerAddress,bool bConnectEventHandler,
 //<-dceag-const-e->
 {
 }
+//<-dceag-getconfig-b->
+bool Asterisk::GetConfig()
+{
+	if( !Asterisk_Command::GetConfig() )
+		return false;
+//<-dceag-getconfig-e->
+	return true;
+}
 
 //<-dceag-const2-b->!
 

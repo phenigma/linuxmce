@@ -111,7 +111,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		Xine_Plugin *pXine_Plugin = new Xine_Plugin(PK_Device, "localhost",true,false,pRouter);
-		if( pXine_Plugin->m_bQuit )
+		if( pXine_Plugin->m_bQuit || !pXine_Plugin->GetConfig() )
 		{
 			delete pXine_Plugin;
 			return NULL;
@@ -213,8 +213,8 @@ int main(int argc, char* argv[])
 	bool bReload=false;
 	try
 	{
-		Xine_Plugin *pXine_Plugin = new Xine_Plugin(PK_Device, sRouter_IP);	
-		if ( pXine_Plugin->Connect(pXine_Plugin->PK_DeviceTemplate_get()) ) 
+		Xine_Plugin *pXine_Plugin = new Xine_Plugin(PK_Device, sRouter_IP);
+		if ( pXine_Plugin->GetConfig() && pXine_Plugin->Connect(pXine_Plugin->PK_DeviceTemplate_get()) ) 
 		{
 			g_pCommand_Impl=pXine_Plugin;
 			g_pDeadlockHandler=DeadlockHandler;

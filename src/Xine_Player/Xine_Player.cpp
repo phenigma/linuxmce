@@ -67,15 +67,22 @@ Xine_Player::Xine_Player(int DeviceID, string ServerAddress,bool bConnectEventHa
 	pthread_mutexattr_t      mutexAttr;
     pthread_mutexattr_init( &mutexAttr );
     pthread_mutexattr_settype( &mutexAttr,  PTHREAD_MUTEX_RECURSIVE_NP );
-
 	m_xineSlaveMutex.Init( &mutexAttr );
+	m_pXineSlaveControl=NULL;
+	m_pDeviceData_MediaPlugin=NULL;
+	m_iTitle=m_iChapter=-1;
+}
+
+//<-dceag-getconfig-b->
+bool Xine_Player::GetConfig()
+{
+	if( !Xine_Player_Command::GetConfig() )
+		return false;
+//<-dceag-getconfig-e->
 
 	m_pXineSlaveControl = new XineSlaveWrapper(DATA_Get_Time_Code_Report_Frequency());
 
 	m_pDeviceData_MediaPlugin = m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory(DEVICECATEGORY_Media_Plugins_CONST);
-
-	m_iTitle=m_iChapter=-1;
-
 	//m_pSlimServerClient = new SlimServerClient();
 //	m_pSlimServerClient->setXineSlaveObject(m_pXineSlaveControl);
 
@@ -86,7 +93,7 @@ Xine_Player::Xine_Player(int DeviceID, string ServerAddress,bool bConnectEventHa
         g_pPlutoLogger->Write(LV_WARNING, "Couldn't create the xine slave window. This plugin is useless here!");
         delete m_pXineSlaveControl;
         m_pXineSlaveControl = NULL;
-		return;
+		return false;
     }
 
     else if ( ! m_pXineSlaveControl->createXineLibConnection() )
@@ -95,8 +102,10 @@ Xine_Player::Xine_Player(int DeviceID, string ServerAddress,bool bConnectEventHa
 
        delete m_pXineSlaveControl;
        m_pXineSlaveControl = NULL;
-	   return;
+	   return false;
     }
+
+	return true;
 }
 
 //<-dceag-const2-b->!

@@ -86,7 +86,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		IRTrans *pIRTrans = new IRTrans(PK_Device, "localhost",true,false,pRouter);
-		if( pIRTrans->m_bQuit )
+		if( pIRTrans->m_bQuit || !pIRTrans->GetConfig() )
 		{
 			delete pIRTrans;
 			return NULL;
@@ -188,8 +188,8 @@ int main(int argc, char* argv[])
 	bool bReload=false;
 	try
 	{
-		IRTrans *pIRTrans = new IRTrans(PK_Device, sRouter_IP);	
-		if ( pIRTrans->Connect(pIRTrans->PK_DeviceTemplate_get()) ) 
+		IRTrans *pIRTrans = new IRTrans(PK_Device, sRouter_IP);
+		if ( pIRTrans->GetConfig() && pIRTrans->Connect(pIRTrans->PK_DeviceTemplate_get()) ) 
 		{
 			g_pCommand_Impl=pIRTrans;
 			g_pDeadlockHandler=DeadlockHandler;

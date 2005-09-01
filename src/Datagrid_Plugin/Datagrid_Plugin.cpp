@@ -45,6 +45,15 @@ Datagrid_Plugin::Datagrid_Plugin( int DeviceID, string ServerAddress, bool bConn
  m_DataGridMutex.Init( NULL );
 }
 
+//<-dceag-getconfig-b->
+bool Datagrid_Plugin::GetConfig()
+{
+	if( !Datagrid_Plugin_Command::GetConfig() )
+		return false;
+//<-dceag-getconfig-e->
+	return true;
+}
+
 //<-dceag-const2-b->!
 
 //<-dceag-dest-b->

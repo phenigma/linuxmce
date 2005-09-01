@@ -89,7 +89,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		Mozilla_Plugin *pMozilla_Plugin = new Mozilla_Plugin(PK_Device, "localhost",true,false,pRouter);
-		if( pMozilla_Plugin->m_bQuit )
+		if( pMozilla_Plugin->m_bQuit || !pMozilla_Plugin->GetConfig() )
 		{
 			delete pMozilla_Plugin;
 			return NULL;
@@ -191,8 +191,8 @@ int main(int argc, char* argv[])
 	bool bReload=false;
 	try
 	{
-		Mozilla_Plugin *pMozilla_Plugin = new Mozilla_Plugin(PK_Device, sRouter_IP);	
-		if ( pMozilla_Plugin->Connect(pMozilla_Plugin->PK_DeviceTemplate_get()) ) 
+		Mozilla_Plugin *pMozilla_Plugin = new Mozilla_Plugin(PK_Device, sRouter_IP);
+		if ( pMozilla_Plugin->GetConfig() && pMozilla_Plugin->Connect(pMozilla_Plugin->PK_DeviceTemplate_get()) ) 
 		{
 			g_pCommand_Impl=pMozilla_Plugin;
 			g_pDeadlockHandler=DeadlockHandler;

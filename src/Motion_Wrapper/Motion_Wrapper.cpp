@@ -28,6 +28,15 @@ Motion_Wrapper::Motion_Wrapper(int DeviceID, string ServerAddress,bool bConnectE
 	: Motion_Wrapper_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
+}
+
+//<-dceag-getconfig-b->
+bool Motion_Wrapper::GetConfig()
+{
+	if( !Motion_Wrapper_Command::GetConfig() )
+		return false;
+//<-dceag-getconfig-e->
+
 /*	int i;
 	FILE *fp;
 	string sLine, sLine2;
@@ -201,6 +210,7 @@ Motion_Wrapper::Motion_Wrapper(int DeviceID, string ServerAddress,bool bConnectE
 		exit(1);
 	}
 */	
+	return true;
 }
 
 //<-dceag-const2-b->
@@ -681,3 +691,4 @@ this came from generic_analog_camera
 	system(sPath.c_str());
 
 */
+

@@ -158,13 +158,26 @@ Media_Plugin::Media_Plugin( int DeviceID, string ServerAddress, bool bConnectEve
 	srand((int) time(NULL)); // Shuffle uses a random generator
 
     m_iStreamID=0;
+	m_pDatabase_pluto_main=NULL;
+	m_pDatabase_pluto_media=NULL;
+	m_pMediaAttributes=NULL;
+	m_pGeneric_NonPluto_Media=NULL;
+    m_pGenericMediaHandlerInfo=NULL;
+}
+
+//<-dceag-getconfig-b->
+bool Media_Plugin::GetConfig()
+{
+	if( !Media_Plugin_Command::GetConfig() )
+		return false;
+//<-dceag-getconfig-e->
 
     m_pDatabase_pluto_main = new Database_pluto_main( );
     if( !m_pDatabase_pluto_main->Connect( m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ), m_pRouter->sDBName_get( ), m_pRouter->iDBPort_get( ) ) )
     {
         g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );
         m_bQuit=true;
-        return;
+        return false;
     }
 
     m_pDatabase_pluto_media = new Database_pluto_media( );
@@ -172,7 +185,7 @@ Media_Plugin::Media_Plugin( int DeviceID, string ServerAddress, bool bConnectEve
     {
         g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );
         m_bQuit=true;
-        return;
+        return false;
     }
 
     m_pMediaAttributes = new MediaAttributes( m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ), "pluto_media", m_pRouter->iDBPort_get( ) );
@@ -283,6 +296,7 @@ continue;
 		int PK_MediaType = atoi(StringUtils::Tokenize(sMediaType,",",pos).c_str());
 		m_mapMediaType_Bookmarkable[PK_MediaType]=true;
 	}
+	return true;
 }
 
 

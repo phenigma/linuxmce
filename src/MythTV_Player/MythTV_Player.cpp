@@ -104,16 +104,22 @@ MythTV_Player::MythTV_Player(int DeviceID, string ServerAddress,bool bConnectEve
 //<-dceag-const-e->
 	,m_MythMutex("myth")
 {
-	m_MythMutex.Init(NULL);
-    m_pRatWrapper = new RatPoisonWrapper(XOpenDisplay(getenv("DISPLAY")));
-
-    m_iMythFrontendWindowId = 0;
-
-#ifndef WIN32
 	g_pMythPlayer = this;
-    signal(SIGCHLD, sh); /* install handler */
-#endif
+	m_MythMutex.Init(NULL);
+    m_pRatWrapper = NULL;
+    m_iMythFrontendWindowId = 0;
+}
 
+//<-dceag-getconfig-b->
+bool MythTV_Player::GetConfig()
+{
+	if( !MythTV_Player_Command::GetConfig() )
+		return false;
+//<-dceag-getconfig-e->
+
+    m_pRatWrapper = new RatPoisonWrapper(XOpenDisplay(getenv("DISPLAY")));
+    signal(SIGCHLD, sh); /* install handler */
+	return true;
 }
 
 //<-dceag-const2-b->!

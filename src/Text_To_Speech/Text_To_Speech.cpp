@@ -18,14 +18,21 @@ Text_To_Speech::Text_To_Speech(int DeviceID, string ServerAddress,bool bConnectE
 //<-dceag-const-e->
 	, m_TTSMutex( "tts" )
 {
+	m_TTSMutex.Init(NULL);
+	m_dwID=0;
+	m_dwPK_Device_MediaPlugin=0;
+}
+
+//<-dceag-getconfig-b->
+bool Text_To_Speech::GetConfig()
+{
+	if( !Text_To_Speech_Command::GetConfig() )
+		return false;
+//<-dceag-getconfig-e->
+
 	// Be sure there's no temporary files in the directory
 	FileUtils::DelDir(FILE_PATH);
 	FileUtils::MakeDir(FILE_PATH);
-	m_TTSMutex.Init(NULL);
-
-	m_dwID=0;
-
-	m_dwPK_Device_MediaPlugin=0;
 	for(Map_DeviceData_Base::iterator it=m_pData->m_AllDevices.m_mapDeviceData_Base.begin();it!=m_pData->m_AllDevices.m_mapDeviceData_Base.end();++it)
 	{
 		DeviceData_Base *pDeviceData_Base = it->second;
@@ -35,7 +42,7 @@ Text_To_Speech::Text_To_Speech(int DeviceID, string ServerAddress,bool bConnectE
 			break;
 		}
 	}
-
+	return true;
 }
 
 //<-dceag-const2-b->!

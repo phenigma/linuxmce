@@ -105,7 +105,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		Bluetooth_Dongle *pBluetooth_Dongle = new Bluetooth_Dongle(PK_Device, "localhost",true,false,pRouter);
-		if( pBluetooth_Dongle->m_bQuit )
+		if( pBluetooth_Dongle->m_bQuit || !pBluetooth_Dongle->GetConfig() )
 		{
 			delete pBluetooth_Dongle;
 			return NULL;
@@ -207,8 +207,8 @@ int main(int argc, char* argv[])
 	bool bReload=false;
 	try
 	{
-		Bluetooth_Dongle *pBluetooth_Dongle = new Bluetooth_Dongle(PK_Device, sRouter_IP);	
-		if ( pBluetooth_Dongle->Connect(pBluetooth_Dongle->PK_DeviceTemplate_get()) ) 
+		Bluetooth_Dongle *pBluetooth_Dongle = new Bluetooth_Dongle(PK_Device, sRouter_IP);
+		if ( pBluetooth_Dongle->GetConfig() && pBluetooth_Dongle->Connect(pBluetooth_Dongle->PK_DeviceTemplate_get()) ) 
 		{
 			g_pCommand_Impl=pBluetooth_Dongle;
 			g_pDeadlockHandler=DeadlockHandler;

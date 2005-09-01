@@ -2,7 +2,7 @@
 #ifndef Motion_Wrapper_h
 #define Motion_Wrapper_h
 
-//	DCE Implemenation for #64 Generic Analog Capture Card
+//	DCE Implemenation for #64 Motion Wrapper
 
 #include "Gen_Devices/Motion_WrapperBase.h"
 //<-dceag-d-e->
@@ -33,6 +33,7 @@ public:
 		// Constructors/Destructor
 		Motion_Wrapper(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
 		virtual ~Motion_Wrapper();
+		virtual bool GetConfig();
 		virtual bool Register();
 		virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage);
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);

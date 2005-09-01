@@ -86,7 +86,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		LIRC_DCE *pLIRC_DCE = new LIRC_DCE(PK_Device, "localhost",true,false,pRouter);
-		if( pLIRC_DCE->m_bQuit )
+		if( pLIRC_DCE->m_bQuit || !pLIRC_DCE->GetConfig() )
 		{
 			delete pLIRC_DCE;
 			return NULL;
@@ -188,8 +188,8 @@ int main(int argc, char* argv[])
 	bool bReload=false;
 	try
 	{
-		LIRC_DCE *pLIRC_DCE = new LIRC_DCE(PK_Device, sRouter_IP);	
-		if ( pLIRC_DCE->Connect(pLIRC_DCE->PK_DeviceTemplate_get()) ) 
+		LIRC_DCE *pLIRC_DCE = new LIRC_DCE(PK_Device, sRouter_IP);
+		if ( pLIRC_DCE->GetConfig() && pLIRC_DCE->Connect(pLIRC_DCE->PK_DeviceTemplate_get()) ) 
 		{
 			g_pCommand_Impl=pLIRC_DCE;
 			g_pDeadlockHandler=DeadlockHandler;

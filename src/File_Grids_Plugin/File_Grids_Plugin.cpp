@@ -65,13 +65,24 @@ File_Grids_Plugin::File_Grids_Plugin(int DeviceID, string ServerAddress,bool bCo
 	: File_Grids_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
+	m_pDatabase_pluto_main=NULL;
+}
+
+//<-dceag-getconfig-b->
+bool File_Grids_Plugin::GetConfig()
+{
+	if( !File_Grids_Plugin_Command::GetConfig() )
+		return false;
+//<-dceag-getconfig-e->
+
 	m_pDatabase_pluto_main = new Database_pluto_main();
 	if(!m_pDatabase_pluto_main->Connect(m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get()) )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot connect to database!");
 		m_bQuit=true;
-		return;
+		return false;
 	}
+	return true;
 }
 
 //<-dceag-const2-b->!

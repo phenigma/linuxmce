@@ -40,6 +40,16 @@ LIRC_DCE::LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler,
 //<-dceag-const-e->
 	, IRReceiverBase(this,m_pData)
 {
+	m_LeechingThread=0;
+}
+
+//<-dceag-getconfig-b->
+bool LIRC_DCE::GetConfig()
+{
+	if( !LIRC_DCE_Command::GetConfig() )
+		return false;
+//<-dceag-getconfig-e->
+
 	FILE *fp;
 	string sCOM1 = "1";
 	string sCOM2 = "2";
@@ -150,6 +160,7 @@ LIRC_DCE::LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler,
 		m_bQuit = 1;
 		exit(1);
 	}
+	return true;
 }
 
 //<-dceag-const2-b->!

@@ -25,6 +25,7 @@ public:
 		// Constructors/Destructor
 		Text_To_Speech(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
 		virtual ~Text_To_Speech();
+		virtual bool GetConfig();
 		virtual bool Register();
 		virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage);
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);

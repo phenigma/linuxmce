@@ -101,7 +101,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		MythTV_PlugIn *pMythTV_PlugIn = new MythTV_PlugIn(PK_Device, "localhost",true,false,pRouter);
-		if( pMythTV_PlugIn->m_bQuit )
+		if( pMythTV_PlugIn->m_bQuit || !pMythTV_PlugIn->GetConfig() )
 		{
 			delete pMythTV_PlugIn;
 			return NULL;
@@ -203,8 +203,8 @@ int main(int argc, char* argv[])
 	bool bReload=false;
 	try
 	{
-		MythTV_PlugIn *pMythTV_PlugIn = new MythTV_PlugIn(PK_Device, sRouter_IP);	
-		if ( pMythTV_PlugIn->Connect(pMythTV_PlugIn->PK_DeviceTemplate_get()) ) 
+		MythTV_PlugIn *pMythTV_PlugIn = new MythTV_PlugIn(PK_Device, sRouter_IP);
+		if ( pMythTV_PlugIn->GetConfig() && pMythTV_PlugIn->Connect(pMythTV_PlugIn->PK_DeviceTemplate_get()) ) 
 		{
 			g_pCommand_Impl=pMythTV_PlugIn;
 			g_pDeadlockHandler=DeadlockHandler;

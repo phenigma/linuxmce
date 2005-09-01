@@ -264,6 +264,14 @@ Bluetooth_Dongle::Bluetooth_Dongle( int iDeviceID, string sServerAddress, bool b
     pthread_mutexattr_init( &m_MutexAttr );
     pthread_mutexattr_settype( &m_MutexAttr,  PTHREAD_MUTEX_RECURSIVE_NP );
 	m_BTMutex.Init( &m_MutexAttr );
+}
+
+//<-dceag-getconfig-b->
+bool Bluetooth_Dongle::GetConfig()
+{
+	if( !Bluetooth_Dongle_Command::GetConfig() )
+		return false;
+//<-dceag-getconfig-e->
 
 	Map_DeviceData_Base::iterator it;
 	for( it=GetData()->m_AllDevices.m_mapDeviceData_Base.begin(); it!=GetData()->m_AllDevices.m_mapDeviceData_Base.end(); ++it )
@@ -283,6 +291,7 @@ Bluetooth_Dongle::Bluetooth_Dongle( int iDeviceID, string sServerAddress, bool b
 		}
 	}
 	StartScanning(); // start the scanning loop
+	return true;
 }
 //<-dceag-const2-b->!
 

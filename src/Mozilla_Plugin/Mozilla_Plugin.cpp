@@ -41,7 +41,14 @@ Mozilla_Plugin::Mozilla_Plugin(int DeviceID, string ServerAddress,bool bConnectE
 //<-dceag-const-e->
 {
 }
-
+//<-dceag-getconfig-b->
+bool Mozilla_Plugin::GetConfig()
+{
+	if( !Mozilla_Plugin_Command::GetConfig() )
+		return false;
+//<-dceag-getconfig-e->
+	return true;
+}
 //<-dceag-const2-b->!
 
 //<-dceag-dest-b->

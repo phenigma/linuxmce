@@ -3,6 +3,7 @@
 #include "DeviceData_Impl.h"
 #include "Message.h"
 #include "Command_Impl.h"
+#include "Logger.h"
 
 
 namespace DCE
@@ -51,12 +52,45 @@ public:
 	MythTV_PlugIn_Command(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL)
 	: Command_Impl(DeviceID, ServerAddress, bLocalMode, pRouter)
 	{
+	}
+	virtual bool GetConfig()
+	{
 		if( m_bLocalMode )
-			return;
+			return true;
 		m_pData=NULL;
-		m_pEvent = new MythTV_PlugIn_Event(DeviceID, ServerAddress);
+		m_pEvent = new MythTV_PlugIn_Event(m_dwPK_Device, m_sHostName);
 		if( m_pEvent->m_dwPK_Device )
 			m_dwPK_Device = m_pEvent->m_dwPK_Device;
+		if( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None )
+		{
+			if( m_pEvent->m_pClientSocket->m_eLastError==cs_err_NeedReload )
+			{
+				if( RouterNeedsReload() )
+				{
+					string sResponse;
+					m_pEvent->m_pClientSocket->SendString( "RELOAD" );
+					if( m_pEvent->m_pClientSocket->ReceiveString( sResponse ) && sResponse!="OK" )
+					{
+						CannotReloadRouter();
+						g_pPlutoLogger->Write(LV_WARNING,"Reload request denied: %s",sResponse.c_str());
+					}
+				}	
+			}
+			else if( m_pEvent->m_pClientSocket->m_eLastError==cs_err_BadDevice )
+			{
+				while( m_pEvent->m_pClientSocket->m_eLastError==cs_err_BadDevice && (m_dwPK_Device = DeviceIdInvalid())!=0 )
+				{
+					delete m_pEvent;
+					m_pEvent = new MythTV_PlugIn_Event(m_dwPK_Device, m_sHostName);
+					if( m_pEvent->m_dwPK_Device )
+						m_dwPK_Device = m_pEvent->m_dwPK_Device;
+				}
+			}
+		}
+		
+		if( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None )
+			return false;
+
 		int Size; char *pConfig = m_pEvent->GetConfig(Size);
 		if( !pConfig )
 			throw "Cannot get configuration data";
@@ -68,7 +102,8 @@ public:
 		m_pData->m_AllDevices.SerializeRead(Size,pConfig);
 		delete[] pConfig;
 		m_pData->m_pEvent_Impl = m_pEvent;
-		m_pcRequestSocket = new Event_Impl(DeviceID, 36,ServerAddress);
+		m_pcRequestSocket = new Event_Impl(m_dwPK_Device, 36,m_sHostName);
+		return true;
 	};
 	MythTV_PlugIn_Command(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter) : Command_Impl(pPrimaryDeviceCommand, pData, pEvent, pRouter) {};
 	virtual ~MythTV_PlugIn_Command() {};

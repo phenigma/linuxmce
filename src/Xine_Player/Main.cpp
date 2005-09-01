@@ -97,7 +97,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		Xine_Player *pXine_Player = new Xine_Player(PK_Device, "localhost",true,false,pRouter);
-		if( pXine_Player->m_bQuit )
+		if( pXine_Player->m_bQuit || !pXine_Player->GetConfig() )
 		{
 			delete pXine_Player;
 			return NULL;
@@ -199,8 +199,8 @@ int main(int argc, char* argv[])
 	bool bReload=false;
 	try
 	{
-		Xine_Player *pXine_Player = new Xine_Player(PK_Device, sRouter_IP);	
-		if ( pXine_Player->Connect(pXine_Player->PK_DeviceTemplate_get()) ) 
+		Xine_Player *pXine_Player = new Xine_Player(PK_Device, sRouter_IP);
+		if ( pXine_Player->GetConfig() && pXine_Player->Connect(pXine_Player->PK_DeviceTemplate_get()) ) 
 		{
 			g_pCommand_Impl=pXine_Player;
 			g_pDeadlockHandler=DeadlockHandler;

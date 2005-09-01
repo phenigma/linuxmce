@@ -89,7 +89,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		MythTV_Player *pMythTV_Player = new MythTV_Player(PK_Device, "localhost",true,false,pRouter);
-		if( pMythTV_Player->m_bQuit )
+		if( pMythTV_Player->m_bQuit || !pMythTV_Player->GetConfig() )
 		{
 			delete pMythTV_Player;
 			return NULL;
@@ -191,8 +191,8 @@ int main(int argc, char* argv[])
 	bool bReload=false;
 	try
 	{
-		MythTV_Player *pMythTV_Player = new MythTV_Player(PK_Device, sRouter_IP);	
-		if ( pMythTV_Player->Connect(pMythTV_Player->PK_DeviceTemplate_get()) ) 
+		MythTV_Player *pMythTV_Player = new MythTV_Player(PK_Device, sRouter_IP);
+		if ( pMythTV_Player->GetConfig() && pMythTV_Player->Connect(pMythTV_Player->PK_DeviceTemplate_get()) ) 
 		{
 			g_pCommand_Impl=pMythTV_Player;
 			g_pDeadlockHandler=DeadlockHandler;

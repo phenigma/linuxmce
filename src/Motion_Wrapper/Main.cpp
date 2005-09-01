@@ -58,8 +58,8 @@ void Plugin_SocketCrashHandler(Socket *pSocket)
 	if( g_pCommand_Impl && g_pCommand_Impl->m_pRouter )
 	{
 		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Plugin Deadlock problem.  %d Going to reload",g_pCommand_Impl->m_dwPK_Device);
-		g_pCommand_Impl->m_pRouter->CrashWithinPlugin(g_pCommand_Impl->m_dwPK_Device);
+			g_pPlutoLogger->Write(LV_CRITICAL,"Plugin Socket problem.  %d",g_pCommand_Impl->m_dwPK_Device);
+		// g_pCommand_Impl->m_pRouter->CrashWithinPlugin(g_pCommand_Impl->m_dwPK_Device);  // Don't reload plugins since sockets can fail
 	}
 }
 //<-dceag-incl-e->
@@ -86,7 +86,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		Motion_Wrapper *pMotion_Wrapper = new Motion_Wrapper(PK_Device, "localhost",true,false,pRouter);
-		if( pMotion_Wrapper->m_bQuit )
+		if( pMotion_Wrapper->m_bQuit || !pMotion_Wrapper->GetConfig() )
 		{
 			delete pMotion_Wrapper;
 			return NULL;
@@ -188,8 +188,8 @@ int main(int argc, char* argv[])
 	bool bReload=false;
 	try
 	{
-		Motion_Wrapper *pMotion_Wrapper = new Motion_Wrapper(PK_Device, sRouter_IP);	
-		if ( pMotion_Wrapper->Connect(pMotion_Wrapper->PK_DeviceTemplate_get()) ) 
+		Motion_Wrapper *pMotion_Wrapper = new Motion_Wrapper(PK_Device, sRouter_IP);
+		if ( pMotion_Wrapper->GetConfig() && pMotion_Wrapper->Connect(pMotion_Wrapper->PK_DeviceTemplate_get()) ) 
 		{
 			g_pCommand_Impl=pMotion_Wrapper;
 			g_pDeadlockHandler=DeadlockHandler;

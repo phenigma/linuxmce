@@ -86,7 +86,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		VideoLan_Client *pVideoLan_Client = new VideoLan_Client(PK_Device, "localhost",true,false,pRouter);
-		if( pVideoLan_Client->m_bQuit )
+		if( pVideoLan_Client->m_bQuit || !pVideoLan_Client->GetConfig() )
 		{
 			delete pVideoLan_Client;
 			return NULL;
@@ -188,8 +188,8 @@ int main(int argc, char* argv[])
 	bool bReload=false;
 	try
 	{
-		VideoLan_Client *pVideoLan_Client = new VideoLan_Client(PK_Device, sRouter_IP);	
-		if ( pVideoLan_Client->Connect(pVideoLan_Client->PK_DeviceTemplate_get()) ) 
+		VideoLan_Client *pVideoLan_Client = new VideoLan_Client(PK_Device, sRouter_IP);
+		if ( pVideoLan_Client->GetConfig() && pVideoLan_Client->Connect(pVideoLan_Client->PK_DeviceTemplate_get()) ) 
 		{
 			g_pCommand_Impl=pVideoLan_Client;
 			g_pDeadlockHandler=DeadlockHandler;

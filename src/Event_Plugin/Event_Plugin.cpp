@@ -49,13 +49,23 @@ Event_Plugin::Event_Plugin(int DeviceID, string ServerAddress,bool bConnectEvent
 
 	m_dwID_EventInstance=0;
 	m_pTimedEvent_Next=NULL;
+	m_pDatabase_pluto_main=NULL;
+	m_pAlarmManager=NULL;
+}
+
+//<-dceag-getconfig-b->
+bool Event_Plugin::GetConfig()
+{
+	if( !Event_Plugin_Command::GetConfig() )
+		return false;
+//<-dceag-getconfig-e->
 
     m_pDatabase_pluto_main = new Database_pluto_main( );
     if( !m_pDatabase_pluto_main->Connect( m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ), m_pRouter->sDBName_get( ), m_pRouter->iDBPort_get( ) ) )
     {
         g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );
         m_bQuit=true;
-        return;
+        return false;
     }
 
 	Row_Installation *pRow_Installation = m_pDatabase_pluto_main->Installation_get()->GetRow( m_pRouter->iPK_Installation_get() );
@@ -126,6 +136,7 @@ Event_Plugin::Event_Plugin(int DeviceID, string ServerAddress,bool bConnectEvent
 	}
 	SetFirstSunriseSunset();
 	SetNextTimedEventCallback();
+	return true;
 }
 
 //<-dceag-const2-b->!

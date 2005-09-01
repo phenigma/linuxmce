@@ -86,7 +86,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		CDDB_Identifier *pCDDB_Identifier = new CDDB_Identifier(PK_Device, "localhost",true,false,pRouter);
-		if( pCDDB_Identifier->m_bQuit )
+		if( pCDDB_Identifier->m_bQuit || !pCDDB_Identifier->GetConfig() )
 		{
 			delete pCDDB_Identifier;
 			return NULL;
@@ -188,8 +188,8 @@ int main(int argc, char* argv[])
 	bool bReload=false;
 	try
 	{
-		CDDB_Identifier *pCDDB_Identifier = new CDDB_Identifier(PK_Device, sRouter_IP);	
-		if ( pCDDB_Identifier->Connect(pCDDB_Identifier->PK_DeviceTemplate_get()) ) 
+		CDDB_Identifier *pCDDB_Identifier = new CDDB_Identifier(PK_Device, sRouter_IP);
+		if ( pCDDB_Identifier->GetConfig() && pCDDB_Identifier->Connect(pCDDB_Identifier->PK_DeviceTemplate_get()) ) 
 		{
 			g_pCommand_Impl=pCDDB_Identifier;
 			g_pDeadlockHandler=DeadlockHandler;

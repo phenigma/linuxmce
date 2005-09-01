@@ -50,11 +50,23 @@ VideoLan_Server::VideoLan_Server(int DeviceID, string ServerAddress,bool bConnec
 	m_bUseMultiCast=false;
 #ifndef WIN32
 	g_pVideoLan_Server = this;
+#endif
+}
+
+//<-dceag-getconfig-b->
+bool VideoLan_Server::GetConfig()
+{
+	if( !VideoLan_Server_Command::GetConfig() )
+		return false;
+//<-dceag-getconfig-e->
+
+#ifndef WIN32
 	signal(SIGCHLD, sh); /* install handler */
 #endif
 	/* TODO -- DATA_Get_Network_Interfaces
 	will give us a multicast address and range.  if specified,
 	change GetVlanStream to use multicast */
+	return true;
 }
 
 //<-dceag-const2-b->!

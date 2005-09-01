@@ -102,7 +102,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		File_Grids_Plugin *pFile_Grids_Plugin = new File_Grids_Plugin(PK_Device, "localhost",true,false,pRouter);
-		if( pFile_Grids_Plugin->m_bQuit )
+		if( pFile_Grids_Plugin->m_bQuit || !pFile_Grids_Plugin->GetConfig() )
 		{
 			delete pFile_Grids_Plugin;
 			return NULL;
@@ -204,8 +204,8 @@ int main(int argc, char* argv[])
 	bool bReload=false;
 	try
 	{
-		File_Grids_Plugin *pFile_Grids_Plugin = new File_Grids_Plugin(PK_Device, sRouter_IP);	
-		if ( pFile_Grids_Plugin->Connect(pFile_Grids_Plugin->PK_DeviceTemplate_get()) ) 
+		File_Grids_Plugin *pFile_Grids_Plugin = new File_Grids_Plugin(PK_Device, sRouter_IP);
+		if ( pFile_Grids_Plugin->GetConfig() && pFile_Grids_Plugin->Connect(pFile_Grids_Plugin->PK_DeviceTemplate_get()) ) 
 		{
 			g_pCommand_Impl=pFile_Grids_Plugin;
 			g_pDeadlockHandler=DeadlockHandler;

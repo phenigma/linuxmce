@@ -74,8 +74,8 @@ void Plugin_SocketCrashHandler(Socket *pSocket)
 	if( g_pCommand_Impl && g_pCommand_Impl->m_pRouter )
 	{
 		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Plugin Deadlock problem.  %d Going to reload",g_pCommand_Impl->m_dwPK_Device);
-		g_pCommand_Impl->m_pRouter->CrashWithinPlugin(g_pCommand_Impl->m_dwPK_Device);
+			g_pPlutoLogger->Write(LV_CRITICAL,"Plugin Socket problem.  %d",g_pCommand_Impl->m_dwPK_Device);
+		// g_pCommand_Impl->m_pRouter->CrashWithinPlugin(g_pCommand_Impl->m_dwPK_Device);  // Don't reload plugins since sockets can fail
 	}
 }
 //<-dceag-incl-e->
@@ -89,7 +89,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		gc100 *pgc100 = new gc100(PK_Device, "localhost",true,false,pRouter);
-		if( pgc100->m_bQuit )
+		if( pgc100->m_bQuit || !pgc100->GetConfig() )
 		{
 			delete pgc100;
 			return NULL;
@@ -191,8 +191,8 @@ int main(int argc, char* argv[])
 	bool bReload=false;
 	try
 	{
-		gc100 *pgc100 = new gc100(PK_Device, sRouter_IP);	
-		if ( pgc100->Connect(pgc100->PK_DeviceTemplate_get()) ) 
+		gc100 *pgc100 = new gc100(PK_Device, sRouter_IP);
+		if ( pgc100->GetConfig() && pgc100->Connect(pgc100->PK_DeviceTemplate_get()) ) 
 		{
 			g_pCommand_Impl=pgc100;
 			g_pDeadlockHandler=DeadlockHandler;

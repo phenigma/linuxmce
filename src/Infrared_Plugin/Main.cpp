@@ -89,7 +89,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		Infrared_Plugin *pInfrared_Plugin = new Infrared_Plugin(PK_Device, "localhost",true,false,pRouter);
-		if( pInfrared_Plugin->m_bQuit )
+		if( pInfrared_Plugin->m_bQuit || !pInfrared_Plugin->GetConfig() )
 		{
 			delete pInfrared_Plugin;
 			return NULL;
@@ -191,8 +191,8 @@ int main(int argc, char* argv[])
 	bool bReload=false;
 	try
 	{
-		Infrared_Plugin *pInfrared_Plugin = new Infrared_Plugin(PK_Device, sRouter_IP);	
-		if ( pInfrared_Plugin->Connect(pInfrared_Plugin->PK_DeviceTemplate_get()) ) 
+		Infrared_Plugin *pInfrared_Plugin = new Infrared_Plugin(PK_Device, sRouter_IP);
+		if ( pInfrared_Plugin->GetConfig() && pInfrared_Plugin->Connect(pInfrared_Plugin->PK_DeviceTemplate_get()) ) 
 		{
 			g_pCommand_Impl=pInfrared_Plugin;
 			g_pDeadlockHandler=DeadlockHandler;

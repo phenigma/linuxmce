@@ -42,6 +42,15 @@ Slim_Server_Streamer::Slim_Server_Streamer(int DeviceID, string ServerAddress,bo
 	pthread_cond_init( &m_stateChangedCondition, NULL );
 	m_stateChangedMutex.Init( &mutexAttr, &m_stateChangedCondition );
 
+}
+
+//<-dceag-getconfig-b->
+bool Slim_Server_Streamer::GetConfig()
+{
+	if( !Slim_Server_Streamer_Command::GetConfig() )
+		return false;
+//<-dceag-getconfig-e->
+
 	if (! ConnectToSlimServerCliCommandChannel())
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "Connection failed. Sending a start command to the application server.");
@@ -68,6 +77,7 @@ Slim_Server_Streamer::Slim_Server_Streamer(int DeviceID, string ServerAddress,bo
 	}
 	
     pthread_create(&m_threadPlaybackCompletedChecker, NULL, checkForPlaybackCompleted, this);
+	return true;
 }
 
 //<-dceag-const2-b->!

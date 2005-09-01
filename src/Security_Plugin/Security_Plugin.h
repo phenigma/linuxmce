@@ -90,6 +90,7 @@ public:
 		// Constructors/Destructor
 		Security_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
 		virtual ~Security_Plugin();
+		virtual bool GetConfig();
 		virtual bool Register();
 		virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage);
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
@@ -156,6 +157,7 @@ public:
 	int DATA_Get_PK_HouseMode();
 	void DATA_Set_PK_HouseMode(int Value);
 	string DATA_Get_PK_Device();
+	string DATA_Get_Emergency_Calls();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Security_Breach(int iPK_Device);

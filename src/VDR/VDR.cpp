@@ -20,6 +20,14 @@ VDR::VDR(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLoca
 	: VDR_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
+}
+
+//<-dceag-getconfig-b->
+bool VDR::GetConfig()
+{
+	if( !VDR_Command::GetConfig() )
+		return false;
+//<-dceag-getconfig-e->
 	// Find all other VDR's
 	for(Map_DeviceData_Base::iterator itD=m_pData->m_AllDevices.m_mapDeviceData_Base.begin();
 		itD!=m_pData->m_AllDevices.m_mapDeviceData_Base.end();++itD)
@@ -30,7 +38,7 @@ VDR::VDR(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLoca
 			string s=pDevice->m_sIPAddress;
 		}
 	}
-
+	return true;
 }
 
 //<-dceag-const2-b->!

@@ -9,9 +9,9 @@
 
 // In source files stored in archives and packages, these 2 lines will have the release version (build)
 // and the svn revision as a global variable that can be inspected within a core dump
-#define  VERSION "2.0.0.27.05080622"
-const char *g_szCompile_Date="Sun Aug  7 08:11:40 2005";
-int g_SvnRevision=4478;
+#define  VERSION "<=version=>"
+const char *g_szCompile_Date="<=compile_date=>";
+/*SVN_REVISION*/
 
 namespace DCE
 {
@@ -86,7 +86,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		VideoLan_Server *pVideoLan_Server = new VideoLan_Server(PK_Device, "localhost",true,false,pRouter);
-		if( pVideoLan_Server->m_bQuit )
+		if( pVideoLan_Server->m_bQuit || !pVideoLan_Server->GetConfig() )
 		{
 			delete pVideoLan_Server;
 			return NULL;
@@ -188,8 +188,8 @@ int main(int argc, char* argv[])
 	bool bReload=false;
 	try
 	{
-		VideoLan_Server *pVideoLan_Server = new VideoLan_Server(PK_Device, sRouter_IP);	
-		if ( pVideoLan_Server->Connect(pVideoLan_Server->PK_DeviceTemplate_get()) ) 
+		VideoLan_Server *pVideoLan_Server = new VideoLan_Server(PK_Device, sRouter_IP);
+		if ( pVideoLan_Server->GetConfig() && pVideoLan_Server->Connect(pVideoLan_Server->PK_DeviceTemplate_get()) ) 
 		{
 			g_pCommand_Impl=pVideoLan_Server;
 			g_pDeadlockHandler=DeadlockHandler;

@@ -54,6 +54,15 @@ Xine_Plugin::Xine_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHa
 {
 }
 
+//<-dceag-getconfig-b->
+bool Xine_Plugin::GetConfig()
+{
+	if( !Xine_Plugin_Command::GetConfig() )
+		return false;
+//<-dceag-getconfig-e->
+	return true;
+}
+
 //<-dceag-const2-b->!
 
 //<-dceag-dest-b->

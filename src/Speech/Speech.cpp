@@ -19,6 +19,13 @@ Speech::Speech(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool
 //<-dceag-const-e->
 {
 }
+//<-dceag-getconfig-b->
+bool Speech::GetConfig()
+{
+	if( !Speech_Command::GetConfig() )
+		return false;
+//<-dceag-getconfig-e->
+}
 
 //<-dceag-const2-b->
 // The constructor when the class is created as an embedded instance within another stand-alone device

@@ -28,7 +28,6 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
-#include "PlutoUtils/MySQLHelper.h"
 
 #include <iostream>
 using namespace std;
@@ -108,13 +107,25 @@ Security_Plugin::Security_Plugin(int DeviceID, string ServerAddress,bool bConnec
     pthread_mutexattr_init( &m_MutexAttr );
     pthread_mutexattr_settype( &m_MutexAttr,  PTHREAD_MUTEX_RECURSIVE_NP );
 	m_SecurityMutex.Init(&m_MutexAttr);
+	m_pDatabase_pluto_main=NULL;
+	m_pDatabase_pluto_security=NULL;
+	m_pDeviceData_Router_this=NULL;
+	m_pAlarmManager=NULL;
+}
+
+//<-dceag-getconfig-b->
+bool Security_Plugin::GetConfig()
+{
+	if( !Security_Plugin_Command::GetConfig() )
+		return false;
+//<-dceag-getconfig-e->
 
 	m_pDatabase_pluto_main = new Database_pluto_main( );
 	if( !m_pDatabase_pluto_main->Connect( m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ), m_pRouter->sDBName_get( ), m_pRouter->iDBPort_get( ) ) )
 	{
 		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );
 		m_bQuit=true;
-		return;
+		return false;
 	}
 
 	m_pDatabase_pluto_security = new Database_pluto_security( );
@@ -122,7 +133,7 @@ Security_Plugin::Security_Plugin(int DeviceID, string ServerAddress,bool bConnec
 	{
 		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );
 		m_bQuit=true;
-		return;
+		return false;
 	}
 
 	// Get the last mode change for each zone
@@ -205,6 +216,7 @@ Security_Plugin::Security_Plugin(int DeviceID, string ServerAddress,bool bConnec
 	}
 
 	GetHouseModes();
+	return true;
 }
 
 //<-dceag-const2-b->!

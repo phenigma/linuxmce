@@ -92,7 +92,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		Disk_Drive *pDisk_Drive = new Disk_Drive(PK_Device, "localhost",true,false,pRouter);
-		if( pDisk_Drive->m_bQuit )
+		if( pDisk_Drive->m_bQuit || !pDisk_Drive->GetConfig() )
 		{
 			delete pDisk_Drive;
 			return NULL;

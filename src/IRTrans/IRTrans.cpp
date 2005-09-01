@@ -93,6 +93,15 @@ IRTrans::IRTrans(int DeviceID, string ServerAddress,bool bConnectEventHandler,bo
 	IRBase::setCommandImpl(this);
 	m_bIRServerRunning=false;
 	g_pIRTrans=this;
+}
+
+//<-dceag-getconfig-b->
+bool IRTrans::GetConfig()
+{
+	if( !IRTrans_Command::GetConfig() )
+		return false;
+//<-dceag-getconfig-e->
+
 	FileUtils::DelDir("remotes");
 	system("mkdir remotes");
 	// Find all our sibblings that are remote controls 
@@ -152,6 +161,7 @@ IRTrans::IRTrans(int DeviceID, string ServerAddress,bool bConnectEventHandler,bo
 	pthread_t pthread_id; 
 	if(pthread_create( &pthread_id, NULL, DoStartIRServer, (void*) this) )
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot start IRServer thread");
+	return true;
 }
 
 //<-dceag-const2-b->!

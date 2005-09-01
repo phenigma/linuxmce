@@ -102,7 +102,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		Security_Plugin *pSecurity_Plugin = new Security_Plugin(PK_Device, "localhost",true,false,pRouter);
-		if( pSecurity_Plugin->m_bQuit )
+		if( pSecurity_Plugin->m_bQuit || !pSecurity_Plugin->GetConfig() )
 		{
 			delete pSecurity_Plugin;
 			return NULL;
@@ -204,8 +204,8 @@ int main(int argc, char* argv[])
 	bool bReload=false;
 	try
 	{
-		Security_Plugin *pSecurity_Plugin = new Security_Plugin(PK_Device, sRouter_IP);	
-		if ( pSecurity_Plugin->Connect(pSecurity_Plugin->PK_DeviceTemplate_get()) ) 
+		Security_Plugin *pSecurity_Plugin = new Security_Plugin(PK_Device, sRouter_IP);
+		if ( pSecurity_Plugin->GetConfig() && pSecurity_Plugin->Connect(pSecurity_Plugin->PK_DeviceTemplate_get()) ) 
 		{
 			g_pCommand_Impl=pSecurity_Plugin;
 			g_pDeadlockHandler=DeadlockHandler;

@@ -39,8 +39,19 @@ MythTV_PlugIn::MythTV_PlugIn(int DeviceID, string ServerAddress,bool bConnectEve
 //<-dceag-const-e->
 {
     m_pMythBackend_ProxyDevice = NULL;
-	m_pMythWrapper = new MythTvWrapper(this);
 	m_bPreProcessSpeedControl=false;  // We do some ridiculous hacks in Myth player to convert speed control commands to keystrokes
+	m_pMythWrapper = NULL;
+}
+
+//<-dceag-getconfig-b->
+bool MythTV_PlugIn::GetConfig()
+{
+	if( !MythTV_PlugIn_Command::GetConfig() )
+		return false;
+//<-dceag-getconfig-e->
+
+	m_pMythWrapper = new MythTvWrapper(this);
+	return true;
 }
 
 //<-dceag-const2-b->!

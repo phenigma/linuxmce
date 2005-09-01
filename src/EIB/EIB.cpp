@@ -31,6 +31,14 @@ EIB::EIB(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLoca
 //<-dceag-const-e->
 {
 }
+//<-dceag-getconfig-b->
+bool EIB::GetConfig()
+{
+	if( !EIB_Command::GetConfig() )
+		return false;
+//<-dceag-getconfig-e->
+	return true;
+}
 
 //<-dceag-const2-b->
 // The constructor when the class is created as an embedded instance within another stand-alone device
@@ -673,3 +681,45 @@ void EIB::CMD_EIB_Read(string sAddress,string &sCMD_Result,Message *pMessage)
 //<-dceag-c275-e->
 {
 }
+//<-dceag-c350-b->
+
+	/** @brief COMMAND: #350 - Process Incoming Data */
+	/** This Internal command is sent to Ruby interpreter when data is availabe on input. Is used only in Generic Serial Devices. */
+
+void EIB::CMD_Process_Incoming_Data(string &sCMD_Result,Message *pMessage)
+//<-dceag-c350-e->
+//<-dceag-c351-b->
+
+	/** @brief COMMAND: #351 - Process IDLE */
+	/** This Internal command is sent to Ruby interpreter when it is in IDLE state. */
+
+void EIB::CMD_Process_IDLE(string &sCMD_Result,Message *pMessage)
+//<-dceag-c351-e->
+//<-dceag-c355-b->
+
+	/** @brief COMMAND: #355 - Process Initialize */
+	/** This Internal command is sent to Ruby interpreter when initialize occurs. */
+
+void EIB::CMD_Process_Initialize(string &sCMD_Result,Message *pMessage)
+//<-dceag-c355-e->
+//<-dceag-c356-b->
+
+	/** @brief COMMAND: #356 - Process Release */
+	/** This Internal command is sent to Ruby interpreter when release occurs. */
+
+void EIB::CMD_Process_Release(string &sCMD_Result,Message *pMessage)
+//<-dceag-c356-e->
+//<-dceag-c373-b->
+
+	/** @brief COMMAND: #373 - Private Method Listing */
+	/** Used for ruby code mapping where user can add several private helper members. */
+
+void EIB::CMD_Private_Method_Listing(string &sCMD_Result,Message *pMessage)
+//<-dceag-c373-e->
+//<-dceag-c384-b->
+
+	/** @brief COMMAND: #384 - Process Receive Command For Child */
+	/** Method that will be called when command arrives for child device */
+
+void EIB::CMD_Process_Receive_Command_For_Child(string &sCMD_Result,Message *pMessage)
+//<-dceag-c384-e->

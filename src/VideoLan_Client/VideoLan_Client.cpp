@@ -65,13 +65,28 @@ VideoLan_Client::VideoLan_Client(int DeviceID, string ServerAddress,bool bConnec
 	: VideoLan_Client_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
-    m_pRatWrapper = new RatPoisonWrapper(XOpenDisplay(getenv("DISPLAY")));
+	m_pRatWrapper = NULL;
     m_iVideoLanWindowId = 0;
 	m_dwPK_Device_VideoLan_Server = 0;
 #ifndef WIN32
 	g_pVideoLan_Client = this;
+#endif
+}
+
+//<-dceag-getconfig-b->
+bool VideoLan_Client::GetConfig()
+{
+	if( !VideoLan_Client_Command::GetConfig() )
+		return false;
+//<-dceag-getconfig-e->
+
+    m_pRatWrapper = new RatPoisonWrapper(XOpenDisplay(getenv("DISPLAY")));
+    m_iVideoLanWindowId = 0;
+	m_dwPK_Device_VideoLan_Server = 0;
+#ifndef WIN32
     signal(SIGCHLD, sh); /* install handler */
 #endif
+	return true;
 }
 
 //<-dceag-const2-b->

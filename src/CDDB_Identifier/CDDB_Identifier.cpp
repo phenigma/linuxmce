@@ -20,6 +20,14 @@ CDDB_Identifier::CDDB_Identifier(int DeviceID, string ServerAddress,bool bConnec
 //<-dceag-const-e->
 {
 }
+//<-dceag-getconfig-b->
+bool CDDB_Identifier::GetConfig()
+{
+	if( !CDDB_Identifier_Command::GetConfig() )
+		return false;
+//<-dceag-getconfig-e->
+	return true;
+}
 
 //<-dceag-const2-b->
 // The constructor when the class is created as an embedded instance within another stand-alone device

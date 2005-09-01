@@ -189,7 +189,7 @@ bool Orbiter_Plugin::Register()
 	if( !m_pLighting_Floorplan || !m_pClimate_Floorplan || !m_pMedia_Floorplan || !m_pSecurity_Floorplan || !m_pTelecom_Floorplan || !m_pGeneral_Info_Plugin )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins");
-//		return false;
+		return false;
 	}
 
     // Check for all orbiters
@@ -861,7 +861,6 @@ void Orbiter_Plugin::CMD_Set_Current_User(int iPK_Users,string &sCMD_Result,Mess
 void Orbiter_Plugin::CMD_Set_Entertainment_Area(string sPK_EntertainArea,string &sCMD_Result,Message *pMessage)
 //<-dceag-c59-e->
 {
-return;
 	EntertainArea *pEntertainArea = m_pMedia_Plugin->m_mapEntertainAreas_Find(atoi(sPK_EntertainArea.c_str()));
     OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
     if( !pOH_Orbiter )
@@ -1353,7 +1352,7 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,int iPK_Users,string s
 		CMD_Set_Bound_Iconl.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Bound_Icont.m_pMessage);
 
 		pOH_Orbiter->m_dwPK_Room=iPK_Room;
-/*
+
 		PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 		EntertainArea *pEntertainArea = m_pMedia_Plugin->m_mapEntertainAreas_Find(atoi(sPK_EntertainArea.c_str()));
 	    pOH_Orbiter->m_pEntertainArea=pEntertainArea;
@@ -1369,7 +1368,7 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,int iPK_Users,string s
 		SendCommand(CMD_Set_Bound_Iconl);
 
 		delete pOrbiterFileBrowser_Collection;
-*/	}
+	}
 	else
 	{
 		*pData=NULL;
@@ -2063,12 +2062,8 @@ void Orbiter_Plugin::CMD_Send_File_To_Phone(string sMac_address,string sCommand_
 			/** The orbiter */
 		/** @param #5 Value To Assign */
 			/** The status: O=OK to load, N=New, skin generated, need router reset, n=new, no skins at all, R=Regenerating skin now, r=Regenerating skin for new orbiter, U=Unknown, D=Device is not an orbiter */
-		/** @param #9 Text */
-			/** If a regen is in progress, this is a status. */
-		/** @param #48 Value */
-			/** If a regen is in progress, this is a percentage */
 
-void Orbiter_Plugin::CMD_Get_Orbiter_Status(int iPK_Device,string *sValue_To_Assign,string *sText,int *iValue,string &sCMD_Result,Message *pMessage)
+void Orbiter_Plugin::CMD_Get_Orbiter_Status(int iPK_Device,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c694-e->
 {
 	OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(iPK_Device);

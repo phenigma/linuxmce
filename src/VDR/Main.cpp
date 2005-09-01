@@ -86,7 +86,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		VDR *pVDR = new VDR(PK_Device, "localhost",true,false,pRouter);
-		if( pVDR->m_bQuit )
+		if( pVDR->m_bQuit || !pVDR->GetConfig() )
 		{
 			delete pVDR;
 			return NULL;
@@ -188,8 +188,8 @@ int main(int argc, char* argv[])
 	bool bReload=false;
 	try
 	{
-		VDR *pVDR = new VDR(PK_Device, sRouter_IP);	
-		if ( pVDR->Connect(pVDR->PK_DeviceTemplate_get()) ) 
+		VDR *pVDR = new VDR(PK_Device, sRouter_IP);
+		if ( pVDR->GetConfig() && pVDR->Connect(pVDR->PK_DeviceTemplate_get()) ) 
 		{
 			g_pCommand_Impl=pVDR;
 			g_pDeadlockHandler=DeadlockHandler;

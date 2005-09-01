@@ -71,8 +71,8 @@ void Plugin_DeadlockHandler(PlutoLock *pPlutoLock)
 	if( g_pCommand_Impl && g_pCommand_Impl->m_pRouter )
 	{
 		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Plugin Socket problem.  %d",g_pCommand_Impl->m_dwPK_Device);
-		// g_pCommand_Impl->m_pRouter->CrashWithinPlugin(g_pCommand_Impl->m_dwPK_Device);  // Don't reload plugins since sockets can fail
+			g_pPlutoLogger->Write(LV_CRITICAL,"Plugin Deadlock problem.  %d Going to reload",g_pCommand_Impl->m_dwPK_Device);
+		g_pCommand_Impl->m_pRouter->CrashWithinPlugin(g_pCommand_Impl->m_dwPK_Device);
 	}
 }
 void Plugin_SocketCrashHandler(Socket *pSocket)
@@ -80,8 +80,8 @@ void Plugin_SocketCrashHandler(Socket *pSocket)
 	if( g_pCommand_Impl && g_pCommand_Impl->m_pRouter )
 	{
 		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Plugin Deadlock problem.  %d Going to reload",g_pCommand_Impl->m_dwPK_Device);
-		g_pCommand_Impl->m_pRouter->CrashWithinPlugin(g_pCommand_Impl->m_dwPK_Device);
+			g_pPlutoLogger->Write(LV_CRITICAL,"Plugin Socket problem.  %d",g_pCommand_Impl->m_dwPK_Device);
+		// g_pCommand_Impl->m_pRouter->CrashWithinPlugin(g_pCommand_Impl->m_dwPK_Device);  // Don't reload plugins since sockets can fail
 	}
 }
 //<-dceag-incl-e->
@@ -108,7 +108,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		Climate_Plugin *pClimate_Plugin = new Climate_Plugin(PK_Device, "localhost",true,false,pRouter);
-		if( pClimate_Plugin->m_bQuit )
+		if( pClimate_Plugin->m_bQuit || !pClimate_Plugin->GetConfig() )
 		{
 			delete pClimate_Plugin;
 			return NULL;
@@ -210,8 +210,8 @@ int main(int argc, char* argv[])
 	bool bReload=false;
 	try
 	{
-		Climate_Plugin *pClimate_Plugin = new Climate_Plugin(PK_Device, sRouter_IP);	
-		if ( pClimate_Plugin->Connect(pClimate_Plugin->PK_DeviceTemplate_get()) ) 
+		Climate_Plugin *pClimate_Plugin = new Climate_Plugin(PK_Device, sRouter_IP);
+		if ( pClimate_Plugin->GetConfig() && pClimate_Plugin->Connect(pClimate_Plugin->PK_DeviceTemplate_get()) ) 
 		{
 			g_pCommand_Impl=pClimate_Plugin;
 			g_pDeadlockHandler=DeadlockHandler;
