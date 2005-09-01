@@ -8480,10 +8480,7 @@ int Orbiter::SetupNewOrbiter()
 #endif
 
 	int PK_Size=0;
-	if( Width==320 && Height==240 )
-		PK_Size=7; // TODO
-	else
-		PK_Size=PromptFor("Size");
+	PK_Size=PromptFor("Size");
 
 	int PK_Device=0;
 	DCE::CMD_New_Orbiter_DT CMD_New_Orbiter_DT(m_dwPK_Device, DEVICETEMPLATE_Orbiter_Plugin_CONST, BL_SameHouse, sType, 
@@ -8530,6 +8527,9 @@ int Orbiter::PromptFor(string sToken)
 	map<int,string> mapResponse;
 	vector<string> Choices;
 	StringUtils::Tokenize(sResults,"\n",Choices);
+	if( sToken=="Size" )
+		mapResponse[0]="Default";
+
 	for(size_t s=0;s<Choices.size();++s)
 	{
 		string::size_type pos=0;
