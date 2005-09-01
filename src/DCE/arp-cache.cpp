@@ -3,6 +3,7 @@ using namespace std;
 
 #include <stdio.h>
 
+/* Inspired from net-tools arp.c */
 string arpcache_MACfromIP(string IP)
 {
 	FILE * f;
