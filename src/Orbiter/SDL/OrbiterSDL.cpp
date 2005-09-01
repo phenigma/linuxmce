@@ -54,35 +54,42 @@ OrbiterSDL::OrbiterSDL(int DeviceID, string ServerAddress, string sLocalDirector
 {
     m_pScreenImage = NULL;
 	m_bFullScreen=bFullScreen;
+}
+//----------------------------------------------------------------------------------------------------
+/*virtual*/ bool OrbiterSDL::GetConfig()
+{
+    if(!Orbiter::GetConfig())
+        return false;
 
-	Uint32 uSDLInitFlags = SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE;
+    //initializing the engine...
+    Uint32 uSDLInitFlags = SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE;
 
-	if(m_bFullScreen)
-		uSDLInitFlags |= SDL_FULLSCREEN;
+    if(m_bFullScreen)
+        uSDLInitFlags |= SDL_FULLSCREEN;
 
-	if (SDL_Init(uSDLInitFlags) == -1)
+    if (SDL_Init(uSDLInitFlags) == -1)
     {
 #ifndef WINCE
-		cerr << "Failed to initialize SDL" << SDL_GetError() << endl;
+        cerr << "Failed to initialize SDL" << SDL_GetError() << endl;
 #else
-		printf("Failed to initialize SDL %s\n", SDL_GetError());
+        printf("Failed to initialize SDL %s\n", SDL_GetError());
 #endif //WINCE
 
-		exit(1);
+        exit(1);
     }
 
-	atexit(SDL_Quit);
+    atexit(SDL_Quit);
     g_pPlutoLogger->Write(LV_STATUS, "Initialized SDL");
 
 #ifndef BLUETOOTH_DONGLE
-	Uint32 uVideoModeFlags = SDL_SWSURFACE;
+    Uint32 uVideoModeFlags = SDL_SWSURFACE;
 
 #if !defined(WIN32) || defined(WINCE)
-	if(m_bFullScreen)
-		uVideoModeFlags |= SDL_FULLSCREEN;
+    if(m_bFullScreen)
+        uVideoModeFlags |= SDL_FULLSCREEN;
 #endif
 
-	if ((Screen = SDL_SetVideoMode(m_iImageWidth, m_iImageHeight, 0, uVideoModeFlags)) == NULL)
+    if ((Screen = SDL_SetVideoMode(m_iImageWidth, m_iImageHeight, 0, uVideoModeFlags)) == NULL)
     {
         g_pPlutoLogger->Write(LV_WARNING, "Failed to set video mode: %s", SDL_GetError());
         exit(1);
@@ -92,7 +99,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, string ServerAddress, string sLocalDirector
     g_pPlutoLogger->Write(LV_STATUS, "Set video mode to %d x %d Window.", m_iImageWidth, m_iImageHeight);
 
 #ifdef USE_ONLY_SCREEN_SURFACE
-	m_pScreenImage = Screen;
+    m_pScreenImage = Screen;
 #else
     m_pScreenImage = SDL_CreateRGBSurface(SDL_SWSURFACE, m_iImageWidth, m_iImageHeight, 32, rmask, gmask, bmask, amask);
     if (m_pScreenImage == NULL)
@@ -100,11 +107,12 @@ OrbiterSDL::OrbiterSDL(int DeviceID, string ServerAddress, string sLocalDirector
         g_pPlutoLogger->Write(LV_WARNING, "SDL_CreateRGBSurface failed! %s",SDL_GetError());
     }
 #endif
-	m_bWeCanRepeat = true;
+    m_bWeCanRepeat = true;
 
     g_pPlutoLogger->Write(LV_STATUS, "Created back screen surface!");
+    return true;
 }
-//-----------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------
 /*virtual*/ OrbiterSDL::~OrbiterSDL()
 {
 	KillMaintThread(); // We need to do this before freeing the surface.  It's a repeat of what's in Orbiter's destructor

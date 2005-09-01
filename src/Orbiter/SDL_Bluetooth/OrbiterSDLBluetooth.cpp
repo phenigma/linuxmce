@@ -59,7 +59,7 @@ OrbiterSDLBluetooth::OrbiterSDLBluetooth(class BDCommandProcessor *pBDCommandPro
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ bool OrbiterSDLBluetooth::GetConfig()
 {
-    if(!Orbiter::GetConfig())
+    if(!OrbiterSDL::GetConfig())
         return false;
 
     m_ImageQuality = DATA_Get_ImageQuality();

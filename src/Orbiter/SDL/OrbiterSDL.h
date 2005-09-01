@@ -26,6 +26,7 @@ public:
 	OrbiterSDL(int DeviceID, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
 		int nImageWidth, int nImageHeight, bool bFullScreen = false);
 	virtual ~OrbiterSDL();
+    virtual bool GetConfig();
 
 	// Public virtual methods
 

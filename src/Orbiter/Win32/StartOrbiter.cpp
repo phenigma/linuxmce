@@ -126,13 +126,11 @@ ORBITER *Connect(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bLo
 	{
 		bool bConnected = pOrbiter->GetConfig() && pOrbiter->Connect(0);  // Don't validate the device template, since the same binary is used for lots of devices
 
-		if(!bConnected)
-		{
-			g_pPlutoLogger->Write(LV_STATUS, "ready to delete instance 2");
-			delete pOrbiter;
-			pOrbiter = NULL;
-		}
-
+        if(!bConnected)
+        {
+            ORBITER::Cleanup();
+            return NULL;
+        }
 	}
 
 	return pOrbiter;
