@@ -36,6 +36,10 @@
 #include "SocketListener.h"
 #include "ServerSocket.h"
 
+#ifndef WIN32
+#include "arp-cache.h"
+#endif
+
 using namespace DCE;
 
 void *ServerSocket::BeginWapClientThread( void *SvSock )
