@@ -16,7 +16,7 @@ using namespace DCE;
 //------------------------------------------------------------------------------------------------------------
 #define RECV_TIMEDOUT 15 //seconds
 #define BLUETOOTH_PORT 19
-#define VERSION "bubu_Version"
+#define VERSION "2005.09.01"
 //---------------------------------------------------------------------------------------------------------
 void *ProcessCommandsThread(void *p)
 {

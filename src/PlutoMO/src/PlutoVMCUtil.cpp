@@ -34,7 +34,6 @@
 #include "BD_PC_SelectedFromList.h"
 #include "BD_PC_SetVariable.h"
 #include "PlutoUtils/PlutoDefs.h"
-#include "BD/BD_WhatDoYouHave.h"
 #include "VIPShared/BD_PC_KeyWasPressed.h"
 #include "VIPShared/BD_PC_GetSignalStrength.h"
 //------------------------------------------------------------------------------------------------------------------
@@ -959,6 +958,7 @@ void CPlutoVMCUtil::LocalKeyPressed(int KeyCode)
 { 
 	RenderMenu::KeyPressed(KeyCode);
 
+/*
 	BDCommandProcessor_Symbian_Base* pBDCommandProcessor = 
 		((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_pBDCommandProcessor;
 
@@ -968,6 +968,7 @@ void CPlutoVMCUtil::LocalKeyPressed(int KeyCode)
 		pBDCommandProcessor->AddCommand(pBD_WhatDoYouHave);
 		pBDCommandProcessor->ProcessCommands(!m_bSimulation);
 	}
+*/
 }
 //------------------------------------------------------------------------------------------------------------------
 void CPlutoVMCUtil::SendKey(int KeyCode, int EventType) 
@@ -979,10 +980,6 @@ void CPlutoVMCUtil::SendKey(int KeyCode, int EventType)
 	{
 		BDCommand *pCommand = new BD_PC_KeyWasPressed(KeyCode, EventType);
 		pBDCommandProcessor->AddCommand(pCommand);
-
-		BD_WhatDoYouHave *pBD_WhatDoYouHave = new BD_WhatDoYouHave();
-		pBDCommandProcessor->AddCommand(pBD_WhatDoYouHave);
-		pBDCommandProcessor->ProcessCommands(!m_bSimulation);
 	}
 }
 //------------------------------------------------------------------------------------------------------------------

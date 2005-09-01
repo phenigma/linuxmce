@@ -2,7 +2,6 @@
 
 #include "DCE/Logger.h"
 #include "BD/BDCommandProcessor_Smartphone_Bluetooth.h"
-#include "BD/BD_WhatDoYouHave.h"
 #include "VIPShared/BD_PC_KeyWasPressed.h"
 #include "VIPShared/BD_PC_GetSignalStrength.h"
 #include "VIPShared/BD_PC_SelectedFromList.h"
@@ -225,12 +224,13 @@ void OrbiterApp::SendKey(int nKeyCode, int nEventType)
 void OrbiterApp::LocalKeyPressed(int nKeyCode)
 {
 	RenderMenu::KeyPressed(nKeyCode);
-
+/*
 	if(!m_pBDCommandProcessor->m_bClientConnected)
 	{
 		BD_WhatDoYouHave *pBD_WhatDoYouHave = new BD_WhatDoYouHave();
 		m_pBDCommandProcessor->AddCommand(pBD_WhatDoYouHave);
 	}
+*/
 }
 //---------------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterApp::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam)
