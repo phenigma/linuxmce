@@ -153,7 +153,7 @@ namespace DCE
 		 * ask the server for a list of devices with this template and ask the user which device
 		 * to use.  Returns 0 meaning abort, or a positive number representing the new device ID
 		 */		 
-		virtual int DeviceIdInvalid();
+		virtual int DeviceIdInvalid()=0;
 
 		/**
 		 * @brief Reports to the user that the router cannot be reloaded now

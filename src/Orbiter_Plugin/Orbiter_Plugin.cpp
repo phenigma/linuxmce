@@ -849,6 +849,7 @@ void Orbiter_Plugin::CMD_Set_Current_User(int iPK_Users,string &sCMD_Result,Mess
 void Orbiter_Plugin::CMD_Set_Entertainment_Area(string sPK_EntertainArea,string &sCMD_Result,Message *pMessage)
 //<-dceag-c59-e->
 {
+return;
 	EntertainArea *pEntertainArea = m_pMedia_Plugin->m_mapEntertainAreas_Find(atoi(sPK_EntertainArea.c_str()));
     OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
     if( !pOH_Orbiter )
@@ -1340,7 +1341,7 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,int iPK_Users,string s
 		CMD_Set_Bound_Iconl.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Bound_Icont.m_pMessage);
 
 		pOH_Orbiter->m_dwPK_Room=iPK_Room;
-
+/*
 		PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 		EntertainArea *pEntertainArea = m_pMedia_Plugin->m_mapEntertainAreas_Find(atoi(sPK_EntertainArea.c_str()));
 	    pOH_Orbiter->m_pEntertainArea=pEntertainArea;
@@ -1356,7 +1357,7 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,int iPK_Users,string s
 		SendCommand(CMD_Set_Bound_Iconl);
 
 		delete pOrbiterFileBrowser_Collection;
-	}
+*/	}
 	else
 	{
 		*pData=NULL;

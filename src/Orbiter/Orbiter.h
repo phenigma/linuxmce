@@ -514,8 +514,8 @@ public: // temp - remove this
 	 * If this returns 0, we will terminate, 1 we will load anyway, 2 we will try again to get an OK status
 	 */
 	virtual int HandleNotOKStatus(string sStatus,string sRegenStatus,int iRegenPercent);
-	bool RouterNeedsReload();
-	int DeviceIdInvalid();
+	virtual bool RouterNeedsReload();
+	virtual int DeviceIdInvalid();
 
 	/**
 	 * @brief Convert a virtual device (a negative device that corresponds to the VirtDev entries in DeviceTemplate) into the real device ID

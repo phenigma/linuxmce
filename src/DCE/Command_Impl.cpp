@@ -243,7 +243,7 @@ void Command_Impl::CreateChildren()
 		Command_Impl *pCommand = m_pPrimaryDeviceCommand->CreateCommand( pDeviceData_Impl_Child->m_dwPK_DeviceTemplate, m_pPrimaryDeviceCommand, pDeviceData_Impl_Child, pEvent );
 		if ( !pCommand )
 		{
-			pCommand = new Command_Impl(m_pPrimaryDeviceCommand, pDeviceData_Impl_Child, pEvent, m_pRouter);
+//			pCommand = new Command_Impl(m_pPrimaryDeviceCommand, pDeviceData_Impl_Child, pEvent, m_pRouter);
 			pCommand->m_bGeneric=true;
 			g_pPlutoLogger->Write(LV_WARNING, "Note: Device manager has attached a device of type %d that this has no custom handler for.  This is normal for IR.", pDeviceData_Impl_Child->m_dwPK_DeviceTemplate);
 		}
@@ -417,7 +417,7 @@ bool Command_Impl::RouterNeedsReload()
     return false;
 #endif
 }
-
+/*
 int Command_Impl::DeviceIdInvalid()
 {
 #ifndef WINCE
@@ -449,7 +449,7 @@ int Command_Impl::DeviceIdInvalid()
 #endif
 
 }
-
+*/
 void Command_Impl::GetDevicesByTemplate(int PK_DeviceTemplate,map<int,string> *p_mapDevices)
 {
 	Event_Impl *pEvent = new Event_Impl(DEVICEID_MESSAGESEND, 0, m_sHostName);
