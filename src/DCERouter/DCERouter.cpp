@@ -2388,7 +2388,7 @@ void Router::Configure()
 // handles some broadcasts ( The Same Computer one )
 string Router::GetDevicesByDeviceTemplate(DeviceData_Router *pDeviceData_From,int PK_DeviceTemplate, eBroadcastLevel BroadcastLevel)
 {
-	if( BroadcastLevel!=BL_AllHouses && !pDeviceData_From )
+	if( BroadcastLevel!=BL_AllHouses && BroadcastLevel!=BL_SameHouse && !pDeviceData_From )
 		return "";  // If we're going to filter, we need an incoming device
 
 	string Result="";
@@ -2408,7 +2408,7 @@ string Router::GetDevicesByDeviceTemplate(DeviceData_Router *pDeviceData_From,in
 				(BroadcastLevel==BL_DirectSiblings && pDeviceData_From->m_pDevice_ControlledVia!=pDevice->m_pDevice_ControlledVia) ||
 				(BroadcastLevel==BL_SameComputer && (pDeviceData_From->m_pDevice_Core!=pDevice->m_pDevice_Core || pDeviceData_From->m_pDevice_MD!=pDevice->m_pDevice_MD) ) ||
 				(BroadcastLevel==BL_SameRoom && pDeviceData_From->m_dwPK_Room!=pDevice->m_dwPK_Room) ||
-				(BroadcastLevel==BL_SameHouse && pDeviceData_From->m_dwPK_Installation!=pDevice->m_dwPK_Installation) )
+				(BroadcastLevel==BL_SameHouse && m_dwPK_Installation!=pDevice->m_dwPK_Installation) )
             continue;
 
         if( Result.length() )
@@ -2682,3 +2682,4 @@ bool Router::RequestReload(int PK_Device_Requesting)
 	g_pPlutoLogger->Write(LV_STATUS,"PLUGINS OK");
 	return true;
 }
+

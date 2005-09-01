@@ -8410,7 +8410,7 @@ int Orbiter::PromptUser(string sPrompt,map<int,string> *p_mapPrompts)
 	{
 		for(map<int,string>::iterator it=p_mapPrompts->begin();it!=p_mapPrompts->end();++it)
 		{
-			(*p_mapPrompts)[iCount]=it->first;
+			mapResponse[iCount]=it->first;
 			cout << StringUtils::itos(iCount++) + ". " + it->second << endl;
 		}
 
@@ -8419,7 +8419,7 @@ int Orbiter::PromptUser(string sPrompt,map<int,string> *p_mapPrompts)
 	}
 	else
 		cout << "Press Enter to continue";
-
+return 1; // TODO : remove this
 	int iResponse=0;
 	while(true)
 	{
@@ -8435,19 +8435,19 @@ int Orbiter::PromptUser(string sPrompt,map<int,string> *p_mapPrompts)
 
 int Orbiter::SetupNewOrbiter()
 {
-	int PK_User = PromptFor("USERS");
-	if( !PK_User )
+	int PK_Users = PromptFor("Users");
+	if( !PK_Users )
 		return 0;
 
-	int PK_Room = PromptFor("ROOMS");
+	int PK_Room = PromptFor("Room");
 	if( !PK_Room )
 		return 0;
 
-	int PK_Skin = PromptFor("SKINS");
+	int PK_Skin = PromptFor("Skin");
 	if( !PK_Skin )
 		return 0;
 
-	int PK_Language = PromptFor("LANGUAGES");
+	int PK_Language = PromptFor("Language");
 	if( !PK_Language )
 		return 0;
 
@@ -8464,6 +8464,45 @@ int Orbiter::SetupNewOrbiter()
 	if( UseEffects==-1 )
 		return 0;
 
+	int Width=0,Height=0;
+	string sType;
+#ifdef WIN32
+#ifdef WINCE
+	sType="CE";
+#else
+	sType="Windows";
+#endif
+	RECT rt;
+	GetClientRect(0, &rt);
+#else
+	sType="Linux";
+	// HOW to do this??  TODO
+#endif
+
+	int PK_Size=0;
+	if( Width==320 && Height==240 )
+		PK_Size=7; // TODO
+	else
+		PK_Size=PromptFor("Size");
+
+	int PK_Device=0;
+	DCE::CMD_New_Orbiter_DT CMD_New_Orbiter_DT(m_dwPK_Device, DEVICETEMPLATE_Orbiter_Plugin_CONST, BL_SameHouse, sType, 
+		PK_Users,0,m_sMacAddress,PK_Room,Width,Height,PK_Skin,PK_Language,PK_Size,&PK_Device);
+
+	Event_Impl event_Impl(DEVICEID_MESSAGESEND, 0, m_sIPAddress);
+	CMD_New_Orbiter_DT.m_pMessage->m_eExpectedResponse = ER_ReplyMessage;
+	Message *pResponse = event_Impl.SendReceiveMessage( CMD_New_Orbiter_DT.m_pMessage );
+	if( !pResponse || pResponse->m_dwID != 0 )
+	{
+		if(pResponse)
+			delete pResponse;
+
+		PromptUser("Sorry.  There is a problem creating the new orbiter");
+		return 0;
+	}
+	CMD_New_Orbiter_DT.ParseResponse( pResponse );
+	delete pResponse;
+	
 	return 0;
 }
 

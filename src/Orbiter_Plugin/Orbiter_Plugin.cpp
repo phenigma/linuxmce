@@ -918,10 +918,12 @@ void Orbiter_Plugin::CMD_Set_Current_Room(int iPK_Room,string &sCMD_Result,Messa
 }
 //<-dceag-c78-b->
 
-	/** @brief COMMAND: #78 - New Mobile Orbiter */
+	/** @brief COMMAND: #78 - New Orbiter */
 	/** Tells orbiter plugin to add a new orbiter, or update the parameters on an existing one. */
 		/** @param #2 PK_Device */
 			/** If 0 is passed in, the new orbiter device is returned.  Otherwise, update this orbiter. */
+		/** @param #14 Type */
+			/** CE, Windows, Linux, Symbian60, MsSmartphone */
 		/** @param #17 PK_Users */
 			/** The primary user of the phone. */
 		/** @param #44 PK_DeviceTemplate */
@@ -930,6 +932,10 @@ void Orbiter_Plugin::CMD_Set_Current_Room(int iPK_Room,string &sCMD_Result,Messa
 			/** The MAC Address of the phone. */
 		/** @param #57 PK_Room */
 			/** The default room */
+		/** @param #60 Width */
+			/** Screen Width */
+		/** @param #61 Height */
+			/** Screen Height */
 		/** @param #141 PK_Skin */
 			/** The skin, 0=use default */
 		/** @param #142 PK_Language */
@@ -937,7 +943,7 @@ void Orbiter_Plugin::CMD_Set_Current_Room(int iPK_Room,string &sCMD_Result,Messa
 		/** @param #143 PK_Size */
 			/** The size, 0=use default */
 
-void Orbiter_Plugin::CMD_New_Mobile_Orbiter(int iPK_Users,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,int iPK_Skin,int iPK_Language,int iPK_Size,int *iPK_Device,string &sCMD_Result,Message *pMessage)
+void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,int iWidth,int iHeight,int iPK_Skin,int iPK_Language,int iPK_Size,int *iPK_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c78-e->
 {
     //todo: remove 'iPK_DeviceTemplate' from the parameters list
@@ -973,15 +979,15 @@ void Orbiter_Plugin::CMD_New_Mobile_Orbiter(int iPK_Users,int iPK_DeviceTemplate
         sMac_address.c_str(), iPK_Users
     );
 
-	Row_Device_DeviceData *pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(PK_Device,DEVICEDATA_PK_Users_CONST);
-	if( !pRow_Device_DeviceData )
-	{
-		pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->AddRow();
-		pRow_Device_DeviceData->FK_Device_set(PK_Device);
-		pRow_Device_DeviceData->FK_DeviceData_set(DEVICEDATA_PK_Users_CONST);
-	}
-	pRow_Device_DeviceData->IK_DeviceData_set( StringUtils::itos(iPK_Users) );
-	pRow_Device_DeviceData->Table_Device_DeviceData_get()->Commit();
+	// Set everything
+	if( iPK_Users )
+		m_pRouter->SetDeviceDataInDB(PK_Device,DEVICEDATA_PK_Users_CONST,StringUtils::itos(iPK_Users));
+	if( iPK_Skin )
+		m_pRouter->SetDeviceDataInDB(PK_Device,DEVICEDATA_PK_Skin_CONST,StringUtils::itos(iPK_Skin));
+	if( iPK_Language )
+		m_pRouter->SetDeviceDataInDB(PK_Device,DEVICEDATA_PK_Language_CONST,StringUtils::itos(iPK_Language));
+	if( iPK_Size )
+		m_pRouter->SetDeviceDataInDB(PK_Device,DEVICEDATA_PK_Size_CONST,StringUtils::itos(iPK_Size));
 
 	// Same thing like in regen orbiter
 	string Cmd = "/usr/pluto/bin/RegenOrbiterOnTheFly.sh " + StringUtils::itos(PK_Device) + " " + StringUtils::itos(m_dwPK_Device);
@@ -2151,7 +2157,7 @@ format */
 void Orbiter_Plugin::CMD_Get_Orbiter_Options(string sText,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c695-e->
 {
-	string sSQL = "SELECT PK_" + sText + ",Description";
+	string sSQL = "SELECT PK_" + sText + "," + (sText=="Users" ? "UserName" : "Description");
 	if( sText=="Size" )
 		sSQL += ",Width,Height";
 	sSQL += " FROM " + sText;

@@ -142,7 +142,7 @@ public:
 	virtual void CMD_Set_Current_User(int iPK_Users,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Entertainment_Area(string sPK_EntertainArea,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Current_Room(int iPK_Room,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_New_Mobile_Orbiter(int iPK_Users,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,int iPK_Skin,int iPK_Language,int iPK_Size,int *iPK_Device,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,int iWidth,int iHeight,int iPK_Skin,int iPK_Language,int iPK_Size,int *iPK_Device,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Add_Unknown_Device(string sText,string sID,string sMac_address,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Floorplan_Layout(string *sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Current_Floorplan(string sID,int iPK_FloorplanType,string *sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
@@ -253,15 +253,18 @@ public:
 				case 78:
 					{
 						string sCMD_Result="OK";
+					string sType=pMessage->m_mapParameters[14];
 					int iPK_Users=atoi(pMessage->m_mapParameters[17].c_str());
 					int iPK_DeviceTemplate=atoi(pMessage->m_mapParameters[44].c_str());
 					string sMac_address=pMessage->m_mapParameters[47];
 					int iPK_Room=atoi(pMessage->m_mapParameters[57].c_str());
+					int iWidth=atoi(pMessage->m_mapParameters[60].c_str());
+					int iHeight=atoi(pMessage->m_mapParameters[61].c_str());
 					int iPK_Skin=atoi(pMessage->m_mapParameters[141].c_str());
 					int iPK_Language=atoi(pMessage->m_mapParameters[142].c_str());
 					int iPK_Size=atoi(pMessage->m_mapParameters[143].c_str());
 					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
-						CMD_New_Mobile_Orbiter(iPK_Users,iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,iPK_Skin,iPK_Language,iPK_Size,&iPK_Device,sCMD_Result,pMessage);
+						CMD_New_Orbiter(sType.c_str(),iPK_Users,iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,iWidth,iHeight,iPK_Skin,iPK_Language,iPK_Size,&iPK_Device,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -279,7 +282,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_New_Mobile_Orbiter(iPK_Users,iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,iPK_Skin,iPK_Language,iPK_Size,&iPK_Device,sCMD_Result,pMessage);
+								CMD_New_Orbiter(sType.c_str(),iPK_Users,iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,iWidth,iHeight,iPK_Skin,iPK_Language,iPK_Size,&iPK_Device,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

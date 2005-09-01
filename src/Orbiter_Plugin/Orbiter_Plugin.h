@@ -296,10 +296,12 @@ public:
 	virtual void CMD_Set_Current_Room(int iPK_Room,string &sCMD_Result,Message *pMessage);
 
 
-	/** @brief COMMAND: #78 - New Mobile Orbiter */
+	/** @brief COMMAND: #78 - New Orbiter */
 	/** Tells orbiter plugin to add a new orbiter, or update the parameters on an existing one. */
 		/** @param #2 PK_Device */
 			/** If 0 is passed in, the new orbiter device is returned.  Otherwise, update this orbiter. */
+		/** @param #14 Type */
+			/** CE, Windows, Linux, Symbian60, MsSmartphone */
 		/** @param #17 PK_Users */
 			/** The primary user of the phone. */
 		/** @param #44 PK_DeviceTemplate */
@@ -308,6 +310,10 @@ public:
 			/** The MAC Address of the phone. */
 		/** @param #57 PK_Room */
 			/** The default room */
+		/** @param #60 Width */
+			/** Screen Width */
+		/** @param #61 Height */
+			/** Screen Height */
 		/** @param #141 PK_Skin */
 			/** The skin, 0=use default */
 		/** @param #142 PK_Language */
@@ -315,8 +321,8 @@ public:
 		/** @param #143 PK_Size */
 			/** The size, 0=use default */
 
-	virtual void CMD_New_Mobile_Orbiter(int iPK_Users,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,int iPK_Skin,int iPK_Language,int iPK_Size,int *iPK_Device) { string sCMD_Result; CMD_New_Mobile_Orbiter(iPK_Users,iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,iPK_Skin,iPK_Language,iPK_Size,iPK_Device,sCMD_Result,NULL);};
-	virtual void CMD_New_Mobile_Orbiter(int iPK_Users,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,int iPK_Skin,int iPK_Language,int iPK_Size,int *iPK_Device,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,int iWidth,int iHeight,int iPK_Skin,int iPK_Language,int iPK_Size,int *iPK_Device) { string sCMD_Result; CMD_New_Orbiter(sType.c_str(),iPK_Users,iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,iWidth,iHeight,iPK_Skin,iPK_Language,iPK_Size,iPK_Device,sCMD_Result,NULL);};
+	virtual void CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,int iWidth,int iHeight,int iPK_Skin,int iPK_Language,int iPK_Size,int *iPK_Device,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #79 - Add Unknown Device */

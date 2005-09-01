@@ -13,6 +13,7 @@
 #include <mysql.h>
 
 #include "Command_Impl.h"
+#include "pluto_main/Table_Device_DeviceData.h"
 
 class Database_pluto_main;
 class Row_Device;
@@ -332,6 +333,18 @@ namespace DCE
         void CleanFileName(string &FileName);
         Message *GetActionForInput(int PK_Device,int PK_Input);
         bool DeviceIsRegistered(int PK_Device);
+		void SetDeviceDataInDB(int PK_Device,int PK_DeviceData,string sValue)
+		{
+			Row_Device_DeviceData *pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(PK_Device,PK_DeviceData);
+			if( !pRow_Device_DeviceData )
+			{
+				pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->AddRow();
+				pRow_Device_DeviceData->FK_Device_set(PK_Device);
+				pRow_Device_DeviceData->FK_DeviceData_set(PK_DeviceData);
+			}
+			pRow_Device_DeviceData->IK_DeviceData_set( sValue );
+			pRow_Device_DeviceData->Table_Device_DeviceData_get()->Commit();
+		}
 
         void ExecuteCommandGroup(int PK_CommandGroup,int sStartingCommand=0);
 
