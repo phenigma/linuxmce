@@ -174,17 +174,21 @@ bool ServerSocket::_Run()
 			if( pos!=string::npos )
 				PK_DeviceTemplate = atoi(sMessage.substr(pos+2).c_str());
 
-			pos=sMessage.find("M=");
 			string sMacAddress;
-			if( pos!=string::npos && sMessage.length()>=pos + 19 )
-				sMacAddress = sMessage.substr(pos+2,17);
+#ifndef WIN32
+			if( m_sIPAddress.size() )
+				sMacAddress=arpcache_MACfromIP(m_sIPAddress);
+#endif
 
 			// See if the device sent us a device template only
 			if( !m_dwPK_Device && PK_DeviceTemplate )
-				m_dwPK_Device = m_pListener->GetDeviceID(PK_DeviceTemplate,sMacAddress.length() ? sMacAddress : m_sIPAddress);
+			{
+				m_dwPK_Device = m_pListener->GetDeviceID(PK_DeviceTemplate,sMacAddress,m_sIPAddress);
+				g_pPlutoLogger->Write(LV_WARNING,"Could not determine device id based on ip or mac");
+			}
 
 			if( !m_dwPK_Device )
-				SendString( "BAD DEVICE" );
+				SendString( "BAD DEVICE IP=" + m_sIPAddress + " MAC=" + sMacAddress );
 			else
 			{
 				int iResponse = m_pListener->ConfirmDeviceTemplate( m_dwPK_Device, PK_DeviceTemplate );
@@ -197,7 +201,7 @@ bool ServerSocket::_Run()
 				}
 				else if( iResponse==0 )
 				{
-					SendString( "NOT IN THIS INSTALLATION" );
+					SendString( "NOT IN THIS INSTALLATION IP=" + m_sIPAddress + " MAC=" + sMacAddress );
 					g_pPlutoLogger->Write(LV_CRITICAL,"Device %d registered but it doesn't exist",m_dwPK_Device);
 					m_bThreadRunning=false;
 					return true;

@@ -2471,33 +2471,47 @@ void Router::AlarmCallback(int id, void* param)
 	}
 }
 
-int Router::GetDeviceID( int iPK_DeviceTemplate, string sIPorMacAddress )
+int Router::GetDeviceID( int iPK_DeviceTemplate, string sMacAddress, string sIPAddress )
 {
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS,"Looking for device with temp: %d %s",iPK_DeviceTemplate,sIPorMacAddress.c_str());
+g_pPlutoLogger->Write(LV_STATUS,"Looking for device with temp: %d ip %s mac",iPK_DeviceTemplate,sIPAddress.c_str(),sMacAddress.c_str());
 #endif
+	if( sIPAddress.length()==0 && sMacAddress.length()==0 ) // We gotta have something to go on
+		return 0;
+
+	int PK_Device_MacOnly=0,PK_Device_IPOnly=0;
 	ListDeviceData_Router *pListDeviceData_Router = m_mapDeviceByTemplate_Find(iPK_DeviceTemplate);
 	if( pListDeviceData_Router )
 	{
 		for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();it!=pListDeviceData_Router->end();++it)
 		{
 			DeviceData_Router *pDevice = *it;
-			if( pDevice->m_sIPAddress==sIPorMacAddress || pDevice->m_sMacAddress==sIPorMacAddress )
+			if( pDevice->m_sIPAddress==sIPAddress && pDevice->m_sMacAddress==sMacAddress )
 				return pDevice->m_dwPK_Device;
+			else if( pDevice->m_sMacAddress==sMacAddress )
+				PK_Device_MacOnly=pDevice->m_dwPK_Device;
+			else if( pDevice->m_sIPAddress==sIPAddress )
+				PK_Device_IPOnly=pDevice->m_dwPK_Device;
 		}
 	}
-	// We'll have to search based on IP or Mac Address
-	if( sIPorMacAddress.length()==0 )
-		return 0;
 
+	// We'll have to search based on IP or Mac Address.  This might be a new device that hasn't been loaded into the router yet
 	vector<Row_Device *> vectRow_Device;
-	string sWhere="FK_Installation=" + StringUtils::itos(m_dwPK_Installation) + " AND (IPaddress='" + StringUtils::SQLEscape(sIPorMacAddress) + "' OR MACaddress='" + StringUtils::SQLEscape(sIPorMacAddress) + "')";
+	string sWhere="FK_Installation=" + StringUtils::itos(m_dwPK_Installation) + " AND IPaddress='" + StringUtils::SQLEscape(sIPAddress) + "' AND MACaddress='" + StringUtils::SQLEscape(sMacAddress) + "'";
 	m_pDatabase_pluto_main->Device_get()->GetRows(sWhere,&vectRow_Device);
-
-	if( vectRow_Device.size()==1 )
+	if( vectRow_Device.size()==0 )
 	{
-		return vectRow_Device[0]->PK_Device_get();
+		sWhere="FK_Installation=" + StringUtils::itos(m_dwPK_Installation) + " AND MACaddress='" + StringUtils::SQLEscape(sMacAddress) + "'";
+		m_pDatabase_pluto_main->Device_get()->GetRows(sWhere,&vectRow_Device);
+		if( vectRow_Device.size()==0 )
+		{
+			sWhere="FK_Installation=" + StringUtils::itos(m_dwPK_Installation) + " AND IPaddress='" + StringUtils::SQLEscape(sIPAddress) + "'";
+			m_pDatabase_pluto_main->Device_get()->GetRows(sWhere,&vectRow_Device);
+		}
 	}
+
+	if( vectRow_Device.size()==1 )  // Only if we found only 1 device consider it a match
+		return vectRow_Device[0]->PK_Device_get();
 	return 0;
 }
 

@@ -341,7 +341,7 @@ namespace DCE
 		virtual void PingFailed( ServerSocket *pServerSocket, int dwPK_Device );
 		virtual void RemoveSocket( Socket *Socket );
 
-		virtual int GetDeviceID( int iPK_DeviceTemplate, string sIPorMacAddress );
+		virtual int GetDeviceID( int iPK_DeviceTemplate, string sMacAddress, string sIPAddress );
 		virtual int ConfirmDeviceTemplate( int iPK_Device, int iPK_DeviceTemplate );
 
 		Command_Impl *FindPluginByTemplate(int PK_DeviceTemplate)

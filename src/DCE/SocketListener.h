@@ -151,7 +151,7 @@ namespace DCE
 		 * @brief If a device connects but doesn't know it's ID, this function can be implemented and it will
 		 * look up the device id based on the device template and the IP Address
 		 */
-		virtual int GetDeviceID( int iPK_DeviceTemplate, string sIPorMacAddress ) { return 0; } // Something else needs to implement this }
+		virtual int GetDeviceID( int iPK_DeviceTemplate, string sMacAddress, string sIPAddress) { return 0; } // Something else needs to implement this }
 
 		/**
 		 * @brief Returns 0 if the device doesn't exist, 1 if it does but isn't of the device template, 2 if it's a good match, 3 if it's a new device and the router needs to be reloaded
