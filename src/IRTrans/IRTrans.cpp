@@ -102,6 +102,9 @@ bool IRTrans::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 
+	if( !m_Virtual_Device_Translator->GetConfig(m_pData) )
+		return false;
+
 	FileUtils::DelDir("remotes");
 	system("mkdir remotes");
 	// Find all our sibblings that are remote controls 

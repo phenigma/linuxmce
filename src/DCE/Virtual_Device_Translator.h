@@ -20,7 +20,8 @@ class Virtual_Device_Translator
 		m_dwPK_Device_LocalAppServer;
 
 public:
-	Virtual_Device_Translator(DeviceData_Base *pDeviceData_Base);
+	Virtual_Device_Translator() {};
+	virtual bool GetConfig(DeviceData_Base *pDeviceData_Base);
 
 	int TranslateVirtualDevice(int PK_DeviceTemplate);
 

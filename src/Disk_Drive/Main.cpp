@@ -208,7 +208,7 @@ int main(int argc, char* argv[])
     try
     {
         Disk_Drive *pDisk_Drive = new Disk_Drive(PK_Device, sRouter_IP);
-        if ( pDisk_Drive->Connect(pDisk_Drive->PK_DeviceTemplate_get()) )
+        if ( pDisk_Drive->GetConfig() && pDisk_Drive->Connect(pDisk_Drive->PK_DeviceTemplate_get()) )
         {
             g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
             pDisk_Drive->CreateChildren();

@@ -51,6 +51,9 @@ bool LIRC_DCE::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 
+	if( !m_Virtual_Device_Translator->GetConfig(m_pData) )
+		return false;
+
 	FILE *fp;
 	string sCOM1 = "1";
 	string sCOM2 = "2";

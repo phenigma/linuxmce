@@ -12,7 +12,7 @@ using namespace std;
 using namespace DCE;
 
 IRReceiverBase::IRReceiverBase(Command_Impl *pCommand_Impl,DeviceData_Impl *pData)
-: m_Virtual_Device_Translator(pData)
+: m_Virtual_Device_Translator()
 {
 	m_pCommand_Impl=pCommand_Impl;
 	m_cCurrentScreen='M';

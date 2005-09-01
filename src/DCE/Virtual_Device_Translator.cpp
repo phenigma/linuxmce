@@ -6,7 +6,7 @@
 
 using namespace DCE;
 
-Virtual_Device_Translator::Virtual_Device_Translator(DeviceData_Base *pDeviceData_Base)
+bool Virtual_Device_Translator::GetConfig(DeviceData_Base *pDeviceData_Base)
 {
 	m_pDeviceData_Base=pDeviceData_Base;
 	m_dwPK_Device_MediaDirector=m_dwPK_Device_DiscDrive=m_dwPK_Device_AppServer=m_dwPK_Device_MediaBurner=m_dwPK_Device_VideoConf=m_dwPK_Device_CamcorderCapt=m_dwPK_Device_Orbiter=m_dwPK_Device_WebBrowser=0;
