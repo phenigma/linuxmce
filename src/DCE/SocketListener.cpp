@@ -213,9 +213,9 @@ void SocketListener::Run()
 	return;
 }
 
-Socket *SocketListener::CreateSocket( SOCKET newsock, string sName, string sIPAddress )
+Socket *SocketListener::CreateSocket( SOCKET newsock, string sName, string sIPAddress, string sMacAddress )
 {
-	ServerSocket *pSocket = new ServerSocket( this, newsock, sName, sIPAddress );
+	ServerSocket *pSocket = new ServerSocket( this, newsock, sName, sIPAddress, sMacAddress );
 	pSocket->Run();
 	return pSocket;
 }

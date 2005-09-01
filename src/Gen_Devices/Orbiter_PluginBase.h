@@ -3,6 +3,7 @@
 #include "DeviceData_Impl.h"
 #include "Message.h"
 #include "Command_Impl.h"
+#include "Logger.h"
 
 
 namespace DCE
@@ -72,6 +73,36 @@ public:
 		m_pEvent = new Orbiter_Plugin_Event(DeviceID, ServerAddress);
 		if( m_pEvent->m_dwPK_Device )
 			m_dwPK_Device = m_pEvent->m_dwPK_Device;
+		if( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None )
+		{
+			if( m_pEvent->m_pClientSocket->m_eLastError==cs_err_NeedReload )
+			{
+				if( RouterNeedsReload() )
+				{
+					string sResponse;
+					m_pEvent->m_pClientSocket->SendString( "RELOAD" );
+					if( m_pEvent->m_pClientSocket->ReceiveString( sResponse ) && sResponse!="OK" )
+					{
+						CannotReloadRouter();
+						g_pPlutoLogger->Write(LV_WARNING,"Reload request denied: %s",sResponse.c_str());
+					}
+				}	
+			}
+			else if( m_pEvent->m_pClientSocket->m_eLastError==cs_err_BadDevice )
+			{
+				while( m_pEvent->m_pClientSocket->m_eLastError==cs_err_BadDevice && (DeviceID = DeviceIdInvalid())!=0 )
+				{
+					delete m_pEvent;
+					m_pEvent = new Orbiter_Plugin_Event(DeviceID, ServerAddress);
+					if( m_pEvent->m_dwPK_Device )
+						m_dwPK_Device = m_pEvent->m_dwPK_Device;
+				}
+			}
+		}
+		
+		if( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None )
+			throw "Cannot connect";
+
 		int Size; char *pConfig = m_pEvent->GetConfig(Size);
 		if( !pConfig )
 			throw "Cannot get configuration data";
@@ -120,7 +151,7 @@ public:
 	virtual void CMD_Display_Message(string sText,string sType,string sName,string sTime,string sPK_Device_List,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Display_Dialog_Box_On_Orbiter(string sText,string sOptions,string sPK_Device_List,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Send_File_To_Phone(string sMac_address,string sCommand_Line,int iApp_Server_Device_ID,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Get_Orbiter_Status(int iPK_Device,string *sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Get_Orbiter_Status(int iPK_Device,string *sValue_To_Assign,string *sText,int *iValue,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -584,12 +615,16 @@ public:
 						string sCMD_Result="OK";
 					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
 					string sValue_To_Assign=pMessage->m_mapParameters[5];
-						CMD_Get_Orbiter_Status(iPK_Device,&sValue_To_Assign,sCMD_Result,pMessage);
+					string sText=pMessage->m_mapParameters[9];
+					int iValue=atoi(pMessage->m_mapParameters[48].c_str());
+						CMD_Get_Orbiter_Status(iPK_Device,&sValue_To_Assign,&sText,&iValue,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 						pMessageOut->m_mapParameters[5]=sValue_To_Assign;
+						pMessageOut->m_mapParameters[9]=sText;
+						pMessageOut->m_mapParameters[48]=StringUtils::itos(iValue);
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
@@ -602,7 +637,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Get_Orbiter_Status(iPK_Device,&sValue_To_Assign,sCMD_Result,pMessage);
+								CMD_Get_Orbiter_Status(iPK_Device,&sValue_To_Assign,&sText,&iValue,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

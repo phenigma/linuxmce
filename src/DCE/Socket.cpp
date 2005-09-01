@@ -112,7 +112,7 @@ void* PingLoop( void* param ) // renamed to cancel link-time name collision in M
 	}
 }
 
-Socket::Socket(string Name,string sIPAddress) : m_SocketMutex("socket mutex " + Name)
+Socket::Socket(string Name,string sIPAddress, string sMacAddress) : m_SocketMutex("socket mutex " + Name)
 {
 #ifndef WINCE
 #ifdef THREAD_LOG
@@ -121,6 +121,7 @@ Socket::Socket(string Name,string sIPAddress) : m_SocketMutex("socket mutex " + 
 #endif
 	m_pcSockLogFile=m_pcSockLogErrorFile=NULL;
 	m_sHostName = sIPAddress;
+	m_sMacAddress = sMacAddress;
 
 	/*
 	// code unusable; there's a memory leak in libc6 2.3.2

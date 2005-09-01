@@ -77,7 +77,7 @@ namespace DCE
 		 * @brief creates a socket listener based on the parameter data
 		 * @see the class member data
 		 */
-		virtual Socket *CreateSocket( SOCKET newsock, string sName, string sIPAddress="" );
+		virtual Socket *CreateSocket( SOCKET newsock, string sName, string sIPAddress="", string sMacAddress="" );
 			
 		/**
 		 * @brief removes the socket from the listClients mb data and clears any dependencies

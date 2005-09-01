@@ -66,8 +66,8 @@ void *ServerSocket::BeginWapClientThread( void *SvSock )
 	return NULL;
 }
 
-ServerSocket::ServerSocket( SocketListener *pListener, SOCKET Sock, string sName, string sIPAddress ) :
-	Socket( sName, sIPAddress ), m_ConnectionMutex( "connection " + sName )
+ServerSocket::ServerSocket( SocketListener *pListener, SOCKET Sock, string sName, string sIPAddress, string sMacAddress ) :
+	Socket( sName, sIPAddress, sMacAddress ), m_ConnectionMutex( "connection " + sName )
 {
 	m_dwPK_Device = (long unsigned int)-1;
 	m_Socket = Sock;

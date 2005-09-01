@@ -464,9 +464,13 @@ public:
 			/** The orbiter */
 		/** @param #5 Value To Assign */
 			/** The status: O=OK to load, N=New, skin generated, need router reset, n=new, no skins at all, R=Regenerating skin now, r=Regenerating skin for new orbiter, U=Unknown, D=Device is not an orbiter */
+		/** @param #9 Text */
+			/** If a regen is in progress, this is a status. */
+		/** @param #48 Value */
+			/** If a regen is in progress, this is a percentage */
 
-	virtual void CMD_Get_Orbiter_Status(int iPK_Device,string *sValue_To_Assign) { string sCMD_Result; CMD_Get_Orbiter_Status(iPK_Device,sValue_To_Assign,sCMD_Result,NULL);};
-	virtual void CMD_Get_Orbiter_Status(int iPK_Device,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Get_Orbiter_Status(int iPK_Device,string *sValue_To_Assign,string *sText,int *iValue) { string sCMD_Result; CMD_Get_Orbiter_Status(iPK_Device,sValue_To_Assign,sText,iValue,sCMD_Result,NULL);};
+	virtual void CMD_Get_Orbiter_Status(int iPK_Device,string *sValue_To_Assign,string *sText,int *iValue,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

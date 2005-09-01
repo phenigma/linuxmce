@@ -177,7 +177,7 @@ bool Orbiter_Plugin::Register()
 	if( !m_pLighting_Floorplan || !m_pClimate_Floorplan || !m_pMedia_Floorplan || !m_pSecurity_Floorplan || !m_pTelecom_Floorplan || !m_pGeneral_Info_Plugin )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find sister plugins");
-		return false;
+//		return false;
 	}
 
     // Check for all orbiters
@@ -2050,8 +2050,12 @@ void Orbiter_Plugin::CMD_Send_File_To_Phone(string sMac_address,string sCommand_
 			/** The orbiter */
 		/** @param #5 Value To Assign */
 			/** The status: O=OK to load, N=New, skin generated, need router reset, n=new, no skins at all, R=Regenerating skin now, r=Regenerating skin for new orbiter, U=Unknown, D=Device is not an orbiter */
+		/** @param #9 Text */
+			/** If a regen is in progress, this is a status. */
+		/** @param #48 Value */
+			/** If a regen is in progress, this is a percentage */
 
-void Orbiter_Plugin::CMD_Get_Orbiter_Status(int iPK_Device,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage)
+void Orbiter_Plugin::CMD_Get_Orbiter_Status(int iPK_Device,string *sValue_To_Assign,string *sText,int *iValue,string &sCMD_Result,Message *pMessage)
 //<-dceag-c694-e->
 {
 	OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(iPK_Device);
