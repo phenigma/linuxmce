@@ -8381,8 +8381,125 @@ bool Orbiter::RouterNeedsReload()
 
 int Orbiter::DeviceIdInvalid()
 {
+	map<int,string> mapPrompts;
+	mapPrompts[0]="Yes - This is a new Orbiter";
+	mapPrompts[1]="No - There is already a Device ID for this Orbiter";
+	mapPrompts[2]="Cancel";
+	int iResponse=0; //TODO-CHRIS - PromptUser("This seems to be a new Orbiter.  Shall I set it up for you?",mapPrompts);
+	if( iResponse==2 )
+		return 0;
+	if( iResponse==0 )
+		return SetupNewOrbiter();
+	return PickOrbiterDeviceID();
+}
+
+int Orbiter::PickOrbiterDeviceID()
+{
 	map<int,string> mapDevices;
 	GetDevicesByCategory(DEVICECATEGORY_Orbiter_CONST,&mapDevices);
 	return 0;
+}
+
+int Orbiter::PromptUser(string sPrompt,map<int,string> *p_mapPrompts)
+{
+	map<int,int> mapResponse;
+	cout << sPrompt << endl;
+	int iCount=1;
+
+	if( p_mapPrompts )
+	{
+		for(map<int,string>::iterator it=p_mapPrompts->begin();it!=p_mapPrompts->end();++it)
+		{
+			(*p_mapPrompts)[iCount]=it->first;
+			cout << StringUtils::itos(iCount++) + ". " + it->second << endl;
+		}
+
+		cout << endl
+			<< "Please choose: ";
+	}
+	else
+		cout << "Press Enter to continue";
+
+	int iResponse=0;
+	while(true)
+	{
+		cin >> iResponse;
+		if( !p_mapPrompts )
+			return 0;
+		if( iResponse>0 && iResponse<=mapResponse.size() )
+			return mapResponse[iResponse];
+		cout << endl << "Invalid.  Please try again: ";
+	}
+	return 0;
+}
+
+int Orbiter::SetupNewOrbiter()
+{
+	int PK_User = PromptFor("USERS");
+	if( !PK_User )
+		return 0;
+
+	int PK_Room = PromptFor("ROOMS");
+	if( !PK_Room )
+		return 0;
+
+	int PK_Skin = PromptFor("SKINS");
+	if( !PK_Skin )
+		return 0;
+
+	int PK_Language = PromptFor("LANGUAGES");
+	if( !PK_Language )
+		return 0;
+
+	map<int,string> mapResponseYNC;
+	mapResponseYNC[0]="Yes";
+	mapResponseYNC[1]="No";
+	mapResponseYNC[2]="Cancel";
+
+	int WiFi = PromptUser("Does this device use Wi-Fi?",&mapResponseYNC);
+	if( WiFi==-1 )
+		return 0;
+
+	int UseEffects = PromptUser("Use animated buttons and effects?  This can make low-power devices like PDA's run slowly.",&mapResponseYNC);
+	if( UseEffects==-1 )
+		return 0;
+
+	return 0;
+}
+
+int Orbiter::PromptFor(string sToken)
+{
+	Event_Impl event_Impl(DEVICEID_MESSAGESEND, 0, m_sIPAddress);
+
+	string sResults;
+	DCE::CMD_Get_Orbiter_Options_DT CMD_Get_Orbiter_Options_DT(m_dwPK_Device, DEVICETEMPLATE_Orbiter_Plugin_CONST, BL_SameHouse, 
+			sToken,&sResults);
+
+	CMD_Get_Orbiter_Options_DT.m_pMessage->m_eExpectedResponse = ER_ReplyMessage;
+	Message *pResponse = event_Impl.SendReceiveMessage( CMD_Get_Orbiter_Options_DT.m_pMessage );
+	if( !pResponse || pResponse->m_dwID != 0 )
+	{
+		if(pResponse)
+			delete pResponse;
+
+		PromptUser("Sorry.  There is a problem getting the list of " + sToken);
+		return 0;
+	}
+	CMD_Get_Orbiter_Options_DT.ParseResponse( pResponse );
+	delete pResponse;
+
+	map<int,string> mapResponse;
+	vector<string> Choices;
+	StringUtils::Tokenize(sResults,"\n",Choices);
+	for(size_t s=0;s<Choices.size();++s)
+	{
+		string::size_type pos=0;
+		int Choice = atoi(StringUtils::Tokenize(Choices[s],"\t",pos).c_str());
+		string sDescription = StringUtils::Tokenize(Choices[s],"\t",pos);
+
+		if( Choice && sDescription.size() )
+			mapResponse[Choice]=sDescription;
+	}
+	return PromptUser("Please select the " + sToken,&mapResponse); 
 }
 

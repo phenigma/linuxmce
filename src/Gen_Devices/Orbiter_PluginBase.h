@@ -142,7 +142,7 @@ public:
 	virtual void CMD_Set_Current_User(int iPK_Users,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Entertainment_Area(string sPK_EntertainArea,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Current_Room(int iPK_Room,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_New_Mobile_Orbiter(int iPK_Users,int iPK_DeviceTemplate,string sMac_address,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_New_Mobile_Orbiter(int iPK_Users,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,int iPK_Skin,int iPK_Language,int iPK_Size,int *iPK_Device,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Add_Unknown_Device(string sText,string sID,string sMac_address,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Floorplan_Layout(string *sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Current_Floorplan(string sID,int iPK_FloorplanType,string *sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
@@ -155,7 +155,8 @@ public:
 	virtual void CMD_Display_Message(string sText,string sType,string sName,string sTime,string sPK_Device_List,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Display_Dialog_Box_On_Orbiter(string sText,string sOptions,string sPK_Device_List,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Send_File_To_Phone(string sMac_address,string sCommand_Line,int iApp_Server_Device_ID,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Get_Orbiter_Status(int iPK_Device,string *sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Get_Orbiter_Status(int iPK_Device,string *sValue_To_Assign,string *sText,int *iValue,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Get_Orbiter_Options(string sText,string *sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -255,11 +256,17 @@ public:
 					int iPK_Users=atoi(pMessage->m_mapParameters[17].c_str());
 					int iPK_DeviceTemplate=atoi(pMessage->m_mapParameters[44].c_str());
 					string sMac_address=pMessage->m_mapParameters[47];
-						CMD_New_Mobile_Orbiter(iPK_Users,iPK_DeviceTemplate,sMac_address.c_str(),sCMD_Result,pMessage);
+					int iPK_Room=atoi(pMessage->m_mapParameters[57].c_str());
+					int iPK_Skin=atoi(pMessage->m_mapParameters[141].c_str());
+					int iPK_Language=atoi(pMessage->m_mapParameters[142].c_str());
+					int iPK_Size=atoi(pMessage->m_mapParameters[143].c_str());
+					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
+						CMD_New_Mobile_Orbiter(iPK_Users,iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,iPK_Skin,iPK_Language,iPK_Size,&iPK_Device,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+						pMessageOut->m_mapParameters[2]=StringUtils::itos(iPK_Device);
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
@@ -272,7 +279,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_New_Mobile_Orbiter(iPK_Users,iPK_DeviceTemplate,sMac_address.c_str(),sCMD_Result,pMessage);
+								CMD_New_Mobile_Orbiter(iPK_Users,iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,iPK_Skin,iPK_Language,iPK_Size,&iPK_Device,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -619,7 +626,39 @@ public:
 						string sCMD_Result="OK";
 					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
 					string sValue_To_Assign=pMessage->m_mapParameters[5];
-						CMD_Get_Orbiter_Status(iPK_Device,&sValue_To_Assign,sCMD_Result,pMessage);
+					string sText=pMessage->m_mapParameters[9];
+					int iValue=atoi(pMessage->m_mapParameters[48].c_str());
+						CMD_Get_Orbiter_Status(iPK_Device,&sValue_To_Assign,&sText,&iValue,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+						pMessageOut->m_mapParameters[5]=sValue_To_Assign;
+						pMessageOut->m_mapParameters[9]=sText;
+						pMessageOut->m_mapParameters[48]=StringUtils::itos(iValue);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Get_Orbiter_Status(iPK_Device,&sValue_To_Assign,&sText,&iValue,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case 695:
+					{
+						string sCMD_Result="OK";
+					string sText=pMessage->m_mapParameters[9];
+					string sValue_To_Assign=pMessage->m_mapParameters[5];
+						CMD_Get_Orbiter_Options(sText.c_str(),&sValue_To_Assign,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -637,7 +676,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Get_Orbiter_Status(iPK_Device,&sValue_To_Assign,sCMD_Result,pMessage);
+								CMD_Get_Orbiter_Options(sText.c_str(),&sValue_To_Assign,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

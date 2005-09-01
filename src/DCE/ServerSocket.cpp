@@ -167,6 +167,14 @@ bool ServerSocket::_Run()
 		{
 			m_dwPK_Device = atoi( sMessage.substr(6).c_str() );
 
+			string sMacAddress;
+#ifndef WIN32
+			if( m_sIPAddress.size() )
+				sMacAddress=arpcache_MACfromIP(m_sIPAddress);
+#else
+sMacAddress = m_sIPAddress; // Temporary for testing
+#endif
+			string sIPAndMac = (m_sIPAddress.size() ? " IP=" + m_sIPAddress : "") + (sMacAddress.size() ? " MAC=" + sMacAddress : "");
 			if( m_dwPK_Device == DEVICEID_MESSAGESEND )
 			{
 				SendString("OK");
@@ -178,12 +186,6 @@ bool ServerSocket::_Run()
 			if( pos!=string::npos )
 				PK_DeviceTemplate = atoi(sMessage.substr(pos+2).c_str());
 
-			string sMacAddress;
-#ifndef WIN32
-			if( m_sIPAddress.size() )
-				sMacAddress=arpcache_MACfromIP(m_sIPAddress);
-#endif
-
 			// See if the device sent us a device template only
 			if( !m_dwPK_Device && PK_DeviceTemplate )
 			{
@@ -192,27 +194,27 @@ bool ServerSocket::_Run()
 			}
 
 			if( !m_dwPK_Device )
-				SendString( "BAD DEVICE IP=" + m_sIPAddress + " MAC=" + sMacAddress );
+				SendString( "BAD DEVICE" + sIPAndMac );
 			else
 			{
 				int iResponse = m_pListener->ConfirmDeviceTemplate( m_dwPK_Device, PK_DeviceTemplate );
 				if( iResponse==3 )
 				{
-					SendString( "NEED RELOAD" );
+					SendString( "NEED RELOAD" + sIPAndMac);
 					g_pPlutoLogger->Write(LV_WARNING,"Device %d registered but the router needs to be reloaded",m_dwPK_Device);
 					m_bThreadRunning=false;
 					return true;
 				}
 				else if( iResponse==0 )
 				{
-					SendString( "NOT IN THIS INSTALLATION IP=" + m_sIPAddress + " MAC=" + sMacAddress );
+					SendString( "NOT IN THIS INSTALLATION" + sIPAndMac);
 					g_pPlutoLogger->Write(LV_CRITICAL,"Device %d registered but it doesn't exist",m_dwPK_Device);
 					m_bThreadRunning=false;
 					return true;
 				}
 				if( PK_DeviceTemplate && iResponse!=2 )
 					g_pPlutoLogger->Write(LV_STATUS,"Device %d connected as foreign template %d",m_dwPK_Device, PK_DeviceTemplate);
-				SendString( "OK " + StringUtils::itos(m_dwPK_Device) );
+				SendString( "OK " + StringUtils::itos(m_dwPK_Device) + sIPAndMac );
 				m_sName += sMessage;
 			}
 

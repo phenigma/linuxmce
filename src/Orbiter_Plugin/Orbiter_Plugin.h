@@ -297,16 +297,26 @@ public:
 
 
 	/** @brief COMMAND: #78 - New Mobile Orbiter */
-	/** After a new bluetooth device is detected, the Orbiter Handler will display a message on all the Orbiters prompting if this is a phone that should be added.  The Orbiters will fire this command to indicate that 'yes' the device is a phone and needs the sof */
+	/** Tells orbiter plugin to add a new orbiter, or update the parameters on an existing one. */
+		/** @param #2 PK_Device */
+			/** If 0 is passed in, the new orbiter device is returned.  Otherwise, update this orbiter. */
 		/** @param #17 PK_Users */
 			/** The primary user of the phone. */
 		/** @param #44 PK_DeviceTemplate */
-			/** What type of phone it is. */
+			/** What type of orbiter it is. */
 		/** @param #47 Mac address */
 			/** The MAC Address of the phone. */
+		/** @param #57 PK_Room */
+			/** The default room */
+		/** @param #141 PK_Skin */
+			/** The skin, 0=use default */
+		/** @param #142 PK_Language */
+			/** The language, 0=use default */
+		/** @param #143 PK_Size */
+			/** The size, 0=use default */
 
-	virtual void CMD_New_Mobile_Orbiter(int iPK_Users,int iPK_DeviceTemplate,string sMac_address) { string sCMD_Result; CMD_New_Mobile_Orbiter(iPK_Users,iPK_DeviceTemplate,sMac_address.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_New_Mobile_Orbiter(int iPK_Users,int iPK_DeviceTemplate,string sMac_address,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_New_Mobile_Orbiter(int iPK_Users,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,int iPK_Skin,int iPK_Language,int iPK_Size,int *iPK_Device) { string sCMD_Result; CMD_New_Mobile_Orbiter(iPK_Users,iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,iPK_Skin,iPK_Language,iPK_Size,iPK_Device,sCMD_Result,NULL);};
+	virtual void CMD_New_Mobile_Orbiter(int iPK_Users,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,int iPK_Skin,int iPK_Language,int iPK_Size,int *iPK_Device,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #79 - Add Unknown Device */
@@ -465,9 +475,26 @@ public:
 			/** The orbiter */
 		/** @param #5 Value To Assign */
 			/** The status: O=OK to load, N=New, skin generated, need router reset, n=new, no skins at all, R=Regenerating skin now, r=Regenerating skin for new orbiter, U=Unknown, D=Device is not an orbiter */
+		/** @param #9 Text */
+			/** If a regen is in progress, this is a status. */
+		/** @param #48 Value */
+			/** If a regen is in progress, this is a percentage */
 
-	virtual void CMD_Get_Orbiter_Status(int iPK_Device,string *sValue_To_Assign) { string sCMD_Result; CMD_Get_Orbiter_Status(iPK_Device,sValue_To_Assign,sCMD_Result,NULL);};
-	virtual void CMD_Get_Orbiter_Status(int iPK_Device,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Get_Orbiter_Status(int iPK_Device,string *sValue_To_Assign,string *sText,int *iValue) { string sCMD_Result; CMD_Get_Orbiter_Status(iPK_Device,sValue_To_Assign,sText,iValue,sCMD_Result,NULL);};
+	virtual void CMD_Get_Orbiter_Status(int iPK_Device,string *sValue_To_Assign,string *sText,int *iValue,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #695 - Get Orbiter Options */
+	/** Get various options a user may want to setup his orbiter, such as the skins, users, etc. */
+		/** @param #5 Value To Assign */
+			/** The response in:
+ID\tDescription\n
+format */
+		/** @param #9 Text */
+			/** One of the following: Users, Room, Skin, Language, Size */
+
+	virtual void CMD_Get_Orbiter_Options(string sText,string *sValue_To_Assign) { string sCMD_Result; CMD_Get_Orbiter_Options(sText.c_str(),sValue_To_Assign,sCMD_Result,NULL);};
+	virtual void CMD_Get_Orbiter_Options(string sText,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

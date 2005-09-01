@@ -520,6 +520,10 @@ public: // temp - remove this
 	virtual int HandleNotOKStatus(string sStatus,string sRegenStatus,int iRegenPercent);
 	virtual bool RouterNeedsReload();
 	virtual int DeviceIdInvalid();
+	virtual int PickOrbiterDeviceID();
+	virtual int PromptUser(string sPrompt,map<int,string> *p_mapPrompts=NULL);
+	virtual int SetupNewOrbiter();
+	virtual int PromptFor(string sToken);
 
 	/**
 	 * @brief Convert a virtual device (a negative device that corresponds to the VirtDev entries in DeviceTemplate) into the real device ID

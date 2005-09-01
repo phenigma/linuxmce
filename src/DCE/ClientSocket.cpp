@@ -209,12 +209,28 @@ bool ClientSocket::OnConnect( int PK_DeviceTemplate,string sExtraInfo )
 	{
 		if( g_pPlutoLogger )
 			g_pPlutoLogger->Write( LV_CRITICAL, "Lost connection device: %d", m_dwPK_Device );
+
+		return false;
 	}
-	else if ( sResponse.length()<2 || sResponse.substr(0,2) != "OK" )
+
+	string::size_type pos = sResponse.find("IP=");
+	if( pos!=string::npos )
+	{
+		string::size_type space = sResponse.find(' ',pos+1);
+		m_sIPAddress = space==string::npos ? sResponse.substr(pos+3) : sResponse.substr(pos+3,space-pos-3);
+	}
+	pos = sResponse.find("MAC=");
+	if( pos!=string::npos )
+	{
+		string::size_type space = sResponse.find(' ',pos+1);
+		m_sMacAddress = space==string::npos ? sResponse.substr(pos+4) : sResponse.substr(pos+3,space-pos-4);
+	}
+
+	if ( sResponse.length()<2 || sResponse.substr(0,2) != "OK" )
 	{
 		if( sResponse=="NEED RELOAD" )
 			m_eLastError=cs_err_NeedReload;
-		else if( sResponse=="NOT IN THIS INSTALLATION" || sResponse=="BAD DEVICE" )
+		else if( sResponse.substr(0,24)=="NOT IN THIS INSTALLATION" || sResponse.substr(0,10)=="BAD DEVICE" )
 			m_eLastError=cs_err_BadDevice;
 		if( g_pPlutoLogger )
 			g_pPlutoLogger->Write( LV_CRITICAL, "Connection for client socket reported %s, device %d last error %d", 
