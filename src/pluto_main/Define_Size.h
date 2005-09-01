@@ -1,12 +1,22 @@
 #ifndef __Define_Size_H__
 #define __Define_Size_H__
 
+#define SIZE_800x600_CONST 1
+#define SIZE_MMI_CONST 2
+#define SIZE_Symbian_60_scale_was_220_158_CONST 3
+#define SIZE_Horizontal_PDA_CONST 4
+#define SIZE_640x480_CONST 5
+#define SIZE_1024x768_CONST 6
+#define SIZE_240x320_PDA_CONST 7
+#define SIZE_176x220_Windows_Mobile_CONST 8
 
 #define SIZE_TABLE "Size"
 #define SIZE_PK_SIZE_FIELD "PK_Size"
 #define SIZE_PK_SIZE_TABLE_FIELD "Size.PK_Size"
 #define SIZE_DESCRIPTION_FIELD "Description"
 #define SIZE_DESCRIPTION_TABLE_FIELD "Size.Description"
+#define SIZE_DEFINE_FIELD "Define"
+#define SIZE_DEFINE_TABLE_FIELD "Size.Define"
 #define SIZE_WIDTH_FIELD "Width"
 #define SIZE_WIDTH_TABLE_FIELD "Size.Width"
 #define SIZE_HEIGHT_FIELD "Height"

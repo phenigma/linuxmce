@@ -79,6 +79,7 @@ class DECLSPECIFIER Row_Size : public TableRow, public SerializeClass
 		
 		long int m_PK_Size;
 string m_Description;
+string m_Define;
 long int m_Width;
 long int m_Height;
 long int m_ScaleX;
@@ -91,11 +92,12 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[13];
+		bool is_null[14];
 	
 	public:
 		long int PK_Size_get();
 string Description_get();
+string Define_get();
 long int Width_get();
 long int Height_get();
 long int ScaleX_get();
@@ -111,6 +113,7 @@ long int psc_restrict_get();
 		
 		void PK_Size_set(long int val);
 void Description_set(string val);
+void Define_set(string val);
 void Width_set(long int val);
 void Height_set(long int val);
 void ScaleX_set(long int val);
@@ -124,14 +127,16 @@ void psc_mod_set(string val);
 void psc_restrict_set(long int val);
 
 		
-		bool psc_id_isNull();
+		bool Define_isNull();
+bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
 bool psc_frozen_isNull();
 bool psc_restrict_isNull();
 
 			
-		void psc_id_setNull(bool val);
+		void Define_setNull(bool val);
+void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
 void psc_frozen_setNull(bool val);
@@ -155,13 +160,14 @@ void psc_restrict_setNull(bool val);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Size+ m_Description+ m_Width+ m_Height+ m_ScaleX+ m_ScaleY+ m_PreserveAspectRatio+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_Size+ m_Description+ m_Define+ m_Width+ m_Height+ m_ScaleX+ m_ScaleY+ m_PreserveAspectRatio+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
 		
 		string PK_Size_asSQL();
 string Description_asSQL();
+string Define_asSQL();
 string Width_asSQL();
 string Height_asSQL();
 string ScaleX_asSQL();
