@@ -58,15 +58,26 @@
 		$description=stripslashes($_POST['description']);
 		
 		if($dcID!=0 && $mID!=0 && $description!=''){
-			$publicADO->Execute('INSERT INTO DeviceTemplate (Description,FK_DeviceCategory,FK_Manufacturer,psc_user) values(?,?,?,?)',array($description,$dcID,$mID,$userID));
-			$dtID=$publicADO->Insert_ID();
-
-			// add controlled via Infrared Interface		
-			$publicADO->Execute('INSERT INTO DeviceTemplate_DeviceCategory_ControlledVia (FK_DeviceTemplate,FK_DeviceCategory) values(?,?)',array($dtID,$GLOBALS['InfraredInterface']));
-			
-			$publicADO->Execute('INSERT INTO DeviceTemplate_AV (FK_DeviceTemplate,psc_user) VALUES (?,?)',array($dtID,$userID));			
 			$_SESSION['selectedCommMethod']=(int)$_POST['commMethod'];
+			if($_SESSION['selectedCommMethod']==1){
+				$parentCategory=$GLOBALS['InfraredInterface'];
+				$implementDCE=0;
+				$commandLine=NULL;
+			}else{
+				$parentCategory=$GLOBALS['rootComputerID'];
+				$implementDCE=1;
+				$commandLine='Generic_Serial_Device';
+			}
 			
+			$publicADO->Execute('INSERT INTO DeviceTemplate (Description,FK_DeviceCategory,FK_Manufacturer,psc_user,ImplementsDCE,CommandLine) values(?,?,?,?,?,?)',array($description,$dcID,$mID,$userID,$implementDCE,$commandLine));
+			$dtID=$publicADO->Insert_ID();
+			
+			// add record to DeviceTemplate_AV
+			$publicADO->Execute('INSERT INTO DeviceTemplate_AV (FK_DeviceTemplate,psc_user) VALUES (?,?)',array($dtID,$userID));			
+
+			// add controlled via infrared interface or computers
+			$publicADO->Execute('INSERT INTO DeviceTemplate_DeviceCategory_ControlledVia (FK_DeviceTemplate,FK_DeviceCategory) values(?,?)',array($dtID,$parentCategory));
+
 			// hardcoded corespondence between AV categories cd, casette, dvd etc. and media types
 			$dc_mtArray=array(106=>19,107=>12,108=>11,105=>11,135=>17);
 

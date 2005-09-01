@@ -98,7 +98,7 @@ function restart($output,$dbADO) {
 		}
 
 		if(isset($_POST['reboot_core'])){
-			$command='/usr/pluto/bin/MessageSend -targetType template 0 27 1 268 21 R 2 '.$coreID;
+			$command='sudo -u root reboot';
 			exec($command);
 		}
 
@@ -114,7 +114,9 @@ function restart($output,$dbADO) {
 			}
 	
 			if(isset($_POST['reboot_'.$mdID])){
-				$command='/usr/pluto/bin/MessageSend -targetType template 0 27 1 323 21 R 2 '.$mdID;
+				// extract IP
+				$mdData=getAssocArray('Device','PK_Device','IPAddress',$dbADO,'WHERE PK_Device='.$mdID);
+				$command='ssh root@'.$mdData[$mdID].' reboot';
 				exec($command);
 			}
 		}

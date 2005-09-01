@@ -8,7 +8,7 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
-	global $inputCommandsArray, $dspmodeCommandsArray;
+	global $inputCommandsArray, $dspmodeCommandsArray,$powerCommands;
 	
 	$out='';
 //	$dbADO->debug=true;;
@@ -89,6 +89,10 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 			exit();
 		}
 		$rowDTData=$resDTData->FetchRow();
+
+		$togglePower=(@$rowDTData['TogglePower']==1)?1:0;
+		$toggleInput=(@$rowDTData['ToggleInput']==1)?1:0;
+		$toggleDSP=(@$rowDTData['ToggleDSP']==1)?1:0;
 		$manufacturerID=$rowDTData['FK_Manufacturer'];
 		$deviceCategoryID=$rowDTData['FK_DeviceCategory'];
 		$owner=$rowDTData['User'];
@@ -100,6 +104,7 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 
 		$inputCommandsArray=getAssocArray('Command','PK_Command','Command.Description',$dbADO,'INNER JOIN DeviceTemplate_Input ON FK_Command=PK_Command WHERE FK_DeviceTemplate='.$dtID,'ORDER BY Command.Description ASC');
 		$dspmodeCommandsArray=getAssocArray('Command','PK_Command','Command.Description',$dbADO,'INNER JOIN DeviceTemplate_DSPMode ON FK_Command=PK_Command WHERE FK_DeviceTemplate='.$dtID,'ORDER BY Command.Description ASC');
+		$powerCommands=array($GLOBALS['genericONCommand']=>'ON',$GLOBALS['genericOFFCommand']=>'OFF');
 		
 		$out.='
 		<input type="hidden" name="oldIRGroup" value="'.@$infraredGroupID.'">
@@ -121,7 +126,7 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 		$out.='
 			<tr>
 				<td valign="top" width="250">Implement Command Groups </td>
-				<td>'.DeviceCommandGroupTable($dtID,$deviceCategoryID,$dbADO,$GLOBALS['btnEnabled']).'</td>
+				<td>'.DeviceCommandGroupTable($dtID,$deviceCategoryID,$dbADO).'</td>
 		</tr>
 		';
 		
@@ -131,11 +136,10 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 			</tr>';
 		
 		// extract data from InfraredGroup_Command an put it in multi-dimmensional array
-		$codesArray=extractCodesTree($infraredGroupID,$dbADO);
+		$codesArray=extractCodesTree($infraredGroupID,$dtID,$dbADO);
 		
 		// display the html rows 
-		$out.=getCodesTableRows('rubyCodes',$infraredGroupID,$dtID,$deviceID,$codesArray);
-		
+		$out.=getCodesTableRows('rubyCodes',$infraredGroupID,$dtID,$deviceID,$codesArray,$togglePower,$toggleInput,$toggleDSP);
 
 		$out.='
 			<tr>
@@ -161,6 +165,7 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 			<input type="hidden" name="displayedCommands" value="'.join(',',$GLOBALS['displayedCommands']).'">
 			<input type="hidden" name="displayedIRGC" value="'.join(',',$GLOBALS['displayedIRGC']).'">
 		</form>
+		<iframe name="codeTester" src="" style="display:none;"></iframe>
 	<span class="normaltext">If you have question or comments, please contact us by <a href="mailto:support@plutohome.com?subject=IR Group '.$infraredGroupID.' x Device Template '.$dtID.' x UserID '.$userID.'">email</a>.</span><br><br>		
 	';	
 		$out.=(($GLOBALS['btnEnabled']=='disabled')?'<span class="normaltext"><em>* Add/Edit options are available only for your own device templates.</em></span>':'');		
@@ -250,22 +255,22 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 
 			$commandsDisplayed=array_unique(explode(',',$_POST['displayedCommands']));
 			$GLOBALS['igcPrefered']=unserialize(urldecode($_POST['igcPrefered']));
+
 			foreach ($commandsDisplayed AS $commandID){
 				$preferredCommand=(int)@$_POST['prefered_'.$commandID];
 				if($preferredCommand>0){
-					if(isset($GLOBALS['igcPrefered'][$commandID]) && $GLOBALS['igcPrefered'][$commandID]!=$preferredCommand){
-						$dbADO->Execute('UPDATE InfraredGroup_Command_Preferred SET FK_InfraredGroup_Command=? WHERE FK_InfraredGroup_Command=? AND FK_Installation=?',array($preferredCommand,$GLOBALS['igcPrefered'][$commandID],$installationID));
-					}elseif(!isset($GLOBALS['igcPrefered'][$commandID])){
-						$dbADO->Execute('INSERT IGNORE INTO InfraredGroup_Command_Preferred (FK_InfraredGroup_Command,FK_Installation) VALUES (?,?)',array($preferredCommand,$installationID));
+					if(isset($GLOBALS['igcPrefered'][$commandID])){
+						$dbADO->Execute('DELETE FROM InfraredGroup_Command_Preferred WHERE FK_InfraredGroup_Command IN ('.join(',',$GLOBALS['igcPrefered'][$commandID]).') AND FK_Installation=?',array($installationID));
 					}
+					$dbADO->Execute('INSERT INTO InfraredGroup_Command_Preferred (FK_InfraredGroup_Command,FK_Installation) VALUES (?,?)',array($preferredCommand,$installationID));
 				}
 			}
-
+	
 
 			$time_end= getmicrotime();
 			//print '<p class="normaltext">Page generated in '.round(($time_end-$time_start),3).' s.';
 			
-			header("Location: index.php?section=rubyCodes&from=$from&deviceID=$deviceID&dtID=$dtID&infraredGroupID=$infraredGroupID&msg=IR codes updated.&label=".$GLOBALS['label']);
+			header("Location: index.php?section=rubyCodes&from=$from&deviceID=$deviceID&dtID=$dtID&infraredGroupID=$infraredGroupID&msg=Ruby codes updated.&label=".$GLOBALS['label']);
 			exit();
 		}
 
@@ -275,7 +280,7 @@ function rubyCodes($output,$dbADO,$mediaADO) {
 	$out.='<br><p class="normaltext">Page generated in '.round(($time_end-$time_start),3).' s.';
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: IR Codes');
+	$output->setTitle(APPLICATION_NAME.' :: Ruby Codes');
 	$output->output();
 }
 ?>

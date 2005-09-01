@@ -3378,7 +3378,7 @@ function getIrGroup_CommandsMatrix($dtID,$InfraredGroupsArray,$userID,$comMethod
 		foreach ($restrictedCommandsArray AS $cmdID=>$cmdName){
 			$pk_irgc=@$commandGrouped[$keysArray[$i]][$cmdID];
 			$testCodeBtn=(session_name()=='Pluto-admin')?' <input type="button" class="button" name="testCode" value="T" onClick="frames[\'codeTester\'].location=\'index.php?section=testCode&irgcID='.$pk_irgc.'&deviceID='.@$_REQUEST['deviceID'].'\';">':'';
-			$out.='<td align="center">'.((isset($commandGrouped[$keysArray[$i]][$cmdID]))?'<input type="button" class="button" name="copyCB" value="V" onClick="window.open(\'index.php?section=displayCode&irgcID='.$pk_irgc.'\',\'_blank\',\'\');;">'.$testCodeBtn:'N/A').'</td>';
+			$out.='<td align="center">'.((isset($commandGrouped[$keysArray[$i]][$cmdID]))?'<input type="button" class="button" name="copyCB" value="V" onClick="window.open(\'index.php?section=displayCode&irgcID='.$pk_irgc.'\',\'_blank\',\'\');">'.$testCodeBtn:'N/A').'</td>';
 		}
 		$out.='
 			<td><input type="button" class="button" name="btn" onClick="self.location=\'index.php?section=irCodes&dtID='.$dtID.'&infraredGroupID='.$keysArray[$i].'&deviceID='.@$_REQUEST['deviceID'].'\';" value="This works"></td>
@@ -3396,7 +3396,8 @@ function getIrGroup_CommandsMatrix($dtID,$InfraredGroupsArray,$userID,$comMethod
 function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDeviceTemplate,$returnValue,$defaultAll,$section,$firstColText,$dbADO,$useframes=0,$genericSerialDevicesOnly=0)
 {
 	$redirectUrl='index.php?section='.$section;
-
+	$from=@$_REQUEST['from'];
+	
 	global $dbPlutoMainDatabase;
 	$out='
 	<script>
@@ -3609,7 +3610,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 
 		function addModel(){
 			if(document.$formName.deviceSelected.value!=0 && document.$formName.manufacturers.selectedIndex!=0 && document.$formName.manufacturers.selectedIndex!=-1){
-				self.location='index.php?section=addModel&mID='+document.$formName.manufacturers[document.$formName.manufacturers.selectedIndex].value+'&dcID='+document.$formName.deviceSelected.value+'&step=1';
+				self.location='index.php?section=addModel&mID='+document.$formName.manufacturers[document.$formName.manufacturers.selectedIndex].value+'&dcID='+document.$formName.deviceSelected.value+'&step=1&from=$from';
 			}
 		}
 		
@@ -3636,6 +3637,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 		<input type="hidden" name="deviceSelected" value="'.$selectedDevice.'">
 		<input type="hidden" name="modelSelected" value="'.$selectedModel.'">
 		<input type="hidden" name="allowAdd" value="'.(int)@$_REQUEST['allowAdd'].'">
+		<input type="hidden" name="from" value="'.$from.'">
 		
 		<table cellpadding="5" cellspacing="0" border="0" align="center">
 				<input type="hidden" name="selectedField" value="" />';
@@ -3885,7 +3887,7 @@ function getMediaTypeCheckboxes($dtID,$publicADO,$mediaADO,$deviceID)
 }
 
 // extract codes and put them in a multi dimensional array
-function extractCodesTree($infraredGroupID,$dbADO,$restriction=''){
+function extractCodesTree($infraredGroupID,$dtID,$dbADO,$restriction=''){
 	global $inputCommandsArray, $dspmodeCommandsArray,$powerCommands;
 	$installationID=(int)$_SESSION['installationID'];
 
@@ -3904,10 +3906,10 @@ function extractCodesTree($infraredGroupID,$dbADO,$restriction=''){
 				FK_Command 
 			FROM InfraredGroup_Command 
 			JOIN Command ON FK_Command=PK_Command JOIN CommandCategory ON FK_CommandCategory=PK_CommandCategory 
-			WHERE '.(($infraredGroupID==0)?'FK_InfraredGroup IS NULL':'FK_InfraredGroup='.$infraredGroupID).$restriction.'
+			WHERE '.(($infraredGroupID==0)?'FK_InfraredGroup IS NULL':'FK_InfraredGroup='.$infraredGroupID).' AND (FK_DeviceTemplate=? OR FK_DeviceTemplate IS NULL) '.$restriction.'
 			ORDER BY GroupOrder,CommandCategory.Description,Description,DefaultOrder';
 
-	$res=$dbADO->Execute($codesQuery,array($userID));
+	$res=$dbADO->Execute($codesQuery,array($userID,$dtID));
 	$codesArray=array();
 	while($row=$res->FetchRow()){
 		$categoryLabel=($row['CommandCategory']=='Generic')?'Power':$row['CommandCategory'];
@@ -3964,6 +3966,9 @@ function getCodesTableRows($section,$infraredGroupID,$dtID,$deviceID,$codesArray
 	global $inputCommandsArray, $dspmodeCommandsArray,$powerCommands;
 	//print_array($codesArray);
 	$categNames=array_keys($codesArray);
+	if(!in_array('Power',$categNames)){
+		$categNames[]='Power';
+	}	
 	if(!in_array('Inputs',$categNames)){
 		$categNames[]='Inputs';
 	}
@@ -4059,7 +4064,7 @@ function formatCode($section,$dataArray,$pos,$infraredGroupID,$dtID,$deviceID){
 				<td align="center" width="100"><B>'.$dataArray['Description'][$pos].'</B> <br><input type="button" class="button" name="learnCode" value="New code" onClick="windowOpen(\'index.php?section='.(($section=='rubyCodes')?'newRubyCode':'newIRCode').'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$dataArray['FK_Command'][$pos].'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');" '.((!isset($_SESSION['userID']))?'disabled':'').'></td>
 				<td align="center" width="20"><input type="radio" name="prefered_'.$dataArray['FK_Command'][$pos].'" value="'.$pos.'" '.((@in_array($pos,@$GLOBALS['igcPrefered'][$dataArray['FK_Command'][$pos]]))?'checked':'').'></td>
 				<td><textarea name="irData_'.$pos.'" rows="2" style="width:100%">'.$dataArray['IRData'][$pos].'</textarea></td>
-				<td align="center" width="100">'.$deleteButton.' <br> <input type="button" class="button" name="testCode" value="Test code" onClick="frames[\'codeTester\'].location=\'index.php?section=testCode&irgcID='.$pos.'&deviceID='.$deviceID.'\';"> <a name="test_'.$pos.'"></td>
+				<td align="center" width="100">'.$deleteButton.' <br> <input type="button" class="button" name="testCode" value="Test code" onClick="frames[\'codeTester\'].location=\'index.php?section=testCode&irgcID='.$pos.'&deviceID='.$deviceID.'&sender='.$section.'\';"> <a name="test_'.$pos.'"></td>
 			</tr>
 		</table>';
 

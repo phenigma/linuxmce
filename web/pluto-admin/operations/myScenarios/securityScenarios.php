@@ -459,12 +459,12 @@ if($action=='form') {
 				(FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter)
 			VALUES
 				(?,?,?)';
-
+//$dbADO->debug=true;
 		foreach($GLOBALS['camerasVariableNumbersArray'] as $cameraNO){			
 			$oldCamera=(int)$_POST['oldCamera_'.$cameraNO];
 			$oldCameraCG_C=(int)$_POST['oldCameraCG_C_'.$cameraNO];
 			$camera=(int)$_POST['camera_'.$cameraNO];
-
+//echo $oldCameraCG_C.'<br>';
 			if($oldCamera==0){
 				if($camera!=0){
 					$dbADO->Execute($insertCG_C,array($cgID,$GLOBALS['commandSetVar'],0,0,$GLOBALS['localOrbiter']));

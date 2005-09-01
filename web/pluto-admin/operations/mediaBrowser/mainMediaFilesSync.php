@@ -47,8 +47,15 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 					self.location="index.php?section=mainMediaFilesSync&path='.urlencode($path).'&action=newDir&subDir="+subDir;
 				}
 			}
+
+			function syncPath(path)
+			{
+				top.treeframe.location=\'index.php?section=leftMediaFilesSync&startPath=\'+escape(path);
+				self.location=\'index.php?section=mainMediaFilesSync&path=\'+escape(path);
+			}
 			</script>
 			
+			<a href="javascript:syncPath(\''.substr($path,0,strrpos($path,'/')).'\')">Up one level</a>
 			<table cellpadding="3" cellspacing="0">
 				<tr bgcolor="#F0F3F8">
 					<td><B>Directory: '.$path.'</B></td>

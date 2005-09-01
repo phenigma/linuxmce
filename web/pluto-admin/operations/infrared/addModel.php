@@ -3,14 +3,16 @@ function addModel($output,$dbADO,$mediadbADO)
 {
 
 	/* @var $dbADO ADOConnection */
-	global $PlutoHomeHost;
+	global $PlutoHomeHost,$PlutoSupportHost;
 	
 	$deviceID=(int)@$_REQUEST['deviceID'];
 	$userID=(int)@$_SESSION['userID'];
+	$from=@$_REQUEST['from'];
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$step=$_REQUEST['step'];
-	$publicADO=$dbADO;
 	
+	$publicADO=$dbADO;
+
 	$mID=@$_REQUEST['mID'];
 	$dcID=@$_REQUEST['dcID'];
 

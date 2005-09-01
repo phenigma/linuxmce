@@ -166,7 +166,7 @@ function irCodes($output,$dbADO,$mediaADO) {
 			</tr>';
 		
 		// extract data from InfraredGroup_Command an put it in multi-dimmensional array
-		$codesArray=extractCodesTree($infraredGroupID,$dbADO);
+		$codesArray=extractCodesTree($infraredGroupID,$dtID,$dbADO);
 		
 		// display the html rows 
 		$out.=getCodesTableRows('irCodes',$infraredGroupID,$dtID,$deviceID,$codesArray,$togglePower,$toggleInput,$toggleDSP);
@@ -292,9 +292,7 @@ function irCodes($output,$dbADO,$mediaADO) {
 				$preferredCommand=(int)@$_POST['prefered_'.$commandID];
 				if($preferredCommand>0){
 					if(isset($GLOBALS['igcPrefered'][$commandID])){
-						foreach ($GLOBALS['igcPrefered'][$commandID] AS $pos=>$key){
-							$dbADO->Execute('DELETE FROM InfraredGroup_Command_Preferred WHERE FK_InfraredGroup_Command=? AND FK_Installation=?',array($key,$installationID));
-						}
+						$dbADO->Execute('DELETE FROM InfraredGroup_Command_Preferred WHERE FK_InfraredGroup_Command IN ('.join(',',$GLOBALS['igcPrefered'][$commandID]).') AND FK_Installation=?',array($installationID));
 					}
 					$dbADO->Execute('INSERT INTO InfraredGroup_Command_Preferred (FK_InfraredGroup_Command,FK_Installation) VALUES (?,?)',array($preferredCommand,$installationID));
 				}
