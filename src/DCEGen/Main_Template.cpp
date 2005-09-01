@@ -188,8 +188,8 @@ int main(int argc, char* argv[])
 	bool bReload=false;
 	try
 	{
-		DCE_Template *pDCE_Template = new DCE_Template(PK_Device, sRouter_IP);	
-		if ( pDCE_Template->Connect(pDCE_Template->PK_DeviceTemplate_get()) ) 
+		DCE_Template *pDCE_Template = new DCE_Template(PK_Device, sRouter_IP);
+		if ( pDCE_Template->GetConfig() && pDCE_Template->Connect(pDCE_Template->PK_DeviceTemplate_get()) ) 
 		{
 			g_pCommand_Impl=pDCE_Template;
 			g_pDeadlockHandler=DeadlockHandler;

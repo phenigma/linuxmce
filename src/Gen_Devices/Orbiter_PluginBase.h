@@ -67,8 +67,11 @@ public:
 	Orbiter_Plugin_Command(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL)
 	: Command_Impl(DeviceID, ServerAddress, bLocalMode, pRouter)
 	{
+	}
+	virtual bool GetConfig()
+	{
 		if( m_bLocalMode )
-			return;
+			return true;
 		m_pData=NULL;
 		m_pEvent = new Orbiter_Plugin_Event(DeviceID, ServerAddress);
 		if( m_pEvent->m_dwPK_Device )
@@ -101,7 +104,8 @@ public:
 		}
 		
 		if( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None )
-			throw "Cannot connect";
+			return false;
+		return true;
 
 		int Size; char *pConfig = m_pEvent->GetConfig(Size);
 		if( !pConfig )

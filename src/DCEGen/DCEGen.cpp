@@ -453,10 +453,13 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	fstr_DeviceCommand << "\t"  << Name   <<  "_Command(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL)" << endl;
 	fstr_DeviceCommand << "\t: Command_Impl(DeviceID, ServerAddress, bLocalMode, pRouter)" << endl;
 	fstr_DeviceCommand << "\t{" << endl;
+	fstr_DeviceCommand << "\t}" << endl;
+	fstr_DeviceCommand << "\tvirtual bool GetConfig()" << endl;
+	fstr_DeviceCommand << "\t{" << endl;
 	fstr_DeviceCommand << "\t\tif( m_bLocalMode )" << endl;
-	fstr_DeviceCommand << "\t\t\treturn;" << endl;
+	fstr_DeviceCommand << "\t\t\treturn true;" << endl;
 	fstr_DeviceCommand << "\t\tm_pData=NULL;" << endl;
-	fstr_DeviceCommand << "\t\tm_pEvent = new "  << Name  << "_Event(DeviceID, ServerAddress);" << endl;
+	fstr_DeviceCommand << "\t\tm_pEvent = new "  << Name  << "_Event(m_dwPK_Device, m_sHostName);" << endl;
 	fstr_DeviceCommand << "\t\tif( m_pEvent->m_dwPK_Device )" << endl;
 	fstr_DeviceCommand << "\t\t\tm_dwPK_Device = m_pEvent->m_dwPK_Device;" << endl;
 
@@ -477,10 +480,10 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	fstr_DeviceCommand << "\t\t\t}" << endl;
 	fstr_DeviceCommand << "\t\t\telse if( m_pEvent->m_pClientSocket->m_eLastError==cs_err_BadDevice )" << endl;
 	fstr_DeviceCommand << "\t\t\t{" << endl;
-	fstr_DeviceCommand << "\t\t\t\twhile( m_pEvent->m_pClientSocket->m_eLastError==cs_err_BadDevice && (DeviceID = DeviceIdInvalid())!=0 )" << endl;
+	fstr_DeviceCommand << "\t\t\t\twhile( m_pEvent->m_pClientSocket->m_eLastError==cs_err_BadDevice && (m_dwPK_Device = DeviceIdInvalid())!=0 )" << endl;
 	fstr_DeviceCommand << "\t\t\t\t{" << endl;
 	fstr_DeviceCommand << "\t\t\t\t\tdelete m_pEvent;" << endl;
-	fstr_DeviceCommand << "\t\t\t\t\tm_pEvent = new "  << Name  << "_Event(DeviceID, ServerAddress);" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\tm_pEvent = new "  << Name  << "_Event(m_dwPK_Device, m_sHostName);" << endl;
 	fstr_DeviceCommand << "\t\t\t\t\tif( m_pEvent->m_dwPK_Device )" << endl;
 	fstr_DeviceCommand << "\t\t\t\t\t\tm_dwPK_Device = m_pEvent->m_dwPK_Device;" << endl;
 	fstr_DeviceCommand << "\t\t\t\t}" << endl;
@@ -488,7 +491,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	fstr_DeviceCommand << "\t\t}" << endl;
 	fstr_DeviceCommand << "\t\t" << endl;
 	fstr_DeviceCommand << "\t\tif( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None )" << endl;
-	fstr_DeviceCommand << "\t\t\tthrow \"Cannot connect\";" << endl;
+	fstr_DeviceCommand << "\t\t\treturn false;" << endl;
 	fstr_DeviceCommand << endl;
 
 	fstr_DeviceCommand << "\t\tint Size; char *pConfig = m_pEvent->GetConfig(Size);" << endl;
@@ -503,7 +506,8 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	fstr_DeviceCommand << "\t\tm_pData->m_AllDevices.SerializeRead(Size,pConfig);" << endl;
 	fstr_DeviceCommand << "\t\tdelete[] pConfig;" << endl;
 	fstr_DeviceCommand << "\t\tm_pData->m_pEvent_Impl = m_pEvent;" << endl;
-	fstr_DeviceCommand << "\t\tm_pcRequestSocket = new Event_Impl(DeviceID, " << p_Row_DeviceTemplate->PK_DeviceTemplate_get() << ",ServerAddress);" << endl;
+	fstr_DeviceCommand << "\t\tm_pcRequestSocket = new Event_Impl(m_dwPK_Device, " << p_Row_DeviceTemplate->PK_DeviceTemplate_get() << ",m_sHostName);" << endl;
+	fstr_DeviceCommand << "\t\treturn true;" << endl;
 	fstr_DeviceCommand << "\t};" << endl;
 	fstr_DeviceCommand << "\t"  << Name  << "_Command(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter) : Command_Impl(pPrimaryDeviceCommand, pData, pEvent, pRouter) {};" << endl;
 	fstr_DeviceCommand << "\tvirtual ~"  << Name  << "_Command() {};" << endl;

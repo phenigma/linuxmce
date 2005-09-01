@@ -200,7 +200,7 @@ int main(int argc, char* argv[])
 	{
 		App_Server *pApp_Server = new App_Server(PK_Device, sRouter_IP);
 		pApp_Server->m_bHardDrive=bHardDrive;
-		if ( pApp_Server->Connect(pApp_Server->PK_DeviceTemplate_get()) ) 
+		if ( pApp_Server->GetConfig() && pApp_Server->Connect(pApp_Server->PK_DeviceTemplate_get()) ) 
 		{
 			g_pCommand_Impl=pApp_Server;
 			g_pDeadlockHandler=DeadlockHandler;

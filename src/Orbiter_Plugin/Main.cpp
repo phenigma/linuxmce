@@ -204,8 +204,8 @@ int main(int argc, char* argv[])
 	bool bReload=false;
 	try
 	{
-		Orbiter_Plugin *pOrbiter_Plugin = new Orbiter_Plugin(PK_Device, sRouter_IP);	
-		if ( pOrbiter_Plugin->Connect(pOrbiter_Plugin->PK_DeviceTemplate_get()) ) 
+		Orbiter_Plugin *pOrbiter_Plugin = new Orbiter_Plugin(PK_Device, sRouter_IP);
+		if ( pOrbiter_Plugin->GetConfig() && pOrbiter_Plugin->Connect(pOrbiter_Plugin->PK_DeviceTemplate_get()) ) 
 		{
 			g_pCommand_Impl=pOrbiter_Plugin;
 			g_pDeadlockHandler=DeadlockHandler;
