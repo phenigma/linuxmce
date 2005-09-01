@@ -31,9 +31,10 @@
 #include "DCERouter.h"
 #endif
 
-#ifdef WIN32
-#include <conio.h>
+#if defined(WIN32) && !defined(WINCE)
+	#include <conio.h>
 #endif
+
 #include "DeviceData_Impl.h"
 #include "Command_Impl.h"
 #include "Event_Impl.h"
@@ -410,11 +411,16 @@ bool Command_Impl::Connect(int iPK_DeviceTemplate)
 
 bool Command_Impl::RouterNeedsReload()
 {
+#ifndef WINCE
 	return AskYNQuestion("This device is new and the Router needs to reload\nbefore it can register.  This will cause all devices to reset.\nDo this now?",false,30);
+#else
+    return false;
+#endif
 }
 
 int Command_Impl::DeviceIdInvalid()
 {
+#ifndef WINCE
 	map<int,string> mapDevices;
 	GetDevicesByTemplate(PK_DeviceTemplate_get(),&mapDevices);
 	cout << "A valid device ID is required to connect to the router." << endl
@@ -437,6 +443,11 @@ int Command_Impl::DeviceIdInvalid()
 #else
 	return atoi(GetPrompt(30).c_str());
 #endif
+
+#else
+	return 0;
+#endif
+
 }
 
 void Command_Impl::GetDevicesByTemplate(int PK_DeviceTemplate,map<int,string> *p_mapDevices)
@@ -489,6 +500,7 @@ void Command_Impl::GetDevicesByCategory(int PK_DeviceCategory,map<int,string> *p
 
 void Command_Impl::CannotReloadRouter()
 {
+#ifndef WINCE
 	cout << "The router cannot reload now.  Please try later." << endl
 		<< "Press any key to continue...";
 #ifndef WIN32
@@ -497,6 +509,7 @@ void Command_Impl::CannotReloadRouter()
 	getch();
 #endif
 	cout << endl;
+#endif
 }
 
 void Command_Impl::ReceivedString( string sLine )
