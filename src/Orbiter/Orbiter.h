@@ -513,7 +513,7 @@ public: // temp - remove this
 	 * @brief handle when Orbiter Plugin tells us it's not ok to load, passing in the response.
 	 * If this returns 0, we will terminate, 1 we will load anyway, 2 we will try again to get an OK status
 	 */
-	virtual int HandleNotOKStatus(string sStatus);
+	virtual int HandleNotOKStatus(string sStatus,string sRegenStatus,int iRegenPercent);
 	bool RouterNeedsReload();
 	int DeviceIdInvalid();
 

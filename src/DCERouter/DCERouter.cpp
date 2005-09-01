@@ -1105,7 +1105,7 @@ bool Router::ReceivedString(Socket *pSocket, string Line)
 		MYSQL_ROW row;
 		if( (result_set.r=mysql_query_result(sSQL)) )
 		{
-			sResponse = StringUtils::itos(result_set.r->row_count) + "\t";
+			sResponse = "DEVICE_INFO " + StringUtils::itos(result_set.r->row_count) + "\t";
 	        PLUTO_SAFETY_LOCK(slListener,m_CoreMutex);
 			DeviceClientMap::iterator iDeviceConnection;
 			while ((row = mysql_fetch_row(result_set.r)))

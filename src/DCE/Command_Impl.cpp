@@ -455,9 +455,9 @@ void Command_Impl::GetDevicesByTemplate(int PK_DeviceTemplate,map<int,string> *p
 	Event_Impl *pEvent = new Event_Impl(DEVICEID_MESSAGESEND, 0, m_sHostName);
 	pEvent->m_pClientSocket->SendString("DEVICES BY TEMPLATE " + StringUtils::itos(PK_DeviceTemplate));
 	string sResponse;
-	if ( pEvent->m_pClientSocket->ReceiveString( sResponse ) )
+	if ( pEvent->m_pClientSocket->ReceiveString( sResponse ) && sResponse.substr(0,11)=="DEVICE_INFO" )
 	{
-		string::size_type pos=0;
+		string::size_type pos=11; // Skip the "DEVICE_INFO"
 		int NumDevices = atoi(StringUtils::Tokenize(sResponse,"\t",pos).c_str());
 		for(int iCount=0;iCount<NumDevices;++iCount)
 		{
@@ -477,11 +477,12 @@ void Command_Impl::GetDevicesByTemplate(int PK_DeviceTemplate,map<int,string> *p
 
 void Command_Impl::GetDevicesByCategory(int PK_DeviceCategory,map<int,string> *p_mapDevices)
 {
-	m_pEvent->m_pClientSocket->SendString("DEVICES BY CATEGORY " + StringUtils::itos(PK_DeviceCategory));
+	Event_Impl *pEvent = new Event_Impl(DEVICEID_MESSAGESEND, 0, m_sHostName);
+	pEvent->m_pClientSocket->SendString("DEVICES BY CATEGORY " + StringUtils::itos(PK_DeviceCategory));
 	string sResponse;
-	if ( ReceiveString( sResponse ) )
+	if ( pEvent->m_pClientSocket->ReceiveString( sResponse ) && sResponse.substr(0,11)=="DEVICE_INFO" )
 	{
-		string::size_type pos=0;
+		string::size_type pos=11; // Skip the "DEVICE_INFO"
 		int NumDevices = atoi(StringUtils::Tokenize(sResponse,"\t",pos).c_str());
 		for(int iCount=0;iCount<NumDevices;++iCount)
 		{
@@ -496,6 +497,7 @@ void Command_Impl::GetDevicesByCategory(int PK_DeviceCategory,map<int,string> *p
 				+ " " + sName + " (" + sRoom + ")";
 		}
 	}
+	delete pEvent;
 }
 
 void Command_Impl::CannotReloadRouter()
