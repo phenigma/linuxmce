@@ -73,7 +73,7 @@ public:
 		if( m_bLocalMode )
 			return true;
 		m_pData=NULL;
-		m_pEvent = new Orbiter_Plugin_Event(DeviceID, ServerAddress);
+		m_pEvent = new Orbiter_Plugin_Event(m_dwPK_Device, m_sHostName);
 		if( m_pEvent->m_dwPK_Device )
 			m_dwPK_Device = m_pEvent->m_dwPK_Device;
 		if( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None )
@@ -93,10 +93,10 @@ public:
 			}
 			else if( m_pEvent->m_pClientSocket->m_eLastError==cs_err_BadDevice )
 			{
-				while( m_pEvent->m_pClientSocket->m_eLastError==cs_err_BadDevice && (DeviceID = DeviceIdInvalid())!=0 )
+				while( m_pEvent->m_pClientSocket->m_eLastError==cs_err_BadDevice && (m_dwPK_Device = DeviceIdInvalid())!=0 )
 				{
 					delete m_pEvent;
-					m_pEvent = new Orbiter_Plugin_Event(DeviceID, ServerAddress);
+					m_pEvent = new Orbiter_Plugin_Event(m_dwPK_Device, m_sHostName);
 					if( m_pEvent->m_dwPK_Device )
 						m_dwPK_Device = m_pEvent->m_dwPK_Device;
 				}
@@ -105,7 +105,6 @@ public:
 		
 		if( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None )
 			return false;
-		return true;
 
 		int Size; char *pConfig = m_pEvent->GetConfig(Size);
 		if( !pConfig )
@@ -118,7 +117,8 @@ public:
 		m_pData->m_AllDevices.SerializeRead(Size,pConfig);
 		delete[] pConfig;
 		m_pData->m_pEvent_Impl = m_pEvent;
-		m_pcRequestSocket = new Event_Impl(DeviceID, 12,ServerAddress);
+		m_pcRequestSocket = new Event_Impl(m_dwPK_Device, 12,m_sHostName);
+		return true;
 	};
 	Orbiter_Plugin_Command(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter) : Command_Impl(pPrimaryDeviceCommand, pData, pEvent, pRouter) {};
 	virtual ~Orbiter_Plugin_Command() {};

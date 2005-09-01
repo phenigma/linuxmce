@@ -86,7 +86,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		DCE_Template *pDCE_Template = new DCE_Template(PK_Device, "localhost",true,false,pRouter);
-		if( pDCE_Template->m_bQuit )
+		if( pDCE_Template->m_bQuit || !pDCE_Template->GetConfig() )
 		{
 			delete pDCE_Template;
 			return NULL;

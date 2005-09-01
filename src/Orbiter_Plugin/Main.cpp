@@ -102,7 +102,7 @@ extern "C" {
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		Orbiter_Plugin *pOrbiter_Plugin = new Orbiter_Plugin(PK_Device, "localhost",true,false,pRouter);
-		if( pOrbiter_Plugin->m_bQuit )
+		if( pOrbiter_Plugin->m_bQuit || !pOrbiter_Plugin->GetConfig() )
 		{
 			delete pOrbiter_Plugin;
 			return NULL;

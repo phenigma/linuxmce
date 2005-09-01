@@ -90,13 +90,24 @@ Orbiter_Plugin::Orbiter_Plugin(int DeviceID, string ServerAddress,bool bConnectE
     m_bNoUnknownDeviceIsProcessing = false;
     m_UnknownDevicesMutex.Init(NULL);
     m_AllowedConnectionsMutex.Init(NULL);
+	m_pDatabase_pluto_main=NULL;
+	m_pDatabase_pluto_security=NULL;
+    m_bFloorPlansArePrepared = false;
+}
+
+//<-dceag-getconfig-b->
+bool Orbiter_Plugin::GetConfig()
+{
+	if( !Orbiter_Plugin_Command::GetConfig() )
+		return false;
+//<-dceag-getconfig-e->
 
     m_pDatabase_pluto_main = new Database_pluto_main();
     if(!m_pDatabase_pluto_main->Connect(m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get()) )
     {
         g_pPlutoLogger->Write(LV_CRITICAL, "Cannot connect to database!");
         m_bQuit=true;
-        return;
+        return false;
     }
 
     m_pDatabase_pluto_security = new Database_pluto_security( );
@@ -104,7 +115,7 @@ Orbiter_Plugin::Orbiter_Plugin(int DeviceID, string ServerAddress,bool bConnectE
     {
         g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );
         m_bQuit=true;
-        return;
+        return false;
     }
 
 	vector<Row_Users *> vectRow_Users;
@@ -112,8 +123,9 @@ Orbiter_Plugin::Orbiter_Plugin(int DeviceID, string ServerAddress,bool bConnectE
 	for(size_t s=0;s<vectRow_Users.size();++s)
 		m_mapOH_User[ vectRow_Users[s]->PK_Users_get() ] = new OH_User(vectRow_Users[s]->PK_Users_get());
 
-    m_bFloorPlansArePrepared = false;
 	m_iThreshHold = DATA_Get_ThreshHold();
+
+	return true;
 }
 
 //<-dceag-const2-b->!
