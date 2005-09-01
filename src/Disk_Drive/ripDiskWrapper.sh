@@ -47,11 +47,11 @@ command="";
 result=$ERR_NONE;
 case $diskType in 
 	2)
-		command="nice -n 15 /usr/pluto/bin/disk_copy $sourceDevice \"$targetFileName.in-progress-dvd\" > >(/usr/pluto/bin/DiskCopy_ProgressExtract.sh|/usr/pluto/bin/Pluto_Progress.sh $diskDriveDeviceID "$targetFileName.in-progress-dvd")"
+		command="nice -n 15 /usr/pluto/bin/disk_copy $sourceDevice \"$targetFileName.in-progress-dvd\" > >(/usr/pluto/bin/DiskCopy_ProgressExtract.sh|/usr/pluto/bin/Pluto_Progress.sh $diskDriveDeviceID "$targetFileName")"
 	;;
 	0|1|6|7|8)
 		Dir="$targetFileName"
-		command="nice -n 15 cdparanoia -e -d $sourceDevice \$Track - 2> >(/usr/pluto/bin/Paranoia_Progress.sh|/usr/pluto/bin/Pluto_Progress.sh $diskDriveDeviceID \"$Dir/\$FileName.in-progress-flac\") | flac -o \"$Dir/\$FileName.in-progress-flac\" -"
+		command="nice -n 15 cdparanoia -e -d $sourceDevice \$Track - 2> >(/usr/pluto/bin/Paranoia_Progress.sh|/usr/pluto/bin/Pluto_Progress.sh $diskDriveDeviceID \"$Dir/\$FileName\") > >(flac -o \"$Dir/\$FileName.in-progress-flac\" -)"
 	;;
 	*)	result=$ERR_NOT_SUPPORTED_YET;;
 esac
