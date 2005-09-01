@@ -688,6 +688,8 @@ void EIB::CMD_EIB_Read(string sAddress,string &sCMD_Result,Message *pMessage)
 
 void EIB::CMD_Process_Incoming_Data(string &sCMD_Result,Message *pMessage)
 //<-dceag-c350-e->
+{
+}
 //<-dceag-c351-b->
 
 	/** @brief COMMAND: #351 - Process IDLE */
@@ -695,6 +697,8 @@ void EIB::CMD_Process_Incoming_Data(string &sCMD_Result,Message *pMessage)
 
 void EIB::CMD_Process_IDLE(string &sCMD_Result,Message *pMessage)
 //<-dceag-c351-e->
+{
+}
 //<-dceag-c355-b->
 
 	/** @brief COMMAND: #355 - Process Initialize */
@@ -702,6 +706,8 @@ void EIB::CMD_Process_IDLE(string &sCMD_Result,Message *pMessage)
 
 void EIB::CMD_Process_Initialize(string &sCMD_Result,Message *pMessage)
 //<-dceag-c355-e->
+{
+}
 //<-dceag-c356-b->
 
 	/** @brief COMMAND: #356 - Process Release */
@@ -709,6 +715,8 @@ void EIB::CMD_Process_Initialize(string &sCMD_Result,Message *pMessage)
 
 void EIB::CMD_Process_Release(string &sCMD_Result,Message *pMessage)
 //<-dceag-c356-e->
+{
+}
 //<-dceag-c373-b->
 
 	/** @brief COMMAND: #373 - Private Method Listing */
@@ -716,6 +724,8 @@ void EIB::CMD_Process_Release(string &sCMD_Result,Message *pMessage)
 
 void EIB::CMD_Private_Method_Listing(string &sCMD_Result,Message *pMessage)
 //<-dceag-c373-e->
+{
+}
 //<-dceag-c384-b->
 
 	/** @brief COMMAND: #384 - Process Receive Command For Child */
@@ -723,3 +733,5 @@ void EIB::CMD_Private_Method_Listing(string &sCMD_Result,Message *pMessage)
 
 void EIB::CMD_Process_Receive_Command_For_Child(string &sCMD_Result,Message *pMessage)
 //<-dceag-c384-e->
+{
+}
