@@ -51,7 +51,7 @@ bool LIRC_DCE::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 
-	if( !m_Virtual_Device_Translator->GetConfig(m_pData) )
+	if( !m_Virtual_Device_Translator.GetConfig(m_pData) )
 		return false;
 
 	FILE *fp;
