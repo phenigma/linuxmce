@@ -73,7 +73,7 @@
 #define COMMAND_Surrender_to_OS_CONST 72
 #define COMMAND_Bind_to_Media_Remote_CONST 74
 #define COMMAND_Set_Current_Room_CONST 77
-#define COMMAND_New_Mobile_Orbiter_CONST 78
+#define COMMAND_New_Orbiter_CONST 78
 #define COMMAND_Add_Unknown_Device_CONST 79
 #define COMMAND_Send_File_To_Device_CONST 80
 #define COMMAND_Navigate_Next_CONST 81
@@ -648,6 +648,7 @@
 #define COMMAND_Update_Time_Code_CONST 689
 #define COMMAND_Send_File_To_Phone_CONST 693
 #define COMMAND_Get_Orbiter_Status_CONST 694
+#define COMMAND_Get_Orbiter_Options_CONST 695
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
