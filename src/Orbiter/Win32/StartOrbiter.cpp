@@ -124,7 +124,7 @@ ORBITER *Connect(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bLo
 
 	if(!bLocalMode)
 	{
-		bool bConnected = pOrbiter->Connect(0);  // Don't validate the device template, since the same binary is used for lots of devices
+		bool bConnected = pOrbiter->GetConfig() && pOrbiter->Connect(0);  // Don't validate the device template, since the same binary is used for lots of devices
 
 		if(!bConnected)
 		{

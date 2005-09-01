@@ -178,23 +178,17 @@ Orbiter::Orbiter( int DeviceID,  string ServerAddress,  string sLocalDirectory, 
 m_ScreenMutex( "rendering" ), m_VariableMutex( "variable" ), m_DatagridMutex( "datagrid" ),
 m_MaintThreadMutex("MaintThread"), m_NeedRedrawVarMutex( "need redraw variables" )
 //<-dceag-const-e->
-
 {
 g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
+
+	m_sLocalDirectory=sLocalDirectory;
+    m_iImageWidth=iImageWidth;
+    m_iImageHeight=iImageHeight;
 	m_bStartingUp=true;
 	m_pLocationInfo = NULL;
 	m_dwPK_Users = 0;
 	m_dwPK_Device_NowPlaying = 0;
 	m_pOrbiterFileBrowser_Collection=NULL;
-
-	m_sLocalDirectory=sLocalDirectory;
-    m_iImageWidth=iImageWidth;
-    m_iImageHeight=iImageHeight;
-	if( DATA_Get_Leave_Monitor_on_for_OSD() )
-	    m_bDisplayOn=false;  // So the first touch will turn it on
-	else
-	    m_bDisplayOn=true;  // The display should already be on
-
 	m_bForward_local_kb_to_OSD=false;
 	m_bYieldScreen=false;
     m_bYieldInput=false;
@@ -202,7 +196,6 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
 	m_bWeCanRepeat=false;
 	m_bRepeatingObject=false;
     m_bShowShortcuts = false;
-	m_nSelectionBehaviour = DATA_Get_Using_Infrared();
 	m_iPK_DesignObj_Remote=m_iPK_DesignObj_Remote_Popup=m_iPK_DesignObj_FileList=m_iPK_DesignObj_FileList_Popup=m_iPK_DesignObj_RemoteOSD=m_iPK_DesignObj_Guide=0;
 	m_iPK_MediaType=0;
 
@@ -211,23 +204,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
 	m_pGraphicBeforeHighlight=NULL;
 	m_LastActivityTime=time( NULL );
     m_iLastEntryInDeviceGroup=-1;
-
-    pthread_mutexattr_init( &m_MutexAttr );
-    pthread_mutexattr_settype( &m_MutexAttr,  PTHREAD_MUTEX_RECURSIVE_NP );
-    m_VariableMutex.Init( &m_MutexAttr );
-    m_ScreenMutex.Init( &m_MutexAttr );
-    m_DatagridMutex.Init( &m_MutexAttr );
-	m_NeedRedrawVarMutex.Init( &m_MutexAttr );
 	m_pActivePopup=NULL;
-
     m_dwIDataGridRequestCounter=0;
-
-    if(  !m_bLocalMode  )
-    {
-        GetEvents(  )->m_pClientSocket->SetReceiveTimeout( 15 );
-        m_pcRequestSocket->m_pClientSocket->SetReceiveTimeout( 15 );
-    }
-
     m_bCaptureKeyboard_OnOff = false;
     m_bCaptureKeyboard_Reset = false;
     m_iCaptureKeyboard_EditType = 0;
@@ -237,55 +215,21 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
     m_sCaptureKeyboard_InternalBuffer = "";
     m_pCaptureKeyboard_Text = NULL;
 	m_bBypassScreenSaver = false;
-	DeviceData_Base *pDevice_Parent = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(m_pData->m_dwPK_Device_ControlledVia);
-	m_bIsOSD = pDevice_Parent && pDevice_Parent->WithinCategory(DEVICECATEGORY_Media_Director_CONST);
-	m_dwPK_Device_IRReceiver=0;
-	if( m_bIsOSD )
-	{
-		for(Map_DeviceData_Base::iterator it=m_pData->m_AllDevices.m_mapDeviceData_Base.begin();it!=m_pData->m_AllDevices.m_mapDeviceData_Base.end();++it)
-		{
-			DeviceData_Base *pDeviceData_Base = it->second;
-			if( pDeviceData_Base->WithinCategory(DEVICECATEGORY_Infrared_Receivers_CONST) &&
-				pDeviceData_Base->m_dwPK_Device_ControlledVia==m_pData->m_dwPK_Device_ControlledVia )
-			{
-				m_dwPK_Device_IRReceiver=pDeviceData_Base->m_dwPK_Device;
-				g_pPlutoLogger->Write(LV_STATUS,"Working with IRReceiver %d",m_dwPK_Device_IRReceiver);
-				break;
-			}
-		}
-	}
-
-	string::size_type pos=0;
-	string sTimeout = DATA_Get_Timeout();
-	m_iTimeoutScreenSaver = atoi(StringUtils::Tokenize(sTimeout,",",pos).c_str());
-	m_iTimeoutBlank = atoi(StringUtils::Tokenize(sTimeout,",",pos).c_str());
-	m_sCacheFolder = DATA_Get_CacheFolder();
-	m_iCacheSize = DATA_Get_CacheSize();
-
-    if(DATA_Get_ScreenWidth())
-        m_iImageWidth = DATA_Get_ScreenWidth();
-
-    if(DATA_Get_ScreenHeight())
-        m_iImageHeight = DATA_Get_ScreenHeight();
-
-	m_sScreenSize=PlutoSize(m_iImageWidth,m_iImageHeight);
-
-	m_pCacheImageManager = NULL;
-	if(m_iCacheSize > 0)
-		m_pCacheImageManager = new CacheImageManager(m_sCacheFolder, m_iCacheSize);
-
-    m_iVideoFrameInterval = DATA_Get_VideoFrameInterval();
-    if(!m_iVideoFrameInterval) //this device data doesn't exist or it's 0
-        m_iVideoFrameInterval = 6000; //6 sec
-
-	pthread_cond_init(&m_MaintThreadCond, NULL);
-	m_MaintThreadMutex.Init(NULL,&m_MaintThreadCond);
-	pthread_create(&m_MaintThreadID, NULL, MaintThread, (void*)this);
-
     m_bShiftDown = false;
     m_bControlDown = false;
     m_bAltDown = false;
     m_bCapsLock = false;
+	m_pCacheImageManager = NULL;
+
+	pthread_mutexattr_init( &m_MutexAttr );
+    pthread_mutexattr_settype( &m_MutexAttr,  PTHREAD_MUTEX_RECURSIVE_NP );
+    m_VariableMutex.Init( &m_MutexAttr );
+    m_ScreenMutex.Init( &m_MutexAttr );
+    m_DatagridMutex.Init( &m_MutexAttr );
+	m_NeedRedrawVarMutex.Init( &m_MutexAttr );
+	pthread_cond_init(&m_MaintThreadCond, NULL);
+	m_MaintThreadMutex.Init(NULL,&m_MaintThreadCond);
+	pthread_create(&m_MaintThreadID, NULL, MaintThread, (void*)this);
 }
 
 //<-dceag-const2-b->!
@@ -312,9 +256,12 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter  %p is exiting",this);
 
 g_pPlutoLogger->Write(LV_STATUS,"Maint thread dead");
 
-	char *pData=NULL;int iSize=0;
-	DCE::CMD_Orbiter_Registered CMD_Orbiter_Registered( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, "0", 0, "", 0, &pData, &iSize );
-    SendCommand( CMD_Orbiter_Registered );
+	if( m_pcRequestSocket ) // Will be NULL if we died without successfully getting our config
+	{
+		char *pData=NULL;int iSize=0;
+		DCE::CMD_Orbiter_Registered CMD_Orbiter_Registered( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, "0", 0, "", 0, &pData, &iSize );
+		SendCommand( CMD_Orbiter_Registered );
+	}
 
 	PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex );
 	DesignObj_OrbiterMap::iterator itDesignObjOrbiter;
@@ -436,6 +383,69 @@ g_pPlutoLogger->Write(LV_STATUS,"Maint thread dead");
 	pthread_mutex_destroy(&m_DatagridMutex.mutex);
 	pthread_mutex_destroy(&m_MaintThreadMutex.mutex);
 	pthread_mutex_destroy(&m_NeedRedrawVarMutex.mutex);
+}
+
+//<-dceag-getconfig-b->
+bool Orbiter::GetConfig()
+{
+	if( !Orbiter_Command::GetConfig() )
+		return false;
+//<-dceag-getconfig-e->
+
+	if( DATA_Get_Leave_Monitor_on_for_OSD() )
+	    m_bDisplayOn=false;  // So the first touch will turn it on
+	else
+	    m_bDisplayOn=true;  // The display should already be on
+
+	m_nSelectionBehaviour = DATA_Get_Using_Infrared();
+
+    if(  !m_bLocalMode  )
+    {
+        GetEvents(  )->m_pClientSocket->SetReceiveTimeout( 15 );
+        m_pcRequestSocket->m_pClientSocket->SetReceiveTimeout( 15 );
+    }
+
+	DeviceData_Base *pDevice_Parent = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(m_pData->m_dwPK_Device_ControlledVia);
+	m_bIsOSD = pDevice_Parent && pDevice_Parent->WithinCategory(DEVICECATEGORY_Media_Director_CONST);
+	m_dwPK_Device_IRReceiver=0;
+	if( m_bIsOSD )
+	{
+		for(Map_DeviceData_Base::iterator it=m_pData->m_AllDevices.m_mapDeviceData_Base.begin();it!=m_pData->m_AllDevices.m_mapDeviceData_Base.end();++it)
+		{
+			DeviceData_Base *pDeviceData_Base = it->second;
+			if( pDeviceData_Base->WithinCategory(DEVICECATEGORY_Infrared_Receivers_CONST) &&
+				pDeviceData_Base->m_dwPK_Device_ControlledVia==m_pData->m_dwPK_Device_ControlledVia )
+			{
+				m_dwPK_Device_IRReceiver=pDeviceData_Base->m_dwPK_Device;
+				g_pPlutoLogger->Write(LV_STATUS,"Working with IRReceiver %d",m_dwPK_Device_IRReceiver);
+				break;
+			}
+		}
+	}
+
+	string::size_type pos=0;
+	string sTimeout = DATA_Get_Timeout();
+	m_iTimeoutScreenSaver = atoi(StringUtils::Tokenize(sTimeout,",",pos).c_str());
+	m_iTimeoutBlank = atoi(StringUtils::Tokenize(sTimeout,",",pos).c_str());
+	m_sCacheFolder = DATA_Get_CacheFolder();
+	m_iCacheSize = DATA_Get_CacheSize();
+
+    if(DATA_Get_ScreenWidth())
+        m_iImageWidth = DATA_Get_ScreenWidth();
+
+    if(DATA_Get_ScreenHeight())
+        m_iImageHeight = DATA_Get_ScreenHeight();
+
+	m_sScreenSize=PlutoSize(m_iImageWidth,m_iImageHeight);
+
+	if(m_iCacheSize > 0)
+		m_pCacheImageManager = new CacheImageManager(m_sCacheFolder, m_iCacheSize);
+
+    m_iVideoFrameInterval = DATA_Get_VideoFrameInterval();
+    if(!m_iVideoFrameInterval) //this device data doesn't exist or it's 0
+        m_iVideoFrameInterval = 6000; //6 sec
+
+	return true;
 }
 
 //<-dceag-reg-b->
@@ -8375,5 +8385,4 @@ int Orbiter::DeviceIdInvalid()
 	GetDevicesByCategory(DEVICECATEGORY_Orbiter_CONST,&mapDevices);
 	return 0;
 }
-
 

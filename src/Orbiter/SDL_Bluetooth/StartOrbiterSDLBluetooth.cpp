@@ -44,7 +44,7 @@ OrbiterSDLBluetooth *StartOrbiterSDLBluetooth(
 				    PK_Device, sRouter_IP, 
 				    sLocalDirectory, bLocalMode, Width, Height);
 
-	    if (bLocalMode || pOrbiterSDLBluetooth->Connect(0)) // Don't validate the device template
+	    if (bLocalMode || (pOrbiterSDLBluetooth->GetConfig() && pOrbiterSDLBluetooth->Connect(0))) // Don't validate the device template
 	    {
 		    g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
 		    pOrbiterSDLBluetooth->Initialize(gtSDLGraphic,PK_Room,PK_EntertainArea);

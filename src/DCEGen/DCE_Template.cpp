@@ -35,6 +35,18 @@ DCE_Template::~DCE_Template()
 	
 }
 
+//<-dceag-getconfig-b->
+bool DCE_Template::GetConfig()
+{
+	if( !DCE_Template_Command::GetConfig() )
+		return false;
+//<-dceag-getconfig-e->
+
+	// Put your code here to initialize the data in this class
+	// The configuration parameters DATA_ are now populated
+	return true;
+}
+
 //<-dceag-reg-b->
 // This function will only be used if this device is loaded into the DCE Router's memory space as a plug-in.  Otherwise Connect() will be called from the main()
 bool DCE_Template::Register()

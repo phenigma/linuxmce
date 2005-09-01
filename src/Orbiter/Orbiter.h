@@ -124,11 +124,15 @@ public:
 	 * @brief constructor, assignes values to member data
 	 */
 	Orbiter( int DeviceID,  string ServerAddress,  string sLocalDirectory,  bool bLocalMode,  int iImageWidth,  int iImageHeight );
-
 	/**
 	 * @brief destructor
 	 */
 	virtual ~Orbiter(  );
+
+	/**
+	 * @brief Sets up the class right after the constructor is called
+	 */
+	virtual bool GetConfig();
 
 	/**
 	 * This function will only be used if this device is loaded into the DCE Router's memory space

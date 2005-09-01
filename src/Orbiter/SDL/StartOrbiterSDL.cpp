@@ -247,7 +247,7 @@ bool StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bL
 	g_pDeadlockHandler=DeadlockHandler;
 	g_pSocketCrashHandler=SocketCrashHandler;
 
-    if (bLocalMode || pCLinux->Connect(0)) // Don't validate the device template, since the same binary is used for lots of devices
+    if (bLocalMode || (pCLinux->GetConfig() && pCLinux->Connect(0))) // Don't validate the device template, since the same binary is used for lots of devices
     {
         g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
         pCLinux->Initialize(gtSDLGraphic);
