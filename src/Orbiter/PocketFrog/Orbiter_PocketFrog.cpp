@@ -5,13 +5,12 @@
 #include "Resource.h"
 #include "SelfUpdate.h"
 #include "VirtualKeysTranslator.h"
+#include "PopupMessage.h"
 
 #include "../pluto_main/Define_Button.h"
 #include "../pluto_main/Define_Direction.h" 
-
 #include "../pluto_main/Define_VertAlignment.h" 
 #include "../pluto_main/Define_HorizAlignment.h" 
-#include "../Orbiter/Win32/MainDialog.h"
 
 using namespace Frog;
 using namespace Frog::Internal;
@@ -989,5 +988,10 @@ void Orbiter_PocketFrog::CalcTextRectangle(RECT &rectLocation,PlutoRectangle &rP
 
     m_bQuit = true;
     exit(1); //die!!!
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ int Orbiter_PocketFrog::PromptUser(string sPrompt,map<int,string> *p_mapPrompts)
+{
+    return PromptUser(sPrompt, p_mapPrompts);
 }
 //-----------------------------------------------------------------------------------------------------

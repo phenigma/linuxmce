@@ -4,6 +4,7 @@
 #include "StringUtils.h"
 #include "SDL_syswm.h"
 #include "MainDialog.h"
+#include "PopupMessage.h"
 #include "VirtualKeysTranslator.h"
 
 #include "../pluto_main/Define_Button.h"
@@ -490,7 +491,7 @@ bool OrbiterSDL_WinCE::SelfUpdate()
 	return orbiterSelfUpdate.Run();
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void OrbiterSDL_WinCE::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,Message *pMessage)
+void OrbiterSDL_WinCE::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,Message *pMessage)
 {
 	HDC gdc;
 	int iESC=SETPOWERMANAGEMENT;
@@ -507,7 +508,7 @@ bool OrbiterSDL_WinCE::SelfUpdate()
 	::ReleaseDC(NULL, gdc);
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void OrbiterSDL_WinCE::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
+void OrbiterSDL_WinCE::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
 {
 	HDC gdc;
 	int iESC=SETPOWERMANAGEMENT;
@@ -522,5 +523,10 @@ bool OrbiterSDL_WinCE::SelfUpdate()
 		ExtEscape(gdc, SETPOWERMANAGEMENT, vpm.Length, (LPCSTR) &vpm, 0, NULL);
 	}
 	::ReleaseDC(NULL, gdc);
+}
+//-----------------------------------------------------------------------------------------------------
+int OrbiterSDL_WinCE::PromptUser(string sPrompt,map<int,string> *p_mapPrompts)
+{
+	return PromptUser(sPrompt, p_mapPrompts);
 }
 //-----------------------------------------------------------------------------------------------------

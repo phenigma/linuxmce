@@ -3,28 +3,30 @@
 #include "Resource.h"
 #include "MainDialog.h"
 
-static bool g_bStopPopupMessage = false;
-static bool g_bPopupMessageIsRunning = false;
-
 HWND	g_hwndPopupDialog;		// The main dialog window handle
-HWND	g_hWnd_CancelButton;
-
-#define WIN_WIDTH 400
-#define WIN_HEIGHT 150
+static int g_nWindowWidth, g_nWindowHeight;
 const MAX_STRING_LEN = 4096;
 //-----------------------------------------------------------------------------------------------------
+static int g_nResponse;
+static string g_sPrompt;
+static map<int, string> *g_p_mapPrompts;
+static map<int, HWND> g_mapButtons;
 
-void OnCancel()
-{
-	exit(1); //kill everything
-}
+#define WINDOW_TITLE     30
+#define BUTTON_WIDTH     100
+#define LABEL_HEIGHT     40
 
+#ifdef WINCE
+    #define BUTTON_HEIGHT    15
+    #define BUTTON_SEPARATOR 5
+#else
+    #define BUTTON_HEIGHT    20
+    #define BUTTON_SEPARATOR 10
+#endif
 //-----------------------------------------------------------------------------------------------------
-
-
-static HWND CreateButton(HWND hParentWnd, int x, int y, const char* caption, int width = 50)
+static HWND CreateButton(HWND hParentWnd, int x, int y, int width, int height, const char* caption)
 {
-	RECT rt_cb = { x, y, width, 20 };
+	RECT rt_cb = { x, y, width, height };
 
 #ifdef WINCE
 	wchar_t wTextBuffer[MAX_STRING_LEN];
@@ -43,10 +45,31 @@ static HWND CreateButton(HWND hParentWnd, int x, int y, const char* caption, int
 
 	return hWndList;
 }
-
 //-----------------------------------------------------------------------------------------------------
+static void AdjustWindowSize()
+{
+    RECT rc;
+    HWND hWndDesktop = ::GetDesktopWindow();
+    ::GetWindowRect(hWndDesktop, &rc);
 
-static HWND CreateLabel(HWND hParentWnd, int x, int y, int width, char* caption, int height = 20)
+    int iDesktopWidth = rc.right - rc.left;
+    int iDesktopHeight = rc.bottom - rc.top;
+
+	if(rc.right < rc.bottom) //this is a PDA for sure
+	{
+		MoveWindow(g_hwndPopupDialog, 0, 0, g_nWindowWidth, g_nWindowHeight, TRUE);
+	}
+	else
+	{
+		rc.left = (iDesktopWidth - g_nWindowWidth) / 2;
+		rc.right = rc.left + g_nWindowWidth;
+		rc.top = (iDesktopHeight - g_nWindowHeight) / 2;
+		rc.bottom = rc.top + g_nWindowHeight;
+		MoveWindow(g_hwndPopupDialog, rc.left, rc.top, g_nWindowWidth, g_nWindowHeight, TRUE);
+	}
+}
+//-----------------------------------------------------------------------------------------------------
+static HWND CreateLabel(HWND hParentWnd, int x, int y, int width, int height, char* caption)
 {
 	RECT rt_label = { x, y, width, height };
 
@@ -96,9 +119,15 @@ LRESULT CALLBACK WndProcPopup(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 			{
 			case BN_CLICKED:
 				{
-					if(lParam == (LPARAM)g_hWnd_CancelButton)
-						OnCancel();
-
+                    map<int, HWND>::iterator it;
+                    for(it = g_mapButtons.begin(); it != g_mapButtons.end(); it++)
+                    {
+                        if((LPARAM)it->second == lParam)
+                        {
+                            g_nResponse = it->first;
+                            PostMessage(g_hwndPopupDialog, WM_CLOSE, 0, 0);
+                        }
+                    }
 					break;
 				}
 			}
@@ -106,8 +135,35 @@ LRESULT CALLBACK WndProcPopup(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 
 		case WM_CREATE:
 			{
-				CreateLabel(hWnd, 20, 30, 400, "Failed to connect to DCERouter. Retrying, please wait...");
-				g_hWnd_CancelButton = CreateButton(hWnd, WIN_WIDTH / 2 - 30, WIN_HEIGHT - 60, "&Cancel", 60);
+				CreateLabel(hWnd, BUTTON_SEPARATOR, BUTTON_SEPARATOR, 
+                    g_nWindowWidth - 2 * BUTTON_SEPARATOR, BUTTON_SEPARATOR + LABEL_HEIGHT, 
+                    const_cast<char *>(g_sPrompt.c_str()));
+
+                int nButtonsPerRow = (g_nWindowWidth - BUTTON_SEPARATOR) / (BUTTON_WIDTH + BUTTON_SEPARATOR);
+                int nButtonIndex = 0;
+                int nButtonOnRowIndex = 0;
+                int nButtonColumnIndex = 0;
+                int nAdjustment = (g_nWindowWidth - (nButtonsPerRow * (BUTTON_WIDTH + BUTTON_SEPARATOR) + BUTTON_SEPARATOR)) / 2;
+
+                map<int, string>::iterator it;
+                for(it = g_p_mapPrompts->begin(); it != g_p_mapPrompts->end(); it++)
+                {
+                    string sCaption = it->second;
+                    nButtonOnRowIndex = nButtonIndex % nButtonsPerRow;
+                    nButtonColumnIndex = nButtonIndex / nButtonsPerRow; 
+
+                    HWND hWndButton = CreateButton(hWnd, nAdjustment + BUTTON_SEPARATOR + nButtonOnRowIndex * (BUTTON_WIDTH + BUTTON_SEPARATOR), 
+                        BUTTON_SEPARATOR + LABEL_HEIGHT + BUTTON_SEPARATOR + nButtonColumnIndex * (BUTTON_HEIGHT + BUTTON_SEPARATOR),
+                        BUTTON_WIDTH, BUTTON_HEIGHT, const_cast<char *>(sCaption.c_str()));
+
+                    g_mapButtons[it->first] = hWndButton;
+                    nButtonIndex++;
+                }
+
+                g_nWindowHeight = min(g_nWindowHeight, 
+                    WINDOW_TITLE + 
+                    BUTTON_SEPARATOR + LABEL_HEIGHT + BUTTON_SEPARATOR +
+                    (nButtonColumnIndex + 1) * (BUTTON_HEIGHT + BUTTON_SEPARATOR));
 			}
 			break;
 
@@ -199,7 +255,15 @@ WORD MyRegisterClassPopup(HINSTANCE hInstance, LPTSTR szWindowClass)
 //
 BOOL InitInstancePopup(HINSTANCE hInstance, int nCmdShow)
 {
-	HWND	hWnd = NULL;
+#ifdef WINCE    
+    g_nWindowWidth = 240;
+    g_nWindowHeight = 280;
+#else
+    g_nWindowWidth = 400;
+    g_nWindowHeight = 400;
+#endif
+
+	HWND hWnd = NULL;
 	g_hInst = hInstance;		// Store instance handle in our global variable
 
 	LPTSTR szWindowClass = TEXT("PlutoPopupMessage");
@@ -208,77 +272,41 @@ BOOL InitInstancePopup(HINSTANCE hInstance, int nCmdShow)
 	MyRegisterClassPopup(hInstance, szWindowClass);
 
 #ifdef WINCE
-	hWnd = CreateWindow(szWindowClass, szTitle, WS_DLGFRAME | WS_CAPTION | WS_BORDER,
+	hWnd = CreateWindow(szWindowClass, szTitle, WS_VISIBLE | WS_SYSMENU | WS_BORDER | WS_CAPTION,
 		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance, NULL);
 #else
-	hWnd = CreateWindow(szWindowClass, szTitle, WS_DLGFRAME,
+	hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX & ~WS_SIZEBOX,
 		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
 #endif
 
 	if (!hWnd)
-	{	
 		return FALSE;
-	}
 
-	RECT rc;
-	HWND hWndDesktop = ::GetDesktopWindow();
-	GetWindowRect(hWndDesktop, &rc);
-
-	int iWidth = rc.right - rc.left;
-	int iHeight = rc.bottom - rc.top;
-
-	rc.left = (iWidth - WIN_WIDTH) / 2;
-	rc.right = rc.left + WIN_WIDTH;
-	rc.top = (iHeight - WIN_HEIGHT) / 2;
-	rc.bottom = rc.top + WIN_HEIGHT;
-
-	MoveWindow(hWnd, rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top, FALSE);
-
+	g_hwndPopupDialog = hWnd;
+    AdjustWindowSize();
 	SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOREPOSITION | SWP_NOSIZE);
 
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
 
-	g_hwndPopupDialog = hWnd;
-
 	return TRUE;
 }
 
-DWORD WINAPI PopupMessageThread( LPVOID lpParameter)
+int PromptUser(string sPrompt,map<int,string> *p_mapPrompts)
 {
-	InitInstancePopup(g_hInst, 1);
+    g_nResponse = -1;
+    g_sPrompt = sPrompt;
+    g_p_mapPrompts = p_mapPrompts;
 
-	MSG msg;
-	while (GetMessage(&msg, NULL, 0, 0) && !g_bStopPopupMessage) 
-	{
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
-	}
+    InitInstancePopup(g_hInst, 1);
 
-	g_bPopupMessageIsRunning = false;
+    MSG msg;
+    while (GetMessage(&msg, NULL, 0, 0)) 
+    {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
 
-	return 0L;
-}
-
-bool ShowPopup(const char* pTitle, const char *pCaption)
-{
-	if(g_bPopupMessageIsRunning)
-		return false;
-
-	g_bPopupMessageIsRunning = true;
-
-	g_bStopPopupMessage = false;
-	::CreateThread(NULL, 0, PopupMessageThread, 0, 0, NULL);	
-	return true;
-}
-
-bool ChangePopupSettings(const char* pTitle, const char *pCaption)
-{
-	return true;
-}
-
-void ClosePopup()
-{
-	g_bStopPopupMessage = true;
-	PostMessage(g_hwndPopupDialog, WM_CLOSE, 0, 0);
+    g_mapButtons.clear();
+    return g_nResponse;
 }

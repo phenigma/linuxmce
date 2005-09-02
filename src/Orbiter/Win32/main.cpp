@@ -48,7 +48,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 					LPTSTR    lpCmdLine,
 					int       nCmdShow)
 {
-	//get the binary name and the binary path
+    //get the binary name and the binary path
 	char pFullPath[256];
 #ifdef WINCE
 	wchar_t pProcessNameW[256];

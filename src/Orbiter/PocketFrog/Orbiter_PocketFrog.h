@@ -94,6 +94,7 @@ public:
     virtual void DisplayMessage(string sMessage);
 
     virtual bool OnReplaceHandler(string sIP);
+    virtual int  PromptUser(string sPrompt,map<int,string> *p_mapPrompts);
 
 	// Other
 	virtual void Initialize(GraphicType Type, int iPK_Room=0, int iPK_EntertainArea=0);

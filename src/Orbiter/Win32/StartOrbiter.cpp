@@ -41,7 +41,6 @@ using namespace std;
 #include "PlutoUtils/Other.h"
 
 #include "MainDialog.h"
-#include "PopupMessage.h"
 //-----------------------------------------------------------------------------------------------------
 extern void (*g_pDeadlockHandler)(PlutoLock *pPlutoLock);
 extern void (*g_pSocketCrashHandler)(Socket *pSocket);
@@ -278,7 +277,6 @@ void StartOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP,string s
 				break;
 
 			case osRun:
-				ClosePopup();
 				g_pPlutoLogger->Write(LV_STATUS, "Stage run");
 				if(Run(pOrbiter, bLocalMode))
 					stage = osQuit; 

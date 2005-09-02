@@ -1,8 +1,10 @@
 #ifndef __POPUP_MESSAGE_H__
 #define __POPUP_MESSAGE_H__
 
-bool ShowPopup(const char* pTitle, const char *pCaption);
-bool ChangePopupSettings(const char* pTitle, const char *pCaption);
-void ClosePopup();
+#include <string>
+#include <map>
+using namespace std;
+
+int PromptUser(string sPrompt,map<int,string> *p_mapPrompts);
 
 #endif

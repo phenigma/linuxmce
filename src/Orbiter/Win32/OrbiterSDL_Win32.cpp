@@ -2,6 +2,7 @@
 #include "StringUtils.h"
 #include "SDL_syswm.h"
 #include "MainDialog.h"
+#include "PopupMessage.h"
 #include "VirtualKeysTranslator.h"
 
 #include "../pluto_main/Define_Button.h"
@@ -183,5 +184,10 @@ bool OrbiterSDL_Win32::SelfUpdate()
 	OrbiterSelfUpdate orbiterSelfUpdate(this);
 
 	return orbiterSelfUpdate.Run();
+}
+//-----------------------------------------------------------------------------------------------------
+int OrbiterSDL_Win32::PromptUser(string sPrompt,map<int,string> *p_mapPrompts)
+{
+    return PromptUser(sPrompt, p_mapPrompts);
 }
 //-----------------------------------------------------------------------------------------------------

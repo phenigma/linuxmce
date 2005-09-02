@@ -35,6 +35,8 @@ public:
 	static void BuildOrbiter(int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
 		int nImageWidth, int nImageHeight, bool bFullScreen = false);
 	static OrbiterSDL_Win32 *GetInstance();
+
+    int PromptUser(string sPrompt,map<int,string> *p_mapPrompts);
 };
 //-----------------------------------------------------------------------------------------------------
 #endif //__ORBITER_SDL_WIN_H__

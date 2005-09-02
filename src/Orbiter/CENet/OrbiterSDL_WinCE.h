@@ -70,6 +70,8 @@ public:
 
 	void CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,Message *pMessage);
 	void CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage);
+
+	int OrbiterSDL_WinCE::PromptUser(string sPrompt,map<int,string> *p_mapPrompts);
 };
 //-----------------------------------------------------------------------------------------------------
 #endif //__ORBITER_SDL_WIN_CE_H__
