@@ -3,7 +3,8 @@
 #include "Logger.h"
 
 using namespace DCE;
-#include "../MythTV_Backend_Proxy/MythTV_Backend_Proxy.h"
+#include "MythTV_Backend_ProxyBase.h"
+extern MythTV_Backend_Proxy_Command *Create_MythTV_Backend_Proxy(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter);
 DeviceData_Impl *MythTV_Backend_Proxy_Data::CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition)
 {
 	// Peek ahead in the stream.  We're going to pass in the above pointers anyway so it won't affect the position

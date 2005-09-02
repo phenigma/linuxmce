@@ -240,3 +240,15 @@ void MythTV_Backend_Proxy::CMD_Track_Frontend_At_IP(int iPK_Device,string sIP_Ad
 	if ( m_mapAddressToDeviceState[sIP_Address].second != 0 )
 		EVENT_MythTV_Channel_Changed(iPK_Device, m_mapAddressToDeviceState[sIP_Address].second);
 }
+//<-dceag-getconfig-b->
+bool MythTV_Backend_Proxy::GetConfig()
+{
+	if( !MythTV_Backend_Proxy_Command::GetConfig() )
+		return false;
+//<-dceag-getconfig-e->
+//<-dceag-createinst-b->
+MythTV_Backend_Proxy_Command *Create_MythTV_Backend_Proxy(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)
+{
+	return new MythTV_Backend_Proxy(pPrimaryDeviceCommand, pData, pEvent, pRouter);
+}
+//<-dceag-createinst-e->

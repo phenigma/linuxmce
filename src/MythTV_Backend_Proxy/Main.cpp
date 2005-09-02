@@ -3,10 +3,9 @@
 #include "DCE/Logger.h"
 #include "ServerLogger.h"
 #include "PlutoUtils/FileUtils.h"
-#include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
-#include "PlutoUtils/Other.h"
+#include "DCERouter.h"
 
 // In source files stored in archives and packages, these 2 lines will have the release version (build)
 // and the svn revision as a global variable that can be inspected within a core dump
@@ -19,6 +18,50 @@ namespace DCE
 	Logger *g_pPlutoLogger;
 }
 using namespace DCE;
+
+// You can override this block if you don't want the app to reload in the event of a problem
+extern void (*g_pDeadlockHandler)(PlutoLock *pPlutoLock);
+extern void (*g_pSocketCrashHandler)(Socket *pSocket);
+extern Command_Impl *g_pCommand_Impl;
+void DeadlockHandler(PlutoLock *pPlutoLock)
+{
+	// This isn't graceful, but for the moment in the event of a deadlock we'll just kill everything and force a reload
+	if( g_pCommand_Impl )
+	{
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Deadlock problem.  %d  Going to reload and quit",g_pCommand_Impl->m_dwPK_Device);
+		g_pCommand_Impl->OnReload();
+	}
+}
+void SocketCrashHandler(Socket *pSocket)
+{
+	// This isn't graceful, but for the moment in the event of a socket crash we'll just kill everything and force a reload
+	if( g_pCommand_Impl )
+	{
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Socket problem. %d  Going to reload and quit",g_pCommand_Impl->m_dwPK_Device);
+		g_pCommand_Impl->OnReload();
+	}
+}
+void Plugin_DeadlockHandler(PlutoLock *pPlutoLock)
+{
+	// This isn't graceful, but for the moment in the event of a deadlock we'll just kill everything and force a reload
+	if( g_pCommand_Impl && g_pCommand_Impl->m_pRouter )
+	{
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Plugin Deadlock problem.  %d Going to reload",g_pCommand_Impl->m_dwPK_Device);
+		g_pCommand_Impl->m_pRouter->CrashWithinPlugin(g_pCommand_Impl->m_dwPK_Device);
+	}
+}
+void Plugin_SocketCrashHandler(Socket *pSocket)
+{
+	if( g_pCommand_Impl && g_pCommand_Impl->m_pRouter )
+	{
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Plugin Socket problem.  %d",g_pCommand_Impl->m_dwPK_Device);
+		// g_pCommand_Impl->m_pRouter->CrashWithinPlugin(g_pCommand_Impl->m_dwPK_Device);  // Don't reload plugins since sockets can fail
+	}
+}
 //<-dceag-incl-e->
 
 extern "C" {
@@ -37,32 +80,22 @@ extern "C" {
 
 //<-dceag-plug-b->
 extern "C" {
-	class Command_Impl *RegisterAsPlugIn(class Router *pRouter,int PK_Device,string sLogger)
+	class Command_Impl *RegisterAsPlugIn(class Router *pRouter,int PK_Device,Logger *pPlutoLogger)
 	{
-		if( sLogger=="dcerouter" )
-		{
-			g_pPlutoLogger = new ServerLogger(PK_Device, MythTV_Backend_Proxy::PK_DeviceTemplate_get_static(), "localhost");
-			if( ! ((ServerLogger *) g_pPlutoLogger)->IsConnected() )
-			{
-				sLogger="stdout";
-				cerr << "Failed to create server logger.  Reverting to stdout instead." << endl;
-			}
-		}
-		
-		if( sLogger=="null" )
-			g_pPlutoLogger = new NullLogger();
-		else if( sLogger=="stdout" )
-			g_pPlutoLogger = new FileLogger(stdout);
-		else if( sLogger!="dcerouter" )
-			g_pPlutoLogger = new FileLogger(sLogger.c_str());
-
+		g_pPlutoLogger = pPlutoLogger;
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		MythTV_Backend_Proxy *pMythTV_Backend_Proxy = new MythTV_Backend_Proxy(PK_Device, "localhost",true,false,pRouter);
-		if( pMythTV_Backend_Proxy->m_bQuit )
+		if( pMythTV_Backend_Proxy->m_bQuit || !pMythTV_Backend_Proxy->GetConfig() )
 		{
 			delete pMythTV_Backend_Proxy;
 			return NULL;
+		}
+		else
+		{
+			g_pCommand_Impl=pMythTV_Backend_Proxy;
+			g_pDeadlockHandler=Plugin_DeadlockHandler;
+			g_pSocketCrashHandler=Plugin_SocketCrashHandler;
 		}
 		return pMythTV_Backend_Proxy;
 	}

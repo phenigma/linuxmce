@@ -3,6 +3,7 @@
 #include "DeviceData_Impl.h"
 #include "Message.h"
 #include "Command_Impl.h"
+#include "Logger.h"
 
 
 namespace DCE
@@ -45,24 +46,58 @@ public:
 	MythTV_Backend_Proxy_Command(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL)
 	: Command_Impl(DeviceID, ServerAddress, bLocalMode, pRouter)
 	{
+	}
+	virtual bool GetConfig()
+	{
 		if( m_bLocalMode )
-			return;
+			return true;
 		m_pData=NULL;
-		m_pEvent = new MythTV_Backend_Proxy_Event(DeviceID, ServerAddress);
+		m_pEvent = new MythTV_Backend_Proxy_Event(m_dwPK_Device, m_sHostName);
 		if( m_pEvent->m_dwPK_Device )
 			m_dwPK_Device = m_pEvent->m_dwPK_Device;
+		if( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None )
+		{
+			if( m_pEvent->m_pClientSocket->m_eLastError==cs_err_NeedReload )
+			{
+				if( RouterNeedsReload() )
+				{
+					string sResponse;
+					m_pEvent->m_pClientSocket->SendString( "RELOAD" );
+					if( m_pEvent->m_pClientSocket->ReceiveString( sResponse ) && sResponse!="OK" )
+					{
+						CannotReloadRouter();
+						g_pPlutoLogger->Write(LV_WARNING,"Reload request denied: %s",sResponse.c_str());
+					}
+				}	
+			}
+			else if( m_pEvent->m_pClientSocket->m_eLastError==cs_err_BadDevice )
+			{
+				while( m_pEvent->m_pClientSocket->m_eLastError==cs_err_BadDevice && (m_dwPK_Device = DeviceIdInvalid())!=0 )
+				{
+					delete m_pEvent;
+					m_pEvent = new MythTV_Backend_Proxy_Event(m_dwPK_Device, m_sHostName);
+					if( m_pEvent->m_dwPK_Device )
+						m_dwPK_Device = m_pEvent->m_dwPK_Device;
+				}
+			}
+		}
+		
+		if( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None )
+			return false;
+
 		int Size; char *pConfig = m_pEvent->GetConfig(Size);
 		if( !pConfig )
 			throw "Cannot get configuration data";
 		m_pData = new MythTV_Backend_Proxy_Data();
 		if( Size )
 			m_pData->SerializeRead(Size,pConfig);
-		delete pConfig;
+		delete[] pConfig;
 		pConfig = m_pEvent->GetDeviceList(Size);
 		m_pData->m_AllDevices.SerializeRead(Size,pConfig);
-		delete pConfig;
+		delete[] pConfig;
 		m_pData->m_pEvent_Impl = m_pEvent;
-		m_pcRequestSocket = new Event_Impl(DeviceID, 63,ServerAddress);
+		m_pcRequestSocket = new Event_Impl(m_dwPK_Device, 63,m_sHostName);
+		return true;
 	};
 	MythTV_Backend_Proxy_Command(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter) : Command_Impl(pPrimaryDeviceCommand, pData, pEvent, pRouter) {};
 	virtual ~MythTV_Backend_Proxy_Command() {};
@@ -83,6 +118,7 @@ public:
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
 	{
+		map<long, string>::iterator itRepeat;
 		if( Command_Impl::ReceivedMessage(pMessageOriginal) )
 			return true;
 		int iHandled=0;
@@ -99,13 +135,24 @@ public:
 					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
 					string sIP_Address=pMessage->m_mapParameters[58];
 						CMD_Track_Frontend_At_IP(iPK_Device,sIP_Address.c_str(),sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
+							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Track_Frontend_At_IP(iPK_Device,sIP_Address.c_str(),sCMD_Result,pMessage);
+						}
 					};
 					iHandled++;
 					continue;
@@ -128,16 +175,34 @@ public:
 					ReceivedCommandForChild(pDeviceData_Base,sCMD_Result,pMessage);
 				else
 					ReceivedUnknownCommand(sCMD_Result,pMessage);
-					if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+					if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 					{
+							pMessage->m_bRespondedToMessage=true;
 						Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+						pMessageOut->m_mapParameters[0]=sCMD_Result;
 						SendMessage(pMessageOut);
 					}
-					else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+					else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
 						SendString(sCMD_Result);
-					if( sCMD_Result!="UNHANDLED" )
+						}
+					if( sCMD_Result!="UNHANDLED" && sCMD_Result!="UNKNOWN DEVICE" )
 						iHandled++;
 				}
+			}
+			if( iHandled==0 && !pMessage->m_bRespondedToMessage &&
+			(pMessage->m_eExpectedResponse==ER_ReplyMessage || pMessage->m_eExpectedResponse==ER_ReplyString) )
+			{
+				pMessage->m_bRespondedToMessage=true;
+				if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+				{
+					Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+					pMessageOut->m_mapParameters[0]="UNHANDLED";
+					SendMessage(pMessageOut);
+				}
+				else
+					SendString("UNHANDLED");
 			}
 		}
 		return iHandled!=0;
