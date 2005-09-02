@@ -97,6 +97,7 @@ printf("dupped arg %d %s\n",i,ps);
 			// setenv("DISPLAY", ":0", 1);
             //now, exec the process
             printf("ProcessUtils::SpawnApplication(): Spawning\n");
+			setpgrp();
 
 			string sLogFile;
 			if (bLogOutput)
@@ -200,7 +201,7 @@ bool ProcessUtils::KillApplication(string sAppIdentifier, vector<void *> &associ
 	while ( itPids != pidsArray.end() )
 	{
 #ifndef WIN32
-		kill(*itPids, SIGKILL);
+		kill(-*itPids, SIGKILL);
 #endif
 		itPids++;
 	}
