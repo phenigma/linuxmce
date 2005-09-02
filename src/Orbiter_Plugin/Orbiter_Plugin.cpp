@@ -49,6 +49,8 @@ using namespace DCE;
 #include "pluto_main/Table_DeviceCategory_DeviceData.h"
 #include "pluto_main/Define_DeviceTemplate.h"
 #include "pluto_main/Define_Command.h"
+#include "pluto_main/Define_Size.h"
+#include "pluto_main/Define_UI.h"
 #include "pluto_main/Define_CommandParameter.h"
 #include "pluto_main/Table_DeviceTemplate_DeviceData.h"
 #include "pluto_main/Table_Device_DeviceData.h"
@@ -950,15 +952,99 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
 
     UnknownDeviceInfos *pUnknownDevice = m_mapUnknownDevices_Find(sMac_address);
 
-    if(pUnknownDevice)
+    if(pUnknownDevice && !iPK_DeviceTemplate)
         iPK_DeviceTemplate = pUnknownDevice->m_iPK_DeviceTemplate;
-    else
-        g_pPlutoLogger->Write(LV_WARNING, "The unknown device info for this mac %s! wasn't found!", sMac_address.c_str());
+
+	int PK_UI=0;
+
+	if( !iPK_DeviceTemplate )
+	{
+		string sDeviceCategory;
+		string sManufacturer;
+		IdentifyDevice(sMac_address, sDeviceCategory, iPK_DeviceTemplate, sManufacturer);
+	}
 
     if(!iPK_DeviceTemplate)
     {
-        g_pPlutoLogger->Write(LV_CRITICAL, "No device template set for this mac %s! Assuming that is a nokia...", sMac_address.c_str());
-        iPK_DeviceTemplate = DEVICETEMPLATE_Symbian_Series_60_mobile_CONST;
+		if( (iWidth==240 && iHeight==320) || iPK_Size==SIZE_240x320_PDA_CONST )
+		{
+			if( sType=="CE" )
+				iPK_DeviceTemplate=DEVICETEMPLATE_Windows_CE_PDA_Vert_Display_CONST;
+			else
+				iPK_DeviceTemplate=DEVICETEMPLATE_Windows_XP_PDA_Vert_Device_CONST;
+			PK_UI=UI_PDA_4_3_vertical_style_CONST;
+			iWidth=240;
+			iHeight=320;
+			iPK_Size=SIZE_240x320_PDA_CONST;
+		}
+		else if( (iWidth==320 && iHeight==240) || iPK_Size==SIZE_Horizontal_PDA_CONST )
+		{
+			if( sType=="CE" )
+				iPK_DeviceTemplate=DEVICETEMPLATE_Windows_CE_PCtablet_Horiz_CONST;
+			else
+				iPK_DeviceTemplate=DEVICETEMPLATE_Windows_XP_PCtablet_Horiz_Di_CONST;
+			PK_UI=UI_Normal_Horizontal_3_4_CONST;
+			iWidth=320;
+			iHeight=240;
+			iPK_Size=SIZE_Horizontal_PDA_CONST;
+		}
+		else if( sType=="Symbian60" )
+		{
+			iPK_DeviceTemplate=DEVICETEMPLATE_Symbian_Series_60_mobile_CONST;
+			PK_UI=UI_Symbian_Series_60_Phone_CONST;
+			iWidth=176;
+			iHeight=208;
+			iPK_Size=SIZE_Symbian_60_scale_was_220_158_CONST;
+		}
+		else if( sType=="MsSmartphone" )
+		{
+			iPK_DeviceTemplate=DEVICETEMPLATE_Windows_Mobile_Smartphone_CONST;
+			PK_UI=UI_Symbian_Series_60_Phone_CONST;
+			iWidth=176;
+			iHeight=220;
+			iPK_Size=SIZE_176x220_Windows_Mobile_CONST;
+		}
+		else
+		{
+			if( sType=="CE" )
+				iPK_DeviceTemplate=DEVICETEMPLATE_Windows_CE_PCtablet_Horiz_CONST;
+			else
+				iPK_DeviceTemplate=DEVICETEMPLATE_Windows_XP_PCtablet_Horiz_Di_CONST;
+			PK_UI=UI_Normal_Horizontal_3_4_CONST;
+			if( (!iWidth || !iHeight) && iPK_Size )
+			{
+				switch( iPK_Size )
+				{
+				case SIZE_800x600_CONST:
+					iWidth=800;
+					iHeight=600;
+					break;
+				case SIZE_640x480_CONST:
+					iWidth=640;
+					iHeight=480;
+					break;
+				case SIZE_1024x768_CONST:
+					iWidth=1024;
+					iHeight=768;
+					break;
+				}
+			}
+			else if( iWidth && iHeight && !iPK_Size )
+			{
+				if( iWidth==800 && iHeight==600 )
+					iPK_Size=SIZE_800x600_CONST;
+				else if( iWidth==640 && iHeight==480 )
+					iPK_Size=SIZE_640x480_CONST;
+				else if( iWidth==1024 && iHeight==768 )
+					iPK_Size=SIZE_1024x768_CONST;
+			}
+			else if( !iWidth || !iHeight || !iPK_Size )
+			{
+				iWidth=640;
+				iHeight=480;
+				iPK_Size=SIZE_640x480_CONST;
+			}
+ 		}
     }
 
 	PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);	
@@ -981,13 +1067,13 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
 
 	// Set everything
 	if( iPK_Users )
-		m_pRouter->SetDeviceDataInDB(PK_Device,DEVICEDATA_PK_Users_CONST,StringUtils::itos(iPK_Users));
+		m_pRouter->SetDeviceDataInDB(PK_Device,DEVICEDATA_PK_Users_CONST,StringUtils::itos(iPK_Users),true);
 	if( iPK_Skin )
-		m_pRouter->SetDeviceDataInDB(PK_Device,DEVICEDATA_PK_Skin_CONST,StringUtils::itos(iPK_Skin));
+		m_pRouter->SetDeviceDataInDB(PK_Device,DEVICEDATA_PK_Skin_CONST,StringUtils::itos(iPK_Skin),true);
 	if( iPK_Language )
-		m_pRouter->SetDeviceDataInDB(PK_Device,DEVICEDATA_PK_Language_CONST,StringUtils::itos(iPK_Language));
+		m_pRouter->SetDeviceDataInDB(PK_Device,DEVICEDATA_PK_Language_CONST,StringUtils::itos(iPK_Language),true);
 	if( iPK_Size )
-		m_pRouter->SetDeviceDataInDB(PK_Device,DEVICEDATA_PK_Size_CONST,StringUtils::itos(iPK_Size));
+		m_pRouter->SetDeviceDataInDB(PK_Device,DEVICEDATA_PK_Size_CONST,StringUtils::itos(iPK_Size),true);
 
 	// Same thing like in regen orbiter
 	string Cmd = "/usr/pluto/bin/RegenOrbiterOnTheFly.sh " + StringUtils::itos(PK_Device) + " " + StringUtils::itos(m_dwPK_Device);

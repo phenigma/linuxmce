@@ -333,9 +333,11 @@ namespace DCE
         void CleanFileName(string &FileName);
         Message *GetActionForInput(int PK_Device,int PK_Input);
         bool DeviceIsRegistered(int PK_Device);
-		void SetDeviceDataInDB(int PK_Device,int PK_DeviceData,string sValue)
+		void SetDeviceDataInDB(int PK_Device,int PK_DeviceData,string sValue,bool bOnlyIfNotAlreadyThere=false)
 		{
 			Row_Device_DeviceData *pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(PK_Device,PK_DeviceData);
+			if( bOnlyIfNotAlreadyThere && pRow_Device_DeviceData && pRow_Device_DeviceData->IK_DeviceData_get().size() )
+				return;
 			if( !pRow_Device_DeviceData )
 			{
 				pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->AddRow();
