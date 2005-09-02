@@ -89,20 +89,7 @@ public:
 		m_sMacAddress=m_pEvent->m_pClientSocket->m_sMacAddress;
 		if( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None )
 		{
-			if( m_pEvent->m_pClientSocket->m_eLastError==cs_err_NeedReload )
-			{
-				if( RouterNeedsReload() )
-				{
-					string sResponse;
-					m_pEvent->m_pClientSocket->SendString( "RELOAD" );
-					if( m_pEvent->m_pClientSocket->ReceiveString( sResponse ) && sResponse!="OK" )
-					{
-						CannotReloadRouter();
-						g_pPlutoLogger->Write(LV_WARNING,"Reload request denied: %s",sResponse.c_str());
-					}
-				}	
-			}
-			else if( m_pEvent->m_pClientSocket->m_eLastError==cs_err_BadDevice )
+			if( m_pEvent->m_pClientSocket->m_eLastError==cs_err_BadDevice )
 			{
 				while( m_pEvent->m_pClientSocket->m_eLastError==cs_err_BadDevice && (m_dwPK_Device = DeviceIdInvalid())!=0 )
 				{
@@ -112,9 +99,22 @@ public:
 						m_dwPK_Device = m_pEvent->m_dwPK_Device;
 				}
 			}
+			if( m_pEvent->m_pClientSocket->m_eLastError==cs_err_NeedReload )
+			{
+				if( RouterNeedsReload() )
+				{
+					string sResponse;
+					m_pEvent->m_pClientSocket->SendString( "RELOAD" );
+					if( !m_pEvent->m_pClientSocket->ReceiveString( sResponse ) || sResponse!="OK" )
+					{
+						CannotReloadRouter();
+						g_pPlutoLogger->Write(LV_WARNING,"Reload request denied: %s",sResponse.c_str());
+					}
+				}	
+			}
 		}
 		
-		if( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None || m_pEvent->m_pClientSocket->m_socket==INVALID_SOCKET )
+		if( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None || m_pEvent->m_pClientSocket->m_Socket==INVALID_SOCKET )
 			return false;
 
 		int Size; char *pConfig = m_pEvent->GetConfig(Size);

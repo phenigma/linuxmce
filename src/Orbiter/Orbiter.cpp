@@ -391,7 +391,7 @@ bool Orbiter::GetConfig()
 	int PK_Device=m_dwPK_Device;
 	if( !Orbiter_Command::GetConfig() )
 	{
-		if( m_sHostName!="192.168.80.1" )
+		if( m_pEvent->m_pClientSocket->m_eLastError==cs_err_CannotConnect && m_sHostName!="192.168.80.1" )
 		{
 			m_sHostName="192.168.80.1";
 			if( !Orbiter_Command::GetConfig() )
@@ -399,8 +399,8 @@ bool Orbiter::GetConfig()
 			else
 				bIPChanged=true;
 		}
-		else
-			return false;
+
+		return false;
 	}
 //<-dceag-getconfig-e->
 
@@ -8386,11 +8386,23 @@ int Orbiter::HandleNotOKStatus(string sStatus,string sRegenStatus,int iRegenPerc
 
 bool Orbiter::RouterNeedsReload()
 {
+	Event_Impl event_Impl(DEVICEID_MESSAGESEND, 0, m_sIPAddress);
 	string sStatus,sRegenStatus;
 	int iRegenPercent;
 	DCE::CMD_Get_Orbiter_Status_DT CMD_Get_Orbiter_Status_DT( m_dwPK_Device, DEVICETEMPLATE_Orbiter_Plugin_CONST, BL_SameHouse, 
 		m_dwPK_Device,&sStatus,&sRegenStatus,&iRegenPercent);
-	SendCommand(CMD_Get_Orbiter_Status_DT);
+		CMD_Get_Orbiter_Status_DT.m_pMessage->m_eExpectedResponse = ER_ReplyMessage;
+	Message *pResponse = event_Impl.SendReceiveMessage( CMD_Get_Orbiter_Status_DT.m_pMessage );
+	if( !pResponse || pResponse->m_dwID != 0 )
+	{
+		if(pResponse)
+			delete pResponse;
+
+		PromptUser("Sorry.  There is a problem creating the new orbiter");
+		return 0;
+	}
+	CMD_Get_Orbiter_Status_DT.ParseResponse( pResponse );
+	delete pResponse;
 
 	int iResponse;
 	if( (iResponse=HandleNotOKStatus(sStatus,sRegenStatus,iRegenPercent))==0 )

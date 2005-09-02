@@ -196,8 +196,7 @@ bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo )
 		dwFlags |= O_NONBLOCK;
 		fcntl( m_Socket, F_SETFL, dwFlags );
 #endif
-		if( !OnConnect( PK_DeviceTemplate, sExtraInfo ) )
-			m_eLastError=cs_err_CannotConnect;
+		OnConnect( PK_DeviceTemplate, sExtraInfo );
 	}
 	else
 		m_eLastError=cs_err_CannotConnect;
@@ -212,7 +211,7 @@ bool ClientSocket::OnConnect( int PK_DeviceTemplate,string sExtraInfo )
 	{
 		if( g_pPlutoLogger )
 			g_pPlutoLogger->Write( LV_CRITICAL, "Lost connection device: %d", m_dwPK_Device );
-
+		m_eLastError=cs_err_CannotConnect;
 		return false;
 	}
 
@@ -235,6 +234,8 @@ bool ClientSocket::OnConnect( int PK_DeviceTemplate,string sExtraInfo )
 			m_eLastError=cs_err_NeedReload;
 		else if( sResponse.substr(0,24)=="NOT IN THIS INSTALLATION" || sResponse.substr(0,10)=="BAD DEVICE" )
 			m_eLastError=cs_err_BadDevice;
+		else
+			m_eLastError=cs_err_CannotConnect;
 		if( g_pPlutoLogger )
 			g_pPlutoLogger->Write( LV_CRITICAL, "Connection for client socket reported %s, device %d last error %d", 
 				sResponse.c_str(), m_dwPK_Device,(int) m_eLastError );
@@ -259,6 +260,7 @@ bool ClientSocket::OnConnect( int PK_DeviceTemplate,string sExtraInfo )
 			m_dwPK_Device=PK_Device_New;
 	}
 
+	m_eLastError=cs_err_None;
 	return true;
 }
 
