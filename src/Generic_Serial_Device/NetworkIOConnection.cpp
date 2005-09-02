@@ -79,12 +79,12 @@ NetworkIOConnection::Close() {
 int 
 NetworkIOConnection::Send(const char* buff, unsigned int size) {
 	if(sockfd_ < 0) {
-		g_pPlutoLogger->Write(LV_WARNING, "Trying to receive DATA while not connected.");
+		g_pPlutoLogger->Write(LV_WARNING, "Trying to send DATA while not connected.");
 		return -1;
 	}
 	g_pPlutoLogger->Write(LV_STATUS, "Sending buffer to %s with size %d: <%s>.", 
 									host_.c_str(), size, IOUtils::FormatHexAsciiBuffer(buff, size).c_str(),"31");
-	send(sockfd_, buff, size, 0);
+	size = send(sockfd_, buff, size, 0);
 	g_pPlutoLogger->Write(LV_STATUS, "Buffer sent.");
 	return size;
 }
