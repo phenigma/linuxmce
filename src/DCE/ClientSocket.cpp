@@ -217,7 +217,7 @@ bool ClientSocket::OnConnect( int PK_DeviceTemplate,string sExtraInfo )
 	if( pos!=string::npos )
 	{
 		string::size_type space = sResponse.find(' ',pos+1);
-		m_sIPAddress = space==string::npos ? sResponse.substr(pos+3) : sResponse.substr(pos+3,space-pos-3);
+		m_sMyIPAddress = space==string::npos ? sResponse.substr(pos+3) : sResponse.substr(pos+3,space-pos-3);
 	}
 	pos = sResponse.find("MAC=");
 	if( pos!=string::npos )

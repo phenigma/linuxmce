@@ -136,7 +136,7 @@ Socket::Socket(string Name,string sIPAddress, string sMacAddress) : m_SocketMute
 	hints.ai_addr = NULL;
 	hints.ai_canonname = NULL;
 
-	getaddrinfo(m_sIPAddress.c_str(), NULL, &hints, &res);
+	getaddrinfo(m_sHostName.c_str(), NULL, &hints, &res);
 
 	freeaddrinfo(res);
 	*/

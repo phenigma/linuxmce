@@ -38,7 +38,10 @@ namespace DCE
 
 		SOCKET m_Socket; /** < the actual socket @todo ask */
 		
-		string m_sName,m_sIPAddress,m_sHostName,m_sMacAddress; /** < a name for the socket */
+		string m_sName; /** < a name for the socket */
+		string m_sIPAddress,m_sHostName; /** < The hostname is the original name for the server, which may be a name--not an IP, IP is always the IP of the server */
+		string m_sMyIPAddress; /** < Only used on a client side, this is the IP address the server reported for the incoming connection */
+		string m_sMacAddress; /** < On both client/server sockets, the client's mac address */
 		
 		int m_iSocketCounter; /** < counts the sockets actually created */
 

@@ -171,8 +171,6 @@ bool ServerSocket::_Run()
 #ifndef WIN32
 			if( m_sIPAddress.size() )
 				sMacAddress=arpcache_MACfromIP(m_sIPAddress);
-#else
-sMacAddress = m_sIPAddress; // Temporary for testing
 #endif
 			string sIPAndMac = (m_sIPAddress.size() ? " IP=" + m_sIPAddress : "") + (sMacAddress.size() ? " MAC=" + sMacAddress : "");
 			if( m_dwPK_Device == DEVICEID_MESSAGESEND )
