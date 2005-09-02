@@ -344,7 +344,7 @@ bool DialogProgress(string sMessage, int nProgress)
     else
         UpdateProgress();
 
-    if(g_nProgress == 100)
+    if(g_nProgress == 100 || g_nProgress < 0)
         g_bResponse;
 
     if(g_bResponse)
