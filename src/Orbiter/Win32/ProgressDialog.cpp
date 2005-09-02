@@ -327,7 +327,7 @@ void UpdateProgress()
     ::PostMessage(g_hwndPopupDialog, WM_APP, 0, 0);
 }
 
-bool DialogProgress(string sMessage, int nProgress)
+bool DialogProgressEx(string sMessage, int nProgress)
 {
     if(!nProgress)
         g_bResponse = false;

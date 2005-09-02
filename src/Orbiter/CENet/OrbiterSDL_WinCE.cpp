@@ -528,11 +528,11 @@ void OrbiterSDL_WinCE::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessag
 //-----------------------------------------------------------------------------------------------------
 int OrbiterSDL_WinCE::PromptUser(string sPrompt,map<int,string> *p_mapPrompts)
 {
-	return PromptUser(sPrompt, p_mapPrompts);
+	return PromptUserEx(sPrompt, p_mapPrompts);
 }
 //-----------------------------------------------------------------------------------------------------
 bool OrbiterSDL_WinCE::DisplayProgress(string sMessage, int nProgress)
 {
-    return DialogProgress(sMessage, nProgress);
+    return DialogProgressEx(sMessage, nProgress);
 }
 //-----------------------------------------------------------------------------------------------------

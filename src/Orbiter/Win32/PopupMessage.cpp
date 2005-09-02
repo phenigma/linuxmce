@@ -292,7 +292,7 @@ BOOL InitInstancePopup(HINSTANCE hInstance, int nCmdShow)
 	return TRUE;
 }
 
-int PromptUser(string sPrompt,map<int,string> *p_mapPrompts)
+int PromptUserEx(string sPrompt,map<int,string> *p_mapPrompts)
 {
     g_nResponse = -1;
     g_sPrompt = sPrompt;

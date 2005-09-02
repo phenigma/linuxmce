@@ -5,6 +5,6 @@
 #include <map>
 using namespace std;
 
-int PromptUser(string sPrompt,map<int,string> *p_mapPrompts);
+int PromptUserEx(string sPrompt,map<int,string> *p_mapPrompts);
 
 #endif

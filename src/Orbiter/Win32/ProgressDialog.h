@@ -4,6 +4,6 @@
 #include <string>
 using namespace std;
 
-bool DialogProgress(string sMessage, int nProgress);
+bool DialogProgressEx(string sMessage, int nProgress);
 
 #endif //__PROGRESS_DIALOG_H__

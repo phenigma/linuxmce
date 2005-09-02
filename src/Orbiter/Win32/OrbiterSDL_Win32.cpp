@@ -189,11 +189,11 @@ bool OrbiterSDL_Win32::SelfUpdate()
 //-----------------------------------------------------------------------------------------------------
 int OrbiterSDL_Win32::PromptUser(string sPrompt,map<int,string> *p_mapPrompts)
 {
-    return PromptUser(sPrompt, p_mapPrompts);
+    return PromptUserEx(sPrompt, p_mapPrompts);
 }
 //-----------------------------------------------------------------------------------------------------
 bool OrbiterSDL_Win32::DisplayProgress(string sMessage, int nProgress)
 {
-    return DialogProgress(sMessage, nProgress);
+    return DialogProgressEx(sMessage, nProgress);
 }
 //-----------------------------------------------------------------------------------------------------

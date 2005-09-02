@@ -993,11 +993,11 @@ void Orbiter_PocketFrog::CalcTextRectangle(RECT &rectLocation,PlutoRectangle &rP
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ int Orbiter_PocketFrog::PromptUser(string sPrompt,map<int,string> *p_mapPrompts)
 {
-    return PromptUser(sPrompt, p_mapPrompts);
+    return PromptUserEx(sPrompt, p_mapPrompts);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ bool Orbiter_PocketFrog::DisplayProgress(string sMessage, int nProgress)
 {
-    return DialogProgress(sMessage, nProgress);
+    return DialogProgressEx(sMessage, nProgress);
 }
 //-----------------------------------------------------------------------------------------------------
