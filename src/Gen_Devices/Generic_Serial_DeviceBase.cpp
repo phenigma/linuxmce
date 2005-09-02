@@ -14,7 +14,7 @@ DeviceData_Impl *Generic_Serial_Device_Data::CreateData(DeviceData_Impl *Parent,
 	int iPK_Installation = b.Read_unsigned_long();
 	int iPK_DeviceTemplate = b.Read_unsigned_long();
 	switch(iPK_DeviceTemplate) {
-		case 1632:
+		case 69:
 			return new Generic_Serial_Device_Data();
 	};
 	g_pPlutoLogger->Write(LV_STATUS, "Got CreateData for unknown type %d.", iPK_DeviceTemplate);
@@ -24,7 +24,7 @@ DeviceData_Impl *Generic_Serial_Device_Data::CreateData(DeviceData_Impl *Parent,
 Event_Impl *Generic_Serial_Device_Event::CreateEvent( unsigned long dwPK_DeviceTemplate, ClientSocket *pOCClientSocket, unsigned long dwDevice )
 {
 	switch(dwPK_DeviceTemplate) {
-		case 1632:
+		case 69:
 			return (Event_Impl *) new Generic_Serial_Device_Event(pOCClientSocket, dwDevice);
 	};
 	g_pPlutoLogger->Write(LV_STATUS, "Got CreateEvent for unknown type %d.", dwPK_DeviceTemplate);
