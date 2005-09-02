@@ -387,28 +387,28 @@ g_pPlutoLogger->Write(LV_STATUS,"Maint thread dead");
 //<-dceag-getconfig-b->!
 bool Orbiter::GetConfig()
 {
-	bool bIPChanged=false;
 	int PK_Device=m_dwPK_Device;
-	if( !Orbiter_Command::GetConfig() )
+	bool bResult=Orbiter_Command::GetConfig();
+	if( PK_Device!=m_dwPK_Device )  // We have another device id or host ip address
+	{
+		Simulator::GetInstance()->m_sDeviceID = StringUtils::itos(m_dwPK_Device);
+		Simulator::GetInstance()->SaveConfigurationFile();
+	}
+	if( !bResult )
 	{
 		if( m_pEvent->m_pClientSocket->m_eLastError==cs_err_CannotConnect && m_sHostName!="192.168.80.1" )
 		{
-			m_sHostName="192.168.80.1";
+			m_sHostName="localhost";
 			if( !Orbiter_Command::GetConfig() )
 				return false;
 			else
-				bIPChanged=true;
+			{
+				Simulator::GetInstance()->m_sRouterIP = m_sIPAddress;
+				Simulator::GetInstance()->SaveConfigurationFile();
+			}
 		}
-
-		return false;
-	}
-//<-dceag-getconfig-e->
-
-	if( bIPChanged || PK_Device!=m_dwPK_Device )  // We have another device id or host ip address
-	{
-		Simulator::GetInstance()->m_sRouterIP = m_sIPAddress;
-		Simulator::GetInstance()->m_sDeviceID = StringUtils::itos(m_dwPK_Device);
-		Simulator::GetInstance()->SaveConfigurationFile();
+		else
+			return false;
 	}
 
 	if( DATA_Get_Leave_Monitor_on_for_OSD() )

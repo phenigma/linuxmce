@@ -2188,6 +2188,8 @@ void Orbiter_Plugin::CMD_Get_Orbiter_Status(int iPK_Device,string *sValue_To_Ass
 				*sText = pRow_Orbiter->RegenStatus_get();
 				*iValue = pRow_Orbiter->RegenPercent_get();
 			}
+			else
+				*iValue = 0;  // Shouldn't happen
 		}
 		else
 			*sValue_To_Assign = "O";
@@ -2227,6 +2229,8 @@ void Orbiter_Plugin::CMD_Get_Orbiter_Status(int iPK_Device,string *sValue_To_Ass
 			*sText = pRow_Orbiter->RegenStatus_get();
 			*iValue = pRow_Orbiter->RegenPercent_get();
 		}
+		else
+			*iValue = 0;  // Shouldn't happen
 		return;
 	}
 

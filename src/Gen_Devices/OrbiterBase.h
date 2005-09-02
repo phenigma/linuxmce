@@ -104,8 +104,9 @@ public:
 				if( RouterNeedsReload() )
 				{
 					string sResponse;
-					m_pEvent->m_pClientSocket->SendString( "RELOAD" );
-					if( !m_pEvent->m_pClientSocket->ReceiveString( sResponse ) || sResponse!="OK" )
+					Event_Impl event_Impl(DEVICEID_MESSAGESEND, 0, m_sHostName);
+					event_Impl.m_pClientSocket->SendString( "RELOAD" );
+					if( !event_Impl.m_pClientSocket->ReceiveString( sResponse ) || sResponse!="OK" )
 					{
 						CannotReloadRouter();
 						g_pPlutoLogger->Write(LV_WARNING,"Reload request denied: %s",sResponse.c_str());

@@ -483,8 +483,9 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	fstr_DeviceCommand << "\t\t\t\tif( RouterNeedsReload() )" << endl;
 	fstr_DeviceCommand << "\t\t\t\t{" << endl;
 	fstr_DeviceCommand << "\t\t\t\t\tstring sResponse;" << endl;
-	fstr_DeviceCommand << "\t\t\t\t\tm_pEvent->m_pClientSocket->SendString( \"RELOAD\" );" << endl;
-	fstr_DeviceCommand << "\t\t\t\t\tif( !m_pEvent->m_pClientSocket->ReceiveString( sResponse ) || sResponse!=\"OK\" )" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\tEvent_Impl event_Impl(DEVICEID_MESSAGESEND, 0, m_sHostName);" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\tevent_Impl.m_pClientSocket->SendString( \"RELOAD\" );" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\tif( !event_Impl.m_pClientSocket->ReceiveString( sResponse ) || sResponse!=\"OK\" )" << endl;
 	fstr_DeviceCommand << "\t\t\t\t\t{" << endl;
 	fstr_DeviceCommand << "\t\t\t\t\t\tCannotReloadRouter();" << endl;
 	fstr_DeviceCommand << "\t\t\t\t\t\tg_pPlutoLogger->Write(LV_WARNING,\"Reload request denied: %s\",sResponse.c_str());" << endl;

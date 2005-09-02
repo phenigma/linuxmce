@@ -83,7 +83,7 @@ enum OrbiterStages
 bool EventLoop(ORBITER* pOrbiter);
 //-----------------------------------------------------------------------------------------------------
 
-ORBITER *Connect(int PK_Device,int PK_DeviceTemplate, string sRouter_IP,string sLocalDirectory,bool bLocalMode, int Width,int Height, bool bFullScreen, bool &bMustQuit)
+ORBITER *Connect(int &PK_Device,int PK_DeviceTemplate, string sRouter_IP,string sLocalDirectory,bool bLocalMode, int Width,int Height, bool bFullScreen, bool &bMustQuit)
 {
     bMustQuit = false;
 
@@ -126,7 +126,7 @@ ORBITER *Connect(int PK_Device,int PK_DeviceTemplate, string sRouter_IP,string s
 	if(!bLocalMode)
 	{
 		bool bConnected = pOrbiter->GetConfig() && pOrbiter->Connect(0);  // Don't validate the device template, since the same binary is used for lots of devices
-
+		PK_Device = pOrbiter->m_dwPK_Device;
         if(!bConnected)
         {
             if(pOrbiter->m_bQuit)
