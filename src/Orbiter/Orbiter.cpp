@@ -8387,7 +8387,10 @@ int Orbiter::DeviceIdInvalid()
 	mapPrompts[prCancel] = "Cancel";
 	int iResponse = PromptUser("This seems to be a new Orbiter.  Shall I set it up for you?", &mapPrompts);
 	if( iResponse == prCancel || PROMPT_CANCEL == iResponse )
+    {
+        OnQuit();
         return 0;
+    }
 	if( iResponse == prYes )
 		return SetupNewOrbiter();
 	return PickOrbiterDeviceID();

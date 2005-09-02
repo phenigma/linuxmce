@@ -83,8 +83,10 @@ enum OrbiterStages
 bool EventLoop(ORBITER* pOrbiter);
 //-----------------------------------------------------------------------------------------------------
 
-ORBITER *Connect(int PK_Device,int PK_DeviceTemplate, string sRouter_IP,string sLocalDirectory,bool bLocalMode, int Width,int Height, bool bFullScreen)
+ORBITER *Connect(int PK_Device,int PK_DeviceTemplate, string sRouter_IP,string sLocalDirectory,bool bLocalMode, int Width,int Height, bool bFullScreen, bool &bMustQuit)
 {
+    bMustQuit = false;
+
 	if(!bLocalMode)
 		WriteStatusOutput("Connecting to DCERouter...");
 
@@ -127,8 +129,13 @@ ORBITER *Connect(int PK_Device,int PK_DeviceTemplate, string sRouter_IP,string s
 
         if(!bConnected)
         {
-            ORBITER::Cleanup();
-            return NULL;
+            if(pOrbiter->m_bQuit)
+                bMustQuit = true;
+            else
+            {
+                ORBITER::Cleanup();
+                return NULL;
+            }
         }
 	}
 
@@ -257,23 +264,28 @@ void StartOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP,string s
 		switch(stage)
 		{
 			case osConnect:
-				g_pPlutoLogger->Write(LV_STATUS, "Stage connect");
-				pOrbiter = Connect(PK_Device, PK_DeviceTemplate, sRouter_IP, sLocalDirectory, bLocalMode, Width, Height, bFullScreen);
+                {
+				    g_pPlutoLogger->Write(LV_STATUS, "Stage connect");
+                    bool bMustQuit = false;
+				    pOrbiter = Connect(PK_Device, PK_DeviceTemplate, sRouter_IP, sLocalDirectory, bLocalMode, Width, Height, bFullScreen, bMustQuit);
 
-				if(pOrbiter != NULL)
-				{
-			        g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
-					stage = osRun;
+				    if(pOrbiter != NULL && !bMustQuit)
+				    {
+			            g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
+					    stage = osRun;
 
-					g_pPlutoLogger->Write( LV_STATUS, "Orbiter SelfUpdate: starting" );
-					if(pOrbiter->SelfUpdate())
-					{
-						g_pPlutoLogger->Write( LV_STATUS, "Orbiter SelfUpdate: need to close orbiter" );
-						stage = osQuit;
-					}
-				}
-				else
-					stage = osErrorReconnect;
+					    g_pPlutoLogger->Write( LV_STATUS, "Orbiter SelfUpdate: starting" );
+					    if(pOrbiter->SelfUpdate())
+					    {
+						    g_pPlutoLogger->Write( LV_STATUS, "Orbiter SelfUpdate: need to close orbiter" );
+						    stage = osQuit;
+					    }
+				    }
+				    else if(!bMustQuit)
+					    stage = osErrorReconnect;
+                    else
+                        stage = osQuit;
+                }
 				break;
 
 			case osRun:
