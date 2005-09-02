@@ -246,6 +246,8 @@ bool MythTV_Backend_Proxy::GetConfig()
 	if( !MythTV_Backend_Proxy_Command::GetConfig() )
 		return false;
 //<-dceag-getconfig-e->
+}
+
 //<-dceag-createinst-b->
 MythTV_Backend_Proxy_Command *Create_MythTV_Backend_Proxy(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)
 {
