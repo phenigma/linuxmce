@@ -8402,6 +8402,7 @@ int Orbiter::PickOrbiterDeviceID()
 
 int Orbiter::PromptUser(string sPrompt,map<int,string> *p_mapPrompts)
 {
+#ifndef WINCE
 	map<int,int> mapResponse;
 	cout << sPrompt << endl;
 	int iCount=1;
@@ -8430,6 +8431,7 @@ return 1; // TODO : remove this
 			return mapResponse[iResponse];
 		cout << endl << "Invalid.  Please try again: ";
 	}
+#endif
 	return 0;
 }
 
