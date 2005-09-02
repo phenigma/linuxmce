@@ -38,6 +38,8 @@ enum SelectionBehaviour
     sbNoSelection
 };
 
+#define PROMPT_CANCEL -1
+
 /**
  * @brief Contains a snapshot of the screen that was viewed and the state so that it can be restored with GoBack
  */

@@ -356,6 +356,9 @@ void Simulator::LoadConfigurationFile(string sConfigurationFile)
 //------------------------------------------------------------------------------------------------------
 void Simulator::SaveConfigurationFile(string sConfigurationFile)
 {
+    if(sConfigurationFile == "")
+        sConfigurationFile = m_sConfigurationFile;
+
 	vector<string> vectString;
 	FileUtils::ReadFileIntoVector( sConfigurationFile, vectString );
 

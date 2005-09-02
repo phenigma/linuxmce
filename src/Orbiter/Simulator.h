@@ -58,7 +58,7 @@ public: //methods
 	~Simulator();
 
 	void LoadConfigurationFile(string sConfigurationFile);
-	void SaveConfigurationFile(string sConfigurationFile);
+	void SaveConfigurationFile(string sConfigurationFile = "");
 
 	void StartRandomEventGenerator(long dwDelay = 0);
 	void StopRandomEventGenerator();

@@ -8381,13 +8381,14 @@ bool Orbiter::RouterNeedsReload()
 int Orbiter::DeviceIdInvalid()
 {
 	map<int,string> mapPrompts;
-	mapPrompts[0]="Yes - This is a new Orbiter";
-	mapPrompts[1]="No - There is already a Device ID for this Orbiter";
-	mapPrompts[2]="Cancel";
-	int iResponse=0; //TODO-CHRIS - PromptUser("This seems to be a new Orbiter.  Shall I set it up for you?",mapPrompts);
-	if( iResponse==2 )
-		return 0;
-	if( iResponse==0 )
+    enum PromptsResp {prYes, prNo, prCancel};
+	mapPrompts[prYes]    = "Yes - This is a new Orbiter";
+	mapPrompts[prNo]     = "No - There is already a Device ID for this Orbiter";
+	mapPrompts[prCancel] = "Cancel";
+	int iResponse = PromptUser("This seems to be a new Orbiter.  Shall I set it up for you?", &mapPrompts);
+	if( iResponse == prCancel || PROMPT_CANCEL == iResponse )
+        return 0;
+	if( iResponse == prYes )
 		return SetupNewOrbiter();
 	return PickOrbiterDeviceID();
 }
@@ -8431,25 +8432,25 @@ return 1; // TODO : remove this
 		cout << endl << "Invalid.  Please try again: ";
 	}
 #endif
-	return 0;
+	return PROMPT_CANCEL;
 }
 
 int Orbiter::SetupNewOrbiter()
 {
 	int PK_Users = PromptFor("Users");
-	if( !PK_Users )
+	if( PROMPT_CANCEL == PK_Users )
 		return 0;
 
 	int PK_Room = PromptFor("Room");
-	if( !PK_Room )
+	if( PROMPT_CANCEL == PK_Room )
 		return 0;
 
 	int PK_Skin = PromptFor("Skin");
-	if( !PK_Skin )
+	if( PROMPT_CANCEL == PK_Skin )
 		return 0;
 
 	int PK_Language = PromptFor("Language");
-	if( !PK_Language )
+	if( PROMPT_CANCEL == PK_Language )
 		return 0;
 
 	map<int,string> mapResponseYNC;
@@ -8458,11 +8459,11 @@ int Orbiter::SetupNewOrbiter()
 	mapResponseYNC[2]="Cancel";
 
 	int WiFi = PromptUser("Does this device use Wi-Fi?",&mapResponseYNC);
-	if( WiFi==-1 )
+	if( WiFi == PROMPT_CANCEL )
 		return 0;
 
 	int UseEffects = PromptUser("Use animated buttons and effects?  This can make low-power devices like PDA's run slowly.",&mapResponseYNC);
-	if( UseEffects==-1 )
+	if( UseEffects == PROMPT_CANCEL )
 		return 0;
 
 	int Width=0,Height=0;
@@ -8482,6 +8483,8 @@ int Orbiter::SetupNewOrbiter()
 
 	int PK_Size=0;
 	PK_Size=PromptFor("Size");
+    if( PROMPT_CANCEL == PK_Size)
+        return 0;
 
 	int PK_Device=0;
 	DCE::CMD_New_Orbiter_DT CMD_New_Orbiter_DT(m_dwPK_Device, DEVICETEMPLATE_Orbiter_Plugin_CONST, BL_SameHouse, sType, 

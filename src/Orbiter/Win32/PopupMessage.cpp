@@ -141,12 +141,17 @@ LRESULT CALLBACK WndProcPopup(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
                     g_nWindowWidth - 2 * BUTTON_SEPARATOR, BUTTON_SEPARATOR + LABEL_HEIGHT, 
                     const_cast<char *>(g_sPrompt.c_str()));
 
-                int nScale = int(g_p_mapPrompts->size() ? max(min(3, 20 / g_p_mapPrompts->size()), 1) : 1);
-                int nButtonsPerRow = (g_nWindowWidth - BUTTON_SEPARATOR) / (BUTTON_WIDTH + BUTTON_SEPARATOR);
+                int nScaleX = int(g_p_mapPrompts->size() ? max(min(3, 10 / g_p_mapPrompts->size()), 1) : 1);
+                int nScaleY = int(g_p_mapPrompts->size() ? max(min(2, 10 / g_p_mapPrompts->size()), 1) : 1);
+
+                int nButtonWidth  = nScaleX * BUTTON_WIDTH;
+                int nButtonHeight = nScaleY * BUTTON_HEIGHT;
+
+                int nButtonsPerRow = (g_nWindowWidth - BUTTON_SEPARATOR) / (nButtonWidth + BUTTON_SEPARATOR);
                 int nButtonIndex = 0;
                 int nButtonOnRowIndex = 0;
                 int nButtonColumnIndex = 0;
-                int nAdjustment = (g_nWindowWidth - (nButtonsPerRow * (BUTTON_WIDTH + BUTTON_SEPARATOR) + BUTTON_SEPARATOR)) / 2;
+                int nAdjustment = (g_nWindowWidth - (nButtonsPerRow * (nButtonWidth + BUTTON_SEPARATOR) + BUTTON_SEPARATOR)) / 2;
 
                 map<int, string>::iterator it;
                 for(it = g_p_mapPrompts->begin(); it != g_p_mapPrompts->end(); it++)
@@ -155,9 +160,9 @@ LRESULT CALLBACK WndProcPopup(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
                     nButtonOnRowIndex = nButtonIndex % nButtonsPerRow;
                     nButtonColumnIndex = nButtonIndex / nButtonsPerRow; 
 
-                    HWND hWndButton = CreateButton(hWnd, nAdjustment + BUTTON_SEPARATOR + nButtonOnRowIndex * (BUTTON_WIDTH + BUTTON_SEPARATOR), 
-                        BUTTON_SEPARATOR + LABEL_HEIGHT + BUTTON_SEPARATOR + nButtonColumnIndex * (nScale * BUTTON_HEIGHT + BUTTON_SEPARATOR),
-                        BUTTON_WIDTH, nScale * BUTTON_HEIGHT, const_cast<char *>(sCaption.c_str()));
+                    HWND hWndButton = CreateButton(hWnd, nAdjustment + BUTTON_SEPARATOR + nButtonOnRowIndex * (nButtonWidth + BUTTON_SEPARATOR), 
+                        BUTTON_SEPARATOR + LABEL_HEIGHT + BUTTON_SEPARATOR + nButtonColumnIndex * (nButtonHeight + BUTTON_SEPARATOR),
+                        nButtonWidth, nButtonHeight, const_cast<char *>(sCaption.c_str()));
 
                     g_mapButtons[it->first] = hWndButton;
                     nButtonIndex++;
@@ -169,7 +174,7 @@ LRESULT CALLBACK WndProcPopup(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
                 g_nWindowHeight = min(g_nWindowHeight, 
                     WINDOW_TITLE + 
                     BUTTON_SEPARATOR + LABEL_HEIGHT + BUTTON_SEPARATOR +
-                    (nButtonColumnIndex + 1) * (nScale * BUTTON_HEIGHT + BUTTON_SEPARATOR));
+                    (nButtonColumnIndex + 1) * (nButtonHeight + BUTTON_SEPARATOR));
 			}
 			break;
 
