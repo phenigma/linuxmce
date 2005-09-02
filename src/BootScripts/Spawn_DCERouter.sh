@@ -1,6 +1,10 @@
 #!/bin/bash
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/pluto.func
+. /usr/pluto/bin/PlutoVersion.h
+
+Logging "$TYPE" "$SEVERITY_WARNING" "$0 $module" "Writing Version: $Version"
+echo "$Version" >/home/pluto-version
 
 cd /usr/pluto/bin
 Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Starting DCERouter"
