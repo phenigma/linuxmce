@@ -43,20 +43,11 @@ namespace DCE
 
 using namespace DCE; 
 
-#include "ProgressDialog.h"
-
 int WINAPI WinMain(	HINSTANCE hInstance,
 					HINSTANCE hPrevInstance,
 					LPTSTR    lpCmdLine,
 					int       nCmdShow)
 {
-    int x = 0;
-    while(x++ <= 100 && !DialogProgress("Generating screens, please wait...", x))
-        Sleep(1000);
-
-return 0;
-
-
     //get the binary name and the binary path
 	char pFullPath[256];
 #ifdef WINCE
