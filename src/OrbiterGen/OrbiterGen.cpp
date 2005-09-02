@@ -245,6 +245,10 @@ int main(int argc, char *argv[])
 		pOrbiterGenerator->m_pRow_Orbiter->Regen_set(false);
 		pOrbiterGenerator->m_pRow_Orbiter->RegenInProgress_set(false);
 		pOrbiterGenerator->m_pRow_Orbiter->Table_Orbiter_get()->Commit();
+
+		string sql = "UPDATE Orbiter SET Modification_LastGen=psc_mod,psc_mod=psc_mod WHERE PK_Orbiter=" + StringUtils::itos(pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get());
+		pOrbiterGenerator->threaded_mysql_query(sql);
+
 	}
 	if( pOrbiterGenerator )
         delete pOrbiterGenerator;
@@ -1298,9 +1302,9 @@ int k=2;
 	}
 */
 	// This will update the _LastGen without changing the Modification field
-	sql = "UPDATE Orbiter SET FloorplanInfo='" + StringUtils::itos(m_iNumFloorplanItems) + m_sFloorPlanData +
-		+ "',Modification_LastGen=psc_mod,psc_mod=psc_mod WHERE PK_Orbiter=" + StringUtils::itos(m_pRow_Orbiter->PK_Orbiter_get());
-	threaded_mysql_query(sql);
+	m_pRow_Orbiter->Reload();
+	m_pRow_Orbiter->FloorplanInfo_set(StringUtils::itos(m_iNumFloorplanItems) + m_sFloorPlanData);
+	m_pRow_Orbiter->Table_Orbiter_get()->Commit();
 
 	m_iSC_Version = ORBITER_SCHEMA;
 	m_tGenerationTime = time(NULL);
