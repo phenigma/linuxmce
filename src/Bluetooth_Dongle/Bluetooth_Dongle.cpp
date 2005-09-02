@@ -787,13 +787,13 @@ void Bluetooth_Dongle::CMD_Create_Mobile_Orbiter(int iPK_Device,string sPK_Enter
 		if( atoi(sPK_EntertainArea.c_str()) || iPK_Room )
 		{
 			pOrbiter = 
-				StartOrbiterSDLBluetooth( pBD_Orbiter->m_pBDCommandProcessor, iPK_Device, m_sIPAddress, "", false, 176, 208, 
+				StartOrbiterSDLBluetooth( pBD_Orbiter->m_pBDCommandProcessor, iPK_Device, 0, m_sIPAddress, "", false, 176, 208, 
 					iPK_Room,atoi(sPK_EntertainArea.c_str()));
 		}
 		else
 		{
 			pOrbiter = 
-				StartOrbiterSDLBluetooth( pBD_Orbiter->m_pBDCommandProcessor, iPK_Device, m_sIPAddress, "", false, 176, 208, 
+				StartOrbiterSDLBluetooth( pBD_Orbiter->m_pBDCommandProcessor, iPK_Device, 0, m_sIPAddress, "", false, 176, 208, 
 					0, m_dwPK_EntertainArea);
 		}
 
