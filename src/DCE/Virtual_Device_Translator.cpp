@@ -84,6 +84,8 @@ bool Virtual_Device_Translator::GetConfig(DeviceData_Base *pDeviceData_Base)
 			}
 		}
 	}
+
+    return true;
 }
 
 
