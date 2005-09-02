@@ -196,7 +196,8 @@ bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo )
 		dwFlags |= O_NONBLOCK;
 		fcntl( m_Socket, F_SETFL, dwFlags );
 #endif
-		OnConnect( PK_DeviceTemplate, sExtraInfo );
+		if( !OnConnect( PK_DeviceTemplate, sExtraInfo ) )
+			m_eLastError=cs_err_CannotConnect;
 	}
 	else
 		m_eLastError=cs_err_CannotConnect;
@@ -230,7 +231,7 @@ bool ClientSocket::OnConnect( int PK_DeviceTemplate,string sExtraInfo )
 
 	if ( sResponse.length()<2 || sResponse.substr(0,2) != "OK" )
 	{
-		if( sResponse=="NEED RELOAD" )
+		if( sResponse.substr(0,11)=="NEED RELOAD" )
 			m_eLastError=cs_err_NeedReload;
 		else if( sResponse.substr(0,24)=="NOT IN THIS INSTALLATION" || sResponse.substr(0,10)=="BAD DEVICE" )
 			m_eLastError=cs_err_BadDevice;

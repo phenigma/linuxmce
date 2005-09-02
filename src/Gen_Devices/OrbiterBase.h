@@ -114,7 +114,7 @@ public:
 			}
 		}
 		
-		if( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None )
+		if( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None || m_pEvent->m_pClientSocket->m_socket==INVALID_SOCKET )
 			return false;
 
 		int Size; char *pConfig = m_pEvent->GetConfig(Size);

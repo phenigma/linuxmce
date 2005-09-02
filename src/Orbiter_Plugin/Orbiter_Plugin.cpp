@@ -2173,11 +2173,22 @@ void Orbiter_Plugin::CMD_Send_File_To_Phone(string sMac_address,string sCommand_
 void Orbiter_Plugin::CMD_Get_Orbiter_Status(int iPK_Device,string *sValue_To_Assign,string *sText,int *iValue,string &sCMD_Result,Message *pMessage)
 //<-dceag-c694-e->
 {
+	Row_Orbiter *pRow_Orbiter = m_pDatabase_pluto_main->Orbiter_get()->GetRow(iPK_Device);
+	if( pRow_Orbiter )
+		pRow_Orbiter->Reload();
+
 	OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(iPK_Device);
 	if( pOH_Orbiter )
 	{
 		if( IsRegenerating(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device) )
+		{
 			*sValue_To_Assign = "R";
+			if( pRow_Orbiter )
+			{
+				*sText = pRow_Orbiter->RegenStatus_get();
+				*iValue = pRow_Orbiter->RegenPercent_get();
+			}
+		}
 		else
 			*sValue_To_Assign = "O";
 		return;
@@ -2211,6 +2222,11 @@ void Orbiter_Plugin::CMD_Get_Orbiter_Status(int iPK_Device,string *sValue_To_Ass
 	if( IsRegenerating(iPK_Device) )
 	{
 		*sValue_To_Assign = "r";  // Regenerating
+		if( pRow_Orbiter )
+		{
+			*sText = pRow_Orbiter->RegenStatus_get();
+			*iValue = pRow_Orbiter->RegenPercent_get();
+		}
 		return;
 	}
 

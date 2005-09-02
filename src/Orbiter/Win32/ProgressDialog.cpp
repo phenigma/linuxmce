@@ -280,7 +280,7 @@ BOOL InitInstanceDialog(HINSTANCE hInstance, int nCmdShow)
 	HWND hWnd = NULL;
 	g_hInst = hInstance;		// Store instance handle in our global variable
 
-	LPTSTR szWindowClass = TEXT("PlutoPopupMessage");
+	LPTSTR szWindowClass = TEXT("PlutoProgressDialog");
 	LPTSTR szTitle = TEXT("Pluto Orbiter");
 
 	MyRegisterClassDialog(hInstance, szWindowClass);

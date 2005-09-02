@@ -8575,11 +8575,15 @@ int Orbiter::SetupNewOrbiter()
 		if( sStatus!="r" )
 			break;
 
-		if( DisplayProgress("Please wait while we generate the user interface.\n" + sRegenStatus,iRegenPercent) )
+		if( DisplayProgress(sRegenStatus,iRegenPercent) )
+		{
+			DisplayProgress("",-1);
 			return 0; // Don't try to start
-		Sleep(10000);
+		}
+		Sleep(5000);
 	}
 
+	DisplayProgress("",-1);
 	return PK_Device;
 }
 
