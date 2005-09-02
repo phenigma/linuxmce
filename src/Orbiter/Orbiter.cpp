@@ -384,12 +384,32 @@ g_pPlutoLogger->Write(LV_STATUS,"Maint thread dead");
 	pthread_mutex_destroy(&m_NeedRedrawVarMutex.mutex);
 }
 
-//<-dceag-getconfig-b->
+//<-dceag-getconfig-b->!
 bool Orbiter::GetConfig()
 {
+	bool bIPChanged=false;
+	int PK_Device=m_dwPK_Device;
 	if( !Orbiter_Command::GetConfig() )
-		return false;
+	{
+		if( m_sHostName!="192.168.80.1" )
+		{
+			m_sHostName="192.168.80.1";
+			if( !Orbiter_Command::GetConfig() )
+				return false;
+			else
+				bIPChanged=true;
+		}
+		else
+			return false;
+	}
 //<-dceag-getconfig-e->
+
+	if( bIPChanged || PK_Device!=m_dwPK_Device )  // We have another device id or host ip address
+	{
+		Simulator::GetInstance()->m_sRouterIP = m_sIPAddress;
+		Simulator::GetInstance()->m_sDeviceID = StringUtils::itos(m_dwPK_Device);
+		Simulator::GetInstance()->SaveConfigurationFile();
+	}
 
 	if( DATA_Get_Leave_Monitor_on_for_OSD() )
 	    m_bDisplayOn=false;  // So the first touch will turn it on
@@ -8400,7 +8420,7 @@ int Orbiter::PickOrbiterDeviceID()
 {
 	map<int,string> mapDevices;
 	GetDevicesByCategory(DEVICECATEGORY_Orbiter_CONST,&mapDevices);
-	return 0;
+	return PromptUser("Which Orbiter is this?  Be careful.  Don't choose an Orbiter that is running on another device or it will be disconnected when this one connects.",&mapDevices);
 }
 
 int Orbiter::PromptUser(string sPrompt,map<int,string> *p_mapPrompts)
@@ -8440,6 +8460,20 @@ return 1; // TODO : remove this
 
 int Orbiter::SetupNewOrbiter()
 {
+	Event_Impl event_Impl(DEVICEID_MESSAGESEND, 0, m_sIPAddress);
+	while(true)
+	{
+		string sResponse;
+		if( !event_Impl.m_pClientSocket->SendString("READY") ||
+			!event_Impl.m_pClientSocket->ReceiveString(sResponse) ||
+			sResponse.size()==0 )
+				return 0;  // Something went wrong
+
+		if( sResponse=="YES" )
+			break;
+		Sleep(2000);
+	}
+
 	int PK_Users = PromptFor("Users");
 	if( PROMPT_CANCEL == PK_Users )
 		return 0;
@@ -8477,8 +8511,11 @@ int Orbiter::SetupNewOrbiter()
 #else
 	sType="Windows";
 #endif
-	RECT rt;
-	GetClientRect(0, &rt);
+	RECT rc;
+    HWND hWndDesktop = ::GetDesktopWindow();
+    GetWindowRect(hWndDesktop, &rc);
+	Width=rc.right;
+	Height=rc.bottom;
 #else
 	sType="Linux";
 	// HOW to do this??  TODO
@@ -8493,7 +8530,6 @@ int Orbiter::SetupNewOrbiter()
 	DCE::CMD_New_Orbiter_DT CMD_New_Orbiter_DT(m_dwPK_Device, DEVICETEMPLATE_Orbiter_Plugin_CONST, BL_SameHouse, sType, 
 		PK_Users,m_dwPK_DeviceTemplate,m_sMacAddress,PK_Room,Width,Height,PK_Skin,PK_Language,PK_Size,&PK_Device);
 
-	Event_Impl event_Impl(DEVICEID_MESSAGESEND, 0, m_sIPAddress);
 	CMD_New_Orbiter_DT.m_pMessage->m_eExpectedResponse = ER_ReplyMessage;
 	Message *pResponse = event_Impl.SendReceiveMessage( CMD_New_Orbiter_DT.m_pMessage );
 	if( !pResponse || pResponse->m_dwID != 0 )
@@ -8501,13 +8537,50 @@ int Orbiter::SetupNewOrbiter()
 		if(pResponse)
 			delete pResponse;
 
-		PromptUser("Sorry.  There is a problem creating the new orbiter");
+		PromptUser("Sorry.  There is a problem creating the new orbiter.  Please check the logs.");
 		return 0;
 	}
 	CMD_New_Orbiter_DT.ParseResponse( pResponse );
 	delete pResponse;
-	
-	return 0;
+
+	if( !PK_Device )
+	{
+		PromptUser("Sorry.  Orbiter Plugin could not create the device for some reason.  Please check the logs.");
+		return 0;
+	}
+
+	Simulator::GetInstance()->m_sDeviceID = StringUtils::itos(PK_Device);
+	Simulator::GetInstance()->SaveConfigurationFile();
+
+	while(true)
+	{
+		string sStatus,sRegenStatus;
+		int iRegenPercent;
+		DCE::CMD_Get_Orbiter_Status_DT CMD_Get_Orbiter_Status_DT( m_dwPK_Device, DEVICETEMPLATE_Orbiter_Plugin_CONST, BL_SameHouse, 
+			PK_Device,&sStatus,&sRegenStatus,&iRegenPercent);
+
+		CMD_Get_Orbiter_Status_DT.m_pMessage->m_eExpectedResponse = ER_ReplyMessage;
+		Message *pResponse = event_Impl.SendReceiveMessage( CMD_Get_Orbiter_Status_DT.m_pMessage );
+		if( !pResponse || pResponse->m_dwID != 0 )
+		{
+			if(pResponse)
+				delete pResponse;
+
+			PromptUser("Sorry.  There is a problem creating the new orbiter");
+			return 0;
+		}
+		CMD_Get_Orbiter_Status_DT.ParseResponse( pResponse );
+		delete pResponse;
+
+		if( sStatus!="r" )
+			break;
+
+		if( DisplayProgress("Please wait while we generate the user interface.\n" + sRegenStatus,iRegenPercent) )
+			return 0; // Don't try to start
+		Sleep(10000);
+	}
+
+	return PK_Device;
 }
 
 int Orbiter::PromptFor(string sToken)

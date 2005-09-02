@@ -975,6 +975,14 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 bool Router::ReceivedString(Socket *pSocket, string Line)
 {
     ServerSocket *pServerSocket = /*dynamic_cast<*/(ServerSocket *)/*>*/(pSocket);
+    if (Line=="READY")
+	{
+		if( m_bIsLoading )
+			pServerSocket->SendString("NO");  // We haven't finished loading the plugins
+		else
+			pServerSocket->SendString("YES");  // We haven't finished loading the plugins
+		return true;
+	}
     if (Line=="CONFIG")
     {
 		if( pServerSocket->m_dwPK_Device>m_dwPK_Device_Largest )

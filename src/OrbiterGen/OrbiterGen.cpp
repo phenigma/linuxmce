@@ -244,6 +244,8 @@ int main(int argc, char *argv[])
 		pOrbiterGenerator->m_pRow_Orbiter->Reload();  // We already updated floorplans
 		pOrbiterGenerator->m_pRow_Orbiter->Regen_set(false);
 		pOrbiterGenerator->m_pRow_Orbiter->RegenInProgress_set(false);
+		pOrbiterGenerator->m_pRow_Orbiter->RegenStatus_set("Done");
+		pOrbiterGenerator->m_pRow_Orbiter->RegenPercent_set(100);
 		pOrbiterGenerator->m_pRow_Orbiter->Table_Orbiter_get()->Commit();
 
 		string sql = "UPDATE Orbiter SET Modification_LastGen=psc_mod,psc_mod=psc_mod WHERE PK_Orbiter=" + StringUtils::itos(pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get());

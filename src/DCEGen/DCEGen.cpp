@@ -462,6 +462,9 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	fstr_DeviceCommand << "\t\tm_pEvent = new "  << Name  << "_Event(m_dwPK_Device, m_sHostName);" << endl;
 	fstr_DeviceCommand << "\t\tif( m_pEvent->m_dwPK_Device )" << endl;
 	fstr_DeviceCommand << "\t\t\tm_dwPK_Device = m_pEvent->m_dwPK_Device;" << endl;
+	fstr_DeviceCommand << "\t\tif( m_sIPAddress!=m_pEvent->m_pClientSocket->m_sIPAddress )	" << endl;
+	fstr_DeviceCommand << "\t\t\tm_sIPAddress=m_pEvent->m_pClientSocket->m_sIPAddress;" << endl;
+	fstr_DeviceCommand << "\t\t\tm_sMacAddress=m_pEvent->m_pClientSocket->m_sMacAddress;" << endl;
 
 	fstr_DeviceCommand << "\t\tif( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None )" << endl;
 	fstr_DeviceCommand << "\t\t{" << endl;
@@ -496,7 +499,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 
 	fstr_DeviceCommand << "\t\tint Size; char *pConfig = m_pEvent->GetConfig(Size);" << endl;
 	fstr_DeviceCommand << "\t\tif( !pConfig )" << endl;
-	fstr_DeviceCommand << "\t\t\tthrow \"Cannot get configuration data\";" << endl;
+	fstr_DeviceCommand << "\t\t\treturn false;" << endl;
 	fstr_DeviceCommand << "\t\tm_pData = new "  << Name  << "_Data();" << endl;
 	fstr_DeviceCommand << "\t\tif( Size )" << endl;
 	fstr_DeviceCommand << "\t\t\tm_pData->SerializeRead(Size,pConfig);" << endl;

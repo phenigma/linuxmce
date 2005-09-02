@@ -141,8 +141,8 @@ LRESULT CALLBACK WndProcPopup(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
                     g_nWindowWidth - 2 * BUTTON_SEPARATOR, BUTTON_SEPARATOR + LABEL_HEIGHT, 
                     const_cast<char *>(g_sPrompt.c_str()));
 
-                int nScaleX = int(g_p_mapPrompts->size() ? max(min(3, 10 / g_p_mapPrompts->size()), 1) : 1);
-                int nScaleY = int(g_p_mapPrompts->size() ? max(min(2, 10 / g_p_mapPrompts->size()), 1) : 1);
+				int nScaleX = g_p_mapPrompts ? int(g_p_mapPrompts->size() ? max(min(3, 10 / g_p_mapPrompts->size()), 1) : 1) : 0;
+				int nScaleY = g_p_mapPrompts ? int(g_p_mapPrompts->size() ? max(min(2, 10 / g_p_mapPrompts->size()), 1) : 1) : 0;
 
                 int nButtonWidth  = nScaleX * BUTTON_WIDTH;
                 int nButtonHeight = nScaleY * BUTTON_HEIGHT;
@@ -153,23 +153,26 @@ LRESULT CALLBACK WndProcPopup(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
                 int nButtonColumnIndex = 0;
                 int nAdjustment = (g_nWindowWidth - (nButtonsPerRow * (nButtonWidth + BUTTON_SEPARATOR) + BUTTON_SEPARATOR)) / 2;
 
-                map<int, string>::iterator it;
-                for(it = g_p_mapPrompts->begin(); it != g_p_mapPrompts->end(); it++)
-                {
-                    string sCaption = StringUtils::Replace(it->second, "&", "&&");
-                    nButtonOnRowIndex = nButtonIndex % nButtonsPerRow;
-                    nButtonColumnIndex = nButtonIndex / nButtonsPerRow; 
+				if( g_p_mapPrompts )
+				{
+					map<int, string>::iterator it;
+					for(it = g_p_mapPrompts->begin(); it != g_p_mapPrompts->end(); it++)
+					{
+						string sCaption = StringUtils::Replace(it->second, "&", "&&");
+						nButtonOnRowIndex = nButtonIndex % nButtonsPerRow;
+						nButtonColumnIndex = nButtonIndex / nButtonsPerRow; 
 
-                    HWND hWndButton = CreateButton(hWnd, nAdjustment + BUTTON_SEPARATOR + nButtonOnRowIndex * (nButtonWidth + BUTTON_SEPARATOR), 
-                        BUTTON_SEPARATOR + LABEL_HEIGHT + BUTTON_SEPARATOR + nButtonColumnIndex * (nButtonHeight + BUTTON_SEPARATOR),
-                        nButtonWidth, nButtonHeight, const_cast<char *>(sCaption.c_str()));
+						HWND hWndButton = CreateButton(hWnd, nAdjustment + BUTTON_SEPARATOR + nButtonOnRowIndex * (nButtonWidth + BUTTON_SEPARATOR), 
+							BUTTON_SEPARATOR + LABEL_HEIGHT + BUTTON_SEPARATOR + nButtonColumnIndex * (nButtonHeight + BUTTON_SEPARATOR),
+							nButtonWidth, nButtonHeight, const_cast<char *>(sCaption.c_str()));
 
-                    g_mapButtons[it->first] = hWndButton;
-                    nButtonIndex++;
+						g_mapButtons[it->first] = hWndButton;
+						nButtonIndex++;
 
-                    if(nButtonIndex > MAX_NUMBER_OF_BUTTONS)
-                        break;
-                }
+						if(nButtonIndex > MAX_NUMBER_OF_BUTTONS)
+							break;
+					}
+				}
 
                 g_nWindowHeight = min(g_nWindowHeight, 
                     WINDOW_TITLE + 

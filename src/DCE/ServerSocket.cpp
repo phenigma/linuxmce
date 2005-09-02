@@ -171,6 +171,8 @@ bool ServerSocket::_Run()
 #ifndef WIN32
 			if( m_sIPAddress.size() )
 				sMacAddress=arpcache_MACfromIP(m_sIPAddress);
+#else
+sMacAddress="11:22";
 #endif
 			string sIPAndMac = (m_sIPAddress.size() ? " IP=" + m_sIPAddress : "") + (sMacAddress.size() ? " MAC=" + sMacAddress : "");
 			if( m_dwPK_Device == DEVICEID_MESSAGESEND )
@@ -188,7 +190,7 @@ bool ServerSocket::_Run()
 			if( !m_dwPK_Device && PK_DeviceTemplate )
 			{
 				m_dwPK_Device = m_pListener->GetDeviceID(PK_DeviceTemplate,sMacAddress,m_sIPAddress);
-				g_pPlutoLogger->Write(LV_WARNING,"Could not determine device id based on ip or mac");
+				g_pPlutoLogger->Write(LV_WARNING,"Could not determine device id based on ip or mac with %s",sMessage.c_str());
 			}
 
 			if( !m_dwPK_Device )

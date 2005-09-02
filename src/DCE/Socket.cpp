@@ -141,7 +141,7 @@ Socket::Socket(string Name,string sIPAddress, string sMacAddress) : m_SocketMute
 	freeaddrinfo(res);
 	*/
 
-	if( sIPAddress.find('.')==string::npos )
+	if( sIPAddress.find('.')==string::npos && sIPAddress.size() )
 	{
 	    struct hostent * res;
 #ifdef WIN32

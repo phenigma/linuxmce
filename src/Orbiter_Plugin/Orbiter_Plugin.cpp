@@ -1048,7 +1048,7 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
     }
 
 	PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);	
-	UnknownDeviceInfos *pUnknownDeviceInfos = m_mapUnknownDevices[sMac_address];
+	UnknownDeviceInfos *pUnknownDeviceInfos = m_mapUnknownDevices_Find(sMac_address);
 	mm.Release();
 
     int iFK_Room = 1;
@@ -1057,6 +1057,7 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
 
 	CreateDevice createDevice(m_pRouter->iPK_Installation_get(),m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get());
 	int PK_Device = createDevice.DoIt(0,iPK_DeviceTemplate,"",sMac_address);
+	(*iPK_Device) = PK_Device;
 
 	g_pPlutoLogger->Write(
         LV_STATUS,
@@ -2175,7 +2176,7 @@ void Orbiter_Plugin::CMD_Get_Orbiter_Status(int iPK_Device,string *sValue_To_Ass
 	OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(iPK_Device);
 	if( pOH_Orbiter )
 	{
-		if( IsRegenerating(pOH_Orbiter) )
+		if( IsRegenerating(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device) )
 			*sValue_To_Assign = "R";
 		else
 			*sValue_To_Assign = "O";
@@ -2207,7 +2208,7 @@ void Orbiter_Plugin::CMD_Get_Orbiter_Status(int iPK_Device,string *sValue_To_Ass
 		return;
 	}
 
-	if( IsRegenerating(pOH_Orbiter) )
+	if( IsRegenerating(iPK_Device) )
 	{
 		*sValue_To_Assign = "r";  // Regenerating
 		return;
@@ -2219,11 +2220,11 @@ void Orbiter_Plugin::CMD_Get_Orbiter_Status(int iPK_Device,string *sValue_To_Ass
 		*sValue_To_Assign = "n";
 }
 
-bool Orbiter_Plugin::IsRegenerating(OH_Orbiter *pOH_Orbiter)
+bool Orbiter_Plugin::IsRegenerating(int iPK_Device)
 {
 	PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
 	for(list<int>::iterator it=m_listRegenCommands.begin();it!=m_listRegenCommands.end();++it)
-		if( *it == pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device )
+		if( *it == iPK_Device )
 			return true;
 
 	return false;
@@ -2247,6 +2248,9 @@ void Orbiter_Plugin::CMD_Get_Orbiter_Options(string sText,string *sValue_To_Assi
 	if( sText=="Size" )
 		sSQL += ",Width,Height";
 	sSQL += " FROM " + sText;
+
+	if( sText=="Room" )
+		sSQL + " WHERE FK_Room=" + StringUtils::itos(m_pRouter->iPK_Installation_get());
 
 	PlutoSqlResult result_set;
     MYSQL_ROW row;

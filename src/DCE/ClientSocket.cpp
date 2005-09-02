@@ -198,6 +198,8 @@ bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo )
 #endif
 		OnConnect( PK_DeviceTemplate, sExtraInfo );
 	}
+	else
+		m_eLastError=cs_err_CannotConnect;
 	return bSuccess;
 }
 

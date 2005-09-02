@@ -243,7 +243,7 @@ public:
 
 	void FireFollowMe(string sMask,int iPK_Orbiter,int iPK_Users,int iPK_RoomOrEntArea,int iPK_RoomOrEntArea_Left);
 	void SetBoundIcons(int iPK_Users,bool bOnOff,string sType);
-	bool IsRegenerating(OH_Orbiter *pOH_Orbiter);  // Is this orbiter's skin being generated?
+	bool IsRegenerating(int iPK_Device);  // Is this orbiter's skin being generated?
 
     void GenerateVMCFiles();
     void GeneratePlutoMOConfig();

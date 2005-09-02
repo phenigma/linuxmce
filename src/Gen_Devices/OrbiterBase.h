@@ -84,6 +84,9 @@ public:
 		m_pEvent = new Orbiter_Event(m_dwPK_Device, m_sHostName);
 		if( m_pEvent->m_dwPK_Device )
 			m_dwPK_Device = m_pEvent->m_dwPK_Device;
+		if( m_sIPAddress!=m_pEvent->m_pClientSocket->m_sIPAddress )	
+			m_sIPAddress=m_pEvent->m_pClientSocket->m_sIPAddress;
+		m_sMacAddress=m_pEvent->m_pClientSocket->m_sMacAddress;
 		if( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None )
 		{
 			if( m_pEvent->m_pClientSocket->m_eLastError==cs_err_NeedReload )
@@ -116,7 +119,7 @@ public:
 
 		int Size; char *pConfig = m_pEvent->GetConfig(Size);
 		if( !pConfig )
-			throw "Cannot get configuration data";
+			return false;
 		m_pData = new Orbiter_Data();
 		if( Size )
 			m_pData->SerializeRead(Size,pConfig);
