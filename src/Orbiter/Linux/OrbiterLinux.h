@@ -48,7 +48,7 @@ protected:
     virtual void setInputFocusToMe(void *);
 
 public:
-    OrbiterLinux(int DeviceID,
+    OrbiterLinux(int DeviceID,int PK_DeviceTemplate,
                  string ServerAddress, string sLocalDirectory,
                  bool bLocalMode, int nImageWidth, int nImageHeight);
 

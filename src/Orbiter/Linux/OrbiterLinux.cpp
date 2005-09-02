@@ -32,11 +32,11 @@
 
 using namespace std;
 
-OrbiterLinux::OrbiterLinux(int DeviceID,
+OrbiterLinux::OrbiterLinux(int DeviceID, int PK_DeviceTemplate,
                string ServerAddress, string sLocalDirectory,
                bool bLocalMode,
                int nImageWidth, int nImageHeight)
-: OrbiterSDL(DeviceID, ServerAddress, sLocalDirectory, bLocalMode, nImageWidth, nImageHeight),
+: OrbiterSDL(DeviceID, PK_DeviceTemplate, ServerAddress, sLocalDirectory, bLocalMode, nImageWidth, nImageHeight),
     // defaults
 	/**
 	 * @hack to make it work for the short term. We need to find a way to set the class name properly or use the window ID if we can find it.
