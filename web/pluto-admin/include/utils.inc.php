@@ -1066,7 +1066,7 @@ function getChilds($parentID,$dbADO) {
 		$jsTree='';
 			while ($row2 = $rs2->FetchRow()) {		
 				$jsTree.= '
-					auxS'.$row2['PK_DeviceCategory'].' = insFld(auxS'.$parentID.', gFld("'.$row2['Description'].' #'.$row2['PK_DeviceCategory'].'", "javascript:setPicker('.$row2['PK_DeviceCategory'].',\"'.$row2['Description'].'\");"))
+					auxS'.$row2['PK_DeviceCategory'].' = insFld(auxS'.$parentID.', gFld("'.$row2['Description'].' #'.$row2['PK_DeviceCategory'].'", "javascript:setPicker('.$row2['PK_DeviceCategory'].',\"'.htmlspecialchars($row2['Description'],ENT_QUOTES).'\");"))
 					auxS'.$row2['PK_DeviceCategory'].'.xID = '.$row2['PK_DeviceCategory'].';
 				';
 				$jsTree.=getChilds($row2['PK_DeviceCategory'],$dbADO);
@@ -3430,7 +3430,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 		$rs = $dbADO->_Execute($selectDeviceCategories);
 			while ($row = $rs->FetchRow()) {		
 				$jsTree.='
-				auxS'.$row['PK_DeviceCategory'].' = insFld(foldersTree, gFld("'.$row['Description'].' #'.$row['PK_DeviceCategory'].'", "javascript:setPicker('.$row['PK_DeviceCategory'].',\"'.$row['Description'].'\");"));
+				auxS'.$row['PK_DeviceCategory'].' = insFld(foldersTree, gFld("'.$row['Description'].' #'.$row['PK_DeviceCategory'].'", "javascript:setPicker('.$row['PK_DeviceCategory'].',\"'.htmlspecialchars($row['Description'],ENT_QUOTES ).'\");"));
 				auxS'.$row['PK_DeviceCategory'].'.xID = '.$row['PK_DeviceCategory'].';
 				';
 				$jsTree.=getChilds($row['PK_DeviceCategory'],$dbADO);
@@ -3548,7 +3548,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 			$resCategoryName=$dbADO->Execute($queryCategoryName,$categoryID);
 			$rowCategoryName=$resCategoryName->FetchRow();
 			$scriptInHead.="
-				foldersTree = gFld('<b>".$rowCategoryName['Description']."</b>', 'javascript:setPicker($categoryID,\"".$rowCategoryName['Description']."\");');";
+				foldersTree = gFld('<b>".$rowCategoryName['Description']."</b>', 'javascript:setPicker($categoryID,\"".htmlspecialchars($rowCategoryName['Description'],ENT_QUOTES)."\");');";
 		}
 		$scriptInHead.="
 		foldersTree.xID = 1001635872;
@@ -3976,6 +3976,8 @@ function getCodesTableRows($section,$infraredGroupID,$dtID,$deviceID,$codesArray
 		$categNames[]='DSP Modes';
 	}
 
+	$newCodeSection=($section=='rubyCodes')?'newRubyCode':'newIRCode';
+	
 	$out='';
 	for($i=0;$i<count($categNames);$i++){
 		$out.='
@@ -3985,14 +3987,14 @@ function getCodesTableRows($section,$infraredGroupID,$dtID,$deviceID,$codesArray
 						<legend><B>'.$categNames[$i].'</B></legend>';
 		if($categNames[$i]=='Power'){
 			if($togglePower==1){
-				if(!in_array(194,$codesArray['Power']['FK_Command'])){
+				if(!@in_array(194,$codesArray['Power']['FK_Command'])){
 					$out.='Toggle power not implemented: ';
-					$out.='<b><a href="javascript:windowOpen(\'index.php?section=newIRCode&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID=194&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');">Click to add</a>';
+					$out.='<b><a href="javascript:windowOpen(\'index.php?section='.$newCodeSection.'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID=194&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');">Click to add</a>';
 				}
 			}elseif(count($powerCommands)>0){
 				$out.='Power commands not implemented: ';
 				foreach ($powerCommands AS $inputId=>$inputName){
-					$powerCommands[$inputId]='<a href="javascript:windowOpen(\'index.php?section=newIRCode&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$inputId.'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');">'.$inputName.'</a>';
+					$powerCommands[$inputId]='<a href="javascript:windowOpen(\'index.php?section='.$newCodeSection.'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$inputId.'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');">'.$inputName.'</a>';
 				}
 				$out.='<b>'.join(', ',$powerCommands).'</b> <em>(Click to add)</em>';
 			}
@@ -4003,12 +4005,12 @@ function getCodesTableRows($section,$infraredGroupID,$dtID,$deviceID,$codesArray
 			if($toggleInput==1){
 				if(@!in_array($GLOBALS['inputSelectCommand'],$codesArray['Inputs']['FK_Command'])){
 					$out.='Input select not implemented: ';
-					$out.='<b><a href="javascript:windowOpen(\'index.php?section=newIRCode&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$GLOBALS['inputSelectCommand'].'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');">Click to add</a>';
+					$out.='<b><a href="javascript:windowOpen(\'index.php?section='.$newCodeSection.'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$GLOBALS['inputSelectCommand'].'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');">Click to add</a>';
 				}
 			}elseif(count($inputCommandsArray)>0){
 				$out.='Input commands not implemented: ';
 				foreach ($inputCommandsArray AS $inputId=>$inputName){
-					$inputCommandsArray[$inputId]='<a href="javascript:windowOpen(\'index.php?section=newIRCode&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$inputId.'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');">'.$inputName.'</a>';
+					$inputCommandsArray[$inputId]='<a href="javascript:windowOpen(\'index.php?section='.$newCodeSection.'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$inputId.'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');">'.$inputName.'</a>';
 				}
 				$out.='<b>'.join(', ',$inputCommandsArray).'</b> <em>(Click to add)</em>';
 			}
@@ -4019,12 +4021,12 @@ function getCodesTableRows($section,$infraredGroupID,$dtID,$deviceID,$codesArray
 			if($toggleDSP==1){
 				if(@!in_array($GLOBALS['DSPModeCommand'],@$codesArray['DSP Modes']['FK_Command'])){
 					$out.='DSP Mode not implemented: ';
-					$out.='<b><a href="javascript:windowOpen(\'index.php?section=newIRCode&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$GLOBALS['DSPModeCommand'].'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');">Click to add</a>';
+					$out.='<b><a href="javascript:windowOpen(\'index.php?section='.$newCodeSection.'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$GLOBALS['DSPModeCommand'].'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');">Click to add</a>';
 				}
 			}elseif(count($dspmodeCommandsArray)>0){
 				$out.='DSP Mode commands not implemented: ';
 				foreach ($dspmodeCommandsArray AS $dspmId=>$dspmName){
-					$dspmodeCommandsArray[$dspmId]='<a href="javascript:windowOpen(\'index.php?section=newIRCode&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$dspmId.'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');">'.$dspmName.'</a>';
+					$dspmodeCommandsArray[$dspmId]='<a href="javascript:windowOpen(\'index.php?section='.$newCodeSection.'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$dspmId.'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');">'.$dspmName.'</a>';
 				}
 				$out.='<b>'.join(', ',$dspmodeCommandsArray).'</b> <em>(Click to add)</em>';
 			}
@@ -4057,6 +4059,7 @@ function formatCode($section,$dataArray,$pos,$infraredGroupID,$dtID,$deviceID){
 		$RowColor=(isset($_SESSION['userID']) && $dataArray['psc_user'][$pos]==@$_SESSION['userID'])?'yellow':'lightyellow';
 	}
 	$deleteButton=(isset($_SESSION['userID']) && $dataArray['psc_user'][$pos]==@$_SESSION['userID'])?'<input type="button" class="button" name="delCustomCode" value="Delete code" onClick="if(confirm(\'Are you sure you want to delete this code?\')){document.'.$section.'.action.value=\'delete\';document.'.$section.'.irgroup_command.value='.$pos.';document.'.$section.'.submit();}">':'';
+	$viewParamsButton=($section=='rubyCodes')?'<input type="button" class="button" name="viewParams" value="View parameters" onClick="windowOpen(\'index.php?section=editCommand&from=rubyCodes&commandID='.$dataArray['FK_Command'][$pos].'\',\'width=600,height=400,toolbars=true,resizable=1,scrollbars=1\');"><br>':'';
 
 	$out='
 		<table width="100%">
@@ -4064,7 +4067,7 @@ function formatCode($section,$dataArray,$pos,$infraredGroupID,$dtID,$deviceID){
 				<td align="center" width="100"><B>'.$dataArray['Description'][$pos].'</B> <br><input type="button" class="button" name="learnCode" value="New code" onClick="windowOpen(\'index.php?section='.(($section=='rubyCodes')?'newRubyCode':'newIRCode').'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$dataArray['FK_Command'][$pos].'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');" '.((!isset($_SESSION['userID']))?'disabled':'').'></td>
 				<td align="center" width="20"><input type="radio" name="prefered_'.$dataArray['FK_Command'][$pos].'" value="'.$pos.'" '.((@in_array($pos,@$GLOBALS['igcPrefered'][$dataArray['FK_Command'][$pos]]))?'checked':'').'></td>
 				<td><textarea name="irData_'.$pos.'" rows="2" style="width:100%">'.$dataArray['IRData'][$pos].'</textarea></td>
-				<td align="center" width="100">'.$deleteButton.' <br> <input type="button" class="button" name="testCode" value="Test code" onClick="frames[\'codeTester\'].location=\'index.php?section=testCode&irgcID='.$pos.'&deviceID='.$deviceID.'&sender='.$section.'\';"> <a name="test_'.$pos.'"></td>
+				<td align="center" width="100">'.$viewParamsButton.$deleteButton.' <br> <input type="button" class="button" name="testCode" value="Test code" onClick="frames[\'codeTester\'].location=\'index.php?section=testCode&irgcID='.$pos.'&deviceID='.$deviceID.'&sender='.$section.'\';"> <a name="test_'.$pos.'"></td>
 			</tr>
 		</table>';
 

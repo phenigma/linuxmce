@@ -420,14 +420,14 @@ if($action=='form') {
 		for($i=1;$i<5;$i++){
 			$camera=(int)$_POST['camera_'.$i];
 			
-			$dbADO->Execute($insertCG_C,array($cgID,$GLOBALS['commandSetVar'],0,0,$GLOBALS['localOrbiter']));
+			$dbADO->Execute($insertCG_C,array($cgID,$GLOBALS['commandSetVar'],0,(17+$i),$GLOBALS['localOrbiter']));
 			$cg_cID=$dbADO->Insert_ID();
 				
 			$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterVariableNumber'],$GLOBALS['camerasVariableNumbersArray'][$i-1]));
 			$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterValueToAsign'],$camera));
 		}
 		
-		$dbADO->Execute($insertCG_C,array($cgID,$GLOBALS['commandGotoScreen'],0,4,$GLOBALS['localOrbiter']));
+		$dbADO->Execute($insertCG_C,array($cgID,$GLOBALS['commandGotoScreen'],0,30,$GLOBALS['localOrbiter']));
 		$cg_cID=$dbADO->Insert_ID();
 		$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParamPK_DesignObj'],$GLOBALS['mnuSecurityCamerasDesignObj']));
 		$msg="New security scenario was added.";
@@ -459,15 +459,26 @@ if($action=='form') {
 				(FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter)
 			VALUES
 				(?,?,?)';
-//$dbADO->debug=true;
+
 		foreach($GLOBALS['camerasVariableNumbersArray'] as $cameraNO){			
 			$oldCamera=(int)$_POST['oldCamera_'.$cameraNO];
 			$oldCameraCG_C=(int)$_POST['oldCameraCG_C_'.$cameraNO];
 			$camera=(int)$_POST['camera_'.$cameraNO];
-//echo $oldCameraCG_C.'<br>';
+
 			if($oldCamera==0){
 				if($camera!=0){
-					$dbADO->Execute($insertCG_C,array($cgID,$GLOBALS['commandSetVar'],0,0,$GLOBALS['localOrbiter']));
+					$deleteCG_C='DELETE FROM CommandGroup_Command WHERE PK_CommandGroup_Command=?';
+					$dbADO->Execute($deleteCG_C,$oldCameraCG_C);
+					
+					$deleteParameters='
+						DELETE CommandGroup_Command_CommandParameter
+						FROM CommandGroup_Command_CommandParameter
+						JOIN CommandGroup_Command on FK_CommandGroup_Command=PK_CommandGroup_Command
+						WHERE FK_CommandGroup=? AND FK_CommandParameter=? AND IK_CommandParameter=?';
+					$dbADO->Execute($deleteParameters,array($oldCameraCG_C,$GLOBALS['commandParameterVariableNumber'],$cameraNO));
+					$dbADO->Execute($deleteParameters,array($oldCameraCG_C,$GLOBALS['commandParameterValueToAsign'],$oldCamera));
+					
+					$dbADO->Execute($insertCG_C,array($cgID,$GLOBALS['commandSetVar'],0,$cameraNO,$GLOBALS['localOrbiter']));
 					$cg_cID=$dbADO->Insert_ID();
 				
 					$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterVariableNumber'],$cameraNO));
@@ -484,8 +495,8 @@ if($action=='form') {
 					WHERE FK_CommandGroup=? AND FK_CommandParameter=? AND IK_CommandParameter=?';
 				$dbADO->Execute($deleteParameters,array($oldCameraCG_C,$GLOBALS['commandParameterVariableNumber'],$cameraNO));
 				$dbADO->Execute($deleteParameters,array($oldCameraCG_C,$GLOBALS['commandParameterValueToAsign'],$oldCamera));
-				if($camera!=$oldCamera && $camera!=0){
-					$dbADO->Execute($insertCG_C,array($cgID,$GLOBALS['commandSetVar'],0,0,$GLOBALS['localOrbiter']));
+				if($camera!=$oldCamera){
+					$dbADO->Execute($insertCG_C,array($cgID,$GLOBALS['commandSetVar'],0,$cameraNO,$GLOBALS['localOrbiter']));
 					$cg_cID=$dbADO->Insert_ID();
 				
 					$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterVariableNumber'],$cameraNO));
@@ -494,6 +505,9 @@ if($action=='form') {
 			}
 		}
 		$msg="The security scenario was edited.";
+		setOrbitersNeedConfigure($installationID,$dbADO);
+		header("Location: index.php?section=securityScenarios&msg=$msg");
+		exit();	
 	}
 	
 	

@@ -74,7 +74,7 @@ function wizardOrbiters($output,$dbADO) {
 			$orbiterDD[]=104;		// UI
 			$orbiterDD[]=111;		// Using Infrared
 
-			$excludedData['standard_roaming_orbiters']=array('state');
+			$excludedData['standard_roaming_orbiters']=array('state',84);
 			$excludedData['mobile_orbiters']=array(84,20,'room','wifi',56);
 			$excludedData['on_screen_orbiters']=array('dt','ip_mac','wifi','state');
 			

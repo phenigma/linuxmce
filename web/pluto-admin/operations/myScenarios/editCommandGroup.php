@@ -172,7 +172,7 @@ function editCommandGroup($output,$dbADO) {
 					WHERE 
 						(Device.FK_Installation = ? OR Device.FK_Installation IS NULL)
 					AND CommandGroup_Command.FK_CommandGroup = ?
-				ORDER BY PK_CommandGroup_Command ASC
+				ORDER BY OrderNum ASC
 				";
 				$resCommandAssigned = $dbADO->Execute($selectCommandsAssigned,array($installationID,$commandGroupID));
 

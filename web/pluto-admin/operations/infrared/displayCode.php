@@ -13,7 +13,6 @@ function displayCode($output,$publicADO)
 	if($irgcID==0){
 		$out.='<p class="normaltext">Invalid code specified.<br><br>';
 	}else{
-		$publicADO->debug=true;
 		$data=getFieldsAsArray('InfraredGroup_Command','InfraredGroup.Description AS Description,IRData,Command.Description AS Command',$publicADO,'LEFT JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup INNER JOIN Command ON FK_Command=PK_Command WHERE PK_InfraredGroup_Command='.$irgcID);
 		if(isset($_REQUEST['deviceID']) && (int)$_REQUEST['deviceID']!=0){
 			$deviceID=$_REQUEST['deviceID'];
