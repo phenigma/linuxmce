@@ -9,7 +9,7 @@ private:
 
 	static OrbiterSDL_Win32* m_pInstance; //the one and only instance of OrbiterSDL_Win32
 	
-	OrbiterSDL_Win32(int DeviceID, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
+	OrbiterSDL_Win32(int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
 		int nImageWidth, int nImageHeight, bool bFullScreen = false);
 
 public:
@@ -32,7 +32,7 @@ public:
 	void HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 	static void Cleanup();
-	static void BuildOrbiter(int DeviceID, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
+	static void BuildOrbiter(int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
 		int nImageWidth, int nImageHeight, bool bFullScreen = false);
 	static OrbiterSDL_Win32 *GetInstance();
 };

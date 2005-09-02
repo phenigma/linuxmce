@@ -71,10 +71,10 @@ typedef struct _VIDEO_POWER_MANAGEMENT {
 //-----------------------------------------------------------------------------------------------------
 Orbiter_PocketFrog *Orbiter_PocketFrog::m_pInstance = NULL; //the one and only
 //-----------------------------------------------------------------------------------------------------
-Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, string sLocalDirectory, 
+Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, 
 									   bool bLocalMode, int nImageWidth, int nImageHeight, 
 									   bool bFullScreen) :
-		Orbiter(DeviceID, ServerAddress, sLocalDirectory, bLocalMode, nImageWidth, nImageHeight)
+		Orbiter(DeviceID, PK_DeviceTemplate, ServerAddress, sLocalDirectory, bLocalMode, nImageWidth, nImageHeight)
 {
     m_config.orientation      = ORIENTATION_WEST;
     m_config.splashScreenTime = 0;	
@@ -724,13 +724,13 @@ PlutoGraphic *Orbiter_PocketFrog::GetBackground( PlutoRectangle &rect )
 	}
 }
 //-----------------------------------------------------------------------------------------------------
-/*static*/ void Orbiter_PocketFrog::BuildOrbiter(int DeviceID, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
+/*static*/ void Orbiter_PocketFrog::BuildOrbiter(int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
 	int nImageWidth, int nImageHeight, bool bFullScreen)
 {
 	if(NULL == m_pInstance)
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "Orbiter_PocketFrog constructor.");
-		m_pInstance = new Orbiter_PocketFrog(DeviceID, ServerAddress, 
+		m_pInstance = new Orbiter_PocketFrog(DeviceID, PK_DeviceTemplate, ServerAddress, 
 				sLocalDirectory, bLocalMode, nImageWidth, 
 				nImageHeight, bFullScreen);
 	}

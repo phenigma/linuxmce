@@ -41,7 +41,7 @@ using namespace DCE;
 // For whatever reason, if I put: #include "OrbiterImageSDL.h" in this file,
 // then Microsoft won't compile, reporting an unresolved symbol _main.  It is something
 // to do with SDL.  Moving those references to another cpp file solves the problems.  See StartOrbiterSDL.cpp
-bool StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bLocalMode,
+bool StartOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP,string sLocalDirectory,bool bLocalMode,
 				  int Width,int Height, bool bFullScreen);
 
 
@@ -64,7 +64,7 @@ int main(int argc, char* argv[])
 		<<"See the Pluto Public License for more details."<<endl << "-----" << endl << endl;    
     
     string sRouter_IP="dcerouter";
-    int PK_Device=0;
+    int PK_Device=0,PK_DeviceTemplate=0;
     string sLogger="stdout";
     int Width=800,Height=600;
     bool bLocalMode=false; // If true, it will not connect to PlutoServer but will look for it's files in the local directory
@@ -108,6 +108,9 @@ int main(int argc, char* argv[])
             break;
 		case 'F':
 			bFullScreen = true;
+			break;
+		case 'T':
+            PK_DeviceTemplate = atoi(argv[++optnum]);
 			break;
         default:
             bError=true;
@@ -181,7 +184,7 @@ int main(int argc, char* argv[])
 #ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS, "about to call StartOrbiter");
 #endif
-	bReload = StartOrbiter(PK_Device,sRouter_IP,sLocalDirectory,bLocalMode,Width,Height,bFullScreen);
+	bReload = StartOrbiter(PK_Device,PK_DeviceTemplate,sRouter_IP,sLocalDirectory,bLocalMode,Width,Height,bFullScreen);
 #ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS, "StartOrbiter finished with reload: %s",(bReload ? "Y" : "N"));
 #endif

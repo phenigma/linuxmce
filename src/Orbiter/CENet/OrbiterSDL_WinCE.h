@@ -38,7 +38,7 @@ private:
 	
 	static OrbiterSDL_WinCE* m_pInstance; //the one and only instance of OrbiterSDL_WinCE
 	
-	OrbiterSDL_WinCE(int DeviceID, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
+	OrbiterSDL_WinCE(int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
 		int nImageWidth, int nImageHeight, bool bFullScreen = false);
 
 	void RenderTextWinCE(TextWinCEObject *pTextWinCEObject);
@@ -64,7 +64,7 @@ public:
 	void HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 	static void Cleanup();
-	static void BuildOrbiter(int DeviceID, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
+	static void BuildOrbiter(int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
 		int nImageWidth, int nImageHeight, bool bFullScreen = false);
 	static OrbiterSDL_WinCE *GetInstance();
 

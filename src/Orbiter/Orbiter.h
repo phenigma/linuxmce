@@ -123,7 +123,7 @@ public:
 	/**
 	 * @brief constructor, assignes values to member data
 	 */
-	Orbiter( int DeviceID,  string ServerAddress,  string sLocalDirectory,  bool bLocalMode,  int iImageWidth,  int iImageHeight );
+	Orbiter( int DeviceID,  int PK_DeviceTemplate, string ServerAddress,  string sLocalDirectory,  bool bLocalMode,  int iImageWidth,  int iImageHeight );
 	/**
 	 * @brief destructor
 	 */
@@ -161,6 +161,7 @@ public:
 protected:
 
 	int m_dwPK_Users; /** < The current user */
+	int m_dwPK_DeviceTemplate;  /** < This is running as a specific device template */
 	class LocationInfo *m_pLocationInfo; /** < The current location */
 
 	string m_sLocalDirectory; /** < A directory to get files from */

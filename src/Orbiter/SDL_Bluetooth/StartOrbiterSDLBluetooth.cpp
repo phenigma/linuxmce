@@ -26,6 +26,7 @@ using namespace DCE;
 OrbiterSDLBluetooth *StartOrbiterSDLBluetooth(
 	class BDCommandProcessor *pBDCommandProcessor,
 	int PK_Device, 
+	int PK_DeviceTemplate,
 	string sRouter_IP, 
 	string sLocalDirectory, 
 	bool bLocalMode, 
@@ -41,7 +42,7 @@ OrbiterSDLBluetooth *StartOrbiterSDLBluetooth(
     {
 	    pOrbiterSDLBluetooth = new OrbiterSDLBluetooth(
 				    pBDCommandProcessor,
-				    PK_Device, sRouter_IP, 
+				    PK_Device, PK_DeviceTemplate, sRouter_IP, 
 				    sLocalDirectory, bLocalMode, Width, Height);
 
 	    if (bLocalMode || (pOrbiterSDLBluetooth->GetConfig() && pOrbiterSDLBluetooth->Connect(0))) // Don't validate the device template

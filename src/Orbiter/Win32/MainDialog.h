@@ -36,6 +36,7 @@ struct CommandLineParams
 {
 	string sRouter_IP;
 	int PK_Device;
+	int PK_DeviceTemplate;
 	string sLogger;
 	int Width, Height;
 	bool bLocalMode; 

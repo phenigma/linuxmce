@@ -84,7 +84,7 @@ enum OrbiterStages
 bool EventLoop(ORBITER* pOrbiter);
 //-----------------------------------------------------------------------------------------------------
 
-ORBITER *Connect(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bLocalMode, int Width,int Height, bool bFullScreen)
+ORBITER *Connect(int PK_Device,int PK_DeviceTemplate, string sRouter_IP,string sLocalDirectory,bool bLocalMode, int Width,int Height, bool bFullScreen)
 {
 	if(!bLocalMode)
 		WriteStatusOutput("Connecting to DCERouter...");
@@ -95,7 +95,7 @@ ORBITER *Connect(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bLo
 		ORBITER::Cleanup();
 		g_pPlutoLogger->Write(LV_STATUS, "Orbiter cleanup finished");
 		ORBITER::BuildOrbiter(
-			PK_Device, sRouter_IP,
+			PK_Device, PK_DeviceTemplate, sRouter_IP,
 			sLocalDirectory, bLocalMode, 
 			Width, Height, bFullScreen
 		); //the builder method
@@ -244,7 +244,7 @@ bool EventLoop(ORBITER* pOrbiter)
 	return !pOrbiter->m_bReload;
 }
 //-----------------------------------------------------------------------------------------------------
-void StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bLocalMode,
+void StartOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP,string sLocalDirectory,bool bLocalMode,
 					int Width,int Height, bool bFullScreen)
 {
 	ORBITER *pOrbiter = NULL;
@@ -259,7 +259,7 @@ void StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bL
 		{
 			case osConnect:
 				g_pPlutoLogger->Write(LV_STATUS, "Stage connect");
-				pOrbiter = Connect(PK_Device, sRouter_IP, sLocalDirectory, bLocalMode, Width, Height, bFullScreen);
+				pOrbiter = Connect(PK_Device, PK_DeviceTemplate, sRouter_IP, sLocalDirectory, bLocalMode, Width, Height, bFullScreen);
 
 				if(pOrbiter != NULL)
 				{

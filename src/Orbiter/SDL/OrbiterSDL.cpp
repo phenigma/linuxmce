@@ -48,9 +48,9 @@
 
 using namespace DCE;
 //-----------------------------------------------------------------------------------------------------
-OrbiterSDL::OrbiterSDL(int DeviceID, string ServerAddress, string sLocalDirectory, bool bLocalMode,
+OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, bool bLocalMode,
 					   int nImageWidth, int nImageHeight, bool bFullScreen/*=false*/)
-    : Orbiter(DeviceID, ServerAddress, sLocalDirectory, bLocalMode, nImageWidth, nImageHeight)
+    : Orbiter(DeviceID, PK_DeviceTemplate, ServerAddress, sLocalDirectory, bLocalMode, nImageWidth, nImageHeight)
 {
     m_pScreenImage = NULL;
 	m_bFullScreen=bFullScreen;

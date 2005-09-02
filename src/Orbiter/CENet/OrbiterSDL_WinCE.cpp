@@ -69,10 +69,10 @@ LRESULT CALLBACK SDLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 //-----------------------------------------------------------------------------------------------------
 OrbiterSDL_WinCE *OrbiterSDL_WinCE::m_pInstance = NULL; //the one and only
 //-----------------------------------------------------------------------------------------------------
-OrbiterSDL_WinCE::OrbiterSDL_WinCE(int DeviceID, string ServerAddress, string sLocalDirectory, 
+OrbiterSDL_WinCE::OrbiterSDL_WinCE(int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, 
 								   bool bLocalMode, int nImageWidth, int nImageHeight, 
 								   bool bFullScreen) :
-	OrbiterSDL(DeviceID, ServerAddress, 
+	OrbiterSDL(DeviceID, PK_DeviceTemplate, ServerAddress, 
 				sLocalDirectory, bLocalMode, nImageWidth, 
 				nImageHeight, bFullScreen)
 {
@@ -93,13 +93,13 @@ OrbiterSDL_WinCE::~OrbiterSDL_WinCE()
 }
 //-----------------------------------------------------------------------------------------------------
 /*static*/ void OrbiterSDL_WinCE::BuildOrbiter(
-	int DeviceID, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
+	int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
 	int nImageWidth, int nImageHeight, bool bFullScreen
 )
 {
 	if(NULL == m_pInstance)
 	{
-		m_pInstance = new OrbiterSDL_WinCE(DeviceID, ServerAddress, 
+		m_pInstance = new OrbiterSDL_WinCE(DeviceID, PK_DeviceTemplate, ServerAddress, 
 				sLocalDirectory, bLocalMode, nImageWidth, 
 				nImageHeight, bFullScreen);
 	}

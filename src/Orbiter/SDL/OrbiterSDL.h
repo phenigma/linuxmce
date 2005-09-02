@@ -23,7 +23,7 @@ protected: // (mtoader) I want access to them in the OrbiterLinuxDesktop
 	bool m_bFullScreen;
 
 public:
-	OrbiterSDL(int DeviceID, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
+	OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
 		int nImageWidth, int nImageHeight, bool bFullScreen = false);
 	virtual ~OrbiterSDL();
     virtual bool GetConfig();

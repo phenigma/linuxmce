@@ -227,18 +227,18 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
 	}
 }
 
-bool StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bLocalMode,
+bool StartOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP,string sLocalDirectory,bool bLocalMode,
 				  int Width, int Height, bool bFullScreen)
 {
 #ifdef WIN32
     OrbiterSDL *pCLinux =
         new OrbiterSDL(
-        PK_Device, sRouter_IP,
+        PK_Device, PK_DeviceTemplate, sRouter_IP,
         sLocalDirectory, bLocalMode, Width, Height, bFullScreen);
 #else
     OrbiterSDL *pCLinux =
         new OrbiterLinux(
-        PK_Device, sRouter_IP,
+        PK_Device, PK_DeviceTemplate, sRouter_IP,
         sLocalDirectory, bLocalMode, Width, Height);
 #endif
 

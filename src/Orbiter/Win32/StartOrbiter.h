@@ -6,6 +6,7 @@ using namespace std;
 
 void StartOrbiter(
 	int PK_Device,
+	int PK_DeviceTemplate,
 	string sRouter_IP,
 	string sLocalDirectory,
 	bool bLocalMode,

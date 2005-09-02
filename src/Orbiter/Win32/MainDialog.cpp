@@ -168,6 +168,7 @@ DWORD WINAPI OrbiterThread( LPVOID lpParameter)
 
 		StartOrbiter(
 			CmdLineParams.PK_Device, 
+			CmdLineParams.PK_DeviceTemplate, 
 			CmdLineParams.sRouter_IP,
 			CmdLineParams.sLocalDirectory,
 			CmdLineParams.bLocalMode,

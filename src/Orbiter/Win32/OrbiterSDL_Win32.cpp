@@ -33,10 +33,10 @@ LRESULT CALLBACK SDLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 //-----------------------------------------------------------------------------------------------------
 OrbiterSDL_Win32 *OrbiterSDL_Win32::m_pInstance = NULL; //the one and only
 //-----------------------------------------------------------------------------------------------------
-OrbiterSDL_Win32::OrbiterSDL_Win32(int DeviceID, string ServerAddress, string sLocalDirectory, 
+OrbiterSDL_Win32::OrbiterSDL_Win32(int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, 
 								   bool bLocalMode, int nImageWidth, int nImageHeight, 
 								   bool bFullScreen) :
-	OrbiterSDL(DeviceID, ServerAddress, 
+	OrbiterSDL(DeviceID, PK_DeviceTemplate, ServerAddress, 
 				sLocalDirectory, bLocalMode, nImageWidth, 
 				nImageHeight, bFullScreen)
 {
@@ -59,14 +59,14 @@ OrbiterSDL_Win32::~OrbiterSDL_Win32()
 }
 //-----------------------------------------------------------------------------------------------------
 /*static*/ void OrbiterSDL_Win32::BuildOrbiter(
-	int DeviceID, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
+	int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
 	int nImageWidth, int nImageHeight, bool bFullScreen
 )
 {
 	if(NULL == m_pInstance)
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "OrbiterSDL_Win32 constructor.");
-		m_pInstance = new OrbiterSDL_Win32(DeviceID, ServerAddress, 
+		m_pInstance = new OrbiterSDL_Win32(DeviceID, PK_DeviceTemplate, ServerAddress, 
 				sLocalDirectory, bLocalMode, nImageWidth, 
 				nImageHeight, bFullScreen);
 	}

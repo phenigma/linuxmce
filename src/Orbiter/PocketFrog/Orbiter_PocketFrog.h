@@ -39,7 +39,7 @@ protected:
 public:
 	DisplayDevice* GetOrbiterDisplay() { return GetDisplay(); }
 
-	Orbiter_PocketFrog(int DeviceID, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
+	Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
 		int nImageWidth, int nImageHeight, bool bFullScreen = false);
 	virtual ~Orbiter_PocketFrog();
 
@@ -100,7 +100,7 @@ public:
 	virtual void SetTime(char *ServerTimeString) {};
 
 	static void Cleanup();
-	static void BuildOrbiter(int DeviceID, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
+	static void BuildOrbiter(int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
 		int nImageWidth, int nImageHeight, bool bFullScreen = false);
 	static Orbiter_PocketFrog *GetInstance();
 

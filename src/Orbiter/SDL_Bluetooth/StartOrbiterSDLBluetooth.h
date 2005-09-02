@@ -12,6 +12,7 @@ namespace DCE
 DCE::OrbiterSDLBluetooth *StartOrbiterSDLBluetooth(
 	class BDCommandProcessor *pBDCommandProcessor,
 	int PK_Device, 
+	int PK_DeviceTemplate,
 	string sRouter_IP, 
 	string sLocalDirectory, 
 	bool bLocalMode, 

@@ -61,7 +61,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 	g_sBinaryPath = FileUtils::BasePath(pFullPath) + "/";
 
 	string sRouter_IP="dcerouter";
-    int PK_Device=0;
+    int PK_Device=0,PK_DeviceTemplate=0;
 	string sLogger="orbiter.log";
 
     int Width=800,Height=600;
@@ -108,6 +108,10 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 					break;
 				case 'd':
 					PK_Device = atoi(StringUtils::Tokenize(command_line, " ", pos).c_str());
+					bDeviceIDSpecified = true;
+					break;
+				case 'T':
+					PK_DeviceTemplate = atoi(StringUtils::Tokenize(command_line, " ", pos).c_str());
 					bDeviceIDSpecified = true;
 					break;
 				case 'l':
@@ -183,6 +187,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 
 		CmdLineParams.sRouter_IP		= sRouter_IP;
 		CmdLineParams.PK_Device			= PK_Device;
+		CmdLineParams.PK_DeviceTemplate	= PK_DeviceTemplate;
 		CmdLineParams.sLogger			= sLogger;
 		CmdLineParams.Width				= Width;
 		CmdLineParams.Height			= Height;

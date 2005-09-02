@@ -173,14 +173,13 @@ Constructors/Destructor
 */
 
 //<-dceag-const-b->!
-Orbiter::Orbiter( int DeviceID,  string ServerAddress,  string sLocalDirectory,  bool bLocalMode,  int iImageWidth,  int iImageHeight )
-: Orbiter_Command( DeviceID,  ServerAddress, true, bLocalMode ),
+Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  string sLocalDirectory,  bool bLocalMode,  int iImageWidth,  int iImageHeight )
+: m_dwPK_DeviceTemplate(PK_DeviceTemplate), Orbiter_Command( DeviceID,  ServerAddress, true, bLocalMode ),
 m_ScreenMutex( "rendering" ), m_VariableMutex( "variable" ), m_DatagridMutex( "datagrid" ),
 m_MaintThreadMutex("MaintThread"), m_NeedRedrawVarMutex( "need redraw variables" )
 //<-dceag-const-e->
 {
 g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
-
 	m_sLocalDirectory=sLocalDirectory;
     m_iImageWidth=iImageWidth;
     m_iImageHeight=iImageHeight;
@@ -8486,7 +8485,7 @@ int Orbiter::SetupNewOrbiter()
 
 	int PK_Device=0;
 	DCE::CMD_New_Orbiter_DT CMD_New_Orbiter_DT(m_dwPK_Device, DEVICETEMPLATE_Orbiter_Plugin_CONST, BL_SameHouse, sType, 
-		PK_Users,0,m_sMacAddress,PK_Room,Width,Height,PK_Skin,PK_Language,PK_Size,&PK_Device);
+		PK_Users,m_dwPK_DeviceTemplate,m_sMacAddress,PK_Room,Width,Height,PK_Skin,PK_Language,PK_Size,&PK_Device);
 
 	Event_Impl event_Impl(DEVICEID_MESSAGESEND, 0, m_sIPAddress);
 	CMD_New_Orbiter_DT.m_pMessage->m_eExpectedResponse = ER_ReplyMessage;
