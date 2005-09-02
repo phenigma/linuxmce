@@ -184,9 +184,11 @@ DEP_CPP_COMMA=\
 	"..\..\DCE\SocketListener.h"\
 	"..\..\pluto_main\Database_pluto_main.h"\
 	"..\..\pluto_main\Define_Device.h"\
+	"..\..\pluto_main\Define_Device_DeviceData.h"\
 	"..\..\pluto_main\Define_DeviceCategory.h"\
 	"..\..\pluto_main\Define_DeviceTemplate.h"\
 	"..\..\pluto_main\Table_Device.h"\
+	"..\..\pluto_main\Table_Device_DeviceData.h"\
 	"..\..\pluto_main\Table_DeviceTemplate.h"\
 	"..\..\pluto_main\TableRow.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
@@ -516,16 +518,9 @@ DEP_CPP_HANDL=\
 	"..\..\PlutoUtils\StringUtils.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\CENet\wince.h"\
-	"..\Win32\MainDialog.h"\
-	"..\Win32\StartOrbiter.h"\
-	".\stdafx.h"\
 	
 NODEP_CPP_HANDL=\
-	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
-	".\inuserm.h"\
-	".\ipapi.h"\
-	".\ygshell.h"\
 	
 # End Source File
 # Begin Source File
@@ -644,15 +639,16 @@ DEP_CPP_MAIN_=\
 	"..\Win32\main.h"\
 	"..\Win32\MainDialog.h"\
 	"..\Win32\OrbiterSDL_Win32.h"\
+	"..\Win32\ProgressDialog.h"\
 	"..\Win32\StartOrbiter.h"\
 	".\stdafx.h"\
+	{$(INCLUDE)}"aygshell.h"\
+	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_MAIN_=\
 	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
-	".\inuserm.h"\
-	".\ipapi.h"\
-	".\ygshell.h"\
 	
 # End Source File
 # Begin Source File
@@ -743,13 +739,13 @@ DEP_CPP_MAIND=\
 	"..\Win32\OrbiterSDL_Win32.h"\
 	"..\Win32\StartOrbiter.h"\
 	".\stdafx.h"\
+	{$(INCLUDE)}"aygshell.h"\
+	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_MAIND=\
 	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
-	".\inuserm.h"\
-	".\ipapi.h"\
-	".\ygshell.h"\
 	
 # End Source File
 # Begin Source File
@@ -982,16 +978,18 @@ DEP_CPP_ORBITE=\
 	"..\SelfUpdate.h"\
 	"..\TextStyle.h"\
 	"..\Win32\MainDialog.h"\
+	"..\Win32\PopupMessage.h"\
+	"..\Win32\ProgressDialog.h"\
 	"..\Win32\StartOrbiter.h"\
 	"..\Win32\VirtualKeysTranslator.h"\
 	".\stdafx.h"\
+	{$(INCLUDE)}"aygshell.h"\
+	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_ORBITE=\
 	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
-	".\inuserm.h"\
-	".\ipapi.h"\
-	".\ygshell.h"\
 	
 # End Source File
 # Begin Source File
@@ -1215,12 +1213,28 @@ DEP_CPP_POPUP=\
 	"..\Win32\PopupMessage.h"\
 	"..\Win32\StartOrbiter.h"\
 	".\stdafx.h"\
+	{$(INCLUDE)}"aygshell.h"\
+	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_POPUP=\
 	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
-	".\inuserm.h"\
-	".\ipapi.h"\
-	".\ygshell.h"\
+	
+# End Source File
+# Begin Source File
+
+SOURCE=..\Win32\ProgressDialog.cpp
+DEP_CPP_PROGR=\
+	"..\Win32\MainDialog.h"\
+	"..\Win32\ProgressDialog.h"\
+	"..\Win32\StartOrbiter.h"\
+	".\stdafx.h"\
+	{$(INCLUDE)}"aygshell.h"\
+	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"winuserm.h"\
+	
+NODEP_CPP_PROGR=\
+	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	
 # End Source File
 # Begin Source File
@@ -1385,13 +1399,13 @@ DEP_CPP_SELFU=\
 	"..\Win32\OrbiterSDL_Win32.h"\
 	"..\Win32\StartOrbiter.h"\
 	".\stdafx.h"\
+	{$(INCLUDE)}"aygshell.h"\
+	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_SELFU=\
 	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
-	".\inuserm.h"\
-	".\ipapi.h"\
-	".\ygshell.h"\
 	
 # End Source File
 # Begin Source File
@@ -1536,13 +1550,13 @@ DEP_CPP_SIMUL=\
 	"..\Win32\OrbiterSDL_Win32.h"\
 	"..\Win32\StartOrbiter.h"\
 	".\stdafx.h"\
+	{$(INCLUDE)}"aygshell.h"\
+	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_SIMUL=\
 	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
-	".\inuserm.h"\
-	".\ipapi.h"\
-	".\ygshell.h"\
 	
 # End Source File
 # Begin Source File
@@ -1659,16 +1673,15 @@ DEP_CPP_START=\
 	"..\TextStyle.h"\
 	"..\Win32\MainDialog.h"\
 	"..\Win32\OrbiterSDL_Win32.h"\
-	"..\Win32\PopupMessage.h"\
 	"..\Win32\StartOrbiter.h"\
 	".\stdafx.h"\
+	{$(INCLUDE)}"aygshell.h"\
+	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_START=\
 	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
-	".\inuserm.h"\
-	".\ipapi.h"\
-	".\ygshell.h"\
 	
 # End Source File
 # Begin Source File

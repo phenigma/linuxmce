@@ -172,6 +172,9 @@
 				RelativePath="..\Win32\PopupMessage.cpp">
 			</File>
 			<File
+				RelativePath="..\Win32\ProgressDialog.cpp">
+			</File>
+			<File
 				RelativePath="..\RendererMNG.cpp">
 			</File>
 			<File

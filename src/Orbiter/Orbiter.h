@@ -525,6 +525,7 @@ public: // temp - remove this
 	virtual int PromptUser(string sPrompt,map<int,string> *p_mapPrompts=NULL);
 	virtual int SetupNewOrbiter();
 	virtual int PromptFor(string sToken);
+    virtual bool DisplayProgress(string sMessage, int nProgress);
 
 	/**
 	 * @brief Convert a virtual device (a negative device that corresponds to the VirtDev entries in DeviceTemplate) into the real device ID
@@ -1767,7 +1768,6 @@ light, climate, media, security, telecom */
 	* @todo ask
 	*/
 	void CalculateGridRight( DesignObj_DataGrid *pObj, int &iCurCol, int iCellsToSkip );
-
 };
 
 extern int g_iDontRender; /** < @todo ask */

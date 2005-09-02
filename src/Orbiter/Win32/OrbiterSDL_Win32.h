@@ -37,6 +37,7 @@ public:
 	static OrbiterSDL_Win32 *GetInstance();
 
     int PromptUser(string sPrompt,map<int,string> *p_mapPrompts);
+    bool DisplayProgress(string sMessage, int nProgress);
 };
 //-----------------------------------------------------------------------------------------------------
 #endif //__ORBITER_SDL_WIN_H__

@@ -165,6 +165,9 @@
 				RelativePath=".\Win32\PopupMessage.cpp">
 			</File>
 			<File
+				RelativePath=".\Win32\ProgressDialog.cpp">
+			</File>
+			<File
 				RelativePath="..\OrbiterGen\Renderer.cpp">
 			</File>
 			<File

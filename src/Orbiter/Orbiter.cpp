@@ -8543,3 +8543,7 @@ int Orbiter::PromptFor(string sToken)
 	return PromptUser("Please select the " + sToken,&mapResponse); 
 }
 
+/*virtual*/ bool Orbiter::DisplayProgress(string sMessage, int nProgress)
+{
+    return false;
+}

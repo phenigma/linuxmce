@@ -6,6 +6,7 @@
 #include "SelfUpdate.h"
 #include "VirtualKeysTranslator.h"
 #include "PopupMessage.h"
+#include "ProgressDialog.h"
 
 #include "../pluto_main/Define_Button.h"
 #include "../pluto_main/Define_Direction.h" 
@@ -993,5 +994,10 @@ void Orbiter_PocketFrog::CalcTextRectangle(RECT &rectLocation,PlutoRectangle &rP
 /*virtual*/ int Orbiter_PocketFrog::PromptUser(string sPrompt,map<int,string> *p_mapPrompts)
 {
     return PromptUser(sPrompt, p_mapPrompts);
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ bool Orbiter_PocketFrog::DisplayProgress(string sMessage, int nProgress)
+{
+    return DialogProgress(sMessage, nProgress);
 }
 //-----------------------------------------------------------------------------------------------------

@@ -95,6 +95,7 @@ public:
 
     virtual bool OnReplaceHandler(string sIP);
     virtual int  PromptUser(string sPrompt,map<int,string> *p_mapPrompts);
+	virtual bool DisplayProgress(string sMessage, int nProgress);
 
 	// Other
 	virtual void Initialize(GraphicType Type, int iPK_Room=0, int iPK_EntertainArea=0);
