@@ -11,12 +11,15 @@
 using namespace std;
 using namespace DCE;
 
-IRReceiverBase::IRReceiverBase(Command_Impl *pCommand_Impl,DeviceData_Impl *pData)
+IRReceiverBase::IRReceiverBase(Command_Impl *pCommand_Impl)
 : m_Virtual_Device_Translator()
 {
 	m_pCommand_Impl=pCommand_Impl;
 	m_cCurrentScreen='M';
+}
 
+void IRReceiverBase::GetConfig(DeviceData_Impl *pData)
+{
 	string sMapping;
 	DCE::CMD_Get_Remote_Control_Mapping_DT CMD_Get_Remote_Control_Mapping_DT(pData->m_dwPK_Device, DEVICETEMPLATE_Infrared_Plugin_CONST,
 		BL_SameHouse, &sMapping);

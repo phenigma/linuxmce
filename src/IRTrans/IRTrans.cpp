@@ -87,7 +87,7 @@ void DoGotIRCommand(const char *pRemote,const char *pCommand)
 // The primary constructor when the class is created as a stand-alone device
 IRTrans::IRTrans(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
         : IRTrans_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
-        , IRReceiverBase(this,m_pData), VFD_LCD_Base(40,2,20)
+        , IRReceiverBase(this), VFD_LCD_Base(40,2,20)
 //<-dceag-const-e->
 {
 	IRBase::setCommandImpl(this);
@@ -104,6 +104,8 @@ bool IRTrans::GetConfig()
 
 	if( !m_Virtual_Device_Translator.GetConfig(m_pData) )
 		return false;
+
+	IRReceiverBase::GetConfig(m_pData);
 
 	FileUtils::DelDir("remotes");
 	system("mkdir remotes");

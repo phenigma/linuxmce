@@ -38,7 +38,7 @@ void * StartLeeching(void * Arg)
 LIRC_DCE::LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: LIRC_DCE_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
-	, IRReceiverBase(this,m_pData)
+	, IRReceiverBase(this)
 {
 	m_LeechingThread=0;
 	pRoute = pRouter;
@@ -53,6 +53,8 @@ bool LIRC_DCE::GetConfig()
 
 	if( !m_Virtual_Device_Translator.GetConfig(m_pData) )
 		return false;
+	
+	IRReceiverBase::GetConfig(m_pData);
 
 	FILE *fp;
 	string sCOM1 = "1";

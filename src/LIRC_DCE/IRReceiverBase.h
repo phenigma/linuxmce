@@ -20,10 +20,11 @@ namespace DCE
 		map<string,MapKeysToMessages *> m_mapKeyMapping;
 		char m_cCurrentScreen;
 
-		IRReceiverBase(Command_Impl *pCommand_Impl,DeviceData_Impl *pData);
+		IRReceiverBase(Command_Impl *pCommand_Impl);
 		~IRReceiverBase();
-
+        
 		void ReceivedCode(int PK_Device_Remote,const char *pCode);
+		void GetConfig(DeviceData_Impl *pData);
 	};
 }
 
