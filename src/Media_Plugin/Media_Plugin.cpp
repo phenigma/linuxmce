@@ -3306,8 +3306,8 @@ bool Media_Plugin::RippingProgress( class Socket *pSocket, class Message *pMessa
 	RippingJob *pRippingJob = m_mapRippingJobs[pMessage->m_dwPK_Device_From];
 	if( iResult==RIP_RESULT_STILLGOING )
 	{
-		pRippingJob->m_sStatus = pMessage->m_mapParameters[EVENTPARAMETER_Text_CONST].c_str( );
-		pRippingJob->m_sPercentage = pMessage->m_mapParameters[EVENTPARAMETER_Value_CONST].c_str( );
+		pRippingJob->m_sStatus = FileUtils::FilenameWithoutPath(sJobName);
+		pRippingJob->m_sPercentage = pMessage->m_mapParameters[EVENTPARAMETER_Value_CONST] + "%";
 		return true;
 	}
 	else if( iResult==RIP_RESULT_SUCCESS )
