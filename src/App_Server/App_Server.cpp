@@ -416,6 +416,8 @@ void App_Server::CMD_Halt_Device(int iPK_Device,string sForce,string &sCMD_Resul
 	if( sForce=="" )
 		sForce = "H"; // HACK - todo: figure out how to determine if we have suspend capabilities
 
+	g_pPlutoLogger->Write(LV_STATUS,"CMD_Halt_Device %s",sForce.c_str());
+
 	// See who sent this to us.  If it wasn't GeneralInfoPlugin we want to forward it to it
 	DeviceData_Base *pDeviceData_Base = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(pMessage->m_dwPK_Device_From);
 	if( !pDeviceData_Base || pDeviceData_Base->m_dwPK_DeviceCategory!=DEVICECATEGORY_General_Info_Plugins_CONST )
