@@ -242,13 +242,13 @@ void VFD_LCD_Base::GetNowPlaying(vector<string> *vectString,int iNumLines)
 		if( ( (vectString->size() && iNumLines<3) || iNumLines==1 ) &&
 			( (pMapMessages_TimeCode && pMapMessages_TimeCode->size()) || (pMapMessages_Speed && pMapMessages_Speed->size()) )  )
 		{
-			int iSectionWidth=m_iNumVisibleColumns - 12;
+			int iSectionWidth=m_iNumVisibleColumns - 13;
 			string str = pMapMessages_Section->begin()->second->m_sMessage.substr(0,iSectionWidth);
 			if( str.size()<iSectionWidth )
 				str += string("                                  ").substr(0, iSectionWidth-str.size());
 			string strTimeCode;
 			if( pMapMessages_TimeCode && pMapMessages_TimeCode->size() )
-				strTimeCode = pMapMessages_TimeCode->begin()->second->m_sMessage.substr(0,7);
+				strTimeCode = pMapMessages_TimeCode->begin()->second->m_sMessage.substr(0,8);
 			string strSpeed;
 			if( pMapMessages_Speed && pMapMessages_Speed->size() )
 				strSpeed = pMapMessages_Speed->begin()->second->m_sMessage.substr(0,3);

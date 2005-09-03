@@ -1699,7 +1699,11 @@ void Router::RealSendMessage(Socket *pSocket,SafetyMessage *pSafetyMessage)
         HandleCommandPipes(pSocket,pSafetyMessage);
 
 	if( pDeviceTo && pDeviceTo->m_pDevice_RouteTo )
+	{
         (*(*pSafetyMessage))->m_dwPK_Device_To=pDeviceTo->m_pDevice_RouteTo->m_dwPK_Device;
+		for(size_t s=0;s<(*(*pSafetyMessage))->m_vectExtraMessages.size();++s)
+			(*(*pSafetyMessage))->m_vectExtraMessages[s]->m_dwPK_Device_To=pDeviceTo->m_pDevice_RouteTo->m_dwPK_Device;
+	}
 #ifdef DEBUG
   g_pPlutoLogger->Write(LV_STATUS,"begin realsendmessage before lock");
 #endif

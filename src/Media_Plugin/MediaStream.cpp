@@ -418,7 +418,16 @@ void MediaStream::UpdateDescriptions(bool bAllFiles,MediaFile *pMediaFile_In)
 			m_sSectionDescription = "";
 
 		if( m_sMediaDescription.size()==0 )
-			m_sMediaDescription = "<%=T" + StringUtils::itos(TEXT_Unknown_Disc_CONST) + "%>";
+		{
+			MediaFile *pMediaFile=NULL;
+			if( !pMediaFile && m_iDequeMediaFile_Pos>=0 && m_iDequeMediaFile_Pos<m_dequeMediaFile.size() )
+				pMediaFile = m_dequeMediaFile[m_iDequeMediaFile_Pos];
+
+			if( pMediaFile && !StringUtils::StartsWith(pMediaFile->m_sFilename,"/dev/") )
+				m_sMediaDescription = pMediaFile->m_sFilename;
+			else
+				m_sMediaDescription = "<%=T" + StringUtils::itos(TEXT_Unknown_Disc_CONST) + "%>";
+		}
 	}
 
 	if( m_sMediaDescription.size()==0 && m_dequeMediaFile.size() && m_iDequeMediaFile_Pos<m_dequeMediaFile.size() )

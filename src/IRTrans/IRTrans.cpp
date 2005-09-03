@@ -200,7 +200,7 @@ void IRTrans::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &
 //<-dceag-cmdch-e->
 {
 	// Let the IR Base class try to handle the message
-	if (IRBase::ProcessMessage(pMessage))
+	if (!pDeviceData_Base->m_bIsEmbedded && IRBase::ProcessMessage(pMessage))
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"Message %d processed by IRBase class",pMessage->m_dwID);
 		sCMD_Result = "OK";
@@ -294,10 +294,14 @@ void IRTrans::DoUpdateDisplay(vector<string> *vectString)
 	lcdCommand.wid=40;
 	lcdCommand.hgt=4;
 	memset(lcdCommand.framebuffer,32,200);
-
-	strncpy((char *) lcdCommand.framebuffer,(*vectString)[0].c_str(),40);
+	lcdCommand.framebuffer[199]=0;
+	
+	strncpy((char *) lcdCommand.framebuffer,(*vectString)[0].c_str(),min(40,(*vectString)[0].size()));
 	if( vectString->size()>1 )
-		strncpy((char *) (lcdCommand.framebuffer+40),(*vectString)[1].c_str(),40);
+		strncpy((char *) (lcdCommand.framebuffer+40),(*vectString)[1].c_str(),min(40,(*vectString)[0].size()));
+string s1=(*vectString)[0];
+string s2=vectString->size()>1 ? (*vectString)[1] : "";
+g_pPlutoLogger->Write(LV_WARNING,"\x1b[2J;%s\n%s",s1.c_str(),s2.c_str());
 
 	g_pPlutoLogger->Write(LV_WARNING,"setting display to: %s",(char *) lcdCommand.framebuffer);
 #ifdef LINUX

@@ -1383,13 +1383,13 @@ g_pPlutoLogger->Write(LV_STATUS, "Ready to update bound remotes with %p %d",pMed
 		{
 			MediaDevice *pMediaDevice = *itVFD;
 			DCE::CMD_Display_Message CMD_Display_Message_TC(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
-				pMediaStream->m_sMediaDescription,
+				(pMediaStream->m_sMediaDescription.find("<%=")==string::npos ? pMediaStream->m_sMediaDescription : "Unknown Disc"), // For now VFD's don't have the language table to do these lookups
 				StringUtils::itos(VL_MSGTYPE_NOW_PLAYING_MAIN),"np","","");
-			SendCommand(CMD_Display_Message_TC);
 
 			DCE::CMD_Display_Message CMD_Display_Message_Section(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
-				pMediaStream->m_sSectionDescription,
+				(pMediaStream->m_sSectionDescription.find("<%=")==string::npos ? pMediaStream->m_sSectionDescription : "Unknown"), // For now VFD's don't have the language table to do these lookups
 				StringUtils::itos(VL_MSGTYPE_NOW_PLAYING_SECTION),"np","","");
+			CMD_Display_Message_Section.m_pMessage->m_vectExtraMessages.push_back(CMD_Display_Message_TC.m_pMessage);
 			SendCommand(CMD_Display_Message_Section);
 		}
     }
@@ -1545,6 +1545,16 @@ g_pPlutoLogger->Write( LV_STATUS, "Orbiter %d %s in this ea to stop", pOH_Orbite
             SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, NULL, false );
 		}
     }
+
+	// Clear the VFD displays
+	for(ListMediaDevice::iterator itVFD=pEntertainArea->m_listVFD_LCD_Displays.begin();itVFD!=pEntertainArea->m_listVFD_LCD_Displays.end();++itVFD)
+	{
+		MediaDevice *pMediaDevice = *itVFD;
+		DCE::CMD_Display_Message CMD_Display_Message_TC(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
+			"",
+			StringUtils::itos(VL_MSGTYPE_NOW_PLAYING_MAIN),"np","","");
+		SendCommand(CMD_Display_Message_TC);
+	}
 
 	// Send all bound remotes back home
 	for( MapBoundRemote::iterator itBR=pEntertainArea->m_mapBoundRemote.begin( );itBR!=pEntertainArea->m_mapBoundRemote.end( );++itBR )
@@ -3312,14 +3322,52 @@ bool Media_Plugin::RippingProgress( class Socket *pSocket, class Message *pMessa
 	{
 		pRippingJob->m_sStatus = FileUtils::FilenameWithoutPath(sJobName);
 		pRippingJob->m_sPercentage = pMessage->m_mapParameters[EVENTPARAMETER_Value_CONST] + "%";
+
+		for( MapEntertainArea::iterator it=pRippingJob->m_pMediaDevice_Disk_Drive->m_mapEntertainArea.begin( );it!=pRippingJob->m_pMediaDevice_Disk_Drive->m_mapEntertainArea.end( );++it )
+		{
+			EntertainArea *pEntertainArea = ( *it ).second;
+			for(ListMediaDevice::iterator itVFD=pEntertainArea->m_listVFD_LCD_Displays.begin();itVFD!=pEntertainArea->m_listVFD_LCD_Displays.end();++itVFD)
+			{
+				MediaDevice *pMediaDevice = *itVFD;
+				DCE::CMD_Display_Message CMD_Display_Message_Name(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
+					pRippingJob->m_sStatus,
+					StringUtils::itos(VL_MSGTYPE_RIPPING_NAME),"tc","","");
+
+				DCE::CMD_Display_Message CMD_Display_Message_SP(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
+					pRippingJob->m_sPercentage,
+					StringUtils::itos(VL_MSGTYPE_RIPPING_PROGRESS),"tc","","");
+				CMD_Display_Message_SP.m_pMessage->m_vectExtraMessages.push_back(CMD_Display_Message_Name.m_pMessage);
+				SendCommand(CMD_Display_Message_SP);
+			}
+		}
+
 		return true;
 	}
 	else if( iResult==RIP_RESULT_SUCCESS )
 		AddRippedDiscToDatabase(pRippingJob);
 	else
 		g_pPlutoLogger->Write(LV_STATUS,"Ripping wasn't successful--not adding it to the database");
+
 	if( pRippingJob->m_iPK_Orbiter )
 		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pRippingJob->m_iPK_Orbiter,sMessage,false,1200,true);   // Leave the message on screen for 20 mins
+
+	for( MapEntertainArea::iterator it=pRippingJob->m_pMediaDevice_Disk_Drive->m_mapEntertainArea.begin( );it!=pRippingJob->m_pMediaDevice_Disk_Drive->m_mapEntertainArea.end( );++it )
+	{
+		EntertainArea *pEntertainArea = ( *it ).second;
+		for(ListMediaDevice::iterator itVFD=pEntertainArea->m_listVFD_LCD_Displays.begin();itVFD!=pEntertainArea->m_listVFD_LCD_Displays.end();++itVFD)
+		{
+			MediaDevice *pMediaDevice = *itVFD;
+			DCE::CMD_Display_Message CMD_Display_Message(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
+				sMessage,
+				StringUtils::itos(VL_MSGTYPE_RUNTIME_NOTICES),"tc","","");
+
+			DCE::CMD_Display_Message CMD_Display_Message_Name(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
+				"",
+				StringUtils::itos(VL_MSGTYPE_RIPPING_NAME),"tc","","");
+			CMD_Display_Message_Name.m_pMessage->m_vectExtraMessages.push_back(CMD_Display_Message.m_pMessage);
+			SendCommand(CMD_Display_Message);
+		}
+	}
 
 	delete pRippingJob;
 	m_mapRippingJobs.erase(pMessage->m_dwPK_Device_From);
@@ -4904,11 +4952,11 @@ void Media_Plugin::CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal
 			DCE::CMD_Display_Message CMD_Display_Message_TC(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
 				pos_TimeCode==string::npos ? sTime : sTime.substr(0,pos_TimeCode),
 				StringUtils::itos(VL_MSGTYPE_NOW_PLAYING_TIME_CODE),"tc","","");
-			SendCommand(CMD_Display_Message_TC);
 
 			DCE::CMD_Display_Message CMD_Display_Message_SP(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
 				sSpeed,
 				StringUtils::itos(VL_MSGTYPE_NOW_PLAYING_SPEED),"tc","","");
+			CMD_Display_Message_SP.m_pMessage->m_vectExtraMessages.push_back(CMD_Display_Message_TC.m_pMessage);
 			SendCommand(CMD_Display_Message_SP);
 		}
 
