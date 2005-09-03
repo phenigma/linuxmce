@@ -32,6 +32,7 @@ chmod -R 777 /usr/pluto/orbiter/orbiter_bg
 rm -f /var/www/pluto-admin/orbiter_bg
 ln -s /usr/pluto/orbiter/orbiter_bg /var/www/pluto-admin/orbiter_bg
 
+mkdir -p /var/www/pluto-admin/security_images
 chmod -R 777 /var/www/pluto-admin/security_images
 
 a2dissite default || /bin/true
