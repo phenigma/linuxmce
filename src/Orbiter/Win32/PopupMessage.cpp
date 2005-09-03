@@ -141,13 +141,17 @@ LRESULT CALLBACK WndProcPopup(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
                     g_nWindowWidth - 2 * BUTTON_SEPARATOR, BUTTON_SEPARATOR + LABEL_HEIGHT, 
                     const_cast<char *>(g_sPrompt.c_str()));
 
-				int nScaleX=0,ScaleY=0;
+				int nScaleX=0,nScaleY=0;
 				if( g_p_mapPrompts )
 				{
 					if( g_p_mapPrompts->size() )
 					{
-						nScaleX = min(3, 10 / g_p_mapPrompts->size());
-						nScaleY = min(2, 10 / g_p_mapPrompts->size());
+						nScaleX = 10 / g_p_mapPrompts->size();
+						nScaleY = 10 / g_p_mapPrompts->size();
+						if( nScaleX>3 )
+							nScaleX=3;
+						if( nScaleY>2 )
+							nScaleY=2;
 						if( nScaleX<1 )
 							nScaleX=1;
 						if( nScaleY<1 )
