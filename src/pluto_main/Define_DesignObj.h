@@ -1427,7 +1427,6 @@
 #define DESIGNOBJ_doors_CONST 4128
 #define DESIGNOBJ_make_a_call_CONST 4131
 #define DESIGNOBJ_intercom_CONST 4132
-#define DESIGNOBJ_dan_CONST 4133
 #define DESIGNOBJ_Scroll_Grid_Down_CONST 4135
 #define DESIGNOBJ_Exit_Full_Screen_CONST 4136
 #define DESIGNOBJ_CD_Tracks_CONST 4137
