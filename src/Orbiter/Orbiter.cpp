@@ -389,7 +389,7 @@ bool Orbiter::GetConfig()
 {
 	int PK_Device=m_dwPK_Device;
 	bool bResult=Orbiter_Command::GetConfig();
-	if( PK_Device!=m_dwPK_Device )  // We have another device id or host ip address
+	if( PK_Device!=m_dwPK_Device && m_dwPK_Device )  // We have another device id or host ip address
 	{
 		Simulator::GetInstance()->m_sDeviceID = StringUtils::itos(m_dwPK_Device);
 		Simulator::GetInstance()->SaveConfigurationFile();
@@ -403,7 +403,8 @@ bool Orbiter::GetConfig()
 				return false;
 			else
 			{
-				Simulator::GetInstance()->m_sDeviceID = StringUtils::itos(m_dwPK_Device);
+				if( m_dwPK_Device )
+					Simulator::GetInstance()->m_sDeviceID = StringUtils::itos(m_dwPK_Device);
 				Simulator::GetInstance()->m_sRouterIP = m_sIPAddress;
 				Simulator::GetInstance()->SaveConfigurationFile();
 			}
@@ -8413,15 +8414,24 @@ int Orbiter::HandleNotOKStatus(string sStatus,string sRegenStatus,int iRegenPerc
 		OnQuit();
 		return 0;
 	}
-	else if( sStatus=="D" )
+	else if( sStatus=="D" || sStatus=="U" )
 	{
-		PromptUser("Something went wrong.  The device number, " + StringUtils::itos(m_dwPK_Device) + ", doesn't seem to be an orbiter.");
-		OnQuit();
-		return 0;
-	}
-	else if( sStatus=="U" )
-	{
-		PromptUser("Something went wrong.  The device number, " + StringUtils::itos(m_dwPK_Device) + ", is not known to the Core.");
+		map<int,string> mapPrompts;
+		enum PromptsResp {prYes, prNo};
+		mapPrompts[prYes]    = "Yes";
+		mapPrompts[prNo]     = "No";
+
+		int iResponse;
+		if( sStatus=="D" )
+			iResponse = PromptUser("Something went wrong.  The device number, " + StringUtils::itos(m_dwPK_Device) + ", doesn't seem to be an orbiter.  Reset the device number and try next time to determine it automatically?",&mapPrompts);
+		else
+			PromptUser("Something went wrong.  The device number, " + StringUtils::itos(m_dwPK_Device) + ", is not known to the Core.  Reset the device number and try next time to determine it automatically?",&mapPrompts);
+
+		if( iResponse==prYes )
+		{
+			Simulator::GetInstance()->m_sDeviceID = "";
+			Simulator::GetInstance()->SaveConfigurationFile();
+		}
 		OnQuit();
 		return 0;
 	}
@@ -8455,6 +8465,13 @@ bool Orbiter::RouterNeedsReload()
 
 int Orbiter::DeviceIdInvalid()
 {
+	if( m_dwPK_Device )
+	{
+		PromptUser("Something went wrong.  The device number, " + StringUtils::itos(m_dwPK_Device) + ", is reported as invalid.");
+		OnQuit();
+		return 0;
+	}
+
 	map<int,string> mapPrompts;
     enum PromptsResp {prYes, prNo, prCancel};
 	mapPrompts[prYes]    = "Yes - This is a new Orbiter";
