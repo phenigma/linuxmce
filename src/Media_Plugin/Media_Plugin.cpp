@@ -2410,7 +2410,9 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_Med
 		{
 			m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From, "<%=T" + StringUtils::itos(TEXT_ripping_cant_play_disc_CONST) + "%>",false,10,true,
 				"<%=T" + StringUtils::itos(TEXT_Abort_ripping_CONST) + "%>",
-				StringUtils::itos(pMessage->m_dwPK_Device_From) + " " + StringUtils::itos(PK_Device_Ripping) + " 1 " + StringUtils::itos(COMMAND_Abort_Ripping_CONST));
+				StringUtils::itos(pMessage->m_dwPK_Device_From) + " " + StringUtils::itos(PK_Device_Ripping) + " 1 " + StringUtils::itos(COMMAND_Abort_Ripping_CONST),
+				"<%=T" + StringUtils::itos(TEXT_Monitor_progress_CONST) + "%>","0 " + StringUtils::itos(DEVICETEMPLATE_This_Orbiter_CONST) + 
+				" 1 " + StringUtils::itos(COMMAND_Goto_Screen_CONST) + " " + StringUtils::itos(COMMANDPARAMETER_PK_DesignObj_CONST) + " " + StringUtils::itos(DESIGNOBJ_mnuPendingTasks_CONST));
 			return;
 		}
 		else if( bDiskWasReset )
@@ -3157,7 +3159,7 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string
 				for(size_t s=0;s<pEntertainArea->m_pMediaStream->m_dequeMediaFile.size();++s)
 				{
 					MediaFile *pMediaFile = pEntertainArea->m_pMediaStream->m_dequeMediaFile[s];
-					string sTrackName = pMediaFile->m_sDescription.size() && pMediaFile->m_sDescription.find("<%=")==string.npos  ?
+					string sTrackName = pMediaFile->m_sDescription.size() && pMediaFile->m_sDescription.find("<%=")==string::npos  ?
 						pMediaFile->m_sDescription : "Track " + StringUtils::itos(s+1);
 					sNewTracks += StringUtils::itos(s+1) +
 						"," + sTrackName + "|";
@@ -3174,7 +3176,7 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string
 					if( iTrack<pEntertainArea->m_pMediaStream->m_dequeMediaFile.size() && pEntertainArea->m_pMediaStream->m_dequeMediaFile[iTrack]->m_sDescription.size() )
 					{
 						string sTrackName = pEntertainArea->m_pMediaStream->m_dequeMediaFile[iTrack]->m_sDescription;
-						if( sTrackName.size()==0 || sTrackName.find("<%=")!=string.npos  )
+						if( sTrackName.size()==0 || sTrackName.find("<%=")!=string::npos  )
 							sTrackName = "Track " + StringUtils::itos(iTrack+1);
 						sNewTracks += "," + sTrackName + "|";
 					}
@@ -3245,7 +3247,9 @@ g_pPlutoLogger->Write(LV_STATUS,"Transformed %s into %s",sTracks.c_str(),sNewTra
 		sFormat = DATA_Get_Type();
 	if( sFormat.size()==0 )
 		sFormat = "flac";
-	m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T" + StringUtils::itos(TEXT_Ripping_Instructions_CONST) + "%>");
+	m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T" + StringUtils::itos(TEXT_Ripping_Instructions_CONST) + "%>",
+		false,40,false,"<%=T" + StringUtils::itos(TEXT_Monitor_progress_CONST) + "%>","0 " + StringUtils::itos(DEVICETEMPLATE_This_Orbiter_CONST) + 
+		" 1 " + StringUtils::itos(COMMAND_Goto_Screen_CONST) + " " + StringUtils::itos(COMMANDPARAMETER_PK_DesignObj_CONST) + " " + StringUtils::itos(DESIGNOBJ_mnuPendingTasks_CONST) );
 	DCE::CMD_Rip_Disk cmdRipDisk(m_dwPK_Device, pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device, iPK_Users, 
 		sFormat, sName, sTracks, PK_Disc);
 	SendCommand(cmdRipDisk);
