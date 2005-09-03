@@ -8,7 +8,7 @@ filename="$2"
 # progress can be either int or float, from stdin
 while read progress text; do
 	progress=${progress%%.*} # int(progress)
-	/usr/pluto/bin/MessageSend "$DCERouter" "$diskDriveDeviceID" -1000 2 35 35 "$filename" 20 7 13 "name" 30 "$progress" >/dev/null
+	/usr/pluto/bin/MessageSend "$DCERouter" "$diskDriveDeviceID" -1000 2 35 35 "$filename" 20 7 30 "$progress" >/dev/null
 	#echo "$progress"
 	#/usr/pluto/bin/MessageSend $DCERouter
 done
