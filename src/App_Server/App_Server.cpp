@@ -430,21 +430,6 @@ void App_Server::CMD_Halt_Device(int iPK_Device,string sForce,string &sCMD_Resul
 
 	switch( sForce[0] )
 	{
-	case 'H':
-		if( m_bHardDrive )
-			SetStatus("PC_OFF",m_dwPK_Device_MD);
-		else
-			SetStatus("MD_OFF",m_dwPK_Device_MD);
-#ifndef WIN32
-		g_pPlutoLogger->Write(LV_STATUS,"Calling halt");
-		system("halt");
-#else
-		EnablePrivileges();
-		::ExitWindowsEx(EWX_POWEROFF | EWX_FORCE, 0);
-#endif
-
-		// TODO: Power off this system
-		break;
 	case 'S':
 		if( m_bHardDrive )
 			SetStatus("PC_SUSPEND",m_dwPK_Device_MD);
@@ -476,6 +461,21 @@ void App_Server::CMD_Halt_Device(int iPK_Device,string sForce,string &sCMD_Resul
 		EnablePrivileges();
 		::ExitWindowsEx(EWX_REBOOT | EWX_FORCE, 0);
 #endif
+		break;
+	default:
+		if( m_bHardDrive )
+			SetStatus("PC_OFF",m_dwPK_Device_MD);
+		else
+			SetStatus("MD_OFF",m_dwPK_Device_MD);
+#ifndef WIN32
+		g_pPlutoLogger->Write(LV_STATUS,"Calling halt");
+		system("halt");
+#else
+		EnablePrivileges();
+		::ExitWindowsEx(EWX_POWEROFF | EWX_FORCE, 0);
+#endif
+
+		// TODO: Power off this system
 		break;
 	}
 }
