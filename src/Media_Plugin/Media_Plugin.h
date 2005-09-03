@@ -78,8 +78,8 @@ private:
     pthread_mutexattr_t m_MutexAttr;
     MapMediaStream m_mapMediaStream; // All active streams
 
-	// mapping from job names to a pair or caller devices and the job running devices.
-	map<string, class RippingJob *> m_mapRippingJobs;
+	// mapping from disk drive to the job info
+	map<int, class RippingJob *> m_mapRippingJobs;
 	map<int,string> m_mapMediaType_2_Directory;
 	map<int,bool> m_mapMediaType_Bookmarkable;
 

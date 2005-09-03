@@ -3157,8 +3157,10 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string
 				for(size_t s=0;s<pEntertainArea->m_pMediaStream->m_dequeMediaFile.size();++s)
 				{
 					MediaFile *pMediaFile = pEntertainArea->m_pMediaStream->m_dequeMediaFile[s];
+					string sTrackName = pMediaFile->m_sDescription.size() && pMediaFile->m_sDescription.find("<%=")==string.npos  ?
+						pMediaFile->m_sDescription : "Track " + StringUtils::itos(s+1);
 					sNewTracks += StringUtils::itos(s+1) +
-						"," + pMediaFile->m_sDescription + "|";
+						"," + sTrackName + "|";
 				}
 			}
 			else
@@ -3170,9 +3172,14 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string
 					int iTrack = atoi(sTrack.c_str());
 					sNewTracks += StringUtils::itos(iTrack+1);
 					if( iTrack<pEntertainArea->m_pMediaStream->m_dequeMediaFile.size() && pEntertainArea->m_pMediaStream->m_dequeMediaFile[iTrack]->m_sDescription.size() )
-						sNewTracks += "," + pEntertainArea->m_pMediaStream->m_dequeMediaFile[iTrack]->m_sDescription + "|";
+					{
+						string sTrackName = pEntertainArea->m_pMediaStream->m_dequeMediaFile[iTrack]->m_sDescription;
+						if( sTrackName.size()==0 || sTrackName.find("<%=")!=string.npos  )
+							sTrackName = "Track " + StringUtils::itos(iTrack+1);
+						sNewTracks += "," + sTrackName + "|";
+					}
 					else
-						sNewTracks += ",Unknown " + StringUtils::itos(iTrack+1) + "|";
+						sNewTracks += ",Track " + StringUtils::itos(iTrack+1) + "|";
 	g_pPlutoLogger->Write(LV_STATUS,"%s %d %s",sTrack.c_str(),iTrack,sNewTracks.c_str());
 				}
 			}
@@ -3185,6 +3192,12 @@ g_pPlutoLogger->Write(LV_STATUS,"Transformed %s into %s",sTracks.c_str(),sNewTra
 	if( sName.size()==0 )
 		sName = "Unknown disc";
 
+	string sSubDir = pEntertainArea->m_pMediaStream && pEntertainArea->m_pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST ? "movies" : "music";
+	if( iPK_Users==0 )
+		sName = "/home/public/data/" + sSubDir + "/" + sName;
+	else
+		sName = "/home/user_" + StringUtils::itos(iPK_Users) + "/data/" + sSubDir + "/" + sName;
+
 	if( FileUtils::DirExists(sName) )
 	{
 		int Counter=1;
@@ -3193,13 +3206,6 @@ g_pPlutoLogger->Write(LV_STATUS,"Transformed %s into %s",sTracks.c_str(),sNewTra
 			sNewName = sName + "_" + StringUtils::itos(Counter++);
 		sName = sNewName;
 	}
-
-	string sSubDir = pEntertainArea->m_pMediaStream && pEntertainArea->m_pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST ? "movies" : "music";
-	if( iPK_Users==0 )
-		sName = "/home/public/data/" + sSubDir + "/" + sName;
-	else
-		sName = "/home/user_" + StringUtils::itos(iPK_Users) + "/data/" + sSubDir + "/" + sName;
-
 	// If we have a proper name (aka. non empty one) we need to look in the current entertainment area for the disk drive and forward the received command to him.
 	MediaDevice *pDiskDriveMediaDevice = NULL;
 	map<int, class MediaDevice *>::const_iterator itMediaDevicesInEntArea;
@@ -3243,7 +3249,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Transformed %s into %s",sTracks.c_str(),sNewTra
 	DCE::CMD_Rip_Disk cmdRipDisk(m_dwPK_Device, pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device, iPK_Users, 
 		sFormat, sName, sTracks, PK_Disc);
 	SendCommand(cmdRipDisk);
-	m_mapRippingJobs[sName] = new RippingJob(pDiskDriveMediaDevice, 
+	m_mapRippingJobs[pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device] = new RippingJob(pDiskDriveMediaDevice, 
 		pMessage->m_dwPK_Device_From, PK_Disc, PK_MediaType, iPK_Users, sName, sTracks);
 	return;
 }
@@ -3262,7 +3268,7 @@ typedef enum {
 
 bool Media_Plugin::RippingProgress( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
-    string 	sJobName = pMessage->m_mapParameters[EVENTPARAMETER_Name_CONST];
+	string      sJobName = pMessage->m_mapParameters[EVENTPARAMETER_Name_CONST];
 	int		iResult  = atoi( pMessage->m_mapParameters[EVENTPARAMETER_Result_CONST].c_str( ) );
 	int		iPK_Disc = atoi( pMessage->m_mapParameters[EVENTPARAMETER_EK_Disc_CONST].c_str( ) );
 
@@ -3276,9 +3282,9 @@ bool Media_Plugin::RippingProgress( class Socket *pSocket, class Message *pMessa
 	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 
 	g_pPlutoLogger->Write(LV_STATUS, "Got a ripping completed event for job named \"%s\" from device: \"%d\"", sJobName.c_str(), pMessage->m_dwPK_Device_From);
-	map<string, class RippingJob *>::const_iterator itRippingJobs;
+	map<int, class RippingJob *>::const_iterator itRippingJobs;
 
-	if ( (itRippingJobs = m_mapRippingJobs.find(sJobName)) == m_mapRippingJobs.end() )
+	if ( (itRippingJobs = m_mapRippingJobs.find(pMessage->m_dwPK_Device_From)) == m_mapRippingJobs.end() )
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "Unrecognized ripping job: %s. Ignoring event.", sJobName.c_str());
 		return true;
@@ -3297,7 +3303,7 @@ bool Media_Plugin::RippingProgress( class Socket *pSocket, class Message *pMessa
 			break;
 	}
 
-	RippingJob *pRippingJob = m_mapRippingJobs[sJobName];
+	RippingJob *pRippingJob = m_mapRippingJobs[pMessage->m_dwPK_Device_From];
 	if( iResult==RIP_RESULT_STILLGOING )
 	{
 		pRippingJob->m_sStatus = pMessage->m_mapParameters[EVENTPARAMETER_Text_CONST].c_str( );
@@ -3312,7 +3318,7 @@ bool Media_Plugin::RippingProgress( class Socket *pSocket, class Message *pMessa
 		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pRippingJob->m_iPK_Orbiter,sMessage,false,1200,true);   // Leave the message on screen for 20 mins
 
 	delete pRippingJob;
-	m_mapRippingJobs.erase(sJobName);
+	m_mapRippingJobs.erase(pMessage->m_dwPK_Device_From);
 	return true;
 }
 
@@ -3456,15 +3462,8 @@ bool Media_Plugin::AvInputChanged( class Socket *pSocket, class Message *pMessag
 
 bool Media_Plugin::DiskDriveIsRipping(int iPK_Device)
 {
-	map<string, class RippingJob *>::const_iterator itRippingJobs;
-
-	for ( itRippingJobs = m_mapRippingJobs.begin(); itRippingJobs != m_mapRippingJobs.end(); itRippingJobs++ )
-	{
-		if ( (*itRippingJobs).second->m_pMediaDevice_Disk_Drive->m_pDeviceData_Router->m_dwPK_Device == iPK_Device)
-			return true;
-	}
-
-	return false;
+	map<int, class RippingJob *>::const_iterator itRippingJobs = m_mapRippingJobs.find(iPK_Device);
+	return itRippingJobs!=m_mapRippingJobs.end();
 }
 
 bool Media_Plugin::PendingTasks(vector<string> *vectPendingTasks)
@@ -3477,8 +3476,8 @@ bool Media_Plugin::PendingTasks(vector<string> *vectPendingTasks)
 		string sJobs;
 		if( vectPendingTasks )
 		{
-			for(map<string, class RippingJob *>::iterator it=m_mapRippingJobs.begin();it!=m_mapRippingJobs.end();++it)
-				vectPendingTasks->push_back("Ripping: " + (*it).first + "\n" + it->second->m_sStatus + "  " + it->second->m_sPercentage);
+			for(map<int, class RippingJob *>::iterator it=m_mapRippingJobs.begin();it!=m_mapRippingJobs.end();++it)
+				vectPendingTasks->push_back("Ripping: " + it->second->m_sName + "\n" + it->second->m_sStatus + "  " + it->second->m_sPercentage);
 		}
 		return false;
 	}
