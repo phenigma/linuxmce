@@ -776,7 +776,8 @@ m_bNoEffects = true;
 			for(size_t s=0;s<vectRow_Device_EntertainArea.size();++s)
 			{
 				Row_Device_EntertainArea *pRow_Device_EntertainArea = vectRow_Device_EntertainArea[s];
-				if( pRow_Device_EntertainArea->FK_Device_getrow()->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Media_Director_CONST )
+				Row_Device *pRow_Device = pRow_Device_EntertainArea->FK_Device_getrow();
+				if( pRow_Device && pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Media_Director_CONST )
 				{
 					pRow_Device_MediaDirector = pRow_Device_EntertainArea->FK_Device_getrow();
 					break;
@@ -1193,7 +1194,7 @@ int k=2;
 			if( !oco->m_bUsingCache )
 			{
 				int Percent = m_iScreensToRender * 100 / m_iScreensTotal;
-				if( !m_iLastReportedPercentage || Percent - m_iLastReportedPercentage > 10 )
+				if( !m_iLastReportedPercentage || Percent - m_iLastReportedPercentage > 3 )
 				{
 					m_iLastReportedPercentage = min(1,Percent);
 					m_pRow_Orbiter->Reload();

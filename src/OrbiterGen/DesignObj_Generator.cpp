@@ -61,7 +61,7 @@
 #include "pluto_main/Table_DeviceTemplate.h"
 #include "pluto_main/Table_DeviceTemplate_DesignObj.h"
 
-#define TOTAL_ESTIMATED_SCREENS 150
+#define TOTAL_ESTIMATED_SCREENS 200
 
 DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_DesignObj * drDesignObj,class PlutoRectangle rPosition,class DesignObj_Generator *ocoParent,bool bAddToGenerated,bool bDontShare)
 {
@@ -139,9 +139,9 @@ if( m_pRow_DesignObj->PK_DesignObj_get()==2233 )// || m_pRow_DesignObj->PK_Desig
 	if( bAddToGenerated )
     {
 		int Percent = ++m_pOrbiterGenerator->m_iScreensTotal * 100 / TOTAL_ESTIMATED_SCREENS;
-		if( !m_pOrbiterGenerator->m_iLastReportedPercentage || Percent - m_pOrbiterGenerator->m_iLastReportedPercentage > 10 )
+		if( !m_pOrbiterGenerator->m_iLastReportedPercentage || Percent - m_pOrbiterGenerator->m_iLastReportedPercentage > 3 )
 		{
-			m_pOrbiterGenerator->m_iLastReportedPercentage = min(1,Percent);
+			m_pOrbiterGenerator->m_iLastReportedPercentage = max(1,Percent);
 			m_pOrbiterGenerator->m_pRow_Orbiter->Reload();
 			m_pOrbiterGenerator->m_pRow_Orbiter->RegenStatus_set("Stage 1 of 2 - Generating screen " + StringUtils::itos(m_pOrbiterGenerator->m_iScreensTotal));
 			m_pOrbiterGenerator->m_pRow_Orbiter->RegenPercent_set(m_pOrbiterGenerator->m_iLastReportedPercentage);

@@ -490,6 +490,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	fstr_DeviceCommand << "\t\t\t\t\t\tCannotReloadRouter();" << endl;
 	fstr_DeviceCommand << "\t\t\t\t\t\tg_pPlutoLogger->Write(LV_WARNING,\"Reload request denied: %s\",sResponse.c_str());" << endl;
 	fstr_DeviceCommand << "\t\t\t\t\t}" << endl;
+	fstr_DeviceCommand << "\t\t\t\tSleep(10000);  // Give the router 10 seconds before we re-attempt, otherwise we'll get an error right away" << endl;
 	fstr_DeviceCommand << "\t\t\t\t}\t" << endl;
 	fstr_DeviceCommand << "\t\t\t}" << endl;
 	fstr_DeviceCommand << "\t\t}" << endl;
