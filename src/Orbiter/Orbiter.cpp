@@ -403,6 +403,7 @@ bool Orbiter::GetConfig()
 				return false;
 			else
 			{
+				Simulator::GetInstance()->m_sDeviceID = StringUtils::itos(m_dwPK_Device);
 				Simulator::GetInstance()->m_sRouterIP = m_sIPAddress;
 				Simulator::GetInstance()->SaveConfigurationFile();
 			}
@@ -8381,6 +8382,50 @@ void Orbiter::RenderShortcut(DesignObj_Orbiter *pObj)
 
 int Orbiter::HandleNotOKStatus(string sStatus,string sRegenStatus,int iRegenPercent)
 {
+	if( sStatus=="R" || sStatus=="r" )
+		return MonitorRegen(m_dwPK_Device);
+
+	if( sStatus=="N" )
+	{
+		map<int,string> mapPrompts;
+		enum PromptsResp {prYes, prNo};
+		mapPrompts[prYes]    = "Yes - Reset it now";
+		mapPrompts[prNo]     = "No - I'll do it later";
+		int iResponse = PromptUser("This new Orbiter is ready to go.  But all your devices need to do a reload before you can use it.  This takes about 15 seconds.", &mapPrompts);
+		if( iResponse==prYes )
+		{
+			string sResponse;
+			Event_Impl event_Impl(DEVICEID_MESSAGESEND, 0, m_sHostName);
+			event_Impl.m_pClientSocket->SendString( "RELOAD" );
+			if( !event_Impl.m_pClientSocket->ReceiveString( sResponse ) || sResponse!="OK" )
+			{
+				CannotReloadRouter();
+				g_pPlutoLogger->Write(LV_WARNING,"Reload request denied: %s",sResponse.c_str());
+			}
+			Sleep(10000);
+			return 2; // Retry
+		}
+		return 0; // Quit
+	}
+	else if( sStatus=="n" )
+	{
+		PromptUser("Something went wrong and this orbiter's user interface wasn't created.  In Pluto Admin, go to Wizard, Devices, Orbiters and click Regen for Orbiter #" + StringUtils::itos(m_dwPK_Device) + " and try later");
+		OnQuit();
+		return 0;
+	}
+	else if( sStatus=="D" )
+	{
+		PromptUser("Something went wrong.  The device number, " + StringUtils::itos(m_dwPK_Device) + ", doesn't seem to be an orbiter.");
+		OnQuit();
+		return 0;
+	}
+	else if( sStatus=="U" )
+	{
+		PromptUser("Something went wrong.  The device number, " + StringUtils::itos(m_dwPK_Device) + ", is not known to the Core.");
+		OnQuit();
+		return 0;
+	}
+
 	return 1;
 }
 
@@ -8404,10 +8449,8 @@ bool Orbiter::RouterNeedsReload()
 	CMD_Get_Orbiter_Status_DT.ParseResponse( pResponse );
 	delete pResponse;
 
-	int iResponse;
-	if( (iResponse=HandleNotOKStatus(sStatus,sRegenStatus,iRegenPercent))==0 )
-		return false;
-	return true;
+	HandleNotOKStatus(sStatus,sRegenStatus,iRegenPercent);
+	return false;  // If the user wants to do a reload, this will have already sent the request
 }
 
 int Orbiter::DeviceIdInvalid()
@@ -8423,9 +8466,16 @@ int Orbiter::DeviceIdInvalid()
         OnQuit();
         return 0;
     }
+	int PK_Device;
 	if( iResponse == prYes )
-		return SetupNewOrbiter();
-	return PickOrbiterDeviceID();
+		PK_Device=SetupNewOrbiter();
+	else
+		PK_Device=PickOrbiterDeviceID();
+
+	if( !PK_Device )
+		OnQuit();
+
+	return PK_Device;
 }
 
 int Orbiter::PickOrbiterDeviceID()
@@ -8561,9 +8611,19 @@ int Orbiter::SetupNewOrbiter()
 		return 0;
 	}
 
+	Simulator::GetInstance()->m_sRouterIP = m_sIPAddress;
 	Simulator::GetInstance()->m_sDeviceID = StringUtils::itos(PK_Device);
 	Simulator::GetInstance()->SaveConfigurationFile();
 
+	if( MonitorRegen(PK_Device)==0 )  // User hit cancel
+		return 0; // Don't retry to load now
+
+	return PK_Device;  // Retry loading as the specified device
+}
+
+int Orbiter::MonitorRegen(int PK_Device)
+{
+	Event_Impl event_Impl(DEVICEID_MESSAGESEND, 0, m_sIPAddress);
 	while(true)
 	{
 		string sStatus,sRegenStatus;
@@ -8584,7 +8644,7 @@ int Orbiter::SetupNewOrbiter()
 		CMD_Get_Orbiter_Status_DT.ParseResponse( pResponse );
 		delete pResponse;
 
-		if( sStatus!="r" )
+		if( sStatus!="r" && sStatus!="R" )
 			break;
 
 		if( DisplayProgress(sRegenStatus,iRegenPercent) )
@@ -8596,7 +8656,7 @@ int Orbiter::SetupNewOrbiter()
 	}
 
 	DisplayProgress("",-1);
-	return PK_Device;
+	return 2; // Try again
 }
 
 int Orbiter::PromptFor(string sToken)

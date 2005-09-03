@@ -141,8 +141,21 @@ LRESULT CALLBACK WndProcPopup(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
                     g_nWindowWidth - 2 * BUTTON_SEPARATOR, BUTTON_SEPARATOR + LABEL_HEIGHT, 
                     const_cast<char *>(g_sPrompt.c_str()));
 
-				int nScaleX = g_p_mapPrompts ? int(g_p_mapPrompts->size() ? max(min(3, 10 / g_p_mapPrompts->size()), 1) : 1) : 0;
-				int nScaleY = g_p_mapPrompts ? int(g_p_mapPrompts->size() ? max(min(2, 10 / g_p_mapPrompts->size()), 1) : 1) : 0;
+				int nScaleX=0,ScaleY=0;
+				if( g_p_mapPrompts )
+				{
+					if( g_p_mapPrompts->size() )
+					{
+						nScaleX = min(3, 10 / g_p_mapPrompts->size());
+						nScaleY = min(2, 10 / g_p_mapPrompts->size());
+						if( nScaleX<1 )
+							nScaleX=1;
+						if( nScaleY<1 )
+							nScaleY=1;
+					}
+					else
+						nScaleX=nScaleY=1;
+				}
 
                 int nButtonWidth  = nScaleX * BUTTON_WIDTH;
                 int nButtonHeight = nScaleY * BUTTON_HEIGHT;

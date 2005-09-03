@@ -332,6 +332,9 @@ bool DialogProgressEx(string sMessage, int nProgress)
     if(!nProgress)
         g_bResponse = false;
 
+	if( nProgress>100 )
+		nProgress=100;
+
     g_sMessage = sMessage;
     g_nProgress = nProgress;
 
