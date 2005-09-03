@@ -1579,7 +1579,11 @@ g_pPlutoLogger->Write(LV_STATUS,"Starting regen orbiter with %d size",(int) m_li
 				return;
 			}
 			else
+			{
+				Message *pMessageOut = new Message(m_dwPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_SYSCOMMAND,SYSCOMMAND_RELOAD,0);
+				SendMessageToRouter(pMessageOut);
 				pOH_Orbiter->m_tRegenTime = time(NULL);
+			}
 		}
 	}
 
