@@ -7536,6 +7536,12 @@ void Orbiter::CMD_Send_Message(string sText,string &sCMD_Result,Message *pMessag
     if(sMessage != "")
     {
         Message *pMessageOut = new Message(sMessage);
+		if( pMessageOut->m_dwPK_Device_To==DEVICETEMPLATE_This_Orbiter_CONST )
+			pMessageOut->m_dwPK_Device_To=m_dwPK_Device;
+		for(size_t s=0;s<pMessageOut->m_vectExtraMessages.size();++s)
+			if( pMessageOut->m_vectExtraMessages[s]->m_dwPK_Device_To==DEVICETEMPLATE_This_Orbiter_CONST )
+				pMessageOut->m_vectExtraMessages[s]->m_dwPK_Device_To=m_dwPK_Device;
+
         QueueMessageToRouter(pMessageOut);
     }
 }
