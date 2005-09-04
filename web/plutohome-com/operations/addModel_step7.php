@@ -63,16 +63,16 @@
 			WHERE FK_DeviceCategory=? AND FK_Manufacturer=?',array($dtDataArray['FK_DeviceCategory'][0],$dtDataArray['FK_Manufacturer'][0]));
 		if($rs->RecordCount()>0){
 			$out.='<p class="normaltext">Chances are you will <B>not need to learn or enter i/r codes</B> because we have '.$rs->RecordCount().' Groups (codesets) for manufacturer <B>'.$dtDataArray['Manuf'][0].'</B>, device category  <B>'.$dtDataArray['Category'][0].'</B>.  Likely one of them works your model too.  Here are a few common commands and i/r groups.  Click the ‘V’ button to view the code in a new window, so you can test it with your remote.  If you find an i/r group that works your device, click “this works”.  Then you’ll see all the codes for that group, and you can add more codes or replace certain codes that don’t work.
-				<br>Below is a matrix of the infrared groups and a few common commands.  Click 'V' to view the code.';
+				<br>Below is a matrix of the infrared groups and a few common commands.  Click \'V\' to view the code.';
 			if($rs->RecordCount()>1){
 				$out.='Try a few commands from each group and note which ones work.  More than 1 group may have codes that work.
 				If so, click the Infrared Group to see and test all the codes in that group, and pick the group that most closely matches your device.
 				If none of these codes work, please type in a description for a new infrared group and click Add i/r group.<br>';
 			} else {
-				$out.='If this infrared group doesn't work, please type in a description for a new infrared group and click Add i/r group.<br>';
+				$out.='If this infrared group doesn\'t work, please type in a description for a new infrared group and click Add i/r group.<br>';
 			}
 				
-			<div align="center" class="normaltext">';
+			$out.='div align="center" class="normaltext">';
 			
 			$InfraredGroupsArray=array();
 			while($row=$rs->FetchRow()){
