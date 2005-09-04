@@ -8,6 +8,8 @@
 
 using namespace DCE;
 
+string ConvertRC5_6(string sCode);  // From GenerateRcX
+
 class IRBase : public AVMessageProcessor {
 public:
 	IRBase() {}

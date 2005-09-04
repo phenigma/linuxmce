@@ -8,7 +8,7 @@ LDLIBS=-lpthread -lDCECommon -lSerial -lSerializeClass -lPlutoUtils -lMessageTra
 APPNAME = IRBase
 VERSION = 2.0.0
 
-sources = IRBase.cpp
+sources = IRBase.cpp GenerateRcX.cpp
 
 all: libIRBase.so all-recursive
 
