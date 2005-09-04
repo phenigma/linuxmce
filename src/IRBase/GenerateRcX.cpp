@@ -46,6 +46,16 @@ using namespace ::std;
 
 #ifndef WIN32
 #define _tcsninc(_pc, _sz) (((_pc)+(_sz)))  // Linux doesn't have this macro
+void strupr(char *Result)
+{
+	while(*Result)
+	{
+		if( *Result>='a' && *Result<='z' )
+			*Result = *Result-32;
+		Result++;
+	}
+}
+
 #endif
 
 bool Toggle = false;                             // Defines the value of the toggle bit
