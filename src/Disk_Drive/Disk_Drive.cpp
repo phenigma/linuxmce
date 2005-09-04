@@ -71,7 +71,7 @@ enum DiscTypes {
 Disk_Drive::Disk_Drive(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
     : Disk_Drive_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter),
         m_monitorEnabled(true), m_mediaInserted(false), m_mediaDiskStatus(DISCTYPE_NONE), m_serverPid(-1), m_serverPort(SERVER_PORT),
-		m_DiskMutex("disk drive");
+		m_DiskMutex("disk drive")
 //<-dceag-const-e->
 {
 	m_DiskMutex.Init(NULL);
