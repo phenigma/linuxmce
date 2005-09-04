@@ -538,17 +538,29 @@ byte display_bus;
 	if (res) {
 		GetError (res,st);
 		log_print (st,LOG_FATAL);
+#ifdef IRTRANS_AS_LIB
+		return res;
+#else
 		exit (res);
+#endif
 	}
 
 	if (device_id != -1) {  // Bus !!!
 		res = SetTransceiverIDEx (0,(byte)device_id);
+#ifdef IRTRANS_AS_LIB
+		return res;
+#else
 		exit (res);
+#endif
 	}
 
 	if (eeprom_id != -1) {	// Bus !!!
 		res = SetTransceiverModusEx (0,159,0xffff,0,"",0,0xf,3);
+#ifdef IRTRANS_AS_LIB
+		return res;
+#else
 		exit (res);
+#endif
 	}
 
 	res = RunServer ();
@@ -556,7 +568,11 @@ byte display_bus;
 	if (res) {
 		GetError (res,st);
 		log_print (st,LOG_FATAL);
+#ifdef IRTRANS_AS_LIB
+		return res;
+#else
 		exit (res);
+#endif
 	}
 	return (0);
 }

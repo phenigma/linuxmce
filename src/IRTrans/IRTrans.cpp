@@ -200,7 +200,7 @@ void IRTrans::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &
 //<-dceag-cmdch-e->
 {
 	// Let the IR Base class try to handle the message
-	if (!pDeviceData_Base->m_bIsEmbedded && IRBase::ProcessMessage(pMessage))
+	if ( /*!pDeviceData_Base->m_bIsEmbedded && */ IRBase::ProcessMessage(pMessage))
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"Message %d processed by IRBase class",pMessage->m_dwID);
 		sCMD_Result = "OK";
@@ -258,8 +258,16 @@ void IRTrans::StartIRServer()
 #ifndef WIN32
 	CallBackFn=&DoGotIRCommand;
 	m_bIRServerRunning=true;
-	char *argv[]={"IRTrans","-loglevel","4","-debug_code","-no_lirc", "-no_web","/dev/ttyUSB0"};
-	libmain(7,argv);
+	char *argv[]={"IRTrans","-loglevel","4","-debug_code","-no_lirc", "-no_web","/dev/ttyUSBX"};
+	for(char cUSB='1';cUSB<='9';cUSB++)
+	{
+		argv[6][11]=cUSB;
+		g_pPlutoLogger->Write(LV_STATUS,"Looking on %s",argv[6]);
+		if( libmain(7,argv)==0 )
+			break;
+		else
+			g_pPlutoLogger->Write(LV_STATUS,"IRTrans not found on %s",argv[6]);
+	}
 	LCDBrightness(5);
 #endif
 	m_bIRServerRunning=false;
