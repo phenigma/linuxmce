@@ -262,15 +262,14 @@ void IRTrans::StartIRServer()
 	char TTYPort[20];
 	strcpy(TTYPort,"/dev/ttyUSBX");
 	char *argv[]={"IRTrans","-loglevel","4","-debug_code","-no_lirc", "-no_web",TTYPort};
-	for(char cUSB='1';cUSB<='9';cUSB++)
+	for(char cUSB='0';cUSB<='9';cUSB++)
 	{
 		TTYPort[11]=cUSB;
 		g_pPlutoLogger->Write(LV_STATUS,"Looking on %s",argv[6]);
-		if( libmain(7,argv)==0 )
-			break;
-		else
+		if( libmain(7,argv)!=0 )
 			g_pPlutoLogger->Write(LV_STATUS,"IRTrans not found on %s",argv[6]);
 	}
+
 	LCDBrightness(5);
 #endif
 	m_bIRServerRunning=false;
