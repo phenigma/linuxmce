@@ -1529,6 +1529,7 @@
 #define DESIGNOBJ_butPause_CONST 4287
 #define DESIGNOBJ_butChangeInputs_CONST 4288
 #define DESIGNOBJ_butRemoveMMPopup_CONST 4289
+#define DESIGNOBJ_grpMousePad_pda_CONST 4291
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
