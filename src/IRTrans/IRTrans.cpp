@@ -258,10 +258,13 @@ void IRTrans::StartIRServer()
 #ifndef WIN32
 	CallBackFn=&DoGotIRCommand;
 	m_bIRServerRunning=true;
-	char *argv[]={"IRTrans","-loglevel","4","-debug_code","-no_lirc", "-no_web","/dev/ttyUSBX"};
+
+	char TTYPort[20];
+	strcpy(TTYPort,"/dev/ttyUSBX");
+	char *argv[]={"IRTrans","-loglevel","4","-debug_code","-no_lirc", "-no_web",TTYPort};
 	for(char cUSB='1';cUSB<='9';cUSB++)
 	{
-		argv[6][11]=cUSB;
+		TTYPort[11]=cUSB;
 		g_pPlutoLogger->Write(LV_STATUS,"Looking on %s",argv[6]);
 		if( libmain(7,argv)==0 )
 			break;
