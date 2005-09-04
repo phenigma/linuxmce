@@ -41,7 +41,12 @@
 #include <stdio.h>
 #include <tchar.h>
 
-using namespace std ;
+#include <string>
+using namespace ::std;
+
+#ifndef WIN32
+#define _tcsninc(_pc, _sz) (((_pc)+(_sz)))  // Linux doesn't have this macro
+#endif
 
 bool Toggle = false;                             // Defines the value of the toggle bit
 char Result[1024];                               // Text being displayed as result
@@ -614,20 +619,21 @@ int Process6001(int argc, char* argv[])
 
 string ConvertRC5_6(string sCode)
 {
-	const char *pCode = sCode.c_str();
-	char* argv[100];  // Never more than 11 times
+	char pCode[500]; // max size of an rc5/6
+	strncpy(pCode,sCode.c_str(),500);
+	char* argv[20];  // Never more than 20 times
 	int argc=0;
 	
 	// These utilties want argc/argv format
 	char *pPos = pCode,*pPos_Prior=pCode;
-	while(pPos)
+	while(pPos && argc<20)
 	{
-		while(pPos && pPos==' ')
+		while(*pPos && *pPos==' ')
 			pPos++;
 		argv[argc++]=pPos_Prior;
-		if( pPos==' ' )
+		if( *pPos==' ' )
 		{
-			pPos=0;
+			*pPos=0;
 			pPos++;
 			pPos_Prior=pPos;
 		}
@@ -636,17 +642,19 @@ string ConvertRC5_6(string sCode)
 	if( sCode[0]=='5' )
 	{
 		if( sCode[1]='0' )
-			return Process5000(argc, argv);
+			error = Process5000(argc, argv);
 		else if( sCode[1]='1' )
-			return Process5001(argc, argv);
+			error = Process5001(argc, argv);
 	}
 	else if( sCode[0]=='6' )
 	{
 		if( sCode[1]='0' )
-			return Process6000(argc, argv);
+			error = Process6000(argc, argv);
 		else if( sCode[1]='1' )
-			return Process6001(argc, argv);
+			error = Process6001(argc, argv);
 	}
-	return ""; // Don't do this
+	if (error >= 0)
+		return Result;
+    return "";
 }
 
