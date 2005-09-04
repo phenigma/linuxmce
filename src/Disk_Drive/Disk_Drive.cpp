@@ -70,9 +70,11 @@ enum DiscTypes {
 //<-dceag-const-b->! custom
 Disk_Drive::Disk_Drive(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
     : Disk_Drive_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter),
-        m_monitorEnabled(true), m_mediaInserted(false), m_mediaDiskStatus(DISCTYPE_NONE), m_serverPid(-1), m_serverPort(SERVER_PORT)
+        m_monitorEnabled(true), m_mediaInserted(false), m_mediaDiskStatus(DISCTYPE_NONE), m_serverPid(-1), m_serverPort(SERVER_PORT),
+		m_DiskMutex("disk drive");
 //<-dceag-const-e->
 {
+	m_DiskMutex.Init(NULL);
 }
 
 //<-dceag-getconfig-b->
@@ -699,6 +701,7 @@ int Disk_Drive::cdrom_has_dir (int fd, const char *directory)
 
 bool Disk_Drive::internal_reset_drive(bool bFireEvent)
 {
+	PLUTO_SAFETY_LOCK(dm,m_DiskMutex);
     int status;
     string mrl = ""; //, serverMRL, title;
 

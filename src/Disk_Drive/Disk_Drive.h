@@ -68,9 +68,7 @@ public:
 
     char *m_args[100];
 
-    pthread_mutex_t sqlLock;
-
-//     Connection m_mysql;
+    pluto_pthread_mutex_t m_DiskMutex;
 
     // Private methods
     int cdrom_lock( int lock );
