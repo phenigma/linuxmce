@@ -921,7 +921,9 @@ int InitCommunicationEx (char devicesel[])
 
 	byteorder = GetByteorder ();
 
-	get_devices (devicesel,0);
+	i = get_devices (devicesel,0);
+	if( i )
+		return 1;
 
 	raw_repeat = 1;
 	time_len = IRDevices[0].io.time_len;
@@ -1092,7 +1094,11 @@ int	get_devices (char sel[],byte testflag)  // Errflag = Continue bei USB Error
 		if (res && !testflag) {
 			sprintf (msg,"\nCan not open device %s.\nAborting ...\n\n",st+q);
 			log_print (msg,LOG_FATAL);
+#ifdef IRTRANS_AS_LIB
+			return (ERR_OPENUSB);
+#else
 			exit (-1);
+#endif
 		}
 		q = ++p;
 	}
@@ -1102,7 +1108,11 @@ int	get_devices (char sel[],byte testflag)  // Errflag = Continue bei USB Error
 		if (!device_cnt) {
 			sprintf (st,"No IRTrans Devices found.\nAborting ...\n\n");
 			log_print (st,LOG_FATAL);
+#ifdef IRTRANS_AS_LIB
+			return (ERR_OPENUSB);
+#else
 			exit (-1);
+#endif
 		}
 		else {
 			for (i=0;i<device_cnt;i++) {
