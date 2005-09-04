@@ -39,7 +39,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <tchar.h>
 
 #include <string>
 using namespace ::std;
