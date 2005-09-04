@@ -25,7 +25,7 @@ function testCode($output,$publicADO)
 					$parentDevice=(int)@$deviceInfo['FK_Device_ControlledVia'][0];
 					
 					$deviceToReceive=($sender=='rubyCodes')?$deviceID:$parentDevice;
-					$commandToTest='/usr/pluto/bin/MessageSend localhost 0 '.$deviceToReceive.' 1 191 70 "'.$data['IRData'][0].'"';
+					$commandToTest='/usr/pluto/bin/MessageSend localhost 0 '.$deviceToReceive.' 1 191 9 "'.$data['IRData'][0].'"';
 		
 					exec($commandToTest);
 					$alert='The command was sent to device #'.$deviceToReceive;		

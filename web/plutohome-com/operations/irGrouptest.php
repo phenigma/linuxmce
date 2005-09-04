@@ -125,7 +125,7 @@ function selectAll(theField) {
 			if($owner==$userID){
 				$publicADO->Execute('UPDATE InfraredGroup_Command SET IRData=? WHERE PK_InfraredGroup_Command=?',array($irCode,$ig_c));
 			}
-			$commandToTest='/usr/pluto/bin/MessageSend localhost 0 '.$deviceID.' 1 191 70 "'.$irCode.'"';
+			$commandToTest='/usr/pluto/bin/MessageSend localhost 0 '.$deviceID.' 1 191 9 "'.$irCode.'"';
 			exec($commandToTest);
 			header("Location: index.php?section=irGrouptest&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$irgID&msg=The command was sent.&label=".$GLOBALS['label']);
 			exit();

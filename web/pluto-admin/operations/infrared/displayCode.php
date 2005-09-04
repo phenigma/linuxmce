@@ -19,7 +19,7 @@ function displayCode($output,$publicADO)
 			$deviceInfo=getFieldsAsArray('Device','FK_Device_ControlledVia',$publicADO,'WHERE PK_Device='.$deviceID);
 			$parentDevice=$deviceInfo['FK_Device_ControlledVia'][0];
 			
-			$commandToTest='/usr/pluto/bin/MessageSend localhost 0 '.$parentDevice.' 1 191 70 "'.$data['IRData'][0].'"';
+			$commandToTest='/usr/pluto/bin/MessageSend localhost 0 '.$parentDevice.' 1 191 9 "'.$data['IRData'][0].'"';
 			print $commandToTest;
 			exec($commandToTest);
 			$message='The command was sent to device #'.$parentDevice;		
