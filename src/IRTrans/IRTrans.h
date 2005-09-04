@@ -7,6 +7,12 @@
 #include "Gen_Devices/IRTransBase.h"
 //<-dceag-d-e->
 
+/*
+	We will set a call back function for IRTrans CallBackFn=&DoGotIRCommand; so GotIRCommand is called when
+	keys are pressed, and will receive the keyname and the remote.  We pass this back to IRReceiver Base with
+	ReceivedCode(PK_Device,pCommand);, which handles processing the code
+*/
+
 #include "../LIRC_DCE/IRReceiverBase.h"
 #include "../VFD_LCD/VFD_LCD_Base.h"
 #include "IRBase/IRBase.h"

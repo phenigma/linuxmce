@@ -85,7 +85,8 @@ public:
 		PLUTO_SAFETY_LOCK_ERRORSONLY(sl,m_MySqlMutex);
 		if( bReset && m_pMySQL )
 		{
-			g_pPlutoLogger->Write(LV_WARNING,"Resetting mysql connection");
+			if( g_pPlutoLogger )
+				g_pPlutoLogger->Write(LV_WARNING,"Resetting mysql connection");
 			mysql_close(m_pMySQL);
 			m_pMySQL=NULL;
 		}
@@ -102,7 +103,8 @@ public:
 
 		if (mysql_real_connect(m_pMySQL, m_sMySQLHost.c_str(), m_sMySQLUser.c_str(), m_sMySQLPass.c_str(), m_sMySQLDBName.c_str(), m_iMySQLPort, NULL, 0) == NULL)
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Connect failed %s",mysql_error(m_pMySQL));
+			if( g_pPlutoLogger )
+				g_pPlutoLogger->Write(LV_CRITICAL,"Connect failed %s",mysql_error(m_pMySQL));
 			m_bConnected=false;
 		}
 		else
@@ -137,7 +139,8 @@ public:
 		int iresult;
 		if( (iresult=mysql_query(m_pMySQL,query.c_str()))!=0 )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Query failed (%s): %s (%d)",mysql_error(m_pMySQL),query.c_str(),iresult);
+			if( g_pPlutoLogger )
+				g_pPlutoLogger->Write(LV_CRITICAL,"Query failed (%s): %s (%d)",mysql_error(m_pMySQL),query.c_str(),iresult);
 			MySQLConnect(true);
 			return NULL;
 		}
@@ -150,16 +153,19 @@ public:
 		clock_t cStop = clock();
 		if( cStop-cStart>CLOCKS_PER_SEC/2 )  // Nothing should take 500 ms
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
+			if( g_pPlutoLogger )
+				g_pPlutoLogger->Write(LV_CRITICAL,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
 		} else if( cStop-cStart>CLOCKS_PER_SEC/10 )
 		{
-			g_pPlutoLogger->Write(LV_WARNING,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
+			if( g_pPlutoLogger )
+				g_pPlutoLogger->Write(LV_WARNING,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
 		}
 	#endif
 
 		MYSQL_RES *pMYSQL_RES = mysql_store_result(m_pMySQL);
 #ifdef LOG_ALL_QUERIES
-		g_pPlutoLogger->Write(LV_STATUS,"Query returned %d rows: %s",(int) (pMYSQL_RES ? pMYSQL_RES->row_count : 0), query.c_str());
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_STATUS,"Query returned %d rows: %s",(int) (pMYSQL_RES ? pMYSQL_RES->row_count : 0), query.c_str());
 #endif
 		return pMYSQL_RES;
 	}
@@ -175,7 +181,8 @@ public:
 		{
 			if( bIgnoreErrors )
 				return -1;
-			g_pPlutoLogger->Write(LV_CRITICAL,"Query failed (%s): %s (%d)",mysql_error(m_pMySQL),query.c_str(),iresult);
+			if( g_pPlutoLogger )
+				g_pPlutoLogger->Write(LV_CRITICAL,"Query failed (%s): %s (%d)",mysql_error(m_pMySQL),query.c_str(),iresult);
 			MySQLConnect(true);
 		}
 
@@ -183,14 +190,17 @@ public:
 		clock_t cStop = clock();
 		if( cStop-cStart>CLOCKS_PER_SEC/2 )  // Nothing should take 500 ms
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
+			if( g_pPlutoLogger )
+				g_pPlutoLogger->Write(LV_CRITICAL,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
 		} else if( cStop-cStart>CLOCKS_PER_SEC/10 )
 		{
-			g_pPlutoLogger->Write(LV_WARNING,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
+			if( g_pPlutoLogger )
+				g_pPlutoLogger->Write(LV_WARNING,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
 		}
 	#endif
 #ifdef LOG_ALL_QUERIES
-		g_pPlutoLogger->Write(LV_STATUS,"Executed query %s (%d rows)", query.c_str(), (int) mysql_affected_rows(m_pMySQL));
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_STATUS,"Executed query %s (%d rows)", query.c_str(), (int) mysql_affected_rows(m_pMySQL));
 #endif
 		return iresult;
 	}
@@ -204,7 +214,8 @@ public:
 		int iresult;
 		if( (iresult=mysql_query(m_pMySQL,query.c_str()))!=0 )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Query failed (%s): %s (%d)",mysql_error(m_pMySQL),query.c_str(),iresult);
+			if( g_pPlutoLogger )
+				g_pPlutoLogger->Write(LV_CRITICAL,"Query failed (%s): %s (%d)",mysql_error(m_pMySQL),query.c_str(),iresult);
 			MySQLConnect(true);
 			return 0;
 		}
@@ -213,14 +224,17 @@ public:
 		clock_t cStop = clock();
 		if( cStop-cStart>CLOCKS_PER_SEC/2 )  // Nothing should take 500 ms
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
+			if( g_pPlutoLogger )
+				g_pPlutoLogger->Write(LV_CRITICAL,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
 		} else if( cStop-cStart>CLOCKS_PER_SEC/10 )
 		{
-			g_pPlutoLogger->Write(LV_WARNING,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
+			if( g_pPlutoLogger )
+				g_pPlutoLogger->Write(LV_WARNING,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
 		}
 	#endif
 #ifdef LOG_ALL_QUERIES
-		g_pPlutoLogger->Write(LV_STATUS,"Query has ID %d: %s", (int) mysql_insert_id(m_pMySQL), query.c_str());
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_STATUS,"Query has ID %d: %s", (int) mysql_insert_id(m_pMySQL), query.c_str());
 #endif
 		return (int) mysql_insert_id(m_pMySQL);
 	}
