@@ -34,6 +34,7 @@ using namespace DCE;
 #include "pluto_main/Define_DeviceTemplate.h"
 #include "pluto_main/Define_Event.h"
 #include "pluto_main/Define_EventParameter.h"
+#include "VFD_LCD/VFD_LCD_Base.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
