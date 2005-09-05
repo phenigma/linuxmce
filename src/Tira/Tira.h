@@ -9,6 +9,7 @@
 
 #include "../LIRC_DCE/IRReceiverBase.h"
 #include "IRBase/IRBase.h"
+#include "TiraAPI.h"
 
 //<-dceag-decl-b->!
 namespace DCE
@@ -103,3 +104,5 @@ public:
 }
 #endif
 //<-dceag-end-e->
+
+int __stdcall OurCalback(const char * eventstring);

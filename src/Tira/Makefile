@@ -18,11 +18,11 @@ sources = Main.cpp Tira.cpp $(Gen_Dev_Files)
 
 CXXFLAGS +=
 CPPFLAGS +=
-LDFLAGS +=
-XTRALDLIBS =
+LDFLAGS += -L.
+XTRALDLIBS = -lMessageTranslation -lIRBase -lTiraAPI -lpluto_main
 
 Gen_Dev_Files +=
-sources +=
+sources += ../LIRC_DCE/IRReceiverBase.cpp
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)

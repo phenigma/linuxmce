@@ -15,7 +15,7 @@ using namespace DCE;
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_DeviceCategory.h"
 #ifndef WIN32
-#include "TiraApi.h"
+#include "TiraAPI.h"
 #endif
 
 //<-dceag-const-b->
@@ -83,18 +83,21 @@ bool Tira::GetConfig()
 	}
 
 #ifndef WIN32
-	int res = LoadTiraDLL();
+	int res;
+	/*
+	res = LoadTiraDLL();
 	if ( res != 0 ) 
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Unable to load Tira DLL");
 		return true;  // Not much to do, return true so we don't try to reload over and over
 	}
-	p_tira_init();
+	*/
+	tira_init();
 
 	for(int i=0;i<9;++i)
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"Trying to start Tira on port %d",i);
-		res = p_tira_start(i);
+		res = tira_start(i);
 		if ( res == 0 ) 
 			break;
 	}
@@ -105,7 +108,7 @@ bool Tira::GetConfig()
 		return true;  // Not much to do, return true so we don't try to reload over and over
 	}
 
-    res = p_tira_set_handler(OurCalback);
+    res = tira_set_handler(OurCalback);
 	if( res!=0 )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Unable to register our callback");
@@ -228,9 +231,9 @@ void Tira::SendIR(string Port, string IRCode)
 	g_pPlutoLogger->Write(LV_STATUS,"Tira Sending: %s",IRCode.c_str());
 
 #ifndef WIN32
-    int res = p_tira_transmit(2, /* repeat 3 times*/
+    int res = tira_transmit(2, /* repeat 3 times*/
                             -1, /* Use embedded frequency value*/
-                            IRCode.c_str(),
+                            (const unsigned char *) IRCode.c_str(),
                             IRCode.size());
 
     if ( res != 0 ) 
@@ -245,3 +248,7 @@ void Tira::CreateChildren()
 	Start();
 }
 
+int __stdcall OurCalback(const char * eventstring) {
+   printf("IR Data %s\n", eventstring);
+   return 0;
+};
