@@ -67,7 +67,10 @@ IRBase::handleStart(Command_Impl *pCommand_Impl) {
 			
 	for(map<int,string>::iterator it = irDevice.m_mapCodes.begin(); it != irDevice.m_mapCodes.end(); it++ ) {
 		long cmdid = (*it).first;
-		codemap_[longPair(devid, cmdid)] = (*it).second;
+		if( m_bMustConvertRC5_6 && (it->second[0]=='5' || it->second[0]=='6') )
+			codemap_[longPair(devid, cmdid)] = ConvertRC5_6((*it).second);
+		else
+			codemap_[longPair(devid, cmdid)] = (*it).second;
 		g_pPlutoLogger->Write(LV_STATUS, "Loaded IR code for Device %ld, Action %ld", devid, cmdid);
 	}
 	MapCommand_Impl::iterator it;

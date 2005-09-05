@@ -80,6 +80,7 @@ private:
 
 	// mapping from disk drive to the job info
 	map<int, class RippingJob *> m_mapRippingJobs;
+	RippingJob *m_mapRippingJobs_Find(int iPK_Device) { map<int,class RippingJob *>::iterator it = m_mapRippingJobs.find(iPK_Device); return it==m_mapRippingJobs.end() ? NULL : (*it).second; }
 	map<int,string> m_mapMediaType_2_Directory;
 	map<int,bool> m_mapMediaType_Bookmarkable;
 
@@ -356,6 +357,11 @@ public:
 	 * @brief EVENT_Ripping_Completed_CONST event interceptor.
 	 */
 	bool RippingProgress( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
+
+	/**
+	 * @brief COMMAND_Abort_Ripping_CONST command interceptor.
+	 */
+	bool RippingAborted( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 
 	/**
 	 * @brief EVENT_Device_On_Off_CONST event interceptor, when some equipment was turned on or off manually

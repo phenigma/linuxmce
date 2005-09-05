@@ -633,13 +633,14 @@ string ConvertRC5_6(string sCode)
 	char pCode[500]; // max size of an rc5/6
 	strncpy(pCode,sCode.c_str(),500);
 	char* argv[20];  // Never more than 20 times
-	int argc=0;
+	int argc=1;
+	argv[0] = "command";  // Functions expect command line style, so first arg is the file name
 	
 	// These utilties want argc/argv format
 	char *pPos = pCode,*pPos_Prior=pCode;
-	while(pPos && argc<20)
+	while(*pPos && argc<20)
 	{
-		while(*pPos && *pPos==' ')
+		while(*pPos && *pPos!=' ')
 			pPos++;
 		argv[argc++]=pPos_Prior;
 		if( *pPos==' ' )

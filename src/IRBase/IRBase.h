@@ -12,7 +12,7 @@ string ConvertRC5_6(string sCode);  // From GenerateRcX
 
 class IRBase : public AVMessageProcessor {
 public:
-	IRBase() {}
+	IRBase() { m_bMustConvertRC5_6=false; }
 	virtual ~IRBase() {};
 
 public:
@@ -40,6 +40,9 @@ private:
 	
 private:
 	map<longPair, std::string> codemap_;		// maps device,command pair to IR code
+
+protected:
+	bool m_bMustConvertRC5_6;
 };
 
 #endif

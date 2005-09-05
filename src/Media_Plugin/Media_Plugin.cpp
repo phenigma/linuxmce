@@ -361,6 +361,7 @@ bool Media_Plugin::Register()
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::DeviceOnOff ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Device_OnOff_CONST );
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::AvInputChanged ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_AV_Input_Changed_CONST );
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::MediaDescriptionChanged ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Media_Description_Changed_CONST );
+    RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::RippingAborted ), 0, 0, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Abort_Ripping_CONST );
 
 
     m_pDatagrid_Plugin->RegisterDatagridGenerator(
@@ -3200,9 +3201,13 @@ g_pPlutoLogger->Write(LV_STATUS,"Transformed %s into %s",sTracks.c_str(),sNewTra
 		}
 	}
 
+	bool bUsingUnknownDiscName=false;
 	// Validate the name and be sure it's unique
 	if( sName.size()==0 )
+	{
 		sName = "Unknown disc";
+		bUsingUnknownDiscName=true;
+	}
 
 	string sSubDir = pEntertainArea->m_pMediaStream && pEntertainArea->m_pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST ? "movies" : "music";
 	if( iPK_Users==0 )
@@ -3210,7 +3215,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Transformed %s into %s",sTracks.c_str(),sNewTra
 	else
 		sName = "/home/user_" + StringUtils::itos(iPK_Users) + "/data/" + sSubDir + "/" + sName;
 
-	if( FileUtils::DirExists(sName) )
+	if( bUsingUnknownDiscName && FileUtils::DirExists(sName) )  // Be sure the directory name is unique if we're using the default
 	{
 		int Counter=1;
 		string sNewName = sName + "_" + StringUtils::itos(Counter++);
@@ -3280,6 +3285,14 @@ typedef enum {
 	RIP_RESULT_END_ENUM
 } rippingResult;
 
+bool Media_Plugin::RippingAborted( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
+{
+	RippingJob *pRippingJob = m_mapRippingJobs_Find(pMessage->m_dwPK_Device_From);
+	if( pRippingJob )
+		pRippingJob->m_bAborted=true;
+	return true;
+}
+
 bool Media_Plugin::RippingProgress( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
 	string      sJobName = pMessage->m_mapParameters[EVENTPARAMETER_Name_CONST];
@@ -3303,6 +3316,7 @@ bool Media_Plugin::RippingProgress( class Socket *pSocket, class Message *pMessa
 		g_pPlutoLogger->Write(LV_STATUS, "Unrecognized ripping job: %s. Ignoring event.", sJobName.c_str());
 		return true;
 	}
+	RippingJob *pRippingJob = m_mapRippingJobs[pMessage->m_dwPK_Device_From];
 
 	string sMessage;
 	switch ( iResult )
@@ -3310,14 +3324,30 @@ bool Media_Plugin::RippingProgress( class Socket *pSocket, class Message *pMessa
 		case RIP_RESULT_ALREADY_RIPPING: 	sMessage = "There is already a ripping job in this entertainment area!"; 	break;
 		case RIP_RESULT_NO_DISC:			sMessage = "There is no disk in the Media Director which is controlling this entertainment area!";	break;
 		case RIP_RESULT_INVALID_DISC_TYPE:	sMessage = "Can't rip the disk that is in the unit at this moment (unknown format)!";	break;
-		case RIP_RESULT_FAILURE:			sMessage = "Unspecified error while ripping the disk.";	break;
+		case RIP_RESULT_FAILURE:			
+			if( pRippingJob->m_bAborted )	sMessage = "Ripping canceled";
+			else							sMessage = "Unspecified error while ripping the disk."; break;
 		case RIP_RESULT_SUCCESS:			sMessage = "The disk was ripped succesfully.";	break;
 		case RIP_RESULT_BEGIN_ENUM:
 		case RIP_RESULT_END_ENUM:
 			break;
 	}
 
-	RippingJob *pRippingJob = m_mapRippingJobs[pMessage->m_dwPK_Device_From];
+	if( pRippingJob->m_bAborted )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"Job aborted %s",pRippingJob->m_sName.c_str());
+		FileUtils::DelFile(pRippingJob->m_sName + "/*in-progress*");
+		FileUtils::DelFile(FileUtils::BasePath(pRippingJob->m_sName) + "/*in-progress*");
+		if( FileUtils::DirExists(pRippingJob->m_sName) )
+		{
+			list<string> listFiles;
+			FileUtils::FindFiles(listFiles,pRippingJob->m_sName,"*",true,false,1);
+			g_pPlutoLogger->Write(LV_STATUS,"It's a directory %s with %d files",pRippingJob->m_sName.c_str(),(int) listFiles.size());
+			if( listFiles.size()==0 )
+				FileUtils::DelDir(pRippingJob->m_sName);
+		}
+	}
+
 	if( iResult==RIP_RESULT_STILLGOING )
 	{
 		pRippingJob->m_sStatus = FileUtils::FilenameWithoutPath(sJobName);

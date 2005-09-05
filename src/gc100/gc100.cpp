@@ -102,6 +102,7 @@ gc100::gc100(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool b
 	gc100_mutex.Init(NULL);
 	m_bQuit = false;
 	m_bLearning = false;
+	m_bMustConvertRC5_6 = true;
 }
 
 //<-dceag-getconfig-b->
