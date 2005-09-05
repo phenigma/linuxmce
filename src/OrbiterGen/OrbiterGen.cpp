@@ -996,7 +996,8 @@ m_bNoEffects = true;
 	}
 
 
-	sql = "select FK_DesignObj,FK_DesignObj_Popup,FK_DesignObj_FileList,FK_DesignObj_FileList_Popup FROM MediaType_DesignObj";
+	sql = "select FK_DesignObj,FK_DesignObj_Popup,FK_DesignObj_FileList,FK_DesignObj_FileList_Popup FROM MediaType_DesignObj"
+		" WHERE FK_Skin IS NULL OR FK_Skin=" + StringUtils::itos(m_pRow_Skin->PK_Skin_get());
 
 	PlutoSqlResult result_set4b;
 	if( (result_set4b.r=mysql_query_result(sql)) )
