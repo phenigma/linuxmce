@@ -1297,7 +1297,7 @@
 #define DESIGNOBJ_go_to_email_CONST 3851
 #define DESIGNOBJ_go_to_agenda_CONST 3852
 #define DESIGNOBJ_go_to_others_CONST 3853
-#define DESIGNOBJ_main_CONST 3855
+#define DESIGNOBJ_mnuMainAudi_CONST 3855
 #define DESIGNOBJ_center_logo_CONST 3856
 #define DESIGNOBJ_control_CONST 3857
 #define DESIGNOBJ_go_to_media_CONST 3859
