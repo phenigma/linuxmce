@@ -165,6 +165,11 @@ bool ServerSocket::_Run()
 
 		if ( sMessage.length() >= 5 && sMessage.substr(0,5) == "HELLO")
 		{
+#ifdef LL_DEBUG_FILE
+			SocketInfo *pSocketInfo = g_mapSocketInfo_Find(m_iSocketCounter,m_sName,this);
+			pSocketInfo->m_sDevice=sMessage;
+#endif
+
 			m_dwPK_Device = atoi( sMessage.substr(6).c_str() );
 
 			string sMacAddress;
@@ -226,9 +231,20 @@ sMacAddress="11:22";
 			m_pListener->RegisterEventHandler( this, m_dwPK_Device );
 			continue;
 		}
+#ifdef LL_DEBUG_FILE
+		if (  sMessage.length() >= 7 && sMessage.substr(0,7) == "COMMENT" )
+		{
+			SocketInfo *pSocketInfo = g_mapSocketInfo_Find(m_iSocketCounter,m_sName,this);
+			pSocketInfo->m_sComment=sMessage;
+		}
+#endif
 
 		if (  sMessage.length() >= 14 && sMessage.substr(0,14) == "REQUESTHANDLER" )
 		{
+#ifdef LL_DEBUG_FILE
+			SocketInfo *pSocketInfo = g_mapSocketInfo_Find(m_iSocketCounter,m_sName,this);
+			pSocketInfo->m_sDevice=sMessage;
+#endif
 			SendString( "OK" );
 			m_dwPK_Device = atoi( sMessage.substr(14).c_str() );
 #ifdef TEST_DISCONNECT

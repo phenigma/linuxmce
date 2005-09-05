@@ -915,6 +915,11 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
             case SYSCOMMAND_QUIT:
                 m_bQuit=true;
                 break;
+#ifdef LL_DEBUG_FILE
+            case SYSCOMMAND_SHOW_SOCKETS:
+                ShowSockets();
+                break;
+#endif
             case SYSCOMMAND_RELOAD:
 			case SYSCOMMAND_RELOAD_FORCED:
 				if( (*SafetyMessage)->m_dwID!=SYSCOMMAND_RELOAD_FORCED && !RequestReload((*SafetyMessage)->m_dwPK_Device_From) )
@@ -2695,3 +2700,33 @@ bool Router::RequestReload(int PK_Device_Requesting)
 	return true;
 }
 
+#ifdef LL_DEBUG_FILE
+#include "Socket.h"
+void Router::ShowSockets()
+{
+	PLUTO_SAFETY_LOCK(sim,*g_pSocketInfoMutex);
+	for(map<int,SocketInfo *>::iterator it=g_mapSocketInfo.begin();it!=g_mapSocketInfo.end();++it)
+	{
+		SocketInfo *pSocketInfo = it->second;
+		if( pSocketInfo->m_tDestroyed!=0 )
+			continue;
+		string sDestroyed=asctime(localtime(&pSocketInfo->m_tDestroyed));
+		g_pPlutoLogger->Write(LV_DEBUG,"CLOSED SOCKET: %p #%d %s\nComment %s Device %s\nCreated %s Destroyed %s,Log %s Last In %s Last Out %s",
+			pSocketInfo->m_pSocket,pSocketInfo->m_iSocketCounter,pSocketInfo->m_sName.c_str(),
+			pSocketInfo->m_sComment.c_str(),pSocketInfo->m_sDevice.c_str(),
+			asctime(localtime(&pSocketInfo->m_tCreated)),sDestroyed.c_str(),
+			pSocketInfo->m_sLogFile.c_str(),pSocketInfo->m_sLastStringIn.c_str(),pSocketInfo->m_sLastStringOut.c_str());
+	}
+	for(map<int,SocketInfo *>::iterator it=g_mapSocketInfo.begin();it!=g_mapSocketInfo.end();++it)
+	{
+		SocketInfo *pSocketInfo = it->second;
+		if( pSocketInfo->m_tDestroyed==0 )
+			continue;
+		g_pPlutoLogger->Write(LV_DEBUG,"OPEN SOCKET: %p #%d %s\nComment %s Device %s\nCreated %s Log %s Last In %s Last Out %s",
+			pSocketInfo->m_pSocket,pSocketInfo->m_iSocketCounter,pSocketInfo->m_sName.c_str(),
+			pSocketInfo->m_sComment.c_str(),pSocketInfo->m_sDevice.c_str(),
+			asctime(localtime(&pSocketInfo->m_tCreated)),
+			pSocketInfo->m_sLogFile.c_str(),pSocketInfo->m_sLastStringIn.c_str(),pSocketInfo->m_sLastStringOut.c_str());
+	}
+}
+#endif

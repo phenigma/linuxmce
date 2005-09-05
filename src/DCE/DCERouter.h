@@ -317,7 +317,9 @@ namespace DCE
 		string GetDevicesByCategory(DeviceData_Router *pDeviceData_From,int PK_DeviceCategory,eBroadcastLevel BroadcastLevel);
 		string GetDevicesByGroup(int PK_DeviceGroup);
         void ErrorResponse(Socket *pSocket,Message *pMessage); // Respond with an error condition if the sender is waiting for a response
-
+#ifdef LL_DEBUG_FILE
+		void ShowSockets();
+#endif
         // Public
         void Die(const char *Why);
         void CrashWithinPlugin(int iPK_Device)

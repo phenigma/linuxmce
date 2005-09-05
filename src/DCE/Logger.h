@@ -54,6 +54,7 @@
 #define LV_MOUSE_CLICKS	32
 #define LV_EPG_UPDATE	33
 #define LV_MEDIA		34
+#define LV_DEBUG		35
 
 #include "SerializeClass/SerializeClass.h"
 #include "PlutoUtils/MultiThreadIncludes.h"

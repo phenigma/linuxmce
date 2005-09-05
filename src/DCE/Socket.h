@@ -146,6 +146,25 @@ namespace DCE
 		 */
 		virtual void PingFailed();
 	};
+
+#ifdef LL_DEBUG_FILE
+    extern pluto_pthread_mutex_t *g_pSocketInfoMutex;
+	class SocketInfo
+	{
+	public:
+		Socket *m_pSocket;
+		int m_iSocketCounter;
+		string m_sName,m_sDevice,m_sComment,m_sLogFile;
+		string m_sLastStringOut;
+		string m_sLastStringIn;
+		time_t m_tCreated,m_tDestroyed;
+
+		SocketInfo(int iSocketCounter,string sName,Socket *pSocket) { m_iSocketCounter=iSocketCounter; m_sName=sName; m_pSocket=pSocket; m_tCreated=m_tDestroyed=0; }
+	};
+	extern map<int,SocketInfo *> g_mapSocketInfo;
+	SocketInfo *g_mapSocketInfo_Find(int iSocketCounter,string sName,Socket *pSocket);
+#endif
+
 }
 
 #endif

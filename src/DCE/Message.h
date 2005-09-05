@@ -60,7 +60,7 @@ namespace DCE
      * @brief enum containing values associeted with syscommands
 		RELOAD_FORCED means do the reload no matter what, ignoring the plugins PendingTasks
      */
-    enum { SYSCOMMAND_QUIT=0, SYSCOMMAND_RELOAD=1, SYSCOMMAND_START_MODULE=2, SYSCOMMAND_STOP_MODULE=3, SYSCOMMAND_SEGFAULT=4, SYSCOMMAND_DEADLOCK=5, SYSCOMMAND_RELOAD_FORCED=6 };
+    enum { SYSCOMMAND_QUIT=0, SYSCOMMAND_RELOAD=1, SYSCOMMAND_START_MODULE=2, SYSCOMMAND_STOP_MODULE=3, SYSCOMMAND_SEGFAULT=4, SYSCOMMAND_DEADLOCK=5, SYSCOMMAND_RELOAD_FORCED=6, SYSCOMMAND_SHOW_SOCKETS=7 };
 
     /**
      * @brief enum containing values associted with priorities

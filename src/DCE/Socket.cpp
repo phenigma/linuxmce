@@ -58,6 +58,31 @@ pluto_pthread_mutex_t *m_LL_DEBUG_Mutex=NULL;
 
 using namespace DCE;
 
+#ifdef LL_DEBUG_FILE
+namespace DCE
+{
+	pluto_pthread_mutex_t *g_pSocketInfoMutex=NULL;
+	map<int,SocketInfo *> g_mapSocketInfo;
+}
+SocketInfo *g_mapSocketInfo_Find(int iSocketCounter,string sName,Socket *pSocket)
+{
+	if( !g_pSocketInfoMutex )
+	{
+		g_pSocketInfoMutex = new pluto_pthread_mutex_t("socketinfo");
+		g_pSocketInfoMutex->Init(NULL);
+	}
+	PLUTO_SAFETY_LOCK(sim,*g_pSocketInfoMutex);
+	SocketInfo *pSocketInfo = g_mapSocketInfo[iSocketCounter];
+	if( !pSocketInfo )
+	{
+		pSocketInfo = new SocketInfo(iSocketCounter,sName,pSocket);
+		g_mapSocketInfo[iSocketCounter]=pSocketInfo;
+	}
+	return pSocketInfo;
+}
+#endif
+
+
 static int SocketCounter=0;
 
 // An application can create another handler that gets called instead in the event of a deadlock
@@ -172,7 +197,6 @@ Socket::Socket(string Name,string sIPAddress, string sMacAddress) : m_SocketMute
 	m_pSocket_PingFailure=NULL;
 	m_eSocketType = st_Unknown;
 
-
 #ifdef LL_DEBUG_FILE
 	m_pcSockLogFile = new char[200];
 	m_pcSockLogErrorFile = new char[200];
@@ -208,6 +232,10 @@ Socket::Socket(string Name,string sIPAddress, string sMacAddress) : m_SocketMute
 	}
 	else
 		system( (string("lsof >> /var/log/pluto/lsof1_") + StringUtils::itos((int) time(NULL)) + ".newlog").c_str() );
+
+	SocketInfo *pSocketInfo = g_mapSocketInfo_Find(m_iSocketCounter,m_sName,this);
+	pSocketInfo->m_tCreated = time(NULL);
+	pSocketInfo->m_sLogFile = m_pcSockLogFile;
 
 #endif
 
@@ -246,6 +274,11 @@ Socket::~Socket()
 
 #ifdef DEBUG
 	g_pPlutoLogger->Write( LV_SOCKET, "Socket::~Socket(): deleting socket @%p %s (socket id in destructor: %d)", this, m_sName.c_str(), m_Socket );
+#endif
+
+#ifdef LL_DEBUG_FILE
+	SocketInfo *pSocketInfo = g_mapSocketInfo_Find(m_iSocketCounter,m_sName,this);
+	pSocketInfo->m_tDestroyed = time(NULL);
 #endif
 
 	Close();
@@ -991,6 +1024,10 @@ bool Socket::ReceiveString( string &sRefString )
 	printf( "%s-Received String: %s\n", Module, acBuf );
 #endif
 #ifdef LL_DEBUG_FILE
+	SocketInfo *pSocketInfo = g_mapSocketInfo_Find(m_iSocketCounter,m_sName,this);
+	pSocketInfo->m_sLastStringIn = sRefString;
+	pSocketInfo->m_sName = m_sName;
+
 	PLUTO_SAFETY_LOCK_ERRORSONLY( ll4, (*m_LL_DEBUG_Mutex) );
 	FILE *file = fopen( m_pcSockLogFile, "a" );
 	if( !file )
@@ -1034,6 +1071,10 @@ bool Socket::SendString( string sLine )
 	printf( "%s-Send strng: %s\n", Module, sLine.c_str() );
 #endif
 #ifdef LL_DEBUG_FILE
+	SocketInfo *pSocketInfo = g_mapSocketInfo_Find(m_iSocketCounter,m_sName,this);
+	pSocketInfo->m_sLastStringOut = sLine;
+	pSocketInfo->m_sName = m_sName;
+
 	PLUTO_SAFETY_LOCK_ERRORSONLY( ll, (*m_LL_DEBUG_Mutex) );
 	FILE *file = fopen( m_pcSockLogFile, "a" );
 	if( !file )
