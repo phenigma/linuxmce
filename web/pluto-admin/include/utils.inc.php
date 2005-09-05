@@ -1005,12 +1005,18 @@ function getDevicesArrayFromCategory($categoryID,$dbADO)
 	$joinArray[]=0;
 	$queryDevice='
 		SELECT 
-			Device.* FROM Device 
+			Device.*,
+			DeviceTemplate.Description AS Template,
+			Room.Description AS Room 
+		FROM Device 
+		INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
+		LEFT JOIN Room ON FK_Room=PK_Room
 		WHERE
-			FK_DeviceTemplate IN ('.join(',',$joinArray).') AND FK_Installation=?';	
+			FK_DeviceTemplate IN ('.join(',',$joinArray).') AND Device.FK_Installation=?';	
 	$resDevice=$dbADO->Execute($queryDevice,(int)$_SESSION['installationID']);
 	while($rowD=$resDevice->FetchRow()){
-		$devicesList[$rowD['PK_Device']]=$rowD['Description'];
+		$label=(@$GLOBALS['DT_&_Room']==1)?$rowD['Description'].' ('.$rowD['Template'].') ('.$rowD['Room'].')':$rowD['Description'];
+		$devicesList[$rowD['PK_Device']]=$label;
 	}
 	unset($GLOBALS['childsDeviceCategoryArray']);
 	$GLOBALS['childsDeviceCategoryArray']=array();
@@ -2394,7 +2400,7 @@ function controlledViaPullDown($pulldownName,$deviceID,$dtID,$deviceCategory,$co
 	
 	$zeroValues=explode(',',$zeroOption);
 	$out='
-	<select name="'.$pulldownName.'">
+	<select name="'.$pulldownName.'" '.$jsEvent.'>
 		<option value="'.@$zeroValues[0].'">'.$zeroValues[1].'</option>
 		'.$selectOptions.'
 	</select>';
@@ -2455,17 +2461,19 @@ function getControlledViaDeviceTemplates($deviceID,$dtID,$deviceCategory,$dbADO)
 	}
 	$whereClause.=" AND PK_Device!='$deviceID'";
 	$queryDeviceTemplate = "
-		SELECT DISTINCT Device.Description,Device.PK_Device
+		SELECT DISTINCT Device.Description,Device.PK_Device,DeviceTemplate.Description AS Template,Room.Description AS Room
 		FROM Device 
 		INNER JOIN DeviceTemplate ON FK_DeviceTemplate = PK_DeviceTemplate
-		WHERE FK_Installation=? $whereClause order by Device.Description asc";
+		LEFT JOIN Room ON FK_Room=PK_Room
+		WHERE Device.FK_Installation=? $whereClause order by Device.Description asc";
 	$resDeviceTemplate = $dbADO->Execute($queryDeviceTemplate,$installationID);
 	$optionsArray=array();
 	$optionsArrayLowerCase=array();
 	if($resDeviceTemplate) {
 		while ($row=$resDeviceTemplate->FetchRow()) {
-			$optionsArray[$row['PK_Device']]=$row['Description'];
-			$optionsArrayLowerCase[$row['PK_Device']]=strtolower($row['Description']);
+			$label=(@$GLOBALS['DT_&_Room']==1)?$row['Description'].' ('.$row['Template'].') - ('.$row['Room'].')':$row['Description'];
+			$optionsArray[$row['PK_Device']]=$label;
+			$optionsArrayLowerCase[$row['PK_Device']]=strtolower($label);
 		}
 	}
 	
@@ -2479,16 +2487,18 @@ function getControlledViaDeviceTemplates($deviceID,$dtID,$deviceCategory,$dbADO)
 		$queryDevice='
 			SELECT 
 				Device.*,
+				DeviceTemplate.Description AS Template,Room.Description AS Room,
 				FK_CommMethod
 			FROM Device 
 				INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate
+				LEFT JOIN Room ON FK_Room=PK_Room
 				LEFT JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup
 			WHERE PK_Device=?';	
 		$resDevice=$dbADO->Execute($queryDevice,$deviceID);
 		$rowD=$resDevice->FetchRow();
 
 		$tmpArray=array();
-		$tmpArray[$deviceID]=$rowD['Description'];
+		$tmpArray[$deviceID]=$rowD['Description'].' ('.$rowD['Template'].') - ('.$rowD['Room'].')';
 		$devicesAllowedToControll=(@$rowD['FK_CommMethod']==1)?array_diff($controlledByIfIR,$tmpArray):array_diff($controlledByIfNotIR,$tmpArray);
 
 		foreach($devicesAllowedToControll as $key => $value){
@@ -3339,7 +3349,7 @@ function reorderMultiPulldownJs()
 }
 
 // retrieve a matrix table with all commands and infrared groups
-function getIrGroup_CommandsMatrix($dtID,$InfraredGroupsArray,$userID,$comMethod,$publicADO)
+function getIrGroup_CommandsMatrix($dtID,$InfraredGroupsArray,$userID,$comMethod,$publicADO,$deviceID)
 {
 	$restrictedCommandsArray=array(194=>'Toggle power',192=>'On',193=>'Off',205=>'1',89=>'Vol Up',90=>'Vol down',63=>'Skip Fwd',64=>'Skip Back');
 	$out='';
@@ -3347,17 +3357,31 @@ function getIrGroup_CommandsMatrix($dtID,$InfraredGroupsArray,$userID,$comMethod
 		return '';
 	}
 	$comMethodFilter=(!is_null($comMethod))?' AND FK_CommMethod='.$comMethod:'';	
-	$codesData=getFieldsAsArray('InfraredGroup_Command','PK_InfraredGroup_Command,IRData,FK_InfraredGroup,FK_Command,InfraredGroup.Description AS IRG_Name',$publicADO,'INNER JOIN Command ON FK_Command=PK_Command INNER JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup WHERE FK_DeviceTemplate IS NULL AND FK_InfraredGroup IN ('.join(',',$InfraredGroupsArray).') AND FK_Command IN ('.join(',',array_keys($restrictedCommandsArray)).')'.$comMethodFilter,'ORDER BY FK_InfraredGroup ASC,FK_Command ASC');
+	$codesData=getFieldsAsArray('InfraredGroup_Command','PK_InfraredGroup_Command,IRData,FK_InfraredGroup,FK_Command,InfraredGroup.Description AS IRG_Name',$publicADO,'INNER JOIN Command ON FK_Command=PK_Command INNER JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup WHERE (FK_DeviceTemplate IS NULL OR FK_DeviceTemplate='.$dtID.') AND FK_InfraredGroup IN ('.join(',',$InfraredGroupsArray).') AND FK_Command IN ('.join(',',array_keys($restrictedCommandsArray)).')'.$comMethodFilter,'ORDER BY FK_InfraredGroup ASC,FK_Command ASC');
 	
 	$commandGrouped=array();
 	$irgNames=array();
-	for($i=0;$i<count($codesData['FK_InfraredGroup']);$i++){
+	for($i=0;$i<count(@$codesData['FK_InfraredGroup']);$i++){
 		$commandGrouped[$codesData['FK_InfraredGroup'][$i]][$codesData['FK_Command'][$i]]=$codesData['PK_InfraredGroup_Command'][$i];
 		$irgNames[$codesData['FK_InfraredGroup'][$i]]=$codesData['IRG_Name'][$i];
 	}
+	
+	if(session_name()=='Pluto-admin'){
+		if($deviceID>0){
+			$deviceInfo=getFieldsAsArray('Device','FK_Device_ControlledVia,FK_DeviceCategory',$publicADO,'INNER JOIN DeviceTemplate ON Fk_DeviceTemplate=PK_DeviceTemplate WHERE PK_Device='.$deviceID);
+		}
+		$GLOBALS['DT_&_Room']=1;
+		$controlledByRows='
+		<tr>
+			<td colspan="10" align="right">Send codes to device: '.controlledViaPullDown('controlledVia',$deviceID,$dtID,@$deviceInfo['FK_DeviceCategory'][0],@$deviceInfo['FK_Device_ControlledVia'][0],$publicADO,'0,- Please select -','onChange="document.addModel.action.value=\'changeParent\';document.addModel.submit();"').'</td>
+		</tr>';
+		$GLOBALS['DT_&_Room']=0;
+	}
+	
 	// display table header
 	$out='
 	<table cellpadding="3" cellspacing="0" border="0">
+		'.@$controlledByRows.'
 		<tr class="normaltext" bgcolor="lightblue">
 			<td align="center"><B>Infrared Group</B></td>';
 	foreach ($restrictedCommandsArray AS $cmdID=>$cmdName){

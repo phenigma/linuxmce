@@ -46,6 +46,23 @@ $displayedRooms = array();
 			function windowOpen(locationA,attributes) {
 				window.open(locationA,'',attributes);
 			}
+		
+			function confirmCheck(room,label){
+				eval('isChecked=document.rooms.manually_'+room+'.checked');
+				if(isChecked===true){
+					if(confirm('Are you sure you want to mannualy configure the entertain area(s) for room '+label+'?')){
+						setMan=1;
+					}else{
+						setMan=-1;
+						eval('document.rooms.manually_'+room+'.checked=false');
+					}
+				}else{
+					setMan=0;
+				}
+				if(setMan>=0){
+					self.location='index.php?section=rooms&action=edit&manID='+room+'&val='+setMan;
+				}
+			}
 		</script>";
 		$out.='<div class="err">'.(isset($_GET['error'])?stripslashes($_GET['error']):'').'</div>';
 		$out.='
@@ -80,7 +97,7 @@ $displayedRooms = array();
 				';
 			$displayedRooms[]=$rowRoom['PK_Room'];
 			$out.='<td bgcolor="#DADDE4">';
-			$out.='<input type="checkbox" name="manually_'.$rowRoom['PK_Room'].'" value="1" '.(($rowRoom['ManuallyConfigureEA']==1)?'checked':'').' onclick="self.location=\'index.php?section=rooms&action=edit&manID='.$rowRoom['PK_Room'].'&val='.(($rowRoom['ManuallyConfigureEA']==1)?'0':'1').'\'"> Mannually configure.<br>';
+			$out.='<input type="checkbox" name="manually_'.$rowRoom['PK_Room'].'" value="1" '.(($rowRoom['ManuallyConfigureEA']==1)?'checked':'').' onclick="confirmCheck('.$rowRoom['PK_Room'].',\''.addslashes($rowRoom['Description']).'\');//self.location=\'index.php?section=rooms&action=edit&manID='.$rowRoom['PK_Room'].'&val='.(($rowRoom['ManuallyConfigureEA']==1)?'0':'1').'\'"> Mannually configure.<br>';
 			if($rowRoom['ManuallyConfigureEA']==1){
 				$queryEntertain='SELECT * FROM EntertainArea WHERE FK_Room=?';
 				$resEntertain=$dbADO->Execute($queryEntertain,$rowRoom['PK_Room']);
@@ -142,7 +159,7 @@ $displayedRooms = array();
 	if(isset($_REQUEST['manID'])){
 		$roomID=(int)$_REQUEST['manID'];
 		$newVal=(int)$_REQUEST['val'];
-		
+
 		$dbADO->Execute('UPDATE Room SET ManuallyConfigureEA=? WHERE PK_Room=?',array($newVal,$roomID));
 		header("Location: index.php?section=rooms&msg=Saved!");
 		exit();

@@ -90,10 +90,10 @@
 		
 			<table align="center">
 				<tr>
-					<td colspan="2"><B>Change order</B></td>
+					<td colspan="2" class="normaltext"><B>Change order</B></td>
 				</tr>
 				<tr>
-					<td colspan="2">Since this device uses 1 button to <b>toggle</b> inputs, we need to know what order those inputs are in so we can cycle through them.  Please confirm the order and click next.</td>
+					<td colspan="2" class="normaltext">Since this device uses 1 button to <b>toggle</b> inputs, we need to know what order those inputs are in so we can cycle through them.  Please confirm the order and click next.</td>
 				</tr>
 				<tr>				
 					<td valign="top" align="right" width="50%">'.pulldownFromArray($checkedCommands,'orderItem',0,'size="10"','key','').'</td>

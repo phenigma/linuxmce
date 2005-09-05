@@ -5,7 +5,7 @@
 		header('Location: index.php');
 		exit();
 	}
-	
+
 	$dtDataArray=getFieldsAsArray('DeviceTemplate','FK_DeviceCategory,DeviceCategory.Description AS Category,Manufacturer.Description AS Manuf,FK_Manufacturer,FK_DeviceCategory',$publicADO,'INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory INNER JOIN Manufacturer ON FK_Manufacturer=PK_Manufacturer WHERE PK_DeviceTemplate='.$dtID);
 	if(count($dtDataArray)==0){
 		header('Location: index.php');
@@ -84,7 +84,7 @@
 				//$out.='<a href="index.php?section=irCodes&dtID='.$dtID.'&infraredGroupID='.$row['PK_InfraredGroup'].'">'.$row['Description'].'</a><br>';
 			}
 			
-			$out.=getIrGroup_CommandsMatrix($dtID,$InfraredGroupsArray,@$_SESSION['userID'],@$_SESSION['selectedCommMethod'],$publicADO);
+			$out.=getIrGroup_CommandsMatrix($dtID,$InfraredGroupsArray,@$_SESSION['userID'],@$_SESSION['selectedCommMethod'],$publicADO,$deviceID);
 			$out.='</div>';
 			
 		}else{
@@ -108,8 +108,19 @@
 		if(session_name()=='Pluto-admin'){
 			$out.='<iframe name="codeTester" src="" style="display:none;"></iframe>';
 		}
+	}elseif($action=='changeParent'){
+		// change parent and redirect to page
+		$controlledVia=$_POST['controlledVia'];
+		if($deviceID>0){
+			$publicADO->Execute('UPDATE Device SET FK_Device_ControlledVia=? WHERE PK_Device=?',array($controlledVia,$deviceID));
+		}
+		$msg='The parent of the device was updated.';
+		header('Location: index.php?section=addModel&step=7&dtID='.$dtID.'&deviceID='.$deviceID.'&msg='.$msg);
+		exit();
+		
 	}else{
 		// process
+	
 		$description=stripslashes($_POST['description']);
 		if($description!=''){
 			$publicADO->Execute('INSERT INTO InfraredGroup (FK_DeviceCategory,FK_Manufacturer,Description) VALUES (?,?,?)',array($dtDataArray['FK_DeviceCategory'][0],$dtDataArray['FK_Manufacturer'][0],$description));
