@@ -70,6 +70,7 @@ namespace DCE
 		DeviceData_Impl() 
 		{
 			m_bUsePingToKeepAlive=false;
+			m_bDeviceData_Impl = true;
 		}
 		
 		/**
@@ -82,6 +83,7 @@ namespace DCE
 			bImplementsDCE, bIsEmbedded, sCommandLine, bIsPlugIn, sDescription, sIPAddress, sMacAddress, bInheritsMacFromPC )
 		{
 			m_bUsePingToKeepAlive=false;
+			m_bDeviceData_Impl = true;
 		}
 
 		virtual ~DeviceData_Impl()
@@ -125,7 +127,7 @@ namespace DCE
 		 * @returns "DeviceData_Impl" so that the SerializeClass knows what to serialize
 		 */		
 		virtual string SerializeClassClassName() { return "DeviceData_Impl"; }
-		
+
 		/** overloding + for our custom serialize types */
 		
 		/**

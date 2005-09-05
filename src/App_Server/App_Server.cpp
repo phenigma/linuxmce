@@ -117,7 +117,6 @@ bool App_Server::GetConfig()
 	if( !App_Server_Command::GetConfig() )
 		return false;
 //<-dceag-getconfig-e->
-
 	return true;
 }
 

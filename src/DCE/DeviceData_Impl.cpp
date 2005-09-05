@@ -72,3 +72,5 @@ bool DeviceData_Impl::UnknownSerialize( ItemToSerialize *pItem, bool bWriting, c
 	pcDataBlock = m_pcDataBlock; dwAllocatedSize = m_dwAllocatedSize; pcCurrentPosition = m_pcCurrentPosition;
 	return true;
 }
+
+

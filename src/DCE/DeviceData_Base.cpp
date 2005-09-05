@@ -69,7 +69,11 @@ bool AllDevices::Serialize( bool bWriting, char *&pcDataBlock, unsigned long &dw
 			DeviceData_Base *pDeviceData_Base = (*itDevice).second;
 			pDeviceData_Base->m_pDeviceCategory = m_mapDeviceCategory_Find( pDeviceData_Base->m_dwPK_DeviceCategory );
 			if( pDeviceData_Base->m_dwPK_Device_ControlledVia )
+			{
 				pDeviceData_Base->m_pDevice_ControlledVia = m_mapDeviceData_Base_Find(pDeviceData_Base->m_dwPK_Device_ControlledVia);
+				if( pDeviceData_Base->m_pDevice_ControlledVia )
+					pDeviceData_Base->m_pDevice_ControlledVia->m_vectDeviceData_Base_Children.push_back(pDeviceData_Base);
+			}
 			if( pDeviceData_Base->m_dwPK_Device_Core )
 				pDeviceData_Base->m_pDevice_Core = m_mapDeviceData_Base_Find(pDeviceData_Base->m_dwPK_Device_ControlledVia);
 			if( pDeviceData_Base->m_dwPK_Device_MD )

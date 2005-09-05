@@ -213,6 +213,7 @@ namespace DCE
 		bool m_bImplementsDCE; /** < @todo ask */
 		bool m_bIsEmbedded; /** < specifies if the device is embedded */
 		bool m_bIsPlugIn; /** < specifies if the device is a plugin */
+		bool m_bDeviceData_Impl;  /** < true if this is created as a DeviceData_Impl */
 
 		/** other info */
 
@@ -227,6 +228,7 @@ namespace DCE
 		AllDevices m_AllDevices;  /** < all the devices in the system */
 		DeviceCategory *m_pDeviceCategory; /** < pointer to a DeviceCategory object to witch this device belongs */
 		vector<DeviceGroup *> m_vectDeviceGroup; /** < the groups we are a member of */
+		vector<DeviceData_Base *> m_vectDeviceData_Base_Children; /** < Only populated for instances within m_AllDevices */
 
 		/**
 		 * @brief pointer to devices controlling this one
@@ -271,7 +273,7 @@ namespace DCE
 		{
 			m_pDeviceCategory = NULL;
 			m_pDevice_ControlledVia = m_pDevice_Core = m_pDevice_MD = NULL;
-			m_bIsPlugIn = false;
+			m_bDeviceData_Impl = m_bIsPlugIn = false;
 		}
 
 		/**
@@ -299,6 +301,7 @@ namespace DCE
 			m_sIPAddress = sIPAddress;
 			m_sMacAddress = sMacAddress;
 			m_bInheritsMacFromPC = bInheritsMacFromPC;
+			m_bDeviceData_Impl = false;
 		}
 
 		/**
@@ -375,6 +378,34 @@ namespace DCE
 			return m_pDevice_ControlledVia->IsChildOf(pDeviceData_Base);
 		}
 
+		// This will return the first device within the given category that is in any way
+		// related (ie also a child of the topmost device).  Call leaving the default parameters unspecified.
+		DeviceData_Base *FindFirstRelatedDeviceOfCategory(int PK_DeviceCategory,bool bScanParent=true,int PK_Device_ExcludeChild=0)
+		{
+			if( m_bDeviceData_Impl )
+			{
+				DeviceData_Base *pDeviceData_Base = m_AllDevices.m_mapDeviceData_Base_Find(m_dwPK_Device);
+				if( pDeviceData_Base )
+					return pDeviceData_Base->FindFirstRelatedDeviceOfCategory(PK_DeviceCategory);
+				else
+					return NULL;
+			}
+
+			if( WithinCategory(PK_DeviceCategory) )
+				return this;
+			for(size_t s=0;s<m_vectDeviceData_Base_Children.size();++s)
+			{
+				DeviceData_Base *pDeviceData_Base = m_vectDeviceData_Base_Children[s];
+				if( pDeviceData_Base->m_dwPK_Device==PK_Device_ExcludeChild )
+					continue;
+				DeviceData_Base *pDeviceData_Base_Result = pDeviceData_Base->FindFirstRelatedDeviceOfCategory(PK_DeviceCategory,false);
+				if( pDeviceData_Base_Result )
+					return pDeviceData_Base_Result;
+			}
+			if( bScanParent && m_pDevice_ControlledVia )
+				return m_pDevice_ControlledVia->FindFirstRelatedDeviceOfCategory(PK_DeviceCategory,true,m_dwPK_Device);
+			return NULL;
+		}
 
 		/**
 		 * @brief checks if the specified command is supported by the device
