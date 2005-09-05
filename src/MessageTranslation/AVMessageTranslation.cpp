@@ -44,6 +44,42 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 		g_pPlutoLogger->Write(LV_STATUS, "Device has no AV properties");
 	}
 	
+	g_pPlutoLogger->Write(LV_STATUS,"AVMessageTranslator::Translate begin");
+	
+	g_pPlutoLogger->Write(LV_STATUS,"    Status : CMD=%d, TP=%d, TI=%d",pmsg->m_dwID,pRowAV->TogglePower_get(),pRowAV->ToggleInput_get());
+	
+	if((pRowAV->TogglePower_get() == 1) && ((pmsg->m_dwID == COMMAND_Generic_On_CONST) || (pmsg->m_dwID == COMMAND_Generic_Off_CONST)))
+	{	
+
+		if((laststatus_power_[devid] && (pmsg->m_dwID == COMMAND_Generic_Off_CONST)) ||
+		   (!laststatus_power_[devid] && (pmsg->m_dwID == COMMAND_Generic_On_CONST)))
+		{
+			MessageReplicator msgrepl(
+					Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
+									PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Toggle_Power_CONST, 0));
+			outrepls.push_back(msgrepl);
+			laststatus_power_[devid] = !laststatus_power_[devid];
+			g_pPlutoLogger->Write(LV_STATUS, "DTZ : Command <%d> translated to <%d>",pmsg->m_dwID,COMMAND_Toggle_Power_CONST);
+			return true;
+		}
+	}
+	if((pRowAV->TogglePower_get() == 0) && (pmsg->m_dwID == COMMAND_Toggle_Power_CONST))
+	{
+		int cmd=0;
+		if(laststatus_power_[devid])
+			cmd=COMMAND_Generic_Off_CONST;
+		else
+			cmd=COMMAND_Generic_On_CONST;
+		
+		MessageReplicator msgrepl(
+				Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
+								PRIORITY_NORMAL, MESSAGETYPE_COMMAND,cmd, 0));
+		outrepls.push_back(msgrepl);
+		laststatus_power_[devid] = (cmd==COMMAND_Generic_On_CONST);
+		g_pPlutoLogger->Write(LV_STATUS, "DTZ : Command <%d> translated to <%d>",pmsg->m_dwID,cmd);
+		return true;
+	}	
+
 	/**************************************************************************************
 	COMMAND_Input_Select_CONST
 	**************************************************************************************/
@@ -162,6 +198,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 		/**/
 		return false;
 	}	
+	g_pPlutoLogger->Write(LV_STATUS,"AVMessageTranslator::Translate end");
 	
 	return false;
 }
