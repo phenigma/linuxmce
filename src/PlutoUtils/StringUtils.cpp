@@ -868,7 +868,7 @@ string StringUtils::SecondsAsTime(int iSeconds)
 		return Format( "%d:%02d:%02d", Hours,Minutes,iSeconds );
 	if( Minutes )
 		return Format( "%d:%02d", Minutes,iSeconds );
-	return Format( "%02d", iSeconds );
+	return Format( ":%02d", iSeconds );
 }
 
 #endif //#ifndef SYMBIAN

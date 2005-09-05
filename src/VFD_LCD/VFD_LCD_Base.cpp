@@ -245,7 +245,7 @@ void VFD_LCD_Base::DisplayMessage(VFD_LCD_Message *pVFD_LCD_Message)
 void VFD_LCD_Base::GetNowPlaying(vector<string> *vectString,int iNumLines)
 {
 	static int iLastNP=1;
-	MapMessages *pMapMessages_NowPlaying = NULL; //m_mapMessages_Find(VL_MSGTYPE_NOW_PLAYING_MAIN);
+	MapMessages *pMapMessages_NowPlaying = m_mapMessages_Find(VL_MSGTYPE_NOW_PLAYING_MAIN);
 	MapMessages *pMapMessages_Section = m_mapMessages_Find(VL_MSGTYPE_NOW_PLAYING_SECTION);
 	MapMessages *pMapMessages_TimeCode = m_mapMessages_Find(VL_MSGTYPE_NOW_PLAYING_TIME_CODE);
 	MapMessages *pMapMessages_Speed = m_mapMessages_Find(VL_MSGTYPE_NOW_PLAYING_SPEED);
