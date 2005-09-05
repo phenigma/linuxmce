@@ -164,6 +164,7 @@ function learnCode($output,$dbADO) {
 				$resLastCommand=$dbADO->Execute('SELECT psc_mod AS lastTime FROM InfraredGroup_Command ORDER BY psc_mod DESC');
 				$rowLastCommand=$resLastCommand->FetchRow();
 				$_SESSION['LastInfraredGroup_CommandTime']=$rowLastCommand['lastTime'];
+				
 				$commandToSend='/usr/pluto/bin/MessageSend localhost 0 '.$parentDevice.' 1 245 8 1 71 '.$commandID;
 				exec($commandToSend);
 			

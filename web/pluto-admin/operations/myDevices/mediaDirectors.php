@@ -60,7 +60,7 @@ function mediaDirectors($output,$dbADO) {
 		$roomIDArray[]=$rowRoom['PK_Room'];
 	}
 
-	if(isset($_REQUEST['lastAdded']) && (int)$_REQUEST['lastAdded']!=0){
+	if(isset($_REQUEST['newMD']) && (int)$_REQUEST['newMD']==1){
 		$out.='
 		<script>
 			alert("This device requires some advance preparation, which can take several minutes. Your Core is doing this now and you will see a message on all orbiters and media directors notifying you when it\'s done. Please wait to use the device until then.")
@@ -477,7 +477,7 @@ function mediaDirectors($output,$dbADO) {
 				$commandToSend='/usr/pluto/bin/UpdateEntArea -h localhost';
 				exec($commandToSend);
 			}
-			header("Location: index.php?section=mediaDirectors&lastAdded=$deviceTemplate#deviceLink_".@$insertID);
+			header("Location: index.php?section=mediaDirectors&newMD=1&lastAdded=$deviceTemplate#deviceLink_".@$insertID);
 			exit();
 		}
 		
