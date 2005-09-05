@@ -426,24 +426,6 @@ bool Orbiter::GetConfig()
         m_pcRequestSocket->m_pClientSocket->SetReceiveTimeout( 15 );
     }
 
-	DeviceData_Base *pDevice_Parent = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(m_pData->m_dwPK_Device_ControlledVia);
-	m_bIsOSD = pDevice_Parent && pDevice_Parent->WithinCategory(DEVICECATEGORY_Media_Director_CONST);
-	m_dwPK_Device_IRReceiver=0;
-	if( m_bIsOSD )
-	{
-		for(Map_DeviceData_Base::iterator it=m_pData->m_AllDevices.m_mapDeviceData_Base.begin();it!=m_pData->m_AllDevices.m_mapDeviceData_Base.end();++it)
-		{
-			DeviceData_Base *pDeviceData_Base = it->second;
-			if( pDeviceData_Base->WithinCategory(DEVICECATEGORY_Infrared_Receivers_CONST) &&
-				pDeviceData_Base->m_dwPK_Device_ControlledVia==m_pData->m_dwPK_Device_ControlledVia )
-			{
-				m_dwPK_Device_IRReceiver=pDeviceData_Base->m_dwPK_Device;
-				g_pPlutoLogger->Write(LV_STATUS,"Working with IRReceiver %d",m_dwPK_Device_IRReceiver);
-				break;
-			}
-		}
-	}
-
 	string::size_type pos=0;
 	string sTimeout = DATA_Get_Timeout();
 	m_iTimeoutScreenSaver = atoi(StringUtils::Tokenize(sTimeout,",",pos).c_str());
@@ -1393,11 +1375,11 @@ g_pPlutoLogger->Write( LV_STATUS, "@@@ About to call maint for screen saver with
 
 #ifdef DEBUG
     g_pPlutoLogger->Write( LV_STATUS, "Changing screen to %s ir %d type %c", 
-		m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str(  ), m_dwPK_Device_IRReceiver, m_pScreenHistory_Current->m_pObj->m_cScreenType);
+		m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str(  ), m_dwPK_Device_LocalOsdIRReceiver, m_pScreenHistory_Current->m_pObj->m_cScreenType);
 #endif
-	if( m_dwPK_Device_IRReceiver )
+	if( m_dwPK_Device_LocalOsdIRReceiver )
 	{
-		DCE::CMD_Set_Screen_Type CMD_Set_Screen_Type(m_dwPK_Device,m_dwPK_Device_IRReceiver,m_pScreenHistory_Current->m_pObj->m_cScreenType);
+		DCE::CMD_Set_Screen_Type CMD_Set_Screen_Type(m_dwPK_Device,m_dwPK_Device_LocalOsdIRReceiver,m_pScreenHistory_Current->m_pObj->m_cScreenType);
 		SendCommand(CMD_Set_Screen_Type);
 	}
     ObjectOnScreenWrapper(  );
