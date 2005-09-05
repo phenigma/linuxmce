@@ -3309,15 +3309,14 @@ bool Media_Plugin::RippingProgress( class Socket *pSocket, class Message *pMessa
 
 	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 
-	g_pPlutoLogger->Write(LV_STATUS, "Got a ripping completed event for job named \"%s\" from device: \"%d\"", sJobName.c_str(), pMessage->m_dwPK_Device_From);
-	map<int, class RippingJob *>::const_iterator itRippingJobs;
-
-	if ( (itRippingJobs = m_mapRippingJobs.find(pMessage->m_dwPK_Device_From)) == m_mapRippingJobs.end() )
+	RippingJob *pRippingJob = m_mapRippingJobs_Find(pMessage->m_dwPK_Device_From);
+	if ( !pRippingJob )
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "Unrecognized ripping job: %s. Ignoring event.", sJobName.c_str());
 		return true;
 	}
-	RippingJob *pRippingJob = m_mapRippingJobs[pMessage->m_dwPK_Device_From];
+	g_pPlutoLogger->Write(LV_STATUS, "Got a ripping completed event for job named \"%s\" from device: \"%d\" job %p aborted %d", 
+		sJobName.c_str(), pMessage->m_dwPK_Device_From,pRippingJob,(int) pRippingJob->m_bAborted);
 
 	string sMessage;
 	switch ( iResult )
