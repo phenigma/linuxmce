@@ -308,16 +308,21 @@ void IRTrans::DoUpdateDisplay(vector<string> *vectString)
 	lcdCommand.wid=40;
 	lcdCommand.hgt=4;
 	memset(lcdCommand.framebuffer,32,200);
-	lcdCommand.framebuffer[199]=0;
+	lcdCommand.framebuffer[80]=0;
 	
 	strncpy((char *) lcdCommand.framebuffer,(*vectString)[0].c_str(),min(40,(*vectString)[0].size()));
 	if( vectString->size()>1 )
 		strncpy((char *) (lcdCommand.framebuffer+40),(*vectString)[1].c_str(),min(40,(*vectString)[0].size()));
-string s1=(*vectString)[0];
+	
+	for(int i=0;i<80;++i)
+		if( lcdCommand.framebuffer[i]<' ' || lcdCommand.framebuffer[i]>'~' )
+			lcdCommand.framebuffer[i]=' ';
+/*
+	string s1=(*vectString)[0];
 string s2=vectString->size()>1 ? (*vectString)[1] : "";
 g_pPlutoLogger->Write(LV_WARNING,"\x1b[2J;%s\n%s",s1.c_str(),s2.c_str());
-
-	g_pPlutoLogger->Write(LV_WARNING,"setting display to: %s",(char *) lcdCommand.framebuffer);
+*/
+	g_pPlutoLogger->Write(LV_WARNING,"setting display to: \n%s",(char *) lcdCommand.framebuffer);
 #ifdef LINUX
 	DoExecuteNetCommand (0,(NETWORKCOMMAND *)&lcdCommand,&statusBuffer);
 #endif
