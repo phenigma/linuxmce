@@ -3288,6 +3288,7 @@ typedef enum {
 bool Media_Plugin::RippingAborted( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
 	RippingJob *pRippingJob = m_mapRippingJobs_Find(pMessage->m_dwPK_Device_From);
+	g_pPlutoLogger->Write(LV_STATUS,"Aborted ripping of job %p %s",pRippingJob,pRippingJob ? pRippingJob->m_sName.c_str() : "");
 	if( pRippingJob )
 		pRippingJob->m_bAborted=true;
 	return true;
