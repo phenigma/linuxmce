@@ -1117,8 +1117,8 @@ bool Router::ReceivedString(Socket *pSocket, string Line)
 				"JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate JOIN Room on FK_Room=PK_Room "
 				"LEFT JOIN DeviceCategory ON DeviceTemplate.FK_DeviceCategory=DeviceCategory.PK_DeviceCategory "
 				"LEFT JOIN DeviceCategory As Parent ON DeviceCategory.FK_DeviceCategory_Parent=Parent.PK_DeviceCategory "
-				"WHERE FK_DeviceCategory=" + Line.substr(19) + " OR Parent.PK_DeviceCategory=" + Line.substr(19) + 
-				" OR Parent.FK_DeviceCategory_Parent=" + Line.substr(19); // Check 3 levels deep
+				"WHERE FK_Installation=" + StringUtils::itos(m_dwPK_Installation) + " AND (FK_DeviceCategory=" + Line.substr(19) + " OR Parent.PK_DeviceCategory=" + Line.substr(19) + 
+				" OR Parent.FK_DeviceCategory_Parent=" + Line.substr(19) + ")"; // Check 3 levels deep
 		PlutoSqlResult result_set;
 		MYSQL_ROW row;
 		if( (result_set.r=mysql_query_result(sSQL)) )

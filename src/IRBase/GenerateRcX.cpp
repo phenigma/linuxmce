@@ -630,6 +630,7 @@ int Process6001(int argc, char* argv[])
 
 string ConvertRC5_6(string sCode)
 {
+	Result[0]=0;
 	char pCode[500]; // max size of an rc5/6
 	strncpy(pCode,sCode.c_str(),500);
 	char* argv[20];  // Never more than 20 times
