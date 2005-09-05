@@ -73,7 +73,7 @@ void DisplayProgressBar(HWND hWnd, HDC hdc)
     RECT rt;
     HBRUSH hBrush;
     rt.left = BUTTON_SEPARATOR;
-    rt.top = 2 * BUTTON_SEPARATOR + LABEL_HEIGHT;
+    rt.top = 3 * BUTTON_SEPARATOR + LABEL_HEIGHT;
     rt.right = rt.left + g_nWindowWidth - 3 * BUTTON_SEPARATOR;
     rt.bottom = rt.top + PROGRESS_HEIGHT;
 
@@ -85,13 +85,38 @@ void DisplayProgressBar(HWND hWnd, HDC hdc)
 
     rt.left++;
     rt.top++;
-    rt.right = rt.left + (g_nProgress * g_nWindowWidth - 3 * BUTTON_SEPARATOR) / 100;
+    rt.right = rt.left + (g_nProgress * (g_nWindowWidth - 3 * BUTTON_SEPARATOR)) / 100 - 1;
     rt.bottom --;
 
     hBrush = CreateSolidBrush(RGB(0, 0, 255));
     SelectObject(hdc, hBrush);
     FillRect(hdc, &rt, hBrush);
     DeleteObject(hBrush);
+}
+//-----------------------------------------------------------------------------------------------------
+void DisplayMessage(HWND hWnd, HDC hdc)
+{
+    RECT rectLocation = { BUTTON_SEPARATOR, BUTTON_SEPARATOR, 
+        g_nWindowWidth - 2 * BUTTON_SEPARATOR, 2 * BUTTON_SEPARATOR + LABEL_HEIGHT }; 
+
+    COLORREF crBkColor = ::GetSysColor(COLOR_3DFACE);
+    HBRUSH hBrush = CreateSolidBrush(crBkColor);
+    SelectObject(hdc, hBrush);
+    ::FillRect(hdc, &rectLocation, hBrush);
+    DeleteObject(hBrush);
+
+    ::SetTextColor(hdc, RGB(0, 0, 0));
+    ::SetBkMode(hdc, TRANSPARENT);
+
+#ifdef WINCE
+    wchar_t wText[1024];
+    mbstowcs(wText, g_sMessage.c_str(), 1024);
+    ::DrawText(hdc, wText, int(g_sMessage.length()), &rectLocation, 
+        DT_WORDBREAK | DT_NOPREFIX | DT_VCENTER); 
+#else
+    ::DrawText(hdc, g_sMessage.c_str(), int(g_sMessage.length()), &rectLocation, 
+        DT_WORDBREAK | DT_NOPREFIX | DT_VCENTER); 
+#endif
 }
 //-----------------------------------------------------------------------------------------------------
 static void AdjustWindowSize()
@@ -153,19 +178,15 @@ LRESULT CALLBACK WndProcDialog(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 
 		case WM_CREATE:
 			{
-				CreateLabel(hWnd, BUTTON_SEPARATOR, BUTTON_SEPARATOR, 
-                    g_nWindowWidth - 2 * BUTTON_SEPARATOR, BUTTON_SEPARATOR + LABEL_HEIGHT, 
-                    const_cast<char *>(g_sMessage.c_str()));
-
                 g_hwndCancelButton = CreateButton(hWnd, 
                         (g_nWindowWidth - BUTTON_WIDTH) / 2,
-                        LABEL_HEIGHT + PROGRESS_HEIGHT + 3 * BUTTON_SEPARATOR + 5,
+                        LABEL_HEIGHT + PROGRESS_HEIGHT + 4 * BUTTON_SEPARATOR + 5,
                         BUTTON_WIDTH, BUTTON_HEIGHT, "Cancel");
 
                 g_nWindowHeight = min(g_nWindowHeight, 
                     WINDOW_TITLE + BUTTON_SEPARATOR + 
-                    LABEL_HEIGHT + BUTTON_SEPARATOR +
-                    PROGRESS_HEIGHT + BUTTON_SEPARATOR + 
+                    LABEL_HEIGHT + BUTTON_SEPARATOR + BUTTON_SEPARATOR + 
+                    PROGRESS_HEIGHT + BUTTON_SEPARATOR +  
                     BUTTON_HEIGHT + BUTTON_SEPARATOR * 2);
 			}
 			break;
@@ -183,6 +204,7 @@ LRESULT CALLBACK WndProcDialog(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                 DeleteObject(hBrush);
 
                 DisplayProgressBar(hWnd, hdc);
+                DisplayMessage(hWnd, hdc);
        			EndPaint(hWnd, &ps);
 			}
 			break; 
@@ -191,6 +213,7 @@ LRESULT CALLBACK WndProcDialog(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
             {
                 HDC hdc = ::GetDC(g_hwndPopupDialog);
                 DisplayProgressBar(g_hwndPopupDialog, hdc);
+                DisplayMessage(g_hwndPopupDialog, hdc);
                 ::ReleaseDC(g_hwndPopupDialog, hdc);
             }
             break;
