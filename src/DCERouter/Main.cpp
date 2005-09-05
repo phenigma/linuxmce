@@ -61,6 +61,14 @@ void sig_int(int sig)
 	}
 }
 
+#ifdef LL_DEBUG_FILE
+void sig_usr1(int sig)
+{
+	if (g_pRouter != NULL)
+		g_pRouter->ShowSockets();
+}
+#endif
+
 #ifdef WIN32
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -176,10 +184,10 @@ int main(int argc, char *argv[])
 #ifndef _WIN32
 	/* install interrupt handler*/
 	signal(SIGINT, sig_int);
+#ifdef LL_DEBUG_FILE
+	signal(SIGUSR1, sig_usr1);
 #endif
-	
-	
-	
+#endif
 
 	if( BasePath.length()>0 && BasePath[ BasePath.length()-1 ]!='/' )
 		BasePath += "/";
