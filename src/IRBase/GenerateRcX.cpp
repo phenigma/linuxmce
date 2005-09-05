@@ -43,7 +43,9 @@
 #include <string>
 using namespace ::std;
 
-#ifndef WIN32
+#ifdef WIN32
+#include <tchar.h>
+#else
 #define _tcsninc(_pc, _sz) (((_pc)+(_sz)))  // Linux doesn't have this macro
 void strupr(char *Result)
 {
