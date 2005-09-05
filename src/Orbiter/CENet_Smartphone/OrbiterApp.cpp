@@ -733,6 +733,9 @@ void OrbiterApp::RefreshScreen()
 				m_pBDCommandProcessor->AddCommand(pCommand);
 			}
 
+			m_bRedrawOnlyGrid = false;
+			m_bRedrawOnlyEdit = false;
+
 			return;
 		}
 	}
@@ -745,6 +748,9 @@ void OrbiterApp::RefreshScreen()
 #endif
 
 	TryToUpdate();
+
+	m_bRedrawOnlyGrid = false;
+	m_bRedrawOnlyEdit = false;
 }
 //---------------------------------------------------------------------------------------------------------
 void OrbiterApp::RenderSignalStrength(int nSignalStrength)
