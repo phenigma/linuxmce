@@ -81,6 +81,7 @@ public:
 
     int cdrom_has_dir (int fd, const char *directory);
 	bool mountDVD(string fileName, string &strMediaUrl);
+	void DisplayMessageOnOrbVFD(string sMessage);
 
 public:
     // Public member variables

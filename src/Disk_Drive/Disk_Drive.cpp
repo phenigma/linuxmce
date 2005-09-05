@@ -180,6 +180,7 @@ void Disk_Drive::CMD_Reset_Disk_Drive(string &sCMD_Result,Message *pMessage)
 {
     m_mediaInserted = false;
     m_mediaDiskStatus = DISCTYPE_NONE;
+	DisplayMessageOnOrbVFD("Checking disc...");
 
     internal_reset_drive(true);
 }
@@ -442,6 +443,7 @@ int Disk_Drive::cdrom_checkdrive (const char *filename, int *flag)
         if (*flag != DISCTYPE_NONE || m_mediaInserted )
             break;
 
+		DisplayMessageOnOrbVFD("Disc detected.  Trying to auto play.");
         g_pPlutoLogger->Write(LV_STATUS, "Got a disc. Sleep a sec, then reopen. One hack to allow the disk to spin I think.");
         close(fd);
         sleep(1);
@@ -912,4 +914,30 @@ string Disk_Drive::getTracks (string mrl)
     }
 
     return tracks;
+}
+
+void Disk_Drive::DisplayMessageOnOrbVFD(string sMessage)
+{
+	DeviceData_Base *pDevice_OSD = m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Orbiter_CONST);
+	DeviceData_Base *pDevice_VFD = m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_LCDVFD_Displays_CONST);
+
+	g_pPlutoLogger->Write(LV_STATUS,"Displaying on OSD: %d VFD: %d %s",
+		(pDevice_OSD ? pDevice_OSD->m_dwPK_Device : 0),
+		(pDevice_VFD ? pDevice_VFD->m_dwPK_Device : 0),
+		sMessage.c_str());
+
+	string sResponse; // Get Return confirmation so we know the message gets through before continuing
+	if( pDevice_OSD )
+	{
+		DCE::CMD_Display_Message_DT CMD_Display_Message_DT(m_dwPK_Device,DEVICETEMPLATE_Orbiter_Plugin_CONST,BL_SameHouse,
+			sMessage,"","","10",StringUtils::itos(pDevice_OSD->m_dwPK_Device));
+		SendCommand(CMD_Display_Message_DT,&sResponse);
+	}
+	if( pDevice_VFD )
+	{
+		DCE::CMD_Display_Message CMD_Display_Message(m_dwPK_Device,pDevice_VFD->m_dwPK_Device,
+			sMessage,
+			StringUtils::itos(VL_MSGTYPE_RUNTIME_NOTICES),"app serve","10","");
+		SendCommand(CMD_Display_Message,&sResponse);
+	}
 }

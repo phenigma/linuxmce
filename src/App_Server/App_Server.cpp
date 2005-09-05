@@ -39,6 +39,9 @@ using namespace DCE;
 //<-dceag-d-e->
 
 #include "PlutoUtils/ProcessUtils.h"
+#include "pluto_main/Define_DeviceTemplate.h"
+#include "VFD_LCD/VFD_LCD_Base.h"
+
 
 #ifndef WIN32
 #include "utilities/linux/RatpoisonHandler.h"
@@ -417,16 +420,6 @@ void App_Server::CMD_Halt_Device(int iPK_Device,string sForce,string &sCMD_Resul
 
 	g_pPlutoLogger->Write(LV_STATUS,"CMD_Halt_Device %s",sForce.c_str());
 
-	// See who sent this to us.  If it wasn't GeneralInfoPlugin we want to forward it to it
-	DeviceData_Base *pDeviceData_Base = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(pMessage->m_dwPK_Device_From);
-	if( !pDeviceData_Base || pDeviceData_Base->m_dwPK_DeviceCategory!=DEVICECATEGORY_General_Info_Plugins_CONST )
-	{
-		Message *pMessageCopy = new Message(pMessage);
-		pMessageCopy->m_dwPK_Device_To=0;
-		pMessageCopy->m_dwPK_Device_Category_To = DEVICECATEGORY_General_Info_Plugins_CONST;
-
-	}
-
 	switch( sForce[0] )
 	{
 	case 'S':
@@ -434,6 +427,8 @@ void App_Server::CMD_Halt_Device(int iPK_Device,string sForce,string &sCMD_Resul
 			SetStatus("PC_SUSPEND",m_dwPK_Device_MD);
 		else
 			SetStatus("MD_SUSPEND",m_dwPK_Device_MD);
+
+		DisplayMessageOnOrbVFD("Suspending...");
 
 #ifndef WIN32
 		g_pPlutoLogger->Write(LV_STATUS,"Calling halt");
@@ -453,6 +448,8 @@ void App_Server::CMD_Halt_Device(int iPK_Device,string sForce,string &sCMD_Resul
 		else if( sForce[0]=='V' )
 			SetStatus("PC_REBOOTING",m_dwPK_Device_MD);
 
+		DisplayMessageOnOrbVFD("Rebooting...");
+
 #ifndef WIN32
 		g_pPlutoLogger->Write(LV_STATUS,"Calling reboot");
 		system("reboot");  // Don't know how to do this
@@ -466,6 +463,9 @@ void App_Server::CMD_Halt_Device(int iPK_Device,string sForce,string &sCMD_Resul
 			SetStatus("PC_OFF",m_dwPK_Device_MD);
 		else
 			SetStatus("MD_OFF",m_dwPK_Device_MD);
+
+		DisplayMessageOnOrbVFD("Powering off...");
+
 #ifndef WIN32
 		g_pPlutoLogger->Write(LV_STATUS,"Calling halt");
 		system("halt");
@@ -476,6 +476,32 @@ void App_Server::CMD_Halt_Device(int iPK_Device,string sForce,string &sCMD_Resul
 
 		// TODO: Power off this system
 		break;
+	}
+}
+
+void App_Server::DisplayMessageOnOrbVFD(string sMessage)
+{
+	DeviceData_Base *pDevice_OSD = m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Orbiter_CONST);
+	DeviceData_Base *pDevice_VFD = m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_LCDVFD_Displays_CONST);
+
+	g_pPlutoLogger->Write(LV_STATUS,"Displaying on OSD: %d VFD: %d %s",
+		(pDevice_OSD ? pDevice_OSD->m_dwPK_Device : 0),
+		(pDevice_VFD ? pDevice_VFD->m_dwPK_Device : 0),
+		sMessage.c_str());
+
+	string sResponse; // Get Return confirmation so we know the message gets through before continuing
+	if( pDevice_OSD )
+	{
+		DCE::CMD_Display_Message_DT CMD_Display_Message_DT(m_dwPK_Device,DEVICETEMPLATE_Orbiter_Plugin_CONST,BL_SameHouse,
+			sMessage,"","","30",StringUtils::itos(pDevice_OSD->m_dwPK_Device));
+		SendCommand(CMD_Display_Message_DT,&sResponse);
+	}
+	if( pDevice_VFD )
+	{
+		DCE::CMD_Display_Message CMD_Display_Message(m_dwPK_Device,pDevice_VFD->m_dwPK_Device,
+			sMessage,
+			StringUtils::itos(VL_MSGTYPE_RUNTIME_NOTICES),"app serve","30","");
+		SendCommand(CMD_Display_Message,&sResponse);
 	}
 }
 

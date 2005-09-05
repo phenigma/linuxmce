@@ -1643,8 +1643,6 @@ void Orbiter_Plugin::CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Resu
 	{
 		pOH_Orbiter->m_tRegenTime = 0;
 		g_pPlutoLogger->Write(LV_STATUS,"Ready to reload the orbiter with id %d", iPK_Device);
-		Message *pMessageOut = new Message(m_dwPK_Device, iPK_Device,PRIORITY_NORMAL,MESSAGETYPE_SYSCOMMAND,SYSCOMMAND_RELOAD,0);
-		SendMessageToRouter(pMessageOut);
 	}
 }
 
@@ -2076,7 +2074,8 @@ void Orbiter_Plugin::CMD_Set_Auto_Switch_to_Remote(int iPK_Device,bool bTrueFals
 void Orbiter_Plugin::CMD_Display_Message(string sText,string sType,string sName,string sTime,string sPK_Device_List,string &sCMD_Result,Message *pMessage)
 //<-dceag-c406-e->
 {
-	DisplayMessageOnOrbiter(sPK_Device_List,sText,false,60,true);
+	int iTime = sTime.size() ? atoi(sTime.c_str()) : 0;
+	DisplayMessageOnOrbiter(sPK_Device_List,sText,false,iTime,true);
 }
 
 //<-dceag-c686-b->

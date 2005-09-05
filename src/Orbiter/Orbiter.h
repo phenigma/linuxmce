@@ -184,7 +184,6 @@ protected:
 	bool m_bRestrictedOp_IsUser;
 	int m_iRestrictedOp_ID;
     bool m_bShowShortcuts;
-	bool m_bIsOSD; // true if this is an on-screen display
 	bool m_bForward_local_kb_to_OSD; // true if this is orbiter should be used a remote keyboard for another
 	int m_nSelectionBehaviour;    // '0' - no item is selected until the user moves the arrows
                                   // '1' - automatically highlight the first object when the screen changes

@@ -40,6 +40,7 @@ public:
 		virtual void KillSpawnedDevices(); // We need to change the behavior
 
 		void SendMessageList(string messageList);
+		void DisplayMessageOnOrbVFD(string sMessage);
 public:
     // Public member variables
 		bool m_bHardDrive; // True if this is running on a hard-drive boot, not as a diskless Pluto media director
