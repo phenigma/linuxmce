@@ -864,8 +864,11 @@ string StringUtils::SecondsAsTime(int iSeconds)
 	iSeconds -= Hours * 3600;
 	int Minutes = iSeconds / 60;
 	iSeconds -= Minutes * 60;
-
-	return Format( "%02d:%02d:%02d", Hours,Minutes,iSeconds );
+	if( Hours )
+		return Format( "%d:%02d:%02d", Hours,Minutes,iSeconds );
+	if( Minutes )
+		return Format( "%d:%02d", Minutes,iSeconds );
+	return Format( "%02d", iSeconds );
 }
 
 #endif //#ifndef SYMBIAN

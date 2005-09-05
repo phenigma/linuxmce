@@ -173,8 +173,14 @@ void VFD_LCD_Base::DisplayDate()
 	struct tm *ptm = localtime(&t);
 
 	char *Months[] = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
-	str.push_back(StringUtils::itos(ptm->tm_mday) + " " + Months[ptm->tm_mon] + " " + StringUtils::itos(ptm->tm_year+1900));
-	str.push_back(StringUtils::itos(ptm->tm_hour) + ":" + (ptm->tm_min<10 ? "0" : "") + StringUtils::itos(ptm->tm_min));
+	string sDate = StringUtils::itos(ptm->tm_mday) + " " + Months[ptm->tm_mon] + " " + StringUtils::itos(ptm->tm_year+1900);
+	string sTime = StringUtils::itos(ptm->tm_hour) + ":" + (ptm->tm_min<10 ? "0" : "") + StringUtils::itos(ptm->tm_min);
+	if( m_iNumVisibleColumns-2 > sDate.size() )
+		sDate = string("                                        ").substr(0,(m_iNumVisibleColumns-sDate.size())/2) + sDate;
+	if( m_iNumVisibleColumns-2 > sTime.size() )
+		sTime = string("                                        ").substr(0,(m_iNumVisibleColumns-sTime.size())/2) + sTime;
+	str.push_back(sDate);
+	str.push_back(sTime);
 	
 	DoUpdateDisplay(&str);
 }
@@ -239,7 +245,7 @@ void VFD_LCD_Base::DisplayMessage(VFD_LCD_Message *pVFD_LCD_Message)
 void VFD_LCD_Base::GetNowPlaying(vector<string> *vectString,int iNumLines)
 {
 	static int iLastNP=1;
-	MapMessages *pMapMessages_NowPlaying = m_mapMessages_Find(VL_MSGTYPE_NOW_PLAYING_MAIN);
+	MapMessages *pMapMessages_NowPlaying = NULL; //m_mapMessages_Find(VL_MSGTYPE_NOW_PLAYING_MAIN);
 	MapMessages *pMapMessages_Section = m_mapMessages_Find(VL_MSGTYPE_NOW_PLAYING_SECTION);
 	MapMessages *pMapMessages_TimeCode = m_mapMessages_Find(VL_MSGTYPE_NOW_PLAYING_TIME_CODE);
 	MapMessages *pMapMessages_Speed = m_mapMessages_Find(VL_MSGTYPE_NOW_PLAYING_SPEED);
@@ -255,20 +261,22 @@ void VFD_LCD_Base::GetNowPlaying(vector<string> *vectString,int iNumLines)
 
 	if( pMapMessages_Section && pMapMessages_Section->size() )
 	{
-		if( ( (vectString->size() && iNumLines<3) || iNumLines==1 ) &&
+		if( ( (vectString->size() && iNumLines<3) || iNumLines==1 ) &&  // We're already displaying the title, if there's only 1 line left & a section/time code we have to split it
 			( (pMapMessages_TimeCode && pMapMessages_TimeCode->size()) || (pMapMessages_Speed && pMapMessages_Speed->size()) )  )
 		{
-			int iSectionWidth=m_iNumVisibleColumns - 13;
-			string str = pMapMessages_Section->begin()->second->m_sMessage.substr(0,iSectionWidth);
-			if( str.size()<iSectionWidth )
-				str += string("                                  ").substr(0, iSectionWidth-str.size());
 			string strTimeCode;
 			if( pMapMessages_TimeCode && pMapMessages_TimeCode->size() )
 				strTimeCode = pMapMessages_TimeCode->begin()->second->m_sMessage.substr(0,8);
-			string strSpeed;
+
 			if( pMapMessages_Speed && pMapMessages_Speed->size() )
-				strSpeed = pMapMessages_Speed->begin()->second->m_sMessage.substr(0,3);
-			(*vectString).push_back(str + " " + strTimeCode + " " + strSpeed);
+				strTimeCode += " " + pMapMessages_Speed->begin()->second->m_sMessage;
+
+			int iSectionWidth=m_iNumVisibleColumns - strTimeCode.size() -1;
+			string str = pMapMessages_Section->begin()->second->m_sMessage.substr(0,iSectionWidth);
+			if( str.size()<iSectionWidth )
+				str += string("                                  ").substr(0, iSectionWidth-str.size());
+			string strSpeed;
+			(*vectString).push_back(str + " " + strTimeCode);
 			return; // Nothing more to display
 		}
 		vectString->push_back( pMapMessages_Section->begin()->second->m_sMessage );
