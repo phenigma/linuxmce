@@ -2428,7 +2428,7 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_Med
 		}
 		else if( bDiskWasReset )
 		{
-			m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From, "<%=T" + StringUtils::itos(TEXT_Checking_drive_CONST) + "%>");
+			m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From, "<%=T" + StringUtils::itos(TEXT_Checking_drive_CONST) + "%>",false,20);
 			return;
 		}
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot reset disk: reset %d ripping %d dev rip %d EA %d",(int) bDiskWasReset, (int) bDiskIsRipping,PK_Device_Ripping,pEntertainArea->m_iPK_EntertainArea);

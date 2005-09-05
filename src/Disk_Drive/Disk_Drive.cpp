@@ -931,14 +931,14 @@ void Disk_Drive::DisplayMessageOnOrbVFD(string sMessage)
 	if( pDevice_OSD )
 	{
 		DCE::CMD_Display_Message_DT CMD_Display_Message_DT(m_dwPK_Device,DEVICETEMPLATE_Orbiter_Plugin_CONST,BL_SameHouse,
-			sMessage,"","","10",StringUtils::itos(pDevice_OSD->m_dwPK_Device));
+			sMessage,"","","5",StringUtils::itos(pDevice_OSD->m_dwPK_Device));
 		SendCommand(CMD_Display_Message_DT,&sResponse);
 	}
 	if( pDevice_VFD )
 	{
 		DCE::CMD_Display_Message CMD_Display_Message(m_dwPK_Device,pDevice_VFD->m_dwPK_Device,
 			sMessage,
-			StringUtils::itos(VL_MSGTYPE_RUNTIME_NOTICES),"app serve","10","");
+			StringUtils::itos(VL_MSGTYPE_RUNTIME_NOTICES),"app serve","5","");
 		SendCommand(CMD_Display_Message,&sResponse);
 	}
 }
