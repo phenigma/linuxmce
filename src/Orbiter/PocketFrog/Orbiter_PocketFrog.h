@@ -91,10 +91,9 @@ public:
 
 	virtual void ShowProgress();
 	virtual void OnQuit();
-    virtual void DisplayMessage(string sMessage);
 
     virtual bool OnReplaceHandler(string sIP);
-    virtual int  PromptUser(string sPrompt,map<int,string> *p_mapPrompts);
+    virtual int  PromptUser(string sPrompt,map<int,string> *p_mapPrompts=NULL);
 	virtual bool DisplayProgress(string sMessage, int nProgress);
 
 	// Other

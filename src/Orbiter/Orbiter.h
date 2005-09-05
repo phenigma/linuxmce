@@ -287,7 +287,6 @@ protected:
 
 	// Be sure we're only reading the correct version
 	virtual bool OkayToDeserialize(int iSC_Version);
-    virtual void DisplayMessage(string sMessage) {};
 
 	/** these methods are general purpose, and will call Orbiter-specific methods to do the work */
 

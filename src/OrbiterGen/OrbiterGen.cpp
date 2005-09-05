@@ -1222,10 +1222,10 @@ int k=2;
 }
 			if( !oco->m_bUsingCache )
 			{
-				int Percent = m_iScreensToRender * 100 / m_iScreensTotal;
+				int Percent = m_iScreensToRender++ * 100 / m_iScreensTotal;
 				if( !m_iLastReportedPercentage || Percent - m_iLastReportedPercentage > 3 )
 				{
-					m_iLastReportedPercentage = min(1,Percent);
+					m_iLastReportedPercentage = max(1,Percent);
 					m_pRow_Orbiter->Reload();
 					m_pRow_Orbiter->RegenStatus_set("Stage 2 of 2 - Rendering screen " + StringUtils::itos(m_iScreensToRender));
 					m_pRow_Orbiter->RegenPercent_set(m_iLastReportedPercentage);

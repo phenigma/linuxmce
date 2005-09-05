@@ -2800,7 +2800,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 				{
 					delete pMessage;
 					g_pPlutoLogger->Write( LV_CRITICAL,  "Unable to parse Orbiter data" );
-					Sleep( 5000 );  // Sleep a bit before re-attempting
+					Sleep( 1000 );  // Sleep a bit before re-attempting
 					m_bReload = true;
 					return;
 				}
@@ -7441,8 +7441,36 @@ bool Orbiter::OkayToDeserialize(int iSC_Version)
         " and I need " + StringUtils::ltos(ORBITER_SCHEMA) + ".";
     g_pPlutoLogger->Write(LV_CRITICAL, sErrorMessage.c_str());
 
-    sErrorMessage += "\r\n\r\nMake sure you are running the latest version of Orbiter\r\nand the screens are generated with the latest version of OrbiterGen";
-    DisplayMessage(sErrorMessage);
+	if( iSC_Version>ORBITER_SCHEMA )
+	{
+		PromptUser("I'm sorry.  This version of Orbiter is too old.  It uses schema " + StringUtils::itos(ORBITER_SCHEMA)
+			+ " instead of " + StringUtils::itos(iSC_Version) + ".  Please install a newer version.");
+		OnQuit();
+	}
+	else
+	{
+		map<int,string> mapPrompts;
+		enum PromptsResp {prYes, prNo};
+		mapPrompts[prYes]    = "Yes";
+		mapPrompts[prNo]     = "No";
+		int iResponse = PromptUser("The user interface which your Core generated (" + StringUtils::itos(iSC_Version) + ") is too old for this Orbiter(" + StringUtils::itos(ORBITER_SCHEMA) + ").  Shall I ask the Core to rebuild it now?",&mapPrompts);
+		if( iResponse==prNo )
+		{
+			OnQuit();
+			return false;
+		}
+
+		Event_Impl event_Impl(DEVICEID_MESSAGESEND, 0, m_sIPAddress);
+		string sResponse;
+		DCE::CMD_Regen_Orbiter_DT CMD_Regen_Orbiter_DT( m_dwPK_Device, DEVICETEMPLATE_Orbiter_Plugin_CONST, BL_SameHouse, 
+			m_dwPK_Device,"");
+		CMD_Regen_Orbiter_DT.m_pMessage->m_eExpectedResponse==ER_DeliveryConfirmation;
+		if( !event_Impl.SendMessage(CMD_Regen_Orbiter_DT.m_pMessage,sResponse) || sResponse!="OK" )
+			PromptUser("Sorry.  I was unable to send this message to the Core.  Please try again or use the Pluto Admin site.");
+		else
+			PromptUser("The UI is being regenerated.  This will take 15-30 minutes.  If you get this same message again after the regeneration is finished, then that means the generator on the Core is too old and you will need to reset your Core so it can update itself.  Click 'OK' to monitor the progress.");
+		OnQuit();
+	}
 
 	return false;
 }
