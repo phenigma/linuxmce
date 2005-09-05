@@ -670,7 +670,7 @@ m_bNoEffects = true;
 	}
 
 	
-	=false;
+	m_bIsOSD=false;
 	Row_Device *pRow_Device_MD=m_pRow_Device->FK_Device_ControlledVia_getrow();
 	Row_DeviceCategory *pDeviceCategory_MD=pRow_Device_MD ? pRow_Device_MD->FK_DeviceTemplate_getrow()->FK_DeviceCategory_getrow() : NULL;
 	while( pDeviceCategory_MD )
