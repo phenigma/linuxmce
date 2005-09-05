@@ -24,10 +24,13 @@ touch "$FStart" "$FNow"
 
 RouterStatus()
 {
+	echo "$(date -R) Checking Router status" >>/var/log/pluto/DCERouter_Status.log
 	if nc -z 127.0.0.1 3450; then
 		echo "[1;32mRunning and accepting connections.[0m"
+		echo "$(date -R) Running and accepting connections" >>/var/log/pluto/DCERouter_Status.log
 	else
 		echo "[1;5;31mNot responding on socket. Probably dead.[0m"
+		echo "$(date -R) Not responding on socket. Probably dead." >>/var/log/pluto/DCERouter_Status.log
 	fi
 }
 
