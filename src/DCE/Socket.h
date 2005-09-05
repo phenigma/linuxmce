@@ -145,6 +145,9 @@ namespace DCE
 		 * @brief Called when a ping test failed
 		 */
 		virtual void PingFailed();
+#ifdef LL_DEBUG_FILE
+		static class SocketInfo *g_mapSocketInfo_Find(int iSocketCounter,string sName,Socket *pSocket);
+#endif
 	};
 
 #ifdef LL_DEBUG_FILE
@@ -162,7 +165,6 @@ namespace DCE
 		SocketInfo(int iSocketCounter,string sName,Socket *pSocket) { m_iSocketCounter=iSocketCounter; m_sName=sName; m_pSocket=pSocket; m_tCreated=m_tDestroyed=0; }
 	};
 	extern map<int,SocketInfo *> g_mapSocketInfo;
-	SocketInfo *g_mapSocketInfo_Find(int iSocketCounter,string sName,Socket *pSocket);
 #endif
 
 }

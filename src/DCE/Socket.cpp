@@ -64,7 +64,7 @@ namespace DCE
 	pluto_pthread_mutex_t *g_pSocketInfoMutex=NULL;
 	map<int,SocketInfo *> g_mapSocketInfo;
 }
-SocketInfo *g_mapSocketInfo_Find(int iSocketCounter,string sName,Socket *pSocket)
+SocketInfo *Socket::g_mapSocketInfo_Find(int iSocketCounter,string sName,Socket *pSocket)
 {
 	if( !g_pSocketInfoMutex )
 	{
