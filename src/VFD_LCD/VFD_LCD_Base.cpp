@@ -45,18 +45,19 @@ VFD_LCD_Base::~VFD_LCD_Base()
 void VFD_LCD_Base::RunThread()
 {
 	PLUTO_SAFETY_LOCK(vl,m_VL_MessageMutex);
+	int iSecondsToSleep=10;
 	while( !m_bQuit_VL )
 	{
-		vl.Release();
-		int iSecondsToSleep=UpdateDisplay();
-		vl.Relock();
-g_pPlutoLogger->Write(LV_CRITICAL,"Sleeping for %d",iSecondsToSleep);
-		vl.TimedCondWait(iSecondsToSleep ? iSecondsToSleep : 60,0);  // Don't sleep indefinately, wake up each 60 secs at least
+		vl.TimedCondWait(iSecondsToSleep ? iSecondsToSleep : 10 ,0);
+		iSecondsToSleep=UpdateDisplay();
+g_pPlutoLogger->Write(LV_STATUS,"Sleeping %d ",iSecondsToSleep);
 	}
 }
 
 void VFD_LCD_Base::NewMessage(int iMessageType,string sName,string sMessage,int ExpiresSeconds)
 {
+	PLUTO_SAFETY_LOCK(vl,m_VL_MessageMutex);
+	g_pPlutoLogger->Write(LV_STATUS,"Message %d=%s",iMessageType,sMessage.c_str());
 	MapMessages *pMapMessages = m_mapMessages_Get(iMessageType);
 	if( sMessage.size() )
 	{
@@ -70,13 +71,16 @@ void VFD_LCD_Base::NewMessage(int iMessageType,string sName,string sMessage,int 
 	else
 		pMapMessages->erase(sName);
 
+	vl.Release();
 	pthread_cond_broadcast(&m_VL_MessageCond);
 }
 
 int VFD_LCD_Base::UpdateDisplay()
 {
+g_pPlutoLogger->Write(LV_CRITICAL,"UpdateDisp");
 	if( m_pVFD_LCD_Message_new && (m_pVFD_LCD_Message_new->m_iMessageType==VL_MSGTYPE_RUNTIME_ERRORS || m_pVFD_LCD_Message_new->m_iMessageType==VL_MSGTYPE_RUNTIME_NOTICES ) )
 	{
+g_pPlutoLogger->Write(LV_CRITICAL,"UpdateDisp 2");
 		DisplayMessage(m_pVFD_LCD_Message_new);
 		m_pVFD_LCD_Message_new=NULL;
 		return 5;  // After 5 seconds we'll see if something else belongs on the display
@@ -84,16 +88,19 @@ int VFD_LCD_Base::UpdateDisplay()
 	int SecondsToRedisplay;
 	if(	SecondsToRedisplay=DisplayErrorMessages() )
 		return SecondsToRedisplay;
+g_pPlutoLogger->Write(LV_CRITICAL,"UpdateDisp 3");
 
 	if(	SecondsToRedisplay=DisplayNoticesMessages() )
 		return SecondsToRedisplay;
+g_pPlutoLogger->Write(LV_CRITICAL,"UpdateDisp 4");
 
 	if(	SecondsToRedisplay=DisplayNowPlayingRippingMessages() )
 		return SecondsToRedisplay;
+g_pPlutoLogger->Write(LV_CRITICAL,"UpdateDisp 5");
 
 	if(	SecondsToRedisplay=DisplayStatusMessages() )
 		return SecondsToRedisplay;
-
+g_pPlutoLogger->Write(LV_CRITICAL,"DispDate");
 	DisplayDate();
 	return 60;
 }
@@ -161,6 +168,15 @@ int VFD_LCD_Base::DisplayStatusMessages()
 
 void VFD_LCD_Base::DisplayDate()
 {
+	vector<string> str;
+	time_t t=time(NULL);
+	struct tm *ptm = localtime(&t);
+
+	char *Months[] = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
+	str.push_back(StringUtils::itos(ptm->tm_mday) + " " + Months[ptm->tm_mon] + " " + StringUtils::itos(ptm->tm_year+1900));
+	str.push_back(StringUtils::itos(ptm->tm_hour) + ":" + (ptm->tm_min<10 ? "0" : "") + StringUtils::itos(ptm->tm_min));
+	
+	DoUpdateDisplay(&str);
 }
 
 int VFD_LCD_Base::DisplayStandardMessages(int iMessageType)
