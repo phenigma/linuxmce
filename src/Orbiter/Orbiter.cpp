@@ -8493,8 +8493,14 @@ int Orbiter::DeviceIdInvalid()
 	if( iResponse == prYes )
 		PK_Device=SetupNewOrbiter();
 	else
-		PK_Device=PickOrbiterDeviceID();
-
+    {
+        PK_Device=PickOrbiterDeviceID();
+        if(PROMPT_CANCEL == PK_Device)
+        {
+            OnQuit();
+            return 0;
+        }
+    }
 	if( !PK_Device )
 		OnQuit();
 
