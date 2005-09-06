@@ -53,6 +53,7 @@
 	$GLOBALS['StandardThermostat']=4;			// Standard Thermostat
 	$GLOBALS['Tuner']=75;						// Generic Tuner
 	$GLOBALS['ONScreenOrbiter']=62;				// On screen orbiter
+	$GLOBALS['EventPlugIn']=52;					// Event plugin
 	
 	
 	// PK_Template from table Template
@@ -152,7 +153,9 @@
 	$GLOBALS['ScreenWidth']=100;				// Screen Width
 	$GLOBALS['ScreenHeight']=101;				// Screen Height
 	$GLOBALS['MediaProvider']=103;				// Media Provider
-	
+	$GLOBALS['PK_City']=107;					// City
+	$GLOBALS['Longitude']=108;					// Longitude
+	$GLOBALS['Latitude']=109;					// Latitude
 	
 	// PK_FloorplanType from table FloorplanType 
 

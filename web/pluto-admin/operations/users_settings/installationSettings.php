@@ -39,7 +39,20 @@ function installationSettings($output,$dbADO) {
 	$installationID = cleanInteger($_SESSION['installationID']);
 	$dceRouterID=getDeviceFromDT($installationID,$GLOBALS['rootDCERouter'],$dbADO);
 	if($dceRouterID!==null){
-		$defLanguage=getLanguage($dceRouterID,$dbADO);
+		$dceRouterDD=getDD($dceRouterID,$GLOBALS['Language'].','.$GLOBALS['PK_City'],$dbADO);
+		$defLanguage=$dceRouterDD[$GLOBALS['Language']];
+		$selectedCity=(int)$dceRouterDD[$GLOBALS['PK_City']];
+		if($selectedCity>0){
+			$cityData=getFieldsAsArray('City','FK_Region,FK_Country',$dbADO,'WHERE PK_City='.$selectedCity);
+			$selectedRegion=$cityData['FK_Region'][0];
+		}
+	}
+	
+	$eventPluginID=getDeviceFromDT($installationID,$GLOBALS['EventPlugIn'],$dbADO);
+	if($eventPluginID!==null){
+		$eventPluginDD=getDD($eventPluginID,$GLOBALS['Longitude'].','.$GLOBALS['Latitude'],$dbADO);
+		$Longitude=$eventPluginDD[$GLOBALS['Longitude']];
+		$Latitude=$eventPluginDD[$GLOBALS['Latitude']];
 	}
 	
 	$query = "
@@ -53,6 +66,7 @@ function installationSettings($output,$dbADO) {
 	if ($selectInstallation) {
 		$rowInstallation = $selectInstallation->FetchRow();			
 	}
+	$selectedCountry=(isset($_POST['countryID']))?(int)$_POST['countryID']:$rowInstallation['FK_Country'];	
 	
 	if ($action=='form') {		
 		$out.=setLeftMenu($dbADO).'
@@ -92,8 +106,33 @@ function installationSettings($output,$dbADO) {
 				</tr>
 				<tr>
 					<td><B>Country</B>:</td>
-					<td>'.generatePullDown('countryID','Country','PK_Country','Description',$rowInstallation['FK_Country'],$dbADO).'</td>
-				</tr>		
+					<td>'.generatePullDown('countryID','Country','PK_Country','Description',$selectedCountry,$dbADO,'','onChange="document.installationSettings.action.value=\'form\';document.installationSettings.submit();"').'</td>
+				</tr>';
+				if($selectedCountry>0){
+					$selectedRegion=(isset($_POST['region']))?(int)$_POST['region']:(int)@$selectedRegion;	
+					$out.='
+					<tr>
+						<td><B>Region</B>:</td>
+						<td>'.generatePullDown('region','Region','PK_Region','Region',@$selectedRegion,$dbADO,'WHERE FK_Country='.$selectedCountry,'onChange="document.installationSettings.action.value=\'form\';document.installationSettings.submit();"').'</td>
+					</tr>';
+					
+					if($selectedRegion>0){
+						$output->setScriptInHead(getCitiesCoordsArray($dbADO,' WHERE FK_Region='.$selectedRegion));
+					$out.='
+					<tr>
+						<td><B>City</B>:</td>
+						<td>'.generatePullDown('city_coords','City','PK_City','City',@$selectedCity,$dbADO,'WHERE FK_Region='.$selectedRegion,'onChange="setCoordinates()"').'</td>
+					</tr>';
+					
+					}
+				}
+				$out.='		
+				<tr>
+					<td colspan="2">
+						<B>Longitude</B>: <input type="text" size="5" name="Longitude" value="'.@$Longitude.'">
+						<B>Latitude</B>: <input type="text" size="5" name="Latitude" value="'.@$Latitude.'">
+					</td>
+				</tr>
 				<tr>
 					<td><B>Zip/Postal Code</B>:</td>
 					<td><input type="text" size="30" name="Zip" value="'.$rowInstallation['Zip'].'"></td>
@@ -105,7 +144,7 @@ function installationSettings($output,$dbADO) {
 				
 				$out.='
 				<tr>
-					<td colspan="2" align="center">Current timezone: <B>'.$oldTimeZone[1].'</B></td>
+					<td colspan="2" align="center" bgcolor="lightblue">Current timezone: <B>'.$oldTimeZone[1].'</B></td>
 				</tr>
 				<input type="hidden" name="oldTimeZone" value="'.$oldTimeZone[0].'">
 				';
@@ -207,7 +246,6 @@ function installationSettings($output,$dbADO) {
 			//frmvalidator.addValidation("Name","req","Please enter a name");			
 		</script>
 		';
-		
 	} else {
 		// check if the user has the right to modify installation
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
@@ -225,6 +263,24 @@ function installationSettings($output,$dbADO) {
 		$zip = cleanString(@$_POST['Zip'],50);
 		$country=((int)$_POST['countryID']!=0)?(int)$_POST['countryID']:NULL;
 		$newLanguage=(int)$_POST['newLanguage'];
+		
+		$city_coords=(int)@$_POST['city_coords'];
+		$Longitude=$_POST['Longitude'];
+		$Latitude=$_POST['Latitude'];
+		$updateDD='UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?';
+		$err='';
+		if($dceRouterID!==null){
+			$dbADO->Execute($updateDD,array($city_coords,$dceRouterID,$GLOBALS['PK_City']));
+		}else{
+			$err.='Error: unable to find DCE router device.<br>';
+		}	
+		if($eventPluginID!==null){
+			$dbADO->Execute($updateDD,array($Longitude,$eventPluginID,$GLOBALS['Longitude']));
+			$dbADO->Execute($updateDD,array($Latitude,$eventPluginID,$GLOBALS['Latitude']));
+		}else{
+			$err.='Error: unable to find Event plugin device.<br>';
+		}
+		
 		
 		if ($installationID!=0 && $description!='') {
 			$queryUpdate = 'UPDATE Installation Set Description=?,Name=?,Address=?,City=?,State=?,Zip=?,FK_Country=? 
@@ -245,7 +301,8 @@ function installationSettings($output,$dbADO) {
 				}
 			}
 			
-			header("Location: index.php?section=installationSettings&from=$from&msg=Installation was updated.");
+			$suffix=(isset($err))?'&error='.$err:'';
+			header("Location: index.php?section=installationSettings&from=$from&msg=Installation was updated.$suffix");
 			exit();
 		} else {
 			header("Location: index.php?section=installationSettings&error=Invalid ID or empty name");
@@ -260,14 +317,58 @@ function installationSettings($output,$dbADO) {
 	$output->output();
 }
 
-function getLanguage($DCERouterID,$dbADO)
+function getDD($deviceID,$deviceDataValues,$dbADO)
 {
-	$res=$dbADO->Execute('SELECT * FROM Device_DeviceData WHERE FK_Device=? AND FK_DeviceData=?',array($DCERouterID,$GLOBALS['Language']));
-	if($res->RecordCount()==0){
-		return null;
-	}else{
-		$row=$res->FetchRow();
-		return $row['IK_DeviceData'];
+	$ddArray=array();
+	$fields=explode(',',$deviceDataValues);
+	foreach ($fields AS $fieldID){
+		$ddArray[$fieldID]=null;
 	}
+	
+	$res=$dbADO->Execute('SELECT * FROM Device_DeviceData WHERE FK_Device=? AND FK_DeviceData IN ('.$deviceDataValues.')',array($deviceID));
+	if($res->RecordCount()==0){
+		return $ddArray;
+	}else{
+		while($row=$res->FetchRow()){
+			$ddArray[$row['FK_DeviceData']]=$row['IK_DeviceData'];
+		}
+	}
+
+
+	return $ddArray;
+}
+
+// return a javascript array with coordinates
+function getCitiesCoordsArray($dbADO,$filter='')
+{
+	
+	$out='
+	<script>
+	function setCoordinates()
+	{
+		currentCity=document.installationSettings.city_coords.value;
+		try{
+			document.installationSettings.Longitude.value=coords_long[currentCity];
+			document.installationSettings.Latitude.value=coords_lat[currentCity];
+		}catch(e){
+			// do nothing
+		}
+	}
+	';
+	$res=$dbADO->Execute('SELECT * FROM City '.$filter);
+	$out.='
+		var coords_long=new Array('.$res->RecordCount().');
+		var coords_lat=new Array('.$res->RecordCount().');
+	';
+	while($row=$res->FetchRow()){
+		$out.='
+		coords_long['.$row['PK_City'].']='.$row['Longitude'].';
+		coords_lat['.$row['PK_City'].']='.$row['Latitude'].';';
+	}
+	$out.='
+	</script>
+	';
+
+	return $out;
 }
 ?>
