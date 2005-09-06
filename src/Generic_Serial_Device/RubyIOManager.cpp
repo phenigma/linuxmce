@@ -38,7 +38,7 @@ namespace DCE {
 RubyIOManager* RubyIOManager::s_instance_ = NULL;
 
 RubyIOManager::RubyIOManager()
-	: m_MsgMutex("message mutex"), pdb_(NULL), pevdisp_(NULL), rootnode_(NULL)
+	: m_MsgMutex("message mutex",true), pdb_(NULL), pevdisp_(NULL), rootnode_(NULL)
 {
 }
 
