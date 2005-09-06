@@ -77,7 +77,7 @@ fi
 
 FindDevice()
 {
-	local PK_Device_Parent="${1//'}" FK_DeviceTemplate="${2//'}"
+	local PK_Device_Parent="${1//\'}" FK_DeviceTemplate="${2//\'}"
 
 	if [ -z "$PK_Device_Parent" -o -z "$FK_DeviceTemplate" ]; then
 		echo ""
