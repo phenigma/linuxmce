@@ -46,28 +46,6 @@ static HWND CreateButton(HWND hParentWnd, int x, int y, int width, int height, c
 	return hWndList;
 }
 //-----------------------------------------------------------------------------------------------------
-static HWND CreateLabel(HWND hParentWnd, int x, int y, int width, int height, char* caption)
-{
-    RECT rt_label = { x, y, width, height };
-
-#ifdef WINCE
-    wchar_t wTextBuffer[MAX_STRING_LEN];
-    mbstowcs(wTextBuffer, caption, MAX_STRING_LEN);
-#define CAPTION wTextBuffer
-#else
-#define CAPTION caption
-#endif
-
-    HWND hWndList = 
-        CreateWindow(TEXT("STATIC"), CAPTION, 
-        WS_CHILD | WS_VISIBLE, 
-        rt_label.left, rt_label.top, rt_label.right, rt_label.bottom, 
-        hParentWnd, NULL, g_hInst, NULL
-        );
-
-    return hWndList;
-}
-//-----------------------------------------------------------------------------------------------------
 void DisplayProgressBar(HWND hWnd, HDC hdc)
 {
     RECT rt;
@@ -94,7 +72,7 @@ void DisplayProgressBar(HWND hWnd, HDC hdc)
     DeleteObject(hBrush);
 }
 //-----------------------------------------------------------------------------------------------------
-void DisplayMessage(HWND hWnd, HDC hdc)
+static void DisplayMessage(HWND hWnd, HDC hdc)
 {
     RECT rectLocation = { BUTTON_SEPARATOR, BUTTON_SEPARATOR, 
         g_nWindowWidth - 2 * BUTTON_SEPARATOR, 2 * BUTTON_SEPARATOR + LABEL_HEIGHT }; 

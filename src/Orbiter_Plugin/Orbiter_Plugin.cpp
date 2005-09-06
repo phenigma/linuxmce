@@ -2272,8 +2272,8 @@ void Orbiter_Plugin::CMD_Get_Orbiter_Options(string sText,string *sValue_To_Assi
 		sSQL += ",Width,Height";
 	sSQL += " FROM " + sText;
 
-	if( sText=="Room" )
-		sSQL + " WHERE FK_Room=" + StringUtils::itos(m_pRouter->iPK_Installation_get());
+    if(sText == "Room")
+        sSQL += " WHERE FK_Installation = " + StringUtils::itos(m_pRouter->iPK_Installation_get());
 
 	PlutoSqlResult result_set;
     MYSQL_ROW row;

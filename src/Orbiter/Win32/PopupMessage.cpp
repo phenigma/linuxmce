@@ -71,28 +71,61 @@ static void AdjustWindowSize()
 	}
 }
 //-----------------------------------------------------------------------------------------------------
-static HWND CreateLabel(HWND hParentWnd, int x, int y, int width, int height, char* caption)
+static void DisplayMessage(HWND hWnd, HDC hdc)
 {
-	RECT rt_label = { x, y, width, height };
+    RECT rectLocation = { BUTTON_SEPARATOR, BUTTON_SEPARATOR, 
+        g_nWindowWidth - 3 * BUTTON_SEPARATOR, 2 * BUTTON_SEPARATOR + LABEL_HEIGHT }; 
+
+    COLORREF crBkColor = ::GetSysColor(COLOR_3DFACE);
+    HBRUSH hBrush = CreateSolidBrush(crBkColor);
+    SelectObject(hdc, hBrush);
+    ::FillRect(hdc, &rectLocation, hBrush);
+    DeleteObject(hBrush);
+
+    ::SetTextColor(hdc, RGB(0, 0, 0));
+    ::SetBkMode(hdc, TRANSPARENT);
 
 #ifdef WINCE
-	wchar_t wTextBuffer[MAX_STRING_LEN];
-	mbstowcs(wTextBuffer, caption, MAX_STRING_LEN);
-#define CAPTION wTextBuffer
-#else
-#define CAPTION caption
+    wchar_t wText[1024];
+    mbstowcs(wText, g_sPrompt.c_str(), 1024);
 #endif
 
-	HWND hWndList = 
-		CreateWindow(TEXT("STATIC"), CAPTION, 
-		WS_CHILD | WS_VISIBLE, 
-		rt_label.left, rt_label.top, rt_label.right, rt_label.bottom, 
-		hParentWnd, NULL, g_hInst, NULL
-		);
+#ifndef WINCE
+#define PM_TEXT_TO_RENDER g_sPrompt.c_str()
+#else
+#define PM_TEXT_TO_RENDER wText
+#endif
 
-	return hWndList;
+    RECT rectCalcLocation = rectLocation;
+
+    //calculate rect first
+    ::DrawText(hdc, PM_TEXT_TO_RENDER, int(g_sPrompt.length()), &rectCalcLocation, 
+        DT_WORDBREAK | DT_NOPREFIX | DT_CALCRECT); 
+
+    int nPixelHeight = 12 * (rectLocation.bottom - rectLocation.top) / 
+        double(rectCalcLocation.bottom - rectCalcLocation.top);
+
+#ifdef WINCE
+    nPixelHeight = min(16, max(12, nPixelHeight));
+#else
+    nPixelHeight = min(20, max(14, nPixelHeight));
+#endif 
+
+
+    LOGFONT lf;
+    HFONT hFontNew, hFontOld;
+    memset(&lf, 0, sizeof(LOGFONT));
+    lf.lfHeight		= nPixelHeight;
+    lf.lfWeight		= FW_NORMAL;
+    hFontNew = ::CreateFontIndirect(&lf);
+    hFontOld = (HFONT) ::SelectObject(hdc, hFontNew);
+    
+    ::DrawText(hdc, PM_TEXT_TO_RENDER, int(g_sPrompt.length()), &rectLocation, 
+        DT_WORDBREAK | DT_NOPREFIX); 
+
+    ::SelectObject(hdc, hFontOld);
+    ::DeleteObject(hFontNew);
 }
-
 //-----------------------------------------------------------------------------------------------------
 //
 //  FUNCTION: WndProc(HWND, unsigned, WORD, LONG)
@@ -137,17 +170,13 @@ LRESULT CALLBACK WndProcPopup(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 
 		case WM_CREATE:
 			{
-				CreateLabel(hWnd, BUTTON_SEPARATOR, BUTTON_SEPARATOR, 
-                    g_nWindowWidth - 2 * BUTTON_SEPARATOR, BUTTON_SEPARATOR + LABEL_HEIGHT, 
-                    const_cast<char *>(g_sPrompt.c_str()));
-
 				int nScaleX=0,nScaleY=0;
 				if( g_p_mapPrompts )
 				{
 					if( g_p_mapPrompts->size() )
 					{
-						nScaleX = 10 / g_p_mapPrompts->size();
-						nScaleY = 10 / g_p_mapPrompts->size();
+						nScaleX = 20 / int(g_p_mapPrompts->size());
+						nScaleY = 10 / int(g_p_mapPrompts->size());
 						if( nScaleX>3 )
 							nScaleX=3;
 						if( nScaleY>2 )
@@ -161,35 +190,61 @@ LRESULT CALLBACK WndProcPopup(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 						nScaleX=nScaleY=1;
 				}
 
-                int nButtonWidth  = nScaleX * BUTTON_WIDTH;
+				while(nScaleX * BUTTON_WIDTH > g_nWindowWidth - 2 * BUTTON_SEPARATOR)
+				{
+					nScaleX--;
+
+					if(nScaleX == 1)
+						break;
+				}
+				
+                int nButtonWidth = nScaleX * BUTTON_WIDTH > g_nWindowWidth - 2 * BUTTON_SEPARATOR ? BUTTON_WIDTH : nScaleX * BUTTON_WIDTH;
                 int nButtonHeight = nScaleY * BUTTON_HEIGHT;
 
                 int nButtonsPerRow = (g_nWindowWidth - BUTTON_SEPARATOR) / (nButtonWidth + BUTTON_SEPARATOR);
 				nButtonsPerRow += nButtonsPerRow ? 0 : 1;
 
+                if(nButtonsPerRow == 1)
+                    nButtonWidth = g_nWindowWidth - BUTTON_SEPARATOR * 3;
+
                 int nButtonIndex = 0;
                 int nButtonOnRowIndex = 0;
                 int nButtonColumnIndex = 0;
                 int nAdjustment = (g_nWindowWidth - (nButtonsPerRow * (nButtonWidth + BUTTON_SEPARATOR) + BUTTON_SEPARATOR)) / 2;
+				nAdjustment = nAdjustment >= 0 ? nAdjustment : 0;
 
 				if( g_p_mapPrompts )
 				{
-					map<int, string>::iterator it;
-					for(it = g_p_mapPrompts->begin(); it != g_p_mapPrompts->end(); it++)
+					if(g_p_mapPrompts->size() == 1)
 					{
+						map<int, string>::iterator it = g_p_mapPrompts->begin();
 						string sCaption = StringUtils::Replace(it->second, "&", "&&");
-						nButtonOnRowIndex = nButtonIndex % nButtonsPerRow;
-						nButtonColumnIndex = nButtonIndex / nButtonsPerRow; 
-
-						HWND hWndButton = CreateButton(hWnd, nAdjustment + BUTTON_SEPARATOR + nButtonOnRowIndex * (nButtonWidth + BUTTON_SEPARATOR), 
+						HWND hWndButton = CreateButton(hWnd, 
+							(g_nWindowWidth - BUTTON_WIDTH) / 2,
 							BUTTON_SEPARATOR + LABEL_HEIGHT + BUTTON_SEPARATOR + nButtonColumnIndex * (nButtonHeight + BUTTON_SEPARATOR),
-							nButtonWidth, nButtonHeight, const_cast<char *>(sCaption.c_str()));
-
+							BUTTON_WIDTH, nButtonHeight, const_cast<char *>(sCaption.c_str()));
 						g_mapButtons[it->first] = hWndButton;
-						nButtonIndex++;
+					}
+					else
+					{
+						map<int, string>::iterator it;
+						for(it = g_p_mapPrompts->begin(); it != g_p_mapPrompts->end(); it++)
+						{
+							string sCaption = StringUtils::Replace(it->second, "&", "&&");
+							nButtonOnRowIndex = nButtonIndex % nButtonsPerRow;
+							nButtonColumnIndex = nButtonIndex / nButtonsPerRow; 
 
-						if(nButtonIndex > MAX_NUMBER_OF_BUTTONS)
-							break;
+							HWND hWndButton = CreateButton(hWnd, 
+								nAdjustment + BUTTON_SEPARATOR + nButtonOnRowIndex * (nButtonWidth + BUTTON_SEPARATOR), 
+								BUTTON_SEPARATOR + LABEL_HEIGHT + BUTTON_SEPARATOR + nButtonColumnIndex * (nButtonHeight + BUTTON_SEPARATOR),
+								nButtonWidth, nButtonHeight, const_cast<char *>(sCaption.c_str()));
+
+							g_mapButtons[it->first] = hWndButton;
+							nButtonIndex++;
+
+							if(nButtonIndex > MAX_NUMBER_OF_BUTTONS)
+								break;
+						}
 					}
 				}
 
@@ -210,6 +265,8 @@ LRESULT CALLBACK WndProcPopup(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 				SelectObject(hdc, hBrush);
 				FillRect(hdc, &rt, hBrush);//(HBRUSH)::GetStockObject(GRAY_BRUSH));
 				DeleteObject(hBrush);
+                 
+                DisplayMessage(hWnd, hdc);
 				EndPaint(hWnd, &ps);
 			}
 			break; 
@@ -293,7 +350,7 @@ BOOL InitInstancePopup(HINSTANCE hInstance, int nCmdShow)
     g_nWindowHeight = 280;
 #else
     g_nWindowWidth = 400;
-    g_nWindowHeight = 400;
+    g_nWindowHeight = 600;
 #endif
 
 	HWND hWnd = NULL;
@@ -329,7 +386,15 @@ int PromptUserEx(string sPrompt,map<int,string> *p_mapPrompts)
 {
     g_nResponse = -1;
     g_sPrompt = sPrompt;
-    g_p_mapPrompts = p_mapPrompts;
+
+    map<int, string> mapInteralOkPrompts;
+    if(!p_mapPrompts || !p_mapPrompts->size()) //no buttons
+    {
+        mapInteralOkPrompts[-1] = "OK";
+        g_p_mapPrompts = &mapInteralOkPrompts;
+    }
+    else
+        g_p_mapPrompts = p_mapPrompts;
 
     InitInstancePopup(g_hInst, 1);
 

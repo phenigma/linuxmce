@@ -340,7 +340,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
     #ifndef SMARTPHONE
         rc.right = 240;
-        rc.bottom = 320;
+        rc.bottom = 280;
     #else
         rc.right = 176;
         rc.bottom = 220;
@@ -361,7 +361,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
         g_iDialogWidth = iWidth;
         g_iDialogHeight = iHeight;
 
-        if(iWidth < 240 && iHeight < 320)
+        if(iWidth < 240 && iHeight < 280)
             g_bSmartPhone = true;
     }
     
@@ -395,26 +395,23 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		return FALSE;
 	}
 
-	//When the main window is created using CW_USEDEFAULT the height of the menubar (if one
-	// is created is not taken into account). So we resize the window after creating it
-	// if a menubar is present
+#ifndef WINCE
+	rc.left = (iWidth - g_iDialogWidth) / 2;
+	rc.right = rc.left + g_iDialogWidth;
+	rc.top = (iHeight - g_iDialogHeight) / 2;
+	rc.bottom = rc.top + g_iDialogHeight;
+#endif
+
 #ifdef WINCE
 	if (g_hwndCB)
-#endif
-    {
-		rc.left = (iWidth - g_iDialogWidth) / 2;
-		rc.right = rc.left + g_iDialogWidth;
-		rc.top = (iHeight - g_iDialogHeight) / 2;
-		rc.bottom = rc.top + g_iDialogHeight;
-
-#ifdef WINCE
-        RECT rcMenuBar;
-        GetWindowRect(g_hwndCB, &rcMenuBar);
+	{
+		RECT rcMenuBar;
+		GetWindowRect(g_hwndCB, &rcMenuBar);
 		rc.bottom -= (rcMenuBar.bottom - rcMenuBar.top);
+	}
 #endif		
 
-		MoveWindow(hWnd, rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top, FALSE);
-	}
+	MoveWindow(hWnd, rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top, FALSE);
 
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);

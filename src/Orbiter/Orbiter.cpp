@@ -8437,11 +8437,11 @@ int Orbiter::HandleNotOKStatus(string sStatus,string sRegenStatus,int iRegenPerc
 		mapPrompts[prYes]    = "Yes";
 		mapPrompts[prNo]     = "No";
 
-		int iResponse;
+		int iResponse = prNo;
 		if( sStatus=="D" )
-			iResponse = PromptUser("Something went wrong.  The device number, " + StringUtils::itos(m_dwPK_Device) + ", doesn't seem to be an orbiter.  Reset the device number and try next time to determine it automatically?",&mapPrompts);
+			iResponse = PromptUser("Something went wrong. The device number, " + StringUtils::itos(m_dwPK_Device) + ", doesn't seem to be an orbiter.  Reset the device number and try next time to determine it automatically?",&mapPrompts);
 		else
-			PromptUser("Something went wrong.  The device number, " + StringUtils::itos(m_dwPK_Device) + ", is not known to the Core.  Reset the device number and try next time to determine it automatically?",&mapPrompts);
+			iResponse = PromptUser("Something went wrong.  The device number, " + StringUtils::itos(m_dwPK_Device) + ", is not known to the Core.  Reset the device number and try next time to determine it automatically?",&mapPrompts);
 
 		if( iResponse==prYes )
 		{
