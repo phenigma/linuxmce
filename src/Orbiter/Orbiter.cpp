@@ -8399,6 +8399,9 @@ void Orbiter::RenderShortcut(DesignObj_Orbiter *pObj)
 
 int Orbiter::HandleNotOKStatus(string sStatus,string sRegenStatus,int iRegenPercent)
 {
+    if((sStatus=="R" || sStatus=="r") && sRegenStatus == "Done")
+        return 1;
+
 	if( sStatus=="R" || sStatus=="r" )
 		return MonitorRegen(m_dwPK_Device);
 
