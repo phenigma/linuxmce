@@ -82,6 +82,10 @@ sub filter_source ($$) {
 			print OUT "/* BP #if $if ($line) */\n" if $DEBUG;
 			next;
 		}
+		if ($line =~ /^#if 1 .*KEEP.*/) {
+			print OUT "#if 1\n";
+			next;
+		}
 		if ($line =~ /^#if 1/) {
 			chomp($line);
 			$state = "if";
@@ -134,6 +138,29 @@ sub filter_source ($$) {
 	close OUT;
 }
 
+sub filter_dest ($$) {
+	my ($in,$out) = @_;
+	my ($line,$if,$state,$mmkernel);
+
+	if (-e $LINUX . "/.mm") {
+		$mmkernel = 1;
+	} else {
+		$mmkernel = 0;
+	}
+
+	open IN,  "<$in";
+	open OUT, ">$out";
+
+	while ($line = <IN>) {
+		if ($line =~ m/\$Id: buildpatch,v 1.9 2005/09/04 11:45:20 mchehab Exp $/) {
+			next;
+		}
+		print OUT $line;
+	}
+	close IN;
+	close OUT;
+}
+
 
 #################################################################
 # build diffs
@@ -142,13 +169,16 @@ sub makediff ($$) {
 	my ($here,$kernel) = @_;
 	my ($line1,$line2,$file1,$file2);
 	my $tmp = "/tmp/src.$$";
+	my $tmp2 = "/tmp/dst.$$";
 
-	filter_source($here,"$tmp");
+	filter_source("$here","$tmp");
+
 	if (-f "$LINUX/$kernel") {
-		open DIFF, "diff -u $LINUX/$kernel $tmp|";
+		filter_dest("$LINUX/$kernel","$tmp2");
+		open DIFF, "diff -up $tmp2 $tmp|";
 	} else {
 		# new file
-		open DIFF, "diff -u /dev/null $tmp|";
+		open DIFF, "diff -up /dev/null $tmp|";
 	}
 
 	# header
@@ -226,6 +256,8 @@ while (my $line = <CONFIG>) {
 close(PATCHTMP);
 select(STDOUT);
 
-system "diffstat -p0 -w72 $patchtmploc";
-print "\n",readfile($patchtmploc);
-unlink $patchtmploc;
+if (-s "$patchtmploc") {
+	system "diffstat -p0 -w72 $patchtmploc";
+	print "\n",readfile($patchtmploc);
+	unlink $patchtmploc;
+}

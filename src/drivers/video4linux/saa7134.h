@@ -1,5 +1,5 @@
 /*
- * $Id: saa7134.h,v 1.52 2005/08/22 18:47:58 mkrufky Exp $
+ * $Id: saa7134.h,v 1.53 2005/09/05 15:35:14 nsh Exp $
  *
  * v4l2 device driver for philips saa7134 based TV cards
  *
@@ -198,6 +198,7 @@ struct saa7134_format {
 #define SAA7134_BOARD_FLYTV_DIGIMATRIX 64
 #define SAA7134_BOARD_KWORLD_TERMINATOR 65
 #define SAA7134_BOARD_YUAN_TUN900 66
+#define SAA7134_BOARD_BEHOLD_409FM 67
 
 #define SAA7134_MAXBOARDS 8
 #define SAA7134_INPUT_MAX 8

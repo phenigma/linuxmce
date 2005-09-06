@@ -6,6 +6,7 @@
 
 #define HAVE_V4L2 1
 #include <linux/videodev2.h>
+#include "compat.h"
 
 #ifdef __KERNEL__
 

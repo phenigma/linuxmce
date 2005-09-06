@@ -1,5 +1,5 @@
 /*
- * $Id: saa7134-dvb.c,v 1.25 2005/07/25 05:13:50 mkrufky Exp $
+ * $Id: saa7134-dvb.c,v 1.26 2005/08/30 19:53:12 mkrufky Exp $
  *
  * (c) 2004 Gerd Knorr <kraxel@bytesex.org> [SuSE Labs]
  *
@@ -29,7 +29,6 @@
 #include <linux/delay.h>
 #include <linux/kthread.h>
 #include <linux/suspend.h>
-#include <linux/config.h>
 #include "compat.h"
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,13)

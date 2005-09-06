@@ -1,3 +1,205 @@
+2005-09-05 15:30  nshmyrev
+
+	* doc/CARDLIST.saa7134:
+	* saa7134-cards.c: (saa7134_board_init1):
+	* saa7134-input.c: (saa7134_input_init1):
+	* saa7134.h:
+	- Added new card Behold TV 409 FM.
+
+	Signed-off-by: Nickolay V. Shmyrev <nshmyrev@yandex.ru>
+	Signed-off-by: Sergey <skiv@orel.ru>
+
+2005-09-05 15:01  nshmyrev
+
+	* cx88-cards.c:
+	* cx88.h:
+	- Added new card AverMedia UltraTV Media Center PCI 550
+
+	Signed-off-by: Nickolay V. Shmyrev <nshmyrev@yandex.ru>
+	Signed-off-by: Michael Fair <michael at daclubhouse dot net>
+
+2005-09-05 14:56  nshmyrev
+
+	* saa7134-cards.c:
+	- Added support for OEM version of FlyTV Platinum mini with a
+	subvendor id of 0x4e42.
+	- Added the OEM PCI id's to the docs/CARDLIST.saa7134 for item 39
+	- Modified the vmux in the SAA7134_BOARD_FLYTVPLATINUM_MINI driver
+	data from 0 (Composite over S-Video) to 3 (Composite). 
+
+ 	Signed-off-by: Glen Gray <glen@lincor.com>
+
+2005-09-04 13:32  mkrufky
+
+	* cx88-input.c: (cx88_ir_init):
+	* ir-kbd-gpio.c: (ir_probe):
+	- Fixed broken compile, due to input event device patch.
+
+	Signed-off-by: Michael Fair <michael@daclubhouse.net>
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-09-04 11:40  mchehab
+
+	* msp3400.c: (msp34xx_modus):
+	- Add KEEP comment on #if 1 to allow it to go to mainstream
+	* tvaudio.c, video-buf-dvb.h:
+	- Changes to eliminate dumb differences from kernel and to 
+	  eliminate $Id from Mainstream.
+	* scripts/buildpatch:
+	- Improved to allow keeping some #if 1 comments go to mainsteam
+	- Don't generate diffstat for empty changes.
+	- Remove $Id when generating patches.
+
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-09-02 21:57  mchehab
+
+	* cx88-input.c: (cx88_ir_init):
+	* ir-kbd-gpio.c: (ir_probe):
+	* saa7134-input.c: (saa7134_input_init1):
+	- Makes the input event device created by the V4L drivers for the
+	  infrared remote matchable by udev rules.
+
+	Signed-off-by: Rudo Thomas <rudo@matfyz.cz>
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-09-02 21:18  mchehab
+
+	* msp3400.c:
+	- added some missing parameter descriptions.
+
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-09-01 21:28  mkrufky
+
+	* tda9887.c: (tda9887_fixup_std):
+	* tuner-core.c: (tuner_fixup_std):
+	- print warning if pal= or secam= argument is unrecognized
+
+	Signed-off-by: Philip Rowlands <phr@doc.ic.ac.uk>
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-09-01 21:17  mkrufky
+
+	* saa7134-cards.c:
+	- correct the amux for composite and
+	  s-video inputs on the Sabrent SBT-TVFM card.
+
+	Thanks to: Michael Rodriquez-Torrent <mike@themikecam.com>
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-08-30 19:52  mkrufky
+
+	* saa7134-dvb.c:
+	- #include <linux/config.h> no longer needed.
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-08-30 15:11  mkrufky
+
+	* cx88-video.c: (cx8800_resume):
+	- removed trailing whitespace.
+
+	* tuner-simple.c: (default_set_radio_freq):
+	- The Microtune 4049FM5 uses an IF frequency of 33.3 MHz for FM radio.
+
+	Signed-off-by: Hans Verkuil <hverkuil@xs4all.nl>
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-08-30 14:58  mchehab
+
+	* bttv-driver.c, cx88-mpeg.c, cx88-video.c:
+	- Some error treatment implemented at resume functions.
+
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-08-30 05:15  mkrufky
+
+	* tuner-simple.c:
+	- Change LG TDVS H062F from NTSC to ATSC.
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-08-30 05:09  mchehab
+
+	* bttv-cards.c, cx88-cards.c, tveeprom.h:
+	- tveeprom patch was not complete. Completing it.
+
+	Signed-off-by: Hans Verkuil <hverkuil@xs4all.nl>
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-08-30 04:44  mchehab
+
+	* tuner-simple.c, tuner.h:
+	- normalize whitespace and comments in tuner lists.
+
+	Signed-off-by: Philip Rowlands <phr@doc.ic.ac.uk>
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-08-30 04:31  mchehab
+
+	* tveeprom.c:
+	- tveeprom_hauppauge_analog has an extra i2c_client * argument.
+	  This allows for clearer message prefixes containing the i2c
+	  adapter number and address. This is conform the prefix used
+	  for the tuner messages.
+	- debugging is improved: debug=1 will dump the full contents
+	  of the eeprom and also show each tag that is parsed. The layout
+	  of the debug output is now clean.
+	- the eeprom can contain two tuner records, the first for the
+	  TV tuner, the second for a radio tuner (this is the case for
+	  the PVR500). Added support for this, also added the TEA5767
+	  radio tuner to the tuner list.
+	- the audio processor index is now mapped to a string.
+	- the video decoder processor tag is now implemented.
+	- all TV standards supported by the tuner are shown.
+	- show if radio or IR is present.
+	- add comments showing what other tags exist.
+
+	Signed-off-by: Hans Verkuil <hverkuil@xs4all.nl>
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-08-30 04:21  mchehab
+
+	* tvaudio.c:
+	- adds the adapter number + i2c address to printk msgs.
+	- Some CodingStyle cleanups.
+
+	Signed-off-by: Hans Verkuil <hverkuil@xs4all.nl>
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-08-30 02:40  mkrufky
+
+	* cx88-dvb.c:
+	- #include <linux/config.h> no longer needed.
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-08-28 18:15  mkrufky
+
+	* scripts/merge-trees.sh, scripts/unmerge-trees.sh:
+	- include files into tree-merge necessary for the
+	  dvb-bt8xx and dst dvb modules, based on bt8xx chips.
+	  This also includes all dvb frontends used by bt8xx boards.
+
+	* bttv.h, videodev.h:
+	- #include "compat.h", needed for tree-merge.
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-08-25 05:59  mkrufky
+
+	* cx88-dvb.c: (dvb_register):
+	- report dvb frontend name instead of cx88 card name.
+
+	* bttv-cards.c, doc/CARDLIST.bttv:
+	- Change DVICO to DViCO.
+
+	* saa7134-cards.c:
+	- Remove bad PCI subsystem ID for Sabrent card.
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
 2005-08-22 18:29  mkrufky
 
 	* saa7134-cards.c, saa7134.h:
@@ -21,7 +223,7 @@
 	Signed-off-by: Nickolay V. Shmyrev <nshmyrev@yandex.ru>
 	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
 
-2005-08-20 22:08  
+2005-08-20 22:08  mchehab
 
 	* tuner-simple.c:
         - correct LG NTSC TALN mini tuner takeover as far we can
@@ -30,7 +232,7 @@
         Signed-off-by: Hermann Pitton <hermann.pitton@onlinehome.de>
 	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
 
-2005-08-20 17:37  
+2005-08-20 17:37  mchehab
 
 	* tveeprom.c: (tveeprom_command):
 	- This syncs the tuners list with the list from ivtv.
@@ -39,7 +241,7 @@
 	Signed-off-by: Hans Verkuil <hverkuil@xs4all.nl>
 	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
 
-2005-08-20 17:30  
+2005-08-20 17:30  mchehab
 
 	* msp3400.c: (msp_attach):
 	- Changes the prefix to 'msp34xx' instead of 'msp3400'.
@@ -120,7 +322,7 @@
 
 2005-08-17 09:58  mchehab
 
-	*cx88-reg.h:
+	* cx88-reg.h:
 	- Added some registers to control PCI controller at CX2388x chips.
 
 	* cx88-tvaudio.c:
@@ -128,7 +330,7 @@
 
 	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
 
-2005-08-16 18:00 catalin
+2005-08-16 18:00  catalin
 
 	* cx88-blackbird.c:
 	- fall back to cx88_do_ioctl instead of returning -EINVAL
@@ -151,7 +353,7 @@
 
 	Signed-off-by: Catalin Climov <catalin@climov.com>
 
-2005-08-16 17:45 catalin
+2005-08-16 17:45  catalin
 
 	* cx88-blackbird.c:
 	- add ioctl indirection via cx88_ioctl_hook and cx88_ioctl_translator
@@ -850,7 +1052,7 @@
 
 	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
 
-2005-07-13 9:06  mchehab
+2005-07-13 09:06  mchehab
 	* cx88-video.c:
 	- After changing channels, reconfigure audio parameters.
 
@@ -1494,7 +1696,7 @@
 
 	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
 
-2005-06-21 0240  mchehab
+2005-06-21 02:40  mchehab
 	*tuner-core.c:
 	- VIDIOCSTUNER removed.
 

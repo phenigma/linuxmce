@@ -1,5 +1,5 @@
 /*
-    $Id: bttv-cards.c,v 1.68 2005/08/11 17:41:17 mkrufky Exp $
+    $Id: bttv-cards.c,v 1.71 2005/08/30 17:24:09 mkrufky Exp $
 
     bttv-cards.c
 
@@ -313,8 +313,8 @@ static struct CARD {
 	{ 0x00011822, BTTV_TWINHAN_DST,   "Twinhan VisionPlus DVB" },
 	{ 0xfc00270f, BTTV_TWINHAN_DST,   "ChainTech digitop DST-1000 DVB-S" },
 	{ 0x07711461, BTTV_AVDVBT_771,    "AVermedia AverTV DVB-T 771" },
-	{ 0xdb1018ac, BTTV_DVICO_DVBT_LITE,    "DVICO FusionHDTV DVB-T Lite" },
-	{ 0xd50018ac, BTTV_DVICO_FUSIONHDTV_5_LITE,    "DVICO FusionHDTV 5 Lite" },
+	{ 0xdb1018ac, BTTV_DVICO_DVBT_LITE,    "DViCO FusionHDTV DVB-T Lite" },
+	{ 0xd50018ac, BTTV_DVICO_FUSIONHDTV_5_LITE,    "DViCO FusionHDTV 5 Lite" },
 
 	{ 0, -1, NULL }
 };
@@ -2293,7 +2293,7 @@ struct tvcard bttv_tvcards[] = {
 
 	/* ---- card 0x80 ---------------------------------- */
 	/* Chris Pascoe <c.pascoe@itee.uq.edu.au> */
-	.name           = "DVICO FusionHDTV DVB-T Lite",
+	.name           = "DViCO FusionHDTV DVB-T Lite",
 	.tuner          = -1,
 	.no_msp34xx     = 1,
 	.no_tda9875     = 1,
@@ -2427,7 +2427,7 @@ struct tvcard bttv_tvcards[] = {
 {
 	/* ---- card 0x87---------------------------------- */
 	/* Michael Krufky <mkrufky@m1k.net> */
-	.name           = "DVICO FusionHDTV 5 Lite",
+	.name           = "DViCO FusionHDTV 5 Lite",
 	.tuner          = 0,
 	.tuner_type     = TUNER_LG_TDVS_H062F,
 	.tuner_addr	= ADDR_UNSET,
@@ -3110,7 +3110,7 @@ static void __devinit hauppauge_eeprom(struct bttv *btv)
 {
 	struct tveeprom tv;
 
-	tveeprom_hauppauge_analog(&tv, eeprom_data);
+	tveeprom_hauppauge_analog(&btv->i2c_client, &tv, eeprom_data);
 	btv->tuner_type = tv.tuner_type;
 	btv->has_radio  = tv.has_radio;
 }

@@ -1,5 +1,5 @@
 /*
- * $Id: cx88-mpeg.c,v 1.36 2005/08/16 16:29:52 catalin Exp $
+ * $Id: cx88-mpeg.c,v 1.39 2005/09/06 21:58:43 catalin Exp $
  *
  *  Support for the mpeg transport stream transfers
  *  PCI function #2 of the cx2388x.
@@ -68,7 +68,6 @@ static int cx8802_start_dma(struct cx8802_dev    *dev,
 	/* write TS length to chip */
 	cx_write(MO_TS_LNGTH, buf->vb.width);
 
-#if 1
 	/* FIXME: this needs a review.
 	 * also: move to cx88-blackbird + cx88-dvb source files? */
 
@@ -110,7 +109,6 @@ static int cx8802_start_dma(struct cx8802_dev    *dev,
 		cx_write(TS_GEN_CNTRL, 0x06); /* punctured clock TS & posedge driven */
 		udelay(100);
 	}
-#endif
 
 	/* reset counter */
 	cx_write(MO_TS_GPCNTRL, GP_COUNT_CONTROL_RESET);
@@ -488,14 +486,28 @@ int cx8802_suspend_common(struct pci_dev *pci_dev, pm_message_t state)
 
 int cx8802_resume_common(struct pci_dev *pci_dev)
 {
-        struct cx8802_dev *dev = pci_get_drvdata(pci_dev);
+	struct cx8802_dev *dev = pci_get_drvdata(pci_dev);
 	struct cx88_core *core = dev->core;
+	int err;
 
 	if (dev->state.disabled) {
-		pci_enable_device(pci_dev);
+		err=pci_enable_device(pci_dev);
+		if (err) {
+			printk(KERN_ERR "%s: can't enable device\n",
+					       dev->core->name);
+			return err;
+		}
 		dev->state.disabled = 0;
 	}
-	pci_set_power_state(pci_dev, PCI_D0);
+	err=pci_set_power_state(pci_dev, PCI_D0);
+	if (err) {
+		printk(KERN_ERR "%s: can't enable device\n",
+					       dev->core->name);
+		pci_disable_device(pci_dev);
+		dev->state.disabled = 1;
+
+		return err;
+	}
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,10)
 	pci_restore_state(pci_dev, dev->state.pci_cfg);
 #else

@@ -1,5 +1,5 @@
 /*
- * $Id: cx88-input.c,v 1.17 2005/08/10 15:16:31 mkrufky Exp $
+ * $Id: cx88-input.c,v 1.19 2005/09/04 13:36:10 mkrufky Exp $
  *
  * Device driver for GPIO attached remote control interfaces
  * on Conexant 2388x based TV/DVB cards.
@@ -446,6 +446,7 @@ int cx88_ir_init(struct cx88_core *core, struct pci_dev *pci)
 		ir->input.id.vendor = pci->vendor;
 		ir->input.id.product = pci->device;
 	}
+	ir->input.dev = &pci->dev;
 
 	/* record handles to ourself */
 	ir->core = core;

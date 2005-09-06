@@ -1,5 +1,5 @@
 /*
- * $Id: cx88-core.c,v 1.37 2005/08/16 16:29:52 catalin Exp $
+ * $Id: cx88-core.c,v 1.39 2005/08/30 18:13:51 mchehab Exp $
  *
  * device driver for Conexant 2388x based TV cards
  * driver core

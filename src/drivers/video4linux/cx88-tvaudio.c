@@ -1,5 +1,5 @@
 /*
-    $Id: cx88-tvaudio.c,v 1.41 2005/08/17 09:56:30 mchehab Exp $
+    $Id: cx88-tvaudio.c,v 1.43 2005/08/30 18:13:51 mchehab Exp $
 
     cx88x-audio.c - Conexant CX23880/23881 audio downstream driver driver
 

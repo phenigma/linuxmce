@@ -1,5 +1,5 @@
 /*
- * $Id: cx88-cards.c,v 1.93 2005/08/07 09:24:08 mkrufky Exp $
+ * $Id: cx88-cards.c,v 1.96 2005/09/05 15:58:07 mkrufky Exp $
  *
  * device driver for Conexant 2388x based TV cards
  * card-specific stuff.
@@ -778,6 +778,33 @@ struct cx88_board cx88_boards[] = {
                 }},
 		.dvb            = 1,
 	},
+	[CX88_BOARD_AVERMEDIA_ULTRATV_MC_550] = {
+		.name           = "AverMedia UltraTV Media Center PCI 550",
+		.tuner_type     = TUNER_PHILIPS_FM1236_MK3,
+		.radio_type     = UNSET,
+		.tuner_addr     = ADDR_UNSET,
+		.radio_addr     = ADDR_UNSET,
+		.tda9887_conf   = TDA9887_PRESENT,
+		.blackbird      = 1,
+		.input          = {{
+			.type   = CX88_VMUX_COMPOSITE1,
+			.vmux   = 0,
+			.gpio0  = 0x0000cd73,
+		},{
+			.type   = CX88_VMUX_SVIDEO,
+			.vmux   = 1,
+			.gpio0  = 0x0000cd73,
+		},{
+			.type   = CX88_VMUX_TELEVISION,
+			.vmux   = 3,
+			.gpio0  = 0x0000cdb3,
+		}},
+		.radio = {
+			.type   = CX88_RADIO,
+			.vmux   = 2,
+			.gpio0  = 0x0000cdf3,
+		},
+	},
 };
 const unsigned int cx88_bcount = ARRAY_SIZE(cx88_boards);
 
@@ -854,8 +881,8 @@ struct cx88_subid cx88_subids[] = {
 		.subdevice = 0xd820,
 		.card      = CX88_BOARD_DVICO_FUSIONHDTV_3_GOLD_T,
 	},{
-		.subvendor = 0x18AC,
-		.subdevice = 0xDB00,
+		.subvendor = 0x18ac,
+		.subdevice = 0xdb00,
 		.card      = CX88_BOARD_DVICO_FUSIONHDTV_DVB_T1,
  	},{
 		.subvendor = 0x0070,
@@ -870,8 +897,8 @@ struct cx88_subid cx88_subids[] = {
 		.subdevice = 0x2580,
 		.card      = CX88_BOARD_PROVIDEO_PV259,
 	},{
-		.subvendor = 0x18AC,
-		.subdevice = 0xDB10,
+		.subvendor = 0x18ac,
+		.subdevice = 0xdb10,
 		.card      = CX88_BOARD_DVICO_FUSIONHDTV_DVB_T_PLUS,
 	},{
                 .subvendor = 0x1554,
@@ -882,15 +909,15 @@ struct cx88_subid cx88_subids[] = {
 		.subdevice = 0x3000, /* HD-3000 card */
 		.card      = CX88_BOARD_PCHDTV_HD3000,
 	},{
-		.subvendor = 0x17DE,
-		.subdevice = 0xA8A6,
+		.subvendor = 0x17de,
+		.subdevice = 0xa8a6,
 		.card      = CX88_BOARD_DNTV_LIVE_DVB_T,
 	},{
 		.subvendor = 0x0070,
 		.subdevice = 0x2801,
 		.card      = CX88_BOARD_HAUPPAUGE_ROSLYN,
 	},{
-		.subvendor = 0x14F1,
+		.subvendor = 0x14f1,
 		.subdevice = 0x0342,
 		.card      = CX88_BOARD_DIGITALLOGIC_MEC,
 	},{
@@ -909,6 +936,10 @@ struct cx88_subid cx88_subids[] = {
 		.subvendor = 0x18ac,
 		.subdevice = 0xd500,
 		.card      = CX88_BOARD_DVICO_FUSIONHDTV_5_GOLD,
+ 	},{
+		.subvendor = 0x1461,
+		.subdevice = 0x8011,
+		.card      = CX88_BOARD_AVERMEDIA_ULTRATV_MC_550,
 	},
 };
 const unsigned int cx88_idcount = ARRAY_SIZE(cx88_subids);
@@ -947,7 +978,7 @@ static void hauppauge_eeprom(struct cx88_core *core, u8 *eeprom_data)
 {
 	struct tveeprom tv;
 
-	tveeprom_hauppauge_analog(&tv, eeprom_data);
+	tveeprom_hauppauge_analog(&core->i2c_client, &tv, eeprom_data);
 	core->tuner_type = tv.tuner_type;
 	core->has_radio  = tv.has_radio;
 }

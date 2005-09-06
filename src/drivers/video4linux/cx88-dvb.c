@@ -1,5 +1,5 @@
 /*
- * $Id: cx88-dvb.c,v 1.61 2005/08/19 15:55:16 mkrufky Exp $
+ * $Id: cx88-dvb.c,v 1.63 2005/08/30 02:41:32 mkrufky Exp $
  *
  * device driver for Conexant 2388x based TV cards
  * MPEG Transport Stream (DVB) routines
@@ -29,7 +29,6 @@
 #include <linux/kthread.h>
 #include <linux/file.h>
 #include <linux/suspend.h>
-#include <linux/config.h>
 #include "compat.h"
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,13)
@@ -411,11 +410,6 @@ static int dvb_register(struct cx8802_dev *dev)
 		dev->dvb.frontend->ops->info.frequency_min = dev->core->pll_desc->min;
 		dev->dvb.frontend->ops->info.frequency_max = dev->core->pll_desc->max;
 	}
-
-	/* Copy the board name into the DVB structure */
-	strlcpy(dev->dvb.frontend->ops->info.name,
-		cx88_boards[dev->core->board].name,
-		sizeof(dev->dvb.frontend->ops->info.name));
 
 	/* register everything */
 	return videobuf_dvb_register(&dev->dvb, THIS_MODULE, dev);

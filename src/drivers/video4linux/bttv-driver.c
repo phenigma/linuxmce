@@ -1,5 +1,5 @@
 /*
-    $Id: bttv-driver.c,v 1.54 2005/08/17 04:45:52 mkrufky Exp $
+    $Id: bttv-driver.c,v 1.55 2005/08/30 15:01:48 mchehab Exp $
 
     bttv - Bt848 frame grabber driver
 
@@ -4154,15 +4154,29 @@ static int bttv_resume(struct pci_dev *pci_dev)
 {
         struct bttv *btv = pci_get_drvdata(pci_dev);
 	unsigned long flags;
+	int err;
 
 	dprintk("bttv%d: resume\n", btv->c.nr);
 
 	/* restore pci state */
 	if (btv->state.disabled) {
-		pci_enable_device(pci_dev);
+		err=pci_enable_device(pci_dev);
+		if (err) {
+			printk(KERN_WARNING "bttv%d: Can't enable device.\n",
+								btv->c.nr);
+			return err;
+		}
 		btv->state.disabled = 0;
 	}
-	pci_set_power_state(pci_dev, PCI_D0);
+	err=pci_set_power_state(pci_dev, PCI_D0);
+	if (err) {
+		pci_disable_device(pci_dev);
+		printk(KERN_WARNING "bttv%d: Can't enable device.\n",
+							btv->c.nr);
+		btv->state.disabled = 1;
+		return err;
+	}
+
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,10)
 	pci_restore_state(pci_dev, btv->state.pci_cfg);
 #else

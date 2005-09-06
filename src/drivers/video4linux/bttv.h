@@ -1,5 +1,5 @@
 /*
- * $Id: bttv.h,v 1.22 2005/07/28 18:41:21 mchehab Exp $
+ * $Id: bttv.h,v 1.23 2005/08/28 18:22:34 mkrufky Exp $
  *
  *  bttv - Bt848 frame grabber driver
  *
@@ -17,6 +17,7 @@
 
 #include <linux/videodev.h>
 #include <linux/i2c.h>
+#include "compat.h"
 
 /* ---------------------------------------------------------- */
 /* exported by bttv-cards.c                                   */

@@ -1,5 +1,5 @@
 /*
- * $Id: cx88-blackbird.c,v 1.33 2005/08/17 20:55:37 catalin Exp $
+ * $Id: cx88-blackbird.c,v 1.35 2005/09/06 21:58:43 catalin Exp $
  *
  *  Support for a cx23416 mpeg encoder via cx2388x host port.
  *  "blackbird" reference design.
@@ -1723,7 +1723,7 @@ static int __devinit blackbird_probe(struct pci_dev *pci_dev,
 #if 0
 	down(&dev->lock);
 	init_controls(core);
-#if 1
+/* #if 1 */
 	/* force norm to PAL */
 	{
 		int i;
@@ -1734,9 +1734,9 @@ static int __devinit blackbird_probe(struct pci_dev *pci_dev,
 				break;
 			}
 	}
-#else
+/* #else */
 	cx88_set_tvnorm(core,tvnorms);
-#endif
+/* #endif */
 	video_mux(core,0);
 	up(&dev->lock);
 #endif

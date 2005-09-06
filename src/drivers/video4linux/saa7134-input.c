@@ -1,5 +1,5 @@
 /*
- * $Id: saa7134-input.c,v 1.22 2005/07/15 21:44:14 mchehab Exp $
+ * $Id: saa7134-input.c,v 1.24 2005/09/05 15:35:14 nsh Exp $
  *
  * handle saa7134 IR remotes via linux kernel input layer.
  *
@@ -519,6 +519,7 @@ int saa7134_input_init1(struct saa7134_dev *dev)
 		break;
 	case SAA7134_BOARD_MANLI_MTV001:
 	case SAA7134_BOARD_MANLI_MTV002:
+	case SAA7134_BOARD_BEHOLD_409FM:
 		ir_codes     = manli_codes;
 		mask_keycode = 0x001f00;
 		mask_keyup   = 0x004000;
@@ -569,6 +570,7 @@ int saa7134_input_init1(struct saa7134_dev *dev)
 		ir->dev.id.vendor  = dev->pci->vendor;
 		ir->dev.id.product = dev->pci->device;
 	}
+	ir->dev.dev = &dev->pci->dev;
 #endif
 
 	/* all done */

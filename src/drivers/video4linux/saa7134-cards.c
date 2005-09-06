@@ -1,5 +1,5 @@
 /*
- * $Id: saa7134-cards.c,v 1.85 2005/08/22 18:47:58 mkrufky Exp $
+ * $Id: saa7134-cards.c,v 1.90 2005/09/05 15:58:07 mkrufky Exp $
  *
  * device driver for philips saa7134 based TV cards
  * card-specific stuff.
@@ -193,8 +193,12 @@ struct saa7134_board saa7134_boards[] = {
 			.amux = TV,
 			.tv   = 1,
 		},{
-			.name = name_comp1,
+			.name = name_comp1,     /* Composite signal on S-Video input */
 			.vmux = 0,
+			.amux = LINE2,
+		},{
+			.name = name_comp2,	/* Composite input */
+			.vmux = 3,
 			.amux = LINE2,
 		},{
 			.name = name_svideo,
@@ -1374,7 +1378,7 @@ struct saa7134_board saa7134_boards[] = {
 		.inputs         = {{
 			.name = name_comp1,
 			.vmux = 1,
-			.amux = LINE2,
+			.amux = LINE1,
 		},{
 			.name = name_tv,
 			.vmux = 3,
@@ -1383,7 +1387,7 @@ struct saa7134_board saa7134_boards[] = {
 		},{
 			.name = name_svideo,
 			.vmux = 8,
-			.amux = LINE2,
+			.amux = LINE1,
 		}},
 		.radio = {
 			.name   = name_radio,
@@ -2111,8 +2115,35 @@ struct saa7134_board saa7134_boards[] = {
 			.gpio = 0x01,
 		},
 	},
+	[SAA7134_BOARD_BEHOLD_409FM] = {
+	        /* <http://tuner.beholder.ru>, Sergey <skiv@orel.ru> */
+	        .name           = "Beholder BeholdTV 409 FM",
+	        .audio_clock    = 0x00187de7,
+	        .tuner_type     = TUNER_PHILIPS_FM1216ME_MK3,
+	        .radio_type     = UNSET,
+  	        .tuner_addr     = ADDR_UNSET,
+                .radio_addr     = ADDR_UNSET,
+                .tda9887_conf   = TDA9887_PRESENT,
+	        .inputs         = {{
+	                  .name = name_tv,
+			  .vmux = 3,
+			  .amux = TV,
+			  .tv   = 1,
+		},{
+			  .name = name_comp1,
+			  .vmux = 1,
+			  .amux = LINE1,
+	        },{
+		          .name = name_svideo,
+			  .vmux = 8,
+			  .amux = LINE1,
+                }},
+                .radio = {
+		          .name = name_radio,
+			  .amux = LINE2,
+    	        },
+        },
 };
-
 
 const unsigned int saa7134_bcount = ARRAY_SIZE(saa7134_boards);
 
@@ -2147,19 +2178,19 @@ struct pci_device_id saa7134_pci_tbl[] = {
 	},{
 		.vendor       = PCI_VENDOR_ID_PHILIPS,
 		.device       = PCI_DEVICE_ID_PHILIPS_SAA7134,
-		.subvendor    = 0x153B,
+		.subvendor    = 0x153b,
 		.subdevice    = 0x1142,
 		.driver_data  = SAA7134_BOARD_CINERGY400,
 	},{
 		.vendor       = PCI_VENDOR_ID_PHILIPS,
 		.device       = PCI_DEVICE_ID_PHILIPS_SAA7134,
-		.subvendor    = 0x153B,
+		.subvendor    = 0x153b,
 		.subdevice    = 0x1143,
 		.driver_data  = SAA7134_BOARD_CINERGY600,
 	},{
 		.vendor       = PCI_VENDOR_ID_PHILIPS,
 		.device       = PCI_DEVICE_ID_PHILIPS_SAA7134,
-		.subvendor    = 0x153B,
+		.subvendor    = 0x153b,
 		.subdevice    = 0x1158,
 		.driver_data  = SAA7134_BOARD_CINERGY600_MK3,
 	},{
@@ -2191,6 +2222,12 @@ struct pci_device_id saa7134_pci_tbl[] = {
 		.device       = PCI_DEVICE_ID_PHILIPS_SAA7133,
 		.subvendor    = 0x5168,
 		.subdevice    = 0x0212, /* minipci, LR212 */
+		.driver_data  = SAA7134_BOARD_FLYTVPLATINUM_MINI,
+	},{
+		.vendor       = PCI_VENDOR_ID_PHILIPS,
+		.device       = PCI_DEVICE_ID_PHILIPS_SAA7133,
+		.subvendor    = 0x4e42,
+		.subdevice    = 0x0212, /* OEM minipci, LR212 */
 		.driver_data  = SAA7134_BOARD_FLYTVPLATINUM_MINI,
 	},{
 		.vendor       = PCI_VENDOR_ID_PHILIPS,
@@ -2371,7 +2408,7 @@ struct pci_device_id saa7134_pci_tbl[] = {
 	},{
 		.vendor       = PCI_VENDOR_ID_PHILIPS,
 		.device       = PCI_DEVICE_ID_PHILIPS_SAA7130,
-		.subvendor    = 0x153B,
+		.subvendor    = 0x153b,
 		.subdevice    = 0x1152,
 		.driver_data  = SAA7134_BOARD_CINERGY200,
 	},{
@@ -2380,12 +2417,6 @@ struct pci_device_id saa7134_pci_tbl[] = {
 		.subvendor    = 0x185b,
 		.subdevice    = 0xc100,
 		.driver_data  = SAA7134_BOARD_VIDEOMATE_TV_PVR,
-	},{
-		.vendor       = PCI_VENDOR_ID_PHILIPS,
-		.device       = PCI_DEVICE_ID_PHILIPS_SAA7130,
-		.subvendor    = 0x1131,
-		.subdevice    = 0,
-		.driver_data  = SAA7134_BOARD_SABRENT_SBTTVFM,
 	},{
 		.vendor       = PCI_VENDOR_ID_PHILIPS,
 		.device       = PCI_DEVICE_ID_PHILIPS_SAA7134,
@@ -2470,6 +2501,12 @@ struct pci_device_id saa7134_pci_tbl[] = {
 		.driver_data  = SAA7134_BOARD_FLYTV_DIGIMATRIX,
 
 	},{
+		.vendor       = PCI_VENDOR_ID_PHILIPS,
+		.device       = PCI_DEVICE_ID_PHILIPS_SAA7133,
+		.subvendor    = 0x0000, /* It shouldn't break anything, since subdevice id seems unique */
+		.subdevice    = 0x4091,
+		.driver_data  = SAA7134_BOARD_BEHOLD_409FM,
+        },{
 		/* --- boards without eeprom + subsystem ID --- */
 		.vendor       = PCI_VENDOR_ID_PHILIPS,
 		.device       = PCI_DEVICE_ID_PHILIPS_SAA7134,
@@ -2597,6 +2634,7 @@ int saa7134_board_init1(struct saa7134_dev *dev)
 	case SAA7134_BOARD_VIDEOMATE_TV_GOLD_PLUSII:
 	case SAA7134_BOARD_MANLI_MTV001:
 	case SAA7134_BOARD_MANLI_MTV002:
+	case SAA7134_BOARD_BEHOLD_409FM:
 	case SAA7134_BOARD_AVACSSMARTTV:
 		dev->has_remote = 1;
 		break;

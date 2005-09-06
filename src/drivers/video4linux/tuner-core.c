@@ -1,5 +1,5 @@
 /*
- * $Id: tuner-core.c,v 1.68 2005/08/18 02:06:25 mkrufky Exp $
+ * $Id: tuner-core.c,v 1.69 2005/09/01 21:29:58 mkrufky Exp $
  *
  * i2c tv tuner chip device driver
  * core core, i.e. kernel interfaces, registering and so on
@@ -292,6 +292,12 @@ static int tuner_fixup_std(struct tuner *t)
 			tuner_dbg ("insmod fixup: PAL => PAL-N\n");
 			t->std = V4L2_STD_PAL_N;
 			break;
+		case '-':
+			/* default parameter, do nothing */
+			break;
+		default:
+			tuner_warn ("pal= argument not recognised\n");
+			break;
 		}
 	}
 	if ((t->std & V4L2_STD_SECAM) == V4L2_STD_SECAM) {
@@ -307,6 +313,12 @@ static int tuner_fixup_std(struct tuner *t)
 		case 'L':
 			tuner_dbg ("insmod fixup: SECAM => SECAM-L\n");
 			t->std = V4L2_STD_SECAM_L;
+			break;
+		case '-':
+			/* default parameter, do nothing */
+			break;
+		default:
+			tuner_warn ("secam= argument not recognised\n");
 			break;
 		}
 	}

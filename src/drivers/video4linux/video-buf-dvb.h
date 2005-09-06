@@ -1,7 +1,4 @@
-/*
- * $Id: video-buf-dvb.h,v 1.7 2005/06/18 04:00:19 mkrufky Exp $
- */
-
+/* $Id: video-buf-dvb.h,v 1.8 2005/09/04 11:45:19 mchehab Exp $  */
 #include <dvbdev.h>
 #include <dmxdev.h>
 #include <dvb_demux.h>
