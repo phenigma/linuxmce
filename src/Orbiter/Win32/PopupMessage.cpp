@@ -165,6 +165,8 @@ LRESULT CALLBACK WndProcPopup(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
                 int nButtonHeight = nScaleY * BUTTON_HEIGHT;
 
                 int nButtonsPerRow = (g_nWindowWidth - BUTTON_SEPARATOR) / (nButtonWidth + BUTTON_SEPARATOR);
+				nButtonsPerRow += nButtonsPerRow ? 0 : 1;
+
                 int nButtonIndex = 0;
                 int nButtonOnRowIndex = 0;
                 int nButtonColumnIndex = 0;

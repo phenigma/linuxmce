@@ -370,7 +370,7 @@ bool DialogProgressEx(string sMessage, int nProgress)
     else
         UpdateProgress();
 
-    if(g_nProgress == 100 || g_nProgress < 0)
+    if(g_nProgress > 100 || g_nProgress < 0)
         PostMessage(g_hwndPopupDialog, WM_CLOSE, 0, 0);
 
     if(g_bResponse)
