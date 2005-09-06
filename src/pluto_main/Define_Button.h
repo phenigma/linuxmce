@@ -128,6 +128,8 @@
 #define BUTTON_semicolumn_CONST 184
 #define BUTTON_quote_CONST 185
 #define BUTTON_dot_CONST 186
+#define BUTTON_escape_CONST 187
+#define BUTTON_tab_CONST 188
 
 #define BUTTON_TABLE "Button"
 #define BUTTON_PK_BUTTON_FIELD "PK_Button"

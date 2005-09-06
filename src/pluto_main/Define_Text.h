@@ -738,6 +738,10 @@
 #define TEXT_Now_Playing_Speed_CONST 1442
 #define TEXT_Playlist_Saved_CONST 1443
 #define TEXT_Monitor_progress_CONST 1444
+#define TEXT_Zoom_in_CONST 1445
+#define TEXT_Zoom_out_CONST 1446
+#define TEXT_Escape_CONST 1447
+#define TEXT_Tab_CONST 1448
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

@@ -40,6 +40,7 @@ using namespace std;
 #include "Table_PageSetup.h"
 #include "Table_PaidLicense.h"
 #include "Table_QuickStartTemplate.h"
+#include "Table_Skin.h"
 
 
 void Database_pluto_main::CreateTable_Package()
@@ -1549,6 +1550,13 @@ void Row_Package::QuickStartTemplate_FK_Package_getrows(vector <class Row_QuickS
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_QuickStartTemplate *pTable = table->database->QuickStartTemplate_get();
+pTable->GetRows("`FK_Package`=" + StringUtils::itos(m_PK_Package),rows);
+}
+void Row_Package::Skin_FK_Package_getrows(vector <class Row_Skin*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Skin *pTable = table->database->Skin_get();
 pTable->GetRows("`FK_Package`=" + StringUtils::itos(m_PK_Package),rows);
 }
 

@@ -27,6 +27,8 @@
 #define SKIN_FK_DESIGNOBJ_SLEEPING_TABLE_FIELD "Skin.FK_DesignObj_Sleeping"
 #define SKIN_FK_DESIGNOBJ_SCREENSAVER_FIELD "FK_DesignObj_ScreenSaver"
 #define SKIN_FK_DESIGNOBJ_SCREENSAVER_TABLE_FIELD "Skin.FK_DesignObj_ScreenSaver"
+#define SKIN_FK_PACKAGE_FIELD "FK_Package"
+#define SKIN_FK_PACKAGE_TABLE_FIELD "Skin.FK_Package"
 #define SKIN_PSC_ID_FIELD "psc_id"
 #define SKIN_PSC_ID_TABLE_FIELD "Skin.psc_id"
 #define SKIN_PSC_BATCH_FIELD "psc_batch"
