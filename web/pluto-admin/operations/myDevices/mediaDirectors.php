@@ -179,6 +179,8 @@ function mediaDirectors($output,$dbADO) {
 				$childOf=array();
 				$firstDevice=0;
 				$deviceDataArray=array();
+				$oldAudioDD=null;
+				$oldVideoDD=null;
 				while($rowD=$resDevice->FetchRow()){
 					if($rowD['FK_Device_ControlledVia']==$rowD['FK_Device_RouteTo'])
 						$childOf[$rowD['PK_Device']]=$rowD['FK_Device_ControlledVia'];
@@ -190,6 +192,19 @@ function mediaDirectors($output,$dbADO) {
 					}else{
 						$deviceDataArray[$firstDevice][]=$rowD;
 					}
+					
+					$oldAudioDD=($rowD['FK_DeviceData']==$GLOBALS['AudioSettings'])?$rowD['IK_DeviceData']:$oldAudioDD;
+					if(!is_null($oldAudioDD)){
+						$oldAudioSettings=(substr($oldAudioDD,-1)=='3')?substr($oldAudioDD,0,-1):$oldAudioDD;
+						$oldAC3=(substr($oldAudioDD,-1)=='3')?'checked':'';
+					}
+					$oldVideoDD=($rowD['FK_DeviceData']==$GLOBALS['VideoSettings'])?$rowD['IK_DeviceData']:$oldVideoDD;
+					if(!is_null($oldVideoDD)){
+						$oldVideoDDArray=explode('/',$oldVideoDD);
+						$oldResolution=@$oldVideoDDArray[0];
+						$oldRefresh=@$oldVideoDDArray[1];
+					}
+					
 				}
 				$joinArray=array_keys($displayedDevices);	// used only for query when there are no Devices in selected category
 				if(count($joinArray)==0)
@@ -234,7 +249,7 @@ function mediaDirectors($output,$dbADO) {
 	
 					$buttons='<input type="submit" class="button" name="delete_'.$rowD['PK_Device'].'" value="Delete"  onclick="if(confirm(\'Are you sure you want to delete this device?\'))return true;else return false;"></td>';
 						
-						
+					
 					$controlledByPulldown='&nbsp;';
 						
 					if(@$childOf[$rowD['PK_Device']]==''){	
@@ -280,6 +295,7 @@ function mediaDirectors($output,$dbADO) {
 						<td>'.$videoInputPulldown.'</td>
 					</tr>';
 					}
+
 					$orbiterMDChild=getMediaDirectorOrbiterChild($rowD['PK_Device'],$dbADO);
 					if($orbiterMDChild){
 						$pvrDevice=getSubDT($rowD['PK_Device'],$GLOBALS['PVRCaptureCards'],$dbADO);
