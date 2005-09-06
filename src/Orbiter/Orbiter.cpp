@@ -7464,7 +7464,7 @@ bool Orbiter::OkayToDeserialize(int iSC_Version)
 		string sResponse;
 		DCE::CMD_Regen_Orbiter_DT CMD_Regen_Orbiter_DT( m_dwPK_Device, DEVICETEMPLATE_Orbiter_Plugin_CONST, BL_SameHouse, 
 			m_dwPK_Device,"");
-		CMD_Regen_Orbiter_DT.m_pMessage->m_eExpectedResponse==ER_DeliveryConfirmation;
+		CMD_Regen_Orbiter_DT.m_pMessage->m_eExpectedResponse = ER_DeliveryConfirmation;
 		if( !event_Impl.SendMessage(CMD_Regen_Orbiter_DT.m_pMessage,sResponse) || sResponse!="OK" )
 			PromptUser("Sorry.  I was unable to send this message to the Core.  Please try again or use the Pluto Admin site.");
 		else
