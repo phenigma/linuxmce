@@ -179,7 +179,7 @@ CGZone::CGZone(Row_CommandGroup * drCommandGroup,DesignObj_Generator *Parent)
 	if( m_drCommandGroup!=NULL )
 	{
 		vector<class Row_CommandGroup_Command *> vectraga;
-		m_drCommandGroup->CommandGroup_Command_FK_CommandGroup_getrows(&vectraga);
+		m_drCommandGroup->Table_CommandGroup_get()->Database_pluto_main_get()->CommandGroup_Command_get()->GetRows("WHERE FK_CommandGroup=" + StringUtils::itos(drCommandGroup->PK_CommandGroup_get()) + " ORDER BY OrderNum",&vectraga);
 		for(size_t s=0;s<vectraga.size();++s)
 		{
 			class Row_CommandGroup_Command * drAGA = vectraga[s];
@@ -197,7 +197,7 @@ CGZone::CGZone(Row_CommandGroup_D * drCommandGroup_D,DesignObj_Generator *Parent
 	{
 		vector<class Row_CommandGroup_D_Command *> vectraga;
 		drCommandGroup_D->Table_CommandGroup_D_get()->Database_pluto_main_get()->CommandGroup_D_Command_get()->GetRows(
-			"WHERE FK_CommandGroup_D=" + StringUtils::itos(drCommandGroup_D->PK_CommandGroup_D_get()) + " ORDER BY PK_CommandGroup_D_Command",&vectraga);
+			"WHERE FK_CommandGroup_D=" + StringUtils::itos(drCommandGroup_D->PK_CommandGroup_D_get()) + " ORDER BY OrderNum",&vectraga);
 //		m_drCommandGroup_D->CommandGroup_D_Command_FK_CommandGroup_D_getrows(&vectraga);
 		for(size_t s=0;s<vectraga.size();++s)
 		{
