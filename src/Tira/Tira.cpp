@@ -18,6 +18,8 @@ using namespace DCE;
 #include "TiraAPI.h"
 #endif
 
+Tira *g_pTira=NULL;
+
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 Tira::Tira(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
@@ -25,6 +27,7 @@ Tira::Tira(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLo
 //<-dceag-const-e->
 	, IRReceiverBase(this)
 {
+	g_pTira=this; // Used for the callback
 	IRBase::setCommandImpl(this);
 	m_bIRServerRunning=false;
 }
@@ -108,7 +111,7 @@ bool Tira::GetConfig()
 		return true;  // Not much to do, return true so we don't try to reload over and over
 	}
 
-    res = tira_set_handler(OurCalback);
+    res = tira_set_handler(OurCallback);
 	if( res!=0 )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Unable to register our callback");
@@ -247,8 +250,15 @@ void Tira::CreateChildren()
 	Tira_Command::CreateChildren();
 	Start();
 }
+void Tira::OurCallback(const char *szButton)
+{
+	string sButton = m_mapCodesToButtons_Find(szButton);
+	if( sButton.size() )
 
-int __stdcall OurCalback(const char * eventstring) {
+}
+
+int __stdcall OurCallback(const char * eventstring) {
+   g_pTira->OurCallback(eventstring);
    printf("IR Data %s\n", eventstring);
    return 0;
 };

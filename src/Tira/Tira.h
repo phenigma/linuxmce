@@ -27,6 +27,7 @@ public:
 		void GotIRCommand(const char *pRemote,const char *pCommand);
 		virtual void SendIR(string Port, string IRCode); // Required from IRBase
 		virtual void CreateChildren(); // Must override so we can call IRBase::Start() after creating children
+		virtual void OurCallback(const char *pButton);
 
 //<-dceag-const-b->
 public:
