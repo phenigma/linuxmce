@@ -22,6 +22,8 @@ using namespace Frog::Internal;
 const int ciCharWidth = 9;
 const int ciCharHeight = 16;
 const int ciSpaceHeight = 5;
+
+static int g_nCounter = 0;
 //-----------------------------------------------------------------------------------------------------
 #define RED_MASK_16		(0x1F << 11)
 #define GREEN_MASK_16	(0x3F << 5)
@@ -85,6 +87,8 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 	m_bQuit = false;
 	m_bWeCanRepeat = true;
 	m_bPoolRendering = true;
+
+	g_nCounter = 0;
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ Orbiter_PocketFrog::~Orbiter_PocketFrog()
@@ -806,20 +810,19 @@ void Orbiter_PocketFrog::WriteStatusOutput(const char* pMessage)
 {
 	CHECK_STATUS();
 
-	static int Counter = 0;
 	static PlutoColor green(0, 200, 0);
 	static PlutoColor white(255, 255, 255);
 
-	Counter++;
+	g_nCounter++;
 
 	int iProgressWidth = m_iImageWidth < 300 ? m_iImageWidth - 100 : 300;
 	int iStart = (m_iImageWidth - iProgressWidth) / 2;
     int iStep = m_iImageWidth < 300 ? iProgressWidth / 9 : iProgressWidth / 35 ;
 
-	if(!(Counter % 50))
+	if(!(g_nCounter % 50))
 	{
         SolidRectangle(iStart, m_iImageHeight - 50, iProgressWidth, 3, white);
-		SolidRectangle(iStart, m_iImageHeight - 50, Counter / iStep, 3, green);
+		SolidRectangle(iStart, m_iImageHeight - 50, g_nCounter / iStep, 3, green);
 		PlutoRectangle rect(iStart, m_iImageHeight - 50, iProgressWidth, 3);
         GetDisplay()->Update();
 	}
