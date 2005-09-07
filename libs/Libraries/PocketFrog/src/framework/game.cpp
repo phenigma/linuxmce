@@ -45,6 +45,8 @@ Game::Game()
 #else
     m_config.splashScreenTime = 0;     // Disabled on debug builds
 #endif
+
+	m_bShuttedDown = false;
 }
 
 
@@ -259,6 +261,10 @@ void Game::ShowTaskbar( bool bShow )
 
 void Game::Shutdown()
 {
+	if(m_bShuttedDown)
+		return; //don't do it twice
+
+	m_bShuttedDown = true;
     GameEnd();
 
     m_input.reset();
@@ -426,26 +432,29 @@ LRESULT Game::OnMouseEvent( UINT msg, WPARAM wparam, LPARAM lparam, BOOL& bHandl
 
 LRESULT Game::OnActivate( UINT msg, WPARAM wparam, LPARAM lparam, BOOL& bHandled )
 {
-    if (LOWORD(wparam) == WA_INACTIVE)
+	if(!m_bShuttedDown)
     {
-        if (!m_bSuspended)
-        {
-            PocketPC::Suspend();
-            m_bSuspended = true;
-			Game::GameSuspend(); // Added 6/10/2003 by Frank W. Zammetti
-        }
-    }
-    else
-    {
-        if (m_bSuspended)
-        {
-            PocketPC::Resume();
-            m_bSuspended = false;
-			Game::GameResume(); // Added 6/10/2003 by Frank W. Zammetti
-
-			TryToUpdate();
+		if (LOWORD(wparam) == WA_INACTIVE)
+		{
+			if (!m_bSuspended)
+			{
+				PocketPC::Suspend();
+				m_bSuspended = true;
+				Game::GameSuspend(); // Added 6/10/2003 by Frank W. Zammetti
+			}
 		}
-    }
+		else
+		{
+			if (m_bSuspended)
+			{
+				PocketPC::Resume();
+				m_bSuspended = false;
+				Game::GameResume(); // Added 6/10/2003 by Frank W. Zammetti
+
+				TryToUpdate();
+			}
+		}
+	}
 
     ShowTaskbar( LOWORD(wparam) == WA_INACTIVE );
 

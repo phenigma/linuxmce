@@ -135,6 +135,8 @@ private:
     bool                        m_bSuspended;   // Is the game suspended?
     scoped_ptr<DisplayDevice>   m_display;      // Display device
     scoped_ptr<InputDevice>     m_input;        // Input device
+
+	bool m_bShuttedDown;
 };
 
 
