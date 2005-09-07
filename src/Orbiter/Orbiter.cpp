@@ -2694,9 +2694,10 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 				int iRegenPercent;
 				DCE::CMD_Get_Orbiter_Status_DT CMD_Get_Orbiter_Status_DT( m_dwPK_Device, DEVICETEMPLATE_Orbiter_Plugin_CONST, BL_SameHouse, 
 					m_dwPK_Device,&sStatus,&sRegenStatus,&iRegenPercent);
-				SendCommand(CMD_Get_Orbiter_Status_DT);
+				bool bResult = SendCommand(CMD_Get_Orbiter_Status_DT);
+				g_pPlutoLogger->Write(LV_STATUS,"Initialize Get_Orbiter_Status (%d) -%s-",(int) bResult,sStatus.c_str());
 				int iResponse;
-				if( sStatus!="O" )
+				if( !bResult || sStatus!="O" )
 				{
 					g_pPlutoLogger->Write(LV_STATUS,"Orbiter plugin reported status of <%s>",sStatus.c_str());
 					if( (iResponse=HandleNotOKStatus(sStatus,sRegenStatus,iRegenPercent))==0 )
@@ -8399,8 +8400,12 @@ void Orbiter::RenderShortcut(DesignObj_Orbiter *pObj)
 
 int Orbiter::HandleNotOKStatus(string sStatus,string sRegenStatus,int iRegenPercent)
 {
+	g_pPlutoLogger->Write(LV_STATUS,"HandleNotOKStatus %s",sStatus.c_str());
     if((sStatus=="R" || sStatus=="r") && sRegenStatus == "Done")
+    {
+	    g_pPlutoLogger->Write(LV_STATUS,"HandleNotOKStatus status is done, so we'll load anyway");
         return 1;
+    }
 
 	if( sStatus=="R" || sStatus=="r" )
 		return MonitorRegen(m_dwPK_Device);
@@ -8460,6 +8465,7 @@ int Orbiter::HandleNotOKStatus(string sStatus,string sRegenStatus,int iRegenPerc
 
 bool Orbiter::RouterNeedsReload()
 {
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::RouterNeedsReload");
 	Event_Impl event_Impl(DEVICEID_MESSAGESEND, 0, m_sIPAddress);
 	string sStatus,sRegenStatus;
 	int iRegenPercent;
@@ -8484,6 +8490,7 @@ bool Orbiter::RouterNeedsReload()
 
 int Orbiter::DeviceIdInvalid()
 {
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::DeviceIdInvalid");
 	if( m_dwPK_Device )
 	{
 		PromptUser("Something went wrong.  The device number, " + StringUtils::itos(m_dwPK_Device) + ", is reported as invalid.");
