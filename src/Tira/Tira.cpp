@@ -30,6 +30,7 @@ Tira::Tira(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLo
 	g_pTira=this; // Used for the callback
 	IRBase::setCommandImpl(this);
 	m_bIRServerRunning=false;
+	m_tsLastButton.tv_sec=0;
 }
 
 //<-dceag-const2-b->!
@@ -252,6 +253,23 @@ void Tira::CreateChildren()
 }
 void Tira::OurCallback(const char *szButton)
 {
+	timespec ts_now;
+	gettimeofday(&ts_now,NULL);
+g_pPlutoLogger->Write(LV_WARNING,"button %s last %s",szButton,m_sLastButton.c_str());
+
+	if( m_sLastButton==szButton )
+	{
+		timespec ts_diff = ts_now-m_tsLastButton;
+g_pPlutoLogger->Write(LV_STATUS,"Diff %d %d",ts_diff.tv_sec,ts_diff.tv_usec);
+		if( ts_diff.tv_sec==0 && ts_diff.tv_usec<500000 )
+			return;
+	}
+	else
+	{
+		m_sLastButton=szButton;
+		m_tsLastButton=ts_now;
+	}
+
 	map<string,pair<string,int>>::iterator it=m_mapCodesToButtons.find(szButton);
 	if( it==m_mapCodesToButtons.end() )
 		g_pPlutoLogger->Write(LV_WARNING,"Cannot find anything for IR %s",szButton);

@@ -20,6 +20,9 @@ namespace DCE
 		// Private member variables
 		bool m_bIRServerRunning;
 		map<string,pair<string,int>> m_mapCodesToButtons;
+		string m_sLastButton;
+		timespec m_tsLastButton;
+		
 
 		// Private methods
 public:
