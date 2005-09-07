@@ -1731,7 +1731,7 @@ void gc100::CMD_Send_Code(string sText,string &sCMD_Result,Message *pMessage)
 	if( sText.size() && (sText[0]=='5' || sText[0]=='6') )
 	{
 		string sTextNew = ConvertRC5_6(sText);
-g_pPlutoLogger->Write(LV_CRITICAL,"Converted %s to %s",sText.c_str(),sTextNew.c_str());
+g_pPlutoLogger->Write(LV_STATUS,"Converted %s to %s",sText.c_str(),sTextNew.c_str());
 sText=sTextNew;
 	}
 	SendIR("",sText);

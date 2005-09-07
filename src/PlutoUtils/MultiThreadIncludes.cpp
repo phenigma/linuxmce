@@ -681,7 +681,7 @@ timespec & operator -= (timespec & t1, const timespec & t2)
 	t1.tv_sec -= t2.tv_sec;
 	t1.tv_nsec -= t2.tv_nsec;
 
-	if( t2.tv_nsec<0 )
+	if( t1.tv_nsec<0 )
 	{
 		t1.tv_sec--;
 		t1.tv_nsec += 1000000000;
@@ -781,7 +781,7 @@ timeval & operator -= (timeval & t1, const timeval & t2)
 	t1.tv_sec -= t2.tv_sec;
 	t1.tv_usec -= t2.tv_usec;
 
-	if( t2.tv_usec<0 )
+	if( t1.tv_usec<0 )
 	{
 		t1.tv_sec--;
 		t1.tv_usec += 1000000;

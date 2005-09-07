@@ -1707,7 +1707,17 @@ void Router::RealSendMessage(Socket *pSocket,SafetyMessage *pSafetyMessage)
 	{
         (*(*pSafetyMessage))->m_dwPK_Device_To=pDeviceTo->m_pDevice_RouteTo->m_dwPK_Device;
 		for(size_t s=0;s<(*(*pSafetyMessage))->m_vectExtraMessages.size();++s)
-			(*(*pSafetyMessage))->m_vectExtraMessages[s]->m_dwPK_Device_To=pDeviceTo->m_pDevice_RouteTo->m_dwPK_Device;
+		{
+			Message *pMessage = (*(*pSafetyMessage))->m_vectExtraMessages[s];
+			if( !pMessage )
+				g_pPlutoLogger->Write(LV_CRITICAL,"Extra message for id %d is null %d",
+					(*(*pSafetyMessage))->m_dwID,(int) (*(*pSafetyMessage))->m_vectExtraMessages.size());
+			else
+			{
+				g_pPlutoLogger->Write(LV_STATUS,"Setting route to for message %p",pMessage);
+				(*(*pSafetyMessage))->m_vectExtraMessages[s]->m_dwPK_Device_To=pDeviceTo->m_pDevice_RouteTo->m_dwPK_Device;
+			}
+		}
 	}
 #ifdef DEBUG
   g_pPlutoLogger->Write(LV_STATUS,"begin realsendmessage before lock");

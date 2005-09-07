@@ -8547,7 +8547,7 @@ int Orbiter::PromptUser(string sPrompt,map<int,string> *p_mapPrompts)
 	}
 	else
 		cout << "Press Enter to continue";
-return 1; // TODO : remove this
+
 	int iResponse=0;
 	while(true)
 	{
@@ -8564,6 +8564,7 @@ return 1; // TODO : remove this
 
 int Orbiter::SetupNewOrbiter()
 {
+	g_pPlutoLogger->Write(LV_STATUS,"start SetupNewOrbiter");
 	Event_Impl event_Impl(DEVICEID_MESSAGESEND, 0, m_sIPAddress);
 	while(true)
 	{
@@ -8577,6 +8578,8 @@ int Orbiter::SetupNewOrbiter()
 			break;
 		Sleep(2000);
 	}
+
+	g_pPlutoLogger->Write(LV_STATUS,"SetupNewOrbiter prompting for inputs");
 
 	int PK_Users = PromptFor("Users");
 	if( PROMPT_CANCEL == PK_Users )
@@ -8641,6 +8644,7 @@ int Orbiter::SetupNewOrbiter()
 		if(pResponse)
 			delete pResponse;
 
+		g_pPlutoLogger->Write(LV_CRITICAL,"SetupNewOrbiter unable to create orbiter");
 		PromptUser("Sorry.  There is a problem creating the new orbiter.  Please check the logs.");
 		return 0;
 	}
@@ -8649,6 +8653,7 @@ int Orbiter::SetupNewOrbiter()
 
 	if( !PK_Device )
 	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"SetupNewOrbiter unable to create orbiter #2");
 		PromptUser("Sorry.  Orbiter Plugin could not create the device for some reason.  Please check the logs.");
 		return 0;
 	}
@@ -8656,6 +8661,8 @@ int Orbiter::SetupNewOrbiter()
 	Simulator::GetInstance()->m_sRouterIP = m_sIPAddress;
 	Simulator::GetInstance()->m_sDeviceID = StringUtils::itos(PK_Device);
 	Simulator::GetInstance()->SaveConfigurationFile();
+
+	g_pPlutoLogger->Write(LV_STATUS,"SetupNewOrbiter new orbiter %d",PK_Device);
 
 	if( MonitorRegen(PK_Device)==0 )  // User hit cancel
 		return 0; // Don't retry to load now
@@ -8665,6 +8672,7 @@ int Orbiter::SetupNewOrbiter()
 
 int Orbiter::MonitorRegen(int PK_Device)
 {
+	g_pPlutoLogger->Write(LV_STATUS,"MonitorRegen - starting");
 	Event_Impl event_Impl(DEVICEID_MESSAGESEND, 0, m_sIPAddress);
 	while(true)
 	{
@@ -8680,6 +8688,7 @@ int Orbiter::MonitorRegen(int PK_Device)
 			if(pResponse)
 				delete pResponse;
 
+			g_pPlutoLogger->Write(LV_CRITICAL,"MonitorRegen - unable to check status");
 			PromptUser("Sorry.  There is a problem creating the new orbiter");
 			return 0;
 		}
@@ -8687,10 +8696,14 @@ int Orbiter::MonitorRegen(int PK_Device)
 		delete pResponse;
 
 		if( sStatus!="r" && sStatus!="R" )
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"MonitorRegen - DONE");
 			break;
+		}
 
 		if( DisplayProgress(sRegenStatus,iRegenPercent) )
 		{
+			g_pPlutoLogger->Write(LV_STATUS,"MonitorRegen - User cancelled");
 			DisplayProgress("",-1);
 			return 0; // Don't try to start
 		}

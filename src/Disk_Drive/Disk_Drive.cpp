@@ -444,7 +444,7 @@ int Disk_Drive::cdrom_checkdrive (const char *filename, int *flag)
         if (*flag != DISCTYPE_NONE || m_mediaInserted )
             break;
 
-		DisplayMessageOnOrbVFD("Disc detected.  Trying to auto play.");
+		DisplayMessageOnOrbVFD("Disc detected in drive.");
         g_pPlutoLogger->Write(LV_STATUS, "Got a disc. Sleep a sec, then reopen. One hack to allow the disk to spin I think.");
         close(fd);
         sleep(1);
