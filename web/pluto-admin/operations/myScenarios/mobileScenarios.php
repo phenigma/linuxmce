@@ -66,7 +66,7 @@ if($action=='form') {
 				<td>Description: '.((!in_array($rowCG['PK_CommandGroup'],$displayedCommandGroups))?'<input type="text" name="commandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Description'].'"> Hint: <input type="text" name="hintCommandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Hint'].'">':'<b>'.$rowCG['Description'].': </b>Hint: <b>'.$rowCG['Hint'].'</b>').'</td>
 				<td>&nbsp;</td>
 				<td>&nbsp;</td>
-				<td><a href="#" onclick="document.mobileScenarios.editedCgID.value='.$rowCG['PK_CommandGroup'].';document.mobileScenarios.submit();">Edit</a> <a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete this scenario?\'))self.location=\'index.php?section=mobileScenarios&action=delete&cgDelID='.$rowCG['PK_CommandGroup'].'\';">Delete</a></td>
+				<td><a href="#" onclick="document.mobileScenarios.action.value=\'testScenario\';document.mobileScenarios.editedCgID.value='.$rowCG['PK_CommandGroup'].';document.mobileScenarios.submit();">Test</a> <a href="#" onclick="document.mobileScenarios.editedCgID.value='.$rowCG['PK_CommandGroup'].';document.mobileScenarios.submit();">Edit</a> <a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete this scenario?\'))self.location=\'index.php?section=mobileScenarios&action=delete&cgDelID='.$rowCG['PK_CommandGroup'].'\';">Delete</a></td>
 			</tr>
 			';
 		$displayedCommandGroups[]=$rowCG['PK_CommandGroup'];
@@ -86,6 +86,13 @@ if($action=='form') {
 							
 }else{	
 	// action='add'
+	if($action=='testScenario'){
+		$scenarioToTest=(int)$_REQUEST['editedCgID'];
+		testScenario($scenarioToTest);
+		header("Location: index.php?section=mobileScenarios&msg=Command to test mobile scenario no. $scenarioToTest was sent.");
+		exit();
+	}
+		
 	// insert command group in specified room
 	if($action=='addToRoom'){
 		$insertCommandGroup='INSERT INTO CommandGroup (Description,FK_Array,FK_Installation,FK_Template) VALUES (?,?,?,?)';

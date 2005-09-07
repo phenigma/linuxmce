@@ -9,7 +9,8 @@ function installationSettings($output,$dbADO) {
 	$zonesFileArray=file('/usr/share/zoneinfo/zone.tab');
 	$continentsArray=array('Africa', 'America', 'Antarctica', 'Arctic [Ocean]', 'Asia', 'Atlantic [Ocean]', 'Australia', 'Europe', 'Indian [Ocean]', 'Pacific [Ocean]');
 	$currentTimeZone=trim(implode('',file('/etc/timezone')));
-
+	$ripFormats=array('ogg'=>'ogg', 'flac'=>'flac', 'wav'=>'wav');
+	
 	$countriesArray=array();
 	foreach ($countriesFileArray AS $line){
 		if($line[0]!='#'){
@@ -54,6 +55,14 @@ function installationSettings($output,$dbADO) {
 		$Longitude=$eventPluginDD[$GLOBALS['Longitude']];
 		$Latitude=$eventPluginDD[$GLOBALS['Latitude']];
 	}
+
+	$mediaPluginID=getDeviceFromDT($installationID,$GLOBALS['rootMediaPlugin'],$dbADO);
+	if($mediaPluginID!==null){
+		$mediaPluginDD=getDD($mediaPluginID,$GLOBALS['RipFormat'],$dbADO);
+		$selectedRipFormat=$mediaPluginDD[$GLOBALS['RipFormat']];
+	}else{
+		$selectedRipFormat='ogg';
+	}
 	
 	$query = "
 		SELECT Installation.*,Version.Description AS V_Desc FROM Installation 
@@ -70,7 +79,6 @@ function installationSettings($output,$dbADO) {
 	
 	if ($action=='form') {		
 		$out.=setLeftMenu($dbADO).'
-		<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
 		<form action="index.php" method="post" name="installationSettings">
 		<input type="hidden" name="section" value="installationSettings">
 		<input type="hidden" name="action" value="add">		
@@ -81,6 +89,9 @@ function installationSettings($output,$dbADO) {
 		<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 		<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
 			<table width="300">			
+				<tr>
+					<td colspan="2" align="center" bgcolor="lightblue"><B>Location</B>:</td>
+				</tr>		
 				<tr>
 					<td width="100"><B>Description</B>:</td>
 					<td><input type="text" size="30" name="Description" value="'.$rowInstallation['Description'].'"></td>
@@ -139,7 +150,7 @@ function installationSettings($output,$dbADO) {
 				</tr>
 				<tr>
 					<td colspan="2">
-					<table cellpadding="3" align="left">';
+					<table cellpadding="3" align="left" width="100%">';
 			if(isset($oldTimeZone)){
 				
 				$out.='
@@ -235,6 +246,12 @@ function installationSettings($output,$dbADO) {
 					</td>
 				</tr>
 				<tr>
+					<td colspan="2" align="center" bgcolor="lightblue"><B>Miscelaneous</B>:</td>
+				</tr>
+				<tr>
+					<td align="left" colspan="2"><B>Ripping format for cd\'s: </B>'.pulldownFromArray($ripFormats,'rip',$selectedRipFormat).'</td>
+				</tr>				
+				<tr>
 					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"  ></td>
 				</tr>
 			</table>
@@ -280,7 +297,14 @@ function installationSettings($output,$dbADO) {
 		}else{
 			$err.='Error: unable to find Event plugin device.<br>';
 		}
-		
+
+		$rip=$_POST['rip'];
+		if($mediaPluginID!==null){
+			$dbADO->Execute($updateDD,array($rip,$mediaPluginID,$GLOBALS['RipFormat']));
+		}else{
+			$err.='Error: unable to find Media plugin device.<br>';
+		}
+
 		
 		if ($installationID!=0 && $description!='') {
 			$queryUpdate = 'UPDATE Installation Set Description=?,Name=?,Address=?,City=?,State=?,Zip=?,FK_Country=? 

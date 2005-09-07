@@ -85,7 +85,7 @@ if($action=='form') {
 					<input type="button" class="button" name="posUp" value="D" onClick="self.location=\'index.php?section=climateScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=process&roomID='.$rowRooms['PK_Room'].'&operation=up&posInRoom='.urlencode(serialize($posInRoom)).'\'">
 			 Description: '.((!in_array($rowCG['PK_CommandGroup'],$displayedCommandGroups))?'<input type="text" name="commandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Description'].'"> Hint: <input type="text" name="hintCommandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Hint'].'">':'<b>'.$rowCG['Description'].': </b>Hint: <b>'.$rowCG['Hint'].'</b> (See '.$firstRoomArray[$rowCG['PK_CommandGroup']].')').'</td>
 				<td>'.(($pos==1)?'Default ON':'').(($pos==2)?'Default OFF':'').'</td>
-				<td><a href="#" onclick="document.climateScenarios.editedCgID.value='.$rowCG['PK_CommandGroup'].';document.climateScenarios.roomID.value='.$rowRooms['PK_Room'].';document.climateScenarios.submit();">Edit</a> <a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete this scenario?\'))self.location=\'index.php?section=climateScenarios&cgDelID='.$rowCG['PK_CommandGroup'].'\';">Delete</a></td>
+				<td><a href="#" onclick="document.climateScenarios.action.value=\'testScenario\';document.climateScenarios.editedCgID.value='.$rowCG['PK_CommandGroup'].';document.climateScenarios.submit();">Test</a> <a href="#" onclick="document.climateScenarios.editedCgID.value='.$rowCG['PK_CommandGroup'].';document.climateScenarios.roomID.value='.$rowRooms['PK_Room'].';document.climateScenarios.submit();">Edit</a> <a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete this scenario?\'))self.location=\'index.php?section=climateScenarios&cgDelID='.$rowCG['PK_CommandGroup'].'\';">Delete</a></td>
 			</tr>
 			';
 			$displayedCommandGroups[]=$rowCG['PK_CommandGroup'];
@@ -126,6 +126,13 @@ if($action=='form') {
 		$msg="New Climate Scenario added.&lastAdded=$insertID";
 	}
 
+	if($action=='testScenario'){
+		$scenarioToTest=(int)$_REQUEST['editedCgID'];
+		testScenario($scenarioToTest);
+		header("Location: index.php?section=climateScenarios&msg=Command to test climate scenario no. $scenarioToTest was sent.");
+		exit();
+	}
+	
 	if(isset($_POST['updateCG']) || $action=='externalSubmit' || @(int)$_REQUEST['editedCgID']!=0 || $action=='addToRoom'){
 		$displayedCommandGroupsArray=explode(',',$_POST['displayedCommandGroups']);
 		foreach($displayedCommandGroupsArray as $elem){

@@ -240,7 +240,7 @@ function mediaScenarios($output,$dbADO) {
 					<td align="center">'.@$remoteName.' #'.@$paramsArray[$GLOBALS['commandParamPK_DesignObj']].'</td>
 					<td align="center">'.@$deviceTemplateName.' #'.@$paramsArray[$GLOBALS['commandParamPK_DeviceTemplate']].'</td>
 					<td align="center">'.@$paramsArray[$GLOBALS['commandParamFilename']].'</td>
-					<td align="center"><a href="index.php?section=editCommandGroup&cgID='.$rowMediaScenarios['PK_CommandGroup'].'">Edit</a> <a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete the scenario?\')){document.mediaScenarios.action.value=\'delete\';document.mediaScenarios.delCG.value=\''.$rowMediaScenarios['PK_CommandGroup'].'\';document.mediaScenarios.submit()}">Delete</a></td>
+					<td align="center"><a href="index.php?section=mediaScenarios&cgID='.$rowMediaScenarios['PK_CommandGroup'].'&action=testScenario">Test</a> <a href="index.php?section=editCommandGroup&cgID='.$rowMediaScenarios['PK_CommandGroup'].'">Edit</a> <a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete the scenario?\')){document.mediaScenarios.action.value=\'delete\';document.mediaScenarios.delCG.value=\''.$rowMediaScenarios['PK_CommandGroup'].'\';document.mediaScenarios.submit()}">Delete</a></td>
 				</tr>
 				';
 			}
@@ -269,6 +269,12 @@ function mediaScenarios($output,$dbADO) {
 		//check if current user canModifyInstallation
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$installationID,$dbADO);
 
+		if($action=='testScenario'){
+			$scenarioToTest=(int)$_REQUEST['cgID'];
+			testScenario($scenarioToTest);
+			header("Location: index.php?section=mediaScenarios&msg=Command to test media scenario no. $scenarioToTest was sent.");
+			exit();
+		}
 		if ($canModifyInstallation) {
 			if(isset($_POST['saveChanges'])){
 				$displayedMediaScenariosArray=explode(',',$_POST['displayedMediaScenarios']);

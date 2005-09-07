@@ -166,6 +166,7 @@ if($action=='form') {
 				$out.='
 				<tr bgcolor="#DDDDDD">
 					<td><input type="text" name="commandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Description'].'"></td>
+					<td align="center"><a href="index.php?section=securityScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=testScenario">Test</a></td>
 					<td align="center"><a href="index.php?section=securityScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=editScenario">Edit (simple mode)</a></td>
 					<td align="center"><a href="index.php?section=scenarioWizard&cgID='.$rowCG['PK_CommandGroup'].'&wizard=2&from=securityScenarios">Edit (wizard mode)</a></td>
 					<td align="center"><a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete this scenario?\'))self.location=\'index.php?section=securityScenarios&cgDelID='.$rowCG['PK_CommandGroup'].'&action=del\';">Delete</a></td>
@@ -175,7 +176,7 @@ if($action=='form') {
 				$out.='
 				<tr bgcolor="#FF9F9F">
 					<td><input type="text" name="commandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Description'].'"></td>
-					<td align="center" colspan="2">Invalid scenario, one or more device(s) no longer exists.</td>
+					<td align="center" colspan="3">Invalid scenario, one or more device(s) no longer exists.</td>
 					<td align="center"><a href="#" onClick="javascript:if(confirm(\'Are you sure you want to keep this scenario? It will no longer appear on Security Scenarios since it had invalid parameters.\'))self.location=\'index.php?section=securityScenarios&cgKeepID='.$rowCG['PK_CommandGroup'].'&action=keep\';">Keep</a> <a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete this scenario?\'))self.location=\'index.php?section=securityScenarios&cgDelID='.$rowCG['PK_CommandGroup'].'&action=del\';">Delete</a></td>
 				</tr>
 				';
@@ -363,6 +364,13 @@ if($action=='form') {
 			</script>		
 	</form>
 ';
+}elseif($action=='testScenario'){
+	
+	$cgID=$_REQUEST['cgID'];
+	testScenario($cgID);
+	
+	header("Location: index.php?section=securityScenarios&msg=Command to test security scenario no. $cgID was sent.");
+	exit();	
 }else{
 	// check if the user has the right to modify installation
 	$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);

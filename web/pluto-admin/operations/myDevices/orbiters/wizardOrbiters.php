@@ -86,7 +86,7 @@ function wizardOrbiters($output,$dbADO) {
 						FK_DeviceCategory,
 						Manufacturer.Description AS ManufacturerName, 
 						IsIPBased, 
-						RegenInProgress, 
+						RegenInProgress,RegenStatus,RegenPercent, 
 						DeviceData.Description AS ddDescription, 
 						ParameterType.Description AS typeParam, 
 						Device_DeviceData.IK_DeviceData,
@@ -115,6 +115,7 @@ function wizardOrbiters($output,$dbADO) {
 			$RegenInProgress=0;
 			$orbiterGroupDisplayed='';
 			$content=array('standard_roaming_orbiters'=>'','mobile_orbiters'=>'','on_screen_orbiters'=>'');
+			$regenArray=array();
 			while($rowD=$resDevice->FetchRow()){
 				// set orbiter group to be displayed
 				$orbiterGroup='standard_roaming_orbiters';
@@ -130,7 +131,10 @@ function wizardOrbiters($output,$dbADO) {
 				}
 				
 				$PingTest=$rowD['PingTest'];
-				$RegenInProgress=$rowD['RegenInProgress'];
+				$regenArray[$rowD['PK_Device']]['regen']=(int)$rowD['RegenInProgress'];
+				$regenArray[$rowD['PK_Device']]['status']=$rowD['RegenStatus'];
+				$regenArray[$rowD['PK_Device']]['percent']=$rowD['RegenPercent'];
+				
 				if($rowD['FK_DeviceData']==84 && @$ddValue==1){
 					$isOSD=1;
 				}
@@ -144,7 +148,8 @@ function wizardOrbiters($output,$dbADO) {
 						if(!in_array('wifi',$excludedData[$orbiterGroupDisplayed])){
 							$content[$orbiterGroupDisplayed].=displayWiFiRow($orbiterDisplayed,$PingTest,$isOSD);
 						}
-						$content[$orbiterGroupDisplayed].=displayButtons($orbiterDisplayed,$RegenInProgress).'
+
+						$content[$orbiterGroupDisplayed].=displayButtons($orbiterDisplayed,$regenArray[$orbiterDisplayed]).'
 							</table></td>';
 						$content[$orbiterGroupDisplayed].=($orbiterCount[$orbiterGroupDisplayed]%2==1)?'</tr>':'';
 					}	
@@ -217,7 +222,7 @@ function wizardOrbiters($output,$dbADO) {
 
 			$content[$orbiterGroupDisplayed].='	
 					<tr>
-						<td align="center" colspan="2">'.displayButtons($orbiterDisplayed,$RegenInProgress).'</td>
+						<td align="center" colspan="2">'.displayButtons($orbiterDisplayed,$regenArray[$orbiterDisplayed]).'</td>
 					</tr>
 					</table></td>';
 			$content[$orbiterGroupDisplayed].=($orbiterCount[$orbiterGroupDisplayed]%2==1)?'</tr>':'';			
@@ -225,7 +230,6 @@ function wizardOrbiters($output,$dbADO) {
 			$content['mobile_orbiters']=(!isset($content['mobile_orbiters']))?'<tr><td colspan="2" align="center">No orbiters in this category.</td></tr>':$content['mobile_orbiters'];
 			$content['standard_roaming_orbiters']=(!isset($content['standard_roaming_orbiters']))?'<tr><td colspan="2" align="center">No orbiters in this category.</td></tr>':$content['standard_roaming_orbiters'];
 			$content['on_screen_orbiters']=(!isset($content['on_screen_orbiters']))?'<tr><td colspan="2" align="center">No orbiters in this category.</td></tr>':$content['on_screen_orbiters'];
-			
 			$out.='
 				<tr>
 					<td bgcolor="lightblue" colspan="2" align="center"><B>Mobile phone orbiters</B></td>
@@ -501,8 +505,15 @@ function displayButtons($orbiter,$RegenInProgress){
 			<td align="right"><input type="checkbox" name="reset_'.$orbiter.'" value="1"></td>
 			<td>Reset Router when done regenerating</td>
 		</tr>';
-	if(@$RegenInProgress==1){
+	if(@$RegenInProgress['regen']==1){
 		$out.='
+			<tr>
+				<td colspan="2" align="center">'.percentBox($RegenInProgress['percent']).'</td>
+			</tr>		
+			<tr>
+				<td align="right">Regen status:</td>
+				<td align="left">'.$RegenInProgress['status'].'</td>
+			</tr>		
 			<tr>
 				<td colspan="2" align="center"><B><font color="red">Orbiter Generation in process</font></B></td>
 			</tr>';
@@ -533,6 +544,19 @@ function displayWiFiRow($orbiter,$isOSD,$PingTest){
 			<td><input type="checkbox" name="PingTest_'.$orbiter.'" value="1" '.(($PingTest==1)?'checked':'').'></td>
 		</tr>';			
 	}
+	
+	return $out;
+}
+
+function percentBox($percent){
+	$out='
+	<table width="250" cellpadding="0" cellspacing="0">
+		<tr>
+			<td width="50">Percent</td>
+			<td bgcolor="green" width="'.(2*$percent).'">&nbsp;</td>
+			<td bgcolor="lightblue" width="'.(200-2*$percent).'">&nbsp;</td>
+		</tr>
+	</table>';
 	
 	return $out;
 }

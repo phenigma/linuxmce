@@ -2909,10 +2909,9 @@ function getLogName($deviceID,$dtID,$dtDescription)
 
 function processAudioSettings($deviceID,$dbADO)
 {
-	if(isset($_POST['audioSettings_'.$deviceID]) && $_POST['audioSettings_'.$deviceID]!='0'){
-		$newAS=$_POST['audioSettings_'.$deviceID].@$_POST['ac3_'.$deviceID];
-		$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($newAS,$deviceID,$GLOBALS['AudioSettings']));
-	}
+	$audioSettings=($_POST['audioSettings_'.$deviceID]=='0')?'':$_POST['audioSettings_'.$deviceID];
+	$newAS=$audioSettings.@$_POST['ac3_'.$deviceID];
+	$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($newAS,$deviceID,$GLOBALS['AudioSettings']));
 }
 
 function processVideoSettings($deviceID,$dbADO)
@@ -4149,4 +4148,9 @@ function createEmbeddedDeviceTemplate($name,$manufacturer,$deviceCategory,$userI
 
 }
 
+function testScenario($scenarioID){
+	
+	$commandToSend='/usr/pluto/bin/MessageSend localhost 0 0 10 '.$scenarioID;
+	exec($commandToSend);
+}
 ?>
