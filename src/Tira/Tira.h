@@ -19,7 +19,7 @@ namespace DCE
 //<-dceag-decl-e->
 		// Private member variables
 		bool m_bIRServerRunning;
-		map<string,string> m_mapCodesToButtons;
+		map<string,pair<string,int>> m_mapCodesToButtons;
 
 		// Private methods
 public:

@@ -77,7 +77,7 @@ bool Tira::GetConfig()
 					while(pos<vectCodes[s].size())
 					{
 						string sCode = StringUtils::Tokenize(vectCodes[s]," ",pos);
-						m_mapCodesToButtons[sCode] = sButton;
+						m_mapCodesToButtons[sCode] = make_pair<string,int> (sButton,pDevice->m_dwPK_Device);
 						g_pPlutoLogger->Write(LV_STATUS,"Code: %s will fire button %s",sCode.c_str(),sButton.c_str());
 					}
 				}
@@ -252,9 +252,13 @@ void Tira::CreateChildren()
 }
 void Tira::OurCallback(const char *szButton)
 {
-	string sButton = m_mapCodesToButtons_Find(szButton);
-	if( sButton.size() )
-
+	map<string,pair<string,int>>::iterator it=m_mapCodesToButtons.find(szButton);
+	if( it==m_mapCodesToButtons.end() )
+		g_pPlutoLogger->Write(LV_WARNING,"Cannot find anything for IR %s",szButton);
+	else
+	{
+		ReceivedCode(it->second.second,it->second.first);
+	}
 }
 
 int __stdcall OurCallback(const char * eventstring) {
