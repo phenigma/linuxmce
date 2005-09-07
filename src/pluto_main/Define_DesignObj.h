@@ -1530,6 +1530,10 @@
 #define DESIGNOBJ_butChangeInputs_CONST 4288
 #define DESIGNOBJ_butRemoveMMPopup_CONST 4289
 #define DESIGNOBJ_grpMousePad_pda_CONST 4291
+#define DESIGNOBJ_butMediaDown_CONST 4293
+#define DESIGNOBJ_butMediaLeft_CONST 4294
+#define DESIGNOBJ_butMediaRight_CONST 4295
+#define DESIGNOBJ_butMediaUp_CONST 4296
 #define DESIGNOBJ_move_up_CONST 4297
 #define DESIGNOBJ_move_down_CONST 4298
 #define DESIGNOBJ_move_left_CONST 4299
