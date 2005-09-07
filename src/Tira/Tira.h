@@ -19,7 +19,7 @@ namespace DCE
 //<-dceag-decl-e->
 		// Private member variables
 		bool m_bIRServerRunning;
-		map<string,pair<string,int>> m_mapCodesToButtons;
+		map<string,pair<string,int> > m_mapCodesToButtons;
 		string m_sLastButton;
 		timespec m_tsLastButton;
 		

@@ -31,6 +31,7 @@ Tira::Tira(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLo
 	IRBase::setCommandImpl(this);
 	m_bIRServerRunning=false;
 	m_tsLastButton.tv_sec=0;
+	m_bMustConvertRC5_6=true;
 }
 
 //<-dceag-const2-b->!
@@ -48,7 +49,9 @@ bool Tira::GetConfig()
 	if( !Tira_Command::GetConfig() )
 		return false;
 //<-dceag-getconfig-e->
-
+	if( !m_Virtual_Device_Translator.GetConfig(m_pData) )
+		return false;
+	
 	IRReceiverBase::GetConfig(m_pData);
 	// Find all our sibblings that are remote controls 
 	for(Map_DeviceData_Base::iterator itD=m_pData->m_AllDevices.m_mapDeviceData_Base.begin();
@@ -56,8 +59,9 @@ bool Tira::GetConfig()
 	{
 		DeviceData_Base *pDevice = itD->second;
 		if( pDevice->m_dwPK_Device_ControlledVia==m_pData->m_dwPK_Device_ControlledVia &&
-			pDevice->m_dwPK_DeviceCategory==DEVICECATEGORY_IRTrans_Remote_Controls_CONST )
+			pDevice->m_dwPK_DeviceCategory==DEVICECATEGORY_Tira_Remote_Controls_CONST )
 		{
+			g_pPlutoLogger->Write(LV_STATUS,"Using remote %d %s",pDevice->m_dwPK_Device,pDevice->m_sDescription.c_str());
 			string sType;
 			DCE::CMD_Get_Device_Data_Cat CMD_Get_Device_Data_Cat2(m_dwPK_Device,DEVICECATEGORY_General_Info_Plugins_CONST,true,BL_SameHouse,
 				pDevice->m_dwPK_Device,DEVICEDATA_Remote_Layout_CONST,true,&sType);
@@ -70,7 +74,7 @@ bool Tira::GetConfig()
 			if( SendCommand(CMD_Get_Device_Data_Cat) && sConfiguration.size() )
 			{
 				vector<string> vectCodes;
-				StringUtils::Tokenize(sConfiguration,"\n",vectCodes);
+				StringUtils::Tokenize(sConfiguration,"\r\n",vectCodes);
 				for(size_t s=0;s<vectCodes.size();++s)
 				{
 					string::size_type pos=0;
@@ -112,7 +116,7 @@ bool Tira::GetConfig()
 		return true;  // Not much to do, return true so we don't try to reload over and over
 	}
 
-    res = tira_set_handler(OurCallback);
+    	res = tira_set_handler(OurCalback);
 	if( res!=0 )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Unable to register our callback");
@@ -177,6 +181,12 @@ void Tira::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 void Tira::CMD_Send_Code(string sText,string &sCMD_Result,Message *pMessage)
 //<-dceag-c191-e->
 {
+	if( sText.size() && (sText[0]=='5' || sText[0]=='6') )
+	{
+		string sTextNew = ConvertRC5_6(sText);
+g_pPlutoLogger->Write(LV_STATUS,"Converted %s to %s",sText.c_str(),sTextNew.c_str());
+sText=sTextNew;
+	}
 	SendIR("",sText);
 }
 
@@ -255,13 +265,11 @@ void Tira::OurCallback(const char *szButton)
 {
 	timespec ts_now;
 	gettimeofday(&ts_now,NULL);
-g_pPlutoLogger->Write(LV_WARNING,"button %s last %s",szButton,m_sLastButton.c_str());
 
 	if( m_sLastButton==szButton )
 	{
 		timespec ts_diff = ts_now-m_tsLastButton;
-g_pPlutoLogger->Write(LV_STATUS,"Diff %d %d",ts_diff.tv_sec,ts_diff.tv_usec);
-		if( ts_diff.tv_sec==0 && ts_diff.tv_usec<500000 )
+		if( ts_diff.tv_sec==0 && ts_diff.tv_nsec<500000000 )
 			return;
 	}
 	else
@@ -270,16 +278,14 @@ g_pPlutoLogger->Write(LV_STATUS,"Diff %d %d",ts_diff.tv_sec,ts_diff.tv_usec);
 		m_tsLastButton=ts_now;
 	}
 
-	map<string,pair<string,int>>::iterator it=m_mapCodesToButtons.find(szButton);
+	map<string,pair<string,int> >::iterator it=m_mapCodesToButtons.find(szButton);
 	if( it==m_mapCodesToButtons.end() )
 		g_pPlutoLogger->Write(LV_WARNING,"Cannot find anything for IR %s",szButton);
 	else
-	{
-		ReceivedCode(it->second.second,it->second.first);
-	}
+		ReceivedCode(it->second.second,it->second.first.c_str());
 }
 
-int __stdcall OurCallback(const char * eventstring) {
+int __stdcall OurCalback(const char * eventstring) {
    g_pTira->OurCallback(eventstring);
    printf("IR Data %s\n", eventstring);
    return 0;
