@@ -17,6 +17,8 @@
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_CommandParameter.h"
 #include "pluto_main/Table_DeviceTemplate_AV.h"
+#include "pluto_main/Table_Command.h"
+#include "pluto_main/Table_DeviceTemplate_Input.h"
 
 namespace DCE {
 
@@ -42,6 +44,33 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 		IR_ModeDelay = pRowAV->IR_ModeDelay_get();
 	} else {
 		g_pPlutoLogger->Write(LV_STATUS, "Device has no AV properties");
+	}
+
+	if (input_commands_.empty())
+	{
+		vector<class Row_Command*> input_row_list;
+		getDatabase()->Command_get()->GetRows("where `FK_CommandCategory`=22",&input_row_list);
+		for(unsigned int i=0; i<input_row_list.size();i++ )
+		{
+			int cmd=input_row_list[i]->PK_Command_get();
+			input_commands_.push_back(cmd);
+			vector<class Row_DeviceTemplate_Input*> command_order_list;
+			char buff[100];
+			sprintf(buff,"where `FK_Command`=%d",cmd);
+			
+			getDatabase()->DeviceTemplate_Input_get()->GetRows(buff,&command_order_list);
+			for(unsigned int j=0;j<command_order_list.size();j++)
+			{
+				vector<int> *v;
+				if(device_input_command_order_.find(command_order_list[j]->FK_DeviceTemplate_get()) == device_input_command_order_.end())
+				{
+					v=new vector<int>(input_row_list.size()+1,0); /* +1 for ending 0 */
+					device_input_command_order_[command_order_list[j]->FK_DeviceTemplate_get()]=v;
+				}
+				(*device_input_command_order_[command_order_list[j]->FK_DeviceTemplate_get()])[command_order_list[j]->OrderNo_get()]=cmd;
+			}
+		}
+		
 	}
 	
 	g_pPlutoLogger->Write(LV_STATUS,"AVMessageTranslator::Translate begin");
@@ -78,8 +107,47 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 		laststatus_power_[devid] = (cmd==COMMAND_Generic_On_CONST);
 		g_pPlutoLogger->Write(LV_STATUS, "DTZ : Command <%d> translated to <%d>",pmsg->m_dwID,cmd);
 		return true;
-	}	
-
+	}
+	vector<int> commandorder=*(device_input_command_order_[devtemplid]);
+	if((pRowAV->ToggleInput_get() == 1) && (find(commandorder.begin(),commandorder.end(),pmsg->m_dwID) != commandorder.end()))
+	{
+	    unsigned int i=0,count=0;
+		g_pPlutoLogger->Write(LV_STATUS, "DTZ : Got command <%d>, Last was <%d>, need translation to input selects",pmsg->m_dwID,laststatus_input_[devid]);
+		
+		if(laststatus_input_[devid]!=0)
+		{
+			for(i=0;commandorder[i]!=laststatus_input_[devid] && i<commandorder.size(); i++);
+		}
+		while(commandorder[i]!=pmsg->m_dwID)
+		{
+			if((int)commandorder[i]==(int)0)
+			{
+				i=0;
+				continue;
+			}
+			count++;			
+			if(count == commandorder.size()) 
+			{
+				count = 0;
+				break;
+			}
+			i++;
+		}
+		if(count)
+		{
+			MessageReplicator msgrepl(
+					Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
+									PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Input_Select_CONST, 0),count,IR_ModeDelay);
+			outrepls.push_back(msgrepl);
+			g_pPlutoLogger->Write(LV_STATUS, "DTZ : Command <%d> translated to %d input selects",pmsg->m_dwID,count);
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "DTZ : Input select was not sent");
+		}
+		laststatus_input_[devid] = pmsg->m_dwID;		
+		return true;
+	}
 	/**************************************************************************************
 	COMMAND_Input_Select_CONST
 	**************************************************************************************/
@@ -91,11 +159,11 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 				Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
 								PRIORITY_NORMAL, MESSAGETYPE_COMMAND, cmd, 0),
 				1, IR_ModeDelay);
-			g_pPlutoLogger->Write(LV_STATUS, "Added <Input Select> translated to %d with delay %d, for Device %d.", cmd, IR_ModeDelay, devid);
+			g_pPlutoLogger->Write(LV_STATUS, "DTZ : Command <Input Select> translated to <%d>", cmd);
 			outrepls.push_back(msgrepl);
 			return true;
 		} else {
-			g_pPlutoLogger->Write(LV_WARNING, "PK_Command_Input dparameter not found.");
+			g_pPlutoLogger->Write(LV_STATUS, "PK_Command_Input parameter not found, sending as is.");
 		}
 	}
 	/********************************************************************************************************

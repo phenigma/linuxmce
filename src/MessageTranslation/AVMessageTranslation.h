@@ -24,6 +24,9 @@ public:
 	map<int, bool> lastcmdwaspause_; // So if we get 2 pauses in a row, we convert the 2nd one to a play
 	map<int, bool> laststatus_power_;
 	map<int, int> laststatus_input_;
+	list<int> input_commands_;
+	map<int, vector<int> *> device_input_command_order_;
+	
 };
 
 class AVMessageDispatcher : public DefaultMessageDispatcher {

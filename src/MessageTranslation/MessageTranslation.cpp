@@ -210,22 +210,24 @@ MessageTranslationManager::_QueueProc() {
 
 void 
 MessageTranslationManager::_QueueProc() {
+    int sleep_delay=0;
 	handleStart();
 	while(!stopqueue_) {
+		sleep_delay=0;
 		msgqueue_.lock();
 		MessageReplicatorList::iterator it = msgqueue_.begin();
 		if(it != msgqueue_.end()) {
 			MessageReplicator replmsg = (*it);
 			msgqueue_.erase(it);
 			msgqueue_.unlock();
-			
+			sleep_delay = replmsg.getPreDelay();
 			assert(pdispatcher_);
 			if(pdispatcher_) {
 				pdispatcher_->DispatchMessage(replmsg);
 			}
 		} else {
 			msgqueue_.unlock();
-			usleep(POOL_IDLE_SLEEP * 1000);
+			usleep((sleep_delay>0?sleep_delay:POOL_IDLE_SLEEP )* 1000);
 		}
 	}
 	handleStop();
