@@ -890,17 +890,14 @@ void Slim_Server_Streamer::CMD_Jump_Position_In_Playlist(string sValue_To_Assign
 void Slim_Server_Streamer::StartSlimServer()
 {
 	string sResponse;
-	DCE::CMD_Kill_Application CMD_Kill_Application(
+	DCE::CMD_Kill_Application_DT CMD_Kill_Application(
             m_dwPK_Device,                      // send from here
             DEVICETEMPLATE_App_Server_CONST,    // to an application server
             BL_SameComputer,                    // on the same computer
-            "slim-server",                              // reference it with this name
+            "slim-server"                              // reference it with this name
 		);                                        // execute this serialized message on exit with success
     CMD_Kill_Application.m_pMessage->m_bRelativeToSender = true;
     SendCommand(CMD_Kill_Application,&sResponse);  // Make sure app server has time to complete the kill
-
-    spawnApplication.m_pMessage->m_bRelativeToSender = true;
-    SendCommand(spawnApplication);
 
 	DCE::CMD_Spawn_Application_DT spawnApplication(
             m_dwPK_Device,                      // send from here
