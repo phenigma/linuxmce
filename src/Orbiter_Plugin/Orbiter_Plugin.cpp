@@ -2123,6 +2123,18 @@ void Orbiter_Plugin::CMD_Send_File_To_Phone(string sMac_address,string sCommand_
 {
     g_pPlutoLogger->Write(LV_STATUS, "About to send file to phone. Command line: '%s', device %s.", sCommand_Line.c_str(), sMac_address.c_str());
 
+    string sArguments;
+    string sCommand_LineClone(sCommand_Line);
+    vector<string> vectArgs;
+    StringUtils::Tokenize(sCommand_LineClone, " ", vectArgs);
+
+    sCommand_Line = vectArgs[0];
+    for(int i = 1; i < vectArgs.size(); i++)
+    {
+        sArguments += vectArgs[i];
+        sArguments += i == vectArgs.size() - 1 ? "" : "\t";
+    }
+
     string sParameters, sCommOnFailure, sCommOnSuccess;
     string sName("Phone Install");
 
@@ -2137,7 +2149,7 @@ void Orbiter_Plugin::CMD_Send_File_To_Phone(string sMac_address,string sCommand_
             StringUtils::ltos(m_dwPK_Device) + " " + StringUtils::itos(m_dwPK_Device) + " " + 
             StringUtils::itos(MESSAGETYPE_COMMAND) + " " + StringUtils::itos(COMMAND_Send_File_To_Phone_CONST) + " " + 
             StringUtils::itos(COMMANDPARAMETER_Mac_address_CONST) + " '" + sMac_address + "'" + " " + 
-            StringUtils::itos(COMMANDPARAMETER_Command_Line_CONST) + " '" + sCommand_Line + "'" + " " + 
+            StringUtils::itos(COMMANDPARAMETER_Command_Line_CONST) + " '" + sCommand_LineClone + "'" + " " + 
             StringUtils::itos(COMMANDPARAMETER_App_Server_Device_ID_CONST) + " " + StringUtils::itos(iApp_Server_Device_ID) + " " +
             "|No|\"" + " " + 
         StringUtils::itos(COMMANDPARAMETER_PK_Device_List_CONST) + " " + m_sPK_Device_AllOrbiters;
@@ -2156,7 +2168,7 @@ void Orbiter_Plugin::CMD_Send_File_To_Phone(string sMac_address,string sCommand_
     g_pPlutoLogger->Write(LV_STATUS, "Launching send to phone job: \"%s\"", sName.c_str());
 
     DCE::CMD_Spawn_Application cmd_Spawn_Application(m_dwPK_Device, iApp_Server_Device_ID,
-        sCommand_Line, sName.c_str(), string(), sCommOnFailure, sCommOnSuccess, false);
+        sCommand_Line, sName, sArguments, sCommOnFailure, sCommOnSuccess, false);
     SendCommand(cmd_Spawn_Application);
 }
 
