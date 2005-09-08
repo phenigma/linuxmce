@@ -1,0 +1,8 @@
+CXX=g++
+LDLIBS=-lbluetooth
+
+all: TestChannel
+	cp TestChannel ../bin
+
+clean:
+	rm -f TestChannel

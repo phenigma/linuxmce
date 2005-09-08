@@ -46,9 +46,9 @@ int main(int argc, char* argv[])
 {
     bdaddr_t m_bdaddrDongle;
 
-	if(argc != 2)
+	if(argc != 3)
 	{
-		printf("PairBluetoothDevice <mac_address>\n\n");
+		printf("%s <mac_address> <channel>\n\n", argv[0]);
 		return 1;
 	}
 
@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
 	{
 		printf("Error opening bluetooth device\n");
 		hci_close_dev(dd);
-		return false;
+		return 1;
 	}
 	char addr[18];
 	ba2str(&m_DevInfo.bdaddr, addr);
@@ -88,7 +88,7 @@ int main(int argc, char* argv[])
 	
 	raddr.rc_family = AF_BLUETOOTH;
 	str2ba(sMacAddressPhone.c_str(), &raddr.rc_bdaddr);
-	raddr.rc_channel = 3;
+	raddr.rc_channel = atoi(argv[2]);
 
 	printf("Channel:  %d\n", raddr.rc_channel);
 
@@ -99,20 +99,30 @@ int main(int argc, char* argv[])
 	{
 		printf("Can't create RFCOMM socketi\n");
 		m_bDead=true;
-		return -1;
+		return 1;
 	}
 
+	/*
 	if (bind(m_CommHandle, (struct sockaddr *)&laddr, sizeof(laddr)) < 0) 
 	{
 	    printf("Can't bind RFCOMM socket %s\n",sMacAddressPhone.c_str());
 		close(m_CommHandle);
 		m_bDead=true;
-		return -1;
+		return 1;
 	}
+	*/
 	
-    printf("Trying to connect...\n");
-	connect(m_CommHandle, (struct sockaddr *)&raddr, sizeof(raddr)); 
+	int r, e = 0;
+	errno = 0;
+	while ((r = connect(m_CommHandle, (struct sockaddr *)&raddr, sizeof(raddr))) == -1)
+	{
+		e = errno;
+		if (e != EBUSY)
+			break;
+		errno = e = 0;
+		usleep(500000);
+	}
+	printf("r=%d; errno=%d; result=%s\n", r, e, strerror(e));
 
-	printf("Paring device... %s\n",sMacAddressPhone.c_str());
+	return r != 0;
 } 
-
