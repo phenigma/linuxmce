@@ -225,5 +225,5 @@
 
 	$GLOBALS['MiscelaneousRoomType']=9;		// PK_RoomType for Miscelaneous
 	
-	$GLOBALS['userIsAdmin']=array(33129,33130,34308,33136);
+	$GLOBALS['userIsAdmin']=array(33129,33130,34308,33136,33131);
 ?>

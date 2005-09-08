@@ -138,7 +138,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 		$rs = $dbADO->_Execute($selectDeviceCategories);
 			while ($row = $rs->FetchRow()) {		
 				$jsTree.='
-				auxS'.$row['PK_DeviceCategory'].' = insFld(foldersTree, gFld("'.$row['Description'].' #'.$row['PK_DeviceCategory'].'", "javascript:setPicker('.$row['PK_DeviceCategory'].',\"'.$row['Description'].'\");"));
+				auxS'.$row['PK_DeviceCategory'].' = insFld(foldersTree, gFld("'.$row['Description'].' #'.$row['PK_DeviceCategory'].'", "javascript:setPicker('.$row['PK_DeviceCategory'].',\"'.htmlspecialchars($row['Description'],ENT_QUOTES).'\");"));
 				auxS'.$row['PK_DeviceCategory'].'.xID = '.$row['PK_DeviceCategory'].';
 				';
 				$jsTree.=getChilds($row['PK_DeviceCategory'],$dbADO);
@@ -242,7 +242,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 			$resCategoryName=$dbADO->Execute($queryCategoryName,$categoryID);
 			$rowCategoryName=$resCategoryName->FetchRow();
 			$scriptInHead.="
-				foldersTree = gFld('<b>".$rowCategoryName['Description']."</b>', 'javascript:setPicker($categoryID,\"".$rowCategoryName['Description']."\");');";
+				foldersTree = gFld('<b>".$rowCategoryName['Description']."</b>', 'javascript:setPicker($categoryID,\"".htmlspecialchars($rowCategoryName['Description'],ENT_QUOTES)."\");');";
 		}
 		$scriptInHead.="
 		foldersTree.xID = 1001635872;
@@ -543,7 +543,7 @@ function getChilds($parentID,$dbADO) {
 		$jsTree='';
 			while ($row2 = $rs2->FetchRow()) {		
 				$jsTree.= "
-					auxS".$row2['PK_DeviceCategory']." = insFld(auxS".$parentID.", gFld(\"".$row2["Description"]." #".$row2["PK_DeviceCategory"]."\", 'javascript:setPicker(".$row2["PK_DeviceCategory"].",\"".$row2["Description"]."\");'))
+					auxS".$row2['PK_DeviceCategory']." = insFld(auxS".$parentID.", gFld(\"".$row2["Description"]." #".$row2["PK_DeviceCategory"]."\", 'javascript:setPicker(".$row2["PK_DeviceCategory"].",\"".htmlspecialchars($row2["Description"],ENT_QUOTES)."\");'))
 					auxS".$row2['PK_DeviceCategory'].".xID = ".$row2['PK_DeviceCategory'].";
 				";
 				$jsTree.=getChilds($row2['PK_DeviceCategory'],$dbADO);
@@ -692,7 +692,7 @@ function reorderMultiPulldownJs()
 }
 
 // retrieve a matrix table with all commands and infrared groups
-function getIrGroup_CommandsMatrix($dtID,$InfraredGroupsArray,$userID,$comMethod,$publicADO)
+function getIrGroup_CommandsMatrix($dtID,$InfraredGroupsArray,$userID,$comMethod,$publicADO,$deviceID)
 {
 	$restrictedCommandsArray=array(194=>'Toggle power',192=>'On',193=>'Off',205=>'1',89=>'Vol Up',90=>'Vol down',63=>'Skip Fwd',64=>'Skip Back');
 	$out='';
@@ -700,24 +700,40 @@ function getIrGroup_CommandsMatrix($dtID,$InfraredGroupsArray,$userID,$comMethod
 		return '';
 	}
 	$comMethodFilter=(!is_null($comMethod))?' AND FK_CommMethod='.$comMethod:'';	
-	$codesData=getFieldsAsArray('InfraredGroup_Command','PK_InfraredGroup_Command,IRData,FK_InfraredGroup,FK_Command,InfraredGroup.Description AS IRG_Name',$publicADO,'INNER JOIN Command ON FK_Command=PK_Command INNER JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup WHERE FK_DeviceTemplate IS NULL AND FK_InfraredGroup IN ('.join(',',$InfraredGroupsArray).') AND FK_Command IN ('.join(',',array_keys($restrictedCommandsArray)).')'.$comMethodFilter,'ORDER BY FK_InfraredGroup ASC,FK_Command ASC');
-	
+	$codesData=getFieldsAsArray('InfraredGroup_Command','PK_InfraredGroup_Command,IRData,FK_InfraredGroup,FK_Command,InfraredGroup.Description AS IRG_Name',$publicADO,'INNER JOIN Command ON FK_Command=PK_Command INNER JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup WHERE (FK_DeviceTemplate IS NULL OR FK_DeviceTemplate='.$dtID.') AND FK_InfraredGroup IN ('.join(',',$InfraredGroupsArray).') AND FK_Command IN ('.join(',',array_keys($restrictedCommandsArray)).')'.$comMethodFilter,'ORDER BY FK_InfraredGroup ASC,FK_Command ASC');
+
 	$commandGrouped=array();
 	$irgNames=array();
-	for($i=0;$i<count($codesData['FK_InfraredGroup']);$i++){
+	for($i=0;$i<count(@$codesData['FK_InfraredGroup']);$i++){
 		$commandGrouped[$codesData['FK_InfraredGroup'][$i]][$codesData['FK_Command'][$i]]=$codesData['PK_InfraredGroup_Command'][$i];
 		$irgNames[$codesData['FK_InfraredGroup'][$i]]=$codesData['IRG_Name'][$i];
 	}
+	
+	if(session_name()=='Pluto-admin'){
+		if($deviceID>0){
+			$deviceInfo=getFieldsAsArray('Device','FK_Device_ControlledVia,FK_DeviceCategory',$publicADO,'INNER JOIN DeviceTemplate ON Fk_DeviceTemplate=PK_DeviceTemplate WHERE PK_Device='.$deviceID);
+		}
+		$GLOBALS['DT_&_Room']=1;
+		$controlledByRows='
+		<tr>
+			<td colspan="10" align="right">Send codes to device: '.controlledViaPullDown('controlledVia',$deviceID,$dtID,@$deviceInfo['FK_DeviceCategory'][0],@$deviceInfo['FK_Device_ControlledVia'][0],$publicADO,'0,- Please select -','onChange="document.addModel.action.value=\'changeParent\';document.addModel.submit();"').'</td>
+		</tr>';
+		$GLOBALS['DT_&_Room']=0;
+	}
+	
 	// display table header
 	$out='
 	<table cellpadding="3" cellspacing="0" border="0">
+		'.@$controlledByRows.'
 		<tr class="normaltext" bgcolor="lightblue">
-			<td><B>Infrared Group</B></td>';
+			<td align="center"><B>Infrared Group</B></td>';
 	foreach ($restrictedCommandsArray AS $cmdID=>$cmdName){
 		$out.='
 			<td align="center"><B>'.$cmdName.'</B></td>';
 	}
-	$out.='</tr>';
+	$out.='
+			<td><B>Action</B></td>
+		</tr>';
 	
 	// display codes/commands
 	$keysArray=array_keys($commandGrouped);
@@ -728,10 +744,11 @@ function getIrGroup_CommandsMatrix($dtID,$InfraredGroupsArray,$userID,$comMethod
 			<td><B><a href="index.php?section=irCodes&dtID='.$dtID.'&infraredGroupID='.$keysArray[$i].'&deviceID='.@$_REQUEST['deviceID'].'">'.$irgNames[$keysArray[$i]].'</a></B></td>';
 		foreach ($restrictedCommandsArray AS $cmdID=>$cmdName){
 			$pk_irgc=@$commandGrouped[$keysArray[$i]][$cmdID];
-			$testCodeBtn=(session_name()=='Pluto-admin')?' <input type="button" class="button" name="testCode" value="T" onClick="window.open(\'index.php?section=displayCode&irgcID='.$pk_irgc.'&deviceID='.@$_REQUEST['deviceID'].'\',\'_blank\',\'\');">':'';
-			$out.='<td align="center">'.((isset($commandGrouped[$keysArray[$i]][$cmdID]))?'<input type="button" class="button" name="copyCB" value="V" onClick="window.open(\'index.php?section=displayCode&irgcID='.$pk_irgc.'\',\'_blank\',\'\');;">'.$testCodeBtn:'N/A').'</td>';
+			$testCodeBtn=(session_name()=='Pluto-admin')?' <input type="button" class="button" name="testCode" value="T" onClick="frames[\'codeTester\'].location=\'index.php?section=testCode&irgcID='.$pk_irgc.'&deviceID='.@$_REQUEST['deviceID'].'\';">':'';
+			$out.='<td align="center">'.((isset($commandGrouped[$keysArray[$i]][$cmdID]))?'<input type="button" class="button" name="copyCB" value="V" onClick="window.open(\'index.php?section=displayCode&irgcID='.$pk_irgc.'\',\'_blank\',\'\');">'.$testCodeBtn:'N/A').'</td>';
 		}
 		$out.='
+			<td><input type="button" class="button" name="btn" onClick="self.location=\'index.php?section=irCodes&dtID='.$dtID.'&infraredGroupID='.$keysArray[$i].'&deviceID='.@$_REQUEST['deviceID'].'\';" value="This works"></td>
 		</tr>';
 	}
 	
@@ -789,6 +806,170 @@ function createEmbeddedDeviceTemplate($name,$manufacturer,$deviceCategory,$userI
 				(?,?)',
 		array($embeddedID,$mediaType));
 	}
-
 }
+
+// extract codes and put them in a multi dimensional array
+function extractCodesTree($infraredGroupID,$dtID,$dbADO,$restriction=''){
+	global $inputCommandsArray, $dspmodeCommandsArray,$powerCommands;
+	$installationID=(int)@$_SESSION['installationID'];
+
+	$userID=(int)@$_SESSION['userID'];
+	$codesQuery='
+			SELECT 
+				PK_InfraredGroup_Command,
+				FK_DeviceTemplate,
+				FK_Device,
+				InfraredGroup_Command.psc_user,
+				IRData,
+				Command.Description,
+				IF(PK_Command=192 OR PK_Command=193 OR PK_Command=194,1, IF(FK_CommandCategory=22,2, IF(FK_CommandCategory=27,3, IF(FK_CommandCategory=21,4,5) ) ) ) AS GroupOrder,
+				IF( InfraredGroup_Command.psc_user=?,2, IF( FK_DeviceTemplate IS NULL AND FK_Device IS NULL,1,3) ) As DefaultOrder,
+				CommandCategory.Description AS CommandCategory,
+				FK_Command 
+			FROM InfraredGroup_Command 
+			JOIN Command ON FK_Command=PK_Command JOIN CommandCategory ON FK_CommandCategory=PK_CommandCategory 
+			WHERE '.(($infraredGroupID==0)?'FK_InfraredGroup IS NULL':'FK_InfraredGroup='.$infraredGroupID).' AND (FK_DeviceTemplate=? OR FK_DeviceTemplate IS NULL) '.$restriction.'
+			ORDER BY GroupOrder,CommandCategory.Description,Description,DefaultOrder';
+
+	$res=$dbADO->Execute($codesQuery,array($userID,$dtID));
+	$codesArray=array();
+	while($row=$res->FetchRow()){
+		$categoryLabel=($row['CommandCategory']=='Generic')?'Power':$row['CommandCategory'];
+		// move input select commands to inputs category
+		$categoryLabel=($row['FK_Command']==$GLOBALS['inputSelectCommand'])?'Inputs':$categoryLabel;
+		// move DSP mode commands to DSP mode
+		$categoryLabel=($row['FK_Command']==$GLOBALS['DSPModeCommand'])?'DSP Modes':$categoryLabel;
+		
+		$codesArray[$categoryLabel]['FK_DeviceTemplate'][$row['PK_InfraredGroup_Command']]=$row['FK_DeviceTemplate'];
+		$codesArray[$categoryLabel]['FK_Device'][$row['PK_InfraredGroup_Command']]=$row['FK_Device'];
+		$codesArray[$categoryLabel]['psc_user'][$row['PK_InfraredGroup_Command']]=$row['psc_user'];
+		$codesArray[$categoryLabel]['Description'][$row['PK_InfraredGroup_Command']]=$row['Description'];
+		$codesArray[$categoryLabel]['CommandCategory'][$row['PK_InfraredGroup_Command']]=$categoryLabel;
+		$codesArray[$categoryLabel]['FK_Command'][$row['PK_InfraredGroup_Command']]=$row['FK_Command'];
+		$codesArray[$categoryLabel]['IRData'][$row['PK_InfraredGroup_Command']]=$row['IRData'];
+		$codesArray[$categoryLabel]['DefaultOrder'][$row['PK_InfraredGroup_Command']]=$row['DefaultOrder'];
+		$GLOBALS['displayedIRGC'][]=$row['PK_InfraredGroup_Command'];
+		$GLOBALS['displayedCommands'][]=$row['FK_Command'];
+
+		// remove input commands from input array if they are implemented
+		if(in_array($row['FK_Command'],array_keys($inputCommandsArray))){
+			unset ($inputCommandsArray[$row['FK_Command']]);
+		}
+
+		// remove DSP mode commands from input array if they are implemented
+		if(in_array($row['FK_Command'],array_keys($dspmodeCommandsArray))){
+			unset ($dspmodeCommandsArray[$row['FK_Command']]);
+		}
+		
+		// remove power commands from power commands array if they are implemented
+		if(in_array($row['FK_Command'],array_keys($powerCommands))){
+			unset ($powerCommands[$row['FK_Command']]);
+		}
+	}
+	$GLOBALS['igcPrefered']=getPreferredIRGC($installationID,$infraredGroupID,$dbADO);
+	
+	return $codesArray;
+}
+
+function getPreferredIRGC($installationID,$infraredGroupID,$dbADO){
+	$preferred=getFieldsAsArray('InfraredGroup_Command_Preferred','FK_Command,FK_InfraredGroup_Command',$dbADO,' INNER JOIN InfraredGroup_Command ON FK_InfraredGroup_Command=PK_InfraredGroup_Command WHERE InfraredGroup_Command_Preferred.FK_Installation='.$installationID.(((int)$infraredGroupID!=0)?' AND FK_InfraredGroup='.$infraredGroupID:''));	
+	$preferredByCategory=array();
+	for($i=0;$i<count(@$preferred['FK_Command']);$i++){
+		// only the preferred which I display are used
+		if(in_array($preferred['FK_InfraredGroup_Command'][$i],$GLOBALS['displayedIRGC']))
+			$preferredByCategory[$preferred['FK_Command'][$i]][]=$preferred['FK_InfraredGroup_Command'][$i];
+	}
+	
+	return $preferredByCategory;
+}
+
+// parse the multidimensiona array with codes and return html code for table rows
+function getCodesTableRows($section,$infraredGroupID,$dtID,$deviceID,$codesArray,$togglePower,$toggleInput,$toggleDSP){
+	global $inputCommandsArray, $dspmodeCommandsArray,$powerCommands;
+	//print_array($codesArray);
+	$categNames=array_keys($codesArray);
+	if(!in_array('Power',$categNames)){
+		$categNames[]='Power';
+	}	
+	if(!in_array('Inputs',$categNames)){
+		$categNames[]='Inputs';
+	}
+	if(!in_array('DSP Modes',$categNames)){
+		$categNames[]='DSP Modes';
+	}
+
+	$newCodeSection=($section=='rubyCodes')?'newRubyCode':'newIRCode';
+
+	$out='';
+	for($i=0;$i<count($categNames);$i++){
+		$out.='
+			<tr>
+				<td colspan="4" align="center">
+					<fieldset style="width:98%">
+						<legend><B>'.$categNames[$i].'</B></legend>';
+		if($categNames[$i]=='Power'){
+			if($togglePower==1){
+				if(!@in_array(194,$codesArray['Power']['FK_Command'])){
+					$out.='Toggle power not implemented: ';
+					$out.='<b><a href="javascript:windowOpen(\'index.php?section='.$newCodeSection.'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID=194&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');">Click to add</a>';
+				}
+			}elseif(count($powerCommands)>0){
+				$out.='Power commands not implemented: ';
+				foreach ($powerCommands AS $inputId=>$inputName){
+					$powerCommands[$inputId]='<a href="javascript:windowOpen(\'index.php?section='.$newCodeSection.'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$inputId.'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');">'.$inputName.'</a>';
+				}
+				$out.='<b>'.join(', ',$powerCommands).'</b> <em>(Click to add)</em>';
+			}
+		}
+				
+		// display input commands not implemented
+		if($categNames[$i]=='Inputs'){
+			if($toggleInput==1){
+				if(@!in_array($GLOBALS['inputSelectCommand'],$codesArray['Inputs']['FK_Command'])){
+					$out.='Input select not implemented: ';
+					$out.='<b><a href="javascript:windowOpen(\'index.php?section='.$newCodeSection.'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$GLOBALS['inputSelectCommand'].'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');">Click to add</a>';
+				}
+			}elseif(count($inputCommandsArray)>0){
+				$out.='Input commands not implemented: ';
+				foreach ($inputCommandsArray AS $inputId=>$inputName){
+					$inputCommandsArray[$inputId]='<a href="javascript:windowOpen(\'index.php?section='.$newCodeSection.'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$inputId.'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');">'.$inputName.'</a>';
+				}
+				$out.='<b>'.join(', ',$inputCommandsArray).'</b> <em>(Click to add)</em>';
+			}
+		}
+
+		// display DSP modes commands not implemented
+		if($categNames[$i]=='DSP Modes'){
+			if($toggleDSP==1){
+				if(@!in_array($GLOBALS['DSPModeCommand'],@$codesArray['DSP Modes']['FK_Command'])){
+					$out.='DSP Mode not implemented: ';
+					$out.='<b><a href="javascript:windowOpen(\'index.php?section='.$newCodeSection.'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$GLOBALS['DSPModeCommand'].'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');">Click to add</a>';
+				}
+			}elseif(count($dspmodeCommandsArray)>0){
+				$out.='DSP Mode commands not implemented: ';
+				foreach ($dspmodeCommandsArray AS $dspmId=>$dspmName){
+					$dspmodeCommandsArray[$dspmId]='<a href="javascript:windowOpen(\'index.php?section='.$newCodeSection.'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$dspmId.'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');">'.$dspmName.'</a>';
+				}
+				$out.='<b>'.join(', ',$dspmodeCommandsArray).'</b> <em>(Click to add)</em>';
+			}
+		}
+
+		if(isset($codesArray[$categNames[$i]]['FK_DeviceTemplate'])){
+			for($pos=0;$pos<count($codesArray[$categNames[$i]]['FK_DeviceTemplate']);$pos++){
+				$codeCommandsKeys=array_keys($codesArray[$categNames[$i]]['FK_DeviceTemplate']);
+				$irg_c=$codeCommandsKeys[$pos];
+				$out.=formatCode($section,$codesArray[$categNames[$i]],$irg_c,$infraredGroupID,$dtID,$deviceID);
+			}
+		}
+
+		$out.='
+					</fieldset>
+				</td>
+			</tr>	
+			';
+	}
+	
+	return $out;
+}
+
 ?>

@@ -847,11 +847,11 @@ function addScenariosToRoom($roomID, $installationID, $dbADO)
 	
 }
 
-function htmlPulldown($contentArray,$name,$selectedValue='None',$unselectedLabel='- Please select -')
+function htmlPulldown($contentArray,$name,$selectedValue='None',$unselectedLabel='- Please select -',$jsCode='')
 {
 	if(!is_array($contentArray))
 		return '';	// error
-	$out='<select name="'.$name.'">
+	$out='<select name="'.$name.'" '.$jsCode.'>
 		<option value="0">'.$unselectedLabel.'</option>';
 	foreach ($contentArray AS $key=>$label){
 		$out.='<option value="'.$key.'" '.(($key==$selectedValue)?'selected':'').'>'.$label.'</option>';

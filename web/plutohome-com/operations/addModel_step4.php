@@ -1,15 +1,23 @@
 <?
 	$dtID=$_REQUEST['dtID'];
 	$deviceID=(int)@$_REQUEST['deviceID'];
+	$return=(int)@$_REQUEST['return'];
 	if($dtID==0){
 		header('Location: index.php');
 		exit();
 	}
-	$dtArray=getFieldsAsArray('DeviceTemplate_AV','TogglePower',$publicADO,'WHERE FK_DeviceTemplate='.$dtID);
+	$dtArray=getFieldsAsArray('DeviceTemplate_AV','TogglePower,FK_InfraredGroup',$publicADO,'INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceTemplate='.$dtID);
+	if($return==0){
+		$navigationButtons='<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step-1).'&deviceID='.$deviceID.'">&lt;&lt;</a> <a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step+1).'&deviceID='.$deviceID.'">&gt;&gt;</a></div>';
+		$submitLabel='Next';
+	}else{
+		$submitLabel='Save';
+	}	
+	$irg=(int)$dtArray['FK_InfraredGroup'][0];
 	
 	if($action=='form'){
 		$out='<br>
-		<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step-1).'&deviceID='.$deviceID.'">&lt;&lt;</a> <a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step+1).'&deviceID='.$deviceID.'">&gt;&gt;</a></div>
+		'.@$navigationButtons.'
 		<B>Question 4 of 6 - Toggle power or discrete?</B><br><br>
 		
 		<form action="index.php" method="POST" name="addModel">
@@ -18,6 +26,7 @@
 			<input type="hidden" name="action" value="add">
 			<input type="hidden" name="dtID" value="'.$dtID.'">
 			<input type="hidden" name="deviceID" value="'.$deviceID.'">
+			<input type="hidden" name="return" value="'.$return.'">
 
 		<table class="normaltext" cellpadding="10" cellspacing="0">
 			<tr>
@@ -34,7 +43,7 @@
 				<td align="center">&nbsp;</td>
 			</tr>		
 			<tr>
-				<td align="center"><input type="submit" class="button" name="next" value="Next"> </td>
+				<td align="center"><input type="submit" class="button" name="next" value="'.$submitLabel.'"> </td>
 			</tr>
 		
 		</table>
@@ -51,7 +60,18 @@
 			
 			$publicADO->Execute('UPDATE DeviceTemplate_AV SET TogglePower=? WHERE FK_DeviceTemplate=?',array($TogglePower,$dtID));
 			
-			header('Location: index.php?section=addModel&step=5&dtID='.$dtID.'&deviceID='.$deviceID);
+			$commandsToRemove=($TogglePower==1)?'192,193':'194';
+			$removeFilter=($irg!=0)?' FK_InfraredGroup='.$irg:' FK_DeviceTemplate='.$dtID;
+
+			$publicADO->Execute('DELETE InfraredGroup_Command_Preferred FROM InfraredGroup_Command_Preferred INNER JOIN InfraredGroup_Command ON FK_InfraredGroup_Command=PK_InfraredGroup_Command WHERE FK_Command in ('.$commandsToRemove.') AND (IRData IS NULL or IRData=\'\') AND '.$removeFilter);
+			$publicADO->Execute('DELETE FROM InfraredGroup_Command WHERE FK_Command in ('.$commandsToRemove.') AND (IRData IS NULL or IRData=\'\') AND '.$removeFilter);
+			
+			if($return==0){
+				header('Location: index.php?section=addModel&step=5&dtID='.$dtID.'&deviceID='.$deviceID);
+			}else{
+				header('Location: index.php?section=irCodes&dtID='.$dtID.'&deviceID='.$deviceID);
+			}			
+
 			exit();
 		}
 	}

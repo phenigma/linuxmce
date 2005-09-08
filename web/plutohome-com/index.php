@@ -625,6 +625,13 @@ switch ($section) {
 		include_once('operations/infraredCommands.php');
 	    infraredCommands($output);
 	break;
+	case 'deviceStatus':
+    	$output = new Template();
+    	$output->setConn($conn);
+       	$output->setTemplateFileType('popup');
+		include_once('operations/deviceStatus.php');
+	    deviceStatus($output,$dbADO);
+	break;
 	
 	default:			
 		$output = new Template();	

@@ -1,6 +1,7 @@
 <?
 	$multiInputsCategs=array(103,77,126,98,109);
 	$deviceID=(int)@$_REQUEST['deviceID'];
+	$return=(int)@$_REQUEST['return'];
 	$dtID=$_REQUEST['dtID'];
 	if($dtID==0){
 		header('Location: index.php');
@@ -168,7 +169,12 @@
 			$is=(int)$_REQUEST['is'];
 		}
 		
-		
+	if($return==0){
+		$navigationButtons='<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step-1).'&deviceID='.$deviceID.'">&lt;&lt;</a> <a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step+1).'&deviceID='.$deviceID.'">&gt;&gt;</a></div>';
+		$submitLabel='Next';
+	}else{
+		$submitLabel='Save';
+	}		
 		$out='
 		<script>
 		function enableObjects(val)
@@ -184,7 +190,7 @@
 		</script>
 		
 		<br>
-		<div align="right" class="normaltext"><a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step-1).'&deviceID='.$deviceID.'">&lt;&lt;</a> <a href="index.php?section=addModel&dtID='.$dtID.'&step='.($step+1).'&deviceID='.$deviceID.'">&gt;&gt;</a></div>
+		'.@$navigationButtons.'
 		<B>Question 5 of 6 - What Inputs?</B><br><br>';
 		$out.='
 		<p class="normaltext">If this device has multiple inputs, or sources, you will check off all the inputs, and for each indicate if it is a built-in source, or if the input is for connecting an external device to.
@@ -196,23 +202,24 @@
 			<input type="hidden" name="dtID" value="'.$dtID.'">
 			<input type="hidden" name="deviceID" value="'.$deviceID.'">
 			<input type="hidden" name="commandsOrder" value="">
+			<input type="hidden" name="return" value="'.$return.'">
 		';
 		
 		$out.='
 		<table class="normaltext" cellpadding="5" cellspacing="0">
 			<tr>
 				<td>
-					<input type="radio" name="is" value="1" '.(($is==1)?'checked':'').' onClick="self.location=\'index.php?section=addModel&step=5&dtID='.$dtID.'&is=1&deviceID='.$deviceID.'\'"> #1 - My device does not have multiple input sources, it only provides this 1 type of media: '.pulldownFromArray($mediaTypesArray,'dtMediaType',@$dtDataArray['FK_MediaType'][0],($is!=1)?'disabled':'').'
+					<input type="radio" name="is" value="1" '.(($is==1)?'checked':'').' onClick="self.location=\'index.php?section=addModel&step=5&dtID='.$dtID.'&is=1&deviceID='.$deviceID.'&return='.$return.'\'"> #1 - My device does not have multiple input sources, it only provides this 1 type of media: '.pulldownFromArray($mediaTypesArray,'dtMediaType',@$dtDataArray['FK_MediaType'][0],($is!=1)?'disabled':'').'
 				</td>
 			</tr>
 			<tr>
 				<td>
-					<input type="radio" name="is" value="2" '.(($is==2)?'checked':'').' onClick="self.location=\'index.php?section=addModel&step=5&dtID='.$dtID.'&is=2&deviceID='.$deviceID.'\'"> #2 - My device does have multiple inputs, and there are separate, discrete buttons or commands to select the correct input (this type of device works well).
+					<input type="radio" name="is" value="2" '.(($is==2)?'checked':'').' onClick="self.location=\'index.php?section=addModel&step=5&dtID='.$dtID.'&is=2&deviceID='.$deviceID.'&return='.$return.'\'"> #2 - My device does have multiple inputs, and there are separate, discrete buttons or commands to select the correct input (this type of device works well).
 				</td>
 			</tr>
 			<tr>
 				<td>
-					<input type="radio" name="is" value="3" '.(($is==3)?'checked':'').' onClick="self.location=\'index.php?section=addModel&step=5&dtID='.$dtID.'&is=3&deviceID='.$deviceID.'\'"> #3 - My device does have multiple inputs, but unfortunately there is only a single button or command that toggles between all the inputs.  Note it is especially difficult to control a device, like a TV, that has lots of inputs and only has a single toggle button.  When hooking your equipment up you will likely want to use another device, like a receiver, that can handle the inputs discretely.  Regardless of how you hook it up, please specify the inputs this device has.		
+					<input type="radio" name="is" value="3" '.(($is==3)?'checked':'').' onClick="self.location=\'index.php?section=addModel&step=5&dtID='.$dtID.'&is=3&deviceID='.$deviceID.'&return='.$return.'\'"> #3 - My device does have multiple inputs, but unfortunately there is only a single button or command that toggles between all the inputs.  Note it is especially difficult to control a device, like a TV, that has lots of inputs and only has a single toggle button.  When hooking your equipment up you will likely want to use another device, like a receiver, that can handle the inputs discretely.  Regardless of how you hook it up, please specify the inputs this device has.		
 				</td>
 			</tr>';
 		if($is>1){
@@ -235,7 +242,7 @@
 		
 			$out.='
 			<tr>
-				<td align="center"><input type="submit" class="button" name="next" value="Next"></td>
+				<td align="center"><input type="submit" class="button" name="next" value="'.$submitLabel.'"></td>
 			</tr>
 		</table>
 		<br>
@@ -309,7 +316,14 @@
 		}
 		
 		$nextStep=($is==3)?'5b':6;
-		header('Location: index.php?section=addModel&step='.$nextStep.'&dtID='.$dtID.'&deviceID='.$deviceID);
+		if($return==0){
+			header('Location: index.php?section=addModel&step='.$nextStep.'&dtID='.$dtID.'&deviceID='.$deviceID);
+		}elseif($is==3){
+			header('Location: index.php?section=addModel&step=5b&dtID='.$dtID.'&deviceID='.$deviceID.'&return=1');
+		}else{
+			header('Location: index.php?section=irCodes&dtID='.$dtID.'&deviceID='.$deviceID);
+		}	
+		
 		exit();
 	}
 	
