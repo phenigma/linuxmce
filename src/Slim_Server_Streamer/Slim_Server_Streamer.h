@@ -63,6 +63,8 @@ namespace DCE
 		StreamStateType GetStateForStream(int iStreamID);
 
 		string getMacAddressForDevice(DeviceData_Base *pDevice);
+		void StartSlimServer();
+
 public:
         // Public member variables
 
