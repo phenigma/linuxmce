@@ -415,7 +415,7 @@ int Disk_Drive::cdrom_lock( int lock )
   }
 }
 
-int Disk_Drive::cdrom_checkdrive (const char *filename, int *flag)
+int Disk_Drive::cdrom_checkdrive (const char *filename, int *flag, bool bFireEvent)
 {
     int fd;
     int status;
@@ -444,7 +444,8 @@ int Disk_Drive::cdrom_checkdrive (const char *filename, int *flag)
         if (*flag != DISCTYPE_NONE || m_mediaInserted )
             break;
 
-		DisplayMessageOnOrbVFD("Disc detected in drive.");
+		if( bFireEvent )
+			DisplayMessageOnOrbVFD("Disc detected in drive.");
         g_pPlutoLogger->Write(LV_STATUS, "Got a disc. Sleep a sec, then reopen. One hack to allow the disk to spin I think.");
         close(fd);
         sleep(1);
@@ -708,7 +709,7 @@ bool Disk_Drive::internal_reset_drive(bool bFireEvent)
     int status;
     string mrl = ""; //, serverMRL, title;
 
-    int result = cdrom_checkdrive( m_sDrive.c_str(), &m_mediaDiskStatus);
+    int result = cdrom_checkdrive( m_sDrive.c_str(), &m_mediaDiskStatus, bFireEvent);
 
     //     g_pPlutoLogger->Write(LV_STATUS, "Disc Reset: checkdrive status: %d  result: %d", m_mediaDiskStatus, result);
 

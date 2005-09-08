@@ -72,7 +72,7 @@ public:
 
     // Private methods
     int cdrom_lock( int lock );
-    int cdrom_checkdrive( const char *filename, int *flag );
+    int cdrom_checkdrive( const char *filename, int *flag, bool bFireEvent );
 
 	string getTracks (string mrl);  // We use cddb for nothing other than determining how many tracks there are
 
