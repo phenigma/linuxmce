@@ -95,6 +95,8 @@ ORBITER *Connect(int &PK_Device,int PK_DeviceTemplate, string sRouter_IP,string 
 		g_pPlutoLogger->Write(LV_STATUS, "About to cleanup Orbiter");
 		ORBITER::Cleanup();
 		g_pPlutoLogger->Write(LV_STATUS, "Orbiter cleanup finished");
+
+		WriteStatusOutput("Building a new orbiter");
 		ORBITER::BuildOrbiter(
 			PK_Device, PK_DeviceTemplate, sRouter_IP,
 			sLocalDirectory, bLocalMode, 
@@ -125,6 +127,7 @@ ORBITER *Connect(int &PK_Device,int PK_DeviceTemplate, string sRouter_IP,string 
 
 	if(!bLocalMode)
 	{
+		WriteStatusOutput("Getting config and connecting...");
 		bool bConnected = pOrbiter->GetConfig() && pOrbiter->Connect(0);  // Don't validate the device template, since the same binary is used for lots of devices
 		PK_Device = pOrbiter->m_dwPK_Device;
         if(!bConnected)
@@ -265,6 +268,7 @@ void StartOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP,string s
 		{
 			case osConnect:
                 {
+					WriteStatusOutput("Stage connect");
 				    g_pPlutoLogger->Write(LV_STATUS, "Stage connect");
                     bool bMustQuit = false;
 				    pOrbiter = Connect(PK_Device, PK_DeviceTemplate, sRouter_IP, sLocalDirectory, bLocalMode, Width, Height, bFullScreen, bMustQuit);

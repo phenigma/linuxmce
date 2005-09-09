@@ -337,6 +337,9 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::RenderText(string &TextToDisplay,class DesignObjText *Text,class TextStyle *pTextStyle, PlutoPoint point)
 {
+    CHECK_STATUS();
+    PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
+
 	if( !m_bPoolRendering )
 	{
 		HDC hdc = GetDisplay()->GetBackBuffer()->GetDC(false);

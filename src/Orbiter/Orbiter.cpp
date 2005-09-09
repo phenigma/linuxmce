@@ -61,6 +61,12 @@ using namespace DCE;
 #include "GraphicBuilder.h"
 #include "Simulator.h"
 
+#ifdef WIN32
+#include "MainDialog.h" //for debugging in main window
+#else //linux
+void WriteStatusOutput(char *) {} //do nothing
+#endif
+
 #define  VERSION "<=version=>"
 extern const char *g_szCompile_Date;
 extern Command_Impl *g_pCommand_Impl;
@@ -179,6 +185,9 @@ m_ScreenMutex( "rendering" ), m_VariableMutex( "variable" ), m_DatagridMutex( "d
 m_MaintThreadMutex("MaintThread"), m_NeedRedrawVarMutex( "need redraw variables" )
 //<-dceag-const-e->
 {
+	WriteStatusOutput((string("Orbiter version: ") + VERSION).c_str()); //todo: replace it with VERSION
+	WriteStatusOutput("Orbiter constructor");
+
 g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
 	m_sLocalDirectory=sLocalDirectory;
     m_iImageWidth=iImageWidth;
@@ -237,6 +246,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
 Orbiter::~Orbiter()
 //<-dceag-dest-e->
 {
+WriteStatusOutput("Orbiter destructor");
 g_pPlutoLogger->Write(LV_STATUS,"Orbiter  %p is exiting",this);
 
     //stop the simulator, if running
@@ -387,6 +397,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Maint thread dead");
 //<-dceag-getconfig-b->!
 bool Orbiter::GetConfig()
 {
+	WriteStatusOutput("GetConfig");
+
 	int PK_Device=m_dwPK_Device;
 	bool bResult=Orbiter_Command::GetConfig();
 	if( PK_Device!=m_dwPK_Device && m_dwPK_Device )  // We have another device id or host ip address
@@ -400,7 +412,10 @@ bool Orbiter::GetConfig()
 		{
 			m_sHostName="localhost";
 			if( !Orbiter_Command::GetConfig() )
+			{
+				WriteStatusOutput("Couldn't connect to the router.");
 				return false;
+			}
 			else
 			{
 				if( m_dwPK_Device )
@@ -410,8 +425,14 @@ bool Orbiter::GetConfig()
 			}
 		}
 		else
+		{
+			WriteStatusOutput("Cannot connect.");
 			return false;
+		}
 	}
+
+
+	WriteStatusOutput("Got the config");
 
 	if( DATA_Get_Leave_Monitor_on_for_OSD() )
 	    m_bDisplayOn=false;  // So the first touch will turn it on

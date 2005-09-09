@@ -106,18 +106,15 @@ static void AdjustWindowSize()
     int iDesktopWidth = rc.right - rc.left;
     int iDesktopHeight = rc.bottom - rc.top;
 
-	if(rc.right < rc.bottom) //this is a PDA for sure
-	{
-		MoveWindow(g_hwndPopupDialog, 0, 0, g_nWindowWidth, g_nWindowHeight, TRUE);
-	}
-	else
-	{
-		rc.left = (iDesktopWidth - g_nWindowWidth) / 2;
-		rc.right = rc.left + g_nWindowWidth;
-		rc.top = (iDesktopHeight - g_nWindowHeight) / 2;
-		rc.bottom = rc.top + g_nWindowHeight;
-		MoveWindow(g_hwndPopupDialog, rc.left, rc.top, g_nWindowWidth, g_nWindowHeight, TRUE);
-	}
+#ifdef WINCE
+	MoveWindow(g_hwndPopupDialog, 0, 0, g_nWindowWidth, g_nWindowHeight, TRUE);
+#else
+	rc.left = (iDesktopWidth - g_nWindowWidth) / 2;
+	rc.right = rc.left + g_nWindowWidth;
+	rc.top = (iDesktopHeight - g_nWindowHeight) / 2;
+	rc.bottom = rc.top + g_nWindowHeight;
+	MoveWindow(g_hwndPopupDialog, rc.left, rc.top, g_nWindowWidth, g_nWindowHeight, TRUE);
+#endif
 }
 //-----------------------------------------------------------------------------------------------------
 //
