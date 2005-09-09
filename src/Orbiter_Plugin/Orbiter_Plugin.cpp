@@ -1759,6 +1759,7 @@ void Orbiter_Plugin::CMD_Set_Room_For_Device(int iPK_Device,int iPK_Room,string 
 	if( !pRow_Device || !pRow_Room )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot set device %d to room %d",iPK_Device,iPK_Room);
+		return;
 	}
 	else
 	{

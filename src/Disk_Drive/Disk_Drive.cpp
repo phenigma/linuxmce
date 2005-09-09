@@ -76,6 +76,7 @@ Disk_Drive::Disk_Drive(int DeviceID, string ServerAddress,bool bConnectEventHand
 //<-dceag-const-e->
 {
 	m_DiskMutex.Init(NULL);
+	m_pDevice_AppServer=NULL;
 }
 
 //<-dceag-getconfig-b->
@@ -91,6 +92,8 @@ bool Disk_Drive::GetConfig()
 	m_sDrive=DATA_Get_Drive();
 	if( m_sDrive=="" )
 		m_sDrive="/dev/cdrom";
+	m_pDevice_AppServer = m_pData->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_App_Server_CONST);
+
 	return true;
 }
 
@@ -287,10 +290,17 @@ void Disk_Drive::CMD_Mount_Disk_Image(string sFilename,string *sMediaURL,string 
 void Disk_Drive::CMD_Abort_Ripping(string &sCMD_Result,Message *pMessage)
 //<-dceag-c55-e->
 {
+	if( !m_pDevice_AppServer )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot Abort rip -- no app server");
+		sCMD_Result="NO App_Server";
+		return;
+	}
+
 	g_pPlutoLogger->Write(LV_STATUS,"Aborting Ripping");
-	DCE::CMD_Kill_Application_DT
-		CMD_Kill_Application_DT(m_dwPK_Device,
-						DEVICETEMPLATE_App_Server_CONST,
+	DCE::CMD_Kill_ApplicationT
+		CMD_Kill_Application(m_dwPK_Device,
+						DEVICETEMPLATE_xrver_CONST,
 						BL_SameComputer,
 						"rip_" + StringUtils::itos(m_dwPK_Device));
 
@@ -817,6 +827,12 @@ bool Disk_Drive::internal_reset_drive(bool bFireEvent)
 void Disk_Drive::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,string &sCMD_Result,Message *pMessage)
 //<-dceag-c337-e->
 {
+	if( !m_pDevice_AppServer )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot rip -- no appserver");
+		sCMD_Result="NO App_Server";
+		return;
+	}
 	g_pPlutoLogger->Write(LV_STATUS, "Going to rip %s", sName.c_str() );
 
 	if ( m_isRipping )
@@ -856,17 +872,21 @@ void Disk_Drive::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string s
 			" " + StringUtils::itos(EVENTPARAMETER_Name_CONST) + " \"" +
 			sName + "\" " + StringUtils::itos(EVENTPARAMETER_Result_CONST) + " ";
 
-	DCE::CMD_Spawn_Application_DT
+	DCE::CMD_Spawn_Application
 		spawnApplication(m_dwPK_Device,
-						DEVICETEMPLATE_App_Server_CONST,
-						BL_SameComputer,
+						m_pDevice_AppServer->m_dwPK_Device,
 						"/usr/pluto/bin/ripDiskWrapper.sh", "rip_" + StringUtils::itos(m_dwPK_Device), strParameters,
 						sResultMessage + StringUtils::itos(RIP_RESULT_FAILURE),
 						sResultMessage + StringUtils::itos(RIP_RESULT_SUCCESS),
 						"0");
 
-    spawnApplication.m_pMessage->m_bRelativeToSender = true;
-    SendCommand(spawnApplication);
+	string sResponse;
+    if( !SendCommand(spawnApplication) || sResponse!="OK" )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "Trying to rip - App server returned %s",sResponse.c_str());
+		sResponse = "App_Server: " + sResponse;
+		return;
+	}
 }
 
 string Disk_Drive::getTracks (string mrl)

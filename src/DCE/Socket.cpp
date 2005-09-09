@@ -58,7 +58,6 @@ pluto_pthread_mutex_t *m_LL_DEBUG_Mutex=NULL;
 
 using namespace DCE;
 
-#ifdef LL_DEBUG_FILE
 namespace DCE
 {
 	pluto_pthread_mutex_t *g_pSocketInfoMutex=NULL;
@@ -80,7 +79,6 @@ SocketInfo *Socket::g_mapSocketInfo_Find(int iSocketCounter,string sName,Socket 
 	}
 	return pSocketInfo;
 }
-#endif
 
 
 static int SocketCounter=0;

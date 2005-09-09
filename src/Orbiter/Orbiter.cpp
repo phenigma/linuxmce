@@ -185,7 +185,7 @@ m_ScreenMutex( "rendering" ), m_VariableMutex( "variable" ), m_DatagridMutex( "d
 m_MaintThreadMutex("MaintThread"), m_NeedRedrawVarMutex( "need redraw variables" )
 //<-dceag-const-e->
 {
-	WriteStatusOutput((string("Orbiter version: ") + VERSION).c_str()); //todo: replace it with VERSION
+	WriteStatusOutput((char *)(string("Orbiter version: ") + VERSION).c_str()); //todo: replace it with VERSION
 	WriteStatusOutput("Orbiter constructor");
 
 g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
@@ -2990,6 +2990,8 @@ g_pPlutoLogger->Write(LV_WARNING,"from grid %s deleting m_pDataGridTable 1",pObj
         int iPK_Variable=0;
         string sValue_To_Assign;
 		WaitForMessageQueue();  // There might still be some messages in the queue which will affect this grid
+		pObj->m_iPopulatedWidth=pObj->m_MaxCol;  // Pass in the grid's on screen width/height -- we'll get back the total populated size
+		pObj->m_iPopulatedHeight=pObj->m_MaxRow;
         DCE::CMD_Populate_Datagrid CMD_Populate_Datagrid( m_dwPK_Device,  m_dwPK_Device_DatagridPlugIn,  StringUtils::itos( m_dwIDataGridRequestCounter ), pObj->m_sGridID,
             pObj->m_iPK_Datagrid, SubstituteVariables( pObj->m_sOptions, pObj, 0, 0 ), &iPK_Variable, &sValue_To_Assign, &bResponse, &pObj->m_iPopulatedWidth, &pObj->m_iPopulatedHeight  );
         if(  !SendCommand( CMD_Populate_Datagrid ) || !bResponse  ) // wait for a response
@@ -4183,7 +4185,7 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
                 bool bResponse;
                 int iPK_Variable=0;
                 string sValue_To_Assign;
-				int iWidth,iHeight;
+				int iWidth=pObj->m_MaxCol,iHeight=pObj->m_MaxRow;
                 DCE::CMD_Populate_Datagrid CMD_Populate_Datagrid( m_dwPK_Device,  m_dwPK_Device_DatagridPlugIn,  StringUtils::itos( m_dwIDataGridRequestCounter ),
                     GridID, atoi( pCommand->m_ParameterList[COMMANDPARAMETER_PK_DataGrid_CONST].c_str(  ) ),
                     SubstituteVariables( pCommand->m_ParameterList[COMMANDPARAMETER_Options_CONST], pObj, 0, 0 ), &iPK_Variable, &sValue_To_Assign, &bResponse, &iWidth, &iHeight );

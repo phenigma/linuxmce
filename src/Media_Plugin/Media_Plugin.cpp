@@ -3262,12 +3262,19 @@ g_pPlutoLogger->Write(LV_STATUS,"Transformed %s into %s",sTracks.c_str(),sNewTra
 		sFormat = DATA_Get_Type();
 	if( sFormat.size()==0 )
 		sFormat = "flac";
+	string sResponse;
+	DCE::CMD_Rip_Disk cmdRipDisk(m_dwPK_Device, pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device, iPK_Users, 
+		sFormat, sName, sTracks, PK_Disc);
+	if( !SendCommand(cmdRipDisk,sResponse) || sResponse!="OK" )
+	{
+		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"Cannot copy disk " + sResponse,
+			false,40,false);
+		g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::CMD_Rip_Disk %s",sResponse.c_str());
+		return;
+	}
 	m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T" + StringUtils::itos(TEXT_Ripping_Instructions_CONST) + "%>",
 		false,40,false,"<%=T" + StringUtils::itos(TEXT_Monitor_progress_CONST) + "%>","0 " + StringUtils::itos(DEVICETEMPLATE_This_Orbiter_CONST) + 
 		" 1 " + StringUtils::itos(COMMAND_Goto_Screen_CONST) + " " + StringUtils::itos(COMMANDPARAMETER_PK_DesignObj_CONST) + " " + StringUtils::itos(DESIGNOBJ_mnuPendingTasks_CONST) );
-	DCE::CMD_Rip_Disk cmdRipDisk(m_dwPK_Device, pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device, iPK_Users, 
-		sFormat, sName, sTracks, PK_Disc);
-	SendCommand(cmdRipDisk);
 	m_mapRippingJobs[pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device] = new RippingJob(pDiskDriveMediaDevice, 
 		pMessage->m_dwPK_Device_From, PK_Disc, PK_MediaType, iPK_Users, sName, sTracks);
 	return;

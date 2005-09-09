@@ -39,6 +39,7 @@ using namespace DCE;
 #include "pluto_main/Table_Device_MRU.h"
 #include "pluto_main/Define_DataGrid.h"
 #include "pluto_main/Define_Command.h"
+#include "pluto_main/Define_CommandParameter.h"
 #include "pluto_main/Define_Text.h"
 #include "DataGrid.h"
 #include "Orbiter_Plugin/Orbiter_Plugin.h"
@@ -112,6 +113,10 @@ bool General_Info_Plugin::Register()
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &General_Info_Plugin::MRUDocuments ) )
         , DATAGRID_MRU_Documents_CONST );
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+        new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &General_Info_Plugin::Rooms ) )
+        , DATAGRID_Rooms_CONST );
 
 	return Connect(PK_DeviceTemplate_get()); 
 }
@@ -575,6 +580,36 @@ class DataGridTable *General_Info_Plugin::MRUDocuments( string GridID, string Pa
     DataGridTable *pDataGrid = new DataGridTable( );
     DataGridCell *pCell;
 
+
+	return pDataGrid;
+}
+
+class DataGridTable *General_Info_Plugin::Rooms( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+	int iWidth = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Width_CONST].c_str());
+	if( !iWidth )
+		iWidth = 4;
+
+    DataGridTable *pDataGrid = new DataGridTable( );
+    DataGridCell *pCell;
+
+	int iRow=0,iCol=0;
+	string sql = "SELECT PK_Room,Description FROM Room WHERE FK_Installation=" + StringUtils::itos(m_pRouter->iPK_Installation_get()) + " ORDER BY Description";
+	PlutoSqlResult result;
+    MYSQL_ROW row;
+	if( mysql_query(m_pDatabase_pluto_main->m_pMySQL,sql.c_str())==0 && (result.r = mysql_store_result(m_pDatabase_pluto_main->m_pMySQL)) )
+    {
+        while( ( row=mysql_fetch_row( result.r ) ) )
+		{
+			pCell = new DataGridCell( row[1], row[0] );
+			pDataGrid->SetData( iCol++, iRow, pCell );
+			if( iCol>=iWidth )
+			{
+				iCol=0;
+				iRow++;
+			}
+		}
+	}
 
 	return pDataGrid;
 }

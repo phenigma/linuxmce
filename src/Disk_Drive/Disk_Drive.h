@@ -53,6 +53,7 @@ public:
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
     // Private member variables
+	DeviceData_Base *m_pDevice_AppServer;
     bool m_monitorEnabled;
     bool m_mediaInserted;
     int  m_mediaDiskStatus;

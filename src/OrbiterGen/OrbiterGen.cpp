@@ -241,6 +241,7 @@ int main(int argc, char *argv[])
 
 	if( pOrbiterGenerator && pOrbiterGenerator->m_pRow_Orbiter )
 	{
+		cout << "Setting RegenInProgress_set to false for " << pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get() << endl;
 		pOrbiterGenerator->m_pRow_Orbiter->Reload();  // We already updated floorplans
 		pOrbiterGenerator->m_pRow_Orbiter->Regen_set(false);
 		pOrbiterGenerator->m_pRow_Orbiter->RegenInProgress_set(false);
@@ -284,6 +285,7 @@ int OrbiterGenerator::DoIt()
 		m_pRow_Orbiter->PK_Orbiter_set(m_iPK_Orbiter);
 		m_pRow_Orbiter->Table_Orbiter_get()->Commit();
 	}
+	cout << "Setting RegenInProgress_set to true for " << m_pRow_Orbiter->PK_Orbiter_get() << endl;
 	m_pRow_Orbiter->RegenInProgress_set(true);
 	m_pRow_Orbiter->Table_Orbiter_get()->Commit();
 
@@ -322,6 +324,7 @@ int OrbiterGenerator::DoIt()
 	if( !m_pRow_Skin )
 	{
 		cerr << "Cannot find Orbiter's Skin" << endl;
+		cout << "Setting RegenInProgress_set 2 to false for " << m_pRow_Orbiter->PK_Orbiter_get() << endl;
 		m_pRow_Orbiter->RegenInProgress_set(false);
 		mds.Orbiter_get()->Commit();
 		exit(1);
@@ -343,6 +346,7 @@ int OrbiterGenerator::DoIt()
 	if( !m_pRow_DesignObj_MainMenu )
 	{
 		cerr << "Cannot find Orbiter's Main Menu: " << endl;
+		cout << "Setting RegenInProgress_set 3 to false for " << m_pRow_Orbiter->PK_Orbiter_get() << endl;
 		m_pRow_Orbiter->RegenInProgress_set(false);
 		mds.Orbiter_get()->Commit();
 		exit(1);
@@ -369,6 +373,7 @@ int OrbiterGenerator::DoIt()
 	if( !m_pRow_Language )
 	{
 		cerr << "Cannot find Orbiter's Language" << endl;
+		cout << "Setting RegenInProgress_set 4 to false for " << m_pRow_Orbiter->PK_Orbiter_get() << endl;
 		m_pRow_Orbiter->RegenInProgress_set(false);
 		mds.Orbiter_get()->Commit();
 		exit(1);
@@ -385,6 +390,7 @@ int OrbiterGenerator::DoIt()
 	if( !m_pRow_UI )
 	{
 		cerr << "Cannot find Orbiter's UI" << endl;
+		cout << "Setting RegenInProgress_set 5 to false for " << m_pRow_Orbiter->PK_Orbiter_get() << endl;
 		m_pRow_Orbiter->RegenInProgress_set(false);
 		mds.Orbiter_get()->Commit();
 		exit(1);
