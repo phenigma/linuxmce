@@ -3265,7 +3265,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Transformed %s into %s",sTracks.c_str(),sNewTra
 	string sResponse;
 	DCE::CMD_Rip_Disk cmdRipDisk(m_dwPK_Device, pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device, iPK_Users, 
 		sFormat, sName, sTracks, PK_Disc);
-	if( !SendCommand(cmdRipDisk,sResponse) || sResponse!="OK" )
+	if( !SendCommand(cmdRipDisk,&sResponse) || sResponse!="OK" )
 	{
 		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"Cannot copy disk " + sResponse,
 			false,40,false);

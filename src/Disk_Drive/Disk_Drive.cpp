@@ -881,7 +881,7 @@ void Disk_Drive::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string s
 						"0");
 
 	string sResponse;
-    if( !SendCommand(spawnApplication) || sResponse!="OK" )
+    if( !SendCommand(spawnApplication,&sResponse) || sResponse!="OK" )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "Trying to rip - App server returned %s",sResponse.c_str());
 		sResponse = "App_Server: " + sResponse;
