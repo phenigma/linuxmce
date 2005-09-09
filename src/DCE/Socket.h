@@ -161,9 +161,8 @@ namespace DCE
 		string m_sLastStringOut;
 		string m_sLastStringIn;
 		time_t m_tCreated,m_tDestroyed;
-		SOCKET m_Socket; 
 
-		SocketInfo(int iSocketCounter,string sName,Socket *pSocket) { m_Socket=pSocket->m_Socket; m_iSocketCounter=iSocketCounter; m_sName=sName; m_pSocket=pSocket; m_tCreated=m_tDestroyed=0; }
+		SocketInfo(int iSocketCounter,string sName,Socket *pSocket) { m_iSocketCounter=iSocketCounter; m_sName=sName; m_pSocket=pSocket; m_tCreated=m_tDestroyed=0; }
 	};
 	extern map<int,SocketInfo *> g_mapSocketInfo;
 #endif
