@@ -1150,14 +1150,9 @@ void Socket::Close()
 
 	if ( m_Socket != INVALID_SOCKET )
  	{
-		int iResult1=shutdown(m_Socket, 0x02 /*SD_BOTH*/); //no recv or send 
-
 		int iResult2=closesocket( m_Socket );
 #ifdef DEBUG
-		g_pPlutoLogger->Write( LV_SOCKET, "Socket::Close() m_Socket %d shutdown %d closesocket: %d", m_Socket, iResult1, iResult2 );
-#endif
-#ifndef WINCE
-		close(m_Socket);
+		g_pPlutoLogger->Write( LV_SOCKET, "Socket::Close() m_Socket %d closesocket: %d", m_Socket, iResult2 );
 #endif
 	}
 	m_Socket = INVALID_SOCKET;

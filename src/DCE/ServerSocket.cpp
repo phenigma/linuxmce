@@ -305,14 +305,7 @@ sMacAddress="11:22";
 		}
 	}
 
-	// This is handled in the destructor.
-/*   	if ( !SOCKFAIL( m_Socket ) )
-	{
-		closesocket( m_Socket );
-		close(m_Socket);
-		m_Socket = INVALID_SOCKET;
-	}
-*/
+
 	g_pPlutoLogger->Write( LV_WARNING, "TCPIP: Closing connection to %d (%s) %p m_Socket: %d", m_dwPK_Device,m_pListener->m_sName.c_str(), this, m_Socket );
 
 	m_pListener->OnDisconnected( m_dwPK_Device );

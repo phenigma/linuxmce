@@ -227,9 +227,6 @@ void SocketListener::RemoveSocket( Socket *pSocket )
 	g_pPlutoLogger->Write(LV_SOCKET, "Removing socket %p from socket listener", pSocket);
 	m_listClients.remove( pSocket ); // removing it from the clients map
 
-	//	closesocket( pSocket->m_Socket );
-	//	close( pSocket->m_Socket );
-
 	// See if we have this socket mapped to a device ID and removing the coresponding entries
 	ServerSocket *pServerSocket = (ServerSocket *)pSocket;
 	if ( pServerSocket )
