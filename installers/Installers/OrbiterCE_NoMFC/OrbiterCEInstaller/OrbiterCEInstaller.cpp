@@ -128,7 +128,14 @@ void ErrorHandler(void)
 			break;
 
 		default:
-			::SetWindowText(g_wndStatusStatic, TEXT("ERROR: Unknown internet error.")); 
+			{
+				char sError[128];
+				sprintf(sError, "ERROR: Internet error: %d", dwErrorCode); 
+
+				TCHAR tcError[128];				
+				mbstowcs(tcError, sError, 1024);	
+				::SetWindowText(g_wndStatusStatic, tcError); 
+			}
 			break;
 	}
 
