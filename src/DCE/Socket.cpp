@@ -273,7 +273,7 @@ Socket::~Socket()
 
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write( LV_SOCKET, "Socket::~Socket(): deleting socket @%p %s (socket id in destructor: %d)", this, m_sName.c_str(), m_Socket );
+	g_pPlutoLogger->Write( LV_SOCKET, "Socket::~Socket(): deleting socket @%p %s (socket id in destructor: m_Socket: %d)", this, m_sName.c_str(), m_Socket );
 #endif
 
 #ifdef LL_DEBUG_FILE
@@ -281,6 +281,7 @@ Socket::~Socket()
 	pSocketInfo->m_tDestroyed = time(NULL);
 #endif
 
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sSM,m_SocketMutex);  // don't log anything but failures
 	Close();
 
 	if( m_bUsePingToKeepAlive )
@@ -381,7 +382,7 @@ Message *Socket::ReceiveMessage( int iLength )
 		{
 			if( m_bQuit )
 				return NULL;
-			g_pPlutoLogger->Write( LV_CRITICAL, "Failed Socket::ReceiveMessage %p - failed to allocate buffer - socket: %d %s ch: %p", this, m_Socket, m_sName.c_str(), g_pSocketCrashHandler );
+			g_pPlutoLogger->Write( LV_CRITICAL, "Failed Socket::ReceiveMessage %p - failed to allocate buffer - m_Socket: %d %s ch: %p", this, m_Socket, m_sName.c_str(), g_pSocketCrashHandler );
 			if( g_pSocketCrashHandler )
 				(*g_pSocketCrashHandler)(this);
 		}
@@ -429,7 +430,7 @@ Message *Socket::ReceiveMessage( int iLength )
 			delete[] pcBuffer;
 			if( m_bQuit )
 				return NULL;
-			g_pPlutoLogger->Write( LV_CRITICAL, "Failed Socket::ReceiveMessage %p - failed ReceiveData - socket: %d %s ch: %p", this, m_Socket, m_sName.c_str(), g_pSocketCrashHandler );
+			g_pPlutoLogger->Write( LV_CRITICAL, "Failed Socket::ReceiveMessage %p - failed ReceiveData - m_Socket: %d %s ch: %p", this, m_Socket, m_sName.c_str(), g_pSocketCrashHandler );
 			PlutoLock::DumpOutstandingLocks();
 			if( g_pSocketCrashHandler )
 				(*g_pSocketCrashHandler)(this);
@@ -443,7 +444,7 @@ Message *Socket::ReceiveMessage( int iLength )
 	{
 		if( m_bQuit )
 			return NULL;
-		g_pPlutoLogger->Write( LV_CRITICAL, "Failed Socket::ReceiveMessage %p - out of memory? socket: %d %s ch: %p", this, m_Socket, m_sName.c_str(), g_pSocketCrashHandler );
+		g_pPlutoLogger->Write( LV_CRITICAL, "Failed Socket::ReceiveMessage %p - out of memory? m_Socket: %d %s ch: %p", this, m_Socket, m_sName.c_str(), g_pSocketCrashHandler );
 		PlutoLock::DumpOutstandingLocks();
 		if( g_pSocketCrashHandler )
 			(*g_pSocketCrashHandler)(this);
@@ -688,7 +689,7 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 	{
 		if( m_bQuit )
 			return false;
-		g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveData %p failed, m_socket %d (%p) %s ch: %p", this, m_Socket, this, m_sName.c_str(), g_pSocketCrashHandler );
+		g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveData %p failed, m_Socket: %d (%p) %s ch: %p", this, m_Socket, this, m_sName.c_str(), g_pSocketCrashHandler );
 		PlutoLock::DumpOutstandingLocks();
 		if( g_pSocketCrashHandler )
 			(*g_pSocketCrashHandler)(this);
@@ -772,7 +773,7 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 				if( m_bQuit )
 					return false;
 #ifdef DEBUG
-				g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveData %p failed, ret %d start: %d 1: %d 1b: %d 2: %d 2b: %d, %d %s ch: %p",
+				g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveData %p failed, ret %d start: %d 1: %d 1b: %d 2: %d 2b: %d, m_Socket: %d %s ch: %p",
 				this, iRet, (int) clk_start, (int) clk_select1, (int) clk_select1b, (int) clk_select2, (int) clk_select2b, m_Socket, m_sName.c_str(), g_pSocketCrashHandler );
 				PlutoLock::DumpOutstandingLocks();
 
@@ -809,7 +810,7 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 #endif
 
 #else
-				g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveData %p failed, ret %d socket %d %s ch: %p", this, iRet, m_Socket, m_sName.c_str(), g_pSocketCrashHandler );
+				g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveData %p failed, ret %d m_Socket: %d %s ch: %p", this, iRet, m_Socket, m_sName.c_str(), g_pSocketCrashHandler );
 				PlutoLock::DumpOutstandingLocks();
 #endif
 				if( g_pSocketCrashHandler )
@@ -836,7 +837,7 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 				g_pPlutoLogger->Write(LV_STATUS,"Socket closure error code: %d",WSAGetLastError());
 #endif
 #ifdef DEBUG
-				g_pPlutoLogger->Write( LV_WARNING, "Socket::ReceiveData %p failed, bytes left %d start: %d 1: %d 1b: %d 2: %d 2b: %d socket %d %s",
+				g_pPlutoLogger->Write( LV_WARNING, "Socket::ReceiveData %p failed, bytes left %d start: %d 1: %d 1b: %d 2: %d 2b: %d m_Socket: %d %s",
 				this, m_iSockBufBytesLeft, (int) clk_start, (int) clk_select1, (int) clk_select1b, (int) clk_select2, (int) clk_select2b, m_Socket, m_sName.c_str() );
 
 	#ifdef LL_DEBUG_FILE
@@ -873,7 +874,7 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 	#endif
 
 #else
-				g_pPlutoLogger->Write( LV_STATUS, "Socket::ReceiveData failed, bytes left %d socket %d %s", m_iSockBufBytesLeft, m_Socket, m_sName.c_str() );
+				g_pPlutoLogger->Write( LV_STATUS, "Socket::ReceiveData failed, bytes left %d m_Socket: %d %s", m_iSockBufBytesLeft, m_Socket, m_sName.c_str() );
 #endif
 				Close();
 				return false;
@@ -941,7 +942,7 @@ bool Socket::ReceiveString( string &sRefString )
 		if( m_bQuit )
 			return false;
 		{
-			g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveString %p failed, m_socket %d buf %p %s ch: %p", this, m_Socket, acBuf, m_sName.c_str(), g_pSocketCrashHandler );
+			g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveString %p failed, m_Socket: %d buf %p %s ch: %p", this, m_Socket, acBuf, m_sName.c_str(), g_pSocketCrashHandler );
 			PlutoLock::DumpOutstandingLocks();
 			if( g_pSocketCrashHandler )
 				(*g_pSocketCrashHandler)(this);
@@ -956,7 +957,7 @@ bool Socket::ReceiveString( string &sRefString )
 		if ( !ReceiveData( 1, pcBuf ) ) // uses ReceiveData to get the string char by char
 		{
 			sRefString = "ReceiveData failed";
-			g_pPlutoLogger->Write( LV_STATUS, "Socket::ReceiveString ReceiveData failed %d %s", m_Socket, m_sName.c_str() );
+			g_pPlutoLogger->Write( LV_STATUS, "Socket::ReceiveString ReceiveData failed m_Socket: %d %s", m_Socket, m_sName.c_str() );
 			return false;
 		}
 		++pcBuf;
@@ -1006,7 +1007,7 @@ bool Socket::ReceiveString( string &sRefString )
 #endif
 		sRefString = "Not a string, or excessive length";
 
-		g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveString %p failed len: %d socket: %d %s ch: %p", this, iLen, m_Socket, m_sName.c_str(), g_pSocketCrashHandler );
+		g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveString %p failed len: %d m_Socket: %d %s ch: %p", this, iLen, m_Socket, m_sName.c_str(), g_pSocketCrashHandler );
 		PlutoLock::DumpOutstandingLocks();
 		if( g_pSocketCrashHandler )
 			(*g_pSocketCrashHandler)(this);
@@ -1142,11 +1143,19 @@ void Socket::PingFailed()
 
 void Socket::Close()
 {
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sSM,m_SocketMutex);  // don't log anything but failures
+#ifdef DEBUG
+	g_pPlutoLogger->Write( LV_SOCKET, "Socket::Close() m_Socket %d", m_Socket );
+#endif
+
 	if ( m_Socket != INVALID_SOCKET )
  	{
-		shutdown(m_Socket, 0x02 /*SD_BOTH*/); //no recv or send 
+		int iResult1=shutdown(m_Socket, 0x02 /*SD_BOTH*/); //no recv or send 
 
-		closesocket( m_Socket );
+		int iResult2=closesocket( m_Socket );
+#ifdef DEBUG
+		g_pPlutoLogger->Write( LV_SOCKET, "Socket::Close() m_Socket %d shutdown %d closesocket: %d", m_Socket, iResult1, iResult2 );
+#endif
 #ifndef WINCE
 		close(m_Socket);
 #endif

@@ -2721,8 +2721,8 @@ void Router::ShowSockets()
 		if( pSocketInfo->m_tDestroyed==0 )
 			continue;
 		string sDestroyed=asctime(localtime(&pSocketInfo->m_tDestroyed));
-		g_pPlutoLogger->Write(LV_DEBUG,"CLOSED SOCKET: %p #%d %s\nComment %s Device %s\nCreated %s Destroyed %s Log %s\nLast In %s\nLast Out %s",
-			pSocketInfo->m_pSocket,pSocketInfo->m_iSocketCounter,pSocketInfo->m_sName.c_str(),
+		g_pPlutoLogger->Write(LV_DEBUG,"CLOSED SOCKET: %p #%d m_Socket: %d %s\nComment %s Device %s\nCreated %s Destroyed %s Log %s\nLast In %s\nLast Out %s",
+			pSocketInfo->m_pSocket,pSocketInfo->m_iSocketCounter,pSocketInfo->m_Socket,pSocketInfo->m_sName.c_str(),
 			pSocketInfo->m_sComment.c_str(),pSocketInfo->m_sDevice.c_str(),
 			asctime(localtime(&pSocketInfo->m_tCreated)),sDestroyed.c_str(),
 			pSocketInfo->m_sLogFile.c_str(),pSocketInfo->m_sLastStringIn.c_str(),pSocketInfo->m_sLastStringOut.c_str());
@@ -2732,8 +2732,8 @@ void Router::ShowSockets()
 		SocketInfo *pSocketInfo = it->second;
 		if( pSocketInfo->m_tDestroyed!=0 )
 			continue;
-		g_pPlutoLogger->Write(LV_DEBUG,"OPEN SOCKET: %p #%d %s\nComment %s Device %s\nCreated %s Log %s\nLast In %s\nLast Out %s",
-			pSocketInfo->m_pSocket,pSocketInfo->m_iSocketCounter,pSocketInfo->m_sName.c_str(),
+		g_pPlutoLogger->Write(LV_DEBUG,"OPEN SOCKET: %p #%d m_Socket: %d %s\nComment %s Device %s\nCreated %s Log %s\nLast In %s\nLast Out %s",
+			pSocketInfo->m_pSocket,pSocketInfo->m_iSocketCounter,pSocketInfo->m_Socket,pSocketInfo->m_sName.c_str(),
 			pSocketInfo->m_sComment.c_str(),pSocketInfo->m_sDevice.c_str(),
 			asctime(localtime(&pSocketInfo->m_tCreated)),
 			pSocketInfo->m_sLogFile.c_str(),pSocketInfo->m_sLastStringIn.c_str(),pSocketInfo->m_sLastStringOut.c_str());
