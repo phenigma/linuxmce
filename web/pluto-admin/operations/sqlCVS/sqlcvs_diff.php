@@ -241,11 +241,15 @@ function sqlcvs_diff($output,$dbADO) {
 		$sqlcvsAction=(isset($_POST['revert']))?'revert':'checkin';
 		
 		$cmd='/usr/pluto/bin/sqlCVS -H '.$host.' -h localhost -a -n '.$parmList.' -d “'.$username.'” -U "'.$username.'~'.$password.'" -D '.$dbPlutoMainDatabase.' -e -m /tmp/tmp_sqlcvs_file '.$sqlcvsAction;
-		unlink('/tmp/tmp_sqlcvs_file');
+//		unlink('/tmp/tmp_sqlcvs_file');
 
 		
 		$out='
 		<script>
+			function windowOpen(locationA,attributes) {
+				window.open(locationA,\'\',attributes);
+			}
+
 		
 			windowOpen(\'operations/logs/executeLog.php?script=2&command='.urlencode($cmd).'\',\'width=1024,height=768,scrollbars=1,resizable=1\')
 			self.location="index.php?section=sqlcvs_diff";		
