@@ -75,6 +75,9 @@ ServerSocket::ServerSocket( SocketListener *pListener, SOCKET Sock, string sName
 {
 	m_dwPK_Device = (long unsigned int)-1;
 	m_Socket = Sock;
+#ifdef DEBUG
+	g_pPlutoLogger->Write( LV_STATUS, "ServerSocket::Created %p m_Socket: %d", this, m_Socket );
+#endif
 	m_pListener = pListener;
 	m_bThreadRunning=true;
 
@@ -84,7 +87,7 @@ ServerSocket::ServerSocket( SocketListener *pListener, SOCKET Sock, string sName
 ServerSocket::~ServerSocket()
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write( LV_STATUS, "ServerSocket::~ServerSocket() Deleting socket @%p. Socket id in destructor: %d.", this, m_Socket );
+	g_pPlutoLogger->Write( LV_STATUS, "ServerSocket::~ServerSocket() Deleting socket @%p. m_Socket: %d.", this, m_Socket );
 #endif
 
 	Close();
@@ -310,7 +313,7 @@ sMacAddress="11:22";
 		m_Socket = INVALID_SOCKET;
 	}
 */
-	g_pPlutoLogger->Write( LV_WARNING, "TCPIP: Closing connection to %d (%s)", m_dwPK_Device,m_pListener->m_sName.c_str() );
+	g_pPlutoLogger->Write( LV_WARNING, "TCPIP: Closing connection to %d (%s) %p m_Socket: %d", m_dwPK_Device,m_pListener->m_sName.c_str(), this, m_Socket );
 
 	m_pListener->OnDisconnected( m_dwPK_Device );
 

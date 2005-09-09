@@ -72,10 +72,10 @@ bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo )
 	{
 #ifdef DEBUG
 		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write( LV_SOCKET, "ClientSocket::Connect - disconnecting previous socket this: %p device: %d socket %d", this, m_dwPK_Device, m_Socket );
+			g_pPlutoLogger->Write( LV_SOCKET, "ClientSocket::Connect - disconnecting previous socket this: %p device: %d m_Socket: %d", this, m_dwPK_Device, m_Socket );
 #ifndef WINCE
 		else // no logger
-			cerr << "ClientSocket::Connect - disconnecting previous socket this: device: " << m_dwPK_Device << " Socket: " << (int) m_Socket << endl;
+			cerr << "ClientSocket::Connect - disconnecting previous socket this: device: " << m_dwPK_Device << " m_Socket: " << (int) m_Socket << endl;
 #endif
 
 #endif
@@ -83,6 +83,11 @@ bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo )
 	}
 
 	m_Socket = socket( AF_INET, SOCK_STREAM, 0 );
+
+#ifdef DEBUG
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write( LV_SOCKET, "ClientSocket::Connect - created m_Socket: %d", m_Socket );
+#endif
 
 	/** @todo check comment */
 	//int b = 1;

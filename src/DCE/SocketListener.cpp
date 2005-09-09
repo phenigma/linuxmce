@@ -76,7 +76,7 @@ SocketListener::~SocketListener()
 		}
 		lm.Release(); */
 
-		g_pPlutoLogger->Write( LV_SOCKET, "closing listener socket %d", m_Socket );
+		g_pPlutoLogger->Write( LV_SOCKET, "closing listener m_Socket: %d", m_Socket );
 		closesocket( m_Socket ); // closing the socket
 		m_Socket = INVALID_SOCKET; // now it is invalid
 	}
