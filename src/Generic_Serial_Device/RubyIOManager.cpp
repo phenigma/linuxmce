@@ -262,14 +262,7 @@ RubyIOManager::RouteMessage(DeviceData_Base* pdevdata, Message *pMessage) {
     g_pPlutoLogger->Write(LV_STATUS, "Routing message to device %d.", ptmpdevdata->m_dwPK_Device);
 	mmsg_.Lock();
 	std::pair<unsigned, Message*> msg(ptmpdevdata->m_dwPK_Device, pMessage);
-	if(pMessage->m_eExpectedResponse==ER_ReplyMessage)
-	{
-		msgqueue_.push_front(msg);
-	}
-	else
-	{
-		msgqueue_.push_back(msg);
-	}
+	msgqueue_.push_back(msg);
 	mmsg_.Unlock();
 	emsg_.Signal();
 	if(pMessage->m_eExpectedResponse==ER_ReplyMessage)
