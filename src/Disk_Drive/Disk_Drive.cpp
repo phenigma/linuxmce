@@ -298,13 +298,12 @@ void Disk_Drive::CMD_Abort_Ripping(string &sCMD_Result,Message *pMessage)
 	}
 
 	g_pPlutoLogger->Write(LV_STATUS,"Aborting Ripping");
-	DCE::CMD_Kill_ApplicationT
+	DCE::CMD_Kill_Application
 		CMD_Kill_Application(m_dwPK_Device,
-						DEVICETEMPLATE_xrver_CONST,
-						BL_SameComputer,
+						m_pDevice_AppServer->m_dwPK_Device,
 						"rip_" + StringUtils::itos(m_dwPK_Device));
 
-    SendCommand(CMD_Kill_Application_DT);
+    SendCommand(CMD_Kill_Application);
 }
 
 //<-dceag-c56-b->
