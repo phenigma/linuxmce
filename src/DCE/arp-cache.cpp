@@ -38,7 +38,10 @@ string arpcache_MACfromIP(string IP)
 
 			// check if its what we're looking for
 			if (IP == ip && (flags & 0x02) == 0x02) // TODO: replace 0x02 with flag mnemonics and make sure there aren't any other combinations
+			{
+				fclose(f);
 				return hwa;
+			}
 		}
 	}
 	
