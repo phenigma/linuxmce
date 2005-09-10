@@ -5499,6 +5499,8 @@ void Orbiter::CMD_Refresh(string sDataGrid_ID,string &sCMD_Result,Message *pMess
 
 		if(sDataGrid_ID=="*" || pDesignObj->m_sGridID == sDataGrid_ID)
 		{
+			PLUTO_SAFETY_LOCK( cm, m_DatagridMutex );
+			InitializeGrid(pDesignObj);
 			pDesignObj->bReAcquire=true;
 
 			PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
@@ -6574,6 +6576,7 @@ void Orbiter::CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sVa
 			DesignObj_DataGrid* pDesignObj = *it;
 			if(pDesignObj->m_sGridID.size()>6 && (pDesignObj->m_sGridID.substr(0,5)=="plist" || pDesignObj->m_sGridID.substr(0,6)=="tracks") )
 			{
+				PLUTO_SAFETY_LOCK( cm, m_DatagridMutex );
 				InitializeGrid(pDesignObj);
 				pDesignObj->bReAcquire=true;
 				PLUTO_SAFETY_LOCK(rm,m_NeedRedrawVarMutex);
@@ -6642,7 +6645,7 @@ void Orbiter::ContinuousRefresh( void *data )
 			CMD_Set_Text(m_pScreenHistory_Current->m_pObj->m_ObjectID, StringUtils::itos( int(m_tTimeoutTime - time(NULL)) ) + " seconds",TEXT_USR_ENTRY_CONST);
 		}
 
-		CMD_Refresh("");
+		CMD_Refresh("*");
 		CallMaintenanceInMiliseconds( pContinuousRefreshInfo->m_iInterval * 1000, &Orbiter::ContinuousRefresh, pContinuousRefreshInfo, pe_ALL );
 	}
 }
@@ -6658,7 +6661,7 @@ void Orbiter::CMD_Continuous_Refresh(string sTime,string &sCMD_Result,Message *p
 //<-dceag-c238-e->
 {
 	ContinuousRefreshInfo *pContinuousRefreshInfo = new ContinuousRefreshInfo(m_pScreenHistory_Current->m_pObj,atoi(sTime.c_str()));
-	CallMaintenanceInMiliseconds( pContinuousRefreshInfo->m_iInterval, &Orbiter::ContinuousRefresh, pContinuousRefreshInfo, pe_ALL );
+	CallMaintenanceInMiliseconds( pContinuousRefreshInfo->m_iInterval * 1000, &Orbiter::ContinuousRefresh, pContinuousRefreshInfo, pe_ALL );
 }
 
 //timingofsetnowplaying
@@ -7561,10 +7564,13 @@ void Orbiter::CMD_Set_Current_Room(int iPK_Room,string &sCMD_Result,Message *pMe
 	/** Sends a message stored in a parameter as a text object. */
 		/** @param #9 Text */
 			/** The message in command line-style format */
+		/** @param #144 Go Back */
+			/** Go back after sending the command if it does not contain another goto screen or go back */
 
-void Orbiter::CMD_Send_Message(string sText,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Send_Message(string sText,bool bGo_Back,string &sCMD_Result,Message *pMessage)
 //<-dceag-c389-e->
 {
+	bool bContainsGoto=false;
 	string sMessage = SubstituteVariables(sText,NULL,0,0);
 
     if(sMessage != "")
@@ -7572,12 +7578,21 @@ void Orbiter::CMD_Send_Message(string sText,string &sCMD_Result,Message *pMessag
         Message *pMessageOut = new Message(sMessage);
 		if( pMessageOut->m_dwPK_Device_To==DEVICETEMPLATE_This_Orbiter_CONST )
 			pMessageOut->m_dwPK_Device_To=m_dwPK_Device;
+		if( pMessageOut->m_dwMessage_Type==MESSAGETYPE_COMMAND && (pMessageOut->m_dwID==COMMAND_Go_back_CONST || pMessageOut->m_dwID==COMMAND_Goto_Screen_CONST) )
+			bContainsGoto=true;
+
 		for(size_t s=0;s<pMessageOut->m_vectExtraMessages.size();++s)
+		{
 			if( pMessageOut->m_vectExtraMessages[s]->m_dwPK_Device_To==DEVICETEMPLATE_This_Orbiter_CONST )
 				pMessageOut->m_vectExtraMessages[s]->m_dwPK_Device_To=m_dwPK_Device;
+			if( pMessageOut->m_vectExtraMessages[s]->m_dwMessage_Type==MESSAGETYPE_COMMAND && (pMessageOut->m_vectExtraMessages[s]->m_dwID==COMMAND_Go_back_CONST || pMessageOut->m_vectExtraMessages[s]->m_dwID==COMMAND_Goto_Screen_CONST) )
+				bContainsGoto=true;
+		}
 
         QueueMessageToRouter(pMessageOut);
     }
+	if( bGo_Back && !bContainsGoto )
+		CMD_Go_back("","");
 }
 
 void Orbiter::ResetState(DesignObj_Orbiter *pObj, bool bDontResetState)

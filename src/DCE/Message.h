@@ -186,7 +186,8 @@ namespace DCE
         Message( long dwDeviceIDFrom, long dwMasterDevice, eBroadcastLevel eB, long dwPriority, long dwMessageType, long dwID, unsigned long dwParameterCount, ... );
 
         /**
-         * @brief this allows for a string formatted message to be sent to a particular device.
+         * @brief this allows for a string formatted message to be sent to a particular device using the same format
+		 * like message send.  Multiple messages can be separated with \n
          */
         Message( string sMessageInStringFormat );
 

@@ -223,6 +223,9 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 	string Response;
 
 	MediaFile *pMediaFile = NULL;
+	// HACK: -- todo: get real informations.
+	if( pXineMediaStream->m_dequeMediaFile.size()>pXineMediaStream->m_iDequeMediaFile_Pos )
+		pMediaFile = pXineMediaStream->m_dequeMediaFile[pXineMediaStream->m_iDequeMediaFile_Pos];
 
 	mediaURL = sFileToPlay;
 
@@ -237,7 +240,7 @@ g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();
 							mediaURL,
 							pXineMediaStream->m_iPK_MediaType,
 							pXineMediaStream->m_iStreamID_get( ),
-							pMediaFile ? pMediaFile->m_sStartPosition : "");
+							pMediaFile && pMediaFile->m_sStartPosition.size() ? pMediaFile->m_sStartPosition : pXineMediaStream->m_sStartPosition);
 
 	// No handling of errors (it will in some cases deadlock the router.)
 	SendCommand(cmd);

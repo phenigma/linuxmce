@@ -234,7 +234,7 @@ public:
 	virtual void CMD_Show_Mouse_Pointer(string sOnOff,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Back_Clear_Entry(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Activate_Window(string sName,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Send_Message(string sText,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Send_Message(string sText,bool bGo_Back,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Show_Popup(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string sPK_DesignObj_CurrentScreen,string sName,bool bExclusive,bool bDont_Auto_Hide,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Remove_Popup(string sPK_DesignObj_CurrentScreen,string sName,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Show_Shortcuts(string &sCMD_Result,class Message *pMessage) {};
@@ -1821,7 +1821,8 @@ public:
 					{
 						string sCMD_Result="OK";
 					string sText=pMessage->m_mapParameters[9];
-						CMD_Send_Message(sText.c_str(),sCMD_Result,pMessage);
+					bool bGo_Back=(pMessage->m_mapParameters[144]=="1" ? true : false);
+						CMD_Send_Message(sText.c_str(),bGo_Back,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -1838,7 +1839,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Send_Message(sText.c_str(),sCMD_Result,pMessage);
+								CMD_Send_Message(sText.c_str(),bGo_Back,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

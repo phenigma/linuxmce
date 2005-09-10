@@ -102,7 +102,7 @@ void MediaAttributes::TransformFilenameToDeque(string sFilename,deque<MediaFile 
 				pMediaFile->m_sStartPosition = pRow_Bookmark->Position_get();
 				dequeFilenames.push_back(pMediaFile);
 			}
-		}
+		}	
 	}
 	else
 	{

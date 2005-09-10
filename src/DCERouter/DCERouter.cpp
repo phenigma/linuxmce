@@ -446,7 +446,7 @@ void Router::RegisterAllPlugins()
 		}
 	}
 
-	g_pPlutoLogger->Write(LV_WARNING, "Activating plug-ins");
+	g_pPlutoLogger->Write(LV_STATUS, "Activating %d plug-ins",(int) list_fRAP.size());
 	for (i_fRAP = list_fRAP.begin(); i_fRAP != list_fRAP.end(); i_fRAP++)
 	{
 		Command_Impl * pPlugIn = PlugIn_Activate(i_fRAP->PK_Device, i_fRAP->func, i_fRAP->log);
@@ -467,6 +467,7 @@ void Router::RegisterAllPlugins()
         }
     }
 
+	g_pPlutoLogger->Write(LV_STATUS, "Registering %d plug-ins",(int) m_mapPlugIn.size());
     map<int,class Command_Impl *>::iterator it;
     for(it=m_mapPlugIn.begin();it!=m_mapPlugIn.end();++it)
     {
@@ -1913,12 +1914,14 @@ g_pPlutoLogger->Write(LV_SOCKET, "Got response: %d to message type %d id %d to %
           g_pPlutoLogger->Write(LV_STATUS, "realsendmessage - before failed socket");
 #endif
 
+		  /* AB 2005-09-09.  This crashes.  The socket is already deleted?
 			if (pFailedSocket)
             {
 				// the destructor will also remove it from the command maps.
                 delete pFailedSocket;
 				// RemoveSocket(pFailedSocket);
             }
+		*/
         }
         else
         {

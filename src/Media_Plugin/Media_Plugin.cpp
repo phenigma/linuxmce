@@ -776,7 +776,7 @@ void Media_Plugin::StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigne
 		}
 
 		StartMedia(pMediaHandlerInfo,iPK_MediaProvider,iPK_Device_Orbiter,vectEA_to_MediaHandler[s].second,
-			iPK_Device,p_dequeMediaFile,bResume,iRepeat,"");  // We'll let the plug-in figure out the source, and we'll use the default remote
+			iPK_Device,p_dequeMediaFile,bResume,iRepeat,sStartingPosition);  // We'll let the plug-in figure out the source, and we'll use the default remote
 
 		if( p_dequeMediaFile_Copy )
 			delete p_dequeMediaFile;
@@ -955,7 +955,11 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 		g_pPlutoLogger->Write(LV_STATUS,"Calling Plug-in's start media");
 
 	g_pPlutoLogger->Write(LV_STATUS,"Ready to call plugin's startmedia");
-	int iPK_Orbiter_PromptingToResume = CheckForAutoResume(pMediaStream);
+	int iPK_Orbiter_PromptingToResume = 0;
+	if( pMediaStream->m_sStartPosition.size()==0 && 
+			(pMediaStream->m_iDequeMediaFile_Pos<0 || pMediaStream->m_iDequeMediaFile_Pos>=pMediaStream->m_dequeMediaFile.size() ||
+			pMediaStream->m_dequeMediaFile[pMediaStream->m_iDequeMediaFile_Pos]->m_sStartPosition.size()==0) )
+		iPK_Orbiter_PromptingToResume = CheckForAutoResume(pMediaStream);
 
 	m_pMediaAttributes->LoadStreamAttributes(pMediaStream);
 	if( pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pMediaStream) )
@@ -2777,7 +2781,7 @@ g_pPlutoLogger->Write(LV_WARNING,"ready to restart %d eas",(int) vectEntertainAr
 		// since sometimes the source will be preserved across moves maybe???
 		StartMedia( pMediaStream->m_iPK_MediaType, pMediaStream->m_iPK_MediaProvider, (pMediaStream->m_pOH_Orbiter_StartedMedia ? pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device : 0),
 			vectEntertainArea, 0,
-			&pMediaStream->m_dequeMediaFile, pMediaStream->m_bResume, pMediaStream->m_iRepeat,"");
+			&pMediaStream->m_dequeMediaFile, pMediaStream->m_bResume, pMediaStream->m_iRepeat,pMediaStream->m_sLastPosition);
 
 		pMediaStream->m_dequeMediaFile.clear();  // We don't want to delete the media files since we will have re-used the same pointers above
 		delete pMediaStream; // We will have started with new copies
@@ -3294,7 +3298,7 @@ typedef enum {
 
 bool Media_Plugin::RippingAborted( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
-	RippingJob *pRippingJob = m_mapRippingJobs_Find(pMessage->m_dwPK_Device_From);
+	RippingJob *pRippingJob = m_mapRippingJobs_Find(pMessage->m_dwPK_Device_To);
 	g_pPlutoLogger->Write(LV_STATUS,"Aborted ripping of job %p %s",pRippingJob,pRippingJob ? pRippingJob->m_sName.c_str() : "");
 	if( pRippingJob )
 		pRippingJob->m_bAborted=true;
@@ -4494,7 +4498,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"size %d pos %d file %p %d",(int) pMediaStream
 	m_pDatabase_pluto_media->Bookmark_get()->Commit();
 
 	DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pMessage->m_dwPK_Device_From,0,StringUtils::itos(DESIGNOBJ_mnuFileSave_CONST),"","",false,false);
-	string sCmdToRenameBookmark="<%=!%> <%=V-106%> 1 411 5 \"<%=17%>\" 129 " + StringUtils::itos(pRow_Bookmark->PK_Bookmark_get());
+	string sCmdToRenameBookmark="<%=!%> -300 1 5 3 <%=NP_R%>\n<%=!%> <%=V-106%> 1 411 5 \"<%=17%>\" 129 " + StringUtils::itos(pRow_Bookmark->PK_Bookmark_get());
 	DCE::CMD_Set_Variable CMD_Set_Variable_Private(m_dwPK_Device,pMessage->m_dwPK_Device_From,VARIABLE_Misc_Data_1_CONST,
 		 sCmdToRenameBookmark + "17 <%=U%>");  // Private, add the user
 	CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable_Private.m_pMessage);

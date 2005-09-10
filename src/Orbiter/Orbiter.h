@@ -1576,9 +1576,11 @@ public:
 	/** Sends a message stored in a parameter as a text object. */
 		/** @param #9 Text */
 			/** The message in command line-style format */
+		/** @param #144 Go Back */
+			/** Go back after sending the command if it does not contain another goto screen or go back */
 
-	virtual void CMD_Send_Message(string sText) { string sCMD_Result; CMD_Send_Message(sText.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Send_Message(string sText,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Send_Message(string sText,bool bGo_Back) { string sCMD_Result; CMD_Send_Message(sText.c_str(),bGo_Back,sCMD_Result,NULL);};
+	virtual void CMD_Send_Message(string sText,bool bGo_Back,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #397 - Show Popup */

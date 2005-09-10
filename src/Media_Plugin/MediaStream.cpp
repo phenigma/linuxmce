@@ -430,10 +430,24 @@ void MediaStream::UpdateDescriptions(bool bAllFiles,MediaFile *pMediaFile_In)
 		}
 	}
 
-	if( m_sMediaDescription.size()==0 && m_dequeMediaFile.size() && m_iDequeMediaFile_Pos<m_dequeMediaFile.size() )
+	if( m_sMediaDescription.size()==0 )
 	{
-		MediaFile *pMediaFile = m_dequeMediaFile[m_iDequeMediaFile_Pos];
-		m_sMediaDescription = pMediaFile->m_sFilename;
+		if( m_dequeMediaFile.size() && m_iDequeMediaFile_Pos<m_dequeMediaFile.size() )
+		{
+			MediaFile *pMediaFile = m_dequeMediaFile[m_iDequeMediaFile_Pos];
+			m_sMediaDescription = pMediaFile->m_sFilename;
+		}
+		else
+		{
+			DeviceData_Router *pDeviceData_Router = m_pMediaDevice_Source->m_pDeviceData_Router;
+			if( pDeviceData_Router->m_pDevice_RouteTo )  // this may be an embedded device, if so show the parent's description
+				pDeviceData_Router = pDeviceData_Router->m_pDevice_RouteTo;
+
+			Row_MediaType *pRow_MediaType = m_pMediaHandlerInfo->m_pMediaHandlerBase->m_pMedia_Plugin->m_pDatabase_pluto_main->MediaType_get()->GetRow(m_iPK_MediaType);
+			m_sMediaDescription = pDeviceData_Router->m_sDescription;
+			if( pRow_MediaType )
+				m_sMediaDescription += "(" + pRow_MediaType->Description_get() + ")";
+		}
 	}
 }
 
