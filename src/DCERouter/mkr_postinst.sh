@@ -27,6 +27,12 @@ if [ $hasRecords -ne 0 ]; then
 	SkipDatabase="yes"
 fi
 
+# Temporary code to remove everything related to Mozilla_Plugin
+RunSQL = "DELETE FROM Device where FK_DeviceTemplate=30" # We got rid of Mozilla Plugin
+rm /usr/pluto/bin/Mozilla_Plugin.so
+apt-get -y remove pluto-mozilla-plugin pluto-src-mozilla-plugin || true
+
+
 if [ "$SkipDatabase" != "yes" ]; then
 	DIDsql="/usr/pluto/install/database_initial_data.sql"
 	wget -O "$DIDsql" "http://plutohome.com/initialdata.php?code=$code&device=$device" 2>/dev/null
