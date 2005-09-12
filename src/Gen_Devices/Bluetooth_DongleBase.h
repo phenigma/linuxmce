@@ -44,8 +44,6 @@ public:
 	class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition);
 	virtual int GetPK_DeviceList() { return 13; } ;
 	virtual const char *GetDeviceDescription() { return "Bluetooth_Dongle"; } ;
-	string Get_Paired_phones() { return m_mapParameters[116];}
-	void Set_Paired_phones(string Value) { SetParm(116,Value.c_str()); }
 };
 
 
@@ -67,22 +65,12 @@ public:
 		m_pEvent = new Bluetooth_Dongle_Event(m_dwPK_Device, m_sHostName);
 		if( m_pEvent->m_dwPK_Device )
 			m_dwPK_Device = m_pEvent->m_dwPK_Device;
+		if( m_sIPAddress!=m_pEvent->m_pClientSocket->m_sIPAddress )	
+			m_sIPAddress=m_pEvent->m_pClientSocket->m_sIPAddress;
+		m_sMacAddress=m_pEvent->m_pClientSocket->m_sMacAddress;
 		if( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None )
 		{
-			if( m_pEvent->m_pClientSocket->m_eLastError==cs_err_NeedReload )
-			{
-				if( RouterNeedsReload() )
-				{
-					string sResponse;
-					m_pEvent->m_pClientSocket->SendString( "RELOAD" );
-					if( m_pEvent->m_pClientSocket->ReceiveString( sResponse ) && sResponse!="OK" )
-					{
-						CannotReloadRouter();
-						g_pPlutoLogger->Write(LV_WARNING,"Reload request denied: %s",sResponse.c_str());
-					}
-				}	
-			}
-			else if( m_pEvent->m_pClientSocket->m_eLastError==cs_err_BadDevice )
+			if( m_pEvent->m_pClientSocket->m_eLastError==cs_err_BadDevice )
 			{
 				while( m_pEvent->m_pClientSocket->m_eLastError==cs_err_BadDevice && (m_dwPK_Device = DeviceIdInvalid())!=0 )
 				{
@@ -92,14 +80,29 @@ public:
 						m_dwPK_Device = m_pEvent->m_dwPK_Device;
 				}
 			}
+			if( m_pEvent->m_pClientSocket->m_eLastError==cs_err_NeedReload )
+			{
+				if( RouterNeedsReload() )
+				{
+					string sResponse;
+					Event_Impl event_Impl(DEVICEID_MESSAGESEND, 0, m_sHostName);
+					event_Impl.m_pClientSocket->SendString( "RELOAD" );
+					if( !event_Impl.m_pClientSocket->ReceiveString( sResponse ) || sResponse!="OK" )
+					{
+						CannotReloadRouter();
+						g_pPlutoLogger->Write(LV_WARNING,"Reload request denied: %s",sResponse.c_str());
+					}
+				Sleep(10000);  // Give the router 10 seconds before we re-attempt, otherwise we'll get an error right away
+				}	
+			}
 		}
 		
-		if( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None )
+		if( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None || m_pEvent->m_pClientSocket->m_Socket==INVALID_SOCKET )
 			return false;
 
 		int Size; char *pConfig = m_pEvent->GetConfig(Size);
 		if( !pConfig )
-			throw "Cannot get configuration data";
+			return false;
 		m_pData = new Bluetooth_Dongle_Data();
 		if( Size )
 			m_pData->SerializeRead(Size,pConfig);
@@ -122,8 +125,6 @@ public:
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
-	string DATA_Get_Paired_phones() { return GetData()->Get_Paired_phones(); }
-	void DATA_Set_Paired_phones(string Value) { GetData()->Set_Paired_phones(Value); }
 	//Event accessors
 	void EVENT_Mobile_orbiter_detected(string sMac_Address,int iSignal_Strength,string sID) { GetEvents()->Mobile_orbiter_detected(sMac_Address.c_str(),iSignal_Strength,sID.c_str()); }
 	void EVENT_Mobile_orbiter_linked(string sMac_Address,string sVersion) { GetEvents()->Mobile_orbiter_linked(sMac_Address.c_str(),sVersion.c_str()); }

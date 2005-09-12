@@ -580,28 +580,8 @@ void Bluetooth_Dongle::SignalStrengthChanged( class PhoneDevice *pDevice )
 		g_pPlutoLogger->Write( LV_WARNING, "Detected device mac: %s link quality: %d", 
 			pDevice->m_sMacAddress.c_str(), pDevice->m_iLinkQuality );
 
-        string sPairedPhones = DATA_Get_Paired_phones();
-        if(string::npos != sPairedPhones.find(pDevice->m_sMacAddress))
-        {
-            if(PairPhone(pDevice->m_sMacAddress))
-                DATA_Set_Paired_phones(sPairedPhones + "," + pDevice->m_sMacAddress);
-            else
-                g_pPlutoLogger->Write(LV_CRITICAL, "Failed to pair device %s", pDevice->m_sMacAddress);
-        }
-
 		GetEvents()->Mobile_orbiter_detected( pDevice->m_sMacAddress, pDevice->m_iLinkQuality, pDevice->m_sID );
 	}	
-}
-
-//-----------------------------------------------------------------------------------------------------
-
-bool Bluetooth_Dongle::PairPhone(string sMacAddress)
-{
-    g_pPlutoLogger->Write(LV_STATUS, "Pairing device %s...", sMacAddress);
-
-    //TODO: implement me!!!
-
-    return false;
 }
 
 //-----------------------------------------------------------------------------------------------------

@@ -159,9 +159,8 @@ public:
 		}
 	
 		bool Connect(int iPK_DeviceTemplate); // Special stuff after connection
-        bool PairPhone(string sMacAddress);
 
-		/** From PhoneDetectionEngine class */
+        /** From PhoneDetectionEngine class */
 		
 		/** 
 		 * @brief This is the actual scan loop that gets called by the worker thread
@@ -211,8 +210,6 @@ public:
 
 	/*
 			*****DATA***** accessors inherited from base class
-	string DATA_Get_Paired_phones();
-	void DATA_Set_Paired_phones(string Value);
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Mobile_orbiter_detected(string sMac_Address,int iSignal_Strength,string sID);
