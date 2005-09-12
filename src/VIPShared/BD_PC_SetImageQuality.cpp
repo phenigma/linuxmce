@@ -10,7 +10,6 @@
 
 #ifdef BLUETOOTH_DONGLE
 #include "../Orbiter/Orbiter.h"
-#include "../Orbiter/SDL_Bluetooth/OrbiterSDLBluetooth.h"
 #include "BD/BDCommandProcessor.h"
 #include "../Bluetooth_Dongle/Bluetooth_Dongle.h"
 #include "BDCommandProcessor_BluetoothDongle.h"
