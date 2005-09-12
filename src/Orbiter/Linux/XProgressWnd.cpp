@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "XProgressWnd.h"
+#include <X11/Xutil.h>
 
 XProgressWnd::XProgressWnd()
  : m_pButton(NULL)
@@ -52,8 +53,8 @@ bool XProgressWnd::DrawWindow()
         unsigned long mask = GCForeground | GCBackground | GCLineWidth;
         XGCValues values;
         values.line_width = 1;
-        values.foreground = 0xF0F0F0;
-        values.background = 0xF0F0F0;
+        values.foreground = 0x000000;
+        values.background = 0x000000;
         GC gcBackground = XCreateGC(
                     m_pDisplay, 
                     m_wndThis,
@@ -61,8 +62,8 @@ bool XProgressWnd::DrawWindow()
                     &values);
         XFillRectangle(m_pDisplay, m_wndThis, gcBackground, 2, 2, m_nWidth-4, m_nHeight-4);
         
-        values.foreground = 0x000000;
-        values.background = 0x000000;
+        values.foreground = 0xFFFFFF;
+        values.background = 0xFFFFFF;
         
         GC gcBorder = XCreateGC(
                     m_pDisplay, 
@@ -80,8 +81,8 @@ bool XProgressWnd::DrawWindow()
 
         Font font = XLoadFont(m_pDisplay, "-*-*-*-R-Normal--*-140-75-75-*-*");
         mask = GCForeground | GCBackground | GCLineWidth | GCFont;
-        values.foreground = 0x000000;
-        values.background = 0x000000;
+        values.foreground = 0xFFFFFF;
+        values.background = 0xFFFFFF;
         values.font = font;
         GC gcText = XCreateGC(
                     m_pDisplay, 
@@ -93,7 +94,7 @@ bool XProgressWnd::DrawWindow()
         
         XDrawString(m_pDisplay, m_wndThis, gcText, m_nTextX, m_nTextY, m_sText.c_str(), m_sText.length());
         XDrawRectangle(m_pDisplay, m_wndThis, gcBorder, m_nBarX, m_nBarY, m_nBarWidth, m_nBarHeight);
-        XFillRectangle(m_pDisplay, m_wndThis, gcBar, m_nBarX+2, m_nBarY+2, nBarWidth, m_nBarHeight-3);
+        XFillRectangle(m_pDisplay, m_wndThis, gcBar, m_nBarX+2, m_nBarY+2, nBarWidth, m_nBarHeight-2);
         
         XUnloadFont(m_pDisplay, font);
         XFreeGC(m_pDisplay, gcText);
@@ -121,7 +122,7 @@ bool XProgressWnd::EventLoop()
         	case Expose:
         	    std::cout << "Expose event received" << std::endl;
         	    DrawWindow();
-                pthread_cond_signal(&m_condition);
+                //pthread_cond_signal(&m_condition);
         	    break;
         	case ButtonRelease:
         	    std::cout << "ButtonRelease event received" << std::endl;
@@ -175,6 +176,8 @@ bool XProgressWnd::UpdateProgress(std::string sText, int nProgress)
    
     //DrawWindow();
     //pthread_cond_broadcast( &m_condition );
+    
+    return true;
 }
 
 static void *MyThreadFunc(void *pWindow)
@@ -190,7 +193,7 @@ static void *MyThreadFunc(void *pWindow)
     int nWidth = 250, nHeight = 140;
     int xPos = (nDesktopX - nWidth) / 2;
     int yPos = (nDesktopY - nHeight) / 2;
-    pWnd->CreateWindow(pDisplay, nScreenNo, DefaultRootWindow(pDisplay), xPos, yPos, nWidth, nHeight);
+    pWnd->CreateWindow(pDisplay, nScreenNo, DefaultRootWindow(pDisplay), 0, 0, nDesktopX, nDesktopY);
     pWnd->ShowWindow();
     pWnd->DrawWindow();
     
@@ -198,6 +201,7 @@ static void *MyThreadFunc(void *pWindow)
     
     std::cout << "Thread func ending ... " << std::endl;
     pWnd->DestroyWindow();
+    XSync(pDisplay, false);
     std::cout << "Thread func ended ... " << std::endl;
     
     if (pWnd->Destroy())
@@ -215,9 +219,9 @@ pthread_t XProgressWnd::Run()
     m_bCanceled = false;
     m_bDone = false;
     
-    pthread_mutex_init(&m_mutexid, NULL);
-    pthread_cond_init(&m_condition, NULL);
-    pthread_mutex_lock(&m_mutexid);
+    //pthread_mutex_init(&m_mutexid, NULL);
+    //pthread_cond_init(&m_condition, NULL);
+    //pthread_mutex_lock(&m_mutexid);
     
     int iResult = pthread_create( &threadID, NULL, MyThreadFunc, (void *)this );
     if ( iResult != 0 )
@@ -226,10 +230,10 @@ pthread_t XProgressWnd::Run()
     }
     else {
         std::cout << "Thread started ... " << std::endl;
-        pthread_cond_wait(&m_condition, &m_mutexid);
+        //pthread_cond_wait(&m_condition, &m_mutexid);
 	    //pthread_detach( threadID );
     }
-    pthread_mutex_unlock(&m_mutexid);
+    //pthread_mutex_unlock(&m_mutexid);
     
     m_thisThread = threadID;
     return threadID;
@@ -239,7 +243,7 @@ void XProgressWnd::Terminate()
 {
 	m_bDestroy = true;
 	m_bDone = true;
-	pthread_cond_broadcast( &m_condition );
+	//pthread_cond_broadcast( &m_condition );
 }
 
 int XProgressWnd::CreateWindow(Display *pDisplay, int screen, Window wndParent, int x, int y, int cx, int cy)
@@ -256,6 +260,7 @@ int XProgressWnd::CreateWindow(Display *pDisplay, int screen, Window wndParent, 
     std::cout << "Contructing Progress window" << std::endl;
     int xPos = (m_nWidth - 80) / 2;
     int yPos = m_nHeight - 50;
+    /*
     m_pButton = new X3DButton();
     m_pButton->CreateWindow(m_pDisplay, m_nScreen, m_wndThis, xPos, yPos, 80, 30, "Cancel");
     
@@ -265,9 +270,13 @@ int XProgressWnd::CreateWindow(Display *pDisplay, int screen, Window wndParent, 
     m_pButton->ChangeAttributes (mask, attrs);
     
     m_childs.push_back (m_pButton->GetWindow());
+    */
     
     m_wndName = "Progress";
-    XStoreName(m_pDisplay, m_wndThis, m_wndName.c_str());
+    XClassHint ClassHint;
+    ClassHint.res_name = (char *)m_wndName.c_str();
+    ClassHint.res_class = (char *)m_wndName.c_str();
+    XSetClassHint(m_pDisplay, m_wndThis, &ClassHint);
     
     return 0;
 }

@@ -373,7 +373,6 @@ bool OrbiterLinux::DisplayProgress(string sMessage, int nProgress)
 {
     std::cout << "== DisplayProgress( " << sMessage << ", " << nProgress << " );" << std::endl;
     
-#if 0
     if (m_pProgressWnd && m_pProgressWnd->IsCancelled())
     {
         delete m_pProgressWnd;
@@ -386,7 +385,14 @@ bool OrbiterLinux::DisplayProgress(string sMessage, int nProgress)
         m_pProgressWnd = new XProgressWnd();
         m_pProgressWnd->UpdateProgress(sMessage, nProgress);
         m_pProgressWnd->Run();
+	commandRatPoison(":set winname class");
+    commandRatPoison(":desktop off");
+
         commandRatPoison(string(":select ") + m_pProgressWnd->m_wndName);
+    commandRatPoison(":desktop on");
+    commandRatPoison(":keystodesktop on");
+    commandRatPoison(":keybindings off");
+    setDesktopVisible(false);
     } else if (nProgress != -1) {
         // Update progress info
         m_pProgressWnd->UpdateProgress(sMessage, nProgress);
@@ -395,8 +401,8 @@ bool OrbiterLinux::DisplayProgress(string sMessage, int nProgress)
         // We are done here ...
         m_pProgressWnd->Terminate();
         m_pProgressWnd = NULL;
+	reinitGraphics();
     }
-#endif
     
     return false;
 }
