@@ -61,10 +61,10 @@ using namespace DCE;
 #include "GraphicBuilder.h"
 #include "Simulator.h"
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(BLUETOOTH_DONGLE)
 #include "MainDialog.h" //for debugging in main window
 #else //linux
-void WriteStatusOutput(char *) {} //do nothing
+void WriteStatusOutput(const char *) {} //do nothing
 #endif
 
 #define  VERSION "<=version=>"

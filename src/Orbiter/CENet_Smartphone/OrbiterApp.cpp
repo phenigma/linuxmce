@@ -1348,7 +1348,11 @@ void OrbiterApp::RenderEditBox()
 
 	string sTextToRender;
 	if(m_CaptureKeyboardParam.bTypePin)
-		fill_n(sTextToRender.begin(), m_CaptureKeyboardParam.sVariableValue.length(), '*');
+	{
+		int nLen = m_CaptureKeyboardParam.sVariableValue.length();
+		while(nLen--)
+			sTextToRender += "*";
+	}
 	else
 		sTextToRender = m_CaptureKeyboardParam.sVariableValue;
 
