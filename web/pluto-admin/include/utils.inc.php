@@ -2836,7 +2836,7 @@ function getFieldsAsArray($tableName,$fields,$dbADO,$filter='',$orderBy='')
 		foreach ($fieldsArray AS $field){
 			$cleanField=(strpos($field,'.')!==false)?substr($field,strpos($field,'.')+1):$field;
 			$cleanField=(strpos($cleanField,' AS ')!==false)?substr($cleanField,strpos($cleanField,' AS ')+4):$cleanField;
-			$cleanField=trim($cleanField);
+			$cleanField=trim(str_replace('`','',$cleanField));
 
 			$result[$cleanField][]=$row[$cleanField];
 		}
@@ -4153,4 +4153,53 @@ function testScenario($scenarioID){
 	$commandToSend='/usr/pluto/bin/MessageSend localhost 0 0 10 '.$scenarioID;
 	exec($commandToSend);
 }
+
+function deviceDataElement($name,$rowDDforDevice,$dbADO)
+{
+
+	$ddValue=$rowDDforDevice['IK_DeviceData'];
+
+	if(($rowDDforDevice['ShowInWizard']==1 || $rowDDforDevice['ShowInWizard']=='')){
+		switch($rowDDforDevice['typeParam']){
+			case 'int':
+			if(in_array($rowDDforDevice['dd_Description'],$GLOBALS['DeviceDataLinkedToTables'])){
+				$tableName=str_replace('PK_','',$rowDDforDevice['dd_Description']);
+				$filterQuery='';
+				switch($tableName){
+					case 'Device':
+					$filterQuery=" WHERE FK_Installation='".$installationID."'";
+					break;
+					case 'FloorplanObjectType':
+					$filterQuery=" WHERE FK_FloorplanType='".@$specificFloorplanType."'";
+					break;
+				}
+				$queryTable="SELECT * FROM $tableName $filterQuery ORDER BY Description ASC";
+				$resTable=$dbADO->Execute($queryTable);
+				$deviceDataElement='<select name="deviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'].'" '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>
+											<option value="0"></option>';
+				while($rowTable=$resTable->FetchRow()){
+					$itemStyle=($tableName=='FloorplanObjectType' && is_null(@$rowTable['FK_DesignObj_Control']))?' style="background-color:red;"':'';
+					$deviceDataElement.='<option value="'.$rowTable[$DeviceDataDescriptionToDisplay[$key]].'" '.(($rowTable[$DeviceDataDescriptionToDisplay[$key]]==@$ddValue)?'selected':'').' '.$itemStyle.'>'.$rowTable['dd_Description'].'</option>';
+				}
+				$deviceDataElement.='</select>';
+			}
+			else
+				$deviceDataElement='<input type="text" name="deviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'].'" value="'.@$ddValue.'" '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>';
+			break;
+			case 'bool':
+				$deviceDataElement='<input type="checkbox" name="deviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'].'" value="1" '.((@$ddValue!=0)?'checked':'').' '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>';
+			break;
+			default:
+			if($rowDDforDevice['FK_DeviceData']==$GLOBALS['Port']){
+				$deviceDataElement=@$ddValue;
+				$deviceDataElement.='<input type="hidden" name="deviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'].'" value="'.@$ddValue.'">&nbsp;<a href="javascript:windowOpen(\'index.php?section=editDeviceDeviceData&deviceID='.$deviceID.'&dd='.$rowDDforDevice['FK_DeviceData'].'&from=avWizard\',\'status=0,resizable=1,width=600,height=250,toolbars=true\');">Edit</a>';
+			}else{
+				$deviceDataElement='<input type="text" name="deviceData_'.$deviceID.'_'.$rowDDforDevice['FK_DeviceData'].'" value="'.@$ddValue.'" '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>';
+			}
+		}
+	}
+
+	return $deviceDataElement;
+}
+
 ?>

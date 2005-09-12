@@ -1,5 +1,6 @@
 <?
 function editDeviceParams($output,$dbADO) {
+	global $PlutoSupportHost;
 /* @var $dbADO ADOConnection */
 /* @var $rs ADORecordSet */
 
@@ -53,6 +54,8 @@ $installationID = (int)@$_SESSION['installationID'];
 		$PingTest=$row['PingTest'];
 		$State=$row['State'];
 		$Status=$row['Status'];
+		//$helpDocument=$row['FK_Document'];
+		$coreSystemLog=($row['FK_DeviceTemplate']==$GLOBALS['rootCoreID'])?'&nbsp;&nbsp;&nbsp;<a href="javascript:windowOpen(\'index.php?section=followLog&deviceID='.$deviceID.'&system_log=1\',\'width=1024,height=768,scrollbars=1,resizable=1,fullscreen=1\');">System log</a>':'';
 	}
 	
 	if ($DeviceTemplate==0) {
@@ -129,12 +132,13 @@ $installationID = (int)@$_SESSION['installationID'];
 			<td align="right"><a href="javascript:windowOpen(\'index.php?section=errorLog&deviceID='.$deviceID.'\',\'width=1024,height=768,scrollbars=1,resizable=1,fullscreen=1\');">View errors in log</a>&nbsp;&nbsp;&nbsp;
 				<a href="javascript:windowOpen(\'index.php?section=fullLog&deviceID='.$deviceID.'\',\'width=1024,height=768,scrollbars=1,resizable=1,fullscreen=1\');">View whole log</a>&nbsp;&nbsp;&nbsp;
 				<a href="javascript:windowOpen(\'index.php?section=followLog&deviceID='.$deviceID.'\',\'width=1024,height=768,scrollbars=1,resizable=1,fullscreen=1\');">Follow log</a>
+				'.$coreSystemLog.'
 			</td>
 		</tr>
 	</table>
 	<form method="post" action="index.php" name="editDeviceParams">
 	<fieldset>
-	<legend>Device Info #'.$deviceID.'</legend>
+	<legend>Device Info #'.$deviceID.' <!--<a href="'.$PlutoSupportHost.'index.php?section=document&docID='.@$helpDocument.'"><img src="include/images/help_rounded.gif" align="middle" border="0"></a>--></legend>
 	<table>
 	<tr><td>Description</td><td><input type="text" name="DeviceDescription" value="'.$description.'" size="40"></td></tr>
 	<tr>
