@@ -52,7 +52,7 @@ bool BD_PC_SetImageQuality::ProcessCommand(BDCommandProcessor *pProcessor)
         return false;
     }
 
-    ((OrbiterSDLBluetooth *)pOrbiter->m_pOrbiter)->SetImageQuality(m_nImageQuality);
+    pOrbiter->m_pOrbiter->SetImageQuality(m_nImageQuality);
 #endif
 
     return true;

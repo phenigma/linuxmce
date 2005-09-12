@@ -148,6 +148,8 @@ public:
 	time_t GetLastScreenChangedTime();
 	string GetCurrentScreenID();
 
+    virtual void SetImageQuality(unsigned long ulImageQuality) {};
+
 	/**
 	* @brief searches for updates, returns true if an update was found
 	* @todo ask
