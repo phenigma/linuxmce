@@ -27,6 +27,7 @@ SOURCE  BD_PC_VMCTerminated.cpp
 SOURCE  BD_PC_SetVariable.cpp
 SOURCE  BD_PC_ReportMyVersion.cpp
 SOURCE  BD_PC_GetSignalStrength.cpp
+SOURCE  BD_PC_SetImageQuality.cpp
 SOURCE  PlutoPhoneCommands.cpp
 SOURCE  RenderMenu.cpp
 SOURCE  VIPMenu.cpp

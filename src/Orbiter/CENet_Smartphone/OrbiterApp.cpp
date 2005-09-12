@@ -6,6 +6,7 @@
 #include "VIPShared/BD_PC_GetSignalStrength.h"
 #include "VIPShared/BD_PC_SelectedFromList.h"
 #include "VIPShared/BD_PC_SetVariable.h"
+#include "VIPShared/BD_PC_SetImageQuality.h"
 #include "pluto_main/Define_Button.h"
 #include "SerializeClass/ShapesColors.h"
 #include "PlutoUtils/FileUtils.h"
@@ -298,6 +299,38 @@ void OrbiterApp::LocalKeyPressed(int nKeyCode)
 		{
 			Hide();
 			return;
+		}
+
+		if(m_bAdvancedScreen)
+		{
+			bool bUpdateImageQuality = false;
+			if(nPK_Button == BUTTON_Phone_Soft_left_CONST)
+			{
+				if(m_ulImageQuality >= 10);
+				{
+					m_ulImageQuality -= 5;
+					bUpdateImageQuality = true;
+				}
+			}
+
+			if(nPK_Button == BUTTON_Phone_Soft_right_CONST)
+			{
+				if(m_ulImageQuality <= 95)
+					m_ulImageQuality += 5;
+				else
+					m_ulImageQuality = 100;
+
+				bUpdateImageQuality = true;
+			}
+
+			if(bUpdateImageQuality)
+			{
+				if(m_pBDCommandProcessor->m_bClientConnected)
+				{
+					BDCommand *pCommand = new BD_PC_SetImageQuality(m_ulImageQuality);
+					m_pBDCommandProcessor->AddCommand(pCommand);
+				}
+			}
 		}
 
 		SendKey(nPK_Button ? nPK_Button : - wParam, 2);
@@ -772,7 +805,7 @@ void OrbiterApp::RenderSignalStrength(int nSignalStrength)
 void OrbiterApp::RenderImageQuality()
 {
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
-	PlutoRectangle rect(m_nImageWidth, m_nImageHeight - 20, m_nImageWidth, 20);
+	PlutoRectangle rect(0, m_nImageHeight - 20, m_nImageWidth, 20);
 
 	GetDisplay()->FillRect(rect.Left(), rect.Top(), rect.Right(), rect.Bottom(), white);
 

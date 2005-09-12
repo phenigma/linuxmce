@@ -10,6 +10,7 @@ public:
 
     unsigned long m_nImageQuality;
 
+    BD_PC_SetImageQuality() {m_nImageQuality = 0;}
 	BD_PC_SetImageQuality(unsigned long nImageQuality);
 
 	virtual void ConvertCommandToBinary();

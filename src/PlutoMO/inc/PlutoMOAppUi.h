@@ -121,6 +121,7 @@ public:
 	int  m_iSignalStrength;
 	bool m_bSignalStrengthScreen;
 	bool m_bRender_SignalStrengthOnly;
+	int  m_nImageQuality;
 
 
 	//incoming calls and stuff related

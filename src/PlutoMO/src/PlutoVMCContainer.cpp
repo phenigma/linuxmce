@@ -37,6 +37,8 @@
 #include "PlutoMOAppUi.h"
 
 #include "Pluto_Main/Define_Button.h"
+#include "VIPShared/BD_PC_SetImageQuality.h"
+
 #include "Logger.h"
 
 #define KEY_TIMER_INTERVAL 500000
@@ -239,10 +241,44 @@ bool CPlutoVMCContainer::HandleCommonKeys(const TKeyEvent& aKeyEvent, TEventCode
 	{
 		if(KeyCode==BUTTON_Rept_Phone_End_CONST)
 		{
-
 			((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->CloseVMC();
-			
 			return true;
+		}
+
+		if(((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bSignalStrengthScreen)
+		{
+			bool bUpdateImageQuality = false;
+			if(KeyCode==BUTTON_Phone_Soft_left_CONST)
+			{
+				if(((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_nImageQuality >= 10);
+				{
+					((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_nImageQuality -= 5;
+					bUpdateImageQuality = true;
+				}
+			}
+
+			if(KeyCode==BUTTON_Phone_Soft_right_CONST)
+			{
+				if(((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_nImageQuality <= 95)
+					((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_nImageQuality += 5;
+				else
+					((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_nImageQuality = 100;
+
+				bUpdateImageQuality = true;
+			}
+
+			if(bUpdateImageQuality)
+			{
+				//request new signal strength
+				BDCommandProcessor_Symbian_Base* pBDCommandProcessor = 
+					((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_pBDCommandProcessor;
+
+				if(pBDCommandProcessor)
+				{
+					BDCommand *pCommand = new BD_PC_SetImageQuality(((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_nImageQuality);
+					pBDCommandProcessor->AddCommand(pCommand);
+				}
+			}
 		}
 
 		pVMCUtil->LocalKeyPressed(KeyCode);

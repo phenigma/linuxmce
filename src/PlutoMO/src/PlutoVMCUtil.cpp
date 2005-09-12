@@ -668,8 +668,6 @@ void CPlutoVMCUtil::LocalDoRender()
 		if(((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bSignalStrengthScreen)
 		{
 			//render signal strength
-			LOG("Rendering ss");
-
 			TRgb blue_lite(205,214,237); // appears as blank screen gray-green color
 			m_pGC->SetBrushStyle(CGraphicsContext::ESolidBrush);
 			m_pGC->SetPenStyle(CGraphicsContext::ENullPen);
@@ -682,8 +680,6 @@ void CPlutoVMCUtil::LocalDoRender()
 			string buf = string::IntegerToString(((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_iSignalStrength);
 			DrawText(buf.c_str(), rect);
 
-			LOG("Requested new ss");
-
 			//request new signal strength
 			BDCommandProcessor_Symbian_Base* pBDCommandProcessor = 
 				((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_pBDCommandProcessor;
@@ -694,7 +690,14 @@ void CPlutoVMCUtil::LocalDoRender()
 				pBDCommandProcessor->AddCommand(pCommand);
 			}
 
-			LOG("Sent");
+			//render image quality
+			int nImageQuality = ((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_nImageQuality;
+
+			MyRect rect2(SCREEN_HEIGHT - 5, 0, SCREEN_WIDTH, 100);// hardcoding warning!!
+			TRect BackRect2(0, SCREEN_HEIGHT - 15, SCREEN_WIDTH, SCREEN_HEIGHT);
+			m_pGC->DrawRect(BackRect2);
+			string buf2 = "-     Image Quality: " + string::IntegerToString(nImageQuality) + "%    +";
+			DrawText(buf2.c_str(), rect2);
 		}
 	}
 }

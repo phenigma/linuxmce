@@ -28,6 +28,7 @@
 #include "BD_PC_SetVariable.h"
 #include "BD_PC_ReportMyVersion.h"
 #include "BD_PC_GetSignalStrength.h"
+#include "BD_PC_SetImageQuality.h"
 
 #include "BD/BD_HaveNothing.h"
 #include "BD_CP_SendMeKeystrokes.h"
@@ -65,6 +66,8 @@ class BDCommand *BuildCommandFromData( unsigned long dwType )
 		return new BD_PC_ReportMyVersion();
     case BD_PC_GET_SIGNAL_STRENGTH:
         return new BD_PC_GetSignalStrength();
+    case BD_PC_SET_IMAGE_QUALITY:
+        return new BD_PC_SetImageQuality();
 
 
 	case BD_CP_HAVE_NOTHING:
