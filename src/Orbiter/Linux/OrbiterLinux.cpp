@@ -47,7 +47,8 @@ OrbiterLinux::OrbiterLinux(int DeviceID, int PK_DeviceTemplate,
 
     // initializations
     desktopInScreen(0),
-    XServerDisplay(NULL)
+    XServerDisplay(NULL),
+    m_pProgressWnd(NULL)
 {
 	XInitThreads();
 	openDisplay();
@@ -56,12 +57,20 @@ OrbiterLinux::OrbiterLinux(int DeviceID, int PK_DeviceTemplate,
 
 	m_pRecordHandler = new XRecordExtensionHandler(m_strDisplayName);
 
+	m_nProgressWidth = 400;
+	m_nProgressHeight = 200;
+
 	// Disable DPMS and screen saver
 	system("/usr/bin/X11/xset -display :0 -dpms s off");
 }
 
 OrbiterLinux::~OrbiterLinux()
 {
+    if (m_pProgressWnd)
+    {
+        m_pProgressWnd->Terminate();
+        delete m_pProgressWnd;
+    }
 	KillMaintThread();
 
 	delete m_pRecordHandler;
@@ -358,4 +367,36 @@ g_pPlutoLogger->Write(LV_STATUS, "Clicking mouse %s",sType.c_str());
 	XTestFakeButtonEvent(dpy, 1, true, 0);
 	XTestFakeButtonEvent(dpy, 1, false, 0);
 	XCloseDisplay(dpy);
+}
+
+bool OrbiterLinux::DisplayProgress(string sMessage, int nProgress)
+{
+    std::cout << "== DisplayProgress( " << sMessage << ", " << nProgress << " );" << std::endl;
+    
+#if 0
+    if (m_pProgressWnd && m_pProgressWnd->IsCancelled())
+    {
+        delete m_pProgressWnd;
+        m_pProgressWnd = NULL;
+        return true;
+    }
+    
+    if (nProgress != -1 && !m_pProgressWnd) {
+        // Create the progress window ...
+        m_pProgressWnd = new XProgressWnd();
+        m_pProgressWnd->UpdateProgress(sMessage, nProgress);
+        m_pProgressWnd->Run();
+        commandRatPoison(string(":select ") + m_pProgressWnd->m_wndName);
+    } else if (nProgress != -1) {
+        // Update progress info
+        m_pProgressWnd->UpdateProgress(sMessage, nProgress);
+        m_pProgressWnd->DrawWindow();
+    } else {
+        // We are done here ...
+        m_pProgressWnd->Terminate();
+        m_pProgressWnd = NULL;
+    }
+#endif
+    
+    return false;
 }

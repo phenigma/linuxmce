@@ -10,6 +10,7 @@
 #include "utilities/linux/RatpoisonHandler.h"
 
 #include "XRecordExtensionHandler.h"
+#include "XProgressWnd.h"
 #include <string>
 
 
@@ -38,6 +39,11 @@ private:
 
     int m_nDesktopWidth;
     int m_nDesktopHeight;
+    
+    int m_nProgressWidth;
+    int m_nProgressHeight;
+    
+    XProgressWnd *m_pProgressWnd;
 
 protected:
     // virtual bool forkAndWait(char * const args[], int millis);
@@ -73,6 +79,8 @@ public:
 	virtual void CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage);
 	virtual void CMD_Set_Mouse_Position_Relative(int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage);
 	virtual void CMD_Simulate_Mouse_Click_At_Present_Pos(string sType,string &sCMD_Result,Message *pMessage);
+	
+	/*virtual */bool DisplayProgress(string sMessage, int nProgress);
 };
 
 #endif // __CONTROLLERLINUXDESKTOP_H__
