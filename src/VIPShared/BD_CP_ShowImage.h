@@ -13,13 +13,14 @@ class BD_CP_ShowImage : public BDCommand
     char *m_pRepeatedKeysList;
 
     bool m_bSignalStrengthScreen;
+    bool m_bImageQualityScreen;
     unsigned long m_nImageQuality;
 
 public:
 	BD_CP_ShowImage()  {m_ImageSize = 0; m_pImage = NULL; m_iImageType = 0; m_nImageQuality = 0;}
 	BD_CP_ShowImage(unsigned char ImageType,unsigned long ImageSize,const char *pImage,
         unsigned long KeysListSize, const char* pRepeatedKeysList, bool bSignalStrengthScreen,
-        unsigned long nImageQuality);
+        bool bImageQualityScreen, unsigned long nImageQuality);
 
 	~BD_CP_ShowImage();
 

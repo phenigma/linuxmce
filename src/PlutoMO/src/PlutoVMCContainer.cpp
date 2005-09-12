@@ -245,7 +245,7 @@ bool CPlutoVMCContainer::HandleCommonKeys(const TKeyEvent& aKeyEvent, TEventCode
 			return true;
 		}
 
-		if(((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bSignalStrengthScreen)
+		if(((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bQualityImageScreen)
 		{
 			bool bUpdateImageQuality = false;
 			if(KeyCode==BUTTON_Phone_Soft_left_CONST)

@@ -46,6 +46,7 @@
 using namespace DCE;
 
 #define ADVANCED_OPTIONS_SCREEN "2022"
+#define IMAGE_QUALITY_SCREEN    "1274"
 
 //-----------------------------------------------------------------------------------------------------
 OrbiterSDLBluetooth::OrbiterSDLBluetooth(class BDCommandProcessor *pBDCommandProcessor, int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, bool bLocalMode, int nImageWidth, int nImageHeight)
@@ -112,10 +113,16 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
 /*virtual*/ void OrbiterSDLBluetooth::DisplayImageOnScreen(struct SDL_Surface *pScreenImage)
 {
     bool bSignalStrengthScreen = false;
+    bool bQualityImageScreen = false;
     if(NULL != m_pScreenHistory_Current)
     {
 		g_pPlutoLogger->Write(LV_CRITICAL, "Current screen: %s",  m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str());
         bSignalStrengthScreen = m_pScreenHistory_Current->m_pObj->m_ObjectID.find(ADVANCED_OPTIONS_SCREEN) != string::npos;
+    }
+
+    if(NULL != m_pScreenHistory_Current)
+    {
+        bQualityImageScreen = m_pScreenHistory_Current->m_pObj->m_ObjectID.find(IMAGE_QUALITY_SCREEN) != string::npos;
     }
 
     const string csTempFileName = "TmpScreen.png";
@@ -142,7 +149,7 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
 
     BD_CP_ShowImage *pBD_CP_ShowImage = new BD_CP_ShowImage(0, (unsigned long)iImageSize, pImage, 
         (unsigned long)(sRepeatedKeysList.length()), sRepeatedKeysList.c_str(), bSignalStrengthScreen,
-        m_ImageQuality);
+        bQualityImageScreen, m_ImageQuality);
 
     PLUTO_SAFE_DELETE_ARRAY(pImage);
 

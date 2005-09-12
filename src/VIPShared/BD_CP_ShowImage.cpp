@@ -48,7 +48,7 @@
 
 BD_CP_ShowImage::BD_CP_ShowImage(unsigned char ImageType,unsigned long ImageSize,const char *pImage,
                                  unsigned long KeysListSize, const char* pRepeatedKeysList, bool bSignalStrengthScreen,
-                                 unsigned long nImageQuality) 
+                                 bool bImageQualityScreen, unsigned long nImageQuality) 
 	
 {
 	m_iImageType=ImageType;
@@ -62,6 +62,7 @@ BD_CP_ShowImage::BD_CP_ShowImage(unsigned char ImageType,unsigned long ImageSize
     memcpy(m_pRepeatedKeysList, pRepeatedKeysList, m_KeysListSize);
 
     m_bSignalStrengthScreen = bSignalStrengthScreen;
+    m_bImageQualityScreen = bImageQualityScreen;
     m_nImageQuality = nImageQuality;
 }
 
@@ -82,6 +83,7 @@ void BD_CP_ShowImage::ConvertCommandToBinary()
     Write_long(m_KeysListSize);
     Write_block(m_pRepeatedKeysList, m_KeysListSize);
     Write_unsigned_char(m_bSignalStrengthScreen);
+    Write_unsigned_char(m_bImageQualityScreen);
     Write_long(m_nImageQuality);
 }
 
@@ -100,6 +102,7 @@ void BD_CP_ShowImage::ParseCommand(unsigned long size,const char *data)
     m_KeysListSize = Read_long();
     m_pRepeatedKeysList = Read_block(m_KeysListSize);
     m_bSignalStrengthScreen = Read_unsigned_char();
+    m_bImageQualityScreen = Read_unsigned_char();
     m_nImageQuality = Read_long();
 }
 
@@ -112,6 +115,7 @@ bool BD_CP_ShowImage::ProcessCommand(BDCommandProcessor *pProcessor)
      LOG("Signal strength on/off \n");
      LOG(m_bSignalStrengthScreen);
      ((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bSignalStrengthScreen = m_bSignalStrengthScreen;
+     ((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bQualityImageScreen = m_bQualityImageScreen;
      ((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_nImageQuality = m_nImageQuality;
 
 	 LOG("Open image\n");
@@ -133,7 +137,8 @@ bool BD_CP_ShowImage::ProcessCommand(BDCommandProcessor *pProcessor)
 #endif //SYMBIAN
 
 #ifdef SMARTPHONE
-	 OrbiterApp::GetInstance()->SetAdvancedScreen(m_bSignalStrengthScreen);
+	 OrbiterApp::GetInstance()->SetSignalStrengthScreen(m_bSignalStrengthScreen);
+     OrbiterApp::GetInstance()->SetImageQualityScreen(m_bImageQualityScreen);
 	 OrbiterApp::GetInstance()->ShowImage(m_iImageType, m_ImageSize, m_pImage);
      OrbiterApp::GetInstance()->SetImageQuality(m_nImageQuality);
 	 OrbiterApp::GetInstance()->InterceptRepeatedKeys(m_KeysListSize, m_pRepeatedKeysList);

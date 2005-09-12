@@ -7,6 +7,7 @@
 #include "VIPShared/BD_PC_SelectedFromList.h"
 #include "VIPShared/BD_PC_SetVariable.h"
 #include "VIPShared/BD_PC_SetImageQuality.h"
+#include "BD/BD_WhatDoYouHave.h"
 #include "pluto_main/Define_Button.h"
 #include "SerializeClass/ShapesColors.h"
 #include "PlutoUtils/FileUtils.h"
@@ -89,7 +90,8 @@ OrbiterApp::OrbiterApp() : m_ScreenMutex("rendering")
 	m_pBDCommandProcessor = new BDCommandProcessor_Smartphone_Bluetooth();
 
 	m_nSignalStrength = 0;
-	m_bAdvancedScreen = 0;
+	m_bSignalStrengthScreen = false;
+	m_bImageQualityScreen = false;
 
 	m_bRepeated = false;
 	m_bNeedRefresh = false;
@@ -301,7 +303,7 @@ void OrbiterApp::LocalKeyPressed(int nKeyCode)
 			return;
 		}
 
-		if(m_bAdvancedScreen)
+		if(m_bImageQualityScreen)
 		{
 			bool bUpdateImageQuality = false;
 			if(nPK_Button == BUTTON_Phone_Soft_left_CONST)
@@ -420,9 +422,14 @@ void OrbiterApp::SetSignalStrength(int nSignalStrength)
 	m_nSignalStrength = nSignalStrength;
 }
 //---------------------------------------------------------------------------------------------------------
-void OrbiterApp::SetAdvancedScreen(bool bAdvancedScreen)
+void OrbiterApp::SetSignalStrengthScreen(bool bSignalStrengthScreen)
 {
-	m_bAdvancedScreen = bAdvancedScreen;
+	m_bSignalStrengthScreen = bSignalStrengthScreen;
+}
+//---------------------------------------------------------------------------------------------------------
+void OrbiterApp::SetImageQualityScreen(bool bImageQualityScreen)
+{
+	m_bImageQualityScreen = bImageQualityScreen;
 }
 //---------------------------------------------------------------------------------------------------------
 void OrbiterApp::InterceptRepeatedKeys(int nKeysListSize, char *pRepeatedKeysList)
@@ -755,7 +762,7 @@ void OrbiterApp::RefreshScreen()
 				RenderEditBox();
 		}
 
-		if(m_bAdvancedScreen)
+		if(m_bSignalStrengthScreen)
 		{
 			RenderSignalStrength(m_nSignalStrength);
 
@@ -766,6 +773,14 @@ void OrbiterApp::RefreshScreen()
 				m_pBDCommandProcessor->AddCommand(pCommand);
 			}
 
+			m_bRedrawOnlyGrid = false;
+			m_bRedrawOnlyEdit = false;
+
+			return;
+		}
+
+		if(m_bImageQualityScreen)			
+		{
 			RenderImageQuality();			
 
 			m_bRedrawOnlyGrid = false;
@@ -809,7 +824,7 @@ void OrbiterApp::RenderImageQuality()
 
 	GetDisplay()->FillRect(rect.Left(), rect.Top(), rect.Right(), rect.Bottom(), white);
 
-	string sMessage = "-  Image Quality: " + StringUtils::ltos(m_ulImageQuality) + "%  +";
+	string sMessage = " -    Image Quality: " + StringUtils::ltos(m_ulImageQuality) + "%     +";
 	RenderText(sMessage, rect.Left(), rect.Top(), rect.Right(), rect.Bottom(), black);
 
 	Rect rectUpdate;

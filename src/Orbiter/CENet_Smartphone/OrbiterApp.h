@@ -31,7 +31,8 @@ private:
 	bool m_bDeleteLastKey;
 	bool m_bDataKeys;
 	bool m_bQuit;
-	bool m_bAdvancedScreen;
+	bool m_bSignalStrengthScreen;
+	bool m_bImageQualityScreen;
 	int  m_nSignalStrength;
 	bool m_bScrollUp;
 	bool m_bSendKeyStrokes;
@@ -143,7 +144,8 @@ public:
 	//bd communications proxy functions:
 	// - incoming
 	void SetSignalStrength(int nSignalStrength);
-	void SetAdvancedScreen(bool bAdvancedScreen);
+	void SetImageQualityScreen(bool bImageQualityScreen);
+	void SetSignalStrengthScreen(bool bSignalStrengthScreen);
 	void InterceptRepeatedKeys(int nKeysListSize, char *pRepeatedKeysList);
 	void ShowImage(int nImageType, int nSize, char *pData);
 	void ShowList(unsigned long ulX, unsigned long ulY, unsigned long ulWidth, 

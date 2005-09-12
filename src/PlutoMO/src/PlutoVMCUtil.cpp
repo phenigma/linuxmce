@@ -36,6 +36,7 @@
 #include "PlutoUtils/PlutoDefs.h"
 #include "VIPShared/BD_PC_KeyWasPressed.h"
 #include "VIPShared/BD_PC_GetSignalStrength.h"
+#include "BD/BD_WhatDoYouHave.h"
 //------------------------------------------------------------------------------------------------------------------
 #ifdef __WINS__
 //#define TEST_DATAGRID
@@ -689,7 +690,10 @@ void CPlutoVMCUtil::LocalDoRender()
 				BDCommand *pCommand = new BD_PC_GetSignalStrength();
 				pBDCommandProcessor->AddCommand(pCommand);
 			}
+		}
 
+		if(((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bQualityLinkScreen)
+		{
 			//render image quality
 			int nImageQuality = ((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_nImageQuality;
 
