@@ -944,6 +944,7 @@ public:
 	bool DATA_Get_Use_OCG_Format();
 	int DATA_Get_VideoFrameInterval();
 	int DATA_Get_ImageQuality();
+	void DATA_Set_ImageQuality(int Value);
 	bool DATA_Get_Leave_Monitor_on_for_OSD();
 	string DATA_Get_Ignore_State();
 	int DATA_Get_PK_DesignObj();

@@ -141,7 +141,8 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
 #endif
 
     BD_CP_ShowImage *pBD_CP_ShowImage = new BD_CP_ShowImage(0, (unsigned long)iImageSize, pImage, 
-        (unsigned long)(sRepeatedKeysList.length()), sRepeatedKeysList.c_str(), bSignalStrengthScreen);
+        (unsigned long)(sRepeatedKeysList.length()), sRepeatedKeysList.c_str(), bSignalStrengthScreen,
+        m_ImageQuality);
 
     PLUTO_SAFE_DELETE_ARRAY(pImage);
 
@@ -337,4 +338,13 @@ void OrbiterSDLBluetooth::CMD_Capture_Keyboard_To_Variable(string sPK_DesignObj,
     //kill the connection. this will kill orbiter and then recreate it when the phone will be detected
     m_pBDCommandProcessor->m_bDead = true;
 }  
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void OrbiterSDLBluetooth::SetImageQuality(unsigned long nImageQuality)
+{
+    m_ImageQuality = nImageQuality;
+    DATA_Set_ImageQuality(nImageQuality);
+
+    m_bRerenderScreen = true;
+    RedrawObjects();
+}
 //-----------------------------------------------------------------------------------------------------

@@ -40,6 +40,9 @@ public:
     virtual void OnReload();
     virtual bool GetConfig();
 
+
+    virtual void SetImageQuality(unsigned long nImageQuality);
+
 private:
 	virtual void CMD_Capture_Keyboard_To_Variable(string sPK_DesignObj,int iPK_Variable,string sOnOff,string sType,string sReset,int iPK_Text,bool bDataGrid,string &sCMD_Result,Message *pMessage);
 };

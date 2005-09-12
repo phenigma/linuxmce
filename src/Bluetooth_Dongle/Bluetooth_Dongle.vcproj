@@ -178,6 +178,9 @@
 				RelativePath="..\VIPShared\BD_PC_SelectedFromList.cpp">
 			</File>
 			<File
+				RelativePath="..\VIPShared\BD_PC_SetImageQuality.cpp">
+			</File>
+			<File
 				RelativePath="..\VIPShared\BD_PC_SetVariable.cpp">
 			</File>
 			<File

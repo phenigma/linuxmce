@@ -88,7 +88,7 @@ OrbiterApp::OrbiterApp() : m_ScreenMutex("rendering")
 	m_pBDCommandProcessor = new BDCommandProcessor_Smartphone_Bluetooth();
 
 	m_nSignalStrength = 0;
-	m_bSignalStrengthScreen = 0;
+	m_bAdvancedScreen = 0;
 
 	m_bRepeated = false;
 	m_bNeedRefresh = false;
@@ -387,9 +387,9 @@ void OrbiterApp::SetSignalStrength(int nSignalStrength)
 	m_nSignalStrength = nSignalStrength;
 }
 //---------------------------------------------------------------------------------------------------------
-void OrbiterApp::SetSignalStrengthScreen(bool bSignalStrengthScreen)
+void OrbiterApp::SetAdvancedScreen(bool bAdvancedScreen)
 {
-	m_bSignalStrengthScreen = bSignalStrengthScreen;
+	m_bAdvancedScreen = bAdvancedScreen;
 }
 //---------------------------------------------------------------------------------------------------------
 void OrbiterApp::InterceptRepeatedKeys(int nKeysListSize, char *pRepeatedKeysList)
@@ -722,7 +722,7 @@ void OrbiterApp::RefreshScreen()
 				RenderEditBox();
 		}
 
-		if(m_bSignalStrengthScreen)
+		if(m_bAdvancedScreen)
 		{
 			RenderSignalStrength(m_nSignalStrength);
 
@@ -732,6 +732,8 @@ void OrbiterApp::RefreshScreen()
 				BDCommand *pCommand = new BD_PC_GetSignalStrength();
 				m_pBDCommandProcessor->AddCommand(pCommand);
 			}
+
+			RenderImageQuality();			
 
 			m_bRedrawOnlyGrid = false;
 			m_bRedrawOnlyEdit = false;
@@ -761,6 +763,21 @@ void OrbiterApp::RenderSignalStrength(int nSignalStrength)
 
 	GetDisplay()->FillRect(rect.Left(), rect.Top(), rect.Right(), rect.Bottom(), white);
 	RenderText(StringUtils::ltos(nSignalStrength), rect.Left(), rect.Top(), rect.Right(), rect.Bottom(), black);
+
+	Rect rectUpdate;
+	rectUpdate.Set(rect.Left(), rect.Top(), rect.Right(), rect.Bottom());
+	GetDisplay()->Update(&rectUpdate);
+}
+//---------------------------------------------------------------------------------------------------------
+void OrbiterApp::RenderImageQuality()
+{
+	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
+	PlutoRectangle rect(m_nImageWidth, m_nImageHeight - 20, m_nImageWidth, 20);
+
+	GetDisplay()->FillRect(rect.Left(), rect.Top(), rect.Right(), rect.Bottom(), white);
+
+	string sMessage = "-  Image Quality: " + StringUtils::ltos(m_ulImageQuality) + "%  +";
+	RenderText(sMessage, rect.Left(), rect.Top(), rect.Right(), rect.Bottom(), black);
 
 	Rect rectUpdate;
 	rectUpdate.Set(rect.Left(), rect.Top(), rect.Right(), rect.Bottom());
@@ -1372,5 +1389,10 @@ void OrbiterApp::Show()
 	::ShowWindow(::GetDesktopWindow(), SW_HIDE);
 	::SetForegroundWindow(m_hWnd);
 	::ShowWindow(m_hWnd, SW_SHOW);
+}
+//------------------------------------------------------------------------------------------------------------------
+void OrbiterApp::SetImageQuality(unsigned long ulImageQuality)
+{
+	m_ulImageQuality = ulImageQuality;
 }
 //------------------------------------------------------------------------------------------------------------------

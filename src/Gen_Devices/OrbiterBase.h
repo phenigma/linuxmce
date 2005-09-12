@@ -53,6 +53,7 @@ public:
 	bool Get_Use_OCG_Format() { return (m_mapParameters[64]=="1" ? true : false);}
 	int Get_VideoFrameInterval() { return atoi(m_mapParameters[72].c_str());}
 	int Get_ImageQuality() { return atoi(m_mapParameters[75].c_str());}
+	void Set_ImageQuality(int Value) { SetParm(75,StringUtils::itos(Value).c_str()); }
 	bool Get_Leave_Monitor_on_for_OSD() { return (m_mapParameters[84]=="1" ? true : false);}
 	string Get_Ignore_State() { return m_mapParameters[87];}
 	int Get_PK_DesignObj() { return atoi(m_mapParameters[91].c_str());}
@@ -163,6 +164,7 @@ public:
 	bool DATA_Get_Use_OCG_Format() { return GetData()->Get_Use_OCG_Format(); }
 	int DATA_Get_VideoFrameInterval() { return GetData()->Get_VideoFrameInterval(); }
 	int DATA_Get_ImageQuality() { return GetData()->Get_ImageQuality(); }
+	void DATA_Set_ImageQuality(int Value) { GetData()->Set_ImageQuality(Value); }
 	bool DATA_Get_Leave_Monitor_on_for_OSD() { return GetData()->Get_Leave_Monitor_on_for_OSD(); }
 	string DATA_Get_Ignore_State() { return GetData()->Get_Ignore_State(); }
 	int DATA_Get_PK_DesignObj() { return GetData()->Get_PK_DesignObj(); }

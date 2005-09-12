@@ -31,7 +31,7 @@ private:
 	bool m_bDeleteLastKey;
 	bool m_bDataKeys;
 	bool m_bQuit;
-	bool m_bSignalStrengthScreen;
+	bool m_bAdvancedScreen;
 	int  m_nSignalStrength;
 	bool m_bScrollUp;
 	bool m_bSendKeyStrokes;
@@ -43,6 +43,7 @@ private:
 
 	//image
 	int m_nImageType;
+	unsigned long m_ulImageQuality;
 
 	//datagrid
 	bool m_bGridExists;
@@ -68,6 +69,7 @@ private:
 	void RenderText(string sText, unsigned long ulX, unsigned long ulY, unsigned long ulWidth, 
 		unsigned long ulHeight, COLORREF color);
 	void RenderSignalStrength(int nSignalStrength);
+	void RenderImageQuality();
 	void RenderEditBox();
 
 	//this
@@ -141,7 +143,7 @@ public:
 	//bd communications proxy functions:
 	// - incoming
 	void SetSignalStrength(int nSignalStrength);
-	void SetSignalStrengthScreen(bool bSignalStrengthScreen);
+	void SetAdvancedScreen(bool bAdvancedScreen);
 	void InterceptRepeatedKeys(int nKeysListSize, char *pRepeatedKeysList);
 	void ShowImage(int nImageType, int nSize, char *pData);
 	void ShowList(unsigned long ulX, unsigned long ulY, unsigned long ulWidth, 
@@ -152,6 +154,7 @@ public:
 	void SendKeyStrokes(bool bValue);
 	void SaveFile(unsigned long ulFileNameSize, char *pFileName, unsigned long ulFileDataSize, char *pFileData);
 	void SetCaptureKeyboard(bool bOnOff, bool bDataGrid, bool bReset, int nEditType, int nVariable, string sText);
+	void SetImageQuality(unsigned long ulImageQuality);
 
 	// - outgoing
 	void SendKey(int nKeyCode, int nEventType);
