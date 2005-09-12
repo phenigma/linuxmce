@@ -96,6 +96,9 @@ void CPlutoMOAppUi::SetupPaths()
 //----------------------------------------------------------------------------------------------
 void CPlutoMOAppUi::ConstructL()
 {
+	m_bImageQualityScreen = false;
+	m_bSignalStrengthScreen = false;
+
 	//find the real paths to app's misc files
 	SetupPaths();
 

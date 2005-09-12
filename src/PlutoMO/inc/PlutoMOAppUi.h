@@ -120,7 +120,7 @@ public:
 
 	int  m_iSignalStrength;
 	bool m_bSignalStrengthScreen;
-	bool m_bQualityImageScreen;
+	bool m_bImageQualityScreen;
 	bool m_bRender_SignalStrengthOnly;
 	int  m_nImageQuality;
 

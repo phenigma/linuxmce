@@ -245,12 +245,12 @@ bool CPlutoVMCContainer::HandleCommonKeys(const TKeyEvent& aKeyEvent, TEventCode
 			return true;
 		}
 
-		if(((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bQualityImageScreen)
+		if(((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bImageQualityScreen)
 		{
 			bool bUpdateImageQuality = false;
 			if(KeyCode==BUTTON_Phone_Soft_left_CONST)
 			{
-				if(((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_nImageQuality >= 10);
+				if(((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_nImageQuality >= 10)
 				{
 					((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_nImageQuality -= 5;
 					bUpdateImageQuality = true;

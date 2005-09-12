@@ -692,8 +692,15 @@ void CPlutoVMCUtil::LocalDoRender()
 			}
 		}
 
-		if(((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bQualityLinkScreen)
+		if(((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bImageQualityScreen)
 		{
+			//render signal strength
+			TRgb blue_lite(205,214,237); // appears as blank screen gray-green color
+			m_pGC->SetBrushStyle(CGraphicsContext::ESolidBrush);
+			m_pGC->SetPenStyle(CGraphicsContext::ENullPen);
+			m_pGC->SetBrushColor(blue_lite);
+			SetTextProperties(1, "Arial", 0, 0, 0);
+			
 			//render image quality
 			int nImageQuality = ((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_nImageQuality;
 

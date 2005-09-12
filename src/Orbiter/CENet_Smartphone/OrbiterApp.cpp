@@ -308,7 +308,7 @@ void OrbiterApp::LocalKeyPressed(int nKeyCode)
 			bool bUpdateImageQuality = false;
 			if(nPK_Button == BUTTON_Phone_Soft_left_CONST)
 			{
-				if(m_ulImageQuality >= 10);
+				if(m_ulImageQuality >= 10)
 				{
 					m_ulImageQuality -= 5;
 					bUpdateImageQuality = true;
@@ -782,11 +782,6 @@ void OrbiterApp::RefreshScreen()
 		if(m_bImageQualityScreen)			
 		{
 			RenderImageQuality();			
-
-			m_bRedrawOnlyGrid = false;
-			m_bRedrawOnlyEdit = false;
-
-			return;
 		}
 	}
 
@@ -826,10 +821,6 @@ void OrbiterApp::RenderImageQuality()
 
 	string sMessage = " -    Image Quality: " + StringUtils::ltos(m_ulImageQuality) + "%     +";
 	RenderText(sMessage, rect.Left(), rect.Top(), rect.Right(), rect.Bottom(), black);
-
-	Rect rectUpdate;
-	rectUpdate.Set(rect.Left(), rect.Top(), rect.Right(), rect.Bottom());
-	GetDisplay()->Update(&rectUpdate);
 }
 //---------------------------------------------------------------------------------------------------------
 bool OrbiterApp::HandleDataGridKeys(int nPlutoKey, bool bKeyUp)

@@ -115,7 +115,7 @@ bool BD_CP_ShowImage::ProcessCommand(BDCommandProcessor *pProcessor)
      LOG("Signal strength on/off \n");
      LOG(m_bSignalStrengthScreen);
      ((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bSignalStrengthScreen = m_bSignalStrengthScreen;
-     ((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bQualityImageScreen = m_bQualityImageScreen;
+     ((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bImageQualityScreen = m_bImageQualityScreen;
      ((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_nImageQuality = m_nImageQuality;
 
 	 LOG("Open image\n");
