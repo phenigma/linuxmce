@@ -386,13 +386,13 @@ bool OrbiterLinux::DisplayProgress(string sMessage, int nProgress)
         m_pProgressWnd->UpdateProgress(sMessage, nProgress);
         m_pProgressWnd->Run();
 	commandRatPoison(":set winname class");
-    commandRatPoison(":desktop off");
+	commandRatPoison(":desktop off");
 
         commandRatPoison(string(":select ") + m_pProgressWnd->m_wndName);
-    commandRatPoison(":desktop on");
-    commandRatPoison(":keystodesktop on");
-    commandRatPoison(":keybindings off");
-    setDesktopVisible(false);
+	commandRatPoison(":desktop on");
+	commandRatPoison(":keystodesktop on");
+	commandRatPoison(":keybindings off");
+	setDesktopVisible(false);
     } else if (nProgress != -1) {
         // Update progress info
         m_pProgressWnd->UpdateProgress(sMessage, nProgress);

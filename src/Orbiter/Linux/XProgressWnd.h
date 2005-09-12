@@ -28,10 +28,6 @@ protected:
     
 public:
     pthread_t m_thisThread;
-    /*
-    pthread_mutex_t m_mutexid;
-    pthread_cond_t m_condition;
-    */
     
     std::string m_wndName;
     

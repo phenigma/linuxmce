@@ -122,7 +122,6 @@ bool XProgressWnd::EventLoop()
         	case Expose:
         	    std::cout << "Expose event received" << std::endl;
         	    DrawWindow();
-                //pthread_cond_signal(&m_condition);
         	    break;
         	case ButtonRelease:
         	    std::cout << "ButtonRelease event received" << std::endl;
@@ -135,9 +134,7 @@ bool XProgressWnd::EventLoop()
         	    break;
         	}
 	} else {
-		// sleep a while ...
-		//PLUTO_SAFETY_LOCK(plock, m_mutexid);
-		//plock.TimedCondWait(1,0);
+		usleep(250000);
 	}
     }
     
@@ -174,9 +171,6 @@ bool XProgressWnd::UpdateProgress(std::string sText, int nProgress)
     m_sText = sText;
     m_nProgress = nProgress;
    
-    //DrawWindow();
-    //pthread_cond_broadcast( &m_condition );
-    
     return true;
 }
 
@@ -219,10 +213,6 @@ pthread_t XProgressWnd::Run()
     m_bCanceled = false;
     m_bDone = false;
     
-    //pthread_mutex_init(&m_mutexid, NULL);
-    //pthread_cond_init(&m_condition, NULL);
-    //pthread_mutex_lock(&m_mutexid);
-    
     int iResult = pthread_create( &threadID, NULL, MyThreadFunc, (void *)this );
     if ( iResult != 0 )
     {
@@ -230,10 +220,7 @@ pthread_t XProgressWnd::Run()
     }
     else {
         std::cout << "Thread started ... " << std::endl;
-        //pthread_cond_wait(&m_condition, &m_mutexid);
-	    //pthread_detach( threadID );
     }
-    //pthread_mutex_unlock(&m_mutexid);
     
     m_thisThread = threadID;
     return threadID;
@@ -243,7 +230,6 @@ void XProgressWnd::Terminate()
 {
 	m_bDestroy = true;
 	m_bDone = true;
-	//pthread_cond_broadcast( &m_condition );
 }
 
 int XProgressWnd::CreateWindow(Display *pDisplay, int screen, Window wndParent, int x, int y, int cx, int cy)
