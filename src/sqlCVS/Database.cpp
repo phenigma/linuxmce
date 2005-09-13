@@ -1256,6 +1256,12 @@ int k=2;
 			Table *pTable = ( *it ).second;
 			pTable->GetFields();
 		}
+		for( MapTable::iterator it=m_mapTable.begin( );it!=m_mapTable.end( );++it )
+		{
+			Table *pTable = ( *it ).second;
+			pTable->MatchUpHistory( );
+			pTable->GetDependencies( );
+		}
 	}
 
 	int NumTables = atoi( str.m_vectString[pos++].c_str( ) );
