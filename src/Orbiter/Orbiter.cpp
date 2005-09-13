@@ -482,8 +482,6 @@ bool Orbiter::GetConfig()
     if(!m_iVideoFrameInterval) //this device data doesn't exist or it's 0
         m_iVideoFrameInterval = 6000; //6 sec
 
-    DATA_Set_ImageQuality(13);
-
 	return true;
 }
 
