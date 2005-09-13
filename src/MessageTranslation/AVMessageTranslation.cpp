@@ -88,7 +88,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 									PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Toggle_Power_CONST, 0));
 			outrepls.push_back(msgrepl);
 			laststatus_power_[devid] = !laststatus_power_[devid];
-			g_pPlutoLogger->Write(LV_STATUS, "DTZ : Command <%d> translated to <%d>",pmsg->m_dwID,COMMAND_Toggle_Power_CONST);
+			g_pPlutoLogger->Write(LV_STATUS, "Command <%d> translated to <%d>",pmsg->m_dwID,COMMAND_Toggle_Power_CONST);
 			return true;
 		}
 	}
@@ -105,7 +105,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 								PRIORITY_NORMAL, MESSAGETYPE_COMMAND,cmd, 0));
 		outrepls.push_back(msgrepl);
 		laststatus_power_[devid] = (cmd==COMMAND_Generic_On_CONST);
-		g_pPlutoLogger->Write(LV_STATUS, "DTZ : Command <%d> translated to <%d>",pmsg->m_dwID,cmd);
+		g_pPlutoLogger->Write(LV_STATUS, "Command <%d> translated to <%d>",pmsg->m_dwID,cmd);
 		return true;
 	}
 	/**************************************************************************************
@@ -122,7 +122,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 					Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
 									PRIORITY_NORMAL, MESSAGETYPE_COMMAND, cmd, 0),
 					1, IR_ModeDelay);
-				g_pPlutoLogger->Write(LV_STATUS, "DTZ : Command <Input Select> translated to <%d>", cmd);
+				g_pPlutoLogger->Write(LV_STATUS, "Command <Input Select> translated to <%d>", cmd);
 				outrepls.push_back(msgrepl);
 			}
 			else
@@ -156,11 +156,11 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 												PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Input_Select_CONST, 0),1,IR_ModeDelay);
 						outrepls.push_back(msgrepl);
 					}
-					g_pPlutoLogger->Write(LV_STATUS, "DTZ : Command <%d> translated to %d input selects",pmsg->m_dwID,count);
+					g_pPlutoLogger->Write(LV_STATUS, "Command <%d> translated <%d> translated to %d input selects",pmsg->m_dwID,cmd,count);
 				}
 				else
 				{
-					g_pPlutoLogger->Write(LV_STATUS, "DTZ : Input select was not sent");
+					g_pPlutoLogger->Write(LV_STATUS, "Input select was not sent");
 				}
 			}
 			laststatus_input_[devid] = cmd;
@@ -172,7 +172,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 	if((pRowAV->ToggleInput_get() == 1) && (find(commandorder.begin(),commandorder.end(),pmsg->m_dwID) != commandorder.end()))
 	{
 	    unsigned int i=0,count=0;
-		g_pPlutoLogger->Write(LV_STATUS, "DTZ : Got command <%d>, Last was <%d>, need translation to input selects",pmsg->m_dwID,laststatus_input_[devid]);
+		g_pPlutoLogger->Write(LV_STATUS, "Got command <%d>, Last was <%d>, need translation to input selects",pmsg->m_dwID,laststatus_input_[devid]);
 		
 		if(laststatus_input_[devid]!=0)
 		{
@@ -202,11 +202,11 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 										PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Input_Select_CONST, 0),1,IR_ModeDelay);
 				outrepls.push_back(msgrepl);
 			}
-			g_pPlutoLogger->Write(LV_STATUS, "DTZ : Command <%d> translated to %d input selects",pmsg->m_dwID,count);
+			g_pPlutoLogger->Write(LV_STATUS, "Command <%d> translated to %d input selects",pmsg->m_dwID,count);
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "DTZ : Input select was not sent");
+			g_pPlutoLogger->Write(LV_STATUS, "Input select was not sent");
 		}
 		laststatus_input_[devid] = pmsg->m_dwID;		
 		return true;
