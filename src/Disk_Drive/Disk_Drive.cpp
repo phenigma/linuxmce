@@ -470,6 +470,7 @@ int Disk_Drive::cdrom_checkdrive (const char *filename, int *flag, bool bFireEve
         if( status!=CDS_DISC_OK )
         {
             g_pPlutoLogger->Write(LV_WARNING, "Disc was detected, but the status is no longer disc ok.");
+			close(fd);
             return 0;  // Don't change anything, we'll try again later
         }
 
@@ -934,6 +935,7 @@ string Disk_Drive::getTracks (string mrl)
         g_pPlutoLogger->Write (LV_WARNING, "Unknown error in getTracks()");
     }
 
+	close(fd);
     return tracks;
 }
 
