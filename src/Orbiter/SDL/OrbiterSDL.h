@@ -23,8 +23,9 @@ protected: // (mtoader) I want access to them in the OrbiterLinuxDesktop
 	bool m_bFullScreen;
 
 public:
-	OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
-		int nImageWidth, int nImageHeight, bool bFullScreen = false);
+	OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, 
+        bool bLocalMode, int nImageWidth, int nImageHeight, bool bFullScreen = false, 
+        pluto_pthread_mutex_t *pExternalScreenMutex = NULL);
 	virtual ~OrbiterSDL();
     virtual bool GetConfig();
 

@@ -24,7 +24,9 @@ class OrbiterSDLBluetooth : public OrbiterSDL
 	BDCommandProcessor *m_pBDCommandProcessor;
 
 public:
-	OrbiterSDLBluetooth(class BDCommandProcessor *pBDCommandProcessor, int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, bool bLocalMode, int nImageWidth, int nImageHeight);
+	OrbiterSDLBluetooth(class BDCommandProcessor *pBDCommandProcessor, int DeviceID, 
+        int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
+        int nImageWidth, int nImageHeight, pluto_pthread_mutex_t *pExternalScreenMutex);
 	virtual ~OrbiterSDLBluetooth();
 
 	// Public virtual methods

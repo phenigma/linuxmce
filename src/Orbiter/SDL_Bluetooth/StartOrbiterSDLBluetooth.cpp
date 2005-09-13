@@ -32,6 +32,7 @@ OrbiterSDLBluetooth *StartOrbiterSDLBluetooth(
 	bool bLocalMode, 
 	int Width,
 	int Height,
+    pluto_pthread_mutex_t *pExternalScreenMutex,
 	int PK_Room,
 	int PK_EntertainArea
 )
@@ -43,7 +44,7 @@ OrbiterSDLBluetooth *StartOrbiterSDLBluetooth(
 	    pOrbiterSDLBluetooth = new OrbiterSDLBluetooth(
 				    pBDCommandProcessor,
 				    PK_Device, PK_DeviceTemplate, sRouter_IP, 
-				    sLocalDirectory, bLocalMode, Width, Height);
+				    sLocalDirectory, bLocalMode, Width, Height, pExternalScreenMutex);
 
 	    if (bLocalMode || (pOrbiterSDLBluetooth->GetConfig() && pOrbiterSDLBluetooth->Connect(0))) // Don't validate the device template
 	    {

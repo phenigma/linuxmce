@@ -209,7 +209,7 @@
 				RelativePath=".\Win32\MainDialog.h">
 			</File>
 			<File
-				RelativePath="Orbiter.h">
+				RelativePath="..\Orbiter.h">
 			</File>
 			<File
 				RelativePath=".\Win32\OrbiterSDL_Win32.h">

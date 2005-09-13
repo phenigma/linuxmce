@@ -125,7 +125,8 @@ public:
 	/**
 	 * @brief constructor, assignes values to member data
 	 */
-	Orbiter( int DeviceID,  int PK_DeviceTemplate, string ServerAddress,  string sLocalDirectory,  bool bLocalMode,  int iImageWidth,  int iImageHeight );
+	Orbiter( int DeviceID,  int PK_DeviceTemplate, string ServerAddress,  string sLocalDirectory,  
+        bool bLocalMode,  int iImageWidth,  int iImageHeight, pluto_pthread_mutex_t* pExternalScreenMutex = NULL );
 	/**
 	 * @brief destructor
 	 */
@@ -185,7 +186,8 @@ protected:
 	bool m_bWeCanRepeat; /** < true if the rendering device we're using gives us Region Up Messages */
 	bool m_bRestrictedOp_IsUser;
 	int m_iRestrictedOp_ID;
-    bool m_bShowShortcuts;
+    bool m_bShowShortcuts; /** < if true, the shortcuts for each object rendered will be rendered too. */
+    bool m_bUsingExternalScreenMutex;
 	bool m_bForward_local_kb_to_OSD; // true if this is orbiter should be used a remote keyboard for another
 	int m_nSelectionBehaviour;    // '0' - no item is selected until the user moves the arrows
                                   // '1' - automatically highlight the first object when the screen changes
@@ -276,7 +278,7 @@ protected:
 	/** for threads and shared memory control @todo ask */
 
 	pthread_mutexattr_t m_MutexAttr; /** < @todo ask */
-	pthread_cond_t m_MessageQueueCond; /** < @todo ask */
+//	pthread_cond_t m_MessageQueueCond; /** < @todo ask */
 	pluto_pthread_mutex_t m_ScreenMutex; /** < Anything that should not be done during a screen render, change, etc. Blocking this will prevent screen changes */
 	pluto_pthread_mutex_t m_VariableMutex; /** < Short mutex to protect members like strings and maps */
 	pluto_pthread_mutex_t m_DatagridMutex; /** < Don't allow 2 threads to operate on datagrids at the same time */

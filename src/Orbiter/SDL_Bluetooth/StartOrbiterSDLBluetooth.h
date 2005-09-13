@@ -18,6 +18,7 @@ DCE::OrbiterSDLBluetooth *StartOrbiterSDLBluetooth(
 	bool bLocalMode, 
 	int Width,
 	int Height,
+    pluto_pthread_mutex_t *pExternalScreenMutex,
 	int PK_Room,
 	int PK_EntertainArea
 );

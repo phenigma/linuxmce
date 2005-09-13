@@ -142,8 +142,11 @@ public:
 	
 		pthread_mutexattr_t m_MutexAttr; /** < make it recursive */
 		pluto_pthread_mutex_t m_BTMutex; /**< to control access to the shared memory */
-		int m_iChannel; /**< specifies the channel to use */
 		int m_dwPK_EntertainArea; /**< Our EntertainArea */
+
+        pthread_cond_t m_MessageQueueCond; /** < @todo ask */
+        pluto_pthread_mutex_t m_ScreenMutex; /** < Anything that should not be done during a screen render, change, etc. Blocking this will prevent screen changes */
+
 	
 	public:
 		// Public member variables

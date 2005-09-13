@@ -49,9 +49,11 @@ using namespace DCE;
 #define IMAGE_QUALITY_SCREEN    "1274"
 
 //-----------------------------------------------------------------------------------------------------
-OrbiterSDLBluetooth::OrbiterSDLBluetooth(class BDCommandProcessor *pBDCommandProcessor, int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, bool bLocalMode, int nImageWidth, int nImageHeight)
-    : OrbiterSDL(DeviceID, PK_DeviceTemplate, ServerAddress, sLocalDirectory, bLocalMode, nImageWidth, nImageHeight),
-    m_pBDCommandProcessor(pBDCommandProcessor)
+OrbiterSDLBluetooth::OrbiterSDLBluetooth(class BDCommandProcessor *pBDCommandProcessor, int DeviceID, 
+    int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, bool bLocalMode, int nImageWidth, 
+    int nImageHeight, pluto_pthread_mutex_t *pExternalScreenMutex)
+: OrbiterSDL(DeviceID, PK_DeviceTemplate, ServerAddress, sLocalDirectory, bLocalMode, nImageWidth, 
+    nImageHeight, false, pExternalScreenMutex), m_pBDCommandProcessor(pBDCommandProcessor)
 {
     m_bShowListSent = false;
     m_ImageQuality = 70;

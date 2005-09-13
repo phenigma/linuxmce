@@ -67,6 +67,9 @@ using namespace DCE;
 
 #include "../Orbiter/Simulator.h"
 
+#define DEFAULT_SCREEN_WIDTH 176
+#define DEFAULT_SCREEN_HEIGHT 209
+
 using namespace DCE;
 
 /** @test
@@ -256,14 +259,16 @@ void *ReconnectToBluetoothDongleThread(void *p)
 //-----------------------------------------------------------------------------------------------------
 
 //<-dceag-const-b->! custom
-Bluetooth_Dongle::Bluetooth_Dongle( int iDeviceID, string sServerAddress, bool bConnectEventHandler, bool bLocalMode, class Router *pRouter )
-	: Bluetooth_Dongle_Command( iDeviceID, sServerAddress, bConnectEventHandler, bLocalMode, pRouter ), m_BTMutex( "Bluetooth socket mutex" )
+Bluetooth_Dongle::Bluetooth_Dongle( int iDeviceID, string sServerAddress, bool bConnectEventHandler, 
+                                   bool bLocalMode, class Router *pRouter )
+	: Bluetooth_Dongle_Command( iDeviceID, sServerAddress, bConnectEventHandler, bLocalMode, pRouter ), 
+    m_BTMutex( "Bluetooth socket mutex" ), m_ScreenMutex("orbiters rendering")
 //<-dceag-const-e->
 {
-	m_iChannel = 10;
     pthread_mutexattr_init( &m_MutexAttr );
     pthread_mutexattr_settype( &m_MutexAttr,  PTHREAD_MUTEX_RECURSIVE_NP );
 	m_BTMutex.Init( &m_MutexAttr );
+    m_ScreenMutex.Init( &m_MutexAttr );
 }
 
 //<-dceag-getconfig-b->
@@ -350,7 +355,9 @@ Bluetooth_Dongle::~Bluetooth_Dongle()
         Sleep(50);
     }
 
+	pthread_mutexattr_destroy(&m_MutexAttr);
 	pthread_mutex_destroy(&m_BTMutex.mutex);
+    pthread_mutex_destroy(&m_ScreenMutex.mutex);
 
     g_pPlutoLogger->Write(LV_STATUS, "Exiting Bluetooth_Dongle destructor... ");
 }
@@ -765,16 +772,14 @@ void Bluetooth_Dongle::CMD_Create_Mobile_Orbiter(int iPK_Device,string sPK_Enter
 
 		class OrbiterSDLBluetooth *pOrbiter;
 		if( atoi(sPK_EntertainArea.c_str()) || iPK_Room )
-		{
-			pOrbiter = 
-				StartOrbiterSDLBluetooth( pBD_Orbiter->m_pBDCommandProcessor, iPK_Device, 0, m_sIPAddress, "", false, 176, 208, 
-					iPK_Room,atoi(sPK_EntertainArea.c_str()));
-		}
+        {
+            pOrbiter =  StartOrbiterSDLBluetooth( pBD_Orbiter->m_pBDCommandProcessor, iPK_Device, 0, m_sIPAddress, 
+                "", false, DEFAULT_SCREEN_WIDTH, DEFAULT_SCREEN_HEIGHT, &m_ScreenMutex, iPK_Room, atoi(sPK_EntertainArea.c_str()));
+        }
 		else
 		{
-			pOrbiter = 
-				StartOrbiterSDLBluetooth( pBD_Orbiter->m_pBDCommandProcessor, iPK_Device, 0, m_sIPAddress, "", false, 176, 208, 
-					0, m_dwPK_EntertainArea);
+			pOrbiter = StartOrbiterSDLBluetooth( pBD_Orbiter->m_pBDCommandProcessor, iPK_Device, 0, m_sIPAddress, 
+                "", false, DEFAULT_SCREEN_WIDTH, DEFAULT_SCREEN_HEIGHT, &m_ScreenMutex, 0, m_dwPK_EntertainArea);
 		}
 
         if(!pOrbiter) //failed to start orbiter

@@ -179,13 +179,14 @@ Constructors/Destructor
 */
 
 //<-dceag-const-b->!
-Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  string sLocalDirectory,  bool bLocalMode,  int iImageWidth,  int iImageHeight )
+Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  string sLocalDirectory,  
+    bool bLocalMode,  int iImageWidth,  int iImageHeight, pluto_pthread_mutex_t* pExternalScreenMutex/*=NULL*/)
 : m_dwPK_DeviceTemplate(PK_DeviceTemplate), Orbiter_Command( DeviceID,  ServerAddress, true, bLocalMode ),
-m_ScreenMutex( "rendering" ), m_VariableMutex( "variable" ), m_DatagridMutex( "datagrid" ),
-m_MaintThreadMutex("MaintThread"), m_NeedRedrawVarMutex( "need redraw variables" )
+    m_ScreenMutex( "rendering" ), m_VariableMutex( "variable" ), m_DatagridMutex( "datagrid" ),
+    m_MaintThreadMutex("MaintThread"), m_NeedRedrawVarMutex( "need redraw variables" )
 //<-dceag-const-e->
 {
-	WriteStatusOutput((char *)(string("Orbiter version: ") + VERSION).c_str()); //todo: replace it with VERSION
+	WriteStatusOutput((char *)(string("Orbiter version: ") + VERSION).c_str());
 	WriteStatusOutput("Orbiter constructor");
 
 g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
@@ -232,11 +233,21 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
 	pthread_mutexattr_init( &m_MutexAttr );
     pthread_mutexattr_settype( &m_MutexAttr,  PTHREAD_MUTEX_RECURSIVE_NP );
     m_VariableMutex.Init( &m_MutexAttr );
-    m_ScreenMutex.Init( &m_MutexAttr );
     m_DatagridMutex.Init( &m_MutexAttr );
 	m_NeedRedrawVarMutex.Init( &m_MutexAttr );
 	pthread_cond_init(&m_MaintThreadCond, NULL);
 	m_MaintThreadMutex.Init(NULL,&m_MaintThreadCond);
+
+    m_bUsingExternalScreenMutex = NULL != pExternalScreenMutex;
+    if(m_bUsingExternalScreenMutex)
+    {
+        m_ScreenMutex.mutex = pExternalScreenMutex->mutex;
+        m_ScreenMutex.m_pthread_cond_t = pExternalScreenMutex->m_pthread_cond_t;
+        m_ScreenMutex.m_bInitialized = pExternalScreenMutex->m_bInitialized = true;
+    }
+    else
+        m_ScreenMutex.Init( &m_MutexAttr );
+
 	pthread_create(&m_MaintThreadID, NULL, MaintThread, (void*)this);
 }
 
@@ -387,11 +398,13 @@ g_pPlutoLogger->Write(LV_STATUS,"Maint thread dead");
 
 	vm.Release();
 	pthread_mutexattr_destroy(&m_MutexAttr);
-	pthread_mutex_destroy(&m_ScreenMutex.mutex);
 	pthread_mutex_destroy(&m_VariableMutex.mutex);
 	pthread_mutex_destroy(&m_DatagridMutex.mutex);
 	pthread_mutex_destroy(&m_MaintThreadMutex.mutex);
 	pthread_mutex_destroy(&m_NeedRedrawVarMutex.mutex);
+
+    if(!m_bUsingExternalScreenMutex)
+        pthread_mutex_destroy(&m_ScreenMutex.mutex);
 }
 
 //<-dceag-getconfig-b->!
@@ -468,6 +481,8 @@ bool Orbiter::GetConfig()
     m_iVideoFrameInterval = DATA_Get_VideoFrameInterval();
     if(!m_iVideoFrameInterval) //this device data doesn't exist or it's 0
         m_iVideoFrameInterval = 6000; //6 sec
+
+    DATA_Set_ImageQuality(13);
 
 	return true;
 }
