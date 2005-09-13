@@ -281,11 +281,15 @@ bool XineSlaveWrapper::createStream(string fileName, int streamID, int iRequesti
     m_x11Visual.user_data         = xineStream;
 
     g_pPlutoLogger->Write(LV_STATUS, "Opening Video Driver");
-    if( isNewStream && (m_pXineVideo = xine_open_video_driver(m_pXine, m_sXineVideoDriverName.c_str(), XINE_VISUAL_TYPE_X11, (void *) &m_x11Visual)) == NULL)
-    {
-        g_pPlutoLogger->Write(LV_WARNING, "I'm unable to initialize m_pXine's '%s' video driver. Giving up.", m_sXineVideoDriverName.c_str());
-        return false;
-    }
+	if( isNewStream && (m_pXineVideo = xine_open_video_driver(m_pXine, m_sXineVideoDriverName.c_str(), XINE_VISUAL_TYPE_X11, (void *) &m_x11Visual)) == NULL)
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "I'm unable to initialize m_pXine's '%s' video driver. Falling to 'xshm'.", m_sXineVideoDriverName.c_str());
+		if ((m_pXineVideo = xine_open_video_driver(m_pXine, "xshm", XINE_VISUAL_TYPE_X11, (void *) &m_x11Visual)) == NULL)
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "I'm unable to initialize m_pXine's 'xshm' video driver. Giving up.");
+			return false;
+		}
+	}
 
     g_pPlutoLogger->Write(LV_STATUS, "Opening Audio Driver");
     if ( isNewStream && (m_pXineAudio = xine_open_audio_driver(m_pXine, m_sXineAudioDriverName.c_str(), NULL)) == NULL )
