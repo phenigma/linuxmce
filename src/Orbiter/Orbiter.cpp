@@ -8762,7 +8762,7 @@ int Orbiter::MonitorRegen(int PK_Device)
 
 			g_pPlutoLogger->Write(LV_CRITICAL,"MonitorRegen - unable to check status");
 			DisplayProgress("",-1);
-			xxx linux impl required PromptUser("Sorry.  There is a problem creating the new orbiter");
+			PromptUser("Sorry.  There is a problem creating the new orbiter");
 			return 0;
 		}
 		CMD_Get_Orbiter_Status_DT.ParseResponse( pResponse );
