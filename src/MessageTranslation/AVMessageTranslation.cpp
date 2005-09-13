@@ -108,7 +108,67 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 		g_pPlutoLogger->Write(LV_STATUS, "DTZ : Command <%d> translated to <%d>",pmsg->m_dwID,cmd);
 		return true;
 	}
+	/**************************************************************************************
+	COMMAND_Input_Select_CONST
+	**************************************************************************************/
 	vector<int> commandorder=*(device_input_command_order_[devtemplid]);
+	if(pmsg->m_dwID == COMMAND_Input_Select_CONST ) {
+		map<long, string>::iterator param = inrepl.getMessage().m_mapParameters.find(COMMANDPARAMETER_PK_Command_Input_CONST);
+		if (param != inrepl.getMessage().m_mapParameters.end()) {
+			int cmd = atoi((*param).second.c_str());
+			if(pRowAV->ToggleInput_get() == 0)
+			{
+				MessageReplicator msgrepl(
+					Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
+									PRIORITY_NORMAL, MESSAGETYPE_COMMAND, cmd, 0),
+					1, IR_ModeDelay);
+				g_pPlutoLogger->Write(LV_STATUS, "DTZ : Command <Input Select> translated to <%d>", cmd);
+				outrepls.push_back(msgrepl);
+			}
+			else
+			{
+			    unsigned int i=0,count=0;
+				if(laststatus_input_[devid]!=0)
+				{
+					for(i=0;commandorder[i]!=laststatus_input_[devid] && i<commandorder.size(); i++);
+				}
+				while(commandorder[i]!=cmd)
+				{
+					if((int)commandorder[i]==(int)0)
+					{
+						i=0;
+						continue;
+					}
+					count++;			
+					if(count == commandorder.size()) 
+					{
+						count = 0;
+						break;
+					}
+					i++;
+				}
+				if(count)
+				{
+					for(i=0;i<count;i++)
+					{
+						MessageReplicator msgrepl(
+								Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
+												PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Input_Select_CONST, 0),1,IR_ModeDelay);
+						outrepls.push_back(msgrepl);
+					}
+					g_pPlutoLogger->Write(LV_STATUS, "DTZ : Command <%d> translated to %d input selects",pmsg->m_dwID,count);
+				}
+				else
+				{
+					g_pPlutoLogger->Write(LV_STATUS, "DTZ : Input select was not sent");
+				}
+			}
+			laststatus_input_[devid] = cmd;
+			return true;			
+		} else {
+			g_pPlutoLogger->Write(LV_WARNING, "PK_Command_Input parameter not found.");
+		}
+	}
 	if((pRowAV->ToggleInput_get() == 1) && (find(commandorder.begin(),commandorder.end(),pmsg->m_dwID) != commandorder.end()))
 	{
 	    unsigned int i=0,count=0;
@@ -150,29 +210,6 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 		}
 		laststatus_input_[devid] = pmsg->m_dwID;		
 		return true;
-	}
-	/**************************************************************************************
-	COMMAND_Input_Select_CONST
-	**************************************************************************************/
-	if(pmsg->m_dwID == COMMAND_Input_Select_CONST) {
-		map<long, string>::iterator param = inrepl.getMessage().m_mapParameters.find(COMMANDPARAMETER_PK_Command_Input_CONST);
-		if (param != inrepl.getMessage().m_mapParameters.end()) {
-			int cmd = atoi((*param).second.c_str());
-			MessageReplicator msgrepl(
-				Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
-								PRIORITY_NORMAL, MESSAGETYPE_COMMAND, cmd, 0),
-				1, IR_ModeDelay);
-			g_pPlutoLogger->Write(LV_STATUS, "DTZ : Command <Input Select> translated to <%d>", cmd);
-			outrepls.push_back(msgrepl);
-			return true;
-		} else {
-			MessageReplicator msgrepl(
-					Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
-									PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Input_Select_CONST, 0),1,IR_ModeDelay);
-			outrepls.push_back(msgrepl);
-			g_pPlutoLogger->Write(LV_STATUS, "PK_Command_Input parameter not found, sending as is.");
-			return true;
-		}
 	}
 	/********************************************************************************************************
 	COMMAND_Pause_Media_CONST
