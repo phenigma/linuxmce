@@ -98,6 +98,7 @@ bool LIRC_DCE::GetConfig()
 
 	remove("/etc/lircd.conf");
 	fp = fopen("/etc/lircd.conf", "wt");
+	int iNumRemotes=0;
 	// Find all our sibblings that are remote controls 
 	for(Map_DeviceData_Base::iterator itD=m_pData->m_AllDevices.m_mapDeviceData_Base.begin();
 		itD!=m_pData->m_AllDevices.m_mapDeviceData_Base.end();++itD)
@@ -145,6 +146,7 @@ bool LIRC_DCE::GetConfig()
 					char cRemoteLayout = sType.size() ? sType[0] : 'W';
 					m_mapRemoteLayout[pDevice->m_dwPK_Device]= cRemoteLayout;
 					g_pPlutoLogger->Write(LV_STATUS,"Added remote %s device %d layout %c",sConfiguration.substr(pos_name,pos_space-pos_name).c_str(),pDevice->m_dwPK_Device,cRemoteLayout);
+					iNumRemotes++;
 					break;
 				}
 			}
@@ -152,13 +154,19 @@ bool LIRC_DCE::GetConfig()
 	}
 	fclose(fp);
 
+	if( iNumRemotes==0 )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"There are no remote controls -- LIRC will be dormant");
+		return true;
+	}
+
 	system("killall -9 lircd");
 	system("modprobe lirc_dev");
 	system("modprobe lirc_mceusb");
 	system((string("lircd") + " -H " + sLIRCDriver + " -d " + sSerialPort + " /etc/lircd.conf").c_str());
 //TODO: Check if it started
 
-	g_pPlutoLogger->Write(LV_WARNING, "Creating Leeching Thread");
+	g_pPlutoLogger->Write(LV_WARNING, "Creating Leeching Thread for %d remotes",iNumRemotes);
 	if (pthread_create(&m_LeechingThread, NULL, StartLeeching, (void *) this))
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "Failed to create Leeching Thread");

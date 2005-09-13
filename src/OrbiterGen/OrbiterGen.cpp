@@ -733,22 +733,16 @@ m_bNoEffects = true;
 			m_dwPK_Device_OrbiterPlugIn = pRow_Device->PK_Device_get();
 			break;
 		case DEVICECATEGORY_App_Server_CONST:
-			if( m_pRow_Device->FK_Device_ControlledVia_get() && (pRow_Device->FK_Device_ControlledVia_get()==m_pRow_Device->FK_Device_ControlledVia_get() ||
-					(pRow_Device->FK_Device_ControlledVia_getrow() && pRow_Device->FK_Device_ControlledVia_getrow()->FK_Device_ControlledVia_get()==m_pRow_Device->FK_Device_ControlledVia_get()) ||
-					(pRow_Device->FK_Device_ControlledVia_getrow()->FK_Device_ControlledVia_getrow() && pRow_Device->FK_Device_ControlledVia_getrow()->FK_Device_ControlledVia_getrow()->FK_Device_ControlledVia_get()==m_pRow_Device->FK_Device_ControlledVia_get())) )
+			if( CommonControlledVia(m_pRow_Device,pRow_Device) )
 				m_dwPK_Device_LocalAppServer = pRow_Device->PK_Device_get();
 			break;
 		case DEVICECATEGORY_Infrared_Receivers_CONST:
 		case DEVICECATEGORY_LIRC_Drivers_CONST:
-			if( m_pRow_Device->FK_Device_ControlledVia_get() && (pRow_Device->FK_Device_ControlledVia_get()==m_pRow_Device->FK_Device_ControlledVia_get() ||
-					(pRow_Device->FK_Device_ControlledVia_getrow() && pRow_Device->FK_Device_ControlledVia_getrow()->FK_Device_ControlledVia_get()==m_pRow_Device->FK_Device_ControlledVia_get()) ||
-					(pRow_Device->FK_Device_ControlledVia_getrow()->FK_Device_ControlledVia_getrow() && pRow_Device->FK_Device_ControlledVia_getrow()->FK_Device_ControlledVia_getrow()->FK_Device_ControlledVia_get()==m_pRow_Device->FK_Device_ControlledVia_get())) )
+			if( CommonControlledVia(m_pRow_Device,pRow_Device) )
 				m_dwPK_Device_LocalOsdIRReceiver = pRow_Device->PK_Device_get();
 			break;
 		case DEVICECATEGORY_LCDVFD_Displays_CONST:
-			if( m_pRow_Device->FK_Device_ControlledVia_get() && (pRow_Device->FK_Device_ControlledVia_get()==m_pRow_Device->FK_Device_ControlledVia_get() ||
-					(pRow_Device->FK_Device_ControlledVia_getrow() && pRow_Device->FK_Device_ControlledVia_getrow()->FK_Device_ControlledVia_get()==m_pRow_Device->FK_Device_ControlledVia_get()) ||
-					(pRow_Device->FK_Device_ControlledVia_getrow()->FK_Device_ControlledVia_getrow() && pRow_Device->FK_Device_ControlledVia_getrow()->FK_Device_ControlledVia_getrow()->FK_Device_ControlledVia_get()==m_pRow_Device->FK_Device_ControlledVia_get())) )
+			if( CommonControlledVia(m_pRow_Device,pRow_Device) )
 				m_dwPK_Device_LocalOsdVfdLcd = pRow_Device->PK_Device_get();
 			break;
 		};
@@ -2042,4 +2036,24 @@ void OrbiterGenerator::ScaleCommandList(DesignObj_Generator *ocDesignObj,DesignO
 				oa->m_ParameterList[(*itParm).first] = StringUtils::Replace((*itParm).second,"<%=!%>",StringUtils::itos(m_pRow_Device->PK_Device_get()));
 		}
 	}
+}
+
+bool OrbiterGenerator::CommonControlledVia(Row_Device *pRow_Device1,Row_Device *pRow_Device2)
+{
+	map<int,bool> mapDevices;
+	Row_Device *pRow_Device_CV=pRow_Device1->FK_Device_ControlledVia_getrow();
+	while( pRow_Device_CV )
+	{
+		mapDevices[pRow_Device_CV->PK_Device_get()] = true;
+		pRow_Device_CV = pRow_Device_CV->FK_Device_ControlledVia_getrow();
+	}
+
+	pRow_Device_CV=pRow_Device2->FK_Device_ControlledVia_getrow();
+	while( pRow_Device_CV )
+	{
+		if( mapDevices[pRow_Device_CV->PK_Device_get()] )
+			return true;
+		pRow_Device_CV = pRow_Device_CV->FK_Device_ControlledVia_getrow();
+	}
+	return false;
 }

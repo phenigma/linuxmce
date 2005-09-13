@@ -99,6 +99,7 @@ private:
 	void MatchChildDevicesToLocation(LocationInfo *li,Row_Device *pRow_Device);
 	void ScaleCommandList(DesignObj_Generator *pocDesignObj,DesignObjCommandList &CommandList);
 	class Row_Size *TranslateSize(string sSize);
+	bool CommonControlledVia(Row_Device *pRow_Device1,Row_Device *pRow_Device2);
 };
 
 #endif

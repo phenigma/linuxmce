@@ -103,7 +103,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
     m_bDontShare=bDontShare;
     m_bUsingCache=false;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==3863 ||  m_pRow_DesignObj->PK_DesignObj_get()==3880 )// || 
+if( m_pRow_DesignObj->PK_DesignObj_get()==2561 ) // ||  m_pRow_DesignObj->PK_DesignObj_get()==3880 )// || 
 //   m_pRow_DesignObj->PK_DesignObj_get()==4271 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==2211 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==1881 ||  m_pRow_DesignObj->PK_DesignObj_get()==2228 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==3531 ||  m_pRow_DesignObj->PK_DesignObj_get()==3534 )// || m_pRow_DesignObj->PK_DesignObj_get()==3471 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )*/
@@ -269,14 +269,14 @@ int k=2;
 						FileUtils::FileExists(m_pOrbiterGenerator->m_GraphicsBasePath + "/" + m_pOrbiterGenerator->m_pRow_Skin->DataSubdirectory_get() + "/../../orbiter_bg/" + StringUtils::itos(m_pOrbiterGenerator->m_iPK_Orbiter) + ".png") )
 					o = "../../orbiter_bg/" + StringUtils::itos(m_pOrbiterGenerator->m_iPK_Orbiter) + ".png";
 				else
-					o=GetParm(DESIGNOBJPARAMETER_Graphic_Filename_CONST,true);
+					o=GetParm(DESIGNOBJPARAMETER_Graphic_Filename_CONST,m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get());
 			}
             else if( GraphicType==2 && !m_pOrbiterGenerator->m_bIgnoreSelected )
-                o=GetParm(DESIGNOBJPARAMETER_Selected_Graphic_Fil_CONST,true);
+                o=GetParm(DESIGNOBJPARAMETER_Selected_Graphic_Fil_CONST,m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get());
             else if( GraphicType==3 && !m_pOrbiterGenerator->m_bIgnoreHighlighted)
-                o=GetParm(DESIGNOBJPARAMETER_Highlighted_Graphic_CONST,true);
+                o=GetParm(DESIGNOBJPARAMETER_Highlighted_Graphic_CONST,m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get());
             else if( !m_pOrbiterGenerator->m_bIgnoreAlt )
-                o=GetParm(DESIGNOBJPARAMETER_Alt_Graphic_File_CONST,true);
+                o=GetParm(DESIGNOBJPARAMETER_Alt_Graphic_File_CONST,m_pOrbiterGenerator->m_pRow_Skin->MergeStandardVariation_get());
         }
 
         string sGraphicFile = o;
