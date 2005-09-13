@@ -118,6 +118,10 @@ bool General_Info_Plugin::Register()
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &General_Info_Plugin::Rooms ) )
         , DATAGRID_Rooms_CONST );
 
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::BookmarkList)), 
+		DATAGRID_Mozilla_Bookmarks_CONST);
+
 	return Connect(PK_DeviceTemplate_get()); 
 }
 
@@ -523,19 +527,45 @@ class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string 
 	DeviceData_Router *pDevice_Orbiter_OSD = vectDevice_Orbiter_OSD[0];
 
 	vector<Row_Device_QuickStart *> vectRow_Device_QuickStart;
-	pRow_Device->Device_QuickStart_FK_Device_getrows(&vectRow_Device_QuickStart);
-	for(size_t s=0;s<vectRow_Device_QuickStart.size();++s)
+	list<pair<string, string> > *p_Bookmarks=NULL;
+	size_t s=0;
+	list<pair<string, string> >::iterator it;
+	if( ExtraData )
 	{
-		Row_Device_QuickStart *pRow_Device_QuickStart = vectRow_Device_QuickStart[s];
-		pCellIcon = new DataGridCell( pRow_Device_QuickStart->Description_get(), "" );
-		pCellText = new DataGridCell( pRow_Device_QuickStart->Description_get(), "" );
+		p_Bookmarks = (list<pair<string, string> > *) ExtraData;
+		it=p_Bookmarks->begin();
+	}
+	else
+		pRow_Device->Device_QuickStart_FK_Device_getrows(&vectRow_Device_QuickStart);
+
+	int iRow=0;
+	while(true)
+	{
+		string sDescription,sBinary,sArguments;
+		if( p_Bookmarks )
+		{
+			sDescription=it->second;
+			sBinary="mozilla";
+			sArguments=it->first;
+		}
+		else
+		{
+			Row_Device_QuickStart *pRow_Device_QuickStart = vectRow_Device_QuickStart[s];
+			sDescription = pRow_Device_QuickStart->Description_get();
+			sBinary = pRow_Device_QuickStart->Binary_get();
+			sArguments = pRow_Device_QuickStart->Arguments_get();
+		}
+		
+		pCellIcon = new DataGridCell( sDescription, "" );
+		pCellText = new DataGridCell( sDescription, "" );
 		pCellText->m_Colspan=3;
-		pDataGrid->SetData( 0, s, pCellIcon );
-		pDataGrid->SetData( 1, s, pCellText );
+		pDataGrid->SetData( 0, iRow, pCellIcon );
+		pDataGrid->SetData( 1, iRow, pCellText );
 
 		string sMessage = "0 " + StringUtils::itos(pDevice_Orbiter_OSD->m_dwPK_Device) + " 1 4 16 " + StringUtils::itos(DESIGNOBJ_generic_app_full_screen_CONST);
+
 		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,
-			pRow_Device_QuickStart->Binary_get(),"generic_app",pRow_Device_QuickStart->Arguments_get(),
+			sBinary,"generic_app",sArguments,
 			sMessage,sMessage,true);
 		pCellIcon->m_pMessage = CMD_Spawn_Application.m_pMessage;
 		pCellText->m_pMessage = new Message(pCellIcon->m_pMessage);
@@ -552,7 +582,7 @@ class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string 
 			pCellText->m_pMessage->m_vectExtraMessages.push_back(new Message(CMD_Goto_Screen.m_pMessage));
 
 			DCE::CMD_Set_Variable CMD_Set_Variable(m_dwPK_Device,pDevice_Orbiter_OSD->m_dwPK_Device,
-				VARIABLE_Array_Desc_CONST,pRow_Device_QuickStart->Description_get());
+				VARIABLE_Array_Desc_CONST,sDescription);
 			pCellIcon->m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable.m_pMessage);
 			pCellText->m_pMessage->m_vectExtraMessages.push_back(new Message(CMD_Set_Variable.m_pMessage));
 		}
@@ -570,6 +600,11 @@ class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string 
 			pCellIcon->m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen2.m_pMessage);
 			pCellText->m_pMessage->m_vectExtraMessages.push_back(new Message(CMD_Goto_Screen2.m_pMessage));
 		}
+
+		if( (p_Bookmarks && ++it == p_Bookmarks->end()) || 
+			(!p_Bookmarks && ++s>=vectRow_Device_QuickStart.size()) )
+				break;
+		iRow++;
 	}
 
 	return pDataGrid;
@@ -709,4 +744,102 @@ void General_Info_Plugin::CMD_Check_for_updates_done(string &sCMD_Result,Message
 		g_pPlutoLogger->Write(LV_STATUS,"Done updating config");
 		m_pOrbiter_Plugin->DoneCheckingForUpdates();
 	}
+}
+
+class DataGridTable * General_Info_Plugin::BookmarkList(string GridID, string Parms, void * ExtraData,int *iPK_Variable,string *sValue_To_Assign, class Message *pMessage)
+{
+	string::size_type pos=0;
+	StringUtils::Tokenize(Parms,",",pos);  // Skip the MD
+	list<pair<string, string> > Bookmarks = GetUserBookmarks(StringUtils::Tokenize(Parms,",",pos));
+	return QuickStartApps( GridID, Parms, (void *) &Bookmarks, iPK_Variable, sValue_To_Assign, pMessage );
+}
+
+pair<string, string> strpair(string x, string y)
+{
+	return pair<string, string>(x, y);
+}
+
+list<pair<string, string> > General_Info_Plugin::GetUserBookmarks(string sPK_User)
+{
+	list<pair<string, string> > Bookmarks;
+	// the following code reads the Mozilla bookmarks
+	
+	size_t Size;
+	char * Buffer = FileUtils::ReadFileIntoBuffer("/home/user_" + sPK_User + "/.mozilla/firefox/profiles.ini", Size);
+	if( !Buffer )
+		return Bookmarks;
+
+	const char *Path = strstr(Buffer,"Path=");
+	if( !Path )
+	{
+		delete [] Buffer;
+		return Bookmarks;
+	}
+
+	Path+=5;
+
+	char *EOL = strchr(Path,'\n');
+	if( !EOL )
+	{
+		delete[] Buffer;
+		return Bookmarks;
+	}
+
+	*EOL=0;
+	string Filename = Path;
+	delete[] Buffer;
+
+	g_pPlutoLogger->Write(LV_CRITICAL,"REading bookmarks from %s",
+		("/home/user_" + sPK_User + "/.mozilla/firefox/" + Filename + "/bookmarks.html").c_str());
+
+	Buffer = FileUtils::ReadFileIntoBuffer("/home/user_" + sPK_User + "/.mozilla/firefox/" + Filename + "/bookmarks.html", Size);
+	if( !Buffer )
+		return Bookmarks;
+
+	char * BufferTop = Buffer;
+	
+	char *BraceA;
+	char *PosInBuffer=Buffer;
+	while( (BraceA=strstr(Buffer,"<A")) )
+	{
+		char *HRef = strstr(BraceA,"HREF");
+		if( !HRef )
+		{
+			Buffer++;  // Skip past this and continue
+			continue;
+		}
+		char *FirstQuote = strchr(HRef,'"');
+		if( !FirstQuote )
+		{
+			Buffer++;  // Skip past this and continue
+			continue;
+		}
+		char *SecondQuote = strchr(FirstQuote+1,'"');
+		if( !SecondQuote )
+		{
+			Buffer++;  // Skip past this and continue
+			continue;
+		}
+		*SecondQuote=0;
+		string Link(FirstQuote+1);
+
+		char *LastBrace = strchr(SecondQuote+1,'>');
+		if( !LastBrace )
+		{
+			Buffer++;  // Skip past this and continue
+			continue;
+		}
+
+		char * EndBraceA = strstr(LastBrace+1, "</A>");
+		*EndBraceA = 0;
+		string LinkText(LastBrace+1);
+
+		Buffer = LastBrace+1;
+g_pPlutoLogger->Write(LV_CRITICAL,"add bookmarks %s / %s",Link.c_str(), LinkText.c_str());
+
+		Bookmarks.push_back(pair<string, string>(Link, LinkText));
+	}
+
+	delete[] BufferTop;
+	return Bookmarks;
 }

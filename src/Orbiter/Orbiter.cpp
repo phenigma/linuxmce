@@ -4495,7 +4495,7 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
         else if(  Variable=="NP_R" )
 		{
 			if( m_bIsOSD && m_iPK_DesignObj_RemoteOSD && m_iLocation_Initial==m_pLocationInfo->iLocation)  // If we've changed locations, we're not the OSD anymore
-				Output += m_iPK_DesignObj_RemoteOSD ? StringUtils::itos(m_iPK_DesignObj_RemoteOSD) : "**NOMEDIA**";
+				Output += StringUtils::itos(m_iPK_DesignObj_RemoteOSD);
 			else
 				Output += m_iPK_DesignObj_Remote ? StringUtils::itos(m_iPK_DesignObj_Remote) : "**NOMEDIA**";
 		}
@@ -5131,7 +5131,12 @@ g_pPlutoLogger->Write(LV_STATUS,"Forcing go back to the main menu");
 			GotoScreen( m_sMainMenu );
 		}
 		else if( pScreenHistory->m_pObj->m_bIsARemoteControl )
-			CMD_Goto_Screen(0,"<%=NP_R%>","","",false,false);
+		{
+			if( m_iPK_DesignObj_Remote || m_iPK_DesignObj_RemoteOSD )
+				CMD_Goto_Screen(0,"<%=NP_R%>","","",false,false);
+			else
+				CMD_Goto_Screen(0,"<%=M%>","","",false,false);
+		}
 		else
 			NeedToRender::NeedToChangeScreens( this, pScreenHistory, false );
 
@@ -5185,6 +5190,7 @@ g_pPlutoLogger->Write(LV_STATUS,"CMD_Goto_Screen: %s",sPK_DesignObj.c_str());
 
 	if( !TestCurrentScreen(sPK_DesignObj_CurrentScreen) )
 		return;
+
     string sDestScreen = SubstituteVariables( sPK_DesignObj, NULL, 0, 0 );
     PLUTO_SAFETY_LOCK( vm, m_VariableMutex );
 
@@ -5222,7 +5228,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Forcing go to the main menu");
 	if(Simulator::GetInstance()->IsRunning() && (pObj_New->m_iBaseObjectID==DESIGNOBJ_mnuAdvancedOptions_CONST || pObj_New->m_iBaseObjectID==DESIGNOBJ_mnuDisplayPower_CONST) )
 		return;
 
-	if( bIsRemote )
+	if( bIsRemote || pObj_New->m_iBaseObjectID==m_iPK_DesignObj_Remote || pObj_New->m_iBaseObjectID==m_iPK_DesignObj_RemoteOSD )
 		pObj_New->m_bIsARemoteControl=true;
 
     // We're going to change screens,  create the new ScreenHistory object
@@ -8591,6 +8597,10 @@ int Orbiter::PickOrbiterDeviceID()
 
 int Orbiter::PromptUser(string sPrompt,map<int,string> *p_mapPrompts)
 {
+#ifndef WIN32 
+	return PROMPT_CANCEL;  // TEMP TODO HACK -- we need to implement this for Linux SDL
+#endif
+
 #ifndef WINCE
 	map<int,int> mapResponse;
 	cout << sPrompt << endl;
@@ -8751,7 +8761,8 @@ int Orbiter::MonitorRegen(int PK_Device)
 				delete pResponse;
 
 			g_pPlutoLogger->Write(LV_CRITICAL,"MonitorRegen - unable to check status");
-			PromptUser("Sorry.  There is a problem creating the new orbiter");
+			DisplayProgress("",-1);
+			xxx linux impl required PromptUser("Sorry.  There is a problem creating the new orbiter");
 			return 0;
 		}
 		CMD_Get_Orbiter_Status_DT.ParseResponse( pResponse );

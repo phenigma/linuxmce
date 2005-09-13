@@ -85,7 +85,8 @@ serio_res_t serio_open(serio_t *serio, long baud, const char *portname, int pari
 	if		(baud <= CBR_9600)	baud = CBR_9600;
 	else if (baud <= CBR_19200)	baud = CBR_19200;
 	else if (baud <= CBR_38400)	baud = CBR_38400;
-	else						baud = CBR_57600;
+	else if (baud <= CBR_57600)	baud = CBR_57600;
+	else						baud = 115200;
 
 	/* Let child processes inherit this handle. */
 	memset(&SecurityAttributes, 0, sizeof(SECURITY_ATTRIBUTES));

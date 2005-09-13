@@ -81,6 +81,7 @@ public:
     // Private methods
     map<string,UnknownDeviceInfos *> m_mapUnknownDevices; // A temporary map to match Bluetooth Dongle's with devices they detect
     void PrepareFloorplanInfo();
+    void PrepareFloorplanInfo(OH_Orbiter *pOH_Orbiter);
     UnknownDeviceInfos *m_mapUnknownDevices_Find(string sMacAddress)
     {
         map<string,UnknownDeviceInfos *>::iterator it = m_mapUnknownDevices.find(sMacAddress);

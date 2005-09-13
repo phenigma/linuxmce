@@ -25,6 +25,8 @@ VFD_LCD_Base::VFD_LCD_Base(int iNumColumns,int iNumLines,int iNumVisibleColumns)
 	m_iNumVisibleColumns=iNumVisibleColumns;
 	m_bQuit_VL=m_bVL_ThreadRunning=false;
 	m_pVFD_LCD_Message_new=NULL;
+	m_pMenuStructure=NULL;
+	m_pMenuNode_Current=NULL;
 
 	pthread_cond_init(&m_VL_MessageCond, NULL);
 	m_VL_MessageMutex.Init(NULL,&m_VL_MessageCond);
@@ -40,6 +42,8 @@ VFD_LCD_Base::~VFD_LCD_Base()
 		pthread_cond_broadcast(&m_VL_MessageCond);
 		Sleep(100);
 	}
+	delete m_pMenuStructure;
+	m_pMenuStructure=NULL;
 }
 
 void VFD_LCD_Base::RunThread()
@@ -77,6 +81,14 @@ void VFD_LCD_Base::NewMessage(int iMessageType,string sName,string sMessage,int 
 
 int VFD_LCD_Base::UpdateDisplay()
 {
+	if( m_pMenuNode_Current )
+	{
+		vector<string> str;
+		m_pMenuNode_Current->Render(&str);
+		DoUpdateDisplay(&str);
+		return 60;
+	}
+
 g_pPlutoLogger->Write(LV_CRITICAL,"UpdateDisp");
 	if( m_pVFD_LCD_Message_new && (m_pVFD_LCD_Message_new->m_iMessageType==VL_MSGTYPE_RUNTIME_ERRORS || m_pVFD_LCD_Message_new->m_iMessageType==VL_MSGTYPE_RUNTIME_NOTICES ) )
 	{
@@ -317,3 +329,80 @@ void VFD_LCD_Base::GetRipping(vector<string> *vectString,int iNumLines)
 	if( pMapMessages_RippingProgress && pMapMessages_RippingProgress->size() )
 		(*vectString).push_back( pMapMessages_RippingProgress->begin()->second->m_sMessage );
 }
+
+void VFD_LCD_Base::Up()
+{
+	PLUTO_SAFETY_LOCK(vl,m_VL_MessageMutex);
+	if( CheckActivateMenu() || !m_pMenuNode_Current )
+		return;
+	m_pMenuNode_Current->Up();
+}
+
+void VFD_LCD_Base::Down()
+{
+	PLUTO_SAFETY_LOCK(vl,m_VL_MessageMutex);
+	if( CheckActivateMenu() || !m_pMenuNode_Current )
+		return;
+	m_pMenuNode_Current->Down();
+}
+
+void VFD_LCD_Base::Left()
+{
+	PLUTO_SAFETY_LOCK(vl,m_VL_MessageMutex);
+	if( CheckActivateMenu() || !m_pMenuNode_Current )
+		return;
+	m_pMenuNode_Current->Left();
+}
+
+void VFD_LCD_Base::Right()
+{
+	PLUTO_SAFETY_LOCK(vl,m_VL_MessageMutex);
+	if( CheckActivateMenu() || !m_pMenuNode_Current )
+		return;
+	m_pMenuNode_Current->Right();
+}
+
+void VFD_LCD_Base::Enter()
+{
+	PLUTO_SAFETY_LOCK(vl,m_VL_MessageMutex);
+	if( CheckActivateMenu() || !m_pMenuNode_Current )
+		return;
+	m_pMenuNode_Current->Enter();
+}
+
+void VFD_LCD_Base::Back()
+{
+	PLUTO_SAFETY_LOCK(vl,m_VL_MessageMutex);
+	if( CheckActivateMenu() || !m_pMenuNode_Current )
+		return;
+}
+
+void VFD_LCD_Base::Home()
+{
+	PLUTO_SAFETY_LOCK(vl,m_VL_MessageMutex);
+	if( CheckActivateMenu() || !m_pMenuNode_Current )
+		return;
+
+	if( m_pMenuStructure->m_pMenuNode==m_pMenuNode_Current )
+		SetMenuNode_Current(NULL);  // Already at the top, exit the menu
+	else
+		SetMenuNode_Current(m_pMenuStructure->m_pMenuNode);
+	pthread_cond_broadcast(&m_VL_MessageCond);
+}
+
+bool VFD_LCD_Base::CheckActivateMenu()
+{
+	if( !m_pMenuNode_Current && m_pMenuStructure && m_pMenuStructure->m_pMenuNode )
+	{
+		SetMenuNode_Current(m_pMenuStructure->m_pMenuNode);
+		pthread_cond_broadcast(&m_VL_MessageCond);
+		return true;
+	}
+	return false;
+}
+
+void VFD_LCD_Base::WakeUpThread()
+{
+	pthread_cond_broadcast(&m_VL_MessageCond);
+}
+

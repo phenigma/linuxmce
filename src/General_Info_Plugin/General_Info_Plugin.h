@@ -50,6 +50,8 @@ public:
 		}
 		return false;
 	}
+	// Private methods
+	list<pair<string, string> > GetUserBookmarks(string sPK_User);
 
 public:
 	// Public member variables
@@ -58,6 +60,7 @@ public:
     class DataGridTable *QuickStartApps( string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage );
     class DataGridTable *MRUDocuments( string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage );
     class DataGridTable *Rooms( string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage );
+	class DataGridTable *BookmarkList(string GridID, string Parms, void * ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
 
 //<-dceag-h-b->
 	/*

@@ -1174,7 +1174,7 @@ void Orbiter_Plugin::CMD_Get_Floorplan_Layout(string *sValue_To_Assign,string &s
         g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find orbiter for floorplan layout: %d",pMessage->m_dwPK_Device_From);
         return;
     }
-
+    PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
     (*sValue_To_Assign) = StringUtils::itos((int) pOH_Orbiter->m_mapFloorplanObjectVector.size()) + "|";
 
     g_pPlutoLogger->Write(LV_STATUS, "Set value of floorplan layout to: %s", (*sValue_To_Assign).c_str());
@@ -1320,97 +1320,115 @@ void Orbiter_Plugin::PrepareFloorplanInfo()
 {
 g_pPlutoLogger->Write(LV_STATUS,"Preparing floorplan");
     for(map<int,OH_Orbiter *>::iterator it=m_mapOH_Orbiter.begin();it!=m_mapOH_Orbiter.end();++it)
-    {
-        OH_Orbiter *pOH_Orbiter = (*it).second;
-
-        Row_Orbiter *pRow_Orbiter = m_pDatabase_pluto_main->Orbiter_get()->GetRow(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
-        if( !pRow_Orbiter )
-        {
-            g_pPlutoLogger->Write(LV_STATUS,"Cannot find Row_Orbiter for: %d",
-                pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
-            continue;
-        }
-
-        string s = pRow_Orbiter->FloorplanInfo_get();
-        string::size_type pos=0;
-
-        g_pPlutoLogger->Write(LV_STATUS, "This is a valid orbiter: %d fpinfo = %s", pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, s.c_str());
-        int NumDevices = atoi( StringUtils::Tokenize(s, "\t", pos).c_str());
-g_pPlutoLogger->Write(LV_STATUS,"Preparing floorplan %d devices",NumDevices);
-        for(int iDevice=0;iDevice<NumDevices;++iDevice)
-        {
-			// The device can be either a device, or an EntertainArea if this is the media floorplan
-            int PK_Device = atoi( StringUtils::Tokenize(s, "\t", pos).c_str());
-            g_pPlutoLogger->Write(LV_STATUS, "DeviceID: %d", PK_Device);
-            DeviceData_Router *pDeviceData_Router = m_pRouter->m_mapDeviceData_Router_Find(PK_Device);
-			EntertainArea *pEntertainArea = NULL;
-
-            if ( pDeviceData_Router == NULL )
-            {
-				pEntertainArea = m_pMedia_Plugin->m_mapEntertainAreas_Find(PK_Device);
-				if( !pEntertainArea )
-				{
-					g_pPlutoLogger->Write(LV_CRITICAL, "Device referred by the floorplan %d for orbiter %d does not exist", PK_Device, pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
-					// clean the bogus data
-					StringUtils::Tokenize(s, "\t", pos);
-					StringUtils::Tokenize(s, "\t", pos);
-					StringUtils::Tokenize(s, "\t", pos);
-					StringUtils::Tokenize(s, "\t", pos);
-					continue;
-				}
-            }
-
-			int FloorplanObjectType = pDeviceData_Router ?
-				atoi(pDeviceData_Router->mapParameters_Find(DEVICEDATA_PK_FloorplanObjectType_CONST).c_str()) :
-				m_pDatabase_pluto_main->EntertainArea_get()->GetRow(pEntertainArea->m_iPK_EntertainArea)->FK_FloorplanObjectType_get();
-            Row_FloorplanObjectType *pRow_FloorplanObjectType = m_pDatabase_pluto_main->FloorplanObjectType_get()->GetRow(FloorplanObjectType);
-
-            int Page = atoi( StringUtils::Tokenize(s, "\t", pos).c_str());
-            string ObjectID = StringUtils::Tokenize(s, "\t", pos);
-            int FillX = atoi( StringUtils::Tokenize(s, "\t", pos).c_str());
-            int FillY = atoi( StringUtils::Tokenize(s, "\t", pos).c_str());
-
-            g_pPlutoLogger->Write(LV_STATUS, "Got this data for the floorplan %d %d %d, %s", Page, FillX, FillY, ObjectID.c_str());
-            if ( pRow_FloorplanObjectType == NULL )
-            {
-                g_pPlutoLogger->Write(LV_STATUS, "Invalid Floorplan object type: %d", FloorplanObjectType);
-                continue;
-            }
-
-            string Description = pRow_FloorplanObjectType->Description_get();
-            g_pPlutoLogger->Write(LV_STATUS, "Got description %s", Description.c_str());
-            int FloorplanType = pRow_FloorplanObjectType->FK_FloorplanType_get();
-            g_pPlutoLogger->Write(LV_STATUS, "Got type %d page %d", FloorplanType,Page);
-
-            FloorplanObjectVectorMap *pFpObjMap = pOH_Orbiter->m_mapFloorplanObjectVector_Find(Page);
-            if( !pFpObjMap )
-            {
-                pFpObjMap = new FloorplanObjectVectorMap();
-                pOH_Orbiter->m_mapFloorplanObjectVector[Page] = pFpObjMap;
-            }
-
-            FloorplanObjectVector *fpVect = (*pFpObjMap)[FloorplanType];
-            if( !fpVect )
-            {
-                fpVect = new FloorplanObjectVector();
-                (*pFpObjMap)[FloorplanType] = fpVect;
-            }
-            FloorplanObject *fp = new FloorplanObject();
-            fp->PK_Device = PK_Device;
-            fp->m_pDeviceData_Router = pDeviceData_Router;
-			fp->m_pEntertainArea = pEntertainArea;
-            fp->Type = FloorplanObjectType;
-            fp->Page = Page;
-            fp->FillX = FillX;
-            fp->FillY = FillY;
-            fp->ObjectID = ObjectID;;
-            fp->ObjectTypeDescription = Description;
-            fpVect->push_back(fp);
-        }
-    }
-
+        PrepareFloorplanInfo(it->second);
     m_bFloorPlansArePrepared = true;
 }
+
+void Orbiter_Plugin::PrepareFloorplanInfo(OH_Orbiter *pOH_Orbiter)
+{
+    PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
+
+	for(map<int,FloorplanObjectVectorMap *>::iterator it1=pOH_Orbiter->m_mapFloorplanObjectVector.begin();it1!=pOH_Orbiter->m_mapFloorplanObjectVector.end();++it1)
+	{
+		FloorplanObjectVectorMap *pFloorplanObjectVectorMap = it1->second;
+		for(map<int,FloorplanObjectVector *>::iterator it2=pFloorplanObjectVectorMap->begin();it2!=pFloorplanObjectVectorMap->end();++it2)
+		{
+			FloorplanObjectVector *pFloorplanObjectVector = it2->second;
+			for(size_t s=0;s<pFloorplanObjectVector->size();++s)
+				delete (*pFloorplanObjectVector)[s];
+			delete pFloorplanObjectVector;
+		}
+		delete pFloorplanObjectVectorMap;
+	}
+	pOH_Orbiter->m_mapFloorplanObjectVector.clear();
+	
+	Row_Orbiter *pRow_Orbiter = m_pDatabase_pluto_main->Orbiter_get()->GetRow(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+    if( !pRow_Orbiter )
+    {
+        g_pPlutoLogger->Write(LV_STATUS,"Cannot find Row_Orbiter for: %d",
+            pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+        return;
+    }
+
+	pRow_Orbiter->Reload();  // Just in case this has since changed
+    string s = pRow_Orbiter->FloorplanInfo_get();
+    string::size_type pos=0;
+
+    g_pPlutoLogger->Write(LV_STATUS, "This is a valid orbiter: %d fpinfo = %s", pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, s.c_str());
+    int NumDevices = atoi( StringUtils::Tokenize(s, "\t", pos).c_str());
+g_pPlutoLogger->Write(LV_STATUS,"Preparing floorplan %d devices",NumDevices);
+    for(int iDevice=0;iDevice<NumDevices;++iDevice)
+    {
+		// The device can be either a device, or an EntertainArea if this is the media floorplan
+        int PK_Device = atoi( StringUtils::Tokenize(s, "\t", pos).c_str());
+        g_pPlutoLogger->Write(LV_STATUS, "DeviceID: %d", PK_Device);
+        DeviceData_Router *pDeviceData_Router = m_pRouter->m_mapDeviceData_Router_Find(PK_Device);
+		EntertainArea *pEntertainArea = NULL;
+
+        if ( pDeviceData_Router == NULL )
+        {
+			pEntertainArea = m_pMedia_Plugin->m_mapEntertainAreas_Find(PK_Device);
+			if( !pEntertainArea )
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL, "Device referred by the floorplan %d for orbiter %d does not exist", PK_Device, pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+				// clean the bogus data
+				StringUtils::Tokenize(s, "\t", pos);
+				StringUtils::Tokenize(s, "\t", pos);
+				StringUtils::Tokenize(s, "\t", pos);
+				StringUtils::Tokenize(s, "\t", pos);
+				continue;
+			}
+        }
+
+		int FloorplanObjectType = pDeviceData_Router ?
+			atoi(pDeviceData_Router->mapParameters_Find(DEVICEDATA_PK_FloorplanObjectType_CONST).c_str()) :
+			m_pDatabase_pluto_main->EntertainArea_get()->GetRow(pEntertainArea->m_iPK_EntertainArea)->FK_FloorplanObjectType_get();
+        Row_FloorplanObjectType *pRow_FloorplanObjectType = m_pDatabase_pluto_main->FloorplanObjectType_get()->GetRow(FloorplanObjectType);
+
+        int Page = atoi( StringUtils::Tokenize(s, "\t", pos).c_str());
+        string ObjectID = StringUtils::Tokenize(s, "\t", pos);
+        int FillX = atoi( StringUtils::Tokenize(s, "\t", pos).c_str());
+        int FillY = atoi( StringUtils::Tokenize(s, "\t", pos).c_str());
+
+        g_pPlutoLogger->Write(LV_STATUS, "Got this data for the floorplan %d %d %d, %s", Page, FillX, FillY, ObjectID.c_str());
+        if ( pRow_FloorplanObjectType == NULL )
+        {
+            g_pPlutoLogger->Write(LV_STATUS, "Invalid Floorplan object type: %d", FloorplanObjectType);
+            return;
+        }
+
+        string Description = pRow_FloorplanObjectType->Description_get();
+        g_pPlutoLogger->Write(LV_STATUS, "Got description %s", Description.c_str());
+        int FloorplanType = pRow_FloorplanObjectType->FK_FloorplanType_get();
+        g_pPlutoLogger->Write(LV_STATUS, "Got type %d page %d", FloorplanType,Page);
+
+        FloorplanObjectVectorMap *pFpObjMap = pOH_Orbiter->m_mapFloorplanObjectVector_Find(Page);
+        if( !pFpObjMap )
+        {
+            pFpObjMap = new FloorplanObjectVectorMap();
+            pOH_Orbiter->m_mapFloorplanObjectVector[Page] = pFpObjMap;
+        }
+
+        FloorplanObjectVector *fpVect = (*pFpObjMap)[FloorplanType];
+        if( !fpVect )
+        {
+            fpVect = new FloorplanObjectVector();
+            (*pFpObjMap)[FloorplanType] = fpVect;
+        }
+        FloorplanObject *fp = new FloorplanObject();
+        fp->PK_Device = PK_Device;
+        fp->m_pDeviceData_Router = pDeviceData_Router;
+		fp->m_pEntertainArea = pEntertainArea;
+        fp->Type = FloorplanObjectType;
+        fp->Page = Page;
+        fp->FillX = FillX;
+        fp->FillY = FillY;
+        fp->ObjectID = ObjectID;;
+        fp->ObjectTypeDescription = Description;
+        fpVect->push_back(fp);
+    }
+}
+
 //<-dceag-c255-b->
 
 	/** @brief COMMAND: #255 - Orbiter Registered */
@@ -1643,6 +1661,8 @@ void Orbiter_Plugin::CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Resu
 	{
 		pOH_Orbiter->m_tRegenTime = 0;
 		g_pPlutoLogger->Write(LV_STATUS,"Ready to reload the orbiter with id %d", iPK_Device);
+		mm.Release();
+		PrepareFloorplanInfo(pOH_Orbiter);
 	}
 }
 

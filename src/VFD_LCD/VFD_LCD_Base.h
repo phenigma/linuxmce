@@ -12,6 +12,8 @@
 #define VL_MSGTYPE_RUNTIME_ERRORS			9
 #define VL_MSGTYPE_RUNTIME_NOTICES			10
 
+#include "MenuStructure.h"
+
 class VFD_LCD_Message
 {
 public:
@@ -38,6 +40,10 @@ namespace DCE
 	public:
 		bool m_bVL_ThreadRunning;
 		void RunThread();
+		void WakeUpThread();
+		int iNumLines_get() { return m_iNumLines; }
+		int iNumVisibleColums_get() { return m_iNumVisibleColumns; }
+		void SetMenuNode_Current(class MenuNode *pMenuNode) { m_pMenuNode_Current=pMenuNode; }
 
 	protected:
 		pluto_pthread_mutex_t m_VL_MessageMutex;  // This will also protect the callback map
@@ -46,6 +52,8 @@ namespace DCE
 		bool m_bQuit_VL;
 		int m_iNumColumns,m_iNumLines,m_iNumVisibleColumns;
 		VFD_LCD_Message *m_pVFD_LCD_Message_new;
+		class MenuStructure *m_pMenuStructure;
+		class MenuNode *m_pMenuNode_Current;
 
 		map<int,MapMessages *> m_mapMessages;  // All active messages, by type
 		map<int,string> m_mapLastMessageByType; // The last message shown per type/name
@@ -65,6 +73,8 @@ namespace DCE
 		VFD_LCD_Base(int iNumColumns,int iNumLines,int iNumVisibleColumns);
 		virtual ~VFD_LCD_Base();
 
+		void SetMenuStructure(MenuStructure *pMenuStructure) { delete m_pMenuStructure; m_pMenuStructure=pMenuStructure; }
+
 		virtual void NewMessage(int iMessageType,string sName,string sMessage,int ExpiresSeconds);
 		virtual int UpdateDisplay();
 		virtual void DisplayMessage(VFD_LCD_Message *pVFD_LCD_Message);
@@ -80,6 +90,15 @@ namespace DCE
 		virtual void GetRipping(vector<string> *vectString,int iNumLines);
 
 		virtual void DoUpdateDisplay(vector<string> *vectString) {} // A derived class is expected to implement this
+		virtual bool CheckActivateMenu();
+
+		virtual void Up();
+		virtual void Down();
+		virtual void Left();
+		virtual void Right();
+		virtual void Enter();
+		virtual void Back();
+		virtual void Home();
 	};
 
 }
