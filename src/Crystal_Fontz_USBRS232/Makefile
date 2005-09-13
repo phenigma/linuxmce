@@ -19,10 +19,10 @@ sources = Main.cpp Crystal_Fontz_USBRS232.cpp $(Gen_Dev_Files)
 CXXFLAGS +=
 CPPFLAGS +=
 LDFLAGS +=
-XTRALDLIBS =
+XTRALDLIBS = -lSerial 
 
 Gen_Dev_Files +=
-sources +=
+sources += ../VFD_LCD/VFD_LCD_Base.cpp LowLevel.cpp ../VFD_LCD/CoreMenuStructure.cpp ../VFD_LCD/MenuNode.cpp
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)

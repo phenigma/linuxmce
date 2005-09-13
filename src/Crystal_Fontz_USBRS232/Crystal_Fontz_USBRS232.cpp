@@ -12,7 +12,7 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
-#include "lowlevel.h"
+#include "LowLevel.h"
 #include "../VFD_LCD/CoreMenuStructure.h"
 
 void *CF_Thread(void *p)
