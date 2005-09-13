@@ -28,9 +28,9 @@ if [ $hasRecords -ne 0 ]; then
 fi
 
 # Temporary code to remove everything related to Mozilla_Plugin
-RunSQL = "DELETE FROM Device where FK_DeviceTemplate=30" # We got rid of Mozilla Plugin
-rm /usr/pluto/bin/Mozilla_Plugin.so
-apt-get -y remove pluto-mozilla-plugin pluto-src-mozilla-plugin || true
+RunSQL "DELETE FROM Device where FK_DeviceTemplate=30" # We got rid of Mozilla Plugin
+rm -f /usr/pluto/bin/Mozilla_Plugin.so
+#apt-get -y remove pluto-mozilla-plugin pluto-src-mozilla-plugin || true
 
 
 if [ "$SkipDatabase" != "yes" ]; then
