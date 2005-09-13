@@ -102,22 +102,24 @@ BDCommandProcessor_Linux_Bluetooth::~BDCommandProcessor_Linux_Bluetooth()
 	if (m_CommHandle)
 	{
 		m_bQuit = true;
-		signal(SIGUSR1 ,DummySignalHandler);
+		signal(SIGUSR1, DummySignalHandler);
 		raise(SIGUSR1);
 		
 		time_t start = time(NULL);
+        g_pPlutoLogger->Write(LV_WARNING, "Waiting any operation with the socket to finish...");
 		while(m_bRunning)
 		{
 			if(time(NULL) - start > 5)
 				break;
 			
-			g_pPlutoLogger->Write(LV_STATUS, "Waiting any operation with the socket to finish...");
 			Sleep(50);
 		}
 		
 		close(m_CommHandle);
 		m_CommHandle = 0;
 	}
+
+    g_pPlutoLogger->Write(LV_WARNING, "BDCommandProcessor_Linux_Bluetooth is destroyed.");
 }
 
 bool BDCommandProcessor_Linux_Bluetooth::SendData(int size, const char *data)
