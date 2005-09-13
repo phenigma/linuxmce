@@ -2326,14 +2326,18 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
 	{
 		DesignObj_DataGrid *pGrid = (DesignObj_DataGrid *) m_pObj_Highlighted;
 	    PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
-		if( pGrid->m_iHighlightedRow==-1 && pGrid->m_iHighlightedColumn==-1 )
+
+        int nHColumn = pGrid->m_iHighlightedColumn!=-1 ? pGrid->m_iHighlightedColumn + pGrid->m_GridCurCol : pGrid->m_GridCurCol;
+        int nHRow = pGrid->m_iHighlightedRow!=-1 ? pGrid->m_iHighlightedRow + pGrid->m_GridCurRow : 0;
+        
+        if( nHColumn==-1 && nHRow==-1 )
 			return;
-		DataGridCell *pCell = pGrid->m_pDataGridTable->GetData(pGrid->m_iHighlightedColumn==-1 ? 0 : pGrid->m_iHighlightedColumn,
-			pGrid->m_iHighlightedRow==-1 ? 0 : pGrid->m_iHighlightedRow);
+
+        DataGridCell *pCell = pGrid->m_pDataGridTable->GetData(nHColumn, nHRow); 
 		if( !pCell )
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL,"Orbiter::DoHighlightObject cell is null.  obj %s col %d row %d",
-				m_pObj_Highlighted->m_ObjectID.c_str(),pGrid->m_iHighlightedColumn,pGrid->m_iHighlightedRow);
+				m_pObj_Highlighted->m_ObjectID.c_str(), nHColumn, nHRow);
 			return;
 
 		}
@@ -2362,19 +2366,18 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
 	m_pGraphicBeforeHighlight = GetBackground(m_rectLastHighlight);
 
 	PlutoGraphic *pPlutoGraphic = m_pGraphicBeforeHighlight->GetHighlightedVersion();
-	if( !pPlutoGraphic )
-		return;
-	RenderGraphic(pPlutoGraphic, m_rectLastHighlight);
+	if(pPlutoGraphic)
+    	RenderGraphic(pPlutoGraphic, m_rectLastHighlight);
 
     PlutoColor WhiteColor(255, 255, 255, 100);
     PlutoColor RedColor(255, 0, 0, 100);
 
-	HollowRectangle(m_rectLastHighlight.X, m_rectLastHighlight.Y, m_rectLastHighlight.Width - 1, m_rectLastHighlight.Height - 1, RedColor);
+    HollowRectangle(m_rectLastHighlight.X, m_rectLastHighlight.Y, m_rectLastHighlight.Width - 1, m_rectLastHighlight.Height - 1, RedColor);
     HollowRectangle(m_rectLastHighlight.X + 1, m_rectLastHighlight.Y + 1, m_rectLastHighlight.Width - 3, m_rectLastHighlight.Height - 3, RedColor);
     HollowRectangle(m_rectLastHighlight.X + 2, m_rectLastHighlight.Y + 2, m_rectLastHighlight.Width - 5, m_rectLastHighlight.Height - 5, WhiteColor);
     HollowRectangle(m_rectLastHighlight.X + 3, m_rectLastHighlight.Y + 3, m_rectLastHighlight.Width - 7, m_rectLastHighlight.Height - 7, WhiteColor);
 
-	UpdateRect(m_rectLastHighlight);
+    UpdateRect(m_rectLastHighlight);
 }
 
 /*virtual*/ void Orbiter::UnHighlightObject( bool bDeleteOnly )
@@ -2637,8 +2640,9 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
 			{
 				// We don't want the user to be able to just highlight cells without selecting, so select this cell
 				DataGridCell *pCell = pDesignObj_DataGrid->m_pDataGridTable->GetData(
-					pDesignObj_DataGrid->m_iHighlightedColumn!=-1 ? pDesignObj_DataGrid->m_iHighlightedColumn + pDesignObj_DataGrid->m_GridCurCol : 0,
-					pDesignObj_DataGrid->m_iHighlightedRow!=-1 ? pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow : 0);
+                    pDesignObj_DataGrid->m_iHighlightedColumn!=-1 ? pDesignObj_DataGrid->m_iHighlightedColumn + pDesignObj_DataGrid->m_GridCurCol : pDesignObj_DataGrid->m_GridCurCol,
+                    pDesignObj_DataGrid->m_iHighlightedRow!=-1 ? pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow : 0);
+
 				if( pCell )
 				{
 					PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
