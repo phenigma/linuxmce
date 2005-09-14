@@ -426,7 +426,7 @@ int PhoneDetection_Bluetooth_Linux::GetLinkQuality(const char *addr)
 	uint16_t *handle;
 	struct hci_conn_info_req *cr;
 	struct hci_request rq;
-	get_link_quality_rp rp;
+	read_link_quality_rp rp;
 	bdaddr_t bdaddr;
 	int dd;
 
@@ -476,11 +476,11 @@ int PhoneDetection_Bluetooth_Linux::GetLinkQuality(const char *addr)
 
 	memset(&rq, 0, sizeof(rq));
 	rq.ogf    = OGF_STATUS_PARAM;
-	rq.ocf    = OCF_GET_LINK_QUALITY;
+	rq.ocf    = OCF_READ_LINK_QUALITY;
 	rq.cparam = &cr->conn_info->handle;
 	rq.clen   = 2;
 	rq.rparam = &rp;
-	rq.rlen   = GET_LINK_QUALITY_RP_SIZE;
+	rq.rlen   = READ_LINK_QUALITY_RP_SIZE;
 
 	if (hci_send_req(dd, &rq, 100) < 0) {
 		printf("HCI get_link_quality request failed\n");
