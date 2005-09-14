@@ -41,8 +41,11 @@ using namespace std;
 #include "Table_DeviceTemplate_MediaType_DesignObj.h"
 #include "Table_DeviceTemplate_MediaType_DesignObj.h"
 #include "Table_DeviceTemplate_MediaType_DesignObj.h"
+#include "Table_DeviceTemplate_MediaType_DesignObj.h"
 #include "Table_FloorplanObjectType.h"
 #include "Table_MediaType.h"
+#include "Table_MediaType_DesignObj.h"
+#include "Table_MediaType_DesignObj.h"
 #include "Table_MediaType_DesignObj.h"
 #include "Table_MediaType_DesignObj.h"
 #include "Table_MediaType_DesignObj.h"
@@ -1705,6 +1708,13 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 class Table_DeviceTemplate_MediaType_DesignObj *pTable = table->database->DeviceTemplate_MediaType_DesignObj_get();
 pTable->GetRows("`FK_DesignObj_Guide`=" + StringUtils::itos(m_PK_DesignObj),rows);
 }
+void Row_DesignObj::DeviceTemplate_MediaType_DesignObj_FK_DesignObj_OSD_getrows(vector <class Row_DeviceTemplate_MediaType_DesignObj*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_DeviceTemplate_MediaType_DesignObj *pTable = table->database->DeviceTemplate_MediaType_DesignObj_get();
+pTable->GetRows("`FK_DesignObj_OSD`=" + StringUtils::itos(m_PK_DesignObj),rows);
+}
 void Row_DesignObj::FloorplanObjectType_FK_DesignObj_Control_getrows(vector <class Row_FloorplanObjectType*> *rows)
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
@@ -1739,6 +1749,20 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_MediaType_DesignObj *pTable = table->database->MediaType_DesignObj_get();
 pTable->GetRows("`FK_DesignObj_FileList`=" + StringUtils::itos(m_PK_DesignObj),rows);
+}
+void Row_DesignObj::MediaType_DesignObj_FK_DesignObj_Guide_getrows(vector <class Row_MediaType_DesignObj*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_MediaType_DesignObj *pTable = table->database->MediaType_DesignObj_get();
+pTable->GetRows("`FK_DesignObj_Guide`=" + StringUtils::itos(m_PK_DesignObj),rows);
+}
+void Row_DesignObj::MediaType_DesignObj_FK_DesignObj_OSD_getrows(vector <class Row_MediaType_DesignObj*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_MediaType_DesignObj *pTable = table->database->MediaType_DesignObj_get();
+pTable->GetRows("`FK_DesignObj_OSD`=" + StringUtils::itos(m_PK_DesignObj),rows);
 }
 void Row_DesignObj::QuickStartTemplate_FK_DesignObj_getrows(vector <class Row_QuickStartTemplate*> *rows)
 {

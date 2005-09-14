@@ -20,6 +20,7 @@ using namespace std;
 #include "Table_Document.h"
 
 #include "Table_DesignObj.h"
+#include "Table_DeviceTemplate.h"
 #include "Table_Document.h"
 #include "Table_Document_Comment.h"
 #include "Table_Package.h"
@@ -1037,6 +1038,13 @@ void Row_Document::DesignObj_FK_Document_getrows(vector <class Row_DesignObj*> *
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_DesignObj *pTable = table->database->DesignObj_get();
+pTable->GetRows("`FK_Document`=" + StringUtils::itos(m_PK_Document),rows);
+}
+void Row_Document::DeviceTemplate_FK_Document_getrows(vector <class Row_DeviceTemplate*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_DeviceTemplate *pTable = table->database->DeviceTemplate_get();
 pTable->GetRows("`FK_Document`=" + StringUtils::itos(m_PK_Document),rows);
 }
 void Row_Document::Document_FK_Document_Parent_getrows(vector <class Row_Document*> *rows)
