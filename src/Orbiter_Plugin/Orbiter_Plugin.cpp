@@ -488,7 +488,9 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
 			else
             {
                 //this is a known 'unknown device' :)
-                g_pPlutoLogger->Write(LV_STATUS,"Ignoring unknown device %s",sMacAddress.c_str());
+                g_pPlutoLogger->Write(LV_STATUS, "Skipping detection of %s. It is an 'unknown device'",sMacAddress.c_str());
+                DCE::CMD_Ignore_MAC_Address CMD_Ignore_MAC_Address(m_dwPK_Device, pDeviceFrom->m_dwPK_Device, sMacAddress);
+                SendCommand(CMD_Ignore_MAC_Address);
             }
 				
         }
