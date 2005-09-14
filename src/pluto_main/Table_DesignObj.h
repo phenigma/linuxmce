@@ -94,6 +94,8 @@ long int m_FK_StabilityStatus;
 long int m_FK_Document;
 short int m_CanGoBackToSameScreen;
 string m_ScreenType;
+long int m_FK_DesignObj_SubstForSkin;
+long int m_FK_Skin_SubstForSkin;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -101,7 +103,7 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[23];
+		bool is_null[25];
 	
 	public:
 		long int PK_DesignObj_get();
@@ -121,6 +123,8 @@ long int FK_StabilityStatus_get();
 long int FK_Document_get();
 short int CanGoBackToSameScreen_get();
 string ScreenType_get();
+long int FK_DesignObj_SubstForSkin_get();
+long int FK_Skin_SubstForSkin_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -146,6 +150,8 @@ void FK_StabilityStatus_set(long int val);
 void FK_Document_set(long int val);
 void CanGoBackToSameScreen_set(short int val);
 void ScreenType_set(string val);
+void FK_DesignObj_SubstForSkin_set(long int val);
+void FK_Skin_SubstForSkin_set(long int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -159,6 +165,8 @@ bool FK_DesignObj_IncludeIfOtherIncluded_isNull();
 bool TimeoutSeconds_isNull();
 bool FK_Document_isNull();
 bool ScreenType_isNull();
+bool FK_DesignObj_SubstForSkin_isNull();
+bool FK_Skin_SubstForSkin_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -171,6 +179,8 @@ void FK_DesignObj_IncludeIfOtherIncluded_setNull(bool val);
 void TimeoutSeconds_setNull(bool val);
 void FK_Document_setNull(bool val);
 void ScreenType_setNull(bool val);
+void FK_DesignObj_SubstForSkin_setNull(bool val);
+void FK_Skin_SubstForSkin_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -193,12 +203,15 @@ class Row_DesignObjCategory* FK_DesignObjCategory_getrow();
 class Row_DesignObj* FK_DesignObj_IncludeIfOtherIncluded_getrow();
 class Row_StabilityStatus* FK_StabilityStatus_getrow();
 class Row_Document* FK_Document_getrow();
+class Row_DesignObj* FK_DesignObj_SubstForSkin_getrow();
+class Row_Skin* FK_Skin_SubstForSkin_getrow();
 
 
 		// Return the rows in other tables with foreign keys pointing here
 		void CachedScreens_FK_DesignObj_getrows(vector <class Row_CachedScreens*> *rows);
 void CommandGroup_FK_DesignObj_getrows(vector <class Row_CommandGroup*> *rows);
 void DesignObj_FK_DesignObj_IncludeIfOtherIncluded_getrows(vector <class Row_DesignObj*> *rows);
+void DesignObj_FK_DesignObj_SubstForSkin_getrows(vector <class Row_DesignObj*> *rows);
 void DesignObjVariation_FK_DesignObj_getrows(vector <class Row_DesignObjVariation*> *rows);
 void DesignObjVariation_FK_DesignObj_Goto_getrows(vector <class Row_DesignObjVariation*> *rows);
 void DesignObjVariation_DesignObj_FK_DesignObj_Child_getrows(vector <class Row_DesignObjVariation_DesignObj*> *rows);
@@ -232,7 +245,7 @@ void Skin_FK_DesignObj_ScreenSaver_getrows(vector <class Row_Skin*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_DesignObj+ m_Description+ m_Define+ m_FK_DesignObjType+ m_FK_DesignObjCategory+ m_FK_DesignObj_IncludeIfOtherIncluded+ m_Priority+ m_KeepGraphicInCache+ m_AlwaysInclude+ m_CantGoBack+ m_CommandsProcessedAtServer+ m_TimeoutSeconds+ m_Animate+ m_FK_StabilityStatus+ m_FK_Document+ m_CanGoBackToSameScreen+ m_ScreenType+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_DesignObj+ m_Description+ m_Define+ m_FK_DesignObjType+ m_FK_DesignObjCategory+ m_FK_DesignObj_IncludeIfOtherIncluded+ m_Priority+ m_KeepGraphicInCache+ m_AlwaysInclude+ m_CantGoBack+ m_CommandsProcessedAtServer+ m_TimeoutSeconds+ m_Animate+ m_FK_StabilityStatus+ m_FK_Document+ m_CanGoBackToSameScreen+ m_ScreenType+ m_FK_DesignObj_SubstForSkin+ m_FK_Skin_SubstForSkin+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -254,6 +267,8 @@ string FK_StabilityStatus_asSQL();
 string FK_Document_asSQL();
 string CanGoBackToSameScreen_asSQL();
 string ScreenType_asSQL();
+string FK_DesignObj_SubstForSkin_asSQL();
+string FK_Skin_SubstForSkin_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();
