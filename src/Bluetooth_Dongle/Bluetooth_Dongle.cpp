@@ -650,12 +650,15 @@ void Bluetooth_Dongle::CMD_Link_with_mobile_orbiter(string sMac_address,string s
 
 	// Do this just to get the id
 	PhoneDevice pdTemp( "", sMac_address, 0 );
+
+    PLUTO_SAFETY_LOCK(mm,m_MapMutex);
 	PhoneDevice *pD = m_mapPhoneDevice_Detected_Find( pdTemp.m_iMacAddress );
 	if( !pD )
 	{
 		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot find device %s anymore to link to, map has %d entries", sMac_address.c_str(), (int) m_mapPhoneDevice_Detected.size());
 		return;
 	}
+    mm.Release();
 
     g_pPlutoLogger->Write( LV_WARNING, "About to connect to PlutoMO. We'll suspend scanning..." );
     SuspendScanning();

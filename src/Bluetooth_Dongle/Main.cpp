@@ -58,7 +58,9 @@ extern void (*g_pSocketCrashHandler)(Socket *pSocket);
 extern Command_Impl *g_pCommand_Impl;
 void DeadlockHandler(PlutoLock *pPlutoLock)
 {
-	// This isn't graceful, but for the moment in the event of a deadlock we'll just kill everything and force a reload
+    g_pPlutoLogger->Write(LV_CRITICAL,"DeadlockHandler");
+    
+    // This isn't graceful, but for the moment in the event of a deadlock we'll just kill everything and force a reload
 	if( g_pCommand_Impl )
 	{
 		if( g_pPlutoLogger )
@@ -68,6 +70,8 @@ void DeadlockHandler(PlutoLock *pPlutoLock)
 }
 void SocketCrashHandler(Socket *pSocket)
 {
+    g_pPlutoLogger->Write(LV_CRITICAL,"SocketCrashHandler");
+
 	// This isn't graceful, but for the moment in the event of a socket crash we'll just kill everything and force a reload
 	if( g_pCommand_Impl )
 	{
