@@ -42,6 +42,11 @@ RemoteControlSet::RemoteControlSet(Row_MediaType_DesignObj *pRow_MediaType_Desig
 	m_iPK_DesignObj_Remote_Popup=pRow_MediaType_DesignObj->FK_DesignObj_Popup_get();
 	m_iPK_DesignObj_FileList=pRow_MediaType_DesignObj->FK_DesignObj_FileList_get();
 	m_iPK_DesignObj_FileList_Popup=pRow_MediaType_DesignObj->FK_DesignObj_FileList_Popup_get();
+	m_iPK_DesignObj_Guide=pRow_MediaType_DesignObj->FK_DesignObj_Guide_get();
+    m_iPK_DesignObj_OSD=pRow_MediaType_DesignObj->FK_DesignObj_OSD_get();
+	m_iPK_DesignObj_Alt_Remote=pRow_MediaType_DesignObj->FK_DesignObj_Alt_get();
+	m_iPK_DesignObj_Alt_Popup=pRow_MediaType_DesignObj->FK_DesignObj_Alt_Popup_get();
+	m_iPK_DesignObj_Alt_OSD=pRow_MediaType_DesignObj->FK_DesignObj_Alt_OSD_get();
 }
 
 RemoteControlSet::RemoteControlSet(Row_DeviceTemplate_MediaType_DesignObj *pRow_DeviceTemplate_MediaType_DesignObj)
@@ -50,6 +55,11 @@ RemoteControlSet::RemoteControlSet(Row_DeviceTemplate_MediaType_DesignObj *pRow_
 	m_iPK_DesignObj_Remote_Popup=pRow_DeviceTemplate_MediaType_DesignObj->FK_DesignObj_Popup_get();
 	m_iPK_DesignObj_FileList=pRow_DeviceTemplate_MediaType_DesignObj->FK_DesignObj_FileList_get();
 	m_iPK_DesignObj_FileList_Popup=pRow_DeviceTemplate_MediaType_DesignObj->FK_DesignObj_FileList_Popup_get();
+	m_iPK_DesignObj_Guide=pRow_DeviceTemplate_MediaType_DesignObj->FK_DesignObj_Guide_get();
+    m_iPK_DesignObj_OSD=pRow_DeviceTemplate_MediaType_DesignObj->FK_DesignObj_OSD_get();
+	m_iPK_DesignObj_Alt_Remote=pRow_DeviceTemplate_MediaType_DesignObj->FK_DesignObj_Alt_get();
+	m_iPK_DesignObj_Alt_Popup=pRow_DeviceTemplate_MediaType_DesignObj->FK_DesignObj_Alt_Popup_get();
+	m_iPK_DesignObj_Alt_OSD=pRow_DeviceTemplate_MediaType_DesignObj->FK_DesignObj_Alt_OSD_get();
 }
 
 MediaStream::MediaStream( class MediaHandlerInfo *pMediaHandlerInfo, int iPK_MediaProvider, MediaDevice *pMediaDevice, int PK_Users, enum SourceType sourceType, int iStreamID )
@@ -57,8 +67,6 @@ MediaStream::MediaStream( class MediaHandlerInfo *pMediaHandlerInfo, int iPK_Med
 	m_dwPK_Disc=m_discid=0;
     m_iStreamID = iStreamID;
     m_pMediaHandlerInfo=pMediaHandlerInfo;
-	m_iPK_DesignObj_RemoteOSD=0;
-	m_pRemoteControlSet=NULL;
 	m_IdentifiedPriority=0;
 	m_iPK_MediaProvider=iPK_MediaProvider;
 	m_bPlugInWillSetDescription=false;
@@ -80,7 +88,7 @@ MediaStream::MediaStream( class MediaHandlerInfo *pMediaHandlerInfo, int iPK_Med
 	m_iPK_MediaType = pMediaHandlerInfo->m_PK_MediaType;
 	m_iRepeat = 0;
 	m_bStopped = false;
-
+	m_bUseAltScreens = false;
     m_pMediaDevice_Source=pMediaDevice;
 
     if ( m_pMediaHandlerInfo ) // If this stream is a "valid stream only"
@@ -261,21 +269,6 @@ bool MediaStream::OrbiterIsOSD(int PK_Orbiter,EntertainArea **ppEntertainArea)
 		}
 	}
 	return false;
-}
-
-int MediaStream::SpecialOsdScreen()
-{
-	switch( m_iPK_MediaType )
-	{
-	case MEDIATYPE_pluto_DVD_CONST:
-		return DESIGNOBJ_dvd_full_screen_CONST;
-	case MEDIATYPE_pluto_LiveTV_CONST:
-		return DESIGNOBJ_pvr_full_screen_CONST;
-	case MEDIATYPE_pluto_StoredVideo_CONST:
-		return DESIGNOBJ_storedvideos_full_screen_CONST;
-	}
-
-	return 0;
 }
 
 string MediaStream::GetAllOSD()

@@ -43,7 +43,7 @@ void MenuNode::Up()
 
 void MenuNode::Down()
 {
-	if( m_iSelectedEntry<m_vectMenuNode.size() )
+	if( m_iSelectedEntry<m_vectMenuNode.size()-1 )
 	{
 		m_iSelectedEntry++;
 		Rerender();
@@ -62,9 +62,12 @@ void MenuNode::Right()
 	if( m_iSelectedEntry>=0 && m_iSelectedEntry<m_vectMenuNode.size() )
 	{
 		MenuNode *pMenuNode = m_vectMenuNode[m_iSelectedEntry];
-		pMenuNode->m_pMenuNode_GoBack=this;
-		m_pMenuStructure->m_pVFD_LCD_Base->SetMenuNode_Current(pMenuNode);
-		Rerender();
+		if( pMenuNode->CanGoRight() )
+		{
+			pMenuNode->m_pMenuNode_GoBack=this;
+			m_pMenuStructure->m_pVFD_LCD_Base->SetMenuNode_Current(pMenuNode);
+			Rerender();
+		}
 	}
 }
 

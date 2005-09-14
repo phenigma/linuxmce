@@ -352,24 +352,7 @@ bool Xine_Plugin::MenuOnScreen( class Socket *pSocket, class Message *pMessage, 
 	if ( (pXineMediaStream = ConvertToXineMediaStream(m_pMedia_Plugin->m_mapMediaStream_Find( StreamID ), "Xine_Plugin::MenuOnScreen(): ")) == NULL )
 		return false;
 
-	if( bOnOff )
-	{
-		pXineMediaStream->m_iPK_DesignObj_Remote_After_Menu=pXineMediaStream->m_pRemoteControlSet->m_iPK_DesignObj_Remote;
-		pXineMediaStream->m_iPK_DesignObj_RemoteOSD_After_Menu=pXineMediaStream->m_iPK_DesignObj_RemoteOSD;
-		pXineMediaStream->m_iPK_DesignObj_Remote_Popup_After_Menu=pXineMediaStream->m_pRemoteControlSet->m_iPK_DesignObj_Remote_Popup;
-
-		pXineMediaStream->m_pRemoteControlSet->m_iPK_DesignObj_Remote=DESIGNOBJ_mnuDVDMenu_CONST;
-		pXineMediaStream->m_iPK_DesignObj_RemoteOSD=DESIGNOBJ_dvd_menu_full_screen_CONST;
-		pXineMediaStream->m_pRemoteControlSet->m_iPK_DesignObj_Remote_Popup=-1;  // -1 tells orbiter not to remove the popup--this is just temporary
-	}
-	else
-	{
-		pXineMediaStream->m_pRemoteControlSet->m_iPK_DesignObj_Remote=pXineMediaStream->m_iPK_DesignObj_Remote_After_Menu;
-		pXineMediaStream->m_iPK_DesignObj_RemoteOSD=pXineMediaStream->m_iPK_DesignObj_RemoteOSD_After_Menu;
-		pXineMediaStream->m_pRemoteControlSet->m_iPK_DesignObj_Remote_Popup=pXineMediaStream->m_iPK_DesignObj_Remote_Popup_After_Menu;
-		pXineMediaStream->m_iPK_DesignObj_Remote_After_Menu=pXineMediaStream->m_iPK_DesignObj_RemoteOSD_After_Menu=pXineMediaStream->m_iPK_DesignObj_Remote_Popup_After_Menu=0;
-	}
-
+	pXineMediaStream->m_bUseAltScreens=bOnOff;
 
 	g_pPlutoLogger->Write( LV_STATUS, "MediaStream %p with id %d and type %d reached an OnScreen Menu.", pXineMediaStream, pXineMediaStream->m_iStreamID_get( ), pXineMediaStream->m_iPK_MediaType );
 	g_pPlutoLogger->Write( LV_STATUS, "MediaStream m_mapEntertainArea.size( ) %d", pXineMediaStream->m_mapEntertainArea.size( ) );

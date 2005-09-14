@@ -411,12 +411,23 @@ public:
 	void SetNowPlaying( int dwPK_Device, MediaStream *pMediaStream, bool bRefreshScreen, Message *pMessage=NULL )
 	{
 		string sRemotes;
-		if( pMediaStream && pMediaStream->m_pRemoteControlSet )
-			sRemotes = StringUtils::itos(pMediaStream->m_pRemoteControlSet->m_iPK_DesignObj_Remote) + ","
-				+ StringUtils::itos(pMediaStream->m_pRemoteControlSet->m_iPK_DesignObj_Remote_Popup) + ","
-				+ StringUtils::itos(pMediaStream->m_pRemoteControlSet->m_iPK_DesignObj_FileList) + ","
-				+ StringUtils::itos(pMediaStream->m_pRemoteControlSet->m_iPK_DesignObj_FileList_Popup) + ","
-				+ StringUtils::itos(pMediaStream->m_iPK_DesignObj_RemoteOSD);
+		if( pMediaStream )
+		{
+			RemoteControlSet *pRemoteControlSet = pMediaStream->m_mapRemoteControlSet[dwPK_Device];
+			if( !pRemoteControlSet )
+			{
+				pRemoteControlSet = PickRemoteControlMap(
+					dwPK_Device,
+					pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_DeviceTemplate,
+					pMediaStream->m_iPK_MediaType);
+				pMediaStream->m_mapRemoteControlSet[dwPK_Device]=pRemoteControlSet;
+			}
+			sRemotes = StringUtils::itos(pMediaStream->m_bUseAltScreens && pRemoteControlSet->m_iPK_DesignObj_Alt_Remote ? pRemoteControlSet->m_iPK_DesignObj_Alt_Remote : pRemoteControlSet->m_iPK_DesignObj_Remote) + ","
+				+ StringUtils::itos(pMediaStream->m_bUseAltScreens && pRemoteControlSet->m_iPK_DesignObj_Alt_Popup ? pRemoteControlSet->m_iPK_DesignObj_Alt_Popup : pRemoteControlSet->m_iPK_DesignObj_Remote_Popup) + ","
+				+ StringUtils::itos(pRemoteControlSet->m_iPK_DesignObj_FileList) + ","
+				+ StringUtils::itos(pRemoteControlSet->m_iPK_DesignObj_FileList_Popup) + ","
+				+ StringUtils::itos(pMediaStream->m_bUseAltScreens && pRemoteControlSet->m_iPK_DesignObj_Alt_OSD ? pRemoteControlSet->m_iPK_DesignObj_Alt_OSD : pRemoteControlSet->m_iPK_DesignObj_OSD);
+		}
 
 		int PK_Device_Source=0,iDequeMediaFile=0;
 		string sFilename;

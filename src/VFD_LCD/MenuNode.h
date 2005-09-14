@@ -12,8 +12,9 @@ namespace DCE
 		MenuNode *m_pMenuNode_GoBack;
 
 		MenuNode(MenuStructure *pMenuStructure,string sText) { m_pMenuNode_GoBack=NULL; m_pMenuStructure=pMenuStructure; m_sText=sText; m_iSelectedEntry=0; m_iFirstDrawnEntry=0; }
+		virtual void PrepareNodes() { m_iSelectedEntry=0; m_iFirstDrawnEntry=0; }
 		void Render(vector<string> *str);
-		string GetText() { return m_sText; }
+		virtual string GetText() { return m_sText; }
 
 		int m_iSelectedEntry,m_iFirstDrawnEntry;
 

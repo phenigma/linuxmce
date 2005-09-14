@@ -28,15 +28,6 @@ namespace DCE {
 
 	XineMediaStream::~XineMediaStream()
 	{
-		if( m_pRemoteControlSet )
-		{
-			if( m_iPK_DesignObj_Remote_After_Menu )
-				m_pRemoteControlSet->m_iPK_DesignObj_Remote=m_iPK_DesignObj_Remote_After_Menu;
-			if( m_iPK_DesignObj_RemoteOSD_After_Menu )
-				m_iPK_DesignObj_RemoteOSD=m_iPK_DesignObj_RemoteOSD_After_Menu;
-			if( m_iPK_DesignObj_Remote_Popup_After_Menu )
-				m_pRemoteControlSet->m_iPK_DesignObj_Remote_Popup=m_iPK_DesignObj_Remote_Popup_After_Menu;
-		}
 	}
 
 	int XineMediaStream::GetType()

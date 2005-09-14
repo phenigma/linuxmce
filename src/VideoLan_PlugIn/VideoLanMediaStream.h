@@ -40,8 +40,6 @@ namespace DCE
 			void setIsStreaming(bool isStreaming = true);
 
 			bool CanPlayMore();
-
-			int SpecialOsdScreen();
 	};
 
 };

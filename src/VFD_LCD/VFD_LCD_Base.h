@@ -43,7 +43,7 @@ namespace DCE
 		void WakeUpThread();
 		int iNumLines_get() { return m_iNumLines; }
 		int iNumVisibleColums_get() { return m_iNumVisibleColumns; }
-		void SetMenuNode_Current(class MenuNode *pMenuNode) { m_pMenuNode_Current=pMenuNode; }
+		void SetMenuNode_Current(class MenuNode *pMenuNode) { m_pMenuNode_Current=pMenuNode; if( m_pMenuNode_Current ) m_pMenuNode_Current->PrepareNodes(); }
 
 	protected:
 		pluto_pthread_mutex_t m_VL_MessageMutex;  // This will also protect the callback map

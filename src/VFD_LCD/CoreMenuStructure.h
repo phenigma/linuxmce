@@ -2,6 +2,7 @@
 #define CoreMenuStructure_h
 
 #include "MenuStructure.h"
+#include "MenuNode.h"
 
 namespace DCE
 {
@@ -11,5 +12,28 @@ namespace DCE
 		CoreMenuStructure(class VFD_LCD_Base *pVFD_LCD_Base); 
 	};
 
+	class CPUTemperature : public MenuNode
+	{
+	public:
+		CPUTemperature(MenuStructure *pMenuStructure,string sText) : MenuNode(pMenuStructure,sText) {}
+		virtual string GetText() { return "CPU is 98 degrees"; }
+	};
+
+	class ActiveProcesses : public MenuNode
+	{
+	public:
+		ActiveProcesses(MenuStructure *pMenuStructure,string sText) : MenuNode(pMenuStructure,sText) {}
+		virtual void PrepareNodes();
+		virtual bool CanGoRight() { return true; };
+	};
+
+	class ActiveProcess : public MenuNode
+	{
+		int m_PID;
+	public:
+		ActiveProcess(int PID,MenuStructure *pMenuStructure,string sText);
+		virtual void Enter();
+		virtual bool CanGoRight() { return true; };
+	};
 }
 #endif

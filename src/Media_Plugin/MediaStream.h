@@ -27,6 +27,12 @@ namespace DCE
         int 	m_iPK_DesignObj_Remote_Popup; 		/** What screen to use as the popup remote control */
         int 	m_iPK_DesignObj_FileList; 			/** What screen to use as the file list */
         int 	m_iPK_DesignObj_FileList_Popup; 	/** What screen to use as the file list popup */
+        int 	m_iPK_DesignObj_Guide; 				/** What screen to use for a guide, such as a program guide */
+        int 	m_iPK_DesignObj_OSD; 				/** What screen to use as the remote if this is an on screen display */
+		int		m_iPK_DesignObj_Alt_Remote;				/** The Alt versions are used for example for DVD Menu's, or non-live TV */
+		int		m_iPK_DesignObj_Alt_Popup;
+		int		m_iPK_DesignObj_Alt_OSD;
+ 
 		RemoteControlSet(Row_MediaType_DesignObj *);
 		RemoteControlSet(Row_DeviceTemplate_MediaType_DesignObj *);
 	};
@@ -82,9 +88,9 @@ namespace DCE
 		char 		*m_pPictureData;
         size_t 		 m_iPictureSize;
 
-        int 	m_iPK_DesignObj_RemoteOSD; 		/** What screen to use as the remote control for the on-screen orbiter */
-
-		RemoteControlSet *m_pRemoteControlSet;  /** The remote controls to use for this stream */
+		map<int,RemoteControlSet *>	m_mapRemoteControlSet;  /** The remote controls to use for this stream, the int=the orbiter 
+															Since each orbiter may have a different set of remote controls. 
+															We will add remotes here as they come up*/
 
 		bool 	m_bPlaying;        				/** True if the media is now playing */
 
@@ -96,6 +102,7 @@ namespace DCE
 		int 	m_iOrder;  						/** This is used for the floorplans to order and color code the streams */
 		int		m_iRepeat;						/** Indicates if this media should repeat */
 		bool 	m_bResume; 						/** < True if this media was started with the 'resume' flag, meaning when it ends, resume what was playing previously */
+		bool 	m_bUseAltScreens;				/** < These are used */
 
 		bool	m_bStopped;						/** Set when we stop the stream, so that if we later get a playback completed we know we already stopped it and don't need to do anything more */
 
@@ -149,8 +156,6 @@ namespace DCE
 		virtual bool OrbiterIsOSD(int PK_Orbiter,EntertainArea **ppEntertainArea=NULL);
 
 		virtual void GetRenderDevices(map<int, MediaDevice *> *pmapMediaDevices);
-
-		virtual int SpecialOsdScreen(); // Returns 0 if this stream has a special object for OSD
 
 		virtual void DeleteEntryFromPlaylist(int position);
 		virtual void MoveEntryInPlaylist(int position, int displacement);

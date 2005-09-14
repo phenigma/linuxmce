@@ -885,11 +885,6 @@ public:
 
 bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 {
-	pMediaStream->m_pRemoteControlSet = PickRemoteControlMap(
-		(pMediaStream->m_pOH_Orbiter_StartedMedia ? pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device : 0),
-		pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_DeviceTemplate,
-		pMediaStream->m_iPK_MediaType);
-
 	map<int,class OldStreamInfo *> mapOldStreamInfo;
 
 	if( !pMediaStream->m_pMediaDevice_Source )
@@ -989,9 +984,6 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 			g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::StartMedia() done - not sending to remote since stream is marked resumte");
 			return true;
 		}
-
-		// See if there's a special screen for the OSD
-		pMediaStream->m_iPK_DesignObj_RemoteOSD = pMediaStream->SpecialOsdScreen();
 
 		pMediaStream->UpdateDescriptions(true);
 		MediaInfoChanged( pMediaStream, pMediaStream->m_dequeMediaFile.size()>1 );
@@ -4142,7 +4134,7 @@ void Media_Plugin::PopulateRemoteControlMaps()
 		for(size_t s=0;s<vectRow_DeviceTemplate_MediaType_DesignObj.size();++s)
 		{
 			Row_DeviceTemplate_MediaType_DesignObj *pRow_DeviceTemplate_MediaType_DesignObj = vectRow_DeviceTemplate_MediaType_DesignObj[s];
-			if( pRow_DeviceTemplate_MediaType_DesignObj->FK_Skin_isNull() || pRow_DeviceTemplate_MediaType_DesignObj->FK_Skin_isNull()!=pOH_Orbiter->m_dwPK_Skin )
+			if( pRow_DeviceTemplate_MediaType_DesignObj->FK_Skin_isNull() || pRow_DeviceTemplate_MediaType_DesignObj->FK_Skin_get()!=pOH_Orbiter->m_dwPK_Skin )
 				continue;  // No skin to overwrite for this orbiter
 
 			m_mapOrbiter_DeviceTemplate_MediaType_RemoteControl[ 
@@ -4157,8 +4149,9 @@ void Media_Plugin::PopulateRemoteControlMaps()
 		for(size_t s=0;s<vectRow_MediaType_DesignObj.size();++s)
 		{
 			Row_MediaType_DesignObj *pRow_MediaType_DesignObj = vectRow_MediaType_DesignObj[s];
-			if( pRow_MediaType_DesignObj->FK_Skin_isNull() || pRow_MediaType_DesignObj->FK_Skin_isNull()!=pOH_Orbiter->m_dwPK_Skin )
+			if( pRow_MediaType_DesignObj->FK_Skin_isNull() || pRow_MediaType_DesignObj->FK_Skin_get()!=pOH_Orbiter->m_dwPK_Skin )
 				continue;  // No skin to overwrite for this orbiter
+int k=2;
 			m_mapOrbiter_MediaType_RemoteControl[
 				make_pair<int,int> (pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
 					pRow_MediaType_DesignObj->FK_MediaType_get() )

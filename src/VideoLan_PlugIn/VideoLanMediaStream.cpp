@@ -71,15 +71,4 @@ namespace DCE {
 		return MediaStream::CanPlayMore();
 	}
 
-	int VideoLanMediaStream::SpecialOsdScreen()
-	{
-		switch( m_iPK_MediaType )
-		{
-		case MEDIATYPE_pluto_DVD_CONST:
-			return DESIGNOBJ_vlc_dvd_full_screen_CONST;
-		}
-
-		return MediaStream::SpecialOsdScreen();
-	}
-
 };

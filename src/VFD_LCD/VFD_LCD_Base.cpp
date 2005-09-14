@@ -81,6 +81,7 @@ void VFD_LCD_Base::NewMessage(int iMessageType,string sName,string sMessage,int 
 
 int VFD_LCD_Base::UpdateDisplay()
 {
+g_pPlutoLogger->Write(LV_STATUS,"UpdateDisp");
 	if( m_pMenuNode_Current )
 	{
 		vector<string> str;
@@ -332,7 +333,7 @@ void VFD_LCD_Base::GetRipping(vector<string> *vectString,int iNumLines)
 
 void VFD_LCD_Base::Up()
 {
-	PLUTO_SAFETY_LOCK(vl,m_VL_MessageMutex);
+g_pPlutoLogger->Write(LV_STATUS,"UP");
 	if( CheckActivateMenu() || !m_pMenuNode_Current )
 		return;
 	m_pMenuNode_Current->Up();
@@ -340,7 +341,7 @@ void VFD_LCD_Base::Up()
 
 void VFD_LCD_Base::Down()
 {
-	PLUTO_SAFETY_LOCK(vl,m_VL_MessageMutex);
+g_pPlutoLogger->Write(LV_STATUS,"dOWN");
 	if( CheckActivateMenu() || !m_pMenuNode_Current )
 		return;
 	m_pMenuNode_Current->Down();
