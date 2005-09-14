@@ -146,8 +146,7 @@ void PhoneDetectionEngine::DetectionLogic()
 	list<PhoneDevice *>::iterator itLost;
 	for(itLost = listDevicesLost.begin();itLost != listDevicesLost.end();++itLost)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Lost connection to device: mac %s, id %s", 
-			(*itLost)->m_sMacAddress.c_str(), (*itLost)->m_sID.c_str());
+		g_pPlutoLogger->Write(LV_WARNING, "Lost connection to device: mac %s, id %s", (*itLost)->m_sMacAddress.c_str(), (*itLost)->m_sID.c_str());
 		Intern_LostDevice(*itLost);
 	}
 
@@ -238,12 +237,14 @@ g_pPlutoLogger->Write(LV_WARNING, "Map contains Cannot remove device %s from the
 
 void PhoneDetectionEngine::AddDeviceToDetectionList(class PhoneDevice *pDevice)
 {
+    PLUTO_SAFETY_LOCK(vm,m_VariableMutex);
 	if( m_mapIgnoreMacs.find(pDevice->m_iMacAddress)!=m_mapIgnoreMacs.end() )
 	{
 g_pPlutoLogger->Write(LV_WARNING,"Ignoring MAC: %s",pDevice->m_sMacAddress.c_str());
 		delete pDevice;
 		return;
 	}
+    vm.Release();
 
 	PLUTO_SAFETY_LOCK(mm,m_MapMutex);
 	m_mapDevicesDetectedThisScan[pDevice->m_iMacAddress] = pDevice;

@@ -16,6 +16,8 @@ public:
 	map<u_int64_t,class PhoneDevice *> m_mapDevicesDetectedThisScan;
 	map<u_int64_t,bool> m_mapIgnoreMacs; // Just a map to detect presence.  The bool isn't used
 
+    map<u_int64_t,string> m_mapKnownNames;//If a phone was detected already, we'll find its name here
+
 	bool m_bInScanLoop; // True if it's in the scanning loop
 	bool m_bAbortScanLoop;  // True when we are in the process of Aborting the scan
     
@@ -24,16 +26,18 @@ public:
     bool m_bScanningSuspended; 
 	
     pthread_t m_ThreadID;
-	pluto_pthread_mutex_t m_MapMutex,m_StartStopMutex;
+	pluto_pthread_mutex_t m_MapMutex,m_StartStopMutex,m_VariableMutex;
 	pthread_mutexattr_t m_MutexAttr;
 
 	PhoneDetectionEngine() 
-		: 	m_MapMutex("detect map mutex"),m_StartStopMutex("detect ss mutex")	{ 
-
+		: 	m_MapMutex("detect map mutex"),m_StartStopMutex("detect ss mutex"),
+            m_VariableMutex("other maps mutex")
+    { 
 		pthread_mutexattr_init( &m_MutexAttr );
 		pthread_mutexattr_settype( &m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP );
 		m_MapMutex.Init(&m_MutexAttr);
 		m_StartStopMutex.Init(NULL);
+        m_VariableMutex.Init(NULL);
 		m_bInScanLoop=false;
 		m_bAbortScanLoop=false;
         m_bScanningSuspended = false;
@@ -43,6 +47,11 @@ public:
 	{ 
 		g_pPlutoLogger->Write(LV_STATUS,"Phone Detection Engine terminating");
 		StopScanning(); 
+
+        pthread_mutex_destroy(&m_VariableMutex.mutex);
+        pthread_mutex_destroy(&m_StartStopMutex.mutex);
+        pthread_mutex_destroy(&m_MapMutex.mutex);
+        pthread_mutexattr_destroy(&m_MutexAttr);
 	}
 
 	PhoneDevice *m_mapPhoneDevice_Detected_Find(u_int64_t MacAddress)
