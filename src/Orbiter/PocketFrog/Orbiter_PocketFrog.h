@@ -105,10 +105,10 @@ public:
 		int nImageWidth, int nImageHeight, bool bFullScreen = false);
 	static Orbiter_PocketFrog *GetInstance();
 
-	static inline Pixel GetColor16(PlutoColor color);
-	static inline BYTE GetRedColor(Pixel pixel);
-	static inline BYTE GetGreenColor(Pixel pixel);
-	static inline BYTE GetBlueColor(Pixel pixel);
+	static Pixel GetColor16(PlutoColor color);
+	static BYTE GetRedColor(Pixel pixel);
+	static BYTE GetGreenColor(Pixel pixel);
+	static BYTE GetBlueColor(Pixel pixel);
 
 	void WriteStatusOutput(const char* pMessage);
 

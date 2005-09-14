@@ -28,6 +28,8 @@ PocketFrogGraphic::PocketFrogGraphic(Surface *pSurface)
 	Initialize();
 
 	m_pSurface = pSurface;
+    Width = pSurface->GetWidth();
+    Height = pSurface->GetHeight();
 }
 //-------------------------------------------------------------------------------------------------------
 PocketFrogGraphic::~PocketFrogGraphic()
@@ -101,4 +103,39 @@ void PocketFrogGraphic::Clear()
 
 	m_pSurface = NULL;
 }
+//-------------------------------------------------------------------------------------------------------
+
+PlutoGraphic *PocketFrogGraphic::GetHighlightedVersion()
+{
+    DisplayDevice *pDisplayDevice = Orbiter_PocketFrog::GetInstance()->GetOrbiterDisplay();
+
+    Rect srcRect;
+    srcRect.Set(0, 0, Width, Height);
+
+    Rasterizer *pSourceRasterizer = pDisplayDevice->CreateRasterizer(m_pSurface);
+
+    Surface *pSurface = pDisplayDevice->CreateSurface(Width, Height);
+    Rasterizer *pDestionationRasterizer = pDisplayDevice->CreateRasterizer(pSurface);
+    pDestionationRasterizer->Blit(0, 0, m_pSurface, &srcRect);
+
+    Pixel pixelCurrent;
+    Pixel pixelHightlighted;
+    for (int j = 0; j < Height; j++)
+    {
+        for (int i = 0; i < Width; i++)
+        {
+            pixelCurrent = pSourceRasterizer->GetPixel(i, j);
+
+            int R = min(255, Orbiter_PocketFrog::GetRedColor(pixelCurrent) + 30);
+            int G = min(255, Orbiter_PocketFrog::GetGreenColor(pixelCurrent) + 30);
+            int B = min(255, Orbiter_PocketFrog::GetBlueColor(pixelCurrent) + 30);
+
+            pixelHightlighted = Orbiter_PocketFrog::GetColor16(PlutoColor(R, G, B, 0));
+            pDestionationRasterizer->SetPixel(i, j, pixelHightlighted);
+        }
+    }
+
+    return new PocketFrogGraphic(pSurface);
+}
+
 //-------------------------------------------------------------------------------------------------------

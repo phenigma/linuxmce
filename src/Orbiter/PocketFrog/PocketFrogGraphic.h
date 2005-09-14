@@ -19,6 +19,7 @@ public:
 	bool IsEmpty() { return NULL == m_pSurface; }
 	bool LoadGraphic(char *pData, size_t iSize,int iRotation=0);
 	void Clear(); 
+    PlutoGraphic *GetHighlightedVersion();
 
 	class Surface *m_pSurface;
 };

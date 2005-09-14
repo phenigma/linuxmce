@@ -13,6 +13,8 @@
 #include "../pluto_main/Define_VertAlignment.h" 
 #include "../pluto_main/Define_HorizAlignment.h" 
 
+//#include "Defs.h" //pocketfrog
+
 using namespace Frog;
 using namespace Frog::Internal;
 
@@ -25,10 +27,6 @@ const int ciSpaceHeight = 5;
 
 static int g_nCounter = 0;
 //-----------------------------------------------------------------------------------------------------
-#define RED_MASK_16		(0x1F << 11)
-#define GREEN_MASK_16	(0x3F << 5)
-#define BLUE_MASK_16	0x1F
-
 #define MAX_STRING_LEN 1024
 //-----------------------------------------------------------------------------------------------------
 using namespace Frog;
@@ -274,24 +272,25 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
     Orbiter::ProcessEvent(orbiterEvent);
 }
 //-----------------------------------------------------------------------------------------------------
-/*static inline*/ Pixel Orbiter_PocketFrog::GetColor16(PlutoColor color)
+/*static*/ Pixel Orbiter_PocketFrog::GetColor16(PlutoColor color)
 {
-	return (Pixel)(((color.R() << 8) & RED_MASK_16) | ((color.G() << 3) & GREEN_MASK_16) | (color.B() >> 3));		
+	//return (Pixel)(((color.R() << RED_SHIFT) & RED_MASK) | ((color.G() << 3) & GREEN_MASK) | (color.B() >> 3));		
+    return Color(color.R(), color.G(), color.B());
 }
 //-----------------------------------------------------------------------------------------------------
-/*static inline*/ BYTE Orbiter_PocketFrog::GetRedColor(Pixel pixel)
+/*static*/ BYTE Orbiter_PocketFrog::GetRedColor(Pixel pixel)
 {
-	return (pixel & RED_MASK >> RED_SHIFT);
+	return (pixel & RED_MASK)   >> (RED_SHIFT - (8 - RED_BITS));
 }
 //-----------------------------------------------------------------------------------------------------
-/*static inline*/ BYTE Orbiter_PocketFrog::GetGreenColor(Pixel pixel)
+/*static*/ BYTE Orbiter_PocketFrog::GetGreenColor(Pixel pixel)
 {
-	return (pixel & GREEN_MASK >> GREEN_SHIFT);
+	return (pixel & GREEN_MASK) >> (GREEN_SHIFT - (8 - GREEN_BITS));
 }
 //-----------------------------------------------------------------------------------------------------
-/*static inline*/ BYTE Orbiter_PocketFrog::GetBlueColor(Pixel pixel)
+/*static*/ BYTE Orbiter_PocketFrog::GetBlueColor(Pixel pixel)
 {
-	return (pixel & BLUE_MASK >> BLUE_SHIFT);
+	return (pixel & BLUE_MASK)  << (8 - BLUE_BITS); 
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::SolidRectangle(int x, int y, int width, int height, PlutoColor color, int Opacity)
