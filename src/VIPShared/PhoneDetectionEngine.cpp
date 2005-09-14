@@ -146,6 +146,14 @@ void PhoneDetectionEngine::DetectionLogic()
 	list<PhoneDevice *>::iterator itLost;
 	for(itLost = listDevicesLost.begin();itLost != listDevicesLost.end();++itLost)
 	{
+        PLUTO_SAFETY_LOCK(vm,m_VariableMutex);
+        if( m_mapIgnoreMacs.find((*itLost)->m_iMacAddress)!=m_mapIgnoreMacs.end() )
+        {
+            g_pPlutoLogger->Write(LV_STATUS,"%s device is ignored. No lost connection sent",(*itLost)->m_sMacAddress.c_str());
+            continue;
+        }
+        vm.Release();
+		
 		g_pPlutoLogger->Write(LV_WARNING, "Lost connection to device: mac %s, id %s", (*itLost)->m_sMacAddress.c_str(), (*itLost)->m_sID.c_str());
 		Intern_LostDevice(*itLost);
 	}

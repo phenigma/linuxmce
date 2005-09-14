@@ -77,12 +77,10 @@ bool PhoneDetection_Bluetooth_Linux::ScanningLoop()
      if(m_bScanningSuspended)
          return true;
 
-g_pPlutoLogger->Write(LV_STATUS,"loop 1 m_mapPhoneDevice_Detected size: %d",(int) m_mapPhoneDevice_Detected.size());
 	g_pPlutoLogger->Write(LV_STATUS, "Start of scan loop");
-	//printf("Start of scan loop %p\n",g_pPlutoLogger);
 	int num_rsp, length, flags, dev_id = 0;
 
-	length  = 8;	/* ~10 seconds */
+	length  = 10;	/* ~13 seconds */
 	num_rsp = 100;
 	flags   = 0;
 	const uint8_t *lap=NULL;
@@ -96,7 +94,7 @@ g_pPlutoLogger->Write(LV_STATUS,"loop 1 m_mapPhoneDevice_Detected size: %d",(int
 	struct hci_filter flt, old_flt;
 	struct sigaction sa, sa_term, sa_int;
 	struct pollfd p;
-	int i, dd, len, err = 0, cancel = 1, cur_rsp = 0;
+	int i, dd, len, err = 0, cancel = 1;
 
     time_t t_start;
 	bool bStartToTimeout = false;
@@ -192,7 +190,7 @@ g_pPlutoLogger->Write(LV_STATUS,"loop 1 m_mapPhoneDevice_Detected size: %d",(int
 		cp.lap[2] = 0x9e;
 	}
 
-	printf("# ready to send command\n");
+	//printf("# ready to send command\n");
 
 	cp.length = length;
 	cp.num_rsp = num_rsp;
@@ -219,9 +217,9 @@ g_pPlutoLogger->Write(LV_STATUS,"loop 1 m_mapPhoneDevice_Detected size: %d",(int
 				bStartToTimeout = true;
 			}
 
-			if(time(NULL) - t_start > 10) //more then 10 sec while the poll keeps timing out
+			if(time(NULL) - t_start > 20) //more then 10 sec while the poll keeps timing out
 			{
-				g_pPlutoLogger->Write(LV_CRITICAL, "poll continued to time out last 10 seconds... reloading Bluetooth_Dongle");
+				g_pPlutoLogger->Write(LV_CRITICAL, "poll continued to time out last 20 seconds... reloading Bluetooth_Dongle");
 				exit(1);
 				return false;
 			}
@@ -245,22 +243,29 @@ g_pPlutoLogger->Write(LV_STATUS,"loop 1 m_mapPhoneDevice_Detected size: %d",(int
 		{
 			bStartToTimeout = false;
 
-			printf("# in poll\n");
+			//printf("# in poll\n");
 			/* Read the next HCI event (in H4 format) */
 			len = read(dd, buf, sizeof(buf));
-			printf("# got: %d\n",len);
+			printf("# poll - got: %d\n",len);
 			if (len < HCI_EVENT_HDR_SIZE + 1)
+			{
+				printf("#poll - len too small, continuing...\n");
 				continue;
+			}
 
 			hdr = (hci_event_hdr *) (void *) (buf + 1);
 			ptr = buf + (1 + HCI_EVENT_HDR_SIZE);
 			len -= (1 + HCI_EVENT_HDR_SIZE);
 
-			switch (hdr->evt) {
+			printf("#hrd->evt = %d\n", hdr->evt);
+
+			switch (hdr->evt) 
+			{
 			case EVT_INQUIRY_RESULT:
 				printf("# inquiry result: %d\n",(int) ptr[0]);
 				/* Get standard inquiry result, inqmode = 0 */
-				for (i = 0; i < ptr[0]; i++) {
+				for (i = 0; i < ptr[0]; i++) 
+				{
 					info = (inquiry_info *) ((char *) ptr + (sizeof(*info) * i) + 1);
 					bacpy(&result.bdaddr, &info->bdaddr);
 					result.pscan_rep_mode    = info->pscan_rep_mode;
@@ -283,27 +288,40 @@ g_pPlutoLogger->Write(LV_STATUS,"loop 1 m_mapPhoneDevice_Detected size: %d",(int
                     PhoneDevice *pDNew = new PhoneDevice(name,addr,result.rssi);
                     bacpy(&pDNew->m_bdaddrDongle, &m_DevInfo.bdaddr);
 
-                    //use 'hcitool name' to quickly get the name of the device
-                    printf("getting the device name\n");
-                    string sOutputFile("/tmp/hci_remote_name");
-                    system(string("hcitool name " + pDNew->m_sMacAddress + " > " + sOutputFile).c_str());
+				    PLUTO_SAFETY_LOCK(vm,m_VariableMutex);
+					if(m_mapKnownNames.find(pDNew->m_iMacAddress) != m_mapKnownNames.end())
+					{
+						string sName = m_mapKnownNames[pDNew->m_iMacAddress];
+						g_pPlutoLogger->Write(LV_STATUS,"Found name %s for mac %s in the known names map", 
+								sName.c_str(), pDNew->m_sMacAddress.c_str());
+						pDNew->m_sID = sName;
+					}
+					else
+					{
+						//this is a new one
+	                    //use 'hcitool name' to quickly get the name of the device
+        	            string sOutputFile("/tmp/hci_remote_name");
+            	        system(string("hcitool name " + pDNew->m_sMacAddress + " > " + sOutputFile).c_str());
 
-                    size_t iSize;
-                    char *pData = FileUtils::ReadFileIntoBuffer(sOutputFile, iSize);
-                    if(pData && iSize > 0)
-                        strcpy(name, pData);
-                    delete pData;
+                	    size_t iSize;
+                    	char *pData = FileUtils::ReadFileIntoBuffer(sOutputFile, iSize);
+                   		if(pData && iSize > 0)
+                        	strcpy(name, pData);
+                    	delete pData;
 
-                    pDNew->m_sID = name;
-					pDNew->m_sID = StringUtils::Replace(pDNew->m_sID, "\n", "");
-					pDNew->m_sID = StringUtils::Replace(pDNew->m_sID, "\r", "");
-					trim(pDNew->m_sID);					
-                    printf("device name: '%s'\n", pDNew->m_sID.c_str());
+                    	pDNew->m_sID = name;
+                    	pDNew->m_sID = StringUtils::Replace(pDNew->m_sID, "\n", "");
+                    	pDNew->m_sID = StringUtils::Replace(pDNew->m_sID, "\r", "");
+                    	trim(pDNew->m_sID);
+
+						m_mapKnownNames[pDNew->m_iMacAddress] = pDNew->m_sID;
+						g_pPlutoLogger->Write(LV_STATUS, "Detected first time: name %s for mac %s. Added to known names map", 
+								pDNew->m_sID.c_str(), pDNew->m_sMacAddress.c_str());
+					}
+				    vm.Release();
 
                     g_pPlutoLogger->Write(LV_STATUS, "Device %s, %s responded.", pDNew->m_sMacAddress.c_str(), pDNew->m_sID.c_str());
-
                     AddDeviceToDetectionList(pDNew);
-
 				}
 				break;
 
@@ -343,12 +361,12 @@ g_pPlutoLogger->Write(LV_STATUS,"loop 1 m_mapPhoneDevice_Detected size: %d",(int
 				break;
 
 			case EVT_CMD_STATUS:
-				printf("# got a status\n");
 				cs = (evt_cmd_status *) ptr;
+				printf("# got a status %d opcode %d ncmd %d\n", cs->status, cs->opcode, cs->ncmd);
 				/* This happens when the inquiry command fails */
-				if (cs->opcode == cmd_opcode_pack(OGF_LINK_CTL, OCF_INQUIRY)
-						&& cs->status != 0) 
+				if(cs->opcode == cmd_opcode_pack(OGF_LINK_CTL, OCF_INQUIRY) && cs->status != 0) 
 				{
+					printf("# status error: %d\n", err);
 					err = bt_error(cs->status); 
 					cancel = 0;
 				}
@@ -379,7 +397,6 @@ done:
 	sigaction(SIGINT,  &sa_int,  NULL);
 
 	//printf("restored signal handlers\n");
-g_pPlutoLogger->Write(LV_STATUS,"loop 4 m_mapPhoneDevice_Detected size: %d",(int) m_mapPhoneDevice_Detected.size());
 
 close:
 	/* Close the HCI device */
@@ -398,155 +415,10 @@ close:
 		Sleep(15000); // No fast looping
 		return true;
 	}
-g_pPlutoLogger->Write(LV_STATUS,"loop 5 m_mapPhoneDevice_Detected size: %d",(int) m_mapPhoneDevice_Detected.size());
 
 	/* Return the result pointer and the number of results */
 	return true;
 }
-/*
-void PhoneDetection_Bluetooth_Linux::GetListOfDetectedDevices()
-{
-	char addr[18];
-	char name[248];
-	
-	struct sockaddr_rc loc_addr;
-	struct sockaddr_in iploc_addr;
-	int pf;
-	int proto;
-	int err;
-
-	pf=PF_BLUETOOTH;                                 
-	proto=BTPROTO_RFCOMM;
-
-	system("hciconfig hci0 up");
-	system("modprobe rfcomm");
-	Sleep(1000);
-	system("sdpd");
-	Sleep(500);
-	
-	int dev_id;
-	dev_id = hci_devid(m_sDongleMacAddress.c_str());
-	if (dev_id < 0) 
-	{
-		dev_id = hci_get_route(NULL);
-		if (dev_id < 0)
-		{
-			printf("Can't get an ID for bluetooth dongle.");
-			return;
-		}
-		else
-		{
-			printf("Bluetooth dongle %s not found, using hci0.", m_sDongleMacAddress.c_str());
-		}
-	}
-
-	int dd = hci_open_dev(dev_id);
-	if (dd < 0) 
-	{
-		printf("Device open failed");
-		return;
-	}
-	m_DevInfo.dev_id = dev_id;
-	if (ioctl(dd, HCIGETDEVINFO, (void*) &m_DevInfo))
-	{
-		printf("Can't get info about device");
-		return;
-	}
-	ba2str(&m_DevInfo.bdaddr, addr);
-	printf("Attached to BT adapter: %s\t%s\n", m_DevInfo.name, addr);
-	close(dd);
-  	
-	dd = hci_open_dev(dev_id); // Todo: figure out why I need to keep opening and closing the device
-	if (dd < 0) 
-	{
-		printf("Device open failed");
-		return;
-	}
-	
-	inquiry_info *info = NULL;
-	int num_rsp = hci_inquiry(dev_id, 8, 100, NULL, &info, 0);
-	if (num_rsp < 0) 
-	{
-		printf("Inquiry failed");
-		close(dd);
-		return;
-	}
-	for (int i = 0; i < num_rsp; i++)
-	{
-		memset(name, 0, sizeof(name));
-		if (hci_read_remote_name(dd, &(info+i)->bdaddr, sizeof(name), name, 100000) < 0)
-			strcpy(name, "n/a");
-		ba2str(&(info+i)->bdaddr, addr);
-			printf("\t%s\t%s\t", addr, name);
-
-		PhoneDevice *pD = new PhoneDevice(name,addr,0);
-		bacpy(&pD->m_bdaddrDongle, &m_DevInfo.bdaddr);
-		m_listPhoneDevice.push_back(pD);
-
-		// Get the link quality
-	}
-	free(info);
-	close(dd);
-}
-*/
-	/*
-void PhoneDetection_Bluetooth_Linux::GetLinkQuality()
-{
-	bool bMadeConn = false;
-	time_t t = time(NULL);
-	struct hci_conn_info_req *cr;
-	struct hci_request rq;
-	
-	while(time(NULL) < t + 4)
-	{
-		cr = (hci_conn_info_req *)malloc(sizeof(*cr) + sizeof(struct hci_conn_info));
-		bacpy(&cr->bdaddr, &(info+i)->bdaddr);
-		cr->type = ACL_LINK;
-		if (ioctl(dd, HCIGETCONNINFO, (unsigned long) cr) < 0) 
-		{
-			if (bMadeConn == false)
-			{
-				create_conn_cp cp;
-				memset(&cp, 0, sizeof(cp));
-				bacpy(&cp.bdaddr,  &(info+i)->bdaddr);
-				cp.pkt_type =  HCI_DM1 | HCI_DM3 | HCI_DM5 | HCI_DH1 | HCI_DH3 | HCI_DH5;
-				if (hci_send_cmd(dd, OGF_LINK_CTL, OCF_CREATE_CONN, CREATE_CONN_CP_SIZE, &cp)) 
-				{
-					printf("Create connection failed");
-					continue;
-				}
-				bMadeConn = true;
-				Sleep(1000);
-			}
-			free(cr);
-			continue;					
-		}
-		get_link_quality_rp rp;
-		memset(&rq, 0, sizeof(rq));
-		rq.ogf    = OGF_STATUS_PARAM;
-		rq.ocf    = OCF_GET_LINK_QUALITY;
-		rq.cparam = &cr->conn_info->handle;
-		rq.clen   = 2;
-		rq.rparam = &rp;
-		rq.rlen   = GET_LINK_QUALITY_RP_SIZE;
-		free(cr);
-				
-		if (hci_send_req(dd, &rq, 100) < 0) {
-			printf("HCI get_link_quality request failed");
-			Sleep(500);
-				continue;
-		}
-	
-		if (rp.status) {
-			//g_pPlutoLogger->Write(LV_WARNING,"HCI get_link_quality cmd failed (0x%2.2X)\n", 	rp.status);
-			Sleep(500);
-			close(dd);
-			continue;
-		}
-		break;
-	}
-}
-*/	
 
 int PhoneDetection_Bluetooth_Linux::GetLinkQuality(const char *addr)
 {
@@ -559,7 +431,7 @@ int PhoneDetection_Bluetooth_Linux::GetLinkQuality(const char *addr)
 	int dd;
 
 	//connecting
-    int opt, ptype;
+    int ptype;
     uint8_t role;
 
     role = 0;
