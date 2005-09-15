@@ -148,7 +148,7 @@ public:
 	string DATA_Get_Path() { return GetData()->Get_Path(); }
 	int DATA_Get_PK_Users() { return GetData()->Get_PK_Users(); }
 	string DATA_Get_Current_Screen() { return GetData()->Get_Current_Screen(); }
-	void DATA_Set_Current_Screen(string Value) { GetData()->Set_Current_Screen(Value); }
+	void DATA_Set_Current_Screen(string Value,bool bUpdateDatabase=false) { GetData()->Set_Current_Screen(Value); if( bUpdateDatabase ) SetDeviceDataInDB(m_dwPK_Device,4,Value); }
 	int DATA_Get_PK_Distro() { return GetData()->Get_PK_Distro(); }
 	bool DATA_Get_Development() { return GetData()->Get_Development(); }
 	bool DATA_Get_No_Effects() { return GetData()->Get_No_Effects(); }
@@ -164,7 +164,7 @@ public:
 	bool DATA_Get_Use_OCG_Format() { return GetData()->Get_Use_OCG_Format(); }
 	int DATA_Get_VideoFrameInterval() { return GetData()->Get_VideoFrameInterval(); }
 	int DATA_Get_ImageQuality() { return GetData()->Get_ImageQuality(); }
-	void DATA_Set_ImageQuality(int Value) { GetData()->Set_ImageQuality(Value); }
+	void DATA_Set_ImageQuality(int Value,bool bUpdateDatabase=false) { GetData()->Set_ImageQuality(Value); if( bUpdateDatabase ) SetDeviceDataInDB(m_dwPK_Device,75,Value); }
 	bool DATA_Get_Leave_Monitor_on_for_OSD() { return GetData()->Get_Leave_Monitor_on_for_OSD(); }
 	string DATA_Get_Ignore_State() { return GetData()->Get_Ignore_State(); }
 	int DATA_Get_PK_DesignObj() { return GetData()->Get_PK_DesignObj(); }

@@ -958,8 +958,14 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
             g_pPlutoLogger->WriteEntry(e);
         }
 
-        break;
+		if ( (*SafetyMessage)->m_dwMessage_Type == MESSAGETYPE_DATAPARM_CHANGE )
+		{
+			map<long, string>::iterator p = (*SafetyMessage)->m_mapParameters.begin();
+			if ( p != (*SafetyMessage)->m_mapParameters.end() )
+				SetDeviceDataInDB((*SafetyMessage)->m_dwPK_Device_From,p->first,p->second,true);
+		}
 
+		break;
     default:
         if( (*SafetyMessage)->m_dwMessage_Type==MESSAGETYPE_COMMAND && (*SafetyMessage)->m_eExpectedResponse==ER_None )
         {
@@ -2743,3 +2749,4 @@ void Router::ShowSockets()
 	}
 }
 #endif
+

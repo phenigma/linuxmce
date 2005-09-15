@@ -97,7 +97,14 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
 
     m_mds=drDesignObj->Table_DesignObj_get()->Database_pluto_main_get();
     m_VariableMap = m_pOrbiterGenerator->m_mapVariable;
-    m_pRow_DesignObj=drDesignObj;
+
+	// See if there is another screen we should use instead
+	vector<Row_DesignObj *> vectRow_DesignObj_Alt;
+	m_mds->DesignObj_get()->GetRows("FK_DesignObj_SubstForSkin=" + StringUtils::itos(drDesignObj->PK_DesignObj_get()) + " AND FK_Skin_SubstForSkin=" + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Skin->PK_Skin_get()), &vectRow_DesignObj_Alt);
+	if( vectRow_DesignObj_Alt.size() )
+		m_pRow_DesignObj=vectRow_DesignObj_Alt[0];
+	else
+		m_pRow_DesignObj=drDesignObj;
     m_rPosition=rPosition;
     m_ocoParent=ocoParent;
     m_bDontShare=bDontShare;

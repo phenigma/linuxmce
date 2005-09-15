@@ -355,6 +355,14 @@ namespace DCE
 		string GetCurrentDeviceData( int PK_Device, int PK_DeviceData );
 
 		/**
+		 * @brief Sends a message to DCERouter to set the device data for the given device
+		 */
+		void SetDeviceDataInDB(int PK_Device,int PK_DeviceData,string Value);
+		void SetDeviceDataInDB(int PK_Device,int PK_DeviceData,const char *Value) { SetDeviceDataInDB(PK_Device,PK_DeviceData,string(Value)); }
+		void SetDeviceDataInDB(int PK_Device,int PK_DeviceData,int Value) { SetDeviceDataInDB(PK_Device,PK_DeviceData,StringUtils::itos(Value)); }
+		void SetDeviceDataInDB(int PK_Device,int PK_DeviceData,bool Value) { SetDeviceDataInDB(PK_Device,PK_DeviceData,Value ? "1" : "0"); }
+
+		/**
 		 * 
 		 * Watchdog will kill the connection if it exceeds Timeout.
 		 * Eventually SendMessage will need to be overridden to create

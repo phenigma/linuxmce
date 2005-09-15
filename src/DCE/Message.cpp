@@ -28,6 +28,7 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
+#include "PlutoUtils/uuencode.h"
 #include "Message.h"
 #include "DCE/Logger.h"
 
@@ -184,7 +185,7 @@ void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFr
 
     for(int i=baseMessageSpecPos + 4; i<iNumArgs; i+=2)
     {
-		enum { ptNormal, ptData, ptBinary, ptText, ptOut } eType = ptNormal;
+		enum { ptNormal, ptData, ptBinary, ptText, ptUU, ptOut } eType = ptNormal;
 
         char *pParamID = cArguments[i];
 		if( pParamID[0]=='D' )
@@ -201,6 +202,11 @@ void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFr
 		{
 			pParamID++;
 			eType=ptText;
+		}
+		else if( pParamID[0]=='U' )
+		{
+			pParamID++;
+			eType=ptUU;
 		}
 		int ParamNum = atoi(pParamID);
 
@@ -220,6 +226,13 @@ void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFr
 				g_pPlutoLogger->Write(LV_CRITICAL,"Message Parm cannot read file: %s",pFileName);
 				continue;
 			}
+		}
+		else if( eType==ptUU )
+		{
+			int iUUSize = strlen(pParmValue);
+			unsigned char *pBinaryValue = new unsigned char[iUUSize];
+			tSizeParmValue = Ns_HtuuDecode((unsigned char *) pParmValue, pBinaryValue, iUUSize);
+			pParmValue=(char *) pBinaryValue;
 		}
 		else
 		{

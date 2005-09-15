@@ -186,6 +186,9 @@
 				RelativePath="..\PlutoUtils\StringUtils.cpp">
 			</File>
 			<File
+				RelativePath="..\PlutoUtils\uuencode.cpp">
+			</File>
+			<File
 				RelativePath=".\Virtual_Device_Translator.cpp">
 			</File>
 		</Filter>

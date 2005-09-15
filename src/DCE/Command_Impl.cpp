@@ -855,6 +855,12 @@ string Command_Impl::GetCurrentDeviceData( int PK_Device, int PK_DeviceData )
 	return "";
 }
 
+void Command_Impl::SetDeviceDataInDB(int PK_Device,int PK_DeviceData,string Value)
+{
+	Message *pMessage = new Message(PK_Device,DEVICEID_DCEROUTER,PRIORITY_NORMAL,MESSAGETYPE_DATAPARM_CHANGE,0,1,PK_DeviceData,Value.c_str());
+	m_pcRequestSocket->SendMessage(pMessage);
+}
+
 extern pluto_pthread_mutex_t *m_LL_DEBUG_Mutex;
 extern pluto_pthread_mutex_t *g_mapLockMutex;
 void Command_Impl::DeleteGlobalAllocs()
