@@ -574,7 +574,7 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
                     pDeviceFrom->m_dwPK_Device, iOldSignalStrength, iCurrentSignalStrength, m_iThreshHold);
 
 				if( pOH_Orbiter->NeedApp())
-					SendAppToPhone( pOH_Orbiter, pDeviceFrom );
+					SendAppToPhone( pOH_Orbiter, pDeviceFrom, sMacAddress );
 
                 string sVmcFileToSend = "";
                 if(pOH_Orbiter->NeedVMC())
@@ -678,7 +678,7 @@ g_pPlutoLogger->Write(LV_STATUS,"mobile orbiter linked: %p with version: %s",pOH
 		if( pOH_Orbiter->m_tSendAppTime && time(NULL)-pOH_Orbiter->m_tSendAppTime<900 )
 			g_pPlutoLogger->Write(LV_STATUS,"We already tried to send app to phone %s within the last 15 minutes",sMacAddress.c_str());
 		else
-			SendAppToPhone(pOH_Orbiter,pDeviceFrom);
+			SendAppToPhone(pOH_Orbiter,pDeviceFrom, sMacAddress);
 	}
 
     PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
@@ -1843,7 +1843,7 @@ void Orbiter_Plugin::SetBoundIcons(int iPK_Users,bool bOnOff,string sType)
 	}
 }
 
-void Orbiter_Plugin::SendAppToPhone(OH_Orbiter *pOH_Orbiter,DeviceData_Base *pDevice_Dongle)
+void Orbiter_Plugin::SendAppToPhone(OH_Orbiter *pOH_Orbiter,DeviceData_Base *pDevice_Dongle, string sMacAddress)
 {
     g_pPlutoLogger->Write(LV_STATUS,"Phone needs file - NeedApp: %d, NeedVMC: %d,  version: / %s / %s",
 		(int) pOH_Orbiter->NeedApp(),(int) pOH_Orbiter->NeedVMC(),
@@ -1852,7 +1852,6 @@ void Orbiter_Plugin::SendAppToPhone(OH_Orbiter *pOH_Orbiter,DeviceData_Base *pDe
 	pOH_Orbiter->NeedApp(false);
 	pOH_Orbiter->m_tSendAppTime = time(NULL);
 
-    string sMacAddress = pDevice_Dongle->m_sMacAddress;
     string sDeviceCategoryDesc;
     int iPK_DeviceTemplate;
     string sManufacturerDesc;

@@ -88,7 +88,7 @@ public:
         return it == m_mapUnknownDevices.end() ? NULL : (*it).second;
     }
 
-	void SendAppToPhone(OH_Orbiter *pOH_Orbiter,DeviceData_Base *pDevice_Dongle);
+	void SendAppToPhone(OH_Orbiter *pOH_Orbiter,DeviceData_Base *pDevice_Dongle, string sMacAddress);
 
 	//from command_impl class
 	virtual bool PendingTasks(vector<string> *vectPendingTasks=NULL);
