@@ -147,7 +147,7 @@ function sendCommand($output,$dbADO) {
 			$parmsValues.=' '.$prefix.$parm.' "'.$value.'"';
 			
 		}
-		$commandToSend="/usr/pluto/bin/MessageSend $firstParam localhost 0 $deviceID 1 $commandID$parmsValues";		
+		$commandToSend="/usr/pluto/bin/MessageSend localhost $firstParam 0 $deviceID 1 $commandID$parmsValues";		
 		exec($commandToSend,$retMessage);
 		
 		header("Location: index.php?section=sendCommand&deviceID=$deviceID&command=$commandID&conf=$conf&msg=Message Sent succesfully.  <br>$commandToSend<br>Response was:<br>".join('<br>',$retMessage));

@@ -54,7 +54,7 @@
 	$GLOBALS['Tuner']=75;						// Generic Tuner
 	$GLOBALS['ONScreenOrbiter']=62;				// On screen orbiter
 	$GLOBALS['EventPlugIn']=52;					// Event plugin
-	
+	$GLOBALS['Asterisk']=45;					// Asterisk
 	
 	// PK_Template from table Template
 	
@@ -195,7 +195,7 @@
 	// PK_Variable from table Variable
 	
 	$GLOBALS['camerasVariableNumbersArray']=array(18,19,20,21);
-	$GLOBALS['cameraVariable']=22;
+	$GLOBALS['cameraVariable']=1;
 	$GLOBALS['PK_DeviceGroup']=32;
 	
 	// PK_StartupScript from table StartupScript

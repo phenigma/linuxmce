@@ -1265,6 +1265,12 @@ switch ($section) {
 	    include_once('operations/infrared/testCode.php');
 	    testCode($output,$dbADO);
 	break;
+	case 'orbiterRegenInProgress';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/myDevices/orbiters/orbiterRegenInProgress.php');
+	    orbiterRegenInProgress($output,$dbADO);
+	break;
 	
 	case '';
 		$output = new Template($dbADO);	

@@ -508,15 +508,9 @@ function displayButtons($orbiter,$RegenInProgress){
 	if(@$RegenInProgress['regen']==1){
 		$out.='
 			<tr>
-				<td colspan="2" align="center">'.percentBox($RegenInProgress['percent']).'</td>
-			</tr>		
-			<tr>
-				<td align="right">Regen status:</td>
-				<td align="left">'.$RegenInProgress['status'].'</td>
-			</tr>		
-			<tr>
-				<td colspan="2" align="center"><B><font color="red">Orbiter Generation in process</font></B></td>
-			</tr>';
+				<td colspan="2" align="center"><iframe src="index.php?section=orbiterRegenInProgress&orbiterID='.$orbiter.'" style="width:100%;height:80px;border:0;"></iframe></td>
+			</tr>
+		';
 	}
 
 	$out.='
@@ -544,19 +538,6 @@ function displayWiFiRow($orbiter,$isOSD,$PingTest){
 			<td><input type="checkbox" name="PingTest_'.$orbiter.'" value="1" '.(($PingTest==1)?'checked':'').'></td>
 		</tr>';			
 	}
-	
-	return $out;
-}
-
-function percentBox($percent){
-	$out='
-	<table width="250" cellpadding="0" cellspacing="0">
-		<tr>
-			<td width="50">Percent</td>
-			<td bgcolor="green" width="'.(2*$percent).'">&nbsp;</td>
-			<td bgcolor="lightblue" width="'.(200-2*$percent).'">&nbsp;</td>
-		</tr>
-	</table>';
 	
 	return $out;
 }

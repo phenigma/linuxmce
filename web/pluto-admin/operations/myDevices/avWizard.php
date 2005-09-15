@@ -21,13 +21,11 @@ $start_time=getmicrotime();
 	$output->setHelpSrc('/support/index.php?section=document&docID=131');
 
 	// get selected category Device Templates
-	getDeviceCategoryChildsArray($deviceCategory,$dbADO);
-	$GLOBALS['childsDeviceCategoryArray']=cleanArray($GLOBALS['childsDeviceCategoryArray']);
-	$GLOBALS['childsDeviceCategoryArray'][]=$deviceCategory;
-
+	$categoriesArray=getDescendantsForCategory($deviceCategory,$dbADO);
+	
 	$queryDeviceTemplate='
 		SELECT * FROM DeviceTemplate 
-			WHERE FK_DeviceCategory IN ('.join(',',$GLOBALS['childsDeviceCategoryArray']).')
+			WHERE FK_DeviceCategory IN ('.join(',',$categoriesArray).')
 		ORDER BY Description ASC';
 	$resDeviceTemplate=$dbADO->Execute($queryDeviceTemplate);
 	$DTArray=array();
@@ -102,10 +100,11 @@ $start_time=getmicrotime();
 		$out.='	<input type="hidden" name="coreID" value="'.$coreID.'">
 				<input type="hidden" name="oldShareIRCodes" value="'.((@$sharedWithOthers>0)?'1':'0').'">';
 
-		$infraredAndSpecialisedDevices=getDevicesFromCategories(array($GLOBALS['specialized'],$GLOBALS['InfraredInterface']),$dbADO);
-		$specialisedAndComputerDevices=getDevicesFromCategories(array($GLOBALS['rootComputerID'],$GLOBALS['specialized']),$dbADO);
-
+		$entAreas=getAssocArray('EntertainArea','PK_EntertainArea','EntertainArea.Description',$dbADO,'INNER JOIN Room ON FK_Room=PK_Room WHERE FK_Installation='.$installationID,'ORDER BY EntertainArea.Description ASC');
+		$entAreas[-2]='All entertain areas';
+		$_SESSION['selectedEntArea']=(isset($_REQUEST['entArea']))?(int)$_REQUEST['entArea']:(int)@$_SESSION['selectedEntArea'];		
 		$out.='
+		Choose entertain area: '.pulldownFromArray($entAreas,'entArea',$_SESSION['selectedEntArea'],'onchange="document.avWizard.action.value=\'form\';document.avWizard.submit();"','key','Unassigned').'
 		<table align="center" border="0" cellpadding="2" cellspacing="0">
 			<tr bgcolor="lightblue">
 					<td align="center" rowspan="2"><B>Device</B></td>
@@ -121,14 +120,30 @@ $start_time=getmicrotime();
 					<td align="center"><B>&nbsp;</B></td>
 				</tr>
 					';
+
+
+		switch ($_SESSION['selectedEntArea']){
+			case -2:
+				$filter='';
+			break;
+			case 0:
+				$filter=' AND FK_EntertainArea IS NULL';
+			break;
+			default:
+				$filter=' AND FK_EntertainArea ='.$_SESSION['selectedEntArea'];
+			break;
+		}
+		
 		if(count($DTIDArray)==0)
 			$DTIDArray[]=0;
 		$displayedAVDevices=array();
 		$displayedAVDevicesDescription=array();
 		$queryDevice='
-					SELECT Device.*
-					FROM Device 
-					WHERE Device.FK_DeviceTemplate IN ('.join(',',$DTIDArray).') AND FK_Installation=?';	
+			SELECT Device.*
+			FROM Device 
+			INNER JOIN Device_EntertainArea ON FK_Device=PK_Device
+			WHERE Device.FK_DeviceTemplate IN ('.join(',',$DTIDArray).') AND FK_Installation=? '.$filter;	
+
 		$resDevice=$dbADO->Execute($queryDevice,$installationID);
 		while($rowD=$resDevice->FetchRow()){
 			$displayedAVDevices[]=$rowD['PK_Device'];
@@ -178,14 +193,15 @@ $start_time=getmicrotime();
 			FROM DeviceData 
 			INNER JOIN ParameterType ON FK_ParameterType = PK_ParameterType 
 			INNER JOIN Device_DeviceData ON Device_DeviceData.FK_DeviceData=PK_DeviceData 
-			INNER JOIN Device ON FK_Device=PK_Device
+			INNER JOIN Device ON Device_DeviceData.FK_Device=PK_Device
 			LEFT JOIN DeviceTemplate_DeviceData ON DeviceTemplate_DeviceData.FK_DeviceData=Device_DeviceData.FK_DeviceData AND DeviceTemplate_DeviceData.FK_DeviceTemplate=Device.FK_DeviceTemplate
 			INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate 
 			LEFT JOIN DeviceTemplate_AV ON Device.FK_DeviceTemplate=DeviceTemplate_AV.FK_DeviceTemplate 
 			INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory 
-			INNER JOIN Manufacturer ON FK_Manufacturer=PK_Manufacturer 			
-			WHERE Device.FK_DeviceTemplate IN ('.join(',',$joinArray).') AND FK_Installation=? '.$orderFilter;
-	
+			INNER JOIN Manufacturer ON FK_Manufacturer=PK_Manufacturer 		
+			LEFT JOIN Device_EntertainArea ON Device_EntertainArea.FK_Device=PK_Device	
+			WHERE Device.FK_DeviceTemplate IN ('.join(',',$joinArray).') AND FK_Installation=? '.$filter.' '.$orderFilter;
+
 		$resDevice=$dbADO->Execute($queryDevice,$installationID);
 		$childOf=array();
 		$firstDevice=0;
@@ -314,15 +330,13 @@ $start_time=getmicrotime();
 		</form>
 		<script>
 		 	var frmvalidator = new formValidator("avWizard");
- //			frmvalidator.addValidation("Description","req","Please enter a device description");			
-//	 		frmvalidator.addValidation("masterDevice","dontselect=0","Please select a Device Template!");			
-		</script>
+ 		</script>
 	
 	</form>
 	</div>
 	';
 	$end_time=getmicrotime();			
-
+//	$out.='<br><p class="normaltext">Page generated in '.round(($end_time-$start_time),3).' s.';
 		$output->setScriptInBody('onLoad="document.getElementById(\'preloader\').style.display=\'none\';document.getElementById(\'content\').style.display=\'\';";');
 	} else {
 		$cmd=cleanInteger(@$_POST['cmd']);

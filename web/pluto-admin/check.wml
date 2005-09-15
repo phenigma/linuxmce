@@ -17,7 +17,7 @@ if(isset($_REQUEST['installationID'])){
 <!DOCTYPE wml PUBLIC "-//WAPFORUM//DTD WML 
 1.1//EN" "http://www.wapforum.org/DTD/wml_1.1.xml">
 <wml>
-<card id="card1" title="PlutoHome WML Installation no. <?=$installationID?>"> 
+<card id="card1" title="PlutoHome WML # <?=$installationID?>"> 
   <p> 
     <?php  
 if(!isset($_REQUEST['user']) && !isset($_REQUEST['pin']) && !isset($_REQUEST['pinuser'])){
@@ -25,8 +25,9 @@ if(!isset($_REQUEST['user']) && !isset($_REQUEST['pin']) && !isset($_REQUEST['pi
 	$sufix=(isset($_REQUEST['security']))?'&amp;security=0':'';
 	$msg='
 		Username<br/><input type="text" name="user" value=""/><br/>
-		PIN<br/><input type="text" name="pinuser" value=""/><br/>
+		PIN<br/><input type="text" name="pinuser" value=""/>*<br/>
 		Callback phone<br/><input type="text" name="phone" value=""/><br/>
+		* Please set your PIN on pluto admin website
 	<do type="accept" label="Submit">
 		<go method="get" href="check.wml?user=$user&amp;pinuser=$pinuser&amp;phone=$phone'.$sufix.((isset($_REQUEST['installationID']))?'&amp;installationID='.$_REQUEST['installationID']:'').'">
 		</go>
@@ -43,7 +44,7 @@ if(!isset($_REQUEST['user']) && !isset($_REQUEST['pin']) && !isset($_REQUEST['pi
 					$msg=displaySecuritySelected((int)$_REQUEST['security'],$dbADO,$securityADO);
 				}
 			}else{
-				$msg=indexLogged();
+				$msg=indexLogged($dbADO);
 			}
 		}else{
 			$msg=displayScreens($dbADO);
@@ -65,7 +66,7 @@ print $msg;
 function executeScenario($cgid,$dbADO)
 {
 	$ScenariosArray=getAssocArray('Template','PK_Template','Description',$dbADO,'','');
-	$ScenariosArray['']='Undefined';
+	$ScenariosArray['']='Undefined type';
 	
 	// Execute scenario command
 		if($cgid>0){
@@ -194,13 +195,13 @@ function displaySecuritySelected($alertID,$dbADO,$securityADO)
 		if(isset($sosForm)){
 			$msg.=$sosForm;
 		}else{
-		
+			$speakInTheHouseLink=(hasAsterisk($dbADO)===true)?'<a href="check.wml?security='.$row['PK_Alert'].'&amp;action=5'.extraLinks().'">speak to the person in the house</a>':'speak to the person in the house (require Asterisk)';
 			$msg.='
 		a) <a href="check.wml?security='.$row['PK_Alert'].'&amp;action=1'.extraLinks().'">reseting the alarm</a><br/> 
 		b) <a href="check.wml?security='.$row['PK_Alert'].'&amp;action=2'.extraLinks().'">ignoring the alert (ie it continues to notify others)</a><br/> 
 		c) <a href="check.wml?security='.$row['PK_Alert'].'&amp;action=3'.extraLinks().'">fire an SOS event (which will call the police, for example)</a><br/>
 		d) <a href="check.wml?security='.$row['PK_Alert'].'&amp;action=4'.extraLinks().'">notifying the neighbors</a><br/> 
-		e) <a href="check.wml?security='.$row['PK_Alert'].'&amp;action=5'.extraLinks().'">speak to the person in the house</a><br/>';
+		e) '.$speakInTheHouseLink.'<br/>';
 		}
 	}else{
 		return 'Invalid alert ID';
@@ -210,17 +211,19 @@ function displaySecuritySelected($alertID,$dbADO,$securityADO)
 }
 
 
-function indexLogged()
+function indexLogged($dbADO)
 {
 	// default option
 	if(isset($_REQUEST['mode'])){
 		$shmSufix='&amp;mode='.$_REQUEST['mode'].'&amp;user='.$_REQUEST['user'].'&amp;pin='.$_REQUEST['pin'];
 	}
-		
+
+	$speakInTheHouseLink=(hasAsterisk($dbADO)===true)?'<a href="check.wml?opt=3'.extraLinks().'">Speak in the house</a>':'Speak in the house (require Asterisk)';
+	
 	$msg='
 		1. <a href="check.wml?opt=1'.extraLinks().'">Standard Scenarios</a><br/>
 		2. <a href="check.wml?opt=2'.extraLinks().@$shmSufix.'">Set house mode</a><br/>
-		3. <a href="check.wml?opt=3'.extraLinks().'">Speak in the house</a><br/>
+		3. '.$speakInTheHouseLink.'<br/>
 		4. <a href="check.wml?opt=4'.extraLinks().'">View Cameras</a><br/>
 <!--		5. <a href="check.wml?opt=5'.extraLinks().'">All Orbiter Scenarios</a><br/>
 		6. <a href="check.wml?opt=6'.extraLinks().'">Advanced options</a><br/>-->
@@ -392,7 +395,7 @@ function getSOSForm($installationID,$dbADO){
 
 	$pulldown='<select name="number">';
 	for($i=0;$i<count($ecArray);$i=$i+2){
-		$pulldown.='<option value="'.$ecArray[$i+1].'">'.$ecArray[$i].'</option>';
+		$pulldown.='<option value="'.@$ecArray[$i+1].'">'.@$ecArray[$i].'</option>';
 	}
 	$pulldown.='</select>';
 	$out='
@@ -406,5 +409,16 @@ function getSOSForm($installationID,$dbADO){
 	';
 	
 	return $out;
+}
+
+function hasAsterisk($dbADO){
+	global $installationID;
+
+	$deviceArray=getAssocArray('Device','PK_Device','Description',$dbADO,'WHERE FK_DeviceTemplate='.$GLOBALS['Asterisk'].' AND FK_Installation='.$installationID);
+	if(count($deviceArray)>0){
+		return true;
+	}else{
+		return false;
+	}
 }
 ?>

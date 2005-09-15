@@ -1150,14 +1150,18 @@ function generatePullDown($name,$tableName,$valueField,$labelField,$selectedValu
 
 function getDeviceTemplatesFromCategory($categoryID,$dbADO,$withNames=0)
 {
+	/*
 	$GLOBALS['childsDeviceCategoryArray']=array();
 	getDeviceCategoryChildsArray($categoryID,$dbADO);
 	$GLOBALS['childsDeviceCategoryArray']=cleanArray($GLOBALS['childsDeviceCategoryArray']);
 	$GLOBALS['childsDeviceCategoryArray'][]=$categoryID;
+	$categoriesArray=$GLOBALS['childsDeviceCategoryArray'];
+	*/
+	$categoriesArray=getDescendantsForCategory($categoryID,$dbADO);
 	
 	$queryDeviceTemplate='
 		SELECT * FROM DeviceTemplate 
-			WHERE FK_DeviceCategory IN ('.join(',',$GLOBALS['childsDeviceCategoryArray']).')
+			WHERE FK_DeviceCategory IN ('.join(',',$categoriesArray).')
 		ORDER BY Description ASC';
 	$resDeviceTemplate=$dbADO->Execute($queryDeviceTemplate);
 	$DTArray=array();
@@ -2391,7 +2395,8 @@ function createDevice($FK_DeviceTemplate,$FK_Installation,$controlledBy,$roomID,
 
 function controlledViaPullDown($pulldownName,$deviceID,$dtID,$deviceCategory,$controlledVia,$dbADO,$zeroOption='0,- Please Select -',$jsEvent='')
 {
-	$optionsArray=getControlledViaDeviceTemplates($deviceID,$dtID,$deviceCategory,$dbADO);
+	//$optionsArray=getControlledViaDeviceTemplates($deviceID,$dtID,$deviceCategory,$dbADO);
+	$optionsArray=getParentsForControlledVia($deviceID,$dbADO);
 	
 	$selectOptions='';
 	foreach ($optionsArray AS $key=>$value){
@@ -4200,6 +4205,161 @@ function deviceDataElement($name,$rowDDforDevice,$dbADO)
 	}
 
 	return $deviceDataElement;
+}
+
+
+function getParentsForControlledVia($deviceID,$dbADO)
+{
+	
+	$installationID=(int)$_SESSION['installationID'];
+
+	
+	$whereClause='';
+	if ($deviceID!=0) {
+		$selectMasterDeviceForParent = 'SELECT FK_DeviceTemplate FROM Device WHERE PK_Device = ? AND FK_Installation=?';
+		$resSelectMasterDeviceForParent = $dbADO->Execute($selectMasterDeviceForParent,array($deviceID,$installationID));
+		if ($resSelectMasterDeviceForParent) {
+			$rowSelectMasterDeviceForParent = $resSelectMasterDeviceForParent->FetchRow();
+			$dtID = $rowSelectMasterDeviceForParent['FK_DeviceTemplate'];
+
+			$querySelectControlledViaCategory ='SELECT FK_DeviceCategory FROM DeviceTemplate_DeviceCategory_ControlledVia where FK_DeviceTemplate = ?';
+			$resSelectControlledViaCategory = $dbADO->Execute($querySelectControlledViaCategory,array($dtID));
+
+			$categoriesChilds = array();
+			if ($resSelectControlledViaCategory) {
+				while ($rowSelectControlledVia = $resSelectControlledViaCategory->FetchRow()) {
+					$categoriesChilds+=getDescendantsForCategory($rowSelectControlledVia['FK_DeviceCategory'],$dbADO);
+				}
+			}
+
+			$querySelectControlledViaDeviceTemplate ='SELECT  FK_DeviceTemplate_ControlledVia FROM DeviceTemplate_DeviceTemplate_ControlledVia WHERE FK_DeviceTemplate = ?';
+			$resSelectControlledViaDeviceTemplate= $dbADO->Execute($querySelectControlledViaDeviceTemplate,array($dtID));
+
+			$childsDeviceTemplateArray = array();
+			if ($resSelectControlledViaDeviceTemplate) {
+				while ($rowSelectControlledVia = $resSelectControlledViaDeviceTemplate->FetchRow()) {
+					$childsDeviceTemplateArray[]=$rowSelectControlledVia['FK_DeviceTemplate_ControlledVia'];
+				}
+			}
+
+
+
+			if (count($categoriesChilds)>0) {
+				$whereClause.=' and (FK_DeviceCategory in ('.join(",",$categoriesChilds).')';
+				if (count($childsDeviceTemplateArray)) {
+					$whereClause.=' OR PK_DeviceTemplate in ('.join(",",$childsDeviceTemplateArray).')';
+				}
+				$whereClause.=')';
+			} else {
+				if (count($childsDeviceTemplateArray)) {
+					$whereClause.=' AND PK_DeviceTemplate in ('.join(",",$childsDeviceTemplateArray).')';
+				}
+			}
+
+		}
+	}
+	$whereClause.=" AND PK_Device!='$deviceID'";
+	$queryDeviceTemplate = "
+		SELECT DISTINCT Device.Description,Device.PK_Device,DeviceTemplate.Description AS Template,Room.Description AS Room
+		FROM Device 
+		INNER JOIN DeviceTemplate ON FK_DeviceTemplate = PK_DeviceTemplate
+		LEFT JOIN Room ON FK_Room=PK_Room
+		WHERE Device.FK_Installation=? $whereClause order by Device.Description asc";
+//	$dbADO->debug=true;
+	$resDeviceTemplate = $dbADO->Execute($queryDeviceTemplate,$installationID);
+	$optionsArray=array();
+	$optionsArrayLowerCase=array();
+	if($resDeviceTemplate) {
+		while ($row=$resDeviceTemplate->FetchRow()) {
+			$label=(@$GLOBALS['DT_&_Room']==1)?$row['Description'].' ('.$row['Template'].') - ('.$row['Room'].')':$row['Description'];
+			$optionsArray[$row['PK_Device']]=$label;
+			$optionsArrayLowerCase[$row['PK_Device']]=strtolower($label);
+		}
+	}
+	
+	// if device is AV with UsesIR=1, override default controlled_via based on category and device template
+	$controlledByIfIR=getDevicesFromCategories(array($GLOBALS['specialized'],$GLOBALS['InfraredInterface']),$dbADO);
+	$controlledByIfNotIR=getDevicesFromCategories(array($GLOBALS['rootComputerID']),$dbADO);
+	
+	// get selected category Device Templates
+	$avArray=getDeviceTemplatesFromCategory($GLOBALS['rootAVEquipment'],$dbADO);
+	if(in_array($dtID,$avArray)){
+		$queryDevice='
+			SELECT 
+				Device.*,
+				DeviceTemplate.Description AS Template,Room.Description AS Room,
+				FK_CommMethod
+			FROM Device 
+				INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate
+				LEFT JOIN Room ON FK_Room=PK_Room
+				LEFT JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup
+			WHERE PK_Device=?';	
+		$resDevice=$dbADO->Execute($queryDevice,$deviceID);
+		$rowD=$resDevice->FetchRow();
+
+		$tmpArray=array();
+		$tmpArray[$deviceID]=$rowD['Description'].' ('.$rowD['Template'].') - ('.$rowD['Room'].')';
+		$devicesAllowedToControll=(@$rowD['FK_CommMethod']==1)?array_diff($controlledByIfIR,$tmpArray):array_diff($controlledByIfNotIR,$tmpArray);
+
+		foreach($devicesAllowedToControll as $key => $value){
+			$optionsArray[$key]=$value;
+			$optionsArrayLowerCase[$key]=strtolower($value);
+		}
+	}
+	asort ($optionsArrayLowerCase, SORT_STRING);
+	$optionsArrayOriginal=array();
+	foreach ($optionsArrayLowerCase As $id=>$label){
+		$optionsArrayOriginal[$id]=$optionsArray[$id];
+	}
+	
+	
+	return $optionsArrayOriginal;
+}
+
+// get all ancestors for the category 
+function getAncestorsForCategory($categoryID,$dbADO)
+{
+	$parentsDC=array();
+	$res=$dbADO->Execute('
+		SELECT  
+		IF(PK_DeviceCategory=?,1,0) AS pos,
+		DeviceCategory.*
+		FROM DeviceCategory
+		ORDER BY pos desc,FK_DeviceCategory_Parent DESC',$categoryID);
+	while($row=$res->FetchRow()){
+		if($row['PK_DeviceCategory']==$categoryID){
+			$parentsDC[]=$row['PK_DeviceCategory'];
+		}
+		if(in_array($row['PK_DeviceCategory'],$parentsDC) && !is_null($row['FK_DeviceCategory_Parent'])){
+			$parentsDC[]=$row['FK_DeviceCategory_Parent'];
+		}
+	}
+	
+	
+	return $parentsDC;
+}
+
+// get all childs for the category 
+function getDescendantsForCategory($categoryID,$dbADO)
+{
+	$childsDC=array();
+	$res=$dbADO->Execute('
+		SELECT  
+		IF(PK_DeviceCategory=?,1,0) AS pos,
+		DeviceCategory.*
+		FROM DeviceCategory
+		ORDER BY pos desc,PK_DeviceCategory ASC',$categoryID);
+	while($row=$res->FetchRow()){
+		if($row['PK_DeviceCategory']==$categoryID){
+			$childsDC[]=$row['PK_DeviceCategory'];
+		}
+		if(in_array($row['FK_DeviceCategory_Parent'],$childsDC)){
+			$childsDC[]=$row['PK_DeviceCategory'];
+		}
+	}
+	
+	
+	return $childsDC;
 }
 
 ?>

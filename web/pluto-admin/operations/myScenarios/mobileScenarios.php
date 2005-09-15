@@ -31,7 +31,7 @@ if($action=='form') {
 
 	$out.=setLeftMenu($dbADO).'
 	<div align="center" class="confirm"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg'].'<br>'):'').'</B></div>
-	<h2 align="center">'.$rowArray['Description'].'</h2>';
+	<h2 align="center">'.$rowArray['Description'].' *</h2>';
 
 	$out.='
 	<form action="index.php" method="POST" name="mobileScenarios">
@@ -82,6 +82,7 @@ if($action=='form') {
 		</table>
 	<input type="hidden" name="displayedCommandGroups" value="'.join(',',$displayedCommandGroups).'">	
 	</form>
+	* These scenarios appear on the phone only when you are AWAY from the home.
 	';
 							
 }else{	
