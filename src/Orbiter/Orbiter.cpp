@@ -2546,7 +2546,6 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
         return;
     }
 
-	size_t s;
 	if( m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
 	{
 		bool bScrolledOutsideGrid=false;  // Will be true if we scroll past the edge of the grid
@@ -8626,7 +8625,7 @@ int Orbiter::PromptUser(string sPrompt,map<int,string> *p_mapPrompts)
 		cin >> iResponse;
 		if( !p_mapPrompts )
 			return 0;
-		if( iResponse>0 && iResponse<=mapResponse.size() )
+		if( iResponse>0 && iResponse<=int(mapResponse.size()) )
 			return mapResponse[iResponse];
 		cout << endl << "Invalid.  Please try again: ";
 	}

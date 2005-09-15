@@ -107,10 +107,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CM11A", "CM11A\CM11A.vcproj
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Mozilla_Plugin", "Mozilla_Plugin\Mozilla_Plugin_DLL.vcproj", "{BFB764EC-A94C-414F-AE25-7EECDFEE8BBA}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DCE", "DCE\DCE.vcproj", "{8DC05A62-0079-4399-8538-BCE593147DE1}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
@@ -273,10 +269,6 @@ Global
 		{76D2A8DF-63DC-4EE5-A560-DBBD8FE3A953}.Debug.Build.0 = Debug|Win32
 		{76D2A8DF-63DC-4EE5-A560-DBBD8FE3A953}.Release.ActiveCfg = Release|Win32
 		{76D2A8DF-63DC-4EE5-A560-DBBD8FE3A953}.Release.Build.0 = Release|Win32
-		{BFB764EC-A94C-414F-AE25-7EECDFEE8BBA}.Debug.ActiveCfg = Debug|Win32
-		{BFB764EC-A94C-414F-AE25-7EECDFEE8BBA}.Debug.Build.0 = Debug|Win32
-		{BFB764EC-A94C-414F-AE25-7EECDFEE8BBA}.Release.ActiveCfg = Release|Win32
-		{BFB764EC-A94C-414F-AE25-7EECDFEE8BBA}.Release.Build.0 = Release|Win32
 		{BFB764EC-A94C-414F-AE25-7EECDFEE8BBA}.Debug.ActiveCfg = Debug|Win32
 		{BFB764EC-A94C-414F-AE25-7EECDFEE8BBA}.Debug.Build.0 = Debug|Win32
 		{BFB764EC-A94C-414F-AE25-7EECDFEE8BBA}.Release.ActiveCfg = Release|Win32

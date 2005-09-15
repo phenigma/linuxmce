@@ -351,7 +351,7 @@ void OrbiterSDLBluetooth::CMD_Capture_Keyboard_To_Variable(string sPK_DesignObj,
 /*virtual*/ void OrbiterSDLBluetooth::SetImageQuality(unsigned long nImageQuality)
 {
     m_ImageQuality = nImageQuality;
-    DATA_Set_ImageQuality(nImageQuality);
+    DATA_Set_ImageQuality(nImageQuality, true);
 
     m_bRerenderScreen = true;
     RedrawObjects();
