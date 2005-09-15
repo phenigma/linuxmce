@@ -145,6 +145,7 @@ Socket::Socket(string Name,string sIPAddress, string sMacAddress) : m_SocketMute
 	m_pcSockLogFile=m_pcSockLogErrorFile=NULL;
 	m_sHostName = sIPAddress;
 	m_sMacAddress = sMacAddress;
+	m_bUsePlainText = false;
 
 	/*
 	// code unusable; there's a memory leak in libc6 2.3.2
@@ -324,16 +325,23 @@ Socket::~Socket()
 
 bool Socket::SendMessage( Message *pMessage, bool bDeleteMessage )
 {
-	char *pcData = NULL;
-	unsigned long dwSize = 0;
-	pMessage->ToData( dwSize, pcData, true ); // converts the message to data
-	bool bReturnValue = SendData( dwSize, pcData ); // and sends it
-
-	if(NULL != pcData)
+	bool bReturnValue;
+	if( m_bUsePlainText )
 	{
-		// delete[] pcData; // free heap
-		delete[] pcData;
-		pcData = NULL;
+		bReturnValue=SendString( pMessage->ToString(true) );
+	}
+	else
+	{
+		char *pcData = NULL;
+		unsigned long dwSize = 0;
+		pMessage->ToData( dwSize, pcData, true ); // converts the message to data
+		bReturnValue = SendData( dwSize, pcData ); // and sends it
+		if(NULL != pcData)
+		{
+			// delete[] pcData; // free heap
+			delete[] pcData;
+			pcData = NULL;
+		}
 	}
 
 	if(bDeleteMessage && NULL != pMessage)
@@ -367,7 +375,7 @@ Message *Socket::SendReceiveMessage( Message *pMessage )
 	return NULL; // what we got wasn't what we expected it to be
 }
 
-Message *Socket::ReceiveMessage( int iLength )
+Message *Socket::ReceiveMessage( int iLength, bool bText )
 {
 #ifdef UNDER_CE
 	__try
@@ -389,7 +397,11 @@ Message *Socket::ReceiveMessage( int iLength )
 			if ( ReceiveData( iLength, pcBuffer) ) // we got something back
 			{
 				pcBuffer[iLength]=0;
-				Message *pMessage = new Message( iLength, pcBuffer[0] ? pcBuffer : pcBuffer + 1 ); // making a message from the data
+				Message *pMessage;
+				if( bText )
+					pMessage = new Message( pcBuffer ); // making a message from the string
+				else
+					pMessage = new Message( iLength, pcBuffer[0] ? pcBuffer : pcBuffer + 1 ); // making a message from the data
 
 #ifdef LL_DEBUG_FILE
 			PLUTO_SAFETY_LOCK_ERRORSONLY(ll2,(*m_LL_DEBUG_Mutex));
@@ -961,11 +973,14 @@ bool Socket::ReceiveString( string &sRefString )
 		++pcBuf;
 		--iLen;
 		// If it's just a ping, respond with pong
-		if( *(pcBuf-1) == '\n' && pcBuf-acBuf==5 && strncmp(acBuf,"PING",4)==0 )
+		if( *(pcBuf-1) == '\n' )
 		{
-			SendString("PONG");
-			pcBuf = acBuf;
-			iLen = sizeof( acBuf ) - 1;
+			if( pcBuf-acBuf==5 && strncmp(acBuf,"PING",4)==0 )
+			{
+				SendString("PONG");
+				pcBuf = acBuf;
+				iLen = sizeof( acBuf ) - 1;
+			}
 		}
 	} while( *(pcBuf-1) != '\n' && *(pcBuf-1) != 0 && iLen ); // while within iLen and not reached the string's end
 

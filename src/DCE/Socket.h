@@ -35,6 +35,7 @@ namespace DCE
 		/** < If true,  the framework will send a ping every 10 seconds or so to be sure the network
 		is ok.  This is useful for poor wireless connections */
 		bool m_bUsePingToKeepAlive;
+		bool m_bUsePlainText; /** < If true, messages will be sent in plain text format, just like a MessageSend string */
 
 		SOCKET m_Socket; /** < the actual socket @todo ask */
 		
@@ -94,8 +95,9 @@ namespace DCE
 		/**
 		 * @brief it reads the data from the socket then parses it into a new Message
 		 * this gets called in response to a MESSAGE <Length> string
+		 * If bText=true, the message is assumed to be in text, not binary format
 		 */
-		virtual Message *ReceiveMessage( int iLength );
+		virtual Message *ReceiveMessage( int iLength, bool bText=false );
 
 		/**
 		 * @brief just sends raw data to the socket.

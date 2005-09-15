@@ -209,6 +209,7 @@ namespace DCE
 
 
         virtual void ToData( unsigned long &dwSize, char* &pcData, bool bWithHeader=false );
+        virtual string ToString( bool bWithHeader=false );
 
         /**
          * @brief start deserializing the pcData to build the instance of the Message

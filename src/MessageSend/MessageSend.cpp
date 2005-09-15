@@ -36,7 +36,7 @@ int uuencode(const char *FileIn,const char *FileOut)
 	if( FileOut )
 	{
 		FILE *file = fopen(FileOut,"wb");
-		if( !file || fwrite(pDataEncoded,Bytes,1,file)!=Bytes )
+		if( !file || fwrite(pDataEncoded,1,Bytes,file)!=Bytes )
 		{
 			cerr << "Cannot open or write to file: " << FileOut << endl;
 			if( file )
@@ -55,11 +55,19 @@ int uuencode(const char *FileIn,const char *FileOut)
 
 int uudecode(const char *File,const char *Data)
 {
+	char *pDataEncoded=(char *) Data;
 	size_t Size = strlen(Data);
+	FILE *file_in = fopen(Data,"rb"); // See if Data is a filename
+	if( file_in )
+	{
+		cout << "Read contents of file: " << Data << endl;
+		pDataEncoded = FileUtils::ReadFileIntoBuffer(Data,Size);
+		fclose(file_in);
+	}
 	char *pDataDecoded = new char[Size];
-	int Bytes = Ns_HtuuDecode((unsigned char *) Data, (unsigned char *) pDataDecoded, Size);
+	int Bytes = Ns_HtuuDecode((unsigned char *) pDataEncoded, (unsigned char *) pDataDecoded, Size);
 	FILE *file = fopen(File,"wb");
-	if( !file || fwrite(pDataDecoded,Bytes,1,file)!=Bytes )
+	if( !file || fwrite(pDataDecoded,1,Bytes,file)!=Bytes )
 	{
 		cerr << "Cannot open or write to file: " << File << endl;
 		if( file )
@@ -67,6 +75,8 @@ int uudecode(const char *File,const char *Data)
 		return 1;
 	}
 	fclose(file);
+	if( pDataEncoded!=Data )
+		delete[] pDataEncoded;
 	delete[] pDataDecoded;
 	return 0;
 }
@@ -102,7 +112,7 @@ int main(int argc, char *argv[])
 			<< "\t\tT the value is a filename, the contents sent as a text parameter" << endl
 			<< endl
 			<< "Alternatively: MessageSend uuencode file_in [file_out] (writes to stdout no file_out)" << endl
-			<< "or MessageSend uudecode file [uuencodeddata | file_in]" << endl; 
+			<< "or MessageSend uudecode file_out [uuencodeddata | file_in]" << endl; 
 
         return 1;
     }

@@ -280,9 +280,13 @@ sMacAddress="11:22";
 		}
 		else
 		{
-			if ( sMessage.substr(0,7) == "MESSAGE" )
+			if ( sMessage.substr(0,7) == "MESSAGE" && sMessage.size()>7 )
 			{
-				Message *pMessage = ReceiveMessage( atoi(sMessage.substr(8).c_str()) );
+				Message *pMessage;
+				if( sMessage[7]=='T' )
+					pMessage = ReceiveMessage( atoi(sMessage.substr(9).c_str()), true );
+				else
+					pMessage = ReceiveMessage( atoi(sMessage.substr(8).c_str()) );
 				if ( pMessage )
 				{
 					if ( pMessage->m_vectExtraMessages.size() )
@@ -301,6 +305,11 @@ sMacAddress="11:22";
 					m_pListener->ReceivedMessage( this, pMessage );
 				}
 			}
+			else if( sMessage.substr(0,10)=="PLAIN_TEXT" )
+				m_bUsePlainText=true;
+			else if( sMessage.substr(0,6)=="BINARY" )
+				m_bUsePlainText=false;
+
 			else m_pListener->ReceivedString( this, sMessage );
 		}
 	}

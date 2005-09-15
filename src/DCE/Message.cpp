@@ -230,7 +230,7 @@ void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFr
 		else if( eType==ptUU )
 		{
 			int iUUSize = strlen(pParmValue);
-			unsigned char *pBinaryValue = new unsigned char[iUUSize];
+			unsigned char *pBinaryValue = new unsigned char[MaxDecodedSize(iUUSize)];
 			tSizeParmValue = Ns_HtuuDecode((unsigned char *) pParmValue, pBinaryValue, iUUSize);
 			pParmValue=(char *) pBinaryValue;
 		}
@@ -247,7 +247,7 @@ void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFr
 			g_pPlutoLogger->Write(LV_CRITICAL,"Bad value for parameter ID: %d",ParamNum);
 			return;
 		}
-		if( eType==ptData || eType==ptBinary )
+		if( eType==ptData || eType==ptBinary || eType==ptUU )
 		{
 			m_mapData_Parameters[ParamNum] = pParmValue;
 			m_mapData_Lengths[ParamNum] = tSizeParmValue;
@@ -567,6 +567,67 @@ void Message::ToData( unsigned long &dwSize, char* &pcData, bool bWithHeader )
     m_pcDataBlock=NULL; // Be sure the SerializeClass destructor doesn't also try to delete this
 
     return;
+}
+
+string Message::ToString( bool bWithHeader )
+{
+	string sOutput;
+
+	if( m_dwPK_Device_To == DEVICEID_CATEGORY )
+	{
+		sOutput += "-targetType category ";
+		m_dwPK_Device_To = m_dwPK_Device_Category_To;
+	}
+	else if( m_dwPK_Device_To == DEVICEID_MASTERDEVICE )
+	{
+		sOutput += "-targetType template ";
+		m_dwPK_Device_To = m_dwPK_Device_Template;
+	}
+
+	if( m_eExpectedResponse == ER_DeliveryConfirmation )
+		sOutput += "-o ";
+	else if( m_eExpectedResponse == ER_ReplyString || m_eExpectedResponse == ER_DeliveryConfirmation )
+		sOutput += "-r ";
+
+	sOutput += StringUtils::itos(m_dwPK_Device_From) + " ";
+	if( m_dwPK_Device_To == DEVICEID_LIST )
+		sOutput += m_sPK_Device_List_To + " ";
+	else
+		sOutput += StringUtils::itos(m_dwPK_Device_To) + " ";
+
+	sOutput += StringUtils::itos(m_dwMessage_Type) + " " + StringUtils::itos(m_dwID) + " ";
+
+	for(map<long, string>::iterator itP=m_mapParameters.begin();itP!=m_mapParameters.end();++itP)
+		sOutput += StringUtils::itos(itP->first) + " \"" + StringUtils::Replace(itP->second,"\"","\\\"") + "\" ";
+
+	for(map<long, char *>::iterator itD=m_mapData_Parameters.begin();itD!=m_mapData_Parameters.end();++itD)
+	{
+		sOutput += "U" + StringUtils::itos(itD->first) + " \"";
+		size_t SizeRaw = m_mapData_Lengths[itD->first];
+
+		size_t SizeEncoded = MaxEncodedSize(SizeRaw);
+		char *pDataEncoded = new char[SizeEncoded];
+		int Bytes=Ns_HtuuEncode((unsigned char *) itD->second, SizeRaw, (unsigned char *) pDataEncoded);
+		pDataEncoded[Bytes]=0;
+		sOutput += pDataEncoded;
+		delete[] pDataEncoded;
+		sOutput += "\" ";
+	}
+
+    vector<class Message *>::iterator itExtras;
+    for( itExtras=m_vectExtraMessages.begin(); itExtras!=m_vectExtraMessages.end(); ++itExtras )
+    {
+        Message *pMessage_Child = *itExtras;
+        if( pMessage_Child )  // The embedded message could have been deleted
+			sOutput += "\t" + pMessage_Child->ToString(false);
+    }
+
+	if( bWithHeader )
+	{
+		string::size_type size = sOutput.size();
+		sOutput="MESSAGE " + StringUtils::itos(size) + "\n" + sOutput;
+	}
+	return sOutput;
 }
 
 void Message::FromData( unsigned long dwSize, char *pcData )
