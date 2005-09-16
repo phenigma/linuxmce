@@ -142,6 +142,9 @@ bool ServerSocket::_Run()
 		{
 			break;
 		}
+		if( sMessage.size()<2 )  // Got to be at least 2 characters
+			continue;
+
 		if ( sMessage.length() >= 4 && sMessage.substr(0,4) == "TIME" )
 		{
 			time_t t;
@@ -166,7 +169,7 @@ bool ServerSocket::_Run()
 		/** @todo check comment */
 		// g_pPlutoLogger->Write(LV_SOCKET, "TCPIP: Received %s", sMessage.c_str());
 
-		if ( sMessage.length() >= 5 && sMessage.substr(0,5) == "HELLO")
+		if ( sMessage.length() >= 5 && (sMessage.substr(0,5) == "EVENT" || /* TODO - REMVOE HELLO ONCE ALL DEVICES USE EVENT */ sMessage.substr(0,5)=="HELLO") )
 		{
 #ifdef LL_DEBUG_FILE
 			SocketInfo *pSocketInfo = g_mapSocketInfo_Find(m_iSocketCounter,m_sName,this);
@@ -242,14 +245,17 @@ sMacAddress="11:22";
 		}
 #endif
 
-		if (  sMessage.length() >= 14 && sMessage.substr(0,14) == "REQUESTHANDLER" )
+		if ( (sMessage.length() > 7 && sMessage.substr(0,7) == "COMMAND") || /* TODO -- DELETE THIS ONCE ALL USE COMMAND */ (sMessage.length() > 14 && sMessage.substr(0,14) == "REQUESTHANDLER") )
 		{
 #ifdef LL_DEBUG_FILE
 			SocketInfo *pSocketInfo = g_mapSocketInfo_Find(m_iSocketCounter,m_sName,this);
 			pSocketInfo->m_sDevice=sMessage;
 #endif
 			SendString( "OK" );
-			m_dwPK_Device = atoi( sMessage.substr(14).c_str() );
+			if( sMessage[0]=='C' )
+				m_dwPK_Device = atoi( sMessage.substr(7).c_str() );
+			else  // TODO -- DELETE THIS ONCE ALL USE COMMAND 
+				m_dwPK_Device = atoi( sMessage.substr(14).c_str() );
 #ifdef TEST_DISCONNECT
 			if (m_dwPK_Device == TEST_DISCONNECT)
 			{
@@ -305,10 +311,15 @@ sMacAddress="11:22";
 					m_pListener->ReceivedMessage( this, pMessage );
 				}
 			}
-			else if( sMessage.substr(0,10)=="PLAIN_TEXT" )
-				m_bUsePlainText=true;
-			else if( sMessage.substr(0,6)=="BINARY" )
-				m_bUsePlainText=false;
+			else if( sMessage.substr(0,10)=="PLAIN_TEXT" || sMessage.substr(0,6)=="BINARY" )
+			{
+				PLUTO_SAFETY_LOCK( ll, m_pListener->m_ListenerMutex );
+				ServerSocket *pSocket = m_pListener->m_mapCommandHandlers[m_dwPK_Device];
+				if( pSocket )
+					pSocket->m_bUsePlainText = sMessage[0]=='P';
+				m_bUsePlainText=sMessage[0]=='P';
+				SendString("OK");
+			}
 
 			else m_pListener->ReceivedString( this, sMessage );
 		}

@@ -366,9 +366,13 @@ Message *Socket::SendReceiveMessage( Message *pMessage )
 
 	string sResult;
 	Message *pOutMessage;
-	if ( ReceiveString( sResult ) && sResult.substr(0,7)=="MESSAGE" ) // got the response we expected
+	if ( ReceiveString( sResult ) && sResult.substr(0,7)=="MESSAGE" && sResult.size()>7 ) // got the response we expected
 	{
-		pOutMessage = ReceiveMessage( atoi( sResult.substr( 8 ).c_str() ) );
+		if( sResult[7]=='T' )
+			pOutMessage = ReceiveMessage( atoi( sResult.substr( 9 ).c_str() ),true );
+		else
+			pOutMessage = ReceiveMessage( atoi( sResult.substr( 8 ).c_str() ) );
+
 		return pOutMessage; // return the response
 	}
 

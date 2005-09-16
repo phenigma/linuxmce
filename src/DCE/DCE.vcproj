@@ -165,6 +165,9 @@
 				RelativePath="..\PlutoUtils\Other.cpp">
 			</File>
 			<File
+				RelativePath=".\PlainClientSocket.cpp">
+			</File>
+			<File
 				RelativePath="..\PlutoUtils\ProcessUtils.cpp">
 			</File>
 			<File

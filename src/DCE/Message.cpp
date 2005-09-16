@@ -112,7 +112,7 @@ Message::Message( int iNumArgs, char *cArguments[], int dwPK_DeviceFrom )
 	BuildFromArgs( iNumArgs, cArguments, dwPK_DeviceFrom );
 }
 
-void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFrom )
+void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFrom, Message *pMessage_Parent )
 {
     Clear();
 
@@ -188,7 +188,17 @@ void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFr
 		enum { ptNormal, ptData, ptBinary, ptText, ptUU, ptOut } eType = ptNormal;
 
         char *pParamID = cArguments[i];
-		if( pParamID[0]=='D' )
+		if( pParamID[0]=='&' )
+		{
+			Message *pMessage = new Message();
+			pMessage->BuildFromArgs(iNumArgs-i-1, &cArguments[i+1], dwPK_DeviceFrom,this);
+			if( pMessage_Parent )
+				pMessage_Parent->m_vectExtraMessages.push_back(pMessage);
+			else
+				m_vectExtraMessages.push_back(pMessage);
+			return;
+		}
+		else if( pParamID[0]=='D' )
 		{
 			pParamID++;
 			eType=ptData;
@@ -619,13 +629,13 @@ string Message::ToString( bool bWithHeader )
     {
         Message *pMessage_Child = *itExtras;
         if( pMessage_Child )  // The embedded message could have been deleted
-			sOutput += "\t" + pMessage_Child->ToString(false);
+			sOutput += "\"&\" " + pMessage_Child->ToString(false) + " ";
     }
 
 	if( bWithHeader )
 	{
 		string::size_type size = sOutput.size();
-		sOutput="MESSAGE " + StringUtils::itos(size) + "\n" + sOutput;
+		sOutput="MESSAGET " + StringUtils::itos(size) + "\n" + sOutput;
 	}
 	return sOutput;
 }

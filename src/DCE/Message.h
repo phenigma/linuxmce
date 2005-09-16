@@ -219,7 +219,7 @@ namespace DCE
         /**
          * @brief Build from command line arguments
          */
-		void BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFrom=0 );
+		void BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFrom=0, Message *pMessage_Parent=NULL );
 	};
 
     /**

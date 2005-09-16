@@ -210,7 +210,7 @@ bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo )
 
 bool ClientSocket::OnConnect( int PK_DeviceTemplate,string sExtraInfo )
 {
-	SendString( "HELLO " + StringUtils::itos( m_dwPK_Device ) + (PK_DeviceTemplate ? " T=" + StringUtils::itos(PK_DeviceTemplate) : string("")) + (sExtraInfo.length() ? " " + sExtraInfo : "") );
+	SendString( "EVENT " + StringUtils::itos( m_dwPK_Device ) + (PK_DeviceTemplate ? " T=" + StringUtils::itos(PK_DeviceTemplate) : string("")) + (sExtraInfo.length() ? " " + sExtraInfo : "") );
 	string sResponse;
 	if ( !ReceiveString( sResponse ) )
 	{

@@ -10,7 +10,7 @@ LDLIBS = -lpthread -lmysqlclient_r -lSerializeClass
 APPNAME = DCECommon
 VERSION = 2.0.0
 
-sources = DataGrid.cpp ClientSocket.cpp Logger.cpp Message.cpp \
+sources = DataGrid.cpp ClientSocket.cpp PlainClientSocket.cpp Logger.cpp Message.cpp \
 	Socket.cpp ServerSocket.cpp SocketListener.cpp ServerLogger.cpp \
 	AlarmManager.cpp Command_Impl.cpp Event_Impl.cpp \
 	HandleRequestSocket.cpp \
