@@ -34,7 +34,7 @@
 			<tr>
 				<td><B>What type of device will this be?  Are you going to be writing code for it?</B></td>
 				<td colspan="3">
-					<input type="radio" name="opt" value="3" checked> No, this device doesn\'t require programming.  Examples: A/V equipment controlled by infrared, remote controls, and virtual devices are children of a dce device, like security sensors, light switches, etc.
+					<input type="radio" name="opt" value="3" checked> No, this device doesn\'t require programming.  Examples: A/V equipment controlled by infrared, remote controls, and virtual devices are children of a dce device, like security sensors, light switches, etc.<br>
 					<input type="radio" name="opt" value="1"> I\'m going to write c++ code, or use another language that can handle socket communications.  Examples: Software media players, phone systems, Java/Perl applications, etc.<br>
 					<input type="radio" name="opt" value="2"> It\'s a simple, generic serial device controlled by RS232, Ethernet or USB, which you\'ll control with Pluto\'s GSD and embedded Ruby snippets (very easy).  Examples: Lighting control, alarm panels, surveillance cameras, thermostats, weather stations, a/v equipment with RS232 ports, etc.<br>
 				</td>
@@ -70,7 +70,7 @@
 				$commandLine=NULL;
 				$redirectJS='
 				<script>
-					self.location=\'index.php?section=userHome\';
+					opener.location=\'index.php?section=editMasterDevice&model=\';
 					window.open(\''.$PlutoSupportHost.'index.php?section=document&docID='.$writeCodeDocument.'\',\'_blank\',\'\')
 					self.close();
 				</script>
@@ -104,8 +104,9 @@
 				$commandLine=NULL;
 				$redirectJS='
 				<script>
-					self.location=\'index.php?section=userHome\';
+					opener.location=\'index.php?section=editMasterDevice&model=\';
 					window.open(\''.$PlutoSupportHost.'index.php?section=document&docID='.$virtualDeviceDocument.'\',\'_blank\',\'\')
+					self.close();
 				</script>
 				';				
 			break;
@@ -122,7 +123,7 @@
 				$deviceID=exec('sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$dtID.' -i '.$installationID);
 			}
 			
-			$out=$redirectJS;				
+			$out=($opt==2)?$redirectJS:str_replace('model=','model='.$dtID,$redirectJS);				
 				
 		}else{
 			header('Location: index.php?section=addModel&dcID='.$dcID.'&mID='.$mID.'&from='.$from.'&error=Please type the description.');
