@@ -76,6 +76,7 @@ VDR::VDR(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLoca
          m_pRatWrapper = NULL;
          m_iVDRWindowId = 0;
 	 m_pDevice_PVRCard = NULL;
+	 m_pSocket_VDR = NULL;
 }
                                 
 
@@ -285,15 +286,19 @@ void VDR::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,string
         /** only to make the xine-protocol starting for developing burgi */
              
         //ProcessUtils::SpawnApplication("/usr/bin/xine", "vdr:/tmp/vdr-xine/stream#demux:mpeg_pes", "VDR_Xine");
-        //m_pSocket_VDR = new Socket("VDR Socket","localhost","");
-	
-                        
 
-	cout << "Need to implement command #37 - Play Media" << endl;
-	cout << "Parm #13 - Filename=" << sFilename << endl;
-	cout << "Parm #29 - PK_MediaType=" << iPK_MediaType << endl;
-	cout << "Parm #41 - StreamID=" << iStreamID << endl;
-	cout << "Parm #42 - MediaPosition=" << sMediaPosition << endl;
+	delete m_pSocket_VDR; // Should always be NULL anyway
+	int Port = DATA_Get_TCP_Port();
+	if( !Port )
+		Port = 5555;
+	g_pPlutoLogger->Write(LV_STATUS,"Connecting to VDR on port %d",Port);
+	m_pSocket_VDR = new PlainClientSocket("localhost:" + StringUtils::itos(Port));
+	if( !m_pSocket_VDR->Connect() )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Unable to connect to VDR client");
+		sCMD_Result="FAILED CONNECT";
+		return;
+	}
 }
 
 //<-dceag-c38-b->
@@ -308,9 +313,7 @@ void VDR::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,string
 void VDR::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c38-e->
 {
-	cout << "Need to implement command #38 - Stop Media" << endl;
-	cout << "Parm #41 - StreamID=" << iStreamID << endl;
-	cout << "Parm #42 - MediaPosition=" << sMediaPosition << endl;
+	delete m_pSocket_VDR; // Should always be NULL anyway
 }
 
 //<-dceag-c39-b->
@@ -323,6 +326,7 @@ void VDR::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &sCMD_Resul
 void VDR::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c39-e->
 {
+	m_pSocket_VDR->SendString("PAUSE");
 	cout << "Need to implement command #39 - Pause Media" << endl;
 	cout << "Parm #41 - StreamID=" << iStreamID << endl;
 }

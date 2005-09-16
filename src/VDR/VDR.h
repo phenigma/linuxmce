@@ -7,6 +7,8 @@
 #include "Gen_Devices/VDRBase.h"
 //<-dceag-d-e->
 
+#include "DCE/PlainClientSocket.h"
+
 class RatPoisonWrapper;
 
 //<-dceag-decl-b->
@@ -23,7 +25,8 @@ private:
                 pthread_t                    m_qApplicationThreadId;
                 RatPoisonWrapper            *m_pRatWrapper;
 		DeviceData_Base *m_pDevice_PVRCard;
-                        
+				PlainClientSocket *m_pSocket_VDR;
+
                 void selectWindow();
                 bool checkWindowName(long unsigned int window, string windowName);
 
