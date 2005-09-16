@@ -86,6 +86,7 @@ string m_Arguments;
 string m_Homepage;
 string m_Icon;
 long int m_FK_DesignObj;
+long int m_FK_DesignObj_OSD;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -93,7 +94,7 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[15];
+		bool is_null[16];
 	
 	public:
 		long int PK_QuickStartTemplate_get();
@@ -105,6 +106,7 @@ string Arguments_get();
 string Homepage_get();
 string Icon_get();
 long int FK_DesignObj_get();
+long int FK_DesignObj_OSD_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -122,6 +124,7 @@ void Arguments_set(string val);
 void Homepage_set(string val);
 void Icon_set(string val);
 void FK_DesignObj_set(long int val);
+void FK_DesignObj_OSD_set(long int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -138,6 +141,7 @@ bool Arguments_isNull();
 bool Homepage_isNull();
 bool Icon_isNull();
 bool FK_DesignObj_isNull();
+bool FK_DesignObj_OSD_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -153,6 +157,7 @@ void Arguments_setNull(bool val);
 void Homepage_setNull(bool val);
 void Icon_setNull(bool val);
 void FK_DesignObj_setNull(bool val);
+void FK_DesignObj_OSD_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -173,6 +178,7 @@ void psc_restrict_setNull(bool val);
 		class Row_QuickStartCategory* FK_QuickStartCategory_getrow();
 class Row_Package* FK_Package_getrow();
 class Row_DesignObj* FK_DesignObj_getrow();
+class Row_DesignObj* FK_DesignObj_OSD_getrow();
 
 
 		// Return the rows in other tables with foreign keys pointing here
@@ -181,7 +187,7 @@ class Row_DesignObj* FK_DesignObj_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_QuickStartTemplate+ m_Description+ m_FK_QuickStartCategory+ m_FK_Package+ m_Binary+ m_Arguments+ m_Homepage+ m_Icon+ m_FK_DesignObj+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_QuickStartTemplate+ m_Description+ m_FK_QuickStartCategory+ m_FK_Package+ m_Binary+ m_Arguments+ m_Homepage+ m_Icon+ m_FK_DesignObj+ m_FK_DesignObj_OSD+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -195,6 +201,7 @@ string Arguments_asSQL();
 string Homepage_asSQL();
 string Icon_asSQL();
 string FK_DesignObj_asSQL();
+string FK_DesignObj_OSD_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

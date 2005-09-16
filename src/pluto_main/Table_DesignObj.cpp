@@ -55,6 +55,7 @@ using namespace std;
 #include "Table_MediaType_DesignObj.h"
 #include "Table_MediaType_DesignObj.h"
 #include "Table_QuickStartTemplate.h"
+#include "Table_QuickStartTemplate.h"
 #include "Table_Skin.h"
 #include "Table_Skin.h"
 #include "Table_Skin.h"
@@ -1910,6 +1911,13 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_QuickStartTemplate *pTable = table->database->QuickStartTemplate_get();
 pTable->GetRows("`FK_DesignObj`=" + StringUtils::itos(m_PK_DesignObj),rows);
+}
+void Row_DesignObj::QuickStartTemplate_FK_DesignObj_OSD_getrows(vector <class Row_QuickStartTemplate*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_QuickStartTemplate *pTable = table->database->QuickStartTemplate_get();
+pTable->GetRows("`FK_DesignObj_OSD`=" + StringUtils::itos(m_PK_DesignObj),rows);
 }
 void Row_DesignObj::Skin_FK_DesignObj_MainMenu_getrows(vector <class Row_Skin*> *rows)
 {
