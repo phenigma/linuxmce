@@ -4283,8 +4283,9 @@ class DataGridTable *Media_Plugin::DVDAngles( string GridID, string Parms, void 
 
 class DataGridTable *Media_Plugin::Bookmarks( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
-	DataGridTable *pDataGrid = new DataGridTable();
+    int nWidth = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Width_CONST].c_str());
 
+    DataGridTable *pDataGrid = new DataGridTable();
 	g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::Bookmarks Called to populate: %s", Parms.c_str());
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 
@@ -4323,51 +4324,62 @@ class DataGridTable *Media_Plugin::Bookmarks( string GridID, string Parms, void 
 	{
 		Row_Bookmark *pRow_Bookmark = vectRow_Bookmark[s];
 
-		DataGridCell *pDataGridCell,*pDataGridCell_Cover,*pDataGridCell_Preview;
-		pDataGridCell = new DataGridCell(pRow_Bookmark->Description_get(), StringUtils::itos(pRow_Bookmark->PK_Bookmark_get()));
-		pDataGridCell_Cover = new DataGridCell("", StringUtils::itos(pRow_Bookmark->PK_Bookmark_get()));
-		pDataGridCell_Preview = new DataGridCell("", StringUtils::itos(pRow_Bookmark->PK_Bookmark_get()));
+        if(nWidth > 1)
+        {
+            DataGridCell *pDataGridCell,*pDataGridCell_Cover,*pDataGridCell_Preview;
+            pDataGridCell = new DataGridCell(pRow_Bookmark->Description_get(), StringUtils::itos(pRow_Bookmark->PK_Bookmark_get()));
+            pDataGridCell_Cover = new DataGridCell("", StringUtils::itos(pRow_Bookmark->PK_Bookmark_get()));
+            pDataGridCell_Preview = new DataGridCell("", StringUtils::itos(pRow_Bookmark->PK_Bookmark_get()));
 
-		pDataGrid->SetData(0,s,pDataGridCell_Cover);
-		pDataGrid->SetData(1,s,pDataGridCell_Preview);
-		pDataGrid->SetData(2,s,pDataGridCell);
+            pDataGrid->SetData(0,s,pDataGridCell_Cover);
+            pDataGrid->SetData(1,s,pDataGridCell_Preview);
+            pDataGrid->SetData(2,s,pDataGridCell);
 
-		Row_Picture *pRow_Picture=NULL;
-		if( (pRow_Picture=pRow_Bookmark->FK_Picture_getrow())!=NULL )
-		{
-			size_t iSize;
-			char *pBuffer = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(pRow_Picture->PK_Picture_get()) + "_tn." + pRow_Picture->Extension_get(),iSize);
-			if( pBuffer )
-			{
-				pDataGridCell_Preview->m_pGraphicData = pBuffer;
-				pDataGridCell_Preview->m_GraphicLength = iSize;
-			}
-		}
+            Row_Picture *pRow_Picture=NULL;
+            if( (pRow_Picture=pRow_Bookmark->FK_Picture_getrow())!=NULL )
+            {
+                size_t iSize;
+                char *pBuffer = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(pRow_Picture->PK_Picture_get()) + "_tn." + pRow_Picture->Extension_get(),iSize);
+                if( pBuffer )
+                {
+                    pDataGridCell_Preview->m_pGraphicData = pBuffer;
+                    pDataGridCell_Preview->m_GraphicLength = iSize;
+                }
+            }
 
 #ifndef WIN32
-		Row_File *pRow_File = pRow_Bookmark->FK_File_getrow();
-		if( pRow_File )
-		{
-			int n = 79,result;
-			char value[80];
-			memset( value, 0, sizeof( value ) );
+            Row_File *pRow_File = pRow_Bookmark->FK_File_getrow();
+            if( pRow_File )
+            {
+                int n = 79,result;
+                char value[80];
+                memset( value, 0, sizeof( value ) );
 
-			int PK_Picture;
-			if ( (result=attr_get( (pRow_File->Path_get() + "/" + pRow_File->Filename_get()).c_str( ), "PIC", value, &n, 0)) == 0 && (PK_Picture = atoi(value)) )
-			{
-				size_t iSize;
-				char *pBuffer = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(PK_Picture) + "_tn.jpg",iSize);
-				if( pBuffer )
-				{
-					pDataGridCell_Cover->m_pGraphicData = pBuffer;
-					pDataGridCell_Cover->m_GraphicLength = iSize;
-				}
-	g_pPlutoLogger->Write(LV_WARNING,"pic file 2 %p",pBuffer);
-			}
-			g_pPlutoLogger->Write(LV_WARNING,"File %s pic %d",(pRow_File->Path_get() + "/" + pRow_File->Filename_get()).c_str( ),PK_Picture);
+                int PK_Picture;
+                if ( (result=attr_get( (pRow_File->Path_get() + "/" + pRow_File->Filename_get()).c_str( ), "PIC", value, &n, 0)) == 0 && (PK_Picture = atoi(value)) )
+                {
+                    size_t iSize;
+                    char *pBuffer = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(PK_Picture) + "_tn.jpg",iSize);
+                    if( pBuffer )
+                    {
+                        pDataGridCell_Cover->m_pGraphicData = pBuffer;
+                        pDataGridCell_Cover->m_GraphicLength = iSize;
+                    }
+                    g_pPlutoLogger->Write(LV_WARNING,"pic file 2 %p",pBuffer);
+                }
+                g_pPlutoLogger->Write(LV_WARNING,"File %s pic %d",(pRow_File->Path_get() + "/" + pRow_File->Filename_get()).c_str( ),PK_Picture);
 
-		}
+            }
 #endif
+        }
+        else
+        {
+            string sItem = m_pDatabase_pluto_media->File_get()->GetRow(pRow_Bookmark->FK_File_get())->Filename_get() +  
+                "\n" + pRow_Bookmark->Description_get();
+            DataGridCell *pDataGridCell = pDataGridCell = new DataGridCell(sItem, 
+                StringUtils::itos(pRow_Bookmark->PK_Bookmark_get()));
+            pDataGrid->SetData(0,s,pDataGridCell);
+        }
 	}
 
     return pDataGrid;

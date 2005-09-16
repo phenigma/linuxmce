@@ -170,6 +170,8 @@ static bool bMaintThreadIsRunning = false;
 	'X' means that clear the selected cell entry whenever the user scrolls
 	'S' means that on the initial acquire it should scroll to the highlighted cell
 	'cx' means if this is a phone on Bluetooth dongle, render this grid as a single column on the phone using the column x
+    'T'  - (for PlutoMO only) PlutoMO will send SelectedItem everytime the position on the grid is changed.
+    'F'  - force rendering in Orbiter
 */
 
 /*
