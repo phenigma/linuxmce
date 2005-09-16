@@ -31,8 +31,14 @@ read
 bash -x /home/uploads/replacements.patch.sh
 
 cd /var/www
-sed "s/****KICK_START_NAME****/installation-cd.$version_name.iso/g" /var/www/plutohome-com/client/step8a.php > /tmp/step8a.php
+cdmd5="$(</var/www/installation-cd.$version_name.md5)"
+sed "s/****KICK_START_NAME****/installation-cd.$version_name.iso/g" /var/www/plutohome-com/client/step8a.php > /tmp/step8a.tmp
+sed "s/****MD5SUM****/$cdmd5/g" /tmp/step8a.tmp /tmp/step8a.php
 mv /tmp/step8a.php /var/www/plutohome-com/client/step8a.php
+echo "Confirm cd version is installation-cd.$version_name.iso and md5"
+cat /var/www/installation-cd.$version_name.md5
+md5sum /var/www/installation-cd.$version_name.iso
+read
 ls -l
 echo "remove old iso images"
 read
