@@ -12,15 +12,72 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
+#include "PlutoUtils/ProcessUtils.h"
 #include "pluto_main/Define_DeviceTemplate.h"
+#include "pluto_main/Define_Command.h"
+#include "pluto_main/Define_CommandParameter.h"
+#include "pluto_main/Define_DesignObj.h"
+
+#include <sstream>
+#include <pthread.h>
+
+#include "utilities/linux/RatpoisonHandler.h"
+
+#include "X11/Xlib.h"
+#include "X11/Xutil.h"
+#include "X11/keysym.h"
+#include <X11/extensions/XTest.h>
+
+#ifndef WIN32
+#include <sys/wait.h>
+
+VDR *g_pVDR = NULL;
+
+void sh(int i) /* signal handler */
+{
+   if ( g_pVDR && g_pVDR->m_bQuit )
+   		return;
+                    
+   int status = 0;
+   pid_t pid = 0;
+   pid = wait(&status);
+
+   if ( g_pVDR )
+   	g_pVDR->ProcessExited(pid, status);
+}
+#endif
+
+#define VDR_WINDOW_NAME "VDR_Xine"
+
+// This shoould be the class name of the gimageview application
+#define LOGO_APPLICATION_NAME "gimageview"
+
+class RatPoisonWrapper : public RatpoisonHandler<RatPoisonWrapper>
+{
+    Display *display;
+
+public:
+    RatPoisonWrapper(Display *display) : display(display) {}
+    Display *getDisplay() { return display; }
+    bool commandRatPoison(string command) { return RatpoisonHandler<RatPoisonWrapper>::commandRatPoison(command); }
+};
+                                            
+
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 VDR::VDR(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: VDR_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
+	,m_VDRMutex("VDR")
 {
+         g_pVDR = this;
+         m_VDRMutex.Init(NULL);
+         m_pRatWrapper = NULL;
+         m_iVDRWindowId = 0;
 }
+                                
+
 
 //<-dceag-getconfig-b->
 bool VDR::GetConfig()
@@ -37,8 +94,13 @@ bool VDR::GetConfig()
 		{
 			string s=pDevice->m_sIPAddress;
 		}
-	}
 	return true;
+	}
+
+	m_pRatWrapper = new RatPoisonWrapper(XOpenDisplay(getenv("DISPLAY")));
+        signal(SIGCHLD, sh); /* install handler */
+        return true;
+                
 }
 
 //<-dceag-const2-b->!
@@ -47,8 +109,30 @@ bool VDR::GetConfig()
 VDR::~VDR()
 //<-dceag-dest-e->
 {
+        // Kill any instances we spawned
+        vector<void *> data;
+        ProcessUtils::KillApplication(VDR_WINDOW_NAME, data);
+
+	delete m_pRatWrapper;
 	
 }
+
+bool VDR::LaunchVDR()
+{
+      if ( ! m_pRatWrapper )
+      m_pRatWrapper = new RatPoisonWrapper(XOpenDisplay(getenv("DISPLAY")));
+                
+      m_pRatWrapper->commandRatPoison(":select " LOGO_APPLICATION_NAME);
+      ProcessUtils::SpawnApplication("/usr/bin/xine", "vdr:/tmp/vdr-xine/stream#demux:mpeg_pes", VDR_WINDOW_NAME);
+                                
+      selectWindow();
+      locateVDRWindow(DefaultRootWindow(m_pRatWrapper->getDisplay()));
+                            
+      return true;
+}
+                                            
+
+
 
 //<-dceag-reg-b->
 // This function will only be used if this device is loaded into the DCE Router's memory space as a plug-in.  Otherwise Connect() will be called from the main()
@@ -56,6 +140,37 @@ bool VDR::Register()
 //<-dceag-reg-e->
 {
 	return Connect(PK_DeviceTemplate_get()); 
+}
+
+bool VDR::checkXServerConnection()
+{
+        if ( ! m_pRatWrapper || ! m_pRatWrapper->getDisplay() )
+        {
+	        if ( !m_pRatWrapper )
+                {
+                	g_pPlutoLogger->Write(LV_CRITICAL, "The ratpoison command handler value is null. This usually means the XServer connection is down or useless");
+                        return false;
+                }
+		if ( !m_pRatWrapper->getDisplay() )
+		{
+		        g_pPlutoLogger->Write(LV_CRITICAL, "The Display* value in the ratpoison command handler is null. This ususally means the XServer connection is down or useless");
+		        return false;
+		}
+	}
+        return true;
+}
+
+void VDR::CreateChildren()
+{
+    PLUTO_SAFETY_LOCK(mm,m_VDRMutex);
+    if ( ! checkXServerConnection())
+    	return;
+                                
+    if ( ! locateVDRWindow(DefaultRootWindow(m_pRatWrapper->getDisplay())) )
+    {
+    LaunchVDR();
+    locateVDRWindow(DefaultRootWindow(m_pRatWrapper->getDisplay()));
+    }
 }
 
 //<-dceag-createinst-b->!
@@ -87,6 +202,54 @@ void VDR::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 	sCMD_Result = "UNKNOWN DEVICE";
 }
 
+void VDR::selectWindow()
+{
+    m_pRatWrapper->commandRatPoison(":select " VDR_WINDOW_NAME);
+}
+
+bool VDR::checkWindowName(long unsigned int window, string windowName)
+{
+    XTextProperty text;
+
+        if ( ! checkXServerConnection())
+                return false;
+
+        if ( XGetWMName (m_pRatWrapper->getDisplay(), window, &text) && windowName == string((const char*)text.value) )
+        return true;
+
+    return false;
+}
+
+bool VDR::locateVDRWindow(long unsigned int window)
+{
+    Window parent_win, root_win, *child_windows;
+    unsigned int num_child_windows;
+        
+    if ( ! checkXServerConnection())
+    return false;
+                     
+    if ( checkWindowName(window, VDR_WINDOW_NAME ) )
+    {
+	g_pPlutoLogger->Write(LV_STATUS, "Found window id: 0x%x", window );
+	m_iVDRWindowId = window;
+        return true;
+    }
+                                                               
+    XQueryTree(m_pRatWrapper->getDisplay(), (Window)window, &root_win, &parent_win, &child_windows, &num_child_windows);
+                                                                       
+    for ( unsigned int i = 0; i < num_child_windows; i++ )
+    if ( locateVDRWindow(child_windows[i]) )
+	    return true;
+                                                                                               
+    /* we need to free the list of child IDs, as it was dynamically allocated */
+    /* by the XQueryTree function.                                            */
+    XFree(child_windows);
+    return false;
+}
+                                                                                                                
+                                                                                                                
+
+    
 //<-dceag-sample-b->!
 
 //<-dceag-sample-e->
@@ -113,6 +276,13 @@ void VDR::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 void VDR::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,string sMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c37-e->
 {
+        /** dirty hack for xine testing */
+        /** only to make the xine-protocol starting for developing burgi */
+             
+        //ProcessUtils::SpawnApplication("/usr/bin/xine", "vdr:/tmp/vdr-xine/stream#demux:mpeg_pes", "VDR_Xine");
+                        
+                        
+
 	cout << "Need to implement command #37 - Play Media" << endl;
 	cout << "Parm #13 - Filename=" << sFilename << endl;
 	cout << "Parm #29 - PK_MediaType=" << iPK_MediaType << endl;
@@ -180,6 +350,26 @@ void VDR::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpeed,string
 	cout << "Need to implement command #41 - Change Playback Speed" << endl;
 	cout << "Parm #41 - StreamID=" << iStreamID << endl;
 	cout << "Parm #43 - MediaPlaybackSpeed=" << iMediaPlaybackSpeed << endl;
+}
+
+void VDR::ProcessExited(int pid, int status)
+{
+        PLUTO_SAFETY_LOCK(mm,m_VDRMutex);
+        g_pPlutoLogger->Write(LV_STATUS, "Process exited %d %d", pid, status);
+                
+        void *data;
+        string applicationName;
+        if ( ! ProcessUtils::ApplicationExited(pid, applicationName, data) )
+                return;
+                                                       
+        g_pPlutoLogger->Write(LV_STATUS, "Got application name: %s compare with %s", applicationName.c_str(), VDR_WINDOW_NAME);
+                                                         
+        if ( applicationName.compare(VDR_WINDOW_NAME) == 0 )
+        {
+                g_pPlutoLogger->Write(LV_STATUS, "Send go back to the caller!");
+                DCE::CMD_MH_Stop_Media_Cat CMD_MH_Stop_Media_Cat(m_dwPK_Device,DEVICECATEGORY_Media_Plugins_CONST,false,BL_SameHouse,m_dwPK_Device,0,0,"");
+                SendCommand(CMD_MH_Stop_Media_Cat);
+        }
 }
 
 //<-dceag-c84-b->

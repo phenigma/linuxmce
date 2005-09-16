@@ -7,13 +7,30 @@
 #include "Gen_Devices/VDRBase.h"
 //<-dceag-d-e->
 
+class RatPoisonWrapper;
+
 //<-dceag-decl-b->
 namespace DCE
 {
 	class VDR : public VDR_Command
 	{
 //<-dceag-decl-e->
+private:
+	        long unsigned int            m_iVDRWindowId;
+	                pluto_pthread_mutex_t m_VDRMutex;
 		// Private member variables
+	        int                          m_iControllingDevice;
+                pthread_t                    m_qApplicationThreadId;
+                RatPoisonWrapper            *m_pRatWrapper;
+                        
+                void selectWindow();
+                bool checkWindowName(long unsigned int window, string windowName);
+
+protected:                                        
+        	bool LaunchVDR();
+	        bool locateVDRWindow(long unsigned int window);
+	        bool checkXServerConnection();
+		                        
 
 		// Private methods
 public:
@@ -29,6 +46,10 @@ public:
 		virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage);
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
+
+                virtual void KillSpawnedDevices();
+                virtual void CreateChildren();
+                virtual void ProcessExited(int pid, int status);
 
 //<-dceag-const2-b->!
 
