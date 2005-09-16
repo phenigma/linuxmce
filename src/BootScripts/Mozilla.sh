@@ -1,17 +1,16 @@
 #!/bin/bash
 
-Moz=/usr/bin/mozilla
-Rat=/usr/pluto/bin/ratpoison
-export DISPLAY=:0
-Orbiter="$1"
-Screen="$2"
-URL="$3"
+User="$1"
+URL="$2"
+FireFoxProfile="~/.mozilla/firefox/eo8ytrya.default/" ## need help
+echo "$(date -R) user $User URL $URL" >> /var/log/pluto/mozilla.newlog
 
-MozId="$($Rat -c 'windows %n %c' | grep -F Firefox-bin | head -1 | cut -d' ' -f1)"
-if [ -z "$MozId" ]; then
-	$Moz "$URL"
-	/usr/pluto/bin/MessageSend dcerouter 0 "$Orbiter" 1 4 16 "$Screen"
-else
-	$Rat -c "select $MozId"
-	$Moz -remote "openurl($URL)"
+if [[ $User!=0 && ! -f "/home/user_$1/bookmarks.html" ]]; then
+	echo "User $User doesn't have bookmarks yet"
+	cp /home/public/bookmarks.html "$FireFoxProfile"  ###  !!!!! Why doesn't this work!!!
 fi
+
+echo "starting firefox" >> /var/log/pluto/mozilla.newlog
+firefox "$URL"
+cp "$FireFoxProfile/bookmarks.html" /home/user_$1
+echo "$(date -R) firefox ended" >> /var/log/pluto/mozilla.newlog
