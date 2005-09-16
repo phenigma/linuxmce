@@ -187,6 +187,8 @@ if [ $version -ne 1 ]; then
     pushd /home/builds
     rm upload/download.tar.gz
 	cd $version_name
+	md5sum installation-cd.iso > installation-cd-$version_name.md5
+	mv installation-cd.iso installation-cd.$version_name.iso
     tar zcvf ../upload/download.tar.gz *
     scp ../upload/download.tar.gz uploads@66.235.209.27:~/
 
