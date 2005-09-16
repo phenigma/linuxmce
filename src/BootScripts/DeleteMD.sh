@@ -4,6 +4,11 @@ IP="$1"
 MAC="$2"
 lcdMAC=$(echo ${MAC//:/-} | tr 'A-Z' 'a-z')
 
+if [[ -z "$IP" ]]; then
+	echo "Error: Empty IP"
+	exit
+fi
+
 echo "Deleting MD files. MAC=$MAC IP=$IP"
 
 echo "Filesystem"
