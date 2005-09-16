@@ -1422,7 +1422,6 @@ DEP_CPP_MAIN_=\
 	"..\Win32\main.h"\
 	"..\Win32\MainDialog.h"\
 	"..\Win32\OrbiterSDL_Win32.h"\
-	"..\Win32\ProgressDialog.h"\
 	"..\Win32\StartOrbiter.h"\
 	".\OrbiterSDL_WinCE.h"\
 	".\stdafx.h"\
@@ -1643,6 +1642,7 @@ DEP_CPP_MESSA=\
 	"..\..\PlutoUtils\MyString.h"\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\PlutoUtils\uuencode.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	".\wince.h"\
 	
@@ -1954,9 +1954,16 @@ DEP_CPP_ORBIT=\
 	"..\RendererMNG.h"\
 	"..\Simulator.h"\
 	"..\TextStyle.h"\
+	"..\Win32\MainDialog.h"\
+	"..\Win32\StartOrbiter.h"\
+	".\stdafx.h"\
 	".\wince.h"\
+	{$(INCLUDE)}"aygshell.h"\
+	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_ORBIT=\
+	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	
 
@@ -2526,6 +2533,7 @@ NODEP_CPP_POPUP=\
 !ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_POPUP=\
+	"..\..\PlutoUtils\StringUtils.h"\
 	"..\Win32\MainDialog.h"\
 	"..\Win32\PopupMessage.h"\
 	"..\Win32\StartOrbiter.h"\
@@ -2551,14 +2559,14 @@ DEP_CPP_PROGR=\
 	"..\Win32\MainDialog.h"\
 	"..\Win32\ProgressDialog.h"\
 	"..\Win32\StartOrbiter.h"\
-	{$(INCLUDE)}"aygshell.h"\
-	{$(INCLUDE)}"sipapi.h"\
-	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_PROGR=\
 	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\emulator\vibrate.h"\
 	"..\Win32\Resource.h"\
 	"..\Win32\stdafx.h"\
+	".\inuserm.h"\
+	".\ipapi.h"\
+	".\ygshell.h"\
 	
 
 !ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Debug"
@@ -2567,14 +2575,14 @@ DEP_CPP_PROGR=\
 	"..\Win32\MainDialog.h"\
 	"..\Win32\ProgressDialog.h"\
 	"..\Win32\StartOrbiter.h"\
-	{$(INCLUDE)}"aygshell.h"\
-	{$(INCLUDE)}"sipapi.h"\
-	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_PROGR=\
 	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\emulator\vibrate.h"\
 	"..\Win32\Resource.h"\
 	"..\Win32\stdafx.h"\
+	".\inuserm.h"\
+	".\ipapi.h"\
+	".\ygshell.h"\
 	
 
 !ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Release"
@@ -2583,14 +2591,14 @@ DEP_CPP_PROGR=\
 	"..\Win32\MainDialog.h"\
 	"..\Win32\ProgressDialog.h"\
 	"..\Win32\StartOrbiter.h"\
-	{$(INCLUDE)}"aygshell.h"\
-	{$(INCLUDE)}"sipapi.h"\
-	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_PROGR=\
 	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\Win32\Resource.h"\
 	"..\Win32\stdafx.h"\
+	".\inuserm.h"\
+	".\ipapi.h"\
+	".\ygshell.h"\
 	
 
 !ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Debug"
@@ -3619,6 +3627,9 @@ DEP_CPP_SIMUL=\
 	"..\DesignObj_Orbiter.h"\
 	"..\Floorplan.h"\
 	"..\Linux\OrbiterLinux.h"\
+	"..\Linux\X3DButton.h"\
+	"..\Linux\X3DWindow.h"\
+	"..\Linux\XProgressWnd.h"\
 	"..\Linux\XRecordExtensionHandler.h"\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
@@ -4162,6 +4173,21 @@ DEP_CPP_TEXTW=\
 NODEP_CPP_TEXTW=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\PlutoUtils\uuencode.cpp
+
+!IF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Release"
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Debug"
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Release"
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Debug"
 
 !ENDIF 
 

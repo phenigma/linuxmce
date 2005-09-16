@@ -11,6 +11,11 @@ del %LOG_PATH%\BuildCE.log
 
 cd "Orbiter\CENet_Smartphone"
 call build_cab.bat
+cd "..\CENet\"
+call build_cab.bat
+cd "..\CENet_PocketFrog"
+call build_cab.bat
+
 
 
 

@@ -428,6 +428,9 @@
 				RelativePath=".\UtilityFunc.cpp">
 			</File>
 			<File
+				RelativePath="..\PlutoUtils\uuencode.cpp">
+			</File>
+			<File
 				RelativePath=".\VA_SendFileToPhone.cpp">
 			</File>
 			<File
@@ -546,10 +549,10 @@
 				RelativePath=".\StaticPicture.h">
 			</File>
 			<File
-				RelativePath=".\StdAfx.h">
+				RelativePath="..\VIPShared\stdafx.h">
 			</File>
 			<File
-				RelativePath="..\VIPShared\stdafx.h">
+				RelativePath=".\StdAfx.h">
 			</File>
 		</Filter>
 		<Filter

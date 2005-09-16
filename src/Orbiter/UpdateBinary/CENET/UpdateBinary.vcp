@@ -308,12 +308,10 @@ NODEP_CPP_FILEU=\
 DEP_CPP_FILEU=\
 	"..\..\..\PlutoUtils\FileUtils.h"\
 	"..\..\..\PlutoUtils\getch.h"\
+	"..\..\..\PlutoUtils\md5.h"\
 	"..\..\..\PlutoUtils\MyString.h"\
 	"..\..\..\PlutoUtils\Other.h"\
 	"..\..\..\PlutoUtils\StringUtils.h"\
-	
-NODEP_CPP_FILEU=\
-	"..\..\..\PlutoUtils\dirent.h"\
 	
 
 !ENDIF 
@@ -466,6 +464,7 @@ DEP_CPP_MESSA=\
 	"..\..\..\PlutoUtils\MyString.h"\
 	"..\..\..\PlutoUtils\Other.h"\
 	"..\..\..\PlutoUtils\StringUtils.h"\
+	"..\..\..\PlutoUtils\uuencode.h"\
 	"..\..\..\SerializeClass\SerializeClass.h"\
 	"..\..\CENET\wince.h"\
 	
@@ -893,6 +892,21 @@ NODEP_CPP_UPDAT=\
 # Begin Source File
 
 SOURCE=.\UpdateBinary.rc
+
+!IF  "$(CFG)" == "UpdateBinary - Win32 (WCE emulator) Release"
+
+!ELSEIF  "$(CFG)" == "UpdateBinary - Win32 (WCE emulator) Debug"
+
+!ELSEIF  "$(CFG)" == "UpdateBinary - Win32 (WCE ARMV4) Release"
+
+!ELSEIF  "$(CFG)" == "UpdateBinary - Win32 (WCE ARMV4) Debug"
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\PlutoUtils\uuencode.cpp
 
 !IF  "$(CFG)" == "UpdateBinary - Win32 (WCE emulator) Release"
 
