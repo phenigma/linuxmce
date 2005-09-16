@@ -75,6 +75,7 @@ VDR::VDR(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLoca
          m_VDRMutex.Init(NULL);
          m_pRatWrapper = NULL;
          m_iVDRWindowId = 0;
+	 m_pDevice_PVRCard = NULL;
 }
                                 
 
@@ -85,6 +86,9 @@ bool VDR::GetConfig()
 	if( !VDR_Command::GetConfig() )
 		return false;
 //<-dceag-getconfig-e->
+	m_pDevice_PVRCard = m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_PVR_Capture_Cards_CONST);
+	system(("/usr/pluto/bin/Write_VDR_Conf.sh " + string(m_pDevice_PVRCard ? "1" : "0")).c_str());
+
 	// Find all other VDR's
 	for(Map_DeviceData_Base::iterator itD=m_pData->m_AllDevices.m_mapDeviceData_Base.begin();
 		itD!=m_pData->m_AllDevices.m_mapDeviceData_Base.end();++itD)
@@ -97,6 +101,7 @@ bool VDR::GetConfig()
 	return true;
 	}
 
+	
 	m_pRatWrapper = new RatPoisonWrapper(XOpenDisplay(getenv("DISPLAY")));
         signal(SIGCHLD, sh); /* install handler */
         return true;
@@ -280,7 +285,8 @@ void VDR::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,string
         /** only to make the xine-protocol starting for developing burgi */
              
         //ProcessUtils::SpawnApplication("/usr/bin/xine", "vdr:/tmp/vdr-xine/stream#demux:mpeg_pes", "VDR_Xine");
-                        
+        //m_pSocket_VDR = new Socket("VDR Socket","localhost","");
+	
                         
 
 	cout << "Need to implement command #37 - Play Media" << endl;

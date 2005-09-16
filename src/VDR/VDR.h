@@ -22,6 +22,7 @@ private:
 	        int                          m_iControllingDevice;
                 pthread_t                    m_qApplicationThreadId;
                 RatPoisonWrapper            *m_pRatWrapper;
+		DeviceData_Base *m_pDevice_PVRCard;
                         
                 void selectWindow();
                 bool checkWindowName(long unsigned int window, string windowName);
@@ -61,6 +62,7 @@ public:
 
 	/*
 			*****DATA***** accessors inherited from base class
+	int DATA_Get_TCP_Port();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Playback_Info_Changed(string sMediaDescription,string sSectionDescription,string sSynposisDescription);
