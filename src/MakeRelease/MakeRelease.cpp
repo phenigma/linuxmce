@@ -75,7 +75,7 @@ public:
 	Row_Package_Directory *m_pRow_Package_Directory;
 };
 
-string g_sPackages, g_sManufacturer, g_sSourcecodePrefix, g_sNonSourcecodePrefix, g_sCompile_Date;
+string g_sPackages, g_sPackages_Exclude, g_sManufacturer, g_sSourcecodePrefix, g_sNonSourcecodePrefix, g_sCompile_Date;
 string g_sPK_RepositorySource;
 int g_iPK_Distro=0,g_iSVNRevision=0;
 bool g_bBuildSource = true, g_bCreatePackage = true, g_bInteractive = false, g_bSimulate = false, g_bSupressPrompts = false, g_bDontTouchDB = false;
@@ -165,6 +165,9 @@ int main(int argc, char *argv[])
 		case 'k':
 			g_sPackages = argv[++optnum];
 			break;
+		case 'K':
+			g_sPackages_Exclude = argv[++optnum];
+			break;
 		case 'm':
 			g_sManufacturer = argv[++optnum];
 			break;
@@ -217,7 +220,7 @@ int main(int argc, char *argv[])
 	if ( bError)
 	{
 		cout << "MakeRelease, v." << VERSION << endl
-			<< "Usage: MakeRelease [-h hostname] [-u username] [-p password] [-D database] [-P mysql port] [-k Packages] [-m Manufacturers] [-o Distro] [-a] [-f Defines]" << endl
+			<< "Usage: MakeRelease [-h hostname] [-u username] [-p password] [-D database] [-P mysql port] [-k Packages] [-K Exclude Packages] [-m Manufacturers] [-o Distro] [-a] [-f Defines]" << endl
 			<< "\t[-d]" << endl
 			<< "hostname    -- address or DNS of database host, default is `dce_router`" << endl
 			<< "username    -- username for database connection" << endl
@@ -244,6 +247,13 @@ int main(int argc, char *argv[])
 
 	if( g_sPackages.length() )
 		sWhere = "PK_Package IN (" + g_sPackages + ")";
+
+	if( g_sPackages_Exclude.length() )
+	{
+		if( sWhere.length() )
+			sWhere += " AND ";
+		sWhere += "PK_Package NOT IN (" + g_sPackages_Exclude + ")";
+	}
 
 	if( g_sManufacturer.length() )
 	{
