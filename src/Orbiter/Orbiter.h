@@ -530,6 +530,7 @@ public: // temp - remove this
 	virtual int MonitorRegen(int PK_Device);
 	virtual int PromptFor(string sToken);
     virtual bool DisplayProgress(string sMessage, int nProgress);
+	virtual bool RegenOrbiter(); // Send Orbiter plugin a command to regen this orbiter
 
 	/**
 	 * @brief Convert a virtual device (a negative device that corresponds to the VirtDev entries in DeviceTemplate) into the real device ID

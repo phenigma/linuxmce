@@ -2785,22 +2785,19 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 					}
 				}
 			}
+			bool bReadLocalFile=false;
 			if(  bFileExists  )
 			{
 				size_t size;
 				char *buffer = FileUtils::ReadFileIntoBuffer( m_sLocalDirectory + "/" + Filename, size );
 
 				if(  !buffer || !SerializeRead( ( long ) size, buffer, ( void * ) this ) || !ParseConfigurationData( Type ) )
-				{
-					delete[] buffer;
-					g_pPlutoLogger->Write( LV_CRITICAL,  "Unable to read Orbiter data from file: %s/%s", m_sLocalDirectory.c_str(  ), Filename.c_str(  ) );
-                    m_bQuit = true;
-					m_bReload = true;
-					exit( 1 );
-				}
+					g_pPlutoLogger->Write( LV_CRITICAL,  "Unable to read Orbiter data from file: %s/%s.  Will try the serve", m_sLocalDirectory.c_str(  ), Filename.c_str(  ) );
+				else
+					bReadLocalFile=true;
 				delete [] buffer;
 			}
-			else
+			if( !bReadLocalFile )
 			{
 				if(  m_sLocalDirectory.length(  )  )
 				{
@@ -2830,8 +2827,10 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 				if ( !iSizeConfigFile )
 				{
 					g_pPlutoLogger->Write( LV_CRITICAL,  "Unable to get Orbiter data" );
-					Sleep( 5000 );
-					m_bReload = true;
+					PromptUser("I cannot read the Orbiter configuration from the server.  I'll try to regenerate it");
+					RegenOrbiter();
+					Sleep(2000);
+					OnQuit();
 					return;
 				}
 
@@ -2839,9 +2838,10 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 				if(  !SerializeRead( iSizeConfigFile, pConfigFile, ( void * ) this ) || !ParseConfigurationData( Type ) )
 				{
 					delete pMessage;
-					g_pPlutoLogger->Write( LV_CRITICAL,  "Unable to parse Orbiter data" );
-					Sleep( 1000 );  // Sleep a bit before re-attempting
-					m_bReload = true;
+					PromptUser("The Orbiter configuration from the server is corrupt.  I'll try to regenerate it");
+					RegenOrbiter();
+					Sleep(2000);
+					OnQuit();
 					return;
 				}
 
@@ -7511,15 +7511,7 @@ bool Orbiter::OkayToDeserialize(int iSC_Version)
 			return false;
 		}
 
-		Event_Impl event_Impl(DEVICEID_MESSAGESEND, 0, m_sIPAddress);
-		string sResponse;
-		DCE::CMD_Regen_Orbiter_DT CMD_Regen_Orbiter_DT( m_dwPK_Device, DEVICETEMPLATE_Orbiter_Plugin_CONST, BL_SameHouse, 
-			m_dwPK_Device,"");
-		CMD_Regen_Orbiter_DT.m_pMessage->m_eExpectedResponse = ER_DeliveryConfirmation;
-		if( !event_Impl.SendMessage(CMD_Regen_Orbiter_DT.m_pMessage,sResponse) || sResponse!="OK" )
-			PromptUser("Sorry.  I was unable to send this message to the Core.  Please try again or use the Pluto Admin site.");
-		else
-			PromptUser("The UI is being regenerated.  This will take 15-30 minutes.  If you get this same message again after the regeneration is finished, then that means the generator on the Core is too old and you will need to reset your Core so it can update itself.  Click 'OK' to monitor the progress.");
+		RegenOrbiter();
 		OnQuit();
 	}
 
@@ -8830,4 +8822,20 @@ int Orbiter::PromptFor(string sToken)
 /*virtual*/ bool Orbiter::DisplayProgress(string sMessage, int nProgress)
 {
     return false;
+}
+
+bool Orbiter::RegenOrbiter()
+{
+	Event_Impl event_Impl(DEVICEID_MESSAGESEND, 0, m_sIPAddress);
+	string sResponse;
+	DCE::CMD_Regen_Orbiter_DT CMD_Regen_Orbiter_DT( m_dwPK_Device, DEVICETEMPLATE_Orbiter_Plugin_CONST, BL_SameHouse, 
+		m_dwPK_Device,"");
+	CMD_Regen_Orbiter_DT.m_pMessage->m_eExpectedResponse = ER_DeliveryConfirmation;
+	if( !event_Impl.SendMessage(CMD_Regen_Orbiter_DT.m_pMessage,sResponse) || sResponse!="OK" )
+	{
+		PromptUser("Sorry.  I was unable to send this message to the Core.  Please try again or use the Pluto Admin site.");
+		return true;
+	}
+	PromptUser("The UI is being regenerated.  This will take 15-30 minutes.  If you get this same message again after the regeneration is finished, then that means the generator on the Core is too old and you will need to reset your Core so it can update itself.  Click 'OK' to monitor the progress.");
+	return false;
 }

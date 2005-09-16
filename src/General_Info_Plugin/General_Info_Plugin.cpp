@@ -36,6 +36,7 @@ using namespace DCE;
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Table_UnknownDevices.h"
 #include "pluto_main/Table_Device_QuickStart.h"
+#include "pluto_main/Table_QuickStartTemplate.h"
 #include "pluto_main/Table_Device_MRU.h"
 #include "pluto_main/Define_DataGrid.h"
 #include "pluto_main/Define_Command.h"
@@ -497,6 +498,7 @@ class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string 
 {
     DataGridTable *pDataGrid = new DataGridTable( );
     DataGridCell *pCellIcon,*pCellText;
+	OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
 
 	int PK_Device_MD=atoi(Parms.c_str());
 	DeviceData_Router *pDevice_MD = m_pRouter->m_mapDeviceData_Router_Find(PK_Device_MD);
@@ -538,15 +540,23 @@ class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string 
 	else
 		pRow_Device->Device_QuickStart_FK_Device_getrows(&vectRow_Device_QuickStart);
 
+	// This will be the template we use for string applications
+	Row_QuickStartTemplate *pRow_QuickStartTemplate = p_Bookmarks ? m_pDatabase_pluto_main->QuickStartTemplate_get()->GetRow(1) : NULL;
+
 	int iRow=0;
 	while(true)
 	{
 		string sDescription,sBinary,sArguments;
+		size_t iSize;
+		char *pBuffer=NULL;
+		int PK_DesignObj_OSD=DESIGNOBJ_generic_app_full_screen_CONST;
+		int PK_DesignObj_Remote=DESIGNOBJ_mnuGenericAppController_CONST;
+
 		if( p_Bookmarks )
 		{
 			sDescription=it->second;
-			sBinary="mozilla";
-			sArguments=it->first;
+			sBinary=pRow_QuickStartTemplate ? pRow_QuickStartTemplate->Binary_get() : "/usr/pluto/bin/Mozilla.sh";
+			sArguments=StringUtils::itos(pOH_Orbiter && pOH_Orbiter->m_pOH_User ? pOH_Orbiter->m_pOH_User->m_iPK_Users : 0) + "\t" + it->first;
 		}
 		else
 		{
@@ -554,13 +564,31 @@ class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string 
 			sDescription = pRow_Device_QuickStart->Description_get();
 			sBinary = pRow_Device_QuickStart->Binary_get();
 			sArguments = pRow_Device_QuickStart->Arguments_get();
+			pRow_QuickStartTemplate=pRow_Device_QuickStart->FK_QuickStartTemplate_getrow();
+            if( pRow_Device_QuickStart->EK_Picture_get() )
+                pBuffer = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(pRow_Device_QuickStart->EK_Picture_get()) + "_tn.jpg",iSize);
+		}
+
+		if( pRow_QuickStartTemplate )
+		{
+			if( pRow_QuickStartTemplate->FK_DesignObj_get() )
+				PK_DesignObj_Remote=pRow_QuickStartTemplate->FK_DesignObj_get();
+			if( pRow_QuickStartTemplate->FK_DesignObj_OSD_get() )
+				PK_DesignObj_OSD=pRow_QuickStartTemplate->FK_DesignObj_OSD_get();
+			if( !pBuffer )
+                pBuffer = FileUtils::ReadFileIntoBuffer("/usr/pluto/orbiter/quickstart/" + StringUtils::itos(pRow_QuickStartTemplate->PK_QuickStartTemplate_get()) + "_tn.jpg",iSize);
 		}
 		
-		pCellIcon = new DataGridCell( sDescription, "" );
+		pCellIcon = new DataGridCell( "", "" );
 		pCellText = new DataGridCell( sDescription, "" );
 		pCellText->m_Colspan=3;
 		pDataGrid->SetData( 0, iRow, pCellIcon );
 		pDataGrid->SetData( 1, iRow, pCellText );
+        if( pBuffer )
+        {
+            pCellIcon->m_pGraphicData = pBuffer;
+            pCellIcon->m_GraphicLength = iSize;
+        }
 
 		string sMessage = "0 " + StringUtils::itos(pDevice_Orbiter_OSD->m_dwPK_Device) + " 1 4 16 " + StringUtils::itos(DESIGNOBJ_generic_app_full_screen_CONST);
 
@@ -577,7 +605,7 @@ class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string 
 		{
 			// This is the OSD orbiter
 			DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pDevice_Orbiter_OSD->m_dwPK_Device,0,
-				StringUtils::itos(DESIGNOBJ_generic_app_full_screen_CONST),"","",false,false);
+				StringUtils::itos(PK_DesignObj_OSD),"","",false,false);
 			pCellIcon->m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen.m_pMessage);
 			pCellText->m_pMessage->m_vectExtraMessages.push_back(new Message(CMD_Goto_Screen.m_pMessage));
 
@@ -590,13 +618,13 @@ class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string 
 		{
 			// Do this on the OSD orbiter
 			DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pDevice_Orbiter_OSD->m_dwPK_Device,0,
-				StringUtils::itos(DESIGNOBJ_generic_app_full_screen_CONST),"","",false,false);
+				StringUtils::itos(PK_DesignObj_OSD),"","",false,false);
 			pCellIcon->m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen.m_pMessage);
 			pCellText->m_pMessage->m_vectExtraMessages.push_back(new Message(CMD_Goto_Screen.m_pMessage));
 
 			// Do this on the controlling orbiter
 			DCE::CMD_Goto_Screen CMD_Goto_Screen2(m_dwPK_Device,pMessage->m_dwPK_Device_From,0,
-				StringUtils::itos(DESIGNOBJ_mnuGenericAppController_CONST),"","",false,false);
+				StringUtils::itos(PK_DesignObj_Remote),"","",false,false);
 			pCellIcon->m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen2.m_pMessage);
 			pCellText->m_pMessage->m_vectExtraMessages.push_back(new Message(CMD_Goto_Screen2.m_pMessage));
 		}
@@ -764,40 +792,16 @@ list<pair<string, string> > General_Info_Plugin::GetUserBookmarks(string sPK_Use
 	list<pair<string, string> > Bookmarks;
 	// the following code reads the Mozilla bookmarks
 	
-	size_t Size;
-	char * Buffer = FileUtils::ReadFileIntoBuffer("/home/user_" + sPK_User + "/.mozilla/firefox/profiles.ini", Size);
-	if( !Buffer )
-		return Bookmarks;
-
-	const char *Path = strstr(Buffer,"Path=");
-	if( !Path )
-	{
-		delete [] Buffer;
-		return Bookmarks;
-	}
-
-	Path+=5;
-
-	char *EOL = strchr(Path,'\n');
-	if( !EOL )
-	{
-		delete[] Buffer;
-		return Bookmarks;
-	}
-
-	*EOL=0;
-	string Filename = Path;
-	delete[] Buffer;
-
 	g_pPlutoLogger->Write(LV_CRITICAL,"REading bookmarks from %s",
-		("/home/user_" + sPK_User + "/.mozilla/firefox/" + Filename + "/bookmarks.html").c_str());
+		("/home/user_" + sPK_User + "/bookmarks.html").c_str());
 
-	Buffer = FileUtils::ReadFileIntoBuffer("/home/user_" + sPK_User + "/.mozilla/firefox/" + Filename + "/bookmarks.html", Size);
+	size_t Size;
+	char *Buffer = FileUtils::ReadFileIntoBuffer("/home/user_" + sPK_User + "/bookmarks.html", Size);
 	if( !Buffer )
 		return Bookmarks;
 
 	char * BufferTop = Buffer;
-	
+
 	char *BraceA;
 	char *PosInBuffer=Buffer;
 	while( (BraceA=strstr(Buffer,"<A")) )
@@ -834,7 +838,7 @@ list<pair<string, string> > General_Info_Plugin::GetUserBookmarks(string sPK_Use
 		*EndBraceA = 0;
 		string LinkText(LastBrace+1);
 
-		Buffer = LastBrace+1;
+		Buffer = EndBraceA+1;
 g_pPlutoLogger->Write(LV_CRITICAL,"add bookmarks %s / %s",Link.c_str(), LinkText.c_str());
 
 		Bookmarks.push_back(pair<string, string>(Link, LinkText));

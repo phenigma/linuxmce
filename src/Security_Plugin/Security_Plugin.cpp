@@ -655,17 +655,20 @@ bool Security_Plugin::SensorTrippedEventHandler(DeviceData_Router *pDevice,bool 
 	g_pPlutoLogger->Write(LV_STATUS,"Alert type is %d %p, delay %s #pending: %d",
 		PK_AlertType,pRow_AlertType,sPK_ModeChange.c_str(),(int) m_vectPendingAlerts.size());
 
-	if( sPK_ModeChange.length() && pRow_AlertType->ExitDelay_get() )
+	if( atoi(sPK_ModeChange.c_str()) && pRow_AlertType->ExitDelay_get() )
 	{
 		Row_ModeChange *pRow_ModeChange = m_pDatabase_pluto_security->ModeChange_get()->GetRow(atoi(sPK_ModeChange.c_str()));
-		time_t tChange = StringUtils::SQLDateTime(pRow_ModeChange->ChangeTime_get());
-time_t tnow = time(NULL);
-		g_pPlutoLogger->Write(LV_STATUS,"Alert was %d-%d=%d seconds ago",
-			(int) tnow, (int) tChange, (int) tChange-tnow);
-		if( pRow_ModeChange && tChange + pRow_AlertType->ExitDelay_get() > time(NULL) )
+		if( pRow_ModeChange )
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"Still in exit delay");
-			return true;
+			time_t tChange = StringUtils::SQLDateTime(pRow_ModeChange->ChangeTime_get());
+	time_t tnow = time(NULL);
+			g_pPlutoLogger->Write(LV_STATUS,"Alert was %d-%d=%d seconds ago",
+				(int) tnow, (int) tChange, (int) tChange-tnow);
+			if( tChange + pRow_AlertType->ExitDelay_get() > time(NULL) )
+			{
+				g_pPlutoLogger->Write(LV_STATUS,"Still in exit delay");
+				return true;
+			}
 		}
 	}
 

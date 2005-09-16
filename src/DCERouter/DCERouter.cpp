@@ -617,6 +617,9 @@ void Router::RegisterMsgInterceptor(Message *pMessage)
     int MessageType = atoi( pMessage->m_mapParameters[PARM_MESSAGE_TYPE].c_str() );
     int MessageID = atoi( pMessage->m_mapParameters[PARM_MESSAGE_ID].c_str() );
 
+	g_pPlutoLogger->Write(LV_STATUS,"Device %d registered Message interceptor %d/%d/%d/%d/%d/%d",
+		pMessage->m_dwPK_Device_From,PK_Device_From,PK_Device_To,PK_DeviceTemplate,PK_DeviceCategory,MessageType,MessageID);
+
     RegisterMsgInterceptor(
             new MessageInterceptorCallBack(pMessage->m_dwPK_Device_From, pMessage->m_dwID),
             PK_Device_From,PK_Device_To,PK_DeviceTemplate,PK_DeviceCategory,MessageType,MessageID );
@@ -699,13 +702,17 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 	if( m_bStopProcessingMessages )
 		return;
 
-    SafetyMessage SafetyMessage(pMessageWillBeDeleted);
+	SafetyMessage SafetyMessage(pMessageWillBeDeleted);
     DeviceData_Router *pDeviceFrom = m_mapDeviceData_Router_Find(pMessageWillBeDeleted->m_dwPK_Device_From);
     DeviceData_Router *pDeviceTo = m_mapDeviceData_Router_Find(pMessageWillBeDeleted->m_dwPK_Device_To);
 
 	if( (*SafetyMessage)->m_dwMessage_Type==MESSAGETYPE_REGISTER_INTERCEPTOR )
     {
         RegisterMsgInterceptor( (*SafetyMessage) );
+		if( pSocket )
+			pSocket->SendString("OK");
+		for(size_t s=0;s<(*SafetyMessage)->m_vectExtraMessages.size();++s)
+			ReceivedMessage(pSocket,(*SafetyMessage)->m_vectExtraMessages[s]);
         return;
     }
     else if( (*SafetyMessage)->m_dwMessage_Type==MESSAGETYPE_EXEC_COMMAND_GROUP )
@@ -740,58 +747,60 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
         return;
     }
 
-	PLUTO_SAFETY_LOCK(im,m_InterceptorMutex);  // Protect the interceptor map
+	if( (*SafetyMessage)->m_dwMessage_Type!=MESSAGETYPE_MESSAGE_INTERCEPTED )
+	{
+		PLUTO_SAFETY_LOCK(im,m_InterceptorMutex);  // Protect the interceptor map
 
-	// Make a copy of the interceptors that we need to call since calling them may loop back into this function on another thread, so we can't use a recursive mutex
-	// but we still need to protect the map in case other devices register interceptors
-	list<class MessageInterceptorCallBack *> listMessageInterceptor;
+		// Make a copy of the interceptors that we need to call since calling them may loop back into this function on another thread, so we can't use a recursive mutex
+		// but we still need to protect the map in case other devices register interceptors
+		list<class MessageInterceptorCallBack *> listMessageInterceptor;
 
-	list<class MessageInterceptorCallBack *>::iterator itInterceptors;
-    for(itInterceptors=m_listMessageInterceptor_Global.begin();
-        itInterceptors!=m_listMessageInterceptor_Global.end();++itInterceptors)
-    {
-        class MessageInterceptorCallBack *pMessageInterceptorCallBack = (*itInterceptors);
-		listMessageInterceptor.push_back(pMessageInterceptorCallBack);
-    }
+		list<class MessageInterceptorCallBack *>::iterator itInterceptors;
+		for(itInterceptors=m_listMessageInterceptor_Global.begin();
+			itInterceptors!=m_listMessageInterceptor_Global.end();++itInterceptors)
+		{
+			class MessageInterceptorCallBack *pMessageInterceptorCallBack = (*itInterceptors);
+			listMessageInterceptor.push_back(pMessageInterceptorCallBack);
+		}
 
-    // See if we have a handler for this type of message
-    map<int,class MessageTypeInterceptor *>::iterator itMessageType = m_mapMessageTypeInterceptor.find(pMessageWillBeDeleted->m_dwMessage_Type);
-    if( itMessageType!=m_mapMessageTypeInterceptor.end() )
-    {
-        class MessageTypeInterceptor *pMessageTypeInterceptors = (*itMessageType).second;
-        CheckInterceptor(pMessageTypeInterceptors,pSocket,pMessageWillBeDeleted,pDeviceFrom,pDeviceTo,listMessageInterceptor);
-    }
+		// See if we have a handler for this type of message
+		map<int,class MessageTypeInterceptor *>::iterator itMessageType = m_mapMessageTypeInterceptor.find(pMessageWillBeDeleted->m_dwMessage_Type);
+		if( itMessageType!=m_mapMessageTypeInterceptor.end() )
+		{
+			class MessageTypeInterceptor *pMessageTypeInterceptors = (*itMessageType).second;
+			CheckInterceptor(pMessageTypeInterceptors,pSocket,pMessageWillBeDeleted,pDeviceFrom,pDeviceTo,listMessageInterceptor);
+		}
 
-	// Check against all the Interceptors that didn't specify a message type
-    itMessageType = m_mapMessageTypeInterceptor.find(0);
-    if( itMessageType!=m_mapMessageTypeInterceptor.end() )
-    {
-        class MessageTypeInterceptor *pMessageTypeInterceptors = (*itMessageType).second;
-        CheckInterceptor(pMessageTypeInterceptors,pSocket,pMessageWillBeDeleted,pDeviceFrom,pDeviceTo,listMessageInterceptor);
-    }
+		// Check against all the Interceptors that didn't specify a message type
+		itMessageType = m_mapMessageTypeInterceptor.find(0);
+		if( itMessageType!=m_mapMessageTypeInterceptor.end() )
+		{
+			class MessageTypeInterceptor *pMessageTypeInterceptors = (*itMessageType).second;
+			CheckInterceptor(pMessageTypeInterceptors,pSocket,pMessageWillBeDeleted,pDeviceFrom,pDeviceTo,listMessageInterceptor);
+		}
 
-	im.Release();
+		im.Release();
 
-    for(itInterceptors=listMessageInterceptor.begin();
-        itInterceptors!=listMessageInterceptor.end();++itInterceptors)
-    {
-        class MessageInterceptorCallBack *pMessageInterceptorCallBack = (*itInterceptors);
+		for(itInterceptors=listMessageInterceptor.begin();
+			itInterceptors!=listMessageInterceptor.end();++itInterceptors)
+		{
+			class MessageInterceptorCallBack *pMessageInterceptorCallBack = (*itInterceptors);
 
-        class Command_Impl *pPlugIn = pMessageInterceptorCallBack->m_pPlugIn;
-        MessageInterceptorFn pMessageInterceptorFn = pMessageInterceptorCallBack->m_pMessageInterceptorFn;
+			class Command_Impl *pPlugIn = pMessageInterceptorCallBack->m_pPlugIn;
+			MessageInterceptorFn pMessageInterceptorFn = pMessageInterceptorCallBack->m_pMessageInterceptorFn;
 
-        if( pMessageInterceptorFn )  // It's a plug-in
-            CALL_MEMBER_FN(*pPlugIn,pMessageInterceptorFn) (pSocket, pMessageWillBeDeleted, pDeviceFrom, pDeviceTo);
-        else
-        {
-            Message *pMessageOriginator = new Message(pMessageWillBeDeleted);
-            Message *pMessageInterceptor = new Message(0,pMessageInterceptorCallBack->m_dwPK_Device,PRIORITY_NORMAL,
-                MESSAGETYPE_MESSAGE_INTERCEPTED,pMessageInterceptorCallBack->m_dwID,0);
-            pMessageInterceptor->m_vectExtraMessages.push_back( pMessageOriginator );
-            ReceivedMessage(NULL,pMessageInterceptor);
-        }
-    }
-
+			if( pMessageInterceptorFn )  // It's a plug-in
+				CALL_MEMBER_FN(*pPlugIn,pMessageInterceptorFn) (pSocket, pMessageWillBeDeleted, pDeviceFrom, pDeviceTo);
+			else
+			{
+				Message *pMessageOriginator = new Message(pMessageWillBeDeleted);
+				Message *pMessageInterceptor = new Message(0,pMessageInterceptorCallBack->m_dwPK_Device,PRIORITY_NORMAL,
+					MESSAGETYPE_MESSAGE_INTERCEPTED,pMessageInterceptorCallBack->m_dwID,0);
+				pMessageInterceptor->m_vectExtraMessages.push_back( pMessageOriginator );
+				ReceivedMessage(NULL,pMessageInterceptor);
+			}
+		}
+	}
 	for(int s=-1;s<(int) (*SafetyMessage)->m_vectExtraMessages.size(); ++s)
 	{
 		Message *pMessage = s>=0 ? (*SafetyMessage)->m_vectExtraMessages[s] : (*SafetyMessage);
@@ -1131,7 +1140,7 @@ bool Router::ReceivedString(Socket *pSocket, string Line)
 		if( (result_set.r=mysql_query_result(sSQL)) )
 		{
 			sResponse = "DEVICE_INFO " + StringUtils::itos(result_set.r->row_count) + "\t";
-	        PLUTO_SAFETY_LOCK(slListener,m_CoreMutex);
+	        PLUTO_SAFETY_LOCK(lm,m_ListenerMutex);
 			DeviceClientMap::iterator iDeviceConnection;
 			while ((row = mysql_fetch_row(result_set.r)))
 			{
@@ -1230,6 +1239,7 @@ void Router::DoReload()
     // TODO - reload config
     // This should have stopped everything that is automatically startable
     // Now, restart everything else (like controllers)
+	PLUTO_SAFETY_LOCK(lm,m_ListenerMutex);
     DeviceClientMap::iterator iDC;
     for(iDC = m_mapCommandHandlers.begin(); iDC!=m_mapCommandHandlers.end(); ++iDC)
     {
@@ -1403,9 +1413,13 @@ bool Router::GetParameter(int ToDevice,int ParmType, string &sResult)
             // TODO :  The socket failed, core needs to remove client socket
 
         }
-        if (pSocket->ReceiveString(sResult) && sResult.substr(0,7)=="MESSAGE")
+        if (pSocket->ReceiveString(sResult) && sResult.substr(0,7)=="MESSAGE" && sResult.size()>7 )
         {
-            Message *pMessage=pSocket->ReceiveMessage(atoi(sResult.substr(8).c_str()));
+            Message *pMessage;
+			if( sResult[7]=='T' )
+				pMessage=pSocket->ReceiveMessage(atoi(sResult.substr(9).c_str()),true);
+			else
+				pMessage=pSocket->ReceiveMessage(atoi(sResult.substr(8).c_str()));
             if (pMessage)
             {
                 sResult = pMessage->m_mapParameters[ParmType];
@@ -1441,9 +1455,13 @@ bool Router::GetParameterWithDefinedMessage(Message *sendMessage, string &sResul
                 // TODO :  The socket failed, core needs to remove client socket
 
             }
-            if (pSocket->ReceiveString(sResult) && sResult.substr(0,7)=="MESSAGE")
+            if (pSocket->ReceiveString(sResult) && sResult.substr(0,7)=="MESSAGE" && sResult.size()>7 )
             {
-                Message *pMessage=pSocket->ReceiveMessage(atoi(sResult.substr(8).c_str()));
+				Message *pMessage;
+				if( sResult[7]=='T' )
+					pMessage=pSocket->ReceiveMessage(atoi(sResult.substr(9).c_str()),true);
+				else
+					pMessage=pSocket->ReceiveMessage(atoi(sResult.substr(8).c_str()));
                 if (pMessage)
                 {
                     sResult = pMessage->m_mapParameters[messageID];
@@ -1764,9 +1782,9 @@ g_pPlutoLogger->Write(LV_STATUS,"realsendmessage after core release from %d to %
     if (RouteToDevice > 0)
     {
         DeviceClientMap::iterator iDeviceConnection;
-        PLUTO_SAFETY_LOCK(slListener,m_CoreMutex);
+        PLUTO_SAFETY_LOCK(lm,m_ListenerMutex);
         iDeviceConnection = m_mapCommandHandlers.find(RouteToDevice);
-        slListener.Release();
+        lm.Release();
         if (iDeviceConnection != m_mapCommandHandlers.end())
         {
             ServerSocket *pDeviceConnection = (*iDeviceConnection).second, *pFailedSocket = NULL;
@@ -1862,14 +1880,20 @@ g_pPlutoLogger->Write(LV_SOCKET, "Got response: %d to message type %d id %d to %
                         g_pPlutoLogger->Write(LV_STATUS, "%d Destination realsendmessage responded with %s.", pDeviceConnection->m_dwPK_Device, sResponse.c_str());
 #endif
 
-                        if (sResponse.substr(0,7)  == "MESSAGE")
+                        if (sResponse.substr(0,7)  == "MESSAGE" && sResponse.size()>7 )
                         {
 #ifdef DEBUG
                             g_pPlutoLogger->Write(LV_STATUS, "1 pSocket=%p", pSocket);
 #endif
                             if (pSocket && !(*(*pSafetyMessage))->m_bRespondedToMessage)
                             {
-                                DCE::Message *pMessage = pDeviceConnection->ReceiveMessage(atoi(sResponse.substr(8).c_str()));
+                                DCE::Message *pMessage;
+								
+								if( sResponse[7]=='T' )
+									pMessage = pDeviceConnection->ReceiveMessage(atoi(sResponse.substr(9).c_str()),true );
+								else
+									pMessage = pDeviceConnection->ReceiveMessage(atoi(sResponse.substr(8).c_str()) );
+
 								if( !pMessage )
 								{
 									g_pPlutoLogger->Write(LV_CRITICAL,"Sent message, got response but it's not a real message: %s",sResponse.c_str());
