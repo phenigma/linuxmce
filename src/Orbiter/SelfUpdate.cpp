@@ -185,9 +185,17 @@ bool OrbiterSelfUpdate::DownloadUpdateBinary()
         if(!FileUtils::WriteBufferIntoFile(m_sUpdateBinaryPath, pUpdateFile, iSizeUpdateFile))    
         {
             g_pPlutoLogger->Write( LV_CRITICAL,  "Failed to save the UpdateBinary application to location '%s'", m_sUpdateBinaryPath.c_str() );
-            ::MessageBox(NULL, TEXT("Unable to download UpdateBinary to the specified folder. Please check if the 'Path' device data is correct"),
-                TEXT("Pluto Orbiter error"), MB_ICONERROR);
+            
+            string sMessage = "Unable to download UpdateBinary to '" + sOldUpdateBinaryPath + 
+                "' folder. Please check if the 'Path' device data is correct";
 
+#ifdef WINCE
+            wchar_t MessageW[256];
+            mbstowcs(MessageW, sMessage.c_str(), 256);
+            ::MessageBox(NULL, MessageW, TEXT("Pluto Orbiter error"), MB_ICONERROR);
+#else
+            ::MessageBox(NULL, sMessage.c_str(), TEXT("Pluto Orbiter error"), MB_ICONERROR);
+#endif
             return false; //we'll continue with this version
         }
 	}
@@ -257,9 +265,16 @@ bool OrbiterSelfUpdate::SpawnUpdateBinaryProcess()
         string sErrorMessage = "Failed to start UpdateBinary application '" + m_sUpdateBinaryPath + "'";
 		g_pPlutoLogger->Write( LV_CRITICAL,  sErrorMessage.c_str() );
 
-        
-        ::MessageBox(NULL, TEXT("Failed to start UpdateBinary application.\r\nPlease be sure that you are running the correct orbiter."), 
-			TEXT("Pluto Orbiter failed to update"), MB_ICONWARNING);
+        string sMessage = "Failed to start '" + m_sUpdateBinaryPath + 
+            "' application.\r\nPlease be sure that you are running the correct orbiter.";
+
+#ifdef WINCE
+        wchar_t MessageW[256];
+        mbstowcs(MessageW, sMessage.c_str(), 256);
+        ::MessageBox(NULL, MessageW, TEXT("Pluto Orbiter failed to update"), MB_ICONWARNING);
+#else
+        ::MessageBox(NULL, sMessage.c_str(), TEXT("Pluto Orbiter failed to update"), MB_ICONWARNING);
+#endif
 		return false; 
 	}
 
