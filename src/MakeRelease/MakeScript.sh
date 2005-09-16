@@ -10,6 +10,7 @@ BASE_OUT_FOLDER=/home/builds/
 
 BASE_INSTALLATION_CD_FOLDER=/home/installation-cd/
 BASE_INSTALLATION_2_6_10_CD_FOLDER=/home/installation-cd-kernel-2.6.10/
+BASE_INSTALLATION_2_6_12_CD_FOLDER=/home/installation-cd-kernel-2.6.12/
 
 #
 # Uncomment the following function name to allow running of the MakeScript without actually calling 
@@ -134,11 +135,14 @@ if ! MakeRelease $fastrun $nobuild -a -o 1 -r 2,9,11 -m 1 -s /home/MakeRelease/t
 fi
 
 `dirname $0`/scripts/propagate.sh "$BASE_OUT_FOLDER/$version_name/"
-pushd "$BASE_INSTALLATION_CD_FOLDER"; 
-#"$BASE_INSTALLATION_CD_FOLDER/go-netinst.pl" "$BASE_OUT_FOLDER/$version_name" cache;
-popd
-pushd "$BASE_INSTALLATION_2_6_10_CD_FOLDER"; 
-"$BASE_INSTALLATION_2_6_10_CD_FOLDER/go-netinst.pl" "$BASE_OUT_FOLDER/$version_name" cache;
+#pushd "$BASE_INSTALLATION_CD_FOLDER"
+#"$BASE_INSTALLATION_CD_FOLDER/go-netinst.pl" "$BASE_OUT_FOLDER/$version_name" cache
+#popd
+#pushd "$BASE_INSTALLATION_2_6_10_CD_FOLDER"
+#"$BASE_INSTALLATION_2_6_10_CD_FOLDER/go-netinst.pl" "$BASE_OUT_FOLDER/$version_name" cache
+#popd
+pushd "$BASE_INSTALLATION_2_6_12_CD_FOLDER"
+"$BASE_INSTALLATION_2_6_12_CD_FOLDER/go-netinst.pl" "$BASE_OUT_FOLDER/$version_name" cache
 popd
 
 echo Setting this version as the current one.
