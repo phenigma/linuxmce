@@ -507,3 +507,8 @@ void VDR::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Res
 //<-dceag-c65-e->
 {
 }
+
+void VDR::KillSpawnedDevices()
+{
+}
+
