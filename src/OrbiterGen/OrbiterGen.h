@@ -79,6 +79,8 @@ public:
 		m_iFloorplanPage=0;
 		m_iScreensToRender=m_iScreensTotal=m_iLastReportedPercentage=0;
 		m_pRow_Icon=NULL;
+
+        m_pRow_Orbiter = NULL;
 	}
 
     ~OrbiterGenerator() {}
