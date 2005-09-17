@@ -18,8 +18,8 @@ sources = Main.cpp VDR.cpp $(Gen_Dev_Files)
 
 CXXFLAGS +=
 CPPFLAGS += 
-LDFLAGS += -L/usr/X11R6/lib
-XTRALDLIBS = -lXtst
+LDFLAGS += 
+XTRALDLIBS = 
 
 Gen_Dev_Files +=
 sources +=

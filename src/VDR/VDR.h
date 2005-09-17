@@ -9,8 +9,6 @@
 
 #include "DCE/PlainClientSocket.h"
 
-class RatPoisonWrapper;
-
 //<-dceag-decl-b->
 namespace DCE
 {
@@ -23,17 +21,14 @@ private:
 		// Private member variables
 	        int                          m_iControllingDevice;
                 pthread_t                    m_qApplicationThreadId;
-                RatPoisonWrapper            *m_pRatWrapper;
-		DeviceData_Base *m_pDevice_PVRCard;
+		DeviceData_Base *m_pDevice_PVRCard,*m_pDevice_Xine;
 				PlainClientSocket *m_pSocket_VDR;
 
-                void selectWindow();
                 bool checkWindowName(long unsigned int window, string windowName);
 
 protected:                                        
         	bool LaunchVDR();
 	        bool locateVDRWindow(long unsigned int window);
-	        bool checkXServerConnection();
 		                        
 
 		// Private methods
