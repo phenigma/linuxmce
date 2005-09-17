@@ -8829,7 +8829,7 @@ bool Orbiter::RegenOrbiter()
 	Event_Impl event_Impl(DEVICEID_MESSAGESEND, 0, m_sIPAddress);
 	string sResponse;
 	DCE::CMD_Regen_Orbiter_DT CMD_Regen_Orbiter_DT( m_dwPK_Device, DEVICETEMPLATE_Orbiter_Plugin_CONST, BL_SameHouse, 
-		m_dwPK_Device,"");
+		m_dwPK_Device,"","");
 	CMD_Regen_Orbiter_DT.m_pMessage->m_eExpectedResponse = ER_DeliveryConfirmation;
 	if( !event_Impl.SendMessage(CMD_Regen_Orbiter_DT.m_pMessage,sResponse) || sResponse!="OK" )
 	{
