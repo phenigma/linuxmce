@@ -534,7 +534,7 @@ m_bNoEffects = true;
 			string sSize = pRow_Device_DeviceData->IK_DeviceData_get();
 			string::size_type pos=sSize.find('/');
 			if( pos!=string::npos )
-				sSize = sSize.substr(0,pos-1);
+				sSize = sSize.substr(0,pos);
 			cout << "Found OSD using size: " << sSize << endl;
 
 			m_pRow_Size = TranslateSize(sSize);
@@ -1217,10 +1217,6 @@ m_bNoEffects = true;
 		for(listDesignObj_Generator::iterator itlcgo=o->begin();itlcgo!=o->end();++itlcgo)
 		{
 			DesignObj_Generator *oco = (*itlcgo);
-if( oco->m_ObjectID.find("3291.")!=string::npos)
-{
-int k=2;
-}
 			if( !oco->m_bUsingCache )
 			{
 				int Percent = m_iScreensToRender++ * 100 / m_iScreensTotal;
@@ -1228,7 +1224,7 @@ int k=2;
 				{
 					m_iLastReportedPercentage = max(1,Percent);
 					m_pRow_Orbiter->Reload();
-					m_pRow_Orbiter->RegenStatus_set("Stage 2 of 2 - Rendering screen " + StringUtils::itos(m_iScreensToRender));
+					m_pRow_Orbiter->RegenStatus_set("Stage 2 of 2 - Rendering screen " + StringUtils::itos(m_iScreensToRender) + " of " + StringUtils::itos(m_iScreensTotal));
 					m_pRow_Orbiter->RegenPercent_set(m_iLastReportedPercentage);
 					m_pRow_Orbiter->Table_Orbiter_get()->Commit();
 				}
@@ -1990,31 +1986,26 @@ cout << "Set appserver to " << li->m_dwPK_Device_AppServer << endl;
 Row_Size *OrbiterGenerator::TranslateSize(string sSize)
 {
 	cout << "Translating size: " << sSize << endl;
-	Row_Size *pRow_Size = new Row_Size( mds.Size_get() );
-	if( StringUtils::StartsWith(sSize,"1024 768") )
-	{
-		pRow_Size->Width_set(1024);
-		pRow_Size->Height_set(768);
-		pRow_Size->ScaleX_set(480);
-		pRow_Size->ScaleY_set(480);
-		return pRow_Size;
-	}
-	else if( StringUtils::StartsWith(sSize,"800 600") )
-	{
-		pRow_Size->Width_set(800);
-		pRow_Size->Height_set(600);
-		pRow_Size->ScaleX_set(376);
-		pRow_Size->ScaleY_set(376);
-		return pRow_Size;
-	}
-	return NULL;
+	string::size_type pos=0;
+	int Width=atoi(StringUtils::Tokenize(sSize," ",pos).c_str());
+	int Height=atoi(StringUtils::Tokenize(sSize," ",pos).c_str());
+	if( Width<200 || Width>5000 || Height<200 || Height>5000 )
+		return NULL; // Check some reasonable ranges
+
+	int Scale = Height * 1000 / 1600;
+	Row_Size *pRow_Size = new Row_Size(mds.Size_get());
+	pRow_Size->Width_set(Width);
+	pRow_Size->Height_set(Width);
+	pRow_Size->ScaleX_set(Scale);
+	pRow_Size->ScaleY_set(Scale);
+	return pRow_Size;
 }
 
 void OrbiterGenerator::ScaleCommandList(DesignObj_Generator *ocDesignObj,DesignObjCommandList &CommandList)
 {
 	DesignObjCommandList::iterator itActions;
 	for(itActions=CommandList.begin();itActions!=CommandList.end();++itActions)
-	{
+	{	
 		CGCommand *oa = (CGCommand *) *itActions;
 
 		map<int, string>::iterator itParm;

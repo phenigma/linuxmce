@@ -127,6 +127,24 @@ bool Orbiter_Plugin::GetConfig()
 
 	m_iThreshHold = DATA_Get_ThreshHold();
 
+	string sStatus = GetStatus();
+	if( sStatus.size() )
+	{
+		if( sStatus=="*" )
+			CMD_Regen_Orbiter(0,"","");
+		else
+		{
+			string::size_type pos=0;
+			while(pos<sStatus.size())
+			{
+				int PK_Device=atoi(StringUtils::Tokenize(sStatus,",",pos).c_str());
+				if( PK_Device )
+					CMD_Regen_Orbiter(PK_Device,"","");
+			}
+		}
+		SetStatus("");
+	}
+
 	return true;
 }
 
@@ -1576,10 +1594,24 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %d set follow me to %s for user %d",iPK
 			/** The Orbiter to regenerate */
 		/** @param #21 Force */
 			/** Can be -r to force a full regen, or -a for a quick one */
+		/** @param #24 Reset */
+			/** 'Y' or '1' means reset the router before doing the regen */
 
-void Orbiter_Plugin::CMD_Regen_Orbiter(int iPK_Device,string sForce,string &sCMD_Result,Message *pMessage)
+void Orbiter_Plugin::CMD_Regen_Orbiter(int iPK_Device,string sForce,string sReset,string &sCMD_Result,Message *pMessage)
 //<-dceag-c266-e->
 {
+	if( sReset.size() && (sReset[0]=='Y' || sReset[0]=='1') )
+	{
+		if( !m_pRouter->RequestReload(pMessage->m_dwPK_Device_From) )
+		{
+			sCMD_Result = "CANNOT RELOAD NOW";
+			return;
+		}
+
+		SetStatus( iPK_Device ? StringUtils::itos(iPK_Device) : string("*") );
+		m_pRouter->Reload();
+		return;
+	}
 g_pPlutoLogger->Write(LV_STATUS,"Starting regen orbiter with %d size",(int) m_listRegenCommands.size());
     PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
     for(map<int,OH_Orbiter *>::iterator it=m_mapOH_Orbiter.begin();it!=m_mapOH_Orbiter.end();++it)
@@ -2230,6 +2262,7 @@ void Orbiter_Plugin::CMD_Get_Orbiter_Status(int iPK_Device,string *sValue_To_Ass
 		}
 		else
 			*sValue_To_Assign = "O";
+		g_pPlutoLogger->Write(LV_STATUS,"CMD_Get_Orbiter_Status for %d returning %s",iPK_Device,sValue_To_Assign->c_str());
 		return;
 	}
 
@@ -2237,6 +2270,7 @@ void Orbiter_Plugin::CMD_Get_Orbiter_Status(int iPK_Device,string *sValue_To_Ass
 	if( !pRow_Device )  // We know nothing about this
 	{
 		*sValue_To_Assign = "U";
+		g_pPlutoLogger->Write(LV_STATUS,"CMD_Get_Orbiter_Status for %d returning %s",iPK_Device,sValue_To_Assign->c_str());
 		return;
 	}
 
@@ -2255,6 +2289,7 @@ void Orbiter_Plugin::CMD_Get_Orbiter_Status(int iPK_Device,string *sValue_To_Ass
 	if( !bIsOrbiter )
 	{
 		*sValue_To_Assign = "D";  // Not an orbiter
+		g_pPlutoLogger->Write(LV_STATUS,"CMD_Get_Orbiter_Status for %d returning %s",iPK_Device,sValue_To_Assign->c_str());
 		return;
 	}
 
@@ -2268,6 +2303,7 @@ void Orbiter_Plugin::CMD_Get_Orbiter_Status(int iPK_Device,string *sValue_To_Ass
 		}
 		else
 			*iValue = 0;  // Shouldn't happen
+		g_pPlutoLogger->Write(LV_STATUS,"CMD_Get_Orbiter_Status for %d returning %s",iPK_Device,sValue_To_Assign->c_str());
 		return;
 	}
 
@@ -2275,6 +2311,7 @@ void Orbiter_Plugin::CMD_Get_Orbiter_Status(int iPK_Device,string *sValue_To_Ass
 		*sValue_To_Assign = "N";
 	else
 		*sValue_To_Assign = "n";
+	g_pPlutoLogger->Write(LV_STATUS,"CMD_Get_Orbiter_Status for %d returning %s",iPK_Device,sValue_To_Assign->c_str());
 }
 
 bool Orbiter_Plugin::IsRegenerating(int iPK_Device)

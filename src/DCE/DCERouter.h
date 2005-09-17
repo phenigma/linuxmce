@@ -14,6 +14,8 @@
 
 #include "Command_Impl.h"
 #include "pluto_main/Table_Device_DeviceData.h"
+#include "pluto_main/Define_Event.h"
+#include "pluto_main/Define_EventParameter.h"
 
 class Database_pluto_main;
 class Row_Device;
@@ -297,7 +299,36 @@ namespace DCE
         void CreatedDevice(DeviceData_Router *pDevice);
         void ParseDevice(int MasterDeviceID, int ParentDeviceID, class DeviceData_Impl *pDevice);
         void DoReload();
-		bool RequestReload(int PK_Device_Requesting);
+		bool RequestReload(int PK_Device_Requesting)
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"Received reload command");
+			PLUTO_SAFETY_LOCK(mm,m_MessageQueueMutex);
+			g_pPlutoLogger->Write(LV_STATUS,"Checking %d plugins",(int)m_mapPlugIn.size()); 
+			map<int,class Command_Impl *>::iterator it;
+			for(it=m_mapPlugIn.begin();it!=m_mapPlugIn.end();++it)
+			{
+				Command_Impl *pPlugIn = (*it).second;
+				vector<string> vectPendingTasks;
+				g_pPlutoLogger->Write(LV_CRITICAL,"Checking plugin %d for reload",pPlugIn->m_dwPK_Device);
+				if( !pPlugIn->PendingTasks(&vectPendingTasks) )
+				{
+					if( PK_Device_Requesting )
+					{
+						string sPendingTasks;
+						for(size_t s=0;s<vectPendingTasks.size();++s)
+							sPendingTasks += pPlugIn->m_sName + ": " + vectPendingTasks[s];
+						ReceivedMessage(NULL,new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
+							EVENT_Reload_Aborted_CONST,3,
+							EVENTPARAMETER_PK_Device_CONST,StringUtils::itos(pPlugIn->m_dwPK_Device).c_str(),
+							EVENTPARAMETER_Text_CONST,sPendingTasks.c_str(),
+							EVENTPARAMETER_PK_Orbiter_CONST,StringUtils::itos(PK_Device_Requesting)));
+					}
+					return false;
+				}
+			}
+			g_pPlutoLogger->Write(LV_STATUS,"PLUGINS OK");
+			return true;
+		}
         void OutputChildren(class DeviceData_Impl *pDevice,string &Response);
         void AlarmCallback(int id, void* param);
         void Configure(); // Build the config information from the database

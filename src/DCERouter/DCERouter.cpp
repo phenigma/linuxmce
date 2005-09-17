@@ -1055,32 +1055,26 @@ bool Router::ReceivedString(Socket *pSocket, string Line)
 	{
 		string::size_type pos = 11;
 		int PK_Device = atoi(StringUtils::Tokenize(Line," ",pos).c_str());
-		if( pos!=Line.length() && pos!=string::npos )
-		{
-			DeviceData_Router *pDevice = m_mapDeviceData_Router_Find(PK_Device);
-			if( !pDevice )
-				g_pPlutoLogger->Write(LV_CRITICAL,"Invalid Device in %s",Line.c_str());
-			else
-				pDevice->m_sStatus_set( Line.substr(pos) );
-		}
+		DeviceData_Router *pDevice = m_mapDeviceData_Router_Find(PK_Device);
+		if( !pDevice )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Invalid Device in %s",Line.c_str());
+		else if( pos!=Line.length() && pos!=string::npos )
+			pDevice->m_sStatus_set( Line.substr(pos) );
 		else
-			g_pPlutoLogger->Write(LV_CRITICAL,"Invalid Set_Status %s",Line.c_str());
+			pDevice->m_sStatus_set( "" );
         return true;
 	}
     else if( Line.substr(0,9)=="SET_STATE" )
 	{
 		string::size_type pos = 10;
 		int PK_Device = atoi(StringUtils::Tokenize(Line," ",pos).c_str());
-		if( pos!=Line.length() && pos!=string::npos )
-		{
-			DeviceData_Router *pDevice = m_mapDeviceData_Router_Find(PK_Device);
-			if( !pDevice )
-				g_pPlutoLogger->Write(LV_CRITICAL,"Invalid Device in %s",Line.c_str());
-			else
-				pDevice->m_sState_set( Line.substr(pos) );
-		}
+		DeviceData_Router *pDevice = m_mapDeviceData_Router_Find(PK_Device);
+		if( !pDevice )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Invalid Device in %s",Line.c_str());
+		else if( pos!=Line.length() && pos!=string::npos )
+			pDevice->m_sState_set( Line.substr(pos) );
 		else
-			g_pPlutoLogger->Write(LV_CRITICAL,"Invalid Set_State %s",Line.c_str());
+			pDevice->m_sState_set( "" );
         return true;
 	}
     else if( Line.substr(0,9)=="GET_STATE" )
@@ -2710,37 +2704,6 @@ void Router::CheckForRecursivePipes(DeviceData_Router *pDevice,vector<int> *pvec
 
 	for(size_t s=0;s<vectDevice.size();++s)
 		CheckForRecursivePipes(vectDevice[s],pvect_Device_Pipe);
-}
-
-bool Router::RequestReload(int PK_Device_Requesting)
-{
-	g_pPlutoLogger->Write(LV_STATUS,"Received reload command");
-	PLUTO_SAFETY_LOCK(mm,m_MessageQueueMutex);
-	g_pPlutoLogger->Write(LV_STATUS,"Checking %d plugins",(int)m_mapPlugIn.size()); 
-	map<int,class Command_Impl *>::iterator it;
-	for(it=m_mapPlugIn.begin();it!=m_mapPlugIn.end();++it)
-	{
-		Command_Impl *pPlugIn = (*it).second;
-		vector<string> vectPendingTasks;
-		g_pPlutoLogger->Write(LV_CRITICAL,"Checking plugin %d for reload",pPlugIn->m_dwPK_Device);
-		if( !pPlugIn->PendingTasks(&vectPendingTasks) )
-		{
-			if( PK_Device_Requesting )
-			{
-				string sPendingTasks;
-				for(size_t s=0;s<vectPendingTasks.size();++s)
-					sPendingTasks += pPlugIn->m_sName + ": " + vectPendingTasks[s];
-				ReceivedMessage(NULL,new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
-					EVENT_Reload_Aborted_CONST,3,
-					EVENTPARAMETER_PK_Device_CONST,StringUtils::itos(pPlugIn->m_dwPK_Device).c_str(),
-					EVENTPARAMETER_Text_CONST,sPendingTasks.c_str(),
-					EVENTPARAMETER_PK_Orbiter_CONST,StringUtils::itos(PK_Device_Requesting)));
-			}
-			return false;
-		}
-	}
-	g_pPlutoLogger->Write(LV_STATUS,"PLUGINS OK");
-	return true;
 }
 
 #ifdef LL_DEBUG_FILE

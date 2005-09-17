@@ -1034,7 +1034,7 @@ bool Socket::ReceiveString( string &sRefString )
 
 	*pcBuf = 0;
 	pcBuf--;
-	while( *pcBuf == '\r' || *pcBuf == '\n' && pcBuf > acBuf ) // replacing cariage return and \n with \0
+	while( *pcBuf == '\r' || *pcBuf == '\n' && pcBuf >= acBuf ) // replacing cariage return and \n with \0
 		*pcBuf-- = '\0';
 	sRefString = acBuf;
 

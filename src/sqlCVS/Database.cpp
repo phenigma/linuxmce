@@ -1153,8 +1153,7 @@ void Database::Import( string sRepository, Repository *pRepository )
 
 	if( sTable != "psc_" + pRepository->Name_get() + "_repset" )
 		throw "Import schema error";
-if( sTable=="MediaType_DesignObj" )
-int k=2;
+
 	pRepository->ImportTable(sTable,str,pos,NULL,0,0);
 
 	MapStringString::iterator it;
@@ -1162,6 +1161,19 @@ int k=2;
 	{
 		if( (*it).first!="schema" )  // Don't import this setting.  We just updated the schema
 			pRepository->SetSetting((*it).first,(*it).second);
+	}
+
+	int PriorSchema = atoi(mapSettings["schema"].c_str());
+
+	int CurrentSchema = atoi(pRepository->GetSetting("schema","1").c_str());
+	if( !CurrentSchema )
+		CurrentSchema = 1;
+
+	if( CurrentSchema<PriorSchema )
+	{
+		pRepository->SetSetting("schema",StringUtils::itos(PriorSchema));  // Set it back to what it was
+		cout << "WARNING:  Not importing repository " << pRepository->Name_get() << " because it had a newer schema" << endl;
+		return;
 	}
 
 	sTable = str.m_vectString[pos++];
@@ -1238,15 +1250,7 @@ int k=2;
 		throw "Import schema error";
 	pRepository->ImportTable(sTable,str,pos,NULL,0,0);
 
-	int PriorSchema = atoi(mapSettings["schema"].c_str());
-
-	int CurrentSchema = atoi(pRepository->GetSetting("schema","1").c_str());
-	if( !CurrentSchema )
-		CurrentSchema = 1;
-
-	if( CurrentSchema<PriorSchema )
-		throw ("Database error: CurrentSchema<PriorSchema for repository: " + pRepository->Name_get()).c_str();
-	else if( CurrentSchema>PriorSchema && PriorSchema && !g_GlobalConfig.m_bNewDatabase )
+	if( CurrentSchema>PriorSchema && PriorSchema && !g_GlobalConfig.m_bNewDatabase )
 	{
 		pRepository->UpdateSchema(PriorSchema);
 		// Get all the fields again since this could have changed things.  Don't worry about matching

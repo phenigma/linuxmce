@@ -397,9 +397,11 @@ public:
 			/** The Orbiter to regenerate */
 		/** @param #21 Force */
 			/** Can be -r to force a full regen, or -a for a quick one */
+		/** @param #24 Reset */
+			/** 'Y' or '1' means reset the router before doing the regen */
 
-	virtual void CMD_Regen_Orbiter(int iPK_Device,string sForce) { string sCMD_Result; CMD_Regen_Orbiter(iPK_Device,sForce.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Regen_Orbiter(int iPK_Device,string sForce,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Regen_Orbiter(int iPK_Device,string sForce,string sReset) { string sCMD_Result; CMD_Regen_Orbiter(iPK_Device,sForce.c_str(),sReset.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Regen_Orbiter(int iPK_Device,string sForce,string sReset,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #267 - Regen Orbiter Finished */

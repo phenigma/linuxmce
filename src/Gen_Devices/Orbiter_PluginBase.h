@@ -76,22 +76,12 @@ public:
 		m_pEvent = new Orbiter_Plugin_Event(m_dwPK_Device, m_sHostName);
 		if( m_pEvent->m_dwPK_Device )
 			m_dwPK_Device = m_pEvent->m_dwPK_Device;
+		if( m_sIPAddress!=m_pEvent->m_pClientSocket->m_sIPAddress )	
+			m_sIPAddress=m_pEvent->m_pClientSocket->m_sIPAddress;
+		m_sMacAddress=m_pEvent->m_pClientSocket->m_sMacAddress;
 		if( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None )
 		{
-			if( m_pEvent->m_pClientSocket->m_eLastError==cs_err_NeedReload )
-			{
-				if( RouterNeedsReload() )
-				{
-					string sResponse;
-					m_pEvent->m_pClientSocket->SendString( "RELOAD" );
-					if( m_pEvent->m_pClientSocket->ReceiveString( sResponse ) && sResponse!="OK" )
-					{
-						CannotReloadRouter();
-						g_pPlutoLogger->Write(LV_WARNING,"Reload request denied: %s",sResponse.c_str());
-					}
-				}	
-			}
-			else if( m_pEvent->m_pClientSocket->m_eLastError==cs_err_BadDevice )
+			if( m_pEvent->m_pClientSocket->m_eLastError==cs_err_BadDevice )
 			{
 				while( m_pEvent->m_pClientSocket->m_eLastError==cs_err_BadDevice && (m_dwPK_Device = DeviceIdInvalid())!=0 )
 				{
@@ -101,14 +91,29 @@ public:
 						m_dwPK_Device = m_pEvent->m_dwPK_Device;
 				}
 			}
+			if( m_pEvent->m_pClientSocket->m_eLastError==cs_err_NeedReload )
+			{
+				if( RouterNeedsReload() )
+				{
+					string sResponse;
+					Event_Impl event_Impl(DEVICEID_MESSAGESEND, 0, m_sHostName);
+					event_Impl.m_pClientSocket->SendString( "RELOAD" );
+					if( !event_Impl.m_pClientSocket->ReceiveString( sResponse ) || sResponse!="OK" )
+					{
+						CannotReloadRouter();
+						g_pPlutoLogger->Write(LV_WARNING,"Reload request denied: %s",sResponse.c_str());
+					}
+				Sleep(10000);  // Give the router 10 seconds before we re-attempt, otherwise we'll get an error right away
+				}	
+			}
 		}
 		
-		if( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None )
+		if( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None || m_pEvent->m_pClientSocket->m_Socket==INVALID_SOCKET )
 			return false;
 
 		int Size; char *pConfig = m_pEvent->GetConfig(Size);
 		if( !pConfig )
-			throw "Cannot get configuration data";
+			return false;
 		m_pData = new Orbiter_Plugin_Data();
 		if( Size )
 			m_pData->SerializeRead(Size,pConfig);
@@ -148,7 +153,7 @@ public:
 	virtual void CMD_Get_Current_Floorplan(string sID,int iPK_FloorplanType,string *sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Orbiter_Registered(string sOnOff,int iPK_Users,string sPK_EntertainArea,int iPK_Room,char **pData,int *iData_Size,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_FollowMe(int iPK_Device,string sText,int iPK_Users,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Regen_Orbiter(int iPK_Device,string sForce,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Regen_Orbiter(int iPK_Device,string sForce,string sReset,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Room_For_Device(int iPK_Device,int iPK_Room,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Auto_Switch_to_Remote(int iPK_Device,bool bTrueFalse,string &sCMD_Result,class Message *pMessage) {};
@@ -436,7 +441,8 @@ public:
 						string sCMD_Result="OK";
 					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
 					string sForce=pMessage->m_mapParameters[21];
-						CMD_Regen_Orbiter(iPK_Device,sForce.c_str(),sCMD_Result,pMessage);
+					string sReset=pMessage->m_mapParameters[24];
+						CMD_Regen_Orbiter(iPK_Device,sForce.c_str(),sReset.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -453,7 +459,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Regen_Orbiter(iPK_Device,sForce.c_str(),sCMD_Result,pMessage);
+								CMD_Regen_Orbiter(iPK_Device,sForce.c_str(),sReset.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
