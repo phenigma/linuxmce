@@ -1368,7 +1368,7 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
                 {
                     Row_CommandGroup_Room *drAG_R = vectAGs[s];
 					Row_CommandGroup *pRow_CommandGroup=drAG_R->FK_CommandGroup_getrow();
-                    if( pRow_CommandGroup && pRow_CommandGroup->FK_Array_get()==PK_Array )
+                    if( pRow_CommandGroup && pRow_CommandGroup->FK_Array_get()==PK_Array && !pRow_CommandGroup->Disabled_get() )
                     {
                         alArray->push_back(new ArrayValue(drAG_R->FK_CommandGroup_getrow()->AltID_isNull() ? StringUtils::itos(drAG_R->FK_CommandGroup_get()) : StringUtils::itos(drAG_R->FK_CommandGroup_getrow()->AltID_get()),
                             (!drAG_R->FK_CommandGroup_getrow()->FK_Icon_isNull() ? "~cb~" : "") +  drAG_R->FK_CommandGroup_getrow()->Description_get(),
@@ -1404,7 +1404,7 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
                 {
                     Row_CommandGroup_EntertainArea *drAG_E = vectEGs[s];
 					Row_CommandGroup *pRow_CommandGroup=drAG_E->FK_CommandGroup_getrow();
-                    if( pRow_CommandGroup && pRow_CommandGroup->FK_Array_get()==PK_Array )
+                    if( pRow_CommandGroup && pRow_CommandGroup->FK_Array_get()==PK_Array && !pRow_CommandGroup->Disabled_get() )
                     {
                         alArray->push_back(new ArrayValue(drAG_E->FK_CommandGroup_getrow()->AltID_isNull() ? StringUtils::itos(drAG_E->FK_CommandGroup_get()) : StringUtils::itos(drAG_E->FK_CommandGroup_getrow()->AltID_get()),
                             (!drAG_E->FK_CommandGroup_getrow()->FK_Icon_isNull() ? "~cb~" : "") +  drAG_E->FK_CommandGroup_getrow()->Description_get(),

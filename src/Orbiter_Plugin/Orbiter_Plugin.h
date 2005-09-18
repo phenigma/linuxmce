@@ -417,11 +417,13 @@ public:
 	/** Updates the record in the database for a given device putting in a certain room. */
 		/** @param #2 PK_Device */
 			/** The device */
+		/** @param #50 Name */
+			/** If PK_Room is empty, a new room with this name will be created */
 		/** @param #57 PK_Room */
 			/** The room */
 
-	virtual void CMD_Set_Room_For_Device(int iPK_Device,int iPK_Room) { string sCMD_Result; CMD_Set_Room_For_Device(iPK_Device,iPK_Room,sCMD_Result,NULL);};
-	virtual void CMD_Set_Room_For_Device(int iPK_Device,int iPK_Room,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Set_Room_For_Device(int iPK_Device,string sName,int iPK_Room) { string sCMD_Result; CMD_Set_Room_For_Device(iPK_Device,sName.c_str(),iPK_Room,sCMD_Result,NULL);};
+	virtual void CMD_Set_Room_For_Device(int iPK_Device,string sName,int iPK_Room,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #404 - Set Auto Switch to Remote */

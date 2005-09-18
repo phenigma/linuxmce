@@ -1799,17 +1799,33 @@ bool Orbiter_Plugin::OSD_OnOff( class Socket *pSocket, class Message *pMessage, 
 	/** Updates the record in the database for a given device putting in a certain room. */
 		/** @param #2 PK_Device */
 			/** The device */
+		/** @param #50 Name */
+			/** If PK_Room is empty, a new room with this name will be created */
 		/** @param #57 PK_Room */
 			/** The room */
 
-void Orbiter_Plugin::CMD_Set_Room_For_Device(int iPK_Device,int iPK_Room,string &sCMD_Result,Message *pMessage)
+void Orbiter_Plugin::CMD_Set_Room_For_Device(int iPK_Device,string sName,int iPK_Room,string &sCMD_Result,Message *pMessage)
 //<-dceag-c274-e->
 {
     PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
 	size_t sBefore=m_listNewPnpDevicesWaitingForARoom.size();
 
 	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(iPK_Device);
-	Row_Room *pRow_Room = m_pDatabase_pluto_main->Room_get()->GetRow(iPK_Room);
+	Row_Room *pRow_Room;
+	if( iPK_Room )
+		pRow_Room = m_pDatabase_pluto_main->Room_get()->GetRow(iPK_Room);
+	else
+	{
+		if( sName.size()==0 )
+		{
+			DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"You must type in a name for the room");
+			return;
+		}
+		pRow_Room = m_pDatabase_pluto_main->Room_get()->AddRow();
+		pRow_Room->Description_set(sName);
+		m_pDatabase_pluto_main->Room_get()->Commit();
+	}
+
 	if( !pRow_Device || !pRow_Room )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot set device %d to room %d",iPK_Device,iPK_Room);
