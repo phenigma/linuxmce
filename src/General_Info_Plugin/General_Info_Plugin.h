@@ -14,6 +14,13 @@ class Database_pluto_main;
 //<-dceag-decl-b->
 namespace DCE
 {
+	class LastApplication
+	{
+	public:
+		string m_sName;
+		int m_iPK_QuickStartTemplate;
+	};
+
 	class General_Info_Plugin : public General_Info_Plugin_Command
 	{
 //<-dceag-decl-e->
@@ -37,6 +44,8 @@ public:
     pthread_mutexattr_t m_MutexAttr;
 	bool m_bRerunConfigWhenDone;
 	map<int,bool> m_mapMediaDirectors_PendingConfig;
+	map<int, LastApplication *> m_mapLastApplication;
+	LastApplication *m_mapLastApplication_Find(int PK_Device_MD) { map<int,class LastApplication *>::iterator it = m_mapLastApplication.find(PK_Device_MD); return it==m_mapLastApplication.end() ? NULL : (*it).second; }
 
 	// Private methods
 	void SetNetBoot(DeviceData_Router *pDevice,bool bNetBoot);
@@ -220,6 +229,19 @@ public:
 
 	virtual void CMD_Check_for_updates_done() { string sCMD_Result; CMD_Check_for_updates_done(sCMD_Result,NULL);};
 	virtual void CMD_Check_for_updates_done(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #697 - Set Active Application */
+	/** Tell General Info Plugin what computing application is running on an MD */
+		/** @param #2 PK_Device */
+			/** The media director */
+		/** @param #50 Name */
+			/** The name of the application */
+		/** @param #146 PK_QuickStartTemplate */
+			/** The quick start template */
+
+	virtual void CMD_Set_Active_Application(int iPK_Device,string sName,int iPK_QuickStartTemplate) { string sCMD_Result; CMD_Set_Active_Application(iPK_Device,sName.c_str(),iPK_QuickStartTemplate,sCMD_Result,NULL);};
+	virtual void CMD_Set_Active_Application(int iPK_Device,string sName,int iPK_QuickStartTemplate,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

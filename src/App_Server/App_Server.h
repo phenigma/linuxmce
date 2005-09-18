@@ -86,18 +86,24 @@ public:
 			/** Send this messages if the process exited with success error code. */
 		/** @param #115 Show logo */
 			/** If this is set then we will first select the logo  before spawning the application. */
+		/** @param #120 Retransmit */
+			/** If false, and if Exclusive is true and another instance is killed, the 'send messages on termination' will not be sent. */
+		/** @param #126 Exclusive */
+			/** If true, then kill other apps with this same name */
 
-	virtual void CMD_Spawn_Application(string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,bool bShow_logo) { string sCMD_Result; CMD_Spawn_Application(sFilename.c_str(),sName.c_str(),sArguments.c_str(),sSendOnFailure.c_str(),sSendOnSuccess.c_str(),bShow_logo,sCMD_Result,NULL);};
-	virtual void CMD_Spawn_Application(string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,bool bShow_logo,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Spawn_Application(string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,bool bShow_logo,bool bRetransmit,bool bExclusive) { string sCMD_Result; CMD_Spawn_Application(sFilename.c_str(),sName.c_str(),sArguments.c_str(),sSendOnFailure.c_str(),sSendOnSuccess.c_str(),bShow_logo,bRetransmit,bExclusive,sCMD_Result,NULL);};
+	virtual void CMD_Spawn_Application(string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,bool bShow_logo,bool bRetransmit,bool bExclusive,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #69 - Kill Application */
 	/** Kill an application */
 		/** @param #50 Name */
 			/** Application name given at spawn time */
+		/** @param #120 Retransmit */
+			/** If false, the 'send messages' won't be processed when the app terminates */
 
-	virtual void CMD_Kill_Application(string sName) { string sCMD_Result; CMD_Kill_Application(sName.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Kill_Application(string sName,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Kill_Application(string sName,bool bRetransmit) { string sCMD_Result; CMD_Kill_Application(sName.c_str(),bRetransmit,sCMD_Result,NULL);};
+	virtual void CMD_Kill_Application(string sName,bool bRetransmit,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #70 - Hide Application */

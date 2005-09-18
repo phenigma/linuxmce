@@ -894,7 +894,8 @@ void Slim_Server_Streamer::StartSlimServer()
             m_dwPK_Device,                      // send from here
             DEVICETEMPLATE_App_Server_CONST,    // to an application server
             BL_SameComputer,                    // on the same computer
-            "slim-server"                              // reference it with this name
+            "slim-server",                            // reference it with this name
+			true								// Send the message
 		);                                        // execute this serialized message on exit with success
     CMD_Kill_Application.m_pMessage->m_bRelativeToSender = true;
     SendCommand(CMD_Kill_Application,&sResponse);  // Make sure app server has time to complete the kill
@@ -907,8 +908,8 @@ void Slim_Server_Streamer::StartSlimServer()
             "slim-server",                              // reference it with this name
             StringUtils::itos(m_iSlimServerCliPort),    // pass it the desired port number for reconnection.
             "",                                         // execute this serialized message on exit with failure
-            "",
-			false);                                        // execute this serialized message on exit with success
+            "",											// execute this serialized message on exit with success
+			false,false,false);                         
 
     spawnApplication.m_pMessage->m_bRelativeToSender = true;
     SendCommand(spawnApplication);

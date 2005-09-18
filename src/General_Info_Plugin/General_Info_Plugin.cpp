@@ -496,6 +496,7 @@ class DataGridTable *General_Info_Plugin::PendingTasks( string GridID, string Pa
 
 class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
+	PLUTO_SAFETY_LOCK(gm,m_GipMutex);
     DataGridTable *pDataGrid = new DataGridTable( );
     DataGridCell *pCellIcon,*pCellText;
 	OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
@@ -540,6 +541,47 @@ class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string 
 	else
 		pRow_Device->Device_QuickStart_FK_Device_getrows(&vectRow_Device_QuickStart);
 
+	LastApplication *pLastApplication = m_mapLastApplication_Find(pDevice_MD->m_dwPK_Device);
+	if( pLastApplication && pLastApplication->m_sName.size() )
+	{
+		int PK_DesignObj_OSD=DESIGNOBJ_generic_app_full_screen_CONST;
+		int PK_DesignObj_Remote=DESIGNOBJ_mnuGenericAppController_CONST;
+		if( pLastApplication->m_iPK_QuickStartTemplate )
+		{
+			Row_QuickStartTemplate *pRow_QuickStartTemplate = m_pDatabase_pluto_main->QuickStartTemplate_get()->GetRow(pLastApplication->m_iPK_QuickStartTemplate);
+			if( pRow_QuickStartTemplate )
+			{
+				PK_DesignObj_OSD=pRow_QuickStartTemplate->FK_DesignObj_OSD_get();
+				PK_DesignObj_Remote=pRow_QuickStartTemplate->FK_DesignObj_get();;
+			}
+		}
+
+		string sMessage;
+		if( pDevice_Orbiter_OSD->m_dwPK_Device==pMessage->m_dwPK_Device_From )
+			sMessage = StringUtils::itos(m_dwPK_Device) + " " + StringUtils::itos(pMessage->m_dwPK_Device_From) +
+				" 1 " + StringUtils::itos(COMMAND_Goto_Screen_CONST) + " " + StringUtils::itos(COMMANDPARAMETER_PK_DesignObj_CONST) + " " + 
+				StringUtils::itos(PK_DesignObj_OSD);
+		else
+			sMessage = StringUtils::itos(m_dwPK_Device) + " " + StringUtils::itos(pMessage->m_dwPK_Device_From) +
+				" 1 " + StringUtils::itos(COMMAND_Goto_Screen_CONST) + " " + StringUtils::itos(COMMANDPARAMETER_PK_DesignObj_CONST) + " " + 
+				StringUtils::itos(PK_DesignObj_Remote) + " & " +
+				StringUtils::itos(m_dwPK_Device) + " " + StringUtils::itos(pDevice_Orbiter_OSD->m_dwPK_Device) +
+				" 1 " + StringUtils::itos(COMMAND_Goto_Screen_CONST) + " " + StringUtils::itos(COMMANDPARAMETER_PK_DesignObj_CONST) + " " + 
+				StringUtils::itos(PK_DesignObj_OSD);
+				
+		DCE::CMD_Show_Object CMD_Show_Object(m_dwPK_Device,pMessage->m_dwPK_Device_From,StringUtils::itos(DESIGNOBJ_butResumeControl_CONST),
+			0,"","","1");
+		DCE::CMD_Show_Object CMD_Show_Object2(m_dwPK_Device,pMessage->m_dwPK_Device_From,StringUtils::itos(DESIGNOBJ_objExitAppOnOSD_CONST),
+			0,"","","1");
+		DCE::CMD_Set_Text CMD_Set_Text(m_dwPK_Device,pMessage->m_dwPK_Device_From,"",pLastApplication->m_sName,TEXT_STATUS_CONST);
+		DCE::CMD_Set_Variable CMD_Set_Variable(m_dwPK_Device,pMessage->m_dwPK_Device_From,VARIABLE_Misc_Data_1_CONST,sMessage);
+
+		CMD_Show_Object.m_pMessage->m_vectExtraMessages.push_back(CMD_Show_Object2.m_pMessage);
+		CMD_Show_Object.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text.m_pMessage);
+		CMD_Show_Object.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable.m_pMessage);
+		SendCommand(CMD_Show_Object);
+	}
+
 	// This will be the template we use for string applications
 	Row_QuickStartTemplate *pRow_QuickStartTemplate = p_Bookmarks ? m_pDatabase_pluto_main->QuickStartTemplate_get()->GetRow(1) : NULL;
 
@@ -578,7 +620,16 @@ class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string 
 			if( !pBuffer )
                 pBuffer = FileUtils::ReadFileIntoBuffer("/usr/pluto/orbiter/quickstart/" + StringUtils::itos(pRow_QuickStartTemplate->PK_QuickStartTemplate_get()) + "_tn.jpg",iSize);
 		}
-		
+
+		if( sBinary.size()==0 )
+		{
+			g_pPlutoLogger->Write(LV_WARNING,"QuickStart device with no binary to run");
+			continue;
+		}
+
+		if( sDescription.size()==0 )
+			sDescription = sBinary;
+
 		pCellIcon = new DataGridCell( "", "" );
 		pCellText = new DataGridCell( sDescription, "" );
 		pCellText->m_Colspan=3;
@@ -590,13 +641,27 @@ class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string 
             pCellIcon->m_GraphicLength = iSize;
         }
 
-		string sMessage = "0 " + StringUtils::itos(pDevice_Orbiter_OSD->m_dwPK_Device) + " 1 4 16 " + StringUtils::itos(DESIGNOBJ_generic_app_full_screen_CONST);
+		string sMessage = "0 " + StringUtils::itos(pDevice_Orbiter_OSD->m_dwPK_Device) + 
+			" 1 4 16 " + StringUtils::itos(PK_DesignObj_OSD) + 
+			" & 0 " + StringUtils::itos(m_dwPK_Device) + " 1 " + StringUtils::itos(COMMAND_Set_Active_Application_CONST) +
+			" " + StringUtils::itos(COMMANDPARAMETER_Name_CONST) + " \"\" " + StringUtils::itos(COMMANDPARAMETER_PK_Device_CONST) + " " +
+			StringUtils::itos(pDevice_MD->m_dwPK_Device);
+		if( pDevice_Orbiter_OSD->m_dwPK_Device!=pMessage->m_dwPK_Device_From )
+			sMessage += " & 0 " + StringUtils::itos(pMessage->m_dwPK_Device_From ) + 
+				" 1 4 16 " + StringUtils::itos(PK_DesignObj_Remote);
+
 
 		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,
 			sBinary,"generic_app",sArguments,
-			sMessage,sMessage,true);
+			sMessage,sMessage,true,false,true);
 		pCellIcon->m_pMessage = CMD_Spawn_Application.m_pMessage;
 		pCellText->m_pMessage = new Message(pCellIcon->m_pMessage);
+
+		DCE::CMD_Set_Active_Application CMD_Set_Active_Application(pMessage->m_dwPK_Device_From,m_dwPK_Device,
+			pDevice_MD->m_dwPK_Device,sDescription,pRow_QuickStartTemplate ? pRow_QuickStartTemplate->PK_QuickStartTemplate_get() : 0);
+		pCellIcon->m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Active_Application.m_pMessage);
+		pCellText->m_pMessage->m_vectExtraMessages.push_back( new Message(CMD_Set_Active_Application.m_pMessage) );
+
 
 		// If this is the same on screen orbiter on which the app will run, we will send the user 
 		// to a screen that retains a small strip at the bottom to terminate the app and return to the orbiter.
@@ -716,7 +781,7 @@ void General_Info_Plugin::CMD_Check_for_updates(string &sCMD_Result,Message *pMe
 			{
 				DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice->m_dwPK_Device,"/usr/pluto/bin/Config_Device_Changes.sh","cdc",
 					"F","",StringUtils::itos(pDevice->m_dwPK_Device) + " " + StringUtils::itos(m_dwPK_Device) + " " +
-					StringUtils::itos(MESSAGETYPE_COMMAND) + " " + StringUtils::itos(COMMAND_Check_for_updates_done_CONST),false);
+					StringUtils::itos(MESSAGETYPE_COMMAND) + " " + StringUtils::itos(COMMAND_Check_for_updates_done_CONST),false,false,false);
 				string sResponse;
 				if( !SendCommand(CMD_Spawn_Application,&sResponse) || sResponse!="OK" )
 					g_pPlutoLogger->Write(LV_CRITICAL,"Failed to send spawn application to %d",pDevice->m_dwPK_Device);
@@ -732,7 +797,7 @@ void General_Info_Plugin::CMD_Check_for_updates(string &sCMD_Result,Message *pMe
 	{
 		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_AppServerOnCore->m_dwPK_Device,"/usr/pluto/bin/Config_Device_Changes.sh","cdc",
 			"F","",StringUtils::itos(pDevice_AppServerOnCore->m_dwPK_Device) + " " + StringUtils::itos(m_dwPK_Device) + " " +
-			StringUtils::itos(MESSAGETYPE_COMMAND) + " " + StringUtils::itos(COMMAND_Check_for_updates_done_CONST),false);
+			StringUtils::itos(MESSAGETYPE_COMMAND) + " " + StringUtils::itos(COMMAND_Check_for_updates_done_CONST),false,false,false);
 		string sResponse;
 		if( !SendCommand(CMD_Spawn_Application,&sResponse) || sResponse!="OK" )
 			g_pPlutoLogger->Write(LV_CRITICAL,"Failed to send spawn application to %d",pDevice_AppServerOnCore->m_dwPK_Device);
@@ -846,4 +911,28 @@ g_pPlutoLogger->Write(LV_CRITICAL,"add bookmarks %s / %s",Link.c_str(), LinkText
 
 	delete[] BufferTop;
 	return Bookmarks;
+}
+//<-dceag-c697-b->
+
+	/** @brief COMMAND: #697 - Set Active Application */
+	/** Tell General Info Plugin what computing application is running on an MD */
+		/** @param #2 PK_Device */
+			/** The media director */
+		/** @param #50 Name */
+			/** The name of the application */
+		/** @param #146 PK_QuickStartTemplate */
+			/** The quick start template */
+
+void General_Info_Plugin::CMD_Set_Active_Application(int iPK_Device,string sName,int iPK_QuickStartTemplate,string &sCMD_Result,Message *pMessage)
+//<-dceag-c697-e->
+{
+	PLUTO_SAFETY_LOCK(gm,m_GipMutex);
+	LastApplication *pLastApplication = m_mapLastApplication_Find(iPK_Device);
+	if( !pLastApplication )
+	{
+		pLastApplication = new LastApplication();
+		m_mapLastApplication[iPK_Device]=pLastApplication;
+	}
+	pLastApplication->m_sName=sName;
+	pLastApplication->m_iPK_QuickStartTemplate=iPK_QuickStartTemplate;
 }

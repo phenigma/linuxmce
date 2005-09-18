@@ -2222,7 +2222,7 @@ void Orbiter_Plugin::CMD_Send_File_To_Phone(string sMac_address,string sCommand_
     g_pPlutoLogger->Write(LV_STATUS, "Launching send to phone job: \"%s\"", sName.c_str());
 
     DCE::CMD_Spawn_Application cmd_Spawn_Application(m_dwPK_Device, iApp_Server_Device_ID,
-        sCommand_Line, sName, sArguments, sCommOnFailure, sCommOnSuccess, false);
+        sCommand_Line, sName, sArguments, sCommOnFailure, sCommOnSuccess, false,false,false);
     SendCommand(cmd_Spawn_Application);
 }
 

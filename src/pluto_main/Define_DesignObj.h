@@ -1559,6 +1559,8 @@
 #define DESIGNOBJ_dgRooms_CONST 4319
 #define DESIGNOBJ_dbWebBookmarks_CONST 4320
 #define DESIGNOBJ_substPopupscreen_CONST 4321
+#define DESIGNOBJ_butResumeControl_CONST 4322
+
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

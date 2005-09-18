@@ -301,7 +301,7 @@ void Disk_Drive::CMD_Abort_Ripping(string &sCMD_Result,Message *pMessage)
 	DCE::CMD_Kill_Application
 		CMD_Kill_Application(m_dwPK_Device,
 						m_pDevice_AppServer->m_dwPK_Device,
-						"rip_" + StringUtils::itos(m_dwPK_Device));
+						"rip_" + StringUtils::itos(m_dwPK_Device),true);
 
     SendCommand(CMD_Kill_Application);
 }
@@ -878,7 +878,7 @@ void Disk_Drive::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string s
 						"/usr/pluto/bin/ripDiskWrapper.sh", "rip_" + StringUtils::itos(m_dwPK_Device), strParameters,
 						sResultMessage + StringUtils::itos(RIP_RESULT_FAILURE),
 						sResultMessage + StringUtils::itos(RIP_RESULT_SUCCESS),
-						"0");
+						false,false,false);
 
 	string sResponse;
     if( !SendCommand(spawnApplication,&sResponse) || sResponse!="OK" )

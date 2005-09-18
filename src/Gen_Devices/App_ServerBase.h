@@ -113,8 +113,8 @@ public:
 	//Event accessors
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Spawn_Application(string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,bool bShow_logo,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Kill_Application(string sName,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Spawn_Application(string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,bool bShow_logo,bool bRetransmit,bool bExclusive,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Kill_Application(string sName,bool bRetransmit,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Hide_Application(string sName,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Vol_Up(int iRepeat_Command,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Vol_Down(int iRepeat_Command,string &sCMD_Result,class Message *pMessage) {};
@@ -173,7 +173,9 @@ public:
 					string sSendOnFailure=pMessage->m_mapParameters[94];
 					string sSendOnSuccess=pMessage->m_mapParameters[95];
 					bool bShow_logo=(pMessage->m_mapParameters[115]=="1" ? true : false);
-						CMD_Spawn_Application(sFilename.c_str(),sName.c_str(),sArguments.c_str(),sSendOnFailure.c_str(),sSendOnSuccess.c_str(),bShow_logo,sCMD_Result,pMessage);
+					bool bRetransmit=(pMessage->m_mapParameters[120]=="1" ? true : false);
+					bool bExclusive=(pMessage->m_mapParameters[126]=="1" ? true : false);
+						CMD_Spawn_Application(sFilename.c_str(),sName.c_str(),sArguments.c_str(),sSendOnFailure.c_str(),sSendOnSuccess.c_str(),bShow_logo,bRetransmit,bExclusive,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -190,7 +192,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Spawn_Application(sFilename.c_str(),sName.c_str(),sArguments.c_str(),sSendOnFailure.c_str(),sSendOnSuccess.c_str(),bShow_logo,sCMD_Result,pMessage);
+								CMD_Spawn_Application(sFilename.c_str(),sName.c_str(),sArguments.c_str(),sSendOnFailure.c_str(),sSendOnSuccess.c_str(),bShow_logo,bRetransmit,bExclusive,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -199,7 +201,8 @@ public:
 					{
 						string sCMD_Result="OK";
 					string sName=pMessage->m_mapParameters[50];
-						CMD_Kill_Application(sName.c_str(),sCMD_Result,pMessage);
+					bool bRetransmit=(pMessage->m_mapParameters[120]=="1" ? true : false);
+						CMD_Kill_Application(sName.c_str(),bRetransmit,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -216,7 +219,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Kill_Application(sName.c_str(),sCMD_Result,pMessage);
+								CMD_Kill_Application(sName.c_str(),bRetransmit,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

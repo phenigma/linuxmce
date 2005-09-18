@@ -649,6 +649,8 @@
 #define COMMAND_Send_File_To_Phone_CONST 693
 #define COMMAND_Get_Orbiter_Status_CONST 694
 #define COMMAND_Get_Orbiter_Options_CONST 695
+#define COMMAND_Set_Active_Application_CONST 697
+
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

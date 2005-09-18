@@ -239,13 +239,20 @@ void App_Server::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sC
 			/** Send this messages if the process exited with success error code. */
 		/** @param #115 Show logo */
 			/** If this is set then we will first select the logo  before spawning the application. */
+		/** @param #120 Retransmit */
+			/** If false, and if Exclusive is true and another instance is killed, the 'send messages on termination' will not be sent. */
+		/** @param #126 Exclusive */
+			/** If true, then kill other apps with this same name */
 
-void App_Server::CMD_Spawn_Application(string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,bool bShow_logo,string &sCMD_Result,Message *pMessage)
+void App_Server::CMD_Spawn_Application(string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,bool bShow_logo,bool bRetransmit,bool bExclusive,string &sCMD_Result,Message *pMessage)
 //<-dceag-c67-e->
 {
 	PLUTO_SAFETY_LOCK(ap,m_AppMutex);
 	g_pPlutoLogger->Write(LV_STATUS,"SpawnApp file: %s name %s args %s failure %s logo %d",
 		sFilename.c_str(),sName.c_str(),sArguments.c_str(),sSendOnFailure.c_str(),(int) bShow_logo);
+	if( bExclusive )
+		CMD_Kill_Application(sName,bRetransmit);
+
 	if ( bShow_logo )
 	{
 		// Popup a black window so the user doesn't see some other program that may be running while he's
@@ -294,8 +301,10 @@ void App_Server::CMD_Spawn_Application(string sFilename,string sName,string sArg
 	/** Kill an application */
 		/** @param #50 Name */
 			/** Application name given at spawn time */
+		/** @param #120 Retransmit */
+			/** If false, the 'send messages' won't be processed when the app terminates */
 
-void App_Server::CMD_Kill_Application(string sName,string &sCMD_Result,Message *pMessage)
+void App_Server::CMD_Kill_Application(string sName,bool bRetransmit,string &sCMD_Result,Message *pMessage)
 //<-dceag-c69-e->
 {
 #ifndef WIN32
@@ -306,16 +315,19 @@ void App_Server::CMD_Kill_Application(string sName,string &sCMD_Result,Message *
 		sCMD_Result="Cannot kill";
 	}
 
-	for(vector<void *>::const_iterator itAttachedData = messagesToSend.begin();itAttachedData != messagesToSend.end();++itAttachedData)
+	if( bRetransmit )
 	{
-void *pV = (*itAttachedData);
-g_pPlutoLogger->Write(LV_WARNING, "pV %p",pV);
-		pair<string, string> *pStringsPair = (pair<string, string> *)(*itAttachedData);
-g_pPlutoLogger->Write(LV_WARNING, "s1 %s s2 %s",pStringsPair->first.c_str(),pStringsPair->second.c_str());
+		for(vector<void *>::const_iterator itAttachedData = messagesToSend.begin();itAttachedData != messagesToSend.end();++itAttachedData)
+		{
+	void *pV = (*itAttachedData);
+	g_pPlutoLogger->Write(LV_WARNING, "pV %p",pV);
+			pair<string, string> *pStringsPair = (pair<string, string> *)(*itAttachedData);
+	g_pPlutoLogger->Write(LV_WARNING, "s1 %s s2 %s",pStringsPair->first.c_str(),pStringsPair->second.c_str());
 
-		SendMessageList(pStringsPair->first);
-g_pPlutoLogger->Write(LV_WARNING, "after send message");
-		delete pStringsPair;
+			SendMessageList(pStringsPair->first);
+	g_pPlutoLogger->Write(LV_WARNING, "after send message");
+			delete pStringsPair;
+		}
 	}
 #endif
 }
