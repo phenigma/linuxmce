@@ -742,6 +742,9 @@
 #define TEXT_Zoom_out_CONST 1446
 #define TEXT_Escape_CONST 1447
 #define TEXT_Tab_CONST 1448
+#define TEXT_Remote_control_CONST 1449
+#define TEXT_New_Room_CONST 1450
+#define TEXT_name_new_room_CONST 1451
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

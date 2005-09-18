@@ -72,7 +72,7 @@
 #define DEVICETEMPLATE_SqueezeBox_Player_CONST 58
 #define DEVICETEMPLATE_Speech_CONST 59
 #define DEVICETEMPLATE_Windows_CE_PCtablet_Horiz_CONST 60
-#define DEVICETEMPLATE_Windows_XP_PCtablet_Horiz_Di_CONST 61
+#define DEVICETEMPLATE_Windows_XP_PCtablet_Horiz_CONST 61
 #define DEVICETEMPLATE_OnScreen_Orbiter_CONST 62
 #define DEVICETEMPLATE_MythTV_Backend_Proxy_CONST 63
 #define DEVICETEMPLATE_Motion_Wrapper_CONST 64
@@ -1633,6 +1633,8 @@
 #define DEVICETEMPLATE_Radeon_8500_or_newer_CONST 1721
 #define DEVICETEMPLATE_Crystal_Fontz_USBRS232_CONST 1722
 #define DEVICETEMPLATE_Axis_IP_Camera_CONST 1723
+#define DEVICETEMPLATE_Generic_Num2_CONST 1724
+#define DEVICETEMPLATE_Generic_Num1_CONST 1725
 
 #define DEVICETEMPLATE_TABLE "DeviceTemplate"
 #define DEVICETEMPLATE_PK_DEVICETEMPLATE_FIELD "PK_DeviceTemplate"
