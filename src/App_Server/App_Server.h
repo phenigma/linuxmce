@@ -154,6 +154,17 @@ public:
 	virtual void CMD_Halt_Device(int iPK_Device,string sForce,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #696 - Application is Running */
+	/** Checks if the given application is running. */
+		/** @param #50 Name */
+			/** Application name given at spawn time */
+		/** @param #119 True/False */
+			/** Indicates if it's running */
+
+	virtual void CMD_Application_is_Running(string sName,bool *bTrueFalse) { string sCMD_Result; CMD_Application_is_Running(sName.c_str(),bTrueFalse,sCMD_Result,NULL);};
+	virtual void CMD_Application_is_Running(string sName,bool *bTrueFalse,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 };
 

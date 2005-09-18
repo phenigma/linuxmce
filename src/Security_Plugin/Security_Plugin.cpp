@@ -711,7 +711,7 @@ int Security_Plugin::GetAlertType(int PK_HouseMode,DeviceData_Router *pDevice,bo
 	string s;
 	for( int i=0;i<=PK_HouseMode;++i )
 		s=StringUtils::Tokenize(sAlertData,",",pos); // Go to the Xth digit
-	Alert = atoi(s.c_str());
+	Alert = s.size() && s[0]=='N' ? atoi(s.substr(1).c_str()) : atoi(s.c_str());
 	if( bNotify )
 		*bNotify = s.find('N')!=string::npos;
 

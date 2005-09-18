@@ -125,12 +125,33 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 			iPK_Device_ControlledVia_New = atoi(row[0]);
 		else
 		{
-			SQL = "SELECT PK_Device FROM DeviceTemplate_DeviceCategory_ControlledVia "
-				"JOIN DeviceTemplate ON DeviceTemplate_DeviceCategory_ControlledVia.FK_DeviceCategory=DeviceTemplate.FK_DeviceCategory "
-				"JOIN Device ON Device.FK_DeviceTemplate=DeviceTemplate.PK_DeviceTemplate "
-				"WHERE DeviceTemplate_DeviceCategory_ControlledVia.FK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate);
-			if( (result_cv2.r=mysql_query_result(SQL)) && (row=mysql_fetch_row(result_cv2.r)) )
-				iPK_Device_ControlledVia_New = atoi(row[0]);
+			string sPK_DeviceCategory;
+			SQL = "select DC1.PK_DeviceCategory,DC2.PK_DeviceCategory,DC2.FK_DeviceCategory_Parent "
+				"FROM DeviceTemplate_DeviceCategory_ControlledVia "
+				"JOIN DeviceCategory AS DC1 ON DeviceTemplate_DeviceCategory_ControlledVia.FK_DeviceCategory=DC1.PK_DeviceCategory "
+				"LEFT JOIN DeviceCategory AS DC2 ON DC2.FK_DeviceCategory_Parent=DC1.PK_DeviceCategory "
+				"WHERE FK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate);
+
+			if( (result_cv2.r=mysql_query_result(SQL)) )
+			{
+				while (row=mysql_fetch_row(result_cv2.r))
+				{
+					if(row[0] && atoi(row[0]))
+						sPK_DeviceCategory += (sPK_DeviceCategory.size() ? "," : "") + string(row[0]);
+					if(row[1] && atoi(row[1]))
+						sPK_DeviceCategory += (sPK_DeviceCategory.size() ? "," : "") + string(row[1]);
+					if(row[2] && atoi(row[2]))
+						sPK_DeviceCategory += (sPK_DeviceCategory.size() ? "," : "") + string(row[2]);
+				}
+				PlutoSqlResult result_cv3;
+				SQL = "SELECT PK_Device "
+					"FROM Device "
+					"JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate "
+					"WHERE FK_DeviceCategory IN (" + sPK_DeviceCategory + ") AND PK_Device<>" + StringUtils::itos(PK_Device) + " ORDER BY PK_Device LIMIT 1";
+
+				if( (result_cv3.r=mysql_query_result(SQL)) && (row=mysql_fetch_row(result_cv3.r)) )
+					iPK_Device_ControlledVia_New = atoi(row[0]);
+			}
 		}
 
 		if( iPK_Device_ControlledVia_New )

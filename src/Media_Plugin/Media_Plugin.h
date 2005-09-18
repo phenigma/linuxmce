@@ -679,9 +679,13 @@ public:
 			/** If empty, the attribute is for the disc.  If specified, it is for this track number */
 		/** @param #122 EK_AttributeType */
 			/** The type of attribute to set */
+		/** @param #135 Section */
+			/** If specified the attribute is added for this section only */
+		/** @param #145 EK_File */
+			/** The file to add the attribute for.  If not specified, then a stream ID must be specified and the current file in that stream will be used */
 
-	virtual void CMD_Add_Media_Attribute(string sValue_To_Assign,int iStreamID,string sTracks,int iEK_AttributeType) { string sCMD_Result; CMD_Add_Media_Attribute(sValue_To_Assign.c_str(),iStreamID,sTracks.c_str(),iEK_AttributeType,sCMD_Result,NULL);};
-	virtual void CMD_Add_Media_Attribute(string sValue_To_Assign,int iStreamID,string sTracks,int iEK_AttributeType,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Add_Media_Attribute(string sValue_To_Assign,int iStreamID,string sTracks,int iEK_AttributeType,string sSection,int iEK_File) { string sCMD_Result; CMD_Add_Media_Attribute(sValue_To_Assign.c_str(),iStreamID,sTracks.c_str(),iEK_AttributeType,sSection.c_str(),iEK_File,sCMD_Result,NULL);};
+	virtual void CMD_Add_Media_Attribute(string sValue_To_Assign,int iStreamID,string sTracks,int iEK_AttributeType,string sSection,int iEK_File,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #392 - Set Media Attribute Text */

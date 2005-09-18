@@ -2357,7 +2357,8 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_Med
 	}
 
 	// What is the media?  It must be a Device, DeviceTemplate, or a media type, or filename
-    if( !iPK_MediaType && (iPK_Device || iPK_DeviceTemplate) )
+	// If there's a filename, we'll use that to determine the media type
+    if( !iPK_MediaType && (iPK_Device || iPK_DeviceTemplate) && !sFilename.size() )
     {
 		vector<Row_DeviceTemplate_MediaType *> vectRow_DeviceTemplate_MediaType;
 		Row_DeviceTemplate *pRow_DeviceTemplate=NULL;
@@ -3962,12 +3963,56 @@ void Media_Plugin::CMD_Set_Media_Private(string sPK_EntertainArea,bool bTrueFals
 			/** If empty, the attribute is for the disc.  If specified, it is for this track number */
 		/** @param #122 EK_AttributeType */
 			/** The type of attribute to set */
+		/** @param #135 Section */
+			/** If specified the attribute is added for this section only */
+		/** @param #145 EK_File */
+			/** The file to add the attribute for.  If not specified, then a stream ID must be specified and the current file in that stream will be used */
 
-void Media_Plugin::CMD_Add_Media_Attribute(string sValue_To_Assign,int iStreamID,string sTracks,int iEK_AttributeType,string &sCMD_Result,Message *pMessage)
+void Media_Plugin::CMD_Add_Media_Attribute(string sValue_To_Assign,int iStreamID,string sTracks,int iEK_AttributeType,string sSection,int iEK_File,string &sCMD_Result,Message *pMessage)
 //<-dceag-c391-e->
 {
-}
+	MediaStream *pMediaStream = NULL;
+	if( !iEK_File )
+	{
+		pMediaStream = m_mapMediaStream_Find(iStreamID);
+		if( !pMediaStream )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"CMD_Add_Media_Attribute cannot find stream %d",iStreamID);
+			sCMD_Result="BAD STREAM";
+			return;
+		}
+		MediaFile *pMediaFile=NULL;
+		if( pMediaStream->m_iDequeMediaFile_Pos<0 || pMediaStream->m_iDequeMediaFile_Pos>=pMediaStream->m_dequeMediaFile.size() ||
+			(pMediaFile=pMediaStream->m_dequeMediaFile[pMediaStream->m_iDequeMediaFile_Pos])==NULL || (iEK_File=pMediaFile->m_dwPK_File)==0 )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"CMD_Add_Media_Attribute no valid file in stream %d",iStreamID);
+			sCMD_Result="STREAM HAS NO FILE";
+			return;
+		}
+	}
+	Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(iEK_File);
+	if( !pRow_File )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"CMD_Add_Media_Attribute bad file %d",iEK_File);
+		sCMD_Result="BAD FILE";
+		return;
+	}
 
+	Row_Attribute *pRow_Attribute = m_pMediaAttributes->GetAttributeFromDescription(pRow_File->EK_MediaType_get(),iEK_AttributeType,sValue_To_Assign);
+	if( pRow_Attribute )
+	{
+		Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->GetRow(iEK_File,pRow_Attribute->PK_Attribute_get(),atoi(sTracks.c_str()),atoi(sSection.c_str()));
+		if( !pRow_File_Attribute )
+		{
+			pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->AddRow();
+			pRow_File_Attribute->FK_File_set(iEK_File);
+			pRow_File_Attribute->FK_Attribute_set(pRow_Attribute->PK_Attribute_get());
+			pRow_File_Attribute->Track_set(atoi(sTracks.c_str()));
+			pRow_File_Attribute->Section_set(atoi(sSection.c_str()));
+			m_pDatabase_pluto_media->File_Attribute_get()->Commit();
+		}
+	}
+}
 
 //<-dceag-c392-b->
 

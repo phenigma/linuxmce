@@ -71,22 +71,12 @@ public:
 		m_pEvent = new Media_Plugin_Event(m_dwPK_Device, m_sHostName);
 		if( m_pEvent->m_dwPK_Device )
 			m_dwPK_Device = m_pEvent->m_dwPK_Device;
+		if( m_sIPAddress!=m_pEvent->m_pClientSocket->m_sIPAddress )	
+			m_sIPAddress=m_pEvent->m_pClientSocket->m_sIPAddress;
+		m_sMacAddress=m_pEvent->m_pClientSocket->m_sMacAddress;
 		if( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None )
 		{
-			if( m_pEvent->m_pClientSocket->m_eLastError==cs_err_NeedReload )
-			{
-				if( RouterNeedsReload() )
-				{
-					string sResponse;
-					m_pEvent->m_pClientSocket->SendString( "RELOAD" );
-					if( m_pEvent->m_pClientSocket->ReceiveString( sResponse ) && sResponse!="OK" )
-					{
-						CannotReloadRouter();
-						g_pPlutoLogger->Write(LV_WARNING,"Reload request denied: %s",sResponse.c_str());
-					}
-				}	
-			}
-			else if( m_pEvent->m_pClientSocket->m_eLastError==cs_err_BadDevice )
+			if( m_pEvent->m_pClientSocket->m_eLastError==cs_err_BadDevice )
 			{
 				while( m_pEvent->m_pClientSocket->m_eLastError==cs_err_BadDevice && (m_dwPK_Device = DeviceIdInvalid())!=0 )
 				{
@@ -96,14 +86,29 @@ public:
 						m_dwPK_Device = m_pEvent->m_dwPK_Device;
 				}
 			}
+			if( m_pEvent->m_pClientSocket->m_eLastError==cs_err_NeedReload )
+			{
+				if( RouterNeedsReload() )
+				{
+					string sResponse;
+					Event_Impl event_Impl(DEVICEID_MESSAGESEND, 0, m_sHostName);
+					event_Impl.m_pClientSocket->SendString( "RELOAD" );
+					if( !event_Impl.m_pClientSocket->ReceiveString( sResponse ) || sResponse!="OK" )
+					{
+						CannotReloadRouter();
+						g_pPlutoLogger->Write(LV_WARNING,"Reload request denied: %s",sResponse.c_str());
+					}
+				Sleep(10000);  // Give the router 10 seconds before we re-attempt, otherwise we'll get an error right away
+				}	
+			}
 		}
 		
-		if( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None )
+		if( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None || m_pEvent->m_pClientSocket->m_Socket==INVALID_SOCKET )
 			return false;
 
 		int Size; char *pConfig = m_pEvent->GetConfig(Size);
 		if( !pConfig )
-			throw "Cannot get configuration data";
+			return false;
 		m_pData = new Media_Plugin_Data();
 		if( Size )
 			m_pData->SerializeRead(Size,pConfig);
@@ -147,7 +152,7 @@ public:
 	virtual void CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_MH_Set_Volume(string sPK_EntertainArea,string sLevel,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Media_Private(string sPK_EntertainArea,bool bTrueFalse,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Add_Media_Attribute(string sValue_To_Assign,int iStreamID,string sTracks,int iEK_AttributeType,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Add_Media_Attribute(string sValue_To_Assign,int iStreamID,string sTracks,int iEK_AttributeType,string sSection,int iEK_File,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Media_Attribute_Text(string sValue_To_Assign,int iEK_Attribute,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Attribute(int iEK_Attribute,string *sText,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Save_Bookmark(string sPK_EntertainArea,string &sCMD_Result,class Message *pMessage) {};
@@ -571,7 +576,9 @@ public:
 					int iStreamID=atoi(pMessage->m_mapParameters[41].c_str());
 					string sTracks=pMessage->m_mapParameters[121];
 					int iEK_AttributeType=atoi(pMessage->m_mapParameters[122].c_str());
-						CMD_Add_Media_Attribute(sValue_To_Assign.c_str(),iStreamID,sTracks.c_str(),iEK_AttributeType,sCMD_Result,pMessage);
+					string sSection=pMessage->m_mapParameters[135];
+					int iEK_File=atoi(pMessage->m_mapParameters[145].c_str());
+						CMD_Add_Media_Attribute(sValue_To_Assign.c_str(),iStreamID,sTracks.c_str(),iEK_AttributeType,sSection.c_str(),iEK_File,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -588,7 +595,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Add_Media_Attribute(sValue_To_Assign.c_str(),iStreamID,sTracks.c_str(),iEK_AttributeType,sCMD_Result,pMessage);
+								CMD_Add_Media_Attribute(sValue_To_Assign.c_str(),iStreamID,sTracks.c_str(),iEK_AttributeType,sSection.c_str(),iEK_File,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

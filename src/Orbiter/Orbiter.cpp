@@ -6642,6 +6642,7 @@ bool Orbiter::TestCurrentScreen(string &sPK_DesignObj_CurrentScreen)
 			else
 	            return false;
 		}
+		return false;
     }
 	return true;
 }

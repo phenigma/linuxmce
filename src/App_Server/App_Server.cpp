@@ -303,6 +303,7 @@ void App_Server::CMD_Kill_Application(string sName,string &sCMD_Result,Message *
 	if ( ! ProcessUtils::KillApplication(sName, messagesToSend) )
 	{
 		g_pPlutoLogger->Write(LV_WARNING, "Failed to kill the application with name: %s", sName.c_str());
+		sCMD_Result="Cannot kill";
 	}
 
 	for(vector<void *>::const_iterator itAttachedData = messagesToSend.begin();itAttachedData != messagesToSend.end();++itAttachedData)
@@ -641,4 +642,20 @@ void App_Server::CMD_Mute(string &sCMD_Result,Message *pMessage)
 
 	// TODO: check that the mixer actually worked
 	sCMD_Result = "OK";
+}
+//<-dceag-c696-b->
+
+	/** @brief COMMAND: #696 - Application is Running */
+	/** Checks if the given application is running. */
+		/** @param #50 Name */
+			/** Application name given at spawn time */
+		/** @param #119 True/False */
+			/** Indicates if it's running */
+
+void App_Server::CMD_Application_is_Running(string sName,bool *bTrueFalse,string &sCMD_Result,Message *pMessage)
+//<-dceag-c696-e->
+{
+#ifndef WIN32
+	*bTrueFalse = ProcessUtils::ApplicationIsLaunchedByMe(sName);
+#endif
 }
