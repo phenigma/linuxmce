@@ -31,6 +31,7 @@ public:
         typedef map<string, map<int, pair<string, string> > > vector_map;
         vector_map m_mapAppPids; // PIDs associated with an AppName - used for application mass killing (not massacres :P)
 	    pluto_pthread_mutex_t m_AppMutex; // Other classes may need this
+		pthread_mutexattr_t m_MutexAttr;
 		bool m_bLastMute;
 
         // Private methods

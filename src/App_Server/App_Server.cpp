@@ -99,7 +99,9 @@ App_Server::App_Server(int DeviceID, string ServerAddress,bool bConnectEventHand
 //<-dceag-const-e->
 	, m_AppMutex("AppServer")
 {
-	m_AppMutex.Init(NULL);
+    pthread_mutexattr_init( &m_MutexAttr );
+    pthread_mutexattr_settype( &m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP );
+	m_AppMutex.Init(&m_MutexAttr);
 	m_bLastMute=false;
 #ifndef WIN32
 	g_pAppServer = this;
