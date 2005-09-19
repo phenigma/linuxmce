@@ -38,7 +38,7 @@ if [[ -z "$Path" ]]; then
 	echo "$(date -R) FATAL: Profile path is empty" >> /var/log/pluto/mozilla.newlog
 	exit 1
 fi
-FireFoxProfile="~/.mozilla/firefox/$Path/"
+FireFoxProfile=~/".mozilla/firefox/$Path/"
 
 echo "$(date -R) user $User URL $URL" >> /var/log/pluto/mozilla.newlog
 
