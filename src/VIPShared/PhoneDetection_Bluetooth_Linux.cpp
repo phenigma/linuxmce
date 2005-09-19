@@ -257,7 +257,7 @@ bool PhoneDetection_Bluetooth_Linux::ScanningLoop()
 			ptr = buf + (1 + HCI_EVENT_HDR_SIZE);
 			len -= (1 + HCI_EVENT_HDR_SIZE);
 
-			printf("#hrd->evt = %d\n", hdr->evt);
+			//printf("#hrd->evt = %d\n", hdr->evt);
 
 			switch (hdr->evt) 
 			{
@@ -362,7 +362,7 @@ bool PhoneDetection_Bluetooth_Linux::ScanningLoop()
 
 			case EVT_CMD_STATUS:
 				cs = (evt_cmd_status *) ptr;
-				printf("# got a status %d opcode %d ncmd %d\n", cs->status, cs->opcode, cs->ncmd);
+				//printf("# got a status %d opcode %d ncmd %d\n", cs->status, cs->opcode, cs->ncmd);
 				/* This happens when the inquiry command fails */
 				if(cs->opcode == cmd_opcode_pack(OGF_LINK_CTL, OCF_INQUIRY) && cs->status != 0) 
 				{
