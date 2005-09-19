@@ -449,7 +449,18 @@ bool Orbiter_Plugin::IdentifyDevice(const string& sMacAddress, string &sDeviceCa
     g_pPlutoLogger->Write(LV_WARNING, "Search %s returned %d rows", sql.str().c_str(), (int) vectRow_DHCPDevice.size() );
 	Row_DHCPDevice *pRow_DHCPDevice = vectRow_DHCPDevice.size() ? vectRow_DHCPDevice[0] : NULL;
 
-    if(!pRow_DHCPDevice || pRow_DHCPDevice->FK_DeviceCategory_get() == DEVICECATEGORY_Bluetooth_Dongles_CONST)
+    if(NULL == pRow_DHCPDevice)
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "Unknown type of bluetooth device detected. Is this a phone? Mac: %s", sMacAddress.size());
+
+        //will assume that it's a series 60 phone
+        sDeviceCategoryDesc = "Unknown";
+        iPK_DeviceTemplate = DEVICETEMPLATE_Symbian_Series_60_mobile_CONST;
+        sManufacturerDesc = "Unknown";
+        return true;
+    }
+
+    if(pRow_DHCPDevice->FK_DeviceCategory_get() == DEVICECATEGORY_Bluetooth_Dongles_CONST)
         return false;
 
     sDeviceCategoryDesc = pRow_DHCPDevice->FK_DeviceCategory_getrow()->Description_get();
