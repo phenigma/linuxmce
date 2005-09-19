@@ -3,8 +3,17 @@
 User="$1"
 URL="$2"
 
+DefaultProfileTxt="[General]
+StartWithLastProfile=1
+
+[Profile0]
+Name=default
+IsRelative=1
+Path=pluto.default"
+
 if [[ ! -f ~/.mozilla/firefox/profiles.ini ]]; then
-	firefox --help
+	mkdir -p ~/.mozilla/firefox/pluto.default
+	echo "$DefaultProfileTxt" >~/.mozilla/firefox/profiles.ini
 fi
 
 Section=
@@ -25,9 +34,11 @@ while read line; do
 	fi
 done <~/.mozilla/firefox/profiles.ini
 
-if [[ "$Default" == 1 ]]; then
-	FireFoxProfile="~/.mozilla/firefox/$Path/"
+if [[ -z "$Path" ]]; then
+	echo "$(date -R) FATAL: Profile path is empty" >> /var/log/pluto/mozilla.newlog
+	exit 1
 fi
+FireFoxProfile="~/.mozilla/firefox/$Path/"
 
 echo "$(date -R) user $User URL $URL" >> /var/log/pluto/mozilla.newlog
 
