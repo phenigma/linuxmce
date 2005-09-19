@@ -11,8 +11,8 @@ DeviceCategory=$(RunSQL "$Q")
 DeviceCategory_Core=7
 DeviceCategory_MD=8
 
-#if [[ -n "$DeviceCategory" ]]; then
-#	if [[ $DeviceCategory -eq $DeviceCategory_MD ]]; then
+if [[ -n "$DeviceCategory" ]]; then
+	if [[ $DeviceCategory -eq $DeviceCategory_MD ]]; then
 #		if ! update-rc.d -f discover remove; then
 #			:
 #		fi
@@ -22,8 +22,10 @@ DeviceCategory_MD=8
 #			:
 #		fi
 #		update-rc.d hotplug start 81 1 2 3 4 5 . stop 89 0 6 . || /bin/true
-#	fi
-#fi
+		# Diskless machines should not drop portmap or networking at any point
+		rm -f /etc/rc6.d/{S32portmap,S35networking}
+	fi
+fi
 
 PrevVer="$2"
 DeviceCategory_VideoCards=125
