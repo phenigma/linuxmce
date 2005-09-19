@@ -23,7 +23,7 @@ if [[ -n "$DeviceCategory" ]]; then
 #		fi
 #		update-rc.d hotplug start 81 1 2 3 4 5 . stop 89 0 6 . || /bin/true
 		# Diskless machines should not drop portmap or networking at any point
-		rm -f /etc/rc6.d/{S32portmap,S35networking}
+		rm -f /etc/rc{0,6}.d/{S32portmap,S35networking}
 	fi
 fi
 
