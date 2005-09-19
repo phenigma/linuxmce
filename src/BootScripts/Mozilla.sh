@@ -19,10 +19,10 @@ while read line; do
 		Value="${line#*=}"
 		eval "$Var='$Value'"
 	fi
-done </home/.mozilla/firefox/profiles.ini
+done </home/.firefox/profiles.ini
 
 if [[ "$Default" == 1 ]]; then
-	FireFoxProfile="/home/.mozilla/firefox/$Path/"
+	FireFoxProfile="/home/.firefox/$Path/"
 fi
 
 echo "$(date -R) user $User URL $URL" >> /var/log/pluto/mozilla.newlog
