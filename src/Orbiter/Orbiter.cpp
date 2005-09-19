@@ -3525,6 +3525,10 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
                 bHandled |= CaptureKeyboard_EditText_AppendChar( '\'' );
             else if( PK_Button == BUTTON_dot_CONST )
                 bHandled |= CaptureKeyboard_EditText_AppendChar( '.' );
+            if( PK_Button == BUTTON_Asterisk_CONST )
+                bHandled |= CaptureKeyboard_EditText_AppendChar( '*' );
+            if( PK_Button == BUTTON_Pound_CONST )
+                bHandled |= CaptureKeyboard_EditText_AppendChar( '#' );
             else if(
                 ( PK_Button >= BUTTON_a_CONST && PK_Button <= BUTTON_z_CONST ) ||
                 ( PK_Button >= BUTTON_A_CONST && PK_Button <= BUTTON_Z_CONST ) ||
