@@ -46,6 +46,8 @@ if [[ $User != 0 ]]; then
 	if [[ ! -f "/home/user_$User/bookmarks.html" ]]; then
 		echo "User $User doesn't have bookmarks yet"
 		cp /home/public/bookmarks.html "$FireFoxProfile"
+	else
+		cp "/home/user_$User/bookmarks.html" "$FireFoxProfile"
 	fi
 fi
 
