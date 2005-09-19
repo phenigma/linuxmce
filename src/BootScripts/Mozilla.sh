@@ -3,6 +3,10 @@
 User="$1"
 URL="$2"
 
+if [[ ! -f ~/.mozilla/firefox/profiles.ini ]]; then
+	firefox --help
+fi
+
 Section=
 while read line; do
 	if [[ "$line" == '['Profile*']' ]]; then
@@ -19,10 +23,10 @@ while read line; do
 		Value="${line#*=}"
 		eval "$Var='$Value'"
 	fi
-done </home/.firefox/profiles.ini
+done <~/.mozilla/firefox/profiles.ini
 
 if [[ "$Default" == 1 ]]; then
-	FireFoxProfile="/home/.firefox/$Path/"
+	FireFoxProfile="~/.mozilla/firefox/$Path/"
 fi
 
 echo "$(date -R) user $User URL $URL" >> /var/log/pluto/mozilla.newlog
