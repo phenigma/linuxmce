@@ -410,7 +410,7 @@ $installationID = (int)@$_SESSION['installationID'];
 						<input type=\"text\" name=\"relatedDeviceValue_".$rowRelatedDevice['FK_Device_Related']."\" value=\"".stripslashes($rowRelatedDevice['Value'])."\">
 					</td>
 					<td>
-						<input value='Delete' type='button' onClick=\"if (confirm('Are you sure you want to delete this device?')) {windowOpen('index.php?section=deleteDeviceRelatedFromDeviceParams&deviceID=$deviceID&relatedID=".$rowRelatedDevice['FK_Device_Related']."&from=editDeviceParams','width=200,height=200,toolbars=true,scrollbars=1,resizable=1');}\">
+						<input value='Delete' class='button' type='button' onClick=\"if (confirm('Are you sure you want to delete this device?')) {windowOpen('index.php?section=deleteDeviceRelatedFromDeviceParams&deviceID=$deviceID&relatedID=".$rowRelatedDevice['FK_Device_Related']."&from=editDeviceParams','width=200,height=200,toolbars=true,scrollbars=1,resizable=1');}\">
 					</td>
 				  </tr>";
 			$deviceRelatedData[]=$rowRelatedDevice['FK_Device_Related'];
@@ -536,7 +536,7 @@ $installationID = (int)@$_SESSION['installationID'];
 			 }
 			$valueRelatedDevice = cleanString(@$_POST["relatedDeviceValue_".$selectedRelatedDev]);
 			if ($valueRelatedDevice!=$selectOldValueRow) {
-				$updateQuery = 'UPDATE Device_Device_Related SET IK_DeviceData = ? WHERE FK_Device = ? AND FK_Device_Related = ?';
+				$updateQuery = 'UPDATE Device_Device_Related SET Value = ? WHERE FK_Device = ? AND FK_Device_Related = ?';
 				$resUpdate = $dbADO->Execute($updateQuery,array($valueRelatedDevice,$deviceID,$selectedRelatedDev));
 			}
 		}

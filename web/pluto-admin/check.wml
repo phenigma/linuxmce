@@ -29,13 +29,30 @@ if(!isset($_REQUEST['user']) && !isset($_REQUEST['pin']) && !isset($_REQUEST['pi
 		Callback phone<br/><input type="text" name="phone" value=""/><br/>
 		* Please set your PIN on pluto admin website
 	<do type="accept" label="Submit">
-		<go method="get" href="check.wml?user=$user&amp;pinuser=$pinuser&amp;phone=$phone'.$sufix.((isset($_REQUEST['installationID']))?'&amp;installationID='.$_REQUEST['installationID']:'').'">
+		<go method="post" href="check.wml?user=$user&amp;pinuser=$pinuser&amp;phone=$phone'.$sufix.((isset($_REQUEST['installationID']))?'&amp;installationID='.$_REQUEST['installationID']:'').'">
 		</go>
 	</do>
 	';	
 }else{
-	if(isValidLogin($_REQUEST['user'],md5($_REQUEST['pinuser']),$dbADO)){
-		$_REQUEST['pin']=md5($_REQUEST['pinuser']);
+	if(isValidLogin($_REQUEST['user'],@$_REQUEST['pin'],$dbADO) || isValidLogin($_REQUEST['user'],md5(@$_REQUEST['pinuser']),$dbADO)){
+		if(!isset($_REQUEST['pin'])){
+			$_REQUEST['pin']=md5($_REQUEST['pinuser']);
+		}
+		if(isset($_REQUEST['cgid'])){
+			$_REQUEST['opt']=1;
+		}
+		if(isset($_REQUEST['mode'])){
+			$_REQUEST['opt']=2;
+		}
+		if(isset($_REQUEST['speechid'])){
+			$_REQUEST['opt']=3;
+		}		
+		if(isset($_REQUEST['cameraid'])){
+			$_REQUEST['opt']=4;
+		}
+		
+		
+		
 		if(!isset($_REQUEST['opt'])){
 			if(isset($_REQUEST['security'])){
 				if((int)$_REQUEST['security']==0){
@@ -283,27 +300,27 @@ function displayScreens($dbADO)
 			break;
 		case 4:
 			// view cameras
-			if(!isset($_REQUEST['cameraID'])){
+			if(!isset($_REQUEST['cameraid'])){
 				$cameraDevices=getDevicesFromCategory($GLOBALS['rootCameras'],$installationID,$dbADO);
 				$msg='Cameras: <br/>';
 				$pos=0;
-				foreach($cameraDevices AS $cameraID=>$cameraName){
+				foreach($cameraDevices AS $cameraid=>$cameraName){
 					$pos++;
-					$msg.=$pos.'. <a href="check.wml?opt=4&amp;cameraID='.$cameraID.extraLinks().'">'.$cameraName.'</a><br/>';
+					$msg.=$pos.'. <a href="check.wml?opt=4&amp;cameraid='.$cameraid.extraLinks().'">'.$cameraName.'</a><br/>';
 				}
 			}else{
-				$cameraID=$_REQUEST['cameraID'];
+				$cameraid=$_REQUEST['cameraid'];
 				
 				$securityDevicePlugin=getFieldsAsArray('Device','PK_Device',$dbADO,'WHERE FK_DeviceTemplate='.$GLOBALS['SecurityPlugin'].' AND FK_Installation='.$installationID);
 				$securityPluginDD=getFieldsAsArray('Device_DeviceData','IK_DeviceData',$dbADO,'WHERE FK_Device='.(int)@$securityDevicePlugin['PK_Device'][0].' AND FK_DeviceData='.$GLOBALS['Path']);
 				
-				$cmd='/usr/pluto/bin/MessageSend localhost -targetType device -o -p "/var/www/pluto-admin/security_images" 0 '.$_REQUEST['cameraID'].' 1 84 19 0 20 "jpg" 23 0 31 0 60 100 61 100';
+				$cmd='/usr/pluto/bin/MessageSend localhost -targetType device -o -p "/var/www/pluto-admin/security_images" 0 '.$_REQUEST['cameraid'].' 1 84 19 0 20 "jpg" 23 0 31 0 60 100 61 100';
 				exec($cmd,$retArray);
 				$msg='Camera screenshot not available.';
 				foreach ($retArray as $line) {
 					if(!ereg(':OK',$line)){
-						exec('mv /var/www/pluto-admin/security_images/19.out /var/www/pluto-admin/security_images/'.$cameraID.'.jpg',$retArray,$retCode);
-						$msg='<img src="security_images/'.$cameraID.'.jpg" alt="Loading ..."/>';
+						exec('mv /var/www/pluto-admin/security_images/19.out /var/www/pluto-admin/security_images/'.$cameraid.'.jpg',$retArray,$retCode);
+						$msg='<img src="security_images/'.$cameraid.'.jpg" alt="Loading ..."/>';
 					}
 				}
 			}
@@ -316,9 +333,9 @@ function displayScreens($dbADO)
 	return $msg;
 }
 
-function extraLinks()
+function extraLinks($withPin=0)
 {
-	$link='&amp;user='.$_REQUEST['user'].'&amp;pinuser='.$_REQUEST['pinuser'].'&amp;phone='.$_REQUEST['phone'].'&amp;pin='.$_REQUEST['pin'].((isset($_REQUEST['installationID']))?'&amp;installationID='.$_REQUEST['installationID']:'');
+	$link='&amp;user='.$_REQUEST['user'].(($withPin==1)?'&amp;pinuser='.$_REQUEST['pinuser']:'').'&amp;phone='.$_REQUEST['phone'].'&amp;pin='.$_REQUEST['pin'].((isset($_REQUEST['installationID']))?'&amp;installationID='.$_REQUEST['installationID']:'');
 	
 	return $link;
 }

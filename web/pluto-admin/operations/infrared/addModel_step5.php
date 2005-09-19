@@ -153,7 +153,6 @@
 		
 		$resInput->close();
 
-
 		$inputSelectedTxt.='</table>
 		<input type="hidden" name="oldMTArray" value="'.urlencode(serialize($oldMTArray)).'">
 		<input type="hidden" name="oldCheckedCommands" value="'.join(',',array_keys($checkedCommands)).'">';
@@ -270,6 +269,7 @@
 				$mediaTypesArray=getAssocArray('MediaType','PK_MediaType','Description',$publicADO,'','ORDER BY Description ASC');
 				$commandsArray=unserialize(urldecode($_POST['commandsArray']));
 				$oldMTArray=unserialize(urldecode($_POST['oldMTArray']));
+
 				$oldCheckedCommands=explode(',',$_POST['oldCheckedCommands']);
 				if($is==3){
 					$commandOrder=array_flip(explode(',',$_POST['commandsOrder']));
@@ -289,12 +289,15 @@
 
 	
 						if($mediaType!=0){
-							if(isset($oldMTArray[$commandID]['FK_MediaType']) && $oldMTArray[$commandID]['FK_MediaType']!=$mediaType){
-								deleteEmbeddedDT($oldMTArray[$commandID]['FK_EmbeddedDevice'],$publicADO);
+							if(@$oldMTArray[$commandID]['FK_MediaType']!=$mediaType){
+								if(isset($oldMTArray[$commandID]['FK_MediaType'])){
+									deleteEmbeddedDT($oldMTArray[$commandID]['FK_EmbeddedDevice'],$publicADO);
+								}
+								
+								// create embedded device template
+								createEmbeddedDeviceTemplate($commandName.' - '.$mediaTypesArray[$mediaType],$dtDataArray['FK_Manufacturer'][0],$dtDataArray['FK_DeviceCategory'][0],$userID,$dtID,$commandID,$mediaType,$publicADO);
 							}
 							
-							// create embedded device template
-							createEmbeddedDeviceTemplate($commandName.' - '.$mediaTypesArray[$mediaType],$dtDataArray['FK_Manufacturer'][0],$dtDataArray['FK_DeviceCategory'][0],$userID,$dtID,$commandID,$mediaType,$publicADO);
 						}else{
 							if(isset($oldMTArray[$commandID]['FK_MediaType']) && $oldMTArray[$commandID]['FK_MediaType']!=0){
 								deleteEmbeddedDT($oldMTArray[$commandID]['FK_EmbeddedDevice'],$publicADO);
