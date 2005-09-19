@@ -537,6 +537,8 @@ class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string 
 	{
 		p_Bookmarks = (list<pair<string, string> > *) ExtraData;
 		it=p_Bookmarks->begin();
+		if( it == p_Bookmarks->end() )
+			return pDataGrid;
 	}
 	else
 		pRow_Device->Device_QuickStart_FK_Device_getrows(&vectRow_Device_QuickStart);
