@@ -1002,7 +1002,7 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
 			if( sType=="CE" )
 				iPK_DeviceTemplate=DEVICETEMPLATE_Windows_CE_PCtablet_Horiz_CONST;
 			else
-				iPK_DeviceTemplate=DEVICETEMPLATE_Windows_XP_PCtablet_Horiz_Di_CONST;
+				iPK_DeviceTemplate=DEVICETEMPLATE_Windows_XP_PCtablet_Horiz_CONST;
 			PK_UI=UI_Normal_Horizontal_3_4_CONST;
 			iWidth=320;
 			iHeight=240;
@@ -1029,7 +1029,7 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
 			if( sType=="CE" )
 				iPK_DeviceTemplate=DEVICETEMPLATE_Windows_CE_PCtablet_Horiz_CONST;
 			else
-				iPK_DeviceTemplate=DEVICETEMPLATE_Windows_XP_PCtablet_Horiz_Di_CONST;
+				iPK_DeviceTemplate=DEVICETEMPLATE_Windows_XP_PCtablet_Horiz_CONST;
 			PK_UI=UI_Normal_Horizontal_3_4_CONST;
 			if( (!iWidth || !iHeight) && iPK_Size )
 			{
