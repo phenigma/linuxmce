@@ -2,19 +2,41 @@
 
 User="$1"
 URL="$2"
-FireFoxProfile="~/.mozilla/firefox/eo8ytrya.default/" ## need help
+
+Section=
+while read line; do
+	if [[ "$line" == '['Profile*']' ]]; then
+		if [[ -n "$Section" && "$Default" == 1 ]]; then
+			break
+		fi
+		Section="$line"
+		Name=
+		IsRelative=
+		Path=
+		Default=
+	elif [[ -n "$Section" && -n "$line" ]]; then
+		Var="${line%%=*}"
+		Value="${line#*=}"
+		eval "$Var='$Value'"
+	fi
+done </home/.mozilla/firefox/profiles.ini
+
+if [[ "$Default" == 1 ]]; then
+	FireFoxProfile="/home/.mozilla/firefox/$Path/"
+fi
+
 echo "$(date -R) user $User URL $URL" >> /var/log/pluto/mozilla.newlog
 
-if [[ $User!=0 ]]; then
-	if [[ ! -f "/home/user_$1/bookmarks.html" ]]; then
+if [[ $User != 0 ]]; then
+	if [[ ! -f "/home/user_$User/bookmarks.html" ]]; then
 		echo "User $User doesn't have bookmarks yet"
-		cp /home/public/bookmarks.html "$FireFoxProfile"  ###  !!!!! Why doesn't this work!!!
+		cp /home/public/bookmarks.html "$FireFoxProfile"
 	fi
 fi
 
 echo "starting firefox" >> /var/log/pluto/mozilla.newlog
 firefox "$URL"
-if [[ $User!=0 ]]; then
-	cp "$FireFoxProfile/bookmarks.html" /home/user_$1
+if [[ $User != 0 ]]; then
+	cp "$FireFoxProfile/bookmarks.html" /home/user_$User
 fi
 echo "$(date -R) firefox ended" >> /var/log/pluto/mozilla.newlog
