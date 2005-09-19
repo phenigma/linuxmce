@@ -201,7 +201,8 @@ bool PopulateListsInVMC::PopulateCamerasList()
     //get all device templates from 'surveillance cameras' category
     vector<Row_DeviceTemplate *> vectRow_DeviceTemplate;
     m_pDatabase_pluto_main->DeviceTemplate_get()->GetRows(
-        "FK_DeviceCategory = " + StringUtils::ltos(DEVICECATEGORY_Surveillance_Cameras_CONST),
+        "FK_DeviceCategory IN (" + StringUtils::ltos(DEVICECATEGORY_Surveillance_Cameras_CONST) + "," + 
+        StringUtils::ltos(DEVICECATEGORY_IP_Cameras_CONST) + ")",
         &vectRow_DeviceTemplate);
 
     if(!vectRow_DeviceTemplate.size()) 
