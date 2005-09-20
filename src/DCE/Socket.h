@@ -60,6 +60,7 @@ namespace DCE
 		int m_iSockBufBytesLeft; /** < bytes left in the socket buffer @todo ask */
 		int m_iReceiveTimeout; /** < the interval after witch the sockets stops expecting for an answer in seconds */
 		bool m_bQuit; /** < set when the socket should terminate */
+        bool m_bCancelSocketOp; /** < cancel any operations with the socket right away */
 
 		/** < If non null, then any socket failures will be sent to the
 		m_pSocket_PingFailure rather than handled locally */

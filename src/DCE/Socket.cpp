@@ -142,6 +142,7 @@ Socket::Socket(string Name,string sIPAddress, string sMacAddress) : m_SocketMute
 	printf("start const %p\n",this);
 #endif
 #endif
+    m_bCancelSocketOp = false;
 	m_pcSockLogFile=m_pcSockLogErrorFile=NULL;
 	m_sHostName = sIPAddress;
 	m_sMacAddress = sMacAddress;
@@ -390,7 +391,7 @@ Message *Socket::ReceiveMessage( int iLength, bool bText )
 		char *pcBuffer = new char[iLength+1]; // freeing after we create the Message object from it or after error before return
 		if( !pcBuffer ) // couldn't alloc on heap
 		{
-			if( m_bQuit )
+			if( m_bQuit || m_bCancelSocketOp)
 				return NULL;
 			g_pPlutoLogger->Write( LV_CRITICAL, "Failed Socket::ReceiveMessage %p - failed to allocate buffer - m_Socket: %d %s ch: %p", this, m_Socket, m_sName.c_str(), g_pSocketCrashHandler );
 			if( g_pSocketCrashHandler )
@@ -442,7 +443,7 @@ Message *Socket::ReceiveMessage( int iLength, bool bText )
 				return pMessage;
 			}
 			delete[] pcBuffer;
-			if( m_bQuit )
+			if( m_bQuit || m_bCancelSocketOp )
 				return NULL;
 			g_pPlutoLogger->Write( LV_CRITICAL, "Failed Socket::ReceiveMessage %p - failed ReceiveData - m_Socket: %d %s ch: %p", this, m_Socket, m_sName.c_str(), g_pSocketCrashHandler );
 			PlutoLock::DumpOutstandingLocks();
@@ -456,7 +457,7 @@ Message *Socket::ReceiveMessage( int iLength, bool bText )
 	catch( ... ) // an exception was thrown
 #endif
 	{
-		if( m_bQuit )
+		if( m_bQuit || m_bCancelSocketOp )
 			return NULL;
 		g_pPlutoLogger->Write( LV_CRITICAL, "Failed Socket::ReceiveMessage %p - out of memory? m_Socket: %d %s ch: %p", this, m_Socket, m_sName.c_str(), g_pSocketCrashHandler );
 		PlutoLock::DumpOutstandingLocks();
@@ -594,7 +595,7 @@ bool Socket::SendData( int iSize, const char *pcData )
 		tv_total.tv_usec = 0;
 		do
 		{
-			if( m_Socket == INVALID_SOCKET || m_bQuit )
+			if( m_Socket == INVALID_SOCKET || m_bQuit || m_bCancelSocketOp)
 				return false;
 
 			FD_ZERO( &wrfds );
@@ -701,7 +702,7 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 	sSM.m_bIgnoreDeadlock=true;  // This socket can block a long time on receive.  Don't treat that as a deadlock
 	if( m_Socket == INVALID_SOCKET )
 	{
-		if( m_bQuit )
+		if( m_bQuit || m_bCancelSocketOp )
 			return false;
 		g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveData %p failed, m_Socket: %d (%p) %s ch: %p", this, m_Socket, this, m_sName.c_str(), g_pSocketCrashHandler );
 		PlutoLock::DumpOutstandingLocks();
@@ -747,7 +748,7 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 			//g_pPlutoLogger->Write(LV_STATUS, "Socket::ReceiveData timeout %d socket %d", m_iReceiveTimeout, m_Socket);
 			do
 			{
-				if( m_Socket == INVALID_SOCKET || m_bQuit )
+				if( m_Socket == INVALID_SOCKET || m_bQuit || m_bCancelSocketOp )
 					return false;
 
 				FD_ZERO(&rfds);
@@ -784,7 +785,7 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 			if( iRet == 0 || iRet == -1 )
 			{
 				Close();
-				if( m_bQuit )
+				if( m_bQuit || m_bCancelSocketOp )
 					return false;
 #ifdef DEBUG
 				g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveData %p failed, ret %d start: %d 1: %d 1b: %d 2: %d 2b: %d, m_Socket: %d %s ch: %p",
@@ -953,7 +954,7 @@ bool Socket::ReceiveString( string &sRefString )
 	int	iLen = sizeof( acBuf ) - 1;
 	if(( m_Socket == INVALID_SOCKET ) || ( acBuf == NULL ))
 	{
-		if( m_bQuit )
+		if( m_bQuit || m_bCancelSocketOp )
 			return false;
 		{
 			g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveString %p failed, m_Socket: %d buf %p %s ch: %p", this, m_Socket, acBuf, m_sName.c_str(), g_pSocketCrashHandler );
@@ -990,7 +991,7 @@ bool Socket::ReceiveString( string &sRefString )
 
 	if ( !iLen ) // didn't get all that was expected or more @todo ask
 	{
-		if( m_bQuit )
+		if( m_bQuit || m_bCancelSocketOp )
 			return false;
 #ifdef LL_DEBUG_FILE
 		PLUTO_SAFETY_LOCK_ERRORSONLY( ll4, (*m_LL_DEBUG_Mutex) );
@@ -1160,6 +1161,8 @@ void Socket::PingFailed()
 
 void Socket::Close()
 {
+    m_bCancelSocketOp = true;
+
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sSM,m_SocketMutex);  // don't log anything but failures
 #ifdef DEBUG
 	g_pPlutoLogger->Write( LV_SOCKET, "Socket::Close() m_Socket %d", m_Socket );
