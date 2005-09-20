@@ -30,6 +30,7 @@ InstallKernel()
 		echo $Module >>etc/mkinitrd/modules
 	done
 
+	sed -i 's/^ROOT=.*$/ROOT=/g' etc/mkinitrd/mkinitrd.conf
 	if chroot . dpkg -s "kernel-image-$KERNEL_VERSION" 2>/dev/null | grep -q 'Status: install ok installed'; then
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Kernel already installed."
 		return 0
