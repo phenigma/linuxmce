@@ -358,7 +358,7 @@ For now, you have to manually update these files:
 		X, T = letters
 		ex: /dev/hde -> /dev/sda; /dev/hde1 -> /dev/sda1
 /boot/grub/menu.lst:
-	For the \"Debian GNU/Linux, kernel 2.6.10-1-686\" kernel entry you
+	For the \"Debian GNU/Linux, kernel 2.6.12-pluto-1-686\" kernel entry you
 	need to specify 'root=/dev/sdT1' instead of 'root=/dev/hdX1'
 
 Switch to another console (Alt+F2), login as root and use an editor like
