@@ -451,11 +451,10 @@ bool Orbiter_Plugin::IdentifyDevice(const string& sMacAddress, string &sDeviceCa
 
     if(NULL == pRow_DHCPDevice)
     {
-        g_pPlutoLogger->Write(LV_WARNING, "Unknown type of bluetooth device detected. Is this a phone? Mac: %s", sMacAddress.size());
+        g_pPlutoLogger->Write(LV_WARNING, "Unknown type of bluetooth device detected. Is this a phone? Mac: %s", sMacAddress.c_str());
 
-        //will assume that it's a series 60 phone
         sDeviceCategoryDesc = "Unknown";
-        iPK_DeviceTemplate = DEVICETEMPLATE_Symbian_Series_60_mobile_CONST;
+        iPK_DeviceTemplate = 0;
         sManufacturerDesc = "Unknown";
         return true;
     }
