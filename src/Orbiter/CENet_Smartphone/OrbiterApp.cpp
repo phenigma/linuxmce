@@ -243,6 +243,7 @@ void OrbiterApp::LocalKeyPressed(int nKeyCode)
 
     if(uMsg == WM_KEYDOWN)
 	{
+		::MessageBeep(MB_ICONASTERISK);
 		nTimeDown = clock();
 		m_bDataKeys = false;
 		bIsLongKey = false;
@@ -1417,8 +1418,13 @@ void OrbiterApp::RenderEditBox()
 //------------------------------------------------------------------------------------------------------------------
 void OrbiterApp::Hide()
 {
-	::ShowWindow(m_hWnd, SW_HIDE);
+	::MessageBeep(MB_ICONASTERISK);
+	Sleep(50);
+	::MessageBeep(MB_ICONASTERISK);
+	Sleep(50);
+	::MessageBeep(MB_ICONASTERISK);
 
+	::ShowWindow(m_hWnd, SW_HIDE);
 	::SetForegroundWindow(::GetDesktopWindow());
 	::ShowWindow(::GetDesktopWindow(), SW_SHOW);
 }
@@ -1428,6 +1434,14 @@ void OrbiterApp::Show()
 	::ShowWindow(::GetDesktopWindow(), SW_HIDE);
 	::SetForegroundWindow(m_hWnd);
 	::ShowWindow(m_hWnd, SW_SHOW);
+
+	::MessageBeep(MB_ICONASTERISK);
+	Sleep(50);
+	::MessageBeep(MB_ICONHAND);
+	Sleep(50);
+	::MessageBeep(MB_ICONQUESTION);
+	Sleep(50);
+	::MessageBeep(MB_ICONQUESTION);
 }
 //------------------------------------------------------------------------------------------------------------------
 void OrbiterApp::SetImageQuality(unsigned long ulImageQuality)
