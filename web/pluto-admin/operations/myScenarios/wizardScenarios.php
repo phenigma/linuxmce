@@ -45,20 +45,6 @@ function wizardScenarios($output,$dbADO) {
 						<td><input type="text" size="20" name="Hint" value="'.$rowCommandGroupDetails['Hint'].'"></td>
 					</tr>
 
-					<tr>
-						<td>Icon</td><td>
-						<select name="icon">';
-	
-							$queryIcons = "SELECT * FROM Icon order by Description Asc";
-							$resIcons = $dbADO->Execute($queryIcons);
-										while ($rowIcons=$resIcons->fetchRow()) {
-											$out.='<option '.($rowIcons['PK_Icon']==$rowCommandGroupDetails['FK_Icon']?" selected='selected' ":'').' value="'.$rowIcons['PK_Icon'].'">'.$rowIcons['Description'].'</option>';
-										}
-						
-							$out.='
-						</select>
-						</td>
-					</tr>
 			
 				<tr><td colspan="2"><input type="submit" class="button" name="submitX" value="Save"  ></td></tr>
 				';

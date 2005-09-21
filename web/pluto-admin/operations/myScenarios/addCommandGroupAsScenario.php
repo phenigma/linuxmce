@@ -61,19 +61,6 @@ function addCommandGroupAsScenario($output,$dbADO) {
 								 <input type="submit" class="button" name="searchCommandGroup" value="Search [...]"  >
 					</td>
 				</tr>
-				<tr><td>Icon</td><td>
-						<select name="icon">';
-	
-							$queryIcons = "SELECT * FROM Icon order by Description Asc";
-							$resIcons = $dbADO->Execute($queryIcons);
-										while ($rowIcons=$resIcons->fetchRow()) {
-											$out.='<option value="'.$rowIcons['PK_Icon'].'">'.$rowIcons['Description'].'</option>';
-										}
-						
-							$out.='
-						</select>
-				</td>
-				</tr>
 				<tr>
 					<td>Template</td><td>
 						<select name="template">
@@ -130,7 +117,6 @@ function addCommandGroupAsScenario($output,$dbADO) {
 		 		var frmvalidator = new formValidator("addCommandGroupAsScenario");
  				frmvalidator.addValidation("description","req","Please enter a description for scenario");			
 				//frmvalidator.addValidation("designObjID","req","Please enter a design obj number!");			
-	 			//frmvalidator.addValidation("icon","dontselect=0","Please select an Icon!");			
 			</script>
 			';
 		
@@ -175,14 +161,13 @@ function addCommandGroupAsScenario($output,$dbADO) {
 			
 			$arrayID = cleanInteger($_POST['arrayType']);
 			$designObjID = ($_SESSION['addCommandGroupAsScenario']['designObjID']!=0)?$_SESSION['addCommandGroupAsScenario']['designObjID']:NULL;
-			$iconID = cleanInteger(isset($_POST['icon'])?$_POST['icon']:0);
 			$templateID = ($_POST['template']!='0')?cleanInteger($_POST['template']):NULL;
 						
-			$insertCommandGroup = "INSERT INTO CommandGroup (Description,FK_Array,FK_DesignObj,FK_Icon,FK_Template,FK_Installation)
-				VALUES(?,?,?,?,?,?)			
+			$insertCommandGroup = "INSERT INTO CommandGroup (Description,FK_Array,FK_DesignObj,FK_Template,FK_Installation)
+				VALUES(?,?,?,?,?)			
 			";
 
-			$res=$dbADO->Execute($insertCommandGroup,array($description,$arrayID,$designObjID,$iconID,$templateID,$installationID));
+			$res=$dbADO->Execute($insertCommandGroup,array($description,$arrayID,$designObjID,$templateID,$installationID));
 			$PK_CommandGroup=$dbADO->Insert_ID();
 			
 			if($arrayID==$GLOBALS['ArrayIDForMedia']){
