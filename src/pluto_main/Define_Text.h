@@ -747,6 +747,7 @@
 #define TEXT_name_new_room_CONST 1451
 #define TEXT_Reload__Regen_Orbiter_CONST 1452
 #define TEXT_Reload__Regen_All_Orbiters_CONST 1453
+#define TEXT_Mozilla_bookmarks_CONST 1454
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
