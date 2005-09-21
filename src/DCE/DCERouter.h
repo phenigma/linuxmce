@@ -321,7 +321,7 @@ namespace DCE
 							EVENT_Reload_Aborted_CONST,3,
 							EVENTPARAMETER_PK_Device_CONST,StringUtils::itos(pPlugIn->m_dwPK_Device).c_str(),
 							EVENTPARAMETER_Text_CONST,sPendingTasks.c_str(),
-							EVENTPARAMETER_PK_Orbiter_CONST,StringUtils::itos(PK_Device_Requesting)));
+							EVENTPARAMETER_PK_Orbiter_CONST,StringUtils::itos(PK_Device_Requesting).c_str()));
 					}
 					return false;
 				}

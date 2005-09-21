@@ -302,7 +302,7 @@ Message::Message( long dwDeviceIDFrom, long dwDeviceIDTo, long dwPriority, long 
     va_start( marker, dwParameterCount );
     for( unsigned long i=0; i < dwParameterCount; i++ )
     {
-        long Key = va_arg( marker, unsigned long );
+        long Key = va_arg( marker, long );
         if ( Key >= 0 ) // if Key > 0 it is a normal string parameter, otherwise i's a data block
         {
             m_mapParameters[Key] = string( va_arg( marker, char* ) );
