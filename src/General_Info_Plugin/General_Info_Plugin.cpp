@@ -859,63 +859,70 @@ pair<string, string> strpair(string x, string y)
 
 list<pair<string, string> > General_Info_Plugin::GetUserBookmarks(string sPK_User)
 {
-	list<pair<string, string> > Bookmarks;
-	// the following code reads the Mozilla bookmarks
-	
-	g_pPlutoLogger->Write(LV_CRITICAL,"REading bookmarks from %s",
-		("/home/user_" + sPK_User + "/bookmarks.html").c_str());
+    list<pair<string, string> > Bookmarks;
+    // the following code reads the Mozilla bookmarks
 
-	size_t Size;
-	char *Buffer = FileUtils::ReadFileIntoBuffer("/home/user_" + sPK_User + "/bookmarks.html", Size);
-	if( !Buffer )
-		return Bookmarks;
+    g_pPlutoLogger->Write(LV_CRITICAL,"Reading bookmarks from %s", 
+        ("/home/user_" + sPK_User + "/bookmarks.html").c_str());
 
-	char * BufferTop = Buffer;
+    size_t Size;
+    char *Buffer = FileUtils::ReadFileIntoBuffer("/home/user_" + sPK_User + "/bookmarks.html", Size);
+    if( Buffer )
+    {
+        char * BufferTop = Buffer;
+        char *BraceA;
+        char *PosInBuffer=Buffer;
+        while( (BraceA=strstr(Buffer,"<A")) )
+        {
+            char *HRef = strstr(BraceA,"HREF");
+            if( !HRef )
+            {
+                Buffer++;  // Skip past this and continue
+                continue;
+            }
 
-	char *BraceA;
-	char *PosInBuffer=Buffer;
-	while( (BraceA=strstr(Buffer,"<A")) )
-	{
-		char *HRef = strstr(BraceA,"HREF");
-		if( !HRef )
-		{
-			Buffer++;  // Skip past this and continue
-			continue;
-		}
-		char *FirstQuote = strchr(HRef,'"');
-		if( !FirstQuote )
-		{
-			Buffer++;  // Skip past this and continue
-			continue;
-		}
-		char *SecondQuote = strchr(FirstQuote+1,'"');
-		if( !SecondQuote )
-		{
-			Buffer++;  // Skip past this and continue
-			continue;
-		}
-		*SecondQuote=0;
-		string Link(FirstQuote+1);
+            char *FirstQuote = strchr(HRef,'"');
+            if( !FirstQuote )
+            {
+                Buffer++;  // Skip past this and continue
+                continue;
+            }
 
-		char *LastBrace = strchr(SecondQuote+1,'>');
-		if( !LastBrace )
-		{
-			Buffer++;  // Skip past this and continue
-			continue;
-		}
+            char *SecondQuote = strchr(FirstQuote+1,'"');
+            if( !SecondQuote )
+            {
+                Buffer++;  // Skip past this and continue
+                continue;
+            }
+            *SecondQuote=0;
 
-		char * EndBraceA = strstr(LastBrace+1, "</A>");
-		*EndBraceA = 0;
-		string LinkText(LastBrace+1);
+            string Link(FirstQuote+1);
+            char *LastBrace = strchr(SecondQuote+1,'>');
+            if( !LastBrace )
+            {
+                Buffer++;  // Skip past this and continue
+                continue;
+            }
 
-		Buffer = EndBraceA+1;
-g_pPlutoLogger->Write(LV_CRITICAL,"add bookmarks %s / %s",Link.c_str(), LinkText.c_str());
+            char * EndBraceA = strstr(LastBrace+1, "</A>");
+            *EndBraceA = 0;
+            string LinkText(LastBrace+1);
 
-		Bookmarks.push_back(pair<string, string>(Link, LinkText));
-	}
+            Buffer = EndBraceA+1;
+            g_pPlutoLogger->Write(LV_CRITICAL,"add bookmarks %s / %s",Link.c_str(), LinkText.c_str());
+            Bookmarks.push_back(pair<string, string>(Link, LinkText));
+        }
 
-	delete[] BufferTop;
-	return Bookmarks;
+        delete[] BufferTop;
+    }
+
+    if( Bookmarks.size()==0 )
+    {
+        Bookmarks.push_back(make_pair<string,string> ("http://dcerouter/pluto-admin","Pluto Admin"));
+        Bookmarks.push_back(make_pair<string,string> ("http://dcerouter/support","Pluto Support"));
+    }
+
+    return Bookmarks;
 }
 //<-dceag-c697-b->
 
