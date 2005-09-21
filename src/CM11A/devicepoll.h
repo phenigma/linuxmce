@@ -13,6 +13,7 @@
 #define CM11DEVICEPOLL_H
 
 #include <list>
+#include <map>
 #include "thread.h"
 #include "mutex.h"
 #include "message.h"
@@ -38,7 +39,8 @@ public:
 	
 public:
 	int SendRequest(const Message* pMesg);
-
+	std::map <std::string, int> device_status;
+	
 protected:
 	virtual void* _Run();
 	

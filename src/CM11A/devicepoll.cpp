@@ -92,9 +92,74 @@ DevicePoll::SendPacket(CSerialPort* pport,
 					g_pPlutoLogger->Write(LV_STATUS, "Reading %d bytes of DATA...");
 					
 					char *buff = new char[resp];
-					pport->Read(buff, resp, CM11A_READ_TIMEOUT);
+					pport->Read(buff, resp-1, CM11A_READ_TIMEOUT);
+					char mask=buff[0];
+					string recv_msg="";
+					char hex_buff[128];
+					hex_buff[0]=0;
+					list<std::string> used_addresses;
+					int i;
+					for (i=0;i<resp;i++)
+					{
+						sprintf(hex_buff+strlen(hex_buff),"%02X ",buff[i]);
+					}
+					g_pPlutoLogger->Write(LV_STATUS, "Data read successfully <%s>",hex_buff);					
+					for (i=1;i<resp-1;i++)
+					{
+						if(mask & 0x01 == 0) //an address
+						{
+							char* addr = Message::getAddress(buff[i]);
+							used_addresses.push_back(addr);
+							if(recv_msg.length()>0)
+							{
+								recv_msg+=",";
+							}
+							recv_msg+=addr;
+							mask=mask>>1;
+						}
+						else //a function
+						{
+							char func=buff[i++] & 0x0F;
+							char data=0;
+							mask=mask>>1;
+							std::string message="";
+							switch(func)
+							{
+								case CM11A_FUNC_ALL_0FF : message="ALL_OFF"; break;
+								case CM11A_FUNC_ALL_ON  : message="ALL_ON"; break;
+								case CM11A_FUNC_0N      : message="ON"; break;
+								case CM11A_FUNC_0FF     : message="OFF"; break;
+								case CM11A_FUNC_DIMM    : message="DIM"; data=(buff[i]*100)/210; mask=mask>>1; break;
+								case CM11A_FUNC_BRIGHT  : message="BRIGHT"; data=(buff[i]*100)/210; mask=mask>>1;break;
+								case CM11A_FUNC_ALL_L_0FF : message="ALL_LIGHTS_OFF"; break;
+							}
+							for(std::list<std::string>::iterator it = used_addresses.begin(); it != used_addresses.end(); it++)
+							{
+								if (device_status.find(*it) != device_status.end())
+								{
+									switch(func)
+									{
+										case CM11A_FUNC_0N      : device_status[*it]=100; break;
+										case CM11A_FUNC_0FF     : device_status[*it]=0; break;
+										case CM11A_FUNC_DIMM    : device_status[*it]+=data; break;
+										case CM11A_FUNC_BRIGHT  : device_status[*it]-=data; break;
+									}
+								}
+								else
+								{
+									g_pPlutoLogger->Write(LV_STATUS, "Probably need to send EVENT that %s is %s",(*it).c_str(),message.c_str());
+								}
+							}
+							
+							if(recv_msg.length()>0)
+							{
+								recv_msg+=" ";
+							}
+							recv_msg+=message;
+						}
+					}
 					delete[] buff;
-					g_pPlutoLogger->Write(LV_STATUS, "Data read successfully...");
+					g_pPlutoLogger->Write(LV_STATUS, "Data decoded into [%s]",recv_msg.c_str());
 				} else {
 					g_pPlutoLogger->Write(LV_STATUS, "No data to read...");
 				}

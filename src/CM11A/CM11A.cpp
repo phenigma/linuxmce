@@ -109,7 +109,7 @@ void CM11A::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sC
 		case COMMAND_Generic_On_CONST: {
 				CM11ADEV::Message msg;
 				msg.setAddress(sChannel);
-				if(devdim[sChannel]==0)
+				if(devpoll.device_status[sChannel]==0)
 				{
 					msg.setFunctionCode(CM11A_FUNC_0N);
 				}
@@ -119,7 +119,7 @@ void CM11A::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sC
 					msg.setDimmLevel(100);
 				}
 				devpoll.SendRequest(&msg);
-				devdim[sChannel]=100;//store latest levet
+				devpoll.device_status[sChannel]=100;//store latest levet
 			}
 			break;
 		case COMMAND_Generic_Off_CONST: {
@@ -127,14 +127,34 @@ void CM11A::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sC
 				msg.setAddress(sChannel);
 				msg.setFunctionCode(CM11A_FUNC_0FF);
 				devpoll.SendRequest(&msg);
-				devdim[sChannel]=0;//store latest levet
+				devpoll.device_status[sChannel]=0;//store latest levet
 			}
 			break;
 		case COMMAND_Set_Level_CONST: {
 				CM11ADEV::Message msg;
 				msg.setAddress(sChannel);
-				int oldLevel=devdim[sChannel];
-				int newLevel = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Level_CONST].c_str());
+				int oldLevel=devpoll.device_status[sChannel];
+				int newLevel = oldLevel;
+				if(pMessage->m_mapParameters[COMMANDPARAMETER_Level_CONST].c_str()[0]=='+')
+				{
+					newLevel+=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Level_CONST].c_str()+1);
+					if(newLevel>100)
+						newLevel=100;
+				}
+				else
+				{
+					if(pMessage->m_mapParameters[COMMANDPARAMETER_Level_CONST].c_str()[0]=='-')
+					{
+						newLevel-=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Level_CONST].c_str()+1);
+						if(newLevel<=0)
+							newLevel=0;
+					}
+					else
+					{
+						newLevel = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Level_CONST].c_str());
+					}
+				}
+
 				if(oldLevel==0)
 				{
 					//turn on first
@@ -158,7 +178,7 @@ void CM11A::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sC
 					msg.setDimmLevel(newLevel-oldLevel);
 				}
 				devpoll.SendRequest(&msg);
-				devdim[sChannel] = newLevel;//store latest levet
+				devpoll.device_status[sChannel] = newLevel;//store latest levet
 			}
 			break;
 		default:

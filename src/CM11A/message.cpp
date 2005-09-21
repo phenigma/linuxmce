@@ -58,4 +58,30 @@ Message::setAddress(std::string address) {// adress in the form of A1, B2,...
 	}
 }
 
+char* Message::getAddress(unsigned char x10addr)
+{
+	char house_code=(x10addr >> 4) & 0x0F;
+	char unit_code=x10addr & 0x0F;
+	static char buffer[4];
+	int i;
+	for(i=0;i<16;i++)
+	{
+		if(house_code == s_MapHouseDeviceCodes[i])
+		{
+			house_code='A'+i;
+			break;
+		}
+	}
+	for(i=0;i<16;i++)
+	{
+		if(unit_code == s_MapHouseDeviceCodes[i])
+		{
+			unit_code=1+i;
+			break;
+		}
+	}
+	sprintf(buffer,"%c%d",house_code,unit_code);
+	return buffer;
+}
+
 };

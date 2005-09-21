@@ -55,7 +55,6 @@ public:
 
 private:
 		CM11ADEV::DevicePoll devpoll;
-		std::map <std::string,int> devdim;
 	};
 
 //<-dceag-end-b->
