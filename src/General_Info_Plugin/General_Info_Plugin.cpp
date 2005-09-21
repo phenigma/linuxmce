@@ -604,6 +604,9 @@ class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string 
 		}
 		else
 		{
+            if(!vectRow_Device_QuickStart.size())
+                return pDataGrid;
+
 			Row_Device_QuickStart *pRow_Device_QuickStart = vectRow_Device_QuickStart[s];
 			sDescription = pRow_Device_QuickStart->Description_get();
 			sBinary = pRow_Device_QuickStart->Binary_get();
