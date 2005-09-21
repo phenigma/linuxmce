@@ -742,7 +742,7 @@ g_pPlutoLogger->Write( LV_STATUS, "Exiting Redraw Objects" );
             else
                 SolidRectangle( pText->m_rPosition.Left(),  pText->m_rPosition.Top(), pText->m_rPosition.Width,  pText->m_rPosition.Height,  pTextStyle->m_BackColor);
 
-		    string TextToDisplay = SubstituteVariables(pText->m_sText, pText->m_pObject, 0, 0).c_str();
+		    string TextToDisplay = SubstituteVariables(SubstituteVariables(pText->m_sText, pText->m_pObject, 0, 0), pText->m_pObject, 0, 0).c_str();
 			RenderText(TextToDisplay,pText, pTextStyle, AbsolutePosition);    
 			UpdateRect(pText->m_rPosition, AbsolutePosition);
 		}
@@ -1056,7 +1056,7 @@ int k=2;
             continue;
         PROFILE_START( ctText );
             TextStyle *pTextStyle = pText->m_mapTextStyle_Find( 0 );
-	    string TextToDisplay = SubstituteVariables(pText->m_sText, pText->m_pObject, 0, 0).c_str();
+	    string TextToDisplay = SubstituteVariables(SubstituteVariables(pText->m_sText, pText->m_pObject, 0, 0), pText->m_pObject, 0, 0).c_str();
         RenderText( TextToDisplay, pText, pTextStyle, point );
         PROFILE_STOP( ctText,  "Text ( obj below )" );
     }
@@ -2335,6 +2335,9 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
         if( nHColumn==-1 && nHRow==-1 )
 			return;
 
+        if(!pGrid->m_pDataGridTable)
+            return;
+
         DataGridCell *pCell = pGrid->m_pDataGridTable->GetData(nHColumn, nHRow); 
 		if( !pCell )
 		{
@@ -2899,6 +2902,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 			if(  !m_pLocationInfo_Initial  )
 			{
 				g_pPlutoLogger->Write( LV_CRITICAL, "No initial Location" );
+                PromptUser("Something went very wrong. No initial location!");
 				exit( 1 );
 			}
 			CMD_Set_Current_Location(m_pLocationInfo_Initial->iLocation);
@@ -2907,6 +2911,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 			if ( iHao==m_ScreenMap.end(  ) )
 			{
 				g_pPlutoLogger->Write( LV_CRITICAL, "No screens found." );
+                PromptUser("Something went very wrong. No screens found!");
 				exit( 1 );
 			}
 			else
@@ -2934,6 +2939,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 		if( !m_pScreenHistory_Current )
 		{
 			g_pPlutoLogger->Write( LV_CRITICAL, "No initial screen" );
+            PromptUser("Something went very wrong. No initial screen!");
 			exit( 1 );
 		}
 
@@ -5755,7 +5761,9 @@ void Orbiter::CMD_Set_Text(string sPK_DesignObj,string sText,int iPK_Text,string
     if(  !pText  )
         g_pPlutoLogger->Write( LV_CRITICAL, "SetText: cannot find object %s text %d", sPK_DesignObj.c_str(  ), iPK_Text );
     else
+    {
         pText->m_sText = sText;
+    }
 
     if(  pObj->m_bOnScreen  )
 	{
@@ -7274,6 +7282,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Kill Maint Thread %d",(int) bMaintThreadIsRunni
 		if( tTime + 5 < time(NULL) )
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL,"Maint Thread had blocked!!!!");
+            PromptUser("Something went very wrong. Maint Thread had blocked!!!!");
 			exit(1);
 		}
 	}

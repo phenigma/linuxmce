@@ -146,7 +146,13 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 
 	if(m_bQuit || m_bReload)
     {
+        if(m_bReload)
+            PromptUser("Something went very wrong. We need to reload");
+        else
+            PromptUser("Something went very wrong. We need to quit orbiter");
+
         ShowMainDialog();
+        
         m_bQuit = true;
         exit(1);
     }
@@ -949,6 +955,8 @@ void Orbiter_PocketFrog::CalcTextRectangle(RECT &rectLocation,PlutoRectangle &rP
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::OnUnexpectedDisconnect()
 {
+    //PromptUser("Orbiter have been disconnected. Orbiter will reload.");
+
     //restarting orbiter
     PROCESS_INFORMATION pi;
     ::ZeroMemory(&pi, sizeof(PROCESS_INFORMATION));
