@@ -16,9 +16,6 @@
   $dbADO = &ADONewConnection('mysql');
   $dbADO->NConnect($dbPlutoMainServer,urlencode($dbPlutoMainUser),urlencode($dbPlutoMainPass),urlencode($dbPlutoMainDatabase));
   
-  $webADO = &ADONewConnection('mysql'); 
-  $webADO->NConnect($dbServer,urlencode($dbUser),urlencode($dbPass),urlencode($dbDatabase));
-
   if (!$dbADO) {
 	die("Connection failed");
   }
