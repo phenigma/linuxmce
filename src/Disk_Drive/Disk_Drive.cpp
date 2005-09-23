@@ -91,7 +91,11 @@ bool Disk_Drive::GetConfig()
 	m_discid=0;  // No disc inserted
 	m_sDrive=DATA_Get_Drive();
 	if( m_sDrive=="" )
+	{
 		m_sDrive="/dev/cdrom";
+		if (!FileUtils::FileExists(m_sDrive))
+			m_sDrive = "/dev/cdrom1";
+	}
 	m_pDevice_AppServer = m_pData->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_App_Server_CONST);
 
 	return true;
