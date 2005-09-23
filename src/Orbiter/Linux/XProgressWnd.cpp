@@ -18,6 +18,8 @@ XProgressWnd::XProgressWnd()
 
     m_sText = "";
     m_nProgress = 0;
+
+	m_pDisplay = NULL;
 }
 
 
@@ -179,23 +181,14 @@ static void *MyThreadFunc(void *pWindow)
     std::cout << "Thread func start... " << std::endl;
     XProgressWnd *pWnd = (XProgressWnd *)pWindow;
     
-    Display *pDisplay = XOpenDisplay(NULL);
-    int nScreenNo = DefaultScreen(pDisplay);
-    int nDesktopX, nDesktopY;
-    nDesktopX = DisplayWidth(pDisplay, nScreenNo);
-    nDesktopY = DisplayHeight(pDisplay, nScreenNo);
-    int nWidth = 250, nHeight = 140;
-    int xPos = (nDesktopX - nWidth) / 2;
-    int yPos = (nDesktopY - nHeight) / 2;
-    pWnd->CreateWindow(pDisplay, nScreenNo, DefaultRootWindow(pDisplay), 0, 0, nDesktopX, nDesktopY);
-    pWnd->ShowWindow();
-    pWnd->DrawWindow();
-    
     pWnd->EventLoop();
     
     std::cout << "Thread func ending ... " << std::endl;
     pWnd->DestroyWindow();
-    XSync(pDisplay, false);
+
+	Display * pDisplay = pWnd->GetDisplay();
+	if (pDisplay)
+	    XSync(pDisplay, false);
     std::cout << "Thread func ended ... " << std::endl;
     
     if (pWnd->Destroy())
@@ -212,6 +205,18 @@ pthread_t XProgressWnd::Run()
     std::cout << "Starting the thread ... " << std::endl;
     m_bCanceled = false;
     m_bDone = false;
+    
+    Display *pDisplay = XOpenDisplay(NULL); // needs XCloseDisplay?
+    int nScreenNo = DefaultScreen(pDisplay);
+    int nDesktopX, nDesktopY;
+    nDesktopX = DisplayWidth(pDisplay, nScreenNo);
+    nDesktopY = DisplayHeight(pDisplay, nScreenNo);
+    int nWidth = 250, nHeight = 140;
+    int xPos = (nDesktopX - nWidth) / 2;
+    int yPos = (nDesktopY - nHeight) / 2;
+    CreateWindow(pDisplay, nScreenNo, DefaultRootWindow(pDisplay), 0, 0, nDesktopX, nDesktopY);
+    ShowWindow();
+    DrawWindow();
     
     int iResult = pthread_create( &threadID, NULL, MyThreadFunc, (void *)this );
     if ( iResult != 0 )
@@ -243,6 +248,8 @@ int XProgressWnd::CreateWindow(Display *pDisplay, int screen, Window wndParent, 
     m_nBarWidth = m_nWidth - 40;
     m_nBarHeight = 24;
     
+	m_pDisplay = pDisplay;
+    
     std::cout << "Contructing Progress window" << std::endl;
     int xPos = (m_nWidth - 80) / 2;
     int yPos = m_nHeight - 50;
@@ -263,6 +270,11 @@ int XProgressWnd::CreateWindow(Display *pDisplay, int screen, Window wndParent, 
     ClassHint.res_name = (char *)m_wndName.c_str();
     ClassHint.res_class = (char *)m_wndName.c_str();
     XSetClassHint(m_pDisplay, m_wndThis, &ClassHint);
-    
+
     return 0;
+}
+
+Display * XProgressWnd::GetDisplay()
+{
+	return m_pDisplay;
 }
