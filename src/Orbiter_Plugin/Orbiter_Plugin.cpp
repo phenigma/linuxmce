@@ -125,6 +125,37 @@ bool Orbiter_Plugin::GetConfig()
 	for(size_t s=0;s<vectRow_Users.size();++s)
 		m_mapOH_User[ vectRow_Users[s]->PK_Users_get() ] = new OH_User(vectRow_Users[s]->PK_Users_get());
 
+    // Check for all orbiters
+    for(map<int,class DeviceData_Router *>::const_iterator it=m_pRouter->m_mapDeviceData_Router_get()->begin();it!=m_pRouter->m_mapDeviceData_Router_get()->end();++it)
+    {
+        DeviceData_Router *pDeviceData_Router=(*it).second;
+        if( pDeviceData_Router->WithinCategory(DEVICECATEGORY_Orbiter_CONST) )
+        {
+            OH_Orbiter *pOH_Orbiter = new OH_Orbiter(pDeviceData_Router);
+            m_mapOH_Orbiter[pDeviceData_Router->m_dwPK_Device] = pOH_Orbiter;
+            m_sPK_Device_AllOrbiters += StringUtils::itos(pDeviceData_Router->m_dwPK_Device) + ",";
+            if( pDeviceData_Router->m_sMacAddress.size()==0 )
+            {
+                g_pPlutoLogger->Write(LV_STATUS,"Orbiter: %d %s doesn't have a mac address.",
+                    pDeviceData_Router->m_dwPK_Device,pDeviceData_Router->m_sDescription.c_str());
+
+            }
+            else
+                m_mapOH_Orbiter_Mac[StringUtils::ToUpper(pDeviceData_Router->m_sMacAddress)] = pOH_Orbiter;
+
+            if( pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia &&
+                pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_DeviceCategory==DEVICECATEGORY_Media_Director_CONST )
+            {
+                RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::OSD_OnOff) ,0,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,0,MESSAGETYPE_COMMAND,COMMAND_Generic_On_CONST);
+                RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::OSD_OnOff) ,0,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,0,MESSAGETYPE_COMMAND,COMMAND_Generic_Off_CONST);
+
+                RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::OSD_OnOff) ,0,pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_Device,0,0,MESSAGETYPE_COMMAND,COMMAND_Generic_On_CONST);
+                RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::OSD_OnOff) ,0,pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_Device,0,0,MESSAGETYPE_COMMAND,COMMAND_Generic_Off_CONST);
+                m_mapMD_2_Orbiter[pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_Device] = pOH_Orbiter;
+            }
+        }
+    }
+
 	m_iThreshHold = DATA_Get_ThreshHold();
 
 	string sStatus = GetStatus();
@@ -212,36 +243,6 @@ bool Orbiter_Plugin::Register()
 		return false;
 	}
 
-    // Check for all orbiters
-    for(map<int,class DeviceData_Router *>::const_iterator it=m_pRouter->m_mapDeviceData_Router_get()->begin();it!=m_pRouter->m_mapDeviceData_Router_get()->end();++it)
-    {
-        DeviceData_Router *pDeviceData_Router=(*it).second;
-        if( pDeviceData_Router->WithinCategory(DEVICECATEGORY_Orbiter_CONST) )
-        {
-            OH_Orbiter *pOH_Orbiter = new OH_Orbiter(pDeviceData_Router);
-            m_mapOH_Orbiter[pDeviceData_Router->m_dwPK_Device] = pOH_Orbiter;
-			m_sPK_Device_AllOrbiters += StringUtils::itos(pDeviceData_Router->m_dwPK_Device) + ",";
-            if( pDeviceData_Router->m_sMacAddress.size()==0 )
-            {
-                g_pPlutoLogger->Write(LV_STATUS,"Orbiter: %d %s doesn't have a mac address.",
-                    pDeviceData_Router->m_dwPK_Device,pDeviceData_Router->m_sDescription.c_str());
-
-            }
-            else
-                m_mapOH_Orbiter_Mac[StringUtils::ToUpper(pDeviceData_Router->m_sMacAddress)] = pOH_Orbiter;
-
-			if( pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia &&
-				pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_DeviceCategory==DEVICECATEGORY_Media_Director_CONST )
-			{
-				RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::OSD_OnOff) ,0,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,0,MESSAGETYPE_COMMAND,COMMAND_Generic_On_CONST);
-				RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::OSD_OnOff) ,0,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,0,MESSAGETYPE_COMMAND,COMMAND_Generic_Off_CONST);
-
-				RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::OSD_OnOff) ,0,pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_Device,0,0,MESSAGETYPE_COMMAND,COMMAND_Generic_On_CONST);
-				RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::OSD_OnOff) ,0,pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_Device,0,0,MESSAGETYPE_COMMAND,COMMAND_Generic_Off_CONST);
-				m_mapMD_2_Orbiter[pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_Device] = pOH_Orbiter;
-			}
-        }
-    }
 	// Check for remote controls
     for(map<int,class DeviceData_Router *>::const_iterator it=m_pRouter->m_mapDeviceData_Router_get()->begin();it!=m_pRouter->m_mapDeviceData_Router_get()->end();++it)
     {

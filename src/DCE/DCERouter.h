@@ -316,7 +316,7 @@ namespace DCE
 					{
 						string sPendingTasks;
 						for(size_t s=0;s<vectPendingTasks.size();++s)
-							sPendingTasks += pPlugIn->m_sName + ": " + vectPendingTasks[s];
+							sPendingTasks += /*pPlugIn->m_sName + ": " +*/ vectPendingTasks[s] + "\n";
 						ReceivedMessage(NULL,new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
 							EVENT_Reload_Aborted_CONST,3,
 							EVENTPARAMETER_PK_Device_CONST,StringUtils::itos(pPlugIn->m_dwPK_Device).c_str(),
