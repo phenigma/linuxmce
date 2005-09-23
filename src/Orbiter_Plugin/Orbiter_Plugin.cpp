@@ -355,18 +355,38 @@ bool Orbiter_Plugin::PendingTasks(vector<string> *vectPendingTasks)
 		{
 			string sProgress = "Regen Orbiter " + StringUtils::itos(*it);
 			OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(*it);
+
 			if( pOH_Orbiter )
 			{
-				int Minutes = (int)(time(NULL) - pOH_Orbiter->m_tRegenTime) /60;
-				sProgress += " (" + pOH_Orbiter->m_pDeviceData_Router->m_sDescription + 
-					") " + StringUtils::itos(Minutes) + " minutes";
+				int Minutes = (int)(time(NULL) - pOH_Orbiter->m_tRegenTime) / 60;
+                int Seconds = (int)(time(NULL) - pOH_Orbiter->m_tRegenTime) % 60;
+
+                string sRoom = 
+                    pOH_Orbiter->m_dwPK_Room ? 
+                    m_pDatabase_pluto_main->Room_get()->GetRow(pOH_Orbiter->m_dwPK_Room)->Description_get() :
+                    "";
+
+				sProgress += 
+                    " (" + pOH_Orbiter->m_pDeviceData_Router->m_sDescription + 
+                    (sRoom != "" ? " / " + sRoom : "") + ") " + 
+                    StringUtils::itos(Minutes) + " min " + StringUtils::itos(Seconds) + " sec";
 
 				Row_Orbiter *pRow_Orbiter = m_pDatabase_pluto_main->Orbiter_get()->GetRow(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
 				if( pRow_Orbiter )
 				{
 					pRow_Orbiter->Reload();
-					sProgress += "\n" + pRow_Orbiter->RegenStatus_get() + " " + 
-						StringUtils::itos(pRow_Orbiter->RegenPercent_get()) + "%";
+
+                    if(pRow_Orbiter->RegenPercent_get() == 100)
+                    {
+                        //OrbiterGen didn't start to regen this orbiter
+                        //if OrbiterGen finished with this Orbiter, we shouldn't see it as a pending task anymore
+                        sProgress += "\nScheduled";
+                    }
+                    else
+                    {
+                        sProgress += "\n" + pRow_Orbiter->RegenStatus_get() + " " + 
+                            StringUtils::itos(pRow_Orbiter->RegenPercent_get()) + "%";
+                    }
 				}
 			}
 
@@ -1642,9 +1662,14 @@ g_pPlutoLogger->Write(LV_STATUS,"Starting regen orbiter with %d size",(int) m_li
 			}
 			else
 			{
-				Message *pMessageOut = new Message(m_dwPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_SYSCOMMAND,SYSCOMMAND_RELOAD,0);
-				SendMessageToRouter(pMessageOut);
-				pOH_Orbiter->m_tRegenTime = time(NULL);
+                //we don't need this anymore. 'RegenOrbiterOnTheFly.sh' will send a reload command for each 
+                //orbiter before starting to generate screens for it
+                //it works if we have only one orbiter to reload
+				
+                //Message *pMessageOut = new Message(m_dwPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_SYSCOMMAND,SYSCOMMAND_RELOAD,0);
+				//SendMessageToRouter(pMessageOut);
+				
+                pOH_Orbiter->m_tRegenTime = time(NULL);
 			}
 		}
 	}
