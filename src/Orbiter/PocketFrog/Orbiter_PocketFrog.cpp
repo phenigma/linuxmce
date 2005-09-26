@@ -1028,7 +1028,7 @@ string Orbiter_PocketFrog::FormatMutexMessage(pluto_pthread_mutex_t& PlutoMutex)
 {
     string sMessage =
         "Mutex '" + PlutoMutex.m_sName + "':\r\n" + 
-        "    - " + StringUtils::ltos(PlutoMutex.m_NumLocks) + " locks" + "\r\n" + 
+        "    - " + StringUtils::ltos(PlutoMutex.m_NumLocks) + " lock(s)" + "\r\n" + 
         "    - " + PlutoMutex.m_sFileName + ":" + StringUtils::ltos(PlutoMutex.m_Line) + "\r\n";
 
     return sMessage;
