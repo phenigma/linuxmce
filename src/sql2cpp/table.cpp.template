@@ -31,9 +31,9 @@ void Database_@database_name@::DeleteTable_@table_name@()
 		delete tbl@table_name@;
 }
 
-void Database_@database_name@::Commit_@table_name@(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_@database_name@::Commit_@table_name@(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tbl@table_name@->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tbl@table_name@->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_@table_name@::~Table_@table_name@()
