@@ -19,8 +19,13 @@ function editComputingApplications($output,$dbADO,$mediadbADO) {
 		
 		
 	$tableRows='';
-	$appArray=getFieldsAsArray('Device_QuickStart','PK_Device_QuickStart,Description,SortOrder,`Binary`,Arguments,EK_Picture',$dbADO,'WHERE FK_Device='.$mdID,'ORDER BY SortOrder ASC');
+	$appArray=getFieldsAsArray('Device_QuickStart','FK_QuickStartTemplate,PK_Device_QuickStart,Description,SortOrder,`Binary`,Arguments,EK_Picture',$dbADO,'WHERE FK_Device='.$mdID,'ORDER BY SortOrder ASC');
+	$usedTemplates=array();
 	for($i=0;$i<count(@$appArray['PK_Device_QuickStart']);$i++){
+		if(!in_array($appArray['PK_Device_QuickStart'][$i],$usedTemplates)){
+			$usedTemplates[]=$appArray['FK_QuickStartTemplate'][$i];
+		}
+		
 		$color=($i%2!=0)?'#F0F3F8':'#FFFFFF';
 		$pic=(!is_null($appArray['EK_Picture'][$i]))?'<img src="include/image.php?imagepath='.$fixedPath.'/'.$picsByKey[$appArray['EK_Picture'][$i]].'" align="middle">':'&nbsp;';
 		$tableRows.='
@@ -45,7 +50,9 @@ function editComputingApplications($output,$dbADO,$mediadbADO) {
 		$mdCheckboxes='<input type="checkbox" value="1" name="md_'.$md.'"> '.$descr.'<br>';
 	}
 	$mdCheckboxes.='<input type="hidden" name="mds" value="'.join(',',array_keys($mdArray)).'">';
-		
+
+	$tree=getQuickStartTree($usedTemplates,$dbADO);
+	
 		$out.='
 	<script>
 		function showPreview()
@@ -57,6 +64,11 @@ function editComputingApplications($output,$dbADO,$mediadbADO) {
 				document.getElementById(\'previewBox\').style.display=\'none\';
 			}
 		}
+
+		function windowOpen(locationA,attributes) {
+			window.open(locationA,\'\',attributes);
+		}
+
 	</script>
 	<div class="err" align="center">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
 	<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
@@ -70,41 +82,46 @@ function editComputingApplications($output,$dbADO,$mediadbADO) {
 	<div align="center"><h3>Edit Computing Applications</h3>
 	The following applications will appear on the ‘Computing’ menu:</div><br>
 	<table cellpadding="3" cellspacing="0" align="center">
-		<tr bgcolor="lightblue">
-			<td align="center" colspan="2"><B>Application</B></td>
-			<td align="center"><B>Action</B></td>
-		</tr>
-		'.$tableRows.'
 		<tr>
-			<td>&nbsp;</td>
-		</tr>
-		<tr bgcolor="lightblue">
-			<td colspan="3"><B>Add new application</B></td>
-		</tr>
-		<tr>
-			<td><B>Select icon</B></td>
-			<td><input type="file" name="picture" value=""></td>
-		</tr>
-		<tr>
-			<td><B>Description</B></td>
-			<td><input type="text" name="description"></td>
-		</tr>
-		<tr>
-			<td><B>Path to binary</B></td>
-			<td><input type="text" name="path"></td>
-		</tr>
-		<tr>
-			<td><B>Arguments</B></td>
-			<td><input type="text" name="arguments"></td>
-		</tr>
-		<tr>
-			<td><B>Also add to media directors</B></td>
-			<td>'.$mdCheckboxes.'</td>
-		</tr>
-		<tr>
-			<td colspan="2" align="center"><input type="submit" class="button" name="add" value="Add"></td>
-		</tr>
-	</table>	
+			<td valign="top">'.$tree.'</td>
+			<td valign="top"><table cellpadding="3" cellspacing="0" align="center">
+			<tr bgcolor="lightblue">
+				<td align="center" colspan="2"><B>Application</B></td>
+				<td align="center"><B>Action</B></td>
+			</tr>
+			'.$tableRows.'
+			<tr>
+				<td>&nbsp;</td>
+			</tr>
+			<tr bgcolor="lightblue">
+				<td colspan="3"><B>Add new application</B></td>
+			</tr>
+			<tr>
+				<td><B>Select icon</B></td>
+				<td><input type="file" name="picture" value=""></td>
+			</tr>
+			<tr>
+				<td><B>Description</B></td>
+				<td><input type="text" name="description"></td>
+			</tr>
+			<tr>
+				<td><B>Path to binary</B></td>
+				<td><input type="text" name="path"></td>
+			</tr>
+			<tr>
+				<td><B>Arguments</B></td>
+				<td><input type="text" name="arguments"></td>
+			</tr>
+			<tr>
+				<td><B>Also add to media directors</B></td>
+				<td>'.$mdCheckboxes.'</td>
+			</tr>
+			<tr>
+				<td colspan="2" align="center"><input type="submit" class="button" name="add" value="Add"> <input type="button" class="button" name="close" value="Close" onclick="self.close();"></td>
+			</tr>
+		</table></td>
+		</tr>	
+	</table>
 	</form>
 	';
 	} else {
@@ -115,6 +132,10 @@ function editComputingApplications($output,$dbADO,$mediadbADO) {
 			exit(0);
 		}
 		
+		if($action=='addFromTemplate'){
+			$qst=$_REQUEST['qst'];
+			$dbADO->Execute("INSERT INTO Device_QuickStart (FK_Device,Description,`Binary`,Arguments,FK_QuickStartTemplate) SELECT $mdID,Description,`Binary`,Arguments,? FROM QuickStartTemplate WHERE PK_QuickStartTemplate=?",array($qst,$qst));
+		}
 		
 		$description=stripslashes($_POST['description']);
 		$path=stripslashes($_POST['path']);
@@ -187,5 +208,93 @@ function editComputingApplications($output,$dbADO,$mediadbADO) {
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: Edit Computing Applications');
 	$output->output();
+}
+
+
+function getQuickStartTemplates($dbADO){
+	$res=$dbADO->Execute('SELECT * FROM QuickStartTemplate');
+	$qsTemplates=array();
+	while($row=$res->FetchRow()){
+		$qsTemplates[$row['FK_QuickStartCategory']][]=$row['PK_QuickStartTemplate'];
+		
+		$qsTemplates['description'][$row['PK_QuickStartTemplate']]=$row['Description'];
+	}
+	
+	return $qsTemplates;
+}
+
+function getQuickStartTree($usedTemplates,$dbADO){
+	$nodes=getNodesArray('QuickStartCategory','PK_QuickStartCategory','FK_QuickStartCategory_Parent',$dbADO);
+	$quickStartTemplates=getQuickStartTemplates($dbADO);
+	
+	$out='
+		<input type="hidden" name="qst" value="">
+	<table cellpadding="3" cellspacing="0">
+		<tr bgcolor="lightblue">
+			<td colspan="2"><B>Quick start templates</B></td>
+		</tr>';
+	foreach ($nodes['root_node'] AS $rootNode){
+		$out.='
+		<tr>
+			<td bgcolor="#EEEEEE" colspan="2"><B>'.$nodes['description'][$rootNode].'</B></td>
+		</tr>';		
+		if(count(@$quickStartTemplates[$rootNode])==0){
+			$out.='
+				<tr>
+					<td style="padding-left:20px;" colspan="2">No quick start templates in this category.</td>
+				</tr>
+			';
+		}
+		foreach ($quickStartTemplates[$rootNode] AS $qsTemplate){
+			if(!in_array($qsTemplate,$usedTemplates)){
+			$out.='
+				<tr>
+					<td style="padding-left:20px;">'.$quickStartTemplates['description'][$qsTemplate].'</td>
+					<td align="right"><a href="javascript:document.editComputingApplications.action.value=\'addFromTemplate\'; document.editComputingApplications.qst.value=\''.$qsTemplate.'\';document.editComputingApplications.submit();">[ Add ]</a></td>
+				</tr>
+			';
+			}
+		}
+		$out.=getQuickStartChilds($nodes,$quickStartTemplates,$rootNode,$usedTemplates);
+
+	}
+	$out.='
+		<tr>
+			<td colspan="2"><a href="javascript:windowOpen(\'index.php?section=editQuickStartTemplates\',\'\')">Add other software</a> to permanently appear in this quick launch for all Pluto users</td>
+		</tr>	
+	</table>';
+	
+	return $out;
+}
+
+function getQuickStartChilds($nodes,$quickStartTemplates,$selectedCategory,$usedTemplates){
+	$out='';
+	foreach ($nodes[$selectedCategory] AS $childNode){
+		$out.='
+		<tr>
+			<td bgcolor="#EEEEEE" style="padding-left:10px;" colspan="2"><B>'.$nodes['description'][$selectedCategory].' - '.$nodes['description'][$childNode].'</B></td>
+		</tr>';		
+		if(count(@$quickStartTemplates[$childNode])==0){
+			$out.='
+				<tr>
+					<td style="padding-left:20px;" colspan="2">No quick start templates in this category.</td>
+				</tr>
+			';
+		}
+		foreach ($quickStartTemplates[$childNode] AS $qsTemplate){
+			if(!in_array($qsTemplate,$usedTemplates)){
+			$out.='
+				<tr>
+					<td style="padding-left:20px;">'.$quickStartTemplates['description'][$qsTemplate].'</td>
+					<td align="right"><a href="javascript:document.editComputingApplications.action.value=\'addFromTemplate\'; document.editComputingApplications.qst.value=\''.$qsTemplate.'\';document.editComputingApplications.submit();">[ Add ]</a></td>
+				</tr>
+			';
+			}
+		}
+		
+		$out.=getQuickStartChilds($nodes,$quickStartTemplates,$childNode,$usedTemplates);		
+	}
+	
+	return $out;
 }
 ?>

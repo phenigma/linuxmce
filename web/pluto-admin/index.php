@@ -1205,6 +1205,13 @@ switch ($section) {
 	    include_once('operations/myDevices/editComputingApplications.php');
 	    editComputingApplications($output,$dbADO,$mediadbADO);
 	break;	
+	case 'editQuickStartTemplates';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/myDevices/editQuickStartTemplates.php');
+	    editQuickStartTemplates($output,$dbADO);
+	break;	
+	
 	case 'sqlcvs_update';
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');

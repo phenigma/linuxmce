@@ -4395,4 +4395,19 @@ function cleanField($field){
 	
 	return $cleanField;
 } 
+
+//put into an array the tree from table param
+function getNodesArray($table,$pk_field,$fk_parent_field,$dbADO){
+	$nodesArray=array();
+	$res=$dbADO->Execute("SELECT * FROM $table ORDER BY $fk_parent_field ASC");
+	while($row=$res->FetchRow()){
+		$parent=(is_null($row[$fk_parent_field]))?'root_node':$row[$fk_parent_field];
+		$nodesArray[$parent][]=$row[$pk_field];
+		
+		$nodesArray['description'][$row[$pk_field]]=$row['Description'];
+		$nodesArray['parent'][$row[$pk_field]]=$row[$fk_parent_field];
+	}
+	
+	return $nodesArray;
+}
 ?>

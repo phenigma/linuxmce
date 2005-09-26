@@ -1,6 +1,6 @@
 <?
 function wizardOrbiters($output,$dbADO) {
-	global $dbPlutoMainDatabase;
+	global $dbPlutoMainDatabase,$excludedData;
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 //	$dbADO->debug=true;
@@ -80,6 +80,7 @@ function wizardOrbiters($output,$dbADO) {
 			
 			$queryData='
 					SELECT 
+						IF(FK_DeviceCategory=2,\'mobile_orbiters\',IF(Device.FK_DeviceTemplate=62,\'on_screen_orbiters\',\'standard_roaming_orbiters\')) AS OrbiterGroup,
 						Device.*, 
 						DeviceTemplate.Description AS TemplateName, 
 						DeviceCategory.Description AS CategoryName, 
@@ -105,26 +106,20 @@ function wizardOrbiters($output,$dbADO) {
 					INNER JOIN ParameterType ON FK_ParameterType = PK_ParameterType 
 					LEFT JOIN DeviceTemplate_DeviceData ON DeviceTemplate_DeviceData.FK_DeviceData=Device_DeviceData.FK_DeviceData AND DeviceTemplate_DeviceData.FK_DeviceTemplate=Device.FK_DeviceTemplate
 					WHERE Device.FK_DeviceTemplate IN ('.join(',',array_keys($orbitersDTArray)).') AND Device_DeviceData.FK_DeviceData IN ('.join(',',$orbiterDD).') AND FK_Installation=?
-					ORDER BY Device.Description ASC';
+					ORDER BY OrbiterGroup ASC, Device.Description ASC';
+
 			$resDevice=$dbADO->Execute($queryData,$installationID);
 
-			$orbiterCount=array('standard_roaming_orbiters'=>0,'mobile_orbiters'=>0,'on_screen_orbiters'=>0);
-			$orbiterDisplayed=0;
+			$orbiterGroupDisplayed='';
+			$orbiterDisplayed='';
 			$PingTest=0;
 			$isOSD=0;
 			$RegenInProgress=0;
-			$orbiterGroupDisplayed='';
-			$content=array('standard_roaming_orbiters'=>'','mobile_orbiters'=>'','on_screen_orbiters'=>'');
 			$regenArray=array();
+			$content=array();
+			$properties=array();
 			while($rowD=$resDevice->FetchRow()){
-				// set orbiter group to be displayed
-				$orbiterGroup='standard_roaming_orbiters';
-				if($rowD['FK_DeviceTemplate']==62){		// hard coded
-					$orbiterGroup='on_screen_orbiters';
-				}
-				if($rowD['FK_DeviceCategory']==2){		// hard coded
-					$orbiterGroup='mobile_orbiters';
-				}
+				$orbiterGroupDisplayed=$rowD['OrbiterGroup'];
 				
 				if(!in_array($rowD['FK_DeviceData'],$DeviceDataToDisplay)){
 					$DeviceDataToDisplay[]=$rowD['FK_DeviceData'];
@@ -139,57 +134,39 @@ function wizardOrbiters($output,$dbADO) {
 					$isOSD=1;
 				}
 				
-				// set orbiter devices array and the counter for colors
-				if($rowD['PK_Device']!=$orbiterDisplayed){
-					$orbiterCount[$orbiterGroup]++;
-					$displayedDevices[]=$rowD['PK_Device'];
-					
-					if($orbiterDisplayed!=0 && $orbiterGroupDisplayed!=''){
-						if(!in_array('wifi',$excludedData[$orbiterGroupDisplayed])){
-							$content[$orbiterGroupDisplayed].=displayWiFiRow($orbiterDisplayed,$PingTest,$isOSD);
-						}
-
-						$content[$orbiterGroupDisplayed].=displayButtons($orbiterDisplayed,$regenArray[$orbiterDisplayed]).'
-							</table></td>';
-						$content[$orbiterGroupDisplayed].=($orbiterCount[$orbiterGroupDisplayed]%2==1)?'</tr>':'';
-					}	
-					
-					$orbiterDisplayed=$rowD['PK_Device'];
-					$orbiterGroupDisplayed=$orbiterGroup;
-					
-					
-					// build content table for each orbiter
 				
-					$content[$orbiterGroup].=($orbiterCount[$orbiterGroup]%2==1)?'<tr>':'';
-					$content[$orbiterGroup].='<td bgcolor="'.(($orbiterCount[$orbiterGroup]%4==1 || $orbiterCount[$orbiterGroup]%4==2)?'#F0F3F8':'').'">';
-					$content[$orbiterGroup].='
-						<table align="center" border="0">';
-					if(!in_array('dt',$excludedData[$orbiterGroup])){
-						$content[$orbiterGroup].='
+
+				if(!in_array($rowD['PK_Device'],$displayedDevices)){
+					$displayedDevices[]=$rowD['PK_Device'];
+				}
+
+
+				if(!in_array('dt',$excludedData[$orbiterGroupDisplayed])){
+					$content[$orbiterGroupDisplayed][$rowD['PK_Device']]['dt']='
 							<tr>
 								<td align="right"><B>DeviceTemplate</B></td>
 								<td align="left" title="Category: '.$rowD['CategoryName'].', manufacturer: '.$rowD['ManufacturerName'].'">'.$rowD['TemplateName'].'</td>
 							</tr>
 							';
-					}
-					if(!in_array('state',$excludedData[$orbiterGroup])){
-						$content[$orbiterGroup].='
+				}
+				if(!in_array('state',$excludedData[$orbiterGroupDisplayed])){
+					$content[$orbiterGroupDisplayed][$rowD['PK_Device']]['state']='
 							<tr>
 								<td align="right"><B>State</B></td>
 								<td>'.getStateFormElement($rowD['PK_Device'],'State_'.$rowD['PK_Device'],$rowD['State'],$dbADO).'</td>
 							</tr>
 							';
-					}					
-					if(!in_array('description',$excludedData[$orbiterGroup])){
-						$content[$orbiterGroup].='
+				}
+				if(!in_array('description',$excludedData[$orbiterGroupDisplayed])){
+					$content[$orbiterGroupDisplayed][$rowD['PK_Device']]['description']='
 							<tr>
 								<td align="right"><B>Description</B></td>
 								<td align="left"><input type="text" name="description_'.$rowD['PK_Device'].'" value="'.stripslashes($rowD['Description']).'"> # '.$rowD['PK_Device'].'</td>
 							</tr>';
-					}
-	
-					if($rowD['IsIPBased']==1 && !in_array('ip_mac',$excludedData[$orbiterGroup])){
-						$content[$orbiterGroup].='
+				}
+
+				if($rowD['IsIPBased']==1 && !in_array('ip_mac',$excludedData[$orbiterGroupDisplayed])){
+					$content[$orbiterGroupDisplayed][$rowD['PK_Device']]['ip_mac']='
 								<tr>
 									<td align="right"><B>IP</B></td>
 									<td><input type="text" name="ip_'.$rowD['PK_Device'].'" value="'.$rowD['IPaddress'].'"></td>
@@ -198,51 +175,51 @@ function wizardOrbiters($output,$dbADO) {
 									<td align="right"><B>MAC</B></td>
 									<td><input type="text" name="mac_'.$rowD['PK_Device'].'" value="'.$rowD['MACaddress'].'"></td>
 								</tr>';
-					}
-					if(!in_array('room',$excludedData[$orbiterGroup])){
-						$content[$orbiterGroup].='
+				}
+				if(!in_array('room',$excludedData[$orbiterGroupDisplayed])){
+					$content[$orbiterGroupDisplayed][$rowD['PK_Device']]['room']='
 							<tr>
 								<td align="right"><B>Room</B></td>
 								<td>'.pulldownFromArray($roomsArray,'room_'.$rowD['PK_Device'],$rowD['FK_Room']).'</td>
 							</tr>
 							';
-					}
-					
-					if(!in_array($rowD['FK_DeviceData'],$excludedData[$orbiterGroup])){
-						$content[$orbiterGroup].=formatDDRows($rowD,$dbADO);
-					}
-				}else{
-					// display device data
-					if(!in_array($rowD['FK_DeviceData'],$excludedData[$orbiterGroup])){
-						$content[$orbiterGroup].=formatDDRows($rowD,$dbADO);
-					}
 				}
-												
-			}
 
-			$content[$orbiterGroupDisplayed].='	
-					<tr>
-						<td align="center" colspan="2">'.displayButtons($orbiterDisplayed,$regenArray[$orbiterDisplayed]).'</td>
-					</tr>
-					</table></td>';
-			$content[$orbiterGroupDisplayed].=($orbiterCount[$orbiterGroupDisplayed]%2==1)?'</tr>':'';			
+				if(!in_array($rowD['FK_DeviceData'],$excludedData[$orbiterGroupDisplayed])){
+					$content[$orbiterGroupDisplayed][$rowD['PK_Device']]['dd']=formatDDRows($rowD,$dbADO);
+				}
+
+
+				$properties[$rowD['PK_Device']]['regenArray']=$regenArray[$rowD['PK_Device']];
+				$properties[$rowD['PK_Device']]['PingTest']=$PingTest;
+				$properties[$rowD['PK_Device']]['isOSD']=$isOSD;
+						
+			}
 			
-			$content['mobile_orbiters']=(!isset($content['mobile_orbiters']))?'<tr><td colspan="2" align="center">No orbiters in this category.</td></tr>':$content['mobile_orbiters'];
-			$content['standard_roaming_orbiters']=(!isset($content['standard_roaming_orbiters']))?'<tr><td colspan="2" align="center">No orbiters in this category.</td></tr>':$content['standard_roaming_orbiters'];
-			$content['on_screen_orbiters']=(!isset($content['on_screen_orbiters']))?'<tr><td colspan="2" align="center">No orbiters in this category.</td></tr>':$content['on_screen_orbiters'];
+			$content['mobile_orbiters']=($content['mobile_orbiters']=='')?'<tr><td colspan="2" align="center">No orbiters in this category.</td></tr>':$content['mobile_orbiters'];
+			$content['standard_roaming_orbiters']=($content['standard_roaming_orbiters']=='')?'<tr><td colspan="2" align="center">No orbiters in this category.</td></tr>':$content['standard_roaming_orbiters'];
+			$content['on_screen_orbiters']=($content['on_screen_orbiters']=='')?'<tr><td colspan="2" align="center">No orbiters in this category.</td></tr>':$content['on_screen_orbiters'];
 			$out.='
 				<tr>
 					<td bgcolor="lightblue" colspan="2" align="center"><B>Mobile phone orbiters</B></td>
 				</tr>
-				'.$content['mobile_orbiters'].'
+				<tr>
+					<td colspan="2" align="center">'.orbiterTable($content['mobile_orbiters'],'mobile_orbiters',$properties).'</td>
+				</tr>
 				<tr>
 					<td bgcolor="lightblue" colspan="2" align="center"><B>Standard roaming orbiters</B></td>
 				</tr>
-				'.$content['standard_roaming_orbiters'].'
+				<tr>
+					<td colspan="2" align="center">'.orbiterTable($content['standard_roaming_orbiters'],'standard_roaming_orbiters',$properties).'</td>
+				</tr>
 				<tr>
 					<td bgcolor="lightblue" colspan="2" align="center"><B>On-screen displays for media directors</B></td>
 				</tr>
-				'.$content['on_screen_orbiters'].'
+				<tr>
+					<td colspan="2" align="center">'.orbiterTable($content['on_screen_orbiters'],'on_screen_orbiters',$properties).'</td>
+				</tr>
+			
+				
 			';
 			
 			
@@ -534,10 +511,41 @@ function displayWiFiRow($orbiter,$isOSD,$PingTest){
 	if($isOSD==0){
 		$out.='
 		<tr>
-			<td><B>This device uses a Wi-Fi connection</B></td>
+			<td align="right"><B>This device uses a Wi-Fi connection</B></td>
 			<td><input type="checkbox" name="PingTest_'.$orbiter.'" value="1" '.(($PingTest==1)?'checked':'').'></td>
 		</tr>';			
 	}
+	
+	return $out;
+}
+
+function orbiterTable($content,$orbiterGroupDisplayed,$properties){
+	
+	global $excludedData;
+	$out='';
+	$pos=0;
+	foreach ($content AS $orbiter=>$valueArray){
+		$pos++;
+		$color=($pos%2==1)?'#EEEEEE':'#FFFFFF';
+		$out.='<table width="100%" bgcolor="'.$color.'">
+			<tr>';
+			foreach ($valueArray AS $row){
+				$out.=$row;
+			}
+			$isOSD=$properties[$orbiter]['isOSD'];
+			$PingTest=$properties[$orbiter]['PingTest'];
+			$regenArray=$properties[$orbiter]['regenArray'];
+			if(!in_array('wifi',$excludedData[$orbiterGroupDisplayed])){
+				$out.=displayWiFiRow($orbiter,$PingTest,$isOSD);
+			}
+
+			$out.=displayButtons($orbiter,$regenArray);
+			
+			
+		$out.='</tr>
+		</table>';
+	}
+
 	
 	return $out;
 }
