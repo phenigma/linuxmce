@@ -35,6 +35,11 @@ void Database_pluto_media::DeleteTable_File()
 		delete tblFile;
 }
 
+bool Database_pluto_media::Commit_File(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	return tblFile->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_File::~Table_File()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

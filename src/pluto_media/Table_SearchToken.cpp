@@ -32,6 +32,11 @@ void Database_pluto_media::DeleteTable_SearchToken()
 		delete tblSearchToken;
 }
 
+bool Database_pluto_media::Commit_SearchToken(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	return tblSearchToken->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_SearchToken::~Table_SearchToken()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

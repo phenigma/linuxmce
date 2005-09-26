@@ -32,6 +32,11 @@ void Database_pluto_media::DeleteTable_MediaType_AttributeType()
 		delete tblMediaType_AttributeType;
 }
 
+bool Database_pluto_media::Commit_MediaType_AttributeType(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	return tblMediaType_AttributeType->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_MediaType_AttributeType::~Table_MediaType_AttributeType()
 {
 	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator it;

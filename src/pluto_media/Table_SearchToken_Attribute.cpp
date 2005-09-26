@@ -33,6 +33,11 @@ void Database_pluto_media::DeleteTable_SearchToken_Attribute()
 		delete tblSearchToken_Attribute;
 }
 
+bool Database_pluto_media::Commit_SearchToken_Attribute(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	return tblSearchToken_Attribute->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_SearchToken_Attribute::~Table_SearchToken_Attribute()
 {
 	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator it;

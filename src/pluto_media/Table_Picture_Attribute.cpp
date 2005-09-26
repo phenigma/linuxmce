@@ -33,6 +33,11 @@ void Database_pluto_media::DeleteTable_Picture_Attribute()
 		delete tblPicture_Attribute;
 }
 
+bool Database_pluto_media::Commit_Picture_Attribute(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	return tblPicture_Attribute->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_Picture_Attribute::~Table_Picture_Attribute()
 {
 	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator it;

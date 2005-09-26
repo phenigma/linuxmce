@@ -32,6 +32,11 @@ void Database_pluto_media::DeleteTable_psc_media_batuser()
 		delete tblpsc_media_batuser;
 }
 
+bool Database_pluto_media::Commit_psc_media_batuser(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	return tblpsc_media_batuser->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_psc_media_batuser::~Table_psc_media_batuser()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

@@ -33,6 +33,11 @@ void Database_pluto_media::DeleteTable_Picture_Disc()
 		delete tblPicture_Disc;
 }
 
+bool Database_pluto_media::Commit_Picture_Disc(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	return tblPicture_Disc->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_Picture_Disc::~Table_Picture_Disc()
 {
 	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator it;

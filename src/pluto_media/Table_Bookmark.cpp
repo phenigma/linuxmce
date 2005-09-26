@@ -36,6 +36,11 @@ void Database_pluto_media::DeleteTable_Bookmark()
 		delete tblBookmark;
 }
 
+bool Database_pluto_media::Commit_Bookmark(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	return tblBookmark->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_Bookmark::~Table_Bookmark()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

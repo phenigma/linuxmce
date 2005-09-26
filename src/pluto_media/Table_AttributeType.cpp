@@ -33,6 +33,11 @@ void Database_pluto_media::DeleteTable_AttributeType()
 		delete tblAttributeType;
 }
 
+bool Database_pluto_media::Commit_AttributeType(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	return tblAttributeType->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_AttributeType::~Table_AttributeType()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

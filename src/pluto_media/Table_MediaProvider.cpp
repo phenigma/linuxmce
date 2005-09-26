@@ -32,6 +32,11 @@ void Database_pluto_media::DeleteTable_MediaProvider()
 		delete tblMediaProvider;
 }
 
+bool Database_pluto_media::Commit_MediaProvider(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	return tblMediaProvider->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_MediaProvider::~Table_MediaProvider()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

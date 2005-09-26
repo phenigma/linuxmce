@@ -31,6 +31,11 @@ void Database_pluto_media::DeleteTable_psc_media_tables()
 		delete tblpsc_media_tables;
 }
 
+bool Database_pluto_media::Commit_psc_media_tables(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	return tblpsc_media_tables->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_psc_media_tables::~Table_psc_media_tables()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

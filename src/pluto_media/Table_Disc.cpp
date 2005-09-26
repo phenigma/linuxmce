@@ -34,6 +34,11 @@ void Database_pluto_media::DeleteTable_Disc()
 		delete tblDisc;
 }
 
+bool Database_pluto_media::Commit_Disc(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	return tblDisc->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_Disc::~Table_Disc()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

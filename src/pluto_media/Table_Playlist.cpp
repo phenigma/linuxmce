@@ -33,6 +33,11 @@ void Database_pluto_media::DeleteTable_Playlist()
 		delete tblPlaylist;
 }
 
+bool Database_pluto_media::Commit_Playlist(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	return tblPlaylist->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_Playlist::~Table_Playlist()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

@@ -35,6 +35,11 @@ void Database_pluto_media::DeleteTable_Picture()
 		delete tblPicture;
 }
 
+bool Database_pluto_media::Commit_Picture(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	return tblPicture->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_Picture::~Table_Picture()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

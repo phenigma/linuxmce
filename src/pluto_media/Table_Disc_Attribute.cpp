@@ -33,6 +33,11 @@ void Database_pluto_media::DeleteTable_Disc_Attribute()
 		delete tblDisc_Attribute;
 }
 
+bool Database_pluto_media::Commit_Disc_Attribute(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	return tblDisc_Attribute->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_Disc_Attribute::~Table_Disc_Attribute()
 {
 	map<Table_Disc_Attribute::Key, class TableRow*, Table_Disc_Attribute::Key_Less>::iterator it;
