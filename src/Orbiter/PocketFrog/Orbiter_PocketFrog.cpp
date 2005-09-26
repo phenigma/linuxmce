@@ -70,6 +70,7 @@ typedef struct _VIDEO_POWER_MANAGEMENT {
 #define CHECK_STATUS() { if(m_bQuit) return; }
 //-----------------------------------------------------------------------------------------------------
 Orbiter_PocketFrog *Orbiter_PocketFrog::m_pInstance = NULL; //the one and only
+extern Command_Impl *g_pCommand_Impl;
 //-----------------------------------------------------------------------------------------------------
 Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, 
 									   bool bLocalMode, int nImageWidth, int nImageHeight, 
@@ -748,6 +749,7 @@ PlutoGraphic *Orbiter_PocketFrog::GetBackground( PlutoRectangle &rect )
 		m_pInstance = new Orbiter_PocketFrog(DeviceID, PK_DeviceTemplate, ServerAddress, 
 				sLocalDirectory, bLocalMode, nImageWidth, 
 				nImageHeight, bFullScreen);
+		g_pCommand_Impl = m_pInstance;  
 	}
 	else
 	{

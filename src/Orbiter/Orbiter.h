@@ -117,6 +117,14 @@ void DumpScreenHistory(); // temporary function
 public: //data
 	int m_iImageWidth; /** < image width duh */
 	int m_iImageHeight; /** < image height */
+	ScreenHistory *m_pScreenHistory_Current; /** < The currently visible screen */
+	/**
+	 * @brief stores objects that need to be redrawned
+	 * When it's time to redraw some objects without redrawing the whole screen, store them here
+	 * then call RedrawObjects(), rather than updating the screen over and over if several objects change at once
+	 */
+	vector < class DesignObj_Orbiter * > m_vectObjs_NeedRedraw;
+	vector < class DesignObjText * > m_vectTexts_NeedRedraw;
 
 //<-dceag-const-b->!
 
@@ -159,6 +167,9 @@ public:
 
 	pluto_pthread_mutex_t m_NeedRedrawVarMutex; //this will protect needredraw vectors
 	pluto_pthread_mutex_t m_MaintThreadMutex;  // This will also protect the callback map
+	pluto_pthread_mutex_t m_ScreenMutex; /** < Anything that should not be done during a screen render, change, etc. Blocking this will prevent screen changes */
+	pluto_pthread_mutex_t m_VariableMutex; /** < Short mutex to protect members like strings and maps */
+	pluto_pthread_mutex_t m_DatagridMutex; /** < Don't allow 2 threads to operate on datagrids at the same time */
 	pthread_cond_t m_MaintThreadCond;
 
 //<-dceag-const-e->
@@ -170,7 +181,6 @@ protected:
 	class LocationInfo *m_pLocationInfo; /** < The current location */
 
 	string m_sLocalDirectory; /** < A directory to get files from */
-	ScreenHistory *m_pScreenHistory_Current; /** < The currently visible screen */
 	class DesignObj_Orbiter *m_pObj_Highlighted,*m_pObj_Highlighted_Last; /** < The current object highlighted, changed with the scrolling functions */
 	class DesignObj_Orbiter *m_pObj_LastSelected;   // The last object we selected.  Used by floorplans to toggle states
 	int m_iLastEntryInDeviceGroup; // Used by floorplans to go through a selected device group
@@ -255,14 +265,6 @@ protected:
 	map < string, DesignObj_DataList * > m_mapObj_Bound; /** < All objects bound with the Bind Icon command */
 	DesignObj_DataList *m_mapObj_Bound_Find(string PK_DesignObj) { map<string,DesignObj_DataList *>::iterator it = m_mapObj_Bound.find(PK_DesignObj); return it==m_mapObj_Bound.end() ? NULL : (*it).second; }
 
-	/**
-	 * @brief stores objects that need to be redrawned
-	 * When it's time to redraw some objects without redrawing the whole screen, store them here
-	 * then call RedrawObjects(), rather than updating the screen over and over if several objects change at once
-	 */
-	vector < class DesignObj_Orbiter * > m_vectObjs_NeedRedraw;
-	vector < class DesignObjText * > m_vectTexts_NeedRedraw;
-
 	vector < class DesignObj_Orbiter * > m_vectObjs_TabStops; /** < All the tab stops presently on the screen */
 	vector < class DesignObj_Orbiter * > m_vectObjs_Selected; /** < All the objects currently selected */
 	vector < class DesignObj_DataGrid * > m_vectObjs_GridsOnScreen; /** < All the grids currently on the screen */
@@ -279,9 +281,6 @@ protected:
 
 	pthread_mutexattr_t m_MutexAttr; /** < @todo ask */
 //	pthread_cond_t m_MessageQueueCond; /** < @todo ask */
-	pluto_pthread_mutex_t m_ScreenMutex; /** < Anything that should not be done during a screen render, change, etc. Blocking this will prevent screen changes */
-	pluto_pthread_mutex_t m_VariableMutex; /** < Short mutex to protect members like strings and maps */
-	pluto_pthread_mutex_t m_DatagridMutex; /** < Don't allow 2 threads to operate on datagrids at the same time */
 	pthread_t m_MaintThreadID;
 
 	CacheImageManager *m_pCacheImageManager;

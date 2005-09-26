@@ -26,6 +26,7 @@
 
 #include "FileUtils.h"
 #include "StringUtils.h"
+#include "MultiThreadIncludes.h"
 #include "Other.h"
 
 #ifndef SYMBIAN
@@ -874,3 +875,13 @@ string StringUtils::SecondsAsTime(int iSeconds)
 #endif //#ifndef SYMBIAN
 
 
+string StringUtils::PrecisionTime()
+{
+    timespec ts;
+	gettimeofday( &ts, NULL );
+	struct tm *t = localtime((time_t *)&ts.tv_sec);
+	char acBuff[50];
+	double dwSec = (double)(ts.tv_nsec/1E9) + t->tm_sec;
+	snprintf( acBuff, sizeof(acBuff), "%02d/%02d/%02d %d:%02d:%06.3f", (int)t->tm_mon + 1, (int)t->tm_mday, (int)t->tm_year - 100, (int)t->tm_hour, (int)t->tm_min, dwSec );
+	return acBuff;
+}

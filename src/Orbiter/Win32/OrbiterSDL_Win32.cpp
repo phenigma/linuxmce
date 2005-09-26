@@ -34,6 +34,7 @@ LRESULT CALLBACK SDLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 }
 //-----------------------------------------------------------------------------------------------------
 OrbiterSDL_Win32 *OrbiterSDL_Win32::m_pInstance = NULL; //the one and only
+extern Command_Impl *g_pCommand_Impl;
 //-----------------------------------------------------------------------------------------------------
 OrbiterSDL_Win32::OrbiterSDL_Win32(int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, 
 								   bool bLocalMode, int nImageWidth, int nImageHeight, 
@@ -71,6 +72,7 @@ OrbiterSDL_Win32::~OrbiterSDL_Win32()
 		m_pInstance = new OrbiterSDL_Win32(DeviceID, PK_DeviceTemplate, ServerAddress, 
 				sLocalDirectory, bLocalMode, nImageWidth, 
 				nImageHeight, bFullScreen);
+		g_pCommand_Impl = m_pInstance;  
 	}
 	else
 	{

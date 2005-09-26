@@ -96,6 +96,11 @@ namespace DCE
     clock_t g_cLastTime=clock(); // debug only
 }
 
+extern void (*g_pReceivePingHandler)(Socket *pSocket);
+extern bool (*g_pSendPingHandler)(Socket *pSocket);
+void ReceivePingHandler(Socket *pSocket);
+bool SendPingHandler(Socket *pSocket);
+
 //------------------------------------------------------------------------
 // Stuff the callback routines need
 int iCallbackCounter=0;
@@ -2077,6 +2082,22 @@ void Orbiter::SpecialHandlingObjectSelected(DesignObj_Orbiter *pDesignObj_Orbite
 				CMD_Set_Text(m_pScreenHistory_Current->m_pObj->m_ObjectID,"***INVALID***",TEXT_PIN_Code_CONST);
 			}
 		}
+	}
+	else if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_mnuPingPong_CONST)
+	{
+		Message *pMessage = new Message(m_dwPK_Device,DEVICEID_DCEROUTER,PRIORITY_NORMAL,MESSAGETYPE_START_PING,m_dwPK_Device,0);
+		QueueMessageToRouter(pMessage);
+		g_pReceivePingHandler=ReceivePingHandler;
+		g_pSendPingHandler=SendPingHandler;
+		string sMessage = "Starting PING/PONG S" + StringUtils::itos(m_ScreenMutex.m_NumLocks) + " V" + StringUtils::itos(m_VariableMutex.m_NumLocks)
+			+ " D" + StringUtils::itos(m_DatagridMutex.m_NumLocks) + " M" + StringUtils::itos(m_MaintThreadMutex.m_NumLocks)
+			+ " R" + StringUtils::itos(m_NeedRedrawVarMutex.m_NumLocks);
+		CMD_Set_Text(pDesignObj_Orbiter->m_ObjectID,sMessage,TEXT_STATUS_CONST);
+	}
+	else if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_butStopPing_CONST)
+	{
+		Message *pMessage = new Message(m_dwPK_Device,DEVICEID_DCEROUTER,PRIORITY_NORMAL,MESSAGETYPE_STOP_PING,m_dwPK_Device,0);
+		QueueMessageToRouter(pMessage);
 	}
 	else if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_mnuDisplayPower_CONST)
 	{
@@ -8854,27 +8875,93 @@ bool Orbiter::RegenOrbiter()
 	return false;
 }
 
-/*
-extern void (*g_pReceivePingHandler)(Socket *pSocket);
-extern bool (*g_pSendPingHandler)(Socket *pSocket);
 
 void ReceivePingHandler(Socket *pSocket)
 {
-g_pPlutoLogger->Write(LV_STATUS,"Got ping");
+
+	g_pPlutoLogger->Write(LV_STATUS,"ReceivePingHandler - got ping for %p %d %s",pSocket,pSocket->m_Socket,pSocket->m_sName.c_str());
 	pSocket->SendString("PONG");
+	Orbiter *pOrbiter = (Orbiter *) g_pCommand_Impl;
+	if( !pOrbiter || pOrbiter->m_pScreenHistory_Current->m_pObj->m_iBaseObjectID!=DESIGNOBJ_mnuPingPong_CONST )
+	{
+		g_pReceivePingHandler=NULL;
+		g_pSendPingHandler=NULL;
+	}
+	else
+	{
+		string sMessage = StringUtils::PrecisionTime() + " Got PING: " +
+			" S" + StringUtils::itos(pOrbiter->m_ScreenMutex.m_NumLocks) + " V" + StringUtils::itos(pOrbiter->m_VariableMutex.m_NumLocks)
+			+ " D" + StringUtils::itos(pOrbiter->m_DatagridMutex.m_NumLocks) + " M" + StringUtils::itos(pOrbiter->m_MaintThreadMutex.m_NumLocks)
+			+ " R" + StringUtils::itos(pOrbiter->m_NeedRedrawVarMutex.m_NumLocks) + "#" + 
+			StringUtils::itos(pSocket->m_Socket) + " " + pSocket->m_sName + "\n";
+		NeedToRender render( pOrbiter, "ReceivePingHandler" );
+		PLUTO_SAFETY_LOCK( nd, pOrbiter->m_NeedRedrawVarMutex );
+		DesignObjText *pText = pOrbiter->FindText( pOrbiter->m_pScreenHistory_Current->m_pObj, TEXT_STATUS_CONST );
+		if( pText  )
+			pText->m_sText = sMessage + pText->m_sText;
+
+		pOrbiter->m_vectObjs_NeedRedraw.push_back( pOrbiter->m_pScreenHistory_Current->m_pObj );
+	}
 }
 
 bool SendPingHandler(Socket *pSocket)
 {
-g_pPlutoLogger->Write(LV_STATUS,"Send ping");
+	g_pPlutoLogger->Write(LV_STATUS,"ReceivePingHandler - sending ping for %p %d %s",pSocket,pSocket->m_Socket,pSocket->m_sName.c_str());
+
+	Orbiter *pOrbiter = (Orbiter *) g_pCommand_Impl;
+	if( !pOrbiter )
+	{
+		g_pReceivePingHandler=NULL;
+		g_pSendPingHandler=NULL;
+	}
+	NeedToRender render( pOrbiter, "SendPingHandler" );
+	DesignObjText *pText = pOrbiter->FindText( pOrbiter->m_pScreenHistory_Current->m_pObj, TEXT_STATUS_CONST );
+	if( pText  )
+	{
+		string sMessage = StringUtils::PrecisionTime() + " Send PING: "
+			+ " S" + StringUtils::itos(pOrbiter->m_ScreenMutex.m_NumLocks) + " V" + StringUtils::itos(pOrbiter->m_VariableMutex.m_NumLocks)
+			+ " D" + StringUtils::itos(pOrbiter->m_DatagridMutex.m_NumLocks) + " M" + StringUtils::itos(pOrbiter->m_MaintThreadMutex.m_NumLocks)
+			+ " R" + StringUtils::itos(pOrbiter->m_NeedRedrawVarMutex.m_NumLocks) + "#"
+			+ StringUtils::itos(pSocket->m_Socket) + " " + pSocket->m_sName + "\n";
+		PLUTO_SAFETY_LOCK( nd, pOrbiter->m_NeedRedrawVarMutex );
+		pText->m_sText = sMessage + pText->m_sText;
+		pOrbiter->m_vectObjs_NeedRedraw.push_back( pOrbiter->m_pScreenHistory_Current->m_pObj );
+	}
+
 	string sResponse=pSocket->SendReceiveString("PING");
 	if( sResponse!="PONG" )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Send ping, failed to get pong");
+		string sMessage = StringUtils::PrecisionTime() + " ***FAILED TO GET PONG***: "
+			+ " S" + StringUtils::itos(pOrbiter->m_ScreenMutex.m_NumLocks) + " V" + StringUtils::itos(pOrbiter->m_VariableMutex.m_NumLocks)
+			+ " D" + StringUtils::itos(pOrbiter->m_DatagridMutex.m_NumLocks) + " M" + StringUtils::itos(pOrbiter->m_MaintThreadMutex.m_NumLocks)
+			+ " R" + StringUtils::itos(pOrbiter->m_NeedRedrawVarMutex.m_NumLocks) + "#"
+			+ StringUtils::itos(pSocket->m_Socket) + " " + pSocket->m_sName + "\n";
+		PLUTO_SAFETY_LOCK( nd, pOrbiter->m_NeedRedrawVarMutex );
+		pText->m_sText = sMessage + pText->m_sText;
+		pOrbiter->m_vectObjs_NeedRedraw.push_back( pOrbiter->m_pScreenHistory_Current->m_pObj );
+		g_pPlutoLogger->Write(LV_STATUS,"ReceivePingHandler - failed to get pong for %p %d %s",pSocket,pSocket->m_Socket,pSocket->m_sName.c_str());
 		return false;
+	}
+	if( !g_pCommand_Impl || pOrbiter->m_bQuit ) // The app closed on us
+		return true;
+
+	g_pPlutoLogger->Write(LV_STATUS,"ReceivePingHandler - got pong for %p %d %s",pSocket,pSocket->m_Socket,pSocket->m_sName.c_str());
+	if( pOrbiter->m_pScreenHistory_Current->m_pObj->m_iBaseObjectID!=DESIGNOBJ_mnuPingPong_CONST )
+	{
+		g_pReceivePingHandler=NULL;
+		g_pSendPingHandler=NULL;
+	}
+	else if( pText )
+	{
+		string sMessage = StringUtils::PrecisionTime() + " GOT PONG: "
+			+ " S" + StringUtils::itos(pOrbiter->m_ScreenMutex.m_NumLocks) + " V" + StringUtils::itos(pOrbiter->m_VariableMutex.m_NumLocks)
+			+ " D" + StringUtils::itos(pOrbiter->m_DatagridMutex.m_NumLocks) + " M" + StringUtils::itos(pOrbiter->m_MaintThreadMutex.m_NumLocks)
+			+ " R" + StringUtils::itos(pOrbiter->m_NeedRedrawVarMutex.m_NumLocks) + "#"
+			+ StringUtils::itos(pSocket->m_Socket) + " " + pSocket->m_sName + "\n";
+
+		PLUTO_SAFETY_LOCK( nd, pOrbiter->m_NeedRedrawVarMutex );
+		pText->m_sText = sMessage + pText->m_sText;
+		pOrbiter->m_vectObjs_NeedRedraw.push_back( pOrbiter->m_pScreenHistory_Current->m_pObj );
 	}
 	return true;
 }
-g_pReceivePingHandler=ReceivePingHandler;
-g_pSendPingHandler=SendPingHandler;
-*/

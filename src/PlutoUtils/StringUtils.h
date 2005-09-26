@@ -192,6 +192,7 @@ namespace StringUtils
 	string UpperAZ09Only(string sInput);
 
 	string SecondsAsTime(int iSeconds);
+	string PrecisionTime();
 
 #endif //#ifndef SYMBIAN
 };

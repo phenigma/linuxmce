@@ -49,8 +49,6 @@ extern Command_Impl *g_pCommand_Impl;
 void DeadlockHandler(PlutoLock *pPlutoLock)
 {
 	// This isn't graceful, but for the moment in the event of a deadlock we'll just kill everything and force a reload
-	g_pCommand_Impl = ORBITER::GetInstance();  
-
 	if( g_pCommand_Impl )
 	{   
         ::MessageBox(NULL, TEXT("Deadlock problem.  Going to reload and quit"), TEXT("Orbiter"), MB_OK);
@@ -64,8 +62,6 @@ void DeadlockHandler(PlutoLock *pPlutoLock)
 void SocketCrashHandler(Socket *pSocket)
 {
 	// This isn't graceful, but for the moment in the event of a socket crash we'll just kill everything and force a reload
-	g_pCommand_Impl = ORBITER::GetInstance(); //it is possible that orbiter to be deleted and then SocketCrashHandler to be called (so let's verify this)
-
 	if( g_pCommand_Impl )
 	{
         ::MessageBox(NULL, TEXT("Socket problem.  Going to reload and quit"), TEXT("Orbiter"), MB_OK);
