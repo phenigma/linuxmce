@@ -1516,7 +1516,7 @@ string Makefile = "none:\n"
 		+ "," + StringUtils::itos(REPOSITORYSOURCE_Debian_CONST) + "," + StringUtils::itos(REPOSITORYSOURCE_MythTV_CONST) + ")",
 		&vect_pRow_Package_Source_Dependencies);
 
-	string sDepends;
+	string sDepends,sPreDepends;
 
 	for (size_t s=0;s<vect_pRow_Package_Source_Dependencies.size();++s)
 	{
@@ -1537,19 +1537,25 @@ string Makefile = "none:\n"
 			sPkgVerBase = iLastDot == string::npos ? "" : sPkgVersion.substr(0, iLastDot);
 		}
 		int iPkgManufacturer = pRow_Package_Source_Dependency->FK_Package_getrow()->FK_Manufacturer_get();
-		sDepends += ", " + sPkgName;
-		if (iPkgManufacturer == 1 && sPkgVerBase != "") /* HARDCODED: 1 = Pluto */
+		if (iPkgManufacturer == 1 ) /* HARDCODED: 1 = Pluto */
 		{
-			string::size_type iLastDotNext = sPkgVerBase.rfind(".", sPkgVerBase.length());
-			string sPkgVerBaseMajor = sPkgVerBase.substr(0, iLastDotNext + 1);
-			string sPkgVerBaseMinor = sPkgVerBase.substr(iLastDotNext + 1);
-			int iPkgVerBaseNext = atoi(sPkgVerBaseMinor.c_str()) + 1;
-			sDepends += string("")+ " (>= " + sPkgVerBase + ")" + ", " + sPkgName + " (<< " + sPkgVerBaseMajor + StringUtils::itos(iPkgVerBaseNext) + ")";
+			sDepends += ", " + sPkgName;
+			if( sPkgVerBase != "" )
+			{
+				string::size_type iLastDotNext = sPkgVerBase.rfind(".", sPkgVerBase.length());
+				string sPkgVerBaseMajor = sPkgVerBase.substr(0, iLastDotNext + 1);
+				string sPkgVerBaseMinor = sPkgVerBase.substr(iLastDotNext + 1);
+				int iPkgVerBaseNext = atoi(sPkgVerBaseMinor.c_str()) + 1;
+				sDepends += string("")+ " (>= " + sPkgVerBase + ")" + ", " + sPkgName + " (<< " + sPkgVerBaseMajor + StringUtils::itos(iPkgVerBaseNext) + ")";
+			}
 		}
+		else
+			sPreDepends += ", " + sPkgName;
 		g_DebianPackages[sPkgName] = true;
 	}
 	g_DebianPackages[Package_Name] = true;
 	cout << "Depends list: " << sDepends << endl;
+	cout << "PreDepends list: " << sPreDepends << endl;
 	cout << "Replaces: " << pRow_Package_Source->Replaces_get() << endl;  // This is a comma-delimited list
 
 #ifndef WIN32
