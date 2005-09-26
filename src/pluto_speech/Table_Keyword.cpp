@@ -31,6 +31,11 @@ void Database_pluto_speech::DeleteTable_Keyword()
 		delete tblKeyword;
 }
 
+bool Database_pluto_speech::Commit_Keyword(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	return tblKeyword->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_Keyword::~Table_Keyword()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

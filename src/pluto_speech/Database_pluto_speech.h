@@ -26,7 +26,9 @@ Database_pluto_speech();
 void DeleteAllTables();
 private:
 class Table_Alias* tblAlias;
+bool Commit_Alias(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_Keyword* tblKeyword;
+bool Commit_Keyword(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 public:
 class Table_Alias* Alias_get() { if( !tblAlias ) CreateTable_Alias(); return tblAlias; }
 class Table_Keyword* Keyword_get() { if( !tblKeyword ) CreateTable_Keyword(); return tblKeyword; }
@@ -34,6 +36,7 @@ string m_sLastMySqlError;
 bool Connect(string host, string user, string pass, string sDBName, int port);
 bool Connect(class DCEConfig *pDCEConfig);
 void Disconnect();
+bool Commit(bool bDeleteFailedModifiedRow=false,bool bDeleteFailedInsertRow=false);
 private:
 void CreateTable_Alias();
 void CreateTable_Keyword();

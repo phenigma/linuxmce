@@ -31,6 +31,11 @@ void Database_pluto_speech::DeleteTable_Alias()
 		delete tblAlias;
 }
 
+bool Database_pluto_speech::Commit_Alias(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	return tblAlias->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_Alias::~Table_Alias()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

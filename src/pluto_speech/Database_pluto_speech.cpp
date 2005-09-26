@@ -33,6 +33,19 @@ Database_pluto_speech::~Database_pluto_speech()
 	DeleteAllTables();
 }
 
+bool Database_pluto_speech::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+bool bResult=true;
+if( tblAlias!=NULL )
+	if( !Commit_Alias(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
+if( tblKeyword!=NULL )
+	if( !Commit_Keyword(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
+return bResult;
+
+}
+
 void Database_pluto_speech::DeleteAllTables()
 {
 DeleteTable_Alias();
