@@ -379,6 +379,7 @@ int main( int argc, char *argv[] )
 	db_h_out << "bool Connect(string host, string user, string pass, string sDBName, int port);" << endl;
 	db_h_out << "bool Connect(class DCEConfig *pDCEConfig);" << endl;
 	db_h_out << "void Disconnect();" << endl;
+	db_h_out << "bool Commit(bool bDeleteFailedModifiedRow=false,bool bDeleteFailedInsertRow=false);" << endl;
 
 	db_h_out << "private:" << endl;
 
@@ -428,6 +429,15 @@ int main( int argc, char *argv[] )
 	db_cpp_out << "Database_" << sDBName << "::~Database_" << sDBName << "()" << endl;
 	db_cpp_out << "{" << endl;
 	db_cpp_out << "\tDeleteAllTables();" << endl;
+	db_cpp_out << "}" << endl << endl;
+
+	db_cpp_out << "bool Database_" << sDBName << "::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)" << endl;
+	db_cpp_out << "{" << endl;
+	for (vector<TableInfo_Generator *>::iterator i=dbInfo.listTableInfo_get()->begin(); i!=dbInfo.listTableInfo_get()->end(); i++)
+	{
+		db_cpp_out << "if( tbl"+(*i)->get_table_name()+"!=NULL )" << endl;
+		db_cpp_out << "tbl"+(*i)->get_table_name()+"->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);" << endl;
+	}
 	db_cpp_out << "}" << endl << endl;
 
 	db_cpp_out << "void Database_" << sDBName << "::DeleteAllTables()" << endl;
