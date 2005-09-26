@@ -356,7 +356,7 @@ int main( int argc, char *argv[] )
 	for (vector<TableInfo_Generator *>::iterator i=dbInfo.listTableInfo_get()->begin(); i!=dbInfo.listTableInfo_get()->end(); i++)
 	{
 		db_h_out << "class Table_" + (*i)->get_table_name() + "* tbl"+(*i)->get_table_name()+";" << endl;
-		db_h_out << "Commit_" + (*i)->get_table_name() + "(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);" << endl;
+		db_h_out << "bool Commit_" + (*i)->get_table_name() + "(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);" << endl;
 		makefile_out << " \\" << endl << "Table_" + (*i)->get_table_name() + ".cpp";
 	}
 
@@ -434,11 +434,14 @@ int main( int argc, char *argv[] )
 
 	db_cpp_out << "bool Database_" << sDBName << "::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)" << endl;
 	db_cpp_out << "{" << endl;
+	db_cpp_out << "bool bResult=true;" << endl;
 	for (vector<TableInfo_Generator *>::iterator i=dbInfo.listTableInfo_get()->begin(); i!=dbInfo.listTableInfo_get()->end(); i++)
 	{
 		db_cpp_out << "if( tbl"+(*i)->get_table_name()+"!=NULL )" << endl;
-		db_cpp_out << "Commit_"+(*i)->get_table_name()+"(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);" << endl;
+		db_cpp_out << "\tif( !Commit_"+(*i)->get_table_name()+"(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )" << endl;
+		db_cpp_out << "\t\tbResult=false;" << endl;
 	}
+	db_cpp_out << "return bResult;" << endl << endl;
 	db_cpp_out << "}" << endl << endl;
 
 	db_cpp_out << "void Database_" << sDBName << "::DeleteAllTables()" << endl;
