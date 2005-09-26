@@ -1564,9 +1564,9 @@
 #define DESIGNOBJ_butNewRoom_CONST 4324
 #define DESIGNOBJ_butReloadRegenOrbiter_CONST 4325
 #define DESIGNOBJ_butReloadRegenAllOrbiters_CONST 4326
-#define DESIGNOBJ_mnuPingPong_CONST 4326
 #define DESIGNOBJ_butStopPing_CONST 4327
-
+#define DESIGNOBJ_butShowPingPongTest_CONST 4328
+#define DESIGNOBJ_mnuPingPong_CONST 4329
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

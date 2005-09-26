@@ -5,10 +5,14 @@
 #define SIZE_MMI_CONST 2
 #define SIZE_Symbian_60_scale_was_220_158_CONST 3
 #define SIZE_Horizontal_PDA_CONST 4
-#define SIZE_640x480_CONST 5
+#define SIZE_640x480_Standard_TV_CONST 5
 #define SIZE_1024x768_CONST 6
 #define SIZE_240x320_PDA_CONST 7
 #define SIZE_176x220_Windows_Mobile_CONST 8
+#define SIZE_1280x1024_CONST 9
+#define SIZE_1600x1200_CONST 10
+#define SIZE_720p_CONST 11
+#define SIZE_1080i_or_1080p_CONST 12
 
 #define SIZE_TABLE "Size"
 #define SIZE_PK_SIZE_FIELD "PK_Size"

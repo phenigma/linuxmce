@@ -748,6 +748,8 @@
 #define TEXT_Reload__Regen_Orbiter_CONST 1452
 #define TEXT_Reload__Regen_All_Orbiters_CONST 1453
 #define TEXT_Mozilla_bookmarks_CONST 1454
+#define TEXT_Stop_Ping_CONST 1455
+#define TEXT_Show_Ping_Test_CONST 1456
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
