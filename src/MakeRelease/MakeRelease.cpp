@@ -1564,7 +1564,7 @@ string Makefile = "none:\n"
 	string sed_predepends = "";
 	if (sPreDepends != "")
 	{
-		sed_predepends = "\\nPre-Depends: " + sPreDepends;
+		sed_predepends = "\\nPre-Depends: ${shlibs:Depends}, ${misc:Depends}" + sPreDepends;
 	}
 	string sed_cmd = "s/^Depends:.*$/Depends: ${shlibs:Depends}, ${misc:Depends}" + sDepends + sed_predepends + "/";
 	string replaces = pRow_Package_Source->Replaces_get();
