@@ -20,6 +20,7 @@ using namespace std;
 
 #include "StartOrbiterSDLBluetooth.h"
 #include "OrbiterSDLBluetooth.h"
+extern Command_Impl *g_pCommand_Impl;
 
 using namespace DCE;
 //-----------------------------------------------------------------------------------------------------
