@@ -253,446 +253,669 @@ Database_pluto_main::~Database_pluto_main()
 
 bool Database_pluto_main::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
+bool bResult=true;
 if( tblArray!=NULL )
-Commit_Array(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Array(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblBroadcast!=NULL )
-Commit_Broadcast(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Broadcast(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblButton!=NULL )
-Commit_Button(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Button(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblCachedScreens!=NULL )
-Commit_CachedScreens(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_CachedScreens(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblCannedEvents!=NULL )
-Commit_CannedEvents(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_CannedEvents(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblCannedEvents_CriteriaParmList!=NULL )
-Commit_CannedEvents_CriteriaParmList(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_CannedEvents_CriteriaParmList(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblCity!=NULL )
-Commit_City(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_City(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblCommMethod!=NULL )
-Commit_CommMethod(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_CommMethod(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblCommand!=NULL )
-Commit_Command(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Command(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblCommandCategory!=NULL )
-Commit_CommandCategory(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_CommandCategory(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblCommandGroup!=NULL )
-Commit_CommandGroup(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_CommandGroup(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblCommandGroup_Command!=NULL )
-Commit_CommandGroup_Command(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_CommandGroup_Command(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblCommandGroup_Command_CommandParameter!=NULL )
-Commit_CommandGroup_Command_CommandParameter(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_CommandGroup_Command_CommandParameter(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblCommandGroup_D!=NULL )
-Commit_CommandGroup_D(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_CommandGroup_D(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblCommandGroup_D_Command!=NULL )
-Commit_CommandGroup_D_Command(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_CommandGroup_D_Command(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblCommandGroup_D_Command_CommandParameter!=NULL )
-Commit_CommandGroup_D_Command_CommandParameter(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_CommandGroup_D_Command_CommandParameter(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblCommandGroup_EntertainArea!=NULL )
-Commit_CommandGroup_EntertainArea(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_CommandGroup_EntertainArea(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblCommandGroup_Room!=NULL )
-Commit_CommandGroup_Room(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_CommandGroup_Room(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblCommandParameter!=NULL )
-Commit_CommandParameter(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_CommandParameter(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblCommand_CommandParameter!=NULL )
-Commit_Command_CommandParameter(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Command_CommandParameter(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblCommand_Pipe!=NULL )
-Commit_Command_Pipe(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Command_Pipe(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblConfigType!=NULL )
-Commit_ConfigType(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_ConfigType(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblConfigType_File!=NULL )
-Commit_ConfigType_File(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_ConfigType_File(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblConfigType_Setting!=NULL )
-Commit_ConfigType_Setting(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_ConfigType_Setting(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblConfigType_Token!=NULL )
-Commit_ConfigType_Token(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_ConfigType_Token(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblConnectorType!=NULL )
-Commit_ConnectorType(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_ConnectorType(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblCountry!=NULL )
-Commit_Country(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Country(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblCriteria!=NULL )
-Commit_Criteria(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Criteria(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblCriteriaList!=NULL )
-Commit_CriteriaList(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_CriteriaList(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblCriteriaList_CriteriaParmList!=NULL )
-Commit_CriteriaList_CriteriaParmList(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_CriteriaList_CriteriaParmList(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblCriteriaParm!=NULL )
-Commit_CriteriaParm(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_CriteriaParm(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblCriteriaParmList!=NULL )
-Commit_CriteriaParmList(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_CriteriaParmList(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblCriteriaParmNesting!=NULL )
-Commit_CriteriaParmNesting(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_CriteriaParmNesting(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDHCPDevice!=NULL )
-Commit_DHCPDevice(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_DHCPDevice(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDHCPDevice_DeviceData!=NULL )
-Commit_DHCPDevice_DeviceData(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_DHCPDevice_DeviceData(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDataGrid!=NULL )
-Commit_DataGrid(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_DataGrid(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDesignObj!=NULL )
-Commit_DesignObj(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_DesignObj(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDesignObjCategory!=NULL )
-Commit_DesignObjCategory(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_DesignObjCategory(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDesignObjParameter!=NULL )
-Commit_DesignObjParameter(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_DesignObjParameter(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDesignObjType!=NULL )
-Commit_DesignObjType(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_DesignObjType(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDesignObjType_DesignObjParameter!=NULL )
-Commit_DesignObjType_DesignObjParameter(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_DesignObjType_DesignObjParameter(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDesignObjVariation!=NULL )
-Commit_DesignObjVariation(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_DesignObjVariation(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDesignObjVariation_DesignObj!=NULL )
-Commit_DesignObjVariation_DesignObj(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_DesignObjVariation_DesignObj(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDesignObjVariation_DesignObjParameter!=NULL )
-Commit_DesignObjVariation_DesignObjParameter(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_DesignObjVariation_DesignObjParameter(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDesignObjVariation_Text!=NULL )
-Commit_DesignObjVariation_Text(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_DesignObjVariation_Text(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDesignObjVariation_Text_Skin_Language!=NULL )
-Commit_DesignObjVariation_Text_Skin_Language(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_DesignObjVariation_Text_Skin_Language(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDesignObjVariation_Zone!=NULL )
-Commit_DesignObjVariation_Zone(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_DesignObjVariation_Zone(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDevice!=NULL )
-Commit_Device(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Device(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDeviceCategory!=NULL )
-Commit_DeviceCategory(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_DeviceCategory(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDeviceCategory_DeviceData!=NULL )
-Commit_DeviceCategory_DeviceData(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_DeviceCategory_DeviceData(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDeviceCategory_Event!=NULL )
-Commit_DeviceCategory_Event(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_DeviceCategory_Event(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDeviceCommandGroup!=NULL )
-Commit_DeviceCommandGroup(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_DeviceCommandGroup(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDeviceCommandGroup_Command!=NULL )
-Commit_DeviceCommandGroup_Command(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_DeviceCommandGroup_Command(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDeviceCommandGroup_DeviceCommandGroup_Parent!=NULL )
-Commit_DeviceCommandGroup_DeviceCommandGroup_Parent(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_DeviceCommandGroup_DeviceCommandGroup_Parent(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDeviceData!=NULL )
-Commit_DeviceData(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_DeviceData(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDeviceGroup!=NULL )
-Commit_DeviceGroup(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_DeviceGroup(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDeviceTemplate!=NULL )
-Commit_DeviceTemplate(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_DeviceTemplate(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDeviceTemplate_AV!=NULL )
-Commit_DeviceTemplate_AV(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_DeviceTemplate_AV(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDeviceTemplate_DSPMode!=NULL )
-Commit_DeviceTemplate_DSPMode(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_DeviceTemplate_DSPMode(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDeviceTemplate_DesignObj!=NULL )
-Commit_DeviceTemplate_DesignObj(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_DeviceTemplate_DesignObj(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDeviceTemplate_DeviceCategory_ControlledVia!=NULL )
-Commit_DeviceTemplate_DeviceCategory_ControlledVia(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_DeviceTemplate_DeviceCategory_ControlledVia(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDeviceTemplate_DeviceCategory_ControlledVia_Pipe!=NULL )
-Commit_DeviceTemplate_DeviceCategory_ControlledVia_Pipe(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_DeviceTemplate_DeviceCategory_ControlledVia_Pipe(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDeviceTemplate_DeviceCommandGroup!=NULL )
-Commit_DeviceTemplate_DeviceCommandGroup(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_DeviceTemplate_DeviceCommandGroup(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDeviceTemplate_DeviceData!=NULL )
-Commit_DeviceTemplate_DeviceData(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_DeviceTemplate_DeviceData(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDeviceTemplate_DeviceTemplate_ControlledVia!=NULL )
-Commit_DeviceTemplate_DeviceTemplate_ControlledVia(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_DeviceTemplate_DeviceTemplate_ControlledVia(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDeviceTemplate_DeviceTemplate_ControlledVia_Pipe!=NULL )
-Commit_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDeviceTemplate_DeviceTemplate_Related!=NULL )
-Commit_DeviceTemplate_DeviceTemplate_Related(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_DeviceTemplate_DeviceTemplate_Related(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDeviceTemplate_Event!=NULL )
-Commit_DeviceTemplate_Event(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_DeviceTemplate_Event(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDeviceTemplate_InfraredGroup!=NULL )
-Commit_DeviceTemplate_InfraredGroup(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_DeviceTemplate_InfraredGroup(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDeviceTemplate_Input!=NULL )
-Commit_DeviceTemplate_Input(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_DeviceTemplate_Input(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDeviceTemplate_MediaType!=NULL )
-Commit_DeviceTemplate_MediaType(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_DeviceTemplate_MediaType(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDeviceTemplate_MediaType_DesignObj!=NULL )
-Commit_DeviceTemplate_MediaType_DesignObj(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_DeviceTemplate_MediaType_DesignObj(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDeviceTemplate_Output!=NULL )
-Commit_DeviceTemplate_Output(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_DeviceTemplate_Output(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDeviceTemplate_PageSetup!=NULL )
-Commit_DeviceTemplate_PageSetup(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_DeviceTemplate_PageSetup(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDevice_Command!=NULL )
-Commit_Device_Command(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Device_Command(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDevice_CommandGroup!=NULL )
-Commit_Device_CommandGroup(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Device_CommandGroup(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDevice_DeviceData!=NULL )
-Commit_Device_DeviceData(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Device_DeviceData(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDevice_DeviceGroup!=NULL )
-Commit_Device_DeviceGroup(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Device_DeviceGroup(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDevice_Device_Pipe!=NULL )
-Commit_Device_Device_Pipe(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Device_Device_Pipe(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDevice_Device_Related!=NULL )
-Commit_Device_Device_Related(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Device_Device_Related(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDevice_EntertainArea!=NULL )
-Commit_Device_EntertainArea(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Device_EntertainArea(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDevice_HouseMode!=NULL )
-Commit_Device_HouseMode(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Device_HouseMode(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDevice_MRU!=NULL )
-Commit_Device_MRU(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Device_MRU(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDevice_Orbiter!=NULL )
-Commit_Device_Orbiter(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Device_Orbiter(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDevice_QuickStart!=NULL )
-Commit_Device_QuickStart(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Device_QuickStart(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDevice_StartupScript!=NULL )
-Commit_Device_StartupScript(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Device_StartupScript(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDevice_Users!=NULL )
-Commit_Device_Users(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Device_Users(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDirection!=NULL )
-Commit_Direction(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Direction(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDirectory!=NULL )
-Commit_Directory(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Directory(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDistro!=NULL )
-Commit_Distro(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Distro(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDocument!=NULL )
-Commit_Document(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Document(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblDocument_Comment!=NULL )
-Commit_Document_Comment(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Document_Comment(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblEntertainArea!=NULL )
-Commit_EntertainArea(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_EntertainArea(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblEvent!=NULL )
-Commit_Event(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Event(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblEventCategory!=NULL )
-Commit_EventCategory(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_EventCategory(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblEventHandler!=NULL )
-Commit_EventHandler(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_EventHandler(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblEventParameter!=NULL )
-Commit_EventParameter(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_EventParameter(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblEvent_EventParameter!=NULL )
-Commit_Event_EventParameter(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Event_EventParameter(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblFAQ!=NULL )
-Commit_FAQ(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_FAQ(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblFirewall!=NULL )
-Commit_Firewall(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Firewall(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblFloorplan!=NULL )
-Commit_Floorplan(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Floorplan(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblFloorplanObjectType!=NULL )
-Commit_FloorplanObjectType(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_FloorplanObjectType(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblFloorplanObjectType_Color!=NULL )
-Commit_FloorplanObjectType_Color(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_FloorplanObjectType_Color(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblFloorplanType!=NULL )
-Commit_FloorplanType(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_FloorplanType(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblHorizAlignment!=NULL )
-Commit_HorizAlignment(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_HorizAlignment(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblHouseMode!=NULL )
-Commit_HouseMode(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_HouseMode(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblHousehold!=NULL )
-Commit_Household(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Household(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblHousehold_Installation!=NULL )
-Commit_Household_Installation(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Household_Installation(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblIcon!=NULL )
-Commit_Icon(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Icon(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblImage!=NULL )
-Commit_Image(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Image(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblInfraredGroup!=NULL )
-Commit_InfraredGroup(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_InfraredGroup(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblInfraredGroup_Command!=NULL )
-Commit_InfraredGroup_Command(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_InfraredGroup_Command(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblInfraredGroup_Command_Preferred!=NULL )
-Commit_InfraredGroup_Command_Preferred(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_InfraredGroup_Command_Preferred(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblInstallWizard!=NULL )
-Commit_InstallWizard(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_InstallWizard(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblInstallWizard_Distro!=NULL )
-Commit_InstallWizard_Distro(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_InstallWizard_Distro(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblInstallation!=NULL )
-Commit_Installation(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Installation(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblInstallation_RepositorySource_URL!=NULL )
-Commit_Installation_RepositorySource_URL(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Installation_RepositorySource_URL(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblInstallation_Users!=NULL )
-Commit_Installation_Users(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Installation_Users(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblLanguage!=NULL )
-Commit_Language(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Language(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblLicense!=NULL )
-Commit_License(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_License(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblLicensing!=NULL )
-Commit_Licensing(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Licensing(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblManufacturer!=NULL )
-Commit_Manufacturer(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Manufacturer(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblMediaType!=NULL )
-Commit_MediaType(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_MediaType(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblMediaType_Broadcast!=NULL )
-Commit_MediaType_Broadcast(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_MediaType_Broadcast(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblMediaType_DesignObj!=NULL )
-Commit_MediaType_DesignObj(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_MediaType_DesignObj(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblNews!=NULL )
-Commit_News(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_News(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblOperatingSystem!=NULL )
-Commit_OperatingSystem(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_OperatingSystem(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblOrbiter!=NULL )
-Commit_Orbiter(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Orbiter(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblOrbiter_Users_PasswordReq!=NULL )
-Commit_Orbiter_Users_PasswordReq(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Orbiter_Users_PasswordReq(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblOrbiter_Variable!=NULL )
-Commit_Orbiter_Variable(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Orbiter_Variable(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblPackage!=NULL )
-Commit_Package(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Package(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblPackageType!=NULL )
-Commit_PackageType(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_PackageType(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblPackage_Compat!=NULL )
-Commit_Package_Compat(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Package_Compat(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblPackage_Device!=NULL )
-Commit_Package_Device(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Package_Device(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblPackage_Directory!=NULL )
-Commit_Package_Directory(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Package_Directory(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblPackage_Directory_File!=NULL )
-Commit_Package_Directory_File(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Package_Directory_File(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblPackage_Package!=NULL )
-Commit_Package_Package(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Package_Package(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblPackage_Source!=NULL )
-Commit_Package_Source(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Package_Source(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblPackage_Source_Compat!=NULL )
-Commit_Package_Source_Compat(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Package_Source_Compat(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblPackage_Users!=NULL )
-Commit_Package_Users(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Package_Users(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblPackage_Version!=NULL )
-Commit_Package_Version(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Package_Version(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblPageSetup!=NULL )
-Commit_PageSetup(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_PageSetup(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblPaidLicense!=NULL )
-Commit_PaidLicense(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_PaidLicense(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblParameterType!=NULL )
-Commit_ParameterType(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_ParameterType(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblPhoneLineType!=NULL )
-Commit_PhoneLineType(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_PhoneLineType(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblPipe!=NULL )
-Commit_Pipe(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Pipe(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblQuickStartCategory!=NULL )
-Commit_QuickStartCategory(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_QuickStartCategory(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblQuickStartTemplate!=NULL )
-Commit_QuickStartTemplate(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_QuickStartTemplate(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblRegion!=NULL )
-Commit_Region(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Region(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblRemoteControl!=NULL )
-Commit_RemoteControl(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_RemoteControl(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblRemoteMapping!=NULL )
-Commit_RemoteMapping(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_RemoteMapping(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblRepositorySource!=NULL )
-Commit_RepositorySource(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_RepositorySource(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblRepositorySource_URL!=NULL )
-Commit_RepositorySource_URL(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_RepositorySource_URL(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblRepositoryType!=NULL )
-Commit_RepositoryType(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_RepositoryType(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblRoom!=NULL )
-Commit_Room(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Room(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblRoomType!=NULL )
-Commit_RoomType(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_RoomType(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblRoom_Users!=NULL )
-Commit_Room_Users(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Room_Users(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblSchema!=NULL )
-Commit_Schema(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Schema(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblSetupStep!=NULL )
-Commit_SetupStep(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_SetupStep(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblSize!=NULL )
-Commit_Size(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Size(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblSkin!=NULL )
-Commit_Skin(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Skin(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblStabilityStatus!=NULL )
-Commit_StabilityStatus(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_StabilityStatus(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblStartupScript!=NULL )
-Commit_StartupScript(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_StartupScript(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblStyle!=NULL )
-Commit_Style(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Style(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblStyleVariation!=NULL )
-Commit_StyleVariation(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_StyleVariation(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblSystem!=NULL )
-Commit_System(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_System(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblTemplate!=NULL )
-Commit_Template(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Template(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblText!=NULL )
-Commit_Text(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Text(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblTextCategory!=NULL )
-Commit_TextCategory(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_TextCategory(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblText_LS!=NULL )
-Commit_Text_LS(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Text_LS(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblText_LS_AltVersions!=NULL )
-Commit_Text_LS_AltVersions(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Text_LS_AltVersions(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblUI!=NULL )
-Commit_UI(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_UI(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblUnknownDevices!=NULL )
-Commit_UnknownDevices(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_UnknownDevices(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblUserMode!=NULL )
-Commit_UserMode(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_UserMode(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblUsers!=NULL )
-Commit_Users(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Users(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblVariable!=NULL )
-Commit_Variable(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Variable(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblVersion!=NULL )
-Commit_Version(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_Version(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblVertAlignment!=NULL )
-Commit_VertAlignment(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_VertAlignment(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_constants_batdet!=NULL )
-Commit_psc_constants_batdet(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_constants_batdet(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_constants_bathdr!=NULL )
-Commit_psc_constants_bathdr(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_constants_bathdr(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_constants_batuser!=NULL )
-Commit_psc_constants_batuser(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_constants_batuser(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_constants_repset!=NULL )
-Commit_psc_constants_repset(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_constants_repset(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_constants_schema!=NULL )
-Commit_psc_constants_schema(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_constants_schema(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_constants_tables!=NULL )
-Commit_psc_constants_tables(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_constants_tables(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_dce_batdet!=NULL )
-Commit_psc_dce_batdet(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_dce_batdet(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_dce_bathdr!=NULL )
-Commit_psc_dce_bathdr(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_dce_bathdr(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_dce_batuser!=NULL )
-Commit_psc_dce_batuser(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_dce_batuser(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_dce_repset!=NULL )
-Commit_psc_dce_repset(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_dce_repset(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_dce_schema!=NULL )
-Commit_psc_dce_schema(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_dce_schema(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_dce_tables!=NULL )
-Commit_psc_dce_tables(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_dce_tables(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_designer_batdet!=NULL )
-Commit_psc_designer_batdet(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_designer_batdet(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_designer_bathdr!=NULL )
-Commit_psc_designer_bathdr(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_designer_bathdr(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_designer_batuser!=NULL )
-Commit_psc_designer_batuser(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_designer_batuser(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_designer_repset!=NULL )
-Commit_psc_designer_repset(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_designer_repset(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_designer_schema!=NULL )
-Commit_psc_designer_schema(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_designer_schema(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_designer_tables!=NULL )
-Commit_psc_designer_tables(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_designer_tables(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_document_batdet!=NULL )
-Commit_psc_document_batdet(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_document_batdet(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_document_bathdr!=NULL )
-Commit_psc_document_bathdr(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_document_bathdr(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_document_batuser!=NULL )
-Commit_psc_document_batuser(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_document_batuser(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_document_repset!=NULL )
-Commit_psc_document_repset(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_document_repset(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_document_schema!=NULL )
-Commit_psc_document_schema(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_document_schema(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_document_tables!=NULL )
-Commit_psc_document_tables(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_document_tables(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_ir_batdet!=NULL )
-Commit_psc_ir_batdet(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_ir_batdet(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_ir_bathdr!=NULL )
-Commit_psc_ir_bathdr(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_ir_bathdr(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_ir_batuser!=NULL )
-Commit_psc_ir_batuser(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_ir_batuser(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_ir_repset!=NULL )
-Commit_psc_ir_repset(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_ir_repset(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_ir_schema!=NULL )
-Commit_psc_ir_schema(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_ir_schema(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_ir_tables!=NULL )
-Commit_psc_ir_tables(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_ir_tables(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_local_batdet!=NULL )
-Commit_psc_local_batdet(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_local_batdet(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_local_bathdr!=NULL )
-Commit_psc_local_bathdr(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_local_bathdr(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_local_batuser!=NULL )
-Commit_psc_local_batuser(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_local_batuser(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_local_repset!=NULL )
-Commit_psc_local_repset(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_local_repset(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_local_schema!=NULL )
-Commit_psc_local_schema(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_local_schema(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_local_tables!=NULL )
-Commit_psc_local_tables(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_local_tables(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_website_batdet!=NULL )
-Commit_psc_website_batdet(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_website_batdet(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_website_bathdr!=NULL )
-Commit_psc_website_bathdr(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_website_bathdr(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_website_batuser!=NULL )
-Commit_psc_website_batuser(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_website_batuser(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_website_repset!=NULL )
-Commit_psc_website_repset(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_website_repset(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_website_schema!=NULL )
-Commit_psc_website_schema(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_website_schema(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblpsc_website_tables!=NULL )
-Commit_psc_website_tables(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	if( !Commit_psc_website_tables(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
+return bResult;
+
 }
 
 void Database_pluto_main::DeleteAllTables()
