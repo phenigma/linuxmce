@@ -1561,7 +1561,12 @@ string Makefile = "none:\n"
 	cout << "Replaces: " << pRow_Package_Source->Replaces_get() << endl;  // This is a comma-delimited list
 
 #ifndef WIN32
-	string sed_cmd = "s/^Depends:.*$/Depends: ${shlibs:Depends}, ${misc:Depends}" + sDepends + "/";
+	string sed_predepends = "";
+	if (sPreDepends != "")
+	{
+		sed_predepends = "\\nPre-Depends: " + sPreDepends;
+	}
+	string sed_cmd = "s/^Depends:.*$/Depends: ${shlibs:Depends}, ${misc:Depends}" + sDepends + sed_predepends + "/";
 	string replaces = pRow_Package_Source->Replaces_get();
 	if (replaces != "")
 	{
