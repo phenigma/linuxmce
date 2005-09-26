@@ -35,9 +35,9 @@ void Database_pluto_main::DeleteTable_DeviceTemplate_DeviceCategory_ControlledVi
 		delete tblDeviceTemplate_DeviceCategory_ControlledVia_Pipe;
 }
 
-void Database_pluto_main::Commit_DeviceTemplate_DeviceCategory_ControlledVia_Pipe(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_DeviceTemplate_DeviceCategory_ControlledVia_Pipe(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblDeviceTemplate_DeviceCategory_ControlledVia_Pipe->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblDeviceTemplate_DeviceCategory_ControlledVia_Pipe->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_DeviceTemplate_DeviceCategory_ControlledVia_Pipe::~Table_DeviceTemplate_DeviceCategory_ControlledVia_Pipe()

@@ -33,9 +33,9 @@ void Database_pluto_main::DeleteTable_License()
 		delete tblLicense;
 }
 
-void Database_pluto_main::Commit_License(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_License(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblLicense->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblLicense->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_License::~Table_License()

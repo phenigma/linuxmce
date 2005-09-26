@@ -32,9 +32,9 @@ void Database_pluto_main::DeleteTable_FAQ()
 		delete tblFAQ;
 }
 
-void Database_pluto_main::Commit_FAQ(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_FAQ(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblFAQ->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblFAQ->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_FAQ::~Table_FAQ()

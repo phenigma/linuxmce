@@ -33,9 +33,9 @@ void Database_pluto_main::DeleteTable_Event_EventParameter()
 		delete tblEvent_EventParameter;
 }
 
-void Database_pluto_main::Commit_Event_EventParameter(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_Event_EventParameter(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblEvent_EventParameter->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblEvent_EventParameter->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_Event_EventParameter::~Table_Event_EventParameter()

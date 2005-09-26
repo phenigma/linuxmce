@@ -31,9 +31,9 @@ void Database_pluto_main::DeleteTable_psc_designer_repset()
 		delete tblpsc_designer_repset;
 }
 
-void Database_pluto_main::Commit_psc_designer_repset(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_psc_designer_repset(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblpsc_designer_repset->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblpsc_designer_repset->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_psc_designer_repset::~Table_psc_designer_repset()

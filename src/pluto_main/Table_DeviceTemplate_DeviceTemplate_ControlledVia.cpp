@@ -34,9 +34,9 @@ void Database_pluto_main::DeleteTable_DeviceTemplate_DeviceTemplate_ControlledVi
 		delete tblDeviceTemplate_DeviceTemplate_ControlledVia;
 }
 
-void Database_pluto_main::Commit_DeviceTemplate_DeviceTemplate_ControlledVia(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_DeviceTemplate_DeviceTemplate_ControlledVia(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblDeviceTemplate_DeviceTemplate_ControlledVia->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblDeviceTemplate_DeviceTemplate_ControlledVia->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_DeviceTemplate_DeviceTemplate_ControlledVia::~Table_DeviceTemplate_DeviceTemplate_ControlledVia()

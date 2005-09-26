@@ -34,9 +34,9 @@ void Database_pluto_main::DeleteTable_Package_Directory_File()
 		delete tblPackage_Directory_File;
 }
 
-void Database_pluto_main::Commit_Package_Directory_File(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_Package_Directory_File(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblPackage_Directory_File->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblPackage_Directory_File->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_Package_Directory_File::~Table_Package_Directory_File()

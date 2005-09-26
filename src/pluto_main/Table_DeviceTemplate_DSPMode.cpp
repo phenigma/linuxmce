@@ -33,9 +33,9 @@ void Database_pluto_main::DeleteTable_DeviceTemplate_DSPMode()
 		delete tblDeviceTemplate_DSPMode;
 }
 
-void Database_pluto_main::Commit_DeviceTemplate_DSPMode(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_DeviceTemplate_DSPMode(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblDeviceTemplate_DSPMode->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblDeviceTemplate_DSPMode->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_DeviceTemplate_DSPMode::~Table_DeviceTemplate_DSPMode()

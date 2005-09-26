@@ -33,9 +33,9 @@ void Database_pluto_main::DeleteTable_Command_Pipe()
 		delete tblCommand_Pipe;
 }
 
-void Database_pluto_main::Commit_Command_Pipe(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_Command_Pipe(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblCommand_Pipe->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblCommand_Pipe->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_Command_Pipe::~Table_Command_Pipe()

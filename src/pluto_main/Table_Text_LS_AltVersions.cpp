@@ -33,9 +33,9 @@ void Database_pluto_main::DeleteTable_Text_LS_AltVersions()
 		delete tblText_LS_AltVersions;
 }
 
-void Database_pluto_main::Commit_Text_LS_AltVersions(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_Text_LS_AltVersions(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblText_LS_AltVersions->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblText_LS_AltVersions->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_Text_LS_AltVersions::~Table_Text_LS_AltVersions()

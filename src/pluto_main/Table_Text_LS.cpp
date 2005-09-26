@@ -33,9 +33,9 @@ void Database_pluto_main::DeleteTable_Text_LS()
 		delete tblText_LS;
 }
 
-void Database_pluto_main::Commit_Text_LS(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_Text_LS(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblText_LS->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblText_LS->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_Text_LS::~Table_Text_LS()

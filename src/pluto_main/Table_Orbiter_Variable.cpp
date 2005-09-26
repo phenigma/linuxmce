@@ -33,9 +33,9 @@ void Database_pluto_main::DeleteTable_Orbiter_Variable()
 		delete tblOrbiter_Variable;
 }
 
-void Database_pluto_main::Commit_Orbiter_Variable(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_Orbiter_Variable(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblOrbiter_Variable->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblOrbiter_Variable->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_Orbiter_Variable::~Table_Orbiter_Variable()

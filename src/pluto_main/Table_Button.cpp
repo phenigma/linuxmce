@@ -33,9 +33,9 @@ void Database_pluto_main::DeleteTable_Button()
 		delete tblButton;
 }
 
-void Database_pluto_main::Commit_Button(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_Button(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblButton->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblButton->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_Button::~Table_Button()

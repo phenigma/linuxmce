@@ -35,9 +35,9 @@ void Database_pluto_main::DeleteTable_CommandParameter()
 		delete tblCommandParameter;
 }
 
-void Database_pluto_main::Commit_CommandParameter(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_CommandParameter(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblCommandParameter->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblCommandParameter->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_CommandParameter::~Table_CommandParameter()

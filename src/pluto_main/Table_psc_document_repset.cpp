@@ -31,9 +31,9 @@ void Database_pluto_main::DeleteTable_psc_document_repset()
 		delete tblpsc_document_repset;
 }
 
-void Database_pluto_main::Commit_psc_document_repset(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_psc_document_repset(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblpsc_document_repset->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblpsc_document_repset->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_psc_document_repset::~Table_psc_document_repset()

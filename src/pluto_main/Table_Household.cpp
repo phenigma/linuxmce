@@ -32,9 +32,9 @@ void Database_pluto_main::DeleteTable_Household()
 		delete tblHousehold;
 }
 
-void Database_pluto_main::Commit_Household(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_Household(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblHousehold->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblHousehold->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_Household::~Table_Household()

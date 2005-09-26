@@ -32,9 +32,9 @@ void Database_pluto_main::DeleteTable_DeviceTemplate_AV()
 		delete tblDeviceTemplate_AV;
 }
 
-void Database_pluto_main::Commit_DeviceTemplate_AV(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_DeviceTemplate_AV(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblDeviceTemplate_AV->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblDeviceTemplate_AV->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_DeviceTemplate_AV::~Table_DeviceTemplate_AV()

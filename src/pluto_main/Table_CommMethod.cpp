@@ -32,9 +32,9 @@ void Database_pluto_main::DeleteTable_CommMethod()
 		delete tblCommMethod;
 }
 
-void Database_pluto_main::Commit_CommMethod(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_CommMethod(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblCommMethod->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblCommMethod->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_CommMethod::~Table_CommMethod()

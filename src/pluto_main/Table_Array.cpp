@@ -32,9 +32,9 @@ void Database_pluto_main::DeleteTable_Array()
 		delete tblArray;
 }
 
-void Database_pluto_main::Commit_Array(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_Array(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblArray->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblArray->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_Array::~Table_Array()

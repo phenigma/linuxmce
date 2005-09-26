@@ -34,9 +34,9 @@ void Database_pluto_main::DeleteTable_DeviceTemplate_MediaType()
 		delete tblDeviceTemplate_MediaType;
 }
 
-void Database_pluto_main::Commit_DeviceTemplate_MediaType(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_DeviceTemplate_MediaType(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblDeviceTemplate_MediaType->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblDeviceTemplate_MediaType->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_DeviceTemplate_MediaType::~Table_DeviceTemplate_MediaType()

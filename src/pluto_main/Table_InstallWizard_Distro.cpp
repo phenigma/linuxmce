@@ -34,9 +34,9 @@ void Database_pluto_main::DeleteTable_InstallWizard_Distro()
 		delete tblInstallWizard_Distro;
 }
 
-void Database_pluto_main::Commit_InstallWizard_Distro(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_InstallWizard_Distro(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblInstallWizard_Distro->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblInstallWizard_Distro->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_InstallWizard_Distro::~Table_InstallWizard_Distro()

@@ -46,9 +46,9 @@ void Database_pluto_main::DeleteTable_DesignObjVariation()
 		delete tblDesignObjVariation;
 }
 
-void Database_pluto_main::Commit_DesignObjVariation(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_DesignObjVariation(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblDesignObjVariation->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblDesignObjVariation->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_DesignObjVariation::~Table_DesignObjVariation()

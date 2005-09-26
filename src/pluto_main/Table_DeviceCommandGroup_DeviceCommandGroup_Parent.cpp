@@ -33,9 +33,9 @@ void Database_pluto_main::DeleteTable_DeviceCommandGroup_DeviceCommandGroup_Pare
 		delete tblDeviceCommandGroup_DeviceCommandGroup_Parent;
 }
 
-void Database_pluto_main::Commit_DeviceCommandGroup_DeviceCommandGroup_Parent(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_DeviceCommandGroup_DeviceCommandGroup_Parent(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblDeviceCommandGroup_DeviceCommandGroup_Parent->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblDeviceCommandGroup_DeviceCommandGroup_Parent->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_DeviceCommandGroup_DeviceCommandGroup_Parent::~Table_DeviceCommandGroup_DeviceCommandGroup_Parent()

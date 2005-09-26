@@ -32,9 +32,9 @@ void Database_pluto_main::DeleteTable_FloorplanObjectType_Color()
 		delete tblFloorplanObjectType_Color;
 }
 
-void Database_pluto_main::Commit_FloorplanObjectType_Color(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_FloorplanObjectType_Color(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblFloorplanObjectType_Color->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblFloorplanObjectType_Color->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_FloorplanObjectType_Color::~Table_FloorplanObjectType_Color()

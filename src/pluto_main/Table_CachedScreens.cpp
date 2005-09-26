@@ -33,9 +33,9 @@ void Database_pluto_main::DeleteTable_CachedScreens()
 		delete tblCachedScreens;
 }
 
-void Database_pluto_main::Commit_CachedScreens(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_CachedScreens(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblCachedScreens->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblCachedScreens->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_CachedScreens::~Table_CachedScreens()

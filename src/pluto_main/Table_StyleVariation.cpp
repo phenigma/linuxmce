@@ -36,9 +36,9 @@ void Database_pluto_main::DeleteTable_StyleVariation()
 		delete tblStyleVariation;
 }
 
-void Database_pluto_main::Commit_StyleVariation(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_StyleVariation(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblStyleVariation->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblStyleVariation->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_StyleVariation::~Table_StyleVariation()

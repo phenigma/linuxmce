@@ -33,9 +33,9 @@ void Database_pluto_main::DeleteTable_ConfigType_File()
 		delete tblConfigType_File;
 }
 
-void Database_pluto_main::Commit_ConfigType_File(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_ConfigType_File(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblConfigType_File->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblConfigType_File->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_ConfigType_File::~Table_ConfigType_File()

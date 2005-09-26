@@ -32,9 +32,9 @@ void Database_pluto_main::DeleteTable_HouseMode()
 		delete tblHouseMode;
 }
 
-void Database_pluto_main::Commit_HouseMode(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_HouseMode(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblHouseMode->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblHouseMode->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_HouseMode::~Table_HouseMode()

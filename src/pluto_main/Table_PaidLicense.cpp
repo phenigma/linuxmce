@@ -34,9 +34,9 @@ void Database_pluto_main::DeleteTable_PaidLicense()
 		delete tblPaidLicense;
 }
 
-void Database_pluto_main::Commit_PaidLicense(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_PaidLicense(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblPaidLicense->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblPaidLicense->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_PaidLicense::~Table_PaidLicense()

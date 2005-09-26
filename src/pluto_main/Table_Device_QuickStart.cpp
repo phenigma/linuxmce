@@ -33,9 +33,9 @@ void Database_pluto_main::DeleteTable_Device_QuickStart()
 		delete tblDevice_QuickStart;
 }
 
-void Database_pluto_main::Commit_Device_QuickStart(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_Device_QuickStart(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblDevice_QuickStart->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblDevice_QuickStart->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_Device_QuickStart::~Table_Device_QuickStart()

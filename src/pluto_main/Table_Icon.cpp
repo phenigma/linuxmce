@@ -34,9 +34,9 @@ void Database_pluto_main::DeleteTable_Icon()
 		delete tblIcon;
 }
 
-void Database_pluto_main::Commit_Icon(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_Icon(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblIcon->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblIcon->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_Icon::~Table_Icon()

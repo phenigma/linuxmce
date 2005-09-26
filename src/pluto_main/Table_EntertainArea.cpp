@@ -35,9 +35,9 @@ void Database_pluto_main::DeleteTable_EntertainArea()
 		delete tblEntertainArea;
 }
 
-void Database_pluto_main::Commit_EntertainArea(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_EntertainArea(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblEntertainArea->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblEntertainArea->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_EntertainArea::~Table_EntertainArea()

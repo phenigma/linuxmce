@@ -38,9 +38,9 @@ void Database_pluto_main::DeleteTable_Pipe()
 		delete tblPipe;
 }
 
-void Database_pluto_main::Commit_Pipe(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_Pipe(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblPipe->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblPipe->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_Pipe::~Table_Pipe()

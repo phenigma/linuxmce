@@ -35,9 +35,9 @@ void Database_pluto_main::DeleteTable_StabilityStatus()
 		delete tblStabilityStatus;
 }
 
-void Database_pluto_main::Commit_StabilityStatus(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_StabilityStatus(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblStabilityStatus->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblStabilityStatus->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_StabilityStatus::~Table_StabilityStatus()

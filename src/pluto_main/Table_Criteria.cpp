@@ -38,9 +38,9 @@ void Database_pluto_main::DeleteTable_Criteria()
 		delete tblCriteria;
 }
 
-void Database_pluto_main::Commit_Criteria(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_Criteria(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblCriteria->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblCriteria->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_Criteria::~Table_Criteria()

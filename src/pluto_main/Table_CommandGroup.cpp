@@ -42,9 +42,9 @@ void Database_pluto_main::DeleteTable_CommandGroup()
 		delete tblCommandGroup;
 }
 
-void Database_pluto_main::Commit_CommandGroup(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_CommandGroup(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblCommandGroup->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblCommandGroup->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_CommandGroup::~Table_CommandGroup()

@@ -33,9 +33,9 @@ void Database_pluto_main::DeleteTable_HorizAlignment()
 		delete tblHorizAlignment;
 }
 
-void Database_pluto_main::Commit_HorizAlignment(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_HorizAlignment(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblHorizAlignment->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblHorizAlignment->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_HorizAlignment::~Table_HorizAlignment()

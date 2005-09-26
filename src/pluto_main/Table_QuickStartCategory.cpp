@@ -34,9 +34,9 @@ void Database_pluto_main::DeleteTable_QuickStartCategory()
 		delete tblQuickStartCategory;
 }
 
-void Database_pluto_main::Commit_QuickStartCategory(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_QuickStartCategory(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblQuickStartCategory->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblQuickStartCategory->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_QuickStartCategory::~Table_QuickStartCategory()

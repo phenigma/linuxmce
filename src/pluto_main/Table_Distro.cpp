@@ -39,9 +39,9 @@ void Database_pluto_main::DeleteTable_Distro()
 		delete tblDistro;
 }
 
-void Database_pluto_main::Commit_Distro(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_Distro(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblDistro->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblDistro->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_Distro::~Table_Distro()

@@ -31,9 +31,9 @@ void Database_pluto_main::DeleteTable_psc_local_tables()
 		delete tblpsc_local_tables;
 }
 
-void Database_pluto_main::Commit_psc_local_tables(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_psc_local_tables(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblpsc_local_tables->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblpsc_local_tables->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_psc_local_tables::~Table_psc_local_tables()

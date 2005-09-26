@@ -31,9 +31,9 @@ void Database_pluto_main::DeleteTable_RemoteMapping()
 		delete tblRemoteMapping;
 }
 
-void Database_pluto_main::Commit_RemoteMapping(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_RemoteMapping(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblRemoteMapping->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblRemoteMapping->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_RemoteMapping::~Table_RemoteMapping()

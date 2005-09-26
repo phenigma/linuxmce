@@ -32,9 +32,9 @@ void Database_pluto_main::DeleteTable_FloorplanType()
 		delete tblFloorplanType;
 }
 
-void Database_pluto_main::Commit_FloorplanType(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_FloorplanType(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblFloorplanType->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblFloorplanType->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_FloorplanType::~Table_FloorplanType()

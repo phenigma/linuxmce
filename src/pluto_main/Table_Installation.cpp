@@ -49,9 +49,9 @@ void Database_pluto_main::DeleteTable_Installation()
 		delete tblInstallation;
 }
 
-void Database_pluto_main::Commit_Installation(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_Installation(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblInstallation->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblInstallation->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_Installation::~Table_Installation()

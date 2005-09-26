@@ -32,9 +32,9 @@ void Database_pluto_main::DeleteTable_Broadcast()
 		delete tblBroadcast;
 }
 
-void Database_pluto_main::Commit_Broadcast(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_Broadcast(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblBroadcast->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblBroadcast->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_Broadcast::~Table_Broadcast()

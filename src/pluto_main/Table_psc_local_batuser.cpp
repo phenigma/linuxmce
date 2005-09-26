@@ -32,9 +32,9 @@ void Database_pluto_main::DeleteTable_psc_local_batuser()
 		delete tblpsc_local_batuser;
 }
 
-void Database_pluto_main::Commit_psc_local_batuser(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_psc_local_batuser(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblpsc_local_batuser->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblpsc_local_batuser->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_psc_local_batuser::~Table_psc_local_batuser()

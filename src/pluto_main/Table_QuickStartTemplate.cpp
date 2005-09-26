@@ -36,9 +36,9 @@ void Database_pluto_main::DeleteTable_QuickStartTemplate()
 		delete tblQuickStartTemplate;
 }
 
-void Database_pluto_main::Commit_QuickStartTemplate(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_QuickStartTemplate(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblQuickStartTemplate->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblQuickStartTemplate->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_QuickStartTemplate::~Table_QuickStartTemplate()

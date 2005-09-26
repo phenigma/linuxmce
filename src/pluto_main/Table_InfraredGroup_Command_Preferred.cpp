@@ -33,9 +33,9 @@ void Database_pluto_main::DeleteTable_InfraredGroup_Command_Preferred()
 		delete tblInfraredGroup_Command_Preferred;
 }
 
-void Database_pluto_main::Commit_InfraredGroup_Command_Preferred(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_InfraredGroup_Command_Preferred(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblInfraredGroup_Command_Preferred->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblInfraredGroup_Command_Preferred->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_InfraredGroup_Command_Preferred::~Table_InfraredGroup_Command_Preferred()

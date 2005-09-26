@@ -34,9 +34,9 @@ void Database_pluto_main::DeleteTable_DeviceTemplate_Input()
 		delete tblDeviceTemplate_Input;
 }
 
-void Database_pluto_main::Commit_DeviceTemplate_Input(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_DeviceTemplate_Input(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblDeviceTemplate_Input->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblDeviceTemplate_Input->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_DeviceTemplate_Input::~Table_DeviceTemplate_Input()

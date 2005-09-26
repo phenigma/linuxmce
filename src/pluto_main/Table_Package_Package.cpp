@@ -33,9 +33,9 @@ void Database_pluto_main::DeleteTable_Package_Package()
 		delete tblPackage_Package;
 }
 
-void Database_pluto_main::Commit_Package_Package(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_Package_Package(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblPackage_Package->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblPackage_Package->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_Package_Package::~Table_Package_Package()

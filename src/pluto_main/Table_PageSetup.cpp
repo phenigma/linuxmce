@@ -36,9 +36,9 @@ void Database_pluto_main::DeleteTable_PageSetup()
 		delete tblPageSetup;
 }
 
-void Database_pluto_main::Commit_PageSetup(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_PageSetup(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblPageSetup->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblPageSetup->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_PageSetup::~Table_PageSetup()

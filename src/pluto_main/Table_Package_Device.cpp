@@ -33,9 +33,9 @@ void Database_pluto_main::DeleteTable_Package_Device()
 		delete tblPackage_Device;
 }
 
-void Database_pluto_main::Commit_Package_Device(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_Package_Device(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblPackage_Device->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblPackage_Device->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_Package_Device::~Table_Package_Device()

@@ -32,9 +32,9 @@ void Database_pluto_main::DeleteTable_Device_MRU()
 		delete tblDevice_MRU;
 }
 
-void Database_pluto_main::Commit_Device_MRU(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_Device_MRU(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblDevice_MRU->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblDevice_MRU->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_Device_MRU::~Table_Device_MRU()

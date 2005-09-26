@@ -33,9 +33,9 @@ void Database_pluto_main::DeleteTable_Device_StartupScript()
 		delete tblDevice_StartupScript;
 }
 
-void Database_pluto_main::Commit_Device_StartupScript(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_Device_StartupScript(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblDevice_StartupScript->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblDevice_StartupScript->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_Device_StartupScript::~Table_Device_StartupScript()

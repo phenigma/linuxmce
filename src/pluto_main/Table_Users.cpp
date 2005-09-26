@@ -42,9 +42,9 @@ void Database_pluto_main::DeleteTable_Users()
 		delete tblUsers;
 }
 
-void Database_pluto_main::Commit_Users(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_Users(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblUsers->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblUsers->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_Users::~Table_Users()

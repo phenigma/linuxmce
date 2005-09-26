@@ -34,9 +34,9 @@ void Database_pluto_main::DeleteTable_CannedEvents()
 		delete tblCannedEvents;
 }
 
-void Database_pluto_main::Commit_CannedEvents(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_CannedEvents(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblCannedEvents->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblCannedEvents->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_CannedEvents::~Table_CannedEvents()

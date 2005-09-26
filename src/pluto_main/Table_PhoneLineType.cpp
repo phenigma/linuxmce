@@ -31,9 +31,9 @@ void Database_pluto_main::DeleteTable_PhoneLineType()
 		delete tblPhoneLineType;
 }
 
-void Database_pluto_main::Commit_PhoneLineType(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_PhoneLineType(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblPhoneLineType->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblPhoneLineType->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_PhoneLineType::~Table_PhoneLineType()

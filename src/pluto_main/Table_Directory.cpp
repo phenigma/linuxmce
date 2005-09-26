@@ -32,9 +32,9 @@ void Database_pluto_main::DeleteTable_Directory()
 		delete tblDirectory;
 }
 
-void Database_pluto_main::Commit_Directory(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_Directory(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblDirectory->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblDirectory->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_Directory::~Table_Directory()

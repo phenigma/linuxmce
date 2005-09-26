@@ -31,9 +31,9 @@ void Database_pluto_main::DeleteTable_psc_dce_tables()
 		delete tblpsc_dce_tables;
 }
 
-void Database_pluto_main::Commit_psc_dce_tables(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_psc_dce_tables(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblpsc_dce_tables->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblpsc_dce_tables->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_psc_dce_tables::~Table_psc_dce_tables()

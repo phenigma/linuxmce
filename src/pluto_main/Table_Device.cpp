@@ -58,9 +58,9 @@ void Database_pluto_main::DeleteTable_Device()
 		delete tblDevice;
 }
 
-void Database_pluto_main::Commit_Device(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_Device(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblDevice->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblDevice->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_Device::~Table_Device()

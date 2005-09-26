@@ -34,9 +34,9 @@ void Database_pluto_main::DeleteTable_DesignObjCategory()
 		delete tblDesignObjCategory;
 }
 
-void Database_pluto_main::Commit_DesignObjCategory(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_DesignObjCategory(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblDesignObjCategory->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblDesignObjCategory->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_DesignObjCategory::~Table_DesignObjCategory()

@@ -33,9 +33,9 @@ void Database_pluto_main::DeleteTable_VertAlignment()
 		delete tblVertAlignment;
 }
 
-void Database_pluto_main::Commit_VertAlignment(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_VertAlignment(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblVertAlignment->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblVertAlignment->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_VertAlignment::~Table_VertAlignment()

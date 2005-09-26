@@ -39,9 +39,9 @@ void Database_pluto_main::DeleteTable_OperatingSystem()
 		delete tblOperatingSystem;
 }
 
-void Database_pluto_main::Commit_OperatingSystem(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_OperatingSystem(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblOperatingSystem->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblOperatingSystem->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_OperatingSystem::~Table_OperatingSystem()

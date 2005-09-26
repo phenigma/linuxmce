@@ -33,9 +33,9 @@ void Database_pluto_main::DeleteTable_Region()
 		delete tblRegion;
 }
 
-void Database_pluto_main::Commit_Region(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_Region(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblRegion->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblRegion->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_Region::~Table_Region()

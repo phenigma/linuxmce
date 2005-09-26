@@ -31,9 +31,9 @@ void Database_pluto_main::DeleteTable_Size()
 		delete tblSize;
 }
 
-void Database_pluto_main::Commit_Size(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_Size(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblSize->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblSize->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_Size::~Table_Size()

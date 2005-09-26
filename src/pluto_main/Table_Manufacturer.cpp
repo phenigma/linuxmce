@@ -35,9 +35,9 @@ void Database_pluto_main::DeleteTable_Manufacturer()
 		delete tblManufacturer;
 }
 
-void Database_pluto_main::Commit_Manufacturer(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_Manufacturer(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblManufacturer->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblManufacturer->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_Manufacturer::~Table_Manufacturer()

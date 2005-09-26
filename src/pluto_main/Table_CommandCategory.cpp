@@ -34,9 +34,9 @@ void Database_pluto_main::DeleteTable_CommandCategory()
 		delete tblCommandCategory;
 }
 
-void Database_pluto_main::Commit_CommandCategory(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_CommandCategory(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblCommandCategory->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblCommandCategory->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_CommandCategory::~Table_CommandCategory()

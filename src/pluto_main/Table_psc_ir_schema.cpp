@@ -31,9 +31,9 @@ void Database_pluto_main::DeleteTable_psc_ir_schema()
 		delete tblpsc_ir_schema;
 }
 
-void Database_pluto_main::Commit_psc_ir_schema(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_psc_ir_schema(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblpsc_ir_schema->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblpsc_ir_schema->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_psc_ir_schema::~Table_psc_ir_schema()

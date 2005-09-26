@@ -34,9 +34,9 @@ void Database_pluto_main::DeleteTable_CannedEvents_CriteriaParmList()
 		delete tblCannedEvents_CriteriaParmList;
 }
 
-void Database_pluto_main::Commit_CannedEvents_CriteriaParmList(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_CannedEvents_CriteriaParmList(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblCannedEvents_CriteriaParmList->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblCannedEvents_CriteriaParmList->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_CannedEvents_CriteriaParmList::~Table_CannedEvents_CriteriaParmList()

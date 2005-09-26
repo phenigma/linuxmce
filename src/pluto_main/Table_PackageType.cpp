@@ -32,9 +32,9 @@ void Database_pluto_main::DeleteTable_PackageType()
 		delete tblPackageType;
 }
 
-void Database_pluto_main::Commit_PackageType(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_PackageType(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblPackageType->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblPackageType->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_PackageType::~Table_PackageType()

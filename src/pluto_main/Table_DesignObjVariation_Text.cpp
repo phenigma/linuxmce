@@ -35,9 +35,9 @@ void Database_pluto_main::DeleteTable_DesignObjVariation_Text()
 		delete tblDesignObjVariation_Text;
 }
 
-void Database_pluto_main::Commit_DesignObjVariation_Text(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_DesignObjVariation_Text(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblDesignObjVariation_Text->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblDesignObjVariation_Text->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_DesignObjVariation_Text::~Table_DesignObjVariation_Text()

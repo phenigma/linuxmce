@@ -33,9 +33,9 @@ void Database_pluto_main::DeleteTable_Device_DeviceGroup()
 		delete tblDevice_DeviceGroup;
 }
 
-void Database_pluto_main::Commit_Device_DeviceGroup(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_Device_DeviceGroup(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblDevice_DeviceGroup->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblDevice_DeviceGroup->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_Device_DeviceGroup::~Table_Device_DeviceGroup()

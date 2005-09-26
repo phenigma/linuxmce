@@ -38,9 +38,9 @@ void Database_pluto_main::DeleteTable_Room()
 		delete tblRoom;
 }
 
-void Database_pluto_main::Commit_Room(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_Room(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblRoom->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblRoom->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_Room::~Table_Room()

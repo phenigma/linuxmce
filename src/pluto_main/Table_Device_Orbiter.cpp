@@ -33,9 +33,9 @@ void Database_pluto_main::DeleteTable_Device_Orbiter()
 		delete tblDevice_Orbiter;
 }
 
-void Database_pluto_main::Commit_Device_Orbiter(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_Device_Orbiter(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblDevice_Orbiter->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblDevice_Orbiter->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_Device_Orbiter::~Table_Device_Orbiter()

@@ -36,9 +36,9 @@ void Database_pluto_main::DeleteTable_psc_ir_bathdr()
 		delete tblpsc_ir_bathdr;
 }
 
-void Database_pluto_main::Commit_psc_ir_bathdr(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_psc_ir_bathdr(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblpsc_ir_bathdr->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblpsc_ir_bathdr->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_psc_ir_bathdr::~Table_psc_ir_bathdr()

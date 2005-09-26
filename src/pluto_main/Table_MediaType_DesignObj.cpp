@@ -40,9 +40,9 @@ void Database_pluto_main::DeleteTable_MediaType_DesignObj()
 		delete tblMediaType_DesignObj;
 }
 
-void Database_pluto_main::Commit_MediaType_DesignObj(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_MediaType_DesignObj(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblMediaType_DesignObj->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblMediaType_DesignObj->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_MediaType_DesignObj::~Table_MediaType_DesignObj()

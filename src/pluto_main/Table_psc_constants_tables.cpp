@@ -31,9 +31,9 @@ void Database_pluto_main::DeleteTable_psc_constants_tables()
 		delete tblpsc_constants_tables;
 }
 
-void Database_pluto_main::Commit_psc_constants_tables(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_psc_constants_tables(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblpsc_constants_tables->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblpsc_constants_tables->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_psc_constants_tables::~Table_psc_constants_tables()

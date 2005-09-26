@@ -33,9 +33,9 @@ void Database_pluto_main::DeleteTable_DesignObjType()
 		delete tblDesignObjType;
 }
 
-void Database_pluto_main::Commit_DesignObjType(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_DesignObjType(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblDesignObjType->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblDesignObjType->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_DesignObjType::~Table_DesignObjType()

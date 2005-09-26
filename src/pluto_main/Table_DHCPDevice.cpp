@@ -35,9 +35,9 @@ void Database_pluto_main::DeleteTable_DHCPDevice()
 		delete tblDHCPDevice;
 }
 
-void Database_pluto_main::Commit_DHCPDevice(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_DHCPDevice(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblDHCPDevice->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblDHCPDevice->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_DHCPDevice::~Table_DHCPDevice()

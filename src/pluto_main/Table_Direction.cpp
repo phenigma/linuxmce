@@ -31,9 +31,9 @@ void Database_pluto_main::DeleteTable_Direction()
 		delete tblDirection;
 }
 
-void Database_pluto_main::Commit_Direction(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_Direction(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblDirection->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblDirection->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_Direction::~Table_Direction()

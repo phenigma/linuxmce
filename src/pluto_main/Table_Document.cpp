@@ -39,9 +39,9 @@ void Database_pluto_main::DeleteTable_Document()
 		delete tblDocument;
 }
 
-void Database_pluto_main::Commit_Document(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_Document(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblDocument->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblDocument->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_Document::~Table_Document()

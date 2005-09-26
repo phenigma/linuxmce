@@ -31,9 +31,9 @@ void Database_pluto_main::DeleteTable_Firewall()
 		delete tblFirewall;
 }
 
-void Database_pluto_main::Commit_Firewall(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_Firewall(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblFirewall->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblFirewall->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_Firewall::~Table_Firewall()

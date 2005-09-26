@@ -36,9 +36,9 @@ void Database_pluto_main::DeleteTable_RepositorySource()
 		delete tblRepositorySource;
 }
 
-void Database_pluto_main::Commit_RepositorySource(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_RepositorySource(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblRepositorySource->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblRepositorySource->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_RepositorySource::~Table_RepositorySource()

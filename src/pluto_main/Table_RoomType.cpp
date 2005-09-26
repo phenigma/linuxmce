@@ -32,9 +32,9 @@ void Database_pluto_main::DeleteTable_RoomType()
 		delete tblRoomType;
 }
 
-void Database_pluto_main::Commit_RoomType(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_RoomType(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblRoomType->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblRoomType->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_RoomType::~Table_RoomType()

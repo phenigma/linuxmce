@@ -33,9 +33,9 @@ void Database_pluto_main::DeleteTable_MediaType_Broadcast()
 		delete tblMediaType_Broadcast;
 }
 
-void Database_pluto_main::Commit_MediaType_Broadcast(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_MediaType_Broadcast(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblMediaType_Broadcast->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblMediaType_Broadcast->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_MediaType_Broadcast::~Table_MediaType_Broadcast()

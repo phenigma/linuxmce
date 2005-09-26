@@ -31,9 +31,9 @@ void Database_pluto_main::DeleteTable_psc_document_tables()
 		delete tblpsc_document_tables;
 }
 
-void Database_pluto_main::Commit_psc_document_tables(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_psc_document_tables(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblpsc_document_tables->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblpsc_document_tables->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_psc_document_tables::~Table_psc_document_tables()

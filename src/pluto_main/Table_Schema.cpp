@@ -32,9 +32,9 @@ void Database_pluto_main::DeleteTable_Schema()
 		delete tblSchema;
 }
 
-void Database_pluto_main::Commit_Schema(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_Schema(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblSchema->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblSchema->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_Schema::~Table_Schema()

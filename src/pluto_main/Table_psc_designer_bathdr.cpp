@@ -36,9 +36,9 @@ void Database_pluto_main::DeleteTable_psc_designer_bathdr()
 		delete tblpsc_designer_bathdr;
 }
 
-void Database_pluto_main::Commit_psc_designer_bathdr(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_psc_designer_bathdr(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblpsc_designer_bathdr->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblpsc_designer_bathdr->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_psc_designer_bathdr::~Table_psc_designer_bathdr()

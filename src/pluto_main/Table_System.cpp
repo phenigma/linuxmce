@@ -31,9 +31,9 @@ void Database_pluto_main::DeleteTable_System()
 		delete tblSystem;
 }
 
-void Database_pluto_main::Commit_System(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+bool Database_pluto_main::Commit_System(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
 {
-	tblSystem->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+	return tblSystem->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
 }
 
 Table_System::~Table_System()
