@@ -9,6 +9,7 @@
 #include <string>
 #include <pthread.h>
 
+namespace DCE {
 /**
 @author Ioan Marius Curelariu
 */
@@ -52,5 +53,7 @@ public:
 
 	Display * GetDisplay();
 };
+
+}	// namespace DCE
 
 #endif

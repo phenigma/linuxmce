@@ -1,4 +1,5 @@
 #include "X3DButton.h"
+using namespace DCE;
 
 X3DButton::X3DButton()
 {
