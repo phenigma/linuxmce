@@ -8853,3 +8853,28 @@ bool Orbiter::RegenOrbiter()
 	PromptUser("The UI is being regenerated.  This will take 15-30 minutes.  If you get this same message again after the regeneration is finished, then that means the generator on the Core is too old and you will need to reset your Core so it can update itself.  Click 'OK' to monitor the progress.");
 	return false;
 }
+
+/*
+extern void (*g_pReceivePingHandler)(Socket *pSocket);
+extern bool (*g_pSendPingHandler)(Socket *pSocket);
+
+void ReceivePingHandler(Socket *pSocket)
+{
+g_pPlutoLogger->Write(LV_STATUS,"Got ping");
+	pSocket->SendString("PONG");
+}
+
+bool SendPingHandler(Socket *pSocket)
+{
+g_pPlutoLogger->Write(LV_STATUS,"Send ping");
+	string sResponse=pSocket->SendReceiveString("PING");
+	if( sResponse!="PONG" )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"Send ping, failed to get pong");
+		return false;
+	}
+	return true;
+}
+g_pReceivePingHandler=ReceivePingHandler;
+g_pSendPingHandler=SendPingHandler;
+*/

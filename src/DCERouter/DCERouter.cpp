@@ -966,12 +966,37 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
             e.SerializeRead( (*SafetyMessage)->m_mapData_Lengths[0], (*SafetyMessage)->m_mapData_Parameters[0] );
             g_pPlutoLogger->WriteEntry(e);
         }
-
-		if ( (*SafetyMessage)->m_dwMessage_Type == MESSAGETYPE_DATAPARM_CHANGE )
+		else if ( (*SafetyMessage)->m_dwMessage_Type == MESSAGETYPE_DATAPARM_CHANGE )
 		{
 			map<long, string>::iterator p = (*SafetyMessage)->m_mapParameters.begin();
 			if ( p != (*SafetyMessage)->m_mapParameters.end() )
 				SetDeviceDataInDB((*SafetyMessage)->m_dwPK_Device_From,p->first,p->second,true);
+		}
+        else if ((*SafetyMessage)->m_dwMessage_Type == MESSAGETYPE_START_PING)
+        {
+			int PK_Device = (*SafetyMessage)->m_dwID;
+			if( PK_Device>0 )
+			{
+				PLUTO_SAFETY_LOCK( ll, m_ListenerMutex );
+				ServerSocket *pSocket = m_mapCommandHandlers[PK_Device];
+				if( pSocket && !pSocket->m_bUsePingToKeepAlive )
+					pSocket->StartPingLoop();
+				Message *pMessage = new Message(m_dwPK_Device,PK_Device,PRIORITY_NORMAL,MESSAGETYPE_START_PING,0,0);
+	            AddMessageToQueue(pMessage);
+			}
+		}
+        else if ((*SafetyMessage)->m_dwMessage_Type == MESSAGETYPE_STOP_PING)
+        {
+			int PK_Device = (*SafetyMessage)->m_dwID;
+			if( PK_Device>0 )
+			{
+				PLUTO_SAFETY_LOCK( ll, m_ListenerMutex );
+				ServerSocket *pSocket = m_mapCommandHandlers[PK_Device];
+				if( pSocket )
+					pSocket->m_bUsePingToKeepAlive = false;
+				Message *pMessage = new Message(m_dwPK_Device,PK_Device,PRIORITY_NORMAL,MESSAGETYPE_STOP_PING,0,0);
+	            AddMessageToQueue(pMessage);
+			}
 		}
 
 		break;

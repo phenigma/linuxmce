@@ -43,7 +43,6 @@
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
 
-
 pluto_pthread_mutex_t *m_LL_DEBUG_Mutex=NULL;
 
 #ifdef PLUTOSERVER
@@ -57,6 +56,9 @@ pluto_pthread_mutex_t *m_LL_DEBUG_Mutex=NULL;
 #endif
 
 using namespace DCE;
+
+void (*g_pReceivePingHandler)(Socket *pSocket)=NULL;
+bool (*g_pSendPingHandler)(Socket *pSocket)=NULL;
 
 namespace DCE
 {
@@ -121,16 +123,27 @@ void* PingLoop( void* param ) // renamed to cancel link-time name collision in M
 			pSocket->m_bUsePingToKeepAlive=false;
 			return NULL; // Don't try anymore
 		}
-			
-		string sResponse=pSocket->SendReceiveString("PING");
 		
-#ifdef DEBUG
-		g_pPlutoLogger->Write( LV_STATUS, "Sent PING on %p and got %s",pSocket,sResponse.c_str());
-#endif
-		if( sResponse!="PONG" )
+		if( g_pSendPingHandler )
 		{
-			sSM.Release();
-			pSocket->PingFailed();
+			if( !(*g_pSendPingHandler)(pSocket) )
+			{
+				sSM.Release();
+				pSocket->PingFailed();
+			}
+		}
+		else
+		{
+			string sResponse=pSocket->SendReceiveString("PING");
+			
+	#ifdef DEBUG
+			g_pPlutoLogger->Write( LV_STATUS, "Sent PING on %p and got %s",pSocket,sResponse.c_str());
+	#endif
+			if( sResponse!="PONG" )
+			{
+				sSM.Release();
+				pSocket->PingFailed();
+			}
 		}
 	}
 }
@@ -471,7 +484,10 @@ Message *Socket::ReceiveMessage( int iLength, bool bText )
 bool Socket::SendData( int iSize, const char *pcData )
 {
 	if( m_Socket == INVALID_SOCKET ) // m_Socket wasn't propperlly initializated
+	{
+		g_pPlutoLogger->Write(LV_WARNING,"Socket::SendData socket is invalid");
 		return false;
+	}
 
 #ifdef LOG_ALL_CONTROLLER_ACTIVITY
 	if( iSize > 200 )
@@ -559,6 +575,7 @@ bool Socket::SendData( int iSize, const char *pcData )
 
 		if ( m_Socket == INVALID_SOCKET )
 		{
+			g_pPlutoLogger->Write(LV_WARNING,"Socket::SendData Socket became invalid before FD_SET");
 #ifdef LL_DEBUG_FILE
 			PLUTO_SAFETY_LOCK_ERRORSONLY(ll2,(*m_LL_DEBUG_Mutex));
 			FILE *file = fopen( m_pcSockLogFile, "a" );
@@ -596,7 +613,10 @@ bool Socket::SendData( int iSize, const char *pcData )
 		do
 		{
 			if( m_Socket == INVALID_SOCKET || m_bQuit || m_bCancelSocketOp)
+			{
+				g_pPlutoLogger->Write(LV_WARNING,"Socket::SendData m_Socket %d quit %d",(int) m_Socket,(int) m_bQuit);
 				return false;
+			}
 
 			FD_ZERO( &wrfds );
 			FD_SET( m_Socket, &wrfds );
@@ -637,6 +657,7 @@ bool Socket::SendData( int iSize, const char *pcData )
 			else
 			{
 				Close();
+				g_pPlutoLogger->Write(LV_WARNING,"Socket::SendData sendbytes==0");
 #ifdef LL_DEBUG_FILE
 
 	PLUTO_SAFETY_LOCK_ERRORSONLY( ll, (*m_LL_DEBUG_Mutex) );
@@ -673,6 +694,7 @@ bool Socket::SendData( int iSize, const char *pcData )
 		}
 		else
 		{
+			g_pPlutoLogger->Write(LV_WARNING,"Socket::SendData iRet %d",iRet);
 			Close();
 			return false;
 		}
@@ -749,7 +771,10 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 			do
 			{
 				if( m_Socket == INVALID_SOCKET || m_bQuit || m_bCancelSocketOp )
+				{
+					g_pPlutoLogger->Write(LV_WARNING,"Socket::ReceiveData m_Socket %d m_bQuit %d",(int) m_Socket,(int) m_bQuit);
 					return false;
+				}
 
 				FD_ZERO(&rfds);
 				FD_SET(m_Socket, &rfds);
@@ -957,7 +982,7 @@ bool Socket::ReceiveString( string &sRefString )
 		if( m_bQuit || m_bCancelSocketOp )
 			return false;
 		{
-			g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveString %p failed, m_Socket: %d buf %p %s ch: %p", this, m_Socket, acBuf, m_sName.c_str(), g_pSocketCrashHandler );
+			g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveString1 %p failed, m_Socket: %d buf %p %s ch: %p", this, m_Socket, acBuf, m_sName.c_str(), g_pSocketCrashHandler );
 			PlutoLock::DumpOutstandingLocks();
 			if( g_pSocketCrashHandler )
 				(*g_pSocketCrashHandler)(this);
@@ -972,7 +997,7 @@ bool Socket::ReceiveString( string &sRefString )
 		if ( !ReceiveData( 1, pcBuf ) ) // uses ReceiveData to get the string char by char
 		{
 			sRefString = "ReceiveData failed";
-			g_pPlutoLogger->Write( LV_STATUS, "Socket::ReceiveString ReceiveData failed m_Socket: %d %s", m_Socket, m_sName.c_str() );
+			g_pPlutoLogger->Write( LV_STATUS, "Socket::ReceiveString2 ReceiveData failed m_Socket: %d %s", m_Socket, m_sName.c_str() );
 			return false;
 		}
 		++pcBuf;
@@ -982,7 +1007,10 @@ bool Socket::ReceiveString( string &sRefString )
 		{
 			if( pcBuf-acBuf==5 && strncmp(acBuf,"PING",4)==0 )
 			{
-				SendString("PONG");
+				if( g_pReceivePingHandler )
+					(*g_pReceivePingHandler)(this);
+				else
+					SendString("PONG");
 				pcBuf = acBuf;
 				iLen = sizeof( acBuf ) - 1;
 			}
@@ -1025,7 +1053,7 @@ bool Socket::ReceiveString( string &sRefString )
 #endif
 		sRefString = "Not a string, or excessive length";
 
-		g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveString %p failed len: %d m_Socket: %d %s ch: %p", this, iLen, m_Socket, m_sName.c_str(), g_pSocketCrashHandler );
+		g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveString3 %p failed len: %d m_Socket: %d %s ch: %p", this, iLen, m_Socket, m_sName.c_str(), g_pSocketCrashHandler );
 		PlutoLock::DumpOutstandingLocks();
 		if( g_pSocketCrashHandler )
 			(*g_pSocketCrashHandler)(this);

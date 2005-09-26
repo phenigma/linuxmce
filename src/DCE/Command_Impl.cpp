@@ -44,6 +44,7 @@ using namespace DCE;
 
 extern void (*g_pDeadlockHandler)(PlutoLock *pPlutoLock);
 extern void (*g_pSocketCrashHandler)(Socket *pSocket);
+
 Command_Impl *g_pCommand_Impl=NULL;
 
 /**
@@ -518,7 +519,6 @@ void Command_Impl::CannotReloadRouter()
 void Command_Impl::ReceivedString( string sLine )
 {
 	MapCommand_Impl::iterator i;
-
 	for( i=m_mapCommandImpl_Children.begin(); i != m_mapCommandImpl_Children.end(); ++i )
 	{
 		(*i).second->ReceivedString( sLine );
@@ -572,6 +572,19 @@ bool Command_Impl::ReceivedMessage( Message *pMessage )
 		Sleep(250);
 		OnReload();
 		return true;
+	}
+	if ( pMessage->m_dwMessage_Type == MESSAGETYPE_START_PING)
+	{
+		if( !m_pEvent->m_pClientSocket->m_bUsePingToKeepAlive )
+			m_pEvent->m_pClientSocket->StartPingLoop();
+		if( !m_pcRequestSocket->m_pClientSocket->m_bUsePingToKeepAlive )
+			m_pcRequestSocket->m_pClientSocket->StartPingLoop();
+		m_pEvent->m_pClientSocket->m_pSocket_PingFailure=this;
+		m_pcRequestSocket->m_pClientSocket->m_pSocket_PingFailure=this;
+	}
+	else if ( pMessage->m_dwMessage_Type == MESSAGETYPE_STOP_PING)
+	{
+		m_pEvent->m_pClientSocket->m_bUsePingToKeepAlive = m_pcRequestSocket->m_pClientSocket->m_bUsePingToKeepAlive = false;
 	}
 
 	if ( m_bHandleChildren && pMessage->m_dwPK_Device_To != m_dwPK_Device )
