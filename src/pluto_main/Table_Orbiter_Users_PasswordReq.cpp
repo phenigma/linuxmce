@@ -33,6 +33,11 @@ void Database_pluto_main::DeleteTable_Orbiter_Users_PasswordReq()
 		delete tblOrbiter_Users_PasswordReq;
 }
 
+void Database_pluto_main::Commit_Orbiter_Users_PasswordReq(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblOrbiter_Users_PasswordReq->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_Orbiter_Users_PasswordReq::~Table_Orbiter_Users_PasswordReq()
 {
 	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator it;

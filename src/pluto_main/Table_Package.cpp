@@ -54,6 +54,11 @@ void Database_pluto_main::DeleteTable_Package()
 		delete tblPackage;
 }
 
+void Database_pluto_main::Commit_Package(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblPackage->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_Package::~Table_Package()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

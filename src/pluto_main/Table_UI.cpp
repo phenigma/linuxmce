@@ -34,6 +34,11 @@ void Database_pluto_main::DeleteTable_UI()
 		delete tblUI;
 }
 
+void Database_pluto_main::Commit_UI(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblUI->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_UI::~Table_UI()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

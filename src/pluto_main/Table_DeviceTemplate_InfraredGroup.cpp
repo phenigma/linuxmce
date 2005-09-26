@@ -33,6 +33,11 @@ void Database_pluto_main::DeleteTable_DeviceTemplate_InfraredGroup()
 		delete tblDeviceTemplate_InfraredGroup;
 }
 
+void Database_pluto_main::Commit_DeviceTemplate_InfraredGroup(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblDeviceTemplate_InfraredGroup->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_DeviceTemplate_InfraredGroup::~Table_DeviceTemplate_InfraredGroup()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

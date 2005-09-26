@@ -37,6 +37,11 @@ void Database_pluto_main::DeleteTable_Orbiter()
 		delete tblOrbiter;
 }
 
+void Database_pluto_main::Commit_Orbiter(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblOrbiter->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_Orbiter::~Table_Orbiter()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

@@ -36,6 +36,11 @@ void Database_pluto_main::DeleteTable_MediaType()
 		delete tblMediaType;
 }
 
+void Database_pluto_main::Commit_MediaType(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblMediaType->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_MediaType::~Table_MediaType()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

@@ -33,6 +33,11 @@ void Database_pluto_main::DeleteTable_DeviceTemplate_PageSetup()
 		delete tblDeviceTemplate_PageSetup;
 }
 
+void Database_pluto_main::Commit_DeviceTemplate_PageSetup(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblDeviceTemplate_PageSetup->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_DeviceTemplate_PageSetup::~Table_DeviceTemplate_PageSetup()
 {
 	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator it;

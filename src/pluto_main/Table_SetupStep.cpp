@@ -33,6 +33,11 @@ void Database_pluto_main::DeleteTable_SetupStep()
 		delete tblSetupStep;
 }
 
+void Database_pluto_main::Commit_SetupStep(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblSetupStep->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_SetupStep::~Table_SetupStep()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

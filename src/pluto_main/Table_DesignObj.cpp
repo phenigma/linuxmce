@@ -72,6 +72,11 @@ void Database_pluto_main::DeleteTable_DesignObj()
 		delete tblDesignObj;
 }
 
+void Database_pluto_main::Commit_DesignObj(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblDesignObj->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_DesignObj::~Table_DesignObj()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

@@ -36,6 +36,11 @@ void Database_pluto_main::DeleteTable_DeviceGroup()
 		delete tblDeviceGroup;
 }
 
+void Database_pluto_main::Commit_DeviceGroup(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblDeviceGroup->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_DeviceGroup::~Table_DeviceGroup()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

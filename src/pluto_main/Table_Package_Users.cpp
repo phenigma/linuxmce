@@ -33,6 +33,11 @@ void Database_pluto_main::DeleteTable_Package_Users()
 		delete tblPackage_Users;
 }
 
+void Database_pluto_main::Commit_Package_Users(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblPackage_Users->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_Package_Users::~Table_Package_Users()
 {
 	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator it;

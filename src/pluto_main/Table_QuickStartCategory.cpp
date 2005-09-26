@@ -34,6 +34,11 @@ void Database_pluto_main::DeleteTable_QuickStartCategory()
 		delete tblQuickStartCategory;
 }
 
+void Database_pluto_main::Commit_QuickStartCategory(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblQuickStartCategory->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_QuickStartCategory::~Table_QuickStartCategory()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

@@ -33,6 +33,11 @@ void Database_pluto_main::DeleteTable_Installation_RepositorySource_URL()
 		delete tblInstallation_RepositorySource_URL;
 }
 
+void Database_pluto_main::Commit_Installation_RepositorySource_URL(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblInstallation_RepositorySource_URL->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_Installation_RepositorySource_URL::~Table_Installation_RepositorySource_URL()
 {
 	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator it;

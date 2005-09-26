@@ -31,6 +31,11 @@ void Database_pluto_main::DeleteTable_Image()
 		delete tblImage;
 }
 
+void Database_pluto_main::Commit_Image(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblImage->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_Image::~Table_Image()
 {
 	map<Table_Image::Key, class TableRow*, Table_Image::Key_Less>::iterator it;

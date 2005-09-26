@@ -35,6 +35,11 @@ void Database_pluto_main::DeleteTable_psc_local_batdet()
 		delete tblpsc_local_batdet;
 }
 
+void Database_pluto_main::Commit_psc_local_batdet(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblpsc_local_batdet->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_psc_local_batdet::~Table_psc_local_batdet()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

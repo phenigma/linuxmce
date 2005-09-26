@@ -37,6 +37,11 @@ void Database_pluto_main::DeleteTable_InfraredGroup()
 		delete tblInfraredGroup;
 }
 
+void Database_pluto_main::Commit_InfraredGroup(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblInfraredGroup->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_InfraredGroup::~Table_InfraredGroup()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

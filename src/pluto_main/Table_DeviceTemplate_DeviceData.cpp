@@ -33,6 +33,11 @@ void Database_pluto_main::DeleteTable_DeviceTemplate_DeviceData()
 		delete tblDeviceTemplate_DeviceData;
 }
 
+void Database_pluto_main::Commit_DeviceTemplate_DeviceData(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblDeviceTemplate_DeviceData->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_DeviceTemplate_DeviceData::~Table_DeviceTemplate_DeviceData()
 {
 	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator it;

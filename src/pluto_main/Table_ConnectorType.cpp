@@ -33,6 +33,11 @@ void Database_pluto_main::DeleteTable_ConnectorType()
 		delete tblConnectorType;
 }
 
+void Database_pluto_main::Commit_ConnectorType(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblConnectorType->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_ConnectorType::~Table_ConnectorType()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

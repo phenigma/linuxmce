@@ -31,6 +31,11 @@ void Database_pluto_main::DeleteTable_System()
 		delete tblSystem;
 }
 
+void Database_pluto_main::Commit_System(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblSystem->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_System::~Table_System()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

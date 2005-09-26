@@ -37,6 +37,11 @@ void Database_pluto_main::DeleteTable_DesignObjVariation_Text_Skin_Language()
 		delete tblDesignObjVariation_Text_Skin_Language;
 }
 
+void Database_pluto_main::Commit_DesignObjVariation_Text_Skin_Language(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblDesignObjVariation_Text_Skin_Language->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_DesignObjVariation_Text_Skin_Language::~Table_DesignObjVariation_Text_Skin_Language()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

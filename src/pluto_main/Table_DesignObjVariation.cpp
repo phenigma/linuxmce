@@ -46,6 +46,11 @@ void Database_pluto_main::DeleteTable_DesignObjVariation()
 		delete tblDesignObjVariation;
 }
 
+void Database_pluto_main::Commit_DesignObjVariation(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblDesignObjVariation->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_DesignObjVariation::~Table_DesignObjVariation()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

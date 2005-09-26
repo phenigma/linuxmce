@@ -33,6 +33,11 @@ void Database_pluto_main::DeleteTable_Device_EntertainArea()
 		delete tblDevice_EntertainArea;
 }
 
+void Database_pluto_main::Commit_Device_EntertainArea(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblDevice_EntertainArea->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_Device_EntertainArea::~Table_Device_EntertainArea()
 {
 	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator it;

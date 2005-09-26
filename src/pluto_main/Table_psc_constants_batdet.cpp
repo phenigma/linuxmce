@@ -35,6 +35,11 @@ void Database_pluto_main::DeleteTable_psc_constants_batdet()
 		delete tblpsc_constants_batdet;
 }
 
+void Database_pluto_main::Commit_psc_constants_batdet(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblpsc_constants_batdet->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_psc_constants_batdet::~Table_psc_constants_batdet()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

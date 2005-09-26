@@ -32,6 +32,11 @@ void Database_pluto_main::DeleteTable_News()
 		delete tblNews;
 }
 
+void Database_pluto_main::Commit_News(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblNews->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_News::~Table_News()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

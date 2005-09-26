@@ -32,6 +32,11 @@ void Database_pluto_main::DeleteTable_Variable()
 		delete tblVariable;
 }
 
+void Database_pluto_main::Commit_Variable(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblVariable->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_Variable::~Table_Variable()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

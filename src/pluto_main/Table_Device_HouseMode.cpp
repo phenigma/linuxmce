@@ -34,6 +34,11 @@ void Database_pluto_main::DeleteTable_Device_HouseMode()
 		delete tblDevice_HouseMode;
 }
 
+void Database_pluto_main::Commit_Device_HouseMode(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblDevice_HouseMode->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_Device_HouseMode::~Table_Device_HouseMode()
 {
 	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator it;

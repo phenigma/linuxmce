@@ -33,6 +33,11 @@ void Database_pluto_main::DeleteTable_DeviceCategory_Event()
 		delete tblDeviceCategory_Event;
 }
 
+void Database_pluto_main::Commit_DeviceCategory_Event(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblDeviceCategory_Event->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_DeviceCategory_Event::~Table_DeviceCategory_Event()
 {
 	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator it;

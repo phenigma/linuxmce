@@ -33,6 +33,11 @@ void Database_pluto_main::DeleteTable_City()
 		delete tblCity;
 }
 
+void Database_pluto_main::Commit_City(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblCity->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_City::~Table_City()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

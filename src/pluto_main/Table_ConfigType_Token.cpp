@@ -33,6 +33,11 @@ void Database_pluto_main::DeleteTable_ConfigType_Token()
 		delete tblConfigType_Token;
 }
 
+void Database_pluto_main::Commit_ConfigType_Token(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblConfigType_Token->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_ConfigType_Token::~Table_ConfigType_Token()
 {
 	map<Table_ConfigType_Token::Key, class TableRow*, Table_ConfigType_Token::Key_Less>::iterator it;

@@ -38,6 +38,11 @@ void Database_pluto_main::DeleteTable_Criteria()
 		delete tblCriteria;
 }
 
+void Database_pluto_main::Commit_Criteria(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblCriteria->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_Criteria::~Table_Criteria()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

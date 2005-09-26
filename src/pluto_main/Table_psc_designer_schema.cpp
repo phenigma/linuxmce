@@ -31,6 +31,11 @@ void Database_pluto_main::DeleteTable_psc_designer_schema()
 		delete tblpsc_designer_schema;
 }
 
+void Database_pluto_main::Commit_psc_designer_schema(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblpsc_designer_schema->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_psc_designer_schema::~Table_psc_designer_schema()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

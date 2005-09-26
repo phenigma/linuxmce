@@ -33,6 +33,11 @@ void Database_pluto_main::DeleteTable_DeviceTemplate_DSPMode()
 		delete tblDeviceTemplate_DSPMode;
 }
 
+void Database_pluto_main::Commit_DeviceTemplate_DSPMode(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblDeviceTemplate_DSPMode->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_DeviceTemplate_DSPMode::~Table_DeviceTemplate_DSPMode()
 {
 	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator it;

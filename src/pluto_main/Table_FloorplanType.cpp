@@ -32,6 +32,11 @@ void Database_pluto_main::DeleteTable_FloorplanType()
 		delete tblFloorplanType;
 }
 
+void Database_pluto_main::Commit_FloorplanType(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblFloorplanType->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_FloorplanType::~Table_FloorplanType()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

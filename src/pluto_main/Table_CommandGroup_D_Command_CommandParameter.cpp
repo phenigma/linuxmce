@@ -33,6 +33,11 @@ void Database_pluto_main::DeleteTable_CommandGroup_D_Command_CommandParameter()
 		delete tblCommandGroup_D_Command_CommandParameter;
 }
 
+void Database_pluto_main::Commit_CommandGroup_D_Command_CommandParameter(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblCommandGroup_D_Command_CommandParameter->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_CommandGroup_D_Command_CommandParameter::~Table_CommandGroup_D_Command_CommandParameter()
 {
 	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator it;

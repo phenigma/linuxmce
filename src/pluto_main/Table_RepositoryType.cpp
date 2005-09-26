@@ -34,6 +34,11 @@ void Database_pluto_main::DeleteTable_RepositoryType()
 		delete tblRepositoryType;
 }
 
+void Database_pluto_main::Commit_RepositoryType(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblRepositoryType->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_RepositoryType::~Table_RepositoryType()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

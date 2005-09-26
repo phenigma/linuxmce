@@ -33,6 +33,11 @@ void Database_pluto_main::DeleteTable_DesignObjType_DesignObjParameter()
 		delete tblDesignObjType_DesignObjParameter;
 }
 
+void Database_pluto_main::Commit_DesignObjType_DesignObjParameter(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblDesignObjType_DesignObjParameter->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_DesignObjType_DesignObjParameter::~Table_DesignObjType_DesignObjParameter()
 {
 	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator it;

@@ -34,6 +34,11 @@ void Database_pluto_main::DeleteTable_DeviceTemplate_Input()
 		delete tblDeviceTemplate_Input;
 }
 
+void Database_pluto_main::Commit_DeviceTemplate_Input(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblDeviceTemplate_Input->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_DeviceTemplate_Input::~Table_DeviceTemplate_Input()
 {
 	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator it;

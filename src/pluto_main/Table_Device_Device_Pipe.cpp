@@ -36,6 +36,11 @@ void Database_pluto_main::DeleteTable_Device_Device_Pipe()
 		delete tblDevice_Device_Pipe;
 }
 
+void Database_pluto_main::Commit_Device_Device_Pipe(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblDevice_Device_Pipe->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_Device_Device_Pipe::~Table_Device_Device_Pipe()
 {
 	map<TripleLongKey, class TableRow*, TripleLongKey_Less>::iterator it;

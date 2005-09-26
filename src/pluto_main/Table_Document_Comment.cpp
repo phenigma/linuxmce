@@ -33,6 +33,11 @@ void Database_pluto_main::DeleteTable_Document_Comment()
 		delete tblDocument_Comment;
 }
 
+void Database_pluto_main::Commit_Document_Comment(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblDocument_Comment->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_Document_Comment::~Table_Document_Comment()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

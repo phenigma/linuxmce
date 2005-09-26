@@ -31,6 +31,11 @@ void Database_pluto_main::DeleteTable_psc_dce_schema()
 		delete tblpsc_dce_schema;
 }
 
+void Database_pluto_main::Commit_psc_dce_schema(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblpsc_dce_schema->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_psc_dce_schema::~Table_psc_dce_schema()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

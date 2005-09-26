@@ -35,6 +35,11 @@ void Database_pluto_main::DeleteTable_Manufacturer()
 		delete tblManufacturer;
 }
 
+void Database_pluto_main::Commit_Manufacturer(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblManufacturer->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_Manufacturer::~Table_Manufacturer()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

@@ -40,6 +40,11 @@ void Database_pluto_main::DeleteTable_DeviceTemplate_MediaType_DesignObj()
 		delete tblDeviceTemplate_MediaType_DesignObj;
 }
 
+void Database_pluto_main::Commit_DeviceTemplate_MediaType_DesignObj(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblDeviceTemplate_MediaType_DesignObj->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_DeviceTemplate_MediaType_DesignObj::~Table_DeviceTemplate_MediaType_DesignObj()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

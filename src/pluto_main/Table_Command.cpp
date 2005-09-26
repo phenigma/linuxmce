@@ -48,6 +48,11 @@ void Database_pluto_main::DeleteTable_Command()
 		delete tblCommand;
 }
 
+void Database_pluto_main::Commit_Command(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblCommand->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_Command::~Table_Command()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

@@ -33,6 +33,11 @@ void Database_pluto_main::DeleteTable_CachedScreens()
 		delete tblCachedScreens;
 }
 
+void Database_pluto_main::Commit_CachedScreens(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblCachedScreens->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_CachedScreens::~Table_CachedScreens()
 {
 	map<TripleLongKey, class TableRow*, TripleLongKey_Less>::iterator it;

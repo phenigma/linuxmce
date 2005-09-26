@@ -32,6 +32,11 @@ void Database_pluto_main::DeleteTable_CommMethod()
 		delete tblCommMethod;
 }
 
+void Database_pluto_main::Commit_CommMethod(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblCommMethod->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_CommMethod::~Table_CommMethod()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

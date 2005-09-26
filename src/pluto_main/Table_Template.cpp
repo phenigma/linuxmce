@@ -32,6 +32,11 @@ void Database_pluto_main::DeleteTable_Template()
 		delete tblTemplate;
 }
 
+void Database_pluto_main::Commit_Template(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblTemplate->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_Template::~Table_Template()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

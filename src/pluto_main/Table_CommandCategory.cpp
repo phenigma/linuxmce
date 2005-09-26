@@ -34,6 +34,11 @@ void Database_pluto_main::DeleteTable_CommandCategory()
 		delete tblCommandCategory;
 }
 
+void Database_pluto_main::Commit_CommandCategory(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblCommandCategory->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_CommandCategory::~Table_CommandCategory()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

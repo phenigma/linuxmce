@@ -32,6 +32,11 @@ void Database_pluto_main::DeleteTable_Broadcast()
 		delete tblBroadcast;
 }
 
+void Database_pluto_main::Commit_Broadcast(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblBroadcast->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_Broadcast::~Table_Broadcast()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

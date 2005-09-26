@@ -35,6 +35,11 @@ void Database_pluto_main::DeleteTable_StabilityStatus()
 		delete tblStabilityStatus;
 }
 
+void Database_pluto_main::Commit_StabilityStatus(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblStabilityStatus->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_StabilityStatus::~Table_StabilityStatus()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

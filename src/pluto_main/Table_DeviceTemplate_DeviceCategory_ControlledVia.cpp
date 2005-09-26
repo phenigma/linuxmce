@@ -34,6 +34,11 @@ void Database_pluto_main::DeleteTable_DeviceTemplate_DeviceCategory_ControlledVi
 		delete tblDeviceTemplate_DeviceCategory_ControlledVia;
 }
 
+void Database_pluto_main::Commit_DeviceTemplate_DeviceCategory_ControlledVia(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblDeviceTemplate_DeviceCategory_ControlledVia->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_DeviceTemplate_DeviceCategory_ControlledVia::~Table_DeviceTemplate_DeviceCategory_ControlledVia()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

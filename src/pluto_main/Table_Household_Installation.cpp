@@ -33,6 +33,11 @@ void Database_pluto_main::DeleteTable_Household_Installation()
 		delete tblHousehold_Installation;
 }
 
+void Database_pluto_main::Commit_Household_Installation(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblHousehold_Installation->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_Household_Installation::~Table_Household_Installation()
 {
 	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator it;

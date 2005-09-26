@@ -31,6 +31,11 @@ void Database_pluto_main::DeleteTable_DataGrid()
 		delete tblDataGrid;
 }
 
+void Database_pluto_main::Commit_DataGrid(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblDataGrid->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_DataGrid::~Table_DataGrid()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

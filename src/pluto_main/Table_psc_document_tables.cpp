@@ -31,6 +31,11 @@ void Database_pluto_main::DeleteTable_psc_document_tables()
 		delete tblpsc_document_tables;
 }
 
+void Database_pluto_main::Commit_psc_document_tables(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblpsc_document_tables->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_psc_document_tables::~Table_psc_document_tables()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

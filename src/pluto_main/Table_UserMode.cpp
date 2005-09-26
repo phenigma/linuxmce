@@ -32,6 +32,11 @@ void Database_pluto_main::DeleteTable_UserMode()
 		delete tblUserMode;
 }
 
+void Database_pluto_main::Commit_UserMode(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblUserMode->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_UserMode::~Table_UserMode()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

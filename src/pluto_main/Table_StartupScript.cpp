@@ -33,6 +33,11 @@ void Database_pluto_main::DeleteTable_StartupScript()
 		delete tblStartupScript;
 }
 
+void Database_pluto_main::Commit_StartupScript(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblStartupScript->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_StartupScript::~Table_StartupScript()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

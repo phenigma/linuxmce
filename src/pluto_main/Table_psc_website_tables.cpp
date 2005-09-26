@@ -31,6 +31,11 @@ void Database_pluto_main::DeleteTable_psc_website_tables()
 		delete tblpsc_website_tables;
 }
 
+void Database_pluto_main::Commit_psc_website_tables(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblpsc_website_tables->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_psc_website_tables::~Table_psc_website_tables()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

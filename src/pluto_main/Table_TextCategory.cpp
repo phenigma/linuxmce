@@ -34,6 +34,11 @@ void Database_pluto_main::DeleteTable_TextCategory()
 		delete tblTextCategory;
 }
 
+void Database_pluto_main::Commit_TextCategory(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblTextCategory->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_TextCategory::~Table_TextCategory()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

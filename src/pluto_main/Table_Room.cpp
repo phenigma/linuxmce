@@ -38,6 +38,11 @@ void Database_pluto_main::DeleteTable_Room()
 		delete tblRoom;
 }
 
+void Database_pluto_main::Commit_Room(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblRoom->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_Room::~Table_Room()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

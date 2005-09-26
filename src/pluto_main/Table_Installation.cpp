@@ -49,6 +49,11 @@ void Database_pluto_main::DeleteTable_Installation()
 		delete tblInstallation;
 }
 
+void Database_pluto_main::Commit_Installation(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblInstallation->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_Installation::~Table_Installation()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

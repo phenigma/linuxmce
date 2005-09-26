@@ -36,6 +36,11 @@ void Database_pluto_main::DeleteTable_EventHandler()
 		delete tblEventHandler;
 }
 
+void Database_pluto_main::Commit_EventHandler(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblEventHandler->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_EventHandler::~Table_EventHandler()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

@@ -33,6 +33,11 @@ void Database_pluto_main::DeleteTable_License()
 		delete tblLicense;
 }
 
+void Database_pluto_main::Commit_License(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblLicense->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_License::~Table_License()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

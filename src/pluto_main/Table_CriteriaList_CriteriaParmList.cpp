@@ -33,6 +33,11 @@ void Database_pluto_main::DeleteTable_CriteriaList_CriteriaParmList()
 		delete tblCriteriaList_CriteriaParmList;
 }
 
+void Database_pluto_main::Commit_CriteriaList_CriteriaParmList(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblCriteriaList_CriteriaParmList->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_CriteriaList_CriteriaParmList::~Table_CriteriaList_CriteriaParmList()
 {
 	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator it;

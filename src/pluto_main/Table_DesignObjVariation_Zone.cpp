@@ -35,6 +35,11 @@ void Database_pluto_main::DeleteTable_DesignObjVariation_Zone()
 		delete tblDesignObjVariation_Zone;
 }
 
+void Database_pluto_main::Commit_DesignObjVariation_Zone(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblDesignObjVariation_Zone->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_DesignObjVariation_Zone::~Table_DesignObjVariation_Zone()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

@@ -34,6 +34,11 @@ void Database_pluto_main::DeleteTable_Icon()
 		delete tblIcon;
 }
 
+void Database_pluto_main::Commit_Icon(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblIcon->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_Icon::~Table_Icon()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

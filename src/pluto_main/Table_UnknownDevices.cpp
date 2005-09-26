@@ -31,6 +31,11 @@ void Database_pluto_main::DeleteTable_UnknownDevices()
 		delete tblUnknownDevices;
 }
 
+void Database_pluto_main::Commit_UnknownDevices(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblUnknownDevices->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_UnknownDevices::~Table_UnknownDevices()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

@@ -42,6 +42,11 @@ void Database_pluto_main::DeleteTable_Users()
 		delete tblUsers;
 }
 
+void Database_pluto_main::Commit_Users(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblUsers->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_Users::~Table_Users()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

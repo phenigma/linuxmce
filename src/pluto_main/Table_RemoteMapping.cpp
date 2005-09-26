@@ -31,6 +31,11 @@ void Database_pluto_main::DeleteTable_RemoteMapping()
 		delete tblRemoteMapping;
 }
 
+void Database_pluto_main::Commit_RemoteMapping(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblRemoteMapping->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_RemoteMapping::~Table_RemoteMapping()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

@@ -38,6 +38,11 @@ void Database_pluto_main::DeleteTable_Pipe()
 		delete tblPipe;
 }
 
+void Database_pluto_main::Commit_Pipe(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblPipe->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_Pipe::~Table_Pipe()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

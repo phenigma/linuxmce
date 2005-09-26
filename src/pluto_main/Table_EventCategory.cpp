@@ -34,6 +34,11 @@ void Database_pluto_main::DeleteTable_EventCategory()
 		delete tblEventCategory;
 }
 
+void Database_pluto_main::Commit_EventCategory(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblEventCategory->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_EventCategory::~Table_EventCategory()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

@@ -45,6 +45,11 @@ void Database_pluto_main::DeleteTable_Skin()
 		delete tblSkin;
 }
 
+void Database_pluto_main::Commit_Skin(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblSkin->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_Skin::~Table_Skin()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

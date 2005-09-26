@@ -36,6 +36,11 @@ void Database_pluto_main::DeleteTable_ParameterType()
 		delete tblParameterType;
 }
 
+void Database_pluto_main::Commit_ParameterType(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblParameterType->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_ParameterType::~Table_ParameterType()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

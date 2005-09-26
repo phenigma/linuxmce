@@ -33,6 +33,11 @@ void Database_pluto_main::DeleteTable_CommandGroup_EntertainArea()
 		delete tblCommandGroup_EntertainArea;
 }
 
+void Database_pluto_main::Commit_CommandGroup_EntertainArea(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblCommandGroup_EntertainArea->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_CommandGroup_EntertainArea::~Table_CommandGroup_EntertainArea()
 {
 	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator it;

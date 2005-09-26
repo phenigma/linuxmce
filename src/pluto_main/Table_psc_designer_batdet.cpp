@@ -35,6 +35,11 @@ void Database_pluto_main::DeleteTable_psc_designer_batdet()
 		delete tblpsc_designer_batdet;
 }
 
+void Database_pluto_main::Commit_psc_designer_batdet(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblpsc_designer_batdet->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_psc_designer_batdet::~Table_psc_designer_batdet()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

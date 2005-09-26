@@ -35,6 +35,11 @@ void Database_pluto_main::DeleteTable_Country()
 		delete tblCountry;
 }
 
+void Database_pluto_main::Commit_Country(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblCountry->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_Country::~Table_Country()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

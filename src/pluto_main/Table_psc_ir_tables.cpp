@@ -31,6 +31,11 @@ void Database_pluto_main::DeleteTable_psc_ir_tables()
 		delete tblpsc_ir_tables;
 }
 
+void Database_pluto_main::Commit_psc_ir_tables(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblpsc_ir_tables->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_psc_ir_tables::~Table_psc_ir_tables()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

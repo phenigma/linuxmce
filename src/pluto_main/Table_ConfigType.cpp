@@ -35,6 +35,11 @@ void Database_pluto_main::DeleteTable_ConfigType()
 		delete tblConfigType;
 }
 
+void Database_pluto_main::Commit_ConfigType(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	tblConfigType->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_ConfigType::~Table_ConfigType()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;
