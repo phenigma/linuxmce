@@ -72,11 +72,17 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
     if (SDL_Init(uSDLInitFlags) == -1)
     {
 #ifndef WINCE
-        cerr << "Failed to initialize SDL" << SDL_GetError() << endl;
+					cerr << "Failed initializing SDL: " << SDL_GetError() << endl;
 #else
-        printf("Failed to initialize SDL %s\n", SDL_GetError());
+					printf("Failed to initialize SDL %s\n", SDL_GetError());
 #endif //WINCE
-
+								
+#ifndef WIN32 //linux
+        string sCmd = "/usr/pluto/bin/Start_X.sh; /usr/pluto/bin/Start_ratpoison.sh";
+        g_pPlutoLogger->Write(LV_CRITICAL, "X is not running! Starting X and ratpoison: %s", sCmd.c_str());
+        system(sCmd.c_str());
+#endif //linux
+	
         exit(1);
     }
 

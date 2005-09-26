@@ -97,6 +97,13 @@ Renderer::Renderer(string FontPath,string OutputDirectory,int Width,int Height,b
 #else
 			printf("Failed to initialize SDL %s\n", SDL_GetError());
 #endif //WINCE
+			
+#ifndef WIN32 //linux
+    	    string sCmd = "/usr/pluto/bin/Start_X.sh; /usr/pluto/bin/Start_ratpoison.sh";
+        	printf("X is not running! Starting X and ratpoison: %s\n", sCmd.c_str());
+        	system(sCmd.c_str());
+#endif //linux
+			
 			exit(1);
 		}
 		atexit(SDL_Quit);
