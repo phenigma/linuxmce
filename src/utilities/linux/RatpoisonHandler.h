@@ -47,6 +47,33 @@ class RatpoisonHandler
 			XUnlockDisplay(display);
 		}
 
+		void resetRatpoison()
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "Reseting ratpoison...");
+			
+			string sFindRatpoisonCmd = "pgrep ratpoison > \"/tmp/ratpoison.txt\"";
+			g_pPlutoLogger->Write(LV_STATUS, "Searching any ratpoison running: %s", sFindRatpoisonCmd.c_str());
+        	system(sFindRatpoisonCmd.c_str());
+            vector<string> vectPids;
+            FileUtils::ReadFileIntoVector("/tmp/ratpoison pid", vectPids);
+
+            if(vectPids.size() > 0)
+            {
+            	string sKillRatpoisonCmd = "kill " + vectPids[0];
+                g_pPlutoLogger->Write(LV_STATUS, "Found ratpoison pid (%s), sending command to kill it: %s", vectPids[0].c_str(), sKillRatpoisonCmd.c_str());
+                system(sKillRatpoisonCmd.c_str());
+            }
+            else
+                g_pPlutoLogger->Write(LV_STATUS, "Ratpoison isn't running...");
+
+            string sStartRatpoisonCmd = "/usr/pluto/bin/Start_ratpoison.sh";
+			system(sStartRatpoisonCmd.c_str());
+            g_pPlutoLogger->Write(LV_STATUS, "Starting ratpoison with command: %s", sStartRatpoisonCmd.c_str());
+            g_pPlutoLogger->Write(LV_STATUS, "Sleeping 5 seconds, then restarting...");
+            Sleep(5000);
+            exit(13);
+		}
+
         bool commandRatPoison(string command)
         {
             Display *display = static_cast<T*>(this)->getDisplay();
@@ -63,6 +90,8 @@ class RatpoisonHandler
 			{
                 g_pPlutoLogger->Write(LV_WARNING, "Ratpoison window manager does not seem to be running on this server got those results: %d [%d, %d, %d]",
 						result, atoms[RP_COMMAND], atoms[RP_COMMAND_REQUEST], atoms[RP_COMMAND_RESULT]);
+
+				resetRatpoison();
 
                 XUnlockDisplay(display);
                 return false;
@@ -112,6 +141,7 @@ class RatpoisonHandler
                 {
                     g_pPlutoLogger->Write(LV_WARNING, "The ratpoison window manager didn't reply to the command. It is either crashed or not started at all");
                     done = 1;
+					resetRatpoison();
                 }
             }
 
