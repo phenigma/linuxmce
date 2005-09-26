@@ -122,6 +122,10 @@ public:
 	void CalcTextRectangle(RECT &rectLocation,PlutoRectangle &rPosition,int iRotation,int iHeight,int iVertAlignment);
 
 	bool SelfUpdate();
+
+private:
+    void DumpLocks();
+    string FormatMutexMessage(pluto_pthread_mutex_t& PlutoMutex);
 };
 
 }

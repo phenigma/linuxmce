@@ -259,6 +259,10 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
         ShowMainDialog();
         m_bControlDown = false;
     }
+    else if( wParam == VK_D && m_bShiftDown && m_bControlDown)
+    {
+        DumpLocks();
+    }
     else if( wParam == VK_P && m_bControlDown)
     {
         static int Count = 0;
@@ -1000,5 +1004,33 @@ void Orbiter_PocketFrog::CalcTextRectangle(RECT &rectLocation,PlutoRectangle &rP
 /*virtual*/ bool Orbiter_PocketFrog::DisplayProgress(string sMessage, int nProgress)
 {
     return DialogProgressEx(sMessage, nProgress);
+}
+//-----------------------------------------------------------------------------------------------------
+void Orbiter_PocketFrog::DumpLocks() 
+{
+    string sMessage = 
+        FormatMutexMessage(m_ScreenMutex) +
+        FormatMutexMessage(m_VariableMutex) +
+        FormatMutexMessage(m_DatagridMutex) +
+        FormatMutexMessage(m_MaintThreadMutex) +
+        FormatMutexMessage(m_NeedRedrawVarMutex);
+
+#ifdef WINCE
+    wchar_t MessageW[4096];
+    mbstowcs(MessageW, sMessage.c_str(), 4096);
+    ::MessageBox(m_hWnd, MessageW, TEXT("Orbiter mutexes"), MB_OK);
+#else
+    ::MessageBox(m_hWnd, sMessage.c_str(), TEXT("Orbiter mutexes"), MB_OK);
+#endif
+}
+//-----------------------------------------------------------------------------------------------------
+string Orbiter_PocketFrog::FormatMutexMessage(pluto_pthread_mutex_t& PlutoMutex)
+{
+    string sMessage =
+        "Mutex '" + PlutoMutex.m_sName + "':\r\n" + 
+        "    - " + StringUtils::ltos(PlutoMutex.m_NumLocks) + " locks" + "\r\n" + 
+        "    - " + PlutoMutex.m_sFileName + ":" + StringUtils::ltos(PlutoMutex.m_Line) + "\r\n";
+
+    return sMessage;
 }
 //-----------------------------------------------------------------------------------------------------
