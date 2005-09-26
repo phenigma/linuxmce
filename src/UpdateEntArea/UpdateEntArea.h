@@ -4,6 +4,7 @@
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Table_Device.h"
 #include "pluto_main/Table_EntertainArea.h"
+#include "pluto_main/Table_Room.h"
 
 class UpdateEntArea 
 {
@@ -18,7 +19,9 @@ public:
 	void PutMDsChildrenInRoom(Row_Device *pRow_Device);
 	void DeleteEntertainArea(Row_EntertainArea *pRow_EntertainArea);
 	void AddDefaultCommandsToEntArea(Row_EntertainArea *pRow_EntertainArea,int iPK_Template=0);
-	int FindCommandGroupByTemplate(Row_EntertainArea *pRow_EntertainArea,int PK_Template,string sDescription);
+	void AddDefaultCommandsToRoom(Row_Room *pRow_Room,int iPK_Template=0);
+	int FindCommandGroupByTemplate(Row_EntertainArea *pRow_EntertainArea,int PK_Template,string sDescription,int TemplateParm1=0,int TemplateParm2=0);
+	int FindCommandGroupByTemplate(Row_Room *pRow_Room,int PK_Template,string sDescription,int TemplateParm1=0,int TemplateParm2=0);
 	void AddCommand(int PK_CommandGroup,int PK_Device,int PK_Command,int NumParms,...);
 	void AddMDsDevicesToEntArea(Row_EntertainArea *pRow_EntertainArea);
 	void AddAVDevicesToEntArea(Row_EntertainArea *pRow_EntertainArea);

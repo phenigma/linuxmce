@@ -65,6 +65,7 @@ using namespace DCE;
 #include "pluto_main/Table_DHCPDevice.h"
 #include "pluto_main/Table_Manufacturer.h"
 #include "pluto_main/Table_Room.h"
+#include "pluto_main/Table_Size.h"
 #include "DCERouter.h"
 #include "CreateDevice/CreateDevice.h"
 #include "BD/PhoneDevice.h"
@@ -1064,20 +1065,29 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
 			PK_UI=UI_Normal_Horizontal_3_4_CONST;
 			if( (!iWidth || !iHeight) && iPK_Size )
 			{
-				switch( iPK_Size )
+				Row_Size *pRow_Size = m_pDatabase_pluto_main->Size_get()->GetRow(iPK_Size);
+				if( pRow_Size && pRow_Size->Width_get() && pRow_Size->Height_get() )
 				{
-				case SIZE_800x600_CONST:
-					iWidth=800;
-					iHeight=600;
-					break;
-				case SIZE_640x480_CONST:
-					iWidth=640;
-					iHeight=480;
-					break;
-				case SIZE_1024x768_CONST:
-					iWidth=1024;
-					iHeight=768;
-					break;
+					iWidth=pRow_Size->Width_get();
+					iHeight=pRow_Size->Height_get();
+				}
+				else
+				{
+					switch( iPK_Size )
+					{
+					case SIZE_800x600_CONST:
+						iWidth=800;
+						iHeight=600;
+						break;
+					case SIZE_640x480_Standard_TV_CONST:
+						iWidth=640;
+						iHeight=480;
+						break;
+					case SIZE_1024x768_CONST:
+						iWidth=1024;
+						iHeight=768;
+						break;
+					}
 				}
 			}
 			else if( iWidth && iHeight && !iPK_Size )
@@ -1085,7 +1095,7 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
 				if( iWidth==800 && iHeight==600 )
 					iPK_Size=SIZE_800x600_CONST;
 				else if( iWidth==640 && iHeight==480 )
-					iPK_Size=SIZE_640x480_CONST;
+					iPK_Size=SIZE_640x480_Standard_TV_CONST;
 				else if( iWidth==1024 && iHeight==768 )
 					iPK_Size=SIZE_1024x768_CONST;
 			}
@@ -1093,7 +1103,7 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
 			{
 				iWidth=640;
 				iHeight=480;
-				iPK_Size=SIZE_640x480_CONST;
+				iPK_Size=SIZE_640x480_Standard_TV_CONST;
 			}
  		}
     }

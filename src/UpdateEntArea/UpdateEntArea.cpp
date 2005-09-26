@@ -34,11 +34,14 @@
 #include "pluto_main/Define_Array.h"
 #include "pluto_main/Define_DeviceCategory.h"
 #include "pluto_main/Define_MediaType.h"
+#include "pluto_main/Define_Variable.h"
+#include "pluto_main/Define_DesignObj.h"
 #include "pluto_main/Table_Command.h"
 #include "pluto_main/Table_CommandGroup.h"
 #include "pluto_main/Table_CommandGroup_Command.h"
 #include "pluto_main/Table_CommandGroup_Command_CommandParameter.h"
 #include "pluto_main/Table_CommandGroup_EntertainArea.h"
+#include "pluto_main/Table_CommandGroup_Room.h"
 #include "pluto_main/Table_CommandParameter.h"
 
 #define  VERSION "<=version=>"
@@ -72,7 +75,7 @@ UpdateEntArea::UpdateEntArea(int PK_Installation,string host, string user, strin
 	vectRow_Device.clear();
 	sql = "JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory=" + StringUtils::itos(DEVICECATEGORY_Orbiter_Plugins_CONST);
 	if( m_iPK_Installation!=-1 )
-		sql += " AND FK_Installation=" + StringUtils::itos(PK_Installation);
+		sql += " AND FK_Installation=" + StringUtils::itos(m_iPK_Installation);
 	m_pDatabase_pluto_main->Device_get()->GetRows(sql,&vectRow_Device);
 	if( vectRow_Device.size()!=1 )
 	{
@@ -191,7 +194,6 @@ void UpdateEntArea::DoIt()
 					pRow_EntertainArea->FK_Room_set(pRow_Room->PK_Room_get());
 					pRow_EntertainArea->Description_set(pRow_Room->Description_get());
 					m_pDatabase_pluto_main->EntertainArea_get()->Commit();
-					AddDefaultCommandsToEntArea(pRow_EntertainArea);
 				}
 
 				pRow_EntertainArea->Description_set(pRow_Room->Description_get());
@@ -223,8 +225,11 @@ void UpdateEntArea::DoIt()
 				}
 				m_pDatabase_pluto_main->EntertainArea_get()->Commit();
 				m_pDatabase_pluto_main->Device_EntertainArea_get()->Commit();
+				AddDefaultCommandsToEntArea(pRow_EntertainArea);
+				m_pDatabase_pluto_main->Commit();
 			}
 		}
+		AddDefaultCommandsToRoom(pRow_Room);
 		/* todo flag all orbiters
 		if( bChangedEAs )
 		{
@@ -284,24 +289,61 @@ void UpdateEntArea::DeleteEntertainArea(Row_EntertainArea *pRow_EntertainArea)
 	m_pDatabase_pluto_main->Device_EntertainArea_get()->Commit();
 }
 
-void UpdateEntArea::AddDefaultCommandsToEntArea(Row_EntertainArea *pRow_EntertainArea,int iPK_Template)
+void UpdateEntArea::AddDefaultCommandsToRoom(Row_Room *pRow_Room,int iPK_Template)
 {
 	int PK_CommandGroup;
-	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_TV_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_TV_CONST,"TV"))!=0 )
+	if( (!iPK_Template || iPK_Template==TEMPLATE_Security_View_Cameras_CONST) )
 	{
-		AddCommand(PK_CommandGroup,m_dwPK_Device_MediaPlugIn,COMMAND_MH_Play_Media_CONST,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_pluto_LiveTV_CONST).c_str());
+		string sSQL="SELECT PK_Device,Device.Description FROM Device "
+			"JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate "
+			"WHERE FK_DeviceCategory=" + StringUtils::itos(DEVICECATEGORY_Surveillance_Cameras_CONST);
+
+		PlutoSqlResult result_set;
+		MYSQL_ROW row;
+		if( (result_set.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) )
+		{
+			while ((row = mysql_fetch_row(result_set.r)))
+			{
+				string sDesc = string("View ") + row[1];
+				if( (PK_CommandGroup=FindCommandGroupByTemplate(pRow_Room,TEMPLATE_Security_View_Cameras_CONST,sDesc,atoi(row[0])))!=0 )
+				{
+					AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Set_Variable_CONST,2,COMMANDPARAMETER_PK_Variable_CONST,StringUtils::itos(VARIABLE_PK_Device_CONST).c_str(),
+						COMMANDPARAMETER_Value_To_Assign_CONST,row[0]);
+					AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,StringUtils::itos(DESIGNOBJ_mnuSingleCameraViewOnly_CONST).c_str());
+				}
+			}
+		}
 	}
-	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_Disc_CDDVD_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_Disc_CDDVD_CONST,"Play Disc"))!=0 )
+}
+
+void UpdateEntArea::AddDefaultCommandsToEntArea(Row_EntertainArea *pRow_EntertainArea,int iPK_Template)
+{
+	string sSQL;
+	int PK_CommandGroup;
+
+	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_TV_CONST) )
 	{
-		AddCommand(PK_CommandGroup,m_dwPK_Device_MediaPlugIn,COMMAND_MH_Play_Media_CONST,0);
-	}
-	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_playlists_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_playlists_CONST,"Playlists"))!=0 )
-	{
-		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Show_File_List_CONST,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_misc_Playlist_CONST).c_str());
-	}
-	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_music_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_music_CONST,"Music"))!=0 )
-	{
-		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Show_File_List_CONST,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_pluto_StoredAudio_CONST).c_str());
+
+		sSQL="SELECT PK_Device,Description FROM Device_EntertainArea "
+			"JOIN Device ON FK_Device=PK_Device "
+			"JOIN DeviceTemplate_MediaType ON Device.FK_DeviceTemplate=DeviceTemplate_MediaType.FK_DeviceTemplate "
+			"WHERE FK_MediaType=" + StringUtils::itos(MEDIATYPE_pluto_LiveTV_CONST) + " AND FK_EntertainArea=" + StringUtils::itos(pRow_EntertainArea->PK_EntertainArea_get());
+
+		PlutoSqlResult result_set;
+		MYSQL_ROW row;
+		if( (result_set.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) )
+		{
+			while ((row = mysql_fetch_row(result_set.r)))
+			{
+				string sDesc = "TV";
+				if( result_set.r->row_count>1 )
+					sDesc += string("\n") + row[1];
+				if( (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_TV_CONST,sDesc,atoi(row[0])))!=0 )
+				{
+					AddCommand(PK_CommandGroup,m_dwPK_Device_MediaPlugIn,COMMAND_MH_Play_Media_CONST,2,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_pluto_LiveTV_CONST).c_str(),COMMANDPARAMETER_PK_Device_CONST,row[0]);
+				}
+			}
+		}
 	}
 	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_movies_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_movies_CONST,"Movies"))!=0 )
 	{
@@ -311,6 +353,26 @@ void UpdateEntArea::AddDefaultCommandsToEntArea(Row_EntertainArea *pRow_Entertai
 	{
 		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Show_File_List_CONST,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_pluto_StoredVideo_CONST).c_str());
 	}
+	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_music_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_music_CONST,"Music"))!=0 )
+	{
+		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Show_File_List_CONST,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_pluto_StoredAudio_CONST).c_str());
+	}
+	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_playlists_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_playlists_CONST,"Playlists"))!=0 )
+	{
+		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Show_File_List_CONST,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_misc_Playlist_CONST).c_str());
+	}
+	if( !iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_Disc_CDDVD_CONST )
+	{
+		// Only add this button if there's a disk drive
+		string sSQL = "SELECT PK_Device FROM Device_EntertainArea "
+			"JOIN Device ON FK_Device=PK_Device "
+			"JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate "
+			"WHERE FK_DeviceCategory=" + StringUtils::itos(DEVICECATEGORY_Disc_Drives_CONST) + " AND FK_EntertainArea=" + StringUtils::itos(pRow_EntertainArea->PK_EntertainArea_get());
+		PlutoSqlResult result_set;
+		if( (result_set.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) && result_set.r->row_count>0 && 
+			(PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_Disc_CDDVD_CONST,"Play Disc"))!=0 )
+			AddCommand(PK_CommandGroup,m_dwPK_Device_MediaPlugIn,COMMAND_MH_Play_Media_CONST,0);
+	}
 	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_pictures_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_pictures_CONST,"Pictures"))!=0 )
 	{
 		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Show_File_List_CONST,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_pluto_Pictures_CONST).c_str());
@@ -319,11 +381,82 @@ void UpdateEntArea::AddDefaultCommandsToEntArea(Row_EntertainArea *pRow_Entertai
 	{
 		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Show_File_List_CONST,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_misc_DocViewer_CONST).c_str());
 	}
+
+	{
+		string sSQL="SELECT PK_Device,FK_MediaType,MediaType.Description as MediaType "
+			"FROM Device_EntertainArea "
+			"JOIN Device ON FK_Device=PK_Device "
+			"JOIN DeviceTemplate_MediaType ON Device.FK_DeviceTemplate=DeviceTemplate_MediaType.FK_DeviceTemplate "
+			"JOIN MediaType ON FK_MediaType=PK_MediaType "
+			"WHERE FK_EntertainArea=" + StringUtils::itos(pRow_EntertainArea->PK_EntertainArea_get()) + " AND FK_MediaType NOT IN (1,2,3,4,5,6,7,20,21,22,23,24)";
+
+		PlutoSqlResult result_set;
+		MYSQL_ROW row;
+		if( (result_set.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) )
+		{
+			while ((row = mysql_fetch_row(result_set.r)))
+			{
+				Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(atoi(row[0]));
+				if( pRow_Device->FK_DeviceTemplate_getrow()->IsEmbedded_get() )
+					pRow_Device = pRow_Device->FK_Device_ControlledVia_getrow();
+
+				if( !pRow_Device )
+				{
+					g_pPlutoLogger->Write(LV_CRITICAL,"Error device %s cannot be located",row[0]);
+					continue;
+				}
+
+				string sDesc = pRow_Device->Description_get() + "\n" + row[2];
+				if( (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_TV_CONST,sDesc,atoi(row[0])))!=0 )
+				{
+					AddCommand(PK_CommandGroup,m_dwPK_Device_MediaPlugIn,COMMAND_MH_Play_Media_CONST,2,COMMANDPARAMETER_PK_MediaType_CONST,row[1],COMMANDPARAMETER_PK_Device_CONST,row[0]);
+				}
+			}
+		}
+	}
 }
 
-int UpdateEntArea::FindCommandGroupByTemplate(Row_EntertainArea *pRow_EntertainArea,int PK_Template,string sDescription)
+int UpdateEntArea::FindCommandGroupByTemplate(Row_Room *pRow_Room,int PK_Template,string sDescription,int TemplateParm1,int TemplateParm2)
+{
+	string SQL = "JOIN CommandGroup_Room ON FK_CommandGroup=PK_CommandGroup WHERE FK_Room=" + StringUtils::itos(pRow_Room->PK_Room_get()) + " AND FK_Template=" + StringUtils::itos(PK_Template);
+	if( TemplateParm1 )
+		SQL += " AND TemplateParm1=" + StringUtils::itos(TemplateParm1);
+	if( TemplateParm2 )
+		SQL += " AND TemplateParm2=" + StringUtils::itos(TemplateParm2);
+
+	vector<Row_CommandGroup *> vectRow_CommandGroup;
+	m_pDatabase_pluto_main->CommandGroup_get()->GetRows(SQL,&vectRow_CommandGroup);
+	if( vectRow_CommandGroup.size() )
+		return 0;
+
+	Row_CommandGroup *pRow_CommandGroup = m_pDatabase_pluto_main->CommandGroup_get()->AddRow();
+	pRow_CommandGroup->Hint_set( pRow_Room->Description_get() );
+	pRow_CommandGroup->FK_Template_set(PK_Template);
+	pRow_CommandGroup->Description_set(sDescription);
+	pRow_CommandGroup->FK_Installation_set( m_iPK_Installation );
+	pRow_CommandGroup->FK_Array_set( ARRAY_Media_Scenarios_CONST );
+	pRow_CommandGroup->AutoGenerated_set(true);
+	m_pDatabase_pluto_main->CommandGroup_get()->Commit();
+	g_pPlutoLogger->Write(LV_STATUS,"Added entertainment area %d %s ea: %d %s hint: %s",
+		pRow_CommandGroup->PK_CommandGroup_get(),pRow_CommandGroup->Description_get().c_str(),
+		pRow_Room->PK_Room_get(), pRow_Room->Description_get().c_str(),
+		pRow_CommandGroup->Hint_get().c_str());
+	Row_CommandGroup_Room *pRow_CommandGroup_Room = m_pDatabase_pluto_main->CommandGroup_Room_get()->AddRow();
+	pRow_CommandGroup_Room->FK_CommandGroup_set(pRow_CommandGroup->PK_CommandGroup_get());
+	pRow_CommandGroup_Room->FK_Room_set(pRow_Room->PK_Room_get());
+	pRow_CommandGroup_Room->Sort_set(pRow_CommandGroup->PK_CommandGroup_get());
+	m_pDatabase_pluto_main->CommandGroup_Room_get()->Commit();
+
+	return pRow_CommandGroup->PK_CommandGroup_get();
+}
+int UpdateEntArea::FindCommandGroupByTemplate(Row_EntertainArea *pRow_EntertainArea,int PK_Template,string sDescription,int TemplateParm1,int TemplateParm2)
 {
 	string SQL = "JOIN CommandGroup_EntertainArea ON FK_CommandGroup=PK_CommandGroup WHERE FK_EntertainArea=" + StringUtils::itos(pRow_EntertainArea->PK_EntertainArea_get()) + " AND FK_Template=" + StringUtils::itos(PK_Template);
+	if( TemplateParm1 )
+		SQL += " AND TemplateParm1=" + StringUtils::itos(TemplateParm1);
+	if( TemplateParm2 )
+		SQL += " AND TemplateParm2=" + StringUtils::itos(TemplateParm2);
+
 	vector<Row_CommandGroup *> vectRow_CommandGroup;
 	m_pDatabase_pluto_main->CommandGroup_get()->GetRows(SQL,&vectRow_CommandGroup);
 	if( vectRow_CommandGroup.size() )
