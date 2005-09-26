@@ -470,6 +470,7 @@ string m_sLastMySqlError;
 bool Connect(string host, string user, string pass, string sDBName, int port);
 bool Connect(class DCEConfig *pDCEConfig);
 void Disconnect();
+bool Commit(bool bDeleteFailedModifiedRow=false,bool bDeleteFailedInsertRow=false);
 private:
 void CreateTable_Array();
 void CreateTable_Broadcast();
