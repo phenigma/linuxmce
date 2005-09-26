@@ -34,6 +34,18 @@ rm -f /usr/pluto/bin/Mozilla_Plugin.so
 # Temporary code to change security scenarios to use variable 1 instead of 22
 RunSQL "UPDATE CommandGroup JOIN CommandGroup_Command ON FK_CommandGroup=PK_CommandGroup JOIN CommandGroup_Command_CommandParameter ON FK_CommandGroup_Command=PK_CommandGroup_Command SET IK_CommandParameter=1 where FK_Template in (15,16,12) AND FK_Command=27 AND FK_CommandParameter=4 AND IK_CommandParameter=22"
 
+# If any PC's are missing app servers, add them.  There was a bug in .29 that it didn't have app servers
+Q="SELECT PC.PK_Device FROM Device AS PC
+JOIN DeviceTemplate AS PCDT ON PC.FK_DeviceTemplate=PCDT.PK_DeviceTemplate
+LEFT JOIN Device AS APP ON APP.FK_Device_ControlledVia=PC.PK_Device AND APP.FK_DeviceTemplate=26
+WHERE PCDT.FK_DeviceCategory IN (6,7,8) AND APP.PK_Device IS NULL"
+
+PCS=$(RunSQL "$Q")
+
+for PCDev in $PCS; do
+	/usr/pluto/bin/CreateDevice -d 26 -C $PCDev 
+done
+
 if [ "$SkipDatabase" != "yes" ]; then
 	DIDsql="/usr/pluto/install/database_initial_data.sql"
 	wget -O "$DIDsql" "http://plutohome.com/initialdata.php?code=$code&device=$device" 2>/dev/null
