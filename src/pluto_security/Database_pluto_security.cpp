@@ -42,6 +42,46 @@ Database_pluto_security::~Database_pluto_security()
 	DeleteAllTables();
 }
 
+bool Database_pluto_security::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+bool bResult=true;
+if( tblAlert!=NULL )
+	if( !Commit_Alert(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
+if( tblAlertType!=NULL )
+	if( !Commit_AlertType(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
+if( tblAlert_Device!=NULL )
+	if( !Commit_Alert_Device(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
+if( tblModeChange!=NULL )
+	if( !Commit_ModeChange(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
+if( tblNotification!=NULL )
+	if( !Commit_Notification(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
+if( tblpsc_security_batdet!=NULL )
+	if( !Commit_psc_security_batdet(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
+if( tblpsc_security_bathdr!=NULL )
+	if( !Commit_psc_security_bathdr(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
+if( tblpsc_security_batuser!=NULL )
+	if( !Commit_psc_security_batuser(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
+if( tblpsc_security_repset!=NULL )
+	if( !Commit_psc_security_repset(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
+if( tblpsc_security_schema!=NULL )
+	if( !Commit_psc_security_schema(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
+if( tblpsc_security_tables!=NULL )
+	if( !Commit_psc_security_tables(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
+return bResult;
+
+}
+
 void Database_pluto_security::DeleteAllTables()
 {
 DeleteTable_Alert();

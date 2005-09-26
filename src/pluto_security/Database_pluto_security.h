@@ -26,16 +26,27 @@ Database_pluto_security();
 void DeleteAllTables();
 private:
 class Table_Alert* tblAlert;
+bool Commit_Alert(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_AlertType* tblAlertType;
+bool Commit_AlertType(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_Alert_Device* tblAlert_Device;
+bool Commit_Alert_Device(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_ModeChange* tblModeChange;
+bool Commit_ModeChange(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_Notification* tblNotification;
+bool Commit_Notification(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_psc_security_batdet* tblpsc_security_batdet;
+bool Commit_psc_security_batdet(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_psc_security_bathdr* tblpsc_security_bathdr;
+bool Commit_psc_security_bathdr(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_psc_security_batuser* tblpsc_security_batuser;
+bool Commit_psc_security_batuser(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_psc_security_repset* tblpsc_security_repset;
+bool Commit_psc_security_repset(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_psc_security_schema* tblpsc_security_schema;
+bool Commit_psc_security_schema(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_psc_security_tables* tblpsc_security_tables;
+bool Commit_psc_security_tables(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 public:
 class Table_Alert* Alert_get() { if( !tblAlert ) CreateTable_Alert(); return tblAlert; }
 class Table_AlertType* AlertType_get() { if( !tblAlertType ) CreateTable_AlertType(); return tblAlertType; }
@@ -52,6 +63,7 @@ string m_sLastMySqlError;
 bool Connect(string host, string user, string pass, string sDBName, int port);
 bool Connect(class DCEConfig *pDCEConfig);
 void Disconnect();
+bool Commit(bool bDeleteFailedModifiedRow=false,bool bDeleteFailedInsertRow=false);
 private:
 void CreateTable_Alert();
 void CreateTable_AlertType();

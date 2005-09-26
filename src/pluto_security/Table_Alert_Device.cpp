@@ -32,6 +32,11 @@ void Database_pluto_security::DeleteTable_Alert_Device()
 		delete tblAlert_Device;
 }
 
+bool Database_pluto_security::Commit_Alert_Device(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	return tblAlert_Device->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_Alert_Device::~Table_Alert_Device()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

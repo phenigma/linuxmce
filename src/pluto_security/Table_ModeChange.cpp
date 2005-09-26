@@ -31,6 +31,11 @@ void Database_pluto_security::DeleteTable_ModeChange()
 		delete tblModeChange;
 }
 
+bool Database_pluto_security::Commit_ModeChange(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	return tblModeChange->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_ModeChange::~Table_ModeChange()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

@@ -32,6 +32,11 @@ void Database_pluto_security::DeleteTable_Notification()
 		delete tblNotification;
 }
 
+bool Database_pluto_security::Commit_Notification(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	return tblNotification->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_Notification::~Table_Notification()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;

@@ -35,6 +35,11 @@ void Database_pluto_security::DeleteTable_psc_security_batdet()
 		delete tblpsc_security_batdet;
 }
 
+bool Database_pluto_security::Commit_psc_security_batdet(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	return tblpsc_security_batdet->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
 Table_psc_security_batdet::~Table_psc_security_batdet()
 {
 	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;
