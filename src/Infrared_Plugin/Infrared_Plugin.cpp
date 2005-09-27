@@ -505,17 +505,16 @@ void Infrared_Plugin::GetInfraredCodes(int iPK_Device,IRDevice &irDevice,bool bN
 	Row_DeviceTemplate_AV *pRow_DeviceTemplate_AV = m_pDatabase_pluto_main->DeviceTemplate_AV_get()->GetRow(FK_DeviceTemplate);
 	if( pRow_DeviceTemplate_AV )
 	{
-		m_bUsesIR=true; // todo
-		m_bTogglePower=pRow_DeviceTemplate_AV->TogglePower_get()==1;
-		m_bToggleDSP=pRow_DeviceTemplate_AV->ToggleDSP_get()==1;
-		m_bToggleInput=pRow_DeviceTemplate_AV->ToggleInput_get()==1;
-		m_bToggleOutput=pRow_DeviceTemplate_AV->ToggleOutput_get()==1;
-		m_iPowerDelay=pRow_DeviceTemplate_AV->IR_PowerDelay_get();
-		m_iModeDelay=pRow_DeviceTemplate_AV->IR_ModeDelay_get();
-		m_iDigitDelay=pRow_DeviceTemplate_AV->DigitDelay_get();
-		string m_sNumericEntry=pRow_DeviceTemplate_AV->NumericEntry_get();
+		irDevice.m_bUsesIR=true; // todo
+		irDevice.m_bTogglePower=pRow_DeviceTemplate_AV->TogglePower_get()==1;
+		irDevice.m_bToggleDSP=pRow_DeviceTemplate_AV->ToggleDSP_get()==1;
+		irDevice.m_bToggleInput=pRow_DeviceTemplate_AV->ToggleInput_get()==1;
+		irDevice.m_bToggleOutput=pRow_DeviceTemplate_AV->ToggleOutput_get()==1;
+		irDevice.m_iPowerDelay=pRow_DeviceTemplate_AV->IR_PowerDelay_get();
+		irDevice.m_iModeDelay=pRow_DeviceTemplate_AV->IR_ModeDelay_get();
+		irDevice.m_iDigitDelay=pRow_DeviceTemplate_AV->DigitDelay_get();
+		irDevice.m_sNumericEntry=pRow_DeviceTemplate_AV->NumericEntry_get();
 	}
-	list<int> m_listInputs;
 
 	vector<Row_DeviceTemplate_InfraredGroup *> vectRow_DeviceTemplate_InfraredGroup;
 	m_pDatabase_pluto_main->DeviceTemplate_InfraredGroup_get()->GetRows("FK_DeviceTemplate=" + StringUtils::itos(FK_DeviceTemplate),
