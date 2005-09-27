@@ -1995,7 +1995,7 @@ Row_Size *OrbiterGenerator::TranslateSize(string sSize)
 	int Scale = Height * 1000 / 1600;
 	Row_Size *pRow_Size = new Row_Size(mds.Size_get());
 	pRow_Size->Width_set(Width);
-	pRow_Size->Height_set(Width);
+	pRow_Size->Height_set(Height);
 	pRow_Size->ScaleX_set(Scale);
 	pRow_Size->ScaleY_set(Scale);
 	return pRow_Size;
