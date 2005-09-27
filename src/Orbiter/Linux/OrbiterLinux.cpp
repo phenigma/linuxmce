@@ -409,7 +409,7 @@ bool OrbiterLinux::DisplayProgress(string sMessage, int nProgress)
 
 int OrbiterLinux::PromptUser(string sPrompt, map<int, string> *p_mapPrompts/*=NULL*/)
 {
-#ifndef TESTPROMPTUSER
+#if 0
 	return PROMPT_CANCEL;
 #else
 	XPromptUser promptDlg(sPrompt, p_mapPrompts);

@@ -102,6 +102,7 @@ int XPromptUser::CreateWindow(Display *pDisplay, int nScreen, Window wndParent, 
 				it = m_pMapPrompts->begin();
 				while (it != m_pMapPrompts->end()) {
 					pButton = new X3DButton();
+					pButton->SetFont(m_btnFont);
 					pButton->CreateWindow(m_pDisplay, m_nScreen, m_wndThis, nBtnX, nBtnY, nWidth, nHeight, it->second);
 					m_mapButtons[it->first] = pButton;
 
@@ -141,6 +142,7 @@ int XPromptUser::CreateWindow(Display *pDisplay, int nScreen, Window wndParent, 
 				it = m_pMapPrompts->begin();
 				while (it != m_pMapPrompts->end()) {
 					pButton = new X3DButton();
+					pButton->SetFont(m_btnFont);
 					pButton->CreateWindow(m_pDisplay, m_nScreen, m_wndThis, nBtnX, nBtnY, nWidth, nHeight, it->second);
 					m_mapButtons[it->first] = pButton;
 
@@ -330,7 +332,14 @@ int XPromptUser::RunModal()
 
 void XPromptUser::DeInit()
 {
+	map<int, X3DButton*>::iterator btnit = m_mapButtons.begin();
+	while (btnit != m_mapButtons.end()) {
+		btnit->second->DestroyWindow();
+		
+		btnit++;
+	}
 	UnloadFonts();
+	DestroyWindow();
 	XSync(m_pDisplay, false);
 	XCloseDisplay(m_pDisplay);
 	m_pDisplay = NULL;

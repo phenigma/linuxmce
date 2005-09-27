@@ -16,7 +16,7 @@ Gen_Dev_Files = $(GENDEV)/OrbiterBase.cpp
 sources = Main.cpp Orbiter.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
-CXXFLAGS +=
+CXXFLAGS += -g -O0
 CPPFLAGS += -I/usr/include/SDL -DORBITER -DCACHE_IMAGES -DxPHONEKEYS -I$(ROOT)/Splitter -I$(ROOT)/OrbiterGen
 LDFLAGS += -L/usr/X11R6/lib
 XTRALDLIBS = -lDCECommon -lSDL -lSDL_ttf -lSDL_image -lSGE -lSDL_gfx -lXtst
