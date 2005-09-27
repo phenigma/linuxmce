@@ -2957,9 +2957,9 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 						break;
 					if( time(NULL)>tTimeout )
 					{
-						DisplayProgress("",-1);
+// XXX TODO PUt this back						DisplayProgress("",-1);
 						string sMessage = m_mapTextString[TEXT_Not_all_devices_started_CONST];
-						PromptUser(sMessage);
+// XXX TODO PUt this back						PromptUser(sMessage);
 						break;
 					}
 
@@ -2971,11 +2971,11 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 						DeviceData_Base *pDevice = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(it->first);
 						sDescription += "  #" + StringUtils::itos(it->first) + "/" + (pDevice ? pDevice->m_sDescription : string(""));
 					}
-					if( DisplayProgress(sDescription,100-(iUnregisteredRelatives*100/mapUnregisteredRelatives.size())) )
-					{
-						OnQuit();
-						return;
-					}
+// XXX TODO PUt this back					if( DisplayProgress(sDescription,100-(iUnregisteredRelatives*100/mapUnregisteredRelatives.size())) )
+// XXX TODO PUt this back					{
+// XXX TODO PUt this back						OnQuit();
+// XXX TODO PUt this back						return;
+// XXX TODO PUt this back					}
 					Sleep(1000); // Sleep and try again
 				}
 			}

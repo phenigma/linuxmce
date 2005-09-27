@@ -31,11 +31,9 @@ fi
 RunSQL "DELETE FROM Device where FK_DeviceTemplate=30" # We got rid of Mozilla Plugin
 rm -f /usr/pluto/bin/Mozilla_Plugin.so
 #apt-get -y remove pluto-mozilla-plugin pluto-src-mozilla-plugin || true
-# Temporary code to change security scenarios to use variable 1 instead of 22
-RunSQL "UPDATE CommandGroup JOIN CommandGroup_Command ON FK_CommandGroup=PK_CommandGroup JOIN CommandGroup_Command_CommandParameter ON FK_CommandGroup_Command=PK_CommandGroup_Command SET IK_CommandParameter=1 where FK_Template in (15,16,12) AND FK_Command=27 AND FK_CommandParameter=4 AND IK_CommandParameter=22"
 
 # Temporary code since we changed the way these scenarios are created
-RunSQL "DELETE FROM CommandGroup where FK_Template in (1,2,3,4,5,6,7,8,18)"
+RunSQL "DELETE FROM CommandGroup where FK_Template in (1,2,3,4,5,6,7,8,13,14,16,17,18)"
 
 # If any PC's are missing app servers, add them.  There was a bug in .29 that it didn't have app servers
 Q="SELECT PC.PK_Device FROM Device AS PC

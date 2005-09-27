@@ -9,7 +9,7 @@
 class UpdateEntArea 
 {
 	int m_iPK_Installation;
-	int m_dwPK_Device_MediaPlugIn,m_dwPK_Device_OrbiterPlugIn;
+	int m_dwPK_Device_MediaPlugIn,m_dwPK_Device_OrbiterPlugIn,m_dwPK_Device_LightingPlugIn;
 
 public:
     Database_pluto_main *m_pDatabase_pluto_main ;
@@ -21,7 +21,7 @@ public:
 	void AddDefaultCommandsToEntArea(Row_EntertainArea *pRow_EntertainArea,int iPK_Template=0);
 	void AddDefaultCommandsToRoom(Row_Room *pRow_Room,int iPK_Template=0);
 	int FindCommandGroupByTemplate(Row_EntertainArea *pRow_EntertainArea,int PK_Template,string sDescription,int TemplateParm1=0,int TemplateParm2=0);
-	int FindCommandGroupByTemplate(Row_Room *pRow_Room,int PK_Template,string sDescription,int TemplateParm1=0,int TemplateParm2=0);
+	int FindCommandGroupByTemplate(Row_Room *pRow_Room,int PK_Template,int PK_Array,string sDescription,int TemplateParm1=0,int TemplateParm2=0);
 	void AddCommand(int PK_CommandGroup,int PK_Device,int PK_Command,int NumParms,...);
 	void AddMDsDevicesToEntArea(Row_EntertainArea *pRow_EntertainArea);
 	void AddAVDevicesToEntArea(Row_EntertainArea *pRow_EntertainArea);

@@ -24,6 +24,7 @@
 
 #include "pluto_main/Table_Device_DeviceData.h"
 #include "pluto_main/Table_DeviceData.h"
+#include "pluto_main/Table_DeviceGroup.h"
 #include "pluto_main/Table_Device_EntertainArea.h"
 #include "pluto_main/Table_DeviceCategory.h"
 #include "pluto_main/Table_DeviceTemplate.h"
@@ -43,6 +44,7 @@
 #include "pluto_main/Table_CommandGroup_EntertainArea.h"
 #include "pluto_main/Table_CommandGroup_Room.h"
 #include "pluto_main/Table_CommandParameter.h"
+#include "pluto_main/Table_Users.h"
 
 #define  VERSION "<=version=>"
 
@@ -62,7 +64,7 @@ UpdateEntArea::UpdateEntArea(int PK_Installation,string host, string user, strin
 	vector<Row_Device *> vectRow_Device;
 	string sql = "JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory=" + StringUtils::itos(DEVICECATEGORY_Media_Plugins_CONST);
 	if( m_iPK_Installation!=-1 )
-		sql += " AND FK_Installation=" + StringUtils::itos(PK_Installation);
+		sql += " AND FK_Installation=" + StringUtils::itos(m_iPK_Installation);
 	m_pDatabase_pluto_main->Device_get()->GetRows(sql,&vectRow_Device);
 	if( vectRow_Device.size()!=1 )
 	{
@@ -83,6 +85,18 @@ UpdateEntArea::UpdateEntArea(int PK_Installation,string host, string user, strin
 		throw "No Orbiter Plugin";
 	}
 	m_dwPK_Device_OrbiterPlugIn=vectRow_Device[0]->PK_Device_get();
+
+	vectRow_Device.clear();
+	sql = "JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory=" + StringUtils::itos(DEVICECATEGORY_Lighting_Plugins_CONST);
+	if( m_iPK_Installation!=-1 )
+		sql += " AND FK_Installation=" + StringUtils::itos(m_iPK_Installation);
+	m_pDatabase_pluto_main->Device_get()->GetRows(sql,&vectRow_Device);
+	if( vectRow_Device.size()!=1 )
+	{
+		cerr << "Cannot find a lighting plugin" << endl;
+		throw "No Orbiter Plugin";
+	}
+	m_dwPK_Device_LightingPlugIn=vectRow_Device[0]->PK_Device_get();
 }
 
 void UpdateEntArea::DoIt()
@@ -292,6 +306,65 @@ void UpdateEntArea::DeleteEntertainArea(Row_EntertainArea *pRow_EntertainArea)
 void UpdateEntArea::AddDefaultCommandsToRoom(Row_Room *pRow_Room,int iPK_Template)
 {
 	int PK_CommandGroup;
+
+	if( (!iPK_Template || iPK_Template==TEMPLATE_Lighting_Automatic_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_Room,TEMPLATE_Lighting_Automatic_CONST,ARRAY_Lighting_Scenarios_CONST,"On",1))!=0 )
+	{
+		AddCommand(PK_CommandGroup,m_dwPK_Device_LightingPlugIn,COMMAND_Set_Level_CONST,1,COMMANDPARAMETER_Level_CONST,"100");
+	}
+
+	if( (!iPK_Template || iPK_Template==TEMPLATE_Lighting_Automatic_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_Room,TEMPLATE_Lighting_Automatic_CONST,ARRAY_Lighting_Scenarios_CONST,"Off",0))!=0 )
+	{
+		AddCommand(PK_CommandGroup,m_dwPK_Device_LightingPlugIn,COMMAND_Set_Level_CONST,1,COMMANDPARAMETER_Level_CONST,"0");
+	}
+
+	if( (!iPK_Template || iPK_Template==TEMPLATE_Telecom_Automatic_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_Room,TEMPLATE_Telecom_Automatic_CONST,ARRAY_Communication_Scenarios_CONST,"Phone",0))!=0 )
+	{
+		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,StringUtils::itos(DESIGNOBJ_mnuSecurityPanel_CONST).c_str());
+	}
+
+	{
+		vector<Row_Users *> vectRow_Users;
+		m_pDatabase_pluto_main->Users_get()->GetRows("true",&vectRow_Users);
+		for(size_t s=0;s<vectRow_Users.size();++s)
+		{
+			Row_Users *pRow_Users = vectRow_Users[s];
+			if( !pRow_Users->HasMailbox_get() )
+				continue;
+// TODO -- Add voicemail indicators
+			if( (!iPK_Template || iPK_Template==TEMPLATE_Telecom_Automatic_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_Room,TEMPLATE_Telecom_Automatic_CONST,ARRAY_Communication_Scenarios_CONST,"Phone",0))!=0 )
+			{
+				AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,StringUtils::itos(DESIGNOBJ_mnuSecurityPanel_CONST).c_str());
+			}
+		}
+	}
+
+	if( (!iPK_Template || iPK_Template==TEMPLATE_Security_Arm_Disarm_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_Room,TEMPLATE_Security_Arm_Disarm_CONST,ARRAY_Security_Scenarios_CONST,"Security"))!=0 )
+	{
+		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,StringUtils::itos(DESIGNOBJ_mnuMakeCallFavorites_CONST).c_str());
+	}
+
+	{
+		vector<Row_DeviceGroup *> vectRow_DeviceGroup;
+		m_pDatabase_pluto_main->DeviceGroup_get()->GetRows("true",&vectRow_DeviceGroup);
+		for(size_t s=0;s<vectRow_DeviceGroup.size();++s)
+		{
+			Row_DeviceGroup *pRow_DeviceGroup = vectRow_DeviceGroup[s];
+			if( pRow_DeviceGroup->Type_get()==1 )
+				continue;
+			if( (!iPK_Template || iPK_Template==TEMPLATE_Security_Arm_Disarm_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_Room,TEMPLATE_Security_Arm_Disarm_CONST,ARRAY_Security_Scenarios_CONST,"Security",pRow_DeviceGroup->PK_DeviceGroup_get()))!=0 )
+			{
+				AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Set_Variable_CONST,2,COMMANDPARAMETER_PK_Variable_CONST,StringUtils::itos(VARIABLE_PK_DeviceGroup_CONST).c_str(),
+					COMMANDPARAMETER_Value_To_Assign_CONST,StringUtils::itos(pRow_DeviceGroup->PK_DeviceGroup_get()));
+				AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,StringUtils::itos(DESIGNOBJ_mnuSecurityPanel_CONST).c_str());
+			}
+		}
+	}
+
+	if( (!iPK_Template || iPK_Template==TEMPLATE_Security_SOS_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_Room,TEMPLATE_Security_SOS_CONST,ARRAY_Security_Scenarios_CONST,"*SOS*"))!=0 )
+	{
+		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,StringUtils::itos(DESIGNOBJ_mnuSecurityCameras_CONST).c_str());
+	}
+
 	if( (!iPK_Template || iPK_Template==TEMPLATE_Security_View_Cameras_CONST) )
 	{
 		string sSQL="SELECT PK_Device,Device.Description FROM Device "
@@ -305,7 +378,7 @@ void UpdateEntArea::AddDefaultCommandsToRoom(Row_Room *pRow_Room,int iPK_Templat
 			while ((row = mysql_fetch_row(result_set.r)))
 			{
 				string sDesc = string("View ") + row[1];
-				if( (PK_CommandGroup=FindCommandGroupByTemplate(pRow_Room,TEMPLATE_Security_View_Cameras_CONST,sDesc,atoi(row[0])))!=0 )
+				if( (PK_CommandGroup=FindCommandGroupByTemplate(pRow_Room,TEMPLATE_Security_View_Cameras_CONST,ARRAY_Security_Scenarios_CONST,sDesc,atoi(row[0])))!=0 )
 				{
 					AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Set_Variable_CONST,2,COMMANDPARAMETER_PK_Variable_CONST,StringUtils::itos(VARIABLE_PK_Device_CONST).c_str(),
 						COMMANDPARAMETER_Value_To_Assign_CONST,row[0]);
@@ -397,8 +470,8 @@ void UpdateEntArea::AddDefaultCommandsToEntArea(Row_EntertainArea *pRow_Entertai
 			while ((row = mysql_fetch_row(result_set.r)))
 			{
 				Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(atoi(row[0]));
-				if( pRow_Device->FK_DeviceTemplate_getrow()->IsEmbedded_get() )
-					pRow_Device = pRow_Device->FK_Device_ControlledVia_getrow();
+				if( !pRow_Device->FK_Device_RouteTo_isNull() )
+					pRow_Device = pRow_Device->FK_Device_RouteTo_getrow();
 
 				if( !pRow_Device )
 				{
@@ -406,7 +479,7 @@ void UpdateEntArea::AddDefaultCommandsToEntArea(Row_EntertainArea *pRow_Entertai
 					continue;
 				}
 
-				string sDesc = pRow_Device->Description_get() + "\n" + row[2];
+				string sDesc = row[2] + string("\n") + pRow_Device->Description_get();
 				if( (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_TV_CONST,sDesc,atoi(row[0])))!=0 )
 				{
 					AddCommand(PK_CommandGroup,m_dwPK_Device_MediaPlugIn,COMMAND_MH_Play_Media_CONST,2,COMMANDPARAMETER_PK_MediaType_CONST,row[1],COMMANDPARAMETER_PK_Device_CONST,row[0]);
@@ -416,13 +489,12 @@ void UpdateEntArea::AddDefaultCommandsToEntArea(Row_EntertainArea *pRow_Entertai
 	}
 }
 
-int UpdateEntArea::FindCommandGroupByTemplate(Row_Room *pRow_Room,int PK_Template,string sDescription,int TemplateParm1,int TemplateParm2)
+int UpdateEntArea::FindCommandGroupByTemplate(Row_Room *pRow_Room,int PK_Template,int PK_Array,string sDescription,int TemplateParm1,int TemplateParm2)
 {
-	string SQL = "JOIN CommandGroup_Room ON FK_CommandGroup=PK_CommandGroup WHERE FK_Room=" + StringUtils::itos(pRow_Room->PK_Room_get()) + " AND FK_Template=" + StringUtils::itos(PK_Template);
-	if( TemplateParm1 )
-		SQL += " AND TemplateParm1=" + StringUtils::itos(TemplateParm1);
-	if( TemplateParm2 )
-		SQL += " AND TemplateParm2=" + StringUtils::itos(TemplateParm2);
+	string SQL = "JOIN CommandGroup_Room ON FK_CommandGroup=PK_CommandGroup WHERE FK_Room=" + StringUtils::itos(pRow_Room->PK_Room_get()) + 
+		" AND FK_Template=" + StringUtils::itos(PK_Template) + " AND FK_Array=" + StringUtils::itos(PK_Array) +
+		" AND TemplateParm1=" + StringUtils::itos(TemplateParm1) +
+		" AND TemplateParm2=" + StringUtils::itos(TemplateParm2);
 
 	vector<Row_CommandGroup *> vectRow_CommandGroup;
 	m_pDatabase_pluto_main->CommandGroup_get()->GetRows(SQL,&vectRow_CommandGroup);
@@ -434,7 +506,9 @@ int UpdateEntArea::FindCommandGroupByTemplate(Row_Room *pRow_Room,int PK_Templat
 	pRow_CommandGroup->FK_Template_set(PK_Template);
 	pRow_CommandGroup->Description_set(sDescription);
 	pRow_CommandGroup->FK_Installation_set( m_iPK_Installation );
-	pRow_CommandGroup->FK_Array_set( ARRAY_Media_Scenarios_CONST );
+	pRow_CommandGroup->FK_Array_set( PK_Array );
+	pRow_CommandGroup->TemplateParm1_set(TemplateParm1);
+	pRow_CommandGroup->TemplateParm2_set(TemplateParm2);
 	pRow_CommandGroup->AutoGenerated_set(true);
 	m_pDatabase_pluto_main->CommandGroup_get()->Commit();
 	g_pPlutoLogger->Write(LV_STATUS,"Added entertainment area %d %s ea: %d %s hint: %s",
@@ -451,11 +525,10 @@ int UpdateEntArea::FindCommandGroupByTemplate(Row_Room *pRow_Room,int PK_Templat
 }
 int UpdateEntArea::FindCommandGroupByTemplate(Row_EntertainArea *pRow_EntertainArea,int PK_Template,string sDescription,int TemplateParm1,int TemplateParm2)
 {
-	string SQL = "JOIN CommandGroup_EntertainArea ON FK_CommandGroup=PK_CommandGroup WHERE FK_EntertainArea=" + StringUtils::itos(pRow_EntertainArea->PK_EntertainArea_get()) + " AND FK_Template=" + StringUtils::itos(PK_Template);
-	if( TemplateParm1 )
-		SQL += " AND TemplateParm1=" + StringUtils::itos(TemplateParm1);
-	if( TemplateParm2 )
-		SQL += " AND TemplateParm2=" + StringUtils::itos(TemplateParm2);
+	string SQL = "JOIN CommandGroup_EntertainArea ON FK_CommandGroup=PK_CommandGroup WHERE FK_EntertainArea=" + StringUtils::itos(pRow_EntertainArea->PK_EntertainArea_get()) + 
+		" AND FK_Template=" + StringUtils::itos(PK_Template) +
+		" AND TemplateParm1=" + StringUtils::itos(TemplateParm1) +
+		" AND TemplateParm2=" + StringUtils::itos(TemplateParm2);
 
 	vector<Row_CommandGroup *> vectRow_CommandGroup;
 	m_pDatabase_pluto_main->CommandGroup_get()->GetRows(SQL,&vectRow_CommandGroup);
@@ -468,6 +541,8 @@ int UpdateEntArea::FindCommandGroupByTemplate(Row_EntertainArea *pRow_EntertainA
 	pRow_CommandGroup->Description_set(sDescription);
 	pRow_CommandGroup->FK_Installation_set( m_iPK_Installation );
 	pRow_CommandGroup->FK_Array_set( ARRAY_Media_Scenarios_CONST );
+	pRow_CommandGroup->TemplateParm1_set(TemplateParm1);
+	pRow_CommandGroup->TemplateParm2_set(TemplateParm2);
 	pRow_CommandGroup->AutoGenerated_set(true);
 	m_pDatabase_pluto_main->CommandGroup_get()->Commit();
 	g_pPlutoLogger->Write(LV_STATUS,"Added entertainment area %d %s ea: %d %s hint: %s",
