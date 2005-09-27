@@ -22,7 +22,7 @@ sources = Main.cpp IRTrans.cpp $(Gen_Dev_Files)
 CXXFLAGS +=
 CPPFLAGS += -DIRTRANS_AS_LIB -DLINUX
 LDFLAGS +=
-XTRALDLIBS = -lIRBase -lSerial -lMessageTranslation -lpluto_main
+XTRALDLIBS = -lIRBase -lSerial -lMessageTranslation
 
 Gen_Dev_Files +=
 sources += ../LIRC_DCE/IRReceiverBase.cpp ../VFD_LCD/VFD_LCD_Base.cpp ../VFD_LCD/CoreMenuStructure.cpp ../VFD_LCD/MenuNode.cpp

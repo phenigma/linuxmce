@@ -19,7 +19,7 @@ sources = Main.cpp gc100.cpp $(Gen_Dev_Files)
 CXXFLAGS +=
 CPPFLAGS +=
 LDFLAGS +=
-XTRALDLIBS = -lIRBase -lSerial -lMessageTranslation -lpluto_main
+XTRALDLIBS = -lIRBase -lSerial -lMessageTranslation
 
 Gen_Dev_Files +=
 sources +=
