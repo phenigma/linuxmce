@@ -1,4 +1,4 @@
-,/*
+/*
  OrbiterLinux
 
  Copyright (C) 2004 Pluto, Inc., a Florida Corporation
@@ -414,7 +414,7 @@ int OrbiterLinux::PromptUser(string sPrompt, map<int, string> *p_mapPrompts/*=NU
 #else
 	map<int,string> mapPrompts;
 	mapPrompts[PROMPT_CANCEL]    = "Ok";
-*	if (p_mapPrompts == NULL) {
+	if (p_mapPrompts == NULL) {
 		p_mapPrompts = &mapPrompts;
 	}
 
