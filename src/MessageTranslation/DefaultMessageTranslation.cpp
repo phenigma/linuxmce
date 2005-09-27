@@ -16,7 +16,6 @@
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_CommandParameter.h"
-#include "pluto_main/Table_DeviceTemplate_AV.h"
 
 #include <assert.h>
 
@@ -27,45 +26,12 @@ DefaultMessageTranslator
 *****************************************************************/
 
 DefaultMessageTranslator::DefaultMessageTranslator() 
-	: dbprovided_(false), pdb_(NULL)
 {
 }
 
 DefaultMessageTranslator::~DefaultMessageTranslator() {
-	if(!dbprovided_ && pdb_ != NULL) {
-		delete pdb_;
-	}
 }
 
-void 
-DefaultMessageTranslator::setDatabase(Database_pluto_main* pdb) {
-	if(!dbprovided_ && pdb_ != NULL) {
-		delete pdb_;
-		dbprovided_ = true;
-	}
-	
-	pdb_ = pdb;
-}
-
-Database_pluto_main* 
-DefaultMessageTranslator::getDatabase() {
-	if(!dbprovided_	&& pdb_ == NULL) {
-		g_pPlutoLogger->Write(LV_STATUS, "Default Translation has no Database set, no problems, instantiating our own...");
-		
-		DCEConfig dceconf;
-		pdb_ = new Database_pluto_main();
-		if(!pdb_->Connect(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword,
-										dceconf.m_sDBName,dceconf.m_iDBPort) )
-		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "Cannot connect to database!");
-			delete pdb_;
-			pdb_ = NULL;
-		} else {
-			g_pPlutoLogger->Write(LV_STATUS, "Successfully connected to database!");
-		}
-	}
-	return pdb_;
-}
 
 bool 
 DefaultMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList& outrepls) {

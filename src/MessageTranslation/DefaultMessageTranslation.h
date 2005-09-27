@@ -12,7 +12,6 @@
 #ifndef DCEDEFAULTMESSAGETRANSLATION_H
 #define DCEDEFAULTMESSAGETRANSLATION_H
 
-#include "pluto_main/Database_pluto_main.h"
 #include "MessageTranslation.h"
 
 namespace DCE {
@@ -31,12 +30,8 @@ protected:
 	virtual bool Translate(MessageReplicator& inrepl, MessageReplicatorList& outrepls);
 
 protected:
-	void setDatabase(Database_pluto_main* pdb);
-	Database_pluto_main* getDatabase();
 
 private:
-	bool dbprovided_;
-	Database_pluto_main* pdb_;
 };
 
 /*****************************************************************

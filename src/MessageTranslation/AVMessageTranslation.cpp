@@ -16,9 +16,6 @@
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_CommandParameter.h"
-#include "pluto_main/Table_DeviceTemplate_AV.h"
-#include "pluto_main/Table_Command.h"
-#include "pluto_main/Table_DeviceTemplate_Input.h"
 
 namespace DCE {
 

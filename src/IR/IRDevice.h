@@ -10,6 +10,7 @@ public:
 	bool m_bUsesIR,m_bTogglePower,m_bToggleDSP,m_bToggleInput,m_bToggleOutput;
 	int m_iPowerDelay,m_iModeDelay,m_iDigitDelay;
 	string m_sNumericEntry;
+	list<int> m_listInputs;
 
 	IRDevice()
 	{
@@ -22,7 +23,7 @@ public:
 		StartSerializeList() + m_mapCodes + 
 			m_bUsesIR + m_bTogglePower + m_bToggleDSP + m_bToggleInput + m_bToggleOutput +
 			m_iPowerDelay + m_iModeDelay + m_iDigitDelay +
-			m_sNumericEntry;
+			m_sNumericEntry + m_listInputs;
 	}
 	virtual string SerializeClassClassName() { return "IRDevice"; }
 };
