@@ -1,22 +1,21 @@
 #ifndef __Define_Template_H__
 #define __Define_Template_H__
 
-#define TEMPLATE_Media_Wizard_CONST 1
-#define TEMPLATE_Media_Wiz_TV_CONST 2
-#define TEMPLATE_Media_Wiz_playlists_CONST 3
-#define TEMPLATE_Media_Wiz_music_CONST 4
 #define TEMPLATE_Lighting_Wizard_CONST 9
 #define TEMPLATE_Climate_Wizard_CONST 10
 #define TEMPLATE_Events_Handler_CONST 11
 #define TEMPLATE_Security_Scenarios_CONST 12
-#define TEMPLATE_Security_Arm_Disarm_CONST 13
-#define TEMPLATE_Security_SOS_CONST 14
 #define TEMPLATE_Security_View_Cameras_CONST 15
-#define TEMPLATE_Security_View_Camera_CONST 16
 #define TEMPLATE_Telecom_Scenarios_CONST 17
-#define TEMPLATE_Media_Wiz_Disc_CDDVD_CONST 18
-#define TEMPLATE_Lighting_Automatic_CONST 19
-#define TEMPLATE_Telecom_Automatic_CONST 27
+#define TEMPLATE_Lighting_Automatic_CONST 31
+#define TEMPLATE_Media_Wizard_CONST 32
+#define TEMPLATE_Media_Wiz_Pluto_Sources_CONST 33
+#define TEMPLATE_Media_Wiz_FileDisc_CONST 34
+#define TEMPLATE_Media_Wiz_NP_Sources_CONST 35
+#define TEMPLATE_Security_Arm_Disarm_CONST 36
+#define TEMPLATE_Security_SOS_CONST 37
+#define TEMPLATE_Security_View_Camera_CONST 38
+#define TEMPLATE_Telecom_Automatic_CONST 39
 
 #define TEMPLATE_TABLE "Template"
 #define TEMPLATE_PK_TEMPLATE_FIELD "PK_Template"
