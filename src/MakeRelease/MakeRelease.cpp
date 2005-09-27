@@ -1519,7 +1519,7 @@ string Makefile = "none:\n"
 	string sDepends,sPreDepends;
 
 	if( pRow_Package_Source->FK_Package_getrow()->FK_Manufacturer_get()==1 ) // Pluto
-		sPreDepends = "handle-kernel-upgrade, ";
+		sPreDepends = "pluto-kernel-upgrade, ";
 	for (size_t s=0;s<vect_pRow_Package_Source_Dependencies.size();++s)
 	{
 		Row_Package_Source *pRow_Package_Source_Dependency = vect_pRow_Package_Source_Dependencies[s];
