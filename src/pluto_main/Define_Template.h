@@ -5,10 +5,6 @@
 #define TEMPLATE_Media_Wiz_TV_CONST 2
 #define TEMPLATE_Media_Wiz_playlists_CONST 3
 #define TEMPLATE_Media_Wiz_music_CONST 4
-#define TEMPLATE_Media_Wiz_movies_CONST 5
-#define TEMPLATE_Media_Wiz_videos_CONST 6
-#define TEMPLATE_Media_Wiz_pictures_CONST 7
-#define TEMPLATE_Media_Wiz_documents_CONST 8
 #define TEMPLATE_Lighting_Wizard_CONST 9
 #define TEMPLATE_Climate_Wizard_CONST 10
 #define TEMPLATE_Events_Handler_CONST 11
