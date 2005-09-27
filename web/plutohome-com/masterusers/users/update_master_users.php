@@ -1,5 +1,5 @@
 <?
-function update_master_users($conn,$connPlutoVip,$connPlutoHome,$connphpBB,$connMain){
+function update_master_users($conn,$connPlutoVip,$connPlutoHome,$connphpBB,$connMantis,$connMain){
 	if(isset($_POST['MasterUsersID'])){
 		$PK_MasterUsers=$_POST['MasterUsersID'];
 		// update a MasterUsers
@@ -8,10 +8,12 @@ function update_master_users($conn,$connPlutoVip,$connPlutoHome,$connphpBB,$conn
 		
 		$updateArr=array();
 		$updatephpBBArr=array();
+		$updatePlutoMain=array();
 		if(isset($_POST['Email'])){
 			$Email=$_POST['Email'];
 			$updateArr[]="Email='$Email'";
 			$updatephpBBArr[]="user_email ='$Email'";
+			$updatePlutoMain[]="ForwardEmail='$Email'";
 		}
 		
 		if(isset($_POST['username'])){
@@ -55,7 +57,9 @@ function update_master_users($conn,$connPlutoVip,$connPlutoHome,$connphpBB,$conn
 					$updateMasterUsers=mysql_query("UPDATE MasterUsers SET Sync_phpBB='1' WHERE PK_MasterUsers='$PK_MasterUsers'",$conn);
 				}
 
+				$updateUsers=mysql_query("UPDATE Users SET ".join(",",$updatePlutoMain)." WHERE PK_Users = '$PK_MasterUsers'",$connMain);
 				$out="The Master User data was updated.";
+				
 			}
 			else
 				$out=($out=='')?"Update error.":$out;

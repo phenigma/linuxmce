@@ -3,7 +3,7 @@
       
  //  error_reporting(E_ALL~E_NOTICE);
   //debuging
-  	$GLOBALS['inDebug']=0;
+  	$GLOBALS['inDebug']=1;
   	$GLOBALS['sendErrorsTo']='info@plutohome.com';
 
 	$directory="/masterusers/";

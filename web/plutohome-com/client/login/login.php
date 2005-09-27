@@ -61,9 +61,9 @@ if (isset($_POST['username']) && $_POST['username']!='') {
 				$res=mysql_fetch_object($res);
 				$_SESSION['extPassword']=$res->ExtPassword;
 			}
+			$_SESSION['Password']=$password;
 			if($autologin==1){
 				$_SESSION['setAutoCookie']=1;
-				$_SESSION['password']=$password;
 			}
 			if($return!=''){
 				header("Location: support/mantis/login.php?username=".$_SESSION['username']."&password=".$_SESSION['extPassword']."&login=1&return=".$return);
