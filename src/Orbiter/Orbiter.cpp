@@ -2946,6 +2946,40 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 			m_pLocationInfo = m_pLocationInfo_Initial;
 			m_dwPK_Users = m_dwPK_Users_Default;
 
+			if( m_bIsOSD )
+			{
+				time_t tTimeout=time(NULL) + 20; // Wait 20 seconds for child devices to register
+				map<int,bool> mapUnregisteredRelatives;
+				while( true )
+				{
+					int iUnregisteredRelatives = FindUnregisteredRelatives(&mapUnregisteredRelatives);
+					if( !iUnregisteredRelatives )
+						break;
+					if( time(NULL)>tTimeout )
+					{
+						DisplayProgress("",-1);
+						string sMessage = m_mapTextString[TEXT_Not_all_devices_started_CONST];
+						PromptUser(sMessage);
+						break;
+					}
+
+					string sDescription = m_mapTextString[TEXT_Waiting_for_related_devices_CONST];
+					for(map<int,bool>::iterator it=mapUnregisteredRelatives.begin();it!=mapUnregisteredRelatives.end();++it)
+					{
+						if( it->second )
+							continue;
+						DeviceData_Base *pDevice = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(it->first);
+						sDescription += "  #" + StringUtils::itos(it->first) + "/" + (pDevice ? pDevice->m_sDescription : string(""));
+					}
+					if( DisplayProgress(sDescription,100-(iUnregisteredRelatives*100/mapUnregisteredRelatives.size())) )
+					{
+						OnQuit();
+						return;
+					}
+					Sleep(1000); // Sleep and try again
+				}
+			}
+
 			char *pData=NULL; int iSize=0;
 			DCE::CMD_Orbiter_Registered CMD_Orbiter_Registered( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, "1",
 				m_dwPK_Users,StringUtils::itos(m_pLocationInfo->PK_EntertainArea),m_pLocationInfo->PK_Room, &pData, &iSize);

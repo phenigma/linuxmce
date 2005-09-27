@@ -750,6 +750,8 @@
 #define TEXT_Mozilla_bookmarks_CONST 1454
 #define TEXT_Stop_Ping_CONST 1455
 #define TEXT_Show_Ping_Test_CONST 1456
+#define TEXT_Waiting_for_related_devices_CONST 1457
+#define TEXT_Not_all_devices_started_CONST 1458
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
