@@ -16,6 +16,7 @@
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_CommandParameter.h"
+#include "PlutoUtils/MySQLHelper.h"
 
 namespace DCE {
 
@@ -34,47 +35,61 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 	}
 
 	int IR_ModeDelay = 0;
+	int TogglePower = 0;
+	int ToggleInput = 0;
 	long devtemplid = pTargetDev->m_pData->m_dwPK_DeviceTemplate, devid = pTargetDev->m_pData->m_dwPK_Device;
-
-	Row_DeviceTemplate_AV* pRowAV = getDatabase()->DeviceTemplate_AV_get()->GetRow(devtemplid);
-	if(pRowAV) {
-		IR_ModeDelay = pRowAV->IR_ModeDelay_get();
-	} else {
+	DCEConfig dceconf;
+	MySqlHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort);
+	PlutoSqlResult result_set;
+	MYSQL_ROW row=NULL;
+	if( (result_set.r=mySqlHelper.mysql_query_result("SELECT IR_ModeDelay, TogglePower, ToggleInput  FROM DeviceTemplate_AV WHERE FK_DeviceTemplate=" + devtemplid )) && (row = mysql_fetch_row(result_set.r)) )
+	{
+		IR_ModeDelay = atoi(row[0]);
+		TogglePower = atoi(row[1]);
+		ToggleInput = atoi(row[2]);
+	}
+	else
+	{
 		g_pPlutoLogger->Write(LV_STATUS, "Device has no AV properties");
 	}
 
 	if (input_commands_.empty())
 	{
-		vector<class Row_Command*> input_row_list;
-		getDatabase()->Command_get()->GetRows("where `FK_CommandCategory`=22",&input_row_list);
-		for(unsigned int i=0; i<input_row_list.size();i++ )
+		if( (result_set.r=mySqlHelper.mysql_query_result("SELECT PK_Command FROM Command WHERE FK_CommandCategory=22")) == NULL )
 		{
-			int cmd=input_row_list[i]->PK_Command_get();
-			input_commands_.push_back(cmd);
-			vector<class Row_DeviceTemplate_Input*> command_order_list;
-			char buff[100];
-			sprintf(buff,"where `FK_Command`=%d",cmd);
-			
-			getDatabase()->DeviceTemplate_Input_get()->GetRows(buff,&command_order_list);
-			for(unsigned int j=0;j<command_order_list.size();j++)
+			g_pPlutoLogger->Write(LV_WARNING, "SQL FAILED : SELECT PK_Command FROM Command WHERE FK_CommandCategory=22");
+			return false;
+		}	
+		while((row = mysql_fetch_row(result_set.r)))
+		{
+			input_commands_.push_back(atoi(row[0]));
+		}
+		for(list<int>::iterator it=input_commands_.begin(); it!=input_commands_.end();it++ )
+		{
+			int cmd=*it;
+			if( (result_set.r=mySqlHelper.mysql_query_result("SELECT FK_DeviceTemplate, OrderNo FROM DeviceTemplate_Input WHERE FK_Command="+cmd)) == NULL )
+			{
+				g_pPlutoLogger->Write(LV_WARNING, "SQL FAILED : SELECT FK_DeviceTemplate, OrderNo FROM DeviceTemplate_Input WHERE FK_Command=%d",cmd);
+				return false;
+			}	
+			while((row = mysql_fetch_row(result_set.r)))
 			{
 				vector<int> *v;
-				if(device_input_command_order_.find(command_order_list[j]->FK_DeviceTemplate_get()) == device_input_command_order_.end())
+				if(device_input_command_order_.find(atoi(row[0])) == device_input_command_order_.end())
 				{
-					v=new vector<int>(input_row_list.size()+1,0); /* +1 for ending 0 */
-					device_input_command_order_[command_order_list[j]->FK_DeviceTemplate_get()]=v;
+					v=new vector<int>(input_commands_.size()+1,0); /* +1 for ending 0 */
+					device_input_command_order_[atoi(row[0])]=v;
 				}
-				(*device_input_command_order_[command_order_list[j]->FK_DeviceTemplate_get()])[command_order_list[j]->OrderNo_get()]=cmd;
+				(*device_input_command_order_[atoi(row[0])])[atoi(row[1])]=cmd;
 			}
 		}
-		
 	}
 	
 	g_pPlutoLogger->Write(LV_STATUS,"AVMessageTranslator::Translate begin");
 	
-	g_pPlutoLogger->Write(LV_STATUS,"    Status : CMD=%d, TP=%d, TI=%d",pmsg->m_dwID,pRowAV->TogglePower_get(),pRowAV->ToggleInput_get());
+	g_pPlutoLogger->Write(LV_STATUS,"    Status : CMD=%d, TP=%d, TI=%d",pmsg->m_dwID,TogglePower,ToggleInput);
 	
-	if((pRowAV->TogglePower_get() == 1) && ((pmsg->m_dwID == COMMAND_Generic_On_CONST) || (pmsg->m_dwID == COMMAND_Generic_Off_CONST)))
+	if((TogglePower == 1) && ((pmsg->m_dwID == COMMAND_Generic_On_CONST) || (pmsg->m_dwID == COMMAND_Generic_Off_CONST)))
 	{	
 
 		if((laststatus_power_[devid] && (pmsg->m_dwID == COMMAND_Generic_Off_CONST)) ||
@@ -89,7 +104,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 			return true;
 		}
 	}
-	if((pRowAV->TogglePower_get() == 0) && (pmsg->m_dwID == COMMAND_Toggle_Power_CONST))
+	if((TogglePower == 0) && (pmsg->m_dwID == COMMAND_Toggle_Power_CONST))
 	{
 		int cmd=0;
 		if(laststatus_power_[devid])
@@ -113,7 +128,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 		map<long, string>::iterator param = inrepl.getMessage().m_mapParameters.find(COMMANDPARAMETER_PK_Command_Input_CONST);
 		if (param != inrepl.getMessage().m_mapParameters.end()) {
 			int cmd = atoi((*param).second.c_str());
-			if(pRowAV->ToggleInput_get() == 0)
+			if(ToggleInput == 0)
 			{
 				MessageReplicator msgrepl(
 					Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
@@ -166,7 +181,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 			g_pPlutoLogger->Write(LV_WARNING, "PK_Command_Input parameter not found.");
 		}
 	}
-	if((pRowAV->ToggleInput_get() == 1) && (find(commandorder.begin(),commandorder.end(),pmsg->m_dwID) != commandorder.end()))
+	if((ToggleInput == 1) && (find(commandorder.begin(),commandorder.end(),pmsg->m_dwID) != commandorder.end()))
 	{
 	    unsigned int i=0,count=0;
 		g_pPlutoLogger->Write(LV_STATUS, "Got command <%d>, Last was <%d>, need translation to input selects",pmsg->m_dwID,laststatus_input_[devid]);

@@ -16,7 +16,7 @@
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_CommandParameter.h"
-
+#include "PlutoUtils/MySQLHelper.h"
 #include <assert.h>
 
 namespace DCE {
@@ -43,12 +43,16 @@ DefaultMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicator
 
 	int IR_PowerDelay = 0;
 	long devtemplid = pTargetDev->m_pData->m_dwPK_DeviceTemplate;
-	
-	Row_DeviceTemplate_AV* pRowAV = getDatabase()->DeviceTemplate_AV_get()->GetRow(devtemplid);
-	if(pRowAV) {
-		g_pPlutoLogger->Write(LV_STATUS, "Found AV properties for device!");
-		IR_PowerDelay = pRowAV->IR_PowerDelay_get();
-	} else {
+	DCEConfig dceconf;
+	MySqlHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort);
+	PlutoSqlResult result_set;
+	MYSQL_ROW row=NULL;
+	if( (result_set.r=mySqlHelper.mysql_query_result("SELECT IR_PowerDelay FROM DeviceTemplate_AV WHERE FK_DeviceTemplate=" + devtemplid )) && (row = mysql_fetch_row(result_set.r)) )
+	{
+		IR_PowerDelay = atoi(row[0]);
+	}
+	else
+	{
 		g_pPlutoLogger->Write(LV_STATUS, "Device has no AV properties");
 	}
 	
