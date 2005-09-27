@@ -122,10 +122,17 @@ namespace DCE
 		/**
 		 * @brief this will try to spawn the children as separate sessions (for example different displays under Linux or different comman prompts for Windows)
 		 * derived classes should implement this to handle special cases, such as if the child requires the GUI interface
-		 * 
 		 */
 		virtual bool SpawnChildDevice( class DeviceData_Impl *pDeviceData_Impl_Child, string sDisplay="" );  // Another implementation may override this, passing in the display to export -- Linux only
 		
+		/**
+		 * @brief this will check to see that all related devices on the same pc that ImplementDCE and are not embedded
+		 * have registered.  It returns the number of unregistered devices.  The map will have int=PK_Device, bool=registered
+		 * for all related devices
+		 */
+		int FindUnregisteredRelatives(map<int,bool> *p_mapUnregisteredRelatives);
+		void FindUnregisteredRelativesLoop(DeviceData_Base *pDevice,map<int,bool> *p_mapUnregisteredRelatives,bool bScanParent=true,int PK_Device_ExcludeChild=0);
+
 		virtual void KillSpawnedDevices();
 
 		/**

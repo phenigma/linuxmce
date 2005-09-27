@@ -117,7 +117,7 @@ void* PingLoop( void* param ) // renamed to cancel link-time name collision in M
 		ts_NextPing.tv_sec=time(NULL)+5;
 		sSM.TimedCondWait(ts_NextPing);
 
-		if( !pSocket->m_bUsePingToKeepAlive || pSocket->m_Socket == INVALID_SOCKET )
+		if( !pSocket->m_bUsePingToKeepAlive || pSocket->m_Socket == INVALID_SOCKET || pSocket->m_bQuit )
 		{
 			sSM.Release();
 			pSocket->m_bUsePingToKeepAlive=false;
@@ -296,6 +296,7 @@ Socket::~Socket()
 
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sSM,m_SocketMutex);  // don't log anything but failures
 	Close();
+	sSM.Release();
 
 	if( m_bUsePingToKeepAlive )
 	{

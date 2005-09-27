@@ -178,6 +178,11 @@ Command_Impl::~Command_Impl()
 	g_pPlutoLogger->Write( LV_STATUS, "Waiting for message queue thread to quit" );
 
 	m_bQuit=true;
+	if( m_pEvent && m_pEvent->m_pClientSocket && m_pEvent->m_pClientSocket->m_Socket != INVALID_SOCKET )
+		m_pEvent->m_pClientSocket->Close();
+	if( m_pcRequestSocket && m_pcRequestSocket->m_pClientSocket && m_pcRequestSocket->m_pClientSocket->m_Socket != INVALID_SOCKET )
+		m_pcRequestSocket->m_pClientSocket->Close();
+	
 	time_t tTime = time(NULL);
 
 	while( m_bMessageQueueThreadRunning )
@@ -679,7 +684,14 @@ void Command_Impl::ProcessMessageQueue()
 		for( itMessageQueue = copyMessageQueue.begin(); itMessageQueue != copyMessageQueue.end(); ++itMessageQueue )
 		{
 			Message *pMessage = *itMessageQueue;
-			m_pEvent->SendMessage( *itMessageQueue );
+			if( !m_pEvent->SendMessage( *itMessageQueue ) )
+			{
+				// If the connection between this device and dcerouter is still ok, we will have always gotten a true,
+				// whether the destination device responded or not.  If we didn't, our socket must be bad.  Exit and
+				// let the framework restart us
+				g_pPlutoLogger->Write(LV_CRITICAL,"InternalSendCommand ProcessMessageQueue cannot send.  Going to quit");
+				OnQuit();
+			}
 		}
 		mq.Relock();
 	}
@@ -717,6 +729,14 @@ g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand confirmation conf %d resp %
 g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand confirmation done conf %d resp %p (%d) %s",
 					  iConfirmation,pPreformedCommand.m_pcResponse,(int) bResult,p_sResponse->c_str());
 #endif
+		if( !bResult )
+		{
+			// If the connection between this device and dcerouter is still ok, we will have always gotten a response,
+			// whether the destination device responded or not.  If we didn't, our socket must be bad.  Exit and
+			// let the framework restart us
+			g_pPlutoLogger->Write(LV_CRITICAL,"InternalSendCommand cannot send with confirmation.  Going to quit");
+			OnQuit();
+		}
 		return bResult && *p_sResponse == "OK";
 	}
 #ifdef DEBUG
@@ -733,6 +753,14 @@ iConfirmation,pPreformedCommand.m_pcResponse,pResponse,(pResponse ? pResponse->m
 	{
 		if(pResponse)
 			delete pResponse;
+		else
+		{
+			// If the connection between this device and dcerouter is still ok, we will have always gotten a response,
+			// whether the destination device responded or not.  If we didn't, our socket must be bad.  Exit and
+			// let the framework restart us
+			g_pPlutoLogger->Write(LV_CRITICAL,"InternalSendCommand cannot send with return message.  Going to quit");
+			OnQuit();
+		}
 
 		return false;
 	}
@@ -896,4 +924,41 @@ void Command_Impl::WaitForMessageQueue()
 		mq.Release();
 		Sleep(50);
 	}
+}
+
+int Command_Impl::FindUnregisteredRelatives(map<int,bool> *p_mapUnregisteredRelatives)
+{
+	DeviceData_Base *pDevice = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(m_dwPK_Device);
+	if( !pDevice )
+		return 0;  // Should never happen
+
+	FindUnregisteredRelativesLoop(pDevice,p_mapUnregisteredRelatives);
+
+	int UnRegistered=0;
+	for(map<int,bool>::iterator it=p_mapUnregisteredRelatives->begin();it!=p_mapUnregisteredRelatives->end();++it)
+		if( it->second==false )
+			UnRegistered++;
+	return UnRegistered;
+}
+
+void Command_Impl::FindUnregisteredRelativesLoop(DeviceData_Base *pDevice,map<int,bool> *p_mapUnregisteredRelatives,bool bScanParent,int PK_Device_ExcludeChild)
+{
+	if( pDevice->m_dwPK_Device!=m_dwPK_Device && pDevice->m_bImplementsDCE && !pDevice->m_bIsEmbedded ) // Exclude ourself, only non-embedded DCE Devices
+	{
+		
+		string sResponse = m_pEvent->m_pClientSocket->SendReceiveString("DEVICE_REGISTERED " + StringUtils::itos(pDevice->m_dwPK_Device));
+		if( sResponse.substr(0,17)!="DEVICE_REGISTERED" )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot determine if device %d registered",pDevice->m_dwPK_Device);
+		else
+			(*p_mapUnregisteredRelatives)[pDevice->m_dwPK_Device] = (sResponse[19]=='Y');
+	}
+	for(size_t s=0;s<pDevice->m_vectDeviceData_Base_Children.size();++s)
+	{
+		DeviceData_Base *pDeviceData_Base = pDevice->m_vectDeviceData_Base_Children[s];
+		if( pDeviceData_Base->m_dwPK_Device==PK_Device_ExcludeChild )
+			continue;
+		FindUnregisteredRelativesLoop(pDeviceData_Base,p_mapUnregisteredRelatives,false);
+	}
+	if( bScanParent && pDevice->m_pDevice_ControlledVia )
+		FindUnregisteredRelativesLoop(pDevice->m_pDevice_ControlledVia,p_mapUnregisteredRelatives,false,pDevice->m_dwPK_Device);
 }

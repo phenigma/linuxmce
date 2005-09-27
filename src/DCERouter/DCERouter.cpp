@@ -1139,6 +1139,7 @@ bool Router::ReceivedString(Socket *pSocket, string Line)
 		}
 		else
 		    pSocket->SendString("PLUGINS DENIED RELOAD REQUEST");
+		return true;
 	}
     else if( Line.substr(0,20)=="DEVICES BY TEMPLATE " || Line.substr(0,20)=="DEVICES BY CATEGORY ")
 	{
@@ -1173,6 +1174,22 @@ bool Router::ReceivedString(Socket *pSocket, string Line)
 			}
 		}
 	    pSocket->SendString(sResponse);
+		return true;
+	}
+    else if( Line.substr(0,18)=="DEVICE_REGISTERED ")
+	{
+		int PK_Device = atoi( Line.substr(18).c_str() );
+		PLUTO_SAFETY_LOCK( ll, m_ListenerMutex );
+		DeviceClientMap::iterator iDeviceConnection = m_mapCommandHandlers.find(PK_Device);
+		if( iDeviceConnection==m_mapCommandHandlers.end() || iDeviceConnection->second==NULL || iDeviceConnection->second->m_Socket==INVALID_SOCKET )
+			pSocket->SendString("DEVICE_REGISTERED N");
+		else
+		{
+			ServerSocket *pServerSocket = iDeviceConnection->second;
+			string sResponse = pServerSocket->SendReceiveString("PING");
+			pSocket->SendString(string("DEVICE_REGISTERED ") + (sResponse=="PONG" ? "Y" : "N"));
+		}
+		return true;
 	}
   
     g_pPlutoLogger->Write(LV_WARNING, "Router: Don't know how to handle %s.", Line.c_str());
