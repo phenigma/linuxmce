@@ -207,7 +207,7 @@ for Client in $R; do
 		sed 's/localhost/dcerouter/g' /etc/apt/apt.conf.d/30pluto > $DlPath/etc/apt/apt.conf.d/30pluto
 
 		echo " debconf"
-		awk '/Name: debconf\/frontend/,/^$/ {if ($1 == "Value:") print "Value: Noninteractive"; else print; next}
+		awk '/Name: debconf\/frontend/,/^$/ {if ($1 == "Value:") print "Value: noninteractive"; else print; next}
 			{print}' $DlPath/var/cache/debconf/config.dat > $DlPath/var/cache/debconf/config.dat.$$
 		mv $DlPath/var/cache/debconf/config.dat.$$ $DlPath/var/cache/debconf/config.dat
 
