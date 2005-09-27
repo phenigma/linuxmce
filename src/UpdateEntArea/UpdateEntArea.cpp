@@ -394,7 +394,7 @@ void UpdateEntArea::AddDefaultCommandsToEntArea(Row_EntertainArea *pRow_Entertai
 	string sSQL;
 	int PK_CommandGroup;
 
-	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_TV_CONST) )
+	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_Pluto_Sources_CONST) )
 	{
 
 		sSQL="SELECT PK_Device,Description FROM Device_EntertainArea "
@@ -411,30 +411,30 @@ void UpdateEntArea::AddDefaultCommandsToEntArea(Row_EntertainArea *pRow_Entertai
 				string sDesc = "TV";
 				if( result_set.r->row_count>1 )
 					sDesc += string("\n") + row[1];
-				if( (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_TV_CONST,sDesc,atoi(row[0])))!=0 )
+				if( (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_Pluto_Sources_CONST,sDesc,atoi(row[0]),MEDIATYPE_pluto_LiveTV_CONST))!=0 )
 				{
 					AddCommand(PK_CommandGroup,m_dwPK_Device_MediaPlugIn,COMMAND_MH_Play_Media_CONST,2,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_pluto_LiveTV_CONST).c_str(),COMMANDPARAMETER_PK_Device_CONST,row[0]);
 				}
 			}
 		}
 	}
-	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_movies_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_movies_CONST,"Movies"))!=0 )
+	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_FileDisc_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_FileDisc_CONST,"Movies",0,MEDIATYPE_pluto_DVD_CONST))!=0 )
 	{
 		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Show_File_List_CONST,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_pluto_DVD_CONST).c_str());
 	}
-	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_videos_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_videos_CONST,"Videos"))!=0 )
+	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_FileDisc_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_FileDisc_CONST,"Videos",0,MEDIATYPE_pluto_StoredVideo_CONST))!=0 )
 	{
 		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Show_File_List_CONST,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_pluto_StoredVideo_CONST).c_str());
 	}
-	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_music_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_music_CONST,"Music"))!=0 )
+	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_FileDisc_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_FileDisc_CONST,"Music",0,MEDIATYPE_pluto_StoredAudio_CONST))!=0 )
 	{
 		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Show_File_List_CONST,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_pluto_StoredAudio_CONST).c_str());
 	}
-	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_playlists_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_playlists_CONST,"Playlists"))!=0 )
+	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_FileDisc_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_FileDisc_CONST,"Playlists",0,MEDIATYPE_misc_Playlist_CONST))!=0 )
 	{
 		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Show_File_List_CONST,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_misc_Playlist_CONST).c_str());
 	}
-	if( !iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_Disc_CDDVD_CONST )
+	if( !iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_FileDisc_CONST )
 	{
 		// Only add this button if there's a disk drive
 		string sSQL = "SELECT PK_Device FROM Device_EntertainArea "
@@ -443,19 +443,20 @@ void UpdateEntArea::AddDefaultCommandsToEntArea(Row_EntertainArea *pRow_Entertai
 			"WHERE FK_DeviceCategory=" + StringUtils::itos(DEVICECATEGORY_Disc_Drives_CONST) + " AND FK_EntertainArea=" + StringUtils::itos(pRow_EntertainArea->PK_EntertainArea_get());
 		PlutoSqlResult result_set;
 		if( (result_set.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) && result_set.r->row_count>0 && 
-			(PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_Disc_CDDVD_CONST,"Play Disc"))!=0 )
+			(PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_FileDisc_CONST,"Play Disc",0,0))!=0 )
 			AddCommand(PK_CommandGroup,m_dwPK_Device_MediaPlugIn,COMMAND_MH_Play_Media_CONST,0);
 	}
-	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_pictures_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_pictures_CONST,"Pictures"))!=0 )
+	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_FileDisc_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_FileDisc_CONST,"Pictures",0,MEDIATYPE_pluto_Pictures_CONST))!=0 )
 	{
 		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Show_File_List_CONST,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_pluto_Pictures_CONST).c_str());
 	}
-	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_documents_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_documents_CONST,"Docs"))!=0 )
+	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_FileDisc_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_FileDisc_CONST,"Docs",0,MEDIATYPE_misc_DocViewer_CONST))!=0 )
 	{
 		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Show_File_List_CONST,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_misc_DocViewer_CONST).c_str());
 	}
 
 	{
+		// Find all non-pluto media
 		string sSQL="SELECT PK_Device,FK_MediaType,MediaType.Description as MediaType "
 			"FROM Device_EntertainArea "
 			"JOIN Device ON FK_Device=PK_Device "
@@ -480,7 +481,7 @@ void UpdateEntArea::AddDefaultCommandsToEntArea(Row_EntertainArea *pRow_Entertai
 				}
 
 				string sDesc = row[2] + string("\n") + pRow_Device->Description_get();
-				if( (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_TV_CONST,sDesc,atoi(row[0])))!=0 )
+				if( (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_NP_Sources_CONST,sDesc,atoi(row[0]),atoi(row[1])))!=0 )
 				{
 					AddCommand(PK_CommandGroup,m_dwPK_Device_MediaPlugIn,COMMAND_MH_Play_Media_CONST,2,COMMANDPARAMETER_PK_MediaType_CONST,row[1],COMMANDPARAMETER_PK_Device_CONST,row[0]);
 				}
