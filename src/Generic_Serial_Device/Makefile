@@ -19,7 +19,7 @@ sources = Main.cpp Generic_Serial_Device.cpp $(Gen_Dev_Files)
 CXXFLAGS +=
 CPPFLAGS += -I$(ROOT)/MessageTranslation -I/usr/lib/ruby/1.8/i386-linux 
 LDFLAGS +=
-XTRALDLIBS = -lruby1.8 -lSerial -lrt -lMessageTranslation
+XTRALDLIBS = -lruby1.8 -lSerial -lpluto_main -lrt -lMessageTranslation
 
 Gen_Dev_Files +=
 sources += $(ROOT)/Serial/GenericIODevice.cpp FileCodeSupplier.cpp IOEvent.cpp IOMutex.cpp IOPool.cpp IOThread.cpp LoopStateMachine.cpp RubyEmbeder.cpp RubyEmbededClass.cpp RubyExceptions.cpp RubyStdStreamRedirector.cpp SerialInterceptorCodeSupplier.cpp SerialIOConnection.cpp NetworkIOConnection.cpp SerialIOPool.cpp NetworkIOPool.cpp StateMachine.cpp TestEmbededClass.cpp TestRubyEmbederCodeSupplier.cpp RubySerialWrapper.cpp RubySerialIOWrapper.cpp RubyDeviceWrapper.cpp RubyDCECodeSupplier.cpp RubyDCEEmbededClass.cpp RubyIOManager.cpp RubyIOPool.cpp RubyCommandWrapper.cpp BufferedIOConnection.cpp RubySerialIOConnectionWrapper.cpp IOUtils.cpp GSDMessageProcessing.cpp RubyDCEDeviceNode.cpp
