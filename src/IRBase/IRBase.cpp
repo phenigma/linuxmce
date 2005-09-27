@@ -21,13 +21,12 @@
 #include "pluto_main/Define_DeviceCategory.h"
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_CommandParameter.h"
-#include "pluto_main/Table_DeviceTemplate_AV.h"
 #include "Infrared_Plugin/Infrared_Plugin.h"
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "DCE/Logger.h"
 #include "Serial/SerialPort.h"
 #include "IR/IRDevice.h"
-
+#include "DCE/DCEConfig.h"
 #include <math.h>
 #include <time.h>
 
@@ -100,10 +99,17 @@ bool IRBase::Translate(MessageReplicator& inrepl, MessageReplicatorList& outrepl
 	long devtemplid = pTargetDev->m_pData->m_dwPK_DeviceTemplate, devid = pTargetDev->m_pData->m_dwPK_Device;
 	
 	int DigitDelay = 0;
-	Row_DeviceTemplate_AV* pRowAV = getDatabase()->DeviceTemplate_AV_get()->GetRow(devtemplid);
-	if(pRowAV) {
-		DigitDelay = pRowAV->DigitDelay_get();
-	} else {
+	
+	DCEConfig dceconf;
+	MySqlHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort);
+	PlutoSqlResult result_set;
+	MYSQL_ROW row=NULL;
+	if( (result_set.r=mySqlHelper.mysql_query_result("SELECT DigitDelay, NumericEntry FROM DeviceTemplate_AV WHERE FK_DeviceTemplate=" + devtemplid )) && (row = mysql_fetch_row(result_set.r)) )
+	{
+		DigitDelay = atoi(row[0]);
+	}
+	else
+	{
 		g_pPlutoLogger->Write(LV_STATUS, "Device has no AV properties");
 	}
 
@@ -126,7 +132,7 @@ bool IRBase::Translate(MessageReplicator& inrepl, MessageReplicatorList& outrepl
 					
 		long NumDigits = 3;
 		bool bSendEnter = false;
-		string sNumDigits = pRowAV->NumericEntry_get();
+		string sNumDigits = row[1];
 		if (sNumDigits.size()) {
 			string::size_type pos = 0;
 	
