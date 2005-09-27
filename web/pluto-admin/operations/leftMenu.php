@@ -299,7 +299,7 @@ function getDeviceChilds($parentID,$dbADO) {
 }
 
 function removeCR($str){
-	$str=str_replace("\r\n"," ",$str);
+	$str=str_replace(array("\r\n","\n\r","\r","\n")," ",$str);
 	
 	return $str;
 }

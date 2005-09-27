@@ -10,7 +10,7 @@ $installationID = (int)@$_SESSION['installationID'];
 
 if ($action == 'showBasicInfo') {
 	$out='
-		4You can write something about what he can do here, in my scenarios area.
+		You can write something about what he can do here, in my scenarios area.
 	';	
 }elseif($action == 'del'){
 	// process delete here

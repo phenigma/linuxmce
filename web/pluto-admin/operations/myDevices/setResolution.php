@@ -102,7 +102,7 @@ $out.='
 	</tr>
 	<tr>
 		<td align="right"><input type="checkbox" name="updateOrbiters" value="1" checked></td>
-		<td>Quick reload router.</td>
+		<td>quick reload router & regenerate the UI at this resolution now?</td>
 	</tr>
 	<tr>
 		<td colspan="2" align="center"><input type="submit" class="button" name="yesBtn" value="Yes"> <input type="submit" class="button" name="noBtn" value="No"></td>
@@ -119,7 +119,7 @@ $out.='
 				header("Location: index.php?section=setResolution&error=You are not authorised to change the installation.");
 				exit(0);
 			}
-	
+
 			$resolution=$_POST['resolution'];
 			$refresh=$_POST['refresh'];
 			$newVS=$resolution.'/'.$refresh;
@@ -134,8 +134,19 @@ $out.='
 					
 					$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($resX,$orbiterArray['PK_Device'],$GLOBALS['ScreenWidth']));
 					$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($resY,$orbiterArray['PK_Device'],$GLOBALS['ScreenHeight']));
+					
+					$sizeFields=getFieldsAsArray('Size','PK_Size',$dbADO,'WHERE Width='.$resX,' AND Height='.$resY);
+
+					if(count($sizeFields['PK_Size']>0)){
+						$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($sizeFields['PK_Size'][0]['PK_Size'],$orbiterArray['PK_Device'],$GLOBALS['Size']));
+					}
 				}
-				
+
+				// append orbiter ID to orbiter plugin status, to be regenerated
+				$orbiterPlugIn=getInfraredPlugin($installationID,$dbADO);
+				if(isset($orbiterArray['PK_Device'])){
+					$dbADO->Execute('UPDATE Device SET Status=IF(Status IS NULL,?,concat(Status, ?)) WHERE PK_Device=?',array($orbiterArray['PK_Device'],','.$orbiterArray['PK_Device'],$orbiterPlugIn));
+				}
 				
 				// do quick reload router
 				$command='/usr/pluto/bin/MessageSend localhost 0 -1000 7 1';
