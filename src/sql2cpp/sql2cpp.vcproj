@@ -32,10 +32,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libmySQL.lib DCE.lib"
+				AdditionalDependencies="pthreadVC.lib libmySQL.lib DCE.lib"
 				OutputFile="../Debug/sql2cpp.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="/mysql/lib/Debug;../lib"
+				AdditionalLibraryDirectories="/mysql/lib/Debug;../lib;../../libs/Libraries/pthreads-win32/lib"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/sql2cpp.pdb"
 				SubSystem="1"
