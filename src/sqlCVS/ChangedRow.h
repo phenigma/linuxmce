@@ -114,7 +114,6 @@ namespace sqlCVS
 			m_bCommitted=false;
 			m_bReverted=m_bFrozen=false;
 			m_psc_user_needs_to_authorize=m_psc_batch_new=m_psc_id_new=0;
-			m_iBeforeTransmit_iAutoIncrID=m_iNewAutoIncrID=0;;
 cout << "changed row " << " psc_id: " << m_psc_id << " has keys:" << (int) m_vectPrimaryKey.size();
 for(size_t s=0;s<m_vectPrimaryKey.size();++s)
 cout << " " << m_vectPrimaryKey[s] << ", ";
