@@ -43,19 +43,25 @@ DefaultMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicator
 
 	int IR_PowerDelay = 0;
 	long devtemplid = pTargetDev->m_pData->m_dwPK_DeviceTemplate;
-	DCEConfig dceconf;
-	MySqlHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort);
-	PlutoSqlResult result_set;
-	MYSQL_ROW row=NULL;
-	if( (result_set.r=mySqlHelper.mysql_query_result("SELECT IR_PowerDelay FROM DeviceTemplate_AV WHERE FK_DeviceTemplate=" + devtemplid )) && (row = mysql_fetch_row(result_set.r)) )
+	if(map_PowerDelay.find(devtemplid) == map_PowerDelay.end())
 	{
-		IR_PowerDelay = atoi(row[0]);
+		DCEConfig dceconf;
+		MySqlHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort);
+		PlutoSqlResult result_set;
+		MYSQL_ROW row=NULL;
+		if( (result_set.r=mySqlHelper.mysql_query_result("SELECT IR_PowerDelay FROM DeviceTemplate_AV WHERE FK_DeviceTemplate=" + devtemplid )) && (row = mysql_fetch_row(result_set.r)) )
+		{
+			map_PowerDelay[devtemplid] = IR_PowerDelay = atoi(row[0]);
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "Device has no AV properties");
+		}
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Device has no AV properties");
+		IR_PowerDelay=map_PowerDelay[devtemplid];
 	}
-	
 	/**************************************************************************************
 	Determine message queue attributes
 	**************************************************************************************/

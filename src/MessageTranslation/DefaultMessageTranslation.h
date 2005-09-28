@@ -32,6 +32,7 @@ protected:
 protected:
 
 private:
+	std::map<int,int> map_PowerDelay;
 };
 
 /*****************************************************************

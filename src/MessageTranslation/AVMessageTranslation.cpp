@@ -38,23 +38,35 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 	int TogglePower = 0;
 	int ToggleInput = 0;
 	long devtemplid = pTargetDev->m_pData->m_dwPK_DeviceTemplate, devid = pTargetDev->m_pData->m_dwPK_Device;
-	DCEConfig dceconf;
-	MySqlHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort);
-	PlutoSqlResult result_set;
-	MYSQL_ROW row=NULL;
-	if( (result_set.r=mySqlHelper.mysql_query_result("SELECT IR_ModeDelay, TogglePower, ToggleInput  FROM DeviceTemplate_AV WHERE FK_DeviceTemplate=" + devtemplid )) && (row = mysql_fetch_row(result_set.r)) )
+	if(map_ModeDelay.find(devtemplid) == map_ModeDelay.end())
 	{
-		IR_ModeDelay = atoi(row[0]);
-		TogglePower = atoi(row[1]);
-		ToggleInput = atoi(row[2]);
+		DCEConfig dceconf;
+		MySqlHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort);
+		PlutoSqlResult result_set;
+		MYSQL_ROW row=NULL;
+		if( (result_set.r=mySqlHelper.mysql_query_result("SELECT IR_ModeDelay, TogglePower, ToggleInput  FROM DeviceTemplate_AV WHERE FK_DeviceTemplate=" + devtemplid )) && (row = mysql_fetch_row(result_set.r)) )
+		{
+			map_ModeDelay[devtemplid] = IR_ModeDelay = atoi(row[0]);
+			map_TogglePower[devtemplid] = TogglePower = atoi(row[1]);
+			map_ToggleInput[devtemplid] = ToggleInput = atoi(row[2]);
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "Device has no AV properties");
+		}
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Device has no AV properties");
+		IR_ModeDelay = map_ModeDelay[devtemplid];
+		TogglePower = map_TogglePower[devtemplid];
+		ToggleInput = map_ToggleInput[devtemplid];
 	}
-
 	if (input_commands_.empty())
 	{
+		DCEConfig dceconf;
+		MySqlHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort);
+		PlutoSqlResult result_set;
+		MYSQL_ROW row=NULL;
 		if( (result_set.r=mySqlHelper.mysql_query_result("SELECT PK_Command FROM Command WHERE FK_CommandCategory=22")) == NULL )
 		{
 			g_pPlutoLogger->Write(LV_WARNING, "SQL FAILED : SELECT PK_Command FROM Command WHERE FK_CommandCategory=22");

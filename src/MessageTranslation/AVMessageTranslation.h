@@ -26,7 +26,10 @@ public:
 	map<int, int> laststatus_input_;
 	list<int> input_commands_;
 	map<int, vector<int> *> device_input_command_order_;
-	
+private:
+	std::map<int,int> map_ModeDelay;
+	std::map<int,int> map_TogglePower;
+	std::map<int,int> map_ToggleInput;
 };
 
 class AVMessageDispatcher : public DefaultMessageDispatcher {
