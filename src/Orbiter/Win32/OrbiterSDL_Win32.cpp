@@ -1,5 +1,5 @@
 #include "OrbiterSDL_Win32.h"
-#include "StringUtils.h"
+#include "PlutoUtils/StringUtils.h"
 #include "SDL_syswm.h"
 #include "MainDialog.h"
 #include "PopupMessage.h"

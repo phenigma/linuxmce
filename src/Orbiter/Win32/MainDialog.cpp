@@ -1,9 +1,9 @@
 #include "MainDialog.h"
 #include "Resource.h"
-#include "StringUtils.h"
-#include "FileUtils.h"
+#include "PlutoUtils/StringUtils.h"
+#include "PlutoUtils/FileUtils.h"
 #include "Commdlg.h"
-#include "MultiThreadIncludes.h"
+#include "PlutoUtils/MultiThreadIncludes.h"
 #include "SelfUpdate.h"
 
 #include "Simulator.h"

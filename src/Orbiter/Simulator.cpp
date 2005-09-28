@@ -28,6 +28,8 @@ using namespace DCE;
 
 		#ifdef BLUETOOTH_DONGLE
 			#include "SDL_Bluetooth/OrbiterSDLBluetooth.h"
+		#elif defined(PROXY_ORBITER)
+			#include "Proxy_Orbiter/Proxy_Orbiter.h"
 		#else
 			#ifdef POCKETFROG
 				#include "Orbiter_PocketFrog.h"
@@ -89,6 +91,8 @@ void *GeneratorThread( void *p)
 
 #ifdef BLUETOOTH_DONGLE
 	OrbiterSDLBluetooth *pOrbiter = (OrbiterSDLBluetooth *)pSimulator->m_pOrbiter;
+#elif defined(PROXY_ORBITER)
+	xxProxy_Orbiter *pOrbiter = (xxProxy_Orbiter *)pSimulator->m_pOrbiter;
 #else
 	#ifdef WIN32
 		#ifdef WINCE
