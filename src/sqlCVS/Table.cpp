@@ -1099,7 +1099,7 @@ int k=2;
 			if( r_CommitRow.m_iNewAutoIncrID && r_CommitRow.m_iNewAutoIncrID!=r_CommitRow.m_iBeforeTransmit_iAutoIncrID )
 			{
 				cout << "Need to check for changed primary key r_CommitRow.m_iNewAutoIncrID: " << r_CommitRow.m_iNewAutoIncrID 
-					<< " m_iBeforeTransmit_iAutoIncrID: " << m_iBeforeTransmit_iAutoIncrID << endl;
+					<< " m_iBeforeTransmit_iAutoIncrID: " << r_CommitRow.m_iBeforeTransmit_iAutoIncrID << endl;
 
 				if( !m_pField_AutoIncrement )
 					throw ( "Internal error: Trying to set a non existant auto increment in table: " + m_sName ).c_str( );
