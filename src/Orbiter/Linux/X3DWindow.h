@@ -6,7 +6,6 @@
 
 #include <list>
 
-namespace DCE {
 /**
 @author Ioan Marius Curelariu
 */
@@ -36,7 +35,5 @@ public:
     virtual int CreateWindow(Display *pDisplay, int screen, Window wndParent, int x, int y, int cx, int cy);
     virtual int DestroyWindow();
 };
-
-}	// namespace DCE
 
 #endif

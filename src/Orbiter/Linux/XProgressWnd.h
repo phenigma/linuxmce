@@ -9,7 +9,6 @@
 #include <string>
 #include <pthread.h>
 
-namespace DCE {
 /**
 @author Ioan Marius Curelariu
 */
@@ -26,8 +25,6 @@ protected:
     bool m_bCanceled;
     bool m_bDone;
     bool m_bDestroy;
-
-	Display *m_pDisplay;
     
 public:
     pthread_t m_thisThread;
@@ -50,10 +47,6 @@ public:
     virtual void Terminate();
     
     static Bool CheckIfEvent(Display *pDisplay, XEvent *pEvent, XPointer arg);
-
-	Display * GetDisplay();
 };
-
-}	// namespace DCE
 
 #endif

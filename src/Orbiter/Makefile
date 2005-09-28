@@ -38,8 +38,7 @@ sources +=  DesignObj_Data.cpp DesignObj_Orbiter.cpp \
 			$(ROOT)/Splitter/TextSplitter.cpp \
 			$(ROOT)/Splitter/TextWrapper.cpp \
 			$(ROOT)/OrbiterGen/Renderer.cpp \
-			Linux/X3DButton.cpp Linux/X3DWindow.cpp Linux/XProgressWnd.cpp \
-			Linux/XPromptUser.cpp
+			Linux/X3DButton.cpp Linux/X3DWindow.cpp Linux/XProgressWnd.cpp 
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
