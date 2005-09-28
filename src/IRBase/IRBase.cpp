@@ -99,18 +99,27 @@ bool IRBase::Translate(MessageReplicator& inrepl, MessageReplicatorList& outrepl
 	long devtemplid = pTargetDev->m_pData->m_dwPK_DeviceTemplate, devid = pTargetDev->m_pData->m_dwPK_Device;
 	
 	int DigitDelay = 0;
-	
-	DCEConfig dceconf;
-	MySqlHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort);
-	PlutoSqlResult result_set;
-	MYSQL_ROW row=NULL;
-	if( (result_set.r=mySqlHelper.mysql_query_result("SELECT DigitDelay, NumericEntry FROM DeviceTemplate_AV WHERE FK_DeviceTemplate=" + devtemplid )) && (row = mysql_fetch_row(result_set.r)) )
+	string sNumDigits;
+	if(map_DigitDelay.find(devtemplid) == map_DigitDelay.end())
 	{
-		DigitDelay = atoi(row[0]);
+		DCEConfig dceconf;
+		MySqlHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort);
+		PlutoSqlResult result_set;
+		MYSQL_ROW row=NULL;
+		if( (result_set.r=mySqlHelper.mysql_query_result("SELECT DigitDelay, NumericEntry FROM DeviceTemplate_AV WHERE FK_DeviceTemplate=" + devtemplid )) && (row = mysql_fetch_row(result_set.r)) )
+		{
+			map_DigitDelay[devtemplid] = DigitDelay = atoi(row[0]);
+			map_NumericEntry[devtemplid] = sNumDigits = row[1];
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "Device has no AV properties");
+		}
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Device has no AV properties");
+		DigitDelay = map_DigitDelay[devtemplid];
+		sNumDigits = map_NumericEntry[devtemplid];
 	}
 
 	/********************************************************************************************************
@@ -132,7 +141,7 @@ bool IRBase::Translate(MessageReplicator& inrepl, MessageReplicatorList& outrepl
 					
 		long NumDigits = 3;
 		bool bSendEnter = false;
-		string sNumDigits = row[1];
+
 		if (sNumDigits.size()) {
 			string::size_type pos = 0;
 	

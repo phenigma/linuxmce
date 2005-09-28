@@ -40,6 +40,8 @@ private:
 	
 private:
 	map<longPair, std::string> codemap_;		// maps device,command pair to IR code
+	std::map<int, int> map_DigitDelay;
+	std::map<int, string> map_NumericEntry;
 
 protected:
 	bool m_bMustConvertRC5_6;
