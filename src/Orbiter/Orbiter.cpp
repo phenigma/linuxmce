@@ -8965,7 +8965,7 @@ bool SendPingHandler(Socket *pSocket)
 		pOrbiter->m_vectObjs_NeedRedraw.push_back( pOrbiter->m_pScreenHistory_Current->m_pObj );
 	}
 
-	string sResponse=pSocket->SendReceiveString("PING");
+	string sResponse=pSocket->SendReceiveString("PING",PING_TIMEOUT);
 	if( sResponse!="PONG" )
 	{
 		string sMessage = StringUtils::PrecisionTime() + " ***FAILED TO GET PONG***: "

@@ -134,7 +134,7 @@ void* PingLoop( void* param ) // renamed to cancel link-time name collision in M
 		}
 		else
 		{
-			string sResponse=pSocket->SendReceiveString("PING");
+			string sResponse=pSocket->SendReceiveString("PING",PING_TIMEOUT);
 			
 	#ifdef DEBUG
 			g_pPlutoLogger->Write( LV_STATUS, "Sent PING on %p and got %s",pSocket,sResponse.c_str());

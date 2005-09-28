@@ -1181,12 +1181,16 @@ bool Router::ReceivedString(Socket *pSocket, string Line, int nTimeout/* = -1*/)
 		int PK_Device = atoi( Line.substr(18).c_str() );
 		PLUTO_SAFETY_LOCK( ll, m_ListenerMutex );
 		DeviceClientMap::iterator iDeviceConnection = m_mapCommandHandlers.find(PK_Device);
+        ll.Release();
+
 		if( iDeviceConnection==m_mapCommandHandlers.end() || iDeviceConnection->second==NULL || iDeviceConnection->second->m_Socket==INVALID_SOCKET )
 			pSocket->SendString("DEVICE_REGISTERED N");
 		else
 		{
 			ServerSocket *pServerSocket = iDeviceConnection->second;
-			string sResponse = pServerSocket->SendReceiveString("PING");
+			PLUTO_SAFETY_LOCK(slConnMutex,pServerSocket->m_ConnectionMutex)
+			string sResponse = pServerSocket->SendReceiveString("PING",PING_TIMEOUT);
+			slConnMutex.Release();
 			pSocket->SendString(string("DEVICE_REGISTERED ") + (sResponse=="PONG" ? "Y" : "N"));
 		}
 		return true;

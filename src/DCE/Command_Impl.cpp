@@ -76,7 +76,7 @@ void *WatchDogThread( void *pData )
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS, "About to send PING to the router.");
 #endif
-		string sResponse = pCommand_Impl->SendReceiveString( "PING " + StringUtils::itos( pCommand_Impl->m_dwPK_Device ) );
+		string sResponse = pCommand_Impl->SendReceiveString( "PING " + StringUtils::itos( pCommand_Impl->m_dwPK_Device ), PING_TIMEOUT );
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS, "Sent PING to the router.");
 #endif

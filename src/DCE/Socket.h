@@ -17,6 +17,8 @@
 
 #define SOCKET_TIMEOUT		30
 
+#define PING_TIMEOUT		5
+
 namespace DCE
 {
 	
