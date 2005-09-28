@@ -319,7 +319,7 @@ void UpdateEntArea::AddDefaultCommandsToRoom(Row_Room *pRow_Room,int iPK_Templat
 
 	if( (!iPK_Template || iPK_Template==TEMPLATE_Telecom_Automatic_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_Room,TEMPLATE_Telecom_Automatic_CONST,ARRAY_Communication_Scenarios_CONST,"Phone",0))!=0 )
 	{
-		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,StringUtils::itos(DESIGNOBJ_mnuSecurityPanel_CONST).c_str());
+		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,StringUtils::itos(DESIGNOBJ_mnuMakeCallFavorites_CONST).c_str());
 	}
 
 	{
@@ -331,16 +331,18 @@ void UpdateEntArea::AddDefaultCommandsToRoom(Row_Room *pRow_Room,int iPK_Templat
 			if( !pRow_Users->HasMailbox_get() )
 				continue;
 // TODO -- Add voicemail indicators
+/*
 			if( (!iPK_Template || iPK_Template==TEMPLATE_Telecom_Automatic_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_Room,TEMPLATE_Telecom_Automatic_CONST,ARRAY_Communication_Scenarios_CONST,"Phone",0))!=0 )
 			{
 				AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,StringUtils::itos(DESIGNOBJ_mnuSecurityPanel_CONST).c_str());
 			}
+*/
 		}
 	}
 
 	if( (!iPK_Template || iPK_Template==TEMPLATE_Security_Arm_Disarm_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_Room,TEMPLATE_Security_Arm_Disarm_CONST,ARRAY_Security_Scenarios_CONST,"Security"))!=0 )
 	{
-		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,StringUtils::itos(DESIGNOBJ_mnuMakeCallFavorites_CONST).c_str());
+		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,StringUtils::itos(DESIGNOBJ_mnuSecurityPanel_CONST).c_str());
 	}
 
 	{
@@ -359,12 +361,12 @@ void UpdateEntArea::AddDefaultCommandsToRoom(Row_Room *pRow_Room,int iPK_Templat
 			}
 		}
 	}
-
+/* todo
 	if( (!iPK_Template || iPK_Template==TEMPLATE_Security_SOS_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_Room,TEMPLATE_Security_SOS_CONST,ARRAY_Security_Scenarios_CONST,"*SOS*"))!=0 )
 	{
 		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,StringUtils::itos(DESIGNOBJ_mnuSecurityCameras_CONST).c_str());
 	}
-
+*/
 	if( (!iPK_Template || iPK_Template==TEMPLATE_Security_View_Cameras_CONST) )
 	{
 		string sSQL="SELECT PK_Device,Device.Description FROM Device "

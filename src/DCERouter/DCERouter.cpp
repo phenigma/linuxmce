@@ -1895,6 +1895,7 @@ g_pPlutoLogger->Write(LV_SOCKET, "Got response: %d to message type %d id %d to %
                 if (!bResult)
                 {
                     g_pPlutoLogger->Write(LV_CRITICAL, "Socket %p failure sending message to device %d", pDeviceConnection,pDeviceConnection->m_dwPK_Device);
+					pDeviceConnection->Close();
                     pFailedSocket = pDeviceConnection;
                 }
                 else
