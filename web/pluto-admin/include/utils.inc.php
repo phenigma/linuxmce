@@ -1412,7 +1412,7 @@ function getMediaPluginID($installationID,$dbADO)
 {
 	$res=$dbADO->Execute('SELECT * FROM Device WHERE FK_DeviceTemplate=? AND FK_Installation=?',array($GLOBALS['rootMediaPlugin'],$installationID));
 	$row=$res->FetchRow();
-	return $row['PK_Device'];
+	return @$row['PK_Device'];
 }
 
 function pulldownFromArray($valuesArray,$name,$selectedValue,$extra='',$valueKey='key',$zeroValueDescription='- Please select -',$highlightValue=-1)

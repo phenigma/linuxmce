@@ -39,7 +39,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 	if($action=='form'){
 		
 		$out.='
-			<div align="center" class="err">'.@$_REQUEST['error'].'</div>
+			<div align="center" class="err">'.stripslashes(@$_REQUEST['error']).'</div>
 			<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
 			<form action="index.php" method="POST" name="editMediaFile" enctype="multipart/form-data">
 				<input type="hidden" name="section" value="editMediaFile">
@@ -206,25 +206,30 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 		if(isset($_POST['add'])){
 			$newAttributeType=$_POST['newAttributeType'];
 			$newAttributeName=cleanString($_POST['newAttributeName']);
-			$existingAttributes=(int)$_POST['existingAttributes'];
+			$existingAttributes=(int)@$_POST['existingAttributes'];
 			if($existingAttributes!=0){
 				$resExistingAttribute=$mediadbADO->Execute('SELECT Name FROM Attribute WHERE PK_Attribute=?',$existingAttributes);
 				$rowExistingAttribute=$resExistingAttribute->FetchRow();
 				if($rowExistingAttribute['Name']!=$newAttributeName){
-					// new attribute, insert in Attribute and File_Attribute tables
-					$mediadbADO->Execute('INSERT INTO Attribute (FK_AttributeType,Name) VALUES (?,?)',array($newAttributeType,$newAttributeName));
-					$insertID=$mediadbADO->Insert_ID();
 					
-					$mediadbADO->Execute('INSERT INTO File_Attribute (FK_File, FK_Attribute) VALUES (?,?)',array($fileID,$insertID));
+					// new attribute, insert in Attribute and File_Attribute tables
+					
+					
+					$AttributeAdded=addAttribute($newAttributeType,$newAttributeName,$fileID,$dbADO);
+					if($AttributeAdded!==true){
+						header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&error=Attribute not added: '.nl2br($AttributeAdded));
+						exit();
+					}
+					
 				}else{
-					$mediadbADO->Execute('INSERT INTO File_Attribute (FK_File, FK_Attribute) VALUES (?,?)',array($fileID,$existingAttributes));
+					$mediadbADO->Execute('INSERT IGNORE INTO File_Attribute (FK_File, FK_Attribute) VALUES (?,?)',array($fileID,$existingAttributes));
 				}
-				
 			}else{
-				$mediadbADO->Execute('INSERT INTO Attribute (FK_AttributeType,Name) VALUES (?,?)',array($newAttributeType,$newAttributeName));
-				$insertID=$mediadbADO->Insert_ID();
-				
-				$mediadbADO->Execute('INSERT INTO File_Attribute (FK_File, FK_Attribute) VALUES (?,?)',array($fileID,$insertID));
+				$AttributeAdded=addAttribute($newAttributeType,$newAttributeName,$fileID,$dbADO);
+				if($AttributeAdded!==true){
+					header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&error=Attribute not added: '.nl2br($AttributeAdded));
+					exit();
+				}
 			}
 			
 			header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg=File attribute added.');			
@@ -320,4 +325,18 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME);
 	$output->output();
+}
+
+function addAttribute($newAttributeType,$newAttributeName,$fileID,$dbADO){
+	$mediaPlugin=getMediaPluginID($_SESSION['installationID'],$dbADO);
+	if(is_null($mediaPlugin)){
+		header("Location: index.php?section=editMediaFile&fileID=$fileID&error=Media plugin not found.");
+		exit();
+	}
+
+	$cmd='/usr/pluto/bin/MessageSend localhost -targetType device -r 0 '.$mediaPlugin.' 1 391 122 '.$newAttributeType.' 145 '.$fileID.' 5 "'.$newAttributeName.'"';
+	exec($cmd,$ret);
+	$response=join('<br>',$ret);
+
+	return (ereg('RESP: OK',$response))?true:$cmd.'<br>'.$response;
 }

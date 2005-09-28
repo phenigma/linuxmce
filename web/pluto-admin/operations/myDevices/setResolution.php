@@ -151,6 +151,7 @@ $out.='
 				// do quick reload router
 				$command='/usr/pluto/bin/MessageSend localhost 0 -1000 7 1';
 				exec($command);
+				
 			}
 			
 			$msg='Resolution and refresh updated.';
@@ -159,6 +160,11 @@ $out.='
 		}
 
 		exec("sudo -u root /usr/pluto/bin/LaunchRemoteCmd.sh '$ipAddress' '/usr/pluto/bin/Xres_config_end.sh $Answer'");
+
+		//full regen
+		$commandToSend='/usr/pluto/bin/MessageSend localhost -targetType template '.$orbiterArray['PK_Device'].' '.$GLOBALS['OrbiterPlugIn'].' 1 266 2 '.$orbiterArray['PK_Device'].' 21 "-r" 24 1';				
+		exec($commandToSend);
+
 		
 		header("Location: index.php?section=setResolution&mdID=$mdID&msg=$msg");
 	}

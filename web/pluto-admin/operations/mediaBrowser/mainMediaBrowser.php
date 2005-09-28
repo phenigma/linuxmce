@@ -133,18 +133,11 @@ function mainMediaBrowser($output,$mediadbADO,$dbADO) {
 				<tr>
 					<td><B>Name:</B> </td>
 					<td><input type="text" name="attrName" value="'.$rowAttribute['Name'].'"></td>
-					<td><B>Type:</B> </td>
-					<td><select name="attrType">
-							<option value="0"></option>';
-			$queryTypes='SELECT * FROM AttributeType ORDER BY Description ASC';
-			$resTypes=$mediadbADO->Execute($queryTypes);
-			while($rowTypes=$resTypes->FetchRow()){
-				$out.='<option value="'.$rowTypes['PK_AttributeType'].'" '.(($rowTypes['PK_AttributeType']==$rowAttribute['FK_AttributeType'])?'selected':'').'>'.$rowTypes['Description'].'</option>';
-			}
-			$out.='</select></td>
+					<td><B>&nbsp;</B> </td>
+					<td><input type="hidden" name="attrType" value="'.$rowAttribute['FK_AttributeType'].'"></td>
 				</tr>
 				<tr>
-					<td colspan="4" align="center"><input type="button" class="button" name="update" value="Update" onclick="document.mainMediaBrowser.action.value=\'update\';document.mainMediaBrowser.submit();"></td>
+					<td colspan="4" align="left"><input type="button" class="button" name="update" value="Update" onclick="document.mainMediaBrowser.action.value=\'update\';document.mainMediaBrowser.submit();"></td>
 				</tr>
 				<tr>
 					<td colspan="4" align="center">&nbsp;</td>
@@ -245,8 +238,7 @@ function mainMediaBrowser($output,$mediadbADO,$dbADO) {
 				';
 				$dontRedirect=true;
 			}else{
-				$updateAttribute='UPDATE Attribute SET Name=?, FK_AttributeType=? WHERE PK_Attribute=?';
-				$mediadbADO->Execute($updateAttribute,array($name,$attrType,$attributeID));
+				updateAttribute($name,$attributeID,$dbADO);
 			}
 				
 		}else{
@@ -323,3 +315,19 @@ function mainMediaBrowser($output,$mediadbADO,$dbADO) {
 	$output->setTitle(APPLICATION_NAME);
 	$output->output();
 }
+
+function updateAttribute($name,$attributeID,$dbADO){
+	$mediaPlugin=getMediaPluginID($_SESSION['installationID'],$dbADO);
+	if(is_null($mediaPlugin)){
+		header("Location: index.php?section=mainMediaBrowser&attributeID=$attributeID&action=properties&error=Media plugin not found.");
+		exit();
+	}
+
+	$cmd='/usr/pluto/bin/MessageSend localhost -targetType device -r 0 '.$mediaPlugin.' 1 392 123 '.$attributeID.' 5 "'.$name.'"';
+	exec($cmd,$ret);
+	$response=join('<br>',$ret);
+
+	return (ereg('RESP: OK',$response))?true:$cmd.'<br>'.$response;
+	
+}
+?>
