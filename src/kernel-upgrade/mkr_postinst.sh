@@ -2,11 +2,6 @@
 
 PrevVer="$2"
 
-echo "Setting debconf front-end to Noninteractive"
-awk '/Name: debconf\/frontend/,/^$/ {if ($1 == "Value:") print "Value: noninteractive"; else print; next}
-	{print}' /var/cache/debconf/config.dat > /var/cache/debconf/config.dat.$$
-mv /var/cache/debconf/config.dat.$$ /var/cache/debconf/config.dat
-
 # Hack/workaround
 if [[ -n "$PrevVer" ]]; then
 	File=/etc/rc2.d/S01pluto_docleanup.sh
