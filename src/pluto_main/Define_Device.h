@@ -37,6 +37,8 @@
 #define DEVICE_PINGTEST_TABLE_FIELD "Device.PingTest"
 #define DEVICE_EK_LICENSEDDEVICE_FIELD "EK_LicensedDevice"
 #define DEVICE_EK_LICENSEDDEVICE_TABLE_FIELD "Device.EK_LicensedDevice"
+#define DEVICE_ISNEWDEVICE_FIELD "IsNewDevice"
+#define DEVICE_ISNEWDEVICE_TABLE_FIELD "Device.IsNewDevice"
 #define DEVICE_PSC_ID_FIELD "psc_id"
 #define DEVICE_PSC_ID_TABLE_FIELD "Device.psc_id"
 #define DEVICE_PSC_BATCH_FIELD "psc_batch"
