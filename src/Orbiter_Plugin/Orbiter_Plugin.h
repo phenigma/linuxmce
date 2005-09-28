@@ -166,6 +166,8 @@ public:
 	will set the DEVICEDATA_Leave_Monitor_on_for_OSD_CONST flag to 1 */
 	void OverrideAVPipe(DeviceData_Router *pDevice_OSD,bool bOverride);
 	
+	bool CheckForNewWizardDevices(DeviceData_Router *pDevice_MD);
+
 	void DisplayMessageOnOrbiter(int dwPK_Device,string sMessage,bool bPromptToResetRouter=false,int iTimeout=0,bool bCantGoBack=false,
 		string sOption1="",string sMessage1="",string sOption2="",string sMessage2="",string sOption3="",string sMessage3="",string sOption4="", string sMessage4="" )
 	{

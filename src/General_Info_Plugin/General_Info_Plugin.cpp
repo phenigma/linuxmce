@@ -511,23 +511,14 @@ class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string 
 		return pDataGrid;
 	}
 
-	vector<DeviceData_Router *> vectDevice_AppServer;
-	pDevice_MD->FindChildrenWithinCategory(DEVICECATEGORY_App_Server_CONST,vectDevice_AppServer);
-	if( vectDevice_AppServer.size()==0 )
-	{
-		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"There are no App Servers on this media director");
-		return pDataGrid;
-	}
-	DeviceData_Router *pDevice_AppServer = vectDevice_AppServer[0];
+	DeviceData_Router *pDevice_AppServer,*pDevice_Orbiter_OSD;
+	GetAppServerAndOsdForMD(pDevice_MD,&pDevice_AppServer,&pDevice_Orbiter_OSD);
 
-	vector<DeviceData_Router *> vectDevice_Orbiter_OSD;
-	pDevice_MD->FindChildrenWithinCategory(DEVICECATEGORY_Standard_Orbiter_CONST,vectDevice_Orbiter_OSD);
-	if( vectDevice_Orbiter_OSD.size()==0 )
+	if( !pDevice_AppServer || !pDevice_Orbiter_OSD )
 	{
-		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"There are is no OSD on this media director");
+		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"There are no App Servers/OSD on this media director");
 		return pDataGrid;
 	}
-	DeviceData_Router *pDevice_Orbiter_OSD = vectDevice_Orbiter_OSD[0];
 
 	vector<Row_Device_QuickStart *> vectRow_Device_QuickStart;
 	list<pair<string, string> > *p_Bookmarks=NULL;
@@ -593,8 +584,6 @@ class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string 
 		string sDescription,sBinary,sArguments;
 		size_t iSize;
 		char *pBuffer=NULL;
-		int PK_DesignObj_OSD=DESIGNOBJ_generic_app_full_screen_CONST;
-		int PK_DesignObj_Remote=DESIGNOBJ_mnuGenericAppController_CONST;
 
 		if( p_Bookmarks )
 		{
@@ -618,10 +607,6 @@ class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string 
 
 		if( pRow_QuickStartTemplate )
 		{
-			if( pRow_QuickStartTemplate->FK_DesignObj_get() )
-				PK_DesignObj_Remote=pRow_QuickStartTemplate->FK_DesignObj_get();
-			if( pRow_QuickStartTemplate->FK_DesignObj_OSD_get() )
-				PK_DesignObj_OSD=pRow_QuickStartTemplate->FK_DesignObj_OSD_get();
 			if( !pBuffer )
                 pBuffer = FileUtils::ReadFileIntoBuffer("/usr/pluto/orbiter/quickstart/" + StringUtils::itos(pRow_QuickStartTemplate->PK_QuickStartTemplate_get()) + "_tn.jpg",iSize);
 		}
@@ -646,58 +631,10 @@ class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string 
             pCellIcon->m_GraphicLength = iSize;
         }
 
-		string sMessage = "0 " + StringUtils::itos(pDevice_Orbiter_OSD->m_dwPK_Device) + 
-			" 1 4 16 " + StringUtils::itos(PK_DesignObj_OSD) + 
-			" & 0 " + StringUtils::itos(m_dwPK_Device) + " 1 " + StringUtils::itos(COMMAND_Set_Active_Application_CONST) +
-			" " + StringUtils::itos(COMMANDPARAMETER_Name_CONST) + " \"\" " + StringUtils::itos(COMMANDPARAMETER_PK_Device_CONST) + " " +
-			StringUtils::itos(pDevice_MD->m_dwPK_Device);
-		if( pDevice_Orbiter_OSD->m_dwPK_Device!=pMessage->m_dwPK_Device_From )
-			sMessage += " & 0 " + StringUtils::itos(pMessage->m_dwPK_Device_From ) + 
-				" 1 4 16 " + StringUtils::itos(PK_DesignObj_Remote);
-
-
-		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,
-			sBinary,"generic_app",sArguments,
-			sMessage,sMessage,true,false,true);
-		pCellIcon->m_pMessage = CMD_Spawn_Application.m_pMessage;
+		pCellIcon->m_pMessage = BuildMessageToSpawnApp(m_pRouter->m_mapDeviceData_Router_Find(pMessage->m_dwPK_Device_From),
+			pDevice_MD,pDevice_AppServer,pDevice_Orbiter_OSD,
+			sBinary,sArguments,sDescription,(pRow_QuickStartTemplate ? pRow_QuickStartTemplate->PK_QuickStartTemplate_get() : 0));
 		pCellText->m_pMessage = new Message(pCellIcon->m_pMessage);
-
-		DCE::CMD_Set_Active_Application CMD_Set_Active_Application(pMessage->m_dwPK_Device_From,m_dwPK_Device,
-			pDevice_MD->m_dwPK_Device,sDescription,pRow_QuickStartTemplate ? pRow_QuickStartTemplate->PK_QuickStartTemplate_get() : 0);
-		pCellIcon->m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Active_Application.m_pMessage);
-		pCellText->m_pMessage->m_vectExtraMessages.push_back( new Message(CMD_Set_Active_Application.m_pMessage) );
-
-
-		// If this is the same on screen orbiter on which the app will run, we will send the user 
-		// to a screen that retains a small strip at the bottom to terminate the app and return to the orbiter.
-		// Otherwise, we will send the OSD to the full screen app, and the orbiter will become a remote control
-		if( pDevice_Orbiter_OSD->m_dwPK_Device==pMessage->m_dwPK_Device_From )
-		{
-			// This is the OSD orbiter
-			DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pDevice_Orbiter_OSD->m_dwPK_Device,0,
-				StringUtils::itos(PK_DesignObj_OSD),"","",false,false);
-			pCellIcon->m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen.m_pMessage);
-			pCellText->m_pMessage->m_vectExtraMessages.push_back(new Message(CMD_Goto_Screen.m_pMessage));
-
-			DCE::CMD_Set_Variable CMD_Set_Variable(m_dwPK_Device,pDevice_Orbiter_OSD->m_dwPK_Device,
-				VARIABLE_Array_Desc_CONST,sDescription);
-			pCellIcon->m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable.m_pMessage);
-			pCellText->m_pMessage->m_vectExtraMessages.push_back(new Message(CMD_Set_Variable.m_pMessage));
-		}
-		else
-		{
-			// Do this on the OSD orbiter
-			DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pDevice_Orbiter_OSD->m_dwPK_Device,0,
-				StringUtils::itos(PK_DesignObj_OSD),"","",false,false);
-			pCellIcon->m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen.m_pMessage);
-			pCellText->m_pMessage->m_vectExtraMessages.push_back(new Message(CMD_Goto_Screen.m_pMessage));
-
-			// Do this on the controlling orbiter
-			DCE::CMD_Goto_Screen CMD_Goto_Screen2(m_dwPK_Device,pMessage->m_dwPK_Device_From,0,
-				StringUtils::itos(PK_DesignObj_Remote),"","",false,false);
-			pCellIcon->m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen2.m_pMessage);
-			pCellText->m_pMessage->m_vectExtraMessages.push_back(new Message(CMD_Goto_Screen2.m_pMessage));
-		}
 
 		if( (p_Bookmarks && ++it == p_Bookmarks->end()) || 
 			(!p_Bookmarks && ++s>=vectRow_Device_QuickStart.size()) )
@@ -947,4 +884,94 @@ void General_Info_Plugin::CMD_Set_Active_Application(int iPK_Device,string sName
 	}
 	pLastApplication->m_sName=sName;
 	pLastApplication->m_iPK_QuickStartTemplate=iPK_QuickStartTemplate;
+}
+
+void General_Info_Plugin::GetAppServerAndOsdForMD(DeviceData_Router *pDevice_MD,DeviceData_Router **pDevice_AppServer,DeviceData_Router **pDevice_Orbiter_OSD)
+{
+	vector<DeviceData_Router *> vectDevice_AppServer;
+	pDevice_MD->FindChildrenWithinCategory(DEVICECATEGORY_App_Server_CONST,vectDevice_AppServer);
+	if( vectDevice_AppServer.size() )
+		*pDevice_AppServer = vectDevice_AppServer[0];
+	else
+		*pDevice_AppServer = NULL;
+
+	vector<DeviceData_Router *> vectDevice_Orbiter_OSD;
+	pDevice_MD->FindChildrenWithinCategory(DEVICECATEGORY_Standard_Orbiter_CONST,vectDevice_Orbiter_OSD);
+	if( vectDevice_Orbiter_OSD.size() )
+		*pDevice_Orbiter_OSD = vectDevice_Orbiter_OSD[0];
+	else
+		*pDevice_Orbiter_OSD = NULL;
+}
+
+Message *General_Info_Plugin::BuildMessageToSpawnApp(DeviceData_Router *pDevice_OrbiterRequesting,DeviceData_Router *pDevice_MD,
+	DeviceData_Router *pDevice_AppServer,DeviceData_Router *pDevice_Orbiter_OSD,
+	string sBinary,string sArguments,string sDescription,int PK_QuickStartTemplate)
+{
+	int PK_DesignObj_OSD=DESIGNOBJ_generic_app_full_screen_CONST;
+	int PK_DesignObj_Remote=DESIGNOBJ_mnuGenericAppController_CONST;
+	if( PK_QuickStartTemplate )
+	{
+		Row_QuickStartTemplate *pRow_QuickStartTemplate = m_pDatabase_pluto_main->QuickStartTemplate_get()->GetRow(PK_QuickStartTemplate);
+		if( pRow_QuickStartTemplate )
+		{
+			if( pRow_QuickStartTemplate->FK_DesignObj_get() )
+				PK_DesignObj_Remote=pRow_QuickStartTemplate->FK_DesignObj_get();
+			if( pRow_QuickStartTemplate->FK_DesignObj_OSD_get() )
+				PK_DesignObj_OSD=pRow_QuickStartTemplate->FK_DesignObj_OSD_get();
+			if( sBinary.size()==0 )
+				sBinary=pRow_QuickStartTemplate->Binary_get();
+			if( sArguments.size()==0 )
+				sArguments=pRow_QuickStartTemplate->Arguments_get();
+			if( sDescription.size()==0 )
+				sDescription=pRow_QuickStartTemplate->Description_get();
+		}
+	}
+
+	string sMessage = "0 " + StringUtils::itos(pDevice_Orbiter_OSD->m_dwPK_Device) + 
+		" 1 4 16 " + StringUtils::itos(PK_DesignObj_OSD) + 
+		" & 0 " + StringUtils::itos(m_dwPK_Device) + " 1 " + StringUtils::itos(COMMAND_Set_Active_Application_CONST) +
+		" " + StringUtils::itos(COMMANDPARAMETER_Name_CONST) + " \"\" " + StringUtils::itos(COMMANDPARAMETER_PK_Device_CONST) + " " +
+		StringUtils::itos(pDevice_MD->m_dwPK_Device);
+	if( pDevice_OrbiterRequesting && pDevice_Orbiter_OSD->m_dwPK_Device!=pDevice_OrbiterRequesting->m_dwPK_Device )
+		sMessage += " & 0 " + StringUtils::itos(pDevice_OrbiterRequesting->m_dwPK_Device ) + 
+		" 1 4 16 " + StringUtils::itos(PK_DesignObj_Remote);
+
+	DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,
+		sBinary,"generic_app",sArguments,
+		sMessage,sMessage,true,false,true);
+
+	if( pDevice_OrbiterRequesting )
+	{
+		DCE::CMD_Set_Active_Application CMD_Set_Active_Application(pDevice_OrbiterRequesting->m_dwPK_Device,m_dwPK_Device,
+			pDevice_MD->m_dwPK_Device,sDescription,PK_QuickStartTemplate);
+		CMD_Spawn_Application.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Active_Application.m_pMessage);
+	}
+
+	// If this is the same on screen orbiter on which the app will run, we will send the user 
+	// to a screen that retains a small strip at the bottom to terminate the app and return to the orbiter.
+	// Otherwise, we will send the OSD to the full screen app, and the orbiter will become a remote control
+	if( pDevice_OrbiterRequesting && pDevice_Orbiter_OSD->m_dwPK_Device==pDevice_OrbiterRequesting->m_dwPK_Device )
+	{
+		// This is the OSD orbiter
+		DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pDevice_Orbiter_OSD->m_dwPK_Device,0,
+			StringUtils::itos(PK_DesignObj_OSD),"","",false,false);
+		CMD_Spawn_Application.m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen.m_pMessage);
+
+		DCE::CMD_Set_Variable CMD_Set_Variable(m_dwPK_Device,pDevice_Orbiter_OSD->m_dwPK_Device,
+			VARIABLE_Array_Desc_CONST,sDescription);
+		CMD_Spawn_Application.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable.m_pMessage);
+	}
+	else
+	{
+		// Do this on the OSD orbiter
+		DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pDevice_Orbiter_OSD->m_dwPK_Device,0,
+			StringUtils::itos(PK_DesignObj_OSD),"","",false,false);
+		CMD_Spawn_Application.m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen.m_pMessage);
+
+		// Do this on the controlling orbiter
+		DCE::CMD_Goto_Screen CMD_Goto_Screen2(m_dwPK_Device,pDevice_OrbiterRequesting->m_dwPK_Device,0,
+			StringUtils::itos(PK_DesignObj_Remote),"","",false,false);
+		CMD_Spawn_Application.m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen2.m_pMessage);
+	}
+	return CMD_Spawn_Application.m_pMessage;
 }

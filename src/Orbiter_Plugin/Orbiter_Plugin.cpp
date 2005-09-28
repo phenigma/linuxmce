@@ -1395,6 +1395,11 @@ void Orbiter_Plugin::PrepareFloorplanInfo(OH_Orbiter *pOH_Orbiter)
 		for(map<int,FloorplanObjectVector *>::iterator it2=pFloorplanObjectVectorMap->begin();it2!=pFloorplanObjectVectorMap->end();++it2)
 		{
 			FloorplanObjectVector *pFloorplanObjectVector = it2->second;
+			if( !pFloorplanObjectVector )
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL,"Orbiter_Plugin::PrepareFloorplanInfo pFloorplanObjectVector is NULL %d",it2->first);
+				continue;
+			}
 			for(size_t s=0;s<pFloorplanObjectVector->size();++s)
 				delete (*pFloorplanObjectVector)[s];
 			delete pFloorplanObjectVector;
@@ -1550,6 +1555,10 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,int iPK_Users,string s
 		SendCommand(CMD_Set_Bound_Iconl);
 
 		delete pOrbiterFileBrowser_Collection;
+
+		// It's an OSD -- see if there are any unconfigured devices
+		if( pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia && pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Computers_CONST) )
+			CheckForNewWizardDevices( (DeviceData_Router *) pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia);
 	}
 	else
 	{
@@ -1887,7 +1896,6 @@ void Orbiter_Plugin::CMD_Set_Room_For_Device(int iPK_Device,string sName,int iPK
 
 	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL( m_dwPK_Device, m_sPK_Device_AllOrbiters, StringUtils::itos(DESIGNOBJ_mnuNewPlugAndPlayDevice_CONST), StringUtils::itos(iPK_Device) );
 	SendCommand(CMD_Remove_Screen_From_History_DL);
-
 	m_listNewPnpDevicesWaitingForARoom.remove(pRow_Device->PK_Device_get());
 
 bool bStillRunningConfig = m_pGeneral_Info_Plugin->PendingConfigs();
@@ -1896,7 +1904,10 @@ g_pPlutoLogger->Write(LV_STATUS,"CMD_Set_Room_For_Device: before %d after %d pen
 	// If there pnp devices waiting for the room, and we finished specifying the last one, and we're
 	// not still getting the software, let the user know his device is done
 	if( sBefore && m_listNewPnpDevicesWaitingForARoom.size()==0 && !bStillRunningConfig )
-		DisplayMessageOnOrbiter("","<%=T" + StringUtils::itos(TEXT_New_Devices_Configured_CONST) + "%>",true);
+	{
+		if( !CheckForNewWizardDevices(NULL) )  // Don't display the 'device is done' if there are still some config settings we need
+			DisplayMessageOnOrbiter("","<%=T" + StringUtils::itos(TEXT_New_Devices_Configured_CONST) + "%>",true);
+	}
 }
 
 void Orbiter_Plugin::FireFollowMe(string sMask,int iPK_Orbiter,int iPK_Users,int iPK_RoomOrEntArea,int iPK_RoomOrEntArea_Left)
@@ -2420,4 +2431,29 @@ void Orbiter_Plugin::CMD_Get_Orbiter_Options(string sText,string *sValue_To_Assi
 			(*sValue_To_Assign) += "\n";
 		}
 	}
+}
+
+bool Orbiter_Plugin::CheckForNewWizardDevices(DeviceData_Router *pDevice_MD)
+{
+	vector<Row_Device *> vectRow_Device;
+	m_pDatabase_pluto_main->Device_get()->GetRows("IsNewDevice=1",&vectRow_Device);
+	for(size_t s=0;s<vectRow_Device.size();++s)
+	{
+		Row_Device *pRow_Device = vectRow_Device[s];
+		Row_DeviceTemplate *pRow_DeviceTemplate = pRow_Device->FK_DeviceTemplate_getrow();
+		if( pRow_DeviceTemplate && pRow_DeviceTemplate->WizardURL_get().size() )
+		{
+			DeviceData_Router *pDevice_AppServer,*pDevice_Orbiter_OSD;
+			m_pGeneral_Info_Plugin->GetAppServerAndOsdForMD(pDevice_MD,&pDevice_AppServer,&pDevice_Orbiter_OSD);
+			if( !pDevice_AppServer || !pDevice_Orbiter_OSD )
+				return false; // Should never happen
+
+			Message *pMessage = m_pGeneral_Info_Plugin->BuildMessageToSpawnApp(NULL,pDevice_MD,
+				pDevice_AppServer,pDevice_Orbiter_OSD,
+				"","","",1);
+			QueueMessageToRouter(pMessage);
+			return true;
+		}
+	}
+	return false;
 }
