@@ -375,7 +375,7 @@ read
 [ -e /root/.vimrc ] || cp /usr/share/vim/vim63/vimrc_example.vim /root/.vimrc
 
 echo "Setting debconf front-end to Noninteractive"
-awk '/Name: debconf\/frontend/,/^$/ {if ($1 == "Value:") print "Value: noninteractive"; else print; next}
+awk '/Name: debconf\/frontend/,/^$/ {if ($1 == "Value:") print "Value: Noninteractive"; else print; next}
 	{print}' /var/cache/debconf/config.dat > /var/cache/debconf/config.dat.$$
 mv /var/cache/debconf/config.dat.$$ /var/cache/debconf/config.dat
 
