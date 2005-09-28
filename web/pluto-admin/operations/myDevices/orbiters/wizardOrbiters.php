@@ -186,7 +186,7 @@ function wizardOrbiters($output,$dbADO) {
 				}
 
 				if(!in_array($rowD['FK_DeviceData'],$excludedData[$orbiterGroupDisplayed])){
-					$content[$orbiterGroupDisplayed][$rowD['PK_Device']]['dd']=formatDDRows($rowD,$dbADO);
+					@$content[$orbiterGroupDisplayed][$rowD['PK_Device']]['dd'].=formatDDRows($rowD,$dbADO);
 				}
 
 
