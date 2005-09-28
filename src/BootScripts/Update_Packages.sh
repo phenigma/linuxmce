@@ -2,11 +2,6 @@
 
 . /usr/pluto/bin/SQL_Ops.sh
 
-echo "Setting debconf front-end to Noninteractive"
-awk '/Name: debconf\/frontend/,/^$/ {if ($1 == "Value:") print "Value: noninteractive"; else print; next}
-	{print}' /var/cache/debconf/config.dat > /var/cache/debconf/config.dat.$$
-mv /var/cache/debconf/config.dat.$$ /var/cache/debconf/config.dat
-
 cronEntry="0 3 * * * root /usr/pluto/bin/Update_Packages.sh --download-only"
 cronNotify="0 */10 * * * root /usr/pluto/bin/Update_Notify.sh"
 
