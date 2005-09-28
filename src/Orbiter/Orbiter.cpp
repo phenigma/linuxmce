@@ -2945,7 +2945,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 
 			m_pLocationInfo = m_pLocationInfo_Initial;
 			m_dwPK_Users = m_dwPK_Users_Default;
-
+/*
 			if( m_bIsOSD )
 			{
 				time_t tTimeout=time(NULL) + 20; // Wait 20 seconds for child devices to register
@@ -2982,7 +2982,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 					Sleep(1000); // Sleep and try again
 				}
 			}
-
+*/
 			char *pData=NULL; int iSize=0;
 			DCE::CMD_Orbiter_Registered CMD_Orbiter_Registered( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, "1",
 				m_dwPK_Users,StringUtils::itos(m_pLocationInfo->PK_EntertainArea),m_pLocationInfo->PK_Room, &pData, &iSize);
