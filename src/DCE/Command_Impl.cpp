@@ -521,12 +521,12 @@ void Command_Impl::CannotReloadRouter()
 #endif
 }
 
-void Command_Impl::ReceivedString( string sLine )
+void Command_Impl::ReceivedString( string sLine, int nTimeout/*= -1*/)
 {
 	MapCommand_Impl::iterator i;
 	for( i=m_mapCommandImpl_Children.begin(); i != m_mapCommandImpl_Children.end(); ++i )
 	{
-		(*i).second->ReceivedString( sLine );
+		(*i).second->ReceivedString( sLine, nTimeout );
 	}
 }
 

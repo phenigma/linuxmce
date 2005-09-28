@@ -368,7 +368,7 @@ bool Socket::SendMessage( Message *pMessage, bool bDeleteMessage )
 	return bReturnValue; // the return of SendData
 }
 
-Message *Socket::SendReceiveMessage( Message *pMessage )
+Message *Socket::SendReceiveMessage( Message *pMessage)
 {
 	pMessage->m_eExpectedResponse=ER_ReplyMessage;
 	PLUTO_SAFETY_LOCK_ERRORSONLY( sSM, m_SocketMutex );  // Don't log anything but failures
@@ -384,9 +384,9 @@ Message *Socket::SendReceiveMessage( Message *pMessage )
 	if ( ReceiveString( sResult ) && sResult.substr(0,7)=="MESSAGE" && sResult.size()>7 ) // got the response we expected
 	{
 		if( sResult[7]=='T' )
-			pOutMessage = ReceiveMessage( atoi( sResult.substr( 9 ).c_str() ),true );
+			pOutMessage = ReceiveMessage( atoi( sResult.substr( 9 ).c_str() ),true);
 		else
-			pOutMessage = ReceiveMessage( atoi( sResult.substr( 8 ).c_str() ) );
+			pOutMessage = ReceiveMessage( atoi( sResult.substr( 8 ).c_str() ));
 
 		return pOutMessage; // return the response
 	}
@@ -394,7 +394,7 @@ Message *Socket::SendReceiveMessage( Message *pMessage )
 	return NULL; // what we got wasn't what we expected it to be
 }
 
-Message *Socket::ReceiveMessage( int iLength, bool bText )
+Message *Socket::ReceiveMessage( int iLength, bool bText)
 {
 #ifdef UNDER_CE
 	__try
@@ -719,8 +719,10 @@ bool Socket::SendData( int iSize, const char *pcData )
 	return true; // success
 }
 
-bool Socket::ReceiveData( int iSize, char *pcData )
+bool Socket::ReceiveData( int iSize, char *pcData, int nTimeout/* = -1*/ )
 {
+    int nInternalReceiveTimeout = nTimeout != -1 ? nTimeout : m_iReceiveTimeout;
+
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sSM,m_SocketMutex);  // don't log anything but failures
 	sSM.m_bIgnoreDeadlock=true;  // This socket can block a long time on receive.  Don't treat that as a deadlock
 	if( m_Socket == INVALID_SOCKET )
@@ -766,9 +768,9 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 
 			int iRet;
 
-			tv_total.tv_sec = m_iReceiveTimeout;
+			tv_total.tv_sec = nInternalReceiveTimeout;
 			tv_total.tv_usec = 0;
-			//g_pPlutoLogger->Write(LV_STATUS, "Socket::ReceiveData timeout %d socket %d", m_iReceiveTimeout, m_Socket);
+			//g_pPlutoLogger->Write(LV_STATUS, "Socket::ReceiveData timeout %d socket %d", nInternalReceiveTimeout, m_Socket);
 			do
 			{
 				if( m_Socket == INVALID_SOCKET || m_bQuit || m_bCancelSocketOp )
@@ -802,7 +804,7 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 #endif
 				tv_total -= tv_select;
 #ifndef DISABLE_SOCKET_TIMEOUTS
-			} while (iRet != -1 && iRet != 1 && (m_iReceiveTimeout > 0 ? tv_total.tv_sec > 0 : true));
+			} while (iRet != -1 && iRet != 1 && (nInternalReceiveTimeout > 0 ? tv_total.tv_sec > 0 : true));
 #else
 			} while (iRet != -1 && iRet != 1);
 #endif
@@ -974,7 +976,7 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 	return true;
 }
 
-bool Socket::ReceiveString( string &sRefString )
+bool Socket::ReceiveString( string &sRefString, int nTimeout/*= -1*/)
 {
 	char acBuf[4096], *pcBuf;
 	int	iLen = sizeof( acBuf ) - 1;
@@ -995,7 +997,7 @@ bool Socket::ReceiveString( string &sRefString )
 
 	do
 	{
-		if ( !ReceiveData( 1, pcBuf ) ) // uses ReceiveData to get the string char by char
+		if ( !ReceiveData( 1, pcBuf, nTimeout ) ) // uses ReceiveData to get the string char by char
 		{
 			sRefString = "ReceiveData failed";
 			g_pPlutoLogger->Write( LV_STATUS, "Socket::ReceiveString2 ReceiveData failed m_Socket: %d %s", m_Socket, m_sName.c_str() );
@@ -1153,14 +1155,14 @@ bool Socket::SendString( string sLine )
 	return SendData( (int)sLine.length(), sLine.c_str() ); // sending the string as a char array
 }
 
-string Socket::SendReceiveString( string sLine )
+string Socket::SendReceiveString( string sLine, int nTimeout/* = -1*/)
 {
 	// Protect the whole operation
 	PLUTO_SAFETY_LOCK_ERRORSONLY( sSM, m_SocketMutex );  // Don't log anything but failures
 	SendString( sLine );
 
 	string sResponse;
-	if( ReceiveString( sResponse ) )
+	if( ReceiveString( sResponse, nTimeout ) )
 		return sResponse;
 	return "";
 }

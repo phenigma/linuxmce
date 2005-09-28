@@ -1018,7 +1018,7 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
     ErrorResponse(pSocket,(*SafetyMessage));
 }
 
-bool Router::ReceivedString(Socket *pSocket, string Line)
+bool Router::ReceivedString(Socket *pSocket, string Line, int nTimeout/* = -1*/)
 {
     ServerSocket *pServerSocket = /*dynamic_cast<*/(ServerSocket *)/*>*/(pSocket);
     if (Line=="READY")

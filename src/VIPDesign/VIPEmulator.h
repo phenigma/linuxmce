@@ -23,7 +23,7 @@ public:
 
 	virtual Socket *CreateSocket(SOCKET newsock);
 
-	virtual bool ReceivedString(Socket *pSocket, string Line)
+	virtual bool ReceivedString(Socket *pSocket, string Line, int nTimeout = -1)
 	{
 		return true;
 	};

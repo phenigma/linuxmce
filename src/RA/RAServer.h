@@ -17,7 +17,7 @@ public:
 
 	// We're just borrowing DCE's socket listener class, which requires the following that are only for DCE.
 	// We don't need them, but the base class is abstract, so we'll define them anyway
-	virtual bool ReceivedString(DCE::Socket *pSocket, string Line) { return true; };
+	virtual bool ReceivedString(DCE::Socket *pSocket, string Line, int nTimeout = -1) { return true; };
 	virtual void ReceivedMessage(DCE::Socket *pSocket, DCE::Message *pMessage) {};
 	virtual void RegisteredCommandHandler(int DeviceID)	{};
 

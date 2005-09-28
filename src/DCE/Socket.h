@@ -107,8 +107,9 @@ namespace DCE
 		
 		/**
 		 * @brief just reads raw data from the socket
+         * if 'nTimeout' is -1, the default timeout will be used
 		 */
-		virtual bool ReceiveData( int iSize, char *pcData );
+		virtual bool ReceiveData( int iSize, char *pcData, int nTimeout = -1 ); 
 
 		/**
 		 * @brief sends a string to the socket.
@@ -120,19 +121,19 @@ namespace DCE
 		 * @brief reads a string from the socket.
 		 * @return false on errors
 		 */
-		virtual bool ReceiveString( string &sResult );
+		virtual bool ReceiveString( string &sResult, int nTimeout = -1 );
 
 		/**
 		 * @brief sends a string to the socket and retrives the answer
 		 * @return false on errors
 		 */
-		virtual string SendReceiveString( string sToSend );
+		virtual string SendReceiveString( string sToSend, int nTimeout = -1 );
 
 		/**
 		 * @brief sends a message to the socket and retrives the answer
 		 * @return false on errors
 		 */
-		virtual Message *SendReceiveMessage( Message *pMessage );
+		virtual Message *SendReceiveMessage( Message *pMessage);
 
 		/**
 		 * @brief Close the socket

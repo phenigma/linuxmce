@@ -59,7 +59,7 @@ namespace DCE
 		 * @brief virtual
 		 * @see the definition from the base class
 		 */
-		virtual void ReceivedString( string sLine )=0;
+		virtual void ReceivedString( string sLine, int nTimeout = -1 )=0;
 
 		/**
 		 * @brief virtual

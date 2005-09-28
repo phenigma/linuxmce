@@ -228,7 +228,7 @@ namespace DCE
 		/**
 		 * @brief when it receives a strin it sends it to all the command impl children
 		 */
-		virtual void ReceivedString( string sLine );
+		virtual void ReceivedString( string sLine, int nTimeout = -1 );
 		
 		/**
 		 * @brief performes a specific action bases on the message type
@@ -318,12 +318,12 @@ namespace DCE
 		};
 
 		/** @brief recieving a string directly or through the parent device */
-		virtual bool ReceiveString( string &s )
+		virtual bool ReceiveString( string &s, int nTimeout = -1 )
 		{
 			if ( this != m_pPrimaryDeviceCommand )
 				return m_pPrimaryDeviceCommand->ReceiveString( s );
 			else
-				return Socket::ReceiveString( s );
+				return Socket::ReceiveString( s, nTimeout );
 		}
 
 		/** @brief sending a data block directly or through the parent device */
@@ -336,12 +336,12 @@ namespace DCE
 		}
 
 		/** @brief recieving a data block directly or through the parent device */
-		virtual bool ReceiveData( int iSize, char *pcData)
+		virtual bool ReceiveData( int iSize, char *pcData, int nTimeout = -1)
 		{
 			if ( this != m_pPrimaryDeviceCommand )
-				return m_pPrimaryDeviceCommand->ReceiveData( iSize, pcData );
+				return m_pPrimaryDeviceCommand->ReceiveData( iSize, pcData, nTimeout );
 			else
-				return Socket::ReceiveData( iSize, pcData );
+				return Socket::ReceiveData( iSize, pcData, nTimeout );
 		}
 
 		/** @brief Gets the "state" for the given device, or this device by default */

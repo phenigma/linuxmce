@@ -288,7 +288,7 @@ namespace DCE
         bool Run();
 		virtual void RegisteredEventHandler(ServerSocket *pSocket, int DeviceID);
 		virtual void RegisteredCommandHandler(ServerSocket *pSocket, int DeviceID);
-        virtual bool ReceivedString(Socket *Socket, string Line);
+        virtual bool ReceivedString(Socket *Socket, string Line, int nTimeout = -1);
         virtual void ReceivedMessage(Socket *pSocket, Message *pMessage);
         virtual void OnDisconnected(int DeviceID);
         void AddMessageToQueue(Message *pMessage);

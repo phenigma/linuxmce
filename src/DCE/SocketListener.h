@@ -134,7 +134,7 @@ namespace DCE
 		/**
 		 * @brief override to get the string from the specified socket
 		 */
-		virtual bool ReceivedString( Socket *pSocket, string sLine )=0;
+		virtual bool ReceivedString( Socket *pSocket, string sLine, int nTimeout = - 1 )=0;
 
 		/**
 		 * @brief override to get the message from the specified socket

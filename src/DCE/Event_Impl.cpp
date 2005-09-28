@@ -84,9 +84,9 @@ Message *Event_Impl::SendReceiveMessage( Message *pMessage )
 	return m_pClientSocket->SendReceiveMessage( pMessage );
 }
 
-string Event_Impl::SendReceiveString( string s )
+string Event_Impl::SendReceiveString( string s, int nTimeout/* = -1*/)
 {
-	return m_pClientSocket->SendReceiveString(s);
+	return m_pClientSocket->SendReceiveString(s, nTimeout);
 }
 
 char *Event_Impl::GetConfig( /*unsigned long*/int &dwSize )

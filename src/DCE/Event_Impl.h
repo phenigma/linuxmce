@@ -66,7 +66,7 @@ namespace DCE
 		/**
 		 * @brief uses the client socket to send the specified string
 		 */
-		string SendReceiveString( string s );
+		string SendReceiveString( string s, int nTimeout = -1 );
 
 		/** @todo check comment */
 		//string GetParameter(int ToDevice,int ParmType);
