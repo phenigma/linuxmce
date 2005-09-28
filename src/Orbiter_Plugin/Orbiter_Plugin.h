@@ -157,7 +157,7 @@ public:
 
 		// We must have started the check for updates because we added a new device.  However we finished
 		// getting room info from the user, so he's ready to go
-		if( m_listNewPnpDevicesWaitingForARoom.size()==0 )
+		if( m_listNewPnpDevicesWaitingForARoom.size()==0 && !CheckForNewWizardDevices(NULL) )
 			DisplayMessageOnOrbiter("","<%=T" + StringUtils::itos(TEXT_New_Devices_Configured_CONST) + "%>",true);
 	}
 

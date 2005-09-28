@@ -2437,23 +2437,36 @@ bool Orbiter_Plugin::CheckForNewWizardDevices(DeviceData_Router *pDevice_MD)
 {
 	vector<Row_Device *> vectRow_Device;
 	m_pDatabase_pluto_main->Device_get()->GetRows("IsNewDevice=1",&vectRow_Device);
+	if( vectRow_Device.size()==0 )
+		return false;
 	for(size_t s=0;s<vectRow_Device.size();++s)
 	{
 		Row_Device *pRow_Device = vectRow_Device[s];
 		Row_DeviceTemplate *pRow_DeviceTemplate = pRow_Device->FK_DeviceTemplate_getrow();
 		if( pRow_DeviceTemplate && pRow_DeviceTemplate->WizardURL_get().size() )
 		{
-			DeviceData_Router *pDevice_AppServer,*pDevice_Orbiter_OSD;
-			m_pGeneral_Info_Plugin->GetAppServerAndOsdForMD(pDevice_MD,&pDevice_AppServer,&pDevice_Orbiter_OSD);
-			if( !pDevice_AppServer || !pDevice_Orbiter_OSD )
-				return false; // Should never happen
+			// Send this to all m/d's or just the one past in
+			for(map<int,class DeviceData_Router *>::const_iterator it=m_pRouter->m_mapDeviceData_Router_get()->begin();it!=m_pRouter->m_mapDeviceData_Router_get()->end();++it)
+			{
+				DeviceData_Router *pDeviceData_Router_MD=(*it).second;
+				if( (pDevice_MD && pDevice_MD==pDeviceData_Router_MD) || (!pDevice_MD && pDeviceData_Router_MD->WithinCategory(DEVICECATEGORY_Media_Director_CONST)) )
+				{
+					DeviceData_Router *pDevice_AppServer,*pDevice_Orbiter_OSD;
+					m_pGeneral_Info_Plugin->GetAppServerAndOsdForMD(pDeviceData_Router_MD,&pDevice_AppServer,&pDevice_Orbiter_OSD);
+					if( !pDevice_AppServer || !pDevice_Orbiter_OSD )
+						return false; // Should never happen
 
-			Message *pMessage = m_pGeneral_Info_Plugin->BuildMessageToSpawnApp(NULL,pDevice_MD,
-				pDevice_AppServer,pDevice_Orbiter_OSD,
-				"","","",1);
-			QueueMessageToRouter(pMessage);
+					Message *pMessage = m_pGeneral_Info_Plugin->BuildMessageToSpawnApp(NULL,pDeviceData_Router_MD,
+						pDevice_AppServer,pDevice_Orbiter_OSD,
+						"/usr/pluto/bin/Mozilla.sh","0\thttp://www.cnn.com","New Device Wizard",1);
+					QueueMessageToRouter(pMessage);
+				}
+			}
 			return true;
 		}
+		else
+			pRow_Device->IsNewDevice_set(0);
 	}
+	m_pDatabase_pluto_main->Device_get()->Commit();
 	return false;
 }

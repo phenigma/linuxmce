@@ -32,7 +32,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib DCE.lib pluto_main.lib"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib DCE.lib pluto_main.lib pluto_security.lib pluto_media.lib"
 				OutputFile="../Debug/General_Info_Plugin.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="\mysql\lib\Debug;../../libs/Libraries/pthreads-win32/lib;../lib"
@@ -125,6 +125,9 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
+				RelativePath="..\CreateDevice\CreateDevice.cpp">
+			</File>
+			<File
 				RelativePath="..\Datagrid_Plugin\Datagrid_Plugin.cpp">
 			</File>
 			<File
@@ -144,6 +147,24 @@
 			</File>
 			<File
 				RelativePath="..\PlutoUtils\md5c.cpp">
+			</File>
+			<File
+				RelativePath="..\Orbiter_Plugin\OH_Orbiter.cpp">
+			</File>
+			<File
+				RelativePath="..\Orbiter_Plugin\Orbiter_Plugin.cpp">
+			</File>
+			<File
+				RelativePath="..\Gen_Devices\Orbiter_PluginBase.cpp">
+			</File>
+			<File
+				RelativePath="..\Orbiter\OrbiterFileBrowser.cpp">
+			</File>
+			<File
+				RelativePath="..\Orbiter_Plugin\PopulateListsInVMC.cpp">
+			</File>
+			<File
+				RelativePath="..\VIPShared\VIPMenu.cpp">
 			</File>
 		</Filter>
 		<Filter

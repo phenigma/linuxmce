@@ -2988,7 +2988,13 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 				m_dwPK_Users,StringUtils::itos(m_pLocationInfo->PK_EntertainArea),m_pLocationInfo->PK_Room, &pData, &iSize);
 			DCE::CMD_Set_Current_User CMD_Set_Current_User( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, m_dwPK_Users );
 			CMD_Orbiter_Registered.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Current_User.m_pMessage);
-			SendCommand( CMD_Orbiter_Registered );
+			if( !SendCommand( CMD_Orbiter_Registered ) )
+			{
+				g_pPlutoLogger->Write( LV_CRITICAL, "Cannot register with router" );
+				PromptUser("Something went very wrong. Cannot register with router!");
+				OnQuit();
+				return;
+			}
 			m_pOrbiterFileBrowser_Collection = new OrbiterFileBrowser_Collection;
 			m_pOrbiterFileBrowser_Collection->SerializeRead(iSize,pData);
 			delete pData;
@@ -2998,7 +3004,8 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 		{
 			g_pPlutoLogger->Write( LV_CRITICAL, "No initial screen" );
             PromptUser("Something went very wrong. No initial screen!");
-			exit( 1 );
+			OnQuit();
+			return;
 		}
 
         AdjustWindowSize(m_pScreenHistory_Current->m_pObj->m_rPosition.Width, 

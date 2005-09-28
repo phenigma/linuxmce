@@ -969,9 +969,12 @@ Message *General_Info_Plugin::BuildMessageToSpawnApp(DeviceData_Router *pDevice_
 		CMD_Spawn_Application.m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen.m_pMessage);
 
 		// Do this on the controlling orbiter
-		DCE::CMD_Goto_Screen CMD_Goto_Screen2(m_dwPK_Device,pDevice_OrbiterRequesting->m_dwPK_Device,0,
-			StringUtils::itos(PK_DesignObj_Remote),"","",false,false);
-		CMD_Spawn_Application.m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen2.m_pMessage);
+		if( pDevice_OrbiterRequesting )
+		{
+			DCE::CMD_Goto_Screen CMD_Goto_Screen2(m_dwPK_Device,pDevice_OrbiterRequesting->m_dwPK_Device,0,
+				StringUtils::itos(PK_DesignObj_Remote),"","",false,false);
+			CMD_Spawn_Application.m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen2.m_pMessage);
+		}
 	}
 	return CMD_Spawn_Application.m_pMessage;
 }
