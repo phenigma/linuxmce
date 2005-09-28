@@ -55,6 +55,35 @@ InstallKernel()
 	umount ./proc
 }
 
+Upgrade_Essential()
+{
+	# TODO: don't do anything (i.e. also skip download) for packages that match the requirements
+
+	#mount -t proc proc proc
+	# TODO: replace scripts that would normally start processes (start-stop-daemon) so they don't -- currently not needed
+
+	pushd tmp/
+	aptitude download initrd-netboot-tools e2fsprogs e2fslibs libc6
+	popd
+	chroot . dpkg -i -GE ./tmp/libc6*.deb
+	chroot . dpkg -i -GE ./tmp/e2fslibs*.deb
+	chroot . dpkg -i -GE ./tmp/e2fsprogs*.deb
+	chroot . dpkg -i -GE ./tmp/initrd-netboot-tools*.deb
+
+	rm -f tmp/*.deb
+
+	# TODO: put replaced scripts back
+	#umount ./proc
+
+	local Conf=etc/lessdisks/mkinitrd/initrd-netboot.conf
+	local Setting="nfs_opts=ro,async,nolock,tcp"
+	if ! grep -q 'nfs_opts=' "$Conf" 2>/dev/null; then
+		echo "$Setting" >>"$Conf"
+	else
+		sed -i 's/^.*nfs_opts=.*$/'"$Setting"'/g' "$Conf"
+	fi
+}
+
 mkdir -p "$DlPath"
 if ! cd "$DlPath"; then
 	Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "Couldn't switch to diskless image directory. Not extracting."
@@ -75,6 +104,11 @@ Code=$Code"
 	mkdir -p "$DlPath"/usr/pluto/install
 	touch "$DlPath"/usr/pluto/install/.notdone
 fi
+
+# Pre-upgrade some packages
+set -x
+Upgrade_Essential
+set +x
 
 # Make sure the right kernel version is installed
 InstallKernel $KERNEL_VERSION || exit 1
