@@ -18,7 +18,6 @@
 
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_Command.h"
-#include "pluto_main/Table_DeviceData.h"
 
 #include "RubyEmbeder.h"
 #include "RubySerialIOWrapper.h"
@@ -47,7 +46,7 @@ RubyDCEDeviceNode::~RubyDCEDeviceNode()
 }
 
 bool 
-RubyDCEDeviceNode::Init(RubyDCECodeSupplier* pcs, Database_pluto_main* pdb) {
+RubyDCEDeviceNode::Init(RubyDCECodeSupplier* pcs) {
 	try {
 		if(!pdevdata_) {
 			g_pPlutoLogger->Write(LV_WARNING, "Serial IO pool was not initialized with device Data.");			return false;
@@ -68,15 +67,14 @@ RubyDCEDeviceNode::Init(RubyDCECodeSupplier* pcs, Database_pluto_main* pdb) {
 		    pWrapper->setParent(parent_->getEmbClass()->getValue());
 		}
 		
-		PopulateDevice(pdevdata_, pdb, pWrapper->getDevice());
+		PopulateDevice(pdevdata_, pWrapper->getDevice());
 	} catch(RubyException e) {
 		g_pPlutoLogger->Write(LV_CRITICAL, "Failed instantiating class: %s.", e.getMessage());
 	}
-	
-        std::list<RubyDCEDeviceNode*>& children = getChildren();
+	std::list<RubyDCEDeviceNode*>& children = getChildren();
 	for(std::list<RubyDCEDeviceNode*>::iterator it = children.begin(); it != children.end(); it++) {
-	    (*it)->Init(pcs, pdb);
-        }
+		(*it)->Init(pcs);
+	}
 	
 	return true;
 }
@@ -174,33 +172,21 @@ RubyDCEDeviceNode::handleTerminate() {
 }
 
 void 
-RubyDCEDeviceNode::PopulateDevice(DeviceData_Impl* pdevdata, Database_pluto_main* pdb, RubyDeviceWrapper& devwrap) {
+RubyDCEDeviceNode::PopulateDevice(DeviceData_Impl* pdevdata, RubyDeviceWrapper& devwrap) {
 	devwrap.setDevId(pdevdata->m_dwPK_Device);
 	devwrap.setDevTemplId(pdevdata->m_dwPK_DeviceTemplate);
 
 	int numparams = pdevdata->m_mapParameters.size();	
 	devwrap.setData(pdevdata->m_mapParameters);
-	/*
-	std::map<int, string>::iterator it = pdevdata->m_mapParameters.begin();
-	while(it != pdevdata->m_mapParameters.end()) {
-		Row_DeviceData *p_Row_DeviceData = pdb->DeviceData_get()->GetRow((*it).first);
-		if( !p_Row_DeviceData )
-		{
-			g_pPlutoLogger->Write(LV_STATUS,"RubyIOPool::PopulateDevice with device %d couldn't find parameter %d",
-				pdevdata->m_dwPK_Device,(*it).first);
-		}
-		else
-			devwrap.setData(FileUtils::ValidCPPName(p_Row_DeviceData->Description_get()).c_str(), (*it).second.c_str());
-		it++; numparams++;
-	}
-	*/
+
 	g_pPlutoLogger->Write(LV_STATUS, "Added %d data params to device %d.", numparams, pdevdata->m_dwPK_Device);
 		
 	std::map<int, RubyDeviceWrapper>& childdevices = devwrap.getChildDevices();
     VectDeviceData_Impl& vDeviceData = pdevdata->m_vectDeviceData_Impl_Children;
+	
     for(VectDeviceData_Impl::size_type i = 0; i < vDeviceData.size(); i++) {
 		RubyDeviceWrapper& childdevwrap = childdevices[vDeviceData[i]->m_dwPK_Device];
-		PopulateDevice(vDeviceData[i], pdb, childdevwrap);
+		PopulateDevice(vDeviceData[i], childdevwrap);
     }
 	g_pPlutoLogger->Write(LV_STATUS, "Added %d wrapped child devices to device %d.", vDeviceData.size(), pdevdata->m_dwPK_Device);
 }

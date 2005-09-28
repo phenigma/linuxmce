@@ -25,8 +25,6 @@
 #include "RubyIOPool.h"
 #include "PlutoUtils/MultiThreadIncludes.h"
 
-class Database_pluto_main;
-
 namespace DCE {
 
 class DeviceData_Base;
@@ -52,12 +50,6 @@ public:
 	static RubyIOManager* getInstance();
 	
 public:
-	void setDatabase(Database_pluto_main* pdb) {
-		pdb_ = pdb;
-	}
-	Database_pluto_main* getDatabase() {
-		return pdb_;
-	}
 
 	void setEventDispatcher(Event_Impl* pevdisp) {
 		pevdisp_ = pevdisp;
@@ -101,7 +93,6 @@ private:
 	
 private:
 	RubyDCECodeSupplier cs_;
-	Database_pluto_main* pdb_;
 	Event_Impl* pevdisp_;
 	Command_Impl* pcmdimpl_;
 	typedef std::list< std::pair<unsigned, Message*> > MESSAGEQUEUE;

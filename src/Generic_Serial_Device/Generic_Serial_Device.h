@@ -26,7 +26,6 @@
 
 #include "GSDMessageProcessing.h"
 
-class Database_pluto_main;
 
 //<-dceag-decl-b->!
 namespace DCE
@@ -85,8 +84,6 @@ public:
 		DeviceData_Impl* RecursiveFindChildDevice(unsigned dwPK_Device, DeviceData_Impl* pDeviceData_Impl);
 */
 
-private:
-		Database_pluto_main *m_pdbPlutoMain;
 	};
 
 //<-dceag-end-b->

@@ -20,18 +20,18 @@
 #include "DCE/Command_Impl.h"
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
-#include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_DeviceTemplate.h"
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "IR/IRDevice.h"
-
+#include "PlutoUtils/MySQLHelper.h"
+#include "DCE/DCEConfig.h"
 using namespace std;
 
 namespace DCE {
 
 void 
-RubyDCECodeSupplier::addCode(Database_pluto_main* pdb, Command_Impl *pcmdimpl, DeviceData_Impl* pdevicedata, bool io) {
+RubyDCECodeSupplier::addCode(Command_Impl *pcmdimpl, DeviceData_Impl* pdevicedata, bool io) {
 	if(rcode_.length() == 0) {
 		rcode_ = "require 'Ruby_Generic_Serial_Device'""\n";
 	}
@@ -108,13 +108,17 @@ RubyDCECodeSupplier::addCode(Database_pluto_main* pdb, Command_Impl *pcmdimpl, D
 										"from CommandParameter "
 											"inner join Command_CommandParameter on FK_CommandParameter=PK_CommandParameter "
 											"inner join Command on FK_Command=PK_Command "
-										"where PK_Command = "; sql += scmdid; sql += " order by PK_CommandParameter asc";
+										"where PK_Command = "; sql += scmdid;
+					sql += " order by PK_CommandParameter asc";
 											
 					g_pPlutoLogger->Write(LV_STATUS, "Running query to get params for Command %s: \n%s", scmdid.c_str(), sql.c_str());
 					
 					PARAMLIST& paramlist = devicemap_[devid][cmdid];
 					PlutoSqlResult params;
-					if((params.r = pdb->mysql_query_result(sql.c_str()))) {
+					DCEConfig dceconf;
+					MySqlHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort);
+					
+					if((params.r = mySqlHelper.mysql_query_result(sql.c_str()))) {
 						MYSQL_ROW rowparam;
 						while((rowparam = mysql_fetch_row(params.r))) {
 							if(paramlist.size() > 0) {
@@ -148,10 +152,6 @@ RubyDCECodeSupplier::addCode(Database_pluto_main* pdb, Command_Impl *pcmdimpl, D
 		}
 	}
 		
-	/*	
-	FillClassMembersFromDevice(pdb, devid, false);
-	FillClassMembersFromDevice(pdb, devtemplid, true);
-	*/
 	rcode_ += "#### START SETTERS ####################################################################\n";
 	rcode_ += "def initialize()\nsuper\n@returnParamArray=Array.new\nend\n";
 	for(map<std::string,std::string>::iterator it = rcode_setoutputparam.begin(); it != rcode_setoutputparam.end(); it++ ) {	

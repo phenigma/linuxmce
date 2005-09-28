@@ -20,8 +20,6 @@
 #include <map>
 #include <list>
 
-class Database_pluto_main;
-
 namespace DCE {
 
 class DeviceData_Impl;
@@ -36,7 +34,7 @@ public:
     virtual ~RubyDCECodeSupplier();
 
 public:
-	void addCode(Database_pluto_main* pdb, Command_Impl *pcmdimpl, DeviceData_Impl* pdevicedata, bool io);
+	void addCode(Command_Impl *pcmdimpl, DeviceData_Impl* pdevicedata, bool io);
 	void clearCode();
 	
 public:

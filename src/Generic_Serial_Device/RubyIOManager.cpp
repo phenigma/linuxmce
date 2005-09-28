@@ -38,7 +38,7 @@ namespace DCE {
 RubyIOManager* RubyIOManager::s_instance_ = NULL;
 
 RubyIOManager::RubyIOManager()
-	: m_MsgMutex("message mutex",true), pdb_(NULL), pevdisp_(NULL), rootnode_(NULL)
+	: m_MsgMutex("message mutex",true), pevdisp_(NULL), rootnode_(NULL)
 {
 }
 
@@ -74,10 +74,10 @@ RubyIOManager::InstantiateNode(Command_Impl* pcmdimpl, DeviceData_Impl* pdevdata
 
 	if(porttype == PORTTYPE_UNKNOWN) {
 		pNode = new RubyDCEDeviceNode();
-		cs_.addCode(pdb_, pcmdimpl, pdevdata, false);
+		cs_.addCode(pcmdimpl, pdevdata, false);
 		
 	} else {
-		cs_.addCode(pdb_, pcmdimpl, pdevdata, true);
+		cs_.addCode(pcmdimpl, pdevdata, true);
 	    IOPool* pnewpool = NULL;
     	switch(porttype) {
         	/*** Serial Device Initialization *********************************/
@@ -371,7 +371,7 @@ RubyIOManager::handleStartup() {
 
 	/*start serial pools*/
 	if(rootnode_) {
-		rootnode_->Init(&cs_, pdb_);
+		rootnode_->Init(&cs_);
 		rootnode_->handleStartup();
 		rootnode_->handleNoMessage(); // added one iteration processing in order for idle to be called first	
 	}

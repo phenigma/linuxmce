@@ -22,7 +22,6 @@
 
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_Command.h"
-#include "pluto_main/Table_DeviceData.h"
 
 #include "RubyEmbeder.h"
 #include "RubySerialIOWrapper.h"
@@ -49,8 +48,8 @@ RubyIOPool::~RubyIOPool() {
 }
 
 bool 
-RubyIOPool::Init(RubyDCECodeSupplier* pcs, Database_pluto_main* pdb) {
-	if(!RubyDCEDeviceNode::Init(pcs, pdb)) {
+RubyIOPool::Init(RubyDCECodeSupplier* pcs) {
+	if(!RubyDCEDeviceNode::Init(pcs)) {
 		return false;
 	}
 	

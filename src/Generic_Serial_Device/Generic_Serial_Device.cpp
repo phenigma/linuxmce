@@ -27,8 +27,6 @@ using namespace DCE;
 //<-dceag-d-e->
 
 #include "DCE/DCEConfig.h"
-#include "pluto_main/Database_pluto_main.h"
-
 #include "RubyIOManager.h"
 
 #define GSD_COMMAND_LINE	"Generic_Serial_Device"
@@ -39,7 +37,6 @@ Generic_Serial_Device::Generic_Serial_Device(int DeviceID, string ServerAddress,
 	: Generic_Serial_Device_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
-	m_pdbPlutoMain = NULL;
 }
 
 //<-dceag-getconfig-b->
@@ -48,22 +45,8 @@ bool Generic_Serial_Device::GetConfig()
 	if( !Generic_Serial_Device_Command::GetConfig() )
 		return false;
 //<-dceag-getconfig-e->
-
-	DCEConfig dceconf;
-
-	m_pdbPlutoMain = new Database_pluto_main();
-	if(!m_pdbPlutoMain->Connect(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword,
-									dceconf.m_sDBName,dceconf.m_iDBPort) )
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot connect to database!");
-		return false;
-	}
-	g_pPlutoLogger->Write(LV_STATUS, "Successfully connected to database!");
-	
 	RubyIOManager* pmanager = RubyIOManager::getInstance();
-	pmanager->setDatabase(m_pdbPlutoMain);
 	pmanager->setEventDispatcher(GetEvents());
-	
 	GSDMessageProcessor::setCommandImpl(this);
 	return true;
 }
@@ -74,7 +57,7 @@ bool Generic_Serial_Device::GetConfig()
 Generic_Serial_Device::~Generic_Serial_Device()
 //<-dceag-dest-e->
 {
-	delete m_pdbPlutoMain;
+
 }
 
 bool Generic_Serial_Device::Connect(int iPK_DeviceTemplate )

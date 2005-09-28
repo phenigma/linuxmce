@@ -33,7 +33,7 @@ public:
     virtual ~RubyDCEDeviceNode();
 
 public:
-	virtual bool Init(RubyDCECodeSupplier* pcs, Database_pluto_main* pdb);
+	virtual bool Init(RubyDCECodeSupplier* pcs);
 	virtual void Cleanup();
 	
 	void setDeviceData(DeviceData_Impl* pdevdata) {
@@ -80,7 +80,7 @@ protected:
 	}
 
 private:
-	void PopulateDevice(DeviceData_Impl* pdevdata, Database_pluto_main* pdb, RubyDeviceWrapper& devwrap);
+	void PopulateDevice(DeviceData_Impl* pdevdata, RubyDeviceWrapper& devwrap);
 	
 private:
 	RubyDCEDeviceNode* parent_;

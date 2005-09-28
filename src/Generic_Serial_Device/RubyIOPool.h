@@ -22,8 +22,6 @@
 #include "RubyDCEConnector.h"
 #include "RubyDCEDeviceNode.h"
 
-class Database_pluto_main;
-
 namespace DCE {
 
 class DeviceData_Impl;
@@ -39,7 +37,7 @@ public:
     virtual ~RubyIOPool();
 
 public:
-	bool Init(RubyDCECodeSupplier* pcs, Database_pluto_main* pdb);
+	bool Init(RubyDCECodeSupplier* pcs);
 	void Cleanup();
 
 protected:
