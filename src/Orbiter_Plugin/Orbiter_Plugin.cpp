@@ -1878,6 +1878,7 @@ void Orbiter_Plugin::CMD_Set_Room_For_Device(int iPK_Device,string sName,int iPK
 		}
 		pRow_Room = m_pDatabase_pluto_main->Room_get()->AddRow();
 		pRow_Room->Description_set(sName);
+		pRow_Room->FK_Installation_set(m_pRouter->iPK_Installation_get());
 		m_pDatabase_pluto_main->Room_get()->Commit();
 	}
 
