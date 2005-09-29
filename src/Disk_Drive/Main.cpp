@@ -221,7 +221,7 @@ int main(int argc, char* argv[])
             g_pPlutoLogger->Write(LV_CRITICAL, "Connect() Failed");
         }
 
-		if( pCM11A->m_bReload )
+		if( pDisk_Drive->m_bReload )
 			bReload=true;
 
 		delete pDisk_Drive;
