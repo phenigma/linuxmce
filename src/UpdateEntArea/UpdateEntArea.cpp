@@ -306,7 +306,7 @@ void UpdateEntArea::DeleteEntertainArea(Row_EntertainArea *pRow_EntertainArea)
 void UpdateEntArea::AddDefaultCommandsToRoom(Row_Room *pRow_Room,int iPK_Template)
 {
 	int PK_CommandGroup;
-
+/*
 	if( (!iPK_Template || iPK_Template==TEMPLATE_Lighting_Automatic_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_Room,TEMPLATE_Lighting_Automatic_CONST,ARRAY_Lighting_Scenarios_CONST,"On",1))!=0 )
 	{
 		AddCommand(PK_CommandGroup,m_dwPK_Device_LightingPlugIn,COMMAND_Set_Level_CONST,1,COMMANDPARAMETER_Level_CONST,"100");
@@ -316,7 +316,7 @@ void UpdateEntArea::AddDefaultCommandsToRoom(Row_Room *pRow_Room,int iPK_Templat
 	{
 		AddCommand(PK_CommandGroup,m_dwPK_Device_LightingPlugIn,COMMAND_Set_Level_CONST,1,COMMANDPARAMETER_Level_CONST,"0");
 	}
-
+*/
 	if( (!iPK_Template || iPK_Template==TEMPLATE_Telecom_Automatic_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_Room,TEMPLATE_Telecom_Automatic_CONST,ARRAY_Communication_Scenarios_CONST,"Phone",0))!=0 )
 	{
 		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,StringUtils::itos(DESIGNOBJ_mnuMakeCallFavorites_CONST).c_str());
@@ -324,7 +324,7 @@ void UpdateEntArea::AddDefaultCommandsToRoom(Row_Room *pRow_Room,int iPK_Templat
 
 	{
 		vector<Row_Users *> vectRow_Users;
-		m_pDatabase_pluto_main->Users_get()->GetRows("true",&vectRow_Users);
+		m_pDatabase_pluto_main->Users_get()->GetRows("1=1",&vectRow_Users);
 		for(size_t s=0;s<vectRow_Users.size();++s)
 		{
 			Row_Users *pRow_Users = vectRow_Users[s];
@@ -347,7 +347,7 @@ void UpdateEntArea::AddDefaultCommandsToRoom(Row_Room *pRow_Room,int iPK_Templat
 
 	{
 		vector<Row_DeviceGroup *> vectRow_DeviceGroup;
-		m_pDatabase_pluto_main->DeviceGroup_get()->GetRows("true",&vectRow_DeviceGroup);
+		m_pDatabase_pluto_main->DeviceGroup_get()->GetRows("1=1",&vectRow_DeviceGroup);
 		for(size_t s=0;s<vectRow_DeviceGroup.size();++s)
 		{
 			Row_DeviceGroup *pRow_DeviceGroup = vectRow_DeviceGroup[s];
