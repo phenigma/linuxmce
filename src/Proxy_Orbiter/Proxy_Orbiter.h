@@ -8,21 +8,22 @@ using namespace std;
 #include <SDL.h>
 //-----------------------------------------------------------------------------------------------------
 #include "../SDL/OrbiterSDL.h"
+#include "SocketListener.h"
 //-----------------------------------------------------------------------------------------------------
-
-class BDCommandProcessor;
+#define CURRENT_SCREEN  "TmpScreen.png"
 
 //-----------------------------------------------------------------------------------------------------
 namespace DCE
 {
-	class xxProxy_Orbiter : public OrbiterSDL
+	class xxProxy_Orbiter : public OrbiterSDL, public SocketListener
 	{
+		int	  m_iListenPort;
 		int   m_ImageQuality;
-
-		BDCommandProcessor *m_pBDCommandProcessor;
+		int	  m_iImageCounter;  // We will increment this each time we have a new image so we can keep track of whether a connected device has the lateest
+		map<int,int> m_mapID_ImageCounter; // Map of connection ID's to the latest image counter
 
 	public:
-		xxProxy_Orbiter(class BDCommandProcessor *pBDCommandProcessor, int DeviceID, 
+		xxProxy_Orbiter(int ListenPort, int DeviceID, 
 			int PK_DeviceTemplate, string ServerAddress);
 		virtual ~xxProxy_Orbiter();
 
@@ -32,13 +33,12 @@ namespace DCE
 		virtual void BeginPaint();
 		virtual void EndPaint();
 
-		virtual void SimulateMouseClick(int x, int y);
-		virtual void SimulateKeyPress(long key);
-
-		virtual void OnReload();
 		virtual bool GetConfig();
 
 		virtual void SetImageQuality(unsigned long nImageQuality);
+
+		virtual bool ReceivedString( Socket *pSocket, string sLine, int nTimeout = - 1 );
+		virtual void ReceivedMessage( Socket *pSocket, Message* pMessage ) {} // We don't do messages
 	};
 }
 //-----------------------------------------------------------------------------------------------------

@@ -27,10 +27,6 @@
 #include "DCE/Logger.h"
 #include "Proxy_Orbiter.h"
 #include "SerializeClass/ShapesColors.h"
-#include "BD/BDCommandProcessor.h"
-#include "VIPShared/BD_CP_ShowImage.h"
-#include "VIPShared/BD_CP_SimulateEvent.h"
-#include "Proxy_Orbiter_Commands.h"
 
 #include "Orbiter/SDL/JpegWrapper.h"
 
@@ -54,11 +50,17 @@ void WriteStatusOutput(const char *) {} //do nothing
 #define IMAGE_QUALITY_SCREEN    "1274"
 
 //-----------------------------------------------------------------------------------------------------
-xxProxy_Orbiter::xxProxy_Orbiter(class BDCommandProcessor *pBDCommandProcessor, int DeviceID, 
+xxProxy_Orbiter::xxProxy_Orbiter(int ListenPort, int DeviceID, 
 			int PK_DeviceTemplate, string ServerAddress)
 : OrbiterSDL(DeviceID, PK_DeviceTemplate, ServerAddress, "", false, 0, 
-    0, false), m_pBDCommandProcessor(pBDCommandProcessor)
+    0, false), SocketListener("Proxy_Orbiter")
 {
+	if( !ListenPort )
+		m_iListenPort = 3451;
+	else
+		m_iListenPort = ListenPort;
+
+	m_iImageCounter = 1;
     m_ImageQuality = 70;
 	m_bDisplayOn=true;  // Override the default behavior -- when the phone starts the display is already on
 }
@@ -72,6 +74,9 @@ xxProxy_Orbiter::xxProxy_Orbiter(class BDCommandProcessor *pBDCommandProcessor, 
 
     if(m_ImageQuality < 10 || m_ImageQuality > 100)
         m_ImageQuality = 70; //default
+
+    Initialize(gtSDLGraphic);
+	StartListening(m_iListenPort);
 
     return true;
 }
@@ -117,74 +122,19 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void xxProxy_Orbiter::DisplayImageOnScreen(struct SDL_Surface *pScreenImage)
 {
-    bool bSignalStrengthScreen = false;
-    bool bQualityImageScreen = false;
+	PLUTO_SAFETY_LOCK(sm,m_ScreenMutex);
     if(NULL != m_pScreenHistory_Current)
     {
-		g_pPlutoLogger->Write(LV_CRITICAL, "Current screen: %s",  m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str());
-        bSignalStrengthScreen = m_pScreenHistory_Current->m_pObj->m_ObjectID.find(ADVANCED_OPTIONS_SCREEN) != string::npos;
+		g_pPlutoLogger->Write(LV_STATUS, "Proxy_Orbiter::DisplayImageOnScreen Current screen: %s",  m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str());
     }
-
-    if(NULL != m_pScreenHistory_Current)
-    {
-        bQualityImageScreen = m_pScreenHistory_Current->m_pObj->m_ObjectID.find(IMAGE_QUALITY_SCREEN) != string::npos;
-    }
-
-    const string csTempFileName = "TmpScreen.png";
 
     //generate the jpeg or png image with current screen
     if(m_ImageQuality == 100) //we'll use pngs for best quality
-        SaveImageToFile(pScreenImage, csTempFileName);
+        SaveImageToFile(pScreenImage, CURRENT_SCREEN);
     else
-        SDL_SaveJPG(pScreenImage, csTempFileName.c_str(), m_ImageQuality);
+        SDL_SaveJPG(pScreenImage, CURRENT_SCREEN, m_ImageQuality);
 
-    string sRepeatedKeysList;
-    GetRepeatedKeysForScreen(m_pScreenHistory_Current->m_pObj, sRepeatedKeysList);
-#ifdef DEBUG
-    g_pPlutoLogger->Write(LV_WARNING, "Repeated keys list %s: ", sRepeatedKeysList.c_str());
-#endif
-
-    //load the image into a buffer and create 'BD_CP_ShowImage' command
-    size_t iImageSize;
-    char *pImage = FileUtils::ReadFileIntoBuffer(csTempFileName, iImageSize);
-
-#ifdef DEBUG
-	g_pPlutoLogger->Write(LV_WARNING, "Ready to send a picture, size %d, reporting signal strength %d", iImageSize, bSignalStrengthScreen);
-#endif
-
-    BD_CP_ShowImage *pBD_CP_ShowImage = new BD_CP_ShowImage(0, (unsigned long)iImageSize, pImage, 
-        (unsigned long)(sRepeatedKeysList.length()), sRepeatedKeysList.c_str(), bSignalStrengthScreen,
-        bQualityImageScreen, m_ImageQuality);
-
-    PLUTO_SAFE_DELETE_ARRAY(pImage);
-
-    //finally, send the image
-    if( m_pBDCommandProcessor )
-        m_pBDCommandProcessor->AddCommand(pBD_CP_ShowImage);
-
-#ifdef DEBUG
-    g_pPlutoLogger->Write(LV_STATUS, "ShowImage command added to the queue");
-#endif
-}
-//-----------------------------------------------------------------------------------------------------
-/*virtual*/ void xxProxy_Orbiter::SimulateMouseClick(int x, int y)
-{
-	//do nothing
-#ifndef WIN32
-	printf("xxProxy_Orbiter::SimulateMouseClick. The event will be ignored (we don't have mouse on the phone)\n");
-#endif	
-}
-//-----------------------------------------------------------------------------------------------------
-/*virtual*/ void xxProxy_Orbiter::SimulateKeyPress(long key)
-{
-	BD_CP_SimulateEvent *pBD_CP_SimulateEvent = new BD_CP_SimulateEvent(0, key);
-
-	if( m_pBDCommandProcessor )
-		m_pBDCommandProcessor->AddCommand(pBD_CP_SimulateEvent);
-
-#ifndef WIN32
-	printf("xxProxy_Orbiter::SimulateKeyPress with key code: %d\n", key);
-#endif
+	m_iImageCounter++;
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void xxProxy_Orbiter::BeginPaint()
@@ -196,14 +146,6 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
 	DisplayImageOnScreen(m_pScreenImage);
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void xxProxy_Orbiter::OnReload()
-{  
-    g_pPlutoLogger->Write(LV_WARNING,"Orbiter reloading");
-
-    //kill the connection. this will kill orbiter and then recreate it when the phone will be detected
-    m_pBDCommandProcessor->m_bDead = true;
-}  
-//-----------------------------------------------------------------------------------------------------
 /*virtual*/ void xxProxy_Orbiter::SetImageQuality(unsigned long nImageQuality)
 {
     m_ImageQuality = nImageQuality;
@@ -213,6 +155,63 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
     RedrawObjects();
 }
 //-----------------------------------------------------------------------------------------------------
+
+bool xxProxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeout )
+{
+	PLUTO_SAFETY_LOCK(sm,m_ScreenMutex);
+	if( sLine.substr(0,5)=="IMAGE" )
+	{
+		int ConnectionID = 0;
+		if( sLine.size() > 7 )
+			ConnectionID = atoi( sLine.substr(6).c_str() );
+		if( !ConnectionID )
+			ConnectionID = pSocket->m_iSocketCounter;
+
+		if( m_mapID_ImageCounter[ConnectionID]==m_iImageCounter )
+		{
+			pSocket->SendString("IMAGE 0"); // No new image
+			return true;
+		}
+		m_mapID_ImageCounter[ConnectionID]=m_iImageCounter;
+
+		size_t size;
+		char *pBuffer = FileUtils::ReadFileIntoBuffer(CURRENT_SCREEN,size);
+		if( !pBuffer )
+		{
+			pSocket->SendString("ERROR"); // Shouldn't happen
+			return true;
+		}
+
+		pSocket->SendString("IMAGE " + StringUtils::itos(size));
+		pSocket->SendData(size,pBuffer);
+		delete[] pBuffer;
+		return true;
+	}
+	else if( sLine.substr(0,9)=="PLUTO_KEY" && sLine.size()>10 )
+	{
+		int Key = atoi( sLine.substr(9).c_str() );
+		if( Key )
+		{
+			ButtonDown(Key);
+			ButtonUp(Key);
+			pSocket->SendString("OK");
+		}
+		else
+			pSocket->SendString("ERROR"); // Shouldn't happen
+		return true;
+	}
+	else if( sLine.substr(0,5)=="TOUCH" && sLine.size()>6 )
+	{
+		int X = atoi(sLine.substr(6).c_str()),Y = 0;
+		string::size_type pos_y = sLine.find('x');
+		if( pos_y!=string::npos )
+			Y = atoi(sLine.substr(pos_y+1).c_str());
+		RegionDown(X,Y);
+		pSocket->SendString("OK");
+		return true;
+	}
+	return false;
+}
 
 void LoadUI_From_ConfigurationData()
 {
@@ -248,3 +247,4 @@ bool StartOrbiter(class BDCommandProcessor *pBDCommandProcessor, int DeviceID,
 	delete pProxy_Orbiter;
 	return bReload;
 }
+ 

@@ -124,36 +124,6 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
-				RelativePath="..\DCE\AlarmManager.cpp">
-			</File>
-			<File
-				RelativePath=".\BD_CP_Disconnect.cpp">
-			</File>
-			<File
-				RelativePath=".\BD_CP_ShowImage.cpp">
-			</File>
-			<File
-				RelativePath=".\BD_CP_SimulateEvent.cpp">
-			</File>
-			<File
-				RelativePath=".\BD_PC_Disconnect.cpp">
-			</File>
-			<File
-				RelativePath=".\BD_PC_KeyWasPressed.cpp">
-			</File>
-			<File
-				RelativePath=".\BD_PC_SetImageQuality.cpp">
-			</File>
-			<File
-				RelativePath="..\Bd\BDCommand.cpp">
-			</File>
-			<File
-				RelativePath="..\Bd\BDCommandProcessor.cpp">
-			</File>
-			<File
-				RelativePath="..\Bd\BDCommandProcessor_Windows_Socket.cpp">
-			</File>
-			<File
 				RelativePath="..\Orbiter\CacheImageManager.cpp">
 			</File>
 			<File
@@ -185,9 +155,6 @@
 			</File>
 			<File
 				RelativePath="Proxy_Orbiter.cpp">
-			</File>
-			<File
-				RelativePath=".\Proxy_Orbiter_Commands.cpp">
 			</File>
 			<File
 				RelativePath="..\OrbiterGen\Renderer.cpp">
