@@ -97,7 +97,7 @@ bool IRBase::Translate(MessageReplicator& inrepl, MessageReplicatorList& outrepl
 	
 	DeviceData_Impl *pDeviceData_Impl = pTargetDev->m_pData;
 	long devtemplid = pTargetDev->m_pData->m_dwPK_DeviceTemplate, devid = pTargetDev->m_pData->m_dwPK_Device;
-	
+	static char sql_buff[1024];
 	int DigitDelay = 0;
 	string sNumDigits;
 	if(map_DigitDelay.find(devtemplid) == map_DigitDelay.end())
@@ -106,10 +106,18 @@ bool IRBase::Translate(MessageReplicator& inrepl, MessageReplicatorList& outrepl
 		MySqlHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort);
 		PlutoSqlResult result_set;
 		MYSQL_ROW row=NULL;
-		if( (result_set.r=mySqlHelper.mysql_query_result("SELECT DigitDelay, NumericEntry FROM DeviceTemplate_AV WHERE FK_DeviceTemplate=" + devtemplid )) && (row = mysql_fetch_row(result_set.r)) )
+		sprintf(sql_buff,"SELECT DigitDelay, NumericEntry FROM DeviceTemplate_AV WHERE FK_DeviceTemplate='%d'",devtemplid);
+		if( (result_set.r=mySqlHelper.mysql_query_result(sql_buff)) && (row = mysql_fetch_row(result_set.r)) )
 		{
 			map_DigitDelay[devtemplid] = DigitDelay = atoi(row[0]);
-			map_NumericEntry[devtemplid] = sNumDigits = row[1];
+			if(row[1])
+			{
+				map_NumericEntry[devtemplid] = sNumDigits = row[1];
+			}
+			else
+			{
+				map_NumericEntry[devtemplid] = sNumDigits = "";
+			}
 		}
 		else
 		{
