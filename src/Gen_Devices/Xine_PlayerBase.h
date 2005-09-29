@@ -74,22 +74,12 @@ public:
 		m_pEvent = new Xine_Player_Event(m_dwPK_Device, m_sHostName);
 		if( m_pEvent->m_dwPK_Device )
 			m_dwPK_Device = m_pEvent->m_dwPK_Device;
+		if( m_sIPAddress!=m_pEvent->m_pClientSocket->m_sIPAddress )	
+			m_sIPAddress=m_pEvent->m_pClientSocket->m_sIPAddress;
+		m_sMacAddress=m_pEvent->m_pClientSocket->m_sMacAddress;
 		if( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None )
 		{
-			if( m_pEvent->m_pClientSocket->m_eLastError==cs_err_NeedReload )
-			{
-				if( RouterNeedsReload() )
-				{
-					string sResponse;
-					m_pEvent->m_pClientSocket->SendString( "RELOAD" );
-					if( m_pEvent->m_pClientSocket->ReceiveString( sResponse ) && sResponse!="OK" )
-					{
-						CannotReloadRouter();
-						g_pPlutoLogger->Write(LV_WARNING,"Reload request denied: %s",sResponse.c_str());
-					}
-				}	
-			}
-			else if( m_pEvent->m_pClientSocket->m_eLastError==cs_err_BadDevice )
+			if( m_pEvent->m_pClientSocket->m_eLastError==cs_err_BadDevice )
 			{
 				while( m_pEvent->m_pClientSocket->m_eLastError==cs_err_BadDevice && (m_dwPK_Device = DeviceIdInvalid())!=0 )
 				{
@@ -99,14 +89,29 @@ public:
 						m_dwPK_Device = m_pEvent->m_dwPK_Device;
 				}
 			}
+			if( m_pEvent->m_pClientSocket->m_eLastError==cs_err_NeedReload )
+			{
+				if( RouterNeedsReload() )
+				{
+					string sResponse;
+					Event_Impl event_Impl(DEVICEID_MESSAGESEND, 0, m_sHostName);
+					event_Impl.m_pClientSocket->SendString( "RELOAD" );
+					if( !event_Impl.m_pClientSocket->ReceiveString( sResponse ) || sResponse!="OK" )
+					{
+						CannotReloadRouter();
+						g_pPlutoLogger->Write(LV_WARNING,"Reload request denied: %s",sResponse.c_str());
+					}
+				Sleep(10000);  // Give the router 10 seconds before we re-attempt, otherwise we'll get an error right away
+				}	
+			}
 		}
 		
-		if( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None )
+		if( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None || m_pEvent->m_pClientSocket->m_Socket==INVALID_SOCKET )
 			return false;
 
 		int Size; char *pConfig = m_pEvent->GetConfig(Size);
 		if( !pConfig )
-			throw "Cannot get configuration data";
+			return false;
 		m_pData = new Xine_Player_Data();
 		if( Size )
 			m_pData->SerializeRead(Size,pConfig);
@@ -116,6 +121,11 @@ public:
 		delete[] pConfig;
 		m_pData->m_pEvent_Impl = m_pEvent;
 		m_pcRequestSocket = new Event_Impl(m_dwPK_Device, 5,m_sHostName);
+		if( m_iInstanceID )
+		{
+			m_pEvent->m_pClientSocket->SendString("INSTANCE " + StringUtils::itos(m_iInstanceID));
+			m_pcRequestSocket->m_pClientSocket->SendString("INSTANCE " + StringUtils::itos(m_iInstanceID));
+		}
 		return true;
 	};
 	Xine_Player_Command(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter) : Command_Impl(pPrimaryDeviceCommand, pData, pEvent, pRouter) {};
@@ -132,11 +142,11 @@ public:
 	string DATA_Get_Output_Speaker_arrangement() { return GetData()->Get_Output_Speaker_arrangement(); }
 	string DATA_Get_Alsa_Output_Device() { return GetData()->Get_Alsa_Output_Device(); }
 	string DATA_Get_Subtitles() { return GetData()->Get_Subtitles(); }
-	void DATA_Set_Subtitles(string Value) { GetData()->Set_Subtitles(Value); }
+	void DATA_Set_Subtitles(string Value,bool bUpdateDatabase=false) { GetData()->Set_Subtitles(Value); if( bUpdateDatabase ) SetDeviceDataInDB(m_dwPK_Device,92,Value); }
 	string DATA_Get_Audio_Tracks() { return GetData()->Get_Audio_Tracks(); }
-	void DATA_Set_Audio_Tracks(string Value) { GetData()->Set_Audio_Tracks(Value); }
+	void DATA_Set_Audio_Tracks(string Value,bool bUpdateDatabase=false) { GetData()->Set_Audio_Tracks(Value); if( bUpdateDatabase ) SetDeviceDataInDB(m_dwPK_Device,93,Value); }
 	string DATA_Get_Angles() { return GetData()->Get_Angles(); }
-	void DATA_Set_Angles(string Value) { GetData()->Set_Angles(Value); }
+	void DATA_Set_Angles(string Value,bool bUpdateDatabase=false) { GetData()->Set_Angles(Value); if( bUpdateDatabase ) SetDeviceDataInDB(m_dwPK_Device,94,Value); }
 	int DATA_Get_Time_Code_Report_Frequency() { return GetData()->Get_Time_Code_Report_Frequency(); }
 	//Event accessors
 	void EVENT_Playback_Info_Changed(string sMediaDescription,string sSectionDescription,string sSynposisDescription) { GetEvents()->Playback_Info_Changed(sMediaDescription.c_str(),sSectionDescription.c_str(),sSynposisDescription.c_str()); }

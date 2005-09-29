@@ -14,7 +14,7 @@ DeviceData_Impl *LIRC_DCE_Data::CreateData(DeviceData_Impl *Parent,char *pDataBl
 	int iPK_Installation = b.Read_unsigned_long();
 	int iPK_DeviceTemplate = b.Read_unsigned_long();
 	switch(iPK_DeviceTemplate) {
-		case 77:
+		case 1692:
 			return new LIRC_DCE_Data();
 	};
 	g_pPlutoLogger->Write(LV_STATUS, "Got CreateData for unknown type %d.", iPK_DeviceTemplate);
@@ -24,7 +24,7 @@ DeviceData_Impl *LIRC_DCE_Data::CreateData(DeviceData_Impl *Parent,char *pDataBl
 Event_Impl *LIRC_DCE_Event::CreateEvent( unsigned long dwPK_DeviceTemplate, ClientSocket *pOCClientSocket, unsigned long dwDevice )
 {
 	switch(dwPK_DeviceTemplate) {
-		case 77:
+		case 1692:
 			return (Event_Impl *) new LIRC_DCE_Event(pOCClientSocket, dwDevice);
 	};
 	g_pPlutoLogger->Write(LV_STATUS, "Got CreateEvent for unknown type %d.", dwPK_DeviceTemplate);
