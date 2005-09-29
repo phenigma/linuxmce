@@ -233,6 +233,9 @@ int main(int argc, char* argv[])
 #ifdef WIN32
     WSACleanup();
 #endif
-    return 0;
+	if( bReload )
+		return 2;
+	else
+		return 0;
 }
 //<-dceag-main-e->
