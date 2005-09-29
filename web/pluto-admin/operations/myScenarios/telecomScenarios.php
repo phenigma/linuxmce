@@ -96,36 +96,7 @@ function telecomScenarios($output,$dbADO) {
 		</tr>			
 		<tr>
 			<td align="right" width="20">&nbsp;</td>
-			<td><input type="checkbox" name="phoneSystem_'.$rowRooms['PK_Room'].'" value="1" '.(($resCG->RecordCount()>0)?'checked':'').' onClick="document.telecomScenarios.roomName.value=\''.$rowRooms['RoomName'].'\';document.telecomScenarios.submit();"> Click to acces phone system from this room.</td>
-			<td>&nbsp;</td>
-		</tr>
-		<tr>
-			<td align="right" width="20">&nbsp;</td>
 			<td><input type="hidden" name="oldCG_R_'.$rowRooms['PK_Room'].'" value="'.$rowCG['PK_CommandGroup'].'">
-			<table>
-				<tr>
-					<td colspan="'.(2*count($usersArray)).'"><B>Status/voicemail indicators</B></td>
-				</tr>
-				<tr>';
-			foreach($usersArray AS $userID=>$username){
-				$queryCGP='
-					SELECT * FROM CommandGroup_Command_CommandParameter 
-						INNER JOIN CommandGroup_Command ON FK_CommandGroup_Command=PK_CommandGroup_Command
-						INNER JOIN CommandGroup ON FK_CommandGroup=PK_CommandGroup
-					WHERE FK_CommandParameter=? AND IK_CommandParameter=? AND PK_CommandGroup=?';
-				$resCGP=$dbADO->Execute($queryCGP,array($GLOBALS['commandParamPKUsers'],$userID,$rowCG['PK_CommandGroup']));
-
-				$out.='
-					<td>'.$username.'</td>
-					<td align="center">
-						<input type="hidden" name="oldStatusVM_'.$rowRooms['PK_Room'].'_'.$userID.'" value="'.(($resCGP->RecordCount()>0)?'1':'0').'">
-						<input type="checkbox" name="statusVM_'.$rowRooms['PK_Room'].'_'.$userID.'" value="1" '.(($resCG->RecordCount()>0)?'':'disabled').' onClick="document.telecomScenarios.submit();" '.(($resCGP->RecordCount()>0)?'checked':'').'>
-					</td>
-				';
-			}
-			$out.='
-				</tr>
-			</table>
 			<table>
 				<tr>
 					<td colspan="3"><B>Speed dial</B></td>
@@ -334,79 +305,6 @@ function telecomScenarios($output,$dbADO) {
 				$resSelDevice=$dbADO->Execute($querySelDevice,array($speedDial,$GLOBALS['commandParamPK_Device']));
 				$rowSelDevice=$resSelDevice->FetchRow();
 				$dbADO->Execute($updateCGP,array($phone,$rowSelDevice['FK_CommandGroup_Command'],$GLOBALS['commandParamPK_Device']));
-			}
-		}
-		
-		$displayedRoomsArray=explode(',',$_POST['displayedRooms']);
-		$displayedRoomNamesArray=explode(',',$_POST['displayedRoomNames']);
-		$oldTelecomScenariosArray=explode(',',$_POST['oldTelecomScenarios']);
-		foreach($displayedRoomsArray as $key=>$roomID){
-			$newScenario=(isset($_POST['phoneSystem_'.$roomID]) && $_POST['phoneSystem_'.$roomID]==1)?1:0;
-			if($oldTelecomScenariosArray[$key]==0){
-				if($newScenario==1){
-					// insert new CG
-					$insertTelecomScenario='INSERT INTO CommandGroup (FK_Array, FK_Installation, Description,FK_Template,Hint) VALUES (?,?,?,?,?)';
-					$dbADO->Execute($insertTelecomScenario,array($arrayID,$installationID,'Phone',$templateWizard,$displayedRoomNamesArray[$key]));
-					$cgID=$dbADO->Insert_ID();
-					
-					$insertCG_R='INSERT INTO CommandGroup_Room (FK_Room, FK_CommandGroup,Sort) VALUES (?,?,?)';
-					$dbADO->Execute($insertCG_R,array($roomID,$cgID,$cgID));
-					
-					$queryInsertCommandGroup_Command = "INSERT INTO CommandGroup_Command (FK_CommandGroup,FK_Command,FK_Device) VALUES(?,?,?)";								
-					$dbADO->Execute($queryInsertCommandGroup_Command,array($cgID,$GLOBALS['commandGotoScreen'],$GLOBALS['localOrbiter']));			
-					$CG_C_insertID=$dbADO->Insert_ID();
-					
-					$insertCommandParam='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
-					$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamID'],''));
-					$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_DesignObj'],$GLOBALS['TelecomMenu']));
-					$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamDesignObjCurrentScreen'],''));
-					$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_Device'],''));
-					$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamStoreVariables'],''));
-				}
-			}elseif($newScenario==0){
-				// delete CG
-				$queryCG='
-					SELECT PK_CommandGroup FROM CommandGroup
-						INNER JOIN CommandGroup_Room on CommandGroup_Room.FK_CommandGroup=PK_CommandGroup
-					WHERE FK_Room=? AND FK_Template=?';
-				$resCG=$dbADO->Execute($queryCG,array($roomID,$GLOBALS['TelecomScenariosTemplate']));
-				$rowCG=$resCG->FetchRow();
-				deleteCommandGroup($rowCG['PK_CommandGroup'],$dbADO);
-			}else{
-				if(isset($_POST['oldCG_R_'.$roomID])){
-					$cgID=$_POST['oldCG_R_'.$roomID];
-					$displayedUsersArray=explode(',',$_POST['displayedUsers']);
-					foreach($displayedUsersArray AS $userID){
-						$oldCommandParam=(isset($_POST['oldStatusVM_'.$roomID.'_'.$userID]))?$_POST['oldStatusVM_'.$roomID.'_'.$userID]:0;
-						$newCommandParam=isset($_POST['statusVM_'.$roomID.'_'.$userID])?$_POST['statusVM_'.$roomID.'_'.$userID]:0;
-						if($oldCommandParam==0){
-							if($newCommandParam==1){
-								$queryInsertCommandGroup_Command = "INSERT INTO CommandGroup_Command (FK_CommandGroup,FK_Command,FK_Device) VALUES(?,?,?)";								
-								$dbADO->Execute($queryInsertCommandGroup_Command,array($cgID,$GLOBALS['commandSetUserMode'],$GLOBALS['localOrbiter']));			
-								$CG_C_insertID=$dbADO->Insert_ID();
-								
-								$insertCommandParam='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
-								$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPKUsers'],$userID));
-						
-							}
-						}elseif($newCommandParam==0){
-							// delete command
-							$queryCGP='
-								SELECT * FROM CommandGroup_Command_CommandParameter 
-									INNER JOIN CommandGroup_Command ON FK_CommandGroup_Command=PK_CommandGroup_Command
-									INNER JOIN CommandGroup ON FK_CommandGroup=PK_CommandGroup
-								WHERE FK_CommandParameter=? AND IK_CommandParameter=? AND PK_CommandGroup=?';
-							$resCGP=$dbADO->Execute($queryCGP,array($GLOBALS['commandParamPKUsers'],$userID,$cgID));
-
-							$rowCGP=$resCGP->FetchRow();
-							$deleteCommandParameter='DELETE FROM CommandGroup_Command_CommandParameter WHERE FK_CommandGroup_Command=? AND FK_CommandParameter=? AND IK_CommandParameter=?';
-							$dbADO->Execute($deleteCommandParameter,array($rowCGP['FK_CommandGroup_Command'],$GLOBALS['commandParamPKUsers'],$userID));
-							
-							$deleteCommand='DELETE FROM CommandGroup_Command WHERE PK_CommandGroup_Command=?';
-							$dbADO->Execute($deleteCommand,$rowCGP['PK_CommandGroup_Command']);
-						}
-					}
-				}
 			}
 		}
 		
