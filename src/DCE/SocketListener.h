@@ -2,9 +2,11 @@
  *
  * @file SocketListener.h
  * @brief header file for the SocketListener class
- * @author
- * @todo notcommented
- *
+ * This listens for server sockets, and contains a m_mapServerSocket with all connections
+ * In order to get a pointer to a server socket you must use the GET_SERVER_SOCKET macro,
+ * which returns the pointer and automatically increments the ServerSocket::m_iReferencesOutstanding
+ * The macro causes this to decrement automatically when it falls out of scope.  To remove a socket
+ * call RemoveAndDeleteSocket.  This will only remove the socket when the number of references is 1
  */
 
 
@@ -22,7 +24,7 @@ namespace DCE
 	class ServerSocket;  /** < to be able to use it in declarations; we include it's header in the cpp file */
 	class Message;  /** < to be able to use it in declarations; we include it's header in the cpp file */
 
-	typedef ::std::map<int, ServerSocket *> DeviceClientMap; /** < integer map of  */
+	typedef ::std::map<int, ServerSocket *> ServerSocketMap; /** < integer map of  */
 
 	/**
 	 * @brief opens a socket on a server waiting for incomming connections
@@ -40,13 +42,14 @@ namespace DCE
 		
 		string m_sName; /** < the socket listener name */
 		pluto_pthread_mutex_t m_ListenerMutex; /** < to control access to the shared memory */
+		pthread_mutexattr_t m_MutexAttr; /** < make it recursive */
 
 		bool m_bTerminate; /** < set to true when the listener terminates (from the destructor)  */
 		bool m_bRunning; /** < specifies if the listener is running - set by StartListening */
 		bool m_bClosed; /** < specifies if the socket is closed @todo ask how it's used */
 		
-		::std::list<Socket *> m_listClients; /** < a list of sockets created for incoming connections */	
-		DeviceClientMap m_mapCommandHandlers; /** < map of server sockets associated with clients (command handlers) */
+//		::std::list<Socket *> m_listClients; /** < a list of sockets created for incoming connections */	
+		ServerSocketMap m_mapServerSocket; /** < map of server sockets associated with clients (command handlers) */
 
 		/**
 		 * @brief constructor, creates a SocketListener and gives it the name specified by the parameter; the other member data receive default values
@@ -58,6 +61,17 @@ namespace DCE
 		 * @brief destructor, cleanins up and waits for the thread to die (writes an entry to the log also)
 		 */
 		virtual ~SocketListener();
+
+		/**
+		 * @brief Normally called only by the GET_SERVER_SOCKET macro
+		 */
+		ServerSocket *GetServerSocket(int dwPK_Device)
+		{
+			PLUTO_SAFETY_LOCK( ll, m_ListenerMutex );
+			ServerSocketMap::iterator i = m_mapServerSocket.find( dwPK_Device );
+			if ( i == m_mapServerSocket.end() ) return NULL; // couldn't find the device id
+			return i->second;
+		}
 
 		/**
 		 * @brief creates the thread that will listen at the specified port
@@ -82,7 +96,7 @@ namespace DCE
 		/**
 		 * @brief removes the socket from the listClients mb data and clears any dependencies
 		 */
-		virtual void RemoveSocket( Socket *Socket );
+		virtual void RemoveAndDeleteSocket( ServerSocket *pServerSocket, bool bDontDelete=false );
 		
 
 		/**
@@ -166,6 +180,35 @@ namespace DCE
 		// Called when a ping test fails
 		virtual void PingFailed( ServerSocket *pServerSocket, int dwPK_Device ) {};
 	};
+
+	class get_server_socket
+	{
+		SocketListener *m_pSocketListener;
+		ServerSocket *m_pServerSocket;
+	public:
+		get_server_socket(SocketListener *pSocketListener,ServerSocket *&pServerSocket,int dwPK_Device)
+		{
+			m_pSocketListener=pSocketListener;
+			m_pServerSocket=m_pSocketListener->GetServerSocket(dwPK_Device);
+			if( m_pServerSocket )
+				m_pServerSocket->IncrementReferences();
+			pServerSocket=m_pServerSocket;
+		}
+
+		~get_server_socket()
+		{
+			if( m_pServerSocket )
+				m_pServerSocket->DecrementReferences();
+		}
+
+		ServerSocket * operator -> () { return m_pServerSocket; }
+		
+		void DeletingSocket() { m_pServerSocket=NULL; }
+	};
+
 }
 
+#define GET_SERVER_SOCKET(local_variable,server_socket,DeviceID) get_server_socket local_variable(this,server_socket,DeviceID);
+
 #endif
+

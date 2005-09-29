@@ -57,6 +57,12 @@ namespace DCE
 		Event_Impl *m_pcRequestSocket;  /** < Create a second socket for handling requests separately */
 		
 		int m_iTargetDeviceID; /** < the device targeted by the command */
+		/** Normally a device can open multiple socket connections to the Router, and if any one dies the Router should kill them all.
+		Since it's possible another instance may also connect, the Router needs to know which sockets belong together.  This is assigned
+		to the current time(NULL) in the Command_Impl constructor.  During GetConfig, all sockets will send their device ID, plus the 
+		instanceID.  When any one socket dies, all other sockets with the same device/instance combination will also die.  If you don't
+		want this behavior, set m_iInstanceID to 0 in your constructor */
+		int m_iInstanceID; 
 
 		bool m_bWatchdogRunning; /** < specifies if the watchdog is running */
 		bool m_bStopWatchdog; /** < specifies if the watchdog is stoped @todo ask is it used? */

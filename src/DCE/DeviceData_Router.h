@@ -173,8 +173,8 @@ namespace DCE
 		class DeviceData_Router *m_pDevice_Audio,*m_pDevice_Video;
 		Row_Device *m_pRow_Device;
 
-		map<int,Socket *> m_mapSocket_Event;
-		Socket *m_pSocket_Command;
+		map<int,class ServerSocket *> m_mapSocket_Event;
+		class ServerSocket *m_pSocket_Command;
 
 
 		DeviceData_Router(Row_Device *pRow_Device, Room *pRoom, string sCommandLine)

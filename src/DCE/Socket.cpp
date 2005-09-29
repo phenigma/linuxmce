@@ -1187,7 +1187,6 @@ void Socket::PingFailed()
 		m_pSocket_PingFailure->PingFailed();
 		return;
 	}
-	int k=2;
 }
 
 void Socket::Close()

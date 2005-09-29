@@ -22,22 +22,24 @@ namespace DCE
 
 	/**
 	 * @brief implements a server socket (to handle a specific client command)
-	 * @todo ask !!!
+	 * See notes about mutex protection in SocketListener.h
 	 */
 	class ServerSocket : public Socket
 	{
+	private:
+		int m_iReferencesOutstanding; /** < How many references to this are outstanding, we can only delete it when this is 0 */
 
 	public:
-
 		unsigned long m_dwPK_Device; /** < the device ID */
 
 		pluto_pthread_mutex_t m_ConnectionMutex; /** < for controlling access to the shared memory */
 		pthread_t m_ClientThreadID; /** < the thread running the main loop */
 
 		SocketListener *m_pListener; /** the listener that created this command handler */
-		class Command_Impl *m_pCommand; /** pointer to the command for this server socket (the one for the device) */
 
-		bool m_bThreadRunning;
+		int m_iInstanceID; // The ID from Command_Impl.  See notes for same variable in Command_Impl.h
+
+		bool m_bThreadRunning,m_bAlreadyRemoved;
 		/**
 		 * @brief constructor, assignes values to the member data and starts the looping thread
 		 */
@@ -53,6 +55,10 @@ namespace DCE
 
 		// Special behavior for the server
 		virtual void PingFailed();
+
+		void IncrementReferences() { m_iReferencesOutstanding++; }
+		void DecrementReferences() { m_iReferencesOutstanding--; }
+		int m_iReferencesOutstanding_get() { return m_iReferencesOutstanding; }
 
 	private:
 		/**

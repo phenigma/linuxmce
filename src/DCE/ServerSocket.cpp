@@ -64,8 +64,13 @@ void *ServerSocket::BeginWapClientThread( void *SvSock )
 	// Se:
 	// 		- we enter the thread
 	// 		- look to see if this is the case and remove the socket in this case.
-	if( pCS->_Run() )
-		delete pCS;
+	if( pCS->_Run() && !pCS->m_bAlreadyRemoved )
+	{
+		if( pCS->m_dwPK_Device==DEVICEID_MESSAGESEND )
+			delete pCS;  // Don't waste the time for RemoveAndDeleteSocket if it's just a message send--it was never registered anyway
+		else
+			pCS->m_pListener->RemoveAndDeleteSocket(pCS);
+	}
 
 	return NULL;
 }
@@ -73,6 +78,9 @@ void *ServerSocket::BeginWapClientThread( void *SvSock )
 ServerSocket::ServerSocket( SocketListener *pListener, SOCKET Sock, string sName, string sIPAddress, string sMacAddress ) :
 	Socket( sName, sIPAddress, sMacAddress ), m_ConnectionMutex( "connection " + sName )
 {
+	m_iInstanceID = 0;
+	m_bAlreadyRemoved = false;
+	m_iReferencesOutstanding=0;
 	m_dwPK_Device = (long unsigned int)-1;
 	m_Socket = Sock;
 #ifdef DEBUG
@@ -99,7 +107,8 @@ ServerSocket::~ServerSocket()
 	while( m_bThreadRunning )
 		Sleep(10);
 
-	m_pListener->RemoveSocket(this);
+	if( !m_bAlreadyRemoved && m_dwPK_Device!=DEVICEID_MESSAGESEND )
+		m_pListener->RemoveAndDeleteSocket(this,true);  // Don't delete it, we're already doing that here
 
 	// Shutdown of client sockets is either performed by their loops,
 	// or is triggered by the shutdown of the socket listener.
@@ -256,6 +265,11 @@ sMacAddress="11:22";
 				m_dwPK_Device = atoi( sMessage.substr(7).c_str() );
 			else  // TODO -- DELETE THIS ONCE ALL USE COMMAND 
 				m_dwPK_Device = atoi( sMessage.substr(14).c_str() );
+
+			string::size_type pos_instance = sMessage.find("INSTANCE");
+			if( pos_instance!=string::npos )
+				m_iInstanceID = atoi(sMessage.substr(pos_instance+8).c_str());
+
 #ifdef TEST_DISCONNECT
 			if (m_dwPK_Device == TEST_DISCONNECT)
 			{
@@ -273,6 +287,11 @@ sMacAddress="11:22";
 
 			return false;
 		}
+		else if( sMessage.substr(0,8) == "INSTANCE" )
+		{
+            m_iInstanceID = atoi(sMessage.substr(8).c_str());
+			continue;
+		}
 
 		if ( sMessage == "BYE" )
 		{
@@ -283,6 +302,7 @@ sMacAddress="11:22";
 		if ( m_dwPK_Device == -1 )
 		{
 			g_pPlutoLogger->Write( LV_WARNING, "Received %s, but device hasn't identified itself yet.", sMessage.c_str() );
+			m_pListener->ReceivedString( this, sMessage );
 		}
 		else
 		{
@@ -311,17 +331,8 @@ sMacAddress="11:22";
 					m_pListener->ReceivedMessage( this, pMessage );
 				}
 			}
-			else if( sMessage.substr(0,10)=="PLAIN_TEXT" || sMessage.substr(0,6)=="BINARY" )
-			{
-				PLUTO_SAFETY_LOCK( ll, m_pListener->m_ListenerMutex );
-				ServerSocket *pSocket = m_pListener->m_mapCommandHandlers[m_dwPK_Device];
-				if( pSocket )
-					pSocket->m_bUsePlainText = sMessage[0]=='P';
-				m_bUsePlainText=sMessage[0]=='P';
-				SendString("OK");
-			}
-
-			else m_pListener->ReceivedString( this, sMessage );
+			else 
+				m_pListener->ReceivedString( this, sMessage );
 		}
 	}
 

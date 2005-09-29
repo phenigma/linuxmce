@@ -2290,6 +2290,10 @@ bool Orbiter::ClickedButton( DesignObj_Orbiter *pObj, int PK_Button )
         if(  !bFoundHandler && bResult  )
             bFoundHandler=true;
     }
+if( pObj->m_ObjectID.find("1255.2.0.3407")!=string::npos )
+{
+int k=2;
+}
     if( pObj->m_iPK_Button==PK_Button || pObj->m_iPK_Button==BUTTON_Any_key_CONST  )
     {
         SelectedObject( pObj );
@@ -2945,7 +2949,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 
 			m_pLocationInfo = m_pLocationInfo_Initial;
 			m_dwPK_Users = m_dwPK_Users_Default;
-/*
+
 			if( m_bIsOSD )
 			{
 				time_t tTimeout=time(NULL) + 20; // Wait 20 seconds for child devices to register
@@ -2957,9 +2961,9 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 						break;
 					if( time(NULL)>tTimeout )
 					{
-// XXX TODO PUt this back						DisplayProgress("",-1);
+						DisplayProgress("",-1);
 						string sMessage = m_mapTextString[TEXT_Not_all_devices_started_CONST];
-// XXX TODO PUt this back						PromptUser(sMessage);
+						PromptUser(sMessage);
 						g_pPlutoLogger->Write(LV_WARNING,"Continuing anyway with %d devices not registered",iUnregisteredRelatives);
 						break;
 					}
@@ -2974,15 +2978,15 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 					}
 
 					g_pPlutoLogger->Write(LV_STATUS,"Waiting %d devices %s",iUnregisteredRelatives,sDescription.c_str());
-// XXX TODO PUt this back					if( DisplayProgress(sDescription,100-(iUnregisteredRelatives*100/mapUnregisteredRelatives.size())) )
-// XXX TODO PUt this back					{
-// XXX TODO PUt this back						OnQuit();
-// XXX TODO PUt this back						return;
-// XXX TODO PUt this back					}
+					if( DisplayProgress(sDescription,100-(iUnregisteredRelatives*100/mapUnregisteredRelatives.size())) )
+					{
+						OnQuit();
+						return;
+					}
 					Sleep(1000); // Sleep and try again
 				}
 			}
-*/
+
 			char *pData=NULL; int iSize=0;
 			DCE::CMD_Orbiter_Registered CMD_Orbiter_Registered( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, "1",
 				m_dwPK_Users,StringUtils::itos(m_pLocationInfo->PK_EntertainArea),m_pLocationInfo->PK_Room, &pData, &iSize);

@@ -2436,7 +2436,6 @@ void Orbiter_Plugin::CMD_Get_Orbiter_Options(string sText,string *sValue_To_Assi
 
 bool Orbiter_Plugin::CheckForNewWizardDevices(DeviceData_Router *pDevice_MD)
 {
-return false;
 	vector<Row_Device *> vectRow_Device;
 	m_pDatabase_pluto_main->Device_get()->GetRows("IsNewDevice=1",&vectRow_Device);
 	if( vectRow_Device.size()==0 )
@@ -2458,6 +2457,7 @@ return false;
 					if( !pDevice_AppServer || !pDevice_Orbiter_OSD )
 						return false; // Should never happen
 
+					g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CheckForNewWizardDevices device %d needs config",pRow_Device->PK_Device_get());
 					Message *pMessage = m_pGeneral_Info_Plugin->BuildMessageToSpawnApp(NULL,pDeviceData_Router_MD,
 						pDevice_AppServer,pDevice_Orbiter_OSD,
 						"/usr/pluto/bin/Mozilla.sh","0\thttp://www.cnn.com","New Device Wizard",1);

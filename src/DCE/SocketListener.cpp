@@ -49,7 +49,9 @@ SocketListener::SocketListener( string sName ) : m_ListenerMutex( "listener " + 
 {
 	m_sName = sName;
 	m_ListenerThreadID = 0;
-	m_ListenerMutex.Init( NULL );
+    pthread_mutexattr_init( &m_MutexAttr );
+    pthread_mutexattr_settype( &m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP );
+	m_ListenerMutex.Init( &m_MutexAttr );
 }
 
 SocketListener::~SocketListener()
@@ -188,9 +190,6 @@ void SocketListener::Run()
 					/** @todo check comment */
 					// setsockopt(newsock, IPPROTO_TCP, TCP_NODELAY, (SOCKOPTTYPE) &b, sizeof(b));
 					Socket *has = CreateSocket( newsock, "Incoming_Conn Socket " + StringUtils::itos(newsock) + " " + inet_ntoa( addr.sin_addr ), inet_ntoa( addr.sin_addr ) );
-					PLUTO_SAFETY_LOCK( lm, m_ListenerMutex );
-					m_listClients.push_back( has ); // add a new client to the client list
-					lm.Release();
 				}
 			}
 			else
@@ -220,33 +219,36 @@ Socket *SocketListener::CreateSocket( SOCKET newsock, string sName, string sIPAd
 	return pSocket;
 }
 
-void SocketListener::RemoveSocket( Socket *pSocket )
+void SocketListener::RemoveAndDeleteSocket( ServerSocket *pServerSocket, bool bDontDelete )
 {
+	pServerSocket->Close();
+
 	PLUTO_SAFETY_LOCK( lm, m_ListenerMutex );
+	while( pServerSocket->m_iReferencesOutstanding_get()>1 )  // Something besides us is still referencing this pointer
+	// We won't actually delete it because we don't want to wait for the other thread to finish, and besides that thread
+	// should also call this function since the socket is now dead (we just closed it)
+		return; 
 
-	g_pPlutoLogger->Write(LV_SOCKET, "Removing socket %p from socket listener", pSocket);
-	m_listClients.remove( pSocket ); // removing it from the clients map
+	g_pPlutoLogger->Write(LV_SOCKET, "Removing socket %p from socket listener", pServerSocket);
 
-	// See if we have this socket mapped to a device ID and removing the coresponding entries
-	ServerSocket *pServerSocket = (ServerSocket *)pSocket;
-	if ( pServerSocket )
+	if( pServerSocket->m_dwPK_Device )
 	{
-		int iDeviceID = pServerSocket->m_dwPK_Device;
-		// pSocket->m_Socket = INVALID_SOCKET;
-		if( iDeviceID >= 0 )
+		ServerSocketMap::iterator i = m_mapServerSocket.find( pServerSocket->m_dwPK_Device );
+		if ( i != m_mapServerSocket.end() && (*i).second == pServerSocket )
 		{
-			DeviceClientMap::iterator i = m_mapCommandHandlers.find( iDeviceID );
-			if ( i != m_mapCommandHandlers.end() && (*i).second == pSocket )
-			{
-				g_pPlutoLogger->Write( LV_REGISTRATION, "Command handler (%p) for \x1b[34;1m%d\x1b[0m closed.", pSocket, iDeviceID );
-				OnDisconnected( iDeviceID );
-				m_mapCommandHandlers.erase( iDeviceID );
-			}
-			else
-			{
-				g_pPlutoLogger->Write( LV_REGISTRATION, "Event connection for \x1b[34;1m%d\x1b[0m closed.", iDeviceID );
-			}
+			g_pPlutoLogger->Write( LV_REGISTRATION, "Command handler (%p) for \x1b[34;1m%d\x1b[0m closed.", pServerSocket, pServerSocket->m_dwPK_Device );
+			OnDisconnected( pServerSocket->m_dwPK_Device );
+			m_mapServerSocket.erase( i );
 		}
+		else
+		{
+			g_pPlutoLogger->Write( LV_REGISTRATION, "Stale Command handler %d for \x1b[34;1m%d\x1b[0m closed.", pServerSocket, pServerSocket->m_dwPK_Device );
+		}
+	}
+	if( !bDontDelete )  // Will be true if teh socket's destructor is calling this
+	{	
+		pServerSocket->m_bAlreadyRemoved=true;  // Otherwise the socket's destructor will call this
+		delete pServerSocket;
 	}
 }
 
@@ -262,21 +264,20 @@ void SocketListener::RegisterCommandHandler( ServerSocket *Socket, int iDeviceID
 	Socket->m_sName += " dev " + StringUtils::itos( iDeviceID );
 	Socket->m_ConnectionMutex.m_sName += " dev " + StringUtils::itos( iDeviceID );
 	Socket->m_SocketMutex.m_sName += " dev " + StringUtils::itos( iDeviceID );
-	DeviceClientMap::iterator iDC = m_mapCommandHandlers.find( iDeviceID ); // search if device is allready in the map
-	if ( iDC != m_mapCommandHandlers.end() )
+	ServerSocket *pSocket_Old;
+	GET_SERVER_SOCKET(gs, pSocket_Old, iDeviceID ); // search if device is allready in the map
+	if ( pSocket_Old )
 	{
-		ServerSocket *pSocket_Old = iDC->second;
 		g_pPlutoLogger->Write( LV_REGISTRATION, "!!! Replacing command handler on device ID \x1b[34;1m%d!\x1b[0m", iDeviceID );
-		ll.Release();
 		if( pSocket_Old && Socket->m_sIPAddress != pSocket_Old->m_sIPAddress )
 			pSocket_Old->SendString("OK REPLACE " + Socket->m_sIPAddress);
 
-		// the delete line below will also unregister it from the SocketListener.
-		// RemoveSocket( (*iDC).second );
-		delete pSocket_Old;
+		ll.Release();
+		gs.DeletingSocket();
+		RemoveAndDeleteSocket( pSocket_Old );
 		ll.Relock();
 	}
-	m_mapCommandHandlers[iDeviceID] = Socket; // assigning it the new specified socket
+	m_mapServerSocket[iDeviceID] = Socket; // assigning it the new specified socket
 	Socket->SetReceiveTimeout( SOCKET_TIMEOUT );
 	ll.Release();
 
@@ -309,48 +310,58 @@ string SocketListener::GetIPAddress()
 
 string SocketListener::GetIPAddress( int iDeviceID )
 {
-	ServerSocket* ss = m_mapCommandHandlers[iDeviceID];
-	if( ss == NULL ) return "";
+	ServerSocket *pServerSocket;
+	GET_SERVER_SOCKET(ss,pServerSocket,iDeviceID);
+	if( pServerSocket == NULL ) return "";
 
 	sockaddr_in inAddr;
 	socklen_t sl = sizeof(inAddr);
-	if( getpeername( ss->m_Socket, (sockaddr*)&inAddr, &sl ) ) return "";
+	if( getpeername( pServerSocket->m_Socket, (sockaddr*)&inAddr, &sl ) ) return "";
 	return  string( inet_ntoa( inAddr.sin_addr ) );
 
 }
 
 bool SocketListener::SendMessage( int iDeviceID, Message *pMessage )
 {
-	DeviceClientMap::iterator i = m_mapCommandHandlers.find( iDeviceID );
-	if ( i == m_mapCommandHandlers.end() ) return false; // couldn't find the device id
-	(*i).second->SendMessage( pMessage ); // all is ok, sending the message
+	ServerSocket *pServerSocket;
+	GET_SERVER_SOCKET(gs, pServerSocket, iDeviceID );
+	if( !pServerSocket )
+		return false; // couldn't find the device id
+	pServerSocket->SendMessage( pMessage ); // all is ok, sending the message
 	return true;
 }
 
 bool SocketListener::SendString( int iDeviceID, string sLine )
 {
-	DeviceClientMap::iterator i = m_mapCommandHandlers.find( iDeviceID );
-	if ( i == m_mapCommandHandlers.end() ) return false; // couldn't find the device id
-	(*i).second->SendString( sLine ); // sending the string
+	ServerSocket *pServerSocket;
+	GET_SERVER_SOCKET(gs, pServerSocket, iDeviceID );
+
+	if( !pServerSocket )
+		return false; // couldn't find the device id
+	pServerSocket->SendString( sLine ); // sending the string
 	return true;
 }
 
 bool SocketListener::SendData( int iDeviceID, int iLength, const char *pcData )
 {
-	DeviceClientMap::iterator i = m_mapCommandHandlers.find( iDeviceID );
-	if ( i == m_mapCommandHandlers.end() ) return false; // couldn't find the device id
-	(*i).second->SendData( iLength, pcData ); // sending the data
+	ServerSocket *pServerSocket;
+	GET_SERVER_SOCKET(gs, pServerSocket, iDeviceID );
+
+	if( !pServerSocket )
+		return false; // couldn't find the device id
+	pServerSocket->SendData( iLength, pcData ); // sending the data
 	return true;
 }
 
 void SocketListener::DropAllSockets()
 {
 	PLUTO_SAFETY_LOCK( lm, m_ListenerMutex );
-	for(::std::list<Socket *>::iterator it=m_listClients.begin();it!=m_listClients.end();++it)
-	{
-		Socket *pSocket = *it;
-		pSocket->Close();
-		delete pSocket;
+    ServerSocketMap::iterator iDC;
+    for(iDC = m_mapServerSocket.begin(); iDC!=m_mapServerSocket.end(); ++iDC)
+    {
+        ServerSocket *pServerSocket = (*iDC).second;
+		pServerSocket->Close();
 	}
+		
 	lm.Release();
 }

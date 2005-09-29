@@ -361,7 +361,6 @@ namespace DCE
         virtual void DispatchMessage(Message *pMessage) { ReceivedMessage(NULL,pMessage); };
         bool GetParameterWithDefinedMessage(Message *sendMessage, string &sResult);
         bool GetParameter(int ToDevice,int ParmType, string &sResult);
-        bool GetVideoFrame(int CameraDevice, void* &ImageData, int &ImageLength);
         string GetPublicIP();
         void CleanFileName(string &FileName);
         Message *GetActionForInput(int PK_Device,int PK_Input);
@@ -387,7 +386,7 @@ namespace DCE
         void StartListening() { SocketListener::StartListening(m_Port); }
         void Quit() { m_bQuit=true; }
 		virtual void PingFailed( ServerSocket *pServerSocket, int dwPK_Device );
-		virtual void RemoveSocket( Socket *Socket );
+		virtual void RemoveAndDeleteSocket( ServerSocket *pServerSocket, bool bDontDelete=false );
 
 		virtual int GetDeviceID( int iPK_DeviceTemplate, string sMacAddress, string sIPAddress );
 		virtual int ConfirmDeviceTemplate( int iPK_Device, int iPK_DeviceTemplate );

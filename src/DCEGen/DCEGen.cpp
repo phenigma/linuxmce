@@ -512,6 +512,12 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	fstr_DeviceCommand << "\t\tdelete[] pConfig;" << endl;
 	fstr_DeviceCommand << "\t\tm_pData->m_pEvent_Impl = m_pEvent;" << endl;
 	fstr_DeviceCommand << "\t\tm_pcRequestSocket = new Event_Impl(m_dwPK_Device, " << p_Row_DeviceTemplate->PK_DeviceTemplate_get() << ",m_sHostName);" << endl;
+	fstr_DeviceCommand << "\t\tif( m_iInstanceID )" << endl;
+	fstr_DeviceCommand << "\t\t{" << endl;
+	fstr_DeviceCommand << "\t\t\tm_pEvent->m_pClientSocket->SendString(\"INSTANCE \" + StringUtils::itos(m_iInstanceID));" << endl;
+	fstr_DeviceCommand << "\t\t\tm_pcRequestSocket->m_pClientSocket->SendString(\"INSTANCE \" + StringUtils::itos(m_iInstanceID));" << endl;
+	fstr_DeviceCommand << "\t\t}" << endl;
+
 	fstr_DeviceCommand << "\t\treturn true;" << endl;
 	fstr_DeviceCommand << "\t};" << endl;
 	fstr_DeviceCommand << "\t"  << Name  << "_Command(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter) : Command_Impl(pPrimaryDeviceCommand, pData, pEvent, pRouter) {};" << endl;

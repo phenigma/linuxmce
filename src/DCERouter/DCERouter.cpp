@@ -944,7 +944,7 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 				break;
             case SYSCOMMAND_DEADLOCK:
 				{
-					for(DeviceClientMap::iterator iDeviceConnection=m_mapCommandHandlers.begin();iDeviceConnection!=m_mapCommandHandlers.end();++iDeviceConnection)
+					for(ServerSocketMap::iterator iDeviceConnection=m_mapServerSocket.begin();iDeviceConnection!=m_mapServerSocket.end();++iDeviceConnection)
 					{
 			            ServerSocket *pDeviceConnection = (*iDeviceConnection).second;
 						PLUTO_SAFETY_LOCK(slConnMutex,pDeviceConnection->m_ConnectionMutex);
@@ -977,10 +977,11 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 			int PK_Device = (*SafetyMessage)->m_dwID;
 			if( PK_Device>0 )
 			{
-				PLUTO_SAFETY_LOCK( ll, m_ListenerMutex );
-				ServerSocket *pSocket = m_mapCommandHandlers[PK_Device];
-				if( pSocket && !pSocket->m_bUsePingToKeepAlive )
-					pSocket->StartPingLoop();
+				ServerSocket *pServerSocket;
+				GET_SERVER_SOCKET(gs, pServerSocket, PK_Device );
+
+				if( pServerSocket && !pServerSocket->m_bUsePingToKeepAlive )
+					pServerSocket->StartPingLoop();
 				Message *pMessage = new Message(m_dwPK_Device,PK_Device,PRIORITY_NORMAL,MESSAGETYPE_START_PING,0,0);
 	            AddMessageToQueue(pMessage);
 			}
@@ -990,10 +991,10 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 			int PK_Device = (*SafetyMessage)->m_dwID;
 			if( PK_Device>0 )
 			{
-				PLUTO_SAFETY_LOCK( ll, m_ListenerMutex );
-				ServerSocket *pSocket = m_mapCommandHandlers[PK_Device];
-				if( pSocket )
-					pSocket->m_bUsePingToKeepAlive = false;
+				ServerSocket *pServerSocket;
+				GET_SERVER_SOCKET(gs, pServerSocket, PK_Device );
+				if( pServerSocket )
+					pServerSocket->m_bUsePingToKeepAlive = false;
 				Message *pMessage = new Message(m_dwPK_Device,PK_Device,PRIORITY_NORMAL,MESSAGETYPE_STOP_PING,0,0);
 	            AddMessageToQueue(pMessage);
 			}
@@ -1161,15 +1162,14 @@ bool Router::ReceivedString(Socket *pSocket, string Line, int nTimeout/* = -1*/)
 		{
 			sResponse = "DEVICE_INFO " + StringUtils::itos(result_set.r->row_count) + "\t";
 	        PLUTO_SAFETY_LOCK(lm,m_ListenerMutex);
-			DeviceClientMap::iterator iDeviceConnection;
+			ServerSocketMap::iterator iDeviceConnection;
 			while ((row = mysql_fetch_row(result_set.r)))
 			{
 				sResponse += string(row[0]) + "\t" + row[1] + "\t" + (row[2] ? row[2] : "") + "\t" + (row[3] ? row[3] : "") + "\t";
-				if( (iDeviceConnection = m_mapCommandHandlers.find(atoi(row[0])))!=m_mapCommandHandlers.end())
-		        {
-				    ServerSocket *pServerSocket = (*iDeviceConnection).second;
+				ServerSocket *pServerSocket;
+				GET_SERVER_SOCKET(gs, pServerSocket, atoi(row[0]) );
+				if( pServerSocket ) 
 					sResponse += pServerSocket->m_sIPAddress;
-				}
 				sResponse += "\t";
 			}
 		}
@@ -1179,23 +1179,36 @@ bool Router::ReceivedString(Socket *pSocket, string Line, int nTimeout/* = -1*/)
     else if( Line.substr(0,18)=="DEVICE_REGISTERED ")
 	{
 		int PK_Device = atoi( Line.substr(18).c_str() );
-		PLUTO_SAFETY_LOCK( ll, m_ListenerMutex );
-		DeviceClientMap::iterator iDeviceConnection = m_mapCommandHandlers.find(PK_Device);
-        ll.Release();
+		ServerSocket *pServerSocket;
+		GET_SERVER_SOCKET(gs, pServerSocket, PK_Device );
 
-		if( iDeviceConnection==m_mapCommandHandlers.end() || iDeviceConnection->second==NULL || iDeviceConnection->second->m_Socket==INVALID_SOCKET )
+		if( !pServerSocket || pServerSocket->m_Socket==INVALID_SOCKET )
 			pSocket->SendString("DEVICE_REGISTERED N");
 		else
 		{
-			ServerSocket *pServerSocket = iDeviceConnection->second;
 			PLUTO_SAFETY_LOCK(slConnMutex,pServerSocket->m_ConnectionMutex)
 			string sResponse = pServerSocket->SendReceiveString("PING",PING_TIMEOUT);
 			slConnMutex.Release();
-			pSocket->SendString(string("DEVICE_REGISTERED ") + (sResponse=="PONG" ? "Y" : "N"));
+			if( sResponse=="PONG" )
+                pSocket->SendString("DEVICE_REGISTERED Y");
+			else
+			{
+				gs.DeletingSocket();
+				RemoveAndDeleteSocket(pServerSocket);
+                pSocket->SendString("DEVICE_REGISTERED N");
+			}
 		}
 		return true;
 	}
-  
+	else if( Line.substr(0,10)=="PLAIN_TEXT" || Line.substr(0,6)=="BINARY" )
+	{
+		ServerSocket *pServerSocket_Command;
+		GET_SERVER_SOCKET(gs, pServerSocket_Command, pServerSocket->m_dwPK_Device );
+		if( pServerSocket_Command )
+			pServerSocket_Command->m_bUsePlainText = Line[0]=='P';
+		pServerSocket->m_bUsePlainText=Line[0]=='P';
+		pServerSocket->SendString("OK");
+	}  
     g_pPlutoLogger->Write(LV_WARNING, "Router: Don't know how to handle %s.", Line.c_str());
     pSocket->SendString("ERROR");
     return false;
@@ -1255,10 +1268,10 @@ void Router::RegisteredCommandHandler(ServerSocket *pSocket, int DeviceID)
     }
 	else if( pDevice->m_bUsePingToKeepAlive )
 	{
-		PLUTO_SAFETY_LOCK( ll, m_ListenerMutex );
-		ServerSocket *pSocket = m_mapCommandHandlers[DeviceID];
-		if( pSocket )
-			pSocket->StartPingLoop();
+		ServerSocket *pServerSocket;
+		GET_SERVER_SOCKET(gs, pServerSocket, DeviceID );
+		if( pServerSocket )
+			pServerSocket->StartPingLoop();
 	}
 
     // This device has registered, so we can always route its messages back to itself
@@ -1280,13 +1293,13 @@ void Router::DoReload()
     // This should have stopped everything that is automatically startable
     // Now, restart everything else (like controllers)
 	PLUTO_SAFETY_LOCK(lm,m_ListenerMutex);
-    DeviceClientMap::iterator iDC;
-    for(iDC = m_mapCommandHandlers.begin(); iDC!=m_mapCommandHandlers.end(); ++iDC)
+    ServerSocketMap::iterator iDC;
+    for(iDC = m_mapServerSocket.begin(); iDC!=m_mapServerSocket.end(); ++iDC)
     {
-        ServerSocket *pDeviceConnection = (*iDC).second;
-        PLUTO_SAFETY_LOCK(slConnMutex,(pDeviceConnection->m_ConnectionMutex))
+        ServerSocket *pServerSocket = (*iDC).second;
+        PLUTO_SAFETY_LOCK(slConnMutex,(pServerSocket->m_ConnectionMutex))
         {
-            pDeviceConnection->SendMessage(new Message(0, (*iDC).first, PRIORITY_URGENT, MESSAGETYPE_SYSCOMMAND, SYSCOMMAND_RELOAD, 0));
+            pServerSocket->SendMessage(new Message(0, (*iDC).first, PRIORITY_URGENT, MESSAGETYPE_SYSCOMMAND, SYSCOMMAND_RELOAD, 0));
         }
     }
 
@@ -1325,7 +1338,7 @@ bool Router::Run()
     // The main loop of this app doesn't do anything!
     while(!m_bQuit && m_bRunning)
     {
-        // TODO: Check m_mapCommandHandlers and see if we've lost any
+        // TODO: Check m_mapServerSocket and see if we've lost any
         // command connections.
 		if (m_bReload)
 		{
@@ -1355,76 +1368,6 @@ void Router::OutputChildren(DeviceData_Impl *pDevice,string &Response)
     }
 }
 
-
-bool Router::GetVideoFrame(int CameraDevice, void* &ImageData, int &ImageLength)
-{
-    /* todo
-    PLUTO_SAFETY_LOCK(s,m_CoreMutex);
-    int RouteToDevice = DEVICEID_NULL;
-    map<int,int>::iterator iRoute;
-    iRoute = m_Routing_VideoDeviceToController.find(CameraDevice);
-    if (iRoute!=m_Routing_VideoDeviceToController.end())
-    {
-        RouteToDevice = (*iRoute).second;
-    }
-    if(RouteToDevice == DEVICEID_NULL)
-    {
-        iRoute = m_Routing_DeviceToController.find(CameraDevice);
-        if (iRoute!=m_Routing_DeviceToController.end())
-        {
-            RouteToDevice = (*iRoute).second;
-        }
-    }
-    if (RouteToDevice > 0)
-    {
-        Message *pMessage = new Message(0,CameraDevice, PRIORITY_LOW, MESSAGETYPE_REQUEST, REQUESTTYPE_VIDEO_FRAME, 3,
-                C_DEVICEDATA_DEVICELIST_CONST, StringUtils::itos(CameraDevice).c_str(),
-                C_COMMANDPARAMETER_IMAGE_WIDTH_CONST, "140",
-                C_COMMANDPARAMETER_IMAGE_HEIGHT_CONST, "105");
-        DeviceClientMap::iterator iDeviceConnection;
-        iDeviceConnection = m_mapCommandHandlers.find(RouteToDevice);
-        if (iDeviceConnection != m_mapCommandHandlers.end())
-        {
-            ServerSocket *pDeviceConnection = (*iDeviceConnection).second, *pFailedSocket = NULL;
-            PLUTO_SAFETY_LOCK(slConnMutex,(pDeviceConnection->m_ConnectionMutex))
-            if (!pDeviceConnection->SendMessage(pMessage))
-            {
-                    g_pPlutoLogger->Write(LV_CRITICAL, "Socket %p failure sending message to device %d", pDeviceConnection, pDeviceConnection->m_dwPK_Device);
-            }
-            else
-            {
-                string sResponse;
-                if (pDeviceConnection->ReceiveString(sResponse))
-                {
-                    if (sResponse.substr(0,7) == "MESSAGE")
-                    {
-                        Message *pResponse = pDeviceConnection->ReceiveMessage(atoi(sResponse.substr(8).c_str()));
-                        if (pResponse)
-                        {
-                            ImageLength = pResponse->m_mapData_Lengths[C_EVENTPARAMETER_GRAPHIC_IMAGE_CONST];
-                            ImageData = pResponse->m_mapData_Parameters[C_EVENTPARAMETER_GRAPHIC_IMAGE_CONST];
-                            pResponse->m_mapData_Parameters.clear();
-                            delete pResponse;
-                            return true;
-                        }
-                        else
-                        {
-                            g_pPlutoLogger->Write(LV_WARNING, "%d GetVideoFrame, failed to receive message.", pDeviceConnection->m_dwPK_Device);
-                        }
-                    }
-                    else
-                    {
-                        g_pPlutoLogger->Write(LV_WARNING, "%d GetVideoFrame, Destination responded with %s.", pDeviceConnection->m_dwPK_Device, sResponse.c_str());
-                    }
-                }
-            }
-        }
-    }
-*/
-    return false;
-}
-
-
 bool Router::GetParameter(int ToDevice,int ParmType, string &sResult)
 {
     PLUTO_SAFETY_LOCK(slock,m_CoreMutex);
@@ -1432,14 +1375,7 @@ bool Router::GetParameter(int ToDevice,int ParmType, string &sResult)
 
     map<int,int>::iterator iRoute = m_Routing_DeviceToController.find(ToDevice);
     if (iRoute!=m_Routing_DeviceToController.end())
-    {
-        PLUTO_SAFETY_LOCK(lm,m_ListenerMutex);
-        DeviceClientMap::iterator iDeviceConnection = m_mapCommandHandlers.find((*iRoute).second);
-        if (iDeviceConnection != m_mapCommandHandlers.end())
-        {
-            pSocket = (*iDeviceConnection).second;
-        }
-    }
+		GET_SERVER_SOCKET(gs, pSocket, (*iRoute).second );
 
     slock.Release();
     if( pSocket )
@@ -1473,35 +1409,34 @@ bool Router::GetParameter(int ToDevice,int ParmType, string &sResult)
 
 bool Router::GetParameterWithDefinedMessage(Message *sendMessage, string &sResult)
 {
-  int messageID;
-  PLUTO_SAFETY_LOCK(slock,m_CoreMutex);
+	int messageID;
+	PLUTO_SAFETY_LOCK(slock,m_CoreMutex);
 
     g_pPlutoLogger->Write(LV_CRITICAL, "GetParameterWithDefinedMessage %s", StringUtils::itos(sendMessage->m_dwID).c_str());
-  messageID = sendMessage->m_dwID;
+	messageID = sendMessage->m_dwID;
 
     map<int,int>::iterator iRoute = m_Routing_DeviceToController.find(sendMessage->m_dwPK_Device_To);
     if (iRoute!=m_Routing_DeviceToController.end())
     {
-        PLUTO_SAFETY_LOCK(lm,m_ListenerMutex);
-        DeviceClientMap::iterator iDeviceConnection = m_mapCommandHandlers.find((*iRoute).second);
-        ServerSocket *pSocket = (*iDeviceConnection).second;
-        if (iDeviceConnection != m_mapCommandHandlers.end())
+		ServerSocket *pServerSocket;
+		GET_SERVER_SOCKET(gs, pServerSocket, sendMessage->m_dwPK_Device_To );
+        if (pServerSocket)
         {
-            PLUTO_SAFETY_LOCK(slConn,((*iDeviceConnection).second->m_ConnectionMutex));
-            if (!pSocket->SendMessage(sendMessage)) //This evidentally overwrite sendMessage, do not use sendMessage after here
+            PLUTO_SAFETY_LOCK(slConn,pServerSocket->m_ConnectionMutex);
+            if (!pServerSocket->SendMessage(sendMessage)) //This evidentally overwrite sendMessage, do not use sendMessage after here
             {
-                g_pPlutoLogger->Write(LV_CRITICAL, "Socket %p failure sending dataparm request to device %d", (*iDeviceConnection).second, sendMessage->m_dwPK_Device_To);
+                g_pPlutoLogger->Write(LV_CRITICAL, "Socket %p failure sending dataparm request to device %d", pServerSocket, sendMessage->m_dwPK_Device_To);
 
                 // TODO :  The socket failed, core needs to remove client socket
 
             }
-            if (pSocket->ReceiveString(sResult) && sResult.substr(0,7)=="MESSAGE" && sResult.size()>7 )
+            if (pServerSocket->ReceiveString(sResult) && sResult.substr(0,7)=="MESSAGE" && sResult.size()>7 )
             {
 				Message *pMessage;
 				if( sResult[7]=='T' )
-					pMessage=pSocket->ReceiveMessage(atoi(sResult.substr(9).c_str()),true);
+					pMessage=pServerSocket->ReceiveMessage(atoi(sResult.substr(9).c_str()),true);
 				else
-					pMessage=pSocket->ReceiveMessage(atoi(sResult.substr(8).c_str()));
+					pMessage=pServerSocket->ReceiveMessage(atoi(sResult.substr(8).c_str()));
                 if (pMessage)
                 {
                     sResult = pMessage->m_mapParameters[messageID];
@@ -1575,11 +1510,9 @@ bool Router::DeviceIsRegistered(int PK_Device)
     if (!RouteToDevice)
         return false;
 
-    DeviceClientMap::iterator iDeviceConnection;
-    PLUTO_SAFETY_LOCK(slListener,m_CoreMutex);
-    iDeviceConnection = m_mapCommandHandlers.find(RouteToDevice);
-    slListener.Release();
-    return iDeviceConnection != m_mapCommandHandlers.end();
+	ServerSocket *pServerSocket;
+	GET_SERVER_SOCKET(gs, pServerSocket, PK_Device );
+	return pServerSocket!=NULL;
 }
 
 
@@ -1821,24 +1754,12 @@ g_pPlutoLogger->Write(LV_STATUS,"realsendmessage after core release from %d to %
 #endif
     if (RouteToDevice > 0)
     {
-        DeviceClientMap::iterator iDeviceConnection;
-        PLUTO_SAFETY_LOCK(lm,m_ListenerMutex);
-        iDeviceConnection = m_mapCommandHandlers.find(RouteToDevice);
-        lm.Release();
-        if (iDeviceConnection != m_mapCommandHandlers.end())
+		ServerSocket *pServerSocket;
+		bool bServerSocket_Failed=false;
+		GET_SERVER_SOCKET(gs, pServerSocket, RouteToDevice );
+
+        if (pServerSocket)
         {
-            ServerSocket *pDeviceConnection = (*iDeviceConnection).second, *pFailedSocket = NULL;
-
-            if( !pDeviceConnection )
-            {
-#ifdef DEBUG
-                g_pPlutoLogger->Write(LV_CRITICAL,"pDeviceconnection is null in Router::receivedocmessage from: %d, to: %d, type: %d",
-                    (*(*pSafetyMessage))->m_dwPK_Device_From,(*(*pSafetyMessage))->m_dwPK_Device_To,(*(*pSafetyMessage))->m_dwMessage_Type);
-#endif
-                ErrorResponse(pSocket,(*(*pSafetyMessage)));
-                return;
-            }
-
             {
 #ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS,"realsendmessage before device conn mutex from %d to %d type %d id %d ",
@@ -1846,20 +1767,20 @@ g_pPlutoLogger->Write(LV_STATUS,"realsendmessage before device conn mutex from %
 #endif
 
 #ifdef DEBUG
-                DeviceData_Router *pDest = m_mapDeviceData_Router_Find(pDeviceConnection->m_dwPK_Device);
+                DeviceData_Router *pDest = m_mapDeviceData_Router_Find(pServerSocket->m_dwPK_Device);
                 if( !pDest )
                 {
-                    g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find destination device: %d",pDeviceConnection->m_dwPK_Device);
+                    g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find destination device: %d",pServerSocket->m_dwPK_Device);
                 }
                 g_pPlutoLogger->Write(LV_SOCKET, "Ready to send message type %d id %d to %d %s on socket %d(%p) using lock: %p",
-                    (*(*pSafetyMessage))->m_dwMessage_Type,(*(*pSafetyMessage))->m_dwID,pDeviceConnection->m_dwPK_Device,
+                    (*(*pSafetyMessage))->m_dwMessage_Type,(*(*pSafetyMessage))->m_dwID,pServerSocket->m_dwPK_Device,
                     (pDest ? pDest->m_sDescription.c_str() : "*UNKNOWN DEVICE*"),
-                    pDeviceConnection->m_iSocketCounter,pDeviceConnection,&pDeviceConnection->m_ConnectionMutex);
+                    pServerSocket->m_iSocketCounter,pServerSocket,&pServerSocket->m_ConnectionMutex);
 
-                string Message = "Device " + StringUtils::itos(pDeviceConnection->m_dwPK_Device) + " " + (pDest ? pDest->m_sDescription : "*UNKNOWN DEVICE*");
-                PLUTO_SAFETY_LOCK_MESSAGE(slConnMutex,pDeviceConnection->m_ConnectionMutex,Message)
+                string Message = "Device " + StringUtils::itos(pServerSocket->m_dwPK_Device) + " " + (pDest ? pDest->m_sDescription : "*UNKNOWN DEVICE*");
+                PLUTO_SAFETY_LOCK_MESSAGE(slConnMutex,pServerSocket->m_ConnectionMutex,Message)
 #else
-                PLUTO_SAFETY_LOCK(slConnMutex,pDeviceConnection->m_ConnectionMutex)
+                PLUTO_SAFETY_LOCK(slConnMutex,pServerSocket->m_ConnectionMutex)
 #endif
 
 #ifdef DEBUG
@@ -1878,32 +1799,32 @@ g_pPlutoLogger->Write(LV_STATUS,"realsendmessage after device conn mutex from %d
                 int ID = (*(*pSafetyMessage))->m_dwID;
                 /* AB 8/5, changed this since we still use the message later
                 bool bResult = pDeviceConnection->SendMessage(pSafetyMessage->Detach()); */
-                bool bResult = pDeviceConnection->SendMessage(pSafetyMessage->m_pMessage,false);
+                bool bResult = pServerSocket->SendMessage(pSafetyMessage->m_pMessage,false);
 
 #ifdef DEBUG
                 g_pPlutoLogger->Write(LV_SOCKET, "Response %d to realsendmessage type %d id %d socket %d using lock: %p  expected response: %d",
-                    bResult ? 1 : 0,MessageType,ID,pDeviceConnection->m_Socket,&pDeviceConnection->m_ConnectionMutex,(int) (*(*pSafetyMessage))->m_eExpectedResponse);
+                    bResult ? 1 : 0,MessageType,ID,pServerSocket->m_Socket,&pServerSocket->m_ConnectionMutex,(int) (*(*pSafetyMessage))->m_eExpectedResponse);
 #endif
 
 #ifdef DEBUG
 g_pPlutoLogger->Write(LV_SOCKET, "Got response: %d to message type %d id %d to %d %s on socket %d using lock: %p",
     (bResult ? 1 : 0),
-    (*(*pSafetyMessage))->m_dwMessage_Type,(*(*pSafetyMessage))->m_dwID,pDeviceConnection->m_dwPK_Device,
+    (*(*pSafetyMessage))->m_dwMessage_Type,(*(*pSafetyMessage))->m_dwID,pServerSocket->m_dwPK_Device,
     (pDest ? pDest->m_sDescription.c_str() : "*UNKNOWN DEVICE*"),
-    pDeviceConnection->m_Socket,&pDeviceConnection->m_ConnectionMutex);
+    pServerSocket->m_Socket,&pServerSocket->m_ConnectionMutex);
 #endif
                 if (!bResult)
                 {
-                    g_pPlutoLogger->Write(LV_CRITICAL, "Socket %p failure sending message to device %d", pDeviceConnection,pDeviceConnection->m_dwPK_Device);
-					pDeviceConnection->Close();
-                    pFailedSocket = pDeviceConnection;
+                    g_pPlutoLogger->Write(LV_CRITICAL, "Socket %p failure sending message to device %d", pServerSocket,pServerSocket->m_dwPK_Device);
+					pServerSocket->Close();
+                    bServerSocket_Failed = true;;
                 }
                 else
                 {
 #ifdef DEBUG
                     clock_t clk2 = clock();
                     if( clk2-clk>(CLOCKS_PER_SEC*4) )
-                        g_pPlutoLogger->Write(LV_CRITICAL,"Took %d secs (%d ticks) to send message to %d",(int) ((clk2-clk)/CLOCKS_PER_SEC),(int) (clk2-clk),pDeviceConnection->m_dwPK_Device);
+                        g_pPlutoLogger->Write(LV_CRITICAL,"Took %d secs (%d ticks) to send message to %d",(int) ((clk2-clk)/CLOCKS_PER_SEC),(int) (clk2-clk),pServerSocket->m_dwPK_Device);
 #endif
 
                     if( (*(*pSafetyMessage))->m_eExpectedResponse==ER_None )
@@ -1912,13 +1833,13 @@ g_pPlutoLogger->Write(LV_SOCKET, "Got response: %d to message type %d id %d to %
                         return;
                     }
                     string sResponse;
-                    if (pDeviceConnection->ReceiveString(sResponse))
+                    if (pServerSocket->ReceiveString(sResponse))
                     {
 
 #ifdef DEBUG
                         if( clock()-clk2>(CLOCKS_PER_SEC*4) )
-                            g_pPlutoLogger->Write(LV_CRITICAL,"Took %d secs (ticks: %d) to receive response from %d",(int) ((clock()-clk2)/CLOCKS_PER_SEC),(int) (clock()-clk2),pDeviceConnection->m_dwPK_Device);
-                        g_pPlutoLogger->Write(LV_STATUS, "%d Destination realsendmessage responded with %s.", pDeviceConnection->m_dwPK_Device, sResponse.c_str());
+                            g_pPlutoLogger->Write(LV_CRITICAL,"Took %d secs (ticks: %d) to receive response from %d",(int) ((clock()-clk2)/CLOCKS_PER_SEC),(int) (clock()-clk2),pServerSocket->m_dwPK_Device);
+                        g_pPlutoLogger->Write(LV_STATUS, "%d Destination realsendmessage responded with %s.", pServerSocket->m_dwPK_Device, sResponse.c_str());
 #endif
 
                         if (sResponse.substr(0,7)  == "MESSAGE" && sResponse.size()>7 )
@@ -1931,9 +1852,9 @@ g_pPlutoLogger->Write(LV_SOCKET, "Got response: %d to message type %d id %d to %
                                 DCE::Message *pMessage;
 								
 								if( sResponse[7]=='T' )
-									pMessage = pDeviceConnection->ReceiveMessage(atoi(sResponse.substr(9).c_str()),true );
+									pMessage = pServerSocket->ReceiveMessage(atoi(sResponse.substr(9).c_str()),true );
 								else
-									pMessage = pDeviceConnection->ReceiveMessage(atoi(sResponse.substr(8).c_str()) );
+									pMessage = pServerSocket->ReceiveMessage(atoi(sResponse.substr(8).c_str()) );
 
 								if( !pMessage )
 								{
@@ -1950,7 +1871,7 @@ g_pPlutoLogger->Write(LV_SOCKET, "Got response: %d to message type %d id %d to %
                         {
                             // delete the other sockets
                             g_pPlutoLogger->Write(LV_STATUS, "Got BYE in response to message.  Dropping socket");
-                            DeviceData_Router *pDevice = m_mapDeviceData_Router_Find(pDeviceConnection->m_dwPK_Device);
+                            DeviceData_Router *pDevice = m_mapDeviceData_Router_Find(pServerSocket->m_dwPK_Device);
                             // cause the server to remove the socket
 // AB 1-4-2004 TODO -- have to fix this.  it crashed???
 //                              pFaipFailedSocketledSocket = pDeviceConnection;
@@ -1976,8 +1897,8 @@ g_pPlutoLogger->Write(LV_SOCKET, "Got response: %d to message type %d id %d to %
                     else
                     {
                         g_pPlutoLogger->Write(LV_CRITICAL, "Socket %p failure waiting for response to message from device %d",
-                            pDeviceConnection,pDeviceConnection->m_dwPK_Device );
-                        pFailedSocket = pDeviceConnection;
+                            pServerSocket,pServerSocket->m_dwPK_Device );
+                        bServerSocket_Failed = true;
                     }
                 }
             }
@@ -1985,14 +1906,11 @@ g_pPlutoLogger->Write(LV_SOCKET, "Got response: %d to message type %d id %d to %
           g_pPlutoLogger->Write(LV_STATUS, "realsendmessage - before failed socket");
 #endif
 
-		  /* AB 2005-09-09.  This crashes.  The socket is already deleted?
-			if (pFailedSocket)
-            {
-				// the destructor will also remove it from the command maps.
-                delete pFailedSocket;
-				// RemoveSocket(pFailedSocket);
-            }
-		*/
+			if (bServerSocket_Failed)
+			{
+				gs.DeletingSocket();
+				RemoveAndDeleteSocket(pServerSocket);
+			}
         }
         else
         {
@@ -2634,42 +2552,36 @@ void Router::PingFailed( ServerSocket *pServerSocket, int dwPK_Device )
 	g_pPlutoLogger->Write( LV_CRITICAL, "Router::PingFailed %p %s %d", 
 		pServerSocket, pServerSocket->m_sName.c_str(), dwPK_Device );
 
-    PLUTO_SAFETY_LOCK(sl,m_CoreMutex);
-	DeviceData_Router *pDevice = m_mapDeviceData_Router_Find( dwPK_Device );
-	if( !pDevice )
-		return;
-
-	if( pDevice->m_pSocket_Command )
-		pDevice->m_pSocket_Command->Close();
-	pDevice->m_pSocket_Command=NULL;
-
-	for(map<int,Socket *>::iterator it=pDevice->m_mapSocket_Event.begin();it!=pDevice->m_mapSocket_Event.end();++it)
-	{
-		Socket *pSocket = (*it).second;
-		pSocket->Close();
-	}
+	pServerSocket->IncrementReferences(); // The ping is one thing that doesn't keep an increment on the counter.  Increment it since RemoveAndDeleteSocket
+	// is expecting that we will have done it already.
+	RemoveAndDeleteSocket(pServerSocket);  // Nothing else will use this socket anymore anyway
 }
 
-void Router::RemoveSocket( Socket *pSocket )
+void Router::RemoveAndDeleteSocket( ServerSocket *pServerSocket, bool bDontDelete )
 {
-	g_pPlutoLogger->Write( LV_WARNING, "Router::RemoveSocket %p", pSocket );
-	ServerSocket *pServerSocket = (ServerSocket *) pSocket;
+	g_pPlutoLogger->Write( LV_WARNING, "Router::RemoveAndDeleteSocket %p", pServerSocket );
     PLUTO_SAFETY_LOCK(sl,m_CoreMutex);
 	DeviceData_Router *pDevice = m_mapDeviceData_Router_Find( pServerSocket->m_dwPK_Device );
-	if( !pDevice )
-		return;
-
-	if( pDevice->m_pSocket_Command == pSocket )
-		pDevice->m_pSocket_Command = NULL;
-
-	map<int,Socket *>::iterator it;
-	if( (it=pDevice->m_mapSocket_Event.find( pSocket->m_iSocketCounter )) != pDevice->m_mapSocket_Event.end() )
+	if( pDevice )
 	{
-		Socket *pSocket = (*it).second;
-		pDevice->m_mapSocket_Event.erase(it);
+		if( pDevice->m_pSocket_Command == pServerSocket )
+			pDevice->m_pSocket_Command = NULL;
+
+		for(map<int,ServerSocket *>::iterator it=pDevice->m_mapSocket_Event.begin();it!=pDevice->m_mapSocket_Event.end();)
+		{
+			ServerSocket *pServerSocket_Event = (*it).second;
+			if( pServerSocket->m_iInstanceID && pServerSocket->m_iInstanceID==pServerSocket_Event->m_iInstanceID )
+			{
+				pServerSocket_Event->m_bAlreadyRemoved=true;
+				pServerSocket_Event->Close();
+				pDevice->m_mapSocket_Event.erase(it++);
+			}
+			else
+				it++;
+		}
 	}
 	sl.Release();
-	SocketListener::RemoveSocket( pSocket );
+	SocketListener::RemoveAndDeleteSocket( pServerSocket, bDontDelete );
 }
 
 void Router::HandleRouterMessage(Message *pMessage)

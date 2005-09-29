@@ -101,7 +101,7 @@ void HandleRequestSocket::DisconnectAndWait()
 
 bool HandleRequestSocket::OnConnect( int PK_DeviceTemplate,string sExtraInfo )
 {
-	SendString( "COMMAND " + StringUtils::itos( m_dwPK_Device ) );
+	SendString( "COMMAND " + StringUtils::itos( m_dwPK_Device ) + " " + sExtraInfo );
 	string sResponse;
 	if ( !ReceiveString( sResponse ) )
 	{

@@ -118,6 +118,7 @@ void *WatchDogThread( void *pData )
 Command_Impl::Command_Impl( int DeviceID, string ServerAddress, bool bLocalMode, class Router *pRouter )
 	: HandleRequestSocket( DeviceID, ServerAddress, "Command_Impl1 Dev #" + StringUtils::itos(DeviceID) ), m_listMessageQueueMutex( "MessageQueue" )
 {
+	m_iInstanceID = (int) time(NULL);
 	m_pEvent = NULL;
 	m_pData = NULL;
 	m_pRouter = pRouter;
@@ -381,7 +382,7 @@ bool Command_Impl::Connect(int iPK_DeviceTemplate)
 			bResult = false;
 		}
 	}
-	if (bResult && !ClientSocket::Connect(iPK_DeviceTemplate))
+	if (bResult && !ClientSocket::Connect(iPK_DeviceTemplate,m_iInstanceID ? " INSTANCE " + StringUtils::itos(m_iInstanceID) : ""))
 	{
 #if (!defined(UNDER_CE) || !defined(DEBUG))
 		g_pPlutoLogger->Write(LV_CRITICAL,"DeviceCommand connect failed %p, device ID: %d",this,this->m_dwPK_Device);
@@ -395,7 +396,6 @@ bool Command_Impl::Connect(int iPK_DeviceTemplate)
 
 	if( m_Socket == INVALID_SOCKET )
 		bResult = false;
-
 
 	if( m_pData && m_pData->m_bUsePingToKeepAlive )
 	{
