@@ -69,7 +69,6 @@ RubyDCEEmbededClass::CallCmdHandler(Message *pMessage) {
 		PLUTO_SAFETY_LOCK_ERRORSONLY(mm,pmanager->m_MsgMutex);
 		if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 		{
-			pMessage->m_bRespondedToMessage=true;
 			Message *pMessageOut=new Message(pMessage->m_dwPK_Device_To,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 			if(TYPE(result)==T_ARRAY)
 			{
@@ -117,6 +116,7 @@ RubyDCEEmbededClass::CallCmdHandler(Message *pMessage) {
 			pMessageOut->m_mapParameters[0]=sCMD_Result;
 			pmanager->SendMessage(pMessageOut);
 		}
+		pMessage->m_bRespondedToMessage=true;
 	} catch(RubyException e) {
 		g_pPlutoLogger->Write(LV_CRITICAL, (string("Error while calling method: ") + e.getMessage()).c_str());
 	}

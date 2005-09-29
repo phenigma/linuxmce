@@ -265,27 +265,24 @@ RubyIOManager::RouteMessage(DeviceData_Base* pdevdata, Message *pMessage) {
 	msgqueue_.push_back(msg);
 	mmsg_.Unlock();
 	emsg_.Signal();
-	if(pMessage->m_eExpectedResponse==ER_ReplyMessage)
+	time_t tTimeout=time(NULL)+DEFAULT_RESPONSE_TIME;
+	while( tTimeout>time(NULL) )
 	{
-		time_t tTimeout=time(NULL)+DEFAULT_RESPONSE_TIME;
-		while( tTimeout>time(NULL) )
-		{
-			PLUTO_SAFETY_LOCK_ERRORSONLY(mm,m_MsgMutex);
-			if( pMessage->m_bRespondedToMessage )
-				return 0;
-			mm.Release();
-			Sleep(100);
-		}
 		PLUTO_SAFETY_LOCK_ERRORSONLY(mm,m_MsgMutex);
-		if( !pMessage->m_bRespondedToMessage )
-		{
-			pMessage->m_bRespondedToMessage=true;
-			g_pPlutoLogger->Write(LV_CRITICAL,"Ruby was unable to handle the command in reasonable amount of time");
-		}
-		else
-		{
-			g_pPlutoLogger->Write(LV_STATUS,"Ruby ran just fine");
-		}
+		if( pMessage->m_bRespondedToMessage )
+			return 0;
+		mm.Release();
+		Sleep(100);
+	}
+	PLUTO_SAFETY_LOCK_ERRORSONLY(mm,m_MsgMutex);
+	if( !pMessage->m_bRespondedToMessage )
+	{
+		pMessage->m_bRespondedToMessage=true;
+		g_pPlutoLogger->Write(LV_CRITICAL,"Ruby was unable to handle the command in reasonable amount of time");
+	}
+	else
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"Ruby ran just fine");
 	}
 	return 0;
 }
