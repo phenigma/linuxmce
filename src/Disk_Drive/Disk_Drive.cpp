@@ -859,14 +859,12 @@ void Disk_Drive::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string s
 
 	string strParameters, strCommOnFailure, strCommOnSuccess;
 
-	strParameters = StringUtils::Format("%d\t%d\t%s\t%s\t%d\t%d\t%s\t%s",
-			m_dwPK_Device,
-			pMessage->m_dwPK_Device_From,
-			sName.c_str(),
-			m_sDrive.c_str(),
-			m_mediaDiskStatus, iPK_Users,
-			sFormat.c_str(),
-			sTracks.c_str());
+	strParameters = StringUtils::itos(m_dwPK_Device) + "\t" 
+		+ StringUtils::itos(pMessage->m_dwPK_Device_From) + "\t" 
+		+ sName + "\t" + m_sDrive + "\t" + 
+		+ StringUtils::itos(m_mediaDiskStatus) + "\t" 
+		+ StringUtils::itos(iPK_Users) + "\t" 
+		+ sFormat + "\t" + sTracks;
 
 	g_pPlutoLogger->Write(LV_STATUS, "Launching ripping job2 with name \"%s\" for disk with type \"%d\" parms %s", sName.c_str(), m_mediaDiskStatus, strParameters.c_str() );
 
