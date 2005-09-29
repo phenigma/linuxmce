@@ -1,4 +1,5 @@
 #include "X3DWindow.h"
+using namespace DCE;
 
 X3DWindow::X3DWindow()
 {

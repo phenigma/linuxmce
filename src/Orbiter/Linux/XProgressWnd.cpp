@@ -1,7 +1,9 @@
-#include <iostream>
-
 #include "XProgressWnd.h"
+#include "DCE/Logger.h"
+
 #include <X11/Xutil.h>
+
+using namespace DCE;
 
 XProgressWnd::XProgressWnd()
  : m_pButton(NULL)
@@ -18,6 +20,8 @@ XProgressWnd::XProgressWnd()
 
     m_sText = "";
     m_nProgress = 0;
+
+	m_pDisplay = NULL;
 }
 
 
@@ -113,21 +117,17 @@ bool XProgressWnd::EventLoop()
     while (not m_bDone) {
         if (XCheckIfEvent(m_pDisplay, &event, &CheckIfEvent, (char*)this)) {
         	//process event ...
-        	std::cout << "Event received" << std::endl;
+		if (g_pPlutoLogger) g_pPlutoLogger->Write(LV_STATUS, "Event received");
 
         	switch (event.type) {
-        	case GraphicsExpose:
-        	    std::cout << "GraphicsExpose event received" << std::endl;
-        	    break;
         	case Expose:
-        	    std::cout << "Expose event received" << std::endl;
+		    if (g_pPlutoLogger) g_pPlutoLogger->Write(LV_STATUS, "Expose event received");
         	    DrawWindow();
         	    break;
         	case ButtonRelease:
-        	    std::cout << "ButtonRelease event received" << std::endl;
+		    if (g_pPlutoLogger) g_pPlutoLogger->Write(LV_STATUS, "ButtonRelease event received");
         	    XButtonEvent *pButtonEvent = (XButtonEvent *)&event;
-        	    if (m_pButton->HitTest(pButtonEvent->x, pButtonEvent->y)) {
-                	std::cout << "Hit test: true" << std::endl;
+        	    if (m_pButton && m_pButton->HitTest(pButtonEvent->x, pButtonEvent->y)) {
                 	m_bDone = true;
 			m_bCanceled = true;
         	    }
@@ -157,8 +157,6 @@ Bool XProgressWnd::CheckIfEvent(Display *pDisplay, XEvent *pEvent, XPointer arg)
         it++;
     }
     
-    std::cout << "Found!" << std::endl;
-    
     return true;
 }
 
@@ -176,27 +174,18 @@ bool XProgressWnd::UpdateProgress(std::string sText, int nProgress)
 
 static void *MyThreadFunc(void *pWindow)
 {
-    std::cout << "Thread func start... " << std::endl;
+    if (g_pPlutoLogger) g_pPlutoLogger->Write(LV_STATUS, "Thread func start ...");
     XProgressWnd *pWnd = (XProgressWnd *)pWindow;
-    
-    Display *pDisplay = XOpenDisplay(NULL);
-    int nScreenNo = DefaultScreen(pDisplay);
-    int nDesktopX, nDesktopY;
-    nDesktopX = DisplayWidth(pDisplay, nScreenNo);
-    nDesktopY = DisplayHeight(pDisplay, nScreenNo);
-    int nWidth = 250, nHeight = 140;
-    int xPos = (nDesktopX - nWidth) / 2;
-    int yPos = (nDesktopY - nHeight) / 2;
-    pWnd->CreateWindow(pDisplay, nScreenNo, DefaultRootWindow(pDisplay), 0, 0, nDesktopX, nDesktopY);
-    pWnd->ShowWindow();
-    pWnd->DrawWindow();
     
     pWnd->EventLoop();
     
-    std::cout << "Thread func ending ... " << std::endl;
+    if (g_pPlutoLogger) g_pPlutoLogger->Write(LV_STATUS, "Thread func ending ...");
     pWnd->DestroyWindow();
-    XSync(pDisplay, false);
-    std::cout << "Thread func ended ... " << std::endl;
+
+	Display * pDisplay = pWnd->GetDisplay();
+	if (pDisplay)
+	    XSync(pDisplay, false);
+    if (g_pPlutoLogger) g_pPlutoLogger->Write(LV_STATUS, "Thread func ended.");
     
     if (pWnd->Destroy())
     {
@@ -209,17 +198,29 @@ static void *MyThreadFunc(void *pWindow)
 pthread_t XProgressWnd::Run()
 {
     pthread_t threadID;
-    std::cout << "Starting the thread ... " << std::endl;
+    if (g_pPlutoLogger) g_pPlutoLogger->Write(LV_STATUS, "Starting the thread ...");
     m_bCanceled = false;
     m_bDone = false;
+    
+    Display *pDisplay = XOpenDisplay(NULL); // needs XCloseDisplay?
+    int nScreenNo = DefaultScreen(pDisplay);
+    int nDesktopX, nDesktopY;
+    nDesktopX = DisplayWidth(pDisplay, nScreenNo);
+    nDesktopY = DisplayHeight(pDisplay, nScreenNo);
+    int nWidth = 250, nHeight = 140;
+    int xPos = (nDesktopX - nWidth) / 2;
+    int yPos = (nDesktopY - nHeight) / 2;
+    CreateWindow(pDisplay, nScreenNo, DefaultRootWindow(pDisplay), 0, 0, nDesktopX, nDesktopY);
+    ShowWindow();
+    DrawWindow();
     
     int iResult = pthread_create( &threadID, NULL, MyThreadFunc, (void *)this );
     if ( iResult != 0 )
     {
-        std::cout << "Fatal error: Cannot start thread!" << std::endl;
+	if (g_pPlutoLogger) g_pPlutoLogger->Write(LV_CRITICAL, "Fatal error: Cannot start thread!");
     }
     else {
-        std::cout << "Thread started ... " << std::endl;
+	if (g_pPlutoLogger) g_pPlutoLogger->Write(LV_STATUS, "Thread started ...");
     }
     
     m_thisThread = threadID;
@@ -243,10 +244,11 @@ int XProgressWnd::CreateWindow(Display *pDisplay, int screen, Window wndParent, 
     m_nBarWidth = m_nWidth - 40;
     m_nBarHeight = 24;
     
-    std::cout << "Contructing Progress window" << std::endl;
+    if (g_pPlutoLogger) g_pPlutoLogger->Write(LV_STATUS, "Constructing ProgressWindow");
+    /*
     int xPos = (m_nWidth - 80) / 2;
     int yPos = m_nHeight - 50;
-    /*
+    
     m_pButton = new X3DButton();
     m_pButton->CreateWindow(m_pDisplay, m_nScreen, m_wndThis, xPos, yPos, 80, 30, "Cancel");
     
@@ -263,6 +265,11 @@ int XProgressWnd::CreateWindow(Display *pDisplay, int screen, Window wndParent, 
     ClassHint.res_name = (char *)m_wndName.c_str();
     ClassHint.res_class = (char *)m_wndName.c_str();
     XSetClassHint(m_pDisplay, m_wndThis, &ClassHint);
-    
+
     return 0;
+}
+
+Display * XProgressWnd::GetDisplay()
+{
+	return m_pDisplay;
 }

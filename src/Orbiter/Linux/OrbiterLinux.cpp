@@ -406,3 +406,36 @@ bool OrbiterLinux::DisplayProgress(string sMessage, int nProgress)
     
     return false;
 }
+
+int OrbiterLinux::PromptUser(string sPrompt, map<int, string> *p_mapPrompts/*=NULL*/)
+{
+#if 0
+	return PROMPT_CANCEL;
+#else
+	map<int,string> mapPrompts;
+	mapPrompts[PROMPT_CANCEL]    = "Ok";
+	if (p_mapPrompts == NULL) {
+		p_mapPrompts = &mapPrompts;
+	}
+
+	XPromptUser promptDlg(sPrompt, p_mapPrompts);
+	promptDlg.SetButtonPlacement(XPromptUser::BTN_VERT);
+	
+	promptDlg.Init();
+	commandRatPoison(":set winname class");
+	commandRatPoison(":desktop off");
+
+        commandRatPoison(string(":select ") + promptDlg.m_wndName);
+	commandRatPoison(":desktop on");
+	commandRatPoison(":keystodesktop on");
+	commandRatPoison(":keybindings off");
+	setDesktopVisible(false);
+	
+	int nUserAnswer = promptDlg.RunModal();
+	
+	promptDlg.DeInit();
+	
+	return nUserAnswer;
+#endif
+}
+
