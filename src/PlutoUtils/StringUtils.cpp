@@ -328,7 +328,7 @@ int StringUtils::ParseIntFromString( string sParameterList, string sParameterNam
 
 string StringUtils::Format( const char *pcFormat, ... )
 {
-    char acS[256];
+	char acS[4096];
 
     va_list argList;
     va_start( argList, pcFormat );
