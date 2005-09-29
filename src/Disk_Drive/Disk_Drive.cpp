@@ -923,6 +923,22 @@ string Disk_Drive::getTracks (string mrl)
 		ostringstream sb;
 		for (int i = 1; i <= hdr.cdth_trk1; i++)
 		{
+			/* Code inspired from cd-discid - Start */
+			cdrom_tocentry te;
+			te.cdte_track = i;
+			te.cdte_format = CDROM_LBA;
+			if (ioctl(fd, CDROMREADTOCENTRY, &te) < 0)
+			{
+				throw string("Failed to read TOC entry for track " + StringUtils::itos(i));
+			}
+			/* Code inspired from cd-discid - End */
+			
+			if (te.cdte_ctrl & CDROM_DATA_TRACK)
+			{
+				g_pPlutoLogger->Write(LV_STATUS, "Ending track scan at track %d (data track)", i);
+				break;
+			}
+			
 			sb << mrl << i << endl;
 		}
 
