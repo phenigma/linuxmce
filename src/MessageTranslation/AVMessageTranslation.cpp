@@ -27,6 +27,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 	}
 	
 	Message* pmsg = &inrepl.getMessage();
+	static char sql_buff[1024];
 	
 	Command_Impl* pTargetDev = DefaultMessageTranslator::FindTargetDevice(inrepl.getMessage().m_dwPK_Device_To);
 	if(!pTargetDev) {
@@ -44,7 +45,8 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 		MySqlHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort);
 		PlutoSqlResult result_set;
 		MYSQL_ROW row=NULL;
-		if( (result_set.r=mySqlHelper.mysql_query_result("SELECT IR_ModeDelay, TogglePower, ToggleInput  FROM DeviceTemplate_AV WHERE FK_DeviceTemplate=" + devtemplid )) && (row = mysql_fetch_row(result_set.r)) )
+		sprintf(sql_buff,"SELECT IR_ModeDelay, TogglePower, ToggleInput  FROM DeviceTemplate_AV WHERE FK_DeviceTemplate='%d'",devtemplid);
+		if( (result_set.r=mySqlHelper.mysql_query_result(sql_buff)) && (row = mysql_fetch_row(result_set.r)) )
 		{
 			map_ModeDelay[devtemplid] = IR_ModeDelay = atoi(row[0]);
 			map_TogglePower[devtemplid] = TogglePower = atoi(row[1]);
@@ -67,9 +69,10 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 		MySqlHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort);
 		PlutoSqlResult result_set;
 		MYSQL_ROW row=NULL;
-		if( (result_set.r=mySqlHelper.mysql_query_result("SELECT PK_Command FROM Command WHERE FK_CommandCategory=22")) == NULL )
+		sprintf(sql_buff,"SELECT PK_Command FROM Command WHERE FK_CommandCategory='22'");
+		if( (result_set.r=mySqlHelper.mysql_query_result(sql_buff)) == NULL )
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "SQL FAILED : SELECT PK_Command FROM Command WHERE FK_CommandCategory=22");
+			g_pPlutoLogger->Write(LV_WARNING, "SQL FAILED : %s",sql_buff);
 			return false;
 		}	
 		while((row = mysql_fetch_row(result_set.r)))
@@ -79,9 +82,10 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 		for(list<int>::iterator it=input_commands_.begin(); it!=input_commands_.end();it++ )
 		{
 			int cmd=*it;
-			if( (result_set.r=mySqlHelper.mysql_query_result("SELECT FK_DeviceTemplate, OrderNo FROM DeviceTemplate_Input WHERE FK_Command="+cmd)) == NULL )
+			sprintf(sql_buff,"SELECT FK_DeviceTemplate, OrderNo FROM DeviceTemplate_Input WHERE FK_Command='%d'",cmd);
+			if( (result_set.r=mySqlHelper.mysql_query_result(sql_buff)) == NULL )
 			{
-				g_pPlutoLogger->Write(LV_WARNING, "SQL FAILED : SELECT FK_DeviceTemplate, OrderNo FROM DeviceTemplate_Input WHERE FK_Command=%d",cmd);
+				g_pPlutoLogger->Write(LV_WARNING, "SQL FAILED : %s",sql_buff);
 				return false;
 			}	
 			while((row = mysql_fetch_row(result_set.r)))
