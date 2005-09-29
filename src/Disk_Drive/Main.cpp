@@ -205,6 +205,7 @@ int main(int argc, char* argv[])
 
     g_pPlutoLogger->Write(LV_STATUS, "Device: %d starting",PK_Device);
 
+	bool bReload=false;
     try
     {
         Disk_Drive *pDisk_Drive = new Disk_Drive(PK_Device, sRouter_IP);
@@ -220,7 +221,10 @@ int main(int argc, char* argv[])
             g_pPlutoLogger->Write(LV_CRITICAL, "Connect() Failed");
         }
 
-        delete pDisk_Drive;
+		if( pCM11A->m_bReload )
+			bReload=true;
+
+		delete pDisk_Drive;
     }
     catch(string s)
     {
