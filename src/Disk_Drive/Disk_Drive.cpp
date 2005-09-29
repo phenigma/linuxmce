@@ -861,7 +861,7 @@ void Disk_Drive::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string s
 
 	strParameters = StringUtils::itos(m_dwPK_Device) + "\t" 
 		+ StringUtils::itos(pMessage->m_dwPK_Device_From) + "\t" 
-		+ sName + "\t" + m_sDrive + "\t" + 
+		+ sName + "\t" + m_sDrive + "\t" 
 		+ StringUtils::itos(m_mediaDiskStatus) + "\t" 
 		+ StringUtils::itos(iPK_Users) + "\t" 
 		+ sFormat + "\t" + sTracks;
