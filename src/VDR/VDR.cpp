@@ -196,8 +196,9 @@ void VDR::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,string
              
         // ProcessUtils::SpawnApplication("/usr/bin/xine", "vdr:/tmp/vdr-xine/stream#demux:mpeg_pes", "VDR_Xine");
 
-        LaunchVDR();
+    LaunchVDR();
 
+    PLUTO_SAFETY_LOCK(mm,m_VDRMutex);
 	delete m_pSocket_VDR; // Should always be NULL anyway
 	int Port = DATA_Get_TCP_Port();
 	if( !Port )
@@ -230,6 +231,7 @@ void VDR::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &sCMD_Resul
 			&SavedPosition);
 	SendCommand(cmd);
 			
+    PLUTO_SAFETY_LOCK(mm,m_VDRMutex);
 	delete m_pSocket_VDR; // Should always be NULL anyway
 }
 
@@ -243,6 +245,7 @@ void VDR::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &sCMD_Resul
 void VDR::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c39-e->
 {
+    PLUTO_SAFETY_LOCK(mm,m_VDRMutex);
 	m_pSocket_VDR->SendString("PAUSE");
 	cout << "Need to implement command #39 - Pause Media" << endl;
 	cout << "Parm #41 - StreamID=" << iStreamID << endl;

@@ -1148,10 +1148,11 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
 	for(list<int>::iterator it = m_listRegenCommands.begin(); it != m_listRegenCommands.end(); ++it)
 		g_pPlutoLogger->Write(LV_STATUS,"Still generating %d",*it);
 
+	Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(iPK_DeviceTemplate);
 
     if( !pUnknownDeviceInfos || !pUnknownDeviceInfos->m_iDeviceIDFrom )
         g_pPlutoLogger->Write(LV_CRITICAL,"Got New Mobile Orbiter but can't find device!");
-    else
+    else if( pRow_DeviceTemplate && pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_Mobile_Orbiter_CONST )
     {
         Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(PK_Device);
 		pRow_Device->Reload(); // Just in case it's been changed
@@ -2249,6 +2250,11 @@ void Orbiter_Plugin::CMD_Display_Dialog_Box_On_Orbiter(string sText,string sOpti
 void Orbiter_Plugin::CMD_Send_File_To_Phone(string sMac_address,string sCommand_Line,int iApp_Server_Device_ID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c693-e->
 {
+	if( sCommand_Line.size()==0 )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot send file to %s with empty command line",sMac_address.c_str());
+		return;
+	}
     g_pPlutoLogger->Write(LV_STATUS, "About to send file to phone. Command line: '%s', device %s.", sCommand_Line.c_str(), sMac_address.c_str());
 
     string sArguments;

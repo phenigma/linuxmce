@@ -30,6 +30,7 @@ Slim_Server_Streamer::Slim_Server_Streamer(int DeviceID, string ServerAddress,bo
     // This is good because you can also restrict the control of the server only to connections from that machine.
     m_strSlimServerCliAddress = "127.0.0.1"; // hard code it here for now.
     m_iSlimServerCliPort = 7890;
+	m_threadPlaybackCompletedChecker = 0;
 
     m_iServerSocket = -1;
 
@@ -76,7 +77,8 @@ Slim_Server_Streamer::~Slim_Server_Streamer()
 {
 	m_bQuit = true;
 	pthread_cond_signal(&m_stateChangedCondition);
-	pthread_join(m_threadPlaybackCompletedChecker, NULL);
+	if( m_threadPlaybackCompletedChecker )
+		pthread_join(m_threadPlaybackCompletedChecker, NULL);
 }
 
 //<-dceag-reg-b->
