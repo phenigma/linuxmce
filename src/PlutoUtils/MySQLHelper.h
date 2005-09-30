@@ -184,6 +184,7 @@ public:
 			if( g_pPlutoLogger )
 				g_pPlutoLogger->Write(LV_CRITICAL,"Query failed (%s): %s (%d)",mysql_error(m_pMySQL),query.c_str(),iresult);
 			MySQLConnect(true);
+			return -1;
 		}
 
 	#ifdef DEBUG
@@ -202,7 +203,7 @@ public:
 		if( g_pPlutoLogger )
 			g_pPlutoLogger->Write(LV_STATUS,"Executed query %s (%d rows)", query.c_str(), (int) mysql_affected_rows(m_pMySQL));
 #endif
-		return iresult;
+		return (int) mysql_affected_rows(m_pMySQL);
 	}
 
 	int threaded_mysql_query_withID(string query)

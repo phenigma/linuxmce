@@ -78,6 +78,8 @@ namespace sqlCVS
 
 		string m_sSkipVerification; /**< Table:Field's to be skipped during a verify integrity */
 
+		string m_sPK_Old,m_sPK_New; /**< Only for the change primary key command */
+
 		// The following are useful when automating the process via a web page
 		string m_sOutputFile; /**< Save the output to a file so an outside program can read it*/
 		string m_sMaskFile; /**< Limit the transactions to be checked in to the contents of this file */

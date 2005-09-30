@@ -56,7 +56,7 @@ int sqlCVSprocessor::UnauthorizedBatch(int psc_user_needs_to_authorize)
 	sSQL.str("");
 	sSQL << "INSERT INTO `psc_" << m_pRepository->Name_get( ) << "_bathdr` (PK_psc_" << m_pRepository->Name_get() << "_bathdr, IPAddress, date, comments ) VALUES( "
 		<< m_psc_bathdr_unauth << ",'" << (m_pSocket ? m_pSocket->m_sIPAddress : "") << "', NOW(), '" << StringUtils::SQLEscape(m_sComments) << "' )";
-	if( m_pRepository->m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
+	if( m_pRepository->m_pDatabase->threaded_mysql_query( sSQL.str( ) )<0 )
 	{
 		cerr << "Cannot create unauthorized batch" << endl;
 		throw "Database error";
@@ -86,7 +86,7 @@ void sqlCVSprocessor::RecordChangesToTable()
 		<< m_psc_bathdr_unauth 
 		<< ")";
 
-	if( m_pRepository->m_pDatabase->threaded_mysql_query( sSql.str() )!=0 )
+	if( m_pRepository->m_pDatabase->threaded_mysql_query( sSql.str() )<0 )
 	{
 		cerr << "Error recording changes to batdet" << endl;
 		throw "Error writing to database";

@@ -52,6 +52,9 @@ namespace sqlCVS
 		/** @brief Revert changes from a mask file */
 		void Revert();
 
+		/** @brief Change a primary key and propagate changes */
+		void ChangeKey();
+
 		/** @brief Rollback an entire batch */
 		void RollbackBatch();
 

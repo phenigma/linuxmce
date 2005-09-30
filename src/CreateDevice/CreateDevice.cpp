@@ -158,7 +158,7 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 		{
 			SQL = "UPDATE Device SET FK_Device_ControlledVia=" + StringUtils::itos(iPK_Device_ControlledVia_New) +
 				" WHERE PK_Device=" + StringUtils::itos(PK_Device);
-			if( threaded_mysql_query(SQL)!=0 )
+			if( threaded_mysql_query(SQL)<0 )
 			{
 				cout << "Error updating device controlled via" << endl;
 				exit(1);
@@ -181,7 +181,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Added parameter from category %d %s",atoi(row[0
 
 				SQL = "INSERT INTO Device_DeviceData(FK_Device,FK_DeviceData,IK_DeviceData) VALUES(" + StringUtils::itos(PK_Device) + 
 					"," + row[0] + ",'" + (row[1] ? StringUtils::SQLEscape( row[1] ) : string("")) + "');";
-				if( threaded_mysql_query(SQL)!=0 )
+				if( threaded_mysql_query(SQL)<0 )
 				{
 					cout << "Error adding device" << endl;
 					exit(1);
@@ -213,7 +213,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Found %d rows with %s",(int) result2.r->row_cou
 					"," + row[0] + ",'" + (row[1] ? StringUtils::SQLEscape( row[1] ) : string("")) + "');";
 			}
 g_pPlutoLogger->Write(LV_STATUS,"Executing %s",SQL.c_str());
-			if( threaded_mysql_query(SQL)!=0 )
+			if( threaded_mysql_query(SQL)<0 )
 			{
 				cout << "Error adding device" << endl;
 				exit(1);
@@ -240,7 +240,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Found %d rows with %s",(int) result3.r->row_cou
 					SQL = "INSERT INTO Device_DeviceData(FK_Device,FK_DeviceData,IK_DeviceData) VALUES(" + StringUtils::itos(PK_Device) + 
 						"," + row[0] + ",'" + (row[1] ? StringUtils::SQLEscape( row[1] ) : string("")) + "');";
 				}
-				if( threaded_mysql_query(SQL)!=0 )
+				if( threaded_mysql_query(SQL)<0 )
 				{
 					cout << "Error adding device" << endl;
 					exit(1);

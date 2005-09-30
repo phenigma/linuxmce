@@ -114,6 +114,7 @@ string GetCommand( )
 		<< "F.	Approve pending batch ( approve )" << endl
 		<< "G.	Reject pending batch ( reject )" << endl
 		<< "H.	Revert changes from a mask file ( revert )" << endl
+		<< "I.	Changes a primary key and propagates ( change_key )" << endl
 		<< endl
 		<< "Z.	Change login or users" << endl
 		<< endl 
@@ -164,6 +165,10 @@ string GetCommand( )
 		return "approve";
 	else if( s=="g" || s=="G" )
 		return "reject";
+	else if( s=="h" || s=="H" )
+		return "revert";
+	else if( s=="i" || s=="I" )
+		return "change_key";
 	else if( s=="z" || s=="Z" )
 		ChangeLoginUsers();  // This will loop back to the same menu
 	else if( s=="q" || s=="Q" )
@@ -285,6 +290,12 @@ int main( int argc, char *argv[] )
 			case 'm':
 				g_GlobalConfig.m_sMaskFile = argv[++optnum];
 				break;
+			case 'O':
+				g_GlobalConfig.m_sPK_Old = argv[++optnum];
+				break;
+			case 'N':
+				g_GlobalConfig.m_sPK_New = argv[++optnum];
+				break;
 			case '?':
 				bError=true;
 				break;
@@ -344,7 +355,8 @@ int main( int argc, char *argv[] )
 			<< "                  update orphaned rows to be in the same restriction" << endl
 			<< "-f filename    -- Save the output of this command to a file, usually so" << endl
 			<< "                  another program like a website can show the contents" << endl
-			<< "                  normally used with -n" << endl;
+			<< "                  normally used with -n" << endl
+			<< "-O PK -N PK    -- For use with change_pk command" << endl;
 
 		exit( 1 );
 	}
@@ -507,6 +519,10 @@ int main( int argc, char *argv[] )
 			else if( g_GlobalConfig.m_sCommand=="revert" )
 			{
 				database.Revert();
+			}
+			else if( g_GlobalConfig.m_sCommand=="change_key" )
+			{
+				database.ChangeKey();
 			}
 			else if( g_GlobalConfig.m_sCommand=="rollback" )
 			{

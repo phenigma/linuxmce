@@ -1238,7 +1238,7 @@ void Database::Import( string sRepository, Repository *pRepository )
 		std::ostringstream sSQL;
 		sSQL << "UPDATE `" << pRepository->m_pTable_Tables->Name_get( ) << "` SET last_psc_batch='" << 
 			last_psc_batch << "',last_psc_ID='" << last_psc_id << "' WHERE Tablename='" << sTable << "'";
-		if( threaded_mysql_query( sSQL.str( ) )!=0 )
+		if( threaded_mysql_query( sSQL.str( ) )<0 )
 		{
 			cerr << "SQL failed: " << sSQL.str( );
 			throw "Internal error Repository::psc_last_id,last_batch set";
@@ -1374,7 +1374,7 @@ void Database::Reset_all()
 						sql << "'";
 						FieldCount++;
 					}
-					if( threaded_mysql_query(sql.str())!=0 )
+					if( threaded_mysql_query(sql.str())<0 )
 					{
 						cerr << "Could not update table " << pTable->Name_get() << endl;
 						throw "Database error";
@@ -1458,7 +1458,7 @@ void Database::Update_psc()
 						sql << "'";
 						FieldCount++;
 					}
-					if( threaded_mysql_query(sql.str())!=0 )
+					if( threaded_mysql_query(sql.str())<0 )
 					{
 						cerr << "Could not update table " << pTable->Name_get() << endl;
 						throw "Database error";
@@ -1471,7 +1471,7 @@ void Database::Update_psc()
 
 void Database::StartTransaction( ) 
 {
-	if( threaded_mysql_query("START TRANSACTION")!=0 )
+	if( threaded_mysql_query("START TRANSACTION")<0 )
 	{
 		cerr << "Could not start transaction" << endl;
 		throw "Database error";
@@ -1481,7 +1481,7 @@ void Database::StartTransaction( )
 void Database::Commit( )
 {
 	cout << "Doing a Commit" << endl;
-	if( threaded_mysql_query("COMMIT")!=0 )
+	if( threaded_mysql_query("COMMIT")<0 )
 	{
 		cerr << "Could not commit transaction" << endl;
 		throw "Database error";
@@ -1491,7 +1491,7 @@ void Database::Commit( )
 void Database::Rollback( )
 {
 	cout << "Doing a rollback" << endl;
-	if( threaded_mysql_query("ROLLBACK")!=0 )
+	if( threaded_mysql_query("ROLLBACK")<0 )
 	{
 		cerr << "Could not rollback transaction" << endl;
 		throw "Database error";
@@ -1732,7 +1732,7 @@ void Database::Revert()
 			std::ostringstream sSQL;
 			sSQL << "DELETE FROM " << pMaskedChange->m_pTable->Name_get() << it->first.second;
 
-			if( threaded_mysql_query( sSQL.str( ) )!=0 )
+			if( threaded_mysql_query( sSQL.str( ) )<0 )
 			{
 				cerr << "Revert change: " << sSQL.str( ) << endl;
 				throw "Database error";
@@ -1741,6 +1741,47 @@ void Database::Revert()
 		else
 			pMaskedChange->m_pTable->RevertChange(pMaskedChange->m_psc_id,pMaskedChange->m_eTypeOfChange);
 	}
+	Commit();  // an exception would have been thrown if something went wrong
+}
+
+void Database::ChangeKey()
+{
+	if( g_GlobalConfig.m_mapTable.size( )==0 )
+		if( g_GlobalConfig.m_mapRepository.size( )==0 )
+			PromptForRepositories( );
+	
+	if( g_GlobalConfig.m_mapRepository.size( )!=1 )
+		throw "Must specify one repository";
+
+	Repository *pRepository = g_GlobalConfig.m_mapRepository.begin()->second;
+
+	/** If the user didn't specify tables on the command line, prompt for them */
+	if( g_GlobalConfig.m_mapTable.size( )==0 )
+		PromptForTablesInRepository( pRepository, g_GlobalConfig.m_mapTable );
+
+	if( g_GlobalConfig.m_mapTable.size( )!=1 )
+		throw "Must specify one table";
+
+	Table *pTable = g_GlobalConfig.m_mapTable.begin()->second;
+
+	if( pTable->m_listField_PrimaryKey.size()!=1 )
+		throw "Table does not have 1 sole primary key";
+
+	Field *pField = *(pTable->m_listField_PrimaryKey.begin());
+
+	string sSQL = "SELECT psc_id FROM `" + pTable->m_sName + "` WHERE `" + pField->Name_get() + "`='" + StringUtils::SQLEscape(g_GlobalConfig.m_sPK_Old) + "'";
+	PlutoSqlResult result_set;
+	MYSQL_ROW row=NULL;
+	if( ( result_set.r=mysql_query_result(sSQL) )==0 || result_set.r->row_count!=1 )
+		throw "Primary key invalid";
+
+	StartTransaction();
+	sSQL = "UPDATE `" + pTable->m_sName + "` SET `" + pField->Name_get() + "`='" + StringUtils::SQLEscape(g_GlobalConfig.m_sPK_New) + "' WHERE `" + pField->Name_get() + "`='" + StringUtils::SQLEscape(g_GlobalConfig.m_sPK_Old) + "'";
+	int iRows=threaded_mysql_query(sSQL);
+	if( iRows!=1 )
+		throw "Could not update primary key";
+
+	pTable->PropagateUpdatedField(pField,g_GlobalConfig.m_sPK_New,g_GlobalConfig.m_sPK_Old,NULL);
 	Commit();  // an exception would have been thrown if something went wrong
 }
 

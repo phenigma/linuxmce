@@ -1208,6 +1208,7 @@ bool Router::ReceivedString(Socket *pSocket, string Line, int nTimeout/* = -1*/)
 			pServerSocket_Command->m_bUsePlainText = Line[0]=='P';
 		pServerSocket->m_bUsePlainText=Line[0]=='P';
 		pServerSocket->SendString("OK");
+		return true;
 	}  
     g_pPlutoLogger->Write(LV_WARNING, "Router: Don't know how to handle %s.", Line.c_str());
     pSocket->SendString("ERROR");

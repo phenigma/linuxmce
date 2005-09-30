@@ -294,9 +294,12 @@ Socket::~Socket()
 	pSocketInfo->m_tDestroyed = time(NULL);
 #endif
 
-	PLUTO_SAFETY_LOCK_ERRORSONLY(sSM,m_SocketMutex);  // don't log anything but failures
-	Close();
-	sSM.Release();
+	if ( m_Socket != INVALID_SOCKET )
+	{
+		PLUTO_SAFETY_LOCK_ERRORSONLY(sSM,m_SocketMutex);  // don't log anything but failures
+		Close();
+		sSM.Release();
+	}
 
 	if( m_bUsePingToKeepAlive )
 	{

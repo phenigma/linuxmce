@@ -176,7 +176,7 @@ void Repository::Setup( )
 		{
 			sql.str( "" );
 			sql << "INSERT INTO `" << Tablename << "` ( Tablename ) VALUES( '" << pTable->Name_get( ) << "' )";
-			if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
+			if( m_pDatabase->threaded_mysql_query( sql.str( ) )<0 )
 			{
 				cerr << "SQL failed: " << sql.str( ) << endl;
 				throw "Database Error";
@@ -235,7 +235,7 @@ string Repository::GetSetting(string Setting,string Default)
 	{
 		sql.str("");
 		sql	<< "INSERT INTO `" << Tablename << "` (Setting,Value) VALUES('" + StringUtils::SQLEscape(Setting) + "','"  + StringUtils::SQLEscape(Default) + "')";
-		if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
+		if( m_pDatabase->threaded_mysql_query( sql.str( ) )<0 )
 		{
 			cerr << "SQL Failed: " << sql.str( ) << endl;
 			throw "Database error";
@@ -253,7 +253,7 @@ void Repository::SetSetting(string Setting,string Value)
 	ostringstream sql;
 
 	sql	<< "UPDATE `" << Tablename << "` SET Setting='" + StringUtils::SQLEscape(Setting) + "',Value='"  + StringUtils::SQLEscape(Value) + "' WHERE Setting='" + StringUtils::SQLEscape(Setting) + "'";
-	if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
+	if( m_pDatabase->threaded_mysql_query( sql.str( ) )<0 )
 	{
 		cerr << "SQL Failed: " << sql.str( ) << endl;
 		throw "Database error";
@@ -266,7 +266,7 @@ Table *Repository::CreateSettingTable( )
 	ostringstream sql;
 
 	sql << "DROP TABLE IF EXISTS `" << Tablename << "`;" << endl;
-	if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
+	if( m_pDatabase->threaded_mysql_query( sql.str( ) )<0 )
 	{
 		cerr << "SQL Failed: " << sql.str( ) << endl;
 		throw "Database error";
@@ -279,7 +279,7 @@ Table *Repository::CreateSettingTable( )
 		<< "`Value` text default '', " << endl
 		<< "PRIMARY KEY ( `PK_" << Tablename << "` )" << endl
 		<< " ) TYPE=" << g_GlobalConfig.m_sTableType << ";" << endl;
-	if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
+	if( m_pDatabase->threaded_mysql_query( sql.str( ) )<0 )
 	{
 		cerr << "SQL Failed: " << sql.str( ) << endl;
 		throw "Database error";
@@ -296,7 +296,7 @@ Table *Repository::CreateSchemaTable( )
 	ostringstream sql;
 
 	sql << "DROP TABLE IF EXISTS `" << Tablename << "`;" << endl;
-	if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
+	if( m_pDatabase->threaded_mysql_query( sql.str( ) )<0 )
 	{
 		cerr << "SQL Failed: " << sql.str( ) << endl;
 		throw "Database error";
@@ -308,7 +308,7 @@ Table *Repository::CreateSchemaTable( )
 		<< "`Value` text NOT NULL default '', " << endl
 		<< "PRIMARY KEY ( `PK_" << Tablename << "` )" << endl
 		<< " ) TYPE=" << g_GlobalConfig.m_sTableType << ";" << endl;
-	if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
+	if( m_pDatabase->threaded_mysql_query( sql.str( ) )<0 )
 	{
 		cerr << "SQL Failed: " << sql.str( ) << endl;
 		throw "Database error";
@@ -324,7 +324,7 @@ class Table *Repository::CreateBatchHeaderTable( )
 	ostringstream sql;
 
 	sql << "DROP TABLE IF EXISTS `" << Tablename << "`;" << endl;
-	if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
+	if( m_pDatabase->threaded_mysql_query( sql.str( ) )<0 )
 	{
 		cerr << "SQL Failed: " << sql.str( ) << endl;
 		throw "Database error";
@@ -338,7 +338,7 @@ class Table *Repository::CreateBatchHeaderTable( )
 		<< "`comments` text, " << endl
 		<< "PRIMARY KEY ( `PK_" << Tablename << "` )" << endl
 		<< " ) TYPE=" << g_GlobalConfig.m_sTableType << ";" << endl;
-	if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
+	if( m_pDatabase->threaded_mysql_query( sql.str( ) )<0 )
 	{
 		cerr << "SQL Failed: " << sql.str( ) << endl;
 		throw "Database error";
@@ -355,7 +355,7 @@ class Table *Repository::CreateBatchUserTable( )
 	ostringstream sql;
 
 	sql << "DROP TABLE IF EXISTS `" << Tablename << "`;" << endl;
-	if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
+	if( m_pDatabase->threaded_mysql_query( sql.str( ) )<0 )
 	{
 		cerr << "SQL Failed: " << sql.str( ) << endl;
 		throw "Database error";
@@ -370,7 +370,7 @@ class Table *Repository::CreateBatchUserTable( )
 		<< "`no_pass` tinyint( 1 ) NOT NULL, " << endl
 		<< "PRIMARY KEY ( `PK_" << Tablename << "` )" << endl
 		<< " ) TYPE=" << g_GlobalConfig.m_sTableType << ";" << endl;
-	if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
+	if( m_pDatabase->threaded_mysql_query( sql.str( ) )<0 )
 	{
 		cerr << "SQL Failed: " << sql.str( ) << endl;
 		throw "Database error";
@@ -387,7 +387,7 @@ class Table *Repository::CreateBatchDetailTable( )
 	ostringstream sql;
 
 	sql << "DROP TABLE IF EXISTS `" << Tablename << "`;" << endl;
-	if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
+	if( m_pDatabase->threaded_mysql_query( sql.str( ) )<0 )
 	{
 		cerr << "SQL Failed: " << sql.str( ) << endl;
 		throw "Database error";
@@ -406,7 +406,7 @@ class Table *Repository::CreateBatchDetailTable( )
 		<< "`FK_psc_" + m_sName + "_bathdr_unauth` int( 11 ) NOT NULL, " << endl
 		<< "PRIMARY KEY ( `PK_" << Tablename << "` )" << endl
 		<< " ) TYPE=" << g_GlobalConfig.m_sTableType << ";" << endl;
-	if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
+	if( m_pDatabase->threaded_mysql_query( sql.str( ) )<0 )
 	{
 		cerr << "SQL Failed: " << sql.str( ) << endl;
 		throw "Database error";
@@ -423,7 +423,7 @@ class Table *Repository::CreateTablesTable( )
 	ostringstream sql;
 
 	sql << "DROP TABLE IF EXISTS `" << Tablename << "`;" << endl;
-	if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
+	if( m_pDatabase->threaded_mysql_query( sql.str( ) )<0 )
 	{
 		cerr << "SQL Failed: " << sql.str( ) << endl;
 		throw "Database error";
@@ -440,7 +440,7 @@ class Table *Repository::CreateTablesTable( )
 		<< "`last_psc_batch` INT( 11 ) NOT NULL DEFAULT '0', " << endl
 		<< "PRIMARY KEY ( `PK_" << Tablename << "` )" << endl
 		<< " ) TYPE=" << g_GlobalConfig.m_sTableType << ";" << endl;
-	if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
+	if( m_pDatabase->threaded_mysql_query( sql.str( ) )<0 )
 	{
 		cerr << "SQL Failed: " << sql.str( ) << endl;
 		throw "Database error";
@@ -456,7 +456,7 @@ void Repository::Remove( )
 	ostringstream sql;
 	string Tablename = "psc_" + m_sName + "_repset";
 	sql << "DROP TABLE IF EXISTS `" << Tablename << "`;" << endl;
-	if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
+	if( m_pDatabase->threaded_mysql_query( sql.str( ) )<0 )
 	{
 		cerr << "SQL Failed: " << sql.str( ) << endl;
 		throw "Database error";
@@ -465,7 +465,7 @@ void Repository::Remove( )
 	Tablename = "psc_" + m_sName + "_bathdr";
 	sql.str( "" );
 	sql << "DROP TABLE IF EXISTS `" << Tablename << "`;" << endl;
-	if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
+	if( m_pDatabase->threaded_mysql_query( sql.str( ) )<0 )
 	{
 		cerr << "SQL Failed: " << sql.str( ) << endl;
 		throw "Database error";
@@ -474,7 +474,7 @@ void Repository::Remove( )
 	Tablename = "psc_" + m_sName + "_batuser";
 	sql.str( "" );
 	sql << "DROP TABLE IF EXISTS `" << Tablename << "`;" << endl;
-	if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
+	if( m_pDatabase->threaded_mysql_query( sql.str( ) )<0 )
 	{
 		cerr << "SQL Failed: " << sql.str( ) << endl;
 		throw "Database error";
@@ -483,7 +483,7 @@ void Repository::Remove( )
 	Tablename = "psc_" + m_sName + "_batdet";
 	sql.str( "" );
 	sql << "DROP TABLE IF EXISTS `" << Tablename << "`;" << endl;
-	if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
+	if( m_pDatabase->threaded_mysql_query( sql.str( ) )<0 )
 	{
 		cerr << "SQL Failed: " << sql.str( ) << endl;
 		throw "Database error";
@@ -492,7 +492,7 @@ void Repository::Remove( )
 	Tablename = "psc_" + m_sName + "_tables";
 	sql.str( "" );
 	sql << "DROP TABLE IF EXISTS `" << Tablename << "`;" << endl;
-	if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
+	if( m_pDatabase->threaded_mysql_query( sql.str( ) )<0 )
 	{
 		cerr << "SQL Failed: " << sql.str( ) << endl;
 		throw "Database error";
@@ -655,7 +655,7 @@ bool Repository::CheckIn( )
 		ostringstream sql;
 		sql << "INSERT INTO `" << m_pTable_BatchHeader->Name_get() << "` (PK_" << m_pTable_BatchHeader->Name_get() << ",date) VALUES(" 
 			<< r_CommitChanges.m_psc_batch << ",NOW())";
-		if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
+		if( m_pDatabase->threaded_mysql_query( sql.str( ) )<0 )
 		{
 			cerr << "Cannot write new batch to file" << endl;
 			throw "Database write error";
@@ -792,7 +792,7 @@ cout << "psc_id_last_sync_set: table: " << pTable->Name_get() << " psc_id: " << 
 
 	std::ostringstream sSQL;
 	sSQL << "UPDATE `" << m_pTable_Tables->Name_get( ) << "` SET last_psc_id='" << psc_id << "' WHERE Tablename='" << pTable->Name_get( ) << "'";
-	if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
+	if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )<0 )
 	{
 		cerr << "SQL failed: " << sSQL.str( );
 		throw "Internal error Repository::psc_id_set #2";
@@ -830,7 +830,7 @@ cout << "psc_batch_last_sync_get: table: " << pTable->Name_get() << " psc_batch:
 
 	std::ostringstream sSQL;
 	sSQL << "UPDATE `" << m_pTable_Tables->Name_get( ) << "` SET last_psc_batch='" << psc_batch << "' WHERE Tablename='" << pTable->Name_get( ) << "'";
-	if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
+	if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )<0 )
 	{
 		cerr << "SQL failed: " << sSQL.str( );
 		throw "Internal error Repository::psc_batch_set #2";
@@ -895,7 +895,7 @@ void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t 
 
 	if( !pTable )
 	{
-		if( m_pDatabase->threaded_mysql_query( "DROP TABLE IF EXISTS " + sTableName )!=0 )
+		if( m_pDatabase->threaded_mysql_query( "DROP TABLE IF EXISTS " + sTableName )<0 )
 		{
 			cerr << "Could not drop table " << sTableName << endl;
 			throw "Database error";
@@ -950,7 +950,7 @@ void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t 
 	map<int,int> map_id_mod,map_id_new;
 	if( !pTable )
 	{
-		if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
+		if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )<0 )
 		{
 			cerr << "SQL Failed: " << sSQL.str( ) << endl;
 			throw "Database error";
@@ -1007,7 +1007,7 @@ void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t 
 
 		sSQL.str( "" );
 		sSQL << "ALTER TABLE `" << sTableName << "` add unique `psc_id` ( `psc_id` )";
-		if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
+		if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )<0 )
 		{
 			cerr << "SQL Failed: " << sSQL.str( ) << endl;
 			throw "Database error";
@@ -1085,7 +1085,7 @@ int k=2;
 			sSQL.str( "" );
 			sSQL << "DELETE FROM `" << sTableName << "` WHERE psc_id=" << ipsc_id_deleted 
 				<< " AND (psc_batch is NULL OR psc_batch=0 OR (psc_batch>0 AND psc_batch<=" << ipsc_batch_last << ")) AND " << g_GlobalConfig.GetRestrictionClause(sTableName);
-			if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
+			if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )<0 )
 			{
 				cerr << "SQL Failed: " << sSQL.str( ) << endl;
 				throw "Database error";
@@ -1179,7 +1179,7 @@ int k=2;
 		}
 		else
 			sSQL << " )";
-		if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
+		if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )<0 )
 		{
 			cerr << "SQL Failed: " << sSQL.str( ) << endl;
 			throw "Database error";
@@ -1371,7 +1371,7 @@ void Repository::ResetSystemTables()
 		sql.str("");
 		sql	<< "INSERT INTO `" << Tablename << "` (PK_" << Tablename << ",`Value`) VALUES("
 			<< (*it).first << ",'" << StringUtils::SQLEscape((*it).second) << "');";
-		if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
+		if( m_pDatabase->threaded_mysql_query( sql.str( ) )<0 )
 		{
 			cerr << "SQL failed: " << sql.str( ) << endl;
 			throw "Database Error";
@@ -1386,7 +1386,7 @@ void Repository::ResetSystemTables()
 		ostringstream sql;
 		sql << "INSERT INTO `" << Tablename << "` ( Tablename,filter,frozen ) VALUES( '" << *it << "','" << (pTable ? pTable->m_sFilter : "") 
 			<< "'," << (pTable && pTable->m_bFrozen ? "1" : "0") << ")";
-		if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
+		if( m_pDatabase->threaded_mysql_query( sql.str( ) )<0 )
 		{
 			cerr << "SQL failed: " << sql.str( ) << endl;
 			throw "Database Error";
@@ -1403,7 +1403,7 @@ bool Repository::ApproveBatch(R_ApproveBatch *pR_ApproveBatch,sqlCVSprocessor *p
 		sql << "UPDATE psc_" << m_sName << "_batdet SET FK_psc_" << m_sName << "_bathdr_auth=-1"
 			<< " WHERE FK_psc_" << m_sName << "_bathdr=" << pR_ApproveBatch->m_psc_batch;
 
-		if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
+		if( m_pDatabase->threaded_mysql_query( sql.str( ) )<0 )
 		{
 			cerr << "SQL failed: " << sql.str( ) << endl;
 			throw "Database Error";
@@ -1482,7 +1482,7 @@ bool Repository::ApproveBatch(R_ApproveBatch *pR_ApproveBatch,sqlCVSprocessor *p
 			sql << "UPDATE psc_" << m_sName << "_batdet SET FK_psc_" << m_sName << "_bathdr_auth="
 				<< psqlCVSprocessor->m_i_psc_batch << " WHERE FK_psc_" << m_sName << "_bathdr=" << pR_ApproveBatch->m_psc_batch;
 
-			if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
+			if( m_pDatabase->threaded_mysql_query( sql.str( ) )<0 )
 			{
 				cerr << "SQL failed: " << sql.str( ) << endl;
 				throw "Database Error";
@@ -1492,7 +1492,7 @@ bool Repository::ApproveBatch(R_ApproveBatch *pR_ApproveBatch,sqlCVSprocessor *p
 			sql << "UPDATE psc_" << m_sName << "_batdet SET FK_psc_" << m_sName << "_bathdr_unauth="
 				<< pR_ApproveBatch->m_psc_batch << " WHERE FK_psc_" << m_sName << "_bathdr=" << psqlCVSprocessor->m_i_psc_batch;
 
-			if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
+			if( m_pDatabase->threaded_mysql_query( sql.str( ) )<0 )
 			{
 				cerr << "SQL failed: " << sql.str( ) << endl;
 				throw "Database Error";
@@ -1572,7 +1572,7 @@ bool Repository::ProcessSchemaUpdate(string sSQLCommand)
 			return true; // It's ok - the next import will bring in the latest schema
 		}
 	}
-	if( m_pDatabase->threaded_mysql_query( sSQLCommand )!=0 )
+	if( m_pDatabase->threaded_mysql_query( sSQLCommand )<0 )
 	{
 		cout << "ProcessSchemaUpdate failed: " << sSQLCommand << endl;
 		return false;

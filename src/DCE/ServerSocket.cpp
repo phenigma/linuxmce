@@ -98,8 +98,6 @@ ServerSocket::~ServerSocket()
 	g_pPlutoLogger->Write( LV_STATUS, "ServerSocket::~ServerSocket() Deleting socket @%p. m_Socket: %d.", this, m_Socket );
 #endif
 
-	Close();
-
 #ifdef DEBUG
 	g_pPlutoLogger->Write( LV_STATUS, "ServerSocket::~ServerSocket(): @%p Is it running %d?", this, m_bThreadRunning);
 #endif

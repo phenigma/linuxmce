@@ -238,7 +238,7 @@ void Table::HasFullHistory_set( bool bOn )
 		sqlHistoryMask << "PRIMARY KEY ( psc_id, psc_batch )" << endl
 			<< " ) TYPE=" << g_GlobalConfig.m_sTableType << ";" << endl;
 
-		if( m_pDatabase->threaded_mysql_query( sqlHistory.str( ) )!=0 || m_pDatabase->threaded_mysql_query( sqlHistoryMask.str( ) )!=0 )
+		if( m_pDatabase->threaded_mysql_query( sqlHistory.str( ) )<0 || m_pDatabase->threaded_mysql_query( sqlHistoryMask.str( ) )<0 )
 		{
 			cerr << "sqlHistory Failed: " << sqlHistory.str( ) << endl;
 			throw "Database error";
@@ -303,7 +303,7 @@ void Table::HasFullHistory_set( bool bOn )
 			}
 			sSql << ")";
 			sSqlMask << ")";
-			if( m_pDatabase->threaded_mysql_query(sSql.str())!=0 || m_pDatabase->threaded_mysql_query(sSqlMask.str())!=0 )
+			if( m_pDatabase->threaded_mysql_query(sSql.str())<0 || m_pDatabase->threaded_mysql_query(sSqlMask.str())<0 )
 			{
 				cerr << "Unable to add current values to history table" << endl;
 				throw "Database error";
@@ -404,7 +404,7 @@ void Table::MatchUpHistory( )
 						}
 					}
 				}
-				if( m_pDatabase->threaded_mysql_query( sql.str() )!=0 )
+				if( m_pDatabase->threaded_mysql_query( sql.str() )<0 )
 				{
 					cerr << "Could not synchronize history table schema";
 					throw "Database error";
@@ -537,7 +537,7 @@ bool Table::Update( RA_Processor &ra_Processor, DCE::Socket *pSocket )
 cout << sSql.str() << endl;
 if( !g_GlobalConfig.m_bNoPrompts && !AskYNQuestion("Proceed with delete?",false) )
 throw "problem with delete";
-		if( m_pDatabase->threaded_mysql_query( sSql.str() )!=0 )
+		if( m_pDatabase->threaded_mysql_query( sSql.str() )<0 )
 		{
 			cerr << "Unable to delete local rows" << endl;
 			throw "Cannot delete rows";
@@ -1065,7 +1065,7 @@ int k=2;
 				sSQL.str( "" );
 				sSQL << "UPDATE `" << m_sName << "` SET psc_id=" << r_CommitRow.m_psc_id_new << pChangedRow->GetWhereClause( );
 
-				if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
+				if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )<0 )
 				{
 					cerr << "SQL failed: " << sSQL.str( );
 					return false;
@@ -1076,7 +1076,7 @@ int k=2;
 			{
 				sSQL.str( "" );
 				sSQL << "UPDATE `" << m_sName << "` SET psc_batch=" << r_CommitRow.m_psc_batch_new << pChangedRow->GetWhereClause( );
-				if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
+				if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )<0 )
 				{
 					cerr << "SQL failed: " << sSQL.str( );
 					return false;
@@ -1087,7 +1087,7 @@ int k=2;
 			{
 				sSQL.str( "" );
 				sSQL << "UPDATE `" << m_sName << "` SET psc_user=" << r_CommitRow.m_psc_user_new << pChangedRow->GetWhereClause( );
-				if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
+				if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )<0 )
 				{
 					cerr << "SQL failed: " << sSQL.str( );
 					return false;
@@ -1172,7 +1172,7 @@ cout << "pChangedRowToMove original auto incr id: " << pChangedRowToMove->m_iBef
 
 					sSQL.str("");
 					sSQL << "UPDATE `" << m_sName << "` SET PK_" << m_sName << "=" << iHighestUsedID << " WHERE PK_" << m_sName << "=" << r_CommitRow.m_iNewAutoIncrID;
-					if( m_pDatabase->threaded_mysql_query( sSQL.str() )!=0 )
+					if( m_pDatabase->threaded_mysql_query( sSQL.str() )<0 )
 						throw "Internal error--query failed moving auto incr key";
 
 					PropagateUpdatedField( m_pField_AutoIncrement, StringUtils::itos( iHighestUsedID ), StringUtils::itos( r_CommitRow.m_iNewAutoIncrID ), pChangedRowToMove );
@@ -1188,7 +1188,7 @@ cout << "pChangedRowToMove now original auto incr id: " << pChangedRowToMove->m_
 
 				sSQL.str( "" );
 				sSQL << "UPDATE `" << m_sName << "` SET " << m_pField_AutoIncrement->Name_get() << "=" << r_CommitRow.m_iNewAutoIncrID << pChangedRow->GetWhereClause( );
-				if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
+				if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )<0 )
 				{
 					cerr << "SQL failed: " << sSQL.str( );
 					return false;
@@ -1197,7 +1197,7 @@ cout << "pChangedRowToMove now original auto incr id: " << pChangedRowToMove->m_
 
 			sSQL.str( "" );
 			sSQL << "UPDATE `" << m_sName << "` SET psc_mod=0 WHERE psc_id=" << ( toc==toc_New ? r_CommitRow.m_psc_id_new : r_CommitRow.m_psc_id );
-			if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
+			if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )<0 )
 			{
 				cerr << "SQL failed: " << sSQL.str( );
 				return false;
@@ -1258,7 +1258,7 @@ void Table::PropagateUpdatedField( Field *pField_Changed, string NewValue, strin
 	if( pField_FK->m_pTable->m_s_psc_id_new_this_update.size() )
 		sSQL << " AND psc_id NOT IN(" << pField_FK->m_pTable->m_s_psc_id_new_this_update << ")";
 
-	if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
+	if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )<0 )
 	{
 		cerr << "Failed to propagate change: " << sSQL.str( ) << endl;
 		throw "Failed to propagate change";
@@ -1335,7 +1335,7 @@ int k=2;
 			}
 		}
 
-		if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
+		if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )<0 )
 		{
 			cerr << "Failed to insert row: " << sSQL.str( ) << endl;
 			throw "Failed to insert row";
@@ -1390,7 +1390,7 @@ int k=2;
 		}
 
 
-		if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
+		if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )<0 )
 		{
 			cerr << "Failed to update row: " << sSQL.str( ) << endl;
 			throw "Failed to insert row";
@@ -1402,7 +1402,7 @@ int k=2;
 		// Reset the mod flag
 		sSQL.str( "" );
 		sSQL << "UPDATE `" << m_sName << "` SET psc_mod=0 WHERE psc_id=" << pA_UpdateRow->m_psc_id;
-		if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
+		if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )<0 )
 		{
 			cerr << "SQL failed: " << sSQL.str( );
 			throw "cannot reset psc_mod";
@@ -1454,7 +1454,7 @@ void Table::DeleteRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSproces
 	std::ostringstream sSQL;
 	sSQL << "DELETE FROM `" << m_sName << "` WHERE psc_id=" << pR_CommitRow->m_psc_id;
 
-	if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
+	if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )<0 )
 	{
 		cerr << "Failed to delete row: " << sSQL.str( ) << endl;
 		pR_CommitRow->m_sResponseMessage = "Failed to delete row: " + sSQL.str( ) + "-" + mysql_error(m_pDatabase->m_pMySQL);
@@ -1529,7 +1529,7 @@ void Table::UpdateRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSproces
 	pR_CommitRow->m_psc_batch_new = psqlCVSprocessor->m_i_psc_batch;
 	AddToHistory( pR_CommitRow, psqlCVSprocessor );
 
-	if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
+	if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )<0 )
 	{
 		cerr << "Failed to update row: " << sSQL.str( ) << endl;
 		pR_CommitRow->m_sResponseMessage = "Failed to update row: " + sSQL.str( ) + "-" + mysql_error(m_pDatabase->m_pMySQL);
@@ -1605,7 +1605,7 @@ void Table::AddRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor
 	}
 	else
 	{
-		if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
+		if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )<0 )
 		{
 			cerr << "Failed to insert row: " << sSQL.str( ) << endl;
 			pR_CommitRow->m_sResponseMessage = "Failed to insert row #2: " + sSQL.str( ) + "-" + mysql_error(m_pDatabase->m_pMySQL);
@@ -1738,7 +1738,7 @@ void Table::AddToHistory( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSpro
 		else
 			sSqlHistory << "NULL";
 		sSqlHistory << ")"; 
-		if( m_pDatabase->threaded_mysql_query( sSqlHistory.str( ) )!=0 )
+		if( m_pDatabase->threaded_mysql_query( sSqlHistory.str( ) )<0 )
 		{
 			cerr << "Failed to insert history delete row: " << sSqlHistory.str( ) << endl;
 			pR_CommitRow->m_sResponseMessage = "Failed to iinsert history delete row: " + sSqlHistory.str( ) + "-" + mysql_error(m_pDatabase->m_pMySQL);
@@ -1790,7 +1790,7 @@ void Table::AddToHistory( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSpro
 		<< (pR_CommitRow->m_psc_user ? StringUtils::itos(pR_CommitRow->m_psc_user) : "NULL") << ","
 		<< (pR_CommitRow->m_psc_restrict ? StringUtils::itos(pR_CommitRow->m_psc_restrict) : "NULL") << ")"; // batch # todo - hack
 	sSqlMask << ( pR_CommitRow->m_eTypeOfChange==toc_New ? pR_CommitRow->m_psc_id_new : pR_CommitRow->m_psc_id ) << ", " << psqlCVSprocessor->m_i_psc_batch << " )"; // batch # todo - hack
-	if( m_pDatabase->threaded_mysql_query( sSqlHistory.str( ) )!=0 || m_pDatabase->threaded_mysql_query( sSqlMask.str( ) )!=0 )
+	if( m_pDatabase->threaded_mysql_query( sSqlHistory.str( ) )<0 || m_pDatabase->threaded_mysql_query( sSqlMask.str( ) )<0 )
 	{
 		cerr << "Failed to insert history row: " << sSqlHistory.str( ) << endl;
 		pR_CommitRow->m_sResponseMessage = "Failed to history row #2: " + sSqlHistory.str( ) + "-" + mysql_error(m_pDatabase->m_pMySQL);
@@ -1809,7 +1809,7 @@ void Table::AddToHistory( ChangedRow *pChangedRow )
 		sSqlHistory << "INSERT INTO `" << m_pTable_History->Name_get( ) << "` (psc_id,psc_batch,psc_toc,psc_restrict) VALUES ("
 			<< pChangedRow->m_psc_id << ", " << pChangedRow->m_psc_batch << "," << pChangedRow->m_eTypeOfChange << ","
 			<< (pChangedRow->m_psc_restrict ? StringUtils::itos(pChangedRow->m_psc_restrict) : "NULL") << ")"; 
-		if( m_pDatabase->threaded_mysql_query( sSqlHistory.str( ) )!=0 )
+		if( m_pDatabase->threaded_mysql_query( sSqlHistory.str( ) )<0 )
 		{
 			cerr << "Failed to insert history delete row: " << sSqlHistory.str( ) << endl;
 			throw "Failed to insert row";
@@ -1886,7 +1886,7 @@ void Table::AddToHistory( ChangedRow *pChangedRow )
 		sSqlHistory << ", " << (pChangedRow->m_psc_user ? StringUtils::itos(pChangedRow->m_psc_user) : "NULL");
 	sSqlHistory << " )"; // batch # todo - hack
 	sSqlMask << pChangedRow->m_psc_id << ", " << pChangedRow->m_psc_batch << " )"; // batch # todo - hack
-	if( m_pDatabase->threaded_mysql_query( sSqlHistory.str( ) )!=0 || m_pDatabase->threaded_mysql_query( sSqlMask.str( ) )!=0 )
+	if( m_pDatabase->threaded_mysql_query( sSqlHistory.str( ) )<0 || m_pDatabase->threaded_mysql_query( sSqlMask.str( ) )<0 )
 	{
 		cerr << "Failed to insert history row: " << sSqlHistory.str( ) << endl;
 		throw "Failed to insert row";
@@ -2032,7 +2032,7 @@ bool Table::RevertChange(ChangedRow *pChangedRow)
 			return false;
 		sSQL << "DELETE FROM " << m_sName << pChangedRow->GetWhereClause();
 
-		if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
+		if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )<0 )
 		{
 			cerr << "Revert change: " << sSQL.str( ) << endl;
 			throw "Database error";
@@ -2106,7 +2106,7 @@ bool Table::RevertChange(int psc_id,enum TypeOfChange toc)
 	}
 	delete pSocket;
 
-	if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
+	if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )<0 )
 	{
 		cerr << "Revert change: " << sSQL.str( ) << endl;
 		throw "Database error";
@@ -2320,7 +2320,7 @@ void Table::ApplyChangedRow(ChangedRow *pChangedRow)
 		{
 			cout << "WARNING: Nothing to do applying this change table: " << m_sName << " psc_id: " << pChangedRow->m_psc_id << endl;
 		}
-		else if( m_pDatabase->threaded_mysql_query( sSql.str( ) )!=0 )
+		else if( m_pDatabase->threaded_mysql_query( sSql.str( ) )<0 )
 		{
 			cerr << "Error applying changed row: " << sSql.str() << endl;
 			throw "Database error applying changed row";
@@ -2500,7 +2500,7 @@ int Table::ReassignAutoIncrValue(int iPrimaryKey)
 		sSQL2.str("");
 		sSQL2 << "UPDATE `" << m_sName << "` SET `" << m_pField_AutoIncrement->Name_get() << "`=" << iNextID << 
 			" WHERE `" << m_pField_AutoIncrement->Name_get() << "`=" << iPrimaryKey;
-		if( m_pDatabase->threaded_mysql_query( sSQL2.str( ) )!=0 )
+		if( m_pDatabase->threaded_mysql_query( sSQL2.str( ) )<0 )
 		{
 			cerr << "SQL Failed: " << sSQL2.str( ) << endl;
 			throw "Database error";
