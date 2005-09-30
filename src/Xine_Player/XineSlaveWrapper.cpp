@@ -58,8 +58,6 @@ typedef struct
 // The event processing thread will handle it
 int g_iSpecialSeekSpeed=0;
 
-int g_iSpecialOneTimeSeek=0;
-
 /*
 	Crazy hack -- it seems xine is firing the payback completed event
 	2 seconds before it's really completed, chopping off the end of the media,
@@ -416,9 +414,24 @@ bool XineSlaveWrapper::playStream(int streamID, string mediaPosition, bool playb
 	if ( xine_play(xineStream->m_pStream, 0, 0) )
 	{
 g_pPlutoLogger->Write(LV_STATUS, "Playing... The command took %d seconds to complete at pos %d", time(NULL) - startTime,pos);
-		// The position is ignored on the first play, and this thread must return for some reason before xine
-		// will play correctly, so we set g_iSpecialOneTimeSeek and then we'll catch it in the loop
-		g_iSpecialOneTimeSeek=pos;
+		if( pos )
+		{
+			// It can take up to 10 retries to get to the right location
+			for(int i=0;i<10;++i)
+			{
+				int positionTime, totalTime;
+				if( abs(getStreamPlaybackPosition(1, positionTime, totalTime) - pos) < 2000 ) //|| totalTime<pos)
+				{
+					g_pPlutoLogger->Write(LV_WARNING, "Close enough %d %d total %d",positionTime,pos,totalTime);
+					break;
+				}
+				else
+				{
+					g_pPlutoLogger->Write(LV_WARNING, "get closer %d %d total %d ctr %d",positionTime,pos,totalTime,i);
+					xine_play(xineStream->m_pStream, 0, pos );
+				}
+			}
+		}
 
 		if( Subtitle!=-2 )
 			setSubtitle(Subtitle);
@@ -810,7 +823,6 @@ void *XineSlaveWrapper::eventProcessingLoop(void *arguments)
 
 	int iCounter_TimeCode=0;
 	int iCounter=0;  // A counter for the special seek
-	int iCounter_OneTimeSeek=0;
     XEvent  event;
     while ( ! pStream->m_pOwner->m_bExitThread )
     {
@@ -819,39 +831,13 @@ void *XineSlaveWrapper::eventProcessingLoop(void *arguments)
 			do
 			{
 				XLockDisplay(pStream->m_pOwner->XServerDisplay);
-	//			g_pPlutoLogger->Write(LV_STATUS, "Locking display!");
-				//XLockDisplay(pDisplay);
-	//			g_pPlutoLogger->Write(LV_STATUS, "Getting next event!");
-				// checkResult = XWindowEvent(pDisplay, pStream->m_pOwner->windows[pStream->m_pOwner->m_iCurrentWindow], INPUT_MOTION, &event);
 				checkResult = XCheckWindowEvent(pStream->m_pOwner->XServerDisplay, pStream->m_pOwner->windows[pStream->m_pOwner->m_iCurrentWindow], INPUT_MOTION, &event);
-	//			g_pPlutoLogger->Write(LV_STATUS, "Unlocking display!");
-				//XUnlockDisplay(pDisplay);
-	//			g_pPlutoLogger->Write(LV_STATUS, "Done!");
 				XUnlockDisplay(pStream->m_pOwner->XServerDisplay);
 
 				if ( checkResult == True )
 					pStream->m_pOwner->XServerEventProcessor(pStream, event);
 
 			} while ( checkResult == True );
-		}
-
-		// Wait half a second after starting media before doing the 1 time seek
-		if( g_iSpecialOneTimeSeek && iCounter_OneTimeSeek++>=4 )
-		{
-			int positionTime, totalTime;
-			if( iCounter_OneTimeSeek>10 || abs(pStream->m_pOwner->getStreamPlaybackPosition(1, positionTime, totalTime) - g_iSpecialOneTimeSeek) < 2000 || totalTime<g_iSpecialOneTimeSeek)
-			{
-				//xine_set_param(pStream->m_pStream, XINE_PARAM_IGNORE_AUDIO, 0);
-				g_pPlutoLogger->Write(LV_WARNING, "Close enough %d %d (%d) total %d",positionTime,g_iSpecialOneTimeSeek,iCounter_OneTimeSeek,totalTime);
-				g_iSpecialOneTimeSeek=0;
-				iCounter_OneTimeSeek=0;
-			}
-			else
-			{
-				//xine_set_param(pStream->m_pStream, XINE_PARAM_IGNORE_AUDIO, 1);
-				g_pPlutoLogger->Write(LV_WARNING, "get closer %d %d total %d",positionTime,g_iSpecialOneTimeSeek,totalTime);
-				xine_play(pStream->m_pStream, 0, g_iSpecialOneTimeSeek );
-			}
 		}
 
 		if( iCounter++>10 )  // Every second
@@ -863,31 +849,29 @@ void *XineSlaveWrapper::eventProcessingLoop(void *arguments)
 				pStream->m_pOwner->m_pAggregatorObject->ReportTimecode(pStream->m_iStreamID,pStream->m_iPlaybackSpeed);
 				iCounter_TimeCode=1;
 			}
-			if( g_iSpecialSeekSpeed )
-			{
-				// time to seek
-				int positionTime,totalTime;
-				pStream->m_pOwner->getStreamPlaybackPosition(1,positionTime,totalTime);
-				if( g_iSpecialSeekSpeed<0 )
-//					positionTime -= 1000; // Move it back 1 sec to account for the 1 sec we let it go forward
-					positionTime -= 3000; // HACK!!  Xine seems to ignore a seek back 1 second and stays where it's at???  Try 3 seconds
+		}
+		if( g_iSpecialSeekSpeed )
+		{
+			// time to seek
+			int positionTime,totalTime;
+			pStream->m_pOwner->getStreamPlaybackPosition(1,positionTime,totalTime);
+			int seekTime = positionTime + (g_iSpecialSeekSpeed/10);
 
-				g_pPlutoLogger->Write(LV_WARNING,"Current pos %d / %d  seek speed: %d will seek to: %d",positionTime,totalTime,g_iSpecialSeekSpeed,positionTime + g_iSpecialSeekSpeed);
-	if( positionTime + g_iSpecialSeekSpeed<0 || positionTime + g_iSpecialSeekSpeed>totalTime )
-	{
-	g_pPlutoLogger->Write(LV_CRITICAL,"aborting seek");
-	g_iSpecialSeekSpeed=0;
-	pStream->m_iPlaybackSpeed=PLAYBACK_NORMAL;
-	pStream->m_pOwner->m_pAggregatorObject->ReportTimecode(pStream->m_iStreamID,pStream->m_iPlaybackSpeed);
-	}
-				else if( !xine_play(pStream->m_pStream, 0, positionTime + g_iSpecialSeekSpeed) )  // Pass in position as 2nd parameter
-	{
-	g_pPlutoLogger->Write(LV_CRITICAL,"special seek failed, normal speed");
-	g_iSpecialSeekSpeed=0;
-	pStream->m_iPlaybackSpeed=PLAYBACK_NORMAL;
-	pStream->m_pOwner->m_pAggregatorObject->ReportTimecode(pStream->m_iStreamID,pStream->m_iPlaybackSpeed);
-	}
-			}
+			g_pPlutoLogger->Write(LV_WARNING,"Current pos %d / %d  seek speed: %d will seek to: %d",positionTime,totalTime,g_iSpecialSeekSpeed,seekTime);
+if( seekTime<0 || seekTime>totalTime )
+{
+g_pPlutoLogger->Write(LV_CRITICAL,"aborting seek");
+g_iSpecialSeekSpeed=0;
+pStream->m_iPlaybackSpeed=PLAYBACK_NORMAL;
+pStream->m_pOwner->m_pAggregatorObject->ReportTimecode(pStream->m_iStreamID,pStream->m_iPlaybackSpeed);
+}
+			else if( !xine_play(pStream->m_pStream, 0, seekTime) )  // Pass in position as 2nd parameter
+{
+g_pPlutoLogger->Write(LV_CRITICAL,"special seek failed, normal speed");
+g_iSpecialSeekSpeed=0;
+pStream->m_iPlaybackSpeed=PLAYBACK_NORMAL;
+pStream->m_pOwner->m_pAggregatorObject->ReportTimecode(pStream->m_iStreamID,pStream->m_iPlaybackSpeed);
+}
 		}
 
 		usleep(100000);
