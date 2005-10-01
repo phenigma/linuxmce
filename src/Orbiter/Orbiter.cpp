@@ -541,7 +541,8 @@ GENERAL PURPOSE METHODS
 //-----------------------------------------------------------------------------------------------------------
 void Orbiter::RenderScreen( )
 {
-
+	if( m_bQuit )
+		return;
 	if( !m_pScreenHistory_Current || !m_pScreenHistory_Current->m_pObj )
 {
     g_pPlutoLogger->Write( LV_CRITICAL, "Got attempt to render null screen: %s", m_pScreenHistory_Current );

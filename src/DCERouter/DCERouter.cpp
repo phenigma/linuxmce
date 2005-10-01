@@ -1909,6 +1909,14 @@ g_pPlutoLogger->Write(LV_SOCKET, "Got response: %d to message type %d id %d to %
 
 			if (bServerSocket_Failed)
 			{
+				if( pServerSocket->m_dwPK_Device && m_mapPlugIn.find(pServerSocket->m_dwPK_Device)!=m_mapPlugIn.end() )
+				{
+					// We've got a big problem -- a plugin has stopped responding so we'll need to reload
+					g_pPlutoLogger->Write(LV_CRITICAL, "Plugin %d stopped responding",pServerSocket->m_dwPK_Device );
+					Reload();
+					Quit();
+					return;
+				}
 				gs.DeletingSocket();
 				RemoveAndDeleteSocket(pServerSocket);
 			}

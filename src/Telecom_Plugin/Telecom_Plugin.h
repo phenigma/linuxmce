@@ -12,6 +12,8 @@
 #include "Orbiter_Plugin/FollowMe_Device.h"
 #include "Orbiter/Floorplan.h"
 class Database_pluto_main;
+class Database_pluto_telecom;
+class Row_PhoneNumber;
 
 //<-dceag-decl-b->!
 namespace DCE
@@ -39,6 +41,7 @@ public:
 	class Datagrid_Plugin *m_pDatagrid_Plugin;
 	class Orbiter_Plugin *m_pOrbiter_Plugin;
 	Database_pluto_main *m_pDatabase_pluto_main;
+	Database_pluto_telecom *m_pDatabase_pluto_telecom;
 
 	// Datagrids
 	class DataGridTable *TelecomScenariosGrid(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
@@ -51,6 +54,9 @@ public:
 
 	// Floorplan
 	virtual void GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,EntertainArea *pEntertainArea,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,int &Color,string &sDescription,string &OSD,int &PK_DesignObj_Toolbar);
+
+	// Other
+	string GetDialNumber(Row_PhoneNumber *pRow_PhoneNumber);
 
 //<-dceag-h-b->
 	/*

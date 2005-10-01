@@ -35,6 +35,7 @@ using namespace DCE;
 #include "DCE/DataGrid.h"
 
 #include "pluto_main/Database_pluto_main.h"
+#include "pluto_telecom/Database_pluto_telecom.h"
 #include "pluto_main/Table_CommandGroup.h"
 #include "pluto_main/Define_Array.h"
 #include "pluto_main/Define_DeviceTemplate.h"
@@ -44,33 +45,11 @@ using namespace DCE;
 #include "pluto_main/Define_Event.h"
 #include "pluto_main/Define_EventParameter.h"
 #include "pluto_main/Table_Users.h"
+#include "pluto_telecom/Table_Contact.h"
+#include "pluto_telecom/Table_PhoneNumber.h"
+#include "pluto_telecom/Table_PhoneType.h"
 #include "PlutoUtils/MySQLHelper.h"
 #include "callmanager.h"
-
-#ifndef WIN32
-#include "ldapmanager.h"
-
-using namespace LDAPSERVER;
-
-
-#define LDAP_HOST			"localhost"
-#define LDAP_PORT			389
-#define LDAP_BINDNAME		"cn=admin,dc=plutohome,dc=org"
-#define LDAP_BINDSECRET		"secret"
-
-#define LDAP_PHONE_BUSINESS	"telephoneNumber"
-#define LDAP_PHONE_HOME		"homePhone"
-#define LDAP_PHONE_MOBILE	"mobile"
-
-static struct _PHONEMAPENTRY {
-	const char* ldapattr;
-	const char* display;
-} _phonemap[] = {
-		{"telephoneNumber", "Business"},
-		{"homePhone", "Home"},
-		{"mobile", "Mobile"},
-};
-#endif
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -79,6 +58,7 @@ Telecom_Plugin::Telecom_Plugin(int DeviceID, string ServerAddress,bool bConnectE
 //<-dceag-const-e->
 {
 	m_pDatabase_pluto_main = NULL;
+	m_pDatabase_pluto_telecom = NULL;
 	iCmdCounter = 0;
 }
 
@@ -93,6 +73,14 @@ bool Telecom_Plugin::GetConfig()
 	if(!m_pDatabase_pluto_main->Connect(m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get()) )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot connect to database!");
+		m_bQuit=true;
+		return false;
+	}
+
+	m_pDatabase_pluto_telecom = new Database_pluto_telecom();
+	if(!m_pDatabase_pluto_telecom->Connect(m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),"pluto_telecom",m_pRouter->iDBPort_get()) )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot connect to telecom database!");
 		m_bQuit=true;
 		return false;
 	}
@@ -193,73 +181,66 @@ class DataGridTable *Telecom_Plugin::PhoneBookAutoCompl(string GridID,string Par
 																				
 	DataGridTable *pDataGrid = new DataGridTable();
 	DataGridCell *pCell;
-#ifndef WIN32
+
 	// get uid and filter text 
-	string uid, filtertxt;
-	int index = Parms.find('|');
-	if(index < 0) {
-		uid = Parms;
-	} else  {
-		uid = Parms.substr(0, index);
-		filtertxt = Parms.substr(index + 1, Parms.length() - index);
-	}
-	
-	if(uid.length() == 0) {
-		g_pPlutoLogger->Write(LV_CRITICAL, "No user ID passed in parameters.");
+	string::size_type pos=0;
+	string sPK_Users = StringUtils::Tokenize(Parms,"|",pos);
+	string sFind = StringUtils::Tokenize(Parms,"|",pos);
+	if( sFind.size()==0 )
 		return pDataGrid;
-	}
-			
-	// find user name given the user ID sent in Parms
-	Row_Users *pUsers = m_pDatabase_pluto_main->Users_get()->GetRow(atol(uid.c_str()));
-	if(!pUsers) {
-		g_pPlutoLogger->Write(LV_STATUS, "User with ID: %s not found.", uid.c_str());
-		return pDataGrid;
-	}
-	
-	string uname = pUsers->UserName_get();
-	
-	LDAPManager ldapm(LDAP_HOST, LDAP_PORT);
-	try {
-		ldapm.SimpleBind(LDAP_BINDNAME, LDAP_BINDSECRET);
-	
-		string searchbase = "dc=" + uname + ", dc=plutohome, dc=org";
-		string searchfilter = "(&(objectclass=person)" + 
-											((filtertxt.length() > 0) ? "(cn=*" + filtertxt + "*)" : "")
-											+ ")";
-		
-		g_pPlutoLogger->Write(LV_STATUS, "Searching LDAP server from Base: %s with Filter: %s", 
-													searchbase.c_str(), searchfilter.c_str());
-		
-		LDAPEntryCollectionPtr pcol = 
-						ldapm.Search(searchbase.c_str(), LDAP_SCOPE_SUBTREE, searchfilter.c_str(), NULL, 0);
-	
-						
-		int numEntries = 0;
-				
-		LDAPEntryPtr pe = pcol->First();
-		while(pe.get() != NULL) {
-			const LDAPATTRIBUTESVEC& attrs = pe->GetAttrs();
 
-			for(LDAPATTRIBUTESVEC::const_iterator it = attrs.begin();
-								it != attrs.end(); it++) 
-			{
-				if((*it).GetName() == "cn") {
-					const LDAPVALUESVEC& values = (*it).GetValues();
-						if(values.size() > 0 && values.begin()->length() > 0) {
-							pCell = new DataGridCell(*values.begin(), uname + "|" + *values.begin());
-							pDataGrid->SetData(0, numEntries++, pCell);
-						}
-				}
-			}
-			pe = pcol->Next(pe);
+	string sWhere = "(Name like '" + StringUtils::SQLEscape(sFind) + "%' OR Company like '" + StringUtils::SQLEscape(sFind) + "%') "
+		"AND (EK_Users IS NULL OR EK_Users=" + sPK_Users + ")";
+	vector<Row_Contact *> vectRow_Contact;
+	m_pDatabase_pluto_telecom->Contact_get()->GetRows(sWhere,&vectRow_Contact);
+	size_t FirstBatch;  // Counter used to remember how many rows we added during the first sql query
+	string sPK;  // PK's we got during the first scan so we can exclude them on the second
+	for(FirstBatch=0;FirstBatch<vectRow_Contact.size();++FirstBatch)
+	{
+		Row_Contact *pRow_Contact = vectRow_Contact[FirstBatch];
+		string sDescription;
+		if( pRow_Contact->Name_get().size() )
+		{
+			sDescription += pRow_Contact->Name_get();
+			if( pRow_Contact->Title_get().size() )
+				sDescription += "," + pRow_Contact->Title_get();
+			sDescription += "\n";
 		}
+		if( pRow_Contact->Company_get().size() )
+			sDescription += pRow_Contact->Company_get() + "\n";
+		
+		if( sPK.size() )
+			sPK += "," + StringUtils::itos(pRow_Contact->PK_Contact_get());
+		else
+			sPK = StringUtils::itos(pRow_Contact->PK_Contact_get());
 
-		ldapm.Unbind();
-	} catch(LDAPException e) {
-		g_pPlutoLogger->Write(LV_CRITICAL, "LDAP raised exception: %s.", e.GetErrString());
+		pCell = new DataGridCell(sDescription,StringUtils::itos(pRow_Contact->PK_Contact_get()) );
+		pDataGrid->SetData(0, FirstBatch, pCell);
 	}
-	
-#endif	
+
+	sWhere = (sPK.size() ? "PK_Contact NOT IN("+sPK+") AND " : "") + 
+		"(Name like '% " + StringUtils::SQLEscape(sFind) + "%' OR Company like '% " + StringUtils::SQLEscape(sFind) + "%') "
+		"AND (EK_Users IS NULL OR EK_Users=" + sPK_Users + ")";
+	vectRow_Contact.clear();
+	m_pDatabase_pluto_telecom->Contact_get()->GetRows(sWhere,&vectRow_Contact);
+	for(size_t s=0;s<vectRow_Contact.size();++s)
+	{
+		Row_Contact *pRow_Contact = vectRow_Contact[s];
+		string sDescription;
+		if( pRow_Contact->Name_get().size() )
+		{
+			sDescription += pRow_Contact->Name_get();
+			if( pRow_Contact->Title_get().size() )
+				sDescription += ", " + pRow_Contact->Title_get();
+			sDescription += "\n";
+		}
+		if( pRow_Contact->Company_get().size() )
+			sDescription += pRow_Contact->Company_get() + "\n";
+		
+		pCell = new DataGridCell(sDescription, StringUtils::itos(pRow_Contact->PK_Contact_get()));
+		pDataGrid->SetData(0, FirstBatch + s, pCell);
+	}
+
 	return pDataGrid;
 }
 
@@ -270,63 +251,47 @@ class DataGridTable *Telecom_Plugin::PhoneBookListOfNos(string GridID,string Par
 	
 	DataGridTable *pDataGrid = new DataGridTable();
 	DataGridCell *pCell;
-#ifndef WIN32
-	string uname, cn;
-	
-	int index = Parms.find('|');
-	if(index > 0) {
-		uname = Parms.substr(0, index);
-		cn = Parms.substr(index + 1, Parms.length() - index);
-	}
-	
-	if(uname.length() == 0 || cn.length() == 0) {
-		g_pPlutoLogger->Write(LV_CRITICAL, "Invalid params passed.");
+
+	if( Parms.size()==0 )
 		return pDataGrid;
-	}
-	
-	g_pPlutoLogger->Write(LV_STATUS, "Searching phones for User: %s, Entry: %s", 
-													uname.c_str(), cn.c_str());
+	Row_Contact *pRow_Contact = m_pDatabase_pluto_telecom->Contact_get()->GetRow( atoi(Parms.c_str()) );
+	if( !pRow_Contact )
+		return pDataGrid; // Shouldn't happen
 
-	LDAPManager ldapm(LDAP_HOST, LDAP_PORT);
-	try {
-		ldapm.SimpleBind(LDAP_BINDNAME, LDAP_BINDSECRET);
-	
-		string searchbase = "dc=" + uname + ", dc=plutohome, dc=org";
-		string searchfilter = "(cn=" + cn + ")";
-		
-		g_pPlutoLogger->Write(LV_STATUS, "Searching LDAP server from Base: %s with Filter: %s", 
-													searchbase.c_str(), searchfilter.c_str());
-		
-		LDAPEntryCollectionPtr pcol = 
-						ldapm.Search(searchbase.c_str(), LDAP_SCOPE_SUBTREE, searchfilter.c_str(), NULL, 0);
-		
-		int numEntries = 0;
-				
-		LDAPEntryPtr pe = pcol->First();
-		if(pe.get() != NULL) {
-			const LDAPATTRIBUTESVEC& attrs = pe->GetAttrs();
-			for(LDAPATTRIBUTESVEC::const_iterator it = attrs.begin();
-								it != attrs.end(); it++) 
-			{
-				for(unsigned int i = 0; 
-						i < sizeof(_phonemap) / sizeof(struct _PHONEMAPENTRY); i++) 
-				{
-					if((*it).GetName() == _phonemap[i].ldapattr) {
-						const LDAPVALUESVEC& values = (*it).GetValues();
-						if(values.size() > 0 && values.begin()->length() > 0) {
-							pCell = new DataGridCell( string(_phonemap[i].display) + " [" + *values.begin() +"]", *values.begin() );
-							pDataGrid->SetData(0, numEntries++, pCell);
-						}
-					}
-				}
-			}
+	vector<Row_PhoneNumber *> vectRow_PhoneNumber;
+	pRow_Contact->PhoneNumber_FK_Contact_getrows(&vectRow_PhoneNumber);
+	int Row=0;
+	for(size_t s=0;s<vectRow_PhoneNumber.size();++s)
+	{
+		Row_PhoneNumber *pRow_PhoneNumber = vectRow_PhoneNumber[s];
+		Row_PhoneType *pRow_PhoneType = pRow_PhoneNumber->FK_PhoneType_getrow();
+		string sDescription,sDial=GetDialNumber(pRow_PhoneNumber);
+		if( pRow_PhoneNumber->CountryCode_get().size() )
+			sDescription += "+" + pRow_PhoneNumber->CountryCode_get() + " ";
+		if( pRow_PhoneNumber->AreaCode_get().size() )
+			sDescription += "(" + pRow_PhoneNumber->AreaCode_get() + ") ";
+		if( pRow_PhoneNumber->PhoneNumber_get().size() )
+			sDescription += pRow_PhoneNumber->PhoneNumber_get();
+
+		if( sDescription.size()==0 )
+			sDescription = pRow_PhoneNumber->DialAs_get();
+
+		if( pRow_PhoneNumber->Extension_get().size() )
+			sDescription += "x." + pRow_PhoneNumber->Extension_get();
+
+		if( sDescription.size()==0 )
+			continue;
+		pCell = new DataGridCell(sDescription, sDial);
+		pDataGrid->SetData(0,Row, pCell);
+
+		if( pRow_PhoneType )
+		{
+			pCell = new DataGridCell(pRow_PhoneType->Description_get(), sDial);
+			pDataGrid->SetData(1,Row, pCell);
 		}
-
-		ldapm.Unbind();
-	} catch(LDAPException e) {
-		g_pPlutoLogger->Write(LV_CRITICAL, "LDAP raised exception: %s.", e.GetErrString());
+		Row++;
 	}
-#endif	
+
 	return pDataGrid;
 }
 
@@ -693,3 +658,22 @@ SET_CHANNEL:
         SendCommand(cmd_PBX_Originate);
     }
 }
+
+string Telecom_Plugin::GetDialNumber(Row_PhoneNumber *pRow_PhoneNumber)
+{
+	if( pRow_PhoneNumber->DialAs_get().size() )
+		return pRow_PhoneNumber->DialAs_get();
+
+	// TODO - make this better
+	string sDial;
+	if( pRow_PhoneNumber->CountryCode_get().size() )
+		sDial += "00" + pRow_PhoneNumber->CountryCode_get();
+
+	if( pRow_PhoneNumber->AreaCode_get().size() )
+		sDial += pRow_PhoneNumber->AreaCode_get();
+
+	sDial += pRow_PhoneNumber->PhoneNumber_get();
+	
+	return sDial;
+}
+
