@@ -19,10 +19,10 @@ sources = Main.cpp Telecom_Plugin.cpp $(Gen_Dev_Files)
 CXXFLAGS +=
 CPPFLAGS +=
 LDFLAGS +=  
-XTRALDLIBS = -lpluto_main -lldap
+XTRALDLIBS = -lpluto_main 
 
 Gen_Dev_Files += 
-sources += callmanager.cpp calldata.cpp ldapmanager.cpp ldapexception.cpp ldapentry.cpp ldapentrycollection.cpp ldapattribute.cpp
+sources += callmanager.cpp calldata.cpp 
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
