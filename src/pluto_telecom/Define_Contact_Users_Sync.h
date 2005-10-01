@@ -1,0 +1,31 @@
+#ifndef __Define_Contact_Users_Sync_H__
+#define __Define_Contact_Users_Sync_H__
+
+
+#define CONTACT_USERS_SYNC_TABLE "Contact_Users_Sync"
+#define CONTACT_USERS_SYNC_FK_CONTACT_FIELD "FK_Contact"
+#define CONTACT_USERS_SYNC_FK_CONTACT_TABLE_FIELD "Contact_Users_Sync.FK_Contact"
+#define CONTACT_USERS_SYNC_EK_USERS_FIELD "EK_Users"
+#define CONTACT_USERS_SYNC_EK_USERS_TABLE_FIELD "Contact_Users_Sync.EK_Users"
+#define CONTACT_USERS_SYNC_SYNCID_FIELD "SyncID"
+#define CONTACT_USERS_SYNC_SYNCID_TABLE_FIELD "Contact_Users_Sync.SyncID"
+#define CONTACT_USERS_SYNC_LASTMODPLUTO_FIELD "LastModPluto"
+#define CONTACT_USERS_SYNC_LASTMODPLUTO_TABLE_FIELD "Contact_Users_Sync.LastModPluto"
+#define CONTACT_USERS_SYNC_LASTMODSYNC_FIELD "LastModSync"
+#define CONTACT_USERS_SYNC_LASTMODSYNC_TABLE_FIELD "Contact_Users_Sync.LastModSync"
+#define CONTACT_USERS_SYNC_PSC_ID_FIELD "psc_id"
+#define CONTACT_USERS_SYNC_PSC_ID_TABLE_FIELD "Contact_Users_Sync.psc_id"
+#define CONTACT_USERS_SYNC_PSC_BATCH_FIELD "psc_batch"
+#define CONTACT_USERS_SYNC_PSC_BATCH_TABLE_FIELD "Contact_Users_Sync.psc_batch"
+#define CONTACT_USERS_SYNC_PSC_USER_FIELD "psc_user"
+#define CONTACT_USERS_SYNC_PSC_USER_TABLE_FIELD "Contact_Users_Sync.psc_user"
+#define CONTACT_USERS_SYNC_PSC_FROZEN_FIELD "psc_frozen"
+#define CONTACT_USERS_SYNC_PSC_FROZEN_TABLE_FIELD "Contact_Users_Sync.psc_frozen"
+#define CONTACT_USERS_SYNC_PSC_MOD_FIELD "psc_mod"
+#define CONTACT_USERS_SYNC_PSC_MOD_TABLE_FIELD "Contact_Users_Sync.psc_mod"
+#define CONTACT_USERS_SYNC_PSC_RESTRICT_FIELD "psc_restrict"
+#define CONTACT_USERS_SYNC_PSC_RESTRICT_TABLE_FIELD "Contact_Users_Sync.psc_restrict"
+
+
+#endif
+

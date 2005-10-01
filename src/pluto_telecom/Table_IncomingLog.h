@@ -1,0 +1,193 @@
+#ifndef __Table_IncomingLog_H__
+#define __Table_IncomingLog_H__
+
+#include "TableRow.h"
+#include "Database_pluto_telecom.h"
+#include "PlutoUtils/MultiThreadIncludes.h"
+#include "Define_IncomingLog.h"
+#include "SerializeClass/SerializeClass.h"
+
+// If we declare the maps locally, the compiler will create multiple copies of them
+// making the output files enormous.  The solution seems to be to create some predefined
+// maps for the standard types of primary keys (single long, double long, etc.) and
+// put them in a common base class, which is optionally included as tablebase below
+
+class DECLSPECIFIER TableRow;
+class DECLSPECIFIER SerializeClass;
+
+class DECLSPECIFIER Table_IncomingLog : public TableBase , SingleLongKeyBase
+{
+private:
+	Database_pluto_telecom *database;
+	struct Key;	//forward declaration
+	
+public:
+	Table_IncomingLog(Database_pluto_telecom *pDatabase):database(pDatabase)
+	{
+	};
+	~Table_IncomingLog();
+
+private:		
+	friend class Row_IncomingLog;
+	struct Key
+	{
+		friend class Row_IncomingLog;
+		long int pk_PK_IncomingLog;
+
+		
+		Key(long int in_PK_IncomingLog);
+	
+		Key(class Row_IncomingLog *pRow);
+	};
+	struct Key_Less
+	{			
+		bool operator()(const Table_IncomingLog::Key &key1, const Table_IncomingLog::Key &key2) const;
+	};	
+
+	
+	
+
+public:				
+	// Normally the framework never deletes any Row_X objects, since the application will
+	// likely have pointers to them.  This means that if a Commit fails because a row
+	// cannot be committed, all subsequent calls to Commit will also fail unless you fix
+	// the rows since they will be re-attempted.  If you set either flag to true, the failed
+	// row can be deleted.  Use with caution since your pointers become invalid!
+	bool Commit(bool bDeleteFailedModifiedRow=false,bool bDeleteFailedInsertRow=false);
+	bool GetRows(string where_statement,vector<class Row_IncomingLog*> *rows);
+	class Row_IncomingLog* AddRow();
+	Database_pluto_telecom *Database_pluto_telecom_get() { return database; }
+	
+		
+	class Row_IncomingLog* GetRow(long int in_PK_IncomingLog);
+	
+
+private:	
+	
+		
+	class Row_IncomingLog* FetchRow(SingleLongKey &key);
+		
+			
+};
+
+class DECLSPECIFIER Row_IncomingLog : public TableRow, public SerializeClass
+	{
+		friend struct Table_IncomingLog::Key;
+		friend class Table_IncomingLog;
+	private:
+		Table_IncomingLog *table;
+		
+		long int m_PK_IncomingLog;
+string m_DateTime;
+long int m_FK_PhoneNumber;
+string m_PhoneNumber;
+long int m_Duration;
+short int m_Answered;
+short int m_Voicemail;
+long int m_psc_id;
+long int m_psc_batch;
+long int m_psc_user;
+short int m_psc_frozen;
+string m_psc_mod;
+long int m_psc_restrict;
+
+		bool is_null[13];
+	
+	public:
+		long int PK_IncomingLog_get();
+string DateTime_get();
+long int FK_PhoneNumber_get();
+string PhoneNumber_get();
+long int Duration_get();
+short int Answered_get();
+short int Voicemail_get();
+long int psc_id_get();
+long int psc_batch_get();
+long int psc_user_get();
+short int psc_frozen_get();
+string psc_mod_get();
+long int psc_restrict_get();
+
+		
+		void PK_IncomingLog_set(long int val);
+void DateTime_set(string val);
+void FK_PhoneNumber_set(long int val);
+void PhoneNumber_set(string val);
+void Duration_set(long int val);
+void Answered_set(short int val);
+void Voicemail_set(short int val);
+void psc_id_set(long int val);
+void psc_batch_set(long int val);
+void psc_user_set(long int val);
+void psc_frozen_set(short int val);
+void psc_mod_set(string val);
+void psc_restrict_set(long int val);
+
+		
+		bool DateTime_isNull();
+bool FK_PhoneNumber_isNull();
+bool PhoneNumber_isNull();
+bool Duration_isNull();
+bool Answered_isNull();
+bool Voicemail_isNull();
+bool psc_id_isNull();
+bool psc_batch_isNull();
+bool psc_user_isNull();
+bool psc_frozen_isNull();
+bool psc_restrict_isNull();
+
+			
+		void DateTime_setNull(bool val);
+void FK_PhoneNumber_setNull(bool val);
+void PhoneNumber_setNull(bool val);
+void Duration_setNull(bool val);
+void Answered_setNull(bool val);
+void Voicemail_setNull(bool val);
+void psc_id_setNull(bool val);
+void psc_batch_setNull(bool val);
+void psc_user_setNull(bool val);
+void psc_frozen_setNull(bool val);
+void psc_restrict_setNull(bool val);
+	
+	
+		void Delete();
+		void Reload();		
+	
+		Row_IncomingLog(Table_IncomingLog *pTable);
+	
+		bool IsDeleted(){return is_deleted;};
+		bool IsModified(){return is_modified;};			
+		class Table_IncomingLog *Table_IncomingLog_get() { return table; };
+
+		// Return the rows for foreign keys 
+		class Row_PhoneNumber* FK_PhoneNumber_getrow();
+
+
+		// Return the rows in other tables with foreign keys pointing here
+		
+
+		// Setup binary serialization
+		void SetupSerialization(int iSC_Version) {
+			StartSerializeList() + m_PK_IncomingLog+ m_DateTime+ m_FK_PhoneNumber+ m_PhoneNumber+ m_Duration+ m_Answered+ m_Voicemail+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+		}
+	private:
+		void SetDefaultValues();
+		
+		string PK_IncomingLog_asSQL();
+string DateTime_asSQL();
+string FK_PhoneNumber_asSQL();
+string PhoneNumber_asSQL();
+string Duration_asSQL();
+string Answered_asSQL();
+string Voicemail_asSQL();
+string psc_id_asSQL();
+string psc_batch_asSQL();
+string psc_user_asSQL();
+string psc_frozen_asSQL();
+string psc_mod_asSQL();
+string psc_restrict_asSQL();
+
+	};
+
+#endif
+

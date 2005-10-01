@@ -1,0 +1,31 @@
+#ifndef __Define_PhoneNumber_Users_Sync_H__
+#define __Define_PhoneNumber_Users_Sync_H__
+
+
+#define PHONENUMBER_USERS_SYNC_TABLE "PhoneNumber_Users_Sync"
+#define PHONENUMBER_USERS_SYNC_FK_PHONENUMBER_FIELD "FK_PhoneNumber"
+#define PHONENUMBER_USERS_SYNC_FK_PHONENUMBER_TABLE_FIELD "PhoneNumber_Users_Sync.FK_PhoneNumber"
+#define PHONENUMBER_USERS_SYNC_EK_USERS_FIELD "EK_Users"
+#define PHONENUMBER_USERS_SYNC_EK_USERS_TABLE_FIELD "PhoneNumber_Users_Sync.EK_Users"
+#define PHONENUMBER_USERS_SYNC_SYNCID_FIELD "SyncID"
+#define PHONENUMBER_USERS_SYNC_SYNCID_TABLE_FIELD "PhoneNumber_Users_Sync.SyncID"
+#define PHONENUMBER_USERS_SYNC_LASTMODPLUTO_FIELD "LastModPluto"
+#define PHONENUMBER_USERS_SYNC_LASTMODPLUTO_TABLE_FIELD "PhoneNumber_Users_Sync.LastModPluto"
+#define PHONENUMBER_USERS_SYNC_LASTMODSYNC_FIELD "LastModSync"
+#define PHONENUMBER_USERS_SYNC_LASTMODSYNC_TABLE_FIELD "PhoneNumber_Users_Sync.LastModSync"
+#define PHONENUMBER_USERS_SYNC_PSC_ID_FIELD "psc_id"
+#define PHONENUMBER_USERS_SYNC_PSC_ID_TABLE_FIELD "PhoneNumber_Users_Sync.psc_id"
+#define PHONENUMBER_USERS_SYNC_PSC_BATCH_FIELD "psc_batch"
+#define PHONENUMBER_USERS_SYNC_PSC_BATCH_TABLE_FIELD "PhoneNumber_Users_Sync.psc_batch"
+#define PHONENUMBER_USERS_SYNC_PSC_USER_FIELD "psc_user"
+#define PHONENUMBER_USERS_SYNC_PSC_USER_TABLE_FIELD "PhoneNumber_Users_Sync.psc_user"
+#define PHONENUMBER_USERS_SYNC_PSC_FROZEN_FIELD "psc_frozen"
+#define PHONENUMBER_USERS_SYNC_PSC_FROZEN_TABLE_FIELD "PhoneNumber_Users_Sync.psc_frozen"
+#define PHONENUMBER_USERS_SYNC_PSC_MOD_FIELD "psc_mod"
+#define PHONENUMBER_USERS_SYNC_PSC_MOD_TABLE_FIELD "PhoneNumber_Users_Sync.psc_mod"
+#define PHONENUMBER_USERS_SYNC_PSC_RESTRICT_FIELD "psc_restrict"
+#define PHONENUMBER_USERS_SYNC_PSC_RESTRICT_TABLE_FIELD "PhoneNumber_Users_Sync.psc_restrict"
+
+
+#endif
+

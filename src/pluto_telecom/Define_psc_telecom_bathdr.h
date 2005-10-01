@@ -1,0 +1,17 @@
+#ifndef __Define_psc_telecom_bathdr_H__
+#define __Define_psc_telecom_bathdr_H__
+
+
+#define PSC_TELECOM_BATHDR_TABLE "psc_telecom_bathdr"
+#define PSC_TELECOM_BATHDR_PK_PSC_TELECOM_BATHDR_FIELD "PK_psc_telecom_bathdr"
+#define PSC_TELECOM_BATHDR_PK_PSC_TELECOM_BATHDR_TABLE_FIELD "psc_telecom_bathdr.PK_psc_telecom_bathdr"
+#define PSC_TELECOM_BATHDR_IPADDRESS_FIELD "IPAddress"
+#define PSC_TELECOM_BATHDR_IPADDRESS_TABLE_FIELD "psc_telecom_bathdr.IPAddress"
+#define PSC_TELECOM_BATHDR_DATE_FIELD "date"
+#define PSC_TELECOM_BATHDR_DATE_TABLE_FIELD "psc_telecom_bathdr.date"
+#define PSC_TELECOM_BATHDR_COMMENTS_FIELD "comments"
+#define PSC_TELECOM_BATHDR_COMMENTS_TABLE_FIELD "psc_telecom_bathdr.comments"
+
+
+#endif
+
