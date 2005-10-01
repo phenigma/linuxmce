@@ -127,15 +127,16 @@ if [ "$SkipDatabase" != "yes" ]; then
 	JOIN Users;"
 
 	echo "$Q4" | /usr/bin/mysql pluto_main
+fi
 
-	# LDAP setup
+# LDAP setup
 
-	SlapdConf="/etc/ldap/slapd.conf"
-	#SlapdInc="/etc/ldap/pluto.databases"
+SlapdConf="/etc/ldap/slapd.conf"
+#SlapdInc="/etc/ldap/pluto.databases"
 
-	mkdir -p /usr/share/ldap/data
+mkdir -p /usr/share/ldap/data
 
-	ConfAppend="
+ConfAppend="
 # Pluto
 
 allow bind_v2
@@ -161,13 +162,13 @@ access to *
        by dn=\"cn=admin,dc=plutohome,dc=org\" write
        by dn=\"cn=admin,dc=plutohome,dc=org\" read
 
-"
+# Pluto end"
 
-	grep -F "# Pluto" "$SlapdConf" >/dev/null || echo "$ConfAppend" >> "$SlapdConf"
-	
-	/usr/pluto/bin/SetupUsers.sh
-	/usr/pluto/bin/Update_StartupScrips.sh
-fi
+grep -F "# Pluto" "$SlapdConf" >/dev/null || echo "$ConfAppend" >> "$SlapdConf"
+# End LDAP
+
+/usr/pluto/bin/SetupUsers.sh
+/usr/pluto/bin/Update_StartupScrips.sh
 
 mkdir -p /tftpboot/pxelinux.cfg
 cp /usr/lib/syslinux/pxelinux.0 /tftpboot
