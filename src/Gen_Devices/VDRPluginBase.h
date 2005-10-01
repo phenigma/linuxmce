@@ -29,6 +29,7 @@ public:
 	class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition);
 	virtual int GetPK_DeviceList() { return 1704; } ;
 	virtual const char *GetDeviceDescription() { return "VDRPlugin"; } ;
+	int Get_Priority() { return atoi(m_mapParameters[85].c_str());}
 };
 
 
@@ -115,6 +116,7 @@ public:
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
+	int DATA_Get_Priority() { return GetData()->Get_Priority(); }
 	//Event accessors
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};

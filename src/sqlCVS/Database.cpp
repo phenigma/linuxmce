@@ -1746,26 +1746,37 @@ void Database::Revert()
 
 void Database::ChangeKey()
 {
-	if( g_GlobalConfig.m_mapTable.size( )==0 )
-		if( g_GlobalConfig.m_mapRepository.size( )==0 )
-			PromptForRepositories( );
-	
-	if( g_GlobalConfig.m_mapRepository.size( )!=1 )
-		throw "Must specify one repository";
-
-	Repository *pRepository = g_GlobalConfig.m_mapRepository.begin()->second;
-
-	/** If the user didn't specify tables on the command line, prompt for them */
-	if( g_GlobalConfig.m_mapTable.size( )==0 )
-		PromptForTablesInRepository( pRepository, g_GlobalConfig.m_mapTable );
-
+	Table *pTable = NULL;
 	if( g_GlobalConfig.m_mapTable.size( )!=1 )
-		throw "Must specify one table";
+	{
+		string sTable;
+		cout << "What is the table?";
+		cin >> sTable;
+		pTable = m_mapTable_Find(sTable);
+	}
+	else
+		pTable = g_GlobalConfig.m_mapTable.begin()->second;
 
-	Table *pTable = g_GlobalConfig.m_mapTable.begin()->second;
+	if( !pTable )
+		throw "Invalid table";
 
 	if( pTable->m_listField_PrimaryKey.size()!=1 )
 		throw "Table does not have 1 sole primary key";
+
+	if( g_GlobalConfig.m_sPK_Old.size()==0 )
+	{
+		cout << "What is the current value? ";
+		cin >> g_GlobalConfig.m_sPK_Old;
+	}
+
+	if( g_GlobalConfig.m_sPK_New.size()==0 )
+	{
+		cout << "What is the new value? ";
+		cin >> g_GlobalConfig.m_sPK_New;
+	}
+
+	if( g_GlobalConfig.m_sPK_Old.size()==0 || g_GlobalConfig.m_sPK_New.size()==0 )
+		throw "Bad primary keys";
 
 	Field *pField = *(pTable->m_listField_PrimaryKey.begin());
 

@@ -9,10 +9,16 @@
 // Copyright: See COPYING file that comes with this distribution
 //
 //
+#include "MythTV_PlugIn.h"
+#include "DCE/Logger.h"
+#include "PlutoUtils/FileUtils.h"
+#include "PlutoUtils/StringUtils.h"
+#include "PlutoUtils/Other.h"
 #include <map>
 
+#include <iostream>
 using namespace std;
-
+using namespace DCE;
 #include "MythTvMediaStream.h"
 
 namespace DCE

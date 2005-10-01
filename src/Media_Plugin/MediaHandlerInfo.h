@@ -48,7 +48,7 @@ namespace DCE
 	class MediaHandlerInfo
 	{
 	public:
-		int m_PK_MediaType,m_MediaHandlerID;
+		int m_PK_MediaType,m_MediaHandlerID,m_PK_DeviceTemplate;
 
 		bool    m_bUsesRemovableMedia,      /** True means it can play from a removable drive.
 											For example with MediaType DVD, true means it can play a DVD disc. */
@@ -68,6 +68,7 @@ namespace DCE
 
 		list<class MediaDevice *> m_listMediaDevice;    /** Which Media Devices it is representing.  This can be empty.
 														Then the media handler will give preference to a plug-in that specifically represents a device */
+		bool ControlsDevice(int PK_Device);  // Is this device in the above list
 
 		list<class EntertainArea *> m_listEntertainArea;    /** Which entertainment areas it can play this media on.
 															Normally this would be all the entertainment areas corresponding to m_listMediaDevice.
@@ -89,7 +90,7 @@ namespace DCE
 		/** @brief A constructor for a plug-in that wants to specify all this stuff manually */
 
 		MediaHandlerInfo(class MediaHandlerBase *pMediaHandlerBase,class Command_Impl *pCommand_Impl)
-		{ m_pMediaHandlerBase=pMediaHandlerBase; m_pCommand_Impl=pCommand_Impl; m_MediaHandlerID=g_MediaHandlerID++; };
+		{ m_pMediaHandlerBase=pMediaHandlerBase; m_pCommand_Impl=pCommand_Impl; m_PK_DeviceTemplate=0; m_MediaHandlerID=g_MediaHandlerID++; };
 
 		/** @brief
 		* This will perform some standard tasks commonly needed to setup a plug-in.  First, if PK_DeviceTemplate is specified,

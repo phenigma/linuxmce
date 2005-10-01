@@ -42,13 +42,14 @@ MediaHandlerInfo::MediaHandlerInfo( class MediaHandlerBase *pMediaHandlerBase, c
     m_bUsesDevices=bUsesDevices;
     m_bUsesRemovableMedia=true;
 	m_bMultipleDestinations=false;
+	m_PK_DeviceTemplate=PK_DeviceTemplate;
 
-    if( PK_DeviceTemplate )
+    if( m_PK_DeviceTemplate )
     {
-        ListDeviceData_Router *pListDeviceData_Router=m_pMediaHandlerBase->m_pMedia_Plugin->m_pRouter->m_mapDeviceByTemplate_Find( PK_DeviceTemplate );
+        ListDeviceData_Router *pListDeviceData_Router=m_pMediaHandlerBase->m_pMedia_Plugin->m_pRouter->m_mapDeviceByTemplate_Find( m_PK_DeviceTemplate );
 		if( !pListDeviceData_Router )
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"Media Handler Info cannot find any devices for template: %d",PK_DeviceTemplate);
+			g_pPlutoLogger->Write(LV_STATUS,"Media Handler Info cannot find any devices for template: %d",m_PK_DeviceTemplate);
 			return;
 		}
         for( ListDeviceData_Router::iterator it=pListDeviceData_Router->begin( );it!=pListDeviceData_Router->end( );++it )
@@ -63,11 +64,11 @@ MediaHandlerInfo::MediaHandlerInfo( class MediaHandlerBase *pMediaHandlerBase, c
     }
 
     Row_DeviceTemplate_MediaType *pRow_DeviceTemplate_MediaType=NULL;
-    if( PK_DeviceTemplate )
+    if( m_PK_DeviceTemplate )
     {
         vector<Row_DeviceTemplate_MediaType *> vectRow_DeviceTemplate_MediaType;
         pMediaHandlerBase->m_pMedia_Plugin->m_pDatabase_pluto_main->DeviceTemplate_MediaType_get( )->GetRows(
-                DEVICETEMPLATE_MEDIATYPE_FK_DEVICETEMPLATE_FIELD + string( "=" ) + StringUtils::itos( PK_DeviceTemplate ) + " AND " +
+                DEVICETEMPLATE_MEDIATYPE_FK_DEVICETEMPLATE_FIELD + string( "=" ) + StringUtils::itos( m_PK_DeviceTemplate ) + " AND " +
                 DEVICETEMPLATE_MEDIATYPE_FK_MEDIATYPE_FIELD + "=" + StringUtils::itos( PK_MediaType ), &vectRow_DeviceTemplate_MediaType );
 
         if( vectRow_DeviceTemplate_MediaType.size( ) ) // there should only be 1 anyway
@@ -143,4 +144,12 @@ MediaHandlerInfo::MediaHandlerInfo( class MediaHandlerBase *pMediaHandlerBase, c
         }
     }
 // todo m_pMediaHandlerBase->m_pMedia_Plugin->RegisterMediaPlugin( this );
+}
+
+bool MediaHandlerInfo::ControlsDevice(int PK_Device)
+{
+	for(list<class MediaDevice *>::iterator it=m_listMediaDevice.begin();it!=m_listMediaDevice.end();++it)
+		if( (*it)->m_pDeviceData_Router->m_dwPK_Device==PK_Device )
+			return true;
+	return false;
 }

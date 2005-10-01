@@ -4,6 +4,7 @@
  * @brief source file for the MythTvWrapper class
  *
  */
+#ifndef WIN32
 
 #include "MythTV_PlugIn.h"
 #include "MythTvWrapper.h"
@@ -627,3 +628,5 @@ bool MythTvWrapper::GetCurrentChannelProgram(int channelID, string &channelName,
 	g_pPlutoLogger->Write(LV_STATUS, "There are no programs in this timeframe");
 	return false;
 }
+
+#endif

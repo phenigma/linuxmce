@@ -28,9 +28,12 @@ using namespace DCE;
 
 #include "DataGrid.h"
 
+#ifndef WIN32
 #include "MythTvWrapper.h"
-#include "../Orbiter_Plugin/OH_Orbiter.h"
 #include <libmythtv/frame.h>
+#endif
+
+#include "../Orbiter_Plugin/OH_Orbiter.h"
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -49,8 +52,9 @@ bool MythTV_PlugIn::GetConfig()
 	if( !MythTV_PlugIn_Command::GetConfig() )
 		return false;
 //<-dceag-getconfig-e->
-
+#ifndef WIN32
 	m_pMythWrapper = new MythTvWrapper(this);
+#endif
 	return true;
 }
 
@@ -60,7 +64,9 @@ bool MythTV_PlugIn::GetConfig()
 MythTV_PlugIn::~MythTV_PlugIn()
 //<-dceag-dest-e->
 {
+#ifndef WIN32
 	delete m_pMythWrapper;
+#endif
 
 }
 
@@ -182,6 +188,7 @@ void MythTV_PlugIn::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage
 
 bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream)
 {
+#ifndef WIN32
 	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
 
 	MythTvMediaStream *pMythTvMediaStream = NULL;
@@ -241,7 +248,7 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream)
 		DCE::CMD_Play_Media cmd(m_dwPK_Device, pMythTvMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,"",MEDIATYPE_pluto_LiveTV_CONST,0,"");
 		SendCommand(cmd);
 	}
-
+#endif
     return true;
 }
 
@@ -398,6 +405,7 @@ MythTvMediaStream* MythTV_PlugIn::ConvertToMythMediaStream(MediaStream *pMediaSt
 class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign
                         , Message *pMessage)
 {
+#ifndef WIN32
     PLUTO_SAFETY_LOCK(mm, m_pMedia_Plugin->m_MediaMutex);
     g_pPlutoLogger->Write(LV_STATUS, "A datagrid for all the shows was requested %s params %s", GridID.c_str(), Parms.c_str());
 
@@ -417,10 +425,14 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
                     0));
 
     return m_pMythWrapper->createShowsDataGrid(GridID, currentTime, currentTime.addDays(14));
+#else
+	return new DataGridTable();
+#endif
 }
 
 class DataGridTable *MythTV_PlugIn::AllShowsForMobiles(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage)
 {
+#ifndef WIN32
     PLUTO_SAFETY_LOCK(mm, m_pMedia_Plugin->m_MediaMutex);
 
     g_pPlutoLogger->Write(LV_STATUS, "Getting all shows");
@@ -431,6 +443,9 @@ class DataGridTable *MythTV_PlugIn::AllShowsForMobiles(string GridID, string Par
     }
 
     return m_pMythWrapper->createShowsForMobiles(GridID, QDateTime::currentDateTime());
+#else
+	return new DataGridTable();
+#endif
 }
 
 class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,Message *pMessage)
@@ -460,9 +475,10 @@ class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void
     return pDataGrid;
 }
 
-bool MythTV_PlugIn::MediaInfoChanged( class Socket *pSocket, class Message *pMessage, class DeviceData_Router *pDeviceFrom, class DeviceData_Router *pDeviceTo )
+bool MythTV_PlugIn::MediaInfoChanged( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
-    MythTvMediaStream *pMythTvStream;
+#ifndef WIN32
+	MythTvMediaStream *pMythTvStream;
 
     if ( pDeviceFrom->m_dwPK_DeviceTemplate == DEVICETEMPLATE_MythTV_Backend_Proxy_CONST )
     {
@@ -493,7 +509,7 @@ bool MythTV_PlugIn::MediaInfoChanged( class Socket *pSocket, class Message *pMes
 		pMythTvStream->m_iNextProgramChannelID = pMythTvStream->m_iCurrentProgramChannelID = tunedChannel;
 		m_pMedia_Plugin->MediaInfoChanged(pMythTvStream);
     }
-
+#endif
     return true;
 }
 /*
@@ -556,7 +572,8 @@ void MythTV_PlugIn::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string
 void MythTV_PlugIn::CMD_Schedule_Recording(string sProgramID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c185-e->
 {
-    PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+#ifndef WIN32
+	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
 
     g_pPlutoLogger->Write(LV_STATUS, "Jump to position called %s", sProgramID.c_str());
 
@@ -579,5 +596,6 @@ void MythTV_PlugIn::CMD_Schedule_Recording(string sProgramID,string &sCMD_Result
         default:
             break;
     }
+#endif
 }
 //<-dceag-createinst-b->!

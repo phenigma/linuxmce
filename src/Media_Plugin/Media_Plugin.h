@@ -231,14 +231,14 @@ public:
     // create and register a specific type of media.  This means it is not necessary to call RegisterMediaPlugin.  This allows the plug-in to change
     // some of the defaults.  The Plugin could also create a MediaHandlerInfo type manually for complete control over the parameters, and then call
     // RegisterMediaPlugin
-    void RegisterMediaPlugin(class Command_Impl *pCommand_Impl,class MediaHandlerBase *pMediaHandlerBase,int iPK_MasterDeviceList,bool bUsesDCE)
+    void RegisterMediaPlugin(class Command_Impl *pCommand_Impl,class MediaHandlerBase *pMediaHandlerBase,int iPK_DeviceTemplate,bool bUsesDCE)
 	{
-		vector<int> vectPK_MasterDeviceList;
-		vectPK_MasterDeviceList.push_back(iPK_MasterDeviceList);
-		RegisterMediaPlugin(pCommand_Impl,pMediaHandlerBase,vectPK_MasterDeviceList,bUsesDCE);
+		vector<int> vectPK_DeviceTemplate;
+		vectPK_DeviceTemplate.push_back(iPK_DeviceTemplate);
+		RegisterMediaPlugin(pCommand_Impl,pMediaHandlerBase,vectPK_DeviceTemplate,bUsesDCE);
 	}
 
-    void RegisterMediaPlugin(class Command_Impl *pCommand_Impl,class MediaHandlerBase *pMediaHandlerBase,vector<int> &vectPK_MasterDeviceList,bool bUsesDCE);
+    void RegisterMediaPlugin(class Command_Impl *pCommand_Impl,class MediaHandlerBase *pMediaHandlerBase,vector<int> &vectPK_DeviceTemplate,bool bUsesDCE);
 
     void AddDeviceToEntertainArea(EntertainArea *pEntertainArea,Row_Device *pRow_Device);
 	void DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, string sPK_EntertainArea, vector<EntertainArea *> &vectEntertainArea );
@@ -263,7 +263,7 @@ public:
 	void AddCommand(int PK_CommandGroup,int PK_Device,int PK_Command,int NumParms,...);
 	// For each MD, all it's direct children go in the same room, and if it has an on-screen Orbiter, it's direct children too
 	void PutMDsChildrenInRoom(DeviceData_Router *pDeviceData_Router);
-	void GetMediaHandlersForEA(int iPK_MediaType,int iPK_MediaProvider,vector<EntertainArea *> &vectEntertainArea, vector< pair< MediaHandlerInfo *,vector<EntertainArea *> > > &vectEA_to_MediaHandler);
+	void GetMediaHandlersForEA(int iPK_MediaType,int iPK_MediaProvider,int iPK_Device, int iPK_DeviceTemplate, vector<EntertainArea *> &vectEntertainArea, vector< pair< MediaHandlerInfo *,vector<EntertainArea *> > > &vectEA_to_MediaHandler);
 	MediaDevice *GetMediaDeviceForEA(int iPK_MediaType,EntertainArea *pEntertainArea);
 
 	/**
@@ -306,7 +306,7 @@ public:
 
 	// This version is called by MH_Play_Media.  It may result in multiple handlers and multiple streams
 	// if there isn't 1 handler that can do it all.  If p_vectMediaStream is passed it will have a list of all the streams that were created as a result
-	void StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigned int iPK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int iPK_Device, deque<MediaFile *> *dequeMediaFile, bool bResume, int iRepeat, string sStartingPosition, vector<MediaStream *> *p_vectMediaStream=NULL);
+	void StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigned int iPK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int iPK_Device, int iPK_DeviceTemplate, deque<MediaFile *> *dequeMediaFile, bool bResume, int iRepeat, string sStartingPosition, vector<MediaStream *> *p_vectMediaStream=NULL);
 
 	// This creates a single media stream for a given media handler and starts playing it by calling the next StartMedia, or returns NULL if it cannot create the stream
     MediaStream *StartMedia(MediaHandlerInfo *pMediaHandlerInfo, int iPK_MediaProvider, unsigned int PK_Device_Orbiter,vector<EntertainArea *> &vectEntertainArea,int PK_Device_Source,deque<MediaFile *> *dequeMediaFile,bool bResume,int iRepeat, string sStartingPosition, int iPK_Playlist=0);

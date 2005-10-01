@@ -30,7 +30,7 @@ namespace DCE
     using namespace std;
 
     //<-dceag-decl-b->!
-    class MythTV_PlugIn : public MythTV_PlugIn_Command, public MediaHandlerBase // , public MediaHandlerBase
+    class MythTV_PlugIn : public MythTV_PlugIn_Command, public MediaHandlerBase, public DataGridGeneratorPlugIn
     {
 	//<-dceag-decl-e->
         // friend class MythTvStream;
@@ -88,7 +88,7 @@ public:
     	class DataGridTable *AllShowsForMobiles(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage);
 
         /** The interceptor for the MediaInfoChangedEvent from the playing device */
-    	bool MediaInfoChanged( class Socket *pSocket, class Message *pMessage, class DeviceData_Router *pDeviceFrom, class DeviceData_Router *pDeviceTo );
+    	bool MediaInfoChanged( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 
         //<-dceag-h-b->
 	/*

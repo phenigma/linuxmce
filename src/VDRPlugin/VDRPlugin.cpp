@@ -47,7 +47,8 @@ VDRPlugin::~VDRPlugin()
 // This function will only be used if this device is loaded into the DCE Router's memory space as a plug-in.  Otherwise Connect() will be called from the main()
 bool VDRPlugin::Register()
 //<-dceag-reg-e->
-{
+{	
+	m_iPriority=DATA_Get_Priority();
 	m_pMedia_Plugin=( Media_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Media_Plugin_CONST);
 	m_pOrbiter_Plugin=( Orbiter_Plugin * ) m_pRouter->FindPluginByTemplate(DEVICETEMPLATE_Orbiter_Plugin_CONST);
 	if( !m_pMedia_Plugin || !m_pOrbiter_Plugin )

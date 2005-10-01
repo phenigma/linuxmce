@@ -66,6 +66,7 @@ public:
 
 	/*
 			*****DATA***** accessors inherited from base class
+	int DATA_Get_Priority();
 
 			*****EVENT***** accessors inherited from base class
 

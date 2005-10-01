@@ -7351,7 +7351,6 @@ g_pPlutoLogger->Write(LV_STATUS,"Kill Maint Thread %d",(int) bMaintThreadIsRunni
 		if( tTime + 5 < time(NULL) )
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL,"Maint Thread had blocked!!!!");
-            PromptUser("Something went very wrong. Maint Thread had blocked!!!!");
 			exit(1);
 		}
 	}

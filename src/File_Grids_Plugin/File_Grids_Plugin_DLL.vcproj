@@ -166,6 +166,9 @@
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
 		</Filter>
+		<File
+			RelativePath="..\..\..\Program Files\Microsoft Visual Studio .NET 2003\Vc7\include\list">
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

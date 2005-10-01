@@ -709,7 +709,7 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
     return true;
 }
 
-void Media_Plugin::StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigned int iPK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int iPK_Device, deque<MediaFile *> *p_dequeMediaFile, bool bResume, int iRepeat, string sStartingPosition, vector<MediaStream *> *p_vectMediaStream)
+void Media_Plugin::StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigned int iPK_Device_Orbiter, vector<EntertainArea *> &vectEntertainArea, int iPK_Device, int iPK_DeviceTemplate, deque<MediaFile *> *p_dequeMediaFile, bool bResume, int iRepeat, string sStartingPosition, vector<MediaStream *> *p_vectMediaStream)
 {
 	if( !iPK_MediaType && p_dequeMediaFile->size() )
 	{
@@ -753,7 +753,7 @@ void Media_Plugin::StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigne
 	// and the list of entertainment areas
 	vector< pair< MediaHandlerInfo *,vector<EntertainArea *> > > vectEA_to_MediaHandler;
 
-	GetMediaHandlersForEA(iPK_MediaType, iPK_MediaProvider, vectEntertainArea, vectEA_to_MediaHandler);
+	GetMediaHandlersForEA(iPK_MediaType, iPK_MediaProvider, iPK_Device, iPK_DeviceTemplate, vectEntertainArea, vectEA_to_MediaHandler);
 
 	// If there are 2 or more stream and we have a deque of mediafiles, make copies of them
 	// so each stream will have it's own and won't share, causing duplicate deletes when the stream
@@ -2176,18 +2176,7 @@ void Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, str
 {
     g_pPlutoLogger->Write(LV_STATUS, "DetermineEntArea1");
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
-    // If we don't have an entertainment area, but we do have a device that is a media device we can find it there
-    if( sPK_EntertainArea.size()==0 && iPK_Device )
-    {
-        MediaDevice *pMediaDevice = m_mapMediaDevice_Find( iPK_Device );
-        if( pMediaDevice && pMediaDevice->m_mapEntertainArea.size( ) )
-        {
-            EntertainArea *pEntertainArea = pMediaDevice->m_mapEntertainArea.begin()->second;
-            vectEntertainArea.push_back(pEntertainArea);
-        }
-    }
 
-    g_pPlutoLogger->Write(LV_STATUS, "DetermineEntArea2");
     // See if we need to figure out the entertainment area on our own. If so, the only way to do this is if the message came from an orbiter
     if( sPK_EntertainArea.size()==0 )
     {
@@ -2432,7 +2421,7 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_Med
 		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From, "<%=T" + StringUtils::itos(TEXT_Cannot_play_media_CONST) + "%>");
     }
 	else
-		StartMedia(iPK_MediaType,iPK_MediaProvider,iPK_Device_Orbiter,vectEntertainArea,iPK_Device,&dequeMediaFile,bResume,iRepeat,"");  // We'll let the plug-in figure out the source, and we'll use the default remote
+		StartMedia(iPK_MediaType,iPK_MediaProvider,iPK_Device_Orbiter,vectEntertainArea,iPK_Device,iPK_DeviceTemplate,&dequeMediaFile,bResume,iRepeat,"");  // We'll let the plug-in figure out the source, and we'll use the default remote
 }
 
 //<-dceag-c65-b->
@@ -2773,7 +2762,7 @@ g_pPlutoLogger->Write(LV_WARNING,"ready to restart %d eas",(int) vectEntertainAr
 		// and it doesn't play.  Change this to 0, but a better solution is probably that the plugin figures this out
 		// since sometimes the source will be preserved across moves maybe???
 		StartMedia( pMediaStream->m_iPK_MediaType, pMediaStream->m_iPK_MediaProvider, (pMediaStream->m_pOH_Orbiter_StartedMedia ? pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device : 0),
-			vectEntertainArea, 0,
+			vectEntertainArea, 0, 0,
 			&pMediaStream->m_dequeMediaFile, pMediaStream->m_bResume, pMediaStream->m_iRepeat,pMediaStream->m_sLastPosition);
 
 		pMediaStream->m_dequeMediaFile.clear();  // We don't want to delete the media files since we will have re-used the same pointers above
@@ -3625,7 +3614,7 @@ void Media_Plugin::AddOtherDevicesInPipes_Loop(int PK_Pipe, DeviceData_Router *p
 		delete p_vectDevice;
 }
 
-void Media_Plugin::GetMediaHandlersForEA(int iPK_MediaType,int iPK_MediaProvider,vector<EntertainArea *> &vectEntertainArea, vector< pair< MediaHandlerInfo *,vector<EntertainArea *> > > &vectEA_to_MediaHandler)
+void Media_Plugin::GetMediaHandlersForEA(int iPK_MediaType,int iPK_MediaProvider,int iPK_Device, int iPK_DeviceTemplate, vector<EntertainArea *> &vectEntertainArea, vector< pair< MediaHandlerInfo *,vector<EntertainArea *> > > &vectEA_to_MediaHandler)
 {
 	// This function needs to find a media handler for every entertainment area.  This map will store all our possibilities
 	// of handlers and what entertainment areas they can support.  We'll first populate the map, then pick the best matches
@@ -3634,7 +3623,6 @@ void Media_Plugin::GetMediaHandlersForEA(int iPK_MediaType,int iPK_MediaProvider
 	for(size_t s=0;s<vectEntertainArea.size();++s)
 	{
 		EntertainArea *pEntertainArea=vectEntertainArea[s];
-
 		// See if there's a media handler for this type of media in this area
 		List_MediaHandlerInfo *pList_MediaHandlerInfo = pEntertainArea->m_mapMediaHandlerInfo_MediaType_Find(iPK_MediaType,iPK_MediaProvider);
 		if( !pList_MediaHandlerInfo || pList_MediaHandlerInfo->size()==0 )
@@ -3654,6 +3642,9 @@ void Media_Plugin::GetMediaHandlersForEA(int iPK_MediaType,int iPK_MediaProvider
 			for( List_MediaHandlerInfo::iterator it=pList_MediaHandlerInfo->begin();it!=pList_MediaHandlerInfo->end();++it )
 			{
 				MediaHandlerInfo *pMediaHandlerInfo = *it;
+				if( (iPK_Device && !pMediaHandlerInfo->ControlsDevice(iPK_Device)) ||
+					(iPK_DeviceTemplate && pMediaHandlerInfo->m_PK_DeviceTemplate!=iPK_DeviceTemplate) )
+						continue;
 				mapMediaHandlerInfo[pMediaHandlerInfo].push_back(pEntertainArea);
 			}
 		}
@@ -4113,15 +4104,15 @@ int Media_Plugin::DetermineInvolvement(MediaDevice *pMediaDevice, MediaDevice *&
 }
 
 
-void Media_Plugin::RegisterMediaPlugin(class Command_Impl *pCommand_Impl,class MediaHandlerBase *pMediaHandlerBase,vector<int> &vectPK_MasterDeviceList,bool bUsesDCE)
+void Media_Plugin::RegisterMediaPlugin(class Command_Impl *pCommand_Impl,class MediaHandlerBase *pMediaHandlerBase,vector<int> &vectPK_DeviceTemplate,bool bUsesDCE)
 {
-	for(size_t s=0;s<vectPK_MasterDeviceList.size();++s)
+	for(size_t s=0;s<vectPK_DeviceTemplate.size();++s)
 	{
-		int iPK_MasterDeviceList = vectPK_MasterDeviceList[s];
-		Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(iPK_MasterDeviceList);
+		int iPK_DeviceTemplate = vectPK_DeviceTemplate[s];
+		Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(iPK_DeviceTemplate);
 		if( !pRow_DeviceTemplate )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Invalid device template %d as plugin",iPK_MasterDeviceList);
+			g_pPlutoLogger->Write(LV_CRITICAL,"Invalid device template %d as plugin",iPK_DeviceTemplate);
 			return;  // Nothing we can do
 		}
 
@@ -4137,7 +4128,7 @@ void Media_Plugin::RegisterMediaPlugin(class Command_Impl *pCommand_Impl,class M
 			Row_DeviceTemplate_MediaType *pRow_DeviceTemplate_MediaType = vectRow_DeviceTemplate_MediaType[mt];
 			MediaHandlerInfo *pMediaHandlerInfo =
 				new MediaHandlerInfo(pMediaHandlerBase,pCommand_Impl,pRow_DeviceTemplate_MediaType->FK_MediaType_get(),
-					iPK_MasterDeviceList,pRow_DeviceTemplate_MediaType->CanSetPosition_get()==1,bUsesDCE);
+					iPK_DeviceTemplate,pRow_DeviceTemplate_MediaType->CanSetPosition_get()==1,bUsesDCE);
 
 			m_vectMediaHandlerInfo.push_back(pMediaHandlerInfo);
 			pMediaHandlerBase->m_vectMediaHandlerInfo.push_back(pMediaHandlerInfo);
