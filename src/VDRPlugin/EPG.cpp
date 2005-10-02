@@ -150,6 +150,15 @@ Channel::Channel(char *szLine)
 	m_pEvent_Last = NULL;
 }
 
+Event *Channel::GetCurrentEvent()
+{
+	time_t t = time(NULL);
+	Event *pEvent = m_pEvent_First;
+	while(pEvent && pEvent->m_tStopTime<t)
+		pEvent = pEvent->m_pEvent_Next;
+	return pEvent;
+}
+
 string Event::GetProgram()
 { 
 	return m_pProgram ? m_pProgram->m_sTitle : ""; 

@@ -96,7 +96,6 @@ void EpgGrid::PopulateRow(Channel *pChannel,int iRow,int StartTime,int StopTime)
 		DataGridCell *pCell = new DataGridCell("<" + pEvent_Prior->GetProgram(),StringUtils::itos(pEvent_Prior->m_EventID));
 		pCell->m_Colspan = (pEvent_Prior->m_tStopTime - StartTime) / 60 / m_iGridResolution;
 		SetData(StartTime / 60 / m_iGridResolution,iRow,pCell);
-		pCell->m_pMessage = GetSetInfoMessage(pEvent_Prior);
 	}
 
 	// Add all current shows
@@ -115,7 +114,6 @@ void EpgGrid::PopulateRow(Channel *pChannel,int iRow,int StartTime,int StopTime)
 			pCell->m_Colspan = (pEvent->m_tStopTime - pEvent->m_tStartTime) / 60 / m_iGridResolution;
 		SetData(Column,iRow,pCell);
 		pEvent = pEvent->m_pEvent_Next;
-		pCell->m_pMessage = GetSetInfoMessage(pEvent_Prior);
 	}
 }
 
@@ -123,19 +121,3 @@ int EpgGrid::GetCurrentColumn()
 {
 	return time(NULL) / 60 / m_iGridResolution;
 }
-
-Message *EpgGrid::GetSetInfoMessage(Event *pEvent)
-{
-	string sDesc;
-	if( pEvent->m_pChannel )
-		sDesc = pEvent->m_pChannel->m_sChannelName + " / ";
-	sDesc += pEvent->m_pProgram->m_sTitle;
-	if( pEvent->m_sDescription_Long.size() )
-		sDesc += "\n" + pEvent->m_sDescription_Long;
-	else if( pEvent->m_sDescription_Short.size() )
-		sDesc += "\n" + pEvent->m_sDescription_Long;
-	DCE::CMD_Set_Text CMD_Set_Text(0,DEVICETEMPLATE_This_Orbiter_CONST,"",
-		sDesc,TEXT_EPG_SHOW_PREVIEW_CONST);
-	return CMD_Set_Text.m_pMessage;
-}
-

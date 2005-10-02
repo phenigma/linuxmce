@@ -17,6 +17,7 @@ namespace VDREPG
 		Event *m_pEvent_First,*m_pEvent_Last;
 
 		Channel(char *szLine);
+		Event *GetCurrentEvent();
 	};
 
 	// An instance of a show

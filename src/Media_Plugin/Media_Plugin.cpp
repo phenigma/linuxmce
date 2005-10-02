@@ -2454,6 +2454,16 @@ void Media_Plugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string 
         return;
     }
 
+	DeviceData_Router *pDeviceData_Router = m_pRouter->m_mapDeviceData_Router_Find(pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl->m_pData->m_dwPK_Device);
+	if( pDeviceData_Router && pDeviceData_Router->m_mapCommands.find(pMessage->m_dwID)!=pDeviceData_Router->m_mapCommands.end() )
+	{
+		// The plugin has it's own method for handling this.  Give it the message instead
+		Message *pMessage_Copy = new Message(pMessage);
+		pMessage_Copy->m_dwPK_Device_To = pDeviceData_Router->m_dwPK_Device;
+		QueueMessageToRouter(pMessage_Copy);
+		return;
+	}
+
 	if( sValue_To_Assign.find("CHAPTER:")!=string::npos || sValue_To_Assign.find("POS:")!=string::npos )
 	{
 		DCE::CMD_Set_Media_Position CMD_Set_Media_Position(m_dwPK_Device,pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,

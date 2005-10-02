@@ -265,7 +265,57 @@ void VDRPlugin::CMD_Schedule_Recording(string sProgramID,string &sCMD_Result,Mes
 
 class DataGridTable *VDRPlugin::CurrentShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage)
 {
-	return NULL; // Something's wrong -- we have no VDR Grid's
+    DataGridTable *pDataGrid = new DataGridTable();
+	DataGridCell *pDataGridCell;
+
+	MediaDevice *pMediaDevice = GetVDRFromOrbiter(pMessage->m_dwPK_Device_From);
+	VDREPG::EPG *pEPG = NULL; 
+	if( pMediaDevice )
+		pEPG=m_mapEPG_Find(pMediaDevice->m_pDeviceData_Router->m_dwPK_Device);
+	if( !pEPG )
+		pEPG = m_mapEPG.begin()->second;
+	if( !pEPG )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"VDRPlugin::CurrentShows No EPG");
+		return pDataGrid;
+	}
+
+	int iColumns=atoi(Parms.c_str());
+	int iRow=0,iColumn=0;
+	for(size_t s=0;s<pEPG->m_vectChannel.size();++s)
+	{
+		VDREPG::Channel *pChannel = pEPG->m_vectChannel[s];
+		VDREPG::Event *pEvent = pChannel->GetCurrentEvent();
+		if( pEvent )
+		{
+			pDataGridCell = new DataGridCell(pEvent->m_pChannel->m_sChannelName,StringUtils::itos(pEvent->m_EventID));
+			pDataGrid->SetData((iColumn*5),iRow,pDataGridCell);
+			pDataGridCell = new DataGridCell(pEvent->m_pProgram->m_sTitle,StringUtils::itos(pEvent->m_EventID));
+			pDataGridCell->m_Colspan=3;
+			pDataGrid->SetData((iColumn*5)+1,iRow,pDataGridCell);
+
+			struct tm *tmptr = localtime(&pEvent->m_tStartTime);
+			struct tm tmStart = *tmptr;
+			tmptr = localtime(&pEvent->m_tStopTime);
+
+			string sDesc;
+			sDesc += 
+				StringUtils::itos(tmStart.tm_hour) + ":" + (tmStart.tm_min<10 ? "0" : "") +
+				StringUtils::itos(tmStart.tm_min) + " - " +
+				StringUtils::itos(tmptr->tm_hour) + ":" + (tmptr->tm_min<10 ? "0" : "") +
+				StringUtils::itos(tmptr->tm_min);
+
+			pDataGridCell = new DataGridCell(sDesc,StringUtils::itos(pEvent->m_EventID));
+			pDataGrid->SetData((iColumn*5)+4,iRow,pDataGridCell);
+			iColumn++;
+			if( iColumn>iColumns )
+			{
+				iColumn=0;
+				iRow++;
+			}
+		}
+	}
+	return pDataGrid;
 }
 
 class DataGridTable *VDRPlugin::AllShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage)
@@ -294,4 +344,56 @@ class MediaDevice *VDRPlugin::GetVDRFromOrbiter(int PK_Device)
 			return *pListMediaDevice->begin();
 	}
 	return NULL;
+}
+//<-dceag-c698-b->
+
+	/** @brief COMMAND: #698 - Get Extended Media Data */
+	/** Returns extra data about the given media, such as the title, airtime, whether it's currently scheduled to record, etc. */
+		/** @param #3 PK_DesignObj */
+			/** If specified the sender will be sent a goto-screen with this screen.  If not the sender will be sent a refresh */
+		/** @param #68 ProgramID */
+			/** If specified, the program to retrive info on.  If not specified, assumed to be the currently playing media */
+
+void VDRPlugin::CMD_Get_Extended_Media_Data(string sPK_DesignObj,string sProgramID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c698-e->
+{
+	MediaDevice *pMediaDevice = GetVDRFromOrbiter(pMessage->m_dwPK_Device_From);
+	VDREPG::EPG *pEPG = NULL; 
+	if( pMediaDevice && (pEPG=m_mapEPG_Find(pMediaDevice->m_pDeviceData_Router->m_dwPK_Device)) )
+	{
+		VDREPG::Event *pEvent = pEPG->m_mapEvent_Find(atoi(sProgramID.c_str()));
+		if( !pEvent || !pEvent->m_pChannel )
+			g_pPlutoLogger->Write(LV_CRITICAL,"VDRPlugin::CMD_Get_Extended_Media_Data trying to tune to unknown event %s",sProgramID.c_str());
+		else
+		{
+			struct tm *tmptr = localtime(&pEvent->m_tStartTime);
+			struct tm tm_start = *tmptr;
+			tmptr = localtime(&pEvent->m_tStopTime);
+			DCE::CMD_Set_Variable CMD_Set_Variable1(m_dwPK_Device,pMessage->m_dwPK_Device_From,
+				VARIABLE_Misc_Data_1_CONST,pEvent->m_pChannel->m_sChannelName + " / " +
+				StringUtils::itos(tm_start.tm_hour) + ":" + (tm_start.tm_min<10 ? "0" : "") + StringUtils::itos(tm_start.tm_min) + " - " +
+				StringUtils::itos(tmptr->tm_hour) + ":" + (tmptr->tm_min<10 ? "0" : "") + StringUtils::itos(tmptr->tm_min));
+			DCE::CMD_Set_Variable CMD_Set_Variable2(m_dwPK_Device,pMessage->m_dwPK_Device_From,
+				VARIABLE_Misc_Data_2_CONST,pEvent->m_pProgram->m_sTitle);
+			DCE::CMD_Set_Variable CMD_Set_Variable3(m_dwPK_Device,pMessage->m_dwPK_Device_From,
+				VARIABLE_Misc_Data_3_CONST,pEvent->m_sDescription_Short);
+			DCE::CMD_Set_Variable CMD_Set_Variable4(m_dwPK_Device,pMessage->m_dwPK_Device_From,
+				VARIABLE_Misc_Data_4_CONST,pEvent->m_sDescription_Long);
+			CMD_Set_Variable1.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Variable2.m_pMessage );
+			CMD_Set_Variable1.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Variable3.m_pMessage );
+			CMD_Set_Variable1.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Variable4.m_pMessage );
+			if( sPK_DesignObj.size() )
+			{
+				DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pMessage->m_dwPK_Device_From,
+					0,sPK_DesignObj,"","",false,false);
+				CMD_Set_Variable1.m_pMessage->m_vectExtraMessages.push_back( CMD_Goto_Screen.m_pMessage );
+			}
+			else
+			{
+				DCE::CMD_Refresh CMD_Refresh(m_dwPK_Device,pMessage->m_dwPK_Device_From,"");
+				CMD_Set_Variable1.m_pMessage->m_vectExtraMessages.push_back( CMD_Refresh.m_pMessage );
+			}
+			SendCommand(CMD_Set_Variable1);
+		}
+	}
 }

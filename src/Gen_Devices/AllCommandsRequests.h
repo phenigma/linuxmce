@@ -11061,5 +11061,21 @@ namespace DCE
 	public:
 		CMD_Set_Active_Application_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Device,string sName,int iPK_QuickStartTemplate) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,697,3,2,StringUtils::itos(iPK_Device).c_str(),50,sName.c_str(),146,StringUtils::itos(iPK_QuickStartTemplate).c_str()); }
 	};
+	class CMD_Get_Extended_Media_Data : public PreformedCommand {
+	public:
+		CMD_Get_Extended_Media_Data(long DeviceIDFrom, long DeviceIDTo,string sPK_DesignObj,string sProgramID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,698,2,3,sPK_DesignObj.c_str(),68,sProgramID.c_str()); }
+	};
+	class CMD_Get_Extended_Media_Data_DL : public PreformedCommand {
+	public:
+		CMD_Get_Extended_Media_Data_DL(long DeviceIDFrom, string DeviceIDTo,string sPK_DesignObj,string sProgramID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,698,2,3,sPK_DesignObj.c_str(),68,sProgramID.c_str()); }
+	};
+	class CMD_Get_Extended_Media_Data_DT : public PreformedCommand {
+	public:
+		CMD_Get_Extended_Media_Data_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sPK_DesignObj,string sProgramID) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,698,2,3,sPK_DesignObj.c_str(),68,sProgramID.c_str()); }
+	};
+	class CMD_Get_Extended_Media_Data_Cat : public PreformedCommand {
+	public:
+		CMD_Get_Extended_Media_Data_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sPK_DesignObj,string sProgramID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,698,2,3,sPK_DesignObj.c_str(),68,sProgramID.c_str()); }
+	};
 }
 #endif

@@ -363,7 +363,6 @@ g_pPlutoLogger->Write( LV_DATAGRID, "rows: %d cols: %d",m_RowCount,m_ColumnCount
 						else
 						{
 							// There's a cell, but its column span doesn't reach. Discard and cancel.
-							delete Cell;
 							Cell = NULL;
 							break;
 						}

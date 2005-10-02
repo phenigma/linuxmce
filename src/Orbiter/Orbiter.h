@@ -893,7 +893,7 @@ public:
 	 * @brief gets the grid from the DesignObj_DataGrid object into the pDataGridTable parmeter.  This may change the
 	 * value of GridCurRow if the pObj->m_sSeek is set to seek to a given position
 	 */
-	bool AcquireGrid( DesignObj_DataGrid *pObj, int GridCurCol, int &GridCurRow, class DataGridTable* &pDataGridTable );
+	bool AcquireGrid( DesignObj_DataGrid *pObj, int &GridCurCol, int &GridCurRow, class DataGridTable* &pDataGridTable );
 
 	/**
 	 * @brief returns the selected identifiing it by the row number

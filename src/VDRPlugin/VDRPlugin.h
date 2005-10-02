@@ -102,6 +102,17 @@ public:
 	virtual void CMD_Schedule_Recording(string sProgramID,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #698 - Get Extended Media Data */
+	/** Returns extra data about the given media, such as the title, airtime, whether it's currently scheduled to record, etc. */
+		/** @param #3 PK_DesignObj */
+			/** If specified the sender will be sent a goto-screen with this screen.  If not the sender will be sent a refresh */
+		/** @param #68 ProgramID */
+			/** If specified, the program to retrive info on.  If not specified, assumed to be the currently playing media */
+
+	virtual void CMD_Get_Extended_Media_Data(string sPK_DesignObj,string sProgramID) { string sCMD_Result; CMD_Get_Extended_Media_Data(sPK_DesignObj.c_str(),sProgramID.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Get_Extended_Media_Data(string sPK_DesignObj,string sProgramID,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 	};
 

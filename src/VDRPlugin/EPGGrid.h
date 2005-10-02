@@ -30,7 +30,6 @@ namespace VDREPG
 		virtual void ToData(string GridID,int &Size, char* &Data, int *ColStart, int *RowStart, int ColCount, int RowCount);
 		void PopulateRow(Channel *pChannel,int iRow,int StartTime,int StopTime);
 		int GetCurrentColumn();
-		DCE::Message *GetSetInfoMessage(Event *pEvent);
 	};
 }
 

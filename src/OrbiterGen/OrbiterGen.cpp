@@ -1529,7 +1529,10 @@ int k=2;
 	ocDesignObj->m_bAnimate = ocDesignObj->m_pRow_DesignObj->Animate_get()==1;
 
 	int NumParms=0;
-
+if( ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()==1510 )
+{
+int k=2;
+}
 	vector<Row_DesignObjVariation_DesignObjParameter *> vectovp;
 	ocDesignObj->m_pRow_DesignObjVariation->DesignObjVariation_DesignObjParameter_FK_DesignObjVariation_getrows(&vectovp);
 	for(size_t s=0;s<vectovp.size();++s)
@@ -1580,7 +1583,7 @@ int k=2;
 					ocDesignObj->m_mapObjParms[drOVCP->FK_DesignObjParameter_get()]=StringUtils::itos((atoi(Value.c_str()) * ocDesignObj->m_pOrbiterGenerator->m_pRow_Size->ScaleX_get() / 1000));
 				}
 			}
-			if( drOVCP->FK_DesignObjParameter_get()==DESIGNOBJPARAMETER_Fixed_Row_Height_CONST || 
+			else if( drOVCP->FK_DesignObjParameter_get()==DESIGNOBJPARAMETER_Fixed_Row_Height_CONST || 
 				drOVCP->FK_DesignObjParameter_get()==DESIGNOBJPARAMETER_Row_Spacing_CONST || 
 				drOVCP->FK_DesignObjParameter_get()==DESIGNOBJPARAMETER_First_Row_Height_CONST )
 			{
@@ -1591,29 +1594,6 @@ int k=2;
 					ocDesignObj->m_mapObjParms[drOVCP->FK_DesignObjParameter_get()]=StringUtils::itos((atoi(Value.c_str()) * ocDesignObj->m_pOrbiterGenerator->m_pRow_Size->ScaleY_get() / 1000));
 				}
 			}
-/*  use plutocolor all the time
-			else if( (drOVCP->FK_DesignObjParameter_get()==DESIGNOBJPARAMETER_First_Row_Color_CONST || drOVCP->FK_DesignObjParameter_get()==DESIGNOBJPARAMETER_Cell_Color_CONST ||
-				drOVCP->FK_DesignObjParameter_get()==DESIGNOBJPARAMETER_First_Column_Color_CONST || drOVCP->FK_DesignObjParameter_get()==DESIGNOBJPARAMETER_Cell_Color_CONST ||
-				drOVCP->FK_DesignObjParameter_get()==DESIGNOBJPARAMETER_Alt_Cell_Color_CONST) && Value.length()>0 )
-			{
-				string Output="";
-				size_t Pos=0,LastPos=0;
-				for(;;)
-				{
-					LastPos=Pos;
-					Pos = Value.find(",",LastPos);
-					PlutoColor c(atoi(Pos!=string::npos ? Value.substr(LastPos,Pos-LastPos).c_str() : Value.substr(LastPos).c_str()));
-					if( Output.length()>0 )
-						Output+=",";
-					Output += StringUtils::itos(c.R()) + "," + StringUtils::itos(c.G()) + "," + StringUtils::itos(c.B());
-					if( Pos==string::npos )
-						break;
-					else
-						Pos++;
-				}
-				ocDesignObj->m_mapObjParms[drOVCP->FK_DesignObjParameter_get()]=Output;
-			}
-*/
 			else if( drOVCP->FK_DesignObjParameter_get()==DESIGNOBJPARAMETER_PK_Style_CONST || drOVCP->FK_DesignObjParameter_get()==DESIGNOBJPARAMETER_PK_Style_FirstRow_CONST ||
 				drOVCP->FK_DesignObjParameter_get()==DESIGNOBJPARAMETER_PK_Style_FirstColumn_CONST || drOVCP->FK_DesignObjParameter_get()==DESIGNOBJPARAMETER_PK_Style_Selected_CONST ||
 				drOVCP->FK_DesignObjParameter_get()==DESIGNOBJPARAMETER_PK_Style_Alt_CONST )

@@ -4805,11 +4805,11 @@ void Orbiter::FindDGArrows( DesignObj_Orbiter *pObj, DesignObj_DataGrid *pDGObj 
         FindDGArrows( ( DesignObj_Orbiter * )( *iHao ), pDGObj );
     }
 }
-bool Orbiter::AcquireGrid( DesignObj_DataGrid *pObj,  int GridCurCol,  int &GridCurRow,  DataGridTable* &pDataGridTable )
+bool Orbiter::AcquireGrid( DesignObj_DataGrid *pObj,  int &GridCurCol,  int &GridCurRow,  DataGridTable* &pDataGridTable )
 {
     bool bLoadedSomething = false;
 
-    if (  pObj->bReAcquire || !pDataGridTable || pDataGridTable->m_StartingColumn != GridCurCol || pDataGridTable->m_StartingRow != GridCurRow || pObj->m_sSeek.length() )
+	if (  pObj->bReAcquire || !pDataGridTable || pDataGridTable->m_StartingColumn != GridCurCol || pDataGridTable->m_StartingRow != GridCurRow || pObj->m_sSeek.length() )
     {
 // 25-july-2005		pObj->m_iHighlightedColumn=pObj->m_iHighlightedRow=-1;  This means the highlighted row is lost on paging????
         if ( pDataGridTable )
@@ -8180,6 +8180,8 @@ void Orbiter::ParseGrid(DesignObj_DataGrid *pObj_Datagrid)
             pObj_Datagrid->m_MaxCol = ( pObj_Datagrid->m_rPosition.Height - ( pObj_Datagrid->m_FirstColumnWidth +1  ) ) / ( pObj_Datagrid->m_FixedColumnWidth+1 );
 		else
             pObj_Datagrid->m_MaxCol = ( pObj_Datagrid->m_rPosition.Width - ( pObj_Datagrid->m_FirstColumnWidth +1  ) ) / ( pObj_Datagrid->m_FixedColumnWidth+1 );
+		if( pObj_Datagrid->m_FirstColumnWidth ) 
+			pObj_Datagrid->m_MaxCol++;  // WE deducted the first column above
     }
     else if ( pObj_Datagrid->m_FixedColumnWidth == 0 ) // Do we know the number of columns but not their size?
     {
@@ -8197,6 +8199,8 @@ void Orbiter::ParseGrid(DesignObj_DataGrid *pObj_Datagrid)
             pObj_Datagrid->m_MaxRow = ( pObj_Datagrid->m_rPosition.Width - ( pObj_Datagrid->m_FirstRowHeight +1  ) ) / ( pObj_Datagrid->m_FixedRowHeight+1 );
 		else
             pObj_Datagrid->m_MaxRow = ( pObj_Datagrid->m_rPosition.Height - ( pObj_Datagrid->m_FirstRowHeight +1  ) ) / ( pObj_Datagrid->m_FixedRowHeight+1 );
+		if( pObj_Datagrid->m_FirstRowHeight ) 
+			pObj_Datagrid->m_MaxRow++;  // WE deducted the first column above
     }
     else if ( pObj_Datagrid->m_FixedRowHeight == 0 ) // Do we know the number of columns but not their size?
     {
