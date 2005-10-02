@@ -106,7 +106,7 @@ namespace DCE
 		virtual void ClearData();
 		virtual void ToData(string GridID,int &Size, char* &Data);
 		// Serialize just a chunk of the data.
-		virtual void ToData(string GridID,int &Size, char* &Data, int ColStart, int RowStart, int ColCount, int RowCount);
+		virtual void ToData(string GridID,int &Size, char* &Data, int *ColStart, int *RowStart, int ColCount, int RowCount);
 	};
 }
 

@@ -118,7 +118,7 @@ public:
 		/** @param #32 Row */
 			/** The starting row.   This is both an 'in' and 'out'.  If sSeek is not empty, the grid will ignore the value passed in here, and seek to that row instead.  It will also return the value of the row in this variable so the requestor will know the current row. */
 		/** @param #33 Column */
-			/** The starting column */
+			/** The starting column.  This is both an in and an out so the datagrid can forcibly move the current row/column on the orbiter. */
 		/** @param #34 Row count */
 			/** How many rows to fetch */
 		/** @param #35 Column count */
@@ -134,8 +134,8 @@ public:
 		/** @param #74 Offset */
 			/** See the "Seek" parameter for an explanation. */
 
-	virtual void CMD_Request_Datagrid_Contents(string sID,string sDataGrid_ID,int iColumn,int iRow_count,int iColumn_count,bool bKeep_Row_Header,bool bKeep_Column_Header,bool bAdd_UpDown_Arrows,string sSeek,int iOffset,char **pData,int *iData_Size,int *iRow) { string sCMD_Result; CMD_Request_Datagrid_Contents(sID.c_str(),sDataGrid_ID.c_str(),iColumn,iRow_count,iColumn_count,bKeep_Row_Header,bKeep_Column_Header,bAdd_UpDown_Arrows,sSeek.c_str(),iOffset,pData,iData_Size,iRow,sCMD_Result,NULL);};
-	virtual void CMD_Request_Datagrid_Contents(string sID,string sDataGrid_ID,int iColumn,int iRow_count,int iColumn_count,bool bKeep_Row_Header,bool bKeep_Column_Header,bool bAdd_UpDown_Arrows,string sSeek,int iOffset,char **pData,int *iData_Size,int *iRow,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Request_Datagrid_Contents(string sID,string sDataGrid_ID,int iRow_count,int iColumn_count,bool bKeep_Row_Header,bool bKeep_Column_Header,bool bAdd_UpDown_Arrows,string sSeek,int iOffset,char **pData,int *iData_Size,int *iRow,int *iColumn) { string sCMD_Result; CMD_Request_Datagrid_Contents(sID.c_str(),sDataGrid_ID.c_str(),iRow_count,iColumn_count,bKeep_Row_Header,bKeep_Column_Header,bAdd_UpDown_Arrows,sSeek.c_str(),iOffset,pData,iData_Size,iRow,iColumn,sCMD_Result,NULL);};
+	virtual void CMD_Request_Datagrid_Contents(string sID,string sDataGrid_ID,int iRow_count,int iColumn_count,bool bKeep_Row_Header,bool bKeep_Column_Header,bool bAdd_UpDown_Arrows,string sSeek,int iOffset,char **pData,int *iData_Size,int *iRow,int *iColumn,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #35 - Populate Datagrid */

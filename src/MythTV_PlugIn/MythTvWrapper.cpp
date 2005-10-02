@@ -350,7 +350,7 @@ void MythTvWrapper::MythTvEpgGrid::MakeTimeRow(int ColStart, int ColCount)
     return;
 }
 
-void MythTvWrapper::MythTvEpgGrid::ToData(string GridID,int &Size, char* &Data, int ColStart, int RowStart, int ColCount, int RowCount)
+void MythTvWrapper::MythTvEpgGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, int *RowStart, int ColCount, int RowCount)
 {
     readDataGridBlock(RowStart, RowCount, ColStart, ColCount);
 

@@ -117,7 +117,7 @@ public:
 	//Data accessors
 	//Event accessors
 	//Commands - Override these to handle commands from the server
-	virtual void CMD_Request_Datagrid_Contents(string sID,string sDataGrid_ID,int iColumn,int iRow_count,int iColumn_count,bool bKeep_Row_Header,bool bKeep_Column_Header,bool bAdd_UpDown_Arrows,string sSeek,int iOffset,char **pData,int *iData_Size,int *iRow,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Request_Datagrid_Contents(string sID,string sDataGrid_ID,int iRow_count,int iColumn_count,bool bKeep_Row_Header,bool bKeep_Column_Header,bool bAdd_UpDown_Arrows,string sSeek,int iOffset,char **pData,int *iData_Size,int *iRow,int *iColumn,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int iPK_DataGrid,string sOptions,int *iPK_Variable,string *sValue_To_Assign,bool *bIsSuccessful,int *iWidth,int *iHeight,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
@@ -139,7 +139,6 @@ public:
 						string sCMD_Result="OK";
 					string sID=pMessage->m_mapParameters[10];
 					string sDataGrid_ID=pMessage->m_mapParameters[15];
-					int iColumn=atoi(pMessage->m_mapParameters[33].c_str());
 					int iRow_count=atoi(pMessage->m_mapParameters[34].c_str());
 					int iColumn_count=atoi(pMessage->m_mapParameters[35].c_str());
 					bool bKeep_Row_Header=(pMessage->m_mapParameters[36]=="1" ? true : false);
@@ -150,13 +149,15 @@ public:
 					char *pData=pMessage->m_mapData_Parameters[19];
 					int iData_Size=pMessage->m_mapData_Lengths[19];
 					int iRow=atoi(pMessage->m_mapParameters[32].c_str());
-						CMD_Request_Datagrid_Contents(sID.c_str(),sDataGrid_ID.c_str(),iColumn,iRow_count,iColumn_count,bKeep_Row_Header,bKeep_Column_Header,bAdd_UpDown_Arrows,sSeek.c_str(),iOffset,&pData,&iData_Size,&iRow,sCMD_Result,pMessage);
+					int iColumn=atoi(pMessage->m_mapParameters[33].c_str());
+						CMD_Request_Datagrid_Contents(sID.c_str(),sDataGrid_ID.c_str(),iRow_count,iColumn_count,bKeep_Row_Header,bKeep_Column_Header,bAdd_UpDown_Arrows,sSeek.c_str(),iOffset,&pData,&iData_Size,&iRow,&iColumn,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 						pMessageOut->m_mapData_Parameters[19]=pData; pMessageOut->m_mapData_Lengths[19]=iData_Size;
 						pMessageOut->m_mapParameters[32]=StringUtils::itos(iRow);
+						pMessageOut->m_mapParameters[33]=StringUtils::itos(iColumn);
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
@@ -169,7 +170,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Request_Datagrid_Contents(sID.c_str(),sDataGrid_ID.c_str(),iColumn,iRow_count,iColumn_count,bKeep_Row_Header,bKeep_Column_Header,bAdd_UpDown_Arrows,sSeek.c_str(),iOffset,&pData,&iData_Size,&iRow,sCMD_Result,pMessage);
+								CMD_Request_Datagrid_Contents(sID.c_str(),sDataGrid_ID.c_str(),iRow_count,iColumn_count,bKeep_Row_Header,bKeep_Column_Header,bAdd_UpDown_Arrows,sSeek.c_str(),iOffset,&pData,&iData_Size,&iRow,&iColumn,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

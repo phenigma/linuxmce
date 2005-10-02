@@ -14,11 +14,12 @@
 //<-dceag-decl-b->!
 namespace DCE
 {
-	class VDRPlugin : public VDRPlugin_Command, public MediaHandlerBase
+	class VDRPlugin : public VDRPlugin_Command, public MediaHandlerBase, public DataGridGeneratorPlugIn
 	{
 //<-dceag-decl-e->
 		// Private member variables
 		class Orbiter_Plugin *m_pOrbiter_Plugin;
+		class Datagrid_Plugin *m_pDatagrid_Plugin;
 
 		// Private methods
 public:
@@ -35,11 +36,11 @@ public:
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
 
-//<-dceag-const2-b->
-		// The following constructor is only used if this a class instance embedded within a DCE Device.  In that case, it won't create it's own connection to the router
-		// You can delete this whole section and put an ! after dceag-const2-b tag if you don't want this constructor.  Do the same in the implementation file
-		VDRPlugin(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter);
-//<-dceag-const2-e->
+		// Datagrids
+		class DataGridTable *VDRPlugin::CurrentShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage);
+		class DataGridTable *VDRPlugin::AllShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage);
+
+//<-dceag-const2-b->!
 		/**
 		* @brief
 		*/

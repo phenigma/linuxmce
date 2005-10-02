@@ -4837,8 +4837,8 @@ g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable deleted indirect
         char *data = NULL;
 
         DCE::CMD_Request_Datagrid_Contents CMD_Request_Datagrid_Contents( m_dwPK_Device,  m_dwPK_Device_DatagridPlugIn,
-            StringUtils::itos( m_dwIDataGridRequestCounter ), pObj->m_sGridID, GridCurCol,
-            pObj->m_MaxRow, pObj->m_MaxCol, pObj->m_bKeepRowHeader, pObj->m_bKeepColHeader, true, pObj->m_sSeek, pObj->m_iSeekColumn, &data, &size, &GridCurRow );
+            StringUtils::itos( m_dwIDataGridRequestCounter ), pObj->m_sGridID, 
+            pObj->m_MaxRow, pObj->m_MaxCol, pObj->m_bKeepRowHeader, pObj->m_bKeepColHeader, true, pObj->m_sSeek, pObj->m_iSeekColumn, &data, &size, &GridCurRow, &GridCurCol );
 
         if(  !SendCommand( CMD_Request_Datagrid_Contents )  )
             g_pPlutoLogger->Write( LV_CRITICAL, "Request datagrid: %s failed", pObj->m_ObjectID.c_str(  ) );

@@ -131,7 +131,7 @@ void Datagrid_Plugin::RegisterDatagridGenerator( class DataGridGeneratorCallBack
 		/** @param #32 Row */
 			/** The starting row.   This is both an 'in' and 'out'.  If sSeek is not empty, the grid will ignore the value passed in here, and seek to that row instead.  It will also return the value of the row in this variable so the requestor will know the current row. */
 		/** @param #33 Column */
-			/** The starting column */
+			/** The starting column.  This is both an in and an out so the datagrid can forcibly move the current row/column on the orbiter. */
 		/** @param #34 Row count */
 			/** How many rows to fetch */
 		/** @param #35 Column count */
@@ -147,7 +147,7 @@ void Datagrid_Plugin::RegisterDatagridGenerator( class DataGridGeneratorCallBack
 		/** @param #74 Offset */
 			/** See the "Seek" parameter for an explanation. */
 
-void Datagrid_Plugin::CMD_Request_Datagrid_Contents(string sID,string sDataGrid_ID,int iColumn,int iRow_count,int iColumn_count,bool bKeep_Row_Header,bool bKeep_Column_Header,bool bAdd_UpDown_Arrows,string sSeek,int iOffset,char **pData,int *iData_Size,int *iRow,string &sCMD_Result,Message *pMessage)
+void Datagrid_Plugin::CMD_Request_Datagrid_Contents(string sID,string sDataGrid_ID,int iRow_count,int iColumn_count,bool bKeep_Row_Header,bool bKeep_Column_Header,bool bAdd_UpDown_Arrows,string sSeek,int iOffset,char **pData,int *iData_Size,int *iRow,int *iColumn,string &sCMD_Result,Message *pMessage)
 //<-dceag-c34-e->
 {
 	*iData_Size=0;
@@ -244,7 +244,7 @@ g_pPlutoLogger->Write( LV_DATAGRID, "it has a seek value grid: %s rows: %d", sDa
 g_pPlutoLogger->Write( LV_DATAGRID, "ready to call todata: %s ", sDataGrid_ID.c_str() );
 #endif
 
-		pDataGridTable->ToData( sDataGrid_ID, *iData_Size, *pData, iColumn, *iRow, iColumn_count, iRow_count );
+		pDataGridTable->ToData( sDataGrid_ID, *iData_Size, *pData, iColumn, iRow, iColumn_count, iRow_count );
 #ifdef DEBUG
 		clock_t cStop = clock();
 		g_pPlutoLogger->Write( LV_DATAGRID, "Sending datagrid %s, size: %d, cols: %d, rows: %d %d ms", 

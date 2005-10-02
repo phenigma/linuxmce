@@ -308,7 +308,7 @@ void DataGridTable::ToData(string GridID,int &Size, char* &Data)
 	ToData(GridID, Size, Data, 0, 0, GetCols(), GetRows());
 }
 
-void DataGridTable::ToData(string GridID,int &Size, char* &Data, int ColStart, int RowStart, int ColCount, int RowCount)
+void DataGridTable::ToData(string GridID,int &Size, char* &Data, int *ColStart, int *RowStart, int ColCount, int RowCount)
 {
 #ifdef DEBUG
 g_pPlutoLogger->Write( LV_DATAGRID, "inside todata" );
@@ -316,7 +316,7 @@ g_pPlutoLogger->Write( LV_DATAGRID, "inside todata" );
 
 	m_CellCount = 0;
 
-	if( !RowStart && !RowCount )
+	if( !(*RowStart) && !RowCount )
 		RowCount = GetRows();
 
 	int MaxCell = ColCount * RowCount;
@@ -328,9 +328,9 @@ g_pPlutoLogger->Write( LV_DATAGRID, "inside todata" );
 	int ntTotalCellSize = 0;
 
 	// Set the subset-related parameters. 
-	m_StartingRow = RowStart;
-	m_StartingColumn = ColStart;
-	int GridRowsLeft = GetRows() - RowStart;
+	m_StartingRow = (*RowStart);
+	m_StartingColumn = (*ColStart);
+	int GridRowsLeft = GetRows() - (*RowStart);
 	m_RowCount = RowCount < GridRowsLeft ? RowCount : GridRowsLeft;
 	m_ColumnCount = ColCount;
 

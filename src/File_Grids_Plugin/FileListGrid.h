@@ -29,7 +29,7 @@ public:
 	class Media_Plugin *m_pMedia_Plugin;
 	string m_sIconFile;
 	int m_iType;
-	void ToData(string GridID,int &Size, char* &Data, int ColStart, int RowStart, int ColCount, int RowCount);
+	void ToData(string GridID,int &Size, char* &Data, int *ColStart, int *RowStart, int ColCount, int RowCount);
 	vector<FileListInfo *> m_vectFileInfo;
 };
 

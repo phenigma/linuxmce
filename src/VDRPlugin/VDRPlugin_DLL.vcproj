@@ -134,6 +134,12 @@
 				RelativePath="..\Gen_Devices\Datagrid_PluginBase.cpp">
 			</File>
 			<File
+				RelativePath=".\EPG.cpp">
+			</File>
+			<File
+				RelativePath=".\EPGGrid.cpp">
+			</File>
+			<File
 				RelativePath="..\File_Grids_Plugin\FileListGrid.cpp">
 			</File>
 			<File

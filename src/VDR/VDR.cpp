@@ -202,7 +202,7 @@ void VDR::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,string
 	delete m_pSocket_VDR; // Should always be NULL anyway
 	int Port = DATA_Get_TCP_Port();
 	if( !Port )
-		Port = 5555;
+		Port = 2002;
 	g_pPlutoLogger->Write(LV_STATUS,"Connecting to VDR on port %d",Port);
 	m_pSocket_VDR = new PlainClientSocket("localhost:" + StringUtils::itos(Port));
 	if( !m_pSocket_VDR->Connect() )

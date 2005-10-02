@@ -93,7 +93,7 @@ protected:
         virtual int GetRows();
         virtual int GetCols();
 
-        virtual void ToData(string GridID,int &Size, char* &Data, int ColStart, int RowStart, int ColCount, int RowCount);
+        virtual void ToData(string GridID,int &Size, char* &Data, int *ColStart, int *RowStart, int ColCount, int RowCount);
 
     friend class MythTvWrapper;
     };
