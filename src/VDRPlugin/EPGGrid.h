@@ -5,9 +5,15 @@
 
 class VDRStateInfo;
 
+namespace DCE
+{
+	class Message;
+}
+
 namespace VDREPG
 {
 	class Channel;
+	class Event;
 
 	class EpgGrid: public DCE::DataGridTable
 	{
@@ -24,7 +30,7 @@ namespace VDREPG
 		virtual void ToData(string GridID,int &Size, char* &Data, int *ColStart, int *RowStart, int ColCount, int RowCount);
 		void PopulateRow(Channel *pChannel,int iRow,int StartTime,int StopTime);
 		int GetCurrentColumn();
-		Message *GetSetInfoMessage(Event *pEvent);
+		DCE::Message *GetSetInfoMessage(Event *pEvent);
 	};
 }
 

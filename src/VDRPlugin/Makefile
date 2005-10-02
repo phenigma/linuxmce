@@ -22,7 +22,7 @@ LDFLAGS +=
 XTRALDLIBS =
 
 Gen_Dev_Files +=
-sources +=
+sources += EPG.cpp EPGGrid.cpp
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)

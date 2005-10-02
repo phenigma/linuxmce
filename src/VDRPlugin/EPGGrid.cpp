@@ -10,6 +10,9 @@ using namespace DCE;
 using namespace VDREPG;
 #include "EPG.h"
 #include "VDRStateInfo.h"
+#include "Gen_Devices/AllCommandsRequests.h"
+#include "pluto_main/Define_DeviceTemplate.h"
+#include "pluto_main/Define_Text.h"
 
 int EpgGrid::GetRows()
 {
@@ -125,8 +128,8 @@ Message *EpgGrid::GetSetInfoMessage(Event *pEvent)
 {
 	string sDesc;
 	if( pEvent->m_pChannel )
-		sDesc = pEvent->m_pChannel->m_sDescription + " / ";
-	sDesc += pEvent->m_sTitle;
+		sDesc = pEvent->m_pChannel->m_sChannelName + " / ";
+	sDesc += pEvent->m_pProgram->m_sTitle;
 	if( pEvent->m_sDescription_Long.size() )
 		sDesc += "\n" + pEvent->m_sDescription_Long;
 	else if( pEvent->m_sDescription_Short.size() )
