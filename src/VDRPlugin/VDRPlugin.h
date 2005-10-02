@@ -10,6 +10,8 @@
 #include "../Media_Plugin/Media_Plugin.h"
 #include "../Media_Plugin/MediaStream.h"
 #include "../Media_Plugin/MediaHandlerBase.h"
+#include "EPG.h"
+class VDRStateInfo;
 
 //<-dceag-decl-b->!
 namespace DCE
@@ -20,6 +22,10 @@ namespace DCE
 		// Private member variables
 		class Orbiter_Plugin *m_pOrbiter_Plugin;
 		class Datagrid_Plugin *m_pDatagrid_Plugin;
+		map<int,VDREPG::EPG *> m_mapEPG;  // Map of all grids according to the VDR Device
+		VDREPG::EPG *m_mapEPG_Find(int iPK_Device) { map<int,VDREPG::EPG *>::iterator it = m_mapEPG.find(iPK_Device); return it==m_mapEPG.end() ? NULL : (*it).second; }
+		map<int,VDRStateInfo *> m_mapVDRStateInfo;  // Map of all grids according to the VDR Device
+		VDRStateInfo *m_mapVDRStateInfo_Find(int iPK_Device) { map<int,VDRStateInfo *>::iterator it = m_mapVDRStateInfo.find(iPK_Device); return it==m_mapVDRStateInfo.end() ? NULL : (*it).second; }
 
 		// Private methods
 public:
@@ -39,6 +45,9 @@ public:
 		// Datagrids
 		class DataGridTable *VDRPlugin::CurrentShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage);
 		class DataGridTable *VDRPlugin::AllShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage);
+
+		// Utilities
+		class MediaDevice *VDRPlugin::GetVDRFromOrbiter(int PK_Device);
 
 //<-dceag-const2-b->!
 		/**

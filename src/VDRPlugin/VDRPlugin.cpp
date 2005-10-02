@@ -14,6 +14,8 @@ using namespace DCE;
 
 #include "EPG.h"
 #include "EPGGrid.h"
+#include "VDRStateInfo.h"
+#include "Orbiter_Plugin/Orbiter_Plugin.h"
 #include "../Datagrid_Plugin/Datagrid_Plugin.h"
 #include "../pluto_main/Define_DataGrid.h"
 
@@ -34,6 +36,7 @@ bool VDRPlugin::GetConfig()
 	pEPG = new VDREPG::EPG();
 g_pPlutoLogger->Write(LV_CRITICAL,"Start read epg");
 	pEPG->ReadFromFile("Y:\\home\\root\\var\\cache\\vdrdevel\\epg.data");
+	m_mapEPG[36400] = pEPG;
 g_pPlutoLogger->Write(LV_CRITICAL,"Stop read epg");
 	return true;
 }
@@ -156,6 +159,17 @@ bool VDRPlugin::StartMedia( class MediaStream *pMediaStream )
 	g_pPlutoLogger->Write( LV_STATUS, "VDRPlugin::StartMedia() Starting media stream playback. pos: %d", pMediaStream->m_iDequeMediaFile_Pos );
 	int PK_Device = pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
 	int StreamID = pMediaStream->m_iStreamID_get( );
+
+	VDRStateInfo *pVDRStateInfo = m_mapVDRStateInfo[PK_Device];
+	if( !pVDRStateInfo )
+	{
+		pVDRStateInfo = new VDRStateInfo(PK_Device);
+		m_mapVDRStateInfo[PK_Device]=pVDRStateInfo;
+	}
+	else // Set all the orbiter initial positions so we will regrab them
+		for(map<int,bool>::iterator it=pVDRStateInfo->m_mapOrbiter_HasInitialPosition.begin();it!=pVDRStateInfo->m_mapOrbiter_HasInitialPosition.begin();++it)
+			it->second = false;
+
 	DCE::CMD_Play_Media CMD_Play_Media(m_dwPK_Device,PK_Device,"",pMediaStream->m_iPK_MediaType,
 		pMediaStream->m_iStreamID_get(), "");
 
@@ -221,6 +235,20 @@ MediaDevice *VDRPlugin::FindMediaDeviceForEntertainArea(EntertainArea *pEntertai
 void VDRPlugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c65-e->
 {
+	MediaDevice *pMediaDevice = GetVDRFromOrbiter(pMessage->m_dwPK_Device_From);
+	VDREPG::EPG *pEPG = NULL; 
+	if( pMediaDevice && (pEPG=m_mapEPG_Find(pMediaDevice->m_pDeviceData_Router->m_dwPK_Device)) )
+	{
+		VDREPG::Event *pEvent = pEPG->m_mapEvent_Find(atoi(sValue_To_Assign.c_str()));
+		if( !pEvent || !pEvent->m_pChannel )
+			g_pPlutoLogger->Write(LV_CRITICAL,"VDRPlugin::CMD_Jump_Position_In_Playlist trying to tune to unknown event %s",sValue_To_Assign.c_str());
+		else
+		{
+			DCE::CMD_Tune_to_channel CMD_Tune_to_channel(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
+				"",pEvent->m_pChannel->m_sFrequency);
+			SendCommand(CMD_Tune_to_channel);
+		}
+	}
 }
 
 //<-dceag-c185-b->
@@ -237,10 +265,33 @@ void VDRPlugin::CMD_Schedule_Recording(string sProgramID,string &sCMD_Result,Mes
 
 class DataGridTable *VDRPlugin::CurrentShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage)
 {
-	return new VDREPG::EpgGrid(pEPG);
+	return NULL; // Something's wrong -- we have no VDR Grid's
 }
 
 class DataGridTable *VDRPlugin::AllShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage)
 {
-	return new VDREPG::EpgGrid(pEPG);
+	int iGridResolutions = atoi(Parms.c_str());
+	if( !iGridResolutions )
+		iGridResolutions = 5;
+	MediaDevice *pMediaDevice = GetVDRFromOrbiter(pMessage->m_dwPK_Device_From);
+	VDREPG::EPG *pEPG = NULL; 
+	if( pMediaDevice && (pEPG=m_mapEPG_Find(pMediaDevice->m_pDeviceData_Router->m_dwPK_Device)) )
+		return new VDREPG::EpgGrid(pEPG,m_mapVDRStateInfo_Find(pMediaDevice->m_pDeviceData_Router->m_dwPK_Device),pMessage->m_dwPK_Device_From,iGridResolutions); // Should happen
+	
+	if( m_mapEPG.size() )
+		return new VDREPG::EpgGrid(m_mapEPG.begin()->second,NULL,pMessage->m_dwPK_Device_From,iGridResolutions);  // Fallback, just return any VDR grid
+
+	return NULL; // Something's wrong -- we have no VDR Grid's
+}
+
+class MediaDevice *VDRPlugin::GetVDRFromOrbiter(int PK_Device)
+{
+	OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(PK_Device);
+	if( pOH_Orbiter && pOH_Orbiter->m_pEntertainArea )
+	{
+		ListMediaDevice *pListMediaDevice = pOH_Orbiter->m_pEntertainArea->m_mapMediaDeviceByTemplate_Find(DEVICETEMPLATE_VDR_CONST);
+		if( pListMediaDevice && pListMediaDevice->size() )
+			return *pListMediaDevice->begin();
+	}
+	return NULL;
 }
