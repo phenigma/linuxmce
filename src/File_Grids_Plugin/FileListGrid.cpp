@@ -53,12 +53,12 @@ void FileListGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, i
 #ifdef DEBUG
 	clock_t cStart=clock(); // move this to within #debug
 #endif
-	for(int row=RowStart;row<=RowStart+RowCount && row<m_TotalRows;++row)
+	for(int row=*RowStart;row<=*RowStart+RowCount && row<m_TotalRows;++row)
 	{
 		DataGridCell *pCell = GetData(0,row);
 #ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS,"filelistgrid::row %d graphic data: %p rowstart: %d rowCount: %d totalrows: %d",
-	row,(pCell ? pCell->m_pGraphicData : NULL),RowStart,RowCount,m_TotalRows);
+	row,(pCell ? pCell->m_pGraphicData : NULL),*RowStart,RowCount,m_TotalRows);
 #endif
 		if( (!pCell || !pCell->m_pGraphicData) && (!pCell || pCell->m_Text==NULL || pCell->m_Text[0]==0) ) // We haven't already set a picture for this cell.  Skip it if it's a cell with text
 		{

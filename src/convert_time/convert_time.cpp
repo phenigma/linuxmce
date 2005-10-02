@@ -25,7 +25,7 @@ void ReportHumanTime(const char *pTime)
 	}
 
 	*pMonth=*pDay=*pHour=*pMinute=*pSecond=0;
-	timeptr->tm_year = atoi( pTime );
+	timeptr->tm_year = atoi( pTime )-1900;
 	timeptr->tm_mon = atoi( pMonth+1 )-1;
 	timeptr->tm_mday = atoi( pDay+1 );
 	timeptr->tm_hour = atoi( pHour+1 );
@@ -47,7 +47,7 @@ void ReportHumanTime(const char *pTime)
 
 void WriteTime(struct tm *timeptr)
 {
-	cout << timeptr->tm_year << "-" << timeptr->tm_mon+1 <<
+	cout << timeptr->tm_year+1900 << "-" << timeptr->tm_mon+1 <<
 		"-" << timeptr->tm_mday << " " << timeptr->tm_hour << ":" <<
 		timeptr->tm_min << ":" << timeptr->tm_sec << ":";
 	if( timeptr->tm_isdst==1 )
