@@ -10,7 +10,7 @@ using namespace std;
 
 void ReportHumanTime(const char *pTime)
 {
-	struct tm *timeptr;
+	struct tm timeptr;
 	char *pMonth,*pDay,*pHour,*pMinute,*pSecond,*pDST;
 	if( (pMonth=strchr(pTime,'-'))==NULL ||
 		(pDay=strchr(pMonth+1,'-'))==NULL ||
@@ -25,23 +25,23 @@ void ReportHumanTime(const char *pTime)
 	}
 
 	*pMonth=*pDay=*pHour=*pMinute=*pSecond=0;
-	timeptr->tm_year = atoi( pTime )-1900;
-	timeptr->tm_mon = atoi( pMonth+1 )-1;
-	timeptr->tm_mday = atoi( pDay+1 );
-	timeptr->tm_hour = atoi( pHour+1 );
-	timeptr->tm_min = atoi( pMinute+1 );
-	timeptr->tm_sec = atoi( pSecond+1 );
+	timeptr.tm_year = atoi( pTime )-1900;
+	timeptr.tm_mon = atoi( pMonth+1 )-1;
+	timeptr.tm_mday = atoi( pDay+1 );
+	timeptr.tm_hour = atoi( pHour+1 );
+	timeptr.tm_min = atoi( pMinute+1 );
+	timeptr.tm_sec = atoi( pSecond+1 );
 	if( *(pDST+1)=='Y' || *(pDST+1)=='y' )
-		timeptr->tm_isdst = 1;
+		timeptr.tm_isdst = 1;
 	else if( *(pDST+1)=='N' || *(pDST+1)=='n' )
-		timeptr->tm_isdst = 0;
+		timeptr.tm_isdst = 0;
 	else
 	{
-		timeptr->tm_isdst = -1;
+		timeptr.tm_isdst = -1;
 		cout << "Invalid DST.  Assuming rules for US" << endl;
 	}
 
-	time_t tGMT = mktime(timeptr);
+	time_t tGMT = mktime(&timeptr);
 	cout << "PCTime is: " << tGMT << endl;
 }
 
