@@ -352,7 +352,7 @@ void MythTvWrapper::MythTvEpgGrid::MakeTimeRow(int ColStart, int ColCount)
 
 void MythTvWrapper::MythTvEpgGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, int *RowStart, int ColCount, int RowCount)
 {
-    readDataGridBlock(RowStart, RowCount, ColStart, ColCount);
+    readDataGridBlock(*RowStart, RowCount, *ColStart, ColCount);
 
     /** This is required because the ToData doesn't honor the Get{Cols,Rows} calls. */
     m_TotalColumns = GetCols();
