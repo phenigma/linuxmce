@@ -442,3 +442,30 @@ void VDR::KillSpawnedDevices()
 {
 }
 
+bool VDR::SendCommand(string sCommand)
+{
+	g_pPlutoLogger->
+	PlainClientSocket *pPlainClientSocket = new PlainClientSocket("localhost:2001");
+	if( !m_pSocket_VDR->Connect() )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Unable to connect to VDR client");
+		sCMD_Result="FAILED CONNECT";
+		return;
+	}
+
+	string sResponse;
+	if( !pPlainClientSocket->ReceiveString(&sResponse) || sResponse.substr(0,3)!="220" )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"VDR not ready");
+		sCMD_Result="FAILED CONNECT";
+		return;
+	}
+
+	if( !pPlainClientSocket->SendString(&sResponse) || sResponse!="220" )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"VDR not ready");
+		sCMD_Result="FAILED CONNECT";
+		return;
+	}
+
+}

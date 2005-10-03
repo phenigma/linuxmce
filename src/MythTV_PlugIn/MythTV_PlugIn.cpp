@@ -106,13 +106,13 @@ bool MythTV_PlugIn::Register()
 */
 
     m_pDatagrid_Plugin->RegisterDatagridGenerator( new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&MythTV_PlugIn::CurrentShows))
-                                                ,DATAGRID_EPG_Current_Shows_CONST);
+                                                ,DATAGRID_EPG_Current_Shows_CONST,PK_DeviceTemplate_get());
 
     m_pDatagrid_Plugin->RegisterDatagridGenerator( new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&MythTV_PlugIn::AllShows))
-                                                ,DATAGRID_EPG_All_Shows_CONST);
+                                                ,DATAGRID_EPG_All_Shows_CONST,PK_DeviceTemplate_get());
 
     m_pDatagrid_Plugin->RegisterDatagridGenerator( new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&MythTV_PlugIn::AllShowsForMobiles))
-                                                ,DATAGRID_EPG_All_Shows_Mobile_CONST);
+                                                ,DATAGRID_EPG_All_Shows_Mobile_CONST,PK_DeviceTemplate_get());
 
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::MediaInfoChanged), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_MythTV_Channel_Changed_CONST );
 	// RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::MediaInfoChanged), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Playback_Info_Changed_CONST );

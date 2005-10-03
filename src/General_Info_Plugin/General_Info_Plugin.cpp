@@ -105,23 +105,23 @@ bool General_Info_Plugin::Register()
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &General_Info_Plugin::PendingTasks ) )
-        , DATAGRID_Pending_Tasks_CONST );
+        , DATAGRID_Pending_Tasks_CONST,PK_DeviceTemplate_get() );
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &General_Info_Plugin::QuickStartApps ) )
-        , DATAGRID_Quick_Start_Apps_CONST );
+        , DATAGRID_Quick_Start_Apps_CONST,PK_DeviceTemplate_get() );
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &General_Info_Plugin::MRUDocuments ) )
-        , DATAGRID_MRU_Documents_CONST );
+        , DATAGRID_MRU_Documents_CONST,PK_DeviceTemplate_get() );
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &General_Info_Plugin::Rooms ) )
-        , DATAGRID_Rooms_CONST );
+        , DATAGRID_Rooms_CONST,PK_DeviceTemplate_get() );
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::BookmarkList)), 
-		DATAGRID_Mozilla_Bookmarks_CONST);
+		DATAGRID_Mozilla_Bookmarks_CONST,PK_DeviceTemplate_get());
 
 	return Connect(PK_DeviceTemplate_get()); 
 }

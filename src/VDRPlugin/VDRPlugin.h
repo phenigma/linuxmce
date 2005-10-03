@@ -20,12 +20,17 @@ namespace DCE
 	{
 //<-dceag-decl-e->
 		// Private member variables
+		bool m_bEPGThreadRunning;
 		class Orbiter_Plugin *m_pOrbiter_Plugin;
 		class Datagrid_Plugin *m_pDatagrid_Plugin;
 		map<int,VDREPG::EPG *> m_mapEPG;  // Map of all grids according to the VDR Device
 		VDREPG::EPG *m_mapEPG_Find(int iPK_Device) { map<int,VDREPG::EPG *>::iterator it = m_mapEPG.find(iPK_Device); return it==m_mapEPG.end() ? NULL : (*it).second; }
 		map<int,VDRStateInfo *> m_mapVDRStateInfo;  // Map of all grids according to the VDR Device
 		VDRStateInfo *m_mapVDRStateInfo_Find(int iPK_Device) { map<int,VDRStateInfo *>::iterator it = m_mapVDRStateInfo.find(iPK_Device); return it==m_mapVDRStateInfo.end() ? NULL : (*it).second; }
+	    pluto_pthread_mutex_t m_VDRMutex; // Protect the maps
+		pthread_cond_t m_VDRCond; /** < condition for the messages in the queue */
+
+		friend class EpgGrid; // needs to use our mutex
 
 		// Private methods
 public:
@@ -43,11 +48,12 @@ public:
 //<-dceag-const-e->
 
 		// Datagrids
-		class DataGridTable *VDRPlugin::CurrentShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage);
-		class DataGridTable *VDRPlugin::AllShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage);
+		class DataGridTable *CurrentShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage);
+		class DataGridTable *AllShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage);
 
 		// Utilities
-		class MediaDevice *VDRPlugin::GetVDRFromOrbiter(int PK_Device);
+		class MediaDevice *GetVDRFromOrbiter(int PK_Device);
+		void FetchEPG();
 
 //<-dceag-const2-b->!
 		/**

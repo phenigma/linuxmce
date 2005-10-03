@@ -8,21 +8,24 @@ class VDRStateInfo;
 namespace DCE
 {
 	class Message;
+	class VDRPlugin;
 }
 
 namespace VDREPG
 {
 	class Channel;
 	class Event;
+	class EPG;
 
 	class EpgGrid: public DCE::DataGridTable
 	{
-		class EPG *m_pEPG;
+		EPG *m_pEPG;
+		DCE::VDRPlugin *m_pVDRPlugin;
 		VDRStateInfo *m_pVDRStateInfo;
 		int m_dwPK_Device_Orbiter;
 		int m_iGridResolution; // How many minutes per column
 	public:
-		EpgGrid(EPG *pEPG,class VDRStateInfo *pVDRStateInfo, int dwPK_Device_Orbiter, int iGridResolution) { m_pEPG = pEPG; m_pVDRStateInfo = pVDRStateInfo; m_dwPK_Device_Orbiter=dwPK_Device_Orbiter; m_iGridResolution=iGridResolution; };
+		EpgGrid(DCE::VDRPlugin *pVDRPlugin,class VDRStateInfo *pVDRStateInfo, int dwPK_Device_Orbiter, int iGridResolution) { m_pVDRPlugin = pVDRPlugin; m_pVDRStateInfo = pVDRStateInfo; m_dwPK_Device_Orbiter=dwPK_Device_Orbiter; m_iGridResolution=iGridResolution; m_pEPG=NULL; };
 
 		virtual int GetRows();
 		virtual int GetCols();

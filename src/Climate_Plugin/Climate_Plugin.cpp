@@ -103,7 +103,7 @@ bool Climate_Plugin::Register()
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Climate_Plugin::ClimateScenariosGrid))
-		,DATAGRID_Climate_Scenarios_CONST);
+		,DATAGRID_Climate_Scenarios_CONST,PK_DeviceTemplate_get());
 
     RegisterMsgInterceptor(( MessageInterceptorFn )( &Climate_Plugin::ClimateCommand ), 0, 0, 0, DEVICECATEGORY_Climate_Device_CONST, 0, 0 );
 

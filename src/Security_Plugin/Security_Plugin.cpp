@@ -254,7 +254,7 @@ bool Security_Plugin::Register()
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator( 
 		new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Security_Plugin::SecurityScenariosGrid ) )
-		, DATAGRID_Security_Scenarios_CONST );
+		, DATAGRID_Security_Scenarios_CONST,PK_DeviceTemplate_get() );
 
     RegisterMsgInterceptor((MessageInterceptorFn)(&Security_Plugin::SensorTrippedEvent) ,0,0,0,0,MESSAGETYPE_EVENT,EVENT_Sensor_Tripped_CONST);
     RegisterMsgInterceptor((MessageInterceptorFn)(&Security_Plugin::OrbiterRegistered) ,0,0,0,0,MESSAGETYPE_COMMAND,COMMAND_Orbiter_Registered_CONST);

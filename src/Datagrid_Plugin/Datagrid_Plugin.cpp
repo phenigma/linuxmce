@@ -60,9 +60,12 @@ bool Datagrid_Plugin::GetConfig()
 Datagrid_Plugin::~Datagrid_Plugin()
 //<-dceag-dest-e->
 {
-	for(map<int, class DataGridGeneratorCallBack *>::iterator it = m_mapDataGridGeneratorCallBack.begin();it != m_mapDataGridGeneratorCallBack.end();++it)
-		delete (*it).second;
-	
+	for(map<int, DatagridGeneratorCallBackMap *>::iterator it = m_mapDataGridGeneratorCallBack.begin();it != m_mapDataGridGeneratorCallBack.end();++it)
+	{
+		for(DatagridGeneratorCallBackMap::iterator it2 = it->second->begin(); it2 != it->second->end();++it2)
+			delete it2->second;
+		delete it->second;
+	}
 }
 
 //<-dceag-reg-b->
@@ -100,15 +103,18 @@ void Datagrid_Plugin::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessa
 	sCMD_Result = "UNKNOWN DEVICE";
 }
 
-void Datagrid_Plugin::RegisterDatagridGenerator( class DataGridGeneratorCallBack *pCallBack, int PK_DataGrid )
+void Datagrid_Plugin::RegisterDatagridGenerator( class DataGridGeneratorCallBack *pCallBack, int PK_DataGrid, int PK_DeviceTemplate )
 {
-	map<int, class DataGridGeneratorCallBack *>::iterator it = m_mapDataGridGeneratorCallBack.find( PK_DataGrid );
+	map<int, DatagridGeneratorCallBackMap *>::iterator it = m_mapDataGridGeneratorCallBack.find( PK_DataGrid );
 	if( it!=m_mapDataGridGeneratorCallBack.end() )
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL, "Two plug-ins tried to register for DataGrid %d", PK_DataGrid );
+		DatagridGeneratorCallBackMap *pDatagridGeneratorCallBackMap = new DatagridGeneratorCallBackMap();
+		(*pDatagridGeneratorCallBackMap)[PK_DeviceTemplate] = pCallBack;
+		m_mapDataGridGeneratorCallBack[PK_DataGrid] = pDatagridGeneratorCallBackMap;
 		return;
 	}
-	m_mapDataGridGeneratorCallBack[PK_DataGrid]=pCallBack;
+	DatagridGeneratorCallBackMap *pDatagridGeneratorCallBackMap = it->second;
+	(*pDatagridGeneratorCallBackMap)[PK_DeviceTemplate] = pCallBack;
 }
 
 
@@ -179,7 +185,8 @@ void Datagrid_Plugin::CMD_Request_Datagrid_Contents(string sID,string sDataGrid_
 			string sValue_To_Assign;
 			bool bIsSuccessful;
 			s.Release();
-			CMD_Populate_Datagrid(sID,sDataGrid_ID,pDataGridTable->m_iPK_Datagrid,pDataGridTable->m_sOptions,&iPK_Variable,&sValue_To_Assign,&bIsSuccessful,&Width,&Height);
+			CMD_Populate_Datagrid(sID,sDataGrid_ID,pDataGridTable->m_iPK_Datagrid,pDataGridTable->m_sOptions,0,  // DEviceTemplate 0 -- TODO, what if it's needed
+				&iPK_Variable,&sValue_To_Assign,&bIsSuccessful,&Width,&Height);
 			s.Relock();
 			dg = m_DataGrids.find( sDataGrid_ID );
 			if ( dg == m_DataGrids.end() )
@@ -270,12 +277,14 @@ g_pPlutoLogger->Write( LV_DATAGRID, "ready to call todata: %s ", sDataGrid_ID.c_
 			/** The options are specific the type of grid (PK_Datagrid).  These are not pre-defined.  The grid generator and orbiter must both pass the options in the correct format for the type of grid. */
 		/** @param #40 IsSuccessful */
 			/** Returns false if the grid could not be populated.  Perhaps there was no registered datagrid generator. */
+		/** @param #44 PK_DeviceTemplate */
+			/** If more than 1 plugin registered to handle this grid, this parameter will be used to match teh right one */
 		/** @param #60 Width */
 			/** The width of the grid, in columns, if the width is determined at populate time, such as a file grid.  If the whole size of the grid is unknown, such as the EPG grid, this should be 0. */
 		/** @param #61 Height */
 			/** The height of the grid, in rows, if the heightis determined at populate time, such as a file grid.  If the whole size of the grid is unknown, such as the EPG grid, this should be 0. */
 
-void Datagrid_Plugin::CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int iPK_DataGrid,string sOptions,int *iPK_Variable,string *sValue_To_Assign,bool *bIsSuccessful,int *iWidth,int *iHeight,string &sCMD_Result,Message *pMessage)
+void Datagrid_Plugin::CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int iPK_DataGrid,string sOptions,int iPK_DeviceTemplate,int *iPK_Variable,string *sValue_To_Assign,bool *bIsSuccessful,int *iWidth,int *iHeight,string &sCMD_Result,Message *pMessage)
 //<-dceag-c35-e->
 {
 	*iPK_Variable=0;
@@ -289,23 +298,42 @@ void Datagrid_Plugin::CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int i
 #endif
 
 	DataGridTable *pDataGridTable=NULL;
-	map<int, class DataGridGeneratorCallBack *>::iterator itGridCB = m_mapDataGridGeneratorCallBack.find( iPK_DataGrid );
+	map<int, DatagridGeneratorCallBackMap *>::iterator itGridCB = m_mapDataGridGeneratorCallBack.find( iPK_DataGrid );
 	if( itGridCB != m_mapDataGridGeneratorCallBack.end() )
 	{
-		DataGridGeneratorCallBack *pCB = ( *itGridCB ).second;
+		DataGridGeneratorCallBack *pCB;
+		if( itGridCB->second->size()==1 )
+			pCB = itGridCB->second->begin()->second;
+		else
+		{
+			DatagridGeneratorCallBackMap *pDatagridGeneratorCallBackMap = itGridCB->second;
+			DatagridGeneratorCallBackMap::iterator itCB;
+			if( (itCB=pDatagridGeneratorCallBackMap->find(iPK_DeviceTemplate))==pDatagridGeneratorCallBackMap->end() )
+			{
+				g_pPlutoLogger->Write(LV_WARNING,"Multiple handlers for datagrid %d and none matching.  Using the first",iPK_DataGrid);
+				pCB = pDatagridGeneratorCallBackMap->begin()->second;
+			}
+			else
+				pCB = itCB->second;
+		}
+		if( !pCB )
+			g_pPlutoLogger->Write(LV_WARNING,"Datagrid_Plugin::CMD_Populate_Datagrid map is empty??");
+		else
+		{
 #ifdef DEBUG
-		g_pPlutoLogger->Write( LV_STATUS, "About to call member function: %d %s", iPK_DataGrid, sDataGrid_ID.c_str() );
+			g_pPlutoLogger->Write( LV_STATUS, "About to call member function: %d %s", iPK_DataGrid, sDataGrid_ID.c_str() );
 #endif
-		pDataGridTable = CALL_MEMBER_FN( *pCB->m_pDataGridGeneratorPlugIn, pCB->m_pDCEDataGridGeneratorFn ) ( sDataGrid_ID, sOptions, NULL, iPK_Variable, sValue_To_Assign, pMessage );
+			pDataGridTable = CALL_MEMBER_FN( *pCB->m_pDataGridGeneratorPlugIn, pCB->m_pDCEDataGridGeneratorFn ) ( sDataGrid_ID, sOptions, NULL, iPK_Variable, sValue_To_Assign, pMessage );
 #ifdef DEBUG
-		g_pPlutoLogger->Write( LV_STATUS, "Called datagrid populate function for grid: %d %s", iPK_DataGrid, sDataGrid_ID.c_str() );
+			g_pPlutoLogger->Write( LV_STATUS, "Called datagrid populate function for grid: %d %s", iPK_DataGrid, sDataGrid_ID.c_str() );
 #endif
 
-		if( pCB->m_bRePopulateEachTimeRequested && pDataGridTable )
-		{
-			pDataGridTable->m_iPK_Datagrid=iPK_DataGrid;
-			pDataGridTable->m_sOptions=sOptions;
-			pDataGridTable->m_bRePopulateEachTimeRequested=true;
+			if( pCB->m_bRePopulateEachTimeRequested && pDataGridTable )
+			{
+				pDataGridTable->m_iPK_Datagrid=iPK_DataGrid;
+				pDataGridTable->m_sOptions=sOptions;
+				pDataGridTable->m_bRePopulateEachTimeRequested=true;
+			}
 		}
 	}
 

@@ -21,6 +21,7 @@ bool EPG::ReadFromFile(string sFile)
 {
 	size_t size;
 	char *pBuffer = FileUtils::ReadFileIntoBuffer(sFile,size);
+	g_pPlutoLogger->Write(LV_STATUS,"PG::ReadFromFile %d bytes",(int) size);
 	if( !pBuffer )
 		return false;
 
@@ -112,7 +113,17 @@ void EPG::ProcessLine(char *szLine)
 		m_pProgram_Reading = NULL;
 	}
 	else if( *szLine=='c' )
+	{
+		if( !m_pChannel_Reading )
+			g_pPlutoLogger->Write(LV_CRITICAL,"got a c, but not reading a channel");
+		else
+			g_pPlutoLogger->Write(LV_STATUS,"Read channel %s with events from %d-%d",
+				m_pChannel_Reading->m_sChannelName,
+				(m_pChannel_Reading->m_pEvent_First ? m_pChannel_Reading->m_pEvent_First->m_tStartTime : 0),
+				(m_pChannel_Reading->m_pEvent_Last ? m_pChannel_Reading->m_pEvent_Last->m_tStopTime : 0));
+
 		m_pChannel_Reading = NULL;
+	}
 }
 
 
@@ -135,6 +146,12 @@ Event::Event(char *szLine,Channel *pChannel)
 	}
 }
 
+Event::~Event()
+{
+	for(list<Stream *>::iterator it=m_listStream.begin();it!=m_listStream.end();++it)
+		delete *it;
+}
+
 Channel::Channel(char *szLine)
 {
 	char *pSpace = strchr(szLine,' ');
@@ -148,6 +165,18 @@ Channel::Channel(char *szLine)
 	m_sFrequency = szLine;
 	m_pEvent_First = NULL;
 	m_pEvent_Last = NULL;
+}
+
+Channel::~Channel()
+{
+	Event *pEvent=m_pEvent_First;
+	while(pEvent)
+	{
+		Event *pEvent_Next = pEvent->m_pEvent_Next;
+		delete pEvent;
+		pEvent = pEvent_Next;
+	}
+
 }
 
 Event *Channel::GetCurrentEvent()

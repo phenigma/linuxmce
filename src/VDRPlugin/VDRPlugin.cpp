@@ -19,12 +19,23 @@ using namespace DCE;
 #include "../Datagrid_Plugin/Datagrid_Plugin.h"
 #include "../pluto_main/Define_DataGrid.h"
 
+void* EPG_Thread( void* param ) // renamed to cancel link-time name collision in MS C++ 7.0 / VS .NET 2002
+{
+	VDRPlugin *p = (VDRPlugin*)param;
+	p->FetchEPG();
+	return NULL;
+}
+
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 VDRPlugin::VDRPlugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: VDRPlugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
+	, m_VDRMutex("vdr")
 {
+	m_bEPGThreadRunning = false;
+	pthread_cond_init( &m_VDRCond, NULL );
+	m_VDRMutex.Init(NULL,&m_VDRCond);
 }
 VDREPG::EPG *pEPG;
 //<-dceag-getconfig-b->
@@ -33,11 +44,14 @@ bool VDRPlugin::GetConfig()
 	if( !VDRPlugin_Command::GetConfig() )
 		return false;
 //<-dceag-getconfig-e->
-	pEPG = new VDREPG::EPG();
-g_pPlutoLogger->Write(LV_CRITICAL,"Start read epg");
-	pEPG->ReadFromFile("Y:\\home\\root\\var\\cache\\vdrdevel\\epg.data");
-	m_mapEPG[36400] = pEPG;
-g_pPlutoLogger->Write(LV_CRITICAL,"Stop read epg");
+
+	m_bEPGThreadRunning=true;
+	pthread_t pt_epg;
+	if(pthread_create( &pt_epg, NULL, EPG_Thread, (void*)this) )
+	{
+		m_bEPGThreadRunning=false;
+		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot create EPG thread" );
+	}
 	return true;
 }
 
@@ -47,8 +61,79 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Stop read epg");
 VDRPlugin::~VDRPlugin()
 //<-dceag-dest-e->
 {
-	
+	// Wait 10 seconds for the epg thread to quit
+	m_bQuit=true;
+	for(int i=0;i<1000;++i)
+		if( !m_bEPGThreadRunning )
+			break;
+		else
+		{
+			pthread_cond_broadcast(&m_VDRCond);
+			Sleep(10);
+		}
+
+		if( m_bEPGThreadRunning )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Could not kill EPG thread");
+
+	PLUTO_SAFETY_LOCK(vm,m_VDRMutex);
+	for(map<int,VDREPG::EPG *>::iterator it=m_mapEPG.begin();it!=m_mapEPG.end();++it)
+		delete it->second;
+	for(map<int,VDRStateInfo *>::iterator it=m_mapVDRStateInfo.begin();it!=m_mapVDRStateInfo.end();++it)
+		delete it->second;
 }
+
+void VDRPlugin::FetchEPG()
+{
+    ListDeviceData_Router *pListDeviceData_Router = 
+		m_pRouter->m_mapDeviceByTemplate_Find(DEVICETEMPLATE_VDR_CONST);
+
+	bool bFirstRun=true;
+	while(!m_bQuit)
+	{
+		PLUTO_SAFETY_LOCK(vm,m_VDRMutex);
+		for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();it!=pListDeviceData_Router->end();++it)
+		{
+			vm.Release();
+			DeviceData_Router *pDevice_VDR = *it;
+			DeviceData_Router *pDevice_MD = (DeviceData_Router *) pDevice_VDR->m_pDevice_ControlledVia;
+			DeviceData_Router *pDevice_Router = m_pRouter->m_mapDeviceData_Router_Find( m_pRouter->iPK_Device_get() );
+			if( !pDevice_MD )
+			{
+				g_pPlutoLogger->Write(LV_WARNING,"Skipping VDR %d because it's not on a media director",pDevice_VDR->m_dwPK_Device);
+				continue;
+			}
+
+			bool bIsHybrid = pDevice_Router && pDevice_MD->m_dwPK_Device_ControlledVia==pDevice_Router->m_dwPK_Device_ControlledVia;
+			string sPath = pDevice_VDR->m_mapParameters_Find(DEVICEDATA_File_Name_and_Path_CONST);
+			if( sPath.size()==0 )
+				sPath = "/var/cache/vdrdevel/epg.data";
+
+			if( bIsHybrid )
+				sPath = "/usr/pluto/diskless/" + pDevice_MD->m_sIPAddress + "/" + sPath;
+
+			g_pPlutoLogger->Write(LV_STATUS,"Reading EPG from %s",sPath);
+			VDREPG::EPG *pEPG = new VDREPG::EPG();
+			pEPG->ReadFromFile(sPath);
+			vm.Relock();
+			VDREPG::EPG *pEPG_Old = m_mapEPG[pDevice_VDR->m_dwPK_Device];
+			if( pEPG_Old )
+				delete pEPG_Old;
+			m_mapEPG[pDevice_VDR->m_dwPK_Device] = pEPG;
+			vm.Release();
+			g_pPlutoLogger->Write(LV_STATUS,"Done Reading EPG from %s",sPath);
+		}
+		// The first time refresh after 20 minutes to be sure we at least picked up the first days stuff
+		if( bFirstRun )
+		{
+			bFirstRun=false;
+			vm.TimedCondWait(1200,0);
+		}
+		else
+			vm.TimedCondWait(7200,0);
+	}
+	m_bEPGThreadRunning=false;
+}
+
 
 //<-dceag-reg-b->
 // This function will only be used if this device is loaded into the DCE Router's memory space as a plug-in.  Otherwise Connect() will be called from the main()
@@ -70,10 +155,10 @@ bool VDRPlugin::Register()
 	m_pMedia_Plugin->RegisterMediaPlugin( this, this, vectPK_DeviceTemplate, true );
 
     m_pDatagrid_Plugin->RegisterDatagridGenerator( new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&VDRPlugin::CurrentShows))
-                                                ,DATAGRID_EPG_Current_Shows_CONST);
+                                                ,DATAGRID_EPG_Current_Shows_CONST,PK_DeviceTemplate_get());
 
     m_pDatagrid_Plugin->RegisterDatagridGenerator( new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&VDRPlugin::AllShows))
-                                                ,DATAGRID_EPG_All_Shows_CONST);
+                                                ,DATAGRID_EPG_All_Shows_CONST,PK_DeviceTemplate_get());
 
 	return Connect(PK_DeviceTemplate_get()); 
 }
@@ -237,6 +322,7 @@ void VDRPlugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sC
 {
 	MediaDevice *pMediaDevice = GetVDRFromOrbiter(pMessage->m_dwPK_Device_From);
 	VDREPG::EPG *pEPG = NULL; 
+	PLUTO_SAFETY_LOCK(vm,m_VDRMutex);
 	if( pMediaDevice && (pEPG=m_mapEPG_Find(pMediaDevice->m_pDeviceData_Router->m_dwPK_Device)) )
 	{
 		VDREPG::Event *pEvent = pEPG->m_mapEvent_Find(atoi(sValue_To_Assign.c_str()));
@@ -265,6 +351,7 @@ void VDRPlugin::CMD_Schedule_Recording(string sProgramID,string &sCMD_Result,Mes
 
 class DataGridTable *VDRPlugin::CurrentShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage)
 {
+	PLUTO_SAFETY_LOCK(vm,m_VDRMutex);
     DataGridTable *pDataGrid = new DataGridTable();
 	DataGridCell *pDataGridCell;
 
@@ -324,12 +411,7 @@ class DataGridTable *VDRPlugin::AllShows(string GridID, string Parms, void *Extr
 	if( !iGridResolutions )
 		iGridResolutions = 5;
 	MediaDevice *pMediaDevice = GetVDRFromOrbiter(pMessage->m_dwPK_Device_From);
-	VDREPG::EPG *pEPG = NULL; 
-	if( pMediaDevice && (pEPG=m_mapEPG_Find(pMediaDevice->m_pDeviceData_Router->m_dwPK_Device)) )
-		return new VDREPG::EpgGrid(pEPG,m_mapVDRStateInfo_Find(pMediaDevice->m_pDeviceData_Router->m_dwPK_Device),pMessage->m_dwPK_Device_From,iGridResolutions); // Should happen
-	
-	if( m_mapEPG.size() )
-		return new VDREPG::EpgGrid(m_mapEPG.begin()->second,NULL,pMessage->m_dwPK_Device_From,iGridResolutions);  // Fallback, just return any VDR grid
+	return new VDREPG::EpgGrid(this,NULL,pMessage->m_dwPK_Device_From,iGridResolutions);  // Fallback, just return any VDR grid
 
 	return NULL; // Something's wrong -- we have no VDR Grid's
 }
@@ -358,6 +440,7 @@ void VDRPlugin::CMD_Get_Extended_Media_Data(string sPK_DesignObj,string sProgram
 //<-dceag-c698-e->
 {
 	MediaDevice *pMediaDevice = GetVDRFromOrbiter(pMessage->m_dwPK_Device_From);
+	PLUTO_SAFETY_LOCK(vm,m_VDRMutex);
 	VDREPG::EPG *pEPG = NULL; 
 	if( pMediaDevice && (pEPG=m_mapEPG_Find(pMediaDevice->m_pDeviceData_Router->m_dwPK_Device)) )
 	{

@@ -118,7 +118,7 @@ public:
 	//Event accessors
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Request_Datagrid_Contents(string sID,string sDataGrid_ID,int iRow_count,int iColumn_count,bool bKeep_Row_Header,bool bKeep_Column_Header,bool bAdd_UpDown_Arrows,string sSeek,int iOffset,char **pData,int *iData_Size,int *iRow,int *iColumn,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int iPK_DataGrid,string sOptions,int *iPK_Variable,string *sValue_To_Assign,bool *bIsSuccessful,int *iWidth,int *iHeight,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int iPK_DataGrid,string sOptions,int iPK_DeviceTemplate,int *iPK_Variable,string *sValue_To_Assign,bool *bIsSuccessful,int *iWidth,int *iHeight,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -182,12 +182,13 @@ public:
 					string sDataGrid_ID=pMessage->m_mapParameters[15];
 					int iPK_DataGrid=atoi(pMessage->m_mapParameters[38].c_str());
 					string sOptions=pMessage->m_mapParameters[39];
+					int iPK_DeviceTemplate=atoi(pMessage->m_mapParameters[44].c_str());
 					int iPK_Variable=atoi(pMessage->m_mapParameters[4].c_str());
 					string sValue_To_Assign=pMessage->m_mapParameters[5];
 					bool bIsSuccessful=(pMessage->m_mapParameters[40]=="1" ? true : false);
 					int iWidth=atoi(pMessage->m_mapParameters[60].c_str());
 					int iHeight=atoi(pMessage->m_mapParameters[61].c_str());
-						CMD_Populate_Datagrid(sID.c_str(),sDataGrid_ID.c_str(),iPK_DataGrid,sOptions.c_str(),&iPK_Variable,&sValue_To_Assign,&bIsSuccessful,&iWidth,&iHeight,sCMD_Result,pMessage);
+						CMD_Populate_Datagrid(sID.c_str(),sDataGrid_ID.c_str(),iPK_DataGrid,sOptions.c_str(),iPK_DeviceTemplate,&iPK_Variable,&sValue_To_Assign,&bIsSuccessful,&iWidth,&iHeight,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -209,7 +210,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Populate_Datagrid(sID.c_str(),sDataGrid_ID.c_str(),iPK_DataGrid,sOptions.c_str(),&iPK_Variable,&sValue_To_Assign,&bIsSuccessful,&iWidth,&iHeight,sCMD_Result,pMessage);
+								CMD_Populate_Datagrid(sID.c_str(),sDataGrid_ID.c_str(),iPK_DataGrid,sOptions.c_str(),iPK_DeviceTemplate,&iPK_Variable,&sValue_To_Assign,&bIsSuccessful,&iWidth,&iHeight,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

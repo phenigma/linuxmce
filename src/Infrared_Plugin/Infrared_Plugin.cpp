@@ -94,27 +94,27 @@ bool Infrared_Plugin::Register()
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Infrared_Plugin::DevicesGrid)),
-		DATAGRID_Devices_by_Room_CONST);
+		DATAGRID_Devices_by_Room_CONST,PK_DeviceTemplate_get());
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Infrared_Plugin::CommandsGrid)),
-		DATAGRID_Commmands_By_Device_CONST);
+		DATAGRID_Commmands_By_Device_CONST,PK_DeviceTemplate_get());
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Infrared_Plugin::Manufacturers)),
-		DATAGRID_Manufacturers_CONST);
+		DATAGRID_Manufacturers_CONST,PK_DeviceTemplate_get());
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Infrared_Plugin::IRGroupCategories)),
-		DATAGRID_Infrared_Group_Categories_CONST);
+		DATAGRID_Infrared_Group_Categories_CONST,PK_DeviceTemplate_get());
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Infrared_Plugin::InfraredGroups)),
-		DATAGRID_Infrared_Groups_CONST);
+		DATAGRID_Infrared_Groups_CONST,PK_DeviceTemplate_get());
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Infrared_Plugin::InfraredCodes)),
-		DATAGRID_Infrared_Codes_CONST);
+		DATAGRID_Infrared_Codes_CONST,PK_DeviceTemplate_get());
 
 	return Connect(PK_DeviceTemplate_get()); 
 }

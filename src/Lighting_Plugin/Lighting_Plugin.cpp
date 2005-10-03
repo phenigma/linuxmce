@@ -120,7 +120,7 @@ bool Lighting_Plugin::Register()
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator( 
 		new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Lighting_Plugin::LightingScenariosGrid ) )
-		, DATAGRID_Lighting_Scenarios_CONST );
+		, DATAGRID_Lighting_Scenarios_CONST,PK_DeviceTemplate_get() );
 
     RegisterMsgInterceptor(( MessageInterceptorFn )( &Lighting_Plugin::LightingCommand ), 0, 0, 0, DEVICECATEGORY_Lighting_Device_CONST, MESSAGETYPE_COMMAND, 0 );
     RegisterMsgInterceptor(( MessageInterceptorFn )( &Lighting_Plugin::LightingFollowMe ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Follow_Me_Lighting_CONST );

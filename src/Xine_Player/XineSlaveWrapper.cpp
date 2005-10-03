@@ -767,6 +767,9 @@ void XineSlaveWrapper::xineEventListener(void *userData, const xine_event_t *eve
 				xineStream->m_pOwner->m_pAggregatorObject->DATA_Set_Subtitles(sSubtitles);
 			}
 			break;
+		case XINE_EVENT_DROPPED_FRAMES:
+			g_pPlutoLogger->Write(LV_WARNING, "We're droppign frames");
+			break;
 
         default:
             g_pPlutoLogger->Write(LV_STATUS, "Got unprocessed Xine playback event: %d", event->type);
@@ -830,9 +833,13 @@ void *XineSlaveWrapper::eventProcessingLoop(void *arguments)
 		{
 			do
 			{
-				XLockDisplay(pStream->m_pOwner->XServerDisplay);
+//g_pPlutoLogger->Write(LV_STATUS,"before lockdisp");
+//				XLockDisplay(pStream->m_pOwner->XServerDisplay);
+g_pPlutoLogger->Write(LV_STATUS,"after lockdisp");
 				checkResult = XCheckWindowEvent(pStream->m_pOwner->XServerDisplay, pStream->m_pOwner->windows[pStream->m_pOwner->m_iCurrentWindow], INPUT_MOTION, &event);
-				XUnlockDisplay(pStream->m_pOwner->XServerDisplay);
+g_pPlutoLogger->Write(LV_STATUS,"after check window %d",(int) checkResult);
+//				XUnlockDisplay(pStream->m_pOwner->XServerDisplay);
+//g_pPlutoLogger->Write(LV_STATUS,"after unlock");
 
 				if ( checkResult == True )
 					pStream->m_pOwner->XServerEventProcessor(pStream, event);
@@ -840,6 +847,7 @@ void *XineSlaveWrapper::eventProcessingLoop(void *arguments)
 			} while ( checkResult == True );
 		}
 
+g_pPlutoLogger->Write(LV_STATUS,"before ctr");
 		if( iCounter++>10 )  // Every second
 		{
 			g_pPlutoLogger->Write(LV_WARNING,"%s (seek %d) t.c. ctr %d freq %d,",pStream->m_pOwner->m_pAggregatorObject->GetPosition().c_str(),g_iSpecialSeekSpeed,iCounter_TimeCode,pStream->m_pOwner->m_iTimeCodeReportFrequency);
@@ -850,6 +858,7 @@ void *XineSlaveWrapper::eventProcessingLoop(void *arguments)
 				iCounter_TimeCode=1;
 			}
 		}
+g_pPlutoLogger->Write(LV_STATUS,"before seekspec");
 		if( g_iSpecialSeekSpeed )
 		{
 			// time to seek
@@ -865,16 +874,50 @@ g_iSpecialSeekSpeed=0;
 pStream->m_iPlaybackSpeed=PLAYBACK_NORMAL;
 pStream->m_pOwner->m_pAggregatorObject->ReportTimecode(pStream->m_iStreamID,pStream->m_iPlaybackSpeed);
 }
-			else if( !xine_play(pStream->m_pStream, 0, seekTime) )  // Pass in position as 2nd parameter
+			else
+{
+      /* tweak prebuffer so we can be sure to show only a single frame */
+	g_pPlutoLogger->Write(LV_STATUS,"before prebuffer");
+	int prebuffer = xine_get_param(pStream->m_pStream, XINE_PARAM_METRONOM_PREBUFFER);
+	g_pPlutoLogger->Write(LV_STATUS,"before set param");
+	xine_set_param(pStream->m_pStream, XINE_PARAM_METRONOM_PREBUFFER, 2*90000);
+	g_pPlutoLogger->Write(LV_STATUS,"before play");
+xine_set_param(pStream->m_pStream, XINE_PARAM_SPEED, XINE_SPEED_PAUSE);
+if( !xine_play(pStream->m_pStream, 0, seekTime) )  // Pass in position as 2nd parameter
 {
 g_pPlutoLogger->Write(LV_CRITICAL,"special seek failed, normal speed");
 g_iSpecialSeekSpeed=0;
 pStream->m_iPlaybackSpeed=PLAYBACK_NORMAL;
 pStream->m_pOwner->m_pAggregatorObject->ReportTimecode(pStream->m_iStreamID,pStream->m_iPlaybackSpeed);
 }
+else
+{
+
+	g_pPlutoLogger->Write(LV_STATUS,"before pause");
+	xine_set_param(pStream->m_pStream, XINE_PARAM_SPEED, XINE_SPEED_PAUSE);
+	g_pPlutoLogger->Write(LV_STATUS,"before set param");
+      xine_set_param(pStream->m_pStream, XINE_PARAM_METRONOM_PREBUFFER,prebuffer);
+}
+      
+xine_set_param(pStream->m_pStream, XINE_PARAM_SPEED, XINE_SPEED_PAUSE);			
+g_pPlutoLogger->Write(LV_STATUS,"before while");
+	while(true)
+{
+	int new_positionTime,new_totalTime;
+	pStream->m_pOwner->getStreamPlaybackPosition(1,new_positionTime,new_totalTime);
+g_pPlutoLogger->Write(LV_STATUS,"now at %d",new_positionTime);
+	if( new_positionTime!=positionTime )
+		break; // we're ok
+	g_pPlutoLogger->Write(LV_STATUS,"Seeking is stuck again!");
+	xine_play(pStream->m_pStream, 0, seekTime);
+			
+}
+}
 		}
 
+g_pPlutoLogger->Write(LV_STATUS,"before usleep");
 		usleep(100000);
+g_pPlutoLogger->Write(LV_STATUS,"after usleep");
     }
 
 	XCloseDisplay(pDisplay);
@@ -1123,12 +1166,14 @@ void XineSlaveWrapper::changePlaybackSpeed(int iStreamID, PlayBackSpeedType desi
             xineSpeed = XINE_SPEED_NORMAL;
             break;
         case PLAYBACK_FF_2:
+	return;
 	    if( pStream->m_bHasVideo )
 	            xineSpeed = XINE_SPEED_FAST_2;
 	    else
 		    g_iSpecialSeekSpeed=desiredSpeed;
             break;
         case PLAYBACK_FF_4:
+	   return;
 	    if( pStream->m_bHasVideo )
             	xineSpeed = XINE_SPEED_FAST_4;
 	    else
@@ -1148,7 +1193,7 @@ void XineSlaveWrapper::changePlaybackSpeed(int iStreamID, PlayBackSpeedType desi
 		case PLAYBACK_FF_32:
 		case PLAYBACK_FF_64:
 			g_iSpecialSeekSpeed=desiredSpeed;
-            xineSpeed = XINE_SPEED_NORMAL;
+            xineSpeed = XINE_SPEED_PAUSE;
             break;
 
         default:
@@ -1156,7 +1201,7 @@ void XineSlaveWrapper::changePlaybackSpeed(int iStreamID, PlayBackSpeedType desi
             break;
     }
 
-	g_pPlutoLogger->Write(LV_STATUS, "Setting speed to special %d real %d desired %d",g_iSpecialSeekSpeed,xineSpeed,desiredSpeed);
+	g_pPlutoLogger->Write(LV_CRITICAL, "Setting speed to special %d real %d desired %d",g_iSpecialSeekSpeed,xineSpeed,desiredSpeed);
     if ( (xineSpeed == XINE_SPEED_PAUSE && desiredSpeed == 0) || xineSpeed != XINE_SPEED_PAUSE)
         xine_set_param(pStream->m_pStream, XINE_PARAM_SPEED, xineSpeed);
 }

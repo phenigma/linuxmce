@@ -20,7 +20,7 @@ class Message;
 
 /** This plug-in has it's own plug-in architecture as well to keep track of datagrid generator */
 typedef map<string, class DataGridTable *> DataGridMap;
-
+typedef map<int, class DataGridGeneratorCallBack *> DatagridGeneratorCallBackMap;
 class DataGridGeneratorPlugIn {
 };
 
@@ -84,13 +84,13 @@ public:
 	
 	pluto_pthread_mutex_t m_DataGridMutex;
 	DataGridMap m_DataGrids;
-	map<int, class DataGridGeneratorCallBack *> m_mapDataGridGeneratorCallBack;
+	map<int, DatagridGeneratorCallBackMap *> m_mapDataGridGeneratorCallBack;
 
 	/** Private methods */
 public:
 	/** Public member variables */
 
-	void RegisterDatagridGenerator( class DataGridGeneratorCallBack *pCallBack, int PK_DataGrid );
+	void RegisterDatagridGenerator( class DataGridGeneratorCallBack *pCallBack, int PK_DataGrid, int PK_DeviceTemplate );
 
 //<-dceag-h-b->
 	/*
@@ -154,13 +154,15 @@ public:
 			/** The options are specific the type of grid (PK_Datagrid).  These are not pre-defined.  The grid generator and orbiter must both pass the options in the correct format for the type of grid. */
 		/** @param #40 IsSuccessful */
 			/** Returns false if the grid could not be populated.  Perhaps there was no registered datagrid generator. */
+		/** @param #44 PK_DeviceTemplate */
+			/** If more than 1 plugin registered to handle this grid, this parameter will be used to match teh right one */
 		/** @param #60 Width */
 			/** The width of the grid, in columns, if the width is determined at populate time, such as a file grid.  If the whole size of the grid is unknown, such as the EPG grid, this should be 0. */
 		/** @param #61 Height */
 			/** The height of the grid, in rows, if the heightis determined at populate time, such as a file grid.  If the whole size of the grid is unknown, such as the EPG grid, this should be 0. */
 
-	virtual void CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int iPK_DataGrid,string sOptions,int *iPK_Variable,string *sValue_To_Assign,bool *bIsSuccessful,int *iWidth,int *iHeight) { string sCMD_Result; CMD_Populate_Datagrid(sID.c_str(),sDataGrid_ID.c_str(),iPK_DataGrid,sOptions.c_str(),iPK_Variable,sValue_To_Assign,bIsSuccessful,iWidth,iHeight,sCMD_Result,NULL);};
-	virtual void CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int iPK_DataGrid,string sOptions,int *iPK_Variable,string *sValue_To_Assign,bool *bIsSuccessful,int *iWidth,int *iHeight,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int iPK_DataGrid,string sOptions,int iPK_DeviceTemplate,int *iPK_Variable,string *sValue_To_Assign,bool *bIsSuccessful,int *iWidth,int *iHeight) { string sCMD_Result; CMD_Populate_Datagrid(sID.c_str(),sDataGrid_ID.c_str(),iPK_DataGrid,sOptions.c_str(),iPK_DeviceTemplate,iPK_Variable,sValue_To_Assign,bIsSuccessful,iWidth,iHeight,sCMD_Result,NULL);};
+	virtual void CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int iPK_DataGrid,string sOptions,int iPK_DeviceTemplate,int *iPK_Variable,string *sValue_To_Assign,bool *bIsSuccessful,int *iWidth,int *iHeight,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

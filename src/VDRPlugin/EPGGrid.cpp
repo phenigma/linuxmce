@@ -10,6 +10,7 @@ using namespace DCE;
 using namespace VDREPG;
 #include "EPG.h"
 #include "VDRStateInfo.h"
+#include "VDRPlugin.h"
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "pluto_main/Define_DeviceTemplate.h"
 #include "pluto_main/Define_Text.h"
@@ -30,8 +31,9 @@ int EpgGrid::GetCols()
 
 void EpgGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, int *RowStart, int ColCount, int RowCount)
 {
-// Mutex
 	ClearData();
+	PLUTO_SAFETY_LOCK(vm,m_pVDRPlugin->m_VDRMutex);
+	m_pEPG = m_pVDRPlugin->m_mapEPG_Find(m_pVDRStateInfo->m_dwPK_Device);
 	if( !m_pEPG )
 	{
 		Size=0; Data=NULL;
@@ -78,7 +80,8 @@ void EpgGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, int *R
 	m_TotalRows=GetRows();
 	m_TotalColumns=GetCols();
 
-	return DataGridTable::ToData(GridID, Size, Data, ColStart, RowStart, ColCount, RowCount);
+	DataGridTable::ToData(GridID, Size, Data, ColStart, RowStart, ColCount, RowCount);
+	m_pEPG=NULL;  // Once the mutex goes out of scope it's no longer valid
 }
 
 void EpgGrid::PopulateRow(Channel *pChannel,int iRow,int StartTime,int StopTime)

@@ -366,68 +366,68 @@ bool Media_Plugin::Register()
 
     m_pDatagrid_Plugin->RegisterDatagridGenerator(
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::CurrentMediaSections) )
-        , DATAGRID_Current_Media_Sections_CONST );
+        , DATAGRID_Current_Media_Sections_CONST,PK_DeviceTemplate_get() );
 
     m_pDatagrid_Plugin->RegisterDatagridGenerator(
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::AvailablePlaylists) )
-        , DATAGRID_Playlists_CONST );
+        , DATAGRID_Playlists_CONST,PK_DeviceTemplate_get() );
 
     m_pDatagrid_Plugin->RegisterDatagridGenerator(
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::MediaSearchAutoCompl ) )
-        , DATAGRID_Media_Search_Auto_Compl_CONST );
+        , DATAGRID_Media_Search_Auto_Compl_CONST,PK_DeviceTemplate_get() );
 
     m_pDatagrid_Plugin->RegisterDatagridGenerator(
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::MediaAttrFiles ) )
-        , DATAGRID_Media_Attr_Files_CONST );
+        , DATAGRID_Media_Attr_Files_CONST,PK_DeviceTemplate_get() );
 
     m_pDatagrid_Plugin->RegisterDatagridGenerator(
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::MediaAttrCollections ) )
-        , DATAGRID_Media_Attr_Collections_CONST );
+        , DATAGRID_Media_Attr_Collections_CONST,PK_DeviceTemplate_get() );
 
     m_pDatagrid_Plugin->RegisterDatagridGenerator(
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::MediaAttrXref ) )
-        , DATAGRID_Media_Attr_Xref_CONST );
+        , DATAGRID_Media_Attr_Xref_CONST,PK_DeviceTemplate_get() );
 
     m_pDatagrid_Plugin->RegisterDatagridGenerator(
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::MediaItemAttr ) )
-        , DATAGRID_Media_Item_Attr_CONST );
+        , DATAGRID_Media_Item_Attr_CONST,PK_DeviceTemplate_get() );
 
     m_pDatagrid_Plugin->RegisterDatagridGenerator(
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::DevicesPipes ) )
-        , DATAGRID_Devices__Pipes_CONST );
+        , DATAGRID_Devices__Pipes_CONST,PK_DeviceTemplate_get() );
 
     m_pDatagrid_Plugin->RegisterDatagridGenerator(
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::MediaAttrCurStream ) )
-        , DATAGRID_Media_Attr_Cur_Stream_CONST );
+        , DATAGRID_Media_Attr_Cur_Stream_CONST,PK_DeviceTemplate_get() );
 
 	// datagrids to support the floorplans
     m_pDatagrid_Plugin->RegisterDatagridGenerator(
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::FloorplanMediaChoices ) )
-        , DATAGRID_Floorplan_Media_Choices_CONST );
+        , DATAGRID_Floorplan_Media_Choices_CONST,PK_DeviceTemplate_get() );
 
     m_pDatagrid_Plugin->RegisterDatagridGenerator(
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::ActiveMediaStreams ), true )
-        , DATAGRID_Floorplan_Media_Streams_CONST );
+        , DATAGRID_Floorplan_Media_Streams_CONST,PK_DeviceTemplate_get() );
 
     m_pDatagrid_Plugin->RegisterDatagridGenerator(
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::DVDSubtitles ))
-        , DATAGRID_DVD_Subtitles_CONST );
+        , DATAGRID_DVD_Subtitles_CONST,PK_DeviceTemplate_get() );
 
     m_pDatagrid_Plugin->RegisterDatagridGenerator(
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::DVDAudioTracks ))
-        , DATAGRID_DVD_Audio_Tracks_CONST );
+        , DATAGRID_DVD_Audio_Tracks_CONST,PK_DeviceTemplate_get() );
 
     m_pDatagrid_Plugin->RegisterDatagridGenerator(
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::DVDAngles ))
-        , DATAGRID_DVD_Angles_CONST );
+        , DATAGRID_DVD_Angles_CONST,PK_DeviceTemplate_get() );
 
     m_pDatagrid_Plugin->RegisterDatagridGenerator(
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::Bookmarks ))
-        , DATAGRID_Bookmarks_CONST );
+        , DATAGRID_Bookmarks_CONST,PK_DeviceTemplate_get() );
 	
     m_pDatagrid_Plugin->RegisterDatagridGenerator(
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::BookmarksByMediaType ))
-        , DATAGRID_Bookmarks_by_MediaType_CONST );
+        , DATAGRID_Bookmarks_by_MediaType_CONST,PK_DeviceTemplate_get() );
 
 	//  m_pMediaAttributes->ScanDirectory( "/home/public/data/music/" );
 //  m_pMediaAttributes->ScanDirectory( "Z:\\" );

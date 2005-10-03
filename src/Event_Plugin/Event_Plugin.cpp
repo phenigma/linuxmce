@@ -189,7 +189,7 @@ bool Event_Plugin::Register()
 
     m_pDatagrid_Plugin->RegisterDatagridGenerator(
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Event_Plugin::AlarmsInRoom) )
-        , DATAGRID_Alarms_In_Room_CONST );
+        , DATAGRID_Alarms_In_Room_CONST,PK_DeviceTemplate_get() );
 
     RegisterMsgInterceptor((MessageInterceptorFn)(&Event_Plugin::ProcessEvent) ,0,0,0,0,MESSAGETYPE_EVENT,0);
 	return Connect(PK_DeviceTemplate_get()); 

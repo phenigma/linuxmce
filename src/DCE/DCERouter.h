@@ -207,6 +207,7 @@ namespace DCE
         const map<int,class CommandGroup *> *m_mapCommandGroup_get() { return &m_mapCommandGroup; }
 
         int iPK_Installation_get() { return m_dwPK_Installation; }
+		int iPK_Device_get() { return m_dwPK_Device; }
         int iPK_Language_get() { return m_dwPK_Language; }
         string sBasePath_get() { return m_sBasePath; }
 
@@ -284,7 +285,6 @@ namespace DCE
         }
 
         // Internal use
-//      void AddRoutingForDevice(OCDeviceData *pParentDevice, OCDeviceData *pDevice);
         bool Run();
 		virtual void RegisteredEventHandler(ServerSocket *pSocket, int DeviceID);
 		virtual void RegisteredCommandHandler(ServerSocket *pSocket, int DeviceID);

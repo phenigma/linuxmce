@@ -110,7 +110,7 @@ bool File_Grids_Plugin::Register()
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&File_Grids_Plugin::FileList))
-		,DATAGRID_Directory_Listing_CONST);
+		,DATAGRID_Directory_Listing_CONST,PK_DeviceTemplate_get());
 
 
 	return Connect(PK_DeviceTemplate_get()); 
@@ -231,7 +231,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 		string newParams = Paths + "\n" + Extensions + "\n" + Actions + "\n" + (bSortByDate ? "1" : "0")
 			+ "\n" + StringUtils::itos(iDirNumber)+ "\n" + sParent;
 		DCE::CMD_NOREP_Populate_Datagrid_DT CMDPDG(PK_Controller, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse,
-			"", GridID, DATAGRID_Directory_Listing_CONST, newParams);
+			"", GridID, DATAGRID_Directory_Listing_CONST, newParams, 0);
 		pCell = new DataGridCell("", "");
 		pCell->m_pMessage = CMDPDG.m_pMessage;
 		pDataGrid->SetData(0, iRow, pCell);
@@ -271,7 +271,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 			string newParams = Paths + "\n" + Extensions + "\n" + Actions + "\n" + (bSortByDate ? "1" : "0")
 				+ "\n" + StringUtils::itos(pFileDetails->m_iDirNumber)+ "\n" + sSubDirectory + pFileDetails->m_sFileName + "/";
 			DCE::CMD_NOREP_Populate_Datagrid_DT CMDPDG(PK_Controller, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse,
-				"", GridID, DATAGRID_Directory_Listing_CONST, newParams);
+				"", GridID, DATAGRID_Directory_Listing_CONST, newParams, 0);
 			pCell->m_pMessage = CMDPDG.m_pMessage;
 			pCellPicture->m_pMessage = CMDPDG.m_pMessage;
 		}
