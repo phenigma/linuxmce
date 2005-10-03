@@ -28,6 +28,7 @@ protected:
 	map<int, X3DButton* > m_mapButtons;
 
 	int m_nUserOption;
+	time_t m_tTimeout;
 
 private:
 	const int m_nSpaceBetweenLines;

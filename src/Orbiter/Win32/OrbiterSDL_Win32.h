@@ -36,7 +36,7 @@ public:
 		int nImageWidth, int nImageHeight, bool bFullScreen = false);
 	static OrbiterSDL_Win32 *GetInstance();
 
-    int PromptUser(string sPrompt,map<int,string> *p_mapPrompts);
+	virtual int PromptUser(string sPrompt,int iTimeoutSeconds=10,map<int,string> *p_mapPrompts=NULL);
     bool DisplayProgress(string sMessage, int nProgress);
 };
 //-----------------------------------------------------------------------------------------------------

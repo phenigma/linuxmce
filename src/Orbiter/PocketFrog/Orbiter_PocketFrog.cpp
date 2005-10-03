@@ -998,7 +998,7 @@ void Orbiter_PocketFrog::CalcTextRectangle(RECT &rectLocation,PlutoRectangle &rP
     exit(1); //die!!!
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ int Orbiter_PocketFrog::PromptUser(string sPrompt,map<int,string> *p_mapPrompts)
+/*virtual*/ int Orbiter_PocketFrog::PromptUser(string sPrompt,int iTimeoutSeconds,map<int,string> *p_mapPrompts)
 {
     return PromptUserEx(sPrompt, p_mapPrompts);
 }

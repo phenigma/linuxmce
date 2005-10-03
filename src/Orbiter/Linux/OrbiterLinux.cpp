@@ -407,7 +407,7 @@ bool OrbiterLinux::DisplayProgress(string sMessage, int nProgress)
     return false;
 }
 
-int OrbiterLinux::PromptUser(string sPrompt, map<int, string> *p_mapPrompts/*=NULL*/)
+int OrbiterLinux::PromptUser(string sPrompt,int iTimeoutSeconds,map<int,string> *p_mapPrompts)
 {
 #if 0
 	return PROMPT_CANCEL;
@@ -418,7 +418,7 @@ int OrbiterLinux::PromptUser(string sPrompt, map<int, string> *p_mapPrompts/*=NU
 		p_mapPrompts = &mapPrompts;
 	}
 
-	XPromptUser promptDlg(sPrompt, p_mapPrompts);
+	XPromptUser promptDlg(sPrompt, iTimeoutSeconds, p_mapPrompts);
 	promptDlg.SetButtonPlacement(XPromptUser::BTN_VERT);
 	
 	promptDlg.Init();

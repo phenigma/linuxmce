@@ -189,7 +189,7 @@ bool OrbiterSDL_Win32::SelfUpdate()
 	return orbiterSelfUpdate.Run();
 }
 //-----------------------------------------------------------------------------------------------------
-int OrbiterSDL_Win32::PromptUser(string sPrompt,map<int,string> *p_mapPrompts)
+int OrbiterSDL_Win32::PromptUser(string sPrompt,int iTimeoutSeconds,map<int,string> *p_mapPrompts)
 {
     return PromptUserEx(sPrompt, p_mapPrompts);
 }

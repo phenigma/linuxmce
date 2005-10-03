@@ -93,7 +93,7 @@ public:
 	virtual void OnQuit();
 
     virtual bool OnReplaceHandler(string sIP);
-    virtual int  PromptUser(string sPrompt,map<int,string> *p_mapPrompts=NULL);
+	virtual int PromptUser(string sPrompt,int iTimeoutSeconds=10,map<int,string> *p_mapPrompts=NULL);
 	virtual bool DisplayProgress(string sMessage, int nProgress);
 
 	// Other

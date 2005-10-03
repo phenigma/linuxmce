@@ -524,7 +524,7 @@ public: // temp - remove this
 	virtual bool RouterNeedsReload();
 	virtual int DeviceIdInvalid();
 	virtual int PickOrbiterDeviceID();
-	virtual int PromptUser(string sPrompt,map<int,string> *p_mapPrompts=NULL);
+	virtual int PromptUser(string sPrompt,int iTimeoutSeconds=10,map<int,string> *p_mapPrompts=NULL);
 	virtual int SetupNewOrbiter();
 	virtual int MonitorRegen(int PK_Device);
 	virtual int PromptFor(string sToken);

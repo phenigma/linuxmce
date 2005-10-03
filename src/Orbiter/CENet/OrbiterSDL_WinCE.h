@@ -71,7 +71,7 @@ public:
 	void CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,Message *pMessage);
 	void CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage);
 
-	int PromptUser(string sPrompt,map<int,string> *p_mapPrompts);
+	virtual int PromptUser(string sPrompt,int iTimeoutSeconds=10,map<int,string> *p_mapPrompts=NULL);
 	bool DisplayProgress(string sMessage, int nProgress);
 };
 //-----------------------------------------------------------------------------------------------------

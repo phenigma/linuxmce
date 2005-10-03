@@ -4,7 +4,7 @@
 
 using namespace DCE;
 
-XPromptUser::XPromptUser(string sPrompt, map<int, string> *pMapPrompts/*=NULL*/)
+XPromptUser::XPromptUser(string sPrompt, int iTimeoutSeconds, map<int, string> *pMapPrompts/*=NULL*/)
 	: m_nSpaceBetweenLines(4)
 	, m_bFreeTextFont(false)
 	, m_bFreeBtnFont(false)
@@ -13,6 +13,7 @@ XPromptUser::XPromptUser(string sPrompt, map<int, string> *pMapPrompts/*=NULL*/)
 {
 	m_sPrompt = sPrompt;
 	m_pMapPrompts = pMapPrompts;
+	m_tTimeout = iTimeoutSeconds ? time(NULL) + iTimeoutSeconds : 0;
 
 	m_textFont = m_btnFont = 0;
 	m_nTextPosX = 10;
@@ -273,7 +274,21 @@ bool XPromptUser::EventLoop()
 	XEvent event;
 	bool bDone = false;
 	while (!bDone) {
-		XNextEvent(m_pDisplay, &event);
+		while( true )
+		{
+			if( XCheckTypedEvent(m_pDisplay, Expose, &event) ||
+				XCheckTypedEvent(m_pDisplay, ButtonRelease, &event) )
+					break;
+			g_pPlutoLogger->Write(LV_STATUS,"nO EVENT time %d timeout %d",(int) time(NULL), (int) m_tTimeout);
+			if( m_tTimeout && m_tTimeout<time(NULL) )
+			{
+g_pPlutoLogger->Write(LV_STATUS,"Timed out waiting for prompt user");
+				return true;
+}
+			Sleep(100); // Don't hog the cpu
+		}
+
+g_pPlutoLogger->Write(LV_STATUS,"got event %d (%d)",(int) event.type,(int) ButtonRelease);
 
 		switch (event.type) {
 		case Expose:

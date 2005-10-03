@@ -528,7 +528,7 @@ void OrbiterSDL_WinCE::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessag
 	::ReleaseDC(NULL, gdc);
 }
 //-----------------------------------------------------------------------------------------------------
-int OrbiterSDL_WinCE::PromptUser(string sPrompt,map<int,string> *p_mapPrompts)
+int OrbiterSDL_WinCE::PromptUser(string sPrompt,int iTimeoutSeconds,map<int,string> *p_mapPrompts)
 {
 	return PromptUserEx(sPrompt, p_mapPrompts);
 }

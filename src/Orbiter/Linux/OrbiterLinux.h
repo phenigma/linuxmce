@@ -82,7 +82,7 @@ public:
 	virtual void CMD_Simulate_Mouse_Click_At_Present_Pos(string sType,string &sCMD_Result,Message *pMessage);
 	
 	/*virtual */bool DisplayProgress(string sMessage, int nProgress);
-	/*virtual */int PromptUser(string sPrompt, map<int, string> *p_mapPrompts=NULL);
+	/*virtual */int PromptUser(string sPrompt,int iTimeoutSeconds=10,map<int,string> *p_mapPrompts=NULL);
 };
 
 #endif // __CONTROLLERLINUXDESKTOP_H__

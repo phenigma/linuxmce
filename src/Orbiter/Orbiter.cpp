@@ -7587,7 +7587,7 @@ bool Orbiter::OkayToDeserialize(int iSC_Version)
 		enum PromptsResp {prYes, prNo};
 		mapPrompts[prYes]    = "Yes";
 		mapPrompts[prNo]     = "No";
-		int iResponse = PromptUser("The user interface which your Core generated (" + StringUtils::itos(iSC_Version) + ") is too old for this Orbiter(" + StringUtils::itos(ORBITER_SCHEMA) + ").  Shall I ask the Core to rebuild it now?",&mapPrompts);
+		int iResponse = PromptUser("The user interface which your Core generated (" + StringUtils::itos(iSC_Version) + ") is too old for this Orbiter(" + StringUtils::itos(ORBITER_SCHEMA) + ").  Shall I ask the Core to rebuild it now?",0,&mapPrompts);
 		if( iResponse==prNo )
 		{
 			OnQuit();
@@ -8558,7 +8558,7 @@ int Orbiter::HandleNotOKStatus(string sStatus,string sRegenStatus,int iRegenPerc
 		enum PromptsResp {prYes, prNo};
 		mapPrompts[prYes]    = "Yes - Reset it now";
 		mapPrompts[prNo]     = "No - I'll do it later";
-		int iResponse = PromptUser("This new Orbiter is ready to go.  But all your devices need to do a reload before you can use it.  This takes about 15 seconds.", &mapPrompts);
+		int iResponse = PromptUser("This new Orbiter is ready to go.  But all your devices need to do a reload before you can use it.  This takes about 15 seconds.", 0, &mapPrompts);
 		if( iResponse==prYes )
 		{
 			string sResponse;
@@ -8589,9 +8589,9 @@ int Orbiter::HandleNotOKStatus(string sStatus,string sRegenStatus,int iRegenPerc
 
 		int iResponse = prNo;
 		if( sStatus=="D" )
-			iResponse = PromptUser("Something went wrong. The device number, " + StringUtils::itos(m_dwPK_Device) + ", doesn't seem to be an orbiter.  Reset the device number and try next time to determine it automatically?",&mapPrompts);
+			iResponse = PromptUser("Something went wrong. The device number, " + StringUtils::itos(m_dwPK_Device) + ", doesn't seem to be an orbiter.  Reset the device number and try next time to determine it automatically?",0,&mapPrompts);
 		else
-			iResponse = PromptUser("Something went wrong.  The device number, " + StringUtils::itos(m_dwPK_Device) + ", is not known to the Core.  Reset the device number and try next time to determine it automatically?",&mapPrompts);
+			iResponse = PromptUser("Something went wrong.  The device number, " + StringUtils::itos(m_dwPK_Device) + ", is not known to the Core.  Reset the device number and try next time to determine it automatically?",0,&mapPrompts);
 
 		if( iResponse==prYes )
 		{
@@ -8645,7 +8645,7 @@ int Orbiter::DeviceIdInvalid()
 	mapPrompts[prYes]    = "Yes - This is a new Orbiter";
 	mapPrompts[prNo]     = "No - There is already a Device ID for this Orbiter";
 	mapPrompts[prCancel] = "Cancel";
-	int iResponse = PromptUser("This seems to be a new Orbiter.  Shall I set it up for you?", &mapPrompts);
+	int iResponse = PromptUser("This seems to be a new Orbiter.  Shall I set it up for you?", 0, &mapPrompts);
 	if( iResponse == prCancel || PROMPT_CANCEL == iResponse )
     {
         OnQuit();
@@ -8673,10 +8673,10 @@ int Orbiter::PickOrbiterDeviceID()
 {
 	map<int,string> mapDevices;
 	GetDevicesByCategory(DEVICECATEGORY_Orbiter_CONST,&mapDevices);
-	return PromptUser("Which Orbiter is this?  Be careful.  Don't choose an Orbiter that is running on another device or it will be disconnected when this one connects.",&mapDevices);
+	return PromptUser("Which Orbiter is this?  Be careful.  Don't choose an Orbiter that is running on another device or it will be disconnected when this one connects.",0, &mapDevices);
 }
 
-int Orbiter::PromptUser(string sPrompt,map<int,string> *p_mapPrompts)
+/*virtual*/ int Orbiter::PromptUser(string sPrompt,int iTimeoutSeconds,map<int,string> *p_mapPrompts)
 {
 #ifndef WIN32 
 	return PROMPT_CANCEL;  // TEMP TODO HACK -- we need to implement this for Linux SDL
@@ -8755,11 +8755,11 @@ int Orbiter::SetupNewOrbiter()
 	mapResponseYNC[1]="No";
 	mapResponseYNC[2]="Cancel";
 
-	int WiFi = PromptUser("Does this device use Wi-Fi?",&mapResponseYNC);
+	int WiFi = PromptUser("Does this device use Wi-Fi?",0, &mapResponseYNC);
 	if( WiFi == PROMPT_CANCEL )
 		return 0;
 
-	int UseEffects = PromptUser("Use animated buttons and effects?  This can make low-power devices like PDA's run slowly.",&mapResponseYNC);
+	int UseEffects = PromptUser("Use animated buttons and effects?  This can make low-power devices like PDA's run slowly.",0, &mapResponseYNC);
 	if( UseEffects == PROMPT_CANCEL )
 		return 0;
 
@@ -8904,7 +8904,7 @@ int Orbiter::PromptFor(string sToken)
 		if( Choice && sDescription.size() )
 			mapResponse[Choice]=sDescription;
 	}
-	return PromptUser("Please select the " + sToken,&mapResponse); 
+	return PromptUser("Please select the " + sToken,0,&mapResponse); 
 }
 
 /*virtual*/ bool Orbiter::DisplayProgress(string sMessage, int nProgress)
