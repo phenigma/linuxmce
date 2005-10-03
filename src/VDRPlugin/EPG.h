@@ -35,6 +35,7 @@ namespace VDREPG
 		list<Stream *> m_listStream;
 
 		Event(char *szLine,Channel *pChannel);
+		~Event();
 		string GetProgram();
 	};
 
