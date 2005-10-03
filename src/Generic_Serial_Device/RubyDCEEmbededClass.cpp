@@ -160,6 +160,7 @@ RubyDCEEmbededClass::CallCmdForChildHandler(unsigned devid, Message *pMessage) {
 	
 	try {
 		callmethod("cmd_ReceiveCommandForChild", params);
+		pMessage->m_bRespondedToMessage=true;
 	} catch(RubyException e) {
 		g_pPlutoLogger->Write(LV_CRITICAL, (string("Error while calling method: ") + e.getMessage()).c_str());
 	}

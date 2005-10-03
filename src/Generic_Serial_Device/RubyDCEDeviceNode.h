@@ -85,7 +85,7 @@ private:
 private:
 	RubyDCEDeviceNode* parent_;
 	std::list<RubyDCEDeviceNode*> children_;
-
+	std::list<int> all_children_ids;
 private:
 	unsigned idledelay_;
 	struct timespec lastidle_;

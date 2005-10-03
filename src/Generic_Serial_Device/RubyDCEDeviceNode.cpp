@@ -92,6 +92,7 @@ RubyDCEDeviceNode::Cleanup() {
 RubyDCEDeviceNode* 
 RubyDCEDeviceNode::findChild(unsigned devid) {
     std::list<RubyDCEDeviceNode*>& children = getChildren();
+	g_pPlutoLogger->Write(LV_STATUS, "findChild(%d) : children.size()=%d",devid,children.size());
     for(std::list<RubyDCEDeviceNode*>::iterator it = children.begin(); it != children.end(); it++) {
 		if((*it)->getDeviceData()->m_dwPK_Device == devid) {
 			return *it;
@@ -131,14 +132,19 @@ RubyDCEDeviceNode::handleMessage(Message* pmsg) {
 
     bool ret = false;
     if(getDeviceData()->m_dwPK_Device == (unsigned long)pmsg->m_dwPK_Device_To) {
+		g_pPlutoLogger->Write(LV_STATUS, "handleMessage directly");
         getEmbClass()->CallCmdHandler(pmsg);
 		ret = true;
     } else {
     	std::list<RubyDCEDeviceNode*>& children = getChildren();
 	    for(std::list<RubyDCEDeviceNode*>::iterator it = children.begin(); it != children.end(); it++) {
-    	     ret |= (*it)->handleMessage(pmsg);
+			g_pPlutoLogger->Write(LV_STATUS, "handleMessage in child");
+			ret |= (*it)->handleMessage(pmsg);
+			 
 	    }
-        if(!ret && findChild(pmsg->m_dwPK_Device_To)) {
+//        if(!ret && findChild(pmsg->m_dwPK_Device_To)) {
+        if(!ret && find(all_children_ids.begin(),all_children_ids.end(),pmsg->m_dwPK_Device_To)!=all_children_ids.end()) {
+			g_pPlutoLogger->Write(LV_STATUS, "handleMessage for child");
             getEmbClass()->CallCmdForChildHandler(getDeviceData()->m_dwPK_Device, pmsg);
             ret = true;
         }
@@ -186,8 +192,10 @@ RubyDCEDeviceNode::PopulateDevice(DeviceData_Impl* pdevdata, RubyDeviceWrapper& 
 	
     for(VectDeviceData_Impl::size_type i = 0; i < vDeviceData.size(); i++) {
 		RubyDeviceWrapper& childdevwrap = childdevices[vDeviceData[i]->m_dwPK_Device];
+		all_children_ids.push_back(vDeviceData[i]->m_dwPK_Device);
 		PopulateDevice(vDeviceData[i], childdevwrap);
     }
+	
 	g_pPlutoLogger->Write(LV_STATUS, "Added %d wrapped child devices to device %d.", vDeviceData.size(), pdevdata->m_dwPK_Device);
 }
 

@@ -48,6 +48,7 @@ bool Generic_Serial_Device::GetConfig()
 	RubyIOManager* pmanager = RubyIOManager::getInstance();
 	pmanager->setEventDispatcher(GetEvents());
 	GSDMessageProcessor::setCommandImpl(this);
+	Start();
 	return true;
 }
 

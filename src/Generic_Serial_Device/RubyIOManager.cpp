@@ -280,10 +280,6 @@ RubyIOManager::RouteMessage(DeviceData_Base* pdevdata, Message *pMessage) {
 		pMessage->m_bRespondedToMessage=true;
 		g_pPlutoLogger->Write(LV_CRITICAL,"Ruby was unable to handle the command in reasonable amount of time");
 	}
-	else
-	{
-		g_pPlutoLogger->Write(LV_STATUS,"Ruby ran just fine");
-	}
 	return 0;
 }
 
@@ -316,7 +312,6 @@ RubyIOManager::_Run() {
 				mmsg_.Lock();
 				if(msgqueue_.size() > 0) {
 					deviceid = (*msgqueue_.begin()).first;
-//					pmsg = new Message((*msgqueue_.begin()).second);
 					pmsg = (*msgqueue_.begin()).second;
 					msgqueue_.pop_front();
 				}
@@ -324,8 +319,11 @@ RubyIOManager::_Run() {
 				
 				if(pmsg != NULL) {
 					g_pPlutoLogger->Write(LV_STATUS, "Routing message to Ruby Interpreter...");
-					rootnode_->handleMessage(pmsg);
-//					delete pmsg;
+					if (!rootnode_->handleMessage(pmsg))
+					{
+						g_pPlutoLogger->Write(LV_CRITICAL, "For obscure reasons could not handle the message");
+						pmsg->m_bRespondedToMessage = true;
+					}
 					pmsg = NULL;
 				} else {
 					break;
