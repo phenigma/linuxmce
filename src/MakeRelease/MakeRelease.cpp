@@ -75,7 +75,7 @@ public:
 	Row_Package_Directory *m_pRow_Package_Directory;
 };
 
-string g_sPackages, g_sPackages_Exclude, g_sManufacturer, g_sSourcecodePrefix, g_sNonSourcecodePrefix, g_sCompile_Date;
+string g_sPackages, g_sPackages_Exclude, g_sManufacturer, g_sSourcecodePrefix, g_sNonSourcecodePrefix, g_sCompile_Date, g_sBaseVersion;
 string g_sPK_RepositorySource;
 int g_iPK_Distro=0,g_iSVNRevision=0;
 bool g_bBuildSource = true, g_bCreatePackage = true, g_bInteractive = false, g_bSimulate = false, g_bSupressPrompts = false, g_bDontTouchDB = false;
@@ -124,6 +124,9 @@ bool CopySourceFile(string sInput,string sOutput)
 			return false;
 
 		if( !StringUtils::Replace( sOutput, sOutput, "<=compile_date=>", g_sCompile_Date ) )
+			return false;
+
+		if( !StringUtils::Replace( sOutput, sOutput, "<=baseversion=>", g_sBaseVersion ) )
 			return false;
 
 		return StringUtils::Replace( sOutput, sOutput, "<=version=>", g_pRow_Version->VersionName_get() );
@@ -320,6 +323,15 @@ int main(int argc, char *argv[])
 			return 1;
 		}
 	}
+	g_sBaseVersion = g_pRow_Version->VersionName_get();
+
+	string::size_type pos=0;
+	int iDotCount;
+	for(iDotCount=0;iDotCount<4 && pos!=string::npos;iDotCount++)
+		pos = g_sBaseVersion.find('.',pos+1);
+	if( iDotCount==4 && pos!=string::npos )
+		g_sBaseVersion = g_sBaseVersion.substr(0,pos);
+
 #pragma warning("had to use tiny text because medium text fails due to char[] in commit with field asSQL");
 	
 	if( sDefines.length() )
