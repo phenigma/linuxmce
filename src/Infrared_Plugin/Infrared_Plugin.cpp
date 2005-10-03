@@ -498,7 +498,7 @@ void Infrared_Plugin::GetInfraredCodes(int iPK_Device,IRDevice &irDevice,bool bN
 	// We're going to go through the list twice.  First we'll get the stock codes where FK_DeviceTemplate IS NULL.  Any 
 	// Codes the user learned, or specifically wants to use instead will be in InfraredGroup_Command_Preferred, so we'll
 	// go through a second time to get the codes that are in there.
-	vector<Row_InfraredGroup_Command *> vectRow_InfraredGroup_Command[2];
+	vector<Row_InfraredGroup_Command *> vectRow_InfraredGroup_Command[4];
 
 	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(iPK_Device);
 	long FK_DeviceTemplate = pRow_Device->FK_DeviceTemplate_get();
@@ -516,29 +516,35 @@ void Infrared_Plugin::GetInfraredCodes(int iPK_Device,IRDevice &irDevice,bool bN
 		irDevice.m_sNumericEntry=pRow_DeviceTemplate_AV->NumericEntry_get();
 	}
 
-	vector<Row_DeviceTemplate_InfraredGroup *> vectRow_DeviceTemplate_InfraredGroup;
-	m_pDatabase_pluto_main->DeviceTemplate_InfraredGroup_get()->GetRows("FK_DeviceTemplate=" + StringUtils::itos(FK_DeviceTemplate),
-		&vectRow_DeviceTemplate_InfraredGroup);
-	
-	vector<Row_DeviceTemplate_InfraredGroup *>::iterator it_RDTIG;
-	for (it_RDTIG = vectRow_DeviceTemplate_InfraredGroup.begin(); it_RDTIG != vectRow_DeviceTemplate_InfraredGroup.end(); it_RDTIG++)
-	{
-		Row_DeviceTemplate_InfraredGroup * pRow_DeviceTemplate_InfraredGroup = *it_RDTIG;
-		pTable_InfraredGroup_Command->GetRows("FK_InfraredGroup=" + StringUtils::itos(pRow_DeviceTemplate_InfraredGroup->FK_InfraredGroup_get()) + 
-			" AND FK_DeviceTemplate IS NULL AND IRData IS NOT NULL AND IRData<>''",
-			&vectRow_InfraredGroup_Command[0]);
-	}
+	// Do in order of preference where 1) infraredgroup_command.devicetemplate matches
+	// 2) infraredgroup matches
+	// 3) device matches
+	// 4) explicitly specified as preferred
+	pTable_InfraredGroup_Command->GetRows("WHERE FK_DeviceTemplate=" + 
+		StringUtils::itos(FK_DeviceTemplate) + " AND IRData IS NOT NULL AND IRData<>''",
+		&vectRow_InfraredGroup_Command[0]);
+
+	Row_DeviceTemplate *pRow_DeviceTemplate = pRow_Device->FK_DeviceTemplate_getrow();
+	if( pRow_DeviceTemplate && pRow_DeviceTemplate->FK_InfraredGroup_get() )
+		pTable_InfraredGroup_Command->GetRows("FK_InfraredGroup=" + StringUtils::itos(pRow_DeviceTemplate->FK_InfraredGroup_get()) + 
+			" AND IRData IS NOT NULL AND IRData<>''",
+			&vectRow_InfraredGroup_Command[1]);
+
+	pTable_InfraredGroup_Command->GetRows("WHERE FK_Device=" + 
+		StringUtils::itos(iPK_Device) + " AND IRData IS NOT NULL AND IRData<>''",
+		&vectRow_InfraredGroup_Command[2]);
+
 	pTable_InfraredGroup_Command->GetRows("JOIN InfraredGroup_Command_Preferred ON FK_InfraredGroup_Command=PK_InfraredGroup_Command WHERE FK_DeviceTemplate=" + 
 		StringUtils::itos(FK_DeviceTemplate) + " AND IRData IS NOT NULL AND IRData<>''",
-		&vectRow_InfraredGroup_Command[1]);
+		&vectRow_InfraredGroup_Command[3]);
 
-	for (i = 0; i < 2; i++)
+	for (i = 0; i < 4; i++)
 {
 g_pPlutoLogger->Write(LV_STATUS,"Found %d codes for device %d",(int) vectRow_InfraredGroup_Command[i].size(),iPK_Device);
 		Count += vectRow_InfraredGroup_Command[i].size();
 }
 	
-	for (i = 0; i < 2; i++)
+	for (i = 0; i < 4; i++)
 	{
 		vector<Row_InfraredGroup_Command *>::iterator it_vRIGC;
 		for (it_vRIGC = vectRow_InfraredGroup_Command[i].begin(); it_vRIGC != vectRow_InfraredGroup_Command[i].end(); it_vRIGC++)
