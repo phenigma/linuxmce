@@ -629,7 +629,7 @@ void Table::GetChanges( R_UpdateTable *pR_UpdateTable )
 			pa_UpdateRow->m_vectValues.push_back( row[s] ? row[s] : NULL_TOKEN );
 		cout << "Sending psc_id: " << psc_id << " psc_batch: " << psc_batch << " psc_id_last_sync: " <<
 			pR_UpdateTable->m_psc_id_last_sync << " m_psc_batch_last_sync: " << pR_UpdateTable->m_psc_batch_last_sync << 
-			" # of fields: " << pR_UpdateTable->m_pvectFields->size( ) << " values: " << pR_UpdateTable->m_vectValues.size() << endl;
+			" # of fields: " << pR_UpdateTable->m_pvectFields->size( ) << " values: " << pa_UpdateRow->m_vectValues.size() << endl;
 		pR_UpdateTable->AddActionsToResponse( pa_UpdateRow );
 	}
 }
