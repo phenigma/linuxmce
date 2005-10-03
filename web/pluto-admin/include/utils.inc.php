@@ -198,10 +198,10 @@ function cleanString($str,$len=10000) {
 	if (!get_magic_quotes_gpc()) {
 		$cleanStr = addslashes($str);
 	} else {
-   		$cleanStr= $str;
+   		$cleanStr= stripslashes($str);
 	}
 	
-	return $str;
+	return $cleanStr;
 }
 
 function cleanStringWithTags2Show($string,$len=100000) {
