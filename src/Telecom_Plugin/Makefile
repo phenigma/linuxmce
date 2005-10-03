@@ -19,10 +19,10 @@ sources = Main.cpp Telecom_Plugin.cpp $(Gen_Dev_Files)
 CXXFLAGS +=
 CPPFLAGS +=
 LDFLAGS +=  
-XTRALDLIBS = -lpluto_main 
+XTRALDLIBS = -lpluto_main -lpluto_telecom
 
 Gen_Dev_Files += 
-sources += callmanager.cpp calldata.cpp 
+sources += callmanager.cpp calldata.cpp ../Gen_Devices/Datagrid_PluginBase.cpp ../Datagrid_Plugin/Datagrid_Plugin.cpp
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
