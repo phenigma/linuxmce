@@ -1,3 +1,4 @@
+#include "PlutoUtils/CommonIncludes.h"
 #include "XPromptUser.h"
 #include "DCE/Logger.h"
 #include <X11/Xutil.h>
@@ -285,7 +286,7 @@ bool XPromptUser::EventLoop()
 g_pPlutoLogger->Write(LV_STATUS,"Timed out waiting for prompt user");
 				return true;
 }
-			Sleep(100); // Don't hog the cpu
+			usleep(250000); // Don't hog the cpu
 		}
 
 g_pPlutoLogger->Write(LV_STATUS,"got event %d (%d)",(int) event.type,(int) ButtonRelease);

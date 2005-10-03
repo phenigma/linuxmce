@@ -41,7 +41,7 @@ private:
 
 public:
 	string m_wndName;
-	XPromptUser(string sPrompt, map<int, string> *pMapPrompts=NULL);
+	XPromptUser(string sPrompt, int iTimeoutSeconds, map<int, string> *pMapPrompts=NULL);
 	virtual ~XPromptUser();
 
 	inline void SetFonts(Font textFont, Font btnFont);
