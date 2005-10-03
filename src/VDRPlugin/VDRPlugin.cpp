@@ -394,6 +394,7 @@ void VDRPlugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sC
 				g_pPlutoLogger->Write(LV_CRITICAL,"VDRPlugin::CMD_Jump_Position_In_Playlist trying to tune to unknown event %s",sValue_To_Assign.c_str());
 			else
 			{
+				pVDRStateInfo->EventID = pEvent->m_EventID;
 				DCE::CMD_Tune_to_channel CMD_Tune_to_channel(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
 					"",StringUtils::itos(pEvent->m_pChannel->m_ChannelID));
 				SendCommand(CMD_Tune_to_channel);

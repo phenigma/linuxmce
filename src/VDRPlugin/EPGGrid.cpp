@@ -68,7 +68,7 @@ void EpgGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, int *R
 
 	for(int iRow=*RowStart;iRow<*RowStart + RowCount;++iRow)
 	{
-		if( iRow>=0 && iRow<m_pEPG->m_listChannel.size() )
+		if( iRow>=0 && iRow<m_pEPG->m_vectChannel.size() )
 		{
 			Channel *pChannel = m_pEPG->m_vectChannel[iRow];
 			// Use iRow+1 since the first row we added already for the header with the times

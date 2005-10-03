@@ -120,9 +120,16 @@ bool EPG::ReadFromFile(string sFileEPG,string sFileChannels)
 		if( !pChannel->m_ChannelID )
 			g_pPlutoLogger->Write(LV_WARNING,"Channel %s isn't mapped to a number",pChannel->m_sFrequency.c_str());
 	}
+
 	m_listChannel.sort(ChannelComparer);
+	Channel *pChannel_Prior = (*m_listChannel.rbegin());
 	for(list<Channel *>::iterator it=m_listChannel.begin();it!=m_listChannel.end();++it)
+	{
 		m_vectChannel.push_back(*it);
+		pChannel_Prior->m_pChannel_Next = *it;
+		(*it)->m_pChannel_Prior=pChannel_Prior;
+		pChannel_Prior = *it;
+	}
 	return true;
 }
 
@@ -270,7 +277,6 @@ Channel::~Channel()
 		delete pEvent;
 		pEvent = pEvent_Next;
 	}
-
 }
 
 Event *Channel::GetCurrentEvent()
@@ -279,6 +285,8 @@ Event *Channel::GetCurrentEvent()
 	Event *pEvent = m_pEvent_First;
 	while(pEvent && pEvent->m_tStopTime<t)
 		pEvent = pEvent->m_pEvent_Next;
+	if( !pEvent )
+		return m_pEvent_Last;
 	return pEvent;
 }
 
