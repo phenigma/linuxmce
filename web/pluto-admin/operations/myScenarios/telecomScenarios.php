@@ -78,13 +78,11 @@ function telecomScenarios($output,$dbADO) {
 			$displayedRooms[]=$rowRooms['PK_Room'];
 			$displayedRoomNames[]=$rowRooms['RoomName'];
 			$queryCG='
-				SELECT PK_CommandGroup FROM CommandGroup
+				SELECT PK_CommandGroup,Description FROM CommandGroup
 					INNER JOIN CommandGroup_Room on CommandGroup_Room.FK_CommandGroup=PK_CommandGroup
 				WHERE FK_Room=? AND FK_Template=?';
 			$resCG=$dbADO->Execute($queryCG,array($rowRooms['PK_Room'],$GLOBALS['TelecomScenariosTemplate']));
-			$rowCG=$resCG->FetchRow();
-			$roomCG=$rowCG['PK_CommandGroup'];
-			$oldTelecomScenarios[]=($resCG->RecordCount()>0)?1:0;
+
 			$out.='
 		<tr bgcolor="#D1D9EA">
 			<td align="right" width="20">&nbsp;</td>
@@ -96,7 +94,7 @@ function telecomScenarios($output,$dbADO) {
 		</tr>			
 		<tr>
 			<td align="right" width="20">&nbsp;</td>
-			<td><input type="hidden" name="oldCG_R_'.$rowRooms['PK_Room'].'" value="'.$rowCG['PK_CommandGroup'].'">
+			<td>
 			<table>
 				<tr>
 					<td colspan="3"><B>Speed dial</B></td>
@@ -107,12 +105,14 @@ function telecomScenarios($output,$dbADO) {
 					<td align="center"><B>Phone</B></td>
 					<td align="center">&nbsp;</td>
 				</tr>';
+			/*
 				$queryOtherCG='
 				SELECT PK_CommandGroup,Description FROM CommandGroup
 					INNER JOIN CommandGroup_Room on CommandGroup_Room.FK_CommandGroup=PK_CommandGroup
 				WHERE FK_Room=? AND FK_Template=? AND PK_CommandGroup!=?';
 
 			$resCG=$dbADO->Execute($queryOtherCG,array($rowRooms['PK_Room'],$GLOBALS['TelecomScenariosTemplate'],$roomCG));
+			*/
 			if($resCG->RecordCount()==0){
 				$out.='
 				<tr>

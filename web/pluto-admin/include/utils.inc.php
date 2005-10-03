@@ -194,8 +194,14 @@ $output = "";
         return $output;
 } 
 
-function cleanString($string,$len=100000) {
-	return substr(strip_tags(stripslashes(trim($string))),0,$len);
+function cleanString($str,$len=10000) {
+	if (!get_magic_quotes_gpc()) {
+		$cleanStr = addslashes($str);
+	} else {
+   		$cleanStr= $str;
+	}
+	
+	return $str;
 }
 
 function cleanStringWithTags2Show($string,$len=100000) {

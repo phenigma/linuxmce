@@ -1278,6 +1278,41 @@ switch ($section) {
 	    include_once('operations/myDevices/orbiters/orbiterRegenInProgress.php');
 	    orbiterRegenInProgress($output,$dbADO);
 	break;
+	case 'remoteOrbiter';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/myDevices/orbiters/remoteOrbiter.php');
+	    remoteOrbiter($output,$dbADO);
+	break;
+	case 'phoneBook':
+    	$output = new Template($dbADO);
+       	$output->setTemplateFileType('large');
+		@include($GLOBALS['globalConfigPath'].'telecom.inc.php');       	
+		include_once('operations/telecom/phoneBook.php');
+	    phoneBook($output,$telecomADO);
+	break;
+	case 'addPhoneNumber':
+    	$output = new Template($dbADO);
+       	$output->setTemplateFileType('large');
+		@include($GLOBALS['globalConfigPath'].'telecom.inc.php');       	
+		include_once('operations/telecom/addPhoneNumber.php');
+	    addPhoneNumber($output,$telecomADO);
+	break;
+	case 'editPhoneNumber':
+    	$output = new Template($dbADO);
+       	$output->setTemplateFileType('large');
+		@include($GLOBALS['globalConfigPath'].'telecom.inc.php');       	
+		include_once('operations/telecom/editPhoneNumber.php');
+	    editPhoneNumber($output,$telecomADO);
+	break;
+	case 'editContact':
+    	$output = new Template($dbADO);
+       	$output->setTemplateFileType('large');
+		@include($GLOBALS['globalConfigPath'].'telecom.inc.php');       	
+		include_once('operations/telecom/editContact.php');
+	    editContact($output,$telecomADO);
+	break;
+
 	
 	case '';
 		$output = new Template($dbADO);	
