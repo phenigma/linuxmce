@@ -106,7 +106,7 @@ void Datagrid_Plugin::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessa
 void Datagrid_Plugin::RegisterDatagridGenerator( class DataGridGeneratorCallBack *pCallBack, int PK_DataGrid, int PK_DeviceTemplate )
 {
 	map<int, DatagridGeneratorCallBackMap *>::iterator it = m_mapDataGridGeneratorCallBack.find( PK_DataGrid );
-	if( it!=m_mapDataGridGeneratorCallBack.end() )
+	if( it==m_mapDataGridGeneratorCallBack.end() )
 	{
 		DatagridGeneratorCallBackMap *pDatagridGeneratorCallBackMap = new DatagridGeneratorCallBackMap();
 		(*pDatagridGeneratorCallBackMap)[PK_DeviceTemplate] = pCallBack;

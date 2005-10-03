@@ -93,6 +93,7 @@ void VDRPlugin::FetchEPG()
 		PLUTO_SAFETY_LOCK(vm,m_VDRMutex);
 		for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();it!=pListDeviceData_Router->end();++it)
 		{
+			vm.TimedCondWait(1,0);  // 1 second delay here just to slow this down so it doesn't cause too much activity all at once
 			vm.Release();
 			DeviceData_Router *pDevice_VDR = *it;
 			DeviceData_Router *pDevice_MD = (DeviceData_Router *) pDevice_VDR->m_pDevice_ControlledVia;
@@ -110,8 +111,10 @@ void VDRPlugin::FetchEPG()
 
 			if( bIsHybrid )
 				sPath = "/usr/pluto/diskless/" + pDevice_MD->m_sIPAddress + "/" + sPath;
-
-			g_pPlutoLogger->Write(LV_STATUS,"Reading EPG from %s",sPath);
+#ifdef WIN32
+			sPath = "Y:/home/root/var/cache/vdrdevel/epg.data";
+#endif
+			g_pPlutoLogger->Write(LV_STATUS,"Reading EPG from %s",sPath.c_str());
 			VDREPG::EPG *pEPG = new VDREPG::EPG();
 			pEPG->ReadFromFile(sPath);
 			vm.Relock();
@@ -120,7 +123,7 @@ void VDRPlugin::FetchEPG()
 				delete pEPG_Old;
 			m_mapEPG[pDevice_VDR->m_dwPK_Device] = pEPG;
 			vm.Release();
-			g_pPlutoLogger->Write(LV_STATUS,"Done Reading EPG from %s",sPath);
+			g_pPlutoLogger->Write(LV_STATUS,"Done Reading EPG from %s",sPath.c_str());
 		}
 		// The first time refresh after 20 minutes to be sure we at least picked up the first days stuff
 		if( bFirstRun )
@@ -411,9 +414,16 @@ class DataGridTable *VDRPlugin::AllShows(string GridID, string Parms, void *Extr
 	if( !iGridResolutions )
 		iGridResolutions = 5;
 	MediaDevice *pMediaDevice = GetVDRFromOrbiter(pMessage->m_dwPK_Device_From);
-	return new VDREPG::EpgGrid(this,NULL,pMessage->m_dwPK_Device_From,iGridResolutions);  // Fallback, just return any VDR grid
 
-	return NULL; // Something's wrong -- we have no VDR Grid's
+	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
+	VDRStateInfo *pVDRStateInfo = m_mapVDRStateInfo[pMediaDevice->m_pDeviceData_Router->m_dwPK_Device];
+	if( !pVDRStateInfo )
+	{
+		pVDRStateInfo = new VDRStateInfo(pMediaDevice->m_pDeviceData_Router->m_dwPK_Device);
+		m_mapVDRStateInfo[pMediaDevice->m_pDeviceData_Router->m_dwPK_Device]=pVDRStateInfo;
+	}
+
+	return new VDREPG::EpgGrid(this,pVDRStateInfo,pMessage->m_dwPK_Device_From,iGridResolutions);  // Fallback, just return any VDR grid
 }
 
 class MediaDevice *VDRPlugin::GetVDRFromOrbiter(int PK_Device)

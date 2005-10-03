@@ -118,7 +118,7 @@ void EPG::ProcessLine(char *szLine)
 			g_pPlutoLogger->Write(LV_CRITICAL,"got a c, but not reading a channel");
 		else
 			g_pPlutoLogger->Write(LV_STATUS,"Read channel %s with events from %d-%d",
-				m_pChannel_Reading->m_sChannelName,
+				m_pChannel_Reading->m_sChannelName.c_str(),
 				(m_pChannel_Reading->m_pEvent_First ? m_pChannel_Reading->m_pEvent_First->m_tStartTime : 0),
 				(m_pChannel_Reading->m_pEvent_Last ? m_pChannel_Reading->m_pEvent_Last->m_tStopTime : 0));
 
