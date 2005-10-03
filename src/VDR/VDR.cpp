@@ -277,9 +277,7 @@ void VDR::CMD_Restart_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
 void VDR::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpeed,string &sCMD_Result,Message *pMessage)
 //<-dceag-c41-e->
 {
-	cout << "Need to implement command #41 - Change Playback Speed" << endl;
-	cout << "Parm #41 - StreamID=" << iStreamID << endl;
-	cout << "Parm #43 - MediaPlaybackSpeed=" << iMediaPlaybackSpeed << endl;
+	SendVDRCommand("CHAN +");
 }
 
 void VDR::ProcessExited(int pid, int status)
@@ -446,7 +444,7 @@ bool VDR::SendVDRCommand(string sCommand)
 {
 	g_pPlutoLogger->Write(LV_STATUS,"Going to send command %s",sCommand.c_str());
 	PlainClientSocket _PlainClientSocket("localhost:2001");
-	if( !m_pSocket_VDR->Connect() )
+	if( !_PlainClientSocket.Connect() )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Unable to connect to VDR client");
 		return false;
@@ -459,16 +457,26 @@ bool VDR::SendVDRCommand(string sCommand)
 		return false;
 	}
 
-	if( !_PlainClientSocket.SendString(sResponse) )
+	if( !_PlainClientSocket.SendString(sCommand) )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Could not send string");
 		return false;
 	}
 
-	if( !_PlainClientSocket.ReceiveString(sResponse) || sResponse.substr(0,3)!="220" )
+	if( !_PlainClientSocket.ReceiveString(sResponse) || sResponse.substr(0,3)!="250" )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"VDR not ok with command got %s",sResponse.c_str());
 		return false;
+	}
+	
+	if( sResponse.size()>4 )
+	{
+		string::size_type pos_space = sResponse.find(' ',4);
+		int ChannelNum = atoi( sResponse.substr(4).c_str() );
+		string sChannelName;
+		if( pos_space!=string::npos )
+			sChannelName = sResponse.substr(pos_space+1);
+		g_pPlutoLogger->Write(LV_STATUS,"VDR processed ok, channel %d / %s",ChannelNum,sChannelName.c_str());
 	}
 
 	if( !_PlainClientSocket.SendString("QUIT") )
@@ -477,7 +485,7 @@ bool VDR::SendVDRCommand(string sCommand)
 		return false;
 	}
 
-	if( !_PlainClientSocket.ReceiveString(sResponse) || sResponse.substr(0,3)!="220" )
+	if( !_PlainClientSocket.ReceiveString(sResponse) || sResponse.substr(0,3)!="221" )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"VDR not ok with quit got %s",sResponse.c_str());
 		return false;
