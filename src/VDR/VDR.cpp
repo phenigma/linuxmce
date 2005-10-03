@@ -55,8 +55,9 @@ VDR::VDR(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLoca
          g_pVDR = this;
          m_VDRMutex.Init(NULL);
          m_iVDRWindowId = 0;
+	m_iStreamID = 0;
+	m_pDevice_MediaPlugin=NULL;
 	 m_pDevice_PVRCard = NULL;
-	 m_pSocket_VDR = NULL;
 }
                                 
 
@@ -69,9 +70,10 @@ bool VDR::GetConfig()
 //<-dceag-getconfig-e->
 	m_pDevice_PVRCard = m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_PVR_Capture_Cards_CONST);
 	m_pDevice_Xine = m_pData->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_Xine_Player_CONST);
-	if( !m_pDevice_Xine )
+	m_pDevice_MediaPlugin = m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory(DEVICECATEGORY_Media_Plugins_CONST);
+	if( !m_pDevice_Xine || !m_pDevice_MediaPlugin )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"I need a Xine player to function");
+		g_pPlutoLogger->Write(LV_CRITICAL,"I need a Xine player & media plugin to function");
 		return false;
 	}
 			
@@ -196,21 +198,8 @@ void VDR::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,string
              
         // ProcessUtils::SpawnApplication("/usr/bin/xine", "vdr:/tmp/vdr-xine/stream#demux:mpeg_pes", "VDR_Xine");
 
+	m_iStreamID = iStreamID;
     LaunchVDR();
-
-    PLUTO_SAFETY_LOCK(mm,m_VDRMutex);
-	delete m_pSocket_VDR; // Should always be NULL anyway
-	int Port = DATA_Get_TCP_Port();
-	if( !Port )
-		Port = 2002;
-	g_pPlutoLogger->Write(LV_STATUS,"Connecting to VDR on port %d",Port);
-	m_pSocket_VDR = new PlainClientSocket("localhost:" + StringUtils::itos(Port));
-	if( !m_pSocket_VDR->Connect() )
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Unable to connect to VDR client");
-		sCMD_Result="FAILED CONNECT";
-		return;
-	}
 }
 
 //<-dceag-c38-b->
@@ -230,9 +219,8 @@ void VDR::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &sCMD_Resul
                         1,
 			&SavedPosition);
 	SendCommand(cmd);
-			
-    PLUTO_SAFETY_LOCK(mm,m_VDRMutex);
-	delete m_pSocket_VDR; // Should always be NULL anyway
+
+	m_iStreamID = 0;
 }
 
 //<-dceag-c39-b->
@@ -245,8 +233,6 @@ void VDR::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &sCMD_Resul
 void VDR::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c39-e->
 {
-    PLUTO_SAFETY_LOCK(mm,m_VDRMutex);
-	m_pSocket_VDR->SendString("PAUSE");
 	cout << "Need to implement command #39 - Pause Media" << endl;
 	cout << "Parm #41 - StreamID=" << iStreamID << endl;
 }
@@ -277,7 +263,6 @@ void VDR::CMD_Restart_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
 void VDR::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpeed,string &sCMD_Result,Message *pMessage)
 //<-dceag-c41-e->
 {
-	SendVDRCommand("CHAN +");
 }
 
 void VDR::ProcessExited(int pid, int status)
@@ -365,9 +350,9 @@ void VDR::CMD_PIP_Channel_Down(string &sCMD_Result,Message *pMessage)
 void VDR::CMD_Tune_to_channel(string sOptions,string sProgramID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c187-e->
 {
-	cout << "Need to implement command #187 - Tune to channel" << endl;
-	cout << "Parm #39 - Options=" << sOptions << endl;
-	cout << "Parm #68 - ProgramID=" << sProgramID << endl;
+	string sResponse;
+	if( SendVDRCommand("CHAN " + sProgramID,sResponse) )
+		ParseCurrentChannel(sResponse);
 }
 
 
@@ -440,9 +425,9 @@ void VDR::KillSpawnedDevices()
 {
 }
 
-bool VDR::SendVDRCommand(string sCommand)
+bool VDR::SendVDRCommand(string sCommand,string &sVDRResponse)
 {
-	g_pPlutoLogger->Write(LV_STATUS,"Going to send command %s",sCommand.c_str());
+	g_pPlutoLogger->Write(LV_WARNING,"Going to send command %s",sCommand.c_str());
 	PlainClientSocket _PlainClientSocket("localhost:2001");
 	if( !_PlainClientSocket.Connect() )
 	{
@@ -470,15 +455,8 @@ bool VDR::SendVDRCommand(string sCommand)
 	}
 	
 	if( sResponse.size()>4 )
-	{
-		string::size_type pos_space = sResponse.find(' ',4);
-		int ChannelNum = atoi( sResponse.substr(4).c_str() );
-		string sChannelName;
-		if( pos_space!=string::npos )
-			sChannelName = sResponse.substr(pos_space+1);
-		g_pPlutoLogger->Write(LV_STATUS,"VDR processed ok, channel %d / %s",ChannelNum,sChannelName.c_str());
-	}
-
+		sVDRResponse = sResponse.substr(4);
+g_pPlutoLogger->Write(LV_WARNING,"VDR Responded %s",sResponse.c_str());
 	if( !_PlainClientSocket.SendString("QUIT") )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Could not send string");
@@ -492,4 +470,24 @@ bool VDR::SendVDRCommand(string sCommand)
 	}
 	
 	_PlainClientSocket.Close();
+	return true;
+}
+
+void VDR::ParseCurrentChannel(string sChannel)
+{
+	if( sChannel.size()<3 )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Error parsing channel %s",sChannel.c_str());
+		return;
+	}
+	string::size_type pos_space = sChannel.find(' ');
+	m_iChannelNumber = atoi( sChannel.c_str() );
+	if( pos_space!=string::npos )
+		m_sChannelName = sChannel.substr(pos_space+1);
+	g_pPlutoLogger->Write(LV_CRITICAL,"VDR processed ok, channel %d / %s",m_iChannelNumber,m_sChannelName.c_str());
+	DCE::CMD_Update_Time_Code CMD_Update_Time_Code_(m_dwPK_Device,m_pDevice_MediaPlugin->m_dwPK_Device,
+		m_iStreamID,"","",
+		"","",
+		StringUtils::itos(m_iChannelNumber) + " " + m_sChannelName);
+	SendCommand(CMD_Update_Time_Code_);
 }

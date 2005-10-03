@@ -627,6 +627,9 @@ void Table::GetChanges( R_UpdateTable *pR_UpdateTable )
 
 		for( size_t s=0;s<pR_UpdateTable->m_pvectFields->size( );++s )
 			pa_UpdateRow->m_vectValues.push_back( row[s] ? row[s] : NULL_TOKEN );
+		cout << "Sending psc_id: " << psc_id << " psc_batch: " << psc_batch << " psc_id_last_sync: " <<
+			pR_UpdateTable->m_psc_id_last_sync << " m_psc_batch_last_sync: " << pR_UpdateTable->m_psc_batch_last_sync << 
+			" # of fields: " << pR_UpdateTable->m_pvectFields->size( ) << " values: " << pR_UpdateTable->m_vectValues.size() << endl;
 		pR_UpdateTable->AddActionsToResponse( pa_UpdateRow );
 	}
 }
@@ -1348,7 +1351,10 @@ int k=2;
 		if( ModifiedRow(pA_UpdateRow->m_psc_id) &&
 				(g_GlobalConfig.m_bNoPrompts || !AskYNQuestion("In Table " + m_sName + " psc_id: " + StringUtils::itos(pA_UpdateRow->m_psc_id)
 				+ " was modified on the server and locally.\nDelete your local changes?",false)) )
+		{
+			cout << "WARNING: *** Skipping locally updated row" << endl;
 			bSkippingUpdate=true;
+		}
 
 		// It's possible that an incoming row is going to use the same primary key as one 
 		// we added locally but haven't checked in yet, or isn't approved

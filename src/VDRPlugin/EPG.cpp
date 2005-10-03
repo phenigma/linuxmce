@@ -9,21 +9,31 @@ using namespace std;
 using namespace DCE;
 using namespace VDREPG;
 
+static bool ChannelComparer(Channel *x, Channel *y)
+{
+	return x->m_ChannelID<y->m_ChannelID;
+}
+
 EPG::~EPG()
 {
-	for(size_t s=0;s<m_vectChannel.size();++s)
-		delete m_vectChannel[s];
+	for(list<Channel *>::iterator it=m_listChannel.begin();it!=m_listChannel.end();++it)
+		delete *it;
 	for(map<string,Program *>::iterator it=m_mapProgram.begin();it!=m_mapProgram.end();++it)
 		delete it->second;
 }
 
-bool EPG::ReadFromFile(string sFile)
+bool EPG::ReadFromFile(string sFileEPG,string sFileChannels)
 {
-	size_t size;
-	char *pBuffer = FileUtils::ReadFileIntoBuffer(sFile,size);
-	g_pPlutoLogger->Write(LV_STATUS,"PG::ReadFromFile %d bytes",(int) size);
-	if( !pBuffer )
+	size_t size,size_channels;
+	char *pBuffer = FileUtils::ReadFileIntoBuffer(sFileEPG,size);
+	char *pBuffer_Channels = FileUtils::ReadFileIntoBuffer(sFileChannels,size_channels);
+	g_pPlutoLogger->Write(LV_STATUS,"PG::ReadFromFile %d (%d) bytes",(int) size,(int) size_channels);
+	if( !pBuffer || !pBuffer_Channels )
+	{
+		delete pBuffer;  // in case we got one and not the other
+		delete pBuffer_Channels;
 		return false;
+	}
 
 	m_pChannel_Reading=NULL;
 	m_pEvent_Reading=NULL;
@@ -43,6 +53,76 @@ bool EPG::ReadFromFile(string sFile)
 			pPtrLine=pPtr;
 		}
 	}
+	delete[] pBuffer;
+
+	map<string,int> mapChannelsFrequencies;
+	pPtr = pBuffer_Channels,pPtrLine=pBuffer_Channels;
+	char *pPtrColon1=NULL,*pPtrColon2=NULL,*pPtrColon3=NULL,*pPtrColon4=NULL,*pPtrColon5=NULL,*pPtrColon6=NULL,*pPtrColon7=NULL,*pPtrColon8=NULL,*pPtrColon9=NULL,*pPtrColon10=NULL,*pPtrColon11=NULL,*pPtrColon12=NULL;
+	int counter=1;
+	while( *pPtr )
+	{
+		if( *pPtr=='\n' || *pPtr==0 )  // We got the end of the line
+		{
+			// Process the line only if it doesn't start with a : and all our pointers are good
+			if( *pPtrLine!=':' && pPtrColon12 )
+			{
+				//                                colons:     1     2    3      4     5   6       9   8 9    10 11   12
+				// Channel.conf = RTL Television,RTL;RTL World:12187:hC34:S19.2E:27500:163:104=deu:105:0:12003:1:1089:0
+				// epg data = S19.2E-1-1089-12003
+				// it is colon3-10-11-9
+				*pPtrColon4=*pPtrColon11=*pPtrColon12=*pPtrColon10=0; // Terminate
+				string sFrequency = string(pPtrColon3+1) + "-" + string(pPtrColon10+1) + "-" + string(pPtrColon11+1) + "-" + string(pPtrColon9+1);
+				mapChannelsFrequencies[sFrequency] = counter++;
+			}
+			pPtrColon1=pPtrColon2=pPtrColon3=pPtrColon4=pPtrColon5=pPtrColon6=pPtrColon7=pPtrColon8=pPtrColon9=pPtrColon10=pPtrColon11=pPtrColon12=NULL;
+			pPtrLine = pPtr+1;
+		}
+		else if( *pPtr==':' && !pPtrColon12 )
+		{
+			if( pPtrColon11 )
+				pPtrColon12 = pPtr;
+			else if( pPtrColon10 )
+				pPtrColon11 = pPtr;
+			else if( pPtrColon9 )
+				pPtrColon10 = pPtr;
+			else if( pPtrColon8 )
+				pPtrColon9 = pPtr;
+			else if( pPtrColon7 )
+				pPtrColon8 = pPtr;
+			else if( pPtrColon6 )
+				pPtrColon7 = pPtr;
+			else if( pPtrColon5 )
+				pPtrColon6 = pPtr;
+			else if( pPtrColon4 )
+				pPtrColon5 = pPtr;
+			else if( pPtrColon3 )
+				pPtrColon4 = pPtr;
+			else if( pPtrColon2 )
+				pPtrColon3 = pPtr;
+			else if( pPtrColon1 )
+				pPtrColon2 = pPtr;
+			else
+				pPtrColon1 = pPtr;
+		}
+
+		if( *pPtr==0 )
+			break;
+
+		pPtr++;
+	}
+
+	delete[] pBuffer_Channels;
+	for(list<Channel *>::iterator it=m_listChannel.begin();it!=m_listChannel.end();++it)
+	{
+		Channel *pChannel = *it;
+		pChannel->m_ChannelID = mapChannelsFrequencies[pChannel->m_sFrequency];
+		m_mapChannelNumber[pChannel->m_ChannelID]=pChannel;
+		if( !pChannel->m_ChannelID )
+			g_pPlutoLogger->Write(LV_WARNING,"Channel %s isn't mapped to a number",pChannel->m_sFrequency.c_str());
+	}
+	m_listChannel.sort(ChannelComparer);
+	for(list<Channel *>::iterator it=m_listChannel.begin();it!=m_listChannel.end();++it)
+		m_vectChannel.push_back(*it);
 	return true;
 }
 
@@ -51,7 +131,8 @@ void EPG::ProcessLine(char *szLine)
 	if( *szLine=='C' )
 	{
 		m_pChannel_Reading = new Channel(szLine+2);
-		m_vectChannel.push_back(m_pChannel_Reading);
+		m_listChannel.push_back(m_pChannel_Reading);
+		m_mapChannelName[m_pChannel_Reading->m_sChannelName]=m_pChannel_Reading;
 		m_pEvent_Reading = NULL;
 		m_pProgram_Reading = NULL;
 	}
@@ -72,9 +153,12 @@ void EPG::ProcessLine(char *szLine)
 			m_pChannel_Reading->m_pEvent_First = m_pEvent_Reading;  // This is now the first, and will point to the last
 			if( !m_pChannel_Reading->m_pEvent_Last )
 				m_pChannel_Reading->m_pEvent_Last = m_pEvent_Reading;  // This was totally empty, so this is now the last too
+			m_pEvent_Reading->m_pEvent_Prior = m_pChannel_Reading->m_pEvent_Last;
 		}
 		else if( m_pChannel_Reading->m_pEvent_Last->m_tStartTime < m_pEvent_Reading->m_tStartTime )
 		{
+			m_pEvent_Reading->m_pEvent_Prior = m_pChannel_Reading->m_pEvent_Last;
+			m_pEvent_Reading->m_pEvent_Next = m_pChannel_Reading->m_pEvent_First;
 			m_pChannel_Reading->m_pEvent_Last->m_pEvent_Next = m_pEvent_Reading;
 			m_pChannel_Reading->m_pEvent_Last = m_pEvent_Reading;
 		}
@@ -152,6 +236,14 @@ Event::~Event()
 		delete *it;
 }
 
+Event *Event::ConfirmCurrentProgram()
+{
+	time_t tNow = time(NULL);
+	if( tNow>=m_tStartTime && tNow<=m_tStopTime )
+		return this;
+	return m_pChannel->GetCurrentEvent();
+}
+
 Channel::Channel(char *szLine)
 {
 	char *pSpace = strchr(szLine,' ');
@@ -161,10 +253,12 @@ Channel::Channel(char *szLine)
 		return;
 	}
 	*pSpace=0;
+	m_ChannelID = 0; // Must assign elsewhere
 	m_sChannelName = pSpace+1;
 	m_sFrequency = szLine;
 	m_pEvent_First = NULL;
 	m_pEvent_Last = NULL;
+	m_pChannel_Prior = m_pChannel_Next = NULL;
 }
 
 Channel::~Channel()

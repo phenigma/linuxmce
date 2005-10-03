@@ -15,6 +15,7 @@ namespace VDREPG
 		int m_ChannelID;
 		string m_sChannelName,m_sFrequency;
 		Event *m_pEvent_First,*m_pEvent_Last;
+		Channel *m_pChannel_Prior,*m_pChannel_Next;
 
 		Channel(char *szLine);
 		~Channel();
@@ -33,6 +34,7 @@ namespace VDREPG
 		time_t m_tStartTime,m_tStopTime;
 		int m_VPSTime;
 		list<Stream *> m_listStream;
+		Event *ConfirmCurrentProgram(); // Returns this if it's the current event, or if this isn't the current event, returns the current event for this channel
 
 		Event(char *szLine,Channel *pChannel);
 		~Event();
@@ -47,6 +49,7 @@ namespace VDREPG
 		list<Event *> m_listEvent;
 
 		Program(char *szLine) { m_sTitle=szLine; }
+		~Program() {}
 	};
 
 	class Stream
@@ -54,6 +57,7 @@ namespace VDREPG
 	public:
 		string m_sFormat,m_sType,m_sLanguage,m_sDescription;
 		Stream(string sLine) {} ;
+		~Stream() {} ;
 	};
 
 	class EPG
@@ -66,7 +70,11 @@ namespace VDREPG
 
 	public:
 		time_t m_tTime_First,m_tTime_Last;
-		vector<Channel *> m_vectChannel;
+		list<Channel *> m_listChannel;  // Channels in the order we parse them
+		vector<Channel *> m_vectChannel;  // Also a vect so we can jump to the first one in order in the grid
+		map<string,Channel *> m_mapChannelName;  // A map to locate quickly by string
+		map<int,Channel *> m_mapChannelNumber;  // A map to locate quickly by string
+		Channel *m_mapChannelNumber_Find(int ChannelNumber) { map<int,Channel *>::iterator it = m_mapChannelNumber.find(ChannelNumber); return it==m_mapChannelNumber.end() ? NULL : (*it).second; }
 		map<int,Event *> m_mapEvent;
 		Event *m_mapEvent_Find(int EventID) { map<int,Event *>::iterator it = m_mapEvent.find(EventID); return it==m_mapEvent.end() ? NULL : (*it).second; }
 		map<string,Program *> m_mapProgram;
@@ -74,7 +82,7 @@ namespace VDREPG
 
 		EPG() { m_tTime_First=m_tTime_Last=0; };
 		~EPG();
-		bool ReadFromFile(string sFile); // Read the epg data from a file
+		bool ReadFromFile(string sFileEPG,string sFileChannels); // Read the epg data from a file
 		void ProcessLine(char *szLine);  // Process a line within that file
 	};
 }

@@ -73,6 +73,7 @@ private:
         int                 m_iRequestingObject;
 
         bool                m_bIsRendering;
+		bool				m_bIsVDR;   // Is this live tv from VDR?
         int                 m_iImgWidth, m_iImgHeight;
         int                 m_iImgXPos, m_iImgYPos;
         int                 m_iPlaybackSpeed;
@@ -89,6 +90,7 @@ private:
         */
         void setPlaybackSpeed(int speed);
         friend class XineSlaveWrapper;
+        friend class Xine_Player;
     };
 
     friend class DCE::Xine_Player;

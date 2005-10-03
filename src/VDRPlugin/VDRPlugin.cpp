@@ -107,22 +107,26 @@ void VDRPlugin::FetchEPG()
 			bool bIsHybrid = pDevice_Router && pDevice_MD->m_dwPK_Device_ControlledVia==pDevice_Router->m_dwPK_Device_ControlledVia;
 			string sPath = pDevice_VDR->m_mapParameters_Find(DEVICEDATA_File_Name_and_Path_CONST);
 			if( sPath.size()==0 )
-				sPath = "/var/cache/vdrdevel/epg.data";
+				sPath = "/var/cache/vdrdevel";
 
 			if( bIsHybrid )
 				sPath = "/usr/pluto/diskless/" + pDevice_MD->m_sIPAddress + "/" + sPath;
 #ifdef WIN32
-			sPath = "Y:/home/root/var/cache/vdrdevel/epg.data";
+			sPath = "Y:/home/root/var/cache/vdrdevel";
 #endif
 			g_pPlutoLogger->Write(LV_STATUS,"Reading EPG from %s",sPath.c_str());
 			VDREPG::EPG *pEPG = new VDREPG::EPG();
-			pEPG->ReadFromFile(sPath);
+			pEPG->ReadFromFile(sPath + "/epg.data",StringUtils::Replace(sPath,"/cache/","/lib/") + "/channels.conf");
 			vm.Relock();
+			if( pEPG->m_listChannel.size()==0 || pEPG->m_mapEvent.size()==0 )
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL,"EPG file %s was badly parsed",sPath.c_str());
+				continue;
+			}
 			VDREPG::EPG *pEPG_Old = m_mapEPG[pDevice_VDR->m_dwPK_Device];
 			if( pEPG_Old )
 				delete pEPG_Old;
 			m_mapEPG[pDevice_VDR->m_dwPK_Device] = pEPG;
-			vm.Release();
 			g_pPlutoLogger->Write(LV_STATUS,"Done Reading EPG from %s",sPath.c_str());
 		}
 		// The first time refresh after 20 minutes to be sure we at least picked up the first days stuff
@@ -258,6 +262,16 @@ bool VDRPlugin::StartMedia( class MediaStream *pMediaStream )
 		for(map<int,bool>::iterator it=pVDRStateInfo->m_mapOrbiter_HasInitialPosition.begin();it!=pVDRStateInfo->m_mapOrbiter_HasInitialPosition.begin();++it)
 			it->second = false;
 
+	PLUTO_SAFETY_LOCK(vm,m_VDRMutex);
+	VDREPG::EPG *pEPG = m_mapEPG_Find(PK_Device);
+	if( !pEPG )
+		pEPG = m_mapEPG.begin()->second;
+	if( !pEPG )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot start without any EPG data");
+		return false;
+	}
+	pVDRStateInfo->m_bViewing = true;
 	DCE::CMD_Play_Media CMD_Play_Media(m_dwPK_Device,PK_Device,"",pMediaStream->m_iPK_MediaType,
 		pMediaStream->m_iStreamID_get(), "");
 
@@ -273,6 +287,12 @@ bool VDRPlugin::StopMedia( class MediaStream *pMediaStream )
 
 	string SavedPosition;
 	int PK_Device = pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
+	VDRStateInfo *pVDRStateInfo = m_mapVDRStateInfo_Find(PK_Device);
+	if( !pVDRStateInfo )
+		g_pPlutoLogger->Write(LV_CRITICAL,"VDRPlugin::StopMedia but no state info");
+	else
+		pVDRStateInfo = false;
+
 	int StreamID = pMediaStream->m_iStreamID_get( );
 	DCE::CMD_Stop_Media CMD_Stop_Media(m_dwPK_Device,PK_Device,pMediaStream->m_iStreamID_get(),&SavedPosition);
 
@@ -323,21 +343,66 @@ MediaDevice *VDRPlugin::FindMediaDeviceForEntertainArea(EntertainArea *pEntertai
 void VDRPlugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c65-e->
 {
+	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
+
 	MediaDevice *pMediaDevice = GetVDRFromOrbiter(pMessage->m_dwPK_Device_From);
 	VDREPG::EPG *pEPG = NULL; 
 	PLUTO_SAFETY_LOCK(vm,m_VDRMutex);
-	if( pMediaDevice && (pEPG=m_mapEPG_Find(pMediaDevice->m_pDeviceData_Router->m_dwPK_Device)) )
+    if( pMediaDevice && (pEPG=m_mapEPG_Find(pMediaDevice->m_pDeviceData_Router->m_dwPK_Device)) && pEPG->m_mapEvent.size() && sValue_To_Assign.size() )
 	{
-		VDREPG::Event *pEvent = pEPG->m_mapEvent_Find(atoi(sValue_To_Assign.c_str()));
-		if( !pEvent || !pEvent->m_pChannel )
-			g_pPlutoLogger->Write(LV_CRITICAL,"VDRPlugin::CMD_Jump_Position_In_Playlist trying to tune to unknown event %s",sValue_To_Assign.c_str());
+		VDRStateInfo *pVDRStateInfo = m_mapVDRStateInfo_Find(pMediaDevice->m_pDeviceData_Router->m_dwPK_Device);
+		if( !pVDRStateInfo )
+			g_pPlutoLogger->Write(LV_CRITICAL,"VDRPlugin::CMD_Jump_Position_In_Playlist but no state info");
 		else
 		{
-			DCE::CMD_Tune_to_channel CMD_Tune_to_channel(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
-				"",pEvent->m_pChannel->m_sFrequency);
-			SendCommand(CMD_Tune_to_channel);
+			VDREPG::Event *pEvent=NULL;
+			if( sValue_To_Assign[0]=='-' || sValue_To_Assign[0]=='+' )
+			{
+				pEvent = pEPG->m_mapEvent_Find(pVDRStateInfo->EventID);
+				if( !pEvent )
+				{
+					g_pPlutoLogger->Write(LV_CRITICAL,"VDRPlugin::CMD_Jump_Position_In_Playlist cannot find current event!");
+					pEvent = pEPG->m_mapEvent.begin()->second;
+				}
+				VDREPG::Channel *pChannel = pEvent->m_pChannel;
+				if( sValue_To_Assign[0]=='-' )
+					pEvent = pEvent->m_pChannel->m_pChannel_Prior->GetCurrentEvent();
+				else
+					pEvent = pEvent->m_pChannel->m_pChannel_Next->GetCurrentEvent();
+			}
+			else if( sValue_To_Assign[0]=='E' )
+			{
+				pEvent = pEPG->m_mapEvent_Find(atoi(sValue_To_Assign.substr(1).c_str()));
+				if( !pEvent )
+				{
+					g_pPlutoLogger->Write(LV_CRITICAL,"VDRPlugin::CMD_Jump_Position_In_Playlist event invalid!");
+					pEvent = pEPG->m_mapEvent.begin()->second;
+				}
+				pEvent = pEvent->ConfirmCurrentProgram(); // Confirm it's the current one
+			}
+			else  // Must be a channel
+			{
+				VDREPG::Channel *pChannel = pEPG->m_mapChannelNumber_Find( atoi(sValue_To_Assign.c_str()) );
+				if( !pChannel )
+				{
+					g_pPlutoLogger->Write(LV_CRITICAL,"VDRPlugin::CMD_Jump_Position_In_Playlist cannot find channel %s",sValue_To_Assign.c_str());
+					pChannel = *pEPG->m_listChannel.begin();
+				}
+				pEvent = pChannel->GetCurrentEvent();
+			}
+			if( !pEvent || !pEvent->m_pChannel )
+				g_pPlutoLogger->Write(LV_CRITICAL,"VDRPlugin::CMD_Jump_Position_In_Playlist trying to tune to unknown event %s",sValue_To_Assign.c_str());
+			else
+			{
+				DCE::CMD_Tune_to_channel CMD_Tune_to_channel(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
+					"",StringUtils::itos(pEvent->m_pChannel->m_ChannelID));
+				SendCommand(CMD_Tune_to_channel);
+			}
 		}
 	}
+	else
+		g_pPlutoLogger->Write(LV_CRITICAL,"VDRPlugin::CMD_Jump_Position_In_Playlist confused?? media device %p EPG %p events %d val: %s",
+			pMediaDevice,pEPG,(int) pEPG->m_mapEvent.size(),sValue_To_Assign.c_str());
 }
 
 //<-dceag-c185-b->
@@ -372,15 +437,15 @@ class DataGridTable *VDRPlugin::CurrentShows(string GridID, string Parms, void *
 
 	int iColumns=atoi(Parms.c_str());
 	int iRow=0,iColumn=0;
-	for(size_t s=0;s<pEPG->m_vectChannel.size();++s)
+	for(list<VDREPG::Channel *>::iterator it=pEPG->m_listChannel.begin();it!=pEPG->m_listChannel.end();++it)
 	{
-		VDREPG::Channel *pChannel = pEPG->m_vectChannel[s];
+		VDREPG::Channel *pChannel = *it;
 		VDREPG::Event *pEvent = pChannel->GetCurrentEvent();
 		if( pEvent )
 		{
-			pDataGridCell = new DataGridCell(pEvent->m_pChannel->m_sChannelName,StringUtils::itos(pEvent->m_EventID));
+			pDataGridCell = new DataGridCell(pEvent->m_pChannel->m_sChannelName,"E" + StringUtils::itos(pEvent->m_EventID));
 			pDataGrid->SetData((iColumn*5),iRow,pDataGridCell);
-			pDataGridCell = new DataGridCell(pEvent->m_pProgram->m_sTitle,StringUtils::itos(pEvent->m_EventID));
+			pDataGridCell = new DataGridCell(pEvent->m_pProgram->m_sTitle,"E" + StringUtils::itos(pEvent->m_EventID));
 			pDataGridCell->m_Colspan=3;
 			pDataGrid->SetData((iColumn*5)+1,iRow,pDataGridCell);
 
@@ -395,7 +460,7 @@ class DataGridTable *VDRPlugin::CurrentShows(string GridID, string Parms, void *
 				StringUtils::itos(tmptr->tm_hour) + ":" + (tmptr->tm_min<10 ? "0" : "") +
 				StringUtils::itos(tmptr->tm_min);
 
-			pDataGridCell = new DataGridCell(sDesc,StringUtils::itos(pEvent->m_EventID));
+			pDataGridCell = new DataGridCell(sDesc,"E" + StringUtils::itos(pEvent->m_EventID));
 			pDataGrid->SetData((iColumn*5)+4,iRow,pDataGridCell);
 			iColumn++;
 			if( iColumn>iColumns )
@@ -454,7 +519,7 @@ void VDRPlugin::CMD_Get_Extended_Media_Data(string sPK_DesignObj,string sProgram
 	VDREPG::EPG *pEPG = NULL; 
 	if( pMediaDevice && (pEPG=m_mapEPG_Find(pMediaDevice->m_pDeviceData_Router->m_dwPK_Device)) )
 	{
-		VDREPG::Event *pEvent = pEPG->m_mapEvent_Find(atoi(sProgramID.c_str()));
+		VDREPG::Event *pEvent = pEPG->m_mapEvent_Find(atoi(sProgramID.substr(1).c_str()));
 		if( !pEvent || !pEvent->m_pChannel )
 			g_pPlutoLogger->Write(LV_CRITICAL,"VDRPlugin::CMD_Get_Extended_Media_Data trying to tune to unknown event %s",sProgramID.c_str());
 		else

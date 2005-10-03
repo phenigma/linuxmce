@@ -997,6 +997,18 @@ void Xine_Player::ReportTimecode(int iStreamID,int Speed)
 	if( !m_pDeviceData_MediaPlugin || !m_pXineSlaveControl->m_iTimeCodeReportFrequency )
 		return;
 
+    XineStream *xineStream = m_pXineSlaveControl->getStreamForId(iStreamID, "Can't get the position of a nonexistent stream!");
+	if( !xineStream )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Xine_Player::ReportTimecode cannot find stream");
+		return;
+	}
+	else if( xineStream->m_bIsVDR )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"ignoring vdr timecode for now");
+		return;
+	}
+
 	g_pPlutoLogger->Write(LV_WARNING,"reporting timecode");
     int currentTime, totalTime;
 	int iMediaPosition = m_pXineSlaveControl->getStreamPlaybackPosition(1, currentTime, totalTime);

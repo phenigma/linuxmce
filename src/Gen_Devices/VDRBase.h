@@ -34,6 +34,7 @@ public:
 	class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition);
 	virtual int GetPK_DeviceList() { return 1705; } ;
 	virtual const char *GetDeviceDescription() { return "VDR"; } ;
+	string Get_File_Name_and_Path() { return m_mapParameters[42];}
 	int Get_TCP_Port() { return atoi(m_mapParameters[69].c_str());}
 };
 
@@ -121,6 +122,7 @@ public:
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
+	string DATA_Get_File_Name_and_Path() { return GetData()->Get_File_Name_and_Path(); }
 	int DATA_Get_TCP_Port() { return GetData()->Get_TCP_Port(); }
 	//Event accessors
 	void EVENT_Playback_Info_Changed(string sMediaDescription,string sSectionDescription,string sSynposisDescription) { GetEvents()->Playback_Info_Changed(sMediaDescription.c_str(),sSectionDescription.c_str(),sSynposisDescription.c_str()); }

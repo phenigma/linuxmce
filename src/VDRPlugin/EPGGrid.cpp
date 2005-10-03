@@ -19,7 +19,7 @@ int EpgGrid::GetRows()
 {
 	if( !m_pEPG )
 		return 0;
-	return m_pEPG->m_vectChannel.size();
+	return m_pEPG->m_listChannel.size();
 }
 
 int EpgGrid::GetCols()
@@ -68,7 +68,7 @@ void EpgGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, int *R
 
 	for(int iRow=*RowStart;iRow<*RowStart + RowCount;++iRow)
 	{
-		if( iRow>=0 && iRow<m_pEPG->m_vectChannel.size() )
+		if( iRow>=0 && iRow<m_pEPG->m_listChannel.size() )
 		{
 			Channel *pChannel = m_pEPG->m_vectChannel[iRow];
 			// Use iRow+1 since the first row we added already for the header with the times
@@ -96,7 +96,7 @@ void EpgGrid::PopulateRow(Channel *pChannel,int iRow,int StartTime,int StopTime)
 	// The prior show is partially in this grid
 	if( pEvent_Prior && pEvent_Prior->m_tStopTime > StartTime )
 	{
-		DataGridCell *pCell = new DataGridCell("<" + pEvent_Prior->GetProgram(),StringUtils::itos(pEvent_Prior->m_EventID));
+		DataGridCell *pCell = new DataGridCell("<" + pEvent_Prior->GetProgram(),"E" + StringUtils::itos(pEvent_Prior->m_EventID));
 		pCell->m_Colspan = (pEvent_Prior->m_tStopTime - StartTime) / 60 / m_iGridResolution;
 		SetData(StartTime / 60 / m_iGridResolution,iRow,pCell);
 	}
@@ -107,7 +107,7 @@ void EpgGrid::PopulateRow(Channel *pChannel,int iRow,int StartTime,int StopTime)
 		string sDesc = pEvent->GetProgram();
 		if( pEvent->m_tStopTime > StopTime )
 			sDesc += ">";
-		DataGridCell *pCell = new DataGridCell(sDesc,StringUtils::itos(pEvent->m_EventID));
+		DataGridCell *pCell = new DataGridCell(sDesc,"E" + StringUtils::itos(pEvent->m_EventID));
 		int Column = pEvent->m_tStartTime / 60 / m_iGridResolution;
 		// When shows don't start/stop at even times, rounding times cause gaps.  So if this show
 		// stops at the same time as the next starts, calculate the column width that way we there are no gaps

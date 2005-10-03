@@ -21,8 +21,10 @@ private:
 		// Private member variables
 	        int                          m_iControllingDevice;
                 pthread_t                    m_qApplicationThreadId;
-		DeviceData_Base *m_pDevice_PVRCard,*m_pDevice_Xine;
-				PlainClientSocket *m_pSocket_VDR;
+				DeviceData_Base *m_pDevice_PVRCard,*m_pDevice_Xine,*m_pDevice_MediaPlugin;
+				int m_iStreamID;  // The current stream ID
+				int m_iChannelNumber; // The current channel
+				string m_sChannelName;
 
                 bool checkWindowName(long unsigned int window, string windowName);
 
@@ -49,7 +51,8 @@ public:
                 virtual void KillSpawnedDevices();
                 virtual void CreateChildren();
                 virtual void ProcessExited(int pid, int status);
-		bool SendVDRCommand(string sCommand);
+		bool SendVDRCommand(string sCommand,string &sVDRResponse);
+		void ParseCurrentChannel(string sChannel);
 
 //<-dceag-const2-b->!
 
@@ -61,6 +64,7 @@ public:
 
 	/*
 			*****DATA***** accessors inherited from base class
+	string DATA_Get_File_Name_and_Path();
 	int DATA_Get_TCP_Port();
 
 			*****EVENT***** accessors inherited from base class
@@ -211,7 +215,6 @@ public:
 
 	virtual void CMD_Set_Media_Position(int iStreamID,string sMediaPosition) { string sCMD_Result; CMD_Set_Media_Position(iStreamID,sMediaPosition.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Set_Media_Position(int iStreamID,string sMediaPosition,string &sCMD_Result,Message *pMessage);
-
 
 //<-dceag-h-e->
 	};
