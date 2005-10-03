@@ -1,0 +1,19 @@
+#!/bin/sh /usr/share/dpatch/dpatch-run
+
+## Makefile-fPIC-fix patch
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Adds -fPIC to Makefile to fix potential FTBFS.
+
+@DPATCH@
+--- text2skin/Makefile
++++ text2skin/Makefile
+@@ -25,7 +25,7 @@
+ ### The C++ compiler and options:
+ 
+ CXX      ?= g++
+-CXXFLAGS ?= -Wall -Woverloaded-virtual
++CXXFLAGS ?= -fPIC -Wall -Woverloaded-virtual
+ 
+ ### The directory environment:
+ 

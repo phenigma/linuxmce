@@ -1,0 +1,11 @@
+libvdr-mplayer.so.*             usr/lib/vdr/plugins/
+
+debian/plugin.mplayer.conf      etc/vdr/plugins/
+debian/vdrmplayer.sh.conf       etc/vdr/plugins/
+debian/mplayersources.conf      etc/vdr/plugins/
+
+
+debian/mplayer.sh               usr/lib/vdr-plugin-mplayer/
+debian/mount.sh                 usr/lib/vdr-plugin-mplayer/
+
+debian/DVD-VCD                  var/lib/vdr-plugin-mplayer/

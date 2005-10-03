@@ -1,0 +1,6 @@
+01_Makefile
+02_tmp-path-fix
+
+# convert package to vdrdevel
+95_vdrdevel
+96_common-vtx-dir
