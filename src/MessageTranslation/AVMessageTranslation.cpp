@@ -139,7 +139,11 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 	/**************************************************************************************
 	COMMAND_Input_Select_CONST
 	**************************************************************************************/
-	vector<int> commandorder=*(device_input_command_order_[devtemplid]);
+	vector<int> commandorder;
+	if(device_input_command_order_[devtemplid])
+	{
+		commandorder=*(device_input_command_order_[devtemplid]);
+	}
 	if(pmsg->m_dwID == COMMAND_Input_Select_CONST ) {
 		map<long, string>::iterator param = inrepl.getMessage().m_mapParameters.find(COMMANDPARAMETER_PK_Command_Input_CONST);
 		if (param != inrepl.getMessage().m_mapParameters.end()) {
