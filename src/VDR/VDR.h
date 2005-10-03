@@ -49,6 +49,7 @@ public:
                 virtual void KillSpawnedDevices();
                 virtual void CreateChildren();
                 virtual void ProcessExited(int pid, int status);
+		bool SendVDRCommand(string sCommand);
 
 //<-dceag-const2-b->!
 

@@ -442,30 +442,46 @@ void VDR::KillSpawnedDevices()
 {
 }
 
-bool VDR::SendCommand(string sCommand)
+bool VDR::SendVDRCommand(string sCommand)
 {
-	g_pPlutoLogger->
-	PlainClientSocket *pPlainClientSocket = new PlainClientSocket("localhost:2001");
+	g_pPlutoLogger->Write(LV_STATUS,"Going to send command %s",sCommand.c_str());
+	PlainClientSocket _PlainClientSocket("localhost:2001");
 	if( !m_pSocket_VDR->Connect() )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Unable to connect to VDR client");
-		sCMD_Result="FAILED CONNECT";
-		return;
+		return false;
 	}
-
+g_pPlutoLogger->Write(LV_STATUS,"connected");
 	string sResponse;
-	if( !pPlainClientSocket->ReceiveString(&sResponse) || sResponse.substr(0,3)!="220" )
+	if( !_PlainClientSocket.ReceiveString(sResponse) || sResponse.substr(0,3)!="220" )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"VDR not ready");
-		sCMD_Result="FAILED CONNECT";
-		return;
+		g_pPlutoLogger->Write(LV_CRITICAL,"VDR not ready got %s",sResponse.c_str());
+		return false;
 	}
 
-	if( !pPlainClientSocket->SendString(&sResponse) || sResponse!="220" )
+	if( !_PlainClientSocket.SendString(sResponse) )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"VDR not ready");
-		sCMD_Result="FAILED CONNECT";
-		return;
+		g_pPlutoLogger->Write(LV_CRITICAL,"Could not send string");
+		return false;
 	}
 
+	if( !_PlainClientSocket.ReceiveString(sResponse) || sResponse.substr(0,3)!="220" )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"VDR not ok with command got %s",sResponse.c_str());
+		return false;
+	}
+
+	if( !_PlainClientSocket.SendString("QUIT") )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Could not send string");
+		return false;
+	}
+
+	if( !_PlainClientSocket.ReceiveString(sResponse) || sResponse.substr(0,3)!="220" )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"VDR not ok with quit got %s",sResponse.c_str());
+		return false;
+	}
+	
+	_PlainClientSocket.Close();
 }
