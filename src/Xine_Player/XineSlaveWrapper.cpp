@@ -271,7 +271,7 @@ bool XineSlaveWrapper::createStream(string fileName, int streamID, int iRequesti
         xineStream->m_iStreamID = streamID;
     }
 
-	m_bIsVDR = filename.substr(0,4)=="vdr:";
+	xineStream->m_bIsVDR = fileName.substr(0,4)=="vdr:";
 	
     m_x11Visual.display           = XServerDisplay;
     m_x11Visual.screen            = m_iCurrentScreen;

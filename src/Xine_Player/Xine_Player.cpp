@@ -997,7 +997,7 @@ void Xine_Player::ReportTimecode(int iStreamID,int Speed)
 	if( !m_pDeviceData_MediaPlugin || !m_pXineSlaveControl->m_iTimeCodeReportFrequency )
 		return;
 
-    XineStream *xineStream = m_pXineSlaveControl->getStreamForId(iStreamID, "Can't get the position of a nonexistent stream!");
+    	XineSlaveWrapper::XineStream *xineStream = m_pXineSlaveControl->getStreamForId(iStreamID, "Can't get the position of a nonexistent stream!");
 	if( !xineStream )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Xine_Player::ReportTimecode cannot find stream");
