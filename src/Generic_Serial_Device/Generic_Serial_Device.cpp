@@ -47,7 +47,7 @@ bool Generic_Serial_Device::GetConfig()
 //<-dceag-getconfig-e->
 	RubyIOManager* pmanager = RubyIOManager::getInstance();
 	pmanager->setEventDispatcher(GetEvents());
-	GSDMessageProcessor::setCommandImpl(this);
+	GSDMessageProcessor::setDeviceData(m_pData);
 	Start();
 	return true;
 }
