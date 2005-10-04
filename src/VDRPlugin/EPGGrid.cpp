@@ -98,6 +98,7 @@ void EpgGrid::PopulateRow(Channel *pChannel,int iRow,int StartTime,int StopTime)
 	{
 		DataGridCell *pCell = new DataGridCell("<" + pEvent_Prior->GetProgram(),"E" + StringUtils::itos(pEvent_Prior->m_EventID));
 		pCell->m_Colspan = (pEvent_Prior->m_tStopTime - StartTime) / 60 / m_iGridResolution;
+		pCell->m_AltColor = -15126452;
 		SetData(StartTime / 60 / m_iGridResolution,iRow,pCell);
 	}
 
@@ -115,6 +116,9 @@ void EpgGrid::PopulateRow(Channel *pChannel,int iRow,int StartTime,int StopTime)
 			pCell->m_Colspan = pEvent->m_pEvent_Next->m_tStartTime / 60 / m_iGridResolution - Column;
 		else
 			pCell->m_Colspan = (pEvent->m_tStopTime - pEvent->m_tStartTime) / 60 / m_iGridResolution;
+		if( pEvent->NowPlaying() )
+			pCell->m_AltColor = -15126452;
+
 		SetData(Column,iRow,pCell);
 		pEvent = pEvent->m_pEvent_Next;
 	}
@@ -122,5 +126,5 @@ void EpgGrid::PopulateRow(Channel *pChannel,int iRow,int StartTime,int StopTime)
 
 int EpgGrid::GetCurrentColumn()
 {
-	return time(NULL) / 60 / m_iGridResolution;
+	return (time(NULL)-900) / 60 / m_iGridResolution; // Start 15 mins in the past so it's easier to see what shows are ending
 }

@@ -529,16 +529,17 @@ class DataGridTable *VDRPlugin::OtherShowtimes(string GridID, string Parms, void
 		pEvent->m_pProgram->m_listEvent.sort(EventsByShowtime);
 		for(list<VDREPG::Event *>::iterator it=pEvent->m_pProgram->m_listEvent.begin();it!=pEvent->m_pProgram->m_listEvent.end();++it)
 		{
-			if( pEvent->AlreadyOver() )
+			VDREPG::Event *pEvent_Other = *it;
+			if( pEvent_Other->AlreadyOver() )
 				continue;
 
-			string sDesc = pEvent->m_pChannel->m_sChannelName + " / " + pEvent->GetShortShowtime();
-			if( pEvent->m_sDescription_Short.size() )
-				sDesc += "\n" + pEvent->m_sDescription_Short;
-			else if( pEvent->m_sDescription_Long.size() )
-				sDesc += "\n" + pEvent->m_sDescription_Long;
+			string sDesc = pEvent_Other->m_pChannel->m_sChannelName + " / " + pEvent_Other->GetShortShowtime();
+			if( pEvent_Other->m_sDescription_Short.size() )
+				sDesc += "\n" + pEvent_Other->m_sDescription_Short;
+			else if( pEvent_Other->m_sDescription_Long.size() )
+				sDesc += "\n" + pEvent_Other->m_sDescription_Long;
 
-			DataGridCell *pDataGridCell = new DataGridCell(sDesc, StringUtils::itos(pEvent->m_EventID));
+			DataGridCell *pDataGridCell = new DataGridCell(sDesc, "E" + StringUtils::itos(pEvent_Other->m_EventID));
 			pDataGrid->SetData(0,iRow++,pDataGridCell);
 		}
 	}

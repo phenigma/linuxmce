@@ -40,6 +40,7 @@ namespace VDREPG
 		~Event();
 		string GetProgram();
 		bool AlreadyOver() { return m_tStopTime<time(NULL); }
+		bool NowPlaying() { return m_tStopTime>=time(NULL) && m_tStartTime<=time(NULL); }
 		string GetShortShowtime();
 	};
 

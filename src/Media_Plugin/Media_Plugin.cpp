@@ -103,11 +103,6 @@ static bool MediaHandlerComparer(MediaHandlerInfo *x, MediaHandlerInfo *y)
 
 MediaDevice::MediaDevice( class Router *pRouter, class Row_Device *pRow_Device )
 {
-	UniqueColors[0] = PlutoColor(128,0,0).m_Value;
-	UniqueColors[1] = PlutoColor(0,128,0).m_Value;
-	UniqueColors[2] = PlutoColor(0,0,128).m_Value;
-	UniqueColors[3] = PlutoColor(0,128,128).m_Value;
-	UniqueColors[4] = PlutoColor(128,128,0).m_Value;
 	m_iLastPlaybackSpeed = 1000;
 	m_pDeviceData_Router = pRouter->m_mapDeviceData_Router_Find( pRow_Device->PK_Device_get( ) );
 	m_pOH_Orbiter_OSD = NULL;
@@ -163,6 +158,11 @@ Media_Plugin::Media_Plugin( int DeviceID, string ServerAddress, bool bConnectEve
 	m_pMediaAttributes=NULL;
 	m_pGeneric_NonPluto_Media=NULL;
     m_pGenericMediaHandlerInfo=NULL;
+	UniqueColors[0] = PlutoColor(128,0,0).m_Value;
+	UniqueColors[1] = PlutoColor(0,128,0).m_Value;
+	UniqueColors[2] = PlutoColor(0,0,128).m_Value;
+	UniqueColors[3] = PlutoColor(0,128,128).m_Value;
+	UniqueColors[4] = PlutoColor(128,128,0).m_Value;
 }
 
 //<-dceag-getconfig-b->
