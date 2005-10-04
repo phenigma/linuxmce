@@ -6,7 +6,7 @@
 //
 
 //
-#include "VDRPlugIn.h"
+#include "VDRPlugin.h"
 #include "DCE/Logger.h"
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
