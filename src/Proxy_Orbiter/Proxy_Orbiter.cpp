@@ -128,6 +128,8 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
 		g_pPlutoLogger->Write(LV_STATUS, "Proxy_Orbiter::DisplayImageOnScreen Current screen: %s",  m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str());
     }
 
+    SDL_SetAlpha(pScreenImage, SDL_RLEACCEL , SDL_ALPHA_OPAQUE);
+
     //generate the jpeg or png image with current screen
     if(m_ImageQuality == 100) //we'll use pngs for best quality
         SaveImageToFile(pScreenImage, CURRENT_SCREEN);
@@ -158,6 +160,8 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
 
 bool xxProxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeout )
 {
+g_pPlutoLogger->Write(LV_CRITICAL, "Received: %s", sLine.c_str());
+
 	PLUTO_SAFETY_LOCK(sm,m_ScreenMutex);
 	if( sLine.substr(0,5)=="IMAGE" )
 	{
@@ -169,6 +173,7 @@ bool xxProxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeou
 
 		if( m_mapID_ImageCounter[ConnectionID]==m_iImageCounter )
 		{
+g_pPlutoLogger->Write(LV_CRITICAL, "Sent: IMAGE 0");
 			pSocket->SendString("IMAGE 0"); // No new image
 			return true;
 		}
@@ -178,10 +183,12 @@ bool xxProxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeou
 		char *pBuffer = FileUtils::ReadFileIntoBuffer(CURRENT_SCREEN,size);
 		if( !pBuffer )
 		{
+g_pPlutoLogger->Write(LV_CRITICAL, "Sent: ERROR");
 			pSocket->SendString("ERROR"); // Shouldn't happen
 			return true;
 		}
 
+g_pPlutoLogger->Write(LV_CRITICAL, "Sent: IMAGE %d\nPNG_IMAGE", size);
 		pSocket->SendString("IMAGE " + StringUtils::itos(size));
 		pSocket->SendData(size,pBuffer);
 		delete[] pBuffer;
@@ -194,10 +201,14 @@ bool xxProxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeou
 		{
 			ButtonDown(Key);
 			ButtonUp(Key);
+g_pPlutoLogger->Write(LV_CRITICAL, "Sent: OK");
 			pSocket->SendString("OK");
 		}
 		else
+        {
+g_pPlutoLogger->Write(LV_CRITICAL, "Sent: ERROR");        
 			pSocket->SendString("ERROR"); // Shouldn't happen
+        }
 		return true;
 	}
 	else if( sLine.substr(0,5)=="TOUCH" && sLine.size()>6 )
@@ -207,6 +218,7 @@ bool xxProxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeou
 		if( pos_y!=string::npos )
 			Y = atoi(sLine.substr(pos_y+1).c_str());
 		RegionDown(X,Y);
+g_pPlutoLogger->Write(LV_CRITICAL, "Sent: OK");        
 		pSocket->SendString("OK");
 		return true;
 	}

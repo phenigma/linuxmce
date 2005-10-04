@@ -38,7 +38,7 @@
 #include <sge.h>
 #include <sge_surface.h>
 
-#ifndef BLUETOOTH_DONGLE
+#if !defined(BLUETOOTH_DONGLE) && !defined(PROXY_ORBITER)
 #define USE_ONLY_SCREEN_SURFACE
 #endif
 
@@ -89,7 +89,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
     atexit(SDL_Quit);
     g_pPlutoLogger->Write(LV_STATUS, "Initialized SDL");
 
-#ifndef BLUETOOTH_DONGLE
+#ifdef USE_ONLY_SCREEN_SURFACE
     Uint32 uVideoModeFlags = SDL_SWSURFACE;
 
 #if !defined(WIN32) || defined(WINCE)
