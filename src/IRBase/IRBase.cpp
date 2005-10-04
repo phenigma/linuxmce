@@ -233,7 +233,7 @@ IRBase::DispatchMessage(Message* pmsg) {
 		}
 	} else {
 		cmd = pmsg->m_dwID;
-		m_pCommandImpl->GetChildDeviceData(pTargetDev->m_dwPK_Device,DEVICEDATA_PortChannel_Number_CONST,irport);
+		m_pCommand_Impl->GetChildDeviceData(pTargetDev->m_dwPK_Device,DEVICEDATA_PortChannel_Number_CONST,irport);
 	}
 		
 	map <longPair, string>::iterator it = codemap_.find(longPair(devid, cmd));

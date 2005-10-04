@@ -11,7 +11,7 @@ using namespace DCE;
 string ConvertRC5_6(string sCode);  // From GenerateRcX
 
 class IRBase : public AVMessageProcessor {
-	Command_Impl *m_pCommandImpl;
+	Command_Impl *m_pCommand_Impl;
 public:
 	IRBase() { m_bMustConvertRC5_6=false; }
 	virtual ~IRBase() {};
@@ -26,7 +26,8 @@ public:
 protected:
 	virtual bool Translate(MessageReplicator& inrepl, MessageReplicatorList& outrepls);
 	virtual void DispatchMessage(Message* pmsg);
-	Command_Impl *getCommandImpl() { return m_pCommandImpl; };
+	Command_Impl *getCommandImpl() { return m_pCommand_Impl; };
+	void setCommandImpl(Command_Impl *pCommand_Impl) { m_pCommand_Impl=pCommand_Impl; };
 	
 protected:
 	/*exposed methods*/
