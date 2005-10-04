@@ -147,6 +147,12 @@ void EPG::ProcessLine(char *szLine)
 	else if( *szLine=='E' )
 	{
 		m_pEvent_Reading = new Event(szLine+2,m_pChannel_Reading);
+		if( m_mapEvent.find(m_pEvent_Reading->m_EventID)!=m_mapEvent.end() )
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"Line %s has duplicate event number",szLine);
+			m_pEvent_Reading->m_EventID = m_Event_DuplicateID++;
+		}
+
 		m_mapEvent[m_pEvent_Reading->m_EventID] = m_pEvent_Reading;
 		m_pEvent_Reading->m_pProgram = m_pProgram_Reading;  // If the program comes after the event, this will be NULL and we'll catch it below
 		if( m_pEvent_Reading->m_tStartTime>m_tTime_First )
@@ -220,7 +226,7 @@ void EPG::ProcessLine(char *szLine)
 
 
 Event::Event(char *szLine,Channel *pChannel)
-{ 
+{
 	m_pChannel=pChannel; m_pProgram=NULL; m_pEvent_Next=NULL; m_pEvent_Prior=NULL; 
 	char *pDuration,*pTableID,*pStartTime;
 	if( (pStartTime=strchr(szLine,' '))!=NULL && (pDuration=strchr(pStartTime+1,' '))!=NULL && (pTableID=strchr(pDuration+1,' '))!=NULL )
@@ -250,6 +256,27 @@ Event *Event::ConfirmCurrentProgram()
 	if( tNow>=m_tStartTime && tNow<=m_tStopTime )
 		return this;
 	return m_pChannel->GetCurrentEvent();
+}
+
+string Event::GetShortShowtime()
+{
+	struct tm *tmptr = localtime(&m_tStartTime);
+	return StringUtils::itos(tmptr->tm_mon) + "/" + StringUtils::itos(tmptr->tm_mday) + " " + 
+		StringUtils::itos(tmptr->tm_hour) + ":" + (tmptr->tm_min<10 ? "0" : "") + StringUtils::itos(tmptr->tm_min);
+}
+
+Event *Program::GetNextEvent()
+{
+	time_t tNow = time(NULL);
+	Event *pEvent = NULL;
+	for(list<Event *>::iterator it=m_listEvent.begin();it!=m_listEvent.end();++it)
+	{
+		Event *pEvent_Test = *it;
+		if( pEvent_Test->m_tStopTime>tNow &&
+			(pEvent==NULL || pEvent->m_tStartTime>pEvent_Test->m_tStartTime) )
+				pEvent = pEvent_Test;
+	}
+	return pEvent;
 }
 
 Channel::Channel(char *szLine)

@@ -170,6 +170,9 @@
 				RelativePath="..\Media_Plugin\MediaStream.cpp">
 			</File>
 			<File
+				RelativePath=".\VDRMediaStream.cpp">
+			</File>
+			<File
 				RelativePath="VDRPlugin.cpp">
 			</File>
 			<File

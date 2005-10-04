@@ -12,6 +12,7 @@
 #include "../Media_Plugin/MediaHandlerBase.h"
 #include "EPG.h"
 class VDRStateInfo;
+class Row_Bookmark;
 
 //<-dceag-decl-b->!
 namespace DCE
@@ -31,6 +32,7 @@ namespace DCE
 		pthread_cond_t m_VDRCond; /** < condition for the messages in the queue */
 
 		friend class EpgGrid; // needs to use our mutex
+		friend class VDRMediaStream;
 
 		// Private methods
 public:
@@ -52,10 +54,13 @@ public:
 		class DataGridTable *AllShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage);
 		class DataGridTable *FavoriteChannels(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage);
 		class DataGridTable *FavoriteShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage);
+		class DataGridTable *OtherShowtimes(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage);
 
 		// Utilities
 		class MediaDevice *GetVDRFromOrbiter(int PK_Device);
 		void FetchEPG();
+		VDREPG::Event *GetStartingEvent(VDREPG::EPG *pEPG,int PK_Users);
+		VDREPG::Event *GetEventForBookmark(VDREPG::EPG *pEPG,Row_Bookmark *pRow_Bookmark,int &iPriority_Bookmark);
 
 //<-dceag-const2-b->!
 		/**

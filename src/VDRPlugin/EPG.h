@@ -39,6 +39,8 @@ namespace VDREPG
 		Event(char *szLine,Channel *pChannel);
 		~Event();
 		string GetProgram();
+		bool AlreadyOver() { return m_tStopTime<time(NULL); }
+		string GetShortShowtime();
 	};
 
 	// A show
@@ -50,6 +52,7 @@ namespace VDREPG
 
 		Program(char *szLine) { m_sTitle=szLine; }
 		~Program() {}
+		Event *GetNextEvent();
 	};
 
 	class Stream
@@ -67,12 +70,14 @@ namespace VDREPG
 		Channel *m_pChannel_Reading;
 		Event *m_pEvent_Reading;
 		Program *m_pProgram_Reading;
+		int m_Event_DuplicateID;  // To assign temporary event id's if tehre are duplicates
 
 	public:
 		time_t m_tTime_First,m_tTime_Last;
 		list<Channel *> m_listChannel;  // Channels in the order we parse them
 		vector<Channel *> m_vectChannel;  // Also a vect so we can jump to the first one in order in the grid
 		map<string,Channel *> m_mapChannelName;  // A map to locate quickly by string
+		Channel *m_mapChannelName_Find(string ChannelName) { map<string,Channel *>::iterator it = m_mapChannelName.find(ChannelName); return it==m_mapChannelName.end() ? NULL : (*it).second; }
 		map<int,Channel *> m_mapChannelNumber;  // A map to locate quickly by string
 		Channel *m_mapChannelNumber_Find(int ChannelNumber) { map<int,Channel *>::iterator it = m_mapChannelNumber.find(ChannelNumber); return it==m_mapChannelNumber.end() ? NULL : (*it).second; }
 		map<int,Event *> m_mapEvent;
@@ -80,13 +85,17 @@ namespace VDREPG
 		map<string,Program *> m_mapProgram;
 		Program *m_mapProgram_Find(string sTitle) { map<string,Program *>::iterator it = m_mapProgram.find(sTitle); return it==m_mapProgram.end() ? NULL : (*it).second; }
 
-		EPG() { m_tTime_First=m_tTime_Last=0; };
+		EPG() { m_tTime_First=m_tTime_Last=0; m_Event_DuplicateID=1000000; };
 		~EPG();
 		bool ReadFromFile(string sFileEPG,string sFileChannels); // Read the epg data from a file
 		void ProcessLine(char *szLine);  // Process a line within that file
 	};
 }
 
+static bool EventsByShowtime(VDREPG::Event *x, VDREPG::Event *y)
+{
+	return x->m_tStartTime<y->m_tStartTime;
+}
 
 #endif
 
