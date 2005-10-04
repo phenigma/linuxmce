@@ -55,10 +55,10 @@ template <class T = DefaultMessageTranslator, class D = DefaultMessageDispatcher
 class DefaultMessageProcessor : public MessageProcessor<T, D>  {
 public:
 	DefaultMessageProcessor() 
-		: pcmdimpl_(NULL) {}	
+		: pdevicedata_(NULL) {}	
 public:
 	DeviceData_Base* getDeviceData() {
-		return pcmdimpl_;
+		return pdevicedata_;
 	}
 	void setDeviceData(DeviceData_Base* pdevicedata) {
 		pdevicedata_ = pdevicedata;
