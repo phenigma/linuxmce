@@ -37,7 +37,7 @@ namespace DCE {
 RubyDCEDeviceNode::RubyDCEDeviceNode()
 	: parent_(NULL), pembclass_(NULL), idledelay_(DEFAULT_IDLE_DELAY)
 {
-	lastidle_.tv_sec = lastidle_.tv_nsec = 0;
+	clock_gettime(CLOCK_REALTIME, &lastidle_);	
 }
 
 
@@ -109,10 +109,9 @@ RubyDCEDeviceNode::handleNoMessage() {
 	
 	struct timespec timespec;
 	clock_gettime(CLOCK_REALTIME, &timespec);
-	
-	if( (timespec.tv_sec - lastidle_.tv_sec) * 1000  
-			+ ((timespec.tv_nsec - lastidle_.tv_nsec) / 1000000) >= (int)idledelay_) {
+	if( (timespec.tv_sec - lastidle_.tv_sec) * 1000 + ((timespec.tv_nsec - lastidle_.tv_nsec) / 1000000) >= (int)idledelay_) {
 		lastidle_ = timespec;
+		g_pPlutoLogger->Write(LV_STATUS, "Device_%d handleNoMessage sending IDLE command",getDeviceData()->m_dwPK_Device);
 		Message idlemsg(0, getDeviceData()->m_dwPK_Device, 0, MESSAGETYPE_COMMAND, COMMAND_Process_IDLE_CONST, 0);
 		getEmbClass()->CallCmdHandler(&idlemsg);    
 	}
