@@ -10,8 +10,8 @@ using namespace std;
 #include "../Orbiter/SDL/OrbiterSDL.h"
 #include "SocketListener.h"
 //-----------------------------------------------------------------------------------------------------
-#define CURRENT_SCREEN  "TmpScreen.png"
-
+#define CURRENT_SCREEN_IMAGE    "screen.png"
+#define CURRENT_SCREEN_XML      "screen.xml"
 //-----------------------------------------------------------------------------------------------------
 namespace DCE
 {
@@ -20,7 +20,13 @@ namespace DCE
 		int	  m_iListenPort;
 		int   m_ImageQuality;
 		int	  m_iImageCounter;  // We will increment this each time we have a new image so we can keep track of whether a connected device has the lateest
+        int   m_iXMLCounter;
 		map<int,int> m_mapID_ImageCounter; // Map of connection ID's to the latest image counter
+        map<int,int> m_mapID_XMLCounter; // Map of connection ID's to the latest xml counter
+        deque<string> m_dequeXMLItems;
+
+        string m_sRequestUrl;
+        string m_sPngImageUrl;
 
 	public:
 		xxProxy_Orbiter(int ListenPort, int DeviceID, 
@@ -39,6 +45,9 @@ namespace DCE
 
 		virtual bool ReceivedString( Socket *pSocket, string sLine, int nTimeout = - 1 );
 		virtual void ReceivedMessage( Socket *pSocket, Message* pMessage ) {} // We don't do messages
+
+        virtual void SaveXML(SDL_Surface *pScreenImage, string sFileName);
+        virtual void GenerateXMLItems(DesignObj_Orbiter *pObj); //recursive
 	};
 }
 //-----------------------------------------------------------------------------------------------------

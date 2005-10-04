@@ -63,6 +63,15 @@ xxProxy_Orbiter::xxProxy_Orbiter(int ListenPort, int DeviceID,
 	m_iImageCounter = 1;
     m_ImageQuality = 70;
 	m_bDisplayOn=true;  // Override the default behavior -- when the phone starts the display is already on
+
+    string sBaseUrl = "http://" + ServerAddress + "/pluto-admin/";
+    m_sRequestUrl = sBaseUrl + 
+        "index.php?"
+        "section=proxySocket&amp;"
+        "address=" + m_sMyIPAddress + "&amp;"
+        "port=" + StringUtils::ltos(m_iListenPort) + "&amp;"
+        "command=XML&amp;";
+    m_sPngImageUrl = sBaseUrl + "security_images/orbiter_screen.png";
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ bool xxProxy_Orbiter::GetConfig()
@@ -132,11 +141,68 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
 
     //generate the jpeg or png image with current screen
     if(m_ImageQuality == 100) //we'll use pngs for best quality
-        SaveImageToFile(pScreenImage, CURRENT_SCREEN);
+        SaveImageToFile(pScreenImage, CURRENT_SCREEN_IMAGE);
     else
-        SDL_SaveJPG(pScreenImage, CURRENT_SCREEN, m_ImageQuality);
+        SDL_SaveJPG(pScreenImage, CURRENT_SCREEN_IMAGE, m_ImageQuality);
+
+    SaveXML(pScreenImage, CURRENT_SCREEN_XML);
 
 	m_iImageCounter++;
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void xxProxy_Orbiter::SaveXML(SDL_Surface *pScreenImage, string sFileName)
+{
+    string sXMLString;
+    string sBaseUrl = "http://www.bubu.com/cisco/";
+    string sPngImage = "screen.png";
+
+    sXMLString = 
+        "<?xml version=\"1.0\"?>\r\n"
+        "<%@ Language=JavaScript %>\r\n"
+        "<%\r\n"
+        "Response.ContentType = \"text/xml\";\r\n"
+        "%>\n"
+        "<CiscoIPPhoneGraphicFileMenu>\r\n"
+        "<Title>Pluto Orbiter</Title>\r\n"
+        "<Prompt></Prompt>\r\n"
+        "<LocationX>0</LocationX>\r\n"
+        "<LocationY>0</LocationY>\r\n"
+        "<URL>" + m_sPngImageUrl + "</URL>\r\n";
+
+    //todo: 
+    m_dequeXMLItems.clear();
+    GenerateXMLItems(m_pScreenHistory_Current->m_pObj);
+    
+    deque<string>::iterator it;
+    for(it = m_dequeXMLItems.begin(); it != m_dequeXMLItems.end(); it++)
+        sXMLString += *it;
+
+    sXMLString += "</CiscoIPPhoneGraphicFileMenu>\r\n";
+
+    FileUtils::WriteBufferIntoFile(CURRENT_SCREEN_XML, const_cast<char *>(sXMLString.c_str()), sXMLString.size());
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void xxProxy_Orbiter::GenerateXMLItems(DesignObj_Orbiter *pObj) //recursive
+{
+    string sX1 = StringUtils::ltos(pObj->m_rPosition.X);
+    string sY1 = StringUtils::ltos(pObj->m_rPosition.Y);
+    string sX2 = StringUtils::ltos(pObj->m_rPosition.Right());
+    string sY2 = StringUtils::ltos(pObj->m_rPosition.Bottom());
+
+    string sTouchX = StringUtils::ltos(pObj->m_rPosition.X + pObj->m_rPosition.Width / 2);
+    string sTouchY = StringUtils::ltos(pObj->m_rPosition.Y + pObj->m_rPosition.Height / 2);
+
+    string sXMLItem = 
+        "<MenuItem>\r\n"
+        "\t<Name>Button</Name>\r\n"
+        "\t<URL>" + m_sRequestUrl + "x=" + sTouchX + "&amp;" + "y=" + sTouchY + "</URL>\r\n"
+        "\t<TouchArea X1=\"" + sX1 + "\" Y1=\"" + sY1 + "\" X2=\"" + sX2 + "\" Y2=\"" + sY2 + "\"/>\r\n"
+        "</MenuItem>\r\n";
+    m_dequeXMLItems.push_back(sXMLItem);
+
+    DesignObj_DataList::iterator it;
+    for(it = pObj->m_ChildObjects.begin(); it != pObj->m_ChildObjects.end(); ++it)
+        GenerateXMLItems((DesignObj_Orbiter *)*it);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void xxProxy_Orbiter::BeginPaint()
@@ -160,7 +226,7 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
 
 bool xxProxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeout )
 {
-g_pPlutoLogger->Write(LV_CRITICAL, "Received: %s", sLine.c_str());
+    g_pPlutoLogger->Write(LV_WARNING, "Received: %s", sLine.c_str());
 
 	PLUTO_SAFETY_LOCK(sm,m_ScreenMutex);
 	if( sLine.substr(0,5)=="IMAGE" )
@@ -173,27 +239,58 @@ g_pPlutoLogger->Write(LV_CRITICAL, "Received: %s", sLine.c_str());
 
 		if( m_mapID_ImageCounter[ConnectionID]==m_iImageCounter )
 		{
-g_pPlutoLogger->Write(LV_CRITICAL, "Sent: IMAGE 0");
+            g_pPlutoLogger->Write(LV_WARNING, "Sent: IMAGE 0");
 			pSocket->SendString("IMAGE 0"); // No new image
 			return true;
 		}
 		m_mapID_ImageCounter[ConnectionID]=m_iImageCounter;
 
 		size_t size;
-		char *pBuffer = FileUtils::ReadFileIntoBuffer(CURRENT_SCREEN,size);
+		char *pBuffer = FileUtils::ReadFileIntoBuffer(CURRENT_SCREEN_IMAGE,size);
 		if( !pBuffer )
 		{
-g_pPlutoLogger->Write(LV_CRITICAL, "Sent: ERROR");
+            g_pPlutoLogger->Write(LV_WARNING, "Sent: ERROR");
 			pSocket->SendString("ERROR"); // Shouldn't happen
 			return true;
 		}
 
-g_pPlutoLogger->Write(LV_CRITICAL, "Sent: IMAGE %d\nPNG_IMAGE", size);
+        g_pPlutoLogger->Write(LV_WARNING, "Sent: IMAGE %d\\n\\n<IMAGE>", size);
 		pSocket->SendString("IMAGE " + StringUtils::itos(size));
 		pSocket->SendData(size,pBuffer);
 		delete[] pBuffer;
 		return true;
 	}
+    else if( sLine.substr(0,5)=="XML" )
+    {
+        int ConnectionID = 0;
+        if( sLine.size() > 7 )
+            ConnectionID = atoi( sLine.substr(6).c_str() );
+        if( !ConnectionID )
+            ConnectionID = pSocket->m_iSocketCounter;
+
+        if( m_mapID_XMLCounter[ConnectionID]==m_iXMLCounter )
+        {
+            g_pPlutoLogger->Write(LV_CRITICAL, "Sent: XML 0");
+            pSocket->SendString("XML 0"); // No new xml
+            return true;
+        }
+        m_mapID_XMLCounter[ConnectionID]=m_iXMLCounter;
+
+        size_t size;
+        char *pBuffer = FileUtils::ReadFileIntoBuffer(CURRENT_SCREEN_XML,size);
+        if( !pBuffer )
+        {
+            g_pPlutoLogger->Write(LV_WARNING, "Sent: ERROR");
+            pSocket->SendString("ERROR"); // Shouldn't happen
+            return true;
+        }
+
+        g_pPlutoLogger->Write(LV_WARNING, "Sent: XML %d\\n<XML>", size);
+        pSocket->SendString("XML " + StringUtils::itos(size));
+        pSocket->SendData(size,pBuffer);
+        delete[] pBuffer;
+        return true;
+    }
 	else if( sLine.substr(0,9)=="PLUTO_KEY" && sLine.size()>10 )
 	{
 		int Key = atoi( sLine.substr(9).c_str() );
@@ -201,12 +298,12 @@ g_pPlutoLogger->Write(LV_CRITICAL, "Sent: IMAGE %d\nPNG_IMAGE", size);
 		{
 			ButtonDown(Key);
 			ButtonUp(Key);
-g_pPlutoLogger->Write(LV_CRITICAL, "Sent: OK");
+            g_pPlutoLogger->Write(LV_WARNING, "Sent: OK");
 			pSocket->SendString("OK");
 		}
 		else
         {
-g_pPlutoLogger->Write(LV_CRITICAL, "Sent: ERROR");        
+            g_pPlutoLogger->Write(LV_WARNING, "Sent: ERROR");        
 			pSocket->SendString("ERROR"); // Shouldn't happen
         }
 		return true;
@@ -218,7 +315,7 @@ g_pPlutoLogger->Write(LV_CRITICAL, "Sent: ERROR");
 		if( pos_y!=string::npos )
 			Y = atoi(sLine.substr(pos_y+1).c_str());
 		RegionDown(X,Y);
-g_pPlutoLogger->Write(LV_CRITICAL, "Sent: OK");        
+        g_pPlutoLogger->Write(LV_WARNING, "Sent: OK");        
 		pSocket->SendString("OK");
 		return true;
 	}
