@@ -1,6 +1,7 @@
-	for i in /lib/modules/2.6.10-1-686/extra/*.ko; do 
+	KVER=2.6.13.2-vanilla-pluto-1-686
+	for i in /lib/modules/"$KVER"/extra/*.ko; do 
 		MODULE=`echo $i | sed s#[^/]*/##g`;
-		cd /lib/modules/2.6.10-1-686/;
+		cd /lib/modules/"$KVER"/;
 		find . -path ./extra -prune -o -name $MODULE -print -exec mv \{} \{}.saved \; ;
 	done
 
