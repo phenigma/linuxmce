@@ -8,7 +8,7 @@
 
 #include <deque>
 
-#define ORBITER_SCHEMA		14	// Used to determine if cached screens can be used or if the schema has changed
+#define ORBITER_SCHEMA		15	// Used to determine if cached screens can be used or if the schema has changed
 
 #ifdef ORBITER
 #include "DesignObj_Orbiter.h"
@@ -38,17 +38,17 @@ class LocationInfo : public SerializeClass
 public:
 	int PK_Room,PK_EntertainArea,iLocation;
 	// Some virtual devices within the media director
-	int m_dwPK_Device_MediaDirector,m_dwPK_Device_DiscDrive,m_dwPK_Device_AppServer,m_dwPK_Device_MediaBurner,m_dwPK_Device_VideoConf,m_dwPK_Device_CamcorderCapt,m_dwPK_Device_Orbiter,m_dwPK_Device_WebBrowser; 
+	int m_dwPK_Device_MediaDirector,m_dwPK_Device_DiscDrive,m_dwPK_Device_AppServer,m_dwPK_Device_LCD_VFD,m_dwPK_Device_IRReceiver,m_dwPK_Device_MediaBurner,m_dwPK_Device_VideoConf,m_dwPK_Device_CamcorderCapt,m_dwPK_Device_Orbiter,m_dwPK_Device_WebBrowser; 
 	vector<int> m_vectAllowedUsers;
 	string Description;
 	class Row_Icon *drIcon; // Not serialized, just a temporary pointer for the generator
 	vector<class PlutoGraphic*> *m_pvectGraphic; // Not serialized, just a temporary pointer for the orbiter with the button for this location
 
-	LocationInfo() { m_dwPK_Device_MediaDirector = m_dwPK_Device_DiscDrive = m_dwPK_Device_AppServer = m_dwPK_Device_MediaBurner = m_dwPK_Device_VideoConf = m_dwPK_Device_CamcorderCapt = m_dwPK_Device_Orbiter = m_dwPK_Device_WebBrowser = DEVICEID_NULL; m_pvectGraphic=NULL; }
+	LocationInfo() { m_dwPK_Device_MediaDirector = m_dwPK_Device_DiscDrive = m_dwPK_Device_AppServer = m_dwPK_Device_LCD_VFD = m_dwPK_Device_IRReceiver = m_dwPK_Device_MediaBurner = m_dwPK_Device_VideoConf = m_dwPK_Device_CamcorderCapt = m_dwPK_Device_Orbiter = m_dwPK_Device_WebBrowser = DEVICEID_NULL; m_pvectGraphic=NULL; }
 	void SetupSerialization(int iSC_Version)
 	{
 		StartSerializeList() + PK_Room + PK_EntertainArea + iLocation + Description +
-			m_dwPK_Device_MediaDirector + m_dwPK_Device_DiscDrive + m_dwPK_Device_AppServer + m_dwPK_Device_MediaBurner + m_dwPK_Device_VideoConf + 
+			m_dwPK_Device_MediaDirector + m_dwPK_Device_DiscDrive + m_dwPK_Device_AppServer + m_dwPK_Device_LCD_VFD + m_dwPK_Device_IRReceiver + m_dwPK_Device_MediaBurner + m_dwPK_Device_VideoConf + 
 			m_dwPK_Device_CamcorderCapt + m_dwPK_Device_Orbiter + m_dwPK_Device_WebBrowser + m_vectAllowedUsers;
 	}
 	virtual string SerializeClassClassName() { return "LocationInfo"; }

@@ -7380,6 +7380,12 @@ int Orbiter::TranslateVirtualDevice(int PK_DeviceTemplate)
 	// This is going to a virtual device
 	switch(  PK_DeviceTemplate )
 	{
+	case DEVICETEMPLATE_VirtDev_IR_Receiver_CONST:
+		return m_pLocationInfo->m_dwPK_Device_IRReceiver;
+
+	case DEVICETEMPLATE_VirtDev_LCDVFD_CONST:
+		return m_pLocationInfo->m_dwPK_Device_LCD_VFD;
+
 	case DEVICETEMPLATE_VirtDev_AppServer_CONST:
 		return m_pLocationInfo->m_dwPK_Device_AppServer;
 

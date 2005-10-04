@@ -1798,6 +1798,10 @@ g_pPlutoLogger->Write(LV_STATUS,"realsendmessage after device conn mutex from %d
     #endif
                 int MessageType = (*(*pSafetyMessage))->m_dwMessage_Type;
                 int ID = (*(*pSafetyMessage))->m_dwID;
+if( ID==74 )x
+{
+int k=2;
+}
                 /* AB 8/5, changed this since we still use the message later
                 bool bResult = pDeviceConnection->SendMessage(pSafetyMessage->Detach()); */
                 bool bResult = pServerSocket->SendMessage(pSafetyMessage->m_pMessage,false);

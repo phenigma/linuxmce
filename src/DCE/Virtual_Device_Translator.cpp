@@ -9,7 +9,7 @@ using namespace DCE;
 bool Virtual_Device_Translator::GetConfig(DeviceData_Base *pDeviceData_Base)
 {
 	m_pDeviceData_Base=pDeviceData_Base;
-	m_dwPK_Device_MediaDirector=m_dwPK_Device_DiscDrive=m_dwPK_Device_AppServer=m_dwPK_Device_MediaBurner=m_dwPK_Device_VideoConf=m_dwPK_Device_CamcorderCapt=m_dwPK_Device_Orbiter=m_dwPK_Device_WebBrowser=0;
+	m_dwPK_Device_MediaDirector=m_dwPK_Device_DiscDrive=m_dwPK_Device_AppServer=m_dwPK_Device_LCD_VFD=m_dwPK_Device_IRReceiver=m_dwPK_Device_MediaBurner=m_dwPK_Device_VideoConf=m_dwPK_Device_CamcorderCapt=m_dwPK_Device_Orbiter=m_dwPK_Device_WebBrowser=0;
 	m_dwPK_Device_Router=m_dwPK_Device_DatagridPlugIn=m_dwPK_Device_InfraredPlugIn=m_dwPK_Device_GeneralInfoPlugIn=m_dwPK_Device_EventPlugIn=m_dwPK_Device_OrbiterPlugIn=
 		m_dwPK_Device_LightingPlugIn=m_dwPK_Device_ClimatePlugIn=m_dwPK_Device_MediaPlugIn=m_dwPK_Device_TelecomPlugIn=m_dwPK_Device_SecurityPlugIn=
 		m_dwPK_Device_LocalAppServer=0;
@@ -60,6 +60,12 @@ bool Virtual_Device_Translator::GetConfig(DeviceData_Base *pDeviceData_Base)
 		{
 			switch(pDeviceData_Base->m_dwPK_DeviceCategory)
 			{
+			case DEVICECATEGORY_Infrared_Receivers_CONST:
+				m_dwPK_Device_IRReceiver = pDeviceData_Base->m_dwPK_Device;
+				break;
+			case DEVICECATEGORY_LCDVFD_Displays_CONST:
+				m_dwPK_Device_LCD_VFD = pDeviceData_Base->m_dwPK_Device;
+				break;
 			case DEVICECATEGORY_App_Server_CONST:
 				m_dwPK_Device_AppServer = m_dwPK_Device_LocalAppServer = pDeviceData_Base->m_dwPK_Device;
 				break;
@@ -95,6 +101,12 @@ int Virtual_Device_Translator::TranslateVirtualDevice(int PK_DeviceTemplate)
 	// This is going to a virtual device
 	switch(  PK_DeviceTemplate )
 	{
+	case DEVICETEMPLATE_VirtDev_IR_Receiver_CONST:
+		return m_dwPK_Device_IRReceiver;
+
+	case DEVICETEMPLATE_VirtDev_LCDVFD_CONST:
+		return m_dwPK_Device_LCD_VFD;
+
 	case DEVICETEMPLATE_VirtDev_AppServer_CONST:
 		return m_dwPK_Device_AppServer;
 

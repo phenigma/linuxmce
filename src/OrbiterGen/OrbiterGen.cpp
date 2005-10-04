@@ -1938,6 +1938,12 @@ cout << "Checking device " << pRow_Device_MDChild->PK_Device_get() << " " << pRo
 cout << "Set appserver to " << li->m_dwPK_Device_AppServer << endl;
 			MatchChildDevicesToLocation(li,pRow_Device_MDChild);  // These devices may be children of an app server also
 			break;
+		case DEVICECATEGORY_Infrared_Receivers_CONST:
+			li->m_dwPK_Device_IRReceiver = pRow_Device_MDChild->PK_Device_get();
+			break;
+		case DEVICECATEGORY_LCDVFD_Displays_CONST:
+			li->m_dwPK_Device_LCD_VFD = pRow_Device_MDChild->PK_Device_get();
+			break;
 		case DEVICECATEGORY_Disc_Drives_CONST:
 			li->m_dwPK_Device_DiscDrive = pRow_Device_MDChild->PK_Device_get();
 			break;

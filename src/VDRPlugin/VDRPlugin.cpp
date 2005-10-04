@@ -423,6 +423,7 @@ void VDRPlugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sC
 				SendCommand(CMD_Tune_to_channel);
 			}
 		}
+		vm.Release();
 		m_pMedia_Plugin->MediaInfoChanged(pVDRStateInfo->m_pVDRMediaStream);
 	}
 	else
@@ -639,7 +640,7 @@ void VDRPlugin::CMD_Get_Extended_Media_Data(string sPK_DesignObj,string sProgram
 			DCE::CMD_Set_Variable CMD_Set_Variable4(m_dwPK_Device,pMessage->m_dwPK_Device_From,
 				VARIABLE_Misc_Data_4_CONST,pEvent->m_sDescription_Long);
 			DCE::CMD_Set_Variable CMD_Set_VariableEvent(m_dwPK_Device,pMessage->m_dwPK_Device_From,
-				VARIABLE_Datagrid_Input_CONST,StringUtils::itos(pEvent->m_EventID));
+				VARIABLE_Datagrid_Input_CONST,"E" + StringUtils::itos(pEvent->m_EventID));
 			CMD_Set_Variable1.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Variable2.m_pMessage );
 			CMD_Set_Variable1.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Variable3.m_pMessage );
 			CMD_Set_Variable1.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Variable4.m_pMessage );
