@@ -752,6 +752,15 @@
 #define TEXT_Show_Ping_Test_CONST 1456
 #define TEXT_Waiting_for_related_devices_CONST 1457
 #define TEXT_Not_all_devices_started_CONST 1458
+#define TEXT_Broadcast_Info_CONST 1459
+#define TEXT_Title_EPG_CONST 1460
+#define TEXT_Overview_CONST 1461
+#define TEXT_Synopsis_CONST 1462
+#define TEXT_Misc_Data_1_CONST 1463
+#define TEXT_Misc_Data_2_CONST 1464
+#define TEXT_Misc_Data_3_CONST 1465
+#define TEXT_Misc_Data_4_CONST 1466
+#define TEXT_Find_other_broadcasts_CONST 1467
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

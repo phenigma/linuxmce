@@ -651,6 +651,7 @@
 #define COMMAND_Get_Orbiter_Options_CONST 695
 #define COMMAND_Application_is_Running_CONST 696
 #define COMMAND_Set_Active_Application_CONST 697
+#define COMMAND_Get_Extended_Media_Data_CONST 698
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
