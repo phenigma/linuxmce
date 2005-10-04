@@ -58,22 +58,43 @@ InstallKernel()
 Upgrade_Essential()
 {
 	# TODO: don't do anything (i.e. also skip download) for packages that match the requirements
+	local Requirements="initrd-netboot-tools=0.5.3cvs.20040906-16 e2fsprogs=1.37-2sarge1 e2fslibs=1.37-2sarge1 libc6=2.3.2.ds1-22"
+	local NeededReq=""
+	local Pkg Name ReqVer InstVer
+	
+	for Pkg in $Requirements; do
+		if [[ "$Pkg" != *=* ]]; then
+			Pkg="$Pkg="
+		fi
+		
+		Name=${Pkg%=*}
+		ReqVer=${Pkg#*=}
+		InstVer=$(dpkg -s $Name 2>/dev/null|grep ^Version|cut -d' ' -f2)
+		
+		if [[ -z "$InstVer" ]]; then
+			NeededReq="$NeededReq $Name"
+		elif [[ -n "$ReqVer" ]] && dpkg --compare-versions "$InstVer" '<<' "$ReqVer"; then
+			NeededReq="$NeededReq $Name"
+		fi
+	done
 
-	#mount -t proc proc proc
-	# TODO: replace scripts that would normally start processes (start-stop-daemon) so they don't -- currently not needed
+	if [[ -n "$NeededReq" ]]; then
+		#mount -t proc proc proc
+		# TODO: replace scripts that would normally start processes (start-stop-daemon) so they don't -- currently not needed
 
-	pushd tmp/
-	aptitude download initrd-netboot-tools e2fsprogs e2fslibs libc6
-	popd
-	chroot . dpkg -i -GE ./tmp/libc6*.deb
-	chroot . dpkg -i -GE ./tmp/e2fslibs*.deb
-	chroot . dpkg -i -GE ./tmp/e2fsprogs*.deb
-	chroot . dpkg -i -GE ./tmp/initrd-netboot-tools*.deb
+		pushd tmp/
+		aptitude download $NeededReq
+		popd
 
-	rm -f tmp/*.deb
+		for Pkg in $NeededReq; do
+			chroot . dpkg -i -GE ./tmp/$Pkg*.deb
+		done
 
-	# TODO: put replaced scripts back
-	#umount ./proc
+		rm -f tmp/*.deb 2>/dev/null
+
+		# TODO: put replaced scripts back
+		#umount ./proc
+	fi
 
 	local Conf=etc/lessdisks/mkinitrd/initrd-netboot.conf
 	local Setting="nfs_opts=ro,async,nolock,tcp"
