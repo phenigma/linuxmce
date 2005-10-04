@@ -26,7 +26,7 @@ int EpgGrid::GetCols()
 {
 	if( !m_pEPG )
 		return 0;
-	return (m_pEPG->m_tTime_Last - m_pEPG->m_tTime_First) / 60 / m_iGridResolution;
+	return m_pEPG->m_tTime_Last / 60 / m_iGridResolution;
 }
 
 void EpgGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, int *RowStart, int ColCount, int RowCount)
@@ -40,7 +40,10 @@ void EpgGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, int *R
 		return;  // Nothing we can do
 	}
 	if( !(*ColStart) || (m_pVDRStateInfo && !m_pVDRStateInfo->m_mapOrbiter_HasInitialPosition[m_dwPK_Device_Orbiter]) )
+	{
+		m_pVDRStateInfo->m_mapOrbiter_HasInitialPosition[m_dwPK_Device_Orbiter]=true;
 		*ColStart = GetCurrentColumn();
+	}
 
 	// Start with the the current time at the top of the hour
 	time_t tNow = *ColStart * 60 * m_iGridResolution;
@@ -98,7 +101,8 @@ void EpgGrid::PopulateRow(Channel *pChannel,int iRow,int StartTime,int StopTime)
 	{
 		DataGridCell *pCell = new DataGridCell("<" + pEvent_Prior->GetProgram(),"E" + StringUtils::itos(pEvent_Prior->m_EventID));
 		pCell->m_Colspan = (pEvent_Prior->m_tStopTime - StartTime) / 60 / m_iGridResolution;
-		pCell->m_AltColor = -15126452;
+		if( pEvent_Prior->NowPlaying() )
+			pCell->m_AltColor = -15126452;
 		SetData(StartTime / 60 / m_iGridResolution,iRow,pCell);
 	}
 

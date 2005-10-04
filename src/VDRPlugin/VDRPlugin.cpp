@@ -424,7 +424,9 @@ void VDRPlugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sC
 			}
 		}
 		vm.Release();
+g_pPlutoLogger->Write(LV_WARNING,"CALLING MediaInfoChanged with %p %p %p",m_pMedia_Plugin,pVDRStateInfo,pVDRStateInfo->m_pVDRMediaStream);
 		m_pMedia_Plugin->MediaInfoChanged(pVDRStateInfo->m_pVDRMediaStream);
+g_pPlutoLogger->Write(LV_WARNING,"done CALLING MediaInfoChanged with %p %p %p",m_pMedia_Plugin,pVDRStateInfo,pVDRStateInfo->m_pVDRMediaStream);
 	}
 	else
 		g_pPlutoLogger->Write(LV_CRITICAL,"VDRPlugin::CMD_Jump_Position_In_Playlist confused?? media device %p EPG %p events %d val: %s",

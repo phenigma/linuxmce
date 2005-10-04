@@ -157,7 +157,7 @@ void EPG::ProcessLine(char *szLine)
 
 		m_mapEvent[m_pEvent_Reading->m_EventID] = m_pEvent_Reading;
 		m_pEvent_Reading->m_pProgram = m_pProgram_Reading;  // If the program comes after the event, this will be NULL and we'll catch it below
-		if( m_pEvent_Reading->m_tStartTime>m_tTime_First )
+		if( !m_tTime_First || m_pEvent_Reading->m_tStartTime<m_tTime_First )
 			m_tTime_First = m_pEvent_Reading->m_tStartTime;
 		if( m_pEvent_Reading->m_tStopTime>m_tTime_Last )
 			m_tTime_Last = m_pEvent_Reading->m_tStopTime;

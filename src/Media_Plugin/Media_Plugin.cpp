@@ -1290,6 +1290,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Just send it to the media device");
 
 void Media_Plugin::MediaInfoChanged( MediaStream *pMediaStream, bool bRefreshScreen )
 {
+g_pPlutoLogger->Write(LV_WARNING,"in MediaInfoChanged with %p",pMediaStream);
 	pMediaStream->UpdateDescriptions();
     delete[] pMediaStream->m_pPictureData;
 	pMediaStream->m_pPictureData = NULL;

@@ -171,11 +171,7 @@ public:
 //-------------------------------------------------------------------------------------------------------
 typedef list<CHAEffect *> CHAEffectList;
 
-#define CACHE_UP 0
-#define CACHE_DOWN 1
-#define CACHE_LEFT 2
-#define CACHE_RIGHT 3
-#define CACHE_SIZE 4
+#define CACHE_SIZE 5 // The maximum number of directions
 //-------------------------------------------------------------------------------------------------------
 // Eventually it might be good to be able to ask the server to cache a fairly signficant amount of the grid
 class ProntoCCF;
