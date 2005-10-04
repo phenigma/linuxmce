@@ -16,7 +16,8 @@
 #define DCEMESSAGETRANSLATION_H
 
 #include "DCE/Message.h"
-#include "DCE/Command_Impl.h"
+#include "DCE/DeviceData_Base.h"
+#include "PlutoUtils/MultiThreadIncludes.h"
 
 namespace DCE {
 
@@ -87,13 +88,13 @@ TranslationBase
 *****************************************************************/
 class TranslationBase {
 public:
-	Command_Impl* FindTargetDevice(long devid);
+	DeviceData_Base* FindTargetDevice(long devid);
 
 protected:
-	virtual Command_Impl* getCommandImpl() = 0;
+	virtual DeviceData_Base* getDeviceData() = 0;
 	
 private:
-	static Command_Impl* FindTargetDevice(long devid, Command_Impl* pfromdev);
+	static DeviceData_Base* FindTargetDevice(long devid, DeviceData_Base* pfromdev);
 };
 
 /*****************************************************************

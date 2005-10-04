@@ -29,7 +29,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 	Message* pmsg = &inrepl.getMessage();
 	static char sql_buff[1024];
 	
-	Command_Impl* pTargetDev = DefaultMessageTranslator::FindTargetDevice(inrepl.getMessage().m_dwPK_Device_To);
+	DeviceData_Base* pTargetDev = DefaultMessageTranslator::FindTargetDevice(inrepl.getMessage().m_dwPK_Device_To);
 	if(!pTargetDev) {
 		g_pPlutoLogger->Write(LV_WARNING, "Target Device %d Not Found.", inrepl.getMessage().m_dwPK_Device_To);
 		return false;
@@ -38,7 +38,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 	int IR_ModeDelay = 0;
 	int TogglePower = 0;
 	int ToggleInput = 0;
-	long devtemplid = pTargetDev->m_pData->m_dwPK_DeviceTemplate, devid = pTargetDev->m_pData->m_dwPK_Device;
+	long devtemplid = pTargetDev->m_dwPK_DeviceTemplate, devid = pTargetDev->m_dwPK_Device;
 	if(map_ModeDelay.find(devtemplid) == map_ModeDelay.end())
 	{
 		DCEConfig dceconf;

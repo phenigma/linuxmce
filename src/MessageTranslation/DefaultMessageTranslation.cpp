@@ -35,14 +35,14 @@ DefaultMessageTranslator::~DefaultMessageTranslator() {
 
 bool 
 DefaultMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList& outrepls) {
-	Command_Impl* pTargetDev = FindTargetDevice(inrepl.getMessage().m_dwPK_Device_To);
+	DeviceData_Base* pTargetDev = FindTargetDevice(inrepl.getMessage().m_dwPK_Device_To);
 	if(!pTargetDev) {
 		g_pPlutoLogger->Write(LV_WARNING, "Target Device %d Not Found.", inrepl.getMessage().m_dwPK_Device_To);
 		return false;
 	}
 	static char sql_buff[1024];
 	int IR_PowerDelay = 0;
-	long devtemplid = pTargetDev->m_pData->m_dwPK_DeviceTemplate;
+	long devtemplid = pTargetDev->m_dwPK_DeviceTemplate;
 	if(map_PowerDelay.find(devtemplid) == map_PowerDelay.end())
 	{
 		DCEConfig dceconf;

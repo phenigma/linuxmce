@@ -57,15 +57,15 @@ public:
 	DefaultMessageProcessor() 
 		: pcmdimpl_(NULL) {}	
 public:
-	Command_Impl* getCommandImpl() {
+	DeviceData_Base* getDeviceData() {
 		return pcmdimpl_;
 	}
-	void setCommandImpl(Command_Impl* pcmdimpl) {
-		pcmdimpl_ = pcmdimpl;
+	void setDeviceData(DeviceData_Base* pdevicedata) {
+		pdevicedata_ = pdevicedata;
 	}
 
 private:
-	Command_Impl* pcmdimpl_;
+	DeviceData_Base * pdevicedata_;
 };
 
 };

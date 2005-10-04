@@ -47,28 +47,27 @@ MessageReplicatorList::unlock() {
 /*****************************************************************
 TranslationBase
 *****************************************************************/
-Command_Impl* 
+DeviceData_Base * 
 TranslationBase::FindTargetDevice(long devid) {
-	assert(getCommandImpl());
-	if(!getCommandImpl()) {
+	assert(getDeviceData());
+	if(!getDeviceData()) {
 		return NULL;
 	}
-	return FindTargetDevice(devid, getCommandImpl());
+	return FindTargetDevice(devid, getDeviceData());
 }
 
-Command_Impl* 
-TranslationBase::FindTargetDevice(long devid, Command_Impl* pfromdev) {
+DeviceData_Base* 
+TranslationBase::FindTargetDevice(long devid, DeviceData_Base* pfromdev) {
 	if(devid == pfromdev->m_dwPK_Device) {
 		return pfromdev;
 	}
 	
-	MapCommand_Impl::iterator it = pfromdev->m_mapCommandImpl_Children.begin();
-	while(it != pfromdev->m_mapCommandImpl_Children.end()) {
-		Command_Impl* pcmdimpl = FindTargetDevice(devid, (*it).second);
-		if(pcmdimpl) {
-			return pcmdimpl;
+	for(size_t s=0;s<pfromdev->m_vectDeviceData_Base_Children.size();++s)
+	{
+		DeviceData_Base* pDeviceData_Base = FindTargetDevice(devid, pfromdev->m_vectDeviceData_Base_Children[s]);
+		if(pDeviceData_Base) {
+			return pDeviceData_Base;
 		}
-		it++;
 	}
 	
 	return NULL;
