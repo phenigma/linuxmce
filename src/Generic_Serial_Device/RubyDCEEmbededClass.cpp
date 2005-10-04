@@ -48,6 +48,7 @@ RubyDCEEmbededClass::CallCmdHandler(Message *pMessage) {
 	if(!pcs_->isCmdImplemented(pMessage->m_dwPK_Device_To, pMessage->m_dwID)) {
 		if(pMessage->m_dwID != COMMAND_Process_IDLE_CONST) {
 			g_pPlutoLogger->Write(LV_STATUS, "Command %d not supported.", pMessage->m_dwID);
+			pMessage->m_bRespondedToMessage=true;
 		}
 		return;
 	}
@@ -128,6 +129,7 @@ void
 RubyDCEEmbededClass::CallCmdForChildHandler(unsigned devid, Message *pMessage) {
 	if(!pcs_->isProcChildCommandAssigned(devid)) {
 		g_pPlutoLogger->Write(LV_STATUS, "Command For Child not supported.");
+		pMessage->m_bRespondedToMessage=true;
 		return;
 	}
 
