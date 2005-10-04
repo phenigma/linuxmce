@@ -1284,6 +1284,13 @@ switch ($section) {
 	    include_once('operations/myDevices/orbiters/remoteOrbiter.php');
 	    remoteOrbiter($output,$dbADO);
 	break;
+	case 'proxySocket':
+    	$output = new Template($dbADO);
+       	$output->setTemplateFileType('small');
+		include_once('operations/myDevices/orbiters/proxySocket.php');
+	    proxySocket($output);
+	break;
+	
 	case 'phoneBook':
     	$output = new Template($dbADO);
        	$output->setTemplateFileType('large');

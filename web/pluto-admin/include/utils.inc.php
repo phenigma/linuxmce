@@ -4094,14 +4094,15 @@ function formatCode($section,$dataArray,$pos,$infraredGroupID,$dtID,$deviceID){
 	}
 	$deleteButton=(isset($_SESSION['userID']) && $dataArray['psc_user'][$pos]==@$_SESSION['userID'])?'<input type="button" class="button" name="delCustomCode" value="Delete code" onClick="if(confirm(\'Are you sure you want to delete this code?\')){document.'.$section.'.action.value=\'delete\';document.'.$section.'.irgroup_command.value='.$pos.';document.'.$section.'.submit();}">':'';
 	$viewParamsButton=($section=='rubyCodes')?'<input type="button" class="button" name="viewParams" value="View parameters" onClick="windowOpen(\'index.php?section=editCommand&from=rubyCodes&commandID='.$dataArray['FK_Command'][$pos].'\',\'width=600,height=400,toolbars=true,resizable=1,scrollbars=1\');"><br>':'';
-
+	$testButton=((int)$deviceID!=0)?'<br> <input type="button" class="button" name="testCode" value="Test code" onClick="frames[\'codeTester\'].location=\'index.php?section=testCode&irgcID='.$pos.'&deviceID='.$deviceID.'&sender='.$section.'\';"> <a name="test_'.$pos.'">':'';
+	
 	$out='
 		<table width="100%">
 			<tr bgcolor="'.$RowColor.'">
 				<td align="center" width="100"><B>'.$dataArray['Description'][$pos].'</B> <br><input type="button" class="button" name="learnCode" value="New code" onClick="windowOpen(\'index.php?section='.(($section=='rubyCodes')?'newRubyCode':'newIRCode').'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$dataArray['FK_Command'][$pos].'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');" '.((!isset($_SESSION['userID']))?'disabled':'').'></td>
 				<td align="center" width="20"><input type="radio" name="prefered_'.$dataArray['FK_Command'][$pos].'" value="'.$pos.'" '.((@in_array($pos,@$GLOBALS['igcPrefered'][$dataArray['FK_Command'][$pos]]))?'checked':'').'></td>
 				<td><textarea name="irData_'.$pos.'" rows="2" style="width:100%">'.$dataArray['IRData'][$pos].'</textarea></td>
-				<td align="center" width="100">'.$viewParamsButton.$deleteButton.' <br> <input type="button" class="button" name="testCode" value="Test code" onClick="frames[\'codeTester\'].location=\'index.php?section=testCode&irgcID='.$pos.'&deviceID='.$deviceID.'&sender='.$section.'\';"> <a name="test_'.$pos.'"></td>
+				<td align="center" width="100">'.$viewParamsButton.$deleteButton.$testButton.'</td>
 			</tr>
 		</table>';
 
@@ -4289,7 +4290,7 @@ function getParentsForControlledVia($deviceID,$dbADO)
 	
 	// get selected category Device Templates
 	$avArray=getDeviceTemplatesFromCategory($GLOBALS['rootAVEquipment'],$dbADO);
-	if(in_array($dtID,$avArray)){
+	if(in_array(@$dtID,$avArray)){
 		$queryDevice='
 			SELECT 
 				Device.*,
@@ -4415,5 +4416,19 @@ function getNodesArray($table,$pk_field,$fk_parent_field,$dbADO){
 	}
 	
 	return $nodesArray;
+}
+
+function writeFile($filename,$content,$mode='w+')
+{
+   if (!$handle = fopen($filename, $mode)) {
+         return 1; // Cannot open file ($filename)
+    }
+
+    // Write $content to our opened file.
+    if (fwrite($handle, $content) === FALSE) {
+        return 2;	// Cannot write to file ($filename)
+    }	
+    
+    return 0;
 }
 ?>

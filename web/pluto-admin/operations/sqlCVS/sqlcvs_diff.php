@@ -263,17 +263,4 @@ function sqlcvs_diff($output,$dbADO) {
 	$output->output();
 }
 
-function writeFile($filename,$content)
-{
-   if (!$handle = fopen($filename, 'w+')) {
-         return 1; // Cannot open file ($filename)
-    }
-
-    // Write $content to our opened file.
-    if (fwrite($handle, $content) === FALSE) {
-        return 2;	// Cannot write to file ($filename)
-    }	
-    
-    return 0;
-}
 ?>

@@ -13,7 +13,7 @@ function learnCode($output,$dbADO) {
 		if(!isset($_REQUEST['error'])){
 			$res=$dbADO->Execute('SELECT psc_mod AS lastTime,PK_InfraredGroup_Command FROM InfraredGroup_Command ORDER BY psc_mod DESC');
 			$row=$res->FetchRow();
-			if($_SESSION['LastInfraredGroup_CommandTime']!=$row['lastTime']){
+			if(isset($_SESSION['LastInfraredGroup_CommandTime']) && $_SESSION['LastInfraredGroup_CommandTime']!=$row['lastTime']){
 				if($infraredGroupID!=0)
 					$isSingleCode=$dbADO->Execute('
 						SELECT * 
@@ -158,19 +158,23 @@ function learnCode($output,$dbADO) {
 				</script>
 			';
 		}else{
-			$deviceInfo=getFieldsAsArray('Device','FK_Device_ControlledVia',$dbADO,'WHERE PK_Device='.$deviceID);
-			if((int)@$deviceInfo['FK_Device_ControlledVia'][0]>0){
-				$parentDevice=$deviceInfo['FK_Device_ControlledVia'][0];
-				$resLastCommand=$dbADO->Execute('SELECT psc_mod AS lastTime FROM InfraredGroup_Command ORDER BY psc_mod DESC');
-				$rowLastCommand=$resLastCommand->FetchRow();
-				$_SESSION['LastInfraredGroup_CommandTime']=$rowLastCommand['lastTime'];
+			if($deviceID>0){
+				$deviceInfo=getFieldsAsArray('Device','FK_Device_ControlledVia',$dbADO,'WHERE PK_Device='.$deviceID);
+				if((int)@$deviceInfo['FK_Device_ControlledVia'][0]>0){
+					$parentDevice=$deviceInfo['FK_Device_ControlledVia'][0];
+					$resLastCommand=$dbADO->Execute('SELECT psc_mod AS lastTime FROM InfraredGroup_Command ORDER BY psc_mod DESC');
+					$rowLastCommand=$resLastCommand->FetchRow();
+					$_SESSION['LastInfraredGroup_CommandTime']=$rowLastCommand['lastTime'];
+					
+					$commandToSend='/usr/pluto/bin/MessageSend localhost 0 '.$parentDevice.' 1 245 8 1 71 '.$commandID;
+					exec($commandToSend);
 				
-				$commandToSend='/usr/pluto/bin/MessageSend localhost 0 '.$parentDevice.' 1 245 8 1 71 '.$commandID;
-				exec($commandToSend);
-			
-				header("Location: index.php?section=learnCode&deviceID=$deviceID&dtID=$dtID&infraredGroupID=$infraredGroupID&commandID=".$commandID);
+					header("Location: index.php?section=learnCode&deviceID=$deviceID&dtID=$dtID&infraredGroupID=$infraredGroupID&commandID=".$commandID);
+				}else{
+					header("Location: index.php?section=learnCode&deviceID=$deviceID&dtID=$dtID&infraredGroupID=$infraredGroupID&commandID=".$commandID.'&error=IR interface is not set as parent of this device.&noRefresh=1');
+				}
 			}else{
-				header("Location: index.php?section=learnCode&deviceID=$deviceID&dtID=$dtID&infraredGroupID=$infraredGroupID&commandID=".$commandID.'&error=IR interface is not set as parent of this device.&noRefresh=1');
+				header("Location: index.php?section=learnCode&deviceID=$deviceID&dtID=$dtID&infraredGroupID=$infraredGroupID&commandID=".$commandID.'&noRefresh=1');
 			}
 		}
 			

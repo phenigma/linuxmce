@@ -89,23 +89,39 @@ function irCodes($output,$dbADO,$mediaADO) {
 
 		$resDTData=$dbADO->Execute($selectDTData,array($deviceID));
 		if($resDTData->RecordCount()==0){
-			header("Location: index.php?section=userHome");
-			exit();
+			$selectDT='
+			SELECT 
+				DeviceTemplate.Description AS Template, 
+				DeviceCategory.Description AS Category,
+				Manufacturer.Description AS Manufacturer, 
+				FK_Manufacturer,
+				FK_DeviceCategory,
+				DeviceTemplate.psc_user AS User,
+				FK_InfraredGroup,
+				DeviceTemplate_AV.*,
+				DeviceTemplate_AV.FK_DeviceTemplate AS AVTemplate
+			FROM DeviceTemplate 
+			INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory
+			INNER JOIN Manufacturer ON FK_Manufacturer=PK_Manufacturer
+			LEFT JOIN DeviceTemplate_AV ON DeviceTemplate_AV.FK_DeviceTemplate=PK_DeviceTemplate
+			WHERE PK_DeviceTemplate=?';
+			$resDTData=$dbADO->Execute($selectDT,array($dtID));
 		}
+		
 		$rowDTData=$resDTData->FetchRow();
 		$togglePower=(@$rowDTData['TogglePower']==1)?1:0;
 		$toggleInput=(@$rowDTData['ToggleInput']==1)?1:0;
 		$toggleDSP=(@$rowDTData['ToggleDSP']==1)?1:0;
 		
 		// create the record in DeviceTemplate_AV for templates who doesn't have it
-		if(is_null($rowDTData['AVTemplate'][0])){
-			$dbADO->Execute('INSERT INTO DeviceTemplate_AV (FK_DeviceTemplate) VALUES (?)',$dtID);
+		if(is_null($rowDTData['AVTemplate'])){
+			$dbADO->Execute('INSERT IGNORE INTO DeviceTemplate_AV (FK_DeviceTemplate) VALUES (?)',$dtID);
 		}
 		
 		$manufacturerID=$rowDTData['FK_Manufacturer'];
 		$deviceCategoryID=$rowDTData['FK_DeviceCategory'];
 		$owner=$rowDTData['User'];
-		$deviceParent=$rowDTData['Parent'];
+		$deviceParent=@$rowDTData['Parent'];
 
 		$GLOBALS['btnEnabled']=(!isset($_SESSION['userID']) || $owner!=@$_SESSION['userID'] )?'disabled':'';
 
@@ -140,12 +156,14 @@ function irCodes($output,$dbADO,$mediaADO) {
 			</tr>		
 			<tr>
 				<td valign="top" colspan="2">DSP Modes <B>'.(($rowDTData['ToggleDSP']==0)?'Discrete':'Toggle').'</B>: <B>'.join(', ',$dspmodeCommandsArray).'</B> <a href="index.php?section=addModel&step=6&dtID='.$dtID.'&deviceID='.$deviceID.'&return=1">[change/explain]</a><td>
-			</tr>		
+			</tr>';
+		if(isset($deviceID)){
+			$out.='
 			<tr>
 				<td valign="top">This device is controlled via: </td>
 				<td valign="top">'.controlledViaPullDown('controlledVia',$deviceID,$dtID,$deviceCategoryID,$deviceParent,$dbADO).'<td>
-			</tr>		
-		';
+			</tr>';
+		}
 			$irGroups=getAssocArray('InfraredGroup','PK_InfraredGroup','Description',$dbADO,'WHERE FK_Manufacturer='.$manufacturerID.' AND FK_DeviceCategory='.$deviceCategoryID,'ORDER BY Description ASC');
 			$out.='
 			<tr>
@@ -299,8 +317,10 @@ function irCodes($output,$dbADO,$mediaADO) {
 			}
 			
 			// update device controlled via
-			$controlledVia=((int)$_POST['controlledVia']>0)?(int)$_POST['controlledVia']:NULL;
-			$dbADO->Execute('UPDATE Device SET FK_Device_ControlledVia=? WHERE PK_Device=?',array($controlledVia,$deviceID));
+			if(isset($_POST['controlledVia'])){
+				$controlledVia=((int)$_POST['controlledVia']>0)?(int)$_POST['controlledVia']:NULL;
+				$dbADO->Execute('UPDATE Device SET FK_Device_ControlledVia=? WHERE PK_Device=?',array($controlledVia,$deviceID));
+			}
 			
 			$time_end= getmicrotime();
 			//print '<p class="normaltext">Page generated in '.round(($time_end-$time_start),3).' s.';
