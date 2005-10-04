@@ -65,6 +65,7 @@
 
 char *FileUtils::ReadFileIntoBuffer( string sFileName, size_t &Size )
 {
+	Size=0;
     if( sFileName.length()==0 )
         return NULL;
 

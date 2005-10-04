@@ -194,7 +194,7 @@ namespace DCE
 		 * @brief sets the m_bQuit mb data; used when DeviceManager wants the app to terminate
 		 * @todo check: 1/4/2004 - AB removed this to try to stop socket failures Disconnect()
 		 */
-		virtual void OnQuit() { m_bQuit = true; };
+		virtual void OnQuit() { m_bQuit = true; pthread_cond_broadcast( &m_listMessageQueueCond ); };
 		
 		/**
 		 * @brief when DeviceManager wants the app to recheck its config, by default it exits.

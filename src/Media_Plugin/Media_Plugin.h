@@ -226,6 +226,11 @@ public:
 		return m_pDatabase_pluto_main;
 	}
 
+	Database_pluto_media *GetMediaDatabaseConnect()
+	{
+		return m_pDatabase_pluto_media;
+	}
+
     // A MediaPlugIn call call this function, passing in the type of device that it will handle.  This will automatically build MediaPlugInInfo's for all the
     // types that the device supports, using all the default values from the database.  A plug-in could also call the MediaHandlerInfo constructor that will
     // create and register a specific type of media.  This means it is not necessary to call RegisterMediaPlugin.  This allows the plug-in to change

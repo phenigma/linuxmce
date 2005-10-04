@@ -18,6 +18,7 @@ using namespace DCE;
 #include "Orbiter_Plugin/Orbiter_Plugin.h"
 #include "../Datagrid_Plugin/Datagrid_Plugin.h"
 #include "../pluto_main/Define_DataGrid.h"
+#include "../pluto_media/Table_Bookmark.h"
 
 void* EPG_Thread( void* param ) // renamed to cancel link-time name collision in MS C++ 7.0 / VS .NET 2002
 {
@@ -91,6 +92,7 @@ void VDRPlugin::FetchEPG()
 	while(!m_bQuit)
 	{
 		PLUTO_SAFETY_LOCK(vm,m_VDRMutex);
+		bool bErrorsParsing=false;
 		for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();it!=pListDeviceData_Router->end();++it)
 		{
 			vm.TimedCondWait(1,0);  // 1 second delay here just to slow this down so it doesn't cause too much activity all at once
@@ -106,7 +108,7 @@ void VDRPlugin::FetchEPG()
 
 			bool bIsHybrid = pDevice_Router && pDevice_MD->m_dwPK_Device_ControlledVia==pDevice_Router->m_dwPK_Device_ControlledVia;
 			string sPath = pDevice_VDR->m_mapParameters_Find(DEVICEDATA_File_Name_and_Path_CONST);
-			if( sPath.size()==0 )
+// for the moment hardcode this			if( sPath.size()==0 )
 				sPath = "/var/cache/vdrdevel";
 
 			if( bIsHybrid )
@@ -121,6 +123,7 @@ void VDRPlugin::FetchEPG()
 			if( pEPG->m_listChannel.size()==0 || pEPG->m_mapEvent.size()==0 )
 			{
 				g_pPlutoLogger->Write(LV_CRITICAL,"EPG file %s was badly parsed",sPath.c_str());
+				bErrorsParsing=true;
 				continue;
 			}
 			VDREPG::EPG *pEPG_Old = m_mapEPG[pDevice_VDR->m_dwPK_Device];
@@ -130,7 +133,12 @@ void VDRPlugin::FetchEPG()
 			g_pPlutoLogger->Write(LV_STATUS,"Done Reading EPG from %s",sPath.c_str());
 		}
 		// The first time refresh after 20 minutes to be sure we at least picked up the first days stuff
-		if( bFirstRun )
+		if( bErrorsParsing )
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"Trouble parsing all EPG.  Will try again in 3 minutes");
+			vm.TimedCondWait(180,0);
+		}
+		else if( bFirstRun )
 		{
 			bFirstRun=false;
 			vm.TimedCondWait(1200,0);
@@ -166,6 +174,12 @@ bool VDRPlugin::Register()
 
     m_pDatagrid_Plugin->RegisterDatagridGenerator( new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&VDRPlugin::AllShows))
                                                 ,DATAGRID_EPG_All_Shows_CONST,PK_DeviceTemplate_get());
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator( new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&VDRPlugin::FavoriteChannels))
+                                                ,DATAGRID_Favorite_Channels_CONST,PK_DeviceTemplate_get());
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator( new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&VDRPlugin::FavoriteShows))
+                                                ,DATAGRID_Favorite_Shows_CONST,PK_DeviceTemplate_get());
 
 	return Connect(PK_DeviceTemplate_get()); 
 }
@@ -490,6 +504,48 @@ class DataGridTable *VDRPlugin::AllShows(string GridID, string Parms, void *Extr
 	}
 
 	return new VDREPG::EpgGrid(this,pVDRStateInfo,pMessage->m_dwPK_Device_From,iGridResolutions);  // Fallback, just return any VDR grid
+}
+
+class DataGridTable *VDRPlugin::FavoriteChannels(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage)
+{
+    DataGridTable *pDataGrid = new DataGridTable();
+	g_pPlutoLogger->Write(LV_STATUS, "VDRPlugin::FavoriteChannels Called to populate: %s", Parms.c_str());
+
+	int PK_Users = atoi(Parms.c_str());
+	vector<Row_Bookmark *> vectRow_Bookmark;
+	Database_pluto_media *pDatabase_pluto_media = m_pMedia_Plugin->GetMediaDatabaseConnect();
+	pDatabase_pluto_media->Bookmark_get()->GetRows("Position LIKE 'CHANNEL:%' AND (EK_Users IS NULL OR EK_Users=" + StringUtils::itos(PK_Users) + ")",&vectRow_Bookmark);
+
+	for(size_t s=0;s<vectRow_Bookmark.size();++s)
+	{
+		Row_Bookmark *pRow_Bookmark = vectRow_Bookmark[s];
+
+		DataGridCell *pDataGridCell = new DataGridCell(pRow_Bookmark->Description_get(), StringUtils::itos(pRow_Bookmark->PK_Bookmark_get()));
+		pDataGrid->SetData(0,s,pDataGridCell);
+	}
+
+    return pDataGrid;
+}
+
+class DataGridTable *VDRPlugin::FavoriteShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage)
+{
+    DataGridTable *pDataGrid = new DataGridTable();
+	g_pPlutoLogger->Write(LV_STATUS, "VDRPlugin::FavoriteShows Called to populate: %s", Parms.c_str());
+
+	int PK_Users = atoi(Parms.c_str());
+	vector<Row_Bookmark *> vectRow_Bookmark;
+	Database_pluto_media *pDatabase_pluto_media = m_pMedia_Plugin->GetMediaDatabaseConnect();
+	pDatabase_pluto_media->Bookmark_get()->GetRows("Position LIKE 'PROGRAM:%' AND (EK_Users IS NULL OR EK_Users=" + StringUtils::itos(PK_Users) + ")",&vectRow_Bookmark);
+
+	for(size_t s=0;s<vectRow_Bookmark.size();++s)
+	{
+		Row_Bookmark *pRow_Bookmark = vectRow_Bookmark[s];
+
+		DataGridCell *pDataGridCell = new DataGridCell(pRow_Bookmark->Description_get(), StringUtils::itos(pRow_Bookmark->PK_Bookmark_get()));
+		pDataGrid->SetData(0,s,pDataGridCell);
+	}
+
+    return pDataGrid;
 }
 
 class MediaDevice *VDRPlugin::GetVDRFromOrbiter(int PK_Device)

@@ -40,6 +40,8 @@
 #define DATAGRID_MRU_Documents_CONST 37
 #define DATAGRID_Bookmarks_by_MediaType_CONST 38
 #define DATAGRID_Rooms_CONST 39
+#define DATAGRID_Favorite_Channels_CONST 40
+#define DATAGRID_Favorite_Shows_CONST 41
 
 #define DATAGRID_TABLE "DataGrid"
 #define DATAGRID_PK_DATAGRID_FIELD "PK_DataGrid"

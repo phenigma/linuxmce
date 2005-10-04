@@ -27,7 +27,8 @@ bool EPG::ReadFromFile(string sFileEPG,string sFileChannels)
 	size_t size,size_channels;
 	char *pBuffer = FileUtils::ReadFileIntoBuffer(sFileEPG,size);
 	char *pBuffer_Channels = FileUtils::ReadFileIntoBuffer(sFileChannels,size_channels);
-	g_pPlutoLogger->Write(LV_STATUS,"PG::ReadFromFile %d (%d) bytes",(int) size,(int) size_channels);
+	g_pPlutoLogger->Write(LV_STATUS,"PG::ReadFromFile %s=%d %s=%d bytes %p %p",sFileEPG.c_str(),(int) size,
+		sFileChannels.c_str(),(int) size_channels,pBuffer,pBuffer_Channels);
 	if( !pBuffer || !pBuffer_Channels )
 	{
 		delete pBuffer;  // in case we got one and not the other
