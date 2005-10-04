@@ -89,14 +89,13 @@ bool IRBase::Translate(MessageReplicator& inrepl, MessageReplicatorList& outrepl
 		return true;
 	}
 	Message* pmsg = &inrepl.getMessage();
-	Command_Impl *pTargetDev = AVMessageTranslator::FindTargetDevice(pmsg->m_dwPK_Device_To);
+	DeviceData_Base *pTargetDev = AVMessageTranslator::FindTargetDevice(pmsg->m_dwPK_Device_To);
 	if(!pTargetDev) {
 		g_pPlutoLogger->Write(LV_WARNING, "Target Device %d Not Found.", pmsg->m_dwPK_Device_To);
 		return false;
 	}
 	
-	DeviceData_Impl *pDeviceData_Impl = pTargetDev->m_pData;
-	long devtemplid = pTargetDev->m_pData->m_dwPK_DeviceTemplate, devid = pTargetDev->m_pData->m_dwPK_Device;
+	long devtemplid = pTargetDev->m_dwPK_DeviceTemplate, devid = pTargetDev->m_dwPK_Device;
 	static char sql_buff[1024];
 	int DigitDelay = 0;
 	string sNumDigits;
@@ -211,7 +210,7 @@ IRBase::DispatchMessage(Message* pmsg) {
 	string irport, ircode;
 	int cmd = 0, devid = pmsg->m_dwPK_Device_To;
 
-	Command_Impl *pTargetDev = AVMessageDispatcher::FindTargetDevice(devid);
+	DeviceData_Base *pTargetDev = AVMessageDispatcher::FindTargetDevice(devid);
 	if(!pTargetDev) {
 		g_pPlutoLogger->Write(LV_WARNING, "Could not find target device %d...", devid);
 		return;
@@ -234,7 +233,7 @@ IRBase::DispatchMessage(Message* pmsg) {
 		}
 	} else {
 		cmd = pmsg->m_dwID;
-		irport = pTargetDev->m_pData->m_mapParameters[DEVICEDATA_PortChannel_Number_CONST];
+		m_pCommandImpl->GetChildDeviceData(pTargetDev->m_dwPK_Device,DEVICEDATA_PortChannel_Number_CONST,irport);
 	}
 		
 	map <longPair, string>::iterator it = codemap_.find(longPair(devid, cmd));

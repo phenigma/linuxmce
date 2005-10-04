@@ -961,3 +961,26 @@ void Command_Impl::FindUnregisteredRelativesLoop(DeviceData_Base *pDevice,map<in
 	if( bScanParent && pDevice->m_pDevice_ControlledVia )
 		FindUnregisteredRelativesLoop(pDevice->m_pDevice_ControlledVia,p_mapUnregisteredRelatives,false,pDevice->m_dwPK_Device);
 }
+
+bool Command_Impl::GetChildDeviceData( int PK_Device, int PK_DeviceData, string &sValue, DeviceData_Impl *pDeviceData_Impl)
+{
+	if( !pDeviceData_Impl )
+		pDeviceData_Impl = m_pData; // Only happens on the top level
+	
+	if( !pDeviceData_Impl )
+		return false;
+
+	if( pDeviceData_Impl->m_dwPK_Device == PK_Device )
+	{
+		sValue=pDeviceData_Impl->m_mapParameters_Find(PK_DeviceData);
+		return true;
+	}
+
+	for(size_t s=0;pDeviceData_Impl->m_vectDeviceData_Impl_Children.size();++s)
+	{
+		DeviceData_Impl *pDeviceData_Impl_Child = m_pData->m_vectDeviceData_Impl_Children[s];
+		if( GetChildDeviceData(PK_Device,PK_DeviceData,sValue,pDeviceData_Impl_Child) )
+			return true;
+	}
+	return false;
+}

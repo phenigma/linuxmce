@@ -365,6 +365,11 @@ namespace DCE
 		/**
 		 * @brief Gets the current value of a given device data directly from the device
 		 */
+		bool GetChildDeviceData( int PK_Device, int PK_DeviceData, string &sValue, DeviceData_Impl *pDeviceData_Impl=NULL); // Leave pDeviceData_Impl=NULL
+
+		/**
+		 * @brief Gets the current value of a given device data directly from the device
+		 */
 		string GetCurrentDeviceData( int PK_Device, int PK_DeviceData );
 
 		/**
