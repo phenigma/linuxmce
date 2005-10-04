@@ -20,6 +20,8 @@ EPG::~EPG()
 		delete *it;
 	for(map<string,Program *>::iterator it=m_mapProgram.begin();it!=m_mapProgram.end();++it)
 		delete it->second;
+	for(map<int,Event *>::iterator it=m_mapEvent.begin();it!=m_mapEvent.end();++it)
+		delete it->second;
 }
 
 bool EPG::ReadFromFile(string sFileEPG,string sFileChannels)
@@ -197,7 +199,10 @@ void EPG::ProcessLine(char *szLine)
 			m_mapProgram[ m_pProgram_Reading->m_sTitle ] = m_pProgram_Reading;
 		}
 		if( m_pEvent_Reading )
+		{
 			m_pEvent_Reading->m_pProgram = m_pProgram_Reading;  
+			m_pProgram_Reading->m_listEvent.push_back(m_pEvent_Reading);
+		}
 	}
 	else if( *szLine=='S' && m_pEvent_Reading )  // m_pEvent_Reading should always be non-null here
 		m_pEvent_Reading->m_sDescription_Short = szLine+2;
@@ -298,13 +303,6 @@ Channel::Channel(char *szLine)
 
 Channel::~Channel()
 {
-	Event *pEvent=m_pEvent_First;
-	while(pEvent)
-	{
-		Event *pEvent_Next = pEvent->m_pEvent_Next;
-		delete pEvent;
-		pEvent = pEvent_Next;
-	}
 }
 
 Event *Channel::GetCurrentEvent()

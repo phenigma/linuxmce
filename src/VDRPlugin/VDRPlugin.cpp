@@ -31,7 +31,7 @@ void* EPG_Thread( void* param ) // renamed to cancel link-time name collision in
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 VDRPlugin::VDRPlugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
-: VDRPlugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
+	: VDRPlugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 , m_VDRMutex("vdr")
 {
@@ -45,7 +45,7 @@ bool VDRPlugin::GetConfig()
 {
 	if( !VDRPlugin_Command::GetConfig() )
 		return false;
-	//<-dceag-getconfig-e->
+//<-dceag-getconfig-e->
 
 	m_bEPGThreadRunning=true;
 	pthread_t pt_epg;
@@ -296,7 +296,7 @@ bool VDRPlugin::StartMedia( class MediaStream *pMediaStream )
 	pVDRStateInfo->m_bViewing = true;
 	pVDRStateInfo->EventID = pEvent->m_EventID;
 	DCE::CMD_Play_Media CMD_Play_Media(m_dwPK_Device,PK_Device,"",pVDRMediaStream->m_iPK_MediaType,
-		pVDRMediaStream->m_iStreamID_get(), "CHAN:" + StringUtils::itos(pEvent->m_pChannel->m_ChannelID));
+		pVDRMediaStream->m_iStreamID_get(), " CHAN:" + StringUtils::itos(pEvent->m_pChannel->m_ChannelID));
 
 	SendCommand(CMD_Play_Media);
 	return true;
@@ -358,10 +358,10 @@ COMMANDS TO IMPLEMENT
 
 //<-dceag-c65-b->
 
-/** @brief COMMAND: #65 - Jump Position In Playlist */
-/** Change channels.  +1 and -1 mean up and down 1 channel. */
-/** @param #5 Value To Assign */
-/** The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1. */
+	/** @brief COMMAND: #65 - Jump Position In Playlist */
+	/** Change channels.  +1 and -1 mean up and down 1 channel. */
+		/** @param #5 Value To Assign */
+			/** The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1. */
 
 void VDRPlugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c65-e->
@@ -432,10 +432,10 @@ void VDRPlugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sC
 
 //<-dceag-c185-b->
 
-/** @brief COMMAND: #185 - Schedule Recording */
-/** This will schedule a recording. */
-/** @param #68 ProgramID */
-/** The program which will need to be recorded. (The format is defined by the device which created the original datagrid) */
+	/** @brief COMMAND: #185 - Schedule Recording */
+	/** This will schedule a recording. */
+		/** @param #68 ProgramID */
+			/** The program which will need to be recorded. (The format is defined by the device which created the original datagrid) */
 
 void VDRPlugin::CMD_Schedule_Recording(string sProgramID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c185-e->
@@ -552,13 +552,13 @@ class DataGridTable *VDRPlugin::FavoriteChannels(string GridID, string Parms, vo
 	int PK_Users = atoi(Parms.c_str());
 	vector<Row_Bookmark *> vectRow_Bookmark;
 	Database_pluto_media *pDatabase_pluto_media = m_pMedia_Plugin->GetMediaDatabaseConnect();
-	pDatabase_pluto_media->Bookmark_get()->GetRows("EK_MediaType=1 AND Position LIKE 'CHANNEL:%' AND (EK_Users IS NULL OR EK_Users=" + StringUtils::itos(PK_Users) + ")",&vectRow_Bookmark);
+	pDatabase_pluto_media->Bookmark_get()->GetRows("EK_MediaType=1 AND Position LIKE ' CHAN:%' AND (EK_Users IS NULL OR EK_Users=" + StringUtils::itos(PK_Users) + ")",&vectRow_Bookmark);
 
 	for(size_t s=0;s<vectRow_Bookmark.size();++s)
 	{
 		Row_Bookmark *pRow_Bookmark = vectRow_Bookmark[s];
-
-		DataGridCell *pDataGridCell = new DataGridCell(pRow_Bookmark->Description_get(), StringUtils::itos(pRow_Bookmark->PK_Bookmark_get()));
+		string sDescription = pRow_Bookmark->Description_get().size() ? pRow_Bookmark->Description_get() : pRow_Bookmark->Position_get();
+		DataGridCell *pDataGridCell = new DataGridCell(sDescription, "B" + StringUtils::itos(pRow_Bookmark->PK_Bookmark_get()));
 		pDataGrid->SetData(0,s,pDataGridCell);
 	}
 
@@ -573,13 +573,13 @@ class DataGridTable *VDRPlugin::FavoriteShows(string GridID, string Parms, void 
 	int PK_Users = atoi(Parms.c_str());
 	vector<Row_Bookmark *> vectRow_Bookmark;
 	Database_pluto_media *pDatabase_pluto_media = m_pMedia_Plugin->GetMediaDatabaseConnect();
-	pDatabase_pluto_media->Bookmark_get()->GetRows("EK_MediaType=1 AND Position LIKE 'PROGRAM:%' AND (EK_Users IS NULL OR EK_Users=" + StringUtils::itos(PK_Users) + ")",&vectRow_Bookmark);
+	pDatabase_pluto_media->Bookmark_get()->GetRows("EK_MediaType=1 AND Position LIKE ' PROG:%' AND (EK_Users IS NULL OR EK_Users=" + StringUtils::itos(PK_Users) + ")",&vectRow_Bookmark);
 
 	for(size_t s=0;s<vectRow_Bookmark.size();++s)
 	{
 		Row_Bookmark *pRow_Bookmark = vectRow_Bookmark[s];
-
-		DataGridCell *pDataGridCell = new DataGridCell(pRow_Bookmark->Description_get(), StringUtils::itos(pRow_Bookmark->PK_Bookmark_get()));
+		string sDescription = pRow_Bookmark->Description_get().size() ? pRow_Bookmark->Description_get() : pRow_Bookmark->Position_get();
+		DataGridCell *pDataGridCell = new DataGridCell(sDescription, "B" + StringUtils::itos(pRow_Bookmark->PK_Bookmark_get()));
 		pDataGrid->SetData(0,s,pDataGridCell);
 	}
 
@@ -599,12 +599,12 @@ class MediaDevice *VDRPlugin::GetVDRFromOrbiter(int PK_Device)
 }
 //<-dceag-c698-b->
 
-/** @brief COMMAND: #698 - Get Extended Media Data */
-/** Returns extra data about the given media, such as the title, airtime, whether it's currently scheduled to record, etc. */
-/** @param #3 PK_DesignObj */
-/** If specified the sender will be sent a goto-screen with this screen.  If not the sender will be sent a refresh */
-/** @param #68 ProgramID */
-/** If specified, the program to retrive info on.  If not specified, assumed to be the currently playing media */
+	/** @brief COMMAND: #698 - Get Extended Media Data */
+	/** Returns extra data about the given media, such as the title, airtime, whether it's currently scheduled to record, etc. */
+		/** @param #3 PK_DesignObj */
+			/** If specified the sender will be sent a goto-screen with this screen.  If not the sender will be sent a refresh */
+		/** @param #68 ProgramID */
+			/** If specified, the program to retrive info on.  If not specified, assumed to be the currently playing media */
 
 void VDRPlugin::CMD_Get_Extended_Media_Data(string sPK_DesignObj,string sProgramID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c698-e->
@@ -612,9 +612,15 @@ void VDRPlugin::CMD_Get_Extended_Media_Data(string sPK_DesignObj,string sProgram
 	MediaDevice *pMediaDevice = GetVDRFromOrbiter(pMessage->m_dwPK_Device_From);
 	PLUTO_SAFETY_LOCK(vm,m_VDRMutex);
 	VDREPG::EPG *pEPG = NULL; 
-	if( pMediaDevice && (pEPG=m_mapEPG_Find(pMediaDevice->m_pDeviceData_Router->m_dwPK_Device)) )
+	VDRStateInfo *pVDRStateInfo;
+	if( pMediaDevice && (pEPG=m_mapEPG_Find(pMediaDevice->m_pDeviceData_Router->m_dwPK_Device)) &&
+		(pVDRStateInfo=m_mapVDRStateInfo[pMediaDevice->m_pDeviceData_Router->m_dwPK_Device]) )
 	{
-		VDREPG::Event *pEvent = pEPG->m_mapEvent_Find(atoi(sProgramID.substr(1).c_str()));
+		VDREPG::Event *pEvent = NULL;
+		if( sProgramID.size()==0 )
+			pEvent = pEPG->m_mapEvent_Find(pVDRStateInfo->EventID);
+		else
+			pEvent = pEPG->m_mapEvent_Find(atoi(sProgramID.substr(1).c_str()));
 		if( !pEvent || !pEvent->m_pChannel )
 			g_pPlutoLogger->Write(LV_CRITICAL,"VDRPlugin::CMD_Get_Extended_Media_Data trying to tune to unknown event %s",sProgramID.c_str());
 		else
@@ -669,7 +675,10 @@ VDREPG::Event *VDRPlugin::GetStartingEvent(VDREPG::EPG *pEPG,int PK_Users)
 		int iPriority_Bookmark;
 		VDREPG::Event *pEvent_Bookmark = GetEventForBookmark(pEPG,vectRow_Bookmark[s],iPriority_Bookmark);
 		if( pEvent_Bookmark && iPriorityLevel>iPriority_Bookmark )
+		{
+			iPriorityLevel=iPriority_Bookmark;
 			pEvent = pEvent_Bookmark;
+		}
 	}
 
 	if( !pEvent )  // Just find the first show
@@ -689,13 +698,13 @@ VDREPG::Event *VDRPlugin::GetEventForBookmark(VDREPG::EPG *pEPG,Row_Bookmark *pR
 {
 	time_t tNow = time(NULL);
 	string::size_type pos;
-	bool bIsShow = (pos=pRow_Bookmark->Description_get().find("PROGRAM:"))!=string::npos && pRow_Bookmark->Description_get().size()-pos>8;
+	bool bIsShow = (pos=pRow_Bookmark->Position_get().find(" PROG:"))!=string::npos && pRow_Bookmark->Position_get().size()-pos>6;
 	if( bIsShow )
 	{
-		VDREPG::Program *pProgram = pEPG->m_mapProgram_Find(pRow_Bookmark->Description_get().substr(pos+8));
+		VDREPG::Program *pProgram = pEPG->m_mapProgram_Find(pRow_Bookmark->Position_get().substr(pos+6));
 		if( !pProgram )
 		{
-			g_pPlutoLogger->Write(LV_STATUS,"VDRPlugin::GetEventForBookmark Cannot find any programs of %s",pRow_Bookmark->Description_get().c_str());
+			g_pPlutoLogger->Write(LV_STATUS,"VDRPlugin::GetEventForBookmark Cannot find any programs of %s",pRow_Bookmark->Position_get().c_str());
 			return NULL;
 		}
 
@@ -715,12 +724,12 @@ VDREPG::Event *VDRPlugin::GetEventForBookmark(VDREPG::EPG *pEPG,Row_Bookmark *pR
 
 	VDREPG::Channel *pChannel;
 	VDREPG::Event *pEvent;
-	pos=pRow_Bookmark->Description_get().find("CHAN:");
-	if( pos==string::npos ||  pRow_Bookmark->Description_get().size()-pos<6 || 
-		(pChannel=pEPG->m_mapChannelName_Find(pRow_Bookmark->Description_get().substr(pos+5)))==NULL ||
-		(pEvent=pChannel->GetCurrentEvent()) )
+	pos=pRow_Bookmark->Position_get().find(" CHAN:");
+	if( pos==string::npos ||  pRow_Bookmark->Position_get().size()-pos<=6 || 
+		(pChannel=pEPG->m_mapChannelName_Find(pRow_Bookmark->Position_get().substr(pos+6)))==NULL ||
+		(pEvent=pChannel->GetCurrentEvent())==NULL )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"VDRPlugin::GetEventForBookmark Cannot find any channels of %s",pRow_Bookmark->Description_get().c_str());
+		g_pPlutoLogger->Write(LV_STATUS,"VDRPlugin::GetEventForBookmark Cannot find any channels of %s",pRow_Bookmark->Position_get().c_str());
 		return NULL;
 	}
 
@@ -729,4 +738,53 @@ VDREPG::Event *VDRPlugin::GetEventForBookmark(VDREPG::EPG *pEPG,Row_Bookmark *pR
 	else
 		iPriority_Bookmark = 4;
 	return pEvent;
+}
+//<-dceag-c409-b->
+
+	/** @brief COMMAND: #409 - Save Bookmark */
+	/** Save the current channel or program as a bookmark.  Text should have CHAN: or PROG: in there */
+		/** @param #39 Options */
+			/** For TV, CHAN: or PROG: indicating if it's the channel or program to bookmark */
+		/** @param #45 PK_EntertainArea */
+			/** The entertainment area with the media */
+
+void VDRPlugin::CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea,string &sCMD_Result,Message *pMessage)
+//<-dceag-c409-e->
+{
+	string sBookmark;
+	MediaDevice *pMediaDevice = GetVDRFromOrbiter(pMessage->m_dwPK_Device_From);
+	OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
+	PLUTO_SAFETY_LOCK(vm,m_VDRMutex);
+	VDREPG::EPG *pEPG = NULL; 
+	VDREPG::Event *pEvent = NULL;
+	VDRStateInfo *pVDRStateInfo;
+	if( pMediaDevice && (pEPG=m_mapEPG_Find(pMediaDevice->m_pDeviceData_Router->m_dwPK_Device)) &&
+		(pVDRStateInfo=m_mapVDRStateInfo[pMediaDevice->m_pDeviceData_Router->m_dwPK_Device]) && 
+		(pEvent = pEPG->m_mapEvent_Find(pVDRStateInfo->EventID)) &&
+		pOH_Orbiter )
+	{
+		string sPosition,sDescription;
+		if( sOptions.find("PROG")!=string::npos )
+		{
+			sPosition = " PROG:" + pEvent->m_pProgram->m_sTitle;
+			sDescription = pEvent->m_pProgram->m_sTitle;
+		}
+		else
+		{
+			sPosition = " CHAN:" + pEvent->m_pChannel->m_sChannelName;
+			sDescription = pEvent->m_pChannel->m_sChannelName;
+		}
+
+		Row_Bookmark *pRow_Bookmark = m_pMedia_Plugin->GetMediaDatabaseConnect()->Bookmark_get()->AddRow();
+		pRow_Bookmark->EK_MediaType_set(MEDIATYPE_pluto_LiveTV_CONST);
+		pRow_Bookmark->Description_set(sDescription);
+		pRow_Bookmark->Position_set(sPosition);
+		pRow_Bookmark->EK_Users_set(pOH_Orbiter->m_pOH_User->m_iPK_Users);
+		pRow_Bookmark->Table_Bookmark_get()->Commit();
+		DCE::CMD_Refresh CMD_Refresh(m_dwPK_Device,pMessage->m_dwPK_Device_From,"*");
+		SendCommand(CMD_Refresh);
+	}
+	else
+		g_pPlutoLogger->Write(LV_CRITICAL,"VDRPlugin::CMD_Save_Bookmark confused?? media device %p EPG %p events %d val: %s orb %p",
+			pMediaDevice,pEPG,(int) pEPG->m_mapEvent.size(),sOptions.c_str(),pOH_Orbiter);
 }

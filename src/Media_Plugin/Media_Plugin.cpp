@@ -2458,9 +2458,8 @@ void Media_Plugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string 
 	if( pDeviceData_Router && pDeviceData_Router->m_mapCommands.find(pMessage->m_dwID)!=pDeviceData_Router->m_mapCommands.end() )
 	{
 		// The plugin has it's own method for handling this.  Give it the message instead
-		Message *pMessage_Copy = new Message(pMessage);
-		pMessage_Copy->m_dwPK_Device_To = pDeviceData_Router->m_dwPK_Device;
-		QueueMessageToRouter(pMessage_Copy);
+		pMessage->m_dwPK_Device_To=pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl->m_dwPK_Device;
+		pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl->ReceivedMessage(pMessage);
 		return;
 	}
 
@@ -4481,20 +4480,30 @@ class DataGridTable *Media_Plugin::BookmarksByMediaType( string GridID, string P
 
 	/** @brief COMMAND: #409 - Save Bookmark */
 	/** Save the current position as a bookmark */
+		/** @param #39 Options */
+			/** For TV, CHAN: or PROG: indicating if it's the channel or program to bookmark */
 		/** @param #45 PK_EntertainArea */
 			/** The entertainment area with the media */
 
-void Media_Plugin::CMD_Save_Bookmark(string sPK_EntertainArea,string &sCMD_Result,Message *pMessage)
+void Media_Plugin::CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea,string &sCMD_Result,Message *pMessage)
 //<-dceag-c409-e->
 {
-    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 
 	EntertainArea *pEntertainArea = m_mapEntertainAreas_Find( atoi(sPK_EntertainArea.c_str()) );
 	if( !pEntertainArea || !pEntertainArea->m_pMediaStream )
 		return;  // Shouldn't happen
 
-	MediaStream *pMediaStream = pEntertainArea->m_pMediaStream;
+	DeviceData_Router *pDeviceData_Router = m_pRouter->m_mapDeviceData_Router_Find(pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl->m_pData->m_dwPK_Device);
+	if( pDeviceData_Router && pDeviceData_Router->m_mapCommands.find(pMessage->m_dwID)!=pDeviceData_Router->m_mapCommands.end() )
+	{
+		// The plugin has it's own method for handling this.  Give it the message instead
+		pMessage->m_dwPK_Device_To=pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl->m_dwPK_Device;
+		pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl->ReceivedMessage(pMessage);
+		return;
+	}
 
+	MediaStream *pMediaStream = pEntertainArea->m_pMediaStream;
 	MediaFile *pMediaFile=NULL;
 	if( pMediaStream->m_dequeMediaFile.size()==0 ||
 		pMediaStream->m_iDequeMediaFile_Pos<0 ||

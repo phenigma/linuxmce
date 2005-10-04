@@ -6407,19 +6407,19 @@ namespace DCE
 	};
 	class CMD_Save_Bookmark : public PreformedCommand {
 	public:
-		CMD_Save_Bookmark(long DeviceIDFrom, long DeviceIDTo,string sPK_EntertainArea) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,409,1,45,sPK_EntertainArea.c_str()); }
+		CMD_Save_Bookmark(long DeviceIDFrom, long DeviceIDTo,string sOptions,string sPK_EntertainArea) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,409,2,39,sOptions.c_str(),45,sPK_EntertainArea.c_str()); }
 	};
 	class CMD_Save_Bookmark_DL : public PreformedCommand {
 	public:
-		CMD_Save_Bookmark_DL(long DeviceIDFrom, string DeviceIDTo,string sPK_EntertainArea) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,409,1,45,sPK_EntertainArea.c_str()); }
+		CMD_Save_Bookmark_DL(long DeviceIDFrom, string DeviceIDTo,string sOptions,string sPK_EntertainArea) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,409,2,39,sOptions.c_str(),45,sPK_EntertainArea.c_str()); }
 	};
 	class CMD_Save_Bookmark_DT : public PreformedCommand {
 	public:
-		CMD_Save_Bookmark_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sPK_EntertainArea) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,409,1,45,sPK_EntertainArea.c_str()); }
+		CMD_Save_Bookmark_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sOptions,string sPK_EntertainArea) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,409,2,39,sOptions.c_str(),45,sPK_EntertainArea.c_str()); }
 	};
 	class CMD_Save_Bookmark_Cat : public PreformedCommand {
 	public:
-		CMD_Save_Bookmark_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sPK_EntertainArea) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,409,1,45,sPK_EntertainArea.c_str()); }
+		CMD_Save_Bookmark_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sOptions,string sPK_EntertainArea) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,409,2,39,sOptions.c_str(),45,sPK_EntertainArea.c_str()); }
 	};
 	class CMD_Delete_Bookmark : public PreformedCommand {
 	public:
