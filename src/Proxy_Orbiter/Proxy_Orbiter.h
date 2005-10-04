@@ -7,7 +7,7 @@ using namespace std;
 
 #include <SDL.h>
 //-----------------------------------------------------------------------------------------------------
-#include "../SDL/OrbiterSDL.h"
+#include "../Orbiter/SDL/OrbiterSDL.h"
 #include "SocketListener.h"
 //-----------------------------------------------------------------------------------------------------
 #define CURRENT_SCREEN  "TmpScreen.png"

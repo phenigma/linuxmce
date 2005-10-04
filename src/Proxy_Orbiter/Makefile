@@ -12,14 +12,14 @@ MYNAME = Proxy_Orbiter
 VERSION = 2.0.0
 MYDEVTEMPLATEID = 13mplateID
 
-Gen_Dev_Files = $(GENDEV)/Proxy_OrbiterBase.cpp
+Gen_Dev_Files = 
 sources = Main.cpp Proxy_Orbiter.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
 CXXFLAGS +=
 CPPFLAGS += -I/usr/include/SDL -DORBITER
 LDFLAGS +=
-XTRALDLIBS = -lVIPCommon -lBDCommon -lSDL -lSDL_ttf -lSDL_image -lSGE -lSDL_gfx
+XTRALDLIBS = -lSDL -lSDL_ttf -lSDL_image -lSGE -lSDL_gfx
 
 Gen_Dev_Files += $(GENDEV)/OrbiterBase.cpp
 sources += \
@@ -39,7 +39,7 @@ sources += \
 	../Orbiter/SDL/JpegWrapper.cpp \
 	../Splitter/TextWrapper.cpp \
 	../Splitter/TextSplitter.cpp \
-	../OrbiterGen/Renderer.cpp \
+	../OrbiterGen/Renderer.cpp 
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
