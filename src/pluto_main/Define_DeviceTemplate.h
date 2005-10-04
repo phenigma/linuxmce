@@ -6,7 +6,6 @@
 #define DEVICETEMPLATE_Mobile_Orbiters_in_my_room_CONST -302
 #define DEVICETEMPLATE_Orbiters_in_my_room_CONST -301
 #define DEVICETEMPLATE_This_Orbiter_CONST -300
-#define DEVICETEMPLATE_VirtDev_IR_Receiver_CONST -205
 #define DEVICETEMPLATE_VirtDev_Orbiter_Onscreen_CONST -203
 #define DEVICETEMPLATE_VirtDev_Disc_Drive_CONST -202
 #define DEVICETEMPLATE_VirtDev_AppServer_CONST -201
