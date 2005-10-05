@@ -25,6 +25,8 @@ using namespace DCE;
 #ifndef WIN32
 #include <sys/wait.h>
 
+#define VDR_SOCKET_TIMEOUT	3  // SECONDS
+
 VDR *g_pVDR = NULL;
 
 void sh(int i) /* signal handler */
@@ -436,7 +438,7 @@ bool VDR::SendVDRCommand(string sCommand,string &sVDRResponse)
 	}
 g_pPlutoLogger->Write(LV_STATUS,"connected");
 	string sResponse;
-	if( !_PlainClientSocket.ReceiveString(sResponse) || sResponse.substr(0,3)!="220" )
+	if( !_PlainClientSocket.ReceiveString(sResponse,VDR_SOCKET_TIMEOUT) || sResponse.substr(0,3)!="220" )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"VDR not ready got %s",sResponse.c_str());
 		return false;
@@ -448,7 +450,7 @@ bool VDR::SendVDRCommand(string sCommand,string &sVDRResponse)
 		return false;
 	}
 
-	if( !_PlainClientSocket.ReceiveString(sResponse) || sResponse.substr(0,3)!="250" )
+	if( !_PlainClientSocket.ReceiveString(sResponse,VDR_SOCKET_TIMEOUT) || sResponse.substr(0,3)!="250" )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"VDR not ok with command got %s",sResponse.c_str());
 		return false;
@@ -463,7 +465,7 @@ g_pPlutoLogger->Write(LV_WARNING,"VDR Responded %s",sResponse.c_str());
 		return false;
 	}
 
-	if( !_PlainClientSocket.ReceiveString(sResponse) || sResponse.substr(0,3)!="221" )
+	if( !_PlainClientSocket.ReceiveString(sResponse,VDR_SOCKET_TIMEOUT) || sResponse.substr(0,3)!="221" )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"VDR not ok with quit got %s",sResponse.c_str());
 		return false;

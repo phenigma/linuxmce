@@ -14,6 +14,11 @@
 class VDRStateInfo;
 class Row_Bookmark;
 
+namespace VDREPG
+{
+	class EPG;
+}
+
 //<-dceag-decl-b->!
 namespace DCE
 {
@@ -57,7 +62,7 @@ public:
 		class DataGridTable *OtherShowtimes(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage);
 
 		// Utilities
-		class MediaDevice *GetVDRFromOrbiter(int PK_Device);
+		bool GetVdrAndEpgFromOrbiter(int PK_Device,class MediaDevice *&pMediaDevice_VDR,VDREPG::EPG *&pEPG,VDRStateInfo *&pVDRStateInfo);
 		void FetchEPG();
 		VDREPG::Event *GetStartingEvent(VDREPG::EPG *pEPG,int PK_Users);
 		VDREPG::Event *GetEventForBookmark(VDREPG::EPG *pEPG,Row_Bookmark *pRow_Bookmark,int &iPriority_Bookmark);
