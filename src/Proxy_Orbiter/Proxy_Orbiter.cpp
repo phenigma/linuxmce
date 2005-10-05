@@ -220,7 +220,7 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
             "\t<URL>" + m_sRequestUrl + "x=" + sTouchX + "&amp;" + "y=" + sTouchY + "</URL>\r\n"
             "\t<TouchArea X1=\"" + sX1 + "\" Y1=\"" + sY1 + "\" X2=\"" + sX2 + "\" Y2=\"" + sY2 + "\"/>\r\n"
             "</MenuItem>\r\n";
-        m_dequeXMLItems.push_back(sXMLItem);
+        m_dequeXMLItems.push_front(sXMLItem);
     }
 
     DesignObj_DataList::iterator it;
