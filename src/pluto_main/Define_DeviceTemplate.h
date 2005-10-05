@@ -6,6 +6,8 @@
 #define DEVICETEMPLATE_Mobile_Orbiters_in_my_room_CONST -302
 #define DEVICETEMPLATE_Orbiters_in_my_room_CONST -301
 #define DEVICETEMPLATE_This_Orbiter_CONST -300
+#define DEVICETEMPLATE_VirtDev_IR_Receiver_CONST -205
+#define DEVICETEMPLATE_VirtDev_LCDVFD_CONST -204
 #define DEVICETEMPLATE_VirtDev_Orbiter_Onscreen_CONST -203
 #define DEVICETEMPLATE_VirtDev_Disc_Drive_CONST -202
 #define DEVICETEMPLATE_VirtDev_AppServer_CONST -201
@@ -1637,7 +1639,6 @@
 #define DEVICETEMPLATE_Generic_Num1_CONST 1725
 #define DEVICETEMPLATE_Cisco_7970_CONST 1726
 #define DEVICETEMPLATE_Proxy_Orbiter_CONST 1727
-#define DEVICETEMPLATE_VirtDev_LCDVFD_CONST 1728
 
 #define DEVICETEMPLATE_TABLE "DeviceTemplate"
 #define DEVICETEMPLATE_PK_DEVICETEMPLATE_FIELD "PK_DeviceTemplate"
