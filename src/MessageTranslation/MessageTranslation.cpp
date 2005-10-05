@@ -49,31 +49,12 @@ TranslationBase
 *****************************************************************/
 DeviceData_Base * 
 TranslationBase::FindTargetDevice(long devid) {
-	assert(getDeviceData());
-	if(!getDeviceData()) {
+	assert(getAllDevices());
+	if(!getAllDevices()) {
 		return NULL;
 	}
-	return FindTargetDevice(devid, getDeviceData());
+	return getAllDevices()->m_mapDeviceData_Base_Find(devid);
 }
-
-DeviceData_Base* 
-TranslationBase::FindTargetDevice(long devid, DeviceData_Base* pfromdev) {
-	if(devid == pfromdev->m_dwPK_Device) {
-		return pfromdev;
-	}
-	
-	for(size_t s=0;s<pfromdev->m_vectDeviceData_Base_Children.size();++s)
-	{
-		DeviceData_Base* pDeviceData_Base = FindTargetDevice(devid, pfromdev->m_vectDeviceData_Base_Children[s]);
-		if(pDeviceData_Base) {
-			return pDeviceData_Base;
-		}
-	}
-	
-	return NULL;
-}
-
-
 		
 /*****************************************************************
 MessageTranslationManager

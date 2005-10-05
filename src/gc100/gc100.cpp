@@ -985,6 +985,7 @@ std::string gc100::read_from_gc100()
 
 bool gc100::Open_gc100_Socket()
 {
+	return true;
 	bool return_value;
 
 	// socket stuff
@@ -1590,7 +1591,7 @@ void gc100::CreateChildren()
 
 	gc100_Command::CreateChildren();
 	IRBase::setCommandImpl(this);
-	IRBase::setDeviceData(this->GetData());
+	IRBase::setAllDevices(&(GetData()->m_AllDevices));
 	Start();
 
 	send_to_gc100("getdevices");

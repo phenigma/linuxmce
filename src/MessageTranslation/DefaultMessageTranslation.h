@@ -55,17 +55,17 @@ template <class T = DefaultMessageTranslator, class D = DefaultMessageDispatcher
 class DefaultMessageProcessor : public MessageProcessor<T, D>  {
 public:
 	DefaultMessageProcessor() 
-		: pdevicedata_(NULL) {}	
+		: pAllDevices_(NULL) {}	
 public:
-	DeviceData_Base* getDeviceData() {
-		return pdevicedata_;
+	AllDevices *getAllDevices() {
+		return pAllDevices_;
 	}
-	void setDeviceData(DeviceData_Base* pdevicedata) {
-		pdevicedata_ = pdevicedata;
+	void setAllDevices(AllDevices *pAllDevices) {
+		pAllDevices_ = pAllDevices;
 	}
 
 private:
-	DeviceData_Base * pdevicedata_;
+	AllDevices *pAllDevices_;
 };
 
 };

@@ -29,6 +29,7 @@ Tira::Tira(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLo
 {
 	g_pTira=this; // Used for the callback
 	IRBase::setCommandImpl(this);
+	IRBase::setAllDevices(&(GetData()->m_AllDevices));
 	m_bIRServerRunning=false;
 	m_tsLastButton.tv_sec=0;
 	m_bMustConvertRC5_6=true;

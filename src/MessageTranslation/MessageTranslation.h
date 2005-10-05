@@ -91,7 +91,7 @@ public:
 	DeviceData_Base* FindTargetDevice(long devid);
 
 protected:
-	virtual DeviceData_Base* getDeviceData() = 0;
+	virtual AllDevices *getAllDevices() = 0;
 	
 private:
 	static DeviceData_Base* FindTargetDevice(long devid, DeviceData_Base* pfromdev);

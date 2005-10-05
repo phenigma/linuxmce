@@ -91,6 +91,7 @@ IRTrans::IRTrans(int DeviceID, string ServerAddress,bool bConnectEventHandler,bo
 //<-dceag-const-e->
 {
 	IRBase::setCommandImpl(this);
+	IRBase::setAllDevices(&(GetData()->m_AllDevices));
 	m_bIRServerRunning=false;
 	g_pIRTrans=this;
 }
