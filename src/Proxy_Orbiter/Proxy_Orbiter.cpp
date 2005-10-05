@@ -143,18 +143,27 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
 
     SDL_SetAlpha(pScreenImage, SDL_RLEACCEL , SDL_ALPHA_OPAQUE);
 
-    //generate the jpeg or png image with current screen
-    if(m_ImageQuality == 100) //we'll use pngs for best quality
-        SaveImageToFile(pScreenImage, CURRENT_SCREEN_IMAGE);
+    if(pScreenImage->w <= 320 && pScreenImage->h <= 240) //ip phone
+    {
+        SaveImageToFile(pScreenImage, CURRENT_SCREEN_IMAGE_TEMP);
+        string sCmdLine = string("convert -colors 256 ") + CURRENT_SCREEN_IMAGE_TEMP + " " + CURRENT_SCREEN_IMAGE;
+        system(sCmdLine.c_str());
+    }
     else
-        SDL_SaveJPG(pScreenImage, CURRENT_SCREEN_IMAGE, m_ImageQuality);
+    {
+        //generate the jpeg or png image with current screen
+        if(m_ImageQuality == 100) //we'll use pngs for best quality
+            SaveImageToFile(pScreenImage, CURRENT_SCREEN_IMAGE);
+        else
+            SDL_SaveJPG(pScreenImage, CURRENT_SCREEN_IMAGE, m_ImageQuality);
+    }
 
-    SaveXML(pScreenImage, CURRENT_SCREEN_XML);
+    SaveXML(CURRENT_SCREEN_XML);
 
 	m_iImageCounter++;
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void xxProxy_Orbiter::SaveXML(SDL_Surface *pScreenImage, string sFileName)
+/*virtual*/ void xxProxy_Orbiter::SaveXML(string sFileName)
 {
     string sXMLString;
     string sBaseUrl = "http://www.bubu.com/cisco/";

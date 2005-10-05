@@ -10,8 +10,9 @@ using namespace std;
 #include "../Orbiter/SDL/OrbiterSDL.h"
 #include "SocketListener.h"
 //-----------------------------------------------------------------------------------------------------
-#define CURRENT_SCREEN_IMAGE    "screen.png"
-#define CURRENT_SCREEN_XML      "screen.xml"
+#define CURRENT_SCREEN_IMAGE_TEMP   "screen_temp.png"
+#define CURRENT_SCREEN_IMAGE        "screen.png"
+#define CURRENT_SCREEN_XML          "screen.xml"
 //-----------------------------------------------------------------------------------------------------
 namespace DCE
 {
@@ -48,7 +49,7 @@ namespace DCE
 		virtual void ReceivedMessage( Socket *pSocket, Message* pMessage ) {} // We don't do messages
 
         virtual void Run();
-        virtual void SaveXML(SDL_Surface *pScreenImage, string sFileName);
+        virtual void SaveXML(string sFileName);
         virtual void GenerateXMLItems(DesignObj_Orbiter *pObj); //recursive
 	};
 }
