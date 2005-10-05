@@ -985,7 +985,6 @@ std::string gc100::read_from_gc100()
 
 bool gc100::Open_gc100_Socket()
 {
-	return true;
 	bool return_value;
 
 	// socket stuff
