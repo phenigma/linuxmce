@@ -38,6 +38,7 @@ namespace DCE
 #define MEDIASTREAM_TYPE_XINE           101
 #define MEDIASTREAM_TYPE_SLIMSERVER     102
 #define MEDIASTREAM_TYPE_VIDEOLAN		103
+#define MEDIASTREAM_TYPE_VDR			104
 
 	/** @brief
 	*

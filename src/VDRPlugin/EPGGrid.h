@@ -3,12 +3,11 @@
 
 #include "DCE/DataGrid.h"
 
-class VDRStateInfo;
-
 namespace DCE
 {
 	class Message;
 	class VDRPlugin;
+	class VDRMediaStream;
 }
 
 namespace VDREPG
@@ -21,11 +20,11 @@ namespace VDREPG
 	{
 		EPG *m_pEPG;
 		DCE::VDRPlugin *m_pVDRPlugin;
-		VDRStateInfo *m_pVDRStateInfo;
+		DCE::VDRMediaStream *m_pVDRMediaStream;
 		int m_dwPK_Device_Orbiter;
 		int m_iGridResolution; // How many minutes per column
 	public:
-		EpgGrid(DCE::VDRPlugin *pVDRPlugin,class VDRStateInfo *pVDRStateInfo, int dwPK_Device_Orbiter, int iGridResolution) { m_pVDRPlugin = pVDRPlugin; m_pVDRStateInfo = pVDRStateInfo; m_dwPK_Device_Orbiter=dwPK_Device_Orbiter; m_iGridResolution=iGridResolution; m_pEPG=NULL; };
+		EpgGrid(DCE::VDRPlugin *pVDRPlugin,DCE::VDRMediaStream *pVDRMediaStream, int dwPK_Device_Orbiter, int iGridResolution) { m_pVDRPlugin = pVDRPlugin; m_pVDRMediaStream = pVDRMediaStream; m_dwPK_Device_Orbiter=dwPK_Device_Orbiter; m_iGridResolution=iGridResolution; m_pEPG=NULL; };
 
 		virtual int GetRows();
 		virtual int GetCols();

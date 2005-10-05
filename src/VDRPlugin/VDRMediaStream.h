@@ -22,8 +22,9 @@ namespace DCE
 	class VDRMediaStream : public MediaStream
 	{
 	public:
-		class VDRStateInfo *m_pVDRStateInfo;
 		class VDRPlugin *m_pVDRPlugin;
+		int m_EventID; // The current event
+		map<int,bool> m_mapOrbiter_HasInitialPosition;
 
 		VDRMediaStream(VDRPlugin *pVDRPlugin,
 						MediaHandlerInfo *pMediaHandlerInfo,
@@ -35,6 +36,7 @@ namespace DCE
 
 		virtual ~VDRMediaStream();
         virtual void UpdateDescriptions(bool bAllFiles=false,MediaFile *pMediaFile_In=NULL);
+        virtual int GetType() { return MEDIASTREAM_TYPE_VDR; }
 	};
 };
 

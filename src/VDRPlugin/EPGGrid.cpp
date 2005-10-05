@@ -9,7 +9,7 @@ using namespace std;
 using namespace DCE;
 using namespace VDREPG;
 #include "EPG.h"
-#include "VDRStateInfo.h"
+#include "VDRMediaStream.h"
 #include "VDRPlugin.h"
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "pluto_main/Define_DeviceTemplate.h"
@@ -33,15 +33,15 @@ void EpgGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, int *R
 {
 	ClearData();
 	PLUTO_SAFETY_LOCK(vm,m_pVDRPlugin->m_VDRMutex);
-	m_pEPG = m_pVDRPlugin->m_mapEPG_Find(m_pVDRStateInfo->m_dwPK_Device);
+	m_pEPG = m_pVDRPlugin->m_mapEPG_Find(m_pVDRMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 	if( !m_pEPG )
 	{
 		Size=0; Data=NULL;
 		return;  // Nothing we can do
 	}
-	if( !(*ColStart) || (m_pVDRStateInfo && !m_pVDRStateInfo->m_mapOrbiter_HasInitialPosition[m_dwPK_Device_Orbiter]) )
+	if( !(*ColStart) || (m_pVDRMediaStream && !m_pVDRMediaStream->m_mapOrbiter_HasInitialPosition[m_dwPK_Device_Orbiter]) )
 	{
-		m_pVDRStateInfo->m_mapOrbiter_HasInitialPosition[m_dwPK_Device_Orbiter]=true;
+		m_pVDRMediaStream->m_mapOrbiter_HasInitialPosition[m_dwPK_Device_Orbiter]=true;
 		*ColStart = GetCurrentColumn();
 	}
 

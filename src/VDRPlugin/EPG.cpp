@@ -309,7 +309,7 @@ Event *Channel::GetCurrentEvent()
 {
 	time_t t = time(NULL);
 	Event *pEvent = m_pEvent_First;
-	while(pEvent && pEvent->m_tStopTime<t)
+	while(pEvent && pEvent->m_tStopTime<t && pEvent->m_pEvent_Next!=m_pEvent_First )
 		pEvent = pEvent->m_pEvent_Next;
 	if( !pEvent )
 		return m_pEvent_Last;

@@ -17,7 +17,6 @@
 using namespace std;
 using namespace DCE;
 #include "VDRMediaStream.h"
-#include "VDRStateInfo.h"
 #include "EPG.h"
 
 namespace DCE
@@ -30,8 +29,8 @@ namespace DCE
 								enum SourceType sourceType,int iStreamID)
             : MediaStream(pMediaHandlerInfo, iPK_MediaProvider, pMediaDevice, PK_Users, sourceType, iStreamID)
 	{
-		m_pVDRStateInfo = NULL;
 		m_pVDRPlugin=pVDRPlugin;
+		m_EventID=0;
 	}
 
 	VDRMediaStream::~VDRMediaStream()
@@ -47,7 +46,7 @@ namespace DCE
 			pEPG = m_pVDRPlugin->m_mapEPG.begin()->second;
 
 		VDREPG::Event *pEvent;
-		if( !pEPG || !m_pVDRStateInfo || (pEvent=pEPG->m_mapEvent_Find(m_pVDRStateInfo->EventID))==NULL )
+		if( !pEPG || (pEvent=pEPG->m_mapEvent_Find(m_EventID))==NULL )
 			m_sMediaDescription = "Unknown";
 		else
 		{

@@ -28,6 +28,8 @@
 #include "pluto_main/Table_DeviceData.h"
 #include "pluto_main/Table_DeviceCategory.h"
 #include "pluto_main/Table_DeviceTemplate.h"
+#include "pluto_main/Define_Command.h"
+#include "pluto_main/Define_CommandParameter.h"
 
 #define  VERSION "<=version=>"
 
@@ -59,10 +61,19 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 		exit(1);
 	}
 
+
 	if( m_iPK_Installation<1 )
 	{
-		cerr << "You did not specify the installation ID.  You must use -i" << endl;
-		exit(1);
+		PlutoSqlResult result;
+		MYSQL_ROW row;
+		string SQL = "SELECT DISTINCT FK_Installation FROM Device";
+		if( ( result.r=mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) && result.r->row_count==1 )
+			m_iPK_Installation = atoi(row[0]);
+		else
+		{
+			cerr << "You did not specify the installation ID.  You must use -i" << endl;
+			exit(1);
+		}
 	}
 
 	map<int,string> mapParametersAdded; // Keep track of what DeviceData we have added as we go through
@@ -132,7 +143,7 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 				"LEFT JOIN DeviceCategory AS DC2 ON DC2.FK_DeviceCategory_Parent=DC1.PK_DeviceCategory "
 				"WHERE FK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate);
 
-			if( (result_cv2.r=mysql_query_result(SQL)) )
+			if( (result_cv2.r=mysql_query_result(SQL)) && result_cv2.r->row_count )
 			{
 				while (row=mysql_fetch_row(result_cv2.r))
 				{
@@ -166,10 +177,13 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 		}
 	}
 
+	bool bIsOrbiter=false;
 	// Loop through all the categories
 	int iPK_DeviceCategory_Loop = iPK_DeviceCategory;
 	while( iPK_DeviceCategory_Loop )
 	{
+		if( iPK_DeviceCategory_Loop==DEVICECATEGORY_Orbiter_CONST )
+			bIsOrbiter=true;
 		SQL = "SELECT FK_DeviceData,IK_DeviceData FROM DeviceCategory_DeviceData WHERE FK_DeviceCategory=" + StringUtils::itos(iPK_DeviceCategory_Loop);
 		if( ( result1.r=mysql_query_result( SQL ) ) )
 		{
@@ -252,6 +266,25 @@ g_pPlutoLogger->Write(LV_STATUS,"Found %d rows with %s",(int) result3.r->row_cou
 	// Now we've got to see if we have any children we need to create automatically, first by the category
 	CreateChildrenByCategory(PK_Device,iPK_DeviceCategory);
 	CreateChildrenByTemplate(PK_Device,iPK_DeviceTemplate);
+
+	if( bIsOrbiter )
+	{
+		cout << "it's an orbiter, time to generate" << endl;
+		string SQL = "SELECT PK_Device FROM Device WHERE FK_Installation=" + StringUtils::itos(m_iPK_Installation) + " AND FK_DeviceTemplate=" + StringUtils::itos(DEVICETEMPLATE_Orbiter_Plugin_CONST);
+		PlutoSqlResult result;
+		MYSQL_ROW row;
+		if( ( result.r=mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
+		{
+			int iPK_Device_OP = atoi(row[0]);
+			string sCmd = "/usr/pluto/bin/MessageSend localhost 0 " + StringUtils::itos(iPK_Device_OP) + " 1 " +
+				StringUtils::itos(COMMAND_Regen_Orbiter_CONST) + " " + StringUtils::itos(COMMANDPARAMETER_PK_Device_CONST) + " " + StringUtils::itos(PK_Device);
+			cout << "Calling: " << sCmd << endl;
+			system(sCmd.c_str());
+		}
+		else
+			cerr << "No Orbiter plugin" << endl;
+
+	}
 
 	return PK_Device;
 }

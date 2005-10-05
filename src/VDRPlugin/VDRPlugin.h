@@ -11,7 +11,6 @@
 #include "../Media_Plugin/MediaStream.h"
 #include "../Media_Plugin/MediaHandlerBase.h"
 #include "EPG.h"
-class VDRStateInfo;
 class Row_Bookmark;
 
 namespace VDREPG
@@ -31,8 +30,6 @@ namespace DCE
 		class Datagrid_Plugin *m_pDatagrid_Plugin;
 		map<int,VDREPG::EPG *> m_mapEPG;  // Map of all grids according to the VDR Device
 		VDREPG::EPG *m_mapEPG_Find(int iPK_Device) { map<int,VDREPG::EPG *>::iterator it = m_mapEPG.find(iPK_Device); return it==m_mapEPG.end() ? NULL : (*it).second; }
-		map<int,VDRStateInfo *> m_mapVDRStateInfo;  // Map of all grids according to the VDR Device
-		VDRStateInfo *m_mapVDRStateInfo_Find(int iPK_Device) { map<int,VDRStateInfo *>::iterator it = m_mapVDRStateInfo.find(iPK_Device); return it==m_mapVDRStateInfo.end() ? NULL : (*it).second; }
 	    pluto_pthread_mutex_t m_VDRMutex; // Protect the maps
 		pthread_cond_t m_VDRCond; /** < condition for the messages in the queue */
 
@@ -62,7 +59,7 @@ public:
 		class DataGridTable *OtherShowtimes(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage);
 
 		// Utilities
-		bool GetVdrAndEpgFromOrbiter(int PK_Device,class MediaDevice *&pMediaDevice_VDR,VDREPG::EPG *&pEPG,VDRStateInfo *&pVDRStateInfo);
+		bool GetVdrAndEpgFromOrbiter(int PK_Device,class MediaDevice *&pMediaDevice_VDR,VDREPG::EPG *&pEPG,VDRMediaStream *&pVDRMediaStream);
 		void FetchEPG();
 		VDREPG::Event *GetStartingEvent(VDREPG::EPG *pEPG,int PK_Users);
 		VDREPG::Event *GetEventForBookmark(VDREPG::EPG *pEPG,Row_Bookmark *pRow_Bookmark,int &iPriority_Bookmark);
