@@ -1,27 +1,28 @@
-This is lirc, written and maintained by Radu Cristescu <radu@activate.plutohome.com>
-on Wed,  5 Oct 2005 15:26:30 +0300.
+This is the Pluto packaging of LIRC, Linux Infra-red Remote Control
+support.
 
-The original source can always be found at:
-	ftp://ftp.debian.org/dists/unstable/main/source/
+It was downloaded from http://download.sourceforge.net/LIRC/lirc-0.6.3.tar.gz
 
-Copyright (C) 2005  Radu Cristescu
+Summary of copyright messages found in sources:
 
-License:
+Copyright (C) 1998 Pablo d'Angelo <pablo@ag-trek.allgaeu.org>
+Copyright (C) 1998,1999 Christoph Bartelmus <lirc@bartelmus.de>
+Copyright (C) 1996,97 Ralph Metzler (rjkm@thp.uni-koeln.de)
+Copyright (C) 1998 Trent Piepho <xyzzy@u.washington.edu>
+Copyright (C) 1998 Ben Pfaff <blp@gnu.org>
+Copyright (C) 1998.11.18 Sinkovics Zoltan <sinko@szarvas.hu>
 
-  This program is free software; you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation; either version 2 of the License, or
-  (at your option) any later version.
+The whole thing is licensed under the GPL.
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 1, or (at your option)
+any later version.
 
-  You should have received a copy of the GNU General Public License
-  along with this package; if not, write to the Free Software
-  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
-  02111-1307, USA.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-On Debian systems, the complete text of the GNU General
+On Debian GNU/Linux systems, the complete text of the GNU General
 Public License can be found in `/usr/share/common-licenses/GPL'.
