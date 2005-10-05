@@ -22,8 +22,9 @@ fi
 TimersConf=/var/lib/vdrdevel/timers.conf
 TargetLocation=/home/vdr
 
-if [[ ! -L "$TimersConf" && ! -e "$TargetLocation/timers.conf" ]]; then
+if [[ ! -e "$TargetLocation/timers.conf" ]]; then
 	mkdir -p "$TargetLocation"
 	mv "$TimersConf" "$TargetLocation/"
-	ln -s "$TargetLocation/timers.conf" "$TimersConf"
 fi
+rm "$TimersConf"
+ln -s "$TargetLocation/timers.conf" "$TimersConf"
