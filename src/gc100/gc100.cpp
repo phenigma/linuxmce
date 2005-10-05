@@ -133,6 +133,7 @@ gc100::~gc100()
 //<-dceag-dest-e->
 {
 	m_bQuit = true; // should this be using a mutex? :)
+	                // YES WE SHOULD, sometimes it segfaults in pthread_cancel when m_EventThread is already terminated.
 	pthread_cancel(m_EventThread);
 	pthread_join(m_EventThread, NULL);
 }
@@ -1589,6 +1590,7 @@ void gc100::CreateChildren()
 
 	gc100_Command::CreateChildren();
 	IRBase::setCommandImpl(this);
+	IRBase::setDeviceData(this->GetData());
 	Start();
 
 	send_to_gc100("getdevices");
