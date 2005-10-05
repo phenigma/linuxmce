@@ -140,14 +140,17 @@ bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo )
 			if ( !SOCKFAIL( iRet ) )
 			{
 #ifdef _WIN32
-				/** @todo: inet_ntop doesn't exist in Windows */
-				m_sMyIPAddress = "unsupported";
+                // Determine the local IP address
+                socklen_t len = sizeof( struct sockaddr );
+                getsockname ( m_Socket, (struct sockaddr*) &addrT, &len );
+                char *pAddress = inet_ntoa(addrT.sin_addr);
+                m_sMyIPAddress = pAddress;
 #else
-				// Determine the local IP address
+                // Determine the local IP address
 				char pcAddress[512];
 				socklen_t len = sizeof( struct sockaddr );
 				getsockname ( m_Socket, (struct sockaddr*) &addrT, &len );
-				inet_ntop( AF_INET, &( addrT.sin_addr.s_addr), pcAddress, 32 );
+                inet_ntop( AF_INET, &( addrT.sin_addr.s_addr), pcAddress, 32 );
 				m_sMyIPAddress = pcAddress;
 #endif
 				bSuccess = true;

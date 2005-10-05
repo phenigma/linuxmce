@@ -64,14 +64,7 @@ xxProxy_Orbiter::xxProxy_Orbiter(int ListenPort, int DeviceID,
     m_ImageQuality = 70;
 	m_bDisplayOn=true;  // Override the default behavior -- when the phone starts the display is already on
 
-    string sBaseUrl = "http://" + ServerAddress + "/pluto-admin/";
-    m_sRequestUrl = sBaseUrl + 
-        "index.php?"
-        "section=proxySocket&amp;"
-        "address=" + m_sMyIPAddress + "&amp;"
-        "port=" + StringUtils::ltos(m_iListenPort) + "&amp;"
-        "command=XML&amp;";
-    m_sPngImageUrl = sBaseUrl + "security_images/orbiter_screen.png";
+    m_sBaseUrl = "http://" + ServerAddress + "/pluto-admin/";
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ bool xxProxy_Orbiter::GetConfig()
@@ -84,10 +77,21 @@ xxProxy_Orbiter::xxProxy_Orbiter(int ListenPort, int DeviceID,
     if(m_ImageQuality < 10 || m_ImageQuality > 100)
         m_ImageQuality = 70; //default
 
-    Initialize(gtSDLGraphic);
-	StartListening(m_iListenPort);
-
     return true;
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void xxProxy_Orbiter::Run()
+{
+    m_sRequestUrl = m_sBaseUrl + 
+        "index.php?"
+        "section=proxySocket&amp;"
+        "address=" + m_sMyIPAddress + "&amp;"
+        "port=" + StringUtils::ltos(m_iListenPort) + "&amp;"
+        "command=XML&amp;";
+    m_sPngImageUrl = m_sBaseUrl + "security_images/orbiter_screen.png";
+
+    Initialize(gtSDLGraphic);
+    StartListening(m_iListenPort);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ xxProxy_Orbiter::~xxProxy_Orbiter()
@@ -157,11 +161,6 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
     string sPngImage = "screen.png";
 
     sXMLString = 
-        "<?xml version=\"1.0\"?>\r\n"
-        "<%@ Language=JavaScript %>\r\n"
-        "<%\r\n"
-        "Response.ContentType = \"text/xml\";\r\n"
-        "%>\n"
         "<CiscoIPPhoneGraphicFileMenu>\r\n"
         "<Title>Pluto Orbiter</Title>\r\n"
         "<Prompt></Prompt>\r\n"
@@ -260,11 +259,11 @@ bool xxProxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeou
 		delete[] pBuffer;
 		return true;
 	}
-    else if( sLine.substr(0,5)=="XML" )
+    else if( sLine.substr(0,3)=="XML" )
     {
         int ConnectionID = 0;
-        if( sLine.size() > 7 )
-            ConnectionID = atoi( sLine.substr(6).c_str() );
+        if( sLine.size() > 5 )
+            ConnectionID = atoi( sLine.substr(4).c_str() );
         if( !ConnectionID )
             ConnectionID = pSocket->m_iSocketCounter;
 
@@ -338,6 +337,7 @@ bool StartOrbiter(class BDCommandProcessor *pBDCommandProcessor, int DeviceID,
 	xxProxy_Orbiter *pProxy_Orbiter = new xxProxy_Orbiter(NULL,DeviceID, 0, ServerAddress);
 	if ( pProxy_Orbiter->GetConfig() && pProxy_Orbiter->Connect(pProxy_Orbiter->PK_DeviceTemplate_get()) ) 
 	{
+        pProxy_Orbiter->Run();
 		g_pCommand_Impl=pProxy_Orbiter;
 		g_pDeadlockHandler=DeadlockHandler;
 		g_pSocketCrashHandler=SocketCrashHandler;

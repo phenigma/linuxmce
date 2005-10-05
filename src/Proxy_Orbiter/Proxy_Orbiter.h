@@ -27,6 +27,7 @@ namespace DCE
 
         string m_sRequestUrl;
         string m_sPngImageUrl;
+        string m_sBaseUrl;
 
 	public:
 		xxProxy_Orbiter(int ListenPort, int DeviceID, 
@@ -46,6 +47,7 @@ namespace DCE
 		virtual bool ReceivedString( Socket *pSocket, string sLine, int nTimeout = - 1 );
 		virtual void ReceivedMessage( Socket *pSocket, Message* pMessage ) {} // We don't do messages
 
+        virtual void Run();
         virtual void SaveXML(SDL_Surface *pScreenImage, string sFileName);
         virtual void GenerateXMLItems(DesignObj_Orbiter *pObj); //recursive
 	};
