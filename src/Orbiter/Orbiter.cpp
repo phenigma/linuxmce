@@ -8375,7 +8375,9 @@ void Orbiter::CMD_Back_Clear_Entry(string &sCMD_Result,Message *pMessage)
 void Orbiter::CMD_EnterGo(string &sCMD_Result,Message *pMessage)
 //<-dceag-c190-e->
 {
-    if( GotActivity(  ) && m_pObj_Highlighted && !m_pObj_Highlighted->IsHidden() )
+	if( m_pScreenHistory_Current && m_pScreenHistory_Current->m_pObj->m_cScreenType=='R' )
+		SelectedObject(m_pScreenHistory_Current->m_pObj);
+    else if( GotActivity(  ) && m_pObj_Highlighted && !m_pObj_Highlighted->IsHidden() )
 		SelectedObject(m_pObj_Highlighted);
 #ifdef DEBUG
 	else
@@ -8393,7 +8395,9 @@ g_pPlutoLogger->Write(LV_STATUS,"Ignoring enter");
 void Orbiter::CMD_Move_Up(string &sCMD_Result,Message *pMessage)
 //<-dceag-c200-e->
 {
-    if( GotActivity(  ) )
+	if( m_pScreenHistory_Current && m_pScreenHistory_Current->m_pObj->m_cScreenType=='R' )
+		SelectedObject(m_pScreenHistory_Current->m_pObj);
+    else if( GotActivity(  ) )
 		HighlightNextObject( DIRECTION_Up_CONST );
 #ifdef DEBUG
 	else
@@ -8411,7 +8415,9 @@ g_pPlutoLogger->Write(LV_STATUS,"Ignoring move");
 void Orbiter::CMD_Move_Down(string &sCMD_Result,Message *pMessage)
 //<-dceag-c201-e->
 {
-    if( GotActivity(  ) )
+    if( m_pScreenHistory_Current && m_pScreenHistory_Current->m_pObj->m_cScreenType=='R' )
+		SelectedObject(m_pScreenHistory_Current->m_pObj);
+    else if( GotActivity(  ) )
 		HighlightNextObject( DIRECTION_Down_CONST );
 #ifdef DEBUG
 	else
@@ -8429,7 +8435,9 @@ g_pPlutoLogger->Write(LV_STATUS,"Ignoring move");
 void Orbiter::CMD_Move_Left(string &sCMD_Result,Message *pMessage)
 //<-dceag-c202-e->
 {
-    if( GotActivity(  ) )
+   	if( m_pScreenHistory_Current && m_pScreenHistory_Current->m_pObj->m_cScreenType=='R' )
+		SelectedObject(m_pScreenHistory_Current->m_pObj);
+    else if( GotActivity(  ) )
 		HighlightNextObject( DIRECTION_Left_CONST );
 #ifdef DEBUG
 	else
@@ -8447,7 +8455,9 @@ g_pPlutoLogger->Write(LV_STATUS,"Ignoring move");
 void Orbiter::CMD_Move_Right(string &sCMD_Result,Message *pMessage)
 //<-dceag-c203-e->
 {
-    if( GotActivity(  ) )
+   	if( m_pScreenHistory_Current && m_pScreenHistory_Current->m_pObj->m_cScreenType=='R' )
+		SelectedObject(m_pScreenHistory_Current->m_pObj);
+    else if( GotActivity(  ) )
 		HighlightNextObject( DIRECTION_Right_CONST );
 #ifdef DEBUG
 	else

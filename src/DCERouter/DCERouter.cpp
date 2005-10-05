@@ -1798,7 +1798,8 @@ g_pPlutoLogger->Write(LV_STATUS,"realsendmessage after device conn mutex from %d
     #endif
                 int MessageType = (*(*pSafetyMessage))->m_dwMessage_Type;
                 int ID = (*(*pSafetyMessage))->m_dwID;
-                /* AB 8/5, changed this since we still use the message later
+
+				/* AB 8/5, changed this since we still use the message later
                 bool bResult = pDeviceConnection->SendMessage(pSafetyMessage->Detach()); */
                 bool bResult = pServerSocket->SendMessage(pSafetyMessage->m_pMessage,false);
 
@@ -1984,9 +1985,18 @@ void Router::ParseDevice(int MasterDeviceID, int ParentDeviceID, class DeviceDat
 		else if( pDevice->m_pDevice_MD )
 			sTop = StringUtils::itos(pDevice->m_pDevice_MD->m_dwPK_Device) + " " + pDevice->m_pDevice_MD->m_sDescription;
 
-		g_pPlutoLogger->Write(LV_STATUS,"Created device %d %s (mdl: %d) routed to: %d (%s)",pDevice->m_dwPK_Device,
-            pDevice->m_sDescription.c_str(),pDevice->m_dwPK_DeviceTemplate,MasterDeviceID,sTop.c_str());
-        m_Routing_DeviceToController[pDevice->m_dwPK_Device] = MasterDeviceID;
+		if( pDevice->m_bImplementsDCE && !pDevice->m_bIsEmbedded )
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"Created DCE device %d %s (mdl: %d) routed to: %d (%s)",pDevice->m_dwPK_Device,
+				pDevice->m_sDescription.c_str(),pDevice->m_dwPK_DeviceTemplate,pDevice->m_dwPK_Device,sTop.c_str());
+			m_Routing_DeviceToController[pDevice->m_dwPK_Device] = pDevice->m_dwPK_Device;
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"Created device %d %s (mdl: %d) routed to: %d (%s)",pDevice->m_dwPK_Device,
+				pDevice->m_sDescription.c_str(),pDevice->m_dwPK_DeviceTemplate,MasterDeviceID,sTop.c_str());
+			m_Routing_DeviceToController[pDevice->m_dwPK_Device] = MasterDeviceID;
+		}
     }
 
     for(size_t i=0;i<pDevice->m_vectDeviceData_Impl_Children.size();i++)
