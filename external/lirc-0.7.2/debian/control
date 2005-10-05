@@ -1,0 +1,12 @@
+Source: lirc
+Section: unknown
+Priority: optional
+Maintainer: Radu Cristescu <radu.c@plutohome.com>
+Build-Depends: debhelper (>= 4.0.0), autotools-dev
+Standards-Version: 3.6.1
+
+Package: lirc
+Architecture: i386
+Depends: ${shlibs:Depends}, ${misc:Depends}, kernel-image-2.6.13.2-vanilla-pluto-1-686
+Description: <insert up to 60 chars description>
+ <insert long description, indented with spaces>

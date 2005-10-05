@@ -1,0 +1,10 @@
+lirc (0.7.2release+2.6.13.2-vanilla-pluto-1-686-1) unstable; urgency=low
+
+  * lirc 0.7.2 from upstream
+  * modules for kernel 2.6.13.2-vanilla-pluto-1-686
+
+ -- Radu Cristescu <radu.c@plutohome.com>  Wed,  5 Oct 2005 15:26:30 +0300
+
+Local variables:
+mode: debian-changelog
+End:
