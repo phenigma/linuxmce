@@ -271,20 +271,6 @@ bool xxProxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeou
 	}
     else if( sLine.substr(0,3)=="XML" )
     {
-        int ConnectionID = 0;
-        if( sLine.size() > 5 )
-            ConnectionID = atoi( sLine.substr(4).c_str() );
-        if( !ConnectionID )
-            ConnectionID = pSocket->m_iSocketCounter;
-
-        if( m_mapID_XMLCounter[ConnectionID]==m_iXMLCounter )
-        {
-            g_pPlutoLogger->Write(LV_CRITICAL, "Sent: XML 0");
-            pSocket->SendString("XML 0"); // No new xml
-            return true;
-        }
-        m_mapID_XMLCounter[ConnectionID]=m_iXMLCounter;
-
         size_t size;
         char *pBuffer = FileUtils::ReadFileIntoBuffer(CURRENT_SCREEN_XML,size);
         if( !pBuffer )
