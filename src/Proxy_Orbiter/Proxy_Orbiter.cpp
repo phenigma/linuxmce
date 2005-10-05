@@ -144,9 +144,10 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
     SDL_SetAlpha(pScreenImage, SDL_RLEACCEL , SDL_ALPHA_OPAQUE);
 
     if(pScreenImage->w <= 320 && pScreenImage->h <= 240) //ip phone
-    {
-        SaveImageToFile(pScreenImage, CURRENT_SCREEN_IMAGE_TEMP);
-        string sCmdLine = string("convert -colors 256 ") + CURRENT_SCREEN_IMAGE_TEMP + " " + CURRENT_SCREEN_IMAGE;
+    {   
+	SDL_SaveBMP(pScreenImage, "screen.bmp");
+        //SaveImageToFile(pScreenImage, CURRENT_SCREEN_IMAGE_TEMP);
+        string sCmdLine = string("convert -colors 256 ") + "screen.bmp" + " " + CURRENT_SCREEN_IMAGE;
         system(sCmdLine.c_str());
     }
     else
