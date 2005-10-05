@@ -1,7 +1,9 @@
-lirc-pluto (0.7.2release+2.6.13.2-vanilla-pluto-1-686-2) unstable; urgency=low
+lirc-pluto (0.7.2r+1modules2.6.13.2-5) unstable; urgency=low
 
   * lirc 0.7.2 from upstream
   * modules for kernel 2.6.13.2-vanilla-pluto-1-686
+  * replaces all Debian lirc packages
+  * explicit dependencies only (it made me depend on liblircclient0!)
 
  -- Radu Cristescu <radu.c@plutohome.com>  Wed,  5 Oct 2005 15:26:30 +0300
 
