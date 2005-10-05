@@ -1,4 +1,4 @@
-KERNEL=2.6.10-1-686
+KERNEL=$(shell uname -r)
 
 MAINT_NAME=Pluto Inc. (www.plutohome.com)
 MAINT_ADDR=office@plutohome.com

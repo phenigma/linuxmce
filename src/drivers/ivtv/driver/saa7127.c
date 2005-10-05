@@ -93,6 +93,8 @@
 
 #include "saa7127.h"
 
+#define IVTV_MAX_CARDS 8
+
 #ifndef I2C_DRIVERID_SAA7127
   // Using temporary hack for missing I2C driver-ID for saa7127
   #define I2C_DRIVERID_SAA7127 I2C_DRIVERID_EXP2
@@ -117,6 +119,11 @@
 
 static int debug = 1;
 static int test_image = 0;
+
+/* Default to all active */
+static int i2c_enable[IVTV_MAX_CARDS] = { 1, 1, 1, 1, 1, 1, 1, 1 };
+MODULE_PARM(i2c_enable, "1-" __stringify(IVTV_MAX_CARDS) "i");
+MODULE_PARM_DESC(i2c_enable, "which 150/350 cards to activate the saa7127, conflicts with cx25840 or pvr150");
 
 /*
  **********************************************************************
@@ -727,7 +734,13 @@ static int saa7127_detect_client (struct i2c_adapter *adapter,
 	struct saa7127 *encoder;
 	int read_result = 0;
 
-	dprintk(2,"detecting saa7127 client on address 0x%x\n", address << 1);
+	dprintk(1,"detecting saa7127 client on address 0x%x\n", address << 1);
+
+        if (i2c_enable[saa7127_i2c_id++] == -1) {
+                dprintk(1, "saa7127 client id: saa7127_i2c_id %d, skipped\n",
+                        saa7127_i2c_id);
+               return 0;
+	}
 
 	/* Check if the adapter supports the needed features */
 	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA))
@@ -742,8 +755,7 @@ static int saa7127_detect_client (struct i2c_adapter *adapter,
 	client->adapter = adapter;
 	client->driver = &i2c_driver_saa7127;
 	client->flags = I2C_CLIENT_ALLOW_USE;
-	client->id = saa7127_i2c_id++;
-	snprintf(client->name, sizeof(client->name) - 1, "saa7127[%d]", client->id);
+	snprintf(client->name, sizeof(client->name), "saa7127");
 
 	encoder = kmalloc(sizeof(struct saa7127), GFP_KERNEL);
 
@@ -817,6 +829,7 @@ static int saa7127_attach_adapter (struct i2c_adapter *adapter)
 {
 	dprintk(2, "starting probe for adapter %s (0x%x)\n", adapter->name, adapter->id);
 	return i2c_probe(adapter, &addr_data, &saa7127_detect_client);
+	return 0;
 }
 
 

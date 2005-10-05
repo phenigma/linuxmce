@@ -626,7 +626,7 @@ static int ivtv_setup_pci(struct ivtv *itv, struct pci_dev *dev,
                 IVTV_KERN_ERR("No suitable DMA available on card %d.\n", itv->num);
                 return -EIO;
         }
-	snprintf(itv->name, sizeof(itv->name)-1, "ivtv%d", itv->num);
+	snprintf(itv->name, sizeof(itv->name), "ivtv%d", itv->num);
         if (!request_mem_region(pci_resource_start(dev,0), 
 		IVTV_IOREMAP_SIZE, itv->name)) 
 	{
@@ -654,6 +654,7 @@ static int ivtv_setup_pci(struct ivtv *itv, struct pci_dev *dev,
                 pci_write_config_byte(dev, PCI_LATENCY_TIMER, 64);
                 pci_read_config_byte(dev, PCI_LATENCY_TIMER, &pci_latency);
         }
+	pci_write_config_dword(dev, 0x40, 0xffff);
 
         IVTV_DEBUG(IVTV_DEBUG_INFO, "%d (rev %d) at %02x:%02x.%x, ",
                 itv->dev->device, itv->card_rev, dev->bus->number,
@@ -785,6 +786,7 @@ static int __devinit ivtv_probe(struct pci_dev *dev, const struct pci_device_id 
 	
 	switch (itv->card->type) {
 		/* Hauppauge models */
+		case IVTV_CARD_PVR_150:
 		case IVTV_CARD_PVR_250:
 		case IVTV_CARD_PVR_350:
 			if (autoload)
@@ -797,7 +799,13 @@ static int __devinit ivtv_probe(struct pci_dev *dev, const struct pci_device_id 
 		
 	if (autoload) {
 		ivtv_request_module("tuner");
-		ivtv_request_module("saa7115");
+		if (itv->card->type == IVTV_CARD_PVR_150 ||
+			itv->card->type == IVTV_CARD_PG600) {
+			ivtv_request_module("cx25840");
+			if (itv->card->type == IVTV_CARD_PVR_150)
+				ivtv_request_module("wm8775");
+		} else
+			ivtv_request_module("saa7115");
 		if (itv->v4l2_cap & V4L2_CAP_VIDEO_OUTPUT) {
 			ivtv_request_module("saa7127");
 		}
@@ -865,7 +873,7 @@ static int __devinit ivtv_probe(struct pci_dev *dev, const struct pci_device_id 
 	ivtv_set_irq_mask(itv, 0xffffffff);
 
 	/* Register IRQ */
-	snprintf(itv->name, sizeof(itv->name)-1, "ivtv%d", itv->num);
+	snprintf(itv->name, sizeof(itv->name), "ivtv%d", itv->num);
 	retval = request_irq(itv->dev->irq, ivtv_irq_handler,
 			SA_SHIRQ | SA_INTERRUPT, itv->name, (void *)itv);
 	if (retval) {
@@ -874,7 +882,8 @@ static int __devinit ivtv_probe(struct pci_dev *dev, const struct pci_device_id 
 	}
 
         /* Default interrupts enabled */
-	if ((itv->card->type == IVTV_CARD_PVR_350))
+//	if ((itv->card->type == IVTV_CARD_PVR_350))
+	if (itv->has_itvc15)
         	ivtv_clear_irq_mask(itv, IVTV_IRQ_MASK_INIT|IVTV_IRQ_DEC_VSYNC);
 	else
         	ivtv_clear_irq_mask(itv, IVTV_IRQ_MASK_INIT);
@@ -901,6 +910,14 @@ static int __devinit ivtv_probe(struct pci_dev *dev, const struct pci_device_id 
         /* set the channel */
 	if (freq)
                	ivtv_tuner(itv, VIDIOCSFREQ, &freq);
+
+	/* Change Input to active, 150 needs this, seems right */
+        if (itv->card->type == IVTV_CARD_PVR_150 ||
+			itv->card->type == IVTV_CARD_PG600)
+
+                ivtv_cx25840(itv, DECODER_SET_INPUT, &itv->active_input);
+        else
+                ivtv_saa7115(itv, DECODER_SET_INPUT, &itv->active_input);
 
 	/* Init new audio input/output */
 	ivtv_audio_set_io(itv);

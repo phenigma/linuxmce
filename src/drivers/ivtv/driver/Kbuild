@@ -1,0 +1,21 @@
+ivtv-objs	:= ivtv-driver.o ivtv-fileops.o ivtv-i2c.o ivtv-streams.o \
+		   ivtv-firmware.o ivtv-reset.o ivtv-gpio.o ivtv-queue.o \
+		   ivtv-irq.o ivtv-mailbox.o ivtv-vbi.o ivtv-kthreads.o \
+		   ivtv-audio.o ivtv-ioctl.o ivtv-controls.o ivtv-video.o \
+		   ivtv-cards.o v4l1-compat.o ivtv-dma.o
+ivtv-fb-objs	:= ivtv-osd.o ivtv-queue.o ivtv-dma.o
+cx25840-objs	:= cx25840-driver.o cx25840-registers.o
+
+obj-$(CONFIG_VIDEO_IVTV) += msp3400.o saa7115.o cx25840.o wm8775.o ivtv.o saa7127.o
+
+ifndef NO_IVTV_TUNER
+obj-$(CONFIG_VIDEO_IVTV) += tuner.o tveeprom.o
+endif
+
+ifneq ($(CONFIG_FB),)
+obj-$(CONFIG_VIDEO_IVTV) += ivtv-fb.o
+endif
+
+ifdef HP_FWLOAD
+EXTRA_CFLAGS += -DIVTV_FW_LOADER
+endif

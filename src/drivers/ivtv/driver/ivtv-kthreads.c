@@ -1137,9 +1137,17 @@ int ivtv_dec_thread(void *arg) {
                        atomic_read(&itv->dec_dma_stat.intr)))
                 {
 #ifndef SCHED_YIELD
+   #ifndef INIT_SIGHAND
                        spin_lock_irq(&current->sighand->siglock);
+   #else
+                       spin_lock_irq(&current->sigmask_lock);
+   #endif
                        flush_signals(current);
+   #ifndef INIT_SIGHAND
                        spin_unlock_irq(&current->sighand->siglock);
+   #else
+                       spin_unlock_irq(&current->sigmask_lock);
+   #endif
 #else
                        spin_lock_irq(&current->sig->siglock);
                        flush_signals(current);
@@ -1194,9 +1202,17 @@ int ivtv_enc_thread(void *arg) {
                        atomic_read(&itv->enc_dma_stat_intr)))
                 {
 #ifdef SCHED_NORMAL
+   #ifndef INIT_SIGHAND
                        spin_lock_irq(&current->sighand->siglock);
+   #else
+                       spin_lock_irq(&current->sigmask_lock);
+   #endif
                        flush_signals(current);
+   #ifndef INIT_SIGHAND
                        spin_unlock_irq(&current->sighand->siglock);
+   #else
+                       spin_unlock_irq(&current->sigmask_lock);
+   #endif
 #else
                        spin_lock_irq(&current->sig->siglock);
                        flush_signals(current);

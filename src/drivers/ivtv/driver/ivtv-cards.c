@@ -109,7 +109,122 @@ static struct v4l2_input ivtv_pvr_inputs[] = {
 	}
 };
 
+static struct v4l2_input ivtv_pvr150_inputs[] = {
+        {
+        .index          = 0,
+        .name           = "S-Video 0",
+        .type           = V4L2_INPUT_TYPE_CAMERA,
+        .audioset       = 3,
+        .tuner          = 0,
+        .status         = 0,
+        .std            = V4L2_STD_ALL,
+        },{
+        .index          = 1,
+        .name           = "S-Video 1",
+        .type           = V4L2_INPUT_TYPE_CAMERA,
+        .audioset       = 3,
+        .tuner          = 0,
+        .status         = 0,
+        .std            = V4L2_STD_ALL,
+        },{
+        .index          = 2,
+        .name           = "Composite 0",
+        .type           = V4L2_INPUT_TYPE_CAMERA,
+        .audioset       = 3,
+        .tuner          = 0,
+        .status         = 0,
+        .std            = V4L2_STD_ALL,
+        },{
+        .index          = 3,
+        .name           = "Composite 1",
+        .type           = V4L2_INPUT_TYPE_CAMERA,
+        .audioset       = 3,
+        .tuner          = 0,
+        .status         = 0,
+        .std            = V4L2_STD_ALL,
+        },{
+        .index          = 4,
+        .name           = "Composite 2",
+        .type           = V4L2_INPUT_TYPE_CAMERA,
+        .audioset       = 3,
+        .tuner          = 0,
+        .status         = 0,
+        .std            = V4L2_STD_ALL,
+        },{
+        .index          = 5,
+        .name           = "Composite 3",
+        .type           = V4L2_INPUT_TYPE_CAMERA,
+        .audioset       = 3,
+        .tuner          = 0,
+        .status         = 0,
+        .std            = V4L2_STD_ALL,
+        },{
+        .index          = 6,
+        .name           = "Tuner 0",
+        .type           = V4L2_INPUT_TYPE_TUNER,
+        .audioset       = 3,
+        .tuner          = 0,
+        .status         = 0,
+        .std            = V4L2_STD_ALL,
+        },{
+        .index          = 7,
+        .name           = "Tuner 1",
+        .type           = V4L2_INPUT_TYPE_TUNER,
+        .audioset       = 3,
+        .tuner          = 0,
+        .status         = 0,
+        .std            = V4L2_STD_ALL,
+        }
+};
+
 static const int ivtv_pvr_inputs_size = sizeof(ivtv_pvr_inputs) / sizeof(ivtv_pvr_inputs[0]);
+static const int ivtv_pvr150_inputs_size = sizeof(ivtv_pvr150_inputs) / sizeof(ivtv_pvr150_inputs[0]);
+
+static struct v4l2_input ivtv_pg600_inputs[] = {
+        {
+        .index          = 0,
+        .name           = "S-Video 0",
+        .type           = V4L2_INPUT_TYPE_CAMERA,
+        .audioset       = 3,
+        .tuner          = 0,
+        .status         = 0,
+        .std            = V4L2_STD_ALL,
+        },{
+        .index          = 1,
+        .name           = "Tuner",
+        .type           = V4L2_INPUT_TYPE_TUNER,
+        .audioset       = 3,
+        .tuner          = 0,
+        .status         = 0,
+        .std            = V4L2_STD_ALL,
+        },{
+        .index          = 2,
+        .name           = "Composite",
+        .type           = V4L2_INPUT_TYPE_CAMERA,
+        .audioset       = 3,
+        .tuner          = 0,
+        .status         = 0,
+        .std            = V4L2_STD_ALL,
+        },{
+        .index          = 3,
+        .name           = "Audio tuner in",
+        .type           = V4L2_INPUT_TYPE_CAMERA,
+        .audioset       = 3,
+        .tuner          = 0,
+        .status         = 0,
+        .std            = V4L2_STD_ALL,
+        },{
+        .index          = 4,
+        .name           = "Audio line in",
+        .type           = V4L2_INPUT_TYPE_CAMERA,
+        .audioset       = 3,
+        .tuner          = 0,
+        .status         = 0,
+        .std            = V4L2_STD_ALL,
+        }
+};
+
+static const int ivtv_pg600_inputs_size = sizeof(ivtv_pg600_inputs) / sizeof(ivtv_pg600_inputs[0]);
 
 
 /* Inputs for MPG600/MPG160/M179 cards */
@@ -183,6 +298,14 @@ const struct v4l2_input *ivtv_get_input(struct ivtv *itv, u16 index)
 			if (index >= ivtv_mpg_inputs_size)
 				return NULL;
 			return &ivtv_mpg_inputs[index];
+		case IVTV_CARD_PVR_150:
+			if (index >= ivtv_pvr150_inputs_size)
+				return NULL;
+			return &ivtv_pvr150_inputs[index];
+		case IVTV_CARD_PG600:
+			if (index >= ivtv_pg600_inputs_size)
+				return NULL;
+			return &ivtv_pg600_inputs[index];
 		default:
 			if (index >= ivtv_pvr_inputs_size)
 				return NULL;
@@ -292,6 +415,15 @@ const struct v4l2_audioout *ivtv_get_audio_output(struct ivtv *itv, u16 index)
 #define IVTV_MPG600_TUNER_I2C_ADDR 	0x60
 #define IVTV_MPG160_TUNER_I2C_ADDR 	0x60
 #define IVTV_M179_TUNER_I2C_ADDR 	0x60
+#define IVTV_PG600_TUNER_I2C_ADDR 	0x61
+
+static const struct ivtv_card_pci_info ivtv_pci_pvr150[] = {
+	{ PCI_DEVICE_ID_IVTV16, IVTV_PCI_ID_HAUPPAUGE, 0x8801 },
+	{ PCI_DEVICE_ID_IVTV16, IVTV_PCI_ID_HAUPPAUGE, 0x8003 },
+	{ PCI_DEVICE_ID_IVTV16, IVTV_PCI_ID_HAUPPAUGE, 0xe807 },
+	{ PCI_DEVICE_ID_IVTV16, IVTV_PCI_ID_HAUPPAUGE, 0xe817 },
+	{ 0, 0, 0 }
+};
 
 static const struct ivtv_card_pci_info ivtv_pci_pvr250[] = {
 	{ PCI_DEVICE_ID_IVTV15, IVTV_PCI_ID_HAUPPAUGE, 0x4001 },
@@ -326,8 +458,20 @@ static const struct ivtv_card_pci_info ivtv_pci_mpg160[] = {
 	{ 0, 0, 0 }
 };
 
+static const struct ivtv_card_pci_info ivtv_pci_pg600[] = {
+	{ PCI_DEVICE_ID_IVTV16, IVTV_PCI_ID_DIAMONDMM, 0x0070 },
+	{ 0, 0, 0 }
+};
+
 static const struct ivtv_card ivtv_card_list[] = {
 	{
+		.type 			= IVTV_CARD_PVR_150,
+		.name 			= "WinTV PVR 150",
+		.v4l2_capabilities 	= V4L2_CAP_ENCODER,
+		.i2c_tuner_addr 	= IVTV_TUNER_I2C_ADDR,
+		.audio_selector 	= USE_CX25840,
+		.pci_list 		= ivtv_pci_pvr150,
+	},{
 		.type 			= IVTV_CARD_PVR_250,
 		.name 			= "WinTV PVR 250",
 		.v4l2_capabilities 	= V4L2_CAP_ENCODER,
@@ -362,6 +506,13 @@ static const struct ivtv_card ivtv_card_list[] = {
 		.i2c_tuner_addr 	= IVTV_MPG160_TUNER_I2C_ADDR,
 		.audio_selector 	= USE_GPIO,
 		.pci_list 		= ivtv_pci_mpg160,
+	},{
+		.type 			= IVTV_CARD_PG600,
+		.name 			= "YUAN PG600/DIAMOND PVR-550 (CX FALCON2)",
+		.v4l2_capabilities 	= V4L2_CAP_ENCODER,
+		.i2c_tuner_addr 	= IVTV_PG600_TUNER_I2C_ADDR,
+		.audio_selector 	= USE_CX25840,
+		.pci_list 		= ivtv_pci_pg600,
 	}
 };
 

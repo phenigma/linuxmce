@@ -590,7 +590,11 @@ static void ivtv_vbi_setup(struct ivtv *itv)
             int vbi_off = 1 << 31;
 
             // VBI combined with scaling doesn't work.
-	    ivtv_saa7115(itv, DECODER_SET_VBI, &vbi_off);
+            if (itv->card->type == IVTV_CARD_PVR_150 ||
+			itv->card->type == IVTV_CARD_PG600)
+                    ivtv_cx25840(itv, DECODER_SET_VBI, &vbi_off);
+            else
+	    	    ivtv_saa7115(itv, DECODER_SET_VBI, &vbi_off);
 	    for (i = 2; i <= 24; i++) {
 		ivtv_vapi(itv, IVTV_API_SELECT_VBI_LINE, 5, i - 1, 0, 0, 0, 0);
 		ivtv_vapi(itv, IVTV_API_SELECT_VBI_LINE, 5, (i - 1) | (1 << 31), 0, 0, 0, 0);
@@ -599,7 +603,11 @@ static void ivtv_vbi_setup(struct ivtv *itv)
         }
 	
 	// setup VBI registers
-	ivtv_saa7115(itv, DECODER_SET_VBI, &itv->vbi_service_set_in);
+        if (itv->card->type == IVTV_CARD_PVR_150 ||
+		itv->card->type == IVTV_CARD_PG600)
+                ivtv_cx25840(itv, DECODER_SET_VBI, &itv->vbi_service_set_in);
+        else
+		ivtv_saa7115(itv, DECODER_SET_VBI, &itv->vbi_service_set_in);
 
 	itv->vbi_search_ba = 0;
 
@@ -788,7 +796,11 @@ int ivtv_start_v4l2_encode_stream (struct ivtv *itv, int type)
                 /* Disable digitizer (saa7115) */
                 IVTV_DEBUG(IVTV_DEBUG_INFO, "Disabling digitizer\n");
                 dig=0;
-                ivtv_saa7115(itv, DECODER_ENABLE_OUTPUT, &dig);
+        	if (itv->card->type == IVTV_CARD_PVR_150 ||
+			itv->card->type == IVTV_CARD_PG600)
+                	ivtv_cx25840(itv, DECODER_ENABLE_OUTPUT, &dig);
+        	else
+                	ivtv_saa7115(itv, DECODER_ENABLE_OUTPUT, &dig);
 
                 /* initialize input (no args) */
                 ivtv_vapi(itv, IVTV_API_INITIALIZE_INPUT, 0);
@@ -796,7 +808,11 @@ int ivtv_start_v4l2_encode_stream (struct ivtv *itv, int type)
                 /* enable digitizer (saa7115) */
                 IVTV_DEBUG(IVTV_DEBUG_INFO, "Enabling digitizer\n");
                 dig=1;
-                ivtv_saa7115(itv, DECODER_ENABLE_OUTPUT, &dig);
+        	if (itv->card->type == IVTV_CARD_PVR_150 ||
+			itv->card->type == IVTV_CARD_PG600)
+                	ivtv_cx25840(itv, DECODER_ENABLE_OUTPUT, &dig);
+        	else
+                	ivtv_saa7115(itv, DECODER_ENABLE_OUTPUT, &dig);
 
                 /*IVTV_DEBUG(IVTV_DEBUG_INFO, "Sleeping for 100ms\n");*/
                 ivtv_sleep_timeout(HZ/10, 0);
@@ -1235,11 +1251,17 @@ int ivtv_stop_v4l2_decode_stream(struct ivtv *itv, int type)
 
 	/* Stop Decoder, must have failed, probably won't get here */
 	if (test_and_clear_bit(IVTV_F_S_STREAMOFF, &st->s_flags)) {
-		x = ivtv_vapi(itv, IVTV_API_DEC_STOP_PLAYBACK, 3,
+		if ( itv->dec_options.pts_low && itv->dec_options.pts_hi ) {
+		    x = ivtv_vapi(itv, IVTV_API_DEC_STOP_PLAYBACK, 3,
 			/*  0 = last frame, 1 = black */
 			itv->dec_options.hide_last_frame,
 			itv->dec_options.pts_low, /* when: pts low */
 			itv->dec_options.pts_hi);  /* when: pts hi */
+		} else {
+		    x = ivtv_vapi(itv, IVTV_API_DEC_STOP_PLAYBACK, 1,
+			/*  0 = last frame, 1 = black */
+			itv->dec_options.hide_last_frame);
+		}
 	
 		if (x) IVTV_DEBUG(IVTV_DEBUG_ERR, 
 			"DEC: Error stopping decode (%d) on try number %d\n",

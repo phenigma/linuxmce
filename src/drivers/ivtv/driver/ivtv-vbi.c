@@ -18,6 +18,7 @@
  */
 
 #include "ivtv-driver.h"
+#include "ivtv-cards.h"
 #include "ivtv-video.h"
 #include "ivtv-i2c.h"
 #include "ivtv-vbi.h"
@@ -156,7 +157,7 @@ static void passthrough_vbi_data(struct ivtv *itv, u8 *p, int cnt)
             memcpy(linemask, p + 4, 8);
             p += 12;
         }
-        else if (memcmp(p, "ITV0", 4)) {
+        else if (!memcmp(p, "ITV0", 4)) {
             linemask[0] = 0xffffffff;
             linemask[1] = 0xf;
             p += 4;
@@ -287,7 +288,7 @@ int ivtv_DEC_VBI_fixup(struct ivtv *itv, u8 *p, int cnt, int field_lines)
             memcpy(linemask, p + 4, 8);
             p += 12;
         }
-        else if (memcmp(p, "ITV0", 4)) {
+        else if (!memcmp(p, "ITV0", 4)) {
             linemask[0] = 0xffffffff;
             linemask[1] = 0xf;
             p += 4;
@@ -595,7 +596,11 @@ void vbi_work_handler(void *arg)
 		if (itv->vbi_passthrough & IVTV_SLICED_WSS_625) {
 			int wss;
 
-			ivtv_saa7115(itv, DECODER_GET_WSS, &wss);
+        		if (itv->card->type == IVTV_CARD_PVR_150 ||
+				itv->card->type == IVTV_CARD_PG600)
+                		ivtv_cx25840(itv, DECODER_GET_WSS, &wss);
+        		else
+				ivtv_saa7115(itv, DECODER_GET_WSS, &wss);
 			if (wss >= 0) {
 				ivtv_set_wss(itv, 1, wss & 7);
 				itv->vbi_wss_no_update = 0;
@@ -609,13 +614,21 @@ void vbi_work_handler(void *arg)
 			u8 c1 = 0, c2 = 0, c3 = 0, c4 = 0;
 			int mode = 0, cc;
 
-			ivtv_saa7115(itv, DECODER_GET_CC_ODD, &cc);
+                        if (itv->card->type == IVTV_CARD_PVR_150 || 
+				itv->card->type == IVTV_CARD_PG600)
+                                ivtv_cx25840(itv, DECODER_GET_CC_ODD, &cc);
+                        else
+				ivtv_saa7115(itv, DECODER_GET_CC_ODD, &cc);
 			if (cc >= 0) {
 				mode |= 1;
 				c1 = cc & 0xff;
 				c2 = cc >> 8;
 			}
-			ivtv_saa7115(itv, DECODER_GET_CC_EVEN, &cc);
+                        if (itv->card->type == IVTV_CARD_PVR_150 ||
+				itv->card->type == IVTV_CARD_PG600)
+                                ivtv_cx25840(itv, DECODER_GET_CC_EVEN, &cc);
+                        else
+				ivtv_saa7115(itv, DECODER_GET_CC_EVEN, &cc);
 			if (cc >= 0) {
 				mode |= 2;
 				c3 = cc & 0xff;

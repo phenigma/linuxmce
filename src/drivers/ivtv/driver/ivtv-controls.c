@@ -18,6 +18,7 @@
  */
 
 #include "ivtv-driver.h"
+#include "ivtv-cards.h"
 #include "ivtv-audio.h"
 #include "ivtv-i2c.h"
 #include "ivtv-controls.h"
@@ -281,7 +282,11 @@ static int ivtv_s_ctrl(struct ivtv *itv, struct v4l2_control *vctrl)
 		/* Also upgrade the digitizer setting */
 		/* FIXME not obvious how this works
 		 *  (see ivtv_ctrl_query_freq[]) */
-		ivtv_saa7115(itv, DECODER_SET_AUDIO, &v);
+                if (itv->card->type == IVTV_CARD_PVR_150 ||
+			itv->card->type == IVTV_CARD_PG600)
+                        ivtv_cx25840(itv, DECODER_SET_AUDIO, &v);
+                else
+			ivtv_saa7115(itv, DECODER_SET_AUDIO, &v);
 		break;
 	case V4L2_CID_IVTV_ENC:
 		if ((v < 0) || (v > 2))
@@ -373,30 +378,62 @@ static int ivtv_s_ctrl(struct ivtv *itv, struct v4l2_control *vctrl)
 	case V4L2_CID_BRIGHTNESS: 
 		if (v < 0 || v > 255)
 		       	return -ERANGE;
-		ivtv_saa7115(itv, DECODER_GET_PICTURE, &pic);
+                if (itv->card->type == IVTV_CARD_PVR_150 ||
+			itv->card->type == IVTV_CARD_PG600)
+                        ivtv_cx25840(itv, DECODER_GET_PICTURE, &pic);
+                else
+			ivtv_saa7115(itv, DECODER_GET_PICTURE, &pic);
 		pic.bright = v;
-		ivtv_saa7115(itv, DECODER_SET_PICTURE, &pic);
+                if (itv->card->type == IVTV_CARD_PVR_150 ||
+			itv->card->type == IVTV_CARD_PG600)
+                        ivtv_cx25840(itv, DECODER_SET_PICTURE, &pic);
+                else
+			ivtv_saa7115(itv, DECODER_SET_PICTURE, &pic);
 		break;
 	case V4L2_CID_HUE: 
 		if (v < -128 || v > 127)
 		       	return -ERANGE;
-		ivtv_saa7115(itv, DECODER_GET_PICTURE, &pic);
+                if (itv->card->type == IVTV_CARD_PVR_150 ||
+			itv->card->type == IVTV_CARD_PG600)
+                        ivtv_cx25840(itv, DECODER_GET_PICTURE, &pic);
+                else
+			ivtv_saa7115(itv, DECODER_GET_PICTURE, &pic);
 		pic.hue = v;
-		ivtv_saa7115(itv, DECODER_SET_PICTURE, &pic);
+                if (itv->card->type == IVTV_CARD_PVR_150 ||
+			itv->card->type == IVTV_CARD_PG600)
+                        ivtv_cx25840(itv, DECODER_SET_PICTURE, &pic);
+                else
+			ivtv_saa7115(itv, DECODER_SET_PICTURE, &pic);
 		break;
 	case V4L2_CID_SATURATION: 
 		if (v < 0 || v > 127)
 		       	return -ERANGE;
-		ivtv_saa7115(itv, DECODER_GET_PICTURE, &pic);
+                if (itv->card->type == IVTV_CARD_PVR_150 ||
+			itv->card->type == IVTV_CARD_PG600)
+                        ivtv_cx25840(itv, DECODER_GET_PICTURE, &pic);
+                else
+			ivtv_saa7115(itv, DECODER_GET_PICTURE, &pic);
 		pic.sat = v;
-		ivtv_saa7115(itv, DECODER_SET_PICTURE, &pic);
+                if (itv->card->type == IVTV_CARD_PVR_150 ||
+			itv->card->type == IVTV_CARD_PG600)
+                        ivtv_cx25840(itv, DECODER_SET_PICTURE, &pic);
+                else
+			ivtv_saa7115(itv, DECODER_SET_PICTURE, &pic);
 		break;
 	case V4L2_CID_CONTRAST: 
 		if (v < 0 || v > 127) 
 			return -ERANGE;
-		ivtv_saa7115(itv, DECODER_GET_PICTURE, &pic);
+                if (itv->card->type == IVTV_CARD_PVR_150 ||
+			itv->card->type == IVTV_CARD_PG600)
+                        ivtv_cx25840(itv, DECODER_GET_PICTURE, &pic);
+                else
+			ivtv_saa7115(itv, DECODER_GET_PICTURE, &pic);
 		pic.contrast = v;
-		ivtv_saa7115(itv, DECODER_SET_PICTURE, &pic);
+                if (itv->card->type == IVTV_CARD_PVR_150 ||
+			itv->card->type == IVTV_CARD_PG600)
+                        ivtv_cx25840(itv, DECODER_SET_PICTURE, &pic);
+                else
+			ivtv_saa7115(itv, DECODER_SET_PICTURE, &pic);
 		break;
 	case V4L2_CID_AUDIO_VOLUME: 
 		if (v > 65535 || v < 0) 
@@ -476,19 +513,35 @@ static int ivtv_g_ctrl(struct ivtv *itv, struct v4l2_control *vctrl)
 
 	/* Standard V4L2 controls */
 	case V4L2_CID_BRIGHTNESS: 
-		ivtv_saa7115(itv, DECODER_GET_PICTURE, &pic);
+                if (itv->card->type == IVTV_CARD_PVR_150 ||
+			itv->card->type == IVTV_CARD_PG600)
+                        ivtv_cx25840(itv, DECODER_GET_PICTURE, &pic);
+                else
+			ivtv_saa7115(itv, DECODER_GET_PICTURE, &pic);
 		vctrl->value = pic.bright;
 		break;
 	case V4L2_CID_HUE: 
-		ivtv_saa7115(itv, DECODER_GET_PICTURE, &pic);
+                if (itv->card->type == IVTV_CARD_PVR_150 ||
+			itv->card->type == IVTV_CARD_PG600)
+                        ivtv_cx25840(itv, DECODER_GET_PICTURE, &pic);
+                else
+			ivtv_saa7115(itv, DECODER_GET_PICTURE, &pic);
 		vctrl->value = pic.hue;
 		break;
 	case V4L2_CID_SATURATION: 
-		ivtv_saa7115(itv, DECODER_GET_PICTURE, &pic);
+                if (itv->card->type == IVTV_CARD_PVR_150 ||
+			itv->card->type == IVTV_CARD_PG600)
+                        ivtv_cx25840(itv, DECODER_GET_PICTURE, &pic);
+                else
+			ivtv_saa7115(itv, DECODER_GET_PICTURE, &pic);
 		vctrl->value = pic.sat;
 		break;
 	case V4L2_CID_CONTRAST: 
-		ivtv_saa7115(itv, DECODER_GET_PICTURE, &pic);
+                if (itv->card->type == IVTV_CARD_PVR_150 ||
+			itv->card->type == IVTV_CARD_PG600)
+                        ivtv_cx25840(itv, DECODER_GET_PICTURE, &pic);
+                else
+			ivtv_saa7115(itv, DECODER_GET_PICTURE, &pic);
 		vctrl->value = pic.contrast;
 		break;
 	case V4L2_CID_AUDIO_VOLUME: 

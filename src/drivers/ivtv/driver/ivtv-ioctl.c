@@ -43,6 +43,13 @@ ivtv_compat_translate_ioctl(struct inode         *inode,
 			   v4l2_kioctl          drv);
 
 
+/* Could not think of a better place to put these, including cx25840.h in ivtv-ioctl.c makes the problem worse. */
+#define	DECODER_SET_REG_TEXT _IOR('d', 105, struct ivtv_cx25840_reg)
+#define	DECODER_GET_REG_TEXT _IOWR('d', 106, struct ivtv_cx25840_reg)
+/* */
+ 
+
+
 static const struct v4l2_standard ivtv_stds[] = {
 	{
 	.index		= 0,
@@ -300,7 +307,7 @@ int ivtv_internal_ioctls(struct ivtv *itv, int streamtype, unsigned int cmd, voi
 		IVTV_DEBUG(IVTV_DEBUG_INFO,"ivtv ioctl: FWAPI\n");
 
                 /* Encoder */
-                if(cmd>=128)
+                if(fwapi->cmd>=128)
                         return ivtv_api(itv, itv->enc_mbox, &itv->enc_msem,
 				fwapi->cmd, &fwapi->result, fwapi->args, 
 				fwapi->data);
@@ -362,11 +369,19 @@ int ivtv_internal_ioctls(struct ivtv *itv, int streamtype, unsigned int cmd, voi
 
 	/* ioctls to allow direct access to the saa7115 registers for testing */
 	case IVTV_IOC_G_SAA7115_REG:
-		ivtv_saa7115(itv, DECODER_GET_REG, arg);
+                if (itv->card->type == IVTV_CARD_PVR_150 || 
+			itv->card->type == IVTV_CARD_PG600)
+                        ivtv_cx25840(itv, DECODER_GET_REG, arg);
+                else
+			ivtv_saa7115(itv, DECODER_GET_REG, arg);
 		break;
 
 	case IVTV_IOC_S_SAA7115_REG:
-                ivtv_saa7115(itv, DECODER_SET_REG, arg);
+                if (itv->card->type == IVTV_CARD_PVR_150 ||
+			itv->card->type == IVTV_CARD_PG600)
+                        ivtv_cx25840(itv, DECODER_SET_REG, arg);
+                else
+                	ivtv_saa7115(itv, DECODER_SET_REG, arg);
 		break;
 
 	/* ioctls to allow direct access to the saa7127 registers for testing */
@@ -407,6 +422,13 @@ int ivtv_internal_ioctls(struct ivtv *itv, int streamtype, unsigned int cmd, voi
 		ivtv_debug = (*(int *)arg) | IVTV_DEBUG_ERR;
 		*(int *)arg = ivtv_debug;
 		break;
+
+	case IVTV_IOC_G_CX25840_REG:
+		return ivtv_cx25840(itv, DECODER_GET_REG_TEXT, arg);
+
+	case IVTV_IOC_S_CX25840_REG:
+		return ivtv_cx25840(itv, DECODER_SET_REG_TEXT, arg);
+	
 
 	default:
                 IVTV_DEBUG(IVTV_DEBUG_ERR, "unknown internal IVTV command %08x\n", cmd);
@@ -592,17 +614,22 @@ int ivtv_v4l2_ioctls(struct ivtv *itv, struct ivtv_open_id *id,
 				/* FIXME: only sets resolution for now */
 				wind.width = itv->width = fmt->fmt.pix.width;
 				wind.height = itv->height = fmt->fmt.pix.height;
-				ivtv_saa7115(itv, DECODER_SET_SIZE, &wind);
-		
-				if ( ( itv->codec.stream_type == IVTV_STREAM_MPEG1)||
-				     ( itv->codec.stream_type == IVTV_STREAM_VCD)){
-					  /* this is an MPEG1 stream */
-					  IVTV_DEBUG(IVTV_DEBUG_INFO,"v4l2 ioctl: set "
-						     "format : the current stream_type is MPEG1 "
-						     "or VCD, you have to do a S_CODEC after this "
-						     "ioctl\n ");
+                		if (itv->card->type == IVTV_CARD_PVR_150 ||
+					itv->card->type == IVTV_CARD_PG600)
+                        		ivtv_cx25840(itv, DECODER_SET_SIZE, &wind);
+                		else
+					ivtv_saa7115(itv, DECODER_SET_SIZE, &wind);
 
-				}
+                                if ( ( itv->codec.stream_type == IVTV_STREAM_MPEG1)||
+                                     ( itv->codec.stream_type == IVTV_STREAM_VCD)){
+                                         /* this is an MPEG1 stream */
+                                         IVTV_DEBUG(IVTV_DEBUG_INFO,"v4l2 ioctl: set "
+                                                    "format : the current stream_type is MPEG1 "
+                                                    "or VCD, you have to do a S_CODEC after this "
+                                                    "ioctl\n ");
+
+                                }
+
 			}
 		}
 		else if (fmt->type == V4L2_BUF_TYPE_VBI_CAPTURE) {
@@ -699,7 +726,11 @@ int ivtv_v4l2_ioctls(struct ivtv *itv, struct ivtv_open_id *id,
 			   we're finished changing inputs. */
 			down(&stream->mlock);	
 			mute_and_pause(itv);
-			ivtv_saa7115(itv, DECODER_SET_INPUT, &inp);
+                        if (itv->card->type == IVTV_CARD_PVR_150 ||
+			itv->card->type == IVTV_CARD_PG600)
+                                ivtv_cx25840(itv, DECODER_SET_INPUT, &inp);
+                        else
+				ivtv_saa7115(itv, DECODER_SET_INPUT, &inp);
 			/* Select new audio input */
 			ivtv_audio_set_io(itv);
 			unmute_and_resume(itv, 1);
@@ -866,7 +897,11 @@ int ivtv_v4l2_ioctls(struct ivtv *itv, struct ivtv_open_id *id,
 		}
 
 		/* Digitizer */
-		ivtv_saa7115(itv, DECODER_SET_NORM, &norm);
+		if (itv->card->type == IVTV_CARD_PVR_150 ||
+			itv->card->type == IVTV_CARD_PG600)
+			ivtv_cx25840(itv, DECODER_SET_NORM, &norm);
+		else
+			ivtv_saa7115(itv, DECODER_SET_NORM, &norm);
 
 		if (itv->v4l2_cap & V4L2_CAP_VIDEO_OUTPUT) {
 			/* Encoder */
@@ -932,7 +967,11 @@ int ivtv_v4l2_ioctls(struct ivtv *itv, struct ivtv_open_id *id,
 			vt->rangelow = 0;
 			vt->rangehigh = 0xffffffffUL;
 
-                        ivtv_saa7115(itv, DECODER_GET_STATUS, &sig);
+                	if (itv->card->type == IVTV_CARD_PVR_150 || 
+				itv->card->type == IVTV_CARD_PG600)
+                        	ivtv_cx25840(itv, DECODER_GET_STATUS, &sig);
+                	else
+                        	ivtv_saa7115(itv, DECODER_GET_STATUS, &sig);
                         vt->signal = (sig & DECODER_STATUS_GOOD) ? 65535 : 0;
 			vt->audmode = itv->audmode_tv;
                 }
@@ -1379,6 +1418,9 @@ static int ivtv_v4l2_do_ioctl(struct inode *inode, struct file *filp, unsigned i
 	case IVTV_IOC_G_DEBUG_LEVEL:
 	case IVTV_IOC_S_DEBUG_LEVEL:
 	case IVTV_IOC_FWAPI:
+	case IVTV_IOC_G_CX25840_REG:
+	case IVTV_IOC_S_CX25840_REG:
+
 		return ivtv_internal_ioctls(itv, streamtype, cmd, arg);
 
 	case VIDIOC_QUERYCAP:

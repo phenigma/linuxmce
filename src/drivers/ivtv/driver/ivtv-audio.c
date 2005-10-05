@@ -33,6 +33,7 @@
 static int ivtv_set_audio_for_msp34xx(struct ivtv *itv, u32 input, u32 output)
 {
         struct msp_matrix mspm;
+        struct video_audio va;
 
         if (input >= 0 && input <= 2) {
                 IVTV_DEBUG(IVTV_DEBUG_INFO,
@@ -55,6 +56,11 @@ static int ivtv_set_audio_for_msp34xx(struct ivtv *itv, u32 input, u32 output)
                 IVTV_DEBUG(IVTV_DEBUG_ERR, "Setting audio matrix to input %d, output %d\n",
 			       mspm.input, mspm.output);
                 ivtv_msp34xx(itv, MSP_SET_MATRIX, &mspm);
+
+                memset(&va, 0, sizeof(struct video_audio));
+                ivtv_msp34xx(itv, VIDIOCGAUDIO, &va);
+                va.flags &= ~VIDEO_AUDIO_MUTE;
+                ivtv_msp34xx(itv, VIDIOCSAUDIO, &va);
                 return 0;
         }
 
@@ -106,6 +112,8 @@ int ivtv_audio_set_io(struct ivtv *itv)
 		   the ivtvctl utility. */
 		return ivtv_set_audio_for_msp34xx(itv,
 			       	audio_input, itv->msp34xx_audio_output);
+	case USE_CX25840: /* FIXME, probably not right */
+		return 0;	
 	case USE_GPIO:
 		return ivtv_set_audio_for_gpio(itv, audio_input);
 	}
@@ -120,11 +128,13 @@ void ivtv_audio_set_volume(struct ivtv *itv, int volume)
 
 	switch (itv->card->audio_selector) {
 		case USE_MSP34XX:
+			memset(&va, 0, sizeof(struct video_audio));
 			ivtv_msp34xx(itv, VIDIOCGAUDIO, &va);
 			va.volume = volume;
 			va.mode = 0;  /* keep stereo mode at automatic stereo detection */
 			ivtv_msp34xx(itv, VIDIOCSAUDIO, &va);
 			break;
+		case USE_CX25840: /* FIXME, probably not right */
 		case USE_GPIO:
 			/* do nothing, there's no volume control */
 			break;                                          
@@ -137,8 +147,10 @@ int ivtv_audio_get_volume(struct ivtv *itv)
 
 	switch (itv->card->audio_selector) {
 		case USE_MSP34XX:
+			memset(&va, 0, sizeof(struct video_audio));
 			ivtv_msp34xx(itv, VIDIOCGAUDIO, &va);
 			break;
+		case USE_CX25840: /* FIXME, probably not right */
 		case USE_GPIO:
 			/* do nothing, there's no volume control */
 			va.volume = 65535; /* dummy code */
@@ -153,6 +165,7 @@ void ivtv_audio_set_mute(struct ivtv *itv, int mute)
 
 	switch (itv->card->audio_selector) {
 		case USE_MSP34XX:
+			memset(&va, 0, sizeof(struct video_audio));
 			ivtv_msp34xx(itv, VIDIOCGAUDIO, &va);
 			if (mute)
 				va.flags |= VIDEO_AUDIO_MUTE;
@@ -161,6 +174,8 @@ void ivtv_audio_set_mute(struct ivtv *itv, int mute)
 			va.mode = 0;  /* keep stereo mode at automatic stereo detection */
 			ivtv_msp34xx(itv, VIDIOCSAUDIO, &va);
 			break;
+		case USE_CX25840: /* FIXME, probably not right */
+			break;	
 		case USE_GPIO:
 			if (mute)
 				ivtv_set_gpio_audio(itv, IVTV_GPIO_AUDIO_MUTE);
@@ -176,7 +191,10 @@ int ivtv_audio_get_mute(struct ivtv *itv)
 
 	switch (itv->card->audio_selector) {
 		case USE_MSP34XX:
+			memset(&va, 0, sizeof(struct video_audio));
 			ivtv_msp34xx(itv, VIDIOCGAUDIO, &va);
+			break;
+		case USE_CX25840: /* FIXME, probably not right */
 			break;
 		case USE_GPIO:
 			va.flags = 0;
@@ -193,6 +211,8 @@ void ivtv_audio_set_channel(struct ivtv *itv, struct video_channel *v)
 		case USE_MSP34XX:
 			ivtv_msp34xx(itv, VIDIOCSCHAN, v);
 			break;
+		case USE_CX25840: /* FIXME, probably not right */
+			break;	
 		case USE_GPIO:
 			ivtv_set_gpio_audio(itv, IVTV_GPIO_AUDIO_TUNER);
 			break;
@@ -209,6 +229,8 @@ void ivtv_audio_set_audmode(struct ivtv *itv, u32 audmode)
 			vt.audmode = audmode;
 			ivtv_msp34xx(itv, VIDIOC_S_TUNER, &vt);
 			ivtv_dualwatch_set_enabled(itv, audmode == V4L2_TUNER_MODE_STEREO);
+			break;
+		case USE_CX25840: /* FIXME, probably not right */
 			break;
 		case USE_GPIO:
 			ivtv_set_gpio_audiomode(itv, audmode);
@@ -255,6 +277,7 @@ void ivtv_audio_freq_changed(struct ivtv *itv)
 		case USE_MSP34XX:
 			ivtv_msp34xx(itv, VIDIOCSFREQ, &freq);	
 			break;
+		case USE_CX25840: /* FIXME, probably not right */
 		case USE_GPIO:
 			break;
 	}
@@ -264,6 +287,8 @@ void ivtv_audio_set_bitrate(struct ivtv *itv, int bitrate)
 {
 	switch (itv->card->audio_selector) {
 		case USE_MSP34XX:
+			break;
+		case USE_CX25840: /* FIXME, probably not right */
 			break;
 		case USE_GPIO:
 			ivtv_set_gpio_audiobitrate(itv, bitrate);
@@ -291,6 +316,7 @@ int ivtv_audio_set_matrix(struct ivtv *itv, struct ivtv_msp_matrix *matrix)
 
 			ivtv_msp34xx(itv, MSP_SET_MATRIX, matrix);
 			break;
+		case USE_CX25840: /* FIXME, probably not right */
 		case USE_GPIO:
 			/* do nothing */
 			break;

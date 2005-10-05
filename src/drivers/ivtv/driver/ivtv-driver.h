@@ -127,7 +127,7 @@
 #define IVTV_DRIVER_VERSION_MAJOR 0
 #define IVTV_DRIVER_VERSION_MINOR 2
 #define IVTV_DRIVER_VERSION_PATCHLEVEL 0
-#define IVTV_DRIVER_VERSION_COMMENT "rc3f" 
+#define IVTV_DRIVER_VERSION_COMMENT "rc3j" 
 #define IVTV_VERSION __stringify(IVTV_DRIVER_VERSION_MAJOR) "." __stringify(IVTV_DRIVER_VERSION_MINOR) "." __stringify(IVTV_DRIVER_VERSION_PATCHLEVEL) "-" IVTV_DRIVER_VERSION_COMMENT 
 #define IVTV_DRIVER_VERSION KERNEL_VERSION(IVTV_DRIVER_VERSION_MAJOR,IVTV_DRIVER_VERSION_MINOR,IVTV_DRIVER_VERSION_PATCHLEVEL)
 
@@ -139,10 +139,13 @@
 #define IVTV_CARD_MPG600  3 /* Kuroutoshikou ITVC16-STVLP/YUAN MPG600, encoder only */
 #define IVTV_CARD_MPG160  4 /* Kuroutoshikou ITVC15-STVLP/YUAN MPG160
                                iTVC15 based, but does not have tv-out */
+#define IVTV_CARD_PVR_150 5 /* wintv pvr 250 */
+#define IVTV_CARD_PG600 6 /* YUAN PG600/DIAMONDMM PVR-550 based on the CX Falcon 2 */
 
 #define NO_AUDIO    0  /* the card can't handle audio */
 #define USE_MSP34XX 1  /* switch audio by MSP34XX */
 #define USE_GPIO    2  /* switch audio by GPIO */
+#define USE_CX25840 3  /* switch audio by CX25840 */
 
 #define IVTV_AUDIO_32000 0x2  /* 32 kHz audio */
 #define IVTV_AUDIO_44100 0x0  /* 44.1 kHz audio */
@@ -181,6 +184,9 @@
 #define IVTV_MBOX_DMA 9
 #define IVTV_MBOX_FIELD_DISPLAYED 8
 #define IVTV_MBOX_SIZE 80
+
+#define IVTV_PCI_ID_DIAMONDMM 0xff92
+#define IVTV_PCI_ID_XTREME550 0x0070
 
 /* API Command timeout for DMA xfers, divide xfer/timeout, wait for api cmd? */
 #define OSD_API_TIMEOUT 500 /* Divide xfer size by this */
@@ -241,7 +247,7 @@
 #define IVTV_DEFAULT_DEC_VBI_BUFFERS (int)(256 * (1024))
 
 /* DMA Buffers Limits */
-#define IVTV_MAX_MPG_BUFFERS (int)(16 * ((1024 * 1024)))
+#define IVTV_MAX_MPG_BUFFERS (int)(32 * ((1024 * 1024)))
 #define IVTV_MAX_YUV_BUFFERS (int)(32 * ((1024 * 1024)))
 #define IVTV_MAX_VBI_BUFFERS (int)(2 * ((1024 * 1024)))
 #define IVTV_MAX_PCM_BUFFERS (int)(32 * ((1024 * 1024)))

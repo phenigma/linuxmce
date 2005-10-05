@@ -54,7 +54,7 @@ struct ivtv_sliced_vbi_format {
 struct ivtv_sliced_data {
 	unsigned long id;
 	unsigned long line;
-	unsigned char data[];
+	unsigned char data[0];
 };
 
 /* The four bit VBI data type found in the embedded VBI data of an
@@ -325,6 +325,20 @@ struct ivtv_itvc_reg {
 	uint32_t val;
 };
 
+/** IOCTL argument structure to get settings from the CX25840 driver. This is from cx25840.h! */
+struct ivtv_cx25840_reg 
+{
+	/** Index of register if known. Otherwise -1 for unknown (on set). */
+	int	index;
+	/** Setting name. If settingIndex is known on set, this value is ignored. */
+	char	name[ 80 ];
+	/** Setting value. */
+	int	value;
+	/** Value description (for get). */
+	char	description[ 120 ];
+};
+
+
 struct ivtv_msp_matrix {
 	int input;
 	int output;
@@ -379,6 +393,8 @@ struct ivtv_msp_matrix {
 #define IVTV_IOC_S_MSP_MATRIX      _IOW ('@', 210, struct ivtv_msp_matrix)
 #define IVTV_IOC_G_ITVC_REG        _IOWR('@', 211, struct ivtv_itvc_reg)
 #define IVTV_IOC_S_ITVC_REG        _IOW ('@', 212, struct ivtv_itvc_reg)
+#define IVTV_IOC_G_CX25840_REG     _IOWR('@', 213, struct ivtv_cx25840_reg)
+#define IVTV_IOC_S_CX25840_REG     _IOW ('@', 214, struct ivtv_cx25840_reg)
 
 #endif
 

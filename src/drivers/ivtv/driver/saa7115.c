@@ -230,7 +230,8 @@ static const unsigned char cfg_saa7115_NTSC_video[] = {
 	0x17, 0x9C, // VGATE MSB and other values
 
 	0x08, 0x68, // 0xBO: auto detection, 0x68 = NTSC
-	0x0E, 0x09, // lots of different stuff... video autodetection is on
+//	0x0E, 0x09, // lots of different stuff... video autodetection is on
+	0x0E, 0x07, // lots of different stuff... video autodetection is on
 	
 	0x5A, 0x06, // Vertical offset, standard NTSC value for ITU656 line counting
 
@@ -1052,15 +1053,15 @@ static int saa7115_command (struct i2c_client *client, unsigned int cmd, void *a
 			state->hue = pic->hue;
 			saa7115_write(client, 0x0d, state->hue);
 		}
-	}
 		break;
+	}
 	case DECODER_RESET:
 	{
 		dprintk(1, "decoder RESET ");
 
 		writeregs(client, cfg_saa7115_reset_scaler);
-	}
 		break;
+	}
 
 	default:
 		return -EINVAL;
@@ -1106,7 +1107,6 @@ static unsigned short normal_i2c_range[] = { I2C_CLIENT_END };
 
 I2C_CLIENT_INSMOD;
 
-static int saa7115_i2c_id = 0;
 struct i2c_driver i2c_driver_saa7115;
 
 static int
@@ -1135,9 +1135,7 @@ saa7115_detect_client (struct i2c_adapter *adapter,
 	client->adapter = adapter;
 	client->driver = &i2c_driver_saa7115;
 	client->flags = I2C_CLIENT_ALLOW_USE;
-	client->id = saa7115_i2c_id++;
-	snprintf(client->name, sizeof(client->name) - 1, "saa7115[%d]",
-		 client->id);
+	snprintf(client->name, sizeof(client->name), "saa7115");
 
 	state = kmalloc(sizeof(struct saa7115_state), GFP_KERNEL);
         i2c_set_clientdata(client, state); 

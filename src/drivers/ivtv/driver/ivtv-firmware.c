@@ -87,7 +87,10 @@ int ivtv_check_firmware(struct ivtv *itv)
 	enc_error = ivtv_check_enc_firmware(itv);
 
 	/* decoder - the function will return 0 if no decoder exists */
-	dec_error = ivtv_check_dec_firmware(itv);
+	if (itv->has_itvc15)
+		dec_error = ivtv_check_dec_firmware(itv);
+	else
+		dec_error = 0;
 
 	if (enc_error && dec_error)
 		return 3;
@@ -449,9 +452,8 @@ int ivtv_firmware_versions(struct ivtv *itv)
                 //itv->dma_cfg.dec_max_xfer       = 0x00020000;
                 //itv->dma_cfg.dec_min_xfer       = 0x00020000;;
         } else
-                IVTV_DEBUG(IVTV_DEBUG_ERR,
-                   "Encoder Firmware is buggy, use version 0x02040011\n");
-
+		IVTV_DEBUG(IVTV_DEBUG_ERR,
+                   "Encoder Firmware may be buggy, use version 0x02040011\n");
 
 	if (!itv->has_itvc15)
 		return 0;

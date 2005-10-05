@@ -31,6 +31,7 @@
   #define I2C_ADAP_CLASS_TV_ANALOG I2C_CLASS_TV_ANALOG
 #endif
 
+#define IVTV_CX25840_I2C_ADDR 		0x44
 #define IVTV_SAA7115_I2C_ADDR 		0x21
 #define IVTV_SAA7127_I2C_ADDR 		0x44
 #define IVTV_TDA9887_I2C_ADDR 		0x43 /* SECAM */
@@ -163,7 +164,6 @@ static struct i2c_algo_bit_data ivtv_i2c_algo_template = {
 
 static struct i2c_client ivtv_i2c_client_template = {
 	.name = "ivtv internal use only",
-	.id   = -1,
 };
 
 
@@ -171,6 +171,7 @@ static int ivtv_call_i2c_client(struct ivtv *itv, int addr, unsigned int cmd, vo
 {
 	struct i2c_client *client;
         int i;
+	int retval;
 
 	down(&itv->i2c_lock);
 
@@ -190,9 +191,9 @@ static int ivtv_call_i2c_client(struct ivtv *itv, int addr, unsigned int cmd, vo
                 if (addr == client->addr) {
 			IVTV_DEBUG(IVTV_DEBUG_I2C,
 				   "using client %d, addr 0x%02x\n", i, (u8)addr);
-                	client->driver->command(client, cmd, arg);
+                	retval= client->driver->command(client, cmd, arg);
 			up(&itv->i2c_lock);
-			return 0;
+			return retval;
 		}
 		IVTV_DEBUG(IVTV_DEBUG_I2C,
 			   "skipping client %d, addr 0x%02x\n", i, (u8)client->addr);
@@ -200,6 +201,53 @@ static int ivtv_call_i2c_client(struct ivtv *itv, int addr, unsigned int cmd, vo
 	IVTV_DEBUG(IVTV_DEBUG_ERR, "i2c client addr: 0x%02x not found!\n", (u8)addr);
 	up(&itv->i2c_lock);
 	return -ENODEV;
+}
+
+static int ivtv_call_i2c_client_by_id(struct ivtv *itv, int id, unsigned int cmd, void *arg)
+{
+	struct i2c_client *client;
+        int i;
+	int retval;
+
+	down(&itv->i2c_lock);
+
+	IVTV_DEBUG(IVTV_DEBUG_I2C, "call_i2c_client\n");
+        for (i = 0; i < I2C_CLIENTS_MAX; i++) {
+		client = itv->i2c_clients[i];
+                if (client == NULL) {
+			IVTV_DEBUG(IVTV_DEBUG_I2C, "no client %d found\n", i);
+                        continue;
+		}
+                if (client->driver == NULL) {
+                	IVTV_DEBUG(IVTV_DEBUG_I2C,
+				   "i2c client with no driver: "
+				   "0x%02x\n", (u8)client->addr);
+                        continue;
+		}
+                if (client->driver->command == NULL) {
+                	IVTV_DEBUG(IVTV_DEBUG_I2C,
+				   "i2c client with no command interface: "
+				   "0x%02x\n", (u8)client->addr);
+                        continue;
+		}
+                if (id == client->driver->id) {
+			IVTV_DEBUG(IVTV_DEBUG_I2C,
+				   "using client %d, addr 0x%02x, id 0x%02x\n", i, (u8)client->addr, (u8)id);
+                	retval= client->driver->command(client, cmd, arg);
+			up(&itv->i2c_lock);
+			return retval;
+		}
+		IVTV_DEBUG(IVTV_DEBUG_I2C,
+			   "skipping client %d, addr 0x%02x, id 0x%02x\n", i, (u8)client->addr, (u8)client->driver->id);
+        }
+	IVTV_DEBUG(IVTV_DEBUG_ERR, "i2c client id: 0x%02x not found!\n", (u8)id);
+	up(&itv->i2c_lock);
+	return -ENODEV;
+}
+
+int ivtv_cx25840(struct ivtv *itv, unsigned int cmd, void *arg)
+{
+	return ivtv_call_i2c_client(itv, IVTV_CX25840_I2C_ADDR, cmd, arg);
 }
 
 int ivtv_saa7115(struct ivtv *itv, unsigned int cmd, void *arg)
@@ -219,7 +267,8 @@ int ivtv_msp34xx(struct ivtv *itv, unsigned int cmd, void *arg)
 
 int ivtv_tuner(struct ivtv *itv, unsigned int cmd, void *arg)
 {
-	return ivtv_call_i2c_client(itv, itv->card->i2c_tuner_addr, cmd, arg);
+	//return ivtv_call_i2c_client(itv, itv->card->i2c_tuner_addr, cmd, arg);
+	return ivtv_call_i2c_client_by_id(itv, I2C_DRIVERID_TUNER, cmd, arg);
 }
 
 int ivtv_tda9887(struct ivtv *itv, unsigned int cmd, void *arg)

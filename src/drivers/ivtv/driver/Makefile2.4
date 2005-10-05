@@ -12,7 +12,8 @@ IVTVOBJS	= ivtv-driver.o ivtv-fileops.o ivtv-i2c.o ivtv-streams.o \
 			   ivtv-irq.o ivtv-mailbox.o ivtv-vbi.o ivtv-kthreads.o \
 			   ivtv-audio.o ivtv-ioctl.o ivtv-controls.o ivtv-video.o \
 			   ivtv-cards.o v4l1-compat.o ivtv-dma.o
-OBJS	= msp3400.o saa7115.o tveeprom.o ivtv.o saa7127.o
+CX2584OBJS	= cx25840-driver.o cx25840-registers.o
+OBJS	= msp3400.o saa7115.o cx25840.o wm8775.o tveeprom.o ivtv.o saa7127.o
 
 include $(KERNELDIR)/.config
 
@@ -32,6 +33,9 @@ prepfiles:
 	cp ../utils/videodev2.h .
 
 ivtv.o: $(IVTVOBJS)
+	$(LD) -r -o $@ $^
+
+cx25840.o: $(CX2584OBJS)
 	$(LD) -r -o $@ $^
 
 ivtv-fb.o: ivtv-osd.o ivtv-queue.o

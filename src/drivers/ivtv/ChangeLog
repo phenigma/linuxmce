@@ -1,6 +1,23 @@
 IVTV 0.2.0-rc changes:
 
-#0.3.0-rc3f - fixes to vbi.c util and CC, output clean formatted text,
+#0.2.0-rc3k - patch from Anduin Withers, fixes i2c changes in kernel.
+
+#0.2.0-rc3j - backport of pci setting to keep DMA errors from occuring.
+
+#0.2.0-rc3i - added patch for the pvr150/500 cards to work, this is not
+              going to allow development on 0.2.0, you must work on 0.3.0
+              and then backport to 0.2.0-rc in bulk, I won't patch this
+              version and not have a patch for 0.3.0, so be warned.
+
+#0.2.0-rc3h - added patch for kernel msp3400, and raised the mpeg buffers.
+
+#0.2.0-rc3g - fixes to vbi.c util and CC, output clean formatted text.
+            - fix to decoder write pos.
+            - patch for decoder pts stop.
+            - vbi patch.
+            - patch for init sighand spinlock.
+
+#0.2.0-rc3f - fixes to vbi.c util and CC, output clean formatted text,
           kindof :-).
             - fix x server binary, was not copied right 
 

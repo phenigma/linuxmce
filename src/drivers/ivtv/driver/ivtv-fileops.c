@@ -79,7 +79,11 @@ static int ivtv_check_digitizer_sync(struct ivtv *itv)
 
 	IVTV_DEBUG(IVTV_DEBUG_INFO, "Checking digitizer\n");
 
-	ret = ivtv_saa7115(itv, DECODER_GET_STATUS, &sig);
+        if ((itv->card->type == IVTV_CARD_PVR_150) || 
+        	(itv->card->type == IVTV_CARD_PG600))
+                ret = ivtv_cx25840(itv, DECODER_GET_STATUS, &sig);
+        else
+		ret = ivtv_saa7115(itv, DECODER_GET_STATUS, &sig);
 
 	if (ret) {
 		IVTV_DEBUG(IVTV_DEBUG_ERR,
@@ -101,7 +105,11 @@ static int ivtv_reset_digitizer(struct ivtv *itv)
 
         /* x is just a placeholder. It's unused */
         /* this just resets the scaler.. shouldn't need to re-do any settings */
-        ret = ivtv_saa7115(itv, DECODER_RESET, &x);
+        if ((itv->card->type == IVTV_CARD_PVR_150) ||
+        	(itv->card->type == IVTV_CARD_PG600))
+                ret = ivtv_cx25840(itv, DECODER_RESET, &x);
+        else
+        	ret = ivtv_saa7115(itv, DECODER_RESET, &x);
 
         return ret;
 }
@@ -1028,9 +1036,6 @@ ssize_t ivtv_v4l2_write(struct file *filp, const char *buf, size_t count, loff_t
 		bytes_written += ret;
 	}
 
-	if ((count - bytes_written) > 0)
-		*pos -= (count - bytes_written);
-
 	IVTV_DEBUG(IVTV_DEBUG_INFO, "DEC: returning %d\n", bytes_written);
 	return bytes_written ? bytes_written : ret;
 }
@@ -1343,7 +1348,11 @@ void mute_and_pause(struct ivtv *itv)
 
        	IVTV_DEBUG(IVTV_DEBUG_INFO, "Disabling digitizer\n");
        	dig = 0;
-	ivtv_saa7115(itv, DECODER_ENABLE_OUTPUT, &dig);
+        if ((itv->card->type == IVTV_CARD_PVR_150) ||
+        	(itv->card->type == IVTV_CARD_PG600))
+                ivtv_cx25840(itv, DECODER_ENABLE_OUTPUT, &dig);
+        else
+		ivtv_saa7115(itv, DECODER_ENABLE_OUTPUT, &dig);
 }
 
 void unmute_and_resume(struct ivtv *itv, int sleep)
@@ -1359,7 +1368,11 @@ void unmute_and_resume(struct ivtv *itv, int sleep)
 
 	IVTV_DEBUG(IVTV_DEBUG_INFO, "Enabling digitizer\n");
        	dig = 1;
-       	ivtv_saa7115(itv, DECODER_ENABLE_OUTPUT, &dig);
+        if ((itv->card->type == IVTV_CARD_PVR_150) ||
+        	(itv->card->type == IVTV_CARD_PG600))
+                ivtv_cx25840(itv, DECODER_ENABLE_OUTPUT, &dig);
+        else
+       		ivtv_saa7115(itv, DECODER_ENABLE_OUTPUT, &dig);
 
 	if (0 != ivtv_pause_encoder(itv, 1)) 
 		IVTV_DEBUG(IVTV_DEBUG_ERR, 
