@@ -182,9 +182,20 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
     m_dequeXMLItems.clear();
     GenerateXMLItems(m_pScreenHistory_Current->m_pObj);
     
+    int nCount = 1;
     deque<string>::iterator it;
     for(it = m_dequeXMLItems.begin(); it != m_dequeXMLItems.end(); it++)
+    {
+        if(nCount > 32)
+        {
+            g_pPlutoLogger->Write(LV_CRITICAL, "More then 32 objects needed! Screen: %s", 
+                m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str());
+            break;
+        }
+
         sXMLString += *it;
+        nCount++;
+    }
 
     sXMLString += "</CiscoIPPhoneGraphicFileMenu>\r\n";
 
@@ -193,21 +204,24 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void xxProxy_Orbiter::GenerateXMLItems(DesignObj_Orbiter *pObj) //recursive
 {
-    string sX1 = StringUtils::ltos(pObj->m_rPosition.X);
-    string sY1 = StringUtils::ltos(pObj->m_rPosition.Y);
-    string sX2 = StringUtils::ltos(pObj->m_rPosition.Right());
-    string sY2 = StringUtils::ltos(pObj->m_rPosition.Bottom());
+    if(pObj->m_ZoneList.size())
+    {
+        string sX1 = StringUtils::ltos(pObj->m_rPosition.X);
+        string sY1 = StringUtils::ltos(pObj->m_rPosition.Y);
+        string sX2 = StringUtils::ltos(pObj->m_rPosition.Right());
+        string sY2 = StringUtils::ltos(pObj->m_rPosition.Bottom());
 
-    string sTouchX = StringUtils::ltos(pObj->m_rPosition.X + pObj->m_rPosition.Width / 2);
-    string sTouchY = StringUtils::ltos(pObj->m_rPosition.Y + pObj->m_rPosition.Height / 2);
+        string sTouchX = StringUtils::ltos(pObj->m_rPosition.X + pObj->m_rPosition.Width / 2);
+        string sTouchY = StringUtils::ltos(pObj->m_rPosition.Y + pObj->m_rPosition.Height / 2);
 
-    string sXMLItem = 
-        "<MenuItem>\r\n"
-        "\t<Name>Button</Name>\r\n"
-        "\t<URL>" + m_sRequestUrl + "x=" + sTouchX + "&amp;" + "y=" + sTouchY + "</URL>\r\n"
-        "\t<TouchArea X1=\"" + sX1 + "\" Y1=\"" + sY1 + "\" X2=\"" + sX2 + "\" Y2=\"" + sY2 + "\"/>\r\n"
-        "</MenuItem>\r\n";
-    m_dequeXMLItems.push_back(sXMLItem);
+        string sXMLItem = 
+            "<MenuItem>\r\n"
+            "\t<Name>Button</Name>\r\n"
+            "\t<URL>" + m_sRequestUrl + "x=" + sTouchX + "&amp;" + "y=" + sTouchY + "</URL>\r\n"
+            "\t<TouchArea X1=\"" + sX1 + "\" Y1=\"" + sY1 + "\" X2=\"" + sX2 + "\" Y2=\"" + sY2 + "\"/>\r\n"
+            "</MenuItem>\r\n";
+        m_dequeXMLItems.push_back(sXMLItem);
+    }
 
     DesignObj_DataList::iterator it;
     for(it = pObj->m_ChildObjects.begin(); it != pObj->m_ChildObjects.end(); ++it)
