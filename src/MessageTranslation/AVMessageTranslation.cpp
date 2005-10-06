@@ -38,19 +38,32 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 	int IR_ModeDelay = 0;
 	int TogglePower = 0;
 	int ToggleInput = 0;
+	int DigitDelay = 0;
+	string sNumDigits;
 	long devtemplid = pTargetDev->m_dwPK_DeviceTemplate, devid = pTargetDev->m_dwPK_Device;
+	
 	if(map_ModeDelay.find(devtemplid) == map_ModeDelay.end())
 	{
 		DCEConfig dceconf;
 		MySqlHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort);
 		PlutoSqlResult result_set;
 		MYSQL_ROW row=NULL;
-		sprintf(sql_buff,"SELECT IR_ModeDelay, TogglePower, ToggleInput  FROM DeviceTemplate_AV WHERE FK_DeviceTemplate='%d'",devtemplid);
+		sprintf(sql_buff,"SELECT IR_ModeDelay, TogglePower, ToggleInput, DigitDelay, NumericEntry FROM DeviceTemplate_AV WHERE FK_DeviceTemplate='%d'",devtemplid);
 		if( (result_set.r=mySqlHelper.mysql_query_result(sql_buff)) && (row = mysql_fetch_row(result_set.r)) )
 		{
 			map_ModeDelay[devtemplid] = IR_ModeDelay = atoi(row[0]);
 			map_TogglePower[devtemplid] = TogglePower = atoi(row[1]);
 			map_ToggleInput[devtemplid] = ToggleInput = atoi(row[2]);
+			map_DigitDelay[devtemplid] = DigitDelay = atoi(row[3]);
+			if(row[1])
+			{
+				map_NumericEntry[devtemplid] = sNumDigits = row[4];
+			}
+			else
+			{
+				map_NumericEntry[devtemplid] = sNumDigits = "";
+			}
+			
 		}
 		else
 		{
@@ -62,6 +75,9 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 		IR_ModeDelay = map_ModeDelay[devtemplid];
 		TogglePower = map_TogglePower[devtemplid];
 		ToggleInput = map_ToggleInput[devtemplid];
+		DigitDelay = map_DigitDelay[devtemplid];
+		sNumDigits = map_NumericEntry[devtemplid];
+		
 	}
 	if (input_commands_.empty())
 	{
@@ -342,7 +358,60 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 		*/
 		/**/
 		return false;
-	}	
+	}
+	/********************************************************************************************************
+	COMMAND_Tune_to_channel_CONST
+	********************************************************************************************************/
+	if( pmsg->m_dwID == COMMAND_Tune_to_channel_CONST) {
+		static const int DigitCmd[] = { COMMAND_0_CONST, COMMAND_1_CONST, COMMAND_2_CONST, COMMAND_3_CONST, COMMAND_4_CONST,
+			COMMAND_5_CONST, COMMAND_6_CONST, COMMAND_7_CONST, COMMAND_8_CONST, COMMAND_9_CONST };
+
+		long ChannelNumber = atoi(pmsg->m_mapParameters[COMMANDPARAMETER_ProgramID_CONST].c_str());
+					
+		long NumDigits = 3;
+		bool bSendEnter = false;
+
+		if (sNumDigits.size()) {
+			string::size_type pos = 0;
+	
+			NumDigits = atoi(StringUtils::Tokenize(sNumDigits, ",", pos).c_str());
+			string tok = StringUtils::ToUpper(StringUtils::Tokenize(sNumDigits, ",", pos));
+	
+			bSendEnter = (tok=="E" || tok=="e");
+		} else {
+			g_pPlutoLogger->Write(LV_WARNING, "Device id %ld has no number digits parameter.  Assuming 3 and no enter.\n", devid);
+		}
+		
+		long TotalDigits = StringUtils::ltos(ChannelNumber).length();
+		if (NumDigits < TotalDigits) {
+			if (NumDigits > 0) {
+				g_pPlutoLogger->Write(LV_WARNING, "Warning, number of digits specified as %d but channel is %d!", NumDigits, ChannelNumber);
+			}
+			NumDigits = TotalDigits;
+		}
+		for(long i = NumDigits; i>0; i--) {
+			unsigned char digit = (ChannelNumber % (long) pow((double) 10, (double) i)) / (long) pow((double) 10, (double) (i-1));
+			g_pPlutoLogger->Write(LV_STATUS, "Sending digit %d...", digit);
+
+			MessageReplicator msgrepl(
+				Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
+								PRIORITY_NORMAL, MESSAGETYPE_COMMAND,
+								DigitCmd[digit], 0),
+						1, DigitDelay);
+			outrepls.push_back(msgrepl);
+		}
+		if(bSendEnter) {
+			g_pPlutoLogger->Write(LV_STATUS, "Sending <enter>...");
+			MessageReplicator msgrepl(
+				Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
+								PRIORITY_NORMAL, MESSAGETYPE_COMMAND,
+								COMMAND_Send_Generic_EnterGo_CONST, 0),
+						1, DigitDelay);
+			outrepls.push_back(msgrepl);
+		}
+		return true;
+	} 
+	
 	g_pPlutoLogger->Write(LV_STATUS,"AVMessageTranslator::Translate end");
 	
 	return false;

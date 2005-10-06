@@ -30,6 +30,8 @@ private:
 	std::map<int,int> map_ModeDelay;
 	std::map<int,int> map_TogglePower;
 	std::map<int,int> map_ToggleInput;
+	std::map<int, int> map_DigitDelay;
+	std::map<int, string> map_NumericEntry;
 };
 
 class AVMessageDispatcher : public DefaultMessageDispatcher {
