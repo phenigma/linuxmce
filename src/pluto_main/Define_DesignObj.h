@@ -1599,7 +1599,15 @@
 #define DESIGNOBJ_butDatagridLeft_CONST 4391
 #define DESIGNOBJ_butDatagridRight_CONST 4392
 #define DESIGNOBJ_grpSmallDatagrid_Scroll_CONST 4393
-#define DESIGNOBJ_butRandomPlay_CONST 4394
+#define DESIGNOBJ_butBookmarkTV_CONST 4394
+#define DESIGNOBJ_butPVROSD_CONST 4395
+#define DESIGNOBJ_mnuCreateViewBookmarksTV_CONST 4396
+#define DESIGNOBJ_objBackToRemote_CONST 4397
+#define DESIGNOBJ_butBookmarkChannel_CONST 4398
+#define DESIGNOBJ_butBookmarkProgram_CONST 4399
+#define DESIGNOBJ_butDeleteTVBookmark_CONST 4400
+#define DESIGNOBJ_dgEPG3_CONST 4401
+#define DESIGNOBJ_butRandomPlay_CONST 4402
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
