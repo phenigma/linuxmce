@@ -34,7 +34,6 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 		g_pPlutoLogger->Write(LV_WARNING, "Target Device %d Not Found.", inrepl.getMessage().m_dwPK_Device_To);
 		return false;
 	}
-
 	int IR_ModeDelay = 0;
 	int TogglePower = 0;
 	int ToggleInput = 0;
@@ -63,7 +62,6 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 			{
 				map_NumericEntry[devtemplid] = sNumDigits = "";
 			}
-			
 		}
 		else
 		{
@@ -77,7 +75,6 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 		ToggleInput = map_ToggleInput[devtemplid];
 		DigitDelay = map_DigitDelay[devtemplid];
 		sNumDigits = map_NumericEntry[devtemplid];
-		
 	}
 	if (input_commands_.empty())
 	{
@@ -123,7 +120,6 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 	
 	if((TogglePower == 1) && ((pmsg->m_dwID == COMMAND_Generic_On_CONST) || (pmsg->m_dwID == COMMAND_Generic_Off_CONST)))
 	{	
-
 		if((laststatus_power_[devid] && (pmsg->m_dwID == COMMAND_Generic_Off_CONST)) ||
 		   (!laststatus_power_[devid] && (pmsg->m_dwID == COMMAND_Generic_On_CONST)))
 		{
@@ -363,14 +359,17 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 	COMMAND_Tune_to_channel_CONST
 	********************************************************************************************************/
 	if( pmsg->m_dwID == COMMAND_Tune_to_channel_CONST) {
+		if(sNumDigits=="X") /* Send AS IS if you need so */
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "Tune to channel will be sent untranslated");
+			return false;
+		}
 		static const int DigitCmd[] = { COMMAND_0_CONST, COMMAND_1_CONST, COMMAND_2_CONST, COMMAND_3_CONST, COMMAND_4_CONST,
 			COMMAND_5_CONST, COMMAND_6_CONST, COMMAND_7_CONST, COMMAND_8_CONST, COMMAND_9_CONST };
 
 		long ChannelNumber = atoi(pmsg->m_mapParameters[COMMANDPARAMETER_ProgramID_CONST].c_str());
-					
 		long NumDigits = 3;
 		bool bSendEnter = false;
-
 		if (sNumDigits.size()) {
 			string::size_type pos = 0;
 	
