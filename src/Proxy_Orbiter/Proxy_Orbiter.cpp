@@ -204,7 +204,7 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void xxProxy_Orbiter::GenerateXMLItems(DesignObj_Orbiter *pObj) //recursive
 {
-    if(pObj->m_ZoneList.size())
+    if(pObj->m_bTabStop)
     {
         string sX1 = StringUtils::ltos(pObj->m_rPosition.X);
         string sY1 = StringUtils::ltos(pObj->m_rPosition.Y);
