@@ -1966,7 +1966,14 @@ void Orbiter_Plugin::SendAppToPhone(OH_Orbiter *pOH_Orbiter,DeviceData_Base *pDe
     if(IdentifyDevice(sMacAddress, sDeviceCategoryDesc, iPK_DeviceTemplate, sManufacturerDesc))
     {
         static const string csMacToken = "<mac>";
+if( !iPK_DeviceTemplate && pOH_Orbiter )  // todo HACK TODO this makes no sense
+iPK_DeviceTemplate = pOH_Orbiter->m_pDeviceData_Router->m_dwPK_DeviceTemplate;
         Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(iPK_DeviceTemplate);
+if( !pRow_DeviceTemplate )
+{
+g_pPlutoLogger->Write(LV_CRITICAL,"Orbiter_Plugin::SendAppToPhone no dt");
+return;
+}
         string sPlutoMOInstallCmdLine = pRow_DeviceTemplate->Comments_get();
         sPlutoMOInstallCmdLine = StringUtils::Replace(sPlutoMOInstallCmdLine, csMacToken, sMacAddress);
 
