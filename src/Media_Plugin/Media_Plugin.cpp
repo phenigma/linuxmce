@@ -2453,13 +2453,16 @@ void Media_Plugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string 
         return;
     }
 
-	DeviceData_Router *pDeviceData_Router = m_pRouter->m_mapDeviceData_Router_Find(pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl->m_pData->m_dwPK_Device);
-	if( pDeviceData_Router && pDeviceData_Router->m_mapCommands.find(pMessage->m_dwID)!=pDeviceData_Router->m_mapCommands.end() )
+	if( pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl->m_pData->m_dwPK_Device!=m_dwPK_Device )
 	{
-		// The plugin has it's own method for handling this.  Give it the message instead
-		pMessage->m_dwPK_Device_To=pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl->m_dwPK_Device;
-		pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl->ReceivedMessage(pMessage);
-		return;
+		DeviceData_Router *pDeviceData_Router = m_pRouter->m_mapDeviceData_Router_Find(pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl->m_pData->m_dwPK_Device);
+		if( pDeviceData_Router && pDeviceData_Router->m_mapCommands.find(pMessage->m_dwID)!=pDeviceData_Router->m_mapCommands.end() )
+		{
+			// The plugin has it's own method for handling this.  Give it the message instead
+			pMessage->m_dwPK_Device_To=pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl->m_dwPK_Device;
+			pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl->ReceivedMessage(pMessage);
+			return;
+		}
 	}
 
 	if( sValue_To_Assign.find("CHAPTER:")!=string::npos || sValue_To_Assign.find("POS:")!=string::npos )
@@ -4361,6 +4364,12 @@ class DataGridTable *Media_Plugin::Bookmarks( string GridID, string Parms, void 
 		}
 	}
 
+	if( sWhere.size()==0 )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::Bookmarks no where clause %s",Parms.c_str());
+		return pDataGrid;
+	}
+
 	vector<Row_Bookmark *> vectRow_Bookmark;
 	m_pDatabase_pluto_media->Bookmark_get()->GetRows(sWhere,&vectRow_Bookmark);
 
@@ -4418,9 +4427,15 @@ class DataGridTable *Media_Plugin::Bookmarks( string GridID, string Parms, void 
         }
         else
         {
-            string sItem = m_pDatabase_pluto_media->File_get()->GetRow(pRow_Bookmark->FK_File_get())->Filename_get() +  
-                "\n" + pRow_Bookmark->Description_get();
-            DataGridCell *pDataGridCell = pDataGridCell = new DataGridCell(sItem, 
+            Row_File *pRow_File = pRow_Bookmark->FK_File_getrow();
+            string sItem;
+			if( pRow_File )
+				sItem = pRow_File->Filename_get() +  
+	                "\n" + pRow_Bookmark->Description_get();
+			else
+				sItem = pRow_Bookmark->Description_get();
+
+			DataGridCell *pDataGridCell = pDataGridCell = new DataGridCell(sItem, 
                 StringUtils::itos(pRow_Bookmark->PK_Bookmark_get()));
             pDataGrid->SetData(0,s,pDataGridCell);
         }
@@ -4493,13 +4508,16 @@ void Media_Plugin::CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea,st
 	if( !pEntertainArea || !pEntertainArea->m_pMediaStream )
 		return;  // Shouldn't happen
 
-	DeviceData_Router *pDeviceData_Router = m_pRouter->m_mapDeviceData_Router_Find(pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl->m_pData->m_dwPK_Device);
-	if( pDeviceData_Router && pDeviceData_Router->m_mapCommands.find(pMessage->m_dwID)!=pDeviceData_Router->m_mapCommands.end() )
+	if( pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl->m_pData->m_dwPK_Device!=m_dwPK_Device )
 	{
-		// The plugin has it's own method for handling this.  Give it the message instead
-		pMessage->m_dwPK_Device_To=pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl->m_dwPK_Device;
-		pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl->ReceivedMessage(pMessage);
-		return;
+		DeviceData_Router *pDeviceData_Router = m_pRouter->m_mapDeviceData_Router_Find(pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl->m_pData->m_dwPK_Device);
+		if( pDeviceData_Router && pDeviceData_Router->m_mapCommands.find(pMessage->m_dwID)!=pDeviceData_Router->m_mapCommands.end() )
+		{
+			// The plugin has it's own method for handling this.  Give it the message instead
+			pMessage->m_dwPK_Device_To=pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl->m_dwPK_Device;
+			pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl->ReceivedMessage(pMessage);
+			return;
+		}
 	}
 
 	MediaStream *pMediaStream = pEntertainArea->m_pMediaStream;

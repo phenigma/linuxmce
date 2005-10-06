@@ -71,7 +71,12 @@ RubyDCECodeSupplier::addCode(Command_Impl *pcmdimpl, DeviceData_Impl* pdevicedat
 	int iSize = 0; char* pData = NULL; // Place holders for the 'out' parameter
 	DCE::CMD_Get_Infrared_Codes_DT CMD_Get_Infrared_Codes_DT(devid, DEVICETEMPLATE_Infrared_Plugin_CONST,
 				BL_SameHouse, devid, &pData, &iSize);
-	pcmdimpl->SendCommand(CMD_Get_Infrared_Codes_DT);  // Get the codes from I/R Plugin
+	if( !pcmdimpl->SendCommand(CMD_Get_Infrared_Codes_DT) || !iSize || !pData )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "I/R Plugin has no codes for us");
+		delete pData;
+		return;
+	}
 	irDevice.SerializeRead(iSize, pData); // De-serialize the data
 	
 	g_pPlutoLogger->Write(LV_STATUS, "Fetched %d commands...", irDevice.m_mapCodes.size());
