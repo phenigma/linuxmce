@@ -95,98 +95,13 @@ bool IRBase::Translate(MessageReplicator& inrepl, MessageReplicatorList& outrepl
 		return false;
 	}
 	
-	long devtemplid = pTargetDev->m_dwPK_DeviceTemplate, devid = pTargetDev->m_dwPK_Device;
-	static char sql_buff[1024];
-	int DigitDelay = 0;
-	string sNumDigits;
-	if(map_DigitDelay.find(devtemplid) == map_DigitDelay.end())
-	{
-		DCEConfig dceconf;
-		MySqlHelper mySqlHelper(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword, dceconf.m_sDBName,dceconf.m_iDBPort);
-		PlutoSqlResult result_set;
-		MYSQL_ROW row=NULL;
-		sprintf(sql_buff,"SELECT DigitDelay, NumericEntry FROM DeviceTemplate_AV WHERE FK_DeviceTemplate='%d'",devtemplid);
-		if( (result_set.r=mySqlHelper.mysql_query_result(sql_buff)) && (row = mysql_fetch_row(result_set.r)) )
-		{
-			map_DigitDelay[devtemplid] = DigitDelay = atoi(row[0]);
-			if(row[1])
-			{
-				map_NumericEntry[devtemplid] = sNumDigits = row[1];
-			}
-			else
-			{
-				map_NumericEntry[devtemplid] = sNumDigits = "";
-			}
-		}
-		else
-		{
-			g_pPlutoLogger->Write(LV_STATUS, "Device has no AV properties");
-		}
-	}
-	else
-	{
-		DigitDelay = map_DigitDelay[devtemplid];
-		sNumDigits = map_NumericEntry[devtemplid];
-	}
+	long devid = pTargetDev->m_dwPK_Device;
 
 	/********************************************************************************************************
 	COMMAND_Send_Code_CONST
 	********************************************************************************************************/
 	if(pmsg->m_dwID == COMMAND_Send_Code_CONST) {
 		outrepls.push_back(inrepl);
-		return true;
-	} else
-	/********************************************************************************************************
-	COMMAND_Tune_to_channel_CONST
-	********************************************************************************************************/
-	if( pmsg->m_dwID == COMMAND_Tune_to_channel_CONST) {
-		//AddChannelChangeToQueue(atoi(pmsg->m_mapParameters[COMMANDPARAMETER_ProgramID_CONST].c_str()), TargetDevice);
-		static const int DigitCmd[] = { COMMAND_0_CONST, COMMAND_1_CONST, COMMAND_2_CONST, COMMAND_3_CONST, COMMAND_4_CONST,
-			COMMAND_5_CONST, COMMAND_6_CONST, COMMAND_7_CONST, COMMAND_8_CONST, COMMAND_9_CONST };
-
-		long ChannelNumber = atoi(pmsg->m_mapParameters[COMMANDPARAMETER_ProgramID_CONST].c_str());
-					
-		long NumDigits = 3;
-		bool bSendEnter = false;
-
-		if (sNumDigits.size()) {
-			string::size_type pos = 0;
-	
-			NumDigits = atoi(StringUtils::Tokenize(sNumDigits, ",", pos).c_str());
-			string tok = StringUtils::ToUpper(StringUtils::Tokenize(sNumDigits, ",", pos));
-	
-			bSendEnter = (tok=="E" || tok=="e");
-		} else {
-			g_pPlutoLogger->Write(LV_WARNING, "Device id %ld has no number digits parameter.  Assuming 3 and no enter.\n", devid);
-		}
-		
-		long TotalDigits = StringUtils::ltos(ChannelNumber).length();
-		if (NumDigits < TotalDigits) {
-			if (NumDigits > 0) {
-				g_pPlutoLogger->Write(LV_WARNING, "Warning, number of digits specified as %d but channel is %d!", NumDigits, ChannelNumber);
-			}
-			NumDigits = TotalDigits;
-		}
-		for(long i = NumDigits; i>0; i--) {
-			unsigned char digit = (ChannelNumber % (long) pow((double) 10, (double) i)) / (long) pow((double) 10, (double) (i-1));
-			g_pPlutoLogger->Write(LV_STATUS, "Sending digit %d...", digit);
-
-			MessageReplicator msgrepl(
-				Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
-								PRIORITY_NORMAL, MESSAGETYPE_COMMAND,
-								DigitCmd[digit], 0),
-						1, DigitDelay);
-			outrepls.push_back(msgrepl);
-		}
-		if(bSendEnter) {
-			g_pPlutoLogger->Write(LV_STATUS, "Sending <enter>...");
-			MessageReplicator msgrepl(
-				Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
-								PRIORITY_NORMAL, MESSAGETYPE_COMMAND,
-								COMMAND_Send_Generic_EnterGo_CONST, 0),
-						1, DigitDelay);
-			outrepls.push_back(msgrepl);
-		}
 		return true;
 	} 
 	
