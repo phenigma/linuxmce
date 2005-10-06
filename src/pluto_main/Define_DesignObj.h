@@ -1599,6 +1599,7 @@
 #define DESIGNOBJ_butDatagridLeft_CONST 4391
 #define DESIGNOBJ_butDatagridRight_CONST 4392
 #define DESIGNOBJ_grpSmallDatagrid_Scroll_CONST 4393
+#define DESIGNOBJ_butRandomPlay_CONST 4394
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
