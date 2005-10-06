@@ -61,6 +61,9 @@ public:
 	int addDevice(Command_Impl* pcmdimpl, DeviceData_Impl* pdevdata);
 	int removeDevice(DeviceData_Impl* pdevdata);
 	bool hasDevice(DeviceData_Base* pdevdata);
+	RubyDCECodeSupplier getCodeSupplier() {
+		return cs_;
+	}
 	
 public:
 	int RouteMessage(DeviceData_Base* pdevdata, Message *pMessage);
