@@ -54,7 +54,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 			map_TogglePower[devtemplid] = TogglePower = atoi(row[1]);
 			map_ToggleInput[devtemplid] = ToggleInput = atoi(row[2]);
 			map_DigitDelay[devtemplid] = DigitDelay = atoi(row[3]);
-			if(row[1])
+			if(row[4])
 			{
 				map_NumericEntry[devtemplid] = sNumDigits = row[4];
 			}
