@@ -34,7 +34,7 @@ Ask()
 
 NewDev()
 {
-	NewDev "$@" | tail -1
+	/usr/pluto/bin/CreateDevice "$@" | tail -1
 }
 
 # Ask the questions
