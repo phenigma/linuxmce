@@ -406,83 +406,6 @@
 					</table>
 					</fieldset>
 				</td>
-				</tr>
-
-				<tr>
-					<td valign="top" colspan="2"><hr /></td>
-				</tr>
-				<tr>
-					<td valign="top" colspan="2"><a name="infrared_link"></a>				
-						<fieldset>
-		            		<legend>Infrared Groups</legend>
-								<table>				
-				';
-
-				$queryIGNonDelete='
-					SELECT PK_InfraredGroup,FK_DeviceCategory,InfraredGroup.Description 
-					FROM InfraredGroup 
-					WHERE FK_Manufacturer=? AND FK_DeviceCategory=?
-					ORDER BY Description ASC';
-				$resIGNonDelete=$publicADO->Execute($queryIGNonDelete,array($manufacturerID,$deviceCategID));
-				
-				$queryCheckedIG = "SELECT InfraredGroup.* FROM InfraredGroup
-								INNER JOIN DeviceTemplate_InfraredGroup on FK_InfraredGroup = PK_InfraredGroup
-							WHERE 
-								FK_DeviceTemplate='$deviceID'
-								ORDER BY InfraredGroup.Description Asc
-				";
-				$resCheckedIG = $publicADO->_Execute($queryCheckedIG);
-				
-				$infraredGroupsDisplayed = array();
-				if ($resCheckedIG) {
-					$checkedIGArray=array();
-					while ($row = $resCheckedIG->FetchRow()) {
-						$checkedIGArray[]=$row['PK_InfraredGroup'];
-					}
-					
-					$categIGArray=array();
-					while ($rowCategIG = $resIGNonDelete->FetchRow()) {
-						$categIGArray[]=$rowCategIG['PK_InfraredGroup'];
-						$out.='<tr>
-								<td>
-									<input type="checkbox" name="InfraredGroup_'.$rowCategIG['PK_InfraredGroup'].'" value="1" '.((in_array($rowCategIG['PK_InfraredGroup'],$checkedIGArray))?'checked':'').' onClick="document.editMasterDevice.submit();">'.stripslashes($rowCategIG['Description']).' #'.$rowCategIG['PK_InfraredGroup'].' (by category and manufacturer)
-								</td>
-								<td>
-									<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=irCodes&from=editMasterDevice&dtID='.$deviceID.'&infraredGroupID='.$rowCategIG['PK_InfraredGroup'].'\',\'width=800,height=600,toolbars=true,resizable=1,scrollbars=yes\');">Edit Infrared Commands</a>								
-								</td>
-							  </tr>';
-						$infraredGroupsDisplayed[]=$rowCategIG['PK_InfraredGroup'];
-					}					
-					
-					
-					$resCheckedIG->MoveFirst();
-					while ($row = $resCheckedIG->FetchRow()) {
-						if(!in_array($row['PK_InfraredGroup'],$categIGArray)){
-							$out.='<tr>
-									<td>
-										<input type="checkbox" name="InfraredGroup_'.$row['PK_InfraredGroup'].'" value="1" checked onClick="document.editMasterDevice.submit();">'.stripslashes($row['Description']).' #'.$row['PK_InfraredGroup'].'
-									</td>
-									<td>
-										<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editInfraredGroupFromMasterDevice&from=editMasterDevice&deviceID='.$deviceID.'&infraredGroupID='.$row['PK_InfraredGroup'].'\',\'width=800,height=600,toolbars=true,resizable=1,scrollbars=yes\');">Edit Infrared Commands</a>								
-									</td>
-								  </tr>';
-							$infraredGroupsDisplayed[]=$row['PK_InfraredGroup'];
-						}
-					}					
-				}
-
-				$out.='
-						<input type="hidden" name="InfraredGroupDisplayed" value="'.(join(",",$infraredGroupsDisplayed)).'">					
-						<tr>
-							<td>'.(isset($_GET['irerror'])?'<b>'.$_GET['irerror'].'</b><br>':'').'
-								<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addInfraredGroup&from=editMasterDevice\',\'width=550,height=300,toolbars=true\');">Create Infrared Group</a>&nbsp;&nbsp;&nbsp;&nbsp;
-								Manually add infrared group 
-								<input type="text" name="addNewInfraredGroupToMasterDevice" value=""> <input type="submit" class="button" name="submitX" value="Add" '.(@(int)$_SESSION['userID']!=$userID?' mdisabled="mdisabled" ':'').'>
-							</td>
-						</tr>
-					</table>
-					</fieldset>
-				</td>
 				</tr>';
 				
 				
@@ -859,56 +782,7 @@
 			$publicADO->Execute($query);
 		}
 
-		// Infrared Group process
-		$usedInfrared = cleanString($_POST['InfraredGroupDisplayed']);		
-		$usedInfraredArray = explode(",",$usedInfrared);
-		
-		
-		foreach ($usedInfraredArray as $param) {
-			$queryForInfraredGroup='';
-			$param=(int)$param;
-			$InfraredGroup = cleanInteger(@$_POST['InfraredGroup_'.$param]);
-				//$publicADO->debug=true;
-				$getOldValues = "select FK_DeviceTemplate  
-								 FROM DeviceTemplate_InfraredGroup WHERE FK_DeviceTemplate = $deviceID and FK_InfraredGroup = $param";
-				
-				$resOldValuesData = $publicADO->Execute($getOldValues);
-				
-				if ($resOldValuesData && $resOldValuesData->RecordCount()==1) {					
-					if ($InfraredGroup==0) {
-						$queryForInfraredGroup = "DELETE FROM DeviceTemplate_InfraredGroup where FK_DeviceTemplate = $deviceID and FK_InfraredGroup = $param";
-						$publicADO->Execute($queryForInfraredGroup);
-						$locationGoTo = "#infrared_link";
-					} else {
-						//nothing: is in database, and it comes selected
-					}
-				} else {
-					//insert record in database
-						if ($InfraredGroup==1) {
-								$queryForInfraredGroup = "insert into DeviceTemplate_InfraredGroup(FK_InfraredGroup,FK_DeviceTemplate) values(?,?)";
-								$publicADO->Execute($queryForInfraredGroup,array($param,$deviceID));
-								$locationGoTo = "#infrared_link";								
-						}
-				}				
-		//$publicADO->debug=false;
-				
-		}
 
-		//new infrared group added: addNewInfraredGroupToMasterDevice
-		$addNewInfraredGroupToMasterDevice = (int)@$_POST['addNewInfraredGroupToMasterDevice'];
-		$query='SELECT * FROM DeviceTemplate_InfraredGroup WHERE FK_DeviceTemplate=? AND FK_InfraredGroup=?';
-		$resInfraredGroupDeviceTemplate=$publicADO->Execute($query,array($deviceID,$addNewInfraredGroupToMasterDevice));
-		if($resInfraredGroupDeviceTemplate->RecordCount()!=0){
-			header("Location: index.php?section=editMasterDevice&model=$deviceID&irerror=Infrared Group already exists!");
-			exit();
-		}
-		if ($addNewInfraredGroupToMasterDevice!=0) {
-			$query = "insert into DeviceTemplate_InfraredGroup (FK_DeviceTemplate , FK_InfraredGroup)
-					values ($deviceID,$addNewInfraredGroupToMasterDevice)";
-			$publicADO->Execute($query);
-		}
-
-		
 		//newEventToMasterDevice
 		$newEventToMasterDevice = (int)$_POST['newEventToMasterDevice'];
 		if ($newEventToMasterDevice!=0) {
