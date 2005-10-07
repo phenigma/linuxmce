@@ -114,15 +114,6 @@ awk '/Name: debconf\/frontend/,/^$/ {if ($1 == "Value:") print "Value: Nonintera
         {print}' /var/cache/debconf/config.dat > /var/cache/debconf/config.dat.$$
 mv /var/cache/debconf/config.dat{.$$,}
 
-# Start Pluto
-StartNow=$(Ask "Reboot? [y/N]")
-if [[ "$StartNow" == "y" || "$StartNow" == "Y" ]]; then
-	reboot
-else
-	/etc/init.d/Startup_Scripts.sh start
-fi
-
-exit 0
 # /Temp code
 
 # router/diskless
