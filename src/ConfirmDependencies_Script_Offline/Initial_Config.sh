@@ -33,8 +33,9 @@ fi
 Ask()
 {
 	local Msg="$1"
-	echo "$Msg: "
+	echo -n "$Msg: " >/dev/tty
 	read Answer
+	echo "$Answer"
 }
 
 . /usr/pluto/bin/Config_Ops.sh
@@ -161,6 +162,7 @@ awk '/Name: debconf\/frontend/,/^$/ {if ($1 == "Value:") print "Value: Nonintera
         {print}' /var/cache/debconf/config.dat > /var/cache/debconf/config.dat.$$
 mv /var/cache/debconf/config.dat{.$$,}
 
+exit
 # /Temp code
 
 # router/diskless
