@@ -2951,7 +2951,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 			m_pLocationInfo = m_pLocationInfo_Initial;
 			m_dwPK_Users = m_dwPK_Users_Default;
 
-			if( false ) // put this BACK TODO - HACK m_bIsOSD )
+			if( m_bIsOSD )
 			{
 				time_t tTimeout=time(NULL) + 20; // Wait 20 seconds for child devices to register
 				map<int,bool> mapUnregisteredRelatives;
