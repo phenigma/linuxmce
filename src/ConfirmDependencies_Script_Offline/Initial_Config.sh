@@ -33,7 +33,7 @@ fi
 Ask()
 {
 	local Msg="$1"
-	echo -n "$Msg: "
+	echo "$Msg: "
 	read Answer
 }
 
@@ -73,7 +73,7 @@ RunSQL "$Q"
 
 # Add Core
 CoreDev=$(/usr/pluto/bin/CreateDevice -d 7)
-Q="UPDATE Device SET Description='CORE', Room=1 WHERE PK_Device='$CoreDev'"
+Q="UPDATE Device SET Description='CORE', FK_Room=1 WHERE PK_Device='$CoreDev'"
 RunSQL "$Q"
 
 # Add Core options
@@ -88,7 +88,7 @@ done
 Type=$(Ask "Core or Hybrid? [C/h]")
 if [[ "$Type" == "H" || "$Type" == "h" ]]; then
 	HybDev=$(/usr/pluto/bin/CreateDevice -d 28)
-	Q="UPDATE Device SET Description='The core/hybrid', Room=1 WHERE PK_Device='$HybDev'"
+	Q="UPDATE Device SET Description='The core/hybrid', FK_Room=1 WHERE PK_Device='$HybDev'"
 	RunSQL "$Q"
 
 	# Add hybrid options
