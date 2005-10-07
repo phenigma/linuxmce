@@ -32,6 +32,11 @@ Ask()
 	echo "$Answer"
 }
 
+NewDev()
+{
+	NewDev "$@" | tail -1
+}
+
 # Ask the questions
 Username=$(Ask "Pluto Username")
 Password=$(Ask "Pluto Password")
@@ -79,7 +84,7 @@ Q="INSERT INTO Room(FK_Installation, FK_RoomType, Description)
 RunSQL "$Q"
 
 # Add Core
-CoreDev=$(/usr/pluto/bin/CreateDevice -d 7)
+CoreDev=$(NewDev -d 7)
 Q="UPDATE Device SET Description='CORE', FK_Room=1 WHERE PK_Device='$CoreDev'"
 RunSQL "$Q"
 
@@ -88,12 +93,12 @@ Q='SELECT FK_DeviceTemplate FROM InstallWizard WHERE `Default`=1 AND Step=5'
 R=$(RunSQL "$Q")
 
 for DevT in $R; do
-	Dev=$(/usr/pluto/bin/CreateDevice -d "$DevT")
+	Dev=$(NewDev -d "$DevT")
 done
 
 # Create hybrid
 if [[ "$Type" == "H" || "$Type" == "h" ]]; then
-	HybDev=$(/usr/pluto/bin/CreateDevice -d 28 -C "$CoreDev")
+	HybDev=$(NewDev -d 28 -C "$CoreDev")
 	Q="UPDATE Device SET Description='The core/hybrid', FK_Room=1 WHERE PK_Device='$HybDev'"
 	RunSQL "$Q"
 
@@ -102,7 +107,7 @@ if [[ "$Type" == "H" || "$Type" == "h" ]]; then
 	R=$(RunSQL "$Q")
 
 	for DevT in $R; do
-		Dev=$(/usr/pluto/bin/CreateDevice -d "$DevT")
+		Dev=$(NewDev -d "$DevT")
 	done
 fi
 
