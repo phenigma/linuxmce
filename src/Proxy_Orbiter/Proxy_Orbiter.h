@@ -52,6 +52,7 @@ namespace DCE
         virtual void Run();
         virtual void SaveXML(string sFileName);
         virtual void GenerateXMLItems(DesignObj_Orbiter *pObj); //recursive
+        virtual string GenerateSoftKeys(DesignObj_Orbiter *pObj);
 	};
 }
 //-----------------------------------------------------------------------------------------------------

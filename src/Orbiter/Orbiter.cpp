@@ -8542,13 +8542,15 @@ void Orbiter::RenderShortcut(DesignObj_Orbiter *pObj)
         PlutoPoint AbsPos = NULL != m_pActivePopup ? m_pActivePopup->m_Position : PlutoPoint(0, 0);
         PlutoPoint textPos(AbsPos.X + pObj->m_rPosition.X + 5, AbsPos.Y + pObj->m_rPosition.Y + 5);
 
-        PlutoRectangle rect(textPos.X, textPos.Y, 30, 30);
-        DesignObjText text(m_pScreenHistory_Current->m_pObj);
-        text.m_rPosition = rect;
         TextStyle *pTextStyle = m_mapTextStyle_Find(1);
         PlutoColor OldColor = pTextStyle->m_ForeColor;
         pTextStyle->m_ForeColor.m_Value = 0xFF2020;
         pTextStyle->m_iPixelHeight += 15;
+
+        PlutoRectangle rect(textPos.X, textPos.Y, 30, pTextStyle->m_iPixelHeight + 5);
+        DesignObjText text(m_pScreenHistory_Current->m_pObj);
+        text.m_rPosition = rect;
+
         RenderText(sCharToRender,&text, pTextStyle);
         pTextStyle->m_iPixelHeight -= 15;
         pTextStyle->m_ForeColor = OldColor;

@@ -27,7 +27,7 @@
 #include "DCE/Logger.h"
 #include "Proxy_Orbiter.h"
 #include "SerializeClass/ShapesColors.h"
-
+#include "pluto_main/Define_Button.h"
 #include "Orbiter/SDL/JpegWrapper.h"
 
 #include "DataGrid.h"
@@ -175,22 +175,11 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void xxProxy_Orbiter::SaveXML(string sFileName)
 {
-    string sXMLString;
-    string sBaseUrl = "http://www.bubu.com/cisco/";
-    string sPngImage = "screen.png";
-
-    sXMLString = 
-        "<CiscoIPPhoneGraphicFileMenu>\r\n"
-        "<Title>Pluto Orbiter</Title>\r\n"
-        "<Prompt></Prompt>\r\n"
-        "<LocationX>0</LocationX>\r\n"
-        "<LocationY>0</LocationY>\r\n"
-        "<URL>" + m_sPngImageUrl + "</URL>\r\n";
-
-    //todo: 
     m_dequeXMLItems.clear();
     GenerateXMLItems(m_pScreenHistory_Current->m_pObj);
-    
+    string sSoftKeys = GenerateSoftKeys(m_pScreenHistory_Current->m_pObj);
+
+    string sXMLItems;
     int nCount = 1;
     deque<string>::iterator it;
     for(it = m_dequeXMLItems.begin(); it != m_dequeXMLItems.end(); it++)
@@ -202,11 +191,22 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
             break;
         }
 
-        sXMLString += *it;
+        sXMLItems += *it;
         nCount++;
     }
 
-    sXMLString += "</CiscoIPPhoneGraphicFileMenu>\r\n";
+    string sPrompt = "DEBUG: Areas available: " + StringUtils::ltos(nCount) + "/" + 
+        StringUtils::ltos(m_dequeXMLItems.size());
+    string sXMLString = 
+        "<CiscoIPPhoneGraphicFileMenu>\r\n"
+        "<Title>Pluto Orbiter</Title>\r\n"
+        "<Prompt>" + sPrompt + "</Prompt>\r\n"
+        "<LocationX>0</LocationX>\r\n"
+        "<LocationY>0</LocationY>\r\n"
+        "<URL>" + m_sPngImageUrl + "</URL>\r\n" + 
+        sXMLItems + 
+        sSoftKeys + 
+        "</CiscoIPPhoneGraphicFileMenu>\r\n";
 
     FileUtils::WriteBufferIntoFile(CURRENT_SCREEN_XML, const_cast<char *>(sXMLString.c_str()), sXMLString.size());
 }
@@ -235,6 +235,36 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
     DesignObj_DataList::iterator it;
     for(it = pObj->m_ChildObjects.begin(); it != pObj->m_ChildObjects.end(); ++it)
         GenerateXMLItems((DesignObj_Orbiter *)*it);
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ string xxProxy_Orbiter::GenerateSoftKeys(DesignObj_Orbiter *pObj)
+{
+    string sSoftKeys;
+
+    map<string, int> mapSoftKeys;
+    mapSoftKeys["Home"]     = BUTTON_F1_CONST;
+    mapSoftKeys["Back"]     = BUTTON_F2_CONST;
+    mapSoftKeys["Remote"]   = BUTTON_F3_CONST;
+    mapSoftKeys["Exit"]     = BUTTON_F4_CONST;
+
+    int nIndex = 1;
+    map<string, int>::iterator it;
+    for(it = mapSoftKeys.begin(); it != mapSoftKeys.end(); ++it)
+    {
+        string sUrl = 
+            it->second == BUTTON_F4_CONST ?
+            (m_sRequestUrl + "key=" + StringUtils::ltos(it->second)) :
+            (m_sBaseUrl + "ServicesMenu.php");
+
+        sSoftKeys += 
+            "<SoftKeyItem>\r\n"
+            "\t<Name>" + it->first + "</Name>\r\n"
+            "\t<URL>" + sUrl + "</URL>\r\n"
+            "\t<Position>" + StringUtils::ltos(nIndex) + "</Position>\r\n"
+            "</SoftKeyItem>\r\n";
+    }
+    
+    return sSoftKeys;
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void xxProxy_Orbiter::BeginPaint()
@@ -315,11 +345,25 @@ bool xxProxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeou
 		int Key = atoi( sLine.substr(9).c_str() );
 		if( Key )
 		{
-			ButtonDown(Key);
-			ButtonUp(Key);
-            g_pPlutoLogger->Write(LV_WARNING, "Sent: OK");
-			pSocket->SendString("OK");
-		}
+            if(BUTTON_F4_CONST != Key)
+            {
+			    ButtonDown(Key);
+			    ButtonUp(Key);
+
+                g_pPlutoLogger->Write(LV_WARNING, "Waiting the image/xml to be generated...");        
+                timespec abstime;
+                abstime.tv_sec = (long) (time(NULL) + 2); //wait max 2 seconds
+                abstime.tv_nsec = 0;
+                am.TimedCondWait(abstime);
+
+                g_pPlutoLogger->Write(LV_WARNING, "Sent: OK");
+			    pSocket->SendString("OK");
+            }
+            else
+            {
+                g_pPlutoLogger->Write(LV_WARNING, "F4 was sent. No need to kill proxy orbiter."); 
+            }
+        }
 		else
         {
             g_pPlutoLogger->Write(LV_WARNING, "Sent: ERROR");        
@@ -337,7 +381,7 @@ bool xxProxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeou
 
         g_pPlutoLogger->Write(LV_WARNING, "Waiting the image/xml to be generated...");        
         timespec abstime;
-        abstime.tv_sec = (long) (time(NULL) + 5); //wait max 5 seconds
+        abstime.tv_sec = (long) (time(NULL) + 2); //wait max 2 seconds
         abstime.tv_nsec = 0;
         am.TimedCondWait(abstime);
 
