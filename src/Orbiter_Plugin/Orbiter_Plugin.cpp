@@ -1159,7 +1159,7 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
 		pRow_Device->State_set(NEED_VMC_TOKEN); //first time the app is connected, the vmc file is sent
 		pRow_Device->Table_Device_get()->Commit();
 		
-        static const string csMacToken = "<mac>";
+        const string csMacToken = "<mac>";
 		Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(iPK_DeviceTemplate);
         string sPlutoMOInstallCmdLine = pRow_DeviceTemplate->Comments_get();
         sPlutoMOInstallCmdLine = StringUtils::Replace(sPlutoMOInstallCmdLine, csMacToken, sMac_address);
@@ -1959,35 +1959,19 @@ void Orbiter_Plugin::SendAppToPhone(OH_Orbiter *pOH_Orbiter,DeviceData_Base *pDe
 	pOH_Orbiter->NeedApp(false);
 	pOH_Orbiter->m_tSendAppTime = time(NULL);
 
-    string sDeviceCategoryDesc;
-    int iPK_DeviceTemplate;
-    string sManufacturerDesc;
+    static const string csMacToken = "<mac>";
+    Row_DeviceTemplate *pRow_DeviceTemplate = pOH_Orbiter->m_pDeviceData_Router->m_pRow_Device->FK_DeviceTemplate_getrow();
+    string sPlutoMOInstallCmdLine = pRow_DeviceTemplate->Comments_get();
+    sPlutoMOInstallCmdLine = StringUtils::Replace(sPlutoMOInstallCmdLine, csMacToken, sMacAddress);
 
-    if(IdentifyDevice(sMacAddress, sDeviceCategoryDesc, iPK_DeviceTemplate, sManufacturerDesc))
+    DeviceData_Base *pDevice_MD = pDevice_Dongle->m_pDevice_MD;
+    if(pDevice_MD)
     {
-        static const string csMacToken = "<mac>";
-if( !iPK_DeviceTemplate && pOH_Orbiter )  // todo HACK TODO this makes no sense
-iPK_DeviceTemplate = pOH_Orbiter->m_pDeviceData_Router->m_dwPK_DeviceTemplate;
-        Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(iPK_DeviceTemplate);
-if( !pRow_DeviceTemplate )
-{
-g_pPlutoLogger->Write(LV_CRITICAL,"Orbiter_Plugin::SendAppToPhone no dt");
-return;
-}
-        string sPlutoMOInstallCmdLine = pRow_DeviceTemplate->Comments_get();
-        sPlutoMOInstallCmdLine = StringUtils::Replace(sPlutoMOInstallCmdLine, csMacToken, sMacAddress);
-
-        DeviceData_Base *pDevice_MD = pDevice_Dongle->m_pDevice_MD;
-        if(pDevice_MD)
-        {
-            DeviceData_Base *pDevice_AppServer = ((DeviceData_Impl *)pDevice_MD)->FindSelfOrChildWithinCategory(DEVICECATEGORY_App_Server_CONST);
-            CMD_Send_File_To_Phone(sMacAddress, sPlutoMOInstallCmdLine, pDevice_AppServer->m_dwPK_Device);
-        }
-        else
-            g_pPlutoLogger->Write(LV_CRITICAL, "Couldn't find the App_Server for %d's MD/HY", pDevice_Dongle->m_dwPK_Device);
+        DeviceData_Base *pDevice_AppServer = ((DeviceData_Impl *)pDevice_MD)->FindSelfOrChildWithinCategory(DEVICECATEGORY_App_Server_CONST);
+        CMD_Send_File_To_Phone(sMacAddress, sPlutoMOInstallCmdLine, pDevice_AppServer->m_dwPK_Device);
     }
     else
-        g_pPlutoLogger->Write(LV_CRITICAL, "This is not a phone! Mac address: %s", sMacAddress.c_str());
+        g_pPlutoLogger->Write(LV_CRITICAL, "Couldn't find the App_Server for %d's MD/HY", pDevice_Dongle->m_dwPK_Device);
 }
 
 void Orbiter_Plugin::GenerateVMCFiles()
