@@ -215,6 +215,7 @@ pthread_t XProgressWnd::Run()
     }
     else {
 	if (g_pPlutoLogger) g_pPlutoLogger->Write(LV_STATUS, "Thread started ...");
+	pthread_detach(threadID);
     }
     
     m_thisThread = threadID;
@@ -241,11 +242,11 @@ int XProgressWnd::CreateWindow(Display *pDisplay, int screen, Window wndParent, 
     if (g_pPlutoLogger) g_pPlutoLogger->Write(LV_STATUS, "Constructing ProgressWindow");
     
     m_wndName = "Progress";
-    XClassHint ClassHint;
-    ClassHint.res_name = (char *)m_wndName.c_str();
-    ClassHint.res_class = (char *)m_wndName.c_str();
-    XSetClassHint(m_pDisplay, m_wndThis, &ClassHint);
-
+    XClassHint *pClassHint = XAllocClassHint();
+    pClassHint->res_name = (char *)m_wndName.c_str();
+    pClassHint->res_class = (char *)m_wndName.c_str();
+    XSetClassHint(pDisplay, m_wndThis, pClassHint);
+    XFree(pClassHint);
     return 0;
 }
 

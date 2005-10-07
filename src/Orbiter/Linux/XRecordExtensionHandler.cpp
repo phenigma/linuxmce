@@ -39,8 +39,8 @@ XRecordExtensionHandler::~XRecordExtensionHandler()
 	g_pPlutoLogger->Write(LV_STATUS, "XRecordExtensionHandler::~XRecordExtensionHandler(): Signaling the condition");
 	pthread_cond_signal(&enableRecordCondition); // if it is there it will be put out.
 
-	g_pPlutoLogger->Write(LV_STATUS, "XRecordExtensionHandler::~XRecordExtensionHandler(): cancelling the thread");
-	pthread_cancel(recordingThread);
+	//g_pPlutoLogger->Write(LV_STATUS, "XRecordExtensionHandler::~XRecordExtensionHandler(): cancelling the thread");
+	//pthread_cancel(recordingThread);
 	g_pPlutoLogger->Write(LV_STATUS, "XRecordExtensionHandler::~XRecordExtensionHandler(): Joining the thread");
 	pthread_join(recordingThread, NULL);
 	g_pPlutoLogger->Write(LV_STATUS, "XRecordExtensionHandler::~XRecordExtensionHandler(): Done");
@@ -95,7 +95,8 @@ void *XRecordExtensionHandler::recordingThreadMainFunction(void *arguments)
 	recordRange->ext_replies.ext_minor.last = 0;
 
 	// pXRecordObject->m_recordingContext = XRecordCreateContext(pDataConnection, XRecordFromServerTime | XRecordFromClientTime | XRecordFromClientSequence, &recordClient, 1, &recordRange, 1);
-	pXRecordObject->m_recordingContext = XRecordCreateContext(pDataConnection, 0, &recordClient, 1, &recordRange, 1);
+	//pXRecordObject->m_recordingContext = XRecordCreateContext(pDataConnection, 0, &recordClient, 1, &recordRange, 1);
+	pXRecordObject->m_recordingContext = XRecordCreateContext(pControlConnection, 0, &recordClient, 1, &recordRange, 1);
 
 	pXRecordObject->m_isRecordingEnabled = false;
 	pXRecordObject->m_pDisplay = pControlConnection;
@@ -125,8 +126,10 @@ void *XRecordExtensionHandler::recordingThreadMainFunction(void *arguments)
         pthread_mutex_unlock(&pXRecordObject->mutexEnableRecordCondition);
 		g_pPlutoLogger->Write(LV_STATUS, "XRecordExtensionHandler::recordingThreadMainFunction(): Recording thread is awake!!!");
 
-        if ( pXRecordObject->m_shouldQuit )
+        if ( pXRecordObject->m_shouldQuit ) {
+		g_pPlutoLogger->Write(LV_STATUS, "XRecordExtensionHandler::recordingThreadMainFunction(): Quitting now ...");
             break;
+	}
 	}
 
 	XRecordFreeContext( pControlConnection, pXRecordObject->m_recordingContext);

@@ -26,8 +26,6 @@ protected:
     bool m_bCanceled;
     bool m_bDone;
     bool m_bDestroy;
-
-	Display *m_pDisplay;
     
 public:
     pthread_t m_thisThread;
