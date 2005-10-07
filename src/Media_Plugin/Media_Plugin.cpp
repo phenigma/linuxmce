@@ -1556,7 +1556,14 @@ g_pPlutoLogger->Write( LV_STATUS, "Orbiter %d %s in this ea to stop", pOH_Orbite
 	for( MapBoundRemote::iterator itBR=pEntertainArea->m_mapBoundRemote.begin( );itBR!=pEntertainArea->m_mapBoundRemote.end( );++itBR )
     {
         BoundRemote *pBoundRemote = ( *itBR ).second;
-g_pPlutoLogger->Write( LV_STATUS, "Orbiter %d %s is bound", pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_sDescription.c_str());
+
+		if( pBoundRemote->m_sPK_DesignObj_GraphicImage.size() )
+		{
+			DCE::CMD_Update_Object_Image CMD_Update_Object_Image( 0, pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pBoundRemote->m_sPK_DesignObj_GraphicImage, "jpg", NULL, 0, "0" );
+			SendCommand(CMD_Update_Object_Image);
+		}
+
+		g_pPlutoLogger->Write( LV_STATUS, "Orbiter %d %s is bound", pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_sDescription.c_str());
 		DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,"<%=M%>","","",false, false);
 		SendCommand(CMD_Goto_Screen);
     }
@@ -2809,7 +2816,7 @@ void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current,
 		{
 			// We need a recursive function to propagate the off's along the pipe, but not turning off any devices
 			// that we're still going to use in the current map
-			if ( (*it).second )  // Obs: I got a crash here while testing mihai.t
+			if ( (*it).second ) 
 				TurnDeviceOff(PK_Pipe_Prior,(*it).second->m_pDeviceData_Router,&mapMediaDevice_Current);
 			else
 			{
@@ -2857,7 +2864,11 @@ void Media_Plugin::TurnDeviceOff(int PK_Pipe,DeviceData_Router *pDeviceData_Rout
 			return;
 	p_vectDevice->push_back(pDeviceData_Router->m_dwPK_Device);
 
-	if( !pmapMediaDevice_Current || pmapMediaDevice_Current->find( pDeviceData_Router->m_dwPK_Device ) == pmapMediaDevice_Current->end() )
+	// If there are no current devices, or there are but this one isn't in the list and this isn't an embedded device for one in the list
+	if( !pmapMediaDevice_Current || 
+		(pmapMediaDevice_Current->find( pDeviceData_Router->m_dwPK_Device ) == pmapMediaDevice_Current->end()
+		&& (pDeviceData_Router->m_pDevice_RouteTo==NULL || 
+			pmapMediaDevice_Current->find( pDeviceData_Router->m_pDevice_RouteTo->m_dwPK_Device ) == pmapMediaDevice_Current->end()) ) )
 	{
 		MediaDevice *pMediaDevice = m_mapMediaDevice_Find(pDeviceData_Router->m_dwPK_Device);
 		// Don't turn the device off the OSD needs it on

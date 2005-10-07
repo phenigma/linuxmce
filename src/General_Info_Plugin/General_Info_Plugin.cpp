@@ -550,11 +550,11 @@ class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string 
 		}
 
 		string sMessage;
-		if( pDevice_Orbiter_OSD->m_dwPK_Device==pMessage->m_dwPK_Device_From )
+		if( pDevice_Orbiter_OSD->m_dwPK_Device==pMessage->m_dwPK_Device_From )  // We chose this from an OSD -- just goto the app screen
 			sMessage = StringUtils::itos(m_dwPK_Device) + " " + StringUtils::itos(pMessage->m_dwPK_Device_From) +
 				" 1 " + StringUtils::itos(COMMAND_Goto_Screen_CONST) + " " + StringUtils::itos(COMMANDPARAMETER_PK_DesignObj_CONST) + " " + 
 				StringUtils::itos(PK_DesignObj_OSD);
-		else
+		else  // We chose this from a remote--the remote goes to a remote control screen, and the osd to the app
 			sMessage = StringUtils::itos(m_dwPK_Device) + " " + StringUtils::itos(pMessage->m_dwPK_Device_From) +
 				" 1 " + StringUtils::itos(COMMAND_Goto_Screen_CONST) + " " + StringUtils::itos(COMMANDPARAMETER_PK_DesignObj_CONST) + " " + 
 				StringUtils::itos(PK_DesignObj_Remote) + " & " +
@@ -975,6 +975,13 @@ Message *General_Info_Plugin::BuildMessageToSpawnApp(DeviceData_Router *pDevice_
 				StringUtils::itos(PK_DesignObj_Remote),"","",false,false);
 			CMD_Spawn_Application.m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen2.m_pMessage);
 		}
+	}
+
+	// Turn the MD on
+	if( pDevice_MD )
+	{
+		DCE::CMD_On CMD_On(m_dwPK_Device,pDevice_MD->m_dwPK_Device,0,"");
+		CMD_Spawn_Application.m_pMessage->m_vectExtraMessages.push_back(CMD_On.m_pMessage);
 	}
 	return CMD_Spawn_Application.m_pMessage;
 }

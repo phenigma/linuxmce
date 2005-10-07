@@ -269,7 +269,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Found %d rows with %s",(int) result3.r->row_cou
 
 	if( bIsOrbiter )
 	{
-		cout << "it's an orbiter, time to generate" << endl;
+		g_pPlutoLogger->Write(LV_STATUS,"it's an orbiter, time to generate");
 		string SQL = "SELECT PK_Device FROM Device WHERE FK_Installation=" + StringUtils::itos(m_iPK_Installation) + " AND FK_DeviceTemplate=" + StringUtils::itos(DEVICETEMPLATE_Orbiter_Plugin_CONST);
 		PlutoSqlResult result;
 		MYSQL_ROW row;
@@ -278,7 +278,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Found %d rows with %s",(int) result3.r->row_cou
 			int iPK_Device_OP = atoi(row[0]);
 			string sCmd = "/usr/pluto/bin/MessageSend localhost 0 " + StringUtils::itos(iPK_Device_OP) + " 1 " +
 				StringUtils::itos(COMMAND_Regen_Orbiter_CONST) + " " + StringUtils::itos(COMMANDPARAMETER_PK_Device_CONST) + " " + StringUtils::itos(PK_Device);
-			cout << "Calling: " << sCmd << endl;
+			g_pPlutoLogger->Write(LV_STATUS,"Calling %s",sCmd.c_str());
 			system(sCmd.c_str());
 		}
 		else
