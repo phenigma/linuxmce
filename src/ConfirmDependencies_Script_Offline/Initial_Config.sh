@@ -25,7 +25,7 @@ echo "$PlutoConf" >/etc/pluto.conf
 
 echo "$Sources" >/etc/apt/sources.list
 aptitude update
-if ! aptitude install pluto-dcerouter; then
+if ! aptitude -y -f install pluto-dcerouter; then
 	echo "Installation failed"
 	exit 1
 fi
