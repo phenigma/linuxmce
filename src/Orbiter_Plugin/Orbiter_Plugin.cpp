@@ -1000,12 +1000,11 @@ void Orbiter_Plugin::CMD_Set_Current_Room(int iPK_Room,string &sCMD_Result,Messa
 void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,int iWidth,int iHeight,int iPK_Skin,int iPK_Language,int iPK_Size,int *iPK_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c78-e->
 {
-    //todo: remove 'iPK_DeviceTemplate' from the parameters list
-
-    UnknownDeviceInfos *pUnknownDevice = m_mapUnknownDevices_Find(sMac_address);
-
-    if(pUnknownDevice && !iPK_DeviceTemplate)
-        iPK_DeviceTemplate = pUnknownDevice->m_iPK_DeviceTemplate;
+    PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
+    UnknownDeviceInfos *pUnknownDeviceInfos = m_mapUnknownDevices_Find(sMac_address);
+    if(pUnknownDeviceInfos && !iPK_DeviceTemplate)
+        iPK_DeviceTemplate = pUnknownDeviceInfos->m_iPK_DeviceTemplate;
+    mm.Release();
 
 	int PK_UI=0;
 
@@ -1108,10 +1107,6 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
  		}
     }
 
-	PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);	
-	UnknownDeviceInfos *pUnknownDeviceInfos = m_mapUnknownDevices_Find(sMac_address);
-	mm.Release();
-
     int iFK_Room = 1;
     if( pUnknownDeviceInfos && pUnknownDeviceInfos->m_iDeviceIDFrom && pUnknownDeviceInfos->m_pDeviceFrom->m_pRoom)
         iFK_Room = pUnknownDeviceInfos->m_pDeviceFrom->m_pRoom->m_dwPK_Room;
@@ -1164,14 +1159,14 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
         string sPlutoMOInstallCmdLine = pRow_DeviceTemplate->Comments_get();
         sPlutoMOInstallCmdLine = StringUtils::Replace(sPlutoMOInstallCmdLine, csMacToken, sMac_address);
 
-        DeviceData_Base *pDevice_MD = pUnknownDevice->m_pDeviceFrom->m_pDevice_MD;
+        DeviceData_Base *pDevice_MD = pUnknownDeviceInfos->m_pDeviceFrom->m_pDevice_MD;
         if(pDevice_MD)
         {
             DeviceData_Base *pDevice_AppServer = ((DeviceData_Impl *)pDevice_MD)->FindSelfOrChildWithinCategory(DEVICECATEGORY_App_Server_CONST);
             CMD_Send_File_To_Phone(sMac_address, sPlutoMOInstallCmdLine, pDevice_AppServer->m_dwPK_Device);
         }
         else
-            g_pPlutoLogger->Write(LV_CRITICAL, "Couldn't find the App_Server for %d's MD/HY", pUnknownDevice->m_pDeviceFrom->m_dwPK_Device);
+            g_pPlutoLogger->Write(LV_CRITICAL, "Couldn't find the App_Server for %d's MD/HY", pUnknownDeviceInfos->m_pDeviceFrom->m_dwPK_Device);
     }
 
 g_pPlutoLogger->Write(LV_STATUS,"setting process flag to false");
