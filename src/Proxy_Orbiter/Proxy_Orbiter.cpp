@@ -252,7 +252,7 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
     for(it = mapSoftKeys.begin(); it != mapSoftKeys.end(); ++it)
     {
         string sUrl = 
-            it->second == BUTTON_F4_CONST ?
+            it->second != BUTTON_F4_CONST ?
             (m_sRequestUrl + "key=" + StringUtils::ltos(it->second)) :
             (m_sBaseUrl + "ServicesMenu.php");
 
