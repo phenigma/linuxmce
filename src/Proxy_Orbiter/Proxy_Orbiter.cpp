@@ -53,7 +53,7 @@ void WriteStatusOutput(const char *) {} //do nothing
 xxProxy_Orbiter::xxProxy_Orbiter(int ListenPort, int DeviceID, 
 			int PK_DeviceTemplate, string ServerAddress)
 : OrbiterSDL(DeviceID, PK_DeviceTemplate, ServerAddress, "", false, 0, 
-    0, false), SocketListener("Proxy_Orbiter")
+    0, false), SocketListener("Proxy_Orbiter"), m_ActionMutex( "action" )
 {
 	if( !ListenPort )
 		m_iListenPort = 3451;
@@ -65,6 +65,9 @@ xxProxy_Orbiter::xxProxy_Orbiter(int ListenPort, int DeviceID,
 	m_bDisplayOn=true;  // Override the default behavior -- when the phone starts the display is already on
 
     m_sBaseUrl = "http://" + ServerAddress + "/pluto-admin/";
+
+    pthread_cond_init( &m_ActionCond, NULL );
+    m_ActionMutex.Init(NULL, &m_ActionCond);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ bool xxProxy_Orbiter::GetConfig()
@@ -96,6 +99,7 @@ xxProxy_Orbiter::xxProxy_Orbiter(int ListenPort, int DeviceID,
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ xxProxy_Orbiter::~xxProxy_Orbiter()
 {
+    pthread_mutex_destroy(&m_ActionMutex.mutex);
 }
 //-----------------------------------------------------------------------------------------------------
 void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
@@ -162,6 +166,11 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
     SaveXML(CURRENT_SCREEN_XML);
 
 	m_iImageCounter++;
+
+    
+    g_pPlutoLogger->Write(LV_WARNING, "Image/xml generated. Wake up! Screen %s", 
+        m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str());
+    pthread_cond_broadcast(&m_ActionCond);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void xxProxy_Orbiter::SaveXML(string sFileName)
@@ -230,6 +239,7 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void xxProxy_Orbiter::BeginPaint()
 {
+
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void xxProxy_Orbiter::EndPaint()
@@ -251,7 +261,7 @@ bool xxProxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeou
 {
     g_pPlutoLogger->Write(LV_WARNING, "Received: %s", sLine.c_str());
 
-	PLUTO_SAFETY_LOCK(sm,m_ScreenMutex);
+	PLUTO_SAFETY_LOCK(am, m_ActionMutex);
 	if( sLine.substr(0,5)=="IMAGE" )
 	{
 		int ConnectionID = 0;
@@ -324,6 +334,13 @@ bool xxProxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeou
 		if( pos_y!=string::npos )
 			Y = atoi(sLine.substr(pos_y+1).c_str());
 		RegionDown(X,Y);
+
+        g_pPlutoLogger->Write(LV_WARNING, "Waiting the image/xml to be generated...");        
+        timespec abstime;
+        abstime.tv_sec = (long) (time(NULL) + 5); //wait max 5 seconds
+        abstime.tv_nsec = 0;
+        am.TimedCondWait(abstime);
+
         g_pPlutoLogger->Write(LV_WARNING, "Sent: OK");        
 		pSocket->SendString("OK");
 		return true;

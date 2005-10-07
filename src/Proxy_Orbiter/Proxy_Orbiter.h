@@ -28,6 +28,9 @@ namespace DCE
         string m_sPngImageUrl;
         string m_sBaseUrl;
 
+        pluto_pthread_mutex_t m_ActionMutex; 
+        pthread_cond_t m_ActionCond;
+
 	public:
 		xxProxy_Orbiter(int ListenPort, int DeviceID, 
 			int PK_DeviceTemplate, string ServerAddress);
