@@ -66,7 +66,7 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 	{
 		PlutoSqlResult result;
 		MYSQL_ROW row;
-		string SQL = "SELECT DISTINCT FK_Installation FROM Device";
+		string SQL = "SELECT DISTINCT PK_Installation FROM Installation";
 		if( ( result.r=mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) && result.r->row_count==1 )
 			m_iPK_Installation = atoi(row[0]);
 		else
