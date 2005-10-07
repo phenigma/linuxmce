@@ -14,18 +14,47 @@ function remoteOrbiter($output,$dbADO){
 		// TODO: replace image path
 		$iframeSRC='index.php?section=proxySocket&address='.$address.'&port='.$port.'&refresh='.$refresh;
 		$orbiterScreen=
-			'<tr>
-				<td colspan="2"><img id="screen" src="include/image.php?imagepath='.getcwd().'/security_images/orbiter_screen.png" width="640" height="480" onClick="sendTouch();">
-				<iframe id="imageLoader" src="'.$iframeSRC.'&command=IMAGE"></iframe>
-				</td>
-			</tr>';
+			'<img id="screen" src="include/image.php?imagepath='.getcwd().'/security_images/orbiter_screen.png" width="640" height="480" onClick="sendTouch();">
+				<iframe id="imageLoader" src="'.$iframeSRC.'&command=IMAGE"></iframe>';
 		$jsFunction='
 		<script src="scripts/connectionWizard/connectionWizard.js" type="text/javascript" language="JavaScript"></script>
 		<script>
+		function findPosX(obj)
+		{
+			var curleft = 0;
+			if (obj.offsetParent)
+			{
+				while (obj.offsetParent)
+				{
+					curleft += obj.offsetLeft
+					obj = obj.offsetParent;
+				}
+			}
+			else if (obj.x)
+				curleft += obj.x;
+			return curleft;
+		}
+		
+		function findPosY(obj)
+		{
+			var curtop = 0;
+			if (obj.offsetParent)
+			{
+				while (obj.offsetParent)
+				{
+					curtop += obj.offsetTop
+					obj = obj.offsetParent;
+				}
+			}
+			else if (obj.y)
+				curtop += obj.y;
+			return curtop;
+		}
+				
 		function sendTouch()
 		{
-			xRelative=xMousePos-document.getElementById("screen").x;
-			yRelative=yMousePos-document.getElementById("screen").y;
+			xRelative=xMousePos-findPosX(document.getElementById("screen"));
+			yRelative=yMousePos-findPosY(document.getElementById("screen"));
 
 			document.getElementById("imageLoader").src="'.$iframeSRC.'&command=TOUCH "+xRelative+"x"+yRelative;
 		}
@@ -56,14 +85,14 @@ function remoteOrbiter($output,$dbADO){
 			</tr>
 			<tr>
 				<td>Refresh (s): </td>
-				<td><input type="text" name="refresh" value="0.5"></td>
+				<td><input type="text" name="refresh" value="5"></td>
 			</tr>
 			<tr>
 				<td colspan="2"><input type="submit" class="button" name="go" value="Submit"></td>
 			</tr>
-			'.@$orbiterScreen.'
 		</table>
 		</form>
+		'.@$orbiterScreen.'		
 		'.@$jsFunction;
 	}else{
 		

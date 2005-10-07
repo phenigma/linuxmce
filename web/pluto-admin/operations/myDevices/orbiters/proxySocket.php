@@ -8,24 +8,25 @@ function proxySocket($output){
 	$out=$command.'<br>';
 		
 	/* Create a TCP/IP socket. */
-	$socketLog="\n".date('d-m-Y H:i:s')."\n";
-	$socketLog.="Attempting to create socket on host $address port $port\n";
+
+	write_log("\n".date('d-m-Y H:i:s')."\nAttempting to create socket on host $address port $port ... ");
 	$socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-	if ($socket < 0) {
-		$socketLog.= "socket_create() failed: reason: " . socket_strerror($socket) . "\n";
+	if ($socket === false) {
+		write_log("socket_create() failed: reason: " . socket_strerror($socket) . "\n");
 	} else {
-		$socketLog.= "OK.\n";
+		write_log("OK.\n");
 	}
 
-	$socketLog.= "Attempting to connect to '$address' on port '$port'...\n";
 	$result = @socket_connect($socket, $address, $port);
 
 	if ($result !==true) {
-		$socketLog.="socket_connect() failed.\nReason: ($result) " . socket_strerror($result) . "\n";
+		write_log("socket_connect() failed.\nReason: (".socket_last_error().") " . socket_strerror(socket_last_error()) . "\n");
 	} else {
-		$socketLog.="OK.\n";
+		write_log("OK.\n");
 	}
 
+	write_log("Received parameters ".$_SERVER['QUERY_STRING']."\n");
+	
 	// get image
 	if($command=='IMAGE'){
 		getImage($socket);
@@ -33,31 +34,40 @@ function proxySocket($output){
 	
 	// send touch command
 	if(strpos($command,'TOUCH')!==false){
-		$out.=sendTouchCommand($socket,$command,$refresh);
+		$out.=sendCommand($socket,$command,$refresh);
 	}
 	
 	// send XML command
 	if(strpos($command,'XML')!==false){
+		
 		$x=(int)@$_REQUEST['x'];
 		$y=(int)@$_REQUEST['y'];
 		if($x!=0 && $y!=0){
-			$out.=sendTouchCommand($socket,' TOUCH '.$x.'x'.$y,$refresh);
+			$out.=sendCommand($socket,'TOUCH '.$x.'x'.$y,$refresh);
 		}else{
-			getImage($socket);
+			$key=@$_REQUEST['key'];
+			if($key==''){
+				getImage($socket);
+			}else{
+				$out.=sendCommand($socket,'PLUTO_KEY '.$key,$refresh);
+			}
 		}
 		$XML=getXML($socket);
 		socket_close($socket);
-		Header( "Content-type: text/xml"); 
+		$refreshURL="http://".$_SERVER['SERVER_ADDR']."/pluto-admin/index.php?section=proxySocket&address=$address&port=$port&command=XML";
+		
+		Header("Refresh: 5; url=$refreshURL");
+		Header("Content-type: text/xml"); 
+		write_log( "Redirecting to $refreshURL\n");
 		die($XML);
 	}	
 	
 	
-	$socketLog.= "Closing socket...\n";
+	write_log("Closing socket ... ");
 	@socket_close($socket);
-	$socketLog.= "OK.\n";
-
-	@writeFile(getcwd().'/security_images/socket.log',$socketLog,'a+');
+	write_log( "OK.\n");
 	
+
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME);			
 	$output->output();  
@@ -67,15 +77,17 @@ function getImage($socket,$refresh=''){
 	$in = "IMAGE ".rand(10000,11000)."\n";
 	$out='';
 
-	$socketLog="Sending command $in";
+	write_log("Sending command $in");
 	$written=@socket_write($socket, $in, strlen($in));
 	if($written===false){
-		$socketLog.="Failure: ".socket_strerror(socket_last_error($socket))."\n";
+		write_log("Failure: ".socket_strerror(socket_last_error($socket))."\n");
 	}
 
-	$outResponse= @socket_read($socket, 2048);
+	$outResponse= @socket_read($socket, 2048,PHP_NORMAL_READ);
 	if($outResponse===false){
-		$socketLog.="Failed reading socket: ".socket_strerror(socket_last_error($socket))."\n";
+		write_log("Failed reading socket: ".socket_strerror(socket_last_error($socket))."\n");
+	}else{
+		write_log("Read: ".$outResponse."\n");
 	}
 
 	$imageSize=(int)trim(str_replace('IMAGE ','',$outResponse));
@@ -87,11 +99,12 @@ function getImage($socket,$refresh=''){
 			$chunk=@socket_read($socket, $linesize,PHP_BINARY_READ);
 			$outImage.= $chunk;
 			$remaining-=strlen($chunk);
+			write_log("Retrieved image chunk ".strlen($chunk).", remaining $remaining \n");
 		}
 		
 		if(isset($outImage)){
 			$isSaved=writeFile(getcwd().'/security_images/orbiter_screen.png',$outImage);
-			$socketLog.="Received image size $imageSize \n";
+			write_log("Received image size $imageSize \n");
 			
 			if($refresh!=''){
 				$out.=reloadImageJS();
@@ -99,7 +112,6 @@ function getImage($socket,$refresh=''){
 		}
 	}
 
-	@writeFile(getcwd().'/security_images/socket.log',$socketLog,'a+');
 	
 	return $out;
 }
@@ -108,15 +120,15 @@ function getXML($socket){
 	$in = "XML ".rand(10000,11000)."\n";
 	$out='';
 	
-	$socketLog="Sending command $in";
+	write_log("Sending command $in");
 	$written=@socket_write($socket, $in, strlen($in));
 	if($written===false){
-		$socketLog.="Failure: ".socket_strerror(socket_last_error($socket))."\n";
+		write_log("Failure: ".socket_strerror(socket_last_error($socket))."\n");
 	}
 
-	$outResponse= @socket_read($socket, 2048);
+	$outResponse= @socket_read($socket, 2048,PHP_NORMAL_READ);
 	if($outResponse===false){
-		$socketLog.="Failed reading socket: ".socket_strerror(socket_last_error($socket))."\n";
+		write_log("Failed reading socket: ".socket_strerror(socket_last_error($socket))."\n");
 	}
 
 	$xmlSize=(int)trim(str_replace('XML ','',$outResponse));
@@ -128,33 +140,37 @@ function getXML($socket){
 			$chunk=@socket_read($socket, $linesize,PHP_BINARY_READ);
 			$outXML.= $chunk;
 			$remaining-=strlen($chunk);
+			write_log("Retrieved xml chunk ".strlen($chunk).", remaining $remaining \n");
 		}
 		
 		if(isset($outXML)){
-			$socketLog.="Received xml size $xmlSize \n";
+			write_log("Received xml size $xmlSize \n");
 		}
 	}
 	$out.=@$outXML;
 	
-	@writeFile(getcwd().'/security_images/socket.log',$socketLog,'a+');
 	
 	return $out;
 }
 
 
 
-function sendTouchCommand($socket,$command,$refresh){
+function sendCommand($socket,$command,$refresh){
 	$in = $command."\n";
 
 	$out='';
-	$socketLog="Sending command $in";
+
+	write_log("Sending command $in");
 	$written=@socket_write($socket, $in, strlen($in));
-	if(!$written===false){
-		$socketLog.="Failure: ".socket_strerror(socket_last_error($socket))."\n";
+	if($written===false){
+		write_log("Failure: ".socket_strerror(socket_last_error($socket))."\n");
 	}
-	$outResponse= @socket_read($socket, 2048);
+	
+	$outResponse= socket_read($socket, 2048,PHP_NORMAL_READ);
 	if($outResponse===false){
-		$socketLog.="Failed reading socket: ".socket_strerror(socket_last_error($socket))."\n";
+		write_log("Failed reading socket: ".socket_strerror(socket_last_error($socket))."\n");
+	}else{
+		write_log($outResponse);
 	}
 	$out.=$outResponse;
 
@@ -173,5 +189,9 @@ function reloadImageJS(){
 	';
 	
 	return $js;
+}
+
+function write_log($log){
+	writeFile(getcwd().'/security_images/socket.log',$log,'a+');
 }
 ?>
