@@ -18,6 +18,9 @@
 #include "pluto_main/Define_CommandParameter.h"
 #include "PlutoUtils/MySQLHelper.h"
 
+#include <cmath>
+using namespace std;
+
 namespace DCE {
 
 bool 
