@@ -24,6 +24,20 @@ Activation_Code =
 PK_Installation = 1
 PK_Users = 1"
 
+Ask()
+{
+	local Msg="$1"
+	echo -n "$Msg: " >/dev/tty
+	read Answer
+	echo "$Answer"
+}
+
+# Ask the questions
+Username=$(Ask "Pluto Username")
+Password=$(Ask "Pluto Password")
+Room=$(Ask "Room name")
+Type=$(Ask "Core or Hybrid? [C/h]")
+
 echo "$PlutoConf" >/etc/pluto.conf
 
 echo "$Sources" >/etc/apt/sources.list
@@ -32,14 +46,6 @@ if ! aptitude -y -f install pluto-dcerouter; then
 	echo "Installation failed"
 	exit 1
 fi
-
-Ask()
-{
-	local Msg="$1"
-	echo -n "$Msg: " >/dev/tty
-	read Answer
-	echo "$Answer"
-}
 
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/SQL_Ops.sh
@@ -50,8 +56,6 @@ Q="INSERT INTO Installation VALUES()"
 RunSQL "$Q"
 
 # Create user
-Username=$(Ask "Pluto Username")
-Password=$(Ask "Pluto Password")
 PasswordUnix=$(mkpasswd -H md5 "$Password")
 PasswordSamba=$(/usr/pluto/bin/smbpass.pl "$Password")
 
@@ -69,8 +73,6 @@ Q="INSERT INTO Installation_Users(FK_Installation, FK_Users, userCanModifyInstal
 RunSQL "$Q"
 
 # Create room
-Room=$(Ask "Room name")
-
 sqlRoom="${Room//\'/\'}"
 Q="INSERT INTO Room(FK_Installation, FK_RoomType, Description)
 	VALUES(1, 9, '$sqlRoom')"
@@ -90,7 +92,6 @@ for DevT in $R; do
 done
 
 # Create hybrid
-Type=$(Ask "Core or Hybrid? [C/h]")
 if [[ "$Type" == "H" || "$Type" == "h" ]]; then
 	HybDev=$(/usr/pluto/bin/CreateDevice -d 28 -C "$CoreDev")
 	Q="UPDATE Device SET Description='The core/hybrid', FK_Room=1 WHERE PK_Device='$HybDev'"
