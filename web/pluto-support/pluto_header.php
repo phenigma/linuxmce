@@ -169,9 +169,7 @@ function menuSettings(menuObject)
           <td width="225"><table width="225"  border="0" cellpadding="0" cellspacing="0">
               <tr>
                 <td width="124"><img src="<?=$imagesPath?>live_support.jpg" width="124" height="36" /></td>
-                <td width="102" valign="top"><!-- BEGIN PHP Live! code, (c) OSI Codes Inc. -->
-<script language="JavaScript" src="http://plutohome.com/phplive/js/status_image.php?base_url=http://plutohome.com/phplive&l=radu&x=1&deptid=0&btn=1"><a href=""></a></script>
-<!-- END PHP Live! code : (c) OSI Codes Inc. --></td>
+                <td width="102" valign="top"><script language="JavaScript" src="http://plutohome.com/phplive/js/status_image.php?base_url=http://plutohome.com/phplive&l=radu&x=1&deptid=4&"></script></td>
               </tr>
           </table></td>
           <td width="31"><img src="<?=$imagesPath?>header_colt_1.jpg" width="31" height="36" /></td>
