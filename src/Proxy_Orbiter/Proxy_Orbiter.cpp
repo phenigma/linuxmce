@@ -61,6 +61,11 @@ xxProxy_Orbiter::xxProxy_Orbiter(int ListenPort, int DeviceID,
 		m_iListenPort = ListenPort;
 
 	m_iImageCounter = 1;
+    m_iLastImageSent = -1;
+
+    m_iXMLCounter = 1;
+    m_iLastXMLSent = -1;
+
     m_ImageQuality = 70;
 	m_bDisplayOn=true;  // Override the default behavior -- when the phone starts the display is already on
 
@@ -166,7 +171,7 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
     SaveXML(CURRENT_SCREEN_XML);
 
 	m_iImageCounter++;
-
+    m_iXMLCounter++;
     
     g_pPlutoLogger->Write(LV_WARNING, "Image/xml generated. Wake up! Screen %s", 
         m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str());
@@ -294,6 +299,8 @@ bool xxProxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeou
 	PLUTO_SAFETY_LOCK(am, m_ActionMutex);
 	if( sLine.substr(0,5)=="IMAGE" )
 	{
+        //vali cannot keep a connection active, so we won't use this for now
+        /*
 		int ConnectionID = 0;
 		if( sLine.size() > 7 )
 			ConnectionID = atoi( sLine.substr(6).c_str() );
@@ -306,38 +313,57 @@ bool xxProxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeou
 			pSocket->SendString("IMAGE 0"); // No new image
 			return true;
 		}
-		m_mapID_ImageCounter[ConnectionID]=m_iImageCounter;
+		m_mapID_ImageCounter[ConnectionID]=m_iImageCounter;*/
 
-		size_t size;
-		char *pBuffer = FileUtils::ReadFileIntoBuffer(CURRENT_SCREEN_IMAGE,size);
-		if( !pBuffer )
-		{
-            g_pPlutoLogger->Write(LV_WARNING, "Sent: ERROR");
-			pSocket->SendString("ERROR"); // Shouldn't happen
-			return true;
-		}
+        if(m_iLastImageSent == m_iImageCounter)
+            pSocket->SendString("IMAGE 0");
+        else
+        {
+            size_t size;
+            char *pBuffer = FileUtils::ReadFileIntoBuffer(CURRENT_SCREEN_IMAGE,size);
+            if( !pBuffer )
+            {
+                g_pPlutoLogger->Write(LV_WARNING, "Sent: ERROR");
+                pSocket->SendString("ERROR"); // Shouldn't happen
+                return true;
+            }
 
-        g_pPlutoLogger->Write(LV_WARNING, "Sent: IMAGE %d\\n\\n<IMAGE>", size);
-		pSocket->SendString("IMAGE " + StringUtils::itos(size));
-		pSocket->SendData(size,pBuffer);
-		delete[] pBuffer;
+            g_pPlutoLogger->Write(LV_WARNING, "Sent: IMAGE %d\\n\\n<IMAGE>", size);
+            pSocket->SendString("IMAGE " + StringUtils::itos(size));
+            pSocket->SendData(size,pBuffer);
+            delete[] pBuffer;
+
+            m_iLastImageSent = m_iImageCounter;
+        }
 		return true;
 	}
     else if( sLine.substr(0,3)=="XML" )
     {
-        size_t size;
-        char *pBuffer = FileUtils::ReadFileIntoBuffer(CURRENT_SCREEN_XML,size);
-        if( !pBuffer )
+        if(m_iLastXMLSent == m_iXMLCounter)
         {
-            g_pPlutoLogger->Write(LV_WARNING, "Sent: ERROR");
-            pSocket->SendString("ERROR"); // Shouldn't happen
-            return true;
+            char pInvalidXML[] = "Invalid";
+            pSocket->SendString("XML " + StringUtils::itos(sizeof(pInvalidXML)));
+            pSocket->SendData(sizeof(pInvalidXML), pInvalidXML);
+        }
+        else
+        {
+            size_t size;
+            char *pBuffer = FileUtils::ReadFileIntoBuffer(CURRENT_SCREEN_XML,size);
+            if( !pBuffer )
+            {
+                g_pPlutoLogger->Write(LV_WARNING, "Sent: ERROR");
+                pSocket->SendString("ERROR"); // Shouldn't happen
+                return true;
+            }
+
+            g_pPlutoLogger->Write(LV_WARNING, "Sent: XML %d\\n<XML>", size);
+            pSocket->SendString("XML " + StringUtils::itos(size));
+            pSocket->SendData(size,pBuffer);
+            delete[] pBuffer;
+
+            m_iLastXMLSent = m_iXMLCounter;
         }
 
-        g_pPlutoLogger->Write(LV_WARNING, "Sent: XML %d\\n<XML>", size);
-        pSocket->SendString("XML " + StringUtils::itos(size));
-        pSocket->SendData(size,pBuffer);
-        delete[] pBuffer;
         return true;
     }
 	else if( sLine.substr(0,9)=="PLUTO_KEY" && sLine.size()>10 )
