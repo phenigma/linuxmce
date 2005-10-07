@@ -132,10 +132,10 @@ bool gc100::GetConfig()
 gc100::~gc100()
 //<-dceag-dest-e->
 {
-	m_bQuit = true; // should this be using a mutex? :)
-	                // YES WE SHOULD, sometimes it segfaults in pthread_cancel when m_EventThread is already terminated.
-	pthread_cancel(m_EventThread);
-	pthread_join(m_EventThread, NULL);
+	pthread_cancel(m_EventThread);     //pthread_cancel is asynchron so call it first and continue cleanup
+	m_bQuit = true;                    //force quit
+	Sleep(100);                        //wait a little
+	pthread_join(m_EventThread, NULL); //finish
 }
 
 //<-dceag-reg-b->
@@ -1620,8 +1620,8 @@ void gc100::EventThread()
 {
 	while (! m_bQuit)
 	{
-Sleep(50);
-g_pPlutoLogger->Write(LV_STATUS,"EventThread");
+		Sleep(50);
+		g_pPlutoLogger->Write(LV_STATUS,"EventThread");
 		read_from_gc100();
 	}
 }
