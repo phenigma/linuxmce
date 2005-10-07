@@ -14,6 +14,7 @@
 #define SIZE_720p_CONST 11
 #define SIZE_1080i_or_1080p_CONST 12
 #define SIZE_IP_Phone_CONST 13
+#define SIZE_320x240_CONST 15
 
 #define SIZE_TABLE "Size"
 #define SIZE_PK_SIZE_FIELD "PK_Size"

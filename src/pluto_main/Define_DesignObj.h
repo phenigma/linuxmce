@@ -1586,7 +1586,7 @@
 #define DESIGNOBJ_objToggleDisplayMode1_CONST 4378
 #define DESIGNOBJ_mnuTVEPG1_CONST 4379
 #define DESIGNOBJ_mnuTVEPG2_CONST 4380
-#define DESIGNOBJ_mnuTVEPGFavorites_CONST 4381
+#define DESIGNOBJ_mnuTVEPG3_CONST 4381
 #define DESIGNOBJ_objControllerBackToPVR_CONST 4382
 #define DESIGNOBJ_mnuShowInfo_CONST 4383
 #define DESIGNOBJ_butRecordThisBroadcast_CONST 4384
@@ -1608,6 +1608,11 @@
 #define DESIGNOBJ_butDeleteTVBookmark_CONST 4400
 #define DESIGNOBJ_dgEPG3_CONST 4401
 #define DESIGNOBJ_butRandomPlay_CONST 4402
+#define DESIGNOBJ_mnuMainMenuSmall_CONST 4403
+#define DESIGNOBJ_butChangeLocation_CONST 4404
+#define DESIGNOBJ_butCurrentUser_CONST 4406
+#define DESIGNOBJ_go_to_web2_CONST 4412
+#define DESIGNOBJ_mnuWebSites_CONST 4413
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
