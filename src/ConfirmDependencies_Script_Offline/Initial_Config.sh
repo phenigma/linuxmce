@@ -166,7 +166,7 @@ awk '/Name: debconf\/frontend/,/^$/ {if ($1 == "Value:") print "Value: Nonintera
         {print}' /var/cache/debconf/config.dat > /var/cache/debconf/config.dat.$$
 mv /var/cache/debconf/config.dat{.$$,}
 
-exit
+exit 0
 # /Temp code
 
 # router/diskless
