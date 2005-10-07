@@ -1,6 +1,9 @@
 #!/bin/bash
 
 # Temp code
+echo "About to start"
+read
+
 Sources="# Pluto sources - start
 deb file:/usr/pluto/deb-cache/ sarge main
 deb http://deb.plutohome.com/debian/ sarge main non-free contrib
@@ -42,14 +45,6 @@ Ask()
 . /usr/pluto/bin/SQL_Ops.sh
 
 # "Initial config"
-# Add to Installation_Users
-Q4="INSERT INTO Installation_Users(FK_Installation,FK_Users,userCanModifyInstallation)
-SELECT PK_Installation,PK_Users,1
-FROM Installation
-JOIN Users;"
-
-echo "$Q4" | /usr/bin/mysql pluto_main
-
 # Create installation
 Q="INSERT INTO Installation VALUES()"
 RunSQL "$Q"
@@ -65,7 +60,7 @@ sqlPassword="${Password//\'/\'}"
 sqlPasswordUnix="${PasswordUnix//\'/\'}"
 sqlPasswordSamba="${PasswordSamba//\'/\'}"
 Q="INSERT INTO Users(UserName, Password, Password_Unix, Password_Samba)
-	VALUES('$sqlUN', '$sqlPassword', '$sqlPasswordUnix', '$sqlPasswordSamba')"
+	VALUES('$sqlUsername', MD5('$sqlPassword'), '$sqlPasswordUnix', '$sqlPasswordSamba')"
 RunSQL "$Q"
 
 # Add user to installation
@@ -97,7 +92,7 @@ done
 # Create hybrid
 Type=$(Ask "Core or Hybrid? [C/h]")
 if [[ "$Type" == "H" || "$Type" == "h" ]]; then
-	HybDev=$(/usr/pluto/bin/CreateDevice -d 28)
+	HybDev=$(/usr/pluto/bin/CreateDevice -d 28 -C "$CoreDev")
 	Q="UPDATE Device SET Description='The core/hybrid', FK_Room=1 WHERE PK_Device='$HybDev'"
 	RunSQL "$Q"
 
@@ -147,6 +142,14 @@ for i in $devices; do
 
 	(echo "$Q1"; echo "$Q2"; echo "$Q3";) | /usr/bin/mysql pluto_main
 done
+
+# Add to Installation_Users
+Q4="INSERT INTO Installation_Users(FK_Installation,FK_Users,userCanModifyInstallation)
+SELECT PK_Installation,PK_Users,1
+FROM Installation
+JOIN Users;"
+
+echo "$Q4" | /usr/bin/mysql pluto_main
 
 # Update startup scripts
 /usr/pluto/bin/Update_StartupScrips.sh
