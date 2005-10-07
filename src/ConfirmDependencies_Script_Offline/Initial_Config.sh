@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Temp code
-echo "About to start"
+echo "About to start. Press Enter."
 read
 
 Sources="# Pluto sources - start
