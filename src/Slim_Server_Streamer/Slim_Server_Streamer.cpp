@@ -141,7 +141,6 @@ void Slim_Server_Streamer::CMD_Start_Streaming(int iStreamID,string sStreamingTa
 //<-dceag-c249-e->
 {
 	PLUTO_SAFETY_LOCK(dataMutexLock, m_dataStructureAccessMutex);
-//	PlutoLock dataMutexLock(LOCK_PARAMS(m_dataStructureAccessMutex));
 
     g_pPlutoLogger->Write(LV_STATUS, "Processing Start streaming command for target devices: %s", sStreamingTargets.c_str());
 
@@ -480,9 +479,16 @@ void *Slim_Server_Streamer::checkForPlaybackCompleted(void *pSlim_Server_Streame
 
 			if ( itStreamsToPlayers->second.first == STATE_PLAY && ( strResult == macAddress + " mode stop" || strResult == macAddress + " mode %3F" ) )
 			{
-				g_pPlutoLogger->Write(LV_STATUS, "Sending playback completed event for stream %d", itStreamsToPlayers->first);
-				pStreamer->SetStateForStream((*itStreamsToPlayers).first, STATE_STOP);
-				pStreamer->EVENT_Playback_Completed((*itStreamsToPlayers).first,true);
+				time_t tNow = time(NULL);
+				time_t tStreamStart = pStreamer->m_mapStreamsToTimeStreamStarted[itStreamsToPlayers->first];
+				if( tNow - tStreamStart<3 )
+					g_pPlutoLogger->Write(LV_STATUS,"Ignoring stop mode since it has only been %d seconds",tNow-tStreamStart);
+				else
+				{
+					g_pPlutoLogger->Write(LV_STATUS, "Sending playback completed event for stream %d started %d seconds ago", itStreamsToPlayers->first,tNow-tStreamStart);
+					pStreamer->SetStateForStream((*itStreamsToPlayers).first, STATE_STOP);
+					pStreamer->EVENT_Playback_Completed((*itStreamsToPlayers).first,true);
+				}
 			}
 			else if ( strResult == macAddress + " mode pause" && itStreamsToPlayers->second.first != STATE_PAUSE )
 			{
@@ -554,6 +560,11 @@ void Slim_Server_Streamer::SetStateForStream(int iStreamID, StreamStateType newS
 	}
 
 	m_mapStreamsToPlayers[iStreamID].first = newState;
+	if( newState==STATE_PLAY )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Noting start time for stream %d", iStreamID);
+		m_mapStreamsToTimeStreamStarted[iStreamID] = time(NULL);
+	}
 }
 
 //<-dceag-c37-b->
@@ -583,6 +594,24 @@ void Slim_Server_Streamer::CMD_Play_Media(string sFilename,int iPK_MediaType,int
 
 	SetStateForStream(iStreamID, STATE_CHANGING);
 	SendReceiveCommand(sControlledPlayerMac + " playlist play " + StringUtils::URLEncode(string("file://") + StringUtils::Replace(&sFilename,"//", "/")));
+
+	string strResult = SendReceiveCommand(sControlledPlayerMac + " mode ?", false);
+	if( strResult == sControlledPlayerMac + " mode stop" || strResult == sControlledPlayerMac + " mode %3F" )
+	{
+		// 2005-10-8 For some reason, slimserver often reports its state is stopped the first time it tries to play a file,
+		// but it works on subsequent plays.  It seems to be a bug in slimserver, but since I don't know this code well,
+		// just put a hack in here for the moment by making it try again
+		g_pPlutoLogger->Write(LV_WARNING,"Squeeze box reports it's state is stopped right after a new start.  Try again");
+		SendReceiveCommand(sControlledPlayerMac + " playlist play " + StringUtils::URLEncode(string("file://") + StringUtils::Replace(&sFilename,"//", "/")));
+		strResult = SendReceiveCommand(sControlledPlayerMac + " mode ?", false);
+		if( strResult == sControlledPlayerMac + " mode stop" || strResult == sControlledPlayerMac + " mode %3F" )
+		{
+			g_pPlutoLogger->Write(LV_WARNING,"A second time!  Try again");
+			SendReceiveCommand(sControlledPlayerMac + " playlist clear");
+			SendReceiveCommand(sControlledPlayerMac + " stop");
+			SendReceiveCommand(sControlledPlayerMac + " playlist play " + StringUtils::URLEncode(string("file://") + StringUtils::Replace(&sFilename,"//", "/")));
+		}
+	}
 
 //	if ( sMediaPosition != 0 )
 //		SendReceiveCommand(sControlledPlayerMac + " gototime " + StringUtils::itos(iMediaPosition / 1000));

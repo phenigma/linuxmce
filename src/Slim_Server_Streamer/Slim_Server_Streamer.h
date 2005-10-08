@@ -45,6 +45,7 @@ namespace DCE
         //                  a vector of SqueezeBox_Player objects ( the devices on which this stream is playing ).
         //              ]
         map<int, pair<StreamStateType, vector<DeviceData_Base *> > > m_mapStreamsToPlayers;
+        map<int, time_t > m_mapStreamsToTimeStreamStarted;
 
         // the socket used to communicate with the server
         SOCKET m_iServerSocket;

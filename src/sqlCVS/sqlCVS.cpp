@@ -105,6 +105,7 @@ string GetCommand( )
 		<< "20.	Reset entire database--sqlCVS clients will be out of sync ( reset-all )" << endl
 		<< "21.	Reset the system tables ( reset-sys )" << endl
 		<< "22.	Update psc_id's ( update-psc )" << endl
+		<< "23.	Update last_psc_batch/id **server only** ( update-last-psc )" << endl
 		<< "------Client-side functions------" << endl
 		<< "A.	Import a 'dump' file from a server and make a local, working copy ( import )" << endl
 		<< "B.	Check-in changes you've made locally ( checkin )" << endl
@@ -151,6 +152,8 @@ string GetCommand( )
 		return "reset-sys";
 	else if( s=="22" )
 		return "update-psc";
+	else if( s=="23" )
+		return "update-last-psc";
 	else if( s=="a" || s=="A" )
 		return "import";
 	else if( s=="b" || s=="B" )
@@ -487,6 +490,10 @@ int main( int argc, char *argv[] )
 			else if( g_GlobalConfig.m_sCommand=="update-psc" )
 			{
 				database.Update_psc();
+			}
+			else if( g_GlobalConfig.m_sCommand=="update-last-psc" )
+			{
+				database.Update_lastpsc();
 			}
 			else if( g_GlobalConfig.m_sCommand=="history-all" )
 			{

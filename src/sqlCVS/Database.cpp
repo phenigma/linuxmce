@@ -1402,6 +1402,43 @@ void Database::Reset_sys()
 		pRepository->ResetSystemTables();
 	}
 }
+
+void Database::Update_lastpsc()
+{
+	for(MapTable::iterator it=m_mapTable.begin();it!=m_mapTable.end();++it)
+	{
+		Table *pTable = (*it).second;
+		Repository *pRepository = pTable->Repository_get();
+		if( pRepository && pRepository->m_pTable_Tables && !pTable->m_bIsSystemTable )
+		{
+			int last_psc_id=0,last_psc_batch=0;
+
+			ostringstream sql;
+			PlutoSqlResult result_id;
+			MYSQL_ROW row=NULL;
+			sql << "SELECT max(psc_id),max(psc_batch) FROM `" << pTable->Name_get() << "`";
+			if( ( result_id.r=mysql_query_result( sql.str( ) ) ) && ( row = mysql_fetch_row( result_id.r ) ) )
+			{
+				if( row[0] )
+					last_psc_id = atoi( row[0] );
+				
+				if( row[1] )
+					last_psc_batch = atoi( row[1] );
+			}
+
+			sql.str("");
+			sql << "UPDATE `" << pRepository->m_pTable_Tables->Name_get() << "` SET last_psc_id=" << last_psc_id
+				<< ",last_psc_batch=" << last_psc_batch << " WHERE Tablename='" << pTable->Name_get() << "'";
+			if( threaded_mysql_query( sql.str( ) )<0 )
+			{
+				cerr << "SQL failed: " << sql.str( );
+				throw "Internal error Database::Update_lastpsc";
+			}
+		}
+	}
+}
+
+
 void Database::Update_psc()
 {
 	for(MapTable::iterator it=m_mapTable.begin();it!=m_mapTable.end();++it)

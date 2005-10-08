@@ -42,7 +42,7 @@
 void FileListGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, int *RowStart, int ColCount, int RowCount)
 {
 	// Don't render icons in the first column if we're not displaying the first column
-	if( ColStart )
+	if( *ColStart )
 	{
 		DataGridTable::ToData(GridID,Size,Data,ColStart,RowStart,ColCount,RowCount);
 		return;

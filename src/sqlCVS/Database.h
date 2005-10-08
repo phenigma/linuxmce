@@ -160,6 +160,11 @@ namespace sqlCVS
 		void Update_psc();
 
 		/**
+		 *  @brief If this is a server, update the last_psc_id and last_psc_batch in the psc_xxx_tables
+		 */
+		void Update_lastpsc();
+
+		/**
 		 *  @brief Approve an existing unauthorized batch
 		 */
 		void Approve( bool bReject=false );

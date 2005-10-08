@@ -211,7 +211,7 @@ cout << sDirectory << " is a ripped dvd" << endl;
 			break; // Don't recurse anymore
 		}
 		map<string,pair<Row_File *,bool> >::iterator itMapFiles = mapFiles.find( FileUtils::FilenameWithoutPath(sSubDir) );
-		if( itMapFiles!=mapFiles.end() )
+		if( itMapFiles!=mapFiles.end() && itMapFiles->second.first->IsDirectory_get()==0 )
 		{
 cout << sDirectory << " is a sub-dir already categoriezed ripped dvd" << endl;
 #ifndef WIN32

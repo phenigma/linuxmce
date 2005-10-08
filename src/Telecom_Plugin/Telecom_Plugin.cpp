@@ -264,7 +264,11 @@ class DataGridTable *Telecom_Plugin::PhoneBookListOfNos(string GridID,string Par
 	{
 		Row_PhoneNumber *pRow_PhoneNumber = vectRow_PhoneNumber[s];
 		Row_PhoneType *pRow_PhoneType = pRow_PhoneNumber->FK_PhoneType_getrow();
-		string sDescription,sDial=GetDialNumber(pRow_PhoneNumber);
+		string sPhoneType,sDescription,sDial=GetDialNumber(pRow_PhoneNumber);
+
+		if( pRow_PhoneType )
+			sPhoneType = pRow_PhoneType->Description_get();
+
 		if( pRow_PhoneNumber->CountryCode_get().size() )
 			sDescription += "+" + pRow_PhoneNumber->CountryCode_get() + " ";
 		if( pRow_PhoneNumber->AreaCode_get().size() )
@@ -280,14 +284,14 @@ class DataGridTable *Telecom_Plugin::PhoneBookListOfNos(string GridID,string Par
 
 		if( sDescription.size()==0 )
 			continue;
-		pCell = new DataGridCell(sDescription, sDial);
+
+		pCell = new DataGridCell(pRow_PhoneType->Description_get(), sDial);
 		pDataGrid->SetData(0,Row, pCell);
 
-		if( pRow_PhoneType )
-		{
-			pCell = new DataGridCell(pRow_PhoneType->Description_get(), sDial);
-			pDataGrid->SetData(1,Row, pCell);
-		}
+		pCell = new DataGridCell(sDescription, sDial);
+		pCell->m_Colspan=2;
+		pDataGrid->SetData(1,Row, pCell);
+
 		Row++;
 	}
 
