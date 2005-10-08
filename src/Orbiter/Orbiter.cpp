@@ -9019,7 +9019,6 @@ bool Orbiter::WaitForRelativesIfOSD()
 			break;
 		if( time(NULL)>tTimeout )
 		{
-			DisplayProgress("",-1);
 			string sMessage = m_mapTextString[TEXT_Not_all_devices_started_CONST];
 			PromptUser(sMessage);
 			g_pPlutoLogger->Write(LV_WARNING,"Continuing anyway with %d devices not registered",iUnregisteredRelatives);
@@ -9038,10 +9037,14 @@ bool Orbiter::WaitForRelativesIfOSD()
 		g_pPlutoLogger->Write(LV_STATUS,"Waiting %d devices %s",iUnregisteredRelatives,sDescription.c_str());
 		if( DisplayProgress(sDescription,100-(iUnregisteredRelatives*100/mapUnregisteredRelatives.size())) )
 		{
+			DisplayProgress("",-1);
+			g_pPlutoLogger->Write(LV_WARNING,"Orbiter::WaitForRelativesIfOSD user wants to abort");
 			OnQuit();
 			return false;
 		}
 		Sleep(1000); // Sleep and try again
 	}
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::WaitForRelativesIfOSD exiting");
+	DisplayProgress("",-1);
 	return true;
 }

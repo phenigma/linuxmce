@@ -1186,9 +1186,11 @@ bool Router::ReceivedString(Socket *pSocket, string Line, int nTimeout/* = -1*/)
 			pSocket->SendString("DEVICE_REGISTERED N");
 		else
 		{
-			PLUTO_SAFETY_LOCK(slConnMutex,pServerSocket->m_ConnectionMutex)
-			string sResponse = pServerSocket->SendReceiveString("PING",PING_TIMEOUT);
-			slConnMutex.Release();
+			string sResponse;
+			{
+				PLUTO_SAFETY_LOCK(slConnMutex,pServerSocket->m_ConnectionMutex)
+				sResponse = pServerSocket->SendReceiveString("PING",PING_TIMEOUT);
+			}
 			if( sResponse=="PONG" )
                 pSocket->SendString("DEVICE_REGISTERED Y");
 			else
@@ -2578,7 +2580,7 @@ void Router::PingFailed( ServerSocket *pServerSocket, int dwPK_Device )
 
 void Router::RemoveAndDeleteSocket( ServerSocket *pServerSocket, bool bDontDelete )
 {
-	g_pPlutoLogger->Write( LV_WARNING, "Router::RemoveAndDeleteSocket %p", pServerSocket );
+	g_pPlutoLogger->Write( LV_WARNING, "Router::RemoveAndDeleteSocket %p %d", pServerSocket, pServerSocket ? pServerSocket->m_dwPK_Device : 0 );
     PLUTO_SAFETY_LOCK(sl,m_CoreMutex);
 	DeviceData_Router *pDevice = m_mapDeviceData_Router_Find( pServerSocket->m_dwPK_Device );
 	if( pDevice )
