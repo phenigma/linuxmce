@@ -265,12 +265,12 @@ void IRTrans::StartIRServer()
 	m_bIRServerRunning=true;
 
 	char TTYPort[255];
-	if( DATA_Get_COM_Port_on_PC().size() && DATA_Get_COM_Port_on_PC.size()<255 )
+	if( DATA_Get_COM_Port_on_PC().size() && DATA_Get_COM_Port_on_PC().size()<255 )
 		strcpy(TTYPort,DATA_Get_COM_Port_on_PC().c_str());
 	else
 		strcpy(TTYPort,"/dev/ttyUSB0");
 	char *argv[]={"IRTrans","-loglevel","4","-debug_code","-no_lirc", "-no_web",TTYPort};
-	g_pPlutoLogger->Write(LV_STATUS,"Trying to open IRTrans on %s",TTYPort};
+	g_pPlutoLogger->Write(LV_STATUS,"Trying to open IRTrans on %s",TTYPort);
 	if( libmain(7,argv)!=0 )
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"IRTrans not found on default port.  Will scan for it");
