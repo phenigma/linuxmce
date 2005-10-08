@@ -133,9 +133,6 @@ bool VDR::Register()
 
 void VDR::CreateChildren()
 {
-    PLUTO_SAFETY_LOCK(mm,m_VDRMutex);
-                                
-    LaunchVDR();
 }
 
 //<-dceag-createinst-b->!

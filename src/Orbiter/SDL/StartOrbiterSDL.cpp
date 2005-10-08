@@ -253,7 +253,10 @@ bool StartOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP,string s
         pCLinux->Initialize(gtSDLGraphic);
 
         if (!bLocalMode)
+		{
             pCLinux->CreateChildren();
+			pCLinux->WaitForRelativesIfOSD();
+		}
 
         //pCLinux->Initialize_Display();
 		g_pPlutoLogger->Write(LV_STATUS, "Creating the simulator");

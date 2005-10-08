@@ -921,6 +921,9 @@ public:
 
 	virtual void OnReload() { Orbiter_Command::OnReload(); OnQuit(); g_pPlutoLogger->Write(LV_WARNING,"Orbiter reloading"); }  // The OnQuit handlers take care of terminating the orbiter's event procesor, such as by firing an SDL event
 
+	// Wait for related devices to startup before we let the user go
+	virtual bool WaitForRelativesIfOSD();
+
 //<-dceag-h-b->
 	/*
 				AUTO-GENERATED SECTION
