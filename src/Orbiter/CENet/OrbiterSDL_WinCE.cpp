@@ -475,6 +475,7 @@ void OrbiterSDL_WinCE::OnQuit()
 
 	m_bQuit = true;
 	m_bConnectionLost = true;
+	pthread_cond_broadcast( &m_listMessageQueueCond );
 
 	//::ShowWindow(hSDLWindow, SW_HIDE);
 	ShowMainDialog();

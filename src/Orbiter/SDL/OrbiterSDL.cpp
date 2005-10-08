@@ -345,6 +345,7 @@ void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, Pl
 {
 	g_pPlutoLogger->Write(LV_WARNING,"Got an on quit.  Pushing an event into SDL");
 	m_bQuit = true;
+	pthread_cond_broadcast( &m_listMessageQueueCond );
 	SDL_Event *pEvent = new SDL_Event;
 	pEvent->type = SDL_QUIT;
 	SDL_PushEvent(pEvent);

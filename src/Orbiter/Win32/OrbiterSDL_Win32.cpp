@@ -172,6 +172,7 @@ void OrbiterSDL_Win32::OnQuit()
 {
 	m_bQuit = true;
 	m_bConnectionLost = true;
+	pthread_cond_broadcast( &m_listMessageQueueCond );
 
 	//atexit(SDL_Quit);
 	//::PostMessage(hSDLWindow, WM_QUIT, 0L, 0L);

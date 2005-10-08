@@ -64,8 +64,20 @@ OrbiterLinux::OrbiterLinux(int DeviceID, int PK_DeviceTemplate,
 	system("/usr/bin/X11/xset -display :0 -dpms s off");
 }
 
+void *HackThread(void *p)
+{
+	// For some reason X can fail to properly die????  TODO - HACK
+	cout << "Inside Hacktrhead" << endl;
+	Sleep(10000);
+	cout << "Big problem -- this app should have died and didn't.  Send ourselves a seg fault so we log a coredump and can fix this" << endl;
+	kill(getpid(), SIGSEGV);
+}
+
 OrbiterLinux::~OrbiterLinux()
 {
+	pthread_t hackthread;
+	pthread_create(&hackthread, NULL, HackThread, (void*)this);
+
     if (m_pProgressWnd)
     {
         m_pProgressWnd->Terminate();
