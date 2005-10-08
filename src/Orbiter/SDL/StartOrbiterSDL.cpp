@@ -242,6 +242,10 @@ bool StartOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP,string s
         sLocalDirectory, bLocalMode, Width, Height);
 #endif
 
+	// Prevent anyone from starting to draw until we've finished initializing.
+	// It was happening that it would render the screen, and then
+    PLUTO_SAFETY_LOCK( cm, pCLinux->m_ScreenMutex );
+
 	// Add a handler to take care of crashes
 	g_pCommand_Impl = pCLinux;
 	g_pDeadlockHandler=DeadlockHandler;
@@ -262,6 +266,8 @@ bool StartOrbiter(int PK_Device,int PK_DeviceTemplate,string sRouter_IP,string s
 		g_pPlutoLogger->Write(LV_STATUS, "Creating the simulator");
 		Simulator::GetInstance()->m_pOrbiter = pCLinux;
 		Simulator::GetInstance()->LoadConfigurationFile("/etc/Orbiter.conf");
+
+		cm.Release();
 
         g_pPlutoLogger->Write(LV_STATUS, "Starting processing events");
 

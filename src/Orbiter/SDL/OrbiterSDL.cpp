@@ -46,6 +46,23 @@
 	#include "wince.h"
 #endif
 
+bool g_bResettingVideoMode;
+void *HackThread(void *p)
+{
+	// For some reason X can fail to properly die????  TODO - HACK
+	g_pPlutoLogger->Write(LV_STATUS,"Inside Hacktrhead #2");
+	Sleep(500);
+	if( g_bResettingVideoMode )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Another stupid problem since the kernel upgrade.  SDL_SetVideoMode can just hang on init.  It happened. Kill ourselves");
+#ifndef WIN32
+		kill(getpid(), SIGSEGV);
+#endif
+	}
+	return NULL;
+}
+
+
 using namespace DCE;
 //-----------------------------------------------------------------------------------------------------
 OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress, string sLocalDirectory, 
@@ -97,11 +114,17 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
         uVideoModeFlags |= SDL_FULLSCREEN;
 #endif
 
-    if ((Screen = SDL_SetVideoMode(m_iImageWidth, m_iImageHeight, 0, uVideoModeFlags)) == NULL)
+	g_bResettingVideoMode=true;
+	pthread_t hackthread;
+	pthread_create(&hackthread, NULL, HackThread, (void*)this);
+
+	if ((Screen = SDL_SetVideoMode(m_iImageWidth, m_iImageHeight, 0, uVideoModeFlags)) == NULL)
     {
         g_pPlutoLogger->Write(LV_WARNING, "Failed to set video mode: %s", SDL_GetError());
         exit(1);
     }
+	g_bResettingVideoMode=false;
+	Sleep(750);  // Give the hack thread a chance to see this and exit  // HACK TODO -- GET A FIX TO SDL!!!
 #endif
 
     g_pPlutoLogger->Write(LV_STATUS, "Set video mode to %d x %d Window.", m_iImageWidth, m_iImageHeight);

@@ -71,6 +71,7 @@ void *HackThread(void *p)
 	Sleep(10000);
 	cout << "Big problem -- this app should have died and didn't.  Send ourselves a seg fault so we log a coredump and can fix this" << endl;
 	kill(getpid(), SIGSEGV);
+	return NULL;
 }
 
 OrbiterLinux::~OrbiterLinux()
@@ -409,7 +410,7 @@ bool OrbiterLinux::DisplayProgress(string sMessage, int nProgress)
         // Update progress info
         m_pProgressWnd->UpdateProgress(sMessage, nProgress);
         m_pProgressWnd->DrawWindow();
-    } else {
+    } else if(m_pProgressWnd) {
         // We are done here ...
         m_pProgressWnd->Terminate();
         m_pProgressWnd = NULL;
