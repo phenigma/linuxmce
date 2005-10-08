@@ -5585,6 +5585,12 @@ void Orbiter::CMD_Refresh(string sDataGrid_ID,string &sCMD_Result,Message *pMess
 		}
 	}
 
+	if( m_pScreenHistory_Current )
+	{
+		PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
+		m_vectObjs_NeedRedraw.push_back(m_pScreenHistory_Current->m_pObj);
+		nd.Release();
+	}
     NeedToRender render( this, "CMD_Refresh" );  // Redraw anything that was changed by this command
 }
 

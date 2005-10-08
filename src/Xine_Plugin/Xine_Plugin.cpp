@@ -370,18 +370,9 @@ bool Xine_Plugin::MenuOnScreen( class Socket *pSocket, class Message *pMessage, 
 			if( pOH_Orbiter->m_pEntertainArea!=pEntertainArea )
 				continue;
 			g_pPlutoLogger->Write(LV_STATUS, "Processing remote: for orbiter: %d", pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+			bool bBound = pEntertainArea->m_mapBoundRemote.find(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device)!=pEntertainArea->m_mapBoundRemote.end();
 			m_pMedia_Plugin->SetNowPlaying(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
-				pXineMediaStream,false);
-		}
-		m_pMedia_Plugin->WaitForMessageQueue();
-g_pPlutoLogger->Write(LV_WARNING, "Sent now playing to %d remoted for on: %d queue",
-					  (int) pEntertainArea->m_mapBoundRemote.size( ),(int) bOnOff);
-		for( MapBoundRemote::iterator itBR=pEntertainArea->m_mapBoundRemote.begin( );itBR!=pEntertainArea->m_mapBoundRemote.end( );++itBR )
-		{
-			BoundRemote *pBoundRemote = ( *itBR ).second;
-			DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
-				0,"<%=NP_R%>","","",false,false);
-			SendCommand(CMD_Goto_Screen);
+				pXineMediaStream,false,bBound);
 		}
 	}
 

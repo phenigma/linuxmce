@@ -342,6 +342,8 @@ void UpdateEntArea::AddDefaultCommandsToRoom(Row_Room *pRow_Room,int iPK_Templat
 
 	if( (!iPK_Template || iPK_Template==TEMPLATE_Security_Arm_Disarm_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_Room,TEMPLATE_Security_Arm_Disarm_CONST,ARRAY_Security_Scenarios_CONST,"Security"))!=0 )
 	{
+		m_pDatabase_pluto_main->CommandGroup_get()->GetRow(PK_CommandGroup)->FK_DesignObj_set(DESIGNOBJ_objHouseStatusIndicator_CONST);
+		m_pDatabase_pluto_main->CommandGroup_get()->Commit();
 		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,StringUtils::itos(DESIGNOBJ_mnuSecurityPanel_CONST).c_str());
 	}
 

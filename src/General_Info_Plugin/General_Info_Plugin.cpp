@@ -123,6 +123,10 @@ bool General_Info_Plugin::Register()
 		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::BookmarkList)), 
 		DATAGRID_Mozilla_Bookmarks_CONST,PK_DeviceTemplate_get());
 
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::TypesOfPhones)), 
+		DATAGRID_Types_Of_Mobile_Phones_CONST,PK_DeviceTemplate_get());
+
 	return Connect(PK_DeviceTemplate_get()); 
 }
 
@@ -651,6 +655,21 @@ class DataGridTable *General_Info_Plugin::MRUDocuments( string GridID, string Pa
     DataGridCell *pCell;
 
 
+	return pDataGrid;
+}
+
+class DataGridTable *General_Info_Plugin::TypesOfPhones( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+	DataGridTable *pDataGrid = new DataGridTable( );
+	DataGridCell *pCell;
+	vector<Row_DeviceTemplate *> vectRow_DeviceTemplate;
+	m_pDatabase_pluto_main->DeviceTemplate_get()->GetRows("FK_DeviceCategory="+StringUtils::itos(DEVICECATEGORY_Mobile_Orbiter_CONST),&vectRow_DeviceTemplate);
+	for(size_t s=0;s<vectRow_DeviceTemplate.size();++s)
+	{
+		Row_DeviceTemplate *pRow_DeviceTemplate = vectRow_DeviceTemplate[s];
+		pCell = new DataGridCell(pRow_DeviceTemplate->Description_get(),StringUtils::itos(pRow_DeviceTemplate->PK_DeviceTemplate_get()));
+		pDataGrid->SetData(0,s,pCell);
+	}
 	return pDataGrid;
 }
 

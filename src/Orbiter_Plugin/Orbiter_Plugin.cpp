@@ -1008,11 +1008,24 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
 
 	int PK_UI=0;
 
+	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL( m_dwPK_Device, m_sPK_Device_AllOrbiters, StringUtils::itos(DESIGNOBJ_mnuNewPhoneDetected_CONST), "" );
+    SendCommand(CMD_Remove_Screen_From_History_DL);
+	m_bNoUnknownDeviceIsProcessing = false;
+
 	if( !iPK_DeviceTemplate )
 	{
 		string sDeviceCategory;
 		string sManufacturer;
 		IdentifyDevice(sMac_address, sDeviceCategory, iPK_DeviceTemplate, sManufacturer);
+		if( pUnknownDeviceInfos )
+		{
+			// We know this is a mobile mobile, since it was detected by bluetooth, but we can't identify the make
+			// So we must ask the user, on whatever orbiter he made this selection with
+			DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pMessage->m_dwPK_Device_From,0,StringUtils::itos(DESIGNOBJ_mnuWhatModelMobileOrbiter_CONST),
+				"","",false,true);
+			SendCommand(CMD_Goto_Screen);
+			return;
+		}
 	}
 
     if(!iPK_DeviceTemplate)
@@ -1152,6 +1165,19 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
         Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(PK_Device);
 		pRow_Device->Reload(); // Just in case it's been changed
 		pRow_Device->State_set(NEED_VMC_TOKEN); //first time the app is connected, the vmc file is sent
+		if( iPK_Users )
+		{
+			Row_Users *pRow_Users = m_pDatabase_pluto_main->Users_get()->GetRow(iPK_Users);
+			if( pRow_Users )
+			{
+				if( pRow_Users->Nickname_get().size() )
+					pRow_Device->Description_set( pRow_Users->Nickname_get() + " " + pRow_Device->Description_get() );
+				else if( pRow_Users->FirstName_get().size() )
+					pRow_Device->Description_set( pRow_Users->FirstName_get() + " " + pRow_Device->Description_get() );
+				else if( pRow_Users->UserName_get().size() )
+					pRow_Device->Description_set( pRow_Users->UserName_get() + " " + pRow_Device->Description_get() );
+			}
+		}
 		pRow_Device->Table_Device_get()->Commit();
 		
         const string csMacToken = "<mac>";
@@ -1170,11 +1196,7 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
     }
 
 g_pPlutoLogger->Write(LV_STATUS,"setting process flag to false");
-	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL( m_dwPK_Device, m_sPK_Device_AllOrbiters, StringUtils::itos(DESIGNOBJ_mnuNewPhoneDetected_CONST), "" );
-    SendCommand(CMD_Remove_Screen_From_History_DL);
-
     DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T" + StringUtils::itos(TEXT_instructions_CONST) + "%>",false);
-	m_bNoUnknownDeviceIsProcessing = false;
     ProcessUnknownDevice();
 }
 //<-dceag-c79-b->
@@ -1540,7 +1562,7 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,int iPK_Users,string s
 		EntertainArea *pEntertainArea = m_pMedia_Plugin->m_mapEntertainAreas_Find(atoi(sPK_EntertainArea.c_str()));
 	    pOH_Orbiter->m_pEntertainArea=pEntertainArea;
 		if( pEntertainArea && pEntertainArea->m_pMediaStream )
-			m_pMedia_Plugin->SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pEntertainArea->m_pMediaStream, false, CMD_Set_Bound_Iconl.m_pMessage);
+			m_pMedia_Plugin->SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pEntertainArea->m_pMediaStream, false, false, CMD_Set_Bound_Iconl.m_pMessage);
 		mm.Release();
 		
 		OrbiterFileBrowser_Collection *pOrbiterFileBrowser_Collection = m_pMedia_Plugin->CreateOrbiterFileList(pOH_Orbiter);

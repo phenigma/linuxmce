@@ -413,7 +413,7 @@ public:
 		EntertainArea *&pEntertainArea,MediaStream *&pMediaStream);
 
 	// This sends the set now playing command to an orbiter.  If pMessage is passed, it adds the command without sending it
-	void SetNowPlaying( int dwPK_Device, MediaStream *pMediaStream, bool bRefreshScreen, Message *pMessage=NULL )
+	void SetNowPlaying( int dwPK_Device, MediaStream *pMediaStream, bool bRefreshScreen, bool bGotoRemote=false, Message *pMessage=NULL )
 	{
 		string sRemotes;
 		if( pMediaStream )
@@ -433,6 +433,7 @@ public:
 				+ StringUtils::itos(pRemoteControlSet->m_iPK_DesignObj_FileList_Popup) + ","
 				+ StringUtils::itos(pMediaStream->m_bUseAltScreens && pRemoteControlSet->m_iPK_DesignObj_Alt_OSD ? pRemoteControlSet->m_iPK_DesignObj_Alt_OSD : pRemoteControlSet->m_iPK_DesignObj_OSD);
 		}
+
 
 		int PK_Device_Source=0,iDequeMediaFile=0;
 		string sFilename;
@@ -457,19 +458,52 @@ public:
 			DCE::CMD_Set_Now_Playing CMD_Set_Now_Playing( m_dwPK_Device, dwPK_Device, PK_Device_Source,
 				sRemotes, pMediaStream->m_sMediaDescription, pMediaStream->m_sSectionDescription, sFilename, 
 				pMediaStream->m_iPK_MediaType, iDequeMediaFile, bRefreshScreen );
+
 			if( pMessage )
+			{
 				pMessage->m_vectExtraMessages.push_back(CMD_Set_Now_Playing.m_pMessage);
+				if( bGotoRemote )
+				{
+					DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,dwPK_Device,
+						0,"<%=NP_R%>","","",false,false);
+					pMessage->m_vectExtraMessages.push_back(CMD_Set_Now_Playing.m_pMessage);
+				}
+			}
 			else
+			{
+				if( bGotoRemote )
+				{
+					DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,dwPK_Device,
+						0,"<%=NP_R%>","","",false,false);
+					CMD_Set_Now_Playing.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Now_Playing.m_pMessage);
+				}
 				SendCommand( CMD_Set_Now_Playing );
+			}
 		}
 		else
 		{
 			DCE::CMD_Set_Now_Playing CMD_Set_Now_Playing( m_dwPK_Device, dwPK_Device, 0,
 				"", "", "", "", 0, 0, bRefreshScreen );
 			if( pMessage )
+			{
 				pMessage->m_vectExtraMessages.push_back(CMD_Set_Now_Playing.m_pMessage);
+				if( bGotoRemote )
+				{
+					DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,dwPK_Device,
+						0,"<%=NP_R%>","","",false,false);
+					pMessage->m_vectExtraMessages.push_back(CMD_Set_Now_Playing.m_pMessage);
+				}
+			}
 			else
+			{
+				if( bGotoRemote )
+				{
+					DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,dwPK_Device,
+						0,"<%=NP_R%>","","",false,false);
+					CMD_Set_Now_Playing.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Now_Playing.m_pMessage);
+				}
 				SendCommand( CMD_Set_Now_Playing );
+			}
 		}
 
 	}
