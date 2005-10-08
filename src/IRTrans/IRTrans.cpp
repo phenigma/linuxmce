@@ -249,7 +249,7 @@ void IRTrans::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 	/** @brief COMMAND: #687 - Set Screen Type */
 	/** Sent by Orbiter when the screen changes to tells the i/r receiver what type of screen is displayed so it can adjust mappings if necessary. */
 		/** @param #48 Value */
-			/** a character: M=Main Menu, m=other menu, R=Pluto Remote, r=Non-pluto remote, F=File Listing */
+			/** a character: M=Main Menu, m=other menu, R=Pluto Remote, r=Non-pluto remote, N=navigable OSD on media dev, f=full screen media app, F=File Listing, c=computing list, C=Computing full screen */
 
 void IRTrans::CMD_Set_Screen_Type(int iValue,string &sCMD_Result,Message *pMessage)
 //<-dceag-c687-e->
@@ -264,15 +264,23 @@ void IRTrans::StartIRServer()
 	CallBackFn=&DoGotIRCommand;
 	m_bIRServerRunning=true;
 
-	char TTYPort[20];
-	strcpy(TTYPort,"/dev/ttyUSBX");
+	char TTYPort[255];
+	if( DATA_Get_COM_Port_on_PC().size() && DATA_Get_COM_Port_on_PC.size()<255 )
+		strcpy(TTYPort,DATA_Get_COM_Port_on_PC().c_str());
+	else
+		strcpy(TTYPort,"/dev/ttyUSB0");
 	char *argv[]={"IRTrans","-loglevel","4","-debug_code","-no_lirc", "-no_web",TTYPort};
-	for(char cUSB='0';cUSB<='9';cUSB++)
+	g_pPlutoLogger->Write(LV_STATUS,"Trying to open IRTrans on %s",TTYPort};
+	if( libmain(7,argv)!=0 )
 	{
-		TTYPort[11]=cUSB;
-		g_pPlutoLogger->Write(LV_STATUS,"Looking on %s",argv[6]);
-		if( libmain(7,argv)!=0 )
-			g_pPlutoLogger->Write(LV_STATUS,"IRTrans not found on %s",argv[6]);
+		g_pPlutoLogger->Write(LV_STATUS,"IRTrans not found on default port.  Will scan for it");
+		for(char cUSB='0';cUSB<='9';cUSB++)
+		{
+			TTYPort[11]=cUSB;
+			g_pPlutoLogger->Write(LV_STATUS,"Looking on %s",argv[6]);
+			if( libmain(7,argv)!=0 )
+				g_pPlutoLogger->Write(LV_STATUS,"IRTrans not found on %s",argv[6]);
+		}
 	}
 
 	LCDBrightness(5);

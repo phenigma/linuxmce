@@ -371,7 +371,9 @@ void UpdateEntArea::AddDefaultCommandsToRoom(Row_Room *pRow_Room,int iPK_Templat
 	{
 		string sSQL="SELECT PK_Device,Device.Description FROM Device "
 			"JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate "
-			"WHERE FK_DeviceCategory=" + StringUtils::itos(DEVICECATEGORY_Surveillance_Cameras_CONST);
+			"LEFT JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory "
+			"WHERE FK_DeviceCategory=" + StringUtils::itos(DEVICECATEGORY_Surveillance_Cameras_CONST) + 
+			" OR FK_DeviceCategory_Parent=" + StringUtils::itos(DEVICECATEGORY_Surveillance_Cameras_CONST);
 
 		PlutoSqlResult result_set;
 		MYSQL_ROW row;

@@ -29,6 +29,7 @@ public:
 	class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition);
 	virtual int GetPK_DeviceList() { return 1715; } ;
 	virtual const char *GetDeviceDescription() { return "IRTrans"; } ;
+	string Get_COM_Port_on_PC() { return m_mapParameters[37];}
 };
 
 
@@ -115,6 +116,7 @@ public:
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
+	string DATA_Get_COM_Port_on_PC() { return GetData()->Get_COM_Port_on_PC(); }
 	//Event accessors
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Send_Code(string sText,string &sCMD_Result,class Message *pMessage) {};
