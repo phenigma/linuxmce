@@ -47,7 +47,7 @@
 #endif
 
 bool g_bResettingVideoMode;
-void *HackThread(void *p)
+void *HackThread2(void *p)
 {
 	// For some reason X can fail to properly die????  TODO - HACK
 	g_pPlutoLogger->Write(LV_STATUS,"Inside Hacktrhead #2");
@@ -116,7 +116,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
 
 	g_bResettingVideoMode=true;
 	pthread_t hackthread;
-	pthread_create(&hackthread, NULL, HackThread, (void*)this);
+	pthread_create(&hackthread, NULL, HackThread2, (void*)this);
 
 	if ((Screen = SDL_SetVideoMode(m_iImageWidth, m_iImageHeight, 0, uVideoModeFlags)) == NULL)
     {
