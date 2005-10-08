@@ -99,7 +99,7 @@ public:
 	{ 
 		m_pObject=pObj; m_iLastXOffset=m_iLastYOffset=0; m_iPK_VertAlignment=m_iPK_HorizAlignment=0;
 	}
-	DesignObjText() { m_pObject = NULL; }
+	DesignObjText() { m_pObject = NULL; m_iPK_VertAlignment=m_iPK_HorizAlignment=0; }
 	
 	virtual ~DesignObjText() 
 	{  

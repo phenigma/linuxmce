@@ -1871,28 +1871,33 @@ if( p_DesignObjText->m_PK_Text==740 )
 {
 	int k=2;
 }
-	if( !p_DesignObjText->m_pRow_DesignObjVariation_Text_Skin_Language->FK_HorizAlignment_isNull() )
-		p_DesignObjText->m_iPK_HorizAlignment = p_DesignObjText->m_pRow_DesignObjVariation_Text_Skin_Language->FK_HorizAlignment_get();
-	else
+	if( p_DesignObjText->m_iPK_HorizAlignment==0 ) // Wasn't already set
 	{
-		MapTextStyle::iterator it=p_DesignObjText->m_mapTextStyle.begin();
-		if( it==p_DesignObjText->m_mapTextStyle.end() )
-			p_DesignObjText->m_iPK_HorizAlignment=1;
+		if( !p_DesignObjText->m_pRow_DesignObjVariation_Text_Skin_Language->FK_HorizAlignment_isNull() )
+			p_DesignObjText->m_iPK_HorizAlignment = p_DesignObjText->m_pRow_DesignObjVariation_Text_Skin_Language->FK_HorizAlignment_get();
 		else
-			p_DesignObjText->m_iPK_HorizAlignment=it->second->m_iPK_HorizAlignment;
+		{
+			MapTextStyle::iterator it=p_DesignObjText->m_mapTextStyle.begin();
+			if( it==p_DesignObjText->m_mapTextStyle.end() )
+				p_DesignObjText->m_iPK_HorizAlignment=1;
+			else
+				p_DesignObjText->m_iPK_HorizAlignment=it->second->m_iPK_HorizAlignment;
+		}
 	}
 
-	if( !p_DesignObjText->m_pRow_DesignObjVariation_Text_Skin_Language->FK_VertAlignment_isNull() )
-		p_DesignObjText->m_iPK_VertAlignment = p_DesignObjText->m_pRow_DesignObjVariation_Text_Skin_Language->FK_VertAlignment_get();
-	else
+	if( p_DesignObjText->m_iPK_VertAlignment==0 ) // Wasn't already set
 	{
-		MapTextStyle::iterator it=p_DesignObjText->m_mapTextStyle.begin();
-		if( it==p_DesignObjText->m_mapTextStyle.end() )
-			p_DesignObjText->m_iPK_VertAlignment=1;
+		if( !p_DesignObjText->m_pRow_DesignObjVariation_Text_Skin_Language->FK_VertAlignment_isNull() )
+			p_DesignObjText->m_iPK_VertAlignment = p_DesignObjText->m_pRow_DesignObjVariation_Text_Skin_Language->FK_VertAlignment_get();
 		else
-			p_DesignObjText->m_iPK_VertAlignment=it->second->m_iPK_VertAlignment;
+		{
+			MapTextStyle::iterator it=p_DesignObjText->m_mapTextStyle.begin();
+			if( it==p_DesignObjText->m_mapTextStyle.end() )
+				p_DesignObjText->m_iPK_VertAlignment=1;
+			else
+				p_DesignObjText->m_iPK_VertAlignment=it->second->m_iPK_VertAlignment;
+		}
 	}
-
 //	p_DesignObjText->m_rotate = p_DesignObjText->m_pRow_DesignObjVariation_Text_Skin_Language->Rotate_get();
 //	p_DesignObjText->m_Opacity = p_DesignObjText->m_pRow_DesignObjVariation_Text_Skin_Language->Opacity_get();
 	// If we force a background color, put it in the default style

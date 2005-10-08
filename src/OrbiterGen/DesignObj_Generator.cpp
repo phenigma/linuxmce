@@ -60,6 +60,7 @@
 #include "pluto_main/Table_Variable.h"
 #include "pluto_main/Table_DeviceTemplate.h"
 #include "pluto_main/Table_DeviceTemplate_DesignObj.h"
+#include "pluto_main/Define_VertAlignment.h"
 
 #define TOTAL_ESTIMATED_SCREENS 200
 
@@ -110,7 +111,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
     m_bDontShare=bDontShare;
     m_bUsingCache=false;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==4339 ||  m_pRow_DesignObj->PK_DesignObj_get()==4338 )// || 
+if( m_pRow_DesignObj->PK_DesignObj_get()==3390 ||  m_pRow_DesignObj->PK_DesignObj_get()==3412 )// || 
 //   m_pRow_DesignObj->PK_DesignObj_get()==4271 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==2211 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==1881 ||  m_pRow_DesignObj->PK_DesignObj_get()==2228 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==3531 ||  m_pRow_DesignObj->PK_DesignObj_get()==3534 )// || m_pRow_DesignObj->PK_DesignObj_get()==3471 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )*/
@@ -665,6 +666,17 @@ int k=2;
                 CGCommand *oa = (CGCommand *) *itActions;
 				if( oa->m_PK_Command==COMMAND_Scale_this_object_CONST )
 					m_iScale = atoi(oa->m_ParameterList[COMMANDPARAMETER_Value_CONST].c_str());
+				else if( oa->m_PK_Command==COMMAND_Center_Parents_Text_If_Blank_CONST )
+				{
+					if( m_sOrigBackgroundFile.size()==0 )
+					{
+						for(size_t s=0;s<m_ocoParent->m_vectDesignObjText.size();++s)
+						{
+							DesignObjText *pDesignObjText = m_ocoParent->m_vectDesignObjText[s];
+							pDesignObjText->m_iPK_VertAlignment=VERTALIGNMENT_Middle_CONST;
+						}
+					}
+				}
 				else
 	                m_Action_StartupList.push_back(oa);
             }

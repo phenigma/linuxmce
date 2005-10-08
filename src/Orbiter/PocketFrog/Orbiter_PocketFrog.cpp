@@ -710,6 +710,7 @@ PlutoGraphic *Orbiter_PocketFrog::GetBackground( PlutoRectangle &rect )
 /*virtual*/ void Orbiter_PocketFrog::OnQuit()
 {
 	m_bQuit = true;
+	pthread_cond_broadcast( &m_listMessageQueueCond );
 	::PostMessage( m_hWnd, WM_CLOSE, 0, 0 );
 }
 //-----------------------------------------------------------------------------------------------------
