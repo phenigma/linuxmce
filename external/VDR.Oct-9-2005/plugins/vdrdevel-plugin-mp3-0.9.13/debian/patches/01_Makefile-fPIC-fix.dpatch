@@ -1,0 +1,20 @@
+#!/bin/sh /usr/share/dpatch/dpatch-run
+
+## 02_Makefile-fPIC-fix.dpatch by Thomas Schmidt <thomas.schmidt@in.stud.tu-ilmenau.de>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Adds -fPIC to Makefile, to fix FTBFS on hppa
+
+@DPATCH@
+diff -urNad /home/chelli/vdr/cvs/vdr/vdr-plugin-mp3/Makefile vdr-plugin-mp3/Makefile
+--- /home/chelli/vdr/cvs/vdr/vdr-plugin-mp3/Makefile	2004-05-14 12:32:27.000000000 +0200
++++ vdr-plugin-mp3/Makefile	2004-07-11 13:30:07.000000000 +0200
+@@ -36,7 +36,7 @@
+ 
+ ### The C++ compiler and options:
+ CXX      ?= g++
+-CXXFLAGS ?= -O2 -Wall -Woverloaded-virtual
++CXXFLAGS ?= -fPIC -O2 -Wall -Woverloaded-virtual
+ 
+ ###############################################
+ ###############################################

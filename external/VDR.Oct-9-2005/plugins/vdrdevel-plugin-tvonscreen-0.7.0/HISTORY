@@ -1,0 +1,31 @@
+VDR Plugin 'tvonscreen' Revision History
+--------------------------------------
+
+2004-03-03: Version 0.0.1
+
+- Initial revision.
+
+2004-03-21: Version 0.5.0
+
+- First public release
+
+2004-03-23: Version 0.5.1
+
+- added patch for vdr 1.3.x (not tested, don't have 1.3.x)
+  (thanks to Lars Volkhardt)
+
+2004-06-30: Version 0.5.2
+
+- added finnish translations (thanks to Rolf Ahrenberg)
+- added patch for >= vdr 1.3.7 (thanks to Rolf Ahrenberg)
+
+2004-09-19: Version 0.6.0
+
+- reworked patch of Rolf to make it more maintainable
+  (hopefully there will be no more big changes like this or I
+   will stop developing plugins, this takes too much time and
+   all those #ifdef doesn't make code better)
+- added logo support
+- added setup page
+- added own XPM routines because the buildin of vdr were to special,
+  this allows logo support in 1.2.6 and 1.3.x

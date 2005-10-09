@@ -1,0 +1,20 @@
+Format: 1.7
+Date: Sat, 18 Dec 2004 19:49:10 +0100
+Source: vdrdevel-channellogos
+Binary: vdrdevel-channellogos
+Architecture: all
+Version: 0.0.3-2
+Distribution: unstable
+Urgency: low
+Maintainer: Thomas Günther <tom@toms-cafe.de>
+Changed-By: Thomas GÃ¼nther <tom@toms-cafe.de>
+Description: 
+ vdrdevel-channellogos - Channel logos for the text2skin plugin
+Changes: 
+ vdrdevel-channellogos (0.0.3-2) unstable; urgency=low
+ .
+   * Converted changelog to UTF-8
+   * Added logo links for renamed channels
+   * Added debian/watch file for uscan
+Files: 
+ 07612ccb96b1ab8c91f56ebf4c33648c 401858 misc extra vdrdevel-channellogos_0.0.3-2_all.deb

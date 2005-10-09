@@ -1,0 +1,20 @@
+Format: 1.7
+Date: Mon, 26 Sep 2005 01:49:20 +0200
+Source: vdrdevel-plugin-tvonscreen
+Binary: vdrdevel-plugin-tvonscreen
+Architecture: source i386
+Version: 0.7.0-21
+Distribution: unstable
+Urgency: low
+Maintainer: Tobias Grimm <tg@e-tobi.net>
+Changed-By: Thomas Günther <tom@toms-cafe.de>
+Description: 
+ vdrdevel-plugin-tvonscreen - Plugin for vdr, that displays EPG data like in a typical TV guide
+Changes: 
+ vdrdevel-plugin-tvonscreen (0.7.0-21) unstable; urgency=low
+ .
+   * VDR-1.3.33
+Files: 
+ f62158079a113637dcbd887c4a5a0487 375 misc extra vdrdevel-plugin-tvonscreen_0.7.0-21.dsc
+ 3ab6488b22060e41897857414de572c8 307870 misc extra vdrdevel-plugin-tvonscreen_0.7.0-21.tar.gz
+ 27617fd37abc57332cd22b27ccc33872 45192 misc extra vdrdevel-plugin-tvonscreen_0.7.0-21_i386.deb

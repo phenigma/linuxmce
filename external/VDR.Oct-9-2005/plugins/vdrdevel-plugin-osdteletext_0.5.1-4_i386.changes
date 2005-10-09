@@ -1,0 +1,20 @@
+Format: 1.7
+Date: Mon, 26 Sep 2005 01:49:11 +0200
+Source: vdrdevel-plugin-osdteletext
+Binary: vdrdevel-plugin-osdteletext
+Architecture: source i386
+Version: 0.5.1-4
+Distribution: unstable
+Urgency: low
+Maintainer: Tobias Grimm <tg@e-tobi.net>
+Changed-By: Thomas Günther <tom@toms-cafe.de>
+Description: 
+ vdrdevel-plugin-osdteletext - Teletext plugin for vdr
+Changes: 
+ vdrdevel-plugin-osdteletext (0.5.1-4) unstable; urgency=low
+ .
+   * VDR-1.3.33
+Files: 
+ d0c6bfba49092f953339878a72dff604 376 misc extra vdrdevel-plugin-osdteletext_0.5.1-4.dsc
+ 74223fa169603c499b8fa4f3de158cc1 136693 misc extra vdrdevel-plugin-osdteletext_0.5.1-4.tar.gz
+ e1cd9be00fcdf1e00c3782a40905ba50 56490 misc extra vdrdevel-plugin-osdteletext_0.5.1-4_i386.deb
