@@ -1,2 +1,0 @@
-libvdr-tvonscreen.so.*        usr/lib/vdr/plugins/
-debian/plugin.tvonscreen.conf etc/vdr/plugins/
