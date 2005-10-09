@@ -343,7 +343,6 @@ void OrbiterApp::LocalKeyPressed(int nKeyCode)
 void OrbiterApp::OnQuit()
 {
 	m_bQuit = true;
-	pthread_cond_broadcast( &m_listMessageQueueCond );
 	::PostQuitMessage(0);
 	Shutdown();
 }
