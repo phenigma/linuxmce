@@ -1613,6 +1613,9 @@
 #define DESIGNOBJ_butCurrentUser_CONST 4406
 #define DESIGNOBJ_go_to_web2_CONST 4412
 #define DESIGNOBJ_mnuWebSites_CONST 4413
+#define DESIGNOBJ_mnuWhatModelMobileOrbiter_CONST 4414
+#define DESIGNOBJ_dgTypesOfMobilePhones_CONST 4415
+#define DESIGNOBJ_butCancel_CONST 4416
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
