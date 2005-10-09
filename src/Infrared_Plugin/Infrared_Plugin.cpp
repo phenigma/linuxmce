@@ -522,7 +522,7 @@ void Infrared_Plugin::GetInfraredCodes(int iPK_Device,IRDevice &irDevice,bool bN
 	// 2) infraredgroup matches
 	// 3) device matches
 	// 4) explicitly specified as preferred
-g_pPlutoLogger->Write(LV_LV_STATUS,"q 1");
+g_pPlutoLogger->Write(LV_STATUS,"q 1");
 	pTable_InfraredGroup_Command->GetRows("WHERE FK_DeviceTemplate=" + 
 		StringUtils::itos(FK_DeviceTemplate) + " AND IRData IS NOT NULL AND IRData<>''",
 		&vectRow_InfraredGroup_Command[0]);
