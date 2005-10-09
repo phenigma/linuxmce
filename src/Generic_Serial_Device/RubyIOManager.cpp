@@ -68,7 +68,7 @@ RubyIOManager::InstantiateNode(Command_Impl* pcmdimpl, DeviceData_Impl* pdevdata
 		if(!sport.empty()) {
 			porttype = PORTTYPE_NETWORK;
 		} else {
-			g_pPlutoLogger->Write(LV_STATUS, "GSP Port is not specified. Instantiating non-IO Wrapper.");
+			g_pPlutoLogger->Write(LV_CRITICAL, "GSD Port is not specified. Instantiating non-IO Wrapper.");
 		}
 	}
 
