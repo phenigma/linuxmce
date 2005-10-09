@@ -49,6 +49,7 @@
 bool g_bResettingVideoMode;
 void *HackThread2(void *p)
 {
+	OrbiterSDL *pOrbiterSDL = (OrbiterSDL *) p;
 	// For some reason X can fail to properly die????  TODO - HACK
 	g_pPlutoLogger->Write(LV_STATUS,"Inside Hacktrhead #2");
 	Sleep(500);
@@ -57,6 +58,7 @@ void *HackThread2(void *p)
 		g_pPlutoLogger->Write(LV_CRITICAL,"Another stupid problem since the kernel upgrade.  SDL_SetVideoMode can just hang on init.  It happened. Kill ourselves");
 #ifndef WIN32
 		kill(getpid(), SIGSEGV);
+		pOrbiterSDL->resetRatpoison();
 #endif
 	}
 	return NULL;

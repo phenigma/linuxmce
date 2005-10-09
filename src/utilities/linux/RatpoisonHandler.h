@@ -55,11 +55,11 @@ class RatpoisonHandler
 			g_pPlutoLogger->Write(LV_STATUS, "Searching any ratpoison running: %s", sFindRatpoisonCmd.c_str());
         	system(sFindRatpoisonCmd.c_str());
             vector<string> vectPids;
-            FileUtils::ReadFileIntoVector("/tmp/ratpoison pid", vectPids);
+            FileUtils::ReadFileIntoVector("/tmp/ratpoison.txt", vectPids);
 
             if(vectPids.size() > 0)
             {
-            	string sKillRatpoisonCmd = "kill " + vectPids[0];
+            	string sKillRatpoisonCmd = "kill -9 " + vectPids[0];
                 g_pPlutoLogger->Write(LV_STATUS, "Found ratpoison pid (%s), sending command to kill it: %s", vectPids[0].c_str(), sKillRatpoisonCmd.c_str());
                 system(sKillRatpoisonCmd.c_str());
             }

@@ -459,9 +459,13 @@ int PlutoLock::CondWait()
 	if( !m_bLogErrorsOnly && g_pPlutoLogger )
 		g_pPlutoLogger->Write(LV_LOCKING, "start cond wait (%p) %s", &m_pMyLock->mutex,m_sMessage.c_str());
 #endif
+	m_tTime = 0;
+	m_pMyLock->m_NumLocks--;
 	m_bReleased=true;
 	int iResult = pthread_cond_wait(m_pMyLock->m_pthread_cond_t,&m_pMyLock->mutex); // This will unlock the mutex and lock it on awakening
 	m_bReleased=false;
+	m_pMyLock->m_NumLocks++;
+	m_tTime = time(NULL);
 	m_bGotLock=true;
 
 #ifdef THREAD_LOG
@@ -484,9 +488,13 @@ int PlutoLock::TimedCondWait(timespec &ts)
 	if( !m_bLogErrorsOnly && g_pPlutoLogger )
 		g_pPlutoLogger->Write(LV_LOCKING, "start cond timed wait (%p) %s", &m_pMyLock->mutex,m_sMessage.c_str());
 #endif
+	m_tTime = 0;
+	m_pMyLock->m_NumLocks--;
 	m_bReleased=true;
 	int iResult = pthread_cond_timedwait(m_pMyLock->m_pthread_cond_t,&m_pMyLock->mutex,&ts); // This will unlock the mutex and lock it on awakening
 	m_bReleased=false;
+	m_pMyLock->m_NumLocks++;
+	m_tTime = time(NULL);
 	m_bGotLock=true;
 
 #ifdef THREAD_LOG
