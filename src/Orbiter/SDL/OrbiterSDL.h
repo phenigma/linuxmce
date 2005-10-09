@@ -58,6 +58,9 @@ public:
 	// Other
 	virtual void Initialize(GraphicType Type, int iPK_Room=0, int iPK_EntertainArea=0);
 	virtual void SetTime(char *ServerTimeString) {};
+#ifndef WIN32
+	virtual void DoResetRatpoison() {}
+#endif
 
 protected:
 

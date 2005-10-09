@@ -83,6 +83,9 @@ public:
 	
 	/*virtual */bool DisplayProgress(string sMessage, int nProgress);
 	/*virtual */int PromptUser(string sPrompt,int iTimeoutSeconds=10,map<int,string> *p_mapPrompts=NULL);
+#ifndef WIN32
+	virtual void DoResetRatpoison() { g_pPlutoLogger->Write(LV_CRITICAL,"Need to reset ratpoison"); resetRatpoison(); }
+#endif
 };
 
 #endif // __CONTROLLERLINUXDESKTOP_H__
