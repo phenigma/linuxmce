@@ -58,6 +58,7 @@ public:
 //<-dceag-decl-e->
         bool m_bFloorPlansArePrepared;
 		int m_iThreshHold;
+		bool m_bIgnoreAllBluetoothDevices;
 
 //<-dceag-const-b->
 public:
@@ -260,6 +261,7 @@ public:
 	/*
 			*****DATA***** accessors inherited from base class
 	int DATA_Get_ThreshHold();
+	string DATA_Get_Ignore_State();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Follow_Me_Lighting(int iPK_Orbiter,int iPK_Room,int iPK_Users,int iPK_Room_Left);

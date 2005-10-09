@@ -481,14 +481,14 @@ class DataGridTable *Infrared_Plugin::IRGroupCategories(string GridID,string Par
 void Infrared_Plugin::CMD_Get_Infrared_Codes(int iPK_Device,char **pData,int *iData_Size,string &sCMD_Result,Message *pMessage)
 //<-dceag-c188-e->
 {
-	g_pPlutoLogger->Write(LV_CRITICAL,"start infrared codes");
+	g_pPlutoLogger->Write(LV_STATUS,"start infrared codes");
 	IRDevice irDevice;
 	GetInfraredCodes(iPK_Device,irDevice);
 	irDevice.SerializeWrite();
 	*iData_Size = irDevice.m_dwAllocatedSize;
 	*pData = irDevice.m_pcDataBlock;
 	sCMD_Result = "OK";
-	g_pPlutoLogger->Write(LV_CRITICAL,"endinfrared codes");
+	g_pPlutoLogger->Write(LV_STATUS,"endinfrared codes");
 }
 
 void Infrared_Plugin::GetInfraredCodes(int iPK_Device,IRDevice &irDevice,bool bNoIRData)
@@ -522,24 +522,24 @@ void Infrared_Plugin::GetInfraredCodes(int iPK_Device,IRDevice &irDevice,bool bN
 	// 2) infraredgroup matches
 	// 3) device matches
 	// 4) explicitly specified as preferred
-g_pPlutoLogger->Write(LV_CRITICAL,"q 1");
+g_pPlutoLogger->Write(LV_LV_STATUS,"q 1");
 	pTable_InfraredGroup_Command->GetRows("WHERE FK_DeviceTemplate=" + 
 		StringUtils::itos(FK_DeviceTemplate) + " AND IRData IS NOT NULL AND IRData<>''",
 		&vectRow_InfraredGroup_Command[0]);
 
-g_pPlutoLogger->Write(LV_CRITICAL,"q 2");
+g_pPlutoLogger->Write(LV_STATUS,"q 2");
 	Row_DeviceTemplate *pRow_DeviceTemplate = pRow_Device->FK_DeviceTemplate_getrow();
 	if( pRow_DeviceTemplate && pRow_DeviceTemplate->FK_InfraredGroup_get() )
 		pTable_InfraredGroup_Command->GetRows("FK_InfraredGroup=" + StringUtils::itos(pRow_DeviceTemplate->FK_InfraredGroup_get()) + 
 			" AND IRData IS NOT NULL AND IRData<>''",
 			&vectRow_InfraredGroup_Command[1]);
 
-g_pPlutoLogger->Write(LV_CRITICAL,"q 3");
+g_pPlutoLogger->Write(LV_STATUS,"q 3");
 	pTable_InfraredGroup_Command->GetRows("WHERE FK_Device=" + 
 		StringUtils::itos(iPK_Device) + " AND IRData IS NOT NULL AND IRData<>''",
 		&vectRow_InfraredGroup_Command[2]);
 
-g_pPlutoLogger->Write(LV_CRITICAL,"q 4");
+g_pPlutoLogger->Write(LV_STATUS,"q 4");
 	pTable_InfraredGroup_Command->GetRows("JOIN InfraredGroup_Command_Preferred ON FK_InfraredGroup_Command=PK_InfraredGroup_Command WHERE FK_DeviceTemplate=" + 
 		StringUtils::itos(FK_DeviceTemplate) + " AND IRData IS NOT NULL AND IRData<>''",
 		&vectRow_InfraredGroup_Command[3]);
@@ -549,7 +549,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"q 4");
 g_pPlutoLogger->Write(LV_STATUS,"Found %d codes for device %d",(int) vectRow_InfraredGroup_Command[i].size(),iPK_Device);
 		Count += vectRow_InfraredGroup_Command[i].size();
 }
-g_pPlutoLogger->Write(LV_CRITICAL,"end q");
+g_pPlutoLogger->Write(LV_STATUS,"end q");
 	
 	for (i = 0; i < 4; i++)
 	{

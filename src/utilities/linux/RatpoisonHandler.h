@@ -49,6 +49,7 @@ class RatpoisonHandler
 
 		void resetRatpoison()
 		{
+g_pPlutoLogger->Write(LV_CRITICAL, "**NOT** Reseting ratpoison...");
 return; // Sometimes it's reporting that ratpoison is dead when it really isn't.  10-8-2005 AB TODO
 			int PID_Ratpoison=0;
 			g_pPlutoLogger->Write(LV_CRITICAL, "Reseting ratpoison...");

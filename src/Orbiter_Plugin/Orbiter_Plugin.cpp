@@ -158,6 +158,7 @@ bool Orbiter_Plugin::GetConfig()
     }
 
 	m_iThreshHold = DATA_Get_ThreshHold();
+	m_bIgnoreAllBluetoothDevices = (DATA_Get_Ignore_State()=="Y" || DATA_Get_Ignore_State()=="y" || DATA_Get_Ignore_State()=="1");
 
 	string sStatus = GetStatus();
 	if( sStatus.size() )
@@ -523,7 +524,7 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
 
             // If we found it here, then we've seen it before and the user already added it to the unknown table.  If not
             // we need to ask the user if it's a phone that he wants to use on the system.
-            if( !vectRow_UnknownDevices.size() )
+            if( vectRow_UnknownDevices.size()==0 && m_bIgnoreAllBluetoothDevices==false )
             {
                 PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
                 if(NULL == m_mapUnknownDevices_Find(sMacAddress))
@@ -716,11 +717,11 @@ bool Orbiter_Plugin::MobileOrbiterLinked(class Socket *pSocket,class Message *pM
     if(!ConnectionAllowed(pDeviceFrom->m_dwPK_Device, sMacAddress))
         return false;
 
-    string sVersion = pMessage->m_mapParameters[EVENTPARAMETER_Version_CONST];
-g_pPlutoLogger->Write(LV_STATUS,"mobile orbiter linked: %p with version: %s",pOH_Orbiter,sVersion.c_str());
+    pOH_Orbiter->m_sVersion = pMessage->m_mapParameters[EVENTPARAMETER_Version_CONST];
+g_pPlutoLogger->Write(LV_STATUS,"mobile orbiter linked: %p with version: %s",pOH_Orbiter,pOH_Orbiter->m_sVersion.c_str());
 
     Row_Device *pRow_Device = pOH_Orbiter->m_pDeviceData_Router->m_pRow_Device;
-	if( pOH_Orbiter->NeedApp() || sVersion != g_sLatestMobilePhoneVersion )
+	if( pOH_Orbiter->NeedApp() || pOH_Orbiter->m_sVersion != g_sLatestMobilePhoneVersion )
 	{
 		// It's possible that multiple detectors picked up the phone around the same time and we already
 		// are sending a new version to one, while another is detecting the phone.  Give the user 15 minutes

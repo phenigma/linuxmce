@@ -4629,6 +4629,8 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 				}
 			}
 		}
+        else if(  Variable=="LS" && m_pObj_LastSelected && m_pObj_LastSelected->m_pFloorplanObject )
+			Output += StringUtils::itos(m_pObj_LastSelected->m_pFloorplanObject->PK_Device);
         else if(  Variable=="SD" )
 			for(map<int,DeviceData_Base *>::iterator it=m_mapDevice_Selected.begin();it!=m_mapDevice_Selected.end();++it)
 				Output += StringUtils::itos((*it).first) + ",";
