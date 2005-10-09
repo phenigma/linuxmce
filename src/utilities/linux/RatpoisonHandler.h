@@ -49,18 +49,18 @@ class RatpoisonHandler
 
 		void resetRatpoison()
 		{
+			int PID_Ratpoison=0;
 			g_pPlutoLogger->Write(LV_CRITICAL, "Reseting ratpoison...");
-			
-			string sFindRatpoisonCmd = "pgrep ratpoison > \"/tmp/ratpoison.txt\"";
-			g_pPlutoLogger->Write(LV_STATUS, "Searching any ratpoison running: %s", sFindRatpoisonCmd.c_str());
-        	system(sFindRatpoisonCmd.c_str());
-            vector<string> vectPids;
-            FileUtils::ReadFileIntoVector("/tmp/ratpoison.txt", vectPids);
+			vector<string> vectPids;
+            FileUtils::ReadFileIntoVector("/var/log/pluto/running.pids", vectPids);
+			for(size_t s=0;s<vectPids.size();++s)
+				if( vectPids[s].find("Start_ratpoison.sh")!=string::npos )
+					PID_Ratpoison = atoi( vectPids[s].c_str() );
 
-            if(vectPids.size() > 0)
+            if(PID_Ratpoison)
             {
-            	string sKillRatpoisonCmd = "kill -9 " + vectPids[0];
-                g_pPlutoLogger->Write(LV_STATUS, "Found ratpoison pid (%s), sending command to kill it: %s", vectPids[0].c_str(), sKillRatpoisonCmd.c_str());
+				string sKillRatpoisonCmd = "kill -9 " + StringUtils::itos(PID_Ratpoison)
+                g_pPlutoLogger->Write(LV_STATUS, "Found ratpoison pid (%d), sending command to kill it: %s", PID_Ratpoison, sKillRatpoisonCmd.c_str());
                 system(sKillRatpoisonCmd.c_str());
             }
             else
