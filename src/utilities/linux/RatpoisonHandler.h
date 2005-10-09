@@ -59,9 +59,8 @@ class RatpoisonHandler
 
             if(PID_Ratpoison)
             {
-				string sKillRatpoisonCmd = "kill -9 " + StringUtils::itos(PID_Ratpoison)
-                g_pPlutoLogger->Write(LV_STATUS, "Found ratpoison pid (%d), sending command to kill it: %s", PID_Ratpoison, sKillRatpoisonCmd.c_str());
-                system(sKillRatpoisonCmd.c_str());
+                g_pPlutoLogger->Write(LV_STATUS, "Found ratpoison pid (%d), sending command to kill it", PID_Ratpoison);
+                kill(PID_Ratpoison,SIGKILL);
             }
             else
                 g_pPlutoLogger->Write(LV_STATUS, "Ratpoison isn't running...");
@@ -71,6 +70,7 @@ class RatpoisonHandler
             g_pPlutoLogger->Write(LV_STATUS, "Starting ratpoison with command: %s", sStartRatpoisonCmd.c_str());
             g_pPlutoLogger->Write(LV_STATUS, "Sleeping 5 seconds, then restarting...");
             Sleep(5000);
+	    system("/usr/pluto/bin/MessageSend dcerouter 0 -1000 7 1");
             exit(13);
 		}
 
