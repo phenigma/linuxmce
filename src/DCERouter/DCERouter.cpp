@@ -938,7 +938,7 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
                 break;
             case SYSCOMMAND_SEGFAULT:
 				{
-					g_pPlutoLogger->Write(LV_CRITICAL,"Forcing a crash);
+					g_pPlutoLogger->Write(LV_CRITICAL,"Forcing a crash");
 					char *pNULLPointer=NULL;
 					strcpy(pNULLPointer,"this always crashes any os");
 				}
