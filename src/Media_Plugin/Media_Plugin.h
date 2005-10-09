@@ -466,7 +466,7 @@ public:
 				{
 					DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,dwPK_Device,
 						0,"<%=NP_R%>","","",false,false);
-					pMessage->m_vectExtraMessages.push_back(CMD_Set_Now_Playing.m_pMessage);
+					pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen.m_pMessage);
 				}
 			}
 			else
@@ -475,7 +475,7 @@ public:
 				{
 					DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,dwPK_Device,
 						0,"<%=NP_R%>","","",false,false);
-					CMD_Set_Now_Playing.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Now_Playing.m_pMessage);
+					CMD_Set_Now_Playing.m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen.m_pMessage);
 				}
 				SendCommand( CMD_Set_Now_Playing );
 			}
