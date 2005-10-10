@@ -371,8 +371,8 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 			COMMAND_5_CONST, COMMAND_6_CONST, COMMAND_7_CONST, COMMAND_8_CONST, COMMAND_9_CONST };
 
 		long ChannelNumber = atoi(pmsg->m_mapParameters[COMMANDPARAMETER_ProgramID_CONST].c_str());
-		long NumDigits = 3;
-		bool bSendEnter = false;
+		long NumDigits = 0 ;
+		bool bSendEnter = true;
 		if (sNumDigits.size()) {
 			string::size_type pos = 0;
 	
@@ -381,7 +381,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 	
 			bSendEnter = (tok=="E" || tok=="e");
 		} else {
-			g_pPlutoLogger->Write(LV_WARNING, "Device id %ld has no number digits parameter.  Assuming 3 and no enter.\n", devid);
+			g_pPlutoLogger->Write(LV_WARNING, "Device id %ld has no number digits parameter. Sending as is with an enter.\n", devid);
 		}
 		
 		long TotalDigits = StringUtils::ltos(ChannelNumber).length();
