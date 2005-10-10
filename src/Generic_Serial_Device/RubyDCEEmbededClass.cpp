@@ -67,7 +67,7 @@ RubyDCEEmbededClass::CallCmdHandler(Message *pMessage) {
 	try {
 		result=callmethod(buff, params);
 		RubyIOManager* pmanager = RubyIOManager::getInstance();
-		PLUTO_SAFETY_LOCK_ERRORSONLY(mm,pmanager->m_MsgMutex);
+		PLUTO_SAFETY_LOCK(mm,pmanager->m_MsgMutex);
 		if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 		{
 			Message *pMessageOut=new Message(pMessage->m_dwPK_Device_To,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
@@ -115,9 +115,15 @@ RubyDCEEmbededClass::CallCmdHandler(Message *pMessage) {
 			}
 			string sCMD_Result="OK";
 			pMessageOut->m_mapParameters[0]=sCMD_Result;
+			pMessage->m_bRespondedToMessage=true;
+			mm.Release();
 			pmanager->SendMessage(pMessageOut);
 		}
-		pMessage->m_bRespondedToMessage=true;
+		else
+		{
+			pMessage->m_bRespondedToMessage=true;
+			mm.Release();
+		}
 	} catch(RubyException e) {
 		g_pPlutoLogger->Write(LV_CRITICAL, (string("Error while calling method: ") + e.getMessage()).c_str());
 	}

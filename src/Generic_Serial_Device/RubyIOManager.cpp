@@ -268,13 +268,13 @@ RubyIOManager::RouteMessage(DeviceData_Base* pdevdata, Message *pMessage) {
 	time_t tTimeout=time(NULL)+DEFAULT_RESPONSE_TIME;
 	while( tTimeout>time(NULL) )
 	{
-		PLUTO_SAFETY_LOCK_ERRORSONLY(mm,m_MsgMutex);
+		PLUTO_SAFETY_LOCK(mm,m_MsgMutex);
 		if( pMessage->m_bRespondedToMessage )
 			return 0;
 		mm.Release();
 		Sleep(100);
 	}
-	PLUTO_SAFETY_LOCK_ERRORSONLY(mm,m_MsgMutex);
+	PLUTO_SAFETY_LOCK(mm,m_MsgMutex);
 	if( !pMessage->m_bRespondedToMessage )
 	{
 		pMessage->m_bRespondedToMessage=true;
