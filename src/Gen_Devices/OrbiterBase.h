@@ -64,6 +64,8 @@ public:
 	int Get_PK_UI() { return atoi(m_mapParameters[104].c_str());}
 	string Get_Hard_Keys_mapping() { return m_mapParameters[105];}
 	int Get_Using_Infrared() { return atoi(m_mapParameters[111].c_str());}
+	string Get_Remote_Phone_IP() { return m_mapParameters[118];}
+	int Get_Listen_Port() { return atoi(m_mapParameters[119].c_str());}
 };
 
 
@@ -180,6 +182,8 @@ public:
 	int DATA_Get_PK_UI() { return GetData()->Get_PK_UI(); }
 	string DATA_Get_Hard_Keys_mapping() { return GetData()->Get_Hard_Keys_mapping(); }
 	int DATA_Get_Using_Infrared() { return GetData()->Get_Using_Infrared(); }
+	string DATA_Get_Remote_Phone_IP() { return GetData()->Get_Remote_Phone_IP(); }
+	int DATA_Get_Listen_Port() { return GetData()->Get_Listen_Port(); }
 	//Event accessors
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position) { GetEvents()->Touch_or_click(iX_Position,iY_Position); }
 	//Commands - Override these to handle commands from the server

@@ -962,6 +962,8 @@ public:
 	int DATA_Get_PK_UI();
 	string DATA_Get_Hard_Keys_mapping();
 	int DATA_Get_Using_Infrared();
+	string DATA_Get_Remote_Phone_IP();
+	int DATA_Get_Listen_Port();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position);

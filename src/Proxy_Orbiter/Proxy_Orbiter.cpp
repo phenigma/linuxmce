@@ -50,16 +50,10 @@ void WriteStatusOutput(const char *) {} //do nothing
 #define IMAGE_QUALITY_SCREEN    "1274"
 
 //-----------------------------------------------------------------------------------------------------
-xxProxy_Orbiter::xxProxy_Orbiter(int ListenPort, int DeviceID, 
-			int PK_DeviceTemplate, string ServerAddress)
+xxProxy_Orbiter::xxProxy_Orbiter(int DeviceID, int PK_DeviceTemplate, string ServerAddress)
 : OrbiterSDL(DeviceID, PK_DeviceTemplate, ServerAddress, "", false, 0, 
     0, false), SocketListener("Proxy_Orbiter"), m_ActionMutex( "action" )
 {
-	if( !ListenPort )
-		m_iListenPort = 3451;
-	else
-		m_iListenPort = ListenPort;
-
 	m_iImageCounter = 1;
     m_iLastImageSent = -1;
 
@@ -82,6 +76,10 @@ xxProxy_Orbiter::xxProxy_Orbiter(int ListenPort, int DeviceID,
     if(m_ImageQuality < 10 || m_ImageQuality > 100)
         m_ImageQuality = 70; //default
 	m_iTimeoutScreenSaver=0; // disable it
+    m_iListenPort = DATA_Get_Listen_Port();
+    if( !m_iListenPort )
+        m_iListenPort = 3451;
+
     return true;
 }
 //-----------------------------------------------------------------------------------------------------
@@ -415,7 +413,7 @@ void SocketCrashHandler(Socket *pSocket);
 bool StartOrbiter(class BDCommandProcessor *pBDCommandProcessor, int DeviceID, 
 			int PK_DeviceTemplate, string ServerAddress)
 {
-	xxProxy_Orbiter *pProxy_Orbiter = new xxProxy_Orbiter(NULL,DeviceID, 0, ServerAddress);
+	xxProxy_Orbiter *pProxy_Orbiter = new xxProxy_Orbiter(DeviceID, 0, ServerAddress);
 	if ( pProxy_Orbiter->GetConfig() && pProxy_Orbiter->Connect(pProxy_Orbiter->PK_DeviceTemplate_get()) ) 
 	{
         pProxy_Orbiter->Run();

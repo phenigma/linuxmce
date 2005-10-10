@@ -10,9 +10,9 @@ BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
 
 MYNAME = Proxy_Orbiter
 VERSION = 2.0.0
-MYDEVTEMPLATEID = 13mplateID
+MYDEVTEMPLATEID = 1727mplateID
 
-Gen_Dev_Files = 
+Gen_Dev_Files = $(GENDEV)/Proxy_OrbiterBase.cpp
 sources = Main.cpp Proxy_Orbiter.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
