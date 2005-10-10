@@ -55,6 +55,7 @@
 	$GLOBALS['ONScreenOrbiter']=62;				// On screen orbiter
 	$GLOBALS['EventPlugIn']=52;					// Event plugin
 	$GLOBALS['Asterisk']=45;					// Asterisk
+	$GLOBALS['ProxyOrbiter']=1727;				// Proxy Orbiter
 	
 	// PK_Template from table Template
 	

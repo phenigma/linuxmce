@@ -1,11 +1,12 @@
 <?
 function proxySocket($output,$dbADO){
 	if(!isset($_REQUEST['address']) && !isset($_REQUEST['port'])){
-		$ProxyOrbiterInfo=getFieldsAsArray('Device','IPAddress,DD1.IK_DeviceData AS PhoneIP,DD2.IK_DeviceData AS Port',$dbADO,'INNER JOIN Device_DeviceData DD1 ON DD1.FK_Device=PK_Device AND DD1.FK_DeviceData='.$GLOBALS['RemotePhoneIP'].' INNER JOIN Device_DeviceData DD2 ON DD2.FK_Device=PK_Device AND DD2.FK_DeviceData='.$GLOBALS['ListenPort'].' WHERE DD1.IK_DeviceData=\''.$_SERVER['REMOTE_ADDR'].'\'');
+		$ProxyOrbiterInfo=getFieldsAsArray('Device','IPAddress,DD1.IK_DeviceData AS PhoneIP,DD2.IK_DeviceData AS Port',$dbADO,'INNER JOIN Device_DeviceData DD1 ON DD1.FK_Device=PK_Device AND DD1.FK_DeviceData='.$GLOBALS['RemotePhoneIP'].' INNER JOIN Device_DeviceData DD2 ON DD2.FK_Device=PK_Device AND DD2.FK_DeviceData='.$GLOBALS['ListenPort'].' WHERE DD1.IK_DeviceData=\''.$_SERVER['REMOTE_ADDR'].'\' AND FK_DeviceTemplate='.$GLOBALS['ProxyOrbiter']);
 		if(count($ProxyOrbiterInfo)!=0){
 			$address=$ProxyOrbiterInfo['IPAddress'][0];
 			$port=$ProxyOrbiterInfo['Port'][0];
 		}else{
+			write_log("\n\nOrbiter proxy not found for phone IP".$_SERVER['REMOTE_ADDR']."\n");
 			return 'Orbiter proxy not found.';
 		}
 
