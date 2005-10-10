@@ -84,7 +84,7 @@ xxProxy_Orbiter::xxProxy_Orbiter(int ListenPort, int DeviceID,
 
     if(m_ImageQuality < 10 || m_ImageQuality > 100)
         m_ImageQuality = 70; //default
-
+	m_iTimeoutScreenSaver=0; // disable it
     return true;
 }
 //-----------------------------------------------------------------------------------------------------
