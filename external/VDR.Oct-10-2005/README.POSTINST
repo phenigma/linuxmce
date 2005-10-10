@@ -1,0 +1,53 @@
+things we need for the first release:
+
+
+addons/ 
+	libxine1_1.0.2-0vdr1+net1_i386.deb
+	vdrdevel-channellogos_0.0.3-2_all.deb
+	vdrdevel-skin-elchi_0.0.0+0.0.1pre6a+1.0rc1-1_all.deb
+	vdrdevel-xpmlogos_0.0.1-2_all.deb
+
+plugins/
+	vdrdevel-plugin-control
+	vdrdevel-plugin-streamdev-server	>> server with dvbs only
+	vdrdevel-plugin-streamdev-client
+	vdrdevel-plugin-text2skin-1.0
+	vdrdevel-plugin-xine-0.7.6
+
+
+##
+things to do with postinstall:
+
+mkdir /home/vdr/video.00
+cp scripts/dvb /etc/init.d/.
+cp settings/svdrphosts.conf /etc/vdrdevel/.
+cp settings/plugin.xine.conf /etc/vdrdevel/plugins/.
+cp settings/streamdevhosts.conf /etc/vdrdevel/plugins/.
+
+make a symlink in /etc/rc2.d S50vdrdevel ../init.d/vdrdevel
+
+
+##############################################
+NOW important, the settings/setup.conf:
+##############################################
+
+>> server-version with dvbs-card should change the stream-client-settings to:
+	streamdev-client.StartClient = 0  
+	( = 1 = enable)
+
+>> client-version should have the following settings:
+	streamdev-client.RemoteIp = 0.0.0.0  #>>> change the ip to vdr with serveroptions and dvbs-card !!! (mostly the core)
+	
+	streamdev-client.RemotePort = 2004
+	streamdev-client.StartClient = 1
+	streamdev-client.StreamFilters = 0
+	streamdev-client.SyncEPG = 1
+	streamdev-server.AllowSuspend = 1
+	streamdev-server.HTTPBindIP = 0.0.0.0
+	streamdev-server.HTTPServerPort = 3000
+	streamdev-server.HTTPStreamType = 1
+	streamdev-server.MaxClients = 1
+	streamdev-server.ServerPort = 2004
+	streamdev-server.StartHTTPServer = 1
+	streamdev-server.StartServer = 1
+	streamdev-server.SuspendMode = 1

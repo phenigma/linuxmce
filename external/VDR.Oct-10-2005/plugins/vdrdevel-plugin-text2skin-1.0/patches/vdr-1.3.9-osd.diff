@@ -1,0 +1,106 @@
+diff -Nru -x PLUGINS o/vdr-1.3.9/osd.c vdr-1.3.9/osd.c
+--- o/vdr-1.3.9/osd.c	2004-05-28 17:33:22.000000000 +0200
++++ vdr-1.3.9/osd.c	2004-06-05 17:25:33.036994648 +0200
+@@ -244,7 +246,7 @@
+   return Result;
+ }
+ 
+-bool cBitmap::SetXpm(char *Xpm[])
++bool cBitmap::SetXpm(char *Xpm[], bool IgnoreNone)
+ {
+   char **p = Xpm;
+   int w, h, n, c;
+@@ -257,10 +259,11 @@
+      return false;
+      }
+   int b = 0;
+-  while (1 << (1 << b) < n)
++  while (1 << (1 << b) < (IgnoreNone ? n - 1 : n))
+         b++;
+   SetBpp(1 << b);
+   SetSize(w, h);
++  int NoneColorIndex = MAXNUMCOLORS;
+   for (int i = 0; i < n; i++) {
+       const char *s = *++p;
+       if (int(strlen(s)) < c) {
+@@ -273,14 +276,18 @@
+          return false;
+          }
+       s = skipspace(s + 1);
+-      if (strcasecmp(s, "none") == 0)
+-         s = "#00000000";
++			if (strcasecmp(s, "none") == 0) {
++				s = "#00000000";
++				NoneColorIndex = i;
++				if (IgnoreNone)
++				   continue;
++				}
+       if (*s != '#') {
+          esyslog("ERROR: unknown color code in XPM: '%c'", *s);
+          return false;
+          }
+       tColor color = strtoul(++s, NULL, 16) | 0xFF000000;
+-      SetColor(i, color);
++			SetColor((IgnoreNone && i > NoneColorIndex) ? i - 1 : i, color);
+       }
+   for (int y = 0; y < h; y++) {
+       const char *s = *++p;
+@@ -295,13 +302,17 @@
+                  return false;
+                  }
+               if (strncmp(Xpm[i + 1], s, c) == 0) {
+-                 SetIndex(x, y, i);
++                 if (i == NoneColorIndex)
++                    NoneColorIndex = MAXNUMCOLORS;
++                 SetIndex(x, y, (IgnoreNone && i > NoneColorIndex) ? i - 1 : i);
+                  break;
+                  }
+               }
+           s += c;
+           }
+       }
++  if (NoneColorIndex < MAXNUMCOLORS && !IgnoreNone)
++     return SetXpm(Xpm, true);
+   return true;
+ }
+ 
+@@ -354,7 +365,8 @@
+         int ch = Height ? Height : h;
+         if (!Intersects(x, y, x + cw - 1, y + ch - 1))
+            return;
+-        DrawRectangle(x, y, x + cw - 1, y + ch - 1, ColorBg);
++				if (ColorBg != clrTransparent)
++				   DrawRectangle(x, y, x + cw - 1, y + ch - 1, ColorBg);
+         limit = x + cw - x0;
+         if (Width) {
+            if ((Alignment & taLeft) != 0)
+@@ -395,7 +408,8 @@
+               for (int row = 0; row < h; row++) {
+                   cFont::tPixelData PixelData = CharData->lines[row];
+                   for (int col = CharData->width; col-- > 0; ) {
+-                      SetIndex(x + col, y + row, (PixelData & 1) ? fg : bg);
++                      if (ColorBg != clrTransparent || (PixelData & 1))
++                         SetIndex(x + col, y + row, (PixelData & 1) ? fg : bg);
+                       PixelData >>= 1;
+                       }
+                   }
+diff -Nru -x PLUGINS o/vdr-1.3.9/osd.h vdr-1.3.9/osd.h
+--- o/vdr-1.3.9/osd.h	2004-05-29 16:02:47.000000000 +0200
++++ vdr-1.3.9/osd.h	2004-06-05 17:15:17.809523440 +0200
+@@ -136,9 +136,15 @@
+   bool LoadXpm(const char *FileName);
+        ///< Calls SetXpm() with the data from the file FileName.
+        ///< Returns true if the operation was successful.
+-  bool SetXpm(char *Xpm[]);
++  bool SetXpm(char *Xpm[], bool IgnoreNone = false);
+        ///< Sets this bitmap to the given XPM data. Any previous bitmap or
+        ///< palette data will be overwritten with the new data.
++       ///< If IgnoreNone is true, a "none" color entry will be ignored.
++       ///< Only set IgnoreNone to true if you know that there is a "none"
++       ///< color entry in the XPM data and that this entry is not used!
++       ///< If SetXpm() is called with IgnoreNone set to false and the XPM
++       ///< data contains an unused "none" entry, it will be automatically
++       ///< called again with IgnoreNone set to true.
+        ///< Returns true if the operation was successful.
+   void SetIndex(int x, int y, tIndex Index);
+        ///< Sets the index at the given coordinates to Index.
