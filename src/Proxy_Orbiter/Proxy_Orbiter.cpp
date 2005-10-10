@@ -339,6 +339,7 @@ bool xxProxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeou
 	}
     else if( sLine.substr(0,3)=="XML" )
     {
+	    /*
         if(m_iLastXMLSent == m_iXMLCounter)
         {
             char pInvalidXML[] = "Invalid";
@@ -346,7 +347,9 @@ bool xxProxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeou
             pSocket->SendData(sizeof(pInvalidXML), pInvalidXML);
         }
         else
+	
         {
+	*/
             size_t size;
             char *pBuffer = FileUtils::ReadFileIntoBuffer(CURRENT_SCREEN_XML,size);
             if( !pBuffer )
@@ -362,7 +365,7 @@ bool xxProxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeou
             delete[] pBuffer;
 
             m_iLastXMLSent = m_iXMLCounter;
-        }
+        //}
 
         return true;
     }
