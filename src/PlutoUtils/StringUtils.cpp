@@ -26,11 +26,11 @@
 
 #include "FileUtils.h"
 #include "StringUtils.h"
-#include "MultiThreadIncludes.h"
 #include "Other.h"
 
 #ifndef SYMBIAN
-    #include <stdio.h>
+	#include "MultiThreadIncludes.h"
+	#include <stdio.h>
     #include <time.h>
     #include <cctype>
     #include <algorithm>
@@ -872,8 +872,6 @@ string StringUtils::SecondsAsTime(int iSeconds)
 	return Format( ":%02d", iSeconds );
 }
 
-#endif //#ifndef SYMBIAN
-
 
 string StringUtils::PrecisionTime()
 {
@@ -885,3 +883,7 @@ string StringUtils::PrecisionTime()
 	snprintf( acBuff, sizeof(acBuff), "%02d/%02d/%02d %d:%02d:%06.3f", (int)t->tm_mon + 1, (int)t->tm_mday, (int)t->tm_year - 100, (int)t->tm_hour, (int)t->tm_min, dwSec );
 	return acBuff;
 }
+
+
+#endif //#ifndef SYMBIAN
+

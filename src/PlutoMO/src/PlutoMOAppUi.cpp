@@ -621,12 +621,13 @@ void CPlutoMOAppUi::NotifyIncomingCall(TDesC& aCallName)
 //----------------------------------------------------------------------------------------------
 void CPlutoMOAppUi::NotifyIncomingNumber(const TDesC& aTellNumber)
 {
-	TInt i;
+	TInt i = 0;
 
 	LOG("NotifyIncomingNumber: Phone number:\n");
 	LOG(string(aTellNumber));
 	LOG("\n");
 
+	/*
 	for(i = 0; i < iNumPhoneTypes; ++i)
 	{
 		TInt PhoneLen = iPhoneTypes[i].iPhoneNumber.Length();
@@ -639,7 +640,7 @@ void CPlutoMOAppUi::NotifyIncomingNumber(const TDesC& aTellNumber)
 				iCall.HangUp();
 				LOG("Hang up call - ok\n");
 			}
-
+			*/
 			iCurType = i;
 
 			LOG("Ready to open vmc file\n");
@@ -650,10 +651,12 @@ void CPlutoMOAppUi::NotifyIncomingNumber(const TDesC& aTellNumber)
 
 			iIdle->Start(TCallBack(DoIdleStatic,this));
 			return;
+			/*
 		}
 	}
 
 	iCall.Close();
+	*/
 }
 //----------------------------------------------------------------------------------------------
 void CPlutoMOAppUi::CloseVMC() 
