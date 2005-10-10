@@ -49,7 +49,7 @@ public:
 	Renderer(string FontPath,string OutputDirectory,int Width,int Height,bool bDisableVideo=false);
 	~Renderer();
 
-	static RendererImage * CreateBlankCanvas(PlutoSize size);
+	static RendererImage * CreateBlankCanvas(PlutoSize size,bool bFillIt=false);
 	PlutoSize RealRenderText(RendererImage * pRenderImage, DesignObjText *pDesignObjText, TextStyle *pTextStyle, PlutoPoint pos);
 
 #ifndef ORBITER

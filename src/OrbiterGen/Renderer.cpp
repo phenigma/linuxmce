@@ -239,9 +239,9 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
             {
                 // This is a new screen, start with a clean canvas
 				if( pDesignObj_Generator->m_bIsPopup && pDesignObj_Generator->m_rPosition.Width && pDesignObj_Generator->m_rPosition.Height )
-	                pRenderImage = CreateBlankCanvas(PlutoSize(pDesignObj_Generator->m_rPosition.Width,pDesignObj_Generator->m_rPosition.Height));
+	                pRenderImage = CreateBlankCanvas(PlutoSize(pDesignObj_Generator->m_rPosition.Width,pDesignObj_Generator->m_rPosition.Height),pRenderImage==NULL);
 				else
-	                pRenderImage = CreateBlankCanvas(PlutoSize(m_Width,m_Height)); // TROUBLE nr 1: this pointer is lost each time the for loop starts
+	                pRenderImage = CreateBlankCanvas(PlutoSize(m_Width,m_Height),pRenderImage==NULL); // TROUBLE nr 1: this pointer is lost each time the for loop starts
                 bIsMenu=true;
             }
             else
@@ -1057,7 +1057,7 @@ void DoRender(string font, string output,int width,int height,class DesignObj_Ge
 
 #endif //ifndef ORBITER
 
-RendererImage * Renderer::CreateBlankCanvas(PlutoSize size)
+RendererImage * Renderer::CreateBlankCanvas(PlutoSize size,bool bFillIt)
 {
     RendererImage * Canvas = new RendererImage;
     Uint32 rmask, gmask, bmask, amask;
@@ -1081,7 +1081,8 @@ RendererImage * Renderer::CreateBlankCanvas(PlutoSize size)
         Canvas = NULL;
     }
 
-//	SDL_FillRect(Canvas->m_pSDL_Surface, NULL,SDL_MapRGBA(Canvas->m_pSDL_Surface->format, 0, 0, 0, 255));
+	if( bFillIt )
+		SDL_FillRect(Canvas->m_pSDL_Surface, NULL,SDL_MapRGBA(Canvas->m_pSDL_Surface->format, 0, 0, 0, 255));
 
     Canvas->NewSurface = true;
 
