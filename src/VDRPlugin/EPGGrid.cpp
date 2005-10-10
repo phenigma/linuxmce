@@ -76,6 +76,7 @@ void EpgGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, int *R
 
 	for(int iRow=*RowStart;iRow<*RowStart + RowCount;++iRow)
 	{
+g_pPlutoLogger->Write(LV_STATUS,"in loop irow %d < %d size %d",iRow,(int) (*RowStart + RowCount), (int) m_pEPG->m_vectChannel.size());
 		if( iRow>=0 && iRow<m_pEPG->m_vectChannel.size() )
 		{
 			Channel *pChannel = m_pEPG->m_vectChannel[iRow];
@@ -97,12 +98,14 @@ void EpgGrid::ToData(string GridID,int &Size, char* &Data, int *ColStart, int *R
 
 void EpgGrid::PopulateRow(Channel *pChannel,int iRow,int StartTime,int StopTime)
 {
+g_pPlutoLogger->Write(LV_STATUS,"EpgGrid::PopulateRow %s",pChannel->m_sChannelName.c_str());
 	Event *pEvent = pChannel->m_pEvent_First,*pEvent_Prior=NULL;
 	while(pEvent && pEvent->m_tStartTime<StartTime)
 	{
 		pEvent_Prior = pEvent;
 		pEvent = pEvent->m_pEvent_Next;
 	}
+g_pPlutoLogger->Write(LV_STATUS,"pevent %p p event prior %p",pEvent,pEvent_Prior);
 
 	// The prior show is partially in this grid
 	if( pEvent_Prior && pEvent_Prior->m_tStopTime > StartTime )
@@ -117,6 +120,7 @@ void EpgGrid::PopulateRow(Channel *pChannel,int iRow,int StartTime,int StopTime)
 	// Add all current shows
 	while(pEvent && pEvent->m_tStartTime<StopTime)
 	{
+g_pPlutoLogger->Write(LV_STATUS,"pevent %p p event prior %p  st %d  stop %d",pEvent,pEvent_Prior,(int) pEvent->m_tStartTime,(int) StopTime);
 		string sDesc = pEvent->GetProgram();
 		if( pEvent->m_tStopTime > StopTime )
 			sDesc += ">";
@@ -132,6 +136,12 @@ void EpgGrid::PopulateRow(Channel *pChannel,int iRow,int StartTime,int StopTime)
 			pCell->m_AltColor = -15126452;
 
 		SetData(Column,iRow,pCell);
+		if( pEvent->m_pEvent_Next && pEvent->m_pEvent_Next->m_tStartTime < pEvent->m_tStartTime )  // We're looping at the end
+		{
+g_pPlutoLogger->Write(LV_STATUS,"hit the end");
+			break;
+
+		}
 		pEvent = pEvent->m_pEvent_Next;
 	}
 }
