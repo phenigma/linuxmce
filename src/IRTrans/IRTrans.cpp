@@ -90,8 +90,6 @@ IRTrans::IRTrans(int DeviceID, string ServerAddress,bool bConnectEventHandler,bo
         , IRReceiverBase(this), VFD_LCD_Base(40,2,20)
 //<-dceag-const-e->
 {
-	IRBase::setCommandImpl(this);
-	IRBase::setAllDevices(&(GetData()->m_AllDevices));
 	m_bIRServerRunning=false;
 	g_pIRTrans=this;
 }
@@ -107,6 +105,8 @@ bool IRTrans::GetConfig()
 		return false;
 
 	IRReceiverBase::GetConfig(m_pData);
+	IRBase::setCommandImpl(this);
+	IRBase::setAllDevices(&(GetData()->m_AllDevices));
 
 	FileUtils::DelDir("remotes");
 	system("mkdir remotes");

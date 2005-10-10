@@ -112,6 +112,9 @@ bool gc100::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 
+	IRBase::setCommandImpl(this);
+	IRBase::setAllDevices(&(GetData()->m_AllDevices));
+
 	// TODO: figure this one out: ReplaceParams
 	//ReplaceParams(replacement);
 
@@ -1589,8 +1592,6 @@ void gc100::CreateChildren()
 	string device_data;
 
 	gc100_Command::CreateChildren();
-	IRBase::setCommandImpl(this);
-	IRBase::setAllDevices(&(GetData()->m_AllDevices));
 	Start();
 
 	send_to_gc100("getdevices");

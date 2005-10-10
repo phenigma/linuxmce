@@ -28,8 +28,6 @@ Tira::Tira(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLo
 	, IRReceiverBase(this)
 {
 	g_pTira=this; // Used for the callback
-	IRBase::setCommandImpl(this);
-	IRBase::setAllDevices(&(GetData()->m_AllDevices));
 	m_bIRServerRunning=false;
 	m_tsLastButton.tv_sec=0;
 	m_bMustConvertRC5_6=true;
@@ -53,6 +51,8 @@ bool Tira::GetConfig()
 	if( !m_Virtual_Device_Translator.GetConfig(m_pData) )
 		return false;
 	
+	IRBase::setCommandImpl(this);
+	IRBase::setAllDevices(&(GetData()->m_AllDevices));
 	IRReceiverBase::GetConfig(m_pData);
 	// Find all our sibblings that are remote controls 
 	for(Map_DeviceData_Base::iterator itD=m_pData->m_AllDevices.m_mapDeviceData_Base.begin();
