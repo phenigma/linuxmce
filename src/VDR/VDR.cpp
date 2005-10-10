@@ -199,6 +199,14 @@ void VDR::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,string
 
 	m_iStreamID = iStreamID;
     LaunchVDR();
+	string::size_type pos;
+	if( (pos=sMediaPosition.find("CHAN:")!=string::npos) && sMediaPosition.size()>5 )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"Will start with channel %s",sMediaPosition.substr(pos+5).c_str());
+		string sResponse;
+		if( SendVDRCommand("CHAN " + sMediaPosition.substr(pos+5),sResponse) )
+			ParseCurrentChannel(sResponse);
+	}
 }
 
 //<-dceag-c38-b->
