@@ -22,8 +22,6 @@ namespace DCE
 		int   m_ImageQuality;
 		int	  m_iImageCounter;  // We will increment this each time we have a new image so we can keep track of whether a connected device has the lateest
         int   m_iLastImageSent;
-        int   m_iLastXMLSent;
-        int   m_iXMLCounter;
 
 		map<int,int> m_mapID_ImageCounter; // Map of connection ID's to the latest image counter
         deque<string> m_dequeXMLItems;
