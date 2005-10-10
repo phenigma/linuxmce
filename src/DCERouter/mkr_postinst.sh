@@ -140,3 +140,6 @@ done
 
 [[ -z "$RA_CheckRemotePort" ]] && ConfSet RA_CheckRemotePort 1
 rm -rf /var/cache/polipo/* || /bin/true
+
+# prevent slapd from starting at boot
+update-rc.d -f slapd remove || /bin/true
