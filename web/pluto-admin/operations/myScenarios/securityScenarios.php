@@ -98,7 +98,7 @@ if($action=='form') {
 			if($resCV->RecordCount()==0){
 				$out.='
 				<tr bgcolor="#DDDDDD">
-					<td><input type="text" name="commandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Description'].'"></td>
+					<td><textarea name="commandGroup_'.$rowCG['PK_CommandGroup'].'" style="width:200px;" rows="2">'.$rowCG['Description'].'</textarea></td>
 					<td align="center"><a href="index.php?section=securityScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=testScenario">Test</a></td>
 					<td align="center"><a href="index.php?section=securityScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=editScenario">Edit (simple mode)</a></td>
 					<td align="center"><a href="index.php?section=scenarioWizard&cgID='.$rowCG['PK_CommandGroup'].'&wizard=2&from=securityScenarios">Edit (wizard mode)</a></td>
@@ -108,7 +108,7 @@ if($action=='form') {
 			}else{
 				$out.='
 				<tr bgcolor="#FF9F9F">
-					<td><input type="text" name="commandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Description'].'"></td>
+					<td><textarea name="commandGroup_'.$rowCG['PK_CommandGroup'].'" style="width:200px;" rows="2">'.$rowCG['Description'].'</textarea></td>
 					<td align="center" colspan="3">Invalid scenario, one or more device(s) no longer exists.</td>
 					<td align="center"><a href="#" onClick="javascript:if(confirm(\'Are you sure you want to keep this scenario? It will no longer appear on Security Scenarios since it had invalid parameters.\'))self.location=\'index.php?section=securityScenarios&cgKeepID='.$rowCG['PK_CommandGroup'].'&action=keep\';">Keep</a> <a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete this scenario?\'))self.location=\'index.php?section=securityScenarios&cgDelID='.$rowCG['PK_CommandGroup'].'&action=del\';">Delete</a></td>
 				</tr>
@@ -148,7 +148,7 @@ if($action=='form') {
 			</tr>
 			<tr>
 				<td><B>Description: </B></td>
-				<td><input type="text" name="description" value=""></td>
+				<td><textarea name="description" style="width:200px;"></textarea></td>
 			</tr>
 			<tr>
 				<td colspan="2"><b>Select cameras for quad view:</b></td>
@@ -233,7 +233,7 @@ if($action=='form') {
 			</tr>
 			<tr>
 				<td><B>Description: </B></td>
-				<td><input type="text" name="description" value="'.$description.'"></td>
+				<td><textarea name="description" style="width:200px;" rows="2">'.$description.'</textarea></td>
 			</tr>
 			<tr>
 				<td><B>Hint: </B></td>

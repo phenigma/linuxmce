@@ -105,14 +105,7 @@ function telecomScenarios($output,$dbADO) {
 					<td align="center"><B>Phone</B></td>
 					<td align="center">&nbsp;</td>
 				</tr>';
-			/*
-				$queryOtherCG='
-				SELECT PK_CommandGroup,Description FROM CommandGroup
-					INNER JOIN CommandGroup_Room on CommandGroup_Room.FK_CommandGroup=PK_CommandGroup
-				WHERE FK_Room=? AND FK_Template=? AND PK_CommandGroup!=?';
 
-			$resCG=$dbADO->Execute($queryOtherCG,array($rowRooms['PK_Room'],$GLOBALS['TelecomScenariosTemplate'],$roomCG));
-			*/
 			if($resCG->RecordCount()==0){
 				$out.='
 				<tr>
@@ -138,7 +131,7 @@ function telecomScenarios($output,$dbADO) {
 				$rowSelDevice=$resSelDevice->FetchRow();
 				$out.='
 				<tr bgColor="#F0F3F8">
-					<td align="center"><input type="text" name="description_'.$rowSpeedDial['PK_CommandGroup'].'" value="'.$rowSpeedDial['Description'].'"></td>
+					<td align="center"><textarea style="width:200px;" name="description_'.$rowSpeedDial['PK_CommandGroup'].'">'.$rowSpeedDial['Description'].'</textarea></td>
 					<td align="center"><input type="text" name="number_'.$rowSpeedDial['PK_CommandGroup'].'" value="'.$rowNumber['IK_CommandParameter'].'"></td>
 					<td align="center">';
 				if(count($phonesDTArray)==0)
@@ -196,7 +189,7 @@ function telecomScenarios($output,$dbADO) {
 				</tr>
 				<tr>
 					<td>Description: </td>
-					<td><input type="text" name="description" value=""></td>
+					<td><textarea style="width:200px;" rows="2" name="description"></textarea></td>
 				</tr>
 				<tr>
 					<td>Number: </td>

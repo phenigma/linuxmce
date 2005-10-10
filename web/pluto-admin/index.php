@@ -1288,7 +1288,7 @@ switch ($section) {
     	$output = new Template($dbADO);
        	$output->setTemplateFileType('small');
 		include_once('operations/myDevices/orbiters/proxySocket.php');
-	    proxySocket($output);
+	    proxySocket($output,$dbADO);
 	break;
 	
 	case 'phoneBook':

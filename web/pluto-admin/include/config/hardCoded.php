@@ -156,7 +156,10 @@
 	$GLOBALS['PK_City']=107;					// City
 	$GLOBALS['Longitude']=108;					// Longitude
 	$GLOBALS['Latitude']=109;					// Latitude
-	$GLOBALS['RipFormat']=47;						// Rip format (device data name is Type)
+	$GLOBALS['RipFormat']=47;					// Rip format (device data name is Type)
+	$GLOBALS['RemotePhoneIP']=118;				// Remote Phone IP
+	$GLOBALS['ListenPort']=119;					// Listen Port
+	
 	
 	// PK_FloorplanType from table FloorplanType 
 

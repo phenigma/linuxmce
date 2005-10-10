@@ -62,7 +62,7 @@ function editCommandGroup($output,$dbADO) {
 				<table border="0">
 						<tr>
 							<td>Description</td>
-							<td><input type="text" size="20" name="description" value="'.$rowCommandGroupDetails['Description'].'"></td>
+							<td><textarea name="description" style="width:100%;" rows="3">'.$rowCommandGroupDetails['Description'].'</textarea></td>
 						</tr>
 						<tr>
 							<td>Hint</td>

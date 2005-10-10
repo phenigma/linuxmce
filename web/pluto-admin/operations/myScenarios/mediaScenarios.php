@@ -57,7 +57,7 @@ function mediaScenarios($output,$dbADO) {
 				</tr>
 				<tr>
 					<td>Description</td>
-					<td><input type="text" name="newDescription" value="'.@$_POST['newDescription'].'"></td>
+					<td><textarea name="newDescription" rows="3" style="width:200px;">'.@$_POST['newDescription'].'</textarea></td>
 				</tr>
 				<tr>
 					<td>Entertain Area</td>
