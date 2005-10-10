@@ -11,7 +11,7 @@ function editPhoneNumber($output,$telecomADO) {
 		
 		$out.='
 		
-	<div class="err" align="center">'.@$_GET['error'].'</div>
+	<div class="err" align="center">'.stripslashes(@$_GET['error']).'</div>
 	<div class="confirm" align="center">'.@$_GET['msg'].'</div>
 		
 	<form action="index.php" method="POST" name="editPhoneNumber">
@@ -46,7 +46,7 @@ function editPhoneNumber($output,$telecomADO) {
 					`DialAs`=?
 				WHERE PK_PhoneNumber=?',
 			array($contact,$PhoneType,$CountryCode,$AreaCode,$PhoneNumber,$Extension,$DialAs,$id));
-			$msg='The phone number was added.';
+			$msg='The phone number was changed.';
 		}
 		
 		header("Location: index.php?section=phoneBook&msg=".@$msg);

@@ -265,7 +265,6 @@
 				}
 			}else{
 				$publicADO->Execute('DELETE FROM DeviceTemplate_MediaType WHERE FK_DeviceTemplate=?',$dtID);
-				
 				$mediaTypesArray=getAssocArray('MediaType','PK_MediaType','Description',$publicADO,'','ORDER BY Description ASC');
 				$commandsArray=unserialize(urldecode($_POST['commandsArray']));
 				$oldMTArray=unserialize(urldecode($_POST['oldMTArray']));

@@ -137,8 +137,8 @@ $out.='
 					
 					$sizeFields=getFieldsAsArray('Size','PK_Size',$dbADO,'WHERE Width='.$resX,' AND Height='.$resY);
 
-					if(count($sizeFields['PK_Size']>0)){
-						$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($sizeFields['PK_Size'][0]['PK_Size'],$orbiterArray['PK_Device'],$GLOBALS['Size']));
+					if(isset($sizeFields['PK_Size'][0])){
+						$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($sizeFields['PK_Size'][0],$orbiterArray['PK_Device'],$GLOBALS['Size']));
 					}
 				}
 

@@ -56,7 +56,7 @@ function phonesTable($telecomADO,$userID,$page){
 		',$userID);
 	$totalRecords=$res->RecordCount();
 	if($totalRecords==0){
-		return 'No phone numbers available';
+		return 'No phone numbers available.<br> <input type="button" class="button" name="add" value="Add phone number/contact" onClick="self.location=\'index.php?section=addPhoneNumber\'">';
 	}
 	
 	$noPages=ceil($totalRecords/$records_per_page);
