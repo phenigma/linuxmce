@@ -310,6 +310,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 								PRIORITY_NORMAL, MESSAGETYPE_COMMAND,
 								iValue > 0 ? COMMAND_Scan_FwdFast_Fwd_CONST : COMMAND_Scan_BackRewind_CONST, 0),
 						abs(iValue));
+			outrepls.push_back(msgrepl);
 			return true;
 		} else {
 			g_pPlutoLogger->Write(LV_WARNING, "Cannot Translate 0 into scan value.");
