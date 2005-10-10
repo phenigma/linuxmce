@@ -12,7 +12,7 @@ MYNAME = Proxy_Orbiter
 VERSION = 2.0.0
 MYDEVTEMPLATEID = 1727mplateID
 
-Gen_Dev_Files = $(GENDEV)/Proxy_OrbiterBase.cpp
+Gen_Dev_Files = $(GENDEV)/OrbiterBase.cpp
 sources = Main.cpp Proxy_Orbiter.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
@@ -21,7 +21,6 @@ CPPFLAGS += -I/usr/include/SDL -DORBITER
 LDFLAGS +=
 XTRALDLIBS = -lSDL -lSDL_ttf -lSDL_image -lSGE -lSDL_gfx
 
-Gen_Dev_Files += $(GENDEV)/OrbiterBase.cpp
 sources += \
 	../Orbiter/OrbiterFileBrowser.cpp \
 	../Orbiter/Simulator.cpp \
