@@ -15,17 +15,23 @@
 namespace DCE {
 
 bool GSDMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList& outrepls) {
+	RubyIOManager* pmanager = RubyIOManager::getInstance();
+	Message* pmsg = &inrepl.getMessage();
+	if(	pmanager->getCodeSupplier().isCmdImplemented(pmsg->m_dwPK_Device_To, pmsg->m_dwID))
+	{
+		return false;
+	}
 	if(AVMessageTranslator::Translate(inrepl, outrepls)) {
-		MessageReplicator *new_msg=&outrepls.back();
-		Message* pmsg = &new_msg->getMessage();
-		RubyIOManager* pmanager = RubyIOManager::getInstance();	
-		g_pPlutoLogger->Write(LV_STATUS, "GSDMessageTranslator after translate.");
-		if(	!pmanager->getCodeSupplier().isCmdImplemented(pmsg->m_dwPK_Device_To, pmsg->m_dwID))
-		{
-			outrepls.pop_back();		
-			outrepls.push_back(inrepl);
-			g_pPlutoLogger->Write(LV_STATUS, "GSDMessageTranslator will try to send untranslated.");
-		}
+//		MessageReplicator *new_msg=&outrepls.back();
+//		Message* pmsg = &new_msg->getMessage();
+//		RubyIOManager* pmanager = RubyIOManager::getInstance();		
+//		g_pPlutoLogger->Write(LV_STATUS, "GSDMessageTranslator after translate.");
+//		if(	!pmanager->getCodeSupplier().isCmdImplemented(pmsg->m_dwPK_Device_To, pmsg->m_dwID))
+//		{
+//			outrepls.pop_back();		
+//			outrepls.push_back(inrepl);
+//			g_pPlutoLogger->Write(LV_STATUS, "GSDMessageTranslator will try to send untranslated.");
+//		}
 		return true;
 	} else {
 		/*in all cases we must route messages to GSD devices*/
@@ -33,5 +39,43 @@ bool GSDMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicato
 		return true;
 	}
 };
+
+//will try this later...
+//bool GSDMessageTranslator::ProcessMessage(Message* pmsg) {
+//	assert(ptranslator_);
+//	if(ptranslator_ == NULL) {
+//		return false;
+//	}
+//
+//	if(threadid_ == 0) {
+//		g_pPlutoLogger->Write(LV_CRITICAL,"GSDMessageTranslator::Start was never called");
+//		return false;
+//	}
+//	bool ret = false;
+//	MessageReplicator msgrepl(*pmsg);
+//	msgqueue_.lock();
+//	ret = ProcessReplicator(msgrepl, msgqueue_);
+//	msgqueue_.unlock();
+//	if( pmsg->m_eExpectedResponse==ER_ReplyMessage)
+//	{
+//		g_pPlutoLogger->Write(LV_STATUS, "GSDMessageTranslator will try to wait until somebody sends response.");
+//		time_t tTimeout=time(NULL)+DEFAULT_RESPONSE_TIME;
+//		RubyIOManager* pmanager = RubyIOManager::getInstance();		
+//		while( tTimeout>time(NULL) )
+//		{
+//			PLUTO_SAFETY_LOCK(mm,pmanager->m_MsgMutex);
+//			if( pmsg->m_bRespondedToMessage )
+//				return ret;
+//			mm.Release();
+//			Sleep(100);
+//		}
+//		PLUTO_SAFETY_LOCK(mm,pmanager->m_MsgMutex);
+//		if( !pmsg->m_bRespondedToMessage )
+//		{
+//			return false;
+//		}
+//	}
+//	return ret;
+//};
 
 };
