@@ -1637,6 +1637,18 @@
 #define DESIGNOBJ_mnuFilelist_CONST 4447
 #define DESIGNOBJ_butDVDfilelist_CONST 4448
 #define DESIGNOBJ_mnuDVDmenu_CONST 4449
+#define DESIGNOBJ_mnuAttributes_CONST 4451
+#define DESIGNOBJ_butDVDoptions_CONST 4452
+#define DESIGNOBJ_mnuDVDoptions_CONST 4453
+#define DESIGNOBJ_butAdvRemote_CONST 4454
+#define DESIGNOBJ_mnuAdvRemote_CONST 4455
+#define DESIGNOBJ_mnuPlaylist_CONST 4456
+#define DESIGNOBJ_butPlaylist_CONST 4457
+#define DESIGNOBJ_butCreateBookmarks_CONST 4458
+#define DESIGNOBJ_mnuCreateBookmarks_CONST 4459
+#define DESIGNOBJ_butCopyDisc_CONST 4461
+#define DESIGNOBJ_mapLights_CONST 4463
+#define DESIGNOBJ_butArrayLightsFloorplan_CONST 4465
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
