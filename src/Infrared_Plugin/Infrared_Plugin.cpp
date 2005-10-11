@@ -671,7 +671,9 @@ void Infrared_Plugin::CMD_Add_GC100(string &sCMD_Result,Message *pMessage)
 		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 Failed, invalid Template number",false,30);
 	} else {
 		g_pPlutoLogger->Write(LV_WARNING, "The config script returned weird error %d",returned);
-		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 Failed, Unkonwn response " + StringUtils::itos(returned),false,30);
+		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 Failed. "
+            "Please make sure that the device was reseted to factory settings (response " + 
+            StringUtils::itos(returned) + ")",false,30);
 	}
 }
 //<-dceag-c688-b->

@@ -6997,7 +6997,7 @@ int k=2;
         bIsMNG = pPlutoGraphic->m_GraphicFormat == GR_MNG;
     }
 
-	string sFileName = "";
+    string sFileName = "";
 	if(pPlutoGraphic->IsEmpty() && NULL != m_pCacheImageManager && pPlutoGraphic->m_Filename.length() && 
 		m_pCacheImageManager->IsImageInCache(pPlutoGraphic->m_Filename, pObj->m_Priority)
 	)

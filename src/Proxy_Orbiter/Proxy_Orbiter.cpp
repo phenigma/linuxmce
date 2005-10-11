@@ -295,22 +295,6 @@ bool xxProxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeou
 	PLUTO_SAFETY_LOCK(am, m_ActionMutex);
 	if( sLine.substr(0,5)=="IMAGE" )
 	{
-        //vali cannot keep a connection active, so we won't use this for now
-        /*
-		int ConnectionID = 0;
-		if( sLine.size() > 7 )
-			ConnectionID = atoi( sLine.substr(6).c_str() );
-		if( !ConnectionID )
-			ConnectionID = pSocket->m_iSocketCounter;
-
-		if( m_mapID_ImageCounter[ConnectionID]==m_iImageCounter )
-		{
-            g_pPlutoLogger->Write(LV_WARNING, "Sent: IMAGE 0");
-			pSocket->SendString("IMAGE 0"); // No new image
-			return true;
-		}
-		m_mapID_ImageCounter[ConnectionID]=m_iImageCounter;*/
-
         if(m_iLastImageSent == m_iImageCounter)
             pSocket->SendString("IMAGE 0");
         else
