@@ -1,5 +1,7 @@
 #!/bin/bash
 
+shopt -s nullglob
+
 ERR_OK=0
 ERR_UNKNOWN_REP_TYPE=1
 ERR_UNKNOWN_REPOS_SRC_FORM=2
@@ -41,21 +43,47 @@ CatMessages()
 	echo "$M"
 }
 
+# ask "Try again?" question; return 1 on "Nn", 0 otherwise
+try_again()
+{
+	ClearBlue
+	echo "$(CatMessages "$@")" | fmt
+	echo -n "Do you want to try again? (Y/n): "
+	read again
+#	again=$(QuestionBox "$@" "Do you want to try again?")
+	[ "$again" == "N" -o "$again" == "n" ] && return 1
+	ClearBlack
+	return 0
+}
+
+Ask()
+{
+	local Msg="$1"
+	echo -n "$Msg: " >/dev/tty
+	read Answer
+	echo "$Answer"
+}
+
+NewDev()
+{
+	/usr/pluto/bin/CreateDevice "$@" | tail -1
+}
+
 # TODO: make these work at install time (currently they mess up debconf)
 # the perl scripts that do this read the process stderr directly for the result
 InputBox()
 {
-	whiptail --inputbox "$(CatMessages "$@")" 0 0 --fb --nocancel --title Pluto 2>&1
+	whiptail --inputbox "$(CatMessages "$@")" 0 0 --fb --nocancel --title Pluto 2>&1 1>/dev/tty
 }
 
 MessageBox()
 {
-	whiptail --msgbox "$(CatMessages "$@")" 0 0 --fb --title Pluto
+	whiptail --msgbox "$(CatMessages "$@")" 0 0 --fb --title Pluto 2>&1 1>/dev/tty
 }
 
 QuestionBox()
 {
-	whiptail --yesno "$(CatMessages "$@")" 0 0 --fb --title Pluto && echo "y" || echo "n"
+	whiptail --yesno "$(CatMessages "$@")" 0 0 --fb --title Pluto 1>/dev/tty 2>/dev/null && echo "y" || echo "n"
 }
 # TODO: ends here
 
