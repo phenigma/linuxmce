@@ -114,7 +114,7 @@ VDR::~VDR()
 bool VDR::LaunchVDR()
 {
 	DCE::CMD_Play_Media cmd(m_dwPK_Device,m_pDevice_Xine->m_dwPK_Device,
-			"vdr:/tmp/vdr-xine/stream#demux:mpeg_pes",
+			"vdr-socket:/192.168.80.1#demux:mpeg_pes",
 			MEDIATYPE_pluto_LiveTV_CONST,
 			1,""); // Stream ID and start position not important
 	return SendCommand(cmd);
@@ -435,7 +435,7 @@ void VDR::KillSpawnedDevices()
 bool VDR::SendVDRCommand(string sCommand,string &sVDRResponse)
 {
 	g_pPlutoLogger->Write(LV_WARNING,"Going to send command %s",sCommand.c_str());
-	PlainClientSocket _PlainClientSocket("localhost:2001");
+	PlainClientSocket _PlainClientSocket("192.168.80.1:2001");
 	if( !_PlainClientSocket.Connect() )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Unable to connect to VDR client");
