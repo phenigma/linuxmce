@@ -160,6 +160,10 @@ pair<bool,int> PlutoButtonsToX(int PK_Button)
 		return make_pair<bool,int> (false,XK_comma);
 	case BUTTON_period_CONST:
 		return make_pair<bool,int> (false,XK_period);
+    case BUTTON_escape_CONST:
+        return make_pair<bool,int> (false,XK_Escape);
+    case BUTTON_tab_CONST:
+        return make_pair<bool,int> (false,XK_Tab);
 	}
 	return make_pair<bool,int> (false,0);
 }
