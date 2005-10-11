@@ -764,6 +764,7 @@
 #define TEXT_Use_OSD_CONST 1468
 #define TEXT_Web_Sites_CONST 1470
 #define TEXT_What_Type_Phone_CONST 1471
+#define TEXT_Floorplan_CONST 1472
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

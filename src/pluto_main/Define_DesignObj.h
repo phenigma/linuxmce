@@ -1617,6 +1617,26 @@
 #define DESIGNOBJ_dgTypesOfMobilePhones_CONST 4415
 #define DESIGNOBJ_butCancel_CONST 4416
 #define DESIGNOBJ_butHiddenGotoNowPlaying_CONST 4417
+#define DESIGNOBJ_butWebSites_CONST 4418
+#define DESIGNOBJ_butInstalledPrograms_CONST 4419
+#define DESIGNOBJ_mnuLighting_CONST 4420
+#define DESIGNOBJ_butLighting_CONST 4421
+#define DESIGNOBJ_mnuTelecom_CONST 4426
+#define DESIGNOBJ_butMore_CONST 4430
+#define DESIGNOBJ_butSleeping_CONST 4432
+#define DESIGNOBJ_butFloorplanLights_CONST 4433
+#define DESIGNOBJ_butFloorplanMedia_CONST 4434
+#define DESIGNOBJ_butFloorplanClimate_CONST 4435
+#define DESIGNOBJ_butFloorplanTelecom_CONST 4436
+#define DESIGNOBJ_butFloorplanSecurity_CONST 4437
+#define DESIGNOBJ_butDVDRemote_CONST 4439
+#define DESIGNOBJ_mnuMore_CONST 4440
+#define DESIGNOBJ_butAdvancedOptions2_CONST 4441
+#define DESIGNOBJ_mapMedia_CONST 4444
+#define DESIGNOBJ_butArrayMediaFloorplan_CONST 4445
+#define DESIGNOBJ_mnuFilelist_CONST 4447
+#define DESIGNOBJ_butDVDfilelist_CONST 4448
+#define DESIGNOBJ_mnuDVDmenu_CONST 4449
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
