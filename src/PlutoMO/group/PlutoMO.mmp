@@ -96,6 +96,7 @@ LIBRARY gdi.lib
 LIBRARY mediaclientimage.lib
 LIBRARY fbscli.lib
 LIBRARY ws32.lib
+LIBRARY aknnotify.lib
 //LIBRARY bitgdi.lib
 LIBRARY etel.lib
 LIBRARY logcli.lib

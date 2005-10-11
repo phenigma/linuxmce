@@ -641,6 +641,7 @@ void CPlutoMOAppUi::NotifyIncomingNumber(const TDesC& aTellNumber)
 				LOG("Hang up call - ok\n");
 			}
 			*/
+
 			iCurType = i;
 
 			LOG("Ready to open vmc file\n");
@@ -684,7 +685,7 @@ TInt CPlutoMOAppUi::DoIdle()
 
 	// check for status of the call set ret to ETrue when hannging up
 	// or idle. and bring app to front
-	if (iCallStatus == RCall::EStatusHangingUp || iCallStatus == RCall::EStatusIdle)
+	//if (iCallStatus == RCall::EStatusHangingUp || iCallStatus == RCall::EStatusIdle)
 	{
 		ret = EFalse; //finished do not come back
 		iCall.Close();
@@ -692,47 +693,9 @@ TInt CPlutoMOAppUi::DoIdle()
 
 		LOG(iCurType);
 
-	
-		//just open vali's wml page for security
-		iURL.Copy(iURLClone);
-		iURL.Append(string("security=0").Des());
-		LaunchBrowser();
-
-		/*
-		//test
-		if(NULL == iPlutoEventView)
-		{
-			iPlutoEventView = new (ELeave) CPlutoEventView();
-			CleanupStack::PushL(iPlutoEventView);
-			iPlutoEventView->ConstructL();
-			CleanupStack::Pop();    // view1
-
-			LOG("PlutoEventView created\n");
-
-			AddViewL(iPlutoEventView);        // transfer ownership to CAknViewAppUi
-			ActivateLocalViewL(iPlutoEventView->Id());
-
-			LOG("PlutoEventView activated\n");
-		}
-		else
-		{
-			iPlutoEventView->iContainer->MakeVisible(true);
-		}
-
-		TApaTask task(CEikonEnv::Static()->WsSession());
-		task.SetWgId(CEikonEnv::Static()->RootWin().Identifier());
-		task.BringToForeground();
-
-		LOG("Bring to foreground\n");
-		*/
-
-
-		/*
 		TBuf<256> msg;
-		msg.Copy(iPlutoEventTypes[iPhoneTypes[iCurType].iWAP_EventType - 1]);
-		msg.Append(_L(":\n"));
-		msg.Append(iPhoneTypes[iCurType].iMessage);
-		msg.Append(_L(".\nWhat now ?"));
+		msg.Copy(_L("Pluto: security breach!\nSee the event?"));
+		msg.Append(_L(".\n"));
 
 		LOG(msg);
 
@@ -749,19 +712,15 @@ TInt CPlutoMOAppUi::DoIdle()
 		if (qResult == 3005)
 		{
 			LOG("O fost un ok... open the browser\n");
+			
+			//just open vali's wml page for security
+			iURL.Copy(iURLClone);
+			iURL.Append(string("security=0").Des());
 			LaunchBrowser();
 		}
-
-
-		/*
-		TFileName file_name;
-		file_name.Append(KPlutoVMCFile);
-		OpenVMC(false, file_name, NULL);
-		LOG("open vmc file - ok");
-		*/
 	}
-	else
-		ret = ETrue; //not finish, do come back
+	//else
+	//	ret = ETrue; //not finish, do come back
 
 	//LOG("end of idle");
 
