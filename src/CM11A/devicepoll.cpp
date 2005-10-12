@@ -89,7 +89,7 @@ DevicePoll::SendPacket(CSerialPort* pport,
 			} while (nread > 0 && resp == CM11A_INTERFACE_CQ);
 			if(nread > 0) {
 				if(resp > 0 && resp < 128) {
-					g_pPlutoLogger->Write(LV_STATUS, "Reading %d bytes of DATA...");
+					g_pPlutoLogger->Write(LV_STATUS, "Reading %d bytes of DATA...",resp);
 					
 					char *buff = new char[resp];
 					pport->Read(buff, resp-1, CM11A_READ_TIMEOUT);
