@@ -198,19 +198,10 @@ echo "$Q4" | /usr/bin/mysql pluto_main
 # Remove installation incomplete flag
 rm /usr/pluto/install/.notdone
 
-# Set vimrc
-[[ -e /root/.vimrc ]] || cp /usr/share/vim/vim63/vimrc_example.vim /root/.vimrc
+selectedInterface=$(grep 'iface..*eth' /etc/network/interfaces | awk '{print $2}')
+dcerouterIP=$(ifconfig $selectedInterface | awk 'NR==2' | cut -d: -f2 | cut -d' ' -f1)
 
-# Set debconf frontend
-awk '/Name: debconf\/frontend/,/^$/ {if ($1 == "Value:") print "Value: Noninteractive"; else print; next}
-        {print}' /var/cache/debconf/config.dat > /var/cache/debconf/config.dat.$$
-mv /var/cache/debconf/config.dat{.$$,}
-
-if [ "$Type" == "router" ]; then
-	selectedInterface=$(grep 'iface..*eth' /etc/network/interfaces | awk '{print $2}')
-	dcerouterIP=$(ifconfig $selectedInterface | awk 'NR==2' | cut -d: -f2 | cut -d' ' -f1)
-
-	hosts="
+hosts="
 127.0.0.1       localhost.localdomain   localhost
 $dcerouterIP    dcerouter $(/bin/hostname)
 
@@ -222,116 +213,15 @@ ff02::1 ip6-allnodes
 ff02::2 ip6-allrouters
 ff02::3 ip6-allhosts
 "
-	echo "$hosts" >/etc/hosts
-fi
+echo "$hosts" >/etc/hosts
 
 clear
 
-chmod +x "$DIR"/activation.sh
-if bash -x "$DIR"/activation.sh; then
-	echo "Activation went ok"
-else
-	echo "$ACTIV_MSG" | fmt
+if [[ -d /home/backup && -f /home/backup/entire_database.sql ]]; then
+	echo "Restoring database"
+	mysql < /home/backup/entire_database.sql
 fi
 
-if [ "$Type" == "router" ]; then
-	if [ -d /home/backup -a -f /home/backup/entire_database.sql ]; then
-		echo "Restoring database"
-		mysql < /home/backup/entire_database.sql
-	fi
-fi
-
-#if [ -z "$no_build" -a -s "$DIR"/build.sh ]; then
-#	chmod +x "$DIR"/build.sh
-#	echo "$BUILD_MSG" | fmt
-#fi
-#if [ -z "$no_build_all" -a -s "$DIR"/build_all.sh ]; then
-#	chmod +x "$DIR"/build_all.sh
-#	echo "$BUILD_ALL_MSG" | fmt
-#fi
-
-# At this point these scripts should be available (installation finished, didn't it?)
-. /usr/pluto/bin/SQL_Ops.sh
-. /usr/pluto/bin/Config_Ops.sh
-
-Q="SELECT FK_DeviceCategory FROM DeviceTemplate JOIN Device ON FK_DeviceTemplate=PK_DeviceTemplate WHERE PK_Device='$device'"
-R=$(RunSQL "$Q")
-
-case "$R" in
-	# Core
-	7)
-		SysType="Core"
-	;;
-
-	# Media Director
-	8)
-		SysType="Media Director"
-	;;
-
-	# Other (usually, this means it's a bug)
-	*)
-		SysType="Unknown Device Type '$R'"
-	;;
-esac
-
-apt-get clean
-
-#wget -O "$DIR/message.txt" "$ACTIV/message.php?code=$CODE" 2>/dev/null && cat "$DIR/message.txt"
-Message1="Congratulations.  Pluto installation has completed.
-The system will now reboot.  The Pluto Core software will
-be started automatically.  As soon as the computer finishes
-rebooting you will be able to access the Pluto Admin website
-to configure it, and you can start plugging in your media
-directors and other plug-and-play devices.  If you are an
-advanced Linux user and want to access a terminal before
-the reboot, press ALT+F2.  Otherwise..."
-Key="the Enter key"
-#Key="OK"
-Message2="Press $Key to reboot and startup your new Pluto $SysType."
-
-Message24="
-[1;5;31m*** WARNING ***[0m You installed the system using the 2.4 kernel.
-
-The system will reboot using a 2.6 kernel, but the two versions see
-Serial-ATA ports in different ways. If you only have Paralel-ATA units,
-you can reboot without changes. Otherwise, read on.
-
-For now, you have to manually update these files:
-/etc/fstab:
-	replace /dev/hdX* with /dev/sdT*
-		X, T = letters
-		ex: /dev/hde -> /dev/sda; /dev/hde1 -> /dev/sda1
-/boot/grub/menu.lst:
-	For the \"Debian GNU/Linux, kernel 2.6.12-pluto-1-686\" kernel entry you
-	need to specify 'root=/dev/sdT1' instead of 'root=/dev/hdX1'
-
-Switch to another console (Alt+F2), login as root and use an editor like
-'nano' or 'vi' to edit those files before you reboot"
-
-echo "$(CatMessages "$Message1" "$Message2")" | fmt
-Kver=$(uname -r)
-if [ "${Kver:0:4}" == "2.4." ]; then
-	echo "$Message24"
-fi
-read
-#MessageBox "$Message1" "$Message2" "$Message3"
-
-[ -e /root/.vimrc ] || cp /usr/share/vim/vim63/vimrc_example.vim /root/.vimrc
-
-echo "Setting debconf front-end to Noninteractive"
-awk '/Name: debconf\/frontend/,/^$/ {if ($1 == "Value:") print "Value: Noninteractive"; else print; next}
-	{print}' /var/cache/debconf/config.dat > /var/cache/debconf/config.dat.$$
-mv /var/cache/debconf/config.dat.$$ /var/cache/debconf/config.dat
-
-if [ "$Type" == "diskless" ]; then
-	# Replace Initial_Config.sh entry with regular one in inittab
-	awk '
-		/1:23:once/ { next }
-		/^#1:2345:respawn/ { print substr($0, 2); next }
-		{ print }
-	' /etc/inittab >/etc/inittab.new
-	mv -f /etc/inittab.new /etc/inittab
-	reboot
-fi
+/usr/pluto/install/Initial_Config_Finish.sh
 #init q
 exit 0

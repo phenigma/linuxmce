@@ -181,18 +181,12 @@ else
 	echo "$ACTIV_MSG" | fmt
 fi
 
+/usr/pluto/bin/Initial_Config_Finish.sh
 # At this point these scripts should be available (installation finished, didn't it?)
 . /usr/pluto/bin/SQL_Ops.sh
 . /usr/pluto/bin/Config_Ops.sh
 
 apt-get clean
-
-[ -e /root/.vimrc ] || cp /usr/share/vim/vim63/vimrc_example.vim /root/.vimrc
-
-echo "Setting debconf front-end to Noninteractive"
-awk '/Name: debconf\/frontend/,/^$/ {if ($1 == "Value:") print "Value: Noninteractive"; else print; next}
-	{print}' /var/cache/debconf/config.dat > /var/cache/debconf/config.dat.$$
-mv /var/cache/debconf/config.dat.$$ /var/cache/debconf/config.dat
 
 # Replace Initial_Config.sh entry with regular one in inittab
 awk '
