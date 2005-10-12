@@ -1,10 +1,19 @@
 #!/bin/bash
 
 . /usr/pluto/install/Common.sh
+DIR="/usr/pluto/install"
 
 echo "** Initial config script"
 
-DIR="/usr/pluto/install"
+# Ask the questions
+Username=$(Ask "Pluto Username")
+Password=$(Ask "Pluto Password")
+Room=$(Ask "Room name")
+Type=$(Ask "Core or Hybrid? [C/h]")
+DHCP=$(Ask "DHCP: none/pluto/all [n/p/A]")
+if [[ -z "$DHCP" ]]; then
+	DHCP=A
+fi
 
 RestoreCoreConf()
 {
@@ -72,12 +81,6 @@ Activation_Code = $Activation_Code
 PK_Installation = 1
 PK_Users = 1"
 
-# Ask the questions
-Username=$(Ask "Pluto Username")
-Password=$(Ask "Pluto Password")
-Room=$(Ask "Room name")
-Type=$(Ask "Core or Hybrid? [C/h]")
-
 echo "$PlutoConf" >/etc/pluto.conf
 
 echo "$Sources" >/etc/apt/sources.list
@@ -144,6 +147,19 @@ if [[ "$Type" == "H" || "$Type" == "h" ]]; then
 	for DevT in $R; do
 		Dev=$(NewDev -d "$DevT")
 	done
+fi
+
+DHCPsetting=
+if [[ "$DHCP" == p || "$DHCP" == P ]]; then
+	DHCPsetting="192.168.80.2-192.168.80.254"
+elif [[ "$DHCP" == a || "$DHCP" == A ]]; then
+	DHCPsetting="192.168.80.2-192.168.80.128,192.168.80.129-192.168.80.254"
+fi
+
+if [[ -n "$DHCPsetting" ]]; then
+	Q="REPLACE INTO Device_DeviceData(FK_Device, FK_DeviceData, IK_DeviceData)
+		VALUES($CoreDev, 28, '$DHCPsetting')"
+	RunSQL "$Q"
 fi
 
 # "DCERouter postinstall"
