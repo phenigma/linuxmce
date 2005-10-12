@@ -58,6 +58,24 @@ if($action=='form'){
 	else{
 		$rowDocument=$res->FetchRow();
 		$out.='
+		<base target="_self" />
+		<script language="JavaScript" type="text/javascript" src="scripts/rte/richtext.js"></script>
+		<script language="JavaScript" type="text/javascript">
+		<!--
+		function submitForm() {
+			//make sure hidden and iframe values are in sync before submitting form
+			//to sync only 1 rte, use updateRTE(rte)
+			//to sync all rtes, use updateRTEs
+		
+			updateRTEs();
+			
+			return true;
+		}
+		
+		//Usage: initRTE(imagesPath, includesPath, cssFile)
+		initRTE("scripts/rte/images/", "scripts/rte/", "scripts/rte/");
+		//-->	
+		</script>		
 		<form action="right.php" method="post" name="documentDisplay" target="_self">
 		<input type="hidden" name="section" value="'.$section.'">
 		<input type="hidden" name="action" value="save">
@@ -77,14 +95,18 @@ if($action=='form'){
 					</tr>
 					<tr>
 						<td><input type="submit" name="save" value="Save"></td>
-						<td align="right"><input type="button" name="preview" value="Preview" onClick="document.documentDisplay.action.value=\'preview\';document.documentDisplay.submit();"></td>
+						<td align="right"><input type="button" name="preview" value="Preview" onClick="document.documentDisplay.action.value=\'preview\';updateRTEs();document.documentDisplay.submit();"></td>
 					</tr>
 					<tr>
-						<td colspan="2"><textarea name="Contents" rows="25" cols="100">'.((isset($_SESSION['docContents']))?stripslashes($_SESSION['docContents']):$rowDocument['Contents']).'</textarea></td>
+						<td colspan="2">
+				<script>
+					writeRichText(\'Contents\', \''.((isset($_SESSION['docContents']))?$cleanCode=str_replace(array("\r","\n"),'',@$_SESSION['docContents']):str_replace(array("\r","\n"),'',$rowDocument['Contents'])).'\', 500, 300, true, false);
+					//-->
+				</script></td>
 					</tr>
 					<tr>
 						<td><input type="submit" name="save" value="Save"></td>
-						<td align="right"><input type="button" name="preview" value="Preview" onClick="document.documentDisplay.action.value=\'preview\';document.documentDisplay.submit();"></td>
+						<td align="right"><input type="button" name="preview" value="Preview" onClick="document.documentDisplay.action.value=\'preview\';updateRTEs();document.documentDisplay.submit();"></td>
 					</tr>
 				</table>
 		</form>		
@@ -110,7 +132,6 @@ if($action=='form'){
 		<input type="hidden" name="action" value="save">
 		<input type="hidden" name="docID" value="'.$docID.'">
 		<input type="hidden" name="Title" value="'.$_SESSION['docTitle'].'">
-		<input type="hidden" name="Contents" value="'.$_SESSION['docContents'].'">
 		<input type="hidden" name="parentID" value="'.$_SESSION['parentID'].'">				
 		<input type="hidden" name="docOrder" value="'.$_SESSION['docOrder'].'">
 				<table>
@@ -129,7 +150,7 @@ if($action=='form'){
 }
 else{
 	if(isset($_POST['save'])){
-		$contents=stripslashes($_POST['Contents']);
+		$contents=(isset($_POST['Contents']))?stripslashes($_POST['Contents']):$_SESSION['docContents'];
 		$title=cleanString($_POST['Title']);
 		$docID=cleanInteger($_POST['docID']);
 		$parentID=($_POST['parentID']!='')?cleanInteger($_POST['parentID']):NULL;
@@ -143,15 +164,9 @@ else{
 		$dbADO->Execute($updateDocument,array($title,$contents,$docOrder,$parentID,$docID));
 
 		$out='
-				<script>';
-				$out.='self.location="right.php?section=documents/documentDisplay&docID='.$docID.'"';
-			/*
-		if($rowOldValues['FK_Document_Parent']==$parentID && $rowOldValues['Order']==$docOrder)
-			$out.='self.location="right.php?section=documents/documentDisplay&docID='.$docID.'"';
-		else
-			$out.='top.location="index.php?section=document&docID='.$docID.'"';
-			*/
-		$out.='</script>
+			<script>
+				self.location="right.php?section=documents/documentDisplay&docID='.$docID.'";
+			</script>
 			';
 
 	}

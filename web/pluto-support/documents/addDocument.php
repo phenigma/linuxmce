@@ -11,7 +11,25 @@ $parentID=(isset($_REQUEST['parentID']))?$_REQUEST['parentID']:0;
 
 if($action=='form'){
 	$out.='
-		<form action="right.php" method="post" name="addDocument">
+		<base target="_self" />
+		<script language="JavaScript" type="text/javascript" src="scripts/rte/richtext.js"></script>
+		<script language="JavaScript" type="text/javascript">
+		<!--
+		function submitForm() {
+			//make sure hidden and iframe values are in sync before submitting form
+			//to sync only 1 rte, use updateRTE(rte)
+			//to sync all rtes, use updateRTEs
+		
+			updateRTEs();
+			
+			return true;
+		}
+		
+		//Usage: initRTE(imagesPath, includesPath, cssFile)
+		initRTE("scripts/rte/images/", "scripts/rte/", "scripts/rte/");
+		//-->	
+		</script>
+		<form action="right.php" method="post" name="addDocument" onsubmit="return submitForm();">
 		<input type="hidden" name="section" value="'.$section.'">
 		<input type="hidden" name="action" value="add">
 			<table>
@@ -29,14 +47,18 @@ if($action=='form'){
 				</tr>
 				<tr>
 					<td><input type="submit" name="add" value="Add"></td>
-					<td align="right"><input type="button" name="preview" value="Preview" onClick="document.addDocument.action.value=\'preview\';document.addDocument.submit();"></td>
+					<td align="right"><input type="button" name="preview" value="Preview" onClick="document.addDocument.action.value=\'preview\';updateRTEs();document.addDocument.submit();"></td>
 				</tr>
 				<tr>
-					<td colspan="2"><textarea name="Contents" rows="25" cols="100">'.((isset($_SESSION['docContents']))?stripslashes($_SESSION['docContents']):'').'</textarea></td>
+					<td colspan="2">
+				<script>
+					writeRichText(\'Contents\', \''.((isset($_SESSION['docContents']))?$cleanCode=str_replace(array("\r","\n"),'',@$_SESSION['docContents']):'').'\', 500, 300, true, false);
+					//-->
+				</script></td>
 				</tr>
 				<tr>
 					<td><input type="submit" name="add" value="Add"></td>
-					<td align="right"><input type="button" name="preview" value="Preview" onClick="document.addDocument.action.value=\'preview\';document.addDocument.submit();"></td>
+					<td align="right"><input type="button" name="preview" value="Preview" onClick="document.addDocument.action.value=\'preview\';updateRTEs();document.addDocument.submit();"></td>
 				</tr>
 			</table>
 		</form>		
@@ -58,7 +80,6 @@ if($action=='form'){
 		<form action="'.$section.'.php" method="post" name="addDocument">
 		<input type="hidden" name="action" value="save">
 		<input type="hidden" name="Title" value="'.$_SESSION['docTitle'].'">
-		<input type="hidden" name="Contents" value="'.$_SESSION['docContents'].'">
 		<input type="hidden" name="parentID" value="'.$_SESSION['parentID'].'">				
 		<input type="hidden" name="docOrder" value="'.$_SESSION['docOrder'].'">
 				<table>
@@ -77,7 +98,7 @@ if($action=='form'){
 }
 else{
 	if(isset($_POST['add'])){
-		$contents=stripslashes($_POST['Contents']);
+		$contents=(isset($_POST['Contents']))?stripslashes($_POST['Contents']):$_SESSION['docContents'];
 		$title=cleanString($_POST['Title']);
 		$parentID=cleanInteger($_POST['parentID']);
 		$docOrder=cleanInteger($_POST['docOrder']);
@@ -88,6 +109,13 @@ else{
 		$docID=$dbADO->Insert_ID();
 		$out='
 				<script>
+					try{
+						// if add document was called from pluto admin, reload opener
+						top.opener.location.reload();
+					}
+					catch(e){
+						//
+					}
 					top.location="index.php?section=document&docID='.$docID.'";
 				</script>
 			';

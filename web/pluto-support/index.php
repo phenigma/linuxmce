@@ -214,6 +214,13 @@
 			$rightFile='home';
 			$rightParams='';
 		break;
+		case 'addDocument':
+			$leftFile='documents/leftMenu';
+			$leftParams='&docID='.$_REQUEST['parentID'].'&edit='.$_REQUEST['edit'];
+
+			$rightFile='documents/addDocument';
+			$rightParams='&parentID='.$_REQUEST['parentID'];
+		break;
 		
 		// pluto admin pages
 		case 'publicAdmin':
