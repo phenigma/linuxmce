@@ -132,11 +132,11 @@ while [ "$ok" -eq 0 ]; do
 	[ "$Type" == "router" ] && Host="localhost"
 
 	pluto_conf="# Pluto config file
-MySqlHost = $Host
+MySqlHost = dcerouter
 MySqlUser = root
 MySqlPassword = 
 MySqlDBName = pluto_main
-DCERouter = $Host
+DCERouter = dcerouter
 MySqlPort = 3306
 DCERouterPort = 3450
 PK_Device = $Device
