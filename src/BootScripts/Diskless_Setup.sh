@@ -175,7 +175,8 @@ for Client in $R; do
 
 		echo -n " Install"
 		mkdir -p $DlPath/usr/pluto/install
-		for Stuff in ConfirmDependencies_Debian.sh Common.sh Download_CVS.sh Download_Direct.sh Download_SVN.sh Initial_Config_Real.sh ramdisk.tar.bz2; do
+		Files="ConfirmDependencies_Debian.sh Common.sh Download_CVS.sh Download_Direct.sh Download_SVN.sh Initial_Config_MD.sh ramdisk.tar.bz2"
+		for Stuff in $Files; do
 			cp /usr/pluto/install/$Stuff $DlPath/usr/pluto/install
 		done
 		sed '/^Type=/ s/^.*$/Type="diskless"/' /usr/pluto/install/Initial_Config.sh >$DlPath/usr/pluto/install/Initial_Config.sh
