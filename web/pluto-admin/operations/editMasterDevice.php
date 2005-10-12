@@ -21,6 +21,9 @@ $out='';
 			LEFT JOIN DeviceTemplate_AV ON FK_DeviceTemplate=PK_DeviceTemplate
 			WHERE PK_DeviceTemplate=?";
 		$rs = $dbADO->Execute($queryGetMasterDeviceDetails,array($deviceID));	
+		if($rs->RecordCount()==0){
+			die('Device template # '.$deviceID.' was not found');
+		}
 		
 		$row = $rs->FetchRow();
 		$description = stripslashes($row['Description']);
@@ -30,7 +33,7 @@ $out='';
 		$internalURLsufix = $row['InternalURLSuffix'];
 		$implementsDCE = (int)$row['ImplementsDCE'];
 		$commandLine = stripslashes($row['CommandLine']);
-		$userID = $_SESSION['userID'];
+		$userID = @$_SESSION['userID'];
 		$quarantine = $row['FK_StabilityStatus'];
 		$package = $row['FK_Package'];
 		$isPlugIn = $row['IsPlugIn'];

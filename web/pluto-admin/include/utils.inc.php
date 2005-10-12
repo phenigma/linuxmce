@@ -2562,7 +2562,8 @@ function serialPortsPulldown($name,$selectedPort,$allowedToModify,$topParentIP,$
 	}
 	
 	$serial_ports=array();
-	exec("sudo -u root /usr/pluto/bin/LaunchRemoteCmd.sh '$topParentIP' /usr/pluto/bin/ListSerialPorts.sh", $serial_ports);
+	$cmd="sudo -u root /usr/pluto/bin/LaunchRemoteCmd.sh '$topParentIP' /usr/pluto/bin/ListSerialPorts.sh";
+	exec($cmd, $serial_ports);
 
 	$usedPorts=getFieldsAsArray('Device_DeviceData','Device.Description,FK_Device,IK_DeviceData',$dbADO,'INNER JOIN Device ON FK_Device=PK_Device WHERE FK_Installation='.$installationID.' AND FK_DeviceData='.$GLOBALS['Port'].' AND PK_Device!='.$deviceID);
 	$serialPortAsoc=array();
@@ -4431,4 +4432,28 @@ function writeFile($filename,$content,$mode='w+')
     
     return 0;
 }
+
+// get all ancestors for the device
+function getAncestorsForDevice($deviceID,$dbADO)
+{
+	$parents=array();
+	$res=$dbADO->Execute('
+		SELECT  
+		IF(PK_Device=?,1,0) AS pos,
+		Device.*
+		FROM Device
+		ORDER BY pos desc,FK_Device_ControlledVia DESC',$deviceID);
+	while($row=$res->FetchRow()){
+		if($row['PK_Device']==$deviceID){
+			$parents[]=$row['PK_Device'];
+		}
+		if(in_array($row['PK_Device'],$parents) && !is_null($row['FK_Device_ControlledVia'])){
+			$parents[]=$row['FK_Device_ControlledVia'];
+		}
+	}
+	
+	
+	return $parents;
+}
+
 ?>

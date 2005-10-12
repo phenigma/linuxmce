@@ -1,6 +1,6 @@
 <?php 
 Header( "Content-type: text/vnd.wap.wml"); 
-echo "<?xml version=\"1.0\"?>"; 
+echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"; 
 
 require('include/config/config.inc.php');
 require('include/utils.inc.php');
@@ -14,8 +14,7 @@ if(isset($_REQUEST['installationID'])){
 }
 
 ?>
-<!DOCTYPE wml PUBLIC "-//WAPFORUM//DTD WML 
-1.1//EN" "http://www.wapforum.org/DTD/wml_1.1.xml">
+<!DOCTYPE wml PUBLIC "-//WAPFORUM//DTD WML 1.1//EN" "http://www.wapforum.org/DTD/wml_1.1.xml">
 <wml>
 <card id="card1" title="PlutoHome WML # <?=$installationID?>"> 
   <p> 

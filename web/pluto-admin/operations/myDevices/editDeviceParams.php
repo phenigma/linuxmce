@@ -142,7 +142,7 @@ $installationID = (int)@$_SESSION['installationID'];
 	<table>
 	<tr><td>Description</td><td><input type="text" name="DeviceDescription" value="'.$description.'" size="40"></td></tr>
 	<tr>
-		<td>Device Template</td><td><B>'.$mdlDescription.' #'.$DeviceTemplate.'</B> <input value="View" type="button" class="button" name="controlGoToMDL" onClick="windowOpen(\'index.php?section=editMasterDevice&model='.$DeviceTemplate.'&from=editDeviceParams\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');"> '.$manufHomeLink.' '.$internalLink.'</td>
+		<td>Device Template</td><td><B>'.$mdlDescription.' #'.$DeviceTemplate.'</B> <input value="View" type="button" class="button" name="controlGoToMDL" onClick="windowOpen(\'index.php?section=editMasterDevice&model='.$DeviceTemplate.'&from=editDeviceParams\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');"> <input value="Help" type="button" class="button" name="help" onClick="self.location=\'index.php?section=help&deviceID='.$deviceID.'\'">'.$manufHomeLink.' '.$internalLink.'</td>
 	</tr>
 	<tr>
 		<td>Device Template Comments</td>
