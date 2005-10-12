@@ -102,6 +102,8 @@ public:
 
 	static OrbiterApp *GetInstance() { return m_pInstance; }
 
+	virtual void Reset();
+
 	// Public virtual methods (from Game)
 	virtual void GameSuspend(); 
 	virtual void GameResume(); 

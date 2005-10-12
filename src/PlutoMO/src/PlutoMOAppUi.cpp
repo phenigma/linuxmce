@@ -595,6 +595,11 @@ void CPlutoMOAppUi::ResetViewer()
 		m_bMakeVisibleAllowed = true;
 	}
 
+	CPlutoVMCUtil *pVMCUtil = (CPlutoVMCUtil *)CCoeEnv::Static(KCPlutoVMCUtilId);
+
+	if(pVMCUtil)
+		pVMCUtil->Reset();
+
 	LOG("Hidding PlutoEventView...\n");
 	if(NULL != iPlutoEventView && NULL != iPlutoEventView->iContainer)
 		iPlutoEventView->iContainer->MakeVisible(false);

@@ -76,6 +76,8 @@ public:
 		virtual bool SetVariable();
 		virtual bool SelectCurrentItem();
 
+		virtual void Reset();
+
 		bool m_bRedrawOnlyGrid;
 		bool m_bRedrawOnlyEdit;
 		bool m_bSimulation;

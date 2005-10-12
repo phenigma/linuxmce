@@ -59,28 +59,11 @@ OrbiterApp *OrbiterApp::m_pInstance = NULL; //the one and only
 //---------------------------------------------------------------------------------------------------------
 OrbiterApp::OrbiterApp() : m_ScreenMutex("rendering")
 {
+	Reset();
 	m_bQuit = false;
 
 	m_nImageWidth = APP_WIDTH;
 	m_nImageHeight = APP_HEIGHT;
-
-	m_nImageType = 0;
-
-	//m_bSimulation = false;
-
-	m_ulGridSelectedItem = 0;
-	m_bRedrawOnlyGrid = false;
-	m_bRedrawOnlyEdit = false;
-	m_bGridExists = false;
-	m_ulGridX = 0;
-	m_ulGridY = 0;
-	m_ulGridWidth = 0;
-	m_ulGridHeight = 0;
-	m_ulGridTopItem = 0;
-	m_vectDataGrid.clear();
-
-	m_CaptureKeyboardParam.bTextBox = false;
-	m_CaptureKeyboardParam.bOnOff = false;
 
 	pthread_mutexattr_init( &m_MutexAttr );
     pthread_mutexattr_settype( &m_MutexAttr,  PTHREAD_MUTEX_RECURSIVE_NP );
@@ -88,19 +71,6 @@ OrbiterApp::OrbiterApp() : m_ScreenMutex("rendering")
 
 	m_pInstance = this;
 	m_pBDCommandProcessor = new BDCommandProcessor_Smartphone_Bluetooth();
-
-	m_nSignalStrength = 0;
-	m_bSignalStrengthScreen = false;
-	m_bImageQualityScreen = false;
-
-	m_bRepeated = false;
-	m_bNeedRefresh = false;
-	m_bDeleteLastKey = false;
-	m_bDataKeys = false;
-
-	m_nLastTick = 0;
-	m_nLastKeyCode = 0;
-	m_nRepeatStep = 0;
 
 //#define TEST_DATAGRID
 #ifdef TEST_DATAGRID
@@ -147,6 +117,38 @@ OrbiterApp::OrbiterApp() : m_ScreenMutex("rendering")
 	pthread_mutex_destroy(&m_ScreenMutex.mutex);
 
 	delete m_pBDCommandProcessor;
+}
+//---------------------------------------------------------------------------------------------------------
+/*virtual*/ void OrbiterApp::Reset()
+{
+	m_nImageType = 0;
+
+	m_ulGridSelectedItem = 0;
+	m_bRedrawOnlyGrid = false;
+	m_bRedrawOnlyEdit = false;
+	m_bGridExists = false;
+	m_ulGridX = 0;
+	m_ulGridY = 0;
+	m_ulGridWidth = 0;
+	m_ulGridHeight = 0;
+	m_ulGridTopItem = 0;
+	m_vectDataGrid.clear();
+
+	m_CaptureKeyboardParam.bTextBox = false;
+	m_CaptureKeyboardParam.bOnOff = false;
+
+	m_nSignalStrength = 0;
+	m_bSignalStrengthScreen = false;
+	m_bImageQualityScreen = false;
+
+	m_bRepeated = false;
+	m_bNeedRefresh = false;
+	m_bDeleteLastKey = false;
+	m_bDataKeys = false;
+
+	m_nLastTick = 0;
+	m_nLastKeyCode = 0;
+	m_nRepeatStep = 0;
 }
 //---------------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterApp::GameSuspend()
@@ -1266,6 +1268,8 @@ void OrbiterApp::SaveFile(unsigned long ulFileNameSize, char *pFileName, unsigne
 void OrbiterApp::ShowDisconnected()
 {
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
+
+	Reset();
 
     string sLogoPath = g_sBinaryPath + "logo.gif";
     sLogoPath = StringUtils::Replace(sLogoPath, "/", "\\");

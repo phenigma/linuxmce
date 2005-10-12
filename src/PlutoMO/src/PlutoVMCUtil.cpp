@@ -44,27 +44,9 @@
 //------------------------------------------------------------------------------------------------------------------
 CPlutoVMCUtil::CPlutoVMCUtil(TUid aUid, TScope scop/*=EThread*/) : CCoeStatic(aUid, scop)
 {
-	m_bSimulation = false;
-	m_pGC = NULL;
-
-	m_pContainer = NULL;
-	m_pView = NULL;
-
-	m_uGridSelectedItem = 0;
-	m_bRedrawOnlyGrid = false;
-	m_bRedrawOnlyEdit = false;
-	m_bGridExists = false;
-
-	m_uGridX = 0;
-	m_uGridY = 0;
-	m_uGridWidth = 0;
-	m_uGridHeight = 0;
-	m_uGridTopItem = 0;
-
-	m_GridList.Reset();
+	Reset();
 
 	//TEST! (testing showlist command)
-
 #ifdef TEST_DATAGRID
 	m_bGridExists = true;
 
@@ -102,12 +84,34 @@ CPlutoVMCUtil::CPlutoVMCUtil(TUid aUid, TScope scop/*=EThread*/) : CCoeStatic(aU
 	m_CaptureKeyboardParam.TextHeight = 25;
 	m_CaptureKeyboardParam.Reset();	
 #endif
-
-	m_bEdit_BackspacePressed = false;
 }
 //------------------------------------------------------------------------------------------------------------------
 /*virtual*/ CPlutoVMCUtil::~CPlutoVMCUtil()
 {
+}
+//------------------------------------------------------------------------------------------------------------------
+/*virtual*/ void CPlutoVMCUtil::Reset()
+{
+	m_bSimulation = false;
+	m_pGC = NULL;
+
+	m_pContainer = NULL;
+	m_pView = NULL;
+
+	m_uGridSelectedItem = 0;
+	m_bRedrawOnlyGrid = false;
+	m_bRedrawOnlyEdit = false;
+	m_bGridExists = false;
+
+	m_uGridX = 0;
+	m_uGridY = 0;
+	m_uGridWidth = 0;
+	m_uGridHeight = 0;
+	m_uGridTopItem = 0;
+
+	m_bEdit_BackspacePressed = false;
+
+	m_GridList.Reset();
 }
 //------------------------------------------------------------------------------------------------------------------
 void CPlutoVMCUtil::Setup(CCoeControl* pContainer, CAknView* pView)

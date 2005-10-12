@@ -2400,6 +2400,9 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
 	if(pPlutoGraphic)
     	RenderGraphic(pPlutoGraphic, m_rectLastHighlight);
 
+    delete pPlutoGraphic;
+    pPlutoGraphic = NULL;
+
     PlutoColor WhiteColor(255, 255, 255, 100);
     PlutoColor RedColor(255, 0, 0, 100);
 
@@ -7591,14 +7594,14 @@ bool Orbiter::OkayToDeserialize(int iSC_Version)
 void Orbiter::DumpScreenHistory()
 {
     PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex );
-	string s = "history size: " + StringUtils::itos(int(m_listScreenHistory.size()));
+    string s = "Screen history: size: " + StringUtils::itos(int(m_listScreenHistory.size())) + "; screens: ";
 
 for(list < ScreenHistory * >::iterator it=m_listScreenHistory.begin();it!=m_listScreenHistory.end();++it)
 {
 ScreenHistory *psh = *it;
 s+=psh->m_pObj->m_ObjectID + " / ";
 }
-g_pPlutoLogger->Write(LV_WARNING,"Screen history %s",s.c_str());
+g_pPlutoLogger->Write(LV_WARNING,"%s",s.c_str());
 }
 //<-dceag-c59-b->
 
