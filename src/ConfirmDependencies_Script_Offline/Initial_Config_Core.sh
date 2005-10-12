@@ -92,7 +92,7 @@ fi
 
 # "Initial config"
 # Create installation
-Q="INSERT INTO Installation(Description, Activation_Code) VALUES('Pluto', '$Activation_Code')"
+Q="INSERT INTO Installation(Description, ActivationCode) VALUES('Pluto', '$Activation_Code')"
 RunSQL "$Q"
 
 # Create user
