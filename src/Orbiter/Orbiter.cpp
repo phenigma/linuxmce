@@ -8563,6 +8563,9 @@ int Orbiter::HandleNotOKStatus(string sStatus,string sRegenStatus,int iRegenPerc
 			Sleep(10000);
 			return 2; // Retry
 		}
+        else
+            m_bQuit = true;
+
 		return 0; // Quit
 	}
 	else if( sStatus=="n" )

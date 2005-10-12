@@ -15,14 +15,15 @@ static map<int, HWND> g_mapButtons;
 
 #define MAX_NUMBER_OF_BUTTONS 20
 #define WINDOW_TITLE          30
-#define BUTTON_WIDTH          100
 #define LABEL_HEIGHT          40
 
 #ifdef WINCE
+    #define BUTTON_WIDTH     100
     #define BUTTON_HEIGHT    15
     #define BUTTON_SEPARATOR 5
 #else
-    #define BUTTON_HEIGHT    20
+    #define BUTTON_WIDTH     180
+    #define BUTTON_HEIGHT    40
     #define BUTTON_SEPARATOR 10
 #endif
 //-----------------------------------------------------------------------------------------------------
@@ -197,6 +198,9 @@ LRESULT CALLBACK WndProcPopup(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 				
                 int nButtonWidth = nScaleX * BUTTON_WIDTH > g_nWindowWidth - 2 * BUTTON_SEPARATOR ? BUTTON_WIDTH : nScaleX * BUTTON_WIDTH;
                 int nButtonHeight = nScaleY * BUTTON_HEIGHT;
+#ifndef WINCE
+                nButtonHeight = g_p_mapPrompts && g_p_mapPrompts->size() < 6 ? BUTTON_HEIGHT : nButtonHeight;
+#endif
 
                 int nButtonsPerRow = (g_nWindowWidth - BUTTON_SEPARATOR) / (nButtonWidth + BUTTON_SEPARATOR);
 				nButtonsPerRow += nButtonsPerRow ? 0 : 1;
