@@ -1,6 +1,10 @@
 #!/bin/bash
 
 . /usr/pluto/install/Common.sh
+. /etc/diskless.conf
+
+ACTIV="http://activate.plutohome.com"
+activation_url="$ACTIV/pluto-admin/activation.php"
 
 DIR="/usr/pluto/install"
 WhereCode="in diskless.conf"
@@ -16,11 +20,6 @@ while [ "$ok" -eq 0 ]; do
 	echo "Getting pre-activation data (if any)"
 	answer=$(wget -O - "$activation_url?mac=$mac" 2>/dev/null)
 	RetCode=$?
-	if [ "$RetCode" -ne 0 ]; then
-		answer=$(wget -O - "$activation_url_alt?mac=$mac" 2>/dev/null)
-		RetCode=$?
-		[ "$RetCode" -eq 0 ] && activation_url="$activation_url_alt"
-	fi
 	if [ "$RetCode" -ne 0 ]; then
 		try_again "Failed to contact activation server over the Internet" && continue
 		echo "$ICS_MSG"
@@ -149,28 +148,6 @@ Activation_Code = $Code"
 done
 
 [ "$ok" -eq 0 ] && exit 1
-
-#wget -O "$DIR"/build.sh "$ACTIV/build.php?code=$activation_key" 2>/dev/null || no_build=1
-#wget -O "$DIR"/build_all.sh "$ACTIV/build_all.php?code=$activation_key" 2>/dev/null || no_build_all=1
-
-if [ "$Type" == "router" ]; then
-	selectedInterface=$(grep 'iface..*eth' /etc/network/interfaces | awk '{print $2}')
-	dcerouterIP=$(ifconfig $selectedInterface | awk 'NR==2' | cut -d: -f2 | cut -d' ' -f1)
-
-	hosts="
-127.0.0.1       localhost.localdomain   localhost
-$dcerouterIP    dcerouter $(/bin/hostname)
-
-# The following lines are desirable for IPv6 capable hosts
-::1     ip6-localhost ip6-loopback
-fe00::0 ip6-localnet
-ff00::0 ip6-mcastprefix
-ff02::1 ip6-allnodes
-ff02::2 ip6-allrouters
-ff02::3 ip6-allhosts
-"
-	echo "$hosts" >/etc/hosts
-fi
 
 clear
 
