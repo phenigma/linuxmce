@@ -26,8 +26,6 @@ case "$R" in
 	;;
 esac
 
-apt-get clean
-
 Message1="Congratulations.  Pluto installation has completed.
 The system will now reboot.  The Pluto Core software will
 be started automatically.  As soon as the computer finishes

@@ -145,7 +145,7 @@ if [[ "$Type" == "H" || "$Type" == "h" ]]; then
 	R=$(RunSQL "$Q")
 
 	for DevT in $R; do
-		Dev=$(NewDev -d "$DevT")
+		Dev=$(NewDev -d "$DevT" -C "$HybDev")
 	done
 fi
 
@@ -199,12 +199,6 @@ for i in $devices; do
 
 	(echo "$Q1"; echo "$Q2"; echo "$Q3";) | /usr/bin/mysql pluto_main
 done
-
-# Add to Installation_Users
-Q4="INSERT INTO Installation_Users(FK_Installation,FK_Users,userCanModifyInstallation)
-SELECT PK_Installation,PK_Users,1
-FROM Installation
-JOIN Users;"
 
 echo "$Q4" | /usr/bin/mysql pluto_main
 
