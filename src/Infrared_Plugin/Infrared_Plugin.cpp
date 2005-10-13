@@ -5,6 +5,7 @@
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
 
+#include <stdlib.h>
 #include <iostream>
 using namespace std;
 using namespace DCE;
@@ -12,7 +13,10 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
-#ifndef WIN32
+
+#ifdef WIN32
+    #define WEXITSTATUS(w)  (((w) >> 8) & 0xff)
+#else
 	#include <unistd.h>
 #endif
 
