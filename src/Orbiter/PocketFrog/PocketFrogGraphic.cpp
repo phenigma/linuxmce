@@ -9,6 +9,7 @@
 #define M_PI 3.1415592654
 
 #include "src/internal/graphicbuffer.h"
+#include "src/internal/raster2d.h"
 //-------------------------------------------------------------------------------------------------------
 PocketFrogGraphic::PocketFrogGraphic(string Filename, eGraphicManagement GraphicManagement,
 					   Orbiter *pOrbiter)
@@ -78,7 +79,8 @@ bool PocketFrogGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
         m_pSurface = pDisplayDevice->CreateSurface(m_pSurface->m_width, m_pSurface->m_height);
         Rasterizer *pRasterizer = pDisplayDevice->CreateRasterizer(m_pSurface);
         pRasterizer->BlitRotated( m_pSurface->m_width/2, m_pSurface->m_height/2, float(iRotation * M_PI / 180.), pSourceSurface); 
-
+        
+        delete pRasterizer;
         delete pSourceSurface;
     }
 
@@ -134,6 +136,9 @@ PlutoGraphic *PocketFrogGraphic::GetHighlightedVersion()
             pDestionationRasterizer->SetPixel(i, j, pixelHightlighted);
         }
     }
+
+    delete pSourceRasterizer;
+    delete pDestionationRasterizer;
 
     return new PocketFrogGraphic(pSurface);
 }

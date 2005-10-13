@@ -1,6 +1,7 @@
 #include "PNGWrapper.h"
 //-------------------------------------------------------------------------------------------------------
 #include "src/internal/graphicbuffer.h"
+#include "src/internal/raster2d.h"
 using namespace Internal;
 //-------------------------------------------------------------------------------------------------------
 #include <windows.h>
@@ -63,6 +64,7 @@ Surface *PocketFrog_LoadPNG(DisplayDevice* pDevice, string sFilename)
 			pRasterizer->SetPixel(x, y, _16bit_color);
 		}
 
+    delete pRasterizer;
 	return pSurface;
 }
 //-------------------------------------------------------------------------------------------------------

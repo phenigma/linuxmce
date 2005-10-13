@@ -19,7 +19,8 @@ using namespace Frog;
 using namespace Frog::Internal;
 
 #include "src/internal/graphicbuffer.h" 
-#include <src/rasterizer.h>
+#include "src/rasterizer.h"
+#include "src/internal/raster2d.h"
 //-----------------------------------------------------------------------------------------------------
 const int ciCharWidth = 9;
 const int ciCharHeight = 16;
@@ -541,6 +542,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 	Surface *pSurface = GetDisplay()->CreateSurface(pObj->m_rPosition.Width, pObj->m_rPosition.Height);
 	Rasterizer *pRasterizer = GetDisplay()->CreateRasterizer(pSurface);
 	pRasterizer->Blit(0, 0, GetDisplay()->GetBackBuffer(), &srcRect);
+    delete pRasterizer;
 
 	if(pObj->m_pGraphicToUndoSelect)
 		pObj->m_pGraphicToUndoSelect->Clear();
@@ -558,6 +560,7 @@ PlutoGraphic *Orbiter_PocketFrog::GetBackground( PlutoRectangle &rect )
 	Surface *pSurface = GetDisplay()->CreateSurface(rect.Width, rect.Height);
 	Rasterizer *pRasterizer = GetDisplay()->CreateRasterizer(pSurface);
 	pRasterizer->Blit(0, 0, GetDisplay()->GetBackBuffer(), &srcRect);
+    delete pRasterizer;
 	
 	return new PocketFrogGraphic(pSurface);
 }

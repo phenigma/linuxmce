@@ -607,8 +607,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				COLORREF crBkColor = ::GetSysColor(COLOR_3DFACE);
 #endif
 				HBRUSH hBrush = CreateSolidBrush(crBkColor);
-				SelectObject(hdc, hBrush);
+				HBRUSH hBrushOld = (HBRUSH)SelectObject(hdc, hBrush);
 				FillRect(hdc, &rt, hBrush);//(HBRUSH)::GetStockObject(GRAY_BRUSH));
+                SelectObject(hdc, hBrushOld);
 				DeleteObject(hBrush);
 				EndPaint(hWnd, &ps);
 			}
