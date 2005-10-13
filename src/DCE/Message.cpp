@@ -459,6 +459,10 @@ void Message::Clear()
 
     m_mapParameters.clear();
 
+    for(vector<Message *>::iterator it = m_vectExtraMessages.begin(); it != m_vectExtraMessages.end(); ++it)
+        delete *it;
+    m_vectExtraMessages.clear();
+
 	map<long, char *>::iterator i;
 	for(i=m_mapData_Parameters.begin();i!=m_mapData_Parameters.end();++i)
 	{

@@ -62,7 +62,7 @@ public: //methods
 
 	void StartRandomEventGenerator(long dwDelay = 0);
 	void StopRandomEventGenerator();
-	bool IsRunning() { return m_bIsRunning; }
+	static bool IsRunning() { return NULL != m_pInstance && m_pInstance->m_bIsRunning; }
 
 	static void SimulateActionDelay(long delay);
 };

@@ -268,7 +268,7 @@ WriteStatusOutput("Orbiter destructor");
 g_pPlutoLogger->Write(LV_STATUS,"Orbiter  %p is exiting",this);
 
     //stop the simulator, if running
-    if(Simulator::GetInstance()->IsRunning())
+    if(Simulator::IsRunning())
         StopSimulatorThread();
 
 	// Be sure we get the maint thread to cleanly exit
@@ -2388,11 +2388,11 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
 			pGrid->m_iHighlightedColumn==-1 ? 0 : pGrid->m_iHighlightedColumn, 
 			pGrid->m_iHighlightedRow==-1 ? 0 : pGrid->m_iHighlightedRow, 
 			r.X,  r.Y,  r.Width,  r.Height );
-		m_rectLastHighlight.X = max(0,r.X-4);
-		m_rectLastHighlight.Y = max(0,r.Y-4);
-		m_rectLastHighlight.Right( min(r.Right()+4,m_Width-1) );
-		m_rectLastHighlight.Bottom( min(r.Bottom()+4,m_Height-1) );
 
+        m_rectLastHighlight.X = max(0,r.X);
+        m_rectLastHighlight.Y = max(0,r.Y);
+        m_rectLastHighlight.Right( min(r.Right(),m_Width-1) );
+        m_rectLastHighlight.Bottom( min(r.Bottom(),m_Height-1) );
 	}
 	else
 		m_rectLastHighlight = m_pObj_Highlighted->GetHighlightRegion();
