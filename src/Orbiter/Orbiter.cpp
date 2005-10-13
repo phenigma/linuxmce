@@ -9024,7 +9024,7 @@ bool SendPingHandler(Socket *pSocket)
 
 bool Orbiter::WaitForRelativesIfOSD()
 {
-// temp for b&o demo -- this display progress still isn't stable!	if( !m_bIsOSD )
+    if( !m_bIsOSD )
 		return true;
 
 	time_t tTimeout=time(NULL) + 20; // Wait 20 seconds for child devices to register

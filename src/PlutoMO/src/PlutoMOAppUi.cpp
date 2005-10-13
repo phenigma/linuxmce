@@ -632,7 +632,6 @@ void CPlutoMOAppUi::NotifyIncomingNumber(const TDesC& aTellNumber)
 	LOG(string(aTellNumber));
 	LOG("\n");
 
-	/*
 	for(i = 0; i < iNumPhoneTypes; ++i)
 	{
 		TInt PhoneLen = iPhoneTypes[i].iPhoneNumber.Length();
@@ -645,11 +644,10 @@ void CPlutoMOAppUi::NotifyIncomingNumber(const TDesC& aTellNumber)
 				iCall.HangUp();
 				LOG("Hang up call - ok\n");
 			}
-			*/
 
 			iCurType = i;
 
-			LOG("Ready to open vmc file\n");
+			LOG("Ready to open the browser\n");
 			if(!(iIdle))
 			{
 				iIdle = CIdle::NewL(CActive::EPriorityIdle);
@@ -657,12 +655,10 @@ void CPlutoMOAppUi::NotifyIncomingNumber(const TDesC& aTellNumber)
 
 			iIdle->Start(TCallBack(DoIdleStatic,this));
 			return;
-			/*
 		}
 	}
 
 	iCall.Close();
-	*/
 }
 //----------------------------------------------------------------------------------------------
 void CPlutoMOAppUi::CloseVMC() 
@@ -690,7 +686,7 @@ TInt CPlutoMOAppUi::DoIdle()
 
 	// check for status of the call set ret to ETrue when hannging up
 	// or idle. and bring app to front
-	//if (iCallStatus == RCall::EStatusHangingUp || iCallStatus == RCall::EStatusIdle)
+	if (iCallStatus == RCall::EStatusHangingUp || iCallStatus == RCall::EStatusIdle)
 	{
 		ret = EFalse; //finished do not come back
 		iCall.Close();
@@ -724,10 +720,10 @@ TInt CPlutoMOAppUi::DoIdle()
 			LaunchBrowser();
 		}
 	}
-	//else
-	//	ret = ETrue; //not finish, do come back
+	else
+		ret = ETrue; //not finish, do come back
 
-	//LOG("end of idle");
+	LOG("end of idle");
 
 	return ret;
 }
