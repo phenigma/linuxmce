@@ -403,6 +403,15 @@ g_pPlutoLogger->Write(LV_STATUS,"Maint thread dead");
 		delete *it;
     m_listPopups.clear();
 
+    for(map<int,Message *>::iterator it=m_mapHardKeys.begin(); it!=m_mapHardKeys.end();++it)
+    {
+        Message *pMessage = it->second;
+        delete pMessage;
+    }
+    m_mapHardKeys.clear();
+
+    delete m_pOrbiterFileBrowser_Collection;
+
 	vm.Release();
 	pthread_mutexattr_destroy(&m_MutexAttr);
 	pthread_mutex_destroy(&m_VariableMutex.mutex);

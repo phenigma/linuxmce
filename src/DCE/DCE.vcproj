@@ -241,6 +241,9 @@
 				RelativePath=".\Picture.h">
 			</File>
 			<File
+				RelativePath="..\PlutoUtils\PlutoDefs.h">
+			</File>
+			<File
 				RelativePath=".\PreformedCommand.h">
 			</File>
 		</Filter>

@@ -29,6 +29,7 @@
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
 #include "PlutoUtils/uuencode.h"
+#include "PlutoUtils/PlutoDefs.h"
 #include "Message.h"
 #include "DCE/Logger.h"
 
@@ -155,7 +156,10 @@ void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFr
 		m_eExpectedResponse = ER_ReplyMessage;
 
 	if( baseMessageSpecPos+3 >= iNumArgs )
+    {
+        PLUTO_SAFE_DELETE_ARRAY_OF_ARRAYS(cArguments, iNumArgs);
 		return; // Invalid message
+    }
 
 	m_dwPK_Device_From = dwPK_DeviceFrom ? dwPK_DeviceFrom : atoi(cArguments[baseMessageSpecPos]);
 	string sDeviceTo=cArguments[baseMessageSpecPos + 1];
@@ -196,6 +200,8 @@ void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFr
 				pMessage_Parent->m_vectExtraMessages.push_back(pMessage);
 			else
 				m_vectExtraMessages.push_back(pMessage);
+
+            PLUTO_SAFE_DELETE_ARRAY_OF_ARRAYS(cArguments, iNumArgs);
 			return;
 		}
 		else if( pParamID[0]=='D' )
@@ -245,9 +251,12 @@ void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFr
 			pParmValue=(char *) pBinaryValue;
 		}
 		else
-		{
-			// This is assumed to not be deleted here
-			pParmValue = strdup(pParmValue);
+        {
+            //chris m (2005.10.13): no need to do this. it will be copied in a string, anyway
+            //we don't want a memory leaks, here...
+                //// This is assumed to not be deleted here
+	    		//pParmValue = strdup(pParmValue);
+
 			if( eType==ptData )
 				tSizeParmValue = strlen( pParmValue );
 		}
@@ -255,6 +264,7 @@ void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFr
 		if( !pParmValue )
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL,"Bad value for parameter ID: %d",ParamNum);
+            PLUTO_SAFE_DELETE_ARRAY_OF_ARRAYS(cArguments, iNumArgs);
 			return;
 		}
 		if( eType==ptData || eType==ptBinary || eType==ptUU )
@@ -267,6 +277,7 @@ void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFr
     }
 	
 	m_pcDataBlock = NULL; // Be sure the SerializeClass destructor doesn't also try to delete this
+    PLUTO_SAFE_DELETE_ARRAY_OF_ARRAYS(cArguments, iNumArgs);
 }
 
 Message::Message( string sMessageInStringFormat )

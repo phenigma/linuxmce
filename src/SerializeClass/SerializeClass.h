@@ -628,11 +628,16 @@ public:
 		if( !CheckRead(size) )
 			return NULL;
 
-		char *ptr = new char[size];
-		memcpy(ptr,m_pcCurrentPosition,size);
-		m_pcCurrentPosition += size;
-		return ptr;
-	}
+        if(size)
+        {
+            char *ptr = new char[size];
+            memcpy(ptr,m_pcCurrentPosition,size);
+            m_pcCurrentPosition += size;
+            return ptr;
+        }
+        else
+            return NULL;
+    }
 
 protected:
 
