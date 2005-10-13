@@ -63,9 +63,9 @@ Activation_Code=1111
 
 Sources="# Pluto sources - start
 deb file:/usr/pluto/deb-cache/ sarge main
-deb http://deb.plutohome.com/debian/ sarge main non-free contrib
-deb http://deb.plutohome.com/debian/ unstable mythtv
-deb http://www.yttron.as.ro/ sarge main
+#deb http://deb.plutohome.com/debian/ sarge main non-free contrib
+#deb http://deb.plutohome.com/debian/ unstable mythtv
+#deb http://www.yttron.as.ro/ sarge main
 # Pluto sources - end"
 
 PlutoConf="# Pluto config file
