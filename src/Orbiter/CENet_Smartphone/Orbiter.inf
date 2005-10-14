@@ -8,7 +8,7 @@ AppName     = "Pluto Orbiter"        ; maximum of 40 characters, full app name w
 InstallDir  = %CE1%\%AppName%       ; Program Files\Mine Sweeper
  
 [SourceDisksNames]                  ; directory that holds the application's files
-1 = , ".",,"C:\Temp\plutomo\"        ; 1 = , "Common Files",,Common
+1 = , ".",,"c:\$Installers\$OrbiterSmartphone"        ; 1 = , "Common Files",,Common
  
 [SourceDisksFiles]                  ; list of files to be included in .cab
 OrbiterSmartphone.exe = 1
