@@ -30,7 +30,7 @@ $st->execute();
 if($row = $st->fetchrow_hashref()) {
   $shost = $row->{'IPaddress'};
 } else {
-  $shost = "192.168.1.1";
+  $shost = "192.168.80.1";
 }
 $st->finish();
   
@@ -74,9 +74,6 @@ $statement = $db_handle->prepare($sql) or die "Couldn't prepare query '$sql': $D
 $statement->execute() or die "Couldn't execute query '$sql': $DBI::errstr\n";
 $db_handle->disconnect();
 
-#do not call it ... need something like in configure_amp_phone.pl
-#system("/usr/pluto/bin/SynchronizeAsterisk.sh"); #Run igor sync config
-
 open(FILE,">/var/www/snom$ext.htm");
 print FILE "<html>\n<pre>\n";
 print FILE "user_mailbox1: $ext\n";
@@ -109,3 +106,6 @@ close SOCKET;
 
 system("curl -d \"update_policy=ask_for_update&setting_server=http%3A%2F%2F$shost%2Fsnom$ext.htm&dns_domain=1control.com&dns_server1=$shost&dns_server2=aaa&http_user=&http_pass=&http_proxy=&http_port=&lcserver1=&lcserver2=&vlan=&SETTINGS=Save\" http://$ip/set_net_adv_en.htm > /dev/null");
 system("curl http://$ip/set_base_en.htm?reboot=Reboot > /dev/null");
+
+#sync with AMP
+`/usr/pluto/bin/sync_pluto2amp.pl $Device_ID`
