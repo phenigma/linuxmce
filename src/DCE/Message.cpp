@@ -110,7 +110,7 @@ Message::Message( Message *pMessage_Clone )
 
 Message::Message( int iNumArgs, char *cArguments[], int dwPK_DeviceFrom )
 {
-	BuildFromArgs( iNumArgs, cArguments, dwPK_DeviceFrom );
+	BuildFromArgs( iNumArgs, cArguments, dwPK_DeviceFrom,false);
 }
 
 void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFrom, Message *pMessage_Parent,bool bDeleteArray/*=true*/)
