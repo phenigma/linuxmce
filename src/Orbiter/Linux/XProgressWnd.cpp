@@ -177,20 +177,14 @@ static void *MyThreadFunc(void *pWindow)
     if (g_pPlutoLogger) g_pPlutoLogger->Write(LV_STATUS, "Thread func start ...");
     XProgressWnd *pWnd = (XProgressWnd *)pWindow;
     
-    Display *pDisplay = XOpenDisplay(NULL); // needs XCloseDisplay?
-    int nScreenNo = DefaultScreen(pDisplay);
-    int nDesktopX, nDesktopY;
-    nDesktopX = DisplayWidth(pDisplay, nScreenNo);
-    nDesktopY = DisplayHeight(pDisplay, nScreenNo);
-    pWnd->CreateWindow(pDisplay, nScreenNo, DefaultRootWindow(pDisplay), 0, 0, nDesktopX, nDesktopY);
-    pWnd->ShowWindow();
-    pWnd->DrawWindow();
-    
     pWnd->EventLoop();
     
     if (g_pPlutoLogger) g_pPlutoLogger->Write(LV_STATUS, "Thread func ending ...");
     pWnd->DestroyWindow();
-    XSync(pDisplay, false);
+
+	Display * pDisplay = pWnd->GetDisplay();
+	if (pDisplay)
+	    XSync(pDisplay, false);
     if (g_pPlutoLogger) g_pPlutoLogger->Write(LV_STATUS, "Thread func ended.");
     
     if (pWnd->Destroy())
@@ -207,7 +201,19 @@ pthread_t XProgressWnd::Run()
     if (g_pPlutoLogger) g_pPlutoLogger->Write(LV_STATUS, "Starting the thread ...");
     m_bCanceled = false;
     m_bDone = false;
-    
+
+    Display *pDisplay = XOpenDisplay(NULL); // needs XCloseDisplay?
+    int nScreenNo = DefaultScreen(pDisplay);
+    int nDesktopX, nDesktopY;
+    nDesktopX = DisplayWidth(pDisplay, nScreenNo);
+    nDesktopY = DisplayHeight(pDisplay, nScreenNo);
+    int nWidth = 250, nHeight = 140;
+    int xPos = (nDesktopX - nWidth) / 2;
+    int yPos = (nDesktopY - nHeight) / 2;
+    CreateWindow(pDisplay, nScreenNo, DefaultRootWindow(pDisplay), 0, 0, nDesktopX, nDesktopY);
+    ShowWindow();
+    DrawWindow();
+        
     int iResult = pthread_create( &threadID, NULL, MyThreadFunc, (void *)this );
     if ( iResult != 0 )
     {

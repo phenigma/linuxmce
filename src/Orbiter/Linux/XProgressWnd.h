@@ -26,12 +26,14 @@ protected:
     bool m_bCanceled;
     bool m_bDone;
     bool m_bDestroy;
+		
     
 public:
     pthread_t m_thisThread;
     
     std::string m_wndName;
-    
+	Display *m_pDisplay;
+	
 public:
     XProgressWnd();
     ~XProgressWnd();
