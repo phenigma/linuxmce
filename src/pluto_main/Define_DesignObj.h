@@ -1649,6 +1649,9 @@
 #define DESIGNOBJ_butCopyDisc_CONST 4461
 #define DESIGNOBJ_mapLights_CONST 4463
 #define DESIGNOBJ_butArrayLightsFloorplan_CONST 4465
+#define DESIGNOBJ_butArrayClimateFloorplan_CONST 4470
+#define DESIGNOBJ_butArraySecurityFloorplan_CONST 4473
+#define DESIGNOBJ_arrSecurityFloorplan_CONST 4474
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
