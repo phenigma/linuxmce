@@ -640,6 +640,12 @@ $installationID = (int)@$_SESSION['installationID'];
 			$res=$dbADO->Execute($updateDevicePipe,array($input,$pipeOutput,$deviceID,$deviceTo,$pipe));
 		}
 
+		if(isPhone($DeviceTemplate,$dbADO)){
+			$cmd='sudo -u root /usr/pluto/bin/sync_pluto2amp.pl '.$deviceID;
+			exec($cmd);
+		}
+
+		
 		$out.='
 		<script>
 			self.location=\'index.php?section=editDeviceParams&deviceID='.$deviceID.((isset($error))?'&error='.$error:'&msg=Device updated').'\';

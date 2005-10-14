@@ -74,6 +74,12 @@ function addMyDevice($output,$dbADO) {
 				$dbADO->Execute('UPDATE Device SET Description=?, IgnoreOnOff=? WHERE PK_Device=?',array($descriptionMyDevice,$ignoreOnOff,$insertID));
 				
 			setDCERouterNeedConfigure($_SESSION['installationID'],$dbADO);
+			
+			if(isPhone($deviceTemplate,$dbADO)){
+				$cmd='sudo -u root /usr/pluto/bin/sync_pluto2amp.pl '.$insertID;
+				exec($cmd);
+			}
+			
 			unset($_SESSION['Description']);
 			unset($_SESSION['IPaddressMyDevice']);
 			unset($_SESSION['MACaddressMyDevice']);

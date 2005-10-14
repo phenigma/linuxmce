@@ -4456,4 +4456,17 @@ function getAncestorsForDevice($deviceID,$dbADO)
 	return $parents;
 }
 
+function isPhone($deviceTemplate,$dbADO){
+	$fields=getFieldsAsArray('DeviceTemplate','FK_DeviceCategory',$dbADO,'WHERE PK_DeviceTemplate='.$deviceTemplate);
+	if(count($fields)==0){
+		return false;
+	}
+	$phonesDC=getDescendantsForCategory($GLOBALS['rootPhones'],$dbADO);
+	if(in_array($fields['FK_DeviceCategory'][0],$phonesDC)){
+		return true;
+	}else{
+		return false;
+	}
+	
+}
 ?>

@@ -323,6 +323,11 @@ function devices($output,$dbADO) {
 		foreach($displayedDevicesArray as $value){
 			if(isset($_POST['delete_'.$value])){
 				deleteDevice($value,$dbADO);
+				
+				if($type=='phones'){
+					$cmd='sudo -u root /usr/pluto/bin/sync_pluto2amp.pl '.$value;
+					exec($cmd);
+				}
 			}
 		}
 		
@@ -373,6 +378,11 @@ function devices($output,$dbADO) {
 					}
 				}
 			}
+			if($type=='phones'){
+				$cmd='sudo -u root /usr/pluto/bin/sync_pluto2amp.pl '.join(' ',$displayedDevicesArray);
+				exec($cmd);
+			}			
+			
 			$msg.='<br>Devices updated.';
 		}
 		
@@ -382,6 +392,11 @@ function devices($output,$dbADO) {
 			if($deviceTemplate!=0){
 				$insertID=exec('sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID);				
 				setDCERouterNeedConfigure($installationID,$dbADO);
+			}
+			
+			if($type=='phones'){
+				$cmd='sudo -u root /usr/pluto/bin/sync_pluto2amp.pl '.$insertID;
+				exec($cmd);
 			}
 			header("Location: index.php?section=devices&type=$type&lastAdded=$deviceTemplate");
 			exit();

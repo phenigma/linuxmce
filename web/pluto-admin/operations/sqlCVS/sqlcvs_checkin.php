@@ -125,7 +125,7 @@ function sqlcvs_checkin($output,$dbADO) {
 		}
 		
 		$cmd='/usr/pluto/bin/sqlCVS -H '.$host.' -h localhost -a -n '.$parmList.' -d “'.$username.'” -U "'.$username.'~'.$password.'" -D '.$dbPlutoMainDatabase.' -e checkin';
-		
+
 		$out='
 		<script>
 			function windowOpen(locationA,attributes) {

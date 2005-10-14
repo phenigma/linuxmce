@@ -14,8 +14,14 @@ if (!$canModifyInstallation){
 	header("Location: index.php?section=editDeviceParams&deviceID=$deviceID&error=You are not authorised to change the installation.");
 	exit(0);
 }
+	$fields=getFieldsAsArray('Device','FK_DeviceTemplate',$dbADO,'WHERE PK_Device='.$deviceID);
+	$isPhone=isPhone($fields['FK_DeviceTemplate'][0],$dbADO);
 
 	deleteDevice($deviceID,$dbADO);
+	if($isPhone){
+		$cmd='sudo -u root /usr/pluto/bin/sync_pluto2amp.pl '.$deviceID;
+		exec($cmd);
+	}
 	setDCERouterNeedConfigure($_SESSION['installationID'],$dbADO);
 	
 	$out.='
