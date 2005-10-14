@@ -1,0 +1,6 @@
+asterisk-pluto (1.0.9-1) unstable; urgency=low
+
+  * Includes asterisk, libpri, zaptel, some addons and customized AMP.
+
+ -- Office Server Operator <root@activate.plutohome.com>  Wed, 05 Oct 2005 17:51:47 +0300
+
