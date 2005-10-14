@@ -286,6 +286,10 @@ Bluetooth_Dongle::Bluetooth_Dongle( int iDeviceID, string sServerAddress, bool b
     m_BTMutex( "Bluetooth socket mutex" ), m_ScreenMutex("orbiters rendering")
 //<-dceag-const-e->
 {
+#ifndef WIN32
+    setenv("SDL_VIDEODRIVER", "dummy", 1);
+#endif
+
     pthread_mutexattr_init( &m_MutexAttr );
     pthread_mutexattr_settype( &m_MutexAttr,  PTHREAD_MUTEX_RECURSIVE_NP );
 	m_BTMutex.Init( &m_MutexAttr );
