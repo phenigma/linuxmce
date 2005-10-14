@@ -202,6 +202,7 @@ pthread_t XProgressWnd::Run()
     m_bCanceled = false;
     m_bDone = false;
 
+	// don't put this in the thread (again) as that creates a race condition; leave it here :)
     Display *pDisplay = XOpenDisplay(NULL); // needs XCloseDisplay?
     int nScreenNo = DefaultScreen(pDisplay);
     int nDesktopX, nDesktopY;
