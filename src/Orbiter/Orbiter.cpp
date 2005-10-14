@@ -403,9 +403,9 @@ g_pPlutoLogger->Write(LV_STATUS,"Maint thread dead");
 		delete *it;
     m_listPopups.clear();
 
-    for(map<int,Message *>::iterator it=m_mapHardKeys.begin(); it!=m_mapHardKeys.end();++it)
+    for(map<int,Message *>::iterator itm=m_mapHardKeys.begin(); itm!=m_mapHardKeys.end();++itm)
     {
-        Message *pMessage = it->second;
+        Message *pMessage = itm->second;
         delete pMessage;
     }
     m_mapHardKeys.clear();
