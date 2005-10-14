@@ -167,10 +167,24 @@ void *HandleBDCommandProcessorThread( void *p )
     }
 
 	bm.Release();
-	while( NULL != pBD_Orbiter->m_pBDCommandProcessor && !pBD_Orbiter->m_pBDCommandProcessor->m_bDead && pBD_Orbiter->m_pBDCommandProcessor->ReceiveCommand( 0, 0, NULL )); // loop for receiving commands
-	bm.Relock();
+	
+    while( 
+        !pBluetooth_Dongle->m_bQuit &&
+        NULL != pBD_Orbiter->m_pBDCommandProcessor && 
+        !pBD_Orbiter->m_pBDCommandProcessor->m_bDead && 
+        pBD_Orbiter->m_pBDCommandProcessor->ReceiveCommand( 0, 0, NULL )
+    ); // loop for receiving commands
 
 	g_pPlutoLogger->Write( LV_STATUS, "Exiting command processor...");
+
+    if(pBluetooth_Dongle->m_bQuit)
+    {
+        g_pPlutoLogger->Write( LV_STATUS, "Going to quit...");
+        pBD_Orbiter->m_pBDCommandProcessor = NULL;
+        return NULL;
+    }
+
+	bm.Relock();
 
 	g_pPlutoLogger->Write( LV_STATUS, "Sending 'Mobile_orbiter_lost' to Orbiter_Plugin...");
 	pBluetooth_Dongle->GetEvents()->Mobile_orbiter_lost( sMacAddress, true );
@@ -306,6 +320,9 @@ bool Bluetooth_Dongle::GetConfig()
 Bluetooth_Dongle::~Bluetooth_Dongle()
 //<-dceag-dest-e->
 {
+    //just to be sure
+    m_bQuit = true;
+
     g_pPlutoLogger->Write(LV_STATUS, "Starting Bluetooth_Dongle destructor... ");
 
 	PLUTO_SAFETY_LOCK( bm, m_BTMutex );
@@ -352,7 +369,7 @@ Bluetooth_Dongle::~Bluetooth_Dongle()
         }
 
         bm.Release();
-        Sleep(50);
+        Sleep(500);
     }
 
 	pthread_mutexattr_destroy(&m_MutexAttr);
@@ -417,10 +434,17 @@ void Bluetooth_Dongle::ReceivedUnknownCommand(string &sCMD_Result,Message *pMess
 
 bool Bluetooth_Dongle::ScanningLoop()
 {
-	// First, scan the map for connections that have died.
+    if(m_bQuit)
+        return false;
+    
+    // First, scan the map for connections that have died.
 	map<string, BD_Orbiter *>::iterator iMos;
 	{
 		PLUTO_SAFETY_LOCK( bm, m_BTMutex );
+
+        if(m_bQuit)
+            return false;
+
 		for( iMos = m_mapOrbiterSockets.begin(); 
 			iMos != m_mapOrbiterSockets.end(); ++iMos )
 		{
@@ -454,19 +478,6 @@ bool Bluetooth_Dongle::ScanningLoop()
     }
 
     return bResult;
-
-
-/*
-#ifdef SIMULATE_DETECTION
-	return PhoneDetection_Simulate::ScanningLoop();
-#else
-	#ifdef WIN32
-		return PhoneDetection_Bluetooth_Windows::ScanningLoop();
-	#else
-		return PhoneDetection_Bluetooth_Linux::ScanningLoop();
-	#endif
-#endif
-*/
 }
 
 //-----------------------------------------------------------------------------------------------------
