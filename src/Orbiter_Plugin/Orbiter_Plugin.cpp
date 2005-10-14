@@ -2266,6 +2266,12 @@ void Orbiter_Plugin::CMD_Send_File_To_Phone(string sMac_address,string sCommand_
 	}
     g_pPlutoLogger->Write(LV_STATUS, "About to send file to phone. Command line: '%s', device %s.", sCommand_Line.c_str(), sMac_address.c_str());
 
+    //get phone's name
+    string sDisplayedInfo = sMac_address;
+    UnknownDeviceInfos *pUnknownDeviceInfos = m_mapUnknownDevices_Find(sMac_address);
+    if(pUnknownDeviceInfos)
+        sDisplayedInfo = pUnknownDeviceInfos->m_sID;
+
     string sArguments;
     string sCommand_LineClone(sCommand_Line);
     vector<string> vectArgs;
@@ -2282,6 +2288,14 @@ void Orbiter_Plugin::CMD_Send_File_To_Phone(string sMac_address,string sCommand_
     string sName("Phone Install");
 
     sCommOnFailure = 
+        "-targetType category " + 
+        StringUtils::itos(m_dwPK_Device) + " " + 
+        StringUtils::itos(DEVICECATEGORY_Standard_Orbiter_CONST) + " " + 
+        StringUtils::itos(MESSAGETYPE_COMMAND) + " " + 
+        StringUtils::itos(COMMAND_Set_Variable_CONST) + " " +
+        StringUtils::itos(COMMANDPARAMETER_PK_Variable_CONST) + " " + StringUtils::itos(VARIABLE_Misc_Data_3_CONST) + " " +
+        StringUtils::itos(COMMANDPARAMETER_Value_To_Assign_CONST) + " \"" + sDisplayedInfo.c_str() + "\"" + 
+        "," +
         StringUtils::itos(m_dwPK_Device) + " " + 
         StringUtils::itos(m_dwPK_Device) + " " + 
         StringUtils::itos(MESSAGETYPE_COMMAND) + " " + 
@@ -2295,9 +2309,17 @@ void Orbiter_Plugin::CMD_Send_File_To_Phone(string sMac_address,string sCommand_
             StringUtils::itos(COMMANDPARAMETER_Command_Line_CONST) + " '" + sCommand_LineClone + "'" + " " + 
             StringUtils::itos(COMMANDPARAMETER_App_Server_Device_ID_CONST) + " " + StringUtils::itos(iApp_Server_Device_ID) + " " +
             "|No|\"" + " " + 
-        StringUtils::itos(COMMANDPARAMETER_PK_Device_List_CONST) + " " + m_sPK_Device_AllOrbiters;
+        StringUtils::itos(COMMANDPARAMETER_PK_Device_List_CONST) + " ";
 
     sCommOnSuccess = 
+        "-targetType category " + 
+        StringUtils::itos(m_dwPK_Device) + " " + 
+        StringUtils::itos(DEVICECATEGORY_Standard_Orbiter_CONST) + " " + 
+        StringUtils::itos(MESSAGETYPE_COMMAND) + " " + 
+        StringUtils::itos(COMMAND_Set_Variable_CONST) + " " +
+        StringUtils::itos(COMMANDPARAMETER_PK_Variable_CONST) + " " + StringUtils::itos(VARIABLE_Misc_Data_3_CONST) + " " +
+        StringUtils::itos(COMMANDPARAMETER_Value_To_Assign_CONST) + " \"" + sDisplayedInfo.c_str() + "\"" + 
+        "," + 
         StringUtils::itos(m_dwPK_Device) + " " + 
         StringUtils::itos(m_dwPK_Device) + " " + 
         StringUtils::itos(MESSAGETYPE_COMMAND) + " " + 
@@ -2306,7 +2328,7 @@ void Orbiter_Plugin::CMD_Send_File_To_Phone(string sMac_address,string sCommand_
         StringUtils::itos(COMMANDPARAMETER_Type_CONST) + " " + "\" \"" + " " + 
         StringUtils::itos(COMMANDPARAMETER_Name_CONST) + " " + "\" \"" + " " + 
         StringUtils::itos(COMMANDPARAMETER_Time_CONST) + " " + "\" \"" + " " + 
-        StringUtils::itos(COMMANDPARAMETER_PK_Device_List_CONST) + " " + m_sPK_Device_AllOrbiters;
+        StringUtils::itos(COMMANDPARAMETER_PK_Device_List_CONST) + " ";
 
     g_pPlutoLogger->Write(LV_STATUS, "Launching send to phone job: \"%s\"", sName.c_str());
 
