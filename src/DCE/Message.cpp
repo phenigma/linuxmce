@@ -113,7 +113,7 @@ Message::Message( int iNumArgs, char *cArguments[], int dwPK_DeviceFrom )
 	BuildFromArgs( iNumArgs, cArguments, dwPK_DeviceFrom );
 }
 
-void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFrom, Message *pMessage_Parent )
+void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFrom, Message *pMessage_Parent,bool bDeleteArray/*=true*/)
 {
     Clear();
 
@@ -157,7 +157,9 @@ void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFr
 
 	if( baseMessageSpecPos+3 >= iNumArgs )
     {
-        PLUTO_SAFE_DELETE_ARRAY_OF_ARRAYS(cArguments, iNumArgs);
+        if(bDeleteArray)
+            PLUTO_SAFE_DELETE_ARRAY_OF_ARRAYS(cArguments, iNumArgs);
+
 		return; // Invalid message
     }
 
@@ -195,13 +197,15 @@ void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFr
 		if( pParamID[0]=='&' )
 		{
 			Message *pMessage = new Message();
-			pMessage->BuildFromArgs(iNumArgs-i-1, &cArguments[i+1], dwPK_DeviceFrom,this);
+			pMessage->BuildFromArgs(iNumArgs-i-1, &cArguments[i+1], dwPK_DeviceFrom, this, false);
 			if( pMessage_Parent )
 				pMessage_Parent->m_vectExtraMessages.push_back(pMessage);
 			else
 				m_vectExtraMessages.push_back(pMessage);
 
-            PLUTO_SAFE_DELETE_ARRAY_OF_ARRAYS(cArguments, iNumArgs);
+            if(bDeleteArray)
+                PLUTO_SAFE_DELETE_ARRAY_OF_ARRAYS(cArguments, iNumArgs);
+
 			return;
 		}
 		else if( pParamID[0]=='D' )
@@ -264,7 +268,8 @@ void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFr
 		if( !pParmValue )
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL,"Bad value for parameter ID: %d",ParamNum);
-            PLUTO_SAFE_DELETE_ARRAY_OF_ARRAYS(cArguments, iNumArgs);
+            if(bDeleteArray)
+                PLUTO_SAFE_DELETE_ARRAY_OF_ARRAYS(cArguments, iNumArgs);
 			return;
 		}
 		if( eType==ptData || eType==ptBinary || eType==ptUU )
@@ -277,7 +282,9 @@ void Message::BuildFromArgs( int iNumArgs, char *cArguments[], int dwPK_DeviceFr
     }
 	
 	m_pcDataBlock = NULL; // Be sure the SerializeClass destructor doesn't also try to delete this
-    PLUTO_SAFE_DELETE_ARRAY_OF_ARRAYS(cArguments, iNumArgs);
+
+    if(bDeleteArray)
+        PLUTO_SAFE_DELETE_ARRAY_OF_ARRAYS(cArguments, iNumArgs);
 }
 
 Message::Message( string sMessageInStringFormat )
