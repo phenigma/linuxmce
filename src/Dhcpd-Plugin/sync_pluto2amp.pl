@@ -25,29 +25,29 @@ unless (defined($ARGV[0]))
     print "USAGE :$0 <DEVICE_ID>\n";
     exit(-1);
 }
-$DEVICE_ID = $ARGV[0];
-
 &read_pluto_config();
 
 #connect to databases
 $DB_PL_HANDLE = DBI->connect("dbi:mysql:database=pluto_main;host=$CONF_HOST;user=$CONF_USER;password=$CONF_PASSWD") or die "Could not connect to MySQL";
 $DB_AS_HANDLE = DBI->connect("dbi:mysql:database=aserisk;host=$CONF_HOST;user=$CONF_USER;password=$CONF_PASSWD") or die "Could not connect to MySQL";
 
-&read_pluto_device_data();
-
-if($STATUS == -1)
+foreach $DEVICE_ID (@ARGV)
 {
-	&remove_from_asterisk_db();
-}
-else
-{
-	if($DEVICE_EXT == 0)
+	&read_pluto_device_data();
+	if($STATUS == -1)
 	{
-		&find_next_extension();
-		&update_device_data();
+		&remove_from_asterisk_db();
 	}
-	$DEVICE_PORT = 4569 if($DEVICE_TYPE =~ /^iax/i);
-	&update_asterisk_db();
+	else
+	{
+		if($DEVICE_EXT == 0)
+		{
+			&find_next_extension();
+			&update_device_data();
+		}
+		$DEVICE_PORT = 4569 if($DEVICE_TYPE =~ /^iax/i);
+		&update_asterisk_db();
+	}
 }
 
 $DB_PL_HANDLE->disconnect();
@@ -153,7 +153,7 @@ sub update_device_data()
 sub update_asterisk_db()
 {
 	&remove_from_asterisk_db();
-	&add_asterisk_extension();
+	&add_to_asterisk_db();
 }
 
 sub remove_from_asterisk_db()
@@ -178,7 +178,7 @@ sub remove_from_asterisk_db()
 	}
 }
 
-sub add_asterisk_extension()
+sub add_to_asterisk_db()
 {
 	my $DB_SQL;
 	my $DB_STATEMENT;
