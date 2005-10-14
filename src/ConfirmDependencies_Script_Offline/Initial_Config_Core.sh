@@ -10,10 +10,7 @@ Username=$(Ask "Pluto Username")
 Password=$(Ask "Pluto Password")
 Room=$(Ask "Room name")
 Type=$(Ask "Core or Hybrid? [C/h]")
-DHCP=$(Ask "DHCP: none/pluto/all [n/p/A]")
-if [[ -z "$DHCP" ]]; then
-	DHCP=A
-fi
+DHCP=$(Ask "Run a DHCP server? [Y/n]")
 
 RestoreCoreConf()
 {
@@ -153,9 +150,7 @@ if [[ "$Type" == "H" || "$Type" == "h" ]]; then
 fi
 
 DHCPsetting=
-if [[ "$DHCP" == p || "$DHCP" == P ]]; then
-	DHCPsetting="192.168.80.2-192.168.80.254"
-elif [[ "$DHCP" == a || "$DHCP" == A ]]; then
+if [[ "$DHCP" != n && "$DHCP" != N ]]; then
 	DHCPsetting="192.168.80.2-192.168.80.128,192.168.80.129-192.168.80.254"
 fi
 
