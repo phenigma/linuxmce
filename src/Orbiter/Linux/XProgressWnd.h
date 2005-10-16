@@ -32,7 +32,6 @@ public:
     pthread_t m_thisThread;
     
     std::string m_wndName;
-	Display *m_pDisplay;
 	
 public:
     XProgressWnd();

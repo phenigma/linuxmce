@@ -544,8 +544,10 @@ g_pPlutoLogger->Write(LV_STATUS,"q 3");
 		&vectRow_InfraredGroup_Command[2]);
 
 g_pPlutoLogger->Write(LV_STATUS,"q 4");
-	pTable_InfraredGroup_Command->GetRows("JOIN InfraredGroup_Command_Preferred ON FK_InfraredGroup_Command=PK_InfraredGroup_Command WHERE FK_DeviceTemplate=" + 
-		StringUtils::itos(FK_DeviceTemplate) + " AND IRData IS NOT NULL AND IRData<>''",
+	pTable_InfraredGroup_Command->GetRows("JOIN InfraredGroup_Command_Preferred ON FK_InfraredGroup_Command=PK_InfraredGroup_Command "
+		"WHERE (FK_DeviceTemplate=" + 
+		StringUtils::itos(FK_DeviceTemplate) + " OR FK_InfraredGroup=" + StringUtils::itos(pRow_DeviceTemplate->FK_InfraredGroup_get()) +
+		") AND IRData IS NOT NULL AND IRData<>''",
 		&vectRow_InfraredGroup_Command[3]);
 
 	for (i = 0; i < 4; i++)

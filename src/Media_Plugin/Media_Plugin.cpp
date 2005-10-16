@@ -1010,11 +1010,13 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 				DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,
 					"<%=NP_R%>","","",false, false);  // Always go
 
-				if( bIsOSD && pEntertainArea_OSD )
+				if( bIsOSD && pEntertainArea_OSD && pOH_Orbiter->m_pEntertainArea!=pEntertainArea_OSD )
 				{
 					DCE::CMD_Set_Entertainment_Area CMD_Set_Entertainment_Area(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
 						StringUtils::itos(pEntertainArea_OSD->m_iPK_EntertainArea));
-					CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Entertainment_Area.m_pMessage);
+	                SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pMediaStream, false, false, CMD_Set_Entertainment_Area.m_pMessage );
+					string sResponse;
+					SendCommand(CMD_Set_Entertainment_Area,&sResponse);  // Get a confirmation so we're sure it goes through before the goto screen
 				}
 				SendCommand(CMD_Goto_Screen);
 			}
@@ -1030,6 +1032,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 	{
 		if( pMediaStream->m_pOH_Orbiter_StartedMedia )
 			m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device,"<%=T" + StringUtils::itos(TEXT_Cannot_play_media_CONST) + "%>");
+		StreamEnded(pMediaStream);
 		g_pPlutoLogger->Write(LV_CRITICAL,"Media Plug-in's call to Start Media failed 2.");
 	}
 
@@ -1366,12 +1369,15 @@ g_pPlutoLogger->Write(LV_STATUS, "Ready to update bound remotes with %p %d",pMed
         for( MapBoundRemote::iterator itBR=pEntertainArea->m_mapBoundRemote.begin( );itBR!=pEntertainArea->m_mapBoundRemote.end( );++itBR )
         {
             BoundRemote *pBoundRemote = ( *itBR ).second;
-            pBoundRemote->UpdateOrbiter( pMediaStream, bRefreshScreen );
+			if( pEntertainArea!=pBoundRemote->m_pOH_Orbiter->m_pEntertainArea )
+				g_pPlutoLogger->Write(LV_CRITICAL,"Orbiter %d is bound to an ent area it isn't in",pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+			else
+	            pBoundRemote->UpdateOrbiter( pMediaStream, bRefreshScreen );
         }
         for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
         {
             OH_Orbiter *pOH_Orbiter = (*it).second;
-            if( (pOH_Orbiter->m_pEntertainArea==pEntertainArea || pMediaStream->OrbiterIsOSD(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device))&& // UpdateOrbiter will have already set the now playing
+            if( pOH_Orbiter->m_pEntertainArea==pEntertainArea && // UpdateOrbiter will have already set the now playing
 					pEntertainArea->m_mapBoundRemote.find(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device)==pEntertainArea->m_mapBoundRemote.end() )
                 SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pMediaStream, bRefreshScreen );
         }
@@ -2838,14 +2844,14 @@ void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current,
 			continue;
 		}
 
-		DCE::CMD_On CMD_On(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,PK_Pipe_Current,"");
-		SendCommand(CMD_On);
-
 		if( pMediaDevice->m_pDeviceData_Router->m_pDevice_MD && pMediaDevice->m_pDeviceData_Router!=pMediaDevice->m_pDeviceData_Router->m_pDevice_MD )
 		{
 			DCE::CMD_On CMD_On(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_pDevice_MD->m_dwPK_Device,PK_Pipe_Current,"");
 			SendCommand(CMD_On);
 		}
+
+		DCE::CMD_On CMD_On(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,PK_Pipe_Current,"");
+		SendCommand(CMD_On);
 	}
 }
 

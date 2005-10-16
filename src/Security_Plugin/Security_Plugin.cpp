@@ -516,6 +516,7 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 			it++;
 	}
 	EVENT_Reset_Alarm();
+	EVENT_House_Mode_Changed(iPK_DeviceGroup,PK_HouseMode);
 }
 
 string Security_Plugin::AlertsSinceLastChange(int PK_DeviceGroup)

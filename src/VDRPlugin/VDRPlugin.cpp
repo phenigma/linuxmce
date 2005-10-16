@@ -278,6 +278,7 @@ bool VDRPlugin::StartMedia( class MediaStream *pMediaStream )
 	if( !pEPG || !pEvent )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot start without any EPG data %p %p",pEPG,pEvent);
+		report_to_user_on_orbiter
 		return false;
 	}
 	pVDRMediaStream->m_EventID = pEvent->m_EventID;

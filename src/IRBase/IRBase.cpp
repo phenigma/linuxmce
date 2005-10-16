@@ -59,6 +59,11 @@ IRBase::handleStart(Command_Impl *pCommand_Impl) {
 	DCE::CMD_Get_Infrared_Codes_DT CMD_Get_Infrared_Codes_DT(devid, DEVICETEMPLATE_Infrared_Plugin_CONST,
 				BL_SameHouse, devid, &pData, &iSize);
 	getCommandImpl()->SendCommand(CMD_Get_Infrared_Codes_DT);  // Get the codes from I/R Plugin
+	if( !iSize || !pData )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot get i/r codes for %d",devid);
+		return;
+	}
 	IRDevice irDevice;
 	irDevice.SerializeRead(iSize, pData); // De-serialize the data
 	

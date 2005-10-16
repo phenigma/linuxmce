@@ -1619,6 +1619,7 @@ void Router::HandleCommandPipes(Socket *pSocket,SafetyMessage *pSafetyMessage)
         string sPipesDevices;
         if( (*(*pSafetyMessage))->m_mapParameters.find(COMMANDPARAMETER_PK_Device_Pipes_CONST)!=(*(*pSafetyMessage))->m_mapParameters.end() )
             sPipesDevices = "," + (*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_PK_Device_Pipes_CONST] + ",";
+		Pipe *pPipe_Prior=NULL;
         for(map<int,Pipe *>::iterator it=pDeviceData_Router->m_mapPipe_Available.begin();it!=pDeviceData_Router->m_mapPipe_Available.end();++it)
         {
             Pipe *pPipe = (*it).second;
@@ -1631,10 +1632,17 @@ void Router::HandleCommandPipes(Socket *pSocket,SafetyMessage *pSafetyMessage)
 #endif
 			if( PK_Pipe && PK_Pipe!=pPipe->m_pRow_Device_Device_Pipe->FK_Pipe_get() )
 				continue;
+
             if( sPipesDevices.length()<3 || sPipesDevices.find("," + StringUtils::itos((*it).first) + ",")!=string::npos ) // It may be 2 characters: ,,
                 pDeviceData_Router->m_mapPipe_Active[pPipe->m_pRow_Device_Device_Pipe->FK_Pipe_get()]=pPipe;
 
-            Message *pMessage = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get(),
+			if( pPipe_Prior && pPipe_Prior->m_pRow_Device_Device_Pipe->FK_Device_To_get()==pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get() 
+					&& pPipe->m_pRow_Device_Device_Pipe->FK_Command_Input_get()==pPipe_Prior->m_pRow_Device_Device_Pipe->FK_Command_Input_get()
+					&& pPipe->m_pRow_Device_Device_Pipe->FK_Command_Output_get()==pPipe_Prior->m_pRow_Device_Device_Pipe->FK_Command_Output_get() )
+				continue;  // Don't bother if there's another pipe going to the same device--we will have already done this
+			pPipe_Prior=pPipe;
+
+			Message *pMessage = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get(),
                 PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Generic_On_CONST,0);
             ReceivedMessage(NULL,pMessage);
 

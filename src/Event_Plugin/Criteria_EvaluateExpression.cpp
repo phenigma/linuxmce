@@ -32,6 +32,8 @@ bool Criteria::EvaluateExpression(class CriteriaParm *pCriteriaParm,class EventI
     time( &long_time );
 	struct tm *newtime = localtime( &long_time );
 
+	if( pCriteriaParm->m_sValue.size()==0 )
+		return true;  // Was not specified
 	int iRValue=0;
 	string sRValue="";
 

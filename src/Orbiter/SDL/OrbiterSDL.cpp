@@ -105,6 +105,8 @@ OrbiterSDL::OrbiterSDL(int DeviceID, int PK_DeviceTemplate, string ServerAddress
         exit(1);
     }
 
+	SDL_WM_SetCaption("OrbiterSDL", "OrbiterSDL");
+
     atexit(SDL_Quit);
     g_pPlutoLogger->Write(LV_STATUS, "Initialized SDL");
 
