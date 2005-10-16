@@ -155,10 +155,26 @@ protected:
 				return it2->second;
 		}
 
+		// Next if a remote is specified for this particular type of media device
 		map< pair<int,int>, class RemoteControlSet *>::iterator it3;
 		pair<int,int> p3 = make_pair< int,int > (
 			iPK_DeviceTemplate,
 			PK_MediaType );
+
+		if( (it3=m_mapDeviceTemplate_MediaType_RemoteControl.find(p3))!=m_mapDeviceTemplate_MediaType_RemoteControl.end() )
+			return it3->second;
+
+		// Next if a remote is specified for this particular type of orbiter
+		if( PK_Orbiter )
+		{
+			DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(PK_Orbiter);
+			if( pDevice )
+			{
+				p3.first = pDevice->m_dwPK_DeviceTemplate;
+				if( (it3=m_mapDeviceTemplate_MediaType_RemoteControl.find(p3))!=m_mapDeviceTemplate_MediaType_RemoteControl.end() )
+					return it3->second;
+			}
+		}
 
 		if( (it3=m_mapDeviceTemplate_MediaType_RemoteControl.find(p3))!=m_mapDeviceTemplate_MediaType_RemoteControl.end() )
 			return it3->second;
@@ -294,7 +310,7 @@ public:
 		for(map<int,string>::iterator it=m_mapMediaType_2_Directory.begin();it!=m_mapMediaType_2_Directory.end();++it)
 		{
 			RemoteControlSet *pRemoteControlSet = 
-				PickRemoteControlMap(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,it->first);
+				PickRemoteControlMap(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_DeviceTemplate,it->first);
 
 			if( pRemoteControlSet )
 			{
@@ -452,6 +468,8 @@ public:
 			}
 			else if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST )
 				sFilename = pMediaStream->m_sMediaDescription;
+			else if( pMediaStream->m_iPK_Playlist )
+				sFilename = pMediaStream->m_sPlaylistName;
 			if( StringUtils::StartsWith(sFilename,"<%=") )
 				sFilename="";  // It's just a stock message--the user will have to pick
 

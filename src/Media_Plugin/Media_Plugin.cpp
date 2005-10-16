@@ -71,6 +71,7 @@ using namespace DCE;
 #include "pluto_media/Table_Disc.h"
 #include "pluto_media/Table_Picture_Disc.h"
 #include "pluto_media/Table_Disc_Attribute.h"
+#include "pluto_media/Table_Playlist.h"
 #include "pluto_media/Table_Picture.h"
 #include "pluto_media/Table_Picture_File.h"
 #include "pluto_media/Table_Picture_Attribute.h"
@@ -863,6 +864,12 @@ MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, int 
 	}
 	pMediaStream->m_iRepeat=iRepeat;
 	pMediaStream->m_iPK_Playlist=iPK_Playlist;
+	if( iPK_Playlist )
+	{
+		Row_Playlist *pRow_Playlist = m_pDatabase_pluto_media->Playlist_get()->GetRow(iPK_Playlist);
+		if( pRow_Playlist )
+			pMediaStream->m_sPlaylistName = pRow_Playlist->Name_get();
+	}
 
     // HACK: get the user if the message originated from an orbiter!
 
@@ -1536,6 +1543,9 @@ void Media_Plugin::MediaInEAEnded(EntertainArea *pEntertainArea,bool bFireEvent)
 g_pPlutoLogger->Write( LV_STATUS, "Stream in ea %s ended %d remotes bound", pEntertainArea->m_sDescription.c_str(), (int) pEntertainArea->m_mapBoundRemote.size() );
 	pEntertainArea->m_pMediaStream = NULL;
 	pEntertainArea->m_pMediaDevice_ActiveDest=NULL;
+
+	if( !bFireEvent )
+		return;  // If this is false, it means the calling class will be starting something else, which will create all it's own 'now playing's' and goto remotes.  Just leave this
 
 	// Set all the now playing's to nothing
     for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
@@ -2559,8 +2569,12 @@ g_pPlutoLogger->Write(LV_WARNING, "pl1 = %s",sName.c_str());
         sName = "New Playlist";
 
 g_pPlutoLogger->Write(LV_WARNING, "pl2 = %s",sName.c_str());
-    int iPK_Playlist = bSave_as_new ? 0 : pEntertainArea->m_pMediaStream->m_iPK_Playlist;
-    if( !m_pMediaAttributes->SavePlaylist(pEntertainArea->m_pMediaStream->m_dequeMediaFile, iPK_Users, iPK_Playlist, sName) )
+    int iPK_Playlist = 0;
+	if( !bSave_as_new && pEntertainArea->m_pMediaStream->m_iPK_Playlist &&
+			(sName.size()==0 || pEntertainArea->m_pMediaStream->m_sPlaylistName==sName) )
+		iPK_Playlist = pEntertainArea->m_pMediaStream->m_iPK_Playlist;  // Save as a new playlist if the user specified a new save to name
+
+	if( !m_pMediaAttributes->SavePlaylist(pEntertainArea->m_pMediaStream->m_dequeMediaFile, iPK_Users, iPK_Playlist, sName) )
     {
 		g_pPlutoLogger->Write(LV_CRITICAL,"Unable to save playlist");
         m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"Unable to save playlist",false,10,true);
