@@ -278,7 +278,9 @@ bool VDRPlugin::StartMedia( class MediaStream *pMediaStream )
 	if( !pEPG || !pEvent )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot start without any EPG data %p %p",pEPG,pEvent);
-		report_to_user_on_orbiter
+		if( pMediaStream->m_pOH_Orbiter_StartedMedia )
+			m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device,
+				"No EPG Data.  Cannot start TV");
 		return false;
 	}
 	pVDRMediaStream->m_EventID = pEvent->m_EventID;
