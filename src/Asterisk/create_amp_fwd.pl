@@ -1,0 +1,107 @@
+#!/usr/bin/perl
+
+use strict;
+use diagnostics;
+use DBI;
+
+my $DECLARED_USERNAME;
+my $DECLARED_USERPASSWD;
+my $DECLARED_NUMBER;
+my $DECLARED_PREFIX = "393";
+
+my $TRUNK_URL = 'http://localhost/pluto-admin/amp/admin/config.php?display=6&tech=IAX2';
+my %TRUNK_VARS = ();
+my $TRUNK_DATA = "";
+
+my $OUT_URL = 'http://localhost/pluto-admin/amp/admin/config.php?display=8';
+my %OUT_VARS = ();
+my $OUT_DATA = "";
+
+my $IN_URL = 'http://localhost/pluto-admin/amp/admin/config.php?display=7';
+my %IN_VARS = ();
+my $IN_DATA = "";
+
+#check params
+unless (defined($ARGV[0]) && defined($ARGV[1]) && defined($ARGV[2]))
+{
+    print "USAGE :$0 <username> <password> <phone_number> <prefix_to_use_the_line>\n";
+    exit(-1);
+}
+
+
+$DECLARED_USERNAME=$ARGV[0];
+$DECLARED_USERPASSWD=$ARGV[1];
+$DECLARED_NUMBER=$ARGV[2];
+$DECLARED_PREFIX=$ARGV[3] if(defined($ARGV[3]));
+
+
+### ADD TRUNK
+$TRUNK_VARS{'display'}="6";
+$TRUNK_VARS{'extdisplay'}="";
+$TRUNK_VARS{'action'}="addtrunk";
+$TRUNK_VARS{'tech'}="iax2";
+$TRUNK_VARS{'outcid'}="";
+$TRUNK_VARS{'maxchans'}="";
+$TRUNK_VARS{'dialrules'}="";
+$TRUNK_VARS{'autopop'}="";
+$TRUNK_VARS{'dialoutprefix'}=$DECLARED_PREFIX."|.";
+$TRUNK_VARS{'channelid'}="fwd";
+$TRUNK_VARS{'peerdetails'}="callerid=\"$DECLARED_USERNAME\" <$DECLARED_NUMBER>\nusername=$DECLARED_USERNAME\nsecret=$DECLARED_USERPASSWD\nhost=iax2.fwdnet.net\ndisallow=all\nallow=ulaw\nauth=md5\ncanreinvite=no\nnat=yes\nqualify=no\ntype=peer\n";
+$TRUNK_VARS{'usercontext'}="iaxfwd";
+$TRUNK_VARS{'userconfig'}="auth=rsa\ninkeys=freeworlddialup\ncontext=from-pstn\ntype=user\n";
+$TRUNK_VARS{'register'}="$DECLARED_USERNAME:$DECLARED_USERPASSWD\@iax2.fwdnet.net";
+foreach my $var (keys %TRUNK_VARS)
+{
+	my $str = $TRUNK_VARS{$var};
+	$str =~ s/([^A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg;
+	$TRUNK_DATA	.=$var."=".$str."&";
+}
+`curl -d '$TRUNK_DATA' '$TRUNK_URL' > /dev/null`;
+
+
+### ADD OUTGOING ROUTING
+`curl '$OUT_URL&extdisplay=001-9_outside&action=delroute' > /tmp/curl.log`;
+open(PAGE,"/tmp/curl.log") or die "Bad thing happend";
+my $OUT_ROUTE = "";
+while(<PAGE>)
+{
+	chomp;
+    if($_ =~ /[<]option value[=]\"([^\"]+)\"[>]IAX2\/fwd[<]\/option[>]/)
+    {
+        $OUT_ROUTE=$1;
+    }
+}
+close(PAGE);
+$OUT_VARS{'display'}="8";
+$OUT_VARS{'extdisplay'}="";
+$OUT_VARS{'action'}="addroute";
+$OUT_VARS{'routename'}="fwd";
+$OUT_VARS{'routepass'}="";
+$OUT_VARS{'dialpattern'}=$DECLARED_PREFIX."|.";
+$OUT_VARS{'trunkpriority[0]'}=$OUT_ROUTE;
+exit unless($OUT_ROUTE ne "");
+foreach my $var (keys %OUT_VARS)
+{
+	my $str = $OUT_VARS{$var};
+	$str =~ s/([^A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg;
+	$OUT_DATA .=$var."=".$str."&";
+}
+`rm -f /tmp/curl.log ; curl -d '$OUT_DATA' '$OUT_URL' > /dev/null`;
+
+### ADD INCOMING ROUTING
+$IN_VARS{'display'}="7";
+$IN_VARS{'extdisplay'}="";
+$IN_VARS{'action'}="addIncoming";
+$IN_VARS{'extension'}=$DECLARED_NUMBER;
+foreach my $var (keys %IN_VARS)
+{
+	my $str = $IN_VARS{$var};
+	$str =~ s/([^A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg;
+	$IN_DATA.=$var."=".$str."&";
+}
+`curl -d '$IN_DATA' '$IN_URL' > /dev/null`;
+
+#run AMP's scripts to generate asterisk's config
+`/var/www/pluto-admin/amp/admin/retrieve_sip_conf_from_mysql.pl`;
+#reload asterisk
+`asterisk -r -x reload`;
