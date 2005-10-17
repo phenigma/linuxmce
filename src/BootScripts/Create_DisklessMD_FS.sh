@@ -139,6 +139,6 @@ mkdir -p "/tftpboot/$IP"
 
 cd -
 
-if ! egrep -q 'http://deb\.plutohome\.com/debian.+replacements.+main' "$DlPath"/etc/apt/sources.list; then
-	echo "deb http://deb.plutohome.com/debian/ replacements main" >>"$DlPath"/etc/apt/sources.list
-fi
+#if ! egrep -q 'http://deb\.plutohome\.com/debian.+replacements.+main' "$DlPath"/etc/apt/sources.list; then
+#	echo "deb http://deb.plutohome.com/debian/ replacements main" >>"$DlPath"/etc/apt/sources.list
+#fi
