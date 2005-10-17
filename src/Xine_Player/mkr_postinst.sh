@@ -688,8 +688,8 @@ misc.memcpy_method:sse
 mkdir -p /etc/pluto
 echo "$xine_conf" >/etc/pluto/xine.conf
 
-#if [[ -d /root/.dvdcss ]]; then
-#	mkdir -p /home/.dvdcss
-#	mv /root/.dvdcss/* /home/.dvdcss/*
-#	rm -rf /root/.dvdcss
-#fi
+if [[ -d /root/.dvdcss ]]; then
+	mkdir -p /home/.dvdcss
+	mv /root/.dvdcss/* /home/.dvdcss/* 2>/dev/null || :
+	rm -rf /root/.dvdcss
+fi
