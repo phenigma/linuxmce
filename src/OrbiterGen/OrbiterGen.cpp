@@ -929,6 +929,8 @@ m_bNoEffects = true;
 				{
 					Row_DesignObj *m_pRow_DesignObjDependancy = vectros[s];
 					alNewDesignObjsToGenerate.push_back(m_pRow_DesignObjDependancy);
+if( m_pRow_DesignObjDependancy->PK_DesignObj_get()==4438 )
+int k=2;
 				}
 			}
 		}
@@ -950,6 +952,8 @@ m_bNoEffects = true;
 			{
 				Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(atoi(row[0]));
 				alNewDesignObjsToGenerate.push_back(drNewDesignObj);
+if( drNewDesignObj->PK_DesignObj_get()==4438 )
+int k=2;
 			}
 			catch(...)
 			{}
@@ -959,15 +963,21 @@ m_bNoEffects = true;
 	vector<Row_DesignObj *> vectRow_DesignObj_AlwaysInclude;
 	mds.DesignObj_get()->GetRows("AlwaysInclude=1",&vectRow_DesignObj_AlwaysInclude);
 	for(size_t s=0;s<vectRow_DesignObj_AlwaysInclude.size();++s)
+{
 		alNewDesignObjsToGenerate.push_back(vectRow_DesignObj_AlwaysInclude[s]);
+if( vectRow_DesignObj_AlwaysInclude[s]->PK_DesignObj_get()==4438 )
+int k=2;
+}
 
-
+	// Find all records for objects used as remotes for devices within this installation.  Ignore remotes
+	// that only apply to devices that are orbiters (FK_DeviceCategory NOT IN (2,3,5)) unless it's for this orbiter
 	sql = string("select DeviceTemplate_MediaType_DesignObj.FK_DesignObj,Device.FK_DesignObj,FK_DesignObj_Popup,FK_DesignObj_FileList,FK_DesignObj_FileList_Popup") + 
 		" FROM Device " +
 		" INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate " +
 		" INNER JOIN DeviceTemplate_MediaType ON DeviceTemplate_MediaType.FK_DeviceTemplate=PK_DeviceTemplate " + 
 		" INNER JOIN DeviceTemplate_MediaType_DesignObj ON FK_DeviceTemplate_MediaType=PK_DeviceTemplate_MediaType " +
-		" WHERE FK_Installation=" + StringUtils::itos(m_pRow_Device->FK_Installation_get());
+		" WHERE FK_Installation=" + StringUtils::itos(m_pRow_Device->FK_Installation_get()) +
+		" AND (FK_DeviceCategory NOT IN (2,3,5) or PK_Device=" + StringUtils::itos(m_pRow_Device->PK_Device_get()) + ");";
 
 	PlutoSqlResult result_set4;
 	if( (result_set4.r=mysql_query_result(sql)) )
@@ -982,15 +992,22 @@ m_bNoEffects = true;
 					if( !drNewDesignObj )
 						cerr << "Cannot find devicetempate_mediatype_designobj: " << row[0] << endl;
 					else
+{
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
-				}
+if( drNewDesignObj->PK_DesignObj_get()==4438 )
+int k=2;
+}				}
 				if( row[1] )
 				{
 					Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(atoi(row[1]));
 					if( !drNewDesignObj )
 						cerr << "Cannot find device.designobj: " << row[1] << endl;
 					else
+{
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
+if( drNewDesignObj->PK_DesignObj_get()==4438 )
+int k=2;
+}
 				}
 				if( row[2] )
 				{
@@ -998,8 +1015,11 @@ m_bNoEffects = true;
 					if( !drNewDesignObj )
 						cerr << "Cannot find device.designobj: " << row[2] << endl;
 					else
+{
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
-					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
+if( drNewDesignObj->PK_DesignObj_get()==4438 )
+int k=2;
+}					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
 				}
 				if( row[3] )
 				{
@@ -1007,16 +1027,22 @@ m_bNoEffects = true;
 					if( !drNewDesignObj )
 						cerr << "Cannot find device.designobj: " << row[3] << endl;
 					else
+{
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
-				}
+if( drNewDesignObj->PK_DesignObj_get()==4438 )
+int k=2;
+}				}
 				if( row[4] )
 				{
 					Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(atoi(row[4]));
 					if( !drNewDesignObj )
 						cerr << "Cannot find device.designobj: " << row[4] << endl;
 					else
+{
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
-					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
+if( drNewDesignObj->PK_DesignObj_get()==4438 )
+int k=2;
+}					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
 				}
 			}
 			catch(...)
@@ -1041,15 +1067,22 @@ m_bNoEffects = true;
 					if( !drNewDesignObj )
 						cerr << "Cannot find devicetempate_mediatype_designobj: " << row[0] << endl;
 					else
+{
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
-				}
+if( drNewDesignObj->PK_DesignObj_get()==4438 )
+int k=2;
+}				}
 				if( row[1] )
 				{
 					Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(atoi(row[1]));
 					if( !drNewDesignObj )
 						cerr << "Cannot find device.designobj: " << row[1] << endl;
 					else
+{
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
+if( drNewDesignObj->PK_DesignObj_get()==4438 )
+int k=2;
+}
 					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
 				}
 				if( row[2] )
@@ -1058,15 +1091,22 @@ m_bNoEffects = true;
 					if( !drNewDesignObj )
 						cerr << "Cannot find device.designobj: " << row[2] << endl;
 					else
+{
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
-				}
+if( drNewDesignObj->PK_DesignObj_get()==4438 )
+int k=2;
+}				}
 				if( row[3] )
 				{
 					Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(atoi(row[3]));
 					if( !drNewDesignObj )
 						cerr << "Cannot find device.designobj: " << row[3] << endl;
 					else
+{
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
+if( drNewDesignObj->PK_DesignObj_get()==4438 )
+int k=2;
+}
 					m_mapPopups[drNewDesignObj->PK_DesignObj_get()]=true;
 				}
 			}
@@ -1091,8 +1131,11 @@ m_bNoEffects = true;
 					if( !drNewDesignObj )
 						cerr << "Cannot find devicetempate_designobj: " << row[0] << endl;
 					else
+{
 						alNewDesignObjsToGenerate.push_back(drNewDesignObj);
-				}
+if( drNewDesignObj->PK_DesignObj_get()==4438 )
+int k=2;
+}				}
 			}
 			catch(...)
 			{}
@@ -1107,6 +1150,8 @@ m_bNoEffects = true;
 			cerr << "Cannot find 'first time' menu" << endl;
 		else
 		{
+if( drNewDesignObj->PK_DesignObj_get()==4438 )
+int k=2;
 			alNewDesignObjsToGenerate.push_back(drNewDesignObj);
 			m_sInitialScreen=StringUtils::itos(DESIGNOBJ_mnuFirstTime_CONST);
 		}
@@ -1122,12 +1167,18 @@ m_bNoEffects = true;
 		for(size_t s=0;s<vectros.size();++s)
 		{
 			Row_DesignObj *m_pRow_DesignObjDependancy = vectros[s];
+if( m_pRow_DesignObjDependancy->PK_DesignObj_get()==4438 )
+int k=2;
 			alNewDesignObjsToGenerate2.push_back(m_pRow_DesignObjDependancy);
 		}
 	}
 
 	for(itno=alNewDesignObjsToGenerate2.begin();itno!=alNewDesignObjsToGenerate2.end();++itno)
+	{
+if( (*itno)->PK_DesignObj_get()==4438 )
+int k=2;
 		alNewDesignObjsToGenerate.push_back(*itno); // Merge these back in
+	}
 
 	for(itno=alNewDesignObjsToGenerate.begin();itno!=alNewDesignObjsToGenerate.end();++itno)
 	{
