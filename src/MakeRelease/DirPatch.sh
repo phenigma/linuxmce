@@ -21,8 +21,8 @@ location=$(pwd)
 for section in $sections; do
 	eval dirL=\$${section}L
 	eval dirR=\$${section}R
-	(cd "$dirL"; eval "$ScriptL") >$section.local
-	ssh uploads@plutohome.com "cd \"$dirR\"; eval \"$ScriptR\"" >$section.remote
+	(cd "$dirL"; eval "$ScriptL") | sort -k1 >$section.local
+	ssh uploads@plutohome.com "cd \"$dirR\"; eval \"$ScriptR\"" | sort -k1 >$section.remote
 	diff -u $section.{remote,local} | egrep '^[+-]' | egrep -v '^\+\+\+ |^--- ' | sort -k1 | awk '{print $1}' >$section.changes
 
 	: >$section.patch.sh
