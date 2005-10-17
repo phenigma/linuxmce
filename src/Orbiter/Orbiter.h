@@ -603,6 +603,11 @@ void RealRedraw( void *data );  // temp hack -- see comments
 	 */
 	void ParseGrid(DesignObj_DataGrid *pObj_Datagrid);
 
+    /**
+    * Parse info about hard keys
+    */
+    virtual void ParseHardKeys();
+
 	/**
 	 *	PURE VIRTUALS
 	 */

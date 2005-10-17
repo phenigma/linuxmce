@@ -307,14 +307,17 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::SolidRectangle(int x, int y, int width, int height, PlutoColor color, int Opacity)
 {
-	CHECK_STATUS();
+    if(width <= 0 || height <= 0 || x + width >= m_iImageWidth || y + height >= m_iImageHeight)
+        return;
+    
+    CHECK_STATUS();
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 	GetDisplay()->FillRect(x, y, x + width, y + height, GetColor16(color));
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::HollowRectangle(int x, int y, int width, int height, PlutoColor color)
 {
-    if(width <= 0 || height <= 0)
+    if(width <= 0 || height <= 0 || x + width >= m_iImageWidth || y + height >= m_iImageHeight)
         return;
 
 	CHECK_STATUS();
@@ -325,6 +328,9 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 /*virtual*/ void Orbiter_PocketFrog::ReplaceColorInRectangle(int x, int y, int width, int height, 
 	PlutoColor ColorToReplace, PlutoColor ReplacementColor)
 {
+    if(width <= 0 || height <= 0 || width >= m_iImageWidth || height >= m_iImageHeight)
+        return;
+
 	CHECK_STATUS();
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 	Pixel pixelSrc = GetColor16(ColorToReplace);
@@ -539,6 +545,12 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 	Rect srcRect;
 	srcRect.Set(point.X + pObj->m_rPosition.Left(), point.Y + pObj->m_rPosition.Top(), point.X + pObj->m_rPosition.Right(), point.Y + pObj->m_rPosition.Bottom());
 
+    if(srcRect.right >= m_iImageWidth)
+        srcRect.right = m_iImageWidth - 1;
+
+    if(srcRect.bottom >= m_iImageHeight)
+        srcRect.bottom = m_iImageHeight - 1;
+                
 	Surface *pSurface = GetDisplay()->CreateSurface(pObj->m_rPosition.Width, pObj->m_rPosition.Height);
 	Rasterizer *pRasterizer = GetDisplay()->CreateRasterizer(pSurface);
 	pRasterizer->Blit(0, 0, GetDisplay()->GetBackBuffer(), &srcRect);
@@ -624,13 +636,6 @@ PlutoGraphic *Orbiter_PocketFrog::GetBackground( PlutoRectangle &rect )
 
 	PocketFrogGraphic *pPocketFrogGraphic = (PocketFrogGraphic *) pPlutoGraphic;
 	Surface *pSurface = pPocketFrogGraphic->m_pSurface;
-
-	if(::IsBadReadPtr(pSurface->m_buffer->GetPixels(), pSurface->GetWidth() * pSurface->GetHeight() * 2))
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "The surface has a bad pointer for pixels array (Surface: %p, pixels: %p)",
-			pSurface, pSurface->m_buffer->GetPixels());
-		pPlutoGraphic->Clear(); //force reload ocg
-	}
 
     rectTotal.X += point.X;
     rectTotal.Y += point.Y;

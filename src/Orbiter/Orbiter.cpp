@@ -3237,24 +3237,29 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
         }
     }
 
-	pos=0;
-	string sKeymapping=DATA_Get_Hard_Keys_mapping();
-	while(pos<DATA_Get_Hard_Keys_mapping().size())
-	{
-		string sToken=StringUtils::Tokenize(sKeymapping,"\n",pos);
-		string::size_type pos2=0;
-		int iKey = atoi( StringUtils::Tokenize(sToken,"\t",pos2).c_str() );
-		if( !iKey )
-			continue;
-		Message *pMessage = new Message(StringUtils::Tokenize(sToken,"\t",pos2));
-		if( pMessage->m_dwPK_Device_To<0 )
-			pMessage->m_dwPK_Device_To = TranslateVirtualDevice(pMessage->m_dwPK_Device_To);
-		m_mapHardKeys[iKey] = pMessage;
-	}
+    ParseHardKeys();
 
     return true;
 }
-//------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------
+/*virtual*/ void Orbiter::ParseHardKeys()
+{
+    string::size_type pos = 0;
+    string sKeymapping=DATA_Get_Hard_Keys_mapping();
+    while(pos<DATA_Get_Hard_Keys_mapping().size())
+    {
+        string sToken=StringUtils::Tokenize(sKeymapping,"\n",pos);
+        string::size_type pos2=0;
+        int iKey = atoi( StringUtils::Tokenize(sToken,"\t",pos2).c_str() );
+        if( !iKey )
+            continue;
+        Message *pMessage = new Message(StringUtils::Tokenize(sToken,"\t",pos2));
+        if( pMessage->m_dwPK_Device_To<0 )
+            pMessage->m_dwPK_Device_To = TranslateVirtualDevice(pMessage->m_dwPK_Device_To);
+        m_mapHardKeys[iKey] = pMessage;
+    }
+}
+//--------------------------------------------------------------------------------------------------------------
 void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Screen, DesignObj_Orbiter *pObj_Parent, GraphicType Type,  int Lev )
 {
 	ShowProgress();

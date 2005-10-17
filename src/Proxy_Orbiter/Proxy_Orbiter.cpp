@@ -240,32 +240,65 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ string xxProxy_Orbiter::GenerateSoftKeys(DesignObj_Orbiter *pObj)
 {
-    string sSoftKeys;
+    if(m_sNowPlaying.length() > 0)
+        return sAllSoftKeysXml;
 
-    map<string, int> mapSoftKeys;
-    mapSoftKeys["Home"]     = BUTTON_F1_CONST;
-    mapSoftKeys["Back"]     = BUTTON_F2_CONST;
-    mapSoftKeys["Remote"]   = BUTTON_F3_CONST;
-    mapSoftKeys["Exit"]     = BUTTON_F4_CONST;
+    return sNoMediaSoftKeysXml;
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void xxProxy_Orbiter::ParseHardKeys()
+{
+    string::size_type pos = 0;
+    string::size_type posTemp = 0;
+    string sKeymapping = DATA_Get_Hard_Keys_mapping();
+    int nIndex = 0;
 
-    int nIndex = 1;
-    map<string, int>::iterator it;
-    for(it = mapSoftKeys.begin(); it != mapSoftKeys.end(); ++it)
+    while(pos < DATA_Get_Hard_Keys_mapping().size())
     {
+        posTemp = 0;
+
+        //a line
+        string sLineToken = StringUtils::Tokenize(sKeymapping, "\n", pos);
+
+        //soft key name
+        string sName = StringUtils::Tokenize(sLineToken, "\t", posTemp);
+
+        //key
+        int nKey = atoi(StringUtils::Tokenize(sLineToken, "\t", posTemp).c_str());
+        if(!nKey)
+            continue;
+
+        //media playing flag
+        bool bMediaPlaying = 1 == atoi(StringUtils::Tokenize(sLineToken, "\t", posTemp).c_str());
+        
+        //the message to send
+        string sMessageArguments = StringUtils::Tokenize(sLineToken, "\t", posTemp);
+        sMessageArguments = StringUtils::Replace(sMessageArguments, "devid", StringUtils::ltos(m_dwPK_Device));
+        Message *pMessage = new Message(sMessageArguments);
+        if( pMessage->m_dwPK_Device_To<0 )
+            pMessage->m_dwPK_Device_To = TranslateVirtualDevice(pMessage->m_dwPK_Device_To);
+        m_mapHardKeys[nKey] = pMessage;
+
+        //create xml tokens
+        string sXmlSoftKey;
+
         string sUrl = 
-            it->second != BUTTON_F4_CONST ?
-            (m_sRequestUrl + "key=" + StringUtils::ltos(it->second)) :
+            nKey != BUTTON_F4_CONST ?
+            (m_sRequestUrl + "key=" + StringUtils::ltos(nKey)) :
             (m_sBaseUrl + "ServicesMenu.php");
 
-        sSoftKeys += 
+        sXmlSoftKey = 
             "<SoftKeyItem>\r\n"
-            "\t<Name>" + it->first + "</Name>\r\n"
+            "\t<Name>" + sName + "</Name>\r\n"
             "\t<URL>" + sUrl + "</URL>\r\n"
-            "\t<Position>" + StringUtils::ltos(nIndex) + "</Position>\r\n"
+            "\t<Position>" + StringUtils::ltos(nIndex++) + "</Position>\r\n"
             "</SoftKeyItem>\r\n";
+
+        if(!bMediaPlaying)
+            sNoMediaSoftKeysXml += sXmlSoftKey;
+
+        sAllSoftKeysXml += sXmlSoftKey;
     }
-    
-    return sSoftKeys;
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void xxProxy_Orbiter::BeginPaint()

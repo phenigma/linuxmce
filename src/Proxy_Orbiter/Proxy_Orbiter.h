@@ -33,6 +33,9 @@ namespace DCE
         pluto_pthread_mutex_t m_ActionMutex; 
         pthread_cond_t m_ActionCond;
 
+        string sNoMediaSoftKeysXml;
+        string sAllSoftKeysXml;
+
 	public:
 		xxProxy_Orbiter(int DeviceID, 
 			int PK_DeviceTemplate, string ServerAddress);
@@ -55,6 +58,8 @@ namespace DCE
         virtual void SaveXML(string sFileName);
         virtual void GenerateXMLItems(DesignObj_Orbiter *pObj); //recursive
         virtual string GenerateSoftKeys(DesignObj_Orbiter *pObj);
+
+        virtual void ParseHardKeys();
 	};
 }
 //-----------------------------------------------------------------------------------------------------
