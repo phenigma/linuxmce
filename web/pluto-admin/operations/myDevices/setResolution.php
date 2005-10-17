@@ -124,7 +124,7 @@ $out.='
 			$refresh=$_POST['refresh'];
 			$newVS=$resolution.'/'.$refresh;
 			
-			$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($newVS,$mdID,$GLOBALS['Size']));
+			$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($newVS,$mdID,$GLOBALS['VideoSettings']));
 			if(@$_POST['updateOrbiters']==1){
 				// update device data for onscreen orbiter or orbiter
 				$orbiterArray=getOSDFromMD($mdID,$dbADO);
