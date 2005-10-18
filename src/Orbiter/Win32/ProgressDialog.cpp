@@ -284,10 +284,10 @@ BOOL InitInstanceDialog(HINSTANCE hInstance, int nCmdShow)
 	MyRegisterClassDialog(hInstance, szWindowClass);
 
 #ifdef WINCE
-    hWnd = CreateWindow(szWindowClass, szTitle, WS_DLGFRAME | WS_CAPTION | WS_BORDER,
+    hWnd = CreateWindow(szWindowClass, szTitle, WS_VISIBLE | WS_SYSMENU | WS_BORDER | WS_CAPTION,
         CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance, NULL);
 #else
-    hWnd = CreateWindow(szWindowClass, szTitle, WS_DLGFRAME,
+    hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX & ~WS_SIZEBOX,
         CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
 #endif
 
