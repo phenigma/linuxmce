@@ -3935,6 +3935,7 @@ function extractCodesTree($infraredGroupID,$dtID,$dbADO,$restriction=''){
 				InfraredGroup_Command.psc_user,
 				IRData,
 				Command.Description,
+				OriginalKey,
 				IF(PK_Command=192 OR PK_Command=193 OR PK_Command=194,1, IF(FK_CommandCategory=22,2, IF(FK_CommandCategory=27,3, IF(FK_CommandCategory=21,4,5) ) ) ) AS GroupOrder,
 				IF( InfraredGroup_Command.psc_user=?,2, IF( FK_DeviceTemplate IS NULL AND FK_Device IS NULL,1,3) ) As DefaultOrder,
 				CommandCategory.Description AS CommandCategory,
@@ -3957,6 +3958,7 @@ function extractCodesTree($infraredGroupID,$dtID,$dbADO,$restriction=''){
 		$codesArray[$categoryLabel]['FK_Device'][$row['PK_InfraredGroup_Command']]=$row['FK_Device'];
 		$codesArray[$categoryLabel]['psc_user'][$row['PK_InfraredGroup_Command']]=$row['psc_user'];
 		$codesArray[$categoryLabel]['Description'][$row['PK_InfraredGroup_Command']]=$row['Description'];
+		$codesArray[$categoryLabel]['OriginalKey'][$row['PK_InfraredGroup_Command']]=$row['OriginalKey'];
 		$codesArray[$categoryLabel]['CommandCategory'][$row['PK_InfraredGroup_Command']]=$categoryLabel;
 		$codesArray[$categoryLabel]['FK_Command'][$row['PK_InfraredGroup_Command']]=$row['FK_Command'];
 		$codesArray[$categoryLabel]['IRData'][$row['PK_InfraredGroup_Command']]=$row['IRData'];
@@ -4100,7 +4102,7 @@ function formatCode($section,$dataArray,$pos,$infraredGroupID,$dtID,$deviceID){
 	$out='
 		<table width="100%">
 			<tr bgcolor="'.$RowColor.'">
-				<td align="center" width="100"><B>'.$dataArray['Description'][$pos].'</B> <br><input type="button" class="button" name="learnCode" value="New code" onClick="windowOpen(\'index.php?section='.(($section=='rubyCodes')?'newRubyCode':'newIRCode').'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$dataArray['FK_Command'][$pos].'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');" '.((!isset($_SESSION['userID']))?'disabled':'').'></td>
+				<td align="center" width="100"><B>'.$dataArray['Description'][$pos].(($dataArray['OriginalKey'][$pos]!='')?' ('.$dataArray['OriginalKey'][$pos].')':'').'</B> <br><input type="button" class="button" name="learnCode" value="New code" onClick="windowOpen(\'index.php?section='.(($section=='rubyCodes')?'newRubyCode':'newIRCode').'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$dataArray['FK_Command'][$pos].'&action=sendCommand\',\'width=750,height=310,toolbars=true,scrollbars=1,resizable=1\');" '.((!isset($_SESSION['userID']))?'disabled':'').'></td>
 				<td align="center" width="20"><input type="radio" name="prefered_'.$dataArray['FK_Command'][$pos].'" value="'.$pos.'" '.((@in_array($pos,@$GLOBALS['igcPrefered'][$dataArray['FK_Command'][$pos]]))?'checked':'').'></td>
 				<td><textarea name="irData_'.$pos.'" rows="2" style="width:100%">'.$dataArray['IRData'][$pos].'</textarea></td>
 				<td align="center" width="100">'.$viewParamsButton.$deleteButton.$testButton.'</td>
