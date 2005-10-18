@@ -29,14 +29,14 @@ int main(int argc, const char * argv[])
 		return 1;
 	}
 	
-	f = open(argv[1], O_RDONLY);
+	f = open(argv[1], O_RDONLY | O_LARGEFILE);
 	if (f == -1)
 	{
 		printf("Failed to open '%s': %s\n", argv[1], strerror(errno));
 		return 1;
 	}
 
-	g = open(argv[2], O_WRONLY | O_CREAT | O_TRUNC);
+	g = open(argv[2], O_WRONLY | O_CREAT | O_TRUNC | O_LARGEFILE);
 	if (g == -1)
 	{
 		printf("Failed to open '%s': %s\n", argv[1], strerror(errno));
