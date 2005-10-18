@@ -1,5 +1,7 @@
 <?
 function get_pluto($output,$conn){
+	global $PlutoSupportHost,$PlutoHomeHost;
+	
 	$out='
 <table width="100%"  border="0" cellspacing="0" cellpadding="0">
   <tr>
@@ -20,11 +22,32 @@ function get_pluto($output,$conn){
 			<td><span class="title">Build a Pluto system for FREE!</span></td>
 		</tr>
 		<tr>
-			<td colspan="2">Download the Pluto software for free to install on your existing PC\'s.</td>
+			<td colspan="2"><p>To install Pluto on your own PC:<br><br>
+
+ 
+
+1.  Download the latest kick-start CD:<br><br>
+
+	&nbsp;&nbsp;&nbsp;&nbsp;Version ****KICK_START_NAME****<br>
+
+    &nbsp;&nbsp;&nbsp;&nbsp;MD5: ****MD5SUM****<br>
+
+	&nbsp;&nbsp;&nbsp;&nbsp;<a href="'.$PlutoHomeHost.'download/cds/pldebsrg.iso">HTTP download</a><br>
+
+	&nbsp;&nbsp;&nbsp;&nbsp;<a href="ftp://ftp.plutohome.com/cds/">FTP download</a><br><br>
+
+ 
+
+   2. Burn it using any CD burning software that can burn an .ISO image.  Virtually all cd burning software does this.<br><br>
+
+ 
+
+   3. Read the <a href="'.$PlutoSupportHost.'index.php?section=document&docID=212">Quick Start Guide</a>.  Part 3 explains how to boot off the kick-start cd to make your PC a Pluto Core or hybrid.  Note that by default the CD will erase the contents of the hard drive.<br><br>
+
+ 
+
+If you really know what you’re doing, click the ‘Download’ link on our <a href="'.$PlutoSupportHost.'index.php?section=mainDownload&package=0">support site</a> to download individual modules.  Note there are hundreds of modules, and it may be quite difficult to get it to work this way.  Or get the source code from anonymous svn like this: svn co http://svn.plutohome.com/pluto/trunk/</td>
 		</tr>
-		<tr>
-			<td colspan="2" align="left"><a href="support/index.php?section=document&docID=1">Get the software </a>&nbsp;</td>
-		</tr>	
 		<tr>
 			<td>&nbsp;</td>
 			<td>&nbsp;</td>

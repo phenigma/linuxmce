@@ -22,38 +22,6 @@ function myPluto($output,$dbADO,$conn) {
 	
 	$FK_Users=(isset($_SESSION['userID']))?(int)$_SESSION['userID']:0;
 
-	$queryInstallations='
-			SELECT * FROM Installation_Users
-				INNER JOIN Installation ON FK_Installation=PK_Installation
-				INNER JOIN Users ON FK_Users=PK_Users
-			WHERE Installation_Users.FK_Users=?';
-	$res=$dbADO->Execute($queryInstallations,$FK_Users);
-	if($res->RecordCount()==0)
-		$installationsText='No Pluto installations.<br><br>
-		<b>To get Pluto</b>, choose <a href="index.php?section=wizard&step=1&instid=0">Start wizard</a>.';
-	else {
-		$installationsText='You have the following installations:
-		<table width="100%" border="0">';
-		$isDealer=0;
-		$isManufacturer=0;
-		while($rowInstallations=$res->FetchRow()){
-			if(@$rowInstallations['EK_Dealer']!='')
-				$isDealer=1;
-			if(@$rowInstallations['EK_Manufacturer']!='')
-				$isManufacturer=1;
-				
-			$installationsText.='
-			<tr>
-				<td colspan="2">Installation no. <b>'.$rowInstallations['PK_Installation'].'</b></td>
-			</tr>
-			<tr bgcolor="#F5F8FF">
-				<td>Description: <a href="index.php?section=wizard&step=8&instid='.$rowInstallations['PK_Installation'].'"><b>'.stripslashes($rowInstallations['Description']).'</b></a></td>
-				<td align="right" width="100"><a href="javascript:if(confirm(\'Are you sure you want to delete the installation?\'))self.location=\'index.php?section=deleteInstallation&dID='.$rowInstallations['PK_Installation'].'\'">[ Delete ]</a></td>
-			</tr>';
-		}
-		$installationsText.='</table><br><a href="index.php?section=wizard&step=1&instid=0"><b>Start wizard</b></a><br>';
-	}
-
 	if(isset($_GET['redirect'])){
 		if($_GET['redirect']=='forum'){
 			header("Location: support/phpbb2/login.php?username=".$_SESSION['username']."&password=".$_SESSION['extPassword']."&login=1");
@@ -121,11 +89,11 @@ function myPluto($output,$dbADO,$conn) {
 					<td class="normaltext" align="right">&nbsp;</td>
       			</tr>	
       			<tr bgcolor="#DADDE4">
-      				<td align="center" width="33%" class="normaltext"><b>Installations</b></td>
+      				<td align="center" width="33%" class="normaltext"><b>Get PLUTO</b></td>
       				<td align="center" width="33%" class="normaltext"><b>Referrals</b></td>
       			</tr>
       	      	<tr>
-      				<td align="left" valign="top" class="normaltext">'.$installationsText.'<br>					
+      				<td align="left" valign="top" class="normaltext"><p>To get Pluto, choose <a href="index.php?section=get_pluto">get Pluto</a><br>					
 					</td>
       				<td align="center">
 						<table width="100%">
