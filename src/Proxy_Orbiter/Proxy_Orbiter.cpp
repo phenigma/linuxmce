@@ -90,7 +90,8 @@ xxProxy_Orbiter::xxProxy_Orbiter(int DeviceID, int PK_DeviceTemplate, string Ser
     m_sRequestUrl = m_sBaseUrl + 
         "index.php?"
         "section=proxySocket&amp;"
-        "address=" + m_sMyIPAddress + "&amp;"
+        //"address=" + m_sMyIPAddress + "&amp;"
+        "address=192.168.80.1&amp;"
         "port=" + StringUtils::ltos(m_iListenPort) + "&amp;"
         "command=XML&amp;";
     m_sPngImageUrl = m_sBaseUrl + "security_images/orbiter_screen.png";
@@ -183,6 +184,19 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
     string sXMLItems;
     int nCount = 1;
     deque<string>::iterator it;
+    for(it = m_dequeCellXMLItems.begin(); it != m_dequeCellXMLItems.end(); it++)
+    {
+        if(nCount > 32)
+        {
+            g_pPlutoLogger->Write(LV_CRITICAL, "More then 32 objects needed! Screen: %s", 
+                m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str());
+            break;
+        }
+
+        sXMLItems += *it;
+        nCount++;
+    }
+
     for(it = m_dequeXMLItems.begin(); it != m_dequeXMLItems.end(); it++)
     {
         if(nCount > 32)
@@ -197,7 +211,7 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
     }
 
     string sPrompt = "DEBUG: Areas available: " + StringUtils::ltos(nCount - 1) + "/" + 
-        StringUtils::ltos(m_dequeXMLItems.size());
+        StringUtils::ltos(m_dequeXMLItems.size() + m_dequeCellXMLItems.size());
     string sXMLString = 
         "<CiscoIPPhoneGraphicFileMenu>\r\n"
         "<Title>Pluto Orbiter</Title>\r\n"
@@ -214,7 +228,21 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void xxProxy_Orbiter::GenerateXMLItems(DesignObj_Orbiter *pObj) //recursive
 {
-    if(pObj->m_bTabStop)
+    bool bTouchArea = false;
+    DesignObjZoneList::iterator iZone;
+    for( iZone=pObj->m_ZoneList.begin(  );iZone!=pObj->m_ZoneList.end(  );++iZone )
+    {
+        DesignObjZone *pDesignObjZone = ( *iZone );
+        //ExecuteCommandsInList( &pDesignObjZone->m_Commands, pObj, -1, -1, pObj->m_iRepeatParm+1 );
+
+        if(pDesignObjZone->m_Commands.size())
+        {
+            bTouchArea = true;
+            break;
+        }
+    }
+
+    if(bTouchArea)
     {
         string sX1 = StringUtils::ltos(pObj->m_rPosition.X);
         string sY1 = StringUtils::ltos(pObj->m_rPosition.Y);
@@ -251,7 +279,7 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
     string::size_type pos = 0;
     string::size_type posTemp = 0;
     string sKeymapping = DATA_Get_Hard_Keys_mapping();
-    int nIndex = 0;
+    int nIndex = 1;
 
     while(pos < DATA_Get_Hard_Keys_mapping().size())
     {
@@ -320,6 +348,38 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
     RedrawObjects();
 }
 //-----------------------------------------------------------------------------------------------------
+
+bool xxProxy_Orbiter::RenderCell( class DesignObj_DataGrid *pObj,  class DataGridTable *pT,  class DataGridCell *pCell,  int j,  int i,  int GraphicToDisplay, PlutoPoint point )
+{
+    bool bRetValue = OrbiterSDL::RenderCell(pObj, pT, pCell, j, i, GraphicToDisplay, point);
+
+    int x, y, w, h;
+    GetGridCellDimensions( pObj,  pCell->m_Colspan,  pCell->m_Rowspan,  j,  i,  x,  y,  w,  h );
+
+    string sX1 = StringUtils::ltos(x);
+    string sY1 = StringUtils::ltos(y);
+    string sX2 = StringUtils::ltos(x + w);
+    string sY2 = StringUtils::ltos(y + h);
+
+    string sTouchX = StringUtils::ltos(x + w / 2);
+    string sTouchY = StringUtils::ltos(y + h / 2);
+
+    string sXMLItem = 
+        "<MenuItem>\r\n"
+        "\t<Name>Button</Name>\r\n"
+        "\t<URL>" + m_sRequestUrl + "x=" + sTouchX + "&amp;" + "y=" + sTouchY + "</URL>\r\n"
+        "\t<TouchArea X1=\"" + sX1 + "\" Y1=\"" + sY1 + "\" X2=\"" + sX2 + "\" Y2=\"" + sY2 + "\"/>\r\n"
+        "</MenuItem>\r\n";
+
+    m_dequeCellXMLItems.push_front(sXMLItem);
+    return bRetValue;
+}
+
+void xxProxy_Orbiter::RenderScreen()
+{
+    m_dequeCellXMLItems.clear();
+    return OrbiterSDL::RenderScreen();
+}
 
 bool xxProxy_Orbiter::ReceivedString( Socket *pSocket, string sLine, int nTimeout )
 {

@@ -25,6 +25,7 @@ namespace DCE
 
 		map<int,int> m_mapID_ImageCounter; // Map of connection ID's to the latest image counter
         deque<string> m_dequeXMLItems;
+        deque<string> m_dequeCellXMLItems;
 
         string m_sRequestUrl;
         string m_sPngImageUrl;
@@ -58,6 +59,9 @@ namespace DCE
         virtual void SaveXML(string sFileName);
         virtual void GenerateXMLItems(DesignObj_Orbiter *pObj); //recursive
         virtual string GenerateSoftKeys(DesignObj_Orbiter *pObj);
+
+        virtual bool RenderCell( class DesignObj_DataGrid *pObj, class DataGridTable *pT, class DataGridCell *pCell, int j, int i, int iGraphicToDisplay, PlutoPoint point = PlutoPoint(0, 0) );
+        virtual void RenderScreen();
 
         virtual void ParseHardKeys();
 	};
