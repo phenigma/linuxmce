@@ -5263,6 +5263,9 @@ g_pPlutoLogger->Write(LV_STATUS,"CMD_Goto_Screen: %s",sPK_DesignObj.c_str());
 	if( !TestCurrentScreen(sPK_DesignObj_CurrentScreen) )
 		return;
 
+    if(sPK_DesignObj == "")
+        sPK_DesignObj = StringUtils::ltos(m_pDesignObj_Orbiter_MainMenu->m_iBaseObjectID);
+
     string sDestScreen = SubstituteVariables( sPK_DesignObj, NULL, 0, 0 );
     PLUTO_SAFETY_LOCK( vm, m_VariableMutex );
 
