@@ -841,7 +841,7 @@
 #define DESIGNOBJ_appDesktopMozilla_CONST 3349
 #define DESIGNOBJ_dvd_menu_CONST 3350
 #define DESIGNOBJ_mnuGenericDvdRemote_CONST 3352
-#define DESIGNOBJ_mnuViewPlaylist_Mobile_CONST 3355
+#define DESIGNOBJ_mnuViewPlaylist_CONST 3355
 #define DESIGNOBJ_go_to_playlist_CONST 3356
 #define DESIGNOBJ_dvd_menu_full_screen_CONST 3358
 #define DESIGNOBJ_grpMediaNavigation4_CONST 3362
@@ -1652,6 +1652,10 @@
 #define DESIGNOBJ_butArrayClimateFloorplan_CONST 4470
 #define DESIGNOBJ_butArraySecurityFloorplan_CONST 4473
 #define DESIGNOBJ_arrSecurityFloorplan_CONST 4474
+#define DESIGNOBJ_butSeePlaylist_CONST 4475
+#define DESIGNOBJ_mnuAudioOptions_CONST 4476
+#define DESIGNOBJ_mnuSubtitles_CONST 4477
+#define DESIGNOBJ_mnuAngles_CONST 4478
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
