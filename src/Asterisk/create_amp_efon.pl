@@ -7,7 +7,7 @@ use DBI;
 my $DECLARED_USERNAME;
 my $DECLARED_USERPASSWD;
 my $DECLARED_NUMBER;
-my $DECLARED_PREFIX = "393";
+my $DECLARED_PREFIX = "9";
 
 my $TRUNK_URL = 'http://localhost/pluto-admin/amp/admin/config.php?display=6&tech=IAX2';
 my %TRUNK_VARS = ();
@@ -24,7 +24,7 @@ my $IN_DATA = "";
 #check params
 unless (defined($ARGV[0]) && defined($ARGV[1]) && defined($ARGV[2]))
 {
-    print "USAGE :$0 <username> <password> <phone_number> <prefix_to_use_the_line>\n";
+    print "USAGE :$0 <username> <password> <phone_number> [<prefix_to_use_the_line>]\n";
     exit(-1);
 }
 
@@ -42,24 +42,25 @@ $TRUNK_VARS{'action'}="addtrunk";
 $TRUNK_VARS{'tech'}="iax2";
 $TRUNK_VARS{'outcid'}="";
 $TRUNK_VARS{'maxchans'}="";
-$TRUNK_VARS{'dialrules'}="";
+$TRUNK_VARS{'dialrules'}=$DECLARED_PREFIX."|.";
 $TRUNK_VARS{'autopop'}="";
-$TRUNK_VARS{'dialoutprefix'}=$DECLARED_PREFIX."|.";
-$TRUNK_VARS{'channelid'}="fwd";
-$TRUNK_VARS{'peerdetails'} ="callerid=\"$DECLARED_USERNAME\" <$DECLARED_NUMBER>\n";
+$TRUNK_VARS{'dialoutprefix'}="";
+$TRUNK_VARS{'channelid'}="efon";
+$TRUNK_VARS{'peerdetails'} ="allow=alow\n";
+$TRUNK_VARS{'peerdetails'}.="auth=md5\n";
+$TRUNK_VARS{'peerdetails'}.="context=from-internal\n";
+$TRUNK_VARS{'peerdetails'}.="disallow=all\n";
+$TRUNK_VARS{'peerdetails'}.="host=bs01.e-fon.ch\n";
 $TRUNK_VARS{'peerdetails'}.="username=$DECLARED_USERNAME\n";
 $TRUNK_VARS{'peerdetails'}.="secret=$DECLARED_USERPASSWD\n";
-$TRUNK_VARS{'peerdetails'}.="host=iax2.fwdnet.net\n";
-$TRUNK_VARS{'peerdetails'}.="disallow=all\n";
-$TRUNK_VARS{'peerdetails'}.="allow=ulaw\n";
-$TRUNK_VARS{'peerdetails'}.="auth=md5\n";
-$TRUNK_VARS{'peerdetails'}.="canreinvite=no\n";
+$TRUNK_VARS{'peerdetails'}.="callerid=\"$DECLARED_USERNAME\" <$DECLARED_NUMBER>\n";
 $TRUNK_VARS{'peerdetails'}.="nat=yes\n";
 $TRUNK_VARS{'peerdetails'}.="qualify=no\n";
 $TRUNK_VARS{'peerdetails'}.="type=peer\n";
-$TRUNK_VARS{'usercontext'}="iaxfwd";
-$TRUNK_VARS{'userconfig'}="auth=rsa\ninkeys=freeworlddialup\ncontext=from-pstn\ntype=user\n";
-$TRUNK_VARS{'register'}="$DECLARED_USERNAME:$DECLARED_USERPASSWD\@iax2.fwdnet.net";
+$TRUNK_VARS{'peerdetails'}.="canreinvite=no\n";
+$TRUNK_VARS{'usercontext'}=$DECLARED_NUMBER;
+$TRUNK_VARS{'userconfig'}="auth=md5\ncontext=from-pstn\nsecret=$DECLARED_USERPASSWD\ntype=user\nusername=$DECLARED_USERNAME";
+$TRUNK_VARS{'register'}="$DECLARED_USERNAME:$DECLARED_USERPASSWD\@bs01.e-fon.ch";
 foreach my $var (keys %TRUNK_VARS)
 {
 	my $str = $TRUNK_VARS{$var};
@@ -76,7 +77,7 @@ my $OUT_ROUTE = "";
 while(<PAGE>)
 {
 	chomp;
-    if($_ =~ /[<]option value[=]\"([^\"]+)\"[>]IAX2\/fwd[<]\/option[>]/)
+    if($_ =~ /[<]option value[=]\"([^\"]+)\"[>]IAX2\/efon[<]\/option[>]/)
     {
         $OUT_ROUTE=$1;
     }
@@ -85,7 +86,7 @@ close(PAGE);
 $OUT_VARS{'display'}="8";
 $OUT_VARS{'extdisplay'}="";
 $OUT_VARS{'action'}="addroute";
-$OUT_VARS{'routename'}="fwd";
+$OUT_VARS{'routename'}="efon";
 $OUT_VARS{'routepass'}="";
 $OUT_VARS{'dialpattern'}=$DECLARED_PREFIX."|.";
 $OUT_VARS{'trunkpriority[0]'}=$OUT_ROUTE;
