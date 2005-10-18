@@ -7,11 +7,15 @@ if [[ -f /proc/tty/driver/serial ]]; then
 	done
 fi
 
-if [[ -f /proc/tty/driver/usbserial ]]; then
-	Ports=$(cat /proc/tty/driver/usbserial | grep ': ' | cut -d: -f1)
-	for i in $Ports; do
-		echo "/dev/ttyUSB$i"
+if [[ -d /sys/bus/usb-serial/devices ]]; then
+	pushd /sys/bus/usb-serial/devices &>/dev/null
+	Ports=
+	for dev in *; do
+		id=$(readlink "$dev" | sed 's,^.*/\(usb[^/]*\)/\([^/]*\)/.*$,\1/\2,g')
+		Ports="$Ports $id"
 	done
+	echo "${Ports# }" | tr ' ' '\n'
+	popd &>/dev/null
 fi
 
 shopt -s nullglob
