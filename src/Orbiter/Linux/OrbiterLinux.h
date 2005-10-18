@@ -68,7 +68,6 @@ public:
     virtual void RenderScreen();
     virtual void reinitGraphics();
     virtual void Initialize(GraphicType Type, int iPK_Room=0, int iPK_EntertainArea=0);
-	virtual bool GetConfig();
 	
 	virtual bool PreprocessEvent( Orbiter::Event &event );
     virtual Display *getDisplay();

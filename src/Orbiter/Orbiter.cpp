@@ -1756,6 +1756,16 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y)
     //          StringUtils::itos( Y-pObj->m_rPosition.Y ) );
     }
     */
+
+	if( X<0 && Y<0 )
+	{
+		// This wasn't selected by a touch.  With a touch all objects under that area are selected
+		// automatically.  So if there are keys on a keyboard, both the key, and the keyboard are
+		// selected.  If it wasn't selected by touch, such as by i/r or keyboard, we should select
+		// our parent object's as well
+		if( pObj->m_pParentObject )
+			SelectedObject((DesignObj_Orbiter *)pObj->m_pParentObject);
+	}
 }
 //------------------------------------------------------------------------
 bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  int X,  int Y )
@@ -2487,7 +2497,18 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
 	}
 
 	if( pObjGrid )
+	{
 		m_pObj_Highlighted = pObjGrid;
+        DesignObj_DataGrid *pDesignObj_DataGrid = (DesignObj_DataGrid *) m_pObj_Highlighted;
+		// If nothing is highlighted in this grid, start with the first row/column
+		if( pDesignObj_DataGrid->m_iHighlightedColumn==-1 && pDesignObj_DataGrid->m_iHighlightedRow==-1 )
+		{
+			if(  pDesignObj_DataGrid->m_sExtraInfo.find( 'C' )==string::npos )
+				pDesignObj_DataGrid->m_iHighlightedRow=0;
+			if(  pDesignObj_DataGrid->m_sExtraInfo.find( 'R' )==string::npos )
+				pDesignObj_DataGrid->m_iHighlightedColumn=0;
+		}
+	}
 	else
 		m_pObj_Highlighted = pObj;
 }
@@ -2699,7 +2720,7 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
 				m_mapVariable[pDesignObj_DataGrid->m_iPK_Variable] = "";
 			}
 			dg.Release();
-			SelectedObject(pDesignObj_DataGrid);
+			SelectedObject(pDesignObj_DataGrid,-2,-2);
 		}
 		dg.Release();
 		PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
@@ -2743,6 +2764,18 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
 	else
 	    m_pObj_Highlighted = pNextObject;
 
+	if( m_pObj_Highlighted->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
+	{
+        DesignObj_DataGrid *pDesignObj_DataGrid = (DesignObj_DataGrid *) m_pObj_Highlighted;
+		// If nothing is highlighted in this grid, start with the first row/column
+		if( pDesignObj_DataGrid->m_iHighlightedColumn==-1 && pDesignObj_DataGrid->m_iHighlightedRow==-1 )
+		{
+			if(  pDesignObj_DataGrid->m_sExtraInfo.find( 'C' )==string::npos )
+				pDesignObj_DataGrid->m_iHighlightedRow=0;
+			if(  pDesignObj_DataGrid->m_sExtraInfo.find( 'R' )==string::npos )
+				pDesignObj_DataGrid->m_iHighlightedColumn=0;
+		}
+	}
 	PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
 	
     if(pDesignObj_Orbiter_OriginallyHighlight)
@@ -3502,7 +3535,7 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
     {
 		if(  m_pObj_Highlighted && !m_pObj_Highlighted->IsHidden(  )  )
         {
-            SelectedObject( m_pObj_Highlighted );
+            SelectedObject( m_pObj_Highlighted, -2, -2 );
             bHandled=true;
         }
     }

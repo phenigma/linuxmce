@@ -44,7 +44,7 @@ OrbiterLinux::OrbiterLinux(int DeviceID, int PK_DeviceTemplate,
 	 * @hack to make it work for the short term. We need to find a way to set the class name properly or use the window ID if we can find it.
 	 * The reason this is hack is because there could be potentially multiple SDL_Applications running at the same time which could break the controlling code.
 	 */
-    m_strWindowName("SDL_App"),
+    m_strWindowName("Orbiter"),
     m_strDisplayName(getenv("DISPLAY")),
 
     // initializations
@@ -54,8 +54,6 @@ OrbiterLinux::OrbiterLinux(int DeviceID, int PK_DeviceTemplate,
 {
 	XInitThreads();
 	openDisplay();
-
-	SDL_WM_SetCaption(m_strWindowName.c_str(), "");
 
 	m_pRecordHandler = new XRecordExtensionHandler(m_strDisplayName);
 
@@ -100,7 +98,6 @@ void OrbiterLinux::reinitGraphics()
 	commandRatPoison(":set winname class");
     commandRatPoison(":desktop off");
 
-	SDL_WM_SetCaption(m_strWindowName.c_str(), "");
     commandRatPoison(string(":select ") + m_strWindowName);
     commandRatPoison(":desktop on");
     commandRatPoison(":keystodesktop on");
@@ -454,24 +451,3 @@ int OrbiterLinux::PromptUser(string sPrompt,int iTimeoutSeconds,map<int,string> 
 #endif
 }
 
-bool OrbiterLinux::GetConfig()
-{
-	if( !OrbiterSDL::GetConfig() )
-		return false;
-
-	SDL_SysWMinfo info;
-	SDL_VERSION(&info.version);
-	if ( SDL_GetWMInfo(&info) )
-	{
-		Display * SDL_Display = info.info.x11.display;
-		Window SDL_Window = info.info.x11.window;
-		XClassHint oClassHint;
-		oClassHint.res_name = (char *) "fooresname";
-		oClassHint.res_class = (char *) "fooclass";
-		XSetClassHint(SDL_Display, SDL_Window, &oClassHint);
-g_pPlutoLogger->Write(LV_CRITICAL,"OrbiterLinux::GetConfig reseting class hint %s/%s",oClassHint.res_name,oClassHint.res_class);
-	}
-	else
-		g_pPlutoLogger->Write(LV_CRITICAL,"OrbiterLinux::GetConfig couldn't get SDL_GetWMInfo");
-}
-	
