@@ -146,7 +146,7 @@ Command_Impl::Command_Impl( int DeviceID, string ServerAddress, bool bLocalMode,
 }
 
 Command_Impl::Command_Impl( Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, class Router *pRouter )
-	: HandleRequestSocket( pData->m_dwPK_Device, "", "Command_Impl2 Dev #" ), m_listMessageQueueMutex( "MessageQueue" )
+	: HandleRequestSocket( pData->m_dwPK_Device, pPrimaryDeviceCommand->m_sIPAddress, "Command_Impl2 Dev #" ), m_listMessageQueueMutex( "MessageQueue" )
 {
 	m_bKillSpawnedDevicesOnExit=true;
 	m_pRouter = pRouter;
