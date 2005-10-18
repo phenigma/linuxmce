@@ -78,6 +78,7 @@ elif [[ "$diskType" == 0 || "$diskType" == 1 || "$diskType" == 6 || "$diskType" 
 		File=${File//@~#/ }
 		Track=${File%,*}
 		FileName=${File#*,}
+		FileName=${FileName//\//-}
 		
 		echo "Track: $Track; Filename: $FileName"
 		displaycmd="$command"
