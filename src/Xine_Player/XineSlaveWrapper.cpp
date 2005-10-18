@@ -852,12 +852,12 @@ void *XineSlaveWrapper::eventProcessingLoop(void *arguments)
 				iCounter_TimeCode=1;
 			}
 		}
-		if( g_iSpecialSeekSpeed )
+		if( g_iSpecialSeekSpeed && iCounter % 3 == 0 )  // I tried doing the seek each loop (ie 100 ms) but the xine gets stuck non-stop.  So do it every 3 loops
 		{
 			// time to seek
 			int positionTime,totalTime;
 			pStream->m_pOwner->getStreamPlaybackPosition(1,positionTime,totalTime);
-			int seekTime = positionTime + (g_iSpecialSeekSpeed/10);
+			int seekTime = positionTime + (g_iSpecialSeekSpeed/3);
 
 			g_pPlutoLogger->Write(LV_WARNING,"Current pos %d / %d  seek speed: %d will seek to: %d",positionTime,totalTime,g_iSpecialSeekSpeed,seekTime);
 if( seekTime<0 || seekTime>totalTime )
@@ -867,12 +867,36 @@ g_iSpecialSeekSpeed=0;
 pStream->m_iPlaybackSpeed=PLAYBACK_NORMAL;
 pStream->m_pOwner->m_pAggregatorObject->ReportTimecode(pStream->m_iStreamID,pStream->m_iPlaybackSpeed);
 }
-			else if( !xine_play(pStream->m_pStream, 0, seekTime) )  // Pass in position as 2nd parameter
+
+for(int iHackLoop=0;iHackLoop<20;++iHackLoop)  // More nasty, nasty hacks.  For some reason the new Xine 1.0.1 ignores the seek value a lot, but unpredictably.
+// When that happens, xine gets 'stuck' seeking to the same point, not the one I'm pass in.  So we'll do a loop up to 20 times
+// steadily increasing the seek value if xine is stuck until it's unstuck.  It is considered stuck when we seek to a position
+// +x and then the actual position moves less than x/2
+{
+
+if( !xine_play(pStream->m_pStream, 0, seekTime) )  // Pass in position as 2nd parameter
 {
 g_pPlutoLogger->Write(LV_CRITICAL,"special seek failed, normal speed");
 g_iSpecialSeekSpeed=0;
 pStream->m_iPlaybackSpeed=PLAYBACK_NORMAL;
 pStream->m_pOwner->m_pAggregatorObject->ReportTimecode(pStream->m_iStreamID,pStream->m_iPlaybackSpeed);
+}
+int positionTime_new,totalTime_new;
+pStream->m_pOwner->getStreamPlaybackPosition(1,positionTime_new,totalTime_new);
+// Xine thinks it seeked correctly, but as commented above it may not have actually done it.  So check the new 
+// position, and see if is at least half what it should be
+if( abs(positionTime_new-positionTime) > abs((g_iSpecialSeekSpeed/3)/2) && 
+	((positionTime_new>positionTime && g_iSpecialSeekSpeed>0) || (positionTime_new<positionTime && g_iSpecialSeekSpeed<0)) )
+{
+	g_pPlutoLogger->Write(LV_STATUS,"Seek ok, we went for %d and landed at %d diff %d",seekTime,positionTime_new,positionTime_new-positionTime);
+	break;
+}
+else
+{
+	g_pPlutoLogger->Write(LV_WARNING,"Xine is stuck again.  started at %d went for %d landed at %d seek %d now will try %d",
+			positionTime,seekTime,positionTime_new,g_iSpecialSeekSpeed,seekTime + (g_iSpecialSeekSpeed/3));
+	seekTime += (g_iSpecialSeekSpeed/3);
+}
 }
 		}
 
@@ -1125,16 +1149,16 @@ void XineSlaveWrapper::changePlaybackSpeed(int iStreamID, PlayBackSpeedType desi
             xineSpeed = XINE_SPEED_NORMAL;
             break;
         case PLAYBACK_FF_2:
-	    if( pStream->m_bHasVideo )
-	            xineSpeed = XINE_SPEED_FAST_2;
-	    else
+	    //if( pStream->m_bHasVideo )  Now for some reason Xine uses 100% CPU and kills the system if you it run faster than 1x, so do this in our hacked special seek speed loop--nasty hack
+	    //        xineSpeed = XINE_SPEED_FAST_2;
+	    //else
 		    g_iSpecialSeekSpeed=desiredSpeed;
             break;
         case PLAYBACK_FF_4:
-	    if( pStream->m_bHasVideo )
-            	xineSpeed = XINE_SPEED_FAST_4;
-	    else
-		    g_iSpecialSeekSpeed=desiredSpeed;
+//	    if( pStream->m_bHasVideo )
+  //          	xineSpeed = XINE_SPEED_FAST_4;
+//	    else
+		    g_iSpecialSeekSpeed=desiredSpeed;  // See above
             break;
 		case PLAYBACK_REW_64:
 		case PLAYBACK_REW_32:
