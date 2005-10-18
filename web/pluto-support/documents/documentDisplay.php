@@ -59,7 +59,7 @@ if($action=='form'){
 		$rowDocument=$res->FetchRow();
 		$docContent=((isset($_SESSION['docContents']))?@$_SESSION['docContents']:$rowDocument['Contents']);
 		// clean page
-		$docContent=str_replace(array("\r","\n"),'',$docContent);
+		$docContent=str_replace(array("\r","\n"),' ',$docContent);
 		$docContent=addslashes($docContent);
 		
 		$out.='
@@ -127,7 +127,7 @@ if($action=='form'){
 	}
 }elseif($action=='preview'){
 	$_SESSION['docTitle']=cleanString($_POST['Title']);
-	$_SESSION['docContents']=stripslashes($_POST['Contents']);
+	$_SESSION['docContents']=$_POST['Contents'];
 	$_SESSION['docOrder']=cleanInteger($_POST['docOrder']);
 	$_SESSION['parentID']=cleanInteger($_POST['parentID']);
 
