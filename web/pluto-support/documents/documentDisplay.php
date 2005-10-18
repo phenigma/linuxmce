@@ -57,6 +57,11 @@ if($action=='form'){
 	$out.='<br><br><br>Document not found';
 	else{
 		$rowDocument=$res->FetchRow();
+		$docContent=((isset($_SESSION['docContents']))?@$_SESSION['docContents']:$rowDocument['Contents']);
+		// clean page
+		//$docContent=str_replace(array("\r","\n"),'',$docContent);
+		$docContent=addslashes($docContent);
+		
 		$out.='
 		<base target="_self" />
 		<script language="JavaScript" type="text/javascript" src="scripts/rte/richtext.js"></script>
@@ -76,7 +81,7 @@ if($action=='form'){
 		initRTE("scripts/rte/images/", "scripts/rte/", "scripts/rte/");
 		//-->	
 		</script>		
-		<form action="right.php" method="post" name="documentDisplay" target="_self">
+		<form action="right.php" method="post" name="documentDisplay" target="_self"  onsubmit="return submitForm();">
 		<input type="hidden" name="section" value="'.$section.'">
 		<input type="hidden" name="action" value="save">
 		<input type="hidden" name="docID" value="'.$docID.'">
@@ -100,7 +105,7 @@ if($action=='form'){
 					<tr>
 						<td colspan="2">
 				<script>
-					writeRichText(\'Contents\', \''.((isset($_SESSION['docContents']))?$cleanCode=str_replace(array("\r","\n"),'',@$_SESSION['docContents']):str_replace(array("\r","\n"),'',$rowDocument['Contents'])).'\', 500, 300, true, false);
+					writeRichText(\'Contents\', \''.$docContent.'\', 500, 300, true, false);
 					//-->
 				</script></td>
 					</tr>
