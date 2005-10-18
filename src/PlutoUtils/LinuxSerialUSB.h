@@ -8,12 +8,14 @@ string TranslateSerialUSB(string sInput)
 	if( sInput.size()<6 || sInput.substr(0,3)!="usb" )
 		return sInput;
 
-	list<string> listFiles;
-	FileUtils::FindDirectories(listFiles,"/sys/bus/usb-serial/devices","*");
-	g_pPlutoLogger->Write(LV_STATUS,"TranslateSerialUSB found %d linux usbserial devices",listFiles.size());
-	for(list<string>::iterator it=listFiles.begin();it!=listFiles.end();++it)
+	char tmpFile[40] = "/tmp/devusbXXXXXX";
+	mktemp(tmpFile);
+	system(("ls -l /sys/bus/usb-serial/devices/ > " + string(tmpFile)).c_str());
+	
+	vector<string> vectStr;
+	FileUtils::ReadFileIntoVector(tmpFile,vectStr);
+	for(vector<string>::iterator it=vectStr.begin();it!=vectStr.end();++it)
 	{
-	g_pPlutoLogger->Write(LV_STATUS,"TranslateSerialUSB found %s",(*it).c_str());
 		if( (*it).find(sInput)!=string::npos )
 		{
 			g_pPlutoLogger->Write(LV_STATUS,"TranslateSerialUSB found %s, returning %s",
