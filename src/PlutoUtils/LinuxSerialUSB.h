@@ -9,10 +9,11 @@ string TranslateSerialUSB(string sInput)
 		return sInput;
 
 	list<string> listFiles;
-	FileUtils::FindFiles(listFiles,"/sys/bus/usb-serial/devices","*");
+	FileUtils::FindDirectories(listFiles,"/sys/bus/usb-serial/devices","*");
 	g_pPlutoLogger->Write(LV_STATUS,"TranslateSerialUSB found %d linux usbserial devices",listFiles.size());
 	for(list<string>::iterator it=listFiles.begin();it!=listFiles.end();++it)
 	{
+	g_pPlutoLogger->Write(LV_STATUS,"TranslateSerialUSB found %s",(*it).c_str());
 		if( (*it).find(sInput)!=string::npos )
 		{
 			g_pPlutoLogger->Write(LV_STATUS,"TranslateSerialUSB found %s, returning %s",
