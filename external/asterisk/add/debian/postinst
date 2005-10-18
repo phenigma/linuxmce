@@ -19,7 +19,7 @@ set -e
 
 case "$1" in
     configure)
-		if [ -z "$2" ]; then
+		if [ ! -e /var/lib/mysql/asterisk ]; then
 			#recreate databases
 			echo 'drop database asterisk;' | /usr/bin/mysql || /bin/true
 			echo 'create database asterisk;' | /usr/bin/mysql || /bin/true
@@ -33,6 +33,25 @@ case "$1" in
 			#enable oss module to speak in the house
 			sed -r -i "s/(noload [=][>] chan_oss.so)/;\1/" /etc/asterisk/modules.conf
 		fi
+		if (getent passwd asterisk >/dev/null);then
+			if [ "`getent passwd asterisk|awk -F: '{print $6}'`" = "/var/run/asterisk" ];then
+				usermod -d /var/lib/asterisk asterisk
+			fi
+		else
+    		adduser --system --group --home /var/lib/asterisk --gecos "Asterisk PBX daemon" asterisk
+			adduser asterisk audio
+		fi
+		
+		rm -f /etc/init.d/asterisk
+		
+		ln -sf /usr/sbin/amportal /etc/init.d/asterisk
+		update-rc.d asterisk defaults 92 >/dev/null
+		if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
+			invoke-rc.d asterisk start || exit 0
+		else
+			/etc/init.d/asterisk start || exit 0
+		fi
+		
 		pushd /usr/local/amp/install &>/dev/null
 		./apply_conf.sh
 		popd &>/dev/null

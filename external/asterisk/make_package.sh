@@ -97,6 +97,9 @@ make clean
 make INSTALL_PREFIX=${PKGFOLDER}
 make INSTALL_PREFIX=${PKGFOLDER} install
 
+#don't load by default these modules
+sed -r -i "s/^autoload=yes/autoload=yes\nnoload => app_conference.so\nnoload => chan_capi.so\nnoload => app_capiRETRIEVE.so\nnoload => app_capiCD.so\nnoload => app_capiECT.so\nnoload => app_capiFax.so\nnoload => app_capiHOLD.so\nnoload => app_capiMCID.so\nnoload => app_capiNoES.so/" ${PKGFOLDER}/etc/asterisk/modules.conf 
+
 ### ADD AMP TO THIS PACKAGE (PROBABLY NOT BIG ENOUGH)
 
 cd ${MAINFOLDER}
