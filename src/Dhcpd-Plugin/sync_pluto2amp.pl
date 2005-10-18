@@ -168,25 +168,23 @@ sub remove_from_asterisk_db()
 
 	foreach $TBL ('iax','sip','zap')
 	{
-		$DB_SQL = "select id from $TBL where (keyword='callerid') and (data like '\"pl_".$DEVICE_ID."%')";
+		$DB_SQL = "select id from $TBL where (keyword='accountcode') and (data like 'pl_".$DEVICE_ID."%')";
 		$DB_STATEMENT = $DB_AS_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
 		$DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
 		if($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
 		{
-			$DB_SQL = "delete from $TBL where id='".$DB_ROW->{'id'}."'";
-			$DB_STATEMENT = $DB_AS_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
-			$DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
+			my $old_ext = $DB_ROW->{'id'};
+			`curl 'http://localhost/pluto-admin/amp/admin/config.php?display=extensions&extdisplay=$old_ext&action=del' > /dev/null`;
 		}
 	}
 }
 
 sub add_to_asterisk_db()
 {
-	my $DB_SQL;
-	my $DB_STATEMENT;
-	my $DB_ROW;
+	my %EXT_VARS = ();
+	my $EXT_DATA = "";
 	
-	$DEVICE_TYPE = 'iax' if($DEVICE_TYPE =~ /^iax/i);
+	$DEVICE_TYPE = 'iax2' if($DEVICE_TYPE =~ /^iax/i);
 	$DEVICE_TYPE = 'sip' if($DEVICE_TYPE =~ /^sip/i);
 	$DEVICE_TYPE = 'zap' if($DEVICE_TYPE =~ /^zap/i);	
 	
@@ -194,66 +192,23 @@ sub add_to_asterisk_db()
 	{
 		print "Unsupported device type : DEVICE_TYPE\n";
 	}
-	
-	$DB_SQL = "insert into $DEVICE_TYPE values ($DEVICE_EXT, 'account', '$DEVICE_EXT', 0);";
-	$DB_STATEMENT = $DB_AS_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
-	$DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
-	$DB_SQL = "insert into $DEVICE_TYPE values ($DEVICE_EXT, 'accountcode', '', 0);";
-	$DB_STATEMENT = $DB_AS_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
-	$DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
-	$DB_SQL = "insert into $DEVICE_TYPE values ($DEVICE_EXT, 'secret', '$DEVICE_EXT', 0);";
-	$DB_STATEMENT = $DB_AS_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
-	$DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
-	$DB_SQL = "insert into $DEVICE_TYPE values ($DEVICE_EXT, 'canreinvite', 'no', 0);";
-	$DB_STATEMENT = $DB_AS_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
-	$DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
-	$DB_SQL = "insert into $DEVICE_TYPE values ($DEVICE_EXT, 'context', 'from-internal', 0);";
-	$DB_STATEMENT = $DB_AS_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
-	$DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
-	$DB_SQL = "insert into $DEVICE_TYPE values ($DEVICE_EXT, 'dtmfmode', 'rfc2833', 0);";
-	$DB_STATEMENT = $DB_AS_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
-	$DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
-	$DB_SQL = "insert into $DEVICE_TYPE values ($DEVICE_EXT, 'host', 'dynamic', 0);";
-	$DB_STATEMENT = $DB_AS_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
-	$DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
-	$DB_SQL = "insert into $DEVICE_TYPE values ($DEVICE_EXT, 'type', 'friend',0);";
-	$DB_STATEMENT = $DB_AS_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
-	$DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
-	$DB_SQL = "insert into $DEVICE_TYPE values ($DEVICE_EXT, 'mailbox', '', 0);";
-	$DB_STATEMENT = $DB_AS_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
-	$DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
-	$DB_SQL = "insert into $DEVICE_TYPE values ($DEVICE_EXT, 'username', '$DEVICE_EXT', 0);";
-	$DB_STATEMENT = $DB_AS_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
-	$DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
-	$DB_SQL = "insert into $DEVICE_TYPE values ($DEVICE_EXT, 'nat', 'no', 0);";
-	$DB_STATEMENT = $DB_AS_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
-	$DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
-	$DB_SQL = "insert into $DEVICE_TYPE values ($DEVICE_EXT, 'port', '$DEVICE_PORT', 0);";
-	$DB_STATEMENT = $DB_AS_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
-	$DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
-	$DB_SQL = "insert into $DEVICE_TYPE values ($DEVICE_EXT, 'qualify', 'no', 0);";
-	$DB_STATEMENT = $DB_AS_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
-	$DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
-	$DB_SQL = "insert into $DEVICE_TYPE values ($DEVICE_EXT, 'callgroup', '', 0);";
-	$DB_STATEMENT = $DB_AS_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
-	$DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
-	$DB_SQL = "insert into $DEVICE_TYPE values ($DEVICE_EXT, 'pickupgroup', '', 0);";
-	$DB_STATEMENT = $DB_AS_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
-	$DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
-	$DB_SQL = "insert into $DEVICE_TYPE values ($DEVICE_EXT, 'disallow', '', 0);";
-	$DB_STATEMENT = $DB_AS_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
-	$DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
-	$DB_SQL = "insert into $DEVICE_TYPE values ($DEVICE_EXT, 'allow', '', 0);";
-	$DB_STATEMENT = $DB_AS_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
-	$DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
-	$DB_SQL = "insert into $DEVICE_TYPE values ($DEVICE_EXT, 'record_in', 'On-Demand', 0);";
-	$DB_STATEMENT = $DB_AS_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
-	$DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
-	$DB_SQL = "insert into $DEVICE_TYPE values ($DEVICE_EXT, 'record_out', 'On-Demand', 0);";
-	$DB_STATEMENT = $DB_AS_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
-	$DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
-	$DB_SQL = "insert into $DEVICE_TYPE values ($DEVICE_EXT, 'callerid', '\"pl_$DEVICE_ID\" <$DEVICE_EXT>', 0);";
-	$DB_STATEMENT = $DB_AS_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
-	$DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
-
+	$EXT_VARS{'display'}="extensions";
+	$EXT_VARS{'extdisplay'}="";
+	$EXT_VARS{'action'}="add";
+	$EXT_VARS{'tech'}=$DEVICE_TYPE;
+	$EXT_VARS{'extension'}=$DEVICE_EXT;
+	$EXT_VARS{'name'}=$DEVICE_EXT;
+	$EXT_VARS{'devicetype'}="fixed";
+	$EXT_VARS{'deviceuser'}="same";
+	$EXT_VARS{'password'}="";
+	$EXT_VARS{'outboundcid'}="";
+	$EXT_VARS{'secret'}=$DEVICE_EXT;
+	$EXT_VARS{'accountcode'}="pl_".$DEVICE_ID;
+	foreach my $var (keys %EXT_VARS)
+	{
+		my $str = $EXT_VARS{$var};
+		$str =~ s/([^A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg;
+		$EXT_DATA .=$var."=".$str."&";
+	}
+	`curl -d '$EXT_DATA' 'http://localhost/pluto-admin/amp/admin/config.php?display=extensions' > /dev/null`;
 }
