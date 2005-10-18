@@ -59,7 +59,7 @@ if($action=='form'){
 		$rowDocument=$res->FetchRow();
 		$docContent=((isset($_SESSION['docContents']))?@$_SESSION['docContents']:$rowDocument['Contents']);
 		// clean page
-		//$docContent=str_replace(array("\r","\n"),'',$docContent);
+		$docContent=str_replace(array("\r","\n"),'',$docContent);
 		$docContent=addslashes($docContent);
 		
 		$out.='
