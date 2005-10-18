@@ -559,20 +559,18 @@ bool FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
 
 		if ( S_ISLNK(s.st_mode) )
 		{
-			char *pLinkContents = new char[s.st_size + 1];
-			if ( -1 == readlink((sDirectory + entry.d_name).c_str(),  pLinkContents, s.st_size) )
+			char pLinkContents[4096];
+			memset(pLinkContents, 0, 4096);
+			if ( -1 == readlink((sDirectory + entry.d_name).c_str(),  pLinkContents, 4095) ) // does not append NULL character
 			{
 				printf("Error reading link contents for symlink %s (%s).\n", (sDirectory + entry.d_name).c_str(), strerror(errno));
-				delete[] pLinkContents;
 				continue;
 			}
 			if ( pLinkContents[0] == '.' && s.st_size == 1 )
 			{
-				delete[] pLinkContents;
 				continue;
 			}
 
-			delete[] pLinkContents;
 			stat((sDirectory + entry.d_name).c_str(), &s);
 		}
 
