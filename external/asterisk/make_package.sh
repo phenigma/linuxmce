@@ -162,4 +162,4 @@ EOF
 
 cd ${PKGFOLDER}/../
 find -name '.svn' -type d -exec rm -rf '{}' ';' 2>/dev/null
-dpkg-buildpackage -b -rfakeroot
+dpkg-buildpackage -b -rfakeroot -us -uc
