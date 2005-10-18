@@ -55,7 +55,9 @@ $DB_PL_HANDLE->disconnect();
 $DB_AS_HANDLE->disconnect();
 
 #run AMP's scripts to generate asterisk's config
+`/var/www/pluto-admin/amp/admin/retrieve_iax_conf_from_mysql.pl`;
 `/var/www/pluto-admin/amp/admin/retrieve_sip_conf_from_mysql.pl`;
+`/var/www/pluto-admin/amp/admin/retrieve_zap_conf_from_mysql.pl`;
 
 #reload asterisk
 `asterisk -r -x reload`;
@@ -63,7 +65,7 @@ $DB_AS_HANDLE->disconnect();
 #helpers
 sub read_pluto_config()
 {
-	open(CONF,"/etc/pluto.conf");
+	open(CONF,"/etc/pluto.conf") or die "Could not open pluto config";
 	while(<CONF>)
 	{
 		chomp;
