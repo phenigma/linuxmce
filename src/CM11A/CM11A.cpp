@@ -17,6 +17,7 @@ using namespace DCE;
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_CommandParameter.h"
 #include "cm11aconsts.h"
+#include "PlutoUtils/LinuxSerialUSB.h"
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -57,7 +58,7 @@ bool CM11A::Connect(int iPK_DeviceTemplate) {
 		return false;
 	}
 	
-	string sPort = DATA_Get_COM_Port_on_PC();
+	string sPort = TranslateSerialUSB(DATA_Get_COM_Port_on_PC());
 	if(sPort.find("/dev/") == 0) {
 		sPort.erase(0, strlen("/dev/"));
 	}

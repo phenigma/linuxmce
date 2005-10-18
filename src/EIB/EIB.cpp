@@ -19,6 +19,7 @@ using namespace DCE;
 #include "pluto_main/Define_CommandParameter.h"
 #include "pluto_main/Define_Event.h"
 #include "pluto_main/Define_EventParameter.h"
+#include "PlutoUtils/LinuxSerialUSB.h"
 
 #define MAX_TEMPSTR_LENGTH	15
 
@@ -70,7 +71,7 @@ bool EIB::Connect(int iPK_DeviceTemplate) {
 
 	m_msgPool.regInterceptor(this);
 	
-	string sPort = DATA_Get_COM_Port_on_PC();
+	string sPort = TranslateSerialUSB(DATA_Get_COM_Port_on_PC());
 	if(sPort.find("/dev/") == 0) {
 		sPort.erase(0, strlen("/dev/"));
 	}

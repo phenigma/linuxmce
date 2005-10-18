@@ -34,6 +34,7 @@ using namespace DCE;
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_CommandParameter.h"
+#include "PlutoUtils/LinuxSerialUSB.h"
 
 #include <fcntl.h>
 
@@ -119,7 +120,7 @@ bool gc100::GetConfig()
 	//ReplaceParams(replacement);
 
 	//learn_device = string("/dev/ttyS_") + StringUtils::ltos(m_dwPK_Device) + "_0"; // DEBUG
-	learn_device = DATA_Get_COM_Port_on_PC();
+	learn_device = TranslateSerialUSB(DATA_Get_COM_Port_on_PC());
 	
 	if (!Open_gc100_Socket())
 	{
