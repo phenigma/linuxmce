@@ -27,6 +27,8 @@
 #include <X11/keysym.h>
 #include <X11/extensions/XTest.h>
 
+#include <SDL/SDL_syswm.h>
+
 #include "pluto_main/Define_Button.h"
 #include "PlutoUtils/PlutoButtonsToX.h"
 
@@ -452,3 +454,24 @@ int OrbiterLinux::PromptUser(string sPrompt,int iTimeoutSeconds,map<int,string> 
 #endif
 }
 
+bool OrbiterLinux::GetConfig()
+{
+	if( !OrbiterSDL::GetConfig() )
+		return false;
+
+	SDL_SysWMinfo info;
+	SDL_VERSION(&info.version);
+	if ( SDL_GetWMInfo(&info) )
+	{
+		Display * SDL_Display = info.info.x11.display;
+		Window SDL_Window = info.info.x11.window;
+		XClassHint oClassHint;
+		oClassHint.res_name = (char *) "fooresname";
+		oClassHint.res_class = (char *) "fooclass";
+		XSetClassHint(SDL_Display, SDL_Window, &oClassHint);
+g_pPlutoLogger->Write(LV_CRITICAL,"OrbiterLinux::GetConfig reseting class hint %s/%s",oClassHint.res_name,oClassHint.res_class);
+	}
+	else
+		g_pPlutoLogger->Write(LV_CRITICAL,"OrbiterLinux::GetConfig couldn't get SDL_GetWMInfo");
+}
+	
