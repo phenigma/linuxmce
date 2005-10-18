@@ -14,6 +14,7 @@ using namespace DCE;
 
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_DeviceCategory.h"
+#include "PlutoUtils/LinuxSerialUSB.h"
 
 #ifdef WIN32
 typedef int WSAEVENT;
@@ -266,7 +267,7 @@ void IRTrans::StartIRServer()
 
 	char TTYPort[255];
 	if( DATA_Get_COM_Port_on_PC().size() && DATA_Get_COM_Port_on_PC().size()<255 )
-		strcpy(TTYPort,DATA_Get_COM_Port_on_PC().c_str());
+		strcpy(TTYPort,TranslateSerialUSB(DATA_Get_COM_Port_on_PC()).c_str());
 	else
 		strcpy(TTYPort,"/dev/ttyUSB0");
 	char *argv[]={"IRTrans","-loglevel","4","-debug_code","-no_lirc", "-no_web",TTYPort};
