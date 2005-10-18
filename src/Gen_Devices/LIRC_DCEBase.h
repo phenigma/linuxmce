@@ -31,6 +31,7 @@ public:
 	virtual const char *GetDeviceDescription() { return "LIRC_DCE"; } ;
 	string Get_Device() { return m_mapParameters[1];}
 	string Get_Serial_Port() { return m_mapParameters[62];}
+	string Get_System_Device() { return m_mapParameters[120];}
 };
 
 
@@ -119,6 +120,7 @@ public:
 	//Data accessors
 	string DATA_Get_Device() { return GetData()->Get_Device(); }
 	string DATA_Get_Serial_Port() { return GetData()->Get_Serial_Port(); }
+	string DATA_Get_System_Device() { return GetData()->Get_System_Device(); }
 	//Event accessors
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Set_Screen_Type(int iValue,string &sCMD_Result,class Message *pMessage) {};
