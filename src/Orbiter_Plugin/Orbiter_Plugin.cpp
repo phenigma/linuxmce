@@ -997,8 +997,12 @@ void Orbiter_Plugin::CMD_Set_Current_Room(int iPK_Room,string &sCMD_Result,Messa
 			/** The language, 0=use default */
 		/** @param #143 PK_Size */
 			/** The size, 0=use default */
+		/** @param #147 Uses Wifi connection */
+			/** Enables 5 seconds ping protocol, 0 = use default, 1 = true, 2 = false */
+		/** @param #148 No Effects */
+			/** No MNG rendered, 0 = use default, 1 = true, 2 = false */
 
-void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,int iWidth,int iHeight,int iPK_Skin,int iPK_Language,int iPK_Size,int *iPK_Device,string &sCMD_Result,Message *pMessage)
+void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,int iWidth,int iHeight,int iPK_Skin,int iPK_Language,int iPK_Size,int iUses_Wifi_connection,int iNo_Effects,int *iPK_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c78-e->
 {
     PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
@@ -1083,7 +1087,7 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
 			else
 				iPK_DeviceTemplate=DEVICETEMPLATE_Windows_XP_PCtablet_Horiz_CONST;
 			PK_UI=UI_Normal_Horizontal_3_4_CONST;
-			if( (!iWidth || !iHeight) && iPK_Size )
+			if( /*(!iWidth || !iHeight) &&*/ iPK_Size )
 			{
 				Row_Size *pRow_Size = m_pDatabase_pluto_main->Size_get()->GetRow(iPK_Size);
 				if( pRow_Size && pRow_Size->Width_get() && pRow_Size->Height_get() )
@@ -1145,13 +1149,24 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
 
 	// Set everything
 	if( iPK_Users )
-		m_pRouter->SetDeviceDataInDB(PK_Device,DEVICEDATA_PK_Users_CONST,StringUtils::itos(iPK_Users),true);
+		m_pRouter->SetDeviceDataInDB(PK_Device,DEVICEDATA_PK_Users_CONST,StringUtils::itos(iPK_Users),false);
 	if( iPK_Skin )
-		m_pRouter->SetDeviceDataInDB(PK_Device,DEVICEDATA_PK_Skin_CONST,StringUtils::itos(iPK_Skin),true);
+		m_pRouter->SetDeviceDataInDB(PK_Device,DEVICEDATA_PK_Skin_CONST,StringUtils::itos(iPK_Skin),false);
 	if( iPK_Language )
-		m_pRouter->SetDeviceDataInDB(PK_Device,DEVICEDATA_PK_Language_CONST,StringUtils::itos(iPK_Language),true);
+		m_pRouter->SetDeviceDataInDB(PK_Device,DEVICEDATA_PK_Language_CONST,StringUtils::itos(iPK_Language),false);
 	if( iPK_Size )
-		m_pRouter->SetDeviceDataInDB(PK_Device,DEVICEDATA_PK_Size_CONST,StringUtils::itos(iPK_Size),true);
+		m_pRouter->SetDeviceDataInDB(PK_Device,DEVICEDATA_PK_Size_CONST,StringUtils::itos(iPK_Size),false);
+    if( iNo_Effects > 0 )
+        m_pRouter->SetDeviceDataInDB(PK_Device,DEVICEDATA_No_Effects_CONST, iNo_Effects == 1 ? "1" : "0",false);
+
+    Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(PK_Device);
+    pRow_Device->Reload(); 
+    pRow_Device->FK_Room_set(iPK_Room);
+
+    if( iUses_Wifi_connection > 0 )
+        pRow_Device->PingTest_set(iUses_Wifi_connection == 1 ? 1 : 0);
+    
+    pRow_Device->Table_Device_get()->Commit();
 
 	// Same thing like in regen orbiter
 	string Cmd = "/usr/pluto/bin/RegenOrbiterOnTheFly.sh " + StringUtils::itos(PK_Device) + " " + StringUtils::itos(m_dwPK_Device);

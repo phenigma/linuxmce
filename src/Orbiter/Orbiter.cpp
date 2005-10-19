@@ -8803,9 +8803,13 @@ int Orbiter::SetupNewOrbiter()
 	if( WiFi == PROMPT_CANCEL )
 		return 0;
 
+    int iWiFiResp = WiFi == 0 ? 1 : WiFi == 1 ? 2 : 0;
+
 	int UseEffects = PromptUser("Use animated buttons and effects?  This can make low-power devices like PDA's run slowly.",0, &mapResponseYNC);
 	if( UseEffects == PROMPT_CANCEL )
 		return 0;
+
+    int iNoEffectsResp = UseEffects == 0 ? 2 : UseEffects == 1 ? 1 : 0;
 
 	int Width=0,Height=0;
 	string sType;
@@ -8832,7 +8836,7 @@ int Orbiter::SetupNewOrbiter()
 
 	int PK_Device=0;
 	DCE::CMD_New_Orbiter_DT CMD_New_Orbiter_DT(m_dwPK_Device, DEVICETEMPLATE_Orbiter_Plugin_CONST, BL_SameHouse, sType, 
-		PK_Users,m_dwPK_DeviceTemplate,m_sMacAddress,PK_Room,Width,Height,PK_Skin,PK_Language,PK_Size,&PK_Device);
+		PK_Users,m_dwPK_DeviceTemplate,m_sMacAddress,PK_Room,Width,Height,PK_Skin,PK_Language,PK_Size,iWiFiResp,iNoEffectsResp,&PK_Device);
 
 	CMD_New_Orbiter_DT.m_pMessage->m_eExpectedResponse = ER_ReplyMessage;
 	Message *pResponse = event_Impl.SendReceiveMessage( CMD_New_Orbiter_DT.m_pMessage );
