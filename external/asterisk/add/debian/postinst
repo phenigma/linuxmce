@@ -32,30 +32,22 @@ case "$1" in
 			echo "insert into Firewall (Protocol,SourcePort,SourcePortEnd,DestinationPort,RuleType) values ('udp',5060,0,0,'core_input');" | /usr/bin/mysql pluto_main
 			#enable oss module to speak in the house
 			sed -r -i "s/(noload [=][>] chan_oss.so)/;\1/" /etc/asterisk/modules.conf
-		fi
-		if (getent passwd asterisk >/dev/null);then
-			if [ "`getent passwd asterisk|awk -F: '{print $6}'`" = "/var/run/asterisk" ];then
-				usermod -d /var/lib/asterisk asterisk
+			rm -f /etc/init.d/asterisk
+			ln -sf /usr/sbin/amportal /etc/init.d/asterisk
+			for I in `ls -d /etc/rc?.d` ; do cd $I ; ln -sf ../init.d/asterisk S92asterisk; done;
+			if (getent passwd asterisk >/dev/null);then
+				if [ "`getent passwd asterisk|awk -F: '{print $6}'`" = "/var/run/asterisk" ];then
+					usermod -d /var/lib/asterisk asterisk
+				fi
+			else
+    			adduser --system --group --home /var/lib/asterisk --gecos "Asterisk PBX daemon" asterisk
+				adduser asterisk audio
 			fi
-		else
-    		adduser --system --group --home /var/lib/asterisk --gecos "Asterisk PBX daemon" asterisk
-			adduser asterisk audio
 		fi
-		
-		rm -f /etc/init.d/asterisk
-		
-		ln -sf /usr/sbin/amportal /etc/init.d/asterisk
-		update-rc.d asterisk defaults 92 >/dev/null
-		if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
-			invoke-rc.d asterisk start || exit 0
-		else
-			/etc/init.d/asterisk start || exit 0
-		fi
-		for I in `ls -d /etc/rc?.d` ; do cd $I ; ln -s ../init.d/asterisk S92asterisk; done;
 		pushd /usr/local/amp/install &>/dev/null
 		./apply_conf.sh
 		popd &>/dev/null
-		
+	
 		chmod -R ug+rw /etc/asterisk/
 		chmod 777 /var /var/lib/ /var/lib/asterisk/ /var/lib/asterisk/sounds/
 		chmod -R ug+rw /var/lib/asterisk/sounds/
