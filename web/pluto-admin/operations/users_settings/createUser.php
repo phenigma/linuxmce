@@ -1,9 +1,6 @@
 <?php
 function createUser($output,$dbADO) {
-	global $addMasterUserUrl;
-	$out='<h3>Add new user/family member</h3>Pick a username.  It must be unique among all Pluto users because you will have the option of using it
-	as a substitute for your phone number and for instant messaging.
-	If you specify a "Nickname", that name will appear on all the screens instead of the username.  The nickname can be anything and does not need to be unique.';
+	$out='<h3>Add new user/family member</h3>Pick a username.  If you specify a "Nickname", that name will appear on all the screens instead of the username.  The nickname can be anything and does not need to be unique.';
 	$action = isset($_POST['action'])?cleanString($_POST['action']):'form';
 	$from = isset($_REQUEST['from'])?cleanString($_REQUEST['from']):'';
 	
@@ -211,15 +208,8 @@ function createUser($output,$dbADO) {
 		}
 
 		if ($username!='' && $userPassword!='') {
-			$userAddedtoMasterUsers=addtoMasterUsers('Users',$userForwardEmail,$username,$_SESSION['userID'],$userMasterPassword,$addMasterUserUrl);
-			if(!$userAddedtoMasterUsers[0]){
-				header("Location: index.php?section=createUser&error=".$userAddedtoMasterUsers[1]."&from=$from");
-				exit(0);
-			}
 			
-			// insert the user into local table if he was added to MasterUsers table
-			parse_str($userAddedtoMasterUsers[1]);
-			$FK_MasterUsers=$MasterUsersID;
+			// insert the user into local table 
 			
 			$SambaPass = @exec("/usr/pluto/bin/smbpass.pl $userPassword", $outputSamba, $retcode);
             if ($retcode != 0)
@@ -228,12 +218,12 @@ function createUser($output,$dbADO) {
             $LinuxPass = crypt($userPassword, $LinuxSalt);
                 
 			$insertUser = '
-					INSERT INTO Users (PK_Users,UserName,Password, HasMailbox,
+					INSERT INTO Users (UserName,Password, HasMailbox,
 					AccessGeneralMailbox,FirstName,
 					LastName,Nickname,Extension,ForwardEmail,
 					FK_Language,FK_Installation_Main,PINCode,Password_Unix,Password_Samba) 
-					values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
-			$query = $dbADO->Execute($insertUser,array($FK_MasterUsers,
+					values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+			$query = $dbADO->Execute($insertUser,array(
 					$username,$passMd5,$hasMailbox,$userAccessGeneralMailbox,$userFirstName,
 					$userLastName,$userNickname,$userExtension,$userForwardEmail,
 					$userLanguage,$userMainInstallation,$pinCodeMd5,$LinuxPass,$SambaPass

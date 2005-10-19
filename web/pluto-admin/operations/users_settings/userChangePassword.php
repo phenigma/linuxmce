@@ -1,6 +1,5 @@
 <?php
 function userChangePassword($output,$dbADO) {
-	global $changePassMasterUserUrl;
 	$out='';
 	$action = isset($_POST['action'])?cleanString($_POST['action']):'form';
 	$from = isset($_REQUEST['from'])?cleanString($_REQUEST['from']):'';
@@ -10,7 +9,6 @@ function userChangePassword($output,$dbADO) {
 	$selectTheSamePassword ='SELECT PK_Users FROM Users WHERE PK_Users =?';
 	$resTheSamePassword = $dbADO->Execute($selectTheSamePassword,array($userID));
 	$rowTheSamePassword = $resTheSamePassword->FetchRow();
-	$FK_MasterUsers=$rowTheSamePassword['PK_Users'];
 	
 	if ($action=='form') {
 		
@@ -33,6 +31,12 @@ function userChangePassword($output,$dbADO) {
 		
 		
 			$out.='
+					<tr valign="top">
+						<td>Your Password</td>
+						<td>
+							<input type="password" name="oldPassword" value="">
+						</td>
+					</tr>
 					<tr valign="top">
 						<td>Password</td>
 						<td>
@@ -66,7 +70,11 @@ function userChangePassword($output,$dbADO) {
 	$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$installationID,$dbADO);
 	
 		if ($canModifyInstallation) {		
-
+			if($_REQUEST['oldPassword']!=$_SESSION['password']){
+				header('Location: index.php?section=userChangePassword&from=users&userID='.$userID.'&error=Your password does not match');
+				exit();
+			}
+			
 			$userPassword = $_SESSION['userChangePassword']['userPassword'] = cleanString($_POST['userPassword']);
 			$userPassword2 = $_SESSION['userChangePassword']['userPassword2'] = cleanString($_POST['userPassword2']);
 	

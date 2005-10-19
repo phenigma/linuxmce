@@ -196,9 +196,9 @@ function wizardOrbiters($output,$dbADO) {
 						
 			}
 			
-			$content['mobile_orbiters']=($content['mobile_orbiters']=='')?'<tr><td colspan="2" align="center">No orbiters in this category.</td></tr>':$content['mobile_orbiters'];
-			$content['standard_roaming_orbiters']=($content['standard_roaming_orbiters']=='')?'<tr><td colspan="2" align="center">No orbiters in this category.</td></tr>':$content['standard_roaming_orbiters'];
-			$content['on_screen_orbiters']=($content['on_screen_orbiters']=='')?'<tr><td colspan="2" align="center">No orbiters in this category.</td></tr>':$content['on_screen_orbiters'];
+			$content['mobile_orbiters']=(@$content['mobile_orbiters']=='')?'<tr><td colspan="2" align="center">No orbiters in this category.</td></tr>':$content['mobile_orbiters'];
+			$content['standard_roaming_orbiters']=(@$content['standard_roaming_orbiters']=='')?'<tr><td colspan="2" align="center">No orbiters in this category.</td></tr>':$content['standard_roaming_orbiters'];
+			$content['on_screen_orbiters']=(@$content['on_screen_orbiters']=='')?'<tr><td colspan="2" align="center">No orbiters in this category.</td></tr>':$content['on_screen_orbiters'];
 			$out.='
 				<tr>
 					<td bgcolor="lightblue" colspan="2" align="center"><B>Mobile phone orbiters</B></td>
@@ -300,6 +300,7 @@ function wizardOrbiters($output,$dbADO) {
 		}
 		
 		if(isset($_POST['update']) || isset($updateOrbiters) || $action=='externalSubmit'){
+
 			$DeviceDataToDisplayArray=explode(',',$_POST['DeviceDataToDisplay']);
 			foreach($displayedDevicesArray as $key => $value){
 				$deviceTemplate=(int)@$_POST['deviceTemplate_'.$value];

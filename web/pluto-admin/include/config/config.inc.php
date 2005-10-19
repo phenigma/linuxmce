@@ -58,10 +58,4 @@
 	// hard coded values
 	require_once("hardCoded.php");
 	
-	// do not change the following lines
-	$addMasterUserUrl=$MasterUsersHost."index.php?section=add_master_user";
-	$checkMasterUserUrl=$MasterUsersHost."index.php?section=check_master_user";
-	$changePassMasterUserUrl=$MasterUsersHost."index.php?section=change_password";
-	$updateMasterUserUrl=$MasterUsersHost."index.php?section=update_master_users";
-
 ?>

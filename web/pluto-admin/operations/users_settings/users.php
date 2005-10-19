@@ -1,6 +1,6 @@
 <?
 function users($output,$dbADO) {
-	global $checkMasterUserUrl;
+
 /* @var $dbADO ADOConnection */
 /* @var $rs ADORecordSet */
 /* @var $resUserTypes ADORecordSet */
@@ -206,23 +206,11 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 				<td colspan="9"><span class="err">'.stripslashes(@$_REQUEST['error']).'</span></td>
 			</tr>
 			<tr>
-				<td colspan="9"> ';
-				if(!isset($_SESSION['masterUserData'])){
-					$out.='Add an existing plutohome.com user to this installation - username: 
+				<td colspan="9">Add an existing user to this installation - username: 
 					<input type="text" name="addUserToInstallation" value="" size="20">
-					<input type="submit" class="button" name="addUser" value="Add"  > 
+					<input type="submit" class="button" name="addUser" value="Add"  ><span class="err"> 
 						'.(@$_SESSION['users']['userNotValid'] == 1?'(<b>Invalid username</b>)':'').'
-						'.(@$_SESSION['users']['userNotValid'] == 2?'(<b>User already in this installation</b>)':'');
-					}else{
-						parse_str($_SESSION['masterUserData']);
-						$out.='
-							<input type="hidden" name="addUserToInstallation" value="'.$_SESSION['masterUserName'].'">
-							<span class="confirm"><B>User found in Pluto database. Please type his email <input type="email" name="masterEmail"> and the local password for him:</B></span>
-							<input type="password" name="masterUserPas"> <input type="submit" class="button" name="addtoInst" value="Save"  > <input type="button" class="button" name="cancel" value="Cancel" onClick="self.location=\'index.php?section=users&action=cancel&cancel=1\'">
-						';
-						$usersFormValidation.='
-							frmvalidator.addValidation("masterUserPas","req","Please enter a password");';
-					}
+						'.(@$_SESSION['users']['userNotValid'] == 2?'(<b>User already in this installation</b>)':'').'</span>';
 				$out.='<p><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createUser&from=users\',\'width=600,height=650,toolbars=true, resizable=1\');">Create a new user/family member</a><p>
 				</td>
 			</tr>
@@ -242,13 +230,6 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 } else {
 	//check if current user canModifyInstallation
 	$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$installationID,$dbADO);
-	if(isset($_REQUEST['cancel'])){
-		unset($_SESSION['masterUserData']);
-		unset($_SESSION['masterUserName']);
-		header("Location: index.php?section=users");
-		exit();
-	}
-
 	
 	if ($canModifyInstallation) {	
 			//process			
@@ -275,47 +256,17 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 					} else {				
 						$_SESSION['users']['userNotValid'] = 2;
 					}			
-				} else {
-					// check MasterUser database and if user exist, prompt password field for him
-					$isMasterUsers=checkMasterUsers($addNewUser, '',$checkMasterUserUrl,'&FirstAccount=&Email=&PlutoId=&Pin=');
-					if(!$isMasterUsers[0]){
-						$_SESSION['users']['userNotValid'] = 1;
-					}
-					else {
-						$_SESSION['masterUserData']=$isMasterUsers[1];
-						$_SESSION['masterUserName']=$addNewUser;
-					}
-				}
+				}else{
+					$_SESSION['users']['userNotValid']=1;
+				} 
+				
 				$msg='';
 				$commandToSend='/usr/pluto/bin/SetupUsers.sh';
 				system($commandToSend);				
 				header("Location: index.php?section=users&msg=".$msg.$locationGoTo);
 			}
 			
-			if(isset($_POST['addtoInst'])){
-				$md5Pass=md5($_POST['masterUserPas']);
-				parse_str($_SESSION['masterUserData']);
-				if($Email!=$_REQUEST['masterEmail']){
-					header("Location: index.php?section=users&error=Email doesn't match");
-					exit();
-				}
-				$insertUser = '
-					INSERT INTO Users (PK_Users,UserName,Password, ForwardEmail) 
-					values(?,?,?,?)';
-				$query = $dbADO->Execute($insertUser,array($MasterUsersID,$_SESSION['masterUserName'],$md5Pass,$Email));
-				$insertUserToInstallation = "
-					INSERT INTO Installation_Users(FK_Installation,FK_Users) VALUES(?,?)
-						";			
-				$query=$dbADO->Execute($insertUserToInstallation,array($installationID,$MasterUsersID));
-				unset($_SESSION['masterUserData']);
-				unset($_SESSION['masterUserName']);
-				
-				$commandToSend='/usr/pluto/bin/SetupUsers.sh';
-				system($commandToSend);				
-				header("Location: index.php?section=users&msg=User added.".$locationGoTo);
-			}
-			
-			
+
 			if (!is_array($displayedUsersArray) || $displayedUsersArray===array()) {
 				$displayedUsersArray=array();
 			}
