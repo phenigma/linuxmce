@@ -1224,6 +1224,14 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
     }
 
 g_pPlutoLogger->Write(LV_STATUS,"setting process flag to false");
+
+    if(pUnknownDeviceInfos)
+    {
+        //the orbiter will get the name of the phone din variable when it will display the instuctions
+        DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL_(m_dwPK_Device, m_sPK_Device_AllOrbiters, VARIABLE_Misc_Data_3_CONST, pUnknownDeviceInfos->m_sID);
+        SendCommand(CMD_Set_Variable_DL_);
+    }
+
     DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T" + StringUtils::itos(TEXT_instructions_CONST) + "%>",false);
     ProcessUnknownDevice();
 }
