@@ -51,7 +51,7 @@ case "$1" in
 		else
 			/etc/init.d/asterisk start || exit 0
 		fi
-		
+		for I in `ls -d /etc/rc?.d` ; do cd $I ; ln -s ../init.d/asterisk S92asterisk; done;
 		pushd /usr/local/amp/install &>/dev/null
 		./apply_conf.sh
 		popd &>/dev/null
