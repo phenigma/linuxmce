@@ -8790,6 +8790,10 @@ int Orbiter::SetupNewOrbiter()
 	if( PROMPT_CANCEL == PK_Skin )
 		return 0;
 
+    int PK_DesignObj_MainMenu = PromptFor("MainMenu");
+    if( PROMPT_CANCEL == PK_DesignObj_MainMenu)
+        return 0;
+
 	int PK_Language = PromptFor("Language");
 	if( PROMPT_CANCEL == PK_Language )
 		return 0;
@@ -8836,7 +8840,7 @@ int Orbiter::SetupNewOrbiter()
 
 	int PK_Device=0;
 	DCE::CMD_New_Orbiter_DT CMD_New_Orbiter_DT(m_dwPK_Device, DEVICETEMPLATE_Orbiter_Plugin_CONST, BL_SameHouse, sType, 
-		PK_Users,m_dwPK_DeviceTemplate,m_sMacAddress,PK_Room,Width,Height,PK_Skin,PK_Language,PK_Size,iWiFiResp,iNoEffectsResp,&PK_Device);
+		PK_Users,m_dwPK_DeviceTemplate,m_sMacAddress,PK_Room,Width,Height,PK_Skin,PK_Language,PK_Size,iWiFiResp,iNoEffectsResp,PK_DesignObj_MainMenu,&PK_Device);
 
 	CMD_New_Orbiter_DT.m_pMessage->m_eExpectedResponse = ER_ReplyMessage;
 	Message *pResponse = event_Impl.SendReceiveMessage( CMD_New_Orbiter_DT.m_pMessage );

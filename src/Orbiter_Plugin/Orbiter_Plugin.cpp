@@ -1001,8 +1001,10 @@ void Orbiter_Plugin::CMD_Set_Current_Room(int iPK_Room,string &sCMD_Result,Messa
 			/** Enables 5 seconds ping protocol, 0 = use default, 1 = true, 2 = false */
 		/** @param #148 No Effects */
 			/** No MNG rendered, 0 = use default, 1 = true, 2 = false */
+		/** @param #149 PK_DesignObj_MainMenu */
+			/** MainMenu, 0 = use default */
 
-void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,int iWidth,int iHeight,int iPK_Skin,int iPK_Language,int iPK_Size,int iUses_Wifi_connection,int iNo_Effects,int *iPK_Device,string &sCMD_Result,Message *pMessage)
+void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,int iWidth,int iHeight,int iPK_Skin,int iPK_Language,int iPK_Size,int iUses_Wifi_connection,int iNo_Effects,int iPK_DesignObj_MainMenu,int *iPK_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c78-e->
 {
     PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
@@ -1158,14 +1160,17 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
 		m_pRouter->SetDeviceDataInDB(PK_Device,DEVICEDATA_PK_Size_CONST,StringUtils::itos(iPK_Size),false);
     if( iNo_Effects > 0 )
         m_pRouter->SetDeviceDataInDB(PK_Device,DEVICEDATA_No_Effects_CONST, iNo_Effects == 1 ? "1" : "0",false);
+    if( iPK_DesignObj_MainMenu > 0 )
+        m_pRouter->SetDeviceDataInDB(PK_Device,DEVICEDATA_PK_DesignObj_CONST, StringUtils::itos(iPK_DesignObj_MainMenu), false);
 
     Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(PK_Device);
     pRow_Device->Reload(); 
-    pRow_Device->FK_Room_set(iPK_Room);
 
+    if( iPK_Room > 0 )
+        pRow_Device->FK_Room_set(iPK_Room);
     if( iUses_Wifi_connection > 0 )
         pRow_Device->PingTest_set(iUses_Wifi_connection == 1 ? 1 : 0);
-    
+        
     pRow_Device->Table_Device_get()->Commit();
 
 	// Same thing like in regen orbiter
@@ -2466,7 +2471,7 @@ bool Orbiter_Plugin::IsRegenerating(int iPK_Device)
 ID\tDescription\n
 format */
 		/** @param #9 Text */
-			/** One of the following: Users, Room, Skin, Language, Size */
+			/** One of the following: Users, Room, Skin, Language, Size, MenuMenu */
 
 void Orbiter_Plugin::CMD_Get_Orbiter_Options(string sText,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c695-e->
@@ -2478,6 +2483,9 @@ void Orbiter_Plugin::CMD_Get_Orbiter_Options(string sText,string *sValue_To_Assi
 
     if(sText == "Room")
         sSQL += " WHERE FK_Installation = " + StringUtils::itos(m_pRouter->iPK_Installation_get());
+
+    if(sText == "MainMenu")
+        sSQL = "SELECT PK_DesignObj, Description FROM DesignObj INNER JOIN DeviceTemplate_DesignObj ON DesignObj.PK_DesignObj = DeviceTemplate_DesignObj.FK_DesignObj";
 
 	PlutoSqlResult result_set;
     MYSQL_ROW row;
