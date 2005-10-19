@@ -83,6 +83,17 @@ case "$URL_TYPE" in
 			REPOS=$(echo -n "$REPOS" | cut -d' ' -f1)
 		fi
 		
+		SingleEndSlash='s!//*!/!g; s!/*$!/!g; s!^http:/!http://!g; s!^ftp:/!ftp://!g'
+		FilteredRepos=$(echo "$REPOS_SRC" | sed 's/[^A-Za-z0-9_./+=:-]/-/g; '"$SingleEndSlash")
+		EndSlashRepos=$(echo "$REPOS_SRC" | sed "$SingleEndSlash")
+#		echo "Repository test string: '$FilteredRepos.+$REPOS.+$SECTIONS'"
+		results=$(cat /etc/apt/sources.list | sed "$SPACE_SED" | egrep -v "^#" | egrep -c -- "$FilteredRepos.+$REPOS.+$SECTIONS" 2>/dev/null)
+		if [ "$results" -eq 0 ]; then
+			echo "deb $FilteredRepos $REPOS $SECTIONS" >>/etc/apt/sources.list
+			apt-get update
+#			[ "$Type" == "router" ] && apt-proxy-import-simple /usr/pluto/install/deb-cache
+		fi
+
 		if ! PackageIsInstalled "$PKG_NAME"; then
 			#export http_proxy="http://dcerouter:8123"
 			if ! keep_sending_enters | apt-get -t "$REPOS" -y --reinstall install "$PKG_NAME"; then
