@@ -131,6 +131,10 @@ bool General_Info_Plugin::Register()
 		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::TypesOfPhones)), 
 		DATAGRID_Types_Of_Mobile_Phones_CONST,PK_DeviceTemplate_get());
 
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::PNPDevices)), 
+		DATAGRID_New_PNP_Devices_CONST,PK_DeviceTemplate_get());
+
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &General_Info_Plugin::NewMacAddress ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_New_Mac_Address_Detected_CONST );
 
 	return Connect(PK_DeviceTemplate_get()); 
@@ -682,6 +686,34 @@ class DataGridTable *General_Info_Plugin::TypesOfPhones( string GridID, string P
 	return pDataGrid;
 }
 
+class DataGridTable *General_Info_Plugin::PNPDevices( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+	DataGridTable *pDataGrid = new DataGridTable( );
+	DataGridCell *pCell;
+	string::size_type pos=0;
+
+	// This will be a new background thread
+	PhoneDevice pd("", Parms, 0);
+
+	vector<Row_DHCPDevice *> vectRow_DHCPDevice;
+	m_pDatabase_pluto_main->DHCPDevice_get()->GetRows(StringUtils::i64tos(pd.m_iMacAddress) + ">=Mac_Range_Low AND " + StringUtils::i64tos(pd.m_iMacAddress) + "<=Mac_Range_High",&vectRow_DHCPDevice);
+	int iRow=0,iColumn=0;
+	int iMaxColumns = atoi( pMessage->m_mapParameters[COMMANDPARAMETER_Width_CONST].c_str() );
+	for(size_t s=0;s<vectRow_DHCPDevice.size();++s)
+	{
+		pCell = new DataGridCell(vectRow_DHCPDevice[s]->Description_get(),StringUtils::itos(vectRow_DHCPDevice[s]->PK_DHCPDevice_get()));
+		pDataGrid->SetData(iColumn,iRow,pCell);
+		iColumn++;
+		if( iColumn>=iMaxColumns )
+		{
+			iColumn=0;
+			iRow++;
+		}
+	}
+
+	return pDataGrid;
+}
+
 class DataGridTable *General_Info_Plugin::Rooms( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
 	int iWidth = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Width_CONST].c_str());
@@ -1029,6 +1061,14 @@ bool General_Info_Plugin::NewMacAddress( class Socket *pSocket, class Message *p
 		return false;  // already in the unknown list
 	}
 
+	vector<Row_Device *> vectRow_Device;
+	m_pDatabase_pluto_main->Device_get()->GetRows("MacAddress like '%" + sMacAddress + "%'",&vectRow_Device);
+	if( vectRow_Device.size() )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::NewMacAddress %s already a device",sMacAddress.c_str());
+		return false;  // already in the unknown list
+	}
+
 #ifndef WIN32
 	int pid = fork();
 	if (pid != 0)
@@ -1039,7 +1079,7 @@ bool General_Info_Plugin::NewMacAddress( class Socket *pSocket, class Message *p
 	PhoneDevice pd("", sMacAddress, 0);
 
 	vector<Row_DHCPDevice *> vectRow_DHCPDevice;
-	m_pDatabase_pluto_main->DHCPDevice_get()->GetRows(StringUtils::itos(pd.m_iMacAddress) + ">=Mac_Range_Low AND " + StringUtils::itos(pd.m_iMacAddress) + "<=Mac_Range_High",&vectRow_DHCPDevice);
+	m_pDatabase_pluto_main->DHCPDevice_get()->GetRows(StringUtils::i64tos(pd.m_iMacAddress) + ">=Mac_Range_Low AND " + StringUtils::i64tos(pd.m_iMacAddress) + "<=Mac_Range_High",&vectRow_DHCPDevice);
 	if( vectRow_DHCPDevice.size()>0 )
 	{
 		DCE::CMD_Goto_Screen_DL CMD_Goto_Screen( m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, 0, 
@@ -1082,4 +1122,8 @@ void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,strin
 
 	CreateDevice createDevice(m_pRouter->iPK_Installation_get(),m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get());
 	int PK_Device = createDevice.DoIt(iPK_DHCPDevice,0,sIP_Address,sMac_address);
+
+	Message *pMessage_Event = new Message(m_dwPK_Device,DEVICEID_EVENTMANAGER,PRIORITY_NORMAL,MESSAGETYPE_EVENT,EVENT_New_PNP_Device_Detected_CONST,
+		1,EVENTPARAMETER_PK_Device_CONST,StringUtils::itos(PK_Device).c_str());
+	QueueMessageToRouter(pMessage_Event);
 }

@@ -4550,6 +4550,8 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
             Output += m_pLocationInfo->Description;
         else if(  Variable=="LDGC"  )
             Output += m_sLastSelectedDatagrid;
+        else if(  Variable=="ID"  )
+            Output += m_pScreenHistory_Current->m_sID;
         else if(  Variable=="V" )
 			Output += string(VERSION) + "(" + g_szCompile_Date + ")";
 		else if(  Variable=="MT" )

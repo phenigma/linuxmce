@@ -44,6 +44,7 @@
 #define DATAGRID_Favorite_Shows_CONST 41
 #define DATAGRID_Other_Showtimes_CONST 42
 #define DATAGRID_Types_Of_Mobile_Phones_CONST 43
+#define DATAGRID_New_PNP_Devices_CONST 44
 
 #define DATAGRID_TABLE "DataGrid"
 #define DATAGRID_PK_DATAGRID_FIELD "PK_DataGrid"

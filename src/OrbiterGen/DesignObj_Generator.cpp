@@ -1866,7 +1866,7 @@ int k=2;
             else
                 sValue = "";
         }
-        else if( sVariable[0]=='I' )
+        else if( sVariable[0]=='I' && sVariable.length()==1 )
         {
             sValue = StringUtils::itos(m_pOrbiterGenerator->m_pRow_Device->FK_Installation_get());
         }
