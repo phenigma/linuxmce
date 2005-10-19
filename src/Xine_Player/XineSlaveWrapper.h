@@ -387,6 +387,9 @@ public:
 
 	bool isSlimClient();
 	void setSlimClient(bool isSlimClient);
+
+	// display a message on the screen.  Call with sText="" to display nothing
+	void DisplayOSDText(string sText);
 };
 
 #endif

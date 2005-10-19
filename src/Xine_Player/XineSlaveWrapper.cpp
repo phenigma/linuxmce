@@ -1158,6 +1158,7 @@ void XineSlaveWrapper::changePlaybackSpeed(int iStreamID, PlayBackSpeedType desi
 //	    if( pStream->m_bHasVideo )
   //          	xineSpeed = XINE_SPEED_FAST_4;
 //	    else
+DisplayOSDText("4x");
 		    g_iSpecialSeekSpeed=desiredSpeed;  // See above
             break;
 		case PLAYBACK_REW_64:
@@ -2018,3 +2019,25 @@ int XineSlaveWrapper::getAudio()
 
 	return xine_get_param (xineStream->m_pStream, XINE_PARAM_AUDIO_CHANNEL_LOGICAL);
 }
+
+void XineSlaveWrapper::DisplayOSDText(string sText)
+{
+	XineStream *xineStream = getStreamForId(1, "Trying to set parm for and invalid stream: (%d)");
+
+	if ( xineStream == NULL )
+		return;
+	xine_osd_t *x_xine_osd;
+	x_xine_osd=xine_osd_new(xineStream->m_pStream, 100, 100, 400, 400);
+g_pPlutoLogger->Write(LV_CRITICAL,"Attempting to display test %p",x_xine_osd); 
+	xine_osd_draw_text(x_xine_osd,110,110,"test",255);
+	xine_osd_draw_text(x_xine_osd,110,110,"test1",1);
+	xine_osd_draw_text(x_xine_osd,110,110,"test100",100);
+	xine_osd_draw_text(x_xine_osd,110,110,"test60000",60000);
+	xine_osd_draw_text(x_xine_osd,110,110,"test160000",160000);
+	xine_osd_set_position(x_xine_osd,200,200);
+	xine_osd_draw_rect(x_xine_osd,150,150,200,200,200,100);
+	xine_osd_show(x_xine_osd,0);
+	xine_osd_draw_text(x_xine_osd,110,110,"test2",255);
+	
+}
+
