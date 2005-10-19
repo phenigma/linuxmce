@@ -26,14 +26,15 @@ case "$R" in
 	;;
 esac
 
-Message1="Congratulations.  Pluto installation has completed.
-The system will now reboot.  The Pluto Core software will
-be started automatically.  As soon as the computer finishes
-rebooting you will be able to access the Pluto Admin website
-to configure it, and you can start plugging in your media
-directors and other plug-and-play devices.  If you are an
-advanced Linux user and want to access a terminal before
-the reboot, press ALT+F2.  Otherwise..."
+Message1="Congratulations.  Pluto installation has completed.  The system will now 
+reboot.  The Pluto Core software will be started automatically.  As soon as 
+the computer finishes rebooting you will be able to access the Pluto Admin
+website to configure it, and you can start plugging in your media directors
+and other plug-and-play devices.  
+**Note**  The first boot will take an unusually long time while it sets up
+a lot of new devices, and builds user interfaces for any Orbiters.
+If you are an advanced Linux user and want to access a terminal before the
+reboot, press ALT+F2.  Otherwise..."
 Key="the Enter key"
 #Key="OK"
 Message2="Press $Key to reboot and startup your new Pluto $SysType."
