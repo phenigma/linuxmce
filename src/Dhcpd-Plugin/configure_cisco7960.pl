@@ -1,0 +1,74 @@
+#!/usr/bin/perl
+
+use strict;
+use diagnostics;
+use DBI;
+
+#declare vars (it's safer this way)
+my $Device_ID;
+my $Device_IP;
+my $Device_MAC;
+my $Device_EXT;
+
+#check params
+if($#ARGV < 5 || $ARGV[0] ne "-d" || $ARGV[2] ne "-i" || $ARGV[4] ne "-m")
+{
+    print "<USAGE-1>\n$0 -d <Device ID> -i <IP> -m <mac address>\n";
+    exit(-1);
+}
+else
+{
+    $Device_ID = $ARGV[1];
+    $Device_IP = $ARGV[3];
+    $Device_MAC = $ARGV[5];
+}
+
+#sync with AMP
+`/usr/pluto/bin/sync_pluto2amp.pl $Device_ID`;
+
+open(FILE,"/tmp/phone${Device_ID}extension");
+$Device_EXT=<FILE>;
+close(FILE);
+
+chomp($Device_EXT);
+$Device_MAC =~ s/[^0-9A-Fa-f]//g;
+
+$Device_MAC = uc($Device_MAC);
+
+my $str_SIPDefault = "";
+my $str_SIPMAC = "";
+
+$str_SIPDefault .= "proxy1_address: \"192.168.80.1\"\n";
+$str_SIPDefault .= "proxy1_port: 5060\n";
+$str_SIPDefault .= "proxy_register: 1\n";
+$str_SIPDefault .= "timer_register_expires: 180\n";
+$str_SIPDefault .= "preferred_codec: g711ulaw\n";
+$str_SIPDefault .= "tos_media: 5\n";
+$str_SIPDefault .= "dtmf_inband: 1\n";
+$str_SIPDefault .= "dtmf_outofband: avt\n";
+$str_SIPDefault .= "dtmf_db_level: 3\n";
+$str_SIPDefault .= "timer_t1: 500\n";
+$str_SIPDefault .= "timer_t2: 4000\n";
+$str_SIPDefault .= "sip_retx: 10\n";
+$str_SIPDefault .= "sip_invite_retx: 6\n";
+$str_SIPDefault .= "timer_invite_expires: 180\n";
+$str_SIPDefault .= "tftp_cfg_dir: \"./\"\n";
+$str_SIPDefault .= "dnd_control: 0\n";
+$str_SIPDefault .= "callerid_blocking: 0\n";
+$str_SIPDefault .= "anonymous_call_block: 0\n";
+$str_SIPDefault .= "dtmf_avt_payload: 101\n";
+$str_SIPDefault .= "sync: 1\n";
+$str_SIPDefault .= "phone_label: \"Pluto\"\n";
+
+$str_SIPMAC .= "line1_name: \"$Device_EXT\"\n";
+$str_SIPMAC .= "line1_authname: \"$Device_EXT\"\n";
+$str_SIPMAC .= "line1_password: \"$Device_EXT\"\n";
+$str_SIPMAC .= "line1_shortname: \"$Device_EXT\"\n";
+
+open(FILE,"> /tftpboot/SIPDefault.cnf");
+print FILE $str_SIPDefault;
+close(FILE);
+
+open(FILE,"> /tftpboot/SIP$Device_MAC.cnf");
+print FILE $str_SIPMAC;
+close(FILE);
