@@ -89,28 +89,33 @@ void CPlutoMOContainer::SizeChanged()
     }
 
 
-TKeyResponse CPlutoMOContainer::OfferKeyEventL(
-    const TKeyEvent& aKeyEvent,TEventCode aType)
-    {
-	if(((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bVMCViewerVisible)
-		return EKeyWasNotConsumed;
+TKeyResponse CPlutoMOContainer::OfferKeyEventL(const TKeyEvent& aKeyEvent,TEventCode aType)
+{
+	if(((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bApplicationIsMinimized)
+	{
+		if(aType == EEventKeyUp)
+			((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bApplicationIsMinimized = false;
+	}
+	else
+	{
+		if(((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bVMCViewerVisible)
+			return EKeyWasNotConsumed;
 
-	if(((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bPlutoEventVisible)
-		return EKeyWasNotConsumed;
+		if(((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bPlutoEventVisible)
+			return EKeyWasNotConsumed;
+	}
 
     TInt code = aKeyEvent.iCode;
     switch(code)
-        {
-    	case EKeyOK:
-            iAppEngine->LaunchCurrent(iListBox->CurrentItemIndex());
-            return (EKeyWasConsumed);
-            break;
+    {
+		case EKeyOK:
+			iAppEngine->LaunchCurrent(iListBox->CurrentItemIndex());
+			return (EKeyWasConsumed);
 
-        default:
-            return iListBox->OfferKeyEventL(aKeyEvent, aType);
-            break;
-        }
+		default:
+			return iListBox->OfferKeyEventL(aKeyEvent, aType);
     }
+}
 
 TInt CPlutoMOContainer::CountComponentControls() const
     {

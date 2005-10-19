@@ -157,6 +157,7 @@ public:
 	TBuf<256> iPhoneNo;
 
 	bool m_bPlutoEventVisible;
+	bool m_bApplicationIsMinimized;
 
 private:
     void DynInitMenuPaneL(TInt aResourceId,CEikMenuPane* aMenuPane);

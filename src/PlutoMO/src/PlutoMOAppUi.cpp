@@ -141,6 +141,7 @@ void CPlutoMOAppUi::ConstructL()
 	SetupIncomingCallNotifier(); // ARM only (it is crashing in WINS)
 	
 	iCurType = 0;
+	m_bApplicationIsMinimized = false;
 }
 //----------------------------------------------------------------------------------------------
 CPlutoMOAppUi::~CPlutoMOAppUi()
@@ -566,8 +567,8 @@ void CPlutoMOAppUi::Hide()
 	task.SetWgId(CEikonEnv::Static()->RootWin().Identifier());
 	task.SendToBackground();
 
-	m_bVMCViewerVisible = false;
-	//MakeViewerVisible(false);
+	//m_bVMCViewerVisible = false;
+	m_bApplicationIsMinimized = true;
 
 	CancelCaptureSoftKeys();
 	
@@ -576,13 +577,13 @@ void CPlutoMOAppUi::Hide()
 //----------------------------------------------------------------------------------------------
 void CPlutoMOAppUi::Show()
 {
+	CaptureSoftKeys();
+
 	TApaTask task(CEikonEnv::Static()->WsSession());
 	task.SetWgId(CEikonEnv::Static()->RootWin().Identifier());
 	task.BringToForeground();
 
-	m_bVMCViewerVisible = true;
-
-	CaptureSoftKeys();
+	//m_bVMCViewerVisible = true;
 }
 //----------------------------------------------------------------------------------------------
 void CPlutoMOAppUi::ResetViewer()

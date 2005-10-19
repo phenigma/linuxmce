@@ -639,6 +639,12 @@ TKeyResponse CPlutoVMCContainer::OfferKeyEvent(const TKeyEvent& aKeyEvent, TEven
 	if(aType == EEventKeyDown)
 		m_bDataKeys = false;
 
+	if(aKeyEvent.iScanCode == 180) //alt+tab :D
+	{
+		((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->Hide();
+		return EKeyWasNotConsumed;
+	}
+
 	//if the viewer is not visible on the screen, ignore the key pressed
 	if(!((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bVMCViewerVisible)
 		return EKeyWasNotConsumed;
