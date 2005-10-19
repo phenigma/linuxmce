@@ -135,6 +135,7 @@ sub find_next_extension()
 	{
     	$DEVICE_EXT = $DEVICE_EXT+1;
 	}
+	`echo $DEVICE_EXT > /tmp/phone${DEVICE_ID}extension`
 }
 
 sub update_device_data()
