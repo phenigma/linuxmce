@@ -378,7 +378,8 @@ function wizardOrbiters($output,$dbADO) {
 		if(isset($_POST['add'])){
 			$deviceTemplate=(int)$_POST['deviceTemplate'];
 			if($deviceTemplate!=0){
-				$insertID=exec('sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID);				
+				$cmd='sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID.' -C 0';
+				$insertID=exec($cmd);				
 				$suffix='&lastAdded='.$insertID;
 				
 				// full regen

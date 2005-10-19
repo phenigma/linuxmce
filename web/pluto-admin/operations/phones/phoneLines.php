@@ -101,9 +101,15 @@ function phoneLines($output,$astADO,$dbADO) {
 			$phone=($_POST['phone']=='')?$username:cleanString($_POST['phone']);
 
 			$cmd='sudo -u root /usr/pluto/bin/'.$providerScript.' '.$username.' '.$password.' '.$phone;
-			exec($cmd);
+			system($cmd,$cmdStatus);
+			
+			if($cmdStatus!=0){
+				$suffix='&err=An error has occured.';
+			}else{
+				$suffix='&msg=The command was sent.';
+			}
 
-			header('Location: index.php?section=phoneLines&msg=Executed: '.urlencode($cmd));
+			header('Location: index.php?section=phoneLines'.@$suffix);
 			exit();
 		}
 		
