@@ -327,13 +327,9 @@ public:
 			/** The size, 0=use default */
 		/** @param #147 Uses Wifi connection */
 			/** Enables 5 seconds ping protocol, 0 = use default, 1 = true, 2 = false */
-		/** @param #148 No Effects */
-			/** No MNG rendered, 0 = use default, 1 = true, 2 = false */
-		/** @param #149 PK_DesignObj_MainMenu */
-			/** MainMenu, 0 = use default */
 
-	virtual void CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,int iWidth,int iHeight,int iPK_Skin,int iPK_Language,int iPK_Size,int iUses_Wifi_connection,int iNo_Effects,int iPK_DesignObj_MainMenu,int *iPK_Device) { string sCMD_Result; CMD_New_Orbiter(sType.c_str(),iPK_Users,iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,iWidth,iHeight,iPK_Skin,iPK_Language,iPK_Size,iUses_Wifi_connection,iNo_Effects,iPK_DesignObj_MainMenu,iPK_Device,sCMD_Result,NULL);};
-	virtual void CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,int iWidth,int iHeight,int iPK_Skin,int iPK_Language,int iPK_Size,int iUses_Wifi_connection,int iNo_Effects,int iPK_DesignObj_MainMenu,int *iPK_Device,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,int iWidth,int iHeight,int iPK_Skin,int iPK_Language,int iPK_Size,int iUses_Wifi_connection,int *iPK_Device) { string sCMD_Result; CMD_New_Orbiter(sType.c_str(),iPK_Users,iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,iWidth,iHeight,iPK_Skin,iPK_Language,iPK_Size,iUses_Wifi_connection,iPK_Device,sCMD_Result,NULL);};
+	virtual void CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,int iWidth,int iHeight,int iPK_Skin,int iPK_Language,int iPK_Size,int iUses_Wifi_connection,int *iPK_Device,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #79 - Add Unknown Device */

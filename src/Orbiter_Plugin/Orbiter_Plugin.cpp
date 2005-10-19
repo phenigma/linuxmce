@@ -999,12 +999,8 @@ void Orbiter_Plugin::CMD_Set_Current_Room(int iPK_Room,string &sCMD_Result,Messa
 			/** The size, 0=use default */
 		/** @param #147 Uses Wifi connection */
 			/** Enables 5 seconds ping protocol, 0 = use default, 1 = true, 2 = false */
-		/** @param #148 No Effects */
-			/** No MNG rendered, 0 = use default, 1 = true, 2 = false */
-		/** @param #149 PK_DesignObj_MainMenu */
-			/** MainMenu, 0 = use default */
 
-void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,int iWidth,int iHeight,int iPK_Skin,int iPK_Language,int iPK_Size,int iUses_Wifi_connection,int iNo_Effects,int iPK_DesignObj_MainMenu,int *iPK_Device,string &sCMD_Result,Message *pMessage)
+void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,int iWidth,int iHeight,int iPK_Skin,int iPK_Language,int iPK_Size,int iUses_Wifi_connection,int *iPK_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c78-e->
 {
     PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
