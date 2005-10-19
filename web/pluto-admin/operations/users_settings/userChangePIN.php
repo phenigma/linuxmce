@@ -1,6 +1,5 @@
 <?php
 function userChangePIN($output,$dbADO) {
-	global $changePassMasterUserUrl;
 	$out='';
 	$action = isset($_POST['action'])?cleanString($_POST['action']):'form';
 	$from = isset($_REQUEST['from'])?cleanString($_REQUEST['from']):'';
