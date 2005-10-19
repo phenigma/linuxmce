@@ -2275,7 +2275,7 @@ void Orbiter_Plugin::CMD_Display_Dialog_Box_On_Orbiter(string sText,string sOpti
     while(vectOptions.size() < 8)
         vectOptions.push_back("");
 
-    DisplayMessageOnOrbiter(sPK_Device_List, sText, false, 0, false,
+    DisplayMessageOnOrbiter(sPK_Device_List, sText, false, 0, true,
         vectOptions[0], vectOptions[1], vectOptions[2], vectOptions[3], 
         vectOptions[4], vectOptions[5], vectOptions[6], vectOptions[7]);
 }
