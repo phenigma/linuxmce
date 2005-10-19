@@ -1,13 +1,20 @@
 #!/bin/bash
 
+. /usr/pluto/bin/LockUtils.sh
+
 exec >>/var/log/pluto/InstallNewDevice.newlog 2>&1 0</dev/null
-echo "$(date -R) Called with: $*"
+echo -n "$(date -R) Called with parameters:"
+for Parm in "$@"; do
+	echo -n " $Parm"
+done
+echo
 
 Device="$1"
 Package="$2"
 
 TryInstall()
 {
+	WaitLock "InstallNewDevice" "$Device"
 	error=1
 	retries=0
 	while [[ $retries < 10 && $error != 0 ]]; do
@@ -23,7 +30,7 @@ TryInstall()
 		echo "Package installed successfully"
 	fi
 
-	rm /usr/pluto/locks/installing."$Device"
+	Unlock "InstallNewDevice" "$Device"
 }
 
 if [[ -z "$Device" || -z "$Package" ]]; then
@@ -31,6 +38,5 @@ if [[ -z "$Device" || -z "$Package" ]]; then
 	exit 1
 fi
 
-touch /usr/pluto/locks/installing."$Device"
-TryInstall &
+TryInstall
 disown -a
