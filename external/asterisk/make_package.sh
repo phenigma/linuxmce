@@ -97,9 +97,6 @@ make clean
 make INSTALL_PREFIX=${PKGFOLDER}
 make INSTALL_PREFIX=${PKGFOLDER} install
 
-#don't load by default these modules
-sed -r -i "s/^autoload=yes/autoload=yes\nnoload => app_conference.so\nnoload => chan_capi.so\nnoload => app_capiRETRIEVE.so\nnoload => app_capiCD.so\nnoload => app_capiECT.so\nnoload => app_capiFax.so\nnoload => app_capiHOLD.so\nnoload => app_capiMCID.so\nnoload => app_capiNoES.so/" ${PKGFOLDER}/etc/asterisk/modules.conf 
-
 ### ADD AMP TO THIS PACKAGE (PROBABLY NOT BIG ENOUGH)
 
 cd ${MAINFOLDER}
@@ -160,6 +157,27 @@ include => from-internal
 
 EOF
 
+#don't load CAPI by default
+sed -r -i "s/^autoload=yes/autoload=yes\nnoload => app_conference.so\nnoload => chan_capi.so\nnoload => app_capiRETRIEVE.so\nnoload => app_capiCD.so\nnoload => app_capiECT.so\nnoload => app_capiFax.so\nnoload => app_capiHOLD.so\nnoload => app_capiMCID.so\nnoload => app_capiNoES.so/" ${PKGFOLDER}/etc/asterisk/modules.conf 
+
 cd ${PKGFOLDER}/../
+#make some clean up
 find -name '.svn' -type d -exec rm -rf '{}' ';' 2>/dev/null
+for I in `du -a | grep '.gsm$' | cut -f 2`
+do
+	rm -f /tmp/gsmstatus
+	
+	J=`echo $I | sed -r "s/.+?\/([^\/]+).gsm$/\1/"`
+	grep -E -i "(background)|(playback)" ${PKGFOLDER}/etc/asterisk/* | grep "$J" > /tmp/gsmstatus
+	J=`echo $I | sed -r "s/.+?\/([^\/]+)$/\1/"`
+	grep -E -i "(background)|(playback)" ${PKGFOLDER}/etc/asterisk/* | grep "$J" >> /tmp/gsmstatus
+	echo $I | grep -E '/(digits)|(letters)|(pluto)/' >> /tmp/gsmstatus
+	if [ ! -s /tmp/gsmstatus ]
+	then
+		rm $I	
+	fi
+done
+rm -f ${PKGFOLDER}/var/lib/asterisk/mohmp3/*
+cp ${ADDFOLDER}/short.mp3 ${PKGFOLDER}/var/lib/asterisk/mohmp3/
+
 dpkg-buildpackage -b -rfakeroot -us -uc
