@@ -113,6 +113,7 @@ mkdir -p ${PKGFOLDER}/var/spool
 mkdir -p ${PKGFOLDER}/$AMPWEBROOT
 mkdir -p ${PKGFOLDER}/$AMPCGIBIN
 mkdir -p ${PKGFOLDER}/var/lib/asterisk/sounds/pluto/
+mkdir -p ${PKGFOLDER}/var/run/asterisk/
 #stuff for post install
 mkdir -p ${PKGFOLDER}/usr/local/amp/install/
 
