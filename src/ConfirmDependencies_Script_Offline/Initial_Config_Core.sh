@@ -3,13 +3,31 @@
 . /usr/pluto/install/Common.sh
 DIR="/usr/pluto/install"
 
+clear
 echo "** Initial config script"
+echo ""
+echo "I need to ask some basic questions"	
+echo "Please see http://plutohome.com/support"
+echo "click Quick Start Guide, and Installing Software"
+echo "for details."
+echo ""
 
 # Ask the questions
-Username=$(Ask "Pluto Username")
-Password=$(Ask "Pluto Password")
-Room=$(Ask "Room name")
-Type=$(Ask "Core or Hybrid? [C/h]")
+Username=$(Ask "What username do you want for yourself?")
+Password=$(Ask "Please enter a password:")
+echo ""
+echo "Use that username and password to login to your Pluto-Admin site"
+echo ""
+Room=$(Ask "In what room is this PC?")
+clear
+echo "Note: Hybrid means this PC will not only be the main server, but you will"
+echo "also hook it up to a TV and use it as a media director.  Core means it is"
+echo "a server only, and will not be used as a media station."
+Type=$(Ask "Should this be aCore or Hybrid? [C/h]")
+
+echo ""
+echo "You need to answer 'Y' below if you want Plug-and-play or extra media"
+echo "directors."
 DHCP=$(Ask "Run a DHCP server? [Y/n]")
 
 RestoreCoreConf()
