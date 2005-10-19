@@ -3,8 +3,7 @@
 
 DATABASES_TO_CHECK="pluto_main pluto_media pluto_security";
 
-
-DEST="mihai.t@newflavorstudio.com -c vali.g@plutohome.com -c aaron@plutohome.com -c mtoader@gmail.com"
+DEST="chris.m@plutohome.com -c vali.g@plutohome.com -c aaron@plutohome.com -c radu.c@plutohome.com"
 
 function reportError
 {

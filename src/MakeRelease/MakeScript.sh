@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#nobuild="-b"
-nobuild=""
+nobuild="-b"
+#nobuild=""
 
 fastrun=""
 #fastrun="-f -DERROR_LOGGING_ONLY"
@@ -75,6 +75,7 @@ if [ "$nobuild" = "" ]; then
 	cp /home/builds/Windows_Output/src/bin/* /home/MakeRelease/trunk/src/bin
 	cd /home/MakeRelease/trunk/src/bin
 	rm ../pluto_main/*
+	# We have to use pluto_main so the class is named correctly, but that means we need to be sure  the local pluto_main is up to date
 	sql2cpp -D pluto_main -h localhost
 	cd ../pluto_main
 	svn -m "Automatic Regen" --username aaron --password aaron --non-interactive commit
@@ -134,7 +135,15 @@ if ! MakeRelease $fastrun $nobuild -a -o 1 -r 2,9,11 -m 1 -s /home/MakeRelease/t
 	exit
 fi
 
+
 `dirname $0`/scripts/propagate.sh "$BASE_OUT_FOLDER/$version_name/"
+
+
+
+echo Setting this version as the current one.
+rm $BASE_OUT_FOLDER/current
+ln -s $BASE_OUT_FOLDER/$version_name $BASE_OUT_FOLDER/current
+
 #pushd "$BASE_INSTALLATION_CD_FOLDER"
 #"$BASE_INSTALLATION_CD_FOLDER/go-netinst.pl" "$BASE_OUT_FOLDER/$version_name" cache
 #popd
@@ -142,12 +151,8 @@ fi
 #"$BASE_INSTALLATION_2_6_10_CD_FOLDER/go-netinst.pl" "$BASE_OUT_FOLDER/$version_name" cache
 #popd
 pushd "$BASE_INSTALLATION_2_6_12_CD_FOLDER"
-"$BASE_INSTALLATION_2_6_12_CD_FOLDER/go-netinst.pl" "$BASE_OUT_FOLDER/$version_name" cache
+"$BASE_INSTALLATION_2_6_12_CD_FOLDER/go-netinst.pl" "$BASE_OUT_FOLDER/$version_name" cache > >(tee /home/MakeRelease/MakeRelease-CD.log)
 popd
-
-echo Setting this version as the current one.
-rm $BASE_OUT_FOLDER/current
-ln -s $BASE_OUT_FOLDER/$version_name $BASE_OUT_FOLDER/current 
 
 #mv /home/builds/$version_name/debian-packages.tmp /home/builds/$version_name/debian-packages.list
 
@@ -185,6 +190,14 @@ cp -r /home/samba/builds/Windows_Output/winnetdlls $BASE_OUT_FOLDER/$version_nam
 #dcd /home/tmp/pluto-build/
 #./propagate.sh
 
+pushd /home/MakeRelease/trunk/external/VDR.Oct-9-2005/
+bash -x /home/MakeRelease/trunk/external/VDR.Oct-9-2005//buildall.sh > /home/MakeRelease/VDR.log
+find -name '*.deb' -print -exec cp '{}' /home/samba/repositories/pluto/replacements/main/binary-i386/ ';'
+popd
+
+pushd /home/samba/repositories/pluto/replacements/main/binary-i386/
+./update-repository
+popd
 
 if [ $version -ne 1 ]; then
     mkdir -p /home/builds/upload
