@@ -51,6 +51,7 @@ Database::Database( string db_host, string db_user, string db_pass, string db_na
 
 		g_GlobalConfig.m_bNewDatabase=true;
 		// Try creating the dabase
+		cout << "Creating database " << db_name << endl;
 		threaded_mysql_query("CREATE DATABASE " + db_name);
 		m_sMySQLDBName = db_name; // Set it back and try again
 		MySQLConnect();
