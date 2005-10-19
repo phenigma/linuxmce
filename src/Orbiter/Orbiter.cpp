@@ -8362,8 +8362,11 @@ void Orbiter::CMD_Toggle_Power(string sOnOff,string &sCMD_Result,Message *pMessa
 		CMD_Display_OnOff("0",false);
 	else
 	{
+		/*  TODO -- This makes it too easy to power off accidentally by hitting the button multiple times
+		For now the user will just hit the 'power' option
 		DCE::CMD_Halt_Device CMD_Halt_Device(m_dwPK_Device,m_dwPK_Device_LocalAppServer,m_dwPK_Device,"0");
 		SendCommand(CMD_Halt_Device);
+		*/
 	}
 }
 
@@ -8790,10 +8793,6 @@ int Orbiter::SetupNewOrbiter()
 	if( PROMPT_CANCEL == PK_Skin )
 		return 0;
 
-    int PK_DesignObj_MainMenu = PromptFor("MainMenu");
-    if( PROMPT_CANCEL == PK_DesignObj_MainMenu)
-        return 0;
-
 	int PK_Language = PromptFor("Language");
 	if( PROMPT_CANCEL == PK_Language )
 		return 0;
@@ -8802,18 +8801,6 @@ int Orbiter::SetupNewOrbiter()
 	mapResponseYNC[0]="Yes";
 	mapResponseYNC[1]="No";
 	mapResponseYNC[2]="Cancel";
-
-	int WiFi = PromptUser("Does this device use Wi-Fi?",0, &mapResponseYNC);
-	if( WiFi == PROMPT_CANCEL )
-		return 0;
-
-    int iWiFiResp = WiFi == 0 ? 1 : WiFi == 1 ? 2 : 0;
-
-	int UseEffects = PromptUser("Use animated buttons and effects?  This can make low-power devices like PDA's run slowly.",0, &mapResponseYNC);
-	if( UseEffects == PROMPT_CANCEL )
-		return 0;
-
-    int iNoEffectsResp = UseEffects == 0 ? 2 : UseEffects == 1 ? 1 : 0;
 
 	int Width=0,Height=0;
 	string sType;
@@ -8840,7 +8827,7 @@ int Orbiter::SetupNewOrbiter()
 
 	int PK_Device=0;
 	DCE::CMD_New_Orbiter_DT CMD_New_Orbiter_DT(m_dwPK_Device, DEVICETEMPLATE_Orbiter_Plugin_CONST, BL_SameHouse, sType, 
-		PK_Users,m_dwPK_DeviceTemplate,m_sMacAddress,PK_Room,Width,Height,PK_Skin,PK_Language,PK_Size,iWiFiResp,iNoEffectsResp,PK_DesignObj_MainMenu,&PK_Device);
+		PK_Users,m_dwPK_DeviceTemplate,m_sMacAddress,PK_Room,Width,Height,PK_Skin,PK_Language,PK_Size,&PK_Device);
 
 	CMD_New_Orbiter_DT.m_pMessage->m_eExpectedResponse = ER_ReplyMessage;
 	Message *pResponse = event_Impl.SendReceiveMessage( CMD_New_Orbiter_DT.m_pMessage );

@@ -2638,7 +2638,7 @@ void Media_Plugin::CMD_Load_Playlist(string sPK_EntertainArea,int iEK_Playlist,s
 	for(map<int,MediaHandlerInfo *>::iterator it=mapMediaHandlerInfo.begin();it!=mapMediaHandlerInfo.end();++it)
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from Load Playlist");
-	    StartMedia(it->second,pMessage->m_dwPK_Device_From,pMessage->m_dwPK_Device_From,vectEntertainArea,0,&dequeMediaFile,false,0,"",iEK_Playlist);  // We'll let the plug-in figure out the source, and we'll use the default remote
+	    StartMedia(it->second,0,pMessage->m_dwPK_Device_From,vectEntertainArea,0,&dequeMediaFile,false,0,"",iEK_Playlist);  // We'll let the plug-in figure out the source, and we'll use the default remote
 	}
 }
 
@@ -4376,7 +4376,7 @@ class DataGridTable *Media_Plugin::Bookmarks( string GridID, string Parms, void 
 	
 	string sWhere;
 	if( PK_MediaType )
-		sWhere = "EK_MediaType=" + StringUtils::itos(PK_MediaType) + " AND (EK_Users IS NULL OR EK_Users="+StringUtils::itos(PK_Users)+")";
+		sWhere = "EK_MediaType=" + StringUtils::itos(PK_MediaType) + " AND FK_File IS NOT NULL AND (EK_Users IS NULL OR EK_Users="+StringUtils::itos(PK_Users)+")";
 	else
 	{
 		vector<EntertainArea *> vectEntertainArea;
@@ -4385,12 +4385,17 @@ class DataGridTable *Media_Plugin::Bookmarks( string GridID, string Parms, void 
 		if( vectEntertainArea.size() )
 		{
 			pEntertainArea = vectEntertainArea[0];
-			if( pEntertainArea->m_pMediaStream && pEntertainArea->m_pMediaStream->m_dequeMediaFile.size() &&
-				pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos>=0 &&
-				pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos<pEntertainArea->m_pMediaStream->m_dequeMediaFile.size() )
+			if( pEntertainArea->m_pMediaStream )
 			{
-				MediaFile *pMediaFile = pEntertainArea->m_pMediaStream->m_dequeMediaFile[pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos];
-				sWhere = "FK_File=" + StringUtils::itos(pMediaFile->m_dwPK_File);
+				if( pEntertainArea->m_pMediaStream->m_dwPK_Disc )
+					sWhere = "FK_Disc=" + StringUtils::itos(pEntertainArea->m_pMediaStream->m_dwPK_Disc) + " AND (EK_Users IS NULL OR EK_Users="+StringUtils::itos(PK_Users)+")";
+				else if( pEntertainArea->m_pMediaStream->m_dequeMediaFile.size() &&
+					pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos>=0 &&
+					pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos<pEntertainArea->m_pMediaStream->m_dequeMediaFile.size() )
+				{
+					MediaFile *pMediaFile = pEntertainArea->m_pMediaStream->m_dequeMediaFile[pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos];
+					sWhere = "FK_File=" + StringUtils::itos(pMediaFile->m_dwPK_File) + " AND (EK_Users IS NULL OR EK_Users="+StringUtils::itos(PK_Users)+")";
+				}
 			}
 		}
 	}
@@ -4553,16 +4558,19 @@ void Media_Plugin::CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea,st
 
 	MediaStream *pMediaStream = pEntertainArea->m_pMediaStream;
 	MediaFile *pMediaFile=NULL;
-	if( pMediaStream->m_dequeMediaFile.size()==0 ||
-		pMediaStream->m_iDequeMediaFile_Pos<0 ||
-		pMediaStream->m_iDequeMediaFile_Pos>=pEntertainArea->m_pMediaStream->m_dequeMediaFile.size() ||
-		(pMediaFile=pMediaStream->m_dequeMediaFile[pMediaStream->m_iDequeMediaFile_Pos])==NULL ||
-		pMediaFile->m_dwPK_File==0)
+	if( !pMediaStream->m_dwPK_Disc )
 	{
-g_pPlutoLogger->Write(LV_CRITICAL,"size %d pos %d file %p %d",(int) pMediaStream->m_dequeMediaFile.size(),
-					  pMediaStream->m_iDequeMediaFile_Pos,pMediaFile,pMediaFile ? pMediaFile->m_dwPK_File : 0);
-		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(StringUtils::itos(pMessage->m_dwPK_Device_From),"Bookmarks only work with files");
-		return;
+		if( pMediaStream->m_dequeMediaFile.size()==0 ||
+			pMediaStream->m_iDequeMediaFile_Pos<0 ||
+			pMediaStream->m_iDequeMediaFile_Pos>=pEntertainArea->m_pMediaStream->m_dequeMediaFile.size() ||
+			(pMediaFile=pMediaStream->m_dequeMediaFile[pMediaStream->m_iDequeMediaFile_Pos])==NULL ||
+			pMediaFile->m_dwPK_File==0)
+		{
+	g_pPlutoLogger->Write(LV_CRITICAL,"size %d pos %d file %p %d",(int) pMediaStream->m_dequeMediaFile.size(),
+						pMediaStream->m_iDequeMediaFile_Pos,pMediaFile,pMediaFile ? pMediaFile->m_dwPK_File : 0);
+			m_pOrbiter_Plugin->DisplayMessageOnOrbiter(StringUtils::itos(pMessage->m_dwPK_Device_From),"Cannot identify the disc or file being played");
+			return;
+		}
 	}
 
 	if( m_mapMediaType_Bookmarkable_Find(pMediaStream->m_iPK_MediaType)==false )
@@ -4596,7 +4604,10 @@ g_pPlutoLogger->Write(LV_CRITICAL,"size %d pos %d file %p %d",(int) pMediaStream
 	}
 
 	Row_Bookmark *pRow_Bookmark = m_pDatabase_pluto_media->Bookmark_get()->AddRow();
-	pRow_Bookmark->FK_File_set(pMediaFile->m_dwPK_File);
+	if( pMediaStream->m_dwPK_Disc )
+		pRow_Bookmark->FK_Disc_set(pMediaStream->m_dwPK_Disc);
+	else
+		pRow_Bookmark->FK_File_set(pMediaFile->m_dwPK_File);
 	pRow_Bookmark->EK_MediaType_set(pMediaStream->m_iPK_MediaType);
 	if( pRow_Picture )
 		pRow_Bookmark->FK_Picture_set(pRow_Picture->PK_Picture_get());

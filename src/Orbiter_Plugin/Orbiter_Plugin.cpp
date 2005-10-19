@@ -1003,6 +1003,19 @@ void Orbiter_Plugin::CMD_Set_Current_Room(int iPK_Room,string &sCMD_Result,Messa
 void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,int iWidth,int iHeight,int iPK_Skin,int iPK_Language,int iPK_Size,int iUses_Wifi_connection,int *iPK_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c78-e->
 {
+	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL( m_dwPK_Device, m_sPK_Device_AllOrbiters, StringUtils::itos(DESIGNOBJ_mnuNewPhoneDetected_CONST), "" );
+    SendCommand(CMD_Remove_Screen_From_History_DL);
+
+// Do this in the background unless the caller is waiting for the device id
+#ifndef WIN32
+	if( pMessage->m_eExpectedResponse!=ER_ReplyMessage )
+	{
+		int pid = fork();
+		if (pid != 0)
+			return;
+	}
+#endif
+
     PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
     UnknownDeviceInfos *pUnknownDeviceInfos = m_mapUnknownDevices_Find(sMac_address);
     if(pUnknownDeviceInfos && !iPK_DeviceTemplate)
@@ -1011,8 +1024,6 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
 
 	int PK_UI=0;
 
-	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL( m_dwPK_Device, m_sPK_Device_AllOrbiters, StringUtils::itos(DESIGNOBJ_mnuNewPhoneDetected_CONST), "" );
-    SendCommand(CMD_Remove_Screen_From_History_DL);
 	m_bNoUnknownDeviceIsProcessing = false;
 
 	if( !iPK_DeviceTemplate )
@@ -1154,10 +1165,6 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
 		m_pRouter->SetDeviceDataInDB(PK_Device,DEVICEDATA_PK_Language_CONST,StringUtils::itos(iPK_Language),false);
 	if( iPK_Size )
 		m_pRouter->SetDeviceDataInDB(PK_Device,DEVICEDATA_PK_Size_CONST,StringUtils::itos(iPK_Size),false);
-    if( iNo_Effects > 0 )
-        m_pRouter->SetDeviceDataInDB(PK_Device,DEVICEDATA_No_Effects_CONST, iNo_Effects == 1 ? "1" : "0",false);
-    if( iPK_DesignObj_MainMenu > 0 )
-        m_pRouter->SetDeviceDataInDB(PK_Device,DEVICEDATA_PK_DesignObj_CONST, StringUtils::itos(iPK_DesignObj_MainMenu), false);
 
     Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(PK_Device);
     pRow_Device->Reload(); 
@@ -1767,6 +1774,17 @@ void Orbiter_Plugin::CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Resu
 {
 	g_pPlutoLogger->Write(LV_STATUS,"Got a CMD_Regen_Orbiter_Finished");
     PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
+
+	g_pPlutoLogger->Write(LV_STATUS,"Regen finished for: %d size is: %d",iPK_Device,(int) m_listRegenCommands.size());
+	for(list<int>::iterator it = m_listRegenCommands.begin(); it != m_listRegenCommands.end(); ++it)
+	{
+		if(*it == iPK_Device)
+		{
+			m_listRegenCommands.erase(it);
+			break;
+		}
+	}
+
 	OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(iPK_Device);
 	if( !pOH_Orbiter )
 	{
@@ -1783,15 +1801,6 @@ void Orbiter_Plugin::CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Resu
 			"%>",true);
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS,"Regen finished for: %d size is: %d",iPK_Device,(int) m_listRegenCommands.size());
-	for(list<int>::iterator it = m_listRegenCommands.begin(); it != m_listRegenCommands.end(); ++it)
-	{
-		if(*it == iPK_Device)
-		{
-			m_listRegenCommands.erase(it);
-			break;
-		}
-	}
 	g_pPlutoLogger->Write(LV_STATUS,"after Regen finished for: %d size is: %d",iPK_Device,(int) m_listRegenCommands.size());
 	for(list<int>::iterator it = m_listRegenCommands.begin(); it != m_listRegenCommands.end(); ++it)
 		g_pPlutoLogger->Write(LV_STATUS,"Still generating %d",*it);

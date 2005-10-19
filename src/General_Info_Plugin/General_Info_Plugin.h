@@ -11,7 +11,7 @@
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
 
 class Database_pluto_main;
-//<-dceag-decl-b->
+
 namespace DCE
 {
 	class LastApplication
@@ -20,7 +20,11 @@ namespace DCE
 		string m_sName;
 		int m_iPK_QuickStartTemplate;
 	};
+};
 
+//<-dceag-decl-b->
+namespace DCE
+{
 	class General_Info_Plugin : public General_Info_Plugin_Command
 	{
 //<-dceag-decl-e->
@@ -74,6 +78,8 @@ public:
 	void GetAppServerAndOsdForMD(DeviceData_Router *pDevice_MD,DeviceData_Router **pDevice_AppServer,DeviceData_Router **pDevice_Orbiter_OSD);
 	Message *BuildMessageToSpawnApp(DeviceData_Router *pDevice_OrbiterRequesting,DeviceData_Router *pDevice_MD,DeviceData_Router *pDevice_AppServer,DeviceData_Router *pDevice_Orbiter_OSD,
 		string sBinary,string sArguments,string sDescription,int PK_QuickStartTemplate=0);
+
+	bool NewMacAddress( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 
 //<-dceag-h-b->
 	/*
@@ -246,6 +252,19 @@ public:
 
 	virtual void CMD_Set_Active_Application(int iPK_Device,string sName,int iPK_QuickStartTemplate) { string sCMD_Result; CMD_Set_Active_Application(iPK_Device,sName.c_str(),iPK_QuickStartTemplate,sCMD_Result,NULL);};
 	virtual void CMD_Set_Active_Application(int iPK_Device,string sName,int iPK_QuickStartTemplate,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #700 - New Plug and Play Device */
+	/** A new pnp device has been added */
+		/** @param #47 Mac address */
+			/** The Mac Address */
+		/** @param #58 IP Address */
+			/** The IP Address */
+		/** @param #150 PK_DHCPDevice */
+			/** The template for the device */
+
+	virtual void CMD_New_Plug_and_Play_Device(string sMac_address,string sIP_Address,int iPK_DHCPDevice) { string sCMD_Result; CMD_New_Plug_and_Play_Device(sMac_address.c_str(),sIP_Address.c_str(),iPK_DHCPDevice,sCMD_Result,NULL);};
+	virtual void CMD_New_Plug_and_Play_Device(string sMac_address,string sIP_Address,int iPK_DHCPDevice,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

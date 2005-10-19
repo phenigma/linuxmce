@@ -132,6 +132,7 @@ public:
 	virtual void CMD_Check_for_updates(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Check_for_updates_done(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Active_Application(int iPK_Device,string sName,int iPK_QuickStartTemplate,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_New_Plug_and_Play_Device(string sMac_address,string sIP_Address,int iPK_DHCPDevice,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -555,6 +556,34 @@ public:
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Set_Active_Application(iPK_Device,sName.c_str(),iPK_QuickStartTemplate,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case 700:
+					{
+						string sCMD_Result="OK";
+					string sMac_address=pMessage->m_mapParameters[47];
+					string sIP_Address=pMessage->m_mapParameters[58];
+					int iPK_DHCPDevice=atoi(pMessage->m_mapParameters[150].c_str());
+						CMD_New_Plug_and_Play_Device(sMac_address.c_str(),sIP_Address.c_str(),iPK_DHCPDevice,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_New_Plug_and_Play_Device(sMac_address.c_str(),sIP_Address.c_str(),iPK_DHCPDevice,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

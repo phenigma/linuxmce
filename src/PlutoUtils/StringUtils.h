@@ -16,6 +16,7 @@
 	#include <string>
 	#include <vector>
 	#include <deque>
+	#include "CommonIncludes.h"
 	using namespace ::std;
 #endif //ifndef SYMBIAN
 
@@ -52,6 +53,10 @@ namespace StringUtils
     /**
      * @brief returns the string representing the integer
      */
+#ifndef SYMBIAN
+	string i64tos( u_int64_t iNum );
+#endif
+
 #ifdef SYMBIAN
 	static
 #endif

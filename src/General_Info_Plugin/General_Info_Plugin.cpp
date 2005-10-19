@@ -30,6 +30,8 @@ using namespace DCE;
 //<-dceag-d-e->
 
 #include "../PlutoUtils/md5.h"
+#include "BD/PhoneDevice.h"
+#include "CreateDevice/CreateDevice.h"
 
 #include "DCERouter.h"
 #include "DCE/DeviceData_Router.h"
@@ -38,6 +40,8 @@ using namespace DCE;
 #include "pluto_main/Table_Device_QuickStart.h"
 #include "pluto_main/Table_QuickStartTemplate.h"
 #include "pluto_main/Table_Device_MRU.h"
+#include "pluto_main/Table_UnknownDevices.h"
+#include "pluto_main/Table_DHCPDevice.h"
 #include "pluto_main/Define_DataGrid.h"
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_CommandParameter.h"
@@ -126,6 +130,8 @@ bool General_Info_Plugin::Register()
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::TypesOfPhones)), 
 		DATAGRID_Types_Of_Mobile_Phones_CONST,PK_DeviceTemplate_get());
+
+	RegisterMsgInterceptor( ( MessageInterceptorFn )( &General_Info_Plugin::NewMacAddress ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_New_Mac_Address_Detected_CONST );
 
 	return Connect(PK_DeviceTemplate_get()); 
 }
@@ -245,6 +251,9 @@ void General_Info_Plugin::CMD_Add_Unknown_Device(string sText,string sID,string 
 	pRow_UnknownDevices->MacAddress_set(sMac_address);
 	m_pDatabase_pluto_main->UnknownDevices_get()->Commit();
 g_pPlutoLogger->Write(LV_STATUS,"uknown device, setting: %d to mac: %s",pRow_UnknownDevices->PK_UnknownDevices_get(),pRow_UnknownDevices->MacAddress_get().c_str());
+
+	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL( m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, StringUtils::itos(DESIGNOBJ_mnuNewMacAddress_CONST), sMac_address );
+	SendCommand(CMD_Remove_Screen_From_History_DL);
 }
 //<-dceag-c239-b->
 
@@ -1003,4 +1012,74 @@ Message *General_Info_Plugin::BuildMessageToSpawnApp(DeviceData_Router *pDevice_
 		CMD_Spawn_Application.m_pMessage->m_vectExtraMessages.push_back(CMD_On.m_pMessage);
 	}
 	return CMD_Spawn_Application.m_pMessage;
+}
+
+bool General_Info_Plugin::NewMacAddress( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
+{
+	string sMacAddress = pMessage->m_mapParameters[EVENTPARAMETER_Mac_Address_CONST];
+	string sIPAddress = pMessage->m_mapParameters[EVENTPARAMETER_IP_Address_CONST];
+	if( sMacAddress.size()<11 || sIPAddress.size()<7 )
+		return false; // invalid mac address or IP Address
+
+	vector<Row_UnknownDevices *> vectRow_UnknownDevices;
+	m_pDatabase_pluto_main->UnknownDevices_get()->GetRows("MacAddress like '%" + sMacAddress + "%'",&vectRow_UnknownDevices);
+	if( vectRow_UnknownDevices.size() )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::NewMacAddress %s already unknown",sMacAddress.c_str());
+		return false;  // already in the unknown list
+	}
+
+#ifndef WIN32
+	int pid = fork();
+	if (pid != 0)
+		return false;
+#endif
+
+	// This will be a new background thread
+	PhoneDevice pd("", sMacAddress, 0);
+
+	vector<Row_DHCPDevice *> vectRow_DHCPDevice;
+	m_pDatabase_pluto_main->DHCPDevice_get()->GetRows(StringUtils::itos(pd.m_iMacAddress) + ">=Mac_Range_Low AND " + StringUtils::itos(pd.m_iMacAddress) + "<=Mac_Range_High",&vectRow_DHCPDevice);
+	if( vectRow_DHCPDevice.size()>0 )
+	{
+		DCE::CMD_Goto_Screen_DL CMD_Goto_Screen( m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, 0, 
+			StringUtils::itos(DESIGNOBJ_mnuNewMacAddress_CONST), sMacAddress, "", false, true );
+
+		DCE::CMD_Set_Variable_DL CMD_Set_Variable( m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, VARIABLE_Misc_Data_1_CONST, 
+			sIPAddress );
+		CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable.m_pMessage);
+		SendCommand(CMD_Goto_Screen);
+		return false;
+	}
+
+	// Check on the main server
+	return false;
+}
+
+//<-dceag-c700-b->
+
+	/** @brief COMMAND: #700 - New Plug and Play Device */
+	/** A new pnp device has been added */
+		/** @param #47 Mac address */
+			/** The Mac Address */
+		/** @param #58 IP Address */
+			/** The IP Address */
+		/** @param #150 PK_DHCPDevice */
+			/** The template for the device */
+
+void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,string sIP_Address,int iPK_DHCPDevice,string &sCMD_Result,Message *pMessage)
+//<-dceag-c700-e->
+{
+	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL( m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, StringUtils::itos(DESIGNOBJ_mnuNewMacAddress_CONST), sMac_address );
+	SendCommand(CMD_Remove_Screen_From_History_DL);
+
+// Do this in the background
+#ifndef WIN32
+	int pid = fork();
+	if (pid != 0)
+		return;
+#endif
+
+	CreateDevice createDevice(m_pRouter->iPK_Installation_get(),m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get());
+	int PK_Device = createDevice.DoIt(iPK_DHCPDevice,0,sIP_Address,sMac_address);
 }

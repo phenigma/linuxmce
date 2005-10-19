@@ -1656,6 +1656,8 @@
 #define DESIGNOBJ_mnuAudioOptions_CONST 4476
 #define DESIGNOBJ_mnuSubtitles_CONST 4477
 #define DESIGNOBJ_mnuAngles_CONST 4478
+#define DESIGNOBJ_mnuNewMacAddress_CONST 4482
+
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
