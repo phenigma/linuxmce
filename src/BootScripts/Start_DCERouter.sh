@@ -23,11 +23,13 @@ disown -a
 # Delete old packages
 cd /usr/pluto/deb-cache/dists/sarge/main/binary-i386/
 ThisVersion="$(dpkg -s pluto-dcerouter | grep Version)"
+ThisBaseVersion=$(echo "$ThisVersion" | cut -d. -f1-4)
 RemovedList="0==1"
 for File in pluto-*_*.deb; do
 	DiskVersion="$(dpkg --info "$File" | grep Version | cut -c2-)"
+	DiskBaseVersion=$(echo "$DiskVersion" | cut -d. -f1-4)
 	PkgName="$(dpkg --info "$File" | grep Package | cut -d' ' -f3)"
-	if [ "$ThisVersion" != "$DiskVersion" ]; then
+	if [ "$ThisBaseVersion" != "$DiskBaseVersion" ]; then
 		rm -f $File
 		RemovedList="$RemovedList || \$0 == \"Package: $PkgName\""
 	fi
