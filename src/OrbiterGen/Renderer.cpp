@@ -698,14 +698,14 @@ RendererImage * Renderer::CreateFromRWops(SDL_RWops * rw, bool bFreeRWops, Pluto
 
         if( bPreserveAspectRatio && bCrop )
         {
-            if( scaleY<scaleX )
+            if( scaleY>scaleX )  // Take the greater scale, ie cropping the edges
                 scaleX=scaleY;
             else
                 scaleY=scaleX;
         }
         else if( bPreserveAspectRatio )
         {
-            if( scaleY<scaleX )
+            if( scaleY<scaleX ) // Take the lesser scale, ie shrinking to fit
                 scaleY=scaleX;
             else
                 scaleX=scaleY;
