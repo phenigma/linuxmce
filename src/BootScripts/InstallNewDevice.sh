@@ -1,6 +1,7 @@
 #!/bin/bash
 
 exec >>/var/log/pluto/InstallNewDevice.newlog 2>&1 0</dev/null
+echo "$(date -R) Called with: $*"
 
 Device="$1"
 Package="$2"
