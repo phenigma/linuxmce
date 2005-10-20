@@ -249,9 +249,13 @@ void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj, PlutoPoint po
 			bSendSelectedOnMove = true;
 
 		bool bTurnOn = true;
+
+        string sCurrentSelected = m_mapVariable[atoi(pObj->sSelVariable.c_str())];
+        int iHighlightedRow = pObj->m_iHighlightedRow >= 0 ? pObj->m_iHighlightedRow : atoi(sCurrentSelected.c_str());
+
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_WARNING, "About to send BD_CP_ShowList command, column %d, turnon %d, items count %d, selected item %d, send 'selected item' %d",
-				iSelectedColumn, bTurnOn, pObj->m_pDataGridTable->getTotalRowCount(), pObj->m_iHighlightedRow, (int)bSendSelectedOnMove);
+				iSelectedColumn, bTurnOn, pObj->m_pDataGridTable->getTotalRowCount(), iHighlightedRow, (int)bSendSelectedOnMove);
 #endif
 
         for(int i = 0; i < pObj->m_pDataGridTable->getTotalRowCount(); i++)
@@ -263,8 +267,8 @@ void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj, PlutoPoint po
 #endif
             listGrid.push_back(sItem);
         }
-
-        BD_CP_ShowList *pBD_CP_ShowList = new BD_CP_ShowList(x, y, Width, Height, pObj->m_iHighlightedRow, listGrid, 
+        
+        BD_CP_ShowList *pBD_CP_ShowList = new BD_CP_ShowList(x, y, Width, Height, iHighlightedRow, listGrid, 
 			bSendSelectedOnMove, bTurnOn);
 
         if( m_pBDCommandProcessor )
