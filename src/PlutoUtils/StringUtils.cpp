@@ -128,7 +128,11 @@ string StringUtils::ToLower(string sInput)
 string StringUtils::i64tos( u_int64_t iNum )
 {
 	char buf[64];
-	sprintf(buf, "%I64i", iNum);
+#ifdef WIN32
+	sprintf(buf, "%I64u", iNum);
+#else
+	sprintf(buf, "%llu", i64);
+#endif
 	return buf;
 }
 #endif
