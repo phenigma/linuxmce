@@ -1122,6 +1122,7 @@ void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,strin
 
 	CreateDevice createDevice(m_pRouter->iPK_Installation_get(),m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get());
 	int PK_Device = createDevice.DoIt(iPK_DHCPDevice,0,sIP_Address,sMac_address);
+	g_pPlutoLogger->Write(LV_STATUS,"Created PNP device %d from mac %s",PK_Device,sMac_address.c_str());
 	if( bForked )
 		exit();
 }
