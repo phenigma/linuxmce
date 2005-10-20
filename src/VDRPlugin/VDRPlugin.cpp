@@ -23,6 +23,7 @@ using namespace DCE;
 void* EPG_Thread( void* param ) // renamed to cancel link-time name collision in MS C++ 7.0 / VS .NET 2002
 {
 	VDRPlugin *p = (VDRPlugin*)param;
+	system("/etc/init.d/dvb start; /etc/init.d/vdrdevel start");  // First just be sure vdr is running
 	p->FetchEPG();
 	return NULL;
 }

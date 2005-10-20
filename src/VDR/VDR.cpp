@@ -79,7 +79,7 @@ bool VDR::GetConfig()
 		return false;
 	}
 			
-	// system(("/usr/pluto/bin/Write_VDR_Conf.sh " + string(m_pDevice_PVRCard ? "1" : "0")).c_str());
+	system("/etc/init.d/dvb start; /etc/init.d/vdrdevel start");  // First just be sure vdr is running
 
 	// Find all other VDR's
 	for(Map_DeviceData_Base::iterator itD=m_pData->m_AllDevices.m_mapDeviceData_Base.begin();
