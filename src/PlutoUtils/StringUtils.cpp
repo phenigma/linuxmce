@@ -127,7 +127,7 @@ string StringUtils::ToLower(string sInput)
 #ifndef SYMBIAN
 string StringUtils::i64tos( u_int64_t iNum )
 {
-	char buf[32];
+	char buf[64];
 	sprintf(buf, "%I64i", iNum);
 	return buf;
 }
