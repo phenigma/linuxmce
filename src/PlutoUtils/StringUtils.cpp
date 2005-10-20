@@ -131,7 +131,7 @@ string StringUtils::i64tos( u_int64_t iNum )
 #ifdef WIN32
 	sprintf(buf, "%I64u", iNum);
 #else
-	sprintf(buf, "%llu", i64);
+	sprintf(buf, "%llu", iNum);
 #endif
 	return buf;
 }
