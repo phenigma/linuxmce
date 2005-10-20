@@ -124,6 +124,33 @@ int main(int argc, char *argv[])
 
     string ServerAddress=argv[1];
 	Event_Impl *pEvent = new Event_Impl(DEVICEID_MESSAGESEND, 0, ServerAddress);
+	for(int i=0;true;++i) // Wait up to 30 seconds
+	{
+		pEvent->m_pClientSocket->SendString("READY");
+		string sResponse;
+		if( !pEvent->m_pClientSocket->ReceiveString(sResponse,5) )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot communicate with router");
+			exit(1);
+		}
+		if( sResponse=="YES" )
+			break;
+		else if( sResponse=="NO" )
+		{
+			if( i>5 )
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL,"Router not ready after 30 seconds.  Aborting....");
+				exit(1);
+			}
+			g_pPlutoLogger->Write(LV_STATUS,"DCERouter still loading.  Waiting 5 seconds");
+			Sleep(5000);
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Router gave unknown response to ready request %s",sResponse.c_str());
+			exit(1);
+		}
+	}
 
     Message *pMsg=new Message(argc-2,&argv[2]);
 

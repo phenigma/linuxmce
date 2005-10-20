@@ -109,7 +109,7 @@ namespace DCE
 		
 		/**
 		 * @brief just reads raw data from the socket
-         * if 'nTimeout' is -1, the default timeout will be used
+         * if 'nTimeout' is -1, the default timeout will be used.  Timeout is in seconds
 		 */
 		virtual bool ReceiveData( int iSize, char *pcData, int nTimeout = -1 ); 
 
@@ -120,13 +120,15 @@ namespace DCE
 		virtual bool SendString( string sToSend );
 		
 		/**
-		 * @brief reads a string from the socket.
+		 * @brief reads a string from the socket. 
+		 * if 'nTimeout' is -1, the default timeout will be used.  Timeout is in seconds
 		 * @return false on errors
 		 */
 		virtual bool ReceiveString( string &sResult, int nTimeout = -1 );
 
 		/**
-		 * @brief sends a string to the socket and retrives the answer
+		 * @brief sends a string to the socket and retrives the answer.
+		 * if 'nTimeout' is -1, the default timeout will be used.  Timeout is in seconds
 		 * @return false on errors
 		 */
 		virtual string SendReceiveString( string sToSend, int nTimeout = -1 );
