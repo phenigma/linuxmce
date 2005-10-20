@@ -1044,14 +1044,7 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
 
     if(!iPK_DeviceTemplate)
     {
-        if(iPK_Size == SIZE_IP_Phone_CONST)
-        {
-            iPK_DeviceTemplate = DEVICETEMPLATE_Proxy_Orbiter_CONST;
-            PK_UI = UI_Normal_Horizontal_3_4_CONST;
-            iWidth = 298;
-            iHeight = 168;
-        }
-        else if( (iWidth==240 && iHeight==320) || iPK_Size==SIZE_240x320_PDA_CONST )
+        if( (iWidth==240 && iHeight==320) || iPK_Size==SIZE_240x320_PDA_CONST )
 		{
 			if( sType=="CE" )
 				iPK_DeviceTemplate=DEVICETEMPLATE_Windows_CE_PDA_Vert_Display_CONST;
