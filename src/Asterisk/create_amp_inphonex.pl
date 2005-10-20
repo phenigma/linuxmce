@@ -28,6 +28,8 @@ unless (defined($ARGV[0]) && defined($ARGV[1]) && defined($ARGV[2]))
     exit(-1);
 }
 
+#fix permissions on each run
+`chmod g+w /etc/asterisk/*`;
 
 $DECLARED_USERNAME=$ARGV[0];
 $DECLARED_USERPASSWD=$ARGV[1];
