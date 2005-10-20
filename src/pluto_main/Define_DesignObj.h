@@ -1657,7 +1657,8 @@
 #define DESIGNOBJ_mnuSubtitles_CONST 4477
 #define DESIGNOBJ_mnuAngles_CONST 4478
 #define DESIGNOBJ_mnuNewMacAddress_CONST 4482
-
+#define DESIGNOBJ_No_Pluto_should_ignore_it_CONST 4483
+#define DESIGNOBJ_dgPNPDevices_CONST 4484
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

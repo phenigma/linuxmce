@@ -653,6 +653,7 @@
 #define COMMAND_Set_Active_Application_CONST 697
 #define COMMAND_Get_Extended_Media_Data_CONST 698
 #define COMMAND_Center_Parents_Text_If_Blank_CONST 699
+#define COMMAND_New_Plug_and_Play_Device_CONST 700
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

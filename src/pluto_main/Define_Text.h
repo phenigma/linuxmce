@@ -766,6 +766,9 @@
 #define TEXT_What_Type_Phone_CONST 1471
 #define TEXT_Floorplan_CONST 1472
 #define TEXT_See_playlist_CONST 1473
+#define TEXT_new_pnp_device_CONST 1474
+#define TEXT_No_ignore_it_CONST 1475
+#define TEXT_Yes_use_it_CONST 1476
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

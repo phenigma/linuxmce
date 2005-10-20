@@ -101,6 +101,7 @@
 #define DEVICEDATA_TCP_Address_CONST 117
 #define DEVICEDATA_Remote_Phone_IP_CONST 118
 #define DEVICEDATA_Listen_Port_CONST 119
+#define DEVICEDATA_System_Device_CONST 120
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"
