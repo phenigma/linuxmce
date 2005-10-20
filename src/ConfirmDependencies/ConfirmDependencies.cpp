@@ -458,8 +458,8 @@ int main(int argc, char *argv[])
 			{
 				cout << "#Running configure script" << endl;
 				cout << "/usr/pluto/bin/" << pRow_Device->FK_DeviceTemplate_getrow()->ConfigureScript_get()
-					<< " " + StringUtils::itos(pRow_Device->PK_Device_get()) << " \"" << pRow_Device->IPaddress_get()
-					<< "\" \"" + pRow_Device->MACaddress_get() + "\"" << endl;
+					<< " -d " + StringUtils::itos(pRow_Device->PK_Device_get()) << " -i \"" << pRow_Device->IPaddress_get()
+					<< "\" -m \"" + pRow_Device->MACaddress_get() + "\"" << endl;
 			}
 
 			pRow_Device->Status_set("");

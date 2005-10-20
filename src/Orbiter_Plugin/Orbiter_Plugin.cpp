@@ -91,7 +91,9 @@ Orbiter_Plugin::Orbiter_Plugin(int DeviceID, string ServerAddress,bool bConnectE
 //<-dceag-const-e->
 {
     m_bNoUnknownDeviceIsProcessing = false;
-    m_UnknownDevicesMutex.Init(NULL);
+    pthread_mutexattr_init( &m_MutexAttr );
+    pthread_mutexattr_settype( &m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP );
+	m_UnknownDevicesMutex.Init(&m_MutexAttr);
     m_AllowedConnectionsMutex.Init(NULL);
 	m_pDatabase_pluto_main=NULL;
 	m_pDatabase_pluto_security=NULL;
