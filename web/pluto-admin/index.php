@@ -941,7 +941,7 @@ switch ($section) {
 		@include($GLOBALS['globalConfigPath'].'asteriskDB.inc.php');
 	    include_once('operations/phones/phoneLines.php');
 	    $output->setHelpSrc('/support/index.php?section=document&docID=148');
-	    phoneLines($output,$asteriskADO,$dbADO);
+	    phoneLines($output,$asteriskADO);
 	break;
 	case 'phoneExtensions';
 		$output = new Template($dbADO);

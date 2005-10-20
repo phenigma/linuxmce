@@ -1,5 +1,5 @@
 <?
-function phoneLines($output,$astADO,$dbADO) {
+function phoneLines($output,$astADO) {
 	/* @var $astADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	$out='';
@@ -70,14 +70,14 @@ function phoneLines($output,$astADO,$dbADO) {
 	
 	if($action=='form'){
 		
-		$out.=setLeftMenu($dbADO).'
+		$out.='
 		<div align="center" class="err">'.stripslashes(@$_REQUEST['error']).'</div>
 		<div align="center" class="confirm"><B>'.stripslashes(@$_REQUEST['msg']).'</B></div>
 		<h3 align="center">Phone Lines</h3>
 		<form action="index.php" method="POST" name="phoneLines">
 			<input type="hidden" name="section" value="phoneLines">
 			<input type="hidden" name="action" value="update">
-
+			'.phoneLinesTable($astADO).'
 			<table align="center">
 				<tr>
 					<td>Choose provider</td>
@@ -113,6 +113,17 @@ function phoneLines($output,$astADO,$dbADO) {
 			exit();
 		}
 		
+		if(isset($_REQUEST['id'])){
+			$id=str_replace('9999','',$_REQUEST['id']);
+
+			$url='http://'.$_SERVER['SERVER_ADDR'].'/pluto-admin/amp/admin/config.php';
+			$params='display=6&extdisplay=OUT_'.$id.'&action=deltrunk';
+			
+			$answer=queryExternalServer($url.'?'.$params);
+			
+			header('Location: index.php?section=phoneLines&msg=The phone line was deleted.');
+			exit();
+		}
 		
 		header('Location: index.php?section=phoneLines');
 	}
@@ -121,5 +132,78 @@ function phoneLines($output,$astADO,$dbADO) {
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME);
 	$output->output();
+}
+
+function phoneLinesTable($astADO){
+	$count=0;
+	$res=$astADO->Execute("
+		SELECT sip.id,sip.data,sips.data AS sdata, sipp.data AS pdata 
+		FROM sip 
+		INNER JOIN sip sips ON (sips.id=sip.id) AND (sips.keyword='secret')
+		INNER JOIN sip sipp ON (sipp.id=sip.id) AND (sipp.keyword='username')
+		WHERE (sip.keyword='account') AND ((sip.data='broadvoice') OR (sip.data='sipgate') OR (sip.data='inphonex'))");
+	$out='
+	<table align="center" cellpadding="3" cellspacing="0">
+		<tr bgcolor="lightblue">
+			<td align="center"><B>Type</B></td>
+			<td align="center"><B>Data</B></td>
+			<td align="center"><B>Password</B></td>
+			<td align="center"><B>Username</B></td>
+			<td align="center"><B>Actions</B></td>
+		</tr>	';
+	while($row=$res->FetchRow()){
+		$count++;
+		$color=($count%2==0)?'#F0F3F8':'#FFFFFF';
+		$out.='
+		<tr bgcolor="'.$color.'">
+			<td>SIP</td>
+			<td>'.$row['data'].'</td>
+			<td>'.$row['sdata'].'</td>
+			<td>'.$row['pdata'].'</td>
+			<td align="center"><a href="javascript:if(confirm(\'Are you sure you want to delete this line?\'))self.location=\'index.php?section=phoneLines&action=del&id='.$row['id'].'\'">Del</a></td>
+		</tr>';
+	}
+
+	$res=$astADO->Execute("
+		SELECT iax.id,iax.data,iaxs.data AS sdata, iaxp.data AS pdata 
+		FROM iax 
+		INNER JOIN iax iaxs ON (iaxs.id=iax.id) AND (iaxs.keyword='secret')
+		INNER JOIN iax iaxp ON (iaxp.id=iax.id) AND (iaxp.keyword='username')
+		WHERE (iax.keyword='account') AND ((iax.data='fwd') OR (iax.data='teliax') OR (iax.data='efon'))");
+	while($row=$res->FetchRow()){
+		$count++;
+		$color=($count%2==0)?'#F0F3F8':'#FFFFFF';
+		$out.='
+		<tr bgcolor="'.$color.'">
+			<td>IAX</td>
+			<td>'.$row['data'].'</td>
+			<td>'.$row['sdata'].'</td>
+			<td>'.$row['pdata'].'</td>
+			<td align="center"><a href="javascript:if(confirm(\'Are you sure you want to delete this line?\'))self.location=\'index.php?section=phoneLines&action=del&id='.$row['id'].'\'">Del</a></td>
+		</tr>';
+	}
+	
+	$out.='</table><br>';
+	if($count==0){
+		$out='';
+	}
+	
+	return $out;
+}
+
+function queryExternalServer($url){
+	$ch = curl_init();
+	
+	// set URL and other appropriate options
+	curl_setopt($ch, CURLOPT_URL, $url);
+	curl_setopt($ch, CURLOPT_HEADER, false);
+	
+	// grab URL and pass it to the browser
+	$result=curl_exec($ch);
+	
+	// close CURL resource, and free up system resources
+	curl_close($ch);
+	
+	return $result;
 }
 ?>
