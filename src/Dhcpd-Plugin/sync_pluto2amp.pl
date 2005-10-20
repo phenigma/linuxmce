@@ -27,6 +27,9 @@ unless (defined($ARGV[0]))
 }
 &read_pluto_config();
 
+#fix permissions on each run
+`chmod g+w /etc/asterisk/*`;
+
 #connect to databases
 $DB_PL_HANDLE = DBI->connect("dbi:mysql:database=pluto_main;host=".$CONF_HOST.";user=".$CONF_USER.";password=".$CONF_PASSWD.";") or die "Could not connect to MySQL";
 $DB_AS_HANDLE = DBI->connect("dbi:mysql:database=asterisk;host=".$CONF_HOST.";user=".$CONF_USER.";password=".$CONF_PASSWD.";") or die "Could not connect to MySQL";
@@ -53,6 +56,9 @@ foreach my $I (@ARGV)
 
 $DB_PL_HANDLE->disconnect();
 $DB_AS_HANDLE->disconnect();
+
+#export the extension for other scripts
+`echo $DEVICE_EXT > /tmp/phone${DEVICE_ID}extension`;
 
 #run AMP's scripts to generate asterisk's config
 `/var/www/pluto-admin/amp/admin/retrieve_iax_conf_from_mysql.pl`;
@@ -135,7 +141,6 @@ sub find_next_extension()
 	{
     	$DEVICE_EXT = $DEVICE_EXT+1;
 	}
-	`echo $DEVICE_EXT > /tmp/phone${DEVICE_ID}extension`
 }
 
 sub update_device_data()
