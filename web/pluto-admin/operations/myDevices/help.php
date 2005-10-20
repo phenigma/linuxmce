@@ -77,7 +77,7 @@ function getDocumentTree($dbADO){
 function getDocumentsChilds($docID,$documentsTree,$spacer=''){
 	$out='';
 	if($docID==0){
-		return $out;
+		return '|--No documents.';
 	}
 	if(in_array($docID,array_keys($documentsTree))){
 		$out.='<a href="../support/index.php?section=document&docID='.$docID.'" target="_blank">'.$documentsTree[$docID]['Title'].'</a><br>';

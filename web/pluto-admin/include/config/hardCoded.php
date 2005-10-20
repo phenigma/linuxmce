@@ -30,7 +30,8 @@
 	$GLOBALS['SoundCards']=124;					// Sound Cards
 	$GLOBALS['VideoCards']=125;					// Video Cards
 	$GLOBALS['InfraredReceivers']=132;			// Infrared receivers
-
+	$GLOBALS['DigitalTVCards']=143;				// Digital TV Cards
+	
 	$GLOBALS['TVdevicesArray']=array($GLOBALS['TVdevices'],$GLOBALS['TVVCRCombo'],$GLOBALS['AmpsReceivers']);
 	
 	// PK_DeviceTemplate from table DeviceTemplate

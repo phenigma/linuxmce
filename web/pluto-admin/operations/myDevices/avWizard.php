@@ -241,6 +241,8 @@ $start_time=getmicrotime();
 				$roomPulldown.='</select>';
 	
 				$buttons='
+						<input value="Help" type="button" class="button" name="help" onClick="self.location=\'index.php?section=help&deviceID='.$rowD['PK_Device'].'\'"><br>
+						<input type="button" class="button" name="edit_'.$rowD['PK_Device'].'" value="Advanced"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'\';"><br>
 						<input type="button" class="button" name="btn" value="A/V Properties" onClick="windowOpen(\'index.php?section=irCodes&dtID='.$rowD['FK_DeviceTemplate'].'&deviceID='.$rowD['PK_Device'].'&from='.urlencode('avWizard&type='.$type).'\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');"><br>
 						<input type="submit" class="button" name="delete_'.$rowD['PK_Device'].'" value="Delete"  onclick="if(confirm(\'Are you sure you want to delete this device?\'))return true;else return false;"></td>';
 	
@@ -264,7 +266,7 @@ $start_time=getmicrotime();
 						<td bgcolor="#F0F3F8" align="center" rowspan="2" valign="top">'.$buttons.'</td>
 					</tr>
 					<tr>			
-						<td align="center" bgcolor="#F0F3F8" title="Category: '.$rowD['CategoryName'].', manufacturer: '.$rowD['ManufacturerName'].'">DT: '.$rowD['TemplateName'].'<br><input type="button" class="button" name="edit_'.$rowD['PK_Device'].'" value="Advanced"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'\';"></td>
+						<td align="center" bgcolor="#F0F3F8" title="Category: '.$rowD['CategoryName'].', manufacturer: '.$rowD['ManufacturerName'].'">DT: '.$rowD['TemplateName'].'</td>
 						<td align="right">'.$controlledByPulldown.'</td>
 						<td bgcolor="#F0F3F8">V: '.@$devicePipes['2']['output'].'</td>
 						<td bgcolor="#F0F3F8">'.@$devicePipes['2']['to'].'</td>

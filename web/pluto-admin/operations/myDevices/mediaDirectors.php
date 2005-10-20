@@ -9,7 +9,7 @@ function mediaDirectors($output,$dbADO) {
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$installationID = (int)@$_SESSION['installationID'];
 
-	$pvrArray=getAssocArray('DeviceTemplate','PK_DeviceTemplate','Description',$dbADO,' WHERE FK_DeviceCategory='.$GLOBALS['PVRCaptureCards'],'ORDER BY Description ASC');
+	$pvrArray=getAssocArray('DeviceTemplate','PK_DeviceTemplate','Description',$dbADO,' WHERE FK_DeviceCategory IN ('.$GLOBALS['PVRCaptureCards'].','.$GLOBALS['DigitalTVCards'].')','ORDER BY Description ASC');
 	$soundArray=getAssocArray('DeviceTemplate','PK_DeviceTemplate','Description',$dbADO,' WHERE FK_DeviceCategory='.$GLOBALS['SoundCards'],'ORDER BY Description ASC');
 	$videoArray=getAssocArray('DeviceTemplate','PK_DeviceTemplate','Description',$dbADO,' WHERE FK_DeviceCategory='.$GLOBALS['VideoCards'],'ORDER BY Description ASC');
 	$audioSettingsArray=array('M'=>'Manual settings', 'C'=>'SPDIF Coax', 'O'=>'SPDIF TosLink', 'S'=>'Stereo', 'L'=>'Multi-channel analog');
@@ -247,7 +247,11 @@ function mediaDirectors($output,$dbADO) {
 					$roomPulldown.='</select>';
 					$devicePipes=getPipes($rowD['PK_Device'],$dbADO);
 	
-					$buttons='<input type="submit" class="button" name="delete_'.$rowD['PK_Device'].'" value="Delete"  onclick="if(confirm(\'Are you sure you want to delete this device?\'))return true;else return false;"></td>';
+					$buttons='
+					<input value="Help" type="button" class="button" name="help" onClick="self.location=\'index.php?section=help&deviceID='.$rowD['PK_Device'].'\'"><br>
+					<input type="button" class="button" name="edit_'.$rowD['PK_Device'].'" value="Adv"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'\';"><br>
+					<input type="submit" class="button" name="delete_'.$rowD['PK_Device'].'" value="Delete"  onclick="if(confirm(\'Are you sure you want to delete this device?\'))return true;else return false;">
+					</td>';
 						
 					
 					$controlledByPulldown='&nbsp;';
@@ -265,7 +269,7 @@ function mediaDirectors($output,$dbADO) {
 						<td align="center" rowspan="2" valign="top" bgcolor="#F0F3F8">'.$buttons.'</td>
 					</tr>
 					<tr>			
-						<td align="center" bgcolor="#F0F3F8" title="Category: '.$rowD['CategoryName'].', manufacturer: '.$rowD['ManufacturerName'].'">DT: '.$rowD['TemplateName'].'<br><input type="button" class="button" name="edit_'.$rowD['PK_Device'].'" value="Advanced"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'\';"></td>
+						<td align="center" bgcolor="#F0F3F8" title="Category: '.$rowD['CategoryName'].', manufacturer: '.$rowD['ManufacturerName'].'">DT: '.$rowD['TemplateName'].'</td>
 						<td align="right">'.$controlledByPulldown.'</td>
 						<td bgcolor="#F0F3F8">V: '.@$devicePipes['2']['output'].'</td>
 						<td bgcolor="#F0F3F8">'.@$devicePipes['2']['to'].'</td>
@@ -298,7 +302,7 @@ function mediaDirectors($output,$dbADO) {
 
 					$orbiterMDChild=getMediaDirectorOrbiterChild($rowD['PK_Device'],$dbADO);
 					if($orbiterMDChild){
-						$pvrDevice=getSubDT($rowD['PK_Device'],$GLOBALS['PVRCaptureCards'],$dbADO);
+						$pvrDevice=getSubDT($rowD['PK_Device'],$GLOBALS['PVRCaptureCards'],$dbADO,$GLOBALS['DigitalTVCards']);
 						$soundDevice=getSubDT($rowD['PK_Device'],$GLOBALS['SoundCards'],$dbADO);
 						$videoDevice=getSubDT($rowD['PK_Device'],$GLOBALS['VideoCards'],$dbADO);
 						$out.='
@@ -464,7 +468,7 @@ function mediaDirectors($output,$dbADO) {
 					
 					$pvrDT=$_POST['PVRCaptureCard_'.$value];
 					if($pvrDT!=$_POST['oldPVR_'.$value]){
-						recreateDevice($value,$GLOBALS['PVRCaptureCards'],$pvrDT,$_SESSION['installationID'],$room,$dbADO);
+						recreateDevice($value,$GLOBALS['PVRCaptureCards'],$pvrDT,$_SESSION['installationID'],$room,$dbADO,$GLOBALS['DigitalTVCards']);
 					}
 					$soundDT=$_POST['SoundCard_'.$value];
 					if($soundDT!=$_POST['oldSound_'.$value]){
@@ -508,7 +512,7 @@ function mediaDirectors($output,$dbADO) {
 	$output->output();
 }
 
-function getSubDT($mdID,$categoryID,$dbADO)
+function getSubDT($mdID,$categoryID,$dbADO,$alternateCategory=0)
 {
 	$res=$dbADO->Execute('
 		SELECT FK_DeviceTemplate
@@ -518,6 +522,8 @@ function getSubDT($mdID,$categoryID,$dbADO)
 	if($res->RecordCount()>0){
 		$row=$res->FetchRow();
 		return $row['FK_DeviceTemplate'];
+	}elseif($alternateCategory!=0){
+		return getSubDT($mdID,$alternateCategory,$dbADO);
 	}else{
 		return 0;
 	}
@@ -538,11 +544,16 @@ function getSubDevice($mdID,$categoryID,$dbADO)
 	}
 }
 
-function recreateDevice($mdID,$categoryID,$dtID,$installationID,$roomID,$dbADO)
+function recreateDevice($mdID,$categoryID,$dtID,$installationID,$roomID,$dbADO,$alternateCategory=0)
 {
 	$deviceID=getSubDevice($mdID,$categoryID,$dbADO);
 	if($deviceID!=0){
 		deleteDevice($deviceID,$dbADO);
+	}elseif($alternateCategory!=0){
+		$altDevice=getSubDevice($mdID,$alternateCategory,$dbADO);
+		if($altDevice!=0){
+			deleteDevice($altDevice,$dbADO);
+		}
 	}
 	if($dtID!=0){
 		createDevice($dtID,$installationID,$mdID,$roomID,$dbADO,1);

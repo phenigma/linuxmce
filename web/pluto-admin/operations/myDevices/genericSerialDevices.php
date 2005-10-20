@@ -170,7 +170,7 @@ function genericSerialDevices($output,$dbADO) {
 				$pos++;
 				
 				$deviceName=(@$childOf[$rowD['PK_Device']]=='')?'<input type="text" name="description_'.$rowD['PK_Device'].'" value="'.$rowD['Description'].'">':'<input type="hidden" name="description_'.$rowD['PK_Device'].'" value="'.$rowD['Description'].'"><B>'.$rowD['Description'].'</B>';
-				$deviceName.=' # '.$rowD['PK_Device'].'<br><input type="button" class="button" name="edit_'.$rowD['PK_Device'].'" value="Advanced"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'\';">';
+				$deviceName.=' # '.$rowD['PK_Device'];
 				$roomPulldown='<select name="room_'.$rowD['PK_Device'].'">
 						<option value="0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Select room -&nbsp;&nbsp;&nbsp;&nbsp;</option>';
 				foreach($roomIDArray as $key => $value){
@@ -252,7 +252,10 @@ function genericSerialDevices($output,$dbADO) {
 					}
 					
 					$buttons='';
-					$buttons.='	<input type="button" class="button" name="btn" value="Ruby Source Code" onClick="windowOpen(\'index.php?section=rubyCodes&from=genericSerialDevices&deviceID='.$rowD['PK_Device'].'&dtID='.$rowD['FK_DeviceTemplate'].'&from=genericSerialDevices&label=ruby\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');"> ';
+					$buttons.='	
+						<input value="Help" type="button" class="button" name="help" onClick="self.location=\'index.php?section=help&deviceID='.$rowD['PK_Device'].'\'"><br>
+						<input type="button" class="button" name="edit_'.$rowD['PK_Device'].'" value="Advanced"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'\';"><br>
+						<input type="button" class="button" name="btn" value="Ruby Source Code" onClick="windowOpen(\'index.php?section=rubyCodes&from=genericSerialDevices&deviceID='.$rowD['PK_Device'].'&dtID='.$rowD['FK_DeviceTemplate'].'&from=genericSerialDevices&label=ruby\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');"><br> ';
 					$buttons.=' <input type="submit" class="button" name="delete_'.$rowD['PK_Device'].'" value="Delete"  onclick="return confirm(\'Are you sure you want to delete this device?\');"></td>';
 					
 					$controlledByPulldown='<select name="controlledBy_'.$rowD['PK_Device'].'">
