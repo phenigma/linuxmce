@@ -5465,7 +5465,10 @@ g_pPlutoLogger->Write(LV_STATUS,"deleting %s - %s",pScreenHistory->m_pObj->m_Obj
 			++it;
 	}
 	if( m_pScreenHistory_Current && m_pScreenHistory_Current->m_pObj->m_ObjectID.find(sPK_DesignObj+".")==0 && (sID.length()==0 || sID==m_pScreenHistory_Current->m_sID) )
+	{
+		vm.Release();
 		CMD_Go_back("","");
+	}
 }
 
 //<-dceag-c9-b->

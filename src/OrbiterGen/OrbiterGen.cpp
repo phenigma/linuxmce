@@ -2051,8 +2051,16 @@ Row_Size *OrbiterGenerator::TranslateSize(string sSize)
 	Row_Size *pRow_Size = new Row_Size(mds.Size_get());
 	pRow_Size->Width_set(Width);
 	pRow_Size->Height_set(Height);
-	pRow_Size->ScaleX_set(Scale);
-	pRow_Size->ScaleY_set(Scale);
+	if( Width==1280 && Height==1024 )  // 1280x1024 is not a normal 3:4 aspect ratio.  Other VGA resolutions are
+	{
+		pRow_Size->ScaleX_set(600);
+		pRow_Size->ScaleY_set(640);
+	}
+	else
+	{
+		pRow_Size->ScaleX_set(Scale);
+		pRow_Size->ScaleY_set(Scale);
+	}
 	return pRow_Size;
 }
 
