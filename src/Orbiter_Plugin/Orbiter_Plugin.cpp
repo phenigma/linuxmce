@@ -1163,12 +1163,28 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
         
     pRow_Device->Table_Device_get()->Commit();
 
-	// Same thing like in regen orbiter
-	string Cmd = "/usr/pluto/bin/RegenOrbiterOnTheFly.sh " + StringUtils::itos(PK_Device) + " " + StringUtils::itos(m_dwPK_Device);
-	m_listRegenCommands.push_back(PK_Device);
-	g_pPlutoLogger->Write(LV_STATUS,"Executing: %s, now m_listRegenCommands is: %d",Cmd.c_str(),(int) m_listRegenCommands.size());
-	FileUtils::LaunchProcessInBackground(Cmd);
-	g_pPlutoLogger->Write(LV_STATUS,"Execution returned: %s",Cmd.c_str());
+	mm.Relock();
+	if( !IsRegenerating(PK_Device) )
+	{
+		DeviceData_Base *pDevice_AppServer =
+			m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST);
+
+		if( pDevice_AppServer )
+		{
+			DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,
+				"/usr/pluto/bin/RegenOrbiterOnTheFly.sh","regen",
+				StringUtils::itos(PK_Device) + "\t" + StringUtils::itos(m_dwPK_Device),
+				"","",false,false,false);
+			SendCommand(CMD_Spawn_Application);
+		}
+		else
+			g_pPlutoLogger->Write(LV_CRITICAL,"Orbiter_Plugin::CMD_New_Orbiter No Appserver");
+
+		m_listRegenCommands.push_back(PK_Device);
+		g_pPlutoLogger->Write(LV_STATUS,"Executing regen now m_listRegenCommands is: %d",(int) m_listRegenCommands.size());
+	}
+	else
+		g_pPlutoLogger->Write(LV_STATUS,"Already generating %d",iPK_Device);
 
 	g_pPlutoLogger->Write(LV_STATUS,"now pending jobs size is m_listRegenCommands: %d",(int) m_listRegenCommands.size());
 	for(list<int>::iterator it = m_listRegenCommands.begin(); it != m_listRegenCommands.end(); ++it)
@@ -1712,7 +1728,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Starting regen orbiter with m_listRegenCommands
     {
         OH_Orbiter *pOH_Orbiter = (*it).second;
 
-		if( iPK_Device==0 ) //we'll regen all of them
+		if( iPK_Device==0 && !IsRegenerating(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device) ) //we'll regen all of them
 			m_listRegenCommands.push_back(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
 
 		if( iPK_Device==0 || pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device==iPK_Device )
@@ -1738,15 +1754,26 @@ g_pPlutoLogger->Write(LV_STATUS,"Starting regen orbiter with m_listRegenCommands
 		}
 	}
 
-	// Launch it in the background with &
-	string Cmd = "/usr/pluto/bin/RegenOrbiterOnTheFly.sh " + StringUtils::itos(iPK_Device) + " " + StringUtils::itos(m_dwPK_Device) + " " + sForce;
+	if( !iPK_Device || !IsRegenerating(iPK_Device) )
+	{
+		DeviceData_Base *pDevice_AppServer =
+			m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST);
 
-	if(iPK_Device) 
-		m_listRegenCommands.push_back(iPK_Device);
+		if( pDevice_AppServer )
+		{
+			DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,
+				"/usr/pluto/bin/RegenOrbiterOnTheFly.sh","regen",
+				StringUtils::itos(iPK_Device) + "\t" + StringUtils::itos(m_dwPK_Device) + "\t" + sForce,
+				"","",false,false,false);
+			SendCommand(CMD_Spawn_Application);
+		}
+		else
+			g_pPlutoLogger->Write(LV_CRITICAL,"Orbiter_Plugin::CMD_Regen_Orbiter No Appserver");
 
-	g_pPlutoLogger->Write(LV_STATUS,"Executing: %s m_listRegenCommands %d",Cmd.c_str(),(int) m_listRegenCommands.size());
-	FileUtils::LaunchProcessInBackground(Cmd);
-	g_pPlutoLogger->Write(LV_STATUS,"Execution returned: %s",Cmd.c_str());
+		g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Regen_Orbiter Execution returned");
+	}
+	else
+		g_pPlutoLogger->Write(LV_STATUS,"Already generating %d",iPK_Device);
 }
 
 //<-dceag-c267-b->
@@ -1806,7 +1833,8 @@ void Orbiter_Plugin::CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Resu
 
 bool Orbiter_Plugin::NewPnpDevice( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
-    PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::NewPnpDevice");
+	PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
 	int PK_Device = atoi(pMessage->m_mapParameters[EVENTPARAMETER_PK_Device_CONST].c_str());
 	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(PK_Device);
 	if( !pRow_Device )

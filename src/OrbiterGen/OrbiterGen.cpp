@@ -285,6 +285,19 @@ int OrbiterGenerator::DoIt()
 		m_pRow_Orbiter->PK_Orbiter_set(m_iPK_Orbiter);
 		m_pRow_Orbiter->Table_Orbiter_get()->Commit();
 	}
+
+	if( m_pRow_Orbiter->RegenInProgress_get() )
+	{
+		time_t tModDate = StringUtils::SQLDateTime(m_pRow_Orbiter->psc_mod_get());
+		time_t tNow = time(NULL);
+		cout << "*****SEEMS THIS ORBITER IS BEING GENERATED " << tModDate << " " << tNow << endl;
+		if( tNow-tModDate < 120 )  // There's recent activity within the last 2 minutes, so skip it
+		{
+			cout << "skipping" << endl;
+			return 0;
+		}
+	}
+
 	cout << "Setting RegenInProgress_set to true for " << m_pRow_Orbiter->PK_Orbiter_get() << endl;
 	m_pRow_Orbiter->RegenInProgress_set(true);
 	m_pRow_Orbiter->Table_Orbiter_get()->Commit();

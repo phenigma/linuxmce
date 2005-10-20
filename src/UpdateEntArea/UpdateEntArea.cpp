@@ -53,6 +53,7 @@ using namespace DCE;
 
 UpdateEntArea::UpdateEntArea(int PK_Installation,string host, string user, string pass, string db_name, int port)
 {
+	g_pPlutoLogger->Write( LV_STATUS, "Starting UpdateEnt Areas" );
 	m_pDatabase_pluto_main = new Database_pluto_main( );
 	if( !m_pDatabase_pluto_main->Connect( host, user, pass, db_name, port ) )
 	{
@@ -190,6 +191,8 @@ void UpdateEntArea::DoIt()
 			}
 			else
 			{
+				g_pPlutoLogger->Write(LV_STATUS,"Room: %d %s has media ea %d",pRow_Room->PK_Room_get(),pRow_Room->Description_get().c_str(),(int) vectEntertainArea.size());
+
 				// There is media in this room.  Add an entertainment area and any a/v equipment to it
 				// First, see if there are already too many ent areas (maybe the user changed from advanced to manual)
 				if( vectEntertainArea.size()>1 )

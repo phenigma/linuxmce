@@ -752,6 +752,7 @@ class DataGridTable *General_Info_Plugin::Rooms( string GridID, string Parms, vo
 void General_Info_Plugin::CMD_Check_for_updates(string &sCMD_Result,Message *pMessage)
 //<-dceag-c395-e->
 {
+	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates");
 	PLUTO_SAFETY_LOCK(gm,m_GipMutex);
 
 	if( PendingConfigs() )
