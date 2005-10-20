@@ -98,7 +98,9 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ bool Orbiter_PocketFrog::GameInit()
 {
-	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
+    ::SetWindowText(m_hWnd, "Pluto Orbiter");
+    
+    PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 
 	Rect r;
 	::GetClientRect( m_hWnd, &r );
