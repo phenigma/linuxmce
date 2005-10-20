@@ -99,6 +99,10 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 /*virtual*/ bool Orbiter_PocketFrog::GameInit()
 {
     ::SetWindowText(m_hWnd, "Pluto Orbiter");
+
+#ifndef WINCE
+    ::SetWindowLong(m_hWnd, GWL_STYLE, WS_VISIBLE | WS_SYSMENU | WS_BORDER | WS_CAPTION | WS_MINIMIZEBOX);
+#endif
     
     PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 
