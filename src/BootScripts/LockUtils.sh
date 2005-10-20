@@ -3,6 +3,7 @@
 # TODO: real locks, with PID and locking host inside to detect stale locks
 
 Dir="/usr/pluto/locks"
+mkdir -p "$Dir"
 
 Lock()
 {
