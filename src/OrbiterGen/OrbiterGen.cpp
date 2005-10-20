@@ -294,7 +294,7 @@ int OrbiterGenerator::DoIt()
 		if( tNow-tModDate < 120 )  // There's recent activity within the last 2 minutes, so skip it
 		{
 			cout << "skipping" << endl;
-			return 0;
+			exit(0);
 		}
 	}
 
