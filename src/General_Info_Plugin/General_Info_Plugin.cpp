@@ -1069,13 +1069,6 @@ bool General_Info_Plugin::NewMacAddress( class Socket *pSocket, class Message *p
 		return false;  // already in the unknown list
 	}
 
-#ifndef WIN32
-	int pid = fork();
-	if (pid != 0)
-		return false;
-#endif
-
-	// This will be a new background thread
 	PhoneDevice pd("", sMacAddress, 0);
 
 	vector<Row_DHCPDevice *> vectRow_DHCPDevice;
@@ -1114,17 +1107,21 @@ void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,strin
 	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL( m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, StringUtils::itos(DESIGNOBJ_mnuNewMacAddress_CONST), sMac_address );
 	SendCommand(CMD_Remove_Screen_From_History_DL);
 
+	Message *pMessage_Event = new Message(m_dwPK_Device,DEVICEID_EVENTMANAGER,PRIORITY_NORMAL,MESSAGETYPE_EVENT,EVENT_New_PNP_Device_Detected_CONST,
+		1,EVENTPARAMETER_PK_Device_CONST,StringUtils::itos(PK_Device).c_str());
+	QueueMessageToRouter(pMessage_Event);
+
+	bool bForked=false;
 // Do this in the background
 #ifndef WIN32
 	int pid = fork();
 	if (pid != 0)
 		return;
+	bForked=true;
 #endif
 
 	CreateDevice createDevice(m_pRouter->iPK_Installation_get(),m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get());
 	int PK_Device = createDevice.DoIt(iPK_DHCPDevice,0,sIP_Address,sMac_address);
-
-	Message *pMessage_Event = new Message(m_dwPK_Device,DEVICEID_EVENTMANAGER,PRIORITY_NORMAL,MESSAGETYPE_EVENT,EVENT_New_PNP_Device_Detected_CONST,
-		1,EVENTPARAMETER_PK_Device_CONST,StringUtils::itos(PK_Device).c_str());
-	QueueMessageToRouter(pMessage_Event);
+	if( bForked )
+		exit();
 }

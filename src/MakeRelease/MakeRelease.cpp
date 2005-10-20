@@ -300,6 +300,7 @@ int main(int argc, char *argv[])
 		g_pDatabase_pluto_main->Version_get()->GetRows("1=1 ORDER BY date desc limit 1",&vectRow_Version);
 		Row_Version *pRow_Version = vectRow_Version[0];
 		iVersion = pRow_Version->PK_Version_get();
+		cout << "Determined latest version is " << iVersion << endl;
 	}
 
 	g_pRow_Distro = g_pDatabase_pluto_main->Distro_get()->GetRow(g_iPK_Distro);
@@ -324,6 +325,7 @@ int main(int argc, char *argv[])
 		}
 	}
 	g_sBaseVersion = g_pRow_Version->VersionName_get();
+	cout << "Version is " << g_sBaseVersion << endl;
 
 	string::size_type pos=0;
 	int iDotCount;
