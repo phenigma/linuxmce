@@ -2295,11 +2295,10 @@ void Orbiter_Plugin::CMD_Send_File_To_Phone(string sMac_address,string sCommand_
 
     //get phone's name
     string sDisplayedInfo = sMac_address;
-    PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
+    //already protected
     UnknownDeviceInfos *pUnknownDeviceInfos = m_mapUnknownDevices_Find(sMac_address);
     if(pUnknownDeviceInfos)
         sDisplayedInfo = pUnknownDeviceInfos->m_sID;
-    mm.Release();
 
     string sArguments;
     string sCommand_LineClone(sCommand_Line);
