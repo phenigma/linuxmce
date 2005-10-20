@@ -66,6 +66,7 @@ Ask()
 
 NewDev()
 {
+	echo "Create device: $*" >/dev/tty
 	/usr/pluto/bin/CreateDevice "$@" | tail -1
 }
 
