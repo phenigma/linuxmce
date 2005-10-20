@@ -3,6 +3,7 @@
 . /usr/pluto/install/Common.sh
 DIR="/usr/pluto/install"
 
+exec 3>&1 1>/dev/tty
 clear
 echo "** Initial config script"
 echo ""
@@ -23,12 +24,13 @@ clear
 echo "Note: Hybrid means this PC will not only be the main server, but you will"
 echo "also hook it up to a TV and use it as a media director.  Core means it is"
 echo "a server only, and will not be used as a media station."
-Type=$(Ask "Should this be aCore or Hybrid? [C/h]")
+Type=$(Ask "Should this be a Core or Hybrid? [C/h]")
 
 echo ""
 echo "You need to answer 'Y' below if you want Plug-and-play or extra media"
 echo "directors."
 DHCP=$(Ask "Run a DHCP server? [Y/n]")
+exec 1>&3 3>&-
 
 RestoreCoreConf()
 {
