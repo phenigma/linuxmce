@@ -1,9 +1,9 @@
 #!/bin/bash -p
 
 OPTIONS="$*"
-VDRCMD="/usr/bin/vdr $OPTIONS"
+VDRCMD="/usr/bin/vdrdevel $OPTIONS"
 
-. /usr/lib/vdr/config-loader.sh
+. /usr/lib/vdrdevel/config-loader.sh
 
 if [ "$NONPTL" = "1" -a `uname -m` != x86_64 ]; then
     VDRCMD="LD_ASSUME_KERNEL=2.4.1 $VDRCMD"
@@ -66,21 +66,21 @@ function unload_dvb_modules()
 }
 
 
-VDR_ERR=`mktemp -p /tmp vdr-err.XXXXXX`
+VDR_ERR=`mktemp -p /tmp vdrdevel-err.XXXXXX`
 
 get_modulenames
 
 [ -z "$MODULES" ] && load_dvb_modules
 
-if [ "$VDSB_WORKAROUND" = "yes" ] && [ -x /usr/bin/szap ] ; then
-    channel=`awk '/^[^:]/ {print NR; exit}' /var/lib/vdr/channels.conf`
-    szap -a 0 -n $channel -c /var/lib/vdr/channels.conf >/dev/null &
-    szap -a 1 -n $channel -c /var/lib/vdr/channels.conf >/dev/null &
-    szap -a 2 -n $channel -c /var/lib/vdr/channels.conf >/dev/null &
-    szap -a 3 -n $channel -c /var/lib/vdr/channels.conf >/dev/null &
+#if [ "$VDSB_WORKAROUND" = "yes" ] && [ -x /usr/bin/szap ] ; then
+    channel=`awk '/^[^:]/ {print NR; exit}' /var/lib/vdrdevel/channels.conf`
+    szap -a 1 -n $channel -c /var/lib/vdrdevel/channels.conf >/dev/null &
+    szap -a 2 -n $channel -c /var/lib/vdrdevel/channels.conf >/dev/null &
+    szap -a 3 -n $channel -c /var/lib/vdrdevel/channels.conf >/dev/null &
+    szap -a 4 -n $channel -c /var/lib/vdrdevel/channels.conf >/dev/null &
     sleep 5
     killall szap
-fi
+#fi
 
 while (true) do
 
@@ -94,14 +94,14 @@ while (true) do
         ;;
         2)
             ERROR=`cat "$VDR_ERR"`
-            logger -t runvdr "stopping after fatal fail ($ERROR)"
+            logger -t runvdrdevel "stopping after fatal fail ($ERROR)"
             exit
         ;;
     esac
 
-    logger -t runvdr "restarting VDR"
-    killall -q -TERM /usr/bin/vdr
-    wait `pidof vdr`
+    logger -t runvdrdevel "restarting VDR"
+    killall -q -TERM /usr/bin/vdrdevel
+    wait `pidof vdrdevel`
     unload_dvb_modules
     sleep 2
     load_dvb_modules

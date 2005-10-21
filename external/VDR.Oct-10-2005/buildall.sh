@@ -60,14 +60,14 @@ if [ "$COMPILEPLUGINS" == "1" ]; then
 
 
 	# streamdev server
-	pushd vdrdevel-plugin-streamdev-*
-	dpkg-buildpackage -tc
-	popd
+#	pushd vdrdevel-plugin-streamdev-*
+#	dpkg-buildpackage -tc
+#	popd
 
 	# text2skin server
-	pushd vdrdevel-plugin-text2skin-*
-	dpkg-buildpackage -tc
-	popd
+#	pushd vdrdevel-plugin-text2skin-*
+#	dpkg-buildpackage -tc
+#	popd
 
 	# tvonscreen
 #	pushd vdrdevel-plugin-tvonscreen-*
