@@ -146,12 +146,6 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 						<td>
 							<table width="100%">
 								<tr bgcolor="#DFDFDF">
-									<td align="center"><B>Email</B></td>
-								</tr>
-								<tr>
-									<td align="center"><input type="text" name="userForwardEmail_'.$rowUser['PK_Users'].'" value="'.$rowUser['ForwardEmail'].'"></td>
-								</tr>			
-								<tr bgcolor="#DFDFDF">
 									<td align="center"><B>Language</B></td>
 								</tr>
 								<tr>
@@ -206,12 +200,7 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 				<td colspan="9"><span class="err">'.stripslashes(@$_REQUEST['error']).'</span></td>
 			</tr>
 			<tr>
-				<td colspan="9">Add an existing user to this installation - username: 
-					<input type="text" name="addUserToInstallation" value="" size="20">
-					<input type="submit" class="button" name="addUser" value="Add"  ><span class="err"> 
-						'.(@$_SESSION['users']['userNotValid'] == 1?'(<b>Invalid username</b>)':'').'
-						'.(@$_SESSION['users']['userNotValid'] == 2?'(<b>User already in this installation</b>)':'').'</span>';
-				$out.='<p><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createUser&from=users\',\'width=600,height=650,toolbars=true, resizable=1\');">Create a new user/family member</a><p>
+				<td colspan="9"><p><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createUser&from=users\',\'width=600,height=650,toolbars=true, resizable=1\');">Create a new user/family member</a><p>
 				</td>
 			</tr>
 			<tr><td colspan="2"><input type="submit" class="button" name="submitX" value="Save"  >'.(isset($_GET['msg'])?"<br/><b>".strip_tags($_GET['msg']).'</b>':'').'</td></tr>
@@ -233,40 +222,9 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 	
 	if ($canModifyInstallation) {	
 			//process			
-			$addNewUser = cleanString($_POST['addUserToInstallation'],30);
-			$_SESSION['users']['userNotValid'] = 0;
 			$displayedUsers = cleanString($_POST['displayedUsers']);	
 			$displayedUsersArray = explode(",",$displayedUsers);
 			
-			if ($addNewUser!='' && isset($_POST['addUser'])) {
-				$grabTheUserID = 'SELECT PK_Users From Users WHERE UserName = ?';
-				$resGrabTheUserID = $dbADO->Execute($grabTheUserID,array($addNewUser));
-				if ($resGrabTheUserID && $resGrabTheUserID->RecordCount()==1) {
-								
-					$rowUser = $resGrabTheUserID->FetchRow();
-					if (!in_array($rowUser['PK_Users'],$displayedUsersArray)) {
-						$insertUserToInstallation = "
-						INSERT INTO Installation_Users(FK_Installation,FK_Users)
-							VALUES(?,?)
-						";			
-						$query=$dbADO->Execute($insertUserToInstallation,array($installationID,$rowUser['PK_Users']));
-						$lastInsert=$dbADO->Insert_ID();
-						$locationGoTo = "userUserName_{$lastInsert}";		
-						$_SESSION['users']['userNotValid'] = 0;
-					} else {				
-						$_SESSION['users']['userNotValid'] = 2;
-					}			
-				}else{
-					$_SESSION['users']['userNotValid']=1;
-				} 
-				
-				$msg='';
-				$commandToSend='/usr/pluto/bin/SetupUsers.sh';
-				system($commandToSend);				
-				header("Location: index.php?section=users&msg=".$msg.$locationGoTo);
-			}
-			
-
 			if (!is_array($displayedUsersArray) || $displayedUsersArray===array()) {
 				$displayedUsersArray=array();
 			}
@@ -283,7 +241,6 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 
 				$userExtension = cleanString($_POST['userExtension_'.$user]);
 
-				$userForwardEmail = cleanString($_POST['userForwardEmail_'.$user]);
 
 				$userCanModifyInstallation = cleanInteger(@$_POST['userCanModifyInstallation_'.$user]);
 				$userCanChangeHouseMode= cleanInteger(@$_POST['userCanChangeHouseMode_'.$user]);
@@ -299,13 +256,12 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 									FirstName=?,
 									LastName=?,
 									Nickname=?,
-									ForwardEmail=?,
 									FK_Language=?,
 									HideFromOrbiter=?
 							WHERE PK_Users = ?';
 				$resUpdUser = $dbADO->Execute($query,array($hasMailbox,$userAccessGeneralMailbox,
 				$userExtension,$userFirstName,$userLastName,$userNickname,
-				$userForwardEmail,$userLanguage,$HideFromOrbiter,$user));
+				$userLanguage,$HideFromOrbiter,$user));
 
 				// check if is the last user who could modify this installation
 				$resLastUser=$dbADO->Execute('SELECT FK_Users FROM Installation_Users WHERE userCanModifyInstallation=1 AND FK_Installation =?',array($installationID));

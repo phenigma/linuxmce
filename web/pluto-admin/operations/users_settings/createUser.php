@@ -84,10 +84,6 @@ function createUser($output,$dbADO) {
 							<B>NickName:</B> <input type="text" name="userNickname" value="'.@$_SESSION['createUser']['userNickname'].'">
 						</td>
 					</tr>
-					<tr valign="top" bgcolor="#EEEEEE">
-						<td><B>Email</B>*<br>This user will get an email whenever he has new voicemail</td>
-						<td><input type="text" name="userForwardEmail" value="'.@$_SESSION['createUser']['userForwardEmail'].'"></td>
-					</tr>
 					<tr valign="top">
 						<td><B>Can modify configuration</B><br>If checked, the user will be able to access this Pluto Admin site and change the configuration of Pluto</td>
 						<td><input type="checkbox" name="userCanModifyInstallation" value="1" '.(@$_SESSION['createUser']['userCanModifyInstallation']==1?" checked='checked'":'').'></td>
@@ -156,7 +152,6 @@ function createUser($output,$dbADO) {
 					//frmvalidator.addValidation("userLastName","req","Please enter a user last name");
 					frmvalidator.addValidation("pinCode","req","Please enter a number for PIN code.");
 			 		frmvalidator.addValidation("pinCode","numeric","PIN code must be a number.");
-					frmvalidator.addValidation("userForwardEmail","email","Please enter an email address");
 				</script>
 			';
 		
@@ -178,7 +173,6 @@ function createUser($output,$dbADO) {
 		
 		$userExtension = $_SESSION['createUser']['userExtension'] = cleanString($_POST['userExtension']);
 		
-		$userForwardEmail = $_SESSION['createUser']['userForwardEmail'] = cleanString(@$_POST['userForwardEmail']);
 		$userCanModifyInstallation = $_SESSION['createUser']['userCanModifyInstallation'] = cleanInteger(@$_POST['userCanModifyInstallation']);
 		
 		$userLanguage = $_SESSION['createUser']['userLanguage'] = cleanInteger(@$_POST['userLanguage']);
@@ -220,12 +214,12 @@ function createUser($output,$dbADO) {
 			$insertUser = '
 					INSERT INTO Users (UserName,Password, HasMailbox,
 					AccessGeneralMailbox,FirstName,
-					LastName,Nickname,Extension,ForwardEmail,
+					LastName,Nickname,Extension,
 					FK_Language,FK_Installation_Main,PINCode,Password_Unix,Password_Samba) 
-					values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+					values(?,?,?,?,?,?,?,?,?,?,?,?,?)';
 			$query = $dbADO->Execute($insertUser,array(
 					$username,$passMd5,$hasMailbox,$userAccessGeneralMailbox,$userFirstName,
-					$userLastName,$userNickname,$userExtension,$userForwardEmail,
+					$userLastName,$userNickname,$userExtension,
 					$userLanguage,$userMainInstallation,$pinCodeMd5,$LinuxPass,$SambaPass
 					));
 			$insertID = $dbADO->Insert_ID();
