@@ -47,7 +47,8 @@ public:
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
 
-		virtual void OnQuit() { m_bQuit_VL = true; Command_Impl::OnQuit(); };
+		virtual void OnQuit() { g_pPlutoLogger->Write(LV_STATUS,"IRTrans will quit"); m_bQuit_VL = true; m_bQuit = true; Command_Impl::OnQuit(); };
+		virtual void OnReload() { g_pPlutoLogger->Write(LV_STATUS,"IRTrans will reload"); m_bQuit_VL = true; m_bQuit = true; Command_Impl::OnQuit(); }
 
 //<-dceag-const2-b->!
 

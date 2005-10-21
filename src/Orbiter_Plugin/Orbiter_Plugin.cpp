@@ -165,6 +165,7 @@ bool Orbiter_Plugin::GetConfig()
 	string sStatus = GetStatus();
 	if( sStatus.size() )
 	{
+		g_pPlutoLogger->Write(LV_STATUS,"Starting to regen CMD_Regen from GetStatus %s",sStatus.c_str());
 		if( sStatus=="*" )
 			CMD_Regen_Orbiter(0,"","");
 		else

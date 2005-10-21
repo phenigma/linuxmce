@@ -88,7 +88,7 @@ void DoGotIRCommand(const char *pRemote,const char *pCommand)
 // The primary constructor when the class is created as a stand-alone device
 IRTrans::IRTrans(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
         : IRTrans_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
-        , IRReceiverBase(this), VFD_LCD_Base(40,2,20)
+        , IRReceiverBase(this), VFD_LCD_Base(20,2,20)
 //<-dceag-const-e->
 {
 	m_bIRServerRunning=false;
@@ -322,8 +322,8 @@ void IRTrans::DoUpdateDisplay(vector<string> *vectString)
 	
 	strncpy((char *) lcdCommand.framebuffer,(*vectString)[0].c_str(),min(40,(*vectString)[0].size()));
 	if( vectString->size()>1 )
-		strncpy((char *) (lcdCommand.framebuffer+40),(*vectString)[1].c_str(),min(40,(*vectString)[0].size()));
-	
+		strncpy((char *) (lcdCommand.framebuffer+40),(*vectString)[1].c_str(),min(40,(*vectString)[1].size()));
+
 	for(int i=0;i<80;++i)
 		if( lcdCommand.framebuffer[i]<' ' || lcdCommand.framebuffer[i]>'~' )
 			lcdCommand.framebuffer[i]=' ';

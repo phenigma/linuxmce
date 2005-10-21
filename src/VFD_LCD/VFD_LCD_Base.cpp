@@ -63,8 +63,17 @@ void VFD_LCD_Base::NewMessage(int iMessageType,string sName,string sMessage,int 
 	PLUTO_SAFETY_LOCK(vl,m_VL_MessageMutex);
 	g_pPlutoLogger->Write(LV_STATUS,"Message %d=%s",iMessageType,sMessage.c_str());
 	MapMessages *pMapMessages = m_mapMessages_Get(iMessageType);
+
 	if( sMessage.size() )
 	{
+		if( iMessageType==VL_MSGTYPE_NOW_PLAYING_MAIN || iMessageType==VL_MSGTYPE_NOW_PLAYING_SECTION ||
+				iMessageType==VL_MSGTYPE_RIPPING_NAME )
+		{
+			string::size_type s=0;
+			while( ( s=sMessage.find( '\n', s ) ) != string::npos ) // search for the first apperence of a char return
+				sMessage[s++] = ' ';
+		}
+
 		MapMessages::iterator it=pMapMessages->find(sName);
 		if( it!=pMapMessages->end() )
 			delete it->second;

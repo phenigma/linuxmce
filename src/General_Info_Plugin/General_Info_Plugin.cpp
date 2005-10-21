@@ -860,7 +860,7 @@ list<pair<string, string> > General_Info_Plugin::GetUserBookmarks(string sPK_Use
     list<pair<string, string> > Bookmarks;
     // the following code reads the Mozilla bookmarks
 
-    g_pPlutoLogger->Write(LV_CRITICAL,"Reading bookmarks from %s", 
+    g_pPlutoLogger->Write(LV_STATUS,"Reading bookmarks from %s", 
         ("/home/user_" + sPK_User + "/bookmarks.html").c_str());
 
     size_t Size;
@@ -907,7 +907,7 @@ list<pair<string, string> > General_Info_Plugin::GetUserBookmarks(string sPK_Use
             string LinkText(LastBrace+1);
 
             Buffer = EndBraceA+1;
-            g_pPlutoLogger->Write(LV_CRITICAL,"add bookmarks %s / %s",Link.c_str(), LinkText.c_str());
+            g_pPlutoLogger->Write(LV_STATUS,"add bookmarks %s / %s",Link.c_str(), LinkText.c_str());
             Bookmarks.push_back(pair<string, string>(Link, LinkText));
         }
 

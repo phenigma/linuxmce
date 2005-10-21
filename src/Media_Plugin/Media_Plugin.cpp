@@ -1076,7 +1076,7 @@ class DataGridTable *Media_Plugin::CurrentMediaSections( string GridID, string P
 			for(size_t sSection=0;sSection<pMediaTitle->m_dequeMediaSection.size();++sSection)
 			{
 				MediaSection *pMediaSection = pMediaTitle->m_dequeMediaSection[sSection];
-				string sCell = StringUtils::itos(sTitle+1) + " " + sTitleName + "\n" + StringUtils::itos(sSection+1) + " " + m_pMediaAttributes->GetAttributeName(pMediaSection->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Chapter_CONST));
+				string sCell = StringUtils::itos(sSection+1) + " " + m_pMediaAttributes->GetAttributeName(pMediaSection->m_mapPK_Attribute_Find(ATTRIBUTETYPE_Chapter_CONST));
 				pDataGrid->SetData(0, currentPos++,new DataGridCell(sCell," TITLE:" + StringUtils::itos(sTitle+1) + " CHAPTER:" + StringUtils::itos(sSection+1)));
 			}
 		}
