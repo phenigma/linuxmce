@@ -83,10 +83,8 @@ make clean
 make
 make INSTALL_PREFIX=${PKGFOLDER} install
 
-cd  ${SRCFOLDER}/chan_sccp/
-sed -r -i "s/^(ASTERISK_SOURCE=).*$/\1\..\/asterisk/" Makefile
-sed -r -i "s/^(AST_MODULES_DIR=)(.*)$/\1\$\{INSTALL_PREFIX\}\2/" Makefile
-sed -r -i "s/^(ASTERISK_VERSION=).*$/\1v1_0/" Makefile
+cd  ${SRCFOLDER}/chan_sccp-*/
+sed -r -i "s/^INSTALL_PREFIX=//" Makefile
 make clean
 make
 make INSTALL_PREFIX=${PKGFOLDER} install
