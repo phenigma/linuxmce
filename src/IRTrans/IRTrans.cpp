@@ -261,6 +261,7 @@ void IRTrans::CMD_Set_Screen_Type(int iValue,string &sCMD_Result,Message *pMessa
 
 void IRTrans::StartIRServer()
 {
+	g_pPlutoLogger->Write(LV_STATUS,"In start IR Server %s",DATA_Get_COM_Port_on_PC().c_str());
 #ifndef WIN32
 	CallBackFn=&DoGotIRCommand;
 	m_bIRServerRunning=true;
@@ -311,20 +312,20 @@ void IRTrans::DoUpdateDisplay(vector<string> *vectString)
 
 	lcdCommand.netcommand=COMMAND_LCD;
 	lcdCommand.mode=3;
-	lcdCommand.lcdcommand=LCD_TEXT;
-	lcdCommand.timeout=3;
+	lcdCommand.lcdcommand=3;
+	lcdCommand.timeout=0;
 	lcdCommand.adress=76;
 	lcdCommand.protocol_version=200;
 	lcdCommand.wid=40;
 	lcdCommand.hgt=4;
 	memset(lcdCommand.framebuffer,32,200);
-	lcdCommand.framebuffer[80]=0;
+	lcdCommand.framebuffer[81]=0;
 	
 	strncpy((char *) lcdCommand.framebuffer,(*vectString)[0].c_str(),min(40,(*vectString)[0].size()));
 	if( vectString->size()>1 )
 		strncpy((char *) (lcdCommand.framebuffer+40),(*vectString)[1].c_str(),min(40,(*vectString)[1].size()));
 
-	for(int i=0;i<80;++i)
+	for(int i=0;i<=80;++i)
 		if( lcdCommand.framebuffer[i]<' ' || lcdCommand.framebuffer[i]>'~' )
 			lcdCommand.framebuffer[i]=' ';
 /*
