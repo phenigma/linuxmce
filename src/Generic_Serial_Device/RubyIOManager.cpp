@@ -25,6 +25,7 @@
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Table_DeviceData.h"
+#include <signal.h>
 
 using namespace std;
 using namespace EMBRUBY;
@@ -283,8 +284,15 @@ RubyIOManager::RouteMessage(DeviceData_Base* pdevdata, Message *pMessage) {
 	return 0;
 }
 
+void handler_for_bad_things(int signal)
+{
+	g_pPlutoLogger->Write(LV_CRITICAL, "A CRITICAL ERROR HAS OCCURED (CHECK YOUR RUBY CODE)");
+	exit(1);
+}
+
 void* 
 RubyIOManager::_Run() {
+	signal(SIGABRT,handler_for_bad_things);
 	while(!isStopRequested()) {
 		bool msgarrived = emsg_.Wait(DEFAULT_POOL_TIME);
 		mmsg_.Lock();
