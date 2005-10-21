@@ -19,8 +19,8 @@ if [ "$ACTION" = "configure" ] ; then
         fi
 
         # new location for vdr-managed conf files
-        CONF_FILES="remote.LIRC.conf remote.remote-event.conf"
-        CONF_FILES="$CONF_FILES timers.conf channels.conf"
+        CONF_FILES="remote.KBD.conf remote.LIRC.conf remote.remote-event.conf"
+        CONF_FILES="$CONF_FILES setup.conf timers.conf channels.conf"
         for FILE in $CONF_FILES; do
             if [ -e /etc/vdr/$FILE -a ! -e /var/lib/vdr/$FILE ]; then
                 printf "Note: Moving /etc/vdr/$FILE to /var/lib/vdr/$FILE\n"

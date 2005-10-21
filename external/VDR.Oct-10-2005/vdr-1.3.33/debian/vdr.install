@@ -45,3 +45,8 @@ debian/vdr-shutdown                     usr/lib/vdr/
 debian/vdr-shutdown-message             usr/lib/vdr/
 debian/vdr-shutdown.wrapper             usr/lib/vdr/
 debian/S90.custom                       etc/vdr/shutdown-hooks/
+debian/remote.KBD.conf                  /var/lib/vdr/
+channels.conf                           /var/lib/vdr/
+debian/dvb                              /etc/init.d/
+debian/postinst/vdrdevel                /etc/default/
+debian/postinst/setup.conf		/var/lib/vdr/
