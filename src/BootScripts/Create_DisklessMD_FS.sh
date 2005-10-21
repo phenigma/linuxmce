@@ -144,5 +144,3 @@ cd -
 if ! egrep -q 'http://deb\.plutohome\.com/debian.+replacements.+main' "$DlPath"/etc/apt/sources.list; then
 	echo "deb http://deb.plutohome.com/debian/ replacements main" >>"$DlPath"/etc/apt/sources.list
 fi
-
-/usr/pluto/bin/Update_StartupScrips.sh
