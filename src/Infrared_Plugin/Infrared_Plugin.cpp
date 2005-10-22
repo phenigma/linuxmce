@@ -214,7 +214,7 @@ class DataGridTable *Infrared_Plugin::CommandsGrid(string GridID,string Parms,vo
 			pDataGrid->SetData(0,iRow,pCell);
 
 			pCell = new DataGridCell( "learn","" );
-			DCE::CMD_Learn_IR CMD_Learn_IR(PK_Orbiter,pDevice->m_dwPK_Device,"1",PK_Text,COMMAND_Generic_On_CONST);
+			DCE::CMD_Learn_IR CMD_Learn_IR(PK_Orbiter,pDevice->m_dwPK_Device,0,"1",PK_Text,COMMAND_Generic_On_CONST);
 			pCell->m_pMessage = CMD_Learn_IR.m_pMessage;
 			pDataGrid->SetData(4,iRow++,pCell);
 
@@ -224,7 +224,7 @@ class DataGridTable *Infrared_Plugin::CommandsGrid(string GridID,string Parms,vo
 			pDataGrid->SetData(0,iRow,pCell);
 
 			pCell = new DataGridCell( "learn","" );
-			DCE::CMD_Learn_IR CMD_Learn_IR2(PK_Orbiter,pDevice->m_dwPK_Device,"1",PK_Text,COMMAND_Generic_Off_CONST);
+			DCE::CMD_Learn_IR CMD_Learn_IR2(PK_Orbiter,pDevice->m_dwPK_Device,0,"1",PK_Text,COMMAND_Generic_Off_CONST);
 			pCell->m_pMessage = CMD_Learn_IR2.m_pMessage;
 			pDataGrid->SetData(4,iRow++,pCell);
 
@@ -241,7 +241,7 @@ class DataGridTable *Infrared_Plugin::CommandsGrid(string GridID,string Parms,vo
 				pDataGrid->SetData(0,iRow,pCell);
 
 				pCell = new DataGridCell( "learn","" );
-				DCE::CMD_Learn_IR CMD_Learn_IR(PK_Orbiter,pDevice->m_dwPK_Device,"1",PK_Text,COMMAND_0_CONST + i);
+				DCE::CMD_Learn_IR CMD_Learn_IR(PK_Orbiter,pDevice->m_dwPK_Device,0,"1",PK_Text,COMMAND_0_CONST + i);
 				pCell->m_pMessage = CMD_Learn_IR.m_pMessage;
 				pDataGrid->SetData(4,iRow++,pCell);
 				mapCodesAlreadyShown[COMMAND_0_CONST + i]=true;
@@ -252,7 +252,7 @@ class DataGridTable *Infrared_Plugin::CommandsGrid(string GridID,string Parms,vo
 			pDataGrid->SetData(0,iRow,pCell);
 
 			pCell = new DataGridCell( "learn","" );
-			DCE::CMD_Learn_IR CMD_Learn_IR(PK_Orbiter,pDevice->m_dwPK_Device,"1",PK_Text,COMMAND_Send_Generic_EnterGo_CONST);
+			DCE::CMD_Learn_IR CMD_Learn_IR(PK_Orbiter,pDevice->m_dwPK_Device,0,"1",PK_Text,COMMAND_Send_Generic_EnterGo_CONST);
 			pCell->m_pMessage = CMD_Learn_IR.m_pMessage;
 			pDataGrid->SetData(4,iRow++,pCell);
 
@@ -266,7 +266,7 @@ class DataGridTable *Infrared_Plugin::CommandsGrid(string GridID,string Parms,vo
 			pDataGrid->SetData(0,iRow,pCell);
 
 			pCell = new DataGridCell( "learn","" );
-			DCE::CMD_Learn_IR CMD_Learn_IR(PK_Orbiter,pDevice->m_dwPK_Device,"1",PK_Text,(*it).first);
+			DCE::CMD_Learn_IR CMD_Learn_IR(PK_Orbiter,pDevice->m_dwPK_Device,0,"1",PK_Text,(*it).first);
 			pCell->m_pMessage = CMD_Learn_IR.m_pMessage;
 			pDataGrid->SetData(4,iRow++,pCell);
 
@@ -291,7 +291,7 @@ class DataGridTable *Infrared_Plugin::CommandsGrid(string GridID,string Parms,vo
 		if( pRow_DeviceTemplate_AV && pRow_DeviceTemplate_AV->ToggleInput_get()==0 )
 		{
 			pCell = new DataGridCell( "learn","" );
-			DCE::CMD_Learn_IR CMD_Learn_IR(PK_Orbiter,pDevice->m_dwPK_Device,"1",PK_Text,pRow_DeviceTemplate_Input->FK_Command_get());
+			DCE::CMD_Learn_IR CMD_Learn_IR(PK_Orbiter,pDevice->m_dwPK_Device,0,"1",PK_Text,pRow_DeviceTemplate_Input->FK_Command_get());
 			pCell->m_pMessage = CMD_Learn_IR.m_pMessage;
 		}
 		else
@@ -317,7 +317,7 @@ class DataGridTable *Infrared_Plugin::CommandsGrid(string GridID,string Parms,vo
 			pDataGrid->SetData(0,iRow,pCell);
 
 			pCell = new DataGridCell( "learn","" );
-			DCE::CMD_Learn_IR CMD_Learn_IR(PK_Orbiter,pDevice->m_dwPK_Device,"1",PK_Text,pCommand->m_dwPK_Command);
+			DCE::CMD_Learn_IR CMD_Learn_IR(PK_Orbiter,pDevice->m_dwPK_Device,0,"1",PK_Text,pCommand->m_dwPK_Command);
 			pCell->m_pMessage = CMD_Learn_IR.m_pMessage;
 			pDataGrid->SetData(4,iRow++,pCell);
 		}
@@ -590,6 +590,12 @@ void Infrared_Plugin::CMD_Store_Infrared_Code(int iPK_Device,string sValue_To_As
 //<-dceag-c250-e->
 {
 	Table_InfraredGroup_Command * pTable_InfraredGroup_Command = m_pDatabase_pluto_main->InfraredGroup_Command_get();
+	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(iPK_Device);
+	if( !pRow_Device )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Infrared_Plugin::CMD_Store_Infrared_Code Device %d is invalid",iPK_Device);
+		return;
+	}
 
 	vector<Row_InfraredGroup_Command *> vectRow_InfraredGroup_Command;
 	pTable_InfraredGroup_Command->GetRows("FK_Device=" + StringUtils::itos(iPK_Device) +
@@ -603,7 +609,7 @@ g_pPlutoLogger->Write(LV_STATUS,"StoreIR Code.  Found %d rows for this already",
 		pRow_InfraredGroup_Command = pTable_InfraredGroup_Command->AddRow();
 		pRow_InfraredGroup_Command->FK_Device_set(iPK_Device);
 		pRow_InfraredGroup_Command->FK_Command_set(iPK_Command_Input);
-		pRow_InfraredGroup_Command->FK_DeviceTemplate_set(pRow_InfraredGroup_Command->FK_Device_getrow()->FK_DeviceTemplate_get());
+		pRow_InfraredGroup_Command->FK_DeviceTemplate_set(pRow_Device->FK_DeviceTemplate_get());
 		pRow_InfraredGroup_Command->IRData_set(sValue_To_Assign);
 		bNew = true;
 	}

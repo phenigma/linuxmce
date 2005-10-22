@@ -282,7 +282,7 @@ void Tira::SendIR(string Port, string IRCode)
                             IRCode.size());
 
     if ( res != 0 ) 
-		g_pPlutoLogger->Write(LV_CRITICAL,"Tira Sending: %s",IRCode.c_str());
+		g_pPlutoLogger->Write(LV_CRITICAL,"Tira failed Sending(%d): %s",res,IRCode.c_str());
 #endif
 }
 
