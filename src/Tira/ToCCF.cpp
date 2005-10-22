@@ -1,5 +1,5 @@
 #include "TiraAPI.h"
-#include "Y:\home\work\src\tira_api\APIBase\TransAction.h"
+#include "TransAction.h"
 
 // Returns  0 -- success
 //          1 -- invalid parameter

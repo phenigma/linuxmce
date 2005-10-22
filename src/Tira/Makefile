@@ -22,7 +22,7 @@ LDFLAGS += -L.
 XTRALDLIBS = -lMessageTranslation -lIRBase -lTiraAPI
 
 Gen_Dev_Files +=
-sources += ../LIRC_DCE/IRReceiverBase.cpp
+sources += ../LIRC_DCE/IRReceiverBase.cpp ToCCF.cpp
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)

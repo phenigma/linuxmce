@@ -382,6 +382,6 @@ g_pPlutoLogger->Write(LV_STATUS,"Got %s %d",Data,Size);
 			return;
 		}
 
-		tm.TimedCondWait(0,1000);
+		tm.TimedCondWait(0,100000000);
 	}
 }
