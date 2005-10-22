@@ -249,8 +249,7 @@ void EPG::ReadLogos(string sPath)
 		if( tModTime_mng && tModTime_mng>tModTime_jpg )
 		{
 			// Either the jpg doesn't exist or it's older than the mng
-			string sCmd = "convert \"" + sPath + "/" + pChannel->m_sChannelName + ".mng\" \"
-				+ sPath + "/" + pChannel->m_sChannelName + ".jpg";
+			string sCmd = "convert \"" + sPath + "/" + pChannel->m_sChannelName + ".mng\" \"" + sPath + "/" + pChannel->m_sChannelName + ".jpg";
 			g_pPlutoLogger->Write(LV_STATUS,"Will convert %s",sCmd.c_str());
 			system(sCmd.c_str());
 		}
