@@ -215,6 +215,7 @@ class DataGridTable *Infrared_Plugin::CommandsGrid(string GridID,string Parms,vo
 
 			pCell = new DataGridCell( "learn","" );
 			DCE::CMD_Learn_IR CMD_Learn_IR(PK_Orbiter,pDevice->m_dwPK_Device,0,"1",PK_Text,COMMAND_Generic_On_CONST);
+			DCE::CMD_Set_Text CMD_Set_Text(PK_Orbiter,PK_Orbiter,"","",PK_Text);
 			pCell->m_pMessage = CMD_Learn_IR.m_pMessage;
 			pDataGrid->SetData(4,iRow++,pCell);
 

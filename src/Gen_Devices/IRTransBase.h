@@ -121,7 +121,7 @@ public:
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Send_Code(string sText,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Toggle_Power(string sOnOff,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Learn_IR(string sOnOff,int iPK_Text,int iPK_Command_Input,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Learn_IR(int iPK_Device,string sOnOff,int iPK_Text,int iPK_Command,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Display_Message(string sText,string sType,string sName,string sTime,string sPK_Device_List,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Screen_Type(int iValue,string &sCMD_Result,class Message *pMessage) {};
 
@@ -194,10 +194,11 @@ public:
 				case 245:
 					{
 						string sCMD_Result="OK";
+					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
 					string sOnOff=pMessage->m_mapParameters[8];
 					int iPK_Text=atoi(pMessage->m_mapParameters[25].c_str());
-					int iPK_Command_Input=atoi(pMessage->m_mapParameters[71].c_str());
-						CMD_Learn_IR(sOnOff.c_str(),iPK_Text,iPK_Command_Input,sCMD_Result,pMessage);
+					int iPK_Command=atoi(pMessage->m_mapParameters[154].c_str());
+						CMD_Learn_IR(iPK_Device,sOnOff.c_str(),iPK_Text,iPK_Command,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -214,7 +215,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Learn_IR(sOnOff.c_str(),iPK_Text,iPK_Command_Input,sCMD_Result,pMessage);
+								CMD_Learn_IR(iPK_Device,sOnOff.c_str(),iPK_Text,iPK_Command,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
