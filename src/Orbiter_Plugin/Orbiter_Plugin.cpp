@@ -1722,12 +1722,6 @@ g_pPlutoLogger->Write(LV_STATUS,"Starting regen orbiter with m_listRegenCommands
     {
         OH_Orbiter *pOH_Orbiter = (*it).second;
 
-		if( iPK_Device==0 || !IsRegenerating(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device) ) //we'll regen all of them
-		{
-			m_listRegenCommands.push_back(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
-			g_pPlutoLogger->Write(LV_STATUS,"Added %d to m_listRegenCommands %d size",pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,(int) m_listRegenCommands.size());
-		}
-
 		if( iPK_Device==0 || pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device==iPK_Device )
 		{
 			if( pOH_Orbiter->m_tRegenTime )
@@ -1749,10 +1743,22 @@ g_pPlutoLogger->Write(LV_STATUS,"Starting regen orbiter with m_listRegenCommands
                 pOH_Orbiter->m_tRegenTime = time(NULL);
 			}
 		}
+
+		if( iPK_Device==0 && !IsRegenerating(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device) ) //we'll regen all of them
+		{
+			m_listRegenCommands.push_back(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+			g_pPlutoLogger->Write(LV_STATUS,"Added %d to m_listRegenCommands %d size",pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,(int) m_listRegenCommands.size());
+		}
 	}
 
 	if( !iPK_Device || !IsRegenerating(iPK_Device) )
 	{
+		if( iPK_Device )
+		{
+			m_listRegenCommands.push_back(iPK_Device);
+			g_pPlutoLogger->Write(LV_STATUS,"Added %d to m_listRegenCommands %d size",iPK_Device,(int) m_listRegenCommands.size());
+		}
+
 		ProcessUtils::SpawnApplication("/usr/pluto/bin/RegenOrbiterOnTheFly.sh",
 			StringUtils::itos(iPK_Device) + "\t" + StringUtils::itos(m_dwPK_Device) + "\t" + sForce,
 			"regen");
