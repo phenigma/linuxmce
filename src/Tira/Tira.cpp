@@ -14,23 +14,37 @@ using namespace DCE;
 
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_DeviceCategory.h"
+#include "pluto_main/Define_Command.h"
+#include "pluto_main/Define_CommandParameter.h"
 #ifndef WIN32
 #include "TiraAPI.h"
 #endif
 
+int ConvertToCCF(char* CCFOut, int CCFStringSize, const unsigned char* tta);
 Tira *g_pTira=NULL;
+
+void *Learning_Thread(void *p)
+{
+	Tira *pTira = (Tira *) p;
+	pTira->m_bLearningIR=true;
+	pTira->LearningThread();
+	pTira->m_bLearningIR=false;
+	return NULL;
+}
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 Tira::Tira(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: Tira_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
-	, IRReceiverBase(this)
+	, IRReceiverBase(this), m_TiraMutex("tira")
 {
 	g_pTira=this; // Used for the callback
-	m_bIRServerRunning=false;
 	m_tsLastButton.tv_sec=0;
 	m_bMustConvertRC5_6=true;
+	m_bLearningIR=m_bAbortLearning=false;
+	pthread_cond_init(&m_TiraCond, NULL);
+	m_TiraMutex.Init(NULL,&m_TiraCond);
 }
 
 //<-dceag-const2-b->!
@@ -54,6 +68,12 @@ bool Tira::GetConfig()
 	IRBase::setCommandImpl(this);
 	IRBase::setAllDevices(&(GetData()->m_AllDevices));
 	IRReceiverBase::GetConfig(m_pData);
+	DeviceData_Base *pDevice = m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory(DEVICECATEGORY_Infrared_Plugins_CONST);
+	if( pDevice )
+		m_dwPK_Device_IRPlugin = pDevice->m_dwPK_Device;
+	else
+		m_dwPK_Device_IRPlugin = 0;
+
 	// Find all our sibblings that are remote controls 
 	for(Map_DeviceData_Base::iterator itD=m_pData->m_AllDevices.m_mapDeviceData_Base.begin();
 		itD!=m_pData->m_AllDevices.m_mapDeviceData_Base.end();++itD)
@@ -150,6 +170,14 @@ bool Tira::Register()
 void Tira::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
+	if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && pMessage->m_dwID==COMMAND_Learn_IR_CONST )
+	{
+		if( pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST]=="1" )
+			StartLearning(pMessage->m_dwPK_Device_To,atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Text_CONST].c_str()));
+		else
+			StopLearning();
+	}
+
 	sCMD_Result = "UNHANDLED CHILD";
 }
 
@@ -208,22 +236,24 @@ void Tira::CMD_Toggle_Power(string sOnOff,string &sCMD_Result,Message *pMessage)
 //<-dceag-c245-b->
 
 	/** @brief COMMAND: #245 - Learn IR */
-	/** Put gc100 into IR Learning mode */
+	/** The next IR code received is to be learned in Pronto format and fire a Store IR Code command to the I/R Plugin when done */
+		/** @param #2 PK_Device */
+			/** You can specify the device to learn for here, or you can send the command to the device itself and leave this blank */
 		/** @param #8 On/Off */
 			/** Turn IR Learning mode on or off
 0, 1 */
 		/** @param #25 PK_Text */
 			/** If specified, the text object  which should contain the result of the learn command */
-		/** @param #71 PK_Command_Input */
+		/** @param #154 PK_Command */
 			/** Command ID for which the learning is done for */
 
-void Tira::CMD_Learn_IR(string sOnOff,int iPK_Text,int iPK_Command_Input,string &sCMD_Result,Message *pMessage)
+void Tira::CMD_Learn_IR(int iPK_Device,string sOnOff,int iPK_Text,int iPK_Command,string &sCMD_Result,Message *pMessage)
 //<-dceag-c245-e->
 {
-	cout << "Need to implement command #245 - Learn IR" << endl;
-	cout << "Parm #8 - OnOff=" << sOnOff << endl;
-	cout << "Parm #25 - PK_Text=" << iPK_Text << endl;
-	cout << "Parm #71 - PK_Command_Input=" << iPK_Command_Input << endl;
+	if( sOnOff=="1" )
+		StartLearning(iPK_Device,iPK_Command);
+	else
+		StopLearning();
 }
 
 //<-dceag-c687-b->
@@ -231,7 +261,7 @@ void Tira::CMD_Learn_IR(string sOnOff,int iPK_Text,int iPK_Command_Input,string 
 	/** @brief COMMAND: #687 - Set Screen Type */
 	/** Sent by Orbiter when the screen changes to tells the i/r receiver what type of screen is displayed so it can adjust mappings if necessary. */
 		/** @param #48 Value */
-			/** a character: M=Main Menu, m=other menu, R=Pluto Remote, r=Non-pluto remote, F=File Listing */
+			/** a character: M=Main Menu, m=other menu, R=Pluto Remote, r=Non-pluto remote, N=navigable OSD on media dev, f=full screen media app, F=File Listing, c=computing list, C=Computing full screen */
 
 void Tira::CMD_Set_Screen_Type(int iValue,string &sCMD_Result,Message *pMessage)
 //<-dceag-c687-e->
@@ -291,3 +321,67 @@ int __stdcall OurCalback(const char * eventstring) {
    printf("IR Data %s\n", eventstring);
    return 0;
 };
+
+void Tira::StartLearning(int PK_Device,int PK_Command)
+{
+	if( !PK_Device || !PK_Command || !m_dwPK_Device_IRPlugin )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot learn without a device, command & IR Plugin %d %d %d",
+			PK_Device, PK_Command, m_dwPK_Device_IRPlugin);
+		return;
+	}
+	m_iPK_Device_Learning=PK_Device; m_iPK_Command_Learning=PK_Command;
+
+	g_pPlutoLogger->Write(LV_STATUS,"Start learning Command %d Device %d",
+		PK_Command,PK_Device);
+
+	PLUTO_SAFETY_LOCK(tm,m_TiraMutex);
+	pthread_t t;
+	pthread_create(&t, NULL, Learning_Thread, (void*)this);
+}
+
+void Tira::StopLearning()
+{
+	PLUTO_SAFETY_LOCK(tm,m_TiraMutex);
+	g_pPlutoLogger->Write(LV_STATUS,"Stop learning");
+	m_bAbortLearning=true;
+
+	// Wait up to 1 second for the learning thread to die
+	for(int i=0;i<10 && m_bLearningIR;++i)
+	{
+		tm.Release();
+		Sleep(100);
+		tm.Relock();
+	}
+	if( m_bLearningIR )
+		g_pPlutoLogger->Write(LV_CRITICAL,"Could not stop the learning thread");
+}
+
+void Tira::LearningThread()
+{
+	PLUTO_SAFETY_LOCK(tm,m_TiraMutex);
+	tira_start_capture();
+	while( !m_bAbortLearning )
+	{
+		unsigned char *Data=NULL;
+		int Size=0;
+		tira_get_captured_data( (const unsigned char **) &Data, &Size );
+g_pPlutoLogger->Write(LV_STATUS,"Got %s %d",Data,Size);
+		if( Data && Size )
+		{
+			char CCF[4096];
+			if( ConvertToCCF(CCF, 4096, Data)==0 )
+			{
+				DCE::CMD_Store_Infrared_Code CMD_Store_Infrared_Code(m_dwPK_Device,m_dwPK_Device_IRPlugin,
+					m_iPK_Device_Learning,CCF,m_iPK_Command_Learning);
+				SendCommand(CMD_Store_Infrared_Code);
+			}
+			else
+				g_pPlutoLogger->Write(LV_CRITICAL,"Couldn't convert %d %s to CCF",Size,Data);
+			tira_cancel_capture();
+			return;
+		}
+
+		tm.TimedCondWait(0,1000);
+	}
+}

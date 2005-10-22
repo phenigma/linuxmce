@@ -2,7 +2,7 @@
 #ifndef Tira_h
 #define Tira_h
 
-//	DCE Implemenation for #1717 Tira
+//	DCE Implemenation for #1717 Tira (Pluto)
 
 #include "Gen_Devices/TiraBase.h"
 //<-dceag-d-e->
@@ -18,19 +18,24 @@ namespace DCE
 	{
 //<-dceag-decl-e->
 		// Private member variables
-		bool m_bIRServerRunning;
+		int m_iPK_Device_Learning,m_iPK_Command_Learning,m_dwPK_Device_IRPlugin; // The device and command we are learning, and the IR Plugin
 		map<string,pair<string,int> > m_mapCodesToButtons;
 		string m_sLastButton;
 		timespec m_tsLastButton;
-		
+		pluto_pthread_mutex_t m_TiraMutex;  // This will also protect the callback map
+		pthread_cond_t m_TiraCond;
 
 		// Private methods
 public:
 		// Public member variables
+		bool m_bLearningIR,m_bAbortLearning; // True when the next IR code that comes in should be learned
 		void GotIRCommand(const char *pRemote,const char *pCommand);
 		virtual void SendIR(string Port, string IRCode); // Required from IRBase
 		virtual void CreateChildren(); // Must override so we can call IRBase::Start() after creating children
 		virtual void OurCallback(const char *pButton);
+		void StartLearning(int PK_Device,int PK_Command);
+		void StopLearning();
+		void LearningThread();
 
 //<-dceag-const-b->
 public:
@@ -79,23 +84,25 @@ public:
 
 
 	/** @brief COMMAND: #245 - Learn IR */
-	/** Put gc100 into IR Learning mode */
+	/** The next IR code received is to be learned in Pronto format and fire a Store IR Code command to the I/R Plugin when done */
+		/** @param #2 PK_Device */
+			/** You can specify the device to learn for here, or you can send the command to the device itself and leave this blank */
 		/** @param #8 On/Off */
 			/** Turn IR Learning mode on or off
 0, 1 */
 		/** @param #25 PK_Text */
 			/** If specified, the text object  which should contain the result of the learn command */
-		/** @param #71 PK_Command_Input */
+		/** @param #154 PK_Command */
 			/** Command ID for which the learning is done for */
 
-	virtual void CMD_Learn_IR(string sOnOff,int iPK_Text,int iPK_Command_Input) { string sCMD_Result; CMD_Learn_IR(sOnOff.c_str(),iPK_Text,iPK_Command_Input,sCMD_Result,NULL);};
-	virtual void CMD_Learn_IR(string sOnOff,int iPK_Text,int iPK_Command_Input,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Learn_IR(int iPK_Device,string sOnOff,int iPK_Text,int iPK_Command) { string sCMD_Result; CMD_Learn_IR(iPK_Device,sOnOff.c_str(),iPK_Text,iPK_Command,sCMD_Result,NULL);};
+	virtual void CMD_Learn_IR(int iPK_Device,string sOnOff,int iPK_Text,int iPK_Command,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #687 - Set Screen Type */
 	/** Sent by Orbiter when the screen changes to tells the i/r receiver what type of screen is displayed so it can adjust mappings if necessary. */
 		/** @param #48 Value */
-			/** a character: M=Main Menu, m=other menu, R=Pluto Remote, r=Non-pluto remote, F=File Listing */
+			/** a character: M=Main Menu, m=other menu, R=Pluto Remote, r=Non-pluto remote, N=navigable OSD on media dev, f=full screen media app, F=File Listing, c=computing list, C=Computing full screen */
 
 	virtual void CMD_Set_Screen_Type(int iValue) { string sCMD_Result; CMD_Set_Screen_Type(iValue,sCMD_Result,NULL);};
 	virtual void CMD_Set_Screen_Type(int iValue,string &sCMD_Result,Message *pMessage);

@@ -134,6 +134,9 @@
 			<File
 				RelativePath="..\Gen_Devices\TiraBase.cpp">
 			</File>
+			<File
+				RelativePath=".\ToCCF.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
