@@ -8,6 +8,29 @@
 #
 #export LD_ASSUME_KERNEL=2.4.1
 
+. /usr/pluto/bin/Config_Ops.sh
+. /usr/pluto/bin/SQL_Ops.sh
+
+hasDVB=$(RunSQL "SELECT Device.PK_Device FROM Device
+LEFT JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate
+LEFT JOIN Device AS P1 ON Device.FK_Device_ControlledVia=P1.PK_Device
+LEFT JOIN Device AS P2 ON P1.FK_Device_ControlledVia=P2.PK_Device
+LEFT JOIN Device AS P3 ON P2.FK_Device_ControlledVia=P3.PK_Device
+LEFT JOIN Device AS P4 ON P3.FK_Device_ControlledVia=P4.PK_Device
+WHERE FK_DeviceCategory=143 AND
+(Device.FK_Device_ControlledVia=$PK_Device
+OR P1.FK_Device_ControlledVia=$PK_Device
+OR P2.FK_Device_ControlledVia=$PK_Device
+OR P3.FK_Device_ControlledVia=$PK_Device
+OR P4.FK_Device_ControlledVia=$PK_Device)")
+
+echo "DVB device ID: $hasDVB"
+
+if [ "$hasDVB" = "" ]; then
+	echo "No DVB card.  Skipping";
+	exit 0
+fi
+
 . /usr/lib/vdrdevel/config-loader.sh
 
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
