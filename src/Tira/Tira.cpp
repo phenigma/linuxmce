@@ -74,6 +74,8 @@ bool Tira::GetConfig()
 	else
 		m_dwPK_Device_IRPlugin = 0;
 
+	m_iRepeat=DATA_Get_Repeat();
+
 	// Find all our sibblings that are remote controls 
 	for(Map_DeviceData_Base::iterator itD=m_pData->m_AllDevices.m_mapDeviceData_Base.begin();
 		itD!=m_pData->m_AllDevices.m_mapDeviceData_Base.end();++itD)
@@ -276,7 +278,7 @@ void Tira::SendIR(string Port, string IRCode)
 	g_pPlutoLogger->Write(LV_STATUS,"Tira Sending: %s",IRCode.c_str());
 
 #ifndef WIN32
-    int res = tira_transmit(2, /* repeat 3 times*/
+    int res = tira_transmit(m_iRepeat, /* the docs say to repeat more than once, but I found with pronto codes that means the code is seen more than once */
                             -1, /* Use embedded frequency value*/
                             (const unsigned char *) IRCode.c_str(),
                             IRCode.size());
@@ -375,6 +377,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Got %s %d",Data,Size);
 				DCE::CMD_Store_Infrared_Code CMD_Store_Infrared_Code(m_dwPK_Device,m_dwPK_Device_IRPlugin,
 					m_iPK_Device_Learning,CCF,m_iPK_Command_Learning);
 				SendCommand(CMD_Store_Infrared_Code);
+				getCodeMap()[longPair(m_iPK_Device_Learning, m_iPK_Command_Learning)] = CCF;
 			}
 			else
 				g_pPlutoLogger->Write(LV_CRITICAL,"Couldn't convert %d %s to CCF",Size,Data);

@@ -84,7 +84,7 @@ char *FileUtils::ReadFileIntoBuffer( string sFileName, size_t &Size )
     return pChr;
 }
 
-bool FileUtils::WriteBufferIntoFile( string sFileName, char *pBuffer, size_t Size )
+bool FileUtils::WriteBufferIntoFile( string sFileName, const char *pBuffer, size_t Size )
 {
 	if( sFileName.length()==0 )
 		return false;
@@ -93,7 +93,7 @@ bool FileUtils::WriteBufferIntoFile( string sFileName, char *pBuffer, size_t Siz
 	if ( pFile == NULL )
 		return false;
 
-	fwrite( pBuffer, Size, 1, pFile );
+	fwrite( (const void *) pBuffer, Size, 1, pFile );
 	fclose( pFile );
 
 	return true;

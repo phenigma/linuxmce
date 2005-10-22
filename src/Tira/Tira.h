@@ -24,6 +24,7 @@ namespace DCE
 		timespec m_tsLastButton;
 		pluto_pthread_mutex_t m_TiraMutex;  // This will also protect the callback map
 		pthread_cond_t m_TiraCond;
+		int m_iRepeat;
 
 		// Private methods
 public:
@@ -58,6 +59,7 @@ public:
 
 	/*
 			*****DATA***** accessors inherited from base class
+	int DATA_Get_Repeat();
 
 			*****EVENT***** accessors inherited from base class
 

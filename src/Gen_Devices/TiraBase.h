@@ -29,6 +29,7 @@ public:
 	class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition);
 	virtual int GetPK_DeviceList() { return 1717; } ;
 	virtual const char *GetDeviceDescription() { return "Tira"; } ;
+	int Get_Repeat() { return atoi(m_mapParameters[121].c_str());}
 };
 
 
@@ -115,6 +116,7 @@ public:
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
+	int DATA_Get_Repeat() { return GetData()->Get_Repeat(); }
 	//Event accessors
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Send_Code(string sText,string &sCMD_Result,class Message *pMessage) {};
