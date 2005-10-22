@@ -229,6 +229,45 @@ void EPG::ProcessLine(char *szLine)
 	}
 }
 
+void EPG::ReadLogos(string sPath)
+{
+	for(size_t s=0;s<m_vectChannel.size();++s)
+	{
+		Channel *pChannel = m_vectChannel[s];
+
+#ifndef WIN32
+		// VDR usually stores in mng files.  We want jpg's.
+		// If there is an mng and no jpg, or the mng was modified after the jpg, do a convert
+		time_t tModTime_mng=0,tModTime_jpg=0;
+		struct stat64 dirEntryStat;
+		if ( stat64( (sPath + "/" + pChannel->m_sChannelName + ".mng").c_str(), &dirEntryStat) == 0 )
+			tModTime_mng = dirEntryStat.st_mtime;
+
+		if ( stat64( (sPath + "/" + pChannel->m_sChannelName + ".jpg").c_str(), &dirEntryStat) == 0 )
+			tModTime_jpg = dirEntryStat.st_mtime;
+
+		if( tModTime_mng && tModTime_mng>tModTime_jpg )
+		{
+			// Either the jpg doesn't exist or it's older than the mng
+			string sCmd = "convert \"" + sPath + "/" + pChannel->m_sChannelName + ".mng\" \"
+				+ sPath + "/" + pChannel->m_sChannelName + ".jpg";
+			g_pPlutoLogger->Write(LV_STATUS,"Will convert %s",sCmd.c_str());
+			system(sCmd.c_str());
+		}
+		else
+			g_pPlutoLogger->Write(LV_STATUS,"Will not convert %s %d %d",
+				pChannel->m_sChannelName.c_str(),tModTime_mng,tModTime_jpg);
+#endif
+
+		size_t sImage=0;
+		pChannel->m_pImage = FileUtils::ReadFileIntoBuffer(sPath + "/" + pChannel->m_sChannelName + ".jpg",
+			pChannel->m_sizeImage);
+	}
+}
+
+void EPG::ReadTimers(string sPath)
+{
+}
 
 Event::Event(char *szLine,Channel *pChannel)
 {
@@ -299,6 +338,8 @@ Channel::Channel(char *szLine)
 	m_pEvent_First = NULL;
 	m_pEvent_Last = NULL;
 	m_pChannel_Prior = m_pChannel_Next = NULL;
+	char *m_pImage=NULL;
+	m_sizeImage=0;
 }
 
 Channel::~Channel()
@@ -320,3 +361,4 @@ string Event::GetProgram()
 { 
 	return m_pProgram ? m_pProgram->m_sTitle : ""; 
 }
+

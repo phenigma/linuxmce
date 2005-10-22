@@ -22,29 +22,12 @@ using namespace DCE;
 #include <sstream>
 #include <pthread.h>
 
-#ifndef WIN32
-#include <sys/wait.h>
-
 #define VDR_SOCKET_TIMEOUT	3  // SECONDS
-
 VDR *g_pVDR = NULL;
 
-void sh(int i) /* signal handler */
-{
-   if ( g_pVDR && g_pVDR->m_bQuit )
-   		return;
-                    
-   int status = 0;
-   pid_t pid = 0;
-   pid = wait(&status);
-
-   if ( g_pVDR )
-   	g_pVDR->ProcessExited(pid, status);
-}
+#ifndef WIN32
+#include <sys/wait.h>
 #endif
-
-#define VDR_WINDOW_NAME "VDR_Xine"
-
 
 
 //<-dceag-const-b->
@@ -59,7 +42,7 @@ VDR::VDR(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLoca
          m_iVDRWindowId = 0;
 	m_iStreamID = 0;
 	m_pDevice_MediaPlugin=NULL;
-	 m_pDevice_PVRCard = NULL;
+	 m_pDevice_DVBCard = NULL;
 }
                                 
 
@@ -70,7 +53,7 @@ bool VDR::GetConfig()
 	if( !VDR_Command::GetConfig() )
 		return false;
 //<-dceag-getconfig-e->
-	m_pDevice_PVRCard = m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_PVR_Capture_Cards_CONST);
+	m_pDevice_DVBCard = m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Digital_TV_Cards_CONST);
 	m_pDevice_Xine = m_pData->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_Xine_Player_CONST);
 	m_pDevice_MediaPlugin = m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory(DEVICECATEGORY_Media_Plugins_CONST);
 	if( !m_pDevice_Xine || !m_pDevice_MediaPlugin )
@@ -81,6 +64,30 @@ bool VDR::GetConfig()
 			
 	system("/etc/init.d/dvb start; /etc/init.d/vdrdevel start");  // First just be sure vdr is running
 
+	if( m_pDevice_DVBCard )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"This MD has a DVB card.  Will use local xine");
+		m_sXineIP = "localhost";
+		return true;
+	}
+
+	DeviceData_Base *pDevice_Core = m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory(DEVICECATEGORY_Core_CONST);
+	if( pDevice_Core )
+	{
+		DeviceData_Base *pDevice_DVBCard = pDevice_Core->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Digital_TV_Cards_CONST);
+		DeviceData_Base *pDevice_Xine = pDevice_Core->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_Xine_Player_CONST);
+		if( pDevice_DVBCard && pDevice_Xine && pDevice_Core->m_sIPAddress.size() )
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"This MD has no DVB card, but core does.  Will use xine on %s",pDevice_Core->m_sIPAddress.c_str());
+			m_pDevice_Xine = pDevice_Xine;
+			m_sXineIP = pDevice_Core->m_sIPAddress;
+			return true;
+		}
+		else
+			g_pPlutoLogger->Write(LV_STATUS,"Core doesn't have a DVB (%p) or Xine (%p) or IP %s",
+				pDevice_DVBCard, pDevice_Xine, pDevice_Core->m_sIPAddress.c_str());
+	}
+
 	// Find all other VDR's
 	for(Map_DeviceData_Base::iterator itD=m_pData->m_AllDevices.m_mapDeviceData_Base.begin();
 		itD!=m_pData->m_AllDevices.m_mapDeviceData_Base.end();++itD)
@@ -88,14 +95,25 @@ bool VDR::GetConfig()
 		DeviceData_Base *pDevice = itD->second;
 		if( pDevice->m_dwPK_DeviceTemplate==DEVICETEMPLATE_VDR_CONST )
 		{
-			string s=pDevice->m_sIPAddress;
+			DeviceData_Base *pDevice_DVBCard = pDevice->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_Digital_TV_Cards_CONST);
+			DeviceData_Base *pDevice_Xine = pDevice->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_Xine_Player_CONST);
+
+			if( pDevice_DVBCard && pDevice_Xine && pDevice->m_pDevice_MD && pDevice->m_pDevice_MD->m_sIPAddress.size() )
+			{
+				g_pPlutoLogger->Write(LV_STATUS,"VDR %d has xine + dvb will use %s",
+					pDevice->m_dwPK_Device,pDevice->m_pDevice_MD->m_sIPAddress.c_str());
+				m_pDevice_Xine = pDevice_Xine;
+				m_sXineIP = pDevice->m_pDevice_MD->m_sIPAddress;
+				return true;
+			}
+			else
+				g_pPlutoLogger->Write(LV_STATUS,"VDR %d doesn't have a DVB (%p) or Xine (%p) or pc %p or IP %s",
+					pDevice->m_dwPK_Device, pDevice_DVBCard, pDevice_Xine, 
+					pDevice->m_pDevice_MD,(pDevice->m_pDevice_MD ? pDevice->m_pDevice_MD->m_sIPAddress.c_str() : ""));
 		}
-	return true;
 	}
 
-	
-        signal(SIGCHLD, sh); /* install handler */
-        return true;
+	return true;
                 
 }
 
@@ -106,15 +124,13 @@ VDR::~VDR()
 //<-dceag-dest-e->
 {
         // Kill any instances we spawned
-        vector<void *> data;
-        ProcessUtils::KillApplication(VDR_WINDOW_NAME, data);
 
 }
 
 bool VDR::LaunchVDR()
 {
 	DCE::CMD_Play_Media cmd(m_dwPK_Device,m_pDevice_Xine->m_dwPK_Device,
-			"vdr-socket:/192.168.80.1#demux:mpeg_pes",
+			"vdr-socket:/" + m_sXineIP + "#demux:mpeg_pes",
 			MEDIATYPE_pluto_LiveTV_CONST,
 			1,""); // Stream ID and start position not important
 	return SendCommand(cmd);
@@ -270,26 +286,6 @@ void VDR::CMD_Restart_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
 void VDR::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpeed,string &sCMD_Result,Message *pMessage)
 //<-dceag-c41-e->
 {
-}
-
-void VDR::ProcessExited(int pid, int status)
-{
-        PLUTO_SAFETY_LOCK(mm,m_VDRMutex);
-        g_pPlutoLogger->Write(LV_STATUS, "Process exited %d %d", pid, status);
-                
-        void *data;
-        string applicationName;
-        if ( ! ProcessUtils::ApplicationExited(pid, applicationName, data) )
-                return;
-                                                       
-        g_pPlutoLogger->Write(LV_STATUS, "Got application name: %s compare with %s", applicationName.c_str(), VDR_WINDOW_NAME);
-                                                         
-        if ( applicationName.compare(VDR_WINDOW_NAME) == 0 )
-        {
-                g_pPlutoLogger->Write(LV_STATUS, "Send go back to the caller!");
-                DCE::CMD_MH_Stop_Media_Cat CMD_MH_Stop_Media_Cat(m_dwPK_Device,DEVICECATEGORY_Media_Plugins_CONST,false,BL_SameHouse,m_dwPK_Device,0,0,"");
-                SendCommand(CMD_MH_Stop_Media_Cat);
-        }
 }
 
 //<-dceag-c84-b->

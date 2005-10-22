@@ -92,7 +92,7 @@ class MediaStream *Generic_NonPluto_Media::CreateMediaStream( class MediaHandler
 	return pMediaStream;
 }
 
-bool Generic_NonPluto_Media::StartMedia( class MediaStream *pMediaStream )
+bool Generic_NonPluto_Media::StartMedia( class MediaStream *pMediaStream,string &sError )
 {
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 

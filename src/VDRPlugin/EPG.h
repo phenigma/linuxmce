@@ -16,6 +16,8 @@ namespace VDREPG
 		string m_sChannelName,m_sFrequency;
 		Event *m_pEvent_First,*m_pEvent_Last;
 		Channel *m_pChannel_Prior,*m_pChannel_Next;
+		char *m_pImage;
+		size_t m_sizeImage;
 
 		Channel(char *szLine);
 		~Channel();
@@ -90,6 +92,8 @@ namespace VDREPG
 		~EPG();
 		bool ReadFromFile(string sFileEPG,string sFileChannels); // Read the epg data from a file
 		void ProcessLine(char *szLine);  // Process a line within that file
+		void ReadLogos(string sPath);  // Read the logos for the station icons
+		void ReadTimers(string sPath);  // Read the timers that are active
 	};
 }
 

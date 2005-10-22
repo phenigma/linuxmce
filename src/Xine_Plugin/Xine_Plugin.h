@@ -59,7 +59,7 @@ public:
 		/**
 		* @brief Start media playback
 		*/
-		virtual bool StartMedia( class MediaStream *pMediaStream );
+		virtual bool StartMedia( class MediaStream *pMediaStream,string &sError );
 
 		/**
 		* @brief Stop media playback

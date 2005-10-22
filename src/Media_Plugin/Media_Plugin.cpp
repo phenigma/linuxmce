@@ -694,7 +694,8 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
     {
         pMediaStream->ChangePositionInPlaylist(1);
 		g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from playback completed");
-        pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pMediaStream);
+		string sError;
+        pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pMediaStream,sError);
 		MediaInfoChanged(pMediaStream,true);
     }
     else
@@ -964,7 +965,8 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 		iPK_Orbiter_PromptingToResume = CheckForAutoResume(pMediaStream);
 
 	m_pMediaAttributes->LoadStreamAttributes(pMediaStream);
-	if( pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pMediaStream) )
+	string sError;
+	if( pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pMediaStream,sError) )
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"Plug-in started media");
 
@@ -1038,7 +1040,8 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 	else
 	{
 		if( pMediaStream->m_pOH_Orbiter_StartedMedia )
-			m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device,"<%=T" + StringUtils::itos(TEXT_Cannot_play_media_CONST) + "%>");
+			m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device,
+				"<%=T" + StringUtils::itos(TEXT_Cannot_play_media_CONST) + "%> " + sError );
 		StreamEnded(pMediaStream);
 		g_pPlutoLogger->Write(LV_CRITICAL,"Media Plug-in's call to Start Media failed 2.");
 	}
@@ -2526,7 +2529,8 @@ void Media_Plugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string 
 	if ( pEntertainArea->m_pMediaStream->ProcessJumpPosition(sValue_To_Assign) ) // if the specification was valid for this stream then continue processing in the media plugin
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from JumpPos (handler)");
-    	pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pEntertainArea->m_pMediaStream);
+		string sError;
+    	pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pEntertainArea->m_pMediaStream,sError);
 	}
 
 	MediaInfoChanged(pEntertainArea->m_pMediaStream,true);  // Refresh the screen and re-draw the grid
@@ -3025,7 +3029,8 @@ void Media_Plugin::CMD_Remove_playlist_entry(int iValue,string &sCMD_Result,Mess
 			pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos--;
 
 		g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from JumpPos (handler)");
-    	pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pEntertainArea->m_pMediaStream);
+		string sError;
+    	pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pEntertainArea->m_pMediaStream,sError);
 		MediaInfoChanged(pEntertainArea->m_pMediaStream,true);  // we need the true to refresh the grid
 	}
 }
@@ -5181,7 +5186,8 @@ void Media_Plugin::CMD_Shuffle(string &sCMD_Result,Message *pMessage)
 		}
 		pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos=0;
 		g_pPlutoLogger->Write(LV_STATUS,"Calling Start Media from shuffle");
-		pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pEntertainArea->m_pMediaStream);
+		string sError;
+		pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pEntertainArea->m_pMediaStream,sError);
 		MediaInfoChanged(pEntertainArea->m_pMediaStream,true);
 	}
 }

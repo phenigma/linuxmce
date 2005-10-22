@@ -21,10 +21,11 @@ private:
 		// Private member variables
 	        int                          m_iControllingDevice;
                 pthread_t                    m_qApplicationThreadId;
-				DeviceData_Base *m_pDevice_PVRCard,*m_pDevice_Xine,*m_pDevice_MediaPlugin;
+				DeviceData_Base *m_pDevice_DVBCard,*m_pDevice_Xine,*m_pDevice_MediaPlugin;
 				int m_iStreamID;  // The current stream ID
 				int m_iChannelNumber; // The current channel
 				string m_sChannelName;
+				string m_sXineIP;
 
                 bool checkWindowName(long unsigned int window, string windowName);
 
@@ -50,7 +51,6 @@ public:
 
                 virtual void KillSpawnedDevices();
                 virtual void CreateChildren();
-                virtual void ProcessExited(int pid, int status);
 		bool SendVDRCommand(string sCommand,string &sVDRResponse);
 		void ParseCurrentChannel(string sChannel);
 

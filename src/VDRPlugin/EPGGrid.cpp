@@ -83,6 +83,14 @@ g_pPlutoLogger->Write(LV_STATUS,"in loop irow %d < %d size %d",iRow,(int) (*RowS
 			// Use iRow+1 since the first row we added already for the header with the times
 			PopulateRow(pChannel,iRow+1,*ColStart * 60 * m_iGridResolution,(*ColStart + ColCount) * 60 * m_iGridResolution );
 			DataGridCell *pCell = new DataGridCell(pChannel->m_sChannelName);
+			if( pChannel->m_pImage && pChannel->m_sizeImage )
+			{
+				char *pBuffer = new char[pChannel->m_sizeImage];
+				memcpy(pBuffer,pChannel->m_pImage,pChannel->m_sizeImage);
+				pCell->m_pGraphicData = pChannel->m_pImage;
+				pCell->m_GraphicFormat = GR_JPG;
+				pCell->m_GraphicLength = pChannel->m_sizeImage;
+			}
 			SetData(0,iRow+1,pCell);
 		}
 	}

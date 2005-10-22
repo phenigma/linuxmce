@@ -108,8 +108,8 @@ void VDRPlugin::FetchEPG()
 			bool bIsHybrid = pDevice_Router && pDevice_MD->m_dwPK_Device_ControlledVia==pDevice_Router->m_dwPK_Device_ControlledVia;
 			string sPath = pDevice_VDR->m_mapParameters_Find(DEVICEDATA_File_Name_and_Path_CONST);
 			// for the moment hardcode this			if( sPath.size()==0 )
-			sPath = "/var/cache/vdrdevel";
 
+			sPath = "/var/cache/vdrdevel";
 			if( bIsHybrid )
 				sPath = "/usr/pluto/diskless/" + pDevice_MD->m_sIPAddress + "/" + sPath;
 #ifdef WIN32
@@ -118,7 +118,25 @@ void VDRPlugin::FetchEPG()
 			g_pPlutoLogger->Write(LV_STATUS,"Reading EPG from %s",sPath.c_str());
 			VDREPG::EPG *pEPG = new VDREPG::EPG();
 			pEPG->ReadFromFile(sPath + "/epg.data",StringUtils::Replace(sPath,"/cache/","/lib/") + "/channels.conf");
-			vm.Relock();
+
+			// Read the logos
+			sPath = "/usr/share/vdrdevel-channellogos";
+			if( bIsHybrid )
+				sPath = "/usr/pluto/diskless/" + pDevice_MD->m_sIPAddress + "/" + sPath;
+#ifdef WIN32
+			sPath = "Y:/home/root/usr/share/vdrdevel-channellogos";
+#endif
+			pEPG->ReadLogos(sPath);
+
+			sPath = "/var/lib/vdrdevel";
+			if( bIsHybrid )
+				sPath = "/usr/pluto/diskless/" + pDevice_MD->m_sIPAddress + "/" + sPath;
+#ifdef WIN32
+			sPath = "Y:/home/root/var/lib/vdrdevel";
+#endif
+			pEPG->ReadTimers(sPath);
+
+			vm.Relock();  // Lock here since it needs to be locked before the continue below
 			if( pEPG->m_listChannel.size()==0 || pEPG->m_mapEvent.size()==0 )
 			{
 				g_pPlutoLogger->Write(LV_CRITICAL,"EPG file %s was badly parsed",sPath.c_str());
@@ -140,10 +158,10 @@ void VDRPlugin::FetchEPG()
 		else if( bFirstRun )
 		{
 			bFirstRun=false;
-			vm.TimedCondWait(1200,0);
+			vm.TimedCondWait(1200,0);  // 20 minutes delay after the first run since it will be repopulating channels
 		}
 		else
-			vm.TimedCondWait(7200,0);
+			vm.TimedCondWait(7200,0);  // 2 hours
 	}
 	m_bEPGThreadRunning=false;
 }
@@ -260,7 +278,7 @@ class MediaStream *VDRPlugin::CreateMediaStream( class MediaHandlerInfo *pMediaH
 	return pVDRMediaStream;
 }
 
-bool VDRPlugin::StartMedia( class MediaStream *pMediaStream )
+bool VDRPlugin::StartMedia( class MediaStream *pMediaStream,string &sError )
 {
 	VDRMediaStream *pVDRMediaStream = (VDRMediaStream *) pMediaStream;
 	g_pPlutoLogger->Write( LV_STATUS, "VDRPlugin::StartMedia() Starting media stream playback. pos: %d", pVDRMediaStream->m_iDequeMediaFile_Pos );
@@ -279,9 +297,7 @@ bool VDRPlugin::StartMedia( class MediaStream *pMediaStream )
 	if( !pEPG || !pEvent )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot start without any EPG data %p %p",pEPG,pEvent);
-		if( pMediaStream->m_pOH_Orbiter_StartedMedia )
-			m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device,
-				"No EPG Data.  Cannot start TV");
+		sError = "Cannot start TV with no EPG Data.  Check the connection and try again in 20 minutes.";
 		return false;
 	}
 	pVDRMediaStream->m_EventID = pEvent->m_EventID;

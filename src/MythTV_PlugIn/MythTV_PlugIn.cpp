@@ -186,7 +186,7 @@ void MythTV_PlugIn::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage
     sCMD_Result = "UNKNOWN DEVICE";
 }
 
-bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream)
+bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream,string &sError)
 {
 #ifndef WIN32
 	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);

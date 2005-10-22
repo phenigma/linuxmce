@@ -201,7 +201,7 @@ XineMediaStream *Xine_Plugin::ConvertToXineMediaStream(MediaStream *pMediaStream
 	return static_cast<XineMediaStream*>(pMediaStream);
 }
 
-bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
+bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream,string &sError )
 {
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 g_iLastStreamIDPlayed=pMediaStream->m_iStreamID_get();

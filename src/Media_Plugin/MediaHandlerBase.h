@@ -27,7 +27,8 @@ namespace DCE
 
 		/** @brief Each Plugin will create its own instance of MediaStream, so it can create a derived version with extra information */
 		virtual class MediaStream *CreateMediaStream(class MediaHandlerInfo *pMediaHandlerInfo,int iPK_MediaProvider,vector<class EntertainArea *> &vectEntertainArea,MediaDevice *pMediaDevice,int iPK_Users, deque<MediaFile *> *dequeMediaFile,int StreamID)=0;
-		virtual bool StartMedia(class MediaStream *pMediaStream)=0;
+		/** If a plugin cannot start the media, it can supply an error message explaining why */
+		virtual bool StartMedia(class MediaStream *pMediaStream,string &sError)=0;
 		virtual bool StopMedia(class MediaStream *pMediaStream)=0;
 
 		// Given a stream, what is the rendering device(s).  The source device is stored in the stream.  Normally the source and rendering are the same (dvd player, for example).

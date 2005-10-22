@@ -75,9 +75,9 @@ bool AllDevices::Serialize( bool bWriting, char *&pcDataBlock, unsigned long &dw
 					pDeviceData_Base->m_pDevice_ControlledVia->m_vectDeviceData_Base_Children.push_back(pDeviceData_Base);
 			}
 			if( pDeviceData_Base->m_dwPK_Device_Core )
-				pDeviceData_Base->m_pDevice_Core = m_mapDeviceData_Base_Find(pDeviceData_Base->m_dwPK_Device_ControlledVia);
+				pDeviceData_Base->m_pDevice_Core = m_mapDeviceData_Base_Find(pDeviceData_Base->m_dwPK_Device_Core);
 			if( pDeviceData_Base->m_dwPK_Device_MD )
-				pDeviceData_Base->m_pDevice_MD = m_mapDeviceData_Base_Find(pDeviceData_Base->m_dwPK_Device_ControlledVia);
+				pDeviceData_Base->m_pDevice_MD = m_mapDeviceData_Base_Find(pDeviceData_Base->m_dwPK_Device_MD);
 		}
 
 		Map_DeviceGroup::iterator itGroup;

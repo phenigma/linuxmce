@@ -181,7 +181,7 @@ VideoLanMediaStream *VideoLan_PlugIn::ConvertToVideoLanMediaStream(MediaStream *
 	return static_cast<VideoLanMediaStream *>(pMediaStream);
 }
 
-bool VideoLan_PlugIn::StartMedia( class MediaStream *pMediaStream )
+bool VideoLan_PlugIn::StartMedia( class MediaStream *pMediaStream,string &sError )
 {
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 

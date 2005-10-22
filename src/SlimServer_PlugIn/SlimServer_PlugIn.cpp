@@ -177,7 +177,7 @@ SlimServerMediaStream *SlimServer_PlugIn::ConvertToSlimServerMediaStream(MediaSt
 	return static_cast<SlimServerMediaStream *>(pMediaStream);
 }
 
-bool SlimServer_PlugIn::StartMedia( class MediaStream *pMediaStream )
+bool SlimServer_PlugIn::StartMedia( class MediaStream *pMediaStream,string &sError )
 {
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 
