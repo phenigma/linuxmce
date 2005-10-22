@@ -19,6 +19,7 @@ namespace DCE
 //<-dceag-decl-e->
 		// Private member variables
 		int m_iPK_Device_Learning,m_iPK_Command_Learning,m_dwPK_Device_IRPlugin; // The device and command we are learning, and the IR Plugin
+		int m_iPK_Orbiter,m_iPK_Text;
 		map<string,pair<string,int> > m_mapCodesToButtons;
 		string m_sLastButton;
 		timespec m_tsLastButton;
@@ -34,7 +35,7 @@ public:
 		virtual void SendIR(string Port, string IRCode); // Required from IRBase
 		virtual void CreateChildren(); // Must override so we can call IRBase::Start() after creating children
 		virtual void OurCallback(const char *pButton);
-		void StartLearning(int PK_Device,int PK_Command);
+		void StartLearning(int PK_Device,int PK_Command,int PK_Orbiter,int PK_Text);
 		void StopLearning();
 		void LearningThread();
 

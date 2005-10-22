@@ -175,10 +175,20 @@ bool Tira::Register()
 void Tira::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
+	// Let the IR Base class try to handle the message
+	if (IRBase::ProcessMessage(pMessage))
+	{
+		printf("Message processed by IRBase class\n");
+		sCMD_Result = "OK";
+		return;
+	}
+	
 	if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && pMessage->m_dwID==COMMAND_Learn_IR_CONST )
 	{
 		if( pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST]=="1" )
-			StartLearning(pMessage->m_dwPK_Device_To,atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Text_CONST].c_str()));
+			StartLearning(pMessage->m_dwPK_Device_To,atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Command_CONST].c_str()),
+				pMessage->m_dwPK_Device_From,
+				atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Text_CONST].c_str()));
 		else
 			StopLearning();
 	}
@@ -256,7 +266,7 @@ void Tira::CMD_Learn_IR(int iPK_Device,string sOnOff,int iPK_Text,int iPK_Comman
 //<-dceag-c245-e->
 {
 	if( sOnOff=="1" )
-		StartLearning(iPK_Device,iPK_Command);
+		StartLearning(iPK_Device,iPK_Command,pMessage->m_dwPK_Device_From,iPK_Text);
 	else
 		StopLearning();
 }
@@ -278,6 +288,11 @@ void Tira::CMD_Set_Screen_Type(int iValue,string &sCMD_Result,Message *pMessage)
 
 void Tira::SendIR(string Port, string IRCode)
 {
+	const char *pBuffer = IRCode.c_str();
+	size_t size = IRCode.size();
+	if( pBuffer[0]=='/' )
+		pBuffer = FileUtils::ReadFileIntoBuffer(pBuffer,size);
+	
 	g_pPlutoLogger->Write(LV_STATUS,"Tira Sending: %s",IRCode.c_str());
 
 #ifndef WIN32
@@ -327,7 +342,7 @@ int __stdcall OurCalback(const char * eventstring) {
    return 0;
 };
 
-void Tira::StartLearning(int PK_Device,int PK_Command)
+void Tira::StartLearning(int PK_Device,int PK_Command,int PK_Orbiter,int PK_Text)
 {
 	if( !PK_Device || !PK_Command || !m_dwPK_Device_IRPlugin )
 	{
@@ -336,6 +351,7 @@ void Tira::StartLearning(int PK_Device,int PK_Command)
 		return;
 	}
 	m_iPK_Device_Learning=PK_Device; m_iPK_Command_Learning=PK_Command;
+	m_iPK_Orbiter=PK_Orbiter; m_iPK_Text=PK_Text;
 
 	g_pPlutoLogger->Write(LV_STATUS,"Start learning Command %d Device %d",
 		PK_Command,PK_Device);
@@ -361,6 +377,7 @@ void Tira::StopLearning()
 	if( m_bLearningIR )
 		g_pPlutoLogger->Write(LV_CRITICAL,"Could not stop the learning thread");
 }
+int iCounter=0;
 
 void Tira::LearningThread()
 {
@@ -371,16 +388,29 @@ void Tira::LearningThread()
 		unsigned char *Data=NULL;
 		int Size=0;
 		tira_get_captured_data( (const unsigned char **) &Data, &Size );
-g_pPlutoLogger->Write(LV_STATUS,"Got %s %d",Data,Size);
+g_pPlutoLogger->Write(LV_STATUS,"Got %s %d %d",Data,Size,getCodeMap().size());
 		if( Data && Size )
 		{
+			FileUtils::WriteBufferIntoFile( ("/tira.buf"+StringUtils::itos(iCounter)).c_str(),(const char *) Data,Size);
 			char CCF[4096];
 			if( ConvertToCCF(CCF, 4096, Data)==0 )
 			{
+				g_pPlutoLogger->Write(LV_STATUS,"Learned code device %d command %d orbiter %d text %d code %s",
+						m_iPK_Device_Learning,m_iPK_Command_Learning,m_iPK_Orbiter,m_iPK_Text,CCF);
 				DCE::CMD_Store_Infrared_Code CMD_Store_Infrared_Code(m_dwPK_Device,m_dwPK_Device_IRPlugin,
 					m_iPK_Device_Learning,CCF,m_iPK_Command_Learning);
 				SendCommand(CMD_Store_Infrared_Code);
 				getCodeMap()[longPair(m_iPK_Device_Learning, m_iPK_Command_Learning)] = CCF;
+				if( m_iPK_Orbiter && m_iPK_Text )
+				{
+					DCE::CMD_Set_Text CMD_Set_Text(m_dwPK_Device,m_iPK_Orbiter,"",
+						"Learned ok",m_iPK_Text);
+					SendCommand(CMD_Set_Text);
+				}
+FileUtils::WriteBufferIntoFile( ("/tira_pronto.buf"+StringUtils::itos(iCounter)).c_str(),(const char *) CCF,4096);
+iCounter++;
+g_pPlutoLogger->Write(LV_STATUS,"Got %d",getCodeMap().size());
+
 			}
 			else
 				g_pPlutoLogger->Write(LV_CRITICAL,"Couldn't convert %d %s to CCF",Size,Data);
