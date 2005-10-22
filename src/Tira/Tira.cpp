@@ -125,10 +125,11 @@ bool Tira::GetConfig()
 	*/
 	tira_init();
 
-	for(int i=0;i<9;++i)
+	int port;
+	for(port=0;port<9;++port)
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Trying to start Tira on port %d",i);
-		res = tira_start(i);
+		g_pPlutoLogger->Write(LV_STATUS,"Trying to start Tira on port %d",port);
+		res = tira_start(port);
 		if ( res == 0 ) 
 			break;
 	}
@@ -145,6 +146,8 @@ bool Tira::GetConfig()
 		g_pPlutoLogger->Write(LV_CRITICAL,"Unable to register our callback");
 		return true;  // Not much to do, return true so we don't try to reload over and over
 	}
+
+	g_pPlutoLogger->Write(LV_STATUS,"Tira running on port %d",port);
 #endif
 
 	return true;
