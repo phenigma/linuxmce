@@ -21,6 +21,7 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
+#include "PlutoUtils/ProcessUtils.h"
 
 #include <iostream>
 using namespace std;
@@ -1169,19 +1170,9 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
 	mm.Relock();
 	if( !IsRegenerating(PK_Device) )
 	{
-		DeviceData_Base *pDevice_AppServer =
-			m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST);
-
-		if( pDevice_AppServer )
-		{
-			DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,
-				"/usr/pluto/bin/RegenOrbiterOnTheFly.sh","regen",
-				StringUtils::itos(PK_Device) + "\t" + StringUtils::itos(m_dwPK_Device),
-				"","",false,false,false);
-			SendCommand(CMD_Spawn_Application);
-		}
-		else
-			g_pPlutoLogger->Write(LV_CRITICAL,"Orbiter_Plugin::CMD_New_Orbiter No Appserver");
+		ProcessUtils::SpawnApplication("/usr/pluto/bin/RegenOrbiterOnTheFly.sh",
+			StringUtils::itos(PK_Device) + "\t" + StringUtils::itos(m_dwPK_Device),
+			"regen");
 
 		m_listRegenCommands.push_back(PK_Device);
 		g_pPlutoLogger->Write(LV_STATUS,"Executing regen now m_listRegenCommands is: %d",(int) m_listRegenCommands.size());
@@ -1759,19 +1750,9 @@ g_pPlutoLogger->Write(LV_STATUS,"Starting regen orbiter with m_listRegenCommands
 
 	if( !iPK_Device || !IsRegenerating(iPK_Device) )
 	{
-		DeviceData_Base *pDevice_AppServer =
-			m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_App_Server_CONST);
-
-		if( pDevice_AppServer )
-		{
-			DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,
-				"/usr/pluto/bin/RegenOrbiterOnTheFly.sh","regen",
-				StringUtils::itos(iPK_Device) + "\t" + StringUtils::itos(m_dwPK_Device) + "\t" + sForce,
-				"","",false,false,false);
-			SendCommand(CMD_Spawn_Application);
-		}
-		else
-			g_pPlutoLogger->Write(LV_CRITICAL,"Orbiter_Plugin::CMD_Regen_Orbiter No Appserver");
+		ProcessUtils::SpawnApplication("/usr/pluto/bin/RegenOrbiterOnTheFly.sh",
+			StringUtils::itos(iPK_Device) + "\t" + StringUtils::itos(m_dwPK_Device) + "\t" + sForce,
+			"regen");
 
 		g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Regen_Orbiter Execution returned");
 	}
