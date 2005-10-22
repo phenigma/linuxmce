@@ -1722,8 +1722,11 @@ g_pPlutoLogger->Write(LV_STATUS,"Starting regen orbiter with m_listRegenCommands
     {
         OH_Orbiter *pOH_Orbiter = (*it).second;
 
-		if( iPK_Device==0 && !IsRegenerating(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device) ) //we'll regen all of them
+		if( iPK_Device==0 || !IsRegenerating(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device) ) //we'll regen all of them
+		{
 			m_listRegenCommands.push_back(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+			g_pPlutoLogger->Write(LV_STATUS,"Added %d to m_listRegenCommands %d size",pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,(int) m_listRegenCommands.size());
+		}
 
 		if( iPK_Device==0 || pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device==iPK_Device )
 		{
@@ -2470,8 +2473,12 @@ bool Orbiter_Plugin::IsRegenerating(int iPK_Device)
 	PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
 	for(list<int>::iterator it=m_listRegenCommands.begin();it!=m_listRegenCommands.end();++it)
 		if( *it == iPK_Device )
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"IsRegenerating %d = true",iPK_Device);
 			return true;
+		}
 
+	g_pPlutoLogger->Write(LV_STATUS,"IsRegenerating %d = false",iPK_Device);
 	return false;
 	
 }
