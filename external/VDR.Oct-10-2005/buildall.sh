@@ -24,12 +24,6 @@ if [ "$COMPILEVDR" == "1" ]; then
 
 	echo -e " GOING TO COMPILE NEW VDRDEVEL-VERSION\r"
 
-	#vdr main base
-	pushd vdr-1.*
-        dpkg-buildpackage -tc
-        popd
-	                
-
 	# vdrdevel
 	pushd vdrdevel-1.*
 	dpkg-buildpackage -tc
@@ -38,6 +32,14 @@ if [ "$COMPILEVDR" == "1" ]; then
 	echo -e " VDRDEVEL READY, INSTALLING DEV-PACKAGE\r"
 	##IMPORTANT, to install the developer-Package first, before compiling the plugins (Version-Number-matching!)
 	dpkg -i vdrdevel-dev_*.deb
+
+        #vdr main base
+        pushd vdr-1.*
+        dpkg-buildpackage -tc
+        popd
+	                                
+	                                
+
 else
 	echo -e " NO VERSION CHANGES IN VDRDEVEL-SOURCES\r"
 fi
