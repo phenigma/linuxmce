@@ -13,7 +13,7 @@ ENABLED=1
 ENABLE_SHUTDOWN=0
 
 # Video-Directory
-VIDEO_DIR="/home/vdr/video.00"
+VIDEO_DIR="/var/lib/video.00"
 
 # Set this to load only plugins with the correct patch level
 PLUGIN_CHECK_PATCHLEVEL="yes"
@@ -24,7 +24,8 @@ PLUGIN_CHECK_STARTABLE="yes"
 # console where for controlling
 # VDR by keyboard
 # leave empty to disable
-KEYB_TTY="/dev/tty8"
+#KEYB_TTY="/dev/tty8"
+KEYB_TTY=""
 
 # Options that will be passed to vdr's commandline
 # for example: OPTIONS="-w 15 --port=0"
@@ -33,7 +34,8 @@ OPTIONS="-w 60"
 # VDR executes this command when the power-off-key of the remote is
 # pressed after processing all shutdown hook scripts. Shutdown hooks
 # may override this command - see /usr/share/doc/vdr/README.Debian.
-SHUTDOWNCMD="/etc/init.d/vdr stop ; sleep 1 ; /sbin/shutdown -h now"
+#SHUTDOWNCMD="/etc/init.d/vdr stop ; sleep 1 ; /sbin/shutdown -h now"
+SHUTDOWNCMD=""
 
 # Change this to 0 if you want to allow VDR to use NPTL (if available).
 # This is disabled by default, although it should be safe to enable it.

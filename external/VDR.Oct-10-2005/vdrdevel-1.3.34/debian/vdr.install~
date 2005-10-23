@@ -45,4 +45,4 @@ debian/remote.KBD.conf			/var/lib/vdr/
 channels.conf				/var/lib/vdr/
 debian/dvb				/etc/init.d/
 debian/postinst/vdr			/etc/default/
-debian/postinst/setup.conf		/var/lib/vdr/
+debian/postinst/setup.conf		/var/lib/vdr
