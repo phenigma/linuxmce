@@ -290,20 +290,26 @@ void Tira::SendIR(string Port, string IRCode)
 {
 	const char *pBuffer = IRCode.c_str();
 	size_t size = IRCode.size();
+	bool bDeleteBuffer=false;
 	if( pBuffer[0]=='/' )
+	{
+		bDeleteBuffer=true;
 		pBuffer = FileUtils::ReadFileIntoBuffer(pBuffer,size);
+	}
 	
-	g_pPlutoLogger->Write(LV_STATUS,"Tira Sending: %s",IRCode.c_str());
+	g_pPlutoLogger->Write(LV_STATUS,"Tira Sending: %s",pBuffer);
 
 #ifndef WIN32
     int res = tira_transmit(m_iRepeat, /* the docs say to repeat more than once, but I found with pronto codes that means the code is seen more than once */
                             -1, /* Use embedded frequency value*/
-                            (const unsigned char *) IRCode.c_str(),
-                            IRCode.size());
+                            (const unsigned char *) pBuffer,
+                            size);
 
     if ( res != 0 ) 
 		g_pPlutoLogger->Write(LV_CRITICAL,"Tira failed Sending(%d): %s",res,IRCode.c_str());
 #endif
+	if( bDeleteBuffer )
+		delete pBuffer;
 }
 
 // Must override so we can call IRBase::Start() after creating children
@@ -388,7 +394,6 @@ void Tira::LearningThread()
 		unsigned char *Data=NULL;
 		int Size=0;
 		tira_get_captured_data( (const unsigned char **) &Data, &Size );
-g_pPlutoLogger->Write(LV_STATUS,"Got %s %d %d",Data,Size,getCodeMap().size());
 		if( Data && Size )
 		{
 			FileUtils::WriteBufferIntoFile( ("/tira.buf"+StringUtils::itos(iCounter)).c_str(),(const char *) Data,Size);
