@@ -58,8 +58,8 @@
 # opt-42_stuttering
 
 # Patch that implements a livebuffer to allow permanent timeshifting.
-opt-43_LiveBuffer
-# opt-43_LiveBuffer_multi
+# opt-43_LiveBuffer
+opt-43_LiveBuffer_multi
 
 # Patch needed for the rotor plugin.
 # opt-44_rotor
