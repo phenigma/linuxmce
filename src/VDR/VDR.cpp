@@ -494,3 +494,19 @@ void VDR::ParseCurrentChannel(string sChannel)
 		StringUtils::itos(m_iChannelNumber) + " " + m_sChannelName);
 	SendCommand(CMD_Update_Time_Code_);
 }
+//<-dceag-c28-b->
+
+	/** @brief COMMAND: #28 - Simulate Keypress */
+	/** Send a key to the device's OSD, or simulate keypresses on the device's panel */
+		/** @param #26 PK_Button */
+			/** What key to simulate being pressed.  If 2 numbers are specified, separated by a comma, the second will be used if the Shift key is specified. */
+		/** @param #50 Name */
+			/** The application to send the keypress to. If not specified, it goes to the DCE device. */
+
+void VDR::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage)
+//<-dceag-c28-e->
+{
+	string sResponse;
+	if( !SendVDRCommand("HITK " + sName,sResponse) )
+		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to send HITK %s",sResponse.c_str());
+}
