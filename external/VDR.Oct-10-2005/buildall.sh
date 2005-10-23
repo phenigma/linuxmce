@@ -74,6 +74,14 @@ if [ "$COMPILEPLUGINS" == "1" ]; then
 #	dpkg-buildpackage -tc
 #	popd
 
+
+	# skinelchi
+        pushd vdrdevel-plugin-skinelchi-*
+        dpkg-buildpackage -tc
+        popd
+	                        
+
+
 	# xine pluto powered!
 	# got to fix 00_patches
 	pushd vdrdevel-plugin-xine-*
