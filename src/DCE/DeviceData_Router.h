@@ -9,7 +9,6 @@ class Row_Device_Device_Pipe;
 
 namespace DCE
 {
-
 	// This indicates connectivity, that something is being sent somewhere else, such as audio/video connections
 	// For example, the Movie Scaler is connected to the TV, using output ID 5 on the Scaler, and Input ID 3 on the TV
 	// There would be 2 pipes, with a destination of the TV.  One an output with ID 5, one an Input with ID 3, both with Kind="Video"
@@ -150,6 +149,7 @@ namespace DCE
 		map<int,class DeviceRelation *> m_mapDeviceRelation;
 		map<int,class DeviceGroup *> m_mapDeviceGroup;
 		vector<DeviceData_Router *> m_vectDevices_SendingPipes;  // The devices that send this one something
+		vector<class MessageInterceptorCallBack *> m_vectMessageInterceptorCallBack;  // All interceptors this device has registered
 
 		// **** FLAGS AND INFORMATION SET AT RUNTIME ****
 

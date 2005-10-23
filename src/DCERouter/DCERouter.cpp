@@ -716,6 +716,22 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 			ReceivedMessage(pSocket,(*SafetyMessage)->m_vectExtraMessages[s]);
         return;
     }
+	else if( (*SafetyMessage)->m_dwMessage_Type==MESSAGETYPE_PURGE_INTERCEPTORS )
+    {
+		PLUTO_SAFETY_LOCK(im,m_InterceptorMutex);  // Protect the interceptor map
+		DeviceData_Router *pDevice = m_mapDeviceData_Router_Find( (*SafetyMessage)->m_dwPK_Device_From );
+		if( pDevice )
+		{
+			for(size_t s=0;s<pDevice->m_vectMessageInterceptorCallBack.size();++s)
+			{
+				MessageInterceptorCallBack *pMessageInterceptorCallBack = pDevice->m_vectMessageInterceptorCallBack[s];
+				if( pMessageInterceptorCallBack->m_plistMessageInterceptor ) // should always be there
+					pMessageInterceptorCallBack->m_plistMessageInterceptor->remove( pMessageInterceptorCallBack );
+			}
+			pDevice->m_vectMessageInterceptorCallBack.clear();
+		}
+        return;
+    }
     else if( (*SafetyMessage)->m_dwMessage_Type==MESSAGETYPE_EXEC_COMMAND_GROUP )
     {
 		ExecuteCommandGroup((*SafetyMessage)->m_dwID);

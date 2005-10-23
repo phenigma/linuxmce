@@ -818,6 +818,14 @@ void Command_Impl::RegisterMsgInterceptor(MessageInterceptorFn pMessageIntercept
 #endif
 }
 
+void Command_Impl::PurgeInterceptors()
+{
+#ifndef WINCE
+	Message *pMessage = new Message(m_dwPK_Device,0,PRIORITY_NORMAL,MESSAGETYPE_PURGE_INTERCEPTORS,0,0);
+	SendMessageToRouter(pMessage);
+#endif
+}
+
 void Command_Impl::InterceptedMessage(Message *pMessage)
 {
 #ifndef WINCE

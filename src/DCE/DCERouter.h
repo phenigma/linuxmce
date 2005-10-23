@@ -41,11 +41,17 @@ namespace DCE
         int m_dwID;
         MessageInterceptorFn m_pMessageInterceptorFn;
 
+		// The list that contains this interceptor in case we want to remove it.  Since external devices
+		// can register as interceptors, and they can go away, and then re-register, there needs to be a
+		// way to cleanly remove its interceptors
+		list<class MessageInterceptorCallBack *> *m_plistMessageInterceptor;  
+
         MessageInterceptorCallBack(class Command_Impl *pPlugIn,MessageInterceptorFn pMessageInterceptorFn)
         {
             m_dwPK_Device=0;
             m_pPlugIn=pPlugIn;
             m_pMessageInterceptorFn=pMessageInterceptorFn;
+			m_plistMessageInterceptor=NULL;
         }
         MessageInterceptorCallBack(int PK_Device,int ID)
         {
@@ -53,6 +59,7 @@ namespace DCE
             m_dwID=ID;
             m_pPlugIn=NULL;
             m_pMessageInterceptorFn=NULL;
+			m_plistMessageInterceptor=NULL;
         }
     };
 
@@ -234,9 +241,23 @@ namespace DCE
         void RegisterMsgInterceptor(class MessageInterceptorCallBack *pCallBack,int PK_Device_From,int PK_Device_To,int PK_DeviceTemplate,int PK_DeviceCategory,int MessageType,int MessageID)
         {
 			PLUTO_SAFETY_LOCK(im,m_InterceptorMutex);  // Protect the interceptor map
-            if( PK_Device_From==0 && PK_Device_To==0 && PK_DeviceTemplate==0 && PK_DeviceCategory==0 && MessageType==0 && MessageID==0 )
+
+			// Add this to the device's list
+			DeviceData_Router *pDevice_RegisteringInterceptor=NULL;
+			if( pCallBack->m_pPlugIn )
+				pDevice_RegisteringInterceptor = m_mapDeviceData_Router_Find(pCallBack->m_pPlugIn->m_dwPK_Device);
+			else
+				pDevice_RegisteringInterceptor = m_mapDeviceData_Router_Find(pCallBack->m_dwPK_Device);
+
+			if( pDevice_RegisteringInterceptor )
+				pDevice_RegisteringInterceptor->m_vectMessageInterceptorCallBack.push_back(pCallBack);
+			else
+				g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find the device registering this interceptor"); // Should never happen
+
+			if( PK_Device_From==0 && PK_Device_To==0 && PK_DeviceTemplate==0 && PK_DeviceCategory==0 && MessageType==0 && MessageID==0 )
             {
                 m_listMessageInterceptor_Global.push_back(pCallBack);
+				pCallBack->m_plistMessageInterceptor = &m_listMessageInterceptor_Global;
                 return;
             }
             MessageTypeInterceptor *pMessageTypeInterceptor = m_mapMessageTypeInterceptor[MessageType];
@@ -282,6 +303,7 @@ namespace DCE
             }
 
             pMessageFromInterceptor->m_listMessageInterceptor.push_back(pCallBack);
+			pCallBack->m_plistMessageInterceptor = &pMessageFromInterceptor->m_listMessageInterceptor;
         }
 
         // Internal use

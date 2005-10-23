@@ -301,6 +301,14 @@ namespace DCE
 		void RegisterMsgInterceptor(MessageInterceptorFn pMessageInterceptorFn,int PK_Device_From,int PK_Device_To,int PK_DeviceTemplate,int PK_DeviceCategory,int MessageType,int MessageID);
 
 		/**
+		 * @brief If a plug-in dies, the router also dies, and all interceptors are cleared.  However if this
+		 * is a normal external device, it can stop and restart itself at will, and therefore may end up
+		 * registering the same interceptor more than once.  To prevent this a device can call this function
+		 * when it starts to purge any interceptors the router has for it.
+		 */
+		void PurgeInterceptors();
+
+		/**
 		 * @brief If 1 message is sent on a queue, and a later message is sent in realtime, it's possible
 		 * for the later message to actually get sent first.  This function blocks the thread until all
 		 * messages in the queue have been sent.
