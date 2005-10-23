@@ -42,39 +42,3 @@ Description: Video Disk Recorder for DVB cards
  This package contains the header files of VDR.
  You need this package to be able to build vdr-plugins!
 XB-VDR-Patchlevel: ${vdr:Patchlevel}
-
-Package: vdr-dbg
-Architecture: any 
-Depends: ${shlibs:Depends}, ${misc:Depends}, vdr (= ${Source-Version}), gdb
-Description: Debuggable version of the VDR Video Disk Recorder
- This package installs an unoptimized vdr binary with debugging symbols as well
- as some helper scripts to debug VDR and its plugins.
-XB-VDR-Patchlevel: ${vdr:Patchlevel}
-
-Package: vdr-plugin-sky
-Architecture: any 
-Depends: ${shlibs:Depends}, vdr (= ${Source-Version})
-Description: Plugin for using a Sky Digibox with vdr
- Video Disk Recorder (VDR) is a digital sat-receiver program using
- Linux and DVB technologies. It allows one to record MPEG2 streams,
- as well as output the stream to TV.
- .
- This package contains the sky-plugin, wich allows you to connect 
- the analog a/v output of a Sky Digibox to VDR, so that you can 
- enjoy the full recording flexibility of VDR with your Sky 
- subscription. 
-XB-VDR-Patchlevel: ${vdr:Patchlevel}
-
-Package: vdr-plugin-examples
-Architecture: any 
-Depends: ${shlibs:Depends}, vdr (= ${Source-Version})
-Description: Plugins for vdr to show some possible features
- Video Disk Recorder (VDR) is a digital sat-receiver program using
- Linux and DVB technologies. It allows one to record MPEG2 streams,
- as well as output the stream to TV.
- .
- This package contains the example-plugins hello, osddemo, svccli, 
- svcsvr, skincurses, status and svdrpdemo from the vdr-source. 
- These plugins do not have useful features, they only demonstrate 
- how vdr-plugins work and what is possible to do with them.
-XB-VDR-Patchlevel: ${vdr:Patchlevel}

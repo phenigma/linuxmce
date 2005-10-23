@@ -72,7 +72,7 @@ get_modulenames
 
 [ -z "$MODULES" ] && load_dvb_modules
 
-#if [ "$VDSB_WORKAROUND" = "yes" ] && [ -x /usr/bin/szap ] ; then
+if [ "$VDSB_WORKAROUND" = "yes" ] && [ -x /usr/bin/szap ] ; then
     channel=`awk '/^[^:]/ {print NR; exit}' /var/lib/vdrdevel/channels.conf`
     szap -a 1 -n $channel -c /var/lib/vdrdevel/channels.conf >/dev/null &
     szap -a 2 -n $channel -c /var/lib/vdrdevel/channels.conf >/dev/null &
@@ -80,7 +80,7 @@ get_modulenames
     szap -a 4 -n $channel -c /var/lib/vdrdevel/channels.conf >/dev/null &
     sleep 5
     killall szap
-#fi
+fi
 
 while (true) do
 

@@ -44,4 +44,4 @@ debian/commands.update-recordings.conf  usr/share/vdr/command-hooks/
 debian/remote.KBD.conf			/var/lib/vdr/
 channels.conf				/var/lib/vdr/
 debian/dvb				/etc/init.d/
-debian/postinst/vdrdevel		/etc/default/
+debian/postinst/vdr			/etc/default/

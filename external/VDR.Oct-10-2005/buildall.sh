@@ -16,10 +16,19 @@ rm PACKAGES/*.deb
 # plutohome relevant VDR Stuff:
 if [ "$COMPILEVDR" == "1" ]; then
 	#clean up the old debs
+	rm PACKAGES/*
+	rm vdr_1.*.deb
+	rm vdr-dev_1.*.deb
 	rm vdrdevel_1.*.deb
 	rm vdrdevel-dev_*.deb
 
 	echo -e " GOING TO COMPILE NEW VDRDEVEL-VERSION\r"
+
+	#vdr main base
+	pushd vdr-1.*
+        dpkg-buildpackage -tc
+        popd
+	                
 
 	# vdrdevel
 	pushd vdrdevel-1.*
@@ -80,8 +89,6 @@ if [ "$COMPILEPLUGINS" == "1" ]; then
         dpkg-buildpackage -tc
         popd
 	                        
-
-
 	# xine pluto powered!
 	# got to fix 00_patches
 	pushd vdrdevel-plugin-xine-*
@@ -97,6 +104,7 @@ else
 fi
 
 ### now put the stuff together in PACKAGES:
+cp vdr_1.*.deb PACKAGES/.
 cp vdrdevel_1.*.deb PACKAGES/.
 cp plugins/*.deb PACKAGES/.
 echo -e "###################################\r"
