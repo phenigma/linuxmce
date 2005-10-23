@@ -769,6 +769,8 @@
 #define TEXT_new_pnp_device_CONST 1474
 #define TEXT_No_ignore_it_CONST 1475
 #define TEXT_Yes_use_it_CONST 1476
+#define TEXT_Force_Reload_Router_CONST 1477
+#define TEXT_Press_green_button_CONST 1478
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

@@ -654,6 +654,9 @@
 #define COMMAND_Get_Extended_Media_Data_CONST 698
 #define COMMAND_Center_Parents_Text_If_Blank_CONST 699
 #define COMMAND_New_Plug_and_Play_Device_CONST 700
+#define COMMAND_Load_from_Slot_into_Drive_CONST 701
+#define COMMAND_Unload_from_Drive_into_Slot_CONST 702
+#define COMMAND_Get_Jukebox_Status_CONST 703
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

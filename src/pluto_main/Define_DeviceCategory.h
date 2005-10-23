@@ -89,6 +89,7 @@
 #define DEVICECATEGORY_Tira_Remote_Controls_CONST 141
 #define DEVICECATEGORY_Logic_Handlers_CONST 142
 #define DEVICECATEGORY_Digital_TV_Cards_CONST 143
+#define DEVICECATEGORY_CDDVD_Jukeboxes_CONST 144
 
 #define DEVICECATEGORY_TABLE "DeviceCategory"
 #define DEVICECATEGORY_PK_DEVICECATEGORY_FIELD "PK_DeviceCategory"

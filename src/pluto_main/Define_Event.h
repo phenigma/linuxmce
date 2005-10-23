@@ -11,7 +11,6 @@
 #define EVENT_Menu_Onscreen_CONST 7
 #define EVENT_Error_Occured_CONST 8
 #define EVENT_Sensor_Tripped_CONST 9
-#define EVENT_Learned_IR_code_CONST 10
 #define EVENT_PVR_Rec_Sched_Conflict_CONST 11
 #define EVENT_Playback_Completed_CONST 12
 #define EVENT_PBX_CommandResult_CONST 14
