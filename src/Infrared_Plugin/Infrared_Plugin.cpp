@@ -37,6 +37,7 @@ using namespace DCE;
 #include "pluto_main/Define_DataGrid.h"
 #include "pluto_main/Define_Variable.h"
 #include "pluto_main/Define_CommMethod.h"
+#include "pluto_main/Define_CommandParameter.h"
 #include "IR/IRDevice.h"
 
 //<-dceag-const-b->
@@ -189,7 +190,7 @@ public:
 	string sCommandCategory_Description;
 	string sIRData;
 
-	SortedIRData(Command *pCommand,string sIRData)
+	SortedIRData(Command *pCommand,string IRData)
 	{
 		if( !pCommand )
 			return; // Should never happen
@@ -197,6 +198,7 @@ public:
 		sCommand_Description = pCommand->m_sDescription;
 		PK_CommandCategory = pCommand->m_dwPK_CommandCategory;
 		sCommandCategory_Description = pCommand->m_sCommandCategory_Description;
+		sIRData=IRData;
 	}
 };
 
@@ -238,21 +240,28 @@ class DataGridTable *Infrared_Plugin::CommandsGrid(string GridID,string Parms,vo
 	{
 		SortedIRData *pSortedIRData = *it;
 
-		if( PK_CommandCategory!=pSortedIRData->PK_CommandCategory )
+		if( pSortedIRData->sIRData.size()==0 )
+			pSortedIRData->sCommand_Description += " (no data)";
+
+		if( PK_CommandCategory==pSortedIRData->PK_CommandCategory )
 			pCell = new DataGridCell( pSortedIRData->sCommand_Description, StringUtils::itos(pSortedIRData->PK_Command));
 		else
-			pCell = new DataGridCell( pSortedIRData->sCommandCategory_Description + "\n" + pSortedIRData->sCommand_Description, StringUtils::itos(pSortedIRData->PK_Command));
+			pCell = new DataGridCell( "CATEGORY: " + pSortedIRData->sCommandCategory_Description + "\n" + pSortedIRData->sCommand_Description, StringUtils::itos(pSortedIRData->PK_Command));
+		PK_CommandCategory=pSortedIRData->PK_CommandCategory;
 
 		pCell->m_Colspan = 4;
 		pCell->m_pMessage = new Message(PK_Orbiter,irDevice.m_PK_Device_ControlledVia,
-			PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Send_Code_CONST,0);
+			PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Send_Code_CONST,1,
+			COMMANDPARAMETER_Text_CONST,pSortedIRData->sIRData.c_str());
+		DCE::CMD_Set_Text CMD_Set_Text(PK_Orbiter,PK_Orbiter,"","",PK_Text);
+		pCell->m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Text.m_pMessage );
 		pDataGrid->SetData(0,iRow,pCell);
 
 		pCell = new DataGridCell( "learn","" );
 		DCE::CMD_Learn_IR CMD_Learn_IR(PK_Orbiter,irDevice.m_PK_Device_ControlledVia,PK_Device,"1",PK_Text,pSortedIRData->PK_Command);
 		pCell->m_pMessage = CMD_Learn_IR.m_pMessage;
-		DCE::CMD_Set_Text CMD_Set_Text(PK_Orbiter,PK_Orbiter,"","",PK_Text);
-		pCell->m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Text.m_pMessage );
+		DCE::CMD_Set_Text CMD_Set_Text2(PK_Orbiter,PK_Orbiter,"","Start learning...",PK_Text);
+		pCell->m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Text2.m_pMessage );
 
 		pDataGrid->SetData(4,iRow++,pCell);
 
@@ -504,6 +513,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Found %d codes for device %d",(int) vectRow_Inf
 }
 g_pPlutoLogger->Write(LV_STATUS,"end q");
 	
+	map<int,bool> mapCommandsWithoutCodes; // First store them here, then double check before we actually add them
 	for (i = 0; i < 4; i++)
 	{
 		vector<Row_InfraredGroup_Command *>::iterator it_vRIGC;
@@ -511,19 +521,15 @@ g_pPlutoLogger->Write(LV_STATUS,"end q");
 		{
 			Row_InfraredGroup_Command * pRow_InfraredGroup_Command = * it_vRIGC;
 			if( pRow_InfraredGroup_Command->IRData_get().size()==0 )
-				irDevice.m_vectCommands_WithoutCodes.push_back(pRow_InfraredGroup_Command->FK_Command_get());
+				mapCommandsWithoutCodes[pRow_InfraredGroup_Command->FK_Command_get()]=true;
 			else
 				irDevice.m_mapCodes[pRow_InfraredGroup_Command->FK_Command_get()] = pRow_InfraredGroup_Command->IRData_get();
 		}
 	}
 
-	vector<Row_DeviceTemplate_AV *> vectDeviceTemplate_AV;
-	pRow_Device->FK_DeviceTemplate_getrow()->DeviceTemplate_AV_FK_DeviceTemplate_getrows(&vectDeviceTemplate_AV);
-	if( vectDeviceTemplate_AV.size() )
-	{
-		Row_DeviceTemplate_AV *pDeviceTemplate_AV = vectDeviceTemplate_AV[0]; // Should only be 1 anyway
-	}
-
+	for(map<int,bool>::iterator it=mapCommandsWithoutCodes.begin();it!=mapCommandsWithoutCodes.end();++it)
+		if( irDevice.m_mapCodes.find(it->first)==irDevice.m_mapCodes.end() )
+			irDevice.m_vectCommands_WithoutCodes.push_back(it->first);
 }
 //<-dceag-c250-b->
 

@@ -11,6 +11,8 @@
 #include "IRBase/IRBase.h"
 #include "TiraAPI.h"
 
+#define LEARNING_TIMEOUT 10 // Stop learning after this many seconds
+
 //<-dceag-decl-b->!
 namespace DCE
 {
@@ -21,6 +23,7 @@ namespace DCE
 		int m_iPK_Device_Learning,m_iPK_Command_Learning,m_dwPK_Device_IRPlugin; // The device and command we are learning, and the IR Plugin
 		int m_iPK_Orbiter,m_iPK_Text;
 		map<string,pair<string,int> > m_mapCodesToButtons;
+		time_t m_tLearningStarted;
 		string m_sLastButton;
 		timespec m_tsLastButton;
 		pluto_pthread_mutex_t m_TiraMutex;  // This will also protect the callback map

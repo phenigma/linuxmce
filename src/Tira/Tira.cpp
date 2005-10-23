@@ -288,6 +288,9 @@ void Tira::CMD_Set_Screen_Type(int iValue,string &sCMD_Result,Message *pMessage)
 
 void Tira::SendIR(string Port, string IRCode)
 {
+	if( m_bLearningIR )
+		StopLearning();
+
 	const char *pBuffer = IRCode.c_str();
 	size_t size = IRCode.size();
 	bool bDeleteBuffer=false;
@@ -388,6 +391,7 @@ int iCounter=0;
 void Tira::LearningThread()
 {
 	PLUTO_SAFETY_LOCK(tm,m_TiraMutex);
+	m_tLearningStarted=time(NULL);
 	tira_start_capture();
 	while( !m_bAbortLearning )
 	{
@@ -424,5 +428,15 @@ g_pPlutoLogger->Write(LV_STATUS,"Got %d",getCodeMap().size());
 		}
 
 		tm.TimedCondWait(0,100000000);
+		// Only timeout if we have an orbiter and text object.  Otherwise we have no way to report this 
+		// to the user
+		if( m_iPK_Orbiter && m_iPK_Text && m_tLearningStarted + LEARNING_TIMEOUT < time(NULL) )
+		{
+			DCE::CMD_Set_Text CMD_Set_Text(m_dwPK_Device,m_iPK_Orbiter,"",
+				"Learning failed",m_iPK_Text);
+			SendCommand(CMD_Set_Text);
+			tira_cancel_capture();
+			return;
+		}
 	}
 }
