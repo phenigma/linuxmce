@@ -27,10 +27,15 @@ namespace DCE
 	class Command
 	{
 	public:
-		Command(int PK_Command,string sDescription,bool bLog) { m_dwPK_Command=PK_Command; m_sDescription=sDescription; m_bLog=bLog; }
+		Command(int PK_Command,string sDescription,int PK_CommandCategory,string sCommandCategory_Description,bool bLog) { 
+			m_dwPK_Command=PK_Command; m_sDescription=sDescription; m_bLog=bLog; 
+			m_dwPK_CommandCategory=PK_CommandCategory;
+			m_sCommandCategory_Description=sCommandCategory_Description;
+		}
 		bool m_bLog;
-		int m_dwPK_Command;
-		string m_sDescription;
+		int m_dwPK_Command,m_dwPK_CommandCategory;
+		string m_sDescription,m_sCommandCategory_Description;
+
 		list<int> m_listPipe;
 	};
 

@@ -47,6 +47,7 @@ using namespace std;
 #include "pluto_main/Table_DeviceTemplate_DSPMode.h"
 #include "pluto_main/Table_Device_Device_Pipe.h"
 #include "pluto_main/Table_Command.h"
+#include "pluto_main/Table_CommandCategory.h"
 #include "pluto_main/Table_Room.h"
 #include "pluto_main/Table_Installation.h"
 
@@ -2347,7 +2348,15 @@ void Router::Configure()
     for(size_t s=0;s<vectRow_Command.size();++s)
     {
         Row_Command *pRow_Command = vectRow_Command[s];
-        Command *pCommand = new Command(pRow_Command->PK_Command_get(),pRow_Command->Description_get(),pRow_Command->Log_get());
+		Row_CommandCategory *pRow_CommandCategory = pRow_Command->FK_CommandCategory_getrow();
+		if( !pRow_CommandCategory )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Command %d has no category",pRow_Command->PK_Command_get());
+			continue;
+		}
+        Command *pCommand = new Command(pRow_Command->PK_Command_get(),pRow_Command->Description_get(),
+			pRow_CommandCategory->PK_CommandCategory_get(),pRow_CommandCategory->Description_get(),
+			pRow_Command->Log_get());
         vector<Row_Command_Pipe *> vectRow_Command_Pipe;
         pRow_Command->Command_Pipe_FK_Command_getrows(&vectRow_Command_Pipe);
         for(size_t sp=0;sp<vectRow_Command_Pipe.size();++sp)
