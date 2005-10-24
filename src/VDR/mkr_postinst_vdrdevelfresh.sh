@@ -12,9 +12,11 @@
 #    echo "just knows --dry-run or nothing"
 #    exit 1
 #fi
-(apt-get clean; apt-get $1 install --reinstall vdrdevel ; apt-get $1 install --reinstall `(export COLUMNS=512; dpkg -l | tee /tmp/test.lst | grep "ii  vdrdevel-plugin" | cut -d" " -f3)`)
-/etc/init.d/vdrdevel stop
+ 
+#(apt-get clean; apt-get $1 install --reinstall vdrdevel ; apt-get $1 install --reinstall `(export COLUMNS=512; dpkg -l | tee /tmp/test.lst | grep "ii  vdrdevel-plugin" | cut -d" " -f3)`)
+#/etc/init.d/vdrdevel stop
 
+cd /var/lib/vdrdevel
 cp SETTINGS/etcdefault/vdrdevel /etc/default/.
 cp SETTINGS/etcvdrdevel/svdrphosts.conf /etc/vdrdevel/.
 cp SETTINGS/etcvdrdevel/plugin.xine.conf /etc/vdrdevel/plugins/.
