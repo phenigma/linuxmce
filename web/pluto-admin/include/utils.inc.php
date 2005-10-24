@@ -3416,7 +3416,7 @@ function getIrGroup_CommandsMatrix($dtID,$InfraredGroupsArray,$userID,$comMethod
 			$out.='<td align="center">'.((isset($commandGrouped[$keysArray[$i]][$cmdID]))?'<input type="button" class="button" name="copyCB" value="V" onClick="window.open(\'index.php?section=displayCode&irgcID='.$pk_irgc.'\',\'_blank\',\'\');">'.$testCodeBtn:'N/A').'</td>';
 		}
 		$out.='
-			<td><input type="button" class="button" name="btn" onClick="self.location=\'index.php?section=irCodes&dtID='.$dtID.'&infraredGroupID='.$keysArray[$i].'&deviceID='.@$_REQUEST['deviceID'].'\';" value="This works"></td>
+			<td><input type="button" class="button" name="btn" onClick="self.location=\'index.php?section=irCodes&action=update&dtID='.$dtID.'&newIRG='.$keysArray[$i].'&deviceID='.@$_REQUEST['deviceID'].'\';" value="This works"></td>
 		</tr>';
 	}
 	

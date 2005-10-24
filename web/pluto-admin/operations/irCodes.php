@@ -222,7 +222,17 @@ function irCodes($output,$dbADO,$mediaADO) {
 	} else {
 		$time_start = getmicrotime();
 		//$dbADO->debug=true;
-		
+
+		if(isset($_REQUEST['newIRG']) && (int)$_REQUEST['newIRG']!=0){
+			$newIRGroup=(int)$_REQUEST['newIRG'];
+			
+			$dbADO->Execute('UPDATE DeviceTemplate SET FK_InfraredGroup=? WHERE PK_DeviceTemplate=?',array($newIRGroup,$dtID));
+			$dbADO->Execute('UPDATE InfraredGroup_Command SET FK_InfraredGroup=? WHERE FK_DeviceTemplate=? AND (FK_InfraredGroup IS NULL OR FK_InfraredGroup=?) AND psc_user=?',array($newIRGroup,$dtID,$infraredGroupID,$userID));
+
+			header("Location: index.php?section=irCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$newIRGroup&msg=IR Group changed for selected device template.&label=".$GLOBALS['label']);
+			exit();
+		}
+
 		if($action=='testCode'){
 			$irCode=stripslashes($_REQUEST['irCode']);
 			$ig_c=(int)$_REQUEST['ig_c'];
