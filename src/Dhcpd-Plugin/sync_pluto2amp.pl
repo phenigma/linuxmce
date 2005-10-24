@@ -192,11 +192,13 @@ sub add_to_asterisk_db()
 	
 	$DEVICE_TYPE = 'iax2' if($DEVICE_TYPE =~ /^iax/i);
 	$DEVICE_TYPE = 'sip' if($DEVICE_TYPE =~ /^sip/i);
-	$DEVICE_TYPE = 'zap' if($DEVICE_TYPE =~ /^zap/i);	
+	$DEVICE_TYPE = 'zap' if($DEVICE_TYPE =~ /^zap/i);
+	$DEVICE_TYPE = 'custom' if($DEVICE_TYPE =~ /^sccp/i);		
 	
-	unless($DEVICE_TYPE =~/^(iax|sip|zap)$/)
+	unless($DEVICE_TYPE =~/^(iax|sip|zap|custom)$/)
 	{
 		print "Unsupported device type : DEVICE_TYPE\n";
+		return;
 	}
 	$EXT_VARS{'display'}="extensions";
 	$EXT_VARS{'extdisplay'}="";
@@ -208,8 +210,9 @@ sub add_to_asterisk_db()
 	$EXT_VARS{'deviceuser'}="same";
 	$EXT_VARS{'password'}="";
 	$EXT_VARS{'outboundcid'}="";
-	$EXT_VARS{'secret'}=$DEVICE_EXT;
-	$EXT_VARS{'accountcode'}="pl_".$DEVICE_ID;
+	$EXT_VARS{'secret'}=$DEVICE_EXT if ($DEVICE_TYPE ne 'custom');
+	$EXT_VARS{'accountcode'}="pl_".$DEVICE_ID if ($DEVICE_TYPE ne 'custom');
+	$EXT_VARS{'dial'}="SCCP/".$DEVICE_EXT if ($DEVICE_TYPE eq 'custom');
 	foreach my $var (keys %EXT_VARS)
 	{
 		my $str = $EXT_VARS{$var};
