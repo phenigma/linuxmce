@@ -28,22 +28,31 @@ case "$1" in
 			echo 'create database asteriskcdrdb;' | /usr/bin/mysql || /bin/true
 			/usr/bin/mysql asteriskcdrdb </usr/local/amp/install/cdr_mysql_table.sql
 			#enable firewal for SIP and IAX2
-			echo "insert into Firewall (Protocol,SourcePort,SourcePortEnd,DestinationPort,RuleType) values ('udp',4569,0,0,'core_input');" | /usr/bin/mysql pluto_main
-			echo "insert into Firewall (Protocol,SourcePort,SourcePortEnd,DestinationPort,RuleType) values ('udp',5060,0,0,'core_input');" | /usr/bin/mysql pluto_main
+			echo "insert into Firewall (Protocol,SourcePort,SourcePortEnd,DestinationPort,RuleType) values ('udp',4569,0,0,'core_input');" | /usr/bin/mysql pluto_main || /bin/true
+			echo "insert into Firewall (Protocol,SourcePort,SourcePortEnd,DestinationPort,RuleType) values ('udp',5060,0,0,'core_input');" | /usr/bin/mysql pluto_main || /bin/true
+			echo "insert into Firewall (Protocol,SourcePort,SourcePortEnd,DestinationPort,RuleType) values ('udp',2000,0,0,'core_input');" | /usr/bin/mysql pluto_main || /bin/true
+			echo "insert into Firewall (Protocol,SourcePort,SourcePortEnd,DestinationPort,RuleType) values ('tcp',2000,0,0,'core_input');" | /usr/bin/mysql pluto_main || /bin/true
 			#enable oss module to speak in the house
 			sed -r -i "s/(noload [=][>] chan_oss.so)/;\1/" /etc/asterisk/modules.conf
-			rm -f /etc/init.d/asterisk
-			ln -sf /usr/sbin/amportal /etc/init.d/asterisk
-			for I in `ls -d /etc/rc?.d` ; do cd $I ; ln -sf ../init.d/asterisk S92asterisk; done;
+			rm -f /etc/init.d/asterisk || /bin/true
+			ln -sf /usr/sbin/amportal /etc/init.d/asterisk || /bin/true
+			for I in `ls -d /etc/rc?.d` ; do cd $I ; ln -sf ../init.d/asterisk S92asterisk || /bin/true; done; 
 			if (getent passwd asterisk >/dev/null);then
 				if [ "`getent passwd asterisk|awk -F: '{print $6}'`" = "/var/run/asterisk" ];then
-					usermod -d /var/lib/asterisk asterisk
+					usermod -d /var/lib/asterisk asterisk || /bin/true
 				fi
 			else
-    			adduser --system --group --home /var/lib/asterisk --gecos "Asterisk PBX daemon" asterisk
-				adduser asterisk audio
+    			adduser --system --group --home /var/lib/asterisk --gecos "Asterisk PBX daemon" asterisk || /bin/true
+				adduser asterisk audio || /bin/true
 			fi
 		fi
+		echo 'CREATE TABLE IF NOT EXISTS devices (id VARCHAR( 20 ) NOT NULL , tech VARCHAR( 10 ) NOT NULL , dial VARCHAR( 50 ) NOT NULL , devicetype VARCHAR( 5 ) NOT NULL , user VARCHAR( 50 ) , description VARCHAR( 50 ));' | /usr/bin/mysql asterisk || /bin/true
+		echo 'CREATE TABLE IF NOT EXISTS users (extension VARCHAR( 20 ) NOT NULL , password VARCHAR( 20 ) , name VARCHAR( 50 ) , voicemail VARCHAR( 50 ) , ringtimer INT(3) , noanswer VARCHAR( 100 ) , recording VARCHAR( 50 ) ,  outboundcid VARCHAR( 50 ));' | /usr/bin/mysql asterisk || /bin/true
+		echo 'CREATE TABLE IF NOT EXISTS `incoming` ( `cidnum` VARCHAR( 20 ) , `extension` VARCHAR( 20 ) , `destination` VARCHAR( 50 ) , `faxexten` VARCHAR( 20 ) , `faxemail` VARCHAR( 50 ) , `answer` TINYINT( 1 ) , `wait` INT( 2 ) , `privacyman` TINYINT( 1 ) );' | /usr/bin/mysql asterisk || /bin/true
+		echo 'CREATE TABLE IF NOT EXISTS `Backup` (`Name` varchar(50) default NULL,`Voicemail` varchar(50) default NULL,`Recordings` varchar(50) default NULL,`Configurations` varchar(50) default NULL,`CDR` varchar(55) default NULL,`FOP` varchar(50) default NULL,`Minutes` varchar(50) default NULL,`Hours` varchar(50) default NULL,`Days` varchar(50) default NULL,`Months` varchar(50) default NULL,`Weekdays` varchar(50) default NULL,`Command` varchar(200) default NULL,`Method` varchar(50) default NULL,`ID` int(11) NOT NULL auto_increment,PRIMARY KEY  (ID));' | /usr/bin/mysql asterisk || /bin/true
+		sed -r -i "s/^autoload=yes/autoload=yes\nnoload => chan_capi.so\nnoload => app_capiRETRIEVE.so\nnoload => app_capiCD.so\nnoload => app_capiECT.so\nnoload => app_capiFax.so\nnoload => app_capiHOLD.so\nnoload => app_capiMCID.so\nnoload => app_capiNoES.so/" ${PKGFOLDER}/etc/asterisk/modules.conf 
+		
+		if [ 
 		pushd /usr/local/amp/install &>/dev/null
 		./apply_conf.sh
 		popd &>/dev/null

@@ -86,9 +86,14 @@ make INSTALL_PREFIX=${PKGFOLDER} install
 cd  ${SRCFOLDER}/chan_sccp-*/
 sed -r -i "s/^INSTALL_PREFIX=//" Makefile
 make clean
-make
+make INSTALL_PREFIX=${PKGFOLDER}
 make INSTALL_PREFIX=${PKGFOLDER} install
 cp conf/sccp.conf ${PKGFOLDER}/etc/asterisk/
+
+cd  ${SRCFOLDER}/app_conference/
+make clean
+make INSTALL_PREFIX=${PKGFOLDER}
+make INSTALL_PREFIX=${PKGFOLDER} install
 
 cd ${SRCFOLDER}/chan_capi-*/
 make clean
@@ -157,7 +162,7 @@ include => from-internal
 EOF
 
 #don't load CAPI by default
-sed -r -i "s/^autoload=yes/autoload=yes\nnoload => app_conference.so\nnoload => chan_capi.so\nnoload => app_capiRETRIEVE.so\nnoload => app_capiCD.so\nnoload => app_capiECT.so\nnoload => app_capiFax.so\nnoload => app_capiHOLD.so\nnoload => app_capiMCID.so\nnoload => app_capiNoES.so/" ${PKGFOLDER}/etc/asterisk/modules.conf 
+sed -r -i "s/^autoload=yes/autoload=yes\nnoload => chan_capi.so\nnoload => app_capiRETRIEVE.so\nnoload => app_capiCD.so\nnoload => app_capiECT.so\nnoload => app_capiFax.so\nnoload => app_capiHOLD.so\nnoload => app_capiMCID.so\nnoload => app_capiNoES.so/" ${PKGFOLDER}/etc/asterisk/modules.conf 
 
 cd ${PKGFOLDER}/../
 #make some clean up
