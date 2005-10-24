@@ -431,7 +431,7 @@ void VDR::KillSpawnedDevices()
 bool VDR::SendVDRCommand(string sCommand,string &sVDRResponse)
 {
 	g_pPlutoLogger->Write(LV_WARNING,"Going to send command %s",sCommand.c_str());
-	PlainClientSocket _PlainClientSocket("192.168.80.1:2001");
+	PlainClientSocket _PlainClientSocket(m_sXineIP + ":2001");
 	if( !_PlainClientSocket.Connect() )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Unable to connect to VDR client");
