@@ -119,15 +119,18 @@ bool EPG::ReadFromFile(string sFileEPG,string sFileChannels)
 	{
 		Channel *pChannel = *it;
 		pChannel->m_ChannelID = mapChannelsFrequencies[pChannel->m_sFrequency];
-		m_mapChannelNumber[pChannel->m_ChannelID]=pChannel;
 		if( !pChannel->m_ChannelID )
 			g_pPlutoLogger->Write(LV_WARNING,"Channel %s isn't mapped to a number",pChannel->m_sFrequency.c_str());
+		m_mapChannelNumber[pChannel->m_ChannelID]=pChannel;
 	}
 
 	m_listChannel.sort(ChannelComparer);
 	Channel *pChannel_Prior = (*m_listChannel.rbegin());
 	for(list<Channel *>::iterator it=m_listChannel.begin();it!=m_listChannel.end();++it)
 	{
+		if( !(*it)->m_ChannelID )
+			continue; // Skip over the ones without a channel number
+
 		m_vectChannel.push_back(*it);
 		pChannel_Prior->m_pChannel_Next = *it;
 		(*it)->m_pChannel_Prior=pChannel_Prior;
