@@ -115,6 +115,7 @@ case "$1" in
     start)
         echo -n "Starting $DESC: $NAME"
         startvdrdevel
+		chvt 1
         echo "."
         ;;
     stop)
