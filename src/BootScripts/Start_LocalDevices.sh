@@ -68,7 +68,9 @@ PerlCommand="
 	print \"\$dev|\$command|\$desc\n\";
 ";
 
-CommandList=$(echo "$QUERY" | $MySQLCommand | tail +2 | perl -n -e "$PerlCommand");
+CommandList=$(echo "$QUERY" | $MySQLCommand | tail +2 | perl -n -e "$PerlCommand" | tr '\n' ' ');
+basename=$(basename $0);
+Logging "$TYPE" "$SEVERITY_WARNING" "$basename" "Start_LocalDevices $*; CommandList: $CommandList";
 for command in $CommandList; do
 	ChildDeviceID=`echo $command | cut -f 1 -d '|'`;
 	ChildCommand=`echo $command | cut -f 2 -d '|'`;
@@ -76,17 +78,17 @@ for command in $CommandList; do
 
 	if [ ! -f "$Path/usr/pluto/bin/$ChildCommand" ]; then
 		if [ -z "$Script" ]; then
-			Logging "$TYPE" "$SEVERITY_WARNING" "Child device ($ChildDeviceID) was configured but the startup script ($ChildCommand) is not available in /usr/pluto/bin.";
+			Logging "$TYPE" "$SEVERITY_WARNING" "$basename" "Child device ($ChildDeviceID) was configured but the startup script ($ChildCommand) is not available in /usr/pluto/bin.";
 		else
 			echo 'Logging "$TYPE" "$SEVERITY_WARNING" "Child device ('"$ChildDeviceID"') was configured but the startup script ('"$ChildCommand"') is not available in /usr/pluto/bin.";'
 		fi
 	elif [ ! -x "$Path/usr/pluto/bin/$ChildCommand" ]; then
 		if [ -z "$Script" ]; then
-			Logging "$TYPE" "$SEVERITY_WARNING" "Child device ($ChildDeviceID) was configured but the startup script ($ChildCommand) existent in /usr/pluto/bin is not executable.";
+			Logging "$TYPE" "$SEVERITY_WARNING" "$basename" "Child device ($ChildDeviceID) was configured but the startup script ($ChildCommand) existent in /usr/pluto/bin is not executable.";
 		else
 			echo 'Logging "$TYPE" "$SEVERITY_WARNING" "Child device ('"$ChildDeviceID"') was configured but the startup script ('"$ChildCommand"') existent in /usr/pluto/bin is not executable.";'
 		fi
-	elif [ `basename $0` = `basename $ChildCommand` ]; then
+	elif [ "$basename" = `basename $ChildCommand` ]; then
 		pushd /usr/pluto/bin >/dev/null
 		if [ -z "$Script" ]; then
 			/usr/pluto/bin/$ChildCommand -d $ChildDeviceID -r $DCERouter;
@@ -96,7 +98,7 @@ for command in $CommandList; do
 		popd >/dev/null
 	else
 		if [ -z "$Script" ]; then
-			Logging "$TYPE" "$SEVERITY_NORMAL" "Launching device $ChildDeviceID in screen session ($ChildDescription)";
+			Logging "$TYPE" "$SEVERITY_NORMAL" "$basename" "Launching device $ChildDeviceID in screen session ($ChildDescription)";
 			pushd /usr/pluto/bin >/dev/null
 			screen -d -m -S "$ChildDescription-$ChildDeviceID" /usr/pluto/bin/Spawn_Device.sh $ChildDeviceID $DCERouter $ChildCommand
 			popd >/dev/null
