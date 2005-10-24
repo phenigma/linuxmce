@@ -145,6 +145,7 @@ cp -R ${SRCFOLDER}/AMP/upgrades/  ${PKGFOLDER}/usr/local/amp/
 sed -r -i "s/asterisk[:]asterisk/asterisk:www-data/" ${PKGFOLDER}/usr/sbin/amportal
 sed -r -i "s/chmod u[+]x/chmod ug+x/" ${PKGFOLDER}/usr/sbin/amportal
 sed -r -i "s/&& export LD_LIBRARY_PATH=\/usr\/local\/lib/ /" ${PKGFOLDER}/usr/sbin/amportal
+sed -r -i "s/\t\trun_fop/#\t\trun_fop/" pkg/root/usr/sbin/amportal
 
 #copy AGI scripts
 cp -R ${ADDFOLDER}/pluto-sos.agi  ${PKGFOLDER}/var/lib/asterisk/agi-bin/
@@ -161,8 +162,11 @@ include => from-internal
 
 EOF
 
-#don't load CAPI by default
-sed -r -i "s/^autoload=yes/autoload=yes\nnoload => chan_capi.so\nnoload => app_capiRETRIEVE.so\nnoload => app_capiCD.so\nnoload => app_capiECT.so\nnoload => app_capiFax.so\nnoload => app_capiHOLD.so\nnoload => app_capiMCID.so\nnoload => app_capiNoES.so/" ${PKGFOLDER}/etc/asterisk/modules.conf 
+#don't load SKINNY and CAPI by default
+sed -r -i "s/^autoload=yes/autoload=yes\nnoload => chan_skinny.so\nnoload => chan_capi.so\nnoload => app_capiRETRIEVE.so\nnoload => app_capiCD.so\nnoload => app_capiECT.so\nnoload => app_capiFax.so\nnoload => app_capiHOLD.so\nnoload => app_capiMCID.so\nnoload => app_capiNoES.so/" ${PKGFOLDER}/etc/asterisk/modules.conf 
+
+#don't play mp3
+sed -r -i "s/^default/;default/ ${PKGFOLDER}/etc/asterisk/musiconhold.conf 
 
 cd ${PKGFOLDER}/../
 #make some clean up
