@@ -3,6 +3,7 @@
 #include "inotify_class.h"
 
 #include <sys/ioctl.h>
+#include <errno.h>
 
 inotify::inotify()
 {
@@ -50,8 +51,12 @@ cpp_inotify_event inotify::get_event()
 
 		memset(buffer, 0, inotify_buffer_size);
 		int bytes_read;
-		if ((bytes_read = read(inotify_fd, buffer, inotify_buffer_size)) == -1)
-			throw string("read failed");
+		do
+		{
+			errno = 0;
+			if ((bytes_read = read(inotify_fd, buffer, inotify_buffer_size)) == -1 && errno != EINTR)
+				throw string("read failed");
+		} while (errno == EINTR);
 		convert_buffer(buffer, bytes_read);
 	}
 
