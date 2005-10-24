@@ -89,13 +89,17 @@ while [ "$i" -le "$MAX_RESPAWN_COUNT" ]; do
 	echo $(date) Starting > "$new_log"
 
 	if [[ "$ReloadWatcher" -eq 1 ]]; then
+		Logging $TYPE $SEVERITY_WARNING "$module" "Reload watcher: running Start_LocalDevices"
 		/usr/pluto/bin/Start_LocalDevices.sh
 	fi
 
 	ReloadLock=/usr/pluto/locks/reload_watcher
-	if [[ "${cmd_line//App*Server}" != "$cmd_line" && ! -f "$ReloadLock" ]]; then
-		echo "Device: $device_id" >"$ReloadLock"
-		ReloadWatcher=1
+	if [[ "$cmd_line" == *App*Server* && ! -f "$ReloadLock" ]]; then
+		if Lock "Reload_Watcher" "$device_id"; then
+			echo "Device: $device_id" >"$ReloadLock"
+			ReloadWatcher=1
+			# We don't unlock this one, ever
+		fi
 	fi
 	Logging $TYPE $SEVERITY_NORMAL "$module" "Found $Path$cmd_line"
 	if [ "${cmd_line/Spawn_Device}" == "$cmd_line" ] && [ "${Valgrind/$cmd_line}" != "$Valgrind" ]; then
