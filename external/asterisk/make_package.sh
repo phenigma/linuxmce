@@ -166,7 +166,7 @@ EOF
 sed -r -i "s/^autoload=yes/autoload=yes\nnoload => chan_skinny.so\nnoload => chan_capi.so\nnoload => app_capiRETRIEVE.so\nnoload => app_capiCD.so\nnoload => app_capiECT.so\nnoload => app_capiFax.so\nnoload => app_capiHOLD.so\nnoload => app_capiMCID.so\nnoload => app_capiNoES.so/" ${PKGFOLDER}/etc/asterisk/modules.conf 
 
 #don't play mp3
-sed -r -i "s/^default/;default/ ${PKGFOLDER}/etc/asterisk/musiconhold.conf 
+sed -r -i "s/^default/;default/" ${PKGFOLDER}/etc/asterisk/musiconhold.conf 
 
 cd ${PKGFOLDER}/../
 #make some clean up
