@@ -17,7 +17,7 @@ sources = Main.cpp Proxy_Orbiter.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
 CXXFLAGS +=
-CPPFLAGS += -I/usr/include/SDL -DORBITER
+CPPFLAGS += -I/usr/include/SDL -DORBITER -DPROXY_ORBITER
 LDFLAGS +=
 XTRALDLIBS = -lSDL -lSDL_ttf -lSDL_image -lSGE -lSDL_gfx
 

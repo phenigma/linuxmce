@@ -43,10 +43,13 @@ using namespace DCE;
 #else //linux stuff
 	#include "Linux/OrbiterLinux.h"
 
-        #ifdef BLUETOOTH_DONGLE
-	        #include "SDL_Bluetooth/OrbiterSDLBluetooth.h"
+    #ifdef BLUETOOTH_DONGLE
+		#include "SDL_Bluetooth/OrbiterSDLBluetooth.h"
+    #elif defined(PROXY_ORBITER)
+        #include "Proxy_Orbiter/Proxy_Orbiter.h"
 	#endif
 #endif //WIN32
+
 
 //------------------------------------------------------------------------------------------------------
 Simulator *Simulator::m_pInstance = NULL;

@@ -148,13 +148,10 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
 		g_pPlutoLogger->Write(LV_STATUS, "Proxy_Orbiter::DisplayImageOnScreen Current screen: %s",  m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str());
     }
 
-    SDL_SetAlpha(pScreenImage, SDL_RLEACCEL , SDL_ALPHA_OPAQUE);
-
     if(pScreenImage->w <= 320 && pScreenImage->h <= 240) //ip phone
-    {   
-	SDL_SaveBMP(pScreenImage, "screen.bmp");
-        //SaveImageToFile(pScreenImage, CURRENT_SCREEN_IMAGE_TEMP);
-        string sCmdLine = string("convert -colors 256 ") + "screen.bmp" + " " + CURRENT_SCREEN_IMAGE;
+    {  
+		SaveImageToFile(pScreenImage, CURRENT_SCREEN_IMAGE_TEMP);
+        string sCmdLine = string("convert -colors 4096 ") + CURRENT_SCREEN_IMAGE_TEMP + " " + CURRENT_SCREEN_IMAGE;
         system(sCmdLine.c_str());
     }
     else
@@ -223,7 +220,7 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
         sSoftKeys + 
         "</CiscoIPPhoneGraphicFileMenu>\r\n";
 
-    FileUtils::WriteBufferIntoFile(CURRENT_SCREEN_XML, const_cast<char *>(sXMLString.c_str()), sXMLString.size());
+    FileUtils::WriteBufferIntoFile(CURRENT_SCREEN_XML, sXMLString.c_str(), sXMLString.size());
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void xxProxy_Orbiter::GenerateXMLItems(DesignObj_Orbiter *pObj) //recursive
