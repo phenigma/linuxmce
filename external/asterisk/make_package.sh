@@ -120,10 +120,6 @@ mkdir -p ${PKGFOLDER}/var/run/asterisk/
 #stuff for post install
 mkdir -p ${PKGFOLDER}/usr/local/amp/install/
 
-#copy pluto's config
-cp -R ${ADDFOLDER}/amp_pluto.conf ${PKGFOLDER}/etc/amportal.conf
-cp -R ${ADDFOLDER}/ext_pluto.conf ${PKGFOLDER}/etc/asterisk/extensions_custom.conf
-
 #copy files needed for dpkg-buildpackage
 cp ${ADDFOLDER}/debian/* ${PKGFOLDER}/../debian
 cp ${ADDFOLDER}/Makefile ${PKGFOLDER}/../
@@ -140,6 +136,10 @@ cp -R ${ADDFOLDER}/pluto-sounds/*  ${PKGFOLDER}/var/lib/asterisk/sounds/pluto/
 cp ${SRCFOLDER}/AMP/SQL/*  ${PKGFOLDER}/usr/local/amp/install/
 cp ${SRCFOLDER}/AMP/apply_conf.sh  ${PKGFOLDER}/usr/local/amp/install/
 cp -R ${SRCFOLDER}/AMP/upgrades/  ${PKGFOLDER}/usr/local/amp/
+#copy pluto's config
+cp -R ${ADDFOLDER}/amp_pluto.conf ${PKGFOLDER}/etc/amportal.conf
+cp -R ${ADDFOLDER}/ext_pluto.conf ${PKGFOLDER}/etc/asterisk/extensions_custom.conf
+cp -R ${ADDFOLDER}/sccp_pluto.conf ${PKGFOLDER}/etc/asterisk/sccp.conf
 
 #patch amportal script
 sed -r -i "s/asterisk[:]asterisk/asterisk:www-data/" ${PKGFOLDER}/usr/sbin/amportal
