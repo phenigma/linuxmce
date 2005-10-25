@@ -89,7 +89,6 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 								</tr>
 								<tr>
 									<td align="center">
-										<a href="javascript:void(0);" onClick="if (confirm(\'Are you sure you want to remove user from this installation?\')) { windowOpen(\'index.php?section=removeUserFromInstallation&from=users&userID='.$rowUser['PK_Users'].'\',\'width=500,height=500,toolbars=true,resizable=yes\');}">Remove User From Installation</a><br />
 										<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=userChangePassword&from=users&userID='.$rowUser['PK_Users'].'\',\'width=400,height=400,toolbars=true,resizable=yes\');">Change Password</a><br>
 										<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=userChangePIN&from=users&userID='.$rowUser['PK_Users'].'\',\'width=400,height=200,toolbars=true,resizable=yes\');">Change PIN</a><br>
 										<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=userPic&from=users&userID='.$rowUser['PK_Users'].'\',\'width=600,height=400,toolbars=true,resizable=1,scrollbars=1\');">Upload picture</a>
@@ -277,7 +276,7 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 
 				
 			}
-			$commandToSend='/usr/pluto/bin/SetupUsers.sh';
+			$commandToSend='sudo -u root /usr/pluto/bin/SetupUsers.sh';
 			system($commandToSend);
 			
 			if (strstr($locationGoTo,"#")) {

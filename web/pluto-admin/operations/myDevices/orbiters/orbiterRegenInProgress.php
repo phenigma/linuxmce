@@ -39,6 +39,13 @@ function orbiterRegenInProgress($output,$dbADO){
 				<td colspan="2" align="center"><B>Orbiter Generation finished</B></td>
 			</tr>	
 		</table>
+		<script>
+		function doReload()
+		{
+			self.location=\'index.php?section=orbiterRegenInProgress&orbiterID='.$orbiterID.'\';
+		}
+			setTimeout("doReload()",5000);
+		</script>		
 		';
 	}
 	

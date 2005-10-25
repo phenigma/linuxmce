@@ -11,7 +11,7 @@ function learnCode($output,$dbADO) {
 
 	if ($action=='form') {	
 		if(!isset($_REQUEST['error'])){
-			$res=$dbADO->Execute('SELECT psc_mod AS lastTime,PK_InfraredGroup_Command FROM InfraredGroup_Command ORDER BY psc_mod DESC');
+			$res=$dbADO->Execute('SELECT psc_mod AS lastTime,PK_InfraredGroup_Command FROM InfraredGroup_Command ORDER BY psc_mod DESC LIMIT 0,1');
 			$row=$res->FetchRow();
 			if(isset($_SESSION['LastInfraredGroup_CommandTime']) && $_SESSION['LastInfraredGroup_CommandTime']!=$row['lastTime']){
 				if($infraredGroupID!=0)
@@ -162,7 +162,7 @@ function learnCode($output,$dbADO) {
 				$deviceInfo=getFieldsAsArray('Device','FK_Device_ControlledVia',$dbADO,'WHERE PK_Device='.$deviceID);
 				if((int)@$deviceInfo['FK_Device_ControlledVia'][0]>0){
 					$parentDevice=$deviceInfo['FK_Device_ControlledVia'][0];
-					$resLastCommand=$dbADO->Execute('SELECT psc_mod AS lastTime FROM InfraredGroup_Command ORDER BY psc_mod DESC');
+					$resLastCommand=$dbADO->Execute('SELECT psc_mod AS lastTime FROM InfraredGroup_Command ORDER BY psc_mod DESC LIMIT 0,1');
 					$rowLastCommand=$resLastCommand->FetchRow();
 					$_SESSION['LastInfraredGroup_CommandTime']=$rowLastCommand['lastTime'];
 					

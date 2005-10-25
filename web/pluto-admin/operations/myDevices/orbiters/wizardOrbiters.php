@@ -66,7 +66,7 @@ function wizardOrbiters($output,$dbADO) {
 			$orbiterDD[]=22;		// Sleeping menu
 			$orbiterDD[]=23;		// Screen saver menu
 			$orbiterDD[]=24;		// Skin
-			$orbiterDD[]=25;		// Size
+//			$orbiterDD[]=25;		// Size
 			$orbiterDD[]=26;		// Language
 			$orbiterDD[]=56;		// Timeout
 			$orbiterDD[]=84;		// Leave Monitor on for OSD
@@ -114,7 +114,6 @@ function wizardOrbiters($output,$dbADO) {
 			$orbiterDisplayed='';
 			$PingTest=0;
 			$isOSD=0;
-			$RegenInProgress=0;
 			$regenArray=array();
 			$content=array();
 			$properties=array();
@@ -262,7 +261,7 @@ function wizardOrbiters($output,$dbADO) {
 				
 			$commandToSend='/usr/pluto/bin/MessageSend localhost -targetType template 0 '.$GLOBALS['OrbiterPlugIn'].' 1 266 2 0 21 "-a"'.$ResetRouter;
 			exec($commandToSend);
-			
+			$regen='Q_ALL';
 		}		
 		if(isset($_POST['FullRegenAll'])){
 			$ResetRouter=((int)@$_POST['reset_all']==1)?' 24 1':'';
@@ -270,6 +269,7 @@ function wizardOrbiters($output,$dbADO) {
 				
 			$commandToSend='/usr/pluto/bin/MessageSend localhost -targetType template 0 '.$GLOBALS['OrbiterPlugIn'].' 1 266 2 0 21 "-r"'.$ResetRouter;
 			exec($commandToSend);
+			$regen='F_ALL';
 		}		
 
 		$displayedDevicesArray=explode(',',$_POST['displayedDevices']);
@@ -286,6 +286,7 @@ function wizardOrbiters($output,$dbADO) {
 				
 				$commandToSend='/usr/pluto/bin/MessageSend localhost -targetType template '.$value.' '.$GLOBALS['OrbiterPlugIn'].' 1 266 2 '.$value.' 21 "-r"'.$ResetRouter;
 				exec($commandToSend,$tmp);
+				$regen='Q_'.$value;
 			}
 			if(isset($_POST['fullRegen_'.$value])){
 				$updateOrbiter='UPDATE Orbiter SET Modification_LastGen=0 WHERE PK_Orbiter=?';
@@ -296,6 +297,7 @@ function wizardOrbiters($output,$dbADO) {
 				
 				$commandToSend='/usr/pluto/bin/MessageSend localhost -targetType template '.$value.' '.$GLOBALS['OrbiterPlugIn'].' 1 266 2 '.$value.' 21 "-r"'.$ResetRouter;
 				exec($commandToSend);
+				$regen='F_'.$value;
 			}
 		}
 		
@@ -386,11 +388,12 @@ function wizardOrbiters($output,$dbADO) {
 				$regenCmd='/usr/pluto/bin/MessageSend localhost -targetType template '.$insertID.' '.$GLOBALS['OrbiterPlugIn'].' 1 266 2 '.$insertID.' 21 "-r"';
 				exec($regenCmd);
 				
+				$regen='F_ALL';
 			}
 		}
 		
 		$commandMessage=(isset($commandToSend))?'<br>Command sent: '.$commandToSend:'';
-		header("Location: index.php?section=wizardOrbiters&msg=Orbiters updated.".$commandMessage.@$suffix);		
+		header("Location: index.php?section=wizardOrbiters&msg=Orbiters updated.&regen=$regen".$commandMessage.@$suffix);		
 	}
 
 	$output->setScriptCalendar('null');
@@ -484,7 +487,7 @@ function displayButtons($orbiter,$RegenInProgress){
 			<td align="right"><input type="checkbox" name="reset_'.$orbiter.'" value="1"></td>
 			<td>Reset Router when done regenerating</td>
 		</tr>';
-	if(@$RegenInProgress['regen']==1){
+	if(@$RegenInProgress==1){
 		$out.='
 			<tr>
 				<td colspan="2" align="center"><iframe src="index.php?section=orbiterRegenInProgress&orbiterID='.$orbiter.'" style="width:100%;height:80px;border:0;"></iframe></td>
@@ -540,8 +543,10 @@ function orbiterTable($content,$orbiterGroupDisplayed,$properties){
 			if(!in_array('wifi',$excludedData[$orbiterGroupDisplayed])){
 				$out.=displayWiFiRow($orbiter,$PingTest,$isOSD);
 			}
-
-			$out.=displayButtons($orbiter,$regenArray);
+			
+			$regenQueued=substr(@$_REQUEST['regen'],2);
+			$regenBox=($regenQueued==$orbiter || $regenQueued=='ALL')?1:0;
+			$out.=displayButtons($orbiter,$regenBox);
 			
 			
 		$out.='</tr>
