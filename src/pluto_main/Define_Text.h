@@ -771,6 +771,24 @@
 #define TEXT_Yes_use_it_CONST 1476
 #define TEXT_Force_Reload_Router_CONST 1477
 #define TEXT_Press_green_button_CONST 1478
+#define TEXT_Audio_VDR_CONST 1479
+#define TEXT_Stop_VDR_CONST 1480
+#define TEXT_Record_CONST 1481
+#define TEXT_Play_VDR_CONST 1482
+#define TEXT_Commands_CONST 1483
+#define TEXT_Recordings_CONST 1484
+#define TEXT_Timers_CONST 1485
+#define TEXT_Channels_CONST 1486
+#define TEXT_Schedule_CONST 1487
+#define TEXT_Setup_VDR_CONST 1488
+#define TEXT_Red_CONST 1489
+#define TEXT_Blue_CONST 1490
+#define TEXT_Green_CONST 1491
+#define TEXT_Yellow_CONST 1492
+#define TEXT_Back_VDR_CONST 1493
+#define TEXT_Ok_CONST 1494
+#define TEXT_Pause_VDR_CONST 1495
+#define TEXT_Menu_VDR_CONST 1496
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
