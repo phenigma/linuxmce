@@ -12,6 +12,10 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
+#include "exec_grab_output.h"
+#include "PlutoUtils/StringUtils.h"
+using namespace StringUtils;
+
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 Powerfile_C200::Powerfile_C200(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
@@ -42,8 +46,48 @@ bool Powerfile_C200::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 
-	// Put your code here to initialize the data in this class
-	// The configuration parameters DATA_ are now populated
+	string sOutput;
+	char * args[] = {"/usr/bin/lsscsi", "-g", NULL};
+	if (! exec_output(args[0], args, sOutput))
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "Failed to get device names");
+		return false;
+	}
+
+	vector<string> vect_sOutput_Rows;
+	Tokenize(sOutput, "\n", vect_sOutput_Rows);
+	int nDrive = 0;
+	for (size_t i = 0; i < vect_sOutput_Rows.size(); i++)
+	{
+		vector<string> vect_sFields, vsFF; // FF = Filtered Fields
+		vect_sFields.clear();
+		vsFF.clear();
+		Tokenize(vect_sOutput_Rows[i], " \t", vect_sFields);
+
+		for (size_t j = 0; j < vect_sFields.size(); j++)
+		{
+			if (vect_sFields[j] == "")
+				continue; // skip empty fields since there is no such thing
+			vsFF.push_back(vect_sFields[j]);
+		}
+		if (vsFF[1] == "cd/dvd" && vsFF[2] == "TOSHIBA" && vsFF[3] == "DVD-ROM" && vsFF[4] == "SD-M1212")
+		{
+			if (nDrive > 1) // sanity check
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL, "I seem to have found more than 2 drives on this thing!");
+				return false;
+			}
+			g_pPlutoLogger->Write(LV_WARNING, "Found DVD unit %d: %s", nDrive, vsFF[6].c_str());
+			m_sDrive[nDrive] = vsFF[6];
+			nDrive++;
+		}
+		else if (vsFF[1] == "mediumx" && vsFF[2] == "Escient" && vsFF[3] == "Powerfile" && vsFF[4] == "C200")
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "Found changer unit: %s", vsFF[7].c_str());
+			m_sChanger = vsFF[7];
+		}
+	}
+	g_pPlutoLogger->Write(LV_STATUS, "Finished config");
 	return true;
 }
 

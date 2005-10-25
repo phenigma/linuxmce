@@ -86,6 +86,8 @@ where:
 
 
 //<-dceag-h-e->
+		private:
+			string m_sDrive[2], m_sChanger; // corresponding devices
 	};
 
 //<-dceag-end-b->
