@@ -37,6 +37,10 @@ for Users in $R; do
 	LinuxPassword=$(echo "$Users" | cut -d, -f3)
 	SambaPassword=$(echo "$Users" | cut -d, -f4)
 
+	if [[ ! -d "/home/user_$PlutoUserID" ]]; then
+		rm -rf "/home/user_$PlutoUserID"
+	fi
+	
 	[ -z "$LinuxPassword" ] && LinuxPassword="$DefaultLinuxPassword"
 	[ -z "$SambaPassword" ] && SambaPassword="$DefaultSambaPassword"
 #	echo "$Users : $PlutoUserID - $UserName - $LinuxPassword - $SambaPassword"
