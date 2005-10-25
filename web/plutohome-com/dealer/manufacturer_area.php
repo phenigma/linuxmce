@@ -53,7 +53,7 @@ if($action=='form'){
 		$dtTable.='
 			<tr bgcolor="'.$color.'">
 				<td>'.$manufDT['EK_DeviceTemplate'][$i].'</td>
-				<td>'.$dtArray[$manufDT['EK_DeviceTemplate'][$i]].'</td>
+				<td>'.@$dtArray[$manufDT['EK_DeviceTemplate'][$i]].'</td>
 				<td><input type="submit" name="del_'.$manufDT['EK_DeviceTemplate'][$i].'" value="Delete" onClick="if(!confirm(\'Are you sure you want to delete this device template?\'))return false;"></td>
 			</tr>
 			<tr bgcolor="'.$color.'">
@@ -112,7 +112,7 @@ if($action=='form'){
       				<td align="left" colspan="2" class="insidetable"><B>Manufacturer area</B> </td>
 				</tr>
 				<tr>
-					<td class="normaltext" align="right">&nbsp;'.(($manufacturerUser['CanEditProfile'][0]==1)?'<a href="index.php?section=edit_manufacturer_profile">Edit my profile</a>':'').'</td>
+					<td class="normaltext" align="right">&nbsp;'.(($manufacturerUser['CanEditProfile'][0]==1)?'<a href="index.php?section=license_device&mID='.$manufacturerID.'">License device</a> <a href="index.php?section=edit_manufacturer_profile">Edit my profile</a>':'').'</td>
       			</tr>	
 				<tr>
 					<td class="normaltext" align="center">&nbsp;'.@$msg.@$errMsg.'</td>

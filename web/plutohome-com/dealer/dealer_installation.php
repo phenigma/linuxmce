@@ -45,7 +45,7 @@ if($action=='form'){
 				<td align="center">'.@$roleArray[$devicesArray['FK_DeviceRole'][$i]].'</td>
 				<td align="center">'.@$licenseType[$devicesArray['FK_LicenseType'][$i]].'</td>
 				<td align="center">'.((!is_null($devicesArray['EK_LicensedDevice'][$i]))?$devicesArray['EK_LicensedDevice'][$i]:'<a href="index.php?section=dealer_license_device&inst='.$inst.'&did='.$devicesArray['EK_Device'][$i].'">Add License</a>').'</td>
-				<td align="center"><input type="submit" name="del_" value="Delete"></td>
+				<td align="center"><input type="button" name="del_" value="Delete" onClick="if(confirm(\'Are you sure you want to delete this device from installation?\'))self.location=\'index.php?section=dealer_installation&inst='.$inst.'&action=del&did='.$devicesArray['EK_Device'][$i].'\'"></td>
 			</tr>
 		';
 	}
@@ -117,6 +117,21 @@ if($action=='form'){
 		</script>	
       	';
 }else{
+	$manufacturerADO=dbConnection($dbManufacturerServer,$dbManufacturerUser,$dbManufacturerPass,$dbManufacturerDatabase);	
+	
+	if(isset($_REQUEST['did'])){
+		$did=(int)@$_REQUEST['did'];
+		$inst=(int)@$_REQUEST['inst'];
+		if($did!=0 && $inst!=0){
+			$dealerADO->Execute('DELETE FROM Installation_Device WHERE EK_Device=? AND EK_Installation=?',array($did,$inst));
+			$manufacturerADO->Execute('DELETE FROM LicensedDevice WHERE EK_Device=? AND EK_Installation=?',array($did,$inst));
+			header('Location: index.php?section=dealer_installation&inst='.$inst.'&msg=The device was removed.');
+			exit();
+		}else{
+			header('Location: index.php?section=dealer_installation&inst='.$inst.'&err=Invalid parameters.');
+			exit();
+		}
+	}
 	
 	$device=(int)$_POST['device'];
 	$dt=(int)$_POST['dt'];
@@ -134,7 +149,6 @@ if($action=='form'){
 			exit();
 		}
 		
-		$manufacturerADO=dbConnection($dbManufacturerServer,$dbManufacturerUser,$dbManufacturerPass,$dbManufacturerDatabase);
 		$existLicense=getFieldsAsArray('LicensedDevice','PK_LicensedDevice',$manufacturerADO,'WHERE EK_DeviceTemplate='.$dt.' AND EK_Device='.$device.' AND EK_Installation='.$inst);
 		$license=(isset($existLicense['PK_LicensedDevice'][0]))?$existLicense['PK_LicensedDevice'][0]:NULL;
 		

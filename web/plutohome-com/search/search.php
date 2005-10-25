@@ -12,7 +12,14 @@ function search($output,$dbADO,$conn){
 		</tr>	
 		<tr>
 			<td class="insidetable2">';
-	$rs=$dbADO->Execute('SELECT * FROM Document WHERE Title LIKE ? OR Contents LIKE ?',array('%'.$searchString.'%','%'.$searchString.'%'));
+
+	if(strpos($searchString,' ')!==false){
+		$words=explode(' ',strtolower($searchString));
+		$filterByWords='';
+		foreach ($words AS $word)
+			$filterByWords.=" OR Title LIKE '% $word %' OR Contents LIKE '% $word %'";
+	}
+	$rs=$dbADO->Execute('SELECT * FROM Document WHERE Title LIKE ? OR Contents LIKE ?'.@$filterByWords,array('%'.$searchString.'%','%'.$searchString.'%'));
 	$docsFound=$rs->RecordCount();
 	$out.='
 		<table>

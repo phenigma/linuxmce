@@ -541,6 +541,14 @@ switch ($section) {
 		include_once('dealer/dealer_license_device.php');
 	    dealer_license_device($output,$dbADO);
 	break;
+	case 'license_device':
+    	$output = new Template();
+    	$output->setConn($conn);
+       	$output->setTemplateFileType('nonews');
+		include_once('dealer/license_device.php');
+	    license_device($output,$dbADO);
+	break;
+	
 	case 'edit_dealer_profile':
     	$output = new Template();
     	$output->setConn($conn);
@@ -632,7 +640,7 @@ switch ($section) {
 		include_once('operations/deviceStatus.php');
 	    deviceStatus($output,$dbADO);
 	break;
-	
+		
 	default:			
 		$output = new Template();	
 		$output->setConn($conn);
