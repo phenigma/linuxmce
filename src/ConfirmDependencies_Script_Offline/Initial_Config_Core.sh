@@ -250,6 +250,7 @@ if [[ -d /home/backup && -f /home/backup/entire_database.sql ]]; then
 	mysql < /home/backup/entire_database.sql
 fi
 
+/usr/pluto/bin/SetupUsers.sh
 /usr/pluto/install/Initial_Config_Finish.sh
 #init q
 exit 0

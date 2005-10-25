@@ -2,9 +2,6 @@
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/pluto.func
 
-# Temporary HACK, will be removed in .32: setup users
-/usr/pluto/bin/SetupUsers.sh
-
 cd /usr/pluto/bin
 Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Starting DCERouter"
 
