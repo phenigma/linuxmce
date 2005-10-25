@@ -28,9 +28,9 @@ function get_pluto($output,$conn){
 
 1.  Download the latest kick-start CD:<br><br>
 
-	&nbsp;&nbsp;&nbsp;&nbsp;Version ****KICK_START_NAME****<br>
+	&nbsp;&nbsp;&nbsp;&nbsp;Version ----KICK_START_NAME----<br>
 
-    &nbsp;&nbsp;&nbsp;&nbsp;MD5: ****MD5SUM****<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;MD5: ----MD5SUM----<br>
 
 	&nbsp;&nbsp;&nbsp;&nbsp;<a href="'.$PlutoHomeHost.'download/cds/pldebsrg.iso">HTTP download</a><br>
 
