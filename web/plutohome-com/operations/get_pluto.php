@@ -34,7 +34,7 @@ function get_pluto($output,$conn){
 
 	&nbsp;&nbsp;&nbsp;&nbsp;<a href="'.$PlutoHomeHost.'download/cds/pldebsrg.iso">HTTP download</a><br>
 
-	&nbsp;&nbsp;&nbsp;&nbsp;<a href="ftp://ftp.plutohome.com/pub/----KICK_START_NAME----">FTP download</a><br><br>
+	&nbsp;&nbsp;&nbsp;&nbsp;<a href="ftp://ftp.plutohome.com/pub/">FTP download: ----KICK_START_NAME----</a><br><br>
 
  
 
