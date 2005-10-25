@@ -66,7 +66,7 @@ public:
 	void DumpResults()
 	{
 		for(MapProfiles::iterator it = m_MapProfiles.begin();it != m_MapProfiles.end();++it)
-			g_pPlutoLogger->Write(LV_WARNING,"PROFILE ID: %s used %d nanoseconds",it->first.c_str(),it->second.second);
+			g_pPlutoLogger->Write(LV_WARNING,"PROFILE ID: %s used %d nanoseconds (ie %d seconds %d ms)",it->first.c_str(),it->second.second,it->second.second/1000000,it->second.second/1000);
 	}
 
 	void Error(string sID,string sMessage)

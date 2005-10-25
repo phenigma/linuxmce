@@ -28,6 +28,8 @@ namespace ProcessUtils
 	bool ApplicationIsLaunchedByMe(string applicationName);
 
 	bool SendKeysToProcess(string sAppIdentifier,string sKeys);
+
+	void KillAllApplications();  // Kill any applications we have spawned
 };
 
 #endif // PROCESSUTILS

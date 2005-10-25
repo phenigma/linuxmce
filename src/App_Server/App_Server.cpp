@@ -131,8 +131,7 @@ bool App_Server::GetConfig()
 App_Server::~App_Server()
 //<-dceag-dest-e->
 {
-//	vector<void *> data;
-//	ProcessUtils::KillApplication(LOGO_APPLICATION_NAME, data);
+	ProcessUtils::KillAllApplications();
 }
 
 //<-dceag-reg-b->

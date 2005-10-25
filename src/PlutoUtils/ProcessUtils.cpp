@@ -284,3 +284,17 @@ bool ProcessUtils::SendKeysToProcess(string sAppIdentifier,string sKeys)
 
 	return true;
 }
+
+void ProcessUtils::KillAllApplications()
+{
+	list<string> listOpenProcesses;
+	PLUTO_SAFETY_LOCK(sl,g_ProcessUtilsMutex);
+	for(MapIdentifierToPidData::iterator it=g_mapIdentifierToPidData.begin();it!=g_mapIdentifierToPidData.end();++it)
+		listOpenProcesses.push_back( it->first );
+	sl.Release();
+	for(list<string>::iterator it=listOpenProcesses.begin();it!=listOpenProcesses.end();++it)
+	{
+		vector<void *> messagesToSend;
+		KillApplication(*it, messagesToSend);
+	}
+}
