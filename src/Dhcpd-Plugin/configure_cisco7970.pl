@@ -102,6 +102,11 @@ else
 	$str_FILE .= "\n".$str_LINE;
 }
 
+$str_FILE =~ s/\n\n+/\n/gms;
+$str_FILE =~ s/\[/\n\[/gms;
+$str_FILE =~ s/;<pl/\n;<pl/gms;
+$str_FILE =~ s/\]\n+;<pl/\]\n;<pl/gms;
+
 open(FILE,"> /etc/asterisk/sccp.conf") or die "Ugly";
 print FILE $str_FILE;
 close(FILE);
