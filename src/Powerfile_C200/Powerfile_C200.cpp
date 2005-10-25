@@ -237,9 +237,19 @@ void Powerfile_C200::SomeFunction()
 void Powerfile_C200::CMD_Load_from_Slot_into_Drive(int iSlot_Number,int iDrive_Number,string &sCMD_Result,Message *pMessage)
 //<-dceag-c701-e->
 {
-	cout << "Need to implement command #701 - Load from Slot into Drive" << endl;
-	cout << "Parm #151 - Slot_Number=" << iSlot_Number << endl;
-	cout << "Parm #152 - Drive_Number=" << iDrive_Number << endl;
+	g_pPlutoLogger->Write(LV_STATUS, "Loading disc from slot %d into drive %d", iSlot_Number, iDrive_Number);
+	string sCmd = string("mtx -f ") + m_sChanger + " load " + itos(iSlot_Number) + " " + itos(iDrive_Number);
+	int status = system(sCmd.c_str());
+	if (WEXITSTATUS(status) == 0)
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Loading disc succeeded");
+		sCMD_Result = "OK";
+	}
+	else
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Loading disc failed");
+		sCMD_Result = "FAILED";
+	}
 }
 
 //<-dceag-c702-b->
@@ -254,9 +264,19 @@ void Powerfile_C200::CMD_Load_from_Slot_into_Drive(int iSlot_Number,int iDrive_N
 void Powerfile_C200::CMD_Unload_from_Drive_into_Slot(int iSlot_Number,int iDrive_Number,string &sCMD_Result,Message *pMessage)
 //<-dceag-c702-e->
 {
-	cout << "Need to implement command #702 - Unload from Drive into Slot" << endl;
-	cout << "Parm #151 - Slot_Number=" << iSlot_Number << endl;
-	cout << "Parm #152 - Drive_Number=" << iDrive_Number << endl;
+	g_pPlutoLogger->Write(LV_STATUS, "Unloading disc from drive %d into slot %d", iDrive_Number, iSlot_Number);
+	string sCmd = string("mtx -f ") + m_sChanger + " unload " + itos(iSlot_Number) + " " + itos(iDrive_Number);
+	int status = system(sCmd.c_str());
+	if (WEXITSTATUS(status) == 0)
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Unloading disc succeeded");
+		sCMD_Result = "OK";
+	}
+	else
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Unloading disc failed");
+		sCMD_Result = "FAILED";
+	}
 }
 
 //<-dceag-c703-b->
