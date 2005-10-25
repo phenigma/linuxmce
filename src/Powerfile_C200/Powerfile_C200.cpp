@@ -231,6 +231,3 @@ void Powerfile_C200::CMD_Get_Jukebox_Status(string *sJukebox_Status,string &sCMD
 	cout << "Need to implement command #703 - Get Jukebox Status" << endl;
 	cout << "Parm #153 - Jukebox_Status=" << sJukebox_Status << endl;
 }
-
-
-
