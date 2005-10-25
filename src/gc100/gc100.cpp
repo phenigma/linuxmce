@@ -136,6 +136,7 @@ bool gc100::GetConfig()
 gc100::~gc100()
 //<-dceag-dest-e->
 {
+	pthread_cancel(m_EventThread);     //pthread_cancel is asynchron so call it first and continue cleanup	
 	m_bQuit = true;                    //force quit
 	Sleep(100);                        //wait a little
 	pthread_join(m_EventThread, NULL); //finish
