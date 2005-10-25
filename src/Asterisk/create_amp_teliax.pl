@@ -46,7 +46,7 @@ $TRUNK_VARS{'outcid'}="";
 $TRUNK_VARS{'maxchans'}="";
 $TRUNK_VARS{'dialrules'}=$DECLARED_PREFIX."|.";
 $TRUNK_VARS{'autopop'}="";
-$TRUNK_VARS{'dialoutprefix'}=""
+$TRUNK_VARS{'dialoutprefix'}="";
 $TRUNK_VARS{'channelid'}="teliax";
 $TRUNK_VARS{'peerdetails'} ="allow=gsm\n";
 $TRUNK_VARS{'peerdetails'}.="auth=md5\n";
@@ -56,6 +56,9 @@ $TRUNK_VARS{'peerdetails'}.="host=voip-co2.teliax.com\n";
 $TRUNK_VARS{'peerdetails'}.="username=$DECLARED_USERNAME\n";
 $TRUNK_VARS{'peerdetails'}.="secret=$DECLARED_USERPASSWD\n";
 $TRUNK_VARS{'peerdetails'}.="type=friend\n";
+$TRUNK_VARS{'peerdetails'}.="nat=yes\n";
+$TRUNK_VARS{'peerdetails'}.="canreinvite=no\n";
+$TRUNK_VARS{'peerdetails'}.="qualify=yes\n";
 $TRUNK_VARS{'usercontext'}=$DECLARED_NUMBER;
 $TRUNK_VARS{'userconfig'}="context=from-pstn\ntype=friend\n";
 $TRUNK_VARS{'register'}="$DECLARED_USERNAME:$DECLARED_USERPASSWD\@voip-co2.teliax.com";
