@@ -278,7 +278,7 @@ function wizardOrbiters($output,$dbADO) {
 				deleteDevice($value,$dbADO); 
 			}
 			if(isset($_POST['quickRegen_'.$value])){
-				$updateOrbiter='UPDATE Orbiter SET Regen=1,RegenInProgress=1 WHERE PK_Orbiter=?';
+				$updateOrbiter='UPDATE Orbiter SET Regen=1 WHERE PK_Orbiter=?';
 				$dbADO->Execute($updateOrbiter,$value); 
 				$dbADO->Execute('UPDATE Device SET NeedConfigure=1 WHERE PK_Device=?',$value);
 				$updateOrbiters=true;
@@ -288,7 +288,7 @@ function wizardOrbiters($output,$dbADO) {
 				exec($commandToSend,$tmp);
 			}
 			if(isset($_POST['fullRegen_'.$value])){
-				$updateOrbiter='UPDATE Orbiter SET RegenInProgress=1,Modification_LastGen=0 WHERE PK_Orbiter=?';
+				$updateOrbiter='UPDATE Orbiter SET Modification_LastGen=0 WHERE PK_Orbiter=?';
 				$dbADO->Execute($updateOrbiter,$value); 
 				$dbADO->Execute('UPDATE Device SET NeedConfigure=1 WHERE PK_Device=?',$value);
 				$updateOrbiters=true;
