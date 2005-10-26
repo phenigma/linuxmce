@@ -189,7 +189,7 @@ void gc100::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sC
 			atoi(pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST].c_str()) << "'" << endl;
 		cout << "C: " << (atoi(pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST].c_str()) != 0) << endl;
 		if (atoi(pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST].c_str()) != 0)
-			LEARN_IR(pMessage->m_dwPK_Device_To, atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Command_Input_CONST].c_str()),
+			LEARN_IR(pMessage->m_dwPK_Device_To, atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Command_CONST].c_str()),
 			pMessage->m_dwPK_Device_From, atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Text_CONST].c_str()));
 		else
 			LEARN_IR_CANCEL();
@@ -1771,4 +1771,28 @@ void gc100::CMD_Toggle_Power(string sOnOff,string &sCMD_Result,Message *pMessage
 void gc100::CMD_Learn_IR(int iPK_Device,string sOnOff,int iPK_Text,int iPK_Command,string &sCMD_Result,Message *pMessage)
 //<-dceag-c245-e->
 {
+// That's why we should implement this here instead of ReceivedCommandForChild (learn comes to gc100, cancel to tv)
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
+// 13      10/26/05 6:13:05.832            TCPIP: Accepting incoming connection on socket 146, port 3450, from IP 127.0.0.1.
+// 08      10/26/05 6:13:05.832            Received Message from 0 (unknown / ) to 35 (gc100 / hybrid), type 1 id 245 Command:Learn IR, parameters:
+// 08      10/26/05 6:13:05.833              Parameter 8(On/Off): 1
+// 08      10/26/05 6:13:05.833              Parameter 71(PK_Command_Input(Skip Back - Channel/Track Lower)): 64
+// 13      10/26/05 6:13:05.833            No response expected.  returning
+// 10      10/26/05 6:13:05.885            Socket::ReceiveData failed, bytes left 0 m_Socket: 146 Incoming_Conn Socket 146 127.0.0.1
+// 10      10/26/05 6:13:05.885            Socket::ReceiveString2 ReceiveData failed m_Socket: -1 Incoming_Conn Socket 146 127.0.0.1
+// 05      10/26/05 6:13:05.885            TCPIP: Closing connection to -1003 (Router Dev #0) 0x8590e30 m_Socket: -1
+// 13      10/26/05 6:13:08.134            TCPIP: Accepting incoming connection on socket 146, port 3450, from IP 127.0.0.1.
+// 08      10/26/05 6:13:08.135            Received Message from 0 (unknown / ) to 36 (KV-X2501D / hybrid), type 1 id 245 Command:Learn IR, parameters:
+// 08      10/26/05 6:13:08.135              Parameter 8(On/Off): 0
+// 13      10/26/05 6:13:08.136            No response expected.  returning
+	cout << "###" << endl;
+	cout << "Cmd: Learn IR '" << sOnOff << "' == '" << atoi(sOnOff.c_str()) << "'" << endl;
+	cout << "C: " << (atoi(sOnOff.c_str()) != 0) << endl;
+	if (atoi(sOnOff.c_str()) != 0)
+		LEARN_IR(iPK_Device, iPK_Command, pMessage->m_dwPK_Device_From, iPK_Text);
+	else
+		LEARN_IR_CANCEL();
+	sCMD_Result = "OK";
+	return;
 }
+
