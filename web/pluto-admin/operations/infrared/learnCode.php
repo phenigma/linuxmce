@@ -166,7 +166,7 @@ function learnCode($output,$dbADO) {
 					$rowLastCommand=$resLastCommand->FetchRow();
 					$_SESSION['LastInfraredGroup_CommandTime']=$rowLastCommand['lastTime'];
 					
-					$commandToSend='/usr/pluto/bin/MessageSend localhost 0 '.$parentDevice.' 1 245 8 1 71 '.$commandID;
+					$commandToSend='/usr/pluto/bin/MessageSend localhost 0 '.$parentDevice.' 1 245 8 1 154 '.$commandID.' 2 '.$deviceID;
 					exec($commandToSend);
 				
 					header("Location: index.php?section=learnCode&deviceID=$deviceID&dtID=$dtID&infraredGroupID=$infraredGroupID&commandID=".$commandID);
