@@ -1,3 +1,9 @@
+asterisk-pluto (1.0.9-2) unstable; urgency=low
+
+  * Conflicts with zaptel zaptel-source zaptel-modules-2.6.10-1-686
+
+ -- Office Server Operator <root@activate.plutohome.com>  Wed, 26 Oct 2005 11:15:00 +0300
+
 asterisk-pluto (1.0.9-1) unstable; urgency=low
 
   * Includes asterisk, libpri, zaptel, some addons and customized AMP.
