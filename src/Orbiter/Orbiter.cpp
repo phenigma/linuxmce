@@ -6374,6 +6374,7 @@ bool Orbiter::CaptureKeyboard_EditText_DeleteLastChar(  )
 
     m_sCaptureKeyboard_InternalBuffer = NewValue;
     m_mapVariable[m_iCaptureKeyboard_PK_Variable] = NewValue;
+    vm.Release();
 
     if( NULL != m_pCaptureKeyboard_Text )
     {
@@ -6431,6 +6432,7 @@ bool Orbiter::CaptureKeyboard_EditText_AppendChar( char ch )
 
     m_sCaptureKeyboard_InternalBuffer = NewValue;
     m_mapVariable[m_iCaptureKeyboard_PK_Variable] = NewValue;
+    vm.Release();
 
     if( NULL != m_pCaptureKeyboard_Text )
     {
