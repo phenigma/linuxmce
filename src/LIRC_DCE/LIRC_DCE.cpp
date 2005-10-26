@@ -56,6 +56,21 @@ bool LIRC_DCE::GetConfig()
 	
 	IRReceiverBase::GetConfig(m_pData);
 
+	system("killall -9 lircd");
+
+	// Always do this
+	g_pPlutoLogger->Write(LV_STATUS,"Running modprobe lirc_dev");
+	system("modprobe lirc_dev");
+
+	string sSystemDevice = DATA_Get_System_Device();
+	string::size_type pos=0;
+	while( pos<sSystemDevice.size() && pos!=string::npos )
+	{
+		string sModProbe = StringUtils::Tokenize(sSystemDevice,",",pos);
+		g_pPlutoLogger->Write(LV_STATUS,"Running modprobe %s",sModProbe.c_str());
+		system(("modprobe " + sModProbe).c_str());
+	}
+
 	FILE *fp;
 	string sCOM1 = "1";
 	string sCOM2 = "2";
@@ -79,6 +94,10 @@ bool LIRC_DCE::GetConfig()
 		else if (stat("/dev/lirc/0", &buf) != -1 && S_ISCHR(buf.st_mode))
 		{
 			sSerialPort = "/dev/lirc/0";
+		}
+		else if (stat("/dev/lirc0", &buf) != -1 && S_ISCHR(buf.st_mode))
+		{
+			sSerialPort = "/dev/lirc0";
 		}
 		else
 		{
@@ -158,21 +177,6 @@ bool LIRC_DCE::GetConfig()
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"There are no remote controls -- LIRC will be dormant");
 		return true;
-	}
-
-	system("killall -9 lircd");
-
-	// Always do this
-	g_pPlutoLogger->Write(LV_STATUS,"Running modprobe lirc_dev");
-	system("modprobe lirc_dev");
-
-	string sSystemDevice = DATA_Get_System_Device();
-	string::size_type pos=0;
-	while( pos<sSystemDevice.size() && pos!=string::npos )
-	{
-		string sModProbe = StringUtils::Tokenize(sSystemDevice,",",pos);
-		g_pPlutoLogger->Write(LV_STATUS,"Running modprobe %s",sModProbe.c_str());
-		system(("modprobe " + sModProbe).c_str());
 	}
 
 	system((string("lircd") + " -H " + sLIRCDriver + " -d " + sSerialPort + " /etc/lircd.conf").c_str());
