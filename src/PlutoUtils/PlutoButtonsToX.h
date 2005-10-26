@@ -164,6 +164,12 @@ pair<bool,int> PlutoButtonsToX(int PK_Button)
         return make_pair<bool,int> (false,XK_Escape);
     case BUTTON_tab_CONST:
         return make_pair<bool,int> (false,XK_Tab);
+    case BUTTON_plus_CONST:
+        return make_pair<bool,int> (false,XK_plus);
+    case BUTTON_dash_CONST:
+        return make_pair<bool,int> (false,XK_minus);
+    case BUTTON_dot_CONST:
+        return make_pair<bool,int> (false,XK_KP_Decimal);
 	}
 	return make_pair<bool,int> (false,0);
 }
