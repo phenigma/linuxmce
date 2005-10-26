@@ -39,6 +39,22 @@ Powerfile_C200::~Powerfile_C200()
 	
 }
 
+// Call Tokenize directly if you don't need to strip out eventual empty fields
+static void ExtractFields(string &sRow, vector<string> &vect_sResult, const char * separator = " \t")
+{
+	vector<string> vect_sFields;
+	vect_sResult.clear();
+	vect_sFields.clear();
+	Tokenize(sRow, separator, vect_sFields);
+
+	for (size_t i = 0; i < vect_sFields.size(); i++)
+	{
+		if (vect_sFields[i] == "")
+			continue; // skip empty fields since there is no such thing
+		vect_sResult.push_back(vect_sFields[i]);
+	}
+}
+
 //<-dceag-getconfig-b->
 bool Powerfile_C200::GetConfig()
 {
@@ -59,17 +75,8 @@ bool Powerfile_C200::GetConfig()
 	int nDrive = 0;
 	for (size_t i = 0; i < vect_sOutput_Rows.size(); i++)
 	{
-		vector<string> vect_sFields, vsFF; // FF = Filtered Fields
-		vect_sFields.clear();
-		vsFF.clear();
-		Tokenize(vect_sOutput_Rows[i], " \t", vect_sFields);
-
-		for (size_t j = 0; j < vect_sFields.size(); j++)
-		{
-			if (vect_sFields[j] == "")
-				continue; // skip empty fields since there is no such thing
-			vsFF.push_back(vect_sFields[j]);
-		}
+		vector<string> vsFF; // FF = Filtered Fields
+		ExtractFields(vect_sOutput_Rows[i], vsFF);
 		if (vsFF[1] == "cd/dvd" && vsFF[2] == "TOSHIBA" && vsFF[3] == "DVD-ROM" && vsFF[4] == "SD-M1212")
 		{
 			if (nDrive > 1) // sanity check
@@ -292,6 +299,60 @@ where:
 void Powerfile_C200::CMD_Get_Jukebox_Status(string *sJukebox_Status,string &sCMD_Result,Message *pMessage)
 //<-dceag-c703-e->
 {
-	cout << "Need to implement command #703 - Get Jukebox Status" << endl;
-	cout << "Parm #153 - Jukebox_Status=" << sJukebox_Status << endl;
+	g_pPlutoLogger->Write(LV_STATUS, "Getting jukebox status");
+	
+	* sJukebox_Status = "";
+	bool bComma = false;
+	string sOutput;
+	
+	char * args[] = {"/usr/sbin/mtx", "-f", (char *) m_sChanger.c_str(), "nobarcode", "status", NULL};
+	if (exec_output(args[0], args, sOutput))
+	{
+		vector<string> vect_sOutput_Rows;
+		
+		Tokenize(sOutput, "\n", vect_sOutput_Rows);
+		for (size_t i = 0; i < vect_sOutput_Rows.size(); i++)
+		{
+			string sResult = "";
+			vector<string> vsFF;
+			string sWhoWhat;
+			vector<string> vsC; // C = Components
+
+			ExtractFields(vect_sOutput_Rows[i], vsFF);
+			if (vsFF[0] == "Data")
+			{
+				sWhoWhat = vsFF[3];
+				Tokenize(sWhoWhat, ":", vsC); // Unit_number:State
+				
+				sResult = string("D") + vsC[0] + "=" + vsC[1];
+				if (vsC[1] == "Full")
+				{
+					sResult += string("-") + vsFF[6];
+				}
+			}
+			else if (vsFF.size() == 3 && vsFF[0] == "Storage" && vsFF[1] == "Element")
+			{
+				sWhoWhat = vsFF[2];
+				Tokenize(sWhoWhat, ":", vsC);
+				
+				sResult = string("S") + vsC[0] + "=" +vsC[1];
+			}
+			
+			if (sResult != "")
+			{
+				if (bComma)
+					* sJukebox_Status += ",";
+				else
+					bComma = true;
+				* sJukebox_Status += sResult;
+			}
+		}
+		g_pPlutoLogger->Write(LV_STATUS, "Finished getting device status");
+		sCMD_Result = "OK";
+	}
+	else
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "Failed to get device status");
+		sCMD_Result = "FAILED";
+	}
 }
