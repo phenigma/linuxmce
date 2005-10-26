@@ -100,8 +100,8 @@ static void DisplayMessage(HWND hWnd, HDC hdc)
     ::DrawText(hdc, PM_TEXT_TO_RENDER, int(g_sPrompt.length()), &rectCalcLocation, 
         DT_WORDBREAK | DT_NOPREFIX | DT_CALCRECT); 
 
-    int nPixelHeight = 12 * (rectLocation.bottom - rectLocation.top) / 
-        double(rectCalcLocation.bottom - rectCalcLocation.top);
+    int nPixelHeight = int(12 * (rectLocation.bottom - rectLocation.top) / 
+        double(rectCalcLocation.bottom - rectCalcLocation.top));
 
 #ifdef WINCE
     nPixelHeight = min(16, max(12, nPixelHeight));

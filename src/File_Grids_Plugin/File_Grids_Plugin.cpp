@@ -236,7 +236,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 		pCell->m_pMessage = CMDPDG.m_pMessage;
 		pDataGrid->SetData(0, iRow, pCell);
 
-		pCell = new DataGridCell("<-- Back (..) - " + FileUtils::FilenameWithoutPath(sSubDirectory), "");
+		pCell = new DataGridCell("~S21~<-- Back (..) - " + FileUtils::FilenameWithoutPath(sSubDirectory), "");
 		pCell->m_pMessage = new Message(CMDPDG.m_pMessage);
 		pCell->m_Colspan = 6;
 		pDataGrid->SetData(1, iRow++, pCell);
@@ -251,7 +251,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 		flInfo = new FileListInfo(pFileDetails->m_bIsDir,pFileDetails->m_sBaseName + pFileDetails->m_sFileName,false);
 
 		DataGridCell *pCellPicture = new DataGridCell("", pFileDetails->m_sBaseName + pFileDetails->m_sFileName);
-		pCell = new DataGridCell(pFileDetails->m_sFileName + " " + pFileDetails->m_sDescription, pFileDetails->m_sBaseName + pFileDetails->m_sFileName);
+        pCell = new DataGridCell((pFileDetails->m_bIsDir ? "~S2~" : "") + pFileDetails->m_sFileName + " " + pFileDetails->m_sDescription, pFileDetails->m_sBaseName + pFileDetails->m_sFileName);
 		pCell->m_Colspan = 6;
 
 		if (pFileDetails->m_bIsDir && PK_MediaType==MEDIATYPE_pluto_DVD_CONST)

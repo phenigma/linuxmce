@@ -363,12 +363,81 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
     CHECK_STATUS();
     PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 
-	if( !m_bPoolRendering )
+	if(!m_bPoolRendering || TextToDisplay.find("~S") != string::npos)
 	{
+        RECT rectLocation;
 		HDC hdc = GetDisplay()->GetBackBuffer()->GetDC(false);
-		RenderText(hdc,TextToDisplay,Text->m_rPosition,Text->m_iPK_HorizAlignment,Text->m_iPK_VertAlignment,
-			pTextStyle->m_sFont,pTextStyle->m_ForeColor,pTextStyle->m_iPixelHeight,pTextStyle->m_bBold,pTextStyle->m_bItalic,pTextStyle->m_bUnderline,
-			point);
+
+        //handle escape sequences
+        if(TextToDisplay.find("~S") != string::npos)
+        {   
+            string sText = TextToDisplay;
+            vector<string> vectTextPieces;
+            size_t nPos = 0;
+            bool bMultiLine = TextToDisplay.find("\n") != string::npos;
+            while((nPos = sText.find("~S")) != string::npos)
+            {
+                size_t nNextPos = nPos;
+                if(nPos == 0)
+                {
+                    nNextPos = sText.find("~S", nPos + 1);
+
+                    if(nNextPos == string::npos)
+                        nNextPos = sText.length();
+
+                    if(sText.find("~", nNextPos + 1) == string::npos)
+                        nNextPos = sText.length();
+                }
+
+                string sTextPiece = sText.substr(0, nNextPos);
+                vectTextPieces.push_back(sTextPiece);
+                sText = sText.substr(nNextPos);
+            }
+
+            PlutoRectangle plutoRect = Text->m_rPosition;
+
+            vector<string>::iterator it;
+            for(it = vectTextPieces.begin(); it != vectTextPieces.end(); it++)
+            {
+                string sTextPiece = *it;
+                string sTextToRender = sTextPiece;
+                size_t nPos = sTextPiece.find("~S");
+                TextStyle *pPieceTextStyle = pTextStyle;
+                if(nPos == 0)
+                {
+                    int nNextPos = sTextPiece.find("~", nPos + 1);
+                    string sTextStyleNumber = sTextPiece.substr(nPos + 2, nNextPos - 2);
+                    int nTextStyle = atoi(sTextStyleNumber.c_str());
+                    pPieceTextStyle = m_mapTextStyle_Find(nTextStyle);
+
+                    sTextToRender = sTextPiece.substr(nNextPos + 1);
+
+                    if(!pPieceTextStyle)
+                    {
+                        g_pPlutoLogger->Write(LV_CRITICAL, "Text style not found %d. Using default!", nTextStyle);
+                        pPieceTextStyle = pTextStyle;
+                    }
+                }
+
+                RenderText(hdc,sTextToRender,Text->m_rPosition,Text->m_iPK_HorizAlignment,Text->m_iPK_VertAlignment,
+                    pPieceTextStyle->m_sFont,pPieceTextStyle->m_ForeColor,pPieceTextStyle->m_iPixelHeight,pPieceTextStyle->m_bBold,pPieceTextStyle->m_bItalic,pPieceTextStyle->m_bUnderline,
+                    point, rectLocation);
+
+                if(bMultiLine)
+                    Text->m_rPosition.Y += rectLocation.bottom - rectLocation.top;
+                else
+                    Text->m_rPosition.X += rectLocation.right - rectLocation.left; 
+            }
+            
+            Text->m_rPosition = plutoRect;
+        }
+        else //normal rendering
+        {
+		    RenderText(hdc,TextToDisplay,Text->m_rPosition,Text->m_iPK_HorizAlignment,Text->m_iPK_VertAlignment,
+			    pTextStyle->m_sFont,pTextStyle->m_ForeColor,pTextStyle->m_iPixelHeight,pTextStyle->m_bBold,pTextStyle->m_bItalic,pTextStyle->m_bUnderline,
+			    point, rectLocation);
+        }
+
 		GetDisplay()->GetBackBuffer()->ReleaseDC(hdc);
 	}
 	else
@@ -389,12 +458,12 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 	}
 }
 
-/*virtual*/ void Orbiter_PocketFrog::RenderText(HDC hdc,string &TextToDisplay,PlutoRectangle &rPosition,int iPK_HorizAlignment,int iPK_VertAlignment,string &sFont,PlutoColor &ForeColor,int iPixelHeight,bool bBold,bool bItalic,bool bUnderline, PlutoPoint point)
+/*virtual*/ void Orbiter_PocketFrog::RenderText(HDC hdc,string &TextToDisplay,PlutoRectangle &rPosition,int iPK_HorizAlignment,int iPK_VertAlignment,string &sFont,PlutoColor &ForeColor,int iPixelHeight,bool bBold,bool bItalic,bool bUnderline, PlutoPoint point, RECT &rectCalcLocation)
 {
 	CHECK_STATUS();
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 
-	RECT rectLocation;
+    RECT rectLocation;
 	rectLocation.left   = 0;
 	rectLocation.top    = 0;
 
@@ -487,6 +556,8 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 	int iRealHeight = rectLocation.bottom;
 	if( iRealHeight>rPosition.Height )
 		iRealHeight=rPosition.Height; // Crop to the area
+
+    rectCalcLocation = rectLocation;
 
 	// Figure out where to put this
 	CalcTextRectangle(rectLocation,rPosition,m_iRotation,iRealHeight,iPK_VertAlignment);
@@ -608,13 +679,14 @@ PlutoGraphic *Orbiter_PocketFrog::GetBackground( PlutoRectangle &rect )
 
 	if( m_vectPooledTextToRender.size() )
 	{
+        RECT rectLocation;
 		HDC hdc = GetDisplay()->GetBackBuffer()->GetDC(false);
 		for(size_t s=0;s<m_vectPooledTextToRender.size();++s)
 		{
 			TextToRenderInfo *pTextToRenderInfo = m_vectPooledTextToRender[s];
 			RenderText(hdc,pTextToRenderInfo->TextToDisplay,pTextToRenderInfo->rPosition,pTextToRenderInfo->iPK_HorizAlignment,pTextToRenderInfo->iPK_VertAlignment,
 				pTextToRenderInfo->sFont,pTextToRenderInfo->ForeColor,pTextToRenderInfo->iPixelHeight,pTextToRenderInfo->bBold,pTextToRenderInfo->bItalic,pTextToRenderInfo->bUnderline,
-				pTextToRenderInfo->point);
+				pTextToRenderInfo->point, rectLocation);
 			delete pTextToRenderInfo;
 		}
 		GetDisplay()->GetBackBuffer()->ReleaseDC(hdc);
