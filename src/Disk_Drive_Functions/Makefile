@@ -10,7 +10,8 @@ MYNAME = Disk_Drive_Functions
 sources = Disk_Drive_Functions.cpp
 
 all: $(sources:.cpp=.o)
-	$(CXX) -shared -o $(MYNAME).so $+ $(LDFLAGS) $(LDLIBS)
+	$(CXX) -shared -o lib$(MYNAME).so $+ $(LDFLAGS) $(LDLIBS)
+	cp lib$(MYNAME).so ../lib/
 
 clean:
 	rm -f $(sources:.cpp=.o) *.so

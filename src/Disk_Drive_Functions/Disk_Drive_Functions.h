@@ -61,14 +61,9 @@ class Disk_Drive_Functions
 		string m_sDrive;
 		Command_Impl * m_pCommand_Impl;
 	    pluto_pthread_mutex_t m_DiskMutex;
-		DeviceData_Base *m_pDevice_AppServer;
-	    bool m_mediaInserted;
 
 		void EVENT_Media_Inserted(int iFK_MediaType,string sMRL,string sID,string sName);
 		void EVENT_Ripping_Progress(string sText,int iResult,string sValue,string sName,int iEK_Disc);
-	    int m_mediaDiskStatus;
-	    int m_discid;		// A unique ID to indicate the insertion of this disc, will be set to the time(NULL) at insertion
-		bool m_isRipping;
 		
 	public:
 		Disk_Drive_Functions(Command_Impl * pCommand_Impl, const string & sDrive);
@@ -81,6 +76,13 @@ class Disk_Drive_Functions
 		void CMD_Rip_Disk(int iPK_Users, string sFormat, string sName, string sTracks, int iEK_Disc, string &sCMD_Result, Message *pMessage);
 		string getTracks(string mrl); // We use cddb for nothing other than determining how many tracks there are
 		void DisplayMessageOnOrbVFD(string sMessage);
+
+		// TODO: write accessors for these
+		DeviceData_Base *m_pDevice_AppServer;
+	    int m_mediaDiskStatus;
+	    int m_discid;		// A unique ID to indicate the insertion of this disc, will be set to the time(NULL) at insertion
+		bool m_isRipping;
+	    bool m_mediaInserted;
 };
 
 #endif

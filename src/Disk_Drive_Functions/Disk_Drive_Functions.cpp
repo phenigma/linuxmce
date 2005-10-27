@@ -19,7 +19,7 @@
 using namespace std;
 
 Disk_Drive_Functions::Disk_Drive_Functions(Command_Impl * pCommand_Impl, const string & sDrive)
-	: m_sDrive(sDrive), m_pCommand_Impl(pCommand_Impl), m_DiskMutex("disk drive"), m_mediaInserted(false), m_mediaDiskStatus(DISCTYPE_NONE), m_discid(0)
+	: m_sDrive(sDrive), m_pCommand_Impl(pCommand_Impl), m_DiskMutex("disk drive"), m_mediaDiskStatus(DISCTYPE_NONE), m_discid(0), m_mediaInserted(false)
 {
 	m_DiskMutex.Init(NULL);
 	m_pDevice_AppServer = m_pCommand_Impl->m_pData->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_App_Server_CONST);
@@ -104,6 +104,10 @@ bool Disk_Drive_Functions::internal_monitor_step(bool bFireEvent)
 
 bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent)
 {
+    m_mediaInserted = false;
+    m_mediaDiskStatus = DISCTYPE_NONE;
+	DisplayMessageOnOrbVFD("Checking disc...");
+
 	PLUTO_SAFETY_LOCK(dm,m_DiskMutex);
     int status;
     string mrl = ""; //, serverMRL, title;
