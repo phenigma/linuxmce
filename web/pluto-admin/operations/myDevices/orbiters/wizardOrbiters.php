@@ -543,9 +543,9 @@ function orbiterTable($content,$orbiterGroupDisplayed,$properties){
 			if(!in_array('wifi',$excludedData[$orbiterGroupDisplayed])){
 				$out.=displayWiFiRow($orbiter,$PingTest,$isOSD);
 			}
-			
+
 			$regenQueued=substr(@$_REQUEST['regen'],2);
-			$regenBox=($regenQueued==$orbiter || $regenQueued=='ALL')?1:0;
+			$regenBox=($regenQueued==$orbiter || $regenQueued=='ALL' || $regenArray['regen']==1)?1:0;
 			$out.=displayButtons($orbiter,$regenBox);
 			
 			
