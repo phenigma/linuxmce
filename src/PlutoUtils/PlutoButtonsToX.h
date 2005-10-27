@@ -7,9 +7,6 @@ pair<bool,int> PlutoButtonsToX(int PK_Button)
 {
 	switch( PK_Button )
 	{
-    case BUTTON_left_shift_CONST:
-    case BUTTON_right_shift_CONST:
-        return make_pair<bool,int> (true,XK_Shift_L);
 	case BUTTON_A_CONST:
 		return make_pair<bool,int> (true,XK_A);
 	case BUTTON_B_CONST:
@@ -168,7 +165,7 @@ pair<bool,int> PlutoButtonsToX(int PK_Button)
     case BUTTON_tab_CONST:
         return make_pair<bool,int> (false,XK_Tab);
     case BUTTON_plus_CONST:
-        return make_pair<bool,int> (false,XK_plus);
+        return make_pair<bool,int> (true,XK_plus);
     case BUTTON_dash_CONST:
         return make_pair<bool,int> (false,XK_minus);
     case BUTTON_dot_CONST:

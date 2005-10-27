@@ -141,8 +141,13 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 		return -1;
 	}
 
+    g_pPlutoLogger->Write(LV_STATUS, "Started UpdateBinary with command line: %s", command_line.c_str());
+    g_pPlutoLogger->Write(LV_STATUS, "Communication file: %s", sCommFile.c_str());
+
 	ClientSocket *pClientSocket = new ClientSocket( PK_Device, sRouter_IP, 
 		string( "Event Dev #" ) + StringUtils::itos( PK_Device ) );
+
+    g_pPlutoLogger->Write(LV_STATUS, "Connecting to host...");    
 
 	pClientSocket->Connect(0,"Event #" + StringUtils::itos(PK_Device));
 
@@ -151,6 +156,8 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 
 	string sChecksum;
 	bool bChecksumOnly = false;
+
+    g_pPlutoLogger->Write(LV_STATUS, "Creating message...");
 
 	Message *pMessage = new Message(
 		PK_Device,  //long dwDeviceIDFrom
@@ -177,11 +184,14 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 		&iSizeUpdateFile
 	);		
 
+    g_pPlutoLogger->Write(LV_STATUS, "Sending message...");
 	Message *pReceivedMessage = pClientSocket->SendReceiveMessage( pMessage );
 
 	pUpdateFile = pReceivedMessage->m_mapData_Parameters[COMMANDPARAMETER_Data_CONST]; 
 	iSizeUpdateFile = pReceivedMessage->m_mapData_Lengths[COMMANDPARAMETER_Data_CONST];
 	sChecksum = pReceivedMessage->m_mapParameters[COMMANDPARAMETER_Checksum_CONST];
+
+    g_pPlutoLogger->Write(LV_STATUS, "Message sent.");
 
 	if ( !iSizeUpdateFile )
 	{
@@ -202,9 +212,10 @@ int WINAPI WinMain(	HINSTANCE hInstance,
         bOrbiterMD5FilePathIsWrong = true;
     }
 
+    g_pPlutoLogger->Write(LV_STATUS, "Saving MD5 file");
 	if(!FileUtils::WriteBufferIntoFile(sOrbiterMD5FileName, const_cast<char *>(sChecksum.c_str()), sChecksum.length()))
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL,  "Failed to save the update file" );
+		g_pPlutoLogger->Write( LV_CRITICAL,  "Failed to save MD5 file" );
 		Sleep(1000); //we'll continue with this version
 	}
 

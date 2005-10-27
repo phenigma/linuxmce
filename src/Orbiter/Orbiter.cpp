@@ -4652,6 +4652,10 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 		}
         else if(  Variable=="SKIN" )
 			Output += m_sSkin;
+        else if(Variable == "SIZE")
+        {
+            Output += StringUtils::itos(m_iImageWidth) + "x" + StringUtils::itos(m_iImageHeight);
+        }
         else if(  Variable=="SG" )
 		{
 			time_t t = m_tGenerationTime;
