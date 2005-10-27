@@ -267,13 +267,15 @@ void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj, PlutoPoint po
 #endif
             
             //ignoring esc seq
-            int nPos = sItem.find("~S");
+            size_t nPos = sItem.find("~S");
             if(nPos != string::npos)
             {
-                int nPosNext = sItem.find("~", nPos + 1);
+                size_t nPosNext = sItem.find("~", nPos + 1);
                 if(nPosNext != string::npos)
                     sItem = sItem.substr(nPosNext + 1);
             }            
+
+            g_pPlutoLogger->Write(LV_STATUS, "Item %d : '%s'.", i, sItem.c_str());
 
             listGrid.push_back(sItem);
         }
