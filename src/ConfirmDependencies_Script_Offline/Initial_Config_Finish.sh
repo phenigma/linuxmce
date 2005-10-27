@@ -6,6 +6,8 @@
 . /usr/pluto/bin/SQL_Ops.sh
 . /usr/pluto/bin/Config_Ops.sh
 
+chmod 777 /etc/pluto.conf &>/dev/null
+
 Q="SELECT FK_DeviceCategory FROM DeviceTemplate JOIN Device ON FK_DeviceTemplate=PK_DeviceTemplate WHERE PK_Device='$PK_Device'"
 R=$(RunSQL "$Q")
 
