@@ -270,7 +270,7 @@ void SocketListener::RegisterCommandHandler( ServerSocket *Socket, int iDeviceID
 	{
 		g_pPlutoLogger->Write( LV_REGISTRATION, "!!! Replacing command handler on device ID \x1b[34;1m%d!\x1b[0m", iDeviceID );
 		if( pSocket_Old && Socket->m_sIPAddress != pSocket_Old->m_sIPAddress )
-			pSocket_Old->SendString("OK REPLACE " + Socket->m_sIPAddress);
+			pSocket_Old->SendString("REPLACE " + Socket->m_sIPAddress);
 
 		ll.Release();
 		gs.DeletingSocket();
