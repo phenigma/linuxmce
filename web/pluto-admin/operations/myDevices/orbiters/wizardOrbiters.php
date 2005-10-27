@@ -66,7 +66,7 @@ function wizardOrbiters($output,$dbADO) {
 			$orbiterDD[]=22;		// Sleeping menu
 			$orbiterDD[]=23;		// Screen saver menu
 			$orbiterDD[]=24;		// Skin
-//			$orbiterDD[]=25;		// Size
+			$orbiterDD[]=25;		// Size
 			$orbiterDD[]=26;		// Language
 			$orbiterDD[]=56;		// Timeout
 			$orbiterDD[]=84;		// Leave Monitor on for OSD
@@ -76,7 +76,7 @@ function wizardOrbiters($output,$dbADO) {
 
 			$excludedData['standard_roaming_orbiters']=array('state',84);
 			$excludedData['mobile_orbiters']=array(84,20,'room','wifi',56);
-			$excludedData['on_screen_orbiters']=array('dt','ip_mac','wifi','state');
+			$excludedData['on_screen_orbiters']=array('dt','ip_mac','wifi','state',25);
 			
 			$queryData='
 					SELECT 
