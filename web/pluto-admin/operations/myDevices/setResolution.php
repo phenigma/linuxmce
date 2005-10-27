@@ -6,7 +6,7 @@ function setResolution($output,$dbADO) {
 	$mdID=(int)$_REQUEST['mdID'];
 	$installationID = (int)@$_SESSION['installationID'];
 	$videoSettingsArray=array('M'=>'Manual', '640 480'=>'640x480', '800 600'=>'800x600', '1024 768'=>'1024x768', '1280 1024'=>'1280x1024', '1600 1200'=>'1600x1200', '720 480 p'=>'480p', '1280 720 p'=>'720p', '1920 1080 i'=>'1080i', '1920 1080 p'=>'1080p');
-	$refreshArray=array('50'=>'50 hz', '60'=>'60 hz', '72'=>'72 hz','75'=>'75 hz', '80'=>'80 hz');
+	$refreshArray=array('50'=>'50 hz', '60'=>'60 hz', '65'=>'65 hz', '72'=>'72 hz','75'=>'75 hz', '80'=>'80 hz', '100'=>'100 hz', '120'=>'120 hz');
 	
 	$oldValues=getFieldsAsArray('Device_DeviceData','IK_DeviceData',$dbADO,'WHERE FK_Device='.$mdID.' AND FK_DeviceData='.$GLOBALS['VideoSettings']);
 	if(!is_null($oldValues['IK_DeviceData'])){
@@ -85,30 +85,61 @@ $out.='
 <br><br>';
 
 
-$answer=join('<br>',$retArray);
-$answer=(ereg('Failed',$answer))?'<span class="err">'.$answer.'</span>':$answer;
-$out.='
-<table>
-	<tr>
-		<td><B>Resolution</B></td>
-		<td>'.$videoSettingsArray[$resolution].'</td>
-	</tr>
-	<tr>
-		<td><B>Refresh</B></td>
-		<td>'.$refreshArray[$refresh].'</td>
-	</tr>
+$answer=join(' ',$retArray);
+if((ereg('Failed',$answer))){
+	$out.='
+	<table>
 	<tr>
 		<td colspan="2" bgcolor="#F0F3F8">'.$answer.'</td>
 	</tr>
 	<tr>
-		<td align="right"><input type="checkbox" name="updateOrbiters" value="1" checked></td>
-		<td>quick reload router & regenerate the UI at this resolution now?</td>
+		<td colspan="2" align="center"><input type="button" class="button" name="retry" value="Try again" onClick="self.location=\'index.php?section=setResolution&mdID='.$mdID.'\'"> </td>
 	</tr>
-	<tr>
-		<td colspan="2" align="center"><input type="submit" class="button" name="yesBtn" value="Yes"> <input type="submit" class="button" name="noBtn" value="No"></td>
-	</tr>
-</table>		
-</form>';
+</table>';
+	$answer='<span class="err">'.$answer.'</span>';
+	
+}else{
+	preg_match("/Current resolution: *([0-9]+) *x *([0-9]+) *@ *([0-9]+) *Hz/",$answer,$matches);
+	if(count($matches)!=4){
+		$answer='<span class="err">Cannot retrieve valid resolution and refresh: '.$answer.'</span>';
+		$noUpdate=1;
+	}
+	$out.='
+	<table>
+		<tr>
+			<td><B>Resolution</B></td>
+			<td>'.$videoSettingsArray[$resolution].'</td>
+		</tr>
+		<tr>
+			<td><B>Refresh</B></td>
+			<td>'.$refreshArray[$refresh].'</td>
+		</tr>
+		<tr>
+			<td colspan="2" bgcolor="#F0F3F8">'.$answer.'</td>
+		</tr>';
+	if(!isset($noUpdate)){
+		$out.='
+		<input type="hidden" name="realResolution" value="'.@$matches[1].' '.@$matches[2].'">
+		<input type="hidden" name="realRefresh" value="'.@$matches[3].'">
+		<tr>
+			<td align="right"><input type="checkbox" name="updateOrbiters" value="1" checked></td>
+			<td>quick reload router & regenerate the UI at this resolution now?</td>
+		</tr>
+		<tr>
+			<td colspan="2" align="center"><input type="submit" class="button" name="yesBtn" value="Yes"> <input type="submit" class="button" name="noBtn" value="No"></td>
+		</tr>';
+	}else{
+		$out.='
+		<tr>
+			<td colspan="2" align="center"><input type="button" class="button" name="retry" value="Try again" onClick="self.location=\'index.php?section=setResolution&mdID='.$mdID.'\'"> </td>
+		</tr>
+		';
+	}
+	$out.='
+	</table>
+	</form>';
+}
+
 			
 	}else {
 		if(isset($_POST['yesBtn'])){
@@ -120,8 +151,8 @@ $out.='
 				exit(0);
 			}
 
-			$resolution=$_POST['resolution'];
-			$refresh=$_POST['refresh'];
+			$resolution=$_POST['realResolution'];
+			$refresh=$_POST['realRefresh'];
 			$newVS=$resolution.'/'.$refresh;
 			
 			$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($newVS,$mdID,$GLOBALS['VideoSettings']));
