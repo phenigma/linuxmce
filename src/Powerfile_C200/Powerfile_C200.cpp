@@ -249,6 +249,8 @@ void Powerfile_C200::CMD_Load_from_Slot_into_Drive(int iSlot_Number,int iDrive_N
 	int status = system(sCmd.c_str());
 	if (WEXITSTATUS(status) == 0)
 	{
+		sCmd = string("eject -s ") + m_sDrive[iDrive_Number];
+		system(sCmd.c_str());
 		g_pPlutoLogger->Write(LV_STATUS, "Loading disc succeeded");
 		sCMD_Result = "OK";
 	}
@@ -276,6 +278,8 @@ void Powerfile_C200::CMD_Unload_from_Drive_into_Slot(int iSlot_Number,int iDrive
 	int status = system(sCmd.c_str());
 	if (WEXITSTATUS(status) == 0)
 	{
+		sCmd = string("eject -s ") + m_sDrive[iDrive_Number];
+		system(sCmd.c_str());
 		g_pPlutoLogger->Write(LV_STATUS, "Unloading disc succeeded");
 		sCMD_Result = "OK";
 	}
