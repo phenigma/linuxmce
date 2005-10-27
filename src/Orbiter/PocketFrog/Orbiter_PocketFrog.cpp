@@ -313,8 +313,15 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::SolidRectangle(int x, int y, int width, int height, PlutoColor color, int Opacity)
 {
-    if(width <= 0 || height <= 0 || x + width >= m_iImageWidth || y + height >= m_iImageHeight)
+    if(width <= 0 || height <= 0)
         return;
+
+    //clipping
+    if(x + width >= m_iImageWidth)
+        width = m_iImageWidth - x - 1;
+
+    if(y + height >= m_iImageHeight)
+        height = m_iImageHeight - y - 1;
     
     CHECK_STATUS();
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
@@ -323,8 +330,15 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::HollowRectangle(int x, int y, int width, int height, PlutoColor color)
 {
-    if(width <= 0 || height <= 0 || x + width >= m_iImageWidth || y + height >= m_iImageHeight)
+    if(width <= 0 || height <= 0)
         return;
+
+    //clipping
+    if(x + width >= m_iImageWidth)
+        width = m_iImageWidth - x - 1;
+
+    if(y + height >= m_iImageHeight)
+        height = m_iImageHeight - y - 1;
 
 	CHECK_STATUS();
 	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
