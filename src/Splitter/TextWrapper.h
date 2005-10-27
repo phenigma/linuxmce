@@ -12,7 +12,8 @@ struct SDL_Surface;
 class RendererImage;
 //-------------------------------------------------------------------------------------------------------
 void WrapAndRenderText(SDL_Surface * Surface, string text, int X, int Y, int W, int H,
-					   string FontPath, TextStyle *pTextStyle,int PK_HorizAlignment,int PK_VertAlignment);
+					   string FontPath, TextStyle *pTextStyle,int PK_HorizAlignment,int PK_VertAlignment,
+                       MapTextStyle *pmapTextStyle = NULL);
 //-------------------------------------------------------------------------------------------------------
 class LineAttr
 {
@@ -33,6 +34,8 @@ class TextLineWrap
 		TextLineExtract T;
 		string m_FontPath, m_FontFile;
 		int m_FontSize;
+
+        MapTextStyle *m_pmapTextStyle;
 		
 		pair<int, int> WordWidth(string word, RendererImage * & RI, TextStyle * pTextStyle, bool NewSurface = true);
 		void AddRow(Row line, ImageRow ImageLine, LineAttr LA);
@@ -43,6 +46,7 @@ class TextLineWrap
 		list<ImageRow> ImageLines;
 		list<LineAttr> LineAttrData;
 
+        TextLineWrap(MapTextStyle *pmapTextStyle = NULL);
 		~TextLineWrap();
 		list<Row> & Wrap(string text, int atX, int atY, int W, int H, string FontPath, TextStyle * pTextStyle,int PK_HorizAlignment,int PK_VertAlignment);
 		void Clear();

@@ -15,6 +15,11 @@
 // Radu: I hope I'll get around to optimizing all this some time.
 // Radu: From my point of view, this looks like its going to eat a lot of memory.
 
+TextLineWrap::TextLineWrap(MapTextStyle *pmapTextStyle/* = NULL*/)
+{
+    m_pmapTextStyle = pmapTextStyle;
+}
+
 TextLineWrap::~TextLineWrap()
 {
 	Clear();
@@ -56,7 +61,7 @@ void TextLineWrap::AddImageWord(ImageRow & line, RendererImage * word)
 }
 
 list<Row> & TextLineWrap::Wrap(string text, int atX, int atY, int W, int H,
-							   string FontPath, TextStyle * pTextStyle, int PK_HorizAlignment,int PK_VertAlignment)
+							   string FontPath, TextStyle * pDefaultTextStyle, int PK_HorizAlignment,int PK_VertAlignment)
 {
 	string flags("");
 
@@ -85,8 +90,8 @@ list<Row> & TextLineWrap::Wrap(string text, int atX, int atY, int W, int H,
     int lastY = 0;
 
 	m_FontPath = FontPath;
-	m_FontFile = pTextStyle->m_sFont;
-	m_FontSize = pTextStyle->m_iPixelHeight;
+	m_FontFile = pDefaultTextStyle->m_sFont;
+	m_FontSize = pDefaultTextStyle->m_iPixelHeight;
 
 	Width = W; Height = H;
 	origX = atX; origY = atY;
@@ -95,7 +100,9 @@ list<Row> & TextLineWrap::Wrap(string text, int atX, int atY, int W, int H,
 
 	for (list<Row>::iterator i = origLines.begin(); i != origLines.end(); i++)
 	{
-		for (list<Word>::iterator j = i->begin(); j != i->end(); j++)
+        TextStyle* pCurrentTextStyle = pDefaultTextStyle;
+        
+        for (list<Word>::iterator j = i->begin(); j != i->end(); j++)
 		{
 			if ((* j)[0] == '~')
 			{
@@ -116,28 +123,47 @@ list<Row> & TextLineWrap::Wrap(string text, int atX, int atY, int W, int H,
 						case 't': LAttr.VAlign = VERTALIGNMENT_Top_CONST; break;
 						case 'm': LAttr.VAlign = VERTALIGNMENT_Middle_CONST; break;
 						case 'b': LAttr.VAlign = VERTALIGNMENT_Bottom_CONST; break;
+                        case 'S': 
+                            {
+                                //TODO: read
+                                string sTextStyleNumber;
+                                k++;
+                                while(*k != '~')
+                                {
+                                    sTextStyleNumber += *k;
+                                    k++;
+                                }
+
+                                int nTextStyleIndex = atoi(sTextStyleNumber.c_str());
+
+                                if(NULL != m_pmapTextStyle)
+                                {
+                                    MapTextStyle::iterator it = m_pmapTextStyle->find(nTextStyleIndex);
+                                    if(it != m_pmapTextStyle->end())
+                                        pCurrentTextStyle = (*it).second;
+                                }
+                            }
+                            break;
 					}
 					Not = false;
 				}
 				continue; // don't wrap formatting
 			}
-			bool statB_bk = pTextStyle->m_bBold;
-			bool statU_bk = pTextStyle->m_bUnderline;
-			bool statI_bk = pTextStyle->m_bItalic;
 
-			pTextStyle->m_bBold = statB;
-			pTextStyle->m_bUnderline = statU;
-			pTextStyle->m_bItalic = statI;
+			bool statB_bk = pCurrentTextStyle->m_bBold;
+			bool statU_bk = pCurrentTextStyle->m_bUnderline;
+			bool statI_bk = pCurrentTextStyle->m_bItalic;
 
-			WW = WordWidth(Space + * j, RI, pTextStyle);
+            if(pCurrentTextStyle == pDefaultTextStyle)
+            {
+                pCurrentTextStyle->m_bBold = statB;
+                pCurrentTextStyle->m_bUnderline = statU;
+                pCurrentTextStyle->m_bItalic = statI;
+            }
 
-//#ifdef OrbiterGen
+			WW = WordWidth(Space + * j, RI, pCurrentTextStyle);
+
 			if (lastX + WW.first >= Width)
-/*
-#else
-            if (lastX + WW.first >= Width && lastY + WW.second <= Height)
-#endif
-*/
 			{
 				LAttr.Width = lastX;
 				LAttr.Height = WW.second;
@@ -146,20 +172,14 @@ list<Row> & TextLineWrap::Wrap(string text, int atX, int atY, int W, int H,
 				line.clear();
 				ImageLine.clear();
 				LAttr.Width = lastX = 0;
-/*
-#ifndef OrbiterGen
-				if( (lines.size()+1) * LAttr.Height > H )
-					return lines;
-#endif
-*/
 				
 				// re-render last word because it is going to start a new line
-				WW = WordWidth(* j, RI, pTextStyle, false);
+				WW = WordWidth(* j, RI, pCurrentTextStyle, false);
 			}
 
-			pTextStyle->m_bBold = statB_bk;
-			pTextStyle->m_bUnderline = statU_bk;
-			pTextStyle->m_bItalic = statI_bk;
+			pCurrentTextStyle->m_bBold = statB_bk;
+			pCurrentTextStyle->m_bUnderline = statU_bk;
+			pCurrentTextStyle->m_bItalic = statI_bk;
 
 			T.AddWord(line, * j);
 			AddImageWord(ImageLine, RI);
@@ -271,11 +291,12 @@ void TextLineWrap::RenderToSurface(SDL_Surface * Surface)
 }
 
 void WrapAndRenderText(SDL_Surface * Surface, string text, int X, int Y, int W, int H,
-					   string FontPath, TextStyle *pTextStyle,int PK_HorizAlignment,int PK_VertAlignment)
+					   string FontPath, TextStyle *pTextStyle,int PK_HorizAlignment,int PK_VertAlignment,
+                       MapTextStyle *pmapTextStyle/* = NULL*/)
 {
-	TextLineWrap T;
+    //we'll also give it the map with text styles
+	TextLineWrap T(pmapTextStyle);
 
-//#ifdef OrbiterGen
     //the text won't be rendered directly on the original surface
     //no line will be removed from the list with lines (no height limit)
 	T.Wrap(text, 0, 0, W, H, FontPath, pTextStyle,PK_HorizAlignment,PK_VertAlignment);
@@ -294,11 +315,4 @@ void WrapAndRenderText(SDL_Surface * Surface, string text, int X, int Y, int W, 
     //blits the text surface to the original surface
     SDL_BlitSurface(pTextSurface, NULL, Surface, &rect);
     SDL_FreeSurface(pTextSurface);
-
-    /*
-#else
-    T.Wrap(text, X, Y, W, H, FontPath, pTextStyle,PK_HorizAlignment,PK_VertAlignment);
-    T.RenderToSurface(Surface);
-#endif
-    */
 }

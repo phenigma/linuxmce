@@ -211,7 +211,7 @@ g_pPlutoLogger->Write(LV_STATUS, "~OrbiterSDL finished");
 	try
 	{
 		WrapAndRenderText(m_pScreenImage, TextToDisplay, TextLocation.x, TextLocation.y, TextLocation.w, TextLocation.h, BasePath, 
-			pTextStyle,Text->m_iPK_HorizAlignment,Text->m_iPK_VertAlignment);
+			pTextStyle,Text->m_iPK_HorizAlignment,Text->m_iPK_VertAlignment, &m_mapTextStyle);
 	}
 	catch(...)
 	{
