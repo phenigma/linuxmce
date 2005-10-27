@@ -66,7 +66,7 @@ pair<bool,int> PlutoButtonsToX(int PK_Button)
 	case BUTTON_c_CONST:
 		return make_pair<bool,int> (false,XK_C);
 	case BUTTON_d_CONST:
-		return make_pair<bool,int> (false,XK_E);
+		return make_pair<bool,int> (false,XK_D);
 	case BUTTON_e_CONST:
 		return make_pair<bool,int> (false,XK_E);
 	case BUTTON_f_CONST:
