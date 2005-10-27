@@ -9,7 +9,7 @@ function installationSettings($output,$dbADO) {
 	$zonesFileArray=file('/usr/share/zoneinfo/zone.tab');
 	$continentsArray=array('Africa', 'America', 'Antarctica', 'Arctic [Ocean]', 'Asia', 'Atlantic [Ocean]', 'Australia', 'Europe', 'Indian [Ocean]', 'Pacific [Ocean]');
 	$currentTimeZone=trim(implode('',file('/etc/timezone')));
-	$ripFormats=array('ogg'=>'ogg', 'flac'=>'flac', 'wav'=>'wav');
+	//$ripFormats=array('ogg'=>'ogg', 'flac'=>'flac', 'wav'=>'wav');
 	
 	$countriesArray=array();
 	foreach ($countriesFileArray AS $line){
@@ -56,6 +56,8 @@ function installationSettings($output,$dbADO) {
 		$Latitude=$eventPluginDD[$GLOBALS['Latitude']];
 	}
 
+	// remove for now rip format
+	/*
 	$mediaPluginID=getDeviceFromDT($installationID,$GLOBALS['rootMediaPlugin'],$dbADO);
 	if($mediaPluginID!==null){
 		$mediaPluginDD=getDD($mediaPluginID,$GLOBALS['RipFormat'],$dbADO);
@@ -63,6 +65,7 @@ function installationSettings($output,$dbADO) {
 	}else{
 		$selectedRipFormat='ogg';
 	}
+	*/
 	
 	$query = "
 		SELECT Installation.*,Version.Description AS V_Desc FROM Installation 
@@ -247,10 +250,14 @@ function installationSettings($output,$dbADO) {
 				</tr>
 				<tr>
 					<td colspan="2" align="center" bgcolor="lightblue"><B>Miscelaneous</B>:</td>
-				</tr>
+				</tr>';
+		/*
+		// remove rip format
 				<tr>
 					<td align="left" colspan="2"><B>Ripping format for cd\'s: </B>'.pulldownFromArray($ripFormats,'rip',$selectedRipFormat).'</td>
 				</tr>				
+		*/
+		$out.='
 				<tr>
 					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"  ></td>
 				</tr>
@@ -298,12 +305,15 @@ function installationSettings($output,$dbADO) {
 			$err.='Error: unable to find Event plugin device.<br>';
 		}
 
+		// remove rip format
+		/*
 		$rip=$_POST['rip'];
 		if($mediaPluginID!==null){
 			$dbADO->Execute($updateDD,array($rip,$mediaPluginID,$GLOBALS['RipFormat']));
 		}else{
 			$err.='Error: unable to find Media plugin device.<br>';
 		}
+		*/
 
 		
 		if ($installationID!=0 && $description!='') {
