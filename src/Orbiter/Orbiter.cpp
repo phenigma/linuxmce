@@ -61,6 +61,12 @@ using namespace DCE;
 #include "GraphicBuilder.h"
 #include "Simulator.h"
 
+
+//debugging
+#define PROFILING_GRID
+
+
+
 #if defined(WIN32) && !defined(BLUETOOTH_DONGLE)
 #include "MainDialog.h" //for debugging in main window
 #else //linux
@@ -3614,7 +3620,7 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
                 bHandled |= CaptureKeyboard_EditText_AppendChar( '+' );
             else if( PK_Button == BUTTON_semicolumn_CONST )
                 bHandled |= CaptureKeyboard_EditText_AppendChar( ';' );
-            else if( PK_Button == BUTTON_quote_CONST )
+            else if( PK_Button == BUTTON_single_quote_CONST )
                 bHandled |= CaptureKeyboard_EditText_AppendChar( '\'' );
             else if( PK_Button == BUTTON_dot_CONST )
                 bHandled |= CaptureKeyboard_EditText_AppendChar( '.' );
@@ -3744,24 +3750,25 @@ bool Orbiter::ButtonUp( int iPK_Button )
 		else
 			QueueMessageToRouter(new Message(pMessage));
 	}
-	if( m_bForward_local_kb_to_OSD && m_pLocationInfo && m_pLocationInfo->m_dwPK_Device_Orbiter )
-	{
-		DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress(m_dwPK_Device,m_pLocationInfo->m_dwPK_Device_Orbiter,StringUtils::itos(iPK_Button),"");
-		SendCommand(CMD_Simulate_Keypress);
-	}
-
-	//if this was a repeated button, we might want to stop all repeat related events
-    if(m_pScreenHistory_Current && IsRepeatedKeyForScreen(m_pScreenHistory_Current->m_pObj, iPK_Button)) 
-    {
-        StopRepeatRelatedEvents();
-        return false;
-    }
 
     //this is not a repeated button
     if(iPK_Button == BUTTON_left_shift_CONST || iPK_Button == BUTTON_right_shift_CONST)
         m_bShiftDown = !m_bShiftDown; //different logic with the on screen keyboard
     else if(iPK_Button == BUTTON_caps_lock_CONST)
         m_bCapsLock = !m_bCapsLock;
+
+    if( m_bForward_local_kb_to_OSD && m_pLocationInfo && m_pLocationInfo->m_dwPK_Device_Orbiter )
+    {
+        GenerateSimulateKeypress(iPK_Button);
+        return true;
+    }
+
+    //if this was a repeated button, we might want to stop all repeat related events
+    if(m_pScreenHistory_Current && IsRepeatedKeyForScreen(m_pScreenHistory_Current->m_pObj, iPK_Button)) 
+    {
+        StopRepeatRelatedEvents();
+        return false;
+    }
 
     timespec m_tButtonUp;  
     gettimeofday(&m_tButtonUp,NULL);
@@ -3839,6 +3846,45 @@ g_pPlutoLogger->Write(LV_STATUS, "Short key %d", iPK_Button);
         }
         m_bRepeatingObject=false;
     }
+}
+
+/*virtual*/ void Orbiter::GenerateSimulateKeypress(int iPK_Button)
+{
+    int nPK_Button_To_Send = iPK_Button; 
+
+    if((!m_bShiftDown && m_bCapsLock) || (m_bShiftDown && !m_bCapsLock))
+    {
+        if(iPK_Button >= BUTTON_A_CONST && iPK_Button <= BUTTON_Z_CONST)
+            nPK_Button_To_Send = iPK_Button - BUTTON_A_CONST + BUTTON_a_CONST;
+        if(iPK_Button >= BUTTON_a_CONST && iPK_Button <= BUTTON_z_CONST)
+            nPK_Button_To_Send = iPK_Button - BUTTON_a_CONST + BUTTON_A_CONST;
+    }
+
+    if(m_bShiftDown)
+    {
+        switch(iPK_Button)
+        {
+            case BUTTON_0_CONST:        nPK_Button_To_Send = BUTTON_right_parenthesis_CONST ; break;
+            case BUTTON_1_CONST:        nPK_Button_To_Send = BUTTON_exclamation_point_CONST ; break;
+            case BUTTON_2_CONST:        nPK_Button_To_Send = BUTTON_at_sign_CONST ; break;
+            case BUTTON_3_CONST:        nPK_Button_To_Send = BUTTON_Pound_CONST ; break;
+            case BUTTON_4_CONST:        nPK_Button_To_Send = BUTTON_dollar_CONST ; break;
+            case BUTTON_5_CONST:        nPK_Button_To_Send = BUTTON_percent_CONST ; break;
+            case BUTTON_6_CONST:        nPK_Button_To_Send = BUTTON_caret_CONST ; break;
+            case BUTTON_7_CONST:        nPK_Button_To_Send = BUTTON_ampersand_CONST ; break;
+            case BUTTON_8_CONST:        nPK_Button_To_Send = BUTTON_Asterisk_CONST ; break;
+            case BUTTON_9_CONST:        nPK_Button_To_Send = BUTTON_left_parenthesis_CONST ; break;
+
+            case BUTTON_dash_CONST:         nPK_Button_To_Send = BUTTON_underscore_CONST ; break;
+            case BUTTON_equals_sign_CONST:  nPK_Button_To_Send = BUTTON_plus_CONST ; break;
+            case BUTTON_semicolumn_CONST:   nPK_Button_To_Send = BUTTON_colon_CONST ; break;
+            case BUTTON_single_quote_CONST: nPK_Button_To_Send = BUTTON_double_quote_CONST ; break;
+        }
+    }
+
+    DCE::CMD_Simulate_Keypress CMD_Simulate_Keypress_(m_dwPK_Device, m_pLocationInfo->m_dwPK_Device_Orbiter, 
+        StringUtils::itos(nPK_Button_To_Send), "");
+    SendCommand(CMD_Simulate_Keypress_);
 }
 
 bool Orbiter::RegionUp( int x,  int y )

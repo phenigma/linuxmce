@@ -769,6 +769,12 @@ protected:
 	 */
 	virtual bool ButtonUp(int iPK_C_Button);
 
+    /**
+    * @brief forward the keypress event to an OSD
+    * @todo ask
+    */
+    virtual void GenerateSimulateKeypress(int iPK_C_Button);
+
 	/**
 	 * @brief the point belongs to a region that was clicked
 	 * @todo ask
