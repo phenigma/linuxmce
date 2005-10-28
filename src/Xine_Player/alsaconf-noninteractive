@@ -17,6 +17,35 @@
 #  (at your option) any later version.
 #
 
+load_bttv()
+{
+	echo 'modprobe-ing bttv'
+	modprobe bttv &>/dev/null
+}
+trap load_bttv EXIT
+
+ForceRun=no
+if ! grep -q bttv /etc/hotplug/blacklist 2>/dev/null; then
+	echo "blacklisting bttv"
+	echo bttv >>/etc/hotplug/blacklist
+	ForceRun=yes
+fi
+
+if [[ ! -f /usr/pluto/install/alsa.configured ]]; then
+	ForceRun=yes
+	touch /usr/pluto/install/alsa.configured
+fi
+
+if [[ -n "$1" ]]; then
+	ForceRun=yes
+fi
+
+if [[ "$ForceRun" == no ]]; then
+	exit 0
+fi
+
+echo "Full run"
+
 export TEXTDOMAIN=alsaconf
 
 prefix=/usr
@@ -315,8 +344,9 @@ cleanup () {
     /sbin/modprobe -r isapnp >/dev/null 2>&1
     /sbin/modprobe -r isa-pnp >/dev/null 2>&1
     rm -f "$TMP" "$addcfg" "$FOUND" "$DUMP"
+	load_bttv # because this function replaces my trap above
 }
-trap cleanup 0 
+trap cleanup 0
 
 TMP=`mktemp -q /tmp/alsaconf.XXXXXX`
 if [ $? -ne 0 ]; then
