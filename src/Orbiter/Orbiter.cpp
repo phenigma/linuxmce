@@ -2119,7 +2119,7 @@ void Orbiter::SpecialHandlingObjectSelected(DesignObj_Orbiter *pDesignObj_Orbite
 		Message *pMessage = new Message(m_dwPK_Device,DEVICEID_DCEROUTER,PRIORITY_NORMAL,MESSAGETYPE_STOP_PING,m_dwPK_Device,0);
 		QueueMessageToRouter(pMessage);
 	}
-	else if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_mnuDisplayPower_CONST)
+	else if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_mnuPower_CONST)
 	{
 		if( !m_pLocationInfo->m_dwPK_Device_MediaDirector || m_pLocationInfo->m_dwPK_Device_MediaDirector==DEVICEID_NULL )
 		{
@@ -5339,7 +5339,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Forcing go to the main menu");
     }
 
 	//hack! if the simulator is running, we won't go to pluto admin screen
-	if(Simulator::GetInstance()->IsRunning() && (pObj_New->m_iBaseObjectID==DESIGNOBJ_mnuAdvancedOptions_CONST || pObj_New->m_iBaseObjectID==DESIGNOBJ_mnuDisplayPower_CONST) )
+	if(Simulator::GetInstance()->IsRunning() && (pObj_New->m_iBaseObjectID==DESIGNOBJ_mnuAdvancedOptions_CONST || pObj_New->m_iBaseObjectID==DESIGNOBJ_mnuPower_CONST) )
 		return;
 
 	if( bIsRemote || pObj_New->m_iBaseObjectID==m_iPK_DesignObj_Remote || pObj_New->m_iBaseObjectID==m_iPK_DesignObj_RemoteOSD )
