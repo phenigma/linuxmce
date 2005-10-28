@@ -824,7 +824,7 @@
 #define DESIGNOBJ_butRegenAllOrbiters_CONST 3329
 #define DESIGNOBJ_objExitController2_CONST 3330
 #define DESIGNOBJ_objResetUniverse2_CONST 3331
-#define DESIGNOBJ_mnuDisplayPower_CONST 3332
+#define DESIGNOBJ_mnuPower_CONST 3332
 #define DESIGNOBJ_DisplayON_OtherControlling_CONST 3333
 #define DESIGNOBJ_DisplayOFF_CurrentMedia_CONST 3335
 #define DESIGNOBJ_radu_CONST 3336
