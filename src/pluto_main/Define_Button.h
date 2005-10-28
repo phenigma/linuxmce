@@ -126,10 +126,22 @@
 #define BUTTON_dash_CONST 182
 #define BUTTON_plus_CONST 183
 #define BUTTON_semicolumn_CONST 184
-#define BUTTON_quote_CONST 185
+#define BUTTON_single_quote_CONST 185
 #define BUTTON_dot_CONST 186
 #define BUTTON_escape_CONST 187
 #define BUTTON_tab_CONST 188
+#define BUTTON_exclamation_point_CONST 189
+#define BUTTON_at_sign_CONST 190
+#define BUTTON_dollar_CONST 191
+#define BUTTON_caret_CONST 192
+#define BUTTON_ampersand_CONST 193
+#define BUTTON_left_parenthesis_CONST 194
+#define BUTTON_right_parenthesis_CONST 195
+#define BUTTON_underscore_CONST 196
+#define BUTTON_equals_sign_CONST 197
+#define BUTTON_colon_CONST 198
+#define BUTTON_double_quote_CONST 199
+#define BUTTON_percent_CONST 200
 
 #define BUTTON_TABLE "Button"
 #define BUTTON_PK_BUTTON_FIELD "PK_Button"
