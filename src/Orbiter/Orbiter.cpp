@@ -1334,6 +1334,8 @@ g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable is now %p",pObj-
 	if(m_bQuit)
 		return;
 
+    m_bShiftDown = false;
+
 #ifdef DEBUG
 if(pScreenHistory)
 g_pPlutoLogger->Write(LV_STATUS,"Need to change screens executed to %s (%d)",
