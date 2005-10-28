@@ -60,57 +60,58 @@ pair<bool,int> PlutoButtonsToX(int PK_Button)
 	case BUTTON_Z_CONST:
 		return make_pair<bool,int> (true,XK_Z);
 	case BUTTON_a_CONST:
-		return make_pair<bool,int> (false,XK_A);
+		return make_pair<bool,int> (false,XK_a);
 	case BUTTON_b_CONST:
-		return make_pair<bool,int> (false,XK_B);
+		return make_pair<bool,int> (false,XK_b);
 	case BUTTON_c_CONST:
-		return make_pair<bool,int> (false,XK_C);
+		return make_pair<bool,int> (false,XK_c);
 	case BUTTON_d_CONST:
-		return make_pair<bool,int> (false,XK_D);
+		return make_pair<bool,int> (false,XK_d);
 	case BUTTON_e_CONST:
-		return make_pair<bool,int> (false,XK_E);
+		return make_pair<bool,int> (false,XK_e);
 	case BUTTON_f_CONST:
-		return make_pair<bool,int> (false,XK_F);
+		return make_pair<bool,int> (false,XK_f);
 	case BUTTON_g_CONST:
-		return make_pair<bool,int> (false,XK_G);
+		return make_pair<bool,int> (false,XK_g);
 	case BUTTON_h_CONST:
-		return make_pair<bool,int> (false,XK_H);
+		return make_pair<bool,int> (false,XK_h);
 	case BUTTON_i_CONST:
-		return make_pair<bool,int> (false,XK_I);
+		return make_pair<bool,int> (false,XK_i);
 	case BUTTON_j_CONST:
-		return make_pair<bool,int> (false,XK_J);
+		return make_pair<bool,int> (false,XK_j);
 	case BUTTON_k_CONST:
-		return make_pair<bool,int> (false,XK_K);
+		return make_pair<bool,int> (false,XK_k);
 	case BUTTON_l_CONST:
-		return make_pair<bool,int> (false,XK_L);
+		return make_pair<bool,int> (false,XK_l);
 	case BUTTON_m_CONST:
-		return make_pair<bool,int> (false,XK_M);
+		return make_pair<bool,int> (false,XK_m);
 	case BUTTON_n_CONST:
-		return make_pair<bool,int> (false,XK_N);
+		return make_pair<bool,int> (false,XK_n);
 	case BUTTON_o_CONST:
-		return make_pair<bool,int> (false,XK_O);
+		return make_pair<bool,int> (false,XK_o);
 	case BUTTON_p_CONST:
-		return make_pair<bool,int> (false,XK_P);
+		return make_pair<bool,int> (false,XK_p);
 	case BUTTON_q_CONST:
-		return make_pair<bool,int> (false,XK_Q);
+		return make_pair<bool,int> (false,XK_q);
 	case BUTTON_r_CONST:
-		return make_pair<bool,int> (false,XK_R);
+		return make_pair<bool,int> (false,XK_r);
 	case BUTTON_s_CONST:
-		return make_pair<bool,int> (false,XK_S);
+		return make_pair<bool,int> (false,XK_s);
 	case BUTTON_t_CONST:
-		return make_pair<bool,int> (false,XK_T);
+		return make_pair<bool,int> (false,XK_t);
 	case BUTTON_u_CONST:
-		return make_pair<bool,int> (false,XK_U);
+		return make_pair<bool,int> (false,XK_u);
 	case BUTTON_v_CONST:
-		return make_pair<bool,int> (false,XK_V);
+		return make_pair<bool,int> (false,XK_v);
 	case BUTTON_w_CONST:
-		return make_pair<bool,int> (false,XK_W);
+		return make_pair<bool,int> (false,XK_w);
 	case BUTTON_x_CONST:
-		return make_pair<bool,int> (false,XK_X);
+		return make_pair<bool,int> (false,XK_x);
 	case BUTTON_y_CONST:
-		return make_pair<bool,int> (false,XK_Y);
+		return make_pair<bool,int> (false,XK_y);
 	case BUTTON_z_CONST:
-		return make_pair<bool,int> (false,XK_Z);
+		return make_pair<bool,int> (false,XK_z);
+		
 	case BUTTON_1_CONST:
 		return make_pair<bool,int> (false,XK_1);
 	case BUTTON_2_CONST:
@@ -132,6 +133,27 @@ pair<bool,int> PlutoButtonsToX(int PK_Button)
 	case BUTTON_0_CONST:
 		return make_pair<bool,int> (false,XK_0);
 
+    case BUTTON_exclamation_point_CONST:
+        return make_pair<bool,int> (true,XK_1);
+    case BUTTON_at_sign_CONST:
+        return make_pair<bool,int> (true,XK_2);
+    case BUTTON_Pound_CONST:
+        return make_pair<bool,int> (true,XK_3);
+    case BUTTON_dollar_CONST:
+        return make_pair<bool,int> (true,XK_4);
+    case BUTTON_percent_CONST:
+        return make_pair<bool,int> (true,XK_5);
+    case BUTTON_caret_CONST:
+        return make_pair<bool,int> (true,XK_6);
+    case BUTTON_ampersand_CONST:
+        return make_pair<bool,int> (true,XK_7);
+    case BUTTON_Asterisk_CONST:
+        return make_pair<bool,int> (true,XK_8);
+    case BUTTON_left_parenthesis_CONST:
+        return make_pair<bool,int> (true,XK_9);
+    case BUTTON_right_parenthesis_CONST:
+        return make_pair<bool,int> (true,XK_0);
+
 	case BUTTON_Up_Arrow_CONST:
 		return make_pair<bool,int> (false,XK_Up);
 	case BUTTON_Down_Arrow_CONST:
@@ -152,7 +174,8 @@ pair<bool,int> PlutoButtonsToX(int PK_Button)
 		return make_pair<bool,int> (false,XK_F4);
 	case BUTTON_F5_CONST:
 		return make_pair<bool,int> (false,XK_F5);
-	case BUTTON_Back_CONST:
+
+	case BUTTON_Back_CONST:   
 		return make_pair<bool,int> (false,XK_BackSpace);
 	case BUTTON_space_CONST:
 		return make_pair<bool,int> (false,XK_space);
@@ -164,12 +187,31 @@ pair<bool,int> PlutoButtonsToX(int PK_Button)
         return make_pair<bool,int> (false,XK_Escape);
     case BUTTON_tab_CONST:
         return make_pair<bool,int> (false,XK_Tab);
+
     case BUTTON_plus_CONST:
-        return make_pair<bool,int> (true,XK_plus);
+        return make_pair<bool,int> (false,XK_plus);
+	case BUTTON_equals_sign_CONST:
+		return make_pair<bool,int> (true,XK_plus);
+
+    case BUTTON_underscore_CONST:
+        return make_pair<bool,int> (true,XK_minus);
     case BUTTON_dash_CONST:
         return make_pair<bool,int> (false,XK_minus);
+
+    case BUTTON_semicolumn_CONST:
+        return make_pair<bool,int> (false,XK_semicolon);
+    case BUTTON_colon_CONST:	
+        return make_pair<bool,int> (true,XK_semicolon);
+
+    case BUTTON_single_quote_CONST:
+        return make_pair<bool,int> (false,XK_quoteright);
+    case BUTTON_double_quote_CONST:
+        return make_pair<bool,int> (true,XK_quoteright);
+
     case BUTTON_dot_CONST:
-        return make_pair<bool,int> (false,XK_KP_Decimal);
+        return make_pair<bool,int> (false,XK_period);
+
+		
 	}
 	return make_pair<bool,int> (false,0);
 }
