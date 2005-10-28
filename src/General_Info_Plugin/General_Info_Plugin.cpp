@@ -1112,6 +1112,14 @@ void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,strin
 	int PK_Device = createDevice.DoIt(iPK_DHCPDevice,0,sIP_Address,sMac_address);
 	g_pPlutoLogger->Write(LV_STATUS,"Created PNP device %d from mac %s",PK_Device,sMac_address.c_str());
 
+// Temporary debugging code since somehow the mac address sometimes got deleted
+Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(PK_Device);
+if( pRow_Device )
+	g_pPlutoLogger->Write(LV_STATUS,"Database reports row as ip %s mac %s",
+		pRow_Device->IPaddress_get().c_str(),pRow_Device->MACaddress_get().c_str());
+else
+	g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find %d in database",PK_Device);
+
 	Message *pMessage_Event = new Message(m_dwPK_Device,DEVICEID_EVENTMANAGER,PRIORITY_NORMAL,MESSAGETYPE_EVENT,EVENT_New_PNP_Device_Detected_CONST,
 		1,EVENTPARAMETER_PK_Device_CONST,StringUtils::itos(PK_Device).c_str());
 	QueueMessageToRouter(pMessage_Event);

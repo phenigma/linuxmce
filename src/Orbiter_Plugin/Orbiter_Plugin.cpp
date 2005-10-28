@@ -1956,8 +1956,9 @@ void Orbiter_Plugin::CMD_Set_Room_For_Device(int iPK_Device,string sName,int iPK
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Setting device %d to room %d",iPK_Device,iPK_Room);
 		pRow_Device->Reload();
+		g_pPlutoLogger->Write(LV_STATUS,"Setting device %d to with ip %s mac %s to room %d",
+			iPK_Device,pRow_Device->IPaddress_get().c_str(),pRow_Device->MACaddress_get().c_str(),iPK_Room);
 		pRow_Device->FK_Room_set( pRow_Room->PK_Room_get() );
 		pRow_Device->Table_Device_get()->Commit();
 	}
