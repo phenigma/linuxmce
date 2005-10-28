@@ -51,6 +51,7 @@ bool TranslateVirtualKeys2PlutoKeys(UINT uMsg, WPARAM wParam, LPARAM lParam,
         case '7':       iPK_Button = BUTTON_7_CONST;     break;
         case '8':       iPK_Button = BUTTON_8_CONST;     break;
         case '9':       iPK_Button = BUTTON_9_CONST;     break;
+        case VK_SPACE:  iPK_Button = BUTTON_space_CONST; break;
 
 #ifdef PHONEKEYS
         case VK_C:      iPK_Button = BUTTON_Phone_C_CONST;           break;

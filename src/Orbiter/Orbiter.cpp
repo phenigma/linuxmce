@@ -3856,7 +3856,7 @@ g_pPlutoLogger->Write(LV_STATUS, "Short key %d", iPK_Button);
     {
         if(iPK_Button >= BUTTON_A_CONST && iPK_Button <= BUTTON_Z_CONST)
             nPK_Button_To_Send = iPK_Button - BUTTON_A_CONST + BUTTON_a_CONST;
-        if(iPK_Button >= BUTTON_a_CONST && iPK_Button <= BUTTON_z_CONST)
+        else if(iPK_Button >= BUTTON_a_CONST && iPK_Button <= BUTTON_z_CONST)
             nPK_Button_To_Send = iPK_Button - BUTTON_a_CONST + BUTTON_A_CONST;
     }
 
@@ -3876,7 +3876,7 @@ g_pPlutoLogger->Write(LV_STATUS, "Short key %d", iPK_Button);
             case BUTTON_9_CONST:        nPK_Button_To_Send = BUTTON_left_parenthesis_CONST ; break;
 
             case BUTTON_dash_CONST:         nPK_Button_To_Send = BUTTON_underscore_CONST ; break;
-            case BUTTON_equals_sign_CONST:  nPK_Button_To_Send = BUTTON_plus_CONST ; break;
+            case BUTTON_plus_CONST:         nPK_Button_To_Send = BUTTON_equals_sign_CONST ; break;
             case BUTTON_semicolumn_CONST:   nPK_Button_To_Send = BUTTON_colon_CONST ; break;
             case BUTTON_single_quote_CONST: nPK_Button_To_Send = BUTTON_double_quote_CONST ; break;
         }
@@ -6450,7 +6450,7 @@ bool Orbiter::CaptureKeyboard_EditText_AppendChar( char ch )
     {
         if(ch >= 'A' && ch <= 'Z')
             ch = ch - 'A' + 'a';
-        if(ch >= 'a' && ch <= 'z')
+        else if(ch >= 'a' && ch <= 'z')
             ch = ch - 'a' + 'A';
     }
 
