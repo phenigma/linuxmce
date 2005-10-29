@@ -848,9 +848,6 @@ void gc100::parse_message_statechange(std::string message, bool change)
 			g_pPlutoLogger->Write(LV_STATUS, "statechange Reply: testing %s, %s (state %d) default state: %s", 
 				child->m_sName.c_str(), this_pin.c_str(), input_state, child->m_pData->m_mapParameters[DEVICEDATA_Default_State_CONST].c_str());
 
-			if( child->m_pData->m_mapParameters[DEVICEDATA_Default_State_CONST]=="1" )
-				input_state = !input_state;
-
 			//g_pPlutoLogger->Write(LV_STATUS, "statechange Reply: found a child pin number of %s, direction is %s",this_pin.c_str(),io_direction.c_str());
 
 			if ((target_type == "IR" && io_direction == "IN") ||
@@ -888,6 +885,8 @@ void gc100::parse_message_statechange(std::string message, bool change)
 
 	if (result!=NULL)
 	{
+		if( result->m_pData->m_mapParameters[DEVICEDATA_Default_State_CONST]=="1" )
+			input_state = !input_state;
 		if (target_direction == "IN")
 		{
 			Message *pMessage = new Message(result->m_dwPK_Device, 0, PRIORITY_NORMAL, MESSAGETYPE_EVENT, EVENT_Sensor_Tripped_CONST,
