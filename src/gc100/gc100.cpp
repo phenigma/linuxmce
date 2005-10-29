@@ -204,7 +204,8 @@ void gc100::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sC
 	cout << "vVDD.size() = " << vVDD.size() << endl;
 	for (VectDeviceData_Impl::size_type i = 0; i < vVDD.size(); i++)
 	{
-		if (vVDD[i]->m_dwPK_Device == pMessage->m_dwPK_Device_To && vVDD[i]->WithinCategory(DEVICECATEGORY_Environment_CONST) )
+// xxx***		if (vVDD[i]->m_dwPK_Device == pMessage->m_dwPK_Device_To && vVDD[i]->WithinCategory(DEVICECATEGORY_Environment_CONST) )
+		if (vVDD[i]->m_dwPK_Device == pMessage->m_dwPK_Device_To && (vVDD[i]->m_dwPK_DeviceCategory==79 ||vVDD[i]->m_dwPK_DeviceCategory==84) )
 		{ // this is our guy
 			SendString("OK");
 			g_pPlutoLogger->Write(LV_STATUS, "Message for %s passed to Relay", vVDD[i]->m_sDescription.c_str());
@@ -826,7 +827,9 @@ void gc100::parse_message_statechange(std::string message, bool change)
 	{
 		pChildDeviceCommand = (*child_iter).second;
 
-		if (pChildDeviceCommand->m_pData->WithinCategory(DEVICECATEGORY_Environment_CONST) )
+//xxx***		if (pChildDeviceCommand->m_pData->WithinCategory(DEVICECATEGORY_Environment_CONST) )
+		if (pChildDeviceCommand->m_pData->m_dwPK_DeviceCategory == 79
+				|| pChildDeviceCommand->m_pData->m_dwPK_DeviceCategory == 84)
 		{
 			std::string this_pin;
 			std::string io_direction;
@@ -1075,7 +1078,8 @@ void gc100::relay_power(class Message *pMessage, bool power_on)
 	{
 		pChildDeviceCommand = (*child_iter).second;
 
-		if (pChildDeviceCommand->m_pData->WithinCategory(DEVICECATEGORY_Environment_CONST) )
+//xxx***		if (pChildDeviceCommand->m_pData->WithinCategory(DEVICECATEGORY_Environment_CONST) )
+		if (pChildDeviceCommand->m_pData->m_dwPK_DeviceCategory==79 || pChildDeviceCommand->m_pData->m_dwPK_DeviceCategory==84)
 		{
 			std::string this_pin;
 			std::string io_direction;
