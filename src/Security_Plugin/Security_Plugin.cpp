@@ -897,6 +897,7 @@ bool Security_Plugin::OrbiterRegistered(class Socket *pSocket,class Message *pMe
 
 void Security_Plugin::AnnounceAlert(DeviceData_Router *pDevice)
 {
+	SayToDevices(pDevice->m_sDescription + (pDevice->m_pRoom ? " in " + pDevice->m_pRoom->m_sDescription : ""),NULL);
 }
 
 void Security_Plugin::SnapPhoto(Row_Alert_Device *pRow_Alert_Device,DeviceData_Router *pDevice)
