@@ -74,7 +74,7 @@ DCE_Template_Command *Create_DCE_Template(Command_Impl *pPrimaryDeviceCommand, D
 	should change the sCMD_Result to OK
 */
 //<-dceag-cmdch-b->
-void DCE_Template::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage)
+void DCE_Template::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
 	sCMD_Result = "UNHANDLED CHILD";

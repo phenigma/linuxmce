@@ -185,7 +185,7 @@ void MythTV_Player::CreateChildren()
 
     if ( ! locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay())) )
     {
-		LaunchMythFrontend();
+		LaunchMythFrontend(dontselect);
         locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay()));
     }
 }
@@ -198,7 +198,7 @@ void MythTV_Player::CreateChildren()
     should change the sCMD_Result to OK
 */
 //<-dceag-cmdch-b->
-void MythTV_Player::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage)
+void MythTV_Player::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->Window
 {
     sCMD_Result = "UNHANDLED CHILD";

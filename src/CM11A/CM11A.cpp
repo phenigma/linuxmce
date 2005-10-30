@@ -81,28 +81,9 @@ bool CM11A::Connect(int iPK_DeviceTemplate) {
 	should change the sCMD_Result to OK
 */
 //<-dceag-cmdch-b->
-void CM11A::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage)
+void CM11A::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Command %d received for child.", pMessage->m_dwID);
-	
-	
-	// find child device
-	DeviceData_Impl* pDeviceData_Impl = NULL;
-	
-	VectDeviceData_Impl& vDeviceData = m_pData->m_vectDeviceData_Impl_Children;
-	for(VectDeviceData_Impl::size_type i = 0; i < vDeviceData.size(); i++) {
-		if(vDeviceData[i]->m_dwPK_Device == pMessage->m_dwPK_Device_To) {
-			pDeviceData_Impl = vDeviceData[i];
-			break;
-		}
-	}
-	
-	if(!pDeviceData_Impl) {
-		g_pPlutoLogger->Write(LV_CRITICAL, "Child device %d not found.", pMessage->m_dwPK_Device_To);
-		return;
-	}
-	
 	string sChannel = pDeviceData_Impl->mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST);
 	g_pPlutoLogger->Write(LV_STATUS, "Child device %d has channel %s.", pMessage->m_dwPK_Device_To, sChannel.c_str());
 	

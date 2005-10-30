@@ -423,7 +423,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Set EA to %d",m_dwPK_EntertainArea);
 	should change the sCMD_Result to OK
 */
 //<-dceag-cmdch-b->
-void Bluetooth_Dongle::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage)
+void Bluetooth_Dongle::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
 	sCMD_Result = "UNHANDLED CHILD";

@@ -204,7 +204,7 @@ bool Event_Plugin::Register()
 	should change the sCMD_Result to OK
 */
 //<-dceag-cmdch-b->
-void Event_Plugin::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage)
+void Event_Plugin::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
 	sCMD_Result = "UNHANDLED CHILD";

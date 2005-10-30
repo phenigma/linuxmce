@@ -528,7 +528,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	fstr_DeviceCommand << "\tconst char *GetClassName() { return \""   <<  Name   <<  "_Command\"; };" << endl;
 	fstr_DeviceCommand << "\tvirtual int PK_DeviceTemplate_get() { return " << p_Row_DeviceTemplate->PK_DeviceTemplate_get() << "; };" << endl;
 	fstr_DeviceCommand << "\tstatic int PK_DeviceTemplate_get_static() { return " << p_Row_DeviceTemplate->PK_DeviceTemplate_get() <<  "; };" << endl;
-	fstr_DeviceCommand << "\tvirtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage) { };" << endl;
+	fstr_DeviceCommand << "\tvirtual void ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage) { };" << endl;
 	fstr_DeviceCommand << "\tvirtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };" << endl;
 
 	fstr_DeviceCommand << "\tCommand_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);" << endl;
@@ -717,10 +717,10 @@ int k=2;
 	fstr_DeviceCommand << "\t\t\t}" << endl;
 	fstr_DeviceCommand << "\t\t\telse" << endl;
 	fstr_DeviceCommand << "\t\t\t{" << endl;
-	fstr_DeviceCommand << "\t\t\t\tDeviceData_Base *pDeviceData_Base = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(pMessage->m_dwPK_Device_To);" << endl;
+	fstr_DeviceCommand << "\t\t\t\tDeviceData_Impl *pDeviceData_Impl = m_pData->FindChild(pMessage->m_dwPK_Device_To);" << endl;
 	fstr_DeviceCommand << "\t\t\t\tstring sCMD_Result=\"UNHANDLED\";" << endl;
-	fstr_DeviceCommand << "\t\t\t\tif( pDeviceData_Base && pDeviceData_Base->IsChildOf(m_pData) )" << endl;
-	fstr_DeviceCommand << "\t\t\t\t\tReceivedCommandForChild(pDeviceData_Base,sCMD_Result,pMessage);" << endl;
+	fstr_DeviceCommand << "\t\t\t\tif( pDeviceData_Impl )" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\tReceivedCommandForChild(pDeviceData_Impl,sCMD_Result,pMessage);" << endl;
 	fstr_DeviceCommand << "\t\t\t\telse" << endl;
 	fstr_DeviceCommand << "\t\t\t\t\tReceivedUnknownCommand(sCMD_Result,pMessage);" << endl;
 	fstr_DeviceCommand << "\t\t\t\t\tif( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )" << endl;

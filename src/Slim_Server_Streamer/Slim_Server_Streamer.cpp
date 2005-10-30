@@ -98,7 +98,7 @@ bool Slim_Server_Streamer::Register()
     should change the sCMD_Result to OK
 */
 //<-dceag-cmdch-b->
-void Slim_Server_Streamer::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage)
+void Slim_Server_Streamer::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
     sCMD_Result = "UNHANDLED CHILD";

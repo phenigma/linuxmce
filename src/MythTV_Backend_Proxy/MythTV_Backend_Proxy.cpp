@@ -86,7 +86,7 @@ bool MythTV_Backend_Proxy::Connect(int iPK_DeviceTemplate ) {
 
 
 //<-dceag-cmdch-b->
-void MythTV_Backend_Proxy::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage)
+void MythTV_Backend_Proxy::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
 	sCMD_Result = "UNHANDLED CHILD";

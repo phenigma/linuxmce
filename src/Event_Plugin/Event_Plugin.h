@@ -53,7 +53,7 @@ public:
 		virtual ~Event_Plugin();
 		virtual bool GetConfig();
 		virtual bool Register();
-		virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage);
+		virtual void ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage);
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
 

@@ -90,7 +90,7 @@ SlimServer_PlugIn_Command *Create_SlimServer_PlugIn(Command_Impl *pPrimaryDevice
 	should change the sCMD_Result to OK
 */
 //<-dceag-cmdch-b->
-void SlimServer_PlugIn::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage)
+void SlimServer_PlugIn::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
 	sCMD_Result = "UNHANDLED CHILD";

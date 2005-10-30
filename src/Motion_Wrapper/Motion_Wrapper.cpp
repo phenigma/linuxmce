@@ -363,34 +363,13 @@ Motion_Wrapper_Command *Create_Motion_Wrapper(Command_Impl *pPrimaryDeviceComman
 	should change the sCMD_Result to OK
 */
 //<-dceag-cmdch-b->
-void Motion_Wrapper::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage)
+void Motion_Wrapper::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
 	sCMD_Result = "OK";
 	
 	g_pPlutoLogger->Write(LV_STATUS, "Command %d received for child.", pMessage->m_dwID);
 	
-	
-	// find child device
-	DeviceData_Impl* pDeviceData_Impl = NULL;
-	
-	g_pPlutoLogger->Write(LV_STATUS, "Finding child device...");
-
-	VectDeviceData_Impl& vDeviceData = m_pData->m_vectDeviceData_Impl_Children;
-	for(VectDeviceData_Impl::size_type i = 0; i < vDeviceData.size(); i++) {
-		if(vDeviceData[i]->m_dwPK_Device == pMessage->m_dwPK_Device_To) {
-			pDeviceData_Impl = vDeviceData[i];
-			break;
-		}
-	}
-	
-	if(!pDeviceData_Impl) {
-		g_pPlutoLogger->Write(LV_CRITICAL, "Child device %d not found.", pMessage->m_dwPK_Device_To);
-		return;
-	}
-	
-	g_pPlutoLogger->Write(LV_STATUS, "Child device %d found.", pMessage->m_dwPK_Device_To);
-
 	switch(pMessage->m_dwID) {
 		case COMMAND_Get_Video_Frame_CONST: {
 				string sPortNumber = pDeviceData_Impl->mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST);

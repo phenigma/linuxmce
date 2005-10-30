@@ -85,7 +85,7 @@ bool Datagrid_Plugin::Register()
 	should change the sCMD_Result to OK
 */
 //<-dceag-cmdch-b->
-void Datagrid_Plugin::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage)
+void Datagrid_Plugin::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
 	sCMD_Result = "UNHANDLED CHILD";

@@ -90,7 +90,7 @@ bool Crystal_Fontz_USBRS232::Register()
 	should change the sCMD_Result to OK
 */
 //<-dceag-cmdch-b->
-void Crystal_Fontz_USBRS232::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage)
+void Crystal_Fontz_USBRS232::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
 	sCMD_Result = "UNHANDLED CHILD";

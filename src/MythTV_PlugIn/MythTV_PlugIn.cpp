@@ -168,7 +168,7 @@ void MythTV_PlugIn::BuildAttachedInfraredTargetsMap()
     should change the sCMD_Result to OK
 */
 //<-dceag-cmdch-b->
-void MythTV_PlugIn::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage)
+void MythTV_PlugIn::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
     sCMD_Result = "UNHANDLED CHILD";

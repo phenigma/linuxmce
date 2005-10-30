@@ -89,7 +89,7 @@ VideoLan_PlugIn_Command *Create_VideoLan_PlugIn(Command_Impl *pPrimaryDeviceComm
 	should change the sCMD_Result to OK
 */
 //<-dceag-cmdch-b->
-void VideoLan_PlugIn::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage)
+void VideoLan_PlugIn::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
 	sCMD_Result = "UNHANDLED CHILD";

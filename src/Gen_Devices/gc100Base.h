@@ -112,7 +112,7 @@ public:
 	const char *GetClassName() { return "gc100_Command"; };
 	virtual int PK_DeviceTemplate_get() { return 40; };
 	static int PK_DeviceTemplate_get_static() { return 40; };
-	virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage) { };
+	virtual void ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage) { };
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
@@ -231,10 +231,10 @@ public:
 			}
 			else
 			{
-				DeviceData_Base *pDeviceData_Base = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(pMessage->m_dwPK_Device_To);
+				DeviceData_Impl *pDeviceData_Impl = m_pData->FindChild(pMessage->m_dwPK_Device_To);
 				string sCMD_Result="UNHANDLED";
-				if( pDeviceData_Base && pDeviceData_Base->IsChildOf(m_pData) )
-					ReceivedCommandForChild(pDeviceData_Base,sCMD_Result,pMessage);
+				if( pDeviceData_Impl )
+					ReceivedCommandForChild(pDeviceData_Impl,sCMD_Result,pMessage);
 				else
 					ReceivedUnknownCommand(sCMD_Result,pMessage);
 					if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )

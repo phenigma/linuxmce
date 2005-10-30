@@ -71,7 +71,7 @@ CDDB_Identifier_Command *Create_CDDB_Identifier(Command_Impl *pPrimaryDeviceComm
 	should change the sCMD_Result to OK
 */
 //<-dceag-cmdch-b->
-void CDDB_Identifier::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage)
+void CDDB_Identifier::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
 	sCMD_Result = "UNHANDLED CHILD";

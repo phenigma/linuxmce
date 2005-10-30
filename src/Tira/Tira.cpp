@@ -172,7 +172,7 @@ bool Tira::Register()
 	should change the sCMD_Result to OK
 */
 //<-dceag-cmdch-b->
-void Tira::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage)
+void Tira::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
 	// Let the IR Base class try to handle the message

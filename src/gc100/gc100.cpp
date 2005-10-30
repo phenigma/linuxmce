@@ -160,7 +160,7 @@ bool gc100::Register()
 	should change the sCMD_Result to OK
 */
 //<-dceag-cmdch-b->
-void gc100::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage)
+void gc100::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
 	m_pThisMessage = pMessage;
@@ -200,29 +200,23 @@ void gc100::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sC
 	// This is a relay command
 	cout << "Processing..." << endl;
 
-	VectDeviceData_Impl vVDD = m_pData->m_vectDeviceData_Impl_Children;
-	cout << "vVDD.size() = " << vVDD.size() << endl;
-	for (VectDeviceData_Impl::size_type i = 0; i < vVDD.size(); i++)
-	{
-// xxx***		if (vVDD[i]->m_dwPK_Device == pMessage->m_dwPK_Device_To && vVDD[i]->WithinCategory(DEVICECATEGORY_Environment_CONST) )
-		if (vVDD[i]->m_dwPK_Device == pMessage->m_dwPK_Device_To && (vVDD[i]->m_dwPK_DeviceCategory==73 || vVDD[i]->m_dwPK_DeviceCategory==79 ||vVDD[i]->m_dwPK_DeviceCategory==84) )
-		{ // this is our guy
-			SendString("OK");
-			g_pPlutoLogger->Write(LV_STATUS, "Message for %s passed to Relay", vVDD[i]->m_sDescription.c_str());
+	if (pDeviceData_Impl->WithinCategory(DEVICECATEGORY_Environment_CONST) )
+	{ // this is our guy
+		SendString("OK");
+		g_pPlutoLogger->Write(LV_STATUS, "Message for %s passed to Relay", pDeviceData_Impl->m_sDescription.c_str());
 
-			bool bParm;
-			if (pMessage->m_dwID == COMMAND_Toggle_Power_CONST)
-			{
-				bParm = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST].c_str()) != 0;
-			}
-			else
-			{
-				bParm = pMessage->m_dwID == COMMAND_Generic_On_CONST;
-			}
-			relay_power(pMessage, bParm);
-			sCMD_Result = "OK";
-			return;
+		bool bParm;
+		if (pMessage->m_dwID == COMMAND_Toggle_Power_CONST)
+		{
+			bParm = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST].c_str()) != 0;
 		}
+		else
+		{
+			bParm = pMessage->m_dwID == COMMAND_Generic_On_CONST;
+		}
+		relay_power(pMessage, bParm);
+		sCMD_Result = "OK";
+		return;
 	}
 
 	// DONT: Don't delete there comments until implementation is complete
@@ -827,9 +821,7 @@ void gc100::parse_message_statechange(std::string message, bool change)
 	{
 		pChildDeviceCommand = (*child_iter).second;
 
-//xxx***		if (pChildDeviceCommand->m_pData->WithinCategory(DEVICECATEGORY_Environment_CONST) )
-		if (pChildDeviceCommand->m_pData->m_dwPK_DeviceCategory==73 || pChildDeviceCommand->m_pData->m_dwPK_DeviceCategory == 79
-				|| pChildDeviceCommand->m_pData->m_dwPK_DeviceCategory == 84)
+		if (pChildDeviceCommand->m_pData->WithinCategory(DEVICECATEGORY_Environment_CONST) )
 		{
 			std::string this_pin;
 			std::string io_direction;
@@ -1079,8 +1071,7 @@ void gc100::relay_power(class Message *pMessage, bool power_on)
 	{
 		pChildDeviceCommand = (*child_iter).second;
 
-//xxx***		if (pChildDeviceCommand->m_pData->WithinCategory(DEVICECATEGORY_Environment_CONST) )
-		if (pChildDeviceCommand->m_pData->m_dwPK_DeviceCategory==73 || pChildDeviceCommand->m_pData->m_dwPK_DeviceCategory==79 || pChildDeviceCommand->m_pData->m_dwPK_DeviceCategory==84)
+		if (pChildDeviceCommand->m_pData->WithinCategory(DEVICECATEGORY_Environment_CONST) )
 		{
 			std::string this_pin;
 			std::string io_direction;

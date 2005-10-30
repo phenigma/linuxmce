@@ -127,7 +127,7 @@ bool Disk_Drive::Register()
 	should change the sCMD_Result to OK
 */
 //<-dceag-cmdch-b->
-void Disk_Drive::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage)
+void Disk_Drive::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
 	sCMD_Result = "UNHANDLED CHILD";

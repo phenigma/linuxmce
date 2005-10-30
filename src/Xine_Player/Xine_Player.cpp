@@ -149,7 +149,7 @@ bool Xine_Player::Connect(int iPK_DeviceTemplate )
     should change the sCMD_Result to OK
 */
 //<-dceag-cmdch-b->
-void Xine_Player::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage)
+void Xine_Player::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
     sCMD_Result = "UNHANDLED CHILD";

@@ -125,27 +125,11 @@ EIB_Command *Create_EIB(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pD
 	should change the sCMD_Result to OK
 */
 //<-dceag-cmdch-b->
-void EIB::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage)
+void EIB::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
 	g_pPlutoLogger->Write(LV_STATUS, "Command %d received for CHILD", pMessage->m_dwID);
     
-	// find child device
-    DeviceData_Impl* pDeviceData_Impl = NULL;
-		
-	VectDeviceData_Impl& vDeviceData = m_pData->m_vectDeviceData_Impl_Children;
-    for(VectDeviceData_Impl::size_type i = 0; i < vDeviceData.size(); i++) {
-        if(vDeviceData[i]->m_dwPK_Device == (unsigned)pMessage->m_dwPK_Device_To) {
-            pDeviceData_Impl = vDeviceData[i];
-            break;
-        }
-    }
-
-    if(!pDeviceData_Impl) {
-        g_pPlutoLogger->Write(LV_CRITICAL, "Child device %d not found.", pMessage->m_dwPK_Device_To);
-        return;
-    }
-
 	TelegramMessage tlmsg;
 	switch(pMessage->m_dwID) {
 		/***Toggle Power*********************************************************************/

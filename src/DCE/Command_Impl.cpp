@@ -413,9 +413,23 @@ bool Command_Impl::Connect(int iPK_DeviceTemplate)
 #ifdef WIN32
 	//StartWatchDog(10000);
 #endif
-
+	
+	MiscCleanup();
 	return bResult;
 }
+
+void Command_Impl::MiscCleanup()
+{
+	SetDeviceCategories(m_pData);
+}
+
+void Command_Impl::SetDeviceCategories(DeviceData_Impl *pData)
+{
+	m_pData->m_pDeviceCategory = pData->m_AllDevices.m_mapDeviceCategory_Find(m_pData->m_dwPK_DeviceCategory);
+	for( int i=0; i < (int)m_pData->m_vectDeviceData_Impl_Children.size(); i++ )
+		m_pData->m_vectDeviceData_Impl_Children[i]->m_pDeviceCategory = pData->m_AllDevices.m_mapDeviceCategory_Find(m_pData->m_vectDeviceData_Impl_Children[i]->m_dwPK_DeviceCategory);
+}
+
 
 bool Command_Impl::RouterNeedsReload()
 {

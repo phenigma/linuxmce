@@ -414,6 +414,9 @@ namespace DCE
 		 */
 		void DeleteGlobalAllocs();
 
+		// Misc Cleanup tasks after we connect
+		void MiscCleanup();
+		void SetDeviceCategories(DeviceData_Impl *pData);
 	};
 
 }
