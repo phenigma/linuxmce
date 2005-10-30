@@ -120,7 +120,7 @@ int main(int argc, char* argv[])
 	int PK_Device=0;
 	string sLogger="stdout";
 
-	bool bError=false; // An error parsing the command line
+	bool bLocalMode=false,bError=false; // An error parsing the command line
 	bool bHardDrive=false;
 	char c;
 	for(int optnum=1;optnum<argc;++optnum)
@@ -140,6 +140,9 @@ int main(int argc, char* argv[])
 		case 'd':
 			PK_Device = atoi(argv[++optnum]);
 			break;
+        case 'L':
+            bLocalMode = true;
+            break;
 		case 'l':
 			sLogger = argv[++optnum];
 			break;
@@ -198,7 +201,7 @@ int main(int argc, char* argv[])
 	bool bReload=false;
 	try
 	{
-		App_Server *pApp_Server = new App_Server(PK_Device, sRouter_IP);
+		App_Server *pApp_Server = new App_Server(PK_Device, sRouter_IP,true,bLocalMode);
 		pApp_Server->m_bHardDrive=bHardDrive;
 		if ( pApp_Server->GetConfig() && pApp_Server->Connect(pApp_Server->PK_DeviceTemplate_get()) ) 
 		{
@@ -207,7 +210,10 @@ int main(int argc, char* argv[])
 			g_pSocketCrashHandler=SocketCrashHandler;
 			g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
 			pApp_Server->CreateChildren();
-			pthread_join(pApp_Server->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
+			if( bLocalMode )
+				pApp_Server->RunLocalMode();
+			else
+				pthread_join(pApp_Server->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
 			g_pDeadlockHandler=NULL;
 			g_pSocketCrashHandler=NULL;
 		} 

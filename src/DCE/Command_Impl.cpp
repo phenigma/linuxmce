@@ -152,8 +152,8 @@ Command_Impl::Command_Impl( Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl
 	m_pRouter = pRouter;
 	m_pcRequestSocket = NULL;
 	m_bReload = false;
-	m_bLocalMode = false;
 	m_pPrimaryDeviceCommand = pPrimaryDeviceCommand;
+	m_bLocalMode = m_pPrimaryDeviceCommand->m_bLocalMode;
 	m_pData = pData;
 	m_pEvent = pEvent;
 	m_bHandleChildren = false;
@@ -662,7 +662,10 @@ bool Command_Impl::ReceivedMessage( Message *pMessage )
 void Command_Impl::QueueMessageToRouter( Message *pMessage )
 {
 	if( m_bLocalMode )
+	{
+		cout << pMessage->ToString() << endl;
 		return;
+	}
 
 	PLUTO_SAFETY_LOCK( mq, m_listMessageQueueMutex );
 	m_listMessageQueue.push_back( pMessage );
@@ -713,15 +716,18 @@ void Command_Impl::ProcessMessageQueue()
 
 bool Command_Impl::InternalSendCommand( PreformedCommand &pPreformedCommand, int iConfirmation, string *p_sResponse )
 {
-	if( m_bLocalMode )
-		return true; // If it's just a test, local mode without a router
-
 	// Just put it in the queue.  The queue will delete pPreformedCommand.m_pMessage after sending
 	if( iConfirmation == 0 || ( iConfirmation == -1 && !pPreformedCommand.m_pcResponse ) )
 	{
 #ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand queue conf %d resp %p",iConfirmation,pPreformedCommand.m_pcResponse);
 #endif
+		if( m_bLocalMode )
+		{
+			cout << pPreformedCommand.m_pMessage->ToString() << endl;
+			return true; // If it's just a test, local mode without a router
+		}
+
 		pPreformedCommand.m_pMessage->m_eExpectedResponse = ER_None;
 		QueueMessageToRouter( pPreformedCommand.m_pMessage );
 		return true;
@@ -738,7 +744,19 @@ g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand confirmation conf %d resp %
 		if( !p_sResponse )
 			p_sResponse = &sResponse;
 
-		bool bResult = m_pcRequestSocket->SendMessage( pPreformedCommand.m_pMessage, *p_sResponse );
+		bool bResult;
+		
+		if( m_bLocalMode )
+		{
+			cout << pPreformedCommand.m_pMessage->ToString() << endl;
+			cout << "ENTER REQUIRED STRING RESPONSE: ";
+			cin >> sResponse;
+			cout << endl;
+			bResult=true;
+		}
+		else
+			bResult = m_pcRequestSocket->SendMessage( pPreformedCommand.m_pMessage, *p_sResponse );
+
 #ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand confirmation done conf %d resp %p (%d) %s",
 					  iConfirmation,pPreformedCommand.m_pcResponse,(int) bResult,p_sResponse->c_str());
@@ -758,7 +776,16 @@ g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand out parm conf %d resp %p",i
 #endif
 	// There are out parameters, we need to get a message back in return
 	pPreformedCommand.m_pMessage->m_eExpectedResponse = ER_ReplyMessage;
-	Message *pResponse = m_pcRequestSocket->SendReceiveMessage( pPreformedCommand.m_pMessage );
+	Message *pResponse;
+
+	if( m_bLocalMode )
+	{
+		cout << pPreformedCommand.m_pMessage->ToString() << endl;
+		cout << "ENTER REQUIRED RESPONSE MESSAGE: ";
+		pResponse = GetLocalModeResponse();
+	}
+	else
+		pResponse = m_pcRequestSocket->SendReceiveMessage( pPreformedCommand.m_pMessage );
 #ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand out done conf %d resp %p %p %d",
 iConfirmation,pPreformedCommand.m_pcResponse,pResponse,(pResponse ? pResponse->m_dwID : 0));
@@ -1006,3 +1033,13 @@ bool Command_Impl::GetChildDeviceData( int PK_Device, int PK_DeviceData, string 
 	}
 	return false;
 }
+
+void Command_Impl::RunLocalMode()
+{
+}
+
+Message *Command_Impl::GetLocalModeResponse()
+{
+	return NULL;
+}
+

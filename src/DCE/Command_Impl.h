@@ -417,6 +417,11 @@ namespace DCE
 		// Misc Cleanup tasks after we connect
 		void MiscCleanup();
 		void SetDeviceCategories(DeviceData_Impl *pData);
+
+		// When we're running as a test device, without an actual router, this lets us control 
+		// the device with the keyboard
+		void RunLocalMode();
+		Message *GetLocalModeResponse();
 	};
 
 }

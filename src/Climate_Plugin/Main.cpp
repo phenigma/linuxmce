@@ -137,7 +137,7 @@ int main(int argc, char* argv[])
 	int PK_Device=0;
 	string sLogger="stdout";
 
-	bool bError=false; // An error parsing the command line
+	bool bLocalMode=false,bError=false; // An error parsing the command line
 	char c;
 	for(int optnum=1;optnum<argc;++optnum)
 	{
@@ -156,6 +156,9 @@ int main(int argc, char* argv[])
 		case 'd':
 			PK_Device = atoi(argv[++optnum]);
 			break;
+        case 'L':
+            bLocalMode = true;
+            break;
 		case 'l':
 			sLogger = argv[++optnum];
 			break;
@@ -210,7 +213,7 @@ int main(int argc, char* argv[])
 	bool bReload=false;
 	try
 	{
-		Climate_Plugin *pClimate_Plugin = new Climate_Plugin(PK_Device, sRouter_IP);
+		Climate_Plugin *pClimate_Plugin = new Climate_Plugin(PK_Device, sRouter_IP,true,bLocalMode);
 		if ( pClimate_Plugin->GetConfig() && pClimate_Plugin->Connect(pClimate_Plugin->PK_DeviceTemplate_get()) ) 
 		{
 			g_pCommand_Impl=pClimate_Plugin;
@@ -218,7 +221,10 @@ int main(int argc, char* argv[])
 			g_pSocketCrashHandler=SocketCrashHandler;
 			g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
 			pClimate_Plugin->CreateChildren();
-			pthread_join(pClimate_Plugin->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
+			if( bLocalMode )
+				pClimate_Plugin->RunLocalMode();
+			else
+				pthread_join(pClimate_Plugin->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
 			g_pDeadlockHandler=NULL;
 			g_pSocketCrashHandler=NULL;
 		} 

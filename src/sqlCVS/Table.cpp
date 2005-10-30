@@ -37,7 +37,6 @@
 #include "RA/RA_Processor.h"
 #include "R_CommitTable.h"
 #include "R_CommitRow.h"
-#include "R_GetAll_psc_id.h"
 #include "R_GetRow.h"
 #include "R_UpdateTable.h"
 #include "A_UpdateRow.h"
@@ -61,6 +60,8 @@ itmp_RowsToDelete=0;
 	GetFields( );
 	m_psc_id_next=1;
 	m_psc_id_last_sync=m_psc_batch_last_sync=-1;
+	m_id_restrict_batch_block=NULL;
+	m_size_id_restrict_batch_block=0;
 	if( m_pField_id )
 	{
 		PlutoSqlResult result_set;
@@ -806,7 +807,7 @@ bool Table::ConfirmDependency( ChangedRow *pChangedRow, Field *pField_Referring,
 	return false;
 }
 
-bool Table::DetermineDeletions( RA_Processor &ra_Processor, string Connection, DCE::Socket **ppSocket )
+bool Table::DetermineDeletions( vector< pair<int,int> > &vectAll_psc_id )
 {
 	cout << "DetermineDeletions for table: " << m_sName << " from psc_id: " << m_psc_id_last_sync << " batch: " << m_psc_batch_last_sync << endl;
 	if( m_psc_id_last_sync<1 )
@@ -820,15 +821,7 @@ bool Table::DetermineDeletions( RA_Processor &ra_Processor, string Connection, D
 	// I deleted it locally, but before checking in my deletion, another user updated it and I haven't
 	// yet updated.  Therefore, the batch will be > m_psc_id_last_sync and will not show up
 
-	R_GetAll_psc_id r_GetAll_psc_id( m_sName, &g_GlobalConfig.m_vectRestrictions );
-	ra_Processor.AddRequest( &r_GetAll_psc_id );
-	while( ra_Processor.SendRequests( Connection, ppSocket ) );
 
-	if( r_GetAll_psc_id.m_cProcessOutcome!=SUCCESSFULLY_PROCESSED )
-	{
-		cerr << "Cannot get list of records from server:" << (int) r_GetAll_psc_id.m_cProcessOutcome << endl;
-		throw "Communication error";
-	}
 	std::ostringstream sSQL;
 
 	sSQL << "SELECT psc_id,psc_batch FROM " << m_sName << " WHERE psc_id IS NOT NULL AND psc_id>0 AND " << g_GlobalConfig.GetRestrictionClause(m_sName) << " ORDER BY psc_id";
@@ -843,11 +836,11 @@ bool Table::DetermineDeletions( RA_Processor &ra_Processor, string Connection, D
 	}
 	else
 	{
-cout << "Got " << (int) r_GetAll_psc_id.m_vectAll_psc_id.size() << ":" ;
-for(size_t s=0;s<r_GetAll_psc_id.m_vectAll_psc_id.size();++s)
+cout << "Got " << (int) vectAll_psc_id.size() << ":" ;
+for(size_t s=0;s<vectAll_psc_id.size();++s)
 {
-int id=r_GetAll_psc_id.m_vectAll_psc_id[s].first;
-int batch=r_GetAll_psc_id.m_vectAll_psc_id[s].second;
+int id=vectAll_psc_id[s].first;
+int batch=vectAll_psc_id[s].second;
 cout << id << "(" << batch << ")" << ",";
 }
 cout << endl;
@@ -861,26 +854,26 @@ cout << endl;
 			}
 
 			/** If the value of our local row[] is > than the server's vect (and not > than what we've already synced), then we deleted some records locally */
-			while( pos<r_GetAll_psc_id.m_vectAll_psc_id.size( ) && atoi( row[0] )>r_GetAll_psc_id.m_vectAll_psc_id[pos].first )
+			while( pos<vectAll_psc_id.size( ) && atoi( row[0] )>vectAll_psc_id[pos].first )
 			{
 				// Exception to the rule.  If the id is > than we last synced, it's possible that we checked in the row
 				// have not yet pulled any new updates, so our last synced is still old, but we deleted it locally.  So
 				// if the batch is in our list of batches, then we really did delete it
-				if( r_GetAll_psc_id.m_vectAll_psc_id[pos].first>m_psc_id_last_sync && 
-						!DoWeHaveBatch(r_GetAll_psc_id.m_vectAll_psc_id[pos].second) )
+				if( vectAll_psc_id[pos].first>m_psc_id_last_sync && 
+						!DoWeHaveBatch(vectAll_psc_id[pos].second) )
 				{
 					pos++;
 					continue;
 				}
 				
 				
-cout << "We deleted a row locally - pos: " << pos << " size: " << r_GetAll_psc_id.m_vectAll_psc_id.size( ) << 
-" local db psc_id: " << atoi( row[0] ) << " server psc_id deleted: " << r_GetAll_psc_id.m_vectAll_psc_id[pos].first << " batch: " << r_GetAll_psc_id.m_vectAll_psc_id[pos].second << endl;
+cout << "We deleted a row locally - pos: " << pos << " size: " << vectAll_psc_id.size( ) << 
+" local db psc_id: " << atoi( row[0] ) << " server psc_id deleted: " << vectAll_psc_id[pos].first << " batch: " << vectAll_psc_id[pos].second << endl;
 
-int foo=r_GetAll_psc_id.m_vectAll_psc_id[pos].second;
-if( r_GetAll_psc_id.m_vectAll_psc_id[pos].second>m_psc_batch_last_sync )
+int foo=vectAll_psc_id[pos].second;
+if( vectAll_psc_id[pos].second>m_psc_batch_last_sync )
 {
-	if( !DoWeHaveBatch(r_GetAll_psc_id.m_vectAll_psc_id[pos].second) )
+	if( !DoWeHaveBatch(vectAll_psc_id[pos].second) )
 	{
 		cout << "Never mind, it's newer than what we've synced" << endl;
 		pos++;
@@ -891,19 +884,19 @@ if( r_GetAll_psc_id.m_vectAll_psc_id[pos].second>m_psc_batch_last_sync )
 }
 
 itmp_RowsToDelete++;
-				ChangedRow *pChangedRow = new ChangedRow( this, r_GetAll_psc_id.m_vectAll_psc_id[pos].first );
+				ChangedRow *pChangedRow = new ChangedRow( this, vectAll_psc_id[pos].first );
 				AddChangedRow( pChangedRow );
 				pos++;
 			} 
 
 			/** If the value in the server's vect is > than our local row[], then the server deleted this row */
-			if( pos>=r_GetAll_psc_id.m_vectAll_psc_id.size( ) // We've still got rows, but the server doesn't--it deleted them
-				|| r_GetAll_psc_id.m_vectAll_psc_id[pos].first>atoi(row[0]) // The server still has rows, greater than ours 
+			if( pos>=vectAll_psc_id.size( ) // We've still got rows, but the server doesn't--it deleted them
+				|| vectAll_psc_id[pos].first>atoi(row[0]) // The server still has rows, greater than ours 
 				)
 			{
 
-	cout << "row deleted on server - pos: " << pos << " size: " << r_GetAll_psc_id.m_vectAll_psc_id.size( ) << 
-		" server: " << (pos<r_GetAll_psc_id.m_vectAll_psc_id.size( ) ? r_GetAll_psc_id.m_vectAll_psc_id[pos].first : -999) << 
+	cout << "row deleted on server - pos: " << pos << " size: " << vectAll_psc_id.size( ) << 
+		" server: " << (pos<vectAll_psc_id.size( ) ? vectAll_psc_id[pos].first : -999) << 
 		" local row deleted on server: " << row[0] << endl;
 				// It's possible that this row was added as an unauthorized batch and hasn't
 				// been deleted, it just hasn't been approved yet.  Skip this if it's an unauth batch
@@ -913,31 +906,31 @@ itmp_RowsToDelete++;
 					cout << "RE: Above, never mind.  It's an unauthorized row" << endl;
 				continue; 
 			}
-			if( pos<r_GetAll_psc_id.m_vectAll_psc_id.size( ) && atoi( row[0] )==r_GetAll_psc_id.m_vectAll_psc_id[pos].first )
+			if( pos<vectAll_psc_id.size( ) && atoi( row[0] )==vectAll_psc_id[pos].first )
 			{
 				/** So far so good, keep going */
 				pos++;
 				continue;
 			}
 		}
-		if( pos==r_GetAll_psc_id.m_vectAll_psc_id.size( ) )
+		if( pos==vectAll_psc_id.size( ) )
 			return true; /** We finished at the same time, nothing more to do */
 
 		/** There are still more rows in the server's vect. We must have deleted them */
-		for( ;pos<r_GetAll_psc_id.m_vectAll_psc_id.size( );++pos )
+		for( ;pos<vectAll_psc_id.size( );++pos )
 		{
 			// Exception to the rule.  If the id is > than we last synced, it's possible that we checked in the row
 			// have not yet pulled any new updates, so our last synced is still old, but we deleted it locally.  So
 			// if the batch is in our list of batches, then we really did delete it
-			if( r_GetAll_psc_id.m_vectAll_psc_id[pos].first>m_psc_id_last_sync && 
-					!DoWeHaveBatch(r_GetAll_psc_id.m_vectAll_psc_id[pos].second) )
+			if( vectAll_psc_id[pos].first>m_psc_id_last_sync && 
+					!DoWeHaveBatch(vectAll_psc_id[pos].second) )
 				continue;
 
-cout << "Still rows in server's vect - pos: " << pos << " size: " << r_GetAll_psc_id.m_vectAll_psc_id.size( ) << 
-" psc_id: " << r_GetAll_psc_id.m_vectAll_psc_id[pos].first << " batch: " << r_GetAll_psc_id.m_vectAll_psc_id[pos].second << endl;
+cout << "Still rows in server's vect - pos: " << pos << " size: " << vectAll_psc_id.size( ) << 
+" psc_id: " << vectAll_psc_id[pos].first << " batch: " << vectAll_psc_id[pos].second << endl;
 
 itmp_RowsToDelete++;
-			ChangedRow *pChangedRow = new ChangedRow( this, r_GetAll_psc_id.m_vectAll_psc_id[pos].first );
+			ChangedRow *pChangedRow = new ChangedRow( this, vectAll_psc_id[pos].first );
 			AddChangedRow( pChangedRow );
 		}
 	}
@@ -2554,4 +2547,95 @@ bool Table::DoWeHaveBatch( int psc_batch )
 		return true;
 	else
 		return false;
+}
+
+		
+void Table::Get_psc_batch_restrict( int psc_id, int &psc_batch, int &psc_restrict )
+{
+	std::ostringstream sSQL;
+	sSQL << "SELECT psc_batch,psc_restrict FROM `" << m_sName << "` WHERE psc_id=" << psc_id;
+
+	PlutoSqlResult result_set;
+	MYSQL_ROW row=NULL;
+	if( ( result_set.r=m_pDatabase->mysql_query_result( sSQL.str( ) ) ) && (row = mysql_fetch_row(result_set.r) ) && row[0] )
+	{
+		psc_batch = atoi(row[0]);
+		psc_restrict = row[1] ? atoi(row[1]) : 0;
+	}
+	else
+	{
+		cout << "Table::Get_psc_restrict " << m_sName << " No psc_id " << psc_id << endl;
+		throw "Table::Get_psc_restrict";
+	}
+}
+
+void Table::Parse_map_id_batch()
+{
+void *v = m_id_restrict_batch_block;
+	m_size_id_restrict_batch_block = m_map_id_batch.size() * 12 + 4;  // 12 = 3 integers at 4 bytes
+	free(m_id_restrict_batch_block);
+	m_id_restrict_batch_block = malloc(m_size_id_restrict_batch_block);
+	int *pInt = (int *) m_id_restrict_batch_block;
+	*(pInt++) = m_map_id_batch.size();
+	for(map<int,pair<int,int> >::iterator it=m_map_id_batch.begin();it!=m_map_id_batch.end();++it)
+	{
+		*(pInt++)=it->first;
+		*(pInt++)=it->second.first;
+		*(pInt++)=it->second.second;
+	}
+// Temporary test to be sure i'm always in sync
+
+if( v )
+{
+	// v is not null, so we're being called to do an update, not from populate map
+	v=m_id_restrict_batch_block;
+	int i=m_size_id_restrict_batch_block;
+	m_id_restrict_batch_block=NULL;
+	Populate_map_id_batch();  // This will do it clean
+	if( i!=m_size_id_restrict_batch_block || memcmp(v,m_id_restrict_batch_block,i)!=0 )
+	{
+cout << "****ERROR**** We got out of sync Parse_map_id_batch" << endl;
+		pInt = (int *) v;
+printf("addresses %p %p\n",pInt,v);
+		int iCount = *pInt;
+		cout << "Internally: " << iCount;
+		for(i=0;i<iCount;++i)
+		{
+			pInt++;
+			cout << "   p:" << *pInt++ << " b:" << *pInt++ << " r:" << *pInt++;
+		}
+		pInt = (int *) m_id_restrict_batch_block;
+		iCount = *pInt;
+		cout << endl << "Actually: " << iCount;
+		for(i=0;i<iCount;++i)
+		{
+			pInt++;
+			cout << "   p:" << *pInt++ << " b:" << *pInt++ << " r:" << *pInt++;
+		}
+		pInt = (int *) m_id_restrict_batch_block;
+	}
+}
+
+}
+
+void Table::Populate_map_id_batch()
+{
+	std::ostringstream sSQL;
+	sSQL << "SELECT psc_id,psc_batch,psc_restrict FROM `" << m_sName << "`";
+
+
+	PlutoSqlResult result_set;
+	MYSQL_ROW row=NULL;
+	if( ( result_set.r=m_pDatabase->mysql_query_result( sSQL.str( ) ) ) )
+	{
+		while (row = mysql_fetch_row(result_set.r))
+		{
+			m_map_id_batch[atoi(row[0])] = make_pair<int,int> (
+				row[1] ? atoi(row[1]) : 0,
+				row[2] ? atoi(row[2]) : 0);
+		}
+	}
+	free(m_id_restrict_batch_block);
+	m_id_restrict_batch_block=NULL;
+	Parse_map_id_batch();
 }

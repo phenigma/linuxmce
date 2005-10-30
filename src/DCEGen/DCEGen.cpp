@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
 	string TemplateInput="../DCEGen",TemplateOutput="",GeneratedOutput="../Gen_Devices";
 	int DBPort=3306,PK_DeviceTemplate=0;
 
-	bool bError=false; // An error parsing the command line
+	bool bLocalMode=false,bError=false; // An error parsing the command line
 	bool bListAllDevices=false,bTemplates=true;
 	string sSearchDeviceByName="";
 	char c;

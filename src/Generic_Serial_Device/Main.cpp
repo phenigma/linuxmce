@@ -129,7 +129,7 @@ int main(int argc, char* argv[])
 	int PK_Device=0;
 	string sLogger="stdout";
 
-	bool bError=false; // An error parsing the command line
+	bool bLocalMode=false,bError=false; // An error parsing the command line
 	char c;
 	for(int optnum=1;optnum<argc;++optnum)
 	{
@@ -202,7 +202,7 @@ int main(int argc, char* argv[])
 	bool bReload=false;
 	try
 	{
-		Generic_Serial_Device *pGeneric_Serial_Device = new Generic_Serial_Device(PK_Device, sRouter_IP);
+		Generic_Serial_Device *pGeneric_Serial_Device = new Generic_Serial_Device(PK_Device, sRouter_IP,true,bLocalMode);
 		if ( pGeneric_Serial_Device->GetConfig() && pGeneric_Serial_Device->Connect(pGeneric_Serial_Device->PK_DeviceTemplate_get()) ) 
 		{
 			g_pCommand_Impl=pGeneric_Serial_Device;
@@ -210,7 +210,10 @@ int main(int argc, char* argv[])
 			g_pSocketCrashHandler=SocketCrashHandler;
 			g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
 			pGeneric_Serial_Device->CreateChildren();
-			pthread_join(pGeneric_Serial_Device->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
+			if( bLocalMode )
+				pGeneric_Serial_Device->RunLocalMode();
+			else
+				pthread_join(pGeneric_Serial_Device->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
 			g_pDeadlockHandler=NULL;
 			g_pSocketCrashHandler=NULL;
 		} 

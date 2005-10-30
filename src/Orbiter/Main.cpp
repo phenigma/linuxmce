@@ -67,12 +67,11 @@ int main(int argc, char* argv[])
     int PK_Device=0,PK_DeviceTemplate=0;
     string sLogger="stdout";
     int Width=800,Height=600;
-    bool bLocalMode=false; // If true, it will not connect to PlutoServer but will look for it's files in the local directory
 	bool bFullScreen=false;
     string sLocalDirectory="";
     string sNestedDisplay = "";
 
-    bool bError=false; // An error parsing the command line
+    bool bLocalMode=false,bError=false; // An error parsing the command line
     char c;
     for(int optnum=1;optnum<argc;++optnum)
     {

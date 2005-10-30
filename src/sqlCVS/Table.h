@@ -110,6 +110,13 @@ namespace sqlCVS
 		string m_s_psc_id_new_this_update; 
 
 	public:
+		// These 2 lines are used only if the system is a listening server, needed to keep a 
+		// a cached list of all psc_id's and what batch they're from
+		map<int,pair<int,int> > m_map_id_batch; // The psc_id to psc_batch,psc_restrict
+		vector<int> m_vectNew,m_vectMod,m_vectDel;  // These are temporary--reset after each database commit
+		void *m_id_restrict_batch_block;
+		int m_size_id_restrict_batch_block;
+
 int itmp_RowsToDelete;
 		/** @brief constructor */
 		
@@ -149,6 +156,8 @@ int itmp_RowsToDelete;
 		bool HasFullHistory_get( ) { return m_pTable_History!=NULL; }
 		void HasFullHistory_set( bool bOn );
 
+		class Database *m_pDatabase_get() { return m_pDatabase; }  
+
 		/** @brief
 		 * This version is called by the server. It finds all new rows and modified rows changed after the specified batch
 		 * and adds an UpdateRow action for each change. It does not need to send delete's because the client side
@@ -171,7 +180,7 @@ int itmp_RowsToDelete;
 
 		void AddChangedRow( ChangedRow *pChangedRow );
 		bool CheckIn( int psc_user, RA_Processor &ra_Processor, DCE::Socket *pSocket, enum TypeOfChange toc );
-		bool DetermineDeletions( RA_Processor &ra_Processor, string Connection, DCE::Socket **ppSocket );
+		bool DetermineDeletions( vector< pair<int,int> > &vectAll_psc_id );
 		void AddRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor, bool &bFrozen ); /**< Server side add */
 		void DeleteRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor, bool &bFrozen, int &psc_user ); /**< Server side delete */
 		void UpdateRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor, bool &bFrozen, int &psc_user ); /**< Server side update */
@@ -193,6 +202,9 @@ int itmp_RowsToDelete;
 		void VerifyIntegrity();
 
 		bool bIsSystemTable_get( ) { return m_bIsSystemTable; }
+		void Get_psc_batch_restrict( int psc_id, int &psc_batch, int &psc_restrict );  // Return the psc_restrict for this psc_id
+		void Parse_map_id_batch();
+		void Populate_map_id_batch();
 
 		/** Give the psc_id, this will fill a map where the first string is the field name, and the second is the value of the field.
 		If psc_batch_in_history is not 0, that means this batch is still unauthorized, and needs to be retrieved from the history 

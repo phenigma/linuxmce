@@ -115,7 +115,7 @@ int main(int argc, char* argv[])
 	int PK_Device=0;
 	string sLogger="stdout";
 
-	bool bError=false; // An error parsing the command line
+	bool bLocalMode=false,bError=false; // An error parsing the command line
 	char c;
 	for(int optnum=1;optnum<argc;++optnum)
 	{
@@ -134,6 +134,9 @@ int main(int argc, char* argv[])
 		case 'd':
 			PK_Device = atoi(argv[++optnum]);
 			break;
+        case 'L':
+            bLocalMode = true;
+            break;
 		case 'l':
 			sLogger = argv[++optnum];
 			break;
@@ -188,7 +191,7 @@ int main(int argc, char* argv[])
 	bool bReload=false;
 	try
 	{
-		CDDB_Identifier *pCDDB_Identifier = new CDDB_Identifier(PK_Device, sRouter_IP);
+		CDDB_Identifier *pCDDB_Identifier = new CDDB_Identifier(PK_Device, sRouter_IP,true,bLocalMode);
 		if ( pCDDB_Identifier->GetConfig() && pCDDB_Identifier->Connect(pCDDB_Identifier->PK_DeviceTemplate_get()) ) 
 		{
 			g_pCommand_Impl=pCDDB_Identifier;
@@ -196,7 +199,10 @@ int main(int argc, char* argv[])
 			g_pSocketCrashHandler=SocketCrashHandler;
 			g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
 			pCDDB_Identifier->CreateChildren();
-			pthread_join(pCDDB_Identifier->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
+			if( bLocalMode )
+				pCDDB_Identifier->RunLocalMode();
+			else
+				pthread_join(pCDDB_Identifier->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
 			g_pDeadlockHandler=NULL;
 			g_pSocketCrashHandler=NULL;
 		} 

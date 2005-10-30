@@ -102,7 +102,7 @@ int main(int argc, char* argv[])
 	int PK_Device=0;
 	string sLogger="stdout";
 
-	bool bError=false; // An error parsing the command line
+	bool bLocalMode=false,bError=false; // An error parsing the command line
 	char c;
 	for(int optnum=1;optnum<argc;++optnum)
 	{
@@ -121,6 +121,9 @@ int main(int argc, char* argv[])
 		case 'd':
 			PK_Device = atoi(argv[++optnum]);
 			break;
+        case 'L':
+            bLocalMode = true;
+            break;
 		case 'l':
 			sLogger = argv[++optnum];
 			break;
@@ -175,7 +178,7 @@ int main(int argc, char* argv[])
 	bool bReload=false;
 	try
 	{
-		Slim_Server_Streamer *pSlim_Server_Streamer = new Slim_Server_Streamer(PK_Device, sRouter_IP);
+		Slim_Server_Streamer *pSlim_Server_Streamer = new Slim_Server_Streamer(PK_Device, sRouter_IP,true,bLocalMode);
 		if ( pSlim_Server_Streamer->GetConfig() && pSlim_Server_Streamer->Connect(pSlim_Server_Streamer->PK_DeviceTemplate_get()) ) 
 		{
 			g_pCommand_Impl=pSlim_Server_Streamer;
@@ -183,7 +186,10 @@ int main(int argc, char* argv[])
 			g_pSocketCrashHandler=SocketCrashHandler;
 			g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
 			pSlim_Server_Streamer->CreateChildren();
-			pthread_join(pSlim_Server_Streamer->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
+			if( bLocalMode )
+				pSlim_Server_Streamer->RunLocalMode();
+			else
+				pthread_join(pSlim_Server_Streamer->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
 			g_pDeadlockHandler=NULL;
 			g_pSocketCrashHandler=NULL;
 		} 

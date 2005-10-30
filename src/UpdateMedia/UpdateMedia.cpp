@@ -364,8 +364,9 @@ int UpdateMedia::HandleFileNotInDatabase(string sDirectory,string sFile,int PK_M
 			cout << "Huh??  not in db now" << endl;
 			return 0;
 		}
-		// it was in the database, but it's been moved to a different directory
+		// it was in the database, but it's been moved to a different directory or renamed
 		pRow_File->Path_set( sDirectory );
+		pRow_File->Filename_set( sFile );
 		pRow_File->Table_File_get()->Commit();
 	}
 	return PK_File;

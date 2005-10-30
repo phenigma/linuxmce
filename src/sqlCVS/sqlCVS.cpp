@@ -451,6 +451,7 @@ int main( int argc, char *argv[] )
 			}
 			else if( g_GlobalConfig.m_sCommand=="listen" )
 			{
+				database.Populate_map_id_batch();
 				RAServer *pServer = new RAServer( );
 				pServer->Initialize( );
 				pServer->StartListening( g_GlobalConfig.m_iSqlCVSPort );
@@ -575,6 +576,10 @@ int main( int argc, char *argv[] )
 	return 0;
 		};
 	}
+	catch( int i)
+	{
+	}
+/*
 	catch( char *pException )
 	{
 		cerr << "Caught exception: " << pException << endl;
@@ -596,7 +601,7 @@ int main( int argc, char *argv[] )
 		cerr << "Caught unknown exception" << endl;
 		exit(1);
 	}
-
+*/
 	delete g_pPlutoLogger;
 #ifdef _WIN32
 		WSACleanup( );

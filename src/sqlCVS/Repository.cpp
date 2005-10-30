@@ -39,6 +39,7 @@
 #include "R_UpdateRepository.h"
 #include "R_CloseTransaction.h"
 #include "R_ApproveBatch.h"
+#include "R_GetAll_psc_id.h"
 #include "A_UpdateSchema.h"
 #include "ChangedRow.h"
 #include "sqlCVSprocessor.h"
@@ -508,27 +509,39 @@ bool Repository::DetermineDeletions( )
 
 	// Don't need to create a transaction since we're not changing anything.
 
-	DCE::Socket *pSocket=NULL;
-
+	int iNumTables=0;
+	R_GetAll_psc_id r_GetAll_psc_id( &g_GlobalConfig.m_vectRestrictions );
 	for( MapTable::iterator it=g_GlobalConfig.m_mapTable.begin( );it!=g_GlobalConfig.m_mapTable.end( );++it )
 	{
 		Table *pTable = ( *it ).second;
-		/**
-		 * Since we don't need to connect to the server for anything here, but we don't each table to make it's own connection, 
-		 * Pass in the connection string and the NULL pointer to the socket so a connection will be made the
-		 * first time and preserved for the other tables
-		 */
-		 
-		if( pTable->Repository_get( )==this && !pTable->DetermineDeletions( ra_Processor, g_GlobalConfig.m_sSqlCVSHost + ":" + StringUtils::itos(g_GlobalConfig.m_iSqlCVSPort), &pSocket ) )
+		if( pTable->Repository_get( )==this ) 
 		{
-			delete pSocket;
-			return false;
+			r_GetAll_psc_id.m_sTable += pTable->Name_get() + "\t";
+			iNumTables++;
 		}
+	}
+
+	ra_Processor.AddRequest( &r_GetAll_psc_id );
+	while( ra_Processor.SendRequests(g_GlobalConfig.m_sSqlCVSHost + ":" + StringUtils::itos(g_GlobalConfig.m_iSqlCVSPort)) );
+
+	if( r_GetAll_psc_id.m_cProcessOutcome!=SUCCESSFULLY_PROCESSED || r_GetAll_psc_id.m_map_vectAll_psc_id.size()!=iNumTables )
+	{
+		cerr << "Cannot get list of records from server:" << (int) r_GetAll_psc_id.m_cProcessOutcome << " " 
+			<< r_GetAll_psc_id.m_map_vectAll_psc_id.size() << "/" << iNumTables << endl;
+		throw "Communication error";
 	}
 
 	// Don't need to close since we didn't change anything
 
-	delete pSocket;
+	for( MapTable::iterator it=g_GlobalConfig.m_mapTable.begin( );it!=g_GlobalConfig.m_mapTable.end( );++it )
+	{
+		Table *pTable = ( *it ).second;
+		if( pTable->Repository_get( )==this ) 
+		{
+			pTable->DetermineDeletions(r_GetAll_psc_id.m_map_vectAll_psc_id[pTable->Name_get()]);
+		}
+	}
+
 	return true; /**< We succeeded */
 }
 
@@ -1464,11 +1477,11 @@ bool Repository::ApproveBatch(R_ApproveBatch *pR_ApproveBatch,sqlCVSprocessor *p
 				}
 
 				if( pChangedRow->m_eTypeOfChange==toc_New )
-					psqlCVSprocessor->m_iNew++;
+					pTable->m_vectNew.push_back(psc_id);
 				if( pChangedRow->m_eTypeOfChange==toc_Delete )
-					psqlCVSprocessor->m_iDel++;
+					pTable->m_vectDel.push_back(psc_id);
 				if( pChangedRow->m_eTypeOfChange==toc_Modify )
-					psqlCVSprocessor->m_iMod++;
+					pTable->m_vectMod.push_back(psc_id);
 
 				pChangedRow->m_psc_batch = psqlCVSprocessor->m_i_psc_batch;
 
@@ -1657,19 +1670,19 @@ void Repository::RollbackBatch(Table *pTable,int psc_id,int psc_toc,int psc_batc
 	if( psc_toc==toc_New )
 	{
 		changedRow.m_eTypeOfChange=toc_Delete;
-		p_sqlCVSprocessor->m_iDel++;
+		pTable->m_vectDel.push_back(psc_id);
 	}
 	else
 	{
 		if( psc_toc==toc_Delete )
 		{
 			changedRow.m_eTypeOfChange=toc_New;
-			p_sqlCVSprocessor->m_iNew++;
+			pTable->m_vectNew.push_back(psc_id);
 		}
 		else
 		{
 			changedRow.m_eTypeOfChange=toc_Modify;
-			p_sqlCVSprocessor->m_iMod++;
+			pTable->m_vectMod.push_back(psc_id);
 		}
 		sSQL.str("");
 		sSQL << "SELECT ";

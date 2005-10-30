@@ -126,7 +126,7 @@ int main(int argc, char* argv[])
     int PK_Device=0;
     string sLogger="stdout";
 
-    bool bError=false; // An error parsing the command line
+    bool bLocalMode=false,bError=false; // An error parsing the command line
     char c;
     for(int optnum=1;optnum<argc;++optnum)
     {
@@ -144,6 +144,9 @@ int main(int argc, char* argv[])
             break;
         case 'd':
             PK_Device = atoi(argv[++optnum]);
+            break;
+        case 'L':
+            bLocalMode = true;
             break;
         case 'l':
             sLogger = argv[++optnum];
@@ -208,13 +211,16 @@ int main(int argc, char* argv[])
 	bool bReload=false;
     try
     {
-        Disk_Drive *pDisk_Drive = new Disk_Drive(PK_Device, sRouter_IP);
+        Disk_Drive *pDisk_Drive = new Disk_Drive(PK_Device, sRouter_IP,true,bLocalMode);
         if ( pDisk_Drive->GetConfig() && pDisk_Drive->Connect(pDisk_Drive->PK_DeviceTemplate_get()) )
         {
             g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
             pDisk_Drive->CreateChildren();
             pDisk_Drive->RunMonitorLoop();
-            pthread_join(pDisk_Drive->m_RequestHandlerThread, NULL);
+            if( bLocalMode )
+				pDisk_Drive->RunLocalMode();
+			else
+				pthread_join(pDisk_Drive->m_RequestHandlerThread, NULL);
         }
         else
         {

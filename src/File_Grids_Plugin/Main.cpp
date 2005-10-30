@@ -131,7 +131,7 @@ int main(int argc, char* argv[])
 	int PK_Device=0;
 	string sLogger="stdout";
 
-	bool bError=false; // An error parsing the command line
+	bool bLocalMode=false,bError=false; // An error parsing the command line
 	char c;
 	for(int optnum=1;optnum<argc;++optnum)
 	{
@@ -150,6 +150,9 @@ int main(int argc, char* argv[])
 		case 'd':
 			PK_Device = atoi(argv[++optnum]);
 			break;
+        case 'L':
+            bLocalMode = true;
+            break;
 		case 'l':
 			sLogger = argv[++optnum];
 			break;
@@ -204,7 +207,7 @@ int main(int argc, char* argv[])
 	bool bReload=false;
 	try
 	{
-		File_Grids_Plugin *pFile_Grids_Plugin = new File_Grids_Plugin(PK_Device, sRouter_IP);
+		File_Grids_Plugin *pFile_Grids_Plugin = new File_Grids_Plugin(PK_Device, sRouter_IP,true,bLocalMode);
 		if ( pFile_Grids_Plugin->GetConfig() && pFile_Grids_Plugin->Connect(pFile_Grids_Plugin->PK_DeviceTemplate_get()) ) 
 		{
 			g_pCommand_Impl=pFile_Grids_Plugin;
@@ -212,7 +215,10 @@ int main(int argc, char* argv[])
 			g_pSocketCrashHandler=SocketCrashHandler;
 			g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
 			pFile_Grids_Plugin->CreateChildren();
-			pthread_join(pFile_Grids_Plugin->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
+			if( bLocalMode )
+				pFile_Grids_Plugin->RunLocalMode();
+			else
+				pthread_join(pFile_Grids_Plugin->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
 			g_pDeadlockHandler=NULL;
 			g_pSocketCrashHandler=NULL;
 		} 
