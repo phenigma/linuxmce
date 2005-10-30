@@ -36,7 +36,7 @@ namespace DCE
         bool checkWindowName(long unsigned int window, string windowName);
 
     protected:
-        bool LaunchMythFrontend();
+        bool LaunchMythFrontend(bool bSelectWindow=true);
 
         void processKeyBoardInputRequest(int iXKeySym);
 

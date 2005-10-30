@@ -136,16 +136,18 @@ MythTV_Player::~MythTV_Player()
 
 }
 
-bool MythTV_Player::LaunchMythFrontend()
+bool MythTV_Player::LaunchMythFrontend(bool bSelectWindow)
 {
 	if ( ! m_pRatWrapper )
-        m_pRatWrapper = new RatPoisonWrapper(XOpenDisplay(getenv("DISPLAY")));
+		m_pRatWrapper = new RatPoisonWrapper(XOpenDisplay(getenv("DISPLAY")));
 
-	m_pRatWrapper->commandRatPoison(":select " LOGO_APPLICATION_NAME);
 	ProcessUtils::SpawnApplication("/usr/bin/mythfrontend", "", MYTH_WINDOW_NAME);
 
-    selectWindow();
-    locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay()));
+	if( bSelectWindow )
+	{
+		selectWindow();
+		locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay()));
+	}
 
     return true;
 }
@@ -185,7 +187,7 @@ void MythTV_Player::CreateChildren()
 
     if ( ! locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay())) )
     {
-		LaunchMythFrontend(dontselect);
+		LaunchMythFrontend(false);
         locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay()));
     }
 }
