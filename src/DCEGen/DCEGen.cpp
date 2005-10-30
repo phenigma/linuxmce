@@ -456,10 +456,8 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	fstr_DeviceCommand << "\t}" << endl;
 	fstr_DeviceCommand << "\tvirtual bool GetConfig()" << endl;
 	fstr_DeviceCommand << "\t{" << endl;
-	fstr_DeviceCommand << "\t\tif( m_bLocalMode )" << endl;
-	fstr_DeviceCommand << "\t\t\treturn true;" << endl;
 	fstr_DeviceCommand << "\t\tm_pData=NULL;" << endl;
-	fstr_DeviceCommand << "\t\tm_pEvent = new "  << Name  << "_Event(m_dwPK_Device, m_sHostName);" << endl;
+	fstr_DeviceCommand << "\t\tm_pEvent = new "  << Name  << "_Event(m_dwPK_Device, m_sHostName, !m_bLocalMode);" << endl;
 	fstr_DeviceCommand << "\t\tif( m_pEvent->m_dwPK_Device )" << endl;
 	fstr_DeviceCommand << "\t\t\tm_dwPK_Device = m_pEvent->m_dwPK_Device;" << endl;
 	fstr_DeviceCommand << "\t\tif( m_sIPAddress!=m_pEvent->m_pClientSocket->m_sIPAddress )	" << endl;
@@ -473,7 +471,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	fstr_DeviceCommand << "\t\t\t\twhile( m_pEvent->m_pClientSocket->m_eLastError==cs_err_BadDevice && (m_dwPK_Device = DeviceIdInvalid())!=0 )" << endl;
 	fstr_DeviceCommand << "\t\t\t\t{" << endl;
 	fstr_DeviceCommand << "\t\t\t\t\tdelete m_pEvent;" << endl;
-	fstr_DeviceCommand << "\t\t\t\t\tm_pEvent = new "  << Name  << "_Event(m_dwPK_Device, m_sHostName);" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\tm_pEvent = new "  << Name  << "_Event(m_dwPK_Device, m_sHostName, !m_bLocalMode);" << endl;
 	fstr_DeviceCommand << "\t\t\t\t\tif( m_pEvent->m_dwPK_Device )" << endl;
 	fstr_DeviceCommand << "\t\t\t\t\t\tm_dwPK_Device = m_pEvent->m_dwPK_Device;" << endl;
 	fstr_DeviceCommand << "\t\t\t\t}" << endl;
@@ -495,6 +493,13 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	fstr_DeviceCommand << "\t\t\t}" << endl;
 	fstr_DeviceCommand << "\t\t}" << endl;
 	fstr_DeviceCommand << "\t\t" << endl;
+
+	fstr_DeviceCommand << "\t\tif( m_bLocalMode )" << endl;
+	fstr_DeviceCommand << "\t\t{" << endl;
+	fstr_DeviceCommand << "\t\t\tm_pData = new App_Server_Data();" << endl;
+	fstr_DeviceCommand << "\t\t\treturn true;" << endl;
+	fstr_DeviceCommand << "\t\t}" << endl;
+		
 	fstr_DeviceCommand << "\t\tif( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None || m_pEvent->m_pClientSocket->m_Socket==INVALID_SOCKET )" << endl;
 	fstr_DeviceCommand << "\t\t\treturn false;" << endl;
 	fstr_DeviceCommand << endl;

@@ -364,6 +364,9 @@ void Command_Impl::ReplaceParams( ::std::string sReplacement ) {
 
 bool Command_Impl::Connect(int iPK_DeviceTemplate)
 {
+	if( m_bLocalMode )
+		return true;
+
 	bool bResult = true;
 
 	// Must have an event socket to proceed.
@@ -1036,6 +1039,24 @@ bool Command_Impl::GetChildDeviceData( int PK_Device, int PK_DeviceData, string 
 
 void Command_Impl::RunLocalMode()
 {
+	while(true)
+	{
+		cout << "Enter incoming message or QUIT: ";
+		string sMessage;
+		while(true)
+		{
+			char ch = getch();
+			if( ch=='\n' || ch=='\r' )
+				break;
+			cout << ch;
+			sMessage += ch;
+		}
+		if( StringUtils::ToUpper(sMessage)=="QUIT" )
+			return;
+		cout << endl;
+		Message *pMessage = new Message(sMessage);
+		ReceivedMessage(pMessage);
+	}
 }
 
 Message *Command_Impl::GetLocalModeResponse()

@@ -49,10 +49,9 @@ public:
 	}
 	virtual bool GetConfig()
 	{
-		if( m_bLocalMode )
-			return true;
+		
 		m_pData=NULL;
-		m_pEvent = new MythTV_Backend_Proxy_Event(m_dwPK_Device, m_sHostName);
+		m_pEvent = new MythTV_Backend_Proxy_Event(m_dwPK_Device, m_sHostName, !m_bLocalMode);
 		if( m_pEvent->m_dwPK_Device )
 			m_dwPK_Device = m_pEvent->m_dwPK_Device;
 		if( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None )
@@ -75,7 +74,7 @@ public:
 				while( m_pEvent->m_pClientSocket->m_eLastError==cs_err_BadDevice && (m_dwPK_Device = DeviceIdInvalid())!=0 )
 				{
 					delete m_pEvent;
-					m_pEvent = new MythTV_Backend_Proxy_Event(m_dwPK_Device, m_sHostName);
+					m_pEvent = new MythTV_Backend_Proxy_Event(m_dwPK_Device, m_sHostName, !m_bLocalMode);
 					if( m_pEvent->m_dwPK_Device )
 						m_dwPK_Device = m_pEvent->m_dwPK_Device;
 				}

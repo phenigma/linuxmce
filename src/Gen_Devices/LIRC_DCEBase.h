@@ -47,10 +47,9 @@ public:
 	}
 	virtual bool GetConfig()
 	{
-		if( m_bLocalMode )
-			return true;
+		
 		m_pData=NULL;
-		m_pEvent = new LIRC_DCE_Event(m_dwPK_Device, m_sHostName);
+		m_pEvent = new LIRC_DCE_Event(m_dwPK_Device, m_sHostName, !m_bLocalMode);
 		if( m_pEvent->m_dwPK_Device )
 			m_dwPK_Device = m_pEvent->m_dwPK_Device;
 		if( m_sIPAddress!=m_pEvent->m_pClientSocket->m_sIPAddress )	
@@ -63,7 +62,7 @@ public:
 				while( m_pEvent->m_pClientSocket->m_eLastError==cs_err_BadDevice && (m_dwPK_Device = DeviceIdInvalid())!=0 )
 				{
 					delete m_pEvent;
-					m_pEvent = new LIRC_DCE_Event(m_dwPK_Device, m_sHostName);
+					m_pEvent = new LIRC_DCE_Event(m_dwPK_Device, m_sHostName, !m_bLocalMode);
 					if( m_pEvent->m_dwPK_Device )
 						m_dwPK_Device = m_pEvent->m_dwPK_Device;
 				}
@@ -85,6 +84,11 @@ public:
 			}
 		}
 		
+		if( m_bLocalMode )
+		{
+			m_pData = new LIRC_DCE_Data();
+			return true;
+		}
 		if( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None || m_pEvent->m_pClientSocket->m_Socket==INVALID_SOCKET )
 			return false;
 
