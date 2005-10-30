@@ -82,9 +82,6 @@ void sh(int i) /* signal handler */
 
 #define MYTH_WINDOW_NAME "mythfrontend"
 
-// This shoould be the class name of the gimageview application
-#define LOGO_APPLICATION_NAME "gimageview"
-
 class RatPoisonWrapper : public RatpoisonHandler<RatPoisonWrapper>
 {
     Display *display;

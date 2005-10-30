@@ -90,8 +90,6 @@ void sh(int i) /* signal handler */
 }
 #endif
 
-#define LOGO_APPLICATION_NAME "gimageview"
-
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 App_Server::App_Server(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
@@ -351,18 +349,6 @@ void App_Server::CMD_Hide_Application(string sName,string &sCMD_Result,Message *
 void App_Server::EnsureLogoIsDisplayed()
 {
 	return;  // don't do this anymore, it was a real mess
-	if ( ! ProcessUtils::ApplicationIsLaunchedByMe(LOGO_APPLICATION_NAME) )
-	{
-		g_pPlutoLogger->Write(LV_STATUS, "The application is not running! Need to launch it!");
-		ProcessUtils::SpawnApplication("gimv", "/usr/pluto/share/wait-screen.gif", LOGO_APPLICATION_NAME, NULL);
-	}
-
-	g_pPlutoLogger->Write(LV_STATUS, "The 'application spawning' background is running!. Telling the orbiter to select the application!");
-
-	DCE::CMD_Activate_Window_Cat activateApplicationCommand(m_dwPK_Device, DEVICECATEGORY_Orbiter_CONST, true, BL_SameComputer, LOGO_APPLICATION_NAME);
-
-	string response; // this is not used but we need it to force the framework to not return until the command is actually executed.
-	SendCommand(activateApplicationCommand, &response);
 }
 
 void App_Server::ProcessExited(int pid, int status)

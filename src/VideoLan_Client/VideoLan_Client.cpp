@@ -24,8 +24,6 @@ using namespace DCE;
 #include <sys/wait.h>
 
 #define VLC_WINDOW_NAME "Unnamed"
-// This shoould be the class name of the gimageview application
-#define LOGO_APPLICATION_NAME "gimageview"
 
 #include "PlutoUtils/ProcessUtils.h"
 
@@ -187,7 +185,6 @@ void VideoLan_Client::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStr
 	if ( ! m_pRatWrapper )
         m_pRatWrapper = new RatPoisonWrapper(XOpenDisplay(getenv("DISPLAY")));
 
-//	m_pRatWrapper->commandRatPoison(":select " LOGO_APPLICATION_NAME);
 	if( ProcessUtils::SpawnApplication("vlc", sCommand.c_str(), "vlc_c")==false )
 		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to start videolan client");
 
