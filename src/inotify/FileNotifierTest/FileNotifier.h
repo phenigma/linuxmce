@@ -1,0 +1,48 @@
+#ifndef __FILE_NOTIFIER_H__
+#define __FILE_NOTIFIER_H__
+//-----------------------------------------------------------------------------------------------------
+#include <pthread.h>
+#include <memory>
+#include <vector>
+#include <map>
+using namespace std;
+//-----------------------------------------------------------------------------------------------------
+#include "inotify/inotify_class.h"
+#include "PlutoUtils/MultiThreadIncludes.h"
+//-----------------------------------------------------------------------------------------------------
+typedef void (*FileNotifierCallback)(const vector<string> &sFiles);
+//-----------------------------------------------------------------------------------------------------
+//   Class FileNotifier (wrapper for inotifier):
+//     - cross-platform
+//     - recursive
+//     - event driven (using callbacks registered by the user class)
+//-----------------------------------------------------------------------------------------------------
+class FileNotifier 
+{
+private:
+    FileNotifierCallback *m_pfOnCreate;
+    FileNotifierCallback *m_pfOnDelete;
+
+    bool m_bCallbacksRegistered;
+    pthread_t m_WorkerThreadID;
+    map<int, string> m_mapWatchedFiles;
+
+public:
+    FileNotifier(void); 
+    ~FileNotifier(void);
+
+    void RegisterCallbacks(FileNotifierCallback *pfOnCreate, FileNotifierCallback *pfOnDelete);
+    void Watch(string sDirectory);
+
+    bool m_bCancelThread;
+    inotify m_inotify;
+
+    pluto_pthread_mutex_t m_WatchedFilesMutex;
+    string m_mapWatchedFiles_Find(int wd)	
+    { 
+        map<int, string>::iterator it = m_mapWatchedFiles.find(wd); 
+        return it == m_mapWatchedFiles.end() ? NULL : (*it).second; 
+    }
+};
+//-----------------------------------------------------------------------------------------------------
+#endif //__FILE_NOTIFIER_H__
