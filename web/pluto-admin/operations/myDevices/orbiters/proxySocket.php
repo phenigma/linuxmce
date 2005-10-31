@@ -1,12 +1,20 @@
 <?
 function proxySocket($output,$dbADO){
 	if(!isset($_REQUEST['address']) && !isset($_REQUEST['port'])){
-		$ProxyOrbiterInfo=getFieldsAsArray('Device','IPAddress,DD1.IK_DeviceData AS PhoneIP,DD2.IK_DeviceData AS Port',$dbADO,'INNER JOIN Device_DeviceData DD1 ON DD1.FK_Device=PK_Device AND DD1.FK_DeviceData='.$GLOBALS['RemotePhoneIP'].' INNER JOIN Device_DeviceData DD2 ON DD2.FK_Device=PK_Device AND DD2.FK_DeviceData='.$GLOBALS['ListenPort'].' WHERE DD1.IK_DeviceData=\''.$_SERVER['REMOTE_ADDR'].'\' AND FK_DeviceTemplate='.$GLOBALS['ProxyOrbiter']);
+		$ProxyOrbiterInfo=getFieldsAsArray('Device','FK_Device_ControlledVia,IPAddress,DD1.IK_DeviceData AS PhoneIP,DD2.IK_DeviceData AS Port',$dbADO,'INNER JOIN Device_DeviceData DD1 ON DD1.FK_Device=PK_Device AND DD1.FK_DeviceData='.$GLOBALS['RemotePhoneIP'].' INNER JOIN Device_DeviceData DD2 ON DD2.FK_Device=PK_Device AND DD2.FK_DeviceData='.$GLOBALS['ListenPort'].' WHERE DD1.IK_DeviceData=\''.$_SERVER['REMOTE_ADDR'].'\' AND FK_DeviceTemplate='.$GLOBALS['ProxyOrbiter']);
 		if(count($ProxyOrbiterInfo)!=0){
 			$address=$ProxyOrbiterInfo['IPAddress'][0];
+			if($address=='' || is_null($address)){
+				$address=getDeviceIP($ProxyOrbiterInfo['FK_Device_ControlledVia'][0],$dbADO);
+
+				if(is_null($address)){
+					$address='192.168.80.1';
+					write_log("\n\nOrbiter proxy and his ancestors does not have IP address\n");
+				}
+			}
 			$port=$ProxyOrbiterInfo['Port'][0];
 		}else{
-			write_log("\n\nOrbiter proxy not found for phone IP".$_SERVER['REMOTE_ADDR']."\n");
+			write_log("\n\nOrbiter proxy not found for phone IP ".$_SERVER['REMOTE_ADDR']."\n");
 			return 'Orbiter proxy not found.';
 		}
 
@@ -205,5 +213,19 @@ function reloadImageJS(){
 
 function write_log($log){
 	writeFile(getcwd().'/security_images/socket.log',$log,'a+');
+}
+
+function getDeviceIP($deviceID,$dbADO){
+	$arr=getFieldsAsArray('Device','IPAddress,FK_Device_ControlledVia',$dbADO,'WHERE PK_Device='.$deviceID);
+
+	if($arr['IPAddress'][0]!=''){
+		return $arr['IPAddress'][0];
+	}
+
+	if(is_null($arr['FK_Device_ControlledVia'][0])){
+		return NULL;
+	}
+	
+	return getDeviceIP($arr['FK_Device_ControlledVia'][0],$dbADO);
 }
 ?>
