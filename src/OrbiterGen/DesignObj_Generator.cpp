@@ -108,10 +108,14 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
 		m_pRow_DesignObj=drDesignObj;
     m_rPosition=rPosition;
     m_ocoParent=ocoParent;
+	m_pDesignObj_TopMost=this;
+	while( m_pDesignObj_TopMost->m_ocoParent )
+		m_pDesignObj_TopMost = m_pDesignObj_TopMost->m_ocoParent;
+
     m_bDontShare=bDontShare;
     m_bUsingCache=false;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==4407 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==3412 )// || 
+if( m_pRow_DesignObj->PK_DesignObj_get()==1255 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==3412 )// || 
 //   m_pRow_DesignObj->PK_DesignObj_get()==4271 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==2211 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==1881 ||  m_pRow_DesignObj->PK_DesignObj_get()==2228 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==3531 ||  m_pRow_DesignObj->PK_DesignObj_get()==3534 )// || m_pRow_DesignObj->PK_DesignObj_get()==3471 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )*/
@@ -160,11 +164,11 @@ if( m_pRow_DesignObj->PK_DesignObj_get()==2233 )// || m_pRow_DesignObj->PK_Desig
 		if( m_pOrbiterGenerator->m_pRow_Size->PreserveAspectRatio_get()==2 )  // Means only preserve the backgrounds
 			m_bPreserveAspectRatio=true;
 
-        listDesignObj_Generator *al = m_pOrbiterGenerator->m_htGeneratedScreens[drDesignObj->PK_DesignObj_get()];
+		listDesignObj_Generator *al = m_pOrbiterGenerator->m_htGeneratedScreens[StringUtils::itos(drDesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(m_iVersion)];
         if( al==NULL )
         {
             al=new listDesignObj_Generator();
-            m_pOrbiterGenerator->m_htGeneratedScreens[drDesignObj->PK_DesignObj_get()]=al;
+            m_pOrbiterGenerator->m_htGeneratedScreens[StringUtils::itos(drDesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(m_iVersion)]=al;
         }
         al->push_back(this);
 
@@ -179,34 +183,33 @@ int k=2;
             if( pdrCachedScreen && pdrCachedScreen->Schema_get()==ORBITER_SCHEMA &&
 				(m_pOrbiterGenerator->m_map_PK_DesignObj_SoleScreenToGen.size()==0 || m_pOrbiterGenerator->m_map_PK_DesignObj_SoleScreenToGen[m_pRow_DesignObj->PK_DesignObj_get()]==false) )
             {
-				if( (m_pOrbiterGenerator->m_map_PK_DesignObj_SoleScreenToGen.size()!=0 && m_pOrbiterGenerator->m_map_PK_DesignObj_SoleScreenToGen[m_pRow_DesignObj->PK_DesignObj_get()]==false) || 
-					(pdrCachedScreen->ContainsArrays_get()==0 && m_pOrbiterGenerator->m_pRow_DesignObj_MainMenu!=m_pRow_DesignObj) )
+				time_t lModDate1 = StringUtils::SQLDateTime(pdrCachedScreen->Modification_LastGen_get());
+				time_t lModDate2 = StringUtils::SQLDateTime(m_pRow_DesignObj->psc_mod_get());
+				if( lModDate1==lModDate2 || (m_pOrbiterGenerator->m_map_PK_DesignObj_SoleScreenToGen.size()!=0 && m_pOrbiterGenerator->m_map_PK_DesignObj_SoleScreenToGen[m_pRow_DesignObj->PK_DesignObj_get()]==false) )
 				{
-					time_t lModDate1 = StringUtils::SQLDateTime(pdrCachedScreen->Modification_LastGen_get());
-					time_t lModDate2 = StringUtils::SQLDateTime(m_pRow_DesignObj->psc_mod_get());
-					if( lModDate1==lModDate2 || (m_pOrbiterGenerator->m_map_PK_DesignObj_SoleScreenToGen.size()!=0 && m_pOrbiterGenerator->m_map_PK_DesignObj_SoleScreenToGen[m_pRow_DesignObj->PK_DesignObj_get()]==false) )
+					string Filename = m_pOrbiterGenerator->m_sOutputPath + "screen " + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get()) + "." +
+						StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(m_iVersion) + "." + StringUtils::itos((int) lModDate1) + ".cache";
+					if( FileUtils::FileExists(Filename) )
 					{
-						string Filename = m_pOrbiterGenerator->m_sOutputPath + "screen " + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get()) + "." +
-							StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(m_iVersion) + "." + StringUtils::itos((int) lModDate1) + ".cache";
-						if( FileUtils::FileExists(Filename) )
+						if( SerializeRead(Filename) )
 						{
-							if( SerializeRead(Filename) )
+							if( CachedVersionOK() )
 							{
 								m_bUsingCache=true;
 								cout << "Not building screen " << StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(m_iVersion) << " found valid cache" << endl;
 								return;
 							}
 							else
-								cout << "Regenerating: cannot serialize cache file" << endl;
+								cout << "Regenerating: cache is not up to date" << endl;
 						}
 						else
-							cout << "Regenerating: cache file doesn't exist" << endl;
+							cout << "Regenerating: cannot serialize cache file" << endl;
 					}
 					else
-						cout << "Regenerating: screen has changed" << endl;
+						cout << "Regenerating: cache file doesn't exist" << endl;
 				}
 				else
-					cout << "Regenerating: screen has arrays or is main menu" << endl;
+					cout << "Regenerating: screen has changed" << endl;
             }
 			else
 				cout << "Regenerating: " << ( pdrCachedScreen==NULL ? " no cached screen in DB " : " schema changed " ) << endl;
@@ -738,6 +741,10 @@ int k=2;
 			m_mds->Device_DeviceData_get()->GetRows(SQL,&vectRow_Device_DeviceData);
 		}
 
+		string sRegenMonitor = m_pOrbiterGenerator->m_pRegenMonitor->GetModInfo_Floorplan(FloorplanType);
+		if( sRegenMonitor.size()>1 )
+			m_pDesignObj_TopMost->m_vectRegenMonitor.push_back( sRegenMonitor );
+
 		Row_Device_DeviceData *pRow_Device_DeviceData_FPInfo=NULL;  // We may need this down below
 		for(size_t s=0;s< (FloorplanType==FLOORPLANTYPE_Entertainment_Zone_CONST ? vectRow_EntertainArea.size() : vectRow_Device_DeviceData.size());++s)
         {
@@ -1136,7 +1143,7 @@ int DesignObj_Generator::LookForGoto(DesignObjCommandList *alCommands)
 
 void DesignObj_Generator::HandleGoto(int PK_DesignObj_Goto)
 {
-    listDesignObj_Generator *pListScreens = m_pOrbiterGenerator->m_htGeneratedScreens[PK_DesignObj_Goto];
+	listDesignObj_Generator *pListScreens = m_pOrbiterGenerator->m_htGeneratedScreens[StringUtils::itos(PK_DesignObj_Goto) + ".0"];
     if( PK_DesignObj_Goto==m_pOrbiterGenerator->m_pRow_DesignObj_MainMenu->PK_DesignObj_get() )
     {
         return; // All the main menu's are automatically included.  The system will figure out which one at runtime
@@ -1145,7 +1152,7 @@ void DesignObj_Generator::HandleGoto(int PK_DesignObj_Goto)
     if( !pListScreens )
     {
         pListScreens = new listDesignObj_Generator();
-        m_pOrbiterGenerator->m_htGeneratedScreens[PK_DesignObj_Goto] = pListScreens;
+        m_pOrbiterGenerator->m_htGeneratedScreens[StringUtils::itos(PK_DesignObj_Goto) + ".0"] = pListScreens;
     }
     else if( pListScreens->size()==0 )
     {
@@ -1430,8 +1437,7 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
             }
             break;
 
-//      case C_ARRAY_VID_TUNE_DEVICE_CONST:
-//      case C_ARRAY_LINPHONES_CONST:
+		// TODO -- Huh?  this one makes non sense.  PK_DeviceTemplate = ARRAY_Entertainment_Areas_CONST;????
         case ARRAY_Entertainment_Areas_CONST:
         case ARRAY_Video_Phones_CONST:
         case ARRAY_Viewable_Cameras_CONST:
@@ -1442,19 +1448,7 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
                 case ARRAY_Entertainment_Areas_CONST:
                     PK_DeviceTemplate = ARRAY_Entertainment_Areas_CONST;
                     break;
-/*              case C_ARRAY_VID_TUNE_DEVICE_CONST:
-                    PK_DeviceTemplate = DeviceTemplate_VIDTUNE_CONST;
-                    break;
-                case C_ARRAY_LINPHONES_CONST:
-                    PK_DeviceTemplate = DeviceTemplate_LINPHONE_CONST;XGrabKeyboard
-                    break;
-                case C_ARRAY_ORBITER_PHONES_CONST:
-                    PK_DeviceTemplate = DeviceTemplate_CE_SIP_CONST;
-                    break;
-                case C_ARRAY_VIEWABLE_CAMERAS_CONST:
-                    PK_DeviceTemplate = DeviceTemplate_ANALOG_CAMERA_CONST;
-                    break;
-*/
+
             }
 
             {
@@ -1579,59 +1573,11 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
             }
             break;
 
-            /*
-        case C_ARRAY_ROOMS_CONST:
-            DataView dv = new DataView(HADataConfiguration.m_mdsCache->Room_get(),
-                ROOM_FK_INSTALLATION_FIELD + "=" + m_mds->Orbiter_get()->GetRow(iOrbiter)->FK_Installation_get(),
-                ROOM_DESCRIPTION_FIELD,DataViewRowState.CurrentRows);
-
-            for(int i=0; i<dv.Count; i++ )
-            {
-                Row_Room * dr = new Row_Room *(dv[i].Row);
-                int Icon = dr->FK_Icon_isNull() ? 0 : dr->FK_Icon_get();
-                alValues.Add(new ArrayEntry(dr->PK_Room_get(),dr->Description_get(),Icon,i,0));
-            }
-            break;
-
-        case C_ARRAY_LIGHTS_IN_ROOM_CONST:
-        case C_ARRAY_DEVICES_IN_ROOM_CONST:
-            string DeviceFilter = "";
-            if( PK_Array==C_ARRAY_LIGHTS_IN_ROOM_CONST )
-                DeviceFilter = DEVICE_FK_DEVICECATEGORY_FIELD + "=" + DEVICECATEGORY_LIGHTS_CONST;
-            else
-                DeviceFilter = DEVICE_FK_DEVICECATEGORY_FIELD + "<>" + DEVICECATEGORY_LIGHTS_CONST + " AND " +
-                    DEVICE_FK_OBJECTHEADER_FIELD + " IS NOT NULL";
-
-            int Room = Convert.ToInt32(m_VariableMap[VARIABLE_PK_Room_CONST]);
-
-            DataView dv = new DataView(HADataConfiguration.m_mdsCache->Device_get(),
-                DEVICE_FK_ROOM_FIELD + "=" + Room + " AND " +
-                DeviceFilter,
-                DEVICE_DESCRIPTION_FIELD,DataViewRowState.CurrentRows);
-
-            for(int i=0; i<dv.Count; i++ )
-            {
-                Row_Device * dr = new Row_Device *(dv[i].Row);
-                alValues.Add(new ArrayEntry(dr->PK_Device_get(),dr->Description_get(),0,i,0));
-            }
-            break;
-
-        case C_ARRAY_ROOMS_LIGHTS_CONST:
-        case PK_Array==C_ARRAY_ROOMS_DEVICES_CONST:
-            SqlCommand cmd = new SqlCommand("SELECT * FROM " +
-                (PK_Array==C_ARRAY_ROOMS_LIGHTS_CONST ? "v_RoomsAndLights" : "v_RoomsAndDevices") +
-                " WHERE FK_Installation=" + m_mds->Orbiter_get()->GetRow(iOrbiter)->FK_Installation_get() +
-                " ORDER BY Description",
-                m_mds.m_conn,NULL);
-
-            SqlDataReader dr = cmd.ExecuteReader();
-            int i=0;
-
-            while(dr.Read())
-                alValues.Add(new ArrayEntry(Convert.ToInt32(dr["PK_Device"]),dr["Description"].ToString(),0,i++,0));
-            break;
-        */
     }
+
+	string sRegenMonitor = m_pOrbiterGenerator->m_pRegenMonitor->GetModInfo_Array(PK_Array);
+	if( sRegenMonitor.size()>1 )
+		m_pDesignObj_TopMost->m_vectRegenMonitor.push_back( sRegenMonitor );
     return alArray;
 
 }
@@ -1937,3 +1883,12 @@ int k=2;
 		((DesignObj_Generator *)(*it))->HandleRotation(iRotate);
 }
 
+bool DesignObj_Generator::CachedVersionOK()
+{
+	for(size_t s=0;s<m_vectRegenMonitor.size();++s)
+	{
+		if( !m_pOrbiterGenerator->m_pRegenMonitor->CachedVersionOK(m_vectRegenMonitor[s]) )
+			return false;
+	}
+	return true;
+}

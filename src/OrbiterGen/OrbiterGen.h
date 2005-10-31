@@ -7,6 +7,7 @@
 #include "DesignObj_Generator.h"
 #include "Orbiter/OrbiterData.h"
 #include "PlutoUtils/MySQLHelper.h"
+#include "RegenMonitor.h"
 
 class OrbiterGenerator : public OrbiterData, public MySqlHelper
 {
@@ -20,6 +21,7 @@ public:
 	class Row_DesignObj *m_pRow_DesignObj_MainMenu,*m_pRow_DesignObj_Sleeping,*m_pRow_DesignObj_ScreenSaver;
 	class Row_Skin *m_pRow_Skin;
 	class Row_Language *m_pRow_Language;
+	class RegenMonitor *m_pRegenMonitor;
 	bool m_bNoEffects,m_bUseOCG;
 	bool m_bIgnoreSelected, m_bIgnoreHighlighted, m_bIgnoreAlt;
 
@@ -27,7 +29,7 @@ public:
 	int m_iLocation;
 	map<int,int> m_htUsedStyleVariation;
 	map<int,int> m_mapUsedOrbiterCriteria;
-	map<int,listDesignObj_Generator *> m_htGeneratedScreens;
+	map<string,listDesignObj_Generator *> m_htGeneratedScreens;
 	map<int,class TextStyle *> m_htStylesUsedInOrbiterText;
 	map<int,bool> m_mapDesignObjVariation_WithArrays;
 	map<int,bool> m_mapPopups;
@@ -62,6 +64,7 @@ public:
 		m_sFontPath=sFontFiles;
 		m_sOutputPath=sOutputFiles;
 		m_iPK_Orbiter=PK_Orbiter;
+		m_pRegenMonitor = new RegenMonitor(this);
 /*		m_sMySQLHost=DBHost;
 		m_sMySQLUser=DBUser;
 		m_sMySQLPass=DBPassword;
@@ -102,6 +105,7 @@ private:
 	void ScaleCommandList(DesignObj_Generator *pocDesignObj,DesignObjCommandList &CommandList);
 	class Row_Size *TranslateSize(string sSize);
 	bool CommonControlledVia(Row_Device *pRow_Device1,Row_Device *pRow_Device2);
+	string First2Dots(string sDesignObj);
 };
 
 #endif

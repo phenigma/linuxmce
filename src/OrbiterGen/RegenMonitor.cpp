@@ -1,0 +1,228 @@
+#include "PlutoUtils/CommonIncludes.h"	
+#include "RegenMonitor.h"
+#include "OrbiterGen.h"
+#include "pluto_main/Define_Array.h"
+#include "pluto_main/Define_FloorplanType.h"
+#include "pluto_main/Define_DeviceCategory.h"
+#include "pluto_main/Define_DeviceData.h"
+#include "pluto_main/Table_EntertainArea.h"
+#include "pluto_main/Table_Room.h"
+
+string RegenMonitor::GetModInfo_Array(int PK_Array)
+{
+	string sResult = "A" + StringUtils::itos(PK_Array) + "\t";
+    switch(PK_Array)
+    {
+        case ARRAY_Lighting_Scenarios_CONST:
+        case ARRAY_Climate_Scenarios_CONST:
+        case ARRAY_Security_Scenarios_CONST:
+        case ARRAY_Communication_Scenarios_CONST:
+        case ARRAY_Misc_Scenarios_CONST:
+        case ARRAY_Sleeping_Scenarios_CONST:
+            if( m_pOrbiterGenerator->m_pRow_Room )
+				return sResult + GetModInfo_RoomScenario(PK_Array,m_pOrbiterGenerator->m_pRow_Room->PK_Room_get());
+			else
+				return "*";   // Something is wrong.  There should always be a room
+
+		case ARRAY_Media_Scenarios_CONST:
+            if( m_pOrbiterGenerator->m_pRow_EntertainArea )
+				return sResult + GetModInfo_EntAreaScenario(PK_Array,m_pOrbiterGenerator->m_pRow_EntertainArea->PK_EntertainArea_get());
+			else
+				return sResult;
+
+		case ARRAY_All_Phones_CONST:
+		case ARRAY_Hard_Phones_CONST:
+		case ARRAY_Soft_Phones_CONST:
+		case ARRAY_Soft_Video_Phones_CONST:
+		case ARRAY_Media_Directors_CONST:
+        {
+			{
+				int PK_DeviceCategory=-1;
+				switch(PK_Array)
+				{
+					case ARRAY_All_Phones_CONST:
+						PK_DeviceCategory = DEVICECATEGORY_Phones_CONST;
+						break;
+					case ARRAY_Hard_Phones_CONST:
+						PK_DeviceCategory = DEVICECATEGORY_Hard_Phones_CONST;
+						break;
+					case ARRAY_Soft_Phones_CONST:
+						PK_DeviceCategory = DEVICECATEGORY_Soft_Phones_CONST;
+						break;
+					case ARRAY_Soft_Video_Phones_CONST:
+						PK_DeviceCategory = DEVICECATEGORY_Video_Soft_Phones_CONST;
+						break;
+					case ARRAY_Media_Directors_CONST:
+						PK_DeviceCategory = DEVICECATEGORY_Media_Director_CONST;
+						break;
+				}
+
+				if( PK_DeviceCategory!=-1 )
+					return sResult + GetModInfo_DeviceCategory(PK_DeviceCategory);
+				else
+					return "*";
+			}
+
+        case ARRAY_Phone_Users_CONST:
+        case ARRAY_All_Users_CONST:
+				return sResult + GetModInfo_Users();
+
+		case ARRAY_Locations_CONST:
+        case ARRAY_Rooms_CONST:
+				return sResult + GetModInfo_Locations();
+
+		case ARRAY_Floorplans_CONST:
+				return sResult + GetModInfo_FloorplanArray();
+		}
+	}
+	return "*";
+}
+
+string RegenMonitor::GetModInfo_RoomScenario(int PK_Array,int PK_Room)
+{
+	string sSQL = "select count(PK_CommandGroup),max(CommandGroup.psc_mod),max(CommandGroup_Room.psc_mod),max(CommandGroup_Command.psc_mod),max(CommandGroup_Command_CommandParameter.psc_mod) "
+		"FROM CommandGroup "
+		"JOIN CommandGroup_Room ON CommandGroup_Room.FK_CommandGroup=PK_CommandGroup "
+		"LEFT JOIN CommandGroup_Command ON CommandGroup_Command.FK_CommandGroup=PK_CommandGroup "
+		"LEFT JOIN CommandGroup_Command_CommandParameter ON FK_CommandGroup_Command=PK_CommandGroup_Command "
+		"WHERE FK_Room=" + StringUtils::itos(PK_Room);
+
+	return StringUtils::itos(PK_Room) + "\t" + QueryAsModString(sSQL);
+}
+
+string RegenMonitor::GetModInfo_EntAreaScenario(int PK_Array,int PK_EntertainArea)
+{
+	string sSQL = "select count(PK_CommandGroup),max(CommandGroup.psc_mod),max(CommandGroup_EntertainArea.psc_mod),max(CommandGroup_Command.psc_mod),max(CommandGroup_Command_CommandParameter.psc_mod) "
+		"FROM CommandGroup "
+		"JOIN CommandGroup_EntertainArea ON CommandGroup_EntertainArea.FK_CommandGroup=PK_CommandGroup "
+		"LEFT JOIN CommandGroup_Command ON CommandGroup_Command.FK_CommandGroup=PK_CommandGroup "
+		"LEFT JOIN CommandGroup_Command_CommandParameter ON FK_CommandGroup_Command=PK_CommandGroup_Command "
+		"WHERE FK_EntertainArea=" + StringUtils::itos(PK_EntertainArea);
+
+	return StringUtils::itos(PK_EntertainArea) + "\t" + QueryAsModString(sSQL);
+}
+
+string RegenMonitor::GetModInfo_DeviceCategory(int PK_DeviceCategory)
+{
+	string sSQL = "select count(PK_Device),max(Device.psc_mod),max(Device_DeviceData.psc_mod),max(DeviceTemplate.psc_mod) from Device "
+		"JOIN DeviceTemplate on FK_DeviceTemplate=PK_DeviceTemplate "
+		"LEFT JOIN DeviceCategory AS DC1 ON DeviceTemplate.FK_DeviceCategory=DC1.PK_DeviceCategory "
+		"LEFT JOIN DeviceCategory AS DC2 ON DC1.FK_DeviceCategory_Parent=DC2.PK_DeviceCategory "
+		"LEFT JOIN DeviceCategory AS DC3 ON DC2.FK_DeviceCategory_Parent=DC3.PK_DeviceCategory "
+		"LEFT JOIN DeviceCategory AS DC4 ON DC3.FK_DeviceCategory_Parent=DC4.PK_DeviceCategory "
+		"LEFT JOIN Device_DeviceData ON FK_Device=PK_Device "
+		"WHERE DC1.PK_DeviceCategory = " + StringUtils::itos(PK_DeviceCategory) + 
+		" OR DC2.PK_DeviceCategory = " + StringUtils::itos(PK_DeviceCategory) + 
+		" OR DC3.PK_DeviceCategory = " + StringUtils::itos(PK_DeviceCategory) + 
+		" OR DC4.PK_DeviceCategory = " + StringUtils::itos(PK_DeviceCategory);
+
+	return StringUtils::itos(PK_DeviceCategory) + "\t" + QueryAsModString(sSQL);
+}
+
+string RegenMonitor::GetModInfo_Users()
+{
+	string sSQL = "select count(PK_Users),max(Users.psc_mod),max(Installation_Users.psc_mod) "
+		"FROM Users "
+		"LEFT JOIN Installation_Users ON FK_Users=PK_Users ";
+
+	return QueryAsModString(sSQL);
+}
+
+string RegenMonitor::GetModInfo_Locations()
+{
+	string sSQL = "SELECT count(PK_Room),max(Room.psc_mod) FROM Room";
+	string sResult = QueryAsModString(sSQL);
+	sSQL = "SELECT count(PK_EntertainArea),max(EntertainArea.psc_mod) FROM EntertainArea";
+	sResult += "\t" + QueryAsModString(sSQL);
+	return sResult;
+}
+
+string RegenMonitor::GetModInfo_FloorplanArray()
+{
+	string sSQL = "select count(FK_Installation),max(psc_mod) FROM Floorplan";
+	string sResult = QueryAsModString(sSQL);
+	return sResult;
+}
+
+string RegenMonitor::QueryAsModString(string sSQL)
+{
+	string sResult;
+	PlutoSqlResult result_set_array;
+	MYSQL_ROW row;
+	if( (result_set_array.r=m_pOrbiterGenerator->mysql_query_result(sSQL)) && ((row = mysql_fetch_row(result_set_array.r))) )
+	{
+		for(int i=0;i<(int) result_set_array.r->field_count;++i)
+		{
+			if( row[i] )
+				sResult += string(row[i]) + "\t";
+			else
+				sResult += "NULL\t";
+		}
+	}
+	return sResult;
+}
+
+bool RegenMonitor::CachedVersionOK(string sString)
+{
+	if( sString.size()<2 )
+	{
+		cout << "ERROR: RegenMonitor::CachedVersionOK didn't get a valid string" << endl;
+		return false; 
+	}
+
+	string sComparisson;
+	if( sString[0]=='A' )
+		sComparisson = GetModInfo_Array(atoi(sString.substr(1).c_str()));
+	if( sString[0]=='F' )
+		sComparisson = GetModInfo_Floorplan(atoi(sString.substr(1).c_str()));
+	else
+	{
+		cout << "ERROR: RegenMonitor::CachedVersionOK string: " << sString << " is invalid" << endl;
+		return false; 
+	}
+		
+	if( sComparisson==sString )
+		return true;
+
+	cout << "Cache: " << sString << endl << "Current: " << sComparisson << endl;
+	return false;
+}
+
+string RegenMonitor::GetModInfo_Floorplan(int PK_FloorplanType)
+{
+	string sSQL;
+	if( PK_FloorplanType==FLOORPLANTYPE_Entertainment_Zone_CONST )
+		sSQL = "SELECT count(PK_EntertainArea),max(psc_mod) from EntertainArea";
+	else
+	{
+		string sPK_Device;
+
+		// First get the devices on this floorplan
+		sSQL = "SELECT FK_Device FROM Device_DeviceData "
+			"JOIN FloorplanObjectType ON PK_FloorplanObjectType=IK_DeviceData "
+			"WHERE FK_DeviceData=" + StringUtils::itos(DEVICEDATA_PK_FloorplanObjectType_CONST) + " AND FK_FloorplanType=" + StringUtils::itos(PK_FloorplanType);
+
+		PlutoSqlResult result_set_array;
+		MYSQL_ROW row;
+		if( (result_set_array.r=m_pOrbiterGenerator->mysql_query_result(sSQL)) )
+		{
+			while(row = mysql_fetch_row(result_set_array.r))
+			{
+				if( sPK_Device.size()!=0 )
+                    sPK_Device += ",";
+				sPK_Device += row[0];
+			}
+		}
+
+		if( sPK_Device.size() )
+			sSQL = "SELECT count(FK_Device),max(psc_mod) FROM Device_DeviceData where FK_DeviceData="
+				+ StringUtils::itos(DEVICEDATA_Floorplan_Info_CONST) + " AND FK_Device IN (" + sPK_Device + ")";
+		else
+			sSQL = "";
+	}
+
+	string sResult = "F" + StringUtils::itos(PK_FloorplanType);
+	if( sSQL.size() )
+		sResult += QueryAsModString(sSQL);
+	return sResult;
+}
