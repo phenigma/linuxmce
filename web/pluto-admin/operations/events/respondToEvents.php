@@ -75,7 +75,10 @@ function respondToEvents($output,$dbADO) {
 				<tr bgcolor="'.(($lineCount%2==0)?'#E7E7E7':'#FFFFFF').'">
 					<td>'.$rowEvents['Description'].'</td>
 					<td>'.$rowEvents['CannedEvent'].'</td>
-					<td align="center"><a href="index.php?section=editRespondToEvent&ehID='.$rowEvents['PK_EventHandler'].'">Edit</a> <a href="#" onClick="if(confirm(\'Are you sure you want to delete the event?\'))self.location=\'index.php?section=respondToEvents&dID='.$rowEvents['PK_EventHandler'].'\'">Delete</a></td>
+					<td align="center">
+						<a href="index.php?section=advancedEvents&highligh='.$rowEvents['PK_EventHandler'].'">Advanced</a> 
+						<a href="index.php?section=editRespondToEvent&ehID='.$rowEvents['PK_EventHandler'].'">Edit</a> 
+						<a href="#" onClick="if(confirm(\'Are you sure you want to delete the event?\'))self.location=\'index.php?section=respondToEvents&dID='.$rowEvents['PK_EventHandler'].'\'">Delete</a></td>
 				</tr>';
 		}
 		$queryCannedEvents='SELECT * FROM CannedEvents ORDER By Description ASC';

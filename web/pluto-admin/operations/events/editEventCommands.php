@@ -10,7 +10,7 @@ function editEventCommands($output,$dbADO) {
 	$queryEventHandler='
 		SELECT EventHandler.*,Criteria.FK_CriteriaParmNesting 
 		FROM EventHandler
-			INNER JOIN CannedEvents ON FK_CannedEvents=PK_CannedEvents
+			LEFT JOIN CannedEvents ON FK_CannedEvents=PK_CannedEvents
 			INNER JOIN Criteria ON FK_Criteria=PK_Criteria
 		WHERE EventHandler.FK_Installation=? AND PK_EventHandler=?
 	';
@@ -41,7 +41,7 @@ function editEventCommands($output,$dbADO) {
 		
 		$out.='
 		<div align="center" class="err">'.@$_REQUEST['error'].'</div>
-		<div align="center"><B>'.@$_REQUEST['msg'].'</B></div>
+		<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
 		<form action="index.php" method="post" name="editEventCommands">
 		<input type="hidden" name="section" value="editEventCommands">
 		<input type="hidden" name="action" value="update">

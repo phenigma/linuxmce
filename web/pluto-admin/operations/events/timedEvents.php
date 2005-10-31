@@ -71,7 +71,10 @@ function timedEvents($output,$dbADO) {
 			$out.='
 				<tr bgcolor="'.(($lineCount%2==0)?'#E7E7E7':'#FFFFFF').'">
 					<td align="center">'.$rowEvents['Description'].'</td>
-					<td align="center"><a href="index.php?section=editTimedEvent&ehID='.$rowEvents['PK_EventHandler'].'">Edit</a> <a href="#" onClick="if(confirm(\'Are you sure you want to delete the event?\'))self.location=\'index.php?section=timedEvents&dID='.$rowEvents['PK_EventHandler'].'\'">Delete</a></td>
+					<td align="center">
+						<a href="index.php?section=advancedEvents&highligh='.$rowEvents['PK_EventHandler'].'">Advanced</a>
+						<a href="index.php?section=editTimedEvent&ehID='.$rowEvents['PK_EventHandler'].'">Edit</a>
+						<a href="#" onClick="if(confirm(\'Are you sure you want to delete the event?\'))self.location=\'index.php?section=timedEvents&dID='.$rowEvents['PK_EventHandler'].'\'">Delete</a></td>
 				</tr>';
 		}
 		$out.='

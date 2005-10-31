@@ -8,6 +8,8 @@ function advancedEvents($output,$dbADO) {
 	$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$installationID,$dbADO);
 	$timedEventArray=array(1=>'Interval', 2=>'Day of week',3=>'Day of month',4=>'Absolute');
 	
+	$highligh=@$_REQUEST['highligh'];
+	
 	if(isset($_REQUEST['dID']) && $_REQUEST['dID']!=0){
 		if(!$canModifyInstallation){
 			header("Location: index.php?section=advancedEvents&error=You are not authorised to modify installation.");
@@ -44,7 +46,7 @@ function advancedEvents($output,$dbADO) {
 		
 		$out.='
 		<div align="center" class="err">'.@$_REQUEST['error'].'</div>
-		<div align="center"><B>'.@$_REQUEST['msg'].'</B></div>
+		<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
 		<form action="index.php" method="post" name="advancedEvents">
 		<input type="hidden" name="section" value="advancedEvents">
 		<input type="hidden" name="action" value="add">
@@ -58,7 +60,7 @@ function advancedEvents($output,$dbADO) {
 				<td align="center"><B>Template</B></td>
 				<td align="center"><B>Criteria</B></td>
 				<td align="center"><B>Commands</B></td>
-				<td align="center">&nbsp;</td>
+				<td align="center"><B>Action</B></td>
 			</tr>
 		';
 		$queryEvents='
@@ -80,8 +82,10 @@ function advancedEvents($output,$dbADO) {
 		while($rowEvents=$resEvents->FetchRow()){
 			$displayedEH[]=$rowEvents['PK_EventHandler'];
 			$lineCount++;
+			$color=(($lineCount%2==0)?'#E7E7E7':'#FFFFFF');
+			$color=($highligh==$rowEvents['PK_EventHandler'])?'lightgreen':$color;
 			$out.='
-				<tr bgcolor="'.(($lineCount%2==0)?'#E7E7E7':'#FFFFFF').'">
+				<tr bgcolor="'.$color.'">
 					<td align="center">'.$rowEvents['PK_EventHandler'].'</td>
 					<td><input type="text" name="eventDescription_'.$rowEvents['PK_EventHandler'].'" value="'.$rowEvents['Description'].'"></td>
 					<td>'.$rowEvents['EventDescription'].'</td>
@@ -95,7 +99,7 @@ function advancedEvents($output,$dbADO) {
 		if(count($displayedEH)!=0)
 			$out.='
 			<tr bgcolor="#E7E7E7">
-				<td colspan="8" align="center"><input type="submit" class="button" name="update" value="Update"></td>
+				<td colspan="8" align="center"><input type="button" class="button" name="addAdvancedEvent" value="Create advanced event" onClick="self.location=\'index.php?section=createAdvancedEvent\'"> <input type="submit" class="button" name="update" value="Update"></td>
 			</tr>';
 		$out.='
 			<tr>
