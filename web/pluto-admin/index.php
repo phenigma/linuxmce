@@ -740,6 +740,12 @@ switch ($section) {
 	    $output->setHelpSrc('/support/index.php?section=document&docID=162');
 	    advancedEvents($output,$dbADO);
 	break;
+	case 'createAdvancedEvent':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/events/createAdvancedEvent.php');
+	    createAdvancedEvent($output,$dbADO);
+	break;	
 	case 'editCriteria':
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
