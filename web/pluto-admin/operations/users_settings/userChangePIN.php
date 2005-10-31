@@ -58,7 +58,7 @@ function userChangePIN($output,$dbADO) {
 	$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$installationID,$dbADO);
 		
 		$passOrPIN=$_POST['passOrPIN'];
-		$newPIN=(int)$_POST['newPIN'];
+		$newPIN=$_POST['newPIN'];
 		
 		if (!$canModifyInstallation) {		
 			header("Location: index.php?section=userChangePIN&userID=$userID&from=$from&error=You are not authorised to change the installation.");

@@ -186,7 +186,7 @@ function createUser($output,$dbADO) {
 		$masterPassMd5=$passMd5;
 		$userMasterPassword=$userPassword;
 
-		$pinCode=(int)$_POST['pinCode'];
+		$pinCode=$_POST['pinCode'];
 		$pinCodeMd5=md5($pinCode);
 		
 		if ($userPassword!=$userPassword2) {
