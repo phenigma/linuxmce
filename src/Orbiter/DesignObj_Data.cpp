@@ -260,8 +260,13 @@ bool DesignObj_Data::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 		Write_string(m_sPK_DesignObj_TiedTo);
 		Write_string(m_sVisibleState);
 		Write_block(m_dbHitTest.m_pBlock,m_dbHitTest.m_dwSize);
-
 		
+		{
+			Write_long(m_vectRegenMonitor.size());
+			for(size_t s=0;s<m_vectRegenMonitor.size();++s)
+				Write_string(m_vectRegenMonitor[s]);
+		}
+
 		{
 			Write_long(m_vectAltGraphicFilename.size());
 			for(size_t s=0;s<m_vectAltGraphicFilename.size();++s)
@@ -374,6 +379,16 @@ bool DesignObj_Data::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 		Read_string(m_sPK_DesignObj_TiedTo);
 		Read_string(m_sVisibleState);
 		m_dbHitTest.m_pBlock=Read_block(m_dbHitTest.m_dwSize);
+
+		{
+			int count=Read_long();
+			for(size_t s=0;s<count;++s)
+			{
+				string str;
+				Read_string(str);
+				m_vectRegenMonitor.push_back(str);
+			}
+		}
 
 		{
 			int count=Read_long();

@@ -137,6 +137,7 @@ public:
 	string m_sBackgroundFile, m_sSelectedFile, m_sHighlightGraphicFilename;
 	vector<string> m_vectAltGraphicFilename;
 	map<int,string> m_mapObjParms;
+	vector<string> m_vectRegenMonitor;  // A list of strings indicating dependencies for regenerating
 	string m_ObjectID;
 	int m_iBaseObjectID,m_iVersion,m_iPage;  // Version & Page will only be used for top level objects (screens)
 	int m_ObjectType;
