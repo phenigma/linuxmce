@@ -59,7 +59,7 @@ function addSoftware($output,$dbADO) {
 			</tr>
 			<tr>
 				<td><B>Repository URL</B></td>
-				<td><input type="text" name="url" value="'.@$_SESSION['url'].'"></td>
+				<td><input type="text" name="url" value="'.@$_SESSION['url'].'" size="50"></td>
 			</tr>
 			<tr>
 				<td><B>Debian Repository</B></td>
