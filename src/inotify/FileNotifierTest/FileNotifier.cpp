@@ -1,10 +1,16 @@
+#include <sys/ioctl.h>
+#include <errno.h>
+
+#include "inotify/inotify.h"
+#include "inotify/inotify-syscalls.h"
+
 #include "FileNotifier.h"
 #include "PlutoUtils/FileUtils.h"
 #include "DCE/Logger.h"
 using namespace DCE;
 //-----------------------------------------------------------------------------------------------------
 #ifdef WIN32
-enum DummyEvents { IN_ALL_EVENTS, CREATE, MOVE_TO, IN_ISDIR }; 
+enum DummyEvents { IN_ALL_EVENTS, IN_CREATE, IN_MOVE_TO, IN_ISDIR }; 
 #endif
 //-----------------------------------------------------------------------------------------------------
 void *WorkerThread(void *);
@@ -13,6 +19,10 @@ FileNotifier::FileNotifier() : m_WatchedFilesMutex("watched files")
 {
     m_bCallbacksRegistered = false;
     m_bCancelThread = false;
+
+    m_pfOnCreate = NULL;
+	m_pfOnDelete = NULL;
+					
 
     m_WatchedFilesMutex.Init(NULL);
 }
@@ -25,16 +35,25 @@ FileNotifier::~FileNotifier(void)
 void FileNotifier::Watch(string sDirectory)
 {
     list<string> listFilesOnDisk;
-    FileUtils::FindFiles(listFilesOnDisk,sDirectory,"",false,false,0,"");   
-
-    PLUTO_SAFETY_LOCK(wfm, m_WatchedFilesMutex);
+    FileUtils::FindDirectories(listFilesOnDisk,sDirectory,true,false,0,sDirectory + "/");  
+	listFilesOnDisk.push_back(sDirectory);
+		
+	PLUTO_SAFETY_LOCK(wfm, m_WatchedFilesMutex);
     for(list<string>::iterator it = listFilesOnDisk.begin(); it != listFilesOnDisk.end(); it++)
-    {
+	{
         string sItem = *it;
-        int wd = m_inotify.watch(*it, IN_ALL_EVENTS);
+			
+		try
+		{
+			int wd = m_inotify.watch(*it, IN_ALL_EVENTS);
 
-        g_pPlutoLogger->Write(LV_STATUS, "Adding file to watch map: filename %s", sItem.c_str());
-        m_mapWatchedFiles[wd] = *it; 
+			g_pPlutoLogger->Write(LV_STATUS, "Adding file to watch map: filename %s", sItem.c_str());
+			m_mapWatchedFiles[wd] = *it; 
+		}
+		catch(...)
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "Failed to add notifier for file %s", sItem.c_str());
+		}
     }
 }
 //-----------------------------------------------------------------------------------------------------
@@ -44,42 +63,63 @@ void *WorkerThread(void *p)
 
     while(!pFileNotifier->m_bCancelThread)
     {
+		while(!pFileNotifier->m_inotify.pending_events()) 
+			sleep(1); 
+		
         cpp_inotify_event event = pFileNotifier->m_inotify.get_event();
 
-        if(event.mask & CREATE || event.mask & MOVE_TO)
+		g_pPlutoLogger->Write(LV_STATUS, "We got something: mask %d, name %s, wd %d, tostring %s",
+			event.mask, event.name.c_str(), event.wd, event.tostring().c_str());
+		
+		if(event.mask & IN_CREATE || event.mask & IN_MOVED_TO)
         {
             PLUTO_SAFETY_LOCK(wfm, pFileNotifier->m_WatchedFilesMutex);
-            string sFilename = pFileNotifier->m_mapWatchedFiles_Find(event.wd);
+            string sFilename = pFileNotifier->m_mapWatchedFiles_Find(event.wd) + "/" + event.name;
             wfm.Release();
 
             bool bIsDir = (event.mask & IN_ISDIR) != 0;
+			list<string> listFiles;
 
             if(bIsDir)
-            {
+			{
+				pFileNotifier->Watch(sFilename);
+			    FileUtils::FindDirectories(listFiles, sFilename,true,false,0,sFilename + "/");
+				FileUtils::FindFiles(listFiles, sFilename,"",true,false,0,sFilename + "/");
+			}
+			
+			listFiles.push_back(sFilename);
+			pFileNotifier->FireOnCreate(listFiles);
 
-            }
-            else
-            {
-                
-            }
-
-            g_pPlutoLogger->Write(LV_STATUS, "About to fire OnCreate event: filename %s, is dir %d",
-                sFilename.c_str(), bIsDir);
         }
     }
         
     return NULL;
 }
 //-----------------------------------------------------------------------------------------------------
-void FileNotifier::RegisterCallbacks(FileNotifierCallback *pfOnCreate, FileNotifierCallback *pfOnDelete)
+void FileNotifier::RegisterCallbacks(FileNotifierCallback pfOnCreate, FileNotifierCallback pfOnDelete)
 {
     if(!m_bCallbacksRegistered)
     {
         m_pfOnCreate = pfOnCreate;
         m_pfOnDelete = pfOnDelete;
+		m_bCallbacksRegistered = true;
 
-        m_bCancelThread = false;
-        pthread_create(&m_WorkerThreadID, NULL, WorkerThread, (void *)this);
+	    m_bCancelThread = false;
+	    pthread_create(&m_WorkerThreadID, NULL, WorkerThread, (void *)this);
     }
 }
 //-----------------------------------------------------------------------------------------------------
+void FileNotifier::FireOnCreate(list<string> &listFiles)
+{
+	if(m_bCallbacksRegistered && m_pfOnCreate)
+		m_pfOnCreate(listFiles);
+}
+//-----------------------------------------------------------------------------------------------------
+void FileNotifier::FireOnDelete(list<string> &listFiles)
+{
+	//if(m_bCallbacksRegistered && m_pfOnDelete)
+	//	((FileNotifierCallback *)m_pfOnDelete)(listFiles);
+}
+//-----------------------------------------------------------------------------------------------------
+
+

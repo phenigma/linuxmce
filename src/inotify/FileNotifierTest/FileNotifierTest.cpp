@@ -7,20 +7,31 @@ namespace DCE
 }
 using namespace DCE;
 
-void OnCreateFiles(const vector<string> &sFiles)
+void OnCreateFiles(list<string> &listFiles)
 {
+	for(list<string>::iterator it = listFiles.begin(); it != listFiles.end(); it++)
+	{
+		string sItem = *it;
+		g_pPlutoLogger->Write(LV_WARNING, "File/folder created: %s", sItem.c_str());	
+	}
 }
 
-void OnDeleteFiles(const vector<string> &sFiles)
+void OnDeleteFiles(list<string> &listFiles)
 {
+    for(list<string>::iterator it = listFiles.begin(); it != listFiles.end(); it++)
+    {
+        string sItem = *it;
+        g_pPlutoLogger->Write(LV_CRITICAL, "File/folder deleted: %s", sItem.c_str());
+    }
 }
 
 int main(int argc, char* argv[]) 
 {
-  g_pPlutoLogger = new FileLogger("FileNotifierTest.log");
+  g_pPlutoLogger = new FileLogger(stdout);
+  g_pPlutoLogger->Write(LV_WARNING, "Starting...");
 
   FileNotifier fileNotifier;
-  fileNotifier.RegisterCallbacks((FileNotifierCallback *)&OnCreateFiles, (FileNotifierCallback *)&OnDeleteFiles);
+  fileNotifier.RegisterCallbacks(OnCreateFiles, OnDeleteFiles);
   fileNotifier.Watch("/home/Chris/Test");
 
   while(1) //wait forever here. it's just a test.
@@ -32,3 +43,4 @@ int main(int argc, char* argv[])
 
   return 0;
 }
+

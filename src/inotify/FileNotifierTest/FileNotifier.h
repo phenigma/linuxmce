@@ -3,14 +3,14 @@
 //-----------------------------------------------------------------------------------------------------
 #include <pthread.h>
 #include <memory>
-#include <vector>
+#include <list>
 #include <map>
 using namespace std;
 //-----------------------------------------------------------------------------------------------------
 #include "inotify/inotify_class.h"
 #include "PlutoUtils/MultiThreadIncludes.h"
 //-----------------------------------------------------------------------------------------------------
-typedef void (*FileNotifierCallback)(const vector<string> &sFiles);
+typedef void (*FileNotifierCallback)(list<string> &listFiles);
 //-----------------------------------------------------------------------------------------------------
 //   Class FileNotifier (wrapper for inotifier):
 //     - cross-platform
@@ -20,8 +20,8 @@ typedef void (*FileNotifierCallback)(const vector<string> &sFiles);
 class FileNotifier 
 {
 private:
-    FileNotifierCallback *m_pfOnCreate;
-    FileNotifierCallback *m_pfOnDelete;
+    FileNotifierCallback m_pfOnCreate;
+    FileNotifierCallback m_pfOnDelete;
 
     bool m_bCallbacksRegistered;
     pthread_t m_WorkerThreadID;
@@ -31,7 +31,7 @@ public:
     FileNotifier(void); 
     ~FileNotifier(void);
 
-    void RegisterCallbacks(FileNotifierCallback *pfOnCreate, FileNotifierCallback *pfOnDelete);
+    void RegisterCallbacks(FileNotifierCallback pfOnCreate, FileNotifierCallback pfOnDelete);
     void Watch(string sDirectory);
 
     bool m_bCancelThread;
@@ -43,6 +43,9 @@ public:
         map<int, string>::iterator it = m_mapWatchedFiles.find(wd); 
         return it == m_mapWatchedFiles.end() ? NULL : (*it).second; 
     }
+
+	void FireOnCreate(list<string> &listFiles);
+	void FireOnDelete(list<string> &listFiles);
 };
 //-----------------------------------------------------------------------------------------------------
 #endif //__FILE_NOTIFIER_H__
