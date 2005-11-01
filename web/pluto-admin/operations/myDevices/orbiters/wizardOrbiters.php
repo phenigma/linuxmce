@@ -284,7 +284,7 @@ function wizardOrbiters($output,$dbADO) {
 				$updateOrbiters=true;
 				$ResetRouter=((int)@$_POST['reset_'.$value]==1)?' 24 1':'';
 				
-				$commandToSend='/usr/pluto/bin/MessageSend localhost -targetType template '.$value.' '.$GLOBALS['OrbiterPlugIn'].' 1 266 2 '.$value.' 21 "-r"'.$ResetRouter;
+				$commandToSend='/usr/pluto/bin/MessageSend localhost -targetType template '.$value.' '.$GLOBALS['OrbiterPlugIn'].' 1 266 2 '.$value.' 21 '.$ResetRouter;
 				exec($commandToSend,$tmp);
 				$regen='Q_'.$value;
 			}
