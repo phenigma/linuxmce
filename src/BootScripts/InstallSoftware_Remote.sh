@@ -22,13 +22,26 @@ Result=""
 if [ -n "$IsDeb" ]; then
 	[[ "$RepositoryName" != *" "* ]] && RepositoryName="$RepositoryName main contrib non-free"
 	if [[ -z "$NoAptSource" ]] && ! grep -qF "$RepositoryURL $RepositoryName" /etc/apt/sources.list; then
-		echo "$RepositoryURL $RepositoryName" >>/etc/apt/sources.list
+		echo "$RepositoryURL $RepositoryName" |tee "/etc/apt/sources.list.test"
+		if ! apt-get -o Dir::Etc::SourceList="/etc/apt/sources.list.test" --no-list-cleanup update &> >(tee -a /var/log/pluto/remote_install.newlog); then
+			Result="Installation failed (from Debian repository): Source failed the test."
+			rm "/etc/apt/sources.list.test"
+		fi
 	fi
-	apt-get update &> >(tee -a /var/log/pluto/remote_install.newlog)
-	apt-get -y install "$PackageName" &> >(tee -a /var/log/pluto/remote_install.newlog)
-	RetCode="$?"
 
-	[ "$RetCode" -ne 0 ] && Result="Installation failed (from Debian repository)"
+	if [[ -z "$Result" ]]; then
+		if [[ -f "/etc/apt/sources.list.test" ]]; then
+			cat "/etc/apt/sources.list.test" >>/etc/apt/sources.list
+			rm "/etc/apt/sources.list.test"
+		fi
+		apt-get update &> >(tee -a /var/log/pluto/remote_install.newlog)
+		apt-get -y install "$PackageName" &> >(tee -a /var/log/pluto/remote_install.newlog)
+		RetCode="$?"
+
+		if [[ "$RetCode" != 0 ]]; then
+			Result="Installation failed (from Debian repository)"
+		fi
+	fi
 else
 	wget -P /tmp "$RepositoryURL/$PackageName" &> >(tee -a /var/log/pluto/remote_install.newlog)
 	if [ "$?" -eq 0 ]; then
