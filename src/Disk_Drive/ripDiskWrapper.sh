@@ -51,7 +51,35 @@ case $diskType in
 	;;
 	0|1|6|7|8)
 		Dir="$targetFileName"
-		command="nice -n 15 cdparanoia -e -d $sourceDevice \$Track - 2> >(/usr/pluto/bin/Paranoia_Progress.sh|/usr/pluto/bin/Pluto_Progress.sh $diskDriveDeviceID \"$Dir/\$FileName\") > >(flac -o \"$Dir/\$FileName.in-progress-flac\" -)"
+		case "$ripFormat" in
+			ogg)
+				FinalExt="ogg"
+				OutputFile=">(oggenc -Q -o \"$Dir/\$FileName.in-progress-$FinalExt\" -)" # encoder
+			;;
+			
+			flac)
+				FinalExt="flac"
+				OutputFile=">(flac -o \"$Dir/\$FileName.in-progress-$FinalExt\" -)" # encoder
+			;;
+			
+			wav)
+				FinalExt="wav"
+				OutputFile="\"$Dir/\$FileName.in-progress-$FinalExt\"" # bare file
+			;;
+			
+			mp3)
+				FinalExt="mp3"
+				echo "Not implemented: mp3"
+				exit 1
+			;;
+			
+			*)
+				echo "Unknown method: $ripFormat"
+				exit 1
+			;;
+		esac
+		ProgressOutput=">(/usr/pluto/bin/Paranoia_Progress.sh|/usr/pluto/bin/Pluto_Progress.sh $diskDriveDeviceID \"$Dir/\$FileName\")"
+		command="nice -n 15 cdparanoia -e -d $sourceDevice \$Track - 2> $ProgressOutput > $OutputFile"
 	;;
 	*)	result=$ERR_NOT_SUPPORTED_YET;;
 esac
@@ -86,10 +114,11 @@ elif [[ "$diskType" == 0 || "$diskType" == 1 || "$diskType" == 6 || "$diskType" 
 		echo "Executing: $(eval echo "\"$displaycmd\"")"
 		if ! eval "$command"; then
 			echo "Ripping failed"
+			rm "$Dir/$Filename.in-progress-$FinalExt"
 			exit 1;
 		fi
-		echo "First file ripped ok moving: $Dir/$FileName.in-progress-flac"
-		mv "$Dir/$FileName.in-progress-flac" "$Dir/$FileName.flac"
+		echo "File ripped ok; moving: $Dir/$FileName.in-progress-$FinalExt"
+		mv "$Dir/$FileName."{in-progress-,}"$FinalExt"
 	done
 	echo "Ripping successful"
 	exit 0;
