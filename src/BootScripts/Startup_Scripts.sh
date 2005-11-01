@@ -3,6 +3,8 @@
 . /usr/pluto/bin/pluto.func
 . /usr/pluto/bin/SQL_Ops.sh
 
+setterm -blank # disable console blanking (hopefully)
+
 Parameter="$1"; shift
 Device="$PK_Device"
 
