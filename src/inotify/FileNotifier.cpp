@@ -70,8 +70,11 @@ void *WorkerThread(void *p)
 
 		g_pPlutoLogger->Write(LV_STATUS, "We got something: mask %d, name %s, wd %d, tostring %s",
 			event.mask, event.name.c_str(), event.wd, event.tostring().c_str());
+
+		bool bCreateEvent = event.mask & IN_CREATE || event.mask & IN_MOVED_TO;
+		bool bDeleteEvent = event.mask & IN_DELETE || event.mask & IN_MOVED_FROM;
 		
-		if(event.mask & IN_CREATE || event.mask & IN_MOVED_TO)
+		if(bCreateEvent || bDeleteEvent)
         {
             PLUTO_SAFETY_LOCK(wfm, pFileNotifier->m_WatchedFilesMutex);
             string sFilename = pFileNotifier->m_mapWatchedFiles_Find(event.wd) + "/" + event.name;
@@ -82,13 +85,19 @@ void *WorkerThread(void *p)
 
             if(bIsDir)
 			{
-				pFileNotifier->Watch(sFilename);
+				if(bCreateEvent)
+					pFileNotifier->Watch(sFilename);
+
 			    FileUtils::FindDirectories(listFiles, sFilename,true,false,0,sFilename + "/");
 				FileUtils::FindFiles(listFiles, sFilename,"",true,false,0,sFilename + "/");
 			}
 			
 			listFiles.push_back(sFilename);
-			pFileNotifier->FireOnCreate(listFiles);
+
+			if(bCreateEvent)
+				pFileNotifier->FireOnCreate(listFiles);
+			else
+				pFileNotifier->FireOnDelete(listFiles);
 
         }
     }
@@ -117,8 +126,8 @@ void FileNotifier::FireOnCreate(list<string> &listFiles)
 //-----------------------------------------------------------------------------------------------------
 void FileNotifier::FireOnDelete(list<string> &listFiles)
 {
-	//if(m_bCallbacksRegistered && m_pfOnDelete)
-	//	((FileNotifierCallback *)m_pfOnDelete)(listFiles);
+	if(m_bCallbacksRegistered && m_pfOnDelete)
+		m_pfOnDelete(listFiles);
 }
 //-----------------------------------------------------------------------------------------------------
 
