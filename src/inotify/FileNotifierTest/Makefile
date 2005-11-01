@@ -9,7 +9,7 @@ MYNAME = FileNotifierTest
 VERSION = 2.0.0
 MYDEVTEMPLATEID = 8mplateID
 
-sources = FileNotifierTest.cpp FileNotifier.cpp ../inotify_class.cpp
+sources = FileNotifierTest.cpp ../FileNotifier.cpp ../inotify_class.cpp
 
 CXXFLAGS += -g -O0
 CPPFLAGS += 

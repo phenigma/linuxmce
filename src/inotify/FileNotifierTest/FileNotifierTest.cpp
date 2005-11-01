@@ -1,5 +1,5 @@
 #include "DCE/Logger.h"
-#include "FileNotifier.h"
+#include "inotify/FileNotifier.h"
 
 namespace DCE
 {
