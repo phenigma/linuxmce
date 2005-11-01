@@ -961,13 +961,17 @@ std::string gc100::read_from_gc100()
 {
 	std::string return_value;
 	return_value = "";
+	
 
 //	PLUTO_SAFETY_LOCK(sl, gc100_mutex);
 	while (1)
 	{
 		pthread_testcancel();
 		if (recv(gc100_socket, &recv_buffer[recv_pos], 1, 0) <= 0)
+		{
+			return_value = "error";
 			break;
+		}
 		pthread_testcancel();
 		if (recv_buffer[recv_pos] == '\r')
 		{
@@ -1624,7 +1628,11 @@ void gc100::EventThread()
 	{
 		Sleep(50);
 		g_pPlutoLogger->Write(LV_STATUS,"EventThread");
-		read_from_gc100();
+		if(read_from_gc100() == "error")
+		{
+			close(gc100_socket);
+			Open_gc100_Socket();
+		}
 	}
 }
 
