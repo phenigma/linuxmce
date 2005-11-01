@@ -47,7 +47,7 @@ void FileNotifier::Watch(string sDirectory)
 		{
 			int wd = m_inotify.watch(*it, IN_ALL_EVENTS);
 
-			g_pPlutoLogger->Write(LV_STATUS, "Adding file to watch map: filename %s", sItem.c_str());
+			//g_pPlutoLogger->Write(LV_STATUS, "Adding file to watch map: filename %s", sItem.c_str());
 			m_mapWatchedFiles[wd] = *it; 
 		}
 		catch(...)
@@ -68,8 +68,8 @@ void *WorkerThread(void *p)
 		
         cpp_inotify_event event = pFileNotifier->m_inotify.get_event();
 
-		g_pPlutoLogger->Write(LV_STATUS, "We got something: mask %d, name %s, wd %d, tostring %s",
-			event.mask, event.name.c_str(), event.wd, event.tostring().c_str());
+		//g_pPlutoLogger->Write(LV_STATUS, "We got something: mask %d, name %s, wd %d, tostring %s",
+		//	event.mask, event.name.c_str(), event.wd, event.tostring().c_str());
 
 		bool bCreateEvent = event.mask & IN_CREATE || event.mask & IN_MOVED_TO;
 		bool bDeleteEvent = event.mask & IN_DELETE || event.mask & IN_MOVED_FROM;
@@ -88,8 +88,8 @@ void *WorkerThread(void *p)
 				if(bCreateEvent)
 					pFileNotifier->Watch(sFilename);
 
-			    FileUtils::FindDirectories(listFiles, sFilename,true,false,0,sFilename + "/");
-				FileUtils::FindFiles(listFiles, sFilename,"",true,false,0,sFilename + "/");
+			    //FileUtils::FindDirectories(listFiles, sFilename,true,false,0,sFilename + "/");
+				//FileUtils::FindFiles(listFiles, sFilename,"",true,false,0,sFilename + "/");
 			}
 			
 			listFiles.push_back(sFilename);
@@ -130,5 +130,9 @@ void FileNotifier::FireOnDelete(list<string> &listFiles)
 		m_pfOnDelete(listFiles);
 }
 //-----------------------------------------------------------------------------------------------------
-
-
+void FileNotifier::Run()
+{
+	//let the thread to its work
+	pthread_join(m_WorkerThreadID, NULL);
+}
+//-----------------------------------------------------------------------------------------------------

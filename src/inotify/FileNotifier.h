@@ -33,6 +33,7 @@ public:
 
     void RegisterCallbacks(FileNotifierCallback pfOnCreate, FileNotifierCallback pfOnDelete);
     void Watch(string sDirectory);
+	void Run();
 
     bool m_bCancelThread;
     inotify m_inotify;

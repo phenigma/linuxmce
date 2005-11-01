@@ -12,7 +12,7 @@ void OnCreateFiles(list<string> &listFiles)
 	for(list<string>::iterator it = listFiles.begin(); it != listFiles.end(); it++)
 	{
 		string sItem = *it;
-		g_pPlutoLogger->Write(LV_WARNING, "File/folder created: %s", sItem.c_str());	
+		g_pPlutoLogger->Write(LV_STATUS, "File/folder created: %s", sItem.c_str());	
 	}
 }
 
@@ -21,7 +21,7 @@ void OnDeleteFiles(list<string> &listFiles)
     for(list<string>::iterator it = listFiles.begin(); it != listFiles.end(); it++)
     {
         string sItem = *it;
-        g_pPlutoLogger->Write(LV_CRITICAL, "File/folder deleted: %s", sItem.c_str());
+        g_pPlutoLogger->Write(LV_STATUS, "File/folder deleted: %s", sItem.c_str());
     }
 }
 
@@ -33,11 +33,12 @@ int main(int argc, char* argv[])
   FileNotifier fileNotifier;
   fileNotifier.RegisterCallbacks(OnCreateFiles, OnDeleteFiles);
   fileNotifier.Watch("/home/Chris/Test");
+  fileNotifier.Run();
 
-  while(1) //wait forever here. it's just a test.
-  {
-      Sleep(1000);
-  }
+//  while(1) //wait forever here. it's just a test.
+//  {
+//      Sleep(1000);
+//  }
 
   delete g_pPlutoLogger;
 
