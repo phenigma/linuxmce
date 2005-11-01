@@ -4,6 +4,10 @@
 
 Param="$1"
 
+Filename="${PK_Installation}_${PK_Device}_$(date +%F_%H-%M-%S)"
+Critical="/var/log/pluto/critical"
+Output="/var/log/pluto/archive"
+
 UploadLogs()
 {
 	local ok
@@ -24,7 +28,7 @@ UploadLogs()
 
 ArchiveCoreDumps()
 {
-	tar -czf "$Output/$Filename.critical.tar.gz" "$Critical" /usr/pluto/coredump/archive 2>/dev/null
+	nice -n 20 tar -czf "$Output/$Filename.critical.tar.gz" "$Critical" /usr/pluto/coredump/archive 2>/dev/null
 	rm -rf /usr/pluto/coredump/archive
 	rm -rf "$Critical"
 
@@ -36,15 +40,11 @@ ArchiveCoreDumps()
 
 ArchiveLogs()
 {
-	tar -czf "$Output/log-$Filename.tar.gz" /var/log/pluto/log.archive/ 2>/dev/null
+	nice -n 20 tar -czf "$Output/log-$Filename.tar.gz" /var/log/pluto/log.archive/ 2>/dev/null
 	rm -rf /var/log/pluto/log.archive
 
-	find "$Output" -mtime +5 -exec rm -f '{}' ';'
+	find /var/log/pluto/ -mtime +5 -exec rm -f '{}' ';'
 }
-
-Filename="${PK_Installation}_${PK_Device}_$(date +%F_%H-%M-%S)"
-Critical="/var/log/pluto/critical"
-Output="/var/log/pluto/archive"
 
 mkdir -p "$Output"
 mkdir -p "$Critical"
