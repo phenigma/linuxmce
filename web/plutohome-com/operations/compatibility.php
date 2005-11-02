@@ -53,7 +53,6 @@ $out.=<<<TEXT
         <p><strong>Surveillance cameras: </strong><br>
           Panasonic IP Cameras<br>
           Dlink IP Camera<br>
-          Veo Observer,<br>
         Axis IP Camera</p>
         <p><strong>Pool: </strong><br>
           Jandy Aqualink</p>
