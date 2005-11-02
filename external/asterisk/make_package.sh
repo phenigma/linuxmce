@@ -18,6 +18,12 @@ do
 	tar -xzf $I
 done 
 
+chmod u+w -R ${SRCFOLDER}/bristuff-*
+
+#APPLY FLORZ PATCHES
+cd ${SRCFOLDER}/bristuff-*
+patch -p1 < ${TGZFOLDER}/zaphfc_0.2.0-RC8o_florz-9.diff.gz
+
 #APPLY BRISTUFF PATCHES
 cd ${SRCFOLDER}/zaptel-*
 echo "Apply patches in `pwd`"
@@ -30,8 +36,6 @@ patch -p1 < ${SRCFOLDER}/bristuff-*/patches/libpri.patch
 cd ${SRCFOLDER}/asterisk-[0-9]*
 echo "Apply patches in `pwd`"
 patch -p1 < ${SRCFOLDER}/bristuff-*/patches/asterisk.patch
-
-chmod u+w -R ${SRCFOLDER}/bristuff-*
 
 #START COMPILING
 
@@ -71,6 +75,17 @@ cd zaphfc
 sed -r -i "s/^(BRISTUFFBASE.*)$/\1\/..\//" Makefile
 make clean all
 make INSTALL_PREFIX=${PKGFOLDER} install
+
+cd ${SRCFOLDER}/spandsp-*/asterisk-*/
+mv * ../../asterisk/apps/
+cd ${SRCFOLDER}/asterisk-[0-9]*/apps/
+patch < apps_makefile.patch
+
+cd ${SRCFOLDER}/spandsp-*/
+./configure --prefix=/usr/
+make clean
+make all
+make DESTDIR=${PKGFOLDER} install
 
 cd ${SRCFOLDER}/asterisk-[0-9]*/
 make clean
