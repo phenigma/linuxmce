@@ -28,7 +28,7 @@ using namespace DCE;
 #define CM11A_ERROR_SLEEP			5100
 #define CM11A_NOREQUES_SLEEP		100 
 
-#define CM11A_SEND_RETRY			10 
+#define CM11A_SEND_RETRY			5
 #define CM11A_READ_TIMEOUT			15000 
 
 #define CM11A_MAX_DIM_LEVEL			22
@@ -69,25 +69,29 @@ DevicePoll::SendPacket(CSerialPort* pport,
 	unsigned char chksum = (sendbuff[0] + sendbuff[1]) & 0xff, 
 					resp = (unsigned char)-1;
 	
-	bool need_resend=true;
-	while(need_resend)
-	{
-		need_resend=false;
-		g_pPlutoLogger->Write(LV_STATUS, "Sending header with Checksum: %x.", chksum);
-		pport->Write((char*)sendbuff, sizeof(sendbuff) / sizeof(unsigned char));
+	g_pPlutoLogger->Write(LV_STATUS, "Sending header with Checksum: %x.", chksum);
+	pport->Write((char*)sendbuff, sizeof(sendbuff) / sizeof(unsigned char));
 
-		if(pport->Read((char*)&resp, 1, CM11A_READ_TIMEOUT) == 0) {
-			g_pPlutoLogger->Write(LV_STATUS, "No response from CM11A device.");
+	if(pport->Read((char*)&resp, 1, CM11A_READ_TIMEOUT) == 0)
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "No response from CM11A device.");
+		return -1;
+	}
+	else
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Got response: %x from CM11A.", resp);
+		if(resp == CM11A_CLOCK_REQ)
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "CM11A requested clock SET UP", resp);
+			SendClock(pport);
 			return -1;
-		} else {
-			g_pPlutoLogger->Write(LV_STATUS, "Got response: %x from CM11A.", resp);
-			if(resp == CM11A_CLOCK_REQ) {
-				g_pPlutoLogger->Write(LV_STATUS, "CM11A requested clock SET UP", resp);
-				SendClock(pport);
-				return -1;
-			} else if(resp != chksum) {
+		}
+		else
+		{ 
+			if(resp != chksum)
+			{
 				g_pPlutoLogger->Write(LV_CRITICAL, "Bad checksum received (send:%x, recieved:%x).", chksum, resp);
-				need_resend=true;
+				return -1;
 			}
 		}
 	}
@@ -166,10 +170,7 @@ void* DevicePoll::_Run() {
 
 	for(unsigned int kn=0; kn< kids.size(); kn ++)
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Kid number %d",kn);
-		g_pPlutoLogger->Write(LV_STATUS, "     DEVID %d",kids[kn]->m_dwPK_Device);
-		g_pPlutoLogger->Write(LV_STATUS, "     CATEG %d",kids[kn]->m_dwPK_DeviceCategory);
-		g_pPlutoLogger->Write(LV_STATUS, "     X10ID %s",kids[kn]->m_mapParameters[12].c_str());
+		g_pPlutoLogger->Write(LV_STATUS, "Child device: #%d(%s)   Category:%d",kids[kn]->m_dwPK_Device,kids[kn]->m_mapParameters[12].c_str(),kids[kn]->m_dwPK_DeviceCategory);
 		inverse_device_map[kids[kn]->m_mapParameters[12]]=kn;
 	}
 	
