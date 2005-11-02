@@ -77,6 +77,7 @@ bool TranslateVirtualKeys2PlutoKeys(UINT uMsg, WPARAM wParam, LPARAM lParam,
         case VK_RIGHT:  iPK_Button = BUTTON_Right_Arrow_CONST;   break;
         case VK_RETURN: iPK_Button = BUTTON_Enter_CONST;         break;
 		case VK_BACK:   iPK_Button = BUTTON_Back_CONST;          break;
+        case VK_SHIFT:  iPK_Button = BUTTON_left_shift_CONST;    break;
     }
 
     if( bShiftDown && !bControlDown && !bAltDown )

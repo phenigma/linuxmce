@@ -225,6 +225,7 @@ protected:
     int m_iVideoFrameInterval; /** < The interval between two frame requested from the router */
 
     bool m_bShiftDown;
+    bool m_bShiftDownOnScreenKeyboard;
     bool m_bControlDown;
     bool m_bAltDown;
     bool m_bCapsLock;

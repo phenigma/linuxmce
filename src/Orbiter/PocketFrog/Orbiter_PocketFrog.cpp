@@ -287,6 +287,9 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
 #endif
     }
 
+    if(wParam == VK_SHIFT)
+        m_bShiftDownOnScreenKeyboard = false;
+
     Orbiter::ProcessEvent(orbiterEvent);
 }
 //-----------------------------------------------------------------------------------------------------

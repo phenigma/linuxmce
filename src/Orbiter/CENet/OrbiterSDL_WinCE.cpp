@@ -445,6 +445,9 @@ void OrbiterSDL_WinCE::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam)
         m_bControlDown = false;
     }
 
+    if(wParam == VK_SHIFT)
+        m_bShiftDownOnScreenKeyboard = false;
+
     Orbiter::ProcessEvent(orbiterEvent);
 }
 //-----------------------------------------------------------------------------------------------------

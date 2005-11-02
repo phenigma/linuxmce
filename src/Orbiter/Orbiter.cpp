@@ -3737,6 +3737,19 @@ bool Orbiter::ButtonDown( int iPK_Button )
     }
 
     //this is not a repeated button
+    if(iPK_Button == BUTTON_left_shift_CONST || iPK_Button == BUTTON_right_shift_CONST)
+    {
+        m_bShiftDown = true; //different logic with the on screen keyboard
+        g_pPlutoLogger->Write(LV_CRITICAL, "Button Down - shift");
+    }
+    else if(iPK_Button == BUTTON_caps_lock_CONST)
+        m_bCapsLock = !m_bCapsLock;
+    else
+    {
+        g_pPlutoLogger->Write(LV_CRITICAL, "Button Down - key");
+    }
+
+    //this is not a repeated button
     //it will be handled in ButtonUp
     gettimeofday(&m_tButtonDown,NULL);
     return false;
@@ -3752,12 +3765,6 @@ bool Orbiter::ButtonUp( int iPK_Button )
 		else
 			QueueMessageToRouter(new Message(pMessage));
 	}
-
-    //this is not a repeated button
-    if(iPK_Button == BUTTON_left_shift_CONST || iPK_Button == BUTTON_right_shift_CONST)
-        m_bShiftDown = !m_bShiftDown; //different logic with the on screen keyboard
-    else if(iPK_Button == BUTTON_caps_lock_CONST)
-        m_bCapsLock = !m_bCapsLock;
 
     if( m_bForward_local_kb_to_OSD && m_pLocationInfo && m_pLocationInfo->m_dwPK_Device_Orbiter )
     {
@@ -3831,7 +3838,28 @@ g_pPlutoLogger->Write(LV_STATUS, "Long key %d", iPK_Button);
 else
 g_pPlutoLogger->Write(LV_STATUS, "Short key %d", iPK_Button);
 #endif        
-    return HandleButtonEvent(iPK_Button);
+    bool bResult = HandleButtonEvent(iPK_Button);
+
+    if(iPK_Button != BUTTON_left_shift_CONST && iPK_Button != BUTTON_right_shift_CONST)
+    {
+        if(m_bShiftDown && m_bShiftDownOnScreenKeyboard)
+            m_bShiftDown = false;
+
+        g_pPlutoLogger->Write(LV_CRITICAL, "Button up - key");
+    }
+    else
+    {
+        if(m_bShiftDown && !m_bShiftDownOnScreenKeyboard)
+            m_bShiftDown = false;
+
+        g_pPlutoLogger->Write(LV_CRITICAL, "Button up - shift");
+    }
+
+    if(!m_bShiftDown)
+        m_bShiftDownOnScreenKeyboard = true;
+
+    return bResult;
+
 }
 
 /*virtual*/ void Orbiter::StopRepeatRelatedEvents()

@@ -666,7 +666,9 @@ void Command_Impl::QueueMessageToRouter( Message *pMessage )
 {
 	if( m_bLocalMode )
 	{
+#ifndef WINCE
 		cout << pMessage->ToString() << endl;
+#endif
 		return;
 	}
 
@@ -727,7 +729,9 @@ g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand queue conf %d resp %p",iCon
 #endif
 		if( m_bLocalMode )
 		{
+#ifndef WINCE
 			cout << pPreformedCommand.m_pMessage->ToString() << endl;
+#endif
 			return true; // If it's just a test, local mode without a router
 		}
 
@@ -751,10 +755,12 @@ g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand confirmation conf %d resp %
 		
 		if( m_bLocalMode )
 		{
+#ifndef WINCE
 			cout << pPreformedCommand.m_pMessage->ToString() << endl;
 			cout << "ENTER REQUIRED STRING RESPONSE: ";
 			cin >> sResponse;
 			cout << endl;
+#endif
 			bResult=true;
 		}
 		else
@@ -783,8 +789,10 @@ g_pPlutoLogger->Write(LV_STATUS,"InternalSendCommand out parm conf %d resp %p",i
 
 	if( m_bLocalMode )
 	{
+#ifndef WINCE
 		cout << pPreformedCommand.m_pMessage->ToString() << endl;
 		cout << "ENTER REQUIRED RESPONSE MESSAGE: ";
+#endif
 		pResponse = GetLocalModeResponse();
 	}
 	else
@@ -1039,6 +1047,7 @@ bool Command_Impl::GetChildDeviceData( int PK_Device, int PK_DeviceData, string 
 
 void Command_Impl::RunLocalMode()
 {
+#ifndef WINCE
 	while(true)
 	{
 		cout << "Enter incoming message or QUIT: ";
@@ -1057,6 +1066,7 @@ void Command_Impl::RunLocalMode()
 		Message *pMessage = new Message(sMessage);
 		ReceivedMessage(pMessage);
 	}
+#endif
 }
 
 Message *Command_Impl::GetLocalModeResponse()
