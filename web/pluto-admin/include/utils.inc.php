@@ -34,6 +34,15 @@ function print_array($arr)
 	print '</pre>';
 }
 
+function array_concat($arr1,$arr2){
+	$result=$arr1;
+	foreach ($arr2 AS $val){
+		$result[]=$val;
+	}
+	
+	return $result;
+}
+
 //---------------------------------------------------------------------------------------
 //customized data format
 //---------------------------------------------------------------------------------------
@@ -2403,7 +2412,7 @@ function controlledViaPullDown($pulldownName,$deviceID,$dtID,$deviceCategory,$co
 {
 	//$optionsArray=getControlledViaDeviceTemplates($deviceID,$dtID,$deviceCategory,$dbADO);
 	$optionsArray=getParentsForControlledVia($deviceID,$dbADO);
-	
+
 	$selectOptions='';
 	foreach ($optionsArray AS $key=>$value){
 		$selectOptions.='<option value="'.$key.'" '.(($key==$controlledVia)?'selected':'').'>'.$value.'</option>';
@@ -2815,7 +2824,8 @@ function processRemotes($dbADO)
 	unset($_SESSION['from']);
 	$deviceTemplate=(int)@$_REQUEST['deviceTemplate'];
 	if($deviceTemplate!=0 && $mdID!=0){
-		$insertID=exec('sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID.' -C '.$mdID,$ret);
+		$cmd='sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID.' -C '.$mdID;
+		$insertID=exec($cmd,$ret);
 		setDCERouterNeedConfigure($_SESSION['installationID'],$dbADO);
 		$commandToSend='/usr/pluto/bin/UpdateEntArea -h localhost';
 		exec($commandToSend);
@@ -3792,7 +3802,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 		</form>
 		';
 	}elseif($actionX=='del'){
-		deleteDeviceCategory($selectedDevice,$dbADO);
+		deleteDC($selectedDevice,$dbADO);
 		$out.="
 			<script>
 				self.location='$redirectUrl&manufacturers=$selectedManufacturer&deviceCategSelected=$selectedDeviceCateg&deviceSelected=$selectedDevice&model=$selectedModel&allowAdd=$boolDeviceTemplate&msg=Device category deleted.';
@@ -4238,10 +4248,9 @@ function getParentsForControlledVia($deviceID,$dbADO)
 			$categoriesChilds = array();
 			if ($resSelectControlledViaCategory) {
 				while ($rowSelectControlledVia = $resSelectControlledViaCategory->FetchRow()) {
-					$categoriesChilds+=getDescendantsForCategory($rowSelectControlledVia['FK_DeviceCategory'],$dbADO);
+					$categoriesChilds=array_concat($categoriesChilds,getDescendantsForCategory($rowSelectControlledVia['FK_DeviceCategory'],$dbADO));
 				}
 			}
-
 			$querySelectControlledViaDeviceTemplate ='SELECT  FK_DeviceTemplate_ControlledVia FROM DeviceTemplate_DeviceTemplate_ControlledVia WHERE FK_DeviceTemplate = ?';
 			$resSelectControlledViaDeviceTemplate= $dbADO->Execute($querySelectControlledViaDeviceTemplate,array($dtID));
 
@@ -4251,7 +4260,6 @@ function getParentsForControlledVia($deviceID,$dbADO)
 					$childsDeviceTemplateArray[]=$rowSelectControlledVia['FK_DeviceTemplate_ControlledVia'];
 				}
 			}
-
 
 
 			if (count($categoriesChilds)>0) {
@@ -4275,8 +4283,9 @@ function getParentsForControlledVia($deviceID,$dbADO)
 		INNER JOIN DeviceTemplate ON FK_DeviceTemplate = PK_DeviceTemplate
 		LEFT JOIN Room ON FK_Room=PK_Room
 		WHERE Device.FK_Installation=? $whereClause order by Device.Description asc";
-//	$dbADO->debug=true;
+
 	$resDeviceTemplate = $dbADO->Execute($queryDeviceTemplate,$installationID);
+	$dbADO->debug=false;
 	$optionsArray=array();
 	$optionsArrayLowerCase=array();
 	if($resDeviceTemplate) {
@@ -4367,8 +4376,7 @@ function getDescendantsForCategory($categoryID,$dbADO)
 			$childsDC[]=$row['PK_DeviceCategory'];
 		}
 	}
-	
-	
+
 	return $childsDC;
 }
 
@@ -4470,5 +4478,61 @@ function isPhone($deviceTemplate,$dbADO){
 		return false;
 	}
 	
+}
+
+function createEventHandler($description,$eventID,$installationID,$dbADO,$cannedEvent=0){
+
+	$insertCriteriaParmNesting='INSERT INTO CriteriaParmNesting (IsAnd,IsNot) VALUES (1,0)';
+	$dbADO->Execute($insertCriteriaParmNesting);
+	$insertID=$dbADO->Insert_ID();
+		
+	$insertCriteria='INSERT INTO Criteria(FK_CriteriaParmNesting,FK_CriteriaList,Description,FK_Installation) VALUES (?,?,?,?)';
+	$dbADO->Execute($insertCriteria,array($insertID,$GLOBALS['EventCriteriaList'],'event',$installationID));
+	$criteriaID=$dbADO->Insert_ID();
+		
+	$insertCommandGroup='
+		INSERT INTO CommandGroup 
+			(FK_Array,FK_Installation,Description,CanTurnOff,AlwaysShow,CanBeHidden,FK_Template)
+		VALUES
+			(?,?,?,?,?,?,?)';
+	$dbADO->Execute($insertCommandGroup,array($GLOBALS['EventsHandlerArray'],$installationID,'Event ActionGroup',0,0,0,$GLOBALS['EventsHandlerTemplate']));
+	$cgID=$dbADO->Insert_ID();
+
+	if($cannedEvent!=0){
+		$insertEventHandler="
+			INSERT INTO EventHandler 
+				(Description, FK_Criteria, FK_Installation, FK_CommandGroup,FK_CannedEvents,FK_Event)
+			SELECT '$description',$criteriaID,$installationID,$cgID,$cannedEvent,FK_Event FROM CannedEvents WHERE PK_CannedEvents=?";
+		$dbADO->Execute($insertEventHandler,$cannedEvent);
+	}else{
+		$insertEventHandler="
+			INSERT INTO EventHandler 
+				(Description, FK_Criteria, FK_Installation, FK_CommandGroup,FK_CannedEvents,FK_Event)
+			VALUES
+				(?,?,?,?,?,?)";
+		$dbADO->Execute($insertEventHandler,array($description,$criteriaID,$installationID,$cgID,NULL,$eventID));
+	}
+	
+	$ehID=$dbADO->Insert_ID();
+	
+	return $ehID;
+
+}
+
+function deleteDC($deviceCategory,$dbADO){
+	getDeviceCategoryChildsArray($deviceCategory,$dbADO);
+
+	$GLOBALS['childsDeviceCategoryArray']=array();
+	$GLOBALS['childsDeviceCategoryArray']=cleanArray($GLOBALS['childsDeviceCategoryArray']);
+	$GLOBALS['childsDeviceCategoryArray'][]=$deviceCategory;
+
+	if ((int)$deviceCategory!=0) {
+		$deleteObjFromDevice = 'DELETE FROM DeviceCategory WHERE PK_DeviceCategory IN ('.join(",",$GLOBALS['childsDeviceCategoryArray']).')';
+		$query = $dbADO->_Execute($deleteObjFromDevice);
+		
+		return true;
+	}
+	
+	return false;
 }
 ?>
