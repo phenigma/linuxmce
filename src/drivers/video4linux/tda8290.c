@@ -1,5 +1,5 @@
 /*
- * $Id: tda8290.c,v 1.17 2005/08/17 19:42:11 nsh Exp $
+ * $Id: tda8290.c,v 1.19 2005/09/29 18:20:25 nsh Exp $
  *
  * i2c tv tuner chip device driver
  * controls the philips tda8290+75 tuner chip combo.
@@ -92,6 +92,11 @@ static unsigned char i2c_cb1_50[2] =		{ 0x30, 0x50 };
 static unsigned char i2c_agc2_7F[2] =		{ 0x60, 0x7F };
 static unsigned char i2c_agc3_08[2] =		{ 0x80, 0x08 };
 
+/* FIXME: European PAL/SECAM should select 9MHz Lowpass Filter, while
+   NTSC/M and PAL/M should be using 7MHz filter, by selecting CB3 */
+static unsigned char i2c_cb3_9MHz[2] =          { 0xc0, 0x39 };
+static unsigned char i2c_cb3_7MHz[2] =          { 0xc0, 0x3B };
+
 static struct i2c_msg i2c_msg_init[] = {
 	{ I2C_ADDR_TDA8275, 0, ARRAY_SIZE(i2c_init_tda8275), i2c_init_tda8275 },
 	{ I2C_ADDR_TDA8290, 0, ARRAY_SIZE(i2c_disable_bridge), i2c_disable_bridge },
@@ -178,18 +183,25 @@ static void set_audio(struct tuner *t)
 {
 	t->i2c_easy_mode[0] = 0x01;
 
-	if (t->std & V4L2_STD_MN)
+	if (t->std & V4L2_STD_MN) {
+		t->sgIF = 736;
 		t->i2c_easy_mode[1] = 0x01;
-	else if (t->std & V4L2_STD_B)
+	} else if (t->std & V4L2_STD_B) {
+		t->sgIF = 864;
 		t->i2c_easy_mode[1] = 0x02;
-	else if (t->std & V4L2_STD_GH)
+	} else if (t->std & V4L2_STD_GH) {
+		t->sgIF = 992;
 		t->i2c_easy_mode[1] = 0x04;
-	else if (t->std & V4L2_STD_PAL_I)
+	} else if (t->std & V4L2_STD_PAL_I) {
+		t->sgIF = 992;
 		t->i2c_easy_mode[1] = 0x08;
-	else if (t->std & V4L2_STD_DK)
+	} else if (t->std & V4L2_STD_DK) {
+		t->sgIF = 992;
 		t->i2c_easy_mode[1] = 0x10;
-	else if (t->std & V4L2_STD_SECAM_L)
+	} else if (t->std & V4L2_STD_SECAM_L) {
+		t->sgIF = 992;
 		t->i2c_easy_mode[1] = 0x20;
+	}
 }
 
 static void set_tv_freq(struct i2c_client *c, unsigned int freq)
@@ -197,7 +209,7 @@ static void set_tv_freq(struct i2c_client *c, unsigned int freq)
 	struct tuner *t = i2c_get_clientdata(c);
 
 	set_audio(t);
-	set_frequency(t, 864, freq);
+	set_frequency(t, t->sgIF, freq);
 	tda8290_tune(c);
 }
 

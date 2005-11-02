@@ -20,13 +20,16 @@ bttv-objs	:= bttv-driver.o bttv-cards.o bttv-risc.o bttv-if.o \
 		   bttv-vbi.o bttv-i2c.o
 saa7134-objs    := saa7134-core.o saa7134-i2c.o saa7134-video.o \
 		   saa7134-vbi.o saa7134-tvaudio.o saa7134-oss.o \
-		   saa7134-cards.o saa7134-ts.o saa7134-input.o
+		   saa7134-cards.o saa7134-ts.o saa7134-input.o \
+		   saa7134-alsa.o
 cx88xx-objs     := cx88-cards.o cx88-core.o cx88-i2c.o cx88-tvaudio.o \
                    cx88-input.o
 cx8800-objs     := cx88-video.o cx88-vbi.o
 cx8802-objs     := cx88-mpeg.o
 tuner-objs	:= tuner-core.o tuner-simple.o mt20xx.o tda8290.o tea5767.o
 list-multi	:= bttv.o saa7134.o cx88xx.o cx8800.o cx88-alsa.o cx8802.o
+em2820-objs     := em2820-video.o em2820-i2c.o em2820-cards.o em2820-core.o
+
 
 # what to build
 obj-m				:= video-buf.o v4l1-compat.o v4l2-common.o
@@ -34,6 +37,8 @@ obj-$(CONFIG_VIDEO_BTTV)	+= btcx-risc.o ir-common.o bttv.o tveeprom.o
 obj-$(CONFIG_VIDEO_CX88)	+= btcx-risc.o cx88xx.o cx8800.o cx8802.o \
                                    cx88-blackbird.o tveeprom.o
 obj-$(CONFIG_VIDEO_CX88)	+= cx88-ivtv.o
+obj-$(CONFIG_TVP5150)           += tvp5150.o
+obj-$(CONFIG_EM2820)		+= em2820.o
 
 # THIS IS NOT FINISHED YET --- IT IS HERE ONLY FOR DEVELOPERS !!!!
 ifeq ($(CONFIG_VIDEO_ALSA),m)
@@ -46,8 +51,8 @@ obj-$(CONFIG_VIDEO_IR)		+= ir-common.o
 obj-$(CONFIG_VIDEO_TUNER)	+= tuner.o tda9887.o saa6588.o
 obj-$(CONFIG_VIDEO_TVAUDIO)	+= msp3400.o tvaudio.o tvmixer.o
 
-#obj-$(CONFIG_VIDEO_CX88_DVB)	+= video-buf-dvb.o cx88-dvb.o
-#obj-$(CONFIG_VIDEO_SAA7134_DVB) += video-buf-dvb.o saa7134-dvb.o
+obj-$(CONFIG_VIDEO_CX88_DVB)	+= video-buf-dvb.o cx88-dvb.o
+obj-$(CONFIG_VIDEO_SAA7134_DVB) += video-buf-dvb.o saa7134-dvb.o
 
 # 2.6-only stuff
 ifeq ($(VERSION).$(PATCHLEVEL),2.6)
@@ -124,6 +129,8 @@ KDIR		:= /lib/modules/$(KERNELRELEASE)/build
 PWD		:= $(shell pwd)
 DEST		:= /lib/modules/$(KERNELRELEASE)/$(MDIR)
 KDIR26		:= /lib/modules/$(KERNELRELEASE)/kernel/drivers/media
+KDIRUSB         := /lib/modules/$(KERNELRELEASE)/kernel/drivers/usb/media
+
 
 # which files to install?
 inst-m		:= $(wildcard *.ko)
@@ -136,10 +143,12 @@ inst_video := btcx-risc.ko bttv.ko tda9887.ko tuner.ko tvaudio.ko tveeprom.ko sa
 inst_video += tvmixer.ko v4l1-compat.ko v4l2-common.ko
 inst_video += video-buf.ko video-buf-dvb.ko
 inst_video += ir-kbd-gpio.ko ir-kbd-i2c.ko msp3400.ko
+inst_video += tvp5150.ko saa7113.ko
 inst_cx88 := cx8800.ko cx8802.ko cx88-alsa.ko 
 inst_cx88 += cx88-blackbird.ko cx88xx.ko cx88-dvb.ko
 inst_cx88 += cx88-ivtv.ko
 inst_saa7134 := saa6752hs.ko saa7134.ko saa7134-empress.ko saa7134-dvb.ko
+inst_usb := em2820.ko
 
 v4l_modules := $(shell lsmod|cut -d' ' -f1 ) $(patsubst %.ko,%,$(inst-m))
 
@@ -168,6 +177,9 @@ install:: rminstall
 	-install -d $(KDIR26)/video/saa7134
 	-install -m 644 -c $(inst_saa7134) $(KDIR26)/video/saa7134
 
+	-install -d $(KDIRUSB)
+	-install -m 644 -c $(inst_usb) $(KDIRUSB)/
+
 	/sbin/depmod -a
 
 v4l_install:: rminstall
@@ -189,11 +201,13 @@ rminstall::
 		$(addprefix $(KDIR26)/video/, $(inst_video)) \
 		$(addprefix $(KDIR26)/video/cx88/, $(inst_cx88)) \
 		$(addprefix $(KDIR26)/video/saa7134/, $(inst_saa7134)) \
+		$(addprefix $(KDIRUSB)/, $(inst_usb)) \
 		$(addprefix $(KDIR26)/common/, $(addsuffix .gz,$(inst_common))) \
 		$(addprefix $(KDIR26)/dvb/frontends/, $(addsuffix .gz,$(inst_frontends))) \
 		$(addprefix $(KDIR26)/video/, $(addsuffix .gz,$(inst_video))) \
 		$(addprefix $(KDIR26)/video/cx88/, $(addsuffix .gz,$(inst_cx88))) \
-		$(addprefix $(KDIR26)/video/saa7134/, $(addsuffix .gz,$(inst_saa7134))) 2>/dev/null
+		$(addprefix $(KDIR26)/video/saa7134/, $(addsuffix .gz,$(inst_saa7134))) 2>/dev/null \
+		$(addprefix $(KDIRUSB)/, $(addsuffix .gz,$(inst_usb))) 2>/dev/null
 	@echo
 
 rmmodules::

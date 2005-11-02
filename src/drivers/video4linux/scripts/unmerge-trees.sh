@@ -33,11 +33,16 @@ rm dst_ca.c
 rm dst_ca.h
 rm dst_common.h
 rm dst_priv.h
+rm dvbdev.h
+rm dmxdev.h
+rm dvb_demux.h
+rm dvb_net.h
+rm dvb_frontend.h
 patch -p1 <<'DIFF'
 diff -up video4linux/Make.config video4linux.orig/Make.config
---- video4linux/Make.config	2005-08-28 12:31:17.000000000 +0000
-+++ video4linux.orig/Make.config	2005-08-28 12:00:10.000000000 +0000
-@@ -14,7 +14,6 @@ CONFIG_VIDEO_ALSA	:= n
+--- video4linux/Make.config	2005-10-06 19:17:55.000000000 -0400
++++ video4linux.orig/Make.config	2005-10-06 16:03:26.000000000 -0400
+@@ -18,7 +18,6 @@ CONFIG_VIDEO_ALSA	:= n
  
  CONFIG_VIDEO_CX88_DVB	:= n
  CONFIG_VIDEO_SAA7134_DVB := n
@@ -45,7 +50,7 @@ diff -up video4linux/Make.config video4linux.orig/Make.config
  
  ifneq ($(KERNELRELEASE),)
  need_dvb = $(shell test $(SUBLEVEL) -ge 12 && echo yes)
-@@ -23,6 +22,5 @@ endif
+@@ -27,6 +26,5 @@ endif
  ifeq ($(need_dvb),yes)
   CONFIG_VIDEO_CX88_DVB	:= m
   CONFIG_VIDEO_SAA7134_DVB := m
@@ -53,9 +58,9 @@ diff -up video4linux/Make.config video4linux.orig/Make.config
  endif
  
 diff -up video4linux/Makefile video4linux.orig/Makefile
---- video4linux/Makefile	2005-08-28 15:52:54.000000000 +0000
-+++ video4linux.orig/Makefile	2005-08-28 15:42:01.000000000 +0000
-@@ -45,10 +45,8 @@ obj-$(CONFIG_VIDEO_IR)		+= ir-common.o
+--- video4linux/Makefile	2005-10-06 19:23:41.000000000 -0400
++++ video4linux.orig/Makefile	2005-10-06 16:03:26.000000000 -0400
+@@ -50,10 +50,8 @@ obj-$(CONFIG_VIDEO_IR)		+= ir-common.o
  obj-$(CONFIG_VIDEO_TUNER)	+= tuner.o tda9887.o saa6588.o
  obj-$(CONFIG_VIDEO_TVAUDIO)	+= msp3400.o tvaudio.o tvmixer.o
  
@@ -68,7 +73,7 @@ diff -up video4linux/Makefile video4linux.orig/Makefile
  
  # 2.6-only stuff
  ifeq ($(VERSION).$(PATCHLEVEL),2.6)
-@@ -62,7 +60,6 @@ ifeq ($(VERSION).$(PATCHLEVEL),2.6)
+@@ -67,7 +65,6 @@ ifeq ($(VERSION).$(PATCHLEVEL),2.6)
  endif
  
  # for DVB
@@ -76,17 +81,17 @@ diff -up video4linux/Makefile video4linux.orig/Makefile
  EXTRA_CFLAGS += -I$(srctree)/drivers/media/dvb/dvb-core/
  EXTRA_CFLAGS += -I$(srctree)/drivers/media/dvb/frontends/
  ifeq ($(CONFIG_VIDEO_CX88_DVB),m)
-@@ -141,9 +138,6 @@ inst_video += ir-kbd-gpio.ko ir-kbd-i2c.
- inst_cx88 := cx8800.ko cx8802.ko cx88-alsa.ko 
+@@ -150,9 +147,6 @@ inst_cx88 := cx8800.ko cx8802.ko cx88-al
  inst_cx88 += cx88-blackbird.ko cx88xx.ko cx88-dvb.ko
  inst_saa7134 := saa6752hs.ko saa7134.ko saa7134-empress.ko saa7134-dvb.ko
+ inst_usb := em2820.ko
 -inst_bt8xx := bt878.ko dvb-bt8xx.ko dst.ko dst_ca.ko
 -inst_frontends := cx22702.ko dvb-pll.ko lgdt330x.ko or51132.ko tda1004x.ko
 -inst_frontends += mt352.ko sp887x.ko nxt6000.ko cx24110.ko or51211.ko
  
  v4l_modules := $(shell lsmod|cut -d' ' -f1 ) $(patsubst %.ko,%,$(inst-m))
  
-@@ -163,12 +157,6 @@ install:: rminstall
+@@ -172,12 +166,6 @@ install:: rminstall
  	-install -d $(KDIR26)/common
  	-install -m 644 -c $(inst_common) $(KDIR26)/common
  
@@ -99,7 +104,7 @@ diff -up video4linux/Makefile video4linux.orig/Makefile
  	-install -d $(KDIR26)/video
  	-install -m 644 -c $(inst_video) $(KDIR26)/video
  
-@@ -196,13 +184,11 @@ rminstall::
+@@ -208,14 +196,12 @@ rminstall::
  	-@rm -r $(DEST) \
  		$(addprefix $(KDIR26)/common/, $(inst_common)) \
  		$(addprefix $(KDIR26)/dvb/frontends/, $(inst_frontends)) \
@@ -107,37 +112,10 @@ diff -up video4linux/Makefile video4linux.orig/Makefile
  		$(addprefix $(KDIR26)/video/, $(inst_video)) \
  		$(addprefix $(KDIR26)/video/cx88/, $(inst_cx88)) \
  		$(addprefix $(KDIR26)/video/saa7134/, $(inst_saa7134)) \
+ 		$(addprefix $(KDIRUSB)/, $(inst_usb)) \
  		$(addprefix $(KDIR26)/common/, $(addsuffix .gz,$(inst_common))) \
  		$(addprefix $(KDIR26)/dvb/frontends/, $(addsuffix .gz,$(inst_frontends))) \
 -		$(addprefix $(KDIR26)/dvb/bt8xx/, $(addsuffix .gz,$(inst_bt8xx))) \
  		$(addprefix $(KDIR26)/video/, $(addsuffix .gz,$(inst_video))) \
  		$(addprefix $(KDIR26)/video/cx88/, $(addsuffix .gz,$(inst_cx88))) \
- 		$(addprefix $(KDIR26)/video/saa7134/, $(addsuffix .gz,$(inst_saa7134))) 2>/dev/null
-diff -up video4linux/cx88-dvb.c video4linux.orig/cx88-dvb.c
---- video4linux/cx88-dvb.c	2005-08-17 00:49:02.000000000 +0000
-+++ video4linux.orig/cx88-dvb.c	2005-08-17 00:48:25.000000000 +0000
-@@ -31,6 +31,10 @@
- #include <linux/suspend.h>
- #include "compat.h"
- 
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,13)
-+#undef HAVE_LGDT330X
-+#endif
-+
- #include "cx88.h"
- #include "dvb-pll.h"
- 
-diff -up video4linux/saa7134-dvb.c video4linux.orig/saa7134-dvb.c
---- video4linux/saa7134-dvb.c	2005-08-17 00:49:02.000000000 +0000
-+++ video4linux.orig/saa7134-dvb.c	2005-08-17 00:48:25.000000000 +0000
-@@ -31,6 +31,10 @@
- #include <linux/suspend.h>
- #include "compat.h"
- 
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,13)
-+#undef HAVE_TDA1004X
-+#endif
-+
- #include "saa7134-reg.h"
- #include "saa7134.h"
- 
+ 		$(addprefix $(KDIR26)/video/saa7134/, $(addsuffix .gz,$(inst_saa7134))) 2>/dev/null \

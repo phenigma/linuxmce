@@ -1,5 +1,5 @@
 /*
- * $Id: tuner-core.c,v 1.69 2005/09/01 21:29:58 mkrufky Exp $
+ * $Id: tuner-core.c,v 1.73 2005/09/13 20:11:39 mkrufky Exp $
  *
  * i2c tv tuner chip device driver
  * core core, i.e. kernel interfaces, registering and so on
@@ -200,6 +200,13 @@ static void set_type(struct i2c_client *c, unsigned int type,
 		i2c_master_send(c, buffer, 4);
 		default_tuner_init(c);
 		break;
+	case TUNER_PHILIPS_TD1316:
+		buffer[0] = 0x0b;
+		buffer[1] = 0xdc;
+		buffer[2] = 0x86;
+		buffer[3] = 0xa4;
+		i2c_master_send(c,buffer,4);
+		default_tuner_init(c);
 	default:
 		default_tuner_init(c);
 		break;
@@ -699,7 +706,7 @@ static int tuner_command(struct i2c_client *client, unsigned int cmd, void *arg)
 			break;
 		}
 	default:
-		tuner_dbg("Unimplemented IOCTL 0x%08x(dir=%d,tp=0x%02x,nr=%d,sz=%d)\n",
+		tuner_dbg("Unimplemented IOCTL 0x%08x(dir=%d,tp='%c',nr=%d,sz=%d)\n",
 					 cmd, _IOC_DIR(cmd), _IOC_TYPE(cmd),
 					_IOC_NR(cmd), _IOC_SIZE(cmd));
 		break;
@@ -708,7 +715,7 @@ static int tuner_command(struct i2c_client *client, unsigned int cmd, void *arg)
 	return 0;
 }
 
-#ifdef MM_KERNEL
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,13)
 static int tuner_suspend(struct device *dev, pm_message_t state, u32 level)
 #else
 static int tuner_suspend(struct device *dev, u32 state, u32 level)
@@ -749,7 +756,7 @@ static struct i2c_driver driver = {
 		   },
 };
 static struct i2c_client client_template = {
-	I2C_DEVNAME("(tuner unset)"),
+	.name = "(tuner unset)",
 	.flags = I2C_CLIENT_ALLOW_USE,
 	.driver = &driver,
 };

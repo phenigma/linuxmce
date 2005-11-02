@@ -1,5 +1,5 @@
 /*
- * $Id: cx88-video.c,v 1.92 2005/09/06 21:58:43 catalin Exp $
+ * $Id: cx88-video.c,v 1.94 2005/09/14 23:42:53 nsh Exp $
  *
  * device driver for Conexant 2388x based TV cards
  * video4linux video interface
@@ -1028,7 +1028,7 @@ static int video_open(struct inode *inode, struct file *file)
 }
 
 static ssize_t
-video_read(struct file *file, char *data, size_t count, loff_t *ppos)
+video_read(struct file *file, char __user *data, size_t count, loff_t *ppos)
 {
 	struct cx8800_fh *fh = file->private_data;
 
@@ -1368,9 +1368,6 @@ static int video_do_ioctl(struct inode *inode, struct file *file,
 	struct cx8800_fh  *fh   = file->private_data;
 	struct cx8800_dev *dev  = fh->dev;
 	struct cx88_core  *core = dev->core;
-#if 0
-	unsigned long flags;
-#endif
 	int err;
 
 	if (video_debug > 1)
@@ -1508,18 +1505,11 @@ static int video_do_ioctl(struct inode *inode, struct file *file,
 int cx88_do_ioctl(struct inode *inode, struct file *file, int radio,
                   struct cx88_core *core, unsigned int cmd, void *arg, v4l2_kioctl driver_ioctl)
 {
-#if 0
-	unsigned long flags;
-#endif
 	int err;
 
+	dprintk( 1, "CORE IOCTL: 0x%x\n", cmd );
 	if (video_debug > 1)
 		cx88_print_ioctl(core->name,cmd);
-#if 0
-	printk( KERN_INFO "CORE IOCTL: 0x%x\n", cmd );
-	cx88_print_ioctl(core->name,cmd);
-#endif
-	dprintk( 1, "CORE IOCTL: 0x%x\n", cmd );
 
 	switch (cmd) {
 	/* ---------- tv norms ---------- */
@@ -2096,9 +2086,6 @@ static int __devinit cx8800_initdev(struct pci_dev *pci_dev,
 {
 	struct cx8800_dev *dev;
 	struct cx88_core *core;
-#if 0
-	struct tuner_setup tun_setup;
-#endif
 	int err;
 
 	dev = kmalloc(sizeof(*dev),GFP_KERNEL);

@@ -1,5 +1,5 @@
 /*
- * $Id: saa7134.h,v 1.53 2005/09/05 15:35:14 nsh Exp $
+ * $Id: saa7134.h,v 1.61 2005/10/08 09:20:24 nsh Exp $
  *
  * v4l2 device driver for philips saa7134 based TV cards
  *
@@ -55,6 +55,10 @@
 # define FALSE (1==0)
 #endif
 #define UNSET (-1U)
+
+#include <sound/driver.h>
+#include <sound/core.h>
+#include <sound/pcm.h>
 
 /* ----------------------------------------------------------- */
 /* enums                                                       */
@@ -199,9 +203,24 @@ struct saa7134_format {
 #define SAA7134_BOARD_KWORLD_TERMINATOR 65
 #define SAA7134_BOARD_YUAN_TUN900 66
 #define SAA7134_BOARD_BEHOLD_409FM 67
+#define SAA7134_BOARD_GOTVIEW_7135 68
+#define SAA7134_BOARD_PHILIPS_EUROPA  69
+#define SAA7134_BOARD_VIDEOMATE_DVBT_300 70
+#define SAA7134_BOARD_VIDEOMATE_DVBT_200 71
+#define SAA7134_BOARD_RTD_VFG7350 72
+#define SAA7134_BOARD_RTD_VFG7330 73
+#define SAA7134_BOARD_FLYTVPLATINUM_MINI2 74
 
 #define SAA7134_MAXBOARDS 8
 #define SAA7134_INPUT_MAX 8
+
+/* ----------------------------------------------------------- */
+/* Video Output Port Register Initialization Options           */
+
+#define SET_T_CODE_POLARITY_NON_INVERTED	(1 << 0)
+#define SET_CLOCK_NOT_DELAYED			(1 << 1)
+#define SET_CLOCK_INVERTED			(1 << 2)
+#define SET_VSYNC_OFF				(1 << 3)
 
 struct saa7134_input {
 	char                    *name;
@@ -238,6 +257,7 @@ struct saa7134_board {
 	/* peripheral I/O */
 	enum saa7134_video_out  video_out;
 	enum saa7134_mpeg_type  mpeg;
+	unsigned int            vid_port_opts;
 };
 
 #define card_has_radio(dev)   (NULL != saa7134_boards[dev->board].radio.name)
@@ -359,6 +379,7 @@ struct saa7134_oss {
 	unsigned int               dma_blk;
 	unsigned int               read_offset;
 	unsigned int               read_count;
+	snd_pcm_substream_t 	   *substream;
 };
 
 /* IR input */
@@ -433,7 +454,7 @@ struct saa7134_dev {
 	/* i2c i/o */
 	struct i2c_adapter         i2c_adap;
 	struct i2c_client          i2c_client;
-	unsigned char              eedata[64];
+	unsigned char              eedata[128];
 
 	/* video overlay */
 	struct v4l2_framebuffer    ovbuf;
@@ -638,6 +659,11 @@ void saa7134_irq_oss_done(struct saa7134_dev *dev, unsigned long status);
 int  saa7134_input_init1(struct saa7134_dev *dev);
 void saa7134_input_fini(struct saa7134_dev *dev);
 void saa7134_input_irq(struct saa7134_dev *dev);
+
+int alsa_card_saa7134_create(struct saa7134_dev *saadev, unsigned int devnum);
+void alsa_card_saa7134_exit(void);
+void saa7134_irq_alsa_done(struct saa7134_dev *dev, unsigned long status);
+
 
 /*
  * Local variables:

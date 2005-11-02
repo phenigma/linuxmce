@@ -1,5 +1,5 @@
 /*
-    $Id: bttv-driver.c,v 1.55 2005/08/30 15:01:48 mchehab Exp $
+    $Id: bttv-driver.c,v 1.60 2005/09/29 20:09:24 mchehab Exp $
 
     bttv - Bt848 frame grabber driver
 
@@ -36,6 +36,7 @@
 #include <linux/interrupt.h>
 #include <linux/kdev_t.h>
 #include <linux/dma-mapping.h>
+#include "compat.h"
 
 #include <asm/io.h>
 #include <asm/byteorder.h>
@@ -773,7 +774,7 @@ static void set_pll(struct bttv *btv)
                 /* no PLL needed */
                 if (btv->pll.pll_current == 0)
                         return;
-		vprintk(KERN_INFO "bttv%d: PLL can sleep, using XTAL (%d).\n",
+		verbose_printk(KERN_INFO "bttv%d: PLL can sleep, using XTAL (%d).\n",
 			btv->c.nr,btv->pll.pll_ifreq);
                 btwrite(0x00,BT848_TGCTRL);
                 btwrite(0x00,BT848_PLL_XCI);
@@ -781,13 +782,13 @@ static void set_pll(struct bttv *btv)
                 return;
         }
 
-	vprintk(KERN_INFO "bttv%d: PLL: %d => %d ",btv->c.nr,
+	verbose_printk(KERN_INFO "bttv%d: PLL: %d => %d ",btv->c.nr,
 		btv->pll.pll_ifreq, btv->pll.pll_ofreq);
 	set_pll_freq(btv, btv->pll.pll_ifreq, btv->pll.pll_ofreq);
 
         for (i=0; i<10; i++) {
 		/*  Let other people run while the PLL stabilizes */
-		vprintk(".");
+		verbose_printk(".");
 		msleep(10);
 
                 if (btread(BT848_DSTATUS) & BT848_DSTATUS_PLOCK) {
@@ -795,12 +796,12 @@ static void set_pll(struct bttv *btv)
                 } else {
                         btwrite(0x08,BT848_TGCTRL);
                         btv->pll.pll_current = btv->pll.pll_ofreq;
-			vprintk(" ok\n");
+			verbose_printk(" ok\n");
                         return;
                 }
         }
         btv->pll.pll_current = -1;
-	vprintk("failed\n");
+	verbose_printk("failed\n");
         return;
 }
 
@@ -979,7 +980,7 @@ i2c_vidiocschan(struct bttv *btv)
 	c.norm    = btv->tvnorm;
 	c.channel = btv->input;
 	bttv_call_i2c_clients(btv,VIDIOCSCHAN,&c);
-	if (btv->c.type == BTTV_VOODOOTV_FM)
+	if (btv->c.type == BTTV_BOARD_VOODOOTV_FM)
 		bttv_tda9880_setnorm(btv,c.norm);
 }
 
@@ -1003,11 +1004,11 @@ set_tvnorm(struct bttv *btv, unsigned int norm)
 	bt848A_set_timing(btv);
 
 	switch (btv->c.type) {
-	case BTTV_VOODOOTV_FM:
+	case BTTV_BOARD_VOODOOTV_FM:
 		bttv_tda9880_setnorm(btv,norm);
 		break;
 #if 0
-	case BTTV_OSPREY540:
+	case BTTV_BOARD_OSPREY540:
 		osprey_540_set_norm(btv,norm);
 		break;
 #endif
@@ -3917,18 +3918,17 @@ static int __devinit bttv_probe(struct pci_dev *dev,
 	btv->timeout.function = bttv_irq_timeout;
 	btv->timeout.data     = (unsigned long)btv;
 
-        btv->i2c_rc = -1;
-        btv->tuner_type  = UNSET;
-        btv->pinnacle_id = UNSET;
+	btv->i2c_rc = -1;
+	btv->tuner_type  = UNSET;
+	btv->pinnacle_id = UNSET;
 	btv->new_input   = UNSET;
-	btv->gpioirq     = 1;
 	btv->has_radio=radio[btv->c.nr];
 
 	/* pci stuff (init, get irq/mmio, ... */
 	btv->c.pci = dev;
-        btv->id  = dev->device;
+	btv->id  = dev->device;
 	if (pci_enable_device(dev)) {
-                printk(KERN_WARNING "bttv%d: Can't enable device.\n",
+		printk(KERN_WARNING "bttv%d: Can't enable device.\n",
 		       btv->c.nr);
 		return -EIO;
 	}
@@ -4113,7 +4113,7 @@ static int bttv_suspend(struct pci_dev *pci_dev, pm_message_t state)
 	struct bttv_buffer_set idle;
 	unsigned long flags;
 
-#ifdef MM_KERNEL
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,13)
 	dprintk("bttv%d: suspend %d\n", btv->c.nr, state.event);
 #else
 	dprintk("bttv%d: suspend %d\n", btv->c.nr, state);

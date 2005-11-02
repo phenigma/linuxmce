@@ -192,7 +192,8 @@ static struct tvnorm tvnorms[] = {
 		.name  = "SECAM-L",
 		.b     = ( cPositiveAmTV  |
 			   cQSS           ),
-		.e     = ( cAudioIF_6_5   |
+		.e     = ( cGating_36	  |
+			   cAudioIF_6_5   |
 			   cVideoIF_38_90 ),
 	},{
 		.std   = V4L2_STD_SECAM_DK,
@@ -341,7 +342,7 @@ static void dump_write_message(unsigned char *buf)
 	printk(PREFIX "write: byte E 0x%02x\n",buf[3]);
 	printk("  E0-1 sound carrier   : %s\n",
 	       carrier[(buf[3] & 0x03)]);
-	printk("  E6   l pll ganting   : %s\n",
+	printk("  E6   l pll gating   : %s\n",
 	       (buf[3] & 0x40) ? "36" : "13");
 
 	if (buf[1] & 0x08) {
@@ -664,9 +665,9 @@ static int tda9887_probe(struct i2c_adapter *adap)
 		return i2c_probe(adap, &addr_data, tda9887_attach);
 #else
 	switch (adap->id) {
-	case I2C_ALGO_BIT | I2C_HW_B_BT848:
-	case I2C_ALGO_BIT | I2C_HW_B_RIVA:
-	case I2C_ALGO_SAA7134:
+	case I2C_HW_B_BT848:
+	case I2C_HW_B_RIVA:
+	case I2C_HW_SAA7134:
 		return i2c_probe(adap, &addr_data, tda9887_attach);
 		break;
 	}
@@ -816,7 +817,7 @@ tda9887_command(struct i2c_client *client, unsigned int cmd, void *arg)
 	return 0;
 }
 
-#ifdef MM_KERNEL
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,13)
 static int tda9887_suspend(struct device * dev, pm_message_t state, u32 level)
 #else
 static int tda9887_suspend(struct device * dev, u32 state, u32 level)
@@ -842,12 +843,12 @@ static struct i2c_driver driver = {
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,54)
 	.owner          = THIS_MODULE,
 #endif
-        .name           = "i2c tda9887 driver",
-        .id             = -1, /* FIXME */
-        .flags          = I2C_DF_NOTIFY,
-        .attach_adapter = tda9887_probe,
-        .detach_client  = tda9887_detach,
-        .command        = tda9887_command,
+	.name           = "i2c tda9887 driver",
+	.id             = -1, /* FIXME */
+	.flags          = I2C_DF_NOTIFY,
+	.attach_adapter = tda9887_probe,
+	.detach_client  = tda9887_detach,
+	.command        = tda9887_command,
 	.driver = {
 		.suspend = tda9887_suspend,
 		.resume  = tda9887_resume,
@@ -855,9 +856,9 @@ static struct i2c_driver driver = {
 };
 static struct i2c_client client_template =
 {
-	I2C_DEVNAME("tda9887"),
+	.name      = "tda9887",
 	.flags     = I2C_CLIENT_ALLOW_USE,
-        .driver    = &driver,
+	.driver    = &driver,
 };
 
 static int __init tda9887_init_module(void)

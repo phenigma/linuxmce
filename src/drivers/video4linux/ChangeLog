@@ -1,3 +1,835 @@
+2005-10-08 16:54  mkrufky
+
+	* ====README-video4linux-development-has-been-moved-to-v4l-kernel-cvs====:
+	- Development has been moved from video4linux cvs to v4l-kernel cvs.
+	- To checkout v4l-kernel, use the following commands:
+	  cvs -d :pserver:anonymous@cvs.linuxtv.org:/cvs/video4linux login
+	  cvs -d :pserver:anonymous@cvs.linuxtv.org:/cvs/video4linux co -P v4l-kernel
+
+2005-10-08 17:02  mkrufky
+
+	* v4l1-compat.c: (v4l_compat_translate_ioctl):
+	- change VIDIOCSFREQ and VIDIOCGFREQ from int to unsigned long
+
+	Signed-off-by: Hans Verkuil <hverkuil@xs4all.nl>
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-10-08  09:19  nshmyrev
+
+	* saa7134-alsa.c: (snd_saa7134_capsrc_put),
+	(alsa_card_saa7134_create):
+	* saa7134-core.c: (saa7134_initdev):
+	* saa7134.h:
+	
+	
+        - Fixed a bug that caused some saa7133 code to run on saa7134 boards
+        - dsp_nr (to force a given audio card number) from OSS now works for
+          ALSA as well.
+
+	Signed-off-by: Ricardo Cerqueira <v4l@cerqueira.org>
+
+2005-10-07 19:18  mkrufky
+
+	* tveeprom.c:
+	- fix compile with gcc-2.95
+
+	Signed-off-by: Hans Verkuil <hverkuil@xs4all.nl>
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-10-07  05:35  nshmyrev
+
+	* saa7134-alsa.c: (saa7134_dma_stop),
+	(snd_card_saa7134_capture_prepare),
+	(snd_card_saa7134_capture_pointer),
+	(snd_card_saa7134_capture_close), (snd_card_saa7134_capture_open),
+	(snd_card_saa7134_pcm), (snd_saa7134_capsrc_info),
+	(snd_saa7134_capsrc_put), (snd_card_saa7134_new_mixer),
+	(alsa_card_saa7134_create):
+	- Fixed kernel oops when hotswapping PC Cards
+        - Fixed capture source switch issue in mixer
+        - Removed some unnecessary wrappers
+        - Minor code cleanups
+        - Added a few comments to document the purpose of the major functions.
+	
+	Signed-off-by: Ricardo Cerqueira <v4l@cerqueira.org>
+
+2005-10-07 03:10  mkrufky
+
+	* em2820-i2c.c:
+	- Kill i2c_algorithm.name
+	- Kill i2c_algorithm.id
+	- Fix build for 2.6.14
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-10-06 23:54  mkrufky
+
+	* saa7134-alsa.c: (snd_card_saa7134_pcm_prepare),
+	(snd_card_saa7134_capture_close):
+	* saa7134-core.c: (saa7134_finidev):
+	- Removed trailing whitespace.
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-10-06 23:46  mkrufky
+
+	* msp3400.c: (msp_detach):
+	- check ->kthread correctly
+
+	Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-10-07 21:35  nshmyrev
+
+	* Makefile:
+	* saa7134-alsa.c: (saa7134_dma_stop), (saa7134_dma_start),
+	(saa7134_irq_alsa_done), (snd_card_saa7134_capture_trigger),
+	(dsp_buffer_conf), (dsp_buffer_init),
+	(snd_card_saa7134_pcm_prepare), (snd_card_saa7134_capture_prepare),
+	(snd_card_saa7134_pointer), (snd_card_saa7134_capture_pointer),
+	(snd_card_saa7134_runtime_free), (snd_card_saa7134_hw_params),
+	(snd_card_saa7134_hw_free), (dsp_buffer_free), (saa7134_cap_close),
+	(saa7134_cap_open), (snd_card_saa7134_capture_open),
+	(snd_card_saa7134_capture_close), (snd_card_saa7134_pcm),
+	(snd_saa7134_volume_info), (snd_saa7134_volume_get),
+	(snd_saa7134_volume_put), (snd_saa7134_capsrc_info),
+	(snd_saa7134_capsrc_get), (snd_saa7134_capsrc_put),
+	(snd_card_saa7134_new_mixer), (snd_saa7134_free),
+	(snd_saa7134_dev_free), (alsa_card_saa7134_create),
+	(alsa_card_saa7134_exit):
+	* saa7134-core.c: (saa7134_irq), (saa7134_initdev),
+	(saa7134_finidev):
+	* saa7134-oss.c: (dsp_rec_start):
+	* saa7134-reg.h:
+	* saa7134.h:
+	- Alsa support for saa7134 that should work. Wonderful
+	patch from Ricardo.
+	
+	Signed-off-by: Ricardo Cerqueira <v4l@cerqueira.org>
+
+2005-10-06  Nickolay V. Shmyrev  <nshmyrev@yandex.ru>
+
+	* saa7134-cards.c:
+	* saa7134-video.c: (saa7134_video_init1):
+	* saa7134.h:
+
+	- Implement some differences in video output port
+	  register initialization between existing boards and RTD Embedded
+	  Technologies VFG7300 boards.
+	  
+	Signed-off-by: Robert W. Boone <rboone@rtd.com>
+
+2005-10-06 16:10  nshmyrev
+
+	* Makefile:
+	* em2820-i2c.c: (em2820_set_tuner):
+	- Fixed build. 
+	
+	Signed-off-by: Nickolay V. Shmyrev <nshmyrev@yandex.ru>
+
+2005-10-06 15:27  mchehab
+
+	* doc/CARDLIST.em2820:
+	* scripts/cardlist:
+	* scripts/em2820.pl:
+	- Added scripts and CARDLIST for em2820.
+
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-10-06 14:26  mchehab
+
+	* Make.config,Makefile,compat.h,em2820-cards.c,em2820-core.c,
+	  em2820-video.c,em2820.h:
+	- Added support for Empia Tech em2820/2840 chipset boards.
+	* tvp5150.c: (tvp5150_write), (tvp5150_selmux), (tvp5150_reset),
+	(tvp5150_get_ctrl), (tvp5150_set_ctrl), (tvp5150_command),
+	(tvp5150_detect_client), (tvp5150_attach_adapter),
+	(tvp5150_detach_client), (tvp5150_init), (tvp5150_exit):
+	- Added some V4L2 API calls.
+
+	Signed-off-by: Markus Rechberger <mrechberger@gmail.com>
+	Signed-off-by: Ludovico Cavedon <cavedon@sssup.it>
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-10-06 03:07  mkrufky
+
+	* bttv-cards.c:
+	- Enable S-Video input on DViCO FusionHDTV5 Lite
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-10-05 14:32  nshmyrev
+
+	* saa7134-alsa.c: (saa7134_start_audio_dma),
+	(saa7134_stop_audio_dma), (saa713401_timeout), (saa713401_aud_irq),
+	(saa7134_irq), (snd_saa7134_set_digital_hw),
+	(snd_saa7134_pcm_open), (snd_saa7134_close),
+	(snd_saa7134_hw_params), (snd_saa7134_hw_free),
+	(snd_saa7134_prepare), (snd_saa7134_card_trigger),
+	(snd_saa7134_pointer), (snd_saa7134_pcm),
+	(snd_saa7134_capture_volume_info),
+	(snd_saa7134_capture_volume_get), (snd_saa7134_capture_volume_put),
+	(snd_saa7134_capture_source_info),
+	(snd_saa7134_capture_source_get), (snd_saa7134_capture_source_put),
+	(snd_saa7134_free), (snd_saa7134_dev_free), (snd_saa7134_create),
+	(saa7134_audio_initdev), (saa7134_audio_finidev),
+	(saa7134_audio_init), (saa7134_audio_fini):
+	- Placeholder for implementation for alsa support in saa7134.
+
+2005-10-05 14:31  nshmyrev
+
+	* tda9887.c: (dump_write_message):
+	- Corrected settings for SECAM-L.
+
+	Signed-off-by: Nickolay V. Shmyrev <nshmyrev@yandex.ru>
+
+2005-10-05 04:10  mkrufky
+
+	* cx88.h, cx88-cards.c: (cx88_card_setup):
+	- Added analog support for ATI HDTV Wonder
+
+	* tuner.h, tuner-simple.c: (default_set_tv_freq):
+	- Added support for the Philips TUV1236D tuner on the ATI HDTV Wonder
+
+	Signed-off-by: Kirk Lapray <kirk.lapray@gmail.com>
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-10-04 17:14  mkrufky
+
+	* bttv-cards.c:
+	- Changed { .pll = 1, } to { .pll = PLL_28, }
+	  on BTTV_BOARD_MACHTV "MachTV".
+
+	* bttv.h:
+	- Cleaned up spacing to be uniform for BTTV_BOARDS
+
+	* doc/CARDLIST.bttv:
+	- Added Osprey 440 card.
+
+	* doc/CARDLIST.cx88:
+	- Added Kworld Vstream ExpertDVD.
+
+	* saa7134-tvaudio.c: (mute_input_7134):
+	- Removed trailing whitespace.
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-10-04  15:42  nshmyrev
+
+	* bttv-cards.c:
+	* bttv.h:
+	- Added Osprey 440 card.
+	
+	Signed-off-by: Kenth Andersson <kenth@popwire.com>
+
+2005-10-04  15:00  nshmyrev
+
+	* saa7134-tvaudio.c: (mute_input_7134):
+	- Full mute of saa7134 on mute command. 
+	
+	Signed-off-by: Nickolay V. Shmyrev <nshmyrev@yandex.ru>
+
+2005-10-04  14:50  nshmyrev
+
+	* saa7134-cards.c: (saa7134_board_init1):
+	* saa7134-input.c: (saa7134_input_init1):
+	- Remote for KWorld Terminator. 
+	
+	Signed-off-by: James R. Webb <jrwebb@qwest.net>
+
+2005-10-04  14:46  nshmyrev
+
+	* cx88-tvaudio.c: (set_audio_registers), (set_audio_start),
+	(set_audio_finish), (set_audio_standard_BTSC),
+	(set_audio_standard_NICAM), (set_audio_standard_A2),
+	(set_audio_standard_EIAJ), (set_audio_standard_FM),
+	(cx88_detect_nicam), (cx88_set_tvaudio), (cx88_get_stereo),
+	(cx88_set_stereo), (cx88_audio_thread):
+	- Reindent cx88-tvaudio.c to keep coding style.
+	
+	Signed-off-by: Nickolay V. Shmyrev <nshmyrev@yandex.ru>
+
+2005-10-04 14:32  nshmyrev
+
+	* cx88-cards.c:
+	* cx88.h:
+	- Added Kworld Vstream ExpertDVD.
+	
+	Signed-off-by: Alexander Wold <awold@bigfoot.com>
+
+2005-10-03 19:37  mkrufky
+
+	* saa7134-cards.c: (saa7134_board_init1):
+	* saa7134-input.c: (saa7134_input_init1):
+	- enable support for the IR Remote on Compro Videomate T200
+
+	From: Andy Smith <linux-dvb@andrewsmith.plus.com>
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-10-02 22:46  mchehab
+
+	* bttv-cards.c: (bttv_init_card2):
+	* bttv.h:
+	- Added new card: Prolink PixelView PlayTV MPEG2 PV-M4900
+	  Thanks to: Sérgio Fortier <sergiofortier@yahoo.com.br>
+	- Added support for radio_addr. Should also allow radio on
+	  separated I2C address than TV tuner.
+
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-10-02 11:39  mchehab
+
+	* Make.config:
+	- Default not compiling tvp5150.c
+
+	* audiochip.h:
+	- Included audio chips enum
+
+	* tveeprom.c: (hasRadioTuner), (tveeprom_hauppauge_analog),
+	(tveeprom_read):
+	- Added a new tuner tradution.
+	- Now, returns audio chip according with enum audiochip.
+	  This allows audio chip autodetection as used on em28xx.
+
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-10-01 16:53  mkrufky
+
+	* scripts/merge-trees.sh, scripts/unmerge-trees.sh:
+	- dvb-bt8xx and DST build re-renabled in tree-merge.
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-09-30 15:21  mchehab
+
+	* saa7134-cards.c: (saa7134_board_init1):
+	* saa7134-input.c: (saa7134_input_init1):
+	- Added IR for LifeView FlyTV Platinum Mini2.
+
+	Signed-off-by: Arnaud Patard <apatard@mandriva.com>
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-09-30 00:01  mkrufky
+
+	* bttv-cards.c, saa7134-input.c:
+	- strip trailing whitespace.
+
+	* scripts/merge-trees.sh, scripts/unmerge-trees.sh:
+	- V4L: WARNING!  bt8xx tree-merge is currently broken.
+	  If you need this feature, please use an older video4linux cvs:
+	  cvs co -D 9/29/05 video4linux
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-09-29 20:40  mchehab
+
+	* doc/CARDLIST.bttv:
+	- Others PCI ID added.
+
+	* scripts/bttv.pl:
+	- Script fixed.
+
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-09-29 20:23  mchehab
+
+	* doc/CARDLIST.tuner:
+	- Updated an entry to reflect changes on tuner-simple.c
+
+	* doc/CARDLIST.bttv:
+	- Added PCI subvendor ID to boards that have it
+
+	* scripts/bttv.pl:
+	- New script to generate PCI subvendor ID
+
+	* scripts/cardlist:
+	- Modified to generate also PCI ID for bttv boards.
+
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-09-29 19:45  mchehab
+        * bttv-cards.c: (identify_by_eeprom), (miro_pinnacle_gpio),
+        (bttv_init_card1), (bttv_init_card2), (osprey_eeprom),
+        (bttv_tda9880_setnorm), (boot_bt832):
+        * bttv-driver.c: (i2c_vidiocschan), (set_tvnorm):
+        * bttv.h:
+        * ir-kbd-gpio.c: (ir_probe):
+        - Boards renamed to BTTV_BOARD_xxx
+
+        Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-09-29 18:40  mchehab
+
+	* bttv-cards.c:
+	- Boards now use the same CodingStyle as cx88 and saa7134.
+
+	* bttv.h:
+	- Included missing card numbers
+
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-09-29 18:20  nshmyrev
+
+	* tda8290.c: (set_audio), (set_tv_freq):
+	* tuner.h:
+	- Set IF of tda8275 according to tv norm.
+
+	Signed-off-by: Nickolay V. Shmyrev <nshmyrev@yandex.ru>
+
+2005-09-29 13:59  mchehab
+
+        * doc/CARDLIST.saa7134:
+        * saa7134-cards.c:
+        * saa7134.h:
+        - Added support for LifeView FlyTV Platinum Mini2.
+
+	Signed-off-by: Arnaud Patard <apatard@mandriva.com>
+        Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-09-29 14:23  mchehab
+
+	* scripts/cx88.pl:
+	- New script to include PCI ID for cx88 boards.
+
+	* doc/CARDLIST.cx88:
+	- Cardlist updated. Now includes PCI ID for each board.
+
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-09-28  20:04  nshmyrev
+
+	* saa7134-cards.c: (saa7134_board_init1):
+	* saa7134-input.c: (saa7134_input_init1):
+	
+	Add remote for DVB-T300 Remote.
+		
+	Signed-off-by: Nickolay V. Shmyrev <nshmyrev@yandex.ru>
+
+2005-09-28  20:04  nshmyrev
+
+	* bttv-cards.c:
+	- Fix source charset. Make symbols UTF-8.
+	
+	Signed-off-by: David Woodhouse <dwmw2@infradead.org>.
+
+2005-09-28  19:43  nshmyrev
+
+	* saa6752hs.c: (saa6752hs_chip_command), (saa6752hs_set_bitrate),
+	(saa6752hs_init), (saa6752hs_attach), (saa6752hs_command):
+	- Change the number of lines in the input signal when the
+	  video standard is changed.
+	- Fix comments style.
+	
+	Signed-off-by: Robert W. Boone <rboone@rtd.com>
+
+2005-09-28  19:27  nshmyrev
+
+	* tuner-simple.c:
+	* tuner.h:
+	* tveeprom.c:
+	- update the tveeprom tuner list with the tuner 
+	  list from the Hauppauge driver
+	- connect the TCL MPE05-2 tveeprom entry to the 
+	  TUNER_PHILIPS_FM1216ME_MK3 tuner.
+	- based on this info renamed the "LG PAL (TAPE series)" 
+	  tuner to "TCL 2002MB".
+
+	Signed-off-by: Hans Verkuil <hverkuil@xs4all.nl>
+
+2005-09-28 19:07  nshmyrev
+
+	* bttv-driver.c: (set_pll):
+	* bttvp.h:
+	- Rename vprintk to verbose_printk to fix name clash.
+	
+	Signed-off-by: Bernd Petrovitsch <bernd@firmix.at>
+
+2005-09-28 00:47  mchehab
+
+	* msp3400.c: (msp3400c_setvolume), (msp34xx_modus), (msp_attach),
+	(msp_command):
+	- Some V4L2 API calls implemented.
+
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-09-24 16:10  mkrufky
+
+	* bttv-cards.c:
+	- corrected composite input gpio for DViCO FusionHDTV5 Lite.
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-09-24 19:34  mkrufky
+
+	* bttv-cards.c:
+	- fixed GPIO composite and off (dvb) states to prevent
+	  lgdt3303 frontend from dying on input source change,
+	  for DViCO FusionHDTV5 Lite.
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-09-24 17:03  mkrufky
+
+	* compat.h:
+	- Previous commit prevents tda1004x & lgdt330x support in tree-merge
+	  for kernels < 2.6.13. Fixed using DVB_CVS flag, set in tree-merge
+	  Makefile.
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-09-24 01:05  mkrufky
+
+	* bttv-cards.c:
+	- Fixed a bug: ATSC Frontend dies after using analog tuner.
+	  audiomux[4] must be programmed to prevent this bug.
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-09-23 11:56  mchehab
+
+	* tvp5150.c: (tvp5150_selmux), (tvp5150_reset), (tvp5150_command),
+	(tvp5150_detect_client):
+	- Fixed input selection.
+	- Default now is to autodetect every video standard.
+	- Implemented interface to change video preferences.
+
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-09-22 22:50  hhackmann
+	* saa7134.h:
+	- increased size if eeprom dump to 128 bytes
+
+	Signed-off-by: Hartmut Hackmann <hartmut.hackmann@t.online.de>
+
+2005-09-21 16:08  mchehab
+
+	* Makefile, Make.config:
+	- Included tvp5150.
+
+	* tvp5150.c:
+	- Basic decoder functions implemented.
+	  Still lacks video std functions.
+
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-09-21 00:53  mkrufky
+
+	* compat.h:
+	* cx88-dvb.c:
+	* saa7134-dvb.c:
+	* scripts/merge-trees.sh:
+	* scripts/unmerge-trees.sh:
+	- move some #if kernel version into compat.h
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-09-19 15:28  mchehab
+
+	* tvp5150.c,tvp5150_reg.h:
+	- Initial code for Texas Instruments TVP5150A and TVP5150AM1
+	  only sets a video stream and dumps reg contents. More work 
+	  required.
+
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-09-19 01:11  mkrufky
+
+	* saa6588.c: (saa6588_probe):
+	- fix build for 2.6.14
+
+	* compat.h:
+	* ir-kbd-i2c.c: (ir_probe):
+	* saa7134-i2c.c:
+	* tvaudio.c: (chip_probe):
+	- removed some #if kernel version > 2.6.13 ... using compat.h instead.
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-09-16 20:24  mchehab
+
+	* bttv-cards.c:
+	- Added Prolink Pixelview PV-BT878P+ (Rev.2E) compatibility
+	   to the bttv driver. It's now card=138 and it works at least
+	   for tv, sound and radio.
+
+	Signed-off-by: Luis Miguel García <ktecho@gmail.com>
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-09-15 03:01  mkrufky
+
+	* tvaudio.c: (chip_write), (chip_read), (chip_read2), (chip_cmd),
+	  (chip_thread), (generic_checkmode), (tda8425_initialize),
+	  (chip_attach), (chip_probe), (chip_command):
+	- Step three (final step) in upstream changes for
+	  kernel 2.6.14-rc1 compatability.
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-09-15 23:42  nshmyrev
+
+	* cx88-core.c:
+	- Remove some #if 0 which doesn't have any sense
+	
+	Signed-off-by: Nickolay V. Shmyrev <nshmyrev@yandex.ru>
+
+2005-09-15 23:22  nshmyrev
+
+	* saa7134-video.c:
+	Fix for kernel bug #4544. 
+	
+	Signed-off-by: Nickolay V. Shmyrev <nshmyrev@yandex.ru>
+
+2005-09-15 23:11  nshmyrev 
+
+	* saa7134-core.c: (saa7134_hwinit1):
+	- Fix for problem with audio register setup via DSP access
+	
+	Signed-off-by: Nickolay V. Shmyrev <nshmyrev@yandex.ru>
+	Signed-off-by: Robert W. Boone <rboone@rtd.com>	
+
+2005-09-14 22:00  nshmyrev
+
+	* saa6588.c:
+	- Improved coding style for timer settings
+
+	Signed-off-by: Hans J. Koch <koch@hjk-az.de>
+
+2005-09-14 18:34  nshmyrev
+
+	* saa7134-cards.c: (saa7134_board_init1):
+	* saa7134-reg.h:
+	* saa7134-video.c: (video_do_ioctl):
+	* saa7134.h:
+	- Add new RTD cards
+	
+	Signed-off-by: Nickolay V. Shmyrev <nshmyrev@yandex.ru>
+	Signed-off-by: Robert W. Boone <rboone@rtd.com>
+
+2005-09-13 20:09  mkrufky
+
+	* bt832.c: (bt832_probe):
+	* bttv-i2c.c: (attach_inform):
+	* cx88-i2c.c: (attach_inform), (detach_inform):
+	* id.h:
+	* ir-kbd-i2c.c: (ir_probe):
+	* msp3400.c: (msp34xx_sleep), (msp_attach):
+	* saa6588.c:
+	* saa6752hs.c:
+	* saa7134-i2c.c: (attach_inform):
+	* saa7134-tvaudio.c: (tvaudio_sleep):
+	* tda7432.c: (tda7432_probe):
+	* tda9875.c: (tda9875_probe):
+	* tda9887.c: (tda9887_probe):
+	* tuner-core.c:
+	* tveeprom.c: (tveeprom_attach_adapter):
+	* tvmixer.c: (tvmixer_ioctl), (tvmixer_clients),
+	(tvmixer_cleanup_module):
+	* video-buf.c: (videobuf_dma_free):
+	- Step two, in preparation for 2.6.14-rcX compatability:
+	- Compile tested against vanila kernels 2.6.13 & 2.6.8
+	- 2.6.14 compile still broken...
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-09-13 19:04  mchehab
+
+	* scripts/buildpatch:
+	- Fixed a problem when commiting <dolar>Id with CVS.
+
+	* tuner-core.c: (tuner_command):
+	- Better debug info for non-implemented iocts.
+	* tveeprom.c:
+	- Fixed compiling with gcc2.9x (thanks to Andrew Morton).
+
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-09-13 16:22  mkrufky
+
+	* bttv-cards.c, bttv-driver.c:
+	* msp3400.c, tda9887.c, tuner-core.c:
+	- Step one, in preparation for 2.6.14-rcX compatability:
+	  -#ifdef MM_KERNEL
+	  +#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,13)
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-09-11 22:20  hhackmann
+	* saa7134.h, saa7134-cards.c, saa7134-core.c:
+	- added support for the following cards
+	  Philips EUROPA Reference Design
+	  Compro VideoMate DVB-T300
+	  Compro VideoMate DVB-T200 (initial)
+
+	Signed-off-by: Hartmut Hackmann <hartmut.hackmann@t.online.de>
+
+2005-09-12 22:00  hhackmann
+	* tuner.h, tuner-core.c, tuner-simple.c:
+	- added support for the Philips TD1316 tuner
+
+	Signed-off-by: Hartmut Hackmann <hartmut.hackmann@t.online.de>
+
+2005-09-11 21:35  hhackmann
+	* saa7134-ts.c:
+	- TS DMA buffer synchronization was inverted
+	- DMA buffer size was not set correctly in the SAA713x
+
+	Signed-off-by: Hartmut Hackmann <hartmut.hackmann@t.online.de>
+
+2005-09-11 05:29  mkrufky
+
+	* bttv-cards.c:
+	- duplicate initializer
+	  (near initialization for `bttv_tvcards[9].tuner_addr')
+	  duplicate initializer
+	  (near initialization for `bttv_tvcards[11].tuner_addr')
+	
+	* cx88-input.c, tuner.h, tvaudio.c, tveeprom.c:
+	- Work around gcc-2.95.x macro expansion bug
+
+	Signed-off-by: Andrew Morton <akpm@osdl.org>
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-09-11 04:56  mkrufky
+
+	* cx88-core.c: (cx88_risc_decode):
+	* cx88-video.c: (video_read):
+	* cx88.h:
+	- Fix a number of sparse warnings.
+	
+	* videodev2.h:
+	- strip trailing whitespace.
+
+	Signed-off-by: Peter Hagervall <hager@cs.umu.se>
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-09-11 01:15  mchehab
+
+	* videodev2.h:
+	- adds all defines, ioctls and structs needed for the sliced VBI API
+
+	Signed-off-by: Hans Verkuil <hverkuil@xs4all.nl>
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-09-10 10:29  mchehab
+
+	* cx88-core.c: (set_tvaudio):
+	* cx88-tvaudio.c: (set_audio_standard_NICAM),
+	(set_audio_standard_A2), (cx88_detect_nicam), (cx88_set_tvaudio),
+	(cx88_newstation), (cx88_set_stereo):
+	* cx88.h:
+	- some clean up in cx88-tvaudio.c
+	- replaced hex values when writing to AUD_CTL to EN_xx for better reading.
+	- Moved writing to register AUD_CTL from "set_audio_start" to
+	  "set_audio_finish".
+	- Changed the order of writing Lang2 to work correctly
+	- Added an "#if 0"  to comment out existing code in "cx88_get_stereo"
+	  because simply reading from register "AUD_STATUS" is _not_ enough to
+	  auto-detect btsc-sap, dual-fm-stereo or nicam. It is simply not working.
+	- Using "EN_A2_AUTO_STEREO" does not work.
+	- Allow select by hand between Mono, Lang1, Lang2 and Stereo.
+	- *Bad side effect* is now if I'm selecting for example stereo but it is not
+	  supported from tv-channel I'm currently receiving loud noise.
+
+	Signed-off-by: Torsten Seeboth <Torsten.Seeboth@t-online.de>
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-09-10 08:15  mchehab
+
+	* tda8290.c:
+	- Included CB3 structures that should be changed according with
+	video std. The code itself to implement it was not made.
+
+	Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+2005-09-10 07:28  mkrufky
+
+	* bttv-cards.c:
+	- Enable DVB support for DViCO FusionHDTV5 Lite.
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-09-10 07:26  nshmyrev
+
+	* saa7134-input.c:
+	- Refine input handling for Manli/Beholder. 
+	
+	Signed-off-by: Nickolay V. Shmyrev <nshmyrev@yandex.ru>
+
+2005-09-10 06:57  nshmyrev
+
+	* tuner-simple.c:
+	- Lower switch from VHF_LO to VHF_HI for Philips 1216ME MK3
+
+	Signed-off-by: Nickolay V. Shmyrev <nshmyrev@yandex.ru>
+	Signed-off-by: Hermann Pitton <hermann.pitton@onlinehome.de>
+
+2005-09-08 23:06  nshmyrev
+
+	* i2c-kbd-gpio.c:
+	- Use KEY_MEDIA instead of KEY_VIDEOMODESWITCH since
+	it fix build with older kernels.
+	
+	Signed-off-by: Nickolay V. Shmyrev <nshmyrev@yandex.ru>
+	Signed-off-by: James Schettine <james@NOSPAM.MyVnc.com>
+
+2005-09-07 10:30  nshmyrev
+
+	* doc/CARDLIST.saa7134:
+	* saa7134-cards.c: (saa7134_board_init1):
+	* saa7134-input.c: (saa7134_input_init1):
+	* saa7134.h:
+	- Added new card GoTView PCI 7135
+
+	Signed-off-by: Nickolay V. Shmyrev <nshmyrev@yandex.ru>
+	Signed-off-by: Mike Baikov <mike@baikov.com>
+
+2005-09-07 05:29  mkrufky
+
+	* cx88-dvb.c: (lgdt330x_pll_set):
+	- Removed unnecessary check for tda9887.
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-09-07 04:59  mkrufky
+
+	* bttv-cards.c: (bttv_init_card1), (bttv_init_card2):
+	* bttv-driver.c:
+	- don't enable gpioirq until after card probe.
+	- Pinnacle PCTV-Sat fifo overrun error fix.
+
+	Thanks to: Edgar Toernig <froese@gmx.de>
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-09-07 03:51  mkrufky
+
+	* bttv-cards.c, bttv.h, ir-kbd-gpio.c:
+	* doc/CARDLIST.bttv:
+	- add bttv card 137 - Conceptronic CTVFMi v2
+	- some ir buttons seem to be duplicated, explained
+	  by comments within source.
+
+	Signed-off-by: Ricardo Cerqueira <v4l@cerqueira.org>
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-09-07 00:57  mkrufky
+
+	* cx88-core.c: (cx88_core_get):
+	* cx88-dvb.c: (dvb_register):
+	- Implemented TUNER_SET_STANDBY on cx88 init.
+	  Additional call is necessary in cx88-dvb, to prevent
+	  noise on initialization of FusionHDTV5 Gold.
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
+2005-09-07 00:02  mkrufky
+
+	* cx88-dvb.c: (dvb_buf_prepare):
+	- Climov's previous patch <missing changelog entry>:
+	  Implemented the v4l2 mpeg api for blackbird cards.
+	  His commit broke cx88-dvb. Here is the fix.
+
+	Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+
 2005-09-05 15:30  nshmyrev
 
 	* doc/CARDLIST.saa7134:

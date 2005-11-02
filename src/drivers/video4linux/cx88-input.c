@@ -1,5 +1,5 @@
 /*
- * $Id: cx88-input.c,v 1.19 2005/09/04 13:36:10 mkrufky Exp $
+ * $Id: cx88-input.c,v 1.20 2005/09/11 05:39:23 mkrufky Exp $
  *
  * Device driver for GPIO attached remote control interfaces
  * on Conexant 2388x based TV/DVB cards.
@@ -288,7 +288,7 @@ module_param(ir_debug, int, 0644);	/* debug level [IR] */
 MODULE_PARM_DESC(ir_debug, "enable debug messages [IR]");
 
 #define ir_dprintk(fmt, arg...)	if (ir_debug) \
-	printk(KERN_DEBUG "%s IR: " fmt , ir->core->name, ## arg)
+	printk(KERN_DEBUG "%s IR: " fmt , ir->core->name , ##arg)
 
 /* ---------------------------------------------------------------------- */
 

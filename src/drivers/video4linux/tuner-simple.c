@@ -1,5 +1,5 @@
 /*
- * $Id: tuner-simple.c,v 1.49 2005/08/30 15:18:50 mkrufky Exp $
+ * $Id: tuner-simple.c,v 1.53 2005/10/05 04:19:55 mkrufky Exp $
  *
  * i2c tv tuner chip device driver
  * controls all those simple 4-control-bytes style tuners.
@@ -187,7 +187,7 @@ static struct tunertype tuners[] = {
         { "LG PAL (newer TAPC series)", LGINNOTEK, PAL,
           16*170.00, 16*450.00, 0x01,0x02,0x08,0x8e,623},
 	{ "Philips PAL/SECAM multi (FM1216ME MK3)", Philips, PAL,
-	  16*160.00,16*442.00,0x01,0x02,0x04,0x8e,623 },
+	  16*158.00,16*442.00,0x01,0x02,0x04,0x8e,623 },
 	{ "LG NTSC (newer TAPC series)", LGINNOTEK, NTSC,
           16*170.00, 16*450.00, 0x01,0x02,0x08,0x8e,732},
 
@@ -224,7 +224,7 @@ static struct tunertype tuners[] = {
 	  16*160.00,16*454.00,0x41,0x42,0x04,0x8e,940}, /* UHF band untested */
 	{ "tda8290+75", Philips, PAL|NTSC,
 	  /* see tda8290.c for details */ },
-	{ "LG PAL (TAPE series)", LGINNOTEK, PAL,
+	{ "TCL 2002MB", TCL, PAL,
           16*170.00, 16*450.00, 0x01,0x02,0x08,0xce,623},
 	{ "Philips PAL/SECAM multi (FQ1216AME MK4)", Philips, PAL,
 	  16*160.00,16*442.00,0x01,0x02,0x04,0xce,623 },
@@ -235,7 +235,7 @@ static struct tunertype tuners[] = {
 	{ "Ymec TVision TVF-5533MF", Philips, NTSC,
 	  16*160.00,16*454.00,0x01,0x02,0x04,0x8e,732},
 
-	/* 60-66 */
+	/* 60-68 */
 	{ "Thomson DDT 7611 (ATSC/NTSC)", THOMSON, ATSC,
 	  16*157.25,16*454.00,0x39,0x3a,0x3c,0x8e,732},
 	{ "Tena TNF9533-D/IF/TNF9533-B/DF", Philips, PAL,
@@ -250,6 +250,10 @@ static struct tunertype tuners[] = {
           16*160.25,16*464.25,0x01,0x02,0x08,0x8e,623},
  	{ "LG NTSC (TALN mini series)", LGINNOTEK, NTSC,
 	  16*137.25,16*373.25,0x01,0x02,0x08,0x8e,732 },
+	{ "Philips TD1316 Hybrid Tuner", Philips, PAL,
+	  16*160.00,16*442.00,0xa1,0xa2,0xa4,0xc8,623 },
+	{ "Philips TUV1236D ATSC/NTSC dual in", Philips, ATSC,
+	  16*157.25,16*454.00,0x01,0x02,0x03,0xce,732 },
 };
 
 unsigned const int tuner_count = ARRAY_SIZE(tuners);
@@ -390,6 +394,17 @@ static void default_set_tv_freq(struct i2c_client *c, unsigned int freq)
 	case TUNER_MICROTUNE_4042FI5:
 		/* Set the charge pump for fast tuning */
 		tun->config |= TUNER_CHARGE_PUMP;
+		break;
+
+	case TUNER_PHILIPS_TUV1236D:
+		/* 0x40 -> ATSC antenna input 1 */
+		/* 0x48 -> ATSC antenna input 2 */
+		/* 0x00 -> NTSC antenna input 1 */
+		/* 0x08 -> NTSC antenna input 2 */
+		config &= ~0x40;
+		if (t->std & V4L2_STD_ATSC)
+			config |= 0x40;
+		/* FIXME: input */
 		break;
 	}
 

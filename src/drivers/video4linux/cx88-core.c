@@ -1,5 +1,5 @@
 /*
- * $Id: cx88-core.c,v 1.39 2005/08/30 18:13:51 mchehab Exp $
+ * $Id: cx88-core.c,v 1.42 2005/09/11 04:58:14 mkrufky Exp $
  *
  * device driver for Conexant 2388x based TV cards
  * driver core
@@ -440,7 +440,7 @@ int cx88_sram_channel_setup(struct cx88_core *core,
 /* ------------------------------------------------------------------ */
 /* debug helper code                                                  */
 
-int cx88_risc_decode(u32 risc)
+static int cx88_risc_decode(u32 risc)
 {
 	static char *instr[16] = {
 		[ RISC_SYNC    >> 28 ] = "sync",
@@ -878,19 +878,19 @@ static int set_tvaudio(struct cx88_core *core)
 		return 0;
 
 	if (V4L2_STD_PAL_BG & norm->id) {
-		core->tvaudio = nicam ? WW_NICAM_BGDKL : WW_A2_BG;
+		core->tvaudio = WW_BG;
 
 	} else if (V4L2_STD_PAL_DK & norm->id) {
-		core->tvaudio = nicam ? WW_NICAM_BGDKL : WW_A2_DK;
+		core->tvaudio = WW_DK;
 
 	} else if (V4L2_STD_PAL_I & norm->id) {
-		core->tvaudio = WW_NICAM_I;
+		core->tvaudio = WW_I;
 
 	} else if (V4L2_STD_SECAM_L & norm->id) {
-		core->tvaudio = WW_SYSTEM_L_AM;
+		core->tvaudio = WW_L;
 
 	} else if (V4L2_STD_SECAM_DK & norm->id) {
-		core->tvaudio = WW_A2_DK;
+		core->tvaudio = WW_DK;
 
 	} else if ((V4L2_STD_NTSC_M & norm->id) ||
 		   (V4L2_STD_PAL_M  & norm->id)) {
@@ -1183,6 +1183,7 @@ struct cx88_core* cx88_core_get(struct pci_dev *pci)
 	/* init hardware */
 	cx88_reset(core);
 	cx88_i2c_init(core,pci);
+	cx88_call_i2c_clients (core, TUNER_SET_STANDBY, NULL);
 	cx88_card_setup(core);
 	cx88_ir_init(core,pci);
 

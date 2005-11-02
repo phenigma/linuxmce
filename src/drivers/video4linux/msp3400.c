@@ -387,6 +387,9 @@ static void msp3400c_setvolume(struct i2c_client *client,
 {
 	int val = 0, bal = 0;
 
+#if 1
+muted=0;
+#endif
 	if (!muted) {
 		/* 0x7f instead if 0x73 here has sound quality issues,
 		 * probably due to overmodulation + clipping ... */
@@ -750,9 +753,9 @@ static int msp34xx_sleep(struct msp3400c *msp, int timeout)
 			set_current_state(TASK_INTERRUPTIBLE);
 			schedule();
 		} else {
-#if 0
-			/* hmm, that one doesn't return on wakeup ... */
-			msleep_interruptible(timeout);
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,13)
+			schedule_timeout_interruptible
+						(msecs_to_jiffies(timeout));
 #else
 			set_current_state(TASK_INTERRUPTIBLE);
 			schedule_timeout(msecs_to_jiffies(timeout));
@@ -1010,6 +1013,8 @@ static int msp34xx_modus(int norm)
 {
 	switch (norm) {
 	case VIDEO_MODE_PAL:
+		dprintk(KERN_DEBUG "msp34xx: video mode selected to PAL\n");
+
 #if 1 /*KEEP*/
 		/* experimental: not sure this works with all chip versions */
 		return 0x7003;
@@ -1018,12 +1023,16 @@ static int msp34xx_modus(int norm)
 		return 0x1003;
 #endif
 	case VIDEO_MODE_NTSC:  /* BTSC */
+		dprintk(KERN_DEBUG "msp34xx: video mode selected to NTSC\n");
 		return 0x2003;
 	case VIDEO_MODE_SECAM:
+		dprintk(KERN_DEBUG "msp34xx: video mode selected to SECAM\n");
 		return 0x0003;
 	case VIDEO_MODE_RADIO:
+		dprintk(KERN_DEBUG "msp34xx: video mode selected to Radio\n");
 		return 0x0003;
 	case VIDEO_MODE_AUTO:
+		dprintk(KERN_DEBUG "msp34xx: video mode selected to Auto\n");
 		return 0x2003;
 	default:
 		return 0x0003;
@@ -1448,7 +1457,7 @@ static int msp_detach(struct i2c_client *client);
 static int msp_probe(struct i2c_adapter *adap);
 static int msp_command(struct i2c_client *client, unsigned int cmd, void *arg);
 
-#ifdef MM_KERNEL
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,13)
 static int msp_suspend(struct device * dev, pm_message_t state, u32 level);
 #else
 static int msp_suspend(struct device * dev, u32 state, u32 level);
@@ -1460,11 +1469,11 @@ static void msp_wake_thread(struct i2c_client *client);
 static struct i2c_driver driver = {
 	.owner          = THIS_MODULE,
 	.name           = "i2c msp3400 driver",
-        .id             = I2C_DRIVERID_MSP3400,
-        .flags          = I2C_DF_NOTIFY,
-        .attach_adapter = msp_probe,
-        .detach_client  = msp_detach,
-        .command        = msp_command,
+	.id             = I2C_DRIVERID_MSP3400,
+	.flags          = I2C_DF_NOTIFY,
+	.attach_adapter = msp_probe,
+	.detach_client  = msp_detach,
+	.command        = msp_command,
 	.driver = {
 		.suspend = msp_suspend,
 		.resume  = msp_resume,
@@ -1473,9 +1482,9 @@ static struct i2c_driver driver = {
 
 static struct i2c_client client_template =
 {
-	I2C_DEVNAME("(unset)"),
+	.name      = "(unset)",
 	.flags     = I2C_CLIENT_ALLOW_USE,
-        .driver    = &driver,
+	.driver    = &driver,
 };
 
 static int msp_attach(struct i2c_adapter *adap, int addr, int kind)
@@ -1527,6 +1536,7 @@ static int msp_attach(struct i2c_adapter *adap, int addr, int kind)
 		dprintk("msp34xx: error while reading chip version\n");
 		return -1;
 	}
+	printk(KERN_INFO "msp34xx: rev1=0x%04x, rev2=0x%04x\n", msp->rev1, msp->rev2);
 
 #if 0
 	/* this will turn on a 1kHz beep - might be useful for debugging... */
@@ -1549,7 +1559,7 @@ static int msp_attach(struct i2c_adapter *adap, int addr, int kind)
 	}
 
 	/* hello world :-) */
-	printk(KERN_INFO "msp34xx: init: chip=%s",i2c_clientname(c));
+	printk(KERN_INFO "msp34xx: init: chip=%s", c->name);
 	if (HAVE_NICAM(msp))
 		printk(" +nicam");
 	if (HAVE_SIMPLE(msp))
@@ -1594,7 +1604,7 @@ static int msp_detach(struct i2c_client *client)
 	struct msp3400c *msp  = i2c_get_clientdata(client);
 
 	/* shutdown control thread */
-	if (msp->kthread >= 0) {
+	if (msp->kthread) {
 		msp->restart = 1;
 		kthread_stop(msp->kthread);
 	}
@@ -1798,6 +1808,7 @@ static int msp_command(struct i2c_client *client, unsigned int cmd, void *arg)
 			msp_any_set_audmode(client,mode_v4l1_to_v4l2(va->mode));
 		break;
 	}
+
 	case VIDIOCSCHAN:
 	{
 		struct video_channel *vc = arg;
@@ -1818,6 +1829,92 @@ static int msp_command(struct i2c_client *client, unsigned int cmd, void *arg)
 	}
 
 	/* --- v4l2 ioctls --- */
+	case VIDIOC_S_STD:
+	{
+		v4l2_std_id *id = arg;
+
+		/*FIXME: use V4L2 mode flags on msp3400 instead of V4L1*/
+		if (*id & V4L2_STD_PAL) {
+			msp->norm=VIDEO_MODE_PAL;
+		} else if (*id & V4L2_STD_SECAM) {
+			msp->norm=VIDEO_MODE_SECAM;
+		} else {
+			msp->norm=VIDEO_MODE_NTSC;
+		}
+
+		msp_wake_thread(client);
+		return 0;
+	}
+
+	case VIDIOC_G_AUDIO:
+	{
+		struct v4l2_audio *a = arg;
+
+		memset(a,0,sizeof(*a));
+
+		switch (a->index) {
+		case AUDIO_RADIO:
+			strcpy(a->name,"Radio");
+			break;
+		case AUDIO_EXTERN_1:
+			strcpy(a->name,"Extern 1");
+			break;
+		case AUDIO_EXTERN_2:
+			strcpy(a->name,"Extern 2");
+			break;
+		case AUDIO_TUNER:
+			strcpy(a->name,"Television");
+			break;
+		default:
+			return -EINVAL;
+		}
+
+		msp_any_detect_stereo(client);
+ 		if (msp->audmode == V4L2_TUNER_MODE_STEREO) {
+			a->capability=V4L2_AUDCAP_STEREO;
+		}
+
+		break;
+	}
+	case VIDIOC_S_AUDIO:
+	{
+		struct v4l2_audio *sarg = arg;
+
+		switch (sarg->index) {
+		case AUDIO_RADIO:
+			/* Hauppauge uses IN2 for the radio */
+			msp->mode   = MSP_MODE_FM_RADIO;
+			scart       = SCART_IN2;
+			break;
+		case AUDIO_EXTERN_1:
+			/* IN1 is often used for external input ... */
+			msp->mode   = MSP_MODE_EXTERN;
+			scart       = SCART_IN1;
+			break;
+		case AUDIO_EXTERN_2:
+			/* ... sometimes it is IN2 through ;) */
+			msp->mode   = MSP_MODE_EXTERN;
+			scart       = SCART_IN2;
+			break;
+		case AUDIO_TUNER:
+			msp->mode   = -1;
+			break;
+		}
+		if (scart) {
+			msp->rxsubchans = V4L2_TUNER_SUB_STEREO;
+			msp->audmode = V4L2_TUNER_MODE_STEREO;
+			msp3400c_set_scart(client,scart,0);
+			msp3400c_write(client,I2C_MSP3400C_DFP,0x000d,0x1900);
+		}
+ 		if (sarg->capability==V4L2_AUDCAP_STEREO) {
+			msp->audmode = V4L2_TUNER_MODE_STEREO;
+		} else {
+			msp->audmode &= ~V4L2_TUNER_MODE_STEREO;
+		}
+		msp_any_set_audmode(client, msp->audmode);
+		msp_wake_thread(client);
+		break;
+	}
 	case VIDIOC_G_TUNER:
 	{
 		struct v4l2_tuner *vt = arg;
@@ -1857,7 +1954,7 @@ static int msp_command(struct i2c_client *client, unsigned int cmd, void *arg)
 	return 0;
 }
 
-#ifdef MM_KERNEL
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,13)
 static int msp_suspend(struct device * dev, pm_message_t state, u32 level)
 #else
 static int msp_suspend(struct device * dev, u32 state, u32 level)

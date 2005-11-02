@@ -1,5 +1,5 @@
 /*
- * $Id: saa7134-tvaudio.c,v 1.31 2005/07/15 21:44:14 mchehab Exp $
+ * $Id: saa7134-tvaudio.c,v 1.34 2005/10/04 17:24:34 mkrufky Exp $
  *
  * device driver for philips saa7134 based TV cards
  * tv audio decoder (fm stereo, nicam, ...)
@@ -209,6 +209,10 @@ static void tvaudio_setcarrier(struct saa7134_dev *dev,
 	saa_writel(SAA7134_CARRIER2_FREQ0 >> 2, tvaudio_carr2reg(secondary));
 }
 
+#define SAA7134_MUTE_MASK 0xbb
+#define SAA7134_MUTE_ANALOG 0x04
+#define SAA7134_MUTE_I2S 0x40
+
 static void mute_input_7134(struct saa7134_dev *dev)
 {
 	unsigned int mute;
@@ -243,7 +247,11 @@ static void mute_input_7134(struct saa7134_dev *dev)
 
 	if (PCI_DEVICE_ID_PHILIPS_SAA7134 == dev->pci->device)
 		/* 7134 mute */
-		saa_writeb(SAA7134_AUDIO_MUTE_CTRL, mute ? 0xbf : 0xbb);
+		saa_writeb(SAA7134_AUDIO_MUTE_CTRL, mute ?
+					            SAA7134_MUTE_MASK |
+						    SAA7134_MUTE_ANALOG |
+						    SAA7134_MUTE_I2S :
+						    SAA7134_MUTE_MASK);
 
 	/* switch internal audio mux */
 	switch (in->amux) {
@@ -344,9 +352,9 @@ static int tvaudio_sleep(struct saa7134_dev *dev, int timeout)
 			set_current_state(TASK_INTERRUPTIBLE);
 			schedule();
 		} else {
-#if 0
-			/* hmm, that one doesn't return on wakeup ... */
-			msleep_interruptible(timeout);
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,13)
+			schedule_timeout_interruptible
+						(msecs_to_jiffies(timeout));
 #else
 			set_current_state(TASK_INTERRUPTIBLE);
 			schedule_timeout(msecs_to_jiffies(timeout));

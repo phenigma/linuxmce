@@ -1,5 +1,5 @@
 /*
- * $Id: saa7134-core.c,v 1.40 2005/07/15 21:44:14 mchehab Exp $
+ * $Id: saa7134-core.c,v 1.44 2005/10/08 09:20:24 nsh Exp $
  *
  * device driver for philips saa7134 based TV cards
  * driver core
@@ -58,6 +58,10 @@ MODULE_PARM_DESC(gpio_tracking,"enable debug messages [gpio]");
 static unsigned int oss = 0;
 module_param(oss, int, 0444);
 MODULE_PARM_DESC(oss,"register oss devices (default: no)");
+
+static unsigned int alsa = 0;
+module_param(alsa, int, 0444);
+MODULE_PARM_DESC(alsa,"register alsa devices (default: no)");
 
 static unsigned int latency = UNSET;
 module_param(latency, int, 0444);
@@ -648,13 +652,19 @@ static irqreturn_t saa7134_irq(int irq, void *dev_id, struct pt_regs *regs)
 		    card_has_mpeg(dev))
 			saa7134_irq_ts_done(dev,status);
 
-		if ((report & SAA7134_IRQ_REPORT_DONE_RA3))
-			saa7134_irq_oss_done(dev,status);
+		if ((report & SAA7134_IRQ_REPORT_DONE_RA3))  {
+			if (oss) {
+				saa7134_irq_oss_done(dev,status);
+			} else if (alsa) {
+				saa7134_irq_alsa_done(dev,status);
+			}
+		}
 
 		if ((report & (SAA7134_IRQ_REPORT_GPIO16 |
 			       SAA7134_IRQ_REPORT_GPIO18)) &&
 		    dev->remote)
 			saa7134_input_irq(dev);
+
 	}
 
 	if (10 == loop) {
@@ -703,14 +713,6 @@ static int saa7134_hwinit1(struct saa7134_dev *dev)
 		saa7134_ts_init1(dev);
 	saa7134_input_init1(dev);
 
-	switch (dev->pci->device) {
-	case PCI_DEVICE_ID_PHILIPS_SAA7134:
-	case PCI_DEVICE_ID_PHILIPS_SAA7133:
-	case PCI_DEVICE_ID_PHILIPS_SAA7135:
-		saa7134_oss_init1(dev);
-		break;
-	}
-
 	/* RAM FIFO config */
 	saa_writel(SAA7134_FIFO_SIZE, 0x08070503);
 	saa_writel(SAA7134_THRESHOULD,0x02020202);
@@ -724,6 +726,21 @@ static int saa7134_hwinit1(struct saa7134_dev *dev)
 		   SAA7134_MAIN_CTRL_EVFE2 |
 		   SAA7134_MAIN_CTRL_ESFE  |
 		   SAA7134_MAIN_CTRL_EBDAC);
+
+	/*
+	 * Initialize OSS _after_ enabling audio clock PLL and audio processing.
+	 * OSS initialization writes to registers via the audio DSP; these
+	 * writes will fail unless the audio clock has been started.  At worst,
+	 * audio will not work.
+	 */
+
+	switch (dev->pci->device) {
+	case PCI_DEVICE_ID_PHILIPS_SAA7134:
+	case PCI_DEVICE_ID_PHILIPS_SAA7133:
+	case PCI_DEVICE_ID_PHILIPS_SAA7135:
+		saa7134_oss_init1(dev);
+		break;
+	}
 
 	/* enable peripheral devices */
 	saa_writeb(SAA7134_SPECIAL_MODE, 0x01);
@@ -1068,6 +1085,10 @@ static int __devinit saa7134_initdev(struct pci_dev *pci_dev,
 				goto fail5;
 			printk(KERN_INFO "%s: registered device mixer%d\n",
 			       dev->name,dev->oss.minor_mixer >> 4);
+		} else if (alsa) {
+			alsa_card_saa7134_create(dev,dsp_nr[dev->nr]);
+			printk(KERN_INFO "%s: registered ALSA devices\n",
+			       dev->name);
 		}
 		break;
 	}
@@ -1095,6 +1116,8 @@ static int __devinit saa7134_initdev(struct pci_dev *pci_dev,
 	case PCI_DEVICE_ID_PHILIPS_SAA7135:
 		if (oss)
 			unregister_sound_dsp(dev->oss.minor_dsp);
+		else if (alsa)
+			alsa_card_saa7134_exit();
 		break;
 	}
  fail4:
@@ -1154,7 +1177,8 @@ static void __devexit saa7134_finidev(struct pci_dev *pci_dev)
 		if (oss) {
 			unregister_sound_mixer(dev->oss.minor_mixer);
 			unregister_sound_dsp(dev->oss.minor_dsp);
-		}
+		} else if (alsa)
+			alsa_card_saa7134_exit();
 		break;
 	}
 	saa7134_unregister_video(dev);

@@ -332,7 +332,7 @@ static void saa6588_work(void *data)
 	struct saa6588 *s = (struct saa6588 *)data;
 
 	saa6588_i2c_poll(s);
-	mod_timer(&s->timer, jiffies + HZ / 50);	/* 20 msec */
+	mod_timer(&s->timer, jiffies + msecs_to_jiffies(20));
 }
 
 static int saa6588_configure(struct saa6588 *s)
@@ -438,9 +438,9 @@ static int saa6588_probe(struct i2c_adapter *adap)
 		return i2c_probe(adap, &addr_data, saa6588_attach);
 #else
 	switch (adap->id) {
-	case I2C_ALGO_BIT | I2C_HW_B_BT848:
-	case I2C_ALGO_BIT | I2C_HW_B_RIVA:
-	case I2C_ALGO_SAA7134:
+	case I2C_HW_B_BT848:
+	case I2C_HW_B_RIVA:
+	case I2C_HW_SAA7134:
 		return i2c_probe(adap, &addr_data, saa6588_attach);
 		break;
 	}
@@ -511,7 +511,7 @@ static struct i2c_driver driver = {
 };
 
 static struct i2c_client client_template = {
-	I2C_DEVNAME("saa6588"),
+	.name = "saa6588",
 	.flags = I2C_CLIENT_ALLOW_USE,
 	.driver = &driver,
 };

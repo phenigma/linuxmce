@@ -1,5 +1,5 @@
 /*
- * $Id: tvmixer.c,v 1.9 2005/07/15 21:44:14 mchehab Exp $
+ * $Id: tvmixer.c,v 1.10 2005/09/13 20:11:39 mkrufky Exp $
  */
 
 #include <linux/module.h>
@@ -102,7 +102,7 @@ static int tvmixer_ioctl(struct inode *inode, struct file *file, unsigned int cm
         if (cmd == SOUND_MIXER_INFO) {
                 mixer_info info;
                 strlcpy(info.id, "tv card", sizeof(info.id));
-                strlcpy(info.name, i2c_clientname(client), sizeof(info.name));
+                strlcpy(info.name, client->name, sizeof(info.name));
                 info.modify_counter = 42 /* FIXME */;
                 if (copy_to_user(argp, &info, sizeof(info)))
                         return -EFAULT;
@@ -111,7 +111,7 @@ static int tvmixer_ioctl(struct inode *inode, struct file *file, unsigned int cm
         if (cmd == SOUND_OLD_MIXER_INFO) {
                 _old_mixer_info info;
                 strlcpy(info.id, "tv card", sizeof(info.id));
-                strlcpy(info.name, i2c_clientname(client), sizeof(info.name));
+                strlcpy(info.name, client->name, sizeof(info.name));
                 if (copy_to_user(argp, &info, sizeof(info)))
                         return -EFAULT;
                 return 0;
@@ -301,9 +301,9 @@ static int tvmixer_clients(struct i2c_client *client)
 #else
 	/* TV card ??? */
 	switch (client->adapter->id) {
-	case I2C_ALGO_BIT | I2C_HW_SMBUS_VOODOO3:
-	case I2C_ALGO_BIT | I2C_HW_B_BT848:
-	case I2C_ALGO_BIT | I2C_HW_B_RIVA:
+	case I2C_HW_SMBUS_VOODOO3:
+	case I2C_HW_B_BT848:
+	case I2C_HW_B_RIVA:
 		/* ok, have a look ... */
 		break;
 	default:
@@ -320,7 +320,7 @@ static int tvmixer_clients(struct i2c_client *client)
 			devices[i].dev = NULL;
 			devices[i].minor = -1;
 			printk("tvmixer: %s unregistered (#1)\n",
-			       i2c_clientname(client));
+			       client->name);
 			return 0;
 		}
 	}
@@ -379,7 +379,7 @@ static void __exit tvmixer_cleanup_module(void)
 		if (devices[i].minor != -1) {
 			unregister_sound_mixer(devices[i].minor);
 			printk("tvmixer: %s unregistered (#2)\n",
-			       i2c_clientname(devices[i].dev));
+			       devices[i].dev->name);
 		}
 	}
 }

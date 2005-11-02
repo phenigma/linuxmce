@@ -152,7 +152,7 @@ sub filter_dest ($$) {
 	open OUT, ">$out";
 
 	while ($line = <IN>) {
-		if ($line =~ m/\$Id: buildpatch,v 1.9 2005/09/04 11:45:20 mchehab Exp $/) {
+		if ($line =~ m/[\$]Id:.*/) {
 			next;
 		}
 		print OUT $line;

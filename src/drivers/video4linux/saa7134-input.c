@@ -1,5 +1,5 @@
 /*
- * $Id: saa7134-input.c,v 1.24 2005/09/05 15:35:14 nsh Exp $
+ * $Id: saa7134-input.c,v 1.33 2005/10/04 14:52:08 nsh Exp $
  *
  * handle saa7134 IR remotes via linux kernel input layer.
  *
@@ -405,6 +405,48 @@ static IR_KEYTAB_TYPE manli_codes[IR_KEYTAB_SIZE] = {
 
 	// 0x1d unused ?
 };
+
+
+/* Mike Baikov <mike@baikov.com> */
+static IR_KEYTAB_TYPE gotview7135_codes[IR_KEYTAB_SIZE] = {
+
+	[ 33 ] = KEY_POWER,
+	[ 105] = KEY_TV,
+	[ 51 ] = KEY_KP0,
+	[ 81 ] = KEY_KP1,
+	[ 49 ] = KEY_KP2,
+	[ 113] = KEY_KP3,
+	[ 59 ] = KEY_KP4,
+	[ 88 ] = KEY_KP5,
+	[ 65 ] = KEY_KP6,
+	[ 72 ] = KEY_KP7,
+	[ 48 ] = KEY_KP8,
+	[ 83 ] = KEY_KP9,
+	[ 115] = KEY_AGAIN, /* LOOP */
+	[ 10 ] = KEY_AUDIO,
+	[ 97 ] = KEY_PRINT, /* PREVIEW */
+	[ 122] = KEY_VIDEO,
+	[ 32 ] = KEY_CHANNELUP,
+	[ 64 ] = KEY_CHANNELDOWN,
+	[ 24 ] = KEY_VOLUMEDOWN,
+	[ 80 ] = KEY_VOLUMEUP,
+	[ 16 ] = KEY_MUTE,
+	[ 74 ] = KEY_SEARCH,
+	[ 123] = KEY_SHUFFLE, /* SNAPSHOT */
+	[ 34 ] = KEY_RECORD,
+	[ 98 ] = KEY_STOP,
+	[ 120] = KEY_PLAY,
+	[ 57 ] = KEY_REWIND,
+	[ 89 ] = KEY_PAUSE,
+	[ 25 ] = KEY_FORWARD,
+	[  9 ] = KEY_ZOOM,
+
+	[ 82 ] = KEY_F21, /* LIVE TIMESHIFT */
+	[ 26 ] = KEY_F22, /* MIN TIMESHIFT */
+	[ 58 ] = KEY_F23, /* TIMESHIFT */
+	[ 112] = KEY_F24, /* NORMAL TIMESHIFT */
+};
+
 /* ---------------------------------------------------------------------- */
 
 static int build_key(struct saa7134_dev *dev)
@@ -477,6 +519,7 @@ int saa7134_input_init1(struct saa7134_dev *dev)
 	case SAA7134_BOARD_FLYVIDEO2000:
 	case SAA7134_BOARD_FLYVIDEO3000:
         case SAA7134_BOARD_FLYTVPLATINUM_FM:
+	case SAA7134_BOARD_FLYTVPLATINUM_MINI2:
 		ir_codes     = flyvideo_codes;
 		mask_keycode = 0xEC00000;
 		mask_keydown = 0x0040000;
@@ -517,14 +560,26 @@ int saa7134_input_init1(struct saa7134_dev *dev)
 		saa_setb(SAA7134_GPIO_GPMODE0, 0x4);
 		saa_setb(SAA7134_GPIO_GPSTATUS0, 0x4);
 		break;
+        case SAA7134_BOARD_KWORLD_TERMINATOR:
+		ir_codes     = avacssmart_codes;
+		mask_keycode = 0x00001f;
+		mask_keyup   = 0x000060;
+		polling      = 50; // ms
+		break;
 	case SAA7134_BOARD_MANLI_MTV001:
 	case SAA7134_BOARD_MANLI_MTV002:
 	case SAA7134_BOARD_BEHOLD_409FM:
 		ir_codes     = manli_codes;
 		mask_keycode = 0x001f00;
 		mask_keyup   = 0x004000;
-		mask_keydown = 0x002000;
 		polling      = 50; // ms
+		break;
+        case SAA7134_BOARD_GOTVIEW_7135:
+		ir_codes     = gotview7135_codes;
+		mask_keycode = 0x0003EC;
+		mask_keyup   = 0x008000;
+		mask_keydown = 0x000010;
+		polling	     = 50; // ms
 		break;
 	case SAA7134_BOARD_VIDEOMATE_TV_PVR:
 	case SAA7134_BOARD_VIDEOMATE_TV_GOLD_PLUSII:
@@ -532,6 +587,12 @@ int saa7134_input_init1(struct saa7134_dev *dev)
 		mask_keycode = 0x00003F;
 		mask_keyup   = 0x400000;
 		polling      = 50; // ms
+		break;
+        case SAA7134_BOARD_VIDEOMATE_DVBT_300:
+        case SAA7134_BOARD_VIDEOMATE_DVBT_200:
+		ir_codes     = videomate_tv_pvr_codes;
+		mask_keycode = 0x003F00;
+		mask_keyup   = 0x040000;
 		break;
 	}
 	if (NULL == ir_codes) {

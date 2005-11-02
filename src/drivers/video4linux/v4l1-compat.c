@@ -1,5 +1,5 @@
 /*
- * $Id: v4l1-compat.c,v 1.11 2005/07/13 17:25:25 mchehab Exp $
+ * $Id: v4l1-compat.c,v 1.12 2005/10/08 17:14:25 mkrufky Exp $
  *
  *	Video for Linux Two
  *	Backward Compatibility Layer
@@ -730,7 +730,7 @@ v4l_compat_translate_ioctl(struct inode         *inode,
 	}
 	case VIDIOCGFREQ: /*  get frequency  */
 	{
-		int *freq = arg;
+		unsigned long *freq = arg;
 
 		freq2.tuner = 0;
 		err = drv(inode, file, VIDIOC_G_FREQUENCY, &freq2);
@@ -742,7 +742,7 @@ v4l_compat_translate_ioctl(struct inode         *inode,
 	}
 	case VIDIOCSFREQ: /*  set frequency  */
 	{
-		int *freq = arg;
+		unsigned long *freq = arg;
 
 		freq2.tuner = 0;
 		drv(inode, file, VIDIOC_G_FREQUENCY, &freq2);

@@ -1,5 +1,5 @@
 /*
- * $Id: ir-kbd-i2c.c,v 1.11 2005/07/07 16:42:11 mchehab Exp $
+ * $Id: ir-kbd-i2c.c,v 1.13 2005/09/19 01:20:14 mkrufky Exp $
  *
  * keyboard input driver for i2c IR remote controls
  *
@@ -38,10 +38,9 @@
 #include <linux/slab.h>
 #include <linux/i2c.h>
 #include <linux/workqueue.h>
-
 #include <asm/semaphore.h>
-
 #include <media/ir-common.h>
+#include "compat.h"
 
 /* Mark Phalan <phalanm@o2.ie> */
 static IR_KEYTAB_TYPE ir_codes_pv951[IR_KEYTAB_SIZE] = {
@@ -317,7 +316,7 @@ static struct i2c_driver driver = {
 
 static struct i2c_client client_template =
 {
-        I2C_DEVNAME("unset"),
+        .name = "unset",
         .driver = &driver
 };
 
@@ -438,10 +437,10 @@ static int ir_probe(struct i2c_adapter *adap)
 	struct i2c_client c; char buf; int i,rc;
 
 	switch (adap->id) {
-	case I2C_ALGO_BIT | I2C_HW_B_BT848:
+	case I2C_HW_B_BT848:
 		probe = probe_bttv;
 		break;
-	case I2C_ALGO_SAA7134:
+	case I2C_HW_SAA7134:
 		probe = probe_saa7134;
 		break;
 	}

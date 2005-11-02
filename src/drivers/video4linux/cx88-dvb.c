@@ -1,5 +1,5 @@
 /*
- * $Id: cx88-dvb.c,v 1.63 2005/08/30 02:41:32 mkrufky Exp $
+ * $Id: cx88-dvb.c,v 1.67 2005/09/21 00:56:30 mkrufky Exp $
  *
  * device driver for Conexant 2388x based TV cards
  * MPEG Transport Stream (DVB) routines
@@ -30,10 +30,6 @@
 #include <linux/file.h>
 #include <linux/suspend.h>
 #include "compat.h"
-
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,13)
-#undef HAVE_LGDT330X
-#endif
 
 #include "cx88.h"
 #include "dvb-pll.h"
@@ -83,7 +79,7 @@ static int dvb_buf_prepare(struct videobuf_queue *q, struct videobuf_buffer *vb,
 			   enum v4l2_field field)
 {
 	struct cx8802_dev *dev = q->priv_data;
-	return cx8802_buf_prepare(dev, (struct cx88_buffer*)vb);
+	return cx8802_buf_prepare(dev, (struct cx88_buffer*)vb,field);
 }
 
 static void dvb_buf_queue(struct videobuf_queue *q, struct videobuf_buffer *vb)
@@ -230,9 +226,7 @@ static int lgdt330x_pll_set(struct dvb_frontend* fe,
 	int err;
 
 	/* Put the analog decoder in standby to keep it quiet */
-	if (core->tda9887_conf) {
-		cx88_call_i2c_clients (dev->core, TUNER_SET_STANDBY, NULL);
-	}
+	cx88_call_i2c_clients (dev->core, TUNER_SET_STANDBY, NULL);
 
 	dvb_pll_configure(core->pll_desc, buf, params->frequency, 0);
 	dprintk(1, "%s: tuner at 0x%02x bytes: 0x%02x 0x%02x 0x%02x 0x%02x\n",
@@ -410,6 +404,9 @@ static int dvb_register(struct cx8802_dev *dev)
 		dev->dvb.frontend->ops->info.frequency_min = dev->core->pll_desc->min;
 		dev->dvb.frontend->ops->info.frequency_max = dev->core->pll_desc->max;
 	}
+
+	/* Put the analog decoder in standby to keep it quiet */
+	cx88_call_i2c_clients (dev->core, TUNER_SET_STANDBY, NULL);
 
 	/* register everything */
 	return videobuf_dvb_register(&dev->dvb, THIS_MODULE, dev);

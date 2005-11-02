@@ -1,5 +1,5 @@
 /*
- * $Id: saa7134-dvb.c,v 1.26 2005/08/30 19:53:12 mkrufky Exp $
+ * $Id: saa7134-dvb.c,v 1.28 2005/09/21 00:56:30 mkrufky Exp $
  *
  * (c) 2004 Gerd Knorr <kraxel@bytesex.org> [SuSE Labs]
  *
@@ -30,10 +30,6 @@
 #include <linux/kthread.h>
 #include <linux/suspend.h>
 #include "compat.h"
-
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,13)
-#undef HAVE_TDA1004X
-#endif
 
 #include "saa7134-reg.h"
 #include "saa7134.h"
@@ -156,25 +152,12 @@ static struct mt352_config pinnacle_300i = {
 /* ------------------------------------------------------------------ */
 
 #ifdef HAVE_TDA1004X
-static int philips_tu1216_pll_init(struct dvb_frontend *fe)
-{
-	struct saa7134_dev *dev = fe->dvb->priv;
-	static u8 tu1216_init[] = { 0x0b, 0xf5, 0x85, 0xab };
-	struct i2c_msg tuner_msg = {.addr = 0x60,.flags = 0,.buf = tu1216_init,.len = sizeof(tu1216_init) };
 
-	/* setup PLL configuration */
-	if (i2c_transfer(&dev->i2c_adap, &tuner_msg, 1) != 1)
-		return -EIO;
-	msleep(1);
-
-	return 0;
-}
-
-static int philips_tu1216_pll_set(struct dvb_frontend *fe, struct dvb_frontend_parameters *params)
+static int philips_tda6651_pll_set(u8 addr, struct dvb_frontend *fe, struct dvb_frontend_parameters *params)
 {
 	struct saa7134_dev *dev = fe->dvb->priv;
 	u8 tuner_buf[4];
-	struct i2c_msg tuner_msg = {.addr = 0x60,.flags = 0,.buf = tuner_buf,.len =
+	struct i2c_msg tuner_msg = {.addr = addr,.flags = 0,.buf = tuner_buf,.len =
 			sizeof(tuner_buf) };
 	int tuner_frequency = 0;
 	u8 band, cp, filter;
@@ -247,9 +230,34 @@ static int philips_tu1216_pll_set(struct dvb_frontend *fe, struct dvb_frontend_p
 
 	if (i2c_transfer(&dev->i2c_adap, &tuner_msg, 1) != 1)
 		return -EIO;
-
 	msleep(1);
 	return 0;
+}
+
+static int philips_tda6651_pll_init(u8 addr, struct dvb_frontend *fe)
+{
+	struct saa7134_dev *dev = fe->dvb->priv;
+	static u8 tu1216_init[] = { 0x0b, 0xf5, 0x85, 0xab };
+	struct i2c_msg tuner_msg = {.addr = addr,.flags = 0,.buf = tu1216_init,.len = sizeof(tu1216_init) };
+
+	/* setup PLL configuration */
+	if (i2c_transfer(&dev->i2c_adap, &tuner_msg, 1) != 1)
+		return -EIO;
+	msleep(1);
+
+	return 0;
+}
+
+/* ------------------------------------------------------------------ */
+
+static int philips_tu1216_pll_60_init(struct dvb_frontend *fe)
+{
+	return philips_tda6651_pll_init(0x60, fe);
+}
+
+static int philips_tu1216_pll_60_set(struct dvb_frontend *fe, struct dvb_frontend_parameters *params)
+{
+	return philips_tda6651_pll_set(0x60, fe, params);
 }
 
 static int philips_tu1216_request_firmware(struct dvb_frontend *fe,
@@ -259,22 +267,108 @@ static int philips_tu1216_request_firmware(struct dvb_frontend *fe,
 	return request_firmware(fw, name, &dev->pci->dev);
 }
 
-static struct tda1004x_config philips_tu1216_config = {
+static struct tda1004x_config philips_tu1216_60_config = {
 
 	.demod_address = 0x8,
 	.invert        = 1,
-	.invert_oclk   = 1,
+	.invert_oclk   = 0,
 	.xtal_freq     = TDA10046_XTAL_4M,
 	.agc_config    = TDA10046_AGC_DEFAULT,
 	.if_freq       = TDA10046_FREQ_3617,
-	.pll_init      = philips_tu1216_pll_init,
-	.pll_set       = philips_tu1216_pll_set,
+	.pll_init      = philips_tu1216_pll_60_init,
+	.pll_set       = philips_tu1216_pll_60_set,
 	.pll_sleep     = NULL,
 	.request_firmware = philips_tu1216_request_firmware,
 };
 
 /* ------------------------------------------------------------------ */
 
+static int philips_tu1216_pll_61_init(struct dvb_frontend *fe)
+{
+	return philips_tda6651_pll_init(0x61, fe);
+}
+
+static int philips_tu1216_pll_61_set(struct dvb_frontend *fe, struct dvb_frontend_parameters *params)
+{
+	return philips_tda6651_pll_set(0x61, fe, params);
+}
+
+static struct tda1004x_config philips_tu1216_61_config = {
+
+	.demod_address = 0x8,
+	.invert        = 1,
+	.invert_oclk   = 0,
+	.xtal_freq     = TDA10046_XTAL_4M,
+	.agc_config    = TDA10046_AGC_DEFAULT,
+	.if_freq       = TDA10046_FREQ_3617,
+	.pll_init      = philips_tu1216_pll_61_init,
+	.pll_set       = philips_tu1216_pll_61_set,
+	.pll_sleep     = NULL,
+	.request_firmware = philips_tu1216_request_firmware,
+};
+
+/* ------------------------------------------------------------------ */
+
+static int philips_europa_pll_init(struct dvb_frontend *fe)
+{
+	struct saa7134_dev *dev = fe->dvb->priv;
+	static u8 msg[] = { 0x0b, 0xf5, 0x86, 0xab };
+	struct i2c_msg init_msg = {.addr = 0x61,.flags = 0,.buf = msg,.len = sizeof(msg) };
+
+	/* setup PLL configuration */
+	if (i2c_transfer(&dev->i2c_adap, &init_msg, 1) != 1)
+		return -EIO;
+	msleep(1);
+
+	/* switch the board to dvb mode */
+	init_msg.addr = 0x43;
+	init_msg.len  = 0x02;
+	msg[0] = 0x00;
+	msg[1] = 0x40;
+	if (i2c_transfer(&dev->i2c_adap, &init_msg, 1) != 1)
+		return -EIO;
+
+	return 0;
+}
+
+static int philips_td1316_pll_set(struct dvb_frontend *fe, struct dvb_frontend_parameters *params)
+{
+	return philips_tda6651_pll_set(0x61, fe, params);
+}
+
+static void philips_europa_analog(struct dvb_frontend *fe)
+{
+	struct saa7134_dev *dev = fe->dvb->priv;
+	/* this message actually turns the tuner back to analog mode */
+	static u8 msg[] = { 0x0b, 0xdc, 0x86, 0xa4 };
+	struct i2c_msg analog_msg = {.addr = 0x61,.flags = 0,.buf = msg,.len = sizeof(msg) };
+
+	i2c_transfer(&dev->i2c_adap, &analog_msg, 1);
+	msleep(1);
+
+	/* switch the board to analog mode */
+	analog_msg.addr = 0x43;
+	analog_msg.len  = 0x02;
+	msg[0] = 0x00;
+	msg[1] = 0x14;
+	i2c_transfer(&dev->i2c_adap, &analog_msg, 1);
+}
+
+static struct tda1004x_config philips_europa_config = {
+
+	.demod_address = 0x8,
+	.invert        = 0,
+	.invert_oclk   = 0,
+	.xtal_freq     = TDA10046_XTAL_4M,
+	.agc_config    = TDA10046_AGC_IFO_AUTO_POS,
+	.if_freq       = TDA10046_FREQ_052,
+	.pll_init      = philips_europa_pll_init,
+	.pll_set       = philips_td1316_pll_set,
+	.pll_sleep     = philips_europa_analog,
+	.request_firmware = NULL,
+};
+
+/* ------------------------------------------------------------------ */
 
 static int philips_fmd1216_pll_init(struct dvb_frontend *fe)
 {
@@ -387,7 +481,6 @@ static int philips_fmd1216_pll_set(struct dvb_frontend *fe, struct dvb_frontend_
 	return 0;
 }
 
-#ifdef HAVE_TDA1004X
 static struct tda1004x_config medion_cardbus = {
 	.demod_address = 0x08,
 	.invert        = 1,
@@ -400,7 +493,6 @@ static struct tda1004x_config medion_cardbus = {
 	.pll_sleep	   = philips_fmd1216_analog,
 	.request_firmware = NULL,
 };
-#endif
 
 /* ------------------------------------------------------------------ */
 
@@ -563,7 +655,7 @@ static int dvb_init(struct saa7134_dev *dev)
 						    &dev->i2c_adap);
 		break;
 	case SAA7134_BOARD_PHILIPS_TOUGH:
-		dev->dvb.frontend = tda10046_attach(&philips_tu1216_config,
+		dev->dvb.frontend = tda10046_attach(&philips_tu1216_60_config,
 						    &dev->i2c_adap);
 		break;
 	case SAA7134_BOARD_FLYDVBTDUO:
@@ -572,6 +664,18 @@ static int dvb_init(struct saa7134_dev *dev)
 		break;
 	case SAA7134_BOARD_THYPHOON_DVBT_DUO_CARDBUS:
 		dev->dvb.frontend = tda10046_attach(&tda827x_lifeview_config,
+						    &dev->i2c_adap);
+		break;
+	case SAA7134_BOARD_PHILIPS_EUROPA:
+		dev->dvb.frontend = tda10046_attach(&philips_europa_config,
+						    &dev->i2c_adap);
+		break;
+	case SAA7134_BOARD_VIDEOMATE_DVBT_300:
+		dev->dvb.frontend = tda10046_attach(&philips_europa_config,
+						    &dev->i2c_adap);
+		break;
+	case SAA7134_BOARD_VIDEOMATE_DVBT_200:
+		dev->dvb.frontend = tda10046_attach(&philips_tu1216_61_config,
 						    &dev->i2c_adap);
 		break;
 #endif

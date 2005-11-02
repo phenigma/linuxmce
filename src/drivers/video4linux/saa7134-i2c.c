@@ -1,5 +1,5 @@
 /*
- * $Id: saa7134-i2c.c,v 1.22 2005/07/22 04:09:41 mkrufky Exp $
+ * $Id: saa7134-i2c.c,v 1.24 2005/09/19 01:20:14 mkrufky Exp $
  *
  * device driver for philips saa7134 based TV cards
  * i2c interface support
@@ -340,7 +340,7 @@ static int attach_inform(struct i2c_client *client)
 	struct tuner_setup tun_setup;
 
 	d1printk( "%s i2c attach [addr=0x%x,client=%s]\n",
-		client->driver->name,client->addr,i2c_clientname(client));
+		client->driver->name, client->addr, client->name);
 
 	if (!client->driver->command)
 		return 0;
@@ -376,8 +376,6 @@ static int attach_inform(struct i2c_client *client)
 }
 
 static struct i2c_algorithm saa7134_algo = {
-	.name          = "saa7134",
-	.id            = I2C_ALGO_SAA7134,
 	.master_xfer   = saa7134_i2c_xfer,
 	.algo_control  = algo_control,
 	.functionality = functionality,
@@ -388,14 +386,14 @@ static struct i2c_adapter saa7134_adap_template = {
 #ifdef I2C_CLASS_TV_ANALOG
 	.class         = I2C_CLASS_TV_ANALOG,
 #endif
-	I2C_DEVNAME("saa7134"),
-	.id            = I2C_ALGO_SAA7134,
+	.name          = "saa7134",
+	.id            = I2C_HW_SAA7134,
 	.algo          = &saa7134_algo,
 	.client_register = attach_inform,
 };
 
 static struct i2c_client saa7134_client_template = {
-	I2C_DEVNAME("saa7134 internal"),
+	.name	= "saa7134 internal",
 };
 
 /* ----------------------------------------------------------- */

@@ -1,0 +1,7 @@
+Development has been moved from video4linux cvs to v4l-kernel cvs.
+
+To checkout v4l-kernel, use the following commands:
+
+cvs -d :pserver:anonymous@cvs.linuxtv.org:/cvs/video4linux login
+
+cvs -d :pserver:anonymous@cvs.linuxtv.org:/cvs/video4linux co -P v4l-kernel

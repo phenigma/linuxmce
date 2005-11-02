@@ -214,7 +214,7 @@ static int bt832_probe(struct i2c_adapter *adap)
 	if (adap->class & I2C_CLASS_TV_ANALOG)
 		return i2c_probe(adap, &addr_data, bt832_attach);
 #else
-	if (adap->id == (I2C_ALGO_BIT | I2C_HW_B_BT848))
+	if (adap->id == I2C_HW_B_BT848)
 		return i2c_probe(adap, &addr_data, bt832_attach);
 #endif
 	return 0;
@@ -263,18 +263,18 @@ static struct i2c_driver driver = {
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,54)
 	.owner          = THIS_MODULE,
 #endif
-        .name           = "i2c bt832 driver",
-        .id             = -1, /* FIXME */
-        .flags          = I2C_DF_NOTIFY,
-        .attach_adapter = bt832_probe,
-        .detach_client  = bt832_detach,
-        .command        = bt832_command,
+	.name           = "i2c bt832 driver",
+	.id             = -1, /* FIXME */
+	.flags          = I2C_DF_NOTIFY,
+	.attach_adapter = bt832_probe,
+	.detach_client  = bt832_detach,
+	.command        = bt832_command,
 };
 static struct i2c_client client_template =
 {
-	I2C_DEVNAME("bt832"),
+	.name       = "bt832",
 	.flags      = I2C_CLIENT_ALLOW_USE,
-        .driver     = &driver,
+	.driver     = &driver,
 };
 
 

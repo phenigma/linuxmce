@@ -1,5 +1,5 @@
 /*
- * $Id: compat.h,v 1.15 2005/08/12 19:56:03 nsh Exp $
+ * $Id: compat.h,v 1.21 2005/10/06 14:38:52 mchehab Exp $
  */
 
 #ifndef _COMPAT_H
@@ -56,6 +56,16 @@
 #if !defined(I2C_HW_B_CX2388x)
 # define I2C_HW_B_CX2388x I2C_HW_B_BT848
 #endif
+#if !defined(I2C_HW_SAA7134)
+# define I2C_HW_SAA7134 I2C_ALGO_SAA7134
+#endif
+#if !defined(I2C_HW_SAA7146)
+# define I2C_HW_SAA7146 I2C_ALGO_SAA7146
+#endif
+
+#if !defined(I2C_HW_B_EM2820)
+#define I2C_HW_B_EM2820 I2C_HW_B_BT848
+#endif
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,9)
 #define __le32 __u32
@@ -107,6 +117,13 @@ static inline unsigned long msleep_interruptible(unsigned int msecs)
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,11)
 #define pm_message_t u32
+#endif
+
+#ifndef DVB_CVS
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,13)
+#undef HAVE_LGDT330X
+#undef HAVE_TDA1004X
+#endif
 #endif
 
 #endif
