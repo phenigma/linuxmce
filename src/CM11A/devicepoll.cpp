@@ -15,8 +15,11 @@
 
 #include "DCE/Logger.h"
 #include "cm11aconsts.h"
-
-
+#include "DCE/DeviceData_Impl.h"
+#include "DCE/Message.h"
+#include "pluto_main/Define_Event.h"
+#include "pluto_main/Define_EventParameter.h"
+#include "pluto_main/Define_DeviceTemplate.h"
 using namespace DCE;
 
 #define CM11A_PORT					"ttyS0"
@@ -66,114 +69,28 @@ DevicePoll::SendPacket(CSerialPort* pport,
 	unsigned char chksum = (sendbuff[0] + sendbuff[1]) & 0xff, 
 					resp = (unsigned char)-1;
 	
-	g_pPlutoLogger->Write(LV_STATUS, "Sending header with Checksum: %x.", chksum);
-	pport->Write((char*)sendbuff, sizeof(sendbuff) / sizeof(unsigned char));
-		
-	if(pport->Read((char*)&resp, 1, CM11A_READ_TIMEOUT) == 0) {
-		g_pPlutoLogger->Write(LV_STATUS, "No response from CM11A device.");
-		return -1;
-	} else {
-		g_pPlutoLogger->Write(LV_STATUS, "Got response: %x from CM11A.", resp);
-		if(resp == CM11A_CLOCK_REQ) {
-			g_pPlutoLogger->Write(LV_STATUS, "CM11A requested clock SET UP", resp);
-			SendClock(pport);
+	bool need_resend=true;
+	while(need_resend)
+	{
+		need_resend=false;
+		g_pPlutoLogger->Write(LV_STATUS, "Sending header with Checksum: %x.", chksum);
+		pport->Write((char*)sendbuff, sizeof(sendbuff) / sizeof(unsigned char));
+
+		if(pport->Read((char*)&resp, 1, CM11A_READ_TIMEOUT) == 0) {
+			g_pPlutoLogger->Write(LV_STATUS, "No response from CM11A device.");
 			return -1;
-		} else
-		if(resp == CM11A_INTERFACE_CQ) {
-			g_pPlutoLogger->Write(LV_STATUS, "CM11A wants to notify us of Something...");
-			resp = CM11A_COMPUTER_READY;
-			pport->Write((char*)&resp, 1);
-			int nread = 0;
-			do {
-				nread = pport->Read((char*)&resp, 1, CM11A_READ_TIMEOUT);
-			} while (nread > 0 && resp == CM11A_INTERFACE_CQ);
-			if(nread > 0) {
-				if(resp > 0 && resp < 128) {
-					g_pPlutoLogger->Write(LV_STATUS, "Reading %d bytes of DATA...",resp);
-					
-					char *buff = new char[resp];
-					pport->Read(buff, resp-1, CM11A_READ_TIMEOUT);
-					char mask=buff[0];
-					string recv_msg="";
-					char hex_buff[128];
-					hex_buff[0]=0;
-					list<std::string> used_addresses;
-					int i;
-					for (i=0;i<resp;i++)
-					{
-						sprintf(hex_buff+strlen(hex_buff),"%02X ",buff[i]);
-					}
-					g_pPlutoLogger->Write(LV_STATUS, "Data read successfully <%s>",hex_buff);					
-					for (i=1;i<resp-1;i++)
-					{
-						if(mask & 0x01 == 0) //an address
-						{
-							char* addr = Message::getAddress(buff[i]);
-							used_addresses.push_back(addr);
-							if(recv_msg.length()>0)
-							{
-								recv_msg+=",";
-							}
-							recv_msg+=addr;
-							mask=mask>>1;
-						}
-						else //a function
-						{
-							char func=buff[i++] & 0x0F;
-							char data=0;
-							mask=mask>>1;
-							std::string message="";
-							switch(func)
-							{
-								case CM11A_FUNC_ALL_0FF : message="ALL_OFF"; break;
-								case CM11A_FUNC_ALL_ON  : message="ALL_ON"; break;
-								case CM11A_FUNC_0N      : message="ON"; break;
-								case CM11A_FUNC_0FF     : message="OFF"; break;
-								case CM11A_FUNC_DIMM    : message="DIM"; data=(buff[i]*100)/210; mask=mask>>1; break;
-								case CM11A_FUNC_BRIGHT  : message="BRIGHT"; data=(buff[i]*100)/210; mask=mask>>1;break;
-								case CM11A_FUNC_ALL_L_0FF : message="ALL_LIGHTS_OFF"; break;
-							}
-							for(std::list<std::string>::iterator it = used_addresses.begin(); it != used_addresses.end(); it++)
-							{
-								if (device_status.find(*it) != device_status.end())
-								{
-									switch(func)
-									{
-										case CM11A_FUNC_0N      : device_status[*it]=100; break;
-										case CM11A_FUNC_0FF     : device_status[*it]=0; break;
-										case CM11A_FUNC_DIMM    : device_status[*it]+=data; break;
-										case CM11A_FUNC_BRIGHT  : device_status[*it]-=data; break;
-									}
-								}
-								else
-								{
-									g_pPlutoLogger->Write(LV_STATUS, "Probably need to send EVENT that %s is %s",(*it).c_str(),message.c_str());
-								}
-							}
-							
-							if(recv_msg.length()>0)
-							{
-								recv_msg+=" ";
-							}
-							recv_msg+=message;
-						}
-					}
-					delete[] buff;
-					g_pPlutoLogger->Write(LV_STATUS, "Data decoded into [%s]",recv_msg.c_str());
-				} else {
-					g_pPlutoLogger->Write(LV_STATUS, "No data to read...");
-				}
-			} else {
-				g_pPlutoLogger->Write(LV_STATUS, "Fake Alarm!");
+		} else {
+			g_pPlutoLogger->Write(LV_STATUS, "Got response: %x from CM11A.", resp);
+			if(resp == CM11A_CLOCK_REQ) {
+				g_pPlutoLogger->Write(LV_STATUS, "CM11A requested clock SET UP", resp);
+				SendClock(pport);
+				return -1;
+			} else if(resp != chksum) {
+				g_pPlutoLogger->Write(LV_CRITICAL, "Bad checksum received (send:%x, recieved:%x).", chksum, resp);
+				need_resend=true;
 			}
-			return -1;
-		} else
-		if(resp != chksum) {
-			g_pPlutoLogger->Write(LV_CRITICAL, "Bad checksum received (send:%x, recieved:%x).", chksum, resp);
-			return -1;
 		}
 	}
-	
 	// perform ACK handshake
 	g_pPlutoLogger->Write(LV_STATUS, "Sending ACK.");
 	
@@ -242,7 +159,20 @@ DevicePoll::SendFunction(CSerialPort* pport, const Message* pMesg) {
 }
 
 void* DevicePoll::_Run() {
+
 	g_pPlutoLogger->Write(LV_STATUS, "Device Poll thread started.");
+
+	VectDeviceData_Impl kids = real_cm11a->m_pData->m_vectDeviceData_Impl_Children;
+
+	for(unsigned int kn=0; kn< kids.size(); kn ++)
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Kid number %d",kn);
+		g_pPlutoLogger->Write(LV_STATUS, "     DEVID %d",kids[kn]->m_dwPK_Device);
+		g_pPlutoLogger->Write(LV_STATUS, "     CATEG %d",kids[kn]->m_dwPK_DeviceCategory);
+		g_pPlutoLogger->Write(LV_STATUS, "     X10ID %s",kids[kn]->m_mapParameters[12].c_str());
+		inverse_device_map[kids[kn]->m_mapParameters[12]]=kn;
+	}
+	
 
 	while(!isStopRequested()) {// will be changed with thread end request
 		try {
@@ -285,9 +215,114 @@ void* DevicePoll::_Run() {
 				}
 			} else {
 				mq_.Unlock();
+				
+				if (!serprt.IsReadEmpty()) {
+					unsigned char resp;
+					if(serprt.Read((char*)&resp, 1, CM11A_READ_TIMEOUT) != 0)
+					{
+						g_pPlutoLogger->Write(LV_STATUS, "Got response: %x from CM11A.", resp);
+						if(resp == CM11A_INTERFACE_CQ) {
+							resp = CM11A_COMPUTER_READY;
+							serprt.Write((char*)&resp, 1);
+							int nread = 0;
+							do {
+								nread = serprt.Read((char*)&resp, 1, CM11A_READ_TIMEOUT);
+							} while (nread > 0 && resp == CM11A_INTERFACE_CQ);
+							if(nread > 0) {
+								if(resp > 0 && resp < 128) {
+									g_pPlutoLogger->Write(LV_STATUS, "Reading %d bytes of DATA...",resp);
+
+									char *buff = new char[resp];
+									serprt.Read(buff, resp, CM11A_READ_TIMEOUT);
+									char mask=buff[0];
+									string recv_msg="";
+									char hex_buff[128];
+									hex_buff[0]=0;
+									list<std::string> used_addresses;
+									int i;
+									for (i=0;i<resp;i++) {
+										sprintf(hex_buff+strlen(hex_buff),"%02X ",buff[i] & 0xFF);
+									}
+									g_pPlutoLogger->Write(LV_STATUS, "Data read successfully <%s>",hex_buff);
+									for (i=1;i<resp;i++) {
+										if ((mask & (1 << (i-1))) == 0)
+										{ //an address
+											char* addr = Message::getAddress(buff[i]);
+											used_addresses.push_back(addr);
+											if(recv_msg.length()>0)
+											{
+												recv_msg+=",";
+											}
+											recv_msg+=addr;
+										}
+										else 
+										{ //a function
+											char func=buff[i] & 0x0F;
+											char data=0;
+											std::string message= Message::getHouseCode(buff[i]);
+											switch(func) {
+												case CM11A_FUNC_ALL_U_OFF : message+=" ALL UNITS OFF"; break;
+												case CM11A_FUNC_ALL_L_ON  : message+=" ALL LIGHTS ON"; break;
+												case CM11A_FUNC_ON        : message+=" ON"; break;
+												case CM11A_FUNC_OFF       : message+=" OFF"; break;
+												case CM11A_FUNC_DIM       : message+=" DIM"; data=(buff[i]*100)/210; i++; break;
+												case CM11A_FUNC_BRIGHT    : message+=" BRIGHT"; data=(buff[i]*100)/210; i++; break;
+												case CM11A_FUNC_ALL_L_OFF : message+=" ALL LIGHTS OFF"; break;
+												case CM11A_FUNC_EXT       : message+=" EXTENDED"; break;
+												case CM11A_FUNC_HREQ      : message+=" HAIL REQUEST"; break;
+												case CM11A_FUNC_HACK      : message+=" HAIL ACK"; break;
+												case CM11A_FUNC_PSD1      : message+=" PRESET DIM 1"; break;
+												case CM11A_FUNC_PSD2      : message+=" PRESET DIM 2"; break;
+												case CM11A_FUNC_EXTDT     : message+=" EXTENDED DATA"; break;
+												case CM11A_FUNC_STATON    : message+=" STATUS ON"; break;
+												case CM11A_FUNC_STATOFF   : message+=" STATUS OFF"; break;
+												case CM11A_FUNC_STATREQ   : message+=" STATUS REQUEST"; break;
+											}
+											for(std::list<std::string>::iterator it = used_addresses.begin(); it != used_addresses.end(); it++)
+											{
+												g_pPlutoLogger->Write(LV_STATUS, "Looking for device status for %s found %d", (*it).c_str(), device_status.find(*it) != device_status.end() ? 1 : 0);
+												if (device_status.find(*it) != device_status.end()) {
+													switch(func) {
+														case CM11A_FUNC_ON      : device_status[*it]=100; break;
+														case CM11A_FUNC_OFF     : device_status[*it]=0; break;
+														case CM11A_FUNC_DIM     : device_status[*it]+=data; break;
+														case CM11A_FUNC_BRIGHT  : device_status[*it]-=data; break;
+													}
+												} else {
+													g_pPlutoLogger->Write(LV_STATUS, "Probably need to send EVENT that %s is %s",(*it).c_str(),message.c_str());
+													DeviceData_Impl *child = kids[inverse_device_map[*it]];
+													if(child->m_dwPK_DeviceCategory == DEVICECATEGORY_Security_Device_CONST)
+													{
+														DCE::Message *pMessageOut=new DCE::Message(child->m_dwPK_Device,DEVICETEMPLATE_VirtDev_Security_Plugin_CONST,PRIORITY_NORMAL,MESSAGETYPE_EVENT,EVENT_Sensor_Tripped_CONST,0);
+														pMessageOut->m_mapParameters[EVENTPARAMETER_Tripped_CONST]=(func==CM11A_FUNC_ON?"1":"0");
+														real_cm11a->m_pEvent->SendMessage(pMessageOut);
+													}
+												}
+											}
+
+											if(recv_msg.length()>0) {
+											recv_msg+=" ";
+											}
+											recv_msg+=message;
+										}
+									}
+									delete[] buff;
+									g_pPlutoLogger->Write(LV_STATUS, "Data decoded into [%s]",recv_msg.c_str());
+								}
+								else {
+									g_pPlutoLogger->Write(LV_STATUS, "No data to read...");
+								}
+							} else {
+								g_pPlutoLogger->Write(LV_STATUS, "Fake Alarm!");
+							}
+						}
+					}
+				}
+				
 				Sleep(CM11A_NOREQUES_SLEEP);
 			}
 		
+			      
 		} catch(...) {
 			g_pPlutoLogger->Write(LV_CRITICAL, "Exception occured on CM11A's serial port: %s. Sleeping for %0.1f second.", 
 													serport_.c_str(), 1.0 * CM11A_ERROR_SLEEP / 1000);

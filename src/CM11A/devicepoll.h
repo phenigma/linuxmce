@@ -18,6 +18,7 @@
 #include "mutex.h"
 #include "message.h"
 #include "Serial/SerialPort.h"
+#include "Gen_Devices/CM11ABase.h"
 
 namespace CM11ADEV {
 
@@ -35,6 +36,9 @@ public:
 	}
 	inline const char* getSerialPort() {
 		return serport_.c_str();
+	}
+	inline void setCM11A(DCE::CM11A_Command *cm11a) {
+		real_cm11a = cm11a;
 	}
 	
 public:
@@ -55,6 +59,8 @@ private:
 	Mutex mq_;
 	std::list<Message> msgqueue_;
 	std::string serport_;
+	DCE::CM11A_Command *real_cm11a;
+	std::map <std::string, int> inverse_device_map;
 };
 
 };

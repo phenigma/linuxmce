@@ -32,6 +32,7 @@ public:
 	}
 	void setAddress(std::string address); // adress in the form of A1, B2,...
 	
+	static char* getHouseCode(unsigned char x10addr);
 	static char* getAddress(unsigned char x10addr);	
 	
 	unsigned char getHouseCode() const {

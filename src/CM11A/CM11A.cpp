@@ -67,7 +67,7 @@ bool CM11A::Connect(int iPK_DeviceTemplate) {
 		g_pPlutoLogger->Write(LV_STATUS, "Using serial port: %s.", sPort.c_str());
 		devpoll.setSerialPort(sPort.c_str());
 	}
-	
+	devpoll.setCM11A(this);
 	devpoll.Run(false);
 	return true;
 }
@@ -93,7 +93,7 @@ void CM11A::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 				msg.setAddress(sChannel);
 				if(devpoll.device_status[sChannel]==0)
 				{
-					msg.setFunctionCode(CM11A_FUNC_0N);
+					msg.setFunctionCode(CM11A_FUNC_ON);
 				}
 				else
 				{
@@ -107,7 +107,7 @@ void CM11A::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 		case COMMAND_Generic_Off_CONST: {
 				CM11ADEV::Message msg;
 				msg.setAddress(sChannel);
-				msg.setFunctionCode(CM11A_FUNC_0FF);
+				msg.setFunctionCode(CM11A_FUNC_OFF);
 				devpoll.SendRequest(&msg);
 				devpoll.device_status[sChannel]=0;//store latest levet
 			}
@@ -142,7 +142,7 @@ void CM11A::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 					//turn on first
 					CM11ADEV::Message msg1;
 					msg1.setAddress(sChannel);
-					msg1.setFunctionCode(CM11A_FUNC_0N);
+					msg1.setFunctionCode(CM11A_FUNC_ON);
 					devpoll.SendRequest(&msg1);
 					oldLevel=100;
 					//then dim to right level
@@ -150,7 +150,7 @@ void CM11A::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 				if(newLevel<oldLevel)
 				{
 					//dim
-					msg.setFunctionCode(CM11A_FUNC_DIMM);
+					msg.setFunctionCode(CM11A_FUNC_DIM);
 					msg.setDimmLevel(oldLevel-newLevel);
 				}
 				else
