@@ -100,6 +100,7 @@ void UpdateMedia::DoIt()
 	}
 
 	ReadDirectory(m_sDirectory);
+    SyncDbWithDirectory(m_sDirectory); //mark missing/not-missing files, recursively
 }
 
 int UpdateMedia::ReadDirectory(string sDirectory)
@@ -174,14 +175,19 @@ cout << *it << " exists in db as: " << PK_File << endl;
 		}
 	}
 
+    //THIS IS WRONG. if all the subfolders from from directory will be deleted 
+    //no recursive call will be made
+    //instead, we'll do it once, using SyncDbWithDirectory function
+
 	// See if there are any files in the database that aren't in the directory any more
-	for(map<string,pair<Row_File *,bool> >::iterator it=mapFiles.begin();it!=mapFiles.end();++it)
+	/*for(map<string,pair<Row_File *,bool> >::iterator it=mapFiles.begin();it!=mapFiles.end();++it)
 	{
 		Row_File *pRow_File = it->second.first;
 		pRow_File->Missing_set(it->second.second==false);
 cout << it->first << " exists: " << it->second.second << endl;
 		pRow_File->Table_File_get()->Commit();
 	}
+    */
 
 	// Now recurse
 	list<string> listSubDirectories;
@@ -456,3 +462,33 @@ void UpdateMedia::UpdateThumbnails()
 	}
 }
 
+void UpdateMedia::SyncDbWithDirectory(string sDirectory)
+{
+    bool bRecordsModified = false;
+
+	vector<Row_File *> vectRow_File;
+	m_pDatabase_pluto_media->File_get()->GetRows("Path LIKE '" + StringUtils::SQLEscape(sDirectory) + "/%' OR Path = '" + StringUtils::SQLEscape(sDirectory) + "'",
+		&vectRow_File);
+
+	for(size_t s=0;s<vectRow_File.size();++s)
+	{
+		Row_File *pRow_File = vectRow_File[s];
+        string sFilePath = pRow_File->Path_get() + "/" + pRow_File->Filename_get();
+        bool bFileIsMissing = !FileUtils::FileExists(sFilePath);
+        if(bFileIsMissing && !pRow_File->Missing_get()) 
+        {
+            pRow_File->Missing_set(1);
+            cout << "Marking record as missing in database: " << sFilePath << endl;
+            bRecordsModified = true;
+        }
+        else if(!bFileIsMissing && pRow_File->Missing_get())
+        {
+            pRow_File->Missing_set(0);
+            cout << "Marking record as NOT missing in database: " << sFilePath << endl;
+            bRecordsModified = true;
+        }
+	}
+
+    if(bRecordsModified)
+        m_pDatabase_pluto_media->File_get()->Commit();
+}

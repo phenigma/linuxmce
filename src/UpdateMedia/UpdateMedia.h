@@ -30,5 +30,6 @@ public:
 	int HandleFileNotInDatabase(string sDirectory,string sFile,int PK_MediaType=0);
 	void UpdateSearchTokens();
 	void UpdateThumbnails();
+    void SyncDbWithDirectory(string sDirectory);
 };
 #endif
