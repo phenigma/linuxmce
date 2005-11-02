@@ -17,10 +17,14 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-int ivtv_v4l2_ioctl(struct inode *inode, struct file *filp, unsigned int cmd, unsigned long arg);
-int ivtv_v4l2_ioctls(struct ivtv *itv, struct ivtv_open_id *id,
-	             int streamtype, unsigned int cmd, void *arg);
-int ivtv_internal_ioctls(struct ivtv *itv, int streamtype, unsigned int cmd, void *arg);
-int ivtv_ivtv_ioctls(struct ivtv *itv, struct ivtv_open_id *id,
-		     int streamtype, unsigned int cmd, void *arg);
-void ivtv_dec_VSYNC(struct ivtv *itv);
+u16 service2vbi(int type);
+int ivtv_v4l2_ioctl(struct inode *inode, struct file *filp, unsigned int cmd,
+		    unsigned long arg);
+int ivtv_v4l2_ioctls(struct ivtv *itv, struct ivtv_open_id *id, int streamtype,
+		     unsigned int cmd, void *arg);
+int ivtv_internal_ioctls(struct ivtv *itv, int streamtype, unsigned int cmd,
+			 void *arg);
+int ivtv_ivtv_ioctls(struct ivtv *itv, struct ivtv_open_id *id, int streamtype,
+		     unsigned int cmd, void *arg);
+
+void ivtv_yuv_filter(struct ivtv *itv, int h_filter, int v_filter_1, int v_filter_2);

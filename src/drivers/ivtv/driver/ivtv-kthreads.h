@@ -18,13 +18,14 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
-void ivtv_dualwatch_start_encoding(struct ivtv* itv);
-void ivtv_dualwatch_stop_encoding(struct ivtv* itv);
-void ivtv_dualwatch_set_enabled(struct ivtv* itv, int enabled);
+void ivtv_dualwatch_start_encoding(struct ivtv *itv);
+void ivtv_dualwatch_stop_encoding(struct ivtv *itv);
+void ivtv_dualwatch_set_enabled(struct ivtv *itv, int enabled);
 void enc_work_handler(void *data);
 void dec_work_handler(void *data);
 void fw_work_handler(void *data);
 
 int ivtv_dec_thread(void *arg);
 int ivtv_enc_thread(void *arg);
+int ivtv_dec_vbi_thread(void *arg);
+int ivtv_enc_vbi_thread(void *arg);

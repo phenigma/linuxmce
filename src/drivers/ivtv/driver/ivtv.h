@@ -36,43 +36,8 @@
 #define IVTV_STREAM_DVD_S1	13
 #define IVTV_STREAM_DVD_S2	14
 
-#define IVTV_SLICED_TELETEXT_B 	(1 << 0)
-#define IVTV_SLICED_CAPTION_625	(1 << 1)
-#define IVTV_SLICED_CAPTION_525	(1 << 2)
-#define IVTV_SLICED_WSS_625	(1 << 3)
-#define IVTV_SLICED_VPS		(1 << 4)
-
-struct ivtv_sliced_vbi_format {
-	unsigned long service_set;	/* one or more of the IVTV_SLICED_ defines */
-	unsigned long packet_size; 	/* the size in bytes of the ivtv_sliced_data packet */
-	unsigned long io_size;		/* maximum number of bytes passed by one read() call */
-	unsigned long reserved;
-};
-
-/* This structure is the same as the proposed v4l2_sliced_data structure */
-/* id is one of the VBI_SLICED_ flags. */
-struct ivtv_sliced_data {
-	unsigned long id;
-	unsigned long line;
-	unsigned char data[0];
-};
-
-/* The four bit VBI data type found in the embedded VBI data of an
-   MPEG stream has one of the following values: */
-#define VBI_TYPE_TELETEXT 	0x1 	// Teletext (uses lines 6-22 for PAL, 10-21 for NTSC)
-#define VBI_TYPE_CC 		0x4 	// Closed Captions (line 21 NTSC, line 22 PAL)
-#define VBI_TYPE_WSS 		0x5 	// Wide Screen Signal (line 20 NTSC, line 23 PAL)
-#define VBI_TYPE_VPS 		0x7 	// Video Programming System (PAL) (line 16)
-
-/* These data types are not (yet?) used but are already reserved
-   for future use. */
-#ifdef IVTV_INTERNAL
-#define VBI_TYPE_NABST 		0x2 	// NABST (NTSC)
-#define VBI_TYPE_MOJI 		0x3 	// MOJI (NTSC)
-#define VBI_TYPE_VITC 		0x6 	// Vertical Interval Time Code
-#define VBI_TYPE_GEMSTAR2X 	0x7 	// Gemstar TV Guide (NTSC)
-#define VBI_TYPE_GEMSTAR1X 	0x8 	// Gemstar TV Guide (NTSC)
-#endif
+#define IVTV_YUV_TYPE_HME12		0	/* Hauppauge macro block format */
+#define IVTV_YUV_TYPE_FOURCC_YV12	1
 
 /* device ioctls should use the range 29-199 */
 #define IVTV_IOC_START_DECODE      _IOW ('@', 29, struct ivtv_cfg_start_decode)
@@ -81,8 +46,6 @@ struct ivtv_sliced_data {
 #define IVTV_IOC_S_SPEED           _IOW ('@', 32, struct ivtv_speed)
 #define IVTV_IOC_DEC_STEP          _IOW ('@', 33, int)
 #define IVTV_IOC_DEC_FLUSH         _IOW ('@', 34, int)
-#define IVTV_IOC_S_VBI_MODE    	   _IOWR('@', 35, struct ivtv_sliced_vbi_format)
-#define IVTV_IOC_G_VBI_MODE    	   _IOR ('@', 36, struct ivtv_sliced_vbi_format)
 #define IVTV_IOC_PLAY     	   _IO  ('@', 37)
 #define IVTV_IOC_PAUSE    	   _IO  ('@', 38)
 #define IVTV_IOC_FRAMESYNC	   _IOR ('@', 39, struct ivtv_ioctl_framesync)
@@ -101,22 +64,39 @@ struct ivtv_sliced_data {
 #define IVTV_IOC_G_VBI_EMBED       _IOR ('@', 55, int)
 #define IVTV_IOC_PAUSE_ENCODE      _IO  ('@', 56)
 #define IVTV_IOC_RESUME_ENCODE     _IO  ('@', 57)
+#define IVTV_IOC_DEC_SPLICE        _IOW ('@', 58, int)
+#define IVTV_IOC_DEC_FAST_STOP     _IOW ('@', 59, int)
+#define IVTV_IOC_PREP_FRAME_YUV    _IOW ('@', 60, struct ivtvyuv_ioctl_dma_host_to_ivtv_args)
+#define IVTV_IOC_G_YUV_INTERLACE   _IOR ('@', 61, struct ivtv_ioctl_yuv_interlace)
+#define IVTV_IOC_S_YUV_INTERLACE   _IOW ('@', 62, struct ivtv_ioctl_yuv_interlace)
 
-#define PACK_ME __attribute__((packed))
 // Note: You only append to this structure, you never reorder the members,
 // you never play tricks with its alignment, you never change the size of
 // anything.
 #define IVTV_DRIVER_INFO_MAX_COMMENT_LENGTH 100
 struct ivtv_driver_info {
-	uint32_t size;    // size of this structure
-	uint32_t version; // version bits 31-16 = major, 15-8 = minor,
-					  // 7-0 = patchlevel
+	uint32_t size;		// size of this structure
+	uint32_t version;	// version bits 31-16 = major, 15-8 = minor,
+	// 7-0 = patchlevel
 	char comment[IVTV_DRIVER_INFO_MAX_COMMENT_LENGTH];
-} PACK_ME;
+        uint32_t cardnr;        // the ivtv card number (0-based)
+        uint32_t hw_flags;      // hardware flags: which chips are used?
+} __attribute__((packed));
 
 #define IVTV_DRIVER_INFO_V1_SIZE 108
+#define IVTV_DRIVER_INFO_V2_SIZE 112
+#define IVTV_DRIVER_INFO_V3_SIZE 116
 
 #define IVTV_IOC_G_DRIVER_INFO _IOWR('@', 100, struct ivtv_driver_info *)
+
+#define IVTV_HW_CX25840  (1 << 0)
+#define IVTV_HW_SAA7115  (1 << 1)
+#define IVTV_HW_SAA7127  (1 << 2)
+#define IVTV_HW_MSP34XX  (1 << 3)
+#define IVTV_HW_TDA9887  (1 << 4)
+#define IVTV_HW_WM8775   (1 << 5)
+#define IVTV_HW_CS53132A (1 << 6)
+#define IVTV_HW_TVEEPROM (1 << 7)
 
 // Version info
 // Note: never use the _INTERNAL versions of these macros
@@ -160,7 +140,7 @@ IVTV_VERSION_EXTERN_COMMENT(IVTV_VERSION_INFO_NAME);
 /* Custom v4l controls */
 #ifndef V4L2_CID_PRIVATE_BASE
 #define V4L2_CID_PRIVATE_BASE			0x08000000
-#endif
+#endif /* V4L2_CID_PRIVATE_BASE */
 
 #define V4L2_CID_IVTV_FREQ      	(V4L2_CID_PRIVATE_BASE)
 #define V4L2_CID_IVTV_ENC       	(V4L2_CID_PRIVATE_BASE + 1)
@@ -187,99 +167,134 @@ struct ivtv_ioctl_framesync {
 };
 
 struct ivtv_speed {
-	int scale;	/* 1-?? (50 for now) */
-	int smooth;	/* Smooth mode when in slow/fast mode */
-	int speed;	/* 0 = slow, 1 = fast */
-	int direction;	/* 0 = forward, 1 = reverse (not supportd */
-	int fr_mask;	/* 0 = I, 1 = I,P, 2 = I,P,B    2 = default!*/
-	int b_per_gop;	/* frames per GOP (reverse only) */
-	int aud_mute;	/* Mute audio while in slow/fast mode */
-	int fr_field;	/* 1 = show every field, 0 = show every frame */
-	int mute;	/* # of audio frames to mute on playback resume */
+	int scale;		/* 1-?? (50 for now) */
+	int smooth;		/* Smooth mode when in slow/fast mode */
+	int speed;		/* 0 = slow, 1 = fast */
+	int direction;		/* 0 = forward, 1 = reverse (not supportd */
+	int fr_mask;		/* 0 = I, 1 = I,P, 2 = I,P,B    2 = default! */
+	int b_per_gop;		/* frames per GOP (reverse only) */
+	int aud_mute;		/* Mute audio while in slow/fast mode */
+	int fr_field;		/* 1 = show every field, 0 = show every frame */
+	int mute;		/* # of audio frames to mute on playback resume */
 };
 
 struct ivtv_slow_fast {
-	int speed; /* 0 = slow, 1 = fast */
-	int scale; /* 1-?? (50 for now) */
-};      
+	int speed;		/* 0 = slow, 1 = fast */
+	int scale;		/* 1-?? (50 for now) */
+};
 
 struct ivtv_cfg_start_decode {
-	uint32_t     gop_offset;	/*Frames in GOP to skip before starting */
-	uint32_t     muted_audio_frames;/* #of audio frames to mute */
+	uint32_t gop_offset;	/*Frames in GOP to skip before starting */
+	uint32_t muted_audio_frames;	/* #of audio frames to mute */
 };
 
 struct ivtv_cfg_stop_decode {
-	int		hide_last; /* 1 = show black after stop,
-				      0 = show last frame */
-	uint64_t	pts_stop; /* PTS to stop at */
+	int hide_last;		/* 1 = show black after stop,
+				   0 = show last frame */
+	uint64_t pts_stop;	/* PTS to stop at */
 };
-
 
 /* For use with IVTV_IOC_G_CODEC and IVTV_IOC_S_CODEC */
 struct ivtv_ioctl_codec {
-        uint32_t aspect;
-        uint32_t audio_bitmask;
-        uint32_t bframes;
-        uint32_t bitrate_mode;
-        uint32_t bitrate;
-        uint32_t bitrate_peak;
-        uint32_t dnr_mode;
-        uint32_t dnr_spatial;
-        uint32_t dnr_temporal;
-        uint32_t dnr_type;
-        uint32_t framerate;	/* read only, ignored on write */
-        uint32_t framespergop;	/* read only, ignored on write */
-        uint32_t gop_closure;
-        uint32_t pulldown;
-        uint32_t stream_type;
+	uint32_t aspect;
+	uint32_t audio_bitmask;
+	uint32_t bframes;
+	uint32_t bitrate_mode;
+	uint32_t bitrate;
+	uint32_t bitrate_peak;
+	uint32_t dnr_mode;
+	uint32_t dnr_spatial;
+	uint32_t dnr_temporal;
+	uint32_t dnr_type;
+	uint32_t framerate;	/* read only, ignored on write */
+	uint32_t framespergop;	/* read only, ignored on write */
+	uint32_t gop_closure;
+	uint32_t pulldown;
+	uint32_t stream_type;
 };
-
+struct ivtv_ioctl_yuv_interlace{
+	int interlace_mode; /* Takes one of IVTV_YUV_MODE_xxxxxx values */
+	int threshold; /* If mode is auto then if src_height <= this value treat as progressive otherwise treat as interlaced */
+};
+#define IVTV_YUV_MODE_INTERLACED	0
+#define IVTV_YUV_MODE_PROGRESSIVE	1
+#define IVTV_YUV_MODE_AUTO		2
 
 /* Framebuffer external API */
 
 struct ivtvfb_ioctl_state_info {
-  unsigned long status;
-  unsigned long alpha;
+	unsigned long status;
+	unsigned long alpha;
+};
+
+struct ivtvfb_ioctl_colorkey {
+    int state;
+    uint32_t colorKey;
 };
 
 struct ivtvfb_ioctl_blt_copy_args {
-  int x, y, width, height, source_offset, source_stride;
+	int x, y, width, height, source_offset, source_stride;
 };
 
 struct ivtvfb_ioctl_blt_fill_args {
-    int rasterop, alpha_mode, alpha_mask, width, height, x, y;
-    unsigned int destPixelMask, colour;
+	int rasterop, alpha_mode, alpha_mask, width, height, x, y;
+	unsigned int destPixelMask, colour;
 
 };
 
 struct ivtvfb_ioctl_dma_host_to_ivtv_args {
-  void* source;
-  unsigned long dest_offset;
-  int count;
+	void *source;
+	unsigned long dest_offset;
+	int count;
+};
+
+struct ivtvyuv_ioctl_dma_host_to_ivtv_args {
+	void *y_source;
+	void *uv_source;
+	unsigned int yuv_type;
+	int src_x;
+	int src_y;
+	unsigned int src_w;
+	unsigned int src_h;
+	int dst_x;
+	int dst_y;
+	unsigned int dst_w;
+	unsigned int dst_h;
+	int srcBuf_width;
+	int srcBuf_height;
 };
 
 struct ivtvfb_ioctl_get_frame_buffer {
-  void* mem;
-  int   size;
-  int   sizex;
-  int   sizey;
+	void *mem;
+	int size;
+	int sizex;
+	int sizey;
 };
 
 struct ivtv_osd_coords {
-  unsigned long offset;
-  unsigned long max_offset;
-  int pixel_stride;
-  int lines;
-  int x;
-  int y;
+	unsigned long offset;
+	unsigned long max_offset;
+	int pixel_stride;
+	int lines;
+	int x;
+	int y;
 };
 
 struct rectangle {
-  int x0;
-  int y0;
-  int x1;
-  int y1;
+	int x0;
+	int y0;
+	int x1;
+	int y1;
 };
+
+struct ivtvfb_ioctl_set_window {
+	int width;
+	int height;
+	int left;
+	int top;
+};
+
+
 
 /* Framebuffer ioctls should use the range 1 - 28 */
 #define IVTVFB_IOCTL_GET_STATE          _IOR('@', 1, struct ivtvfb_ioctl_state_info)
@@ -290,6 +305,10 @@ struct rectangle {
 #define IVTVFB_IOCTL_SET_ACTIVE_BUFFER  _IOW('@', 6, struct ivtv_osd_coords)
 #define IVTVFB_IOCTL_GET_FRAME_BUFFER   _IOR('@', 7, struct ivtvfb_ioctl_get_frame_buffer)
 #define IVTVFB_IOCTL_BLT_FILL           _IOW('@', 8, struct ivtvfb_ioctl_blt_fill_args)
+#define IVTVFB_IOCTL_PREP_FRAME_BUF     _IOW('@', 9, struct ivtvfb_ioctl_dma_host_to_ivtv_args)
+#define IVTVFB_IOCTL_SET_WINDOW         _IOW('@', 11, struct ivtvfb_ioctl_set_window)
+#define IVTVFB_IOCTL_GET_COLORKEY       _IOW('@', 12, struct ivtvfb_ioctl_colorkey)
+#define IVTVFB_IOCTL_SET_COLORKEY       _IOW('@', 13, struct ivtvfb_ioctl_colorkey)
 
 #define IVTVFB_STATUS_ENABLED           (1 << 0)
 #define IVTVFB_STATUS_GLOBAL_ALPHA      (1 << 1)
@@ -299,6 +318,32 @@ struct rectangle {
 #ifdef IVTV_INTERNAL
 /* Do not use these structures and ioctls in code that you want to release.
    Only to be used for testing and by the utilities ivtvctl, ivtvfbctl and fwapi. */
+
+/* These are the VBI types as they appear in the embedded VBI private packets.
+   It is very likely that this will disappear and be replaced by the DVB standard. */
+#define IVTV_SLICED_TYPE_TELETEXT_B     (1)
+#define IVTV_SLICED_TYPE_CAPTION_525    (4)
+#define IVTV_SLICED_TYPE_WSS_625        (5)
+#define IVTV_SLICED_TYPE_VPS            (7)
+
+#define IVTV_ENC_STREAM_TYPE_MPG 0
+#define IVTV_ENC_STREAM_TYPE_YUV 1
+#define IVTV_ENC_STREAM_TYPE_VBI 2
+#define IVTV_ENC_STREAM_TYPE_PCM 3
+#define IVTV_ENC_STREAM_TYPE_RAD 4
+#define IVTV_DEC_STREAM_TYPE_MPG 5
+#define IVTV_DEC_STREAM_TYPE_VBI 6
+#define IVTV_DEC_STREAM_TYPE_VOUT 7
+#define IVTV_DEC_STREAM_TYPE_YUV 8
+#define IVTV_DEC_STREAM_TYPE_OSD 9
+
+struct ivtv_stream_info {
+        uint32_t size;
+        uint32_t type;
+} __attribute__((packed));
+
+#define IVTV_STREAM_INFO_V1_SIZE 8
+#define IVTV_IOC_G_STREAM_INFO _IOWR('@', 101, struct ivtv_stream_info *)
 
 #define IVTV_MBOX_MAX_DATA 16
 
@@ -310,14 +355,14 @@ struct ivtv_ioctl_fwapi {
 };
 
 struct ivtv_ioctl_event {
-        uint32_t type;
-        uint32_t mbox;
+	uint32_t type;
+	uint32_t mbox;
 	struct ivtv_ioctl_fwapi api;
 };
 
 struct ivtv_saa71xx_reg {
-	unsigned char reg;
-	unsigned char val;
+	uint32_t reg;
+	uint32_t val;
 };
 
 struct ivtv_itvc_reg {
@@ -325,34 +370,21 @@ struct ivtv_itvc_reg {
 	uint32_t val;
 };
 
-/** IOCTL argument structure to get settings from the CX25840 driver. This is from cx25840.h! */
-struct ivtv_cx25840_reg 
-{
-	/** Index of register if known. Otherwise -1 for unknown (on set). */
-	int	index;
-	/** Setting name. If settingIndex is known on set, this value is ignored. */
-	char	name[ 80 ];
-	/** Setting value. */
-	int	value;
-	/** Value description (for get). */
-	char	description[ 120 ];
-};
-
-
 struct ivtv_msp_matrix {
 	int input;
 	int output;
 };
 
 /* Debug flags */
-#define IVTV_DEBUG_ERR   (1 << 0)
-#define IVTV_DEBUG_INFO  (1 << 1)
-#define IVTV_DEBUG_API   (1 << 2)
-#define IVTV_DEBUG_DMA   (1 << 3)
-#define IVTV_DEBUG_IOCTL (1 << 4)
-#define IVTV_DEBUG_I2C   (1 << 5)
-#define IVTV_DEBUG_IRQ   (1 << 6)
-#define IVTV_DEBUG_DEC   (1 << 7)
+#define IVTV_DBGFLG_WARN  (1 << 0)
+#define IVTV_DBGFLG_INFO  (1 << 1)
+#define IVTV_DBGFLG_API   (1 << 2)
+#define IVTV_DBGFLG_DMA   (1 << 3)
+#define IVTV_DBGFLG_IOCTL (1 << 4)
+#define IVTV_DBGFLG_I2C   (1 << 5)
+#define IVTV_DBGFLG_IRQ   (1 << 6)
+#define IVTV_DBGFLG_DEC   (1 << 7)
+#define IVTV_DBGFLG_YUV   (1 << 8)
 
 /* BLT RasterOps */
 #define IVTV_BLT_RASTER_ZERO		0
@@ -363,7 +395,7 @@ struct ivtv_msp_matrix {
 #define IVTV_BLT_RASTER_NOTSRC		5
 #define IVTV_BLT_RASTER_DEST_XOR_SRC	6
 #define IVTV_BLT_RASTER_NOTDEST_OR_NOTSRC	7
-/* #define IVTV_BLT_RASTER_NOTDEST_AND_NOTSRC	8 */ /* Same as 1 */
+													    /* #define IVTV_BLT_RASTER_NOTDEST_AND_NOTSRC      8 *//* Same as 1 */
 #define IVTV_BLT_RASTER_DEST_XNOR_SRC	9
 #define IVTV_BLT_RASTER_SRC			10
 #define IVTV_BLT_RASTER_NOTDEST_OR_SRC	11
@@ -376,14 +408,13 @@ struct ivtv_msp_matrix {
 
 #define IVTV_BLT_ALPHABLEND_SRC		0x01
 #define IVTV_BLT_ALPHABLEND_DEST	0x10
-#define IVTV_BLT_ALPHABLEND_DEST_X_SRC	0x11 /* dest x src +1 , = zero if both zero */
-
+#define IVTV_BLT_ALPHABLEND_DEST_X_SRC	0x11	/* dest x src +1 , = zero if both zero */
 
 /* Internal ioctls should use the range 200-255 */
 #define IVTV_IOC_S_DEBUG_LEVEL     _IOWR('@', 200, int)
 #define IVTV_IOC_G_DEBUG_LEVEL     _IOR ('@', 201, int)
 #define IVTV_IOC_RELOAD_FW         _IO  ('@', 202)
-#define IVTV_IOC_ZCOUNT            _IO  ('@', 203) 
+#define IVTV_IOC_ZCOUNT            _IO  ('@', 203)
 #define IVTV_IOC_FWAPI             _IOWR('@', 204, struct ivtv_ioctl_fwapi)
 #define IVTV_IOC_EVENT_SETUP       _IOWR('@', 205, struct ivtv_ioctl_event)
 #define IVTV_IOC_G_SAA7115_REG     _IOWR('@', 206, struct ivtv_saa71xx_reg)
@@ -393,10 +424,10 @@ struct ivtv_msp_matrix {
 #define IVTV_IOC_S_MSP_MATRIX      _IOW ('@', 210, struct ivtv_msp_matrix)
 #define IVTV_IOC_G_ITVC_REG        _IOWR('@', 211, struct ivtv_itvc_reg)
 #define IVTV_IOC_S_ITVC_REG        _IOW ('@', 212, struct ivtv_itvc_reg)
-#define IVTV_IOC_G_CX25840_REG     _IOWR('@', 213, struct ivtv_cx25840_reg)
-#define IVTV_IOC_S_CX25840_REG     _IOW ('@', 214, struct ivtv_cx25840_reg)
+#define IVTV_IOC_G_VIDEO_STATUS    _IOR ('@', 213, int *)
+#define IVTV_IOC_RESET_IR          _IO  ('@', 214)
+#define IVTV_IOC_LOG_BOARD_STATUS  _IO  ('@', 215)
 
-#endif
+#endif /* IVTV_INTERNAL */
 
-#endif
-
+#endif /* _LINUX_IVTV_H */

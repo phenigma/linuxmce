@@ -17,17 +17,18 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+int ivtv_cs53l32a(struct ivtv *itv, unsigned int cmd, void *arg);
+int ivtv_wm8775(struct ivtv *itv, unsigned int cmd, void *arg);
 int ivtv_cx25840(struct ivtv *itv, unsigned int cmd, void *arg);
 int ivtv_saa7115(struct ivtv *itv, unsigned int cmd, void *arg);
 int ivtv_saa7127(struct ivtv *itv, unsigned int cmd, void *arg);
 int ivtv_msp34xx(struct ivtv *itv, unsigned int cmd, void *arg);
-int ivtv_tuner(struct ivtv *itv, unsigned int cmd, void *arg);
+int ivtv_radio_tuner(struct ivtv *itv, unsigned int cmd, void *arg);
+int ivtv_tv_tuner(struct ivtv *itv, unsigned int cmd, void *arg);
 int ivtv_tda9887(struct ivtv *itv, unsigned int cmd, void *arg);
 int ivtv_hauppauge(struct ivtv *itv, unsigned int cmd, void *arg);
+int ivtv_wm8775(struct ivtv *itv, unsigned int cmd, void *arg);
 
 /* init + register i2c algo-bit adapter */
 int __devinit init_ivtv_i2c(struct ivtv *itv);
 void __devexit exit_ivtv_i2c(struct ivtv *itv);
-
-
-

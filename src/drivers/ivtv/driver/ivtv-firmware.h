@@ -28,3 +28,4 @@ int ivtv_check_firmware(struct ivtv *itv);
 int ivtv_find_enc_firmware_mailbox(struct ivtv *itv);
 int ivtv_find_dec_firmware_mailbox(struct ivtv *itv);
 int ivtv_firmware_copy(struct ivtv *itv);
+void ivtv_init_mpeg_decoder(struct ivtv *itv);

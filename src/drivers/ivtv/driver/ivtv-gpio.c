@@ -80,7 +80,7 @@
  *           0   1   1  TV Tuner Audio: mute
  *           1   *   *  TV Tuner Audio: L_OUT=R_OUT=(L+R)/2   (mono)
  *
- *   BR* : Audio Bitrate
+ *   BR* : Audio Sample Rate (BR stands for bitrate for some reason)
  *          BR0 BR1
  *           0   0   32 kHz
  *           0   1   44.1 kHz
@@ -111,7 +111,7 @@ struct ivtv_gpio_data_st {
 	u32 input_mask;		/* for input selection (tuner/line-in/mute) */
 	u32 input_tuner;
 	u32 input_line;
-	u32 mute_mask;   	/* for muting */
+	u32 mute_mask;		/* for muting */
 	u32 mute_mute;
 	u32 mute_unmute;
 	u32 audio_mask;		/* for tuner's audio mode selection */
@@ -137,22 +137,22 @@ static const struct ivtv_gpio_data_st ivtv_gpio_data[] = {
 	 * audio_freq_mask, audio_32000, audio_44100, audio_48000,
 	 * tuner_mask,tuner_stereo,tuner_mono,tuner_multiples
 	 */
-	{IVTV_CARD_MPG600, 1, 0x3080, 0x0004, /* Normal/main ch./Stereo */
+	{IVTV_CARD_MPG600, 1, 0x3080, 0x0004,	/* Normal/main ch./Stereo */
 	 0xcfff, 0x0000, 0x2000, 0xfffe, 0x0001, 0x0000,
 	 0xfff1, 0x0006, 0x0004, 0x0004, 0x0000, 0x0008,
 	 0xffff, 0x0000, 0x0000, 0x0000,
 	 0xf6ff, 0x0100, 0x0900, 0x0100},
-	{IVTV_CARD_MPG160, 1, 0x7080, 0x400c, /* Normal/main ch./Stereo */
+	{IVTV_CARD_MPG160, 1, 0x7080, 0x400c,	/* Normal/main ch./Stereo */
 	 0xcfff, 0x0000, 0x2000, 0xfffe, 0x0001, 0x0000,
 	 0xfff1, 0x0006, 0x0004, 0x0004, 0x0000, 0x0008,
 	 0xffff, 0x0000, 0x0000, 0x0000,
 	 0xf6ff, 0x0100, 0x0900, 0x0100},
-	{IVTV_CARD_PVR_150, 0, 0x1F01, 0x26F3, /* Normal/main ch./Stereo */
+	{IVTV_CARD_PVR_150, 0, 0x1F01, 0x26F3,	/* Normal/main ch./Stereo */
 	 0x2040, 0x2000, 0x0000, 0xfffe, 0x0001, 0x0000,
 	 0xfff1, 0x0006, 0x0004, 0xffff, 0x0000, 0x0000,
 	 0xffff, 0x0000, 0x0000, 0x0000,
 	 0xffff, 0x0000, 0x0000, 0x0000},
-	{IVTV_CARD_M179, 1, 0xE380, 0x8290, /* Normal/main ch./Stereo, 48kHz */
+	{IVTV_CARD_M179, 1, 0xE380, 0x8290,	/* Normal/main ch./Stereo, 48kHz */
 	 ~0x8040, 0x8000, 0x0000, ~0x2000, 0x2000, 0x0000,
 	 ~0x4300, 0x4000, 0x0200, 0x0200, 0x0100, 0x0000,
 	 ~0x0018, 0x0000, 0x0008, 0x0010,
@@ -172,24 +172,45 @@ static const struct ivtv_gpio_data_st *ivtv_get_gpio_data(struct ivtv *itv)
 
 /********************* GPIO stuffs *********************/
 
-static void ivtv_gpio_write(u8 *gpio_addr, u32 data)
+static void ivtv_gpio_write(u8 * gpio_addr, u32 data)
 {
 	writel(data, gpio_addr);
 }
 
-static u32 ivtv_gpio_read(u8 *gpio_addr)
+static u32 ivtv_gpio_read(u8 * gpio_addr)
 {
 	return readl(gpio_addr);
 }
 
-static void ivtv_chg_gpio(u8 *address, u32 mask, u32 write_data)
+static void ivtv_chg_gpio(u8 * address, u32 mask, u32 write_data)
 {
 	ivtv_gpio_write(address, (readl(address) & mask) | write_data);
 }
 
-static u32 ivtv_chk_gpio(u8 *address, u32 mask)
+static u32 ivtv_chk_gpio(u8 * address, u32 mask)
 {
 	return ivtv_gpio_read(address) & (mask ^ 0xffff);
+}
+
+void ivtv_reset_ir_gpio(struct ivtv *itv)
+{
+	int curdir,curout;
+	if(itv->card->type!=IVTV_CARD_PVR_150) 
+		return;
+	IVTV_DEBUG_INFO("Resetting PVR150 IR\n");
+	curout = ivtv_gpio_read(itv->reg_mem + IVTV_GPIO_OUT_ADDR);
+	curdir = ivtv_gpio_read(itv->reg_mem + IVTV_GPIO_DIREC_ADDR);
+	curdir|=0x80;
+	ivtv_gpio_write(itv->reg_mem + IVTV_GPIO_DIREC_ADDR, curdir);
+	curout=(curout&~0xF)|1;
+	ivtv_gpio_write(itv->reg_mem + IVTV_GPIO_OUT_ADDR, curout);
+	// We could use something else for smaller time
+	current->state = TASK_INTERRUPTIBLE;
+	schedule_timeout(1);
+	curout|=2;
+	ivtv_gpio_write(itv->reg_mem + IVTV_GPIO_OUT_ADDR, curout);
+	curdir&=~0x80;
+	ivtv_gpio_write(itv->reg_mem + IVTV_GPIO_DIREC_ADDR, curdir);        
 }
 
 /* audio control by GPIO */
@@ -206,14 +227,16 @@ void ivtv_set_gpio_audio(struct ivtv *itv, int command)
 			return;
 		}
 
-		IVTV_DEBUG(IVTV_DEBUG_INFO,
+		IVTV_DEBUG_INFO(
 			   "GPIO initial dir:%08x, out:%08x\n",
 			   ivtv_gpio_read(itv->reg_mem + IVTV_GPIO_DIREC_ADDR),
 			   ivtv_gpio_read(itv->reg_mem + IVTV_GPIO_OUT_ADDR));
 
 		/* init output data then direction */
-		ivtv_gpio_write(itv->reg_mem + IVTV_GPIO_OUT_ADDR, gpio_data->out_init);
-		ivtv_gpio_write(itv->reg_mem + IVTV_GPIO_DIREC_ADDR, gpio_data->direction);
+		ivtv_gpio_write(itv->reg_mem + IVTV_GPIO_OUT_ADDR,
+				gpio_data->out_init);
+		ivtv_gpio_write(itv->reg_mem + IVTV_GPIO_DIREC_ADDR,
+				gpio_data->direction);
 		break;
 	case IVTV_GPIO_AUDIO_TUNER:
 		ivtv_chg_gpio(itv->reg_mem + IVTV_GPIO_OUT_ADDR,
@@ -240,14 +263,14 @@ int ivtv_get_gpio_audio(struct ivtv *itv, int command)
 	int out, data;
 
 	out = 0;
-	data = -1;   /* 'data' must be different from 'out' here */
-	
+	data = -1;		/* 'data' must be different from 'out' here */
+
 	if (gpio_data == NULL)
 		return 0;
 
 	switch (command) {
 	case IVTV_GPIO_AUDIO_INIT:
-		/* do nothing*/
+		/* do nothing */
 		break;
 	case IVTV_GPIO_AUDIO_TUNER:
 		out = ivtv_chk_gpio(itv->reg_mem + IVTV_GPIO_OUT_ADDR,
@@ -255,10 +278,10 @@ int ivtv_get_gpio_audio(struct ivtv *itv, int command)
 		data = gpio_data->input_tuner;
 		break;
 	case IVTV_GPIO_AUDIO_LINE:
-	       out = ivtv_chk_gpio(itv->reg_mem + IVTV_GPIO_OUT_ADDR,
-				   gpio_data->input_mask);
-	       data = gpio_data->input_line;
-	       break;
+		out = ivtv_chk_gpio(itv->reg_mem + IVTV_GPIO_OUT_ADDR,
+				    gpio_data->input_mask);
+		data = gpio_data->input_line;
+		break;
 	case IVTV_GPIO_AUDIO_MUTE:
 		out = ivtv_chk_gpio(itv->reg_mem + IVTV_GPIO_OUT_ADDR,
 				    gpio_data->mute_mask);
@@ -277,27 +300,30 @@ int ivtv_get_gpio_audio(struct ivtv *itv, int command)
 	return 0;
 }
 
-/* Set tuner audio bitrate. Only the M179 uses this, it
+/* Set tuner audio sample rate. Only the M179 uses this, it
    is ignored by the others. */
-void ivtv_set_gpio_audiobitrate(struct ivtv *itv, int bitrate)
+void ivtv_set_gpio_audiosamplerate(struct ivtv *itv, int samplerate)
 {
 	const struct ivtv_gpio_data_st *gpio_data = ivtv_get_gpio_data(itv);
 
 	if (gpio_data == NULL)
 		return;
 
-	switch (bitrate) {
+	switch (samplerate) {
 	case IVTV_AUDIO_32000:
 		ivtv_chg_gpio(itv->reg_mem + IVTV_GPIO_OUT_ADDR,
-			      gpio_data->audio_freq_mask, gpio_data->audio_32000);
+			      gpio_data->audio_freq_mask,
+			      gpio_data->audio_32000);
 		break;
 	case IVTV_AUDIO_44100:
 		ivtv_chg_gpio(itv->reg_mem + IVTV_GPIO_OUT_ADDR,
-			      gpio_data->audio_freq_mask, gpio_data->audio_44100);
+			      gpio_data->audio_freq_mask,
+			      gpio_data->audio_44100);
 		break;
 	case IVTV_AUDIO_48000:
 		ivtv_chg_gpio(itv->reg_mem + IVTV_GPIO_OUT_ADDR,
-			      gpio_data->audio_freq_mask, gpio_data->audio_48000);
+			      gpio_data->audio_freq_mask,
+			      gpio_data->audio_48000);
 		break;
 	}
 }
@@ -306,7 +332,7 @@ void ivtv_set_gpio_audiobitrate(struct ivtv *itv, int bitrate)
 void ivtv_set_gpio_audiomode(struct ivtv *itv, int audio_mode)
 {
 	const struct ivtv_gpio_data_st *gpio_data = ivtv_get_gpio_data(itv);
-	
+
 	if (gpio_data == NULL)
 		return;
 
@@ -333,13 +359,14 @@ void ivtv_set_gpio_audiomode(struct ivtv *itv, int audio_mode)
 	if (audio_mode & 0x10000) {
 		u32 gpio_dir, gpio_out, gpio_in;
 
-		ivtv_gpio_write(itv->reg_mem + IVTV_GPIO_OUT_ADDR, audio_mode & 0xffff);
+		ivtv_gpio_write(itv->reg_mem + IVTV_GPIO_OUT_ADDR,
+				audio_mode & 0xffff);
 
 		gpio_dir = ivtv_gpio_read(itv->reg_mem + IVTV_GPIO_DIREC_ADDR);
 		gpio_out = ivtv_gpio_read(itv->reg_mem + IVTV_GPIO_OUT_ADDR);
 		gpio_in = ivtv_gpio_read(itv->reg_mem + IVTV_GPIO_IN_ADDR);
 
-		IVTV_DEBUG(IVTV_DEBUG_INFO,
+		IVTV_DEBUG_INFO(
 			   "GPIO status: DIR=0x%04x OUT=0x%04x IN=0x%04x\n",
 			   gpio_dir, gpio_out, gpio_in);
 	}
@@ -354,11 +381,12 @@ int ivtv_get_gpio_audiomode(struct ivtv *itv)
 	if (gpio_data == NULL)
 		return 1;
 
-	st = ivtv_chk_gpio(itv->reg_mem + IVTV_GPIO_IN_ADDR, gpio_data->tuner_mask);
+	st = ivtv_chk_gpio(itv->reg_mem + IVTV_GPIO_IN_ADDR,
+			   gpio_data->tuner_mask);
 
 	if (st == gpio_data->tuner_multiplex)
 		return 2;
 	if (st == gpio_data->tuner_stereo)
 		return 1;
-	return 0; /* mono */
+	return 0;		/* mono */
 }

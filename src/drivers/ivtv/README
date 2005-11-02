@@ -1,0 +1,71 @@
+This is the README for the ivtv module suite.
+
+The primary goal of the IVTV project is to provide a "clean room" Linux 
+Open Source driver implementation for video capture cards based on the 
+iCompression iTVC15 or Conexant CX23415/CX23416 MPEG Codec. Examples of 
+such cards are the Hauppauge PVR 150/250/350/500 series of MPEG video 
+capture cards, the Hauppauge "freestyle" and the AVerMedia M179 AVerTV. 
+
+A special note regarding the PVR-500: this card basically consists of two
+PVR-150 cards on one board but with the following difference: Radio,
+Composite video and S-video are only hooked up to the first PVR-150 instance.
+
+Features:
+ * Hardware mpeg2 capture of broadcast video (and sound) via the tuner or
+   s-video/audio line-in
+ * Hardware mpeg2 capture of FM radio where hardware support exists
+ * Supports NTSC, PAL, SECAM with stereo sound
+ * Provides hardware mpeg2 playback
+ * Provides comprehensive OSD (On Screen Display: ie. graphics overlaying the
+   video signal)
+ * Provides a framebuffer (allowing X applications to appear on the video
+   device)
+
+IMPORTANT: In case of problems first read this page:
+	   http://www.ivtvdriver.org/index.php/Troubleshooting
+
+
+doc/ - contains documentation :)
+   /README.install      Installation info
+   /modules.txt         Module parameters
+   /README.ivtvfb       The ivtv framebuffer
+   /README.devices      /dev/xxxx devices
+   /README.utils        Included utilities
+   /README.lirc         Infrared remote control
+   /README.vbi          VBI (Teletext, widescreen, close captioning, etc.)
+   /README.radio        The FM Radio
+   /video-quality.txt   Some notes on video quality
+driver/ - actual driver files, Makefile, etc
+utils/ - some useful (and required) tools for managing the hardware
+test/ - some useful test tools for testing the hardware
+misc/ - some patches, configuration for third party applications
+
+Note: the old sourceforge ivtv project is no longer active and will
+redirect to ivtvdriver.org. All development now takes place in the
+subversion repository on ivtvdriver.org.
+
+Also see:
+
+Homepage + Wiki
+http://www.ivtvdriver.org
+
+Subversion repository:
+http://ivtvdriver.org/svn/ivtv
+
+Download area:
+http://dl.ivtvdriver.org
+
+Mail Archives
+http://www.gossamer-threads.com/lists/ivtv/devel/
+
+Forum
+http://www.shspvr.com/smf/
+
+IRC
+irc://irc.freenode.net/ivtv-dev
+
+MythTv Info
+http://www.mythtv.info/moin.cgi/IvTv
+
+Donations
+http://www.ivtvdriver.org/index.php/IVTV:Site_support

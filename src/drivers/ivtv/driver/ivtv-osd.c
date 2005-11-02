@@ -69,7 +69,6 @@ EndSection
 #    EndMode
 #EndSection
 
-
 Section "Device"
     Identifier  "Hauppauge PVR 350 iTVC15 Framebuffer"
     Driver      "fbdev"
@@ -120,7 +119,6 @@ EndSection
 # one giant virtual screen using the Xinerama extension, but I haven't 
 # tried it. Doing so may not be such a good idea anyway, as you obviously
 # wouldn't want random X windows getting moved over the TV picture.
-
 
 A note on unloading the fb driver:
 
@@ -173,7 +171,7 @@ console hijacks, and allow you to unload the driver.
 
 #ifdef CONFIG_MTRR
 #include <asm/mtrr.h>
-#endif
+#endif /* CONFIG_MTRR */
 
 #include "ivtv-driver.h"
 #include "ivtv-dma.h"
@@ -185,10 +183,9 @@ console hijacks, and allow you to unload the driver.
 #ifndef LINUX26
 #include <video/fbcon.h>
 #include <video/fbcon-cfb32.h>
-#endif
+#endif /* LINUX26 */
 
 typedef unsigned long uintptr_t;
-
 
 int ivtvfb_setup(void);
 int ivtvfb_sleep_timeout(int timeout, int intr);
@@ -198,6 +195,7 @@ int ivtvfb_sleep_timeout(int timeout, int intr);
  */
 
 static int ivtv_fb_card_id;
+static int osd_init;
 
 /* Card selected as framebuffer for this module instance: */
 static struct ivtv *itv;
@@ -206,7 +204,7 @@ static struct ivtv *itv;
 static unsigned long video_base;	/* physical addr */
 static unsigned long video_rel_base;	/* address relative to base of decoder memory */
 static int video_size;
-static char *video_vbase;		/* mapped */
+static char *video_vbase;	/* mapped */
 
 /* mode */
 static int video_width;
@@ -219,37 +217,36 @@ static unsigned long shadow_framebuf_size;
 /* Generic utility functions */
 int ivtvfb_sleep_timeout(int timeout, int intr)
 {
-        int sleep = timeout;
-        int ret = 0;
+	int sleep = timeout;
+	int ret = 0;
 
-        do {
-                if (intr)
-                        set_current_state(TASK_INTERRUPTIBLE);
-                else
-                        set_current_state(TASK_UNINTERRUPTIBLE);
+	do {
+		if (intr)
+			set_current_state(TASK_INTERRUPTIBLE);
+		else
+			set_current_state(TASK_UNINTERRUPTIBLE);
 
-                sleep = schedule_timeout(sleep);
+		sleep = schedule_timeout(sleep);
 
-                if (intr)
-                        if ((ret = signal_pending(current)))
-                                break;
-        } while (sleep);
-        return ret;
+		if (intr)
+			if ((ret = signal_pending(current)))
+				break;
+	} while (sleep);
+	return ret;
 }
 
 /*
  * ivtv API calls for framebuffer related support
  */
 
-static int ivtv_api_fb_get_framebuffer(struct ivtv *itv, u32 *fbbase, u32 *fblength)
+static int ivtv_api_fb_get_framebuffer(struct ivtv *itv, u32 * fbbase,
+				       u32 * fblength)
 {
 	u32 data[IVTV_MBOX_MAX_DATA], result;
 	int rc;
 
-	IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, "ivtv_api_fb_get_framebuffer\n");
-
 	rc = ivtv_api(itv, itv->dec_mbox, &itv->dec_msem,
-			IVTV_API_FB_GET_FRAMEBUFFER, &result, 0, &data[0]);
+		      IVTV_API_FB_GET_FRAMEBUFFER, &result, 0, &data[0]);
 	*fbbase = data[0];
 	*fblength = data[1];
 	return rc;
@@ -258,49 +255,44 @@ static int ivtv_api_fb_get_framebuffer(struct ivtv *itv, u32 *fbbase, u32 *fblen
 static int ivtv_api_fb_get_pixel_format(struct ivtv *itv)
 {
 	u32 data[IVTV_MBOX_MAX_DATA], result;
-	IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, "ivtv_api_fb_get_pixel_format\n");
 
-	ivtv_api(itv, itv->dec_mbox, &itv->dec_msem, IVTV_API_FB_GET_PIXEL_FORMAT,
-			&result, 0, &data[0]);
+	ivtv_api(itv, itv->dec_mbox, &itv->dec_msem,
+		 IVTV_API_FB_GET_PIXEL_FORMAT, &result, 0, &data[0]);
 	return data[0];
 }
 
-static int ivtv_api_fb_set_pixel_format(struct ivtv *itv,
-		int format)
+static int ivtv_api_fb_set_pixel_format(struct ivtv *itv, int format)
 {
 	u32 data[IVTV_MBOX_MAX_DATA], result;
 	data[0] = format;
-	IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, "ivtv_api_fb_set_pixel_format\n");
 
 	ivtv_api(itv, itv->dec_mbox, &itv->dec_msem,
-			IVTV_API_FB_SET_PIXEL_FORMAT, &result, 1, &data[0]);
+		 IVTV_API_FB_SET_PIXEL_FORMAT, &result, 1, &data[0]);
 	return result;
 }
 
 #if 0
 static int ivtv_api_fb_get_status(struct ivtv *itv)
 {
-    u32 data[IVTV_MBOX_MAX_DATA], result;
-    IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, "ivtv_api_fb_get_status\n");
+	u32 data[IVTV_MBOX_MAX_DATA], result;
 
-    ivtv_api(itv, itv->dec_mbox, &itv->dec_msem, IVTV_API_FB_GET_STATE,
-	     &result, 0, &data[0]);
+	ivtv_api(itv, itv->dec_mbox, &itv->dec_msem, IVTV_API_FB_GET_STATE,
+		 &result, 0, &data[0]);
 
-    /* bit 1 is on/off bit */
-    if (data[0] & 1)
-    	return 1;
-    else 
-        return 0;
+	/* bit 1 is on/off bit */
+	if (data[0] & 1)
+		return 1;
+	else
+		return 0;
 }
 #endif
 
 static int ivtv_api_fb_get_state(struct ivtv *itv)
 {
 	u32 data[IVTV_MBOX_MAX_DATA], result;
-	IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, "ivtv_api_fb_get_state\n");
 
 	ivtv_api(itv, itv->dec_mbox, &itv->dec_msem, IVTV_API_FB_GET_STATE,
-			&result, 0, &data[0]);
+		 &result, 0, &data[0]);
 	return data[0];
 }
 
@@ -308,37 +300,35 @@ static int ivtv_api_fb_set_state(struct ivtv *itv, int enabled)
 {
 	u32 params[IVTV_MBOX_MAX_DATA], result;
 	params[0] = enabled;
-	IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, "ivtv_api_fb_set_state\n");
 
 	ivtv_api(itv, itv->dec_mbox, &itv->dec_msem, IVTV_API_FB_SET_STATE,
-			&result, 1, &params[0]);
+		 &result, 1, &params[0]);
 	return result;
 }
 
 static int ivtv_api_fb_set_framebuffer_window(struct ivtv *itv,
-		int left, int top,
-		int width, int height)
+					      int left, int top,
+					      int width, int height)
 {
 	u32 data[IVTV_MBOX_MAX_DATA], result;
-	IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, "ivtv_api_fb_set_framebuffer_window\n");
-	data[0] = width;
+	
+        data[0] = width;
 	data[1] = height;
 	data[2] = left;
 	data[3] = top;
 
 	ivtv_api(itv, itv->dec_mbox, &itv->dec_msem,
-			IVTV_API_FB_SET_FRAMEBUFFER_WINDOW, &result, 4, &data[0]);
+		 IVTV_API_FB_SET_FRAMEBUFFER_WINDOW, &result, 4, &data[0]);
 	return result;
 }
 
 static int ivtv_api_fb_get_osd_coords(struct ivtv *itv,
-		struct ivtv_osd_coords *osd)
+				      struct ivtv_osd_coords *osd)
 {
 	u32 data[IVTV_MBOX_MAX_DATA], result;
-	IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, "ivtv_api_fb_get_osd_coords\n");
 
 	ivtv_api(itv, itv->dec_mbox, &itv->dec_msem, IVTV_API_FB_GET_OSD_COORDS,
-			&result, 0, &data[0]);
+		 &result, 0, &data[0]);
 
 	osd->offset = data[0] - video_rel_base;
 	osd->max_offset = video_width * video_height * 4;
@@ -350,12 +340,11 @@ static int ivtv_api_fb_get_osd_coords(struct ivtv *itv,
 	return result;
 }
 
-static int ivtv_api_fb_set_osd_coords(struct ivtv *itv,
-		const struct ivtv_osd_coords
-		*osd)
+static int ivtv_api_fb_set_osd_coords(struct ivtv *itv, const struct ivtv_osd_coords
+				      *osd)
 {
 	u32 data[IVTV_MBOX_MAX_DATA], result;
-	IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, "ivtv_api_fb_set_osd_coords\n");
+
 	data[0] = osd->offset + video_rel_base;
 	data[1] = osd->pixel_stride;
 	data[2] = osd->lines;
@@ -364,19 +353,17 @@ static int ivtv_api_fb_set_osd_coords(struct ivtv *itv,
 
 	/* FIXME maybe wait on vsync? */
 	ivtv_api(itv, itv->dec_mbox, &itv->dec_msem, IVTV_API_FB_SET_OSD_COORDS,
-			&result, 5, &data[0]);
+		 &result, 5, &data[0]);
 
 	return result;
 }
 
-static int ivtv_api_fb_get_screen_coords(struct ivtv *itv,
-		struct rectangle *r)
+static int ivtv_api_fb_get_screen_coords(struct ivtv *itv, struct rectangle *r)
 {
 	u32 data[IVTV_MBOX_MAX_DATA], result;
-	IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, "ivtv_api_fb_get_screen_coords\n");
 
-	ivtv_api(itv, itv->dec_mbox, &itv->dec_msem, IVTV_API_FB_GET_SCREEN_COORDS,
-			&result, 0, &data[0]);
+	ivtv_api(itv, itv->dec_mbox, &itv->dec_msem,
+		 IVTV_API_FB_GET_SCREEN_COORDS, &result, 0, &data[0]);
 
 	r->x0 = data[0];
 	r->y0 = data[1];
@@ -387,36 +374,34 @@ static int ivtv_api_fb_get_screen_coords(struct ivtv *itv,
 }
 
 static int ivtv_api_fb_set_screen_coords(struct ivtv *itv,
-		const struct rectangle *r)
+					 const struct rectangle *r)
 {
 	u32 data[IVTV_MBOX_MAX_DATA], result;
-	IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, "ivtv_api_fb_set_screen_coords\n");
+
 	data[0] = r->x0;
 	data[1] = r->y0;
 	data[2] = r->x1;
 	data[3] = r->y1;
 
 	ivtv_api(itv, itv->dec_mbox, &itv->dec_msem,
-			IVTV_API_FB_SET_SCREEN_COORDS, &result, 4, &data[0]);
+		 IVTV_API_FB_SET_SCREEN_COORDS, &result, 4, &data[0]);
 	return result;
 }
 
 static int ivtv_api_fb_get_global_alpha(struct ivtv *itv)
 {
 	u32 data[IVTV_MBOX_MAX_DATA], result;
-	IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, "ivtv_api_fb_get_global_alpha\n");
 
-	ivtv_api(itv, itv->dec_mbox, &itv->dec_msem, IVTV_API_FB_GET_GLOBAL_ALPHA,
-			&result, 0, &data[0]);
+	ivtv_api(itv, itv->dec_mbox, &itv->dec_msem,
+		 IVTV_API_FB_GET_GLOBAL_ALPHA, &result, 0, &data[0]);
 	return data[1];
 }
 
 static int ivtv_api_fb_set_global_alpha(struct ivtv *itv,
-		int enable_global,
-		int alpha, int enable_local)
+					int enable_global,
+					int alpha, int enable_local)
 {
 	u32 data[IVTV_MBOX_MAX_DATA], result;
-	IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, "ivtv_api_fb_set_global_alpha\n");
 
 	/* Save settings if Firmware reload */
 	itv->global_alpha = alpha;
@@ -427,66 +412,78 @@ static int ivtv_api_fb_set_global_alpha(struct ivtv *itv,
 	data[1] = alpha;
 	data[2] = !enable_local;
 	ivtv_api(itv, itv->dec_mbox, &itv->dec_msem,
-			IVTV_API_FB_SET_GLOBAL_ALPHA, &result, 3, &data[0]);
+		 IVTV_API_FB_SET_GLOBAL_ALPHA, &result, 3, &data[0]);
 
 	return result;
 }
 
+static void  ivtv_api_fb_set_colorKey(struct ivtv *itv,int state,  uint32_t color)
+{
+	u32 data[IVTV_MBOX_MAX_DATA], result;
+
+        itv->color_key_state = state;
+        itv->color_key = color;
+	data[0] = state;
+	data[1] = color;
+	ivtv_api(itv, itv->dec_mbox, &itv->dec_msem,
+		 IVTV_API_FB_SET_CHROMA_KEY, &result, 2, &data[0]);
+
+}
 static int ivtv_api_fb_get_flicker_state(struct ivtv *itv)
 {
 	u32 data[IVTV_MBOX_MAX_DATA], result;
-	IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, "ivtv_api_fb_get_flicker_state\n");
 
-	ivtv_api(itv, itv->dec_mbox, &itv->dec_msem, IVTV_API_FB_GET_FLICKER_STATE,
-			&result, 0, &data[0]);
+	ivtv_api(itv, itv->dec_mbox, &itv->dec_msem,
+		 IVTV_API_FB_GET_FLICKER_STATE, &result, 0, &data[0]);
 	return data[0];
 }
 
-static int ivtv_api_fb_set_flicker_state(struct ivtv *itv,
-		int enabled)
+static int ivtv_api_fb_set_flicker_state(struct ivtv *itv, int enabled)
 {
 	u32 params[IVTV_MBOX_MAX_DATA], result;
-	IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, "ivtv_api_fb_set_flicker_state\n");
+
 	params[0] = enabled;
 
 	ivtv_api(itv, itv->dec_mbox, &itv->dec_msem,
-			IVTV_API_FB_SET_FLICKER_STATE, &result, 1, &params[0]);
+		 IVTV_API_FB_SET_FLICKER_STATE, &result, 1, &params[0]);
 	return result;
 }
 
 /* currently unused */
 static int ivtv_api_fb_blt_fill(struct ivtv *itv, int rasterop,
-				       int alpha_mode, int alpha_mask_mode,
-				       int width, int height, int destmask,
-				       u32 destaddr, int deststride,
-				       u32 value)
+				int alpha_mode, int alpha_mask_mode,
+				int width, int height, int destmask,
+				u32 destaddr, int deststride, u32 value)
 {
-    u32 data[IVTV_MBOX_MAX_DATA], result;
-    IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, "ivtv_api_fb_blt_fill\n");
-    data[0] = rasterop;
-    data[1] = alpha_mode;
-    data[2] = alpha_mask_mode;
-    data[3] = width;
-    data[4] = height;
-    data[5] = destmask;
-    data[6] = destaddr;
-    data[7] = deststride;
-    data[8] = value;
+	u32 data[IVTV_MBOX_MAX_DATA], result;
 
-    result = ivtv_api(itv, itv->dec_mbox, &itv->dec_msem, IVTV_API_FB_BLT_FILL, &result,
-		      9, &data[0]);
-    return result;
+	data[0] = rasterop;
+	data[1] = alpha_mode;
+	data[2] = alpha_mask_mode;
+	data[3] = width;
+	data[4] = height;
+	data[5] = destmask;
+	data[6] = destaddr;
+	data[7] = deststride;
+	data[8] = value;
+
+	result =
+	    ivtv_api(itv, itv->dec_mbox, &itv->dec_msem, IVTV_API_FB_BLT_FILL,
+		     &result, 9, &data[0]);
+	return result;
 }
 
 static int ivtv_api_fb_blt_copy(struct ivtv *itv, int rasterop,
-				       int alpha_mode, int alpha_mask_mode,
-				       int width, int height, int destmask,
-				       u32 destaddr, int deststride,
-				       int sourcestride, int sourceaddr)
+				int alpha_mode, int alpha_mask_mode,
+				int width, int height, int destmask,
+				u32 destaddr, int deststride,
+				int sourcestride, int sourceaddr)
 {
 	u32 data[IVTV_MBOX_MAX_DATA], result;
-	IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, "ivtv_api_fb_blt_copy: width = %d, height = %d, destaddr = %d, deststride = %d, sourcestride = %d, sourceaddr = %d\n",
-			width, height, destaddr, deststride, sourcestride, sourceaddr);
+	IVTV_OSD_DEBUG_INFO(
+		       "ivtv_api_fb_blt_copy: width = %d, height = %d, destaddr = %d, deststride = %d, sourcestride = %d, sourceaddr = %d\n",
+		       width, height, destaddr, deststride, sourcestride,
+		       sourceaddr);
 
 	data[0] = rasterop;
 	data[1] = alpha_mode;
@@ -499,18 +496,23 @@ static int ivtv_api_fb_blt_copy(struct ivtv *itv, int rasterop,
 	data[8] = sourcestride;
 	data[9] = sourceaddr;
 
-	result = ivtv_api(itv, itv->dec_mbox, &itv->dec_msem, IVTV_API_FB_BLT_COPY, &result,
-			  10, &data[0]);
+	result =
+	    ivtv_api(itv, itv->dec_mbox, &itv->dec_msem, IVTV_API_FB_BLT_COPY,
+		     &result, 10, &data[0]);
 	return result;
 }
-
 
 MODULE_PARM(ivtv_fb_card_id, "i");
 MODULE_PARM_DESC(ivtv_fb_card_id,
 		 "ID number of ivtv card to use as framebuffer device (0-7)");
+MODULE_PARM(osd_init, "i");
+MODULE_PARM_DESC(osd_init,
+		 "specify frame buffer initialisation\n"
+                 "\t\t\t0=black\n"
+                 "\t\t\t1=uninitialised\n"
+                 "\t\t\tdefault black");
 
 MODULE_LICENSE("GPL");
-
 
 /* --------------------------------------------------------------------- */
 
@@ -535,7 +537,7 @@ static struct fb_var_screeninfo ivtvfb_defined = {
 #else
 	0,
 	{0, 0, 0, 0, 0}
-#endif
+#endif /* LINUX26 */
 };
 
 static struct fb_info fb_info;
@@ -545,28 +547,27 @@ static union {
 	u32 cfb32[16];
 } fbcon_cmap;
 static struct display_switch ivtvfb_sw;
-#endif
+#endif /* LINUX26 */
 
 #ifdef CONFIG_MTRR
-static int mtrr = 1;	//++MTY
+static int mtrr = 1;		//++MTY
 static unsigned long fb_start_aligned_physaddr;	/* video_base rounded down as required by hardware MTRRs */
 static unsigned long fb_end_aligned_physaddr;	/* video_base rounded up as required by hardware MTRRs */
-#endif
-
+#endif /* CONFIG_MTRR */
 
 /* --------------------------------------------------------------------- */
 static int _ivtvfb_set_var(struct fb_var_screeninfo *var)
 {
-	IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, "_ivtvfb_set_var\n");
+	IVTV_OSD_DEBUG_INFO("_ivtvfb_set_var\n");
 
 	if (var->xres != ivtvfb_defined.xres ||
-			var->yres != ivtvfb_defined.yres ||
-			var->xres_virtual != ivtvfb_defined.xres_virtual ||
-			var->yres_virtual > video_height_virtual ||
-			var->yres_virtual < video_height ||
-			var->xoffset ||
-			var->bits_per_pixel != ivtvfb_defined.bits_per_pixel ||
-			var->nonstd) {
+	    var->yres != ivtvfb_defined.yres ||
+	    var->xres_virtual != ivtvfb_defined.xres_virtual ||
+	    var->yres_virtual > video_height_virtual ||
+	    var->yres_virtual < video_height ||
+	    var->xoffset ||
+	    var->bits_per_pixel != ivtvfb_defined.bits_per_pixel ||
+	    var->nonstd) {
 		return -EINVAL;
 	}
 	return 0;
@@ -590,21 +591,21 @@ static int _ivtvfb_get_fix(struct fb_fix_screeninfo *fix)
 #ifndef LINUX26
 static int ivtvfb_update_var(int con, struct fb_info *info)
 {
-	IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, "ivtvfb_update_var\n");
+	IVTV_OSD_DEBUG_INFO("ivtvfb_update_var\n");
 	return 0;
 }
 
 static int ivtvfb_get_fix(struct fb_fix_screeninfo *fix, int con,
-		struct fb_info *info)
+			  struct fb_info *info)
 {
-	IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, "ivtvfb_get_fix\n");
+	IVTV_OSD_DEBUG_INFO("ivtvfb_get_fix\n");
 	return _ivtvfb_get_fix(fix);
 }
 
 static int ivtvfb_get_var(struct fb_var_screeninfo *var, int con,
-		struct fb_info *info)
+			  struct fb_info *info)
 {
-	IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, "ivtvfb_get_var\n");
+	IVTV_OSD_DEBUG_INFO("ivtvfb_get_var\n");
 	if (con == -1)
 		memcpy(var, &ivtvfb_defined, sizeof(struct fb_var_screeninfo));
 	else
@@ -618,7 +619,7 @@ static void ivtvfb_set_disp(int con)
 	struct display *display;
 	struct display_switch *sw;
 
-	IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, "ivtvfb_set_disp\n");
+	IVTV_OSD_DEBUG_INFO("ivtvfb_set_disp\n");
 	if (con >= 0)
 		display = &fb_display[con];
 	else
@@ -648,15 +649,17 @@ static void ivtvfb_set_disp(int con)
 }
 
 static int ivtvfb_set_var(struct fb_var_screeninfo *var, int con,
-		struct fb_info *info)
+			  struct fb_info *info)
 {
-	int first=0;
-	IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, "ivtvfb_set_var\n");
-	if (con >= 0) first = 1;
+	int first = 0;
+	IVTV_OSD_DEBUG_INFO("ivtvfb_set_var\n");
+	if (con >= 0)
+		first = 1;
 
-	if (_ivtvfb_set_var(var)){	    
+	if (_ivtvfb_set_var(var)) {
 		if (first) {
-			IVTV_OSD_KERN_ERR("changing the video mode is not supported\n");
+			IVTV_OSD_ERR
+			    ("changing the video mode is not supported\n");
 			first = 0;
 		}
 		return -EINVAL;
@@ -674,343 +677,515 @@ static int ivtvfb_set_var(struct fb_var_screeninfo *var, int con,
  * ivtv never uses a colormap: it is always straight RGBA 8:8:8:8...
  */
 static int ivtvfb_get_cmap(struct fb_cmap *cmap, int kspc, int con,
-		struct fb_info *info)
+			   struct fb_info *info)
 {
-	IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, "ivtvfb_get_cmap\n");
 	return 0;
 }
 
 static int ivtvfb_set_cmap(struct fb_cmap *cmap, int kspc, int con,
-		struct fb_info *info)
+			   struct fb_info *info)
 {
-	IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, "ivtvfb_set_cmap\n");
 	return 0;
 }
 
 #else
-static int ivtvfb_check_var (struct fb_var_screeninfo *var,
-		struct fb_info *info)
+static int ivtvfb_check_var(struct fb_var_screeninfo *var, struct fb_info *info)
 {
-	IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, "ivtv_fb_check_var\n");
-	IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, "ivtvfb_set_var\n");
 	return (_ivtvfb_set_var(&info->var));
 }
-static int ivtvfb_set_par(struct fb_info *info){
-	IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, "ivtvfb_set_var\n");
+static int ivtvfb_set_par(struct fb_info *info)
+{
 	return (_ivtvfb_set_var(&info->var));
 }
 static int ivtvfb_setcolreg(unsigned regno, unsigned red, unsigned green,
-		unsigned blue, unsigned transp, struct fb_info *info)
+			    unsigned blue, unsigned transp,
+			    struct fb_info *info)
 {
 	return (0);
 }
 
-static 	void ivtv_fb_fillrect (struct fb_info *info, const struct fb_fillrect *rect)
+static void ivtv_fb_fillrect(struct fb_info *info,
+			     const struct fb_fillrect *rect)
 {
-  IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, "ivtv_fb_fillrect\n");
 }
-static	void ivtv_fb_copyarea (struct fb_info *info, const struct fb_copyarea *region)
+static void ivtv_fb_copyarea(struct fb_info *info,
+			     const struct fb_copyarea *region)
 {
-  IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, "ivtv_fb_copyarea\n");
 }
-static	void ivtv_fb_imageblit (struct fb_info *info, const struct fb_image *image)
+static void ivtv_fb_imageblit(struct fb_info *info,
+			      const struct fb_image *image)
 {
-  IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, "ivtv_fb_imageblit\n");
 }
-static	int ivtv_fb_cursor (struct fb_info *info, struct fb_cursor *cursor)
+static int ivtv_fb_cursor(struct fb_info *info, struct fb_cursor *cursor)
 {
-  IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, "ivtv_fb_cursor\n");
-  return 0;
+	return 0;
 }
-static  void ivtv_fb_rotate(struct fb_info *info, int angle)
+static void ivtv_fb_rotate(struct fb_info *info, int angle)
 {
-  IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, "ivtv_fb_rotate\n");
 }
-static 	int ivtv_fb_sync(struct fb_info *info)
+static int ivtv_fb_sync(struct fb_info *info)
 {
-  IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, "ivtv_fb_sync\n");
-  return 0;
+	return 0;
 }
 
-#endif
+#endif /* LINUX26 */
 
 static int ivtv_fb_blt_copy(struct ivtv *itv, int x, int y, int width,
-		int height, int source_offset,
-		int source_stride)
+			    int height, int source_offset, int source_stride)
 {
 	int rc;
 	unsigned long destaddr = ((y * video_width) + x) * 4;
 
-	IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, "ivtv_fb_blt_copy \n");
 	source_offset += shadow_framebuf_offset;
 
 	rc = ivtv_api_fb_blt_copy(itv, 0xa, 0x1, 0x0, width, height,
-			0xffffffff, destaddr, video_width,
-			source_stride, source_offset);
+				  0xffffffff, destaddr, video_width,
+				  source_stride, source_offset);
 	return rc;
 }
 
-static int ivtv_fb_blt_fill(struct ivtv *itv, struct ivtvfb_ioctl_blt_fill_args *args)
+static int ivtv_fb_blt_fill(struct ivtv *itv,
+			    struct ivtvfb_ioctl_blt_fill_args *args)
 {
 	int rc;
-	unsigned long destaddr = IVTV_DEC_MEM_START + video_rel_base + (((args->y * video_width) + args->x) * 4);
+	unsigned long destaddr =
+	    IVTV_DEC_MEM_START + video_rel_base +
+	    (((args->y * video_width) + args->x) * 4);
 
-	IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, "ivtv_fb_blt_fill op %d mode %d mask %d width %d hight %d\n",
-		      args->rasterop, args->alpha_mode, args->alpha_mask, args->width, args->height );
+	IVTV_OSD_DEBUG_INFO(
+		       "ivtv_fb_blt_fill op %d mode %d mask %d width %d hight %d\n",
+		       args->rasterop, args->alpha_mode, args->alpha_mask,
+		       args->width, args->height);
 
-	IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, "ivtv_fb_blt_fill destMask %x, destAddr %lx stride %d color %x\n",
-		       args->destPixelMask, destaddr, video_width, args->colour);
+	IVTV_OSD_DEBUG_INFO(
+		       "ivtv_fb_blt_fill destMask %x, destAddr %lx stride %d color %x\n",
+		       args->destPixelMask, destaddr, video_width,
+		       args->colour);
 
-	rc = ivtv_api_fb_blt_fill(itv, args->rasterop, args->alpha_mode, args->alpha_mask, args->width, args->height,
-				  args->destPixelMask, destaddr, video_width, args->colour);
+	rc = ivtv_api_fb_blt_fill(itv, args->rasterop, args->alpha_mode,
+				  args->alpha_mask, args->width, args->height,
+				  args->destPixelMask, destaddr, video_width,
+				  args->colour);
 	return rc;
 }
 
-int ivtvfb_prep_dec_dma_to_device(struct ivtv *itv, unsigned long ivtv_dest_addr,
-	char *userbuf, int size_in_bytes)
+int ivtvfb_prep_dec_dma_to_device(struct ivtv *itv,
+				  unsigned long ivtv_dest_addr, char *userbuf,
+				  int size_in_bytes)
 {
-	struct ivtv_stream *stream=
-		&itv->streams[IVTV_DEC_STREAM_TYPE_MPG];
+	struct ivtv_stream *stream = &itv->streams[IVTV_DEC_STREAM_TYPE_OSD];
 	u32 data[IVTV_MBOX_MAX_DATA];
 	int ret = 0;
-	u32 then;
-	int redo_dma = 0;
-	unsigned long flags;
 
 	/* Map User DMA */
-	if (ivtv_prep_user_dma(itv, 
-		&stream->udma, ivtv_dest_addr, userbuf, size_in_bytes) <= 0) {
-		IVTV_DEBUG_OSD(IVTV_DEBUG_ERR, 
-			"ivtvfb_prep_dec_dma_to_device, "
-			"Error with get_user_pages: %d bytes, %d pages returned\n", 
-			size_in_bytes, stream->udma.page_count);
+	if (ivtv_prep_user_dma(itv,
+			       &stream->udma, ivtv_dest_addr, userbuf,
+			       size_in_bytes) <= 0) {
+		IVTV_OSD_DEBUG_WARN(
+			       "ivtvfb_prep_dec_dma_to_device, "
+			       "Error with get_user_pages: %d bytes, %d pages returned\n",
+			       size_in_bytes, stream->udma.page_count);
 
 		/* get_user_pages must have failed completely */
-		return -EIO;	
-	}	
+		return -EIO;
+	}
 
-	IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, 
-		"ivtvfb_prep_dec_dma_to_device, %d bytes, %d pages\n", 
-		size_in_bytes, stream->udma.page_count);
+	IVTV_OSD_DEBUG_INFO(
+		       "ivtvfb_prep_dec_dma_to_device, %d bytes, %d pages\n",
+		       size_in_bytes, stream->udma.page_count);
 
-        /* Decoder DMA State */
-        itv->dec_dma_stat.last_xfer = stream->udma.sg_size;
-        atomic_set(&itv->dec_dma_stat.type, 1);
+	/* Decoder DMA State */
+	itv->dec_dma_stat.last_xfer = stream->udma.sg_size;
+	atomic_set(&itv->dec_dma_stat.type, 1);
 
 	data[0] = stream->udma.SG_handle;
 	data[1] = stream->udma.sg_size;
 	data[2] = 0x01;
 
-	IVTV_DEBUG_OSD(IVTV_DEBUG_INFO,
-		"Sched OSD dma: addr: 0x%08x, array_size 0x%08x, type 0x%08x\n",
-		data[0], data[1], data[2]);
+	IVTV_OSD_DEBUG_INFO(
+		       "Sched OSD dma: addr: 0x%08x, array_size 0x%08x, type 0x%08x\n",
+		       data[0], data[1], data[2]);
 
-/* This uses the cards DMA registers instead of the firmware API
-   to send the Decoder DMA, I suspect this is safer than how the
-   firmware does it, just because the firmware does it so badly :-) */
-	/* Lock DEC DMA */
 	down(&itv->DMA_lock);
-
-        /* wait for DMA complete status */
-        then = jiffies;
-        while (!(ivtv_read_reg(itv->reg_mem +
-                        IVTV_REG_DMASTATUS) & 0x00000001))
-        {
-                ivtvfb_sleep_timeout(HZ/100, 1);
-                if ((jiffies - then) > (HZ*3)) {
-			IVTV_DEBUG_OSD(IVTV_DEBUG_ERR,
-				"OSD: REG_DMASTATUS wait failed\n");	
-
-			ivtv_dma_show_status(itv, IVTV_DEBUG_ERR);
-
-                        break;
-		}
-        }
-
-redo_dma:
-
-        /* put SG Handle into register */
-	spin_lock_irqsave(&itv->DMA_slock, flags);
-        ivtv_write_reg(data[0], itv->reg_mem + IVTV_REG_DECDMAADDR);
-
-        /* Send DMA */
-        ivtv_write_reg(0x01, itv->reg_mem + IVTV_REG_DMAXFER);
-	spin_unlock_irqrestore(&itv->DMA_slock, flags);
-
-        /* wait for last DMA to be finished */
-	then = jiffies;
-        while (!(ivtv_read_reg(itv->reg_mem + IVTV_REG_DECSG1LEN) & 0x80000000))
-        {
-		/* DMA Error */
-		if (ivtv_read_reg(itv->reg_mem + IVTV_REG_DMASTATUS) & 0x00000014)
-			break;
-
-                ivtvfb_sleep_timeout(HZ/100, 1);
-                if ((jiffies - then) > HZ) {
-			IVTV_DEBUG_OSD(IVTV_DEBUG_ERR,
-				"OSD: REG_DECSG1LEN wait failed\n");	
-
-			ivtv_dma_show_status(itv, IVTV_DEBUG_ERR);
-
-                	/* Reset DMA, cancel last DMA? */
-			spin_lock_irqsave(&itv->DMA_slock, flags);
-                	ivtv_write_reg(0x00, itv->reg_mem + IVTV_REG_DMAXFER);
-			spin_unlock_irqrestore(&itv->DMA_slock, flags);
-                        break;
-		}
-        }
-
-        /* wait for DMA xfer to be done */
-        then = jiffies;
-        while ((ivtv_read_reg(itv->reg_mem +
-                        IVTV_REG_DMAXFER) & 0x00000001))
-        {
-		/* DMA Error */
-		if (ivtv_read_reg(itv->reg_mem + IVTV_REG_DMASTATUS) & 0x00000014)
-			break;
-
-                ivtvfb_sleep_timeout(HZ/100, 1);
-                if ((jiffies - then) > (HZ*3)) {
-			IVTV_DEBUG_OSD(IVTV_DEBUG_ERR,
-				"OSD: REG_DMAXFER wait failed\n");	
-
-			ivtv_dma_show_status(itv, IVTV_DEBUG_ERR);
-
-                        break;
-		}
-        }
-
-        /* wait for DMA complete status */
-        then = jiffies;
-        while (!(ivtv_read_reg(itv->reg_mem +
-                        IVTV_REG_DMASTATUS) & 0x00000001))
-        {
-		/* DMA Error */
-		if (ivtv_read_reg(itv->reg_mem + IVTV_REG_DMASTATUS) & 0x00000014)
-			break;
-
-                ivtvfb_sleep_timeout(HZ/100, 1);
-                if ((jiffies - then) > (HZ*3)) {
-			IVTV_DEBUG_OSD(IVTV_DEBUG_ERR,
-				"OSD: REG_DMASTATUS2 wait failed\n");	
-
-			ivtv_dma_show_status(itv, IVTV_DEBUG_ERR);
-
-                        break;
-		}
-        }
-
-        /* DMA Error */
-        if ((ivtv_read_reg(itv->reg_mem +
-                IVTV_REG_DMASTATUS) & 0x00000014))
-        {
-                IVTV_DEBUG_OSD(IVTV_DEBUG_DMA, "OSD: (%d) DMA Error 0x%08x\n",
-                        redo_dma, ivtv_read_reg(itv->reg_mem +IVTV_REG_DMASTATUS));
-
-                /* Reset DMA Error, cancel last DMA? */
-		spin_lock_irqsave(&itv->DMA_slock, flags);
-                ivtv_write_reg(0x00, itv->reg_mem + IVTV_REG_DMAXFER);
-		spin_unlock_irqrestore(&itv->DMA_slock, flags);
-                if (redo_dma < 3) {
-                        redo_dma++;
-                        goto redo_dma;
-                } else
-			IVTV_DEBUG_OSD(IVTV_DEBUG_ERR,
-				"OSD: REDO DMA took too many tries.\n");	
-        }
-
-        /* Unmap Last DMA Xfer */
-        if (ivtv_unmap_user_dma(itv, &stream->udma) == 1) 
-	{
-                IVTV_DEBUG_OSD(IVTV_DEBUG_ERR, "Error: unmap osd dma\n");
-        }
-
-	/* Lock DEC DMA */
+	if (dma_to_device(itv, stream, stream->udma.SG_handle, 0) != 0) {
+		IVTV_OSD_DEBUG_WARN("Error OSD User DMA\n");
+	}
 	up(&itv->DMA_lock);
 
-	/* Unlock stream */
-        clear_bit(DMA_IN_USE, &stream->udma.u_flags);
-        clear_bit(IVTV_F_S_DMAP, &stream->s_flags);
-
-	/* Wake up next OSD/DEC DMA in wait */
-	wake_up(&stream->udma.waitq);
+	/* Unmap Last DMA Xfer */
+	if (ivtv_unmap_user_dma(itv, &stream->udma) == 1) {
+		IVTV_OSD_DEBUG_WARN( "Error: unmap osd dma\n");
+	}
 
 	return ret;
 }
 
-static int ivtv_fb_prep_frame(struct ivtv *itv,
-				     unsigned long destaddr, void *srcaddr,
-				     int count)
+int ivtvfb_prep_osd_dma_to_device(struct ivtv *itv,
+				  unsigned long ivtv_dest_addr, char *userbuf,
+				  int size_in_bytes, int stream_type)
 {
-	int rc = 0;
-	struct ivtv_stream *stream = /* Use Decoder Stream for locking */
-		&itv->streams[IVTV_DEC_STREAM_TYPE_MPG];
-	u32 then;
-	DECLARE_WAITQUEUE(wait, current);
+	struct ivtv_stream *osd_stream = &itv->streams[stream_type];
+	struct ivtv_buffer *buf;
+	int bytes_left = size_in_bytes;
+	int cur_buf = 0;
+	int offset = 0;
+	int ret = 0;
+	int i;
 
+	/* Decoder DMA State */
+	itv->dec_dma_stat.last_xfer = size_in_bytes;
+	atomic_set(&itv->dec_dma_stat.type, 1);
 
-	/* If needing to re-setup the OSD */
-	if (test_and_clear_bit(OSD_RESET_NEEDED, &itv->r_flags)) {
-		ivtvfb_setup();
-		clear_bit(DMA_IN_USE, &stream->udma.u_flags);
+	while (bytes_left) {
+		/* Get Buffers for DMA xfer */
+		for (i = 0;
+		     bytes_left
+		     && (buf =
+			 ivtv_deq_buf_lock(itv, &osd_stream->free_q, osd_stream));
+		     i++) {
+			/* Calculate Buffer size and Bytes to fill */
+			if (bytes_left >= buf->buffer.length) {
+				bytes_left -= buf->buffer.length;
+				cur_buf = buf->buffer.length;
+			} else {
+				cur_buf = bytes_left;
+				bytes_left = 0;
+			}
+			buf->buffer.bytesused = cur_buf;
+			buf->readpos = cur_buf;
+			buf->ts = jiffies;
+
+			/* Fill Buffer */
+			if (copy_from_user(((char *)buf->buffer.m.userptr),
+					   (char *)((uintptr_t) userbuf +
+						    offset), cur_buf)) {
+				ivtv_enq_buf_lock(&osd_stream->free_q, buf,
+						  osd_stream);
+				ret = -EFAULT;
+				break;
+			}
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 8)
+			pci_dma_sync_single_for_cpu((struct pci_dev *)itv->dev,
+						    osd_stream->SG_handle,
+						    sizeof(struct
+							   ivtv_SG_element) *
+						    (osd_stream->buf_min /
+						     osd_stream->bufsize),
+						    osd_stream->dma);
+#else
+			/* Sync DMA Buffer */
+			pci_dma_sync_single(itv->dev,
+					    osd_stream->SG_handle,
+					    sizeof(struct ivtv_SG_element) *
+					    (osd_stream->buf_min / osd_stream->bufsize),
+					    osd_stream->dma);
+#endif /* LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 8) */
+			/* Buffer Addr */
+			osd_stream->SGarray[i].src = buf->dma_handle;
+
+			/* Decoder Addr */
+			osd_stream->SGarray[i].dst = ivtv_dest_addr + offset;
+			/* Buffer size */
+			osd_stream->SGarray[i].size = buf->buffer.bytesused;
+
+			/* put into DMA Queue */
+			ivtv_enq_buf_lock(&osd_stream->dma_q, buf, osd_stream);
+
+			/* Increment next xfer offset */
+			offset += cur_buf;
+		}
+
+		if (ret || !i) {
+			if (!ret)
+				ret = -ENOMEM;
+			break;
+		}
+
+		/* Set SG Length */
+		osd_stream->SG_length = i;
+
+		/* Set Last Element Bit */
+		osd_stream->SGarray[i - 1].size |= 0x80000000;
+
+		/* Sync SG Array */
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 8)
+		pci_dma_sync_single_for_device((struct pci_dev *)itv->dev,
+					       osd_stream->SG_handle,
+					       sizeof(struct ivtv_SG_element) *
+					       (osd_stream->buf_min /
+						osd_stream->bufsize), osd_stream->dma);
+#else
+		pci_dma_sync_single(itv->dev,
+				    osd_stream->SG_handle,
+				    sizeof(struct ivtv_SG_element) *
+				    (osd_stream->buf_min / osd_stream->bufsize),
+				    osd_stream->dma);
+#endif /* LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 8) */
+
+		IVTV_OSD_DEBUG_INFO(
+			       "Sched OSD dma: links 0x%08x, bytes 0x%08x, type %d\n",
+			       osd_stream->SG_length, size_in_bytes, 1);
+
+		down(&itv->DMA_lock);
+		if (dma_to_device(itv, osd_stream, osd_stream->SG_handle, 0) != 0) {
+			IVTV_OSD_DEBUG_WARN("Error OSD BUFFER DMA\n");
+		}
+		up(&itv->DMA_lock);
+
+		/* Gather Buffers from DMA xfer to read */
+		ivtv_TO_DMA_done(itv, osd_stream->type);
 	}
 
+	return ret;
+}
+
+static int ivtv_fb_prep_frame_buf(struct ivtv *itv,
+				  unsigned long destaddr, void *srcaddr,
+				  int count)
+{
+	int rc = 0;
+	struct ivtv_stream *stream =	/* Use Decoder Stream for locking */
+	    &itv->streams[IVTV_DEC_STREAM_TYPE_OSD];
+	unsigned long then;
+	DECLARE_WAITQUEUE(wait, current);
+
+	/* If needing to re-setup the OSD */
+	if (test_and_clear_bit(OSD_RESET_NEEDED, &itv->r_flags))
+		ivtvfb_setup();
+
 	then = jiffies;
-	add_wait_queue(&stream->udma.waitq, &wait);
+	add_wait_queue(&stream->waitq, &wait);
+	set_bit(IVTV_F_S_OSD_NEEDS_DATA, &stream->s_flags);
 	do {
 		set_current_state(TASK_INTERRUPTIBLE);
 
 		/* Lock Decoder */
-		if (/*!(ivtv_read_reg(itv->dec_mem + IVTV_REG_DEC_READY) & 4) &&
-			!(ivtv_read_reg(itv->dec_mem + IVTV_REG_DEC_NEEDED)) &&*/
-			(ivtv_read_reg((unsigned char *)itv->reg_mem +IVTV_REG_DMASTATUS) & 0x01) &&
-			! (ivtv_read_reg((unsigned char *)itv->reg_mem +IVTV_REG_DMASTATUS) & 0x14) &&
-			!test_bit(DMA_IN_USE, &stream->udma.u_flags) &&
-			!test_and_set_bit(IVTV_F_S_DMAP, &stream->s_flags))
-		{
-			if (!test_and_set_bit(DMA_IN_USE, &stream->udma.u_flags))
-				break;
-			else 
-				clear_bit(IVTV_F_S_DMAP, &stream->s_flags);	
+		if ((ivtv_read_reg((unsigned char *)itv->reg_mem +
+				   IVTV_REG_DMASTATUS) & 0x01)
+		    &&
+		    !(ivtv_read_reg
+		      ((unsigned char *)itv->reg_mem +
+		       IVTV_REG_DMASTATUS) & 0x14)
+		    && !test_and_set_bit(IVTV_F_S_DMAP, &stream->s_flags)) {
+			break;
 		}
-		IVTV_DEBUG(IVTV_DEBUG_DEC,
-                                "OSD: DMA Reg Status: 0x%08x needs 0x%08x has 0x%08x.\n",
-				ivtv_read_reg(itv->dec_mem + IVTV_REG_DEC_READY),
-				ivtv_read_reg(itv->dec_mem + IVTV_REG_DEC_NEEDED),
-				ivtv_read_reg(itv->dec_mem + IVTV_REG_DEC_FILL));
+		IVTV_OSD_DEBUG_DEC(
+			   "DMA Reg Status: 0x%08x needs 0x%08x has 0x%08x.\n",
+			   ivtv_read_reg(itv->dec_mem + IVTV_REG_DEC_READY),
+			   ivtv_read_reg(itv->dec_mem + IVTV_REG_DEC_NEEDED),
+			   ivtv_read_reg(itv->dec_mem + IVTV_REG_DEC_FILL));
 
-                if (ivtvfb_sleep_timeout(HZ/100, 1)) {
-                        /*IVTV_DEBUG(IVTV_DEBUG_ERR,
-                                "OSD: User stopped waitq.\n");
+		if (ivtvfb_sleep_timeout(HZ / 100, 1)) {
+                        rc = -ERESTARTSYS;
+                        break;
+		}
 
+                if ((jiffies - then) > (HZ*3)) {
+                        IVTV_OSD_DEBUG_WARN("Timeout waiting.\n");
                         rc = -EINTR;
-                        break;*/
+                        break;
                 }
-
 	} while (!rc);
+	clear_bit(IVTV_F_S_OSD_NEEDS_DATA, &stream->s_flags);
+	set_current_state(TASK_RUNNING);
+	remove_wait_queue(&stream->waitq, &wait);
+
+	if (rc)	/* Myth breaks when not returning the errors, misses things */
+		return rc;
+
+	/* OSD Address to send DMA to */
+	destaddr = IVTV_DEC_MEM_START + video_rel_base + destaddr;
+	/* Fill Buffers */
+	if (0 != (rc = ivtvfb_prep_osd_dma_to_device(itv,
+						     destaddr, (char *)srcaddr,
+						     count,
+						     IVTV_DEC_STREAM_TYPE_OSD)))
+	{
+		IVTV_OSD_DEBUG_WARN(
+			       "Error: prep osd dma to device rc=%d\n", rc);
+	}
+	unlock_TO_dma(itv, stream->type);
+
+	return rc;
+}
+
+static int ivtv_fb_prep_frame(struct ivtv *itv,
+			      unsigned long destaddr, void *srcaddr, int count)
+{
+	int rc = 0;
+	struct ivtv_stream *stream =	/* Use Decoder Stream for locking */
+	    &itv->streams[IVTV_DEC_STREAM_TYPE_OSD];
+	unsigned long then;
+	DECLARE_WAITQUEUE(wait, current);
+
+	/* If needing to re-setup the OSD */
+	if (test_and_clear_bit(OSD_RESET_NEEDED, &itv->r_flags)) {
+		ivtvfb_setup();
+		unlock_TO_dma(itv, stream->type);
+	}
+
+	then = jiffies;
+	add_wait_queue(&stream->udma.waitq, &wait);
+	set_bit(IVTV_F_S_OSD_NEEDS_DATA, &stream->s_flags);
+	do {
+		set_current_state(TASK_INTERRUPTIBLE);
+
+		/* Lock Decoder */
+		if ((ivtv_read_reg((unsigned char *)itv->reg_mem +
+				   IVTV_REG_DMASTATUS) & 0x01)
+		    &&
+		    !(ivtv_read_reg
+		      ((unsigned char *)itv->reg_mem +
+		       IVTV_REG_DMASTATUS) & 0x14)
+		    && !test_bit(DMA_IN_USE, &stream->udma.u_flags)
+		    && !test_and_set_bit(IVTV_F_S_DMAP, &stream->s_flags)) {
+			if (!test_and_set_bit
+			    (DMA_IN_USE, &stream->udma.u_flags))
+				break;
+			else
+				clear_bit(IVTV_F_S_DMAP, &stream->s_flags);
+		}
+		IVTV_OSD_DEBUG_DEC(
+			   "DMA Reg Status: 0x%08x needs 0x%08x has 0x%08x.\n",
+			   ivtv_read_reg(itv->dec_mem + IVTV_REG_DEC_READY),
+			   ivtv_read_reg(itv->dec_mem + IVTV_REG_DEC_NEEDED),
+			   ivtv_read_reg(itv->dec_mem + IVTV_REG_DEC_FILL));
+
+		if (ivtvfb_sleep_timeout(HZ / 100, 1)) {
+                        rc = -ERESTARTSYS;
+                        break;
+		}
+
+                if ((jiffies - then) > (HZ*3)) {
+                        IVTV_OSD_DEBUG_WARN("Timeout waiting.\n");
+			rc = -EINTR;
+                        break;
+                }
+	} while (!rc);
+	clear_bit(IVTV_F_S_OSD_NEEDS_DATA, &stream->s_flags);
 	set_current_state(TASK_RUNNING);
 	remove_wait_queue(&stream->udma.waitq, &wait);
 
-	if (rc) /* Myth breaks when not returning the errors, misses things*/
-		return rc; 
+	if (rc)	/* Myth breaks when not returning the errors, misses things */
+		return rc;
 
 	/* OSD Address to send DMA to */
 	destaddr = IVTV_DEC_MEM_START + video_rel_base + destaddr;
 
 	/* Fill Buffers */
-	if (0 != (rc = ivtvfb_prep_dec_dma_to_device(itv, 
-					destaddr, (char *) srcaddr, count)))
-	{
-		/* Clear DMA Pending Flag */
-		clear_bit(DMA_IN_USE, &stream->udma.u_flags);
-		clear_bit(IVTV_F_S_DMAP, &stream->s_flags);
-		wake_up(&stream->udma.waitq);
-
-		IVTV_DEBUG_OSD(IVTV_DEBUG_ERR, 
-			"Error: prep osd dma to device rc=%d\n",rc);
+	if (0 != (rc = ivtvfb_prep_dec_dma_to_device(itv,
+						     destaddr, (char *)srcaddr,
+						     count))) {
+		IVTV_OSD_DEBUG_WARN(
+			       "Error: prep osd dma to device rc=%d\n", rc);
 	}
+	unlock_TO_dma(itv, stream->type);
 
 	return rc;
+}
+
+static int ivtv_prep_frame(int cmd, void *source, unsigned long dest_offset, int count)
+{
+	int ret = 0;
+
+        /* Check Count */
+        if (count < IVTV_DMA_OSD_ALIGN_XFER) {
+                IVTV_OSD_DEBUG_WARN(
+                           "small xfer offset 0x%08lx source 0x%08lx size %d\n",
+                           dest_offset, (unsigned long)source, count);
+                return 0;
+        }
+
+        /* Align */
+        if (cmd != IVTVFB_IOCTL_PREP_FRAME_BUF &&
+                        (count % IVTV_DMA_OSD_ALIGN_XFER)) {
+                count = count - (count % IVTV_DMA_OSD_ALIGN_XFER);
+        }
+
+        if (count <= 0) {
+                IVTV_OSD_DEBUG_WARN("Size is %d!!!\n", count);
+                return 0;	/* Nothing to do */
+        }
+
+        /* Bad Offset */
+        if ((unsigned int)dest_offset < 0)
+                dest_offset = 0;
+        else if (dest_offset >= video_size) {
+                IVTV_OSD_DEBUG_WARN(
+                               "Offset %ld is greater than buffer!!!\n",
+                               dest_offset);
+                if (video_size > count)
+                        dest_offset = video_size - count;
+                if (dest_offset < 0)
+                        dest_offset = 0;
+                else if (dest_offset >= video_size) {
+                        IVTV_OSD_DEBUG_WARN(
+                                "Count %d Offset %ld is greater than buffer\n",
+                                count, dest_offset);
+                        return 0;
+                }
+        }
+
+        /* Check Total FB Size */
+        if (((dest_offset + count) > video_size) || (count > video_size)) {
+                IVTV_OSD_DEBUG_WARN(
+                        "Size is overflowing the framebuffer %ld, "
+                        "only %d available\n",
+                        (dest_offset + count), video_size);
+
+                return -E2BIG;
+        }
+
+        /* Check Source */
+        if (!access_ok(VERIFY_READ, source + dest_offset, count)) {
+                IVTV_OSD_DEBUG_WARN(
+                           "Invalid userspace pointer!!! 0x%08lx\n",
+                           (unsigned long)source);
+
+                IVTV_OSD_DEBUG_WARN(
+                           "access_ok() failed for offset 0x%08lx source 0x%08lx count %d\n",
+                           dest_offset, (unsigned long)source,
+                           count);
+                return -EINVAL;
+        }
+
+        /* Send DMA */
+        if (cmd == IVTVFB_IOCTL_PREP_FRAME) {
+                /*if (wait_event_interruptible(itv->vsync_w_osd,
+                        atomic_read(&itv->dec_dma_stat.vsync_flag_osd))) {
+                        ret = -ERESTARTSYS;
+                } else {*/
+                        atomic_set(&itv->dec_dma_stat.vsync_flag_osd, 0);
+                        ret = ivtv_fb_prep_frame(itv, dest_offset,
+                                               source, count);
+                //}
+        } else if (cmd == IVTVFB_IOCTL_PREP_FRAME_BUF) {
+                if (wait_event_interruptible(itv->vsync_w_osd,
+                                atomic_read(&itv->dec_dma_stat.vsync_flag_osd)))
+                {
+                        ret = -ERESTARTSYS;
+                } else {
+                        atomic_set(&itv->dec_dma_stat.vsync_flag_osd, 0);
+                        ret = ivtv_fb_prep_frame_buf(itv,
+                                                   dest_offset, source, count);
+                }
+        }
+
+        /* Failed */
+        if (ret) {
+                if (ret != -ERESTARTSYS) {
+                        IVTV_OSD_DEBUG_WARN(
+                                   "DMA xfer from %8p of %d bytes "
+                                   "failed with (%d) offset = 0x%0lx, total %d\n",
+                                   source, count, ret, dest_offset,
+                                   (count + (unsigned int)dest_offset));
+                } else {
+                        IVTV_OSD_DEBUG_INFO(
+                                   "DMA xfer interrupted so restarting\n");
+                }
+        }
+
+        return ret;
 }
 
 #ifndef LINUX26
@@ -1019,281 +1194,242 @@ int ivtv_fb_ioctl(struct inode *inode, struct file *file, unsigned int cmd,
 #else
 int ivtv_fb_ioctl(struct inode *inode, struct file *file, unsigned int cmd,
 		  unsigned long arg, struct fb_info *info)
-#endif
+#endif /* LINUX26 */
 {
 
-    int rc;
+	int rc;
 
-    IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, "ivtv_fb_ioctl\n");
-    switch (cmd) {
+	switch (cmd) {
 #ifndef LINUX26
-    case 0x7777:{
-	    while (MOD_IN_USE) MOD_DEC_USE_COUNT;
-	    MOD_INC_USE_COUNT;
-	    return 0;
-    }
-#endif
-    case IVTVFB_IOCTL_GET_STATE:{
-	    struct ivtvfb_ioctl_state_info state;
-	    state.status = (ivtv_api_fb_get_state(itv) & 0x7);
-	    state.status |= (ivtv_api_fb_get_flicker_state(itv) << 3);
-	    state.status |= IVTVFB_STATUS_ENABLED;
-	    state.alpha = ivtv_api_fb_get_global_alpha(itv);
-	    IVTV_DEBUG_OSD(IVTV_DEBUG_IOCTL, 
-		 "IVTVFB_IOCTL_GET_STATE: status = %lu, alpha = %lu\n",
-		 state.status, state.alpha);
-	    if (copy_to_user((void *) arg, &state, sizeof(state)))
-		return -EFAULT;
-	    return 0;
-	}
-    case IVTVFB_IOCTL_SET_STATE:{
-	    struct ivtvfb_ioctl_state_info state;
-	    if (copy_from_user(&state, (void *) arg, sizeof(state)))
-		return -EFAULT;
-	    IVTV_DEBUG_OSD(IVTV_DEBUG_IOCTL, "IVTVFB_IOCTL_SET_STATE: status = %lu, alpha = %lu\n",
-		 state.status, state.alpha);
-	    /* FIXME: the OSD seems to turn itself off, so we enable it no
-               matter what the current state is, something odd going on there. */ 
-	    ivtv_api_fb_set_state(itv,
-			  (state.status & IVTVFB_STATUS_ENABLED) ? 1 : 1);
-	    ivtv_api_fb_set_global_alpha(itv,
-					 (state.
-					  status &
-					  IVTVFB_STATUS_GLOBAL_ALPHA) ? 1 :
-					 0, state.alpha,
-					 (state.
-					  status &
-					  IVTVFB_STATUS_LOCAL_ALPHA) ? 1 :
-					 0);
-	    ivtv_api_fb_set_flicker_state(itv,
-					  (state.
-					   status &
-					   IVTVFB_STATUS_FLICKER_REDUCTION)
-					  ? 1 : 0);
-	    IVTV_DEBUG_OSD(IVTV_DEBUG_IOCTL, "new state = %d\n",
-		   ivtv_api_fb_get_state(itv));
-	    IVTV_DEBUG_OSD(IVTV_DEBUG_IOCTL, "global alpha now = %d\n",
-		   ivtv_api_fb_get_global_alpha(itv));
-	    return 0;
-	}
-    case IVTVFB_IOCTL_PREP_FRAME:{
-	    struct ivtvfb_ioctl_dma_host_to_ivtv_args args;
- 	    int ret = 0;	
-	    /*int data_left, data_pos;*/
-
-	    if (copy_from_user(&args, (void *) arg, sizeof(args)))
-		return -EFAULT;
-
- 	    /* Check Count */
-	    if (args.count < IVTV_DMA_OSD_ALIGN_XFER) {
-                IVTV_DEBUG(IVTV_DEBUG_ERR, 
-			"OSD: small xfer offset 0x%08lx source 0x%08lx size %d\n", 
-			args.dest_offset, (unsigned long)args.source, args.count);
+	case 0x7777: {
+		while (MOD_IN_USE)
+			MOD_DEC_USE_COUNT;
+		MOD_INC_USE_COUNT;
 		return 0;
-	    }
+	}
+#endif /* LINUX26 */
+	case IVTVFB_IOCTL_GET_STATE: {
+		struct ivtvfb_ioctl_state_info state;
 
-	    /* Align */
-	    if (args.count%IVTV_DMA_OSD_ALIGN_XFER)	
-	    	args.count = args.count - (args.count%IVTV_DMA_OSD_ALIGN_XFER);	
+		state.status = (ivtv_api_fb_get_state(itv) & 0x7);
+		state.status |= (ivtv_api_fb_get_flicker_state(itv) << 3);
+		state.status |= IVTVFB_STATUS_ENABLED;
+		state.alpha = ivtv_api_fb_get_global_alpha(itv);
+		IVTV_OSD_DEBUG_IOCTL(
+			       "IVTVFB_IOCTL_GET_STATE: status = %lu, alpha = %lu\n",
+			       state.status, state.alpha);
+		if (copy_to_user((void *)arg, &state, sizeof(state)))
+			return -EFAULT;
+		return 0;
+	}
 
-            if (args.count <= 0) {
-                IVTV_DEBUG_OSD(IVTV_DEBUG_ERR,
-                        "OSD: Size is %d!!!\n", args.count);
-                return 0; /* Nothing to do */
-            }
+	case IVTVFB_IOCTL_SET_STATE: {
+		struct ivtvfb_ioctl_state_info state;
 
-            /* Bad Offset */
-            if (args.dest_offset < 0)
-                args.dest_offset = 0;
-            else if (args.dest_offset >= video_size) {
-                IVTV_DEBUG_OSD(IVTV_DEBUG_ERR,
-                        "OSD: Offset %ld is greater than buffer!!!\n",
-                        args.dest_offset);
-                if (video_size > args.count)
-                        args.dest_offset = video_size - args.count;
-                if (args.dest_offset < 0)
-                        args.dest_offset = 0;
-                else if (args.dest_offset >= video_size) {
-                        IVTV_DEBUG_OSD(IVTV_DEBUG_ERR,
-                                "OSD: Count %d Offset %ld "
-                                "is greater than buffer\n",
-                                args.count, args.dest_offset);
-                        return 0;
-                }
-            }
+		if (copy_from_user(&state, (void *)arg, sizeof(state)))
+			return -EFAULT;
+		IVTV_OSD_DEBUG_IOCTL(
+			"IVTVFB_IOCTL_SET_STATE: status = %lu, alpha = %lu\n",
+			state.status, state.alpha);
 
-            /* Check Total FB Size */
-            if (((args.dest_offset + args.count) > video_size) ||
-                        (args.count > video_size))
-            {
-                IVTV_DEBUG_OSD(IVTV_DEBUG_ERR,
-                        "OSD: Size is overflowing the framebuffer %ld, "
-                        "only %d available\n",
-                        (args.dest_offset + args.count), video_size);
+		/* FIXME: the OSD seems to turn itself off, so we enable it no
+		   matter what the current state is, something odd going on there. */
+		ivtv_api_fb_set_state(itv,
+	                (state.status & IVTVFB_STATUS_ENABLED) ? 1 : 1);
+		ivtv_api_fb_set_global_alpha(itv,
+			(state.status & IVTVFB_STATUS_GLOBAL_ALPHA) ? 1 : 0, 
+                        state.alpha, (state.status & IVTVFB_STATUS_LOCAL_ALPHA) ? 1 : 0);
+		ivtv_api_fb_set_flicker_state(itv,
+			(state.status & IVTVFB_STATUS_FLICKER_REDUCTION) ? 1 : 0);
+		IVTV_OSD_DEBUG_IOCTL("new state = %d, global alpha now = %d\n",
+			ivtv_api_fb_get_state(itv), ivtv_api_fb_get_global_alpha(itv));
+		return 0;
+	}
 
-                return -E2BIG;
-            }
+	case IVTVFB_IOCTL_PREP_FRAME_BUF:
+	case IVTVFB_IOCTL_PREP_FRAME: {
+		struct ivtvfb_ioctl_dma_host_to_ivtv_args args;
 
- 	    /* Check Source */
-	    if (verify_area(VERIFY_READ, (args.source+args.dest_offset), args.count)) {
-                IVTV_DEBUG(IVTV_DEBUG_ERR,
-			"OSD: Area not verified!!! 0x%08lx\n",
-			(unsigned long)args.source);
+		/* Just use buffers, user space buffers are too small */
+		//cmd = IVTVFB_IOCTL_PREP_FRAME_BUF;
 
-                IVTV_DEBUG(IVTV_DEBUG_ERR, 
-			"OSD: Verify Area failed for offset 0x%08lx source 0x%08lx count %d\n", 
-			args.dest_offset, (unsigned long)args.source, args.count);
+		IVTV_OSD_DEBUG_IOCTL("IVTVFB_IOCTL_PREP_FRAME\n");
+
+		if (copy_from_user(&args, (void *)arg, sizeof(args)))
+			return -EFAULT;
+
+                return ivtv_prep_frame(cmd, args.source, args.dest_offset, args.count);
+	}
+
+	case IVTVFB_IOCTL_BLT_COPY: {
+		struct ivtvfb_ioctl_blt_copy_args args;
+
+		IVTV_OSD_DEBUG_IOCTL("IVTVFB_IOCTL_BLT_COPY\n");
+		if (copy_from_user(&args, (void *)arg, sizeof(args)))
+			return -EFAULT;
+
+		return ivtv_fb_blt_copy(itv, args.x, args.y, args.width,
+					args.height, args.source_stride,
+					args.source_offset);
+	}
+
+	case IVTVFB_IOCTL_BLT_FILL: {
+		struct ivtvfb_ioctl_blt_fill_args args;
+
+		IVTV_OSD_DEBUG_IOCTL("IVTVFB_IOCTL_BLT_FILL\n");
+		if (copy_from_user(&args, (void *)arg, sizeof(args)))
+			return -EFAULT;
+
+		return ivtv_fb_blt_fill(itv, &args);
+	}
+
+	case IVTVFB_IOCTL_GET_ACTIVE_BUFFER: {
+		struct ivtv_osd_coords bufinfo;
+
+		IVTV_OSD_DEBUG_IOCTL("IVTVFB_IOCTL_GET_ACTIVE_BUFFER\n");
+		rc = ivtv_api_fb_get_osd_coords(itv, &bufinfo);
+		return copy_to_user((void *)arg, &bufinfo, sizeof(bufinfo));
+	}
+
+	case IVTVFB_IOCTL_SET_ACTIVE_BUFFER: {
+		struct ivtv_osd_coords bufinfo;
+
+		IVTV_OSD_DEBUG_IOCTL("IVTVFB_IOCTL_SET_ACTIVE_BUFFER\n");
+		if (copy_from_user(&bufinfo, (void *)arg, sizeof(bufinfo)))
+			return -EFAULT;
+		return ivtv_api_fb_set_osd_coords(itv, &bufinfo);
+	}
+	case IVTVFB_IOCTL_SET_WINDOW: {
+		struct ivtvfb_ioctl_set_window bufinfo;
+
+		IVTV_OSD_DEBUG_IOCTL("IVTVFB_IOCTL_SET_WINDOW\n");
+		if (copy_from_user(&bufinfo, (void *)arg, sizeof(bufinfo)))
+			return -EFAULT;
+		return ivtv_api_fb_set_framebuffer_window(itv,
+							  bufinfo.left,
+							  bufinfo.top,
+							  bufinfo.width,
+							  bufinfo.height);
+	}
+
+	case IVTVFB_IOCTL_GET_COLORKEY: {
+                struct ivtvfb_ioctl_colorkey getColorKey;
+
+                IVTV_OSD_DEBUG_IOCTL("IVTVFB_IOCTL_GET_COLORKEY\n");
+                getColorKey.state = itv->color_key_state;
+                getColorKey.colorKey  = itv->color_key;
+                return copy_to_user((void *)arg, &getColorKey, sizeof(getColorKey));
+        }
+
+	case IVTVFB_IOCTL_SET_COLORKEY: {
+                struct ivtvfb_ioctl_colorkey colorKey; 
+
+                IVTV_OSD_DEBUG_IOCTL("IVTVFB_IOCTL_SET_COLORKEY\n");
+                if (copy_from_user(&colorKey, (void *)arg, sizeof(colorKey)))
+                       return -EFAULT;
+                ivtv_api_fb_set_colorKey(itv,colorKey.state, colorKey.colorKey);
+                return 0;
+        }
+	case IVTVFB_IOCTL_GET_FRAME_BUFFER: {
+		struct ivtvfb_ioctl_get_frame_buffer getfb;
+
+		IVTV_OSD_DEBUG_IOCTL("IVTVFB_IOCTL_GET_FRAME_BUFFER\n");
+		getfb.mem = (void *)video_vbase;
+		getfb.size = video_size;
+		getfb.sizex = video_width;
+		getfb.sizey = video_height;
+
+		return copy_to_user((void *)arg, &getfb, sizeof(getfb));
+	}
+
+	default:
 		return -EINVAL;
-	    }
-
- 	    /* Send DMA */ 
-            ret = ivtv_fb_prep_frame(itv, (args.dest_offset),
-		      (args.source), args.count);
-
-	    /* Failed */ 	
-	    if (ret) {
-                if (ret != -ERESTARTSYS) {
-                   IVTV_DEBUG(IVTV_DEBUG_ERR,
-                            "OSD: DMA xfer from 0x%08x of "
-                            "%d bytes "
-                            "failed with (%d) offset = 0x%08lx, total %d\n",
-                            (u32)args.source, args.count, ret,
-                            args.dest_offset,
-                            (args.count + (unsigned int)args.dest_offset));
-                } else {
-                   IVTV_DEBUG(IVTV_DEBUG_INFO,
-                              "OSD: DMA xfer interrupted so restarting\n");
-                }
-            } 
-
-	    return ret;
 	}
-    case IVTVFB_IOCTL_BLT_COPY:{
-	    struct ivtvfb_ioctl_blt_copy_args args;
-	    if (copy_from_user(&args, (void *) arg, sizeof(args)))
-		return -EFAULT;
-
-	    return ivtv_fb_blt_copy(itv, args.x, args.y, args.width,
-				    args.height, args.source_stride,
-				    args.source_offset);
-	}
-    case IVTVFB_IOCTL_BLT_FILL:{
-	    struct ivtvfb_ioctl_blt_fill_args args;
-	    if (copy_from_user(&args, (void *) arg, sizeof(args)))
-		return -EFAULT;
-
-	    return ivtv_fb_blt_fill(itv, &args);
-	}
-    case IVTVFB_IOCTL_GET_ACTIVE_BUFFER:{
-	    struct ivtv_osd_coords bufinfo;
-	    rc = ivtv_api_fb_get_osd_coords(itv, &bufinfo);
-	    return copy_to_user((void *) arg, &bufinfo, sizeof(bufinfo));
-	}
-    case IVTVFB_IOCTL_SET_ACTIVE_BUFFER:{
-	    struct ivtv_osd_coords bufinfo;
-	    if (copy_from_user(&bufinfo, (void *) arg, sizeof(bufinfo)))
-		return -EFAULT;
-	    return ivtv_api_fb_set_osd_coords(itv, &bufinfo);
-	}
-    case IVTVFB_IOCTL_GET_FRAME_BUFFER:{
-	    struct ivtvfb_ioctl_get_frame_buffer getfb;
-	    getfb.mem  = (void *)video_vbase;
-	    getfb.size =  video_size;
-	    getfb.sizex =  video_width;
-	    getfb.sizey =  video_height;
-
-	    return copy_to_user((void *) arg, &getfb, sizeof(getfb));
-	}
-    default:
-	return -EINVAL;
-    }
-    return 0;
+	return 0;
 }
 
 static ssize_t
-ivtv_fb_write(struct file *file, const char *ubuf, size_t count, loff_t *ppos)
+ivtv_fb_write(struct file *file, const char *ubuf, size_t count, loff_t * ppos)
 {
-        unsigned long p = *ppos;
-        int err=0;
-        unsigned long flags;
+	unsigned long p = *ppos;
+	int err = 0;
+	unsigned long flags;
 
-	if (p == 0) 
-		IVTV_DEBUG_OSD(IVTV_DEBUG_ERR,
-			"ERROR: Direct writing is not safe for ivtv usage\n");
+	if (p == 0)
+		IVTV_OSD_DEBUG_WARN(
+			       "ERROR: Direct writing is not safe for ivtv usage\n");
 	return -EINVAL;
 
-        IVTV_DEBUG_OSD(IVTV_DEBUG_INFO,
-                "OSD: count=%zd, size=%d itv->osd.pos = %lu\n",
-                count, video_size, (unsigned long)ppos);
+	IVTV_OSD_DEBUG_INFO(
+		       "count=%zd, size=%d itv->osd.pos = %lu\n",
+		       count, video_size, (unsigned long)ppos);
 
-        if (p > video_size)
-                return -ENOSPC;
-        if (count >= video_size)
-                count = video_size;
-        if (count + p > video_size) {
-                count = video_size - p;
-                err = -ENOSPC;
-        }
-        if (count) {
-                char *base_addr;
+	if (p > video_size)
+		return -ENOSPC;
+	if (count >= video_size)
+		count = video_size;
+	if (count + p > video_size) {
+		count = video_size - p;
+		err = -ENOSPC;
+	}
+	if (count) {
+		char *base_addr;
 
-                base_addr = video_vbase;
+		base_addr = video_vbase;
 
-                spin_lock_irqsave(&itv->DMA_slock, flags);
-                memcpy_toio(base_addr+p, (char *)ubuf, count);
-                spin_unlock_irqrestore(&itv->DMA_slock, flags);
+		spin_lock_irqsave(&itv->DMA_slock, flags);
+		memcpy_toio(base_addr + p, (char *)ubuf, count);
+		spin_unlock_irqrestore(&itv->DMA_slock, flags);
 
-                *ppos += count;
-                err = -EFAULT;
-        }
-        if (count)
-                return count;
-        return err;
+		*ppos += count;
+		err = -EFAULT;
+	}
+	if (count)
+		return count;
+	return err;
 }
 
-static int          
-ivtv_fb_mmap(struct fb_info *info, 
-	struct file *file, struct vm_area_struct * vma)
+static int
+ivtv_fb_mmap(struct fb_info *info,
+	     struct file *file, struct vm_area_struct *vma)
 {
-	IVTV_DEBUG_OSD(IVTV_DEBUG_ERR,
-			"MMAP is not safe for ivtv usage\n");
+	IVTV_OSD_DEBUG_WARN( "MMAP is not safe for ivtv usage\n");
 	return -EINVAL;
 }
 
 static struct fb_ops ivtvfb_ops = {
-	owner:THIS_MODULE,
+      owner:THIS_MODULE,
 #ifndef LINUX26
-	fb_get_fix:ivtvfb_get_fix,
-	fb_get_var:ivtvfb_get_var,
-	fb_set_var:ivtvfb_set_var,
-	fb_get_cmap:ivtvfb_get_cmap,
-	fb_set_cmap:ivtvfb_set_cmap,
+      fb_get_fix:ivtvfb_get_fix,
+      fb_get_var:ivtvfb_get_var,
+      fb_set_var:ivtvfb_set_var,
+      fb_get_cmap:ivtvfb_get_cmap,
+      fb_set_cmap:ivtvfb_set_cmap,
 #else
-	fb_check_var:ivtvfb_check_var,
-	fb_set_par:ivtvfb_set_par,
-	fb_setcolreg:ivtvfb_setcolreg,
-	fb_write:ivtv_fb_write,
-	fb_fillrect:ivtv_fb_fillrect,
-	fb_copyarea:ivtv_fb_copyarea,
-	fb_imageblit:ivtv_fb_imageblit,
-	fb_cursor:ivtv_fb_cursor,
-	fb_rotate:ivtv_fb_rotate,
-	fb_sync:ivtv_fb_sync,
-#endif
-	fb_ioctl:ivtv_fb_ioctl,
-	fb_pan_display:NULL,
-	fb_mmap:ivtv_fb_mmap,
+      fb_check_var:ivtvfb_check_var,
+      fb_set_par:ivtvfb_set_par,
+      fb_setcolreg:ivtvfb_setcolreg,
+      fb_write:ivtv_fb_write,
+      fb_fillrect:ivtv_fb_fillrect,
+      fb_copyarea:ivtv_fb_copyarea,
+      fb_imageblit:ivtv_fb_imageblit,
+      fb_cursor:ivtv_fb_cursor,
+      fb_rotate:ivtv_fb_rotate,
+      fb_sync:ivtv_fb_sync,
+#endif /* LINUX26 */
+      fb_ioctl:ivtv_fb_ioctl,
+      fb_pan_display:NULL,
+      fb_mmap:ivtv_fb_mmap,
 };
-
 
 /* 0 unblank, 1 blank, 2 no vsync, 3 no hsync, 4 off */
 
 #ifndef LINUX26
 static void ivtvfb_blank(int blank, struct fb_info *info)
 {
-    /* Not supported */
+	/* Not supported */
 }
-#endif 
+#endif /* LINUX26 */
 
 int ivtvfb_setup(void)
 {
@@ -1303,10 +1439,10 @@ int ivtvfb_setup(void)
 	struct ivtv_osd_coords osd;
 	struct rectangle rect;
 
-	rc = ivtv_api_fb_set_pixel_format(itv, 4);      // 4 = AlphaRGB 8:8:8:8
+	rc = ivtv_api_fb_set_pixel_format(itv, 4);	// 4 = AlphaRGB 8:8:8:8
 
-	IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, "Current pixel format = %d\n",
-			ivtv_api_fb_get_pixel_format(itv));
+	IVTV_OSD_DEBUG_INFO("Current pixel format = %d\n",
+		       ivtv_api_fb_get_pixel_format(itv));
 
 	video_width = 720;
 	if (itv->std & V4L2_STD_625_50) {
@@ -1315,27 +1451,28 @@ int ivtvfb_setup(void)
 		video_height = 480;
 	}
 
-        /* set number of internal decoder buffers */
-        ivtv_vapi(itv,
-                IVTV_API_DEC_DISPLAY_BUFFERS, 1, itv->dec_options.decbuffers);
+	/* set number of internal decoder buffers */
+	ivtv_vapi(itv,
+		  IVTV_API_DEC_DISPLAY_BUFFERS, 1, itv->dec_options.decbuffers);
 
 	rc = ivtv_api_fb_get_framebuffer(itv, &fbbase, &fblength);
-	IVTV_DEBUG_OSD(IVTV_DEBUG_ERR, 
-			"Framebuffer is at decoder-relative address 0x%08x and has %d bytes.\n",
-			fbbase, fblength);
+	IVTV_OSD_DEBUG_WARN(
+		       "Framebuffer is at decoder-relative address 0x%08x and has %d bytes.\n",
+		       fbbase, fblength);
 
 	rc = ivtv_api_fb_get_osd_coords(itv, &osd);
-	IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, 
-			"OSD: offset = 0x%08x (max offset = 0x%08x), pixel_stride = %d, lines = %d, x = %d, y = %d\n",
-			(u32)osd.offset, (u32)osd.max_offset, osd.pixel_stride, osd.lines, osd.x,
-			osd.y);
+	IVTV_OSD_DEBUG_INFO(
+		       "offset = 0x%08x (max offset = 0x%08x), pixel_stride = %d, lines = %d, x = %d, y = %d\n",
+		       (u32) osd.offset, (u32) osd.max_offset, osd.pixel_stride,
+		       osd.lines, osd.x, osd.y);
 
 	/* setup OSD and screen for PAL */
 	if (itv->std & V4L2_STD_625_50) {
 		osd.lines = 576;
 		rc = ivtv_api_fb_set_osd_coords(itv, &osd);
 		if (rc)
-			IVTV_DEBUG_OSD(IVTV_DEBUG_ERR, "failed setting PAL osd\n");
+			IVTV_OSD_DEBUG_WARN(
+				       "failed setting PAL osd\n");
 
 		rect.x0 = 0;
 		rect.x1 = 720;
@@ -1343,16 +1480,18 @@ int ivtvfb_setup(void)
 		rect.y1 = 576;
 		rc = ivtv_api_fb_set_screen_coords(itv, &rect);
 		if (rc)
-			IVTV_DEBUG_OSD(IVTV_DEBUG_ERR, "failed setting PAL screen\n");
+			IVTV_OSD_DEBUG_WARN(
+				       "failed setting PAL screen\n");
 
 		/* Set Window size */
 		ivtv_api_fb_set_framebuffer_window(itv, 0, 0, 720, 576);
 
-	} else { /* Set Window size */
+	} else {		/* Set Window size */
 		osd.lines = 480;
 		rc = ivtv_api_fb_set_osd_coords(itv, &osd);
 		if (rc)
-			IVTV_DEBUG_OSD(IVTV_DEBUG_ERR, "failed setting PAL osd\n");
+			IVTV_OSD_DEBUG_WARN(
+				       "failed setting PAL osd\n");
 
 		rect.x0 = 0;
 		rect.x1 = 720;
@@ -1360,18 +1499,19 @@ int ivtvfb_setup(void)
 		rect.y1 = 480;
 		rc = ivtv_api_fb_set_screen_coords(itv, &rect);
 		if (rc)
-			IVTV_DEBUG_OSD(IVTV_DEBUG_ERR, "failed setting PAL screen\n");
+			IVTV_OSD_DEBUG_WARN(
+				       "failed setting PAL screen\n");
 
 		/* Set Window size */
 		ivtv_api_fb_set_framebuffer_window(itv, 0, 0, 720, 480);
 	}
 
 	rc = ivtv_api_fb_get_screen_coords(itv, &rect);
-	IVTV_OSD_KERN_INFO("screen coords: [%d %d] -> [%d %d]\n",
-			rect.x0, rect.y0, rect.x1, rect.y1);
+	IVTV_OSD_INFO("screen coords: [%d %d] -> [%d %d]\n",
+			   rect.x0, rect.y0, rect.x1, rect.y1);
 
-	IVTV_OSD_KERN_INFO("original global alpha = %d\n",
-			ivtv_api_fb_get_global_alpha(itv));
+	IVTV_OSD_INFO("original global alpha = %d\n",
+			   ivtv_api_fb_get_global_alpha(itv));
 
 	/*
 	 * Normally a 32-bit RGBA framebuffer would be fine, however XFree86's fbdev
@@ -1386,31 +1526,31 @@ int ivtvfb_setup(void)
 	 *      it means *disable* local alpha...
 	 *
 	 */
-	rc = ivtv_api_fb_set_state(itv, 1);     // 1 = enabled
-	IVTV_OSD_KERN_INFO("current OSD state = %d\n",
-			ivtv_api_fb_get_state(itv));
+	rc = ivtv_api_fb_set_state(itv, 1);	// 1 = enabled
+	IVTV_OSD_INFO("current OSD state = %d\n",
+			   ivtv_api_fb_get_state(itv));
 
-	ivtv_api_fb_set_global_alpha(itv, 
-			itv->global_alpha_state, 
-			itv->global_alpha, 
-			itv->local_alpha_state);
-
-	IVTV_OSD_KERN_INFO("new global alpha = %d (%d %d %d)\n",
-			ivtv_api_fb_get_global_alpha(itv),
-			itv->global_alpha_state, itv->global_alpha,
-			itv->local_alpha_state);
+	ivtv_api_fb_set_global_alpha(itv,
+				     itv->global_alpha_state,
+				     itv->global_alpha, itv->local_alpha_state);
+        ivtv_api_fb_set_colorKey(itv,0,0);
+	IVTV_OSD_INFO("new global alpha = %d (%d %d %d)\n",
+			   ivtv_api_fb_get_global_alpha(itv),
+			   itv->global_alpha_state, itv->global_alpha,
+			   itv->local_alpha_state);
 
 	video_rel_base = fbbase;
 	video_base = itv->base_addr + IVTV_DECODER_OFFSET + video_rel_base;
 	video_linelength = 4 * osd.pixel_stride;
 
 	/* If set then framebuffer is small, else about 2 worth */
-	video_size = video_width * video_height * 4;	
+	video_size = video_width * video_height * 4;
 
 	/* Make sure it really fits */
 	if (video_size > fblength) {
-		IVTV_OSD_KERN_ERR("ERROR: OSD size = 0x%08x too big, fb = 0x%08x\n",
-			video_size, fblength);
+		IVTV_OSD_ERR
+		    ("ERROR: OSD size = 0x%08x too big, fb = 0x%08x\n",
+		     video_size, fblength);
 		video_size = fblength;
 	}
 
@@ -1424,60 +1564,55 @@ int __init ivtvfb_init(void)
 {
 #ifdef LINUX26
 	struct fb_fix_screeninfo fix;
-#endif
-	int i;	
+#endif /* LINUX26 */
+	int i;
 
 	if ((ivtv_fb_card_id < 0) || (ivtv_fb_card_id >= ivtv_cards_active)) {
-		IVTV_OSD_KERN_ERR(
-				"ivtv_fb_card_id parameter is out of range (valid range: 0-%d)\n",
-				ivtv_cards_active - 1);
+		IVTV_OSD_ERR
+		    ("ivtv_fb_card_id parameter is out of range (valid range: 0-%d)\n",
+		     ivtv_cards_active - 1);
 		return -1;
 	}
 
+	/* find first tvout enabled card if none is specified */
+	if (ivtv_fb_card_id == 0) {
+		i = 0;
+		while (i < ivtv_cards_active) {
+			itv = ivtv_cards[i];
+			if (itv && (itv->v4l2_cap & V4L2_CAP_VIDEO_OUTPUT)) {
+				ivtv_fb_card_id = i;
+				break;
+			}
+			++i;
+		}
+	}
 
-        /* find first tvout enabled card if none is specified */
-        if (ivtv_fb_card_id == 0)
-        {
-                i = 0;
-                while (i < ivtv_cards_active)
-                {
-                        itv = &ivtv_cards[i];
-                        if (itv && (itv->v4l2_cap & V4L2_CAP_VIDEO_OUTPUT))
-                        {
-                                ivtv_fb_card_id = i;
-                                break;
-                        }
-                        ++i;
-                }
-        }
-
-	itv = &ivtv_cards[ivtv_fb_card_id];
+	itv = ivtv_cards[ivtv_fb_card_id];
 	if (!itv || !(itv->v4l2_cap & V4L2_CAP_VIDEO_OUTPUT)) {
-		IVTV_OSD_KERN_ERR(
-				"Specified card (id %d) is either not present or does not support TV out\n",
-				ivtv_fb_card_id);
+		IVTV_OSD_ERR
+		    ("Specified card (id %d) is either not present or does not support TV out\n",
+		     ivtv_fb_card_id);
 		return -1;
 	}
 
-	IVTV_OSD_KERN_INFO(
-			"Framebuffer module loaded (attached to ivtv card id %d)\n",
-			ivtv_fb_card_id);
+	IVTV_OSD_INFO
+	    ("Framebuffer module loaded (attached to ivtv card id %d)\n",
+	     ivtv_fb_card_id);
 
 	/* Setup OSD */
 	ivtvfb_setup();
 
 	video_vbase = itv->dec_mem + video_rel_base;
 	if (!video_vbase) {
-		IVTV_OSD_KERN_ERR(
-			"abort, video memory 0x%x @ 0x%lx isn't mapped!!!\n",
-			video_size, video_base);
+		IVTV_OSD_ERR
+		    ("abort, video memory 0x%x @ 0x%lx isn't mapped!!!\n",
+		     video_size, video_base);
 		return -EIO;
 	}
-	IVTV_OSD_KERN_INFO(
-			"framebuffer at 0x%lx, mapped to 0x%p, size %dk\n",
-			video_base, video_vbase, video_size / 1024);
-	IVTV_OSD_KERN_INFO("mode is %dx%dx%d, linelength=%d\n",
-			video_width, video_height, 32, video_linelength);
+	IVTV_OSD_INFO("framebuffer at 0x%lx, mapped to 0x%p, size %dk\n",
+			   video_base, video_vbase, video_size / 1024);
+	IVTV_OSD_INFO("mode is %dx%dx%d, linelength=%d\n",
+			   video_width, video_height, 32, video_linelength);
 
 	ivtvfb_defined.xres = video_width;
 	ivtvfb_defined.yres = video_height;
@@ -1512,27 +1647,28 @@ int __init ivtvfb_init(void)
 			size_shift--;
 		}
 		size_shift++;
-
-		fb_start_aligned_physaddr = video_base & ~((1 << size_shift) - 1);
-		fb_end_aligned_physaddr =
-			(video_base + (1 << size_shift) - 1) & ~((1 << size_shift) -
-								 1);
+		fb_start_aligned_physaddr =
+		    video_base & ~((1 << size_shift) - 1);
+                //		fb_end_aligned_physaddr =
+                //(video_base + (1 << size_shift) - 1) & ~((1 << size_shift) -
+		fb_end_aligned_physaddr = (video_base+video_size + (1 << size_shift) - 1) & ~((1 << size_shift) -1);
 		if (mtrr_add
-				(fb_start_aligned_physaddr,
-				 (fb_end_aligned_physaddr - fb_start_aligned_physaddr),
-				 MTRR_TYPE_WRCOMB, 1) < 0) {
-			IVTV_OSD_KERN_ERR(
-					"warning: mtrr_add() failed to add write combining region 0x%08x-0x%08x\n",
-					(unsigned int) fb_start_aligned_physaddr,
-					(unsigned int) fb_end_aligned_physaddr);
+		    (fb_start_aligned_physaddr,
+		     (fb_end_aligned_physaddr - fb_start_aligned_physaddr),
+		     MTRR_TYPE_WRCOMB, 1) < 0) {
+			IVTV_OSD_ERR
+			    ("warning: mtrr_add() failed to add write combining region 0x%08x-0x%08x\n",
+			     (unsigned int)fb_start_aligned_physaddr,
+			     (unsigned int)fb_end_aligned_physaddr);
 		}
 	}
-#endif
+#endif /* CONFIG_MTRR */
 
 	fb_info.node = -1;
 	fb_info.flags = FBINFO_FLAG_DEFAULT;
 	fb_info.fbops = &ivtvfb_ops;
-
+        if (osd_init == 0)
+            memset(video_vbase, 0, video_width * video_height*4);
 #ifndef LINUX26
 	strcpy(fb_info.modename, "iTVC15 TV out");
 	fb_info.fontname[0] = '\0';
@@ -1546,10 +1682,10 @@ int __init ivtvfb_init(void)
 	_ivtvfb_get_fix(&fix);
 	fb_info.var = ivtvfb_defined;
 	fb_info.fix = fix;
-	fb_info.screen_base=video_vbase;
+	fb_info.screen_base = video_vbase;
 	fb_info.fbops = &ivtvfb_ops;
 	fb_alloc_cmap(&fb_info.cmap, 0, 0);
-#endif
+#endif /* LINUX26 */
 
 	if (register_framebuffer(&fb_info) < 0)
 		return -EINVAL;
@@ -1557,42 +1693,47 @@ int __init ivtvfb_init(void)
 #ifndef LINUX26
 	itv->fb_id = GET_FB_IDX(fb_info.node);
 
-	IVTV_OSD_KERN_INFO("fb%d: %s frame buffer device\n",
-			itv->fb_id, fb_info.modename);
+	IVTV_OSD_INFO("fb%d: %s frame buffer device\n",
+			   itv->fb_id, fb_info.modename);
 #else
 	itv->fb_id = fb_info.node;
 
-	IVTV_OSD_KERN_INFO("fb%d: %s frame buffer device\n",
-			itv->fb_id, fix.id);
-#endif
+	IVTV_OSD_INFO("fb%d: %s frame buffer device\n",
+			   itv->fb_id, fix.id);
+#endif /* LINUX26 */
 
-    	/* Allocate DMA */
-    	ivtv_alloc_user_dma(itv,
-                &itv->streams[IVTV_DEC_STREAM_TYPE_MPG].udma,
-                IVTV_DMA_SG_OSD_ENT);
+	/* Allocate DMA */
+	ivtv_alloc_user_dma(itv,
+			    &itv->streams[IVTV_DEC_STREAM_TYPE_OSD].udma,
+			    IVTV_DMA_SG_OSD_ENT);
+
+	if (ivtv_stream_alloc(itv, IVTV_DEC_STREAM_TYPE_OSD)) {
+		IVTV_OSD_DEBUG_WARN( "Error allocating OSD Stream\n");
+	}
 
 	/* Allow module to unload */
 #ifndef LINUX26
-	while (MOD_IN_USE) MOD_DEC_USE_COUNT;
+	while (MOD_IN_USE)
+		MOD_DEC_USE_COUNT;
 	MOD_INC_USE_COUNT;
-#endif
+#endif /* LINUX26 */
 
 	return 0;
 }
 
-
 static void ivtvfb_cleanup(void)
 {
-	IVTV_DEBUG_OSD(IVTV_DEBUG_INFO, "Unloading framebuffer module\n");
+	IVTV_OSD_DEBUG_INFO("Unloading framebuffer module\n");
 	unregister_framebuffer(&fb_info);
 #ifdef CONFIG_MTRR
 	mtrr_del(-1, fb_start_aligned_physaddr,
-			(fb_end_aligned_physaddr - fb_start_aligned_physaddr));
-#endif
+		 (fb_end_aligned_physaddr - fb_start_aligned_physaddr));
+#endif /* CONFIG_MTRR */
 
-    	/* Free DMA */
-        ivtv_free_user_dma(itv,
-            &itv->streams[IVTV_DEC_STREAM_TYPE_MPG].udma);
+	/* Free DMA */
+	ivtv_free_user_dma(itv, &itv->streams[IVTV_DEC_STREAM_TYPE_OSD].udma);
+
+	ivtv_stream_free(itv, IVTV_DEC_STREAM_TYPE_OSD);
 
 	itv->fb_id = -1;
 }

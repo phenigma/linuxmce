@@ -1,18 +1,28 @@
 These instructions are for installing the ivtv driver as a module.
 
+IMPORTANT: In case of problems first read this page:
+	   http://www.ivtvdriver.org/index.php/Troubleshooting
+
+Firmware
+========
+
+Instructions on how to obtain and install the required firmware files
+can be found here:
+
+http://www.ivtvdriver.org/index.php/Firmware
+
 Kernel 2.6
 ==========
 
 CONFIG needed:
 
-(can we check this?)
-
  1. unpack the tarball
- 2. cd .../drivers
+ 2. cd ivtv
  3. make
- 4. make install
+ 4. make install (as root)
  5. unload any old drivers
- 6. modprobe ivtv
+ 6. depmod
+ 7. modprobe ivtv
 
 Comments:
  * The driver is not affected by the 4k/8k stacks kernel configuration.
@@ -25,33 +35,25 @@ CONFIG needed:
 (can we check this?)
 
  1. unpack the tarball
- 2. cd .../drivers
+ 2. cd ivtv
  3. make
- 4. make install
+ 4. make install (as root)
  5. unload any old drivers
- 6. modprobe ivtv
+ 6. depmod
+ 7. modprobe ivtv
 
 General Comments
 ================
 
-Note that the msp3400 driver supplied here is not the same as the one that comes
-with the kernel. 'make install' will try and tell you if the kernel has the standard
-driver built as a module already.
-
-Microtune 4049FM5 tuner
-=======================
-
-If you have a Microtune 4049FM5 tuner then you need to set the tda9887 ivtv module
-option to 0 when in the SECAM world, or to 1+ for others (need more precise data here!).
-
-For this to work, make sure that tda9887.ko is from bttv version 0.9.15 or up, or
-from the 2.6.7 or up linux kernel.
+Note that the msp3400, tuner, tveeprom, and tda9887 drivers supplied here are 
+not the same as the ones that come with the kernel. 'make install' will tell
+you if the kernel has the standard drivers built as modules already.
 
 Creating device entries
 =======================
 If you are using udev or devfs then devices should be created automatically.
+Otherwise you may need to: 
 
-You may need to: 
 for i in 0 1 2 3 16 32 224 ; do \
     if [ ! -f /dev/video$i ]; then \
         echo "Creating /dev/video$i" && mknod /dev/video$i c 81 $i && \
@@ -73,12 +75,13 @@ crw-rw----    1 root     video     81, 224 Jun 19 22:22 /dev/vbi0
 crw-rw----    1 root     video     81, 228 Jun 19 22:22 /dev/vbi4
 crw-rw----    1 root     video     81, 232 Jun 19 22:22 /dev/vbi8
 
-note that the permissions are often restricted and that you may need to add users
-to a particular group in order that they might access the devices.
+Note the permissions of the device entries; your system may differ, so
+ensure users have appropriate read/write access if receiving "permission
+denied" errors.
 
 Testing the installation
 ========================
-First see if it's fine:
+
 install the modules
   modprobe ivtv
 
@@ -87,20 +90,25 @@ Capture some video
 (press ctrl-c after a few seconds)
 
 play it back (for cards with a decoder only)
-  dd if=my.mpg of=/dev/video16 bs=64k
+  cat my.mpg >/dev/video16
+or
+  mplayer my.mpg
+or
+  xine my.mpg
 
 With any luck you'll see a picture (or more likely static) and hear some sound.
 
-You can now use ivtvctl to set the input (s-video, audio etc)
+You can now use ivtvctl to set the input (s-video, audio etc) and ivtv-tune to
+select a channel.
 
 You may also now install the ivtv-fb module: (for cards with a decoder only)
   modprobe ivtv-fb
 
-Check the output from dmesg as this will show you which fb device ivtv-fb has grabbed.
-eg in a system thatis already using the vesafb module it may show
+Check the output from dmesg as this will show you which fb device ivtv-fb has
+grabbed; e.g. in a system already using the vesafb module may show:
   fb1: iTVC15 TV out frame buffer device
 
-This value is what you need in your XF86Config-4
+This value is what you need in your XF86Config-4/xorg.conf.
 
 This can result in a black screen as nothing is being shown.
 ivtvfbctl allows you to change the alpha (transparency) settings:
@@ -111,11 +119,10 @@ would turn off the fb display (clearest possible video)
 would set the framebuffer to be transparency level 50 over the video.
 
 
-Debugging
-=========
+Debugging the framebuffer
+=========================
 
 First make sure everything is wired up correctly.
-
 
 Check video out
 ---------------
@@ -128,6 +135,7 @@ You should see 8 coloured bars on the screen.
 Then restore normal operation:
  rmmod saa7127
  modprobe saa7127
+
 
 Troubleshooting
 ===============
@@ -143,6 +151,5 @@ vm.min_free_kbytes=16384
    normal reboots
 
 3. The framebuffer will not allow direct writing safely, it will mess up
-encoding and decoding, usually makes the chip inoperable till another reboot.
-
-
+   encoding and decoding, usually making the chip inoperable until another
+   reboot.

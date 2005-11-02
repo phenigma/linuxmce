@@ -18,11 +18,9 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
 IRQRETURN_T ivtv_irq_handler(int irq, void *dev_id, struct pt_regs *regs);
 void ivtv_DMA_tasklet(unsigned long arg);
 void ivtv_dec_VSYNC_tasklet(unsigned long arg);
-int  ivtv_dec_DMA_done(struct ivtv *itv, struct ivtv_stream *stream);
 int ivtv_ignore_DMA_req(struct ivtv *itv, u32 type);
 void ivtv_sched_DMA(struct ivtv *itv);
 void ivtv_sched_VBI(struct ivtv *itv, int streamtype);

@@ -1,3 +1,8 @@
+# By default, the build is done against the running kernel version.
+# to build against a different kernel version, set KVER
+#
+#  make KVER=2.6.11-alpha
+
 ifneq ($(KERNELRELEASE),)
 include $(src)/Kbuild
 else
@@ -5,11 +10,10 @@ CONFIG := CONFIG_VIDEO_IVTV=m
 
 MDIR := ivtv
 PWD  := $(shell pwd)
-KVER := $(shell uname -r)
+KVER ?= $(shell uname -r)
 KDIR := /lib/modules/$(KVER)/build
-
-HEADERDIR = /usr/include/linux
-INSTALL_HEADERS = ivtv.h
+MODULESDIR = /lib/modules
+INSTALL_INIT_FILES = ../ivtv_init_mpeg.bin
 
 # Note: building external modules for a 2.6 kernel causes 'has no CRC' warnings
 # to be generated. These messages are harmless but cannot be suppressed.
@@ -22,31 +26,23 @@ all:
 install: all
 	$(MAKE) INSTALL_MOD_PATH=$(DESTDIR) INSTALL_MOD_DIR=$(MDIR) \
 		$(CONFIG) -C $(KDIR) M=$(PWD) modules_install
-	mkdir -p $(DESTDIR)/$(HEADERDIR)
-	install -m 0644 $(INSTALL_HEADERS) $(DESTDIR)/$(HEADERDIR)
-	@msp=/lib/modules/$(KVER)/kernel/drivers/media/video/msp3400.ko ; \
-	 if [ -f $$msp ]; then \
-		echo "You appear to have a $$msp."; \
-		echo "That can cause a conflict with the msp3400.ko from ivtv."; \
-		echo "It is wise to remove $$msp."; \
-		echo "After that run depmod again."; \
-	 fi
+	@ for m in ` find /lib/modules/$(KVER)/kernel -name msp3400.ko -o -name tuner.ko -o -name tda9887.ko -o -name tveeprom.ko ` ; \
+	  do \
+	  	if ! cmp -s $$m `basename $$m` ; \
+		then \
+			echo "Module $$m conflicts with the ivtv module of the same name -- please hide or delete it." ; \
+			echo "To hide:  mv $$m $$m.HIDE" ; \
+			echo "You will then need to run depmod." ; \
+		fi ; \
+	  done
+ifdef HP_FWLOAD
+	@echo ""
+	@echo "ivtv_init_mpeg.bin needs copying to the hotplug firmware directory if needed for pvr350 mpeg initialisation"
+else
+	install -m 0644 $(INSTALL_INIT_FILES) $(DESTDIR)/$(MODULESDIR)
+endif
 
-clean: 
-	rm -rf .*.cmd *.o *.mod.c *.ko *~ core .tmp_versions
-
-reload:
-	-sudo rmmod ivtv-fb ivtv msp3400 saa7115 saa7127 tuner
-	sync
-	-sudo modprobe i2c-core
-	-sudo modprobe i2c-algo-bit
-	-sudo insmod saa7115.ko
-	-sudo insmod msp3400.ko
-	-sudo modprobe tuner type=29
-	-sudo modprobe videodev
-	-sudo insmod ivtv.ko ivtv_debug=255
-
-unload:
-	-sudo rmmod ivtv-fb ivtv msp3400 saa7115 saa7127 tuner
+clean::
+	rm -rf .*.cmd *.o *.mod.c *.ko .tmp_versions
 
 endif

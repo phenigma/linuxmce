@@ -22,19 +22,27 @@
 
 #include <linux/kernel.h>
 #include <linux/version.h>
+#include <linux/unistd.h>
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 0)
 #define LINUX26 1
+
 #ifndef NEW_I2C
 #define NEW_I2C
-#endif
-#endif
+#endif /* NEW_I2C */
 
-// syscalls changed in 2.6.8-rc2 so compensate
+/* missing from module.h in earlier 2.6 kernels */
+#ifndef _LINUX_MODULE_PARAMS_H
+#include <linux/moduleparam.h>
+#endif /* _LINUX_MODULE_PARAMS_H */
+
+#endif /* LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 0) */
+
+/* syscalls changed in 2.6.8-rc2 so compensate */
 #ifdef LINUX26
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 8)
-typedef struct file * kernel_filep;
-#endif
+typedef struct file *kernel_filep;
+#endif /* LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 8) */
 #define kernel_file_open(a, b, c) filp_open(a, b, c)
 
 #define kernel_file_read(a, b, c, d) vfs_read(a, b, c, d)
@@ -50,7 +58,7 @@ typedef int kernel_filep;
 #define kernel_file_lseek(a, b, c) lseek(a, b, c)
 #define kernel_file_close(a) close(a)
 #define kernel_file_is_err(a) (a == -1)
-#endif
+#endif /* LINUX26 */
 
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 7) && LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 10)
 #include <linux/syscalls.h>
@@ -58,16 +66,28 @@ typedef int kernel_filep;
 #define close(a) sys_close(a)
 #define lseek(a, b , c) sys_lseek(a, b ,c)
 #define read(a, b , c) sys_read(a, b ,c)
-#endif
+#endif /* LINUX_VERSION_CODE between 2.6.7 - 2.6.10 */
 
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 7)
-typedef struct file * kernel_filep;
-#endif
+typedef struct file *kernel_filep;
+#endif /* LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 7) */
 
-/* Mmm, 2.6 doesn't know about this one... */
-#ifndef V4L2_CAP_RADIO
-#define V4L2_CAP_RADIO          0x00040000  /* is a radio device */
-#endif
+/* prevent the videodev2 header from being included */
+#define __LINUX_VIDEODEV2_H
+#include <linux/videodev.h>
+
+#ifndef HAVE_V4L2
+#define HAVE_V4L2 1
+ /* Using a non-v4l2-kernel means that the v4l-compat.o module is not
+    available, so we have to discard v4l compatibility. We mark that
+    with this define. */
+#define V4L2_NO_COMPAT
+#endif /* HAVE_V4L2 */
+
+/* For now include this version since the sliced VBI API is not yet
+   available in any kernel version */
+#undef __LINUX_VIDEODEV2_H
+#include "../utils/videodev2.h"
 
 #ifndef LINUX26
 #define i2c_get_clientdata(client)   ((client)->data)
@@ -76,16 +96,15 @@ typedef struct file * kernel_filep;
 #define i2c_set_adapdata(adap,y)     ((adap)->data = (y));
 
 #include <linux/slab.h>
-#include <linux/videodev.h>
 
 extern inline struct video_device *video_device_alloc(void)
 {
 	struct video_device *vfd;
 
-	vfd = kmalloc(sizeof(*vfd),GFP_KERNEL);
+	vfd = kmalloc(sizeof(*vfd), GFP_KERNEL);
 	if (NULL == vfd)
 		return NULL;
-	memset(vfd,0,sizeof(*vfd));
+	memset(vfd, 0, sizeof(*vfd));
 	return vfd;
 }
 
@@ -94,15 +113,38 @@ extern inline void video_device_release(struct video_device *vfd)
 	kfree(vfd);
 }
 
+#define DEFINE_WAIT(y)			DECLARE_WAITQUEUE(y, current)
+#define prepare_to_wait(x, y, z)	set_current_state(z); \
+					add_wait_queue(x, y)
+#define finish_wait(x, y)		remove_wait_queue(x, y); \
+					set_current_state(TASK_RUNNING)
+
+#ifdef INIT_SIGHAND
+#define SIGMASK_LOCK(current)    (&(current)->sighand->siglock)
+#else
+#define SIGMASK_LOCK(current)    (&(current)->sigmask_lock)
+#endif /* INIT_SIGHAND */
+
 #define IRQ_NONE
 #define IRQ_HANDLED
 #define IRQRETURN_T void
 #else
+
+#ifdef INIT_SIGHAND
+#define SIGMASK_LOCK(current)    (&current->sigmask_lock)
+#else
+#define SIGMASK_LOCK(current)    (&current->sighand->siglock)
+#endif /* INIT_SIGHAND */
+
 #define IRQRETURN_T irqreturn_t
-#endif
+#endif /* LINUX26  */
 
 #ifndef __KERNEL_SYSCALLS__
 #define __KERNEL_SYSCALLS__
-#endif
+#endif /* __KERNEL_SYSCALLS__ */
 
-#endif
+#ifndef I2C_NAME
+#define I2C_NAME(s) (s)->name
+#endif /* I2C_NAME */
+
+#endif /* IVTV_COMPAT_H */

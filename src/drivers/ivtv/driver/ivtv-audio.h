@@ -24,8 +24,7 @@ int ivtv_audio_get_volume(struct ivtv *itv);
 int ivtv_audio_get_mute(struct ivtv *itv);
 void ivtv_audio_freq_changed(struct ivtv *itv);
 int ivtv_audio_set_matrix(struct ivtv *itv, struct ivtv_msp_matrix *matrix);
-void ivtv_audio_set_channel(struct ivtv *itv, struct video_channel *v);
+void ivtv_audio_set_norm(struct ivtv *itv, struct video_channel *v);
 void ivtv_audio_set_audmode(struct ivtv *itv, u32 audmode);
 u32 ivtv_audio_get_rxsubchans(struct ivtv *itv, struct v4l2_tuner *vt);
-void ivtv_audio_set_bitrate(struct ivtv *itv, int bitrate);
-
+void ivtv_audio_set_samplerate(struct ivtv *itv, int samplerate);

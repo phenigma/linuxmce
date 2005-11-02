@@ -1,112 +1,897 @@
-IVTV 0.2.0-rc changes:
+IVTV changes:
 
-#0.2.0-rc3k - patch from Anduin Withers, fixes i2c changes in kernel.
+#0.3.7k - moved YUV code into ivtv-yuv.c
+	- moved version info into ivtv-version.h
+	- added detection for PVR500
+	- added --version option for ivtvctl
 
-#0.2.0-rc3j - backport of pci setting to keep DMA errors from occuring.
+#0.3.7j - fix for older kernels compile.
+	- Hans tuner fix
+	- John/Ian fixes for YUV decoding.
 
-#0.2.0-rc3i - added patch for the pvr150/500 cards to work, this is not
-              going to allow development on 0.2.0, you must work on 0.3.0
-              and then backport to 0.2.0-rc in bulk, I won't patch this
-              version and not have a patch for 0.3.0, so be warned.
+#0.3.7i - [Philip Rowlands] Add MODULE_PARM_DESC for most parameters
+	- [Philip Rowlands] Use 2.6-style module_param (merge from v4l tree)
+	- [Philip Rowlands] tuner/tda9887: print warning if unsupported
+	  parameter given.
+	- Fixed sliced CC handling.
 
-#0.2.0-rc3h - added patch for kernel msp3400, and raised the mpeg buffers.
+#0.3.7h - don't allow VBI framing code errors: leads to VPS or WSS being seen
+	  as teletext.
+	- add a function to decode a VBI line to the decoders
+	- fix raw VBI for NTSC (the end of the CC lines contained garbage).
+	- enable stricter sliced VBI matching to prevent WSS or VPS from being
+	  seen as teletext.
+	- fix division by zero when choosing a width > 720.
+	- improve tveeprom: now reports the audio processor correctly, and it
+	  also shows the decoder processor.
+	- fix ivtvctl: register addresses were mangled by a 'char' cast.
+	- add sliced VBI support for the cx24850.
+	- remove cardtype from cx24850. Now the ivtv driver sets the cardtype
+	  automatically.
 
-#0.2.0-rc3g - fixes to vbi.c util and CC, output clean formatted text.
-            - fix to decoder write pos.
-            - patch for decoder pts stop.
-            - vbi patch.
-            - patch for init sighand spinlock.
+#0.3.7g - added ivtv-radio patch from Adam Forsyth:
+		-It speeds up the station searching by skipping the range
+		 below where stations are if you don't want to see all strong
+		 frequencies.
+		-It closes the file handle for the radio device
+	- added small patch from Kevin Ruland to export the module device table.
+	- cleanup QuickSetup
+	- prepare for sliced VBI for cx25840.
+	- make VBI specification more detailed to allow sliced VBI autodetection.
+	- split itv struct initialization to allow for changing the card type
+	  pending on the tveeprom data.
+	- fixed a NULL deferenced in ivtv_reset_digitizer.
+	- add new (internal) ioctls: IVTV_IOC_G_VBI_FMT, IVTV_IOC_S_VBI_FMT,
+	  IVTV_IOC_TRY_VBI_FMT and IVTV_IOC_G_VBI_CAP. This will be used as the
+	  proof-of-concept for a V4L2 sliced VBI standard.
+	  This API is for now internal and may change.
+	- allow changing the sliced VBI settings while capturing. This used to
+	  return EBUSY.
+	- fixed inadvertently removed tuners from tveeprom.c
+	- added vbi-detect test utility. This scans the VBI lines and tries to
+	  detect which VBI types are transmitted.
+	- fix compile error for ivtv-detect.c.
+	- removed hack in radio.c. Doesn't seem to be needed anymore, at least,
+	  I can no longer reproduce the problem.
 
-#0.2.0-rc3f - fixes to vbi.c util and CC, output clean formatted text,
+#0.3.7f - clean up actions in sources
+	- regularize driver kernel messages
+	- make the driver less verbose
+	- all ioctl calls can now be seen at debug level 16 (DEBUG_IOCTL flag)
+	- tda9887 is now per card (so like radio and tuner it's an array)
+	  This fixes attempts by cards without an tda9887 to access the chip.
+	- Increase MAX_CARDS to 12
+	- Allocate driver structures dynamically
+	- Allocate sliced VBI buffers required for MPEG insertion dynamically.
+	- Added top-level Makefile to build driver and tools at once.
+	- Moved the wss, fw_api, vvi_passthrough and vbi.c to the test directory.
+	  These are compiled but not installed.
+	- Removed from the utils directory: test.au, capture.c/cc_decode.h,
+	  chann.c. As far as I can tell these are obsolete.
+
+#0.3.7e - added back the dropped fixes from 0.3.7c
+	- added doc fixes from Philip Rowlands
+	- fix in cx25480 chip probe.
+	- add PVR500 radio support.
+	- proper indent of ivtv-cards.c
+	- fix eeprom radio detection bug
+	- add line in kernel log to clearly separate each card 
+	- fix bug where calling VIDIOC_G_FMT for the VBI format
+	  would clear the sliced VBI settings. Don't do this if
+	  a capture is running.
+	- removed dead VBI code.
+	- improve WSS, VPS and CC passthrough handling. No more WSS
+	  signals should be dropped.
+	- fix 64-bit bug in embedded VBI causing missing VBI lines.
+	- fix the sliced VBI internal format: it was entirely possible
+	  to loose data.
+	- /dev/vbi4 and /dev/vbi0 (for sliced VBI) returned the data in
+	  swapped byte order. Fixed. (Embedded VBI was not affected by
+	  this bug.)
+	- improve autodetect saa7127, should make the i2c_enable argument
+	  obsolete. 
+	- the vbi tool now selects the appropriate VBI types according to
+	  the tuner standard (NTSC/PAL).
+
+#0.3.7d - Hans patches all added for multiple fixes through the driver.
+
+#0.3.7c - Hans patches added for VBI timestamps and tuner fixes.
+	- Hans patch to fix VBI passthrough mode.
+	- patch to fix volume levels between pvr cards.
+	- fixes to compile clean added.
+	- fixes temp for tuner.h compile on older kernels.
+
+#0.3.7b - patch to fix wm8775 load for i2c conflicts
+        - fix for tda
+        - tuner patch.
+	- YUV Decoder patches
+        - Misc patches from D. Hugh Redelmeier
+
+#0.3.7a - YUV decoder patch.
+        - X server update for YUV.
+
+#0.3.7 - YUV decoder patches.
+       - powerdown soundchip on cx25840 when not in use. 	
+       - i2c index improvements for cx25840 module.
+
+#0.3.6z - busmaster enable patch.
+        - YUV Decoding fixes patch.
+        - fix interruptible sleep statement.
+        - declaration fix of a variable.
+        - new x server
+        - streams declaration fix.
+
+#0.3.6y - patch from Hans for module autoload fixes..
+        - patch for color key for FB from John Harvey.
+
+#0.3.6x - Robert Hardy patch to fix i2c range and also fix interruptible_sleep
+	  usage.
+
+#0.3.6w - added patch to fix ivtvfbctl information on options.
+        - added patch to fix module options
+        - added patch to make tda9887 code more sane.
+        - changed encoder buffers to 32k, hopefully works as well, because 128k
+          is way too big (this is only when statically allocating them).
+
+#0.3.6v - added stream safety patch.
+        - added fixes for YUV
+ 
+#0.3.6u - patches for PAL tda module, and card id patch added.
+
+#0.3.6t - don't use semaphores around DMA calls for reading from the encoder.
+
+#0.3.6s - John Harveys patch for YUV decoding fixes.
+        - cx25840 patches for audio volume control
+        - fixed radio.c to have more functionality.
+
+#0.3.6r - made buffer allocation amounts changable through module options.
+        - steal buffers when allocation fails for encoding.
+
+#0.3.6q - patch to unify digitizer function (produces compile warnings???).
+
+#0.3.6p - fixes to PAL teletext, doesn't make a ton of sense, but works,
+          something is odd there.
+        - John Harveys YUV decoding fixes.
+        - patches to fix the stream DMA logging so it's clear what is going on.
+        - digitizer reset improved, so digitizer should also be setup again
+          for capture properly.
+
+#0.3.6o - increased encoder buffer total to 4 meg by default at startup.
+        - added patch for improvements to cx25840 i2c detection
+        - added cleanup patches for cx25840
+        - added patch for wm8775
+
+#0.3.6n - changed encoder buffers to use 128k if static and older firmware,
+          else 32k if newer firmware or dynamic allocation setup.
+
+#0.3.6m -  patches to detect cx25840 better.
+        - patches to clean up audio in cx25840
+        - changed encoder buffers to 32k.
+
+#0.3.6l - Tylers fixes for indenting in cx25840 module.
+        - John Harveys fixes for YUV Decoding.
+
+#0.3.6k - found bug in VBI buffer size setup for NTSC.
+
+#0.3.6j - fixes for cx25840 initialization
+        - included the source to the newest X server.
+
+#0.3.6i - fix for pci oops segfault.
+        - fix for i2c xfer code, retrys and turns off fast fw load in cx25840
+          if it fails.
+
+#0.3.6h - John Harveys patches for YUV scaling and also new X driver.
+        - Makefile patches for debian.
+
+#0.3.6g - changed buffer sizes back, seems they were best as is, now looking
+          at ways to allocate buffers with smaller pages and still address
+          them as large chunks, not sure how, but the chip makes us have to use
+          larger buffers than we'd like to.
+        - dynamic flags added for streams, so we can have each stream have a
+          separate setting for buffers in the future.
+        - code added for future buffers which are groups of pages, setup in
+          a writable chunk but able to be DMA'd to chip, and not allocate
+          large buffers, this is a 'work in progress'.
+
+#0.3.6f - changed decoder buffers to 32k
+        - default to static memory allocation now, suspect more stable.
+        - firmware patches added, quicker firmware load and fixes.
+
+#0.3.6e - reduced all buffers to around 4k, to allow for allocations to be
+          more likely no matter what.
+  
+#0.3.6d - reduce decoder DMA buffers to 16k for reduced memory usage.
+        - found bug where we freed the registered v4l device if buffers
+          couldn't be allocated, that's very bad :-).
+        - new module parameter ivtv_dynbuf which chooses either to use 
+          dynamic buffer allocation or disable, default is to enable it (1).
+
+#0.3.6c - patch to fix typo in vblank code for PAL.
+        - patch to fix scaling.
+
+#0.3.6b - patches to fix pal vbi setup, and vblank.
+        - patches to fix ioctl return in ivtvctl.
+
+#0.3.6a - msleep interruptible patch for fixing dep on tda driver.
+        - added firmware rewrite fix for pvr150/500.
+
+#0.3.6  - added patch for composite/s-vid/tuner switching without pops.
+        - added patch for 550.
+
+#0.3.5z - reworked VBI buffer sizes, more exact, no strange calculations
+          anymore.
+ 
+#0.3.5y - reduce YUV buffers again safely.
+        - change buffer default/max values to tune better to whats needed.
+        - VBI changes to setup and size, mainly cleanup.
+
+#0.3.5x - really fixed autodetection now, should be right, was in a funny
+          order before, now more logical and able to force or auto detect std.
+
+#0.3.5w - removed buffer split for YUV and VBI, seems to be breaking things.
+        - trying vsync interrupt differently, may get the timing better.
+
+#0.3.5v - input gain for cx25840 patch.
+        - added values for registers in pal mode.
+        - check FMT register for standard to set VBI to.
+        - reverse some vsync changes for now, keep safe parts. 
+
+#0.3.5u - vsync interrupt now really only gives an interrupt per frame.
+
+#0.3.5t - added setup for VBI from i2c dumps so NTSC is setup like Windows
+          driver, haven't done PAL ones yet, no way to test it easily.
+        - changes to pvr150/500 vbi sliced code to get closer, yet still
+          not able to get proper cc data or vbi.
+
+#0.3.5s - remove check for VBI boundry, don't use vsync event notification.
+
+#0.3.5r - change encoder startup once again to hopefully be more
+          stable and decided bad to redo settings per startup, seems that
+          is not as stable.
+
+#0.3.5q - don't print out every vbi offset change as err level.
+        - digitizer setup for itvc16 vsync no longer uses event.
+
+#0.3.5p - setup encoding even when interface is open for other encodings.
+        - fix autodetection, and setup variables still for standard, not
+          totally best way yet, but will work again for autodetection right.
+
+#0.3.5o - changed encoder startup, re-init digitizer and setup vsync better.
+
+#0.3.5n - decoder buffer gather was checking results wrong if buffers were
+          enough.
+        - only change vbi line size to +12 for NTSC, breaks PAL.
+        - restart VBI capture when our buffers are invalid.
+
+#0.3.5m - vbi buffer offset read from vbi buffer ptr register now.
+
+#0.3.5l - removed cruft from patch.
+        - patch from Tyler simplifying cx25840 module, and split it up into 
+          separate parts.
+        - force re-init of input even after first capture is running.
+ 
+#0.3.5k - patch to reorder ivtvctl code and improve it.
+        - patch to cleanup cx25840-driver.c and improve things there.
+        - when capture starts re-init cx25840 norm/audio/video/vbi input.
+
+#0.3.5j - re-init cx25840 input each capture start, and stop/start 
+	      microcontroller around the input on/off.
+        - color s-video patch added.
+
+#0.3.5i - decoder buffer sizes reduced, was a test to increase them that
+          got left in the driver.
+        - remove DMAP lock on encoder when stopping.
+        - cleanup of thread code, also added right DMA clear for VBI function.
+
+
+#0.3.5h - fixes so pvr150/500 and pvr350 cards work together better.
+
+#0.3.5g - patch for cleanup of cx25840-driver.c.
+
+#0.3.5f - changes to raw vbi buffer size, exact size of xfers.
+
+#0.3.5e - pci id  for new pvr500 card.
+        - patch for YUV close.
+        - smaller YUV buffers.
+        - swap data for VBI in read, not in work queues, for raw data. 
+        - reinit VBI variables every encoder start for VBI.
+
+#0.3.5d - right fixes for audio from Tyler Trafford.
+        - John Harvey patch for YUV in NTSC.
+        - Hotplug firmware patch from Tyler Trafford.
+
+#0.3.5c - fixes to YUV decoding for /dev/video48 buffer usage, use vsync and
+          fix the YUV vsync stuff.
+        - fixes for Myth ff/rw hopefully, so not just showing prev image.
+
+#0.3.5b - changes to capture startup and VBI raw mode.
+        - added patch for audio setting registers in cx25840-driver.c.
+        - buffer size calculations for raw VBI.
+        - tv standard now default is correct, 0 wasn't valid, made it
+          not behave as expected and be setup in NTSC by default, even
+          though was supposed to be.
+        - black magic now off by default in cx25840-driver.c.
+
+#0.3.5a - don't setup vsync notification in encoder for re-init.
+        - set NTSC audio statically instead of autodetection
+        - set digitizer standard on driver load
+        
+#0.3.5 - changed VBI to not timestamp, switched cx25840-driver.c file
+              from 4s.
+       - remote control gpio reset patch included.
+
+#0.3.4y - changed size of raw VBI so as to be 1444 for PAL, and add 12 for NTSC.
+        - misc suggested audio fixes for cx25840 from mailing lists.
+
+#0.3.4x - no longer need to have one big buffer for raw VBI, decreases the
+          memory allocation considerably.
+        - back to 1444 for vbi size on raw VBI, seems like it works now
+          with my other changes, possibly the way to go, no lost characters.
+        - move vbi stream swap and parse to unify pio and DMA mode.
+ 
+#0.3.4w - fixes to allow non-embed mode not to try and embed anyways.
+        - internal input enable patch added for pvr150.
+
+#0.3.4v - redo of VBI size calculations, seemed to have fixed the raw missing
+          bytes, which looks like we didn't grab the whole frame, and also
+          skip the start codes in the process (was 4 bytes offset), also
+          do the garbage removal for the pvr150/500 cards.
+        - work around Myth bug where embed mode is give the passthrough value
+          hence triggering the other embedding modes, so now check and keep
+          it 1 or 0 for now, need to remove that check for experimentation with
+          the firmware embedding mode.
+
+#0.3.4u - change vbi re-insertion and embed, now use firmware method, wth
+          User Data packets.  This needs work, the embed ioctl now takes
+          different values like 2=firmware user data packets, 1=ivtv method
+          doing it ourselves, 3=firmware private data packets (buggy).
+        - currently still same vbi insertion as before, but improved, have
+          a new interrupt used to get vsync's exact.
+
+#0.3.4t - fix to X server source to compile.
+        - change Vsync interrupt to actually be correct one, so we get
+          real vsync timing per frame, not the old all off time one, seems
+          like this interrupt is the real one.
+        - when not in reinsertion mode, we use firmware re-insertion which
+          is very minimal and un-noticable, but have to use User data insert,
+          still seems to not be able to extract it from decoder???.
+
+#0.3.4s - John Harveys patch for YUV ioctl and Xserver.
+        - updated xserver binary.
+
+#0.3.4r - closed captioning fixes, raw data mode.
+
+#0.3.4q - fixed raw vbi, buffers were way too small.
+        - AMD 64bit changes from Hans.
+        - new x driver binary and source included in utils directory for YUV 
+          decoder support.  (still need to add John Harveys patch, I couldn't,
+          something wrong either with me or the patch, probably me :-).
+ 
+#0.3.4p - split up all VBI to separate work queues, for dec/enc ones, and
+          mpg separate now.
+        - patch from David DeHaven to keep from having to set inputs during
+          audio switches.
+        - changes to how CC is done for dec output, queue for data and
+          should be much better yet, still some bugs, hard to time it right.
+        - fix for switching TV/FM in tda9887 from Axel Thimm (otherwise 
+		you sometimes get static)
+
+#0.3.4o - fixed problems with saa7127 feeding, redid again, bugs last time,
+          now seems like perfect output.
+        - fixes to allow multiple buffers to work for firmware VBI queue.
+
+#0.3.4n - better locking and queue of decoder VBI input to pvr350 saa7127 out.
+
+#0.3.4m - patches from Hauppauge, thanks to Axel Thimm, listed below...
+
+ 	a) ivtv-0.3.3p-new-tuner.patch
+   		Place TUNER_LG_NTSC_TAPE's FM support in the proper slot and add
+   		a new entry
+
+ 	b) ivtv-0.3.3z-radio.patch
+   		FM radio support on PVR-150/500
+
+ 	c) ivtv-0.3.4j-audio-switch.patch
+   		Composite audio switching
+
+ 	d) ivtv-0.3.4j-videostatus.patch
+   		needed for auto-scanning channels (returns whether selected
+   		frequency has video signal)
+
+        - added pre-filter parameter of temporal of 8 like Windows driver.
+
+#0.3.4l - fix to raw capture line size
+
+#0.3.4k - detect new pvr150 id.
+        - patch for audio input to cx25840
+        - patch for printf statements
+        - fixes from Hans, and modified by me, for VBI re-insertion.
+        - some more vbi fixes.
+
+#0.3.4j - change way vbi decoding works for output through pvr350,
+          now lock and send vbi data on vsync interrupt.
+        - some debug messages removed.
+        - use pio mode for vbi re-insertion and vbi decoding.
+        - fix to osd stream so uses it for user pointer buffers, use
+          those again as default instead of static ones.
+
+#0.3.4i - fixes for when not using dynamic buffer allocation.
+
+#0.3.4h - fixes from Hans for vbi re-insertion.
+        - changes to allow proper dynamic allocation of dec-vbi buffer and
+          pvr350 vbi output to work right, don't have to read the vbi
+          device for it all to work right now.
+        - stream fixes.
+
+#0.3.4g - work on cc output for pvr350, not clean output, missed characters
+          on vbi re-insertion it seems.
+        - have some work for vbi where it in theory could capture more than
+          one frame of vbi per interrupt, but still set to 1.
+        - fixes to pvr350 da output so CC is setup one then send just data
+          after that till done.
+        - fixes so re-insertion isn't tried on pvr150 cards, because can't
+          slice data, also only setup certain protocols if not setup for
+          sliced when enabled for re-insertion.
+
+#0.3.4f - patch to clean up digitizer defines, unify some code.
+        - new pvr150 id included.
+        - fixes to vbi decoding, device /dev/vbi4 works again.
+        - fixes to vbi, found bugs with byte swapping.
+
+#0.3.4e - more fixes to VBI, found a couple problems from moving to DMA,
+          one major one was data wasn't processed, done before buffer was
+          filled by DMA.
+
+#0.3.4d - fix to VBI re-insertion and setup of dec vbi stream so it only
+          happens on the 350 card, otherwise it crashes the system.
+
+#0.3.4c - increase VBI re-insertion buffers, way too low.
+        - changed buffering to use dynamic buffers, upon stream startup,
+          should only use how much it needs for memory, turn this
+          off by setting DYNAMIC_MEMORY_ALLOC to 0 in ivtv-driver.h.
+        - changes to improve vbi insertion, still seems like something is
+          wrong and overflows buffers, seems like not reading fast enough
+          out of read function.
+        - fixes to bugs in stream allocation, fixes to encoder work queue
+          so stops before stream is deallocated. 
+
+#0.3.4b - vbi raw count for pvr150/500 changed to 1444.
+        - vbi raw count for saa7115 changed to 1444.
+        - patch to fix cx25480 utils program again.
+
+#0.3.4a - changed vbi line sizes to be dynamic and change depending on 
+          digitizer.
+        - added utils/capture.c, compile separately with 'make capture',
+          and change the defines in the utils/Makefile to point to the
+          librarys and include files for zvbi (all in the source dir of
+          libzvbi, download from zapping.sf.net).  This allows you to use
+          raw capture (needed for pvr150 cards) and still get CC output
+          which is clean, also shows how to use the raw output and slice it 
+          using zvbi.
+
+#0.3.4 - fixes to John Harveys patch for ivtv-ioctl.c which were missing.
+       - fixes to vbi changes from last version which causes lots of log
+         messages.
+       - changes to  vbi size which seems to be better for both digitizers,
+         at least same as the settings in the Windows driver, for the most
+         part.
+
+#0.3.3z - John Harveys patch to decoder state.
+        - add ioctl for fast_stop and splicing, in ivtv.h.
+
+#0.3.3y - some changes to vsync setup when using VBI.
+
+#0.3.3x - fixed vbi reinsertion bug, was doing the dma all wrong.
+        - fixed set size of digitizer during a capture, breaks it bad.
+        - fixed register vbi function in cx25840.
+
+#0.3.3w - fixed vbi bug.
+
+#0.3.3v - fixes to encoder capture, reset for cx25840 when timed out,
+          and help keeping encoding going quickly and clearing the buffers.
+
+#0.3.3u - fixes to pause in myth, shouldn't be slow now.
+	- added patches for printf statements on amd64.
+        - added patch for makefile fixes and 2.4 fix for debian.
+        - added trans.pl program to utils directory.
+
+#0.3.3t - fixed bug with fast_stop, changed wrong count. 
+        - less verbose on pausing when not decoding and stop info.
+
+#0.3.3s - added dec_options of no_stop and fast_stop, which allow us to
+          either stop without decoding the rest of the buffers (default),
+          and to stop only enough so that splicing is smooth.
+
+#0.3.3r - fixes to stop decoding.
+
+#0.3.3q - stop after buffers clear, leave decoder as is.
+        - got black frame stop working right again.
+        - fixes to pause and speed control ioctl, may help Myth freezes.
+
+#0.3.3p - changes to YUV decoding, make more stable with MPEG.
+        - uncommented some code for decoder, seems needed.
+        - stop decoder and flush buffers completely.
+        - adjust YUV buffers for PAL.  
+
+#0.3.3o - fixed bug in ivtvctl where vbi insertion flag was never checked
+          properly, so said it was always on.
+        - stream allocation for stolen buffers and allocated buffers
+          fixed.
+        - increased max allocated buffers for VBI and PCM streams.
+        - removed extra junk in mailbox api cmd for DMA xfers, no longer
+          used for more than simple telling firmware data xfer counts.
+
+#0.3.3n - use static buffers for OSD.
+        - use semaphore for DMA lock around API call after decoder xfer.
+        - changed DMA error in interrupt to not print verbose msgs or fw reload.
+        - cleanup and changed decoder work queue, fixed little inefficiencies
+          and possibly some bugs which may influence decoder/osd freezing.
+        - fix to vbi insert flag, now initialize it to 0 upon module startup.
+
+#0.3.3m - changed to speed ioctl to help ff/rw hangs.
+        - fixes to YUV and MPEG decoding working together better.
+        - less register changing for YUV decoding.
+
+#0.3.3l - fix to saa7127 for newer kernels and still works with pvr150/350.
+        - change to speed ioctl to try and fix Myth ff/rw pauses.
+
+#0.3.3k - VBI fixes from Hans.
+        - fixes to YUV/MPG switching.
+        - fixes for VBI on pvr250 sliced.
+        - fixes for scaling on pvr150/500 cards.
+
+#0.3.3j - redid stop decoding/and decoder handling in hopes of fixing Myth
+          TV problems, seems to have made my MythTV keep from freezing.
+
+#0.3.3i - YUV Decoding works, pretty much, you must have done decoding before
+          it will, at least once since the module has loaded, seems to init
+          the decoder for YUV output and haven't figured out how to avoid 
+          that requirement yet.
+
+#0.3.3h - improvement for VBI and capture.
+
+#0.3.3g - decrease VBI buffers.
+
+#0.3.3f - changes to cx25840 so no autoconfigure is done.
+        - found bug in resolution size setup fro cx25840 for codec ioctl.
+        - fixes to keep settings from being changed while encoding. 
+        - patch to use new read/write functions in cx25840
+        - misc vbi and capture fixes when done together, and config setup.
+
+#0.3.3e - more fixes to the register setup for the cx25840.
+        - change input after input reset to regain proper input settings.
+
+#0.3.3d - fixed problem with settings for the cx25840 registers settings,
+          old code always reset these upon a capture, new one never reset,
+          and the settings set at initialization were not right (never were
+          setup before in actuality after a capture start).
+
+#0.3.3c - found problem with change from not breaking out of OSD
+          waitq after an interrupt, seems this speeds up osd and stops
+          freezes if we do break out.
+
+#0.3.3b - fix to saa7127 i2c and cx25840 getting along.
+        - fix to jiffies member of api structure by D. Hugh Redelmeier.
+        - D. Hugh Redelmeier patch to fix install.txt docs.
+
+#0.3.3a - fixes to VBI decoder reinsertion.
+        - added patch for cx25840 audio firmware load.
+        - fixes to decoding, more places to keep dec/osd from locking.
+
+#0.3.3 - VBI uses DMA safely now, decoder and encoder VBI should do this.
+
+#0.3.2z - fix for svideo to comp or tuner switch in cx25840.
+        - fixes for PAL and sound in cx25840, and also tuner patch.
+        - have decoder YUV improvements for when we figure out how to make it work,
+          now array of buffers, value for buffer used.
+        - fixes to make decoder always go to black if requested.
+
+#0.3.2y - bug in osd DMA where semaphore wasn't grabbed.
+        - fixed yuv_fixup module option to be enabled if set, not done with
+          a define in the source like it was, and fixed some bugs in the
+          function induced sometime in the past, so now should work again.
+        - some fixes to VBI startup capture, don't setup VBI unless needed.
+	- remove VSCALE() setup in cx25840 for vertical scaling to not break,
+          this fixes the bar across the bottom of screen problem.
+
+#0.3.2x - various changes to cx25840 VBI settings, should be more likely to
+          allow slicing in the future.
+        - changes and patch added I made which should help decoder/osd 
+          lockups, fixed alot of things from the patch.
+
+#0.3.2w - added new pvr150/500 revision with different device ID c801.
+	- took John Harveys ideas and made dec/osd waitq stuff have a
+          global unlock function to help keep osd/dec freezes (please test).
+        - patch to fix cx25840 reset.
+        - patch to warn of tveeprom and tuner modules not being ivtv's versions.
+
+#0.3.2v - VBI in raw mode works for the cx25840, thanks to captures produced
+          from Allan Stirling I was able to figure this out.
+
+#0.3.2u - remove extra strings from cx25840.
+        - misc VBI work for cx25840.
+        - fixed order of manual card type input.
+
+#0.3.2t - added cx25840 patch for read/write functions to registers.
+
+#0.3.2s - fixes to 2.6 from 2.4 patch with spinlocks.
+        - Tyler Trafford  patch to not reset the cx25840 registers constantly.
+        - fixes to cx25840 on/off function.
+        - misc additions to cx25840 module.
+
+#0.3.2r - added ability to view and change cx25840 registers directly,
+          basically just like the saa7115 module, same as it was originally
+          where ivtvctl -G and -g reg=0x00,val=0x00 will work again.
+        - fixes to tveeprom
+        - fixes for compiling in newer kernels.
+        - fixes for compiling in 2.4
+
+#0.3.2q - fixed logic wrong in switch statement for encoding lines api cmd.
+        - Added docs/QuickSetup file for helping quickly just get the card
+          working on a modern FC3 2.6 installation using pvr500/150 cards
+          in NTSC Land.
+
+#0.3.2p - fixed semaphore lock in interrupt for mailbox function when doing
+          a refresh for VIM input.
+        - patch to fix sound on pvr150/500 cards.
+
+#0.3.2o - added OSD vsync back in, it is needed to keep things safe from
+          jittery decoding.
+        - just default all OSD PREP_FRAME calls to use buffers, not userspace
+          ones, they are too small and also more dangerous at crashing the chip.
+        - fixes to VBI to work with digitzer event notifications, and work for
+          VBI on bot pvr250 and pvr350 cards.
+
+#0.3.2n - added api calls from ivtv.sf.net api-log.txt, not known, but
+          done suspiciously close to cc stuff, and event notification, so
+          maybe related.
+        - removed some bad code for encoder and decoder interrupt signals,
+          seems to have slipped in from somewhere, not sure where though.
+        - turn on event notifications for the itvc16 again, maybe above API
+          calls added will help.
+        - fixes to firmware load for cx25840
+        - fixes for modparams in 2.6
+        - fixes for tveemod for pvr500, no radio on second tuner
+
+#0.3.2m - removed OSD vsync timing code, not needed anymore.
+        - removed YUV OSD input code, unused and not needed.
+        - encoding V4L Get Format parameters are now correct
+          for type and size of frames when doing YUV capture.
+        - have Encoder PIO mode able to be set from ivtv-driver.h
+          using IVTV_ENC_PIO variable.
+
+#0.3.2l - minor code cleanups, removed some unused code.
+
+#0.3.2k - some cleanup and fixes to last DMA changes.
+        - hotplug firmware no longer uses kmalloc
+        - remove semi colons from cx25840 driver
+        - run Lindent on cx25840 driver.
+        - run Lindent on entire source of ivtv.
+
+#0.3.2j - streams setup/teardown fully redone.
+        - DMA functions all standardized.
+        - DMA done interrupts are used again.
+        - dynamic stream allocation of buffers possible, but
+          not optimal from memory allocation failures.
+        - lots of reworking of DMA, stream allocation, please test.
+        - Encoder PIO mode possible, static variable for now in ivtv-irq.c
+          in ivtv_sched_DMA() function (WARNING: uses alot of CPU)...
+        	int encode_*_pio_mode = 0;
+        - tveeprom-tuner-updates patch #3
+        - cx25840-tuner_pinc patch
+        - wm8775-debug patch
+        - cx25840-modparam patch (breaks in 2.6.8 so not enabled)
+        - wm8775-modparam patch
+        - cx25840-hotplugfw patch
+        - ivtv-0.3.2i-Makefile_support_non_current_kernel patch.
+
+#0.3.2i - fixed sliced vbi on cx23416 chips.
+        - card type patch.
+        - DMA fixes to streamline code, improve some
+          errors.
+        - YUV Decoding fixes, more likely to work now I suspect,
+          things like no byteswapping, which isn't done for YUV.
+        - generic DMA functions added for from/to the chip.
+
+#0.3.2h - audiofmt patch, with fixes.
+
+#0.3.2g - 4k stack patch with sound.
+        - fixes to speed up encoding DMA
+        - misc pvr500/150 patches
+        - added in pvr500 device id/s.
+
+#0.3.2f - fixes to vbi.c to skip msnbc garbage data on CC output.
+        - ivtvfbctl window patch.
+        - vsync patches.
+        - pvr 150 and 500 fixes.
+        - msp fixes for audio and raise max mpg buffers patch.
+        - pal fixes
+        - tveeprom patch.
+
+#0.3.2e - fixes to vbi.c util and CC, output clean formatted text.
+        - AMD 64 patches (check, some in ivtv-streams my not have applied)
+        - encoder stdout patch.
+        - patch for incr of file pos in decoder write.
+        - patch for decoder pts stop.
+        - vbi patch.
+        - fix for 2.4 kernel and compiling with cx25840.
+        - patch for vsync interrupt
+        - patch for init sighand spinlock.
+
+#0.3.2d - patch for pvr150 audio in NTSC
+	- fixes to vbi.c util and CC, output clean formatted text, 
           kindof :-).
-            - fix x server binary, was not copied right 
+        - patch for pvr150 stereo in PAL
+        - patch for pg600
+ 
+#0.3.2c - John Harveys fix for the OSD in FC3.
+ 
+#0.3.2b - John Harveys updated X server
+        - Ulfs PVR150 patch
+        - Makefile patch
+        - John Harveys stoping OSD messages from occuring that are benign
+        - Mpeg1 patch from Ben Willers
 
-#0.2.0-rc3e - John Harveys fix to the OSD for FC3.
+#0.3.2a - New type of YUV decoding in OSD, more like PREP_FRAME.
+	- Fix for saa7129 register setting.
 
-#0.2.0-rc3d - John Harveys updated X server
-            - Makefile patch
-            - John Harveys stoping OSD messages from occuring that are benign
-            - Mpeg1 patch from Ben Willers
+#0.3.2 - DMA sync fixed for above 2.6.8 kernels in ivtv-osd.c
+       - cc in vbi.c now outputs a bit better in line progresson, no repeating.
+       - patch from John Harvey adding some fb support	
 
-#0.2.0-rc3c - fixed typo in saa7129 support for register 6c.
+#0.3.1z - 64bit patch.
+        - YUV buffers changed to fit YUV data better for decoding
+        - wm8775 patch to fix register settings.
+        - fix PAL black level for saa7127
 
-#0.2.0-rc3b - cc in vbi.c now outputs a bit better in line progresson, 
-	      no repeating.
-            - patch from John Harvey adding some fb support
+#0.3.1y - use vsync to time interrupts for decoding/encoding, just like 
+	  OSD is.
 
-#0.2.0-rc3a - 64bit patch
-            - YUV buffers changed to fit YUV data better for decoding
-            - fix PAL black level for saa7127
+#0.3.1x - adjusted PCM buffer sizes and general buffer config to be better about allocation.
 
-#0.2.0-rc3 - adjusted PCM buffer sizes and general buffer config to be better 
-	     about allocation.
-
-#0.2.0-rc2z - fixed PCM so it works again :-).  was a need for decoder offset adding for
+#0.3.1w - fixed PCM so it works again :-).  was a need for decoder offset adding for
           the DMA, yet didn't need this for the pts, so had to change the logic slightly.
-
-#0.2.0-rc2y - fix YUV output for my VIA system, and can capture YUV/MPG now at the
+ 
+#0.3.1v - fix YUV output for my VIA system, and can capture YUV/MPG now at the
           same time too, may fix PCM too I hope.
-            - fix allocation errors?  try this, may do that.
+        - fix allocation errors?  try this, may do that.
 
-#0.2.0-rc2x - fix YUV output for NTSC, and should be better all around.  Bug in way
+#0.3.1u - fix YUV output for NTSC, and should be better all around.  Bug in way
           we calculated and also where we changed over to UV buffers from the Y
           buffers.
 
-#0.2.0-rc2w - Anduin Withers patch to allow a compile option 'make HP_FWLOAD=1'
-              to use the firmware hotplug code.
-            - Rob Shortt patch for encoder.c to allow 25fps.
+#0.3.1t  - Anduin Withers patch to allow a compile option 'make HP_FWLOAD=1'
+           to use the firmware hotplug code.
+         - Rob Shortt patch for encoder.c to allow 25fps.
 
-#0.2.0-rc2v -  patch from Robert Hardy to fix DMA above 2.6.8, sync was changed.
+#0.3.1s - patch from Robert Hardy to fix DMA above 2.6.8, sync was changed.
 
-#0.2.0-rc2u - fix for 2.4 kernels, MODULE_VERSION.
+#0.3.1r - now a wm8775 module is included, may have to be manually loaded?
+        - firmware size is same as one available on sshpvr site, at:
+           ftp://ftp.shspvr.com/download/wintv-pvr_150-500/inf/pvr_2.0.18.22316.zip
+#0.3.1q - Upload FW to cx25840, have to have  /lib/modules/HcwMakoA.ROM
+	  it comes on the Hauppauge pvr150 CD, audio firmware.
 
-#0.2.0-rc2t - Robert Hardy fix for 2.6 module parameters.
+	 cx25840.h:
+	   #define AUDIO_FW_SIZE 13837
+	   #define AUDIO_FW_FILE "/lib/modules/HcwMakoA.ROM"
 
-#0.2.0-rc2s - VBI fix for vbi utility, patch seemed to have broken this from the
+	 Audio still will not work yet, need more, but this is the basic
+         start of doing the right things for audio, Ulf knows more details
+         of this, hopefully this will help him merge his code.
+       - fix for MODULE_VERSION only used in 2.6.
+
+#0.3.1p - Robert Hardy patch for module parameters to work right in 2.6.
+
+#0.3.1o - VBI fix for vbi utility, patch seemed to have broken this from the
           ivtv.h header and changes to the vbi structure.
-	    - patch from Anduin Withers for version info ioctl.
-            - fix from Peter Martin which allows the saa7115 to act better when
-              no video is present.
-            - patch to fix video freq setup in encoder util.
+        - patch from Anduin Withers for version info ioctl.
+        - fix from Peter Martin which allows the saa7115 to act better when
+          no video is present.
+        - patch to fix video freq setup in encoder util.
 
-#0.2.0-rc2r - have IVTV_FW_LOADER check for defined to use firmware hotplug,
+#0.3.1n - seems there's another device id for the pvr150 out there, hopefully
+          same besides that, so it should now load too, also new info in
+          doc/README.cx25840 about how some i2c loading isn't consistent with
+          how I thought it was, so the i2c_enable options have to be different.
+
+#0.3.1m - have IVTV_FW_LOADER check for defined to use firmware hotplug, 
           otherwise it will use the old method.  This needs some way to
           know if hotplug works on the system else we break alot of setups,
           so patches welcome to have that automatically verify things somehow.
 
-#0.2.0-rc2q - Anduin Withers firmware hotplug patch for 2.6
+#0.3.1l - YUV decoder stream patch from John Harvey.
+        - spinlock used around entire interrupt handler, same as DMA one.
+        - Anduin Withers patch for using 2.6 hotplug firmware if available.
 
-#0.2.0-rc2p - remove llseek define which broke 2.4
-            - change back to always using frame based DMA, even with older
-              firmware.
+#0.3.1k - remove llseek define from compat.h to fix 2.4
+        - use frame based DMA for all firmware.
 
-#0.2.0-rc2o - use semaphores instead of spinlocks for buffer queue locking.
+#0.3.1j - Using semaphores instead of spinlocks for all DMA buffer queue
+          locking, testing this.
 
-#0.2.0-rc2n - check mailbox 10 data for validity.
+#0.3.1i - John Harveys patch for threads properly handling interrupts.
 
-#0.2.0-rc2m - John Harveys patch for threads handling interrupts properly.
+	- init chip just like windows driver, except for some register write
+          that is really large, still need to look into that.
 
-#0.2.0-rc2l - revert thread changes for sleeping for now, not as stable.
+	- audio i2c dumps from Ulf, looks promising, this uses those to hopefully
+          setup audio in the pvr150, doesn't work.
 
-#0.2.0-rc2k - don't use greater than 64k buffers for decoder even with older firmware.
+#0.3.1h - revert thread changes for sleeping for now, not as stable.
 
-#0.2.0-rc2j - autodetect firmware version and have DMA settings able to
-              change on runtime if able to do bigger buffers with older firmware
+#0.3.1g - don't change decoder buffers to 128k for older firmware, 64k is  best.
 
-#0.2.0-rc2i - John Harveys patch to Myth updated, now PIP works :-).
-            - don't exit waitq if interrupted for enc/dec.
+#0.3.1f - dynamically at runtime change buffering for DMA depending on firmware
+          revision, warn about bad ones.
 
-#0.2.0-rc2h - updated X driver to John Harveys newest, big fixes, heavily recommened
+#0.3.1e - John Harveys patch to Myth updated, now PIP works :-).
+        - don't exit waitq if interrupted for enc/dec.
 
-#0.2.0-rc2g - change saa7115 luminance control to have resolution enhancement.
-	    - fix OSD so can cope with out of bounds apps, like X is doing.
-            - patch to have autoload work nicer.
+#0.3.1d - updated X driver to John Harveys newest, big fixes, heavily recommened
 
-#0.2.0-rc2f - threads sleep interruptible to keep load avg down, should do it right now.
+#0.3.1c - Fix OSD waitq logic.
+	- Fix OSD Offset and size outofbounds checking.
 
-#0.2.0-rc2e - more buffers by default for encoding.
-            - higher priority for encoding thread than decoding, maybe help encoding
-              keep from jamming on systems with more load.
+	- fixes for coring/proc amp setting, since different than saa7115
+          values.
+        - Seems it's tuner type 47, need a newer kernel or patches.
+
+	- Scaling for the cx25840 now works, only audio left and VBI/Radio.
+
+	- more settings configurable, better reset.
+        - Now things TODO are:
+          1. Audio register, Enable, need i2c dumps, no datasheet for this.
+          2. Scaling, it's hard to understand from the datasheet, need someone
+             or i2c dumps to see how to set this up.
+          3. VBI, Hans probably will eventually some day do this? seems easier
+             than the saa7115 but still complicated calculations and video
+             knowledge of VBI, so leave this up to him I hope :-).
+
+	- brightness, contrast, hue, saturation are configured now for the cx25840.
+
+	- fixed bug which seems like we never set the active input on startup,
+          were assuming the default, but on the pvr150 this isn't so, it's S-video
+          by default, not the tuner.
+
+	- cx25840 Status: input map setup for pvr150.
+
+	- cx25840 Status: I have figured out the svideo input is 0, composite is 2,
+          tuner still just static, probably tuning, maybe a new tuner?
+        - initialize cx25840 now like docs tell, and also fixed register setup for input
+          to be correct.  Picture looks real nice now, just need tuner and sound support.
+	  also of course all the proc amp settings and scaling are needed to get more
+          advanced functionality.
+
+	- cx25840 Status: It works as of Sat Oct 30 13:01:06 CDT 2004,
+          composite setup by default, should work, input 2, tuner isn't, svideo should.
+
+	- working on support for cx25840 chip, just starting.
+ 	- change saa7115 luminance control to have resolution enhancement.
+        - cx25840 Status:
+          2004 Oct 29 00:30:00 - can load pvr150 and pvr350 cards together now,
+                 you must give the i2c_enable=x,x,x module option to 
+                 the saa7127 and cx25840 modules, by default the
+                 saa7127 is enabled for all cards and cx25840 isn't.
+                 you have to do i2c_enable=-1,1 for the saa7127 to enable the
+                 second pvr150/350 to work, and disable the first, opposite
+                 for the cx25840.  So if having 3 cards, first 350, second 250
+                 and third 150, you would give the saa7127 i2c_enable=1,-1 and cx25840
+                 i2c_enable=-1,1 (since both 150/350 use i2c addr 0x88, but not the 250,
+                 so your setting 2 cards up, first with saa7127, second with cx25840,
+                 the i2c_enable= option is only counting 150/350 cards essentially).
+
+		   options saa7127 i2c_enable=1,-1
+		   options cx25840 i2c_enable=-1,1
+
+#0.3.1b - ivtvfbctl tests new osd stream instead of get_user_pages.
+        - threads sleeping are interruptible now, but hopefully right.
+
+#0.3.1a - new OSD ioctl now can decode video frame accurately to timing, using
+          vsync ioctl to show one field at a time, at least pretty dang close now,
+          also seems stable too :-).
+
+#0.3.1 - Added OSD ioctl, new one, that uses static buffers.
 
 #0.2.0-rc2d - patch from Thor Kooda for compiling with gcc 2.95.
             - some fixes for non-informative messages from the OSD waitq.

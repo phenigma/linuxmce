@@ -28,11 +28,18 @@ struct ivtv_card_pci_info {
 
 /* for card information/parameters */
 struct ivtv_card {
-	int 		type;
-	char           *name;
-	u32            	v4l2_capabilities;
-	u32 	       	i2c_tuner_addr;
-	u32 	       	audio_selector;
+	int type;
+	char *name;
+	u32 v4l2_capabilities;
+	u32 audio_selector;
+
+	// controlling Video decoder function
+	int (*video_dec_func)(struct ivtv *, unsigned int, void *); 
+
+	int (*init_ex_func)(void);            // initialize Video decoder function (ex)
+	int (*chg_channel_ex_func)(void);     // changing tuner channel function (ex)
+	int (*chg_input_ex_func)(void);       // changing video input function (ex)
+
 	/* list of device and subsystem vendor/devices that
 	   correspond to this card type. */
 	const struct ivtv_card_pci_info *pci_list;

@@ -17,8 +17,9 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-int ivtv_api(struct ivtv *itv, struct ivtv_mailbox *mbox, struct semaphore *sem, int cmd,
-		u32 *result, int args, u32 data[]);
-int ivtv_api_getresult_nosleep(struct ivtv_mailbox *mbox, u32 *result, u32 data[]);
-int ivtv_api_result(struct ivtv *itv, int cmd, int args, u32 *data);
+int ivtv_api(struct ivtv *itv, struct ivtv_mailbox *mbox, struct semaphore *sem,
+	     int cmd, u32 * result, int args, u32 data[]);
+int ivtv_api_getresult_nosleep(struct ivtv *itv, struct ivtv_mailbox *mbox, u32 *result,
+			       u32 data[]);
+int ivtv_api_result(struct ivtv *itv, int cmd, int args, u32 * data);
 int ivtv_vapi(struct ivtv *itv, int cmd, int args, ...);

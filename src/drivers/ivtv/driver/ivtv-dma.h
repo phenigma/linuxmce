@@ -17,11 +17,6 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-int ivtv_dma_status(struct ivtv *itv, int type, int reg, int sleep);
-int ivtv_reset_stream(struct ivtv *itv, int type);
-void ivtv_dma_err_reset(struct ivtv *itv);
-void ivtv_dma_show_status(struct ivtv *itv, int level);
-u32 ivtv_round_dma(u32 data);
 void ivtv_write_reg(u32 val, void *reg);
 u32 ivtv_read_reg(void *reg);
-
+u32 ivtv_round_dma(u32 data);

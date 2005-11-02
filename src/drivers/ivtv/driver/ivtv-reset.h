@@ -17,6 +17,5 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
 int ivtv_reset_card(struct ivtv *itv, int force, int reset_mode);
 int ivtv_firmware_flags(struct ivtv *itv, int type);

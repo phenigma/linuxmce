@@ -17,7 +17,12 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
+int ivtv_reg_dev(struct ivtv *itv, int streamtype, int minor, int reg_type);
+void ivtv_unreg_dev(struct ivtv *itv, int streamtype);
+int ivtv_stream_init(struct ivtv *itv, int streamtype,
+		     int buffers, int bufsize, int dma);
+int ivtv_dev_setup(struct ivtv *itv, int x);
+int ivtv_stream_setup(struct ivtv *itv, int x);
 int ivtv_streams_setup(struct ivtv *itv);
 void ivtv_streams_cleanup(struct ivtv *itv);
 
@@ -33,3 +38,7 @@ int ivtv_stop_capture_stream(struct ivtv *itv, int type);
 int ivtv_stop_capture(struct ivtv *itv, int type);
 int ivtv_stop_all_captures(struct ivtv *itv);
 int ivtv_passthrough_mode(struct ivtv *itv, int enable);
+void init_decoder(struct ivtv *itv);
+void ivtv_vbi_setup(struct ivtv *itv, int mode);
+int ivtv_init_digitizer(struct ivtv *itv);
+

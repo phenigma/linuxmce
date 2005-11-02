@@ -2,6 +2,10 @@ README for the IVTV VBI Support
 
 Hans Verkuil (hverkuil@xs4all.nl)
 
+[NOTE: parts of this document are outdated. Sliced VBI is now setup using a
+standard V4L2 API. See test/vbi.c or test/vbi-detect.c for an example of the
+new API. The format of the sliced VBI data embedded in the MPEG stream is
+still valid though.]
 
 Introduction
 ============

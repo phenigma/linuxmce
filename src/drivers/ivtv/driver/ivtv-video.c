@@ -22,7 +22,8 @@
 #include "ivtv-i2c.h"
 #include "saa7127.h"
 
-void ivtv_set_vps(struct ivtv *itv, int enabled, u8 vps1, u8 vps2, u8 vps3, u8 vps4, u8 vps5)
+void ivtv_set_vps(struct ivtv *itv, int enabled, u8 vps1, u8 vps2, u8 vps3,
+		  u8 vps4, u8 vps5)
 {
 	struct saa7127_vps_data data;
 
@@ -30,18 +31,18 @@ void ivtv_set_vps(struct ivtv *itv, int enabled, u8 vps1, u8 vps2, u8 vps3, u8 v
 		return;
 	ivtv_saa7127(itv, ENCODER_ENABLE_VPS, &enabled);
 	if (!enabled)
-	       	return;
+		return;
 	data.data[0] = vps1;
 	data.data[1] = vps2;
 	data.data[2] = vps3;
 	data.data[3] = vps4;
 	data.data[4] = vps5;
-        ivtv_saa7127(itv, ENCODER_SET_VPS_DATA, &data);
+	ivtv_saa7127(itv, ENCODER_SET_VPS_DATA, &data);
 }
 
 void ivtv_set_cc(struct ivtv *itv, int mode, u8 cc1, u8 cc2, u8 cc3, u8 cc4)
 {
-	int ccdata = ((cc4 << 24) | (cc3 << 16) | (cc2 << 8) | cc1);
+	u32 ccdata = ((cc4 << 24) | (cc3 << 16) | (cc2 << 8) | cc1);
 
 	if (itv->v4l2_cap & V4L2_CAP_VIDEO_OUTPUT) {
 		ivtv_saa7127(itv, ENCODER_ENABLE_CC, &mode);
@@ -49,9 +50,18 @@ void ivtv_set_cc(struct ivtv *itv, int mode, u8 cc1, u8 cc2, u8 cc3, u8 cc4)
 	}
 }
 
-void ivtv_set_wss(struct ivtv *itv, int enabled, int mode) 
+void ivtv_set_wss(struct ivtv *itv, int enabled, int mode)
 {
 	if (itv->v4l2_cap & V4L2_CAP_VIDEO_OUTPUT) {
+                /* When using a 50 Hz system, always turn on the
+                   wide screen signal with 4x3 ratio as the default.
+                   Turning this signal on and off can confuse certain
+                   TVs. As far as I can tell there is no reason not to
+                   transmit this signal. */
+                if ((itv->std & V4L2_STD_625_50) && !enabled) {
+                        enabled = 1;
+                        mode = SAA7127_WSS_MODE_4_3_FULL_FORMAT;
+                }
 		ivtv_saa7127(itv, ENCODER_SET_WSS_MODE, &mode);
 		ivtv_saa7127(itv, ENCODER_ENABLE_WSS, &enabled);
 	}
@@ -60,6 +70,5 @@ void ivtv_set_wss(struct ivtv *itv, int enabled, int mode)
 void ivtv_encoder_enable(struct ivtv *itv, int enabled)
 {
 	if (itv->v4l2_cap & V4L2_CAP_VIDEO_OUTPUT)
-        	ivtv_saa7127(itv, ENCODER_ENABLE_OUTPUT, &enabled);
+		ivtv_saa7127(itv, ENCODER_ENABLE_OUTPUT, &enabled);
 }
-

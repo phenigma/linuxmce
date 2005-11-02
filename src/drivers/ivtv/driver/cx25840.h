@@ -17,49 +17,23 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-struct get_picture_struct {
-	int norm;
-	int input;
-	int enable;
-	int bright;
-	int contrast;
-	int hue;
-	int sat;
-	int playback;
-	int audio;
+#ifndef _CX25840_H_
+#define _CX25840_H_
+
+#include "decoder.h"
+
+struct cx25840_info {
+        struct decoder_state state;
+        int cardtype;
+        int *layout;
+	char *firmware;
+	int fastfw;
 };
 
-struct cx25840_reg 
-{
-	/** Index of register if known. Otherwise -1 for unknown (on set). */
-	int	index;
-	/** Setting name. If settingIndex is known on set, this value is ignored. */
-	char	name[ 80 ];
-	/** Setting value. */
-	int	value;
-	/** Value description (for get). */
-	char	description[ 120 ];
-};
+#define CARD_TYPE_PVR150 0
+#define CARD_TYPE_PG600  1
 
+#define DECODER_GET_VIDEO_STATUS _IOR('d', 200, int *)
+#define DECODER_SET_CARD_TYPE    _IOW('d', 201, int)
 
-
-#define DECODER_AUDIO_441_KHZ	0
-#define DECODER_AUDIO_48_KHZ	1
-#define DECODER_AUDIO_32_KHZ	2
-
-#define DECODER_SET_AUDIO   _IOW('d', 100, int)
-#define DECODER_RESET       _IO ('d', 101)
-#define DECODER_SET_VBI     _IOW('d', 102, int)
-#define DECODER_SET_SIZE    _IOW('d', 103, struct video_window)
-#define	DECODER_GET_PICTURE _IOR('d', 104, struct get_picture_struct)
-/** NOTE: A copy of this declaration exists in ivtv-ioctl.c */
-#define	DECODER_SET_REG_TEXT _IOR('d', 105, struct cx25840_reg)
-/** NOTE: A copy of this declaration exists in ivtv-ioctl.c */
-#define	DECODER_GET_REG_TEXT _IOWR('d', 106, struct cx25840_reg)
-#define DECODER_GET_WSS     _IOR('d', 107, int *)
-#define DECODER_GET_CC_ODD  _IOR('d', 108, int *)
-#define DECODER_GET_CC_EVEN _IOR('d', 109, int *)
-
-#define AUDIO_FW_FILES {      \
-  "/lib/modules/HcwMakoA.ROM" \
-}
+#endif

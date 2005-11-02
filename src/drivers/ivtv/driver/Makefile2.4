@@ -1,8 +1,8 @@
 KERNVER = $(shell uname -r)
 KERNELDIR= /lib/modules/$(KERNVER)/build
 MODDIR = /lib/modules/$(KERNVER)/kernel/drivers/media/video
-INCLUDEDIR = /usr/include/linux
-INSTALL_HEADERS = ivtv.h
+MODULESDIR = /lib/modules
+INSTALL_INIT_FILES = ../ivtv_init_mpeg.bin
 CROSS_COMPILE =
 LD	= $(CROSS_COMPILE)ld
 CC	= $(CROSS_COMPILE)gcc
@@ -11,26 +11,25 @@ IVTVOBJS	= ivtv-driver.o ivtv-fileops.o ivtv-i2c.o ivtv-streams.o \
 			   ivtv-firmware.o ivtv-reset.o ivtv-gpio.o ivtv-queue.o \
 			   ivtv-irq.o ivtv-mailbox.o ivtv-vbi.o ivtv-kthreads.o \
 			   ivtv-audio.o ivtv-ioctl.o ivtv-controls.o ivtv-video.o \
-			   ivtv-cards.o v4l1-compat.o ivtv-dma.o
-CX2584OBJS	= cx25840-driver.o cx25840-registers.o
-OBJS	= msp3400.o saa7115.o cx25840.o wm8775.o tveeprom.o ivtv.o saa7127.o
+			   ivtv-cards.o v4l1-compat.o ivtv-dma.o ivtv-yuv.o
+CX2584OBJS	= cx25840-driver.o cx25840-registers.o cx25840-audio.o \
+			   cx25840-firmware.o
+OBJS	= msp3400.o saa7115.o cx25840.o wm8775.o tveeprom.o ivtv.o saa7127.o cs53l32a.o
 
 include $(KERNELDIR)/.config
 
-CFLAGS = -D__KERNEL__ -D__KERNEL_SYSCALLS__ -DMODULE -DMODVERSIONS -I$(KERNELDIR)/include -O2 -fomit-frame-pointer -march=i586 -mcpu=i586 -fno-strict-aliasing -Wno-unused -include $(KERNELDIR)/include/linux/modversions.h
+CFLAGS = -D__KERNEL__ -D__KERNEL_SYSCALLS__ -DMODULE -DMODVERSIONS -DEXPORT_SYMTAB -I$(KERNELDIR)/include -O2 -fomit-frame-pointer -march=i586 -mcpu=i586 -fno-strict-aliasing -Wno-unused -include $(KERNELDIR)/include/linux/modversions.h
 
 # if the kernel .config has fb enabled, it's safe to build ivtv-fb.o
 OBJS    += $(shell grep -q '^CONFIG_FB' $(KERNELDIR)/.config && echo "ivtv-fb.o")
 # if the I2C version is 2.8, then we need to use the new_i2c stuff
 CFLAGS  += $(shell grep -q I2C_VERSION.*2\.8  $(KERNELDIR)/include/linux/i2c.h && echo "-DNEW_I2C")
 
-# uncomment if you use i2c 2.8.0+
-#CFLAGS += -DNEW_I2C
+ifdef HP_FWLOAD
+CFLAGS += -DIVTV_FW_LOADER
+endif
 
-all: prepfiles $(OBJS)
-
-prepfiles:
-	cp ../utils/videodev2.h .
+all: ivtv-svnversion.h $(OBJS)
 
 ivtv.o: $(IVTVOBJS)
 	$(LD) -r -o $@ $^
@@ -41,19 +40,10 @@ cx25840.o: $(CX2584OBJS)
 ivtv-fb.o: ivtv-osd.o ivtv-queue.o
 	$(LD) -r -o $@ $^
 
-clean: 
-	rm -f *.o *~ core videodev2.h
+clean::
+	rm -f *.o videodev2.h
 
 install: all
-	mkdir -p $(DESTDIR)/$(MODDIR)
+	install -d $(DESTDIR)/$(MODDIR)
 	install -m 0644 $(OBJS) $(DESTDIR)/$(MODDIR)
-	install -m 0644 $(INSTALL_HEADERS) $(DESTDIR)/$(INCLUDEDIR)
-reload: all
-	sudo make install
-	-sudo rmmod ivtv-fb ivtv msp3400 saa7115 saa7127 tuner
-	sync
-	-ls -la /dev/video0 # (force devfs to reload the modules)
-
-unload:
-	-sudo rmmod ivtv-fb ivtv msp3400 saa7115 saa7127 tuner
-
+	install -m 0644 $(INSTALL_INIT_FILES) $(DESTDIR)/$(MODULESDIR)

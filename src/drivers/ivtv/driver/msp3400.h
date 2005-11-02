@@ -4,8 +4,8 @@
 /* ---------------------------------------------------------------------- */
 
 struct msp_dfpreg {
-    int reg;
-    int value;
+	int reg;
+	int value;
 };
 
 struct msp_matrix {
@@ -33,4 +33,4 @@ struct msp_matrix {
 #define SCART1_OUT    1
 #define SCART2_OUT    2
 
-#endif /* MSP3400_H */
+#endif				/* MSP3400_H */

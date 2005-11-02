@@ -17,14 +17,15 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
 /* Testing/Debugging */
 int ivtv_v4l2_open(struct inode *inode, struct file *filp);
-ssize_t ivtv_v4l2_read(struct file *filp, char *buf, size_t count, loff_t *pos) ;
-ssize_t ivtv_v4l2_write(struct file *filp, const char *buf, size_t count, loff_t *pos);
+ssize_t ivtv_v4l2_read(struct file *filp, char *buf, size_t count,
+		       loff_t * pos);
+ssize_t ivtv_v4l2_write(struct file *filp, const char *buf, size_t count,
+			loff_t * pos);
 int ivtv_v4l2_close(struct inode *inode, struct file *filp);
-unsigned int ivtv_v4l2_enc_poll(struct file *filp, poll_table *wait);
-unsigned int ivtv_v4l2_dec_poll(struct file *filp, poll_table *wait);
+unsigned int ivtv_v4l2_enc_poll(struct file *filp, poll_table * wait);
+unsigned int ivtv_v4l2_dec_poll(struct file *filp, poll_table * wait);
 void mute_and_pause(struct ivtv *itv);
 void unmute_and_resume(struct ivtv *itv, int sleep);
 
