@@ -30,7 +30,7 @@
 #include "id3info_options.h"
 #include "../../pluto_media/Define_AttributeType.h"
 
-#define ENABLE_TEST
+//#define ENABLE_TEST
 
 using namespace dami;
 using std::cout;
@@ -60,7 +60,29 @@ void GetInformation(const ID3_Tag &myTag, map<int,string>& mapAttributes)
 	else if(id == "TPE1")
 		PK_Attr = ATTRIBUTETYPE_Performer_CONST;
 	else if(id == "TCON")
-		PK_Attr = -1;
+		PK_Attr = ATTRIBUTETYPE_Genre_CONST;
+	else if(id == "TRCK")
+		PK_Attr = ATTRIBUTETYPE_Track_CONST;
+	else if(id == "TYER")
+		PK_Attr = ATTRIBUTETYPE_Release_Date_CONST;
+	else if(id == "COMM") //comments
+		PK_Attr = -2; // todo ask
+	else if(id == "TMED") //media
+		PK_Attr = -3; // todo ask
+	else if(id == "TLEN") //length
+		PK_Attr = -4; // todo ask;
+    else if(id == "WXXX")
+	    PK_Attr = ATTRIBUTETYPE_Website_CONST; 
+	else if(id == "TCOM")
+	    PK_Attr = ATTRIBUTETYPE_Composer_CONST;
+	else if(id == "TENC") //encoded by
+        PK_Attr = -5; // todo ask
+    else if(id == "TCOP") //copyright
+        PK_Attr = -6; // todo ask
+    else if(id == "TOPE") //Original artist(s)/performer(s)
+        PK_Attr = -7; // todo ask;
+	else
+		PK_Attr = -1000;
 
 	string value;
 	

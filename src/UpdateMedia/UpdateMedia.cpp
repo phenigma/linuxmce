@@ -33,7 +33,7 @@
 #define chdir _chdir  // Why, Microsoft, why?
 #define mkdir _mkdir  // Why, Microsoft, why?
 #else
-
+#include "id3info/id3info.h"
 #endif
 
 
@@ -293,8 +293,39 @@ int UpdateMedia::AddFileToDatabase(int PK_MediaType,string sDirectory,string sFi
 	pRow_File->Path_set(sDirectory);
 	pRow_File->Filename_set(sFile);
 	pRow_File->EK_MediaType_set(PK_MediaType);
-	// TODO: Add attributes from ID3 tags
 	pRow_File->Table_File_get()->Commit();
+
+#ifndef WIN32	
+	// Add attributes from ID3 tags
+	
+	map<int,string> mapAttributes;
+	GetId3Info(sDirectory + "/" + sFile, mapAttributes);	
+
+	for(map<int,string>::iterator it = mapAttributes.begin(); it != mapAttributes.end(); it++)
+	{
+		int PK_AttrType = (*it).first;
+		string sValue = (*it).second;
+
+		if(PK_AttrType <= 0)
+		{
+			cout << "PK_AttrType = " << PK_AttrType << " with value " << sValue << " - does not exist" << endl;
+			continue;
+		}
+	
+    	Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->AddRow();
+    	pRow_Attribute->FK_AttributeType_set(PK_AttrType);
+    	pRow_Attribute->Name_set(sValue);
+    	pRow_Attribute->Table_Attribute_get()->Commit();
+
+    	Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->AddRow();
+    	pRow_File_Attribute->FK_File_set(pRow_File->PK_File_get());
+    	pRow_File_Attribute->FK_Attribute_set(pRow_Attribute->PK_Attribute_get());
+		pRow_File_Attribute->Table_File_Attribute_get()->Commit();
+
+cout << "Added PK_AttrType = " << PK_AttrType << " with value " << sValue << endl;
+	}
+#endif	
+	 
 cout << "Added " << sDirectory << " / " << sFile << " to db " << pRow_File->PK_File_get() << endl;
 	return pRow_File->PK_File_get();
 }
