@@ -52,6 +52,11 @@ case $diskType in
 	0|1|6|7|8)
 		Dir="$targetFileName"
 		case "$ripFormat" in
+			wav)
+				FinalExt="wav"
+				OutputFile="\"$Dir/\$FileName.in-progress-$FinalExt\"" # bare file
+			;;
+			
 			ogg)
 				FinalExt="ogg"
 				OutputFile=">(oggenc -Q -o \"$Dir/\$FileName.in-progress-$FinalExt\" -)" # encoder
@@ -62,15 +67,9 @@ case $diskType in
 				OutputFile=">(flac -o \"$Dir/\$FileName.in-progress-$FinalExt\" -)" # encoder
 			;;
 			
-			wav)
-				FinalExt="wav"
-				OutputFile="\"$Dir/\$FileName.in-progress-$FinalExt\"" # bare file
-			;;
-			
 			mp3)
 				FinalExt="mp3"
-				echo "Not implemented: mp3"
-				exit 1
+				OutputFile=">(lame -h - \"$Dir/\$FileName.in-progress-$FinalExt\")" # encoder
 			;;
 			
 			*)
