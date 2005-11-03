@@ -113,7 +113,7 @@ elif [[ "$diskType" == 0 || "$diskType" == 1 || "$diskType" == 6 || "$diskType" 
 		echo "Executing: $(eval echo "\"$displaycmd\"")"
 		if ! eval "$command"; then
 			echo "Ripping failed"
-			rm "$Dir/$Filename.in-progress-$FinalExt"
+			rm "$Dir/$Filename.in-progress-$FinalExt" &>/dev/null
 			exit 1;
 		fi
 		echo "File ripped ok; moving: $Dir/$FileName.in-progress-$FinalExt"
