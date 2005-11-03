@@ -1461,6 +1461,9 @@ void Orbiter::ObjectOnScreenWrapper(  )
     m_mapDevice_Selected.clear(  );
     vm.Release(  );
 
+    //also reset the last selected object from the floorplan.
+    m_pObj_LastSelected = NULL;
+
     // I used to call DoLoadUnload from within ObjectOnScreen,  but that means some of the
     // load/unload actions and the initialize grid's are getting called before the objects
 ;    // are on the screen.  This caused a problem when there is an onload that sets
