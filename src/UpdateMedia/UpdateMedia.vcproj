@@ -19,8 +19,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="/mysql/Include;../DCE;..;&quot;../../libs/Libraries/pthreads-win32/include&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;GENERATOR"
+				AdditionalIncludeDirectories="/mysql/Include;../DCE;..;&quot;../../libs/Libraries/pthreads-win32/include&quot;;&quot;../../libs/CrossPlatform/id3lib-3.8.3/include&quot;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;GENERATOR;ID3LIB_LINKOPTION=3"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -32,10 +32,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib DCE.lib pluto_media.lib pluto_main.lib"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib DCE.lib pluto_media.lib pluto_main.lib pluto-id3lib-d.lib"
 				OutputFile="../Debug/UpdateMedia.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="/mysql/lib/Debug;../../libs/Libraries/pthreads-win32/lib;../lib"
+				AdditionalLibraryDirectories="/mysql/lib/Debug;&quot;../../libs/Libraries/pthreads-win32/lib&quot;;../lib;&quot;../../libs/CrossPlatform/id3lib-3.8.3/prj/Debug&quot;"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/UpdateMedia.pdb"
 				SubSystem="1"
@@ -72,8 +72,8 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				OmitFramePointers="TRUE"
-				AdditionalIncludeDirectories="/mysql/Include;../DCE;..;&quot;../../libs/Libraries/pthreads-win32/include&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;GENERATOR"
+				AdditionalIncludeDirectories="/mysql/Include;../DCE;..;&quot;../../libs/Libraries/pthreads-win32/include&quot;;&quot;../../libs/CrossPlatform/id3lib-3.8.3/include&quot;"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;GENERATOR;ID3LIB_LINKOPTION=3"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
@@ -85,10 +85,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib DCE-r.lib pluto_main-r.lib"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib DCE-r.lib pluto_main-r.lib pluto-id3lib-r.lib"
 				OutputFile="../bin/UpdateMedia.exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="/mysql/lib/Debug;../../libs/Libraries/pthreads-win32/lib;../lib"
+				AdditionalLibraryDirectories="/mysql/lib/Debug;&quot;../../libs/Libraries/pthreads-win32/lib&quot;;../lib;&quot;../../libs/CrossPlatform/id3lib-3.8.3/prj/Release&quot;"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -127,6 +127,9 @@
 			</File>
 			<File
 				RelativePath="..\PlutoUtils\FileUtils.cpp">
+			</File>
+			<File
+				RelativePath=".\id3info\id3info.cpp">
 			</File>
 			<File
 				RelativePath=".\Main.cpp">

@@ -27,13 +27,14 @@
 #include "pluto_media/Table_Picture_Attribute.h"
 #include "pluto_media/Table_File_Attribute.h"
 
+#include "id3info/id3info.h"
+
 #ifdef WIN32
 #include <direct.h>
 #include <conio.h>
 #define chdir _chdir  // Why, Microsoft, why?
 #define mkdir _mkdir  // Why, Microsoft, why?
 #else
-#include "id3info/id3info.h"
 #endif
 
 
@@ -295,9 +296,7 @@ int UpdateMedia::AddFileToDatabase(int PK_MediaType,string sDirectory,string sFi
 	pRow_File->EK_MediaType_set(PK_MediaType);
 	pRow_File->Table_File_get()->Commit();
 
-#ifndef WIN32	
 	// Add attributes from ID3 tags
-	
 	map<int,string> mapAttributes;
 	GetId3Info(sDirectory + "/" + sFile, mapAttributes);	
 
@@ -324,7 +323,6 @@ int UpdateMedia::AddFileToDatabase(int PK_MediaType,string sDirectory,string sFi
 
 cout << "Added PK_AttrType = " << PK_AttrType << " with value " << sValue << endl;
 	}
-#endif	
 	 
 cout << "Added " << sDirectory << " / " << sFile << " to db " << pRow_File->PK_File_get() << endl;
 	return pRow_File->PK_File_get();
