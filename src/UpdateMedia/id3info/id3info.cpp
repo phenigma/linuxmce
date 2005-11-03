@@ -1,22 +1,3 @@
-// Copyright 1999 Scott Thomas Haug <scott@id3.org>
-//  
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
-// (at your option) any later version.
-//  
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//  
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-//  
-// $Id: demo_info.cpp,v 1.32 2002/07/28 21:53:56 t1mpy Exp $
-
-
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
@@ -30,7 +11,8 @@
 #include "id3info_options.h"
 #include "../../pluto_media/Define_AttributeType.h"
 
-//#define ENABLE_TEST
+//uncomment this to enable unit testing for id3info.
+//#define ENABLE_TEST_UNIT
 
 using namespace dami;
 using std::cout;
@@ -357,7 +339,7 @@ void GetId3Info(string sFilename, map<int,string>& mapAttributes)
 	GetInformation(myTag, mapAttributes);
 }
 
-#ifdef ENABLE_TEST
+#ifdef ENABLE_TEST_UNIT
 int main( unsigned int argc, char * const argv[])
 {
 	if(argc != 2)
