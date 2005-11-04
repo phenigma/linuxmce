@@ -11,7 +11,7 @@ class DesignObj_Generator : public DesignObj_Data
 public:
 	class Database_pluto_main * m_mds;
 	class Row_DesignObj * m_pRow_DesignObj;
-	DesignObj_Generator * m_ocoParent,*m_pDesignObj_TopMost;
+	DesignObj_Generator * m_ocoParent;
 	class OrbiterGenerator *m_pOrbiterGenerator;
 	class PlutoRectangle m_rBitmapOffset;
 	map<int,string> m_VariableMap;
@@ -64,7 +64,7 @@ public:
 	string SubstituteVariables(string Text,bool *bContainsRunTimeVariables);
 
 	DesignObj_Generator *GetTopMostObject(DesignObj_Generator *pObj) {return pObj->m_ocoParent ? GetTopMostObject(pObj->m_ocoParent) : pObj;}
-	bool CachedVersionOK();
+
 };
 
 #endif

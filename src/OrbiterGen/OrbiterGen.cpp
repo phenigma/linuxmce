@@ -294,7 +294,7 @@ int OrbiterGenerator::DoIt()
 		if( tNow-tModDate < 120 )  // There's recent activity within the last 2 minutes, so skip it
 		{
 			cout << "skipping" << endl;
-// 			exit(0);
+			exit(0);
 		}
 	}
 
@@ -531,7 +531,7 @@ m_bNoEffects = true;
 	{
 		time_t lModDate = StringUtils::SQLDateTime(m_pRow_Orbiter->psc_mod_get());
 		time_t lModDate_LastGen = StringUtils::SQLDateTime(m_pRow_Orbiter->Modification_LastGen_get());
-		m_bOrbiterChanged = false; //(lModDate!=lModDate_LastGen);
+		m_bOrbiterChanged = (lModDate!=lModDate_LastGen);
 		if( m_bOrbiterChanged )
 			cout << "Orbiter changed date from: " << lModDate_LastGen << " to: " << lModDate << endl;
 	}
@@ -900,7 +900,7 @@ m_bNoEffects = true;
 
 	list<Row_DesignObj *> alNewDesignObjsToGenerate;  // Have to cache the list because I can't modify htgeneratedscreens while enumerating
 
-	map<string,listDesignObj_Generator *>::iterator itgs;
+	map<int,listDesignObj_Generator *>::iterator itgs;
 	bool bKeepLooking=true;
 	while(bKeepLooking)
 	{
@@ -909,8 +909,6 @@ m_bNoEffects = true;
 		for(itgs=m_htGeneratedScreens.begin();itgs!=m_htGeneratedScreens.end();++itgs)
 		{
 			listDesignObj_Generator *o = (*itgs).second;
-			if( !o )
-				continue;
 			Row_DesignObj *pRow_DesignObj = NULL;
 
 			if( o->size()>0 )
@@ -1198,7 +1196,7 @@ int k=2;
 	for(itno=alNewDesignObjsToGenerate.begin();itno!=alNewDesignObjsToGenerate.end();++itno)
 	{
 		Row_DesignObj *m_pRow_DesignObjDependancy = *itno;
-		if( m_htGeneratedScreens.find(StringUtils::itos(m_pRow_DesignObjDependancy->PK_DesignObj_get()) + ".0")==m_htGeneratedScreens.end() )
+		if( m_htGeneratedScreens.find(m_pRow_DesignObjDependancy->PK_DesignObj_get())==m_htGeneratedScreens.end() )
 		{
 			m_iPK_DesignObj_Screen = m_pRow_DesignObjDependancy->PK_DesignObj_get();
 			DesignObj_Generator *ocDesignObj = new DesignObj_Generator(this,m_pRow_DesignObjDependancy,PlutoRectangle(0,0,0,0),NULL,true,false);
@@ -1213,8 +1211,6 @@ int k=2;
 	for(itgs=m_htGeneratedScreens.begin();itgs!=m_htGeneratedScreens.end();++itgs)
 	{
 		listDesignObj_Generator *o = (*itgs).second;
-		if( !o )
-			continue;
 		for(listDesignObj_Generator::iterator itlcgo=o->begin();itlcgo!=o->end();++itlcgo)
 		{
 			DesignObj_Generator *oco = (*itlcgo);
@@ -1282,8 +1278,6 @@ int k=2;
 	for(itgs=m_htGeneratedScreens.begin();itgs!=m_htGeneratedScreens.end();++itgs)
 	{
 		listDesignObj_Generator *o = (*itgs).second;
-		if( !o )
-			continue;
 		for(listDesignObj_Generator::iterator itlcgo=o->begin();itlcgo!=o->end();++itlcgo)
 		{
 			DesignObj_Generator *oco = (*itlcgo);
@@ -1468,9 +1462,6 @@ int k=2;
 
 void OrbiterGenerator::SearchForGotos(DesignObj_Data *pDesignObj_Data,DesignObjCommandList *alCommands)
 {
-if( pDesignObj_Data->m_ObjectID.find(".3406.")!=string::npos )
-int k=2;
-
 	DesignObjCommandList::iterator itActions;
 	for(itActions=alCommands->begin();itActions!=alCommands->end();++itActions)
 	{
@@ -1482,9 +1473,8 @@ int k=2;
             map<int, string>::iterator itParm=oca->m_ParameterList.find(COMMANDPARAMETER_PK_DesignObj_CONST);
 			if( itParm!=oca->m_ParameterList.end() )
 			{
-				string sDesignObj = (*itParm).second;
 				Row_DesignObj *p_m_pRow_DesignObj = mds.DesignObj_get()->GetRow(atoi((*itParm).second.c_str()));
-				if( p_m_pRow_DesignObj && m_htGeneratedScreens.find(First2Dots(sDesignObj))==m_htGeneratedScreens.end() )
+				if( p_m_pRow_DesignObj && m_htGeneratedScreens.find(p_m_pRow_DesignObj->PK_DesignObj_get())==m_htGeneratedScreens.end() )
 				{
 					m_iPK_DesignObj_Screen = p_m_pRow_DesignObj->PK_DesignObj_get();
 					if( oca->m_PK_Command == COMMAND_Show_Popup_CONST ||
@@ -1492,7 +1482,7 @@ int k=2;
 							oca->m_ParameterList.find(COMMANDPARAMETER_TrueFalse_CONST)!=oca->m_ParameterList.end() &&
 							oca->m_ParameterList[COMMANDPARAMETER_TrueFalse_CONST]=="1") )
 						m_mapPopups[m_iPK_DesignObj_Screen] = true;
-	 				DesignObj_Generator *ocDesignObj = new DesignObj_Generator(this,p_m_pRow_DesignObj,PlutoRectangle(0,0,0,0),NULL,true,false);
+ 					DesignObj_Generator *ocDesignObj = new DesignObj_Generator(this,p_m_pRow_DesignObj,PlutoRectangle(0,0,0,0),NULL,true,false);
 					SearchForGotos(ocDesignObj);
 				}
 			}
@@ -2127,31 +2117,4 @@ bool OrbiterGenerator::CommonControlledVia(Row_Device *pRow_Device1,Row_Device *
 		pRow_Device_CV = pRow_Device_CV->FK_Device_ControlledVia_getrow();
 	}
 	return false;
-}
-
-string OrbiterGenerator::First2Dots(string sDesignObj)
-{
-	string::size_type pos_first_dot = sDesignObj.find('.');
-	if( pos_first_dot==string::npos )
-		return sDesignObj + ".0";
-
-	string::size_type pos_second_dot = sDesignObj.find('.',pos_first_dot+1);
-	if( pos_second_dot==string::npos )
-		return sDesignObj;
-    m_iLocation = atoi(sDesignObj.substr(pos_first_dot+1).c_str());
-
-	DequeLocationInfo::iterator itd;
-	LocationInfo *li=NULL;
-	for(itd=m_dequeLocation.begin();itd!=m_dequeLocation.end();++itd)
-	{
-		if( (*itd)->iLocation==m_iLocation )
-		{
-			li = *itd;
-			break;
-		}
-	}
-
-	m_pRow_Room = mds.Room_get()->GetRow(li->PK_Room);
-	m_pRow_EntertainArea = li->PK_EntertainArea>0 ? mds.EntertainArea_get()->GetRow(li->PK_EntertainArea) : NULL;
-	return sDesignObj.substr(0,pos_second_dot);
 }
