@@ -280,13 +280,15 @@ function irCodes($output,$dbADO,$mediaADO) {
 			$displayedCommands=explode(',',$_POST['displayedCommands']);
 			$infraredGroupID=($infraredGroupID==0)?NULL:$infraredGroupID;
 			
+			$commands_added=array();
 			foreach ($deviceCGArray AS $deviceCG){
 				if(isset($_POST['dcg_'.$deviceCG])){
 
 					$commands=explode(',',$_POST['commands_'.$deviceCG]);
 					
 					foreach ($commands AS $commandID){
-						if(!in_array($commandID,$displayedCommands)){			
+						if(!in_array($commandID,$displayedCommands) && !in_array($commandID,$commands_added)){	
+							$commands_added[]=$commandID;		
 							$dbADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command,FK_Device,FK_DeviceTemplate,IRData,FK_Users,psc_user) VALUES (?,?,?,?,?,?,?)',array($infraredGroupID,$commandID,$deviceID,$dtID,'',$_SESSION['userID'],$_SESSION['userID']));
 						}
 					}
