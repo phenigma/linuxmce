@@ -32,7 +32,7 @@ function get_pluto($output,$conn){
 
     &nbsp;&nbsp;&nbsp;&nbsp;MD5: ----MD5SUM----<br>
 
-	&nbsp;&nbsp;&nbsp;&nbsp;<a href="'.$PlutoHomeHost.'download/cds/pldebsrg.iso">HTTP download</a><br>
+	&nbsp;&nbsp;&nbsp;&nbsp;<a href="'.$PlutoHomeHost.'----KICK_START_NAME----">HTTP download</a><br>
 
 	&nbsp;&nbsp;&nbsp;&nbsp;<a href="ftp://ftp.plutohome.com/pub/">FTP download: ----KICK_START_NAME----</a><br><br>
 
@@ -44,9 +44,11 @@ function get_pluto($output,$conn){
 
    3. Read the <a href="'.$PlutoSupportHost.'index.php?section=document&docID=212">Quick Start Guide</a>.  Part 3 explains how to boot off the kick-start cd to make your PC a Pluto Core or hybrid.  Note that by default the CD will erase the contents of the hard drive.<br><br>
 
- 
+Get source code using <a href="http://subversion.tigris.org/">SVN</a> like this:<br>
+svn co http://svn.plutohome.com/pluto/trunk/<br><br>
 
-If you really know what you’re doing, click the ‘Download’ link on our <a href="'.$PlutoSupportHost.'index.php?section=mainDownload&package=0">support site</a> to download individual modules.  Note there are hundreds of modules, and it may be quite difficult to get it to work this way.  Or get the source code from anonymous svn like this: svn co http://svn.plutohome.com/pluto/trunk/</td>
+
+If you really know what you’re doing, click the ‘Download’ link on our <a href="'.$PlutoSupportHost.'index.php?section=mainDownload&package=0">support site</a> to download individual modules.  Note there are hundreds of modules, and it may be quite difficult to get it to work this way.</td>
 		</tr>
 		<tr>
 			<td>&nbsp;</td>
