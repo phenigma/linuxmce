@@ -8,11 +8,7 @@
 #include <id3/readers.h>
 #include <id3/io_helpers.h>
 
-#include "id3info_options.h"
 #include "../../pluto_media/Define_AttributeType.h"
-
-//uncomment this to enable unit testing for id3info.
-//#define ENABLE_TEST_UNIT
 
 using namespace dami;
 using std::cout;
@@ -165,7 +161,7 @@ void GetInformation(const ID3_Tag &myTag, map<int,string>& mapAttributes)
         *sURL = ID3_GetString(frame, ID3FN_URL),
         *sDesc = ID3_GetString(frame, ID3FN_DESCRIPTION);
         cout << "(" << sDesc << "): " << sURL << endl;
-		value = string("(") + sDesc + "): " + sURL;
+		value = sURL;
         delete [] sURL;
         delete [] sDesc;
         break;
@@ -198,7 +194,7 @@ void GetInformation(const ID3_Tag &myTag, map<int,string>& mapAttributes)
         nPicType   = frame->GetField(ID3FN_PICTURETYPE)->Get(),
         nDataSize  = frame->GetField(ID3FN_DATA)->Size();
         cout << "(" << sDesc << ")[" << sFormat << ", "
-             << nPicType << "]: " << sMimeType << ", " << nDataSize
+             << int(nPicType) << "]: " << sMimeType << ", " << int(nDataSize)
              << " bytes" << endl;
 
 		value = string("(") + sDesc + ")[" + sFormat + "]: " + sMimeType;
@@ -216,7 +212,7 @@ void GetInformation(const ID3_Tag &myTag, map<int,string>& mapAttributes)
         size_t 
         nDataSize = frame->GetField(ID3FN_DATA)->Size();
         cout << "(" << sDesc << ")[" 
-             << sFileName << "]: " << sMimeType << ", " << nDataSize
+             << sFileName << "]: " << sMimeType << ", " << int(nDataSize)
              << " bytes" << endl;
 		value = string("(") + sDesc + ")[" + sFileName + "]: " + sMimeType;
         delete [] sMimeType;
@@ -228,7 +224,7 @@ void GetInformation(const ID3_Tag &myTag, map<int,string>& mapAttributes)
       {
         char *sOwner = ID3_GetString(frame, ID3FN_OWNER);
         size_t nDataSize = frame->GetField(ID3FN_DATA)->Size();
-        cout << sOwner << ", " << nDataSize
+        cout << sOwner << ", " << int(nDataSize)
              << " bytes" << endl;
 		value = sOwner;
         delete [] sOwner;
@@ -237,7 +233,7 @@ void GetInformation(const ID3_Tag &myTag, map<int,string>& mapAttributes)
       case ID3FID_PLAYCOUNTER:
       {
         size_t nCounter = frame->GetField(ID3FN_COUNTER)->Get();
-        cout << nCounter << endl;
+        cout << int(nCounter) << endl;
         break;
       }
       case ID3FID_POPULARIMETER:
@@ -247,7 +243,7 @@ void GetInformation(const ID3_Tag &myTag, map<int,string>& mapAttributes)
         nCounter = frame->GetField(ID3FN_COUNTER)->Get(),
         nRating = frame->GetField(ID3FN_RATING)->Get();
         cout << sEmail << ", counter=" 
-             << nCounter << " rating=" << nRating << endl;
+             << int(nCounter) << " rating=" << int(nRating) << endl;
 		value = sEmail;
         delete [] sEmail;
         break;
@@ -259,8 +255,8 @@ void GetInformation(const ID3_Tag &myTag, map<int,string>& mapAttributes)
         size_t 
         nSymbol = frame->GetField(ID3FN_ID)->Get(),
         nDataSize = frame->GetField(ID3FN_DATA)->Size();
-        cout << "(" << nSymbol << "): " << sOwner
-             << ", " << nDataSize << " bytes" << endl;
+        cout << "(" << int(nSymbol) << "): " << sOwner
+             << ", " << int(nDataSize) << " bytes" << endl;
         break;
       }
       case ID3FID_SYNCEDLYRICS:
@@ -287,7 +283,7 @@ void GetInformation(const ID3_Tag &myTag, map<int,string>& mapAttributes)
         ID3_Field* fld = frame->GetField(ID3FN_DATA);
         if (fld)
         {
-          ID3_MemoryReader mr(fld->GetRawBinary(), fld->BinSize());
+          ID3_MemoryReader mr(fld->GetRawBinary(), ID3_Reader::size_type(fld->BinSize()));
           while (!mr.atEnd())
           {
             cout << io::readString(mr).c_str();
@@ -333,29 +329,123 @@ void GetId3Info(string sFilename, map<int,string>& mapAttributes)
 {
 	ID3_Tag myTag; 
 	myTag.Link(sFilename.c_str(), ID3TT_ALL);
-	const Mp3_Headerinfo* mp3info;
-	mp3info = myTag.GetMp3HeaderInfo();
-	
-	GetInformation(myTag, mapAttributes);
+	myTag.GetMp3HeaderInfo();
+    GetInformation(myTag, mapAttributes);
+
+/*
+    mapAttributes[ATTRIBUTETYPE_Album_CONST] = ID3_GetAlbum(myTag);
+    mapAttributes[ATTRIBUTETYPE_Title_CONST] = ID3_GetTitle(myTag);
+    mapAttributes[ATTRIBUTETYPE_Performer_CONST] = ID3_GetArtist(myTag);
+    mapAttributes[ATTRIBUTETYPE_Genre_CONST] = ID3_GetGenre(myTag);
+    mapAttributes[ATTRIBUTETYPE_Track_CONST] = ID3_GetTrack(myTag);
+    mapAttributes[ATTRIBUTETYPE_Release_Date_CONST] = ID3_GetYear(myTag);
+    mapAttributes[ATTRIBUTETYPE_Website_CONST] = ID3_GetAlbum(myTag);
+    mapAttributes[ATTRIBUTETYPE_Composer_CONST] = ID3_GetAlbum(myTag);
+
+    //ID3_GetLyrics
+    //ID3_GetComment
+    //ID3_GetLyricist
+
+    //ID3_GetPictureData
+    //ID3_GetPictureMimeType
+    //ID3_HasPicture
+    //ID3_GetPictureDataOfPicType
+    //ID3_GetMimeTypeOfPicType
+    //ID3_GetDescriptionOfPicType
+*/    
+}
+
+void SetId3Info(string sFilename, const map<int,string>& mapAttributes)
+{
+    ID3_Tag myTag; 
+    myTag.Link(sFilename.c_str());
+
+    for(map<int,string>::const_iterator it = mapAttributes.begin(); it != mapAttributes.end(); it++)
+    {
+        cout << "Writing: PK_Attr = " << (*it).first << "\t\t" << (*it).second << endl;
+
+        int PK_Attr = (*it).first;
+        string sValue = (*it).second;
+
+        switch(PK_Attr)
+        {
+            case ATTRIBUTETYPE_Performer_CONST:
+                ID3_AddArtist(&myTag, sValue.c_str(), true); 
+                break;
+
+            case ATTRIBUTETYPE_Album_CONST:
+                ID3_AddAlbum(&myTag, sValue.c_str(), true);
+                break;
+
+            case ATTRIBUTETYPE_Title_CONST:
+                ID3_AddTitle(&myTag, sValue.c_str(), true); 
+                break;
+
+            case ATTRIBUTETYPE_Release_Date_CONST:
+                ID3_AddYear(&myTag, sValue.c_str(), true);
+                break;
+
+            /*
+            case ATTRIBUTETYPE_Comment_CONST: //todo
+                ID3_AddComment(&myTag, sValue.c_str(), "", true); 
+                break;
+            */
+
+            case ATTRIBUTETYPE_Genre_CONST:
+                ID3_AddGenre(&myTag, sValue.c_str(), true); 
+                break;
+
+            case ATTRIBUTETYPE_Track_CONST:
+                ID3_AddTrack(&myTag, atoi(sValue.c_str()), 0, true); 
+                break;
+
+            default:
+                cout << "Don't know yet how to save tag with PK_Attr = " << PK_Attr << " and value " << sValue << endl;
+        }
+    }
+    
+    myTag.Update(ID3TT_ID3); 
 }
 
 #ifdef ENABLE_TEST_UNIT
 int main( unsigned int argc, char * const argv[])
 {
-	if(argc != 2)
-	{
-		cout << "Usage: id3info file" << endl;
-		return 1;
-	}
-	
-	map<int,string> mapAttributes;
+    if(argc != 2)
+    {
+	    cout << "Usage: id3info file" << endl;
+	    return 1;
+    }
+
+    map<int,string> mapAttributes;
+
+    //reading attr
     GetId3Info(argv[1], mapAttributes);
 
-	cout << endl << "Size: " << mapAttributes.size() << endl;
-	for(map<int,string>::iterator it = mapAttributes.begin(); it != mapAttributes.end(); it++)
-		cout << "PK_Attr = " << (*it).first << "\t\t" << (*it).second << endl;
+    //display attr
+    cout << endl << "Size: " << int(mapAttributes.size()) << endl;
+    for(map<int,string>::iterator it = mapAttributes.begin(); it != mapAttributes.end(); it++)
+	    cout << "PK_Attr = " << (*it).first << "\t\t" << (*it).second << endl;
 
-  return 0;
+    //write attr
+    mapAttributes.clear();
+    mapAttributes[ATTRIBUTETYPE_Performer_CONST] = "xx The cure";
+    mapAttributes[ATTRIBUTETYPE_Album_CONST] = "xx The Best of The Cure";
+    mapAttributes[ATTRIBUTETYPE_Title_CONST] = "xx Love song";
+    mapAttributes[ATTRIBUTETYPE_Release_Date_CONST] = "xx 1984 - NY";
+    mapAttributes[ATTRIBUTETYPE_Genre_CONST] = "xx Rock";
+    mapAttributes[ATTRIBUTETYPE_Track_CONST] = "20";
+    SetId3Info(argv[1], mapAttributes);
+
+    //reading attr
+    mapAttributes.clear();
+    GetId3Info(argv[1], mapAttributes);
+
+    //display attr
+    cout << endl << "Size: " << int(mapAttributes.size()) << endl;
+    for(map<int,string>::iterator it = mapAttributes.begin(); it != mapAttributes.end(); it++)
+        cout << "PK_Attr = " << (*it).first << "\t\t" << (*it).second << endl;
+
+    return 0;
 }
 #endif
 
