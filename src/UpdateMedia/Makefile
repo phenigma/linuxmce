@@ -11,8 +11,7 @@ sources = Main.cpp \
 UpdateMedia.cpp \
 $(ROOT)/inotify/FileNotifier.cpp \
 $(ROOT)/inotify/inotify_class.cpp \
-$(ROOT)/UpdateMedia/id3info/id3info.cpp \
-$(ROOT)/UpdateMedia/id3info/id3info_options.c
+$(ROOT)/UpdateMedia/id3info/id3info.cpp 
 
 all: $(sources:.cpp=.o)
 	$(CXX) -o UpdateMedia $+ $(LDFLAGS) $(LDLIBS)
