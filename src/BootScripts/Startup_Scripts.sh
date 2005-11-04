@@ -5,6 +5,8 @@
 
 setterm -blank # disable console blanking (hopefully)
 
+chmod 777 /etc/pluto.conf # ensure access rights on pluto.conf
+
 Parameter="$1"; shift
 Device="$PK_Device"
 
