@@ -59,7 +59,7 @@ Section "Device"
         #Option     "ShowCache"          	# [<bool>]
         #Option     "XvMCSurfaces"       	# <i>
 	Identifier  "Card0"
-	Driver      "fglrx"
+	Driver      "nvidia"
 	VendorName  "nVidia Corporation"
 	BoardName   "GeForce or TNT2"
 	#BusID       "PCI:0:2:0"
