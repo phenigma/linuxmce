@@ -133,17 +133,17 @@ class ID3_CPP_EXPORT ID3_MemoryReader : public ID3_Reader
     
   virtual pos_type getCur() 
   { 
-    return _cur - _beg; 
+    return ID3_Reader::pos_type(_cur - _beg); 
   }
     
   virtual pos_type getBeg()
   {
-    return _beg - _beg;
+    return ID3_Reader::pos_type(_beg - _beg);
   }
     
   virtual pos_type getEnd()
   {
-    return _end - _beg;
+    return ID3_Reader::pos_type(_end - _beg);
   }
     
   /** Set the value of the internal position for reading.
