@@ -4,6 +4,8 @@
 #include "FileUtils.h"
 #include "DCE/Logger.h"
 
+using namespace DCE;
+
 string TranslateSerialUSB(string sInput)
 {
 	if( sInput.size()<6 || sInput.substr(0,3)!="usb" )
