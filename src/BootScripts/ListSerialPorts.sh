@@ -11,7 +11,7 @@ if [[ -d /sys/bus/usb-serial/devices ]]; then
 	pushd /sys/bus/usb-serial/devices &>/dev/null
 	Ports=
 	for dev in *; do
-		id=$(readlink "$dev" | sed 's,^.*/\(usb[^/]*\)/\([^/]*\)/.*$,\1/\2,g')
+		id=$(readlink "$dev" | sed 's,^.*/\(usb[^/]*\)/\([^/]*\)/\([^/]*\)/.*$,\1/\2/\3,g')
 		Ports="$Ports $id"
 	done
 	echo "${Ports# }" | tr ' ' '\n'
