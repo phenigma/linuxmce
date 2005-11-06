@@ -17,7 +17,7 @@
 
 #include "SerialIOPool.h"
 #include "NetworkIOPool.h"
-
+#include "PlutoUtils/LinuxSerialUSB.h"
 #include "DCE/DeviceData_Impl.h"
 #include "DCE/Logger.h"
 #include "DCE/Message.h"
@@ -86,6 +86,7 @@ RubyIOManager::InstantiateNode(Command_Impl* pcmdimpl, DeviceData_Impl* pdevdata
 	            int bps = 9600;
 
         	    string serport = pdevdata->m_mapParameters[DEVICEDATA_COM_Port_on_PC_CONST];
+				serport = TranslateSerialUSB(serport);
             	if(serport.find("/dev/") == 0) {
 	                serport.erase(0, strlen("/dev/"));
     	        }
