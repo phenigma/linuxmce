@@ -201,7 +201,7 @@ void Disk_Drive::CMD_Reset_Disk_Drive(string &sCMD_Result,Message *pMessage)
 void Disk_Drive::CMD_Eject_Disk(string &sCMD_Result,Message *pMessage)
 //<-dceag-c48-e->
 {
-    cout << "Need to implement command #48 - Eject Disk" << endl;
+    system("eject");
 }
 
 //<-dceag-c49-b->
