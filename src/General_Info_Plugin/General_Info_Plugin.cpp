@@ -1124,3 +1124,59 @@ else
 		1,EVENTPARAMETER_PK_Device_CONST,StringUtils::itos(PK_Device).c_str());
 	QueueMessageToRouter(pMessage_Event);
 }
+//<-dceag-c710-b->
+
+	/** @brief COMMAND: #710 - Create Device */
+	/** Creates a new device of the given template */
+		/** @param #2 PK_Device */
+			/** The new device number */
+		/** @param #44 PK_DeviceTemplate */
+			/** The template */
+		/** @param #47 Mac address */
+			/** The mac address */
+		/** @param #58 IP Address */
+			/** The IP of the device */
+		/** @param #150 PK_DHCPDevice */
+			/** Only needed if this is a dhcp pnp device */
+		/** @param #155 PK_Device_ControlledVia */
+			/** The controlled via */
+
+void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_address,string sIP_Address,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int *iPK_Device,string &sCMD_Result,Message *pMessage)
+//<-dceag-c710-e->
+{
+	CreateDevice createDevice(m_pRouter->iPK_Installation_get(),m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get());
+	*iPK_Device = createDevice.DoIt(iPK_DHCPDevice,iPK_DeviceTemplate,sIP_Address,sMac_address,iPK_Device_ControlledVia);
+	g_pPlutoLogger->Write(LV_STATUS,"Created device %d",*iPK_Device);
+}
+
+//<-dceag-c711-b->
+
+	/** @brief COMMAND: #711 - Delete Device */
+	/** Deletes a device */
+		/** @param #2 PK_Device */
+			/** The device to delete */
+
+void General_Info_Plugin::CMD_Delete_Device(int iPK_Device,string &sCMD_Result,Message *pMessage)
+//<-dceag-c711-e->
+{
+	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM Device WHERE PK_Device=" + StringUtils::itos(iPK_Device));
+	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM CommandGroup_Command WHERE FK_Device=" + StringUtils::itos(iPK_Device));
+	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM Device_Command WHERE FK_Device=" + StringUtils::itos(iPK_Device));
+	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM Device_CommandGroup WHERE FK_Device=" + StringUtils::itos(iPK_Device));
+	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM Device_DeviceData WHERE FK_Device=" + StringUtils::itos(iPK_Device));
+	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM Device_DeviceGroup WHERE FK_Device=" + StringUtils::itos(iPK_Device));
+	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM Device_Device_Related WHERE FK_Device=" + StringUtils::itos(iPK_Device) + " OR FK_Device_Related=" + StringUtils::itos(iPK_Device));
+	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM Device_EntertainArea WHERE FK_Device=" + StringUtils::itos(iPK_Device));
+
+	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM Device_HouseMode WHERE FK_Device=" + StringUtils::itos(iPK_Device));
+	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM Device_Orbiter WHERE FK_Device=" + StringUtils::itos(iPK_Device));
+	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM Device_StartupScript WHERE FK_Device=" + StringUtils::itos(iPK_Device));
+
+	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM Device_Users WHERE FK_Device=" + StringUtils::itos(iPK_Device));
+	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM InfraredGroup_Command WHERE FK_Device=" + StringUtils::itos(iPK_Device));
+	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM Package_Device WHERE FK_Device=" + StringUtils::itos(iPK_Device));
+	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM PaidLicense WHERE FK_Device=" + StringUtils::itos(iPK_Device));
+
+	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM Device_Device_Pipe WHERE FK_Device_From=" + StringUtils::itos(iPK_Device) + " OR FK_Device_To=" + StringUtils::itos(iPK_Device));
+	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM PaidLicense WHERE FK_Device=" + StringUtils::itos(iPK_Device));
+}

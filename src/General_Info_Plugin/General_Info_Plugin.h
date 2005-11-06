@@ -268,6 +268,34 @@ public:
 	virtual void CMD_New_Plug_and_Play_Device(string sMac_address,string sIP_Address,int iPK_DHCPDevice,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #710 - Create Device */
+	/** Creates a new device of the given template */
+		/** @param #2 PK_Device */
+			/** The new device number */
+		/** @param #44 PK_DeviceTemplate */
+			/** The template */
+		/** @param #47 Mac address */
+			/** The mac address */
+		/** @param #58 IP Address */
+			/** The IP of the device */
+		/** @param #150 PK_DHCPDevice */
+			/** Only needed if this is a dhcp pnp device */
+		/** @param #155 PK_Device_ControlledVia */
+			/** The controlled via */
+
+	virtual void CMD_Create_Device(int iPK_DeviceTemplate,string sMac_address,string sIP_Address,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int *iPK_Device) { string sCMD_Result; CMD_Create_Device(iPK_DeviceTemplate,sMac_address.c_str(),sIP_Address.c_str(),iPK_DHCPDevice,iPK_Device_ControlledVia,iPK_Device,sCMD_Result,NULL);};
+	virtual void CMD_Create_Device(int iPK_DeviceTemplate,string sMac_address,string sIP_Address,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int *iPK_Device,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #711 - Delete Device */
+	/** Deletes a device */
+		/** @param #2 PK_Device */
+			/** The device to delete */
+
+	virtual void CMD_Delete_Device(int iPK_Device) { string sCMD_Result; CMD_Delete_Device(iPK_Device,sCMD_Result,NULL);};
+	virtual void CMD_Delete_Device(int iPK_Device,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 };
 

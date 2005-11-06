@@ -496,7 +496,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 
 	fstr_DeviceCommand << "\t\tif( m_bLocalMode )" << endl;
 	fstr_DeviceCommand << "\t\t{" << endl;
-	fstr_DeviceCommand << "\t\t\tm_pData = new App_Server_Data();" << endl;
+	fstr_DeviceCommand << "\t\t\tm_pData = new " << Name  <<  "_Data();" << endl;
 	fstr_DeviceCommand << "\t\t\treturn true;" << endl;
 	fstr_DeviceCommand << "\t\t}" << endl;
 		

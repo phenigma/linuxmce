@@ -2,6 +2,7 @@
 #define LinuxSerialUSB_h
 
 #include "FileUtils.h"
+#include "DCE/Logger.h"
 
 string TranslateSerialUSB(string sInput)
 {
