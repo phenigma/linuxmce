@@ -241,6 +241,23 @@ if [ "${DHCPsetting%,*}" != "$DHCPsetting" ]; then
 	DYNAMIC_IP_RANGE=$(printf "%s" "\n\tpool {\n\t\tallow unknown-clients;\n\t\trange $Range1 $Range2;\n\t}")
 fi
 
+# reset /etc/hosts
+# duplicated from Network_Setup.sh
+hosts="
+127.0.0.1       localhost.localdomain   localhost
+$dcerouterIP	dcerouter $(/bin/hostname)
+#%MOON_HOSTS%
+
+# The following lines are desirable for IPv6 capable hosts
+::1     ip6-localhost ip6-loopback
+fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+ff02::3 ip6-allhosts
+"
+echo "$hosts" >/etc/hosts
+
 ReplaceVars /etc/exports.$$
 ReplaceVars /etc/dhcp3/dhcpd.conf.$$
 ReplaceVars /etc/hosts
