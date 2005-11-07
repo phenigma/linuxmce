@@ -59,6 +59,7 @@ public:
     int  m_mediaDiskStatus;
 
     bool m_isRipping;
+	bool m_bTrayOpen;
 
     int  m_serverPid;
     int  m_serverPort;
