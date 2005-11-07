@@ -14,7 +14,7 @@ function remoteOrbiter($output,$dbADO){
 		// TODO: replace image path
 		$iframeSRC='index.php?section=proxySocket&address='.$address.'&port='.$port.'&refresh='.$refresh;
 		$orbiterScreen=
-			'<img id="screen" src="include/image.php?imagepath='.getcwd().'/security_images/orbiter_screen.png" width="640" height="480" onClick="sendTouch();">
+			'<img id="screen" src="include/image.php?imagepath='.getcwd().'/security_images/orbiter_screen.png" onClick="sendTouch();">
 				<iframe id="imageLoader" src="'.$iframeSRC.'&command=IMAGE"></iframe>';
 		$jsFunction='
 		<script src="scripts/connectionWizard/connectionWizard.js" type="text/javascript" language="JavaScript"></script>
@@ -77,7 +77,7 @@ function remoteOrbiter($output,$dbADO){
 			</tr>
 			<tr>
 				<td>IP address: </td>
-				<td><input type="text" name="host" value="10.0.0.79"></td>
+				<td><input type="text" name="host" value="192.168.80.1"></td>
 			</tr>
 			<tr>
 				<td>Port: </td>
