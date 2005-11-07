@@ -75,6 +75,7 @@ Disk_Drive::Disk_Drive(int DeviceID, string ServerAddress,bool bConnectEventHand
 		m_DiskMutex("disk drive")
 //<-dceag-const-e->
 {
+	m_bTrayOpen=false;
 	m_DiskMutex.Init(NULL);
 	m_pDevice_AppServer=NULL;
 }
@@ -201,7 +202,12 @@ void Disk_Drive::CMD_Reset_Disk_Drive(string &sCMD_Result,Message *pMessage)
 void Disk_Drive::CMD_Eject_Disk(string &sCMD_Result,Message *pMessage)
 //<-dceag-c48-e->
 {
-    system("eject");
+	if( m_bTrayOpen )
+	    system("eject -t");
+	else
+	    system("eject");
+
+	m_bTrayOpen = !m_bTrayOpen;
 }
 
 //<-dceag-c49-b->
