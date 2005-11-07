@@ -86,10 +86,12 @@ if [ -n "$IntIf" ]; then
 	echo "$IfConf" >>"$File"
 fi
 
-if [ -n "$DHCPcard" ]; then
+if [[ -n "$DHCPcard" ]]; then
 	echo "INTERFACES=\"$DHCPcard\"" >/etc/default/dhcp3-server
-elif [ -n "${IntIf##*:*}" ]; then
+elif [[ "$IntIf" != *:* ]]; then
 	echo "INTERFACES=\"$IntIf\"" >/etc/default/dhcp3-server
+else
+	echo "INTERFACES=\"$ExtIf\"" >/etc/default/dhcp3-server
 fi
 
 /etc/init.d/networking start
