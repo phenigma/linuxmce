@@ -4440,6 +4440,8 @@ function writeFile($filename,$content,$mode='w+')
         return 2;	// Cannot write to file ($filename)
     }	
     
+    fclose($handle);
+    
     return 0;
 }
 
