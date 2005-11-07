@@ -3,7 +3,7 @@
 . /usr/pluto/bin/pluto.func
 . /usr/pluto/bin/SQL_Ops.sh
 
-setterm -blank # disable console blanking (hopefully)
+setterm -blank >/dev/console # disable console blanking
 
 chmod 777 /etc/pluto.conf # ensure access rights on pluto.conf
 
