@@ -134,7 +134,12 @@ JOIN Device ON PK_Device=FK_Device
 JOIN DeviceTemplate ON PK_DeviceTemplate=FK_DeviceTemplate
 WHERE FK_DeviceTemplate=7 AND FK_DeviceData=28"
 DHCPsetting=$(RunSQL "$Q")
-if [ "${DHCPsetting#eth*,}" != "$DHCPsetting" ]; then
+
+if [[ "$DHCPsetting" == eth*, ]]; then
 	DHCPcard=${DHCPsetting%%,*}
 	DHCPsetting=${DHCPsetting#eth*,}
+fi
+
+if [[ -n "$DHCPsetting" && -z "$IntIf" ]]; then
+	NPflagReconfNetwork="yes"
 fi

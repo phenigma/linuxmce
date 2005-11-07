@@ -9,7 +9,12 @@
 
 Vars="CORE_INTERNAL_ADDRESS"
 
-if [ "$NetIfConf" -eq 0 ]; then
+if [[ "$NetIfConf" == 0 || "$NPflagReconfNetwork" == yes ]]; then
+	if [[ "$NetIfConf" == 0 ]]; then
+		echo "First network config"
+	elif [[ "$NPflagReconfNetwork" == yes ]]; then
+		echo "Forced network config"
+	fi
 	echo "Populating network settings from current system config"
 	NetSettings=$(ParseInterfaces)
 	ExtData=$(echo "$NetSettings" | head -1)
@@ -38,7 +43,7 @@ if [ "$NetIfConf" -eq 0 ]; then
 			NetIfConf="$ExtIf,$ExtIP,$ExtNetmask,$Gateway,$DNS|$IntIf,$IntIP,$IntNetmask"
 		fi
 	fi
-	Q="INSERT INTO Device_DeviceData(FK_Device,FK_DeviceData,IK_DeviceData) VALUES('$PK_Device',32,'$NetIfConf')"
+	Q="REPLACE INTO Device_DeviceData(FK_Device,FK_DeviceData,IK_DeviceData) VALUES('$PK_Device',32,'$NetIfConf')"
 	RunSQL "$Q"
 fi
 
