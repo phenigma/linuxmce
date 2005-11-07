@@ -9,7 +9,10 @@ using namespace DCE;
 string TranslateSerialUSB(string sInput)
 {
 	if( sInput.size()<6 || sInput.substr(0,3)!="usb" )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"TranslateSerialUSB %s isn't serial usb",sInput.c_str());
 		return sInput;
+	}
 
 	char tmpFile[40] = "/tmp/devusbXXXXXX";
 	mktemp(tmpFile);
@@ -26,6 +29,7 @@ string TranslateSerialUSB(string sInput)
 			return "/dev/" + FileUtils::FilenameWithoutPath(*it);
 		}
 	}
+	g_pPlutoLogger->Write(LV_STATUS,"TranslateSerialUSB %s couldn't find a match",sInput.c_str());
 	return sInput;
 }
 

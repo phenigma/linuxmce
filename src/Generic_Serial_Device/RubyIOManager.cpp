@@ -87,6 +87,7 @@ RubyIOManager::InstantiateNode(Command_Impl* pcmdimpl, DeviceData_Impl* pdevdata
 
         	    string serport = pdevdata->m_mapParameters[DEVICEDATA_COM_Port_on_PC_CONST];
 				serport = TranslateSerialUSB(serport);
+				g_pPlutoLogger->Write(LV_STATUS,"Translated %s to %s",serport.c_str());
             	if(serport.find("/dev/") == 0) {
 	                serport.erase(0, strlen("/dev/"));
     	        }
