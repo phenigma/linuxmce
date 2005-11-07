@@ -16,6 +16,7 @@
 #include "DCE/Logger.h"
 
 #include "IOUtils.h"
+#include "PlutoUtils/LinuxSerialUSB.h"
 
 #define DEFAULT_SERIAL_PORT	"ttyS0"
 
