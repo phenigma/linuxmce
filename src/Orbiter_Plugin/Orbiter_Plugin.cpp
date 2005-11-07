@@ -1035,6 +1035,8 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
 			// So we must ask the user, on whatever orbiter he made this selection with
 			DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pMessage->m_dwPK_Device_From,0,StringUtils::itos(DESIGNOBJ_mnuWhatModelMobileOrbiter_CONST),
 				"","",false,true);
+		    DCE::CMD_Set_Variable CMD_Set_Variable(m_dwPK_Device, pMessage->m_dwPK_Device_From, VARIABLE_Misc_Data_1_CONST, sMac_address);
+			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable.m_pMessage);
 			SendCommand(CMD_Goto_Screen);
 			return;
 		}
