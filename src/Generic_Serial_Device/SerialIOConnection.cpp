@@ -36,7 +36,7 @@ SerialIOConnection::~SerialIOConnection()
 bool 
 SerialIOConnection::Open() {	
 	Close();
-	
+	serport_ = TranslateSerialUSB(serport_);
     g_pPlutoLogger->Write(LV_STATUS, "Opening connection to %s.", serport_.c_str());
     try {
         psp_ = new CSerialPort(serport_, bps_, bs_, fc_);
