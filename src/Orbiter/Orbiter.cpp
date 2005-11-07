@@ -5246,6 +5246,7 @@ void Orbiter::CMD_Display_OnOff(string sOnOff,bool bAlready_processed,string &sC
 //<-dceag-c3-e->
 {
 	m_bDisplayOn = sOnOff=="1";
+	g_pPlutoLogger->Write(LV_STATUS,"Setting display on/off: %s %d %d",sOnOff.c_str(),(int) bAlready_processed,(int) m_bDisplayOn);
 	if( bAlready_processed )
 		return;
 
@@ -8449,9 +8450,13 @@ void Orbiter::CMD_Toggle_Power(string sOnOff,string &sCMD_Result,Message *pMessa
 		SendCommand(CMD_MH_Stop_Media);
 	}
 	else if( m_bDisplayOn )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"Powering off monitor");
 		CMD_Display_OnOff("0",false);
+	}
 	else
 	{
+		g_pPlutoLogger->Write(LV_STATUS,"Monitor already off");
 		/*  TODO -- This makes it too easy to power off accidentally by hitting the button multiple times
 		For now the user will just hit the 'power' option
 		DCE::CMD_Halt_Device CMD_Halt_Device(m_dwPK_Device,m_dwPK_Device_LocalAppServer,m_dwPK_Device,"0");
