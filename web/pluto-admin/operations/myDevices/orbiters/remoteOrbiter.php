@@ -14,7 +14,7 @@ function remoteOrbiter($output,$dbADO){
 		// TODO: replace image path
 		$iframeSRC='index.php?section=proxySocket&address='.$address.'&port='.$port.'&refresh='.$refresh;
 		$orbiterScreen=
-			'<img id="screen" src="include/image.php?imagepath='.getcwd().'/security_images/orbiter_screen.png" onClick="sendTouch();">
+			'<img id="screen" src="include/image.php?imagepath='.getcwd().'/security_images/orbiter_screen.png&randno='.rand(10000,99999).'" onClick="sendTouch();">
 				<iframe id="imageLoader" src="'.$iframeSRC.'&command=IMAGE"></iframe>';
 		$jsFunction='
 		<script src="scripts/connectionWizard/connectionWizard.js" type="text/javascript" language="JavaScript"></script>
@@ -58,11 +58,24 @@ function remoteOrbiter($output,$dbADO){
 
 			document.getElementById("imageLoader").src="'.$iframeSRC.'&command=TOUCH "+xRelative+"x"+yRelative;
 		}
+	
 		</script>
 		';	
+		if((int)@$_REQUEST['refresh']>0){
+			$jsFunction.='
+			<script>
+			function do_reload(){
+				document.getElementById(\'imageLoader\').contentDocument.location=\''.$iframeSRC.'&command=IMAGE\';
+			}
+				refresh_interval=setInterval("do_reload()",'.((int)@$_REQUEST['refresh']*1000).');
+			</script>';
+		}
+
 	}
 	
 	if($action=='form'){
+		$serverIP=(isset($_REQUEST['host']))?$_REQUEST['host']:'192.168.80.1';
+		
 		$orbiters=getDevicesArrayFromCategory($GLOBALS['rootOrbiterID'],$dbADO);
 		$out.='
 		<div class="err">'.stripslashes(@$_GET['error']).'</div>
@@ -77,7 +90,7 @@ function remoteOrbiter($output,$dbADO){
 			</tr>
 			<tr>
 				<td>IP address: </td>
-				<td><input type="text" name="host" value="192.168.80.1"></td>
+				<td><input type="text" name="host" value="'.$serverIP.'"></td>
 			</tr>
 			<tr>
 				<td>Port: </td>

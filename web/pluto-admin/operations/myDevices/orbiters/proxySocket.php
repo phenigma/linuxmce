@@ -49,7 +49,7 @@ function proxySocket($output,$dbADO){
 	
 	// get image
 	if($command=='IMAGE'){
-		getImage($socket);
+		$out.=getImage($socket,$refresh);
 	}
 	
 	// send touch command
@@ -126,12 +126,11 @@ function getImage($socket,$refresh=''){
 			$isSaved=writeFile(getcwd().'/security_images/orbiter_screen.png',$outImage);
 			write_log("Received image size $imageSize \n");
 			
-			if($refresh!=''){
-				$out.=reloadImageJS();
-			}
 		}
 	}
-
+	if((int)$refresh>0){
+		$out.=reloadImageJS();
+	}
 	
 	return $out;
 }
