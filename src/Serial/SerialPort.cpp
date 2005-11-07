@@ -189,22 +189,38 @@ void CSerialPort::Write(char *Buf, size_t Len)
 
 size_t CSerialPort::Read(char *Buf, size_t MaxLen, int Timeout)
 {
-    struct timeval tv;
-    fd_set rfds;
-
-    FD_ZERO(&rfds);
-    FD_SET(m_fdSerial, &rfds);
+	struct timeval tv;
+	struct timeval now;
+	struct timeval last;
+	fd_set rfds;
 	int ret;
-    
-    tv.tv_sec = Timeout/1000 ;
-    tv.tv_usec = (Timeout % 1000) * 1000;
+	int bytes=0;
 
-    ret = select(m_fdSerial+1, &rfds, NULL, NULL, &tv);
-    if (ret <= 0) { 
-    	return -1;
-    }   
-    size_t retval = read(m_fdSerial,Buf,MaxLen);
-    return retval;   
+	gettimeofday(&now,NULL);
+
+	tv.tv_sec = Timeout/1000 ;
+	tv.tv_usec = (Timeout % 1000) * 1000;
+
+	last.tv_sec = now.tv_sec+tv.tv_sec;
+	last.tv_usec = now.tv_usec+tv.tv_usec;
+
+	while(((last.tv_sec-now.tv_sec)*1000)+((last.tv_usec-now.tv_usec)/1000) > 0)
+	{
+		FD_ZERO(&rfds);
+		FD_SET(m_fdSerial, &rfds);
+		ret = select(m_fdSerial+1, &rfds, NULL, NULL, &tv);
+		if (ret <= 0) { 
+			return -1;
+		}   
+		size_t retval = read(m_fdSerial,Buf+bytes,MaxLen-bytes);
+		bytes += retval;
+		if(bytes==MaxLen)
+		{
+			break;
+		}
+		gettimeofday(&now,NULL);
+	}
+	return bytes;   
 }
 
 bool CSerialPort::IsReadEmpty()
