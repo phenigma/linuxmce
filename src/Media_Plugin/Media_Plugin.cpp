@@ -1447,7 +1447,7 @@ void Media_Plugin::CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_De
 			if( vectEntertainArea.size()==1 )
 			{
 				DCE::CMD_Eject_Disk_Cat CMD_Eject_Disk_Cat(pMessage->m_dwPK_Device_From,DEVICECATEGORY_Disc_Drives_CONST,true,BL_SameComputer);
-				SendCommand(CMD_Eject_Cat);
+				SendCommand(CMD_Eject_Disk_Cat);
 			}
 			continue; // Don't know what area it should be played in, or there's no media playing there
 		}
