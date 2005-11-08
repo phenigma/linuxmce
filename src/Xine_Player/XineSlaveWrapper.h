@@ -96,6 +96,7 @@ private:
     friend class DCE::Xine_Player;
 
     Xine_Player *m_pAggregatorObject;  /** < points the Xine Player */
+	xine_osd_t *m_xine_osd_t;
 
     string m_sWindowTitle;
     string m_sConfigFile;

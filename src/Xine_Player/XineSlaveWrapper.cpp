@@ -90,6 +90,7 @@ XineSlaveWrapper::XineSlaveWrapper(int iTimeCodeReportFrequency)
       XServerDisplay(NULL),
       m_pSameStream(NULL)
 {
+	m_xine_osd_t=NULL;
 	m_iPrebuffer = 0;
     m_iCurrentWindow = 0;
 	m_iTimeCodeReportFrequency = iTimeCodeReportFrequency;
@@ -235,6 +236,13 @@ bool XineSlaveWrapper::createWindow()
  */
 bool XineSlaveWrapper::createStream(string fileName, int streamID, int iRequestingObject)
 {
+    if( m_xine_osd_t )
+    {
+        xine_osd_free(m_xine_osd_t);
+        m_xine_osd_t=NULL;
+    }
+
+
     g_pPlutoLogger->Write(LV_STATUS, "Got a create stream command command for %s", fileName.c_str());
 
 	bool isNewStream = false;
@@ -401,6 +409,12 @@ bool XineSlaveWrapper::createStream(string fileName, int streamID, int iRequesti
  */
 bool XineSlaveWrapper::playStream(int streamID, string mediaPosition, bool playbackStopped)
 {
+	if( m_xine_osd_t )
+	{
+		xine_osd_free(m_xine_osd_t);
+		m_xine_osd_t=NULL;
+	}
+		 
 	StopSpecialSeek();
 
 	XineStream *xineStream = getStreamForId(streamID, "XineSlaveWrapper::playStream() could not play an empty stream!");
@@ -855,6 +869,7 @@ void *XineSlaveWrapper::eventProcessingLoop(void *arguments)
 		}
 		if( g_iSpecialSeekSpeed && iCounter % 3 == 0 )  // I tried doing the seek each loop (ie 100 ms) but the xine gets stuck non-stop.  So do it every 3 loops
 		{
+			pStream->m_pOwner->DisplaySpeedAndTimeCode();
 			// time to seek
 			int positionTime,totalTime;
 			pStream->m_pOwner->getStreamPlaybackPosition(1,positionTime,totalTime);
@@ -1158,7 +1173,6 @@ void XineSlaveWrapper::changePlaybackSpeed(int iStreamID, PlayBackSpeedType desi
 //	    if( pStream->m_bHasVideo )
   //          	xineSpeed = XINE_SPEED_FAST_4;
 //	    else
-DisplayOSDText("4x");
             xineSpeed = XINE_SPEED_NORMAL;
 		    NewSpecialSeekSpeed=desiredSpeed;  // See above
             break;
@@ -1183,6 +1197,11 @@ DisplayOSDText("4x");
             g_pPlutoLogger->Write(LV_WARNING, "Don't know how to handle speed: %d", desiredSpeed);
             break;
     }
+
+	if( desiredSpeed==PLAYBACK_FF_1 )
+		DisplayOSDText("");
+	else
+		DisplaySpeedAndTimeCode();
 
 	if( g_iSpecialSeekSpeed && !NewSpecialSeekSpeed )
 		StopSpecialSeek();
@@ -2036,7 +2055,13 @@ void XineSlaveWrapper::DisplaySpeedAndTimeCode()
 	int Whole = g_iSpecialSeekSpeed/1000;
 	int Fraction = g_iSpecialSeekSpeed % 1000;
 	string sSpeed;
-	if( Whole )
+	
+	if( Fraction<0 )
+	{
+		Fraction *= -1;
+		sSpeed += "-";
+	}
+	else if( Whole )
 		sSpeed += StringUtils::itos(Whole);
 	else
 		sSpeed += "0";
@@ -2048,13 +2073,13 @@ void XineSlaveWrapper::DisplaySpeedAndTimeCode()
 
 	int seconds, totalTime;
 	getStreamPlaybackPosition(1, seconds, totalTime);
-
+g_pPlutoLogger->Write(LV_STATUS,"seconds %d",seconds);
 	seconds /= 1000;
 	int hours = seconds / 3600;
 	seconds -= hours * 3600;
 	int minutes = seconds / 60;
 	seconds -= minutes * 60;
-
+g_pPlutoLogger->Write(LV_STATUS,"h %d m %d s %d",hours,minutes,seconds);
 	if( hours )
 	{
 		sSpeed += StringUtils::itos(hours) + ":";
@@ -2063,6 +2088,8 @@ void XineSlaveWrapper::DisplaySpeedAndTimeCode()
 		else
 			sSpeed += StringUtils::itos(minutes) + ":";
 	}
+	else
+		sSpeed += StringUtils::itos(minutes) + ":";
 
 	if( seconds<10 )
 		sSpeed += "0" + StringUtils::itos(seconds);
@@ -2078,15 +2105,25 @@ void XineSlaveWrapper::DisplayOSDText(string sText)
 
 	if ( xineStream == NULL )
 		return;
-	xine_osd_t *osd;
 
-	osd = xine_osd_new(xineStream->m_pStream, 0, 0, 1000, 100 );
-    xine_osd_set_font(osd, "sans", 20);
-    xine_osd_set_text_palette(osd,
+	if( sText.size()==0 )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Clearing OSD %p",m_xine_osd_t);
+		if( m_xine_osd_t )
+			xine_osd_free(m_xine_osd_t);
+		m_xine_osd_t=NULL;
+		return;
+	}
+	if( m_xine_osd_t )
+		xine_osd_free(m_xine_osd_t);
+	m_xine_osd_t = xine_osd_new(xineStream->m_pStream, 0, 0, 1000, 100 );
+    xine_osd_set_font(m_xine_osd_t, "sans", 20);
+    xine_osd_set_text_palette(m_xine_osd_t,
       XINE_TEXTPALETTE_WHITE_BLACK_TRANSPARENT, XINE_OSD_TEXT1);
-    xine_osd_draw_rect(osd, 0, 0, 999, 99, XINE_OSD_TEXT1, 1);
-    xine_osd_draw_text(osd, 20, 20, sText.c_str(), XINE_OSD_TEXT1);
-    xine_osd_show(osd, 0);
+    xine_osd_draw_rect(m_xine_osd_t, 0, 0, 999, 99, XINE_OSD_TEXT1, 1);
+    xine_osd_draw_text(m_xine_osd_t, 20, 20, sText.c_str(), XINE_OSD_TEXT1);
+    xine_osd_show(m_xine_osd_t, 0);
+	g_pPlutoLogger->Write(LV_CRITICAL,"Attempting to display %s",sText.c_str());
 /*
 	x_xine_osd=xine_osd_new(xineStream->m_pStream, 100, 100, 400, 400);
 g_pPlutoLogger->Write(LV_CRITICAL,"Attempting to display test %p",x_xine_osd); 
