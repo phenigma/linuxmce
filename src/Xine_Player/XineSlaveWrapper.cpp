@@ -874,15 +874,15 @@ void *XineSlaveWrapper::eventProcessingLoop(void *arguments)
 				iCounter_TimeCode=1;
 			}
 		}
-		if( m_iSpecialOneTimeSeek )
+		if( pStream->m_pOwner->m_iSpecialOneTimeSeek )
 		{
-			g_pPlutoLogger->Write(LV_WARNING,"Doing the special one-time hack seek to %d",m_iSpecialOneTimeSeek);
+			g_pPlutoLogger->Write(LV_WARNING,"Doing the special one-time hack seek to %d",pStream->m_pOwner->m_iSpecialOneTimeSeek);
 
-			int pos = m_iSpecialOneTimeSeek;
+			int pos = pStream->m_pOwner->m_iSpecialOneTimeSeek;
 			for(int i=0;i<10;++i)
 			{
 				int positionTime, totalTime;
-				if( abs(getStreamPlaybackPosition(1, positionTime, totalTime) - pos) < 2000 ) //|| totalTime<pos)
+				if( abs(pStream->m_pOwner->getStreamPlaybackPosition(1, positionTime, totalTime) - pos) < 2000 ) //|| totalTime<pos)
 				{
 					g_pPlutoLogger->Write(LV_WARNING, "Close enough %d %d total %d",positionTime,pos,totalTime);
 					break;
@@ -894,7 +894,7 @@ void *XineSlaveWrapper::eventProcessingLoop(void *arguments)
 				}
 			}
 
-			m_iSpecialOneTimeSeek=0;
+			pStream->m_pOwner->m_iSpecialOneTimeSeek=0;
 		}
 		if( g_iSpecialSeekSpeed ) 
 		{
