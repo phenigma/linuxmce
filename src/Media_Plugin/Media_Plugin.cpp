@@ -958,11 +958,18 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 		g_pPlutoLogger->Write(LV_STATUS,"Calling Plug-in's start media");
 
 	g_pPlutoLogger->Write(LV_STATUS,"Ready to call plugin's startmedia");
-	int iPK_Orbiter_PromptingToResume = 0;
+	int iPK_Orbiter_PromptingToResume = 0;	string::size_type queue_pos;
 	if( pMediaStream->m_sStartPosition.size()==0 && 
 			(pMediaStream->m_iDequeMediaFile_Pos<0 || pMediaStream->m_iDequeMediaFile_Pos>=pMediaStream->m_dequeMediaFile.size() ||
 			pMediaStream->m_dequeMediaFile[pMediaStream->m_iDequeMediaFile_Pos]->m_sStartPosition.size()==0) )
 		iPK_Orbiter_PromptingToResume = CheckForAutoResume(pMediaStream);
+	else if( pMediaStream->m_sStartPosition.size() && (queue_pos = pMediaStream->m_sStartPosition.find(" QUEUE_POS:"))!=string::npos )
+	{
+		int pos = atoi( pMediaStream->m_sStartPosition.substr(queue_pos+11).c_str() );
+		if( pos>=0 && pos<pMediaStream->m_dequeMediaFile.size() )
+			pMediaStream->m_iDequeMediaFile_Pos=pos;
+	}
+
 
 	m_pMediaAttributes->LoadStreamAttributes(pMediaStream);
 	string sError;
@@ -2830,6 +2837,9 @@ g_pPlutoLogger->Write(LV_WARNING,"ready to restart %d eas",(int) vectEntertainAr
 		// Be sure all outgoing stop messages are flushed before we proceed
 		WaitForMessageQueue();
 		pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl->WaitForMessageQueue();
+
+		if( pMediaStream->m_dequeMediaFile.size()>1 )
+			pMediaStream->m_sLastPosition += " QUEUE_POS:" + StringUtils::itos(pMediaStream->m_iDequeMediaFile_Pos);
 
 		// TODO --- Hmmm... I was passing in pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device
 		// instead of 0, but that means that when moving from 1 xine to another, it thinks the source isn't the dest

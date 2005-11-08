@@ -1484,12 +1484,13 @@ g_pPlutoLogger->Write(LV_STATUS,"Preparing floorplan %d devices",NumDevices);
 		// The device can be either a device, or an EntertainArea if this is the media floorplan
         int PK_Device = atoi( StringUtils::Tokenize(s, "\t", pos).c_str());
         g_pPlutoLogger->Write(LV_STATUS, "DeviceID: %d", PK_Device);
-        DeviceData_Router *pDeviceData_Router = m_pRouter->m_mapDeviceData_Router_Find(PK_Device);
+        DeviceData_Router *pDeviceData_Router = NULL;
 		EntertainArea *pEntertainArea = NULL;
-
-        if ( pDeviceData_Router == NULL )
+		if( PK_Device>0 )
+			pDeviceData_Router = m_pRouter->m_mapDeviceData_Router_Find(PK_Device);
+		else
         {
-			pEntertainArea = m_pMedia_Plugin->m_mapEntertainAreas_Find(PK_Device);
+			pEntertainArea = m_pMedia_Plugin->m_mapEntertainAreas_Find(PK_Device * -1);
 			if( !pEntertainArea )
 			{
 				g_pPlutoLogger->Write(LV_CRITICAL, "Device referred by the floorplan %d for orbiter %d does not exist", PK_Device, pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);

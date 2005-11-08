@@ -1509,7 +1509,7 @@ int k=2;
 
 void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int ArrayPage,bool bIsChild,string ParentScreen)
 {
-if( ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()==2217 )
+if( ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()==2228 )
 {
 int k=2;
 }
@@ -1550,17 +1550,17 @@ int k=2;
 	if( ocDesignObj->m_rPosition.Bottom()>m_Height )
 		ocDesignObj->m_rPosition.Bottom(m_Height);
 */
-	if( ocDesignObj->m_iFloorplanPage>0 && ocDesignObj->m_iFloorplanDevice>0 )
+	if( ocDesignObj->m_iFloorplanPage>0 && ocDesignObj->m_iFloorplanDevice )
 	{
 		string PageList = "";
-		if( htDevicePages.find(ocDesignObj->m_iFloorplanDevice)!=htDevicePages.end() )
-			PageList = htDevicePages[ocDesignObj->m_iFloorplanDevice];
+		if( htDevicePages.find(abs(ocDesignObj->m_iFloorplanDevice))!=htDevicePages.end() )
+			PageList = htDevicePages[abs(ocDesignObj->m_iFloorplanDevice)];
 		if( PageList.find(StringUtils::itos(ocDesignObj->m_iFloorplanPage) + ",")!=string::npos )
 		{
 			throw "Floorplan device " + StringUtils::itos(ocDesignObj->m_iFloorplanDevice) + " Page " + StringUtils::itos(ocDesignObj->m_iFloorplanPage) + " already in the system";
 		}
 		PageList += StringUtils::itos(ocDesignObj->m_iFloorplanPage) + ",";
-		htDevicePages[ocDesignObj->m_iFloorplanDevice] = PageList;
+		htDevicePages[abs(ocDesignObj->m_iFloorplanDevice)] = PageList;
 		m_sFloorPlanData += "\t" + StringUtils::itos(ocDesignObj->m_iFloorplanDevice) + "\t" + StringUtils::itos(ocDesignObj->m_iFloorplanPage) + "\t" + ocDesignObj->m_ObjectID + "\t" + StringUtils::itos(ocDesignObj->m_pFloorplanFillPoint.X) + "\t" + StringUtils::itos(ocDesignObj->m_pFloorplanFillPoint.Y);
 		m_iNumFloorplanItems++;
 	}

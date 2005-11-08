@@ -749,7 +749,7 @@ int k=2;
 			{
 				Row_EntertainArea *pRow_EntertainArea = vectRow_EntertainArea[s];
 				Description = pRow_EntertainArea->Description_get();
-				PK_Device_EA = pRow_EntertainArea->PK_EntertainArea_get();
+				PK_Device_EA = pRow_EntertainArea->PK_EntertainArea_get() * -1;
 				pRow_FloorplanObjectType = pRow_EntertainArea->FK_FloorplanObjectType_getrow();
 				if( pRow_FloorplanObjectType )
 					FPInfo_Value = pRow_EntertainArea->FloorplanInfo_get();
