@@ -192,26 +192,34 @@ size_t CSerialPort::Read(char *Buf, size_t MaxLen, int Timeout)
 	struct timeval tv;
 	struct timeval now;
 	struct timeval last;
+	unsigned int bytes=0;
 	fd_set rfds;
 	int ret;
-	int bytes=0;
-
+	
 	gettimeofday(&now,NULL);
 
-	tv.tv_sec = Timeout/1000 ;
-	tv.tv_usec = (Timeout % 1000) * 1000;
+	last.tv_sec = now.tv_sec+Timeout/1000;
+	last.tv_usec = now.tv_usec+(Timeout % 1000) * 1000;
 
-	last.tv_sec = now.tv_sec+tv.tv_sec;
-	last.tv_usec = now.tv_usec+tv.tv_usec;
-
-	while(((last.tv_sec-now.tv_sec)*1000)+((last.tv_usec-now.tv_usec)/1000) > 0)
+	while(1)
 	{
 		FD_ZERO(&rfds);
 		FD_SET(m_fdSerial, &rfds);
+		tv.tv_sec = last.tv_sec - now.tv_sec;
+		tv.tv_usec = last.tv_usec - now.tv_usec;
+		if(tv.tv_usec < 0)
+		{
+			tv.tv_sec--;
+			tv.tv_usec+=1000*1000;
+		}
+		if(tv.tv_sec<0)
+		{
+			break;
+		}
 		ret = select(m_fdSerial+1, &rfds, NULL, NULL, &tv);
-		if (ret <= 0) { 
-			return -1;
-		}   
+		if (ret <= 0) {
+			break;
+		}
 		size_t retval = read(m_fdSerial,Buf+bytes,MaxLen-bytes);
 		bytes += retval;
 		if(bytes==MaxLen)
@@ -220,7 +228,7 @@ size_t CSerialPort::Read(char *Buf, size_t MaxLen, int Timeout)
 		}
 		gettimeofday(&now,NULL);
 	}
-	return bytes;   
+	return bytes>0?bytes:-1;
 }
 
 bool CSerialPort::IsReadEmpty()
