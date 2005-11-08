@@ -1525,7 +1525,21 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDel
 		}
 
 		if( bSendOff )
-			HandleOnOffs(pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType,0,&mapMediaDevice_Prior,NULL);
+		{
+			MediaDevice *pDevice_MD = NULL;
+			if( pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_pDevice_MD )
+				pDevice_MD = m_mapMediaDevice_Find(pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_pDevice_MD->m_dwPK_Device);
+
+			// Don't send the off if this is a device that's a child of the osd and the display is bypassed
+			if( !pDevice_MD || !pDevice_MD->m_bDontSendOffIfOSD_ON ||
+				!pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_pDevice_ControlledVia ||
+				pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_DeviceTemplate!=DEVICETEMPLATE_OnScreen_Orbiter_CONST )
+					HandleOnOffs(pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType,0,&mapMediaDevice_Prior,NULL);
+#ifdef DEBUG
+			else
+				g_pPlutoLogger->Write(LV_STATUS,"Not sending off because this is used by the OSD");
+#endif
+		}
 	}
 
 	if( bDeleteStream )
@@ -2831,7 +2845,8 @@ g_pPlutoLogger->Write(LV_WARNING,"ready to restart %d eas",(int) vectEntertainAr
 }
 
 void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current, map<int,MediaDevice *> *pmapMediaDevice_Prior,map<int,MediaDevice *> *pmapMediaDevice_Current)
-{// Is a specific pipe used?  If this is an audio stream only, the media type will have the pipe set to 1
+{
+	// Is a specific pipe used?  If this is an audio stream only, the media type will have the pipe set to 1
 	Row_MediaType *pRow_MediaType_Prior = PK_MediaType_Prior ? m_pDatabase_pluto_main->MediaType_get()->GetRow(PK_MediaType_Prior) : NULL;
 	Row_MediaType *pRow_MediaType_Current = PK_MediaType_Current ? m_pDatabase_pluto_main->MediaType_get()->GetRow(PK_MediaType_Current) : NULL;
 
@@ -2886,8 +2901,14 @@ void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current,
 			pMediaDevice->m_pDeviceData_Router->m_pDevice_ControlledVia && 
 			pMediaDevice->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_DeviceTemplate==DEVICETEMPLATE_OnScreen_Orbiter_CONST )
 		{
+#ifdef DEBUG
+			g_pPlutoLogger->Write(LV_WARNING,"Also turning on MD and OSD");
+#endif
 			DCE::CMD_On CMD_On(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_pDevice_MD->m_dwPK_Device,PK_Pipe_Current,"");
 			SendCommand(CMD_On);
+
+			DCE::CMD_On CMD_On2(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_Device,0,"");
+			SendCommand(CMD_On2);
 		}
 
 		DCE::CMD_On CMD_On(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,PK_Pipe_Current,"");
