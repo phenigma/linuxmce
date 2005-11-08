@@ -2290,7 +2290,7 @@ void Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_Device, str
 	while( pos<sPK_EntertainArea.size() )
 	{
 		string s = StringUtils::Tokenize(sPK_EntertainArea,",",pos);
-		EntertainArea *pEntertainArea = m_mapEntertainAreas_Find( atoi(s.c_str()) );
+		EntertainArea *pEntertainArea = m_mapEntertainAreas_Find( abs(atoi(s.c_str())) );  // abs() since orbiters may pass them in as negative since floorplans do that to differentiate between ea's and devices
 		if( !pEntertainArea )
 		{
 			g_pPlutoLogger->Write( LV_CRITICAL, "Received a play media for an invalid entertainment area %d %d %s",iPK_Device_Orbiter,iPK_Device,sPK_EntertainArea.c_str() );
