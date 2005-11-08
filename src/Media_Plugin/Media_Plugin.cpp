@@ -1119,6 +1119,7 @@ bool Media_Plugin::ReceivedMessage( class Message *pMessage )
         {
 			if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && (pMessage->m_dwID==COMMAND_Stop_CONST || pMessage->m_dwID==COMMAND_Stop_Media_CONST) )
 			{
+				g_pPlutoLogger->Write(LV_STATUS,"Got a stop with no media.  Will eject 1");
 				DCE::CMD_Eject_Disk_Cat CMD_Eject_Disk_Cat(pMessage->m_dwPK_Device_From,DEVICECATEGORY_Disc_Drives_CONST,true,BL_SameComputer);
 				SendCommand(CMD_Eject_Disk_Cat);
 				return true;
@@ -1446,6 +1447,7 @@ void Media_Plugin::CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_De
 		{
 			if( vectEntertainArea.size()==1 )
 			{
+				g_pPlutoLogger->Write(LV_STATUS,"Got a stop with no media.  Will eject 2");
 				DCE::CMD_Eject_Disk_Cat CMD_Eject_Disk_Cat(pMessage->m_dwPK_Device_From,DEVICECATEGORY_Disc_Drives_CONST,true,BL_SameComputer);
 				SendCommand(CMD_Eject_Disk_Cat);
 			}
@@ -1489,6 +1491,9 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDel
 		map<int,MediaDevice *> mapMediaDevice_Prior;
 		g_pPlutoLogger->Write( LV_STATUS, "Getting Render Devices" );
 		pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->GetRenderDevices(pEntertainArea,&mapMediaDevice_Prior);
+		Row_MediaType *pRow_MediaType_Prior = m_pDatabase_pluto_main->MediaType_get()->GetRow(pMediaStream->m_iPK_MediaType);
+		int PK_Pipe_Prior = pRow_MediaType_Prior && pRow_MediaType_Prior->FK_Pipe_isNull()==false ? pRow_MediaType_Prior->FK_Pipe_get() : 0;
+		AddOtherDevicesInPipesToRenderDevices(PK_Pipe_Prior,&mapMediaDevice_Prior);
 
 		bool bFireEvent=true;
 		if( pMediaStream_Replacement &&
@@ -2875,7 +2880,11 @@ void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current,
 			continue;
 		}
 
-		if( pMediaDevice->m_pDeviceData_Router->m_pDevice_MD && pMediaDevice->m_pDeviceData_Router!=pMediaDevice->m_pDeviceData_Router->m_pDevice_MD )
+		// If this is on a media director and it's a child of the OSD, then turn the media director on
+		if( pMediaDevice->m_pDeviceData_Router->m_pDevice_MD && 
+			pMediaDevice->m_pDeviceData_Router!=pMediaDevice->m_pDeviceData_Router->m_pDevice_MD &&
+			pMediaDevice->m_pDeviceData_Router->m_pDevice_ControlledVia && 
+			pMediaDevice->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_DeviceTemplate==DEVICETEMPLATE_OnScreen_Orbiter_CONST )
 		{
 			DCE::CMD_On CMD_On(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_pDevice_MD->m_dwPK_Device,PK_Pipe_Current,"");
 			SendCommand(CMD_On);
@@ -2909,7 +2918,7 @@ void Media_Plugin::TurnDeviceOff(int PK_Pipe,DeviceData_Router *pDeviceData_Rout
 	{
 		MediaDevice *pMediaDevice = m_mapMediaDevice_Find(pDeviceData_Router->m_dwPK_Device);
 		// Don't turn the device off the OSD needs it on
-		if( !pMediaDevice || !pMediaDevice->m_bDontSendOffIfOSD_ON || (pMediaDevice->m_pOH_Orbiter_OSD && pMediaDevice->m_pOH_Orbiter_OSD->m_bDisplayOn==false))
+		if( !pMediaDevice || !pMediaDevice->m_bDontSendOffIfOSD_ON || !pMediaDevice->m_pOH_Orbiter_OSD || (pMediaDevice->m_pOH_Orbiter_OSD && pMediaDevice->m_pOH_Orbiter_OSD->m_bDisplayOn==false))
 		{
 			DCE::CMD_Off CMD_Off(m_dwPK_Device,pDeviceData_Router->m_dwPK_Device,-1);  // -1 means don't propagate to any pipes
 			SendCommand(CMD_Off);
@@ -3663,7 +3672,9 @@ void Media_Plugin::AddOtherDevicesInPipes_Loop(int PK_Pipe, DeviceData_Router *p
 		}
 	}
 
-	if( pDevice->m_pDevice_MD && pDevice!=pDevice->m_pDevice_MD )
+	if( pDevice->m_pDevice_MD && pDevice!=pDevice->m_pDevice_MD &&
+		pDevice->m_pDevice_ControlledVia && 
+		pDevice->m_pDevice_ControlledVia->m_dwPK_DeviceTemplate==DEVICETEMPLATE_OnScreen_Orbiter_CONST )
 	{
 		MediaDevice *pMediaDevice = m_mapMediaDevice_Find(pDevice->m_pDevice_MD->m_dwPK_Device);
 		if( pMediaDevice )

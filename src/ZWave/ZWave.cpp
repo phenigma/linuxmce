@@ -100,16 +100,19 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 	sCMD_Result = "OK";
 	if( pMessage->m_dwID==COMMAND_Generic_On_CONST )
 	{
+		g_pPlutoLogger->Write(LV_STATUS,"Sending ON");
 		m_pPlainClientSocket->SendString("ON " + StringUtils::itos(NodeID));
 		return;
 	}
 	else if( pMessage->m_dwID==COMMAND_Generic_Off_CONST )
 	{
+		g_pPlutoLogger->Write(LV_STATUS,"Sending Off");
 		m_pPlainClientSocket->SendString("OFF " + StringUtils::itos(NodeID));
 		return;
 	}
 	else if( pMessage->m_dwID==COMMAND_Set_Level_CONST )
 	{
+		g_pPlutoLogger->Write(LV_STATUS,"Sending LEVEL");
 		m_pPlainClientSocket->SendString("LEVEL" + pMessage->m_mapParameters[COMMANDPARAMETER_Level_CONST] + " " + StringUtils::itos(NodeID));
 		return;
 	}
@@ -264,6 +267,7 @@ bool ZWave::ConfirmConnection()
 		m_pPlainClientSocket->SendString("PING");
 		string sResponse;
 		m_pPlainClientSocket->ReceiveString(sResponse);
+		g_pPlutoLogger->Write(LV_STATUS,"Sent PING 1 got %s",sResponse.c_str());
 		if( sResponse=="PONG" )
 			return true;
 
@@ -273,9 +277,13 @@ bool ZWave::ConfirmConnection()
 	}
 
 	if( !m_pPlainClientSocket->Connect() )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to connect");
 		return false;
+	}
 	m_pPlainClientSocket->SendString("PING");
 	string sResponse;
 	m_pPlainClientSocket->ReceiveString(sResponse,10);
+	g_pPlutoLogger->Write(LV_STATUS,"Sent PING 2 got %s",sResponse.c_str());
 	return sResponse=="PONG";
 }

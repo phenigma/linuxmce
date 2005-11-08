@@ -474,6 +474,10 @@ bool Orbiter::GetConfig()
 	else
 	    m_bDisplayOn=true;  // The display should already be on
 
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"monitor m_bDisplayOn initially set to %d",(int) m_bDisplayOn);
+#endif
+
 	m_nSelectionBehaviour = DATA_Get_Using_Infrared();
 
     if(  !m_bLocalMode  )
@@ -4046,6 +4050,9 @@ bool Orbiter::GotActivity(  )
 		(m_pScreenHistory_Current && m_pScreenHistory_Current->m_pObj==m_pDesignObj_Orbiter_ScreenSaveMenu &&
 			m_pDesignObj_Orbiter_MainMenu!=m_pDesignObj_Orbiter_ScreenSaveMenu) )
     {
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"GotActiity monitor m_bDisplayOn is %d",(int) m_bDisplayOn);
+#endif
 		if( !m_bDisplayOn )
 	        CMD_Display_OnOff( "1",false );
 		if( m_pDesignObj_Orbiter_ScreenSaveMenu && m_pScreenHistory_Current->m_pObj == m_pDesignObj_Orbiter_ScreenSaveMenu )
@@ -5246,7 +5253,9 @@ void Orbiter::CMD_Display_OnOff(string sOnOff,bool bAlready_processed,string &sC
 //<-dceag-c3-e->
 {
 	m_bDisplayOn = sOnOff=="1";
-	g_pPlutoLogger->Write(LV_STATUS,"Setting display on/off: %s %d %d",sOnOff.c_str(),(int) bAlready_processed,(int) m_bDisplayOn);
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"Setting monitor display on/off: %s %d m_bDisplayOn: %d",sOnOff.c_str(),(int) bAlready_processed,(int) m_bDisplayOn);
+#endif
 	if( bAlready_processed )
 		return;
 
@@ -8451,12 +8460,16 @@ void Orbiter::CMD_Toggle_Power(string sOnOff,string &sCMD_Result,Message *pMessa
 	}
 	else if( m_bDisplayOn )
 	{
+#ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"Powering off monitor");
+#endif
 		CMD_Display_OnOff("0",false);
 	}
 	else
 	{
+#ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"Monitor already off");
+#endif
 		/*  TODO -- This makes it too easy to power off accidentally by hitting the button multiple times
 		For now the user will just hit the 'power' option
 		DCE::CMD_Halt_Device CMD_Halt_Device(m_dwPK_Device,m_dwPK_Device_LocalAppServer,m_dwPK_Device,"0");
