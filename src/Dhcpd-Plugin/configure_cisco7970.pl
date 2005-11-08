@@ -58,6 +58,7 @@ $str_XMLDefault .= "</Default>\n";
 
 $str_DEV .= ";<pl_dev_$Device_ID>\n";
 $str_DEV .= "type = 7970\n";
+$str_DEV .= "description = SEP$Device_MAC\n";
 $str_DEV .= "autologin = $Device_EXT\n";
 $str_DEV .= "transfer = on\n";
 $str_DEV .= "park = on\n";
@@ -111,5 +112,21 @@ open(FILE,"> /etc/asterisk/sccp.conf") or die "Ugly";
 print FILE $str_FILE;
 close(FILE);
 
+
+### Update Cisco 7970 Orbiter
+my $DB_PL_HANDLE = DBI->connect("dbi:mysql:database=pluto_main;host=192.168.80.1;user=root;password=;") or die "Could not connect to MySQL";
+my $DB_SQL = "select PK_Device from Device where FK_DeviceTemplate=1727 and FK_Device_ControlledVia=$Device_ID";
+my $DB_STATEMENT = $DB_PL_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
+$DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
+if(my $DB_ROW = $DB_STATEMENT->fetchrow_hashref())
+{
+	my $ORB_ID = $DB_ROW->{'PK_Device'};
+	$DB_STATEMENT->finish();
+	$DB_SQL = "update Device_DeviceData SET IK_DeviceData='$Device_IP' WHERE FK_Device='$ORB_ID' AND FK_DeviceData='118'";
+	$DB_STATEMENT = $DB_PL_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
+	$DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
+}
+$DB_PL_HANDLE->disconnect();
+
 #reload asterisk
-`asterisk -r -x reload`;
+`/etc/init.d/asterisk reload`;
