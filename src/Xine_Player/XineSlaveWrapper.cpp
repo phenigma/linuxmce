@@ -238,7 +238,7 @@ bool XineSlaveWrapper::createStream(string fileName, int streamID, int iRequesti
 {
     if( m_xine_osd_t )
     {
-        xine_osd_free(m_xine_osd_t);
+// ***put back        xine_osd_free(m_xine_osd_t);
         m_xine_osd_t=NULL;
     }
 
@@ -411,7 +411,7 @@ bool XineSlaveWrapper::playStream(int streamID, string mediaPosition, bool playb
 {
 	if( m_xine_osd_t )
 	{
-		xine_osd_free(m_xine_osd_t);
+// ***put back		xine_osd_free(m_xine_osd_t);
 		m_xine_osd_t=NULL;
 	}
 		 
@@ -867,13 +867,13 @@ void *XineSlaveWrapper::eventProcessingLoop(void *arguments)
 				iCounter_TimeCode=1;
 			}
 		}
-		if( g_iSpecialSeekSpeed && iCounter % 3 == 0 )  // I tried doing the seek each loop (ie 100 ms) but the xine gets stuck non-stop.  So do it every 3 loops
+		if( g_iSpecialSeekSpeed ) 
 		{
 			pStream->m_pOwner->DisplaySpeedAndTimeCode();
 			// time to seek
 			int positionTime,totalTime;
 			pStream->m_pOwner->getStreamPlaybackPosition(1,positionTime,totalTime);
-			int seekTime = positionTime + (g_iSpecialSeekSpeed/3);
+			int seekTime = positionTime + (g_iSpecialSeekSpeed/10);
 
 			g_pPlutoLogger->Write(LV_WARNING,"Current pos %d / %d  seek speed: %d will seek to: %d",positionTime,totalTime,g_iSpecialSeekSpeed,seekTime);
 if( seekTime<0 || seekTime>totalTime )
@@ -899,7 +899,7 @@ int positionTime_new,totalTime_new;
 pStream->m_pOwner->getStreamPlaybackPosition(1,positionTime_new,totalTime_new);
 // Xine thinks it seeked correctly, but as commented above it may not have actually done it.  So check the new 
 // position, and see if is at least half what it should be
-if( abs(positionTime_new-positionTime) > abs((g_iSpecialSeekSpeed/3)/2) && 
+if( abs(positionTime_new-positionTime) > abs((g_iSpecialSeekSpeed/10)/2) && 
 	((positionTime_new>positionTime && g_iSpecialSeekSpeed>0) || (positionTime_new<positionTime && g_iSpecialSeekSpeed<0)) )
 {
 	g_pPlutoLogger->Write(LV_STATUS,"Seek ok, we went for %d and landed at %d diff %d",seekTime,positionTime_new,positionTime_new-positionTime);
@@ -908,8 +908,8 @@ if( abs(positionTime_new-positionTime) > abs((g_iSpecialSeekSpeed/3)/2) &&
 else
 {
 	g_pPlutoLogger->Write(LV_WARNING,"Xine is stuck again.  started at %d went for %d landed at %d seek %d now will try %d",
-			positionTime,seekTime,positionTime_new,g_iSpecialSeekSpeed,seekTime + (g_iSpecialSeekSpeed/3));
-	seekTime += (g_iSpecialSeekSpeed/3);
+			positionTime,seekTime,positionTime_new,g_iSpecialSeekSpeed,seekTime + (g_iSpecialSeekSpeed/10));
+	seekTime += (g_iSpecialSeekSpeed/10);
 }
 }
 		}
@@ -2106,16 +2106,16 @@ void XineSlaveWrapper::DisplayOSDText(string sText)
 	if ( xineStream == NULL )
 		return;
 
-	if( sText.size()==0 )
+	if( sText.size()==0 && false )  // *** put back
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Clearing OSD %p",m_xine_osd_t);
-		if( m_xine_osd_t )
-			xine_osd_free(m_xine_osd_t);
+// ***put back		if( m_xine_osd_t )
+// ***put back			xine_osd_free(m_xine_osd_t);
 		m_xine_osd_t=NULL;
 		return;
 	}
-	if( m_xine_osd_t )
-		xine_osd_free(m_xine_osd_t);
+// ***put back	if( m_xine_osd_t )
+// ***put back		xine_osd_free(m_xine_osd_t);
 	m_xine_osd_t = xine_osd_new(xineStream->m_pStream, 0, 0, 1000, 100 );
     xine_osd_set_font(m_xine_osd_t, "sans", 20);
     xine_osd_set_text_palette(m_xine_osd_t,
