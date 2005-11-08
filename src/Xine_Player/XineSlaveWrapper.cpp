@@ -877,7 +877,23 @@ void *XineSlaveWrapper::eventProcessingLoop(void *arguments)
 		if( m_iSpecialOneTimeSeek )
 		{
 			g_pPlutoLogger->Write(LV_WARNING,"Doing the special one-time hack seek to %d",m_iSpecialOneTimeSeek);
-			xine_play(pStream->m_pStream, 0, m_iSpecialOneTimeSeek);
+
+			int pos = m_iSpecialOneTimeSeek;
+			for(int i=0;i<10;++i)
+			{
+				int positionTime, totalTime;
+				if( abs(getStreamPlaybackPosition(1, positionTime, totalTime) - pos) < 2000 ) //|| totalTime<pos)
+				{
+					g_pPlutoLogger->Write(LV_WARNING, "Close enough %d %d total %d",positionTime,pos,totalTime);
+					break;
+				}
+				else
+				{
+					g_pPlutoLogger->Write(LV_WARNING, "get closer %d %d total %d ctr %d",positionTime,pos,totalTime,i);
+					xine_play(pStream->m_pStream, 0, pos );
+				}
+			}
+
 			m_iSpecialOneTimeSeek=0;
 		}
 		if( g_iSpecialSeekSpeed ) 
