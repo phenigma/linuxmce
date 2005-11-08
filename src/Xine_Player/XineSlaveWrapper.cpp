@@ -2026,6 +2026,52 @@ int XineSlaveWrapper::getAudio()
 	return xine_get_param (xineStream->m_pStream, XINE_PARAM_AUDIO_CHANNEL_LOGICAL);
 }
 
+void XineSlaveWrapper::DisplaySpeedAndTimeCode()
+{
+	XineStream *xineStream = getStreamForId(1, "Trying to set parm for and invalid stream: (%d)");
+
+	if ( xineStream == NULL )
+		return;
+
+	int Whole = g_iSpecialSeekSpeed/1000;
+	int Fraction = g_iSpecialSeekSpeed % 1000;
+	string sSpeed;
+	if( Whole )
+		sSpeed += StringUtils::itos(Whole);
+	else
+		sSpeed += "0";
+
+	if( Fraction )
+		sSpeed += "." + StringUtils::itos(Fraction);
+
+	sSpeed += "x     ";
+
+	int seconds, totalTime;
+	getStreamPlaybackPosition(1, seconds, totalTime);
+
+	seconds /= 1000;
+	int hours = seconds / 3600;
+	seconds -= hours * 3600;
+	int minutes = seconds / 60;
+	seconds -= minutes * 60;
+
+	if( hours )
+	{
+		sSpeed += StringUtils::itos(hours) + ":";
+		if( minutes<10 )
+			sSpeed += "0" + StringUtils::itos(minutes) + ":";
+		else
+			sSpeed += StringUtils::itos(minutes) + ":";
+	}
+
+	if( seconds<10 )
+		sSpeed += "0" + StringUtils::itos(seconds);
+	else
+		sSpeed += StringUtils::itos(seconds);
+
+	DisplayOSDText(sSpeed);
+}
+
 void XineSlaveWrapper::DisplayOSDText(string sText)
 {
 	XineStream *xineStream = getStreamForId(1, "Trying to set parm for and invalid stream: (%d)");

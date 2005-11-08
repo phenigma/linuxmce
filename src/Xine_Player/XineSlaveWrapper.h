@@ -391,6 +391,7 @@ public:
 	void setSlimClient(bool isSlimClient);
 
 	// display a message on the screen.  Call with sText="" to display nothing
+	void DisplaySpeedAndTimeCode();
 	void DisplayOSDText(string sText);
 
 	void StartSpecialSeek(int Speed);
