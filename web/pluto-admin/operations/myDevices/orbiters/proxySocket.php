@@ -42,7 +42,7 @@ function proxySocket($output,$dbADO){
 	if ($result !==true) {
 		write_log("socket_connect() failed.\nReason: (".socket_last_error().") " . socket_strerror(socket_last_error()) . "\n");
 	} else {
-		write_log("OK.\n");
+		write_log("Connected on socket ... OK.\n");
 	}
 
 	write_log("Received parameters ".$_SERVER['QUERY_STRING']."\n");

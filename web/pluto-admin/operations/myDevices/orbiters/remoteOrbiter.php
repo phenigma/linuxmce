@@ -75,6 +75,7 @@ function remoteOrbiter($output,$dbADO){
 	
 	if($action=='form'){
 		$serverIP=(isset($_REQUEST['host']))?$_REQUEST['host']:'192.168.80.1';
+		$port=(isset($_POST['port']))?$_POST['port']:'3451';
 		
 		$orbiters=getDevicesArrayFromCategory($GLOBALS['rootOrbiterID'],$dbADO);
 		$out.='
@@ -94,14 +95,18 @@ function remoteOrbiter($output,$dbADO){
 			</tr>
 			<tr>
 				<td>Port: </td>
-				<td><input type="text" name="port" value="3451"></td>
+				<td><input type="text" name="port" value="'.$port.'"></td>
 			</tr>
 			<tr>
 				<td>Refresh (s): </td>
 				<td><input type="text" name="refresh" value="5"></td>
 			</tr>
 			<tr>
-				<td colspan="2"><input type="submit" class="button" name="go" value="Submit"></td>
+				<td colspan="2">
+					<input type="submit" class="button" name="go" value="Submit"> 
+					<input type="button" class="button" name="go" value="Home" onClick="document.getElementById(\'imageLoader\').contentDocument.location=\'index.php?section=proxySocket&address='.$serverIP.'&port='.$port.'&command=XML&key=10\';"> 
+					<input type="button" class="button" name="go" value="Back" onClick="document.getElementById(\'imageLoader\').contentDocument.location=\'index.php?section=proxySocket&address='.$serverIP.'&port='.$port.'&command=XML&key=11\';">
+				</td>
 			</tr>
 		</table>
 		</form>

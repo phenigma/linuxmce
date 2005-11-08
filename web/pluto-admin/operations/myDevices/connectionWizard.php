@@ -16,7 +16,7 @@ function connectionWizard($output,$dbADO) {
 	$_SESSION['AVentertainArea']=(isset($_REQUEST['entertainArea']) && (int)$_REQUEST['entertainArea']!=0)?(int)$_REQUEST['entertainArea']:@$_SESSION['AVentertainArea'];
 	$entertainArea=@$_SESSION['AVentertainArea'];
 
-	$connectorsArray=array(0=>'other.gif',1=>'composite.gif',2=>'svideo.gif',3=>'component.gif',4=>'dvi.gif',5=>'vga.gif',6=>'scart.gif');
+	$connectorsArray=array(0=>'other.gif',1=>'composite.gif',2=>'svideo.gif',3=>'component.gif',4=>'dvi.gif',5=>'vga.gif',6=>'scart.gif',8=>'hdmi.gif');
 	$pipeTypesArray=array(1=>'audio',2=>'video',3=>'audioLive',4=>'videoLive');
 	
 if ($action == 'form') {
