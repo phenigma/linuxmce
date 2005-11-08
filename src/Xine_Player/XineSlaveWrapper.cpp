@@ -874,7 +874,7 @@ void *XineSlaveWrapper::eventProcessingLoop(void *arguments)
 				iCounter_TimeCode=1;
 			}
 		}
-		if( pStream->m_pOwner->m_iSpecialOneTimeSeek )
+		if( pStream->m_pOwner->m_iSpecialOneTimeSeek && iCounter>5 ) // We need to wait 500ms after the stream starts before doing the seek!
 		{
 			g_pPlutoLogger->Write(LV_WARNING,"Doing the special one-time hack seek to %d",pStream->m_pOwner->m_iSpecialOneTimeSeek);
 
