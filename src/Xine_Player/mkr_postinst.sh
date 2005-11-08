@@ -202,7 +202,7 @@ gui.tvset_y:193
 
 # audio driver to use
 # { auto  null  alsa  oss  arts  esd  none  file }, default: 0
-audio.driver:alsa
+audio.driver:auto
 
 # OSS audio mixer number, -1 for none
 # numeric, default: -1
