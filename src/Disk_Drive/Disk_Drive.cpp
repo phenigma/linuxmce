@@ -203,9 +203,15 @@ void Disk_Drive::CMD_Eject_Disk(string &sCMD_Result,Message *pMessage)
 //<-dceag-c48-e->
 {
 	if( m_bTrayOpen )
+	{
+		DisplayMessageOnOrbVFD("Closing tray...");
 	    system("eject -t");
+	}
 	else
+	{
+		DisplayMessageOnOrbVFD("Opening tray...");
 	    system("eject");
+	}
 
 	m_bTrayOpen = !m_bTrayOpen;
 }
