@@ -446,7 +446,7 @@ g_pPlutoLogger->Write(LV_STATUS, "Playing... The command took %d seconds to comp
 		else
 			xine_set_param(xineStream->m_pStream, XINE_PARAM_SPEED, XINE_SPEED_NORMAL);
 
-		m_iPrebuffer = xine_get_param(stream, XINE_PARAM_METRONOM_PREBUFFER);
+		m_iPrebuffer = xine_get_param(xineStream->m_pStream, XINE_PARAM_METRONOM_PREBUFFER);
 
 		m_pAggregatorObject->ReportTimecode(xineStream->m_iStreamID,xineStream->m_iPlaybackSpeed);
 
@@ -659,7 +659,7 @@ void XineSlaveWrapper::xineEventListener(void *userData, const xine_event_t *eve
                 send_event(XINE_SE_PLAYBACK_FINISHED, "");
         */
 			g_pPlutoLogger->Write(LV_STATUS, "Got XINE_EVENT_UI_PLAYBACK_FINISHED");
-			StopSpecialSeek();
+			xineStream->m_pOwner->StopSpecialSeek();
 			xineStream->m_pOwner->m_pAggregatorObject->ReportTimecode(xineStream->m_iStreamID,xineStream->m_iPlaybackSpeed);
             xineStream->m_pOwner->playbackCompleted(xineStream->m_iStreamID,false);
             xineStream->m_bIsRendering = false;
@@ -678,7 +678,7 @@ void XineSlaveWrapper::xineEventListener(void *userData, const xine_event_t *eve
 
         case XINE_EVENT_UI_NUM_BUTTONS:
             {
-				StopSpecialSeek();
+				xineStream->m_pOwner->StopSpecialSeek();
 				xineStream->m_pOwner->m_pAggregatorObject->ReportTimecode(xineStream->m_iStreamID,xineStream->m_iPlaybackSpeed);
                 int iButtons = ((xine_ui_data_t *)event->data)->num_buttons;
 
@@ -864,7 +864,7 @@ void *XineSlaveWrapper::eventProcessingLoop(void *arguments)
 if( seekTime<0 || seekTime>totalTime )
 {
 g_pPlutoLogger->Write(LV_CRITICAL,"aborting seek");
-StopSpecialSeek();
+pStream->m_pOwner->StopSpecialSeek();
 pStream->m_pOwner->m_pAggregatorObject->ReportTimecode(pStream->m_iStreamID,pStream->m_iPlaybackSpeed);
 }
 
@@ -877,7 +877,7 @@ for(int iHackLoop=0;iHackLoop<20;++iHackLoop)  // More nasty, nasty hacks.  For 
 if( !xine_play(pStream->m_pStream, 0, seekTime) )  // Pass in position as 2nd parameter
 {
 g_pPlutoLogger->Write(LV_CRITICAL,"special seek failed, normal speed");
-StopSpecialSeek();
+pStream->m_pOwner->StopSpecialSeek();
 pStream->m_pOwner->m_pAggregatorObject->ReportTimecode(pStream->m_iStreamID,pStream->m_iPlaybackSpeed);
 }
 int positionTime_new,totalTime_new;
@@ -2059,8 +2059,13 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Attempting to display test %p",x_xine_osd);
 
 void XineSlaveWrapper::StartSpecialSeek(int Speed)
 {
+	XineStream *xineStream = getStreamForId(1, "Trying to set parm for and invalid stream: (%d)");
+
+	if ( xineStream == NULL )
+		return;
+		
 	g_pPlutoLogger->Write(LV_STATUS,"Starting special seek %d",Speed);
-	xine_set_param(stream, XINE_PARAM_METRONOM_PREBUFFER, 2*90000);
+	xine_set_param(xineStream->m_pStream, XINE_PARAM_METRONOM_PREBUFFER, 2*90000);
 	g_iSpecialSeekSpeed=Speed;
 	xineStream->m_iPlaybackSpeed=PLAYBACK_NORMAL;
 	g_pPlutoLogger->Write(LV_STATUS,"done Starting special seek %d",Speed);
@@ -2068,10 +2073,15 @@ void XineSlaveWrapper::StartSpecialSeek(int Speed)
 
 void XineSlaveWrapper::StopSpecialSeek()
 {
+	XineStream *xineStream = getStreamForId(1, "Trying to set parm for and invalid stream: (%d)");
+
+	if ( xineStream == NULL )
+		return;
+		
 	g_pPlutoLogger->Write(LV_STATUS,"Stopping special seek");
 	g_iSpecialSeekSpeed=0;
 	xineStream->m_iPlaybackSpeed=PLAYBACK_NORMAL;
-	xine_set_param(stream, XINE_PARAM_METRONOM_PREBUFFER,m_iPrebuffer);
+	xine_set_param(xineStream->m_pStream, XINE_PARAM_METRONOM_PREBUFFER,m_iPrebuffer);
 	g_pPlutoLogger->Write(LV_STATUS,"done Stopping special seek");
 }
 
