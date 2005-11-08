@@ -39,21 +39,30 @@
 
 
 #define  VERSION "<=version=>"
+//#define  USE_DEVEL_DATABASES 
 
 using namespace std;
 using namespace DCE;
 
 UpdateMedia::UpdateMedia(string host, string user, string pass, int port,string sDirectory)
 {
+    string sPlutoMediaDbName = "pluto_media";
+    string sPlutoMainDbName = "pluto_main";
+
+#ifdef USE_DEVEL_DATABASES
+    sPlutoMediaDbName = "pluto_media_devel";
+    sPlutoMainDbName = "pluto_main_devel";
+#endif
+
 	m_pDatabase_pluto_media = new Database_pluto_media( );
-	if( !m_pDatabase_pluto_media->Connect( host, user, pass, "pluto_media", port ) )
+	if( !m_pDatabase_pluto_media->Connect( host, user, pass, sPlutoMediaDbName, port ) )
 	{
 		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );
 		return;
 	}
 
 	m_pDatabase_pluto_main = new Database_pluto_main( );
-	if( !m_pDatabase_pluto_main->Connect( host, user, pass, "pluto_main", port ) )
+	if( !m_pDatabase_pluto_main->Connect( host, user, pass, sPlutoMainDbName, port ) )
 	{
 		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );
 		return;
@@ -257,10 +266,38 @@ void UpdateMedia::SetPicAttribute(string sDirectory,string sFile,int PK_Picture)
 void UpdateMedia::SetFileAttribute(string sDirectory,string sFile,int PK_File)
 {
 	cout << "SetFileAttribute " << sDirectory << " / " << sFile << " " << PK_File  << endl;
-#ifndef WIN32
 	string sPK_File = StringUtils::itos(PK_File);
+
+#ifndef WIN32
 	attr_set( (sDirectory + "/" + sFile).c_str( ), "ID", sPK_File.c_str( ), sPK_File.length( ), 0 );
 #endif
+
+    //sync id3tags on the files with the attributes from the db
+    map<int,string> mapAttributes;
+    GetId3Info(sDirectory + "/" + sFile, mapAttributes);
+
+    string SQL = 
+        "SELECT Attribute.FK_AttributeType, Attribute.Name FROM File_Attribute " 
+        "INNER JOIN Attribute ON Attribute.PK_Attribute = File_Attribute.FK_Attribute "
+        "WHERE FK_File = " + sPK_File;
+
+    PlutoSqlResult allresult,result;
+    MYSQL_ROW row;
+    if((allresult.r = m_pDatabase_pluto_media->mysql_query_result(SQL)))
+    {
+        while((row = mysql_fetch_row(allresult.r)))
+        {
+            string sFK_AttributeType = row[0];
+            string sName = row[1];
+
+            //create a new entry in id3 tag list or overwrite an old one
+            int nPK_AtttributeType = atoi(sFK_AttributeType.c_str());
+            mapAttributes[nPK_AtttributeType] = sName;
+        }
+    }
+
+    if(mapAttributes.size())
+        SetId3Info(sDirectory + "/" + sFile, mapAttributes);
 }
 
 int UpdateMedia::GetFileAttribute(string sDirectory,string sFile)
