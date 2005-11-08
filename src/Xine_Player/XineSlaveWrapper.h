@@ -124,6 +124,8 @@ private:
 
 	bool 		m_isSlimClient;
 
+	int			m_iPrebuffer; // For storing the normal prebuffer value
+
     /** @warning HACK: */
     XineStream *m_pSameStream;
 
@@ -390,6 +392,9 @@ public:
 
 	// display a message on the screen.  Call with sText="" to display nothing
 	void DisplayOSDText(string sText);
+
+	void StartSpecialSeek(int Speed);
+	void StopSpecialSeek();
 };
 
 #endif

@@ -90,6 +90,7 @@ XineSlaveWrapper::XineSlaveWrapper(int iTimeCodeReportFrequency)
       XServerDisplay(NULL),
       m_pSameStream(NULL)
 {
+	m_iPrebuffer = 0;
     m_iCurrentWindow = 0;
 	m_iTimeCodeReportFrequency = iTimeCodeReportFrequency;
 
@@ -400,7 +401,7 @@ bool XineSlaveWrapper::createStream(string fileName, int streamID, int iRequesti
  */
 bool XineSlaveWrapper::playStream(int streamID, string mediaPosition, bool playbackStopped)
 {
-	g_iSpecialSeekSpeed=0;
+	StopSpecialSeek();
 
 	XineStream *xineStream = getStreamForId(streamID, "XineSlaveWrapper::playStream() could not play an empty stream!");
 
@@ -444,6 +445,8 @@ g_pPlutoLogger->Write(LV_STATUS, "Playing... The command took %d seconds to comp
 			xine_set_param(xineStream->m_pStream, XINE_PARAM_SPEED, XINE_SPEED_PAUSE);
 		else
 			xine_set_param(xineStream->m_pStream, XINE_PARAM_SPEED, XINE_SPEED_NORMAL);
+
+		m_iPrebuffer = xine_get_param(stream, XINE_PARAM_METRONOM_PREBUFFER);
 
 		m_pAggregatorObject->ReportTimecode(xineStream->m_iStreamID,xineStream->m_iPlaybackSpeed);
 
@@ -656,8 +659,7 @@ void XineSlaveWrapper::xineEventListener(void *userData, const xine_event_t *eve
                 send_event(XINE_SE_PLAYBACK_FINISHED, "");
         */
 			g_pPlutoLogger->Write(LV_STATUS, "Got XINE_EVENT_UI_PLAYBACK_FINISHED");
-			g_iSpecialSeekSpeed=0;
-			xineStream->m_iPlaybackSpeed=PLAYBACK_NORMAL;
+			StopSpecialSeek();
 			xineStream->m_pOwner->m_pAggregatorObject->ReportTimecode(xineStream->m_iStreamID,xineStream->m_iPlaybackSpeed);
             xineStream->m_pOwner->playbackCompleted(xineStream->m_iStreamID,false);
             xineStream->m_bIsRendering = false;
@@ -676,8 +678,7 @@ void XineSlaveWrapper::xineEventListener(void *userData, const xine_event_t *eve
 
         case XINE_EVENT_UI_NUM_BUTTONS:
             {
-				g_iSpecialSeekSpeed=0;
-				xineStream->m_iPlaybackSpeed=PLAYBACK_NORMAL;
+				StopSpecialSeek();
 				xineStream->m_pOwner->m_pAggregatorObject->ReportTimecode(xineStream->m_iStreamID,xineStream->m_iPlaybackSpeed);
                 int iButtons = ((xine_ui_data_t *)event->data)->num_buttons;
 
@@ -863,8 +864,7 @@ void *XineSlaveWrapper::eventProcessingLoop(void *arguments)
 if( seekTime<0 || seekTime>totalTime )
 {
 g_pPlutoLogger->Write(LV_CRITICAL,"aborting seek");
-g_iSpecialSeekSpeed=0;
-pStream->m_iPlaybackSpeed=PLAYBACK_NORMAL;
+StopSpecialSeek();
 pStream->m_pOwner->m_pAggregatorObject->ReportTimecode(pStream->m_iStreamID,pStream->m_iPlaybackSpeed);
 }
 
@@ -877,8 +877,7 @@ for(int iHackLoop=0;iHackLoop<20;++iHackLoop)  // More nasty, nasty hacks.  For 
 if( !xine_play(pStream->m_pStream, 0, seekTime) )  // Pass in position as 2nd parameter
 {
 g_pPlutoLogger->Write(LV_CRITICAL,"special seek failed, normal speed");
-g_iSpecialSeekSpeed=0;
-pStream->m_iPlaybackSpeed=PLAYBACK_NORMAL;
+StopSpecialSeek();
 pStream->m_pOwner->m_pAggregatorObject->ReportTimecode(pStream->m_iStreamID,pStream->m_iPlaybackSpeed);
 }
 int positionTime_new,totalTime_new;
@@ -1131,7 +1130,7 @@ void XineSlaveWrapper::changePlaybackSpeed(int iStreamID, PlayBackSpeedType desi
         return;
 
     int xineSpeed = XINE_SPEED_PAUSE;
-	g_iSpecialSeekSpeed=0;  // If this is a special speed we'll set it below
+	int NewSpecialSeekSpeed=0;
 	pStream->m_iPlaybackSpeed=desiredSpeed;
 	m_pAggregatorObject->ReportTimecode(pStream->m_iStreamID,pStream->m_iPlaybackSpeed);
     switch ( desiredSpeed )
@@ -1152,14 +1151,16 @@ void XineSlaveWrapper::changePlaybackSpeed(int iStreamID, PlayBackSpeedType desi
 	    //if( pStream->m_bHasVideo )  Now for some reason Xine uses 100% CPU and kills the system if you it run faster than 1x, so do this in our hacked special seek speed loop--nasty hack
 	    //        xineSpeed = XINE_SPEED_FAST_2;
 	    //else
-		    g_iSpecialSeekSpeed=desiredSpeed;
+            xineSpeed = XINE_SPEED_NORMAL;
+		    NewSpecialSeekSpeed=desiredSpeed;
             break;
         case PLAYBACK_FF_4:
 //	    if( pStream->m_bHasVideo )
   //          	xineSpeed = XINE_SPEED_FAST_4;
 //	    else
 DisplayOSDText("4x");
-		    g_iSpecialSeekSpeed=desiredSpeed;  // See above
+            xineSpeed = XINE_SPEED_NORMAL;
+		    NewSpecialSeekSpeed=desiredSpeed;  // See above
             break;
 		case PLAYBACK_REW_64:
 		case PLAYBACK_REW_32:
@@ -1174,7 +1175,7 @@ DisplayOSDText("4x");
 		case PLAYBACK_FF_16:
 		case PLAYBACK_FF_32:
 		case PLAYBACK_FF_64:
-			g_iSpecialSeekSpeed=desiredSpeed;
+			NewSpecialSeekSpeed=desiredSpeed;
             xineSpeed = XINE_SPEED_NORMAL;
             break;
 
@@ -1182,6 +1183,11 @@ DisplayOSDText("4x");
             g_pPlutoLogger->Write(LV_WARNING, "Don't know how to handle speed: %d", desiredSpeed);
             break;
     }
+
+	if( g_iSpecialSeekSpeed && !NewSpecialSeekSpeed )
+		StopSpecialSeek();
+	else if( NewSpecialSeekSpeed )
+		StartSpecialSeek(NewSpecialSeekSpeed);
 
 	g_pPlutoLogger->Write(LV_STATUS, "Setting speed to special %d real %d desired %d",g_iSpecialSeekSpeed,xineSpeed,desiredSpeed);
     if ( (xineSpeed == XINE_SPEED_PAUSE && desiredSpeed == 0) || xineSpeed != XINE_SPEED_PAUSE)
@@ -2026,7 +2032,16 @@ void XineSlaveWrapper::DisplayOSDText(string sText)
 
 	if ( xineStream == NULL )
 		return;
-	xine_osd_t *x_xine_osd;
+	xine_osd_t *osd;
+
+	osd = xine_osd_new(xineStream->m_pStream, 0, 0, 1000, 100 );
+    xine_osd_set_font(osd, "sans", 20);
+    xine_osd_set_text_palette(osd,
+      XINE_TEXTPALETTE_WHITE_BLACK_TRANSPARENT, XINE_OSD_TEXT1);
+    xine_osd_draw_rect(osd, 0, 0, 999, 99, XINE_OSD_TEXT1, 1);
+    xine_osd_draw_text(osd, 20, 20, sText.c_str(), XINE_OSD_TEXT1);
+    xine_osd_show(osd, 0);
+/*
 	x_xine_osd=xine_osd_new(xineStream->m_pStream, 100, 100, 400, 400);
 g_pPlutoLogger->Write(LV_CRITICAL,"Attempting to display test %p",x_xine_osd); 
 	xine_osd_draw_text(x_xine_osd,110,110,"test",255);
@@ -2038,6 +2053,25 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Attempting to display test %p",x_xine_osd);
 	xine_osd_draw_rect(x_xine_osd,150,150,200,200,200,100);
 	xine_osd_show(x_xine_osd,0);
 	xine_osd_draw_text(x_xine_osd,110,110,"test2",255);
+	*/
 	
+}
+
+void XineSlaveWrapper::StartSpecialSeek(int Speed)
+{
+	g_pPlutoLogger->Write(LV_STATUS,"Starting special seek %d",Speed);
+	xine_set_param(stream, XINE_PARAM_METRONOM_PREBUFFER, 2*90000);
+	g_iSpecialSeekSpeed=Speed;
+	xineStream->m_iPlaybackSpeed=PLAYBACK_NORMAL;
+	g_pPlutoLogger->Write(LV_STATUS,"done Starting special seek %d",Speed);
+}
+
+void XineSlaveWrapper::StopSpecialSeek()
+{
+	g_pPlutoLogger->Write(LV_STATUS,"Stopping special seek");
+	g_iSpecialSeekSpeed=0;
+	xineStream->m_iPlaybackSpeed=PLAYBACK_NORMAL;
+	xine_set_param(stream, XINE_PARAM_METRONOM_PREBUFFER,m_iPrebuffer);
+	g_pPlutoLogger->Write(LV_STATUS,"done Stopping special seek");
 }
 
