@@ -90,6 +90,7 @@ XineSlaveWrapper::XineSlaveWrapper(int iTimeCodeReportFrequency)
       XServerDisplay(NULL),
       m_pSameStream(NULL)
 {
+	m_iSpecialOneTimeSeek=0;
 	m_xine_osd_t=NULL;
 	m_iPrebuffer = 0;
     m_iCurrentWindow = 0;
@@ -433,12 +434,18 @@ bool XineSlaveWrapper::playStream(int streamID, string mediaPosition, bool playb
 g_pPlutoLogger->Write(LV_STATUS, "Playing... The command took %d seconds to complete at pos %d", time(NULL) - startTime,pos);
 		if( pos )
 		{
+			// This functionality in xine keeps bouncing back and forth between working and not working
+			// Sometimes you cannot do a seek right after a play and have to wait a bit or else you get
+			// "Stream is not seekable".  In such cases we have a m_iSpecialOneTimeSeek that we will use 
+			// if we fail to do the seek correctly
+			m_iSpecialOneTimeSeek = pos;
 			// It can take up to 10 retries to get to the right location
 			for(int i=0;i<10;++i)
 			{
 				int positionTime, totalTime;
 				if( abs(getStreamPlaybackPosition(1, positionTime, totalTime) - pos) < 2000 ) //|| totalTime<pos)
 				{
+					m_iSpecialOneTimeSeek = 0;
 					g_pPlutoLogger->Write(LV_WARNING, "Close enough %d %d total %d",positionTime,pos,totalTime);
 					break;
 				}
@@ -866,6 +873,12 @@ void *XineSlaveWrapper::eventProcessingLoop(void *arguments)
 				pStream->m_pOwner->m_pAggregatorObject->ReportTimecode(pStream->m_iStreamID,pStream->m_iPlaybackSpeed);
 				iCounter_TimeCode=1;
 			}
+		}
+		if( m_iSpecialOneTimeSeek )
+		{
+			g_pPlutoLogger->Write(LV_WARNING,"Doing the special one-time hack seek to %d",m_iSpecialOneTimeSeek);
+			xine_play(pStream->m_pStream, 0, m_iSpecialOneTimeSeek);
+			m_iSpecialOneTimeSeek=0;
 		}
 		if( g_iSpecialSeekSpeed ) 
 		{

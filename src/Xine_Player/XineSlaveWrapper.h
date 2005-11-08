@@ -111,6 +111,7 @@ private:
     int         m_iCurrentWindow;
 
 	int			m_iTimeCodeReportFrequency;
+	int			m_iSpecialOneTimeSeek;
 
     string      m_sXineVideoDriverName;
     string      m_sXineAudioDriverName;
