@@ -132,6 +132,9 @@
 				RelativePath=".\devicepoll.cpp">
 			</File>
 			<File
+				RelativePath="..\PlutoUtils\LinuxSerialUSB.cpp">
+			</File>
+			<File
 				RelativePath="Main.cpp">
 			</File>
 			<File
