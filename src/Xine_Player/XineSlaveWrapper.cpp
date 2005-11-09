@@ -239,7 +239,8 @@ bool XineSlaveWrapper::createStream(string fileName, int streamID, int iRequesti
 {
     if( m_xine_osd_t )
     {
-// ***put back        xine_osd_free(m_xine_osd_t);
+		// Freeing causes a seg fault.  I guess that means xinelib automatically frees it when the stream changes???
+		// xine_osd_free(m_xine_osd_t);
         m_xine_osd_t=NULL;
     }
 
@@ -410,11 +411,12 @@ bool XineSlaveWrapper::createStream(string fileName, int streamID, int iRequesti
  */
 bool XineSlaveWrapper::playStream(int streamID, string mediaPosition, bool playbackStopped)
 {
-	if( m_xine_osd_t )
-	{
-// ***put back		xine_osd_free(m_xine_osd_t);
-		m_xine_osd_t=NULL;
-	}
+    if( m_xine_osd_t )
+    {
+		// Freeing causes a seg fault.  I guess that means xinelib automatically frees it when the stream changes???
+		// xine_osd_free(m_xine_osd_t);
+        m_xine_osd_t=NULL;
+    }
 		 
 	StopSpecialSeek();
 
@@ -2138,13 +2140,14 @@ void XineSlaveWrapper::DisplayOSDText(string sText)
 	if( sText.size()==0 && false )  // *** put back
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Clearing OSD %p",m_xine_osd_t);
-// ***put back		if( m_xine_osd_t )
-// ***put back			xine_osd_free(m_xine_osd_t);
+		if( m_xine_osd_t )
+			xine_osd_free(m_xine_osd_t);
 		m_xine_osd_t=NULL;
 		return;
 	}
-// ***put back	if( m_xine_osd_t )
-// ***put back		xine_osd_free(m_xine_osd_t);
+	
+	if( m_xine_osd_t )
+		xine_osd_free(m_xine_osd_t);
 	m_xine_osd_t = xine_osd_new(xineStream->m_pStream, 0, 0, 1000, 100 );
     xine_osd_set_font(m_xine_osd_t, "sans", 20);
     xine_osd_set_text_palette(m_xine_osd_t,
@@ -2153,20 +2156,6 @@ void XineSlaveWrapper::DisplayOSDText(string sText)
     xine_osd_draw_text(m_xine_osd_t, 20, 20, sText.c_str(), XINE_OSD_TEXT1);
     xine_osd_show(m_xine_osd_t, 0);
 	g_pPlutoLogger->Write(LV_CRITICAL,"Attempting to display %s",sText.c_str());
-/*
-	x_xine_osd=xine_osd_new(xineStream->m_pStream, 100, 100, 400, 400);
-g_pPlutoLogger->Write(LV_CRITICAL,"Attempting to display test %p",x_xine_osd); 
-	xine_osd_draw_text(x_xine_osd,110,110,"test",255);
-	xine_osd_draw_text(x_xine_osd,110,110,"test1",1);
-	xine_osd_draw_text(x_xine_osd,110,110,"test100",100);
-	xine_osd_draw_text(x_xine_osd,110,110,"test60000",60000);
-	xine_osd_draw_text(x_xine_osd,110,110,"test160000",160000);
-	xine_osd_set_position(x_xine_osd,200,200);
-	xine_osd_draw_rect(x_xine_osd,150,150,200,200,200,100);
-	xine_osd_show(x_xine_osd,0);
-	xine_osd_draw_text(x_xine_osd,110,110,"test2",255);
-	*/
-	
 }
 
 void XineSlaveWrapper::StartSpecialSeek(int Speed)
