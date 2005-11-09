@@ -133,7 +133,7 @@
 #define DESIGNOBJ_objCameraDesc_CONST 1411
 #define DESIGNOBJ_mnuIntercom_CONST 1412
 #define DESIGNOBJ_objAsktoLeave_CONST 1413
-#define DESIGNOBJ_mnuSecurityCameras_CONST 1414
+#define DESIGNOBJ_mnuQuadViewCameras_CONST 1414
 #define DESIGNOBJ_graCamera1Desc_CONST 1415
 #define DESIGNOBJ_graCamera2Desc_CONST 1416
 #define DESIGNOBJ_graCamera3Desc_CONST 1417
@@ -440,7 +440,6 @@
 #define DESIGNOBJ_grpVolControls_CONST 2288
 #define DESIGNOBJ_objMute_CONST 2289
 #define DESIGNOBJ_icoRadio_CONST 2291
-#define DESIGNOBJ_problemWithGenerator_CONST 2301
 #define DESIGNOBJ_PauseLiveTV_CONST 2302
 #define DESIGNOBJ_butFloorsMedia_CONST 2303
 #define DESIGNOBJ_arrFloorsMedia_CONST 2304
@@ -738,9 +737,7 @@
 #define DESIGNOBJ_mnuFileList_PlayLists_CONST 3226
 #define DESIGNOBJ_dgFileList_Playlists_CONST 3227
 #define DESIGNOBJ_butLoadPlaylist_CONST 3228
-#define DESIGNOBJ_go_to_dvd_CONST 3229
 #define DESIGNOBJ_myth_tv_setup_CONST 3231
-#define DESIGNOBJ_go_to_app_desktop_CONST 3232
 #define DESIGNOBJ_grpNumberPad2_CONST 3233
 #define DESIGNOBJ_num0_CONST 3234
 #define DESIGNOBJ_num1_CONST 3235
@@ -827,8 +824,6 @@
 #define DESIGNOBJ_mnuPower_CONST 3332
 #define DESIGNOBJ_DisplayON_OtherControlling_CONST 3333
 #define DESIGNOBJ_DisplayOFF_CurrentMedia_CONST 3335
-#define DESIGNOBJ_radu_CONST 3336
-#define DESIGNOBJ_goto3336_CONST 3337
 #define DESIGNOBJ_DisplayOFF_Display_CONST 3338
 #define DESIGNOBJ_DisplayOFF_halt_CONST 3339
 #define DESIGNOBJ_mnuMyDisplay_Off_CONST 3340
@@ -1400,6 +1395,7 @@
 #define DESIGNOBJ_dvdcontrols_CONST 4082
 #define DESIGNOBJ_full_screen_CONST 4083
 #define DESIGNOBJ_go_to_cd_CONST 4084
+#define DESIGNOBJ_go_to_dvd_CONST 4085
 #define DESIGNOBJ_dvd_go_back_from_full_scree_CONST 4086
 #define DESIGNOBJ_tv_go_back_from_full_screen_CONST 4087
 #define DESIGNOBJ_program_guide_CONST 4089
@@ -1697,6 +1693,10 @@
 #define DESIGNOBJ_butNum8_CONST 4526
 #define DESIGNOBJ_butNum9_CONST 4527
 #define DESIGNOBJ_butMenu_CONST 4528
+#define DESIGNOBJ_mnuViewBookmarks_CONST 4529
+#define DESIGNOBJ_butSavePlaylist_CONST 4532
+#define DESIGNOBJ_mnuCdRemote_CONST 4534
+#define DESIGNOBJ_mnuSingleCameraView_CONST 4541
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
