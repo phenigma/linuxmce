@@ -766,9 +766,12 @@ void XineSlaveWrapper::xineEventListener(void *userData, const xine_event_t *eve
 			if( g_iSpecialSeekSpeed )
 				break; // Ignore this while we're doing all those seeks
 			{
+			int numaudio = xine_get_stream_info(xineStream->m_pStream, XINE_STREAM_INFO_MAX_AUDIO_CHANNEL);
+			if( numaudio>1 )
+			{
 				string sAudioTracks=StringUtils::itos(xineStream->m_pOwner->getAudio()) + "\n";
-				int iResult=1;
-				for(int i=0;;++i)
+				int iResult=1,i;
+				for(i=0;i<100;++i)
 				{
 					char lang[XINE_LANG_MAX];
 					strcpy(lang,"**error**");
@@ -777,10 +780,19 @@ void XineSlaveWrapper::xineEventListener(void *userData, const xine_event_t *eve
 						break;
 					sAudioTracks += string(xineStream->m_pOwner->TranslateLanguage(lang)) + "\n";
 				}
-
+				if( i>=100 )
+					g_pPlutoLogger->Write(LV_CRITICAL,"Something went wrong audio tracks>100");
+				xineStream->m_pOwner->m_pAggregatorObject->DATA_Set_Audio_Tracks(sAudioTracks);
+			}
+			else
+				g_pPlutoLogger->Write(LV_STATUS,"Ignoring XINE_EVENT_UI_CHANNELS_CHANGED since there aren't multiple audio tracks");
+			
+			int numsubtitle = xine_get_stream_info(xineStream->m_pStream, XINE_STREAM_INFO_MAX_SPU_CHANNEL);
+			if( numsubtitle>1 )
+			{
 				string sSubtitles=StringUtils::itos(xineStream->m_pOwner->getSubtitle()) + "\n";
-				iResult=1;
-				for(int i=0;;++i)
+				int iResult=1,i;
+				for(i=0;i<100;++i)
 				{
 					char lang[XINE_LANG_MAX];
 					strcpy(lang,"**error**");
@@ -789,8 +801,12 @@ void XineSlaveWrapper::xineEventListener(void *userData, const xine_event_t *eve
 						break;
 					sSubtitles += string(xineStream->m_pOwner->TranslateLanguage(lang)) + "\n";
 				}
-				xineStream->m_pOwner->m_pAggregatorObject->DATA_Set_Audio_Tracks(sAudioTracks);
+				if( i>=100 )
+					g_pPlutoLogger->Write(LV_CRITICAL,"Something went wrong subitltes>100");
 				xineStream->m_pOwner->m_pAggregatorObject->DATA_Set_Subtitles(sSubtitles);
+			}
+			else
+				g_pPlutoLogger->Write(LV_STATUS,"Ignoring XINE_EVENT_UI_CHANNELS_CHANGED since there aren't multiple subtitles");
 			}
 			break;
 
