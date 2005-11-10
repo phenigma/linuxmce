@@ -33,6 +33,12 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 	{
 		document.editMediaFile.newAttributeName.value=document.editMediaFile.existingAttributes[document.editMediaFile.existingAttributes.selectedIndex].text
 	}
+	
+	function syncPath(path)
+	{
+		top.treeframe.location=\'index.php?section=leftMediaFilesSync&startPath=\'+escape(path);
+		self.location=\'index.php?section=mainMediaFilesSync&path=\'+escape(path);
+	}	
 	</script>
 	';
 	
@@ -40,7 +46,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 		
 		$out.='
 			<div align="center" class="err">'.stripslashes(@$_REQUEST['error']).'</div>
-			<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
+			<div align="center" class="confirm"><B>'.stripslashes(@$_REQUEST['msg']).'</B></div>
 			<form action="index.php" method="POST" name="editMediaFile" enctype="multipart/form-data">
 				<input type="hidden" name="section" value="editMediaFile">
 				<input type="hidden" name="action" value="update">
@@ -63,6 +69,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 
 		$out.='
 		<h4>Edit Media file</h4>
+		<a href="javascript:syncPath(\''.$rowFile['Path'].'\')">Back</a>
 		<table border="0" cellspacing="0" cellpadding="3">
 			<tr bgColor="#EEEEEE">
 				<td><B>File:</B></td>
@@ -104,7 +111,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 						<tr bgcolor="'.(($pos%2==0)?'#EEEEEE':'#FFFFFF').'">
 							<td><b>'.$rowAttributes['Description'].'</b></td>
 							<td><a href="index.php?section=mainMediaBrowser&attributeID='.$rowAttributes['PK_Attribute'].'&action=properties">'.$rowAttributes['Name'].'</a></td>
-							<td align="center"><a href="#" onClick="if(confirm(\'Are you sure you want to delete this attribute from the file?\'))self.location=\'index.php?section=editMediaFile&fileID='.$fileID.'&action=delete&dAtr='.$rowAttributes['PK_Attribute'].'\'">Remove</a></td>
+							<td align="center"><a href="#" onClick="if(confirm(\'Are you sure you want to delete this attribute from the file?\'))self.location=\'index.php?section=editMediaFile&fileID='.$fileID.'&action=delete&dAtr='.$rowAttributes['PK_Attribute'].'&dpath='.stripslashes($rowFile['Path']).'\'">Remove</a></td>
 						</tr>';
 			}
 			$out.='
@@ -216,8 +223,10 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 					
 					
 					$AttributeAdded=addAttribute($newAttributeType,$newAttributeName,$fileID,$dbADO);
-					if($AttributeAdded!==true){
-						header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&error=Attribute not added: '.nl2br($AttributeAdded));
+					$isAdded=(ereg('RESP: OK',$AttributeAdded))?true:false;
+					
+					if($isAdded!==true){
+						header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&error=Attribute not added: '.urlencode(nl2br($AttributeAdded)));
 						exit();
 					}
 					
@@ -226,20 +235,26 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 				}
 			}else{
 				$AttributeAdded=addAttribute($newAttributeType,$newAttributeName,$fileID,$dbADO);
-				if($AttributeAdded!==true){
-					header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&error=Attribute not added: '.nl2br($AttributeAdded));
+				$isAdded=(ereg('RESP: OK',$AttributeAdded))?true:false;
+				if($isAdded!==true){
+					header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&error=Attribute not added: '.urlencode(nl2br($AttributeAdded)));
 					exit();
 				}
 			}
 			
-			header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg=File attribute added.');			
+			header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg=File attribute added:<br>'.urlencode(nl2br($AttributeAdded)));
+			exit();
 		}
 		
 		if(isset($_REQUEST['dAtr'])){
 			$deleteAttribute=$_REQUEST['dAtr'];
 			$mediadbADO->Execute('DELETE FROM File_Attribute WHERE FK_File=? AND FK_Attribute=?',array($fileID,$deleteAttribute));
 			
-			header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg=Attribute deleted from this file.');			
+			$dpath=$_REQUEST['dpath'];
+			$cmd='sudo -u root /usr/pluto/bin/UpdateMedia -d "'.$dpath.'"';
+			exec($cmd);
+			header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg=Attribute deleted from this file: '.$cmd);	
+			exit();		
 		}
 	
 		$path=stripslashes(@$_POST['Path']);
@@ -279,8 +294,9 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 			}
 			$mediadbADO->Execute('UPDATE File SET Filename=?, Path=?, EK_MediaType=? WHERE PK_File=?',array($fileName,$path,$type,$fileID));
 			
-			exec('sudo -u root /usr/pluto/bin/UpdateMedia -d "'.$path.'"');
-			header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg=Media file updated.');			
+			$cmd='sudo -u root /usr/pluto/bin/UpdateMedia -d "'.$path.'"';
+			exec($cmd);
+			header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg=Media file updated: '.$cmd);			
 			exit();
 		}
 		
@@ -337,6 +353,7 @@ function addAttribute($newAttributeType,$newAttributeName,$fileID,$dbADO){
 	$cmd='/usr/pluto/bin/MessageSend localhost -targetType device -r 0 '.$mediaPlugin.' 1 391 122 '.$newAttributeType.' 145 '.$fileID.' 5 "'.$newAttributeName.'"';
 	exec($cmd,$ret);
 	$response=join('<br>',$ret);
-
-	return (ereg('RESP: OK',$response))?true:$cmd.'<br>'.$response;
+	$suffix=(ereg('RESP: OK',$response))?'RESP: OK':'';
+	
+	return $cmd.'<br>Response: '.$suffix;
 }

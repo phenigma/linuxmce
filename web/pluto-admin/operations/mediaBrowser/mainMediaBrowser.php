@@ -238,7 +238,7 @@ function mainMediaBrowser($output,$mediadbADO,$dbADO) {
 				';
 				$dontRedirect=true;
 			}else{
-				updateAttribute($name,$attributeID,$dbADO);
+				$updateCmd=updateAttribute($name,$attributeID,$dbADO);
 			}
 				
 		}else{
@@ -303,7 +303,7 @@ function mainMediaBrowser($output,$mediadbADO,$dbADO) {
 		if(!isset($dontRedirect))
 			$out.='
 				<script>
-					self.location=\'index.php?section=mainMediaBrowser&attributeID='.$attributeID.'&action=properties'.((isset($error))?'&error='.$error:'').'\';
+					self.location=\'index.php?section=mainMediaBrowser&attributeID='.$attributeID.'&action=properties'.((isset($error))?'&error='.$error:'').((isset($updateCmd))?'&msg='.$updateCmd:'').'\';
 				</script>
 				';
 		
@@ -327,7 +327,7 @@ function updateAttribute($name,$attributeID,$dbADO){
 	exec($cmd,$ret);
 	$response=join('<br>',$ret);
 
-	return (ereg('RESP: OK',$response))?true:$cmd.'<br>'.$response;
+	return $cmd.'<br>Response: '.$response;
 	
 }
 ?>
