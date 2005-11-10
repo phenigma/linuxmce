@@ -1004,6 +1004,13 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 		pMediaStream->UpdateDescriptions(true);
 		MediaInfoChanged( pMediaStream, pMediaStream->m_dequeMediaFile.size()>1 );
 
+//THIS IS A HACK FOR MONSTER SHOW!!!!  REMOVE ME!!!
+bool bMonster = 
+    pMediaStream->m_dequeMediaFile.size() == 1 && 
+    pMediaStream->m_dequeMediaFile[0]->m_sFilename.find("/home/monster") != string::npos;
+
+//just skip the block
+if(!bMonster)
 		for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
 		{
 			OH_Orbiter *pOH_Orbiter = (*it).second;
