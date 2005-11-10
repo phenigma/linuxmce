@@ -789,6 +789,27 @@
 #define TEXT_Ok_CONST 1494
 #define TEXT_Pause_VDR_CONST 1495
 #define TEXT_Menu_VDR_CONST 1496
+#define TEXT_Start_Wizard_CONST 1497
+#define TEXT_Step_1_CONST 1498
+#define TEXT_Repeat_CONST 1499
+#define TEXT_Step_2_CONST 1500
+#define TEXT_Step_3_CONST 1501
+#define TEXT_Step_4_CONST 1502
+#define TEXT_Step_5_CONST 1503
+#define TEXT_Step_6_CONST 1504
+#define TEXT_Step_7_CONST 1505
+#define TEXT_Step_8_CONST 1506
+#define TEXT_Step_9_CONST 1507
+#define TEXT_Step_10_CONST 1508
+#define TEXT_Step_11_CONST 1509
+#define TEXT_Step_12_CONST 1510
+#define TEXT_Step_13_CONST 1511
+#define TEXT_Step_14_CONST 1512
+#define TEXT_Step_15_CONST 1513
+#define TEXT_Step_16_CONST 1514
+#define TEXT_Step_17_CONST 1515
+#define TEXT_Step_18_CONST 1516
+#define TEXT_Step_19_CONST 1517
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
