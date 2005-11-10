@@ -1009,8 +1009,16 @@ bool bMonster =
     pMediaStream->m_dequeMediaFile.size() == 1 && 
     pMediaStream->m_dequeMediaFile[0]->m_sFilename.find("/home/monster") != string::npos;
 
+g_pPlutoLogger->Write(LV_WARNING, "This is a monster file: %d, size %d", bMonster,
+                      pMediaStream->m_dequeMediaFile.size());
+
 //just skip the block
-if(!bMonster)
+if(bMonster)
+{
+    g_pPlutoLogger->Write(LV_WARNING, "This is a monster file, will skip this");  
+    return true;
+}
+
 		for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
 		{
 			OH_Orbiter *pOH_Orbiter = (*it).second;
