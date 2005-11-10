@@ -1007,12 +1007,12 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 //THIS IS A HACK FOR MONSTER SHOW!!!!  REMOVE ME!!!
 bool bMonster = 
     pMediaStream->m_dequeMediaFile.size() == 1 && 
-    pMediaStream->m_dequeMediaFile[0]->m_sFilename.find("/home/monster") != string::npos;
+    pMediaStream->m_dequeMediaFile[0]->m_sPath.find("/home/monster") != string::npos;
 
 g_pPlutoLogger->Write(LV_WARNING, "This is a monster file: %d, size %d, file %s", bMonster,
                       pMediaStream->m_dequeMediaFile.size(),
                       pMediaStream->m_dequeMediaFile.size() == 1 ? 
-                      pMediaStream->m_dequeMediaFile[0]->m_sFilename.c_str() : "doesn't matter" );
+                      pMediaStream->m_dequeMediaFile[0]->m_sPath.c_str() : "doesn't matter" );
 
 //just skip the block
 if(bMonster)
