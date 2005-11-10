@@ -6597,7 +6597,7 @@ void Orbiter::FireEntAreaRoomCommands()
 {
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"set current location to ea %d room %d",
-		m_pLocationInfo->PK_EntertainArea,m_pLocationInfos->PK_Room);
+		m_pLocationInfo->PK_EntertainArea,m_pLocationInfo->PK_Room);
 #endif
 	DCE::CMD_Set_Entertainment_Area CMD_Set_Entertainment_Area( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, StringUtils::itos(m_pLocationInfo->PK_EntertainArea) );
 	SendCommand( CMD_Set_Entertainment_Area );
