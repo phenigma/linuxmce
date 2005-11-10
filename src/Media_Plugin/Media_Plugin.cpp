@@ -1004,23 +1004,6 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 		pMediaStream->UpdateDescriptions(true);
 		MediaInfoChanged( pMediaStream, pMediaStream->m_dequeMediaFile.size()>1 );
 
-//THIS IS A HACK FOR MONSTER SHOW!!!!  REMOVE ME!!!
-bool bMonster = 
-    pMediaStream->m_dequeMediaFile.size() == 1 && 
-    pMediaStream->m_dequeMediaFile[0]->m_sPath.find("/home/monster") != string::npos;
-
-g_pPlutoLogger->Write(LV_WARNING, "This is a monster file: %d, size %d, file %s", bMonster,
-                      pMediaStream->m_dequeMediaFile.size(),
-                      pMediaStream->m_dequeMediaFile.size() == 1 ? 
-                      pMediaStream->m_dequeMediaFile[0]->m_sPath.c_str() : "doesn't matter" );
-
-//just skip the block
-if(bMonster)
-{
-    g_pPlutoLogger->Write(LV_WARNING, "This is a monster file, will skip this");  
-    return true;
-}
-
 		for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
 		{
 			OH_Orbiter *pOH_Orbiter = (*it).second;
@@ -2357,6 +2340,14 @@ int Media_Plugin::DetermineUserOnOrbiter(int iPK_Device_Orbiter)
 void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea,bool bResume,int iRepeat,string &sCMD_Result,Message *pMessage)
 //<-dceag-c43-e->
 {
+	if( sFilename.find("/home/monster")!=string::npos )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Temporary hack for monster");
+		DCE::CMD_Play_Media CMD_Play_Media(0,20,sFilename,0,0,"");
+		SendCommand(CMD_Play_Media);
+		return;
+	}
+
     PLUTO_SAFETY_LOCK(mm,m_MediaMutex);
 
 	int iPK_Device_Orbiter = pMessage->m_dwPK_Device_From;
