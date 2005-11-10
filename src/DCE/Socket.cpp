@@ -815,7 +815,11 @@ bool Socket::ReceiveData( int iSize, char *pcData, int nTimeout/* = -1*/ )
 			if( iRet == 0 || iRet == -1 )
 			{
 #ifdef DEBUG
+#ifndef WINCE
                 g_pPlutoLogger->Write(LV_STATUS, "Socket::ReceiveData timeout %d socket %d ret %d errno %d", tv_total.tv_sec, m_Socket, iRet, iRet == -1 ? errno : 0);
+#else
+                g_pPlutoLogger->Write(LV_STATUS, "Socket::ReceiveData timeout %d socket %d ret %d", tv_total.tv_sec, m_Socket, iRet);
+#endif
 #endif                
                 Close();
 				if( m_bQuit || m_bCancelSocketOp )
