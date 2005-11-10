@@ -53,8 +53,16 @@ bool PocketFrogGraphic::LoadGraphic(char *pData, size_t iSize,int iRotation)
 	}
 	else
 	{
-		m_pSurface = LoadImage(pDisplayDevice, (uint8_t*)pData, 
-			(uint8_t*)(pData + iSize));
+        try
+        {
+            m_pSurface = LoadImage(pDisplayDevice, (uint8_t*)pData, 
+                (uint8_t*)(pData + iSize));
+        }
+        catch(...)
+        {
+            //not working
+            m_pSurface = NULL;
+        }
 	}
 
 #ifndef WINCE
