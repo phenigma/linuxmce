@@ -1009,8 +1009,10 @@ bool bMonster =
     pMediaStream->m_dequeMediaFile.size() == 1 && 
     pMediaStream->m_dequeMediaFile[0]->m_sFilename.find("/home/monster") != string::npos;
 
-g_pPlutoLogger->Write(LV_WARNING, "This is a monster file: %d, size %d", bMonster,
-                      pMediaStream->m_dequeMediaFile.size());
+g_pPlutoLogger->Write(LV_WARNING, "This is a monster file: %d, size %d, file %s", bMonster,
+                      pMediaStream->m_dequeMediaFile.size(),
+                      pMediaStream->m_dequeMediaFile.size() == 1 ? 
+                      pMediaStream->m_dequeMediaFile[0]->m_sFilename.c_str() : "doesn't matter" );
 
 //just skip the block
 if(bMonster)
