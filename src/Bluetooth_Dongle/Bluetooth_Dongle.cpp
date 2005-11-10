@@ -92,6 +92,8 @@ using namespace DCE;
 
 void *HandleBDCommandProcessorThread( void *p )
 {
+g_pPlutoLogger->Write(LV_STATUS,"HandleBDCommandProcessorThread started");
+
 	BD_Orbiter_Plus_DongleHandle *pBD_Orbiter_Plus_DongleHandle = (BD_Orbiter_Plus_DongleHandle *)p;
 
     Bluetooth_Dongle *pBluetooth_Dongle = pBD_Orbiter_Plus_DongleHandle->m_pBluetooth_Dongle;
@@ -230,6 +232,8 @@ void *HandleBDCommandProcessorThread( void *p )
 
 void *ReconnectToBluetoothDongleThread(void *p)
 {
+g_pPlutoLogger->Write(LV_STATUS,"ReconnectToBluetoothDongleThread started");
+
     BD_ReconnectInfo *pReconnectInfo = (BD_ReconnectInfo *)p;
 
     if(!pReconnectInfo)
@@ -717,7 +721,8 @@ void Bluetooth_Dongle::CMD_Link_with_mobile_orbiter(string sMac_address,string s
 			);
 
         g_pPlutoLogger->Write( LV_WARNING, "Connected to PlutoMO." );
-	    pthread_create( &pProcessor->m_BDSockThreadID, NULL, HandleBDCommandProcessorThread, ( void* )pBD_Orbiter_Plus_DongleHandle );
+	    int ret = pthread_create( &pProcessor->m_BDSockThreadID, NULL, HandleBDCommandProcessorThread, ( void* )pBD_Orbiter_Plus_DongleHandle );
+g_pPlutoLogger->Write(LV_STATUS,"pthread_create returned with %d", ret);
 	}
     else
     {
@@ -904,7 +909,8 @@ void Bluetooth_Dongle::CMD_Disconnect_From_Mobile_Orbiter(string sMac_address,st
     BD_ReconnectInfo *pReconnectInfo = new BD_ReconnectInfo(this, sMac_address, iDeviceToLink, sVMC_File, sConfig_File);
 
     pthread_t pthread_id;
-    pthread_create( &pthread_id, NULL, ReconnectToBluetoothDongleThread, (void*)pReconnectInfo );
+    int ret = pthread_create( &pthread_id, NULL, ReconnectToBluetoothDongleThread, (void*)pReconnectInfo );
+g_pPlutoLogger->Write(LV_STATUS,"pthread_create returned with %d", ret);
 }
 //<-dceag-createinst-b->! I don't need it.
 //<-dceag-createinst-e->
