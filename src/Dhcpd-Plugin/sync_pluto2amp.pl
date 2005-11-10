@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 use strict;
-#use diagnostics;
+use diagnostics;
 use DBI;
 
 #declare vars (it's safer this way)
@@ -172,16 +172,13 @@ sub remove_from_asterisk_db()
 	my $DB_ROW;
 	my $TBL;
 
-	foreach $TBL ('iax','sip','zap')
+	$DB_SQL = "select user from devices where (description like 'pl_".$DEVICE_ID."')";
+	$DB_STATEMENT = $DB_AS_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
+	$DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
+	if($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
 	{
-		$DB_SQL = "select id from $TBL where (keyword='accountcode') and (data like 'pl_".$DEVICE_ID."%')";
-		$DB_STATEMENT = $DB_AS_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
-		$DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
-		if($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
-		{
-			my $old_ext = $DB_ROW->{'id'};
-			`curl 'http://localhost/pluto-admin/amp/admin/config.php?display=extensions&extdisplay=$old_ext&action=del' > /dev/null`;
-		}
+		my $old_ext = $DB_ROW->{'user'};
+		`curl 'http://localhost/pluto-admin/amp/admin/config.php?display=extensions&extdisplay=$old_ext&action=del' > /dev/null`;
 	}
 }
 
@@ -195,7 +192,7 @@ sub add_to_asterisk_db()
 	$DEVICE_TYPE = 'zap' if($DEVICE_TYPE =~ /^zap/i);
 	$DEVICE_TYPE = 'custom' if($DEVICE_TYPE =~ /^sccp/i);		
 	
-	unless($DEVICE_TYPE =~/^(iax|sip|zap|custom)$/)
+	unless($DEVICE_TYPE =~/^(iax2|sip|zap|custom)$/)
 	{
 		print "Unsupported device type : \"$DEVICE_TYPE\"\n";
 		return;
@@ -206,13 +203,12 @@ sub add_to_asterisk_db()
 	$EXT_VARS{'action'}="add";
 	$EXT_VARS{'tech'}=$DEVICE_TYPE;
 	$EXT_VARS{'extension'}=$DEVICE_EXT;
-	$EXT_VARS{'name'}=$DEVICE_EXT;
+	$EXT_VARS{'name'}="pl_".$DEVICE_ID;
 	$EXT_VARS{'devicetype'}="fixed";
 	$EXT_VARS{'deviceuser'}="same";
 	$EXT_VARS{'password'}="";
 	$EXT_VARS{'outboundcid'}="";
 	$EXT_VARS{'secret'}=$DEVICE_EXT if ($DEVICE_TYPE ne 'custom');
-	$EXT_VARS{'accountcode'}="pl_".$DEVICE_ID if ($DEVICE_TYPE ne 'custom');
 	$EXT_VARS{'dial'}="SCCP/".$DEVICE_EXT if ($DEVICE_TYPE eq 'custom');
 	foreach my $var (keys %EXT_VARS)
 	{
