@@ -762,56 +762,6 @@ g_pPlutoLogger->Write(LV_STATUS,"mobile orbiter linked: %p with version: %s",pOH
     //  pOH_Orbiter->m_pController->m_pEntGroup = pMobileOrbiter->m_pEntGroupAudioZone_LockedOn->m_pEntGroup;
     //}
 
-
-    /*
-    {
-        else
-        {
-            pMobileOrbiter->m_pController->m_bReady=true;
-            pMobileOrbiter->m_pController->SetDefaultFlags();
-            // Remove any old association
-            if( pMobileOrbiter->m_pDevice_CurrentDetected )
-            {
-                pMobileOrbiter->RemovingAssocation();
-
-                ReceivedOCMessage(NULL,new OCMessage(DEVICEID_DCEROUTER,pMobileOrbiter->m_pDevice_CurrentDetected->m_iPKID_Device,
-                    PRIORITY_NORMAL,MESSAGETYPE_COMMAND,ACTION_LINK_WITH_MOBILE_ORBITER_CONST,2,C_ACTIONPARAMETER_ID_CONST,pMobileOrbiter->m_sID.c_str(),
-                    C_ACTIONPARAMETER_ON_OFF_CONST,"0"));
-            }
-
-            Device *pDevice_PriorDetected = pMobileOrbiter->m_pDevice_CurrentDetected;
-            // Associated with a new media director.  Show the corresponding menu
-            pMobileOrbiter->m_pDevice_CurrentDetected=pDeviceFrom;
-            // See if there's an ent group involved
-
-            if( pMobileOrbiter->m_pEntGroupAudioZone_LockedOn )
-            {
-                pMobileOrbiter->m_pController->m_pEntGroup = pMobileOrbiter->m_pEntGroupAudioZone_LockedOn->m_pEntGroup;
-            }
-            else
-            {
-                pMobileOrbiter->m_pController->m_pEntGroup=NULL;
-                if( pDeviceFrom->m_pDeviceParent )
-                {
-                    Device *pEntGroup = m_pPlutoEvents->FindSibling(pDeviceFrom->m_pDeviceParent,MASTERDEVICELIST_ENTERTAIN_UNIT_CONST);
-                    if( pEntGroup )
-                    {
-                        pMobileOrbiter->m_pController->m_pEntGroup = m_pDataGridDevice->m_mapEntGroup_Find(pEntGroup->m_iPKID_Device);
-                    }
-                }
-            }
-
-            if( pMobileOrbiter->m_pRoom_LockedOn )
-                pMobileOrbiter->m_pDevice_This->m_pRoom=pMobileOrbiter->m_pRoom_LockedOn;
-            else
-                pMobileOrbiter->m_pDevice_This->m_pRoom=pDeviceFrom->m_pRoom;
-
-            pMobileOrbiter->NewAssocation(pDevice_PriorDetected);
-
-            pMobileOrbiter->ShowMenu(0,*SafetyMessage); // 0=main menu
-        }
-    }
-    */
     return false;
 }
 
@@ -1984,6 +1934,9 @@ g_pPlutoLogger->Write(LV_STATUS,"CMD_Set_Room_For_Device: before %d after %d pen
 
 void Orbiter_Plugin::FireFollowMe(string sMask,int iPK_Orbiter,int iPK_Users,int iPK_RoomOrEntArea,int iPK_RoomOrEntArea_Left)
 {
+	g_pPlutoLogger->Write(LV_WARNING,"Orbiter_Plugin::FireFollowMe mask %s orb %d user %d r/e %d r/e left %d",
+					  sMask.c_str(),iPK_Orbiter,iPK_Users,iPK_RoomOrEntArea,iPK_RoomOrEntArea_Left);
+
 	OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(iPK_Orbiter);
 	if( !pOH_Orbiter )
 	{

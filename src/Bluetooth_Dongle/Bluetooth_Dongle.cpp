@@ -818,6 +818,7 @@ void Bluetooth_Dongle::CMD_Create_Mobile_Orbiter(int iPK_Device,string sPK_Enter
 
 		if(NULL != pOrbiter)
 		{
+			((Orbiter *)pOrbiter)->FireEntAreaRoomCommands();
 			Simulator::GetInstance()->m_pOrbiter = (Orbiter *)pOrbiter;	
 #ifdef WIN32			
 			Simulator::GetInstance()->LoadConfigurationFile("BluetoothDongle.conf");

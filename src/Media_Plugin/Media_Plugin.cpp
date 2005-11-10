@@ -3140,7 +3140,8 @@ void Media_Plugin::FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iPK_
 		g_pPlutoLogger->Write(LV_STATUS,"Move Media, but user %d isn't listening to anything.  Open Streams: %d",iPK_Users,(int) m_mapMediaStream.size());
 	else
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"Move Media, user %d -- stream %d %s",iPK_Users,pMediaStream->m_iStreamID_get(),pMediaStream->m_sMediaDescription.c_str());
+		g_pPlutoLogger->Write(LV_WARNING,"Move Media, ea %d/%d user %d -- stream %d %s",
+			iPK_RoomOrEntArea, iPK_RoomOrEntArea_Left, iPK_Users,pMediaStream->m_iStreamID_get(),pMediaStream->m_sMediaDescription.c_str());
 		// Only move the media if it's not already there.  Maybe the user just turned follow me on
 		if( pMediaStream->m_mapEntertainArea.find(iPK_RoomOrEntArea)==pMediaStream->m_mapEntertainArea.end() )
 			CMD_MH_Move_Media(pMediaStream->m_iStreamID_get(),StringUtils::itos(iPK_RoomOrEntArea));

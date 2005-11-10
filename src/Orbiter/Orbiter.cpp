@@ -2991,6 +2991,9 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
                 PromptUser("Something went very wrong. No initial location!");
 				exit( 1 );
 			}
+#ifdef DEBUG
+			g_pPlutoLogger->Write(LV_STATUS,"Setting current location");
+#endif
 			CMD_Set_Current_Location(m_pLocationInfo_Initial->iLocation);
 
 			DesignObj_OrbiterMap::iterator iHao=m_ScreenMap.begin(  );
@@ -6590,6 +6593,18 @@ void Orbiter::CMD_Set_Current_User(int iPK_Users,string &sCMD_Result,Message *pM
     SendCommand( CMD_Set_Current_User );
 }
 
+void Orbiter::FireEntAreaRoomCommands()
+{
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"set current location to ea %d room %d",
+		m_pLocationInfo->PK_EntertainArea,m_pLocationInfos->PK_Room);
+#endif
+	DCE::CMD_Set_Entertainment_Area CMD_Set_Entertainment_Area( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, StringUtils::itos(m_pLocationInfo->PK_EntertainArea) );
+	SendCommand( CMD_Set_Entertainment_Area );
+	DCE::CMD_Set_Current_Room CMD_Set_Current_Room( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, m_pLocationInfo->PK_Room );
+	SendCommand( CMD_Set_Current_Room );
+}
+
 //<-dceag-c88-b->
 
 	/** @brief COMMAND: #88 - Set Current Location */
@@ -6608,11 +6623,13 @@ void Orbiter::CMD_Set_Current_Location(int iLocationID,string &sCMD_Result,Messa
         m_pLocationInfo = pLocationInfo;
 		if( !m_bStartingUp )
 		{
-			DCE::CMD_Set_Entertainment_Area CMD_Set_Entertainment_Area( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, StringUtils::itos(pLocationInfo->PK_EntertainArea) );
-			SendCommand( CMD_Set_Entertainment_Area );
-			DCE::CMD_Set_Current_Room CMD_Set_Current_Room( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, pLocationInfo->PK_Room );
-			SendCommand( CMD_Set_Current_Room );
+			FireEntAreaRoomCommands();
 		}
+#ifdef DEBUG
+		else
+			g_pPlutoLogger->Write(LV_STATUS,"Not firing set current location because we're starting up");
+#endif
+
         m_sMainMenu = StringUtils::itos( atoi( m_sMainMenu.c_str(  ) ) ) + "." + StringUtils::itos( iLocationID ) + ".0";
 
 		string sMainMenu = StringUtils::itos( atoi( m_pDesignObj_Orbiter_MainMenu->m_ObjectID.c_str(  ) ) ) + "." + StringUtils::itos( iLocationID ) + ".0";

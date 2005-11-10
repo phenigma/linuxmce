@@ -918,6 +918,9 @@ public:
 	 */
 	void CallMaintenanceInMiliseconds( time_t miliseconds, OrbiterCallBack fnCallBack, void *iData, ePurgeExisting e_PurgeExisting, bool bPurgeTaskWhenScreenIsChanged = true );
 
+	// Report our current EntArea/Room to orbiter plugin
+	void FireEntAreaRoomCommands();
+
 	/**
 	 *	MAINTENANCE CALL BACKS
 	 *

@@ -27,12 +27,13 @@
 
 bool FollowMe_Device::HandleFollowMe( class Message *pMessage )
 {
-g_pPlutoLogger->Write(LV_WARNING,"Handle follow me type %d",pMessage->m_dwID);
-
 	int iPK_Orbiter = atoi(pMessage->m_mapParameters[EVENTPARAMETER_PK_Orbiter_CONST].c_str());
 	int iPK_Users = atoi(pMessage->m_mapParameters[EVENTPARAMETER_PK_Users_CONST].c_str());
 	int iPK_RoomOrEntArea = atoi(pMessage->m_mapParameters[pMessage->m_dwID==EVENT_Follow_Me_Media_CONST ? EVENTPARAMETER_PK_EntArea_CONST : EVENTPARAMETER_PK_Room_CONST].c_str());
 	int iPK_RoomOrEntArea_Left = atoi(pMessage->m_mapParameters[pMessage->m_dwID==EVENT_Follow_Me_Media_CONST ? EVENTPARAMETER_PK_EntArea_Left_CONST : EVENTPARAMETER_PK_Room_Left_CONST].c_str());
+
+g_pPlutoLogger->Write(LV_WARNING,"Handle follow me type %d orb %d user %d r/e %d r/e left %d",
+					  pMessage->m_dwID,iPK_Orbiter,iPK_Users,iPK_RoomOrEntArea,iPK_RoomOrEntArea_Left);
 
 	if( iPK_RoomOrEntArea_Left )
 		FollowMe_LeftRoom(pMessage->m_dwID, iPK_Orbiter, iPK_Users, iPK_RoomOrEntArea, iPK_RoomOrEntArea_Left);
