@@ -22,7 +22,12 @@ map<string, int> MediaIdentifier::m_mapMediaIdentifier;
 //-----------------------------------------------------------------------------------------------------			
 /*static*/ int MediaIdentifier::GetFileMediaType(string sFilename)
 {
-	if(!m_mapMediaIdentifier.size())
+#ifdef WIN32
+    cout << "Not implemented!" << endl;
+    return 0;
+#endif
+    
+    if(!m_mapMediaIdentifier.size())
 		Init();
 	
 	string sMediaTypeFile = "/tmp/pluto-media-type.txt";

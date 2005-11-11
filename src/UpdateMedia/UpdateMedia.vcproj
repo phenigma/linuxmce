@@ -135,6 +135,12 @@
 				RelativePath=".\Main.cpp">
 			</File>
 			<File
+				RelativePath=".\MediaIdentifier.cpp">
+			</File>
+			<File
+				RelativePath=".\PlutoMediaFile.cpp">
+			</File>
+			<File
 				RelativePath="..\PlutoUtils\StringUtils.cpp">
 			</File>
 			<File
@@ -149,6 +155,9 @@
 			</File>
 			<File
 				RelativePath="..\PlutoUtils\FileUtils.h">
+			</File>
+			<File
+				RelativePath=".\PlutoMediaFile.h">
 			</File>
 			<File
 				RelativePath="..\PlutoUtils\StringUtils.h">

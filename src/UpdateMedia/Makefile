@@ -9,6 +9,8 @@ LDLIBS= -lpluto_media -lpluto_main -lDCECommon -lSerializeClass -lmysqlclient_r 
 
 sources = Main.cpp \
 UpdateMedia.cpp \
+PlutoMediaFile.cpp \
+MediaIdentifier.cpp \
 $(ROOT)/inotify/FileNotifier.cpp \
 $(ROOT)/inotify/inotify_class.cpp \
 $(ROOT)/UpdateMedia/id3info/id3info.cpp 

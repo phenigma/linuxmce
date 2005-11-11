@@ -46,6 +46,8 @@ namespace FileUtils
     string BasePath( string sFileName ); /** < returns the path one dir up @todo ask */
     string FileWithoutExtension ( string sFileName ); /** < returns the filename without the extension */
     string FilenameWithoutPath( string sFullPath, bool bIncludeExtension=true ); /** < returnes only the file name from a path/filename string */
+    string IncludeTrailingSlash(string sDirectoryPath);
+    string ExcludeTrailingSlash(string sDirectoryPath);
 
 #ifndef WINCE
     string ValidCPPName( string sInput ); /** < converts the input file name to a valid CPP file name */

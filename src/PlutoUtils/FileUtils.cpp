@@ -416,6 +416,21 @@ string FileUtils::FilenameWithoutPath( string sFullPath, bool bIncludeExtension 
         return sFullPath;
 }
 
+string FileUtils::IncludeTrailingSlash(string sDirectoryPath)
+{
+    if(sDirectoryPath.size() && sDirectoryPath[sDirectoryPath.size() - 1] != '/')
+        sDirectoryPath = sDirectoryPath + "/";
+
+    return sDirectoryPath;
+}
+
+string FileUtils::ExcludeTrailingSlash(string sDirectoryPath)
+{
+    if(sDirectoryPath.size() && sDirectoryPath[sDirectoryPath.size() - 1] == '/')
+        sDirectoryPath = sDirectoryPath.substr(0, sDirectoryPath.size() - 1);
+
+    return sDirectoryPath;
+}
 
 #ifndef WINCE
 

@@ -22,13 +22,8 @@ public:
 	void DoIt();
 
 	int ReadDirectory(string Directory); // Returns the picture for the directory
-	void SetPicAttribute(string sDirectory,string sFile,int PK_Picture);
-	void SetFileAttribute(string sDirectory,string sFile,int PK_File);
-	int GetFileAttribute(string sDirectory,string sFile);
-	int AddFileToDatabase(int PK_MediaType,string sDirectory,string sFile);
-	int GetPicForFileOrDirectory(string sFile,int PK_File); // if PK_File is 0, we will find it
-	int HandleFileNotInDatabase(string sDirectory,string sFile,int PK_MediaType=0);
-	void UpdateSearchTokens();
+
+    void UpdateSearchTokens();
 	void UpdateThumbnails();
     void SyncDbWithDirectory(string sDirectory);
 };
