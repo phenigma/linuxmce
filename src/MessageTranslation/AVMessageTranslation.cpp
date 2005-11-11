@@ -304,13 +304,24 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 		}
 		
 		if(iValue != 0) {
-			g_pPlutoLogger->Write(LV_STATUS,"Translate playback speed into scan value: %d", iValue);
-			MessageReplicator msgrepl(
-				Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
-								PRIORITY_NORMAL, MESSAGETYPE_COMMAND,
-								iValue > 0 ? COMMAND_Scan_FwdFast_Fwd_CONST : COMMAND_Scan_BackRewind_CONST, 0),
-						abs(iValue));
-			outrepls.push_back(msgrepl);
+			if(iValue != 1000)
+			{
+				g_pPlutoLogger->Write(LV_STATUS,"Translate playback speed into scan value: %d", iValue);
+				MessageReplicator msgrepl(
+					Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
+									PRIORITY_NORMAL, MESSAGETYPE_COMMAND,
+									iValue > 0 ? COMMAND_Scan_FwdFast_Fwd_CONST : COMMAND_Scan_BackRewind_CONST, 0),
+							abs(iValue));
+				outrepls.push_back(msgrepl);
+			}
+			else
+			{
+				g_pPlutoLogger->Write(LV_STATUS,"Translate playback speed(1000) into Play");
+				MessageReplicator msgrepl(
+					Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
+									PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Play_CONST, 0));
+				outrepls.push_back(msgrepl);
+			}
 			return true;
 		} else {
 			g_pPlutoLogger->Write(LV_WARNING, "Cannot Translate 0 into scan value.");
