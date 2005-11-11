@@ -30,9 +30,9 @@ sources += \
 	BoundRemote.cpp \
 	Generic_NonPluto_Media.cpp \
 	MediaHandlerBase.cpp \
-	UpdateMedia/PlutoMediaFile.cpp \
-	UpdateMedia/MediaIdentifier.cpp \
-	UpdateMedia/id3info/id3info.cpp 
+	../UpdateMedia/PlutoMediaFile.cpp \
+	../UpdateMedia/MediaIdentifier.cpp \
+	../UpdateMedia/id3info/id3info.cpp 
 
 #<-dceag-mf-b->!
 LDLIBS_NAMES = $(INTERNAL_LIBS_NAMES) $(EXTERNAL_LIBS_NAMES)
