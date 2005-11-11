@@ -56,7 +56,8 @@
 	$GLOBALS['ONScreenOrbiter']=62;				// On screen orbiter
 	$GLOBALS['EventPlugIn']=52;					// Event plugin
 	$GLOBALS['Asterisk']=45;					// Asterisk
-	$GLOBALS['ProxyOrbiter']=1727;				// Proxy Orbiter
+	$GLOBALS['ProxyOrbiter']=1751;				// Proxy Orbiter
+	$GLOBALS['GenericWebDevice']=1748;			// Generic Web Device
 	
 	// PK_Template from table Template
 	
@@ -161,6 +162,8 @@
 	$GLOBALS['RipFormat']=47;					// Rip format (device data name is Type)
 	$GLOBALS['RemotePhoneIP']=118;				// Remote Phone IP
 	$GLOBALS['ListenPort']=119;					// Listen Port
+	$GLOBALS['SupportIframes']=122;				// Support iframes
+	$GLOBALS['RefreshInterval']=123;			// Refresh Interval
 	
 	
 	// PK_FloorplanType from table FloorplanType 
