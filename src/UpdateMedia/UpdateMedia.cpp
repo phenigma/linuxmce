@@ -40,7 +40,7 @@
 
 
 #define  VERSION "<=version=>"
-#define  USE_DEVEL_DATABASES 
+//#define  USE_DEVEL_DATABASES 
 
 using namespace std;
 using namespace DCE;
