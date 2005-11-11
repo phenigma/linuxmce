@@ -647,16 +647,7 @@ bool Socket::SendData( int iSize, const char *pcData )
 			}
 #endif
 
-			if (iRet == 0)
-			{
-				tv_total -= tv_select;
-			}
-			else
-			{
-				// we received data; reset timeout counter
-				tv_total.tv_sec = SOCKET_TIMEOUT;
-				tv_total.tv_usec = 0;
-			}
+			tv_total -= tv_select;
 
 		} while (iRet != -1 && iRet != 1 && tv_total.tv_sec > 0);
 
@@ -814,16 +805,7 @@ bool Socket::ReceiveData( int iSize, char *pcData, int nTimeout/* = -1*/ )
 					iRet = 0;
 				}
 #endif
-				if (iRet == 0)
-				{
-					tv_total -= tv_select;
-				}
-				else
-				{
-					// we received data; reset timeout counter
-					tv_total.tv_sec = nInternalReceiveTimeout;
-					tv_total.tv_usec = 0;
-				}
+				tv_total -= tv_select;
 #ifndef DISABLE_SOCKET_TIMEOUTS
 			} while (iRet != -1 && iRet != 1 && (nInternalReceiveTimeout > 0 ? tv_total.tv_sec > 0 : true));
 #else
