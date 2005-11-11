@@ -142,7 +142,7 @@ void PlutoMediaFile::SetFileAttribute(int PK_File)
     string sPK_File = StringUtils::itos(PK_File);
 
 #ifndef WIN32
-    attr_set( (m_sDirectory + "/" + m_sFile).c_str( ), "ID", m_sPK_File.c_str( ), m_sPK_File.length( ), 0 );
+    attr_set( (m_sDirectory + "/" + m_sFile).c_str( ), "ID", sPK_File.c_str( ), sPK_File.length( ), 0 );
 #endif
 
     //sync id3tags on the files with the attributes from the db
