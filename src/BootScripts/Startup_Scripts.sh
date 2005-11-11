@@ -45,6 +45,8 @@ if [ "$Parameter" == "start" -o "$Parameter" == "script" ]; then
 	When="S"
 elif [ "$Parameter" == "stop" ]; then
 	When="P"
+	rm -f /etc/rc{0,6}.d/S*{umountnfs.sh,portmap,networking} # remove problematic diskless services (can't poweroff if these get stopped)
+	# TODO: don't do this on Core (doesn't hurt though)
 fi
 
 [ -z "$Script" ] && Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Processing startup scripts for device $Device"
