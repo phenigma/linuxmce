@@ -84,6 +84,7 @@ using namespace DCE;
 #include "SerializeClass/ShapesColors.h"
 #include "RippingJob.h"
 #include "../VFD_LCD/VFD_LCD_Base.h"
+#include "UpdateMedia/PlutoMediaFile.h"
 #ifndef WIN32
 #include <dirent.h>
 #include <attr/attributes.h>
@@ -4112,6 +4113,10 @@ void Media_Plugin::CMD_Add_Media_Attribute(string sValue_To_Assign,int iStreamID
 			pRow_File_Attribute->Track_set(atoi(sTracks.c_str()));
 			pRow_File_Attribute->Section_set(atoi(sSection.c_str()));
 			m_pDatabase_pluto_media->File_Attribute_get()->Commit();
+
+            PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_pDatabase_pluto_main, 
+                pRow_File->Path_get(), pRow_File->Filename_get());
+            PlutoMediaFile_.SetFileAttribute(iEK_File); //also updates id3tags
 		}
 	}
 }
@@ -4135,6 +4140,20 @@ void Media_Plugin::CMD_Set_Media_Attribute_Text(string sValue_To_Assign,int iEK_
 		pRow_Attribute->Name_set(sValue_To_Assign);
 		pRow_Attribute->Table_Attribute_get()->Commit();
 		m_pMediaAttributes->UpdateSearchTokens(pRow_Attribute);
+
+        vector<Row_File *> vectRow_File;
+        m_pDatabase_pluto_media->File_get()->GetRows(
+            "JOIN File_Attribute ON File_Attribute.FK_File = File.PK_File "
+            "WHERE FK_Attribute = " + StringUtils::ltos(iEK_Attribute), &vectRow_File);
+
+        for(vector<Row_File *>::iterator it = vectRow_File.begin(); it != vectRow_File.end(); it++)
+        {
+            Row_File *pRow_File = *it;
+
+            PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_pDatabase_pluto_main, 
+                pRow_File->Path_get(), pRow_File->Filename_get());
+            PlutoMediaFile_.SetFileAttribute(pRow_File->PK_File_get()); //also updates id3tags
+        }
 
 		for(MapMediaStream::iterator it=m_mapMediaStream.begin();it!=m_mapMediaStream.end();++it)
 		{
