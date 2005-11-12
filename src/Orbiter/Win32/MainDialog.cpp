@@ -1341,43 +1341,17 @@ void OnTryAutomCheckBoxChanged()
 void GetEditText(HWND hWndEdit, string& Text)
 {
 #ifdef WINCE
-	wchar_t lpstrFile[256];
+	wchar_t pwText[256]; 
+	::GetWindoText(hWnd, pwText, 256); 
+	char pText[MAX_STRING_LEN];
+	wcstombs(pText, pwText, MAX_STRING_LEN);
 #else
-	char lpstrFile[256];
+	char pText[256];
+	GetWindowText(hWndEdit,pText,256);
 #endif
 
-	ZeroMemory(lpstrFile, sizeof(lpstrFile));
-	
-	union
-		{
-#ifdef WINCE
-			wchar_t str[2];
-#else
-			char str[4];
-#endif
-			long l;
-		}
-	temp;
-
-	temp.l = 256;
-
-	lpstrFile[0] = temp.str[0];
-	lpstrFile[1] = temp.str[1];
-
-#ifndef WINCE
-	lpstrFile[2] = temp.str[2];
-	lpstrFile[3] = temp.str[3];
-#endif
-
-	::SendMessage(hWndEdit, EM_GETLINE, 0, reinterpret_cast<long>(lpstrFile));
-
-#ifdef WINCE
-	char sItemBuffer[MAX_STRING_LEN];
-	wcstombs(sItemBuffer, lpstrFile, MAX_STRING_LEN);
-	Text = sItemBuffer;
-#else
-	Text = lpstrFile;
-#endif
+	Text = pText;
+	return;
 }
 //-----------------------------------------------------------------------------------------------------
 void SaveUI_To_ConfigurationData()
