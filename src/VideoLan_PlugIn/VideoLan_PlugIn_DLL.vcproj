@@ -19,8 +19,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..;../DCE/;../../libs/Libraries/pthreads-win32/include;/mysql/include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
+				AdditionalIncludeDirectories="..;../DCE/;../../libs/Libraries/pthreads-win32/include;/mysql/include;&quot;../../libs/CrossPlatform/id3lib-3.8.3/include&quot;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;ID3LIB_LINKOPTION=3"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -32,10 +32,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib  libmysql.lib pluto_main.lib pluto_media.lib"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib  libmysql.lib pluto_main.lib pluto_media.lib pluto-id3lib-d.lib"
 				OutputFile="../Debug/VideoLan_PlugIn.dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="/mysql/lib/debug;../../libs/Libraries/pthreads-win32/lib;../lib"
+				AdditionalLibraryDirectories="/mysql/lib/debug;../../libs/Libraries/pthreads-win32/lib;../lib;&quot;../../libs/CrossPlatform/id3lib-3.8.3/prj/Debug&quot;"
 				ModuleDefinitionFile="VideoLan_PlugIn.def"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/VideoLan_PlugIn.pdb"
@@ -143,6 +143,9 @@
 				RelativePath="..\Media_Plugin\Generic_NonPluto_Media.cpp">
 			</File>
 			<File
+				RelativePath="..\UpdateMedia\id3info\id3info.cpp">
+			</File>
+			<File
 				RelativePath="Main.cpp">
 			</File>
 			<File
@@ -161,7 +164,13 @@
 				RelativePath="..\Media_Plugin\MediaHandlerInfo.cpp">
 			</File>
 			<File
+				RelativePath="..\UpdateMedia\MediaIdentifier.cpp">
+			</File>
+			<File
 				RelativePath="..\Media_Plugin\MediaStream.cpp">
+			</File>
+			<File
+				RelativePath="..\UpdateMedia\PlutoMediaFile.cpp">
 			</File>
 			<File
 				RelativePath="VideoLan_PlugIn.cpp">
