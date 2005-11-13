@@ -757,6 +757,16 @@ void Media_Plugin::StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigne
 	vector< pair< MediaHandlerInfo *,vector<EntertainArea *> > > vectEA_to_MediaHandler;
 
 	GetMediaHandlersForEA(iPK_MediaType, iPK_MediaProvider, iPK_Device, iPK_DeviceTemplate, vectEntertainArea, vectEA_to_MediaHandler);
+	if( vectEA_to_MediaHandler.size()==0 )
+	{
+		if( iPK_Device )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Couldn't find any media handlers for device %d trying without",iPK_Device);
+			GetMediaHandlersForEA(iPK_MediaType, iPK_MediaProvider, 0, iPK_DeviceTemplate, vectEntertainArea, vectEA_to_MediaHandler);
+		}
+		if( vectEA_to_MediaHandler.size()==0 )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Couldn't find any media handlers for this");
+	}
 
 	// If there are 2 or more stream and we have a deque of mediafiles, make copies of them
 	// so each stream will have it's own and won't share, causing duplicate deletes when the stream
