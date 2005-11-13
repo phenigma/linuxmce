@@ -16,6 +16,7 @@ sources = \
 	OGArray.cpp \
 	DesignObj_Generator.cpp \
 	OGText.cpp Renderer.cpp \
+	RegenMonitor.cpp \
 	$(TS)/TextSplitter.cpp \
 	$(TS)/TextWrapper.cpp \
 	$(ORB)/SDL/SDLRendererOCGHelper.cpp \
