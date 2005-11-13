@@ -1456,7 +1456,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Preparing floorplan %d devices",NumDevices);
 		int FloorplanObjectType = 0;
 		if( pDeviceData_Router )
 			FloorplanObjectType = atoi(pDeviceData_Router->mapParameters_Find(DEVICEDATA_PK_FloorplanObjectType_CONST).c_str());
-		else
+		else if( pEntertainArea )
 		{
 			Row_EntertainArea *pRow_EntertainArea = m_pDatabase_pluto_main->EntertainArea_get()->GetRow(pEntertainArea->m_iPK_EntertainArea);
 			if( pRow_EntertainArea  )
