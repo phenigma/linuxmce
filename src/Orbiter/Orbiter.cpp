@@ -262,6 +262,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
         m_ScreenMutex.Init( &m_MutexAttr );
 
 	pthread_create(&m_MaintThreadID, NULL, MaintThread, (void*)this);
+
+	srand( (unsigned)time( NULL ) );  // For the screen saver
 }
 
 //<-dceag-const2-b->!
@@ -5016,7 +5018,6 @@ void *MaintThread(void *p)
 			for(map<int,CallBackInfo *>::iterator it=mapPendingCallbacks.begin();it!=mapPendingCallbacks.end();)
 			{
 				CallBackInfo *pCallBackInfo = (*it).second;
-
 				if( pCallBackInfo->m_bStop )
 				{
 					mapPendingCallbacks.erase( it++ );  // This is dead anyway
@@ -5037,6 +5038,9 @@ void *MaintThread(void *p)
 			if( pCallBackInfoGood )
 			{
 				cm.Release(); // Don't keep the mutex locked while executing
+#ifdef DEBUG
+				g_pPlutoLogger->Write(LV_STATUS,"Going to call member %p",pCallBackInfoGood->m_fnCallBack);
+#endif
 				CALL_MEMBER_FN(*(pCallBackInfoGood->m_pOrbiter), pCallBackInfoGood->m_fnCallBack)(pCallBackInfoGood->m_pData);
 				cm.Relock();
                 delete pCallBackInfoGood;
@@ -6882,6 +6886,13 @@ bool Orbiter::TestCurrentScreen(string &sPK_DesignObj_CurrentScreen)
 void Orbiter::ContinuousRefresh( void *data )
 {
 	ContinuousRefreshInfo *pContinuousRefreshInfo = (ContinuousRefreshInfo *) data;
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ContinuousRefresh %d %p %p %s %s",
+		pContinuousRefreshInfo->m_iInterval,m_pScreenHistory_Current->m_pObj,pContinuousRefreshInfo->m_pObj,
+		m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str(),
+		(pContinuousRefreshInfo->m_pObj ? pContinuousRefreshInfo->m_pObj->m_ObjectID.c_str() : "NULL"));
+#endif
+
 	if( m_pScreenHistory_Current->m_pObj!=pContinuousRefreshInfo->m_pObj )
 		delete pContinuousRefreshInfo;
 	else
@@ -6903,6 +6914,9 @@ void Orbiter::ContinuousRefresh( void *data )
 		}
 
 		CMD_Refresh("*");
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::ContinuousRefresh restarting");
+#endif
 		CallMaintenanceInMiliseconds( pContinuousRefreshInfo->m_iInterval * 1000, &Orbiter::ContinuousRefresh, pContinuousRefreshInfo, pe_ALL );
 	}
 }
@@ -6918,6 +6932,10 @@ void Orbiter::CMD_Continuous_Refresh(string sTime,string &sCMD_Result,Message *p
 //<-dceag-c238-e->
 {
 	ContinuousRefreshInfo *pContinuousRefreshInfo = new ContinuousRefreshInfo(m_pScreenHistory_Current->m_pObj,atoi(sTime.c_str()));
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::CMD_Continuous_Refresh %d %p",
+        pContinuousRefreshInfo->m_iInterval,&Orbiter::ContinuousRefresh);
+#endif
 	CallMaintenanceInMiliseconds( pContinuousRefreshInfo->m_iInterval * 1000, &Orbiter::ContinuousRefresh, pContinuousRefreshInfo, pe_ALL );
 }
 
