@@ -12,6 +12,7 @@
 #define DEVICETEMPLATE_VirtDev_Disc_Drive_CONST -202
 #define DEVICETEMPLATE_VirtDev_AppServer_CONST -201
 #define DEVICETEMPLATE_VirtDev_Media_Director_CONST -200
+#define DEVICETEMPLATE_VirtDev_Local_Media_Player_CONST -152
 #define DEVICETEMPLATE_VirtDev_Local_Media_Director_CONST -151
 #define DEVICETEMPLATE_VirtDev_Local_AppServer_CONST -150
 #define DEVICETEMPLATE_VirtDev_Infrared_Plugin_CONST -110
@@ -1658,7 +1659,7 @@
 #define DEVICETEMPLATE_CANbus_CONST 1746
 #define DEVICETEMPLATE_W800RF32_CONST 1747
 #define DEVICETEMPLATE_Generic_Web_Device_CONST 1748
-#define DEVICETEMPLATE_Generic_Proxy_Orbiter_CONST 1751
+#define DEVICETEMPLATE_Generic_Proxy_Orbiter_CONST 1749
 
 #define DEVICETEMPLATE_TABLE "DeviceTemplate"
 #define DEVICETEMPLATE_PK_DEVICETEMPLATE_FIELD "PK_DeviceTemplate"

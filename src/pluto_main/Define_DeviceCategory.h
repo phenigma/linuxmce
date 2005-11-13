@@ -11,8 +11,9 @@
 #define DEVICECATEGORY_Media_Director_CONST 8
 #define DEVICECATEGORY_Pluto_General_PlugIns_CONST 9
 #define DEVICECATEGORY_DCE_Device_CONST 10
-#define DEVICECATEGORY_Media_Players_CONST 11
+#define DEVICECATEGORY_Media_Player_Plugins_CONST 11
 #define DEVICECATEGORY_DCE_Software_Wrappers_CONST 12
+#define DEVICECATEGORY_Media_Players_CONST 13
 #define DEVICECATEGORY_Datagrids_CONST 14
 #define DEVICECATEGORY_Media_Plugins_CONST 15
 #define DEVICECATEGORY_Disk_Handlers_CONST 16
