@@ -1453,9 +1453,15 @@ g_pPlutoLogger->Write(LV_STATUS,"Preparing floorplan %d devices",NumDevices);
 			}
         }
 
-		int FloorplanObjectType = pDeviceData_Router ?
-			atoi(pDeviceData_Router->mapParameters_Find(DEVICEDATA_PK_FloorplanObjectType_CONST).c_str()) :
-			m_pDatabase_pluto_main->EntertainArea_get()->GetRow(pEntertainArea->m_iPK_EntertainArea)->FK_FloorplanObjectType_get();
+		int FloorplanObjectType = 0;
+		if( pDeviceData_Router )
+			FloorplanObjectType = atoi(pDeviceData_Router->mapParameters_Find(DEVICEDATA_PK_FloorplanObjectType_CONST).c_str());
+		else
+		{
+			Row_EntertainArea *pRow_EntertainArea = m_pDatabase_pluto_main->EntertainArea_get()->GetRow(pEntertainArea->m_iPK_EntertainArea);
+			if( pRow_EntertainArea  )
+				FloorplanObjectType = pRow_EntertainArea->FK_FloorplanObjectType_get();
+		}
         Row_FloorplanObjectType *pRow_FloorplanObjectType = m_pDatabase_pluto_main->FloorplanObjectType_get()->GetRow(FloorplanObjectType);
 
         int Page = atoi( StringUtils::Tokenize(s, "\t", pos).c_str());
@@ -1466,7 +1472,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Preparing floorplan %d devices",NumDevices);
         g_pPlutoLogger->Write(LV_STATUS, "Got this data for the floorplan %d %d %d, %s", Page, FillX, FillY, ObjectID.c_str());
         if ( pRow_FloorplanObjectType == NULL )
         {
-            g_pPlutoLogger->Write(LV_STATUS, "Invalid Floorplan object type: %d", FloorplanObjectType);
+            g_pPlutoLogger->Write(LV_STATUS, "Invalid Floorplan object type: %d Device %d", FloorplanObjectType,PK_Device);
             return;
         }
 
