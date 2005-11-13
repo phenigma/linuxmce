@@ -85,7 +85,7 @@ string RegenMonitor::GetModInfo_RoomScenario(int PK_Array,int PK_Room)
 		"JOIN CommandGroup_Room ON CommandGroup_Room.FK_CommandGroup=PK_CommandGroup "
 		"LEFT JOIN CommandGroup_Command ON CommandGroup_Command.FK_CommandGroup=PK_CommandGroup "
 		"LEFT JOIN CommandGroup_Command_CommandParameter ON FK_CommandGroup_Command=PK_CommandGroup_Command "
-		"WHERE FK_Room=" + StringUtils::itos(PK_Room);
+		"WHERE FK_Array=" + StringUtils::itos(PK_Array) + " AND FK_Room=" + StringUtils::itos(PK_Room);
 
 	return StringUtils::itos(PK_Room) + "\t" + QueryAsModString(sSQL);
 }
@@ -173,7 +173,7 @@ bool RegenMonitor::CachedVersionOK(string sString)
 	string sComparisson;
 	if( sString[0]=='A' )
 		sComparisson = GetModInfo_Array(atoi(sString.substr(1).c_str()));
-	if( sString[0]=='F' )
+	else if( sString[0]=='F' )
 		sComparisson = GetModInfo_Floorplan(atoi(sString.substr(1).c_str()));
 	else
 	{
@@ -221,7 +221,7 @@ string RegenMonitor::GetModInfo_Floorplan(int PK_FloorplanType)
 			sSQL = "";
 	}
 
-	string sResult = "F" + StringUtils::itos(PK_FloorplanType);
+	string sResult = "F" + StringUtils::itos(PK_FloorplanType) + "\t";
 	if( sSQL.size() )
 		sResult += QueryAsModString(sSQL);
 	return sResult;

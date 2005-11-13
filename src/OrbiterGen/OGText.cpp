@@ -31,6 +31,7 @@ int k=2;
 	m_PK_Text=pp->FK_Text_get();
 	if( (m_pdrText_LS=GetText_LS(drOVTSL->FK_DesignObjVariation_Text_getrow()->FK_Text_get(),Parent->m_pOrbiterGenerator))==NULL )
 		return;
+int i=m_pdrText_LS->FK_Text_get();
 
 	m_sText = m_pdrText_LS->Description_get();
 	m_rPosition.X = m_pRow_DesignObjVariation_Text_Skin_Language->X_get();

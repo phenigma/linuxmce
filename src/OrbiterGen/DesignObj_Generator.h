@@ -11,7 +11,7 @@ class DesignObj_Generator : public DesignObj_Data
 public:
 	class Database_pluto_main * m_mds;
 	class Row_DesignObj * m_pRow_DesignObj;
-	DesignObj_Generator * m_ocoParent;
+	DesignObj_Generator * m_ocoParent,*m_pDesignObj_TopMost;
 	class OrbiterGenerator *m_pOrbiterGenerator;
 	class PlutoRectangle m_rBitmapOffset;
 	map<int,string> m_VariableMap;
@@ -20,6 +20,8 @@ public:
 	// are the rendered versions.
 	string m_sOrigBackgroundFile, m_sOrigSelectedFile, m_sOrigHighlightGraphicFilename;
 	vector<string> m_vectOrigAltGraphicFilename;
+
+	vector<string> m_vectRegenMonitor;  // A list of strings indicating dependencies for regenerating
 
 	class Row_DesignObjVariation * m_pRow_DesignObjVariation,*m_pRow_DesignObjVariation_Standard;
 	vector<class Row_DesignObjVariation *> m_alDesignObjVariations;
@@ -64,7 +66,10 @@ public:
 	string SubstituteVariables(string Text,bool *bContainsRunTimeVariables);
 
 	DesignObj_Generator *GetTopMostObject(DesignObj_Generator *pObj) {return pObj->m_ocoParent ? GetTopMostObject(pObj->m_ocoParent) : pObj;}
-
+	bool CachedVersionOK();
+	void PurgeForRegeneration(); // If we just read from a cache, but won't use the cache, purge everything so we can regen
+	void WriteRegenVersion(string sFilename);
+	bool ReadRegenVersion(string sFilename);
 };
 
 #endif

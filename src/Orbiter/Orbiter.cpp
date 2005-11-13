@@ -7605,6 +7605,9 @@ int Orbiter::TranslateVirtualDevice(int PK_DeviceTemplate)
 	case DEVICETEMPLATE_VirtDev_Local_AppServer_CONST:
 		return m_dwPK_Device_LocalAppServer;
 
+	case DEVICETEMPLATE_VirtDev_Local_Media_Player_CONST:
+		return m_dwPK_Device_LocalMediaPlayer;
+
 	}
 	return -1;
 }

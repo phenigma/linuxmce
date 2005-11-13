@@ -8,7 +8,7 @@
 
 #include <deque>
 
-#define ORBITER_SCHEMA		16	// Used to determine if cached screens can be used or if the schema has changed
+#define ORBITER_SCHEMA		17	// Used to determine if cached screens can be used or if the schema has changed
 
 #ifdef ORBITER
 #include "DesignObj_Orbiter.h"
@@ -38,7 +38,9 @@ class LocationInfo : public SerializeClass
 public:
 	int PK_Room,PK_EntertainArea,iLocation;
 	// Some virtual devices within the media director
-	int m_dwPK_Device_MediaDirector,m_dwPK_Device_DiscDrive,m_dwPK_Device_AppServer,m_dwPK_Device_LCD_VFD,m_dwPK_Device_IRReceiver,m_dwPK_Device_MediaBurner,m_dwPK_Device_VideoConf,m_dwPK_Device_CamcorderCapt,m_dwPK_Device_Orbiter,m_dwPK_Device_WebBrowser; 
+	int m_dwPK_Device_MediaDirector,m_dwPK_Device_DiscDrive,m_dwPK_Device_AppServer,m_dwPK_Device_LCD_VFD,
+		m_dwPK_Device_IRReceiver,m_dwPK_Device_MediaBurner,m_dwPK_Device_VideoConf,m_dwPK_Device_CamcorderCapt,
+		m_dwPK_Device_Orbiter,m_dwPK_Device_WebBrowser; 
 	vector<int> m_vectAllowedUsers;
 	string Description;
 	class Row_Icon *drIcon; // Not serialized, just a temporary pointer for the generator
@@ -71,7 +73,7 @@ public:
 	// Some global devices
 	int m_dwPK_Device_Router,m_dwPK_Device_DatagridPlugIn,m_dwPK_Device_InfraredPlugIn,m_dwPK_Device_GeneralInfoPlugIn,m_dwPK_Device_EventPlugIn,m_dwPK_Device_OrbiterPlugIn,
 		m_dwPK_Device_LightingPlugIn, m_dwPK_Device_ClimatePlugIn, m_dwPK_Device_MediaPlugIn, m_dwPK_Device_TelecomPlugIn, m_dwPK_Device_SecurityPlugIn,
-		m_dwPK_Device_LocalAppServer, m_iRotation,
+		m_dwPK_Device_LocalAppServer, m_dwPK_Device_LocalMediaPlayer, m_iRotation,
 		m_dwPK_Device_LocalOsdIRReceiver,m_dwPK_Device_LocalOsdVfdLcd;  // These 2 only used if it's an OSD
 
 	OrbiterData() { m_dwPK_Device_Router = m_dwPK_Device_DatagridPlugIn = m_dwPK_Device_InfraredPlugIn = m_dwPK_Device_GeneralInfoPlugIn = m_dwPK_Device_EventPlugIn = m_dwPK_Device_OrbiterPlugIn =
@@ -123,7 +125,7 @@ public:
 		StartSerializeList() + m_mapVariable + m_Width + m_Height + m_AnimationStyle + m_sInitialScreen + m_sMainMenu + m_sSleepingMenu + m_sScreenSaveMenu + m_dwPK_Users_Default + m_iLocation_Initial + m_sSkin
 			+ m_dwPK_Device_Router + m_dwPK_Device_DatagridPlugIn + m_dwPK_Device_EventPlugIn + m_dwPK_Device_InfraredPlugIn + m_dwPK_Device_GeneralInfoPlugIn + m_dwPK_Device_OrbiterPlugIn
 			+ m_dwPK_Device_LightingPlugIn + m_dwPK_Device_ClimatePlugIn + m_dwPK_Device_MediaPlugIn + m_dwPK_Device_TelecomPlugIn + m_dwPK_Device_SecurityPlugIn
-			+ m_dwPK_Device_LocalAppServer + m_tGenerationTime + m_mapTextString + m_vectPK_Users_RequiringPIN + m_iRotation 
+			+ m_dwPK_Device_LocalAppServer + m_dwPK_Device_LocalMediaPlayer + m_tGenerationTime + m_mapTextString + m_vectPK_Users_RequiringPIN + m_iRotation 
 			+ m_dwPK_Device_LocalOsdIRReceiver + m_dwPK_Device_LocalOsdVfdLcd + m_bIsOSD;
 
 		(*this) + m_ScreenMap + m_mapTextStyle + m_dequeLocation; // this is serialized custom
