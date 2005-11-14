@@ -359,6 +359,7 @@ ID3_Frame* ID3_AddComposer(ID3_Tag *tag, const char *text, bool replace = true)
     ID3_Frame* frame = NULL;
     if (NULL != tag && NULL != text && strlen(text) > 0)
     {
+		cout << "replace: " << replace << endl;
         if (replace)
         {
             ID3_RemoveComposers(tag);
@@ -424,6 +425,7 @@ void SetId3Info(string sFilename, const map<int,string>& mapAttributes)
 
             case ATTRIBUTETYPE_Composer_CONST:
                 ID3_AddComposer(&myTag, sValue.c_str(), true);
+				break;
 
             default:
                 cout << "Don't know yet how to save tag with PK_Attr = " << PK_Attr << " and value " << sValue << endl;
@@ -454,12 +456,7 @@ int main( unsigned int argc, char * const argv[])
 
     //write attr
     mapAttributes.clear();
-    mapAttributes[ATTRIBUTETYPE_Performer_CONST] = "xx The cure";
-    mapAttributes[ATTRIBUTETYPE_Album_CONST] = "xx The Best of The Cure";
-    mapAttributes[ATTRIBUTETYPE_Title_CONST] = "xx Love song";
-    mapAttributes[ATTRIBUTETYPE_Release_Date_CONST] = "xx 1984 - NY";
-    mapAttributes[ATTRIBUTETYPE_Genre_CONST] = "xx Rock";
-    mapAttributes[ATTRIBUTETYPE_Track_CONST] = "20";
+    mapAttributes[ATTRIBUTETYPE_Composer_CONST] = "bubu";
     SetId3Info(argv[1], mapAttributes);
 
     //reading attr
