@@ -5,7 +5,7 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 	$out='';
 	$action = (isset($_REQUEST['action']) && $_REQUEST['action']!='')?cleanString($_REQUEST['action']):'form';
 	$path = (isset($_REQUEST['path']) && $_REQUEST['path']!='')?cleanString($_REQUEST['path']):'';
-	
+
 	$typeArray=array();
 	$resType=$dbADO->Execute('SELECT * FROM MediaType ORDER BY Description ASC');
 	while($rowType=$resType->FetchRow()){
@@ -14,6 +14,9 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 	$notInDBArray=array();	
 	$oldDir=substr($path,strrpos($path,'/')+1);
 	
+	$_SESSION['missing']=isset($_SESSION['missing'])?$_SESSION['missing']:0;
+	$_SESSION['missing']=isset($_REQUEST['missing'])?$_REQUEST['missing']:$_SESSION['missing'];
+
 	if($action=='form'){
 		if($path!=''){
 			$physicalFiles=grabFiles($path,'');
@@ -134,35 +137,38 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 						}
 				}
 			}
-			$out.='
-				<tr>
-					<td colspan="2"><B>Files in database only</B></td>
-				</tr>';
-			$dbonlyFiles=array_diff($dbFiles,$physicalFiles);
-			if(count($dbonlyFiles)==0)
-				$out.='	<tr>
-							<td colspan="2">No other files in database</td>
-						</tr>';
-			foreach($dbonlyFiles as $dbkey => $filename){
-				$queryAttributes='
-					SELECT PK_Attribute, AttributeType.Description AS AttributeName,Name
-					FROM File_Attribute
-						INNER JOIN Attribute ON File_Attribute.FK_Attribute=PK_Attribute
-						INNER JOIN AttributeType ON FK_AttributeType=PK_AttributeType
-					WHERE FK_File=? ORDER BY AttributeType.Description ASC
-					';
-				$resAttributes=$mediadbADO->Execute($queryAttributes,$dbPKFiles[$dbkey]);
-				$attributes='';
-				while($rowAttributes=$resAttributes->FetchRow()){
-					$attributes.='<b>'.$rowAttributes['AttributeName'].'</b>: <a href="index.php?section=mainMediaBrowser&attributeID='.$rowAttributes['PK_Attribute'].'&action=properties" target="_self">'.stripslashes($rowAttributes['Name']).'</a> ';
+			if($_SESSION['missing']==1){
+				$out.='
+					<tr>
+						<td colspan="2"><B>Files in database only</B></td>
+					</tr>';
+				$dbonlyFiles=array_diff($dbFiles,$physicalFiles);
+				if(count($dbonlyFiles)==0)
+					$out.='	<tr>
+								<td colspan="2">No other files in database</td>
+							</tr>';
+				foreach($dbonlyFiles as $dbkey => $filename){
+					$queryAttributes='
+						SELECT PK_Attribute, AttributeType.Description AS AttributeName,Name
+						FROM File_Attribute
+							INNER JOIN Attribute ON File_Attribute.FK_Attribute=PK_Attribute
+							INNER JOIN AttributeType ON FK_AttributeType=PK_AttributeType
+						WHERE FK_File=? ORDER BY AttributeType.Description ASC
+						';
+					$resAttributes=$mediadbADO->Execute($queryAttributes,$dbPKFiles[$dbkey]);
+					$attributes='';
+					while($rowAttributes=$resAttributes->FetchRow()){
+						$attributes.='<b>'.$rowAttributes['AttributeName'].'</b>: <a href="index.php?section=mainMediaBrowser&attributeID='.$rowAttributes['PK_Attribute'].'&action=properties" target="_self">'.stripslashes($rowAttributes['Name']).'</a> ';
+					}
+		
+					$out.='	<tr style="background-color:'.(($dbkey%2==0)?'#EEEEEE':'#EBEFF9').';">
+								<td><img src=include/images/db.gif align=middle border=0> <a href="index.php?section=editMediaFile&fileID='.@$dbPKFiles[$dbkey].'"><B>'.$filename.'</B></a></td>
+								<td align="right"><input type="button" class="button" name="del" value="Delete from database" onClick="if(confirm(\'Are you sure you want to delete this file from database?\'))self.location=\'index.php?section=mainMediaFilesSync&action=delfile&dfile='.@$dbPKFiles[$dbkey].'&path='.$path.'\';"></td>
+							</tr>
+							<tr style="background-color:'.(($dbkey%2==0)?'#EEEEEE':'#EBEFF9').';">
+								<td colspan="2">'.@$attributes.'</td>
+							</tr>';
 				}
-	
-				$out.='	<tr style="background-color:'.(($dbkey%2==0)?'#EEEEEE':'#EBEFF9').';">
-							<td colspan="2"><img src=include/images/db.gif align=middle border=0> <a href="index.php?section=editMediaFile&fileID='.@$dbPKFiles[$dbkey].'"><B>'.$filename.'</B></a></td>
-						</tr>
-						<tr style="background-color:'.(($dbkey%2==0)?'#EEEEEE':'#EBEFF9').';">
-							<td colspan="2">'.@$attributes.'</td>
-						</tr>';
 			}
 			$out.='
 				<tr>
@@ -171,8 +177,9 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 				<tr>
 					<td colspan="2"><B>LEGEND FOR FILES</B><br>
 					<img src=include/images/disk.gif align=middle border=0>	Exist only on disk<br>
-					<img src=include/images/db.gif align=middle border=0> Exist only in database<br>
-					<img src=include/images/sync.gif align=middle border=0>	Exist both on disk and in database
+					'.(($_SESSION['missing']==1)?'<img src=include/images/db.gif align=middle border=0> Exist only in database<br>':'').'
+					<img src=include/images/sync.gif align=middle border=0>	Exist both on disk and in database<br>
+					<input type="checkbox" name="show_missing" value="1" onclick="self.location=\'index.php?section=mainMediaFilesSync&path='.$path.'&missing='.((@$_SESSION['missing']==1)?0:1).'\'" '.(($_SESSION['missing']==1)?'checked':'').'> Show files who are missing from database
 				</tr>
 			</table>';
 		}
@@ -182,6 +189,7 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 	';
 		
 	}else{
+
 	// process area
 		if($action=='renDir'){
 			$newDir=stripslashes($_REQUEST['newDir']);
@@ -198,6 +206,22 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 			}
 		}
 
+		// delete file from database
+		if($action=='delfile'){
+			$dfile=(int)@$_REQUEST['dfile'];
+			$fileInfo=getFieldsAsArray('File','Path,Filename,IsDirectory',$mediadbADO,'WHERE PK_File='.$dfile);
+			if($fileInfo['IsDirectory'][0]==0){
+				// is file, delete all references
+				delete_file_from_db($dfile,$mediadbADO);
+			}else{
+				// is directory, get all subdirectories and delete them recoursively
+				delete_directory_from_db($fileInfo['Path'][0],$mediadbADO);
+			}
+
+			header('Location: index.php?section=mainMediaFilesSync&path='.urlencode($path).'&msg=File was deleted from database.');
+			exit();
+		}
+		
 		if($action=='delDir'){
 			$newPath=getUpperLevel($path);
 			exec('rm -rf "'.$path.'"');
@@ -256,5 +280,26 @@ function getUpperLevel($path)
 		return $path;
 	$upLevel=substr($path,0,-1);
 	return substr($upLevel,0,strrpos($upLevel,'/'));
+}
+
+function delete_file_from_db($dfile,$mediadbADO){
+	// delete records where file is foreign key
+	$foreignTables=array('File_Attribute','Picture_File','PlaylistEntry');
+	foreach($foreignTables AS $tablename){	
+		$mediadbADO->Execute('DELETE FROM '.$tablename.' WHERE FK_File='.$dfile);
+	}	
+	$mediadbADO->Execute('DELETE FROM File WHERE PK_File='.$dfile);
+}
+
+function delete_directory_from_db($directoryPath,$mediadbADO){
+	$mediadbADO->debug=true;
+	$res=$mediadbADO->Execute("SELECT * FROM File WHERE Path LIKE '$directoryPath/%'");
+	
+	while($row=$res->FetchRow()){
+		if($row['IsDirectory']==1){
+			delete_directory_from_db($row['Path'],$mediadbADO);
+		}
+		delete_file_from_db($row['PK_File'],$mediadbADO);
+	}
 }
 ?>

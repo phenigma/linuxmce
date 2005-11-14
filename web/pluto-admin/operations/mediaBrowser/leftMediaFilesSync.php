@@ -90,6 +90,9 @@ function getDirectories ($path) {
 		}
 		closedir ($d);
 	}
+	asort($dirs,SORT_STRING);
+	reset($dirs);
+	
 	return $dirs;
 }
 ?>

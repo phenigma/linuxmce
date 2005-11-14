@@ -865,6 +865,9 @@ function grabFiles($path,$fileParm='-type f',$startingWith='') {
 			$filesArray[]=str_replace($path.'/','',$file);
 		}
 	}
+	sort($filesArray,SORT_STRING);
+	reset($filesArray);
+
 	return $filesArray;
 }
 
