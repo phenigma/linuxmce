@@ -70,14 +70,25 @@ UpdateMedia::UpdateMedia(string host, string user, string pass, int port,string 
 		return;
 	}
 
+    PlutoMediaIdentifier::Activate(m_pDatabase_pluto_main);
+
 	m_sDirectory = StringUtils::Replace(&sDirectory,"\\","/");  // Be sure no Windows \'s
     FileUtils::ExcludeTrailingSlash(m_sDirectory);
 
-    PlutoMediaIdentifier::Activate(m_pDatabase_pluto_main);
-	
 #ifdef WIN32 //for debugging
 	chdir("Z:\\");
 #endif
+}
+
+UpdateMedia::UpdateMedia(Database_pluto_media *pDatabase_pluto_media, 
+    Database_pluto_main *pDatabase_pluto_main, string sDirectory)
+{
+    //reusing connections
+    m_pDatabase_pluto_main = pDatabase_pluto_main;
+    m_pDatabase_pluto_media = pDatabase_pluto_media;
+
+    m_sDirectory = StringUtils::Replace(&sDirectory,"\\","/");  // Be sure no Windows \'s
+    FileUtils::ExcludeTrailingSlash(m_sDirectory);
 }
 
 void UpdateMedia::DoIt()

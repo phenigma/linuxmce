@@ -29,8 +29,17 @@ using namespace std;
 using namespace DCE;
 DCEConfig dceConfig;
 
-bool bError, bUpdateThumbnails, bUpdateSearchTokens, bRunAsDaemon;
-string sDirectory;
+namespace UpdateMediaVars
+{
+    bool bError, bUpdateThumbnails, bUpdateSearchTokens, bRunAsDaemon;
+    string sDirectory;
+
+    Database_pluto_media *g_pDatabase_pluto_media = NULL;
+    Database_pluto_main *g_pDatabase_pluto_main = NULL;
+    pluto_pthread_mutex_t g_ConnectionMutex("connections");
+}
+
+using namespace UpdateMediaVars;
 
 namespace DCE
 {
@@ -56,8 +65,10 @@ void OnModify(list<string> &listFiles)
 		} 
 
 		g_pPlutoLogger->Write(LV_WARNING, "Folder to sync: %s", sItem.c_str());	
+        PLUTO_SAFETY_LOCK(cm, g_ConnectionMutex );
+        g_pPlutoLogger->Write(LV_WARNING, "Synchronizing...", sItem.c_str());	
 
-        UpdateMedia UpdateMedia(dceConfig.m_sDBHost,dceConfig.m_sDBUser,dceConfig.m_sDBPassword,dceConfig.m_iDBPort,sItem);
+        UpdateMedia UpdateMedia(g_pDatabase_pluto_media, g_pDatabase_pluto_main, sItem);
         UpdateMedia.DoIt();
 
         if( bUpdateSearchTokens )
@@ -154,14 +165,41 @@ int main(int argc, char *argv[])
 	}
 	else
 	{
-#ifndef WIN32
 		g_pPlutoLogger->Write(LV_WARNING, "Running as daemon... ");
-		
+
+        g_ConnectionMutex.Init(NULL);
+
+        string sPlutoMediaDbName = "pluto_media";
+        string sPlutoMainDbName = "pluto_main";
+
+#ifdef USE_DEVEL_DATABASES
+        sPlutoMediaDbName = "pluto_media_devel";
+        sPlutoMainDbName = "pluto_main_devel";
+#endif
+
+        //connect to the databases
+        g_pDatabase_pluto_media = new Database_pluto_media( );
+        if( !g_pDatabase_pluto_media->Connect(dceConfig.m_sDBHost,dceConfig.m_sDBUser,dceConfig.m_sDBPassword, sPlutoMediaDbName,dceConfig.m_iDBPort) )
+        {
+            g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );
+            return 1;
+        }
+
+        g_pDatabase_pluto_main = new Database_pluto_main( );
+        if( !g_pDatabase_pluto_main->Connect(dceConfig.m_sDBHost,dceConfig.m_sDBUser,dceConfig.m_sDBPassword, sPlutoMainDbName,dceConfig.m_iDBPort) )
+        {
+            g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );
+            return 2;
+        }
+
+#ifndef WIN32
 		FileNotifier fileNotifier;
 		fileNotifier.RegisterCallbacks(OnModify, OnModify); //we'll use the same callback for OnCreate and OnDelete events
   		fileNotifier.Watch(sDirectory);
 		fileNotifier.Run();//it waits for worker thread to exist; the user must press CTRL+C to finish it
 #endif
+
+        pthread_mutex_destroy(&g_ConnectionMutex.mutex);
 	}
 
 	return 0;

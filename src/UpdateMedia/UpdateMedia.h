@@ -16,8 +16,11 @@ class UpdateMedia
 
 public:
     Database_pluto_media *m_pDatabase_pluto_media ;
-    Database_pluto_main *m_pDatabase_pluto_main ;
+    Database_pluto_main *m_pDatabase_pluto_main;
+
 	UpdateMedia(string host, string user, string pass, int port,string sDirectory);
+    UpdateMedia(Database_pluto_media *pDatabase_pluto_media, Database_pluto_main *pDatabase_pluto_main, 
+        string sDirectory);
 
 	void DoIt();
 
