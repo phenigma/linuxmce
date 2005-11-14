@@ -62,7 +62,7 @@ bool VDR::GetConfig()
 		return false;
 	}
 			
-	system("/etc/init.d/dvb start; /etc/init.d/vdrdevel start");  // First just be sure vdr is running
+	// system("/etc/init.d/dvb start; sleep 3; /etc/init.d/vdrdevel start");  // First just be sure vdr is running
 
 	if( m_pDevice_DVBCard )
 	{
