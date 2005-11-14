@@ -9,7 +9,7 @@ function installationSettings($output,$dbADO) {
 	$zonesFileArray=file('/usr/share/zoneinfo/zone.tab');
 	$continentsArray=array('Africa', 'America', 'Antarctica', 'Arctic [Ocean]', 'Asia', 'Atlantic [Ocean]', 'Australia', 'Europe', 'Indian [Ocean]', 'Pacific [Ocean]');
 	$currentTimeZone=trim(implode('',file('/etc/timezone')));
-	$ripFormats=array('ogg'=>'ogg', 'flac'=>'flac', 'wav'=>'wav');
+	$ripFormats=array('mp3'=>'mp3','ogg'=>'ogg', 'flac'=>'flac', 'wav'=>'wav');
 	
 	$countriesArray=array();
 	foreach ($countriesFileArray AS $line){
@@ -61,7 +61,7 @@ function installationSettings($output,$dbADO) {
 		$mediaPluginDD=getDD($mediaPluginID,$GLOBALS['RipFormat'],$dbADO);
 		$selectedRipFormat=$mediaPluginDD[$GLOBALS['RipFormat']];
 	}else{
-		$selectedRipFormat='ogg';
+		$selectedRipFormat='mp3';
 	}
 	
 	$query = "
