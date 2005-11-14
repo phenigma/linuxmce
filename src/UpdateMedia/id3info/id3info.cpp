@@ -7,6 +7,7 @@
 #include <id3/misc_support.h>
 #include <id3/readers.h>
 #include <id3/io_helpers.h>
+#include <id3/globals.h>
 
 #include "../../pluto_media/Define_AttributeType.h"
 
@@ -331,29 +332,50 @@ void GetId3Info(string sFilename, map<int,string>& mapAttributes)
 	myTag.Link(sFilename.c_str(), ID3TT_ALL);
 	myTag.GetMp3HeaderInfo();
     GetInformation(myTag, mapAttributes);
-
-/*
-    mapAttributes[ATTRIBUTETYPE_Album_CONST] = ID3_GetAlbum(myTag);
-    mapAttributes[ATTRIBUTETYPE_Title_CONST] = ID3_GetTitle(myTag);
-    mapAttributes[ATTRIBUTETYPE_Performer_CONST] = ID3_GetArtist(myTag);
-    mapAttributes[ATTRIBUTETYPE_Genre_CONST] = ID3_GetGenre(myTag);
-    mapAttributes[ATTRIBUTETYPE_Track_CONST] = ID3_GetTrack(myTag);
-    mapAttributes[ATTRIBUTETYPE_Release_Date_CONST] = ID3_GetYear(myTag);
-    mapAttributes[ATTRIBUTETYPE_Website_CONST] = ID3_GetAlbum(myTag);
-    mapAttributes[ATTRIBUTETYPE_Composer_CONST] = ID3_GetAlbum(myTag);
-
-    //ID3_GetLyrics
-    //ID3_GetComment
-    //ID3_GetLyricist
-
-    //ID3_GetPictureData
-    //ID3_GetPictureMimeType
-    //ID3_HasPicture
-    //ID3_GetPictureDataOfPicType
-    //ID3_GetMimeTypeOfPicType
-    //ID3_GetDescriptionOfPicType
-*/    
 }
+
+size_t ID3_RemoveComposers(ID3_Tag *tag)
+{
+    size_t num_removed = 0;
+    ID3_Frame *frame = NULL;
+
+    if (NULL == tag)
+    {
+        return num_removed;
+    }
+
+    while ((frame = tag->Find(ID3FID_COMPOSER)))
+    {
+        frame = tag->RemoveFrame(frame);
+        delete frame;
+        num_removed++;
+    }
+
+    return num_removed;
+} 
+
+ID3_Frame* ID3_AddComposer(ID3_Tag *tag, const char *text, bool replace = true)
+{
+    ID3_Frame* frame = NULL;
+    if (NULL != tag && NULL != text && strlen(text) > 0)
+    {
+        if (replace)
+        {
+            ID3_RemoveComposers(tag);
+        }
+        if (replace || tag->Find(ID3FID_COMPOSER) == NULL)
+        {
+            frame = new ID3_Frame(ID3FID_COMPOSER);
+            if (frame)
+            {
+                frame->GetField(ID3FN_TEXT)->Set(text);
+                tag->AttachFrame(frame);
+            }
+        }
+    }
+
+    return frame;
+} 
 
 void SetId3Info(string sFilename, const map<int,string>& mapAttributes)
 {
@@ -399,6 +421,9 @@ void SetId3Info(string sFilename, const map<int,string>& mapAttributes)
             case ATTRIBUTETYPE_Track_CONST:
                 ID3_AddTrack(&myTag, atoi(sValue.c_str()), 0, true); 
                 break;
+
+            case ATTRIBUTETYPE_Composer_CONST:
+                ID3_AddComposer(&myTag, sValue.c_str(), true);
 
             default:
                 cout << "Don't know yet how to save tag with PK_Attr = " << PK_Attr << " and value " << sValue << endl;
