@@ -32,6 +32,8 @@
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_CommandParameter.h"
 
+#include "BD/PhoneDevice.h"
+
 #define  VERSION "<=version=>"
 
 using namespace std;
@@ -91,20 +93,20 @@ void PlutoDHCP::ReadAllIPs()
 
 Row_Device *PlutoDHCP::DetermineCore()
 {
-	vector<Row_Device *> m_vectRow_Device;
-	m_pDatabase_pluto_main->Device_get()->GetRows("JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory=" + StringUtils::itos(DEVICECATEGORY_Core_CONST) + " AND FK_Installation=" + StringUtils::itos(m_iPK_Installation),&m_vectRow_Device);
-	if( m_vectRow_Device.size()==0 )
+	vector<Row_Device *> vectRow_Device;
+	m_pDatabase_pluto_main->Device_get()->GetRows("JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory=" + StringUtils::itos(DEVICECATEGORY_Core_CONST) + " AND FK_Installation=" + StringUtils::itos(m_iPK_Installation),&vectRow_Device);
+	if( vectRow_Device.size()==0 )
 	{
 		cerr << "ERROR: Cannot determine Core #" << endl;
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot determine core");
 		return NULL;
 	}
-	else if( vectRow_Installation.size()>1 )
+	else if( vectRow_Device.size()>1 )
 	{
 		cerr << "WARNING: Cannot determine core # definitively" << endl;
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot determine core # definitively");
 	}
-	return m_vectRow_Device[0];
+	return vectRow_Device[0];
 }
 
 void PlutoDHCP::DetermineIPRange(IPAddress &ipAddressDhcpStart,IPAddress &ipAddressDhcpStop,IPAddress &ipAddressPlutoStart,IPAddress &ipAddressPlutoStop)
@@ -144,4 +146,86 @@ void PlutoDHCP::DetermineIPRange(IPAddress &ipAddressDhcpStart,IPAddress &ipAddr
 		g_pPlutoLogger->Write(LV_CRITICAL,"dhcp data malformed");
 		return;
 	}
+}
+
+string PlutoDHCP::AssignIP(int PK_Device)
+{
+	// The device we are going to assign an IP address to
+	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(PK_Device);
+	if( !pRow_Device )
+	{
+		cout << "ERROR: Device is invalid" << endl;
+		return "";
+	}
+
+	// See if it already has one
+	string sIP = pRow_Device->IPaddress_get();
+	if( sIP.size() )
+	{
+		// It's already got a good one, use it
+		IPAddress ip(sIP);
+		if( !ip.BadIP() )
+			return ip.AsText();
+	}
+
+	// Nope, we're going to have to find an unused IP address
+	IPAddress ipAddressDhcpStart,ipAddressDhcpStop,ipAddressPlutoStart,ipAddressPlutoStop;
+	DetermineIPRange(ipAddressDhcpStart,ipAddressDhcpStop,ipAddressPlutoStart,ipAddressPlutoStop);
+	for(unsigned long ip = ipAddressPlutoStart.AsInt(); ip<=ipAddressPlutoStop.AsInt(); ip++)
+	{
+		if( m_mapIP_Device.find(ip)==m_mapIP_Device.end() )
+		{
+			// We found one that's not used
+			IPAddress _ip(ip);
+			pRow_Device->IPaddress_set( _ip.AsText() );
+			m_pDatabase_pluto_main->Device_get()->Commit();
+			return _ip.AsText();
+		}
+	}
+
+
+	cout << "No more IP Addresses!" << endl;
+	return "";
+}
+
+string PlutoDHCP::GetDHCPConfig()
+{
+	string sResult; // The dhcp.conf stuff
+	for(map<unsigned long,class Row_Device *>::iterator it=m_mapIP_Device.begin();it!=m_mapIP_Device.end();++it)
+	{
+		Row_Device *pRow_Device = it->second;
+
+		// Confirm the mac address is valid.  Use Bluetooth's phoneDevice class.  Read it in as a string
+		// (which converts it to an int and stores as uppercase), and then read in the int it converted to.
+		// If they are the same, we got a valid mac address.  If they are different, then something is wrong with it
+		PhoneDevice pd_1("",pRow_Device->MACaddress_get(),0);
+		PhoneDevice pd_2("",pd_1.m_iMacAddress,0);
+		if( pd_1.m_sMacAddress!=pd_2.m_sMacAddress )
+		{
+			// Use cerr since cout is going into the dhcp file
+			cerr << "Device " << pRow_Device->PK_Device_get() << " has bad mac address " << pRow_Device->MACaddress_get() << endl;
+			continue;
+		}
+
+		IPAddress ip(pRow_Device->IPaddress_get());
+		sResult += "{ " + ip.AsText() + " = " + pd_1.m_sMacAddress = "}\n";
+		if( bIsMediaDirector(pRow_Device) )
+			sResult += " PXE BOot { " + ip.AsText() + " = " + pd_1.m_sMacAddress = "}\n";
+	}
+	return sResult;
+}
+
+bool PlutoDHCP::bIsMediaDirector(Row_Device *pRow_Device)
+{
+	Row_DeviceTemplate *pRow_DeviceTemplate=NULL;
+	if( (pRow_DeviceTemplate=pRow_Device->FK_DeviceTemplate_getrow())==NULL ||
+		pRow_DeviceTemplate->FK_DeviceCategory_get()!=DEVICECATEGORY_Media_Director_CONST )
+			return false; // We're not an MD
+
+	Row_Device_DeviceData *pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(
+		pRow_Device->PK_Device_get(),
+		DEVICEDATA_Diskless_Boot_CONST);
+
+	// See if we're a diskless MD, return false if the parameter isn't specified or isn't 1
+	return pRow_Device_DeviceData && pRow_Device_DeviceData->IK_DeviceData_get()=="1";
 }

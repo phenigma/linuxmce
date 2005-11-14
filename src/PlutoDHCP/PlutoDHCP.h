@@ -3,6 +3,20 @@
 
 #include "PlutoUtils/MySQLHelper.h"
 
+/*
+	This program does 2 things:  
+	
+	1) When called with -a and -d XXX it looks up device XXX, echos its IP
+	address if it already has one, or if not, assigns a new IP address within
+	the range reserved for Pluto (which should never overlap the range used by dhcp).
+
+	2) When called without -a, it writes out a list of all the mac addresses and 
+	IP addresses to std out that can be merged into the dhcp.conf file
+*/
+
+
+//  IPAddress encapsulates an IP Address, making it available as both an unsigned long and a string
+
 class IPAddress
 {
 private:
@@ -29,6 +43,7 @@ public:
 		return !m_bBadIP;
 	}
 
+	IPAddress() { m_bBadIP=true; }
 	IPAddress(unsigned long IPAddress) { m_IPAddress=IPAddress; }
 	unsigned long AsInt() { return m_IPAddress; }
 	string AsText() 
@@ -49,9 +64,10 @@ public:
 
 class Database_pluto_main;
 
+// PlutoDHCP does all the actual work
 class PlutoDHCP 
 {
-	bool m_bConnected;
+	bool m_bConnected;  // True if we connected to the MySql server
 	int m_iPK_Installation;
 	map<unsigned long,class Row_Device *> m_mapIP_Device;
 	Database_pluto_main *m_pDatabase_pluto_main;
@@ -59,10 +75,14 @@ class PlutoDHCP
 public:
 	PlutoDHCP(int PK_Installation,string host, string user, string pass, string db_name, int port=3306);
 
-	bool bIsMediaDirector(Row_Device *pRow_Device) { return false; }
-	void ReadAllIPs();
-	bool IsConnected();
-	Row_Device *DetermineCore();
+	bool bIsMediaDirector(Row_Device *pRow_Device);  // True if the given device is a diskless MD (pxe boot)
+	void ReadAllIPs(); // Read all devices/ip's into m_mapIP_Device
+	bool IsConnected(); // True if we connected to the MySql server
+	Row_Device *DetermineCore();  // Return the device id of the core
+	
+	// Based on the Core's device data, get the range of ip addresses 
 	void DetermineIPRange(IPAddress &ipAddressDhcpStart,IPAddress &ipAddressDhcpStop,IPAddress &ipAddressPlutoStart,IPAddress &ipAddressPlutoStop);
+	string AssignIP(int PK_Device);  // Assign a new IP address to this device
+	string GetDHCPConfig(); // Write out the dhcp configuration data to stdout
 };
 #endif

@@ -104,10 +104,31 @@ int main(int argc, char *argv[])
 
 	PlutoDHCP.ReadAllIPs();
 
-	//	if( bAssignIP )
-//		cout << PlutoDHCP.AssignIP(iPK_Device) << endl;
-//	else
+	if( bAssignIP )
 	{
+		if( !iPK_Device )
+		{
+			cout << "You must specify a device ID" << endl;
+			exit(1);
+		}
+		else
+		{
+			string sIPAddress = PlutoDHCP.AssignIP(iPK_Device);
+			if( sIPAddress.size() )
+			{
+				cout << sIPAddress << endl;
+				exit(0);
+			}
+			else
+			{
+				cout << "Error Assigning IP Address" << endl;
+				exit(1);
+			}
+		}
+	}
+	else
+	{
+		cout << PlutoDHCP.GetDHCPConfig() << endl;
 	}
 
 	return 0;
