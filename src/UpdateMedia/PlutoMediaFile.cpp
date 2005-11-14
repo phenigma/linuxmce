@@ -71,6 +71,8 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
         if(!PK_MediaType)
             PK_MediaType = PlutoMediaIdentifier::Identify(m_sDirectory + "/" + m_sFile);
 
+        cout << "Media Type is: " << PK_MediaType << endl;
+
         if(PK_MediaType)
             return AddFileToDatabase(PK_MediaType);
         else
