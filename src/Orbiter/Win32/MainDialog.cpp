@@ -1342,7 +1342,7 @@ void GetEditText(HWND hWndEdit, string& Text)
 {
 #ifdef WINCE
 	wchar_t pwText[256]; 
-	::GetWindoText(hWnd, pwText, 256); 
+	::GetWindowText(hWndEdit, pwText, 256); 
 	char pText[MAX_STRING_LEN];
 	wcstombs(pText, pwText, MAX_STRING_LEN);
 #else
