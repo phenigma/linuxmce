@@ -64,12 +64,12 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
     // Nope.  It's either a new file, or it was moved here from some other directory.  If so,
     // then the the attribute should be set.
     int PK_File = GetFileAttribute();
-    cout << m_sDirectory << " / " << m_sFile << " not in db-attr: " << PK_File << endl;
+    cout << m_sDirectory << "/" << m_sFile << " not in db-attr: " << PK_File << endl;
     if( !PK_File )
     {
         // Is it a media file?
         if(!PK_MediaType)
-            PK_MediaType = PlutoMediaIdentifier::Identify(m_sDirectory + " / " + m_sFile);
+            PK_MediaType = PlutoMediaIdentifier::Identify(m_sDirectory + "/" + m_sFile);
 
         if(PK_MediaType)
             return AddFileToDatabase(PK_MediaType);
@@ -132,13 +132,13 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
         cout << "Added PK_AttrType = " << PK_AttrType << " with value " << sValue << endl;
     }
 
-    cout << "Added " << m_sDirectory << " / " << m_sFile << " to db " << pRow_File->PK_File_get() << endl;
+    cout << "Added " << m_sDirectory << "/" << m_sFile << " to db " << pRow_File->PK_File_get() << endl;
     return pRow_File->PK_File_get();
 }
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::SetFileAttribute(int PK_File)
 {
-    cout << "SetFileAttribute " << m_sDirectory << " / " << m_sFile << " " << PK_File  << endl;
+    cout << "SetFileAttribute " << m_sDirectory << "/" << m_sFile << " " << PK_File  << endl;
     string sPK_File = StringUtils::itos(PK_File);
 
 #ifndef WIN32
@@ -189,18 +189,18 @@ int PlutoMediaFile::GetFileAttribute()
 
     if ( attr_get( (m_sDirectory + "/" + m_sFile).c_str( ), "ID", value, &n, 0 ) == 0 )
     {
-        cout << "GetFileAttribute " << m_sDirectory << " / " << m_sFile << " " << value << endl;
+        cout << "GetFileAttribute " << m_sDirectory << "/" << m_sFile << " " << value << endl;
         return atoi( value );
     }
 #endif
 
-    cout << "GetFileAttribute " << m_sDirectory << " / " << m_sFile << " not found " << endl;
+    cout << "GetFileAttribute " << m_sDirectory << "/" << m_sFile << " not found " << endl;
     return 0;
 }
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::SetPicAttribute(int PK_Picture)
 {
-    cout << "SetPicAttribute " << m_sDirectory << " / " << m_sFile << " " << PK_Picture  << endl;
+    cout << "SetPicAttribute " << m_sDirectory << "/" << m_sFile << " " << PK_Picture  << endl;
 
 #ifndef WIN32
     string sPK_Picture = StringUtils::itos(PK_Picture);

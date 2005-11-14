@@ -76,6 +76,8 @@ void OnModify(list<string> &listFiles)
 
         if( bUpdateThumbnails )
             UpdateMedia.UpdateThumbnails();
+
+        g_pPlutoLogger->Write(LV_WARNING, "Synchronized", sItem.c_str());
 	}
 }
 #endif
