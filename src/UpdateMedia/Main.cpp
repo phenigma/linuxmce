@@ -66,7 +66,7 @@ void OnModify(list<string> &listFiles)
 
 		g_pPlutoLogger->Write(LV_WARNING, "Folder to sync: %s", sItem.c_str());	
         PLUTO_SAFETY_LOCK(cm, g_ConnectionMutex );
-        g_pPlutoLogger->Write(LV_WARNING, "Synchronizing...", sItem.c_str());	
+        g_pPlutoLogger->Write(LV_STATUS, "Synchronizing '%s'...", sItem.c_str());	
 
         UpdateMedia UpdateMedia(g_pDatabase_pluto_media, g_pDatabase_pluto_main, sItem);
         UpdateMedia.DoIt();
@@ -77,7 +77,7 @@ void OnModify(list<string> &listFiles)
         if( bUpdateThumbnails )
             UpdateMedia.UpdateThumbnails();
 
-        g_pPlutoLogger->Write(LV_WARNING, "Synchronized", sItem.c_str());
+        g_pPlutoLogger->Write(LV_STATUS, "Synchronized '%s'.", sItem.c_str());
 	}
 }
 #endif
