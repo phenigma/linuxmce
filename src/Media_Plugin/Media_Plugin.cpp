@@ -1543,20 +1543,16 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff,bool bDel
 		}
 
 		if( bSendOff )
+			HandleOnOffs(pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType,0,&mapMediaDevice_Prior,NULL);
+		if( pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_pDevice_MD )
 		{
-			MediaDevice *pDevice_MD = NULL;
-			if( pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_pDevice_MD )
-				pDevice_MD = m_mapMediaDevice_Find(pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_pDevice_MD->m_dwPK_Device);
-
-			// Don't send the off if this is a device that's a child of the osd and the display is bypassed
-			if( !pDevice_MD || !pDevice_MD->m_bDontSendOffIfOSD_ON ||
-				!pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_pDevice_ControlledVia ||
-				pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_DeviceTemplate!=DEVICETEMPLATE_OnScreen_Orbiter_CONST )
-					HandleOnOffs(pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType,0,&mapMediaDevice_Prior,NULL);
-#ifdef DEBUG
-			else
-				g_pPlutoLogger->Write(LV_STATUS,"Not sending off because this is used by the OSD");
-#endif
+			MediaDevice *pMediaDevice_MD = m_mapMediaDevice_Find(pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_pDevice_MD->m_dwPK_Device);
+			if( pMediaDevice_MD && pMediaDevice_MD->m_bDontSendOffIfOSD_ON )
+			{
+				g_pPlutoLogger->Write(LV_STATUS,"Stream ended and m/d is being used as an OSD.  Turning on m/d so it's visible");
+				DCE::CMD_On CMD_On(m_dwPK_Device,pMediaDevice_MD->m_pDeviceData_Router->m_dwPK_Device,0,"");
+				SendCommand(CMD_On);
+			}
 		}
 	}
 
@@ -2967,8 +2963,9 @@ void Media_Plugin::TurnDeviceOff(int PK_Pipe,DeviceData_Router *pDeviceData_Rout
 			pmapMediaDevice_Current->find( pDeviceData_Router->m_pDevice_RouteTo->m_dwPK_Device ) == pmapMediaDevice_Current->end()) ) )
 	{
 		MediaDevice *pMediaDevice = m_mapMediaDevice_Find(pDeviceData_Router->m_dwPK_Device);
+
 		// Don't turn the device off the OSD needs it on
-		if( !pMediaDevice || !pMediaDevice->m_bDontSendOffIfOSD_ON || !pMediaDevice->m_pOH_Orbiter_OSD || (pMediaDevice->m_pOH_Orbiter_OSD && pMediaDevice->m_pOH_Orbiter_OSD->m_bDisplayOn==false))
+		if( !pMediaDevice || !pMediaDevice->m_bDontSendOffIfOSD_ON )
 		{
 			DCE::CMD_Off CMD_Off(m_dwPK_Device,pDeviceData_Router->m_dwPK_Device,-1);  // -1 means don't propagate to any pipes
 			SendCommand(CMD_Off);

@@ -1924,5 +1924,6 @@ bool DesignObj_Generator::ReadRegenVersion(string sFilename)
 		m_vectRegenMonitor.push_back(str);
 	}
 	sc.FreeSerializeMemory();
+	return true;
 }
 

@@ -148,6 +148,9 @@
 				RelativePath="OrbiterGen.cpp">
 			</File>
 			<File
+				RelativePath=".\RegenMonitor.cpp">
+			</File>
+			<File
 				RelativePath=".\Renderer.cpp">
 			</File>
 			<File
