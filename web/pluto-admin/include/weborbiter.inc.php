@@ -23,9 +23,11 @@ function user_exists($username,$pass,$dbADO){
 	
 }
 
-function login_form($dbADO){
+function login_form($dbADO,$err=0){
+	$error_message=($err>0)?'Login failed':'';
 	$out='
 	<form name="login_form" action="process_web_orbiter.php" method="POST">
+	'.$error_message.'
 	<table>
 		<tr>
 			<td>User</td>
@@ -121,15 +123,6 @@ function get_web_orbiter_screen($deviceID,$dbADO){
 	
 	$out='';
 	
-	// get device data for device, to setup refresh and iframe use
-	$ddArray=get_device_data($deviceID,$dbADO);
-	
-	// refresh is hardcoded to 5 seconds, if it's not set in device data
-	$refresh=(isset($ddArray[$GLOBALS['RefreshInterval']]))?$ddArray[$GLOBALS['RefreshInterval']]:5;
-	
-	// do not use iframes if device data it's not specified
-	$use_iframes=(isset($ddArray[$GLOBALS['SupportIframes']]))?$ddArray[$GLOBALS['SupportIframes']]:0;
-	
 	// get proxy orbiter IP address 
 	$ProxyOrbiterInfo=getFieldsAsArray('Device','Device.FK_Device_ControlledVia,DD.IK_DeviceData AS Port,Parent.IPAddress',$dbADO,'INNER JOIN Device_DeviceData DD ON DD.FK_Device=Device.PK_Device AND DD.FK_DeviceData='.$GLOBALS['ListenPort'].' LEFT JOIN Device Parent ON Device.FK_Device_ControlledVia=Parent.PK_Device WHERE Device.FK_DeviceTemplate='.$GLOBALS['ProxyOrbiter']);
 
@@ -159,11 +152,11 @@ function get_web_orbiter_screen($deviceID,$dbADO){
 	$result=web_proxy_connect($socket, $address, $port);
 	if($result===false){
 		web_socket_close($socket);
-		return socket_failed();
+		return socket_failed(1);
 	}
 	
 	write_log("Received parameters ".$_SERVER['QUERY_STRING']."\n");
-	$command=(isset($_REQUEST['command']))?$_REQUEST['command']:'IMAGE';
+	$command=(isset($_REQUEST['command']))?$_REQUEST['command']:'PLUTO_KEY 10';
 	
 	// get image
 	if($command=='IMAGE'){
@@ -174,6 +167,11 @@ function get_web_orbiter_screen($deviceID,$dbADO){
 	if(strpos($command,'TOUCH')!==false){
 		$out=sendCommand($socket,$command,$refresh);
 	}	
+
+	// send PLUTO KEY command
+	if(strpos($command,'PLUTO_KEY')!==false){
+		$out=sendCommand($socket,$command,$refresh);
+	}
 	
 	web_socket_close($socket);
 	
@@ -210,7 +208,7 @@ function getImage($socket,$refresh=''){
 		}
 	}
 	if(file_exists(getcwd().'/security_images/orbiter_screen.png')){
-		$out=jsFunctions().'<img id="screen" src="include/image.php?imagepath='.getcwd().'/security_images/orbiter_screen.png&randno='.rand(10000,99999).'" onClick="sendTouch();">';	
+		$out=jsFunctions().'<img id="screen" src="include/image.php?imagepath='.getcwd().'/security_images/orbiter_screen.png&randno='.rand(10000,99999).'" onClick="sendTouch();"><br>'.buttons_bar();	
 	}
 	
 	return $out;
@@ -259,20 +257,9 @@ function sendCommand($socket,$command,$refresh){
 	return $out;
 }
 
-// reload the image "screen" from parent
-function reloadImageJS(){
-	$js='
-		<script>
-			parent.document.getElementById("screen").src="rooms/spacer.gif";
-			parent.document.getElementById("screen").src="include/image.php?imagepath='.getcwd().'/security_images/orbiter_screen.png&randno='.rand(0,10000).'";
-		</script>
-	';
-	
-	return $js;
-}
-
 function write_log($log){
-	writeFile(getcwd().'/security_images/socket.log',$log,'a+');
+	$deviceID=(int)@$_REQUEST['deviceID'];
+	writeFile('/var/log/pluto/'.$deviceID.'_web_orbiter.log',$log,'a+');
 }
 
 function getDeviceIP($deviceID,$dbADO){
@@ -359,8 +346,7 @@ function socket_failed($flag){
 }
 
 function jsFunctions(){
-	$path=parse_str($_SERVER['QUERY_STRING']);
-	$url="weborbiter.php?userID=$userID&pass=$pass&installationID=$installationID&deviceID=$deviceID";
+	$url=clean_path();	
 	
 	$out='
 		<script src="scripts/connectionWizard/connectionWizard.js" type="text/javascript" language="JavaScript"></script>
@@ -399,13 +385,121 @@ function jsFunctions(){
 				
 		function sendTouch()
 		{
-			xRelative=xMousePos-findPosX(document.getElementById("screen"));
-			yRelative=yMousePos-findPosY(document.getElementById("screen"));
+			if(touch_disabled==0){
+				xRelative=xMousePos-findPosX(document.getElementById("screen"));
+				yRelative=yMousePos-findPosY(document.getElementById("screen"));
 
-			self.location="'.$url.'&command=TOUCH "+xRelative+"x"+yRelative;
+				self.location="'.$url.'&command=TOUCH "+xRelative+"x"+yRelative;
+			}
 		}
-	
+
 		</script>';
 	return $out;
+}
+
+function buttons_bar(){
+	$url=clean_path();
+	
+	$out='
+
+	<input type="button" class="button" name="go" value="Home" onClick="self.location=\''.$url.'&command=PLUTO_KEY 10\';"> 
+	<input type="button" class="button" name="go" value="Back" onClick="self.location=\''.$url.'&command=PLUTO_KEY 11\';">
+	<input type="button" class="button" name="go" value="Refresh" onClick="self.location=\''.$url.'&command=IMAGE\';">
+	<input type="button" class="button" name="go" value="Exit" onClick="self.close();">
+	';
+	
+	return $out;
+}
+
+function clean_path(){
+	$path=parse_str($_SERVER['QUERY_STRING']);
+	$url="weborbiter.php?userID=$userID&pass=$pass&installationID=$installationID&deviceID=$deviceID";
+	
+	return $url;
+}
+
+function keyboard_codes(){
+	$keys=array();
+	for($i=48;$i<58;$i++){
+		$keys[chr($i)]=$i;
+	}
+	
+	for($i=97;$i<123;$i++){
+		$keys[chr($i)]=$i;
+	}
+	
+	return $keys;
+}
+
+function get_keyboard_codes_id($dbADO){
+	$key_codes_ids=array();
+
+	$res=$dbADO->Execute('SELECT PK_Button, Description,ASCII(Description) AS ascii FROM Button WHERE (((ASCII(Description)>=48 AND ASCII(Description)<58) || (ASCII(Description)>=97 AND ASCII(Description)<123)) AND CHAR_LENGTH(Description)=1) || (PK_Button IN (1,2,3,4,5))');
+	while($row=$res->FetchRow()){
+		$key_codes_ids[$row['ascii']]=$row['PK_Button'];
+	}
+
+	return $key_codes_ids;
+}
+
+function output_html($out,$dbADO,$refresh=0){
+	$url=clean_path();
+	
+	$refresh_tag=($refresh!=0)?'<META HTTP-EQUIV=Refresh CONTENT="'.$refresh.'; URL='.$url.'&command=IMAGE">':'';
+	$keyboard_codes=get_keyboard_codes_id($dbADO);
+	$js_case='';
+	
+	// hard-coded: add up/down/left/right/enter commands
+	$keyboard_codes[38]=1;	// up
+	$keyboard_codes[40]=2;	// down
+	$keyboard_codes[37]=3;	// left
+	$keyboard_codes[39]=4;	// right
+	$keyboard_codes[13]=5;	// enter
+	
+	foreach ($keyboard_codes AS $code=>$command_key){
+		$js_case.='
+			case '.$code.':
+				command_to_send='.$command_key.';
+			break;
+		';
+	}
+	
+	$out='
+	<html>
+	<head>
+	'.$refresh_tag.'
+	<script>
+	touch_disabled=1;
+	
+	function sendKey(event){
+		if (event.which){
+			key_code=event.which;
+		}else if(event.keyCode){
+			key_code=event.keyCode;
+		}
+
+	if(key_code>58){
+		key_code+=32;
+	}
+		switch(key_code){
+			'.$js_case.'
+			default:
+				command_to_send=0;
+			break
+		}
+		if(command_to_send!=0){
+			self.location="'.$url.'&command=PLUTO_KEY "+command_to_send;
+		}
+	}	
+	</script>
+	
+	<title>Pluto Web device</title>		
+	<head>		
+	<body onLoad="touch_disabled=0;" ONKEYDOWN="sendKey(event);">
+	'.$out.'
+	</body>
+	</html>';
+	
+	print $out;
 }
 ?>
