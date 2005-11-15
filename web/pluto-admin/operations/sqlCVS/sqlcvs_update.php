@@ -124,7 +124,7 @@ function sqlcvs_update($output,$dbADO) {
 			$parmList.=' -r '.$rep.' -t '.join(',',$tParmArray[$rep]);
 		}
 		
-		$cmd='/usr/pluto/bin/sqlCVS -H '.$host.' -h localhost -a -n '.$parmList.' -d “'.$username.'” -U "'.$username.'~'.$password.'" -D '.$dbPlutoMainDatabase.' -e update';
+		$cmd='/usr/pluto/bin/sqlCVS -H '.$host.' -h localhost -a -n '.$parmList.' -d "'.$username.'" -U "'.$username.'~'.$password.'" -D '.$dbPlutoMainDatabase.' -e update';
 		
 		$out='
 		<script>
