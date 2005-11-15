@@ -19,6 +19,7 @@
 #include "PlutoMOContainer.h"
 #include "PlutoMOEngine.h"
 #include "PlutoMO.hrh"
+#include "Logger.h"
 
 // For Grid
 
@@ -91,18 +92,32 @@ void CPlutoMOContainer::SizeChanged()
 
 TKeyResponse CPlutoMOContainer::OfferKeyEventL(const TKeyEvent& aKeyEvent,TEventCode aType)
 {
+	//LOG("key");
 	if(((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bApplicationIsMinimized)
 	{
+		//LOG("minimized is true");
 		if(aType == EEventKeyUp)
+		{
+			//LOG("key up");
 			((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bApplicationIsMinimized = false;
+			//LOG("minimized set to false");
+		}
 	}
 	else
 	{
+		//LOG("minimized is false");
+
 		if(((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bVMCViewerVisible)
+		{
+			//LOG("m_bVMCViewerVisible is true");
 			return EKeyWasNotConsumed;
+		}
 
 		if(((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bPlutoEventVisible)
+		{
+			//LOG("m_bPlutoEventVisible is true");
 			return EKeyWasNotConsumed;
+		}
 	}
 
     TInt code = aKeyEvent.iCode;
@@ -113,7 +128,10 @@ TKeyResponse CPlutoMOContainer::OfferKeyEventL(const TKeyEvent& aKeyEvent,TEvent
 			return (EKeyWasConsumed);
 
 		default:
+		{
+			//LOG("event to list box");
 			return iListBox->OfferKeyEventL(aKeyEvent, aType);
+		}
     }
 }
 
