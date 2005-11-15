@@ -337,6 +337,9 @@ long BDCommandProcessor::ReceiveLong()
 void BDCommandProcessor::AddCommand( class BDCommand *pCommand )
 {
 	PLUTO_SAFETY_LOCK( cm, m_CommandMutex );
+	
+	if(m_bDead)
+		return;
 
 #ifndef SYMBIAN
     if(pCommand->ID() == BD_CP_SHOW_IMAGE)

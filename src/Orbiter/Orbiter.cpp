@@ -4051,6 +4051,10 @@ bool Orbiter::GotActivity(  )
 {
     m_LastActivityTime=time( NULL );
 
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"m_bDisplayOn is %d",(int) m_bDisplayOn);
+#endif
+
 	if( !m_bDisplayOn ||
 		(m_pScreenHistory_Current && m_pScreenHistory_Current->m_pObj==m_pDesignObj_Orbiter_ScreenSaveMenu &&
 			m_pDesignObj_Orbiter_MainMenu!=m_pDesignObj_Orbiter_ScreenSaveMenu) )
