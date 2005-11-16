@@ -413,7 +413,7 @@ function buttons_bar(){
 
 function clean_path(){
 	$path=parse_str($_SERVER['QUERY_STRING']);
-	$url="weborbiter.php?userID=$userID&pass=$pass&installationID=$installationID&deviceID=$deviceID";
+	$url="weborbiter.php?userID=".@$userID."&pass=".@$pass."&installationID=".@$installationID."&deviceID=".@$deviceID;
 	
 	return $url;
 }
@@ -442,7 +442,7 @@ function get_keyboard_codes_id($dbADO){
 	return $key_codes_ids;
 }
 
-function output_html($out,$dbADO,$refresh=0){
+function output_html($content,$dbADO,$refresh=0){
 	$url=clean_path();
 	
 	$refresh_tag=($refresh!=0)?'<META HTTP-EQUIV=Refresh CONTENT="'.$refresh.'; URL='.$url.'&command=IMAGE">':'';
@@ -478,9 +478,12 @@ function output_html($out,$dbADO,$refresh=0){
 			key_code=event.keyCode;
 		}
 
-	if(key_code>58){
-		key_code+=32;
-	}
+	';
+	if($refresh!=0){
+	$out.='
+		if(key_code>58){
+			key_code+=32;
+		}
 		switch(key_code){
 			'.$js_case.'
 			default:
@@ -489,14 +492,16 @@ function output_html($out,$dbADO,$refresh=0){
 		}
 		if(command_to_send!=0){
 			self.location="'.$url.'&command=PLUTO_KEY "+command_to_send;
-		}
+		}';
+	}
+	$out.='
 	}	
 	</script>
 	
 	<title>Pluto Web device</title>		
 	<head>		
 	<body onLoad="touch_disabled=0;" ONKEYDOWN="sendKey(event);">
-	'.$out.'
+	'.$content.'
 	</body>
 	</html>';
 	
