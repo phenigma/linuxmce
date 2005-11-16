@@ -1163,7 +1163,7 @@ void gc100::relay_power(class Message *pMessage, bool power_on)
 
 void gc100::SendIR(string Port, string IRCode)
 {
-	g_pPlutoLogger->Write(LV_STATUS, "SendIR wrapper: Port = %s", Port.c_str());
+	g_pPlutoLogger->Write(LV_STATUS, "SendIR wrapper: Port = %s code = %s", Port.c_str(), IRCode.c_str());
 	SendIR_Loop(Port, IRCode, 1);
 }
 
