@@ -1,0 +1,15 @@
+Source: simplephone
+Section: unknown
+Priority: optional
+Maintainer: Office Server Operator <root@activate.plutohome.com>
+Build-Depends: debhelper (>= 4.0.0)
+Standards-Version: 3.6.1
+
+Package: simplephone
+Architecture: any
+Depends: 
+Replaces: 
+Conflicts: 
+Provides:
+Description: A very simple phone
+ Very simple IAX2 softphone
