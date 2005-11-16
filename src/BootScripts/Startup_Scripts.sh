@@ -15,6 +15,7 @@ Device="$PK_Device"
 
 rm /var/log/pluto/running.pids
 rm -rf /tmp/* # I doubt that this is safe to do here
+chmod 777 /var/log/pluto
 
 # remove all ttyS_* (created by gc100s) entries from /dev
 rm -f /dev/ttyS_*
