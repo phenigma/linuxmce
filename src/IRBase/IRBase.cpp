@@ -154,6 +154,11 @@ IRBase::DispatchMessage(Message* pmsg) {
 			{
 				string _ircode = StringUtils::Tokenize(ircode,"&",pos);
 				SendIR(irport,_ircode);
+				if( pos<ircode.size() )
+				{
+					g_pPlutoLogger->Write(LV_STATUS,"Sleeping for 500 ms since there are multiple codes");
+					Sleep(500);
+				}
 			}
 		}
 	} else {
@@ -178,6 +183,11 @@ IRBase::DispatchMessage(Message* pmsg) {
 		{
 			string _ircode = StringUtils::Tokenize(ircode,"&",pos);
 			SendIR(irport,_ircode);
+			if( pos<ircode.size() )
+			{
+				g_pPlutoLogger->Write(LV_STATUS,"Sleeping for 500 ms since there are multiple codes");
+				Sleep(500);
+			}
 		}
 	} else {
 		g_pPlutoLogger->Write(LV_WARNING, "Infrared Code Data is Empty...");
