@@ -1163,6 +1163,22 @@ void gc100::relay_power(class Message *pMessage, bool power_on)
 
 void gc100::SendIR(string Port, string IRCode)
 {
+	if( IRCode.find('&')!=string::npos )
+	{
+		string::size_type pos=0;
+		while(pos<IRCode.size() && pos!=string::npos )
+		{
+			string _ircode = StringUtils::Tokenize(IRCode,"&",pos);
+			g_pPlutoLogger->Write(LV_STATUS,"pos %d size %d Checking %s\n for multiple codes, got: %s",pos,(int) IRCode.size(),IRCode.c_str(),_ircode.c_str());
+			SendIR(Port,_ircode);
+			if( pos<IRCode.size() )
+			{
+				g_pPlutoLogger->Write(LV_STATUS,"Sleeping for 500 ms since there are multiple codes");
+				Sleep(500);
+			}
+		}
+		return;
+	}
 	g_pPlutoLogger->Write(LV_STATUS, "SendIR wrapper: Port = %s code = %s", Port.c_str(), IRCode.c_str());
 	SendIR_Loop(Port, IRCode, 1);
 }
