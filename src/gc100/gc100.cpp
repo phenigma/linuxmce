@@ -1174,7 +1174,7 @@ void gc100::SendIR(string Port, string IRCode)
 			if( pos<IRCode.size() )
 			{
 				g_pPlutoLogger->Write(LV_STATUS,"Sleeping for 500 ms since there are multiple codes");
-				Sleep(500);
+				Sleep(2000);
 			}
 		}
 		return;
