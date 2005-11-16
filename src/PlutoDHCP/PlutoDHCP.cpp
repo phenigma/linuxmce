@@ -115,6 +115,7 @@ void PlutoDHCP::DetermineIPRange(IPAddress &ipAddressDhcpStart,IPAddress &ipAddr
 	if( !pRow_Device )
 		return;
 	Row_Device_DeviceData *pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(pRow_Device->PK_Device_get(),DEVICEDATA_DHCP_CONST);
+	if (!pRow_Device_DeviceData)
 	{
 		cerr << "ERROR: Cannot find dhcp data" << endl;
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find dhcp data");
@@ -171,6 +172,7 @@ string PlutoDHCP::AssignIP(int PK_Device)
 	// Nope, we're going to have to find an unused IP address
 	IPAddress ipAddressDhcpStart,ipAddressDhcpStop,ipAddressPlutoStart,ipAddressPlutoStop;
 	DetermineIPRange(ipAddressDhcpStart,ipAddressDhcpStop,ipAddressPlutoStart,ipAddressPlutoStop);
+	cout << ipAddressPlutoStart.AsText() << "-" << ipAddressPlutoStop.AsText() << endl;
 	for(unsigned long ip = ipAddressPlutoStart.AsInt(); ip<=ipAddressPlutoStop.AsInt(); ip++)
 	{
 		if( m_mapIP_Device.find(ip)==m_mapIP_Device.end() )
@@ -183,7 +185,6 @@ string PlutoDHCP::AssignIP(int PK_Device)
 		}
 	}
 
-
 	cout << "No more IP Addresses!" << endl;
 	return "";
 }
@@ -191,6 +192,8 @@ string PlutoDHCP::AssignIP(int PK_Device)
 string PlutoDHCP::GetDHCPConfig()
 {
 	string sResult; // The dhcp.conf stuff
+	sResult += "#!/bin/bash\nMOON_ENTRIES=\nNOBOOT_ENTRIES=\n";
+	int iMoonNumber = 0, iNoBootNumber = 0;
 	for(map<unsigned long,class Row_Device *>::iterator it=m_mapIP_Device.begin();it!=m_mapIP_Device.end();++it)
 	{
 		Row_Device *pRow_Device = it->second;
@@ -208,9 +211,16 @@ string PlutoDHCP::GetDHCPConfig()
 		}
 
 		IPAddress ip(pRow_Device->IPaddress_get());
-		sResult += "{ " + ip.AsText() + " = " + pd_1.m_sMacAddress = "}\n";
 		if( bIsMediaDirector(pRow_Device) )
-			sResult += " PXE BOot { " + ip.AsText() + " = " + pd_1.m_sMacAddress = "}\n";
+		{
+			sResult += string("MOON_ENTRIES=\"$MOON_ENTRIES\\n\\thost moon" + StringUtils::itos(++iMoonNumber)
+					+ " { hardware ethernet " + pd_1.m_sMacAddress + "; fixed-address " + ip.AsText() + "; }\"\n");
+		}
+		else
+		{
+			sResult += string("NOBOOT_ENTRIES=\"$NOBOOT_ENTRIES\\n\\thost pc" + StringUtils::itos(++iNoBootNumber)
+					+ " { hardware ethernet " + pd_1.m_sMacAddress + "; fixed-address " + ip.AsText() + "; }\"\n");
+		}
 	}
 	return sResult;
 }
