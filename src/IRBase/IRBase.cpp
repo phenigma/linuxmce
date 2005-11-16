@@ -153,6 +153,7 @@ IRBase::DispatchMessage(Message* pmsg) {
 			while(pos<ircode.size() && pos!=string::npos )
 			{
 				string _ircode = StringUtils::Tokenize(ircode,"&",pos);
+				g_pPlutoLogger->Write(LV_STATUS,"pos %d size %d Checking %s\n for multiple codes, got: %s",pos,(int) ircode.size(),ircode.c_str(),_ircode.c_str());
 				SendIR(irport,_ircode);
 				if( pos<ircode.size() )
 				{
@@ -182,6 +183,7 @@ IRBase::DispatchMessage(Message* pmsg) {
 		while(pos<ircode.size() && pos!=string::npos )
 		{
 			string _ircode = StringUtils::Tokenize(ircode,"&",pos);
+			g_pPlutoLogger->Write(LV_STATUS,"pos %d size %d Checking %s\n for multiple codes, got: %s",pos,(int) ircode.size(),ircode.c_str(),_ircode.c_str());
 			SendIR(irport,_ircode);
 			if( pos<ircode.size() )
 			{
