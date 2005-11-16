@@ -105,6 +105,7 @@
 #define DEVICEDATA_Repeat_CONST 121
 #define DEVICEDATA_Support_iframes_CONST 122
 #define DEVICEDATA_Refresh_Interval_CONST 123
+#define DEVICEDATA_Speak_in_the_House_CONST 124
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"
