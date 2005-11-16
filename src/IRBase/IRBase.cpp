@@ -149,7 +149,12 @@ IRBase::DispatchMessage(Message* pmsg) {
 				return;
 			}
 		} else {
-			SendIR(irport, ircode);
+			string::size_type pos=0;
+			while(pos<ircode.size() && pos!=string::npos )
+			{
+				string _ircode = StringUtils::Tokenize(ircode,"&",pos);
+				SendIR(irport,_ircode);
+			}
 		}
 	} else {
 		cmd = pmsg->m_dwID;
@@ -167,7 +172,13 @@ IRBase::DispatchMessage(Message* pmsg) {
 	if(!ircode.empty()) {
 		g_pPlutoLogger->Write(LV_STATUS, "Sending Infrared Code for dev <%d> cmd <%d>, channel <%s>, code <%s>", 
 					devid, cmd, irport.c_str(), ircode.c_str());
-		SendIR(irport, ircode);
+
+		string::size_type pos=0;
+		while(pos<ircode.size() && pos!=string::npos )
+		{
+			string _ircode = StringUtils::Tokenize(ircode,"&",pos);
+			SendIR(irport,_ircode);
+		}
 	} else {
 		g_pPlutoLogger->Write(LV_WARNING, "Infrared Code Data is Empty...");
 	}
