@@ -18,6 +18,8 @@ my $sql;
 my $statement;
 my $row;
 my @data;
+my $secpluginid;
+my $telpluginid;
 
 my $mode=0;
 
@@ -28,7 +30,7 @@ close(CONF);
 foreach $line (@data)
 {
     my ($option, $eq, $value) = split(/ /,$line);
-	chomp($value) if(defined($value));	
+	chomp($value) if(defined($value));
     if($option eq "MySqlHost")
     {
         $DBHOST=$value;
@@ -58,8 +60,21 @@ unless($row = $statement->fetchrow_hashref())
     print STDERR "NO SECURITY PLUGIN\n";
     exit(1);
 }
+$secpluginid=$row->{PK_Device};
 $statement->finish();
-$sql = "select IK_DeviceData from Device_DeviceData where FK_Device=\'".$row->{PK_Device}."\' and FK_DeviceData='96';";
+
+$sql = "select PK_Device from Device where FK_DeviceTemplate=34;";
+$statement = $db_handle->prepare($sql) or die "Couldn't prepare query '$sql': $DBI::errstr\n";
+$statement->execute() or die "Couldn't execute query '$sql': $DBI::errstr\n";
+unless($row = $statement->fetchrow_hashref())
+{
+    print STDERR "NO TELECOM PLUGIN\n";
+    exit(1);
+}
+$telpluginid=$row->{PK_Device};
+$statement->finish();
+
+$sql = "select IK_DeviceData from Device_DeviceData where FK_Device=\'".$secpluginid."\' and FK_DeviceData='36';";
 $statement = $db_handle->prepare($sql) or die "Couldn't prepare query '$sql': $DBI::errstr\n";
 $statement->execute() or die "Couldn't execute query '$sql': $DBI::errstr\n";
 unless($row = $statement->fetchrow_hashref())
@@ -67,15 +82,15 @@ unless($row = $statement->fetchrow_hashref())
     print STDERR "NO DEVICEDATA FOR SECURITY PLUGIN\n";
     exit(1);
 }
-$statement->finish();
+
 @data = split(/[,]/,$row->{IK_DeviceData});
 
 for(my $i=0;defined($data[$i]);$i+=2)
 {
 	my $j=int(($i+2)/2);
 	print STDERR "[".$data[$i]."]=".$data[$i+1]."\n";
-	`flite -t "To call the $data[$i] press $j" -o /tmp/pluto-security-sos-option$j.wav`;
-	`/usr/bin/sox /tmp/pluto-security-sos-option$j.wav -r 8000 -c 1 /tmp/pluto-security-sos-option$j.gsm resample -ql`;
+	my $phone=$data[$i+1];
+	`/usr/pluto/bin/MessageSend localhost -targetType device $secpluginid $telpluginid 1 414 75 $phone 81 "pluto" 83 "997`;
 }
 
 $statement->finish();

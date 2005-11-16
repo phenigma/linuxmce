@@ -161,10 +161,13 @@ sed -r -i "s/asterisk[:]asterisk/asterisk:www-data/" ${PKGFOLDER}/usr/sbin/ampor
 sed -r -i "s/chmod u[+]x/chmod ug+x/" ${PKGFOLDER}/usr/sbin/amportal
 sed -r -i "s/&& export LD_LIBRARY_PATH=\/usr\/local\/lib/ /" ${PKGFOLDER}/usr/sbin/amportal
 sed -r -i "s/\t\trun_fop/#\t\trun_fop/" pkg/root/usr/sbin/amportal
+sed -r -i "s/\techo Permissions OK/\tchmod 666 \/dev\/dsp\n\techo Permissions OK/" ${PKGFOLDER}/usr/sbin/amportal
 
 #copy AGI scripts
-cp -R ${ADDFOLDER}/pluto-sos.agi  ${PKGFOLDER}/var/lib/asterisk/agi-bin/
-cp -R ${ADDFOLDER}/pluto-sos-gen.pl  ${PKGFOLDER}/usr/pluto/bin/
+cp -R ${ADDFOLDER}/pluto-sos.agi ${PKGFOLDER}/var/lib/asterisk/agi-bin/
+cp -R ${ADDFOLDER}/pluto-sos-gen.pl ${PKGFOLDER}/usr/pluto/bin/
+cp -R ${ADDFOLDER}/pluto-sos-neighbor.pl ${PKGFOLDER}/usr/pluto/bin/
+cp -R ${ADDFOLDER}/pluto-sos-speak.pl ${PKGFOLDER}/usr/pluto/bin/
 
 cat >> ${PKGFOLDER}/etc/asterisk/extensions.conf << EOF
 
@@ -186,6 +189,15 @@ sed -r -i "s/^default/;default/" ${PKGFOLDER}/etc/asterisk/musiconhold.conf
 cd ${PKGFOLDER}/../
 #make some clean up
 find -name '.svn' -type d -exec rm -rf '{}' ';' 2>/dev/null
+
+#strip binaries 
+for I in `du -a | grep -E '\.((so)|(a)|(so\..+))$' | cut -f 2`
+do
+	strip $I
+done
+strip ${PKGFOLDER}/usr/sbin/asterisk
+
+#removing useless sounds
 for I in `du -a | grep '.gsm$' | cut -f 2`
 do
 	rm -f /tmp/gsmstatus
@@ -194,12 +206,14 @@ do
 	grep -E -i "(background)|(playback)" ${PKGFOLDER}/etc/asterisk/* | grep "$J" > /tmp/gsmstatus
 	J=`echo $I | sed -r "s/.+?\/([^\/]+)$/\1/"`
 	grep -E -i "(background)|(playback)" ${PKGFOLDER}/etc/asterisk/* | grep "$J" >> /tmp/gsmstatus
-	echo $I | grep -E '/(digits)|(letters)|(pluto)/' >> /tmp/gsmstatus
+	echo $I | grep -E '(digits)|(letters)|(pluto)' >> /tmp/gsmstatus
 	if [ ! -s /tmp/gsmstatus ]
 	then
 		rm $I	
 	fi
 done
+cp -R ${SRCFOLDER}/asterisk-[0-9]*/sounds/*  ${PKGFOLDER}/var/lib/asterisk/sounds/
+rm -f ${PKGFOLDER}/var/lib/asterisk/sounds/*.mp3
 rm -f ${PKGFOLDER}/var/lib/asterisk/mohmp3/*
 cp ${ADDFOLDER}/short.mp3 ${PKGFOLDER}/var/lib/asterisk/mohmp3/
 

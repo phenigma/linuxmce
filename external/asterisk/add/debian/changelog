@@ -1,3 +1,16 @@
+asterisk-pluto (1.0.9-5) unstable; urgency=low
+
+  * Speak in the house using simplephone
+
+ -- Office Server Operator <root@activate.plutohome.com>  Wed, 16 Nov 2005 16:27:45 +0200
+
+asterisk-pluto (1.0.9-4) unstable; urgency=low
+
+  * Small patches to enable CONSOLE/dsp
+  * Upgrade chan_sccp to latest version
+
+ -- Office Server Operator <root@activate.plutohome.com>  Wed, 9 Nov 2005 11:59:17 +0200
+
 asterisk-pluto (1.0.9-3) unstable; urgency=low
 
   * Add support for fax via libspandsp

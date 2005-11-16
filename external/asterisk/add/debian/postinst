@@ -33,7 +33,8 @@ case "$1" in
 			echo "insert into Firewall (Protocol,SourcePort,SourcePortEnd,DestinationPort,RuleType) values ('udp',2000,0,0,'core_input');" | /usr/bin/mysql pluto_main || /bin/true
 			echo "insert into Firewall (Protocol,SourcePort,SourcePortEnd,DestinationPort,RuleType) values ('tcp',2000,0,0,'core_input');" | /usr/bin/mysql pluto_main || /bin/true
 			#enable oss module to speak in the house
-			sed -r -i "s/(noload [=][>] chan_oss.so)/;\1/" /etc/asterisk/modules.conf
+			sed -r -i "s/.*(noload [=][>] chan_oss.so)/\1/" /etc/asterisk/modules.conf
+			sed -r -i "s/.*(noload [=][>] chan_alsa.so)/\1/" /etc/asterisk/modules.conf			
 			rm -f /etc/init.d/asterisk || /bin/true
 			ln -sf /usr/sbin/amportal /etc/init.d/asterisk || /bin/true
 			for I in `ls -d /etc/rc?.d` ; do cd $I ; ln -sf ../init.d/asterisk S92asterisk || /bin/true; done; 
@@ -52,7 +53,8 @@ case "$1" in
 			echo 'CREATE TABLE IF NOT EXISTS `incoming` ( `cidnum` VARCHAR( 20 ) , `extension` VARCHAR( 20 ) , `destination` VARCHAR( 50 ) , `faxexten` VARCHAR( 20 ) , `faxemail` VARCHAR( 50 ) , `answer` TINYINT( 1 ) , `wait` INT( 2 ) , `privacyman` TINYINT( 1 ) );' | /usr/bin/mysql asterisk || /bin/true
 			echo 'CREATE TABLE IF NOT EXISTS `Backup` (`Name` varchar(50) default NULL,`Voicemail` varchar(50) default NULL,`Recordings` varchar(50) default NULL,`Configurations` varchar(50) default NULL,`CDR` varchar(55) default NULL,`FOP` varchar(50) default NULL,`Minutes` varchar(50) default NULL,`Hours` varchar(50) default NULL,`Days` varchar(50) default NULL,`Months` varchar(50) default NULL,`Weekdays` varchar(50) default NULL,`Command` varchar(200) default NULL,`Method` varchar(50) default NULL,`ID` int(11) NOT NULL auto_increment,PRIMARY KEY  (ID));' | /usr/bin/mysql asterisk || /bin/true
 			sed -r -i "s/^autoload=yes/autoload=yes\nnoload => chan_skinny.so\nnoload => chan_capi.so\nnoload => app_capiRETRIEVE.so\nnoload => app_capiCD.so\nnoload => app_capiECT.so\nnoload => app_capiFax.so\nnoload => app_capiHOLD.so\nnoload => app_capiMCID.so\nnoload => app_capiNoES.so/" ${PKGFOLDER}/etc/asterisk/modules.conf 
-			sed -r -i "s/(noload [=][>] chan_oss.so)/;\1/" /etc/asterisk/modules.conf
+			sed -r -i "s/.*(noload [=][>] chan_oss.so)/\1/" /etc/asterisk/modules.conf
+			sed -r -i "s/.*(noload [=][>] chan_alsa.so)/\1/" /etc/asterisk/modules.conf
 			
 			rm -f /etc/init.d/asterisk || /bin/true
 			ln -sf /usr/sbin/amportal /etc/init.d/asterisk || /bin/true
