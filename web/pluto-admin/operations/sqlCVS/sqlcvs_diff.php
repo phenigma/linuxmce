@@ -123,7 +123,7 @@ function sqlcvs_diff($output,$dbADO) {
 			$parmList.=' -r '.$rep.' -t '.join(',',$tParmArray[$rep]);
 		}
 		
-		$cmd='/usr/pluto/bin/sqlCVS -H '.$host.' -h localhost -a -n '.$parmList.' -d "'.$username.'" -U "'.$username.'~'.$password.'" -D '.$dbPlutoMainDatabase.' -e -f /tmp/tmp_sqlcvs_file diff';
+		$cmd='sudo -u root /usr/pluto/bin/sqlCVS -H '.$host.' -h localhost -a -n '.$parmList.' -d "'.$username.'" -U "'.$username.'~'.$password.'" -D '.$dbPlutoMainDatabase.' -e -f /tmp/tmp_sqlcvs_file diff';
 		exec($cmd,$retArray,$retVal);
 		
 		$out.='
@@ -208,10 +208,18 @@ function sqlcvs_diff($output,$dbADO) {
 				<input type="hidden" name="parms" value="'.$parmList.'">
 				<input type="hidden" name="fileLines" value="'.$lineNo.'">';
 		}
-		$out.='
+		if(count($resultArray)>0){
+			$out.='
 				<tr>
 					<td colspan="5" align="center"><input type="submit" class="button" name="revert" value="Revert"> <input type="submit" class="button" name="checkin" value="CheckIn"></td>
-				</tr>
+				</tr>';
+		}else{
+			$out.='
+				<tr>
+					<td colspan="5" align="center">No changes.</td>
+				</tr>';
+		}
+			$out.='
 			</table>
 		</form>';
 		
@@ -236,11 +244,12 @@ function sqlcvs_diff($output,$dbADO) {
 				$maskArray[]=$fileArray[$i];
 			}
 		}
-		writeFile('/tmp/tmp_sqlcvs_file',join("\n",$maskArray));
+		exec('sudo -u root chmod 777 /tmp/tmp_sqlcvs_file');
+		writeFile('/tmp/tmp_sqlcvs_file',join("\n",$maskArray)).' '.join("\n",$maskArray);
 		
 		$sqlcvsAction=(isset($_POST['revert']))?'revert':'checkin';
 		
-		$cmd='/usr/pluto/bin/sqlCVS -H '.$host.' -h localhost -a -n '.$parmList.' -d "'.$username.'" -U "'.$username.'~'.$password.'" -D '.$dbPlutoMainDatabase.' -e -m /tmp/tmp_sqlcvs_file '.$sqlcvsAction;
+		$cmd='sudo -u root /usr/pluto/bin/sqlCVS -H '.$host.' -h localhost -a -n '.$parmList.' -d "'.$username.'" -U "'.$username.'~'.$password.'" -D '.$dbPlutoMainDatabase.' -e -m /tmp/tmp_sqlcvs_file '.$sqlcvsAction;
 //		unlink('/tmp/tmp_sqlcvs_file');
 
 		

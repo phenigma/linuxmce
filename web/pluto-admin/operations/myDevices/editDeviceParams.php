@@ -99,7 +99,7 @@ $installationID = (int)@$_SESSION['installationID'];
 	$childsNo = getChildsNo($deviceID,$dbADO);
 	
 	if(isCritical($DeviceTemplate)){
-		$deleteLink='<a href="javascript: if (confirm(\'WARNING !!! This is a critical device !!! Are you sure you want to delete it? '.($childsNo>0?'It has '.$childsNo.' child'.($childsNo>1?'s':''):'').'!\')) {document.location.href=\'index.php?section=deleteCriticalDevice&deviceID='.$deviceID.'&from=editDeviceParams\';}">Delete Device</a> (NOT RECOMENDED)';
+		$deleteLink='<a href="javascript: if (confirm(\'WARNING !!! This is a critical device !!! Are you sure you want to delete it? '.($childsNo>0?'It has '.$childsNo.' '.($childsNo>1?'children':'child'):'').'!\')) {document.location.href=\'index.php?section=deleteCriticalDevice&deviceID='.$deviceID.'&from=editDeviceParams\';}">Delete Device</a> (NOT RECOMENDED)';
 	}else{
 		$deleteLink='<a href="javascript: if (confirm(\'Are you sure you want to delete this device? '.($childsNo>0?'It has '.$childsNo.' child'.($childsNo>1?'s':''):'').'!\')) {document.location.href=\'index.php?section=deleteMyDevice&deviceID='.$deviceID.'&from=editDeviceParams\';}">Delete This Device</a>';
 	}
