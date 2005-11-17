@@ -3686,6 +3686,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 		<input type="hidden" name="modelSelected" value="'.$selectedModel.'">
 		<input type="hidden" name="allowAdd" value="'.(int)@$_REQUEST['allowAdd'].'">
 		<input type="hidden" name="from" value="'.$from.'">
+		<input type="hidden" name="parmToKeep" value="'.@$_REQUEST['parmToKeep'].'">
 		
 		<table cellpadding="5" cellspacing="0" border="0" align="center">
 				<input type="hidden" name="selectedField" value="" />';
