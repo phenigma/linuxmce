@@ -52,7 +52,7 @@ public:
 		for(int i=5;i>=0;--i)
 		{
 			string sHex = StringUtils::Tokenize(m_sMacAddress,":",pos);
-			int hex;
+			int hex = 0;
 			sscanf(sHex.c_str(),"%x",&hex);
 			u_int64_t power = (u_int64_t) pow( (long double) 256, i);
 			m_iMacAddress += (power * hex);
