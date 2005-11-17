@@ -5,8 +5,8 @@ function proxySocket($output,$dbADO){
 		if(count($ProxyOrbiterInfo)!=0){
 			$address=$ProxyOrbiterInfo['IPAddress'][0];
 			if($address=='' || is_null($address)){
-				$address=getDeviceIP($ProxyOrbiterInfo['FK_Device_ControlledVia'][0],$dbADO);
-
+				//$address=getDeviceIP($ProxyOrbiterInfo['FK_Device_ControlledVia'][0],$dbADO);
+				$address=getCoreIP($dbADO);
 				if(is_null($address)){
 					$address='192.168.80.1';
 					write_log("\n\nOrbiter proxy and his ancestors does not have IP address\n");
@@ -227,4 +227,12 @@ function getDeviceIP($deviceID,$dbADO){
 	
 	return getDeviceIP($arr['FK_Device_ControlledVia'][0],$dbADO);
 }
+
+function getCoreIP($dbADO)
+{
+	$res=$dbADO->Execute('SELECT * FROM Device WHERE FK_DeviceTemplate=?',array($GLOBALS['rootCoreID']));
+	$row=$res->FetchRow();
+	return @$row['IPAddress'];
+}
+
 ?>
