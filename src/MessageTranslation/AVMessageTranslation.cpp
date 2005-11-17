@@ -43,6 +43,12 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 	int DigitDelay = 0;
 	string sNumDigits;
 	long devtemplid = pTargetDev->m_dwPK_DeviceTemplate, devid = pTargetDev->m_dwPK_Device;
+	int retransmit = 0;
+	map<long, string>::iterator retransmit_param = inrepl.getMessage().m_mapParameters.find(COMMANDPARAMETER_Retransmit_CONST);
+	if (retransmit_param != inrepl.getMessage().m_mapParameters.end()) {
+		retransmit = atoi((*retransmit_param).second.c_str());
+		g_pPlutoLogger->Write(LV_STATUS,"WE HAVE RETRANSMIT=%d",retransmit);		
+	}
 	
 	if(map_ModeDelay.find(devtemplid) == map_ModeDelay.end())
 	{
@@ -123,14 +129,17 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 	
 	if((TogglePower == 1) && ((pmsg->m_dwID == COMMAND_Generic_On_CONST) || (pmsg->m_dwID == COMMAND_Generic_Off_CONST)))
 	{	
-		if((laststatus_power_[devid] && (pmsg->m_dwID == COMMAND_Generic_Off_CONST)) ||
-		   (!laststatus_power_[devid] && (pmsg->m_dwID == COMMAND_Generic_On_CONST)))
+		if(retransmit || ((laststatus_power_[devid] && (pmsg->m_dwID == COMMAND_Generic_Off_CONST)) ||
+		   (!laststatus_power_[devid] && (pmsg->m_dwID == COMMAND_Generic_On_CONST))))
 		{
 			MessageReplicator msgrepl(
 					Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
 									PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Toggle_Power_CONST, 0));
 			outrepls.push_back(msgrepl);
-			laststatus_power_[devid] = !laststatus_power_[devid];
+			if(!retransmit)
+			{
+				laststatus_power_[devid] = !laststatus_power_[devid];
+			}
 			g_pPlutoLogger->Write(LV_STATUS, "Command <%d> translated to <%d>",pmsg->m_dwID,COMMAND_Toggle_Power_CONST);
 			return true;
 		}
@@ -147,7 +156,10 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 				Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
 								PRIORITY_NORMAL, MESSAGETYPE_COMMAND,cmd, 0));
 		outrepls.push_back(msgrepl);
-		laststatus_power_[devid] = (cmd==COMMAND_Generic_On_CONST);
+		if(!retransmit)
+		{
+			laststatus_power_[devid] = (cmd==COMMAND_Generic_On_CONST);
+		}
 		g_pPlutoLogger->Write(LV_STATUS, "Command <%d> translated to <%d>",pmsg->m_dwID,cmd);
 		return true;
 	}
@@ -207,10 +219,24 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 				}
 				else
 				{
-					g_pPlutoLogger->Write(LV_STATUS, "Input select was not sent");
+					if(!retransmit)
+					{
+						g_pPlutoLogger->Write(LV_STATUS, "Input select was not sent");
+					}
+					else
+					{
+						g_pPlutoLogger->Write(LV_STATUS, "Will send one Input select");
+						MessageReplicator msgrepl(
+								Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
+												PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Input_Select_CONST, 0),1,IR_ModeDelay);
+						outrepls.push_back(msgrepl);
+					}
 				}
 			}
-			laststatus_input_[devid] = cmd;
+			if(!retransmit)
+			{
+				laststatus_input_[devid] = cmd;
+			}
 			return true;			
 		} else {
 			g_pPlutoLogger->Write(LV_WARNING, "PK_Command_Input parameter not found.");
@@ -253,9 +279,24 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "Input select was not sent");
+			if(!retransmit)
+			{
+				g_pPlutoLogger->Write(LV_STATUS, "Input select was not sent");
+			}
+			else
+			{
+				g_pPlutoLogger->Write(LV_STATUS, "Will send one Input select");
+				MessageReplicator msgrepl(
+						Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
+										PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Input_Select_CONST, 0),1,IR_ModeDelay);
+				outrepls.push_back(msgrepl);
+			}
 		}
-		laststatus_input_[devid] = pmsg->m_dwID;		
+		if(!retransmit)
+		{
+			laststatus_input_[devid] = pmsg->m_dwID;
+		}
+		
 		return true;
 	}
 	/********************************************************************************************************
@@ -269,7 +310,7 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 		g_pPlutoLogger->Write(LV_STATUS,"Translate pause media->pause");
 
 		bool ret = false;
-		if(lastcmdwaspause_[devid] == true) {
+		if(retransmit || (lastcmdwaspause_[devid] == true)) {
 			ret = true;
 			MessageReplicator msgrepl(
 				Message(inrepl.getMessage().m_dwPK_Device_From, inrepl.getMessage().m_dwPK_Device_To, 
@@ -277,14 +318,20 @@ AVMessageTranslator::Translate(MessageReplicator& inrepl, MessageReplicatorList&
 			outrepls.push_back(msgrepl);
 			g_pPlutoLogger->Write(LV_STATUS, "Pause translated to Play.");
 		}
-		lastcmdwaspause_[devid] = !lastcmdwaspause_[devid];
+		if(!retransmit)
+		{
+			lastcmdwaspause_[devid] = !lastcmdwaspause_[devid];
+		}
 		return ret;
 	} else 
 	/********************************************************************************************************
 	COMMAND_Play_Media_CONST
 	********************************************************************************************************/
 	if( pmsg->m_dwID == COMMAND_Play_Media_CONST) {
-		lastcmdwaspause_[devid] = false;
+		if(!retransmit)
+		{
+			lastcmdwaspause_[devid] = false;
+		}
 		g_pPlutoLogger->Write(LV_STATUS,"Translate play media->play");
 		return false;
 	} else
