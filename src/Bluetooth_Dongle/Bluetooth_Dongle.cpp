@@ -364,8 +364,10 @@ Bluetooth_Dongle::~Bluetooth_Dongle()
 
     g_pPlutoLogger->Write(LV_WARNING, "Waiting all HandleBDCommandProcessor to exit...");
     bool bThreadsRunning = true;
-    while(bThreadsRunning)
+    int nRetries = 5;
+    while(bThreadsRunning && nRetries > 0)
     {
+        nRetries--;
         bThreadsRunning = false;
         bm.Relock();
 
