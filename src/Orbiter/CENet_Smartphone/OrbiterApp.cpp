@@ -1429,12 +1429,15 @@ void OrbiterApp::Hide()
 	::MessageBeep(MB_ICONASTERISK);
 
 	::ShowWindow(m_hWnd, SW_HIDE);
+
+	Sleep(300);
 	::SetForegroundWindow(::GetDesktopWindow());
 	::ShowWindow(::GetDesktopWindow(), SW_SHOW);
 }
 //------------------------------------------------------------------------------------------------------------------
 void OrbiterApp::Show()
 {
+	Sleep(50);
 	::ShowWindow(::GetDesktopWindow(), SW_HIDE);
 	::SetForegroundWindow(m_hWnd);
 	::ShowWindow(m_hWnd, SW_SHOW);
