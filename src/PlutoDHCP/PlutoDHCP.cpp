@@ -204,7 +204,7 @@ string PlutoDHCP::GetDHCPConfig()
 	}
 
 	int iMoonNumber = 0, iNoBootNumber = 0;
-	string sMoonEntries, sNoBootEntries;
+	string sMoonEntries, sNoBootEntries, sNoMacEntries;
 	for(map<unsigned long,class Row_Device *>::iterator it=m_mapIP_Device.begin();it!=m_mapIP_Device.end();++it)
 	{
 		Row_Device *pRow_Device = it->second;
@@ -218,17 +218,21 @@ string PlutoDHCP::GetDHCPConfig()
 		{
 			// Use cerr since cout is going into the dhcp file
 			cerr << "Device " << pRow_Device->PK_Device_get() << " has bad mac address " << pRow_Device->MACaddress_get() << endl;
+			sNoMacEntries += "\n# " + pRow_Device->Description_get() + " (" + StringUtils::itos(pRow_Device->PK_Device_get()) + ") has bad mac address: " + pRow_Device->MACaddress_get();
 			continue;
 		}
 
 		IPAddress ip(pRow_Device->IPaddress_get());
+		string sDeviceComment = "\n\t# " + pRow_Device->Description_get() + " (" + StringUtils::itos(pRow_Device->PK_Device_get()) + ")";
 		if( bIsMediaDirector(pRow_Device) )
 		{
+			sMoonEntries += sDeviceComment;
 			sMoonEntries += "\n\thost moon" + StringUtils::itos(++iMoonNumber)
 				+ " { hardware ethernet " + pd_1.m_sMacAddress + "; fixed-address " + ip.AsText() + "; }";
 		}
 		else
 		{
+			sNoBootEntries += sDeviceComment;
 			sNoBootEntries += "\n\thost pc" + StringUtils::itos(++iNoBootNumber)
 				+ " { hardware ethernet " + pd_1.m_sMacAddress + "; fixed-address " + ip.AsText() + "; }";
 		}
@@ -255,7 +259,10 @@ string PlutoDHCP::GetDHCPConfig()
 		"subnet " + sInternalSubnet + " netmask " + sInternalSubnetMask + " {"						"\n"
 		"\tdefault-lease-time 86400;"																"\n"
 		"\tmax-lease-time 604800;"																	"\n"
-		"\t" + ipAddressDhcpStart.AsText() + "-" + ipAddressDhcpStop.AsText() + ""					"\n"
+		"\tpool {"																					"\n"
+		"\t\t allow unknown-clients;"																"\n"
+		"\t\t range " + ipAddressDhcpStart.AsText() + " " + ipAddressDhcpStop.AsText() + ";"		"\n"
+		"\t}"																						"\n"
 		"}"																							"\n"
 		""																							"\n"
 		"option space pxelinux;"																	"\n"
@@ -275,6 +282,7 @@ string PlutoDHCP::GetDHCPConfig()
 		"# regular machines"																		"\n"
 		"group {" + sNoBootEntries + ""																"\n"
 		"}"																							"\n"
+		"" + sNoMacEntries + ""																		"\n"
 	;
 
 	return sResult;
