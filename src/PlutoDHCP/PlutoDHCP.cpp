@@ -50,7 +50,7 @@ PlutoDHCP::PlutoDHCP(int PK_Installation,string host, string user, string pass, 
 	else
 		m_bConnected=true;
 
-	if( PK_Installation )
+	if (PK_Installation > 0)
 		m_iPK_Installation = PK_Installation;
 	else
 	{
@@ -135,10 +135,10 @@ void PlutoDHCP::DetermineIPRange(IPAddress &ipAddressDhcpStart,IPAddress &ipAddr
 		return;
 	}
 
-	ipAddressPlutoStart.ParseIP( sData.substr(0,posDash) );
-	ipAddressPlutoStop.ParseIP( sData.substr(posDash,posComma-posDash) );
-	ipAddressDhcpStart.ParseIP( sData.substr(posComma+1,pos2ndDash-posComma) );
-	ipAddressDhcpStop.ParseIP( sData.substr(pos2ndDash+1) );
+	ipAddressPlutoStart.ParseIP(sData.substr(0, posDash));
+	ipAddressPlutoStop.ParseIP(sData.substr(posDash + 1, posComma - posDash - 1));
+	ipAddressDhcpStart.ParseIP(sData.substr(posComma + 1, pos2ndDash - posComma - 1));
+	ipAddressDhcpStop.ParseIP(sData.substr(pos2ndDash + 1));
 
 	if( ipAddressPlutoStart.BadIP() || ipAddressPlutoStop.BadIP() || 
 		ipAddressDhcpStart.BadIP() || ipAddressDhcpStop.BadIP() )
@@ -191,9 +191,20 @@ string PlutoDHCP::AssignIP(int PK_Device)
 
 string PlutoDHCP::GetDHCPConfig()
 {
-	string sResult; // The dhcp.conf stuff
-	sResult += "#!/bin/bash\nMOON_ENTRIES=\nNOBOOT_ENTRIES=\n";
+	string sCoreInternalAddress, sInternalSubnet, sInternalSubnetMask;
+	IPAddress ipAddressDhcpStart, ipAddressDhcpStop, ipAddressPlutoStart, ipAddressPlutoStop;
+
+	GetNetParams(sCoreInternalAddress, sInternalSubnet, sInternalSubnetMask);
+	DetermineIPRange(ipAddressDhcpStart, ipAddressDhcpStop, ipAddressPlutoStart, ipAddressPlutoStop);
+
+	if (sCoreInternalAddress.size() == 0 || sInternalSubnetMask.size() == 0)
+	{
+		cerr << "Missing internal network data" << endl;
+		return "";
+	}
+
 	int iMoonNumber = 0, iNoBootNumber = 0;
+	string sMoonEntries, sNoBootEntries;
 	for(map<unsigned long,class Row_Device *>::iterator it=m_mapIP_Device.begin();it!=m_mapIP_Device.end();++it)
 	{
 		Row_Device *pRow_Device = it->second;
@@ -213,15 +224,59 @@ string PlutoDHCP::GetDHCPConfig()
 		IPAddress ip(pRow_Device->IPaddress_get());
 		if( bIsMediaDirector(pRow_Device) )
 		{
-			sResult += string("MOON_ENTRIES=\"$MOON_ENTRIES\\n\\thost moon" + StringUtils::itos(++iMoonNumber)
-					+ " { hardware ethernet " + pd_1.m_sMacAddress + "; fixed-address " + ip.AsText() + "; }\"\n");
+			sMoonEntries += "\n\thost moon" + StringUtils::itos(++iMoonNumber)
+				+ " { hardware ethernet " + pd_1.m_sMacAddress + "; fixed-address " + ip.AsText() + "; }";
 		}
 		else
 		{
-			sResult += string("NOBOOT_ENTRIES=\"$NOBOOT_ENTRIES\\n\\thost pc" + StringUtils::itos(++iNoBootNumber)
-					+ " { hardware ethernet " + pd_1.m_sMacAddress + "; fixed-address " + ip.AsText() + "; }\"\n");
+			sNoBootEntries += "\n\thost pc" + StringUtils::itos(++iNoBootNumber)
+				+ " { hardware ethernet " + pd_1.m_sMacAddress + "; fixed-address " + ip.AsText() + "; }";
 		}
 	}
+
+	// The dhcp.conf stuff
+	string sResult = string("") +
+		"# option definitions common to all supported networks..."									"\n"
+		"#option domain-name \"fugue.com\";"														"\n"
+		"#option domain-name-servers toccata.fugue.com;"											"\n"
+		"option domain-name-servers " + sCoreInternalAddress + ";"									"\n"
+		"authoritative;"																			"\n"
+		""																							"\n"
+		"option routers " + sCoreInternalAddress + ";"												"\n"
+		"option subnet-mask " + sInternalSubnetMask + ";"											"\n"
+		""																							"\n"
+		"# lease IPs for 1 day, maximum 1 week"														"\n"
+		"default-lease-time 86400;"																	"\n"
+		"max-lease-time 604800;"																	"\n"
+		""																							"\n"
+		"allow booting;"																			"\n"
+		"allow bootp;"																				"\n"
+		""																							"\n"
+		"subnet " + sInternalSubnet + " netmask " + sInternalSubnetMask + " {"						"\n"
+		"\tdefault-lease-time 86400;"																"\n"
+		"\tmax-lease-time 604800;"																	"\n"
+		"\t" + ipAddressDhcpStart.AsText() + "-" + ipAddressDhcpStop.AsText() + ""					"\n"
+		"}"																							"\n"
+		""																							"\n"
+		"option space pxelinux;"																	"\n"
+		"option pxelinux.magic code 208 = string;"													"\n"
+		"option pxelinux.configfile code 209 = text;"												"\n"
+		"option pxelinux.pathprefix code 210 = text;"												"\n"
+		"option pxelinux.reboottime code 211 = unsigned integer 32;"								"\n"
+		""																							"\n"
+		"# PXE booting machines"																	"\n"
+		"group {"																					"\n"
+		"\tnext-server " + sCoreInternalAddress + ";"												"\n"
+		"\tfilename \"/tftpboot/pxelinux.0\";"														"\n"
+		"\toption pxelinux.reboottime = 30;"														"\n"
+		"" + sMoonEntries + ""																		"\n"
+		"}"																							"\n"
+		""																							"\n"
+		"# regular machines"																		"\n"
+		"group {" + sNoBootEntries + ""																"\n"
+		"}"																							"\n"
+	;
+
 	return sResult;
 }
 
@@ -238,4 +293,54 @@ bool PlutoDHCP::bIsMediaDirector(Row_Device *pRow_Device)
 
 	// See if we're a diskless MD, return false if the parameter isn't specified or isn't 1
 	return pRow_Device_DeviceData && pRow_Device_DeviceData->IK_DeviceData_get()=="1";
+}
+
+void PlutoDHCP::GetNetParams(string &sCoreInternalAddress, string &sInternalSubnet, string &sInternalSubnetMask)
+{
+	Row_Device * pRow_Device = DetermineCore();
+	if (!pRow_Device)
+		return;
+	Row_Device_DeviceData * pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(pRow_Device->PK_Device_get(), DEVICEDATA_Network_Interfaces_CONST);
+	if (!pRow_Device_DeviceData)
+	{
+		cerr << "ERROR: Cannot find network data" << endl;
+		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot find network data");
+		return;
+	}
+
+	string::size_type pos;
+	string sDeviceData = pRow_Device_DeviceData->IK_DeviceData_get();
+	
+	// Format: eth0,10.0.0.89,255.255.255.0,10.0.0.1,10.0.0.150|eth1,192.168.80.1,255.255.255.0
+	pos = 0;
+	string sExtData = StringUtils::Tokenize(sDeviceData, "|", pos);
+	string sIntData = StringUtils::Tokenize(sDeviceData, "|", pos);
+
+	if (sIntData.size() == 0)
+	{
+		cerr << "ERROR: No internal interface" << endl;
+		g_pPlutoLogger->Write(LV_CRITICAL, "No internal interface");
+		return;
+	}
+
+	/*
+	// external interface data
+	pos = 0;
+	string sExtIf = StringUtils::Tokenize(sExtData, ",", pos);
+	string sExtIP = StringUtils::Tokenize(sExtData, ",", pos);
+	string sExtNetMask = StringUtils::Tokenize(sExtData, ",", pos);
+	string sDNS1 = StringUtils::Tokenize(sExtData, ",", pos);
+	string sDNS2 = StringUtils::Tokenize(sExtData, ",", pos);
+	*/
+
+	// internal interface data
+	pos = 0;
+	string sIntIf = StringUtils::Tokenize(sIntData, ",", pos);
+	sCoreInternalAddress = StringUtils::Tokenize(sIntData, ",", pos);
+	sInternalSubnetMask = StringUtils::Tokenize(sIntData, ",", pos);
+
+	IPAddress ipCoreInternalAddress(sCoreInternalAddress);
+	IPAddress ipInternalSubnetMask(sInternalSubnetMask);
+	IPAddress ipInternalSubnet(ipCoreInternalAddress.AsInt() & ipInternalSubnetMask.AsInt());
+	sInternalSubnet = ipInternalSubnet.AsText();
 }

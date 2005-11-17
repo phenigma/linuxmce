@@ -36,7 +36,11 @@ namespace DCE
 
 int main(int argc, char *argv[])
 {
+#ifndef WIN32
 	g_pPlutoLogger = new FileLogger("/var/log/pluto/PlutoDHCP.newlog");
+#else
+	g_pPlutoLogger = new FileLogger("c:/temp/PlutoDHCP.newlog");
+#endif
 
 	int iPK_Device=0;
 	bool bAssignIP=false,bError=false;
@@ -133,4 +137,3 @@ int main(int argc, char *argv[])
 
 	return 0;
 }
-
