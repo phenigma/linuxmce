@@ -75,7 +75,7 @@ public:
 			int hex = (int) (MacAddress / power);
 			MacAddress -= (hex * power);
 			char sHex[5];
-			sprintf(sHex,"%02x",hex);
+			snprintf(sHex, 5, "%02x", hex);
 			m_sMacAddress += sHex;
 			if( i!=0 )
 				m_sMacAddress += ":";
