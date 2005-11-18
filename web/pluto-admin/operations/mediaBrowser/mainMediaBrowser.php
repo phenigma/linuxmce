@@ -132,7 +132,7 @@ function mainMediaBrowser($output,$mediadbADO,$dbADO) {
 				</tr>		
 				<tr>
 					<td><B>Name:</B> </td>
-					<td><input type="text" name="attrName" value="'.$rowAttribute['Name'].'"></td>
+					<td><input type="text" name="attrName" value="'.$rowAttribute['Name'].'" size="40"></td>
 					<td><B>&nbsp;</B> </td>
 					<td><input type="hidden" name="attrType" value="'.$rowAttribute['FK_AttributeType'].'"></td>
 				</tr>

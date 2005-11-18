@@ -1,6 +1,9 @@
 <?
 function followLog($output,$dbADO) {
-
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/logs.lang.php');
+	
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 
@@ -9,7 +12,7 @@ function followLog($output,$dbADO) {
 	$deviceID=(int)@$_REQUEST['deviceID'];
 	$installationID=(int)@$_SESSION['installationID'];
 	if($deviceID==0){
-		die('Invalid Device ID specified.');
+		die($TEXT_INVALID_DEVICE_ID_SPECIFIED_CONST);
 	}
 
 	if ($action == 'form') {
@@ -28,7 +31,7 @@ function followLog($output,$dbADO) {
 		if(file_exists($logName)){
 			$logBody='<iframe src="operations/logs/taillog.php?log='.$logName.'" width="1005" height="600"></iframe>';
 		}else{
-			$logBody='<div style="background:black;color:white;">Log not found: '.$logName.'</div>';
+			$logBody='<div style="background:black;color:white;">'.$TEXT_ERROR_LOG_NOT_FOUND_CONST.': '.$logName.'</div>';
 		}		
 		
 		$out.='
@@ -38,7 +41,8 @@ function followLog($output,$dbADO) {
 		<input type="hidden" name="section" value="followLog">
 		<input type="hidden" name="deviceID" value="'.$deviceID.'">
 		<input type="hidden" name="action" value="add">	
-		<h3>Follow log</h3>
+		
+		<h3>'.$TEXT_FOLLOW_LOG_CONST.'</h3>
 			<table width="100%">
 				<tr>
 					<td valign="top" colspan="3">Device <B>'.$rowDevice['Description'].'</B>, # <B>'.$rowDevice['PK_Device'].'</B> <td>
@@ -60,7 +64,7 @@ function followLog($output,$dbADO) {
 		// check if the user has the right to modify installation
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
 		if (!$canModifyInstallation){
-			header("Location: index.php?section=followLog&deviceID=$deviceID&error=You are not authorised to change the installation.");
+			header("Location: index.php?section=followLog&deviceID=$deviceID&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit(0);
 		}
 		
@@ -70,7 +74,7 @@ function followLog($output,$dbADO) {
 
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Error Log');
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_FOLLOW_LOG_CONST);
 	$output->output();
 }
 ?>

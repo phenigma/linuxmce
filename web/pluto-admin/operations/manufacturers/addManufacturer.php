@@ -1,5 +1,9 @@
 <?php
 function addManufacturer($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/addManufacturer.lang.php');
+	
 	$out='';
 	$action = isset($_POST['action'])?cleanString($_POST['action']):'form';
 	$from = isset($_REQUEST['from'])?cleanString($_REQUEST['from']):'';
@@ -9,19 +13,20 @@ function addManufacturer($output,$dbADO) {
 		<input type="hidden" name="section" value="addManufacturer">
 		<input type="hidden" name="action" value="add">
 		<input type="hidden" name="from" value="'.$from.'">
+		
 			<table>			
 				<tr>
-					<td>Manufacturer:</td><td><input type="text" maxlength="50" name="manufacturerDescription" value="'.@$_SESSION['addManufacturer']['manufacturerDescription'].'"></td>
+					<td>'.$TEXT_MANUFACTURER_CONST.':</td><td><input type="text" maxlength="50" name="manufacturerDescription" value="'.@$_SESSION['addManufacturer']['manufacturerDescription'].'"></td>
 				</tr>
 				<tr>
-					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"  ></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"  ></td>
 				</tr>
 			</table>
 		</form>
 		<script>
 		 	var frmvalidator = new formValidator("addManufacturer");
- 			frmvalidator.addValidation("manufacturerDescription","req","Please enter Manufacturer Name");
- 			frmvalidator.addValidation("manufacturerDescription","maxlen=50","Max length for Manufacturer Name is 50"); 			
+ 			frmvalidator.addValidation("manufacturerDescription","req","'.$TEXT_VALIDATE_MANUFACTURER_NAME_CONST.'");
+ 			frmvalidator.addValidation("manufacturerDescription","maxlen=50","'.$TEXT_VALIDATE_MANUFACTURER_LENGTH_CONST.'"); 			
 		</script>
 		';
 		$_SESSION['addManufacturer']['manufacturerDescription']='';
@@ -33,7 +38,7 @@ function addManufacturer($output,$dbADO) {
 			$query = $dbADO->Execute($insertManufacturer,array($manufacturerDescription));
 			$out.="
 			<script>
-				alert('Manufacturer added!');
+				alert('$TEXT_MANUFACTURER_ADDED_NOTIFICATION_CONST');
 			    opener.document.forms.{$from}.action.value='form';
 				opener.document.forms.{$from}.lastAction.value='Manufacturer';//packagesCtrl
 				opener.document.forms.{$from}.submit();
@@ -48,7 +53,7 @@ function addManufacturer($output,$dbADO) {
 	}
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Add manufacturer');			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_ADD_MANUFACTURER_CONST);			
 	$output->output();
 }
 ?>

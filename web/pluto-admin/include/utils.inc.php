@@ -948,7 +948,7 @@ function multi_page($query, $params,$url, $page_no, $art_pagina,$dbADO)
 		$output.='</div>';
 	}
 	if($total==0){
-		$output.='No records';
+		$output='No records';
 	}
 	else{
 		$output.='<table>

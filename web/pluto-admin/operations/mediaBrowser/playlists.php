@@ -23,7 +23,7 @@ function playlists($output,$mediadbADO) {
 					<td>&nbsp;</td>
 				</tr>
 		';
-		$resPlaylist=$mediadbADO->Execute('SELECT * FROM Playlist WHERE EK_User=?',$userID);
+		$resPlaylist=$mediadbADO->Execute('SELECT * FROM Playlist WHERE EK_User=? || EK_User=0',$userID);
 		if($resPlaylist->RecordCount()==0){
 			$out.='				
 				<tr>

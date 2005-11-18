@@ -3,7 +3,7 @@ function leftMediaFilesSync($output,$mediadbADO) {
 	/* @var $mediadbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	
-	$startPath=(isset($_REQUEST['startPath']))?urldecode($_REQUEST['startPath']):'/home/public';
+	$startPath=(isset($_REQUEST['startPath']))?urldecode($_REQUEST['startPath']):'/home/public/data';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$out='';	
 	

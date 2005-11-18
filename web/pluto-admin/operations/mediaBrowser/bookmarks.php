@@ -1,5 +1,9 @@
 <?
 function bookmarks($output,$mediadbADO,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/bookmarks.lang.php');
+	
 	/* @var $mediadbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	$out='';
@@ -30,18 +34,19 @@ function bookmarks($output,$mediadbADO,$dbADO) {
 		<form action="index.php" method="POST" name="bookmarks">
 			<input type="hidden" name="section" value="bookmarks">
 			<input type="hidden" name="action" value="update">
+		
 		<table celspacing="0" cellpadding="3" align="center">
 			<tr bgcolor="lightblue">
-				<td><B>Icon</B></td>
-				<td><B>MediaProvider</B></td>
-				<td><B>Description</B></td>
-				<td><B>Channel</B></td>
+				<td><B>'.$TEXT_ICON_CONST.'</B></td>
+				<td><B>'.$TEXT_MEDIA_PROVIDER_CONST.'</B></td>
+				<td><B>'.$TEXT_DESCRIPTION_CONST.'</B></td>
+				<td><B>'.$TEXT_CHANNEL_CONST.'</B></td>
 			</tr>';
 		$bookmarksArray=getFieldsAsArray('Bookmark','PK_Bookmark,FK_MediaProvider,EK_MediaType,FK_Picture,Description,Position',$mediadbADO,'WHERE EK_MediaType IN ('.join(',',$mediaTypes).')');
 		if(count(@$bookmarksArray['PK_Bookmark'])==0){
 			$out.='
 			<tr>
-				<td colspan="4" align="center"> No bookmarks.</td>
+				<td colspan="4" align="center"> '.$TEXT_NO_BOOKMARKS_CONST.'</td>
 			</tr>';
 		}
 		for($i=0;$i<count(@$bookmarksArray['PK_Bookmark']);$i++){
@@ -65,10 +70,10 @@ function bookmarks($output,$mediadbADO,$dbADO) {
 		header('Location: index.php?section=bookmarks'.$suffix);
 	}
 	
-	$output->setNavigationMenu(array("Bookmarks"=>'index.php?section=bookmarks&type='.$type));
+	$output->setNavigationMenu(array($TEXT_BOOKMARKS_CONST=>'index.php?section=bookmarks&type='.$type));
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_BOOKMARKS_CONST);
 	$output->output();
 }
 ?>

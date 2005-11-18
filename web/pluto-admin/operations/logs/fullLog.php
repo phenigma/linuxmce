@@ -1,5 +1,8 @@
 <?
 function fullLog($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/logs.lang.php');
 
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
@@ -46,7 +49,7 @@ function fullLog($output,$dbADO) {
 			$formatedText = join('<br>',$linesArray);
 			$numbersNotice=$total[0].' lines, displaying from '.$from.' to '.$to;
 		}else{
-			$formatedText ='Log not found: '.$logName;
+			$formatedText =$TEXT_ERROR_LOG_NOT_FOUND_CONST.': '.$logName;
 		}
 		
 		
@@ -55,10 +58,10 @@ function fullLog($output,$dbADO) {
 		<h3>Complete log</h3>
 			<table width="100%">
 				<tr>
-					<td valign="top" colspan="3">Device <B>'.$rowDevice['Description'].'</B>, # <B>'.$rowDevice['PK_Device'].'</B> <td>
+					<td valign="top" colspan="3">'.$TEXT_DEVICE_CONST.' <B>'.$rowDevice['Description'].'</B>, # <B>'.$rowDevice['PK_Device'].'</B> <td>
 				</tr>
 				<tr>
-					<td valign="top" colspan="3">Device template <B>'.$rowDevice['Template'].'</B>, category <B>'.$rowDevice['Category'].'</B> and manufacturer <B>'.$rowDevice['Manufacturer'].'</B>.<td>
+					<td valign="top" colspan="3">'.$TEXT_DEVICE_TEMPLATE_CONST.' <B>'.$rowDevice['Template'].'</B>, '.strtolower($TEXT_DEVICE_CATEGORY_CONST).' <B>'.$rowDevice['Category'].'</B>, '.strtolower($TEXT_MANUFACTURER_CONST).' <B>'.$rowDevice['Manufacturer'].'</B>.<td>
 				</tr>
 				<tr>
 					<td valign="top" colspan="3"><hr><td>
@@ -80,7 +83,7 @@ function fullLog($output,$dbADO) {
 		// check if the user has the right to modify installation
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
 		if (!$canModifyInstallation){
-			header("Location: index.php?section=fullLog&deviceID=$deviceID&error=You are not authorised to change the installation.");
+			header("Location: index.php?section=fullLog&deviceID=$deviceID&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit(0);
 		}
 		
@@ -90,7 +93,7 @@ function fullLog($output,$dbADO) {
 
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Error Log');
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_FULL_LOG_CONST);
 	$output->output();
 }
 ?>

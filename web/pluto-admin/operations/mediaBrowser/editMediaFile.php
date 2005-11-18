@@ -1,5 +1,9 @@
 <?
 function editMediaFile($output,$mediadbADO,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/editMediaFile.lang.php');
+	
 	/* @var $mediadbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	$out='';
@@ -68,23 +72,23 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 		}
 
 		$out.='
-		<h4>Edit Media file</h4>
+		<h4>'.$TEXT_EDIT_MEDIA_FILE_CONST.'</h4>
 		<a href="javascript:syncPath(\''.$rowFile['Path'].'\')">Back</a>
 		<table border="0" cellspacing="0" cellpadding="3">
 			<tr bgColor="#EEEEEE">
-				<td><B>File:</B></td>
+				<td><B>'.$TEXT_FILE_CONST.':</B></td>
 				<td><input type="text" name="filename" value="'.$rowFile['Filename'].'" size="55"></td>
 			</tr>
 			<tr>
 				<td>&nbsp;</td>
-				<td align="right"><input type="button" class="button" name="delete" value="Delete File" onClick="if(confirm(\'Are you sure you want to delete this file? It will be removed both from database and disk.\')){document.editMediaFile.action.value=\'del\';document.editMediaFile.submit();}"> <input type="button" class="button" name="moveFile" value="Move file to other directory" onClick="windowOpen(\'index.php?section=moveFile&fileID='.$fileID.'&filePath='.urlencode(stripslashes($rowFile['Path']).'/'.$rowFile['Filename']).'\',\'width=500,height=400,toolbars=true\');"></td>
+				<td align="right"><input type="button" class="button" name="delete" value="'.$TEXT_DELETE_FILE_CONST.'" onClick="if(confirm(\''.$TEXT_DELETE_FILE_CONFIRMATION_CONST.'\')){document.editMediaFile.action.value=\'del\';document.editMediaFile.submit();}"> <input type="button" class="button" name="moveFile" value="Move file to other directory" onClick="windowOpen(\'index.php?section=moveFile&fileID='.$fileID.'&filePath='.urlencode(stripslashes($rowFile['Path']).'/'.$rowFile['Filename']).'\',\'width=500,height=400,toolbars=true\');"></td>
 			</tr>
 			<tr bgcolor="#EBEFF9">
-				<td><B>Location:</B></td>
+				<td><B>'.$TEXT_LOCATION_CONST.':</B></td>
 				<td><input type="text" name="Path" value="'.stripslashes($rowFile['Path']).'" size="55">'.((file_exists($rowFile['Path'].'/'.$rowFile['Filename'])?'<img src=include/images/sync.gif align=middle border=0>':'<img src=include/images/db.gif align=middle border=0>')).'</td>
 			</tr>
 			<tr bgcolor="#EEEEEE">
-				<td><B>Type:</B></td>
+				<td><B>'.$TEXT_TYPE_CONST.':</B></td>
 				<td><select name="type">';
 			$resType=$dbADO->Execute('SELECT * FROM MediaType ORDER BY Description ASC');
 			while($rowType=$resType->FetchRow()){
@@ -94,7 +98,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 				</select></td>
 			</tr>
 			<tr bgcolor="#EBEFF9">
-				<td valign="top"><B>Attributes:</B></td>
+				<td valign="top"><B>'.$TEXT_ATTRIBUTES_CONST.':</B></td>
 				<td><table width="100%">';
 			$queryAttributes='
 				SELECT Attribute.*, AttributeType.Description 
@@ -111,14 +115,14 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 						<tr bgcolor="'.(($pos%2==0)?'#EEEEEE':'#FFFFFF').'">
 							<td><b>'.$rowAttributes['Description'].'</b></td>
 							<td><a href="index.php?section=mainMediaBrowser&attributeID='.$rowAttributes['PK_Attribute'].'&action=properties">'.$rowAttributes['Name'].'</a></td>
-							<td align="center"><a href="#" onClick="if(confirm(\'Are you sure you want to delete this attribute from the file?\'))self.location=\'index.php?section=editMediaFile&fileID='.$fileID.'&action=delete&dAtr='.$rowAttributes['PK_Attribute'].'&dpath='.stripslashes($rowFile['Path']).'\'">Remove</a></td>
+							<td align="center"><a href="#" onClick="if(confirm(\''.$TEXT_DELETE_ATTRIBUTE_FROM_FILE_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=editMediaFile&fileID='.$fileID.'&action=delete&dAtr='.$rowAttributes['PK_Attribute'].'&dpath='.stripslashes($rowFile['Path']).'\'">'.$TEXT_REMOVE_CONST.'</a></td>
 						</tr>';
 			}
 			$out.='
 				</table></td>
 			</tr>			
 			<tr>
-				<td colspan="2" align="center"><input type="submit" class="button" name="update" value="Update">
+				<td colspan="2" align="center"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'">
 				<input type="hidden" name="oldPath" value="'.$rowFile['Path'].'">
 				<input type="hidden" name="oldFilename" value="'.$rowFile['Filename'].'">
 				</td>
@@ -128,7 +132,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 				<td>&nbsp;</td>
 			</tr>
 			<tr>
-				<td valign="top" align="left"><B>Pictures</B></td>
+				<td valign="top" align="left"><B>'.$TEXT_PICTURES_CONST.'</B></td>
 				<td valign="top" align="left" colspan="6"><table>
 			<tr>';
 			$queryPictures='
@@ -140,7 +144,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 			while($rowPictures=$resPictures->FetchRow()){
 				$picsCount++;
 				$out.='
-					<td style="background-color:#EEEEEE;" align="center"><a href="mediapics/'.$rowPictures['PK_Picture'].'.'.$rowPictures['Extension'].'" target="_blank"><img src="mediapics/'.$rowPictures['PK_Picture'].'_tn.'.$rowPictures['Extension'].'" border="0"></a> <br><a href="#" onClick="if(confirm(\'Are you sure you want to delete this picture?\'))self.location=\'index.php?section=editMediaFile&fileID='.$fileID.'&action=properties&picID='.$rowPictures['PK_Picture'].'\';">Delete</a></td>
+					<td style="background-color:#EEEEEE;" align="center"><a href="mediapics/'.$rowPictures['PK_Picture'].'.'.$rowPictures['Extension'].'" target="_blank"><img src="mediapics/'.$rowPictures['PK_Picture'].'_tn.'.$rowPictures['Extension'].'" border="0"></a> <br><a href="#" onClick="if(confirm(\'Are you sure you want to delete this picture?\'))self.location=\'index.php?section=editMediaFile&fileID='.$fileID.'&action=properties&picID='.$rowPictures['PK_Picture'].'\';">'.$TEXT_DELETE_CONST.'</a></td>
 				';
 				if($picsCount%$picsPerLine==0)
 					$out.='</tr><tr>';
@@ -150,8 +154,8 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 				</table></td>
 			</tr>
 			<tr>
-				<td><B>Add picture</B></td>
-				<td colspan="6"> <input type="file" name="newPic" value=""> <input type="submit" class="button" name="addPic" value="Add Picture"></td>
+				<td><B>'.$TEXT_ADD_PICTURE_CONST.'</B></td>
+				<td colspan="6"> <input type="file" name="newPic" value=""> <input type="submit" class="button" name="addPic" value="'.$TEXT_ADD_PICTURE_CONST.'"></td>
 			</tr>
 			<tr>
 				<td>&nbsp;</td>
@@ -159,13 +163,13 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 			</tr>
 			
 			<tr>
-				<td><B>Add attribute:</B><br><select name="newAttributeType" onChange="document.editMediaFile.action.value=\'form\';document.editMediaFile.submit();">
-					<option value="0">- Please select -</option>';
+				<td><B>'.$TEXT_ADD_ATTRIBUTE_CONST.':</B><br><select name="newAttributeType" onChange="document.editMediaFile.action.value=\'form\';document.editMediaFile.submit();">
+					<option value="0">- '.$TEXT_PLEASE_SELECT_CONST.' -</option>';
 			foreach($attributeTypes AS $attributeID=>$attributeName){
 				$out.='<option value="'.$attributeID.'" '.(($attributeID==@$_POST['newAttributeType'])?'selected':'').'>'.$attributeName.'</option>';
 			}
 			$out.='</select></td>
-				<td><B>Attribute name</B><br><input type="text" name="newAttributeName" value=""></td>
+				<td><B>'.$TEXT_ATTRIBUTE_NAME_CONST.'</B><br><input type="text" name="newAttributeName" value=""></td>
 			</tr>';
 			if(isset($_POST['newAttributeType']) && $_POST['newAttributeType']!='0'){
 				$newAttributeType=(int)$_POST['newAttributeType'];
@@ -178,7 +182,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 					$out.='<option value="'.$rowAttributesByType['PK_Attribute'].'">'.$rowAttributesByType['Name'].'</option>';
 				}
 				$out.='
-					</select> <input type="submit" class="button" name="add" value="Add"></td>
+					</select> <input type="submit" class="button" name="add" value="'.$TEXT_ADD_CONST.'"></td>
 				</tr>';
 			}
 			$out.='
@@ -189,7 +193,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 			$out.='
 			<script>
 			 	var frmvalidator = new formValidator("editMediaFile");			
-	 			frmvalidator.addValidation("newAttributeName","req","Please enter a name for attribute or select it from the list below!");
+	 			frmvalidator.addValidation("newAttributeName","req","'.$TEXT_ATTRIBUTE_NAME_VALIDATION_CONST.'");
 			</script>		
 			';
 		}	
@@ -226,7 +230,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 					$isAdded=(ereg('RESP: OK',$AttributeAdded))?true:false;
 					
 					if($isAdded!==true){
-						header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&error=Attribute not added: '.urlencode(nl2br($AttributeAdded)));
+						header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&error='.$TEXT_ERROR_ATTRIBUTE_NOT_ADDED_CONST.': '.urlencode(nl2br($AttributeAdded)));
 						exit();
 					}
 					
@@ -237,12 +241,12 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 				$AttributeAdded=addAttribute($newAttributeType,$newAttributeName,$fileID,$dbADO);
 				$isAdded=(ereg('RESP: OK',$AttributeAdded))?true:false;
 				if($isAdded!==true){
-					header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&error=Attribute not added: '.urlencode(nl2br($AttributeAdded)));
+					header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&error='.$TEXT_ERROR_ATTRIBUTE_NOT_ADDED_CONST.': '.urlencode(nl2br($AttributeAdded)));
 					exit();
 				}
 			}
 			
-			header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg=File attribute added:<br>'.urlencode(nl2br($AttributeAdded)));
+			header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg='.$TEXT_FILE_ATTRIBUTE_ADDED_CONST.':<br>'.urlencode(nl2br($AttributeAdded)));
 			exit();
 		}
 		
@@ -253,7 +257,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 			$dpath=$_REQUEST['dpath'];
 			$cmd='sudo -u root /usr/pluto/bin/UpdateMedia -d "'.$dpath.'"';
 			exec($cmd);
-			header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg=Attribute deleted from this file: '.$cmd);	
+			header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg='.$TEXT_ATTRIBUTE_DELETED_FROM_FILE_CONST.': '.$cmd);	
 			exit();		
 		}
 	
@@ -273,7 +277,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 			$mediadbADO->Execute('DELETE FROM File WHERE PK_File=?',$fileID);
 			
 			exec('sudo -u root /usr/pluto/bin/UpdateMedia -d "'.$oldPath.'"');
-			header('Location: index.php?section=mainMediaFilesSync&path='.urlencode($oldPath).'&msg=Media file was deleted.');			
+			header('Location: index.php?section=mainMediaFilesSync&path='.urlencode($oldPath).'&msg='.$TEXT_MEDIA_FILE_DELETED_CONST);			
 			exit();
 
 		}
@@ -296,7 +300,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 			
 			$cmd='sudo -u root /usr/pluto/bin/UpdateMedia -d "'.$path.'"';
 			exec($cmd);
-			header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg=Media file updated: '.$cmd);			
+			header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg='.$TEXT_MEDIA_FILE_UPDATED_CONST.': '.$cmd);			
 			exit();
 		}
 		
@@ -309,7 +313,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 			
 			$error='';
 			if(($_FILES['newPic']['type']!="image/jpg") && ($_FILES['newPic']['type']!="image/pjpeg") && ($_FILES['newPic']['type']!="image/jpeg")){
-				$error='The file is not a jpg file';
+				$error=$TEXT_ERROR_NOT_JPEG_CONST;
 			}
 			elseif(move_uploaded_file($_FILES['newPic']['tmp_name'],$GLOBALS['mediaPicsPath'].$newPicName)){
 				// create thumbnail
@@ -321,19 +325,19 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 				//upload fail, prompt error message
 				$deletePicture='DELETE FROM Picture WHERE PK_Picture=?';
 				$mediadbADO->Execute($deletePicture,$insertID);
-				$error='Upload fail, check the rights for '.$GLOBALS['mediaPicsPath'].' directory.';
+				$error=$TEXT_ERROR_UPLOAD_FAILS_PERMISIONS_CONST.' '.$GLOBALS['mediaPicsPath'];
 			}
 			if($error!=''){
 				header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&error='.$error);			
 				exit();
 			}else{
 				exec('sudo -u root /usr/pluto/bin/UpdateMedia -d "'.$path.'"');
-				header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg=The picture was uploaded.');			
+				header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg='.$TEXT_PICTURE_UPLOADED_CONST);			
 				exit();
 			}
 		}
 		
-		header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg=Media file updated.');			
+		header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg='.$TEXT_MEDIA_FILE_UPDATED_CONST);			
 	}
 	$output->setReloadLeftFrame(false);
 	$output->setScriptInHead($scriptInHead);	
@@ -346,7 +350,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 function addAttribute($newAttributeType,$newAttributeName,$fileID,$dbADO){
 	$mediaPlugin=getMediaPluginID($_SESSION['installationID'],$dbADO);
 	if(is_null($mediaPlugin)){
-		header("Location: index.php?section=editMediaFile&fileID=$fileID&error=Media plugin not found.");
+		header("Location: index.php?section=editMediaFile&fileID=$fileID&error=$TEXT_MEDIA_PLUGIN_NOT_FOUND_CONST");
 		exit();
 	}
 
@@ -355,5 +359,5 @@ function addAttribute($newAttributeType,$newAttributeName,$fileID,$dbADO){
 	$response=join('<br>',$ret);
 	$suffix=(ereg('RESP: OK',$response))?'RESP: OK':'';
 	
-	return $cmd.'<br>Response: '.$suffix;
+	return $cmd.'<br>'.$TEXT_RESPONSE_CONST.': '.$suffix;
 }

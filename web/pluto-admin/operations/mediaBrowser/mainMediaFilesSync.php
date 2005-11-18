@@ -197,7 +197,7 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 				header('Location: index.php?section=mainMediaFilesSync&path='.urlencode($path).'&error=Invalid directory name.');
 			}else{
 				$newPath=str_replace($oldDir,$newDir,$path);
-				exec('mv "'.$oldDir.'" "'.$newDir.'"');
+				exec('sudo -u root mv "'.$oldDir.'" "'.$newDir.'"');
 				$out.='
 				<script>
 					self.location="index.php?section=mainMediaFilesSync&path='.urlencode($newPath).'&msg=The directory was renamed.";
@@ -224,7 +224,7 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 		
 		if($action=='delDir'){
 			$newPath=getUpperLevel($path);
-			exec('rm -rf "'.$path.'"');
+			exec('sudo -u root rm -rf "'.$path.'"');
 			$out.='
 				<script>
 					self.location="index.php?section=mainMediaFilesSync&msg=The directory was deleted.";
@@ -238,7 +238,7 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 				header('Location: index.php?section=mainMediaFilesSync&path='.urlencode($path).'&error=Invalid subdirectory name.');
 			}else{
 				$newPath=$path.'/'.$subDir;
-				exec('mkdir "'.$newPath.'"');
+				exec('sudo -u root mkdir "'.$newPath.'"');
 				$out.='
 				<script>
 					self.location="index.php?section=mainMediaFilesSync&path='.urlencode($newPath).'&msg=The subdirectory was created.";

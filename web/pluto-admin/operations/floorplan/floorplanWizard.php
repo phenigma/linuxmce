@@ -1,5 +1,9 @@
 <?
 function floorplanWizard($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/floorplanWizard.lang.php');
+	
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	$installationID = (int)@$_SESSION['installationID'];	
@@ -28,8 +32,9 @@ function floorplanWizard($output,$dbADO) {
 		<form name="form1" action="index.php" onsubmit="return submitForm();" method="POST">
 			<input type="hidden" name="section" value="floorplanWizard">
 			<input type="hidden" name="action" value="update">
-		<h2 align="center" title="">Floor Plan</h2>
-		<p align="center">You can add as many floorplans as you like, and Pluto can create floorplans for you as well.  Click "help" for more information and samples.</p>
+		
+		<h2 align="center" title="">'.$TEXT_FLOOR_PLAN_CONST.'</h2>
+		<p align="center">'.$TEXT_FLOORPLAN_NOTICE_CONST.'</p>
 		<table bgcolor="#EEEEEE" cellpadding="0" cellspacing="0" border="0" align="center">
 			<tr>
 				<td><select name="page" onchange="document.form1.page_orig.value=\''.$page.'\';submitForm();">';
@@ -48,9 +53,9 @@ function floorplanWizard($output,$dbADO) {
 				</select>
 				</td>
 				<td valign="middle">
-					<a href="index.php?section=uploadFloorplan" class="normalLink">Add another floorplan</a><br />
-					<a href="index.php?section=uploadFloorplan&fpID='.$page.'&type='.$type.'" class="normalLink">Edit this floorplan / Upload Different Image</a><br>
-					<a href="javascript:if(confirm(\'Are you sure you want to delete this floorplan?\')){document.form1.action.value=\'remove\';document.form1.submit();}" class="normalLink">Delete floorplan</a><br />
+					<a href="index.php?section=uploadFloorplan" class="normalLink">'.$TEXT_ADD_ANOTHER_FLOORPLAN_CONST.'</a><br />
+					<a href="index.php?section=uploadFloorplan&fpID='.$page.'&type='.$type.'" class="normalLink">'.$TEXT_EDIT_UPLOAD_CONST.'</a><br>
+					<a href="javascript:if(confirm(\''.$TEXT_DELETE_CONFIRMATION_CONST.'\')){document.form1.action.value=\'remove\';document.form1.submit();}" class="normalLink">'.$TEXT_DELETE_FLOORPLAN_CONST.'</a><br />
 				</td>
 			</tr>
 			<tr>
@@ -75,7 +80,7 @@ function floorplanWizard($output,$dbADO) {
 				<td colspan="2">&nbsp;<img src="inc/images/pixel_blank.gif" width="652" height="1" border="0"></td>
 			</tr>				
 			<tr>
-				<td align="center" colspan="2"><input type="button" class="button" value="Cancel" onclick="cancel();">&nbsp; &nbsp; &nbsp;	<input type="button" class="button" value="Update" onclick="submitForm();"><br /></td>
+				<td align="center" colspan="2"><input type="button" class="button" value="'.$TEXT_CANCEL_CONST.'" onclick="cancel();">&nbsp; &nbsp; &nbsp;	<input type="button" class="button" value="'.$TEXT_SAVE_CONST.'" onclick="submitForm();"><br /></td>
 			</tr>
 			<tr>
 				<td valign="top" colspan="2"><script language="javascript" type="text/javascript">objSensorPositioner.writeHTML();</script></td>
@@ -332,7 +337,7 @@ function floorplanWizard($output,$dbADO) {
 
 	$output->setScriptInHead($scriptInHead);
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Floorplan Wizard');
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_FLOORPLAN_WIZARD_CONST);
 	$output->output();
 }
 

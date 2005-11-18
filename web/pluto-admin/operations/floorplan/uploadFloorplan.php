@@ -1,5 +1,9 @@
 <?
 function uploadFloorplan($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/uploadFloorplan.lang.php');
+	
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	$page=(isset($_REQUEST['fpID']))?cleanInteger($_REQUEST['fpID']):0;
@@ -23,7 +27,7 @@ function uploadFloorplan($output,$dbADO) {
 	$resFloorplan=$dbADO->Execute($queryFloorplan,array($installationID,$page));
 
 	if($resFloorplan->RecordCount()==0 	&& $page!=0){
-		header("Location: index.php?section=floorplanWizard&error=Invalid floorplan specified");		
+		header("Location: index.php?section=floorplanWizard&error=$TEXT_INVALID_FLOORPLAN_SPECIFIED_CONST");		
 		exit();
 	}
 	$rowFloorplan=$resFloorplan->FetchRow();
@@ -55,19 +59,19 @@ function uploadFloorplan($output,$dbADO) {
 							$out.='	
 								<table>
 									<tr>
-										<td class="normal">Description&nbsp;&nbsp;&nbsp;</td>
+										<td class="normal">'.$TEXT_DESCRIPTION_CONST.'&nbsp;&nbsp;&nbsp;</td>
 										<td><input type="text" name="txtDescription" value="'.@$oldDescription.'"></td>
 									</tr>
 									<tr>
 										<td class="normal">
-											Choose a file:<br />&nbsp; &nbsp; (must be PNG)
+											'.$TEXT_CHOOSE_FILE_CONST.':<br />&nbsp; &nbsp; ('.$TEXT_FILETYPE_RESTRICTION_CONST.')
 										</td>
 										<td><input type="file" name="fileImage"></td>
 									</tr>
 									<tr>
 										<td colspan="2" align="center"><br />
-											<input type="submit" class="button" value="'.(($page==0)?'Add':'Update').' Floorplan">
-											<input type="button" class="button" onclick="JavaScript:self.location=\'index.php?section=floorplanWizard&page='.$page.'&type='.$type.'\';" value="Cancel">&nbsp; &nbsp;
+											<input type="submit" class="button" value="'.(($page==0)?$TEXT_ADD_CONST:$TEXT_UPDATE_CONST).' '.$TEXT_FLOORPLAN_CONST.'">
+											<input type="button" class="button" onclick="JavaScript:self.location=\'index.php?section=floorplanWizard&page='.$page.'&type='.$type.'\';" value="'.$TEXT_CANCEL_CONST.'">&nbsp; &nbsp;
 										</td>
 									</tr>
 								</table>
@@ -99,12 +103,12 @@ function uploadFloorplan($output,$dbADO) {
 			}
 			
 			if(isset($invalidType)){
-				header("Location: index.php?section=uploadFloorplan&error=Invalid file type.&page=$page&fpID=$page");
+				header("Location: index.php?section=uploadFloorplan&error='.$TEXT_ERROR_INVALID_FILE_TYPE_CONST.'&page=$page&fpID=$page");
 				exit();
 			}
 			
 			if(!file_exists($path) && !@mkdir($path)){
-				header("Location: index.php?section=uploadFloorplan&error=Cannot create directory.&page=$page&fpID=$page");
+				header("Location: index.php?section=uploadFloorplan&error='.$TEXT_ERROR_CANNOT_CREATE_DIRECTORY_CONST.'&page=$page&fpID=$page");
 				exit();
 			}
 			
@@ -118,7 +122,7 @@ function uploadFloorplan($output,$dbADO) {
 				$newPicName=$page.'.'.$extension;
 			
 			if(!move_uploaded_file($_FILES['fileImage']['tmp_name'],$path.'/'.$newPicName)){
-				header("Location: index.php?section=uploadFloorplan&error=Upload failed. Check the rights for $path&page=".$page);
+				header("Location: index.php?section=uploadFloorplan&error='.$TEXT_ERROR_PERMISSIONS_CONST.' $path&page=".$page);
 				exit();
 			}
 			
@@ -135,7 +139,7 @@ function uploadFloorplan($output,$dbADO) {
 	
 	$output->setHelpSrc('/support/index.php?section=document&docID=35');
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Upload Floorplan');
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_UPLOAD_FLOORPLAN_CONST);
 	$output->output();
 }
 ?>
