@@ -32,6 +32,7 @@ option pxelinux.configfile code 209 = text;
 option pxelinux.pathprefix code 210 = text;
 option pxelinux.reboottime code 211 = unsigned integer 32;
 
+# PXE booting machines
 group {
 	next-server %CORE_INTERNAL_ADDRESS%;
 	filename "/tftpboot/pxelinux.0";
@@ -40,3 +41,7 @@ group {
 	%MOON_ENTRIES%
 }
 
+# regular machines
+group {
+	%NOBOOT_ENTRIES%
+}

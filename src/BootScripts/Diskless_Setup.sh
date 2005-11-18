@@ -15,9 +15,10 @@ DlDir="/usr/pluto/diskless"
 # DYNAMIC_IP_RANGE
 # KERNEL_VERSION
 # MOON_HOSTS
+# NOBOOT_ENTRIES
 
 KERNEL_VERSION="$(uname -r)"
-Vars="CORE_INTERNAL_ADDRESS INTERNAL_SUBNET INTERNAL_SUBNET_MASK MOON_ENTRIES MOON_ADDRESS DYNAMIC_IP_RANGE KERNEL_VERSION MOON_HOSTS MOON_IP"
+Vars="CORE_INTERNAL_ADDRESS INTERNAL_SUBNET INTERNAL_SUBNET_MASK MOON_ENTRIES MOON_ADDRESS DYNAMIC_IP_RANGE KERNEL_VERSION MOON_HOSTS MOON_IP NOBOOT_ENTRIES"
 
 GetFreeDigit()
 {
@@ -220,7 +221,7 @@ for Client in $R; do
 
 	echo "* Adding to dhcp"
 	if [ "$ValidMAC" -eq 0 ]; then
-		# verbatim escape sequences used by red in ReplaceVariables; don't replace them with the real thing!
+		# verbatim escape sequences used by sed in ReplaceVariables; don't replace them with the real thing!
 		MOON_ENTRIES="$MOON_ENTRIES\n\thost moon$MoonNumber { hardware ethernet $MAC; fixed-address $IP; }"
 	else
 		echo "* Invalid MAC address: '$MAC'"
