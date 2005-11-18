@@ -33,9 +33,6 @@ if($ARGV[0] eq "") {
     if(find_gc100() == 1) {
         loggc("GC100 Found\n");
 	$mac = get_gc100mac();
-	loggc("Finding IP ");
-	$ip = find_ip();
-	loggc("[$ip]\n");
 	loggc("Finding Installation ");
 	$install = get_install();
 	loggc("[$install]\n");
@@ -57,21 +54,11 @@ if($ARGV[0] eq "") {
 	}
 	$state->finish();
 	loggc("Creating Device...\n");
-	open(F,">temp_exec.sh");
-	print F "#!/bin/bash\n";
-	print F "./CreateDevice -i $install -d $dev_templ -I $ip -M $mac -C $PKDEV -n > gc100_temp.file\n";
-	close(F);
-	`chmod +x temp_exec.sh`;
-	`./temp_exec.sh`;
-	`rm -f temp_exec.sh`;
-	loggc("Done\n");
-	open(FILE, "gc100_temp.file");
-        @data = <FILE>;
-        $Device_ID = $data[0];
-        chomp($Device_ID);
+	$Device_ID = `./CreateDevice -i $install -d $dev_templ -M $mac -C $PKDEV -n`;
 	print "$Device_ID\n";	
-        close(FILE);
-	`rm -f gc100_temp.file`;
+	loggc("Finding IP ");
+	$ip = find_ip();
+	loggc("[$ip]\n");
 	system("/usr/pluto/bin/MessageSend localhost 0 0 2 24 26 $Device_ID");
 	loggc("Configuring GC100 via Web...");
 	configure_webgc($ip);
@@ -92,7 +79,6 @@ exit(0);
     	    $flag = allias_up();
 	    $mac = get_gc100mac();
 	    $ip = find_ip();
-	    update_db();
 	} else {
 	    loggc("Gc100 as default not found\n");
 	    exit(1);
@@ -310,73 +296,9 @@ sub find_gc100 {
 }
 
 sub find_ip {
-$sql = "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_DeviceData='28'";
-$stx = $db->prepare($sql) or die "MySQL sux";
-$stx->execute() or die "It sux";
-while($row = $stx->fetchrow_hashref()) {
-  $line = $row->{'IK_DeviceData'};
-  ($staticrange, $dinamicrange) = split(/\,/,$line);
-  $sl = length($staticrange);
-  $dl = length($dinamicrange);
-  if($staticrange ne "" && $dinamicrange ne "" && $sl > 16 && $dl > 16) {
-    ($sstart,$send) = split(/-/,$staticrange);
-    ($dstart,$dend) = split(/-/,$dinamicrange);
-    $sstart = ip_2_long($sstart);
-    $send = ip_2_long($send);
-    $dstart = ip_2_long($dstart);
-    $dend = ip_2_long($dend);
-    
-    $sql = "SELECT IPaddress FROM Device WHERE IPaddress<>0";
-    $st2 = $db->prepare($sql) or die "y";
-    $st2->execute() or die "x";
-    while($rowx = $st2->fetchrow_hashref()) {
-      $fip = ip_2_long($rowx->{'IPaddress'});
-      if($fip >= $sstart && $fip <= $send) {
-        $flag=0;
-        @oldips = split(/\,/,$ips);
-        foreach $oldip (@oldips) {
-          if($oldip eq $fip) {
-            $flag=1;
-          }
-        }
-        if($flag == 0) {
-          $ips = $ips.",".$fip;
-        }
-      }
-    }
-    $st2->finish();
-  }
-}
-@oldip = split(/\,/,$ips);
-foreach $ipeu (@oldip) {
-	$x = ip_2_long($ipeu);
-	$y = ip_2_long($send);
-	if($x > $y) {
-		$send = $ipeu;
-	}
-}
-for($ii=$sstart;$ii<=$send;$ii=$ii+1) {
-  @oldip = split(/\,/,$ips);
-  $flag = 0;
-  foreach $line (@oldip) {
-    if($ii == $line) {
-      $flag = 1;
-    }
-  }
-  if($flag == 0) {
-    $main_ip = $ii;
-    $ii = $send + 1;
-  }
-}
-$main_ip = long_2_ip($main_ip);
-return $main_ip;
-}
-
-sub update_db {
-    $sql = "UPDATE Devices SET IPaddress='$ip', MACaddress='$mac' WHERE PK_Device='$ARGV[0]'";
-    $st = $db->prepare($sql);
-    $st->execute();
-    $st->finish();
+	my ($PK_Device) = shift;
+	$main_ip = `/usr/pluto/bin/PlutoDHCP -d $PK_Device -a`;
+	return $main_ip;
 }
 
 sub configure_webgc {

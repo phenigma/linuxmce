@@ -9,7 +9,6 @@ DlDir="/usr/pluto/diskless"
 # CORE_INTERNAL_ADDRESS
 # INTERNAL_SUBNET
 # INTERNAL_SUBNET_MASK
-# MOON_ENTRIES
 # MOON_ADDRESS
 # MOON_IP
 # DYNAMIC_IP_RANGE
@@ -18,39 +17,7 @@ DlDir="/usr/pluto/diskless"
 # NOBOOT_ENTRIES
 
 KERNEL_VERSION="$(uname -r)"
-Vars="CORE_INTERNAL_ADDRESS INTERNAL_SUBNET INTERNAL_SUBNET_MASK MOON_ENTRIES MOON_ADDRESS DYNAMIC_IP_RANGE KERNEL_VERSION MOON_HOSTS MOON_IP NOBOOT_ENTRIES"
-
-GetFreeDigit()
-{
-	local DHCPsetting Q R IP
-	local Digit Next
-
-	DHCPsetting="$1"
-
-	Q="SELECT IPaddress
-		FROM Device
-		WHERE MACaddress IS NOT NULL AND IPaddress IS NOT NULL AND MACaddress!='' AND IPaddress!=''"
-	R=$(RunSQL "$Q" | sort -t. -n -k1,1 -k2,2 -k3,3 -k4,4)
-
-	Next=$(echo $DHCPsetting | cut -d, -f1 | cut -d- -f1 | cut -d. -f4)
-	if [ -z "$R"  ]; then
-		echo "$Next"
-		return
-	fi
-
-	for IP in $R; do
-		Digit=$(echo "$IP" | cut -d. -f4)
-		InRange "$Digit" "$DHCPsetting" || continue
-		if [ "$Next" -lt "$Digit" ] && InRange "$Next" "$DHCPsetting"; then
-			echo "$Next"
-			return
-		fi
-		Next=$((Digit+1))
-	done
-	if InRange "$Next" "$DHCPsetting"; then
-		echo "$Next"
-	fi
-}
+Vars="CORE_INTERNAL_ADDRESS INTERNAL_SUBNET INTERNAL_SUBNET_MASK MOON_ADDRESS DYNAMIC_IP_RANGE KERNEL_VERSION MOON_HOSTS MOON_IP NOBOOT_ENTRIES"
 
 CORE_INTERNAL_INTERFACE="$IntIf"
 
@@ -80,11 +47,9 @@ R=$(RunSQL "$Q")
 
 Prefix=$(echo "$DHCPsetting" | cut -d. -f-3)
 MoonNumber=1
-MOON_ENTRIES=""
 MOON_HOSTS=""
 
 cp /usr/pluto/templates/exports.tmpl /etc/exports.$$
-cp /usr/pluto/templates/dhcpd.conf.tmpl /etc/dhcp3/dhcpd.conf.$$
 mkdir -p /tftpboot/pxelinux.cfg
 
 for Client in $R; do
@@ -94,21 +59,13 @@ for Client in $R; do
 	Description=$(Field 4 "$Client")
 	
 	echo "Processing moon $MoonNumber ($Description; $MAC; $PK_Device)"
-	Digit=$(echo "$IP" | cut -d. -sf4)
 
-	# TODO: replace InRage with InSubnet thing
-	if [ "$IP" == "NULL" -o -z "${IP// }" ] || ! InRange "$Digit" "$DHCPsetting"; then
-		FreeDigit=$(GetFreeDigit "$DHCPsetting")
-		echo "* IP allocation"
-		if [ -z "$FreeDigit" ]; then
-			echo "*** WARNING *** No free IP"
-			continue
-		fi
-		IP="$Prefix.$FreeDigit"
-		echo "* Allocating IP '$IP'"
-		Q="UPDATE Device SET IPaddress='$IP' WHERE PK_Device='$PK_Device'"
-		RunSQL "$Q" >/dev/null
+	IP=$(/usr/pluto/bin/PlutoDHCP.sh -d "$PK_Device" -a)
+	if [[ -z "$IP" ]]; then
+		echo "*** WARNING *** No free IP"
+		continue
 	fi
+	echo "* Allocated IP '$IP'"
 
 	DlPath="$DlDir/$IP"
 	HexIP=$(gethostip -x "$IP")
@@ -219,14 +176,6 @@ for Client in $R; do
 		echo "$DlPath $IP/255.255.255.255(rw,no_root_squash,no_all_squash,sync)" >>/etc/exports.$$
 	fi
 
-	echo "* Adding to dhcp"
-	if [ "$ValidMAC" -eq 0 ]; then
-		# verbatim escape sequences used by sed in ReplaceVariables; don't replace them with the real thing!
-		MOON_ENTRIES="$MOON_ENTRIES\n\thost moon$MoonNumber { hardware ethernet $MAC; fixed-address $IP; }"
-	else
-		echo "* Invalid MAC address: '$MAC'"
-	fi
-
 	echo "* Adding to hosts"
 	MOON_HOSTS="$MOON_HOSTS\n$IP\tmoon$MoonNumber"
 
@@ -260,18 +209,15 @@ ff02::3 ip6-allhosts
 echo "$hosts" >/etc/hosts
 
 ReplaceVars /etc/exports.$$
-ReplaceVars /etc/dhcp3/dhcpd.conf.$$
 ReplaceVars /etc/hosts
 
 mv /etc/exports.$$ /etc/exports
-mv /etc/dhcp3/dhcpd.conf.$$ /etc/dhcp3/dhcpd.conf
 
 if ! /sbin/showmount -e localhost &>/dev/null; then
 	/etc/init.d/nfs-common start
 	/etc/init.d/nfs-kernel-server start
 fi
 /usr/sbin/exportfs -ra
-/etc/init.d/dhcp3-server restart
 
 Q="FLUSH PRIVILEGES"
 RunSQL "$Q"

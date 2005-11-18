@@ -2,26 +2,6 @@
 
 . /usr/pluto/bin/SQL_Ops.sh
 
-InRange()
-{
-	local Static Dynamic StaticDigit1 StaticDigit2 DynamicDigit1 DynamicDigit2
-	local Digit DHCPsetting
-
-	Digit="$1"
-	DHCPsetting="$2"
-
-	Static=$(Field 1 "$DHCPsetting")
-	Dynamic=$(Field 2 "$DHCPsetting")
-
-	StaticDigit1=$(echo "$Static" | cut -d- -f1 | cut -d. -f4)
-	StaticDigit2=$(echo "$Static" | cut -d- -f2 | cut -d. -f4)
-	DynamicDigit1=$(echo "$Dynamic" | cut -d- -f1 | cut -d. -f4)
-	DynamicDigit2=$(echo "$Dynamic" | cut -d- -f2 | cut -d. -f4)
-
-	[ "$Digit" -ge "$StaticDigit1" -a "$Digit" -le "$StaticDigit2" ]
-	return "$?"
-}
-
 ExtractData()
 {
 	local R IntPart ExtPart

@@ -13,7 +13,7 @@ Lock()
 	
 	[[ -z "$NoLog" ]] && echo "$$ $(date) Lock '$Lock' ($Device)"
 
-	[ -z "$Lock" ] && return 1
+	[[ -z "$Lock" ]] && return 1
 	if ln -s "/proc/$$-$Device" "$Dir/$Lock" 2>/dev/null; then
 		[[ -z "$NoLog" ]] && echo "$$ $(date) Lock '$Lock' ($Device) fail"
 		return 0
@@ -31,7 +31,7 @@ Unlock()
 	
 	echo "$$ $(date) Unlock '$Lock' ($Device)"
 
-	[ -z "$Lock" ] && echo "$$ $(date) Unlock '$Lock' ($Device) fail" && return 1
+	[[ -z "$Lock" ]] && echo "$$ $(date) Unlock '$Lock' ($Device) fail" && return 1
 	rm -f "$Dir/$Lock" 2>/dev/null
 	echo "$$ $(date) Unlock '$Lock' ($Device) success"
 	return 0
