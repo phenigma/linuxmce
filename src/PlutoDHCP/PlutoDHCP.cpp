@@ -172,7 +172,6 @@ string PlutoDHCP::AssignIP(int PK_Device)
 	// Nope, we're going to have to find an unused IP address
 	IPAddress ipAddressDhcpStart,ipAddressDhcpStop,ipAddressPlutoStart,ipAddressPlutoStop;
 	DetermineIPRange(ipAddressDhcpStart,ipAddressDhcpStop,ipAddressPlutoStart,ipAddressPlutoStop);
-	cout << ipAddressPlutoStart.AsText() << "-" << ipAddressPlutoStop.AsText() << endl;
 	for(unsigned long ip = ipAddressPlutoStart.AsInt(); ip<=ipAddressPlutoStop.AsInt(); ip++)
 	{
 		if( m_mapIP_Device.find(ip)==m_mapIP_Device.end() )
