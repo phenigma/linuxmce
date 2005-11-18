@@ -224,10 +224,11 @@ void SocketListener::RemoveAndDeleteSocket( ServerSocket *pServerSocket, bool bD
 	pServerSocket->Close();
 
 	PLUTO_SAFETY_LOCK( lm, m_ListenerMutex );
-	while( pServerSocket->m_iReferencesOutstanding_get()>1 )  // Something besides us is still referencing this pointer
+    if( pServerSocket->m_iReferencesOutstanding_get()>1 ){  // Something besides us is still referencing this pointer
 	// We won't actually delete it because we don't want to wait for the other thread to finish, and besides that thread
 	// should also call this function since the socket is now dead (we just closed it)
 		return; 
+    }
 
 	g_pPlutoLogger->Write(LV_SOCKET, "Removing socket %p from socket listener", pServerSocket);
 
@@ -247,6 +248,7 @@ void SocketListener::RemoveAndDeleteSocket( ServerSocket *pServerSocket, bool bD
 	}
 	if( !bDontDelete )  // Will be true if teh socket's destructor is calling this
 	{	
+        lm.Release();
 		pServerSocket->m_bAlreadyRemoved=true;  // Otherwise the socket's destructor will call this
 		delete pServerSocket;
 	}
