@@ -62,7 +62,8 @@ else
 if ( !empty($forum_id) )
 {
 	$sql = "SELECT *
-		FROM " . FORUMS_TABLE . "
+		FROM " . FORUMS_TABLE . " f
+		INNER JOIN " . CATEGORIES_TABLE . " c ON c.cat_id= f.cat_id
 		WHERE forum_id = $forum_id";
 	if ( !($result = $db->sql_query($sql)) )
 	{
@@ -83,6 +84,7 @@ if ( !($forum_row = $db->sql_fetchrow($result)) )
 	message_die(GENERAL_MESSAGE, 'Forum_not_exist');
 }
 
+$category_group_url=($forum_row['cat_title']!='')?'-> <a href="' . append_sid("index.php?c=".$forum_row['cat_id']) . '">'.$forum_row['cat_title'].'</a> ':'';
 //
 // Start session management
 //
@@ -435,7 +437,9 @@ $template->assign_vars(array(
 
 	'U_VIEW_FORUM' => append_sid("viewforum.$phpEx?" . POST_FORUM_URL ."=$forum_id"),
 
-	'U_MARK_READ' => append_sid("viewforum.$phpEx?" . POST_FORUM_URL . "=$forum_id&amp;mark=topics"))
+	'U_MARK_READ' => append_sid("viewforum.$phpEx?" . POST_FORUM_URL . "=$forum_id&amp;mark=topics"),
+	
+	'CATEGORY_GROUP' => $category_group_url)
 );
 //
 // End header
