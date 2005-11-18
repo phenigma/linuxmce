@@ -7,7 +7,7 @@ switch($scriptID){
 	break;
 	case 2:
 		$command[]=stripslashes(urldecode($_REQUEST['command']));
-		$title='sqlCVS update';
+		$title='sqlCVS command';
 	break;	
 	case 3:
 		$path=stripslashes($_REQUEST['path']);

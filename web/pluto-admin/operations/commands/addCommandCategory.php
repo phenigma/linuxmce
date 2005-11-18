@@ -1,5 +1,9 @@
 <?php
 function addCommandCategory($output,$dbADO) {
+	// include language file
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/addCommandCategory.lang.php');
+	
 	//$dbADO->debug=true;
 	$out='';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
@@ -11,7 +15,7 @@ function addCommandCategory($output,$dbADO) {
 		where  FK_CommandCategory_Parent IS NULL
 		order by Description asc
 	";
-	$commandsCategsTxt = '<option value="0">-please select-</option>';
+	$commandsCategsTxt = '<option value="0">-'.$TEXT_PLEASE_SELECT_CONST.'-</option>';
 	$rs = $dbADO->_Execute($querySelectCategoryMainForDevice);
 	while ($row = $rs->FetchRow()) {
 				$commandsCategsTxt.='<option value="'.$row['PK_CommandCategory'].'">'.$row['Description'].'</option>';
@@ -37,11 +41,11 @@ function addCommandCategory($output,$dbADO) {
 		<input type="hidden" name="from" value="'.$from.'">
 			<table>			
 				<tr>
-					<td>Command category name:</td>
+					<td>'.$TEXT_COMMAND_CATEGORY_NAME_CONST.':</td>
 					<td><input type="text" size="15" name="CommandCategoryDescription" value=""></td>
 				</tr>				
 				<tr>
-					<td>Command category parent:</td>
+					<td>'.$TEXT_COMMAND_CATEGORY_PARENT_CONST.':</td>
 					<td>
 						<select name="parentCateg" >
 						'.$commandsCategsTxt.'
@@ -49,13 +53,13 @@ function addCommandCategory($output,$dbADO) {
 					</td>
 				</tr>
 				<tr>
-					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Add"></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_ADD_CONST.'"></td>
 				</tr>
 			</table>
 		</form>
 		<script>
 		 	var frmvalidator = new formValidator("addCommandCategory"); 			
-			frmvalidator.addValidation("CommandCategoryDescription","req","Please enter a name for this Command Category!");
+			frmvalidator.addValidation("CommandCategoryDescription","req","'.$TEXT_VALIDATE_COMMAND_CATEGORY_CONST.'");
 		</script>
 		';
 		
@@ -85,7 +89,7 @@ function addCommandCategory($output,$dbADO) {
 	}
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Add command');			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_ADD_COMMAND_CATEGORY_CONST);			
 	$output->output();
 }
 ?>

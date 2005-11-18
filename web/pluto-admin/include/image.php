@@ -27,5 +27,5 @@ switch ($imageinfo[2]){
 }
 
 header( "Content-type: image/$imagetype" );
-@readfile( $imagepath );
+readfile( $imagepath );
 ?>

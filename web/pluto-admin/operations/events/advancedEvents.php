@@ -1,5 +1,9 @@
 <?php
 function advancedEvents($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/advancedEvents.lang.php');
+		
 	/* @var $dbADO ADOConnection */
 	$out='';
 	$installationID = (int)@$_SESSION['installationID'];
@@ -39,7 +43,7 @@ function advancedEvents($output,$dbADO) {
 			$deleteEventHandler='DELETE FROM EventHandler WHERE PK_EventHandler=?';
 			$dbADO->Execute($deleteEventHandler,$eventHandlerID);
 			
-			$_REQUEST['msg']='The event was deleted.';
+			$_REQUEST['msg']=$TEXT_THE_EVENT_WAS_DELETED_CONST;
 		}
 	}
 	if ($action=='form') {
@@ -50,17 +54,18 @@ function advancedEvents($output,$dbADO) {
 		<form action="index.php" method="post" name="advancedEvents">
 		<input type="hidden" name="section" value="advancedEvents">
 		<input type="hidden" name="action" value="add">
-		<div align="center"><h3>Advanced Events</h3></div>
+		
+		<div align="center"><h3>'.$TEXT_ADVANCED_EVENTS_CONST.'</h3></div>
 		<table border="0" align="center" cellpading="3">
 			<tr bgcolor="lightblue">
-				<td align="center"><B>Event</B></td>
-				<td align="center"><B>Description</B></td>
-				<td align="center"><B>FK_Event</B></td>
-				<td align="center"><B>Timed event</B></td>
-				<td align="center"><B>Template</B></td>
-				<td align="center"><B>Criteria</B></td>
-				<td align="center"><B>Commands</B></td>
-				<td align="center"><B>Action</B></td>
+				<td align="center"><B>'.$TEXT_EVENT_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_DESCRIPTION_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_FK_EVENT_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_TIMED_EVENT_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_TEMPLATE_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_CRITERIA_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_COMMANDS_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_ACTION_CONST.'</B></td>
 			</tr>
 		';
 		$queryEvents='
@@ -91,15 +96,15 @@ function advancedEvents($output,$dbADO) {
 					<td>'.$rowEvents['EventDescription'].'</td>
 					<td>'.@$timedEventArray[$rowEvents['TimedEvent']].'</td>
 					<td>'.$rowEvents['TemplateDescription'].'</td>
-					<td align="center"><a href="index.php?section=editCriteria&ehID='.$rowEvents['PK_EventHandler'].'">Edit</a></td>
-					<td align="center"><a href="index.php?section=editEventCommands&ehID='.$rowEvents['PK_EventHandler'].'">Edit</a></td>
-					<td align="center"><a href="#" onClick="if(confirm(\'Are you sure you want to delete the event?\'))self.location=\'index.php?section=advancedEvents&dID='.$rowEvents['PK_EventHandler'].'\'">Delete</a></td>
+					<td align="center"><a href="index.php?section=editCriteria&ehID='.$rowEvents['PK_EventHandler'].'">'.$TEXT_EDIT_CONST.'</a></td>
+					<td align="center"><a href="index.php?section=editEventCommands&ehID='.$rowEvents['PK_EventHandler'].'">'.$TEXT_EDIT_CONST.'</a></td>
+					<td align="center"><a href="#" onClick="if(confirm(\'Are you sure you want to delete the event?\'))self.location=\'index.php?section=advancedEvents&dID='.$rowEvents['PK_EventHandler'].'\'">'.$TEXT_DELETE_CONST.'</a></td>
 				</tr>';
 		}
 		if(count($displayedEH)!=0)
 			$out.='
 			<tr bgcolor="#E7E7E7">
-				<td colspan="8" align="center"><input type="button" class="button" name="addAdvancedEvent" value="Create advanced event" onClick="self.location=\'index.php?section=createAdvancedEvent\'"> <input type="submit" class="button" name="update" value="Update"></td>
+				<td colspan="8" align="center"><input type="button" class="button" name="addAdvancedEvent" value="'.$TEXT_CREATE_ADVANCED_EVENT_CONST.'" onClick="self.location=\'index.php?section=createAdvancedEvent\'"> <input type="submit" class="button" name="update" value="'.$TEXT_SAVE_CONST.'"></td>
 			</tr>';
 		$out.='
 			<tr>
@@ -114,7 +119,7 @@ function advancedEvents($output,$dbADO) {
 	} else {
 		// processing area
 		if(!$canModifyInstallation){
-			header("Location: index.php?section=advancedEvents&error=You are not authorised to modify installation.");
+			header("Location: index.php?section=advancedEvents&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit();
 		}
 		$displayedEHArray=explode(',',$_POST['displayedEH']);
@@ -123,11 +128,11 @@ function advancedEvents($output,$dbADO) {
 			$dbADO->Execute('UPDATE EventHandler SET Description=? WHERE PK_EventHandler=?',array($description,$ehID));
 		}
 		
-		header("Location: index.php?section=advancedEvents&msg=The event description was updated.");
+		header("Location: index.php?section=advancedEvents&msg=$TEXT_THE_EVENT_DESCRIPTION_WAS_UPDATED_CONST");
 	}
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Timed Events');			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_ADVANCED_EVENTS_CONST);			
 	$output->output();
 }
 ?>

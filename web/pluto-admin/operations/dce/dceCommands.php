@@ -1,5 +1,9 @@
 <?
 function dceCommands($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/dceCommands.lang.php');
+
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	$out='';
@@ -16,16 +20,17 @@ function dceCommands($output,$dbADO) {
 		</script>		
 			<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 			<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
-			<h3 align="center">Commands</h3>
+			<h3 align="center">'.$TEXT_COMMANDS_CONST.'</h3>
 			<form action="index.php" method="POST" name="dceCommands">
 			<input type="hidden" name="section" value="dceCommands">
 			<input type="hidden" name="action" value="update">
+		
 		<table cellpadding="3" align="center">
 			<tr bgcolor="lightblue">
-				<td align="center" width="120"><B>Command category</B></td>
+				<td align="center" width="120"><B>'.$TEXT_COMMAND_CATEGORY_CONST.'</B></td>
 				<td align="center"><B>#</b></td>
-				<td align="center"><B>Command description</b></td>
-				<td align="center" colspan="2"><B>Used by</B></td>
+				<td align="center"><B>'.$TEXT_COMMAND_DESCRIPTION_CONST.'</b></td>
+				<td align="center" colspan="2"><B>'.$TEXT_USED_BY_CONST.'</B></td>
 			</tr>
 		';
 		
@@ -38,7 +43,7 @@ function dceCommands($output,$dbADO) {
 		$out.=formatOutput($resRootCC,$dbADO,0);
 		$out.='
 			<tr>
-				<td align="left" colspan="4"><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addCommandCategory&from=dceCommands\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');">Add Command Category</a></td>
+				<td align="left" colspan="4"><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addCommandCategory&from=dceCommands\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');">'.$TEXT_ADD_COMMAND_CATEGORY_CONST.'</a></td>
 			</tr>
 		</table>
 		</form>';
@@ -70,6 +75,10 @@ function getCommandCategoryChilds($CommandCategory,$dbADO,$level)
 
 function formatOutput($resRootCC,$dbADO,$level)
 {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/dceCommands.lang.php');
+	
 	$installationID = (int)@$_SESSION['installationID'];
 	$out='';
 	$pos=0;
@@ -82,8 +91,8 @@ function formatOutput($resRootCC,$dbADO,$level)
 		$out.='
 			<tr bgcolor="#EEEEEE">
 				<td colspan="3">'.$indent.' <a href="#" onClick="windowOpen(\'index.php?section=editCommandCategory&from=dceCommands&ccID='.$rowRootCC['PK_CommandCategory'].'\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');"><B>'.$rowRootCC['Description'].'</B></a></td>
-				<td align="center"><B>Device Templates</B></td>
-				<td align="center"><B>Devices</B></td>
+				<td align="center"><B>'.$TEXT_DEVICE_TEMPLATES_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_DEVICES_CONST.'</B></td>
 			</tr>';
 		$resCommands=$dbADO->Execute('SELECT * FROM Command WHERE FK_CommandCategory=? ORDER BY Description ASC',$rowRootCC['PK_CommandCategory']);
 		$cmdPos=0;

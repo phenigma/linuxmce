@@ -1,12 +1,15 @@
 <?php
 function createParameterForCommand($output,$dbADO) {
-	//$dbADO->debug=true;
+	// include language file
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/createParameterForCommand.lang.php');
+
 	$out='';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$from = isset($_REQUEST['from'])?cleanString($_REQUEST['from']):'';
 	
 	if ($action=='form') {		
-		$parameterTypes='<option value="0">-please select-</option>';
+		$parameterTypes='<option value="0">-'.$TEXT_PLEASE_SELECT_CONST.'-</option>';
 		$query = "select Description,PK_ParameterType from ParameterType order by Description asc";
 		$res = $dbADO->Execute($query);
 			if ($res) {
@@ -19,24 +22,25 @@ function createParameterForCommand($output,$dbADO) {
 		<input type="hidden" name="section" value="createParameterForCommand">
 		<input type="hidden" name="action" value="add">		
 		<input type="hidden" name="from" value="'.$from.'">
+		
 			<table>			
 				<tr>
-					<td>Description:</td>
+					<td>'.$TEXT_DESCRIPTION_CONST.':</td>
 					<td><input type="text" size="15" name="Description" value=""></td>
 				</tr>				
 				<tr>
-					<td>Parameter Type:</td>
+					<td>'.$TEXT_PARAMETER_TYPE_CONST.':</td>
 					<td><select name="paramType">'.$parameterTypes.'</select></td>
 				</tr>
 				<tr>
-					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"></td>
 				</tr>
 			</table>
 		</form>
 		<script>
 		 	var frmvalidator = new formValidator("createParameterForCommand");
- 			frmvalidator.addValidation("Description","req","Please enter a description");			
-			frmvalidator.addValidation("paramType","dontselect=0","Please enter a parameter type!");			
+ 			frmvalidator.addValidation("Description","req","'.$TEXT_VALIDATE_DESCRIPTION_CONST.'");
+			frmvalidator.addValidation("paramType","dontselect=0","'.$TEXT_VALIDATE_PARAMETER_TYPE_CONST.'");			
 		</script>
 		';
 		
@@ -54,7 +58,7 @@ function createParameterForCommand($output,$dbADO) {
 						
 			$out.="
 				<script>
-					alert('Parameter added!');					
+					alert('$TEXT_PARAMETER_ADDED_CONST');					
 				    opener.document.forms.{$from}.action.value='form';					
 					opener.document.forms.{$from}.submit();
 					self.close();
@@ -67,7 +71,7 @@ function createParameterForCommand($output,$dbADO) {
 	}
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Command Parameter');			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_COMMAND_PARAMETER_CONST);			
 	$output->output();
 }
 ?>

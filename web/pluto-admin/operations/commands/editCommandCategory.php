@@ -1,6 +1,10 @@
 <?php
 function editCommandCategory($output,$dbADO) {
-	//$dbADO->debug=true;
+	// include languages files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/editCommandCategory.lang.php');
+
+	
 	$out='';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$from = isset($_REQUEST['from'])?cleanString($_REQUEST['from']):'';
@@ -14,7 +18,7 @@ function editCommandCategory($output,$dbADO) {
 		WHERE  FK_CommandCategory_Parent IS NULL 
 		ORDER BY Description ASC
 	";
-	$commandsCategsTxt = '<option value="0">-please select-</option>';
+	$commandsCategsTxt = '<option value="0">-'.$TEXT_PLEASE_SELECT_CONST.'-</option>';
 	$rs = $dbADO->_Execute($querySelectCategoryMainForDevice);
 	while ($row = $rs->FetchRow()) {
 				$commandsCategsTxt.='<option value="'.$row['PK_CommandCategory'].'" '.(($row['PK_CommandCategory']==$rowCC['FK_CommandCategory_Parent'])?'selected':'').'>'.$row['Description'].'</option>';
@@ -39,13 +43,14 @@ function editCommandCategory($output,$dbADO) {
 		<input type="hidden" name="action" value="add">		
 		<input type="hidden" name="ccID" value="'.$ccID.'">		
 		<input type="hidden" name="from" value="'.$from.'">
+		
 			<table>			
 				<tr>
-					<td>Command category name:</td>
+					<td>'.$TEXT_COMMAND_CATEGORY_NAME_CONST.':</td>
 					<td><input type="text" size="15" name="CommandCategoryDescription" value="'.$rowCC['Description'].'"></td>
 				</tr>				
 				<tr>
-					<td>Command category parent:</td>
+					<td>'.$TEXT_COMMAND_CATEGORY_PARENT_CONST.':</td>
 					<td>
 						<select name="parentCateg" >
 						'.$commandsCategsTxt.'
@@ -53,13 +58,13 @@ function editCommandCategory($output,$dbADO) {
 					</td>
 				</tr>
 				<tr>
-					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Update"></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"></td>
 				</tr>
 			</table>
 		</form>
 		<script>
 		 	var frmvalidator = new formValidator("editCommandCategory"); 			
-			frmvalidator.addValidation("CommandCategoryDescription","req","Please enter a name for this Command Category!");
+			frmvalidator.addValidation("CommandCategoryDescription","req","'.$TEXT_VALIDATE_COMMAND_CATEGORY_NAME_CONST.'");
 		</script>
 		';
 		
@@ -75,7 +80,7 @@ function editCommandCategory($output,$dbADO) {
 			
 				$out.="
 				<script>
-					alert('Command Category updated!');
+					alert('$TEXT_COMMAND_CATEGORY_UPDATED_CONST');
 				    opener.document.forms.{$from}.action.value='form';
 					opener.document.forms.{$from}.submit();
 					self.close();
@@ -89,7 +94,7 @@ function editCommandCategory($output,$dbADO) {
 	}
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Add command');			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_EDIT_COMMAND_CATEGORY_CONST);			
 	$output->output();
 }
 ?>

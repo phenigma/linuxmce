@@ -1,5 +1,9 @@
 <?php
 function editEvent($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/editEvent.lang.php');
+	
 	$out='';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$lastAction = isset($_REQUEST['lastAction'])?cleanString($_REQUEST['lastAction']):'';
@@ -42,19 +46,20 @@ function editEvent($output,$dbADO) {
 		<input type="hidden" name="lastAction" value="">
 		<input type="hidden" name="EventID" value="'.$selectedEvent.'">
 		<input type="hidden" name="from" value="'.$from.'">
+		
 			<table>	
 				<tr>
 					<td>
-						Event Category:</td><td><select name="EventEventCategory">'.$EventCategoryTxt.'</select>							
+						'.$TEXT_EVENT_CATEGORY_CONST.':</td><td><select name="EventEventCategory">'.$EventCategoryTxt.'</select>							
 					</td>
 				</tr>		
 				<tr>
-					<td>Event Name:</td><td><input type="text" maxlength="50" name="EventDescription" value="'.$EventDescription.'"></td>
+					<td>'.$TEXT_EVENT_NAME_CONST.':</td><td><input type="text" maxlength="50" name="EventDescription" value="'.$EventDescription.'"></td>
 				</tr>		
 				<tr>
 					<td colspan="2">
 						<fieldset>
-							<legend>Parameters</legend>
+							<legend>'.$TEXT_PARAMETERS_CONST.'</legend>
 								<table>
 									';
 		$selectEventParams = "SELECT Event_EventParameter.Description,PK_EventParameter,EventParameter.Description AS EL_Description
@@ -69,9 +74,9 @@ function editEvent($output,$dbADO) {
 			while ($rowSelectEventParams=$resSelectEventParams->FetchRow()) {
 				$out.='<tr><td>'.$rowSelectEventParams['EL_Description'].'<br />#'.$rowSelectEventParams['PK_EventParameter'].'</td><td><textarea cols="40" rows="4" name="eventParamDesc_'.$rowSelectEventParams['PK_EventParameter'].'">'.$rowSelectEventParams['Description'].'</textarea></td>
 				<td>
-					<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editEventParameterFromEvent&from=editEvent&eventParameterID='.$rowSelectEventParams['PK_EventParameter'].'\',\'width=500,height=400,toolbars=true\');">Edit</a>
+					<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editEventParameterFromEvent&from=editEvent&eventParameterID='.$rowSelectEventParams['PK_EventParameter'].'\',\'width=500,height=400,toolbars=true\');">'.$TEXT_EDIT_CONST.'</a>
 					<br />
-					<a href="javascript:void(0);" onClick="if (confirm(\'Are you sure you want to delete this parameter?\')) windowOpen(\'index.php?section=deleteEventParameterFromEvent&from=editEvent&EventID='.$selectedEvent.'&eventParameterID='.$rowSelectEventParams['PK_EventParameter'].'\',\'width=100,height=100,toolbars=true\');">Delete</a>
+					<a href="javascript:void(0);" onClick="if (confirm(\'Are you sure you want to delete this parameter?\')) windowOpen(\'index.php?section=deleteEventParameterFromEvent&from=editEvent&EventID='.$selectedEvent.'&eventParameterID='.$rowSelectEventParams['PK_EventParameter'].'\',\'width=100,height=100,toolbars=true\');">'.$TEXT_DELETE_CONST.'</a>
 				</td>
 				</tr>';
 				$displayedEventParams[]=$rowSelectEventParams['PK_EventParameter'];
@@ -81,17 +86,17 @@ function editEvent($output,$dbADO) {
 		$querySelRemainingEventParams = 'SELECT * FROM EventParameter WHERE PK_EventParameter NOT IN ('.join(",",$displayedEventParams).') order by Description Asc';
 		$resSelRemainingEventParams = $dbADO->Execute($querySelRemainingEventParams);
 		
-		$eventParametersTxt = "<option value='0'>-please select-</option>";
+		$eventParametersTxt = "<option value='0'>-'.$TEXT_PLEASE_SELECT_CONST.'-</option>";
 			if ($resSelRemainingEventParams)  {
 				while ($row = $resSelRemainingEventParams->FetchRow()) {
 					$eventParametersTxt.='<option value="'.$row['PK_EventParameter'].'">'.$row['Description'].'</option>';
 				}
 			} else {
-				$eventParametersTxt = "<option value='0'>-nothing to select-</option>";
+				$eventParametersTxt = "<option value='0'>-'.$TEXT_NOTHING_TO_SELECT_CONST.'-</option>";
 			}
 		
-		$out.="<tr><td colspan='3'>Add new parameter <select name='addEventParameterToEvent'>{$eventParametersTxt}</select> &nbsp; <input type='submit' name='submitX' value='Add'></td></tr>";
-		$out.='<tr><td colspan="3">If parameter not in the list <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createEventParameter&from=editEvent\',\'width=500,height=400,toolbars=true\');">create a new one</a></td></tr>';
+		$out.="<tr><td colspan='3'>'.$TEXT_ADD_NEW_PARAMETER_CONST.' <select name='addEventParameterToEvent'>{$eventParametersTxt}</select> &nbsp; <input type='submit' name='submitX' value='$TEXT_ADD_CONST'></td></tr>";
+		$out.='<tr><td colspan="3">'.$TEXT_CREATE_NEW_PARAM_TEXT_CONST.': <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createEventParameter&from=editEvent\',\'width=500,height=400,toolbars=true\');">'.$TEXT_CLICK_HERE_CONST.'</a></td></tr>';
 		$out.='
 								</table>
 						</fieldset>
@@ -100,15 +105,15 @@ function editEvent($output,$dbADO) {
 				<tr>
 					<td colspan="2" align="center">
 						<input type="hidden" name="displayedEventParams" value="'.join(",",$displayedEventParams).'">
-						<input type="submit" class="button" name="submitX" value="Save">
+						<input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'">
 					</td>
 				</tr>
 			</table>
 		</form>
 		<script>
 		 	var frmvalidator = new formValidator("editEvent");			
- 			frmvalidator.addValidation("EventDescription","req","Please enter a name for this Event !");
-			frmvalidator.addValidation("EventEventCategory","dontselect=0","Please select a parent event category!");
+ 			frmvalidator.addValidation("EventDescription","req","'.$TEXT_VALIDATE_EVENT_NAME_CONST.'");
+			frmvalidator.addValidation("EventEventCategory","dontselect=0","'.$TEXT_VALIDATE_PARENT_EVENT_CONST.'");
 		</script>
 		';
 		
@@ -153,7 +158,7 @@ function editEvent($output,$dbADO) {
 		if($from=='editMasterDevice')		
 			$out.="
 				<script>
-					alert('Event modified!');
+					alert('$TEXT_EVENT_MODIFIED_CONST');
 				    opener.document.forms.{$from}.action.value='form';				
 					opener.document.forms.{$from}.lastAction.value='$lastAction';	
 					opener.document.forms.{$from}.submit();
@@ -163,7 +168,7 @@ function editEvent($output,$dbADO) {
 		else 
 			$out.="
 				<script>
-					alert('Event modified!');
+					alert('$TEXT_EVENT_MODIFIED_CONST');
 				    opener.document.forms.{$from}.action.value='form';				
 					opener.document.forms.{$from}.submit();
 					self.close();
@@ -180,7 +185,7 @@ function editEvent($output,$dbADO) {
 	}
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_EDIT_EVENT_CONST);			
 	$output->output();
 }
 ?>

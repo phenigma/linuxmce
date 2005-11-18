@@ -13,14 +13,14 @@ function deleteCommandFromMasterDevice($output,$dbADO) {
 			$query = $dbADO->Execute($deleteObjFromDevice,array($commandID,$commandGroupID));
 			$out.="
 			<script>
-				alert('Parameter deleted from this command!');
+				alert('$TEXT_PARAMETER_DELETED_CONST');
 			    opener.document.forms.{$from}.action.value='update';
 				opener.document.forms.{$from}.submit();
 				self.close();
 			</script>
 			";			
 		} else {
-			$out = 'Nothing to delete.&nbsp;<a href="javascript:window.close();">Close</a>';
+			$out = $TEXT_NOTHING_TO_DELETE_CONST.'&nbsp;<a href="javascript:window.close();">'.$TEXT_CLOSE_CONST.'</a>';
 		}		
 	
 	

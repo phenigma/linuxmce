@@ -1,5 +1,9 @@
 <?
 function dceEvents($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/dceEvents.lang.php');
+	
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	$out='';
@@ -19,15 +23,16 @@ function dceEvents($output,$dbADO) {
 			<form action="index.php" method="POST" name="dceEvents">
 			<input type="hidden" name="section" value="dceEvents">
 			<input type="hidden" name="action" value="update">
+		
 		<table cellpadding="3" align="center">
 			<tr>
-				<td colspan="4"><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createEventCategory&from=dceCommands\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');"><B>Add Event Category</B></a></td>
+				<td colspan="4"><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createEventCategory&from=dceCommands\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');"><B>'.$TEXT_ADD_EVENT_CATEGORY_CONST.'</B></a></td>
 			</tr>		
 			<tr bgcolor="lightblue">
-				<td align="center" width="120"><B>Event category</B></td>
+				<td align="center" width="120"><B>'.$TEXT_EVENT_CATEGORY_CONST.'</B></td>
 				<td align="center"><B>#</b></td>
-				<td align="center"><B>Event description</b></td>
-				<td align="center"><B>Used by</B></td>
+				<td align="center"><B>'.$TEXT_EVENT_DESCRIPTION_CONST.'</b></td>
+				<td align="center"><B>'.$TEXT_USED_BY_CONST.'</B></td>
 			</tr>';
 		$queryRootEC='
 			SELECT Description,PK_EventCategory

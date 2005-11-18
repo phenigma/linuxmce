@@ -1,5 +1,9 @@
 <?
 function dceDeviceData($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/dceDeviceData.lang.php');
+	
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	$out='';
@@ -20,11 +24,12 @@ function dceDeviceData($output,$dbADO) {
 			<form action="index.php" method="POST" name="dceDeviceData">
 			<input type="hidden" name="section" value="dceDeviceData">
 			<input type="hidden" name="action" value="update">
+		
 		<table cellpadding="3" align="center">
 			<tr bgcolor="lightblue">
-				<td><B>Description</B></td>
-				<td><B>Type</B></td>
-				<td><B>Used by</B></td>
+				<td><B>'.$TEXT_DESCRIPTION_CONST.'</B></td>
+				<td><B>'.$TEXT_TYPE_CONST.'</B></td>
+				<td><B>'.$TEXT_USED_BY_CONST.'</B></td>
 			</tr>';
 		$queryDD='
 			SELECT DeviceData.Description, ParameterType.Description AS Type, PK_DeviceData

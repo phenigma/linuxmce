@@ -1,6 +1,10 @@
 <?php
 function addCommandGroup($output,$dbADO) {
-	//$dbADO->debug=true;
+	// include language file
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/addCommandGroup.lang.php');
+	
+
 	$out='';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$from = isset($_REQUEST['from'])?cleanString($_REQUEST['from']):'';
@@ -26,13 +30,14 @@ function addCommandGroup($output,$dbADO) {
 		<input type="hidden" name="action" value="add">
 		<input type="hidden" name="deviceID" value="'.$deviceID.'">
 		<input type="hidden" name="from" value="'.$from.'">
+		
 			<table>			
 				<tr>
-					<td>Command group name:</td>
+					<td>'.$TEXT_COMMAND_GROUP_NAME_CONST.':</td>
 					<td><input type="text" size="15" name="CommandGroupDescription" value=""></td>
 				</tr>
 				<tr>
-					<td>Device Category:</td>
+					<td>'.$TEXT_DEVICE_CATEGORY_CONST.':</td>
 					<td>
 						<select name="deviceCategs" >
 						'.$deviceCategsTxt.'
@@ -40,14 +45,14 @@ function addCommandGroup($output,$dbADO) {
 					</td>
 				</tr>
 				<tr>
-					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"></td>
 				</tr>
 			</table>
 		</form>
 		<script>
 		 	var frmvalidator = new formValidator("addCommandGroup"); 			
-			frmvalidator.addValidation("CommandGroupDescription","req","Please enter a name for this Command group!");
-			frmvalidator.addValidation("deviceCategs","dontselect=0","Please select a device category!");
+			frmvalidator.addValidation("CommandGroupDescription","req","'.$TEXT_VALIDATE_COMMAND_GROUP_CONST.'");
+			frmvalidator.addValidation("deviceCategs","dontselect=0","'.$TEXT_VALIDATE_DEVICE_CATEGORY_CONST.'");
 		</script>
 		';
 		
@@ -65,7 +70,7 @@ function addCommandGroup($output,$dbADO) {
 			$insertID = $dbADO->Insert_ID();
 				$out.="
 				<script>
-					alert('Command group added!');
+					alert('$TEXT_COMMAND_GROUP_ADDED_CONST');
 				    opener.document.forms.{$from}.action.value='form';
 					opener.document.forms.{$from}.lastAction.value='DeviceCommandGroup_{$insertID}';
 					opener.document.forms.{$from}.submit();

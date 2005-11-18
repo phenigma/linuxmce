@@ -1,5 +1,9 @@
 <?php
 function editEventParameterFromEvent($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/editEventParameterFromEvent.lang.php');
+	
 	$out='';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$from = isset($_REQUEST['from'])?cleanString($_REQUEST['from']):'';
@@ -39,29 +43,30 @@ function editEventParameterFromEvent($output,$dbADO) {
 		<input type="hidden" name="action" value="add">
 		<input type="hidden" name="eventParameterID" value="'.$selectedEventParameter.'">
 		<input type="hidden" name="from" value="'.$from.'">
+		
 			<table>	
 				<tr>
 					<td>
-						Parameter Type:</td><td><select name="eventParameterType">'.$eventParametersTxt.'</select>							
+						'.$TEXT_PARAMETER_TYPE_CONST.':</td><td><select name="eventParameterType">'.$eventParametersTxt.'</select>							
 					</td>
 				</tr>		
 				<tr>
-					<td>Description:</td><td><input type="text" maxlength="50" name="eventParameterDescription" value="'.$eventParameter_Description.'"></td>
+					<td>'.$TEXT_DESCRIPTION_CONST.':</td><td><input type="text" maxlength="50" name="eventParameterDescription" value="'.$eventParameter_Description.'"></td>
 				</tr>		
 				<tr>
-					<td>Comments:</td><td><textarea name="eventParameterComments" cols="40" rows="4">'.$eventParameter_Comments.'</textarea></td>
+					<td>'.$TEXT_COMMENTS_CONST.':</td><td><textarea name="eventParameterComments" cols="40" rows="4">'.$eventParameter_Comments.'</textarea></td>
 				</tr>		
 				<tr>
 					<td colspan="2" align="center">						
-						<input type="submit" class="button" name="submitX" value="Save">
+						<input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'">
 					</td>
 				</tr>
 			</table>
 		</form>
 		<script>
 		 	var frmvalidator = new formValidator("editEventParameterFromEvent");			
- 			frmvalidator.addValidation("eventParameterDescription","req","Please enter a name for this Event Parameter !");
-			frmvalidator.addValidation("eventParameterType","dontselect=0","Please select a parameter type!");
+ 			frmvalidator.addValidation("eventParameterDescription","req","'.$TEXT_VALIDATION_PARAMETER_NAME_CONST.'");
+			frmvalidator.addValidation("eventParameterType","dontselect=0","'.$TEXT_VALIDATION_PARAMETER_TYPE_CONST.'");
 		</script>
 		';
 		
@@ -76,7 +81,7 @@ function editEventParameterFromEvent($output,$dbADO) {
 			$res=$dbADO->Execute($insertEvent,array($eventParameterDescription,$eventParameterComments,$parameterType,$selectedEventParameter));			
 			$out.="
 			<script>
-				alert('Event Parameter modified!');
+				alert('$TEXT_EVENT_PARAMETER_MODIFIED_CONST');
 			    opener.document.forms.{$from}.action.value='form';				
 				opener.document.forms.{$from}.submit();
 				self.close();

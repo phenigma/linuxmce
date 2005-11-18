@@ -37,7 +37,7 @@ function cellphoneNotifications($output,$dbADO) {
 				}
 			}
 			
-			$phonesPulldown=getAssocArray('Device_DeviceData','IK_DeviceData','Description',$dbADO,'INNER JOIN Device ON FK_Device=PK_Device WHERE FK_DeviceData='.$GLOBALS['MobileOrbiterPhone'],'ORDER BY Description ASC');
+			$phonesPulldown=getAssocArray('Device_DeviceData','IK_DeviceData','Description',$dbADO,'INNER JOIN Device ON FK_Device=PK_Device WHERE FK_DeviceData='.$GLOBALS['MobileOrbiterPhone'].' AND FK_Installation='.$installationID,'ORDER BY Description ASC');
 		$out.='
 			Call Order: 
 			<select name="mon_sequence" onchange="form_change()">
@@ -125,9 +125,9 @@ function cellphoneNotifications($output,$dbADO) {
 		$out.='
 		</table>
 		<div align="center">
-			<h3>Neighbors to Call</h3>
-			<p>List your neighbors and their phone numbers here.  If there is a problem at your house, you can hit the "notify neighbors" option and Pluto
-			will make a call to all these neighbors simulataneously, alert them of the problem, and patch everyone together so you can talk to them.</p>
+			<h3>Neighbours to Call</h3>
+			<p>List your neighbours and their phone numbers here.  If there is a problem at your house, you can hit the "notify neighbours" option and Pluto
+			will make a call to all these neighbors simultaneously, alert them of the problem, and patch everyone together so you can talk to them.</p>
 		</div>
 		<table align="center" cellpadding="5" cellspacing="0" border="0">
 			<tr bgcolor="lightblue">

@@ -1,6 +1,9 @@
 <?php
 function deleteParameterFromCommand($output,$dbADO) {
-	//$dbADO->debug=true;
+	// include language file
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/deleteParameterFromCommand.lang.php');
+
 	$out='';
 	
 	$from = isset($_REQUEST['from'])?cleanString($_REQUEST['from']):'';		
@@ -12,7 +15,7 @@ function deleteParameterFromCommand($output,$dbADO) {
 			$query = $dbADO->Execute($deleteObjFromDevice,array($commandID,$commandParameterID));
 			$out.="
 			<script>
-				alert('Parameter deleted from this command!');
+				alert('$TEXT_PARAMETER_DELETED_FROM_COMMAND_CONST');
 			    opener.document.forms.{$from}.action.value='update';
 				opener.document.forms.{$from}.lastAction = 'addNewParameterToCommand';
 				opener.document.forms.{$from}.submit();
@@ -20,7 +23,7 @@ function deleteParameterFromCommand($output,$dbADO) {
 			</script>
 			";			
 		} else {
-			$out = 'Nothing to delete.&nbsp;<a href="javascript:window.close();">Close</a>';
+			$out = $TEXT_NOTHING_TO_DELETE_CONST.'&nbsp;<a href="javascript:window.close();">'.$TEXT_CLOSE_CONST.'</a>';
 		}		
 	
 	

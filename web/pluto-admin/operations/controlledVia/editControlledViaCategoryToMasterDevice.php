@@ -1,5 +1,9 @@
 <?php
 function editControlledViaCategoryToMasterDevice($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/editControlledViaCategoryToMasterDevice.lang.php');
+		
 	//$dbADO->debug=true;
 	$out='';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
@@ -48,12 +52,13 @@ function editControlledViaCategoryToMasterDevice($output,$dbADO) {
 		<input type="hidden" name="deviceID" value="'.$deviceID.'">
 		<input type="hidden" name="objID" value="'.$objID.'">
 		<input type="hidden" name="from" value="'.$from.'">
+		
 			<table>			
 				<tr>
-					<td>Controlled via:</td>
+					<td>'.$TEXT_CONTROLLED_VIA_CONST.':</td>
 					<td>
 						<select name="controlledVia">
-						<option value="0">-please select-</option>
+						<option value="0">-'.$TEXT_PLEASE_SELECT_CONST.'-</option>
 						';
 		
 						
@@ -71,20 +76,20 @@ function editControlledViaCategoryToMasterDevice($output,$dbADO) {
 					</td>
 				</tr>
 				<tr>
-					<td>Reroute Messages To Parent :</td>
+					<td>'.$TEXT_REROUTE_MESSAGES_TO_PARENT_CONST.':</td>
 					<td>
 						<input name="RerouteMessagesToParent" value="1" type="checkbox" '.($reroute==1?' checked ':'').'>
 					</td>
 				</tr>
 				<tr>
-					<td>Auto Create Children:</td>
+					<td>'.$TEXT_AUTO_CREATE_CHILDREN_CONST.':</td>
 					<td>
 						<input name="AutoCreateChildren" value="1" type="checkbox" '.($autocreate==1?' checked ':'').'>
 					</td>
 				</tr>
 				<tr>					
 					<td colspan="2">
-						<h2>Pipes Used</h2>
+						<h2>'.$TEXT_PIPES_USED_CONST.'</h2>
 							<table>
 								<tr>
 									<td>
@@ -158,25 +163,25 @@ function editControlledViaCategoryToMasterDevice($output,$dbADO) {
 				</tr>';
 												
 		$out.='	<tr>
-					<td colspan="2" align="center">New pipe <select name="newPipe">
-						<option value="0">-please select-</option>';
+					<td colspan="2" align="center">'.$TEXT_NEW_PIPE_CONST.' <select name="newPipe">
+						<option value="0">-'.$TEXT_PLEASE_SELECT_CONST.'-</option>';
 		$resSelectPipes->MoveFirst();			
 		while ($rowSelPipes = $resSelectPipes->FetchRow()) {
 			if(!in_array($rowSelPipes['PK_Pipe'],$displayedPipes))
 				$out.= '<option value="'.$rowSelPipes['PK_Pipe'].'">'.$rowSelPipes['Description'].'</option>';
 		}
 
-		$out.='		</select> <input type="submit" class="button" name="addPipe" value="Add">
+		$out.='		</select> <input type="submit" class="button" name="addPipe" value="'.$TEXT_ADD_CONST.'">
 					</td>
 				</tr>
 				<tr>
-					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"></td>
 				</tr>
 			</table>
 		</form>
 		<script>
 		 	var frmvalidator = new formValidator("editControlledViaCategoryToMasterDevice");
- 			frmvalidator.addValidation("controlledVia","dontselect=0","Please select a device");			
+ 			frmvalidator.addValidation("controlledVia","dontselect=0","'.$TEXT_PLEASE_SELECT_A_DEVICE_CONST.'");			
 		</script>
 		';
 		
@@ -196,18 +201,6 @@ function editControlledViaCategoryToMasterDevice($output,$dbADO) {
 			exit();
 		}
 		
-		/*
-		if ($autocreate==1) {
-				$checkIfIsAPipeAlready = "SELECT FK_DeviceTemplate_DeviceCategory_ControlledVia FROM DeviceTemplate_DeviceCategory_ControlledVia_Pipe  where FK_DeviceTemplate_DeviceCategory_ControlledVia = ?";
-				$query = $dbADO->Execute($checkIfIsAPipeAlready,array($objID));
-				if ($query && $query->RecordCount()==0) {									
-					$insertPipe = "INSERT INTO DeviceTemplate_DeviceCategory_ControlledVia_Pipe (FK_DeviceTemplate_DeviceCategory_ControlledVia) values (?)";
-					$query = $dbADO->Execute($insertPipe,array($objID));				
-					header("Location: index.php?section=editControlledViaCategoryToMasterDevice&from=$from&objID=$objID");
-					exit();
-				}
-		}
-		*/
 		
 		$selectPipesUsed = 'SELECT DeviceTemplate_DeviceCategory_ControlledVia_Pipe.*,
 														DT.Description as Desc_From,

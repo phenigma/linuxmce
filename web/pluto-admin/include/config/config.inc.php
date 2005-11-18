@@ -2,6 +2,9 @@
   	//debuging
   	$GLOBALS['inDebug']=0;
   	
+  	// todo: set lang when translation is finished
+  	$GLOBALS['lang']='en';
+  	
   	if($GLOBALS['inDebug']!=1){
   		// production settings
   		error_reporting(E_ALL ^ E_NOTICE);

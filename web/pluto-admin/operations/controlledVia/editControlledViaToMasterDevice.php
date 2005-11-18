@@ -1,5 +1,9 @@
 <?php
 function editControlledViaToMasterDevice($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/editControlledViaToMasterDevice.lang.php');
+	
 	//$dbADO->debug=true;
 	$out='';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
@@ -38,14 +42,6 @@ function editControlledViaToMasterDevice($output,$dbADO) {
 		}
 		$rs->Close();
 		
-		/*$querySelectRemainingControlledViaForDevice = "
-							select  PK_DeviceTemplate,Description from DeviceTemplate 
-							where PK_DeviceTemplate NOT IN (".join(",",$alreadySelectedControlledVia).")";
-						$rs = $dbADO->_Execute($querySelectRemainingControlledViaForDevice);
-						while ($row = $rs->FetchRow()) {
-								$out.='<option '.($row['PK_DeviceTemplate']==$controlledVia?' selected ':'').' value="'.$row['PK_DeviceTemplate'].'">'.$row['Description'].'</option>';
-						}
-		$rs->Close();*/
 		
 		/* @var $dbADO ADOConnection */
 		/* @var $rs ADORecordSet */
@@ -63,9 +59,10 @@ function editControlledViaToMasterDevice($output,$dbADO) {
 		<input type="hidden" name="objID" value="'.$objID.'">
 		'.(@(int)$_SESSION['editControlledViaToMasterDevice']['deviceTemplateID']!=0?'<input type="hidden" name="controlledVia" value="'.$_SESSION['editControlledViaToMasterDevice']['deviceTemplateID'].'">':'').'
 		<input type="hidden" name="from" value="'.$from.'">
+		
 			<table>			
 				<tr>
-					<td>Controlled via:</td>
+					<td>'.$TEXT_CONTROLLED_VIA_CONST.':</td>
 					<td>
 						'.(@(int)$_SESSION['editControlledViaToMasterDevice']['deviceTemplateID']!=0
 								?'You have selected : <b>'.$_SESSION['editControlledViaToMasterDevice']['deviceTemplateName'].'</b>&nbsp;&nbsp;'
@@ -79,20 +76,20 @@ function editControlledViaToMasterDevice($output,$dbADO) {
 					</td>
 				</tr>				
 				<tr>
-					<td>Reroute Messages To Parent :</td>
+					<td>'.$TEXT_REROUTE_MESSAGES_TO_PARENT_CONST.':</td>
 					<td>
 						<input name="RerouteMessagesToParent" value="1" type="checkbox" '.($reroute==1?' checked ':'').'>
 					</td>
 				</tr>
 				<tr>
-					<td>Auto Create Children:</td>
+					<td>'.$TEXT_AUTO_CREATE_CHILDREN_CONST.':</td>
 					<td>
 						<input name="AutoCreateChildren" value="1" type="checkbox" '.($autocreate==1?' checked ':'').'>
 					</td>
 				</tr>
 				<tr>					
 					<td colspan="2">
-						<h2>Pipes Used</h2>
+						<h2>'.$TEXT_PIPES_USED_CONST.'</h2>
 							<table>
 								<tr>
 									<td>
@@ -165,26 +162,26 @@ function editControlledViaToMasterDevice($output,$dbADO) {
 				</tr>';
 												
 			$out.='	<tr>
-					<td colspan="2" align="center">New pipe <select name="newPipe">
-						<option value="0">-please select-</option>';
+					<td colspan="2" align="center">'.$TEXT_NEW_PIPE_CONST.' <select name="newPipe">
+						<option value="0">-'.$TEXT_PLEASE_SELECT_CONST.'-</option>';
 		$resSelectPipes->MoveFirst();			
 		while ($rowSelPipes = $resSelectPipes->FetchRow()) {
 			if(!in_array($rowSelPipes['PK_Pipe'],$displayedPipes))
 				$out.= '<option value="'.$rowSelPipes['PK_Pipe'].'">'.$rowSelPipes['Description'].'</option>';
 		}
 
-		$out.='		</select> <input type="submit" class="button" name="addPipe" value="Add">
+		$out.='		</select> <input type="submit" class="button" name="addPipe" value="'.$TEXT_ADD_CONST.'">
 					</td>
 				</tr>';
 								
 				$out.='<tr>
-							<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"></td>
+							<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"></td>
 				</tr>
 			</table>
 		</form>
 		<script>
 		 	var frmvalidator = new formValidator("editControlledViaToMasterDevice");
- 			//frmvalidator.addValidation("controlledVia","dontselect=0","Please select a device"); 						
+ 			//frmvalidator.addValidation("controlledVia","dontselect=0","'.$TEXT_PLEASE_SELECT_A_DEVICE_CONST.'"); 						
 		</script>
 		';
 		

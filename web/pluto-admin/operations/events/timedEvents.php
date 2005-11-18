@@ -1,5 +1,9 @@
 <?php
 function timedEvents($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/timedEvents.lang.php');
+	
 	/* @var $dbADO ADOConnection */
 	$out='';
 	$installationID = (int)@$_SESSION['installationID'];
@@ -36,7 +40,7 @@ function timedEvents($output,$dbADO) {
 			$deleteEventHandler='DELETE FROM EventHandler WHERE PK_EventHandler=?';
 			$dbADO->Execute($deleteEventHandler,$eventHandlerID);
 			
-			$_REQUEST['msg']='The event handler was deleted.';
+			$_REQUEST['msg']=$TEXT_DELETE_EVENT_NOTIFICATION_CONST;
 		}
 	}
 	if ($action=='form') {
@@ -47,10 +51,11 @@ function timedEvents($output,$dbADO) {
 		<form action="index.php" method="post" name="timedEvents">
 		<input type="hidden" name="section" value="timedEvents">
 		<input type="hidden" name="action" value="add">
-		<div align="center"><h3>Timed Events</h3></div>
+		
+		<div align="center"><h3>'.$TEXT_TIMED_EVENTS_CONST.'</h3></div>
 		<table border="0" align="center" cellpading="3">
 			<tr bgcolor="lightblue">
-				<td align="center"><B>Description</B></td>
+				<td align="center"><B>'.$TEXT_DESCRIPTION_CONST.'</B></td>
 				<td align="center">&nbsp;</td>
 			</tr>
 		';
@@ -62,7 +67,7 @@ function timedEvents($output,$dbADO) {
 		if($resEvents->RecordCount()==0){
 			$out.='
 				<tr>
-					<td colspan="3">No records.</td>
+					<td colspan="3">'.$TEXT_NO_RECORDS_CONST.'</td>
 				</tr>';
 		}
 		$lineCount=0;
@@ -72,9 +77,9 @@ function timedEvents($output,$dbADO) {
 				<tr bgcolor="'.(($lineCount%2==0)?'#E7E7E7':'#FFFFFF').'">
 					<td align="center">'.$rowEvents['Description'].'</td>
 					<td align="center">
-						<a href="index.php?section=advancedEvents&highligh='.$rowEvents['PK_EventHandler'].'">Advanced</a>
-						<a href="index.php?section=editTimedEvent&ehID='.$rowEvents['PK_EventHandler'].'">Edit</a>
-						<a href="#" onClick="if(confirm(\'Are you sure you want to delete the event?\'))self.location=\'index.php?section=timedEvents&dID='.$rowEvents['PK_EventHandler'].'\'">Delete</a></td>
+						<a href="index.php?section=advancedEvents&highligh='.$rowEvents['PK_EventHandler'].'">'.$TEXT_ADVANCED_CONST.'</a>
+						<a href="index.php?section=editTimedEvent&ehID='.$rowEvents['PK_EventHandler'].'">'.$TEXT_EDIT_CONST.'</a>
+						<a href="#" onClick="if(confirm(\'Are you sure you want to delete the event?\'))self.location=\'index.php?section=timedEvents&dID='.$rowEvents['PK_EventHandler'].'\'">'.$TEXT_DELETE_CONST.'</a></td>
 				</tr>';
 		}
 		$out.='
@@ -82,24 +87,24 @@ function timedEvents($output,$dbADO) {
 				<td colspan="3">&nbsp;</td>
 			</tr>
 			<tr>
-				<td><B>New timed event description</B>:</td>
+				<td><B>'.$TEXT_NEW_TIMED_EVENT_DESCRIPTION_CONST.'</B>:</td>
 				<td colspan="2"><input type="text" name="Description" value=""></td>
 			</tr>	
 			<tr>
-				<td><input type="radio" name="timedEventType" value="1" checked> <B>Interval based:</B></td>
-				<td colspan="2">Do something every x minutes, or every other hour</td>
+				<td><input type="radio" name="timedEventType" value="1" checked> <B>'.$TEXT_INTERVAL_BASED_CONST.':</B></td>
+				<td colspan="2">'.$TEXT_INTERVAL_BASED_TEXT_CONST.'</td>
 			</tr>	
 			<tr>
-				<td><input type="radio" name="timedEventType" value="2"> <B>Day of week based:</B></td>
-				<td colspan="2">Do something at 7:00 and 9:00 on Monday, Wednesday and Friday</td>
+				<td><input type="radio" name="timedEventType" value="2"> <B>'.$TEXT_DAY_OF_WEEK_BASED_CONST.':</B></td>
+				<td colspan="2">'.$TEXT_DAY_OF_WEEK_BASED_TEXT_CONST.'</td>
 			</tr>		
 			<tr>
-				<td><input type="radio" name="timedEventType" value="3"> <B>Day of month based:</B></td>
-				<td colspan="2">Do something at 8:00 on the 1st and 15th of each month</td>
+				<td><input type="radio" name="timedEventType" value="3"> <B>'.$TEXT_DAY_OF_MONTH_BASED_CONST.':</B></td>
+				<td colspan="2">'.$TEXT_DAY_OF_MONTH_BASED_TEXT_CONST.'</td>
 			</tr>		
 			<tr>
-				<td><input type="radio" name="timedEventType" value="4"> <B>Absolute:</B></td>
-				<td colspan="2">Do something on 5 Mar 2005 at 11:15</td>
+				<td><input type="radio" name="timedEventType" value="4"> <B>'.$TEXT_ABSOLUTE_CONST.':</B></td>
+				<td colspan="2">'.$TEXT_ABSOLUTE_TEXT_CONST.'</td>
 			</tr>
 			<tr>
 				<td colspan="3" align="center"><input type="submit" class="button" name="continue" value="Add"></td>
@@ -109,14 +114,14 @@ function timedEvents($output,$dbADO) {
 		</form>
 		<script>
 		 	var frmvalidator = new formValidator("timedEvents");			
- 			frmvalidator.addValidation("Description","req","Please enter the description!");
+ 			frmvalidator.addValidation("Description","req","'.$TEXT_VALIDATION_DESCRIPTION_CONST.'");
 		</script>		
 		';
 		
 	} else {
 		// processing area
 		if(!$canModifyInstallation){
-			header("Location: index.php?section=eventHandler&error=You are not authorised to modify installation.");
+			header("Location: index.php?section=eventHandler&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit();
 		}
 
@@ -149,7 +154,7 @@ function timedEvents($output,$dbADO) {
 	}
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Timed Events');			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_TIMED_EVENTS_CONST);			
 	$output->output();
 }
 ?>

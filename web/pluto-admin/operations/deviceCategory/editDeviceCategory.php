@@ -1,5 +1,9 @@
 <?
 function editDeviceCategory($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/editDeviceCategory.lang.php');
+	
 /* @var $dbADO ADOConnection */
 /* @var $rs ADORecordSet */
 $out='';
@@ -36,11 +40,12 @@ $modelSelected = (int)$_REQUEST['model'];
 	<input type="hidden" name="manufacturers" value="'.$manufacturerID.'">
 	<input type="hidden" name="deviceCategSelected" value="'.$deviceCategSelected.'">
 	<input type="hidden" name="model" value="'.$modelSelected.'">
+	
 	<table>
-	<tr><td>Description:</td><td><input type="text" name="DeviceCategoryDescription" value="'.$description.'" size="40"></td></tr>
-	<tr><td>Parent:</td><td>
+	<tr><td>'.$TEXT_DESCRIPTION_CONST.':</td><td><input type="text" name="DeviceCategoryDescription" value="'.$description.'" size="40"></td></tr>
+	<tr><td>'.$TEXT_PARENT_CONST.':</td><td>
 	<select name="parentID">
-		<option value="0">-Is A Top Level Category-</option>
+		<option value="0">-'.$TEXT_IS_A_TOP_LEVEL_CATEGORY_CONST.'-</option>
 	';
 	
 	$queryMasterDeviceCategories_parents = 'select PK_DeviceCategory,Description from DeviceCategory where FK_Devicecategory_Parent is null and PK_DeviceCategory not in ('.$deviceSelected.') order by Description asc';
@@ -54,18 +59,18 @@ $modelSelected = (int)$_REQUEST['model'];
 					</td>
 				</tr>
 				<tr>
-					<td>Is Audio/Video:</td>
-					<td>Yes:<input type="radio" value="1" name="IsAV" '.($isAV==1?' checked="checked" ':'').'> &nbsp; 
-						No:<input type="radio" value="0" name="IsAV" '.($isAV==0?' checked="checked" ':'').'></td>
+					<td>'.$TEXT_IS_AUDIO_VIDEO_CONST.':</td>
+					<td>'.$TEXT_YES_CONST.':<input type="radio" value="1" name="IsAV" '.($isAV==1?' checked="checked" ':'').'> &nbsp; 
+						'.$TEXT_NO_CONST.':<input type="radio" value="0" name="IsAV" '.($isAV==0?' checked="checked" ':'').'></td>
 				</tr>
 				<tr>
-					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"></td>
 				</tr>
 	</table>
 	</form>
 	<script>
 		 	var frmvalidator = new formValidator("editDeviceCategory");
- 			frmvalidator.addValidation("DeviceCategoryDescription","req","Please enter a description");			
+ 			frmvalidator.addValidation("DeviceCategoryDescription","req","'.$TEXT_PLEASE_ENTER_A_DESCRIPTION_CONST.'");			
 		</script>
 	</table>
 	';
@@ -85,7 +90,7 @@ $modelSelected = (int)$_REQUEST['model'];
 			$dbADO->Execute($query,array($description,$isAV));
 			$out.="
 				<script>
-						alert('Device Category Modified!');					
+						alert('$TEXT_DEVICE_CATEGORY_MODIFIED_CONST');					
 					    opener.document.forms.{$from}.actionX.value='form';
 						opener.document.forms.{$from}.submit();
 						self.close();
@@ -98,7 +103,7 @@ $modelSelected = (int)$_REQUEST['model'];
 	}
 				
 $output->setBody($out);
-$output->setTitle(APPLICATION_NAME.' :: Edit Device Category');			
+$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_EDIT_DEVICE_CATEGORY_CONST);			
 $output->output();  		
 }
 

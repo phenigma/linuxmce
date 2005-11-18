@@ -234,25 +234,6 @@ $out='';
 					<td><textarea name="comments" rows="2" style="width:500;">'.$comments.'</textarea></td>
 				</tr>	
 				<tr>
-					<td valign="top">Contact</td>
-					<td>';
-					$selectUserDetails = "select * from Users where PK_Users = ?";
-					$res = $dbADO->Execute($selectUserDetails,array($userID));
-					if ($res) {
-						$row=$res->FetchRow();
-						$fName = stripslashes($row['FirstName']);
-						$lName = stripslashes($row['LastName']);
-						$mail = stripslashes(@$row['ForwardEmail']);
-						$mail=str_replace(array(".","@"),array(" dot ", " at "),$mail); 
-					}
-					$out.='
-					<a href="#">'.$fName.' '.$lName.' '.$mail.'</a>
-					</td>
-				</tr>
-		
-				
-					
-				<tr>
 					<td valign="top" colspan="2"><a name="deviceData_link"></a>				
 						<fieldset>
 		            		<legend>Device Data</legend>

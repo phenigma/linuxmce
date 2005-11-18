@@ -1,5 +1,9 @@
 <?php
 function createEvent($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/createEvent.lang.php');
+	
 	$out='';
 	$action = isset($_POST['action'])?cleanString($_POST['action']):'form';
 	$from = isset($_REQUEST['from'])?cleanString($_REQUEST['from']):'';
@@ -26,23 +30,24 @@ function createEvent($output,$dbADO) {
 		<input type="hidden" name="section" value="createEvent">
 		<input type="hidden" name="action" value="add">
 		<input type="hidden" name="from" value="'.$from.'">
+		
 			<table>	
 				<tr>
-					<td>Event List Category:</td><td><select name="EventCategory">'.$EventCategoryTxt.'</select></td>
+					<td>'.$TEXT_EVENT_LIST_CATEGORY_CONST.':</td><td><select name="EventCategory">'.$EventCategoryTxt.'</select></td>
 				</tr>		
 				<tr>
-					<td>Description:</td><td><input type="text" maxlength="50" name="EventDescription" value=""></td>
+					<td>'.$TEXT_DESCRIPTION_CONST.':</td><td><input type="text" maxlength="50" name="EventDescription" value=""></td>
 				</tr>				
 				<tr>
-					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"></td>
 				</tr>
 			</table>
 		</form>
-		<br />If the events list category is not in the list, <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createEventCategory&from=createEvent\',\'status=1,resizable=1,width=500,height=250,toolbars=true\');">click here to create an Event List Category</a>
+		<br />'.$TEXT_IF_EVENT_CATEGORY_IS_NOT_IN_THE_LIST_CONST.', <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createEventCategory&from=createEvent\',\'status=1,resizable=1,width=500,height=250,toolbars=true\');">'.$TEXT_CLICK_HERE_TO_CREATE_AN_EVENT_LIST_CATEGORY_CONST.'</a>
 		<script>
 		 	var frmvalidator = new formValidator("createEvent");
-			frmvalidator.addValidation("EventCategory","dontselect=0","Please select a category!");
- 			frmvalidator.addValidation("EventDescription","req","Please enter a name for this Event List!");
+			frmvalidator.addValidation("EventCategory","dontselect=0","'.$TEXT_PLEASE_SELECT_A_CATEGORY_CONST.'");
+ 			frmvalidator.addValidation("EventDescription","req","'.$TEXT_VALIDATE_EVENT_NAME_CONST.'");
 		</script>
 		';
 		
@@ -55,7 +60,7 @@ function createEvent($output,$dbADO) {
 			$query = $dbADO->Execute($insertEvent,array($EventDescription,$category));
 			$out.="
 			<script>
-				alert('Event List added!');
+				alert('$TEXT_EVENT_LIST_ADDED_CONST');
 			    opener.document.forms.{$from}.action.value='form';
 				opener.document.forms.{$from}.lastAction.value='newEventToMasterDevice';//
 				opener.document.forms.{$from}.submit();

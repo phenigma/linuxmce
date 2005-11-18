@@ -1,0 +1,209 @@
+<?
+function proxySocket($output,$dbADO){
+	if(!isset($_REQUEST['address']) && !isset($_REQUEST['port'])){
+		$ProxyOrbiterInfo=getFieldsAsArray('Device','IPAddress,DD1.IK_DeviceData AS PhoneIP,DD2.IK_DeviceData AS Port',$dbADO,'INNER JOIN Device_DeviceData DD1 ON DD1.FK_Device=PK_Device AND DD1.FK_DeviceData='.$GLOBALS['RemotePhoneIP'].' INNER JOIN Device_DeviceData DD2 ON DD2.FK_Device=PK_Device AND DD2.FK_DeviceData='.$GLOBALS['ListenPort'].' WHERE DD1.IK_DeviceData=\''.$_SERVER['REMOTE_ADDR'].'\' AND FK_DeviceTemplate='.$GLOBALS['ProxyOrbiter']);
+		if(count($ProxyOrbiterInfo)!=0){
+			$address=$ProxyOrbiterInfo['IPAddress'][0];
+			$port=$ProxyOrbiterInfo['Port'][0];
+		}else{
+			write_log("\n\nOrbiter proxy not found for phone IP".$_SERVER['REMOTE_ADDR']."\n");
+			return 'Orbiter proxy not found.';
+		}
+
+	}else{
+		$address=@$_REQUEST['address'];
+		$port=@$_REQUEST['port'];
+	}
+	$refresh=@$_REQUEST['refresh'];
+	$command=$_REQUEST['command'];
+
+	$out=$command.'<br>';
+		
+	/* Create a TCP/IP socket. */
+
+	write_log("\n".date('d-m-Y H:i:s')."\nAttempting to create socket on host $address port $port ... ");
+	$socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+	if ($socket === false) {
+		write_log("socket_create() failed: reason: " . socket_strerror($socket) . "\n");
+	} else {
+		write_log("OK.\n");
+	}
+
+	$result = @socket_connect($socket, $address, $port);
+
+	if ($result !==true) {
+		write_log("socket_connect() failed.\nReason: (".socket_last_error().") " . socket_strerror(socket_last_error()) . "\n");
+	} else {
+		write_log("OK.\n");
+	}
+
+	write_log("Received parameters ".$_SERVER['QUERY_STRING']."\n");
+	
+	// get image
+	if($command=='IMAGE'){
+		getImage($socket);
+	}
+	
+	// send touch command
+	if(strpos($command,'TOUCH')!==false){
+		$out.=sendCommand($socket,$command,$refresh);
+	}
+	
+	// send XML command
+	if(strpos($command,'XML')!==false){
+		
+		$x=(int)@$_REQUEST['x'];
+		$y=(int)@$_REQUEST['y'];
+		if($x!=0 && $y!=0){
+			$out.=sendCommand($socket,'TOUCH '.$x.'x'.$y,$refresh);
+		}else{
+			$key=@$_REQUEST['key'];
+			if($key==''){
+				getImage($socket);
+			}else{
+				$out.=sendCommand($socket,'PLUTO_KEY '.$key,$refresh);
+			}
+		}
+		$XML=getXML($socket);
+		socket_close($socket);
+		$refreshURL="http://".$_SERVER['SERVER_ADDR']."/pluto-admin/index.php?section=proxySocket&address=$address&port=$port&command=XML";
+		
+		Header("Refresh: 5; url=$refreshURL");
+		Header("Content-type: text/xml"); 
+		write_log( "Redirecting to $refreshURL\n");
+		die($XML);
+	}	
+	
+	
+	write_log("Closing socket ... ");
+	@socket_close($socket);
+	write_log( "OK.\n");
+	
+
+	$output->setBody($out);
+	$output->setTitle(APPLICATION_NAME);			
+	$output->output();  
+}
+
+function getImage($socket,$refresh=''){
+	$in = "IMAGE ".rand(10000,11000)."\n";
+	$out='';
+
+	write_log("Sending command $in");
+	$written=@socket_write($socket, $in, strlen($in));
+	if($written===false){
+		write_log("Failure: ".socket_strerror(socket_last_error($socket))."\n");
+	}
+
+	$outResponse= @socket_read($socket, 2048,PHP_NORMAL_READ);
+	if($outResponse===false){
+		write_log("Failed reading socket: ".socket_strerror(socket_last_error($socket))."\n");
+	}else{
+		write_log("Read: ".$outResponse."\n");
+	}
+
+	$imageSize=(int)trim(str_replace('IMAGE ','',$outResponse));
+	if($imageSize>0){
+		$remaining=$imageSize;
+		$outImage='';
+		while($remaining>0){
+			$linesize=($remaining<2048)?$remaining:2048;
+			$chunk=@socket_read($socket, $linesize,PHP_BINARY_READ);
+			$outImage.= $chunk;
+			$remaining-=strlen($chunk);
+			write_log("Retrieved image chunk ".strlen($chunk).", remaining $remaining \n");
+		}
+		
+		if(isset($outImage)){
+			$isSaved=writeFile(getcwd().'/security_images/orbiter_screen.png',$outImage);
+			write_log("Received image size $imageSize \n");
+			
+			if($refresh!=''){
+				$out.=reloadImageJS();
+			}
+		}
+	}
+
+	
+	return $out;
+}
+
+function getXML($socket){
+	$in = "XML ".rand(10000,11000)."\n";
+	$out='';
+	
+	write_log("Sending command $in");
+	$written=@socket_write($socket, $in, strlen($in));
+	if($written===false){
+		write_log("Failure: ".socket_strerror(socket_last_error($socket))."\n");
+	}
+
+	$outResponse= @socket_read($socket, 2048,PHP_NORMAL_READ);
+	if($outResponse===false){
+		write_log("Failed reading socket: ".socket_strerror(socket_last_error($socket))."\n");
+	}
+
+	$xmlSize=(int)trim(str_replace('XML ','',$outResponse));
+	if($xmlSize>0){
+		$remaining=$xmlSize;
+		$outXML='';
+		while($remaining>0){
+			$linesize=($remaining<2048)?$remaining:2048;
+			$chunk=@socket_read($socket, $linesize,PHP_BINARY_READ);
+			$outXML.= $chunk;
+			$remaining-=strlen($chunk);
+			write_log("Retrieved xml chunk ".strlen($chunk).", remaining $remaining \n");
+		}
+		
+		if(isset($outXML)){
+			write_log("Received xml size $xmlSize \n");
+		}
+	}
+	$out.=@$outXML;
+	
+	
+	return $out;
+}
+
+
+
+function sendCommand($socket,$command,$refresh){
+	$in = $command."\n";
+
+	$out='';
+
+	write_log("Sending command $in");
+	$written=@socket_write($socket, $in, strlen($in));
+	if($written===false){
+		write_log("Failure: ".socket_strerror(socket_last_error($socket))."\n");
+	}
+	
+	$outResponse= socket_read($socket, 2048,PHP_NORMAL_READ);
+	if($outResponse===false){
+		write_log("Failed reading socket: ".socket_strerror(socket_last_error($socket))."\n");
+	}else{
+		write_log($outResponse);
+	}
+	$out.=$outResponse;
+
+	$out.=getImage($socket,$refresh);
+	
+	return $out;
+}
+
+// reload the image "screen" from parent
+function reloadImageJS(){
+	$js='
+		<script>
+			parent.document.getElementById("screen").src="rooms/spacer.gif";
+			parent.document.getElementById("screen").src="include/image.php?imagepath='.getcwd().'/security_images/orbiter_screen.png&randno='.rand(0,10000).'";
+		</script>
+	';
+	
+	return $js;
+}
+
+function write_log($log){
+	writeFile(getcwd().'/security_images/socket.log',$log,'a+');
+}
+?>

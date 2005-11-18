@@ -1,6 +1,9 @@
 <?php
 function editCommand($output,$dbADO) {
-	//$dbADO->debug=true;
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/editCommand.lang.php');
+	
 	$out='';
 	$lastAction = isset($_REQUEST['lastAction'])?cleanString($_REQUEST['lastAction']):'';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
@@ -57,13 +60,14 @@ function editCommand($output,$dbADO) {
 		<input type="hidden" name="action" value="add">
 		<input type="hidden" name="commandID" value="'.$commandID.'">
 		<input type="hidden" name="from" value="'.$from.'">
+		
 			<table>			
 				<tr>
-					<td>Command:</td>
+					<td>'.$TEXT_COMMAND_CONST.':</td>
 					<td><input type="text" size="25" name="commandDescription" value="'.stripslashes($commandDescription).'"></td>
 				</tr>
 				<tr>
-					<td>Command Category:</td>
+					<td>'.$TEXT_COMMAND_CATEGORY_CONST.':</td>
 					<td>
 						<select name="commandCategs" >
 						'.$commandsCategsTxt.'
@@ -72,7 +76,7 @@ function editCommand($output,$dbADO) {
 				</tr>
 				<tr><td colspan="2">
 				<fieldset>
-					<legend>Parameters</legend>
+					<legend>'.$TEXT_PARAMETERS_CONST.'</legend>
 					<table>
 							';
 		$queryGetParams = "select Command_CommandParameter.FK_CommandParameter as PK_CP,IsOut,
@@ -93,7 +97,7 @@ function editCommand($output,$dbADO) {
 				while ($row=$res->FetchRow()) {
 					$out.="<tr ".(strlen(trim($row['CCP_Desc']))==0?" bgColor='lightgreen' ":" ")." ><td valign='top'>#{$row['PK_CP']}</td><td>{$row['CP_Desc']} ({$row['PT_Desc']})</td><td><textarea cols='40' rows='3' name='Command_ParameterCommand_{$row['PK_CP']}'>{$row['CCP_Desc']}</textarea></td><td nowrap align='center'><b>Is out</b><br />&nbsp; Yes <input type='radio' name='IsOut_{$row['PK_CP']}' value='1' ".($row['IsOut']==1?" checked='checked' ":'').">  &nbsp; No <input type='radio' name='IsOut_{$row['PK_CP']}' value='0' ".($row['IsOut']==0?" checked='checked' ":'')."></td><td><a href='javascript:void(0);' onClick=\"windowOpen('index.php?section=deleteParameterFromCommand&from=editCommand&commandParameterID={$row['PK_CP']}&commandID=$commandID','width=100,height=100,toolbars=false,resizable=0,scrollbars=0');\">Delete</a> <a href='javascript:void(0);' onClick=\"windowOpen('index.php?section=editParameterFromCommand&from=editCommand&commandParameterID={$row['PK_CP']}&commandID=$commandID','width=400,height=400,toolbars=false,resizable=0,scrollbars=0');\">Edit</a> </td></tr>";
 					$jsValidationForCommandParameterDescription.="
-						frmvalidator.addValidation(\"Command_ParameterCommand_{$row['PK_CP']}\",\"req\",\"Please enter a description!\");
+						frmvalidator.addValidation(\"Command_ParameterCommand_{$row['PK_CP']}\",\"req\",\"$TEXT_VALIDATE_DESCRIPTION_CONST\");
 					";
 					$displayedCP[]=$row['PK_CP'];
 				}
@@ -111,7 +115,7 @@ function editCommand($output,$dbADO) {
 								ORDER BY Description asc
 								';
 		$resAllParameters = $dbADO->_Execute($querygetAllParameter);
-		$allParams='<option value="0">-please select-</option>';
+		$allParams='<option value="0">-'.$TEXT_PLEASE_SELECT_CONST.'-</option>';
 			if ($resAllParameters) {
 				while ($row=$resAllParameters->FetchRow()) {
 					$allParams.='<option value="'.$row['PK_CommandParameter'].'">'.$row['Description'].'('.$row['PT_Desc'].')</option>';
@@ -119,15 +123,15 @@ function editCommand($output,$dbADO) {
 			}
 		$resAllParameters->Close();
 		$out.='
-					Add new parameter <select name="addNewParameterToCommand">'.$allParams.'</select><input type="submit" class="button" name="submitX" value="Add"><br />
-					<a href="javascript:void(0);" onClick="document.forms.editCommand.submit();windowOpen(\'index.php?section=createParameterForCommand&from=editCommand\',\'width=400,height=400,toolbars=false,resizable=0,scrollbars=0\');">Create new parameter</a>
+					'.$TEXT_ADD_NEW_PARAMETER_CONST.' <select name="addNewParameterToCommand">'.$allParams.'</select><input type="submit" class="button" name="submitX" value="'.$TEXT_ADD_CONST.'"><br />
+					<a href="javascript:void(0);" onClick="document.forms.editCommand.submit();windowOpen(\'index.php?section=createParameterForCommand&from=editCommand\',\'width=400,height=400,toolbars=false,resizable=0,scrollbars=0\');">'.$TEXT_CREATE_NEW_PARAMETER_CONST.'</a>
 				</fieldset>
 				</td>
 				</tr>
 				<tr>
 					<td colspan="2">
 						<fieldset>
-							<legend>Pipes this command uses</legend>
+							<legend>'.$TEXT_PIPES_THIS_COMMAND_USES_CONST.'</legend>
 								<table>
 		';
 		
@@ -155,14 +159,14 @@ function editCommand($output,$dbADO) {
 				</tr>
 				
 				<tr>
-					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"></td>
 				</tr>
 		
 			</table>
 		</form>
 		<script>
 		 	var frmvalidator = new formValidator("editCommand"); 			
-			frmvalidator.addValidation("commandDescription","req","Please enter a name for this Command group!");
+			frmvalidator.addValidation("commandDescription","req","'.$TEXT_VALIDATE_COMMAND_GROUP_NAME_CONST.'");
 			
 			'.$jsValidationForCommandParameterDescription.'
 		</script>
@@ -267,7 +271,7 @@ function editCommand($output,$dbADO) {
 	}
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Edit Command');			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_EDIT_COMMAND_CONST);			
 	$output->output();
 }
 ?>

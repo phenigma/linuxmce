@@ -1,5 +1,9 @@
 <?php
 function deleteControlledViaCategoryFromMasterDevice($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/deleteControlledViaCategoryFromMasterDevice.lang.php');
+	
 	//$dbADO->debug=true;
 	$out='';
 	
@@ -11,14 +15,14 @@ function deleteControlledViaCategoryFromMasterDevice($output,$dbADO) {
 			$query = $dbADO->Execute($deleteObjFromDevice,array($objID));
 			$out.="
 			<script>
-				alert('Controlled via category deleted from master device!');
+				alert('$TEXT_CONTROLLED_VIA_CATEGORY_DELETED_CONST');
 			    opener.document.forms.{$from}.action.value='form';
 				opener.document.forms.{$from}.submit();
 				self.close();
 			</script>
 			";			
 		} else {
-			$out = 'Nothing to delete.&nbsp;<a href="javascript:window.close();">Close</a>';
+			$out = $TEXT_NOTHING_TO_DELETE_CONST.'.&nbsp;<a href="javascript:window.close();">'.$TEXT_CLOSE_CONST.'</a>';
 		}		
 	
 	

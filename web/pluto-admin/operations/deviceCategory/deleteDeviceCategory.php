@@ -1,5 +1,9 @@
 <?php
 function deleteDeviceCategory($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/deleteDeviceCategory.lang.php');
+	
 	//$dbADO->debug=true;
 	$out='';
 	
@@ -21,14 +25,14 @@ function deleteDeviceCategory($output,$dbADO) {
 		$query = $dbADO->_Execute($deleteObjFromDevice);
 		$out.="
 				<script>
-					alert('Device category deleted!');
+					alert('$TEXT_DEVICE_CATEGORY_DELETED_CONST');
 				    opener.document.forms.{$from}.action.value='form';
 					opener.document.forms.{$from}.submit();
 					self.close();
 				</script>
 				";			
 	} else {
-		$out = 'Nothing to delete.&nbsp;<a href="javascript:window.close();">Close</a>';
+		$out = $TEXT_NOTHING_TO_DELETE_CONST.'&nbsp;<a href="javascript:window.close();">'.$TEXT_CLOSE_CONST.'</a>';
 	}
 
 	

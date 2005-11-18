@@ -1,6 +1,10 @@
 <?php
 function addControlledViaToMasterDevice($output,$dbADO) {
-	//$dbADO->debug=true;
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/addControlledViaToMasterDevice.lang.php');
+
+	
 	$out='';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$from = isset($_REQUEST['from'])?cleanString($_REQUEST['from']):'';
@@ -33,10 +37,11 @@ function addControlledViaToMasterDevice($output,$dbADO) {
 		<input type="hidden" name="action" value="add">
 		<input type="hidden" name="deviceID" value="'.$deviceID.'">
 		<input type="hidden" name="from" value="'.$from.'">
+		
 		<div class="err">'.@$_GET['error'].'</div>
 			<table>			
 				<tr>
-					<td>Controlled via:</td>
+					<td>'.$TEXT_CONTROLLED_VIA_CONST.':</td>
 					<td>
 						'.(@(int)$_SESSION['addControlledViaToMasterDevice']['deviceTemplateID']!=0
 								?'You have selected : <b>'.$_SESSION['addControlledViaToMasterDevice']['deviceTemplateName'].'</b>&nbsp;&nbsp;<br />'
@@ -46,29 +51,26 @@ function addControlledViaToMasterDevice($output,$dbADO) {
 									:'')
 								 ).' 
 								 <input type="text" name="ControlledViaDeviceTemplateID" size="20" value="'.(@(int)$_SESSION['addControlledViaToMasterDevice']['deviceTemplateID']!=0?@$_SESSION['addControlledViaToMasterDevice']['deviceTemplateID']:'').'">
-								 <input type="submit" class="button" name="searchDeviceTemplate" value="Search [...]" >
+								 <input type="submit" class="button" name="searchDeviceTemplate" value="'.$TEXT_SEARCH_CONST.' [...]" >
 					</td>
 				</tr>		
 				<tr>
-					<td>Reroute Messages To Parent :</td>
+					<td>'.$TEXT_REROUTE_MESSAGES_TO_PARENT_CONST.':</td>
 					<td>
 						<input name="RerouteMessagesToParent" value="1" type="checkbox">
 					</td>
 				</tr>								 
 				<tr>
-					<td>Auto Create Children:</td>
+					<td>'.$TEXT_AUTO_CREATE_CHILDREN_CONST.':</td>
 					<td>
 						<input name="AutoCreateChildren" value="1" type="checkbox">
 					</td>
 				</tr>					
 				<tr>
-					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"></td>
 				</tr>
 			</table>
 		</form>
-		<script>
-		 	var frmvalidator = new formValidator("addControlledViaToMasterDevice"); 			
-		</script>
 		';
 		
 	} else {
@@ -123,13 +125,13 @@ function addControlledViaToMasterDevice($output,$dbADO) {
 					exit();
 				}
 			}else{
-				header("Location: index.php?section=addControlledViaToMasterDevice&from=$from&deviceID=$deviceID&error=The device template is already controlled by this.");
+				header("Location: index.php?section=addControlledViaToMasterDevice&from=$from&deviceID=$deviceID&error=$TEXT_ERROR_AREADY_CONTROLLED_BY_DT_CONST");
 				exit();
 			}
 						
 			$out.="
 			<script>
-				alert('Controlled via added!');			
+				alert('$TEXT_CONTROLLED_VIA_ADDED_CONST');			
 			    opener.document.forms.{$from}.action.value='form';
 				opener.document.forms.{$from}.submit();
 				self.close();
@@ -141,7 +143,7 @@ function addControlledViaToMasterDevice($output,$dbADO) {
 	}
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_ADD_CONTROLLED_VIA_DEVICE_TEMPLATE_CONST);			
 	$output->output();
 }
 ?>

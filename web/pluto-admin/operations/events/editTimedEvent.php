@@ -1,13 +1,17 @@
 <?php
 function editTimedEvent($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/timedEvents.lang.php');
+		
 	/* @var $dbADO ADOConnection */
 	$out='';
 	$installationID = (int)@$_SESSION['installationID'];
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$lastAction = isset($_REQUEST['lastAction'])?cleanString($_REQUEST['lastAction']):'';
 	$eventHandlerID=$_REQUEST['ehID'];
-	$dayNamesArray= array(1=>"Monday", 2=>"Tuesday", 3=>"Wensday", 4=>"Thursday", 5=>"Friday", 6=>"Saturday", 7=>"Sunday");
-	$monthNamesArray = array(1=>"January", 2=>"February", 3=>"March", 4=>"April", 5=>"May", 6=>"June", 7=>"July", 8=>"August", 9=>"September", 10=>"October", 11=>"November", 12=>"December"); 	
+	$dayNamesArray= array(1=>$TEXT_MONDAY_CONST, 2=>$TEXT_TUESDAY_CONST, 3=>$TEXT_WENSDAY_CONST, 4=>$TEXT_THURSDAY_CONST, 5=>$TEXT_FRIDAY_CONST, 6=>$TEXT_SATURDAY_CONST, 7=>$TEXT_SUNDAY_CONST);
+	$monthNamesArray = array(1=>$TEXT_JANUARY_CONST, 2=>$TEXT_FEBRUARY_CONST, 3=>$TEXT_MARCH_CONST, 4=>$TEXT_APRIL_CONST, 5=>$TEXT_MAY_CONST, 6=>$TEXT_JUNE_CONST, 7=>$TEXT_JULY_CONST, 8=>$TEXT_AUGUST_CONST, 9=>$TEXT_SEPTEMBER_CONST, 10=>$TEXT_OCTOBER_CONST, 11=>$TEXT_NOVEMBER_CONST, 12=>$TEXT_DECEMBER_CONST); 	
 	$wizard=isset($_REQUEST['wizard'])?(int)$_REQUEST['wizard']:2;
 	$section=$_REQUEST['section'];
 	
@@ -27,7 +31,7 @@ function editTimedEvent($output,$dbADO) {
 		$objID=$_REQUEST['cgcID'];
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$installationID,$dbADO);
 		if(!$canModifyInstallation){
-			header("Location: index.php?section=editTimedEvent&error=You are not authorised to modify installation.");
+			header("Location: index.php?section=editTimedEvent&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit();
 		}
 		$deleteObjFromDevice = 'DELETE FROM CommandGroup_Command WHERE PK_CommandGroup_Command = ?';
@@ -36,7 +40,7 @@ function editTimedEvent($output,$dbADO) {
 		$deleteParamValues = 'DELETE FROM CommandGroup_Command_CommandParameter WHERE FK_CommandGroup_Command = ?';
 		$dbADO->Execute($deleteParamValues,$objID);
 		
-		$_REQUEST['msg']='The command was deleted from the command group.';
+		$_REQUEST['msg']=$TEXT_COMMAND_DELETED_NOTIFICATION_CONST;
 	}
 	
 	if ($action=='form') {
@@ -59,13 +63,13 @@ function editTimedEvent($output,$dbADO) {
 		<input type="hidden" name="ehID" value="'.$eventHandlerID.'">
 		<input type="hidden" name="oldWizard" value="'.$wizard.'">
 		
-		<div align="center"><h3>Edit Timed</h3></div>
+		<div align="center"><h3>'.$TEXT_EDIT_TIMED_EVENT_CONST.'</h3></div>
 		<table border="0" align="center" width="700">
 		';
 		$out.='
 			<tr>
-				<td width="200"><input type="radio" name="timedEventType" value="1" '.(($timedEventType==1)?'checked':'').' onClick="showOptions(1);"> <B>Interval based:</B></td>
-				<td>Do something every x minutes, or every other hour</td>
+				<td width="200"><input type="radio" name="timedEventType" value="1" '.(($timedEventType==1)?'checked':'').' onClick="showOptions(1);"> <B>'.$TEXT_INTERVAL_BASED_CONST.':</B></td>
+				<td>'.$TEXT_INTERVAL_BASED_TEXT_CONST.'</td>
 			</tr>	
 			<tr>
 				<td><input type="radio" name="timedEventType" value="2" '.(($timedEventType==2)?'checked':'').' onClick="showOptions(2);"> <B>Day of week based:</B></td>

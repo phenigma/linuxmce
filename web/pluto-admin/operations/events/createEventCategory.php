@@ -1,5 +1,9 @@
 <?php
 function createEventCategory($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/createEventCategory.lang.php');
+		
 	$out='';
 	$action = isset($_POST['action'])?cleanString($_POST['action']):'form';
 	$from = isset($_REQUEST['from'])?cleanString($_REQUEST['from']):'';
@@ -22,22 +26,23 @@ function createEventCategory($output,$dbADO) {
 		<input type="hidden" name="section" value="createEventCategory">
 		<input type="hidden" name="action" value="add">
 		<input type="hidden" name="from" value="'.$from.'">
+		
 			<table>	
 				<tr>
-					<td>Parent Category:</td><td><select name="EventCategoryParent">'.$EventCategoryTxt.'</select></td>
+					<td>'.$TEXT_PARENT_CATEGORY_CONST.':</td><td><select name="EventCategoryParent">'.$EventCategoryTxt.'</select></td>
 				</tr>		
 				<tr>
-					<td>Event List Category Name:</td><td><input type="text" maxlength="50" name="EventCategoryDescription" value=""></td>
+					<td>'.$TEXT_EVENT_LIST_CATEGORY_NAME_CONST.':</td><td><input type="text" maxlength="50" name="EventCategoryDescription" value=""></td>
 				</tr>				
 				<tr>
-					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"></td>
 				</tr>
 			</table>
 		</form>
 		<script>
 		 	var frmvalidator = new formValidator("createEventCategory");			
- 			frmvalidator.addValidation("EventCategoryDescription","req","Please enter a name for this Event List Category!");
-			//frmvalidator.addValidation("EventCategoryParent","dontselect=0","Please select a parent category!");
+ 			frmvalidator.addValidation("EventCategoryDescription","req","'.$TEXT_EVENT_CATEGORY_VALIDATION_CONST.'");
+			//frmvalidator.addValidation("EventCategoryParent","dontselect=0","'.$TEXT_PARENT_CATEGORY_VALIDATION_CONST.'");
 		</script>
 		';
 		
@@ -56,7 +61,7 @@ function createEventCategory($output,$dbADO) {
 			$query = $dbADO->Execute($insertEvent,array($EventCategoryDescription,$category));
 			$out.="
 			<script>
-				alert('Event List Category added!');
+				alert('$TEXT_EVENT_LIST_CATEGORY_ADDED_CONST');
 			    opener.document.forms.{$from}.action.value='form';				
 				opener.document.forms.{$from}.submit();
 				self.close();
@@ -68,7 +73,7 @@ function createEventCategory($output,$dbADO) {
 	}
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_CREATE_EVENT_CATEGORY_CONST);			
 	$output->output();
 }
 ?>

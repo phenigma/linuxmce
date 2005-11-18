@@ -1,5 +1,9 @@
 <?php
 function addControlledViaCategoryToMasterDevice($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/addControlledViaCategoryToMasterDevice.lang.php');
+	
 	//$dbADO->debug=true;
 	$out='';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
@@ -29,14 +33,16 @@ function addControlledViaCategoryToMasterDevice($output,$dbADO) {
 		<input type="hidden" name="action" value="add">
 		<input type="hidden" name="deviceID" value="'.$deviceID.'">
 		<input type="hidden" name="from" value="'.$from.'">
+		
 			<table>			
 				<tr>
-					<td>Controlled via category:</td>
+					<td>'.$TEXT_CONTROLLED_VIA_CATEGORY_CONST.':</td>
 					<td>
 						<select name="controlledVia">
-						<option value="0">-please select-</option>
+						<option value="0">-'.$TEXT_PLEASE_SELECT_CONST.'-</option>
 						';
 						$notIn = join(",",$alreadySelectedControlledViaCategory);
+
 						$queryMasterDeviceCategories_parents = '
 							select PK_DeviceCategory,Description from DeviceCategory where FK_DeviceCategory_Parent is null 
 							and PK_DeviceCategory NOT IN ('.$notIn.')
@@ -55,25 +61,25 @@ function addControlledViaCategoryToMasterDevice($output,$dbADO) {
 				</tr>
 				
 				<tr>
-					<td>Reroute Messages To Parent :</td>
+					<td>'.$TEXT_REROUTE_MESSAGES_TO_PARENT_CONST.':</td>
 					<td>
 						<input name="RerouteMessagesToParent" value="1" type="checkbox">
 					</td>
 				</tr>
 				<tr>
-					<td>Auto Create Children:</td>
+					<td>'.$TEXT_AUTO_CREATE_CHILDREN_CONST.':</td>
 					<td>
 						<input name="AutoCreateChildren" value="1" type="checkbox">
 					</td>
 				</tr>
 				<tr>
-					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"></td>
 				</tr>
 			</table>
 		</form>
 		<script>
 		 	var frmvalidator = new formValidator("addControlledViaCategoryToMasterDevice");
- 			frmvalidator.addValidation("controlledVia","dontselect=0","Please select a device"); 						
+ 			frmvalidator.addValidation("controlledVia","dontselect=0","'.$TEXT_PLEASE_SELECT_A_DEVICE_CONST.'"); 
 		</script>
 		';
 		
@@ -101,7 +107,7 @@ function addControlledViaCategoryToMasterDevice($output,$dbADO) {
 			
 			$out.="
 			<script>
-				alert('Controlled via category added!');
+				alert('$TEXT_CONTROLLED_VIA_CATEGORY_ADDED_CONST');
 			    opener.document.forms.{$from}.action.value='form';
 				opener.document.forms.{$from}.submit();
 				self.close();
@@ -113,7 +119,7 @@ function addControlledViaCategoryToMasterDevice($output,$dbADO) {
 	}
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_ADD_CONTROLLED_VIA_DEVICE_CATEGORY_CONST);			
 	$output->output();
 }
 ?>

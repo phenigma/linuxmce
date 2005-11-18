@@ -1,5 +1,9 @@
 <?
 function deviceStatus($output,$dbADO) {
+	// include language file
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/deviceStatus.lang.php');
+	
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	$out='';
@@ -16,17 +20,17 @@ function deviceStatus($output,$dbADO) {
 		</script>		
 			<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 			<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
-			<h3 align="center">Device status</h3>
+			<h3 align="center">'.$TEXT_DEVICE_STATUS_CONST.'</h3>
 			<form action="index.php" method="POST" name="deviceStatus">
 			<input type="hidden" name="section" value="deviceStatus">
 			<input type="hidden" name="action" value="update">
 		<table cellpadding="4" cellspacing="0" border="0" align="center">
 			<tr>
-				<td align="center" bgcolor="#EEEEEE"><B>Device</B></td>
-				<td align="center"><B>State</B></td>
-				<td align="center" bgcolor="#EEEEEE"><B>Status</B></td>
-				<td align="center"><B>IP Address</B></td>
-				<td align="center" bgcolor="#EEEEEE"><B>MAC Address</B></td>
+				<td align="center" bgcolor="#EEEEEE"><B>'.$TEXT_DEVICE_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_STATE_CONST.'</B></td>
+				<td align="center" bgcolor="#EEEEEE"><B>'.$TEXT_STATUS_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_IP_ADDRESS_CONST.'</B></td>
+				<td align="center" bgcolor="#EEEEEE"><B>'.$TEXT_MAC_ADDRESS_CONST.'</B></td>
 			</tr>';
 		$queryDevices='
 			SELECT PK_Device, Device.Description AS DeviceName, State,Status, IPaddress,MACaddress,Room.Description AS RoomName, 
@@ -46,7 +50,7 @@ function deviceStatus($output,$dbADO) {
 			if($rowDevices['RoomName']!=$initRoom){
 				$out.='
 				<tr bgcolor="#D1D9EA">
-					<td colspan="5"><B>'.(($rowDevices['RoomName']=='')?'Unassigned to a room':$rowDevices['RoomName']).'</B></td>
+					<td colspan="5"><B>'.(($rowDevices['RoomName']=='')?$TEXT_UNASSIGNED_T_A_ROOM_CONST:$rowDevices['RoomName']).'</B></td>
 				</tr>';
 				$initRoom=$rowDevices['RoomName'];
 			}
@@ -59,7 +63,7 @@ function deviceStatus($output,$dbADO) {
 					<td bgcolor="#EEEEEE">'.$rowDevices['MACaddress'].'</td>
 				</tr>
 				<tr>
-					<td colspan="5">Device Template: <B>'.$rowDevices['TemplateName'].'</B> Manufacturer: <B>'.$rowDevices['ManufName'].'</B> Device Category: <B>'.$rowDevices['CategoryName'].'</B></td>
+					<td colspan="5">'.$TEXT_DEVICE_TEMPLATE_CONST.': <B>'.$rowDevices['TemplateName'].'</B> '.$TEXT_MANUFACTURER_CONST.': <B>'.$rowDevices['ManufName'].'</B> Device Category: <B>'.$rowDevices['CategoryName'].'</B></td>
 				</tr>
 			';
 		}
@@ -74,7 +78,7 @@ function deviceStatus($output,$dbADO) {
 	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_DEVICE_STATUS_CONST);
 	$output->output();
 }
 ?>

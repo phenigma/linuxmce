@@ -1,5 +1,9 @@
 <?php
 function addCommand($output,$dbADO) {
+	// include language file
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/addCommand.lang.php');
+	
 	//$dbADO->debug=true;
 	$out='';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
@@ -37,15 +41,15 @@ function addCommand($output,$dbADO) {
 		<input type="hidden" name="from" value="'.$from.'">
 			<table>			
 				<tr>
-					<td>Command name:</td>
+					<td>'.$TEXT_COMMAND_NAME_CONST.':</td>
 					<td><input type="text" size="15" name="CommandDescription" value=""></td>
 				</tr>				
 				<tr>
-					<td>AV Command</td>
+					<td>'.$TEXT_AV_COMMAND_CONST.'</td>
 					<td><input type="checkbox" name="AVCommand" value="1"></td>
 				</tr>
 				<tr>
-					<td>Command Category:</td>
+					<td>'.$TEXT_COMMAND_CATEGORY_CONST.':</td>
 					<td>
 						<select name="commandCategs" >
 						'.$commandsCategsTxt.'
@@ -55,7 +59,7 @@ function addCommand($output,$dbADO) {
 				<tr>
 							<td colspan="2">
 								<fieldset>
-									<legend>Pipes this command uses</legend>
+									<legend>'.$TEXT_PIPES_THIS_COMMAND_USES_CONST.'</legend>
 										<table>
 				';
 								
@@ -68,14 +72,14 @@ function addCommand($output,$dbADO) {
 				}
 				$out.='
 				<tr>
-					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"></td>
 				</tr>
 			</table>
 		</form>
 		<script>
 		 	var frmvalidator = new formValidator("addCommand"); 			
-			frmvalidator.addValidation("CommandDescription","req","Please enter a name for this Command!");
-			frmvalidator.addValidation("commandCategs","dontselect=0","Please select a commands category!");
+			frmvalidator.addValidation("CommandDescription","req","'.$TEXT_VALIDATE_COMMAND_CONST.'");
+			frmvalidator.addValidation("commandCategs","dontselect=0","'.$TEXT_VALIDATE_COMMAND_CATEGORY_CONST.'");
 		</script>
 		';
 		
@@ -126,7 +130,7 @@ function addCommand($output,$dbADO) {
 			$insertID = $dbADO->Insert_ID();
 				$out.="
 				<script>
-					alert('Command added!');
+					alert('$TEXT_COMMAND_ADDED_CONST');
 				    opener.document.forms.{$from}.action.value='form';
 					opener.document.forms.{$from}.lastAction.value='addNewCommandToDeviceCommandGroup';
 					opener.document.forms.{$from}.submit();
@@ -141,7 +145,7 @@ function addCommand($output,$dbADO) {
 	}
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Add command');			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_ADD_COMMAND_CONST);			
 	$output->output();
 }
 ?>

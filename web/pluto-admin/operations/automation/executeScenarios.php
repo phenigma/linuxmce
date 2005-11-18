@@ -1,5 +1,9 @@
 <?
 function executeScenarios($output,$dbADO) {
+	// include language file
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/executeScenarios.lang.php');
+	
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	$out='';
@@ -16,15 +20,16 @@ function executeScenarios($output,$dbADO) {
 		</script>		
 			<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 			<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
-			<h3 align="center">Execute scenarios</h3>
-			<p align="center">Click on a scenario to execute it just like you had touched the button on the Orbiter.</p>
+			<h3 align="center">'.$TEXT_EXECUTE_SCENARIOS_CONST.'</h3>
+			<p align="center">'.$TEXT_EXECUTE_SCENARIOS_EXPLANATION_CONST.'</p>
 			<form action="index.php" method="POST" name="executeScenarios">
 			<input type="hidden" name="section" value="executeScenarios">
 			<input type="hidden" name="action" value="update">
+		
 		<table cellpadding="4" cellspacing="0" border="0" align="center">
 			<tr bgcolor="lightblue">
-				<td align="center"><B>Scenario description</B></td>
-				<td align="center"><B>Scenario type</B></td>
+				<td align="center"><B>'.$TEXT_SCENARIO_DESCRIPTION_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_SCENARIO_TYPE_CONST.'</B></td>
 				<td align="center">&nbsp;</td>
 			</tr>
 		';
@@ -43,7 +48,7 @@ function executeScenarios($output,$dbADO) {
 			if($rowEntAreas['FK_Room']!=$initRoom){
 				$out.='
 				<tr bgcolor="#D1D9EA">
-					<td colspan="3" align="left"><B>Room: '.$rowEntAreas['RoomName'].'</B></td>
+					<td colspan="3" align="left"><B>'.$TEXT_ROOM_CONST.': '.$rowEntAreas['RoomName'].'</B></td>
 				</tr>';
 				$queryCG_R='
 					SELECT CommandGroup.Description AS ScenarioName, PK_CommandGroup, Array.Description AS ScenarioType
@@ -57,16 +62,16 @@ function executeScenarios($output,$dbADO) {
 					$displayedCG[]=$rowCG_R['PK_CommandGroup'];
 					$out.='
 						<tr>
-							<td><a href="index.php?section=executeScenarios&action=execute&cgID='.$rowCG_R['PK_CommandGroup'].'" title="Click to execute scenario">'.$rowCG_R['ScenarioName'].'</a></td>
+							<td><a href="index.php?section=executeScenarios&action=execute&cgID='.$rowCG_R['PK_CommandGroup'].'" title="'.$TEXT_CLICK_TO_EXECUTE_CONST.'">'.$rowCG_R['ScenarioName'].'</a></td>
 							<td>'.$rowCG_R['ScenarioType'].'</td>
-							<td align="center"><a href="index.php?section=editCommandGroup&cgID='.$rowCG_R['PK_CommandGroup'].'">Edit</a></td>
+							<td align="center"><a href="index.php?section=editCommandGroup&cgID='.$rowCG_R['PK_CommandGroup'].'">'.$TEXT_EDIT_CONST.'</a></td>
 						</tr>';
 				}
 				$initRoom=$rowEntAreas['FK_Room'];
 			}
 			$out.='
 				<tr bgcolor="#EEEEEE">
-					<td colspan="3" align="left"><B>Entertain area: '.$rowEntAreas['Description'].'</B></td>
+					<td colspan="3" align="left"><B>'.$TEXT_ENTERTAIN_AREA_CONST.': '.$rowEntAreas['Description'].'</B></td>
 				</tr>';
 			$queryCG_E='
 				SELECT CommandGroup.Description AS ScenarioName, PK_CommandGroup, Array.Description AS ScenarioType
@@ -79,15 +84,15 @@ function executeScenarios($output,$dbADO) {
 				$displayedCG[]=$rowCG_E['PK_CommandGroup'];
 				$out.='
 					<tr>
-						<td <a href="index.php?section=executeScenarios&action=execute&cgID='.$rowCG_E['PK_CommandGroup'].'" title="Click to execute scenario">'.$rowCG_E['ScenarioName'].'</a></td>
+						<td <a href="index.php?section=executeScenarios&action=execute&cgID='.$rowCG_E['PK_CommandGroup'].'" title="'.$TEXT_CLICK_TO_EXECUTE_CONST.'">'.$rowCG_E['ScenarioName'].'</a></td>
 						<td>'.$rowCG_E['ScenarioType'].'</td>
-						<td align="center"><a href="index.php?section=editCommandGroup&cgID='.$rowCG_E['PK_CommandGroup'].'">Edit</a></td>
+						<td align="center"><a href="index.php?section=editCommandGroup&cgID='.$rowCG_E['PK_CommandGroup'].'">'.$TEXT_EDIT_CONST.'</a></td>
 					</tr>';
 			}
 		}
 		$out.='
 			<tr bgcolor="#D1D9EA">
-				<td colspan="3" align="left"><B>Unassigned to any room or Entertain Area</B></td>
+				<td colspan="3" align="left"><B>'.$TEXT_UNASSIGNED_TO_ROOM_OR_EA_CONST.'</B></td>
 			</tr>';		
 		if(count($displayedCG)==0)
 			$displayedCG[]=0;
@@ -100,9 +105,9 @@ function executeScenarios($output,$dbADO) {
 		while($rowCG=$resCG->FetchRow()){
 			$out.='
 				<tr>
-					<td <a href="index.php?section=executeScenarios&action=execute&cgID='.$rowCG['PK_CommandGroup'].'" title="Click to execute scenario">'.$rowCG['ScenarioName'].'</a></td>
+					<td <a href="index.php?section=executeScenarios&action=execute&cgID='.$rowCG['PK_CommandGroup'].'" title="'.$TEXT_CLICK_TO_EXECUTE_CONST.'">'.$rowCG['ScenarioName'].'</a></td>
 					<td>'.$rowCG['ScenarioType'].'</td>
-					<td align="center"><a href="index.php?section=editCommandGroup&cgID='.$rowCG['PK_CommandGroup'].'">Edit</a></td>
+					<td align="center"><a href="index.php?section=editCommandGroup&cgID='.$rowCG['PK_CommandGroup'].'">'.$TEXT_EDIT_CONST.'</a></td>
 				</tr>';
 		}
 		$out.='
@@ -114,7 +119,7 @@ function executeScenarios($output,$dbADO) {
 			$commandToSend='/usr/pluto/bin/MessageSend localhost 0 0 10 '.$cgID;
 			exec($commandToSend);
 			
-			header('Location: index.php?section=executeScenarios&msg=The scenario was executed: '.$commandToSend);
+			header('Location: index.php?section=executeScenarios&msg='.$TEXT_SCENARIO_WAS_EXECUTED_CONST.': '.$commandToSend);
 			exit();
 		}
 		

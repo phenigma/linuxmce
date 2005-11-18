@@ -1,5 +1,9 @@
 <?
 function editCategory($output,$dbADO) {
+	// include language file
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/editCategory.lang.php');
+	
 /* @var $dbADO ADOConnection */
 /* @var $rs ADORecordSet */
 $out='';
@@ -13,12 +17,12 @@ $action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'command';
 $categSelected = (int)$_REQUEST['categSelected'];
 
 	if ($action=='commands') {
-		$label = "Commands Category";
+		$label = $TEXT_COMMANDS_CATEGORY_CONST;
 		$tableName = 'CommandCategory';		
 		$columnNamePK = 'PK_CommandCategory';	
 		$columnNameFK = 'FK_CommandCategory_Parent';
 	} elseif ($action=='events') {
-		$label = "Events Category";
+		$label = $TEXT_EVENTS_CATEGORY_CONST;
 		$tableName = 'EventCategory';
 		$columnNamePK = 'PK_EventCategory';	
 		$columnNameFK = 'FK_EventCategory_Parent';
@@ -47,10 +51,10 @@ $categSelected = (int)$_REQUEST['categSelected'];
 	<input type="hidden" name="categSelected" value="'.$categSelected.'">	
 	
 	<table>
-	<tr><td>Description:</td><td><input type="text" name="categoryDescription" value="'.$description.'" size="40"></td></tr>
-	<tr><td>Parent:</td><td>
+	<tr><td>'.$TEXT_DESCRIPTION_CONST.':</td><td><input type="text" name="categoryDescription" value="'.$description.'" size="40"></td></tr>
+	<tr><td>'.$TEXT_PARENT_CONST.':</td><td>
 	<select name="parentID">
-		<option value="0">-Is A Top Level Category-</option>
+		<option value="0">-'.$TEXT_IS_A_TOP_LEVEL_CATEGORY_CONST.'-</option>
 	';
 	
 	$queryCategories_parents = "select $columnNamePK,Description from $tableName where $columnNameFK is null and $columnNamePK != $categSelected order by Description asc";
@@ -64,13 +68,13 @@ $categSelected = (int)$_REQUEST['categSelected'];
 					</td>
 				</tr>			
 				<tr>
-					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"  ></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"  ></td>
 				</tr>
 	</table>
 	</form>
 	<script>
 		 	var frmvalidator = new formValidator("editCategory");
- 			frmvalidator.addValidation("categoryDescription","req","Please enter a description");
+ 			frmvalidator.addValidation("categoryDescription","req","'.$TEXT_PLEASE_ENTER_A_DESCRIPTION_CONST.'");
 		</script>
 	</table>
 	';
