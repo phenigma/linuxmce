@@ -27,7 +27,7 @@ function editContact($output,$telecomADO) {
 			$Company=cleanString($_POST['Company']);
 			$Title=cleanString($_POST['Title']);
 			$EK_Users=(isset($_POST['EK_Users']) && (int)$_POST['EK_Users']>0)?(int)$_POST['EK_Users']:NULL;
-			
+
 			$telecomADO->Execute('
 				UPDATE Contact SET
 					`Name`=?,
@@ -78,7 +78,7 @@ function phoneNumberForm($telecomADO,$userID,$cid){
 		</tr>	
 		<tr>
 			<td><B>Public contact</B></td>
-			<td><input type="checkbox" name="EK_Users" value="'.$userID.'" '.((is_null($cData['EK_Users'][0]))?'checked':'').'></td>
+			<td><input type="checkbox" name="EK_Users" value="'.$userID.'" '.((!is_null($cData['EK_Users'][0]))?'checked':'').'></td>
 		</tr>	
 		<tr>
 			<td colspan="2" align="center"><input type="submit" class="button" name="editContact" value="Save changes"></td>
