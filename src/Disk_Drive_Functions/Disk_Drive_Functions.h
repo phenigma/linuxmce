@@ -83,6 +83,8 @@ class Disk_Drive_Functions
 	    int m_discid;		// A unique ID to indicate the insertion of this disc, will be set to the time(NULL) at insertion
 		bool m_isRipping;
 	    bool m_mediaInserted;
+		int m_what_is_ripping;
+		bool m_bTrayOpen;
 };
 
 #endif

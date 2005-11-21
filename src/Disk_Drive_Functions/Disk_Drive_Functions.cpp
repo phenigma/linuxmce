@@ -19,7 +19,8 @@
 using namespace std;
 
 Disk_Drive_Functions::Disk_Drive_Functions(Command_Impl * pCommand_Impl, const string & sDrive)
-	: m_sDrive(sDrive), m_pCommand_Impl(pCommand_Impl), m_DiskMutex("disk drive"), m_mediaDiskStatus(DISCTYPE_NONE), m_discid(0), m_mediaInserted(false)
+	: m_sDrive(sDrive), m_pCommand_Impl(pCommand_Impl), m_DiskMutex("disk drive"), m_mediaDiskStatus(DISCTYPE_NONE), m_discid(0), m_mediaInserted(false),
+	m_bTrayOpen(false)
 {
 	m_DiskMutex.Init(NULL);
 	m_pDevice_AppServer = m_pCommand_Impl->m_pData->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_App_Server_CONST);
@@ -37,82 +38,21 @@ void Disk_Drive_Functions::EVENT_Ripping_Progress(string sText,int iResult,strin
 
 bool Disk_Drive_Functions::internal_monitor_step(bool bFireEvent)
 {
-//  const int max_bytes = 1024;
-//  static char buf[2][max_bytes];
-//  static int offset[2]={0,0};
-//  int i;
-
-//  struct timeval tv;
-//  fd_set rfds;
-
-//  tv.tv_sec = 0;
-//  tv.tv_usec = 200000;
     if ( ! internal_reset_drive(bFireEvent) )
     {
         g_pPlutoLogger->Write(LV_STATUS, "Monitor drive returned false.");
         return false;
     }
-/*
-    if ( m_childOutFd == -1 || m_childErrFd == -1 )
-    {
-        struct timespec ts;
-        ts.tv_sec = tv.tv_sec;
-        ts.tv_nsec = tv.tv_usec * 1000;
-        nanosleep( &ts, NULL );
-        return true;
-    }
-
-    FD_ZERO( &rfds );
-    FD_SET( m_childOutFd, &rfds );
-    FD_SET( m_childErrFd, &rfds );
-
-    time_t timeout=time(NULL) + 3;
-    while ( select( m_childErrFd+1, &rfds, NULL, NULL, &tv ) > 0 && time(NULL)<timeout )
-    {
-        for ( i = 0; i < m_childErrFd+1; ++i )
-        {
-            if ( FD_ISSET( i, &rfds ) )
-            {
-                int buf_idx = (i == m_childOutFd ? 0 : 1);
-                char *buffer = buf[buf_idx];
-                int o = offset[buf_idx];
-                char *c;
-
-                if ( read( i, buffer + o, 1 ) > 0 )
-                {
-                    buffer[++o] = '\0';
-                    //printf("got from child: %s\n",buffer);
-                    if ( ( c = strchr( buffer, '\r' ) ) != NULL )
-                    {
-                        *c = '\0';
-                        parseChildStatus( buffer );
-                        o = 0;
-                    }
-                    else if ( ( c = strchr( buffer, '\n' ) ) != NULL )
-                    {
-                        *c = '\0';
-                        parseChildStatus( buffer );
-                        o = 0;
-                    }
-                    offset[buf_idx] = o;
-                }
-            }
-        }
-    }*/
     return true;
 }
 
 bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent)
 {
-    m_mediaInserted = false;
-    m_mediaDiskStatus = DISCTYPE_NONE;
-	DisplayMessageOnOrbVFD("Checking disc...");
-
 	PLUTO_SAFETY_LOCK(dm,m_DiskMutex);
     int status;
     string mrl = ""; //, serverMRL, title;
 
-    int result = cdrom_checkdrive( m_sDrive.c_str(), &m_mediaDiskStatus, bFireEvent);
+    int result = cdrom_checkdrive(m_sDrive.c_str(), &m_mediaDiskStatus, bFireEvent);
 
     //     g_pPlutoLogger->Write(LV_STATUS, "Disc Reset: checkdrive status: %d  result: %d", m_mediaDiskStatus, result);
 
@@ -157,12 +97,6 @@ bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent)
 
         g_pPlutoLogger->Write(LV_WARNING, "Disc of type %d was detected", status, mrl.c_str());
 
-//         if ( ! serverStarted() && (status == MEDIATYPE_pluto_DVD_CONST || status == MEDIATYPE_pluto_StoredAudio_CONST))
-//         {
-//             startServer(result);
-//
-//         }
-
         if ( bFireEvent )
         {
 			m_discid=time(NULL);
@@ -175,14 +109,6 @@ bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent)
         }
 
         m_mediaInserted = true;
-//      GetEvents()->Media_Inserted(
-//      mrl.c_str(), str_type, title.c_str(),genre.c_str());
-/**
-        Set_MRL_LOCAL (mrl.c_str());
-        Set_MRL_EXTERNAL (serverMRL.c_str());
-        Set_MEDIA_TYPE (str_type);
-        Set_TITLE (title);
-*/
     }
 
     // we mark media as not inserted on error or when the code tell us that no CD is in the unit.
@@ -329,10 +255,10 @@ int Disk_Drive_Functions::cdrom_checkdrive(const char * filename, int * flag, bo
     {
         // if there's a ok disc in there
     case CDS_DISC_OK:
-//         g_pPlutoLogger->Write(LV_WARNING, "Media inserted value here: %d", m_mediaInserted);
-//         g_pPlutoLogger->Write(LV_WARNING, "Disk type value here: %d", *flag);
+		//g_pPlutoLogger->Write(LV_WARNING, "Media inserted value here: %d", m_mediaInserted);
+		//g_pPlutoLogger->Write(LV_WARNING, "Disk type value here: %d", *flag);
 
-        if (*flag != DISCTYPE_NONE || m_mediaInserted )
+        if (*flag != DISCTYPE_NONE || m_mediaInserted)
             break;
 
 		if (bFireEvent)
