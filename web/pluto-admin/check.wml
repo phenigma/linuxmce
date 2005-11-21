@@ -99,6 +99,7 @@ function executeScenario($cgid,$dbADO)
 			$msg='Invalid scenario ID.';
 		}
 
+		$msg.='<br/><a href="check.wml?opt=1'.extraLinks().'">Back</a>';
 	return $msg;
 }
 
