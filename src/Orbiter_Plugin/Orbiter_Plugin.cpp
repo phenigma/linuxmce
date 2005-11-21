@@ -2321,7 +2321,7 @@ void Orbiter_Plugin::CMD_Send_File_To_Phone(string sMac_address,string sCommand_
             StringUtils::itos(COMMANDPARAMETER_Command_Line_CONST) + " '" + sCommand_LineClone + "'" + " " + 
             StringUtils::itos(COMMANDPARAMETER_App_Server_Device_ID_CONST) + " " + StringUtils::itos(iApp_Server_Device_ID) + " " +
             "|No|\"" + " " + 
-        StringUtils::itos(COMMANDPARAMETER_PK_Device_List_CONST) + " ";
+        StringUtils::itos(COMMANDPARAMETER_PK_Device_List_CONST) + "\" \"";
 
     sCommOnSuccess = 
         "-targetType category " + 
@@ -2340,7 +2340,7 @@ void Orbiter_Plugin::CMD_Send_File_To_Phone(string sMac_address,string sCommand_
         StringUtils::itos(COMMANDPARAMETER_Type_CONST) + " " + "\" \"" + " " + 
         StringUtils::itos(COMMANDPARAMETER_Name_CONST) + " " + "\" \"" + " " + 
         StringUtils::itos(COMMANDPARAMETER_Time_CONST) + " " + "\" \"" + " " + 
-        StringUtils::itos(COMMANDPARAMETER_PK_Device_List_CONST) + " ";
+        StringUtils::itos(COMMANDPARAMETER_PK_Device_List_CONST) + "\" \"";
 
     g_pPlutoLogger->Write(LV_STATUS, "Launching send to phone job: \"%s\"", sName.c_str());
 
