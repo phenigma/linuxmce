@@ -102,11 +102,21 @@ function viewCameras($output,$dbADO) {
 	<input type="hidden" name="devicesArray" value="'.join(',',$devicesArray).'">
 	</td>
 	<td align="center">';
-	if(!isset($_POST['devicesArray'])){
+	if(!isset($_POST['devicesArray']) || @$_POST['devicesArray']==''){
 		$out.='No camera selected.';
 	}else{
-		// TODO: display cameras screenshoots
-		$out.='Selected cameras: '.$_POST['devicesArray'];
+		$out.='<B>Selected cameras:</B>
+		<table>';
+		$cameras=explode(',',$_POST['devicesArray']);
+		foreach ($cameras AS $cameraid){
+			$out.='
+			<tr>
+				<td><fieldset><legend><B># '.$cameraid.'</B></legend>'.get_video_frame($cameraid,$installationID,$dbADO).'</fieldset></td>
+			</tr>
+			<tr>
+				<td>&nbsp;</td>
+			</tr>';
+		}
 	}
 	
 	$out.='</td>
@@ -129,5 +139,23 @@ function viewCameras($output,$dbADO) {
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: View Cameras');
 	$output->output();
+}
+
+function get_video_frame($cameraid,$installationID,$dbADO){
+
+	$securityDevicePlugin=getFieldsAsArray('Device','PK_Device',$dbADO,'WHERE FK_DeviceTemplate='.$GLOBALS['SecurityPlugin'].' AND FK_Installation='.$installationID);
+	$securityPluginDD=getFieldsAsArray('Device_DeviceData','IK_DeviceData',$dbADO,'WHERE FK_Device='.(int)@$securityDevicePlugin['PK_Device'][0].' AND FK_DeviceData='.$GLOBALS['Path']);
+
+	$cmd='/usr/pluto/bin/MessageSend localhost -targetType device -o -p "/var/www/pluto-admin/security_images" 0 '.$cameraid.' 1 84 19 0 20 "jpg" 23 0 31 0 60 100 61 100';
+	exec($cmd,$retArray);
+	$msg='Camera screenshot not available.';
+	foreach ($retArray as $line) {
+		if(ereg(':OK',$line)){
+			exec('mv /var/www/pluto-admin/security_images/19.out /var/www/pluto-admin/security_images/'.$cameraid.'.jpg',$retArray,$retCode);
+			$msg='<img src="security_images/'.$cameraid.'.jpg" alt="Loading ..."/>';
+		}
+	}
+
+	return $msg;
 }
 ?>
