@@ -19,8 +19,8 @@
 using namespace std;
 
 Disk_Drive_Functions::Disk_Drive_Functions(Command_Impl * pCommand_Impl, const string & sDrive)
-	: m_sDrive(sDrive), m_pCommand_Impl(pCommand_Impl), m_DiskMutex("disk drive"), m_mediaDiskStatus(DISCTYPE_NONE), m_discid(0), m_mediaInserted(false),
-	m_bTrayOpen(false)
+	: m_sDrive(sDrive), m_pCommand_Impl(pCommand_Impl), m_DiskMutex("disk drive"), m_mediaDiskStatus(DISCTYPE_NONE), m_discid(0),
+	m_isRipping(false), m_mediaInserted(false), m_bTrayOpen(false)
 {
 	m_DiskMutex.Init(NULL);
 	m_pDevice_AppServer = m_pCommand_Impl->m_pData->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_App_Server_CONST);
