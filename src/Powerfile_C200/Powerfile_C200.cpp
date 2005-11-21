@@ -36,7 +36,6 @@ Powerfile_C200::Powerfile_C200(Command_Impl *pPrimaryDeviceCommand, DeviceData_I
 Powerfile_C200::~Powerfile_C200()
 //<-dceag-dest-e->
 {
-	
 }
 
 // Call Tokenize directly if you don't need to strip out eventual empty fields
