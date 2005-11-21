@@ -8,33 +8,7 @@
 //<-dceag-d-e->
 
 #include <pthread.h>
-
-typedef enum {
-    MEDIA_NOT_LOADED        = 0x00,
-    MEDIA_CD_ROM            = 0x08, /* also CD-ROM and Finalized CD-R */
-    MEDIA_CD_R              = 0x09,
-    MEDIA_CD_RW             = 0x0A,
-    MEDIA_DVD_ROM           = 0x10, /* also Finalized DVD-R and DVD+R */
-    MEDIA_DVD_MINUS_R       = 0x11,
-    MEDIA_DVD_MINUS_RW      = 0x13,
-    MEDIA_DVD_MINUS_RW_RO   = 0x14, /* _RO = restricted overwrite */
-    MEDIA_DVD_PLUS_RW       = 0x1A,
-    MEDIA_DVD_PLUS_R        = 0x1B,
-    MEDIA_TYPE_UNKNOWN      = 0x98,
-    MEDIA_TYPE_ERROR        = 0x99
-} discMediaType;
-
-// This should be in sync with the typedef in the Media_Plugin.cpp
-typedef enum {
-	RIP_RESULT_BEGIN_ENUM		 = 0x01,
-	RIP_RESULT_ALREADY_RIPPING	 = 0x02,
-	RIP_RESULT_NO_DISC			 = 0x03,
-	RIP_RESULT_INVALID_DISC_TYPE = 0x04,
-	RIP_RESULT_SUCCESS			 = 0x05,
-	RIP_RESULT_FAILURE			 = 0x06,
-	RIP_RESULT_STILLGOING		 = 0x07,
-	RIP_RESULT_END_ENUM			 = 0x08
-} rippingResult;
+#include "Disk_Drive_Functions/Disk_Drive_Functions.h"
 
 //<-dceag-decl-b->
 namespace DCE
@@ -53,37 +27,12 @@ public:
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
     // Private member variables
-	DeviceData_Base *m_pDevice_AppServer;
     bool m_monitorEnabled;
-    bool m_mediaInserted;
-    int  m_mediaDiskStatus;
-
-    bool m_isRipping;
-	bool m_bTrayOpen;
 
     int  m_serverPid;
     int  m_serverPort;
-    int  m_discid;		// A unique ID to indicate the insertion of this disc, will be set to the time(NULL) at insertion
-    int  m_what_is_ripping;
-
-	string m_sDrive;	// The drive, normally DATA_Get_Drive()
 
     char *m_args[100];
-
-    pluto_pthread_mutex_t m_DiskMutex;
-
-    // Private methods
-    int cdrom_lock( int lock );
-    int cdrom_checkdrive( const char *filename, int *flag, bool bFireEvent );
-
-	string getTracks (string mrl);  // We use cddb for nothing other than determining how many tracks there are
-
-    bool internal_reset_drive(bool bFireEvent);
-    bool internal_monitor_step(bool bFireEvent);
-
-    int cdrom_has_dir (int fd, const char *directory);
-	bool mountDVD(string fileName, string &strMediaUrl);
-	void DisplayMessageOnOrbVFD(string sMessage);
 
 public:
     // Public member variables
@@ -221,6 +170,8 @@ public:
 
 
 //<-dceag-h-e->
+	private:
+		Disk_Drive_Functions * m_pDisk_Drive_Functions;
 };
 
 //<-dceag-end-b->
