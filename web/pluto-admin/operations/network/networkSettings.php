@@ -22,8 +22,9 @@ function networkSettings($output,$dbADO) {
 	}
 	$queryDHCP='SELECT * FROM Device_DeviceData WHERE FK_Device=? AND FK_DeviceData=?';
 	$resDHCP=$dbADO->Execute($queryDHCP,array($coreID,$GLOBALS['DHCPDeviceData']));
-	$enableDHCP=($resDHCP->RecordCount()>0)?1:0;
 	$rowDHCP=$resDHCP->FetchRow();
+	$enableDHCP=($rowDHCP['IK_DeviceData']!='')?1:0;
+	
 	if(ereg(',',$rowDHCP['IK_DeviceData'])){
 		$nonPlutoIP=1;
 		$ipArray=explode(',',$rowDHCP['IK_DeviceData']);
@@ -259,8 +260,8 @@ function networkSettings($output,$dbADO) {
 
 		if($enableDHCP==0){
 			if($newEnableDHCP==1){
-				$insertDDD='INSERT INTO Device_DeviceData (FK_Device, FK_DeviceData, IK_DeviceData) VALUES (?,?,?)';
-				$dbADO->Execute($insertDDD,array($coreID,$GLOBALS['DHCPDeviceData'],$coreDHCP));
+				$insertDDD='UPDATE Device_DeviceData SET  IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?';
+				$dbADO->Execute($insertDDD,array($coreDHCP,$coreID,$GLOBALS['DHCPDeviceData']));
 			}
 		}elseif($newEnableDHCP==1){
 			if($coreDHCP!=$rowDHCP['IK_DeviceData']){
@@ -269,8 +270,8 @@ function networkSettings($output,$dbADO) {
 			}
 		}
 		else{
-			$deleteDDD='DELETE FROM Device_DeviceData WHERE FK_Device=? AND FK_DeviceData=?';
-			$dbADO->Execute($deleteDDD,array($coreID,$GLOBALS['DHCPDeviceData']));
+			$emptyDDD='UPDATE Device_DeviceData SET IK_DeviceData=\'\' WHERE FK_Device=? AND FK_DeviceData=?';
+			$dbADO->Execute($emptyDDD,array($coreID,$GLOBALS['DHCPDeviceData']));
 		}
 
 		$externalInterface=$externalInterfaceArray[0];
