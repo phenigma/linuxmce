@@ -51,6 +51,118 @@ public:
 	*/
 
 
+	/** @brief COMMAND: #45 - Disk Drive Monitoring ON */
+	/** Turn ON the disk Monitoring. */
+
+	virtual void CMD_Disk_Drive_Monitoring_ON() { string sCMD_Result; CMD_Disk_Drive_Monitoring_ON(sCMD_Result,NULL);};
+	virtual void CMD_Disk_Drive_Monitoring_ON(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #46 - Disk Drive Monitoring OFF */
+	/** Turn OFF the disk Monitoring. */
+
+	virtual void CMD_Disk_Drive_Monitoring_OFF() { string sCMD_Result; CMD_Disk_Drive_Monitoring_OFF(sCMD_Result,NULL);};
+	virtual void CMD_Disk_Drive_Monitoring_OFF(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #47 - Reset Disk Drive */
+	/** Reset the disk drive. */
+
+	virtual void CMD_Reset_Disk_Drive() { string sCMD_Result; CMD_Reset_Disk_Drive(sCMD_Result,NULL);};
+	virtual void CMD_Reset_Disk_Drive(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #48 - Eject Disk */
+	/** Eject the disk from the drive. */
+
+	virtual void CMD_Eject_Disk() { string sCMD_Result; CMD_Eject_Disk(sCMD_Result,NULL);};
+	virtual void CMD_Eject_Disk(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #49 - Start Burn Session */
+	/** Initiates a new burning session. */
+
+	virtual void CMD_Start_Burn_Session() { string sCMD_Result; CMD_Start_Burn_Session(sCMD_Result,NULL);};
+	virtual void CMD_Start_Burn_Session(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #50 - Start Ripping Session */
+	/** Initiates a new ripping session. */
+
+	virtual void CMD_Start_Ripping_Session() { string sCMD_Result; CMD_Start_Ripping_Session(sCMD_Result,NULL);};
+	virtual void CMD_Start_Ripping_Session(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #51 - Add File To Burning Session */
+	/** Add a new file to the initiated burning session. */
+
+	virtual void CMD_Add_File_To_Burning_Session() { string sCMD_Result; CMD_Add_File_To_Burning_Session(sCMD_Result,NULL);};
+	virtual void CMD_Add_File_To_Burning_Session(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #52 - Start Burning */
+	/** Starts burning. */
+
+	virtual void CMD_Start_Burning() { string sCMD_Result; CMD_Start_Burning(sCMD_Result,NULL);};
+	virtual void CMD_Start_Burning(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #53 - Abort Burning */
+	/** Aborts the burning session. */
+
+	virtual void CMD_Abort_Burning() { string sCMD_Result; CMD_Abort_Burning(sCMD_Result,NULL);};
+	virtual void CMD_Abort_Burning(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #54 - Mount Disk Image */
+	/** Will mount a disk image as a disk. */
+		/** @param #13 Filename */
+			/** What to mount. If it get's the Device name it will mount the actual disk in the drive. */
+		/** @param #59 MediaURL */
+			/** The URL which can be used to play the mounted media. */
+
+	virtual void CMD_Mount_Disk_Image(string sFilename,string *sMediaURL) { string sCMD_Result; CMD_Mount_Disk_Image(sFilename.c_str(),sMediaURL,sCMD_Result,NULL);};
+	virtual void CMD_Mount_Disk_Image(string sFilename,string *sMediaURL,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #55 - Abort Ripping */
+	/** Starts ripping a DVD. */
+
+	virtual void CMD_Abort_Ripping() { string sCMD_Result; CMD_Abort_Ripping(sCMD_Result,NULL);};
+	virtual void CMD_Abort_Ripping(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #56 - Format Drive */
+	/** Formats a disk. */
+
+	virtual void CMD_Format_Drive() { string sCMD_Result; CMD_Format_Drive(sCMD_Result,NULL);};
+	virtual void CMD_Format_Drive(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #57 - Close Tray */
+	/** Closes the tray. */
+
+	virtual void CMD_Close_Tray() { string sCMD_Result; CMD_Close_Tray(sCMD_Result,NULL);};
+	virtual void CMD_Close_Tray(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #337 - Rip Disk */
+	/** This will try to RIP a DVD to the HDD. */
+		/** @param #17 PK_Users */
+			/** The user who needs this rip in his private area. */
+		/** @param #20 Format */
+			/** wav, flac, ogg, etc. */
+		/** @param #50 Name */
+			/** The target disk name, or for cd's, a comma-delimited list of names for each track. */
+		/** @param #121 Tracks */
+			/** For CD's, this must be a comma-delimted list of tracks (1 based) to rip. */
+		/** @param #131 EK_Disc */
+			/** The ID of the disc to rip */
+
+	virtual void CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc) { string sCMD_Result; CMD_Rip_Disk(iPK_Users,sFormat.c_str(),sName.c_str(),sTracks.c_str(),iEK_Disc,sCMD_Result,NULL);};
+	virtual void CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,string &sCMD_Result,Message *pMessage);
+
+
 	/** @brief COMMAND: #701 - Load from Slot into Drive */
 	/** Load disc from "Storage Element" (Slot) to "Data Transfer Element" (Drive) */
 		/** @param #151 Slot Number */

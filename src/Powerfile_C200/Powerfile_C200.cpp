@@ -360,3 +360,160 @@ void Powerfile_C200::CMD_Get_Jukebox_Status(string *sJukebox_Status,string &sCMD
 		sCMD_Result = "FAILED";
 	}
 }
+//<-dceag-c45-b->
+
+	/** @brief COMMAND: #45 - Disk Drive Monitoring ON */
+	/** Turn ON the disk Monitoring. */
+
+void Powerfile_C200::CMD_Disk_Drive_Monitoring_ON(string &sCMD_Result,Message *pMessage)
+//<-dceag-c45-e->
+{
+}
+
+//<-dceag-c46-b->
+
+	/** @brief COMMAND: #46 - Disk Drive Monitoring OFF */
+	/** Turn OFF the disk Monitoring. */
+
+void Powerfile_C200::CMD_Disk_Drive_Monitoring_OFF(string &sCMD_Result,Message *pMessage)
+//<-dceag-c46-e->
+{
+}
+
+//<-dceag-c47-b->
+
+	/** @brief COMMAND: #47 - Reset Disk Drive */
+	/** Reset the disk drive. */
+
+void Powerfile_C200::CMD_Reset_Disk_Drive(string &sCMD_Result,Message *pMessage)
+//<-dceag-c47-e->
+{
+}
+
+//<-dceag-c48-b->
+
+	/** @brief COMMAND: #48 - Eject Disk */
+	/** Eject the disk from the drive. */
+
+void Powerfile_C200::CMD_Eject_Disk(string &sCMD_Result,Message *pMessage)
+//<-dceag-c48-e->
+{
+}
+
+//<-dceag-c49-b->
+
+	/** @brief COMMAND: #49 - Start Burn Session */
+	/** Initiates a new burning session. */
+
+void Powerfile_C200::CMD_Start_Burn_Session(string &sCMD_Result,Message *pMessage)
+//<-dceag-c49-e->
+{
+}
+
+//<-dceag-c50-b->
+
+	/** @brief COMMAND: #50 - Start Ripping Session */
+	/** Initiates a new ripping session. */
+
+void Powerfile_C200::CMD_Start_Ripping_Session(string &sCMD_Result,Message *pMessage)
+//<-dceag-c50-e->
+{
+}
+
+//<-dceag-c51-b->
+
+	/** @brief COMMAND: #51 - Add File To Burning Session */
+	/** Add a new file to the initiated burning session. */
+
+void Powerfile_C200::CMD_Add_File_To_Burning_Session(string &sCMD_Result,Message *pMessage)
+//<-dceag-c51-e->
+{
+}
+
+//<-dceag-c52-b->
+
+	/** @brief COMMAND: #52 - Start Burning */
+	/** Starts burning. */
+
+void Powerfile_C200::CMD_Start_Burning(string &sCMD_Result,Message *pMessage)
+//<-dceag-c52-e->
+{
+}
+
+//<-dceag-c53-b->
+
+	/** @brief COMMAND: #53 - Abort Burning */
+	/** Aborts the burning session. */
+
+void Powerfile_C200::CMD_Abort_Burning(string &sCMD_Result,Message *pMessage)
+//<-dceag-c53-e->
+{
+}
+
+//<-dceag-c54-b->
+
+	/** @brief COMMAND: #54 - Mount Disk Image */
+	/** Will mount a disk image as a disk. */
+		/** @param #13 Filename */
+			/** What to mount. If it get's the Device name it will mount the actual disk in the drive. */
+		/** @param #59 MediaURL */
+			/** The URL which can be used to play the mounted media. */
+
+void Powerfile_C200::CMD_Mount_Disk_Image(string sFilename,string *sMediaURL,string &sCMD_Result,Message *pMessage)
+//<-dceag-c54-e->
+{
+}
+
+//<-dceag-c55-b->
+
+	/** @brief COMMAND: #55 - Abort Ripping */
+	/** Starts ripping a DVD. */
+
+void Powerfile_C200::CMD_Abort_Ripping(string &sCMD_Result,Message *pMessage)
+//<-dceag-c55-e->
+{
+}
+
+//<-dceag-c56-b->
+
+	/** @brief COMMAND: #56 - Format Drive */
+	/** Formats a disk. */
+
+void Powerfile_C200::CMD_Format_Drive(string &sCMD_Result,Message *pMessage)
+//<-dceag-c56-e->
+{
+}
+
+//<-dceag-c57-b->
+
+	/** @brief COMMAND: #57 - Close Tray */
+	/** Closes the tray. */
+
+void Powerfile_C200::CMD_Close_Tray(string &sCMD_Result,Message *pMessage)
+//<-dceag-c57-e->
+{
+}
+
+//<-dceag-c337-b->
+
+	/** @brief COMMAND: #337 - Rip Disk */
+	/** This will try to RIP a DVD to the HDD. */
+		/** @param #17 PK_Users */
+			/** The user who needs this rip in his private area. */
+		/** @param #20 Format */
+			/** wav, flac, ogg, etc. */
+		/** @param #50 Name */
+			/** The target disk name, or for cd's, a comma-delimited list of names for each track. */
+		/** @param #121 Tracks */
+			/** For CD's, this must be a comma-delimted list of tracks (1 based) to rip. */
+		/** @param #131 EK_Disc */
+			/** The ID of the disc to rip */
+
+void Powerfile_C200::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,string &sCMD_Result,Message *pMessage)
+//<-dceag-c337-e->
+{
+}
+
+
+
+
