@@ -1128,7 +1128,11 @@ void DCEGen::SearchAndReplace(string InputFile,string OutputFile,string Classnam
 			if( bDefinition )
 				fputs(("//<-dceag-c" + StringUtils::itos(pRow_Command->PK_Command_get()) + "-b->\n").c_str(),file);
 			fputs(("\n\t/** @brief COMMAND: #" + StringUtils::itos(pRow_Command->PK_Command_get()) + " - " + pRow_Command->Description_get() + " */\n").c_str(),file);
+#ifdef linux
+			fputs(("\t/** " + StringUtils::Replace(pRow_DeviceCommandGroup_Command->Description_get(), "\r\n", "\n") + " */\n").c_str(),file);
+#else
 			fputs(("\t/** " + pRow_DeviceCommandGroup_Command->Description_get() + " */\n").c_str(),file);
+#endif
 			vector<Row_Command_CommandParameter *> vectRow_Command_CommandParameter;
 			pRow_Command->Command_CommandParameter_FK_Command_getrows(&vectRow_Command_CommandParameter);
 			for(size_t i3=0;i3<vectRow_Command_CommandParameter.size();++i3)
@@ -1137,7 +1141,11 @@ void DCEGen::SearchAndReplace(string InputFile,string OutputFile,string Classnam
 				fputs(("\t\t/** @param #" + StringUtils::itos(pRow_Command_CommandParameter->FK_CommandParameter_get()) + " " +
 					pRow_Command_CommandParameter->FK_CommandParameter_getrow()->Description_get() + " */\n").c_str(),file);
 				if( !pRow_Command_CommandParameter->Description_isNull() )
+#ifdef linux
+					fputs(("\t\t\t/** " + StringUtils::Replace(pRow_Command_CommandParameter->Description_get(), "\r\n", "\n") + " */\n").c_str(),file);
+#else
 					fputs(("\t\t\t/** " + pRow_Command_CommandParameter->Description_get() + " */\n").c_str(),file);
+#endif
 			}
 			fputs("\n",file);
 
