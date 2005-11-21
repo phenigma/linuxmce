@@ -36,8 +36,7 @@ public:
 	int m_i_psc_batch;
 	sqlCVS::Repository *m_pRepository; /**< The repository we're currently committing */
 	bool m_bSupervisor,m_bAllAnonymous;
-	int m_iNew,m_iMod,m_iDel;
-	int m_ipsc_user_default;
+	int m_iNew,m_iMod,m_iDel,m_ipsc_user_default;
 	string m_sComments;  /**< Optional comments to be included with this transaction */
 
 	int m_psc_bathdr_orig,m_psc_bathdr_auth,m_psc_bathdr_unauth,m_psc_user_needs_to_authorize;
@@ -47,10 +46,9 @@ public:
 
 	/** @brief constructor assigning null to all the pointers */
 	sqlCVSprocessor( RAServerSocket *pRAServerSocket ) : RA_Processor( 0, 1 ), st(g_GlobalConfig.m_pDatabase) { 
-		m_pTable=NULL; m_pvectFields=NULL; m_i_psc_batch=1; m_pRepository=NULL; m_bSupervisor=false; m_bAllAnonymous=true; 
+		m_pTable=NULL; m_pvectFields=NULL; m_i_psc_batch=1; m_pRepository=NULL; m_bSupervisor=false; m_bAllAnonymous=true; m_iNew=m_iMod=m_iDel=0; 
 		m_psc_bathdr_orig=m_psc_bathdr_auth=m_psc_bathdr_unauth=m_ipsc_user_default=m_psc_user_needs_to_authorize=0;
 		tTime_Creation = time(NULL);  m_pRAServerSocket=pRAServerSocket;
-		m_iNew=m_iMod=m_iDel=0;
 	}
 	virtual ~sqlCVSprocessor( ) 
 	{ 

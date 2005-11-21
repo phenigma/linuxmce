@@ -198,9 +198,6 @@ namespace sqlCVS
 		  */
 		void ListBatchContents();
 
-		// If this is a listening server the following will be called to prepopulate the structure
-		void Populate_map_id_batch();
-
 		string Name_get( ) { return m_sMySQLDBName; }
 		bool bIsInvalid( ) { return m_bInvalid; }
 	};

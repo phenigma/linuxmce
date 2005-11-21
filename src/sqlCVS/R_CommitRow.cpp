@@ -75,21 +75,18 @@ int k=2;
 			/**  This is a new record */
 			psqlCVSprocessor->m_pTable->AddRow( this, psqlCVSprocessor, m_bFrozen );
 			psqlCVSprocessor->m_iNew++;
-			psqlCVSprocessor->m_pTable->m_vectNew.push_back(m_psc_id_new);
 		}
 		else if( m_eTypeOfChange==( int ) sqlCVS::toc_Modify )
 		{
 			/** The user is updating an existing record */
 			psqlCVSprocessor->m_pTable->UpdateRow( this, psqlCVSprocessor, m_bFrozen, m_psc_user_needs_to_authorize );
 			psqlCVSprocessor->m_iMod++;
-			psqlCVSprocessor->m_pTable->m_vectMod.push_back(m_psc_id);
 		}
 		else if( m_eTypeOfChange==( int ) sqlCVS::toc_Delete )
 		{
 			/** The user is deleting an existing record */
 			psqlCVSprocessor->m_pTable->DeleteRow( this, psqlCVSprocessor, m_bFrozen, m_psc_user_needs_to_authorize );
 			psqlCVSprocessor->m_iDel++;
-			psqlCVSprocessor->m_pTable->m_vectDel.push_back(m_psc_id);
 		}
 
 		// This is executed on the server, so we always want to update the last sync value

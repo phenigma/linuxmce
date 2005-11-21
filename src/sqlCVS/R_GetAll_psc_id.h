@@ -17,7 +17,6 @@
  * @todo complete documentation
  */
  
-
 class R_GetAll_psc_id : public RA_Request
 {
 public:
@@ -27,13 +26,10 @@ public:
 	vector<int> m_vectRestrictions; /** The restrictions we're interested in */
 
 	/** @brief Response Variables */
-	PlutoDataBlock m_PlutoDataBlock;
-
-	// Temporary vector used by DetermineDeletions.  string=table name, int/int=psc_id/psc_batch
-	map<string, vector< pair<int,int> > > m_map_vectAll_psc_id;  // psc_id + batch
+	vector< pair<int,int> > m_vectAll_psc_id;  // psc_id + batch
 
 	/** @brief constructor */
-	R_GetAll_psc_id( vector<int> *p_vectRestrictions);
+	R_GetAll_psc_id(string sTable, vector<int> *p_vectRestrictions);
 	
 	/** @brief constructor */
 	R_GetAll_psc_id( ) {};
@@ -61,7 +57,7 @@ public:
 	virtual void SetupSerialization_Response( )
 	{
 		RA_Request::SetupSerialization_Response( );
-		StartSerializeList( ) + m_PlutoDataBlock;
+		StartSerializeList( ) + m_vectAll_psc_id;
 	}
 
 	/**
@@ -69,8 +65,6 @@ public:
 	 */
 	 	
 	virtual bool ProcessRequest( class RA_Processor *pRA_Processor );
-
-	virtual bool ParseResponse(unsigned long dwSize, const char *pcData);
 };
 
 

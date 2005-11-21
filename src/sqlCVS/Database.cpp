@@ -32,7 +32,6 @@
 #include "PlutoUtils/Other.h"
 #include "RA/RA_Processor.h"
 #include "R_ApproveBatch.h"
-#include "R_GetAll_psc_id.h"
 #include "CommonFunctions.h"
 #include <iomanip>
 #include <sstream>
@@ -469,8 +468,7 @@ void Database::ShowChanges()
 		// Don't need to create a transaction since we're not changing anything.
 
 		DCE::Socket *pSocket=NULL;
-		R_GetAll_psc_id r_GetAll_psc_id( &g_GlobalConfig.m_vectRestrictions );
-		vector<Table *> vectTable;
+
 		for( MapRepository::iterator it=m_mapRepository.begin( );it!=m_mapRepository.end( );++it )
 		{
 			Repository *pRepository = ( *it ).second;
@@ -486,29 +484,25 @@ void Database::ShowChanges()
 						g_GlobalConfig.m_mapTable.find( pTable->Name_get() )==g_GlobalConfig.m_mapTable.end() )
 					continue;
 
-				if( !pTable->Repository_get( ) )
-					continue;
-
-				vectTable.push_back(pTable);
-				r_GetAll_psc_id.m_sTable += pTable->Name_get() + "\t";
+				/**
+				* Since we don't need to connect to the server for anything here, but we don't each table to make it's own connection, 
+				* Pass in the connection string and the NULL pointer to the socket so a connection will be made the
+				* first time and preserved for the other tables
+				*/
+				 
+				if( pTable->Repository_get( ) )
+				{
+					pTable->GetChanges(); // This will get the adds and modifies
+					if( !pTable->DetermineDeletions( ra_Processor, g_GlobalConfig.m_sSqlCVSHost + ":" + StringUtils::itos(g_GlobalConfig.m_iSqlCVSPort), &pSocket ) )
+					{
+						delete pSocket;
+						cerr << "Unable to contact the server to determine what records were deleted" << endl;
+						throw "database error";
+					}
+				}
 			}
 		}
-
-		ra_Processor.AddRequest( &r_GetAll_psc_id );
-		while( ra_Processor.SendRequests(g_GlobalConfig.m_sSqlCVSHost + ":" + StringUtils::itos(g_GlobalConfig.m_iSqlCVSPort)) );
-
-		if( r_GetAll_psc_id.m_cProcessOutcome!=SUCCESSFULLY_PROCESSED )
-		{
-			cerr << "Cannot get list of records from server:" << (int) r_GetAll_psc_id.m_cProcessOutcome << endl;
-			throw "Communication error";
-		}
-
-		for(size_t s=0;s<vectTable.size();++s)
-		{
-			Table *pTable = vectTable[s];
-			pTable->GetChanges(); // This will get the adds and modifies
-			pTable->DetermineDeletions(r_GetAll_psc_id.m_map_vectAll_psc_id[pTable->Name_get()]);
-		}
+		delete pSocket;
 	}
 
 	bool bOutputToFile=g_GlobalConfig.m_sOutputFile.size()>0;
@@ -1530,39 +1524,10 @@ void Database::StartTransaction( )
 void Database::Commit( )
 {
 	cout << "Doing a Commit" << endl;
-
 	if( threaded_mysql_query("COMMIT")<0 )
 	{
 		cerr << "Could not commit transaction" << endl;
 		throw "Database error";
-	}
-
-	for( MapTable::iterator it=m_mapTable.begin( );it!=m_mapTable.end( );++it )
-	{
-		Table *pTable = it->second;
-		if( pTable->m_vectNew.size() || pTable->m_vectMod.size() || pTable->m_vectDel.size() )
-		{
-			for(size_t s=0;s<pTable->m_vectNew.size();++s)
-			{
-				int psc_batch,psc_restrict;
-				pTable->Get_psc_batch_restrict(pTable->m_vectNew[s],psc_batch,psc_restrict);
-				pTable->m_map_id_batch[pTable->m_vectNew[s]] = make_pair<int,int> (psc_batch,psc_restrict);
-			}
-
-			for(size_t s=0;s<pTable->m_vectMod.size();++s)
-			{
-				int psc_batch,psc_restrict;
-				pTable->Get_psc_batch_restrict(pTable->m_vectNew[s],psc_batch,psc_restrict);
-				pTable->m_map_id_batch[pTable->m_vectNew[s]] = make_pair<int,int> (psc_batch,psc_restrict);
-			}
-
-			for(size_t s=0;s<pTable->m_vectDel.size();++s)
-				pTable->m_map_id_batch.erase(pTable->m_vectDel[s]);
-
-			pTable->m_vectNew.clear(); pTable->m_vectMod.clear(); pTable->m_vectDel.clear();
-
-			pTable->Parse_map_id_batch();
-		}
 	}
 }
 
@@ -1896,12 +1861,3 @@ void Database::RollbackBatch()
 	Repository *pRepository = (*g_GlobalConfig.m_mapRepository.begin()).second;
 	pRepository->RollbackBatch();
 }
-
-
-void Database::Populate_map_id_batch()
-{
-	for( MapTable::iterator it=m_mapTable.begin( );it!=m_mapTable.end( );++it )
-		if( !it->second->bIsSystemTable_get() && it->second->m_pField_id )
-			it->second->Populate_map_id_batch();
-}
-
