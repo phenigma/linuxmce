@@ -1762,6 +1762,8 @@
 #define DESIGNOBJ_butTracklight_CONST 4610
 #define DESIGNOBJ_butRecessedlighting_CONST 4611
 #define DESIGNOBJ_butStartUsingMonster_CONST 4612
+#define DESIGNOBJ_mnuPowerFile_CONST 4613
+#define DESIGNOBJ_dgPowerFile_CONST 4614
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

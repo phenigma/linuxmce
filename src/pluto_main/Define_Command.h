@@ -657,6 +657,13 @@
 #define COMMAND_Load_from_Slot_into_Drive_CONST 701
 #define COMMAND_Unload_from_Drive_into_Slot_CONST 702
 #define COMMAND_Get_Jukebox_Status_CONST 703
+#define COMMAND_Component_1_CONST 712
+#define COMMAND_Component_2_CONST 713
+#define COMMAND_DVR_CONST 714
+#define COMMAND_TV_Theater_CONST 715
+#define COMMAND_Discover_New_Devices_CONST 717
+#define COMMAND_Create_Device_CONST 718
+#define COMMAND_Delete_Device_CONST 719
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
