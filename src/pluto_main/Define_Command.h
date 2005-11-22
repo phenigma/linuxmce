@@ -664,6 +664,7 @@
 #define COMMAND_Discover_New_Devices_CONST 717
 #define COMMAND_Create_Device_CONST 718
 #define COMMAND_Delete_Device_CONST 719
+#define COMMAND_Bulk_Rip_CONST 720
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
