@@ -67,6 +67,119 @@ Disk_Drive_Functions * Powerfile_C200::GetDDF(int iDrive_Number)
 	return m_vectDDF[iDrive_Number];
 }
 
+bool Powerfile_C200::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
+{
+	bool bComma = false, bResult = false;
+	string sOutput;
+	if (sJukebox_Status)
+		* sJukebox_Status = "";
+
+	if (! m_bStatusCached || bForce)
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Getting fresh status info%s", bForce ? " (Forced)" : "");
+		m_vectDriveStatus.clear();
+		m_vectSlotStatus.clear();
+#ifdef EMULATE_PF
+		char * args[] = {"/bin/cat", "/tmp/samples/mtx-status", NULL};
+#else
+		char * args[] = {"/usr/sbin/mtx", "-f", (char *) m_sChanger.c_str(), "nobarcode", "status", NULL};
+#endif
+		if (exec_output(args[0], args, sOutput))
+		{
+			vector<string> vect_sOutput_Rows;
+			
+			Tokenize(sOutput, "\n", vect_sOutput_Rows);
+			for (size_t i = 0; i < vect_sOutput_Rows.size(); i++)
+			{
+				string sResult = "";
+				vector<string> vsFF;
+				string sWhoWhat;
+				vector<string> vsC; // C = Components
+
+				ExtractFields(vect_sOutput_Rows[i], vsFF);
+				if (vsFF[0] == "Data")
+				{
+					int iDiscFrom = 0;
+					sWhoWhat = vsFF[3];
+					Tokenize(sWhoWhat, ":", vsC); // Unit_number:State
+					
+					sResult = string("D") + vsC[0] + "=" + vsC[1];
+					if (vsC[1] == "Full")
+					{
+						sResult += string("-") + vsFF[6];
+						sscanf(vsFF[6].c_str(), "%d", &iDiscFrom);
+					}
+					m_vectDriveStatus.push_back(iDiscFrom);
+				}
+				else if (vsFF.size() == 3 && vsFF[0] == "Storage" && vsFF[1] == "Element")
+				{
+					sWhoWhat = vsFF[2];
+					Tokenize(sWhoWhat, ":", vsC);
+					
+					sResult = string("S") + vsC[0] + "=" +vsC[1];
+					m_vectSlotStatus.push_back(vsC[1] == "Full");
+				}
+				
+				if (sJukebox_Status && sResult != "")
+				{
+					if (bComma)
+						* sJukebox_Status += ",";
+					else
+						bComma = true;
+					* sJukebox_Status += sResult;
+				}
+			}
+			g_pPlutoLogger->Write(LV_STATUS, "Finished getting device status");
+			m_bStatusCached = true;
+			bResult = true;
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "Failed to get device status");
+		}
+	}
+	else // Use cached info
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Using cached info");
+		size_t i;
+		string sResult, sState;
+		bool bComma = false;
+		
+		for (i = 0; i < m_vectDriveStatus.size(); i++)
+		{
+			sState = m_vectDriveStatus[i] == 0 ? "Empty" : ("Full-" + StringUtils::itos(m_vectDriveStatus[i]));
+			sResult = "D" + StringUtils::itos(i) + "=" + sState;
+			if (sJukebox_Status && sResult != "")
+			{
+				if (bComma)
+					* sJukebox_Status += ",";
+				else
+					bComma = true;
+				* sJukebox_Status += sResult;
+			}
+		}
+
+		for (i = 0; i < m_vectSlotStatus.size(); i++)
+		{
+			sState = m_vectSlotStatus[i] ? "Full" : "Empty";
+			sResult = "S" + StringUtils::itos(i+1) + "=" + sState;
+			if (sJukebox_Status && sResult != "")
+			{
+				if (bComma)
+					* sJukebox_Status += ",";
+				else
+					bComma = true;
+				* sJukebox_Status += sResult;
+			}
+		}
+
+		g_pPlutoLogger->Write(LV_STATUS, "Finished getting device status");
+		bResult = true;
+	}
+
+	return bResult;
+}
+
 //<-dceag-getconfig-b->
 bool Powerfile_C200::GetConfig()
 {
@@ -76,7 +189,7 @@ bool Powerfile_C200::GetConfig()
 
 	string sOutput;
 #ifdef EMULATE_PF
-	char * args[] = {"/bin/cat", "/tmp/samples/lsscsi". NULL};
+	char * args[] = {"/bin/cat", "/tmp/samples/lsscsi", NULL};
 #else
 	char * args[] = {"/usr/bin/lsscsi", "-g", NULL};
 #endif
@@ -106,6 +219,9 @@ bool Powerfile_C200::GetConfig()
 			m_sChanger = vsFF[7];
 		}
 	}
+
+	if (!Get_Jukebox_Status(NULL, true))
+		return false;
 	g_pPlutoLogger->Write(LV_STATUS, "Finished config");
 	return true;
 }
@@ -262,22 +378,36 @@ void Powerfile_C200::CMD_Load_from_Slot_into_Drive(int iSlot_Number,int iDrive_N
 #else
 	string sCmd = string("mtx -f ") + m_sChanger + " load " + itos(iSlot_Number) + " " + itos(iDrive_Number);
 #endif
-	int status = system(sCmd.c_str());
-	if (WEXITSTATUS(status) == 0)
+
+	sCMD_Result = "FAILED";
+	if (m_vectDriveStatus[iDrive_Number] != 0)
 	{
-		sCmd = string("eject -s ") + m_vectDrive[iDrive_Number];
-		system(sCmd.c_str());
-		g_pPlutoLogger->Write(LV_STATUS, "Loading disc succeeded");
-		
-		m_vectDriveStatus[iDrive_Number] = iSlot_Number;
-		m_vectSlotStatus[iSlot_Number] = false;
-		
-		sCMD_Result = "OK";
+		g_pPlutoLogger->Write(LV_WARNING, "Disc unit full");
+	}
+	else if (! m_vectSlotStatus[iSlot_Number - 1])
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Slot empty");
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Loading disc failed");
-		sCMD_Result = "FAILED";
+		int status = system(sCmd.c_str());
+		if (WEXITSTATUS(status) == 0)
+		{
+#ifndef EMULATE_PF
+			sCmd = string("eject -s ") + m_vectDrive[iDrive_Number];
+			system(sCmd.c_str());
+#endif
+			g_pPlutoLogger->Write(LV_STATUS, "Loading disc succeeded");
+			
+			m_vectDriveStatus[iDrive_Number] = iSlot_Number;
+			m_vectSlotStatus[iSlot_Number - 1] = false;
+			
+			sCMD_Result = "OK";
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "Loading disc failed");
+		}
 	}
 }
 
@@ -299,22 +429,36 @@ void Powerfile_C200::CMD_Unload_from_Drive_into_Slot(int iSlot_Number,int iDrive
 #else
 	string sCmd = string("mtx -f ") + m_sChanger + " unload " + itos(iSlot_Number) + " " + itos(iDrive_Number);
 #endif
-	int status = system(sCmd.c_str());
-	if (WEXITSTATUS(status) == 0)
+	
+	sCMD_Result = "FAILED";
+	if (m_vectDriveStatus[iDrive_Number] == 0)
 	{
-		sCmd = string("eject -s ") + m_vectDrive[iDrive_Number];
-		system(sCmd.c_str());
-		g_pPlutoLogger->Write(LV_STATUS, "Unloading disc succeeded");
-		
-		m_vectDriveStatus[iDrive_Number] = 0;
-		m_vectSlotStatus[iSlot_Number] = true;
-		
-		sCMD_Result = "OK";
+		g_pPlutoLogger->Write(LV_WARNING, "Disc unit empty");
+	}
+	else if (m_vectSlotStatus[iSlot_Number - 1])
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Slot full");
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Unloading disc failed");
-		sCMD_Result = "FAILED";
+		int status = system(sCmd.c_str());
+		if (WEXITSTATUS(status) == 0)
+		{
+#ifndef EMULATE_PF
+			sCmd = string("eject -s ") + m_vectDrive[iDrive_Number];
+			system(sCmd.c_str());
+#endif
+			g_pPlutoLogger->Write(LV_STATUS, "Unloading disc succeeded");
+			
+			m_vectDriveStatus[iDrive_Number] = 0;
+			m_vectSlotStatus[iSlot_Number - 1] = true;
+			
+			sCMD_Result = "OK";
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "Unloading disc failed");
+		}
 	}
 }
 
@@ -336,108 +480,13 @@ void Powerfile_C200::CMD_Get_Jukebox_Status(string *sJukebox_Status,string &sCMD
 	/* TEMP CODE - End */
 	
 	g_pPlutoLogger->Write(LV_STATUS, "Getting jukebox status");
-	
-	* sJukebox_Status = "";
-	bool bComma = false;
-	string sOutput;
 
-	if (! m_bStatusCached || bForce)
+	sCMD_Result = "FAILED";
+	if (Get_Jukebox_Status(sJukebox_Status))
 	{
-		m_vectDriveStatus.clear();
-		m_vectSlotStatus.clear();
-#ifdef EMULATE_PF
-		char * args[] = {"/bin/cat", "/tmp/samples/mtx-status", NULL};
-#else
-		char * args[] = {"/usr/sbin/mtx", "-f", (char *) m_sChanger.c_str(), "nobarcode", "status", NULL};
-#endif
-		if (exec_output(args[0], args, sOutput))
-		{
-			vector<string> vect_sOutput_Rows;
-			
-			Tokenize(sOutput, "\n", vect_sOutput_Rows);
-			for (size_t i = 0; i < vect_sOutput_Rows.size(); i++)
-			{
-				string sResult = "";
-				vector<string> vsFF;
-				string sWhoWhat;
-				vector<string> vsC; // C = Components
-
-				ExtractFields(vect_sOutput_Rows[i], vsFF);
-				if (vsFF[0] == "Data")
-				{
-					int iDiscFrom = 0;
-					sWhoWhat = vsFF[3];
-					Tokenize(sWhoWhat, ":", vsC); // Unit_number:State
-					
-					sResult = string("D") + vsC[0] + "=" + vsC[1];
-					if (vsC[1] == "Full")
-					{
-						sResult += string("-") + vsFF[6];
-						sscanf(vsFF[6].c_str(), "%d", &iDiscFrom);
-					}
-					m_vectDriveStatus.push_back(iDiscFrom);
-				}
-				else if (vsFF.size() == 3 && vsFF[0] == "Storage" && vsFF[1] == "Element")
-				{
-					sWhoWhat = vsFF[2];
-					Tokenize(sWhoWhat, ":", vsC);
-					
-					sResult = string("S") + vsC[0] + "=" +vsC[1];
-					m_vectSlotStatus.push_back(vsC[1] == "Full");
-				}
-				
-				if (sResult != "")
-				{
-					if (bComma)
-						* sJukebox_Status += ",";
-					else
-						bComma = true;
-					* sJukebox_Status += sResult;
-				}
-			}
-			g_pPlutoLogger->Write(LV_STATUS, "Finished getting device status");
-			sCMD_Result = "OK";
-		}
-		else
-		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "Failed to get device status");
-			sCMD_Result = "FAILED";
-		}
+		sCMD_Result = "OK";
 	}
-	else // Use cached info
-	{
-		size_t i;
-		string sResult, sState;
-		bool bComma = false;
-		
-		for (i = 0; i < m_vectDriveStatus.size(); i++)
-		{
-			sState = m_vectDriveStatus[i] == 0 ? "Empty" : ("Full" + StringUtils::itos(m_vectDriveStatus[i]));
-			sResult = "D" + StringUtils::itos(i) + "=" + sState;
-			if (sResult != "")
-			{
-				if (bComma)
-					* sJukebox_Status += ",";
-				else
-					bComma = true;
-				* sJukebox_Status += sResult;
-			}
-		}
 
-		for (i = 0; i < m_vectSlotStatus.size(); i++)
-		{
-			sState = m_vectSlotStatus[i] ? "Full" : "Empty";
-			sResult = "S" + StringUtils::itos(i) + "=" + sState;
-			if (sResult != "")
-			{
-				if (bComma)
-					* sJukebox_Status += ",";
-				else
-					bComma = true;
-				* sJukebox_Status += sResult;
-			}
-		}
-	}
 }
 //<-dceag-c45-b->
 

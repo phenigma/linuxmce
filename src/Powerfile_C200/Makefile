@@ -16,7 +16,7 @@ Gen_Dev_Files = $(GENDEV)/Powerfile_C200Base.cpp
 sources = Main.cpp Powerfile_C200.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
-CXXFLAGS +=
+CXXFLAGS += $(XXXFLAGS)
 CPPFLAGS +=
 LDFLAGS +=
 XTRALDLIBS = -lDisk_Drive_Functions
