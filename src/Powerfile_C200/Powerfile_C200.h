@@ -217,6 +217,9 @@ where:
 			vector<Disk_Drive_Functions *> m_vectDDF;
 
 			Disk_Drive_Functions * GetDDF(int iDrive_Number);
+			vector<int> m_vectDriveStatus; // slot of provenience
+			vector<bool> m_vectSlotStatus; // occupied or not
+			bool m_bStatusCached;
 	};
 
 //<-dceag-end-b->
