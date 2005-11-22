@@ -19,7 +19,7 @@ sources = Main.cpp Powerfile_C200.cpp $(Gen_Dev_Files)
 CXXFLAGS +=
 CPPFLAGS +=
 LDFLAGS +=
-XTRALDLIBS =
+XTRALDLIBS = -lDisk_Drive_Functions
 
 Gen_Dev_Files +=
 sources += exec_grab_output.cpp

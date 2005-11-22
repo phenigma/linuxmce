@@ -1,0 +1,4 @@
+[0:0:0:0]    disk    ATA      ST3120026AS      3.05  /dev/sda  /dev/sg0
+[2:0:1:0]    cd/dvd  TOSHIBA  DVD-ROM SD-M1212 1034  /dev/sr0  /dev/sg1
+[3:0:2:0]    cd/dvd  TOSHIBA  DVD-ROM SD-M1212 1034  /dev/sr1  /dev/sg2
+[4:0:3:0]    mediumx Escient  Powerfile C200   079   -         /dev/sg3

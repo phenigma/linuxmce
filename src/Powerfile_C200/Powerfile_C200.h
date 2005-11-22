@@ -6,6 +6,7 @@
 
 #include "Gen_Devices/Powerfile_C200Base.h"
 //<-dceag-d-e->
+#include "Disk_Drive_Functions/Disk_Drive_Functions.h"
 
 //<-dceag-decl-b->
 namespace DCE
@@ -67,16 +68,24 @@ public:
 
 	/** @brief COMMAND: #47 - Reset Disk Drive */
 	/** Reset the disk drive. */
+		/** @param #152 Drive Number */
+			/** Disc unit index number
+Disk_Drive: 0
+Powerfile: 0, 1, ... */
 
-	virtual void CMD_Reset_Disk_Drive() { string sCMD_Result; CMD_Reset_Disk_Drive(sCMD_Result,NULL);};
-	virtual void CMD_Reset_Disk_Drive(string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Reset_Disk_Drive(int iDrive_Number) { string sCMD_Result; CMD_Reset_Disk_Drive(iDrive_Number,sCMD_Result,NULL);};
+	virtual void CMD_Reset_Disk_Drive(int iDrive_Number,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #48 - Eject Disk */
 	/** Eject the disk from the drive. */
+		/** @param #152 Drive Number */
+			/** Disc unit index number
+Disk_Drive: 0
+Powerfile: 0, 1, ... */
 
-	virtual void CMD_Eject_Disk() { string sCMD_Result; CMD_Eject_Disk(sCMD_Result,NULL);};
-	virtual void CMD_Eject_Disk(string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Eject_Disk(int iDrive_Number) { string sCMD_Result; CMD_Eject_Disk(iDrive_Number,sCMD_Result,NULL);};
+	virtual void CMD_Eject_Disk(int iDrive_Number,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #49 - Start Burn Session */
@@ -158,9 +167,13 @@ public:
 			/** For CD's, this must be a comma-delimted list of tracks (1 based) to rip. */
 		/** @param #131 EK_Disc */
 			/** The ID of the disc to rip */
+		/** @param #152 Drive Number */
+			/** Disc unit index number
+Disk_Drive: 0
+Powerfile: 0, 1, ... */
 
-	virtual void CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc) { string sCMD_Result; CMD_Rip_Disk(iPK_Users,sFormat.c_str(),sName.c_str(),sTracks.c_str(),iEK_Disc,sCMD_Result,NULL);};
-	virtual void CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,int iDrive_Number) { string sCMD_Result; CMD_Rip_Disk(iPK_Users,sFormat.c_str(),sName.c_str(),sTracks.c_str(),iEK_Disc,iDrive_Number,sCMD_Result,NULL);};
+	virtual void CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,int iDrive_Number,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #701 - Load from Slot into Drive */
@@ -196,10 +209,14 @@ where:
 	virtual void CMD_Get_Jukebox_Status(string *sJukebox_Status) { string sCMD_Result; CMD_Get_Jukebox_Status(sJukebox_Status,sCMD_Result,NULL);};
 	virtual void CMD_Get_Jukebox_Status(string *sJukebox_Status,string &sCMD_Result,Message *pMessage);
 
-
 //<-dceag-h-e->
 		private:
-			string m_sDrive[2], m_sChanger; // corresponding devices
+			// corresponding devices
+			vector<string> m_vectDrive;
+			string m_sChanger;
+			vector<Disk_Drive_Functions *> m_vectDDF;
+
+			Disk_Drive_Functions * GetDDF(int iDrive_Number);
 	};
 
 //<-dceag-end-b->

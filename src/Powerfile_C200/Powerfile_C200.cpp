@@ -36,6 +36,8 @@ Powerfile_C200::Powerfile_C200(Command_Impl *pPrimaryDeviceCommand, DeviceData_I
 Powerfile_C200::~Powerfile_C200()
 //<-dceag-dest-e->
 {
+	for (size_t i = 0; i < m_vectDDF.size(); i++)
+		delete m_vectDDF[i];
 }
 
 // Call Tokenize directly if you don't need to strip out eventual empty fields
@@ -52,6 +54,17 @@ static void ExtractFields(string &sRow, vector<string> &vect_sResult, const char
 			continue; // skip empty fields since there is no such thing
 		vect_sResult.push_back(vect_sFields[i]);
 	}
+}
+
+// Return Disk_Drive_Functions instance for requested drive
+Disk_Drive_Functions * Powerfile_C200::GetDDF(int iDrive_Number)
+{
+	if (iDrive_Number < 0 || iDrive_Number >= m_vectDDF.size())
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "Invalid drive index %d (max: %d)", iDrive_Number, m_vectDDF.size() - 1);
+		return NULL;
+	}
+	return m_vectDDF[iDrive_Number];
 }
 
 //<-dceag-getconfig-b->
@@ -78,13 +91,9 @@ bool Powerfile_C200::GetConfig()
 		ExtractFields(vect_sOutput_Rows[i], vsFF);
 		if (vsFF[1] == "cd/dvd" && vsFF[2] == "TOSHIBA" && vsFF[3] == "DVD-ROM" && vsFF[4] == "SD-M1212")
 		{
-			if (nDrive > 1) // sanity check
-			{
-				g_pPlutoLogger->Write(LV_CRITICAL, "I seem to have found more than 2 drives on this thing!");
-				return false;
-			}
 			g_pPlutoLogger->Write(LV_WARNING, "Found DVD unit %d: %s", nDrive, vsFF[6].c_str());
-			m_sDrive[nDrive] = vsFF[6];
+			m_vectDrive.push_back(vsFF[6]);
+			m_vectDDF.push_back(new Disk_Drive_Functions(this, vsFF[6]));
 			nDrive++;
 		}
 		else if (vsFF[1] == "mediumx" && vsFF[2] == "Escient" && vsFF[3] == "Powerfile" && vsFF[4] == "C200")
@@ -248,7 +257,7 @@ void Powerfile_C200::CMD_Load_from_Slot_into_Drive(int iSlot_Number,int iDrive_N
 	int status = system(sCmd.c_str());
 	if (WEXITSTATUS(status) == 0)
 	{
-		sCmd = string("eject -s ") + m_sDrive[iDrive_Number];
+		sCmd = string("eject -s ") + m_vectDrive[iDrive_Number];
 		system(sCmd.c_str());
 		g_pPlutoLogger->Write(LV_STATUS, "Loading disc succeeded");
 		sCMD_Result = "OK";
@@ -277,7 +286,7 @@ void Powerfile_C200::CMD_Unload_from_Drive_into_Slot(int iSlot_Number,int iDrive
 	int status = system(sCmd.c_str());
 	if (WEXITSTATUS(status) == 0)
 	{
-		sCmd = string("eject -s ") + m_sDrive[iDrive_Number];
+		sCmd = string("eject -s ") + m_vectDrive[iDrive_Number];
 		system(sCmd.c_str());
 		g_pPlutoLogger->Write(LV_STATUS, "Unloading disc succeeded");
 		sCMD_Result = "OK";
@@ -383,20 +392,42 @@ void Powerfile_C200::CMD_Disk_Drive_Monitoring_OFF(string &sCMD_Result,Message *
 
 	/** @brief COMMAND: #47 - Reset Disk Drive */
 	/** Reset the disk drive. */
+		/** @param #152 Drive Number */
+			/** Disc unit index number
+Disk_Drive: 0
+Powerfile: 0, 1, ... */
 
-void Powerfile_C200::CMD_Reset_Disk_Drive(string &sCMD_Result,Message *pMessage)
+void Powerfile_C200::CMD_Reset_Disk_Drive(int iDrive_Number,string &sCMD_Result,Message *pMessage)
 //<-dceag-c47-e->
 {
+	Disk_Drive_Functions * pDDF = GetDDF(iDrive_Number);
+	if (pDDF)
+	{
+		pDDF->m_mediaInserted = false;
+		pDDF->m_mediaDiskStatus = DISCTYPE_NONE;
+		pDDF->DisplayMessageOnOrbVFD("Checking disc...");
+
+		pDDF->internal_reset_drive(true);
+	}
 }
 
 //<-dceag-c48-b->
 
 	/** @brief COMMAND: #48 - Eject Disk */
 	/** Eject the disk from the drive. */
+		/** @param #152 Drive Number */
+			/** Disc unit index number
+Disk_Drive: 0
+Powerfile: 0, 1, ... */
 
-void Powerfile_C200::CMD_Eject_Disk(string &sCMD_Result,Message *pMessage)
+void Powerfile_C200::CMD_Eject_Disk(int iDrive_Number,string &sCMD_Result,Message *pMessage)
 //<-dceag-c48-e->
 {
+	Disk_Drive_Functions * pDDF = GetDDF(iDrive_Number);
+	if (pDDF)
+	{
+		// put disc back in origin slot
+	}
 }
 
 //<-dceag-c49-b->
@@ -507,12 +538,17 @@ void Powerfile_C200::CMD_Close_Tray(string &sCMD_Result,Message *pMessage)
 			/** For CD's, this must be a comma-delimted list of tracks (1 based) to rip. */
 		/** @param #131 EK_Disc */
 			/** The ID of the disc to rip */
+		/** @param #152 Drive Number */
+			/** Disc unit index number
+Disk_Drive: 0
+Powerfile: 0, 1, ... */
 
-void Powerfile_C200::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,string &sCMD_Result,Message *pMessage)
+void Powerfile_C200::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,int iDrive_Number,string &sCMD_Result,Message *pMessage)
 //<-dceag-c337-e->
 {
+	Disk_Drive_Functions * pDDF = GetDDF(iDrive_Number);
+	if (pDDF)
+	{
+		pDDF->CMD_Rip_Disk(iPK_Users, sFormat, sName, sTracks, iEK_Disc, sCMD_Result, pMessage);
+	}
 }
-
-
-
-
