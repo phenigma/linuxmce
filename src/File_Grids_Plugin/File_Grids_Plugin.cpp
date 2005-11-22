@@ -146,6 +146,9 @@ void File_Grids_Plugin::ReceivedUnknownCommand(string &sCMD_Result,Message *pMes
 
 class DataGridTable * File_Grids_Plugin::FileList(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
 {
+g_pPlutoLogger->Write(LV_WARNING,"bubu");
+
+
 #ifdef DEBUG
 g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 #endif
@@ -185,6 +188,130 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 	if( sSubDirectory.length()==1 && (sSubDirectory[0]=='/' || sSubDirectory[0]=='\\') )
 		sSubDirectory = "";
 
+	int iRow=0;
+	if( sSubDirectory.length() )
+	{
+		string sParent = FileUtils::BasePath(sSubDirectory) + "/";
+		string newParams = Paths + "\n" + Extensions + "\n" + Actions + "\n" + (bSortByDate ? "1" : "0")
+			+ "\n" + StringUtils::itos(iDirNumber)+ "\n" + sParent;
+		DCE::CMD_NOREP_Populate_Datagrid_DT CMDPDG(PK_Controller, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse,
+			"", GridID, DATAGRID_Directory_Listing_CONST, newParams, 0);
+		pCell = new DataGridCell("", "");
+		pCell->m_pMessage = CMDPDG.m_pMessage;
+		pDataGrid->SetData(0, iRow, pCell);
+
+		pCell = new DataGridCell("~S21~<-- Back (..) - " + FileUtils::FilenameWithoutPath(sSubDirectory), "");
+		pCell->m_pMessage = new Message(CMDPDG.m_pMessage);
+		pCell->m_Colspan = 6;
+		pDataGrid->SetData(1, iRow++, pCell);
+
+		pDataGrid->m_vectFileInfo.push_back(new FileListInfo(true,Paths,true));
+	}
+
+	bool bMoviesFolder = Paths.substr(0, Paths.find("\t")) == "/home/public/data/movies";
+		
+	//Jukeboxes special hack
+	vector<Row_Device *> vectRow_Device;
+	if(bMoviesFolder)
+	{
+		//this is the movies top level folder; we'll add at the beginning an entry for each jukeboxe from current installation
+		m_pDatabase_pluto_main->Device_get()->GetRows(
+			"FK_DeviceTemplate = " + StringUtils::ltos(DEVICETEMPLATE_Powerfile_C200_CONST) + " AND "  + 
+			"FK_Installation = " + StringUtils::ltos(m_pRouter->iPK_Installation_get()), 
+			&vectRow_Device);	
+		
+		if(!sSubDirectory.length()) 
+		{
+			for(vector<Row_Device *>::iterator iPowerFile = vectRow_Device.begin(); iPowerFile != vectRow_Device.end(); iPowerFile++)
+			{
+				Row_Device *pRow_Device = *iPowerFile;
+				string sItemName = "Jukebox: " + pRow_Device->Description_get();
+				FileListInfo *pFileListInfo = new FileListInfo(true, sItemName, false);
+		
+				pCell = new DataGridCell("~S2~" + sItemName, sItemName);
+				pCell->m_Colspan = 6;
+				
+				DataGridCell *pCellPicture = new DataGridCell("", sItemName);
+			
+				pDataGrid->SetData(0, iRow, pCellPicture);	
+				pDataGrid->SetData(1, iRow++, pCell);
+				
+				string newParams = Paths + "\n" + Extensions + "\n" + Actions + "\n" + (bSortByDate ? "1" : "0")
+					+ "\n" + StringUtils::itos(iRow)+ "\n" + sItemName;
+				DCE::CMD_NOREP_Populate_Datagrid_DT CMDPDG(PK_Controller, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse,
+					"", GridID, DATAGRID_Directory_Listing_CONST, newParams, 0);
+				pCell->m_pMessage = CMDPDG.m_pMessage;
+				pCellPicture->m_pMessage = CMDPDG.m_pMessage;			
+				
+				pDataGrid->m_vectFileInfo.push_back(pFileListInfo);
+			}
+		}
+		else
+		{
+			//not a top level folder
+			for(vector<Row_Device *>::iterator iPowerFile = vectRow_Device.begin(); iPowerFile != vectRow_Device.end(); iPowerFile++)
+			{
+				Row_Device *pRow_Device = *iPowerFile;
+				
+				if("Jukebox: " + pRow_Device->Description_get() == sSubDirectory)
+				{
+					//we are in a "jukebox"; let's show its movies
+					string sStatus;
+					CMD_Get_Jukebox_Status CMD_Get_Jukebox_Status_(m_dwPK_Device, pRow_Device->PK_Device_get(), &sStatus);
+					
+					if(!SendCommand(CMD_Get_Jukebox_Status_))
+					{
+						FileListInfo *pFileListInfo = new FileListInfo(true, "", false);
+ 						pDataGrid->SetData(0, iRow, new DataGridCell("", ""));
+						pCell = new DataGridCell("Unable to communicated with Powerfile '" + pRow_Device->Description_get() + "'", "");
+						pCell->m_Colspan = 6;
+						pDataGrid->SetData(1, iRow++, pCell);						
+						pDataGrid->m_vectFileInfo.push_back(pFileListInfo);					
+						return pDataGrid;
+					}
+					
+					vector<string> vectElems;
+					StringUtils::Tokenize(sStatus, ",", vectElems);
+					
+					for(vector<string>::iterator it = vectElems.begin(); it != vectElems.end(); it++)
+					{
+						string sElem = *it;
+						if(sElem.length() > 0 && sElem[0] == 'S')
+						{
+							string sSlotIndex = sElem.substr(1, sElem.find('=', 0) - 1);
+							FileListInfo *pFileListInfo = new FileListInfo(true, sSlotIndex + ". " + "Movie", false);
+							pCell = new DataGridCell("~S2~not identified", "not identified");
+							pCell->m_Colspan = 6;
+							
+							if( Actions.length() )
+							{
+								if( Actions.find('P')!=string::npos )
+								{
+									// The Orbiter wants us to attach an action to files too
+									//TODO: play this cd/dvd
+									//pCell->m_pMessage = cmd.m_pMessage;
+								}
+								else if( Actions.find('S')!=string::npos )
+								{
+									// The Orbiter wants us to attach an action to files too
+									DCE::CMD_Show_Object cmd(PK_Controller, PK_Controller,
+										StringUtils::itos(DESIGNOBJ_butPreviewFileList_CONST), 0, "", "", "1");
+									pCell->m_pMessage = cmd.m_pMessage;
+								}						
+							}
+							
+							pDataGrid->SetData(0, iRow, new DataGridCell("", ""));
+							pDataGrid->SetData(1, iRow++, pCell);
+							pDataGrid->m_vectFileInfo.push_back(pFileListInfo);							
+						}
+					}
+				}
+			}
+			
+			return pDataGrid;
+		}	
+	}
+
 	int PK_MediaType=0;
 	if( Extensions.length()>3 && Extensions.substr(0,3)=="~MT" )
 	{
@@ -197,8 +324,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 		}
 		Extensions = pRow_MediaType->Extensions_get();
 	}
-
-
+	
 	string PathsToScan;
 	(*iPK_Variable) = VARIABLE_Path_CONST;
 	if( sSubDirectory.length() )
@@ -221,29 +347,8 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 	if( bSortByDate )
 		listFileDetails.sort(FileDateComparer);
 	else
-		listFileDetails.sort(FileNameComparer);
-
-
-	int iRow=0;
-	if( sSubDirectory.length() )
-	{
-		string sParent = FileUtils::BasePath(sSubDirectory) + "/";
-		string newParams = Paths + "\n" + Extensions + "\n" + Actions + "\n" + (bSortByDate ? "1" : "0")
-			+ "\n" + StringUtils::itos(iDirNumber)+ "\n" + sParent;
-		DCE::CMD_NOREP_Populate_Datagrid_DT CMDPDG(PK_Controller, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse,
-			"", GridID, DATAGRID_Directory_Listing_CONST, newParams, 0);
-		pCell = new DataGridCell("", "");
-		pCell->m_pMessage = CMDPDG.m_pMessage;
-		pDataGrid->SetData(0, iRow, pCell);
-
-		pCell = new DataGridCell("~S21~<-- Back (..) - " + FileUtils::FilenameWithoutPath(sSubDirectory), "");
-		pCell->m_pMessage = new Message(CMDPDG.m_pMessage);
-		pCell->m_Colspan = 6;
-		pDataGrid->SetData(1, iRow++, pCell);
-
-		pDataGrid->m_vectFileInfo.push_back(new FileListInfo(true,Paths,true));
-	}
-
+		listFileDetails.sort(FileNameComparer);	
+			
 	for (list<FileDetails *>::iterator i = listFileDetails.begin(); i != listFileDetails.end(); i++)
 	{
 		FileDetails *pFileDetails = *i;
