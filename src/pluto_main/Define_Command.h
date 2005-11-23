@@ -665,6 +665,23 @@
 #define COMMAND_Create_Device_CONST 718
 #define COMMAND_Delete_Device_CONST 719
 #define COMMAND_Bulk_Rip_CONST 720
+#define COMMAND_100_CONST 721
+#define COMMAND_Alt_Audio_CONST 722
+#define COMMAND_Dual_Screen_CONST 723
+#define COMMAND_ITR_CONST 724
+#define COMMAND_Linear_Decrement_CONST 725
+#define COMMAND_Linear_Increment_CONST 726
+#define COMMAND_Movie_Expand_CONST 727
+#define COMMAND_PPV_CONST 728
+#define COMMAND_Program_AB_CONST 729
+#define COMMAND_Replay_Zones_CONST 730
+#define COMMAND_SAP_CONST 731
+#define COMMAND_Skip_Commercial_CONST 732
+#define COMMAND_SLLP_CONST 733
+#define COMMAND_Surround_Sound_CONST 734
+#define COMMAND_TVDBS_CONST 735
+#define COMMAND_TVVCD_CONST 736
+#define COMMAND_VCR_CONST 737
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
