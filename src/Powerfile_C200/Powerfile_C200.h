@@ -47,6 +47,8 @@ public:
 			*****DATA***** accessors inherited from base class
 
 			*****EVENT***** accessors inherited from base class
+	void EVENT_Media_Inserted(int iFK_MediaType,string sMRL,string sID,string sName);
+	void EVENT_Ripping_Progress(string sText,int iResult,string sValue,string sName,int iEK_Disc,string sDrive_Number);
 
 			*****COMMANDS***** we need to implement
 	*/
@@ -200,14 +202,34 @@ Powerfile: 0, 1, ... */
 
 	/** @brief COMMAND: #703 - Get Jukebox Status */
 	/** Get jukebox slot and unit usage */
+		/** @param #21 Force */
+			/** If not empty, force=true. Else false. */
 		/** @param #153 Jukebox Status */
 			/** Jukebox Status in the following format: <Unit>=<State>[,<Unit>=<State>...]
 where:
 <Unit>=D0,D1 for the disc units, S1..200 for the disc storage slots
 <State>=Empty or Full; occupied disc units may return Full-<number> where <number> is the source slot */
 
-	virtual void CMD_Get_Jukebox_Status(string *sJukebox_Status) { string sCMD_Result; CMD_Get_Jukebox_Status(sJukebox_Status,sCMD_Result,NULL);};
-	virtual void CMD_Get_Jukebox_Status(string *sJukebox_Status,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Get_Jukebox_Status(string sForce,string *sJukebox_Status) { string sCMD_Result; CMD_Get_Jukebox_Status(sForce.c_str(),sJukebox_Status,sCMD_Result,NULL);};
+	virtual void CMD_Get_Jukebox_Status(string sForce,string *sJukebox_Status,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #720 - Bulk Rip */
+	/** Mass ripping */
+		/** @param #157 Disks */
+			/** Comma delimited list of slot number. For all, use "*". */
+
+	virtual void CMD_Bulk_Rip(string sDisks) { string sCMD_Result; CMD_Bulk_Rip(sDisks.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Bulk_Rip(string sDisks,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #738 - Play Disk */
+	/** Play the disk from specified slot. Automatically do the behind logic. Eject a disk from drive if necessary. */
+		/** @param #151 Slot Number */
+			/** Slot number */
+
+	virtual void CMD_Play_Disk(int iSlot_Number) { string sCMD_Result; CMD_Play_Disk(iSlot_Number,sCMD_Result,NULL);};
+	virtual void CMD_Play_Disk(int iSlot_Number,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 		private:

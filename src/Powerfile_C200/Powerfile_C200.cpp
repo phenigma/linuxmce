@@ -19,8 +19,9 @@ using namespace StringUtils;
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 Powerfile_C200::Powerfile_C200(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
-	: Powerfile_C200_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter), m_bStatusCached(false)
+	: Powerfile_C200_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
+, m_bStatusCached(false)
 {
 }
 
@@ -466,13 +467,15 @@ void Powerfile_C200::CMD_Unload_from_Drive_into_Slot(int iSlot_Number,int iDrive
 
 	/** @brief COMMAND: #703 - Get Jukebox Status */
 	/** Get jukebox slot and unit usage */
+		/** @param #21 Force */
+			/** If not empty, force=true. Else false. */
 		/** @param #153 Jukebox Status */
 			/** Jukebox Status in the following format: <Unit>=<State>[,<Unit>=<State>...]
 where:
 <Unit>=D0,D1 for the disc units, S1..200 for the disc storage slots
 <State>=Empty or Full; occupied disc units may return Full-<number> where <number> is the source slot */
 
-void Powerfile_C200::CMD_Get_Jukebox_Status(string *sJukebox_Status,string &sCMD_Result,Message *pMessage)
+void Powerfile_C200::CMD_Get_Jukebox_Status(string sForce,string *sJukebox_Status,string &sCMD_Result,Message *pMessage)
 //<-dceag-c703-e->
 {
 	/* TEMP CODE - Start */
@@ -671,4 +674,26 @@ void Powerfile_C200::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,stri
 	{
 		pDDF->CMD_Rip_Disk(iPK_Users, sFormat, sName, sTracks, iEK_Disc, sCMD_Result, pMessage);
 	}
+}
+//<-dceag-c720-b->
+
+	/** @brief COMMAND: #720 - Bulk Rip */
+	/** Mass ripping */
+		/** @param #157 Disks */
+			/** Comma delimited list of slot number. For all, use "*". */
+
+void Powerfile_C200::CMD_Bulk_Rip(string sDisks,string &sCMD_Result,Message *pMessage)
+//<-dceag-c720-e->
+{
+}
+//<-dceag-c738-b->
+
+	/** @brief COMMAND: #738 - Play Disk */
+	/** Play the disk from specified slot. Automatically do the behind logic. Eject a disk from drive if necessary. */
+		/** @param #151 Slot Number */
+			/** Slot number */
+
+void Powerfile_C200::CMD_Play_Disk(int iSlot_Number,string &sCMD_Result,Message *pMessage)
+//<-dceag-c738-e->
+{
 }
