@@ -231,6 +231,21 @@ where:
 	virtual void CMD_Play_Disk(int iSlot_Number) { string sCMD_Result; CMD_Play_Disk(iSlot_Number,sCMD_Result,NULL);};
 	virtual void CMD_Play_Disk(int iSlot_Number,string &sCMD_Result,Message *pMessage);
 
+
+	/** @brief COMMAND: #739 - Get Bulk Ripping Status */
+	/** Get status/progress of bulk ripping operation */
+		/** @param #158 Bulk rip status */
+			/** Returns:
+S1-F,S2-R,S3-N
+F = failed
+R = ripping
+N = not processed yet
+empty string when idle or reset; last status when all disks were ripped
+only slots that were scheduled for ripping will appear in the string */
+
+	virtual void CMD_Get_Bulk_Ripping_Status(string *sBulk_rip_status) { string sCMD_Result; CMD_Get_Bulk_Ripping_Status(sBulk_rip_status,sCMD_Result,NULL);};
+	virtual void CMD_Get_Bulk_Ripping_Status(string *sBulk_rip_status,string &sCMD_Result,Message *pMessage);
+
 //<-dceag-h-e->
 		private:
 			// corresponding devices
