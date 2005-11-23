@@ -246,7 +246,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 				}
 			}
 			
-			header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg='.$TEXT_FILE_ATTRIBUTE_ADDED_CONST.':<br>'.urlencode(nl2br($AttributeAdded)));
+			header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg='.$TEXT_FILE_ATTRIBUTE_ADDED_CONST.':<br>'.urlencode(nl2br(@$AttributeAdded)));
 			exit();
 		}
 		

@@ -4541,4 +4541,25 @@ function deleteDC($deviceCategory,$dbADO){
 	
 	return false;
 }
+
+function error_redirect($message,$url){
+	$_SESSION['error_message']=$message;
+	$_SESSION['retry_url']=$url;
+	header('Location: index.php?section=error_message');
+	exit();
+}
+
+function getPowerFile($dbADO,$installationID){
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/powerFile.lang.php');
+	if($installationID==0){
+		error_redirect($TEXT_ERROR_INVALID_INSTALLATION_NUMBER_CONST,'index.php?section=powerFile');		
+	}
+	
+	$deviceArr=getAssocArray('Device','0','PK_Device',$dbADO,'WHERE FK_Installation='.$installationID.' AND FK_DeviceTemplate='.$GLOBALS['PowerfileC200']);
+	if(count($deviceArr)==0){
+		error_redirect($TEXT_ERROR_POWERFILE_NOT_FOUND_CONST,'index.php?section=powerFile');
+	}
+
+	return $deviceArr[0];
+}
 ?>

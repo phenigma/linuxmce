@@ -1,5 +1,8 @@
 <?
 function leftMediaFilesSync($output,$mediadbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	
 	/* @var $mediadbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	
@@ -23,20 +26,20 @@ function leftMediaFilesSync($output,$mediadbADO) {
 		<table border=0 align="left">				
 				<tr>
 					<td colspan="2">
-						<img src="include/images/logo_pluto.jpg">
+						<a href="index.php" target="_top"><img src="include/images/logo_pluto.jpg" border="0"><a>
 					</td>
 				</tr>';
 		
 		if (isset($_SESSION['userLoggedIn']) && $_SESSION['userLoggedIn']==true) {
 			$out.='
 					<tr>
-						<td valign="top"  colspan="2"><a href="index.php?section=login&action=logout" target="basefrm" >Logout</a></td>					
+						<td valign="top"  colspan="2"><a href="index.php?section=login&action=logout" target="basefrm" >'.$TEXT_LOGOUT_CONST.'</a></td>					
 					</tr>
 			';
 		} else {
 			$out.='
 					<tr>
-						<td valign="top"  colspan="2"><a href="index.php?section=login"  target="basefrm">Login</a></td>
+						<td valign="top"  colspan="2"><a href="index.php?section=login"  target="basefrm">'.$TEXT_LOGIN_CONST.'</a></td>
 					</tr>
 			';
 		}

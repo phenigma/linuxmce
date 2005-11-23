@@ -41,12 +41,13 @@ function bookmarks($output,$mediadbADO,$dbADO) {
 				<td><B>'.$TEXT_MEDIA_PROVIDER_CONST.'</B></td>
 				<td><B>'.$TEXT_DESCRIPTION_CONST.'</B></td>
 				<td><B>'.$TEXT_CHANNEL_CONST.'</B></td>
+				<td><B>'.$TEXT_ACTION_CONST.'</B></td>
 			</tr>';
 		$bookmarksArray=getFieldsAsArray('Bookmark','PK_Bookmark,FK_MediaProvider,EK_MediaType,FK_Picture,Description,Position',$mediadbADO,'WHERE EK_MediaType IN ('.join(',',$mediaTypes).')');
 		if(count(@$bookmarksArray['PK_Bookmark'])==0){
 			$out.='
 			<tr>
-				<td colspan="4" align="center"> '.$TEXT_NO_BOOKMARKS_CONST.'</td>
+				<td colspan="5" align="center" bgcolor="#F0F3F8"> '.$TEXT_NO_BOOKMARKS_CONST.'</td>
 			</tr>';
 		}
 		for($i=0;$i<count(@$bookmarksArray['PK_Bookmark']);$i++){
@@ -57,6 +58,7 @@ function bookmarks($output,$mediadbADO,$dbADO) {
 				<td>'.$bookmarksArray['FK_MediaProvider'][$i].'</td>
 				<td>'.$bookmarksArray['Description'][$i].'</td>
 				<td>'.$bookmarksArray['Position'][$i].'</td>
+				<td><a href="javascript:if(confirm(\''.$TEXT_DELETE_BOOKMARK_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=bookmarks&type='.$type.'&action=del&did='.$bookmarksArray['PK_Bookmark'][$i].'\'">'.$TEXT_DELETE_CONST.'</a></td>
 			</tr>';
 		}
 		$out.='
@@ -65,9 +67,15 @@ function bookmarks($output,$mediadbADO,$dbADO) {
 		
 		</form>';
 	}else{
+		$did=(int)$_REQUEST['did'];
+		print_array($_REQUEST);
+		if($did>0){
+			$mediadbADO->Execute('DELETE FROM Bookmark WHERE PK_Bookmark=?',array($did));
+			$msg='The bookmark was deleted.';
+		}
 		
 		$suffix=(isset($error))?'&error='.$error:'&msg='.@$msg;
-		header('Location: index.php?section=bookmarks'.$suffix);
+		header('Location: index.php?section=bookmarks&type='.$type.$suffix);
 	}
 	
 	$output->setNavigationMenu(array($TEXT_BOOKMARKS_CONST=>'index.php?section=bookmarks&type='.$type));

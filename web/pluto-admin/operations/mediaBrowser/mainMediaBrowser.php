@@ -1,5 +1,9 @@
 <?
 function mainMediaBrowser($output,$mediadbADO,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/mainMediaBrowser.lang.php');
+	
 	/* @var $mediadbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	$out='';
@@ -70,7 +74,7 @@ function mainMediaBrowser($output,$mediadbADO,$dbADO) {
 			if($resSearch->RecordCount()==0){
 				$out.='
 					<tr>
-						<td colspan="3">No records.</td>
+						<td colspan="3">'.$TEXT_NO_RECORDS_CONST.'</td>
 					</tr>
 				';
 			}
@@ -79,12 +83,12 @@ function mainMediaBrowser($output,$mediadbADO,$dbADO) {
 						<tr>
 							<td>'.$rowSearch['Name'].'</td>
 							<td>'.$rowSearch['AttrType'].'</td>
-							<td><a href="#" onClick="document.mainMediaBrowser.action.value=\'properties\';document.mainMediaBrowser.attributeID.value='.$rowSearch['PK_Attribute'].';document.mainMediaBrowser.submit();">Properties</a></td>
+							<td><a href="#" onClick="document.mainMediaBrowser.action.value=\'properties\';document.mainMediaBrowser.attributeID.value='.$rowSearch['PK_Attribute'].';document.mainMediaBrowser.submit();">'.$TEXT_PROPERTIES_CONST.'</a></td>
 						</tr>';
 			}
 			$out.='</table>';
 		}else
-			$out.='No attribute selected.';
+			$out.=$TEXT_NO_ATTRIBUTE_SELECTED_CONST;
 	}elseif($action=='properties'){
 		$attributeID=$_REQUEST['attributeID'];
 		$queryAttribute='SELECT * FROM Attribute WHERE PK_Attribute=?';		
@@ -126,9 +130,10 @@ function mainMediaBrowser($output,$mediadbADO,$dbADO) {
 				<input type="hidden" name="action" value="">
 				<input type="hidden" name="searchType" value="">
 				<input type="hidden" name="attributeID" value="'.$attributeID.'">
+		
 			<table border="0">
 				<tr>
-					<td colspan="4" align="left"><h3>Attribute</h3></td>
+					<td colspan="4" align="left"><h3>'.$TEXT_ATTRIBUTE_CONST.'</h3></td>
 				</tr>		
 				<tr>
 					<td><B>Name:</B> </td>
@@ -137,7 +142,7 @@ function mainMediaBrowser($output,$mediadbADO,$dbADO) {
 					<td><input type="hidden" name="attrType" value="'.$rowAttribute['FK_AttributeType'].'"></td>
 				</tr>
 				<tr>
-					<td colspan="4" align="left"><input type="button" class="button" name="update" value="Update" onclick="document.mainMediaBrowser.action.value=\'update\';document.mainMediaBrowser.submit();"></td>
+					<td colspan="4" align="left"><input type="button" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'" onclick="document.mainMediaBrowser.action.value=\'update\';document.mainMediaBrowser.submit();"></td>
 				</tr>
 				<tr>
 					<td colspan="4" align="center">&nbsp;</td>
@@ -154,7 +159,7 @@ function mainMediaBrowser($output,$mediadbADO,$dbADO) {
 		$out.=multi_page($queryFiles, $attributeID,'index.php?section=mainMediaBrowser&attributeID='.$attributeID.'&action=properties', (isset($_GET['page_no']))?$_GET['page_no']-1:0, 20,$mediadbADO);
 		
 			$fileTypeSelect='<select name="newType">
-				<option value="0">Please select</option>';
+				<option value="0">-'.$TEXT_PLEASE_SELECT_CONST.'-</option>';
 			$selectFileType='SELECT * FROM MediaType ORDER BY Description ASC';
 			$resFileType=$dbADO->Execute($selectFileType);
 			while($rowFileType=$resFileType->FetchRow()){
@@ -164,11 +169,11 @@ function mainMediaBrowser($output,$mediadbADO,$dbADO) {
 			$out.='<table></td>
 				</tr>
 				<tr>
-					<td><B>Add file</B></td>
-					<td colspan="6">Name: <input type="text" name="newFile" value=""> Path: <input type="text" name="newPath" value=""> Type: '.$fileTypeSelect.' <input type="button" class="button" name="update" value="Add file" onclick="document.mainMediaBrowser.action.value=\'update\';document.mainMediaBrowser.submit();"></td>
+					<td><B>'.$TEXT_ADD_FILE_CONST.'</B></td>
+					<td colspan="6">'.$TEXT_NAME_CONST.': <input type="text" name="newFile" value=""> Path: <input type="text" name="newPath" value=""> Type: '.$fileTypeSelect.' <input type="button" class="button" name="update" value="Add file" onclick="document.mainMediaBrowser.action.value=\'update\';document.mainMediaBrowser.submit();"></td>
 				</tr>
 				<tr>
-					<td valign="top" align="left"><B>Pictures</B></td>
+					<td valign="top" align="left"><B>'.$TEXT_PICTURES_CONST.'</B></td>
 					<td valign="top" align="left" colspan="6"><table>
 				<tr>';
 			$queryPictures='
@@ -180,7 +185,7 @@ function mainMediaBrowser($output,$mediadbADO,$dbADO) {
 			while($rowPictures=$resPictures->FetchRow()){
 				$picsCount++;
 				$out.='
-					<td style="background-color:#EEEEEE;" align="center"><a href="mediapics/'.$rowPictures['PK_Picture'].'.'.$rowPictures['Extension'].'" target="_blank"><img src="mediapics/'.$rowPictures['PK_Picture'].'_tn.'.$rowPictures['Extension'].'" border="0"></a> <br><a href="#" onClick="if(confirm(\'Are you sure you want to delete this picture?\'))self.location=\'index.php?section=mainMediaBrowser&attributeID='.$attributeID.'&action=properties&picID='.$rowPictures['PK_Picture'].'\';">Delete</a></td>
+					<td style="background-color:#EEEEEE;" align="center"><a href="mediapics/'.$rowPictures['PK_Picture'].'.'.$rowPictures['Extension'].'" target="_blank"><img src="mediapics/'.$rowPictures['PK_Picture'].'_tn.'.$rowPictures['Extension'].'" border="0"></a> <br><a href="#" onClick="if(confirm(\'Are you sure you want to delete this picture?\'))self.location=\'index.php?section=mainMediaBrowser&attributeID='.$attributeID.'&action=properties&picID='.$rowPictures['PK_Picture'].'\';">'.$TEXT_DELETE_CONST.'</a></td>
 				';
 				if($picsCount%$picsPerLine==0)
 					$out.='</tr><tr>';
@@ -190,8 +195,8 @@ function mainMediaBrowser($output,$mediadbADO,$dbADO) {
 				</table></td>
 				</tr>
 				<tr>
-					<td><B>Add picture</B></td>
-					<td colspan="6"> <input type="file" name="newPic" value=""> <input type="button" class="button" name="update" value="Add Picture" onclick="document.mainMediaBrowser.action.value=\'update\';document.mainMediaBrowser.submit();"></td>
+					<td><B>'.$TEXT_ADD_PICTURE_CONST.'</B></td>
+					<td colspan="6"> <input type="file" name="newPic" value=""> <input type="button" class="button" name="update" value="'.$TEXT_ADD_PICTURE_CONST.'" onclick="document.mainMediaBrowser.action.value=\'update\';document.mainMediaBrowser.submit();"></td>
 				</tr>
 
 			</table>
@@ -224,12 +229,12 @@ function mainMediaBrowser($output,$mediadbADO,$dbADO) {
 				<table>
 					<tr>
 						<td height="40">
-							The '.$rowExistingAttribute['AttributeType'].' <B>'.$name.'</B> already exists. Do you want to merge this one with it?
+							'.$TEXT_ATTRIBUTE_EXIST_NOTICE_CONST.'
 						</td>
 					</tr>
 					<tr>
 						<td align="center">
-							<input type="submit" class="button" name="merge" value="Yes, merge them">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="button" class="button" name="cancel" value="Cancel" onClick="self.location=\'index.php?section=mainMediaBrowser&attributeID='.$attributeID.'&action=properties\';"> 
+							<input type="submit" class="button" name="merge" value="'.$TEXT_YES_MERGE_CONST.'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="button" class="button" name="cancel" value="'.$TEXT_CANCEL_CONST.'" onClick="self.location=\'index.php?section=mainMediaBrowser&attributeID='.$attributeID.'&action=properties\';"> 
 						</td>
 					</tr>
 				
@@ -284,7 +289,7 @@ function mainMediaBrowser($output,$mediadbADO,$dbADO) {
 			// mihai.t: We need the file types to be png actually since this is the format that the tablet software will understand
 			// vali.g: revert to jpgs
 			if(($_FILES['newPic']['type']!="image/jpg") && ($_FILES['newPic']['type']!="image/pjpeg") && ($_FILES['newPic']['type']!="image/jpeg")){
-				$error='The file is not a jpg file';
+				$error=$TEXT_ERROR_THIS_IS_NOT_JPEG_CONST;
 			}
 			elseif(move_uploaded_file($_FILES['newPic']['tmp_name'],$GLOBALS['mediaPicsPath'].$newPicName)){
 				// create thumbnail
@@ -296,7 +301,7 @@ function mainMediaBrowser($output,$mediadbADO,$dbADO) {
 				//upload fail, prompt error message
 				$deletePicture='DELETE FROM Picture WHERE PK_Picture=?';
 				$mediadbADO->Execute($deletePicture,$insertID);
-				$error='Upload fail, check the rights for /mediapics directory.';
+				$error=$TEXT_ERROR_UPLOAD_FAILED_CONST;
 			}
 			
 		}

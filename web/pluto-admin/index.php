@@ -663,6 +663,25 @@ switch ($section) {
 	    include_once('operations/mediaBrowser/editPlaylist.php');
 	    editPlaylist($output,$mediadbADO);	    
 	break;
+	case 'powerFile':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/mediaBrowser/powerFile.php');
+	    powerFile($output,$mediadbADO,$dbADO);	    
+	break;
+	case 'discAttributes':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/mediaBrowser/discAttributes.php');
+	    discAttributes($output,$mediadbADO,$dbADO);	    
+	break;	
+	case 'ripStatus':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/mediaBrowser/ripStatus.php');
+	    ripStatus($output,$mediadbADO,$dbADO);	    
+	break;	
+
 	
 	case 'mediaFilesSync';
 	    include_once('operations/mediaBrowser/mediaFilesSync.php');
@@ -1330,7 +1349,13 @@ switch ($section) {
 		include_once('operations/myDevices/help.php');
 	    help($output,$dbADO);
 	break;
-	
+	case 'error_message':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('error_message.php');
+	    error_message($output);	    
+	break;	
+		
 	case '';
 		$output = new Template($dbADO);	
 		

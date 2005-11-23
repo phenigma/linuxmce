@@ -557,7 +557,7 @@ $out='';
 						<span class="err">'.@$_REQUEST['errRelated'].'</span>
 						<table>'.$dtRelatedRows.'
 							<tr>
-								<td>Add device template related</td>
+								<td>Add device template related #ID</td>
 								<td><input type="text" name="addRelated" value=""></td>
 								<td>'.pulldownFromArray($dtRelatedValues,'valueRelated','','','key','').'</td>
 								<td><input type="submit" class="button" name="add" value="Add"></td>
