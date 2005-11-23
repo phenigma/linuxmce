@@ -2347,14 +2347,6 @@ int Media_Plugin::DetermineUserOnOrbiter(int iPK_Device_Orbiter)
 void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea,bool bResume,int iRepeat,string &sCMD_Result,Message *pMessage)
 //<-dceag-c43-e->
 {
-	if( sFilename.find("/home/monster")!=string::npos )
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Temporary hack for monster");
-		DCE::CMD_Play_Media CMD_Play_Media(0,20,sFilename,0,0,"");
-		SendCommand(CMD_Play_Media);
-		return;
-	}
-
     PLUTO_SAFETY_LOCK(mm,m_MediaMutex);
 
 	int iPK_Device_Orbiter = pMessage->m_dwPK_Device_From;

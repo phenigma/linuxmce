@@ -3161,6 +3161,7 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
     for( ScreenMap::iterator it=m_ScreenMap.begin(  );it!=m_ScreenMap.end(  );++it )
     {
         DesignObj_Orbiter *pObj = ( DesignObj_Orbiter * ) ( *it ).second;
+g_pPlutoLogger->Write(LV_CRITICAL,"parsing %s",pObj->m_ObjectID.c_str());
         ParseObject( pObj, pObj, pObj, Type, 0 );
     }
 
@@ -3227,7 +3228,7 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
       string::size_type pos=0;
     int NumPages = atoi(StringUtils::Tokenize(sResult, "|", pos).c_str());
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"Get Floorplan layout found %d pages", NumPages);
+	g_pPlutoLogger->Write(LV_STATUS,"Get Floorplan layout found %d pages in %s", NumPages,sResult.c_str());
 #endif
     for(int PageCount=0;PageCount<NumPages;++PageCount)
     {

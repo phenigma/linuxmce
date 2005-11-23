@@ -98,7 +98,8 @@ Orbiter_Plugin::Orbiter_Plugin(int DeviceID, string ServerAddress,bool bConnectE
     m_AllowedConnectionsMutex.Init(NULL);
 	m_pDatabase_pluto_main=NULL;
 	m_pDatabase_pluto_security=NULL;
-    m_bFloorPlansArePrepared = false;
+	m_pRegenMonitor=NULL;
+	m_bFloorPlansArePrepared = false;
 }
 
 //<-dceag-getconfig-b->
@@ -115,6 +116,9 @@ bool Orbiter_Plugin::GetConfig()
         m_bQuit=true;
         return false;
     }
+
+	m_pRegenMonitor=new RegenMonitor(m_pDatabase_pluto_main);
+	m_sRegenAllDevicesRooms = m_pRegenMonitor->AllDevicesRooms();
 
     m_pDatabase_pluto_security = new Database_pluto_security( );
     if( !m_pDatabase_pluto_security->Connect( m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ), "pluto_security", m_pRouter->iDBPort_get( ) ) )
@@ -194,6 +198,7 @@ Orbiter_Plugin::~Orbiter_Plugin()
     m_mapUnknownDevices.clear();
 	delete m_pDatabase_pluto_main;
     delete m_pDatabase_pluto_security;
+	delete m_pRegenMonitor;
 
 	for(map<int,OH_Orbiter *>::iterator it=m_mapOH_Orbiter.begin();it!=m_mapOH_Orbiter.end();++it)
 		delete (*it).second;
@@ -1572,6 +1577,31 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,int iPK_Users,string s
 		// It's an OSD -- see if there are any unconfigured devices
 		if( pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia && pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Computers_CONST) )
 			CheckForNewWizardDevices( (DeviceData_Router *) pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia);
+/*
+		string sRegenAllDevicesRooms = m_pRegenMonitor->AllDevicesRooms();
+		if( m_sRegenAllDevicesRooms!=sRegenAllDevicesRooms )
+		{
+			m_sRegenAllDevicesRooms=sRegenAllDevicesRooms;
+			DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
+				0,StringUtils::itos(DESIGNOBJ_REload),"","",false,false);
+			SendCommand(CMD_Goto_Screen);
+		}
+		else
+		{
+			string sScenariosFloorplans = m_pRegenMonitor->AllScenariosFloorplans();
+			Row_Orbiter *pRow_Orbiter = m_pDatabase_pluto_main->Orbiter_get()->GetRow(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+			if( pRow_Orbiter )
+			{
+				pRow_Orbiter->Reload();
+				if( pRow_Orbiter->ScenariosFloorplans_get()!=sScenariosFloorplans )
+				{
+					DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
+						0,StringUtils::itos(DESIGNOBJ_RegenOrbiter),"","",false,false);
+					SendCommand(CMD_Goto_Screen);
+				}
+			}
+		}
+*/
 	}
 	else
 	{

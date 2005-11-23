@@ -31,7 +31,7 @@ public:
 	map<int,int> m_mapUsedOrbiterCriteria;
 	map<string,listDesignObj_Generator *> m_htGeneratedScreens;
 	map<int,class TextStyle *> m_htStylesUsedInOrbiterText;
-	map<int,bool> m_mapDesignObjVariation_WithArrays;
+	map<int,bool> m_mapDesignObj_WithArrays;
 	map<int,bool> m_mapPopups;
 //	Hashtable m_htUsedDevices;
 //	StringWriter m_swErrors;
@@ -50,6 +50,8 @@ public:
 	class PlutoSize *m_sizeScreen;
 	class Row_Size * m_pRow_Size;
 	class Row_UI * m_pRow_UI;
+	string m_sFloorPlanData;
+	int m_iNumFloorplanItems;
 
 	//	string m_sMySQLHost,m_sMySQLUser,m_sMySQLPass,m_sMySQLDBName;
 	string m_sOutputPath,m_sGraphicsBasePath,m_sFontPath;
@@ -91,8 +93,6 @@ public:
 
 private:
 	map<int,string> htDevicePages;
-	string m_sFloorPlanData;
-	int m_iNumFloorplanItems;
 	long Counter;
 
 	void OutputScreen(class DesignObj_Generator *ocDesignObj);

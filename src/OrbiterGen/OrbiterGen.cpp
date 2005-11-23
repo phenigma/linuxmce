@@ -300,6 +300,7 @@ int OrbiterGenerator::DoIt()
 
 	cout << "Setting RegenInProgress_set to true for " << m_pRow_Orbiter->PK_Orbiter_get() << endl;
 	m_pRow_Orbiter->RegenInProgress_set(true);
+//	m_pRow_Orbiter->ScenariosFloorplans_set( m_pRegenMonitor->AllScenariosFloorplans() );
 	m_pRow_Orbiter->Table_Orbiter_get()->Commit();
 
 	cout << "Generating: #" << m_pRow_Device->PK_Device_get() << " " << m_pRow_Device->Description_get() << endl;
@@ -767,17 +768,18 @@ m_bNoEffects = true;
 
 	// We need to know which objects have arrays that are room specific so we can generate
 	// one for each location
-	string sql = "select DISTINCT FK_DesignObjVariation_Parent FROM DesignObjVariation_DesignObjParameter"
-		" JOIN DesignObjVariation ON PK_DesignObjVariation=FK_DesignObjVariation"
-		" JOIN DesignObj ON PK_DesignObj=FK_DesignObj"
+	string sql = "select DISTINCT Parent.FK_DesignObj FROM DesignObjVariation_DesignObjParameter"
+		" JOIN DesignObjVariation ON DesignObjVariation.PK_DesignObjVariation=FK_DesignObjVariation"
+		" JOIN DesignObj ON PK_DesignObj=DesignObjVariation.FK_DesignObj"
 		" JOIN DesignObjVariation_DesignObj ON FK_DesignObj_Child=PK_DesignObj"
+		" JOIN DesignObjVariation as Parent ON FK_DesignObjVariation_Parent=Parent.PK_DesignObjVariation"
 		" WHERE FK_DesignObjParameter=11 AND FK_DesignObjType=3 AND Value IN ('1','2','3','4','5','16','21')";
 	PlutoSqlResult result_set_array;
 	MYSQL_ROW row;
 	if( (result_set_array.r=mysql_query_result(sql)) )
 	{
 		while ((row = mysql_fetch_row(result_set_array.r)))
-			m_mapDesignObjVariation_WithArrays[ atoi(row[0]) ] = true;
+			m_mapDesignObj_WithArrays[ atoi(row[0]) ] = true;
 	}
 
 	for(size_t s=0;s<vectRow_Room.size();++s)
@@ -884,6 +886,8 @@ m_bNoEffects = true;
 
 		m_pRow_Room = mds.Room_get()->GetRow(li->PK_Room);
 		m_pRow_EntertainArea = li->PK_EntertainArea>0 ? mds.EntertainArea_get()->GetRow(li->PK_EntertainArea) : NULL;
+		m_pRegenMonitor->SetRoom(m_pRow_Room);
+		m_pRegenMonitor->SetEntArea(m_pRow_EntertainArea);
 		m_iLocation = li->iLocation;
 		DesignObj_Generator *ocDesignObj = new DesignObj_Generator(this,m_pRow_DesignObj_MainMenu,PlutoRectangle(0,0,0,0),NULL,true,false);
 		if( m_pRow_DesignObj_Sleeping!=m_pRow_DesignObj_MainMenu )
@@ -1291,6 +1295,8 @@ int k=2;
 		for(listDesignObj_Generator::iterator itlcgo=o->begin();itlcgo!=o->end();++itlcgo)
 		{
 			DesignObj_Generator *oco = (*itlcgo);
+if( oco->m_pRow_DesignObj->PK_DesignObj_get()==1270 )
+int k=2;
 			if( !oco->m_bUsingCache )
 			{
 				int Percent = m_iScreensToRender++ * 100 / m_iScreensTotal;
@@ -1339,6 +1345,9 @@ int k=2;
 
 				oco->SerializeWrite(Filename);
 				oco->WriteRegenVersion(Filename+".regen");
+				if( oco->m_iNumFloorplanItems )
+					oco->WriteFloorplanInfo(Filename+".fp");
+
 				pdrCachedScreen->Schema_set(ORBITER_SCHEMA);
 				pdrCachedScreen->ContainsArrays_set(oco->m_bContainsArrays ? 1 : 0);
 				pdrCachedScreen->Modification_LastGen_set(oco->m_pRow_DesignObj->psc_mod_get());
@@ -1352,6 +1361,13 @@ int k=2;
 			m_ScreenMap[ oco->m_ObjectID ] = oco;
 		}
 	}
+for(ScreenMap::iterator it=m_ScreenMap.begin();it!=m_ScreenMap.end();++it)
+{
+string x = it->first;
+DesignObj_Data *pdo = it->second;
+if( x.find("1270")!=string::npos )
+int k=2;
+}
 	/*
 	fstr_Orbiter << StringUtils::itos((int) m_mapUsedOrbiterCriteria.size()) << "|";
 	for(map<int,int>::iterator itucc=m_mapUsedOrbiterCriteria.begin();itucc!=m_mapUsedOrbiterCriteria.end();++itucc)
@@ -1473,9 +1489,23 @@ int k=2;
 
 void OrbiterGenerator::SearchForGotos(DesignObj_Data *pDesignObj_Data,DesignObjCommandList *alCommands)
 {
-if( pDesignObj_Data->m_ObjectID.find(".3406.")!=string::npos )
+if( pDesignObj_Data->m_ObjectID.find("1255.0.0.3407")!=string::npos )
+{
 int k=2;
-
+map<string,listDesignObj_Generator *>::iterator itgs;
+for(itgs=m_htGeneratedScreens.begin();itgs!=m_htGeneratedScreens.end();++itgs)
+{
+	string x = itgs->first;
+	listDesignObj_Generator *o = (*itgs).second;
+	if( o->size() )
+	{
+		DesignObj_Generator *oco = o->front();
+		int k=2;
+	}
+	else
+		int k=2;
+}
+}
 	DesignObjCommandList::iterator itActions;
 	for(itActions=alCommands->begin();itActions!=alCommands->end();++itActions)
 	{
@@ -1507,7 +1537,7 @@ int k=2;
 
 void OrbiterGenerator::OutputScreen(DesignObj_Generator *ocDesignObj)
 {
-if( ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()==2211 )
+if( ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()==1389 )
 int k=2;
 	// Always output the first page, even if there's no other
 	for(size_t i=0;i<ocDesignObj->m_alMPArray.size() || i==0;++i)
@@ -1519,6 +1549,11 @@ int k=2;
 			ParentScreen = StringUtils::itos(ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(ocDesignObj->m_iVersion) + "." + StringUtils::itos((int) i);
 		ocDesignObj->m_iPage=i;
 		OutputDesignObjs(ocDesignObj,(int) i,false,ParentScreen);
+		if( ocDesignObj->m_iNumFloorplanItems )
+		{
+			m_iNumFloorplanItems+=ocDesignObj->m_iNumFloorplanItems;
+			m_sFloorPlanData+=ocDesignObj->m_sFloorPlanData;
+		}
 	}
 }
 
@@ -1576,8 +1611,8 @@ int k=2;
 		}
 		PageList += StringUtils::itos(ocDesignObj->m_iFloorplanPage) + ",";
 		htDevicePages[abs(ocDesignObj->m_iFloorplanDevice)] = PageList;
-		m_sFloorPlanData += "\t" + StringUtils::itos(ocDesignObj->m_iFloorplanDevice) + "\t" + StringUtils::itos(ocDesignObj->m_iFloorplanPage) + "\t" + ocDesignObj->m_ObjectID + "\t" + StringUtils::itos(ocDesignObj->m_pFloorplanFillPoint.X) + "\t" + StringUtils::itos(ocDesignObj->m_pFloorplanFillPoint.Y);
-		m_iNumFloorplanItems++;
+		ocDesignObj->GetTopMostObject()->m_sFloorPlanData += "\t" + StringUtils::itos(ocDesignObj->m_iFloorplanDevice) + "\t" + StringUtils::itos(ocDesignObj->m_iFloorplanPage) + "\t" + ocDesignObj->m_ObjectID + "\t" + StringUtils::itos(ocDesignObj->m_pFloorplanFillPoint.X) + "\t" + StringUtils::itos(ocDesignObj->m_pFloorplanFillPoint.Y);
+		ocDesignObj->GetTopMostObject()->m_iNumFloorplanItems++;
 	}
 
 	ocDesignObj->m_ObjectType=ocDesignObj->m_pRow_DesignObj->FK_DesignObjType_get();
@@ -2158,5 +2193,7 @@ string OrbiterGenerator::First2Dots(string sDesignObj)
 
 	m_pRow_Room = mds.Room_get()->GetRow(li->PK_Room);
 	m_pRow_EntertainArea = li->PK_EntertainArea>0 ? mds.EntertainArea_get()->GetRow(li->PK_EntertainArea) : NULL;
+	m_pRegenMonitor->SetRoom(m_pRow_Room);
+	m_pRegenMonitor->SetEntArea(m_pRow_EntertainArea);
 	return sDesignObj.substr(0,pos_second_dot);
 }

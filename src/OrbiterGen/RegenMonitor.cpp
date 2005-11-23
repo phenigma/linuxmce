@@ -19,14 +19,14 @@ string RegenMonitor::GetModInfo_Array(int PK_Array)
         case ARRAY_Communication_Scenarios_CONST:
         case ARRAY_Misc_Scenarios_CONST:
         case ARRAY_Sleeping_Scenarios_CONST:
-            if( m_pOrbiterGenerator->m_pRow_Room )
-				return sResult + GetModInfo_RoomScenario(PK_Array,m_pOrbiterGenerator->m_pRow_Room->PK_Room_get());
+            if( m_pRow_Room )
+				return sResult + GetModInfo_RoomScenario(PK_Array,m_pRow_Room->PK_Room_get());
 			else
 				return "*";   // Something is wrong.  There should always be a room
 
 		case ARRAY_Media_Scenarios_CONST:
-            if( m_pOrbiterGenerator->m_pRow_EntertainArea )
-				return sResult + GetModInfo_EntAreaScenario(PK_Array,m_pOrbiterGenerator->m_pRow_EntertainArea->PK_EntertainArea_get());
+            if( m_pRow_EntertainArea )
+				return sResult + GetModInfo_EntAreaScenario(PK_Array,m_pRow_EntertainArea->PK_EntertainArea_get());
 			else
 				return sResult;
 
@@ -105,16 +105,18 @@ string RegenMonitor::GetModInfo_EntAreaScenario(int PK_Array,int PK_EntertainAre
 string RegenMonitor::GetModInfo_DeviceCategory(int PK_DeviceCategory)
 {
 	string sSQL = "select count(PK_Device),max(Device.psc_mod),max(Device_DeviceData.psc_mod),max(DeviceTemplate.psc_mod) from Device "
-		"JOIN DeviceTemplate on FK_DeviceTemplate=PK_DeviceTemplate "
+		"JOIN DeviceTemplate on Device.FK_DeviceTemplate=PK_DeviceTemplate "
 		"LEFT JOIN DeviceCategory AS DC1 ON DeviceTemplate.FK_DeviceCategory=DC1.PK_DeviceCategory "
 		"LEFT JOIN DeviceCategory AS DC2 ON DC1.FK_DeviceCategory_Parent=DC2.PK_DeviceCategory "
 		"LEFT JOIN DeviceCategory AS DC3 ON DC2.FK_DeviceCategory_Parent=DC3.PK_DeviceCategory "
 		"LEFT JOIN DeviceCategory AS DC4 ON DC3.FK_DeviceCategory_Parent=DC4.PK_DeviceCategory "
 		"LEFT JOIN Device_DeviceData ON FK_Device=PK_Device "
-		"WHERE DC1.PK_DeviceCategory = " + StringUtils::itos(PK_DeviceCategory) + 
+		"LEFT JOIN DeviceTemplate_DeviceData ON DeviceTemplate_DeviceData.FK_DeviceTemplate=PK_DeviceTemplate AND DeviceTemplate_DeviceData.FK_DeviceData=Device_DeviceData.FK_DeviceData "
+		"WHERE SetByDevice<>1 AND ("
+		" DC1.PK_DeviceCategory = " + StringUtils::itos(PK_DeviceCategory) + 
 		" OR DC2.PK_DeviceCategory = " + StringUtils::itos(PK_DeviceCategory) + 
 		" OR DC3.PK_DeviceCategory = " + StringUtils::itos(PK_DeviceCategory) + 
-		" OR DC4.PK_DeviceCategory = " + StringUtils::itos(PK_DeviceCategory);
+		" OR DC4.PK_DeviceCategory = " + StringUtils::itos(PK_DeviceCategory) + ")";
 
 	return StringUtils::itos(PK_DeviceCategory) + "\t" + QueryAsModString(sSQL);
 }
@@ -149,7 +151,7 @@ string RegenMonitor::QueryAsModString(string sSQL)
 	string sResult;
 	PlutoSqlResult result_set_array;
 	MYSQL_ROW row;
-	if( (result_set_array.r=m_pOrbiterGenerator->mysql_query_result(sSQL)) && ((row = mysql_fetch_row(result_set_array.r))) )
+	if( (result_set_array.r=m_pMySqlHelper->mysql_query_result(sSQL)) && ((row = mysql_fetch_row(result_set_array.r))) )
 	{
 		for(int i=0;i<(int) result_set_array.r->field_count;++i)
 		{
@@ -204,7 +206,7 @@ string RegenMonitor::GetModInfo_Floorplan(int PK_FloorplanType)
 
 		PlutoSqlResult result_set_array;
 		MYSQL_ROW row;
-		if( (result_set_array.r=m_pOrbiterGenerator->mysql_query_result(sSQL)) )
+		if( (result_set_array.r=m_pMySqlHelper->mysql_query_result(sSQL)) )
 		{
 			while(row = mysql_fetch_row(result_set_array.r))
 			{
@@ -224,5 +226,45 @@ string RegenMonitor::GetModInfo_Floorplan(int PK_FloorplanType)
 	string sResult = "F" + StringUtils::itos(PK_FloorplanType) + "\t";
 	if( sSQL.size() )
 		sResult += QueryAsModString(sSQL);
+	return sResult;
+}
+
+string RegenMonitor::AllDevicesRooms()
+{
+	string sSQL = "select count(PK_Device),max(Device.psc_mod),max(Device_DeviceData.psc_mod),max(DeviceTemplate.psc_mod) from Device "
+		"JOIN DeviceTemplate on Device.FK_DeviceTemplate=PK_DeviceTemplate "
+		"WHERE SetByDevice<>1";
+
+	string sResult = QueryAsModString(sSQL);
+
+	sSQL = "SELECT count(PK_Room),max(Room.psc_mod) FROM Room";
+	sResult += QueryAsModString(sSQL);
+	sSQL = "SELECT count(PK_EntertainArea),max(EntertainArea.psc_mod) FROM EntertainArea";
+	sResult += "\t" + QueryAsModString(sSQL);
+	sSQL = "select count(PK_Users),max(Users.psc_mod),max(Installation_Users.psc_mod) "
+		"FROM Users "
+		"LEFT JOIN Installation_Users ON FK_Users=PK_Users ";
+	sResult += QueryAsModString(sSQL);
+
+	return sResult;
+}
+
+string RegenMonitor::AllScenariosFloorplans()
+{
+	string sSQL = "SELECT count(FK_Device),max(psc_mod) FROM Device_DeviceData where FK_DeviceData="
+				+ StringUtils::itos(DEVICEDATA_Floorplan_Info_CONST);
+
+	string sResult = QueryAsModString(sSQL);
+
+	sSQL = "select count(FK_Installation),max(psc_mod) FROM Floorplan";
+	sResult += QueryAsModString(sSQL);
+
+	sSQL = "select count(PK_CommandGroup),max(CommandGroup.psc_mod),max(CommandGroup_Room.psc_mod),max(CommandGroup_Command.psc_mod),max(CommandGroup_Command_CommandParameter.psc_mod) "
+		"FROM CommandGroup "
+		"LEFT JOIN CommandGroup_Command ON CommandGroup_Command.FK_CommandGroup=PK_CommandGroup "
+		"LEFT JOIN CommandGroup_Command_CommandParameter ON FK_CommandGroup_Command=PK_CommandGroup_Command ";
+
+	sResult += QueryAsModString(sSQL);
+
 	return sResult;
 }

@@ -1,12 +1,18 @@
 #ifndef RegenMonitor_h
 #define RegenMonitor_h
 
+#include "PlutoUtils/MySQLHelper.h"
+
 class RegenMonitor
 {
-	class OrbiterGenerator *m_pOrbiterGenerator;
+	MySqlHelper *m_pMySqlHelper;
+	class Row_Room *m_pRow_Room;
+	class Row_EntertainArea *m_pRow_EntertainArea;
 public:
 
-	RegenMonitor(OrbiterGenerator *pOrbiterGenerator) { m_pOrbiterGenerator=pOrbiterGenerator; }
+	RegenMonitor(MySqlHelper *pMySqlHelper) { m_pMySqlHelper=pMySqlHelper; m_pRow_EntertainArea=NULL; m_pRow_Room=NULL; }
+	void SetRoom(Row_Room *pRow_Room) { m_pRow_Room=pRow_Room; }
+	void SetEntArea(Row_EntertainArea *pRow_EntertainArea) { m_pRow_EntertainArea=pRow_EntertainArea; }
 
 	bool CachedVersionOK(string sString);
 
@@ -28,6 +34,11 @@ public:
 	string GetModInfo_Locations();
 	string GetModInfo_FloorplanArray();
 	string GetModInfo_Floorplan(int PK_FloorplanType);
+
+	// These return strings reflecting the state of all devices and rooms (to indicate if a reload is necessary)
+	// and all scenarios/floorplans (to indicate if an orbitergen is necessary)
+	string AllDevicesRooms();
+	string AllScenariosFloorplans();
 };
 
 #endif

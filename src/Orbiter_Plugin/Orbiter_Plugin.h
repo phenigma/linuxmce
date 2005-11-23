@@ -12,6 +12,7 @@
 #include "pluto_main/Define_DesignObj.h"
 #include "pluto_main/Define_Variable.h"
 #include "Gen_Devices/AllCommandsRequests.h"
+#include "OrbiterGen/RegenMonitor.h"
 
 class Database_pluto_main;
 class Database_pluto_security;
@@ -59,6 +60,8 @@ public:
         bool m_bFloorPlansArePrepared;
 		int m_iThreshHold;
 		bool m_bIgnoreAllBluetoothDevices;
+		RegenMonitor *m_pRegenMonitor;
+		string m_sRegenAllDevicesRooms;
 
 //<-dceag-const-b->
 public:

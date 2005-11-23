@@ -280,7 +280,7 @@ void CGArray::CheckLastEntry()
 		m_ocFwd->m_bTabStop = m_drDesignObjVariation_DesignObj->IsTabStop_get()==1;
 
 		// See if maybe we're just supposed to change screens rather than paging through all the options
-		if( m_ocFwd->m_DesignObj_GeneratorGoto!=NULL )
+		if( m_ocFwd->m_PK_DesignObj_Goto!=0 )
 			m_bContainsMore = false;
 		else if( !m_drOVCP_MoreBack || m_drOVCP_MoreBack->Value_isNull())  // if there's no back button, we can't do anything
 			return;

@@ -87,6 +87,8 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
     m_bRendered=false;
 	m_bUseOCG=pGenerator->m_bUseOCG;
 	m_bIsPopup=false;
+	m_PK_DesignObj_Goto=0;
+	m_iNumFloorplanItems=0;
 
 	m_bPreserveAspectRatio = m_pOrbiterGenerator->m_pRow_Size->PreserveAspectRatio_get() == 1;
 
@@ -116,7 +118,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
     m_bDontShare=bDontShare;
     m_bUsingCache=false;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==1255 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==3412 )// || 
+if( m_pRow_DesignObj->PK_DesignObj_get()==1270 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==3412 )// || 
 //   m_pRow_DesignObj->PK_DesignObj_get()==4271 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==2211 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==1881 ||  m_pRow_DesignObj->PK_DesignObj_get()==2228 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==3531 ||  m_pRow_DesignObj->PK_DesignObj_get()==3534 )// || m_pRow_DesignObj->PK_DesignObj_get()==3471 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )*/
@@ -140,8 +142,8 @@ if( m_pRow_DesignObj->PK_DesignObj_get()==2233 )// || m_pRow_DesignObj->PK_Desig
         return;
     }
 
-	if( m_pOrbiterGenerator->m_mapDesignObjVariation_WithArrays.find(m_pRow_DesignObjVariation_Standard->PK_DesignObjVariation_get())!=
-		m_pOrbiterGenerator->m_mapDesignObjVariation_WithArrays.end() ||
+	if( m_pOrbiterGenerator->m_mapDesignObj_WithArrays.find(m_pRow_DesignObjVariation_Standard->FK_DesignObj_get())!=
+		m_pOrbiterGenerator->m_mapDesignObj_WithArrays.end() ||
 		m_pOrbiterGenerator->m_pRow_DesignObj_MainMenu==m_pRow_DesignObj || m_pOrbiterGenerator->m_pRow_DesignObj_Sleeping==m_pRow_DesignObj )
 	{
 		bAddToGenerated = true;
@@ -170,7 +172,9 @@ if( m_pRow_DesignObj->PK_DesignObj_get()==2233 )// || m_pRow_DesignObj->PK_Desig
         {
             al=new listDesignObj_Generator();
             m_pOrbiterGenerator->m_htGeneratedScreens[StringUtils::itos(drDesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(m_iVersion)]=al;
-        }
+if( StringUtils::itos(drDesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(m_iVersion)=="1270.0" )
+int k=2;
+		}
         al->push_back(this);
 
 if( !m_pOrbiterGenerator->m_pRow_DesignObj_MainMenu )
@@ -200,6 +204,7 @@ int k=2;
 						else if( SerializeRead(Filename) )
 						{
 							m_bUsingCache=true;
+							ReadFloorplanInfo(Filename+".fp");
 							cout << "Not building screen " << StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(m_iVersion) << " found valid cache" << endl;
 							return;
 						}
@@ -1144,7 +1149,20 @@ int DesignObj_Generator::LookForGoto(DesignObjCommandList *alCommands)
 
 void DesignObj_Generator::HandleGoto(int PK_DesignObj_Goto)
 {
-	listDesignObj_Generator *pListScreens = m_pOrbiterGenerator->m_htGeneratedScreens[StringUtils::itos(PK_DesignObj_Goto) + ".0"];
+	m_PK_DesignObj_Goto=PK_DesignObj_Goto;
+if( PK_DesignObj_Goto==1324 )
+int k=2;
+	string sVersion = ".0";
+bool b=false;
+	if( m_pOrbiterGenerator->m_mapDesignObj_WithArrays.find(PK_DesignObj_Goto)!=m_pOrbiterGenerator->m_mapDesignObj_WithArrays.end() )
+{
+b=true;
+		sVersion = "." + StringUtils::itos(m_pOrbiterGenerator->m_iLocation);
+}
+
+	listDesignObj_Generator *pListScreens = m_pOrbiterGenerator->m_htGeneratedScreens[StringUtils::itos(PK_DesignObj_Goto) + sVersion];
+if( StringUtils::itos(PK_DesignObj_Goto) + sVersion=="1270.0" )
+int k=2;
     if( PK_DesignObj_Goto==m_pOrbiterGenerator->m_pRow_DesignObj_MainMenu->PK_DesignObj_get() )
     {
         return; // All the main menu's are automatically included.  The system will figure out which one at runtime
@@ -1153,7 +1171,7 @@ void DesignObj_Generator::HandleGoto(int PK_DesignObj_Goto)
     if( !pListScreens )
     {
         pListScreens = new listDesignObj_Generator();
-        m_pOrbiterGenerator->m_htGeneratedScreens[StringUtils::itos(PK_DesignObj_Goto) + ".0"] = pListScreens;
+        m_pOrbiterGenerator->m_htGeneratedScreens[StringUtils::itos(PK_DesignObj_Goto) + sVersion] = pListScreens;
     }
     else if( pListScreens->size()==0 )
     {
@@ -1163,10 +1181,10 @@ void DesignObj_Generator::HandleGoto(int PK_DesignObj_Goto)
     }
 
     // Does this exist already?
-    if( pListScreens->size()==1 && !(*pListScreens)[0]->m_bDontShare )
+    if( pListScreens->size()==1 ) // && !(*pListScreens)[0]->m_bDontShare ) since the key is now screen X.Y, not just X, we don't worry about sharing anymore??
 {
         m_DesignObj_GeneratorGoto = (*pListScreens)[0];
-if( m_DesignObj_GeneratorGoto->m_pRow_DesignObj->PK_DesignObj_get()==1270 )
+if( m_PK_DesignObj_Goto==1270 )
 {
 int k=2;
 }
@@ -1221,8 +1239,8 @@ int k=2;
         m_DesignObj_GeneratorGoto = new DesignObj_Generator(m_pOrbiterGenerator,drDesignObj_new,PlutoRectangle(0,0,0,0),NULL,pListScreens->size()==0,false);
 //  I think this is not needed since the if( bAddToGenerated at the top of the constructor does this since pListScreens->size()==0???       pListScreens->push_back(m_DesignObj_GeneratorGoto);
 //      m_pOrbiterGenerator->m_mapVariable = htPriorVariables;
-        if( m_bDontShare )
-            m_DesignObj_GeneratorGoto->m_iVersion=(int) pListScreens->size();
+//        if( m_bDontShare )
+  //          m_DesignObj_GeneratorGoto->m_iVersion=(int) pListScreens->size();
     }
 }
 
@@ -1927,3 +1945,34 @@ bool DesignObj_Generator::ReadRegenVersion(string sFilename)
 	return true;
 }
 
+bool DesignObj_Generator::ReadFloorplanInfo(string sFilename)
+{
+	SerializeClass sc;
+	size_t s;
+	char *pPtr = FileUtils::ReadFileIntoBuffer(sFilename,s);
+	if( !pPtr )
+		return false;
+	sc.StartReading((unsigned long) s,pPtr);
+	int count=sc.Read_long();
+	string str;
+	sc.Read_string(str);
+	m_pOrbiterGenerator->m_iNumFloorplanItems+=count;
+	m_pOrbiterGenerator->m_sFloorPlanData+=str;
+
+	sc.FreeSerializeMemory();
+	return true;
+}
+
+
+void DesignObj_Generator::WriteFloorplanInfo(string sFilename)
+{
+	SerializeClass sc;
+	sc.StartWriting();
+	sc.Write_long(m_iNumFloorplanItems);
+	sc.Write_string(m_sFloorPlanData);
+
+	FILE *file = fopen(sFilename.c_str(),"wb");
+	fwrite(sc.m_pcDataBlock,sc.CurrentSize(),1,file);
+	fclose(file);
+	sc.FreeSerializeMemory();
+}

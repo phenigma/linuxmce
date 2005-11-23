@@ -15,6 +15,11 @@ public:
 	class OrbiterGenerator *m_pOrbiterGenerator;
 	class PlutoRectangle m_rBitmapOffset;
 	map<int,string> m_VariableMap;
+	int m_PK_DesignObj_Goto;
+
+	// These are only used on topmost screens
+	string m_sFloorPlanData;
+	int m_iNumFloorplanItems;
 
 	// These are the input values, the 'real' location on the server that Orbiter Gen uses.  The regular variables without Orig
 	// are the rendered versions.
@@ -65,11 +70,13 @@ public:
 
 	string SubstituteVariables(string Text,bool *bContainsRunTimeVariables);
 
-	DesignObj_Generator *GetTopMostObject(DesignObj_Generator *pObj) {return pObj->m_ocoParent ? GetTopMostObject(pObj->m_ocoParent) : pObj;}
+	DesignObj_Generator *GetTopMostObject() {return m_ocoParent ? m_ocoParent->GetTopMostObject() : this;}
 	bool CachedVersionOK();
 	void PurgeForRegeneration(); // If we just read from a cache, but won't use the cache, purge everything so we can regen
 	void WriteRegenVersion(string sFilename);
 	bool ReadRegenVersion(string sFilename);
+	bool ReadFloorplanInfo(string sFilename);
+	void WriteFloorplanInfo(string sFilename);
 };
 
 #endif
