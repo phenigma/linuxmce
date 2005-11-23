@@ -50,6 +50,7 @@ using namespace std;
 #include "Table_DeviceTemplate_PageSetup.h"
 #include "Table_InfraredGroup_Command.h"
 #include "Table_InstallWizard.h"
+#include "Table_Screen_DesignObj.h"
 #include "Table_StartupScript.h"
 
 
@@ -2294,6 +2295,13 @@ void Row_DeviceTemplate::InstallWizard_FK_DeviceTemplate_getrows(vector <class R
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_InstallWizard *pTable = table->database->InstallWizard_get();
+pTable->GetRows("`FK_DeviceTemplate`=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
+}
+void Row_DeviceTemplate::Screen_DesignObj_FK_DeviceTemplate_getrows(vector <class Row_Screen_DesignObj*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Screen_DesignObj *pTable = table->database->Screen_DesignObj_get();
 pTable->GetRows("`FK_DeviceTemplate`=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::StartupScript_FK_DeviceTemplate_getrows(vector <class Row_StartupScript*> *rows)

@@ -592,6 +592,15 @@
 				RelativePath=".\Table_Schema.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_Screen.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Screen_CommandParameter.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Screen_DesignObj.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_SetupStep.cpp">
 			</File>
 			<File

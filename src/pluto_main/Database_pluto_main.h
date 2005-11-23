@@ -341,6 +341,12 @@ class Table_Room_Users* tblRoom_Users;
 bool Commit_Room_Users(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_Schema* tblSchema;
 bool Commit_Schema(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
+class Table_Screen* tblScreen;
+bool Commit_Screen(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
+class Table_Screen_CommandParameter* tblScreen_CommandParameter;
+bool Commit_Screen_CommandParameter(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
+class Table_Screen_DesignObj* tblScreen_DesignObj;
+bool Commit_Screen_DesignObj(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_SetupStep* tblSetupStep;
 bool Commit_SetupStep(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_Size* tblSize;
@@ -624,6 +630,9 @@ class Table_Room* Room_get() { if( !tblRoom ) CreateTable_Room(); return tblRoom
 class Table_RoomType* RoomType_get() { if( !tblRoomType ) CreateTable_RoomType(); return tblRoomType; }
 class Table_Room_Users* Room_Users_get() { if( !tblRoom_Users ) CreateTable_Room_Users(); return tblRoom_Users; }
 class Table_Schema* Schema_get() { if( !tblSchema ) CreateTable_Schema(); return tblSchema; }
+class Table_Screen* Screen_get() { if( !tblScreen ) CreateTable_Screen(); return tblScreen; }
+class Table_Screen_CommandParameter* Screen_CommandParameter_get() { if( !tblScreen_CommandParameter ) CreateTable_Screen_CommandParameter(); return tblScreen_CommandParameter; }
+class Table_Screen_DesignObj* Screen_DesignObj_get() { if( !tblScreen_DesignObj ) CreateTable_Screen_DesignObj(); return tblScreen_DesignObj; }
 class Table_SetupStep* SetupStep_get() { if( !tblSetupStep ) CreateTable_SetupStep(); return tblSetupStep; }
 class Table_Size* Size_get() { if( !tblSize ) CreateTable_Size(); return tblSize; }
 class Table_Skin* Skin_get() { if( !tblSkin ) CreateTable_Skin(); return tblSkin; }
@@ -850,6 +859,9 @@ void CreateTable_Room();
 void CreateTable_RoomType();
 void CreateTable_Room_Users();
 void CreateTable_Schema();
+void CreateTable_Screen();
+void CreateTable_Screen_CommandParameter();
+void CreateTable_Screen_DesignObj();
 void CreateTable_SetupStep();
 void CreateTable_Size();
 void CreateTable_Skin();
@@ -1070,6 +1082,9 @@ void DeleteTable_Room();
 void DeleteTable_RoomType();
 void DeleteTable_Room_Users();
 void DeleteTable_Schema();
+void DeleteTable_Screen();
+void DeleteTable_Screen_CommandParameter();
+void DeleteTable_Screen_DesignObj();
 void DeleteTable_SetupStep();
 void DeleteTable_Size();
 void DeleteTable_Skin();

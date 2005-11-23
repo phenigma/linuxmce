@@ -19,6 +19,7 @@ using namespace std;
 #include "Table_UI.h"
 
 #include "Table_DesignObjVariation.h"
+#include "Table_Screen_DesignObj.h"
 #include "Table_Skin.h"
 #include "Table_StyleVariation.h"
 
@@ -951,6 +952,13 @@ void Row_UI::DesignObjVariation_FK_UI_getrows(vector <class Row_DesignObjVariati
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_DesignObjVariation *pTable = table->database->DesignObjVariation_get();
+pTable->GetRows("`FK_UI`=" + StringUtils::itos(m_PK_UI),rows);
+}
+void Row_UI::Screen_DesignObj_FK_UI_getrows(vector <class Row_Screen_DesignObj*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Screen_DesignObj *pTable = table->database->Screen_DesignObj_get();
 pTable->GetRows("`FK_UI`=" + StringUtils::itos(m_PK_UI),rows);
 }
 void Row_UI::Skin_FK_UI_getrows(vector <class Row_Skin*> *rows)

@@ -191,6 +191,7 @@ class Row_Package* FK_Package_getrow();
 void DesignObjVariation_Text_Skin_Language_FK_Skin_getrows(vector <class Row_DesignObjVariation_Text_Skin_Language*> *rows);
 void DeviceTemplate_MediaType_DesignObj_FK_Skin_getrows(vector <class Row_DeviceTemplate_MediaType_DesignObj*> *rows);
 void MediaType_DesignObj_FK_Skin_getrows(vector <class Row_MediaType_DesignObj*> *rows);
+void Screen_DesignObj_FK_Skin_getrows(vector <class Row_Screen_DesignObj*> *rows);
 void Skin_FK_Skin_TextPlacement_getrows(vector <class Row_Skin*> *rows);
 void StyleVariation_FK_Skin_getrows(vector <class Row_StyleVariation*> *rows);
 

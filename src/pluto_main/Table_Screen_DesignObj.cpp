@@ -1,0 +1,780 @@
+// If using the thread logger, these generated classes create lots of activity
+#ifdef NO_SQL_THREAD_LOG
+#undef THREAD_LOG
+#endif
+
+#ifdef WIN32
+#include <winsock.h>
+#endif
+
+#include <iostream>
+#include <string>
+#include <vector>
+#include <map>
+
+#include <mysql.h>
+
+using namespace std;
+#include "PlutoUtils/StringUtils.h"
+#include "Table_Screen_DesignObj.h"
+#include "Table_Screen.h"
+#include "Table_DesignObj.h"
+#include "Table_UI.h"
+#include "Table_Skin.h"
+#include "Table_DeviceTemplate.h"
+
+
+
+void Database_pluto_main::CreateTable_Screen_DesignObj()
+{
+	tblScreen_DesignObj = new Table_Screen_DesignObj(this);
+}
+
+void Database_pluto_main::DeleteTable_Screen_DesignObj()
+{
+	if( tblScreen_DesignObj )
+		delete tblScreen_DesignObj;
+}
+
+bool Database_pluto_main::Commit_Screen_DesignObj(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	return tblScreen_DesignObj->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
+Table_Screen_DesignObj::~Table_Screen_DesignObj()
+{
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;
+	for(it=cachedRows.begin();it!=cachedRows.end();++it)
+	{
+		Row_Screen_DesignObj *pRow = (Row_Screen_DesignObj *) (*it).second;
+		delete pRow;
+	}
+
+	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
+	{
+		Row_Screen_DesignObj *pRow = (Row_Screen_DesignObj *) (*it).second;
+		delete pRow;
+	}
+
+	size_t i;
+	for(i=0;i<addedRows.size();++i)
+		delete addedRows[i];
+	for(i=0;i<deleted_addedRows.size();++i)
+		delete deleted_addedRows[i];
+}
+
+
+void Row_Screen_DesignObj::Delete()
+{
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+	Row_Screen_DesignObj *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+	
+	if (!is_deleted)
+		if (is_added)	
+		{	
+			vector<TableRow*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_Screen_DesignObj *) *i != this); i++);
+			
+			if (i!=	table->addedRows.end())
+				table->addedRows.erase(i);
+		
+			table->deleted_addedRows.push_back(this);
+			is_deleted = true;	
+		}
+		else
+		{
+			SingleLongKey key(pRow->m_PK_Screen_DesignObj);
+			map<SingleLongKey, TableRow*, SingleLongKey_Less>::iterator i = table->cachedRows.find(key);
+			if (i!=table->cachedRows.end())
+				table->cachedRows.erase(i);
+						
+			table->deleted_cachedRows[key] = this;
+			is_deleted = true;	
+		}	
+}
+
+void Row_Screen_DesignObj::Reload()
+{
+	Row_Screen_DesignObj *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+	
+	
+	if (!is_added)
+	{
+		SingleLongKey key(pRow->m_PK_Screen_DesignObj);
+		Row_Screen_DesignObj *pRow = table->FetchRow(key);
+		
+		if (pRow!=NULL)
+		{
+			*this = *pRow;	
+			
+			delete pRow;		
+		}	
+	}	
+	
+}
+
+Row_Screen_DesignObj::Row_Screen_DesignObj(Table_Screen_DesignObj *pTable):table(pTable)
+{
+	SetDefaultValues();
+}
+
+void Row_Screen_DesignObj::SetDefaultValues()
+{
+	m_PK_Screen_DesignObj = 0;
+is_null[0] = false;
+m_FK_Screen = 0;
+is_null[1] = false;
+m_FK_DesignObj = 0;
+is_null[2] = false;
+is_null[3] = true;
+m_FK_UI = 0;
+is_null[4] = true;
+m_FK_Skin = 0;
+is_null[5] = true;
+m_FK_DeviceTemplate = 0;
+
+
+	is_added=false;
+	is_deleted=false;
+	is_modified=false;
+}
+
+long int Row_Screen_DesignObj::PK_Screen_DesignObj_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_PK_Screen_DesignObj;}
+long int Row_Screen_DesignObj::FK_Screen_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_FK_Screen;}
+long int Row_Screen_DesignObj::FK_DesignObj_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_FK_DesignObj;}
+long int Row_Screen_DesignObj::FK_UI_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_FK_UI;}
+long int Row_Screen_DesignObj::FK_Skin_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_FK_Skin;}
+long int Row_Screen_DesignObj::FK_DeviceTemplate_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_FK_DeviceTemplate;}
+
+		
+void Row_Screen_DesignObj::PK_Screen_DesignObj_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_PK_Screen_DesignObj = val; is_modified=true; is_null[0]=false;}
+void Row_Screen_DesignObj::FK_Screen_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_FK_Screen = val; is_modified=true; is_null[1]=false;}
+void Row_Screen_DesignObj::FK_DesignObj_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_FK_DesignObj = val; is_modified=true; is_null[2]=false;}
+void Row_Screen_DesignObj::FK_UI_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_FK_UI = val; is_modified=true; is_null[3]=false;}
+void Row_Screen_DesignObj::FK_Skin_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_FK_Skin = val; is_modified=true; is_null[4]=false;}
+void Row_Screen_DesignObj::FK_DeviceTemplate_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_FK_DeviceTemplate = val; is_modified=true; is_null[5]=false;}
+
+		
+bool Row_Screen_DesignObj::FK_UI_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[3];}
+bool Row_Screen_DesignObj::FK_Skin_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[4];}
+bool Row_Screen_DesignObj::FK_DeviceTemplate_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[5];}
+
+			
+void Row_Screen_DesignObj::FK_UI_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[3]=val;
+is_modified=true;
+}
+void Row_Screen_DesignObj::FK_Skin_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[4]=val;
+is_modified=true;
+}
+void Row_Screen_DesignObj::FK_DeviceTemplate_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[5]=val;
+is_modified=true;
+}
+	
+
+string Row_Screen_DesignObj::PK_Screen_DesignObj_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[0])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_PK_Screen_DesignObj);
+
+return buf;
+}
+
+string Row_Screen_DesignObj::FK_Screen_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[1])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_Screen);
+
+return buf;
+}
+
+string Row_Screen_DesignObj::FK_DesignObj_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[2])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_DesignObj);
+
+return buf;
+}
+
+string Row_Screen_DesignObj::FK_UI_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[3])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_UI);
+
+return buf;
+}
+
+string Row_Screen_DesignObj::FK_Skin_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[4])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_Skin);
+
+return buf;
+}
+
+string Row_Screen_DesignObj::FK_DeviceTemplate_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[5])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_DeviceTemplate);
+
+return buf;
+}
+
+
+
+
+Table_Screen_DesignObj::Key::Key(long int in_PK_Screen_DesignObj)
+{
+			pk_PK_Screen_DesignObj = in_PK_Screen_DesignObj;
+	
+}
+
+Table_Screen_DesignObj::Key::Key(Row_Screen_DesignObj *pRow)
+{
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
+
+			pk_PK_Screen_DesignObj = pRow->m_PK_Screen_DesignObj;
+	
+}		
+
+bool Table_Screen_DesignObj::Key_Less::operator()(const Table_Screen_DesignObj::Key &key1, const Table_Screen_DesignObj::Key &key2) const
+{
+			if (key1.pk_PK_Screen_DesignObj!=key2.pk_PK_Screen_DesignObj)
+return key1.pk_PK_Screen_DesignObj<key2.pk_PK_Screen_DesignObj;
+else
+return false;	
+}	
+
+bool Table_Screen_DesignObj::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
+
+//insert added
+	while (!addedRows.empty())
+	{
+		vector<TableRow*>::iterator i = addedRows.begin();
+	
+		Row_Screen_DesignObj *pRow = (Row_Screen_DesignObj *)*i;
+	
+		
+string values_list_comma_separated;
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Screen_DesignObj_asSQL()+", "+pRow->FK_Screen_asSQL()+", "+pRow->FK_DesignObj_asSQL()+", "+pRow->FK_UI_asSQL()+", "+pRow->FK_Skin_asSQL()+", "+pRow->FK_DeviceTemplate_asSQL();
+
+	
+		string query = "insert into Screen_DesignObj (`PK_Screen_DesignObj`, `FK_Screen`, `FK_DesignObj`, `FK_UI`, `FK_Skin`, `FK_DeviceTemplate`) values ("+
+			values_list_comma_separated+")";
+			
+		if (mysql_query(database->m_pMySQL, query.c_str()))
+		{	
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+			if( bDeleteFailedInsertRow )
+			{
+				addedRows.erase(i);
+				delete pRow;
+			}
+			return false;
+		}
+	
+		if (mysql_affected_rows(database->m_pMySQL)!=0)
+		{
+			
+			
+			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
+		
+			if (id!=0)
+pRow->m_PK_Screen_DesignObj=id;
+	
+			
+			addedRows.erase(i);
+			SingleLongKey key(pRow->m_PK_Screen_DesignObj);	
+			cachedRows[key] = pRow;
+					
+			
+			pRow->is_added = false;	
+			pRow->is_modified = false;	
+		}	
+				
+	}	
+
+
+//update modified
+	
+
+	for (map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified_get())
+	{
+		Row_Screen_DesignObj* pRow = (Row_Screen_DesignObj*) (*i).second;	
+		SingleLongKey key(pRow->m_PK_Screen_DesignObj);
+
+		char tmp_PK_Screen_DesignObj[32];
+sprintf(tmp_PK_Screen_DesignObj, "%li", key.pk);
+
+
+string condition;
+condition = condition + "`PK_Screen_DesignObj`=" + tmp_PK_Screen_DesignObj;
+	
+			
+		
+string update_values_list;
+update_values_list = update_values_list + "`PK_Screen_DesignObj`="+pRow->PK_Screen_DesignObj_asSQL()+", `FK_Screen`="+pRow->FK_Screen_asSQL()+", `FK_DesignObj`="+pRow->FK_DesignObj_asSQL()+", `FK_UI`="+pRow->FK_UI_asSQL()+", `FK_Skin`="+pRow->FK_Skin_asSQL()+", `FK_DeviceTemplate`="+pRow->FK_DeviceTemplate_asSQL();
+
+	
+		string query = "update Screen_DesignObj set " + update_values_list + " where " + condition;
+			
+		if (mysql_query(database->m_pMySQL, query.c_str()))
+		{	
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+			if( bDeleteFailedModifiedRow )
+			{
+				cachedRows.erase(i);
+				delete pRow;
+			}
+			return false;
+		}
+	
+		pRow->is_modified = false;	
+	}	
+	
+
+//delete deleted added
+	while (!deleted_addedRows.empty())
+	{	
+		vector<TableRow*>::iterator i = deleted_addedRows.begin();
+		Row_Screen_DesignObj* pRow = (Row_Screen_DesignObj*) (*i);
+		delete pRow;
+		deleted_addedRows.erase(i);
+	}	
+
+
+//delete deleted cached
+	
+	while (!deleted_cachedRows.empty())
+	{	
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
+	
+		SingleLongKey key = (*i).first;
+		Row_Screen_DesignObj* pRow = (Row_Screen_DesignObj*) (*i).second;	
+
+		char tmp_PK_Screen_DesignObj[32];
+sprintf(tmp_PK_Screen_DesignObj, "%li", key.pk);
+
+
+string condition;
+condition = condition + "`PK_Screen_DesignObj`=" + tmp_PK_Screen_DesignObj;
+
+	
+		string query = "delete from Screen_DesignObj where " + condition;
+		
+		if (mysql_query(database->m_pMySQL, query.c_str()))
+		{	
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+			return false;
+		}	
+		
+		pRow = (Row_Screen_DesignObj*) (*i).second;;
+		delete pRow;
+		deleted_cachedRows.erase(key);
+	}
+	
+	return true;
+}
+
+bool Table_Screen_DesignObj::GetRows(string where_statement,vector<class Row_Screen_DesignObj*> *rows)
+{
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
+
+	string query;
+	if( StringUtils::StartsWith(where_statement,"where ",true) || 
+		StringUtils::StartsWith(where_statement,"join ",true) ||
+		StringUtils::StartsWith(where_statement,"left ",true) ||
+		StringUtils::StartsWith(where_statement,"right ",true) ||
+		StringUtils::StartsWith(where_statement,"full ",true) ||
+		StringUtils::StartsWith(where_statement,"outer ",true) )
+		query = "select `Screen_DesignObj`.* from Screen_DesignObj " + where_statement;
+	else if( StringUtils::StartsWith(where_statement,"select ",true) )
+		query = where_statement;
+	else if( where_statement.size() )
+		query = "select `Screen_DesignObj`.* from Screen_DesignObj where " + where_statement;
+	else
+		query = "select `Screen_DesignObj`.* from Screen_DesignObj";
+		
+	if (mysql_query(database->m_pMySQL, query.c_str()))
+	{	
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+		return false;
+	}	
+
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
+	
+	if (!res)
+	{
+		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+		return false;
+	}	
+	
+	MYSQL_ROW row;
+						
+		
+	while ((row = mysql_fetch_row(res)) != NULL)
+	{	
+		unsigned long *lengths = mysql_fetch_lengths(res);
+
+		Row_Screen_DesignObj *pRow = new Row_Screen_DesignObj(this);
+		
+		if (row[0] == NULL)
+{
+pRow->is_null[0]=true;
+pRow->m_PK_Screen_DesignObj = 0;
+}
+else
+{
+pRow->is_null[0]=false;
+sscanf(row[0], "%li", &(pRow->m_PK_Screen_DesignObj));
+}
+
+if (row[1] == NULL)
+{
+pRow->is_null[1]=true;
+pRow->m_FK_Screen = 0;
+}
+else
+{
+pRow->is_null[1]=false;
+sscanf(row[1], "%li", &(pRow->m_FK_Screen));
+}
+
+if (row[2] == NULL)
+{
+pRow->is_null[2]=true;
+pRow->m_FK_DesignObj = 0;
+}
+else
+{
+pRow->is_null[2]=false;
+sscanf(row[2], "%li", &(pRow->m_FK_DesignObj));
+}
+
+if (row[3] == NULL)
+{
+pRow->is_null[3]=true;
+pRow->m_FK_UI = 0;
+}
+else
+{
+pRow->is_null[3]=false;
+sscanf(row[3], "%li", &(pRow->m_FK_UI));
+}
+
+if (row[4] == NULL)
+{
+pRow->is_null[4]=true;
+pRow->m_FK_Skin = 0;
+}
+else
+{
+pRow->is_null[4]=false;
+sscanf(row[4], "%li", &(pRow->m_FK_Skin));
+}
+
+if (row[5] == NULL)
+{
+pRow->is_null[5]=true;
+pRow->m_FK_DeviceTemplate = 0;
+}
+else
+{
+pRow->is_null[5]=false;
+sscanf(row[5], "%li", &(pRow->m_FK_DeviceTemplate));
+}
+
+
+
+		//checking for duplicates
+
+		SingleLongKey key(pRow->m_PK_Screen_DesignObj);
+		
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.find(key);
+			
+		if (i!=cachedRows.end())
+		{
+			delete pRow;
+			pRow = (Row_Screen_DesignObj *)(*i).second;
+		}
+
+		rows->push_back(pRow);
+		
+		cachedRows[key] = pRow;
+	}
+
+	mysql_free_result(res);			
+		
+	return true;					
+}
+
+Row_Screen_DesignObj* Table_Screen_DesignObj::AddRow()
+{
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
+
+	Row_Screen_DesignObj *pRow = new Row_Screen_DesignObj(this);
+	pRow->is_added=true;
+	addedRows.push_back(pRow);
+	return pRow;		
+}
+
+
+
+Row_Screen_DesignObj* Table_Screen_DesignObj::GetRow(long int in_PK_Screen_DesignObj)
+{
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
+
+	SingleLongKey row_key(in_PK_Screen_DesignObj);
+
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i;
+	i = deleted_cachedRows.find(row_key);	
+		
+	//row was deleted	
+	if (i!=deleted_cachedRows.end())
+		return NULL;
+	
+	i = cachedRows.find(row_key);
+	
+	//row is cached
+	if (i!=cachedRows.end())
+		return (Row_Screen_DesignObj*) (*i).second;
+	//we have to fetch row
+	Row_Screen_DesignObj* pRow = FetchRow(row_key);
+
+	if (pRow!=NULL)
+		cachedRows[row_key] = pRow;
+	return pRow;	
+}
+
+
+
+Row_Screen_DesignObj* Table_Screen_DesignObj::FetchRow(SingleLongKey &key)
+{
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
+
+	//defines the string query for the value of key
+	char tmp_PK_Screen_DesignObj[32];
+sprintf(tmp_PK_Screen_DesignObj, "%li", key.pk);
+
+
+string condition;
+condition = condition + "`PK_Screen_DesignObj`=" + tmp_PK_Screen_DesignObj;
+
+
+	string query = "select * from Screen_DesignObj where " + condition;		
+
+	if (mysql_query(database->m_pMySQL, query.c_str()))
+	{	
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+		return NULL;
+	}	
+
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
+	
+	if (!res)
+	{
+		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+		return NULL;
+	}	
+	
+	MYSQL_ROW row = mysql_fetch_row(res);
+	
+	if (!row)
+	{
+		//dataset is empty
+		mysql_free_result(res);			
+		return NULL;		
+	}	
+						
+	unsigned long *lengths = mysql_fetch_lengths(res);
+
+	Row_Screen_DesignObj *pRow = new Row_Screen_DesignObj(this);
+		
+	if (row[0] == NULL)
+{
+pRow->is_null[0]=true;
+pRow->m_PK_Screen_DesignObj = 0;
+}
+else
+{
+pRow->is_null[0]=false;
+sscanf(row[0], "%li", &(pRow->m_PK_Screen_DesignObj));
+}
+
+if (row[1] == NULL)
+{
+pRow->is_null[1]=true;
+pRow->m_FK_Screen = 0;
+}
+else
+{
+pRow->is_null[1]=false;
+sscanf(row[1], "%li", &(pRow->m_FK_Screen));
+}
+
+if (row[2] == NULL)
+{
+pRow->is_null[2]=true;
+pRow->m_FK_DesignObj = 0;
+}
+else
+{
+pRow->is_null[2]=false;
+sscanf(row[2], "%li", &(pRow->m_FK_DesignObj));
+}
+
+if (row[3] == NULL)
+{
+pRow->is_null[3]=true;
+pRow->m_FK_UI = 0;
+}
+else
+{
+pRow->is_null[3]=false;
+sscanf(row[3], "%li", &(pRow->m_FK_UI));
+}
+
+if (row[4] == NULL)
+{
+pRow->is_null[4]=true;
+pRow->m_FK_Skin = 0;
+}
+else
+{
+pRow->is_null[4]=false;
+sscanf(row[4], "%li", &(pRow->m_FK_Skin));
+}
+
+if (row[5] == NULL)
+{
+pRow->is_null[5]=true;
+pRow->m_FK_DeviceTemplate = 0;
+}
+else
+{
+pRow->is_null[5]=false;
+sscanf(row[5], "%li", &(pRow->m_FK_DeviceTemplate));
+}
+
+
+
+	mysql_free_result(res);			
+	
+	return pRow;						
+}
+
+
+class Row_Screen* Row_Screen_DesignObj::FK_Screen_getrow()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Screen *pTable = table->database->Screen_get();
+return pTable->GetRow(m_FK_Screen);
+}
+class Row_DesignObj* Row_Screen_DesignObj::FK_DesignObj_getrow()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_DesignObj *pTable = table->database->DesignObj_get();
+return pTable->GetRow(m_FK_DesignObj);
+}
+class Row_UI* Row_Screen_DesignObj::FK_UI_getrow()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_UI *pTable = table->database->UI_get();
+return pTable->GetRow(m_FK_UI);
+}
+class Row_Skin* Row_Screen_DesignObj::FK_Skin_getrow()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Skin *pTable = table->database->Skin_get();
+return pTable->GetRow(m_FK_Skin);
+}
+class Row_DeviceTemplate* Row_Screen_DesignObj::FK_DeviceTemplate_getrow()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_DeviceTemplate *pTable = table->database->DeviceTemplate_get();
+return pTable->GetRow(m_FK_DeviceTemplate);
+}
+
+
+
+
+

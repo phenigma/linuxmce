@@ -22,6 +22,7 @@ using namespace std;
 #include "Table_CommandGroup_Command_CommandParameter.h"
 #include "Table_CommandGroup_D_Command_CommandParameter.h"
 #include "Table_Command_CommandParameter.h"
+#include "Table_Screen_CommandParameter.h"
 
 
 void Database_pluto_main::CreateTable_CommandParameter()
@@ -1004,6 +1005,13 @@ void Row_CommandParameter::Command_CommandParameter_FK_CommandParameter_getrows(
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Command_CommandParameter *pTable = table->database->Command_CommandParameter_get();
+pTable->GetRows("`FK_CommandParameter`=" + StringUtils::itos(m_PK_CommandParameter),rows);
+}
+void Row_CommandParameter::Screen_CommandParameter_FK_CommandParameter_getrows(vector <class Row_Screen_CommandParameter*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Screen_CommandParameter *pTable = table->database->Screen_CommandParameter_get();
 pTable->GetRows("`FK_CommandParameter`=" + StringUtils::itos(m_PK_CommandParameter),rows);
 }
 

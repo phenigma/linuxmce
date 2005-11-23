@@ -151,6 +151,7 @@ void psc_restrict_setNull(bool val);
 		void CommandGroup_Command_CommandParameter_FK_CommandParameter_getrows(vector <class Row_CommandGroup_Command_CommandParameter*> *rows);
 void CommandGroup_D_Command_CommandParameter_FK_CommandParameter_getrows(vector <class Row_CommandGroup_D_Command_CommandParameter*> *rows);
 void Command_CommandParameter_FK_CommandParameter_getrows(vector <class Row_Command_CommandParameter*> *rows);
+void Screen_CommandParameter_FK_CommandParameter_getrows(vector <class Row_Screen_CommandParameter*> *rows);
 
 
 		// Setup binary serialization

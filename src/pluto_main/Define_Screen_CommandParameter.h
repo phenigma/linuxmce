@@ -1,0 +1,15 @@
+#ifndef __Define_Screen_CommandParameter_H__
+#define __Define_Screen_CommandParameter_H__
+
+
+#define SCREEN_COMMANDPARAMETER_TABLE "Screen_CommandParameter"
+#define SCREEN_COMMANDPARAMETER_FK_SCREEN_FIELD "FK_Screen"
+#define SCREEN_COMMANDPARAMETER_FK_SCREEN_TABLE_FIELD "Screen_CommandParameter.FK_Screen"
+#define SCREEN_COMMANDPARAMETER_FK_COMMANDPARAMETER_FIELD "FK_CommandParameter"
+#define SCREEN_COMMANDPARAMETER_FK_COMMANDPARAMETER_TABLE_FIELD "Screen_CommandParameter.FK_CommandParameter"
+#define SCREEN_COMMANDPARAMETER_DESCRIPTION_FIELD "Description"
+#define SCREEN_COMMANDPARAMETER_DESCRIPTION_TABLE_FIELD "Screen_CommandParameter.Description"
+
+
+#endif
+

@@ -182,6 +182,9 @@ tblRoom=NULL;
 tblRoomType=NULL;
 tblRoom_Users=NULL;
 tblSchema=NULL;
+tblScreen=NULL;
+tblScreen_CommandParameter=NULL;
+tblScreen_DesignObj=NULL;
 tblSetupStep=NULL;
 tblSize=NULL;
 tblSkin=NULL;
@@ -728,6 +731,15 @@ if( tblRoom_Users!=NULL )
 if( tblSchema!=NULL )
 	if( !Commit_Schema(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
 		bResult=false;
+if( tblScreen!=NULL )
+	if( !Commit_Screen(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
+if( tblScreen_CommandParameter!=NULL )
+	if( !Commit_Screen_CommandParameter(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
+if( tblScreen_DesignObj!=NULL )
+	if( !Commit_Screen_DesignObj(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblSetupStep!=NULL )
 	if( !Commit_SetupStep(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
 		bResult=false;
@@ -1078,6 +1090,9 @@ DeleteTable_Room();
 DeleteTable_RoomType();
 DeleteTable_Room_Users();
 DeleteTable_Schema();
+DeleteTable_Screen();
+DeleteTable_Screen_CommandParameter();
+DeleteTable_Screen_DesignObj();
 DeleteTable_SetupStep();
 DeleteTable_Size();
 DeleteTable_Skin();

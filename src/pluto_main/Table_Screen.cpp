@@ -1,0 +1,670 @@
+// If using the thread logger, these generated classes create lots of activity
+#ifdef NO_SQL_THREAD_LOG
+#undef THREAD_LOG
+#endif
+
+#ifdef WIN32
+#include <winsock.h>
+#endif
+
+#include <iostream>
+#include <string>
+#include <vector>
+#include <map>
+
+#include <mysql.h>
+
+using namespace std;
+#include "PlutoUtils/StringUtils.h"
+#include "Table_Screen.h"
+
+#include "Table_Screen_CommandParameter.h"
+#include "Table_Screen_DesignObj.h"
+
+
+void Database_pluto_main::CreateTable_Screen()
+{
+	tblScreen = new Table_Screen(this);
+}
+
+void Database_pluto_main::DeleteTable_Screen()
+{
+	if( tblScreen )
+		delete tblScreen;
+}
+
+bool Database_pluto_main::Commit_Screen(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	return tblScreen->Commit(bDeleteFailedModifiedRow,bDeleteFailedInsertRow);
+}
+
+Table_Screen::~Table_Screen()
+{
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;
+	for(it=cachedRows.begin();it!=cachedRows.end();++it)
+	{
+		Row_Screen *pRow = (Row_Screen *) (*it).second;
+		delete pRow;
+	}
+
+	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
+	{
+		Row_Screen *pRow = (Row_Screen *) (*it).second;
+		delete pRow;
+	}
+
+	size_t i;
+	for(i=0;i<addedRows.size();++i)
+		delete addedRows[i];
+	for(i=0;i<deleted_addedRows.size();++i)
+		delete deleted_addedRows[i];
+}
+
+
+void Row_Screen::Delete()
+{
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+	Row_Screen *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+	
+	if (!is_deleted)
+		if (is_added)	
+		{	
+			vector<TableRow*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_Screen *) *i != this); i++);
+			
+			if (i!=	table->addedRows.end())
+				table->addedRows.erase(i);
+		
+			table->deleted_addedRows.push_back(this);
+			is_deleted = true;	
+		}
+		else
+		{
+			SingleLongKey key(pRow->m_PK_Screen);
+			map<SingleLongKey, TableRow*, SingleLongKey_Less>::iterator i = table->cachedRows.find(key);
+			if (i!=table->cachedRows.end())
+				table->cachedRows.erase(i);
+						
+			table->deleted_cachedRows[key] = this;
+			is_deleted = true;	
+		}	
+}
+
+void Row_Screen::Reload()
+{
+	Row_Screen *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+	
+	
+	if (!is_added)
+	{
+		SingleLongKey key(pRow->m_PK_Screen);
+		Row_Screen *pRow = table->FetchRow(key);
+		
+		if (pRow!=NULL)
+		{
+			*this = *pRow;	
+			
+			delete pRow;		
+		}	
+	}	
+	
+}
+
+Row_Screen::Row_Screen(Table_Screen *pTable):table(pTable)
+{
+	SetDefaultValues();
+}
+
+void Row_Screen::SetDefaultValues()
+{
+	m_PK_Screen = 0;
+is_null[0] = false;
+is_null[1] = true;
+is_null[2] = true;
+is_null[3] = true;
+m_SpecialHandingRecommended = 0;
+
+
+	is_added=false;
+	is_deleted=false;
+	is_modified=false;
+}
+
+long int Row_Screen::PK_Screen_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_PK_Screen;}
+string Row_Screen::Description_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_Description;}
+string Row_Screen::Comments_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_Comments;}
+short int Row_Screen::SpecialHandingRecommended_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_SpecialHandingRecommended;}
+
+		
+void Row_Screen::PK_Screen_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_PK_Screen = val; is_modified=true; is_null[0]=false;}
+void Row_Screen::Description_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_Description = val; is_modified=true; is_null[1]=false;}
+void Row_Screen::Comments_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_Comments = val; is_modified=true; is_null[2]=false;}
+void Row_Screen::SpecialHandingRecommended_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_SpecialHandingRecommended = val; is_modified=true; is_null[3]=false;}
+
+		
+bool Row_Screen::Description_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[1];}
+bool Row_Screen::Comments_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[2];}
+bool Row_Screen::SpecialHandingRecommended_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return is_null[3];}
+
+			
+void Row_Screen::Description_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[1]=val;
+is_modified=true;
+}
+void Row_Screen::Comments_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[2]=val;
+is_modified=true;
+}
+void Row_Screen::SpecialHandingRecommended_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[3]=val;
+is_modified=true;
+}
+	
+
+string Row_Screen::PK_Screen_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[0])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_PK_Screen);
+
+return buf;
+}
+
+string Row_Screen::Description_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[1])
+return "NULL";
+
+char *buf = new char[81];
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Description.c_str(), (unsigned long) min(40,m_Description.size()));
+string s=string()+"\""+buf+"\"";
+delete[] buf;
+return s;
+}
+
+string Row_Screen::Comments_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[2])
+return "NULL";
+
+char *buf = new char[131071];
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_Comments.c_str(), (unsigned long) min(65535,m_Comments.size()));
+string s=string()+"\""+buf+"\"";
+delete[] buf;
+return s;
+}
+
+string Row_Screen::SpecialHandingRecommended_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[3])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%hi", m_SpecialHandingRecommended);
+
+return buf;
+}
+
+
+
+
+Table_Screen::Key::Key(long int in_PK_Screen)
+{
+			pk_PK_Screen = in_PK_Screen;
+	
+}
+
+Table_Screen::Key::Key(Row_Screen *pRow)
+{
+			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
+
+			pk_PK_Screen = pRow->m_PK_Screen;
+	
+}		
+
+bool Table_Screen::Key_Less::operator()(const Table_Screen::Key &key1, const Table_Screen::Key &key2) const
+{
+			if (key1.pk_PK_Screen!=key2.pk_PK_Screen)
+return key1.pk_PK_Screen<key2.pk_PK_Screen;
+else
+return false;	
+}	
+
+bool Table_Screen::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow)
+{
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
+
+//insert added
+	while (!addedRows.empty())
+	{
+		vector<TableRow*>::iterator i = addedRows.begin();
+	
+		Row_Screen *pRow = (Row_Screen *)*i;
+	
+		
+string values_list_comma_separated;
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Screen_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->SpecialHandingRecommended_asSQL();
+
+	
+		string query = "insert into Screen (`PK_Screen`, `Description`, `Comments`, `SpecialHandingRecommended`) values ("+
+			values_list_comma_separated+")";
+			
+		if (mysql_query(database->m_pMySQL, query.c_str()))
+		{	
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+			if( bDeleteFailedInsertRow )
+			{
+				addedRows.erase(i);
+				delete pRow;
+			}
+			return false;
+		}
+	
+		if (mysql_affected_rows(database->m_pMySQL)!=0)
+		{
+			
+			
+			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
+		
+			if (id!=0)
+pRow->m_PK_Screen=id;
+	
+			
+			addedRows.erase(i);
+			SingleLongKey key(pRow->m_PK_Screen);	
+			cachedRows[key] = pRow;
+					
+			
+			pRow->is_added = false;	
+			pRow->is_modified = false;	
+		}	
+				
+	}	
+
+
+//update modified
+	
+
+	for (map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified_get())
+	{
+		Row_Screen* pRow = (Row_Screen*) (*i).second;	
+		SingleLongKey key(pRow->m_PK_Screen);
+
+		char tmp_PK_Screen[32];
+sprintf(tmp_PK_Screen, "%li", key.pk);
+
+
+string condition;
+condition = condition + "`PK_Screen`=" + tmp_PK_Screen;
+	
+			
+		
+string update_values_list;
+update_values_list = update_values_list + "`PK_Screen`="+pRow->PK_Screen_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Comments`="+pRow->Comments_asSQL()+", `SpecialHandingRecommended`="+pRow->SpecialHandingRecommended_asSQL();
+
+	
+		string query = "update Screen set " + update_values_list + " where " + condition;
+			
+		if (mysql_query(database->m_pMySQL, query.c_str()))
+		{	
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+			if( bDeleteFailedModifiedRow )
+			{
+				cachedRows.erase(i);
+				delete pRow;
+			}
+			return false;
+		}
+	
+		pRow->is_modified = false;	
+	}	
+	
+
+//delete deleted added
+	while (!deleted_addedRows.empty())
+	{	
+		vector<TableRow*>::iterator i = deleted_addedRows.begin();
+		Row_Screen* pRow = (Row_Screen*) (*i);
+		delete pRow;
+		deleted_addedRows.erase(i);
+	}	
+
+
+//delete deleted cached
+	
+	while (!deleted_cachedRows.empty())
+	{	
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
+	
+		SingleLongKey key = (*i).first;
+		Row_Screen* pRow = (Row_Screen*) (*i).second;	
+
+		char tmp_PK_Screen[32];
+sprintf(tmp_PK_Screen, "%li", key.pk);
+
+
+string condition;
+condition = condition + "`PK_Screen`=" + tmp_PK_Screen;
+
+	
+		string query = "delete from Screen where " + condition;
+		
+		if (mysql_query(database->m_pMySQL, query.c_str()))
+		{	
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+			cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+			return false;
+		}	
+		
+		pRow = (Row_Screen*) (*i).second;;
+		delete pRow;
+		deleted_cachedRows.erase(key);
+	}
+	
+	return true;
+}
+
+bool Table_Screen::GetRows(string where_statement,vector<class Row_Screen*> *rows)
+{
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
+
+	string query;
+	if( StringUtils::StartsWith(where_statement,"where ",true) || 
+		StringUtils::StartsWith(where_statement,"join ",true) ||
+		StringUtils::StartsWith(where_statement,"left ",true) ||
+		StringUtils::StartsWith(where_statement,"right ",true) ||
+		StringUtils::StartsWith(where_statement,"full ",true) ||
+		StringUtils::StartsWith(where_statement,"outer ",true) )
+		query = "select `Screen`.* from Screen " + where_statement;
+	else if( StringUtils::StartsWith(where_statement,"select ",true) )
+		query = where_statement;
+	else if( where_statement.size() )
+		query = "select `Screen`.* from Screen where " + where_statement;
+	else
+		query = "select `Screen`.* from Screen";
+		
+	if (mysql_query(database->m_pMySQL, query.c_str()))
+	{	
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+		return false;
+	}	
+
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
+	
+	if (!res)
+	{
+		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+		return false;
+	}	
+	
+	MYSQL_ROW row;
+						
+		
+	while ((row = mysql_fetch_row(res)) != NULL)
+	{	
+		unsigned long *lengths = mysql_fetch_lengths(res);
+
+		Row_Screen *pRow = new Row_Screen(this);
+		
+		if (row[0] == NULL)
+{
+pRow->is_null[0]=true;
+pRow->m_PK_Screen = 0;
+}
+else
+{
+pRow->is_null[0]=false;
+sscanf(row[0], "%li", &(pRow->m_PK_Screen));
+}
+
+if (row[1] == NULL)
+{
+pRow->is_null[1]=true;
+pRow->m_Description = "";
+}
+else
+{
+pRow->is_null[1]=false;
+pRow->m_Description = string(row[1],lengths[1]);
+}
+
+if (row[2] == NULL)
+{
+pRow->is_null[2]=true;
+pRow->m_Comments = "";
+}
+else
+{
+pRow->is_null[2]=false;
+pRow->m_Comments = string(row[2],lengths[2]);
+}
+
+if (row[3] == NULL)
+{
+pRow->is_null[3]=true;
+pRow->m_SpecialHandingRecommended = 0;
+}
+else
+{
+pRow->is_null[3]=false;
+sscanf(row[3], "%hi", &(pRow->m_SpecialHandingRecommended));
+}
+
+
+
+		//checking for duplicates
+
+		SingleLongKey key(pRow->m_PK_Screen);
+		
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.find(key);
+			
+		if (i!=cachedRows.end())
+		{
+			delete pRow;
+			pRow = (Row_Screen *)(*i).second;
+		}
+
+		rows->push_back(pRow);
+		
+		cachedRows[key] = pRow;
+	}
+
+	mysql_free_result(res);			
+		
+	return true;					
+}
+
+Row_Screen* Table_Screen::AddRow()
+{
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
+
+	Row_Screen *pRow = new Row_Screen(this);
+	pRow->is_added=true;
+	addedRows.push_back(pRow);
+	return pRow;		
+}
+
+
+
+Row_Screen* Table_Screen::GetRow(long int in_PK_Screen)
+{
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
+
+	SingleLongKey row_key(in_PK_Screen);
+
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i;
+	i = deleted_cachedRows.find(row_key);	
+		
+	//row was deleted	
+	if (i!=deleted_cachedRows.end())
+		return NULL;
+	
+	i = cachedRows.find(row_key);
+	
+	//row is cached
+	if (i!=cachedRows.end())
+		return (Row_Screen*) (*i).second;
+	//we have to fetch row
+	Row_Screen* pRow = FetchRow(row_key);
+
+	if (pRow!=NULL)
+		cachedRows[row_key] = pRow;
+	return pRow;	
+}
+
+
+
+Row_Screen* Table_Screen::FetchRow(SingleLongKey &key)
+{
+	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
+
+	//defines the string query for the value of key
+	char tmp_PK_Screen[32];
+sprintf(tmp_PK_Screen, "%li", key.pk);
+
+
+string condition;
+condition = condition + "`PK_Screen`=" + tmp_PK_Screen;
+
+
+	string query = "select * from Screen where " + condition;		
+
+	if (mysql_query(database->m_pMySQL, query.c_str()))
+	{	
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+		cerr << "Cannot perform query: [" << query << "] " << database->m_sLastMySqlError << endl;
+		return NULL;
+	}	
+
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
+	
+	if (!res)
+	{
+		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
+		return NULL;
+	}	
+	
+	MYSQL_ROW row = mysql_fetch_row(res);
+	
+	if (!row)
+	{
+		//dataset is empty
+		mysql_free_result(res);			
+		return NULL;		
+	}	
+						
+	unsigned long *lengths = mysql_fetch_lengths(res);
+
+	Row_Screen *pRow = new Row_Screen(this);
+		
+	if (row[0] == NULL)
+{
+pRow->is_null[0]=true;
+pRow->m_PK_Screen = 0;
+}
+else
+{
+pRow->is_null[0]=false;
+sscanf(row[0], "%li", &(pRow->m_PK_Screen));
+}
+
+if (row[1] == NULL)
+{
+pRow->is_null[1]=true;
+pRow->m_Description = "";
+}
+else
+{
+pRow->is_null[1]=false;
+pRow->m_Description = string(row[1],lengths[1]);
+}
+
+if (row[2] == NULL)
+{
+pRow->is_null[2]=true;
+pRow->m_Comments = "";
+}
+else
+{
+pRow->is_null[2]=false;
+pRow->m_Comments = string(row[2],lengths[2]);
+}
+
+if (row[3] == NULL)
+{
+pRow->is_null[3]=true;
+pRow->m_SpecialHandingRecommended = 0;
+}
+else
+{
+pRow->is_null[3]=false;
+sscanf(row[3], "%hi", &(pRow->m_SpecialHandingRecommended));
+}
+
+
+
+	mysql_free_result(res);			
+	
+	return pRow;						
+}
+
+
+
+
+void Row_Screen::Screen_CommandParameter_FK_Screen_getrows(vector <class Row_Screen_CommandParameter*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Screen_CommandParameter *pTable = table->database->Screen_CommandParameter_get();
+pTable->GetRows("`FK_Screen`=" + StringUtils::itos(m_PK_Screen),rows);
+}
+void Row_Screen::Screen_DesignObj_FK_Screen_getrows(vector <class Row_Screen_DesignObj*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Screen_DesignObj *pTable = table->database->Screen_DesignObj_get();
+pTable->GetRows("`FK_Screen`=" + StringUtils::itos(m_PK_Screen),rows);
+}
+
+
+

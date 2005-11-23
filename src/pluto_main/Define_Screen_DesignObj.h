@@ -1,0 +1,21 @@
+#ifndef __Define_Screen_DesignObj_H__
+#define __Define_Screen_DesignObj_H__
+
+
+#define SCREEN_DESIGNOBJ_TABLE "Screen_DesignObj"
+#define SCREEN_DESIGNOBJ_PK_SCREEN_DESIGNOBJ_FIELD "PK_Screen_DesignObj"
+#define SCREEN_DESIGNOBJ_PK_SCREEN_DESIGNOBJ_TABLE_FIELD "Screen_DesignObj.PK_Screen_DesignObj"
+#define SCREEN_DESIGNOBJ_FK_SCREEN_FIELD "FK_Screen"
+#define SCREEN_DESIGNOBJ_FK_SCREEN_TABLE_FIELD "Screen_DesignObj.FK_Screen"
+#define SCREEN_DESIGNOBJ_FK_DESIGNOBJ_FIELD "FK_DesignObj"
+#define SCREEN_DESIGNOBJ_FK_DESIGNOBJ_TABLE_FIELD "Screen_DesignObj.FK_DesignObj"
+#define SCREEN_DESIGNOBJ_FK_UI_FIELD "FK_UI"
+#define SCREEN_DESIGNOBJ_FK_UI_TABLE_FIELD "Screen_DesignObj.FK_UI"
+#define SCREEN_DESIGNOBJ_FK_SKIN_FIELD "FK_Skin"
+#define SCREEN_DESIGNOBJ_FK_SKIN_TABLE_FIELD "Screen_DesignObj.FK_Skin"
+#define SCREEN_DESIGNOBJ_FK_DEVICETEMPLATE_FIELD "FK_DeviceTemplate"
+#define SCREEN_DESIGNOBJ_FK_DEVICETEMPLATE_TABLE_FIELD "Screen_DesignObj.FK_DeviceTemplate"
+
+
+#endif
+

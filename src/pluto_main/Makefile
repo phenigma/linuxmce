@@ -164,6 +164,9 @@ Table_Room.cpp \
 Table_RoomType.cpp \
 Table_Room_Users.cpp \
 Table_Schema.cpp \
+Table_Screen.cpp \
+Table_Screen_CommandParameter.cpp \
+Table_Screen_DesignObj.cpp \
 Table_SetupStep.cpp \
 Table_Size.cpp \
 Table_Skin.cpp \
