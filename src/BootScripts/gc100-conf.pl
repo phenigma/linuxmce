@@ -54,10 +54,12 @@ if($ARGV[0] eq "") {
 	}
 	$state->finish();
 	loggc("Creating Device...\n");
-	$Device_ID = `./CreateDevice -i $install -d $dev_templ -M $mac -C $PKDEV -n`;
+	print("-->/usr/pluto/bin/CreateDevice -i $install -d $dev_templ -M $mac -C $PKDEV -n\n");
+	$Device_ID = `/usr/pluto/bin/CreateDevice -i $install -d $dev_templ -M $mac -C $PKDEV -n`;
+	chomp($Device_ID);
 	print "$Device_ID\n";	
 	loggc("Finding IP ");
-	$ip = find_ip();
+	$ip = find_ip($Device_ID);
 	loggc("[$ip]\n");
 	system("/usr/pluto/bin/MessageSend localhost 0 0 2 24 26 $Device_ID");
 	loggc("Configuring GC100 via Web...");
@@ -78,7 +80,7 @@ exit(0);
             loggc("GC100 found\n");
     	    $flag = allias_up();
 	    $mac = get_gc100mac();
-	    $ip = find_ip();
+	    $ip = find_ip(-1);
 	} else {
 	    loggc("Gc100 as default not found\n");
 	    exit(1);
@@ -297,7 +299,9 @@ sub find_gc100 {
 
 sub find_ip {
 	my ($PK_Device) = shift;
+	print "/usr/pluto/bin/PlutoDHCP -d $PK_Device -a";
 	$main_ip = `/usr/pluto/bin/PlutoDHCP -d $PK_Device -a`;
+	chomp($main_ip);
 	return $main_ip;
 }
 
