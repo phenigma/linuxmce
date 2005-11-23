@@ -363,7 +363,8 @@ int main(int argc, char *argv[])
 				Row_Package_Source *pRow_Package_Source = vectRow_Package_Source[s];
 		// Update the version record
 		cout << "Setting version for package " << pRow_Package_Source->FK_Package_get() << " " << pRow_Package_Source->FK_Package_getrow()->Description_get() << 
-			" Source " << pRow_Package_Source->PK_Package_Source_get() << " " << pRow_Package_Source->FK_RepositorySource_getrow()->Description_get() << endl;
+			" Source " << pRow_Package_Source->PK_Package_Source_get() << " " << pRow_Package_Source->FK_RepositorySource_getrow()->Description_get() <<
+			": " << g_pRow_Version->VersionName_get() << endl;
 
 				if( pRow_Package_Source->FK_RepositorySource_get()==REPOSITORYSOURCE_Pluto_CVS_CONST || pRow_Package_Source->FK_RepositorySource_get()==REPOSITORYSOURCE_Pluto_SVN_CONST )
 					pRow_Package_Source->Version_set(g_pRow_Version->VersionName_get());
@@ -374,7 +375,14 @@ int main(int argc, char *argv[])
 	}
 
 	if( !g_bDontTouchDB )
+	{
+		cout << "Committing database changes" << endl;
 		g_pDatabase_pluto_main->Package_Source_get()->Commit();
+	}
+	else
+	{
+		cout << "Not committing database changes, as told" << endl;
+	}
 
 	cout << "********************************************************************" << endl
 		<< "COMPILATION PHASE" << endl
