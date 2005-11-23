@@ -1138,7 +1138,7 @@ bool Media_Plugin::ReceivedMessage( class Message *pMessage )
 			if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && (pMessage->m_dwID==COMMAND_Stop_CONST || pMessage->m_dwID==COMMAND_Stop_Media_CONST) )
 			{
 				g_pPlutoLogger->Write(LV_STATUS,"Got a stop with no media.  Will eject 1");
-				DCE::CMD_Eject_Disk_Cat CMD_Eject_Disk_Cat(pMessage->m_dwPK_Device_From,DEVICECATEGORY_Disc_Drives_CONST,true,BL_SameComputer);
+				DCE::CMD_Eject_Disk_Cat CMD_Eject_Disk_Cat(pMessage->m_dwPK_Device_From,DEVICECATEGORY_Disc_Drives_CONST,true,BL_SameComputer, 0);
 				SendCommand(CMD_Eject_Disk_Cat);
 				return true;
 			}
@@ -1466,7 +1466,7 @@ void Media_Plugin::CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_De
 			if( vectEntertainArea.size()==1 )
 			{
 				g_pPlutoLogger->Write(LV_STATUS,"Got a stop with no media.  Will eject 2");
-				DCE::CMD_Eject_Disk_Cat CMD_Eject_Disk_Cat(pMessage->m_dwPK_Device_From,DEVICECATEGORY_Disc_Drives_CONST,true,BL_SameComputer);
+				DCE::CMD_Eject_Disk_Cat CMD_Eject_Disk_Cat(pMessage->m_dwPK_Device_From,DEVICECATEGORY_Disc_Drives_CONST,true,BL_SameComputer, 0);
 				SendCommand(CMD_Eject_Disk_Cat);
 			}
 			continue; // Don't know what area it should be played in, or there's no media playing there
@@ -2470,7 +2470,7 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_Med
 					pMediaDevice->m_pOH_Orbiter_Reset = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(iPK_Device_Orbiter);
 					pMediaDevice->m_tReset = time(NULL);
 
-					DCE::CMD_Reset_Disk_Drive CMD_Reset_Disk_Drive(m_dwPK_Device, pMediaDevice->m_pDeviceData_Router->m_dwPK_Device);
+					DCE::CMD_Reset_Disk_Drive CMD_Reset_Disk_Drive(m_dwPK_Device, pMediaDevice->m_pDeviceData_Router->m_dwPK_Device, 0);
                 	SendCommand(CMD_Reset_Disk_Drive);
 					bDiskWasReset = true;
 				}
@@ -3367,7 +3367,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Transformed %s into %s",sTracks.c_str(),sNewTra
 		sFormat = "flac";
 	string sResponse;
 	DCE::CMD_Rip_Disk cmdRipDisk(m_dwPK_Device, pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device, iPK_Users, 
-		sFormat, sName, sTracks, PK_Disc);
+		sFormat, sName, sTracks, PK_Disc, 0);
 	if( !SendCommand(cmdRipDisk,&sResponse) || sResponse!="OK" )
 	{
 		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"Cannot copy disk " + sResponse,
