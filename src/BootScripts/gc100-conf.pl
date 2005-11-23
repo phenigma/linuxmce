@@ -54,7 +54,6 @@ if($ARGV[0] eq "") {
 	}
 	$state->finish();
 	loggc("Creating Device...\n");
-	print("-->/usr/pluto/bin/CreateDevice -i $install -d $dev_templ -M $mac -C $PKDEV -n\n");
 	$Device_ID = `/usr/pluto/bin/CreateDevice -i $install -d $dev_templ -M $mac -C $PKDEV -n`;
 	chomp($Device_ID);
 	print "$Device_ID\n";	
