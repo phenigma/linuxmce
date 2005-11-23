@@ -257,7 +257,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 				{
 					//we are in a "jukebox"; let's show its movies
 					string sStatus;
-					CMD_Get_Jukebox_Status CMD_Get_Jukebox_Status_(m_dwPK_Device, pRow_Device->PK_Device_get(), &sStatus);
+					CMD_Get_Jukebox_Status CMD_Get_Jukebox_Status_(m_dwPK_Device, pRow_Device->PK_Device_get(), ""/*force=no*/, &sStatus);
 					
 					if(!SendCommand(CMD_Get_Jukebox_Status_))
 					{
