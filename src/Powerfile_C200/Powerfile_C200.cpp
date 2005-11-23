@@ -478,14 +478,12 @@ where:
 void Powerfile_C200::CMD_Get_Jukebox_Status(string sForce,string *sJukebox_Status,string &sCMD_Result,Message *pMessage)
 //<-dceag-c703-e->
 {
-	/* TEMP CODE - Start */
-	bool bForce = false; // this will become a command parameter
-	/* TEMP CODE - End */
+	bool bForce = sForce.size() != 0;
 	
 	g_pPlutoLogger->Write(LV_STATUS, "Getting jukebox status");
 
 	sCMD_Result = "FAILED";
-	if (Get_Jukebox_Status(sJukebox_Status))
+	if (Get_Jukebox_Status(sJukebox_Status, bForce))
 	{
 		sCMD_Result = "OK";
 	}
@@ -685,6 +683,7 @@ void Powerfile_C200::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,stri
 void Powerfile_C200::CMD_Bulk_Rip(string sDisks,string &sCMD_Result,Message *pMessage)
 //<-dceag-c720-e->
 {
+	g_pPlutoLogger->Write(LV_STATUS, "Unimplemented: CMD_Bulk_Rip; sDisks='%s'", sDisks.c_str());
 }
 //<-dceag-c738-b->
 
@@ -696,4 +695,5 @@ void Powerfile_C200::CMD_Bulk_Rip(string sDisks,string &sCMD_Result,Message *pMe
 void Powerfile_C200::CMD_Play_Disk(int iSlot_Number,string &sCMD_Result,Message *pMessage)
 //<-dceag-c738-e->
 {
+	g_pPlutoLogger->Write(LV_STATUS, "Unimplemented: CMD_Play_Disk; iSlot_Number='%d'", iSlot_Number);
 }
