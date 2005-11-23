@@ -56,7 +56,6 @@ public:
 	}
 	virtual bool GetConfig()
 	{
-		
 		m_pData=NULL;
 		m_pEvent = new Disk_Drive_Event(m_dwPK_Device, m_sHostName, !m_bLocalMode);
 		if( m_pEvent->m_dwPK_Device )
@@ -139,8 +138,8 @@ public:
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Disk_Drive_Monitoring_ON(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Disk_Drive_Monitoring_OFF(string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Reset_Disk_Drive(string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Eject_Disk(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Reset_Disk_Drive(int iDrive_Number,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Eject_Disk(int iDrive_Number,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Start_Burn_Session(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Start_Ripping_Session(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Add_File_To_Burning_Session(string &sCMD_Result,class Message *pMessage) {};
@@ -150,7 +149,7 @@ public:
 	virtual void CMD_Abort_Ripping(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Format_Drive(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Close_Tray(string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,int iDrive_Number,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -219,7 +218,8 @@ public:
 				case 47:
 					{
 						string sCMD_Result="OK";
-						CMD_Reset_Disk_Drive(sCMD_Result,pMessage);
+					int iDrive_Number=atoi(pMessage->m_mapParameters[152].c_str());
+						CMD_Reset_Disk_Drive(iDrive_Number,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -236,7 +236,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Reset_Disk_Drive(sCMD_Result,pMessage);
+								CMD_Reset_Disk_Drive(iDrive_Number,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -244,7 +244,8 @@ public:
 				case 48:
 					{
 						string sCMD_Result="OK";
-						CMD_Eject_Disk(sCMD_Result,pMessage);
+					int iDrive_Number=atoi(pMessage->m_mapParameters[152].c_str());
+						CMD_Eject_Disk(iDrive_Number,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -261,7 +262,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Eject_Disk(sCMD_Result,pMessage);
+								CMD_Eject_Disk(iDrive_Number,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -502,7 +503,8 @@ public:
 					string sName=pMessage->m_mapParameters[50];
 					string sTracks=pMessage->m_mapParameters[121];
 					int iEK_Disc=atoi(pMessage->m_mapParameters[131].c_str());
-						CMD_Rip_Disk(iPK_Users,sFormat.c_str(),sName.c_str(),sTracks.c_str(),iEK_Disc,sCMD_Result,pMessage);
+					int iDrive_Number=atoi(pMessage->m_mapParameters[152].c_str());
+						CMD_Rip_Disk(iPK_Users,sFormat.c_str(),sName.c_str(),sTracks.c_str(),iEK_Disc,iDrive_Number,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -519,7 +521,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Rip_Disk(iPK_Users,sFormat.c_str(),sName.c_str(),sTracks.c_str(),iEK_Disc,sCMD_Result,pMessage);
+								CMD_Rip_Disk(iPK_Users,sFormat.c_str(),sName.c_str(),sTracks.c_str(),iEK_Disc,iDrive_Number,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

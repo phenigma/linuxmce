@@ -17,6 +17,16 @@ public:
 	Powerfile_C200_Event(class ClientSocket *pOCClientSocket, int DeviceID) : Event_Impl(pOCClientSocket, DeviceID) {};
 	//Events
 	class Event_Impl *CreateEvent( unsigned long dwPK_DeviceTemplate, ClientSocket *pOCClientSocket, unsigned long dwDevice );
+	virtual void Media_Inserted(int iFK_MediaType,string sMRL,string sID,string sName)
+	{
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 3,4,3,StringUtils::itos(iFK_MediaType).c_str(),4,sMRL.c_str(),7,sID.c_str(),35,sName.c_str()));
+	}
+
+	virtual void Ripping_Progress(string sText,int iResult,string sValue,string sName,int iEK_Disc,string sDrive_Number)
+	{
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 35,6,13,sText.c_str(),20,StringUtils::itos(iResult).c_str(),30,sValue.c_str(),35,sName.c_str(),43,StringUtils::itos(iEK_Disc).c_str(),44,sDrive_Number.c_str()));
+	}
+
 };
 
 
@@ -119,11 +129,13 @@ public:
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
 	//Event accessors
+	void EVENT_Media_Inserted(int iFK_MediaType,string sMRL,string sID,string sName) { GetEvents()->Media_Inserted(iFK_MediaType,sMRL.c_str(),sID.c_str(),sName.c_str()); }
+	void EVENT_Ripping_Progress(string sText,int iResult,string sValue,string sName,int iEK_Disc,string sDrive_Number) { GetEvents()->Ripping_Progress(sText.c_str(),iResult,sValue.c_str(),sName.c_str(),iEK_Disc,sDrive_Number.c_str()); }
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Disk_Drive_Monitoring_ON(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Disk_Drive_Monitoring_OFF(string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Reset_Disk_Drive(string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Eject_Disk(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Reset_Disk_Drive(int iDrive_Number,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Eject_Disk(int iDrive_Number,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Start_Burn_Session(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Start_Ripping_Session(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Add_File_To_Burning_Session(string &sCMD_Result,class Message *pMessage) {};
@@ -133,10 +145,12 @@ public:
 	virtual void CMD_Abort_Ripping(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Format_Drive(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Close_Tray(string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,int iDrive_Number,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Load_from_Slot_into_Drive(int iSlot_Number,int iDrive_Number,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Unload_from_Drive_into_Slot(int iSlot_Number,int iDrive_Number,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Get_Jukebox_Status(string *sJukebox_Status,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Get_Jukebox_Status(string sForce,string *sJukebox_Status,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Bulk_Rip(string sDisks,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Play_Disk(int iSlot_Number,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -205,7 +219,8 @@ public:
 				case 47:
 					{
 						string sCMD_Result="OK";
-						CMD_Reset_Disk_Drive(sCMD_Result,pMessage);
+					int iDrive_Number=atoi(pMessage->m_mapParameters[152].c_str());
+						CMD_Reset_Disk_Drive(iDrive_Number,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -222,7 +237,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Reset_Disk_Drive(sCMD_Result,pMessage);
+								CMD_Reset_Disk_Drive(iDrive_Number,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -230,7 +245,8 @@ public:
 				case 48:
 					{
 						string sCMD_Result="OK";
-						CMD_Eject_Disk(sCMD_Result,pMessage);
+					int iDrive_Number=atoi(pMessage->m_mapParameters[152].c_str());
+						CMD_Eject_Disk(iDrive_Number,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -247,7 +263,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Eject_Disk(sCMD_Result,pMessage);
+								CMD_Eject_Disk(iDrive_Number,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -488,7 +504,8 @@ public:
 					string sName=pMessage->m_mapParameters[50];
 					string sTracks=pMessage->m_mapParameters[121];
 					int iEK_Disc=atoi(pMessage->m_mapParameters[131].c_str());
-						CMD_Rip_Disk(iPK_Users,sFormat.c_str(),sName.c_str(),sTracks.c_str(),iEK_Disc,sCMD_Result,pMessage);
+					int iDrive_Number=atoi(pMessage->m_mapParameters[152].c_str());
+						CMD_Rip_Disk(iPK_Users,sFormat.c_str(),sName.c_str(),sTracks.c_str(),iEK_Disc,iDrive_Number,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -505,7 +522,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Rip_Disk(iPK_Users,sFormat.c_str(),sName.c_str(),sTracks.c_str(),iEK_Disc,sCMD_Result,pMessage);
+								CMD_Rip_Disk(iPK_Users,sFormat.c_str(),sName.c_str(),sTracks.c_str(),iEK_Disc,iDrive_Number,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -567,8 +584,9 @@ public:
 				case 703:
 					{
 						string sCMD_Result="OK";
+					string sForce=pMessage->m_mapParameters[21];
 					string sJukebox_Status=pMessage->m_mapParameters[153];
-						CMD_Get_Jukebox_Status(&sJukebox_Status,sCMD_Result,pMessage);
+						CMD_Get_Jukebox_Status(sForce.c_str(),&sJukebox_Status,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -586,7 +604,59 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Get_Jukebox_Status(&sJukebox_Status,sCMD_Result,pMessage);
+								CMD_Get_Jukebox_Status(sForce.c_str(),&sJukebox_Status,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case 720:
+					{
+						string sCMD_Result="OK";
+					string sDisks=pMessage->m_mapParameters[157];
+						CMD_Bulk_Rip(sDisks.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Bulk_Rip(sDisks.c_str(),sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case 738:
+					{
+						string sCMD_Result="OK";
+					int iSlot_Number=atoi(pMessage->m_mapParameters[151].c_str());
+						CMD_Play_Disk(iSlot_Number,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Play_Disk(iSlot_Number,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
