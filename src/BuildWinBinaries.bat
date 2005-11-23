@@ -1,0 +1,1 @@
+c:\pluto\trunk\src\MakeRelease_All.bat > c:\@build_log\build_all.log
