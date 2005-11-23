@@ -712,3 +712,5 @@ only slots that were scheduled for ripping will appear in the string */
 
 void Powerfile_C200::CMD_Get_Bulk_Ripping_Status(string *sBulk_rip_status,string &sCMD_Result,Message *pMessage)
 //<-dceag-c739-e->
+{
+}
