@@ -6,7 +6,7 @@
 
 static int phone_status = 0;
 
-static void doAnswer(int signal) 
+static void doAnswer(int signal)
 {
 	if(phone_status>0)
 	{
@@ -21,11 +21,11 @@ static void doHangup(int signal)
 	iaxc_millisleep(1000);
 }
 
-static void doAbort(int signal) 
+static void doAbort(int signal)
 {
 	iaxc_dump_all_calls();
 	iaxc_millisleep(1000);
-	exit(0);	
+	exit(0);
 }
 
 static void doProccess(void)
@@ -34,7 +34,7 @@ static void doProccess(void)
 	{
 		iaxc_process_calls();
 		iaxc_millisleep(5);
-		if(phone_status>0)
+		if(phone_status>1)
 		{
 			doAnswer(0);
 		}
@@ -57,11 +57,12 @@ static int iaxCallback(iaxc_event e)
 		else if(e.ev.call.state & IAXC_CALL_STATE_RINGING)
 		{
 			phone_status=1;
-			if((!strcasecmp(e.ev.call.remote,"unknown")) && (!strcasecmp(e.ev.call.remote_name,"unknown")))
+			if(!strcmp(e.ev.call.remote_name,"pluto"))
 			{
+				/* the call is actually an originate from asterisk */
 				phone_status=2;
+				fprintf(stderr,"PLUTO AUTOANSWER\n");
 			}
-/*			fprintf(stderr,"CALL \"%s\" \"%s\" \"%s\" \"%s\"\n",e.ev.call.remote,e.ev.call.remote_name,e.ev.call.local,e.ev.call.local_context);*/
 		}
 	}
 	return 0;
@@ -85,7 +86,7 @@ int main(int argc, char *argv[])
 	iaxc_set_silence_threshold(-50);
 	iaxc_set_event_callback(iaxCallback);
 	iaxc_register(argv[1],argv[2],argv[3]);
-	
+
 	signal(SIGHUP,doAbort);
 	signal(SIGINT,doAbort);
 	signal(SIGPIPE,doAbort);
