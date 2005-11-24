@@ -99,6 +99,22 @@ bool FileUtils::WriteBufferIntoFile( string sFileName, const char *pBuffer, size
 	return true;
 }
 
+bool FileUtils::ReadTextFile(string sFileName, string& sData)
+{
+	size_t nSize = 0;
+	char *pData = FileUtils::ReadFileIntoBuffer(sFileName, nSize);
+
+	if(pData)
+		sData = string(pData);
+
+	return NULL != pData;
+}
+
+bool FileUtils::WriteTextFile(string sFileName, const string& sData)
+{
+	return WriteBufferIntoFile(sFileName, sData.c_str(), sData.length());
+}
+
 void FileUtils::ReadFileIntoVector( string sFileName, vector<string> &vectString )
 {
 	size_t s;
