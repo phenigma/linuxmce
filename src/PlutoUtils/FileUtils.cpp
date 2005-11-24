@@ -103,11 +103,14 @@ bool FileUtils::ReadTextFile(string sFileName, string& sData)
 {
 	size_t nSize = 0;
 	char *pData = FileUtils::ReadFileIntoBuffer(sFileName, nSize);
+	bool bResult = NULL != pData;
 
 	if(pData)
 		sData = string(pData);
 
-	return NULL != pData;
+	delete [] pData;
+	pData = NULL;
+	return bResult;
 }
 
 bool FileUtils::WriteTextFile(string sFileName, const string& sData)
