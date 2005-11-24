@@ -699,7 +699,7 @@ void Powerfile_C200::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,stri
 	Disk_Drive_Functions * pDDF = GetDDF(iDrive_Number);
 	if (pDDF)
 	{
-		pDDF->CMD_Rip_Disk(iPK_Users, sFormat, sName, sTracks, iEK_Disc, sCMD_Result, pMessage);
+		pDDF->CMD_Rip_Disk(iPK_Users, sFormat, sName, sTracks, iEK_Disc, iDrive_Number, sCMD_Result, pMessage);
 	}
 }
 //<-dceag-c720-b->
@@ -764,7 +764,7 @@ void Powerfile_C200::CMD_Bulk_Rip(string sDisks,string &sCMD_Result,Message *pMe
 		string sFormat, sName, sTracks;
 #warning "TODO: UNINITIALIZED VARIABLES"
 #ifndef EMULATE_PF
-		m_vectDDF[i]->CMD_Rip_Disk(iPK_Users, sFormat, sName, sTracks, iEK_Disc, sCMD_Result, NULL, m_dwPK_Device);
+		m_vectDDF[i]->CMD_Rip_Disk(iPK_Users, sFormat, sName, sTracks, iEK_Disc, i, sCMD_Result, NULL, m_dwPK_Device);
 #endif
 	}
 	sCMD_Result = "OK";
