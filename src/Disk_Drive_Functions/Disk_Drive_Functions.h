@@ -4,10 +4,12 @@
 #include "Command_Impl.h"
 #include "pluto_main/Define_MediaType.h"
 
+#ifndef WIN32
 extern "C"
 {
     #include <linux/cdrom.h>
 }
+#endif
 
 #include <string>
 

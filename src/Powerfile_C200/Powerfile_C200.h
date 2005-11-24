@@ -7,6 +7,8 @@
 #include "Gen_Devices/Powerfile_C200Base.h"
 //<-dceag-d-e->
 #include "Disk_Drive_Functions/Disk_Drive_Functions.h"
+#include "JobHandler/JobHandler.h"
+using namespace nsJobHandler;
 
 typedef enum { RS_NOT_PROCESSED = 0, RS_RIPPING, RS_FAIL, RS_SUCCESS, RS_IDENTIFYING } enum_RipStatus;
 typedef enum { PF_IDLE = 0, PF_IDENTIFYING, PF_RIPPING } enum_PFState;
@@ -24,6 +26,7 @@ namespace DCE
 	{
 //<-dceag-decl-e->
 		// Private member variables
+		JobHandler m_JobHandler;
 
 		// Private methods
 public:

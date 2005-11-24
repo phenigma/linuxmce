@@ -20,6 +20,10 @@ using namespace DCE;
 
 using namespace StringUtils;
 
+#ifdef WIN32
+	#define WEXITSTATUS(a) 0
+#endif
+
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 Powerfile_C200::Powerfile_C200(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
@@ -75,10 +79,12 @@ bool Powerfile_C200::MediaIdentified(class Socket *pSocket, class Message *pMess
 	char *pImage = pMessage->m_mapData_Parameters[EVENTPARAMETER_Image_CONST];
 
 	g_pPlutoLogger->Write(LV_STATUS, "Media was identified id %d device %d format %s", discid, PK_Device_Disk_Drive, sFormat.c_str());
+	return true;
 }
 
 bool Powerfile_C200::RippingProgress(class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo)
 {
+	return true;
 }
 
 // Return Disk_Drive_Functions instance for requested drive
@@ -758,11 +764,11 @@ void Powerfile_C200::CMD_Bulk_Rip(string sDisks,string &sCMD_Result,Message *pMe
 	for (i = 0; i < m_vectDDF.size(); i++)
 	{
 		CMD_Load_from_Slot_into_Drive(m_vectRipStatus[i].slot, i);
-#warning "TODO: UNINITIALIZED VARIABLES"
+//#warning "TODO: UNINITIALIZED VARIABLES"
 		// TODO: get these from Media_Plugin
 		int iPK_Users, iEK_Disc;
 		string sFormat, sName, sTracks;
-#warning "TODO: UNINITIALIZED VARIABLES"
+//#warning "TODO: UNINITIALIZED VARIABLES"
 #ifndef EMULATE_PF
 		m_vectDDF[i]->CMD_Rip_Disk(iPK_Users, sFormat, sName, sTracks, iEK_Disc, i, sCMD_Result, NULL, m_dwPK_Device);
 #endif
@@ -827,4 +833,17 @@ void Powerfile_C200::CMD_Get_Bulk_Ripping_Status(string *sBulk_rip_status,string
 void Powerfile_C200::CMD_Mass_identify_media(string &sCMD_Result,Message *pMessage)
 //<-dceag-c740-e->
 {
+	// if( handler.ContainsJob("Identify") )
+	// log error and return
+	// new Job("Identify")
+	// for all disks
+	// job.push_backnew IdentifyTask
+	// job.service()
 }
+
+// class PowerfileJob
+// override CanHandleAnotherTask to check available drive
+
+// class RippingTask
+// SendIdentifyDisk command
+

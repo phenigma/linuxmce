@@ -70,9 +70,9 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
-				AdditionalIncludeDirectories="..;../DCE/;../../libs/Libraries/pthreads-win32/include;/mysql/include"
 				InlineFunctionExpansion="1"
 				OmitFramePointers="TRUE"
+				AdditionalIncludeDirectories="..;../DCE/;../../libs/Libraries/pthreads-win32/include;/mysql/include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -87,8 +87,8 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE-r.lib"
 				OutputFile="../bin/Powerfile_C200.exe"
-				AdditionalLibraryDirectories="../../libs/Libraries/pthreads-win32/lib;../lib"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="../../libs/Libraries/pthreads-win32/lib;../lib"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -123,6 +123,12 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
+				RelativePath="..\JobHandler\Job.cpp">
+			</File>
+			<File
+				RelativePath="..\JobHandler\JobHandler.cpp">
+			</File>
+			<File
 				RelativePath="Main.cpp">
 			</File>
 			<File
@@ -130,6 +136,9 @@
 			</File>
 			<File
 				RelativePath="..\Gen_Devices\Powerfile_C200Base.cpp">
+			</File>
+			<File
+				RelativePath="..\JobHandler\Task.cpp">
 			</File>
 		</Filter>
 		<Filter
