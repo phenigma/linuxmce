@@ -11,15 +11,27 @@ function discAttributes($output,$mediadbADO,$dbADO) {
 	$slot=$_REQUEST['slot'];
 	$resSlot=$mediadbADO->Execute('SELECT * FROM Disc WHERE Slot=?',$slot);
 	if($resSlot->RecordCount()==0){
-		error_redirect($TEXT_ERROR_DATABASE_RECORD_NOT_FOUND_CONST,'index.php?section=discAttributes&slot='.$slot);
+		$mediadbADO->Execute('INSERT INTO Disc (ID,Slot,EK_MediaType) VALUES (?,?,4)',array('Not identified',$slot));
+		$disc=$mediadbADO->Insert_ID();
+		$media_type=4;
+	}else{
+		$rowSlot=$resSlot->FetchRow();
+		$disc=$rowSlot['PK_Disc'];
+		$media_type=$rowSlot['EK_MediaType'];
 	}
-	$rowSlot=$resSlot->FetchRow();
-	$disc=$rowSlot['PK_Disc'];
-
+	$picsPerLine=4;	
 	
 	
 	if($action=='form'){
-		$attributeTypes=getAssocArray('AttributeType','PK_AttributeType','Description',$mediadbADO,'INNER JOIN MediaType_AttributeType ON FK_AttributeType=PK_AttributeType WHERE EK_MediaType='.$rowSlot['EK_MediaType'],'ORDER BY Description ASC');
+	$scriptInHead='
+	<script>
+	function setAttributeName()
+	{
+		document.discAttributes.newAttributeName.value=document.discAttributes.existingAttributes[document.discAttributes.existingAttributes.selectedIndex].text
+	}
+	</script>
+	';		
+		$attributeTypes=getAssocArray('AttributeType','PK_AttributeType','Description',$mediadbADO,'INNER JOIN MediaType_AttributeType ON FK_AttributeType=PK_AttributeType WHERE EK_MediaType='.$media_type,'ORDER BY Description ASC');
 		
 		$out.='
 			<div align="center" class="err">'.stripslashes(@$_REQUEST['error']).'</div>
@@ -97,6 +109,46 @@ function discAttributes($output,$mediadbADO,$dbADO) {
 				</tr>';
 			}
 			$out.='
+			<tr bgcolor="#EBEFF9">
+				<td valign="top" align="left"><B>'.$TEXT_DISC_PICTURES_CONST.'</B></td>
+				<td valign="top" align="left" colspan="6">
+			<tr>';
+			$queryPictures='
+				SELECT * FROM Picture_Disc
+				INNER JOIN Picture ON Picture_Disc.FK_Picture=PK_Picture
+				WHERE FK_Disc=?';
+			$resPictures=$mediadbADO->Execute($queryPictures,$disc);
+			if($resPictures->RecordCount()==0){
+				$out.='
+				<tr>
+					<td valign="top" align="left" colspan="2">'.$TEXT_NO_DISC_PICTURES_CONST.'</td>
+				<tr>				';
+			}else{
+				$out.='
+				<tr>
+					<td colspan="2"><table>';
+
+				$picsCount=0;
+				while($rowPictures=$resPictures->FetchRow()){
+					$picsCount++;
+					$out.='
+						<td style="background-color:#EEEEEE;" align="center"><a href="mediapics/'.$rowPictures['PK_Picture'].'.'.$rowPictures['Extension'].'" target="_blank"><img src="mediapics/'.$rowPictures['PK_Picture'].'_tn.'.$rowPictures['Extension'].'" border="0"></a> <br><a href="#" onClick="if(confirm(\'Are you sure you want to delete this picture?\'))self.location=\'index.php?section=discAttributes&slot='.$slot.'&action=properties&picID='.$rowPictures['PK_Picture'].'\';">'.$TEXT_DELETE_CONST.'</a></td>
+					';
+					if($picsCount%$picsPerLine==0)
+						$out.='</tr><tr>';
+				}
+				$out.='
+					</tr>
+				</table>';
+			}
+				$out.='
+				</td>
+			</tr>
+			<tr>
+				<td><B>'.$TEXT_ADD_DISC_PICTURE_CONST.'</B></td>
+				<td colspan="6"> <input type="file" name="newPic" value=""> <input type="submit" class="button" name="addPic" value="'.$TEXT_ADD_DISC_PICTURE_CONST.'"></td>
+			</tr>
+			
 		</table>';
 		$out.='
 		</form>';
@@ -110,7 +162,21 @@ function discAttributes($output,$mediadbADO,$dbADO) {
 		}	
 	}else{
 	// process area
-
+		if(isset($_REQUEST['picID'])){
+			$toDelete=$_REQUEST['picID'];
+			$deletePic='DELETE FROM Picture WHERE PK_Picture=?';
+			$mediadbADO->Execute($deletePic,$toDelete);
+			
+			$deletePicAttribute='DELETE FROM Picture_Attribute WHERE FK_Picture=?';
+			$mediadbADO->Execute($deletePicAttribute,$toDelete);
+			
+			$deletePicFile='DELETE FROM Picture_Disc WHERE FK_Picture=?';
+			$mediadbADO->Execute($deletePicFile,$toDelete);
+			
+			@unlink($GLOBALS['mediaPicsPath'].$toDelete.'.jpg');
+			@unlink($GLOBALS['mediaPicsPath'].$toDelete.'_tn.jpg');
+		}
+	
 		if(isset($_POST['add'])){
 			$newAttributeType=$_POST['newAttributeType'];
 			$newAttributeName=cleanString($_POST['newAttributeName']);
@@ -129,7 +195,7 @@ function discAttributes($output,$mediadbADO,$dbADO) {
 					}
 					
 				}else{
-					$mediadbADO->Execute('INSERT IGNORE INTO File_Attribute (FK_File, FK_Attribute) VALUES (?,?)',array($fileID,$existingAttributes));
+					$mediadbADO->Execute('INSERT IGNORE INTO Disc_Attribute (FK_Disc, FK_Attribute) VALUES (?,?)',array($disc,$existingAttributes));
 				}
 			}else{
 				$isAdded=addDiscAttribute($newAttributeType,$newAttributeName,$disc,$mediadbADO);
@@ -139,7 +205,7 @@ function discAttributes($output,$mediadbADO,$dbADO) {
 				}
 			}
 			
-			header('Location: index.php?section=discAttributes&slot='.$slot.'&msg='.$TEXT_DISC_ATTRIBUTE_ADDED_CONST.':<br>'.urlencode(nl2br(@$AttributeAdded)));
+			header('Location: index.php?section=discAttributes&slot='.$slot.'&msg='.$TEXT_DISC_ATTRIBUTE_ADDED_CONST.'<br>'.urlencode(nl2br(@$AttributeAdded)));
 			exit();
 		}
 		
@@ -158,11 +224,43 @@ function discAttributes($output,$mediadbADO,$dbADO) {
 			header('Location: index.php?section=discAttributes&slot='.$slot.'&msg='.$TEXT_DISC_MEDIA_TYPE_UPDATED_CONST);			
 			exit();
 		}
-		
+
+		if(isset($_REQUEST['addPic']) && isset($_FILES['newPic']) && $_FILES['newPic']['name']!=''){
+			$picExtension=str_replace('.','',strtolower(strrchr($_FILES['newPic']['name'],".")));
+			$insertPicture='INSERT INTO Picture (Extension) VALUES (?)';
+			$mediadbADO->Execute($insertPicture,$picExtension);
+			$insertID=$mediadbADO->Insert_ID();
+			$newPicName=$insertID.'.'.$picExtension;
+			
+			$error='';
+			if(($_FILES['newPic']['type']!="image/jpg") && ($_FILES['newPic']['type']!="image/pjpeg") && ($_FILES['newPic']['type']!="image/jpeg")){
+				$error=$TEXT_ERROR_NOT_JPEG_CONST;
+			}
+			elseif(move_uploaded_file($_FILES['newPic']['tmp_name'],$GLOBALS['mediaPicsPath'].$newPicName)){
+				// create thumbnail
+				$resizeFlag=resizeImage($GLOBALS['mediaPicsPath'].$newPicName, $GLOBALS['mediaPicsPath'].$insertID.'_tn.'.$picExtension, 100, 100);
+				// update database
+				$insertPictureAttribute='INSERT INTO Picture_Disc (FK_Disc, FK_Picture) VALUES (?,?)';
+				$mediadbADO->Execute($insertPictureAttribute,array($disc,$insertID));
+			}else{
+				//upload fail, prompt error message
+				$deletePicture='DELETE FROM Picture WHERE PK_Picture=?';
+				$mediadbADO->Execute($deletePicture,$insertID);
+				$error=$TEXT_ERROR_UPLOAD_FAILS_PERMISIONS_CONST.' '.$GLOBALS['mediaPicsPath'];
+			}
+			if($error!=''){
+				header('Location: index.php?section=discAttributes&slot='.$slot.'&error='.$error);			
+				exit();
+			}else{
+				header('Location: index.php?section=discAttributes&slot='.$slot.'&msg='.$TEXT_DISC_PICTURE_UPLOADED_CONST);			
+				exit();
+			}
+		}		
 		
 		header('Location: index.php?section=discAttributes&slot='.$slot);			
 	}
 	$output->setReloadLeftFrame(false);
+	$output->setScriptInHead(@$scriptInHead);	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME);

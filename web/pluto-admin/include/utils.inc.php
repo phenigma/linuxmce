@@ -4562,4 +4562,25 @@ function getPowerFile($dbADO,$installationID){
 
 	return $deviceArr[0];
 }
+
+function get_slots_info($mediadbADO){
+	// hard-coded to extract performer and album
+	$slotInfo=array();
+	$res=$mediadbADO->Execute('
+		SELECT PK_Disc,Slot, A1.Name AS Performer,DA1.FK_Attribute, DA2.FK_Attribute,A2.Name AS Album
+		FROM Disc 
+		LEFT JOIN Disc_Attribute DA1 ON DA1.FK_Disc=PK_Disc 
+		LEFT JOIN Attribute A1 ON DA1.FK_Attribute=A1.PK_Attribute AND A1.FK_AttributeType=2 
+		LEFT JOIN Disc_Attribute DA2 ON DA2.FK_Disc=PK_Disc 
+		LEFT JOIN Attribute A2 ON DA2.FK_Attribute=A2.PK_Attribute AND A2.FK_AttributeType=3
+		WHERE DA1.Track=0 AND DA2.Track=0
+		');
+	while($row=$res->FetchRow()){
+		$slotInfo[$row['Slot']]['Performer']=$row['Performer'];
+		$slotInfo[$row['Slot']]['Album']=$row['Album'];
+		$slotInfo[$row['Slot']]['PK_Disc']=$row['PK_Disc'];
+	}
+	
+	return $slotInfo;
+}
 ?>
