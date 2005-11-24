@@ -22,8 +22,9 @@ LDFLAGS +=
 XTRALDLIBS = -lpluto_main -lpluto_security
 
 Gen_Dev_Files +=
-sources += FollowMe_Device.cpp  PopulateListsInVMC.cpp OH_Orbiter.cpp ../CreateDevice/CreateDevice.cpp ../VIPShared/VIPMenu.cpp ../Orbiter/OrbiterFileBrowser.cpp
-
+sources += FollowMe_Device.cpp  PopulateListsInVMC.cpp OH_Orbiter.cpp ../CreateDevice/CreateDevice.cpp ../VIPShared/VIPMenu.cpp ../Orbiter/OrbiterFileBrowser.cpp \
+	../OrbiterGen/RegenMonitor.cpp
+	
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
 
