@@ -88,16 +88,24 @@ while [ "$i" -le "$MAX_RESPAWN_COUNT" ]; do
 	Logging $TYPE $SEVERITY_NORMAL "$module" "Starting... $i"
 	echo $(date) Starting > "$new_log"
 
+	ReloadLock=/usr/pluto/locks/reload_watcher
+	if [[ -f "$ReloadLock" ]] && grep -q "$device_id" "$ReloadLock"; then
+		if [[ "$ReloadWatcher" -eq 0 ]]; then
+			Logging $TYPE $SEVERITY_WARNING "$module" 'Reload watcher: I am the one, but did not know it! Assuming position'
+		fi
+		ReloadWatcher=1
+	fi
+
 	if [[ "$ReloadWatcher" -eq 1 ]]; then
 		Logging $TYPE $SEVERITY_WARNING "$module" "Reload watcher: running Start_LocalDevices"
 		/usr/pluto/bin/Start_LocalDevices.sh
 	fi
 
-	ReloadLock=/usr/pluto/locks/reload_watcher
 	if [[ "$cmd_line" == *App*Server* && ! -f "$ReloadLock" ]]; then
 		if Lock "Reload_Watcher" "$device_id"; then
 			echo "Device: $device_id" >"$ReloadLock"
 			ReloadWatcher=1
+			Logging $TYPE $SEVERITY_WARNING "$module" "Reload watcher: I, $device_id, have just been assigned as the reload watcher"
 			# We don't unlock this one, ever
 		fi
 	fi
