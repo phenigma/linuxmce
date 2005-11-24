@@ -368,5 +368,5 @@ Powerfile: 0, 1, ... */
 void Disk_Drive::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,int iDrive_Number,string &sCMD_Result,Message *pMessage)
 //<-dceag-c337-e->
 {
-	m_pDisk_Drive_Functions->CMD_Rip_Disk(iPK_Users, sFormat, sName, sTracks, iEK_Disc, sCMD_Result, pMessage);
+	m_pDisk_Drive_Functions->CMD_Rip_Disk(iPK_Users, sFormat, sName, sTracks, iEK_Disc, iDrive_Number, sCMD_Result, pMessage);
 }
