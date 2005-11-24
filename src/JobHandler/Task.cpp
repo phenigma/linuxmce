@@ -34,6 +34,10 @@ void Task::Execute()
 		m_bThreadRunning=false;
 		g_pPlutoLogger->Write(LV_CRITICAL,"Task::Execute - cannot start helper thread");
 	}
+	else
+	{
+		pthread_detach(m_TaskThread);
+	}
 }
 
 bool Task::Cancel()
@@ -46,4 +50,3 @@ bool Task::Cancel()
 	}
 	return m_bThreadRunning==false;
 }
-

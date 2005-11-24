@@ -12,6 +12,7 @@ namespace nsJobHandler
 
 	class Job
 	{
+	protected:
 		friend class Task;
 
 		list<class Task *> m_listTask;

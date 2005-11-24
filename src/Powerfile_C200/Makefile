@@ -22,7 +22,7 @@ LDFLAGS +=
 XTRALDLIBS = -lDisk_Drive_Functions
 
 Gen_Dev_Files +=
-sources += exec_grab_output.cpp
+sources += exec_grab_output.cpp ../JobHandler/Job.cpp ../JobHandler/Task.cpp
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)

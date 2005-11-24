@@ -20,6 +20,11 @@ using namespace DCE;
 
 using namespace StringUtils;
 
+namespace nsJobHandler
+{
+	int g_ID = 0;
+}
+
 #ifdef WIN32
 	#define WEXITSTATUS(a) 0
 #endif
@@ -29,8 +34,9 @@ using namespace StringUtils;
 Powerfile_C200::Powerfile_C200(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: Powerfile_C200_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
-, m_bStatusCached(false), m_State(PF_IDLE), m_MediaMutex("Powerfile Media"), m_ChangerMutex("Powerfile Changer")
+, m_bStatusCached(false)
 {
+	m_pJob = new Powerfile_Job("Powerfile job", this);
 }
 
 //<-dceag-const2-b->
@@ -38,7 +44,7 @@ Powerfile_C200::Powerfile_C200(int DeviceID, string ServerAddress,bool bConnectE
 Powerfile_C200::Powerfile_C200(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)
 	: Powerfile_C200_Command(pPrimaryDeviceCommand, pData, pEvent, pRouter)
 //<-dceag-const2-e->
-, m_bStatusCached(false), m_State(PF_IDLE), m_MediaMutex("Powerfile Media"), m_ChangerMutex("Powerfile Changer")
+, m_bStatusCached(false)
 {
 }
 
@@ -68,22 +74,21 @@ static void ExtractFields(string &sRow, vector<string> &vect_sResult, const char
 
 bool Powerfile_C200::MediaIdentified(class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo)
 {
-    PLUTO_SAFETY_LOCK(mm, m_MediaMutex);
+	int iSlot = atoi(pMessage->m_mapParameters[EVENTPARAMETER_ID_CONST].c_str());
 
-	int discid = atoi(pMessage->m_mapParameters[EVENTPARAMETER_ID_CONST].c_str());
-	string sFormat = pMessage->m_mapParameters[EVENTPARAMETER_Format_CONST];
-	string sMRL = pMessage->m_mapParameters[EVENTPARAMETER_MRL_CONST];
-	int PK_Device_Disk_Drive = atoi(pMessage->m_mapParameters[EVENTPARAMETER_PK_Device_CONST].c_str());
-	string sValue = pMessage->m_mapParameters[EVENTPARAMETER_Value_CONST];
-	int iImageSize = pMessage->m_mapData_Lengths[EVENTPARAMETER_Image_CONST];
-	char *pImage = pMessage->m_mapData_Parameters[EVENTPARAMETER_Image_CONST];
-
-	g_pPlutoLogger->Write(LV_STATUS, "Media was identified id %d device %d format %s", discid, PK_Device_Disk_Drive, sFormat.c_str());
+	g_pPlutoLogger->Write(LV_STATUS, "Media Identified for slot %d", iSlot);
+	m_pJob->MediaIdentified(iSlot);
 	return true;
 }
 
 bool Powerfile_C200::RippingProgress(class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo)
 {
+	int iDrive_Number = atoi(pMessage->m_mapParameters[EVENTPARAMETER_Drive_Number_CONST].c_str());
+	int iResult = atoi(pMessage->m_mapParameters[EVENTPARAMETER_Result_CONST].c_str());
+
+	g_pPlutoLogger->Write(LV_STATUS, "Ripping progress for drive number %d, result '%s'", iDrive_Number, iResult == RIP_RESULT_SUCCESS ? "success" : "fail");
+	m_pJob->RippingProgress(iDrive_Number, iResult);
+	
 	return true;
 }
 
@@ -719,8 +724,7 @@ void Powerfile_C200::CMD_Bulk_Rip(string sDisks,string &sCMD_Result,Message *pMe
 //<-dceag-c720-e->
 {
 	size_t i;
-	PLUTO_SAFETY_LOCK(cm, m_ChangerMutex);
-	g_pPlutoLogger->Write(LV_STATUS, "Unimplemented: CMD_Bulk_Rip; sDisks='%s'", sDisks.c_str());
+	g_pPlutoLogger->Write(LV_STATUS, "CMD_Bulk_Rip; sDisks='%s'", sDisks.c_str());
 
 	/* Algorithm:
 	 * if not both units free
@@ -733,45 +737,30 @@ void Powerfile_C200::CMD_Bulk_Rip(string sDisks,string &sCMD_Result,Message *pMe
 	 * endif
 	 */
 
-	if (m_State != PF_IDLE)
+	if (m_pJob->PendingTasks())
 	{
 		g_pPlutoLogger->Write(LV_WARNING, "Not in IDLE state. Can't start mass rip");
 		sCMD_Result = "FAILED";
 		return;
 	}
 	
-	m_State = PF_RIPPING;
-
-	m_vectRipStatus.clear();
+	//m_pJob->Reset();
 	vector<string> vect_sDisks;
 	Tokenize(sDisks, ",", vect_sDisks);
 	for (i = 0; i < vect_sDisks.size(); i++)
 	{
-		state_RipStatus RipStatus;
-		sscanf(vect_sDisks[i].c_str(), "%d", &RipStatus.slot);
-		RipStatus.status = RS_NOT_PROCESSED;
-		m_vectRipStatus.push_back(RipStatus);
+		int iSlot;
+		sscanf(vect_sDisks[i].c_str(), "%d", iSlot);
+		PowerfileRip_Task * pTask = new PowerfileRip_Task("Rip Slot " + StringUtils::itos(iSlot), 0, m_pJob);
+		pTask->m_iSlot = iSlot;
+		m_pJob->AddTask(pTask);
 	}
 
-	if (m_vectRipStatus.size() == 0)
+	if (!m_pJob->PendingTasks())
 	{
 		g_pPlutoLogger->Write(LV_WARNING, "Received empty track list");
 		sCMD_Result = "FAILED";
 		return;
-	}
-	
-	// initial loading of drives
-	for (i = 0; i < m_vectDDF.size(); i++)
-	{
-		CMD_Load_from_Slot_into_Drive(m_vectRipStatus[i].slot, i);
-//#warning "TODO: UNINITIALIZED VARIABLES"
-		// TODO: get these from Media_Plugin
-		int iPK_Users, iEK_Disc;
-		string sFormat, sName, sTracks;
-//#warning "TODO: UNINITIALIZED VARIABLES"
-#ifndef EMULATE_PF
-		m_vectDDF[i]->CMD_Rip_Disk(iPK_Users, sFormat, sName, sTracks, iEK_Disc, i, sCMD_Result, NULL, m_dwPK_Device);
-#endif
 	}
 	sCMD_Result = "OK";
 }
@@ -809,19 +798,8 @@ void Powerfile_C200::CMD_Get_Bulk_Ripping_Status(string *sBulk_rip_status,string
 #else
 	size_t i;
 	bool bComma = false;
-	const char * text_RipStatus[] = { "N", "R", "F", "S", "I" };
 
-	* sBulk_rip_status = "";
-	for (i = 0; i < m_vectRipStatus.size(); i++)
-	{
-		int iSlot = m_vectRipStatus[i].slot;
-		enum_RipStatus RipStatus = m_vectRipStatus[i].status;
-		if (bComma)
-			* sBulk_rip_status += ",";
-		else
-			bComma = true;
-		* sBulk_rip_status += "S" + StringUtils::itos(iSlot) + "-" + text_RipStatus[RipStatus];
-	}
+	* sBulk_rip_status = m_pJob->ToString();
 #endif
 	sCMD_Result = "OK";
 }
@@ -833,6 +811,14 @@ void Powerfile_C200::CMD_Get_Bulk_Ripping_Status(string *sBulk_rip_status,string
 void Powerfile_C200::CMD_Mass_identify_media(string &sCMD_Result,Message *pMessage)
 //<-dceag-c740-e->
 {
+	if (m_pJob->PendingTasks())
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Not in IDLE state. Can't start mass identify");
+		sCMD_Result = "FAILED";
+		return;
+	}
+	// m_pJob->Reset()
+	
 	// if( handler.ContainsJob("Identify") )
 	// log error and return
 	// new Job("Identify")
@@ -841,9 +827,112 @@ void Powerfile_C200::CMD_Mass_identify_media(string &sCMD_Result,Message *pMessa
 	// job.service()
 }
 
-// class PowerfileJob
-// override CanHandleAnotherTask to check available drive
+// race condition all the way
+int Powerfile_C200::GetFreeDrive()
+{
+	size_t i;
 
-// class RippingTask
-// SendIdentifyDisk command
+	for (i = 0; i < m_vectDriveStatus.size(); i++)
+	{
+		if (m_vectDriveStatus[i] == 0)
+			return i;
+	}
 
+	return -1;
+}
+
+string Powerfile_Job::ToString()
+{
+	return "";
+}
+
+string PowerfileRip_Task::ToString()
+{
+	return "";
+}
+
+string PowerfileIdentify_Task::ToString()
+{
+	return "";
+}
+
+void PowerfileRip_Task::Run()
+{
+	// race condition all the way
+	Powerfile_Job * pPowerfile_Job = (Powerfile_Job *) m_pJob;
+	m_iDrive_Number = pPowerfile_Job->m_pPowerfile_C200->GetFreeDrive();
+	pPowerfile_Job->m_pPowerfile_C200->CMD_Load_from_Slot_into_Drive(m_iSlot, m_iDrive_Number);
+//#warning "TODO: UNINITIALIZED VARIABLES"
+	// TODO: get these from Media_Plugin
+	int iPK_Users = 0, iEK_Disc = 0;
+	string sFormat = "ogg", sName = "tempName", sTracks = "1,tempTrack|";
+//#warning "TODO: UNINITIALIZED VARIABLES"
+	string sCMD_Result;
+	int iPK_Device = pPowerfile_Job->m_pPowerfile_C200->m_dwPK_Device;
+	m_pDDF->CMD_Rip_Disk(iPK_Users, sFormat, sName, sTracks, iEK_Disc, m_iDrive_Number, sCMD_Result, NULL, iPK_Device);
+
+	while (! m_bStop)
+	{
+		Sleep(100);
+	}
+}
+
+void PowerfileRip_Task::ThreadEnded()
+{
+	Powerfile_Job * pPowerfile_Job = (Powerfile_Job *) m_pJob;
+	pPowerfile_Job->m_pPowerfile_C200->CMD_Unload_from_Drive_into_Slot(m_iSlot, m_iDrive_Number);
+}
+
+void PowerfileIdentify_Task::Run()
+{
+	// race condition all the way
+	Powerfile_Job * pPowerfile_Job = (Powerfile_Job *) m_pJob;
+	m_iDrive_Number = pPowerfile_Job->m_pPowerfile_C200->GetFreeDrive();
+	pPowerfile_Job->m_pPowerfile_C200->CMD_Load_from_Slot_into_Drive(m_iSlot, m_iDrive_Number);
+	
+	time_t TimeOut = time(NULL) + 60; // 60s timeout
+	while (! m_bStop && time(NULL) < TimeOut)
+	{
+		Sleep(100);
+	}
+	if (m_bStop)
+		m_eTaskStatus = TASK_COMPLETED;
+	else // timeout
+		m_eTaskStatus = TASK_FAILED;
+}
+
+void PowerfileIdentify_Task::ThreadEnded()
+{
+	Powerfile_Job * pPowerfile_Job = (Powerfile_Job *) m_pJob;
+	pPowerfile_Job->m_pPowerfile_C200->CMD_Unload_from_Drive_into_Slot(m_iSlot, m_iDrive_Number);
+}
+
+bool Powerfile_Job::MediaIdentified(int iSlot)
+{
+	for(list<Task *>::iterator it = m_listTask.begin(); it != m_listTask.end(); ++it)
+	{
+		PowerfileIdentify_Task * pTask = (PowerfileIdentify_Task *) * it;
+		if (pTask->m_iSlot == iSlot)
+		{
+			pTask->m_bStop = true;
+			break;
+		}
+	}
+}
+
+bool Powerfile_Job::RippingProgress(int iDrive_Number, int iResult)
+{
+	for(list<Task *>::iterator it = m_listTask.begin(); it != m_listTask.end(); ++it)
+	{
+		PowerfileRip_Task * pTask = (PowerfileRip_Task *) * it;
+		if (pTask->m_iDrive_Number == iDrive_Number)
+		{
+			if (iResult == RIP_RESULT_SUCCESS)
+				pTask->m_eTaskStatus = TASK_COMPLETED;
+			else
+				pTask->m_eTaskStatus = TASK_FAILED;
+			pTask->m_bStop = true;
+			break;
+		}
+	}
+}

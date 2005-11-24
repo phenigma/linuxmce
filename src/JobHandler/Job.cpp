@@ -51,7 +51,7 @@ Task *Job::GetNextTask()
 	for(list<class Task *>::iterator it=m_listTask.begin();it!=m_listTask.end();++it)
 	{
 		Task *pTask = *it;
-		if( pTask->m_eTaskStatus_get()==TASK_NOT_STARTED )
+		if (pTask->m_eTaskStatus == TASK_NOT_STARTED)
 			return pTask;
 	}
 	return NULL;
@@ -63,7 +63,7 @@ void Job::AddTask(Task *pTask)
 	m_listTask.push_back(pTask);
 }
 
-// return number of tasks in progress
+// return number of pending (running, not attempted) tasks
 int Job::PendingTasks()
 {
 	int Tasks=0;
@@ -71,7 +71,8 @@ int Job::PendingTasks()
 	for(list<class Task *>::iterator it=m_listTask.begin();it!=m_listTask.end();++it)
 	{
 		Task *pTask = *it;
-		if( pTask->m_eTaskStatus_get()==TASK_IN_PROGRESS )
+		int eTaskStatus = pTask->m_eTaskStatus;
+		if (eTaskStatus == TASK_NOT_STARTED || eTaskStatus == TASK_IN_PROGRESS)
 			Tasks++;
 	}
 	return Tasks;

@@ -471,8 +471,9 @@ void Disk_Drive_Functions::CMD_Rip_Disk(int iPK_Users, string sFormat, string sN
 	string sResultMessage =
 		StringUtils::itos(m_pCommand_Impl->m_dwPK_Device) + " " + StringUtils::itos(iEventDevice) + " " + StringUtils::itos(MESSAGETYPE_EVENT) + 
 			" " + StringUtils::itos(EVENT_Ripping_Progress_CONST) + " " + StringUtils::itos(EVENTPARAMETER_EK_Disc_CONST) + " " + StringUtils::itos(iEK_Disc) +
-			" " + StringUtils::itos(EVENTPARAMETER_Name_CONST) + " \"" +
-			sName + "\" " + StringUtils::itos(EVENTPARAMETER_Result_CONST) + " ";
+			" " + StringUtils::itos(EVENTPARAMETER_Name_CONST) + " \"" + sName + "\" " +
+			StringUtils::itos(EVENTPARAMETER_Drive_Number_CONST) + " " + StringUtils::itos(iDrive_Number) +
+			StringUtils::itos(EVENTPARAMETER_Result_CONST) + " ";
 
 	DCE::CMD_Spawn_Application
 		spawnApplication(m_pCommand_Impl->m_dwPK_Device,

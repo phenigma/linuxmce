@@ -7,17 +7,9 @@
 #include "Gen_Devices/Powerfile_C200Base.h"
 //<-dceag-d-e->
 #include "Disk_Drive_Functions/Disk_Drive_Functions.h"
-#include "JobHandler/JobHandler.h"
+#include <JobHandler/Job.h>
+#include <JobHandler/Task.h>
 using namespace nsJobHandler;
-
-typedef enum { RS_NOT_PROCESSED = 0, RS_RIPPING, RS_FAIL, RS_SUCCESS, RS_IDENTIFYING } enum_RipStatus;
-typedef enum { PF_IDLE = 0, PF_IDENTIFYING, PF_RIPPING } enum_PFState;
-
-struct state_RipStatus
-{
-	int slot;
-	enum_RipStatus status;
-};
 
 //<-dceag-decl-b->
 namespace DCE
@@ -26,7 +18,6 @@ namespace DCE
 	{
 //<-dceag-decl-e->
 		// Private member variables
-		JobHandler m_JobHandler;
 
 		// Private methods
 public:
@@ -279,16 +270,69 @@ only slots that were scheduled for ripping will appear in the string */
 			vector<int> m_vectDriveStatus; // slot of provenience (0 = empty)
 			vector<bool> m_vectSlotStatus; // occupied or not
 			bool m_bStatusCached;
-			vector<state_RipStatus> m_vectRipStatus;
-			enum_PFState m_State;
+
+			pthread_t m_JobThread;
+			class Powerfile_Job * m_pJob;
 
 		public:
 			bool MediaIdentified(class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo);
 			bool RippingProgress(class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo);
-			pluto_pthread_mutex_t m_MediaMutex, m_ChangerMutex; // TODO: make ChangerMutex recursive and put in all places where needed
+
+			int GetFreeDrive();
 	};
 
 //<-dceag-end-b->
 }
 #endif
 //<-dceag-end-e->
+
+namespace DCE
+{
+	class Powerfile_Job : public Job
+	{
+		public:
+			Powerfile_Job(string sName, Powerfile_C200 * pPowerfile_C200) : Job(sName), m_pPowerfile_C200(pPowerfile_C200) { }
+			int PercentComplete() { return 0; }
+			int SecondsRemaining() { return 0; }
+			string ToString();
+			bool MediaIdentified(int iSlot);
+			bool RippingProgress(int iDrive_Number, int iResult);
+			Powerfile_C200 * m_pPowerfile_C200;
+	};
+
+	class PowerfileRip_Task : public Task
+	{
+		public:
+			PowerfileRip_Task(string sName, int iPriority, Job * pJob) : Task(sName, iPriority, pJob),
+					m_bStop(false), m_pDDF(NULL) {}
+			string Type() { return "Rip"; }
+			string ToString();
+			void Run();
+
+			bool m_bStop;
+			int m_iDrive_Number;
+			int m_iSlot;
+
+		private:
+			Disk_Drive_Functions * m_pDDF;
+			void ThreadEnded();
+	};
+
+	class PowerfileIdentify_Task : public Task
+	{
+		public:
+			PowerfileIdentify_Task(string sName, int iPriority, Job * pJob) : Task(sName, iPriority, pJob),
+					m_bStop(false), m_pDDF(NULL) {}
+			string Type() { return "Identify"; }
+			string ToString();
+			void Run();
+
+			bool m_bStop;
+			int m_iDrive_Number;
+			int m_iSlot;
+
+		private:
+			Disk_Drive_Functions * m_pDDF;
+			void ThreadEnded();
+	};
+}

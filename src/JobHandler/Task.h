@@ -19,19 +19,19 @@ namespace nsJobHandler
 	protected:
 		int m_iPriority;
 		string m_sName;
-		TaskStatus m_eTaskStatus;
 		class Job *m_pJob;
 		bool m_bThreadRunning;
 		pthread_t m_TaskThread;
 
 	public:
+		TaskStatus m_eTaskStatus;
 		Task(string sName,int iPriority,Job *pJob);
 
-		TaskStatus m_eTaskStatus_get() { return m_eTaskStatus; }
+		//TaskStatus m_eTaskStatus_get() { return m_eTaskStatus; }
 		bool m_bThreadRunning_get() { return m_bThreadRunning; }
 		void Execute();
 		bool Cancel();
-		void ThreadEnded() { m_bThreadRunning=false; }
+		virtual void ThreadEnded() { m_bThreadRunning=false; }
 
 		virtual string ToString()=0;
 		virtual string Type()=0;
