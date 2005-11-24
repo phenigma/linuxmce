@@ -87,6 +87,8 @@ UpdateMedia::UpdateMedia(Database_pluto_media *pDatabase_pluto_media,
     m_pDatabase_pluto_main = pDatabase_pluto_main;
     m_pDatabase_pluto_media = pDatabase_pluto_media;
 
+	PlutoMediaIdentifier::Activate(m_pDatabase_pluto_main);
+
     m_sDirectory = StringUtils::Replace(&sDirectory,"\\","/");  // Be sure no Windows \'s
     FileUtils::ExcludeTrailingSlash(m_sDirectory);
 }

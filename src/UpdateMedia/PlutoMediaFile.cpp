@@ -265,6 +265,9 @@ map<string,int> PlutoMediaIdentifier::m_mapExtensions;
 //-----------------------------------------------------------------------------------------------------
 /*static*/ void PlutoMediaIdentifier::Activate(Database_pluto_main *pDatabase_pluto_main)
 {
+	if(m_mapExtensions.size()) //activate once
+		return;
+	
     vector<Row_MediaType *> vectRow_MediaType;
     pDatabase_pluto_main->MediaType_get()->GetRows("1=1",&vectRow_MediaType);
     for(size_t s=0;s<vectRow_MediaType.size();++s)
@@ -272,8 +275,10 @@ map<string,int> PlutoMediaIdentifier::m_mapExtensions;
         Row_MediaType *pRow_MediaType = vectRow_MediaType[s];
         string::size_type pos=0;
         string sExtensions = pRow_MediaType->Extensions_get();
+cout << "Extensions for " << pRow_MediaType->PK_MediaType_get() << " are : " << sExtensions << endl;		
         while(pos < sExtensions.size() )
             m_mapExtensions[StringUtils::Tokenize(sExtensions,",",pos)] = pRow_MediaType->PK_MediaType_get();
+cout << "m_mapExtensions size is now: " << m_mapExtensions.size() << endl;		
     }
 
     vector<Row_DeviceTemplate_MediaType *> vectRow_DeviceTemplate_MediaType;
