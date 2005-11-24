@@ -11661,5 +11661,21 @@ namespace DCE
 	public:
 		CMD_NOREP_Get_Bulk_Ripping_Status_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,739,0); }
 	};
+	class CMD_Mass_identify_media : public PreformedCommand {
+	public:
+		CMD_Mass_identify_media(long DeviceIDFrom, long DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,740,0); }
+	};
+	class CMD_Mass_identify_media_DL : public PreformedCommand {
+	public:
+		CMD_Mass_identify_media_DL(long DeviceIDFrom, string DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,740,0); }
+	};
+	class CMD_Mass_identify_media_DT : public PreformedCommand {
+	public:
+		CMD_Mass_identify_media_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,740,0); }
+	};
+	class CMD_Mass_identify_media_Cat : public PreformedCommand {
+	public:
+		CMD_Mass_identify_media_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,740,0); }
+	};
 }
 #endif

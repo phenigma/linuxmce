@@ -14,6 +14,10 @@ using namespace DCE;
 
 #include "exec_grab_output.h"
 #include "PlutoUtils/StringUtils.h"
+#include "pluto_main/Define_Event.h"
+#include "pluto_main/Define_EventParameter.h"
+#include "pluto_main/Define_DeviceData.h"
+
 using namespace StringUtils;
 
 //<-dceag-const-b->
@@ -21,7 +25,7 @@ using namespace StringUtils;
 Powerfile_C200::Powerfile_C200(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: Powerfile_C200_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
-, m_bStatusCached(false)
+, m_bStatusCached(false), m_State(PF_IDLE), m_MediaMutex("Powerfile Media"), m_ChangerMutex("Powerfile Changer")
 {
 }
 
@@ -30,6 +34,7 @@ Powerfile_C200::Powerfile_C200(int DeviceID, string ServerAddress,bool bConnectE
 Powerfile_C200::Powerfile_C200(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)
 	: Powerfile_C200_Command(pPrimaryDeviceCommand, pData, pEvent, pRouter)
 //<-dceag-const2-e->
+, m_bStatusCached(false), m_State(PF_IDLE), m_MediaMutex("Powerfile Media"), m_ChangerMutex("Powerfile Changer")
 {
 }
 
@@ -55,6 +60,25 @@ static void ExtractFields(string &sRow, vector<string> &vect_sResult, const char
 			continue; // skip empty fields since there is no such thing
 		vect_sResult.push_back(vect_sFields[i]);
 	}
+}
+
+bool Powerfile_C200::MediaIdentified(class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo)
+{
+    PLUTO_SAFETY_LOCK(mm, m_MediaMutex);
+
+	int discid = atoi(pMessage->m_mapParameters[EVENTPARAMETER_ID_CONST].c_str());
+	string sFormat = pMessage->m_mapParameters[EVENTPARAMETER_Format_CONST];
+	string sMRL = pMessage->m_mapParameters[EVENTPARAMETER_MRL_CONST];
+	int PK_Device_Disk_Drive = atoi(pMessage->m_mapParameters[EVENTPARAMETER_PK_Device_CONST].c_str());
+	string sValue = pMessage->m_mapParameters[EVENTPARAMETER_Value_CONST];
+	int iImageSize = pMessage->m_mapData_Lengths[EVENTPARAMETER_Image_CONST];
+	char *pImage = pMessage->m_mapData_Parameters[EVENTPARAMETER_Image_CONST];
+
+	g_pPlutoLogger->Write(LV_STATUS, "Media was identified id %d device %d format %s", discid, PK_Device_Disk_Drive, sFormat.c_str());
+}
+
+bool Powerfile_C200::RippingProgress(class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo)
+{
 }
 
 // Return Disk_Drive_Functions instance for requested drive
@@ -224,6 +248,11 @@ bool Powerfile_C200::GetConfig()
 	if (!Get_Jukebox_Status(NULL, true))
 		return false;
 	g_pPlutoLogger->Write(LV_STATUS, "Finished config");
+	
+	// MessageInterceptorFn, int Device_From, int Device_To, int Device_Type, int Device_Category, int Message_Type, int Message_ID
+	RegisterMsgInterceptor((MessageInterceptorFn)(&Powerfile_C200::MediaIdentified), 0, m_dwPK_Device, 0, 0, MESSAGETYPE_EVENT, EVENT_Media_Identified_CONST);
+	RegisterMsgInterceptor((MessageInterceptorFn)(&Powerfile_C200::RippingProgress), 0, m_dwPK_Device, 0, 0, MESSAGETYPE_EVENT, EVENT_Ripping_Progress_CONST);
+	
 	return true;
 }
 
@@ -683,7 +712,62 @@ void Powerfile_C200::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,stri
 void Powerfile_C200::CMD_Bulk_Rip(string sDisks,string &sCMD_Result,Message *pMessage)
 //<-dceag-c720-e->
 {
+	size_t i;
+	PLUTO_SAFETY_LOCK(cm, m_ChangerMutex);
 	g_pPlutoLogger->Write(LV_STATUS, "Unimplemented: CMD_Bulk_Rip; sDisks='%s'", sDisks.c_str());
+
+	/* Algorithm:
+	 * if not both units free
+	 *  Give error
+	 * else
+	 *  Get 1st disc into unit 0
+	 *  Start ripping for unit 0
+	 *  Get 2nd disc into unit 1
+	 *  Start ripping for unit 1
+	 * endif
+	 */
+
+	if (m_State != PF_IDLE)
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Not in IDLE state. Can't start mass rip");
+		sCMD_Result = "FAILED";
+		return;
+	}
+	
+	m_State = PF_RIPPING;
+
+	m_vectRipStatus.clear();
+	vector<string> vect_sDisks;
+	Tokenize(sDisks, ",", vect_sDisks);
+	for (i = 0; i < vect_sDisks.size(); i++)
+	{
+		state_RipStatus RipStatus;
+		sscanf(vect_sDisks[i].c_str(), "%d", &RipStatus.slot);
+		RipStatus.status = RS_NOT_PROCESSED;
+		m_vectRipStatus.push_back(RipStatus);
+	}
+
+	if (m_vectRipStatus.size() == 0)
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Received empty track list");
+		sCMD_Result = "FAILED";
+		return;
+	}
+	
+	// initial loading of drives
+	for (i = 0; i < m_vectDDF.size(); i++)
+	{
+		CMD_Load_from_Slot_into_Drive(m_vectRipStatus[i].slot, i);
+#warning "TODO: UNINITIALIZED VARIABLES"
+		// TODO: get these from Media_Plugin
+		int iPK_Users, iEK_Disc;
+		string sFormat, sName, sTracks;
+#warning "TODO: UNINITIALIZED VARIABLES"
+#ifndef EMULATE_PF
+		m_vectDDF[i]->CMD_Rip_Disk(iPK_Users, sFormat, sName, sTracks, iEK_Disc, sCMD_Result, NULL, m_dwPK_Device);
+#endif
+	}
+	sCMD_Result = "OK";
 }
 //<-dceag-c738-b->
 
@@ -703,8 +787,9 @@ void Powerfile_C200::CMD_Play_Disk(int iSlot_Number,string &sCMD_Result,Message 
 	/** Get status/progress of bulk ripping operation */
 		/** @param #158 Bulk rip status */
 			/** Returns:
-S1-F,S2-R,S3-N
+S1-F,S2-S,S3-R,S4-N
 F = failed
+S = succeeded
 R = ripping
 N = not processed yet
 empty string when idle or reset; last status when all disks were ripped
@@ -712,5 +797,34 @@ only slots that were scheduled for ripping will appear in the string */
 
 void Powerfile_C200::CMD_Get_Bulk_Ripping_Status(string *sBulk_rip_status,string &sCMD_Result,Message *pMessage)
 //<-dceag-c739-e->
+{
+#ifdef EMULATE_PF
+	* sBulk_rip_status = "S1-F,S2-S,S3-R,S4-N";
+#else
+	size_t i;
+	bool bComma = false;
+	const char * text_RipStatus[] = { "N", "R", "F", "S", "I" };
+
+	* sBulk_rip_status = "";
+	for (i = 0; i < m_vectRipStatus.size(); i++)
+	{
+		int iSlot = m_vectRipStatus[i].slot;
+		enum_RipStatus RipStatus = m_vectRipStatus[i].status;
+		if (bComma)
+			* sBulk_rip_status += ",";
+		else
+			bComma = true;
+		* sBulk_rip_status += "S" + StringUtils::itos(iSlot) + "-" + text_RipStatus[RipStatus];
+	}
+#endif
+	sCMD_Result = "OK";
+}
+//<-dceag-c740-b->
+
+	/** @brief COMMAND: #740 - Mass identify media */
+	/** Scan all loaded discs and identify each one */
+
+void Powerfile_C200::CMD_Mass_identify_media(string &sCMD_Result,Message *pMessage)
+//<-dceag-c740-e->
 {
 }

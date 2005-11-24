@@ -8,6 +8,15 @@
 //<-dceag-d-e->
 #include "Disk_Drive_Functions/Disk_Drive_Functions.h"
 
+typedef enum { RS_NOT_PROCESSED = 0, RS_RIPPING, RS_FAIL, RS_SUCCESS, RS_IDENTIFYING } enum_RipStatus;
+typedef enum { PF_IDLE = 0, PF_IDENTIFYING, PF_RIPPING } enum_PFState;
+
+struct state_RipStatus
+{
+	int slot;
+	enum_RipStatus status;
+};
+
 //<-dceag-decl-b->
 namespace DCE
 {
@@ -236,8 +245,9 @@ where:
 	/** Get status/progress of bulk ripping operation */
 		/** @param #158 Bulk rip status */
 			/** Returns:
-S1-F,S2-R,S3-N
+S1-F,S2-S,S3-R,S4-N
 F = failed
+S = succeeded
 R = ripping
 N = not processed yet
 empty string when idle or reset; last status when all disks were ripped
@@ -245,6 +255,13 @@ only slots that were scheduled for ripping will appear in the string */
 
 	virtual void CMD_Get_Bulk_Ripping_Status(string *sBulk_rip_status) { string sCMD_Result; CMD_Get_Bulk_Ripping_Status(sBulk_rip_status,sCMD_Result,NULL);};
 	virtual void CMD_Get_Bulk_Ripping_Status(string *sBulk_rip_status,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #740 - Mass identify media */
+	/** Scan all loaded discs and identify each one */
+
+	virtual void CMD_Mass_identify_media() { string sCMD_Result; CMD_Mass_identify_media(sCMD_Result,NULL);};
+	virtual void CMD_Mass_identify_media(string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 		private:
@@ -256,9 +273,16 @@ only slots that were scheduled for ripping will appear in the string */
 			Disk_Drive_Functions * GetDDF(int iDrive_Number);
 			bool Get_Jukebox_Status(string * sJukebox_Status, bool bForce = false);
 			
-			vector<int> m_vectDriveStatus; // slot of provenience
+			vector<int> m_vectDriveStatus; // slot of provenience (0 = empty)
 			vector<bool> m_vectSlotStatus; // occupied or not
 			bool m_bStatusCached;
+			vector<state_RipStatus> m_vectRipStatus;
+			enum_PFState m_State;
+
+		public:
+			bool MediaIdentified(class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo);
+			bool RippingProgress(class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo);
+			pluto_pthread_mutex_t m_MediaMutex, m_ChangerMutex; // TODO: make ChangerMutex recursive and put in all places where needed
 	};
 
 //<-dceag-end-b->
