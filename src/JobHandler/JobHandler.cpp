@@ -7,7 +7,7 @@
 
 using namespace nsJobHandler;
 
-JobHandler::JobHandler() : m_JobHandlerMutex("jobhandler")
+JobHandler::JobHandler() : m_JobHandlerMutex("jobhandler", true)
 {
 }
 

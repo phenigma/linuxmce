@@ -16,7 +16,7 @@ namespace nsJobHandler
 
 	class Task
 	{
-	private:
+	protected:
 		int m_iPriority;
 		string m_sName;
 		TaskStatus m_eTaskStatus;
@@ -28,6 +28,7 @@ namespace nsJobHandler
 		Task(string sName,int iPriority,Job *pJob);
 
 		TaskStatus m_eTaskStatus_get() { return m_eTaskStatus; }
+		bool m_bThreadRunning_get() { return m_bThreadRunning; }
 		void Execute();
 		bool Cancel();
 		void ThreadEnded() { m_bThreadRunning=false; }

@@ -27,6 +27,7 @@ Job::~Job()
     pthread_mutexattr_destroy(&m_MutexAttr);
 }
 
+// cancel all tasks in this job
 bool Job::Cancel()
 {
 	m_bCancel=true;
@@ -41,6 +42,7 @@ bool Job::Cancel()
 	return bSuccess;
 }
 
+// return a task that was not started yet
 Task *Job::GetNextTask()
 {
 	PLUTO_SAFETY_LOCK(jm,m_JobMutex);
@@ -61,6 +63,7 @@ void Job::AddTask(Task *pTask)
 	m_listTask.push_back(pTask);
 }
 
+// return number of tasks in progress
 int Job::PendingTasks()
 {
 	int Tasks=0;
@@ -74,3 +77,19 @@ int Job::PendingTasks()
 	return Tasks;
 }
 
+// run each task
+void Job::ServiceTasks()
+{
+	PLUTO_SAFETY_LOCK(jm,m_JobMutex);
+	Task * pTask;
+	while (pTask = GetNextTask())
+	{
+		pTask->Execute();
+		while (pTask->m_bThreadRunning_get() && ! m_bCancel)
+		{
+			jm.Release();
+			Sleep(1000);
+			jm.Relock();
+		}
+	}
+}
