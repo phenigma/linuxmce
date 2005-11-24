@@ -188,7 +188,8 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 		}
 	}
 
-
+	if(!bRecursive)
+		return PK_Picture;
 
 	// Now recurse
 	list<string> listSubDirectories;
