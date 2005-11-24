@@ -141,7 +141,7 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 				"FROM DeviceTemplate_DeviceCategory_ControlledVia "
 				"JOIN DeviceCategory AS DC1 ON DeviceTemplate_DeviceCategory_ControlledVia.FK_DeviceCategory=DC1.PK_DeviceCategory "
 				"LEFT JOIN DeviceCategory AS DC2 ON DC2.FK_DeviceCategory_Parent=DC1.PK_DeviceCategory "
-				"WHERE FK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate) + " AND FK_Installation=" + StringUtils::itos(m_iPK_Installation);
+				"WHERE FK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate);
 
 			if( (result_cv2.r=mysql_query_result(SQL)) && result_cv2.r->row_count )
 			{
