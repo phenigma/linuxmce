@@ -195,7 +195,7 @@ fi
 # duplicated from Network_Setup.sh
 hosts="
 127.0.0.1       localhost.localdomain   localhost
-$dcerouterIP	dcerouter $(/bin/hostname)
+$CORE_INTERNAL_ADDRESS	dcerouter $(/bin/hostname)
 #%MOON_HOSTS%
 
 # The following lines are desirable for IPv6 capable hosts
