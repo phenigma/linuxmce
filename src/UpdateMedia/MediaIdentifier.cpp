@@ -12,8 +12,9 @@ map<string, int> MediaIdentifier::m_mapMediaIdentifier;
 /*static*/ void MediaIdentifier::Init()
 {
 	m_mapMediaIdentifier["MP3 file with ID3 version 2.3.0 tag"] = MEDIATYPE_pluto_StoredAudio_CONST;	
-	m_mapMediaIdentifier["FLAC audio bitstream data"] = MEDIATYPE_pluto_StoredAudio_CONST;
+	m_mapMediaIdentifier["MPEG ADTS"] = MEDIATYPE_pluto_StoredAudio_CONST;	
 
+	m_mapMediaIdentifier["FLAC audio bitstream data"] = MEDIATYPE_pluto_StoredAudio_CONST;
     m_mapMediaIdentifier["Apple QuickTime movie"] = MEDIATYPE_pluto_StoredVideo_CONST;
 	m_mapMediaIdentifier["MPEG sequence"] = MEDIATYPE_pluto_StoredVideo_CONST;
 

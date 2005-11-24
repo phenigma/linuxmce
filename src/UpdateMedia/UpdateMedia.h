@@ -9,6 +9,7 @@ class UpdateMedia
 {
 	string m_sDirectory,m_sExtensions;
 	map<string,int> m_mapExtensions;
+	bool m_bAsDaemon;
 
 #ifndef WIN32
 	map<u_int64_t,bool> m_MapInodes;
@@ -24,7 +25,7 @@ public:
 
 	void DoIt();
 
-	int ReadDirectory(string Directory); // Returns the picture for the directory
+	int ReadDirectory(string Directory, bool bRecursive); // Returns the picture for the directory
 
     void UpdateSearchTokens();
 	void UpdateThumbnails();

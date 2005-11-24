@@ -70,6 +70,7 @@ UpdateMedia::UpdateMedia(string host, string user, string pass, int port,string 
 		return;
 	}
 
+	m_bAsDaemon = false;
     PlutoMediaIdentifier::Activate(m_pDatabase_pluto_main);
 
 	m_sDirectory = StringUtils::Replace(&sDirectory,"\\","/");  // Be sure no Windows \'s
@@ -89,6 +90,9 @@ UpdateMedia::UpdateMedia(Database_pluto_media *pDatabase_pluto_media,
 
 	PlutoMediaIdentifier::Activate(m_pDatabase_pluto_main);
 
+	m_bAsDaemon = true;
+	PlutoMediaIdentifier::Activate(m_pDatabase_pluto_main);
+
     m_sDirectory = StringUtils::Replace(&sDirectory,"\\","/");  // Be sure no Windows \'s
     FileUtils::ExcludeTrailingSlash(m_sDirectory);
 }
@@ -101,12 +105,14 @@ void UpdateMedia::DoIt()
 		exit(1);
 	}
 
-	ReadDirectory(m_sDirectory);
+	ReadDirectory(m_sDirectory, !m_bAsDaemon);
     SyncDbWithDirectory(m_sDirectory); //mark missing/not-missing files, recursively
 }
 
-int UpdateMedia::ReadDirectory(string sDirectory)
+int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
 {
+	Sleep(10); //no so ... faaast
+
 	// Build a list of the files on disk, and a map of those in the database
 	int PK_Picture=0;
 	list<string> listFilesOnDisk;
@@ -182,6 +188,8 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 		}
 	}
 
+
+
 	// Now recurse
 	list<string> listSubDirectories;
 	FileUtils::FindDirectories(listSubDirectories,sDirectory,false,true,0,""
@@ -236,7 +244,7 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 			continue; // This directory is already in the database 
 		}
 
-		int i = ReadDirectory(sSubDir);
+		int i = ReadDirectory(sSubDir, bRecursive);
 		if( !PK_Picture )
 			PK_Picture = i;
 	}
