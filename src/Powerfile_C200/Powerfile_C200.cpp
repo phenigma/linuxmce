@@ -76,8 +76,14 @@ static void ExtractFields(string &sRow, vector<string> &vect_sResult, const char
 bool Powerfile_C200::MediaIdentified(class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo)
 {
 	int iSlot = atoi(pMessage->m_mapParameters[EVENTPARAMETER_ID_CONST].c_str());
+	string sName = pMessage->m_mapParameters[EVENTPARAMETER_Name_CONST];
+	string sFormat = pMessage->m_mapParameters[EVENTPARAMETER_Format_CONST];
+	string sMRL = pMessage->m_mapParameters[EVENTPARAMETER_MRL_CONST];
+	int iPK_Device = atoi(pMessage->m_mapParameters[EVENTPARAMETER_PK_Device_CONST].c_str());
+	string sValue = pMessage->m_mapParameters[EVENTPARAMETER_Value_CONST];
 
-	g_pPlutoLogger->Write(LV_STATUS, "Media Identified for slot %d", iSlot);
+	g_pPlutoLogger->Write(LV_STATUS, "Media Identified. Slot '%d', Name: '%s', Format: '%s', MRL: '%s', PK_Device: '%d', Value: '%s'",
+		iSlot, sName, sFormat, sMRL, iPK_Device, sValue);
 	m_pJob->MediaIdentified(iSlot);
 	return true;
 }
@@ -276,7 +282,7 @@ bool Powerfile_C200::GetConfig()
 			CMD_Unload_from_Drive_into_Slot(m_vectDriveStatus[i], i);
 	}
 	
-	// TODO: Have to filter these events somehow. Currently I'm getting a screenful of them with the same data.
+	PurgeInterceptors();
 	// MessageInterceptorFn, int Device_From, int Device_To, int Device_Type, int Device_Category, int Message_Type, int Message_ID
 	RegisterMsgInterceptor((MessageInterceptorFn)(&Powerfile_C200::MediaIdentified), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Media_Identified_CONST);
 	RegisterMsgInterceptor((MessageInterceptorFn)(&Powerfile_C200::RippingProgress), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Ripping_Progress_CONST);
@@ -978,12 +984,12 @@ void PowerfileRip_Task::Run()
 void PowerfileIdentify_Task::Run()
 {
 	Powerfile_Job * pPowerfile_Job = (Powerfile_Job *) m_pJob;
-	time_t TimeOut = time(NULL) + 60; // 60s timeout
 
 	int iPK_Device = pPowerfile_Job->m_pPowerfile_C200->m_dwPK_Device;
-	//DCE::CMD_Identify_Media_Cat CMD_Identify_Media_Cat(iPK_Device,DEVICECATEGORY_Media_Identifiers_CONST,
-	//	false,BL_SameComputer,pDeviceFrom->m_dwPK_Device,StringUtils::itos(discid),pMessage->m_mapParameters[EVENTPARAMETER_Name_CONST]);
+	DCE::CMD_Identify_Media_Cat CMD_Identify_Media_Cat(iPK_Device, DEVICECATEGORY_Media_Identifiers_CONST,
+		false, BL_SameComputer, iPK_Device, StringUtils::itos(m_iSlot), "P" + StringUtils::itos(iPK_Device) + "-S" + StringUtils::itos(m_iSlot));
 	
+	time_t TimeOut = time(NULL) + 60; // 60s timeout
 	while (! m_bStop && time(NULL) < TimeOut)
 	{
 		Sleep(100);
