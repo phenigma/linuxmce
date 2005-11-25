@@ -46,8 +46,8 @@ bool Job::Cancel()
 Task *Job::GetNextTask()
 {
 	PLUTO_SAFETY_LOCK(jm,m_JobMutex);
-	if( !CanHandleAnotherTask() )
-		return NULL;
+	//if( !CanHandleAnotherTask() )
+	//	return NULL;
 	for(list<class Task *>::iterator it=m_listTask.begin();it!=m_listTask.end();++it)
 	{
 		Task *pTask = *it;
@@ -93,4 +93,16 @@ void Job::ServiceTasks()
 			jm.Relock();
 		}
 	}
+}
+
+void Job::Reset(bool bDelete)
+{	
+	if (bDelete)
+	{
+		for(list<class Task *>::iterator it=m_listTask.begin();it!=m_listTask.end();++it)
+		{
+			delete *it;
+		}
+	}
+	m_listTask.clear();
 }

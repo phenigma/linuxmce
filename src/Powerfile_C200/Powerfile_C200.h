@@ -253,32 +253,37 @@ only slots that were scheduled for ripping will appear in the string */
 
 	/** @brief COMMAND: #740 - Mass identify media */
 	/** Scan all loaded discs and identify each one */
+		/** @param #157 Disks */
+			/** Comma separated list of slots to identify. "*" for all */
 
-	virtual void CMD_Mass_identify_media() { string sCMD_Result; CMD_Mass_identify_media(sCMD_Result,NULL);};
-	virtual void CMD_Mass_identify_media(string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Mass_identify_media(string sDisks) { string sCMD_Result; CMD_Mass_identify_media(sDisks.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Mass_identify_media(string sDisks,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 		private:
 			// corresponding devices
-			vector<string> m_vectDrive;
+			vector<pair<string, string> > m_vectDrive; // first: /dev/sr0, second: /dev/sg1
 			string m_sChanger;
 			vector<Disk_Drive_Functions *> m_vectDDF;
 
-			Disk_Drive_Functions * GetDDF(int iDrive_Number);
 			bool Get_Jukebox_Status(string * sJukebox_Status, bool bForce = false);
 			
-			vector<int> m_vectDriveStatus; // slot of provenience (0 = empty)
+			vector<int> m_vectDriveStatus; // slot of provenience (0 = empty, n>0 = occupied by disc from slot n; n<0 = reserved for slot |n|)
 			vector<bool> m_vectSlotStatus; // occupied or not
 			bool m_bStatusCached;
 
 			pthread_t m_JobThread;
 			class Powerfile_Job * m_pJob;
 
+			pluto_pthread_mutex_t m_DriveMutex;
+
 		public:
 			bool MediaIdentified(class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo);
 			bool RippingProgress(class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo);
 
-			int GetFreeDrive();
+			int GetFreeDrive(int iSlot);
+			void ReleaseDrive(int iDrive_Number, int iSlot);
+			Disk_Drive_Functions * GetDDF(int iDrive_Number);
 	};
 
 //<-dceag-end-b->
@@ -295,8 +300,8 @@ namespace DCE
 			int PercentComplete() { return 0; }
 			int SecondsRemaining() { return 0; }
 			string ToString();
-			bool MediaIdentified(int iSlot);
-			bool RippingProgress(int iDrive_Number, int iResult);
+			void MediaIdentified(int iSlot);
+			void RippingProgress(int iDrive_Number, int iResult);
 			Powerfile_C200 * m_pPowerfile_C200;
 	};
 

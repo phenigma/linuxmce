@@ -437,7 +437,7 @@ void Disk_Drive_Functions::CMD_Rip_Disk(int iPK_Users, string sFormat, string sN
 		sCMD_Result = "NO App_Server";
 		return;
 	}
-	g_pPlutoLogger->Write(LV_STATUS, "Going to rip %s", sName.c_str() );
+	g_pPlutoLogger->Write(LV_STATUS, "Going to rip %s; drive number: %d", sName.c_str(), iDrive_Number);
 
 	if (m_isRipping)
 	{
@@ -459,8 +459,14 @@ void Disk_Drive_Functions::CMD_Rip_Disk(int iPK_Users, string sFormat, string sN
 
 	string strParameters, strCommOnFailure, strCommOnSuccess;
 
+	int iPK_Device_ReturnPath;
+	if (pMessage)
+		iPK_Device_ReturnPath = pMessage->m_dwPK_Device_From;
+	else
+		iPK_Device_ReturnPath = m_pCommand_Impl->m_dwPK_Device; // mirror to ourselves
+
 	strParameters = StringUtils::itos(m_pCommand_Impl->m_dwPK_Device) + "\t" 
-		+ StringUtils::itos(pMessage->m_dwPK_Device_From) + "\t" 
+		+ StringUtils::itos(iPK_Device_ReturnPath) + "\t" 
 		+ sName + "\t" + m_sDrive + "\t" 
 		+ StringUtils::itos(m_mediaDiskStatus) + "\t" 
 		+ StringUtils::itos(iPK_Users) + "\t" 
@@ -472,7 +478,7 @@ void Disk_Drive_Functions::CMD_Rip_Disk(int iPK_Users, string sFormat, string sN
 		StringUtils::itos(m_pCommand_Impl->m_dwPK_Device) + " " + StringUtils::itos(iEventDevice) + " " + StringUtils::itos(MESSAGETYPE_EVENT) + 
 			" " + StringUtils::itos(EVENT_Ripping_Progress_CONST) + " " + StringUtils::itos(EVENTPARAMETER_EK_Disc_CONST) + " " + StringUtils::itos(iEK_Disc) +
 			" " + StringUtils::itos(EVENTPARAMETER_Name_CONST) + " \"" + sName + "\" " +
-			StringUtils::itos(EVENTPARAMETER_Drive_Number_CONST) + " " + StringUtils::itos(iDrive_Number) +
+			StringUtils::itos(EVENTPARAMETER_Drive_Number_CONST) + " " + StringUtils::itos(iDrive_Number) + " " +
 			StringUtils::itos(EVENTPARAMETER_Result_CONST) + " ";
 
 	DCE::CMD_Spawn_Application

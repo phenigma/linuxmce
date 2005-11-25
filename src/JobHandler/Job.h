@@ -42,6 +42,7 @@ namespace nsJobHandler
 		void AddTask(Task *pTask);
 		void ServiceTasks();
 		string m_sName_get() { return m_sName; }
+		void Reset(bool bDelete = true);
 	};
 };
 

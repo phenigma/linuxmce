@@ -29,6 +29,7 @@ Task::Task(string sName,int iPriority,Job *pJob)
 void Task::Execute()
 {
 	m_bThreadRunning=true;
+	m_eTaskStatus = TASK_IN_PROGRESS;
 	if (pthread_create(&m_TaskThread, NULL, StartTaskThread, (void *) this))
 	{
 		m_bThreadRunning=false;

@@ -152,7 +152,7 @@ public:
 	virtual void CMD_Bulk_Rip(string sDisks,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Play_Disk(int iSlot_Number,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Bulk_Ripping_Status(string *sBulk_rip_status,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Mass_identify_media(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Mass_identify_media(string sDisks,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -693,7 +693,8 @@ public:
 				case 740:
 					{
 						string sCMD_Result="OK";
-						CMD_Mass_identify_media(sCMD_Result,pMessage);
+					string sDisks=pMessage->m_mapParameters[157];
+						CMD_Mass_identify_media(sDisks.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -710,7 +711,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Mass_identify_media(sCMD_Result,pMessage);
+								CMD_Mass_identify_media(sDisks.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
