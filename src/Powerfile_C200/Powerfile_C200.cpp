@@ -86,6 +86,13 @@ bool Powerfile_C200::RippingProgress(class Socket *pSocket, class Message *pMess
 {
 	int iDrive_Number = atoi(pMessage->m_mapParameters[EVENTPARAMETER_Drive_Number_CONST].c_str());
 	int iResult = atoi(pMessage->m_mapParameters[EVENTPARAMETER_Result_CONST].c_str());
+	int iPK_Device = atoi(pMessage->m_mapParameters[EVENTPARAMETER_PK_Device_CONST].c_str());
+
+	if (iPK_Device != m_dwPK_Device)
+		return false; // it's not one of ours
+	
+	if (iResult != RIP_RESULT_SUCCESS && iResult != RIP_RESULT_FAILURE)
+		return false; // we only treat those two
 
 	g_pPlutoLogger->Write(LV_STATUS, "Ripping progress for drive number %d, result '%s'", iDrive_Number, iResult == RIP_RESULT_SUCCESS ? "success" : "fail");
 	m_pJob->RippingProgress(iDrive_Number, iResult);
@@ -271,8 +278,8 @@ bool Powerfile_C200::GetConfig()
 	
 	// TODO: Have to filter these events somehow. Currently I'm getting a screenful of them with the same data.
 	// MessageInterceptorFn, int Device_From, int Device_To, int Device_Type, int Device_Category, int Message_Type, int Message_ID
-	RegisterMsgInterceptor((MessageInterceptorFn)(&Powerfile_C200::MediaIdentified), 0, m_dwPK_Device, 0, 0, MESSAGETYPE_EVENT, EVENT_Media_Identified_CONST);
-	RegisterMsgInterceptor((MessageInterceptorFn)(&Powerfile_C200::RippingProgress), 0, m_dwPK_Device, 0, 0, MESSAGETYPE_EVENT, EVENT_Ripping_Progress_CONST);
+	RegisterMsgInterceptor((MessageInterceptorFn)(&Powerfile_C200::MediaIdentified), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Media_Identified_CONST);
+	RegisterMsgInterceptor((MessageInterceptorFn)(&Powerfile_C200::RippingProgress), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Ripping_Progress_CONST);
 	
 	m_pJob = new Powerfile_Job("Powerfile job", this);
 
@@ -959,7 +966,7 @@ void PowerfileRip_Task::Run()
 	int iPK_Device = pPowerfile_Job->m_pPowerfile_C200->m_dwPK_Device;
 
 	m_pDDF = pPowerfile_Job->m_pPowerfile_C200->GetDDF(m_iDrive_Number);
-	m_pDDF->CMD_Rip_Disk(iPK_Users, sFormat, sName, sTracks, iEK_Disc, m_iDrive_Number, sCMD_Result, NULL, iPK_Device);
+	m_pDDF->CMD_Rip_Disk(iPK_Users, sFormat, sName, sTracks, iEK_Disc, m_iDrive_Number, sCMD_Result, NULL);
 
 	while (! m_bStop)
 	{
@@ -970,7 +977,13 @@ void PowerfileRip_Task::Run()
 
 void PowerfileIdentify_Task::Run()
 {
+	Powerfile_Job * pPowerfile_Job = (Powerfile_Job *) m_pJob;
 	time_t TimeOut = time(NULL) + 60; // 60s timeout
+
+	int iPK_Device = pPowerfile_Job->m_pPowerfile_C200->m_dwPK_Device;
+	//DCE::CMD_Identify_Media_Cat CMD_Identify_Media_Cat(iPK_Device,DEVICECATEGORY_Media_Identifiers_CONST,
+	//	false,BL_SameComputer,pDeviceFrom->m_dwPK_Device,StringUtils::itos(discid),pMessage->m_mapParameters[EVENTPARAMETER_Name_CONST]);
+	
 	while (! m_bStop && time(NULL) < TimeOut)
 	{
 		Sleep(100);

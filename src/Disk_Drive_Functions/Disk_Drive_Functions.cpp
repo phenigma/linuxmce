@@ -26,14 +26,14 @@ Disk_Drive_Functions::Disk_Drive_Functions(Command_Impl * pCommand_Impl, const s
 	m_pDevice_AppServer = m_pCommand_Impl->m_pData->FindFirstRelatedDeviceOfTemplate(DEVICETEMPLATE_App_Server_CONST);
 }
 
-void Disk_Drive_Functions::EVENT_Media_Inserted(int iFK_MediaType, string sMRL, string sID, string sName, int iEventDevice)
+void Disk_Drive_Functions::EVENT_Media_Inserted(int iFK_MediaType, string sMRL, string sID, string sName)
 {
-	m_pCommand_Impl->m_pEvent->SendMessage(new Message(m_pCommand_Impl->m_dwPK_Device, iEventDevice, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 3, 4, 3, StringUtils::itos(iFK_MediaType).c_str(), 4, sMRL.c_str(), 7, sID.c_str(), 35, sName.c_str()));
+	m_pCommand_Impl->m_pEvent->SendMessage(new Message(m_pCommand_Impl->m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 3, 4, 3, StringUtils::itos(iFK_MediaType).c_str(), 4, sMRL.c_str(), 7, sID.c_str(), 35, sName.c_str()));
 }
 
-void Disk_Drive_Functions::EVENT_Ripping_Progress(string sText, int iResult, string sValue, string sName, int iEK_Disc, int iEventDevice)
+void Disk_Drive_Functions::EVENT_Ripping_Progress(string sText, int iResult, string sValue, string sName, int iEK_Disc)
 {
-	m_pCommand_Impl->m_pEvent->SendMessage(new Message(m_pCommand_Impl->m_dwPK_Device, iEventDevice, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 35, 5, 13, sText.c_str(), 20, StringUtils::itos(iResult).c_str(), 30, sValue.c_str(), 35, sName.c_str(), 43, StringUtils::itos(iEK_Disc).c_str()));
+	m_pCommand_Impl->m_pEvent->SendMessage(new Message(m_pCommand_Impl->m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 35, 5, 13, sText.c_str(), 20, StringUtils::itos(iResult).c_str(), 30, sValue.c_str(), 35, sName.c_str(), 43, StringUtils::itos(iEK_Disc).c_str()));
 }
 
 bool Disk_Drive_Functions::internal_monitor_step(bool bFireEvent)
@@ -429,7 +429,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Failed to mount %d %d",iResult,iResult2);
 }
 
 // generic CMD_Rip_Disk
-void Disk_Drive_Functions::CMD_Rip_Disk(int iPK_Users, string sFormat, string sName, string sTracks, int iEK_Disc, int iDrive_Number, string &sCMD_Result, Message *pMessage, int iEventDevice)
+void Disk_Drive_Functions::CMD_Rip_Disk(int iPK_Users, string sFormat, string sName, string sTracks, int iEK_Disc, int iDrive_Number, string &sCMD_Result, Message *pMessage)
 {
 	if (!m_pDevice_AppServer)
 	{
@@ -461,9 +461,14 @@ void Disk_Drive_Functions::CMD_Rip_Disk(int iPK_Users, string sFormat, string sN
 
 	int iPK_Device_ReturnPath;
 	if (pMessage)
+	{
 		iPK_Device_ReturnPath = pMessage->m_dwPK_Device_From;
+	}
 	else
+	{
 		iPK_Device_ReturnPath = m_pCommand_Impl->m_dwPK_Device; // mirror to ourselves
+		//iPK_Device_ReturnPath = 0;
+	}
 
 	strParameters = StringUtils::itos(m_pCommand_Impl->m_dwPK_Device) + "\t" 
 		+ StringUtils::itos(iPK_Device_ReturnPath) + "\t" 
@@ -475,10 +480,11 @@ void Disk_Drive_Functions::CMD_Rip_Disk(int iPK_Users, string sFormat, string sN
 	g_pPlutoLogger->Write(LV_STATUS, "Launching ripping job2 with name \"%s\" for disk with type \"%d\" parms %s", sName.c_str(), m_mediaDiskStatus, strParameters.c_str());
 
 	string sResultMessage =
-		StringUtils::itos(m_pCommand_Impl->m_dwPK_Device) + " " + StringUtils::itos(iEventDevice) + " " + StringUtils::itos(MESSAGETYPE_EVENT) + 
+		StringUtils::itos(m_pCommand_Impl->m_dwPK_Device) + " " + StringUtils::itos(DEVICEID_EVENTMANAGER) + " " + StringUtils::itos(MESSAGETYPE_EVENT) + 
 			" " + StringUtils::itos(EVENT_Ripping_Progress_CONST) + " " + StringUtils::itos(EVENTPARAMETER_EK_Disc_CONST) + " " + StringUtils::itos(iEK_Disc) +
 			" " + StringUtils::itos(EVENTPARAMETER_Name_CONST) + " \"" + sName + "\" " +
 			StringUtils::itos(EVENTPARAMETER_Drive_Number_CONST) + " " + StringUtils::itos(iDrive_Number) + " " +
+			StringUtils::itos(EVENTPARAMETER_PK_Device_CONST) + " " + StringUtils::itos(m_pCommand_Impl->m_dwPK_Device) + " " +
 			StringUtils::itos(EVENTPARAMETER_Result_CONST) + " ";
 
 	DCE::CMD_Spawn_Application

@@ -64,8 +64,8 @@ class Disk_Drive_Functions
 		Command_Impl * m_pCommand_Impl;
 	    pluto_pthread_mutex_t m_DiskMutex;
 
-		void EVENT_Media_Inserted(int iFK_MediaType,string sMRL,string sID,string sName, int iEventDevice = DEVICEID_EVENTMANAGER);
-		void EVENT_Ripping_Progress(string sText,int iResult,string sValue,string sName,int iEK_Disc, int iEventDevice = DEVICEID_EVENTMANAGER);
+		void EVENT_Media_Inserted(int iFK_MediaType,string sMRL,string sID,string sName);
+		void EVENT_Ripping_Progress(string sText,int iResult,string sValue,string sName,int iEK_Disc);
 		
 	public:
 		Disk_Drive_Functions(Command_Impl * pCommand_Impl, const string & sDrive);
@@ -75,7 +75,7 @@ class Disk_Drive_Functions
 		int cdrom_lock(int lock);
 		int cdrom_checkdrive(const char * filename, int * flag, bool bFireEvent);
 		bool mountDVD(string fileName, string & strMediaUrl);
-		void CMD_Rip_Disk(int iPK_Users, string sFormat, string sName, string sTracks, int iEK_Disc, int iDriveNumber, string &sCMD_Result, Message *pMessage, int iEventDevice = DEVICEID_EVENTMANAGER);
+		void CMD_Rip_Disk(int iPK_Users, string sFormat, string sName, string sTracks, int iEK_Disc, int iDriveNumber, string &sCMD_Result, Message *pMessage);
 		string getTracks(string mrl); // We use cddb for nothing other than determining how many tracks there are
 		void DisplayMessageOnOrbVFD(string sMessage);
 
