@@ -422,7 +422,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
                 TextStyle *pPieceTextStyle = pTextStyle;
                 if(nPos == 0)
                 {
-                    int nNextPos = sTextPiece.find("~", nPos + 1);
+                    int nNextPos = int(sTextPiece.find("~", nPos + 1));
                     string sTextStyleNumber = sTextPiece.substr(nPos + 2, nNextPos - 2);
                     int nTextStyle = atoi(sTextStyleNumber.c_str());
                     pPieceTextStyle = m_mapTextStyle_Find(nTextStyle);

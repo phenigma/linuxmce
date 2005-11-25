@@ -2,6 +2,8 @@
 #define AllScreens_h
 #include "Message.h"
 #include "PreformedCommand.h"
+#include "pluto_main/Define_CommandParameter.h"
+#include "pluto_main/Define_Command.h"
 
 // Orbiter will create an instance of a class derived from ScreenHandler
 // It must call ReceivedGotoScreenMessage when it receives such a message
@@ -31,9 +33,9 @@ $GEN_CLASSES$
 
 		/*  Display a message for the user */
 $GEN_METHODS$
-		virtual void ReceivedGotoScreenMessage(Message *pMessage)
+		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
-			switch(pMessage->m_dwID)
+			switch(nPK_Screen) 
 			{
 $GEN_SWITCH_BLOCK$
 			}

@@ -191,6 +191,9 @@
 				RelativePath="..\RendererOCG.cpp">
 			</File>
 			<File
+				RelativePath="..\ScreenHandler.cpp">
+			</File>
+			<File
 				RelativePath="..\SelfUpdate.cpp">
 			</File>
 			<File
@@ -244,6 +247,9 @@
 			</File>
 			<File
 				RelativePath=".\resource.h">
+			</File>
+			<File
+				RelativePath="..\ScreenHandler.h">
 			</File>
 			<File
 				RelativePath=".\Sdl\SDLGraphic.h">

@@ -57,6 +57,7 @@ using namespace DCE;
 #include "PlutoUtils/minilzo.h"
 #include "../Orbiter/RendererMNG.h"
 #include "OrbiterFileBrowser.h"
+#include "ScreenHandler.h"
 
 #include "GraphicBuilder.h"
 #include "Simulator.h"
@@ -264,6 +265,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
 //testing - it works
 m_mapDesignObj[29] = 1255;
 m_mapDesignObj[30] = 1688;
+m_mapDesignObj[132] = 4482;
 
 	m_pScreenHandler = new ScreenHandler(this, &m_mapDesignObj);
 
@@ -3778,7 +3780,6 @@ bool Orbiter::ButtonDown( int iPK_Button )
 
 bool Orbiter::ButtonUp( int iPK_Button )
 {
-	//testing
 	string sRes;
 	if(iPK_Button == 1)
 		CMD_Goto_Screen(30, sRes, NULL);
@@ -9266,11 +9267,11 @@ bool Orbiter::WaitForRelativesIfOSD()
 
 	/** @brief COMMAND: #741 - Goto Screen */
 	/** Goto a specific screen. */
-		/** @param #159 PK_Screen */
+		/** @param #159 EK_Screen */
 			/** The screen id. */
 
-void Orbiter::CMD_Goto_Screen(int iPK_Screen,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Goto_Screen(int iEK_Screen,string &sCMD_Result,Message *pMessage)
 //<-dceag-c741-e->
 {
-	m_pScreenHandler->GotoScreen(iPK_Screen);
+	m_pScreenHandler->ReceivedGotoScreenMessage(iEK_Screen, pMessage);
 }

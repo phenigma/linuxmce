@@ -190,6 +190,8 @@ string ScreenGenerator::GenerateClasses()
 		string sClass;
 		Row_Screen *pRow_Screen = *it;
 		string sClassName = "SCREEN_" + StringUtils::Replace(pRow_Screen->Description_get(), " ", "_");
+		sClassName = StringUtils::Replace(sClassName, "-", "");
+		sClassName = StringUtils::Replace(sClassName, "/", "_");
 
 		g_pPlutoLogger->Write(LV_STATUS, "Generating class %s...", sClassName.c_str());
 
@@ -209,7 +211,7 @@ string ScreenGenerator::GenerateClasses()
 			sConstructorParams += "string sMessage" + StringUtils::ltos(nMessageIndex);
 			sParams += StringUtils::ltos(pCommandParameter->FK_CommandParameter_get()) + 
 				" /* command parm for message " + StringUtils::ltos(nMessageIndex) + " */, sMessage" + 
-				StringUtils::ltos(nMessageIndex);
+				StringUtils::ltos(nMessageIndex) + ".c_str()";
 
 			if(nMessageIndex < long(vectRow_Screen_CommandParameter.size()))
 			{
@@ -228,9 +230,9 @@ string ScreenGenerator::GenerateClasses()
 			"\t\t" + sClassName + "(long DeviceIDFrom, long DeviceIDTo" + (vectRow_Screen_CommandParameter.size() ? ",\r\n" : "") +
 			(vectRow_Screen_CommandParameter.size() ? "\t\t\t" + sConstructorParams + ")" : ")") + "\r\n"
 			"\t\t{\r\n"
-			"\t\t\tm_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL, 1, 7 /* goto screen */,\r\n"
-//			"\t\t\t3, \r\n" //what's this?
-			"\t\t\t\t10 /* PK_Screen */," + sPK_Screen + " /* screen ID */" + 
+			"\t\t\tm_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, " + 
+				StringUtils::ltos(long(vectRow_Screen_CommandParameter.size()) + 1) + ", \r\n" 
+				"\t\t\t\tCOMMANDPARAMETER_EK_Screen_CONST, \"" + sPK_Screen + "\" /* screen ID */" + 
 			(vectRow_Screen_CommandParameter.size() ? ",\r\n\t\t\t\t" + sParams : "") + ");\r\n"
 			"\t\t}\r\n"
 			"\t};\r\n"
@@ -256,6 +258,8 @@ string ScreenGenerator::GenerateMethods()
 		string sClass;
 		Row_Screen *pRow_Screen = *it;
 		string sMethodName = "SCREEN_" + StringUtils::Replace(pRow_Screen->Description_get(), " ", "_");
+		sMethodName = StringUtils::Replace(sMethodName, "-", "");
+		sMethodName = StringUtils::Replace(sMethodName, "/", "_");
 		string sPK_Screen = StringUtils::ltos(pRow_Screen->PK_Screen_get());
 
 		g_pPlutoLogger->Write(LV_STATUS, "Generating method %s...", sMethodName.c_str());
@@ -302,6 +306,8 @@ string ScreenGenerator::GenerateSwitchBlock()
 		string sClass;
 		Row_Screen *pRow_Screen = *it;
 		string sMethodName = "SCREEN_" + StringUtils::Replace(pRow_Screen->Description_get(), " ", "_");
+		sMethodName = StringUtils::Replace(sMethodName, "-", "");
+		sMethodName = StringUtils::Replace(sMethodName, "/", "_");
 		string sPK_Screen = StringUtils::ltos(pRow_Screen->PK_Screen_get());
 
 		g_pPlutoLogger->Write(LV_STATUS, "Generating case for %s...", sPK_Screen.c_str());

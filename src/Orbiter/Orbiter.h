@@ -23,9 +23,9 @@
 #include "Floorplan.h"
 #include "CacheImageManager.h"
 #include "SerializeClass/ShapesColors.h"
-#include "Gen_Devices/AllScreens.h"
 
 class OrbiterFileBrowser_Collection;
+class ScreenHandler;
 
 /** For brevity,  DesignObj_Orbiter will be abbreviated Obj */
 
@@ -102,9 +102,6 @@ public:
 int k=2;
 	}
 };
-
-//forward declaration
-class ScreenHandler;
 
 //<-dceag-decl-b->! custom
 /**
@@ -1775,11 +1772,11 @@ light, climate, media, security, telecom */
 
 	/** @brief COMMAND: #741 - Goto Screen */
 	/** Goto a specific screen. */
-		/** @param #159 PK_Screen */
+		/** @param #159 EK_Screen */
 			/** The screen id. */
 
-	virtual void CMD_Goto_Screen(int iPK_Screen) { string sCMD_Result; CMD_Goto_Screen(iPK_Screen,sCMD_Result,NULL);};
-	virtual void CMD_Goto_Screen(int iPK_Screen,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Goto_Screen(int iEK_Screen) { string sCMD_Result; CMD_Goto_Screen(iEK_Screen,sCMD_Result,NULL);};
+	virtual void CMD_Goto_Screen(int iEK_Screen,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->
@@ -1852,23 +1849,6 @@ public:
 	}
 
 	static void NeedToChangeScreens( class Orbiter *pOrbiter, ScreenHistory *pScreenHistory, bool bAddToHistory = true );
-};
-
-class ScreenHandler : public ScreenHandlerBase
-{
-protected:
-	Orbiter *m_pOrbiter;
-
-public: 
-	ScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj) : ScreenHandlerBase(p_MapDesignObj)
-	{
-		m_pOrbiter = pOrbiter;
-	}
-
-	virtual void GotoDesignObj(int PK_DesignObj)
-	{
-		m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(PK_DesignObj), "", "", false, false);
-	}
 };
 
 //<-dceag-end-b->
