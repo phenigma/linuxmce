@@ -871,6 +871,7 @@ void Powerfile_C200::CMD_Get_Bulk_Ripping_Status(string *sBulk_rip_status,string
 void Powerfile_C200::CMD_Mass_identify_media(string sDisks,string &sCMD_Result,Message *pMessage)
 //<-dceag-c740-e->
 {
+	size_t i;
 	g_pPlutoLogger->Write(LV_STATUS, "CMD_Mass_identify_media: sDisks: %s", sDisks.c_str());
 
 	// to replace this with "append if not empty but don't start anything; make new list if empty and start it"
@@ -882,12 +883,46 @@ void Powerfile_C200::CMD_Mass_identify_media(string sDisks,string &sCMD_Result,M
 	}
 	m_pJob->Reset();
 	
-	// if( handler.ContainsJob("Identify") )
-	// log error and return
-	// new Job("Identify")
-	// for all disks
-	// job.push_backnew IdentifyTask
-	// job.service()
+	vector<int> vect_iSlots;
+	if (sDisks == "*")
+	{
+		for (size_t i = 0; i < m_vectSlotStatus.size(); i++)
+		{
+			if (m_vectSlotStatus[i])
+				vect_iSlots.push_back(i + 1);
+		}
+	}
+	else
+	{
+		vector<string> vect_sDisks;
+		Tokenize(sDisks, ",", vect_sDisks);
+		for (i = 0; i < vect_sDisks.size(); i++)
+			vect_iSlots.push_back(atoi(vect_sDisks[i].c_str()));
+	}
+
+	for (i = 0; i < vect_iSlots.size(); i++)
+	{
+		int iSlot = vect_iSlots[i];
+		PowerfileIdentify_Task * pTask = new PowerfileIdentify_Task("Rip Slot " + StringUtils::itos(iSlot), 0, m_pJob);
+		pTask->m_iSlot = iSlot;
+		m_pJob->AddTask(pTask);
+	}
+
+	if (!m_pJob->PendingTasks())
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Received empty track list");
+		sCMD_Result = "FAILED";
+		return;
+	}
+
+	for (size_t i = 0; i < m_vectDrive.size(); i++)
+	{
+		Task * pTask = m_pJob->GetNextTask();
+		if (pTask)
+			pTask->Execute();
+		else
+			break;
+	}
 }
 
 int Powerfile_C200::GetFreeDrive(int iSlot)
@@ -987,7 +1022,7 @@ void PowerfileIdentify_Task::Run()
 
 	int iPK_Device = pPowerfile_Job->m_pPowerfile_C200->m_dwPK_Device;
 	DCE::CMD_Identify_Media_Cat CMD_Identify_Media_Cat(iPK_Device, DEVICECATEGORY_Media_Identifiers_CONST,
-		false, BL_SameComputer, iPK_Device, StringUtils::itos(m_iSlot), "P" + StringUtils::itos(iPK_Device) + "-S" + StringUtils::itos(m_iSlot));
+		false, BL_SameComputer, iPK_Device, StringUtils::itos(m_iSlot), m_pDDF->m_sDrive /*"P" + StringUtils::itos(iPK_Device) + "-S" + StringUtils::itos(m_iSlot)*/);
 	
 	time_t TimeOut = time(NULL) + 60; // 60s timeout
 	while (! m_bStop && time(NULL) < TimeOut)

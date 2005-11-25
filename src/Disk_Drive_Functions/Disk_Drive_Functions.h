@@ -60,7 +60,6 @@ enum DiscTypes {
 class Disk_Drive_Functions
 {
 	private:
-		string m_sDrive;
 		Command_Impl * m_pCommand_Impl;
 	    pluto_pthread_mutex_t m_DiskMutex;
 
@@ -87,6 +86,7 @@ class Disk_Drive_Functions
 	    bool m_mediaInserted;
 		int m_what_is_ripping;
 		bool m_bTrayOpen;
+		string m_sDrive;
 };
 
 #endif
