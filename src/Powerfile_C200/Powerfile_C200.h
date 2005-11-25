@@ -282,8 +282,10 @@ only slots that were scheduled for ripping will appear in the string */
 			bool RippingProgress(class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo);
 
 			int GetFreeDrive(int iSlot);
-			void ReleaseDrive(int iDrive_Number, int iSlot);
 			Disk_Drive_Functions * GetDDF(int iDrive_Number);
+
+		private:
+			void ReleaseDrive(int iDrive_Number, int iSlot);
 	};
 
 //<-dceag-end-b->

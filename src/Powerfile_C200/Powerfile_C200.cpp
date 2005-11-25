@@ -29,7 +29,7 @@ namespace nsJobHandler
 	#define WEXITSTATUS(a) 0
 #endif
 
-#define PF_Constructor_Initializers , m_bStatusCached(false), m_DriveMutex("Powerfile drive mutex", true)
+#define PF_Constructor_Initializers , m_bStatusCached(false), m_pJob(NULL), m_DriveMutex("Powerfile drive mutex", true)
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -269,6 +269,7 @@ bool Powerfile_C200::GetConfig()
 			CMD_Unload_from_Drive_into_Slot(m_vectDriveStatus[i], i);
 	}
 	
+	// TODO: Have to filter these events somehow. Currently I'm getting a screenful of them with the same data.
 	// MessageInterceptorFn, int Device_From, int Device_To, int Device_Type, int Device_Category, int Message_Type, int Message_ID
 	RegisterMsgInterceptor((MessageInterceptorFn)(&Powerfile_C200::MediaIdentified), 0, m_dwPK_Device, 0, 0, MESSAGETYPE_EVENT, EVENT_Media_Identified_CONST);
 	RegisterMsgInterceptor((MessageInterceptorFn)(&Powerfile_C200::RippingProgress), 0, m_dwPK_Device, 0, 0, MESSAGETYPE_EVENT, EVENT_Ripping_Progress_CONST);
@@ -525,6 +526,8 @@ void Powerfile_C200::CMD_Unload_from_Drive_into_Slot(int iSlot_Number,int iDrive
 			Disk_Drive_Functions * pDDF = GetDDF(iDrive_Number);
 			pDDF->m_mediaInserted = false;
 			
+			ReleaseDrive(iDrive_Number, iSlot_Number);
+			
 			sCMD_Result = "OK";
 		}
 		else
@@ -757,6 +760,7 @@ void Powerfile_C200::CMD_Bulk_Rip(string sDisks,string &sCMD_Result,Message *pMe
 	size_t i;
 	g_pPlutoLogger->Write(LV_STATUS, "CMD_Bulk_Rip; sDisks='%s'", sDisks.c_str());
 
+	// to replace this with "append if not empty but don't start anything; make new list if empty and start it"
 	if (m_pJob->PendingTasks())
 	{
 		g_pPlutoLogger->Write(LV_WARNING, "Not in IDLE state. Can't start mass rip");
@@ -783,7 +787,6 @@ void Powerfile_C200::CMD_Bulk_Rip(string sDisks,string &sCMD_Result,Message *pMe
 		return;
 	}
 
-	// this is safe(?) to do here, but GetFreeDrive should be called explicitely before pJob->Execute() to make a reservation
 	for (size_t i = 0; i < m_vectDrive.size(); i++)
 	{
 		Task * pTask = m_pJob->GetNextTask();
@@ -841,6 +844,8 @@ void Powerfile_C200::CMD_Mass_identify_media(string sDisks,string &sCMD_Result,M
 //<-dceag-c740-e->
 {
 	g_pPlutoLogger->Write(LV_STATUS, "CMD_Mass_identify_media: sDisks: %s", sDisks.c_str());
+
+	// to replace this with "append if not empty but don't start anything; make new list if empty and start it"
 	if (m_pJob->PendingTasks())
 	{
 		g_pPlutoLogger->Write(LV_WARNING, "Not in IDLE state. Can't start mass identify");
@@ -888,9 +893,12 @@ void Powerfile_C200::ReleaseDrive(int iDrive_Number, int iSlot)
 	}
 	m_vectDriveStatus[iDrive_Number] = 0;
 
-	Task * pTask = m_pJob->GetNextTask();
-	if (pTask)
-		pTask->Execute();
+	if (m_pJob)
+	{
+		Task * pTask = m_pJob->GetNextTask();
+		if (pTask)
+			pTask->Execute();
+	}
 }
 
 string Powerfile_Job::ToString()
@@ -952,7 +960,6 @@ void PowerfileRip_Task::ThreadEnded()
 {
 	Powerfile_Job * pPowerfile_Job = (Powerfile_Job *) m_pJob;
 	pPowerfile_Job->m_pPowerfile_C200->CMD_Unload_from_Drive_into_Slot(m_iSlot, m_iDrive_Number);
-	pPowerfile_Job->m_pPowerfile_C200->ReleaseDrive(m_iDrive_Number, m_iSlot);
 }
 
 void PowerfileIdentify_Task::Run()
@@ -978,7 +985,6 @@ void PowerfileIdentify_Task::ThreadEnded()
 {
 	Powerfile_Job * pPowerfile_Job = (Powerfile_Job *) m_pJob;
 	pPowerfile_Job->m_pPowerfile_C200->CMD_Unload_from_Drive_into_Slot(m_iSlot, m_iDrive_Number);
-	pPowerfile_Job->m_pPowerfile_C200->ReleaseDrive(m_iDrive_Number, m_iSlot);
 }
 
 void Powerfile_Job::MediaIdentified(int iSlot)
