@@ -81,30 +81,58 @@ class DECLSPECIFIER Row_Screen : public TableRow, public SerializeClass
 string m_Description;
 string m_Comments;
 short int m_SpecialHandingRecommended;
+long int m_psc_id;
+long int m_psc_batch;
+long int m_psc_user;
+short int m_psc_frozen;
+string m_psc_mod;
+long int m_psc_restrict;
 
-		bool is_null[4];
+		bool is_null[10];
 	
 	public:
 		long int PK_Screen_get();
 string Description_get();
 string Comments_get();
 short int SpecialHandingRecommended_get();
+long int psc_id_get();
+long int psc_batch_get();
+long int psc_user_get();
+short int psc_frozen_get();
+string psc_mod_get();
+long int psc_restrict_get();
 
 		
 		void PK_Screen_set(long int val);
 void Description_set(string val);
 void Comments_set(string val);
 void SpecialHandingRecommended_set(short int val);
+void psc_id_set(long int val);
+void psc_batch_set(long int val);
+void psc_user_set(long int val);
+void psc_frozen_set(short int val);
+void psc_mod_set(string val);
+void psc_restrict_set(long int val);
 
 		
 		bool Description_isNull();
 bool Comments_isNull();
 bool SpecialHandingRecommended_isNull();
+bool psc_id_isNull();
+bool psc_batch_isNull();
+bool psc_user_isNull();
+bool psc_frozen_isNull();
+bool psc_restrict_isNull();
 
 			
 		void Description_setNull(bool val);
 void Comments_setNull(bool val);
 void SpecialHandingRecommended_setNull(bool val);
+void psc_id_setNull(bool val);
+void psc_batch_setNull(bool val);
+void psc_user_setNull(bool val);
+void psc_frozen_setNull(bool val);
+void psc_restrict_setNull(bool val);
 	
 	
 		void Delete();
@@ -126,7 +154,7 @@ void Screen_DesignObj_FK_Screen_getrows(vector <class Row_Screen_DesignObj*> *ro
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Screen+ m_Description+ m_Comments+ m_SpecialHandingRecommended;
+			StartSerializeList() + m_PK_Screen+ m_Description+ m_Comments+ m_SpecialHandingRecommended+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -135,6 +163,12 @@ void Screen_DesignObj_FK_Screen_getrows(vector <class Row_Screen_DesignObj*> *ro
 string Description_asSQL();
 string Comments_asSQL();
 string SpecialHandingRecommended_asSQL();
+string psc_id_asSQL();
+string psc_batch_asSQL();
+string psc_user_asSQL();
+string psc_frozen_asSQL();
+string psc_mod_asSQL();
+string psc_restrict_asSQL();
 
 	};
 

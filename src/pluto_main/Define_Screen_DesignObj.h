@@ -15,6 +15,18 @@
 #define SCREEN_DESIGNOBJ_FK_SKIN_TABLE_FIELD "Screen_DesignObj.FK_Skin"
 #define SCREEN_DESIGNOBJ_FK_DEVICETEMPLATE_FIELD "FK_DeviceTemplate"
 #define SCREEN_DESIGNOBJ_FK_DEVICETEMPLATE_TABLE_FIELD "Screen_DesignObj.FK_DeviceTemplate"
+#define SCREEN_DESIGNOBJ_PSC_ID_FIELD "psc_id"
+#define SCREEN_DESIGNOBJ_PSC_ID_TABLE_FIELD "Screen_DesignObj.psc_id"
+#define SCREEN_DESIGNOBJ_PSC_BATCH_FIELD "psc_batch"
+#define SCREEN_DESIGNOBJ_PSC_BATCH_TABLE_FIELD "Screen_DesignObj.psc_batch"
+#define SCREEN_DESIGNOBJ_PSC_USER_FIELD "psc_user"
+#define SCREEN_DESIGNOBJ_PSC_USER_TABLE_FIELD "Screen_DesignObj.psc_user"
+#define SCREEN_DESIGNOBJ_PSC_FROZEN_FIELD "psc_frozen"
+#define SCREEN_DESIGNOBJ_PSC_FROZEN_TABLE_FIELD "Screen_DesignObj.psc_frozen"
+#define SCREEN_DESIGNOBJ_PSC_MOD_FIELD "psc_mod"
+#define SCREEN_DESIGNOBJ_PSC_MOD_TABLE_FIELD "Screen_DesignObj.psc_mod"
+#define SCREEN_DESIGNOBJ_PSC_RESTRICT_FIELD "psc_restrict"
+#define SCREEN_DESIGNOBJ_PSC_RESTRICT_TABLE_FIELD "Screen_DesignObj.psc_restrict"
 
 
 #endif

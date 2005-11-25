@@ -5,7 +5,7 @@
 #define COMMAND_Orbiter_Beep_CONST 2
 #define COMMAND_Display_OnOff_CONST 3
 #define COMMAND_Go_back_CONST 4
-#define COMMAND_Goto_Screen_CONST 5
+#define COMMAND_Goto_DesignObj_CONST 5
 #define COMMAND_Show_Object_CONST 6
 #define COMMAND_Terminate_Orbiter_CONST 7
 #define COMMAND_Remove_Screen_From_History_CONST 8
@@ -685,6 +685,7 @@
 #define COMMAND_Play_Disk_CONST 738
 #define COMMAND_Get_Bulk_Ripping_Status_CONST 739
 #define COMMAND_Mass_identify_media_CONST 740
+#define COMMAND_Goto_Screen_CONST 741
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
