@@ -23,6 +23,7 @@
 #include "Floorplan.h"
 #include "CacheImageManager.h"
 #include "SerializeClass/ShapesColors.h"
+#include "Gen_Devices/AllScreens.h"
 
 class OrbiterFileBrowser_Collection;
 
@@ -101,6 +102,9 @@ public:
 int k=2;
 	}
 };
+
+//forward declaration
+class ScreenHandler;
 
 //<-dceag-decl-b->! custom
 /**
@@ -185,6 +189,8 @@ protected:
 	class DesignObj_Orbiter *m_pObj_LastSelected;   // The last object we selected.  Used by floorplans to toggle states
 	int m_iLastEntryInDeviceGroup; // Used by floorplans to go through a selected device group
 	map<int,class DeviceGroup *> m_mapDeviceGroups;
+	map<int,int> m_mapDesignObj; //Used to map a screen to a DesignObj
+	ScreenHandler *m_pScreenHandler;//Used to changed screens
 	class LocationInfo *m_pLocationInfo_Initial; // The initial location
 
 	/** flags */
@@ -887,7 +893,7 @@ public:
 	/**
 	 * @brief A helper function we can call internally rather than the full CMD_GotoScreen
 	 */
-	void GotoScreen( string sScreen, string sID = "" ) { CMD_Goto_Screen( 0, sScreen, sID, "", false, false ); }
+	void GotoScreen( string sScreen, string sID = "" ) { CMD_Goto_DesignObj( 0, sScreen, sID, "", false, false ); }
 
 	/**
 	 * @brief does a custom comparation (you ca also specify the operand to use) with the value from the variable identified by the key and the other parmeter
@@ -1037,8 +1043,8 @@ public:
 	virtual void CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,string &sCMD_Result,Message *pMessage);
 
 
-	/** @brief COMMAND: #5 - Goto Screen */
-	/** Goto a specific screen */
+	/** @brief COMMAND: #5 - Goto DesignObj */
+	/** Goto a specific design obj */
 		/** @param #2 PK_Device */
 			/** For this screen only, override the normal "control device" stored in variable #1, and treat this device as the control screen.  When the screen changes, it will be reset */
 		/** @param #3 PK_DesignObj */
@@ -1052,8 +1058,8 @@ public:
 		/** @param #114 Cant Go Back */
 			/** If true, then when this screen goes away the user won't be able to return to it -- it will be skipped over, unless Go Back with Force=1 is used.  This prevents layers of popup screens. */
 
-	virtual void CMD_Goto_Screen(int iPK_Device,string sPK_DesignObj,string sID,string sPK_DesignObj_CurrentScreen,bool bStore_Variables,bool bCant_Go_Back) { string sCMD_Result; CMD_Goto_Screen(iPK_Device,sPK_DesignObj.c_str(),sID.c_str(),sPK_DesignObj_CurrentScreen.c_str(),bStore_Variables,bCant_Go_Back,sCMD_Result,NULL);};
-	virtual void CMD_Goto_Screen(int iPK_Device,string sPK_DesignObj,string sID,string sPK_DesignObj_CurrentScreen,bool bStore_Variables,bool bCant_Go_Back,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,string sPK_DesignObj_CurrentScreen,bool bStore_Variables,bool bCant_Go_Back) { string sCMD_Result; CMD_Goto_DesignObj(iPK_Device,sPK_DesignObj.c_str(),sID.c_str(),sPK_DesignObj_CurrentScreen.c_str(),bStore_Variables,bCant_Go_Back,sCMD_Result,NULL);};
+	virtual void CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,string sPK_DesignObj_CurrentScreen,bool bStore_Variables,bool bCant_Go_Back,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #6 - Show Object */
@@ -1767,6 +1773,15 @@ light, climate, media, security, telecom */
 	virtual void CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,string sSpeed,string sTitle,string sSection,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #741 - Goto Screen */
+	/** Goto a specific screen. */
+		/** @param #159 PK_Screen */
+			/** The screen id. */
+
+	virtual void CMD_Goto_Screen(int iPK_Screen) { string sCMD_Result; CMD_Goto_Screen(iPK_Screen,sCMD_Result,NULL);};
+	virtual void CMD_Goto_Screen(int iPK_Screen,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 
 /** temporary solution only */
@@ -1837,6 +1852,23 @@ public:
 	}
 
 	static void NeedToChangeScreens( class Orbiter *pOrbiter, ScreenHistory *pScreenHistory, bool bAddToHistory = true );
+};
+
+class ScreenHandler : public ScreenHandlerBase
+{
+protected:
+	Orbiter *m_pOrbiter;
+
+public: 
+	ScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj) : ScreenHandlerBase(p_MapDesignObj)
+	{
+		m_pOrbiter = pOrbiter;
+	}
+
+	virtual void GotoDesignObj(int PK_DesignObj)
+	{
+		m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(PK_DesignObj), "", "", false, false);
+	}
 };
 
 //<-dceag-end-b->

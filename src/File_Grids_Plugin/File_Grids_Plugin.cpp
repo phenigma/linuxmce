@@ -288,8 +288,8 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 								if( Actions.find('P')!=string::npos )
 								{
 									// The Orbiter wants us to attach an action to files too
-									//TODO: play this cd/dvd
-									//pCell->m_pMessage = cmd.m_pMessage;
+									DCE::CMD_Play_Disk cmd(m_dwPK_Device, pRow_Device->PK_Device_get(), atoi(sSlotIndex.c_str()));
+									pCell->m_pMessage = cmd.m_pMessage;
 								}
 								else if( Actions.find('S')!=string::npos )
 								{

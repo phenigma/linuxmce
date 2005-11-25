@@ -1034,7 +1034,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 			bool bIsOSD=pMediaStream->OrbiterIsOSD(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,&pEntertainArea_OSD);
 			if( bIsOSD || pOH_Orbiter == pMediaStream->m_pOH_Orbiter_StartedMedia )
 			{
-				DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,
+				DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,
 					"<%=NP_R%>","","",false, false);  // Always go
 
 				if( bIsOSD && pEntertainArea_OSD && pOH_Orbiter->m_pEntertainArea!=pEntertainArea_OSD )
@@ -1045,13 +1045,13 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 					string sResponse;
 					SendCommand(CMD_Set_Entertainment_Area,&sResponse);  // Get a confirmation so we're sure it goes through before the goto screen
 				}
-				SendCommand(CMD_Goto_Screen);
+				SendCommand(CMD_Goto_DesignObj);
 			}
 			else
 			{
-				DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,
+				DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,
 					"<%=NP_R%>","","-1",false, false);  // Only if at main menu
-				SendCommand(CMD_Goto_Screen);
+				SendCommand(CMD_Goto_DesignObj);
 			}
 		}
 	}
@@ -1629,8 +1629,8 @@ g_pPlutoLogger->Write( LV_STATUS, "Orbiter %d %s in this ea to stop", pOH_Orbite
 		}
 
 		g_pPlutoLogger->Write( LV_STATUS, "Orbiter %d %s is bound", pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_sDescription.c_str());
-		DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,"<%=M%>","","",false, false);
-		SendCommand(CMD_Goto_Screen);
+		DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device,pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,"<%=M%>","","",false, false);
+		SendCommand(CMD_Goto_DesignObj);
     }
 }
 
@@ -1683,8 +1683,8 @@ g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::CMD_Bind_to_Media_Remote(). Bind
 		if( !pEntertainArea->m_pMediaStream )
 		{
 			sCMD_Result="No media stream";
-			DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pMessage->m_dwPK_Device_From,0,"<%=M%>","","",false,false);
-			SendCommand(CMD_Goto_Screen);
+			DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device,pMessage->m_dwPK_Device_From,0,"<%=M%>","","",false,false);
+			SendCommand(CMD_Goto_DesignObj);
 			g_pPlutoLogger->Write(LV_CRITICAL,"Attempt to bind to a remote in an entertainment area with no media stream");
 			return; // Don't know what area it should be played in, or there's no media playing there
 		}
@@ -3251,10 +3251,10 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string
 	{
 		if( sTracks.size()==0 )
 		{
-			DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pMessage->m_dwPK_Device_From,0,StringUtils::itos(DESIGNOBJ_mnuCDTrackCopy_CONST),"","",false,true);
+			DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device,pMessage->m_dwPK_Device_From,0,StringUtils::itos(DESIGNOBJ_mnuCDTrackCopy_CONST),"","",false,true);
 			DCE::CMD_Set_Variable CMD_Set_Variable(m_dwPK_Device,pMessage->m_dwPK_Device_From,VARIABLE_Misc_Data_1_CONST,StringUtils::itos(iPK_Users));
-			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Variable.m_pMessage );
-			SendCommand(CMD_Goto_Screen);
+			CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Variable.m_pMessage );
+			SendCommand(CMD_Goto_DesignObj);
 			return;
 		}
 		else 
@@ -4703,17 +4703,17 @@ void Media_Plugin::CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea,st
 	pRow_Bookmark->Position_set(sPosition);
 	m_pDatabase_pluto_media->Bookmark_get()->Commit();
 
-	DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pMessage->m_dwPK_Device_From,0,StringUtils::itos(DESIGNOBJ_mnuFileSave_CONST),"","",false,false);
+	DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device,pMessage->m_dwPK_Device_From,0,StringUtils::itos(DESIGNOBJ_mnuFileSave_CONST),"","",false,false);
 	string sCmdToRenameBookmark="<%=!%> -300 1 5 3 <%=NP_R%>\n<%=!%> <%=V-106%> 1 411 5 \"<%=17%>\" 129 " + StringUtils::itos(pRow_Bookmark->PK_Bookmark_get());
 	DCE::CMD_Set_Variable CMD_Set_Variable_Private(m_dwPK_Device,pMessage->m_dwPK_Device_From,VARIABLE_Misc_Data_1_CONST,
 		 sCmdToRenameBookmark + "17 <%=U%>");  // Private, add the user
-	CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable_Private.m_pMessage);
+	CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable_Private.m_pMessage);
 	DCE::CMD_Set_Variable CMD_Set_Variable_Public(m_dwPK_Device,pMessage->m_dwPK_Device_From,VARIABLE_Misc_Data_2_CONST,
 		 sCmdToRenameBookmark);
-	CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable_Public.m_pMessage);
+	CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable_Public.m_pMessage);
 	DCE::CMD_Set_Text CMD_Set_Text( m_dwPK_Device,pMessage->m_dwPK_Device_From, StringUtils::itos(DESIGNOBJ_mnuFileSave_CONST), "<%=T" + StringUtils::itos(TEXT_Name_Bookmark_CONST) + "%>",TEXT_STATUS_CONST);
-	CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text.m_pMessage);
-	SendCommand(CMD_Goto_Screen);
+	CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text.m_pMessage);
+	SendCommand(CMD_Goto_DesignObj);
 }
 
 //<-dceag-c410-b->

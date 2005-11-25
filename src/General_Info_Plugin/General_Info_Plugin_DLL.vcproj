@@ -164,6 +164,9 @@
 				RelativePath="..\Orbiter_Plugin\PopulateListsInVMC.cpp">
 			</File>
 			<File
+				RelativePath="..\OrbiterGen\RegenMonitor.cpp">
+			</File>
+			<File
 				RelativePath="..\VIPShared\VIPMenu.cpp">
 			</File>
 		</Filter>

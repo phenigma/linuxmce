@@ -1599,9 +1599,9 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 #pragma warning("TODO: generate screens, complete this function call")
 	//if (pLearningInfo->m_PK_Device_Orbiter)
 	//{
-	//	DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device, pLearningInfo->m_PK_Device_Orbiter,
+	//	DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device, pLearningInfo->m_PK_Device_Orbiter,
 	//		bLearnedCode ? DESIGNOBJ_learned : DESIGNOBJ_failed_to_learn);
-	//	pLearningInfo->m_pgc100->SendCommand(CMD_Goto_Screen);
+	//	pLearningInfo->m_pgc100->SendCommand(CMD_Goto_DesignObj);
 	//}
 	
 	g_pPlutoLogger->Write(LV_STATUS, "Learning thread finished");

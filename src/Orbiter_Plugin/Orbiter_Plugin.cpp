@@ -467,12 +467,12 @@ g_pPlutoLogger->Write(LV_STATUS,"in process");
 
     DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL(m_dwPK_Device, m_sPK_Device_AllOrbiters, VARIABLE_Misc_Data_1_CONST, sMacAddress);
     DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL2(m_dwPK_Device, m_sPK_Device_AllOrbiters, VARIABLE_Misc_Data_2_CONST, Description);
-    DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL(m_dwPK_Device, m_sPK_Device_AllOrbiters, 0, StringUtils::itos(DESIGNOBJ_mnuNewPhoneDetected_CONST), "", "", true, false);
+    DCE::CMD_Goto_DesignObj_DL CMD_Goto_DesignObj_DL(m_dwPK_Device, m_sPK_Device_AllOrbiters, 0, StringUtils::itos(DESIGNOBJ_mnuNewPhoneDetected_CONST), "", "", true, false);
 
     // Send them all 3 in one message for efficiency
-    CMD_Goto_Screen_DL.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Variable_DL.m_pMessage );
-    CMD_Goto_Screen_DL.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Variable_DL2.m_pMessage );
-    QueueMessageToRouter(CMD_Goto_Screen_DL.m_pMessage);
+    CMD_Goto_DesignObj_DL.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Variable_DL.m_pMessage );
+    CMD_Goto_DesignObj_DL.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Variable_DL2.m_pMessage );
+    QueueMessageToRouter(CMD_Goto_DesignObj_DL.m_pMessage);
 }
 
 bool Orbiter_Plugin::IdentifyDevice(const string& sMacAddress, string &sDeviceCategoryDesc, int &iPK_DeviceTemplate, string &sManufacturerDesc)
@@ -988,11 +988,11 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
 		{
 			// We know this is a mobile mobile, since it was detected by bluetooth, but we can't identify the make
 			// So we must ask the user, on whatever orbiter he made this selection with
-			DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pMessage->m_dwPK_Device_From,0,StringUtils::itos(DESIGNOBJ_mnuWhatModelMobileOrbiter_CONST),
+			DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device,pMessage->m_dwPK_Device_From,0,StringUtils::itos(DESIGNOBJ_mnuWhatModelMobileOrbiter_CONST),
 				"","",false,true);
 		    DCE::CMD_Set_Variable CMD_Set_Variable(m_dwPK_Device, pMessage->m_dwPK_Device_From, VARIABLE_Misc_Data_1_CONST, sMac_address);
-			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable.m_pMessage);
-			SendCommand(CMD_Goto_Screen);
+			CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable.m_pMessage);
+			SendCommand(CMD_Goto_DesignObj);
 			return;
 		}
 	}
@@ -1582,9 +1582,9 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,int iPK_Users,string s
 		if( m_sRegenAllDevicesRooms!=sRegenAllDevicesRooms )
 		{
 			m_sRegenAllDevicesRooms=sRegenAllDevicesRooms;
-			DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
+			DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
 				0,StringUtils::itos(DESIGNOBJ_REload),"","",false,false);
-			SendCommand(CMD_Goto_Screen);
+			SendCommand(CMD_Goto_DesignObj);
 		}
 		else
 		{
@@ -1595,9 +1595,9 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,int iPK_Users,string s
 				pRow_Orbiter->Reload();
 				if( pRow_Orbiter->ScenariosFloorplans_get()!=sScenariosFloorplans )
 				{
-					DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
+					DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
 						0,StringUtils::itos(DESIGNOBJ_RegenOrbiter),"","",false,false);
-					SendCommand(CMD_Goto_Screen);
+					SendCommand(CMD_Goto_DesignObj);
 				}
 			}
 		}
@@ -1827,16 +1827,16 @@ bool Orbiter_Plugin::NewPnpDevice( class Socket *pSocket, class Message *pMessag
 
 	m_listNewPnpDevicesWaitingForARoom.push_back(PK_Device);
 
-	DCE::CMD_Goto_Screen_DL CMD_Goto_Screen( m_dwPK_Device, m_sPK_Device_AllOrbiters, 0, StringUtils::itos(DESIGNOBJ_mnuNewPlugAndPlayDevice_CONST), StringUtils::itos(PK_Device), "", true, false );
+	DCE::CMD_Goto_DesignObj_DL CMD_Goto_DesignObj( m_dwPK_Device, m_sPK_Device_AllOrbiters, 0, StringUtils::itos(DESIGNOBJ_mnuNewPlugAndPlayDevice_CONST), StringUtils::itos(PK_Device), "", true, false );
 	// The destination devices must match
 	DCE::CMD_Set_Variable_DL CMD_Set_Variable1( m_dwPK_Device, m_sPK_Device_AllOrbiters, VARIABLE_Misc_Data_1_CONST, pRow_Device->Description_get());
-	CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable1.m_pMessage);
+	CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable1.m_pMessage);
 	DCE::CMD_Set_Variable_DL CMD_Set_Variable2( m_dwPK_Device, m_sPK_Device_AllOrbiters, VARIABLE_Misc_Data_2_CONST, pRow_Device->FK_DeviceTemplate_getrow()->Comments_get());
-	CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable2.m_pMessage);
+	CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable2.m_pMessage);
 	DCE::CMD_Set_Variable_DL CMD_Set_Variable3( m_dwPK_Device, m_sPK_Device_AllOrbiters, VARIABLE_Misc_Data_3_CONST, StringUtils::itos(PK_Device));
-	CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable3.m_pMessage);
+	CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable3.m_pMessage);
 
-	QueueMessageToRouter(CMD_Goto_Screen.m_pMessage);
+	QueueMessageToRouter(CMD_Goto_DesignObj.m_pMessage);
 
 	DCE::CMD_Check_for_updates_Cat CMD_Check_for_updates_Cat(m_dwPK_Device,DEVICECATEGORY_General_Info_Plugins_CONST,false,BL_SameHouse);
 	SendCommand(CMD_Check_for_updates_Cat);

@@ -434,10 +434,10 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 		for(list<DeviceData_Router *>::iterator it=listDevice_Blocked.begin();it!=listDevice_Blocked.end();++it)
 			sText += (*it)->m_sDescription + "  ";
 
-		DCE::CMD_Goto_Screen CMD_Goto_Screen( 0, pMessage->m_dwPK_Device_From, 0, StringUtils::itos(DESIGNOBJ_mnuSensorsNotReady_CONST), "", "", false, false );
+		DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj( 0, pMessage->m_dwPK_Device_From, 0, StringUtils::itos(DESIGNOBJ_mnuSensorsNotReady_CONST), "", "", false, false );
 		DCE::CMD_Set_Text CMD_Set_Text( 0, pMessage->m_dwPK_Device_From, StringUtils::itos(DESIGNOBJ_mnuSensorsNotReady_CONST), sText, TEXT_TRIPPED_SENSOR_CONST);
-		CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Text.m_pMessage );
-		SendCommand( CMD_Goto_Screen );
+		CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Text.m_pMessage );
+		SendCommand( CMD_Goto_DesignObj );
 		return;
 	}
 
@@ -448,21 +448,21 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 
 	SetHouseModeBoundIcon(iPK_DeviceGroup);
 	
-	DCE::CMD_Goto_Screen CMD_Goto_Screen( 0, pMessage->m_dwPK_Device_From, 0, StringUtils::itos(DESIGNOBJ_mnuModeChanged_CONST), "", "", false, true );
+	DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj( 0, pMessage->m_dwPK_Device_From, 0, StringUtils::itos(DESIGNOBJ_mnuModeChanged_CONST), "", "", false, true );
 
 	DCE::CMD_Set_Graphic_To_Display CMD_Set_Graphic_To_Display(0, pMessage->m_dwPK_Device_From, 
 		StringUtils::itos(DESIGNOBJ_mnuModeChanged_CONST) + ".0.0." + StringUtils::itos(DESIGNOBJ_icoHouseStatusIndicator_CONST),StringUtils::itos(PK_HouseMode));
-	CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Graphic_To_Display.m_pMessage);
+	CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Graphic_To_Display.m_pMessage);
 
 	DCE::CMD_Set_Text CMD_Set_Text( 0, pMessage->m_dwPK_Device_From, StringUtils::itos(DESIGNOBJ_mnuModeChanged_CONST), pRow_AlertType->ExitDelay_get() && bSensorsActive ? "<%=CD%> seconds" : "IMMEDIATELY",
 		TEXT_House_Mode_Time_CONST );
-	CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text.m_pMessage);
+	CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text.m_pMessage);
 
 	g_pPlutoLogger->Write(LV_STATUS,"Set House Mode.  Sensors active: %d exit delay: %d",(int) bSensorsActive,pRow_AlertType->ExitDelay_get());
 	if( pRow_AlertType->ExitDelay_get() )
 	{
 		DCE::CMD_Select_Object CMD_Select_Object( 0, pMessage->m_dwPK_Device_From, StringUtils::itos(DESIGNOBJ_mnuModeChanged_CONST), StringUtils::itos(DESIGNOBJ_mnuModeChanged_CONST),StringUtils::itos(pRow_AlertType->ExitDelay_get()) );
-		CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Select_Object.m_pMessage);
+		CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Select_Object.m_pMessage);
 
 		if( bSensorsActive && DATA_Get_PK_Device().size() )
 		{
@@ -479,9 +479,9 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 
 	DCE::CMD_Set_Text CMD_Set_TextAlert( 0, pMessage->m_dwPK_Device_From, StringUtils::itos(DESIGNOBJ_mnuModeChanged_CONST), sAlerts,
 		TEXT_Alerts_Placeholder_CONST );
-	CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_TextAlert.m_pMessage);
+	CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_TextAlert.m_pMessage);
 
-	SendCommand( CMD_Goto_Screen );
+	SendCommand( CMD_Goto_DesignObj );
 
 	Row_ModeChange *pRow_ModeChange = m_pDatabase_pluto_security->ModeChange_get()->AddRow();
 	pRow_ModeChange->EK_HouseMode_set(PK_HouseMode);
@@ -686,9 +686,9 @@ bool Security_Plugin::SensorTrippedEventHandler(DeviceData_Router *pDevice,bool 
 				pRow_AlertType->PK_AlertType_get()==ALERTTYPE_Air_Quality_CONST) )
 			{
 				m_pAlarmManager->AddRelativeAlarm(0,this,PROCESS_COUNTDOWN_BEFORE_ALARM,(void *) pRow_Alert);
-				DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL(m_dwPK_Device,m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters,
+				DCE::CMD_Goto_DesignObj_DL CMD_Goto_DesignObj_DL(m_dwPK_Device,m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters,
 					0,StringUtils::itos(DESIGNOBJ_mnuSecurityPanel_CONST),"","",false,false);
-				SendCommand(CMD_Goto_Screen_DL);
+				SendCommand(CMD_Goto_DesignObj_DL);
 			}
 		}
 	}

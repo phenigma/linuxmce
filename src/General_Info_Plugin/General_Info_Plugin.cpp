@@ -1014,9 +1014,9 @@ Message *General_Info_Plugin::BuildMessageToSpawnApp(DeviceData_Router *pDevice_
 	if( pDevice_OrbiterRequesting && pDevice_Orbiter_OSD->m_dwPK_Device==pDevice_OrbiterRequesting->m_dwPK_Device )
 	{
 		// This is the OSD orbiter
-		DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pDevice_Orbiter_OSD->m_dwPK_Device,0,
+		DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device,pDevice_Orbiter_OSD->m_dwPK_Device,0,
 			StringUtils::itos(PK_DesignObj_OSD),"","",false,false);
-		CMD_Spawn_Application.m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen.m_pMessage);
+		CMD_Spawn_Application.m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_DesignObj.m_pMessage);
 
 		DCE::CMD_Set_Variable CMD_Set_Variable(m_dwPK_Device,pDevice_Orbiter_OSD->m_dwPK_Device,
 			VARIABLE_Array_Desc_CONST,sDescription);
@@ -1025,16 +1025,16 @@ Message *General_Info_Plugin::BuildMessageToSpawnApp(DeviceData_Router *pDevice_
 	else
 	{
 		// Do this on the OSD orbiter
-		DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pDevice_Orbiter_OSD->m_dwPK_Device,0,
+		DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device,pDevice_Orbiter_OSD->m_dwPK_Device,0,
 			StringUtils::itos(PK_DesignObj_OSD),"","",false,false);
-		CMD_Spawn_Application.m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen.m_pMessage);
+		CMD_Spawn_Application.m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_DesignObj.m_pMessage);
 
 		// Do this on the controlling orbiter
 		if( pDevice_OrbiterRequesting )
 		{
-			DCE::CMD_Goto_Screen CMD_Goto_Screen2(m_dwPK_Device,pDevice_OrbiterRequesting->m_dwPK_Device,0,
+			DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj2(m_dwPK_Device,pDevice_OrbiterRequesting->m_dwPK_Device,0,
 				StringUtils::itos(PK_DesignObj_Remote),"","",false,false);
-			CMD_Spawn_Application.m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen2.m_pMessage);
+			CMD_Spawn_Application.m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_DesignObj2.m_pMessage);
 		}
 	}
 
@@ -1077,13 +1077,13 @@ bool General_Info_Plugin::NewMacAddress( class Socket *pSocket, class Message *p
 	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::NewMacAddress %s has %d candidates",sMacAddress.c_str(),(int) vectRow_DHCPDevice.size());
 	if( vectRow_DHCPDevice.size()>0 )
 	{
-		DCE::CMD_Goto_Screen_DL CMD_Goto_Screen( m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, 0, 
+		DCE::CMD_Goto_DesignObj_DL CMD_Goto_DesignObj( m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, 0, 
 			StringUtils::itos(DESIGNOBJ_mnuNewMacAddress_CONST), sMacAddress, "", false, true );
 
 		DCE::CMD_Set_Variable_DL CMD_Set_Variable( m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, VARIABLE_Misc_Data_1_CONST, 
 			sIPAddress );
-		CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable.m_pMessage);
-		SendCommand(CMD_Goto_Screen);
+		CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable.m_pMessage);
+		SendCommand(CMD_Goto_DesignObj);
 		return false;
 	}
 

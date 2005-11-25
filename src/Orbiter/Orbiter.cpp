@@ -261,6 +261,12 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
     else
         m_ScreenMutex.Init( &m_MutexAttr );
 
+//testing - it works
+m_mapDesignObj[29] = 1255;
+m_mapDesignObj[30] = 1688;
+
+	m_pScreenHandler = new ScreenHandler(this, &m_mapDesignObj);
+
 	pthread_create(&m_MaintThreadID, NULL, MaintThread, (void*)this);
 
 	srand( (unsigned)time( NULL ) );  // For the screen saver
@@ -419,6 +425,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Maint thread dead");
     m_mapHardKeys.clear();
 
     delete m_pOrbiterFileBrowser_Collection;
+
+	delete m_pScreenHandler;
 
 	vm.Release();
 	pthread_mutexattr_destroy(&m_MutexAttr);
@@ -2111,7 +2119,7 @@ void Orbiter::SpecialHandlingObjectSelected(DesignObj_Orbiter *pDesignObj_Orbite
 			if( SendCommand(CMD_Verify_PIN) && bValid )
 			{
 				CMD_Set_Current_User(m_iRestrictedOp_ID);
-				CMD_Goto_Screen(0,m_sMainMenu,"","",false,false);
+				CMD_Goto_DesignObj(0,m_sMainMenu,"","",false,false);
 			}
 			else
 			{
@@ -3770,6 +3778,13 @@ bool Orbiter::ButtonDown( int iPK_Button )
 
 bool Orbiter::ButtonUp( int iPK_Button )
 {
+	//testing
+	string sRes;
+	if(iPK_Button == 1)
+		CMD_Goto_Screen(30, sRes, NULL);
+	else if(iPK_Button == 2)
+		CMD_Goto_Screen(29, sRes, NULL);
+
 	if( m_mapHardKeys.find(iPK_Button)!=m_mapHardKeys.end() )
 	{
 		Message *pMessage = m_mapHardKeys[iPK_Button];
@@ -4275,7 +4290,7 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
 					// This user requires a PIN.  Change there and return
 					m_bRestrictedOp_IsUser=true;
 					m_iRestrictedOp_ID=PK_Users;
-					CMD_Goto_Screen(0,StringUtils::itos(DESIGNOBJ_mnuUserPinCode_CONST),"","",false,true);
+					CMD_Goto_DesignObj(0,StringUtils::itos(DESIGNOBJ_mnuUserPinCode_CONST),"","",false,true);
 					return;
 				}
 			}
@@ -4297,7 +4312,7 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
 				if( s>=pLocationInfo->m_vectAllowedUsers.size() )
 				{
 					CMD_Set_Text( StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST), "You are not allowed to access this location", TEXT_STATUS_CONST);
-					CMD_Goto_Screen( 0, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST), "", "", false, true );
+					CMD_Goto_DesignObj( 0, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST), "", "", false, true );
 					return;
 				}
 			}
@@ -5345,9 +5360,9 @@ g_pPlutoLogger->Write(LV_STATUS,"Forcing go back to the main menu");
 		else if( pScreenHistory->m_pObj->m_bIsARemoteControl )
 		{
 			if( m_iPK_DesignObj_Remote || m_iPK_DesignObj_RemoteOSD )
-				CMD_Goto_Screen(0,"<%=NP_R%>","","",false,false);
+				CMD_Goto_DesignObj(0,"<%=NP_R%>","","",false,false);
 			else
-				CMD_Goto_Screen(0,"<%=M%>","","",false,false);
+				CMD_Goto_DesignObj(0,"<%=M%>","","",false,false);
 		}
 		else
 			NeedToRender::NeedToChangeScreens( this, pScreenHistory, false );
@@ -5359,8 +5374,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Forcing go back to the main menu");
 
 //<-dceag-c5-b->
 
-	/** @brief COMMAND: #5 - Goto Screen */
-	/** Goto a specific screen */
+	/** @brief COMMAND: #5 - Goto DesignObj */
+	/** Goto a specific design obj */
 		/** @param #2 PK_Device */
 			/** For this screen only, override the normal "control device" stored in variable #1, and treat this device as the control screen.  When the screen changes, it will be reset */
 		/** @param #3 PK_DesignObj */
@@ -5374,7 +5389,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Forcing go back to the main menu");
 		/** @param #114 Cant Go Back */
 			/** If true, then when this screen goes away the user won't be able to return to it -- it will be skipped over, unless Go Back with Force=1 is used.  This prevents layers of popup screens. */
 
-void Orbiter::CMD_Goto_Screen(int iPK_Device,string sPK_DesignObj,string sID,string sPK_DesignObj_CurrentScreen,bool bStore_Variables,bool bCant_Go_Back,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,string sPK_DesignObj_CurrentScreen,bool bStore_Variables,bool bCant_Go_Back,string &sCMD_Result,Message *pMessage)
 //<-dceag-c5-e->
 {
 #ifdef DEBUG
@@ -8478,7 +8493,7 @@ void Orbiter::CMD_Guide(string &sCMD_Result,Message *pMessage)
 //<-dceag-c126-e->
 {
 	if( m_iPK_DesignObj_Guide )
-		CMD_Goto_Screen( 0, StringUtils::itos(m_iPK_DesignObj_Guide), "","", false,false );
+		CMD_Goto_DesignObj( 0, StringUtils::itos(m_iPK_DesignObj_Guide), "","", false,false );
 	else
 	{
 		DCE::CMD_Guide CMD_Guide(m_dwPK_Device,m_dwPK_Device_MediaPlugIn);
@@ -9245,4 +9260,17 @@ bool Orbiter::WaitForRelativesIfOSD()
 	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::WaitForRelativesIfOSD exiting");
 	DisplayProgress("",-1);
 	return true;
+}
+
+//<-dceag-c741-b->
+
+	/** @brief COMMAND: #741 - Goto Screen */
+	/** Goto a specific screen. */
+		/** @param #159 PK_Screen */
+			/** The screen id. */
+
+void Orbiter::CMD_Goto_Screen(int iPK_Screen,string &sCMD_Result,Message *pMessage)
+//<-dceag-c741-e->
+{
+	m_pScreenHandler->GotoScreen(iPK_Screen);
 }

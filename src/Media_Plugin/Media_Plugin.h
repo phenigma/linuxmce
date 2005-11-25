@@ -482,18 +482,18 @@ public:
 				pMessage->m_vectExtraMessages.push_back(CMD_Set_Now_Playing.m_pMessage);
 				if( bGotoRemote )
 				{
-					DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,dwPK_Device,
+					DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device,dwPK_Device,
 						0,"<%=NP_R%>","","",false,false);
-					pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen.m_pMessage);
+					pMessage->m_vectExtraMessages.push_back(CMD_Goto_DesignObj.m_pMessage);
 				}
 			}
 			else
 			{
 				if( bGotoRemote )
 				{
-					DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,dwPK_Device,
+					DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device,dwPK_Device,
 						0,"<%=NP_R%>","","",false,false);
-					CMD_Set_Now_Playing.m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_Screen.m_pMessage);
+					CMD_Set_Now_Playing.m_pMessage->m_vectExtraMessages.push_back(CMD_Goto_DesignObj.m_pMessage);
 				}
 				SendCommand( CMD_Set_Now_Playing );
 			}
@@ -507,7 +507,7 @@ public:
 				pMessage->m_vectExtraMessages.push_back(CMD_Set_Now_Playing.m_pMessage);
 				if( bGotoRemote )
 				{
-					DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,dwPK_Device,
+					DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device,dwPK_Device,
 						0,"<%=NP_R%>","","",false,false);
 					pMessage->m_vectExtraMessages.push_back(CMD_Set_Now_Playing.m_pMessage);
 				}
@@ -516,7 +516,7 @@ public:
 			{
 				if( bGotoRemote )
 				{
-					DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,dwPK_Device,
+					DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device,dwPK_Device,
 						0,"<%=NP_R%>","","",false,false);
 					CMD_Set_Now_Playing.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Now_Playing.m_pMessage);
 				}

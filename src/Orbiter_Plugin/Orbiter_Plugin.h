@@ -188,65 +188,65 @@ public:
 
 		if( sPK_Device.size()==0 )
 			sPK_Device = m_sPK_Device_AllOrbiters;
-		DCE::CMD_Goto_Screen_DL CMD_Goto_Screen( m_dwPK_Device, sPK_Device, 0, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST), "", "", false, bCantGoBack );
+		DCE::CMD_Goto_DesignObj_DL CMD_Goto_DesignObj( m_dwPK_Device, sPK_Device, 0, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST), "", "", false, bCantGoBack );
 
 		DCE::CMD_Set_Text_DL CMD_Set_Text_DL( m_dwPK_Device, sPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST), sMessage, TEXT_STATUS_CONST);
-		CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text_DL.m_pMessage);
+		CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text_DL.m_pMessage);
 
 		if( bPromptToResetRouter )
 		{
 			DCE::CMD_Show_Object_DL CMD_Show_Object( m_dwPK_Device, sPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST) + ".0.0." + StringUtils::itos(DESIGNOBJ_butRestartDCERouter_CONST), 0, "", "", "1" );
-			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Show_Object.m_pMessage);
+			CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Show_Object.m_pMessage);
 		}
 
 		if( sOption1.size() )
 		{
 			DCE::CMD_Show_Object_DL CMD_Show_Object( m_dwPK_Device, sPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST) + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse1_CONST), 0, "", "", "1" );
-			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Show_Object.m_pMessage);
+			CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Show_Object.m_pMessage);
 
 			DCE::CMD_Set_Text_DL CMD_Set_Text_DL( m_dwPK_Device, sPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST) + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse1_CONST), sOption1, TEXT_STATUS_CONST);
-			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text_DL.m_pMessage);
+			CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text_DL.m_pMessage);
 
 			DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL( m_dwPK_Device, sPK_Device, VARIABLE_Misc_Data_1_CONST , sMessage1);
-			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable_DL.m_pMessage);
+			CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable_DL.m_pMessage);
 		}
 		if( sOption2.size() )
 		{
 			DCE::CMD_Show_Object_DL CMD_Show_Object( m_dwPK_Device, sPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST) + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse2_CONST), 0, "", "", "1" );
-			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Show_Object.m_pMessage);
+			CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Show_Object.m_pMessage);
 
 			DCE::CMD_Set_Text_DL CMD_Set_Text_DL( m_dwPK_Device, sPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST) + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse2_CONST), sOption2, TEXT_STATUS_CONST);
-			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text_DL.m_pMessage);
+			CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text_DL.m_pMessage);
 
 			DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL( m_dwPK_Device, sPK_Device, VARIABLE_Misc_Data_2_CONST , sMessage2);
-			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable_DL.m_pMessage);
+			CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable_DL.m_pMessage);
 		}
 		if( sOption3.size() )
 		{
 			DCE::CMD_Show_Object_DL CMD_Show_Object( m_dwPK_Device, sPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST) + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse3_CONST), 0, "", "", "1" );
-			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Show_Object.m_pMessage);
+			CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Show_Object.m_pMessage);
 
 			DCE::CMD_Set_Text_DL CMD_Set_Text_DL( m_dwPK_Device, sPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST) + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse3_CONST), sOption3, TEXT_STATUS_CONST);
-			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text_DL.m_pMessage);
+			CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text_DL.m_pMessage);
 
 			DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL( m_dwPK_Device, sPK_Device, VARIABLE_Misc_Data_3_CONST , sMessage3);
-			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable_DL.m_pMessage);
+			CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable_DL.m_pMessage);
 		}
 		if( sOption4.size() )
 		{
 			DCE::CMD_Show_Object_DL CMD_Show_Object( m_dwPK_Device, sPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST) + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse4_CONST), 0, "", "", "1" );
-			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Show_Object.m_pMessage);
+			CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Show_Object.m_pMessage);
 
 			DCE::CMD_Set_Text_DL CMD_Set_Text_DL( m_dwPK_Device, sPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST) + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse4_CONST), sOption4, TEXT_STATUS_CONST);
-			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text_DL.m_pMessage);
+			CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text_DL.m_pMessage);
 
 			DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL( m_dwPK_Device, sPK_Device, VARIABLE_Misc_Data_4_CONST , sMessage4);
-			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable_DL.m_pMessage);
+			CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable_DL.m_pMessage);
 		}
 
 		DCE::CMD_Set_Timeout_DL CMD_Set_Timeout( m_dwPK_Device, sPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST), StringUtils::itos(iTimeout) );
-		CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Timeout.m_pMessage);
-		SendCommand( CMD_Goto_Screen );
+		CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Timeout.m_pMessage);
+		SendCommand( CMD_Goto_DesignObj );
 	}
 
 	void FireFollowMe(string sMask,int iPK_Orbiter,int iPK_Users,int iPK_RoomOrEntArea,int iPK_RoomOrEntArea_Left);
