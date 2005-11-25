@@ -262,7 +262,7 @@ only slots that were scheduled for ripping will appear in the string */
 //<-dceag-h-e->
 		private:
 			// corresponding devices
-			vector<pair<string, string> > m_vectDrive; // first: /dev/sr0, second: /dev/sg1
+			vector<pair<string, string> > m_vectDrive; // first: /dev/sr0 (disc), second: /dev/sg1 (generic SCSI)
 			string m_sChanger;
 			vector<Disk_Drive_Functions *> m_vectDDF;
 
@@ -272,7 +272,6 @@ only slots that were scheduled for ripping will appear in the string */
 			vector<bool> m_vectSlotStatus; // occupied or not
 			bool m_bStatusCached;
 
-			pthread_t m_JobThread;
 			class Powerfile_Job * m_pJob;
 
 			pluto_pthread_mutex_t m_DriveMutex;
@@ -307,39 +306,37 @@ namespace DCE
 			Powerfile_C200 * m_pPowerfile_C200;
 	};
 
-	class PowerfileRip_Task : public Task
+	class Powerfile_Task : public Task
 	{
 		public:
-			PowerfileRip_Task(string sName, int iPriority, Job * pJob) : Task(sName, iPriority, pJob),
-					m_bStop(false), m_pDDF(NULL) {}
+			Powerfile_Task(string sName, int iPriority, Job * pJob) : Task(sName, iPriority, pJob),
+				m_bStop(false), m_pDDF(NULL) {}
+			
+			bool m_bStop;
+			int m_iDrive_Number;
+			int m_iSlot;
+
+		protected:
+			Disk_Drive_Functions * m_pDDF;
+			void ThreadStarted();
+			void ThreadEnded();
+	};
+	
+	class PowerfileRip_Task : public Powerfile_Task
+	{
+		public:
+			PowerfileRip_Task(string sName, int iPriority, Job * pJob) : Powerfile_Task(sName, iPriority, pJob) {}
 			string Type() { return "Rip"; }
 			string ToString();
 			void Run();
-
-			bool m_bStop;
-			int m_iDrive_Number;
-			int m_iSlot;
-
-		private:
-			Disk_Drive_Functions * m_pDDF;
-			void ThreadEnded();
 	};
 
-	class PowerfileIdentify_Task : public Task
+	class PowerfileIdentify_Task : public Powerfile_Task
 	{
 		public:
-			PowerfileIdentify_Task(string sName, int iPriority, Job * pJob) : Task(sName, iPriority, pJob),
-					m_bStop(false), m_pDDF(NULL) {}
+			PowerfileIdentify_Task(string sName, int iPriority, Job * pJob) : Powerfile_Task(sName, iPriority, pJob) {}
 			string Type() { return "Identify"; }
 			string ToString();
 			void Run();
-
-			bool m_bStop;
-			int m_iDrive_Number;
-			int m_iSlot;
-
-		private:
-			Disk_Drive_Functions * m_pDDF;
-			void ThreadEnded();
 	};
 }

@@ -31,6 +31,7 @@ namespace nsJobHandler
 		bool m_bThreadRunning_get() { return m_bThreadRunning; }
 		void Execute();
 		bool Cancel();
+		virtual void ThreadStarted() {}
 		virtual void ThreadEnded() { m_bThreadRunning=false; }
 
 		virtual string ToString()=0;

@@ -769,12 +769,27 @@ void Powerfile_C200::CMD_Bulk_Rip(string sDisks,string &sCMD_Result,Message *pMe
 	}
 	
 	m_pJob->Reset();
-	vector<string> vect_sDisks;
-	Tokenize(sDisks, ",", vect_sDisks);
-	for (i = 0; i < vect_sDisks.size(); i++)
+
+	vector<int> vect_iSlots;
+	if (sDisks == "*")
 	{
-		int iSlot;
-		sscanf(vect_sDisks[i].c_str(), "%d", &iSlot);
+		for (size_t i = 0; i < m_vectSlotStatus.size(); i++)
+		{
+			if (m_vectSlotStatus[i])
+				vect_iSlots.push_back(i + 1);
+		}
+	}
+	else
+	{
+		vector<string> vect_sDisks;
+		Tokenize(sDisks, ",", vect_sDisks);
+		for (i = 0; i < vect_sDisks.size(); i++)
+			vect_iSlots.push_back(atoi(vect_sDisks[i].c_str()));
+	}
+
+	for (i = 0; i < vect_iSlots.size(); i++)
+	{
+		int iSlot = vect_iSlots[i];
 		PowerfileRip_Task * pTask = new PowerfileRip_Task("Rip Slot " + StringUtils::itos(iSlot), 0, m_pJob);
 		pTask->m_iSlot = iSlot;
 		m_pJob->AddTask(pTask);
@@ -852,7 +867,7 @@ void Powerfile_C200::CMD_Mass_identify_media(string sDisks,string &sCMD_Result,M
 		sCMD_Result = "FAILED";
 		return;
 	}
-	// m_pJob->Reset()
+	m_pJob->Reset();
 	
 	// if( handler.ContainsJob("Identify") )
 	// log error and return
@@ -862,7 +877,6 @@ void Powerfile_C200::CMD_Mass_identify_media(string sDisks,string &sCMD_Result,M
 	// job.service()
 }
 
-// race condition all the way
 int Powerfile_C200::GetFreeDrive(int iSlot)
 {
 	PLUTO_SAFETY_LOCK(dm, m_DriveMutex);
@@ -908,7 +922,7 @@ string Powerfile_Job::ToString()
 	
 	for(list<Task *>::iterator it = m_listTask.begin(); it != m_listTask.end(); ++it)
 	{
-		PowerfileRip_Task * pTask = (PowerfileRip_Task *) * it;
+		Powerfile_Task * pTask = (Powerfile_Task *) * it;
 		if (bComma)
 			sResult += ",";
 		else
@@ -934,10 +948,8 @@ string PowerfileIdentify_Task::ToString()
 
 void PowerfileRip_Task::Run()
 {
-	// race condition all the way
 	Powerfile_Job * pPowerfile_Job = (Powerfile_Job *) m_pJob;
-	m_iDrive_Number = pPowerfile_Job->m_pPowerfile_C200->GetFreeDrive(m_iSlot);
-	pPowerfile_Job->m_pPowerfile_C200->CMD_Load_from_Slot_into_Drive(m_iSlot, m_iDrive_Number);
+
 //#warning "TODO: UNINITIALIZED VARIABLES"
 	// TODO: get these from Media_Plugin
 	int iPK_Users = 0, iEK_Disc = 0;
@@ -956,19 +968,8 @@ void PowerfileRip_Task::Run()
 	g_pPlutoLogger->Write(LV_STATUS, "Drive %d ripping task finished with status %d", m_iDrive_Number, m_eTaskStatus);
 }
 
-void PowerfileRip_Task::ThreadEnded()
-{
-	Powerfile_Job * pPowerfile_Job = (Powerfile_Job *) m_pJob;
-	pPowerfile_Job->m_pPowerfile_C200->CMD_Unload_from_Drive_into_Slot(m_iSlot, m_iDrive_Number);
-}
-
 void PowerfileIdentify_Task::Run()
 {
-	// race condition all the way
-	Powerfile_Job * pPowerfile_Job = (Powerfile_Job *) m_pJob;
-	m_iDrive_Number = pPowerfile_Job->m_pPowerfile_C200->GetFreeDrive(m_iSlot);
-	pPowerfile_Job->m_pPowerfile_C200->CMD_Load_from_Slot_into_Drive(m_iSlot, m_iDrive_Number);
-	
 	time_t TimeOut = time(NULL) + 60; // 60s timeout
 	while (! m_bStop && time(NULL) < TimeOut)
 	{
@@ -981,7 +982,14 @@ void PowerfileIdentify_Task::Run()
 	g_pPlutoLogger->Write(LV_STATUS, "Drive %d identifying task finished with status %d", m_iDrive_Number, m_eTaskStatus);
 }
 
-void PowerfileIdentify_Task::ThreadEnded()
+void Powerfile_Task::ThreadStarted()
+{
+	Powerfile_Job * pPowerfile_Job = (Powerfile_Job *) m_pJob;
+	m_iDrive_Number = pPowerfile_Job->m_pPowerfile_C200->GetFreeDrive(m_iSlot);
+	pPowerfile_Job->m_pPowerfile_C200->CMD_Load_from_Slot_into_Drive(m_iSlot, m_iDrive_Number);
+}
+
+void Powerfile_Task::ThreadEnded()
 {
 	Powerfile_Job * pPowerfile_Job = (Powerfile_Job *) m_pJob;
 	pPowerfile_Job->m_pPowerfile_C200->CMD_Unload_from_Drive_into_Slot(m_iSlot, m_iDrive_Number);
@@ -992,7 +1000,7 @@ void Powerfile_Job::MediaIdentified(int iSlot)
 	g_pPlutoLogger->Write(LV_STATUS, "Received MediaIdentified event for slot %d", iSlot);
 	for(list<Task *>::iterator it = m_listTask.begin(); it != m_listTask.end(); ++it)
 	{
-		PowerfileIdentify_Task * pTask = (PowerfileIdentify_Task *) * it;
+		Powerfile_Task * pTask = (Powerfile_Task *) * it;
 		if (pTask->m_eTaskStatus == TASK_IN_PROGRESS && pTask->m_iSlot == iSlot)
 		{
 			pTask->m_bStop = true;
@@ -1007,7 +1015,7 @@ void Powerfile_Job::RippingProgress(int iDrive_Number, int iResult)
 	g_pPlutoLogger->Write(LV_STATUS, "Received RippingProgress message for drive %d, result %d", iDrive_Number, iResult);
 	for(list<Task *>::iterator it = m_listTask.begin(); it != m_listTask.end(); ++it)
 	{
-		PowerfileRip_Task * pTask = (PowerfileRip_Task *) * it;
+		Powerfile_Task * pTask = (Powerfile_Task *) * it;
 		if (pTask->m_eTaskStatus == TASK_IN_PROGRESS && pTask->m_iDrive_Number == iDrive_Number)
 		{
 			if (iResult == RIP_RESULT_SUCCESS)

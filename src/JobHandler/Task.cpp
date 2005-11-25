@@ -11,6 +11,7 @@ using namespace DCE;
 void * StartTaskThread(void * Arg)
 {
 	Task * pTask = (Task *) Arg;
+	pTask->ThreadStarted();
 	pTask->Run();
 	pTask->ThreadEnded();
 	return NULL;
