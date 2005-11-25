@@ -357,6 +357,7 @@ void App_Server::ProcessExited(int pid, int status)
 	string applicationName;
 	void *data;
 
+	g_pPlutoLogger->Write(LV_STATUS, "PID %d exited with code %d", pid, status);
 	if ( ! ProcessUtils::ApplicationExited(pid, applicationName, data) )
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "App_Server::ProcessExited() Child with pid %d was not found in our internal data structure. Ignoring signal!", pid);
