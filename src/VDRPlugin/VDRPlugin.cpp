@@ -699,9 +699,9 @@ void VDRPlugin::CMD_Get_Extended_Media_Data(string sPK_DesignObj,string sProgram
 		CMD_Set_Variable1.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_VariableEvent.m_pMessage );
 		if( sPK_DesignObj.size() )
 		{
-			DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pMessage->m_dwPK_Device_From,
+			DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device,pMessage->m_dwPK_Device_From,
 				0,sPK_DesignObj,"","",false,false);
-			CMD_Set_Variable1.m_pMessage->m_vectExtraMessages.push_back( CMD_Goto_Screen.m_pMessage );
+			CMD_Set_Variable1.m_pMessage->m_vectExtraMessages.push_back( CMD_Goto_DesignObj.m_pMessage );
 		}
 		else
 		{
