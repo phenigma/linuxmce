@@ -1764,6 +1764,7 @@
 #define DESIGNOBJ_butStartUsingMonster_CONST 4612
 #define DESIGNOBJ_mnuPowerFile_CONST 4613
 #define DESIGNOBJ_dgPowerFile_CONST 4614
+#define DESIGNOBJ_mnuObsoliteObjsContainer_CONST 4615
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
