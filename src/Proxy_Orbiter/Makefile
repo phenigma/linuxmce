@@ -32,6 +32,7 @@ sources += \
 	../Orbiter/TextStyle.cpp \
 	../Orbiter/CacheImageManager.cpp \
 	../Orbiter/RendererOCG.cpp \
+	../Orbiter/ScreenHandler.cpp \
 	../Orbiter/SDL/SDLRendererOCGHelper.cpp \
 	../Orbiter/SDL/SDLGraphic.cpp \
 	../Orbiter/SDL/OrbiterSDL.cpp \
