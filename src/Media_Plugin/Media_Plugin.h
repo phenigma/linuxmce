@@ -186,13 +186,6 @@ protected:
 		return NULL;
 	}
 
-	/**
-	 * Parse media identification that came in CDDB Format 
-	 */
-
-	void Parse_CDDB_Media_ID(MediaStream *pMediaStream,string sValue);
-	void Parse_Misc_Media_ID(MediaStream *pMediaStream,string sValue);
-
     /**
      * Find a media plugin info object that will play the specified file.
      */
@@ -460,11 +453,11 @@ public:
 
 			if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
 			{
-				sFilename = m_pMediaAttributes->GetAttributeName(pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Performer_CONST]);
+				sFilename = m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeName(pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Performer_CONST]);
 				if( sFilename.size() )
 					sFilename += "/"; // We got a performer
 
-				sFilename += m_pMediaAttributes->GetAttributeName(pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Album_CONST]);
+				sFilename += m_pMediaAttributes->m_pMediaAttributes_LowLevel->GetAttributeName(pMediaStream->m_mapPK_Attribute[ATTRIBUTETYPE_Album_CONST]);
 			}
 			else if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST )
 				sFilename = pMediaStream->m_sMediaDescription;

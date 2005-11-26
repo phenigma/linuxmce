@@ -3,6 +3,7 @@
 
 #include "MediaTitle.h"
 #include "MediaSection.h"
+#include "MediaAttributes_LowLevel.h"
 
 class MediaFile
 {
@@ -16,9 +17,9 @@ public:
 		m_dwPK_File=0;
 	}
 
-	MediaFile(MediaAttributes *pMediaAttributes, string sFullyQualifiedFile) {
+	MediaFile(MediaAttributes_LowLevel *pMediaAttributes_LowLevel, string sFullyQualifiedFile) {
 		m_sPath=FileUtils::BasePath(sFullyQualifiedFile); m_sFilename=FileUtils::FilenameWithoutPath(sFullyQualifiedFile);
-		m_dwPK_File=pMediaAttributes->GetFileIDFromFilePath(sFullyQualifiedFile);
+		m_dwPK_File=pMediaAttributes_LowLevel->GetFileIDFromFilePath(sFullyQualifiedFile);
 	}
 
 	MediaFile(MediaFile *pMediaFile_Copy) {

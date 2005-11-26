@@ -17,11 +17,6 @@ public:
 	CDDB_Identifier_Event(class ClientSocket *pOCClientSocket, int DeviceID) : Event_Impl(pOCClientSocket, DeviceID) {};
 	//Events
 	class Event_Impl *CreateEvent( unsigned long dwPK_DeviceTemplate, ClientSocket *pOCClientSocket, unsigned long dwDevice );
-	virtual void Media_Identified(string sMRL,string sID,int iPK_Device,string sValue,string sFormat,char *pImage,int iImage_Size)
-	{
-		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 46,6,4,sMRL.c_str(),7,sID.c_str(),26,StringUtils::itos(iPK_Device).c_str(),30,sValue.c_str(),40,sFormat.c_str(),-42,pImage,iImage_Size));
-	}
-
 };
 
 
@@ -50,7 +45,6 @@ public:
 	}
 	virtual bool GetConfig()
 	{
-		
 		m_pData=NULL;
 		m_pEvent = new CDDB_Identifier_Event(m_dwPK_Device, m_sHostName, !m_bLocalMode);
 		if( m_pEvent->m_dwPK_Device )
@@ -127,7 +121,6 @@ public:
 	//Data accessors
 	int DATA_Get_Priority() { return GetData()->Get_Priority(); }
 	//Event accessors
-	void EVENT_Media_Identified(string sMRL,string sID,int iPK_Device,string sValue,string sFormat,char *pImage,int iImage_Size) { GetEvents()->Media_Identified(sMRL.c_str(),sID.c_str(),iPK_Device,sValue.c_str(),sFormat.c_str(),pImage,iImage_Size); }
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Identify_Media(int iPK_Device,string sID,string sFilename,string &sCMD_Result,class Message *pMessage) {};
 

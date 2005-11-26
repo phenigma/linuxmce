@@ -151,6 +151,9 @@
 			<File
 				RelativePath="..\Media_Plugin\MediaAttributes.cpp">
 			</File>
+			<File
+				RelativePath="..\Media_Plugin\MediaAttributes_LowLevel.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"

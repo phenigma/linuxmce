@@ -171,7 +171,7 @@ void MediaStream::DumpPlaylist()
 void MediaStream::ClearPlaylist()
 {
     m_iDequeMediaFile_Pos = 0;
-    MediaAttributes::PurgeDequeMediaFile(m_dequeMediaFile);
+    MediaAttributes_LowLevel::PurgeDequeMediaFile(m_dequeMediaFile);
     m_dequeMediaFile.clear();
 }
 

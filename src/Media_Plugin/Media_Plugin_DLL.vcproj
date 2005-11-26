@@ -162,6 +162,9 @@
 				RelativePath=".\MediaAttributes.cpp">
 			</File>
 			<File
+				RelativePath=".\MediaAttributes_LowLevel.cpp">
+			</File>
+			<File
 				RelativePath=".\MediaHandlerBase.cpp">
 			</File>
 			<File

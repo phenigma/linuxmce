@@ -26,6 +26,7 @@ Gen_Dev_Files +=
 sources += \
 	MediaHandlerInfo.cpp \
 	MediaAttributes.cpp \
+	MediaAttributes_LowLevel.cpp \
 	MediaStream.cpp \
 	BoundRemote.cpp \
 	Generic_NonPluto_Media.cpp \
