@@ -83,7 +83,7 @@ CreateTunnel()
 	RAport="$6"
 	Monitored="${7:-yes}"
 
-	Tunnel=$(echo /var/run/screen/S-root/*${screenName}_${Suffix}*)
+	Tunnel=$(echo /var/run/screen/S-root/*.${screenName}_${Suffix})
 
 	# if tunnel is not active create it
 	Dead=0
