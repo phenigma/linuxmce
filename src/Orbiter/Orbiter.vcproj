@@ -177,6 +177,9 @@
 				RelativePath=".\RendererOCG.cpp">
 			</File>
 			<File
+				RelativePath=".\ScreenHandler.cpp">
+			</File>
+			<File
 				RelativePath=".\Sdl\SDLGraphic.cpp">
 			</File>
 			<File
