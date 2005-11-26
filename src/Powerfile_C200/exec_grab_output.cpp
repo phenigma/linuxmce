@@ -4,8 +4,17 @@
 #include <iostream>
 using namespace std;
 
+#ifndef WIN32
 #include <unistd.h>
 #include <sys/wait.h>
+#endif
+
+#ifdef WIN32
+bool exec_output(const char * path, char * args[], string & sOutput)
+{
+	return true;
+}
+#else
 bool exec_output(const char * path, char * args[], string & sOutput)
 {
 	int pid;
@@ -45,6 +54,7 @@ bool exec_output(const char * path, char * args[], string & sOutput)
 
 	return true;
 }
+#endif
 
 #ifdef ENABLE_MAIN
 int main(int argc, char * argv[])

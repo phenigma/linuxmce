@@ -136,6 +136,11 @@ bool Powerfile_C200::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 #endif
 		if (exec_output(args[0], args, sOutput))
 		{
+#ifdef WIN32
+			size_t size;
+			char *pBuffer = FileUtils::ReadFileIntoBuffer("/temp/status",size);
+			sOutput = pBuffer;
+#endif
 			vector<string> vect_sOutput_Rows;
 			
 			Tokenize(sOutput, "\n", vect_sOutput_Rows);
@@ -249,6 +254,12 @@ bool Powerfile_C200::GetConfig()
 		return false;
 	}
 
+#ifdef WIN32
+	size_t size;
+	char *pBuffer = FileUtils::ReadFileIntoBuffer("/temp/lsscsi",size);
+	sOutput=pBuffer;
+#endif
+
 	vector<string> vect_sOutput_Rows;
 	Tokenize(sOutput, "\n", vect_sOutput_Rows);
 	int nDrive = 0;
@@ -284,7 +295,6 @@ bool Powerfile_C200::GetConfig()
 	
 	PurgeInterceptors();
 	// MessageInterceptorFn, int Device_From, int Device_To, int Device_Type, int Device_Category, int Message_Type, int Message_ID
-	RegisterMsgInterceptor((MessageInterceptorFn)(&Powerfile_C200::MediaIdentified), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Media_Identified_CONST);
 	RegisterMsgInterceptor((MessageInterceptorFn)(&Powerfile_C200::RippingProgress), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Ripping_Progress_CONST);
 	
 	m_pJob = new Powerfile_Job("Powerfile job", this);
@@ -465,12 +475,15 @@ void Powerfile_C200::CMD_Load_from_Slot_into_Drive(int iSlot_Number,int iDrive_N
 	}
 	else
 	{
+		g_pPlutoLogger->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
 		int status = system(sCmd.c_str());
 		if (WEXITSTATUS(status) == 0)
 		{
 #ifndef EMULATE_PF
 			sCmd = "eject -s " + m_vectDrive[iDrive_Number].first; // this suddenly stopped working
+			g_pPlutoLogger->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
 			system(sCmd.c_str());
+			g_pPlutoLogger->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
 			sCmd = "mtx -f " + m_vectDrive[iDrive_Number].second + " eject"; // this is a patched version of mtx
 			system(sCmd.c_str());
 #endif
@@ -522,13 +535,16 @@ void Powerfile_C200::CMD_Unload_from_Drive_into_Slot(int iSlot_Number,int iDrive
 	}
 	else
 	{
+		g_pPlutoLogger->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
 		int status = system(sCmd.c_str());
 		if (WEXITSTATUS(status) == 0)
 		{
 #ifndef EMULATE_PF
 			sCmd = "eject -s " + m_vectDrive[iDrive_Number].first; // this suddenly stopped working
+			g_pPlutoLogger->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
 			system(sCmd.c_str());
 			sCmd = "mtx -f " + m_vectDrive[iDrive_Number].second + " eject"; // this is a patched version of mtx
+			g_pPlutoLogger->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
 			system(sCmd.c_str());
 #endif
 			g_pPlutoLogger->Write(LV_STATUS, "Unloading disc succeeded");
@@ -1018,10 +1034,12 @@ void PowerfileRip_Task::Run()
 
 void PowerfileIdentify_Task::Run()
 {
+	g_pPlutoLogger->Write(LV_STATUS,"PowerfileIdentify_Task::Run");
 	Powerfile_Job * pPowerfile_Job = (Powerfile_Job *) m_pJob;
 	
 	m_pDDF = pPowerfile_Job->m_pPowerfile_C200->GetDDF(m_iDrive_Number);
 	int iPK_Device = pPowerfile_Job->m_pPowerfile_C200->m_dwPK_Device;
+
 	DCE::CMD_Identify_Media_Cat CMD_Identify_Media_Cat(iPK_Device, DEVICECATEGORY_Media_Identifiers_CONST,
 		false, BL_SameComputer, iPK_Device, StringUtils::itos(m_iSlot), m_pDDF->m_sDrive);
 	pPowerfile_Job->m_pPowerfile_C200->SendCommand(CMD_Identify_Media_Cat);
