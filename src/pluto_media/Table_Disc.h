@@ -80,6 +80,8 @@ class DECLSPECIFIER Row_Disc : public TableRow, public SerializeClass
 		long int m_PK_Disc;
 string m_ID;
 long int m_EK_MediaType;
+long int m_EK_Device;
+long int m_Slot;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -87,12 +89,14 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[9];
+		bool is_null[11];
 	
 	public:
 		long int PK_Disc_get();
 string ID_get();
 long int EK_MediaType_get();
+long int EK_Device_get();
+long int Slot_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -104,6 +108,8 @@ long int psc_restrict_get();
 		void PK_Disc_set(long int val);
 void ID_set(string val);
 void EK_MediaType_set(long int val);
+void EK_Device_set(long int val);
+void Slot_set(long int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -113,6 +119,8 @@ void psc_restrict_set(long int val);
 
 		
 		bool ID_isNull();
+bool EK_Device_isNull();
+bool Slot_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -121,6 +129,8 @@ bool psc_restrict_isNull();
 
 			
 		void ID_setNull(bool val);
+void EK_Device_setNull(bool val);
+void Slot_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -148,7 +158,7 @@ void Picture_Disc_FK_Disc_getrows(vector <class Row_Picture_Disc*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Disc+ m_ID+ m_EK_MediaType+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_Disc+ m_ID+ m_EK_MediaType+ m_EK_Device+ m_Slot+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -156,6 +166,8 @@ void Picture_Disc_FK_Disc_getrows(vector <class Row_Picture_Disc*> *rows);
 		string PK_Disc_asSQL();
 string ID_asSQL();
 string EK_MediaType_asSQL();
+string EK_Device_asSQL();
+string Slot_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();
