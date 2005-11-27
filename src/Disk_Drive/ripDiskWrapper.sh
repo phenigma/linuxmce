@@ -13,7 +13,7 @@ ERR_NONE=0
 
 function printUsage
 {
-	echo "$0 <Disk_Drive device id> <Media_Plugin device id> <target file name> <source device> <disk type> <ownerID> ['<tracklist>']";
+	echo "$0 <Disk_Drive device id> <Media_Plugin device id> <target file name> <source device> <disk type> <ownerID> <rip format> ['<tracklist>']";
 	echo "tracklist format: t1,name1[|t2,name2[|t3,name3]...]"
 	echo "  t1 = track number"
 	echo "  name1 = file name track is to be saved as"
