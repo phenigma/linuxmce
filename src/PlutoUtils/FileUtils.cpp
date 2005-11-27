@@ -453,6 +453,14 @@ string FileUtils::ExcludeTrailingSlash(string sDirectoryPath)
 
 #ifndef WINCE
 
+string FileUtils::ValidFileName(string sInput)
+{
+    StringUtils::TrimSpaces(sInput); // elliminting the spaces
+    StringUtils::Replace(&sInput,"\\"," ");
+    StringUtils::Replace(&sInput,"/"," ");
+	return sInput;
+}
+
 string FileUtils::ValidCPPName(string sInput)
 {
     StringUtils::TrimSpaces(sInput); // elliminting the spaces

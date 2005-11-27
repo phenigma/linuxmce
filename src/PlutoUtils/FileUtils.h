@@ -54,6 +54,7 @@ namespace FileUtils
     string ExcludeTrailingSlash(string sDirectoryPath);
 
 #ifndef WINCE
+	string ValidFileName(string sInput); /** < converts the input file name to a valid file name (stripping / and \, for example) */
     string ValidCPPName( string sInput ); /** < converts the input file name to a valid CPP file name */
     time_t FileDate(string sFileName); /** < returns the date of the last file modification or 0 if error */
 

@@ -38,6 +38,7 @@
 #include "pluto_media/Table_Picture_Disc.h"
 #include "pluto_media/Table_Disc_Attribute.h"
 #include "pluto_media/Table_Picture.h"
+#include "pluto_media/Table_Picture_File.h"
 #include "pluto_media/Table_Picture_Attribute.h"
 #include "pluto_media/Define_AttributeType.h"
 
@@ -576,8 +577,8 @@ Row_Picture * MediaAttributes_LowLevel::AddPicture(char *pData,int iData_Size,st
 		string Cmd = "convert -sample 75x75 /home/mediapics/" + StringUtils::itos( pRow_Picture->PK_Picture_get() ) + "." + sFormat +
 			" /home/mediapics/" + StringUtils::itos( pRow_Picture->PK_Picture_get() ) + "_tn." + sFormat;
 		int result;
-		if( ( result=system( Cmd.c_str( ) ) )!=0 )
-			g_pPlutoLogger->Write( LV_CRITICAL, "Thumbnail picture %s returned %d", Cmd.c_str( ), result );
+//		if( ( result=system( Cmd.c_str( ) ) )!=0 )
+// TODO put back			g_pPlutoLogger->Write( LV_CRITICAL, "Thumbnail picture %s returned %d", Cmd.c_str( ), result );
 	}
 
 	return pRow_Picture;
@@ -711,6 +712,8 @@ int MediaAttributes_LowLevel::Parse_Misc_Media_ID(int PK_MediaType,listMediaAttr
 		}
 		PK_Disc = AddIdentifiedDiscToDB(PK_MediaType,vectAttributes[0],listMediaAttribute_);
 	}
+	
+	FixMediaAttributes(listMediaAttribute_);
 g_pPlutoLogger->Write(LV_STATUS,"Parse_misc_Media_ID done");
 	return PK_Disc;
 }
@@ -774,8 +777,28 @@ g_pPlutoLogger->Write(LV_STATUS,"Parse_CDDB_Media_ID not already id'd");
 		PK_Disc = AddIdentifiedDiscToDB(PK_MediaType,sCDDBID,listMediaAttribute_);
 	}
 
+	FixMediaAttributes(listMediaAttribute_);
 g_pPlutoLogger->Write(LV_STATUS,"Parse_CDDB_Media_ID done");
 	return PK_Disc;
+}
+
+void MediaAttributes_LowLevel::FixMediaAttributes(listMediaAttribute &listMediaAttribute_)
+{
+	map<string,int> mapSongs;
+	for(listMediaAttribute::iterator it=listMediaAttribute_.begin();it!=listMediaAttribute_.end();++it)
+	{
+		MediaAttribute *pMediaAttribute = *it;
+		pMediaAttribute->m_sName = FileUtils::ValidFileName(pMediaAttribute->m_sName);
+		if( pMediaAttribute->m_PK_AttributeType==ATTRIBUTETYPE_Song_CONST && pMediaAttribute->m_Title_Track )
+		{
+			// Be sure the same song isn't on the same disc twice with the same name, since it will cause
+			// a problem when we want to rip
+			int Track = mapSongs[pMediaAttribute->m_sName];
+			if( Track && Track!=pMediaAttribute->m_Title_Track )  // It's here twice
+				pMediaAttribute->m_sName = pMediaAttribute->m_sName + " (" + StringUtils::itos(pMediaAttribute->m_Title_Track) + ")";
+			mapSongs[pMediaAttribute->m_sName]=pMediaAttribute->m_Title_Track;
+		}
+	}
 }
 
 int MediaAttributes_LowLevel::IsDiscAlreadyIdentified(string sIdentifiedDisc,listMediaAttribute &listMediaAttribute_)
@@ -865,7 +888,14 @@ int MediaAttributes_LowLevel::AddIdentifiedDiscToDB(int PK_MediaType,string sIde
 	for(listMediaAttribute::iterator it=listMediaAttribute_.begin();it!=listMediaAttribute_.end();++it)
 	{
 		MediaAttribute *pMediaAttribute = *it;
-		Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(pMediaAttribute->m_PK_Attribute);
+		Row_Attribute *pRow_Attribute ;
+		if( !pMediaAttribute->m_PK_Attribute )
+		{
+			pRow_Attribute = GetAttributeFromDescription(PK_MediaType,pMediaAttribute->m_PK_AttributeType,pMediaAttribute->m_sName);
+			pMediaAttribute->m_PK_Attribute=pRow_Attribute->PK_Attribute_get();
+		}
+		else
+			pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow(pMediaAttribute->m_PK_Attribute);
 		if( !pRow_Attribute )
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL,"MediaAttributes_LowLevel::AddIdentifiedDiscToDB now can't find attribute %d",pMediaAttribute->m_PK_Attribute);
@@ -922,4 +952,132 @@ int MediaAttributes_LowLevel::AddPictureToDisc(int PK_Disc,char *pPictureData,si
 		return pRow_Picture->PK_Picture_get();
 	}
 	return 0;
+}
+
+Row_File *MediaAttributes_LowLevel::AddDirectoryToDatabase(int PK_MediaType,string sDirectory)
+{
+	vector<Row_File *> vectRow_File;
+	m_pDatabase_pluto_media->File_get()->GetRows("Path='" + StringUtils::SQLEscape(FileUtils::BasePath(sDirectory)) +
+		"' AND Filename='" + StringUtils::SQLEscape(FileUtils::FilenameWithoutPath(sDirectory)) + "' AND IsDirectory=1",
+		&vectRow_File);
+
+	if( vectRow_File.size()>0 )
+		return vectRow_File[0];
+
+	Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->AddRow();
+	pRow_File->EK_MediaType_set(PK_MediaType);
+	pRow_File->Path_set( FileUtils::BasePath(sDirectory) );
+	pRow_File->Filename_set( FileUtils::FilenameWithoutPath(sDirectory) );
+	pRow_File->IsDirectory_set(1);
+	m_pDatabase_pluto_media->File_get()->Commit();
+
+	// See what is 1 level up, and be sure it's in there too, as long as we're not at the top of the 'data' tree
+	string sParent = FileUtils::BasePath(sDirectory);
+	string sParentDirectory = FileUtils::BasePath(sParent);
+	if( sParentDirectory.substr( sParentDirectory.length()-4 )!="data" )
+		AddDirectoryToDatabase(PK_MediaType,sParent);
+
+	return pRow_File;
+}
+
+void MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaType,string sDestination,string sTracks)
+{
+	if( true || FileUtils::DirExists(sDestination) )
+	{
+		Row_File *pRow_File = AddDirectoryToDatabase(PK_MediaType==MEDIATYPE_pluto_CD_CONST ? MEDIATYPE_pluto_StoredAudio_CONST : PK_MediaType,sDestination);
+		AddDiscAttributesToFile(pRow_File->PK_File_get(),PK_Disc,0);  // Track ==0
+
+		string::size_type pos=0;
+		while( pos<sTracks.size() )
+		{
+			// Now get all the tracks
+			string s = StringUtils::Tokenize(sTracks,"|",pos);
+			string::size_type p2=0;
+			int iTrack = atoi(StringUtils::Tokenize(s,",",p2).c_str());
+			string sTrackName;
+			if( p2<s.size() && p2!=string::npos )
+				sTrackName = s.substr(p2);
+			
+			// See if there's a file with this base name
+			list<string> listFiles;
+			FileUtils::FindFiles(listFiles,sDestination,sTrackName + ".*");
+listFiles.push_back(sTrackName+".flac");
+			if( listFiles.size()!=1 )
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find ripped track: %s/%s",sDestination.c_str(),sTrackName.c_str());
+				continue;
+			}
+
+			Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->AddRow();
+			if( PK_MediaType==MEDIATYPE_pluto_CD_CONST )
+				pRow_File->EK_MediaType_set(MEDIATYPE_pluto_StoredAudio_CONST);
+			else
+				pRow_File->EK_MediaType_set(PK_MediaType);
+			pRow_File->Path_set( sDestination );
+			pRow_File->Filename_set( FileUtils::FilenameWithoutPath(listFiles.front()) );
+			m_pDatabase_pluto_media->File_get()->Commit();
+			AddDiscAttributesToFile(pRow_File->PK_File_get(),PK_Disc,iTrack);  
+		}
+	}
+	else
+	{
+		// It's not a directory, so it should be a file
+		list<string> listFiles;
+		FileUtils::FindFiles(listFiles,FileUtils::BasePath(sDestination),FileUtils::FilenameWithoutPath(sDestination) + ".*");
+
+		g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::AddRippedDiscToDatabase Dir does not exists %s found %d files",sDestination.c_str(),(int) listFiles.size());
+
+		if( listFiles.size()!=1 )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find ripped disc: %s",sDestination.c_str());
+		else
+		{
+			Row_File *pRow_File = AddDirectoryToDatabase(PK_MediaType,FileUtils::BasePath(sDestination) + FileUtils::FilenameWithoutPath(listFiles.front()));
+			AddDiscAttributesToFile(pRow_File->PK_File_get(),PK_Disc,-1);  // We won't have tracks then we ripped.  -1=ripped whole thing
+		}
+	}
+}
+
+void MediaAttributes_LowLevel::AddDiscAttributesToFile(int PK_File,int PK_Disc,int Track)
+{
+	Row_Disc *pRow_Disc = m_pDatabase_pluto_media->Disc_get()->GetRow( PK_Disc );
+	Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow( PK_File );
+	if( !pRow_Disc || !pRow_File )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::AddDiscAttributesToFile called with missing file %d disc %d",PK_File,PK_Disc);
+		return;
+	}
+
+#ifndef WIN32
+	string sPK_File = StringUtils::itos(PK_File);
+	attr_set( (pRow_File->Path_get() + "/" + pRow_File->Filename_get()).c_str( ), "ID", sPK_File.c_str( ), sPK_File.length( ), 0 );
+#endif
+
+	vector<Row_Picture_Disc *> vectRow_Picture_Disc;
+	pRow_Disc->Picture_Disc_FK_Disc_getrows(&vectRow_Picture_Disc);
+	for(size_t s=0;s<vectRow_Picture_Disc.size();++s)
+	{
+		Row_Picture_File *pRow_Picture_File = m_pDatabase_pluto_media->Picture_File_get()->AddRow();
+		pRow_Picture_File->FK_File_set(PK_File);
+		pRow_Picture_File->FK_Picture_set( vectRow_Picture_Disc[s]->FK_Picture_get() );
+		m_pDatabase_pluto_media->Picture_File_get()->Commit();
+#ifndef WIN32
+		string sPK_Picture = StringUtils::itos(pRow_Picture_File->FK_Picture_get());
+		attr_set( (pRow_File->Path_get() + "/" + pRow_File->Filename_get()).c_str( ), "PIC", sPK_Picture.c_str( ), sPK_Picture.length( ), 0 );
+#endif
+	}
+
+	vector<Row_Disc_Attribute *> vectRow_Disc_Attribute;
+	string sWhere = "FK_Disc=" + StringUtils::itos(PK_Disc);
+	if( Track!=-1 )
+		sWhere += " AND Track=" + StringUtils::itos(Track);
+	m_pDatabase_pluto_media->Disc_Attribute_get()->GetRows(sWhere,&vectRow_Disc_Attribute);
+	for(size_t s=0;s<vectRow_Disc_Attribute.size();++s)
+	{
+		Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->AddRow();
+		pRow_File_Attribute->FK_File_set(PK_File);
+		pRow_File_Attribute->FK_Attribute_set( vectRow_Disc_Attribute[s]->FK_Attribute_get() );
+		pRow_File_Attribute->Track_set( vectRow_Disc_Attribute[s]->Track_get() );
+		pRow_File_Attribute->Section_set( vectRow_Disc_Attribute[s]->Section_get() );
+		m_pDatabase_pluto_media->File_Attribute_get()->Commit();
+	}
 }

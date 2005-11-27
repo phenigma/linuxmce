@@ -209,8 +209,6 @@ protected:
      * Add the file to the pluto_media database
      */
 	void AddFileToDatabase(MediaFile *pMediaFile,int PK_MediaType);
-	void AddRippedDiscToDatabase(RippingJob *pRippingJob);
-	void AddDiscAttributesToFile(int PK_File,int PK_Disc,int Track);
 
     /**
      * Find a media type specific for a file name
@@ -351,11 +349,6 @@ public:
      * @brief EVENT_Media_Inserted event interceptor. A removable device should fire this event when it detected a new media inserted.
      */
     bool MediaInserted(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
-
-    /**
-     * @brief EVENT_Media_Identified event interceptor, fired when a media identification device identifies media
-     */
-    bool MediaIdentified(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
 
 	/**
      * @brief EVENT_Playback_Completed event interceptor. Called when the router finds an event of this type in the queue.
@@ -692,9 +685,13 @@ public:
 			/** For CD's, this must be a comma-delimted list of tracks (1 based) to rip. */
 		/** @param #131 EK_Disc */
 			/** The ID of the disc to rip */
+		/** @param #152 Drive Number */
+			/** Disc unit index number
+Disk_Drive: 0
+Powerfile: 0, 1, ... */
 
-	virtual void CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc) { string sCMD_Result; CMD_Rip_Disk(iPK_Users,sFormat.c_str(),sName.c_str(),sTracks.c_str(),iEK_Disc,sCMD_Result,NULL);};
-	virtual void CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,int iDrive_Number) { string sCMD_Result; CMD_Rip_Disk(iPK_Users,sFormat.c_str(),sName.c_str(),sTracks.c_str(),iEK_Disc,iDrive_Number,sCMD_Result,NULL);};
+	virtual void CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,int iDrive_Number,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #372 - MH Set Volume */
@@ -841,6 +838,25 @@ public:
 
 	virtual void CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,string sSpeed,string sTitle,string sSection) { string sCMD_Result; CMD_Update_Time_Code(iStreamID,sTime.c_str(),sTotal.c_str(),sSpeed.c_str(),sTitle.c_str(),sSection.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,string sSpeed,string sTitle,string sSection,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #742 - Media Identified */
+	/** A disc has been identified */
+		/** @param #2 PK_Device */
+			/** The disk drive */
+		/** @param #5 Value To Assign */
+			/** The identified data */
+		/** @param #10 ID */
+			/** The ID of the disc */
+		/** @param #19 Data */
+			/** The picture/cover art */
+		/** @param #20 Format */
+			/** The format of the data */
+		/** @param #59 MediaURL */
+			/** The URL for the disc drive */
+
+	virtual void CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,string sMediaURL) { string sCMD_Result; CMD_Media_Identified(iPK_Device,sValue_To_Assign.c_str(),sID.c_str(),pData,iData_Size,sFormat.c_str(),sMediaURL.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,string sMediaURL,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

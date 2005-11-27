@@ -592,82 +592,6 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
 
 }
 
-bool Media_Plugin::MediaIdentified( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
-{
-    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
-
-	int discid = atoi( pMessage->m_mapParameters[EVENTPARAMETER_ID_CONST].c_str( ) );
-    string sFormat = pMessage->m_mapParameters[EVENTPARAMETER_Format_CONST];
-    string sMRL = pMessage->m_mapParameters[EVENTPARAMETER_MRL_CONST];
-	int PK_Device_Disk_Drive = atoi( pMessage->m_mapParameters[EVENTPARAMETER_PK_Device_CONST].c_str( ) );
-	string sValue = pMessage->m_mapParameters[EVENTPARAMETER_Value_CONST];
-	DeviceData_Router *pDevice_Identifier = (DeviceData_Router *) pDeviceFrom;
-	int Priority = pDevice_Identifier ? atoi(pDevice_Identifier->m_mapParameters[DEVICEDATA_Priority_CONST].c_str()) : 0;
-	int iImageSize = pMessage->m_mapData_Lengths[EVENTPARAMETER_Image_CONST];
-	char *pImage = pMessage->m_mapData_Parameters[EVENTPARAMETER_Image_CONST];
-
-g_pPlutoLogger->Write(LV_STATUS,"Media was identified id %d device %d format %s",discid,PK_Device_Disk_Drive,sFormat.c_str());
-
-	DeviceData_Router *pDevice_Disk_Drive = m_pRouter->m_mapDeviceData_Router_Find(PK_Device_Disk_Drive);
-	if( !pDevice_Disk_Drive )
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find the disk drive device identified");
-		return false;
-	}
-
-	// Find the media stream
-	MediaStream *pMediaStream=NULL;
-    for(MapMediaStream::iterator it=m_mapMediaStream.begin();it!=m_mapMediaStream.end();++it)
-    {
-        MediaStream *pMS = (*it).second;
-		// If the disk matches, and the drive is either the source, or a sibbling of the source, this is the stream
-		if( pMS->m_discid==discid &&
-			(pMS->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device==PK_Device_Disk_Drive ||
-			pMS->m_pMediaDevice_Source->m_pDeviceData_Router->m_pDevice_ControlledVia==pDevice_Disk_Drive->m_pDevice_ControlledVia ) )
-		{
-			pMediaStream=pMS;
-			break;
-		}
-	}
-
-	if( !pMediaStream )
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find media identified");
-		return false;
-	}
-
-	if( pMediaStream->m_IdentifiedPriority && pMediaStream->m_IdentifiedPriority>=Priority )
-	{
-		g_pPlutoLogger->Write(LV_STATUS,"Media already identified by a higher priority %d (%d)",pMediaStream->m_IdentifiedPriority,Priority);
-		return false;
-	}
-	pMediaStream->m_IdentifiedPriority=Priority;
-	if( iImageSize && pImage )
-	{
-		if( pMediaStream->m_pPictureData )
-			delete[] pMediaStream->m_pPictureData;
-		pMediaStream->m_iPictureSize=iImageSize;
-		pMediaStream->m_pPictureData=new char[iImageSize];
-		memcpy(pMediaStream->m_pPictureData,pImage,iImageSize);
-	}
-
-	listMediaAttribute listMediaAttribute_;
-	int PK_Disc=0;
-	if( sFormat=="CDDB-TAB" && pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
-		PK_Disc=m_pMediaAttributes->m_pMediaAttributes_LowLevel->Parse_CDDB_Media_ID(pMediaStream->m_iPK_MediaType,listMediaAttribute_,sValue);
-	if( sFormat=="MISC-TAB" )
-		PK_Disc=m_pMediaAttributes->m_pMediaAttributes_LowLevel->Parse_Misc_Media_ID(pMediaStream->m_iPK_MediaType,listMediaAttribute_,sValue);
-
-	if( PK_Disc )
-		pMediaStream->m_dwPK_Disc = PK_Disc;
-
-//	pMediaStream->PopulateAttributes(listMediaAttribute_);
-	pMediaStream->UpdateDescriptions(true);
-	MediaInfoChanged(pMediaStream,true);
-	m_pMediaAttributes->m_pMediaAttributes_LowLevel->PurgeListMediaAttribute(listMediaAttribute_);
-
-	return true;
-}
 
 bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
 {
@@ -3213,8 +3137,12 @@ bool Media_Plugin::MediaFollowMe( class Socket *pSocket, class Message *pMessage
 			/** For CD's, this must be a comma-delimted list of tracks (1 based) to rip. */
 		/** @param #131 EK_Disc */
 			/** The ID of the disc to rip */
+		/** @param #152 Drive Number */
+			/** Disc unit index number
+Disk_Drive: 0
+Powerfile: 0, 1, ... */
 
-void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,string &sCMD_Result,Message *pMessage)
+void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string sTracks,int iEK_Disc,int iDrive_Number,string &sCMD_Result,Message *pMessage)
 //<-dceag-c337-e->
 {
 	// we only have the sources device. This should be an orbiter
@@ -3485,7 +3413,8 @@ bool Media_Plugin::RippingProgress( class Socket *pSocket, class Message *pMessa
 		return true;
 	}
 	else if( iResult==RIP_RESULT_SUCCESS )
-		AddRippedDiscToDatabase(pRippingJob);
+		m_pMediaAttributes->m_pMediaAttributes_LowLevel->AddRippedDiscToDatabase(pRippingJob->m_iPK_Disc,
+			pRippingJob->m_iPK_MediaType,pRippingJob->m_sName,pRippingJob->m_sTracks);
 	else
 		g_pPlutoLogger->Write(LV_STATUS,"Ripping wasn't successful--not adding it to the database");
 
@@ -4645,121 +4574,6 @@ void Media_Plugin::AddFileToDatabase(MediaFile *pMediaFile,int PK_MediaType)
 #endif
 }
 
-void Media_Plugin::AddRippedDiscToDatabase(RippingJob *pRippingJob)
-{
-	if( FileUtils::DirExists(pRippingJob->m_sName) )
-	{
-		Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->AddRow();
-		if( pRippingJob->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
-			pRow_File->EK_MediaType_set(MEDIATYPE_pluto_StoredAudio_CONST);
-		else
-			pRow_File->EK_MediaType_set(pRippingJob->m_iPK_MediaType);
-		pRow_File->Path_set( FileUtils::BasePath(pRippingJob->m_sName) );
-		pRow_File->Filename_set( FileUtils::FilenameWithoutPath(pRippingJob->m_sName) );
-		pRow_File->IsDirectory_set(1);
-		m_pDatabase_pluto_media->File_get()->Commit();
-
-		g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::AddRippedDiscToDatabase Dir Exists %s tracks %s",pRippingJob->m_sName.c_str(),pRippingJob->m_sTracks.c_str());
-
-		AddDiscAttributesToFile(pRow_File->PK_File_get(),pRippingJob->m_iPK_Disc,0);  // Track ==0
-
-		string::size_type pos=0;
-		while( pos<pRippingJob->m_sTracks.size() )
-		{
-			// Now get all the tracks
-			string s = StringUtils::Tokenize(pRippingJob->m_sTracks,"|",pos);
-			string::size_type p2=0;
-			int iTrack = atoi(StringUtils::Tokenize(s,",",p2).c_str());
-			string sTrackName = StringUtils::Tokenize(s,",",p2);
-			
-			// See if there's a file with this base name
-			list<string> listFiles;
-			FileUtils::FindFiles(listFiles,pRippingJob->m_sName,sTrackName + ".*");
-			if( listFiles.size()!=1 )
-			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find ripped track: %s/%s",pRippingJob->m_sName.c_str(),sTrackName.c_str());
-				continue;
-			}
-
-			Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->AddRow();
-			if( pRippingJob->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
-				pRow_File->EK_MediaType_set(MEDIATYPE_pluto_StoredAudio_CONST);
-			else
-				pRow_File->EK_MediaType_set(pRippingJob->m_iPK_MediaType);
-			pRow_File->Path_set( pRippingJob->m_sName );
-			pRow_File->Filename_set( FileUtils::FilenameWithoutPath(listFiles.front()) );
-			m_pDatabase_pluto_media->File_get()->Commit();
-			AddDiscAttributesToFile(pRow_File->PK_File_get(),pRippingJob->m_iPK_Disc,iTrack);  
-		}
-	}
-	else
-	{
-		// It's not a directory, so it should be a file
-		list<string> listFiles;
-		FileUtils::FindFiles(listFiles,FileUtils::BasePath(pRippingJob->m_sName),FileUtils::FilenameWithoutPath(pRippingJob->m_sName) + ".*");
-
-		g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::AddRippedDiscToDatabase Dir does not exists %s found %d files",pRippingJob->m_sName.c_str(),(int) listFiles.size());
-
-		if( listFiles.size()!=1 )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find ripped disc: %s",pRippingJob->m_sName.c_str());
-		else
-		{
-			Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->AddRow();
-			pRow_File->EK_MediaType_set(pRippingJob->m_iPK_MediaType);
-			pRow_File->Path_set( FileUtils::BasePath(pRippingJob->m_sName) );
-			pRow_File->Filename_set( FileUtils::FilenameWithoutPath(listFiles.front()) );
-			m_pDatabase_pluto_media->File_get()->Commit();
-			AddDiscAttributesToFile(pRow_File->PK_File_get(),pRippingJob->m_iPK_Disc,-1);  // We won't have tracks then we ripped.  -1=ripped whole thing
-		}
-	}
-}
-
-void Media_Plugin::AddDiscAttributesToFile(int PK_File,int PK_Disc,int Track)
-{
-	Row_Disc *pRow_Disc = m_pDatabase_pluto_media->Disc_get()->GetRow( PK_Disc );
-	Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow( PK_File );
-	if( !pRow_Disc || !pRow_File )
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::AddDiscAttributesToFile called with missing file %d disc %d",PK_File,PK_Disc);
-		return;
-	}
-
-#ifndef WIN32
-	string sPK_File = StringUtils::itos(PK_File);
-	attr_set( (pRow_File->Path_get() + "/" + pRow_File->Filename_get()).c_str( ), "ID", sPK_File.c_str( ), sPK_File.length( ), 0 );
-#endif
-
-	vector<Row_Picture_Disc *> vectRow_Picture_Disc;
-	pRow_Disc->Picture_Disc_FK_Disc_getrows(&vectRow_Picture_Disc);
-	for(size_t s=0;s<vectRow_Picture_Disc.size();++s)
-	{
-		Row_Picture_File *pRow_Picture_File = m_pDatabase_pluto_media->Picture_File_get()->AddRow();
-		pRow_Picture_File->FK_File_set(PK_File);
-		pRow_Picture_File->FK_Picture_set( vectRow_Picture_Disc[s]->FK_Picture_get() );
-		m_pDatabase_pluto_media->Picture_File_get()->Commit();
-#ifndef WIN32
-		string sPK_Picture = StringUtils::itos(pRow_Picture_File->FK_Picture_get());
-		attr_set( (pRow_File->Path_get() + "/" + pRow_File->Filename_get()).c_str( ), "PIC", sPK_Picture.c_str( ), sPK_Picture.length( ), 0 );
-#endif
-	}
-
-	vector<Row_Disc_Attribute *> vectRow_Disc_Attribute;
-	string sWhere = "FK_Disc=" + StringUtils::itos(PK_Disc);
-	if( Track!=-1 )
-		sWhere += " AND Track=" + StringUtils::itos(Track);
-	m_pDatabase_pluto_media->Disc_Attribute_get()->GetRows(sWhere,&vectRow_Disc_Attribute);
-	for(size_t s=0;s<vectRow_Disc_Attribute.size();++s)
-	{
-		Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->AddRow();
-		pRow_File_Attribute->FK_File_set(PK_File);
-		pRow_File_Attribute->FK_Attribute_set( vectRow_Disc_Attribute[s]->FK_Attribute_get() );
-		pRow_File_Attribute->Track_set( vectRow_Disc_Attribute[s]->Track_get() );
-		pRow_File_Attribute->Section_set( vectRow_Disc_Attribute[s]->Section_get() );
-		m_pDatabase_pluto_media->File_Attribute_get()->Commit();
-	}
-	g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::AddDiscAttributesToFile file: %d disc %d track %d #pics: %d #attr %d",
-		PK_File,PK_Disc,Track,(int) vectRow_Picture_Disc.size(),(int) vectRow_Disc_Attribute.size());
-}
 //<-dceag-c412-b->
 
 	/** @brief COMMAND: #412 - Set Media Position */
@@ -5134,4 +4948,91 @@ void Media_Plugin::CMD_Shuffle(string &sCMD_Result,Message *pMessage)
 		pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pEntertainArea->m_pMediaStream,sError);
 		MediaInfoChanged(pEntertainArea->m_pMediaStream,true);
 	}
+}
+//<-dceag-c742-b->
+
+	/** @brief COMMAND: #742 - Media Identified */
+	/** A disc has been identified */
+		/** @param #2 PK_Device */
+			/** The disk drive */
+		/** @param #5 Value To Assign */
+			/** The identified data */
+		/** @param #10 ID */
+			/** The ID of the disc */
+		/** @param #19 Data */
+			/** The picture/cover art */
+		/** @param #20 Format */
+			/** The format of the data */
+		/** @param #59 MediaURL */
+			/** The URL for the disc drive */
+
+void Media_Plugin::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,string sMediaURL,string &sCMD_Result,Message *pMessage)
+//<-dceag-c742-e->
+{
+    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+
+	g_pPlutoLogger->Write(LV_STATUS,"Media was identified id %s device %d format %s",sID.c_str(),iPK_Device,sFormat.c_str());
+
+	int Priority=1;
+	DeviceData_Router *pDevice_ID = m_pRouter->m_mapDeviceData_Router_Find(pMessage->m_dwPK_Device_From);
+	if( pDevice_ID )
+		Priority = atoi( pDevice_ID->m_mapParameters_Find(DEVICEDATA_Priority_CONST).c_str() );
+
+	DeviceData_Router *pDevice_Disk_Drive = m_pRouter->m_mapDeviceData_Router_Find(iPK_Device);
+	if( !pDevice_Disk_Drive )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find the disk drive device identified");
+		return;
+	}
+
+	// Find the media stream
+	MediaStream *pMediaStream=NULL;
+    for(MapMediaStream::iterator it=m_mapMediaStream.begin();it!=m_mapMediaStream.end();++it)
+    {
+        MediaStream *pMS = (*it).second;
+		// If the disk matches, and the drive is either the source, or a sibbling of the source, this is the stream
+		if( pMS->m_discid==atoi(sID.c_str()) &&
+			(pMS->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device==iPK_Device ||
+			pMS->m_pMediaDevice_Source->m_pDeviceData_Router->m_pDevice_ControlledVia==pDevice_Disk_Drive->m_pDevice_ControlledVia ) )
+		{
+			pMediaStream=pMS;
+			break;
+		}
+	}
+
+	if( !pMediaStream )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find media identified");
+		return;
+	}
+
+	if( pMediaStream->m_IdentifiedPriority && pMediaStream->m_IdentifiedPriority>=Priority )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"Media already identified by a higher priority %d (%d)",pMediaStream->m_IdentifiedPriority,Priority);
+		return;
+	}
+	pMediaStream->m_IdentifiedPriority=Priority;
+	if( pData && iData_Size )
+	{
+		if( pMediaStream->m_pPictureData )
+			delete[] pMediaStream->m_pPictureData;
+		pMediaStream->m_iPictureSize=iData_Size;
+		pMediaStream->m_pPictureData=new char[iData_Size];
+		memcpy(pMediaStream->m_pPictureData,pData,iData_Size);
+	}
+
+	listMediaAttribute listMediaAttribute_;
+	int PK_Disc=0;
+	if( sFormat=="CDDB-TAB" && pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
+		PK_Disc=m_pMediaAttributes->m_pMediaAttributes_LowLevel->Parse_CDDB_Media_ID(pMediaStream->m_iPK_MediaType,listMediaAttribute_,sValue_To_Assign);
+	if( sFormat=="MISC-TAB" )
+		PK_Disc=m_pMediaAttributes->m_pMediaAttributes_LowLevel->Parse_Misc_Media_ID(pMediaStream->m_iPK_MediaType,listMediaAttribute_,sValue_To_Assign);
+
+	if( PK_Disc )
+		pMediaStream->m_dwPK_Disc = PK_Disc;
+
+//	pMediaStream->PopulateAttributes(listMediaAttribute_);
+	pMediaStream->UpdateDescriptions(true);
+	MediaInfoChanged(pMediaStream,true);
+	m_pMediaAttributes->m_pMediaAttributes_LowLevel->PurgeListMediaAttribute(listMediaAttribute_);
 }

@@ -42,7 +42,7 @@ public:
 	MediaAttribute() { m_Section=m_Title_Track=m_PK_Attribute=m_PK_AttributeType; }
 	MediaAttribute(int Title_Track,int Section,int PK_AttributeType,int PK_Attribute,string Name) 
 	{ 
-		m_Section=m_Section;
+		m_Section=Section;
 		m_Title_Track=Title_Track;
 		m_PK_Attribute=PK_Attribute;
 		m_PK_AttributeType=PK_AttributeType; 
@@ -121,15 +121,17 @@ public:
     void MarkAsMissing(int iKey, string fileName);
 
 	static void PurgeDequeMediaFile(deque<MediaFile *> &dequeMediaFile);
-
-
 	static listMediaAttribute *AttributesFromString(string Input);
     static string AttributesToString(listMediaAttribute *plistMediaAttribute);
 
     static listMediaPicture *PicturesFromString(string Input);
     static string PicturesToString(listMediaPicture *plistMediaPicture);
 
+	Row_File *AddDirectoryToDatabase(int PK_MediaType,string sDirectory);
 	void AddAttributesToDisc(Row_Disc *pRow_Disc,int iFileOrTrack,int iSection,map<int,int> *p_mapPK_Attribute);
+	void AddRippedDiscToDatabase(int PK_Disc,int PK_MediaType,string sDestination,string sTracks);
+	void AddDiscAttributesToFile(int PK_File,int PK_Disc,int Track);
+	void FixMediaAttributes(listMediaAttribute &listMediaAttribute_);
 
 	string GetAttributeName(int PK_Attribute)
 	{
