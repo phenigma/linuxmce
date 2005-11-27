@@ -140,6 +140,8 @@ public:
 	}
 
 	int IsDiscAlreadyIdentified(string sIdentifiedDisc,listMediaAttribute &listMediaAttribute_);
+	int IsDiscAlreadyIdentified(int PK_Device,int Slot,listMediaAttribute &listMediaAttribute_);
+	int IsDiscAlreadyIdentified(Row_Disc *pRow_Disc,listMediaAttribute &listMediaAttribute_);
 	int Parse_CDDB_Media_ID(int PK_MediaType,listMediaAttribute &listMediaAttribute_,string sValue);
 	int Parse_Misc_Media_ID(int PK_MediaType,listMediaAttribute &listMediaAttribute_,string sValue);
 	MediaAttribute *GetMediaAttribute(int Title_Track,int Section,int PK_AttributeType,listMediaAttribute &listMediaAttribute_);

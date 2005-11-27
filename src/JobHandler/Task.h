@@ -24,6 +24,8 @@ namespace nsJobHandler
 		pthread_t m_TaskThread;
 
 	public:
+		string m_sResult;
+
 		TaskStatus m_eTaskStatus;
 		Task(string sName,int iPriority,Job *pJob);
 

@@ -149,7 +149,7 @@ public:
 	virtual void CMD_Load_from_Slot_into_Drive(int iSlot_Number,int iDrive_Number,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Unload_from_Drive_into_Slot(int iSlot_Number,int iDrive_Number,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Jukebox_Status(string sForce,string *sJukebox_Status,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Bulk_Rip(string sDisks,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Bulk_Rip(string sFilename,int iPK_Users,string sFormat,string sDisks,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Play_Disk(int iSlot_Number,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Bulk_Ripping_Status(string *sBulk_rip_status,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Mass_identify_media(string sDisks,string &sCMD_Result,class Message *pMessage) {};
@@ -615,8 +615,11 @@ public:
 				case 720:
 					{
 						string sCMD_Result="OK";
+					string sFilename=pMessage->m_mapParameters[13];
+					int iPK_Users=atoi(pMessage->m_mapParameters[17].c_str());
+					string sFormat=pMessage->m_mapParameters[20];
 					string sDisks=pMessage->m_mapParameters[157];
-						CMD_Bulk_Rip(sDisks.c_str(),sCMD_Result,pMessage);
+						CMD_Bulk_Rip(sFilename.c_str(),iPK_Users,sFormat.c_str(),sDisks.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -633,7 +636,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Bulk_Rip(sDisks.c_str(),sCMD_Result,pMessage);
+								CMD_Bulk_Rip(sFilename.c_str(),iPK_Users,sFormat.c_str(),sDisks.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

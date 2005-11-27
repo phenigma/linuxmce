@@ -14,12 +14,12 @@ using namespace DCE;
 
 #include "exec_grab_output.h"
 #include "PlutoUtils/StringUtils.h"
-#include "Media_Plugin/MediaAttributes_LowLevel.h"
 #include "pluto_media/Database_pluto_media.h"
 #include "pluto_main/Define_Event.h"
 #include "pluto_main/Define_EventParameter.h"
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_media/Table_Disc.h"
+#include "pluto_media/Define_AttributeType.h"
 
 using namespace StringUtils;
 
@@ -684,10 +684,18 @@ void Powerfile_C200::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,stri
 
 	/** @brief COMMAND: #720 - Bulk Rip */
 	/** Mass ripping */
+		/** @param #13 Filename */
+			/** A path where to put the files.  By default it will be /home/[public | user_xxx]/data/[music|movies].
+
+If this parameter starts with a "/" it is considered absolute.  Otherwise it is considered a sub-directory under the aforementioned default */
+		/** @param #17 PK_Users */
+			/** 0 to rip as public, or the user id to rip as private */
+		/** @param #20 Format */
+			/** For cd's only, flac,mp3,wav,ogg */
 		/** @param #157 Disks */
 			/** Comma delimited list of slot number. For all, use "*". */
 
-void Powerfile_C200::CMD_Bulk_Rip(string sDisks,string &sCMD_Result,Message *pMessage)
+void Powerfile_C200::CMD_Bulk_Rip(string sFilename,int iPK_Users,string sFormat,string sDisks,string &sCMD_Result,Message *pMessage)
 //<-dceag-c720-e->
 {
 	size_t i;
@@ -703,28 +711,32 @@ void Powerfile_C200::CMD_Bulk_Rip(string sDisks,string &sCMD_Result,Message *pMe
 	
 	m_pJob->Reset();
 
-	vector<int> vect_iSlots;
+	vector<string> vect_sSlots;
 	if (sDisks == "*")
 	{
 		for (size_t i = 0; i < m_vectSlotStatus.size(); i++)
 		{
 			if (m_vectSlotStatus[i])
-				vect_iSlots.push_back(i + 1);
+				vect_sSlots.push_back(StringUtils::itos(i + 1));
 		}
 	}
 	else
-	{
-		vector<string> vect_sDisks;
-		Tokenize(sDisks, ",", vect_sDisks);
-		for (i = 0; i < vect_sDisks.size(); i++)
-			vect_iSlots.push_back(atoi(vect_sDisks[i].c_str()));
-	}
+		StringUtils::Tokenize(sDisks, ",", vect_sSlots);
 
-	for (i = 0; i < vect_iSlots.size(); i++)
+	for (i = 0; i < vect_sSlots.size(); i++)
 	{
-		int iSlot = vect_iSlots[i];
-		PowerfileRip_Task * pTask = new PowerfileRip_Task("Rip Slot " + StringUtils::itos(iSlot), 0, m_pJob);
+		string sSlot = vect_sSlots[i];
+		int iSlot = atoi(sSlot.c_str());
+		PowerfileRip_Task * pTask = new PowerfileRip_Task(iPK_Users,sFormat,sFilename,"Rip Slot " + vect_sSlots[i], 0, m_pJob);
 		pTask->m_iSlot = iSlot;
+		string::size_type pos=0;
+		StringUtils::Tokenize(sSlot, "|", pos);
+		while(pos<sSlot.size())
+		{
+			int Track = atoi(StringUtils::Tokenize(sSlot, "|", pos).c_str());
+			if( Track )
+				pTask->m_mapTracks[Track]="";
+		}
 		m_pJob->AddTask(pTask);
 	}
 
@@ -903,14 +915,14 @@ string Powerfile_Job::ToString()
 string PowerfileRip_Task::ToString()
 {
 	static const char * textStatus[] = { "N", "R", "F", "S" };
-	string sResult = "S" + StringUtils::itos(m_iSlot) + "-" + textStatus[m_eTaskStatus];
+	string sResult = "S" + StringUtils::itos(m_iSlot) + "-" + textStatus[m_eTaskStatus] + " " + m_sResult;
 	return sResult;
 }
 
 string PowerfileIdentify_Task::ToString()
 {
 	static const char * textStatus[] = { "N", "I", "F", "S" };
-	string sResult = "S" + StringUtils::itos(m_iSlot) + "-" + textStatus[m_eTaskStatus];
+	string sResult = "S" + StringUtils::itos(m_iSlot) + "-" + textStatus[m_eTaskStatus] + " " + m_sResult;
 	return sResult;
 }
 
@@ -918,20 +930,108 @@ void PowerfileRip_Task::Run()
 {
 	Powerfile_Job * pPowerfile_Job = (Powerfile_Job *) m_pJob;
 
-//#warning "TODO: UNINITIALIZED VARIABLES"
-	// TODO: get these from Media_Plugin
-	int iPK_Users = 0, iEK_Disc = 0;
-	string sFormat = "ogg", sName = "/tmp/tempName", sTracks = "1,tempTrack|";
-//#warning "TODO: UNINITIALIZED VARIABLES"
-	string sCMD_Result;
-	int iPK_Device = pPowerfile_Job->m_pPowerfile_C200->m_dwPK_Device;
-
-	m_pDDF = pPowerfile_Job->m_pPowerfile_C200->GetDDF(m_iDrive_Number);
-	m_pDDF->CMD_Rip_Disk(iPK_Users, sFormat, sName, sTracks, iEK_Disc, m_iDrive_Number, sCMD_Result, NULL);
-
-	while (! m_bStop)
+	listMediaAttribute listMediaAttribute_;
+	int PK_Disc = pPowerfile_Job->m_pPowerfile_C200->m_pMediaAttributes_LowLevel->IsDiscAlreadyIdentified(pPowerfile_Job->m_pPowerfile_C200->m_dwPK_Device,m_iSlot,listMediaAttribute_);
+	Row_Disc *pRow_Disc;
+	if( !PK_Disc || (pRow_Disc=pPowerfile_Job->m_pPowerfile_C200->m_pDatabase_pluto_media->Disc_get()->GetRow(PK_Disc))==NULL )
 	{
-		Sleep(100);
+		m_eTaskStatus=TASK_FAILED;
+		m_sResult="Disc has not been identified";
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot rip disk for device %d slot %d because it has not been identified",
+			pPowerfile_Job->m_pPowerfile_C200->m_dwPK_Device,m_iSlot);
+		return;
+	}
+
+	if( pRow_Disc->EK_MediaType_get()==MEDIATYPE_pluto_CD_CONST )
+		RipCD(pRow_Disc,listMediaAttribute_);
+	else if( pRow_Disc->EK_MediaType_get()==MEDIATYPE_pluto_DVD_CONST )
+		RipDVD(pRow_Disc,listMediaAttribute_);
+	else
+	{
+		m_eTaskStatus=TASK_FAILED;
+		m_sResult="Disc type is unknown";
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot rip disk for device %d slot %d because the type %d is unknown",
+			pPowerfile_Job->m_pPowerfile_C200->m_dwPK_Device,m_iSlot,pRow_Disc->EK_MediaType_get());
+	}
+}
+
+void PowerfileRip_Task::RipDVD(Row_Disc *pRow_Disc,listMediaAttribute &listMediaAttribute_)
+{
+}
+
+void PowerfileRip_Task::RipCD(Row_Disc *pRow_Disc,listMediaAttribute &listMediaAttribute_)
+{
+	Powerfile_Job * pPowerfile_Job = (Powerfile_Job *) m_pJob;
+
+	string sPerformer,sAlbum;
+	bool bAllTracks = m_mapTracks.size()==0;
+	for(listMediaAttribute::iterator it=listMediaAttribute_.begin();it!=listMediaAttribute_.end();++it)
+	{
+		MediaAttribute *pMediaAttribute = *it;
+		if( pMediaAttribute->m_Title_Track==0 )
+		{
+			if( pMediaAttribute->m_PK_AttributeType==ATTRIBUTETYPE_Performer_CONST )
+				sPerformer = pMediaAttribute->m_sName;
+			else if( pMediaAttribute->m_PK_AttributeType==ATTRIBUTETYPE_Album_CONST )
+				sAlbum = pMediaAttribute->m_sName;
+		}
+		else if( bAllTracks || m_mapTracks.find(pMediaAttribute->m_Title_Track)!=m_mapTracks.end() )
+		{
+			if( pMediaAttribute->m_PK_AttributeType==ATTRIBUTETYPE_Song_CONST )
+				m_mapTracks[pMediaAttribute->m_Title_Track] = pMediaAttribute->m_sName;
+		}
+	}
+
+	if( sPerformer.size()==0 || sAlbum.size()==0 )
+	{
+		m_eTaskStatus=TASK_FAILED;
+		m_sResult="CD Performer and Album are not known";
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot rip disk for device %d slot %d because the performer/album are unknown",
+			pPowerfile_Job->m_pPowerfile_C200->m_dwPK_Device,m_iSlot);
+		return;
+	}
+
+	string sTracks;
+	for(map<int,string>::iterator it=m_mapTracks.begin();it!=m_mapTracks.end();++it)
+	{
+		string sSong = it->second;
+		if( sSong.size()==0 )
+			sSong = "Track " + StringUtils::itos(it->first);
+		sTracks += StringUtils::itos(it->first) + "," + sSong + "|";
+	}
+
+	string sPath;
+	if( m_iPK_Users )
+		sPath = "/home/user_" + StringUtils::itos(m_iPK_Users) + "/data/music";
+	else
+		sPath = "/home/public/data/music";
+	if( m_sPath.size() )
+	{
+		if( m_sPath[0]=='/' )
+			sPath = m_sPath;
+		else
+			sPath += m_sPath;
+	}
+	string sCMD_Result="OK";
+
+	int iPK_Device = pPowerfile_Job->m_pPowerfile_C200->m_dwPK_Device;
+	m_pDDF = pPowerfile_Job->m_pPowerfile_C200->GetDDF(m_iDrive_Number);
+	m_pDDF->CMD_Rip_Disk(m_iPK_Users, m_sFormat, sPath, sTracks, pRow_Disc->PK_Disc_get(), m_iDrive_Number, sCMD_Result, NULL);
+
+	if( sCMD_Result=="OK" )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"Disc is ripping");
+		while (! m_bStop)
+		{
+			Sleep(100);
+		}
+	}
+	else
+	{
+		m_bStop=true;
+		m_eTaskStatus=TASK_FAILED;
+		m_sResult="Ripping reported " + sCMD_Result;
+		g_pPlutoLogger->Write(LV_STATUS,"Disc failed to rip %s",sCMD_Result.c_str());
 	}
 	g_pPlutoLogger->Write(LV_STATUS, "Drive %d ripping task finished with status %d", m_iDrive_Number, m_eTaskStatus);
 }
@@ -999,7 +1099,10 @@ void Powerfile_Job::RippingProgress(int iDrive_Number, int iResult)
 			if (iResult == RIP_RESULT_SUCCESS)
 				pTask->m_eTaskStatus = TASK_COMPLETED;
 			else
+			{
+				pTask->m_sResult="Technical problem reading the disc";
 				pTask->m_eTaskStatus = TASK_FAILED;
+			}
 			pTask->m_bStop = true;
 			return;
 		}

@@ -453,12 +453,14 @@ void Disk_Drive_Functions::CMD_Rip_Disk(int iPK_Users, string sFormat, string sN
 	if (! m_mediaInserted)
 	{
 		EVENT_Ripping_Progress("",RIP_RESULT_NO_DISC, "", sName, iEK_Disc);
+		sCMD_Result = "No Disc";
 		return;
 	}
 
 	if (m_mediaDiskStatus != DISCTYPE_CD_AUDIO && m_mediaDiskStatus != DISCTYPE_DVD_VIDEO && m_mediaDiskStatus != DISCTYPE_CD_MIXED && m_mediaDiskStatus != DISCTYPE_CD_VCD)
 	{
 		EVENT_Ripping_Progress("", RIP_RESULT_INVALID_DISC_TYPE, "", sName, iEK_Disc);
+		sCMD_Result = "Unknown Disc Type";
 		return;
 	}
 

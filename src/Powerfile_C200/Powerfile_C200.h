@@ -6,12 +6,16 @@
 
 #include "Gen_Devices/Powerfile_C200Base.h"
 //<-dceag-d-e->
+
 #include "Disk_Drive_Functions/Disk_Drive_Functions.h"
 #include <JobHandler/Job.h>
 #include <JobHandler/Task.h>
+#include "Media_Plugin/MediaAttributes_LowLevel.h"
+#include <vector>
 using namespace nsJobHandler;
 class Database_pluto_media;
 class MediaAttributes_LowLevel;
+class Row_Disc;
 
 //<-dceag-decl-b->
 namespace DCE
@@ -20,6 +24,7 @@ namespace DCE
 	{
 //<-dceag-decl-e->
 		// Private member variables
+		friend class PowerfileRip_Task;
 		Database_pluto_media *m_pDatabase_pluto_media;
 		class MediaAttributes_LowLevel *m_pMediaAttributes_LowLevel;
 
@@ -220,11 +225,19 @@ where:
 
 	/** @brief COMMAND: #720 - Bulk Rip */
 	/** Mass ripping */
+		/** @param #13 Filename */
+			/** A path where to put the files.  By default it will be /home/[public | user_xxx]/data/[music|movies].
+
+If this parameter starts with a "/" it is considered absolute.  Otherwise it is considered a sub-directory under the aforementioned default */
+		/** @param #17 PK_Users */
+			/** 0 to rip as public, or the user id to rip as private */
+		/** @param #20 Format */
+			/** For cd's only, flac,mp3,wav,ogg */
 		/** @param #157 Disks */
 			/** Comma delimited list of slot number. For all, use "*". */
 
-	virtual void CMD_Bulk_Rip(string sDisks) { string sCMD_Result; CMD_Bulk_Rip(sDisks.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Bulk_Rip(string sDisks,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Bulk_Rip(string sFilename,int iPK_Users,string sFormat,string sDisks) { string sCMD_Result; CMD_Bulk_Rip(sFilename.c_str(),iPK_Users,sFormat.c_str(),sDisks.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Bulk_Rip(string sFilename,int iPK_Users,string sFormat,string sDisks,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #738 - Play Disk */
@@ -345,10 +358,17 @@ namespace DCE
 	class PowerfileRip_Task : public Powerfile_Task
 	{
 		public:
-			PowerfileRip_Task(string sName, int iPriority, Job * pJob) : Powerfile_Task(sName, iPriority, pJob) {}
+			int m_iPK_Users;
+			string m_sFormat,m_sPath;
+			map<int,string> m_mapTracks;
+
+			PowerfileRip_Task(int PK_Users, string sFormat, string sPath, string sName, int iPriority, Job * pJob) : Powerfile_Task(sName, iPriority, pJob) { m_iPK_Users=PK_Users; m_sFormat=sFormat; m_sPath=sPath; }
 			string Type() { return "Rip"; }
 			string ToString();
 			void Run();
+
+			void RipCD(Row_Disc *pRow_Disc,listMediaAttribute &listMediaAttribute_);
+			void RipDVD(Row_Disc *pRow_Disc,listMediaAttribute &listMediaAttribute_);
 	};
 
 	class PowerfileIdentify_Task : public Powerfile_Task

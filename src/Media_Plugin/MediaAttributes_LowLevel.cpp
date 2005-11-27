@@ -786,7 +786,22 @@ int MediaAttributes_LowLevel::IsDiscAlreadyIdentified(string sIdentifiedDisc,lis
 		return 0;
 
 	Row_Disc *pRow_Disc = vectRow_Disc[0];
+	return IsDiscAlreadyIdentified(pRow_Disc,listMediaAttribute_);
+}
 
+int MediaAttributes_LowLevel::IsDiscAlreadyIdentified(int PK_Device,int Slot,listMediaAttribute &listMediaAttribute_)
+{
+	vector<Row_Disc *> vectRow_Disc;
+	m_pDatabase_pluto_media->Disc_get()->GetRows("EK_Device=" + StringUtils::itos(PK_Device) + " AND Slot=" + StringUtils::itos(Slot),&vectRow_Disc);
+	if( vectRow_Disc.size()==0 )
+		return 0;
+
+	Row_Disc *pRow_Disc = vectRow_Disc[0];
+	return IsDiscAlreadyIdentified(pRow_Disc,listMediaAttribute_);
+}
+
+int MediaAttributes_LowLevel::IsDiscAlreadyIdentified(Row_Disc *pRow_Disc,listMediaAttribute &listMediaAttribute_)
+{
 	vector<Row_Disc_Attribute *> vectRow_Disc_Attribute;
 	pRow_Disc->Disc_Attribute_FK_Disc_getrows(&vectRow_Disc_Attribute);
 
