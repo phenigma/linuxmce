@@ -199,6 +199,8 @@ namespace StringUtils
 	string SecondsAsTime(int iSeconds);
 	string PrecisionTime();
 
+	bool ContainsNonAscii(string &sInput);
+
 #endif //#ifndef SYMBIAN
 };
 

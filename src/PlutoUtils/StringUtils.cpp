@@ -897,6 +897,16 @@ string StringUtils::PrecisionTime()
 	return acBuff;
 }
 
+bool StringUtils::ContainsNonAscii(string &sInput)
+{
+	for(size_t s=0;s<sInput.size();++s)
+	{
+		char c = sInput[s];
+		if( c<' ' || c>'~' )
+			return true;
+	}
+	return false;
+}
 
 #endif //#ifndef SYMBIAN
 
