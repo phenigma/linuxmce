@@ -1146,7 +1146,7 @@ void Powerfile_C200::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign
 	if( PK_Disc )
 	{
 		vector<Row_Disc *> vectRow_Disc;
-		m_pDatabase_pluto_media->Disc_get()->GetRows("EK_Device=" + StringUtils::itos(m_dwPK_Device) + " Slot=" + sID,&vectRow_Disc);
+		m_pDatabase_pluto_media->Disc_get()->GetRows("EK_Device=" + StringUtils::itos(m_dwPK_Device) + " AND Slot=" + sID,&vectRow_Disc);
 		for(size_t s=0;s<vectRow_Disc.size();++s)
 		{
 			vectRow_Disc[s]->EK_Device_set(0);
