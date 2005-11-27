@@ -166,6 +166,9 @@
 				RelativePath="..\Orbiter\RendererOCG.cpp">
 			</File>
 			<File
+				RelativePath="..\Orbiter\ScreenHandler.cpp">
+			</File>
+			<File
 				RelativePath="..\Orbiter\Sdl\SDLGraphic.cpp">
 			</File>
 			<File

@@ -113,7 +113,7 @@ listMediaAttribute *MediaAttributes_LowLevel::AttributesFromString( string Input
         MediaAttribute *mi = new MediaAttribute( );
         mi->m_PK_Attribute = atoi( StringUtils::Tokenize( Input, "|", pos ).c_str( ) );
         mi->m_PK_AttributeType = atoi( StringUtils::Tokenize( Input, "|", pos ).c_str( ) );
-        mi->m_Name = StringUtils::Tokenize( Input, "|", pos );
+        mi->m_sName = StringUtils::Tokenize( Input, "|", pos );
         if( !mi->m_PK_Attribute && !mi->m_PK_AttributeType )
         {
             delete mi;
@@ -133,7 +133,7 @@ string MediaAttributes_LowLevel::AttributesToString( listMediaAttribute *plistMe
         MediaAttribute *mi = ( *it );
         Result += StringUtils::itos( mi->m_PK_Attribute ) + "|";
         Result += StringUtils::itos( mi->m_PK_AttributeType ) + "|";
-        Result += mi->m_Name + "|";
+        Result += mi->m_sName + "|";
     }
 
     return Result;
@@ -705,10 +705,11 @@ int MediaAttributes_LowLevel::Parse_Misc_Media_ID(int PK_MediaType,listMediaAttr
 					if( !p )
 						listMediaAttribute_.push_back( new MediaAttribute(
 							i,0,pMediaAttribute_Album->m_PK_AttributeType,pMediaAttribute_Album->m_PK_Attribute,
-							pMediaAttribute_Album->m_Name) );
+							pMediaAttribute_Album->m_sName) );
 				}
 			}
 		}
+		PK_Disc = AddIdentifiedDiscToDB(PK_MediaType,vectAttributes[0],listMediaAttribute_);
 	}
 g_pPlutoLogger->Write(LV_STATUS,"Parse_misc_Media_ID done");
 	return PK_Disc;
@@ -770,6 +771,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Parse_CDDB_Media_ID not already id'd");
 					s,0,pRow_Attribute->FK_AttributeType_get(),pRow_Attribute->PK_Attribute_get(),pRow_Attribute->Name_get()) );
 			}
 		}
+		PK_Disc = AddIdentifiedDiscToDB(PK_MediaType,sCDDBID,listMediaAttribute_);
 	}
 
 g_pPlutoLogger->Write(LV_STATUS,"Parse_CDDB_Media_ID done");

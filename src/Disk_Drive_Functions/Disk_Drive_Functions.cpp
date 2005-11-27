@@ -13,7 +13,9 @@
 #include "VFD_LCD/VFD_LCD_Base.h"
 
 #include <fcntl.h>
+#ifndef WIN32
 #include <sys/ioctl.h>
+#endif
 
 #include <sstream>
 using namespace std;
@@ -48,6 +50,7 @@ bool Disk_Drive_Functions::internal_monitor_step(bool bFireEvent)
 
 bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent)
 {
+#ifndef WIN32
 	PLUTO_SAFETY_LOCK(dm,m_DiskMutex);
     int status;
     string mrl = ""; //, serverMRL, title;
@@ -121,15 +124,15 @@ bool Disk_Drive_Functions::internal_reset_drive(bool bFireEvent)
             g_pPlutoLogger->Write(LV_STATUS, "Disk is not in the drive at the moment");
         }
     }
-
+#endif
     return true;
 //  cout << "Need to implement command #47 - Reset Disk Drive" << endl;
 }
 
 int Disk_Drive_Functions::cdrom_has_dir(int fd, const char *directory)
 {
-
     int ret = 0;        // return value
+#ifndef WIN32
     unsigned short bs;  // the discs block size
     unsigned short ts;  // the path table size
     unsigned int tl;    // the path table location (in blocks)
@@ -212,7 +215,7 @@ int Disk_Drive_Functions::cdrom_has_dir(int fd, const char *directory)
         pos += 8 + len_di;
         curr_record++;
     }
-
+#endif
     return ret;
 }
 
@@ -234,7 +237,8 @@ int Disk_Drive_Functions::cdrom_lock(int lock)
 
 int Disk_Drive_Functions::cdrom_checkdrive(const char * filename, int * flag, bool bFireEvent)
 {
-    int fd;
+#ifndef WIN32
+	int fd;
     int status;
     struct cdrom_tochdr th;
 
@@ -364,6 +368,7 @@ int Disk_Drive_Functions::cdrom_checkdrive(const char * filename, int * flag, bo
         * flag = DISCTYPE_NONE;
     }
     close(fd);
+#endif
     return 0;
 }
 
@@ -506,12 +511,13 @@ void Disk_Drive_Functions::CMD_Rip_Disk(int iPK_Users, string sFormat, string sN
 
 string Disk_Drive_Functions::getTracks(string mrl)
 {
+    int fd = -1, status;
+    string tracks = "";
+
+#ifndef WIN32
     g_pPlutoLogger->Write(LV_STATUS, "Finding CD tracks.");
 
 //     time_t startTime=time(NULL);
-
-    int fd = -1, status;
-    string tracks = "";
 
 	try
 	{
@@ -568,6 +574,7 @@ string Disk_Drive_Functions::getTracks(string mrl)
     }
 
 	close(fd);
+#endif
     return tracks;
 }
 

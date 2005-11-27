@@ -37,7 +37,7 @@ public:
 	int m_Title_Track,m_Section;  // For CD's Title_Track is the track for DVD's the title, for DVD's Section is the chapter
     int m_PK_Attribute;
     int m_PK_AttributeType;
-    string m_Name;
+    string m_sName;
 
 	MediaAttribute() { m_Section=m_Title_Track=m_PK_Attribute=m_PK_AttributeType; }
 	MediaAttribute(int Title_Track,int Section,int PK_AttributeType,int PK_Attribute,string Name) 
@@ -46,6 +46,7 @@ public:
 		m_Title_Track=Title_Track;
 		m_PK_Attribute=PK_Attribute;
 		m_PK_AttributeType=PK_AttributeType; 
+		m_sName=Name;
 	}
 };
 
@@ -145,6 +146,12 @@ public:
 	int GetMaxTracks(listMediaAttribute &listMediaAttribute_);
 	int AddIdentifiedDiscToDB(int PK_MediaType,string sIdentifiedDisc,listMediaAttribute &listMediaAttribute_);
 	int AddPictureToDisc(int PK_Disc,char *pPictureData,size_t sizePicture);
+	void PurgeListMediaAttribute(listMediaAttribute &listMediaAttribute_)
+	{
+		for(listMediaAttribute::iterator it=listMediaAttribute_.begin();it!=listMediaAttribute_.end();++it)
+			delete *it;
+		listMediaAttribute_.clear();
+	}
 };
 
 #endif

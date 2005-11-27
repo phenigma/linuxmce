@@ -660,12 +660,11 @@ g_pPlutoLogger->Write(LV_STATUS,"Media was identified id %d device %d format %s"
 
 	if( PK_Disc )
 		pMediaStream->m_dwPK_Disc = PK_Disc;
-//	else
-//		pMediaStream->m_dwPK_Disc = m_pMediaAttributes->m_pMediaAttributes_LowLevel->AddIdentifiedDiscToDB(listMediaAttribute_)
 
 //	pMediaStream->PopulateAttributes(listMediaAttribute_);
 	pMediaStream->UpdateDescriptions(true);
 	MediaInfoChanged(pMediaStream,true);
+	m_pMediaAttributes->m_pMediaAttributes_LowLevel->PurgeListMediaAttribute(listMediaAttribute_);
 
 	return true;
 }

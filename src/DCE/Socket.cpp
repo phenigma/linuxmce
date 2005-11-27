@@ -1121,7 +1121,6 @@ bool Socket::ReceiveString( string &sRefString, int nTimeout/*= -1*/)
 	}
 #endif
 	return true;
-cout << "temp: received string in dce socket" << endl;
 }
 
 bool Socket::SendString( string sLine )
