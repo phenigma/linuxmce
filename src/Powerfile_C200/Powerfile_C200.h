@@ -10,6 +10,8 @@
 #include <JobHandler/Job.h>
 #include <JobHandler/Task.h>
 using namespace nsJobHandler;
+class Database_pluto_media;
+class MediaAttributes_LowLevel;
 
 //<-dceag-decl-b->
 namespace DCE
@@ -18,6 +20,8 @@ namespace DCE
 	{
 //<-dceag-decl-e->
 		// Private member variables
+		Database_pluto_media *m_pDatabase_pluto_media;
+		class MediaAttributes_LowLevel *m_pMediaAttributes_LowLevel;
 
 		// Private methods
 public:
@@ -34,11 +38,8 @@ public:
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
 
-//<-dceag-const2-b->
+//<-dceag-const2-b->!
 		// The following constructor is only used if this a class instance embedded within a DCE Device.  In that case, it won't create it's own connection to the router
-		// You can delete this whole section and put an ! after dceag-const2-b tag if you don't want this constructor.  Do the same in the implementation file
-		Powerfile_C200(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter);
-//<-dceag-const2-e->
 
 //<-dceag-h-b->
 	/*
@@ -259,6 +260,26 @@ only slots that were scheduled for ripping will appear in the string */
 	virtual void CMD_Mass_identify_media(string sDisks) { string sCMD_Result; CMD_Mass_identify_media(sDisks.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Mass_identify_media(string sDisks,string &sCMD_Result,Message *pMessage);
 
+
+	/** @brief COMMAND: #742 - Media Identified */
+	/** A disc has been ID's */
+		/** @param #2 PK_Device */
+			/** The disk drive */
+		/** @param #5 Value To Assign */
+			/** The identified data */
+		/** @param #10 ID */
+			/** The ID of the disc */
+		/** @param #19 Data */
+			/** The picture/cover art */
+		/** @param #20 Format */
+			/** The format of the data */
+		/** @param #59 MediaURL */
+			/** The URL for the disc drive */
+
+	virtual void CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,string sMediaURL) { string sCMD_Result; CMD_Media_Identified(iPK_Device,sValue_To_Assign.c_str(),sID.c_str(),pData,iData_Size,sFormat.c_str(),sMediaURL.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,string sMediaURL,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 		private:
 			// corresponding devices
@@ -277,7 +298,6 @@ only slots that were scheduled for ripping will appear in the string */
 			pluto_pthread_mutex_t m_DriveMutex;
 
 		public:
-			bool MediaIdentified(class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo);
 			bool RippingProgress(class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo);
 
 			int GetFreeDrive(int iSlot);

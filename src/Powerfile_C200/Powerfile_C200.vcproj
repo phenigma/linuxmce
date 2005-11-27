@@ -32,10 +32,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib libmysql.lib DCE.lib pluto_media.lib"
 				OutputFile="../Debug/Powerfile_C200.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="../../libs/Libraries/pthreads-win32/lib;../lib"
+				AdditionalLibraryDirectories="/mysql/lib/debug;../../libs/Libraries/pthreads-win32/lib;../lib"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/Powerfile_C200.pdb"
 				SubSystem="1"
@@ -136,6 +136,9 @@
 			</File>
 			<File
 				RelativePath="Main.cpp">
+			</File>
+			<File
+				RelativePath="..\Media_Plugin\MediaAttributes_LowLevel.cpp">
 			</File>
 			<File
 				RelativePath="Powerfile_C200.cpp">
