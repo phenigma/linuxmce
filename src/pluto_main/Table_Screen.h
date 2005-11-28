@@ -79,8 +79,10 @@ class DECLSPECIFIER Row_Screen : public TableRow, public SerializeClass
 		
 		long int m_PK_Screen;
 string m_Description;
+string m_Define;
 string m_Comments;
 short int m_SpecialHandingRecommended;
+short int m_AlwaysInclude;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -88,13 +90,15 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[10];
+		bool is_null[12];
 	
 	public:
 		long int PK_Screen_get();
 string Description_get();
+string Define_get();
 string Comments_get();
 short int SpecialHandingRecommended_get();
+short int AlwaysInclude_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -105,8 +109,10 @@ long int psc_restrict_get();
 		
 		void PK_Screen_set(long int val);
 void Description_set(string val);
+void Define_set(string val);
 void Comments_set(string val);
 void SpecialHandingRecommended_set(short int val);
+void AlwaysInclude_set(short int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -116,8 +122,10 @@ void psc_restrict_set(long int val);
 
 		
 		bool Description_isNull();
+bool Define_isNull();
 bool Comments_isNull();
 bool SpecialHandingRecommended_isNull();
+bool AlwaysInclude_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -126,8 +134,10 @@ bool psc_restrict_isNull();
 
 			
 		void Description_setNull(bool val);
+void Define_setNull(bool val);
 void Comments_setNull(bool val);
 void SpecialHandingRecommended_setNull(bool val);
+void AlwaysInclude_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -154,15 +164,17 @@ void Screen_DesignObj_FK_Screen_getrows(vector <class Row_Screen_DesignObj*> *ro
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Screen+ m_Description+ m_Comments+ m_SpecialHandingRecommended+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_Screen+ m_Description+ m_Define+ m_Comments+ m_SpecialHandingRecommended+ m_AlwaysInclude+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
 		
 		string PK_Screen_asSQL();
 string Description_asSQL();
+string Define_asSQL();
 string Comments_asSQL();
 string SpecialHandingRecommended_asSQL();
+string AlwaysInclude_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();
