@@ -76,6 +76,7 @@ using namespace DCE;
 #include "pluto_media/Table_Picture_File.h"
 #include "pluto_media/Table_Picture_Attribute.h"
 #include "pluto_media/Table_AttributeType.h"
+#include "Gen_Devices/AllScreens.h"
 
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
 #include "pluto_main/Define_DataGrid.h"
@@ -3188,10 +3189,15 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string
 	{
 		if( sTracks.size()==0 )
 		{
+			/*
 			DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device,pMessage->m_dwPK_Device_From,0,StringUtils::itos(DESIGNOBJ_mnuCDTrackCopy_CONST),"","",false,true);
 			DCE::CMD_Set_Variable CMD_Set_Variable(m_dwPK_Device,pMessage->m_dwPK_Device_From,VARIABLE_Misc_Data_1_CONST,StringUtils::itos(iPK_Users));
 			CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Variable.m_pMessage );
 			SendCommand(CMD_Goto_DesignObj);
+			*/
+
+			SCREEN_CDTrackCopy SCREEN_CDTrackCopy(m_dwPK_Device,pMessage->m_dwPK_Device_From, StringUtils::itos(iPK_Users));
+			SendCommand(SCREEN_CDTrackCopy);
 			return;
 		}
 		else 
@@ -4494,8 +4500,11 @@ void Media_Plugin::CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea,st
 	pRow_Bookmark->Position_set(sPosition);
 	m_pDatabase_pluto_media->Bookmark_get()->Commit();
 
-	DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device,pMessage->m_dwPK_Device_From,0,StringUtils::itos(DESIGNOBJ_mnuFileSave_CONST),"","",false,false);
+
 	string sCmdToRenameBookmark="<%=!%> -300 1 5 3 <%=NP_R%>\n<%=!%> <%=V-106%> 1 411 5 \"<%=17%>\" 129 " + StringUtils::itos(pRow_Bookmark->PK_Bookmark_get());
+
+	/*
+	DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device,pMessage->m_dwPK_Device_From,0,StringUtils::itos(DESIGNOBJ_mnuFileSave_CONST),"","",false,false);
 	DCE::CMD_Set_Variable CMD_Set_Variable_Private(m_dwPK_Device,pMessage->m_dwPK_Device_From,VARIABLE_Misc_Data_1_CONST,
 		 sCmdToRenameBookmark + "17 <%=U%>");  // Private, add the user
 	CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable_Private.m_pMessage);
@@ -4505,6 +4514,12 @@ void Media_Plugin::CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea,st
 	DCE::CMD_Set_Text CMD_Set_Text( m_dwPK_Device,pMessage->m_dwPK_Device_From, StringUtils::itos(DESIGNOBJ_mnuFileSave_CONST), "<%=T" + StringUtils::itos(TEXT_Name_Bookmark_CONST) + "%>",TEXT_STATUS_CONST);
 	CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text.m_pMessage);
 	SendCommand(CMD_Goto_DesignObj);
+	*/
+
+	DCE::SCREEN_FileSave SCREEN_FileSave(m_dwPK_Device,pMessage->m_dwPK_Device_From, 
+		sCmdToRenameBookmark + "17 <%=U%>", sCmdToRenameBookmark, 
+		"<%=T" + StringUtils::itos(TEXT_Name_Bookmark_CONST) + "%>");
+	SendCommand(SCREEN_FileSave);
 }
 
 //<-dceag-c410-b->

@@ -33,6 +33,10 @@ class ScreenGenerator
 	string GenerateMethods();
 	string GenerateSwitchBlock();
 
+	string GetClassOrMethod(Row_Screen *pRow_Screen);
+	string GetParamName(Row_Screen_CommandParameter *pCommandParameter);
+	string GetParamPair(Row_Screen_CommandParameter *pCommandParameter);
+
 public:
 	ScreenGenerator(Database_pluto_main *pDatabase_pluto_main, string sOutputPath);
 	bool GenerateScreensFile();
@@ -189,9 +193,7 @@ string ScreenGenerator::GenerateClasses()
 	{
 		string sClass;
 		Row_Screen *pRow_Screen = *it;
-		string sClassName = "SCREEN_" + StringUtils::Replace(pRow_Screen->Description_get(), " ", "_");
-		sClassName = StringUtils::Replace(sClassName, "-", "");
-		sClassName = StringUtils::Replace(sClassName, "/", "_");
+		string sClassName = GetClassOrMethod(pRow_Screen);
 
 		g_pPlutoLogger->Write(LV_STATUS, "Generating class %s...", sClassName.c_str());
 
@@ -207,23 +209,21 @@ string ScreenGenerator::GenerateClasses()
 			itp != vectRow_Screen_CommandParameter.end(); itp++)
 		{
 			Row_Screen_CommandParameter *pCommandParameter = *itp;
-			
-			sConstructorParams += "string sMessage" + StringUtils::ltos(nMessageIndex);
-			sParams += StringUtils::ltos(pCommandParameter->FK_CommandParameter_get()) + 
-				" /* command parm for message " + StringUtils::ltos(nMessageIndex) + " */, sMessage" + 
-				StringUtils::ltos(nMessageIndex) + ".c_str()";
+			sConstructorParams += "string " + GetParamName(pCommandParameter);
+			sParams += GetParamPair(pCommandParameter);
 
 			if(nMessageIndex < long(vectRow_Screen_CommandParameter.size()))
 			{
 				sConstructorParams += ", ";
 				sParams += ", ";
 			}
-
 			nMessageIndex++;
 		}
 
 		string sPK_Screen = StringUtils::ltos(pRow_Screen->PK_Screen_get());
-		string sClassData = 
+
+		//normal command
+		string sNormalClassData = 
 			"\tclass " + sClassName + " : public PreformedCommand\r\n"
 			"\t{\r\n"
 			"\tpublic:\r\n"
@@ -238,7 +238,58 @@ string ScreenGenerator::GenerateClasses()
 			"\t};\r\n"
 			"\r\n";
 
-		sGeneratedClassesData += sClassData;
+		//_DL command
+		string sDLClassData = 
+			"\tclass " + sClassName + "_DL : public PreformedCommand\r\n"
+			"\t{\r\n"
+			"\tpublic:\r\n"
+			"\t\t" + sClassName + "_DL(long DeviceIDFrom, string sDeviceIDTo" + (vectRow_Screen_CommandParameter.size() ? ",\r\n" : "") +
+			(vectRow_Screen_CommandParameter.size() ? "\t\t\t" + sConstructorParams + ")" : ")") + "\r\n"
+			"\t\t{\r\n"
+			"\t\t\tm_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, " + 
+			StringUtils::ltos(long(vectRow_Screen_CommandParameter.size()) + 1) + ", \r\n" 
+			"\t\t\t\tCOMMANDPARAMETER_EK_Screen_CONST, \"" + sPK_Screen + "\" /* screen ID */" + 
+			(vectRow_Screen_CommandParameter.size() ? ",\r\n\t\t\t\t" + sParams : "") + ");\r\n"
+			"\t\t}\r\n"
+			"\t};\r\n"
+			"\r\n";
+
+		//_DT command
+		string sDTClassData = 
+			"\tclass " + sClassName + "_DT : public PreformedCommand\r\n"
+			"\t{\r\n"
+			"\tpublic:\r\n"
+			"\t\t" + sClassName + "_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB" + (vectRow_Screen_CommandParameter.size() ? ",\r\n" : "") +
+			(vectRow_Screen_CommandParameter.size() ? "\t\t\t" + sConstructorParams + ")" : ")") + "\r\n"
+			"\t\t{\r\n"
+			"\t\t\tm_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, " + 
+			StringUtils::ltos(long(vectRow_Screen_CommandParameter.size()) + 1) + ", \r\n" 
+			"\t\t\t\tCOMMANDPARAMETER_EK_Screen_CONST, \"" + sPK_Screen + "\" /* screen ID */" + 
+			(vectRow_Screen_CommandParameter.size() ? ",\r\n\t\t\t\t" + sParams : "") + ");\r\n"
+			"\t\t}\r\n"
+			"\t};\r\n"
+			"\r\n";
+
+		//_Cat command
+		string sCatClassData = 
+			"\tclass " + sClassName + "_Cat : public PreformedCommand\r\n"
+			"\t{\r\n"
+			"\tpublic:\r\n"
+			"\t\t" + sClassName + "_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB" + (vectRow_Screen_CommandParameter.size() ? ",\r\n" : "") +
+			(vectRow_Screen_CommandParameter.size() ? "\t\t\t" + sConstructorParams + ")" : ")") + "\r\n"
+			"\t\t{\r\n"
+			"\t\t\tm_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, " + 
+			StringUtils::ltos(long(vectRow_Screen_CommandParameter.size()) + 1) + ", \r\n" 
+			"\t\t\t\tCOMMANDPARAMETER_EK_Screen_CONST, \"" + sPK_Screen + "\" /* screen ID */" + 
+			(vectRow_Screen_CommandParameter.size() ? ",\r\n\t\t\t\t" + sParams : "") + ");\r\n"
+			"\t\t}\r\n"
+			"\t};\r\n"
+			"\r\n";
+
+		sGeneratedClassesData += sNormalClassData;
+		sGeneratedClassesData += sDLClassData;
+		sGeneratedClassesData += sDTClassData;
+		sGeneratedClassesData += sCatClassData;
 	}
 
 	return sGeneratedClassesData;
@@ -257,9 +308,7 @@ string ScreenGenerator::GenerateMethods()
 	{
 		string sClass;
 		Row_Screen *pRow_Screen = *it;
-		string sMethodName = "SCREEN_" + StringUtils::Replace(pRow_Screen->Description_get(), " ", "_");
-		sMethodName = StringUtils::Replace(sMethodName, "-", "");
-		sMethodName = StringUtils::Replace(sMethodName, "/", "_");
+		string sMethodName = GetClassOrMethod(pRow_Screen);
 		string sPK_Screen = StringUtils::ltos(pRow_Screen->PK_Screen_get());
 
 		g_pPlutoLogger->Write(LV_STATUS, "Generating method %s...", sMethodName.c_str());
@@ -271,20 +320,21 @@ string ScreenGenerator::GenerateMethods()
 		m_pDatabase_pluto_main->Screen_CommandParameter_get()->GetRows("FK_Screen = " + 
 			StringUtils::ltos(pRow_Screen->PK_Screen_get()), &vectRow_Screen_CommandParameter);
 
+		sParams = string("long PK_Screen") + (vectRow_Screen_CommandParameter.size() ? ", " : ""); 
 		for(vector<Row_Screen_CommandParameter *>::iterator itp = vectRow_Screen_CommandParameter.begin(); 
 			itp != vectRow_Screen_CommandParameter.end(); itp++)
 		{
 			Row_Screen_CommandParameter *pCommandParameter = *itp;
 
-			sParams += "string sMessage" + StringUtils::ltos(nMessageIndex);
+			sParams += "string " + GetParamName(pCommandParameter);
 			if(nMessageIndex < long(vectRow_Screen_CommandParameter.size()))
 				sParams += ", ";
 
 			nMessageIndex++;
 		}
 
-		string sMethodData = "\t\tvirtual void " + sMethodName + "(" + sParams + 
-			") { GotoScreen(" + sPK_Screen + "); }\r\n";
+		string sMethodData = "\t\tvirtual void " + sMethodName + "(" + sParams + ")"
+			"{ GotoScreen(PK_Screen); }\r\n";
 
 		sGeneratedMethodsData += sMethodData;
 	}
@@ -305,9 +355,7 @@ string ScreenGenerator::GenerateSwitchBlock()
 	{
 		string sClass;
 		Row_Screen *pRow_Screen = *it;
-		string sMethodName = "SCREEN_" + StringUtils::Replace(pRow_Screen->Description_get(), " ", "_");
-		sMethodName = StringUtils::Replace(sMethodName, "-", "");
-		sMethodName = StringUtils::Replace(sMethodName, "/", "_");
+		string sMethodName = GetClassOrMethod(pRow_Screen);
 		string sPK_Screen = StringUtils::ltos(pRow_Screen->PK_Screen_get());
 
 		g_pPlutoLogger->Write(LV_STATUS, "Generating case for %s...", sPK_Screen.c_str());
@@ -320,13 +368,15 @@ string ScreenGenerator::GenerateSwitchBlock()
 		m_pDatabase_pluto_main->Screen_CommandParameter_get()->GetRows("FK_Screen = " + 
 			StringUtils::ltos(pRow_Screen->PK_Screen_get()), &vectRow_Screen_CommandParameter);
 
+		sParams = string("nPK_Screen") + (vectRow_Screen_CommandParameter.size() ? ", " : ""); 
 		for(vector<Row_Screen_CommandParameter *>::iterator itp = vectRow_Screen_CommandParameter.begin(); 
 			itp != vectRow_Screen_CommandParameter.end(); itp++)
 		{
 			Row_Screen_CommandParameter *pCommandParameter = *itp;
 
-			sParams += "sMessage" + StringUtils::ltos(nMessageIndex);
-			sMessageParamsLines += "\t\t\t\t\tstring sMessage" + StringUtils::ltos(nMessageIndex) + " = pMessage->m_mapParameters[" +
+			sParams += GetParamName(pCommandParameter);
+			sMessageParamsLines += "\t\t\t\t\tstring " + GetParamName(pCommandParameter) + 
+				" = pMessage->m_mapParameters[" +
 				StringUtils::ltos(pCommandParameter->FK_CommandParameter_get()) + "];\r\n";
 			if(nMessageIndex < long(vectRow_Screen_CommandParameter.size()))
 				sParams += ", ";
@@ -346,5 +396,28 @@ string ScreenGenerator::GenerateSwitchBlock()
 	}
 
 	return sGeneratedCasesData;
+}
+//-----------------------------------------------------------------------------------------------------
+string ScreenGenerator::GetClassOrMethod(Row_Screen *pRow_Screen)
+{
+	string sClassName = "SCREEN_" + StringUtils::Replace(pRow_Screen->Description_get(), " ", "_");
+	sClassName = StringUtils::Replace(sClassName, "-", "");
+	sClassName = StringUtils::Replace(sClassName, "/", "_");
+
+	return sClassName;
+}
+//-----------------------------------------------------------------------------------------------------
+string ScreenGenerator::GetParamName(Row_Screen_CommandParameter *pCommandParameter)
+{
+	return "s" + StringUtils::Replace(pCommandParameter->Description_get(), " ", "");
+}
+//-----------------------------------------------------------------------------------------------------
+string ScreenGenerator::GetParamPair(Row_Screen_CommandParameter *pCommandParameter)
+{
+	string sParamPair = 
+		StringUtils::ltos(pCommandParameter->FK_CommandParameter_get()) + 
+		" /* " + pCommandParameter->Description_get() + " */, " + GetParamName(pCommandParameter) + ".c_str()";
+
+	return sParamPair;
 }
 //-----------------------------------------------------------------------------------------------------

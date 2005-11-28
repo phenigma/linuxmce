@@ -262,10 +262,17 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
     else
         m_ScreenMutex.Init( &m_MutexAttr );
 
-//testing - it works
-m_mapDesignObj[29] = 1255;
-m_mapDesignObj[30] = 1688;
+//testing - it works - HARDCODING WARNING
+m_mapDesignObj[25] = 1720;
 m_mapDesignObj[132] = 4482;
+m_mapDesignObj[19] = 4460;
+m_mapDesignObj[67] = 3150;
+m_mapDesignObj[110] = 4414;
+m_mapDesignObj[75] = 3326;
+m_mapDesignObj[36] = 1932;
+m_mapDesignObj[35] = 1931;
+
+
 
 	m_pScreenHandler = new ScreenHandler(this, &m_mapDesignObj);
 

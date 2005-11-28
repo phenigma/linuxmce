@@ -71,6 +71,8 @@ using namespace DCE;
 #include "pluto_security/Table_AlertType.h"
 #include "pluto_security/Table_ModeChange.h"
 
+#include "Gen_Devices/AllScreens.h"
+
 // Alarm Types
 #define PROCESS_ALERT					1
 #define PROCESS_COUNTDOWN_BEFORE_ALARM	2
@@ -434,10 +436,16 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 		for(list<DeviceData_Router *>::iterator it=listDevice_Blocked.begin();it!=listDevice_Blocked.end();++it)
 			sText += (*it)->m_sDescription + "  ";
 
+		/*
 		DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj( 0, pMessage->m_dwPK_Device_From, 0, StringUtils::itos(DESIGNOBJ_mnuSensorsNotReady_CONST), "", "", false, false );
 		DCE::CMD_Set_Text CMD_Set_Text( 0, pMessage->m_dwPK_Device_From, StringUtils::itos(DESIGNOBJ_mnuSensorsNotReady_CONST), sText, TEXT_TRIPPED_SENSOR_CONST);
 		CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Text.m_pMessage );
 		SendCommand( CMD_Goto_DesignObj );
+		*/
+
+		DCE::SCREEN_SensorsNotReady SCREEN_SensorsNotReady(0, pMessage->m_dwPK_Device_From, sText);
+		SendCommand(SCREEN_SensorsNotReady);
+
 		return;
 	}
 
@@ -448,6 +456,11 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 
 	SetHouseModeBoundIcon(iPK_DeviceGroup);
 	
+	string sPK_HouseMode = StringUtils::ltos(PK_HouseMode);
+	string sHouseModeTime = pRow_AlertType->ExitDelay_get() && bSensorsActive ? "<%=CD%> seconds" : "IMMEDIATELY";
+	string sExitDelay;
+
+	/*
 	DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj( 0, pMessage->m_dwPK_Device_From, 0, StringUtils::itos(DESIGNOBJ_mnuModeChanged_CONST), "", "", false, true );
 
 	DCE::CMD_Set_Graphic_To_Display CMD_Set_Graphic_To_Display(0, pMessage->m_dwPK_Device_From, 
@@ -457,12 +470,16 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 	DCE::CMD_Set_Text CMD_Set_Text( 0, pMessage->m_dwPK_Device_From, StringUtils::itos(DESIGNOBJ_mnuModeChanged_CONST), pRow_AlertType->ExitDelay_get() && bSensorsActive ? "<%=CD%> seconds" : "IMMEDIATELY",
 		TEXT_House_Mode_Time_CONST );
 	CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text.m_pMessage);
+	*/
 
 	g_pPlutoLogger->Write(LV_STATUS,"Set House Mode.  Sensors active: %d exit delay: %d",(int) bSensorsActive,pRow_AlertType->ExitDelay_get());
 	if( pRow_AlertType->ExitDelay_get() )
 	{
+		/*
 		DCE::CMD_Select_Object CMD_Select_Object( 0, pMessage->m_dwPK_Device_From, StringUtils::itos(DESIGNOBJ_mnuModeChanged_CONST), StringUtils::itos(DESIGNOBJ_mnuModeChanged_CONST),StringUtils::itos(pRow_AlertType->ExitDelay_get()) );
 		CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Select_Object.m_pMessage);
+		*/
+		sExitDelay = StringUtils::itos(pRow_AlertType->ExitDelay_get());
 
 		if( bSensorsActive && DATA_Get_PK_Device().size() )
 		{
@@ -477,11 +494,18 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 	// We want to be sure to fire tripped status's for any sensors that may have gotten tripped during the countdown
 	m_pAlarmManager->AddRelativeAlarm(pRow_AlertType->ExitDelay_get(),this,PROCESS_MODE_CHANGE,NULL);
 
+	/*
 	DCE::CMD_Set_Text CMD_Set_TextAlert( 0, pMessage->m_dwPK_Device_From, StringUtils::itos(DESIGNOBJ_mnuModeChanged_CONST), sAlerts,
 		TEXT_Alerts_Placeholder_CONST );
 	CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_TextAlert.m_pMessage);
 
 	SendCommand( CMD_Goto_DesignObj );
+	*/
+
+	DCE::SCREEN_ModeChanged SCREEN_ModeChanged(0, pMessage->m_dwPK_Device_From, sPK_HouseMode, 
+		sHouseModeTime, sExitDelay, sAlerts);
+	SendCommand(SCREEN_ModeChanged);
+
 
 	Row_ModeChange *pRow_ModeChange = m_pDatabase_pluto_security->ModeChange_get()->AddRow();
 	pRow_ModeChange->EK_HouseMode_set(PK_HouseMode);

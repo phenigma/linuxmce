@@ -49,6 +49,7 @@ using namespace DCE;
 #include "DataGrid.h"
 #include "Orbiter_Plugin/Orbiter_Plugin.h"
 #include "Event_Plugin/Event_Plugin.h"
+#include "Gen_Devices/AllScreens.h"
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -1077,6 +1078,7 @@ bool General_Info_Plugin::NewMacAddress( class Socket *pSocket, class Message *p
 	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::NewMacAddress %s has %d candidates",sMacAddress.c_str(),(int) vectRow_DHCPDevice.size());
 	if( vectRow_DHCPDevice.size()>0 )
 	{
+		/*
 		DCE::CMD_Goto_DesignObj_DL CMD_Goto_DesignObj( m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, 0, 
 			StringUtils::itos(DESIGNOBJ_mnuNewMacAddress_CONST), sMacAddress, "", false, true );
 
@@ -1084,6 +1086,11 @@ bool General_Info_Plugin::NewMacAddress( class Socket *pSocket, class Message *p
 			sIPAddress );
 		CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable.m_pMessage);
 		SendCommand(CMD_Goto_DesignObj);
+		*/
+
+		DCE::SCREEN_NewMacAddress_DL SCREEN_NewMacAddress_DL(m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, sMacAddress, sIPAddress);
+		SendCommand(SCREEN_NewMacAddress_DL);
+
 		return false;
 	}
 

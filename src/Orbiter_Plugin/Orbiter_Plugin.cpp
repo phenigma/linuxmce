@@ -70,6 +70,7 @@ using namespace DCE;
 #include "DCERouter.h"
 #include "CreateDevice/CreateDevice.h"
 #include "BD/PhoneDevice.h"
+#include "Gen_Devices/AllScreens.h"
 
 #include "PopulateListsInVMC.h"
 
@@ -464,7 +465,7 @@ g_pPlutoLogger->Write(LV_STATUS,"in process");
 	Description += "  Manufacturer: " + sManufacturer;
 	Description += "  Category: " + sDeviceCategory;
 	Description += "  Bluetooth ID: " + pUnknownDeviceInfos->m_sID;
-
+/*
     DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL(m_dwPK_Device, m_sPK_Device_AllOrbiters, VARIABLE_Misc_Data_1_CONST, sMacAddress);
     DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL2(m_dwPK_Device, m_sPK_Device_AllOrbiters, VARIABLE_Misc_Data_2_CONST, Description);
     DCE::CMD_Goto_DesignObj_DL CMD_Goto_DesignObj_DL(m_dwPK_Device, m_sPK_Device_AllOrbiters, 0, StringUtils::itos(DESIGNOBJ_mnuNewPhoneDetected_CONST), "", "", true, false);
@@ -473,6 +474,12 @@ g_pPlutoLogger->Write(LV_STATUS,"in process");
     CMD_Goto_DesignObj_DL.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Variable_DL.m_pMessage );
     CMD_Goto_DesignObj_DL.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Variable_DL2.m_pMessage );
     QueueMessageToRouter(CMD_Goto_DesignObj_DL.m_pMessage);
+*/
+
+	DCE::SCREEN_NewPhoneDetected_DL SCREEN_NewPhoneDetected_DL(m_dwPK_Device, m_sPK_Device_AllOrbiters,
+		sMacAddress, Description);
+	SendCommand(SCREEN_NewPhoneDetected_DL);
+
 }
 
 bool Orbiter_Plugin::IdentifyDevice(const string& sMacAddress, string &sDeviceCategoryDesc, int &iPK_DeviceTemplate, string &sManufacturerDesc)
@@ -988,11 +995,17 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
 		{
 			// We know this is a mobile mobile, since it was detected by bluetooth, but we can't identify the make
 			// So we must ask the user, on whatever orbiter he made this selection with
+			/*
 			DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device,pMessage->m_dwPK_Device_From,0,StringUtils::itos(DESIGNOBJ_mnuWhatModelMobileOrbiter_CONST),
 				"","",false,true);
 		    DCE::CMD_Set_Variable CMD_Set_Variable(m_dwPK_Device, pMessage->m_dwPK_Device_From, VARIABLE_Misc_Data_1_CONST, sMac_address);
 			CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable.m_pMessage);
 			SendCommand(CMD_Goto_DesignObj);
+			*/
+
+			DCE::SCREEN_WhatModelMobileOrbiter  SCREEN_WhatModelMobileOrbiter(m_dwPK_Device, pMessage->m_dwPK_Device_From, sMac_address);
+			SendCommand(SCREEN_WhatModelMobileOrbiter);
+
 			return;
 		}
 	}
@@ -1827,6 +1840,7 @@ bool Orbiter_Plugin::NewPnpDevice( class Socket *pSocket, class Message *pMessag
 
 	m_listNewPnpDevicesWaitingForARoom.push_back(PK_Device);
 
+	/*
 	DCE::CMD_Goto_DesignObj_DL CMD_Goto_DesignObj( m_dwPK_Device, m_sPK_Device_AllOrbiters, 0, StringUtils::itos(DESIGNOBJ_mnuNewPlugAndPlayDevice_CONST), StringUtils::itos(PK_Device), "", true, false );
 	// The destination devices must match
 	DCE::CMD_Set_Variable_DL CMD_Set_Variable1( m_dwPK_Device, m_sPK_Device_AllOrbiters, VARIABLE_Misc_Data_1_CONST, pRow_Device->Description_get());
@@ -1837,6 +1851,12 @@ bool Orbiter_Plugin::NewPnpDevice( class Socket *pSocket, class Message *pMessag
 	CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable3.m_pMessage);
 
 	QueueMessageToRouter(CMD_Goto_DesignObj.m_pMessage);
+	*/
+
+	DCE::SCREEN_NewPlugAndPlayDevice_DL SCREEN_NewPlugAndPlayDevice_DL(m_dwPK_Device, m_sPK_Device_AllOrbiters,
+		StringUtils::itos(PK_Device), pRow_Device->Description_get(), 
+		pRow_Device->FK_DeviceTemplate_getrow()->Comments_get());
+	SendCommand(SCREEN_NewPlugAndPlayDevice_DL);
 
 	DCE::CMD_Check_for_updates_Cat CMD_Check_for_updates_Cat(m_dwPK_Device,DEVICECATEGORY_General_Info_Plugins_CONST,false,BL_SameHouse);
 	SendCommand(CMD_Check_for_updates_Cat);
