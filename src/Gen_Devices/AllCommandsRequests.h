@@ -11679,19 +11679,19 @@ namespace DCE
 	};
 	class CMD_Goto_Screen : public PreformedCommand {
 	public:
-		CMD_Goto_Screen(long DeviceIDFrom, long DeviceIDTo,int iEK_Screen) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,741,1,159,StringUtils::itos(iEK_Screen).c_str()); }
+		CMD_Goto_Screen(long DeviceIDFrom, long DeviceIDTo,int iPK_Screen) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,741,1,159,StringUtils::itos(iPK_Screen).c_str()); }
 	};
 	class CMD_Goto_Screen_DL : public PreformedCommand {
 	public:
-		CMD_Goto_Screen_DL(long DeviceIDFrom, string DeviceIDTo,int iEK_Screen) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,741,1,159,StringUtils::itos(iEK_Screen).c_str()); }
+		CMD_Goto_Screen_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_Screen) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,741,1,159,StringUtils::itos(iPK_Screen).c_str()); }
 	};
 	class CMD_Goto_Screen_DT : public PreformedCommand {
 	public:
-		CMD_Goto_Screen_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iEK_Screen) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,741,1,159,StringUtils::itos(iEK_Screen).c_str()); }
+		CMD_Goto_Screen_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_Screen) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,741,1,159,StringUtils::itos(iPK_Screen).c_str()); }
 	};
 	class CMD_Goto_Screen_Cat : public PreformedCommand {
 	public:
-		CMD_Goto_Screen_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iEK_Screen) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,741,1,159,StringUtils::itos(iEK_Screen).c_str()); }
+		CMD_Goto_Screen_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Screen) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,741,1,159,StringUtils::itos(iPK_Screen).c_str()); }
 	};
 	class CMD_Media_Identified : public PreformedCommand {
 	public:
@@ -11708,6 +11708,22 @@ namespace DCE
 	class CMD_Media_Identified_Cat : public PreformedCommand {
 	public:
 		CMD_Media_Identified_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,string sMediaURL) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,742,6,2,StringUtils::itos(iPK_Device).c_str(),5,sValue_To_Assign.c_str(),10,sID.c_str(),-19,pData,iData_Size,20,sFormat.c_str(),59,sMediaURL.c_str()); }
+	};
+	class CMD_Cancel_Pending_Task : public PreformedCommand {
+	public:
+		CMD_Cancel_Pending_Task(long DeviceIDFrom, long DeviceIDTo,int iSlot_Number) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,743,1,151,StringUtils::itos(iSlot_Number).c_str()); }
+	};
+	class CMD_Cancel_Pending_Task_DL : public PreformedCommand {
+	public:
+		CMD_Cancel_Pending_Task_DL(long DeviceIDFrom, string DeviceIDTo,int iSlot_Number) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,743,1,151,StringUtils::itos(iSlot_Number).c_str()); }
+	};
+	class CMD_Cancel_Pending_Task_DT : public PreformedCommand {
+	public:
+		CMD_Cancel_Pending_Task_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iSlot_Number) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,743,1,151,StringUtils::itos(iSlot_Number).c_str()); }
+	};
+	class CMD_Cancel_Pending_Task_Cat : public PreformedCommand {
+	public:
+		CMD_Cancel_Pending_Task_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iSlot_Number) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,743,1,151,StringUtils::itos(iSlot_Number).c_str()); }
 	};
 }
 #endif

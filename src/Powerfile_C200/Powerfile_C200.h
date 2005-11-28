@@ -146,7 +146,7 @@ Powerfile: 0, 1, ... */
 
 
 	/** @brief COMMAND: #55 - Abort Ripping */
-	/** Starts ripping a DVD. */
+	/** Aborts ripping a DVD. */
 
 	virtual void CMD_Abort_Ripping() { string sCMD_Result; CMD_Abort_Ripping(sCMD_Result,NULL);};
 	virtual void CMD_Abort_Ripping(string &sCMD_Result,Message *pMessage);
@@ -293,6 +293,14 @@ only slots that were scheduled for ripping will appear in the string */
 	virtual void CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,string sMediaURL,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #743 - Cancel Pending Task */
+	/** Cancels a pending task */
+		/** @param #151 Slot Number */
+			/** Slot to be canceled */
+
+	virtual void CMD_Cancel_Pending_Task(int iSlot_Number) { string sCMD_Result; CMD_Cancel_Pending_Task(iSlot_Number,sCMD_Result,NULL);};
+	virtual void CMD_Cancel_Pending_Task(int iSlot_Number,string &sCMD_Result,Message *pMessage);
+
 //<-dceag-h-e->
 		private:
 			// corresponding devices
@@ -318,6 +326,7 @@ only slots that were scheduled for ripping will appear in the string */
 
 		private:
 			void ReleaseDrive(int iDrive_Number, int iSlot);
+			void ReleaseDrive_NoMutex(int iDrive_Number, int iSlot);
 	};
 
 //<-dceag-end-b->
@@ -330,24 +339,31 @@ namespace DCE
 	class Powerfile_Job : public Job
 	{
 		public:
-			Powerfile_Job(string sName, Powerfile_C200 * pPowerfile_C200) : Job(sName), m_pPowerfile_C200(pPowerfile_C200) { }
+			Powerfile_Job(string sName, Powerfile_C200 * pPowerfile_C200) : Job(sName), m_pPowerfile_C200(pPowerfile_C200), m_JobMutex("Powerfile Job Mutex", true) { }
 			int PercentComplete() { return 0; }
 			int SecondsRemaining() { return 0; }
 			string ToString();
+
+			void Remove_PowerfileTask_Slot(int iSlot);
+			
 			void MediaIdentified(int iSlot);
-			void RippingProgress(int iDrive_Number, int iResult);
+			void RippingProgress_End(int iDrive_Number, int iResult);
+			void RippingProgress_Going(int iDrive_Number, int iPercent, string sName);
+
 			Powerfile_C200 * m_pPowerfile_C200;
+			pluto_pthread_mutex_t m_JobMutex;
 	};
 
 	class Powerfile_Task : public Task
 	{
 		public:
 			Powerfile_Task(string sName, int iPriority, Job * pJob) : Task(sName, iPriority, pJob),
-				m_bStop(false), m_pDDF(NULL) {}
+				m_bStop(false), m_pDDF(NULL), m_ePreTaskStatus(TASK_NOT_STARTED) {}
 			
 			bool m_bStop;
 			int m_iDrive_Number;
 			int m_iSlot;
+			TaskStatus m_ePreTaskStatus;
 
 		protected:
 			Disk_Drive_Functions * m_pDDF;
