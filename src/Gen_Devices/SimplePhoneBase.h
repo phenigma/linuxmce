@@ -17,6 +17,11 @@ public:
 	SimplePhone_Event(class ClientSocket *pOCClientSocket, int DeviceID) : Event_Impl(pOCClientSocket, DeviceID) {};
 	//Events
 	class Event_Impl *CreateEvent( unsigned long dwPK_DeviceTemplate, ClientSocket *pOCClientSocket, unsigned long dwDevice );
+	virtual void Incoming_Call()
+	{
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 36,0));
+	}
+
 };
 
 
@@ -125,6 +130,7 @@ public:
 	string DATA_Get_PhoneNumber() { return GetData()->Get_PhoneNumber(); }
 	bool DATA_Get_Speak_in_the_House() { return GetData()->Get_Speak_in_the_House(); }
 	//Event accessors
+	void EVENT_Incoming_Call() { GetEvents()->Incoming_Call(); }
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Phone_Initiate(string sPhoneExtension,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Phone_Answer(string &sCMD_Result,class Message *pMessage) {};
