@@ -103,7 +103,7 @@ elif [[ "$diskType" == 0 || "$diskType" == 1 || "$diskType" == 6 || "$diskType" 
 	trackList=${trackList// /@~#}
 	for File in ${trackList//|/ }; do
 		File=${File//@~#/ }
-		Track=${File%,*}
+		Track=${File%%,*}
 		FileName=${File#*,}
 		FileName=${FileName//\//-}
 		
