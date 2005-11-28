@@ -1110,9 +1110,14 @@ int DesignObj_Generator::LookForGoto(DesignObjCommandList *alCommands)
     for(itActions=alCommands->begin();itActions!=alCommands->end();++itActions)
     {
         CGCommand *oca = (CGCommand *) *itActions;
-        if( oca->m_PK_Command == COMMAND_Goto_Screen_CONST || oca->m_PK_Command == COMMAND_Show_Popup_CONST )
+        if( oca->m_PK_Command == COMMAND_Goto_DesignObj_CONST || oca->m_PK_Command == COMMAND_Goto_Screen_CONST || oca->m_PK_Command == COMMAND_Show_Popup_CONST )
         {
-            map<int, string>::iterator itParm=oca->m_ParameterList.find(COMMANDPARAMETER_PK_DesignObj_CONST);
+            map<int, string>::iterator itParm;
+			if( oca->m_PK_Command == COMMAND_Goto_Screen_CONST )
+				itParm=oca->m_ParameterList.find(COMMANDPARAMETER_PK_Screen_CONST);
+			else
+				itParm=oca->m_ParameterList.find(COMMANDPARAMETER_PK_DesignObj_CONST);
+
 			if( itParm!=oca->m_ParameterList.end() )
 			{
                 if(PK_DesignObj_Goto!=0)
@@ -1121,8 +1126,17 @@ int DesignObj_Generator::LookForGoto(DesignObjCommandList *alCommands)
                 bool b;
                 size_t pos;
 
-                string objgoto = SubstituteVariables((*itParm).second,&b);
-                if( (pos = objgoto.find('.'))!=string::npos )
+                string objgoto;
+				if( oca->m_PK_Command == COMMAND_Goto_Screen_CONST )
+				{
+					Row_DesignObj *pRow_DesignObj = m_pOrbiterGenerator->GetDesignObjFromScreen(atoi(SubstituteVariables((*itParm).second,&b).c_str()));
+					if( pRow_DesignObj )
+						objgoto = StringUtils::itos(pRow_DesignObj->PK_DesignObj_get());
+				}
+				else
+					objgoto = SubstituteVariables((*itParm).second,&b);
+
+				if( (pos = objgoto.find('.'))!=string::npos )
                     objgoto = objgoto.substr(0,pos);
 
                 // Be sure there's no substitution

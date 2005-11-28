@@ -458,6 +458,7 @@ string FileUtils::ValidFileName(string sInput)
     StringUtils::TrimSpaces(sInput); // elliminting the spaces
     StringUtils::Replace(&sInput,"\\"," ");
     StringUtils::Replace(&sInput,"/"," ");
+    StringUtils::Replace(&sInput,"`","'");
 	return sInput;
 }
 

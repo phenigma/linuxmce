@@ -232,7 +232,7 @@ string ScreenGenerator::GenerateClasses()
 			"\t\t{\r\n"
 			"\t\t\tm_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, " + 
 				StringUtils::ltos(long(vectRow_Screen_CommandParameter.size()) + 1) + ", \r\n" 
-				"\t\t\t\tCOMMANDPARAMETER_EK_Screen_CONST, \"" + sPK_Screen + "\" /* screen ID */" + 
+				"\t\t\t\tCOMMANDPARAMETER_PK_Screen_CONST, \"" + sPK_Screen + "\" /* screen ID */" + 
 			(vectRow_Screen_CommandParameter.size() ? ",\r\n\t\t\t\t" + sParams : "") + ");\r\n"
 			"\t\t}\r\n"
 			"\t};\r\n"
@@ -248,7 +248,7 @@ string ScreenGenerator::GenerateClasses()
 			"\t\t{\r\n"
 			"\t\t\tm_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, " + 
 			StringUtils::ltos(long(vectRow_Screen_CommandParameter.size()) + 1) + ", \r\n" 
-			"\t\t\t\tCOMMANDPARAMETER_EK_Screen_CONST, \"" + sPK_Screen + "\" /* screen ID */" + 
+			"\t\t\t\tCOMMANDPARAMETER_PK_Screen_CONST, \"" + sPK_Screen + "\" /* screen ID */" + 
 			(vectRow_Screen_CommandParameter.size() ? ",\r\n\t\t\t\t" + sParams : "") + ");\r\n"
 			"\t\t}\r\n"
 			"\t};\r\n"
@@ -264,7 +264,7 @@ string ScreenGenerator::GenerateClasses()
 			"\t\t{\r\n"
 			"\t\t\tm_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, " + 
 			StringUtils::ltos(long(vectRow_Screen_CommandParameter.size()) + 1) + ", \r\n" 
-			"\t\t\t\tCOMMANDPARAMETER_EK_Screen_CONST, \"" + sPK_Screen + "\" /* screen ID */" + 
+			"\t\t\t\tCOMMANDPARAMETER_PK_Screen_CONST, \"" + sPK_Screen + "\" /* screen ID */" + 
 			(vectRow_Screen_CommandParameter.size() ? ",\r\n\t\t\t\t" + sParams : "") + ");\r\n"
 			"\t\t}\r\n"
 			"\t};\r\n"
@@ -280,7 +280,7 @@ string ScreenGenerator::GenerateClasses()
 			"\t\t{\r\n"
 			"\t\t\tm_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, " + 
 			StringUtils::ltos(long(vectRow_Screen_CommandParameter.size()) + 1) + ", \r\n" 
-			"\t\t\t\tCOMMANDPARAMETER_EK_Screen_CONST, \"" + sPK_Screen + "\" /* screen ID */" + 
+			"\t\t\t\tCOMMANDPARAMETER_PK_Screen_CONST, \"" + sPK_Screen + "\" /* screen ID */" + 
 			(vectRow_Screen_CommandParameter.size() ? ",\r\n\t\t\t\t" + sParams : "") + ");\r\n"
 			"\t\t}\r\n"
 			"\t};\r\n"

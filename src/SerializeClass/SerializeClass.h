@@ -71,6 +71,7 @@ public:
 #define SERIALIZE_DATA_TYPE_STRING_STRING	10
 #define SERIALIZE_DATA_TYPE_VECT_PAIR_INT	11
 #define SERIALIZE_DATA_TYPE_FLOAT			12
+#define SERIALIZE_DATA_TYPE_INT_INT			13
 
 #define SERIALIZE_DATA_TYPE_COLOR			50
 #define SERIALIZE_DATA_TYPE_POINT			51
@@ -228,6 +229,7 @@ public:
 #ifndef SYMBIAN
 	SerializeClass &operator+ (vector<string> &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_VECT_STRING,(void *) &i)); return (*this); } /** < @brief overloading + to take a vector of strings */
 	SerializeClass &operator+ (map<int,string> &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_INT_STRING,(void *) &i)); return (*this); } /** < @brief overloading + to take a map<int,string> */
+	SerializeClass &operator+ (map<int,int> &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_INT_INT,(void *) &i)); return (*this); } /** < @brief overloading + to take a map<int,string> */
 	SerializeClass &operator+ (map<string,string> &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_STRING_STRING,(void *) &i)); return (*this); } /** < @brief overloading + to take a map<string,string> */
 	SerializeClass &operator+ (vector<int> &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_VECT_INT,(void *) &i)); return (*this); } /** < @brief overloading + to take a map<int,string> */
 	SerializeClass &operator+ (vector< pair<int,int> > &i) { m_vectItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_VECT_PAIR_INT,(void *) &i)); return (*this); } /** < @brief overloading + to take a map<int,string> */

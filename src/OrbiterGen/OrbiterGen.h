@@ -90,6 +90,7 @@ public:
 
     ~OrbiterGenerator() {}
 	int DoIt();
+	Row_DesignObj *GetDesignObjFromScreen(int PK_Screen);
 
 private:
 	map<int,string> htDevicePages;
@@ -106,6 +107,7 @@ private:
 	class Row_Size *TranslateSize(string sSize);
 	bool CommonControlledVia(Row_Device *pRow_Device1,Row_Device *pRow_Device2);
 	string First2Dots(string sDesignObj);
+	void PopulateScreenMap();
 };
 
 #endif

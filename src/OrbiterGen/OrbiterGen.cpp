@@ -19,6 +19,8 @@
 static HEAP_ALLOC(wrkmem,LZO1X_1_MEM_COMPRESS);
 
 #include "pluto_main/Database_pluto_main.h"
+#include "pluto_main/Table_Screen.h"
+#include "pluto_main/Table_Screen_DesignObj.h"
 #include "pluto_main/Table_Text_LS.h"
 #include "pluto_main/Table_Image.h"
 #include "pluto_main/Table_CachedScreens.h"
@@ -346,13 +348,35 @@ int OrbiterGenerator::DoIt()
 
 	m_sSkin = m_pRow_Skin->Description_get();
 
+	// Get the UI
+	m_pRow_UI = NULL;
+	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_UI_CONST);
+	if( pRow_Device_DeviceData )
+		m_pRow_UI = mds.UI_get()->GetRow( atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) );
+	if( !m_pRow_UI )
+		m_pRow_UI = mds.UI_get()->GetRow( 1 ); // Default
+
+	if( !m_pRow_UI )
+	{
+		cerr << "Cannot find Orbiter's UI" << endl;
+		cout << "Setting RegenInProgress_set 5 to false for " << m_pRow_Orbiter->PK_Orbiter_get() << endl;
+		m_pRow_Orbiter->RegenInProgress_set(false);
+		mds.Orbiter_get()->Commit();
+		exit(1);
+	}
+
+	PopulateScreenMap();
 	m_pRow_DesignObj_MainMenu = NULL;
 	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_DesignObj_CONST);
+
 	if( pRow_Device_DeviceData )
 		m_pRow_DesignObj_MainMenu = mds.DesignObj_get()->GetRow(atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) );
 
 	if( !m_pRow_DesignObj_MainMenu )
-		m_pRow_DesignObj_MainMenu = mds.DesignObj_get()->GetRow(m_pRow_Skin->FK_DesignObj_MainMenu_get());
+		m_pRow_DesignObj_MainMenu = GetDesignObjFromScreen(m_pRow_Skin->FK_Screen_MainMenu_get());
+
+	if( !m_pRow_DesignObj_MainMenu )
+		m_pRow_DesignObj_MainMenu = GetDesignObjFromScreen(SCREEN_Main_CONST);
 
 	if( !m_pRow_DesignObj_MainMenu )
 		m_pRow_DesignObj_MainMenu = mds.DesignObj_get()->GetRow(DESIGNOBJ_mnuMain_CONST);
@@ -366,12 +390,12 @@ int OrbiterGenerator::DoIt()
 		exit(1);
 	}
 
-	m_pRow_DesignObj_Sleeping = mds.DesignObj_get()->GetRow(m_pRow_Skin->FK_DesignObj_Sleeping_get());
+	m_pRow_DesignObj_Sleeping = GetDesignObjFromScreen(m_pRow_Skin->FK_Screen_Sleeping_get());
 
 	if( !m_pRow_DesignObj_Sleeping )
-		m_pRow_DesignObj_Sleeping = mds.DesignObj_get()->GetRow(DESIGNOBJ_mnuSleeping_CONST);;
+		m_pRow_DesignObj_Sleeping = GetDesignObjFromScreen(SCREEN_Sleeping_CONST);
 
-	m_pRow_DesignObj_ScreenSaver = mds.DesignObj_get()->GetRow(m_pRow_Skin->FK_DesignObj_ScreenSaver_get());
+	m_pRow_DesignObj_ScreenSaver = GetDesignObjFromScreen(m_pRow_Skin->FK_Screen_ScreenSaver_get());
 
 	if( !m_pRow_DesignObj_ScreenSaver )
 		m_pRow_DesignObj_ScreenSaver = mds.DesignObj_get()->GetRow(DESIGNOBJ_mnuScreenSaver_CONST);
@@ -388,23 +412,6 @@ int OrbiterGenerator::DoIt()
 	{
 		cerr << "Cannot find Orbiter's Language" << endl;
 		cout << "Setting RegenInProgress_set 4 to false for " << m_pRow_Orbiter->PK_Orbiter_get() << endl;
-		m_pRow_Orbiter->RegenInProgress_set(false);
-		mds.Orbiter_get()->Commit();
-		exit(1);
-	}
-
-	// Get the UI
-	m_pRow_UI = NULL;
-	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_UI_CONST);
-	if( pRow_Device_DeviceData )
-		m_pRow_UI = mds.UI_get()->GetRow( atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) );
-	if( !m_pRow_UI )
-		m_pRow_UI = mds.UI_get()->GetRow( 1 ); // Default
-
-	if( !m_pRow_UI )
-	{
-		cerr << "Cannot find Orbiter's UI" << endl;
-		cout << "Setting RegenInProgress_set 5 to false for " << m_pRow_Orbiter->PK_Orbiter_get() << endl;
 		m_pRow_Orbiter->RegenInProgress_set(false);
 		mds.Orbiter_get()->Commit();
 		exit(1);
@@ -959,12 +966,46 @@ int k=2;
 		}
 	}
 
+	for(map<int,int>::iterator it=m_mapDesignObj.begin();it!=m_mapDesignObj.end();++it)
+	{
+		Row_Screen *pRow_Screen = mds.Screen_get()->GetRow(it->first);
+		if( pRow_Screen && pRow_Screen->AlwaysInclude_get() )
+		{
+			Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(it->second);
+			alNewDesignObjsToGenerate.push_back(drNewDesignObj);
+		}
+	}
+
 	sql = string("SELECT ") + COMMANDGROUP_COMMAND_COMMANDPARAMETER_IK_COMMANDPARAMETER_TABLE_FIELD + " FROM " +
 		EVENTHANDLER_TABLE + " JOIN " + COMMANDGROUP_COMMAND_TABLE + " ON " + COMMANDGROUP_COMMAND_FK_COMMANDGROUP_TABLE_FIELD + "=" +
 		EVENTHANDLER_FK_COMMANDGROUP_TABLE_FIELD + " JOIN " + COMMANDGROUP_COMMAND_COMMANDPARAMETER_TABLE + " ON " +
 		COMMANDGROUP_COMMAND_COMMANDPARAMETER_FK_COMMANDGROUP_COMMAND_FIELD + "=" + COMMANDGROUP_COMMAND_PK_COMMANDGROUP_COMMAND_FIELD +
 		" WHERE (" + EVENTHANDLER_FK_INSTALLATION_TABLE_FIELD + " IS NULL OR " + EVENTHANDLER_FK_INSTALLATION_TABLE_FIELD + "=" + StringUtils::itos(m_pRow_Device->FK_Installation_get()) + ") AND " + COMMANDGROUP_COMMAND_FK_COMMAND_FIELD + 
 		"=" + StringUtils::itos(COMMAND_Goto_Screen_CONST) + " AND " + COMMANDGROUP_COMMAND_COMMANDPARAMETER_FK_COMMANDPARAMETER_FIELD + "=" + StringUtils::itos(COMMANDPARAMETER_PK_DesignObj_CONST);
+
+	PlutoSqlResult result_set3b;
+	if( (result_set3b.r=mysql_query_result(sql)) )
+	{
+		while ((row = mysql_fetch_row(result_set3b.r)))
+		{
+			try
+			{
+				Row_DesignObj *drNewDesignObj = GetDesignObjFromScreen(atoi(row[0]));
+				alNewDesignObjsToGenerate.push_back(drNewDesignObj);
+if( drNewDesignObj->PK_DesignObj_get()==4438 )
+int k=2;
+			}
+			catch(...)
+			{}
+		}
+	}
+
+	sql = string("SELECT ") + COMMANDGROUP_COMMAND_COMMANDPARAMETER_IK_COMMANDPARAMETER_TABLE_FIELD + " FROM " +
+		EVENTHANDLER_TABLE + " JOIN " + COMMANDGROUP_COMMAND_TABLE + " ON " + COMMANDGROUP_COMMAND_FK_COMMANDGROUP_TABLE_FIELD + "=" +
+		EVENTHANDLER_FK_COMMANDGROUP_TABLE_FIELD + " JOIN " + COMMANDGROUP_COMMAND_COMMANDPARAMETER_TABLE + " ON " +
+		COMMANDGROUP_COMMAND_COMMANDPARAMETER_FK_COMMANDGROUP_COMMAND_FIELD + "=" + COMMANDGROUP_COMMAND_PK_COMMANDGROUP_COMMAND_FIELD +
+		" WHERE (" + EVENTHANDLER_FK_INSTALLATION_TABLE_FIELD + " IS NULL OR " + EVENTHANDLER_FK_INSTALLATION_TABLE_FIELD + "=" + StringUtils::itos(m_pRow_Device->FK_Installation_get()) + ") AND " + COMMANDGROUP_COMMAND_FK_COMMAND_FIELD + 
+		"=" + StringUtils::itos(COMMAND_Goto_DesignObj_CONST) + " AND " + COMMANDGROUP_COMMAND_COMMANDPARAMETER_FK_COMMANDPARAMETER_FIELD + "=" + StringUtils::itos(COMMANDPARAMETER_PK_DesignObj_CONST);
 
 	PlutoSqlResult result_set3;
 	if( (result_set3.r=mysql_query_result(sql)) )
@@ -1510,14 +1551,27 @@ for(itgs=m_htGeneratedScreens.begin();itgs!=m_htGeneratedScreens.end();++itgs)
 	for(itActions=alCommands->begin();itActions!=alCommands->end();++itActions)
 	{
 		CGCommand *oca = (CGCommand *) *itActions;
-		if( oca->m_PK_Command == COMMAND_Goto_Screen_CONST || oca->m_PK_Command == COMMAND_Show_Popup_CONST || oca->m_PK_Command == COMMAND_Set_Floorplan_CONST )
+		if( oca->m_PK_Command == COMMAND_Goto_DesignObj_CONST || oca->m_PK_Command == COMMAND_Goto_Screen_CONST || oca->m_PK_Command == COMMAND_Show_Popup_CONST || oca->m_PK_Command == COMMAND_Set_Floorplan_CONST )
 		{
 if( oca->m_PK_Command == COMMAND_Set_Floorplan_CONST )
 int k=2;
-            map<int, string>::iterator itParm=oca->m_ParameterList.find(COMMANDPARAMETER_PK_DesignObj_CONST);
+            map<int, string>::iterator itParm;
+			if( oca->m_PK_Command == COMMAND_Goto_Screen_CONST )
+				itParm=oca->m_ParameterList.find(COMMANDPARAMETER_PK_Screen_CONST);
+			else
+				itParm=oca->m_ParameterList.find(COMMANDPARAMETER_PK_DesignObj_CONST);
+
 			if( itParm!=oca->m_ParameterList.end() )
 			{
-				string sDesignObj = (*itParm).second;
+				string sDesignObj;
+				if( oca->m_PK_Command == COMMAND_Goto_Screen_CONST )
+				{
+					Row_DesignObj *pRow_DesignObj = GetDesignObjFromScreen(atoi((*itParm).second.c_str()));
+					if( pRow_DesignObj )
+						sDesignObj = StringUtils::itos(pRow_DesignObj->PK_DesignObj_get());
+				}
+				else
+					sDesignObj = (*itParm).second;
 				Row_DesignObj *p_m_pRow_DesignObj = mds.DesignObj_get()->GetRow(atoi((*itParm).second.c_str()));
 				if( p_m_pRow_DesignObj && m_htGeneratedScreens.find(First2Dots(sDesignObj))==m_htGeneratedScreens.end() )
 				{
@@ -2124,7 +2178,7 @@ void OrbiterGenerator::ScaleCommandList(DesignObj_Generator *ocDesignObj,DesignO
 		map<int, string>::iterator itParm;
 		for(itParm=oa->m_ParameterList.begin();itParm!=oa->m_ParameterList.end();++itParm)
 		{
-			if( oa->m_PK_Command==COMMAND_Goto_Screen_CONST && (*itParm).first==COMMANDPARAMETER_PK_DesignObj_CONST )
+			if( oa->m_PK_Command==COMMAND_Goto_DesignObj_CONST && (*itParm).first==COMMANDPARAMETER_PK_DesignObj_CONST )
 			{
 				string Value="";
 				if( ocDesignObj->m_sDesignObjGoto.length()>0 )  // This must be going to another page in an array
@@ -2196,4 +2250,34 @@ string OrbiterGenerator::First2Dots(string sDesignObj)
 	m_pRegenMonitor->SetRoom(m_pRow_Room);
 	m_pRegenMonitor->SetEntArea(m_pRow_EntertainArea);
 	return sDesignObj.substr(0,pos_second_dot);
+}
+
+void OrbiterGenerator::PopulateScreenMap()
+{
+	string SQL="(FK_UI=" + StringUtils::itos(m_pRow_UI->PK_UI_get()) + " OR FK_UI IS NULL) AND "
+		"(FK_Skin=" + StringUtils::itos(m_pRow_Skin->PK_Skin_get()) + " OR FK_Skin IS NULL) AND "
+		"(FK_DeviceTemplate=" + StringUtils::itos(m_pRow_Device->FK_DeviceTemplate_get()) + " OR FK_DeviceTemplate IS NULL) "
+		"ORDER BY FK_Screen,FK_DeviceTemplate DESC, FK_UI DESC, FK_Skin DESC";
+
+	vector<Row_Screen_DesignObj *> vectRow_Screen_DesignObj;
+	mds.Screen_DesignObj_get()->GetRows(SQL,&vectRow_Screen_DesignObj);
+
+	int PK_Screen_Last=0;  // Keep track of the last one, we only 1 want design obj per screen, the first one
+	for(size_t s=0;s<vectRow_Screen_DesignObj.size();++s)
+	{
+		Row_Screen_DesignObj *pRow_Screen_DesignObj = vectRow_Screen_DesignObj[s];
+		if( pRow_Screen_DesignObj->FK_Screen_get()==PK_Screen_Last )
+			continue;
+		PK_Screen_Last=pRow_Screen_DesignObj->FK_Screen_get();
+		m_mapDesignObj[PK_Screen_Last] = pRow_Screen_DesignObj->FK_DesignObj_get();
+	}
+}
+
+Row_DesignObj *OrbiterGenerator::GetDesignObjFromScreen(int PK_Screen)
+{
+	map<int,int>::iterator it=m_mapDesignObj.find(PK_Screen);
+	if( it==m_mapDesignObj.end() )
+		return NULL;
+
+	return mds.DesignObj_get()->GetRow(it->second);
 }
