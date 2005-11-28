@@ -11,7 +11,8 @@ namespace nsJobHandler
 		TASK_NOT_STARTED = 0,
 		TASK_IN_PROGRESS,
 		TASK_FAILED,
-		TASK_COMPLETED
+		TASK_COMPLETED,
+		TASK_CANCELED
 	} TaskStatus;
 
 	class Task
