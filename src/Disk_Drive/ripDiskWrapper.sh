@@ -47,7 +47,7 @@ command="";
 result=$ERR_NONE;
 case $diskType in 
 	2)
-		command="nice -n 15 /usr/pluto/bin/disk_copy $sourceDevice \"$targetFileName.in-progress-dvd\" > >(/usr/pluto/bin/DiskCopy_ProgressExtract.sh|/usr/pluto/bin/Pluto_Progress.sh $diskDriveDeviceID "$targetFileName")"
+		command="nice -n 15 /usr/pluto/bin/disk_copy $sourceDevice \"$targetFileName.in-progress-dvd\" > >(/usr/pluto/bin/DiskCopy_ProgressExtract.sh|/usr/pluto/bin/Pluto_Progress.sh $diskDriveDeviceID \"$targetFileName\" \"$sourceDevice\" \"$ownerID\")"
 	;;
 	0|1|6|7|8)
 		Dir="$targetFileName"
@@ -77,7 +77,7 @@ case $diskType in
 				exit 1
 			;;
 		esac
-		ProgressOutput=">(/usr/pluto/bin/Paranoia_Progress.sh|/usr/pluto/bin/Pluto_Progress.sh $diskDriveDeviceID \"$Dir/\$FileName\")"
+		ProgressOutput=">(/usr/pluto/bin/Paranoia_Progress.sh|/usr/pluto/bin/Pluto_Progress.sh $diskDriveDeviceID \"$Dir/\$FileName\" \"$sourceDevice\" \"$ownerID\")"
 		command="nice -n 15 cdparanoia -e -d $sourceDevice \$Track - 2> $ProgressOutput > $OutputFile"
 	;;
 	*)	result=$ERR_NOT_SUPPORTED_YET;;
