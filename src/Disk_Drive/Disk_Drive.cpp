@@ -304,7 +304,7 @@ void Disk_Drive::CMD_Abort_Ripping(string &sCMD_Result,Message *pMessage)
 	DCE::CMD_Kill_Application
 		CMD_Kill_Application(m_dwPK_Device,
 						m_pDisk_Drive_Functions->m_pDevice_AppServer->m_dwPK_Device,
-						"rip_" + StringUtils::itos(m_dwPK_Device),true);
+						"rip_" + StringUtils::itos(m_dwPK_Device) + "_0",true);
 
     SendCommand(CMD_Kill_Application);
 }
