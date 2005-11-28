@@ -4563,24 +4563,71 @@ function getPowerFile($dbADO,$installationID){
 	return $deviceArr[0];
 }
 
-function get_slots_info($mediadbADO){
+function get_slots_info($powerFileID,$mediadbADO){
 	// hard-coded to extract performer and album
 	$slotInfo=array();
 	$res=$mediadbADO->Execute('
-		SELECT PK_Disc,Slot, A1.Name AS Performer,DA1.FK_Attribute, DA2.FK_Attribute,A2.Name AS Album
-		FROM Disc 
-		LEFT JOIN Disc_Attribute DA1 ON DA1.FK_Disc=PK_Disc 
-		LEFT JOIN Attribute A1 ON DA1.FK_Attribute=A1.PK_Attribute AND A1.FK_AttributeType=2 
-		LEFT JOIN Disc_Attribute DA2 ON DA2.FK_Disc=PK_Disc 
-		LEFT JOIN Attribute A2 ON DA2.FK_Attribute=A2.PK_Attribute AND A2.FK_AttributeType=3
-		WHERE DA1.Track=0 AND DA2.Track=0
-		');
+		SELECT * FROM Disc
+		LEFT JOIN Disc_Attribute ON Disc_Attribute.FK_Disc=PK_Disc
+		LEFT JOIN Attribute ON FK_Attribute=PK_Attribute
+		LEFT JOIN Picture_Disc ON Picture_Disc.FK_Disc=PK_Disc
+		WHERE ((Track=0 AND FK_AttributeType IN (2,3,13)) OR FK_Attribute IS NULL) AND EK_Device=?
+		ORDER BY Slot ASC
+		',$powerFileID);
+	
 	while($row=$res->FetchRow()){
-		$slotInfo[$row['Slot']]['Performer']=$row['Performer'];
-		$slotInfo[$row['Slot']]['Album']=$row['Album'];
+		if($row['FK_AttributeType']==2){
+			$slotInfo[$row['Slot']]['Performer']=$row['Name'];
+		}
+		if($row['FK_AttributeType']==3){
+			$slotInfo[$row['Slot']]['Album']=$row['Name'];
+		}
+		if($row['FK_AttributeType']==13){
+			$slotInfo[$row['Slot']]['Title']=$row['Name'];
+		}		
 		$slotInfo[$row['Slot']]['PK_Disc']=$row['PK_Disc'];
+		$slotInfo[$row['Slot']]['ID']=$row['ID'];
+		$slotInfo[$row['Slot']]['Picture']=$row['FK_Picture'];
+		$slotInfo[$row['Slot']]['EK_MediaType']=$row['EK_MediaType'];
+	}
+
+	return $slotInfo;
+}
+
+function get_rip_format($installationID,$dbADO){
+	$ripFormats=array('mp3'=>'mp3','ogg'=>'ogg', 'flac'=>'flac', 'wav'=>'wav');
+	/*
+	$mediaPluginID=getDeviceFromDT($installationID,$GLOBALS['rootMediaPlugin'],$dbADO);
+	if($mediaPluginID!==null){
+		$mediaPluginDD=getDD($mediaPluginID,$GLOBALS['RipFormat'],$dbADO);
+		$selectedRipFormat=$mediaPluginDD[$GLOBALS['RipFormat']];
+	}else{
+		$selectedRipFormat='flac';
+	}
+	*/
+	$selectedRipFormat='flac';
+	
+	return array('formats'=>$ripFormats,'selected'=>$selectedRipFormat);
+}
+
+function getDD($deviceID,$deviceDataValues,$dbADO)
+{
+	$ddArray=array();
+	$fields=explode(',',$deviceDataValues);
+	foreach ($fields AS $fieldID){
+		$ddArray[$fieldID]=null;
 	}
 	
-	return $slotInfo;
+	$res=$dbADO->Execute('SELECT * FROM Device_DeviceData WHERE FK_Device=? AND FK_DeviceData IN ('.$deviceDataValues.')',array($deviceID));
+	if($res->RecordCount()==0){
+		return $ddArray;
+	}else{
+		while($row=$res->FetchRow()){
+			$ddArray[$row['FK_DeviceData']]=$row['IK_DeviceData'];
+		}
+	}
+
+
+	return $ddArray;
 }
 ?>

@@ -341,27 +341,6 @@ function installationSettings($output,$dbADO) {
 	$output->output();
 }
 
-function getDD($deviceID,$deviceDataValues,$dbADO)
-{
-	$ddArray=array();
-	$fields=explode(',',$deviceDataValues);
-	foreach ($fields AS $fieldID){
-		$ddArray[$fieldID]=null;
-	}
-	
-	$res=$dbADO->Execute('SELECT * FROM Device_DeviceData WHERE FK_Device=? AND FK_DeviceData IN ('.$deviceDataValues.')',array($deviceID));
-	if($res->RecordCount()==0){
-		return $ddArray;
-	}else{
-		while($row=$res->FetchRow()){
-			$ddArray[$row['FK_DeviceData']]=$row['IK_DeviceData'];
-		}
-	}
-
-
-	return $ddArray;
-}
-
 // return a javascript array with coordinates
 function getCitiesCoordsArray($dbADO,$filter='')
 {

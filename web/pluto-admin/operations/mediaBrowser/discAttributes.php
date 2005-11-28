@@ -9,15 +9,22 @@ function discAttributes($output,$mediadbADO,$dbADO) {
 	$out='';
 	$action = (isset($_REQUEST['action']) && $_REQUEST['action']!='')?cleanString($_REQUEST['action']):'form';
 	$slot=$_REQUEST['slot'];
-	$resSlot=$mediadbADO->Execute('SELECT * FROM Disc WHERE Slot=?',$slot);
+	$powerFileID=(int)@$_REQUEST['pf'];
+	if($powerFileID==0){
+		error_redirect('Error: Jukebox device not specified.','index.php?section=powerFile');
+	}
+	
+	$resSlot=$mediadbADO->Execute('SELECT * FROM Disc WHERE Slot=? AND EK_Device=?',array($slot,$powerFileID));
 	if($resSlot->RecordCount()==0){
-		$mediadbADO->Execute('INSERT INTO Disc (ID,Slot,EK_MediaType) VALUES (?,?,4)',array('Not identified',$slot));
-		$disc=$mediadbADO->Insert_ID();
+		$disc_id='Not identified';
 		$media_type=4;
+		$mediadbADO->Execute('INSERT INTO Disc (ID,Slot,EK_MediaType,EK_Device) VALUES (?,?,?,?)',array($disc_id,$slot,$media_type,$powerFileID));
+		$disc=$mediadbADO->Insert_ID();
 	}else{
 		$rowSlot=$resSlot->FetchRow();
 		$disc=$rowSlot['PK_Disc'];
 		$media_type=$rowSlot['EK_MediaType'];
+		$disc_id=$rowSlot['ID'];
 	}
 	$picsPerLine=4;	
 	
@@ -40,21 +47,22 @@ function discAttributes($output,$mediadbADO,$dbADO) {
 				<input type="hidden" name="section" value="discAttributes">
 				<input type="hidden" name="action" value="update">
 				<input type="hidden" name="slot" value="'.$slot.'">
+				<input type="hidden" name="pf" value="'.$powerFileID.'">
 		
 		';
-		$mediaTypes=getAssocArray('MediaType','PK_MediaType','Description',$dbADO,'','ORDER BY Description ASC');
+		$mediaTypes=getAssocArray('MediaType','PK_MediaType','Description',$dbADO,'WHERE PK_MediaType IN (2,3)','ORDER BY Description ASC');
 
 		$out.='
 		<h4>'.$TEXT_DISC_ATTRIBUTES_CONST.'</h4>
-		<a href="index.php?section=powerFile">Back to Power File</a>
+		<a href="index.php?section=powerFile">Back to Jukebox</a>
 		<table border="0" cellspacing="0" cellpadding="3">
 			<tr bgColor="#EEEEEE">
 				<td><B>'.$TEXT_DISC_ID_CONST.':</B></td>
-				<td><input type="text" name="disc_id" value="'.$rowSlot['ID'].'" size="55"></td>
+				<td><input type="text" name="disc_id" value="'.$disc_id.'" size="55"></td>
 			</tr>
 			<tr bgcolor="#EEEEEE">
 				<td><B>'.$TEXT_TYPE_CONST.':</B></td>
-				<td>'.pulldownFromArray($mediaTypes,'type',$rowSlot['EK_MediaType']).'</td>
+				<td>'.pulldownFromArray($mediaTypes,'type',$media_type).'</td>
 			</tr>
 			<tr bgcolor="#EBEFF9">
 				<td valign="top"><B>'.$TEXT_DISC_ATTRIBUTES_CONST.':</B></td>
@@ -66,7 +74,7 @@ function discAttributes($output,$mediadbADO,$dbADO) {
 				INNER JOIN AttributeType ON FK_AttributeType=PK_AttributeType
 				WHERE FK_Disc=?
 				ORDER BY Track ASC,Description ASC';
-			$resAttributes=$mediadbADO->Execute($queryAttributes,$rowSlot['PK_Disc']);
+			$resAttributes=$mediadbADO->Execute($queryAttributes,$disc);
 			$pos=0;
 			while($rowAttributes=$resAttributes->FetchRow()){
 				$pos++;
@@ -82,6 +90,12 @@ function discAttributes($output,$mediadbADO,$dbADO) {
 				</table></td>
 			</tr>			
 			<tr>
+				<td colspan="2" align="left"><B>NOTE:</B> for complete identification, the required attributes are:<br>
+				- for Pluto CD, <B>Album</B> and <B>Performer</B>;<br>
+				- for Pluto DVD, <B>Title</B>.
+			</td>
+			</tr>			
+			<tr>
 				<td colspan="2" align="center"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'">
 				</td>
 			</tr>			
@@ -91,8 +105,13 @@ function discAttributes($output,$mediadbADO,$dbADO) {
 			</tr>
 			
 			<tr>
-				<td><B>'.$TEXT_ADD_DISC_ATTRIBUTE_CONST.':</B><br>'.pulldownFromArray($attributeTypes,'newAttributeType',@$_POST['newAttributeType'],'onChange="document.discAttributes.action.value=\'form\';document.discAttributes.submit();"').'</td>
-				<td><B>'.$TEXT_DISC_ATTRIBUTE_NAME_CONST.'</B><br><input type="text" name="newAttributeName" value=""></td>
+				<td colspan="2"><table>
+					<tr>
+						<td><B>'.$TEXT_ADD_DISC_ATTRIBUTE_CONST.':</B><br>'.pulldownFromArray($attributeTypes,'newAttributeType',@$_POST['newAttributeType'],'onChange="document.discAttributes.action.value=\'form\';document.discAttributes.submit();"').'</td>
+						<td><B>'.$TEXT_DISC_ATTRIBUTE_NAME_CONST.'</B><br><input type="text" name="newAttributeName" value=""></td>
+						<td><B>Track</B><br><input type="text" name="newAttributeTrack" value=""></td>
+					</tr>
+				</table></td>
 			</tr>';
 			if(isset($_POST['newAttributeType']) && $_POST['newAttributeType']!='0'){
 				$newAttributeType=(int)$_POST['newAttributeType'];
@@ -132,7 +151,7 @@ function discAttributes($output,$mediadbADO,$dbADO) {
 				while($rowPictures=$resPictures->FetchRow()){
 					$picsCount++;
 					$out.='
-						<td style="background-color:#EEEEEE;" align="center"><a href="mediapics/'.$rowPictures['PK_Picture'].'.'.$rowPictures['Extension'].'" target="_blank"><img src="mediapics/'.$rowPictures['PK_Picture'].'_tn.'.$rowPictures['Extension'].'" border="0"></a> <br><a href="#" onClick="if(confirm(\'Are you sure you want to delete this picture?\'))self.location=\'index.php?section=discAttributes&slot='.$slot.'&action=properties&picID='.$rowPictures['PK_Picture'].'\';">'.$TEXT_DELETE_CONST.'</a></td>
+						<td style="background-color:#EEEEEE;" align="center"><a href="mediapics/'.$rowPictures['PK_Picture'].'.'.$rowPictures['Extension'].'" target="_blank"><img src="mediapics/'.$rowPictures['PK_Picture'].'_tn.'.$rowPictures['Extension'].'" border="0"></a> <br><a href="#" onClick="if(confirm(\'Are you sure you want to delete this picture?\'))self.location=\'index.php?section=discAttributes&slot='.$slot.'&action=properties&picID='.$rowPictures['PK_Picture'].'&pf='.$powerFileID.'\';">'.$TEXT_DELETE_CONST.'</a></td>
 					';
 					if($picsCount%$picsPerLine==0)
 						$out.='</tr><tr>';
@@ -180,6 +199,8 @@ function discAttributes($output,$mediadbADO,$dbADO) {
 		if(isset($_POST['add'])){
 			$newAttributeType=$_POST['newAttributeType'];
 			$newAttributeName=cleanString($_POST['newAttributeName']);
+			$newAttributeTrack=(int)$_POST['newAttributeTrack'];
+			
 			$existingAttributes=(int)@$_POST['existingAttributes'];
 			if($existingAttributes!=0){
 				$resExistingAttribute=$mediadbADO->Execute('SELECT Name FROM Attribute WHERE PK_Attribute=?',$existingAttributes);
@@ -187,10 +208,10 @@ function discAttributes($output,$mediadbADO,$dbADO) {
 				if($rowExistingAttribute['Name']!=$newAttributeName){
 					
 					// new attribute, insert in Attribute and File_Attribute tables
-					$isAdded=addDiscAttribute($newAttributeType,$newAttributeName,$disc,$mediadbADO);
+					$isAdded=addDiscAttribute($newAttributeType,$newAttributeName,$disc,$mediadbADO,$newAttributeTrack);
 					
 					if($isAdded!==true){
-						header('Location: index.php?section=discAttributes&fileID='.$fileID.'&error='.$TEXT_ERROR_ATTRIBUTE_NOT_ADDED_CONST.': '.urlencode(nl2br($AttributeAdded)));
+						header('Location: index.php?section=discAttributes&slot='.$slot.'&pf='.$powerFileID.'&error='.$TEXT_ERROR_ATTRIBUTE_NOT_ADDED_CONST.': '.urlencode(nl2br($AttributeAdded)));
 						exit();
 					}
 					
@@ -198,14 +219,14 @@ function discAttributes($output,$mediadbADO,$dbADO) {
 					$mediadbADO->Execute('INSERT IGNORE INTO Disc_Attribute (FK_Disc, FK_Attribute) VALUES (?,?)',array($disc,$existingAttributes));
 				}
 			}else{
-				$isAdded=addDiscAttribute($newAttributeType,$newAttributeName,$disc,$mediadbADO);
+				$isAdded=addDiscAttribute($newAttributeType,$newAttributeName,$disc,$mediadbADO,$newAttributeTrack);
 				if($isAdded!==true){
-					header('Location: index.php?section=discAttributes&slot='.$slot.'&error='.$TEXT_ERROR_DISC_ATTRIBUTE_NOT_ADDED_CONST);
+					header('Location: index.php?section=discAttributes&slot='.$slot.'&pf='.$powerFileID.'&error='.$TEXT_ERROR_DISC_ATTRIBUTE_NOT_ADDED_CONST);
 					exit();
 				}
 			}
 			
-			header('Location: index.php?section=discAttributes&slot='.$slot.'&msg='.$TEXT_DISC_ATTRIBUTE_ADDED_CONST.'<br>'.urlencode(nl2br(@$AttributeAdded)));
+			header('Location: index.php?section=discAttributes&slot='.$slot.'&pf='.$powerFileID.'&msg='.$TEXT_DISC_ATTRIBUTE_ADDED_CONST.'<br>'.urlencode(nl2br(@$AttributeAdded)));
 			exit();
 		}
 		
@@ -213,7 +234,7 @@ function discAttributes($output,$mediadbADO,$dbADO) {
 			$deleteAttribute=$_REQUEST['dAtr'];
 			$mediadbADO->Execute('DELETE FROM Disc_Attribute WHERE FK_Disc=? AND FK_Attribute=?',array($disc,$deleteAttribute));
 			
-			header('Location: index.php?section=discAttributes&slot='.$slot.'&msg='.$TEXT_ATTRIBUTE_DELETED_FROM_DISC_CONST);	
+			header('Location: index.php?section=discAttributes&slot='.$slot.'&pf='.$powerFileID.'&msg='.$TEXT_ATTRIBUTE_DELETED_FROM_DISC_CONST);	
 			exit();		
 		}
 	
@@ -221,7 +242,7 @@ function discAttributes($output,$mediadbADO,$dbADO) {
 		if(isset($_POST['update'])){
 			$type=(int)$_POST['type'];
 			$mediadbADO->Execute('UPDATE Disc SET EK_MediaType=? WHERE PK_Disc=?',array($type,$disc));
-			header('Location: index.php?section=discAttributes&slot='.$slot.'&msg='.$TEXT_DISC_MEDIA_TYPE_UPDATED_CONST);			
+			header('Location: index.php?section=discAttributes&slot='.$slot.'&pf='.$powerFileID.'&msg='.$TEXT_DISC_MEDIA_TYPE_UPDATED_CONST);			
 			exit();
 		}
 
@@ -249,15 +270,15 @@ function discAttributes($output,$mediadbADO,$dbADO) {
 				$error=$TEXT_ERROR_UPLOAD_FAILS_PERMISIONS_CONST.' '.$GLOBALS['mediaPicsPath'];
 			}
 			if($error!=''){
-				header('Location: index.php?section=discAttributes&slot='.$slot.'&error='.$error);			
+				header('Location: index.php?section=discAttributes&slot='.$slot.'&pf='.$powerFileID.'&error='.$error);			
 				exit();
 			}else{
-				header('Location: index.php?section=discAttributes&slot='.$slot.'&msg='.$TEXT_DISC_PICTURE_UPLOADED_CONST);			
+				header('Location: index.php?section=discAttributes&slot='.$slot.'&pf='.$powerFileID.'&msg='.$TEXT_DISC_PICTURE_UPLOADED_CONST);			
 				exit();
 			}
 		}		
 		
-		header('Location: index.php?section=discAttributes&slot='.$slot);			
+		header('Location: index.php?section=discAttributes&pf='.$powerFileID.'&slot='.$slot);			
 	}
 	$output->setReloadLeftFrame(false);
 	$output->setScriptInHead(@$scriptInHead);	
@@ -267,11 +288,11 @@ function discAttributes($output,$mediadbADO,$dbADO) {
 	$output->output();
 }
 
-function addDiscAttribute($newAttributeType,$newAttributeName,$disc,$mediadbADO){
+function addDiscAttribute($newAttributeType,$newAttributeName,$disc,$mediadbADO,$newAttributeTrack=0){
 	/* @var $mediadbADO ADOConnection */
 	$res=$mediadbADO->Execute('INSERT INTO Attribute (FK_AttributeType,Name) VALUES (?,?)',array($newAttributeType,$newAttributeName));
 	$attrID=$mediadbADO->Insert_ID();
-	$res=$mediadbADO->Execute('INSERT INTO Disc_Attribute (FK_Disc,FK_Attribute) VALUES (?,?)',array($disc,$attrID));
+	$res=$mediadbADO->Execute('INSERT INTO Disc_Attribute (FK_Disc,FK_Attribute,Track) VALUES (?,?,?)',array($disc,$attrID,$newAttributeTrack));
 	
 	if($mediadbADO->Affected_Rows()>0){
 		return true;
