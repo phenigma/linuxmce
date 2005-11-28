@@ -240,9 +240,6 @@ void MediaType_DesignObj_FK_DesignObj_Alt_getrows(vector <class Row_MediaType_De
 void QuickStartTemplate_FK_DesignObj_getrows(vector <class Row_QuickStartTemplate*> *rows);
 void QuickStartTemplate_FK_DesignObj_OSD_getrows(vector <class Row_QuickStartTemplate*> *rows);
 void Screen_DesignObj_FK_DesignObj_getrows(vector <class Row_Screen_DesignObj*> *rows);
-void Skin_FK_DesignObj_MainMenu_getrows(vector <class Row_Skin*> *rows);
-void Skin_FK_DesignObj_Sleeping_getrows(vector <class Row_Skin*> *rows);
-void Skin_FK_DesignObj_ScreenSaver_getrows(vector <class Row_Skin*> *rows);
 
 
 		// Setup binary serialization

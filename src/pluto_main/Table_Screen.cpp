@@ -20,6 +20,9 @@ using namespace std;
 
 #include "Table_Screen_CommandParameter.h"
 #include "Table_Screen_DesignObj.h"
+#include "Table_Skin.h"
+#include "Table_Skin.h"
+#include "Table_Skin.h"
 
 
 void Database_pluto_main::CreateTable_Screen()
@@ -1058,6 +1061,27 @@ PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_Screen_DesignObj *pTable = table->database->Screen_DesignObj_get();
 pTable->GetRows("`FK_Screen`=" + StringUtils::itos(m_PK_Screen),rows);
+}
+void Row_Screen::Skin_FK_Screen_MainMenu_getrows(vector <class Row_Skin*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Skin *pTable = table->database->Skin_get();
+pTable->GetRows("`FK_Screen_MainMenu`=" + StringUtils::itos(m_PK_Screen),rows);
+}
+void Row_Screen::Skin_FK_Screen_Sleeping_getrows(vector <class Row_Skin*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Skin *pTable = table->database->Skin_get();
+pTable->GetRows("`FK_Screen_Sleeping`=" + StringUtils::itos(m_PK_Screen),rows);
+}
+void Row_Screen::Skin_FK_Screen_ScreenSaver_getrows(vector <class Row_Skin*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Skin *pTable = table->database->Skin_get();
+pTable->GetRows("`FK_Screen_ScreenSaver`=" + StringUtils::itos(m_PK_Screen),rows);
 }
 
 

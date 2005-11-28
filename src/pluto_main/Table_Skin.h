@@ -86,9 +86,9 @@ long int m_FK_Style;
 long int m_FK_Skin_TextPlacement;
 short int m_DrawTextBeforeChildren;
 long int m_FK_StabilityStatus;
-long int m_FK_DesignObj_MainMenu;
-long int m_FK_DesignObj_Sleeping;
-long int m_FK_DesignObj_ScreenSaver;
+long int m_FK_Screen_MainMenu;
+long int m_FK_Screen_Sleeping;
+long int m_FK_Screen_ScreenSaver;
 long int m_FK_Package;
 long int m_psc_id;
 long int m_psc_batch;
@@ -109,9 +109,9 @@ long int FK_Style_get();
 long int FK_Skin_TextPlacement_get();
 short int DrawTextBeforeChildren_get();
 long int FK_StabilityStatus_get();
-long int FK_DesignObj_MainMenu_get();
-long int FK_DesignObj_Sleeping_get();
-long int FK_DesignObj_ScreenSaver_get();
+long int FK_Screen_MainMenu_get();
+long int FK_Screen_Sleeping_get();
+long int FK_Screen_ScreenSaver_get();
 long int FK_Package_get();
 long int psc_id_get();
 long int psc_batch_get();
@@ -130,9 +130,9 @@ void FK_Style_set(long int val);
 void FK_Skin_TextPlacement_set(long int val);
 void DrawTextBeforeChildren_set(short int val);
 void FK_StabilityStatus_set(long int val);
-void FK_DesignObj_MainMenu_set(long int val);
-void FK_DesignObj_Sleeping_set(long int val);
-void FK_DesignObj_ScreenSaver_set(long int val);
+void FK_Screen_MainMenu_set(long int val);
+void FK_Screen_Sleeping_set(long int val);
+void FK_Screen_ScreenSaver_set(long int val);
 void FK_Package_set(long int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
@@ -180,9 +180,9 @@ void psc_restrict_setNull(bool val);
 class Row_Style* FK_Style_getrow();
 class Row_Skin* FK_Skin_TextPlacement_getrow();
 class Row_StabilityStatus* FK_StabilityStatus_getrow();
-class Row_DesignObj* FK_DesignObj_MainMenu_getrow();
-class Row_DesignObj* FK_DesignObj_Sleeping_getrow();
-class Row_DesignObj* FK_DesignObj_ScreenSaver_getrow();
+class Row_Screen* FK_Screen_MainMenu_getrow();
+class Row_Screen* FK_Screen_Sleeping_getrow();
+class Row_Screen* FK_Screen_ScreenSaver_getrow();
 class Row_Package* FK_Package_getrow();
 
 
@@ -198,7 +198,7 @@ void StyleVariation_FK_Skin_getrows(vector <class Row_StyleVariation*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Skin+ m_Description+ m_FK_UI+ m_MergeStandardVariation+ m_DataSubdirectory+ m_FK_Style+ m_FK_Skin_TextPlacement+ m_DrawTextBeforeChildren+ m_FK_StabilityStatus+ m_FK_DesignObj_MainMenu+ m_FK_DesignObj_Sleeping+ m_FK_DesignObj_ScreenSaver+ m_FK_Package+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_Skin+ m_Description+ m_FK_UI+ m_MergeStandardVariation+ m_DataSubdirectory+ m_FK_Style+ m_FK_Skin_TextPlacement+ m_DrawTextBeforeChildren+ m_FK_StabilityStatus+ m_FK_Screen_MainMenu+ m_FK_Screen_Sleeping+ m_FK_Screen_ScreenSaver+ m_FK_Package+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -212,9 +212,9 @@ string FK_Style_asSQL();
 string FK_Skin_TextPlacement_asSQL();
 string DrawTextBeforeChildren_asSQL();
 string FK_StabilityStatus_asSQL();
-string FK_DesignObj_MainMenu_asSQL();
-string FK_DesignObj_Sleeping_asSQL();
-string FK_DesignObj_ScreenSaver_asSQL();
+string FK_Screen_MainMenu_asSQL();
+string FK_Screen_Sleeping_asSQL();
+string FK_Screen_ScreenSaver_asSQL();
 string FK_Package_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
