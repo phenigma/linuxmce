@@ -11,33 +11,51 @@ Name=default
 IsRelative=1
 Path=pluto.default"
 
-if [[ ! -f ~/.mozilla/firefox/profiles.ini ]]; then
-	mkdir -p ~/.mozilla/firefox/pluto.default
-	echo "$DefaultProfileTxt" >~/.mozilla/firefox/profiles.ini
-fi
-
 Section=
-while read line; do
-	if [[ "$line" == '['Profile*']' ]]; then
-		if [[ -n "$Section" && "$Default" == 1 ]]; then
-			break
+Loop="yes"
+Reinstate=no
+while [[ "$Loop" == yes ]]; do
+	if [[ ! -f ~/.mozilla/firefox/profiles.ini || "$Reinstate" == yes ]]; then
+		echo "$(date -R) MSG: Setting up profile config and profile directory" >> /var/log/pluto/mozilla.newlog
+		if [[ ! -d ~/.mozilla/firefox/pluto.default ]]; then
+			rm -rf ~/.mozilla/firefox/pluto.default
 		fi
-		Section="$line"
-		Name=
-		IsRelative=
-		Path=
-		Default=
-	elif [[ -n "$Section" && -n "$line" ]]; then
-		Var="${line%%=*}"
-		Value="${line#*=}"
-		eval "$Var='$Value'"
-	fi
-done <~/.mozilla/firefox/profiles.ini
+		rm -rf ~/.mozilla/firefox/profiles.ini
 
-if [[ -z "$Path" ]]; then
-	echo "$(date -R) FATAL: Profile path is empty" >> /var/log/pluto/mozilla.newlog
-	exit 1
-fi
+		mkdir -p ~/.mozilla/firefox/pluto.default
+		echo "$DefaultProfileTxt" >~/.mozilla/firefox/profiles.ini
+	fi
+
+	echo "$(date -R) MSG: Reading profile config" >> /var/log/pluto/mozilla.newlog
+	while read line; do
+		if [[ "$line" == '['Profile*']' ]]; then
+			if [[ -n "$Section" && "$Default" == 1 ]]; then
+				break
+			fi
+			Section="$line"
+			Name=
+			IsRelative=
+			Path=
+			Default=
+		elif [[ -n "$Section" && -n "$line" ]]; then
+			Var="${line%%=*}"
+			Value="${line#*=}"
+			eval "$Var='$Value'"
+		fi
+	done <~/.mozilla/firefox/profiles.ini
+
+	if [[ -n "$Path" ]]; then
+		echo "$(date -R) OK: Profile config seems ok. Continuing" >> /var/log/pluto/mozilla.newlog
+		Loop=no # profile ok. exit loop and continue
+	elif [[ "$Reinstate" == no ]]; then
+		echo "$(date -R) ERROR: Profile path is empty. Reinstating profile config" >> /var/log/pluto/mozilla.newlog
+		Reinstate=yes # profile not ok, reinstate with default, re-read
+	else
+		echo "$(date -R) FATAL: Profile path is empty even after reinstating the config. Something wrong with the default?" >> /var/log/pluto/mozilla.newlog
+		exit 1 # profile still not ok. if this happens, someone changed the above default
+	fi
+done
+
 FireFoxProfile=~/".mozilla/firefox/$Path/"
 
 echo "$(date -R) user $User URL $URL" >> /var/log/pluto/mozilla.newlog
