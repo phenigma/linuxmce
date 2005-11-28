@@ -1012,7 +1012,7 @@ Row_File *MediaAttributes_LowLevel::AddDirectoryToDatabase(int PK_MediaType,stri
 
 void MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaType,string sDestination,string sTracks)
 {
-	if( true || FileUtils::DirExists(sDestination) )
+	if( /*true || */ FileUtils::DirExists(sDestination) )
 	{
 		Row_File *pRow_File = AddDirectoryToDatabase(PK_MediaType==MEDIATYPE_pluto_CD_CONST ? MEDIATYPE_pluto_StoredAudio_CONST : PK_MediaType,sDestination);
 		AddDiscAttributesToFile(pRow_File->PK_File_get(),PK_Disc,0);  // Track ==0
@@ -1038,7 +1038,7 @@ void MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaT
 			// See if there's a file with this base name
 			list<string> listFiles;
 			FileUtils::FindFiles(listFiles,sDestination,sTrackName + ".*");
-listFiles.push_back(sTrackName+".flac");
+//listFiles.push_back(sTrackName+".flac");
 			if( listFiles.size()!=1 )
 			{
 				g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find ripped track: %s/%s",sDestination.c_str(),sTrackName.c_str());
