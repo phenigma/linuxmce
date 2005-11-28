@@ -6,7 +6,7 @@ CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -D_DEVEL_DEFINES
 LDFLAGS = -L$(ROOT)/lib
-BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread -lpluto_media -lattr
+BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
 
 MYNAME = Powerfile_C200
 VERSION = 2.0.0
@@ -19,7 +19,7 @@ sources = Main.cpp Powerfile_C200.cpp $(Gen_Dev_Files)
 CXXFLAGS += $(XXXFLAGS)
 CPPFLAGS +=
 LDFLAGS +=
-XTRALDLIBS = -lDisk_Drive_Functions
+XTRALDLIBS = -lpluto_media -lattr -lDisk_Drive_Functions
 
 Gen_Dev_Files +=
 sources += exec_grab_output.cpp ../JobHandler/Job.cpp ../JobHandler/Task.cpp ../Media_Plugin/MediaAttributes_LowLevel.cpp
