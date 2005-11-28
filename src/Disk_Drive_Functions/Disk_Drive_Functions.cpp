@@ -497,7 +497,8 @@ void Disk_Drive_Functions::CMD_Rip_Disk(int iPK_Users, string sFormat, string sN
 	DCE::CMD_Spawn_Application
 		spawnApplication(m_pCommand_Impl->m_dwPK_Device,
 						m_pDevice_AppServer->m_dwPK_Device,
-						"/usr/pluto/bin/ripDiskWrapper.sh", "rip_" + StringUtils::itos(m_pCommand_Impl->m_dwPK_Device), strParameters,
+						"/usr/pluto/bin/ripDiskWrapper.sh", "rip_" + StringUtils::itos(m_pCommand_Impl->m_dwPK_Device) + "_" + StringUtils::itos(iDrive_Number),
+						strParameters,
 						sResultMessage + StringUtils::itos(RIP_RESULT_FAILURE),
 						sResultMessage + StringUtils::itos(RIP_RESULT_SUCCESS),
 						false, false, false);
