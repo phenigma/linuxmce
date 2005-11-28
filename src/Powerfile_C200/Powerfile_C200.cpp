@@ -88,23 +88,22 @@ bool Powerfile_C200::RippingProgress(class Socket *pSocket, class Message *pMess
 
 	if (iResult == RIP_RESULT_STILLGOING)
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Received RippingProgress message for drive %s, percent %d", sDrive.c_str(), iPercent);
+		g_pPlutoLogger->Write(LV_STATUS, "Received RippingProgress message for drive %s, percent %d, name: '%s'", sDrive.c_str(), iPercent, sName.c_str());
 		int iDrive_Number = -1;
 		for (size_t i = 0; i < m_vectDrive.size(); i++)
 		{
 			if (m_vectDrive[i].first == sDrive)
 			{
-				iDrive_Number == i;
+				iDrive_Number = i;
 				break;
 			}
 		}
 
 		if (iDrive_Number == -1)
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "Drive %d not handled by us", sDrive.c_str());
+			// not handled by us
 			return false;
 		}
-		g_pPlutoLogger->Write(LV_STATUS, "Drive %d is unit %d", sDrive.c_str(), iDrive_Number);
 
 		m_pJob->RippingProgress_Going(iDrive_Number, iPercent, sName);
 	}
@@ -818,7 +817,7 @@ void Powerfile_C200::CMD_Get_Bulk_Ripping_Status(string *sBulk_rip_status,string
 //<-dceag-c739-e->
 {
 #ifdef EMULATE_PF
-	* sBulk_rip_status = "S1-F,S2-S,S3-R,S4-N";
+	* sBulk_rip_status = "S1-F~S2-S~S3-R~S4-N";
 #else
 	* sBulk_rip_status = m_pJob->ToString();
 #endif
@@ -940,7 +939,7 @@ string Powerfile_Job::ToString()
 	{
 		Powerfile_Task * pTask = (Powerfile_Task *) * it;
 		if (bComma)
-			sResult += ",";
+			sResult += "~";
 		else
 			bComma = true;
 		sResult += pTask->ToString();
@@ -1069,6 +1068,11 @@ void PowerfileRip_Task::RipCD(Row_Disc *pRow_Disc,listMediaAttribute &listMediaA
 			DCE::CMD_Kill_Application CMD_Kill_Application(iPK_Device, m_pDDF->m_pDevice_AppServer->m_dwPK_Device,
 				"rip_" + StringUtils::itos(iPK_Device) + "_" + StringUtils::itos(m_iDrive_Number), true);
 		}
+		else
+		{
+			pPowerfile_Job->m_pPowerfile_C200->m_pMediaAttributes_LowLevel->AddRippedDiscToDatabase(pRow_Disc->PK_Disc_get(),
+				MEDIATYPE_pluto_CD_CONST, sPath, sTracks);
+		}
 	}
 	else
 	{
@@ -1144,7 +1148,9 @@ void Powerfile_Job::RippingProgress_End(int iDrive_Number, int iResult)
 		if ((pTask->m_eTaskStatus == TASK_IN_PROGRESS && pTask->m_ePreTaskStatus == TASK_NOT_STARTED) && pTask->m_iDrive_Number == iDrive_Number)
 		{
 			if (iResult == RIP_RESULT_SUCCESS)
+			{
 				pTask->m_ePreTaskStatus = TASK_COMPLETED;
+			}
 			else
 			{
 				pTask->m_sResult="Technical problem reading the disc";
@@ -1166,7 +1172,7 @@ void Powerfile_Job::RippingProgress_Going(int iDrive_Number, int iPercent, strin
 		if ((pTask->m_eTaskStatus == TASK_IN_PROGRESS && pTask->m_ePreTaskStatus == TASK_NOT_STARTED) && pTask->m_iDrive_Number == iDrive_Number)
 		{
 			pTask->m_sResult = sName + " " + StringUtils::itos(iPercent) + "%";
-			break;
+			return;
 		}
 	}
 	g_pPlutoLogger->Write(LV_CRITICAL, "Drive %d not found in task list!", iDrive_Number);
