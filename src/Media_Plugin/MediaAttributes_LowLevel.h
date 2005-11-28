@@ -131,7 +131,7 @@ public:
 	void AddAttributesToDisc(Row_Disc *pRow_Disc,int iFileOrTrack,int iSection,map<int,int> *p_mapPK_Attribute);
 	void AddRippedDiscToDatabase(int PK_Disc,int PK_MediaType,string sDestination,string sTracks);
 	void AddDiscAttributesToFile(int PK_File,int PK_Disc,int Track);
-	void FixMediaAttributes(listMediaAttribute &listMediaAttribute_);
+	bool FixMediaAttributes(listMediaAttribute &listMediaAttribute_,int &Tracks);
 
 	string GetAttributeName(int PK_Attribute)
 	{

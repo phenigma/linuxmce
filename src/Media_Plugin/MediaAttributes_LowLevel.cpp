@@ -713,7 +713,8 @@ int MediaAttributes_LowLevel::Parse_Misc_Media_ID(int PK_MediaType,listMediaAttr
 		PK_Disc = AddIdentifiedDiscToDB(PK_MediaType,vectAttributes[0],listMediaAttribute_);
 	}
 	
-	FixMediaAttributes(listMediaAttribute_);
+	int Tracks;
+	FixMediaAttributes(listMediaAttribute_,Tracks);
 g_pPlutoLogger->Write(LV_STATUS,"Parse_misc_Media_ID done");
 	return PK_Disc;
 }
@@ -777,18 +778,24 @@ g_pPlutoLogger->Write(LV_STATUS,"Parse_CDDB_Media_ID not already id'd");
 		PK_Disc = AddIdentifiedDiscToDB(PK_MediaType,sCDDBID,listMediaAttribute_);
 	}
 
-	FixMediaAttributes(listMediaAttribute_);
+	int Tracks;
+	FixMediaAttributes(listMediaAttribute_,Tracks);
 g_pPlutoLogger->Write(LV_STATUS,"Parse_CDDB_Media_ID done");
 	return PK_Disc;
 }
 
-void MediaAttributes_LowLevel::FixMediaAttributes(listMediaAttribute &listMediaAttribute_)
+bool MediaAttributes_LowLevel::FixMediaAttributes(listMediaAttribute &listMediaAttribute_,int &Tracks)
 {
+	bool bOK=true;
+	Tracks=0;
 	map<string,int> mapSongs;
 	for(listMediaAttribute::iterator it=listMediaAttribute_.begin();it!=listMediaAttribute_.end();++it)
 	{
 		MediaAttribute *pMediaAttribute = *it;
 		pMediaAttribute->m_sName = FileUtils::ValidFileName(pMediaAttribute->m_sName);
+		if( pMediaAttribute->m_Title_Track>Tracks )
+			Tracks=pMediaAttribute->m_Title_Track;
+
 		if( pMediaAttribute->m_PK_AttributeType==ATTRIBUTETYPE_Song_CONST && pMediaAttribute->m_Title_Track )
 		{
 			// Be sure the same song isn't on the same disc twice with the same name, since it will cause
@@ -799,6 +806,29 @@ void MediaAttributes_LowLevel::FixMediaAttributes(listMediaAttribute &listMediaA
 			mapSongs[pMediaAttribute->m_sName]=pMediaAttribute->m_Title_Track;
 		}
 	}
+
+	// This has tracks and songs, be sure we have the required information
+	if( Tracks && mapSongs.size() )
+	{
+		map<int,bool> mapTracks; // confirm which ones are here
+		for(map<string,int>::iterator it=mapSongs.begin();it!=mapSongs.end();++it)
+			mapTracks[it->second]=true;
+
+		if( Tracks!=mapTracks.size() )
+		{
+			string sMissing;
+			for(int i=1;i<=Tracks;++i)
+				if( !mapTracks[i] )
+				{
+					listMediaAttribute_.push_back( new MediaAttribute(i,0,ATTRIBUTETYPE_Song_CONST,0,"Track " + StringUtils::itos(i)) );
+					sMissing += StringUtils::itos(i) + ",";
+				}
+			
+			bOK=false;
+			g_pPlutoLogger->Write(LV_WARNING,"MediaAttributes_LowLevel::FixMediaAttributes missing song info for %s",sMissing.c_str());
+		}
+	}
+	return bOK;
 }
 
 int MediaAttributes_LowLevel::IsDiscAlreadyIdentified(string sIdentifiedDisc,listMediaAttribute &listMediaAttribute_)
@@ -986,6 +1016,13 @@ void MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaT
 	{
 		Row_File *pRow_File = AddDirectoryToDatabase(PK_MediaType==MEDIATYPE_pluto_CD_CONST ? MEDIATYPE_pluto_StoredAudio_CONST : PK_MediaType,sDestination);
 		AddDiscAttributesToFile(pRow_File->PK_File_get(),PK_Disc,0);  // Track ==0
+		vector<Row_Disc_Attribute *> vectRow_Disc_Attribute;
+		m_pDatabase_pluto_media->Disc_Attribute_get()->GetRows(
+			"JOIN Attribute ON FK_Attribute=PK_Attribute WHERE FK_Disc=" + StringUtils::itos(PK_Disc) + 
+			" AND FK_AttributeType=" + StringUtils::itos(ATTRIBUTETYPE_Disc_ID_CONST),&vectRow_Disc_Attribute);
+		Row_Disc_Attribute *pRow_Disc_Attribute_DiscID=NULL;
+		if( vectRow_Disc_Attribute.size()>0 )
+			pRow_Disc_Attribute_DiscID = vectRow_Disc_Attribute[0];
 
 		string::size_type pos=0;
 		while( pos<sTracks.size() )
@@ -1016,7 +1053,24 @@ listFiles.push_back(sTrackName+".flac");
 			pRow_File->Path_set( sDestination );
 			pRow_File->Filename_set( FileUtils::FilenameWithoutPath(listFiles.front()) );
 			m_pDatabase_pluto_media->File_get()->Commit();
-			AddDiscAttributesToFile(pRow_File->PK_File_get(),PK_Disc,iTrack);  
+			AddDiscAttributesToFile(pRow_File->PK_File_get(),PK_Disc,iTrack);
+
+			// Be sure the disc id is associated with each track
+			if( pRow_Disc_Attribute_DiscID )
+			{
+				Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->GetRow(
+					pRow_File->PK_File_get(),pRow_Disc_Attribute_DiscID->FK_Attribute_get(),
+					iTrack,0);
+				if( !pRow_File_Attribute )
+				{
+					pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->AddRow();
+					pRow_File_Attribute->FK_File_set(pRow_File->PK_File_get());
+					pRow_File_Attribute->FK_Attribute_set(pRow_Disc_Attribute_DiscID->FK_Attribute_get());
+					pRow_File_Attribute->Section_set(0);
+					pRow_File_Attribute->Track_set(iTrack);
+					m_pDatabase_pluto_media->File_Attribute_get()->Commit();
+				}
+			}
 		}
 	}
 	else
@@ -1056,10 +1110,16 @@ void MediaAttributes_LowLevel::AddDiscAttributesToFile(int PK_File,int PK_Disc,i
 	pRow_Disc->Picture_Disc_FK_Disc_getrows(&vectRow_Picture_Disc);
 	for(size_t s=0;s<vectRow_Picture_Disc.size();++s)
 	{
-		Row_Picture_File *pRow_Picture_File = m_pDatabase_pluto_media->Picture_File_get()->AddRow();
-		pRow_Picture_File->FK_File_set(PK_File);
-		pRow_Picture_File->FK_Picture_set( vectRow_Picture_Disc[s]->FK_Picture_get() );
-		m_pDatabase_pluto_media->Picture_File_get()->Commit();
+		// Check if it's already there in case this disc was already added
+		Row_Picture_File *pRow_Picture_File = m_pDatabase_pluto_media->Picture_File_get()->GetRow(
+			vectRow_Picture_Disc[s]->FK_Picture_get(),PK_File);
+		if( !pRow_Picture_File )
+		{
+			pRow_Picture_File=m_pDatabase_pluto_media->Picture_File_get()->AddRow();
+			pRow_Picture_File->FK_File_set(PK_File);
+			pRow_Picture_File->FK_Picture_set( vectRow_Picture_Disc[s]->FK_Picture_get() );
+			m_pDatabase_pluto_media->Picture_File_get()->Commit();
+		}
 #ifndef WIN32
 		string sPK_Picture = StringUtils::itos(pRow_Picture_File->FK_Picture_get());
 		attr_set( (pRow_File->Path_get() + "/" + pRow_File->Filename_get()).c_str( ), "PIC", sPK_Picture.c_str( ), sPK_Picture.length( ), 0 );
@@ -1073,11 +1133,18 @@ void MediaAttributes_LowLevel::AddDiscAttributesToFile(int PK_File,int PK_Disc,i
 	m_pDatabase_pluto_media->Disc_Attribute_get()->GetRows(sWhere,&vectRow_Disc_Attribute);
 	for(size_t s=0;s<vectRow_Disc_Attribute.size();++s)
 	{
-		Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->AddRow();
-		pRow_File_Attribute->FK_File_set(PK_File);
-		pRow_File_Attribute->FK_Attribute_set( vectRow_Disc_Attribute[s]->FK_Attribute_get() );
-		pRow_File_Attribute->Track_set( vectRow_Disc_Attribute[s]->Track_get() );
-		pRow_File_Attribute->Section_set( vectRow_Disc_Attribute[s]->Section_get() );
-		m_pDatabase_pluto_media->File_Attribute_get()->Commit();
+		// Check if it's already there in case this disc was already added
+		Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->GetRow(
+			PK_File,vectRow_Disc_Attribute[s]->FK_Attribute_get(),
+			vectRow_Disc_Attribute[s]->Track_get(),vectRow_Disc_Attribute[s]->Section_get() );
+		if( !pRow_File_Attribute )
+		{
+			pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->AddRow();
+			pRow_File_Attribute->FK_File_set(PK_File);
+			pRow_File_Attribute->FK_Attribute_set( vectRow_Disc_Attribute[s]->FK_Attribute_get() );
+			pRow_File_Attribute->Track_set( vectRow_Disc_Attribute[s]->Track_get() );
+			pRow_File_Attribute->Section_set( vectRow_Disc_Attribute[s]->Section_get() );
+			m_pDatabase_pluto_media->File_Attribute_get()->Commit();
+		}
 	}
 }
