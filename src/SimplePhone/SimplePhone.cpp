@@ -4,6 +4,7 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
+
 #include <iostream>
 using namespace std;
 using namespace DCE;
@@ -245,16 +246,19 @@ int iaxCallback(iaxc_event e)
 		{
 			phone_status=-1;
 		}
-		else if(e.ev.call.state & IAXC_CALL_STATE_RINGING)
+		if(e.ev.call.state & IAXC_CALL_STATE_RINGING)
 		{
 			phone_status=1;
+
 			if(!strcmp(e.ev.call.remote_name,"pluto"))
 			{
 				/* the call is actually an originate from asterisk */
 				phone_status=2;
 				g_pPlutoLogger->Write(LV_STATUS, "PLUTO AUTOANSWER\n");
 			}
+			return 0;
 		}
+
 	}
 	return 0;
 }
@@ -262,18 +266,28 @@ int iaxCallback(iaxc_event e)
 void SimplePhone::doProccess(void)
 {
 	string tmp;
+	int event_status = 0;
 	while(!m_bQuit)
 	{
 		iaxc_process_calls();
 		iaxc_millisleep(5);
-		if(phone_status>1)
+		if(phone_status>0)
 		{
-			CMD_Phone_Answer(tmp,NULL);
+			if(event_status != phone_status)
+			{
+				EVENT_Incoming_Call();
+			}
+			if(phone_status>1)
+			{
+				CMD_Phone_Answer(tmp,NULL);
+			}
+			
 		}
-		else if(phone_status<0)
+		if(phone_status<0)
 		{
 			CMD_Phone_Drop(tmp,NULL);
 		}
+		event_status = phone_status;
 	}
 }
 

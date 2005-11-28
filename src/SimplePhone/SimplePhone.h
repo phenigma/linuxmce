@@ -57,6 +57,7 @@ public:
 	bool DATA_Get_Speak_in_the_House();
 
 			*****EVENT***** accessors inherited from base class
+	void EVENT_Incoming_Call();
 
 			*****COMMANDS***** we need to implement
 	*/
