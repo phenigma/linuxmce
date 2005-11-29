@@ -7,6 +7,8 @@
 #define PICTURE_PK_PICTURE_TABLE_FIELD "Picture.PK_Picture"
 #define PICTURE_EXTENSION_FIELD "Extension"
 #define PICTURE_EXTENSION_TABLE_FIELD "Picture.Extension"
+#define PICTURE_URL_FIELD "URL"
+#define PICTURE_URL_TABLE_FIELD "Picture.URL"
 #define PICTURE_PSC_ID_FIELD "psc_id"
 #define PICTURE_PSC_ID_TABLE_FIELD "Picture.psc_id"
 #define PICTURE_PSC_BATCH_FIELD "psc_batch"

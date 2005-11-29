@@ -79,6 +79,7 @@ class DECLSPECIFIER Row_Picture : public TableRow, public SerializeClass
 		
 		long int m_PK_Picture;
 string m_Extension;
+string m_URL;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -86,11 +87,12 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[8];
+		bool is_null[9];
 	
 	public:
 		long int PK_Picture_get();
 string Extension_get();
+string URL_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -101,6 +103,7 @@ long int psc_restrict_get();
 		
 		void PK_Picture_set(long int val);
 void Extension_set(string val);
+void URL_set(string val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -109,14 +112,16 @@ void psc_mod_set(string val);
 void psc_restrict_set(long int val);
 
 		
-		bool psc_id_isNull();
+		bool URL_isNull();
+bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
 bool psc_frozen_isNull();
 bool psc_restrict_isNull();
 
 			
-		void psc_id_setNull(bool val);
+		void URL_setNull(bool val);
+void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
 void psc_frozen_setNull(bool val);
@@ -144,13 +149,14 @@ void Picture_File_FK_Picture_getrows(vector <class Row_Picture_File*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Picture+ m_Extension+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_Picture+ m_Extension+ m_URL+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
 		
 		string PK_Picture_asSQL();
 string Extension_asSQL();
+string URL_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();
