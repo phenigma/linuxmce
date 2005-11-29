@@ -93,7 +93,7 @@ public:
 
 	void ChangeAttribute(int OldPK_AttributeType,int NewPK_AttributeType,string OldName,string NewName);
     void ChangeAttribute(int PK_Attribute,string NewName);
-	Row_Picture *AddPicture(char *pData,int iData_Size,string sFormat);
+	Row_Picture *AddPicture(char *pData,int iData_Size,string sFormat,string sURL);
     void UpdateSearchTokens(Row_Attribute *pRow_Attribute);
     void ScanDirectory(string Path);
 
@@ -149,7 +149,7 @@ public:
 	MediaAttribute *GetMediaAttribute(int Title_Track,int Section,int PK_AttributeType,listMediaAttribute &listMediaAttribute_);
 	int GetMaxTracks(listMediaAttribute &listMediaAttribute_);
 	int AddIdentifiedDiscToDB(int PK_MediaType,string sIdentifiedDisc,listMediaAttribute &listMediaAttribute_);
-	int AddPictureToDisc(int PK_Disc,char *pPictureData,size_t sizePicture);
+	int AddPictureToDisc(int PK_Disc,char *pPictureData,size_t sizePicture,string sURL);
 	void PurgeListMediaAttribute(listMediaAttribute &listMediaAttribute_)
 	{
 		for(listMediaAttribute::iterator it=listMediaAttribute_.begin();it!=listMediaAttribute_.end();++it)

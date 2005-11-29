@@ -146,7 +146,7 @@ Powerfile: 0, 1, ... */
 
 
 	/** @brief COMMAND: #55 - Abort Ripping */
-	/** Aborts ripping a DVD. */
+	/** Starts ripping a DVD. */
 
 	virtual void CMD_Abort_Ripping() { string sCMD_Result; CMD_Abort_Ripping(sCMD_Result,NULL);};
 	virtual void CMD_Abort_Ripping(string &sCMD_Result,Message *pMessage);
@@ -288,18 +288,12 @@ only slots that were scheduled for ripping will appear in the string */
 			/** The format of the data */
 		/** @param #59 MediaURL */
 			/** The URL for the disc drive */
+		/** @param #160 URL */
+			/** The URL for the picture */
 
-	virtual void CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,string sMediaURL) { string sCMD_Result; CMD_Media_Identified(iPK_Device,sValue_To_Assign.c_str(),sID.c_str(),pData,iData_Size,sFormat.c_str(),sMediaURL.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,string sMediaURL,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,string sMediaURL,string sURL) { string sCMD_Result; CMD_Media_Identified(iPK_Device,sValue_To_Assign.c_str(),sID.c_str(),pData,iData_Size,sFormat.c_str(),sMediaURL.c_str(),sURL.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,string sMediaURL,string sURL,string &sCMD_Result,Message *pMessage);
 
-
-	/** @brief COMMAND: #743 - Cancel Pending Task */
-	/** Cancels a pending task */
-		/** @param #151 Slot Number */
-			/** Slot to be canceled */
-
-	virtual void CMD_Cancel_Pending_Task(int iSlot_Number) { string sCMD_Result; CMD_Cancel_Pending_Task(iSlot_Number,sCMD_Result,NULL);};
-	virtual void CMD_Cancel_Pending_Task(int iSlot_Number,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 		private:

@@ -655,7 +655,7 @@ void Powerfile_C200::CMD_Mount_Disk_Image(string sFilename,string *sMediaURL,str
 //<-dceag-c55-b->
 
 	/** @brief COMMAND: #55 - Abort Ripping */
-	/** Aborts ripping a DVD. */
+	/** Starts ripping a DVD. */
 
 void Powerfile_C200::CMD_Abort_Ripping(string &sCMD_Result,Message *pMessage)
 //<-dceag-c55-e->
@@ -1216,8 +1216,10 @@ void Powerfile_Job::Remove_PowerfileTask_Slot(int iSlot)
 			/** The format of the data */
 		/** @param #59 MediaURL */
 			/** The URL for the disc drive */
+		/** @param #160 URL */
+			/** The URL for the picture */
 
-void Powerfile_C200::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,string sMediaURL,string &sCMD_Result,Message *pMessage)
+void Powerfile_C200::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,string sMediaURL,string sURL,string &sCMD_Result,Message *pMessage)
 //<-dceag-c742-e->
 {
 
@@ -1251,7 +1253,7 @@ void Powerfile_C200::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign
 			pRow_Disc->Slot_set(atoi(sID.c_str()));
 		}
 		m_pDatabase_pluto_media->Disc_get()->Commit();
-		m_pMediaAttributes_LowLevel->AddPictureToDisc(PK_Disc,pData,iData_Size);
+		m_pMediaAttributes_LowLevel->AddPictureToDisc(PK_Disc,pData,iData_Size,sURL);
 	}
 	m_pMediaAttributes_LowLevel->PurgeListMediaAttribute(listMediaAttribute_);
 }

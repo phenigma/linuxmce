@@ -459,6 +459,9 @@ string FileUtils::ValidFileName(string sInput)
     StringUtils::Replace(&sInput,"\\"," ");
     StringUtils::Replace(&sInput,"/"," ");
     StringUtils::Replace(&sInput,"`","'");
+    StringUtils::Replace(&sInput,"|"," ");
+    StringUtils::Replace(&sInput,">"," ");
+    StringUtils::Replace(&sInput,"<"," ");
 	return sInput;
 }
 

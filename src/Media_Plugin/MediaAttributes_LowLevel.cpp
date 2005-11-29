@@ -555,11 +555,12 @@ Row_Attribute *MediaAttributes_LowLevel::GetAttributeFromDescription(int PK_Medi
 	}
 }
 
-Row_Picture * MediaAttributes_LowLevel::AddPicture(char *pData,int iData_Size,string sFormat)
+Row_Picture * MediaAttributes_LowLevel::AddPicture(char *pData,int iData_Size,string sFormat,string sURL)
 {
 	sFormat = StringUtils::ToLower(sFormat);
 	Row_Picture *pRow_Picture = m_pDatabase_pluto_media->Picture_get()->AddRow();
 	pRow_Picture->Extension_set(sFormat);
+	pRow_Picture->URL_set(sURL);
 	m_pDatabase_pluto_media->Picture_get()->Commit();
 
 	FILE *file = fopen( ("/home/mediapics/" + StringUtils::itos(pRow_Picture->PK_Picture_get()) + "." + sFormat).c_str(),"wb");
@@ -946,12 +947,12 @@ int MediaAttributes_LowLevel::AddIdentifiedDiscToDB(int PK_MediaType,string sIde
 	return pRow_Disc->PK_Disc_get();
 }
 
-int MediaAttributes_LowLevel::AddPictureToDisc(int PK_Disc,char *pPictureData,size_t sizePicture)
+int MediaAttributes_LowLevel::AddPictureToDisc(int PK_Disc,char *pPictureData,size_t sizePicture,string sURL)
 {
 	Row_Disc *pRow_Disc = m_pDatabase_pluto_media->Disc_get()->GetRow(PK_Disc);
 	if( pPictureData && sizePicture && pRow_Disc )
 	{
-		Row_Picture *pRow_Picture = AddPicture(pPictureData, sizePicture, "jpg");
+		Row_Picture *pRow_Picture = AddPicture(pPictureData, sizePicture, "jpg",sURL);
 
 		Row_Picture_Disc *pRow_Picture_Disc = m_pDatabase_pluto_media->Picture_Disc_get()->AddRow();
 		pRow_Picture_Disc->FK_Disc_set( pRow_Disc->PK_Disc_get() );
@@ -1012,7 +1013,7 @@ Row_File *MediaAttributes_LowLevel::AddDirectoryToDatabase(int PK_MediaType,stri
 
 void MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaType,string sDestination,string sTracks)
 {
-	if( /*true || */ FileUtils::DirExists(sDestination) )
+	if( true || FileUtils::DirExists(sDestination) )
 	{
 		Row_File *pRow_File = AddDirectoryToDatabase(PK_MediaType==MEDIATYPE_pluto_CD_CONST ? MEDIATYPE_pluto_StoredAudio_CONST : PK_MediaType,sDestination);
 		AddDiscAttributesToFile(pRow_File->PK_File_get(),PK_Disc,0);  // Track ==0
@@ -1038,7 +1039,7 @@ void MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaT
 			// See if there's a file with this base name
 			list<string> listFiles;
 			FileUtils::FindFiles(listFiles,sDestination,sTrackName + ".*");
-//listFiles.push_back(sTrackName+".flac");
+listFiles.push_back(sTrackName+".flac");
 			if( listFiles.size()!=1 )
 			{
 				g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find ripped track: %s/%s",sDestination.c_str(),sTrackName.c_str());
