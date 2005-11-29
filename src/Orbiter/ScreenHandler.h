@@ -45,10 +45,12 @@ public:
 	void SCREEN_DialogGenericError(long PK_Screen, string sDescription, string sPromptToResetRouter, 
 		string sTimeout, string sCannotGoBack);
 	void SCREEN_DialogCannotBookmark(long PK_Screen, string sErrors);
-	void SCREEN_DialogAskToResume(long PK_Screen, string sPK_DeviceFrom, string sPK_MediaDevice_Source, 
+	void SCREEN_DialogAskToResume(long PK_Screen, string sPK_DeviceFrom, string sPK_Device_MediaSource, 
 		string sStreamID, string sPosition, string sUsers, string sPK_MediaType);
 	void SCREEN_DialogGC100Error(long PK_Screen, string sDescription, string sCannotGoBack);
 	void SCREEN_DialogPhoneInstructions(long PK_Screen, string sInstructions, string sPhoneName);
+	void SCREEN_DialogSendFileToPhoneFailed(long PK_Screen, string sMacAddress, string sCommandLine, 
+		string sPK_DeviceFrom, string sPhoneName, string sPK_Device_AppServer);
 };
 //-----------------------------------------------------------------------------------------------------
 #endif

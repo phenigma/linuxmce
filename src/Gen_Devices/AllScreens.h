@@ -7569,11 +7569,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_DialogAskToResume(long DeviceIDFrom, long DeviceIDTo,
-			string sPK_DeviceFrom, string sPK_MediaDevice_Source, string sStreamID, string sPosition, string sUsers, string sPK_MediaType)
+			string sPK_DeviceFrom, string sPK_Device_MediaSource, string sStreamID, string sPosition, string sUsers, string sPK_MediaType)
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 7, 
 				COMMANDPARAMETER_PK_Screen_CONST, "247" /* screen ID */,
-				172 /* PK_DeviceFrom */, sPK_DeviceFrom.c_str(), 174 /* PK_MediaDevice_Source */, sPK_MediaDevice_Source.c_str(), 175 /* StreamID */, sStreamID.c_str(), 176 /* Position */, sPosition.c_str(), 177 /* Users */, sUsers.c_str(), 178 /* PK_MediaType */, sPK_MediaType.c_str());
+				172 /* PK_DeviceFrom */, sPK_DeviceFrom.c_str(), 174 /* PK_Device_MediaSource */, sPK_Device_MediaSource.c_str(), 175 /* StreamID */, sStreamID.c_str(), 176 /* Position */, sPosition.c_str(), 177 /* Users */, sUsers.c_str(), 178 /* PK_MediaType */, sPK_MediaType.c_str());
 		}
 	};
 
@@ -7581,11 +7581,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_DialogAskToResume_DL(long DeviceIDFrom, string sDeviceIDTo,
-			string sPK_DeviceFrom, string sPK_MediaDevice_Source, string sStreamID, string sPosition, string sUsers, string sPK_MediaType)
+			string sPK_DeviceFrom, string sPK_Device_MediaSource, string sStreamID, string sPosition, string sUsers, string sPK_MediaType)
 		{
 			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 7, 
 				COMMANDPARAMETER_PK_Screen_CONST, "247" /* screen ID */,
-				172 /* PK_DeviceFrom */, sPK_DeviceFrom.c_str(), 174 /* PK_MediaDevice_Source */, sPK_MediaDevice_Source.c_str(), 175 /* StreamID */, sStreamID.c_str(), 176 /* Position */, sPosition.c_str(), 177 /* Users */, sUsers.c_str(), 178 /* PK_MediaType */, sPK_MediaType.c_str());
+				172 /* PK_DeviceFrom */, sPK_DeviceFrom.c_str(), 174 /* PK_Device_MediaSource */, sPK_Device_MediaSource.c_str(), 175 /* StreamID */, sStreamID.c_str(), 176 /* Position */, sPosition.c_str(), 177 /* Users */, sUsers.c_str(), 178 /* PK_MediaType */, sPK_MediaType.c_str());
 		}
 	};
 
@@ -7593,11 +7593,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_DialogAskToResume_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
-			string sPK_DeviceFrom, string sPK_MediaDevice_Source, string sStreamID, string sPosition, string sUsers, string sPK_MediaType)
+			string sPK_DeviceFrom, string sPK_Device_MediaSource, string sStreamID, string sPosition, string sUsers, string sPK_MediaType)
 		{
 			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 7, 
 				COMMANDPARAMETER_PK_Screen_CONST, "247" /* screen ID */,
-				172 /* PK_DeviceFrom */, sPK_DeviceFrom.c_str(), 174 /* PK_MediaDevice_Source */, sPK_MediaDevice_Source.c_str(), 175 /* StreamID */, sStreamID.c_str(), 176 /* Position */, sPosition.c_str(), 177 /* Users */, sUsers.c_str(), 178 /* PK_MediaType */, sPK_MediaType.c_str());
+				172 /* PK_DeviceFrom */, sPK_DeviceFrom.c_str(), 174 /* PK_Device_MediaSource */, sPK_Device_MediaSource.c_str(), 175 /* StreamID */, sStreamID.c_str(), 176 /* Position */, sPosition.c_str(), 177 /* Users */, sUsers.c_str(), 178 /* PK_MediaType */, sPK_MediaType.c_str());
 		}
 	};
 
@@ -7605,11 +7605,11 @@ namespace DCE
 	{
 	public:
 		SCREEN_DialogAskToResume_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
-			string sPK_DeviceFrom, string sPK_MediaDevice_Source, string sStreamID, string sPosition, string sUsers, string sPK_MediaType)
+			string sPK_DeviceFrom, string sPK_Device_MediaSource, string sStreamID, string sPosition, string sUsers, string sPK_MediaType)
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 7, 
 				COMMANDPARAMETER_PK_Screen_CONST, "247" /* screen ID */,
-				172 /* PK_DeviceFrom */, sPK_DeviceFrom.c_str(), 174 /* PK_MediaDevice_Source */, sPK_MediaDevice_Source.c_str(), 175 /* StreamID */, sStreamID.c_str(), 176 /* Position */, sPosition.c_str(), 177 /* Users */, sUsers.c_str(), 178 /* PK_MediaType */, sPK_MediaType.c_str());
+				172 /* PK_DeviceFrom */, sPK_DeviceFrom.c_str(), 174 /* PK_Device_MediaSource */, sPK_Device_MediaSource.c_str(), 175 /* StreamID */, sStreamID.c_str(), 176 /* Position */, sPosition.c_str(), 177 /* Users */, sUsers.c_str(), 178 /* PK_MediaType */, sPK_MediaType.c_str());
 		}
 	};
 
@@ -7706,6 +7706,54 @@ namespace DCE
 			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
 				COMMANDPARAMETER_PK_Screen_CONST, "249" /* screen ID */,
 				163 /* Instructions */, sInstructions.c_str(), 179 /* Phone Name */, sPhoneName.c_str());
+		}
+	};
+
+	class SCREEN_DialogSendFileToPhoneFailed : public PreformedCommand
+	{
+	public:
+		SCREEN_DialogSendFileToPhoneFailed(long DeviceIDFrom, long DeviceIDTo,
+			string sMacAddress, string sCommandLine, string sPK_DeviceFrom, string sPhoneName, string sPK_Device_AppServer)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 6, 
+				COMMANDPARAMETER_PK_Screen_CONST, "250" /* screen ID */,
+				47 /* Mac Address */, sMacAddress.c_str(), 137 /* Command Line */, sCommandLine.c_str(), 172 /* PK_DeviceFrom */, sPK_DeviceFrom.c_str(), 179 /* Phone Name */, sPhoneName.c_str(), 180 /* PK_Device_AppServer */, sPK_Device_AppServer.c_str());
+		}
+	};
+
+	class SCREEN_DialogSendFileToPhoneFailed_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_DialogSendFileToPhoneFailed_DL(long DeviceIDFrom, string sDeviceIDTo,
+			string sMacAddress, string sCommandLine, string sPK_DeviceFrom, string sPhoneName, string sPK_Device_AppServer)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 6, 
+				COMMANDPARAMETER_PK_Screen_CONST, "250" /* screen ID */,
+				47 /* Mac Address */, sMacAddress.c_str(), 137 /* Command Line */, sCommandLine.c_str(), 172 /* PK_DeviceFrom */, sPK_DeviceFrom.c_str(), 179 /* Phone Name */, sPhoneName.c_str(), 180 /* PK_Device_AppServer */, sPK_Device_AppServer.c_str());
+		}
+	};
+
+	class SCREEN_DialogSendFileToPhoneFailed_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_DialogSendFileToPhoneFailed_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
+			string sMacAddress, string sCommandLine, string sPK_DeviceFrom, string sPhoneName, string sPK_Device_AppServer)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 6, 
+				COMMANDPARAMETER_PK_Screen_CONST, "250" /* screen ID */,
+				47 /* Mac Address */, sMacAddress.c_str(), 137 /* Command Line */, sCommandLine.c_str(), 172 /* PK_DeviceFrom */, sPK_DeviceFrom.c_str(), 179 /* Phone Name */, sPhoneName.c_str(), 180 /* PK_Device_AppServer */, sPK_Device_AppServer.c_str());
+		}
+	};
+
+	class SCREEN_DialogSendFileToPhoneFailed_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_DialogSendFileToPhoneFailed_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
+			string sMacAddress, string sCommandLine, string sPK_DeviceFrom, string sPhoneName, string sPK_Device_AppServer)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 6, 
+				COMMANDPARAMETER_PK_Screen_CONST, "250" /* screen ID */,
+				47 /* Mac Address */, sMacAddress.c_str(), 137 /* Command Line */, sCommandLine.c_str(), 172 /* PK_DeviceFrom */, sPK_DeviceFrom.c_str(), 179 /* Phone Name */, sPhoneName.c_str(), 180 /* PK_Device_AppServer */, sPK_Device_AppServer.c_str());
 		}
 	};
 
@@ -7914,9 +7962,10 @@ namespace DCE
 		virtual void SCREEN_DialogRippingInstructions(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_DialogGenericError(long PK_Screen, string sDescription, string sPromptToResetRouter, string sTimeout, string sCannotGoBack){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_DialogCannotBookmark(long PK_Screen, string sErrors){ GotoScreen(PK_Screen); }
-		virtual void SCREEN_DialogAskToResume(long PK_Screen, string sPK_DeviceFrom, string sPK_MediaDevice_Source, string sStreamID, string sPosition, string sUsers, string sPK_MediaType){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_DialogAskToResume(long PK_Screen, string sPK_DeviceFrom, string sPK_Device_MediaSource, string sStreamID, string sPosition, string sUsers, string sPK_MediaType){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_DialogGC100Error(long PK_Screen, string sDescription, string sCannotGoBack){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_DialogPhoneInstructions(long PK_Screen, string sInstructions, string sPhoneName){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_DialogSendFileToPhoneFailed(long PK_Screen, string sMacAddress, string sCommandLine, string sPK_DeviceFrom, string sPhoneName, string sPK_Device_AppServer){ GotoScreen(PK_Screen); }
 
 		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
@@ -8886,12 +8935,12 @@ namespace DCE
 				case 247:
 				{
 					string sPK_DeviceFrom = pMessage->m_mapParameters[172];
-					string sPK_MediaDevice_Source = pMessage->m_mapParameters[174];
+					string sPK_Device_MediaSource = pMessage->m_mapParameters[174];
 					string sStreamID = pMessage->m_mapParameters[175];
 					string sPosition = pMessage->m_mapParameters[176];
 					string sUsers = pMessage->m_mapParameters[177];
 					string sPK_MediaType = pMessage->m_mapParameters[178];
-					SCREEN_DialogAskToResume(nPK_Screen, sPK_DeviceFrom, sPK_MediaDevice_Source, sStreamID, sPosition, sUsers, sPK_MediaType);
+					SCREEN_DialogAskToResume(nPK_Screen, sPK_DeviceFrom, sPK_Device_MediaSource, sStreamID, sPosition, sUsers, sPK_MediaType);
 					break;
 				}
 				case 248:
@@ -8906,6 +8955,16 @@ namespace DCE
 					string sInstructions = pMessage->m_mapParameters[163];
 					string sPhoneName = pMessage->m_mapParameters[179];
 					SCREEN_DialogPhoneInstructions(nPK_Screen, sInstructions, sPhoneName);
+					break;
+				}
+				case 250:
+				{
+					string sMacAddress = pMessage->m_mapParameters[47];
+					string sCommandLine = pMessage->m_mapParameters[137];
+					string sPK_DeviceFrom = pMessage->m_mapParameters[172];
+					string sPhoneName = pMessage->m_mapParameters[179];
+					string sPK_Device_AppServer = pMessage->m_mapParameters[180];
+					SCREEN_DialogSendFileToPhoneFailed(nPK_Screen, sMacAddress, sCommandLine, sPK_DeviceFrom, sPhoneName, sPK_Device_AppServer);
 					break;
 				}
 

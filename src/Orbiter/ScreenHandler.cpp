@@ -162,9 +162,9 @@ void ScreenHandler::SCREEN_DialogCannotBookmark(long PK_Screen, string sErrors)
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_DialogAskToResume(long PK_Screen, string sPK_DeviceFrom, 
-	string sPK_MediaDevice_Source, string sStreamID, string sPosition, string sUsers, string sPK_MediaType)
+	string sPK_Device_MediaSource, string sStreamID, string sPosition, string sUsers, string sPK_MediaType)
 {
-	string sMessageToResume = sPK_DeviceFrom + " " + sPK_MediaDevice_Source + 
+	string sMessageToResume = sPK_DeviceFrom + " " + sPK_Device_MediaSource + 
 		+ " 1 " + StringUtils::itos(COMMAND_Set_Media_Position_CONST) + " " 
 		+ StringUtils::itos(COMMANDPARAMETER_StreamID_CONST) + " " + sStreamID + " "
 		+ StringUtils::itos(COMMANDPARAMETER_MediaPosition_CONST) + " \"" + sPosition + "\"";
@@ -244,5 +244,26 @@ void ScreenHandler::SCREEN_DialogPhoneInstructions(long PK_Screen, string sInstr
 {
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, sPhoneName);
 	DisplayMessageOnOrbiter(PK_Screen, sInstructions, false);
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_DialogSendFileToPhoneFailed(long PK_Screen, string sMacAddress, string sCommandLine, 
+	string sPK_DeviceFrom, string sPhoneName, string sPK_Device_AppServer)
+{
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, sPhoneName);
+	DisplayMessageOnOrbiter(PK_Screen, "<%=T" + StringUtils::itos(TEXT_FAILED_TO_UPLOAD_SIS_FILE_CONST) + "%>",
+		false, 0, false, 
+		//Yes button
+		"Yes",      
+		//Yes command
+		StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " + sPK_DeviceFrom  + " " + 
+		StringUtils::itos(MESSAGETYPE_COMMAND) + " " + StringUtils::itos(COMMAND_Send_File_To_Phone_CONST) + " " + 
+		StringUtils::itos(COMMANDPARAMETER_Mac_address_CONST) + " '" + sMacAddress + "'" + " " + 
+		StringUtils::itos(COMMANDPARAMETER_Command_Line_CONST) + " '" + sCommandLine + "'" + " " + 
+		StringUtils::itos(COMMANDPARAMETER_App_Server_Device_ID_CONST) + " " + sPK_Device_AppServer,
+		//No button
+		"No",
+		//No command
+		"" //do nothing
+	);
 }
 //-----------------------------------------------------------------------------------------------------
