@@ -426,8 +426,11 @@ void Powerfile_C200::CMD_Load_from_Slot_into_Drive(int iSlot_Number,int iDrive_N
 			m_vectSlotStatus[iSlot_Number - 1] = false;
 
 			Disk_Drive_Functions * pDDF = GetDDF(iDrive_Number);
+			pDDF->m_mediaDiskStatus = DISCTYPE_NONE;
+			pDDF->m_mediaInserted = false;
+			pDDF->cdrom_checkdrive(pDDF->m_sDrive.c_str(), &pDDF->m_mediaDiskStatus, false);
+			g_pPlutoLogger->Write(LV_STATUS, "Loaded CD of type %d", pDDF->m_mediaDiskStatus);
 			pDDF->m_mediaInserted = true;
-			pDDF->m_mediaDiskStatus = DISCTYPE_CD_AUDIO; // move to right place (Rip::Run), replace with real thing
 			
 			sCMD_Result = "OK";
 		}
@@ -487,6 +490,7 @@ void Powerfile_C200::CMD_Unload_from_Drive_into_Slot(int iSlot_Number,int iDrive
 			m_vectSlotStatus[iSlot_Number - 1] = true;
 			
 			Disk_Drive_Functions * pDDF = GetDDF(iDrive_Number);
+			pDDF->m_mediaDiskStatus = DISCTYPE_NONE;
 			pDDF->m_mediaInserted = false;
 			
 			ReleaseDrive_NoMutex(iDrive_Number, iSlot_Number);
@@ -1068,7 +1072,7 @@ void PowerfileRip_Task::RipCD(Row_Disc *pRow_Disc,listMediaAttribute &listMediaA
 			DCE::CMD_Kill_Application CMD_Kill_Application(iPK_Device, m_pDDF->m_pDevice_AppServer->m_dwPK_Device,
 				"rip_" + StringUtils::itos(iPK_Device) + "_" + StringUtils::itos(m_iDrive_Number), true);
 		}
-		else
+		else if (m_ePreTaskStatus == TASK_COMPLETED)
 		{
 			pPowerfile_Job->m_pPowerfile_C200->m_pMediaAttributes_LowLevel->AddRippedDiscToDatabase(pRow_Disc->PK_Disc_get(),
 				MEDIATYPE_pluto_CD_CONST, sPath, sTracks);
@@ -1122,7 +1126,8 @@ void Powerfile_Task::ThreadEnded()
 	m_eTaskStatus = m_ePreTaskStatus;
 }
 
-void Powerfile_Job::MediaIdentified(int iSlot)
+// returns the disc type
+int Powerfile_Job::MediaIdentified(int iSlot)
 {
 	PLUTO_SAFETY_LOCK(jm, m_JobMutex);
 	g_pPlutoLogger->Write(LV_STATUS, "Received MediaIdentified event for slot %d", iSlot);
@@ -1132,10 +1137,11 @@ void Powerfile_Job::MediaIdentified(int iSlot)
 		if ((pTask->m_eTaskStatus == TASK_IN_PROGRESS && pTask->m_ePreTaskStatus == TASK_NOT_STARTED) && pTask->m_iSlot == iSlot)
 		{
 			pTask->m_bStop = true;
-			return;
+			return pTask->m_pDDF->m_mediaDiskStatus;
 		}
 	}
 	g_pPlutoLogger->Write(LV_CRITICAL, "Slot %d not found in task list!", iSlot);
+	return -1;
 }
 
 void Powerfile_Job::RippingProgress_End(int iDrive_Number, int iResult)
@@ -1225,16 +1231,29 @@ void Powerfile_C200::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign
 
 	g_pPlutoLogger->Write(LV_STATUS, "Media Identified. Slot '%s', Format: '%s', MRL: '%s', PK_Device: '%d', Value: '%s'",
 		sID.c_str(), sFormat.c_str(), sMediaURL.c_str(), iPK_Device, sValue_To_Assign.c_str());
-	m_pJob->MediaIdentified(atoi(sID.c_str()));
 
 	listMediaAttribute listMediaAttribute_;
-	int PK_Disc=0;
-// *** TODO *** --  Get the real type
+	int PK_Disc = 0;
+	int iMediaType = MEDIATYPE_pluto_CD_CONST;
+	int iDiscType = m_pJob->MediaIdentified(atoi(sID.c_str()));
+	switch (iDiscType)
+	{
+		case DISCTYPE_CD_AUDIO:
+			iMediaType = MEDIATYPE_pluto_CD_CONST;
+			g_pPlutoLogger->Write(LV_STATUS, "Disc type: Audio CD");
+			break;
+		case DISCTYPE_DVD_VIDEO:
+			iMediaType = MEDIATYPE_pluto_DVD_CONST;
+			g_pPlutoLogger->Write(LV_STATUS, "Disc type: DVD");
+			break;
+		default:
+			g_pPlutoLogger->Write(LV_STATUS, "Unsupported/wrong disc type: %d. Defaulting to Audio CD", iDiscType);
+	}
 
 	if( sFormat=="CDDB-TAB" )
-		PK_Disc=m_pMediaAttributes_LowLevel->Parse_CDDB_Media_ID(MEDIATYPE_pluto_CD_CONST,listMediaAttribute_,sValue_To_Assign);
+		PK_Disc = m_pMediaAttributes_LowLevel->Parse_CDDB_Media_ID(iMediaType, listMediaAttribute_, sValue_To_Assign);
 	if( sFormat=="MISC-TAB" )
-		PK_Disc=m_pMediaAttributes_LowLevel->Parse_Misc_Media_ID(MEDIATYPE_pluto_CD_CONST,listMediaAttribute_,sValue_To_Assign);
+		PK_Disc = m_pMediaAttributes_LowLevel->Parse_Misc_Media_ID(iMediaType, listMediaAttribute_, sValue_To_Assign);
 
 	if( PK_Disc )
 	{

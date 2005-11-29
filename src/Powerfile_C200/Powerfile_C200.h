@@ -340,7 +340,7 @@ namespace DCE
 
 			void Remove_PowerfileTask_Slot(int iSlot);
 			
-			void MediaIdentified(int iSlot);
+			int MediaIdentified(int iSlot);
 			void RippingProgress_End(int iDrive_Number, int iResult);
 			void RippingProgress_Going(int iDrive_Number, int iPercent, string sName);
 
@@ -358,9 +358,9 @@ namespace DCE
 			int m_iDrive_Number;
 			int m_iSlot;
 			TaskStatus m_ePreTaskStatus;
+			Disk_Drive_Functions * m_pDDF;
 
 		protected:
-			Disk_Drive_Functions * m_pDDF;
 			void ThreadStarted();
 			void ThreadEnded();
 	};
