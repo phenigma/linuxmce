@@ -164,12 +164,12 @@ void ScreenHandler::SCREEN_DialogCannotBookmark(long PK_Screen, string sErrors)
 void ScreenHandler::SCREEN_DialogAskToResume(long PK_Screen, string sPK_DeviceFrom, 
 	string sPK_Device_MediaSource, string sStreamID, string sPosition, string sUsers, string sPK_MediaType)
 {
-	string sMessageToResume = sPK_DeviceFrom + " " + sPK_Device_MediaSource + 
+	string sMessageToResume = sPK_DeviceFrom + " " + sPK_Device_MediaSource
 		+ " 1 " + StringUtils::itos(COMMAND_Set_Media_Position_CONST) + " " 
 		+ StringUtils::itos(COMMANDPARAMETER_StreamID_CONST) + " " + sStreamID + " "
 		+ StringUtils::itos(COMMANDPARAMETER_MediaPosition_CONST) + " \"" + sPosition + "\"";
 
-	string sMessageToGoToRemote = sPK_DeviceFrom + " " + StringUtils::ltos(m_pOrbiter->m_dwPK_Device) + 
+	string sMessageToGoToRemote = sPK_DeviceFrom + " " + StringUtils::ltos(m_pOrbiter->m_dwPK_Device)
 		+ " 1 " + StringUtils::itos(COMMAND_Goto_DesignObj_CONST) + " " 
 		+ StringUtils::itos(COMMANDPARAMETER_PK_DesignObj_CONST) + " <%=NP_R%>";
 
