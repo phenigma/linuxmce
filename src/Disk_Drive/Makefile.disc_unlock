@@ -1,0 +1,6 @@
+CC=gcc
+CFLAGS=-W -Wall -ggdb3
+LDLIBS=-ldvdread
+
+all: disc_unlock
+	cp disc_unlock ../bin
