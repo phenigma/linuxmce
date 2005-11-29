@@ -153,7 +153,8 @@ public:
 	virtual void CMD_Play_Disk(int iSlot_Number,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Bulk_Ripping_Status(string *sBulk_rip_status,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Mass_identify_media(string sDisks,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,string sMediaURL,string sURL,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,string sMediaURL,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Cancel_Pending_Task(int iSlot_Number,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -730,8 +731,7 @@ public:
 					int iData_Size=pMessage->m_mapData_Lengths[19];
 					string sFormat=pMessage->m_mapParameters[20];
 					string sMediaURL=pMessage->m_mapParameters[59];
-					string sURL=pMessage->m_mapParameters[160];
-						CMD_Media_Identified(iPK_Device,sValue_To_Assign.c_str(),sID.c_str(),pData,iData_Size,sFormat.c_str(),sMediaURL.c_str(),sURL.c_str(),sCMD_Result,pMessage);
+						CMD_Media_Identified(iPK_Device,sValue_To_Assign.c_str(),sID.c_str(),pData,iData_Size,sFormat.c_str(),sMediaURL.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -748,7 +748,33 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Media_Identified(iPK_Device,sValue_To_Assign.c_str(),sID.c_str(),pData,iData_Size,sFormat.c_str(),sMediaURL.c_str(),sURL.c_str(),sCMD_Result,pMessage);
+								CMD_Media_Identified(iPK_Device,sValue_To_Assign.c_str(),sID.c_str(),pData,iData_Size,sFormat.c_str(),sMediaURL.c_str(),sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case 743:
+					{
+						string sCMD_Result="OK";
+					int iSlot_Number=atoi(pMessage->m_mapParameters[151].c_str());
+						CMD_Cancel_Pending_Task(iSlot_Number,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Cancel_Pending_Task(iSlot_Number,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

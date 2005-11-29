@@ -429,7 +429,7 @@ void Powerfile_C200::CMD_Load_from_Slot_into_Drive(int iSlot_Number,int iDrive_N
 			pDDF->m_mediaDiskStatus = DISCTYPE_NONE;
 			pDDF->m_mediaInserted = false;
 			pDDF->cdrom_checkdrive(pDDF->m_sDrive.c_str(), &pDDF->m_mediaDiskStatus, false);
-			g_pPlutoLogger->Write(LV_STATUS, "Loaded CD of type %d", pDDF->m_mediaDiskStatus);
+			g_pPlutoLogger->Write(LV_STATUS, "Loaded disc of type %d", pDDF->m_mediaDiskStatus);
 			pDDF->m_mediaInserted = true;
 			
 			sCMD_Result = "OK";
@@ -659,7 +659,7 @@ void Powerfile_C200::CMD_Mount_Disk_Image(string sFilename,string *sMediaURL,str
 //<-dceag-c55-b->
 
 	/** @brief COMMAND: #55 - Abort Ripping */
-	/** Starts ripping a DVD. */
+	/** Aborts ripping a DVD. */
 
 void Powerfile_C200::CMD_Abort_Ripping(string &sCMD_Result,Message *pMessage)
 //<-dceag-c55-e->
@@ -996,6 +996,70 @@ void PowerfileRip_Task::Run()
 
 void PowerfileRip_Task::RipDVD(Row_Disc *pRow_Disc,listMediaAttribute &listMediaAttribute_)
 {
+	Powerfile_Job * pPowerfile_Job = (Powerfile_Job *) m_pJob;
+	string sTitle;
+
+	for (listMediaAttribute::iterator it = listMediaAttribute_.begin(); it != listMediaAttribute_.end(); it++)
+	{
+		MediaAttribute * pMediaAttribute = * it;
+		if (pMediaAttribute->m_Title_Track == 0 && pMediaAttribute->m_PK_AttributeType == ATTRIBUTETYPE_Title_CONST)
+			sTitle = pMediaAttribute->m_sName;
+	}
+
+	if (! sTitle.size())
+	{
+		m_ePreTaskStatus = TASK_FAILED;
+		m_sResult = "DVD Title is not known";
+		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot rip disk for device %d slot %d because the title is unknown",
+			pPowerfile_Job->m_pPowerfile_C200->m_dwPK_Device, m_iSlot);
+		return;
+	}
+	m_sPath = sTitle;
+
+	string sPath;
+	if (m_iPK_Users)
+		sPath = "/home/user_" + StringUtils::itos(m_iPK_Users) + "/data/movies";
+	else
+		sPath = "/home/public/data/movies";
+	if (m_sPath.size())
+	{
+		if (m_sPath[0] == '/')
+			sPath = m_sPath;
+		else
+			sPath += "/" + m_sPath;
+	}
+	string sCMD_Result = "OK";
+
+	int iPK_Device = pPowerfile_Job->m_pPowerfile_C200->m_dwPK_Device;
+	m_pDDF = pPowerfile_Job->m_pPowerfile_C200->GetDDF(m_iDrive_Number);
+	m_pDDF->CMD_Rip_Disk(m_iPK_Users, m_sFormat, sPath, "", pRow_Disc->PK_Disc_get(), m_iDrive_Number, sCMD_Result, NULL);
+
+	if (sCMD_Result == "OK")
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Disc is ripping");
+		while (! m_bStop)
+		{
+			Sleep(100);
+		}
+		if (m_ePreTaskStatus == TASK_CANCELED)
+		{
+			DCE::CMD_Kill_Application CMD_Kill_Application(iPK_Device, m_pDDF->m_pDevice_AppServer->m_dwPK_Device,
+				"rip_" + StringUtils::itos(iPK_Device) + "_" + StringUtils::itos(m_iDrive_Number), true);
+		}
+		else if (m_ePreTaskStatus == TASK_COMPLETED)
+		{
+			pPowerfile_Job->m_pPowerfile_C200->m_pMediaAttributes_LowLevel->AddRippedDiscToDatabase(pRow_Disc->PK_Disc_get(),
+				MEDIATYPE_pluto_CD_CONST, sPath, "");
+		}
+	}
+	else
+	{
+		m_bStop = true;
+		m_ePreTaskStatus = TASK_FAILED;
+		m_sResult = "Ripping reported " + sCMD_Result;
+		g_pPlutoLogger->Write(LV_STATUS, "Disc failed to rip %s", sCMD_Result.c_str());
+	}
+	g_pPlutoLogger->Write(LV_STATUS, "Drive %d ripping task finished with status %d", m_iDrive_Number, m_ePreTaskStatus);
 }
 
 void PowerfileRip_Task::RipCD(Row_Disc *pRow_Disc,listMediaAttribute &listMediaAttribute_)
@@ -1222,10 +1286,8 @@ void Powerfile_Job::Remove_PowerfileTask_Slot(int iSlot)
 			/** The format of the data */
 		/** @param #59 MediaURL */
 			/** The URL for the disc drive */
-		/** @param #160 URL */
-			/** The URL for the picture */
 
-void Powerfile_C200::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,string sMediaURL,string sURL,string &sCMD_Result,Message *pMessage)
+void Powerfile_C200::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,string sID,char *pData,int iData_Size,string sFormat,string sMediaURL,string &sCMD_Result,Message *pMessage)
 //<-dceag-c742-e->
 {
 
@@ -1272,7 +1334,7 @@ void Powerfile_C200::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign
 			pRow_Disc->Slot_set(atoi(sID.c_str()));
 		}
 		m_pDatabase_pluto_media->Disc_get()->Commit();
-		m_pMediaAttributes_LowLevel->AddPictureToDisc(PK_Disc,pData,iData_Size,sURL);
+		m_pMediaAttributes_LowLevel->AddPictureToDisc(PK_Disc,pData,iData_Size,sMediaURL);
 	}
 	m_pMediaAttributes_LowLevel->PurgeListMediaAttribute(listMediaAttribute_);
 }
