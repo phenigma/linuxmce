@@ -11,7 +11,9 @@ using namespace DCE;
 
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
+#ifndef WIN32
 #include "sys/wait.h"
+#endif
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -116,13 +118,13 @@ void CDDB_Identifier::CMD_Identify_Media(int iPK_Device,string sID,string sFilen
 	cout << "Parm #13 - Filename=" << sFilename << endl;
 
 	// sResult: Tab separated: CDID Artist Title Genre Track1_title [Track2_title ...]
-
-	int child_pipe[2];
+	int child_pipe[2],pid;
+#ifndef WIN32
 	pipe(child_pipe);
 
-	int pid = fork();
+	pid = fork();
 	const int MAX = 4096;
-
+#endif
 	if (pid == -1)
 	{
 		close(child_pipe[1]);
@@ -137,8 +139,9 @@ void CDDB_Identifier::CMD_Identify_Media(int iPK_Device,string sID,string sFilen
 		dup2(child_pipe[1], 1);
 
 		cerr << "/usr/pluto/bin/cddb_id.sh" << sFilename.c_str() << endl;
+#ifndef WIN32
 		execl("/usr/pluto/bin/cddb_id.sh", "cddb_id.sh", sFilename.c_str(), (char *) NULL);
-		
+#endif		
 		cerr << "exec failed" << endl;
 		exit(-1);
 	}
@@ -157,7 +160,9 @@ void CDDB_Identifier::CMD_Identify_Media(int iPK_Device,string sID,string sFilen
 		}
 		
 		cout << "Result: " << sResult << endl;
+#ifndef WIN32
 		waitpid(pid, &retcode, 0);
+#endif
 		retcode = WEXITSTATUS(retcode);
 		if (retcode == 0)
 		{
@@ -168,5 +173,6 @@ void CDDB_Identifier::CMD_Identify_Media(int iPK_Device,string sID,string sFilen
 
 		close(child_pipe[0]);
 	}
+
 }
 
