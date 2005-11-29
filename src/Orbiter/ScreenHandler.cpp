@@ -202,8 +202,11 @@ void ScreenHandler::DisplayMessageOnOrbiter(int PK_Screen,
 {
 	string sPK_DesignObj = StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen));
 
-	if(sMessage == "")
-		sMessage = "Unable to save playlist";
+	//if(sMessage == "")
+	//	sMessage = "Unable to save playlist";
+
+	m_pOrbiter->CMD_Set_Timeout(sPK_DesignObj, sTimeout);
+//	m_pOrbiter->CMD_Goto_DesignObj(0, sPK_DesignObj, "", "", false, false);
 
 	m_pOrbiter->CMD_Goto_DesignObj(0, sPK_DesignObj, "", "", false, bCantGoBack );
 	m_pOrbiter->CMD_Set_Text(sPK_DesignObj, sMessage, TEXT_STATUS_CONST);
@@ -219,25 +222,22 @@ void ScreenHandler::DisplayMessageOnOrbiter(int PK_Screen,
 	}
 	if(sOption2.size())
 	{
-		m_pOrbiter->CMD_Show_Object(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse2_CONST), 0, "", "", "2" );
+		m_pOrbiter->CMD_Show_Object(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse2_CONST), 0, "", "", "1" );
 		m_pOrbiter->CMD_Set_Text(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse2_CONST), sOption2, TEXT_STATUS_CONST);
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, sMessage2);
 	}
 	if(sOption3.size())
 	{
-		m_pOrbiter->CMD_Show_Object(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse3_CONST), 0, "", "", "3" );
+		m_pOrbiter->CMD_Show_Object(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse3_CONST), 0, "", "", "1" );
 		m_pOrbiter->CMD_Set_Text(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse3_CONST), sOption3, TEXT_STATUS_CONST);
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, sMessage3);
 	}
 	if(sOption4.size())
 	{
-		m_pOrbiter->CMD_Show_Object(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse4_CONST), 0, "", "", "4" );
+		m_pOrbiter->CMD_Show_Object(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse4_CONST), 0, "", "", "1" );
 		m_pOrbiter->CMD_Set_Text(sPK_DesignObj + ".0.0." + StringUtils::itos(DESIGNOBJ_butResponse4_CONST), sOption4, TEXT_STATUS_CONST);
 		m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, sMessage4);
 	}
-
-	m_pOrbiter->CMD_Set_Timeout(sPK_DesignObj, sTimeout);
-	m_pOrbiter->CMD_Goto_DesignObj(0, sPK_DesignObj, "", "", false, false);
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_DialogPhoneInstructions(long PK_Screen, string sInstructions, string sPhoneName)
@@ -249,17 +249,20 @@ void ScreenHandler::SCREEN_DialogPhoneInstructions(long PK_Screen, string sInstr
 void ScreenHandler::SCREEN_DialogSendFileToPhoneFailed(long PK_Screen, string sMacAddress, string sCommandLine, 
 	string sPK_DeviceFrom, string sPhoneName, string sPK_Device_AppServer)
 {
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, sPhoneName);
-	DisplayMessageOnOrbiter(PK_Screen, "<%=T" + StringUtils::itos(TEXT_FAILED_TO_UPLOAD_SIS_FILE_CONST) + "%>",
-		false, 0, false, 
-		//Yes button
-		"Yes",      
-		//Yes command
+	string sYesMessage = 
 		StringUtils::itos(m_pOrbiter->m_dwPK_Device) + " " + sPK_DeviceFrom  + " " + 
 		StringUtils::itos(MESSAGETYPE_COMMAND) + " " + StringUtils::itos(COMMAND_Send_File_To_Phone_CONST) + " " + 
 		StringUtils::itos(COMMANDPARAMETER_Mac_address_CONST) + " '" + sMacAddress + "'" + " " + 
 		StringUtils::itos(COMMANDPARAMETER_Command_Line_CONST) + " '" + sCommandLine + "'" + " " + 
-		StringUtils::itos(COMMANDPARAMETER_App_Server_Device_ID_CONST) + " " + sPK_Device_AppServer,
+		StringUtils::itos(COMMANDPARAMETER_App_Server_Device_ID_CONST) + " " + sPK_Device_AppServer;
+
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, sPhoneName);
+	DisplayMessageOnOrbiter(PK_Screen, "<%=T" + StringUtils::itos(TEXT_FAILED_TO_UPLOAD_SIS_FILE_CONST) + "%>",
+		false, "0", false, 
+		//Yes button
+		"Yes",      
+		//Yes command
+		sYesMessage,
 		//No button
 		"No",
 		//No command

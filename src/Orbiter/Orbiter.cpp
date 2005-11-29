@@ -9261,7 +9261,7 @@ bool Orbiter::WaitForRelativesIfOSD()
 //<-dceag-c741-b->
 
 	/** @brief COMMAND: #741 - Goto Screen */
-	/** Goto a specific screen. *
+	/** Goto a specific screen. */
 		/** @param #159 PK_Screen */
 			/** The screen id. */
 
