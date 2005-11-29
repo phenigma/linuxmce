@@ -696,7 +696,7 @@ class Table_psc_website_repset* psc_website_repset_get() { if( !tblpsc_website_r
 class Table_psc_website_schema* psc_website_schema_get() { if( !tblpsc_website_schema ) CreateTable_psc_website_schema(); return tblpsc_website_schema; }
 class Table_psc_website_tables* psc_website_tables_get() { if( !tblpsc_website_tables ) CreateTable_psc_website_tables(); return tblpsc_website_tables; }
 string m_sLastMySqlError;
-bool Connect(string host, string user, string pass, string sDBName, int port);
+bool Connect(string host, string user, string pass, string sDBName, int port=3306);
 bool Connect(class DCEConfig *pDCEConfig);
 void Disconnect();
 bool Commit(bool bDeleteFailedModifiedRow=false,bool bDeleteFailedInsertRow=false);

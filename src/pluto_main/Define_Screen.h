@@ -187,6 +187,9 @@
 #define SCREEN_DialogRippingInstructions_CONST 184
 #define SCREEN_DialogGenericError_CONST 185
 #define SCREEN_DialogCannotBookmark_CONST 186
+#define SCREEN_DialogAskToResume_CONST 247
+#define SCREEN_DialogGC100Error_CONST 248
+#define SCREEN_DialogPhoneInstructions_CONST 249
 
 #define SCREEN_TABLE "Screen"
 #define SCREEN_PK_SCREEN_FIELD "PK_Screen"
