@@ -262,20 +262,6 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
     else
         m_ScreenMutex.Init( &m_MutexAttr );
 
-//testing - it works - HARDCODING WARNING
-m_mapDesignObj[25] = 1720;
-m_mapDesignObj[132] = 4482;
-m_mapDesignObj[19] = 4460;
-m_mapDesignObj[67] = 3150;
-m_mapDesignObj[110] = 4414;
-m_mapDesignObj[75] = 3326;
-m_mapDesignObj[36] = 1932;
-m_mapDesignObj[35] = 1931;
-
-
-
-	m_pScreenHandler = new ScreenHandler(this, &m_mapDesignObj);
-
 	pthread_create(&m_MaintThreadID, NULL, MaintThread, (void*)this);
 
 	srand( (unsigned)time( NULL ) );  // For the screen saver
@@ -526,6 +512,8 @@ bool Orbiter::GetConfig()
     m_iVideoFrameInterval = DATA_Get_VideoFrameInterval();
     if(!m_iVideoFrameInterval) //this device data doesn't exist or it's 0
         m_iVideoFrameInterval = 6000; //6 sec
+
+	m_pScreenHandler = CreateScreenHandler();
 
 	return true;
 }
@@ -9273,12 +9261,23 @@ bool Orbiter::WaitForRelativesIfOSD()
 //<-dceag-c741-b->
 
 	/** @brief COMMAND: #741 - Goto Screen */
-	/** Goto a specific screen. */
+	/** Goto a specific screen. *
 		/** @param #159 PK_Screen */
 			/** The screen id. */
 
 void Orbiter::CMD_Goto_Screen(int iPK_Screen,string &sCMD_Result,Message *pMessage)
 //<-dceag-c741-e->
 {
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_WARNING, "Received goto screen message id %d params:", iPK_Screen);
+	for(map<long, string>::iterator it = pMessage->m_mapParameters.begin(); it != pMessage->m_mapParameters.end(); it++)
+		g_pPlutoLogger->Write(LV_WARNING, "Param id: %5d, value: %s", it->first, it->second.c_str());
+#endif
+
 	m_pScreenHandler->ReceivedGotoScreenMessage(iPK_Screen, pMessage);
+}
+
+/*virtual*/ ScreenHandler *Orbiter::CreateScreenHandler()
+{
+	return new ScreenHandler(this, &m_mapDesignObj);
 }

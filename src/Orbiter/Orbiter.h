@@ -160,6 +160,8 @@ public:
 
     virtual void SetImageQuality(unsigned long ulImageQuality) {};
 
+	virtual ScreenHandler *CreateScreenHandler();
+	
 	/**
 	* @brief searches for updates, returns true if an update was found
 	* @todo ask
