@@ -686,6 +686,8 @@
 #define COMMAND_Get_Bulk_Ripping_Status_CONST 739
 #define COMMAND_Mass_identify_media_CONST 740
 #define COMMAND_Goto_Screen_CONST 741
+#define COMMAND_Media_Identified_CONST 742
+#define COMMAND_Cancel_Pending_Task_CONST 743
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

@@ -179,11 +179,14 @@
 #define SCREEN_DialogCannotPlayMedia_CONST 176
 #define SCREEN_DialogGenericNoButtons_CONST 177
 #define SCREEN_DialogRippingInProgress_CONST 178
-#define SCREEN_DialogCheckingDrive_CONST 239
-#define SCREEN_DialogUnableToSavePlaylist_CONST 240
-#define SCREEN_DialogPlaylistSaved_CONST 241
-#define SCREEN_DialogUnableToLoadPlaylist_CONST 242
-#define SCREEN_DialogRippingError_CONST 243
+#define SCREEN_DialogCheckingDrive_CONST 179
+#define SCREEN_DialogUnableToSavePlaylist_CONST 180
+#define SCREEN_DialogPlaylistSaved_CONST 181
+#define SCREEN_DialogUnableToLoadPlaylist_CONST 182
+#define SCREEN_DialogRippingError_CONST 183
+#define SCREEN_DialogRippingInstructions_CONST 184
+#define SCREEN_DialogGenericError_CONST 185
+#define SCREEN_DialogCannotBookmark_CONST 186
 
 #define SCREEN_TABLE "Screen"
 #define SCREEN_PK_SCREEN_FIELD "PK_Screen"
