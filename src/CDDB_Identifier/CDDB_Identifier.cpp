@@ -162,7 +162,7 @@ void CDDB_Identifier::CMD_Identify_Media(int iPK_Device,string sID,string sFilen
 		if (retcode == 0)
 		{
 			sCMD_Result = "OK";
-			DCE::CMD_Media_Identified CMD_Media_Identified(m_dwPK_Device,pMessage->m_dwPK_Device_From,iPK_Device,sResult,sID,NULL,0,"CDDB-TAB",sFilename);
+			DCE::CMD_Media_Identified CMD_Media_Identified(m_dwPK_Device,pMessage->m_dwPK_Device_From,iPK_Device,sResult,sID,NULL,0,"CDDB-TAB",sFilename,"");
 			SendCommand(CMD_Media_Identified);
 		}
 
