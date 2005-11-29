@@ -12,10 +12,12 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
-#include "DCE/DCEConfig.h"
 #include "iaxclient.h"
+#include "DCE/DCEConfig.h"
+#include "pluto_main/Define_Event.h"
 
 static int phone_status=0;
+static int call_status=0;
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -198,6 +200,7 @@ void SimplePhone::CMD_Phone_Initiate(string sPhoneExtension,string &sCMD_Result,
 {
 	char tmp[1024];
 	snprintf(tmp,sizeof(tmp)-1,"%s:%s@%s/%s",deviceExtension,devicePassword,asteriskHost,sPhoneExtension.c_str());
+	g_pPlutoLogger->Write(LV_STATUS, "Try to call %s", tmp);
 	iaxc_call(tmp);
 	sCMD_Result="OK";
 }
@@ -242,6 +245,7 @@ int iaxCallback(iaxc_event e)
 	if(e.type == IAXC_EVENT_STATE)
 	{
 		phone_status=0;
+		call_status=e.ev.call.state;
 		if(e.ev.call.state == IAXC_CALL_STATE_FREE)
 		{
 			phone_status=-1;
@@ -275,7 +279,7 @@ void SimplePhone::doProccess(void)
 		{
 			if(event_status != phone_status)
 			{
-				EVENT_Incoming_Call();
+				GetEvents()->SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, EVENT_Incoming_Call_CONST,0));
 			}
 			if(phone_status>1)
 			{
@@ -294,9 +298,9 @@ void SimplePhone::doProccess(void)
 void SimplePhone::registerWithAsterisk()
 {
 	DCEConfig dceconf;
-	deviceExtension = DATA_Get_PhoneNumber().c_str();
+	deviceExtension = strdup(DATA_Get_PhoneNumber().c_str());
 	devicePassword = deviceExtension;
-	asteriskHost = dceconf.m_sDBHost.c_str(); 
+	asteriskHost = strdup(dceconf.m_sDBHost.c_str());
 	if(iaxc_initialize(AUDIO_INTERNAL_PA,1)<0)
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "Could not start (maybe a sound issue?)");
@@ -307,13 +311,15 @@ void SimplePhone::registerWithAsterisk()
 	iaxc_set_silence_threshold(-50);
 	iaxc_set_event_callback(iaxCallback);
 	g_pPlutoLogger->Write(LV_STATUS, "Will try to register as %s:%s@%s",deviceExtension,devicePassword,asteriskHost);	
-	iaxc_register((char*)deviceExtension,(char*)devicePassword,(char*)asteriskHost);
+	iaxc_register(deviceExtension,devicePassword,asteriskHost);
 }
 
 void SimplePhone::unregisterWithAsterisk()
 {
 	iaxc_dump_all_calls();
 	iaxc_millisleep(1000);
+	free(deviceExtension);
+	free(asteriskHost);
 }
 
 void * startIaxThread(void * Arg)
@@ -335,4 +341,39 @@ void SimplePhone::CreateChildren()
 		exit(1);
 	}
 	pthread_detach(iaxThread);
+}
+//<-dceag-c28-b->
+
+	/** @brief COMMAND: #28 - Simulate Keypress */
+	/** Send a DTMF code */
+		/** @param #26 PK_Button */
+			/** What key to simulate being pressed.  If 2 numbers are specified, separated by a comma, the second will be used if the Shift key is specified. */
+		/** @param #50 Name */
+			/** The application to send the keypress to. If not specified, it goes to the DCE device. */
+
+void SimplePhone::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage)
+//<-dceag-c28-e->
+{
+	char ch;
+	
+	g_pPlutoLogger->Write(LV_STATUS, "Received '%s'",sPK_Button.c_str());
+	sCMD_Result="ERROR";
+	if(call_status && IAXC_CALL_STATE_COMPLETE)
+	{
+		sscanf(sPK_Button.c_str(),"%d",&ch);
+		if((ch>='0' && ch<='9') || (ch=='*') || (ch == '#'))
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "Will send '%d'(%c) as DTMF",ch,ch);
+			iaxc_send_dtmf(ch);
+			sCMD_Result="OK";
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "'%d'(%c) is invalid DTMF character",ch,ch);
+		}
+	}
+	else
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Looks like there is no call");
+	}
 }
