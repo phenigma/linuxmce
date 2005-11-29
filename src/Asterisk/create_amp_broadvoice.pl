@@ -65,7 +65,6 @@ $TRUNK_VARS{'peerdetails'}.="username=$DECLARED_USERNAME\n";
 
 $TRUNK_VARS{'usercontext'}="sip.broadvoice.com";
 $TRUNK_VARS{'userconfig'} ="context=from-pstn\n";
-$TRUNK_VARS{'userconfig'} .="context=from-pstn\n";
 $TRUNK_VARS{'userconfig'} .="dtmf=inband\n";
 $TRUNK_VARS{'userconfig'} .="dtmfmode=inband\n";
 $TRUNK_VARS{'userconfig'} .="fromdomain=sip.broadvoice.com\n";
