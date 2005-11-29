@@ -9274,11 +9274,11 @@ bool Orbiter::WaitForRelativesIfOSD()
 
 	/** @brief COMMAND: #741 - Goto Screen */
 	/** Goto a specific screen. */
-		/** @param #159 EK_Screen */
+		/** @param #159 PK_Screen */
 			/** The screen id. */
 
-void Orbiter::CMD_Goto_Screen(int iEK_Screen,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Goto_Screen(int iPK_Screen,string &sCMD_Result,Message *pMessage)
 //<-dceag-c741-e->
 {
-	m_pScreenHandler->ReceivedGotoScreenMessage(iEK_Screen, pMessage);
+	m_pScreenHandler->ReceivedGotoScreenMessage(iPK_Screen, pMessage);
 }

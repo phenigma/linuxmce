@@ -9,6 +9,14 @@ class ScreenHandler : public ScreenHandlerBase
 protected:
 	Orbiter *m_pOrbiter;
 
+	void DisplayMessageOnOrbiter(int PK_Screen,
+		string sMessage, bool bPromptToResetRouter = false,
+		string sTimeout = "0", bool bCantGoBack = false, 
+		string sOption1 = "", string sMessage1 = "",
+		string sOption2 = "", string sMessage2 = "", 
+		string sOption3 = "", string sMessage3 = "",
+		string sOption4 = "", string sMessage4 = "");
+
 public: 
 	ScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj);
 
@@ -23,6 +31,24 @@ public:
 	void SCREEN_SensorsNotReady(long PK_Screen, string sDescription);
 	void SCREEN_ModeChanged(long PK_Screen, string sPK_HouseMode, string sHouseModeTime, 
 		string sExitDelay, string sAlerts);
+	//dialogs
+	void SCREEN_DialogCannotPlayMedia(long PK_Screen, string sErrors);
+	void SCREEN_DialogGenericNoButtons(long PK_Screen, string sDescription, string sPromptToResetRouter, 
+		string sTimeout, string sCannotGoBack);
+	void SCREEN_DialogRippingInProgress(long PK_Screen, string sPK_DeviceFrom, string sPK_RippingDevice);
+	void SCREEN_DialogCheckingDrive(long PK_Screen);
+	void SCREEN_DialogUnableToSavePlaylist(long PK_Screen);
+	void SCREEN_DialogPlaylistSaved(long PK_Screen);
+	void SCREEN_DialogUnableToLoadPlaylist(long PK_Screen);
+	void SCREEN_DialogRippingError(long PK_Screen, string sDescription, string sTimeout	);
+	void SCREEN_DialogRippingInstructions(long PK_Screen);
+	void SCREEN_DialogGenericError(long PK_Screen, string sDescription, string sPromptToResetRouter, 
+		string sTimeout, string sCannotGoBack);
+	void SCREEN_DialogCannotBookmark(long PK_Screen, string sErrors);
+	void SCREEN_DialogAskToResume(long PK_Screen, string sPK_DeviceFrom, string sPK_MediaDevice_Source, 
+		string sStreamID, string sPosition, string sUsers, string sPK_MediaType);
+	void SCREEN_DialogGC100Error(long PK_Screen, string sDescription, string sCannotGoBack);
+	void SCREEN_DialogPhoneInstructions(long PK_Screen, string sInstructions, string sPhoneName);
 };
 //-----------------------------------------------------------------------------------------------------
 #endif

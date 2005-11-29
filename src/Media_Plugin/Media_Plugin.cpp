@@ -679,7 +679,11 @@ void Media_Plugin::StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigne
 	if( !iPK_MediaType )
 	{
 		if( iPK_Device_Orbiter )
-			m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"<%=T" + StringUtils::itos(TEXT_Cannot_play_media_CONST) + "%>");
+		{
+			//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"<%=T" + StringUtils::itos(TEXT_Cannot_play_media_CONST) + "%>");
+			SCREEN_DialogCannotPlayMedia SCREEN_DialogCannotPlayMedia(m_dwPK_Device, iPK_Device_Orbiter, "");
+			SendCommand(SCREEN_DialogCannotPlayMedia);
+		}
 		g_pPlutoLogger->Write(LV_CRITICAL,"StartMedia - MediaType==0");
 		return;
 	}
@@ -784,7 +788,11 @@ MediaStream *Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, int 
 		if ( (pMediaStream = pMediaHandlerInfo->m_pMediaHandlerBase->CreateMediaStream(pMediaHandlerInfo,iPK_MediaProvider,vectEntertainArea,pMediaDevice,(pOH_Orbiter ? pOH_Orbiter->PK_Users_get() : 0),dequeMediaFile,++m_iStreamID)) == NULL )
 		{
 			if( PK_Device_Orbiter )
-				m_pOrbiter_Plugin->DisplayMessageOnOrbiter(PK_Device_Orbiter,"<%=T" + StringUtils::itos(TEXT_Cannot_play_media_CONST) + "%>");
+			{
+				//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(PK_Device_Orbiter,"<%=T" + StringUtils::itos(TEXT_Cannot_play_media_CONST) + "%>");
+				SCREEN_DialogCannotPlayMedia SCREEN_DialogCannotPlayMedia(m_dwPK_Device, PK_Device_Orbiter, "");
+				SendCommand(SCREEN_DialogCannotPlayMedia);
+			}
 			g_pPlutoLogger->Write(LV_CRITICAL, "The plugin %s (%d) returned a NULL media stream object",
 													pMediaHandlerInfo->m_pMediaHandlerBase->m_pMedia_Plugin->m_sName.c_str(),
 													pMediaHandlerInfo->m_pMediaHandlerBase->m_pMedia_Plugin->m_dwPK_Device);
@@ -843,7 +851,11 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 	if( !pMediaStream->m_pMediaDevice_Source )
 	{
 		if( pMediaStream->m_pOH_Orbiter_StartedMedia )
-			m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device,"<%=T" + StringUtils::itos(TEXT_Cannot_play_media_CONST) + "%>");
+		{
+			//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device,"<%=T" + StringUtils::itos(TEXT_Cannot_play_media_CONST) + "%>");
+			SCREEN_DialogCannotPlayMedia SCREEN_DialogCannotPlayMedia(m_dwPK_Device, pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device, "");
+			SendCommand(SCREEN_DialogCannotPlayMedia);
+		}
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot start media without a source");
 		return false;
 	}
@@ -992,8 +1004,13 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 	else
 	{
 		if( pMediaStream->m_pOH_Orbiter_StartedMedia )
-			m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device,
-				"<%=T" + StringUtils::itos(TEXT_Cannot_play_media_CONST) + "%> " + sError );
+		{
+			//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device,
+			//	"<%=T" + StringUtils::itos(TEXT_Cannot_play_media_CONST) + "%> " + sError );
+			SCREEN_DialogCannotPlayMedia SCREEN_DialogCannotPlayMedia(m_dwPK_Device, 
+				pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device, sError);
+			SendCommand(SCREEN_DialogCannotPlayMedia);
+		}
 		StreamEnded(pMediaStream);
 		g_pPlutoLogger->Write(LV_CRITICAL,"Media Plug-in's call to Start Media failed 2.");
 	}
@@ -2325,7 +2342,13 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_Med
 			{
 				sDirectory=StringUtils::Tokenize(sFilename,"\t",posDirs);
 				if ( FileUtils::FindFiles(allFilesList, sDirectory, Extensions.c_str(), true, true) ) // we have hit the bottom
-					m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter, "You have more than 100 pictures in this folder. Only the first 100 of them have been added to the queue.");
+				{
+					//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter, "You have more than 100 pictures in this folder. Only the first 100 of them have been added to the queue.");
+					SCREEN_DialogGenericNoButtons SCREEN_DialogGenericNoButtons(m_dwPK_Device, iPK_Device_Orbiter,
+						"You have more than 100 pictures in this folder. Only the first 100 of them have been added to the queue.",
+						"0", "0", "0");
+					SendCommand(SCREEN_DialogGenericNoButtons);
+				}
 			}
 
 			itFileName = allFilesList.begin();
@@ -2410,20 +2433,30 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_Med
 
 		if ( !bDiskWasReset && bDiskIsRipping ) // we weren't able to reset any drives and at least one of them was ripping.
 		{
+			/*
 			m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From, "<%=T" + StringUtils::itos(TEXT_ripping_cant_play_disc_CONST) + "%>",false,10,true,
 				"<%=T" + StringUtils::itos(TEXT_Abort_ripping_CONST) + "%>",
 				StringUtils::itos(pMessage->m_dwPK_Device_From) + " " + StringUtils::itos(PK_Device_Ripping) + " 1 " + StringUtils::itos(COMMAND_Abort_Ripping_CONST),
 				"<%=T" + StringUtils::itos(TEXT_Monitor_progress_CONST) + "%>","0 " + StringUtils::itos(DEVICETEMPLATE_This_Orbiter_CONST) + 
 				" 1 " + StringUtils::itos(COMMAND_Goto_Screen_CONST) + " " + StringUtils::itos(COMMANDPARAMETER_PK_DesignObj_CONST) + " " + StringUtils::itos(DESIGNOBJ_mnuPendingTasks_CONST));
+			*/
+			SCREEN_DialogRippingInProgress SCREEN_DialogRippingInProgress(m_dwPK_Device, pMessage->m_dwPK_Device_From,
+				StringUtils::itos(pMessage->m_dwPK_Device_From), StringUtils::itos(PK_Device_Ripping));
+			SendCommand(SCREEN_DialogRippingInProgress);
+
 			return;
 		}
 		else if( bDiskWasReset )
 		{
-			m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From, "<%=T" + StringUtils::itos(TEXT_Checking_drive_CONST) + "%>",false,20);
+			//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From, "<%=T" + StringUtils::itos(TEXT_Checking_drive_CONST) + "%>",false,20);
+			SCREEN_DialogCheckingDrive SCREEN_DialogCheckingDrive(m_dwPK_Device, pMessage->m_dwPK_Device_From);
+			SendCommand(SCREEN_DialogCheckingDrive);
 			return;
 		}
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot reset disk: reset %d ripping %d dev rip %d EA %d",(int) bDiskWasReset, (int) bDiskIsRipping,PK_Device_Ripping,pEntertainArea->m_iPK_EntertainArea);
-		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From, "<%=T" + StringUtils::itos(TEXT_Cannot_play_media_CONST) + "%>");
+		//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From, "<%=T" + StringUtils::itos(TEXT_Cannot_play_media_CONST) + "%>");
+		SCREEN_DialogCannotPlayMedia SCREEN_DialogCannotPlayMedia(m_dwPK_Device, pMessage->m_dwPK_Device_From, "");
+		SendCommand(SCREEN_DialogCannotPlayMedia);
     }
 	else
 		StartMedia(iPK_MediaType,iPK_MediaProvider,iPK_Device_Orbiter,vectEntertainArea,iPK_Device,iPK_DeviceTemplate,&dequeMediaFile,bResume,iRepeat,"");  // We'll let the plug-in figure out the source, and we'll use the default remote
@@ -2561,14 +2594,18 @@ g_pPlutoLogger->Write(LV_WARNING, "pl2 = %s",sName.c_str());
 	if( !m_pMediaAttributes->SavePlaylist(pEntertainArea->m_pMediaStream->m_dequeMediaFile, iPK_Users, iPK_Playlist, sName) )
     {
 		g_pPlutoLogger->Write(LV_CRITICAL,"Unable to save playlist");
-        m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"Unable to save playlist",false,10,true);
+        //m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"Unable to save playlist",false,10,true);
+		SCREEN_DialogUnableToSavePlaylist SCREEN_DialogUnableToSavePlaylist(m_dwPK_Device, pMessage->m_dwPK_Device_From);
+		SendCommand(SCREEN_DialogUnableToSavePlaylist);
         return;
     }
 
     pEntertainArea->m_pMediaStream->m_iPK_Playlist = iPK_Playlist;
     pEntertainArea->m_pMediaStream->m_sPlaylistName = sName;
-	m_pOrbiter_Plugin->DisplayMessageOnOrbiter(StringUtils::itos(pMessage->m_dwPK_Device_From),
-		"<%=T" + StringUtils::itos(TEXT_Playlist_Saved_CONST) + "%>");
+	//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(StringUtils::itos(pMessage->m_dwPK_Device_From),
+	//	"<%=T" + StringUtils::itos(TEXT_Playlist_Saved_CONST) + "%>");
+	SCREEN_DialogPlaylistSaved SCREEN_DialogPlaylistSaved(m_dwPK_Device, pMessage->m_dwPK_Device_From);
+	SendCommand(SCREEN_DialogPlaylistSaved);
 }
 //<-dceag-c231-b->
 
@@ -2598,7 +2635,9 @@ void Media_Plugin::CMD_Load_Playlist(string sPK_EntertainArea,int iEK_Playlist,s
     if( !m_pMediaAttributes->LoadPlaylist( iEK_Playlist, dequeMediaFile, sPlaylistName) || dequeMediaFile.size()==0 )
     {
         g_pPlutoLogger->Write(LV_STATUS, "I was unable to load playlist entries");
-        m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"Unable to load playlist",false,10,true);
+        //m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"Unable to load playlist",false,10,true);
+		SCREEN_DialogUnableToLoadPlaylist SCREEN_DialogUnableToLoadPlaylist(m_dwPK_Device, pMessage->m_dwPK_Device_From);
+		SendCommand(SCREEN_DialogUnableToLoadPlaylist);
         return;
     }
 
@@ -3157,7 +3196,11 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string
 	DetermineEntArea( pMessage->m_dwPK_Device_From, 0, "", vectEntertainArea);
 	if ( vectEntertainArea.size()!=1 )
 	{
-		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T" + StringUtils::itos(TEXT_problem_ripping_CONST) + "%>");
+		//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T" + StringUtils::itos(TEXT_problem_ripping_CONST) + "%>");
+		SCREEN_DialogRippingError SCREEN_DialogRippingError(m_dwPK_Device, pMessage->m_dwPK_Device_From,
+			"<%=T" + StringUtils::itos(TEXT_problem_ripping_CONST) + "%>", "0");
+		SendCommand(SCREEN_DialogRippingError);
+
 		g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::CMD_Rip_Disk(): The source device ID in the message is not in an ent area or is not an orbiter. Ignoring request");
 		return;
 	}
@@ -3165,7 +3208,11 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string
 	EntertainArea *pEntertainArea = vectEntertainArea[0];
 	if( !pEntertainArea->m_pMediaStream )
 	{
-		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T" + StringUtils::itos(TEXT_problem_ripping_CONST) + "%>");
+		//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T" + StringUtils::itos(TEXT_problem_ripping_CONST) + "%>");
+		SCREEN_DialogRippingError SCREEN_DialogRippingError(m_dwPK_Device, pMessage->m_dwPK_Device_From,
+			"<%=T" + StringUtils::itos(TEXT_problem_ripping_CONST) + "%>", "0");
+		SendCommand(SCREEN_DialogRippingError);
+
 		g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::CMD_Rip_Disk(): no media stream");
 		return;
 	}
@@ -3179,7 +3226,10 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sFormat,string sName,string
 			pEntertainArea->m_pMediaStream->m_dequeMediaFile[pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos]->FullyQualifiedFile()),"CDDA:/")==false 
 		) )
 	{
-		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T" + StringUtils::itos(TEXT_Only_rip_drives_CONST) + "%>");
+		//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T" + StringUtils::itos(TEXT_Only_rip_drives_CONST) + "%>");
+		SCREEN_DialogRippingError SCREEN_DialogRippingError(m_dwPK_Device, pMessage->m_dwPK_Device_From,
+			"<%=T" + StringUtils::itos(TEXT_Only_rip_drives_CONST) + "%>", "0");
+		SendCommand(SCREEN_DialogRippingError);
 		g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::CMD_Rip_Disk(): not a drive");
 		return;
 	}
@@ -3305,14 +3355,20 @@ g_pPlutoLogger->Write(LV_STATUS,"Transformed %s into %s",sTracks.c_str(),sNewTra
 		sFormat, sName, sTracks, PK_Disc, 0);
 	if( !SendCommand(cmdRipDisk,&sResponse) || sResponse!="OK" )
 	{
-		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"Cannot copy disk " + sResponse,
-			false,40,false);
+		//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"Cannot copy disk " + sResponse,
+		//	false,40,false);
+		SCREEN_DialogRippingError SCREEN_DialogRippingError(m_dwPK_Device, pMessage->m_dwPK_Device_From,
+			"Cannot copy disk " + sResponse, "40");
+		SendCommand(SCREEN_DialogRippingError);
 		g_pPlutoLogger->Write(LV_CRITICAL,"Media_Plugin::CMD_Rip_Disk %s",sResponse.c_str());
 		return;
 	}
-	m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T" + StringUtils::itos(TEXT_Ripping_Instructions_CONST) + "%>",
-		false,40,false,"<%=T" + StringUtils::itos(TEXT_Monitor_progress_CONST) + "%>","0 " + StringUtils::itos(DEVICETEMPLATE_This_Orbiter_CONST) + 
-		" 1 " + StringUtils::itos(COMMAND_Goto_Screen_CONST) + " " + StringUtils::itos(COMMANDPARAMETER_PK_DesignObj_CONST) + " " + StringUtils::itos(DESIGNOBJ_mnuPendingTasks_CONST) );
+	//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T" + StringUtils::itos(TEXT_Ripping_Instructions_CONST) + "%>",
+	//	false,40,false,"<%=T" + StringUtils::itos(TEXT_Monitor_progress_CONST) + "%>","0 " + StringUtils::itos(DEVICETEMPLATE_This_Orbiter_CONST) + 
+	//	" 1 " + StringUtils::itos(COMMAND_Goto_Screen_CONST) + " " + StringUtils::itos(COMMANDPARAMETER_PK_DesignObj_CONST) + " " + StringUtils::itos(DESIGNOBJ_mnuPendingTasks_CONST) );
+	SCREEN_DialogRippingInstructions SCREEN_DialogRippingInstructions(m_dwPK_Device, pMessage->m_dwPK_Device_From);
+	SendCommand(SCREEN_DialogRippingInstructions);
+
 	m_mapRippingJobs[pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device] = new RippingJob(pDiskDriveMediaDevice, 
 		pMessage->m_dwPK_Device_From, PK_Disc, PK_MediaType, iPK_Users, sName, sTracks);
 	return;
@@ -3425,7 +3481,12 @@ bool Media_Plugin::RippingProgress( class Socket *pSocket, class Message *pMessa
 		g_pPlutoLogger->Write(LV_STATUS,"Ripping wasn't successful--not adding it to the database");
 
 	if( pRippingJob->m_iPK_Orbiter )
-		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pRippingJob->m_iPK_Orbiter,sMessage,false,1200,true);   // Leave the message on screen for 20 mins
+	{
+		//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pRippingJob->m_iPK_Orbiter,sMessage,false,1200,true);   // Leave the message on screen for 20 mins
+		SCREEN_DialogGenericNoButtons SCREEN_DialogGenericNoButtons(m_dwPK_Device, pRippingJob->m_iPK_Orbiter,
+			sMessage, "0", "1200", "1");
+		SendCommand(SCREEN_DialogGenericNoButtons);
+	}
 
 	for( MapEntertainArea::iterator it=pRippingJob->m_pMediaDevice_Disk_Drive->m_mapEntertainArea.begin( );it!=pRippingJob->m_pMediaDevice_Disk_Drive->m_mapEntertainArea.end( );++it )
 	{
@@ -4452,14 +4513,22 @@ void Media_Plugin::CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea,st
 		{
 	g_pPlutoLogger->Write(LV_CRITICAL,"size %d pos %d file %p %d",(int) pMediaStream->m_dequeMediaFile.size(),
 						pMediaStream->m_iDequeMediaFile_Pos,pMediaFile,pMediaFile ? pMediaFile->m_dwPK_File : 0);
-			m_pOrbiter_Plugin->DisplayMessageOnOrbiter(StringUtils::itos(pMessage->m_dwPK_Device_From),"Cannot identify the disc or file being played");
+			//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(StringUtils::itos(pMessage->m_dwPK_Device_From),"Cannot identify the disc or file being played");
+			SCREEN_DialogGenericError SCREEN_DialogGenericError(m_dwPK_Device, pMessage->m_dwPK_Device_From,
+				"Cannot identify the disc or file being played", "0", "0", "0");
+			SendCommand(SCREEN_DialogGenericError);
+
 			return;
 		}
 	}
 
 	if( m_mapMediaType_Bookmarkable_Find(pMediaStream->m_iPK_MediaType)==false )
 	{
-		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(StringUtils::itos(pMessage->m_dwPK_Device_From),"<%=T" + StringUtils::itos(TEXT_Cannot_bookmark_CONST) + "%> (MT:" + StringUtils::itos(pMediaStream->m_iPK_MediaType) + ")");
+		//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(StringUtils::itos(pMessage->m_dwPK_Device_From),"<%=T" + StringUtils::itos(TEXT_Cannot_bookmark_CONST) + "%> (MT:" + StringUtils::itos(pMediaStream->m_iPK_MediaType) + ")");
+		SCREEN_DialogCannotBookmark SCREEN_DialogCannotBookmark(m_dwPK_Device, pMessage->m_dwPK_Device_From,
+			"(MT:" + StringUtils::itos(pMediaStream->m_iPK_MediaType) + ")");
+		SendCommand(SCREEN_DialogCannotBookmark);
+
 		return;
 	}
 
@@ -4469,7 +4538,9 @@ void Media_Plugin::CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea,st
 
 	if( !SendCommand(CMD_Report_Playback_Position) || sPosition.size()==0 )
 	{
-		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(StringUtils::itos(pMessage->m_dwPK_Device_From),"<%=T" + StringUtils::itos(TEXT_Cannot_bookmark_CONST) + "%>");
+		//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(StringUtils::itos(pMessage->m_dwPK_Device_From),"<%=T" + StringUtils::itos(TEXT_Cannot_bookmark_CONST) + "%>");
+		SCREEN_DialogCannotBookmark SCREEN_DialogCannotBookmark(m_dwPK_Device, pMessage->m_dwPK_Device_From, "");
+		SendCommand(SCREEN_DialogCannotBookmark);
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot get current position from %d",pEntertainArea->m_pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 		return;
 	}
@@ -4816,6 +4887,7 @@ int Media_Plugin::CheckForAutoResume(MediaStream *pMediaStream)
 	else
 		iPK_Device_Orbiter = pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device;
 
+	/*
 	string sMessageToResume = StringUtils::itos(m_dwPK_Device) + " " + StringUtils::itos(pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device)
 		+ " 1 " + StringUtils::itos(COMMAND_Set_Media_Position_CONST) + " " 
 		+ StringUtils::itos(COMMANDPARAMETER_StreamID_CONST) + " " + StringUtils::itos(pMediaStream->m_iStreamID_get()) + " "
@@ -4838,6 +4910,18 @@ int Media_Plugin::CheckForAutoResume(MediaStream *pMediaStream)
 		"<%=T" + StringUtils::itos(TEXT_NO_CONST) + "%>",sMessageToGoToRemote,
 		"<%=T" + StringUtils::itos(TEXT_Always_Resume_CONST) + "%>",sMessageToResume + "\n" + sMessageToGoToRemote + "\n" + sMessageToSetPreference + " A",
 		"<%=T" + StringUtils::itos(TEXT_Never_Resume_CONST) + "%>",sMessageToGoToRemote + "\n" + sMessageToSetPreference + " N");
+	*/
+
+	SCREEN_DialogAskToResume SCREEN_DialogAskToResume(m_dwPK_Device, iPK_Device_Orbiter,
+		StringUtils::ltos(m_dwPK_Device), 
+		StringUtils::ltos(pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device),
+		StringUtils::itos(pMediaStream->m_iStreamID_get()),
+		sPosition,
+		StringUtils::itos(pMediaStream->m_iPK_Users),
+		StringUtils::itos(pMediaStream->m_iPK_MediaType)
+	);
+	SendCommand(SCREEN_DialogAskToResume);
+
 	return iPK_Device_Orbiter;
 }
 

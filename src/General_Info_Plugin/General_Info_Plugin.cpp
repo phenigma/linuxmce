@@ -534,7 +534,10 @@ class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string 
 
 	if( !pDevice_AppServer || !pDevice_Orbiter_OSD )
 	{
-		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"There are no App Servers/OSD on this media director");
+		//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"There are no App Servers/OSD on this media director");
+		SCREEN_DialogGenericError SCREEN_DialogGenericError(m_dwPK_Device, pMessage->m_dwPK_Device_From,
+			"There are no App Servers/OSD on this media director", "0", "0", "0");
+		SendCommand(SCREEN_DialogGenericError);
 		return pDataGrid;
 	}
 

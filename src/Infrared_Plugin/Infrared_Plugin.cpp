@@ -39,6 +39,7 @@ using namespace DCE;
 #include "pluto_main/Define_CommMethod.h"
 #include "pluto_main/Define_CommandParameter.h"
 #include "IR/IRDevice.h"
+#include "Gen_Devices/AllScreens.h"
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -612,14 +613,19 @@ void Infrared_Plugin::CMD_Add_GC100(string &sCMD_Result,Message *pMessage)
 
 	Command = "/usr/pluto/bin/gc100-conf.pl";
 	int iPK_Device_Orbiter = pMessage->m_dwPK_Device_From;
-	m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"Finding GC100",false,30,true);
+
+	//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"Finding GC100",false,30,true);
+	SCREEN_DialogGC100Error SCREEN_DialogGC100Error(m_dwPK_Device, iPK_Device_Orbiter, "Finding GC100", "1");
+	SendCommand(SCREEN_DialogGC100Error);
 
 	returned = system(Command.c_str());
 	g_pPlutoLogger->Write(LV_STATUS, "Find gc100 returned %d",returned);
 	exit_status=WEXITSTATUS(returned);
 	if ( returned == -1) {
 		g_pPlutoLogger->Write(LV_STATUS, "Failed Spawning configure script");
-		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 Failed, Spwning config script",false,30);
+		//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 Failed, Spwning config script",false,30);
+		DCE::SCREEN_DialogGC100Error SCREEN_DialogGC100Error(m_dwPK_Device, iPK_Device_Orbiter, "GC100 Failed, Spawning config script", "0");
+		SendCommand(SCREEN_DialogGC100Error);
 	} else if( returned == 0) {
 		size_t s;
 		const char *ptr = FileUtils::ReadFileIntoBuffer("/var/log/pluto/gc100-conf.log",s);
@@ -627,21 +633,36 @@ void Infrared_Plugin::CMD_Add_GC100(string &sCMD_Result,Message *pMessage)
 // The script will fire the new pp		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 added with success",false,30);
 	} else if( exit_status == 1) {
 		g_pPlutoLogger->Write(LV_WARNING, "GC100 as default not found");
-		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 Not Found as factory default",false,30);
+		//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 Not Found as factory default",false,30);
+		DCE::SCREEN_DialogGC100Error SCREEN_DialogGC100Error(m_dwPK_Device, iPK_Device_Orbiter, "GC100 Not Found as factory default", "0");
+		SendCommand(SCREEN_DialogGC100Error);
 	} else if( exit_status == 2) {
 		g_pPlutoLogger->Write(LV_WARNING, "GC100 already exist in the databse");
-		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 Allready exists",false,30);
+		//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 Allready exists",false,30);
+		DCE::SCREEN_DialogGC100Error SCREEN_DialogGC100Error(m_dwPK_Device, iPK_Device_Orbiter, "GC100 Allready exists", "0");
+		SendCommand(SCREEN_DialogGC100Error);
+
 	} else if( exit_status == 3) {
 		g_pPlutoLogger->Write(LV_WARNING, "GC100 config did not found instalation number");
-		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 Failed, invalid instalation number",false,30);
+		//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 Failed, invalid instalation number",false,30);
+		DCE::SCREEN_DialogGC100Error SCREEN_DialogGC100Error(m_dwPK_Device, iPK_Device_Orbiter, "GC100 Failed, invalid instalation number", "0");
+		SendCommand(SCREEN_DialogGC100Error);
+
 	} else if( exit_status == 4) {
 		g_pPlutoLogger->Write(LV_WARNING, "GC100 config did not found Template number");
-		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 Failed, invalid Template number",false,30);
+		//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 Failed, invalid Template number",false,30);
+		DCE::SCREEN_DialogGC100Error SCREEN_DialogGC100Error(m_dwPK_Device, iPK_Device_Orbiter, "GC100 Failed, invalid Template number", "0");
+		SendCommand(SCREEN_DialogGC100Error);
 	} else {
 		g_pPlutoLogger->Write(LV_WARNING, "The config script returned weird error %d",exit_status);
-		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 Failed. "
-            "Please make sure that the device was reseted to factory settings (response " + 
-            StringUtils::itos(exit_status) + ")",false,30);
+		//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 Failed. "
+        //    "Please make sure that the device was reseted to factory settings (response " + 
+        //    StringUtils::itos(exit_status) + ")",false,30);
+		string sMessage = "GC100 Failed. "
+			"Please make sure that the device was reseted to factory settings (response " + 
+			StringUtils::itos(exit_status) + ")";
+		DCE::SCREEN_DialogGC100Error SCREEN_DialogGC100Error(m_dwPK_Device, iPK_Device_Orbiter, sMessage, "0");
+		SendCommand(SCREEN_DialogGC100Error);
 	}
 }
 //<-dceag-c688-b->

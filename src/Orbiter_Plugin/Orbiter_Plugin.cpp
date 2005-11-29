@@ -794,7 +794,10 @@ bool Orbiter_Plugin::ReloadAborted(class Socket *pSocket,class Message *pMessage
 		Message+= " as per " + pDeviceData_Router->m_sDescription;
 	Message += "\n" + pMessage->m_mapParameters[EVENTPARAMETER_Text_CONST];
 
-	DisplayMessageOnOrbiter(PK_Orbiter,Message);
+	//DisplayMessageOnOrbiter(PK_Orbiter,Message);
+	SCREEN_DialogGenericError SCREEN_DialogGenericError(m_dwPK_Device, PK_Orbiter, Message, "0", "0", "0");
+	SendCommand(SCREEN_DialogGenericError);
+
 	return true;
 }
 
@@ -1195,6 +1198,7 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
 
 g_pPlutoLogger->Write(LV_STATUS,"setting process flag to false");
 
+/*
     if(pUnknownDeviceInfos)
     {
         //the orbiter will get the name of the phone din variable when it will display the instuctions
@@ -1203,6 +1207,12 @@ g_pPlutoLogger->Write(LV_STATUS,"setting process flag to false");
     }
 
     DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T" + StringUtils::itos(TEXT_instructions_CONST) + "%>",false);
+*/
+
+	SCREEN_DialogPhoneInstructions SCREEN_DialogPhoneInstructions(m_dwPK_Device, pMessage->m_dwPK_Device_From,
+		"<%=T" + StringUtils::itos(TEXT_instructions_CONST) + "%>", pUnknownDeviceInfos ? pUnknownDeviceInfos->m_sID : "N/A");
+	SendCommand(SCREEN_DialogPhoneInstructions);
+
     ProcessUnknownDevice();
 }
 //<-dceag-c79-b->
@@ -1729,8 +1739,13 @@ g_pPlutoLogger->Write(LV_STATUS,"Starting regen orbiter with m_listRegenCommands
 			if( pOH_Orbiter->m_tRegenTime )
 			{
 				int Minutes = (int)(time(NULL) - pOH_Orbiter->m_tRegenTime) /60;
-				DisplayMessageOnOrbiter(iPK_Device,"We already started regenerating the orbiter " + pOH_Orbiter->m_pDeviceData_Router->m_sDescription + " " + StringUtils::itos(Minutes) +
-					" minutes ago.  When it is finished, it will return to the main menu automatically.  If you think it is stuck, you may want to reset the Pluto system");
+				string sMessage = "We already started regenerating the orbiter " + pOH_Orbiter->m_pDeviceData_Router->m_sDescription + " " + StringUtils::itos(Minutes) +
+					" minutes ago.  When it is finished, it will return to the main menu automatically.  If you think it is stuck, you may want to reset the Pluto system";
+				SCREEN_DialogGenericNoButtons SCREEN_DialogGenericNoButtons(m_dwPK_Device, iPK_Device,
+					sMessage, "0", "0", "0");
+				SendCommand(SCREEN_DialogGenericNoButtons);
+				//DisplayMessageOnOrbiter(iPK_Device,"We already started regenerating the orbiter " + pOH_Orbiter->m_pDeviceData_Router->m_sDescription + " " + StringUtils::itos(Minutes) +
+				//	" minutes ago.  When it is finished, it will return to the main menu automatically.  If you think it is stuck, you may want to reset the Pluto system");
 				return;
 			}
 			else
@@ -1806,8 +1821,12 @@ void Orbiter_Plugin::CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Resu
 		}
 
 		// Send this to all orbiters
-		DisplayMessageOnOrbiter("",pRow_Device->Description_get() + "\n<%=T" + StringUtils::itos(TEXT_Device_Ready_CONST) +
-			"%>",true);
+		//DisplayMessageOnOrbiter("",pRow_Device->Description_get() + "\n<%=T" + StringUtils::itos(TEXT_Device_Ready_CONST) +
+		//	"%>",true);
+
+		SCREEN_DialogGenericNoButtons_DL SCREEN_DialogGenericNoButtons_DL(m_dwPK_Device, m_sPK_Device_AllOrbiters, 
+			pRow_Device->Description_get() + "\n<%=T" + StringUtils::itos(TEXT_Device_Ready_CONST) + "%>", "0", "0", "0");
+		SendCommand(SCREEN_DialogGenericNoButtons_DL);
 	}
 
 	g_pPlutoLogger->Write(LV_STATUS,"after Regen finished for: %d m_listRegenCommands size is: %d",iPK_Device,(int) m_listRegenCommands.size());
@@ -1949,7 +1968,11 @@ void Orbiter_Plugin::CMD_Set_Room_For_Device(int iPK_Device,string sName,int iPK
 	{
 		if( sName.size()==0 )
 		{
-			DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"You must type in a name for the room");
+			//DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"You must type in a name for the room");
+			SCREEN_DialogGenericNoButtons SCREEN_DialogGenericNoButtons(m_dwPK_Device, pMessage->m_dwPK_Device_From,
+				"You must type in a name for the room", "0", "0", "0");
+			SendCommand(SCREEN_DialogGenericNoButtons);
+
 			return;
 		}
 		pRow_Room = m_pDatabase_pluto_main->Room_get()->AddRow();
@@ -1984,7 +2007,12 @@ g_pPlutoLogger->Write(LV_STATUS,"CMD_Set_Room_For_Device: before %d after %d pen
 	if( sBefore && m_listNewPnpDevicesWaitingForARoom.size()==0 && !bStillRunningConfig )
 	{
 		if( !CheckForNewWizardDevices(NULL) )  // Don't display the 'device is done' if there are still some config settings we need
-			DisplayMessageOnOrbiter("","<%=T" + StringUtils::itos(TEXT_New_Devices_Configured_CONST) + "%>",true);
+		{
+			//DisplayMessageOnOrbiter("","<%=T" + StringUtils::itos(TEXT_New_Devices_Configured_CONST) + "%>",true);
+			SCREEN_DialogGenericNoButtons_DL SCREEN_DialogGenericNoButtons_DL(m_dwPK_Device, m_sPK_Device_AllOrbiters,
+				"<%=T" + StringUtils::itos(TEXT_New_Devices_Configured_CONST) + "%>", "1", "0", "0");
+			SendCommand(SCREEN_DialogGenericNoButtons_DL);
+		}
 	}
 }
 
@@ -2273,6 +2301,8 @@ void Orbiter_Plugin::CMD_Set_Auto_Switch_to_Remote(int iPK_Device,bool bTrueFals
 void Orbiter_Plugin::CMD_Display_Message(string sText,string sType,string sName,string sTime,string sPK_Device_List,string &sCMD_Result,Message *pMessage)
 //<-dceag-c406-e->
 {
+	//TODO: remove me
+
 	int iTime = sTime.size() ? atoi(sTime.c_str()) : 0;
 	DisplayMessageOnOrbiter(sPK_Device_List,sText,false,iTime,true);
 }
@@ -2291,6 +2321,8 @@ void Orbiter_Plugin::CMD_Display_Message(string sText,string sType,string sName,
 void Orbiter_Plugin::CMD_Display_Dialog_Box_On_Orbiter(string sText,string sOptions,string sPK_Device_List,string &sCMD_Result,Message *pMessage)
 //<-dceag-c686-e->
 {
+	//TODO: removed me
+
     //allows to user to use MessageSend tool, with ' instead of "
     sOptions = StringUtils::Replace(sOptions, "'", "\""); 
 
@@ -2391,6 +2423,21 @@ void Orbiter_Plugin::CMD_Send_File_To_Phone(string sMac_address,string sCommand_
         StringUtils::itos(COMMANDPARAMETER_Name_CONST) + " " + "\" \"" + " " + 
         StringUtils::itos(COMMANDPARAMETER_Time_CONST) + " " + "\" \"" + " " + 
         StringUtils::itos(COMMANDPARAMETER_PK_Device_List_CONST) + "\" \"";
+/*
+	"-targetType category " + 
+		StringUtils::itos(m_dwPK_Device) + " " + 
+		StringUtils::itos(DEVICECATEGORY_Standard_Orbiter_CONST) + " " + 	
+        StringUtils::itos(MESSAGETYPE_COMMAND) + " " + 
+		StringUtils::itos(COMMAND_Goto_Screen_CONST) + " " +
+		StringUtils::itos(COMMANDPARAMETER_PK_Screen_CONST) + " " + StringUtils::itos(SCREEN_PhoneInstruction)
+*/
+/*
+SCREEN_DialogPhoneInstructions SCREEN_DialogPhoneInstructions(m_dwPK_Device, pMessage->m_dwPK_Device_From,
+"<%=T" + StringUtils::itos(TEXT_instructions_CONST) + "%>", pUnknownDeviceInfos ? pUnknownDeviceInfos->m_sID : "N/A");
+SendCommand(SCREEN_DialogPhoneInstructions); 	
+ 
+ */
+
 
     g_pPlutoLogger->Write(LV_STATUS, "Launching send to phone job: \"%s\"", sName.c_str());
 

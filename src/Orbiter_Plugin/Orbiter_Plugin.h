@@ -13,6 +13,7 @@
 #include "pluto_main/Define_Variable.h"
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "OrbiterGen/RegenMonitor.h"
+#include "Gen_Devices/AllScreens.h"
 
 class Database_pluto_main;
 class Database_pluto_security;
@@ -163,7 +164,12 @@ public:
 		// We must have started the check for updates because we added a new device.  However we finished
 		// getting room info from the user, so he's ready to go
 		if( m_listNewPnpDevicesWaitingForARoom.size()==0 && !CheckForNewWizardDevices(NULL) )
-			DisplayMessageOnOrbiter("","<%=T" + StringUtils::itos(TEXT_New_Devices_Configured_CONST) + "%>",true);
+		{
+			//DisplayMessageOnOrbiter("","<%=T" + StringUtils::itos(TEXT_New_Devices_Configured_CONST) + "%>",true);
+			SCREEN_DialogGenericNoButtons_DL SCREEN_DialogGenericNoButtons_DL(m_dwPK_Device, m_sPK_Device_AllOrbiters,
+				"<%=T" + StringUtils::itos(TEXT_New_Devices_Configured_CONST) + "%>", "1", "0", "0");
+			SendCommand(SCREEN_DialogGenericNoButtons_DL);
+		}
 	}
 
 	/*  If the user wants to use the onscreen display, he may want the tv to always stay on and only
@@ -176,6 +182,7 @@ public:
 	void DisplayMessageOnOrbiter(int dwPK_Device,string sMessage,bool bPromptToResetRouter=false,int iTimeout=0,bool bCantGoBack=false,
 		string sOption1="",string sMessage1="",string sOption2="",string sMessage2="",string sOption3="",string sMessage3="",string sOption4="", string sMessage4="" )
 	{
+		//TODO: remove me!
 		DisplayMessageOnOrbiter(StringUtils::itos(dwPK_Device),sMessage,bPromptToResetRouter,iTimeout,bCantGoBack,
 			sOption1,sMessage1,sOption2,sMessage2,sOption3,sMessage3,sOption4,sMessage4);
 	}
@@ -183,6 +190,8 @@ public:
 	void DisplayMessageOnOrbiter(string sPK_Device,string sMessage,bool bPromptToResetRouter=false,int iTimeout=0,bool bCantGoBack=false,
 		string sOption1="",string sMessage1="",string sOption2="",string sMessage2="",string sOption3="",string sMessage3="",string sOption4="", string sMessage4="" )
 	{
+		//TODO: remove me!
+
 		if ( sMessage == "" )
 			sMessage = "Unable to save playlist";
 
