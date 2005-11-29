@@ -4555,7 +4555,7 @@ void Media_Plugin::CMD_Save_Bookmark(string sOptions,string sPK_EntertainArea,st
 	Row_Picture *pRow_Picture = NULL;
 	if( pData && iData_Size )
 	{
-		pRow_Picture = m_pMediaAttributes->m_pMediaAttributes_LowLevel->AddPicture(pData,iData_Size,sFormat);
+		pRow_Picture = m_pMediaAttributes->m_pMediaAttributes_LowLevel->AddPicture(pData,iData_Size,sFormat,"");
 	}
 
 	Row_Bookmark *pRow_Bookmark = m_pDatabase_pluto_media->Bookmark_get()->AddRow();
