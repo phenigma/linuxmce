@@ -204,6 +204,7 @@ Orbiter::Orbiter( int DeviceID, int PK_DeviceTemplate, string ServerAddress,  st
 	WriteStatusOutput("Orbiter constructor");
 
 g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
+	m_pScreenHandler = NULL;
 	m_sLocalDirectory=sLocalDirectory;
     m_iImageWidth=iImageWidth;
     m_iImageHeight=iImageHeight;
@@ -421,7 +422,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Maint thread dead");
 
     delete m_pOrbiterFileBrowser_Collection;
 
-	delete m_pScreenHandler;
+	if(m_pScreenHandler)
+		delete m_pScreenHandler;
 
 	vm.Release();
 	pthread_mutexattr_destroy(&m_MutexAttr);
