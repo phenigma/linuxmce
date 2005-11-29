@@ -47,7 +47,7 @@ command="";
 result=$ERR_NONE;
 case $diskType in 
 	2)
-		command="nice -n 15 /usr/pluto/bin/disk_copy $sourceDevice \"$targetFileName.in-progress-dvd\" > >(/usr/pluto/bin/DiskCopy_ProgressExtract.sh|/usr/pluto/bin/Pluto_Progress.sh $diskDriveDeviceID \"$targetFileName\" \"$sourceDevice\" \"$mediaPluginDeviceID\")"
+		command="/usr/pluto/bin/disc_unlock $sourceDevice; nice -n 15 /usr/pluto/bin/disk_copy $sourceDevice \"$targetFileName.in-progress-dvd\" > >(/usr/pluto/bin/DiskCopy_ProgressExtract.sh|/usr/pluto/bin/Pluto_Progress.sh $diskDriveDeviceID \"$targetFileName\" \"$sourceDevice\" \"$mediaPluginDeviceID\")"
 	;;
 	0|1|6|7|8)
 		Dir="$targetFileName"
