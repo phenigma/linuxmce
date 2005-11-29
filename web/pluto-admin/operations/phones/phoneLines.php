@@ -160,7 +160,7 @@ function phoneLinesTable($astADO){
 			<td>'.$row['data'].'</td>
 			<td>'.$row['sdata'].'</td>
 			<td>'.$row['pdata'].'</td>
-			<td align="center"><a href="javascript:if(confirm(\'Are you sure you want to delete this line?\'))self.location=\'index.php?section=phoneLines&action=del&id='.$row['id'].'\'">Del</a></td>
+			<td align="center"><a href="index.php?section=incomingCallsSettings&type=SIP&id='.$row['id'].'">Settings</a> <a href="javascript:if(confirm(\'Are you sure you want to delete this line?\'))self.location=\'index.php?section=phoneLines&action=del&id='.$row['id'].'\'">Del</a></td>
 		</tr>';
 	}
 
@@ -179,7 +179,7 @@ function phoneLinesTable($astADO){
 			<td>'.$row['data'].'</td>
 			<td>'.$row['sdata'].'</td>
 			<td>'.$row['pdata'].'</td>
-			<td align="center"><a href="javascript:if(confirm(\'Are you sure you want to delete this line?\'))self.location=\'index.php?section=phoneLines&action=del&id='.$row['id'].'\'">Del</a></td>
+			<td align="center"><a href="index.php?section=incomingCallsSettings&type=IAX&id='.$row['id'].'">Settings</a> <a href="javascript:if(confirm(\'Are you sure you want to delete this line?\'))self.location=\'index.php?section=phoneLines&action=del&id='.$row['id'].'\'">Del</a></td>
 		</tr>';
 	}
 	

@@ -69,7 +69,7 @@ function ripStatus($output,$mediadbADO,$dbADO){
 					$slotStatus='<span class="err">failed '.$message.'</span>';
 				break;
 				case 'R';
-					$slotStatus='<span class="confirm">ripping '.$message.'</span> <a href="index.php?section=ripStatus&pf='.$powerFileID.'&sa='.$index.'">[Abort job]</a>';
+					$slotStatus='<span class="confirm">ripping '.$message.'</span>';
 					$remaining++;
 				break;
 				case 'N';
@@ -85,7 +85,8 @@ function ripStatus($output,$mediadbADO,$dbADO){
 				break;				
 			}
 			$color=($pos%2==0)?'#F0F3F8':'#FFFFFF';
-			$disc=(isset($slotsInfo[$index]['PK_Disc']))?'<span class="confirm">'.$slotsInfo[$index]['Performer'].' - '.$slotsInfo[$index]['Album'].'</span>':'<span class="confirm">'.@$slotsInfo[$index]['Title'].'</span>';			
+
+			$disc=(isset($slotsInfo[$index]['Performer']))?'<span class="confirm">'.$slotsInfo[$index]['Performer'].' - '.$slotsInfo[$index]['Album'].'</span>':'<span class="confirm">'.@$slotsInfo[$index]['Title'].'</span>';			
 			
 			$out.='
 				<tr bgcolor="'.$color.'">

@@ -140,6 +140,7 @@ function getSlotStatus($powerFileID,$dbADO,$forced=0){
 	// get powerfile status
 	$cmd='/usr/pluto/bin/MessageSend localhost -targetType device -o 0 '.$powerFileID.' 1 703'.$forcedParm;
 	exec($cmd,$retArray);
+
 	foreach ($retArray AS $line){
 		if(strpos($line,'153:')!==false){
 			$status=str_replace('153:','',$line);
@@ -191,14 +192,14 @@ function showPowerFileSlots($slotStatus,$powerFileID,$mediadbADO){
 					if(isset($slotInfo[$i]['Performer']) && isset($slotInfo[$i]['Album'])){
 						$slotName='CD: '.$slotInfo[$i]['Performer'].' - '.$slotInfo[$i]['Album'];
 						$color="green";
+						if(isset($alreadyRipped[$i]) && $alreadyRipped[$i]!=''){
+							$color="purple";
+							$slotName.=' (Already ripped)';
+						}						
 					}else{
 						$slotName='CD: Incomplete ID';
 						$checkbox_value='2';
 						$color="red";
-						if(isset($alreadyRipped[$i]) && $alreadyRipped[$i]!=''){
-							$color="purple";
-							$slotName.='Already ripped';
-						}
 					}
 				}elseif($slotInfo[$i]['EK_MediaType']==3){
 					// EK_MediaType==2 (DVD)
@@ -339,7 +340,7 @@ function ripInProgress($powerFileID){
 		// Status: idle.
 		return 0;
 	}	
-	$slotStatusArray=explode(',',$status);
+	$slotStatusArray=explode('~',$status);
 	foreach ($slotStatusArray AS $slot){
 		$parts=explode('-',$slot);
 		switch (substr($parts[1],0,1)){
@@ -363,7 +364,6 @@ function ripInProgress($powerFileID){
 			break;
 		}
 	}
-	
 	return $active;
 }
 
@@ -378,7 +378,9 @@ function get_already_ripped($powerFileID,$mediadbADO){
 		ORDER BY Slot',$powerFileID);
 	$ripped=array();
 	while($row=$res->FetchRow()){
-		$ripped[$row['Slot']]=$row['FK_File'];
+		if(!is_null($row['FK_File'])){
+			$ripped[$row['Slot']]=$row['FK_File'];
+		}
 	}
 
 	return $ripped;
@@ -417,8 +419,26 @@ function select_tracks_to_rip($powerFileID,$mediadbADO){
 	$checkedSlots=get_checked_slots(1);
 	$slotsInfo=get_slots_info($powerFileID,$mediadbADO);
 	$tracksInfo=get_tracks($powerFileID,$mediadbADO);
+
 	
 	$out='
+		<script>
+
+		function selAllCheckboxes(slot)
+		{
+		   eval("val=(document.powerFile.select_all_"+slot+".checked)?true:false");
+
+		   for (i = 0; i < powerFile.elements.length; i++)
+		   {
+		     if (powerFile.elements[i].type == "checkbox" && powerFile.elements[i].disabled!=true && powerFile.elements[i].value==slot)
+		     {
+		         powerFile.elements[i].checked = val;
+		     }
+		   }
+		}
+	
+		</script>
+	
 		<form action="index.php" method="POST" name="powerFile">
 			<input type="hidden" name="section" value="powerFile">
 			<input type="hidden" name="action" value="rip">
@@ -430,6 +450,9 @@ function select_tracks_to_rip($powerFileID,$mediadbADO){
 		$out.='
 		<tr>
 			<td><B>Slot '.$slot.' - '.$media.': '.$disc.'</B></td>
+		</tr>
+		<tr>
+			<td><input type="checkbox" name="select_all_'.$slot.'" value="1" checked onclick="selAllCheckboxes('.$slot.')"> Select/Unselect all tracks</td>
 		</tr>
 		<tr>
 			<td>'.format_tracks($slot,@$tracksInfo[$slot]).'</td>
@@ -477,7 +500,7 @@ function format_tracks($slot,$tracksInfo){
 	foreach ($tracksInfo AS $track=>$info){
 		$out.='
 		<tr>
-			<td><input type="checkbox" name="track_'.$slot.'_'.$track.'" value="1" checked> Track '.$track.': '.$info['Song'].' - '.$info['Performer'].'</td>
+			<td><input type="checkbox" name="track_'.$slot.'_'.$track.'" value="'.$slot.'" checked> Track '.$track.': '.$info['Song'].' - '.$info['Performer'].'</td>
 		</tr>';
 	}
 	$out.='

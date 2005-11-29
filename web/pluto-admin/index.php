@@ -1355,7 +1355,16 @@ switch ($section) {
 	    include_once('error_message.php');
 	    error_message($output);	    
 	break;	
-		
+	case 'incomingCallsSettings':
+    	$output = new Template($dbADO);
+       	$output->setTemplateFileType('large');
+		@include($GLOBALS['globalConfigPath'].'telecom.inc.php');       	
+		include_once('operations/phones/incomingCallsSettings.php');
+		@include($GLOBALS['globalConfigPath'].'asteriskDB.inc.php');		
+	    incomingCallsSettings($output,$dbADO,$telecomADO,$asteriskADO);
+	break;
+
+	
 	case '';
 		$output = new Template($dbADO);	
 		
