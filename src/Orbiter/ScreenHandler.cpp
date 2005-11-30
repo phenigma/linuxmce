@@ -76,7 +76,7 @@ void ScreenHandler::SCREEN_FileSave(long PK_Screen, string sPrivate, string sPub
 	ScreenHandlerBase::SCREEN_FileSave(PK_Screen, sPrivate, sPublic, sCaption);
 
 	//registering callbacks - sample
-	RegisterCallBack(cbObjectSelected, FileSave_ObjectSelected, new CallBackData());
+	RegisterCallBack(cbObjectSelected, &ScreenHandler::FileSave_ObjectSelected, new CallBackData());
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_NewPhoneDetected(long PK_Screen, string sMacAddress, string sDescription)
