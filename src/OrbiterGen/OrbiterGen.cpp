@@ -6,6 +6,7 @@
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
 #include "OrbiterGen.h"
+#include "ScreenMap.h"
 
 #include "DCE/Logger.h"
 #include "DesignObj_Generator.h"
@@ -365,7 +366,8 @@ int OrbiterGenerator::DoIt()
 		exit(1);
 	}
 
-	PopulateScreenMap();
+	PopulateScreenMap(&mds, m_mapDesignObj, m_pRow_UI, m_pRow_Skin, m_pRow_Device);
+
 	m_pRow_DesignObj_MainMenu = NULL;
 	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_DesignObj_CONST);
 
@@ -2252,6 +2254,7 @@ string OrbiterGenerator::First2Dots(string sDesignObj)
 	return sDesignObj.substr(0,pos_second_dot);
 }
 
+/*
 void OrbiterGenerator::PopulateScreenMap()
 {
 	string SQL="(FK_UI=" + StringUtils::itos(m_pRow_UI->PK_UI_get()) + " OR FK_UI IS NULL) AND "
@@ -2272,7 +2275,7 @@ void OrbiterGenerator::PopulateScreenMap()
 		m_mapDesignObj[PK_Screen_Last] = pRow_Screen_DesignObj->FK_DesignObj_get();
 	}
 }
-
+*/
 Row_DesignObj *OrbiterGenerator::GetDesignObjFromScreen(int PK_Screen)
 {
 	map<int,int>::iterator it=m_mapDesignObj.find(PK_Screen);

@@ -160,6 +160,9 @@
 				RelativePath="..\Orbiter\RendererOCG.cpp">
 			</File>
 			<File
+				RelativePath=".\ScreenMap.cpp">
+			</File>
+			<File
 				RelativePath="..\Orbiter\Sdl\SDLRendererOCGHelper.cpp">
 			</File>
 			<File
@@ -181,6 +184,9 @@
 		<Filter
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
+			<File
+				RelativePath=".\ScreenMap.h">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"

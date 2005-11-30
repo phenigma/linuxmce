@@ -17,6 +17,7 @@ sources = \
 	DesignObj_Generator.cpp \
 	OGText.cpp Renderer.cpp \
 	RegenMonitor.cpp \
+	ScreenMap.cpp \
 	$(TS)/TextSplitter.cpp \
 	$(TS)/TextWrapper.cpp \
 	$(ORB)/SDL/SDLRendererOCGHelper.cpp \
