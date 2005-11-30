@@ -91,7 +91,6 @@
 #define SCREEN_BrowseBookmarks_CONST 88
 #define SCREEN_GenericAppController_CONST 89
 #define SCREEN_BookmarksByMediaType_CONST 90
-#define SCREEN_MainAudi_CONST 91
 #define SCREEN_MythTvRemote_CONST 92
 #define SCREEN_Myth_all_commands_CONST 93
 #define SCREEN_Mytv_watching_tv_CONST 94
@@ -104,7 +103,6 @@
 #define SCREEN_TVEPG3_CONST 101
 #define SCREEN_ShowInfo_CONST 102
 #define SCREEN_CreateViewBookmarksTV_CONST 103
-#define SCREEN_MainMenuSmall_CONST 104
 #define SCREEN_WebSites_CONST 105
 #define SCREEN_WhatModelMobileOrbiter_CONST 106
 #define SCREEN_Filelist_CONST 107
@@ -187,10 +185,11 @@
 #define SCREEN_DialogRippingInstructions_CONST 184
 #define SCREEN_DialogGenericError_CONST 185
 #define SCREEN_DialogCannotBookmark_CONST 186
-#define SCREEN_DialogAskToResume_CONST 247
-#define SCREEN_DialogGC100Error_CONST 248
-#define SCREEN_DialogPhoneInstructions_CONST 249
-#define SCREEN_DialogSendFileToPhoneFailed_CONST 250
+#define SCREEN_DialogAskToResume_CONST 187
+#define SCREEN_DialogGC100Error_CONST 188
+#define SCREEN_DialogPhoneInstructions_CONST 189
+#define SCREEN_DialogSendFileToPhoneFailed_CONST 190
+#define SCREEN_AudiHome_CONST 191
 
 #define SCREEN_TABLE "Screen"
 #define SCREEN_PK_SCREEN_FIELD "PK_Screen"
