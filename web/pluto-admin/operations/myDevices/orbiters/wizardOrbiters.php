@@ -119,7 +119,7 @@ function wizardOrbiters($output,$dbADO) {
 			$properties=array();
 			while($rowD=$resDevice->FetchRow()){
 				$orbiterGroupDisplayed=$rowD['OrbiterGroup'];
-				
+
 				if(!in_array($rowD['FK_DeviceData'],$DeviceDataToDisplay)){
 					$DeviceDataToDisplay[]=$rowD['FK_DeviceData'];
 				}
@@ -132,8 +132,7 @@ function wizardOrbiters($output,$dbADO) {
 				if($rowD['FK_DeviceData']==84 && @$ddValue==1){
 					$isOSD=1;
 				}
-				
-				
+
 
 				if(!in_array($rowD['PK_Device'],$displayedDevices)){
 					$displayedDevices[]=$rowD['PK_Device'];
@@ -148,6 +147,7 @@ function wizardOrbiters($output,$dbADO) {
 							</tr>
 							';
 				}
+
 				if(!in_array('state',$excludedData[$orbiterGroupDisplayed])){
 					$content[$orbiterGroupDisplayed][$rowD['PK_Device']]['state']='
 							<tr>
@@ -156,6 +156,7 @@ function wizardOrbiters($output,$dbADO) {
 							</tr>
 							';
 				}
+
 				if(!in_array('description',$excludedData[$orbiterGroupDisplayed])){
 					$content[$orbiterGroupDisplayed][$rowD['PK_Device']]['description']='
 							<tr>
@@ -175,6 +176,7 @@ function wizardOrbiters($output,$dbADO) {
 									<td><input type="text" name="mac_'.$rowD['PK_Device'].'" value="'.$rowD['MACaddress'].'"></td>
 								</tr>';
 				}
+				
 				if(!in_array('room',$excludedData[$orbiterGroupDisplayed])){
 					$content[$orbiterGroupDisplayed][$rowD['PK_Device']]['room']='
 							<tr>
@@ -192,9 +194,9 @@ function wizardOrbiters($output,$dbADO) {
 				$properties[$rowD['PK_Device']]['regenArray']=$regenArray[$rowD['PK_Device']];
 				$properties[$rowD['PK_Device']]['PingTest']=$PingTest;
 				$properties[$rowD['PK_Device']]['isOSD']=$isOSD;
-						
+
 			}
-			
+
 			$content['mobile_orbiters']=(@$content['mobile_orbiters']=='')?'<tr><td colspan="2" align="center">No orbiters in this category.</td></tr>':$content['mobile_orbiters'];
 			$content['standard_roaming_orbiters']=(@$content['standard_roaming_orbiters']=='')?'<tr><td colspan="2" align="center">No orbiters in this category.</td></tr>':$content['standard_roaming_orbiters'];
 			$content['on_screen_orbiters']=(@$content['on_screen_orbiters']=='')?'<tr><td colspan="2" align="center">No orbiters in this category.</td></tr>':$content['on_screen_orbiters'];
@@ -457,22 +459,6 @@ function formatDDRows($rowD,$dbADO)
 		$ddHTML.='
 					<input type="hidden" name="oldDeviceData_'.$rowD['PK_Device'].'_'.$rowD['FK_DeviceData'].'" value="'.((!is_null($rowD['IK_DeviceData']))?$ddValue:'NULL').'">';					
 
-		if($rowD['FK_DeviceData']==24){
-			$selSkin=(isset($_POST['deviceData_'.$rowD['PK_Device'].'_'.$rowD['FK_DeviceData']]) && (int)$_POST['deviceData_'.$rowD['PK_Device'].'_'.$rowD['FK_DeviceData']]!=0)?(int)$_POST['deviceData_'.$rowD['PK_Device'].'_'.$rowD['FK_DeviceData']]:@$ddValue;
-			if($selSkin!=0){
-				$defMenuArray=getFieldsAsArray('Skin','FK_DesignObj_MainMenu',$dbADO,'WHERE PK_Skin='.$selSkin);
-				$defaultMenuValue=$defMenuArray['FK_DesignObj_MainMenu'][0];
-				$selectedMenuArray=getFieldsAsArray('Device_DeviceData','IK_DeviceData',$dbADO,'WHERE FK_Device='.$rowD['PK_Device'].' AND FK_DeviceData=91');
-				$selectedMenu=(isset($selectedMenuArray['IK_DeviceData'][0]))?$selectedMenuArray['IK_DeviceData'][0]:$selectedMenu;
-				
-				$objArray=getArrayFromTable('DeviceTemplate_DesignObj','FK_DesignObj','Description',$dbADO,'INNER JOIN DesignObj ON FK_DesignObj=PK_DesignObj WHERE FK_DeviceTemplate=8','ORDER BY Description ASC');
-				$ddHTML.='
-						<tr>
-							<td align="right"><B>Main menu</B></td>
-							<td>'.pulldownFromArray($objArray,'mainMenu_'.$rowD['PK_Device'],$selectedMenu,'','key','- Please select -',$defaultMenuValue).'</td>
-						</tr>';
-			}
-		}
 		unset($ddValue);
 	}
 

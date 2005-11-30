@@ -177,12 +177,18 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 				$out.='
 				<tr>
 					<td>&nbsp;</td>
-					<td><select name="existingAttributes" size="20" onClick="setAttributeName();" onChange="setAttributeName();">';
+					<td>';
+				if($resAttributesByType->RecordCount()>0){
+					$out.='
+				<select name="existingAttributes" size="20" onClick="setAttributeName();" onChange="setAttributeName();">';
 				while($rowAttributesByType=$resAttributesByType->FetchRow()){
 					$out.='<option value="'.$rowAttributesByType['PK_Attribute'].'">'.$rowAttributesByType['Name'].'</option>';
 				}
 				$out.='
-					</select> <input type="submit" class="button" name="add" value="'.$TEXT_ADD_CONST.'"></td>
+					</select>';
+				}
+				$out.='
+				<input type="submit" class="button" name="add" value="'.$TEXT_ADD_CONST.'"></td>
 				</tr>';
 			}
 			$out.='
@@ -348,6 +354,8 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 }
 
 function addAttribute($newAttributeType,$newAttributeName,$fileID,$dbADO){
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/editMediaFile.lang.php');
+		
 	$mediaPlugin=getMediaPluginID($_SESSION['installationID'],$dbADO);
 	if(is_null($mediaPlugin)){
 		header("Location: index.php?section=editMediaFile&fileID=$fileID&error=$TEXT_MEDIA_PLUGIN_NOT_FOUND_CONST");
