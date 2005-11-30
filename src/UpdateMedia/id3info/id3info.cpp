@@ -6,7 +6,7 @@
 #include <id3/utils.h>
 #include <id3/misc_support.h>
 #include <id3/readers.h>
-#include <id3/io_helpers.h>
+//#include <id3/io_helpers.h>
 #include <id3/globals.h>
 
 #include "../../pluto_media/Define_AttributeType.h"
@@ -287,9 +287,9 @@ void GetInformation(const ID3_Tag &myTag, map<int,string>& mapAttributes)
           ID3_MemoryReader mr(fld->GetRawBinary(), ID3_Reader::size_type(fld->BinSize()));
           while (!mr.atEnd())
           {
-            cout << io::readString(mr).c_str();
-            cout << " [" << io::readBENumber(mr, sizeof(uint32)) << " " 
-                 << format << "] ";
+            //cout << io::readString(mr).c_str();
+            //cout << " [" << io::readBENumber(mr, sizeof(uint32)) << " " 
+            //     << format << "] ";
           }
         }
         cout << endl;
