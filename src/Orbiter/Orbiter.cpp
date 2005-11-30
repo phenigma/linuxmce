@@ -3780,12 +3780,6 @@ bool Orbiter::ButtonDown( int iPK_Button )
 
 bool Orbiter::ButtonUp( int iPK_Button )
 {
-	string sRes;
-	if(iPK_Button == 1)
-		CMD_Goto_Screen(30, sRes, NULL);
-	else if(iPK_Button == 2)
-		CMD_Goto_Screen(29, sRes, NULL);
-
 	if( m_mapHardKeys.find(iPK_Button)!=m_mapHardKeys.end() )
 	{
 		Message *pMessage = m_mapHardKeys[iPK_Button];
