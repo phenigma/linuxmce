@@ -1574,7 +1574,7 @@ int k=2;
 				}
 				else
 					sDesignObj = (*itParm).second;
-				Row_DesignObj *p_m_pRow_DesignObj = mds.DesignObj_get()->GetRow(atoi((*itParm).second.c_str()));
+				Row_DesignObj *p_m_pRow_DesignObj = mds.DesignObj_get()->GetRow(atoi(sDesignObj.c_str()));
 				if( p_m_pRow_DesignObj && m_htGeneratedScreens.find(First2Dots(sDesignObj))==m_htGeneratedScreens.end() )
 				{
 					m_iPK_DesignObj_Screen = p_m_pRow_DesignObj->PK_DesignObj_get();
