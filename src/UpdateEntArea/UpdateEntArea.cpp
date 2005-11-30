@@ -37,6 +37,7 @@
 #include "pluto_main/Define_MediaType.h"
 #include "pluto_main/Define_Variable.h"
 #include "pluto_main/Define_DesignObj.h"
+#include "pluto_main/Define_CommandParameter.h"
 #include "pluto_main/Table_Command.h"
 #include "pluto_main/Table_CommandGroup.h"
 #include "pluto_main/Table_CommandGroup_Command.h"
@@ -45,6 +46,7 @@
 #include "pluto_main/Table_CommandGroup_Room.h"
 #include "pluto_main/Table_CommandParameter.h"
 #include "pluto_main/Table_Users.h"
+#include "pluto_main/Define_Screen.h"
 
 #define  VERSION "<=version=>"
 
@@ -322,7 +324,10 @@ void UpdateEntArea::AddDefaultCommandsToRoom(Row_Room *pRow_Room,int iPK_Templat
 */
 	if( (!iPK_Template || iPK_Template==TEMPLATE_Telecom_Automatic_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_Room,TEMPLATE_Telecom_Automatic_CONST,ARRAY_Communication_Scenarios_CONST,"Phone",0))!=0 )
 	{
-		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,StringUtils::itos(DESIGNOBJ_mnuMakeCallFavorites_CONST).c_str());
+		//AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,StringUtils::itos(DESIGNOBJ_mnuMakeCallFavorites_CONST).c_str());
+		AddCommand(PK_CommandGroup, DEVICETEMPLATE_This_Orbiter_CONST,
+			COMMAND_Goto_Screen_CONST, 1,
+			COMMANDPARAMETER_PK_Screen_CONST, StringUtils::itos(SCREEN_MakeCallFavorites_CONST).c_str());
 	}
 
 	{
@@ -347,7 +352,10 @@ void UpdateEntArea::AddDefaultCommandsToRoom(Row_Room *pRow_Room,int iPK_Templat
 	{
 		m_pDatabase_pluto_main->CommandGroup_get()->GetRow(PK_CommandGroup)->FK_DesignObj_set(DESIGNOBJ_objHouseStatusIndicator_CONST);
 		m_pDatabase_pluto_main->CommandGroup_get()->Commit();
-		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,StringUtils::itos(DESIGNOBJ_mnuSecurityPanel_CONST).c_str());
+		//AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,StringUtils::itos(DESIGNOBJ_mnuSecurityPanel_CONST).c_str());
+		AddCommand(PK_CommandGroup, DEVICETEMPLATE_This_Orbiter_CONST,
+			COMMAND_Goto_Screen_CONST, 1,
+			COMMANDPARAMETER_PK_Screen_CONST, StringUtils::itos(SCREEN_SecurityPanel_CONST).c_str());
 	}
 
 	{
@@ -362,7 +370,10 @@ void UpdateEntArea::AddDefaultCommandsToRoom(Row_Room *pRow_Room,int iPK_Templat
 			{
 				AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Set_Variable_CONST,2,COMMANDPARAMETER_PK_Variable_CONST,StringUtils::itos(VARIABLE_PK_DeviceGroup_CONST).c_str(),
 					COMMANDPARAMETER_Value_To_Assign_CONST,StringUtils::itos(pRow_DeviceGroup->PK_DeviceGroup_get()));
-				AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,StringUtils::itos(DESIGNOBJ_mnuSecurityPanel_CONST).c_str());
+				//AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,StringUtils::itos(DESIGNOBJ_mnuSecurityPanel_CONST).c_str());
+				AddCommand(PK_CommandGroup, DEVICETEMPLATE_This_Orbiter_CONST,
+					COMMAND_Goto_Screen_CONST, 1, 
+					COMMANDPARAMETER_PK_Screen_CONST, StringUtils::itos(SCREEN_SecurityPanel_CONST).c_str());
 			}
 		}
 	}
@@ -391,7 +402,10 @@ void UpdateEntArea::AddDefaultCommandsToRoom(Row_Room *pRow_Room,int iPK_Templat
 				{
 					AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Set_Variable_CONST,2,COMMANDPARAMETER_PK_Variable_CONST,StringUtils::itos(VARIABLE_PK_Device_CONST).c_str(),
 						COMMANDPARAMETER_Value_To_Assign_CONST,row[0]);
-					AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,StringUtils::itos(DESIGNOBJ_mnuSingleCameraViewOnly_CONST).c_str());
+					//AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,StringUtils::itos(DESIGNOBJ_mnuSingleCameraViewOnly_CONST).c_str());
+					AddCommand(PK_CommandGroup, DEVICETEMPLATE_This_Orbiter_CONST,
+						COMMAND_Goto_Screen_CONST, 1,
+						COMMANDPARAMETER_PK_Screen_CONST, StringUtils::itos(SCREEN_SingleCameraViewOnly_CONST).c_str());
 				}
 			}
 		}
