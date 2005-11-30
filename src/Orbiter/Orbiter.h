@@ -39,6 +39,13 @@ enum SelectionBehaviour
     sbNoSelection
 };
 
+//used by screen handler class
+enum CallBackType
+{
+	cbDataGridSelected,
+	cbObjectSelected
+};
+
 #define PROMPT_CANCEL -1
 
 /**
@@ -160,7 +167,15 @@ public:
 
     virtual void SetImageQuality(unsigned long ulImageQuality) {};
 
+	/**
+	* @brief creates a screen handler
+	*/
 	virtual ScreenHandler *CreateScreenHandler();
+
+	/**
+	* @brief executes a screen handler's registered callback
+	*/
+	bool ExecuteScreenHandlerCallback(CallBackType aCallBackType); 
 	
 	/**
 	* @brief searches for updates, returns true if an update was found

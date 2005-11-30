@@ -10,6 +10,41 @@ ScreenHandler::ScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj) : 
 	m_pOrbiter = pOrbiter;
 }
 //-----------------------------------------------------------------------------------------------------
+ScreenHandler::~ScreenHandler() 
+{
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::RegisterCallBack(CallBackType aCallBackType, ScreenHandlerCallBack aScreenHandlerCallBack, 
+	CallBackData *pCallBackData)
+{
+	m_mapCallBack[aCallBackType] = aScreenHandlerCallBack;
+	m_mapCallBackData[aCallBackType] = pCallBackData;
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::ResetCallBacks()
+{
+	m_mapCallBack.clear();
+
+	for(map<CallBackType, CallBackData *>::iterator it = m_mapCallBackData.begin(); it != m_mapCallBackData.end(); it++)
+	{
+		CallBackData *pCallBackData = it->second;
+		delete pCallBackData;
+	}
+	m_mapCallBackData.clear();
+}
+//-----------------------------------------------------------------------------------------------------
+ScreenHandlerCallBack ScreenHandler::m_mapCallBack_Find(CallBackType aCallBackType)	
+{ 
+	map<CallBackType, ScreenHandlerCallBack>::iterator it = m_mapCallBack.find(aCallBackType); 
+	return it == m_mapCallBack.end() ? NULL : it->second; 
+}
+//-----------------------------------------------------------------------------------------------------
+CallBackData *ScreenHandler::m_mapCallBackData_Find(CallBackType aCallBackType)	
+{ 
+	map<CallBackType, CallBackData *>::iterator it = m_mapCallBackData.find(aCallBackType); 
+	return it == m_mapCallBackData.end() ? NULL : it->second; 
+}
+//-----------------------------------------------------------------------------------------------------
 void ScreenHandler::GotoDesignObj(int PK_DesignObj)
 {
 	m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(PK_DesignObj), "", "", false, false);
@@ -27,12 +62,21 @@ void ScreenHandler::SCREEN_CDTrackCopy(long PK_Screen, string sPKUsers)
 	ScreenHandlerBase::SCREEN_CDTrackCopy(PK_Screen, sPKUsers);
 }
 //-----------------------------------------------------------------------------------------------------
+bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
+{
+	g_pPlutoLogger->Write(LV_WARNING, "FileSave_ObjectSelected executed!");
+	return true;
+}
+//-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_FileSave(long PK_Screen, string sPrivate, string sPublic, string sCaption)
 {
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sPrivate);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, sPublic);
 	m_pOrbiter->CMD_Set_Text(StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)), sCaption, TEXT_STATUS_CONST);
 	ScreenHandlerBase::SCREEN_FileSave(PK_Screen, sPrivate, sPublic, sCaption);
+
+	//registering callbacks - sample
+	RegisterCallBack(cbObjectSelected, FileSave_ObjectSelected, new CallBackData());
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_NewPhoneDetected(long PK_Screen, string sMacAddress, string sDescription)
@@ -270,3 +314,4 @@ void ScreenHandler::SCREEN_DialogSendFileToPhoneFailed(long PK_Screen, string sM
 	);
 }
 //-----------------------------------------------------------------------------------------------------
+

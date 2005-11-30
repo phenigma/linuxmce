@@ -1616,6 +1616,7 @@ void Orbiter::ObjectOffScreen( DesignObj_Orbiter *pObj )
 void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y)
 {
     PLUTO_SAFETY_LOCK( vm, m_ScreenMutex );
+	ExecuteScreenHandlerCallback(cbObjectSelected);
 
     if ( pObj->m_ObjectType == DESIGNOBJTYPE_Datagrid_CONST )
 	{
@@ -1917,6 +1918,8 @@ g_pPlutoLogger->Write(LV_WARNING,"Selected grid %s but m_pDataGridTable is NULL"
 //------------------------------------------------------------------------
 bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCell *pCell )
 {
+	ExecuteScreenHandlerCallback(cbDataGridSelected);
+
 // AB 2005-08-20 is this necessary?  It means you don't stay on the highlighted selection	pDesignObj_DataGrid->m_iHighlightedColumn=pDesignObj_DataGrid->m_iHighlightedRow=-1;
 	m_sLastSelectedDatagrid=pCell->GetText();
 
@@ -9259,7 +9262,7 @@ bool Orbiter::WaitForRelativesIfOSD()
 	DisplayProgress("",-1);
 	return true;
 }
-
+//-----------------------------------------------------------------------------------------------------
 //<-dceag-c741-b->
 
 	/** @brief COMMAND: #741 - Goto Screen */
@@ -9270,6 +9273,8 @@ bool Orbiter::WaitForRelativesIfOSD()
 void Orbiter::CMD_Goto_Screen(int iPK_Screen,string &sCMD_Result,Message *pMessage)
 //<-dceag-c741-e->
 {
+	m_pScreenHandler->ResetCallBacks();
+
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_WARNING, "Received goto screen message id %d params:", iPK_Screen);
 	for(map<long, string>::iterator it = pMessage->m_mapParameters.begin(); it != pMessage->m_mapParameters.end(); it++)
@@ -9278,8 +9283,18 @@ void Orbiter::CMD_Goto_Screen(int iPK_Screen,string &sCMD_Result,Message *pMessa
 
 	m_pScreenHandler->ReceivedGotoScreenMessage(iPK_Screen, pMessage);
 }
-
+//-----------------------------------------------------------------------------------------------------
 /*virtual*/ ScreenHandler *Orbiter::CreateScreenHandler()
 {
 	return new ScreenHandler(this, &m_mapDesignObj);
 }
+//-----------------------------------------------------------------------------------------------------
+bool Orbiter::ExecuteScreenHandlerCallback(CallBackType aCallBackType)
+{
+	ScreenHandlerCallBack pCallBack = m_pScreenHandler->m_mapCallBack_Find(aCallBackType);
+	if(NULL != pCallBack)
+		return CALL_MEMBER_FN(*m_pScreenHandler, pCallBack)(m_pScreenHandler->m_mapCallBackData_Find(aCallBackType));
+
+	return true; //no callback registered needed to be executed
+}
+//-----------------------------------------------------------------------------------------------------
