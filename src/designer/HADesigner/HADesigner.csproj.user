@@ -1,7 +1,7 @@
 <VisualStudioProject>
     <CSHARP LastOpenVersion = "7.10.3077" >
         <Build>
-            <Settings ReferencePath = "C:\ha\level2\designer\HADesigner\bin\Debug\;C:\ha\level2\designer\Criteria\bin\Debug\" >
+            <Settings ReferencePath = "C:\ha\level2\designer\HADesigner\bin\Debug\;C:\ha\level2\designer\Criteria\bin\Debug\;C:\Program Files\Microsoft.NET\Odbc.Net\" >
                 <Config
                     Name = "Debug"
                     EnableASPDebugging = "false"

@@ -90,14 +90,14 @@
                     HintPath = "..\..\WINDOWS\Microsoft.NET\Framework\v1.0.3705\System.XML.dll"
                 />
                 <Reference
-                    Name = "Microsoft.Data.Odbc"
-                    AssemblyName = "Microsoft.Data.Odbc"
-                    HintPath = "..\..\..\..\Program Files\Microsoft.Net\Odbc.Net\Microsoft.Data.Odbc.dll"
-                />
-                <Reference
                     Name = "HAData"
                     Project = "{C5679AE5-F8FF-451F-A97B-EA58F93B04AF}"
                     Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
+                />
+                <Reference
+                    Name = "Microsoft.Data.Odbc"
+                    AssemblyName = "Microsoft.Data.Odbc"
+                    HintPath = "..\..\..\..\..\Program Files\Microsoft.NET\Odbc.Net\Microsoft.Data.Odbc.dll"
                 />
             </References>
         </Build>
@@ -107,6 +107,11 @@
                     RelPath = "About.cs"
                     SubType = "Form"
                     BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "About.resx"
+                    DependentUpon = "About.cs"
+                    BuildAction = "EmbeddedResource"
                 />
                 <File
                     RelPath = "App.ico"
@@ -123,9 +128,19 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "CategoryForm.resx"
+                    DependentUpon = "CategoryForm.cs"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
                     RelPath = "ChooseObject.cs"
                     SubType = "Form"
                     BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "ChooseObject.resx"
+                    DependentUpon = "ChooseObject.cs"
+                    BuildAction = "EmbeddedResource"
                 />
                 <File
                     RelPath = "classCommonMethods.cs"
@@ -143,9 +158,19 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "MainForm.resx"
+                    DependentUpon = "MainForm.cs"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
                     RelPath = "NewObject.cs"
                     SubType = "Form"
                     BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "NewObject.resx"
+                    DependentUpon = "NewObject.cs"
+                    BuildAction = "EmbeddedResource"
                 />
                 <File
                     RelPath = "ObjectDesigner.cs"
@@ -168,6 +193,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Options.resx"
+                    DependentUpon = "Options.cs"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
                     RelPath = "Parameter.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -178,9 +208,19 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "SkinLanguageForm.resx"
+                    DependentUpon = "SkinLanguageForm.cs"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
                     RelPath = "SkinsForm.cs"
                     SubType = "Form"
                     BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "SkinsForm.resx"
+                    DependentUpon = "SkinsForm.cs"
+                    BuildAction = "EmbeddedResource"
                 />
                 <File
                     RelPath = "StringPair.cs"
@@ -193,9 +233,19 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "StylesForm.resx"
+                    DependentUpon = "StylesForm.cs"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
                     RelPath = "TextForm.cs"
                     SubType = "Form"
                     BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TextForm.resx"
+                    DependentUpon = "TextForm.cs"
+                    BuildAction = "EmbeddedResource"
                 />
                 <File
                     RelPath = "UI.cs"

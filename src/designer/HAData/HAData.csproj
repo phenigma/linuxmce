@@ -97,7 +97,7 @@
                 <Reference
                     Name = "Microsoft.Data.Odbc"
                     AssemblyName = "Microsoft.Data.Odbc"
-                    HintPath = "..\..\..\..\Program Files\Microsoft.Net\Odbc.Net\Microsoft.Data.Odbc.dll"
+                    HintPath = "..\..\..\..\..\Program Files\Microsoft.NET\Odbc.Net\Microsoft.Data.Odbc.dll"
                 />
             </References>
         </Build>
@@ -295,6 +295,11 @@
                 />
                 <File
                     RelPath = "DataAccess\ParameterTypeData.cs"
+                    SubType = "Component"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "DataAccess\Screen_CommandParameterData.cs"
                     SubType = "Component"
                     BuildAction = "Compile"
                 />

@@ -65,6 +65,7 @@ namespace HAData.DataAccess {
 				tStyle.LoadAll(conn,trans);
 				tStyleVariation.LoadAll(conn,trans);
 				tSystem.LoadAll(conn,trans);
+				tScreen_CommandParameter.LoadAll(conn,trans);
 				tText.LoadAll(conn,trans);
 				tText_LS.LoadAll(conn,trans);
 				tText_LS_AltVersions.LoadAll(conn,trans);
@@ -660,6 +661,23 @@ namespace HAData.DataAccess {
 					Tables.Add(dt);
 				}
 				return (Command_CommandParameterTable) dt;
+			}
+		}
+		public Screen_CommandParameterTable tScreen_CommandParameter
+		{
+			get
+			{
+				if( m_bIsCache )
+					return (Screen_CommandParameterTable) Tables["Screen_CommandParameter"];
+				if( m_mdsCache!=null )
+					return (Screen_CommandParameterTable) m_mdsCache.Tables["Screen_CommandParameter"];
+				Screen_CommandParameterTable dt = (Screen_CommandParameterTable)Tables["Screen_CommandParameter"];
+				if( dt==null )
+				{
+					dt = Screen_CommandParameterData.BuildScreen_CommandParameterTable();
+					Tables.Add(dt);
+				}
+				return (Screen_CommandParameterTable) dt;
 			}
 		}
 		public CommandCategoryTable tCommandCategory
@@ -1413,6 +1431,7 @@ namespace HAData.DataAccess {
 			Relations.Add(MyRelations.TextCategory_FK_TextCategory_Parent,tTextCategory.cPK_TextCategory,tTextCategory.cFK_TextCategory_Parent);
 			Relations.Add(MyRelations.Users_FK_Language,tLanguage.cPK_Language,tUsers.cFK_Language);
 			Relations.Add(MyRelations.Users_FK_Installation_Main,tInstallation.cPK_Installation,tUsers.cFK_Installation_Main);
+			Relations.Add(MyRelations.Screen_CommandParameter_FK_CommandParameter,tCommandParameter.cPK_CommandParameter,tScreen_CommandParameter.cFK_CommandParameter);
 		}
 		public class MyRelations
 		{
@@ -1485,6 +1504,7 @@ namespace HAData.DataAccess {
 			public const string TextCategory_FK_TextCategory_Parent="72";
 			public const string Users_FK_Language="73";
 			public const string Users_FK_Installation_Main="74";
+			public const string Screen_CommandParameter_FK_CommandParameter="75";
 		}
 	}
 } // namespace HAData.Common.Data

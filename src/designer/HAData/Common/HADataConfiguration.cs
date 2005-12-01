@@ -48,7 +48,16 @@ namespace HAData.Common
 		public static OdbcConnection GetOdbcConnection()
 		{
 			OdbcConnection oc=new OdbcConnection(ConnectionString);
-			oc.Open();
+			try
+			{
+				oc.Open();
+			}
+			catch(Exception e)
+			{
+				MessageBox.Show(e.Message.ToString());
+				Application.Exit();
+			}
+			
 			return oc;
 		}
 		/*

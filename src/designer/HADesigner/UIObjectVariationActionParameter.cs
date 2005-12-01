@@ -17,7 +17,6 @@ namespace HADesigner
 		private bool m_blnNeedsDBDelete = false;
 		private bool m_blnDeleted = false;			//this becomes true AFTER the delete
 
-		
 		//specific
 		private int m_intParameterID = -1;
 		private string m_strDescription = "";
