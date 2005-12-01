@@ -207,6 +207,16 @@ namespace HADesigner
 
 		public void LoadParameters()
 		{
+			//load all the parameters
+			Command_CommandParameterDataRow drParameter;
+			DataRow[] drParameters = this.mds.tCommand_CommandParameter.Select(Command_CommandParameterData.FK_COMMAND_FIELD + " = " + this.CommandID, null);
+			foreach(DataRow dr in drParameters)
+			{
+				drParameter = new Command_CommandParameterDataRow(dr);
+				this.Parameters.Add(new UIDesignObjVariationCommandParameter(this, drParameter.fFK_CommandParameter));
+			}
+
+			//also add extra parameters
 			if(this.CommandID == cnPK_Screen)
 			{
 				String sPK_Screen = "0";
@@ -225,24 +235,13 @@ namespace HADesigner
 					break;
 				}
 
-				Screen_CommandParameterDataRow drParameter; 
+				Screen_CommandParameterDataRow drScreenParameter; 
 				String sql = Screen_CommandParameterData.FK_SCREEN_FIELD + " = " + sPK_Screen;
-				DataRow[] drParameters = this.mds.tScreen_CommandParameter.Select(sql, null);
-				foreach(DataRow dr in drParameters)
+				DataRow[] drScreenParameters = this.mds.tScreen_CommandParameter.Select(sql, null);
+				foreach(DataRow dr in drScreenParameters)
 				{
-					drParameter = new Screen_CommandParameterDataRow(dr);
-					this.Parameters.Add(new UIDesignObjVariationCommandParameter(this, drParameter.fFK_CommandParameter));
-				}
-			}
-			else
-			{
-				//load all the parameters
-				Command_CommandParameterDataRow drParameter;
-				DataRow[] drParameters = this.mds.tCommand_CommandParameter.Select(Command_CommandParameterData.FK_COMMAND_FIELD + " = " + this.CommandID, null);
-				foreach(DataRow dr in drParameters)
-				{
-					drParameter = new Command_CommandParameterDataRow(dr);
-					this.Parameters.Add(new UIDesignObjVariationCommandParameter(this, drParameter.fFK_CommandParameter));
+					drScreenParameter = new Screen_CommandParameterDataRow(dr);
+					this.Parameters.Add(new UIDesignObjVariationCommandParameter(this, drScreenParameter.fFK_CommandParameter));
 				}
 			}
 		}
