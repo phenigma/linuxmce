@@ -113,7 +113,7 @@ MediaDevice::MediaDevice( class Router *pRouter, class Row_Device *pRow_Device )
 	m_pOH_Orbiter_Reset=NULL;
 	m_pCommandGroup=NULL;
 	m_tReset=0;
-	m_pDevice_App_Server_Volume=NULL;
+	m_pDevice_App_Server_Volume=m_pDevice_Media_ID=NULL;
 	m_iPK_MediaProvider=atoi(m_pDeviceData_Router->m_mapParameters_Find(DEVICEDATA_EK_MediaProvider_CONST).c_str());
 
 	// See if this is an M/D
@@ -481,6 +481,16 @@ void Media_Plugin::AddDeviceToEntertainArea( EntertainArea *pEntertainArea, Row_
 
 		vector<Row_DeviceTemplate_MediaType *> vectRow_DeviceTemplate_MediaType;
 		pMediaDevice->m_pDeviceData_Router->m_pRow_Device->FK_DeviceTemplate_getrow()->DeviceTemplate_MediaType_FK_DeviceTemplate_getrows(&vectRow_DeviceTemplate_MediaType);
+
+		// See if this is an Disc Drive, if so, get the media identifier
+		if( pMediaDevice->m_pDeviceData_Router->WithinCategory(DEVICECATEGORY_Disc_Drives_CONST) )	
+		{
+			vector<DeviceData_Router *> vectDeviceData_Router;
+			pMediaDevice->m_pDeviceData_Router->FindSibblingsWithinCategory( DEVICECATEGORY_Media_Identifiers_CONST, vectDeviceData_Router);
+			if( vectDeviceData_Router.size() )
+				pMediaDevice->m_pDevice_Media_ID = vectDeviceData_Router[0];
+		}
+
 		if( pMediaDevice->m_pDeviceData_Router->m_pDevice_RouteTo )  // If it's an embedded device like a tuner, add the master's device types too
 			pMediaDevice->m_pDeviceData_Router->m_pDevice_RouteTo->m_pRow_Device->FK_DeviceTemplate_getrow()->DeviceTemplate_MediaType_FK_DeviceTemplate_getrows(&vectRow_DeviceTemplate_MediaType);
 
@@ -579,10 +589,13 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
 			if( pMediaStream )
 				pMediaStream->m_discid = discid;
 
-			// Notify the identifiers that it's time to ID what this is
-			DCE::CMD_Identify_Media_Cat CMD_Identify_Media_Cat(pDeviceFrom->m_dwPK_Device,DEVICECATEGORY_Media_Identifiers_CONST,
-				false,BL_SameComputer,pDeviceFrom->m_dwPK_Device,StringUtils::itos(discid),pMessage->m_mapParameters[EVENTPARAMETER_Name_CONST]);
-			SendCommand(CMD_Identify_Media_Cat);
+			if( pMediaDevice->m_pDevice_Media_ID )
+			{
+				// Notify the identifiers that it's time to ID what this is
+				DCE::CMD_Identify_Media CMD_Identify_Media(m_dwPK_Device,pMediaDevice->m_pDevice_Media_ID->m_dwPK_Device,
+					pDeviceFrom->m_dwPK_Device,StringUtils::itos(discid),pMessage->m_mapParameters[EVENTPARAMETER_Name_CONST]);
+				SendCommand(CMD_Identify_Media);
+			}
 
 			return true;
         }
@@ -5113,15 +5126,6 @@ void Media_Plugin::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,s
 		return;
 	}
 	pMediaStream->m_IdentifiedPriority=Priority;
-	if( pData && iData_Size )
-	{
-		if( pMediaStream->m_pPictureData )
-			delete[] pMediaStream->m_pPictureData;
-		pMediaStream->m_iPictureSize=iData_Size;
-		pMediaStream->m_pPictureData=new char[iData_Size];
-		memcpy(pMediaStream->m_pPictureData,pData,iData_Size);
-	}
-
 	listMediaAttribute listMediaAttribute_;
 	int PK_Disc=0;
 	if( sFormat=="CDDB-TAB" && pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST )
@@ -5129,10 +5133,15 @@ void Media_Plugin::CMD_Media_Identified(int iPK_Device,string sValue_To_Assign,s
 	if( sFormat=="MISC-TAB" )
 		PK_Disc=m_pMediaAttributes->m_pMediaAttributes_LowLevel->Parse_Misc_Media_ID(pMediaStream->m_iPK_MediaType,listMediaAttribute_,sValue_To_Assign);
 
-	if( PK_Disc )
-		pMediaStream->m_dwPK_Disc = PK_Disc;
+	if( pData && iData_Size )
+		m_pMediaAttributes->m_pMediaAttributes_LowLevel->AddPictureToDisc(PK_Disc,pData,iData_Size,sURL);
 
-//	pMediaStream->PopulateAttributes(listMediaAttribute_);
+	if( PK_Disc )
+	{
+		pMediaStream->m_dwPK_Disc = PK_Disc;
+		m_pMediaAttributes->LoadStreamAttributesForDisc(pMediaStream);
+	}
+
 	pMediaStream->UpdateDescriptions(true);
 	MediaInfoChanged(pMediaStream,true);
 	m_pMediaAttributes->m_pMediaAttributes_LowLevel->PurgeListMediaAttribute(listMediaAttribute_);

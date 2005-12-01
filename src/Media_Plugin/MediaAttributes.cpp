@@ -197,6 +197,11 @@ g_pPlutoLogger->Write(LV_STATUS,"MediaAttributes::AddAttributeToStream %p %d",pR
 
 void MediaAttributes::LoadStreamAttributes(MediaStream *pMediaStream)
 {
+	if( pMediaStream->m_dwPK_Disc )
+	{
+		LoadStreamAttributesForDisc(pMediaStream);
+		return;
+	}
 	for(size_t s=0;s<pMediaStream->m_dequeMediaFile.size();++s)
 	{
 		MediaFile *pMediaFile = pMediaStream->m_dequeMediaFile[s];
@@ -220,3 +225,24 @@ void MediaAttributes::LoadStreamAttributes(MediaStream *pMediaStream)
 	}
 }
 
+void MediaAttributes::LoadStreamAttributesForDisc(MediaStream *pMediaStream)
+{
+	Row_Disc *pRow_Disc = m_pDatabase_pluto_media->Disc_get()->GetRow(pMediaStream->m_dwPK_Disc);
+	if( !pRow_Disc )
+		return;
+
+	vector<Row_Disc_Attribute *> vectRow_Disc_Attribute;
+	pRow_Disc->Disc_Attribute_FK_Disc_getrows(&vectRow_Disc_Attribute);
+	for(size_t s=0;s<vectRow_Disc_Attribute.size();++s)
+	{
+		Row_Disc_Attribute *pRow_Disc_Attribute = vectRow_Disc_Attribute[s];
+		Row_Attribute *pRow_Attribute = pRow_Disc_Attribute->FK_Attribute_getrow();
+		if( pRow_Attribute ) // should always be true
+		{
+			if( pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_CD_CONST ) // Tracks are treated as files
+				AddAttributeToStream(pMediaStream,pRow_Attribute,pRow_Disc_Attribute->Track_get(),0,pRow_Disc_Attribute->Section_get());
+			else
+				AddAttributeToStream(pMediaStream,pRow_Attribute,0,pRow_Disc_Attribute->Track_get(),pRow_Disc_Attribute->Section_get());
+		}
+	}
+}

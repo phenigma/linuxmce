@@ -397,10 +397,16 @@ int OrbiterGenerator::DoIt()
 	if( !m_pRow_DesignObj_Sleeping )
 		m_pRow_DesignObj_Sleeping = GetDesignObjFromScreen(SCREEN_Sleeping_CONST);
 
+	if( !m_pRow_DesignObj_Sleeping )
+		m_pRow_DesignObj_Sleeping = m_pRow_DesignObj_MainMenu;
+
 	m_pRow_DesignObj_ScreenSaver = GetDesignObjFromScreen(m_pRow_Skin->FK_Screen_ScreenSaver_get());
 
 	if( !m_pRow_DesignObj_ScreenSaver )
 		m_pRow_DesignObj_ScreenSaver = mds.DesignObj_get()->GetRow(DESIGNOBJ_mnuScreenSaver_CONST);
+
+	if( !m_pRow_DesignObj_ScreenSaver )
+		m_pRow_DesignObj_ScreenSaver = m_pRow_DesignObj_MainMenu;
 
 	// Get the language
 	m_pRow_Language = NULL;

@@ -469,4 +469,3 @@ string MediaStream::GetEntAreasWithout(map<int,class EntertainArea *> *p_mapEnte
 
 	return sResult;
 }
-
