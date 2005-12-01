@@ -31,6 +31,7 @@
 
 #include "pluto_main/Define_Button.h"
 #include "PlutoUtils/PlutoButtonsToX.h"
+#include "OSDScreenHandler.h"
 
 using namespace std;
 
@@ -454,3 +455,7 @@ int OrbiterLinux::PromptUser(string sPrompt,int iTimeoutSeconds,map<int,string> 
 #endif
 }
 
+ScreenHandler *OrbiterLinux::CreateScreenHandler()
+{
+	return new OSDScreenHandler(this, &m_mapDesignObj);
+}

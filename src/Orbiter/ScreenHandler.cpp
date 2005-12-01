@@ -62,21 +62,12 @@ void ScreenHandler::SCREEN_CDTrackCopy(long PK_Screen, string sPKUsers)
 	ScreenHandlerBase::SCREEN_CDTrackCopy(PK_Screen, sPKUsers);
 }
 //-----------------------------------------------------------------------------------------------------
-bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
-{
-	g_pPlutoLogger->Write(LV_WARNING, "FileSave_ObjectSelected executed!");
-	return true;
-}
-//-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_FileSave(long PK_Screen, string sPrivate, string sPublic, string sCaption)
 {
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sPrivate);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, sPublic);
 	m_pOrbiter->CMD_Set_Text(StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)), sCaption, TEXT_STATUS_CONST);
 	ScreenHandlerBase::SCREEN_FileSave(PK_Screen, sPrivate, sPublic, sCaption);
-
-	//registering callbacks - sample
-	RegisterCallBack(cbObjectSelected, &ScreenHandler::FileSave_ObjectSelected, new CallBackData());
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_NewPhoneDetected(long PK_Screen, string sMacAddress, string sDescription)

@@ -86,6 +86,8 @@ public:
 #ifndef WIN32
 	virtual void DoResetRatpoison() { g_pPlutoLogger->Write(LV_CRITICAL,"Need to reset ratpoison"); resetRatpoison(); }
 #endif
+
+	virtual class ScreenHandler *CreateScreenHandler();
 };
 
 #endif // __CONTROLLERLINUXDESKTOP_H__

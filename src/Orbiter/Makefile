@@ -36,6 +36,7 @@ sources +=  DesignObj_Data.cpp DesignObj_Orbiter.cpp \
 			SDL/SDLRendererOCGHelper.cpp \
 			SDL/SDLGraphic.cpp \
 			SDL/OrbiterSDL.cpp SDL/StartOrbiterSDL.cpp \
+			Linux/OSDScreenHandler.cpp \
 			$(ROOT)/Splitter/TextSplitter.cpp \
 			$(ROOT)/Splitter/TextWrapper.cpp \
 			$(ROOT)/OrbiterGen/Renderer.cpp \
