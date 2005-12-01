@@ -1670,6 +1670,7 @@
 #define DEVICETEMPLATE_VirtDev_Local_Media_Player_CONST 1758
 #define DEVICETEMPLATE_Orbiter_Embedded_Phone_CONST 1759
 #define DEVICETEMPLATE_Generic_Relays_CONST 1760
+#define DEVICETEMPLATE_Generic_Security_Panel_CONST 1761
 
 #define DEVICETEMPLATE_TABLE "DeviceTemplate"
 #define DEVICETEMPLATE_PK_DEVICETEMPLATE_FIELD "PK_DeviceTemplate"
