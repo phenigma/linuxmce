@@ -154,7 +154,7 @@ $displayedRooms = array();
 		header("Location: index.php?section=rooms&error=You are not authorised to change this installation!");
 		exit(0);
 	}
-	
+
 	//process
 	if(isset($_REQUEST['manID'])){
 		$roomID=(int)$_REQUEST['manID'];
@@ -170,7 +170,8 @@ $displayedRooms = array();
 		$queryInsertRoom = 'INSERT INTO Room (Description,FK_Installation) values(?,?)';
 		$res = $dbADO->Execute($queryInsertRoom,array('New room',$installationID));
 		$lastInsert = $dbADO->Insert_ID();
-		addScenariosToRoom($lastInsert, $installationID, $dbADO);
+		// removed the scenarios since they are created outside website
+		//addScenariosToRoom($lastInsert, $installationID, $dbADO);
 		$locationGoTo = "roomDesc_{$lastInsert}";		
 	}
 	
