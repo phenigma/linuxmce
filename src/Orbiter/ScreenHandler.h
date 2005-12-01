@@ -70,6 +70,8 @@ public:
 	virtual void SCREEN_DialogPhoneInstructions(long PK_Screen, string sInstructions, string sPhoneName);
 	virtual void SCREEN_DialogSendFileToPhoneFailed(long PK_Screen, string sMacAddress, string sCommandLine, 
 		string sPK_DeviceFrom, string sPhoneName, string sPK_Device_AppServer);
+
+	virtual bool FileSave_ObjectSelected(CallBackData *pData) {} 
 };
 //-----------------------------------------------------------------------------------------------------
 #endif

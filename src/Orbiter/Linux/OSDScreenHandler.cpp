@@ -17,7 +17,7 @@ void OSDScreenHandler::SCREEN_FileSave(long PK_Screen, string sPrivate, string s
 	RegisterCallBack(cbObjectSelected, &ScreenHandler::FileSave_ObjectSelected, new PositionCallBackData());	
 }
 //-----------------------------------------------------------------------------------------------------
-bool ScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
+bool OSDScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
 {
 	PositionCallBackData *pMyData = dynamic_cast<PositionCallBackData *>(pData);
 	g_pPlutoLogger->Write(LV_WARNING, "FileSave_ObjectSelected, with position %d, %d, %d, %d",
