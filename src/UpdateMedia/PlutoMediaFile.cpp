@@ -151,31 +151,35 @@ void PlutoMediaFile::SetFileAttribute(int PK_File)
     attr_set( (m_sDirectory + "/" + m_sFile).c_str( ), "ID", sPK_File.c_str( ), sPK_File.length( ), 0 );
 #endif
 
-    //sync id3tags on the files with the attributes from the db
-    map<int,string> mapAttributes;
-    GetId3Info(m_sDirectory + "/" + m_sFile, mapAttributes);
+	string sExtension = FileUtils::FindExtension(m_sFile);
+	if(sExtension == "mp3")
+	{
+		//sync id3tags on the files with the attributes from the db
+		map<int,string> mapAttributes;
+		GetId3Info(m_sDirectory + "/" + m_sFile, mapAttributes);
 
-    string SQL = 
-        "SELECT Attribute.FK_AttributeType, Attribute.Name FROM File_Attribute " 
-        "INNER JOIN Attribute ON Attribute.PK_Attribute = File_Attribute.FK_Attribute "
-        "WHERE FK_File = " + sPK_File;
+		string SQL = 
+			"SELECT Attribute.FK_AttributeType, Attribute.Name FROM File_Attribute " 
+			"INNER JOIN Attribute ON Attribute.PK_Attribute = File_Attribute.FK_Attribute "
+			"WHERE FK_File = " + sPK_File;
 
-    PlutoSqlResult allresult,result;
-    MYSQL_ROW row;
-    if((allresult.r = m_pDatabase_pluto_media->mysql_query_result(SQL)))
-    {
-        while((row = mysql_fetch_row(allresult.r)))
-        {
-            string sFK_AttributeType = row[0];
-            string sName = row[1];
+		PlutoSqlResult allresult,result;
+		MYSQL_ROW row;
+		if((allresult.r = m_pDatabase_pluto_media->mysql_query_result(SQL)))
+		{
+			while((row = mysql_fetch_row(allresult.r)))
+			{
+				string sFK_AttributeType = row[0];
+				string sName = row[1];
 
-            //create a new entry in id3 tag list or overwrite an old one
-            mapAttributes[atoi(sFK_AttributeType.c_str())] = sName;
-        }
-    }
+				//create a new entry in id3 tag list or overwrite an old one
+				mapAttributes[atoi(sFK_AttributeType.c_str())] = sName;
+			}
+		}
 
-    if(mapAttributes.size())
-        SetId3Info(m_sDirectory + "/" + m_sFile, mapAttributes);
+		if(mapAttributes.size())
+			SetId3Info(m_sDirectory + "/" + m_sFile, mapAttributes);
+	}
 }
 //-----------------------------------------------------------------------------------------------------
 int PlutoMediaFile::GetFileAttribute()
