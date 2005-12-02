@@ -979,10 +979,25 @@ switch ($section) {
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
 		@include($GLOBALS['globalConfigPath'].'asteriskDB.inc.php');
+		@include($GLOBALS['globalConfigPath'].'telecom.inc.php');       			
 	    include_once('operations/phones/callRouting.php');
-	    callRouting($output,$asteriskADO);
+	    callRouting($output,$dbADO,$asteriskADO,$telecomADO);
 	break;
-
+	case 'priorityCallers';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+		@include($GLOBALS['globalConfigPath'].'telecom.inc.php');       			
+	    include_once('operations/phones/priorityCallers.php');
+	    priorityCallers($output,$dbADO,$telecomADO);
+	break;
+	case 'callersForMe';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+		@include($GLOBALS['globalConfigPath'].'telecom.inc.php');       			
+	    include_once('operations/phones/callersForMe.php');
+	    callersForMe($output,$dbADO,$telecomADO);
+	break;
+	
 	case 'addSoftware';
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
