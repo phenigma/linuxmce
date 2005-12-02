@@ -252,5 +252,7 @@ fi
 
 /usr/pluto/bin/SetupUsers.sh
 /usr/pluto/install/Initial_Config_Finish.sh
+
+sed -i 's/^ide-generic$/#&/g' /etc/modules
 #init q
 exit 0
