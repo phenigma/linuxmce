@@ -33,6 +33,7 @@ sources +=  DesignObj_Data.cpp DesignObj_Orbiter.cpp \
 			CacheImageManager.cpp \
 			RendererOCG.cpp \
 			ScreenHandler.cpp \
+			CallBackData.cpp \
 			SDL/SDLRendererOCGHelper.cpp \
 			SDL/SDLGraphic.cpp \
 			SDL/OrbiterSDL.cpp SDL/StartOrbiterSDL.cpp \

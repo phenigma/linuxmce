@@ -43,7 +43,10 @@ enum SelectionBehaviour
 enum CallBackType
 {
 	cbDataGridSelected,
-	cbObjectSelected
+	cbObjectSelected,
+	cbOnCreateWxWidget,
+	cbOnDeleteWxWidget,
+	cbOnRefreshWxWidget
 };
 
 #define PROMPT_CANCEL -1
@@ -944,6 +947,9 @@ public:
 	void LoadPlugins();
 	ScreenHandler *PlugIn_Load(string sCommandLine);
 
+	//rooms state
+	void GetRooms(map<string,int> &mapRooms);
+	void SetRooms(map<string,int> &mapRooms);
 
 	/**
 	 *	MAINTENANCE CALL BACKS

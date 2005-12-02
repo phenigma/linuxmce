@@ -129,6 +129,9 @@
 				RelativePath=".\CacheImageManager.cpp">
 			</File>
 			<File
+				RelativePath=".\CallBackData.cpp">
+			</File>
+			<File
 				RelativePath="..\Dce\DataGrid.cpp">
 			</File>
 			<File

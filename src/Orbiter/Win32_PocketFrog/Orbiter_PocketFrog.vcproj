@@ -140,6 +140,9 @@
 				RelativePath="..\CacheImageManager.cpp">
 			</File>
 			<File
+				RelativePath="..\CallBackData.cpp">
+			</File>
+			<File
 				RelativePath="..\DesignObj_Data.cpp">
 			</File>
 			<File
@@ -214,6 +217,9 @@
 			Filter="h;hpp;hxx;hm;inl;inc">
 			<File
 				RelativePath=".\CacheImageManager.h">
+			</File>
+			<File
+				RelativePath="..\CallBackData.h">
 			</File>
 			<File
 				RelativePath=".\GraphicBuilder.h">

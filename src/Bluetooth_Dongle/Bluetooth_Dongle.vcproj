@@ -214,6 +214,9 @@
 				RelativePath="..\Orbiter\CacheImageManager.cpp">
 			</File>
 			<File
+				RelativePath="..\Orbiter\CallBackData.cpp">
+			</File>
+			<File
 				RelativePath="..\Orbiter\DesignObj_Data.cpp">
 			</File>
 			<File

@@ -40,6 +40,7 @@ sources += \
 	../Orbiter/SDL/OrbiterSDL.cpp \
 	../Orbiter/SDL/JpegWrapper.cpp \
 	../Orbiter/ScreenHandler.cpp \
+	../Orbiter/CallBackData.cpp \
 	../Splitter/TextWrapper.cpp \
 	../Splitter/TextSplitter.cpp \
 	../OrbiterGen/Renderer.cpp \

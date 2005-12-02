@@ -3,12 +3,6 @@
 
 #include "../ScreenHandler.h"
 
-class PositionCallBackData : public CallBackData
-{
-public:
-	int x, y, w, h;
-};
-
 class OSDScreenHandler: public ScreenHandler
 {
 public:

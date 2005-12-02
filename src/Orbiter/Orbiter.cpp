@@ -803,6 +803,9 @@ g_pPlutoLogger->Write( LV_STATUS, "Exiting Redraw Objects" );
 //-----------------------------------------------------------------------------------------------------------
 void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Screen, PlutoPoint point)
 {
+	if(pObj->m_ObjectType == DESIGNOBJTYPE_wxWidgets_Applet_CONST && ExecuteScreenHandlerCallback(cbOnRefreshWxWidget))
+		return;
+
 if( pObj->m_ObjectID.find("2355")!=string::npos) //&& this->m_pScreenHistory_Current && this->m_pScreenHistory_Current->m_pObj->m_ObjectID.find("1255")!=string::npos )
 {
 int k=2;
@@ -1517,6 +1520,19 @@ void Orbiter::ObjectOnScreenWrapper(  )
 // If an object has the don't reset state true,  it won't reset to normal,  and it's children won't reset either
 void Orbiter::ObjectOnScreen( VectDesignObj_Orbiter *pVectDesignObj_Orbiter, DesignObj_Orbiter *pObj, PlutoPoint *ptPopup )
 {
+	if(pObj->m_ObjectType == DESIGNOBJTYPE_wxWidgets_Applet_CONST)
+	{
+		CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnCreateWxWidget);
+		if(pCallBackData)
+		{
+			PositionCallBackData *pPositionData = (PositionCallBackData *)pCallBackData;
+			pPositionData->m_rectPosition = pObj->m_rPosition;
+		}
+
+		if(ExecuteScreenHandlerCallback(cbOnCreateWxWidget))
+			return;
+	}
+
 	// Do this again since sometimes there will be several grids with the same name within the application and if
 	// we're going to do a lookup, such as with seek grid, we want to find the one most recently on screen
 	if( pObj->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
@@ -1574,6 +1590,9 @@ void Orbiter::GraphicOffScreen(vector<class PlutoGraphic*> *pvectGraphic)
 //------------------------------------------------------------------------
 void Orbiter::ObjectOffScreen( DesignObj_Orbiter *pObj )
 {
+	if(pObj->m_ObjectType == DESIGNOBJTYPE_wxWidgets_Applet_CONST && ExecuteScreenHandlerCallback(cbOnDeleteWxWidget))
+		return;
+
 #ifdef DEBUG
     if(  pObj->m_ObjectID.find( "2715" )!=string::npos  )
         //if(  pObj->m_iBaseObjectID == 2707  )
@@ -1616,7 +1635,8 @@ void Orbiter::ObjectOffScreen( DesignObj_Orbiter *pObj )
 void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y)
 {
     PLUTO_SAFETY_LOCK( vm, m_ScreenMutex );
-	ExecuteScreenHandlerCallback(cbObjectSelected);
+	if(ExecuteScreenHandlerCallback(cbObjectSelected))
+		return;
 
     if ( pObj->m_ObjectType == DESIGNOBJTYPE_Datagrid_CONST )
 	{
@@ -1918,7 +1938,8 @@ g_pPlutoLogger->Write(LV_WARNING,"Selected grid %s but m_pDataGridTable is NULL"
 //------------------------------------------------------------------------
 bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCell *pCell )
 {
-	ExecuteScreenHandlerCallback(cbDataGridSelected);
+	if(ExecuteScreenHandlerCallback(cbDataGridSelected))
+		return true;
 
 // AB 2005-08-20 is this necessary?  It means you don't stay on the highlighted selection	pDesignObj_DataGrid->m_iHighlightedColumn=pDesignObj_DataGrid->m_iHighlightedRow=-1;
 	m_sLastSelectedDatagrid=pCell->GetText();
@@ -9298,6 +9319,7 @@ void Orbiter::CMD_Goto_Screen(int iPK_Screen,string &sCMD_Result,Message *pMessa
 
 void Orbiter::LoadPlugins()
 {
+	/*
 	list<string> listFiles;
 #ifdef WIN32
 	FileUtils::FindFiles(listFiles,"/pluto/orbiter/","*.dll",false,true);
@@ -9318,10 +9340,12 @@ void Orbiter::LoadPlugins()
 				(*it).c_str());
 		}
 	}
+	*/
 }
 
 ScreenHandler *Orbiter::PlugIn_Load(string sCommandLine)
 {
+	/*
     RAOP_FType RegisterAsPlugin;
     void * so_handle;
     string ErrorMessage;
@@ -9374,6 +9398,8 @@ ScreenHandler *Orbiter::PlugIn_Load(string sCommandLine)
     g_pPlutoLogger->Write(LV_WARNING, "Loaded plug-in %s", sCommandLine.c_str());
 
 	return RegisterAsPlugin(this,&m_mapDesignObj,g_pPlutoLogger);
+	*/
+	return NULL;
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -9383,6 +9409,22 @@ bool Orbiter::ExecuteScreenHandlerCallback(CallBackType aCallBackType)
 	if(NULL != pCallBack)
 		return CALL_MEMBER_FN(*m_pScreenHandler, pCallBack)(m_pScreenHandler->m_mapCallBackData_Find(aCallBackType));
 
-	return true; //no callback registered needed to be executed
+	return false; 
+}
+//-----------------------------------------------------------------------------------------------------
+void Orbiter::GetRooms(map<string,int> &mapRooms)
+{
+	//TODO: implement me!
+
+	//test - remus will use it to get the state
+	mapRooms["Living room"] = 1;
+	mapRooms["Bathroom"] = 0;
+	mapRooms["Badroom"] = 3;
+}
+//-----------------------------------------------------------------------------------------------------
+void Orbiter::SetRooms(map<string,int> &mapRooms)
+{
+	//TODO: implement me!
+	//do something with rooms
 }
 //-----------------------------------------------------------------------------------------------------
