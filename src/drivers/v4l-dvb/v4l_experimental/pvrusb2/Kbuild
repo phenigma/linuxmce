@@ -1,0 +1,30 @@
+
+pvrusb2-objs := \
+                pvrusb2-audio.o \
+                pvrusb2-encoder.o \
+                pvrusb2-video.o \
+                pvrusb2-video-v4l.o \
+                pvrusb2-eeprom.o \
+                pvrusb2-tuner.o \
+                pvrusb2-i2c.o \
+                pvrusb2-main.o \
+                pvrusb2-hdw.o \
+                pvrusb2-v4l2.o \
+                pvrusb2-sysfs.o \
+                pvrusb2-context.o \
+                pvrusb2-io.o \
+                pvrusb2-ioread.o \
+                pvrusb2-debugifc.o \
+                $(END)
+
+obj-$(CONFIG_VIDEO_PVRUSB2) += pvrusb2.o tveeprom.o
+
+#  Stuff for Emacs to see, in order to encourage consistent editing style:
+#  *** Local Variables: ***
+#  *** mode: Makefile ***
+#  *** fill-column: 75 ***
+#  *** indent-tabs-mode: nil ***
+#  *** End: ***
+
+#  Similarly for vim to see:
+#  vim:expandtab:textwidth=75

@@ -1,0 +1,253 @@
+Index: linux/drivers/media/video/bttv-cards.c
+===================================================================
+RCS file: /cvs/video4linux/v4l-kernel/linux/drivers/media/video/bttv-cards.c,v
+retrieving revision 1.101
+diff -u -r1.101 bttv-cards.c
+--- linux/drivers/media/video/bttv-cards.c	8 Nov 2005 18:02:29 -0000	1.101
++++ linux/drivers/media/video/bttv-cards.c	10 Nov 2005 01:59:57 -0000
+@@ -2160,7 +2160,6 @@
+ 		.has_remote	= 1,
+ 		.gpiomask	= 0x1b,
+ 		.no_gpioirq     = 1,
+-		.any_irq		= 1,
+ 	},
+ 	[BTTV_BOARD_PV143] = {
+ 		/* Jorge Boncompte - DTI2 <jorge@dti2.net> */
+@@ -3420,8 +3419,6 @@
+ 		btv->has_remote=1;
+ 	if (!bttv_tvcards[btv->c.type].no_gpioirq)
+ 		btv->gpioirq=1;
+-	if (bttv_tvcards[btv->c.type].any_irq)
+-		btv->any_irq = 1;
+ 	if (bttv_tvcards[btv->c.type].audio_hook)
+ 		btv->audio_hook=bttv_tvcards[btv->c.type].audio_hook;
+ 
+Index: linux/drivers/media/video/bttv-driver.c
+===================================================================
+RCS file: /cvs/video4linux/v4l-kernel/linux/drivers/media/video/bttv-driver.c,v
+retrieving revision 1.67
+diff -u -r1.67 bttv-driver.c
+--- linux/drivers/media/video/bttv-driver.c	9 Nov 2005 18:30:51 -0000	1.67
++++ linux/drivers/media/video/bttv-driver.c	10 Nov 2005 02:00:07 -0000
+@@ -3698,8 +3698,8 @@
+ 	btv=(struct bttv *)dev_id;
+ 
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+-	if (btv->any_irq)
+-		handled = bttv_any_irq(&btv->c);
++	if (btv->custom_irq)
++		handled = btv->custom_irq(btv);
+ #endif
+ 
+ 	count=0;
+@@ -3736,10 +3736,10 @@
+ 		if (astat&BT848_INT_VSYNC)
+ 			btv->field_count++;
+ 
+-		if (astat & BT848_INT_GPINT) {
++		if ((astat & BT848_INT_GPINT) && btv->remote) {
+ 			wake_up(&btv->gpioq);
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+-			bttv_gpio_irq(&btv->c);
++			bttv_input_irq(btv);
+ #endif
+ 		}
+ 
+@@ -4080,6 +4080,8 @@
+ 		bttv_sub_add_device(&btv->c, "dvb");
+ #endif
+ 
++	bttv_input_init(btv);
++
+ 	/* everything is fine */
+ 	bttv_num++;
+ 	return 0;
+@@ -4114,8 +4116,9 @@
+ 	/* tell gpio modules we are leaving ... */
+ 	btv->shutdown=1;
+ 	wake_up(&btv->gpioq);
++	bttv_input_fini(btv);
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+-	bttv_sub_del_devices(&btv->c);
++	//bttv_sub_del_devices(&btv->c);
+ #endif
+ 
+ 	/* unregister i2c_bus + input */
+Index: linux/drivers/media/video/bttv-gpio.c
+===================================================================
+RCS file: /cvs/video4linux/v4l-kernel/linux/drivers/media/video/bttv-gpio.c,v
+retrieving revision 1.9
+diff -u -r1.9 bttv-gpio.c
+--- linux/drivers/media/video/bttv-gpio.c	8 Nov 2005 18:02:29 -0000	1.9
++++ linux/drivers/media/video/bttv-gpio.c	10 Nov 2005 02:00:08 -0000
+@@ -114,24 +114,6 @@
+ 	}
+ }
+ 
+-int bttv_any_irq(struct bttv_core *core)
+-{
+-	struct bttv_sub_driver *drv;
+-	struct bttv_sub_device *dev;
+-	struct list_head *item;
+-	int handled = 0;
+-
+-	list_for_each(item,&core->subs) {
+-		dev = list_entry(item,struct bttv_sub_device,list);
+-		drv = to_bttv_sub_drv(dev->dev.driver);
+-		if (drv && drv->any_irq) {
+-			if (drv->any_irq(dev))
+-				handled = 1;
+-		}
+-	}
+-	return handled;
+-}
+-
+ /* ----------------------------------------------------------------------- */
+ /* external: sub-driver register/unregister                                */
+ 
+Index: linux/drivers/media/video/bttv.h
+===================================================================
+RCS file: /cvs/video4linux/v4l-kernel/linux/drivers/media/video/bttv.h,v
+retrieving revision 1.34
+diff -u -r1.34 bttv.h
+--- linux/drivers/media/video/bttv.h	8 Nov 2005 18:02:29 -0000	1.34
++++ linux/drivers/media/video/bttv.h	10 Nov 2005 02:00:09 -0000
+@@ -18,6 +18,8 @@
+ #include "compat.h"
+ #include <linux/videodev.h>
+ #include <linux/i2c.h>
++#include <media/ir-common.h>
++#include <media/ir-kbd-i2c.h>
+ 
+ /* ---------------------------------------------------------- */
+ /* exported by bttv-cards.c                                   */
+@@ -212,6 +214,34 @@
+ 
+ struct bttv;
+ 
++
++struct bttv_ir {
++	struct input_dev        dev;
++	struct ir_input_state   ir;
++	char                    name[32];
++	char                    phys[32];
++
++	/* Usual gpio signalling */
++
++	u32                     mask_keycode;
++	u32                     mask_keydown;
++	u32                     mask_keyup;
++	u32                     polling;
++	u32                     last_gpio;
++	struct work_struct      work;
++	struct timer_list       timer;
++
++	/* RC5 gpio */
++	u32 rc5_gpio;
++	struct timer_list timer_end;	/* timer_end for code completion */
++	struct timer_list timer_keyup;	/* timer_end for key release */
++	u32 last_rc5;			/* last good rc5 code */
++	u32 last_bit;			/* last raw bit seen */
++	u32 code;			/* raw code under construction */
++	struct timeval base_time;	/* time of last seen code */
++	int active;			/* building raw code */
++};
++
+ struct tvcard
+ {
+ 	char *name;
+@@ -237,7 +267,6 @@
+ 	unsigned int has_dvb:1;
+ 	unsigned int has_remote:1;
+ 	unsigned int no_gpioirq:1;
+-	unsigned int any_irq:1;
+ 
+ 	/* other settings */
+ 	unsigned int pll;
+@@ -344,7 +373,6 @@
+ 	struct device_driver   drv;
+ 	char                   wanted[BUS_ID_SIZE];
+ 	void                   (*gpio_irq)(struct bttv_sub_device *sub);
+-	int                    (*any_irq)(struct bttv_sub_device *sub);
+ };
+ #define to_bttv_sub_drv(x) container_of((x), struct bttv_sub_driver, drv)
+ 
+@@ -380,6 +408,10 @@
+ 			 unsigned char b2, int both);
+ extern void bttv_readee(struct bttv *btv, unsigned char *eedata, int addr);
+ 
++extern int bttv_input_init(struct bttv *dev);
++extern void bttv_input_fini(struct bttv *dev);
++extern void bttv_input_irq(struct bttv *dev);
++
+ #endif /* _BTTV_H_ */
+ /*
+  * Local variables:
+Index: linux/drivers/media/video/bttvp.h
+===================================================================
+RCS file: /cvs/video4linux/v4l-kernel/linux/drivers/media/video/bttvp.h,v
+retrieving revision 1.25
+diff -u -r1.25 bttvp.h
+--- linux/drivers/media/video/bttvp.h	8 Nov 2005 18:02:29 -0000	1.25
++++ linux/drivers/media/video/bttvp.h	10 Nov 2005 02:00:10 -0000
+@@ -218,7 +218,6 @@
+ int bttv_sub_add_device(struct bttv_core *core, char *name);
+ int bttv_sub_del_devices(struct bttv_core *core);
+ void bttv_gpio_irq(struct bttv_core *core);
+-int bttv_any_irq(struct bttv_core *core);
+ 
+ #endif
+ 
+@@ -288,7 +287,8 @@
+ 	struct bttv_pll_info pll;
+ 	int triton1;
+ 	int gpioirq;
+-	int any_irq;
++	int (*custom_irq)(struct bttv *btv);
++
+ 	int use_i2c_hw;
+ 
+ 	/* old gpio interface */
+@@ -313,7 +313,7 @@
+ 
+ 	/* infrared remote */
+ 	int has_remote;
+-	struct bttv_input *remote;
++	struct bttv_ir *remote;
+ 
+ 	/* locking */
+ 	spinlock_t s_lock;
+Index: v4l/Makefile
+===================================================================
+RCS file: /cvs/video4linux/v4l-kernel/v4l/Makefile,v
+retrieving revision 1.97
+diff -u -r1.97 Makefile
+--- v4l/Makefile	9 Nov 2005 19:11:03 -0000	1.97
++++ v4l/Makefile	10 Nov 2005 02:00:11 -0000
+@@ -16,7 +16,7 @@
+ 
+ # drivers objects
+ bttv-objs	:= bttv-driver.o bttv-cards.o bttv-risc.o bttv-if.o \
+-		   bttv-vbi.o bttv-i2c.o
++		   bttv-vbi.o bttv-i2c.o bttv-input.o
+ saa7134-objs    := saa7134-core.o saa7134-i2c.o saa7134-video.o \
+ 		   saa7134-vbi.o saa7134-tvaudio.o \
+ 		   saa7134-cards.o saa7134-ts.o saa7134-input.o
+@@ -68,7 +68,7 @@
+ ifeq ($(VERSION).$(PATCHLEVEL),2.6)
+   ifeq ($(CONFIG_VIDEO_BTTV),m)
+     bttv-objs			+= bttv-gpio.o
+-    obj-$(CONFIG_VIDEO_IR)	+= ir-kbd-gpio.o ir-kbd-i2c.o 
++    obj-$(CONFIG_VIDEO_IR)	+= ir-kbd-i2c.o 
+   endif
+   ifeq ($(CONFIG_VIDEO_SAA7134),m)
+     obj-$(CONFIG_VIDEO_IR)	+= ir-kbd-i2c.o 
+@@ -165,7 +165,7 @@
+ inst_video := btcx-risc.ko bttv.ko tda9887.ko tuner.ko tvaudio.ko tveeprom.ko saa6588.ko
+ inst_video += tvmixer.ko v4l1-compat.ko v4l2-common.ko wm8775.ko cs53l32a.ko
+ inst_video += video-buf.ko video-buf-dvb.ko
+-inst_video += ir-kbd-gpio.ko ir-kbd-i2c.ko msp3400.ko
++inst_video += ir-kbd-i2c.ko msp3400.ko
+ inst_video += tvp5150.ko saa711x.ko saa7134-alsa.ko saa7134-oss.ko
+ inst_video += saa7115.ko cx25840.ko saa7127.ko compat_ioctl32.ko
+ inst_cx88 := cx8800.ko cx8802.ko cx88-alsa.ko 

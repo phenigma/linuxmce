@@ -1,0 +1,7 @@
+*.ko
+*.o.flags
+*.mod.c
+.*.cmd
+.version
+.snapshot
+.tmp_versions
