@@ -84,12 +84,11 @@ function getUsersRoutingTable($dbADO,$telecomADO){
 	foreach ($users AS $userID=>$userName){
 		$out.='
 		<tr>
-			<td colspan="3" align="center" bgcolor="lightblue"><B>'.$userName.'</B></td>
+			<td colspan="2" align="center" bgcolor="lightblue"><B>'.$userName.'</B></td>
 		</tr>
 		<tr bgcolor="#EEEEEE">
 			<td><B>User Mode</B></td>
 			<td><B>Caller type</B></td>
-			<td><B>Action</B></td>
 		</tr>';
 		$pos=0;
 		foreach ($userModes AS $mode=>$modeName){
@@ -100,16 +99,14 @@ function getUsersRoutingTable($dbADO,$telecomADO){
 			<tr bgcolor="'.$color.'">
 				<td rowspan="2">'.$modeName.'</td>
 				<td><a href="index.php?section=callRouting&userID='.$userID.'&mode='.$mode.'&pr=0&action=step">Normal caller</a></td>
-				<td></td>
 			</tr>
 			<tr bgcolor="'.$color.'">
 				<td><a href="index.php?section=callRouting&userID='.$userID.'&mode='.$mode.'&pr=1&action=step">Priority caller</a></td>
-				<td></td>
 			</tr>			';
 		}
 		$out.='	
 		<tr>
-			<td colspan="3" align="center">&nbsp;</td>
+			<td colspan="2" align="center">&nbsp;</td>
 		</tr>
 		
 		';
