@@ -740,7 +740,7 @@ g_pPlutoLogger->Write( LV_STATUS, "Exiting Redraw Objects" );
 	size_t s;
 
 	bool bRehighlight=false;
-	if(m_pGraphicBeforeHighlight && NULL != m_pObj_Highlighted && m_pObj_Highlighted != m_pObj_Highlighted_Last)
+	if(m_pGraphicBeforeHighlight && NULL != m_pObj_Highlighted && (m_pObj_Highlighted != m_pObj_Highlighted_Last || m_pObj_Highlighted_Last->m_pDataGridTable))
 	{
 		bRehighlight=true;
 	    UnHighlightObject();
@@ -790,7 +790,7 @@ g_pPlutoLogger->Write( LV_STATUS, "Exiting Redraw Objects" );
     //if(!m_pObj_Highlighted && m_vectObjs_TabStops.size(  )  )
 	//    HighlightFirstObject();
 
-    if(bRehighlight || (NULL != m_pObj_Highlighted && m_pObj_Highlighted != m_pObj_Highlighted_Last) )
+    if(bRehighlight || (NULL != m_pObj_Highlighted && m_pObj_Highlighted != m_pObj_Highlighted_Last))
 	{
 		m_pObj_Highlighted_Last = m_pObj_Highlighted;
     	DoHighlightObject();
@@ -2087,6 +2087,10 @@ bool Orbiter::SelectedGrid( int DGRow )
 	}
 
     DataGridCell *pCell = pDesignObj_DataGrid->m_pDataGridTable->GetData( iSelectedColumn,  DGRow );
+
+	if(m_pObj_Highlighted == pDesignObj_DataGrid) //datagrid already highlighted. remove first old highlighting
+		UnHighlightObject();
+
     m_pObj_Highlighted = pDesignObj_DataGrid;
     pDesignObj_DataGrid->m_iHighlightedColumn = -1;
     pDesignObj_DataGrid->m_iHighlightedRow = DGRow;
@@ -2418,6 +2422,11 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
 			return;
 
 		}
+
+		//the datagrid is highlighted, but no row is highlighted; we don't want to select the whole datagrid
+		if(pGrid->m_iHighlightedRow == -1)
+			pGrid->m_iHighlightedRow = 0;
+
 		PlutoRectangle r;
 		GetGridCellDimensions( pGrid,  
 			pGrid->m_iHighlightedColumn==-1 ? pGrid->m_MaxCol : pCell->m_Colspan, 

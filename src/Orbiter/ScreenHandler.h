@@ -72,6 +72,7 @@ public:
 	virtual void SCREEN_DialogSendFileToPhoneFailed(long PK_Screen, string sMacAddress, string sCommandLine, 
 		string sPK_DeviceFrom, string sPhoneName, string sPK_Device_AppServer);
 
+	//callbacks; they will be implemented in derived classes
 	virtual bool FileSave_ObjectSelected(CallBackData *pData) { return false;} 
 };
 //-----------------------------------------------------------------------------------------------------
