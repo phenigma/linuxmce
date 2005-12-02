@@ -32,13 +32,17 @@ public:
 	ScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj);
 	virtual ~ScreenHandler();
 
+	//used to register as plugin
+	virtual bool Register() { return 0; }
+
+	//callback related stuff
 	void RegisterCallBack(CallBackType aCallBackType, ScreenHandlerCallBack aScreenHandlerCallBack, 
 		CallBackData *pCallBackData);
 	void ResetCallBacks();
-
 	ScreenHandlerCallBack m_mapCallBack_Find(CallBackType aCallBackType);
 	CallBackData *m_mapCallBackData_Find(CallBackType aCallBackType);
 
+	//screens functions
 	virtual void GotoDesignObj(int PK_DesignObj);
 	virtual void SCREEN_NewMacAddress(long PK_Screen, string sMacAddress, string sIpAddress);
 	virtual void SCREEN_CDTrackCopy(long PK_Screen, string sPKUsers); 
