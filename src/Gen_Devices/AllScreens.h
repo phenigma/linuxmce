@@ -7717,6 +7717,46 @@ namespace DCE
 		}
 	};
 
+	class SCREEN_RoomsWizard : public PreformedCommand
+	{
+	public:
+		SCREEN_RoomsWizard(long DeviceIDFrom, long DeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "192" /* screen ID */);
+		}
+	};
+
+	class SCREEN_RoomsWizard_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_RoomsWizard_DL(long DeviceIDFrom, string sDeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "192" /* screen ID */);
+		}
+	};
+
+	class SCREEN_RoomsWizard_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_RoomsWizard_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "192" /* screen ID */);
+		}
+	};
+
+	class SCREEN_RoomsWizard_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_RoomsWizard_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "192" /* screen ID */);
+		}
+	};
+
 
 	class ScreenHandlerBase
 	{
@@ -7925,6 +7965,7 @@ namespace DCE
 		virtual void SCREEN_DialogPhoneInstructions(long PK_Screen, string sInstructions, string sPhoneName){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_DialogSendFileToPhoneFailed(long PK_Screen, string sMacAddress, string sCommandLine, string sPK_DeviceFrom, string sPhoneName, string sPK_Device_AppServer){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_AudiHome(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_RoomsWizard(long PK_Screen){ GotoScreen(PK_Screen); }
 
 		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
@@ -8920,6 +8961,11 @@ namespace DCE
 				case 191:
 				{
 					SCREEN_AudiHome(nPK_Screen);
+					break;
+				}
+				case 192:
+				{
+					SCREEN_RoomsWizard(nPK_Screen);
 					break;
 				}
 
