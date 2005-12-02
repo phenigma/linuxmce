@@ -50,6 +50,7 @@ install: build
 	cp -a util/szap/README debian/dvb-utils/usr/share/doc/dvb-utils/README.szap
 
 	dh_install
+	find debian/dvb-utils -type d '(' -name CVS -or -name .svn ')' | xargs rm -rf
 
 # Build architecture-dependent files here.
 binary-arch: build install
