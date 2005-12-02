@@ -10,6 +10,7 @@
 #define DESIGNOBJTYPE_Web_Browser_CONST 8
 #define DESIGNOBJTYPE_Floorplan_CONST 9
 #define DESIGNOBJTYPE_Pronto_File_CONST 10
+#define DESIGNOBJTYPE_wxWidgets_Applet_CONST 11
 
 #define DESIGNOBJTYPE_TABLE "DesignObjType"
 #define DESIGNOBJTYPE_PK_DESIGNOBJTYPE_FIELD "PK_DesignObjType"
