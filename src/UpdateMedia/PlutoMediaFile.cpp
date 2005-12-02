@@ -106,33 +106,37 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
     pRow_File->EK_MediaType_set(PK_MediaType);
     pRow_File->Table_File_get()->Commit();
 
-    // Add attributes from ID3 tags
-    map<int,string> mapAttributes;
-    GetId3Info(m_sDirectory + "/" + m_sFile, mapAttributes);	
+	string sExtension = FileUtils::FindExtension(m_sFile);
+	if(sExtension == "mp3")
+	{
+		// Add attributes from ID3 tags
+		map<int,string> mapAttributes;
+		GetId3Info(m_sDirectory + "/" + m_sFile, mapAttributes);	
 
-    for(map<int,string>::iterator it = mapAttributes.begin(); it != mapAttributes.end(); it++)
-    {
-        int PK_AttrType = (*it).first;
-        string sValue = (*it).second;
+		for(map<int,string>::iterator it = mapAttributes.begin(); it != mapAttributes.end(); it++)
+		{
+			int PK_AttrType = (*it).first;
+			string sValue = (*it).second;
 
-        if(PK_AttrType <= 0)
-        {
-            cout << "PK_AttrType = " << PK_AttrType << " with value " << sValue << " - does not exist" << endl;
-            continue;
-        }
+			if(PK_AttrType <= 0)
+			{
+				cout << "PK_AttrType = " << PK_AttrType << " with value " << sValue << " - does not exist" << endl;
+				continue;
+			}
 
-        Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->AddRow();
-        pRow_Attribute->FK_AttributeType_set(PK_AttrType);
-        pRow_Attribute->Name_set(sValue);
-        pRow_Attribute->Table_Attribute_get()->Commit();
+			Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->AddRow();
+			pRow_Attribute->FK_AttributeType_set(PK_AttrType);
+			pRow_Attribute->Name_set(sValue);
+			pRow_Attribute->Table_Attribute_get()->Commit();
 
-        Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->AddRow();
-        pRow_File_Attribute->FK_File_set(pRow_File->PK_File_get());
-        pRow_File_Attribute->FK_Attribute_set(pRow_Attribute->PK_Attribute_get());
-        pRow_File_Attribute->Table_File_Attribute_get()->Commit();
+			Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->AddRow();
+			pRow_File_Attribute->FK_File_set(pRow_File->PK_File_get());
+			pRow_File_Attribute->FK_Attribute_set(pRow_Attribute->PK_Attribute_get());
+			pRow_File_Attribute->Table_File_Attribute_get()->Commit();
 
-        cout << "Added PK_AttrType = " << PK_AttrType << " with value " << sValue << endl;
-    }
+			cout << "Added PK_AttrType = " << PK_AttrType << " with value " << sValue << endl;
+		}
+	}
 
     cout << "Added " << m_sDirectory << "/" << m_sFile << " to db " << pRow_File->PK_File_get() << endl;
     return pRow_File->PK_File_get();
