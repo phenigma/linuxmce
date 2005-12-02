@@ -62,12 +62,14 @@ void ScreenHandler::SCREEN_CDTrackCopy(long PK_Screen, string sPKUsers)
 	ScreenHandlerBase::SCREEN_CDTrackCopy(PK_Screen, sPKUsers);
 }
 //-----------------------------------------------------------------------------------------------------
-void ScreenHandler::SCREEN_FileSave(long PK_Screen, string sPrivate, string sPublic, string sCaption)
+void ScreenHandler::SCREEN_FileSave(long PK_Screen, string sDefaultUserValue, string sPrivate, 
+									string sPublic, string sCaption)
 {
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sPrivate);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, sPublic);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Seek_Value_CONST, sDefaultUserValue);
 	m_pOrbiter->CMD_Set_Text(StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)), sCaption, TEXT_STATUS_CONST);
-	ScreenHandlerBase::SCREEN_FileSave(PK_Screen, sPrivate, sPublic, sCaption);
+	ScreenHandlerBase::SCREEN_FileSave(PK_Screen, sDefaultUserValue, sPrivate, sPublic, sCaption);
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_NewPhoneDetected(long PK_Screen, string sMacAddress, string sDescription)

@@ -42,7 +42,8 @@ public:
 	virtual void GotoDesignObj(int PK_DesignObj);
 	virtual void SCREEN_NewMacAddress(long PK_Screen, string sMacAddress, string sIpAddress);
 	virtual void SCREEN_CDTrackCopy(long PK_Screen, string sPKUsers); 
-	virtual void SCREEN_FileSave(long PK_Screen, string sPrivate, string sPublic, string sCaption);
+	virtual void SCREEN_FileSave(long PK_Screen, string sDefaultUserValue, 
+		string sPrivate, string sPublic, string sCaption);
 	virtual void SCREEN_NewPhoneDetected(long PK_Screen, string sMacAddress, string sDescription);
 	virtual void SCREEN_WhatModelMobileOrbiter(long PK_Screen, string sMacAddress);
 	virtual void SCREEN_NewPlugAndPlayDevice(long PK_Screen, string sPK_Device, string sDescription, 
@@ -71,7 +72,7 @@ public:
 	virtual void SCREEN_DialogSendFileToPhoneFailed(long PK_Screen, string sMacAddress, string sCommandLine, 
 		string sPK_DeviceFrom, string sPhoneName, string sPK_Device_AppServer);
 
-	virtual bool FileSave_ObjectSelected(CallBackData *pData) {} 
+	virtual bool FileSave_ObjectSelected(CallBackData *pData) { return false;} 
 };
 //-----------------------------------------------------------------------------------------------------
 #endif

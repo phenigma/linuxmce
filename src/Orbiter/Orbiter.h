@@ -203,7 +203,7 @@ protected:
 	class DesignObj_Orbiter *m_pObj_LastSelected;   // The last object we selected.  Used by floorplans to toggle states
 	int m_iLastEntryInDeviceGroup; // Used by floorplans to go through a selected device group
 	map<int,class DeviceGroup *> m_mapDeviceGroups;
-	ScreenHandler *m_pScreenHandler;//Used to changed screens
+	ScreenHandler *m_pScreenHandler;//Used to change screens
 	class LocationInfo *m_pLocationInfo_Initial; // The initial location
 
 	/** flags */

@@ -4865,6 +4865,7 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
         pos=foundend+2;
     }
     Output+=Input.substr( pos );
+
     return Output;
 }
 
@@ -9267,12 +9268,15 @@ bool Orbiter::WaitForRelativesIfOSD()
 void Orbiter::CMD_Goto_Screen(int iPK_Screen,string &sCMD_Result,Message *pMessage)
 //<-dceag-c741-e->
 {
-	m_pScreenHandler->ResetCallBacks();
+	m_pScreenHandler->ResetCallBacks(); 
 
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_WARNING, "Received goto screen message id %d params:", iPK_Screen);
 	for(map<long, string>::iterator it = pMessage->m_mapParameters.begin(); it != pMessage->m_mapParameters.end(); it++)
-		g_pPlutoLogger->Write(LV_WARNING, "Param id: %5d, value: %s", it->first, it->second.c_str());
+	{
+		string sValue = it->second;
+		g_pPlutoLogger->Write(LV_WARNING, "Param id: %5d, value: %s", it->first, sValue.c_str());
+	}
 #endif
 
 	m_pScreenHandler->ReceivedGotoScreenMessage(iPK_Screen, pMessage);
