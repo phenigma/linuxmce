@@ -9295,6 +9295,87 @@ void Orbiter::CMD_Goto_Screen(int iPK_Screen,string &sCMD_Result,Message *pMessa
 {
 	return new ScreenHandler(this, &m_mapDesignObj);
 }
+
+void Orbiter::LoadPlugins()
+{
+	list<string> listFiles;
+#ifdef WIN32
+	FileUtils::FindFiles(listFiles,"/pluto/orbiter/","*.dll",false,true);
+#else
+	FileUtils::FindFiles(listFiles,"/usr/pluto/orbiter/","*.so",false,true);
+#endif
+
+	for(list<string>::iterator it=listFiles.begin();it!=listFiles.end();++it)
+	{
+		ScreenHandler *pScreenHandler = PlugIn_Load(*it);
+		if (pScreenHandler)
+		{
+			pScreenHandler->Register();
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "Cannot load plug-in for %s",
+				(*it).c_str());
+		}
+	}
+}
+
+ScreenHandler *Orbiter::PlugIn_Load(string sCommandLine)
+{
+    RAOP_FType RegisterAsPlugin;
+    void * so_handle;
+    string ErrorMessage;
+    char MS_ErrorMessage[1024];
+
+    if (sCommandLine == "")
+        return NULL;
+
+#ifndef WIN32
+    sCommandLine += ".so";
+    if (sCommandLine.find("/") == string::npos)
+        sCommandLine = "./" + sCommandLine;
+    so_handle = dlopen(sCommandLine.c_str(), RTLD_LAZY | RTLD_GLOBAL);
+#else
+    so_handle = LoadLibrary(sCommandLine.c_str());
+#endif
+
+    if (so_handle == NULL)
+    {
+#ifndef WIN32
+        ErrorMessage = dlerror();
+#else
+        FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, GetLastError(),
+            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), MS_ErrorMessage, 1024 / sizeof(TCHAR), NULL);
+        ErrorMessage = MS_ErrorMessage;
+#endif
+        g_pPlutoLogger->Write(LV_CRITICAL, "Can't open plug-in file '%s': %s", sCommandLine.c_str(), ErrorMessage.c_str());
+        return NULL;
+    }
+
+#ifndef WIN32
+    RegisterAsPlugin = (RAOP_FType) dlsym(so_handle, "RegisterAsOrbiterPlugIn");
+#else
+    RegisterAsPlugin = (RAOP_FType) GetProcAddress((HMODULE) so_handle, "RegisterAsOrbiterPlugIn");
+#endif
+
+    if (RegisterAsPlugin == NULL)
+    {
+#ifndef WIN32
+        ErrorMessage = dlerror();
+#else
+        FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, GetLastError(),
+            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), MS_ErrorMessage, 1024 / sizeof(TCHAR), NULL);
+        ErrorMessage = MS_ErrorMessage;
+#endif
+        g_pPlutoLogger->Write(LV_CRITICAL, "Failed to load symbol 'RegisterAsPlugin' from file '%s': %s", sCommandLine.c_str(), ErrorMessage.c_str());
+        return NULL;
+    }
+
+    g_pPlutoLogger->Write(LV_WARNING, "Loaded plug-in %s", sCommandLine.c_str());
+
+	return RegisterAsPlugin(this,&m_mapDesignObj,g_pPlutoLogger);
+}
+
 //-----------------------------------------------------------------------------------------------------
 bool Orbiter::ExecuteScreenHandlerCallback(CallBackType aCallBackType)
 {

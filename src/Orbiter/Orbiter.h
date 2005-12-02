@@ -940,6 +940,11 @@ public:
 	// Report our current EntArea/Room to orbiter plugin
 	void FireEntAreaRoomCommands();
 
+	// Plugins
+	void LoadPlugins();
+	ScreenHandler *PlugIn_Load(string sCommandLine);
+
+
 	/**
 	 *	MAINTENANCE CALL BACKS
 	 *

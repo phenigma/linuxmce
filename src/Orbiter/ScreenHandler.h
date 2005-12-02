@@ -4,6 +4,7 @@
 #include "Gen_Devices/AllScreens.h"
 #include "Orbiter.h"
 //-----------------------------------------------------------------------------------------------------
+
 class CallBackData
 {
 public:
@@ -13,6 +14,9 @@ public:
 //-----------------------------------------------------------------------------------------------------
 typedef bool (ScreenHandler::*ScreenHandlerCallBack)(CallBackData *pData);
 //-----------------------------------------------------------------------------------------------------
+typedef class ScreenHandler * (* RAOP_FType) (class Orbiter *,  map<int,int> *p_MapDesignObj, Logger *);
+//-----------------------------------------------------------------------------------------------------
+
 class ScreenHandler : public ScreenHandlerBase
 {
 protected:
