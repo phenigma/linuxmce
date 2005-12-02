@@ -20,8 +20,8 @@ void OSDScreenHandler::SCREEN_FileSave(long PK_Screen, string sDefaultUserValue,
 bool OSDScreenHandler::FileSave_ObjectSelected(CallBackData *pData)
 {
 	PositionCallBackData *pMyData = dynamic_cast<PositionCallBackData *>(pData);
-	g_pPlutoLogger->Write(LV_WARNING, "FileSave_ObjectSelected, with position %d, %d, %d, %d",
-			pMyData->x, pMyData->y, pMyData->w, pMyData->h);
+//	g_pPlutoLogger->Write(LV_WARNING, "FileSave_ObjectSelected, with position %d, %d, %d, %d",
+//			pMyData->x, pMyData->y, pMyData->w, pMyData->h);
 	
 	return false;
 }
