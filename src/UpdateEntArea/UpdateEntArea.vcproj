@@ -123,6 +123,9 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
+				RelativePath=".\CommandGroupArray.cpp">
+			</File>
+			<File
 				RelativePath="..\PlutoUtils\CommonIncludes.cpp">
 			</File>
 			<File
@@ -136,6 +139,24 @@
 			</File>
 			<File
 				RelativePath="UpdateEntArea.cpp">
+			</File>
+			<File
+				RelativePath=".\UpdateEntArea_Climate.cpp">
+			</File>
+			<File
+				RelativePath=".\UpdateEntArea_Lighting.cpp">
+			</File>
+			<File
+				RelativePath=".\UpdateEntArea_Media.cpp">
+			</File>
+			<File
+				RelativePath=".\UpdateEntArea_Security.cpp">
+			</File>
+			<File
+				RelativePath=".\UpdateEntArea_Setup.cpp">
+			</File>
+			<File
+				RelativePath=".\UpdateEntArea_Telecom.cpp">
 			</File>
 		</Filter>
 		<Filter

@@ -6,24 +6,54 @@
 #include "pluto_main/Table_EntertainArea.h"
 #include "pluto_main/Table_Room.h"
 
+typedef enum { lomNone=0, lomContainsMD=1, lomContainsOtherVideo=2, lomContainsAudio=3 } LevelOfMedia;
+
 class UpdateEntArea 
 {
 	int m_iPK_Installation;
-	int m_dwPK_Device_MediaPlugIn,m_dwPK_Device_OrbiterPlugIn,m_dwPK_Device_LightingPlugIn;
+	int m_dwPK_Device_MediaPlugIn,m_dwPK_Device_OrbiterPlugIn,m_dwPK_Device_LightingPlugIn,
+		m_dwPK_Device_ClimatePlugIn,m_dwPK_Device_SecurityPlugIn,m_dwPK_Device_TelecomPlugIn;
+	map<int, pair<LevelOfMedia, bool> > m_mapRoom_Media;  // For a room, what type of media is in it, and bool=true when it's manually configure
+	map<int, LevelOfMedia > m_mapEnt_Area_Auto_Media;  // For an ent area that is automatic, what type of media is in it
 
 public:
     Database_pluto_main *m_pDatabase_pluto_main ;
-	UpdateEntArea(int PK_Installation,string host, string user, string pass, string db_name, int port=3306);
 
-	void DoIt();
+	UpdateEntArea();
+
+	// Setup functions which must be called to prep things (in UpdateEntArea_Setup.cpp) 
+	bool Connect(int PK_Installation,string host, string user, string pass, string db_name, int port);
+	void GetMediaAndRooms();
+	// Call this to setup the EA's.  It's mandatory before calling AddDefaultMediaCommands();
+	void SetEAInRooms();
+
+	// Utility functions called internally by the setup functions 
 	void PutMDsChildrenInRoom(Row_Device *pRow_Device);
 	void DeleteEntertainArea(Row_EntertainArea *pRow_EntertainArea);
-	void AddDefaultCommandsToEntArea(Row_EntertainArea *pRow_EntertainArea,int iPK_Template=0);
-	void AddDefaultCommandsToRoom(Row_Room *pRow_Room,int iPK_Template=0);
-	int FindCommandGroupByTemplate(Row_EntertainArea *pRow_EntertainArea,int PK_Template,string sDescription,int TemplateParm1=0,int TemplateParm2=0);
-	int FindCommandGroupByTemplate(Row_Room *pRow_Room,int PK_Template,int PK_Array,string sDescription,int TemplateParm1=0,int TemplateParm2=0);
-	void AddCommand(int PK_CommandGroup,int PK_Device,int PK_Command,int NumParms,...);
 	void AddMDsDevicesToEntArea(Row_EntertainArea *pRow_EntertainArea);
 	void AddAVDevicesToEntArea(Row_EntertainArea *pRow_EntertainArea);
+
+	// Get all devices within a certain category and, if PK_Room!=0, in a room, and fill the results
+	// into p_map_Device_Type, which is a map of PK_Device,PK_FloorplanObjectType, and if 
+	// p_mapType is not NULL, is a map of PK_FloorplanObjectType to a list of PK_Device
+	void GetDevicesTypes(int PK_DeviceCategory,int PK_Room,map<int,int> *p_map_Device_Type,map<int,list<int> > *p_mapType);
+	void GetDevicesTypesAndRoomTypes(int PK_DeviceCategory,map<int,pair<int,int> > *p_map_Device_Type_RoomType);
+
+	// This just calls all the default AddScenarios below
+	void AddDefaultScenarios();
+
+	// Call these to add default scenarios to all rooms/EA's
+	void AddDefaultMediaScenarios();  // UpdateEntArea_Media.cpp
+	void AddDefaultLightingScenarios();  // UpdateEntArea_Lighting.cpp
+	void AddDefaultClimateScenarios();  // UpdateEntArea_Climate.cpp
+	void AddDefaultTelecomScenarios();  // UpdateEntArea_Telecom.cpp
+	void AddDefaultSecurityScenarios();  // UpdateEntArea_Security.cpp
+
+	// Call these to add default scenarios to specific rooms/EA's
+	void AddDefaultMediaScenarios(Row_EntertainArea *pRow_EntertainArea);
+	void AddDefaultLightingScenarios(Row_Room *pRow_Room);
+	void AddDefaultClimateScenarios(Row_Room *pRow_Room);
+	void AddDefaultTelecomScenarios(Row_Room *pRow_Room);
+	void AddDefaultSecurityScenarios(Row_Room *pRow_Room);
 };
 #endif

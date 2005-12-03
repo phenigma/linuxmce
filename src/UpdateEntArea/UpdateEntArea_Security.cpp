@@ -25,7 +25,6 @@
 #include "pluto_main/Table_Device_DeviceData.h"
 #include "pluto_main/Table_DeviceData.h"
 #include "pluto_main/Table_DeviceGroup.h"
-#include "pluto_main/Table_Device_EntertainArea.h"
 #include "pluto_main/Table_DeviceCategory.h"
 #include "pluto_main/Table_DeviceTemplate.h"
 #include "pluto_main/Table_Installation.h"
@@ -34,33 +33,38 @@
 #include "pluto_main/Define_Template.h"
 #include "pluto_main/Define_Array.h"
 #include "pluto_main/Define_DeviceCategory.h"
-#include "pluto_main/Define_MediaType.h"
 #include "pluto_main/Define_Variable.h"
 #include "pluto_main/Define_DesignObj.h"
+#include "pluto_main/Define_UserMode.h"
+#include "pluto_main/Define_CommandParameter.h"
+#include "pluto_main/Define_Icon.h"
 #include "pluto_main/Table_Command.h"
 #include "pluto_main/Table_CommandGroup.h"
 #include "pluto_main/Table_CommandGroup_Command.h"
 #include "pluto_main/Table_CommandGroup_Command_CommandParameter.h"
-#include "pluto_main/Table_CommandGroup_EntertainArea.h"
 #include "pluto_main/Table_CommandGroup_Room.h"
 #include "pluto_main/Table_CommandParameter.h"
 #include "pluto_main/Table_Users.h"
+#include "pluto_main/Define_Screen.h"
+#include "pluto_main/Define_RoomType.h"
 
-#define  VERSION "<=version=>"
+#include "CommandGroupArray.h"
 
 using namespace std;
 using namespace DCE;
+using namespace DefaultScenarios;
 
-UpdateEntArea::UpdateEntArea()
+
+void UpdateEntArea::AddDefaultSecurityScenarios()
 {
+	for(map<int, pair<LevelOfMedia, bool> >::iterator it=m_mapRoom_Media.begin();it!=m_mapRoom_Media.end();++it)
+	{
+		Row_Room *pRow_Room = m_pDatabase_pluto_main->Room_get()->GetRow(it->first);
+		if( pRow_Room )
+			AddDefaultSecurityScenarios(pRow_Room);
+	}
 }
 
-void UpdateEntArea::AddDefaultScenarios()
+void UpdateEntArea::AddDefaultSecurityScenarios(Row_Room *pRow_Room)
 {
-//	AddDefaultMediaScenarios();
-	AddDefaultLightingScenarios();
-	AddDefaultClimateScenarios();
-	AddDefaultTelecomScenarios();
-	AddDefaultSecurityScenarios();
 }
-
