@@ -688,10 +688,11 @@
 #define COMMAND_Goto_Screen_CONST 741
 #define COMMAND_Media_Identified_CONST 742
 #define COMMAND_Cancel_Pending_Task_CONST 743
-#define COMMAND_Arm_CONST 744
+#define COMMAND_Set_User_Mode_CONST 744
 #define COMMAND_Disarm_partition_CONST 745
 #define COMMAND_Disarm_panel_CONST 747
 #define COMMAND_Arm_partition_CONST 748
+#define COMMAND_Arm_CONST 749
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

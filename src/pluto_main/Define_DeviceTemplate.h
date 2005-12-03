@@ -79,7 +79,7 @@
 #define DEVICETEMPLATE_OnScreen_Orbiter_CONST 62
 #define DEVICETEMPLATE_MythTV_Backend_Proxy_CONST 63
 #define DEVICETEMPLATE_Motion_Wrapper_CONST 64
-#define DEVICETEMPLATE_Generic_Camera_CONST 66
+#define DEVICETEMPLATE_Generic_Analog_Camera_CONST 66
 #define DEVICETEMPLATE_Generic_Blackbird_Card_CONST 67
 #define DEVICETEMPLATE_Drapes_Switch_CONST 68
 #define DEVICETEMPLATE_Generic_Serial_Device_CONST 69
@@ -1670,8 +1670,9 @@
 #define DEVICETEMPLATE_HD1000_CONST 1757
 #define DEVICETEMPLATE_Orbiter_Embedded_Phone_CONST 1759
 #define DEVICETEMPLATE_Generic_Relays_CONST 1760
-#define DEVICETEMPLATE_Generic_Security_Panel_CONST 1761
+#define DEVICETEMPLATE_Xine_Audio_Player_CONST 1761
 #define DEVICETEMPLATE_Power5020_PC5401_CONST 1762
+#define DEVICETEMPLATE_Generic_Security_Panel_CONST 1775
 
 #define DEVICETEMPLATE_TABLE "DeviceTemplate"
 #define DEVICETEMPLATE_PK_DEVICETEMPLATE_FIELD "PK_DeviceTemplate"
