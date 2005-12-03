@@ -190,6 +190,7 @@
 #define SCREEN_DialogPhoneInstructions_CONST 189
 #define SCREEN_DialogSendFileToPhoneFailed_CONST 190
 #define SCREEN_AudiHome_CONST 191
+#define SCREEN_RoomsWizard_CONST 192
 
 #define SCREEN_TABLE "Screen"
 #define SCREEN_PK_SCREEN_FIELD "PK_Screen"

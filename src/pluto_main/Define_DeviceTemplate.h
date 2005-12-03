@@ -12,6 +12,7 @@
 #define DEVICETEMPLATE_VirtDev_Disc_Drive_CONST -202
 #define DEVICETEMPLATE_VirtDev_AppServer_CONST -201
 #define DEVICETEMPLATE_VirtDev_Media_Director_CONST -200
+#define DEVICETEMPLATE_VirtDev_Local_Media_Player_CONST -152
 #define DEVICETEMPLATE_VirtDev_Local_Media_Director_CONST -151
 #define DEVICETEMPLATE_VirtDev_Local_AppServer_CONST -150
 #define DEVICETEMPLATE_VirtDev_Infrared_Plugin_CONST -110
@@ -1667,10 +1668,10 @@
 #define DEVICETEMPLATE_DVCP802_CONST 1755
 #define DEVICETEMPLATE_Thin_TV_CONST 1756
 #define DEVICETEMPLATE_HD1000_CONST 1757
-#define DEVICETEMPLATE_VirtDev_Local_Media_Player_CONST 1758
 #define DEVICETEMPLATE_Orbiter_Embedded_Phone_CONST 1759
 #define DEVICETEMPLATE_Generic_Relays_CONST 1760
 #define DEVICETEMPLATE_Generic_Security_Panel_CONST 1761
+#define DEVICETEMPLATE_Power5020_PC5401_CONST 1762
 
 #define DEVICETEMPLATE_TABLE "DeviceTemplate"
 #define DEVICETEMPLATE_PK_DEVICETEMPLATE_FIELD "PK_DeviceTemplate"
