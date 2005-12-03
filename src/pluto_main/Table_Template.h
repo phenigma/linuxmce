@@ -142,6 +142,7 @@ void psc_restrict_setNull(bool val);
 
 		// Return the rows in other tables with foreign keys pointing here
 		void CommandGroup_FK_Template_getrows(vector <class Row_CommandGroup*> *rows);
+void EventHandler_FK_Template_getrows(vector <class Row_EventHandler*> *rows);
 
 
 		// Setup binary serialization

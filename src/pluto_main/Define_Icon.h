@@ -2,6 +2,15 @@
 #define __Define_Icon_H__
 
 #define ICON_Computer_CONST 1
+#define ICON_Lights_On_CONST 2
+#define ICON_Lights_Off_CONST 3
+#define ICON_Showtime_CONST 4
+#define ICON_Sleep_CONST 5
+#define ICON_Wakeup_CONST 6
+#define ICON_House_to_Sleep_Mode_CONST 7
+#define ICON_Phone_CONST 8
+#define ICON_Single_Camera_CONST 9
+#define ICON_Quad_Camera_CONST 10
 
 #define ICON_TABLE "Icon"
 #define ICON_PK_ICON_FIELD "PK_Icon"

@@ -19,6 +19,7 @@ using namespace std;
 #include "Table_Template.h"
 
 #include "Table_CommandGroup.h"
+#include "Table_EventHandler.h"
 
 
 void Database_pluto_main::CreateTable_Template()
@@ -893,6 +894,13 @@ void Row_Template::CommandGroup_FK_Template_getrows(vector <class Row_CommandGro
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 class Table_CommandGroup *pTable = table->database->CommandGroup_get();
+pTable->GetRows("`FK_Template`=" + StringUtils::itos(m_PK_Template),rows);
+}
+void Row_Template::EventHandler_FK_Template_getrows(vector <class Row_EventHandler*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_EventHandler *pTable = table->database->EventHandler_get();
 pTable->GetRows("`FK_Template`=" + StringUtils::itos(m_PK_Template),rows);
 }
 
