@@ -11,6 +11,13 @@
 #define ICON_Phone_CONST 8
 #define ICON_Single_Camera_CONST 9
 #define ICON_Quad_Camera_CONST 10
+#define ICON_TV_CONST 11
+#define ICON_Video_CONST 12
+#define ICON_Music_CONST 13
+#define ICON_Playlist_CONST 14
+#define ICON_Picture_CONST 15
+#define ICON_Document_CONST 16
+#define ICON_Start_Disc_CONST 17
 
 #define ICON_TABLE "Icon"
 #define ICON_PK_ICON_FIELD "PK_Icon"
