@@ -887,7 +887,8 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 			// this will reset the current media stream if the pMediaHandlerBase is different from the original media Handler.
 			// We should also look at the media types. If the current Media type is different then we will also do a new media stream.
 			if ( pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase == pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase &&
-				pEntertainArea->m_pMediaStream->m_iPK_MediaType == pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType )
+					pEntertainArea->m_pMediaStream->m_iPK_MediaType == pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType &&
+					pEntertainArea->m_pMediaStream->m_pMediaDevice_Source == pMediaStream->m_pMediaDevice_Source )
 				pOldStreamInfo->m_bNoChanges = true;
 
 			// If Resume is set, then this media is just a temporary stream, like an announcement, and if something
@@ -2854,6 +2855,7 @@ void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current,
 	Row_MediaType *pRow_MediaType_Current = PK_MediaType_Current ? m_pDatabase_pluto_main->MediaType_get()->GetRow(PK_MediaType_Current) : NULL;
 
 	int PK_Pipe_Prior = pRow_MediaType_Prior && pRow_MediaType_Prior->FK_Pipe_isNull()==false ? pRow_MediaType_Prior->FK_Pipe_get() : 0;
+	
 	int PK_Pipe_Current = pRow_MediaType_Current && pRow_MediaType_Current->FK_Pipe_isNull()==false ? pRow_MediaType_Current->FK_Pipe_get() : 0;
 
 	map<int,MediaDevice *> mapMediaDevice_Current;
@@ -2865,6 +2867,12 @@ void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current,
 		mapMediaDevice_Current = *pmapMediaDevice_Current;
 		AddOtherDevicesInPipesToRenderDevices(PK_Pipe_Current,&mapMediaDevice_Current);
 	}
+for(map<int,MediaDevice *>::iterator it=mapMediaDevice_Current.begin();it!=mapMediaDevice_Current.end();++it)
+{
+	MediaDevice *pMediaDevice = it->second;
+	string s = pMediaDevice->m_pDeviceData_Router->m_sDescription;
+int k=2;
+}
 
 	if( pmapMediaDevice_Prior )
 	{
@@ -2950,8 +2958,10 @@ void Media_Plugin::TurnDeviceOff(int PK_Pipe,DeviceData_Router *pDeviceData_Rout
 		}
 	}
 
-	if( pDeviceData_Router->m_pDevice_MD && pDeviceData_Router!=pDeviceData_Router->m_pDevice_MD )
-		TurnDeviceOff(PK_Pipe,(DeviceData_Router *) pDeviceData_Router->m_pDevice_MD,pmapMediaDevice_Current,p_vectDevice);
+//  AB dec 3, 2005 -- This meant that i was watching a vcr and switched to the sat box, since the vcr
+// has m_pDevice_MD it would shut the m/d off.
+//	if( pDeviceData_Router->m_pDevice_MD && pDeviceData_Router!=pDeviceData_Router->m_pDevice_MD )
+//		TurnDeviceOff(PK_Pipe,(DeviceData_Router *) pDeviceData_Router->m_pDevice_MD,pmapMediaDevice_Current,p_vectDevice);
 
     for(map<int,Pipe *>::iterator it=pDeviceData_Router->m_mapPipe_Available.begin();it!=pDeviceData_Router->m_mapPipe_Available.end();++it)
     {
@@ -3697,14 +3707,14 @@ void Media_Plugin::AddOtherDevicesInPipes_Loop(int PK_Pipe, DeviceData_Router *p
 	if( !pDevice )
 		return;
 
-	bool bCreatedVect=false;
+	bool bCreatedVect=false;  // The vect is a list of device we've checked already so we don't check the same one twice if the user made a recursive loop
 	if( !p_vectDevice )
 	{
 		p_vectDevice = new vector<int>;
 		bCreatedVect=true;
 	}
 
-	// Be sure we skip over recursive entries
+	// Be sure we skip over recursive entries - just exit and don't check the same device twice
 	for(size_t s=0;s<p_vectDevice->size();++s)
 		if( (*p_vectDevice)[s]==pDevice->m_dwPK_Device )
 			return;
@@ -3722,8 +3732,7 @@ void Media_Plugin::AddOtherDevicesInPipes_Loop(int PK_Pipe, DeviceData_Router *p
 				MediaDevice *pMediaDevice = m_mapMediaDevice_Find(pDevice_Pipe->m_dwPK_Device);
 				if( pMediaDevice )
 					(*pmapMediaDevice)[pDevice_Pipe->m_dwPK_Device] = pMediaDevice;
-				if( pmapMediaDevice->find(pDevice_Pipe->m_dwPK_Device)==pmapMediaDevice->end() )
-					AddOtherDevicesInPipes_Loop(PK_Pipe,pDevice_Pipe,pmapMediaDevice,p_vectDevice);
+				AddOtherDevicesInPipes_Loop(PK_Pipe,pDevice_Pipe,pmapMediaDevice,p_vectDevice);
 			}
 			else
 				g_pPlutoLogger->Write(LV_CRITICAL,"AddOtherDevicesInPipes_Loop - Device %d isn't a media device",pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get());

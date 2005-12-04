@@ -1036,7 +1036,7 @@ bool Command_Impl::GetChildDeviceData( int PK_Device, int PK_DeviceData, string 
 		return true;
 	}
 
-	for(size_t s=0;pDeviceData_Impl->m_vectDeviceData_Impl_Children.size();++s)
+	for(size_t s=0;s<pDeviceData_Impl->m_vectDeviceData_Impl_Children.size();++s)
 	{
 		DeviceData_Impl *pDeviceData_Impl_Child = pDeviceData_Impl->m_vectDeviceData_Impl_Children[s];
 		if( GetChildDeviceData(PK_Device,PK_DeviceData,sValue,pDeviceData_Impl_Child) )

@@ -371,7 +371,7 @@ namespace DCE
 		virtual bool SetStatus( string sStatus, int dwPK_Device=0 );
 
 		/**
-		 * @brief Gets the current value of a given device data directly from the device
+		 * @brief Gets the current value of a given device data from one of our children
 		 */
 		bool GetChildDeviceData( int PK_Device, int PK_DeviceData, string &sValue, DeviceData_Impl *pDeviceData_Impl=NULL); // Leave pDeviceData_Impl=NULL
 

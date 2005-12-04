@@ -2703,11 +2703,19 @@ void Router::CheckForRecursivePipes(DeviceData_Router *pDevice,vector<int> *pvec
 
 	pvect_Device_Pipe->push_back(pDevice->m_dwPK_Device);
 
+	// A device can have both an audio & video pipe going to the same device.  Avoid scanning the same device 
+	// twice this way, since it will show up as a false recursive
+	map<int,bool> mapDevices_InPipes;
+
 	// Store the destinations in a vect so we don't risk clearing the map while a parent is iterating it
 	vector<DeviceData_Router *> vectDevice;
     for(map<int,Pipe *>::iterator it=pDevice->m_mapPipe_Available.begin();it!=pDevice->m_mapPipe_Available.end();++it)
     {
         Pipe *pPipe = (*it).second;
+		if( mapDevices_InPipes[pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get()] )
+			continue;
+		mapDevices_InPipes[pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get()]=true;
+
 		DeviceData_Router *pDevice_Dest = m_mapDeviceData_Router_Find(pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get());
 		if( pDevice_Dest )
 			vectDevice.push_back(pDevice_Dest);
