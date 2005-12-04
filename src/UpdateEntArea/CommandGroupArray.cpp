@@ -39,21 +39,28 @@ CommandGroup *CommandGroupArray::FindCommandGroupByTemplate(Row_Room *pRow_Room,
 
 	vector<Row_CommandGroup *> vectRow_CommandGroup;
 	m_pDatabase_pluto_main->CommandGroup_get()->GetRows(SQL,&vectRow_CommandGroup);
+
+	Row_CommandGroup *pRow_CommandGroup=NULL;
+	bool bExistingCommandGroup=false;
 	if( vectRow_CommandGroup.size() )
 	{
 		for(size_t s=1;s<vectRow_CommandGroup.size();++s) // There should only be one, delete any extras
 			DeleteCommandGroup(vectRow_CommandGroup[s]);
 		if( PK_CommandGroup )
 			*PK_CommandGroup = vectRow_CommandGroup[0]->PK_CommandGroup_get();
-		return new CommandGroup(this,vectRow_CommandGroup[0]);
+		if( CommandGroupIsModified(vectRow_CommandGroup[0]) )  // If the user is making manual changes, we don't want to touch it
+			return NULL;
+		pRow_CommandGroup = vectRow_CommandGroup[0];
+		bExistingCommandGroup=true;
 	}
-
-	if( PK_CommandGroup )
+	else if( PK_CommandGroup )
 	{
 		*PK_CommandGroup = 0;
 		return NULL;
 	}
-	Row_CommandGroup *pRow_CommandGroup = m_pDatabase_pluto_main->CommandGroup_get()->AddRow();
+	else
+		pRow_CommandGroup = m_pDatabase_pluto_main->CommandGroup_get()->AddRow();
+
 	pRow_CommandGroup->Hint_set( pRow_Room->Description_get() );
 	pRow_CommandGroup->FK_Template_set(PK_Template);
 	pRow_CommandGroup->Description_set(sDescription);
@@ -68,11 +75,15 @@ CommandGroup *CommandGroupArray::FindCommandGroupByTemplate(Row_Room *pRow_Room,
 		pRow_CommandGroup->PK_CommandGroup_get(),pRow_CommandGroup->Description_get().c_str(),
 		pRow_Room->PK_Room_get(), pRow_Room->Description_get().c_str(),
 		pRow_CommandGroup->Hint_get().c_str());
-	Row_CommandGroup_Room *pRow_CommandGroup_Room = m_pDatabase_pluto_main->CommandGroup_Room_get()->AddRow();
-	pRow_CommandGroup_Room->FK_CommandGroup_set(pRow_CommandGroup->PK_CommandGroup_get());
-	pRow_CommandGroup_Room->FK_Room_set(pRow_Room->PK_Room_get());
-	pRow_CommandGroup_Room->Sort_set(pRow_CommandGroup->PK_CommandGroup_get());
-	m_pDatabase_pluto_main->CommandGroup_Room_get()->Commit();
+	
+	if( !bExistingCommandGroup )
+	{
+		Row_CommandGroup_Room *pRow_CommandGroup_Room = m_pDatabase_pluto_main->CommandGroup_Room_get()->AddRow();
+		pRow_CommandGroup_Room->FK_CommandGroup_set(pRow_CommandGroup->PK_CommandGroup_get());
+		pRow_CommandGroup_Room->FK_Room_set(pRow_Room->PK_Room_get());
+		pRow_CommandGroup_Room->Sort_set(pRow_CommandGroup->PK_CommandGroup_get());
+		m_pDatabase_pluto_main->CommandGroup_Room_get()->Commit();
+	}
 
 	return new CommandGroup(this,pRow_CommandGroup);
 }
@@ -87,6 +98,8 @@ CommandGroup *CommandGroupArray::FindCommandGroupByTemplate(Row_EntertainArea *p
 	vector<Row_CommandGroup *> vectRow_CommandGroup;
 	m_pDatabase_pluto_main->CommandGroup_get()->GetRows(SQL,&vectRow_CommandGroup);
 
+	Row_CommandGroup *pRow_CommandGroup=NULL;
+	bool bExistingCommandGroup=false;
 	if( vectRow_CommandGroup.size() )
 	{
 		for(size_t s=1;s<vectRow_CommandGroup.size();++s) // There should only be one, delete any extras
@@ -95,16 +108,19 @@ CommandGroup *CommandGroupArray::FindCommandGroupByTemplate(Row_EntertainArea *p
 		if( PK_CommandGroup )
 			*PK_CommandGroup = vectRow_CommandGroup[0]->PK_CommandGroup_get();
 
-		return new CommandGroup(this,vectRow_CommandGroup[0]);
+		if( CommandGroupIsModified(vectRow_CommandGroup[0]) )  // If the user is making manual changes, we don't want to touch it
+			return NULL;
+		pRow_CommandGroup = vectRow_CommandGroup[0];
+		bExistingCommandGroup=true;
 	}
-
-	if( PK_CommandGroup )
+	else if( PK_CommandGroup )
 	{
 		*PK_CommandGroup = 0;
 		return NULL;
 	}
+	else
+		pRow_CommandGroup = m_pDatabase_pluto_main->CommandGroup_get()->AddRow();
 
-	Row_CommandGroup *pRow_CommandGroup = m_pDatabase_pluto_main->CommandGroup_get()->AddRow();
 	pRow_CommandGroup->Hint_set( pRow_EntertainArea->Description_get() );
 	pRow_CommandGroup->FK_Template_set(PK_Template);
 	pRow_CommandGroup->Description_set(sDescription);
@@ -119,11 +135,15 @@ CommandGroup *CommandGroupArray::FindCommandGroupByTemplate(Row_EntertainArea *p
 		pRow_CommandGroup->PK_CommandGroup_get(),pRow_CommandGroup->Description_get().c_str(),
 		pRow_EntertainArea->PK_EntertainArea_get(), pRow_EntertainArea->Description_get().c_str(),
 		pRow_CommandGroup->Hint_get().c_str());
-	Row_CommandGroup_EntertainArea *pRow_CommandGroup_EntertainArea = m_pDatabase_pluto_main->CommandGroup_EntertainArea_get()->AddRow();
-	pRow_CommandGroup_EntertainArea->FK_CommandGroup_set(pRow_CommandGroup->PK_CommandGroup_get());
-	pRow_CommandGroup_EntertainArea->FK_EntertainArea_set(pRow_EntertainArea->PK_EntertainArea_get());
-	pRow_CommandGroup_EntertainArea->Sort_set(pRow_CommandGroup->PK_CommandGroup_get());
-	m_pDatabase_pluto_main->CommandGroup_EntertainArea_get()->Commit();
+
+	if( !bExistingCommandGroup )
+	{
+		Row_CommandGroup_EntertainArea *pRow_CommandGroup_EntertainArea = m_pDatabase_pluto_main->CommandGroup_EntertainArea_get()->AddRow();
+		pRow_CommandGroup_EntertainArea->FK_CommandGroup_set(pRow_CommandGroup->PK_CommandGroup_get());
+		pRow_CommandGroup_EntertainArea->FK_EntertainArea_set(pRow_EntertainArea->PK_EntertainArea_get());
+		pRow_CommandGroup_EntertainArea->Sort_set(pRow_CommandGroup->PK_CommandGroup_get());
+		m_pDatabase_pluto_main->CommandGroup_EntertainArea_get()->Commit();
+	}
 
 	return new CommandGroup(this,pRow_CommandGroup);
 }
@@ -134,16 +154,39 @@ CommandGroupArray::~CommandGroupArray()
 		DeleteUnusedCommandGroups();
 
 	for(map< pair<int, pair<int,int> >,CommandGroup *>::iterator it=m_mapCommandGroup.begin();it!=m_mapCommandGroup.end();++it)
-	{
 		it->second->Commit();
-		delete it->second;
-	}
-	m_mapCommandGroup.clear();
+
 	m_pDatabase_pluto_main->CommandGroup_get()->Commit();
 	m_pDatabase_pluto_main->CommandGroup_Command_get()->Commit();
 	m_pDatabase_pluto_main->CommandGroup_Command_CommandParameter_get()->Commit();
 	m_pDatabase_pluto_main->CommandGroup_EntertainArea_get()->Commit();
 	m_pDatabase_pluto_main->CommandGroup_Room_get()->Commit();
+
+	for(map< pair<int, pair<int,int> >,CommandGroup *>::iterator it=m_mapCommandGroup.begin();it!=m_mapCommandGroup.end();++it)
+	{
+		Reset_psc_mod(it->second);
+		delete it->second;
+	}
+	m_mapCommandGroup.clear();
+}
+
+void CommandGroupArray::Reset_psc_mod(CommandGroup *pCommandGroup)
+{
+	string sPK_CommandGroup = StringUtils::itos(pCommandGroup->m_pRow_CommandGroup->PK_CommandGroup_get());
+	string sSQL = "UPDATE CommandGroup set psc_mod=0 WHERE PK_CommandGroup=" + sPK_CommandGroup;
+	m_pDatabase_pluto_main->threaded_mysql_query(sSQL);
+
+	sSQL = "UPDATE CommandGroup_Command set psc_mod=0 WHERE FK_CommandGroup=" + sPK_CommandGroup;
+	m_pDatabase_pluto_main->threaded_mysql_query(sSQL);
+
+	sSQL = "UPDATE CommandGroup_Command_CommandParameter JOIN CommandGroup_Command ON FK_CommandGroup_Command=PK_CommandGroup_Command set CommandGroup_Command_CommandParameter.psc_mod=0 WHERE FK_CommandGroup=" + sPK_CommandGroup;
+	m_pDatabase_pluto_main->threaded_mysql_query(sSQL);
+
+	sSQL = "UPDATE CommandGroup_Room set psc_mod=0 WHERE FK_CommandGroup=" + sPK_CommandGroup;
+	m_pDatabase_pluto_main->threaded_mysql_query(sSQL);
+
+	sSQL = "UPDATE CommandGroup_EntertainArea set psc_mod=0 WHERE FK_CommandGroup=" + sPK_CommandGroup;
+	m_pDatabase_pluto_main->threaded_mysql_query(sSQL);
 }
 
 void CommandGroup::AddCommand(int PK_Device,int PK_Command,int iOrder,int NumParms,...)
@@ -204,11 +247,15 @@ void CommandGroupArray::DeleteUnusedCommandGroups()
 void CommandGroupArray::DeleteUnusedCommandGroups(Row_EntertainArea *pRow_EntertainArea)
 {
 	vector<Row_CommandGroup_EntertainArea *> vectRow_CommandGroup_EntertainArea;
-	pRow_EntertainArea->CommandGroup_EntertainArea_FK_EntertainArea_getrows(&vectRow_CommandGroup_EntertainArea);
+	string sSQL = "JOIN CommandGroup ON FK_CommandGroup=PK_CommandGroup "
+		"WHERE FK_EntertainArea=" + StringUtils::itos(pRow_EntertainArea->PK_EntertainArea_get()) +
+		" AND FK_Array=" + StringUtils::itos(m_PK_Array) + " AND AutoGenerated=1";
+
+	m_pDatabase_pluto_main->CommandGroup_EntertainArea_get()->GetRows(sSQL,&vectRow_CommandGroup_EntertainArea);
 	for(size_t s=0;s<vectRow_CommandGroup_EntertainArea.size();++s)
 	{
 		Row_CommandGroup *pRow_CommandGroup = vectRow_CommandGroup_EntertainArea[s]->FK_CommandGroup_getrow();
-		if( pRow_CommandGroup )
+		if( pRow_CommandGroup && !CommandGroupIsModified(pRow_CommandGroup) )
 		{
 			CommandGroup *pCommandGroup = m_mapCommandGroup_Find(pRow_CommandGroup->FK_Template_get(),
 				pRow_CommandGroup->TemplateParm1_get(),pRow_CommandGroup->TemplateParm2_get());
@@ -221,11 +268,15 @@ void CommandGroupArray::DeleteUnusedCommandGroups(Row_EntertainArea *pRow_Entert
 void CommandGroupArray::DeleteUnusedCommandGroups(Row_Room *pRow_Room)
 {
 	vector<Row_CommandGroup_Room *> vectRow_CommandGroup_Room;
-	pRow_Room->CommandGroup_Room_FK_Room_getrows(&vectRow_CommandGroup_Room);
+	string sSQL = "JOIN CommandGroup ON FK_CommandGroup=PK_CommandGroup "
+		"WHERE FK_Room=" + StringUtils::itos(pRow_Room->PK_Room_get()) +
+		" AND FK_Array=" + StringUtils::itos(m_PK_Array) + " AND AutoGenerated=1";
+
+	m_pDatabase_pluto_main->CommandGroup_Room_get()->GetRows(sSQL,&vectRow_CommandGroup_Room);
 	for(size_t s=0;s<vectRow_CommandGroup_Room.size();++s)
 	{
 		Row_CommandGroup *pRow_CommandGroup = vectRow_CommandGroup_Room[s]->FK_CommandGroup_getrow();
-		if( pRow_CommandGroup )
+		if( pRow_CommandGroup && !CommandGroupIsModified(pRow_CommandGroup) )
 		{
 			CommandGroup *pCommandGroup = m_mapCommandGroup_Find(pRow_CommandGroup->FK_Template_get(),
 				pRow_CommandGroup->TemplateParm1_get(),pRow_CommandGroup->TemplateParm2_get());
@@ -297,4 +348,38 @@ void Command::Commit(Row_CommandGroup_Command *pRow_CommandGroup_Command)
 		if( m_mapParameters.find( pRow_CommandGroup_Command_CommandParameter->FK_CommandParameter_get() )==m_mapParameters.end() )
 			pRow_CommandGroup_Command_CommandParameter->Delete();
 	}
+}
+
+bool CommandGroupArray::CommandGroupIsModified(Row_CommandGroup *pRow_CommandGroup)
+{
+	PlutoSqlResult result_set1,result_set2,result_set3;
+
+	// Check for modifications in all related tables
+	string sSQL = "SELECT PK_CommandGroup FROM CommandGroup "
+		"LEFT JOIN CommandGroup_Command ON FK_CommandGroup=PK_CommandGroup "
+		"LEFT JOIN CommandGroup_Command_CommandParameter ON FK_CommandGroup_Command=PK_CommandGroup_Command "
+		"WHERE FK_CommandGroup=" + 
+		StringUtils::itos(pRow_CommandGroup->PK_CommandGroup_get()) + " AND "
+		"(CommandGroup.psc_mod>0 OR CommandGroup_Command.psc_mod>0 OR CommandGroup_Command_CommandParameter.psc_mod>0) LIMIT 1";
+
+	if( (result_set1.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) && result_set1.r->row_count )
+		return true;
+
+	sSQL = "SELECT FK_CommandGroup FROM CommandGroup_Room "
+		"WHERE FK_CommandGroup=" + 
+		StringUtils::itos(pRow_CommandGroup->PK_CommandGroup_get()) + " AND "
+		"psc_mod>0 LIMIT 1";
+
+	if( (result_set2.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) && result_set2.r->row_count )
+		return true;
+
+	sSQL = "SELECT FK_CommandGroup FROM CommandGroup_EntertainArea "
+		"WHERE FK_CommandGroup=" + 
+		StringUtils::itos(pRow_CommandGroup->PK_CommandGroup_get()) + " AND "
+		"psc_mod>0 LIMIT 1";
+
+	if( (result_set3.r=m_pDatabase_pluto_main->mysql_query_result(sSQL)) && result_set3.r->row_count )
+		return true;
+
+	return false;
 }

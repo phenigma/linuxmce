@@ -118,7 +118,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
     m_bDontShare=bDontShare;
     m_bUsingCache=false;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==2211 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==3412 )// || 
+if( m_pRow_DesignObj->PK_DesignObj_get()==3390 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==3412 )// || 
 //   m_pRow_DesignObj->PK_DesignObj_get()==4271 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==2211 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==1881 ||  m_pRow_DesignObj->PK_DesignObj_get()==2228 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==3531 ||  m_pRow_DesignObj->PK_DesignObj_get()==3534 )// || m_pRow_DesignObj->PK_DesignObj_get()==3471 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )*/
@@ -330,6 +330,15 @@ int k=2;
                 Row_Image * drImage=NULL;
                 // Be sure there are no windows paths in here.  Windows will work with forward slashes also, use them instead
                 sGraphicFile = StringUtils::Replace(&sGraphicFile,"\\","/");
+
+				string sAltFile;
+				string::size_type pos_alt_file;
+				if( (pos_alt_file=sGraphicFile.find('|'))!=string::npos )
+				{
+					sAltFile = sGraphicFile.substr(pos_alt_file+1);
+					sGraphicFile = sGraphicFile.substr(0,pos_alt_file);
+				}
+retry_alt_file:
                 string sOriginalFile = sGraphicFile;
 	            if( sGraphicFile[0]=='/' )
                     sGraphicFile = m_pOrbiterGenerator->m_GraphicsBasePath + sGraphicFile;
@@ -338,15 +347,16 @@ int k=2;
 
                 if( !FileUtils::FileExists(sGraphicFile) )
                 {
-//                  cout << "Cannot open: " << sGraphicFile << " - looking in basic skin" << endl;
                     sGraphicFile = m_pOrbiterGenerator->m_GraphicsBasePath + "/" + m_mds->Skin_get()->GetRow(1)->DataSubdirectory_get() + "/" + sOriginalFile;  // hack in skin 1
                     if( !FileUtils::FileExists(sGraphicFile) )
                     {
-if( sGraphicFile.find("RIL")!=string::npos )
-{
-int k=2;
-}
-                        cout << "Error reading graphic: " << sGraphicFile << " DesignObj: " << m_pRow_DesignObjVariation->FK_DesignObj_get() << endl;
+						if( sAltFile.size() )
+						{
+							sGraphicFile=sAltFile;
+							sAltFile="";
+							goto retry_alt_file;
+						}
+						cout << "Error reading graphic: " << sGraphicFile << " DesignObj: " << m_pRow_DesignObjVariation->FK_DesignObj_get() << endl;
                         sGraphicFile = "";
                     }
                 }

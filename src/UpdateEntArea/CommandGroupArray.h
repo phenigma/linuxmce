@@ -91,6 +91,8 @@ public:
 	void DeleteUnusedCommandGroups();
 	void DeleteUnusedCommandGroups(Row_EntertainArea *pRow_EntertainArea);
 	void DeleteUnusedCommandGroups(Row_Room *pRow_Room);
+	void Reset_psc_mod(CommandGroup *pCommandGroup);
+	bool CommandGroupIsModified(Row_CommandGroup *pRow_CommandGroup);
 
 	void DeleteCommandGroup_Command(Row_CommandGroup_Command *pRow_CommandGroup_Command);
 };

@@ -27,6 +27,7 @@
 
 using namespace std;
 using namespace DCE;
+using namespace DefaultScenarios;
 DCEConfig dceConfig;
 
 namespace DCE

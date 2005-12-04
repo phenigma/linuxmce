@@ -50,6 +50,7 @@
 
 using namespace std;
 using namespace DCE;
+using namespace DefaultScenarios;
 
 UpdateEntArea::UpdateEntArea()
 {
@@ -57,7 +58,7 @@ UpdateEntArea::UpdateEntArea()
 
 void UpdateEntArea::AddDefaultScenarios()
 {
-//	AddDefaultMediaScenarios();
+	AddDefaultMediaScenarios();
 	AddDefaultLightingScenarios();
 	AddDefaultClimateScenarios();
 	AddDefaultTelecomScenarios();

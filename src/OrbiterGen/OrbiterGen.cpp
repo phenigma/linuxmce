@@ -231,6 +231,10 @@ int main(int argc, char *argv[])
 		newtime = localtime( &aclock );   // Convert time to struct tm form 
 		cout << "Generation done at " << asctime( newtime ) << endl;
 	}
+	catch(int i)
+	{
+	}
+/*
 	catch(const char *error)
 	{
 		cerr << "Error: " << error;
@@ -241,7 +245,7 @@ int main(int argc, char *argv[])
 		cerr << "Error: " << error;
 		Sleep(2000);
 	}
-
+*/
 	if( pOrbiterGenerator && pOrbiterGenerator->m_pRow_Orbiter )
 	{
 		cout << "Setting RegenInProgress_set to false for " << pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get() << endl;

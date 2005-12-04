@@ -67,4 +67,70 @@ void UpdateEntArea::AddDefaultSecurityScenarios()
 
 void UpdateEntArea::AddDefaultSecurityScenarios(Row_Room *pRow_Room)
 {
+	CommandGroup *pCommandGroup;
+	CommandGroupArray commandGroupArray(pRow_Room,ARRAY_Security_Scenarios_CONST,true);
+
+	pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Security_Arm_Disarm_CONST,"Security",0,1,0);
+	if( pCommandGroup )
+		pCommandGroup->AddCommand(DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,1,
+			COMMANDPARAMETER_PK_Screen_CONST,StringUtils::itos(SCREEN_SecurityPanel_CONST).c_str());
+
+	string sSQL = "JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate LEFT JOIN Room ON PK_Room=FK_Room WHERE FK_DeviceCategory=" + 
+		StringUtils::itos(DEVICECATEGORY_Surveillance_Cameras_CONST) + " ORDER BY Room.Description";
+
+	vector<Row_Device *> vectRow_Device;
+	m_pDatabase_pluto_main->Device_get()->GetRows(sSQL,&vectRow_Device);
+	if( vectRow_Device.size()==0 )
+		return;
+
+	if( vectRow_Device.size()>4 )
+		AddQuadCameraScenarios(pRow_Room,vectRow_Device,commandGroupArray);
+	else
+		AddSingleCameraScenarios(pRow_Room,vectRow_Device,commandGroupArray);
+}
+
+void UpdateEntArea::AddQuadCameraScenarios(Row_Room *pRow_Room,vector<Row_Device *> &vectRow_Device,CommandGroupArray &commandGroupArray)
+{
+	CommandGroup *pCommandGroup;
+	int iScenarioNum=1;
+	for(size_t s=0;s<vectRow_Device.size();++s)
+	{
+		string sRoom;
+		Row_Room *pRow_Room = vectRow_Device[s]->FK_Room_getrow();
+		if( pRow_Room )
+			sRoom = pRow_Room->Description_get();
+
+		string sDevices;
+		for(int iFour=s+4;s<vectRow_Device.size() && s<iFour;++s)
+		{
+			Row_Device *pRow_Device = vectRow_Device[s];
+			sDevices += StringUtils::itos(pRow_Device->PK_Device_get()) + ",";
+		}
+
+		pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Security_View_Cameras_CONST,
+			sRoom,0,iScenarioNum++,0);
+		if( pCommandGroup )
+			pCommandGroup->AddCommand(DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,2,
+				COMMANDPARAMETER_PK_Screen_CONST,StringUtils::itos(SCREEN_QuadViewCameras_CONST).c_str(),
+				COMMANDPARAMETER_PK_Device_CONST,sDevices.c_str());
+	}
+}
+
+void UpdateEntArea::AddSingleCameraScenarios(Row_Room *pRow_Room,vector<Row_Device *> &vectRow_Device,CommandGroupArray &commandGroupArray)
+{
+	CommandGroup *pCommandGroup;
+	for(size_t s=0;s<vectRow_Device.size();++s)
+	{
+		string sRoom;
+		Row_Room *pRow_Room = vectRow_Device[s]->FK_Room_getrow();
+		if( pRow_Room )
+			sRoom = pRow_Room->Description_get();
+
+		pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Security_View_Camera_CONST,
+			sRoom,0,s,0);
+		if( pCommandGroup )
+			pCommandGroup->AddCommand(DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,2,
+				COMMANDPARAMETER_PK_Screen_CONST,StringUtils::itos(SCREEN_SingleCameraViewOnly_CONST).c_str(),
+				COMMANDPARAMETER_PK_Device_CONST,StringUtils::itos(vectRow_Device[s]->PK_Device_get()).c_str());
+	}
 }

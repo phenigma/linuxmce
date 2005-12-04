@@ -5,6 +5,10 @@
 #include "pluto_main/Table_Device.h"
 #include "pluto_main/Table_EntertainArea.h"
 #include "pluto_main/Table_Room.h"
+#include "CommandGroupArray.h"
+
+namespace DefaultScenarios
+{
 
 typedef enum { lomNone=0, lomContainsMD=1, lomContainsOtherVideo=2, lomContainsAudio=3 } LevelOfMedia;
 
@@ -55,5 +59,13 @@ public:
 	void AddDefaultClimateScenarios(Row_Room *pRow_Room);
 	void AddDefaultTelecomScenarios(Row_Room *pRow_Room);
 	void AddDefaultSecurityScenarios(Row_Room *pRow_Room);
+
+	// Helper functions for security
+	void AddQuadCameraScenarios(Row_Room *pRow_Room,vector<Row_Device *> &vectRow_Device,CommandGroupArray &commandGroupArray);
+	void AddSingleCameraScenarios(Row_Room *pRow_Room,vector<Row_Device *> &vectRow_Device,CommandGroupArray &commandGroupArray);
+
 };
+
+}
+
 #endif

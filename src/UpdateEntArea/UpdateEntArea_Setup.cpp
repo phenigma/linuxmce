@@ -34,6 +34,7 @@
 
 using namespace std;
 using namespace DCE;
+using namespace DefaultScenarios;
 
 bool UpdateEntArea::Connect(int PK_Installation,string host, string user, string pass, string db_name, int port)
 {
