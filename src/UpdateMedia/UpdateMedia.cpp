@@ -111,6 +111,11 @@ void UpdateMedia::DoIt()
 
 int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
 {
+	if( sDirectory.size()==0 )
+		return 0;
+	// Strip any trailing /
+	if( sDirectory[ sDirectory.size()-1 ] == '/' )
+		sDirectory = sDirectory.substr(0,sDirectory.size()-1);
 	Sleep(10); //no so ... faaast
 
 	// Build a list of the files on disk, and a map of those in the database

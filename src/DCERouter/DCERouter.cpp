@@ -1623,6 +1623,10 @@ void Router::HandleCommandPipes(Socket *pSocket,SafetyMessage *pSafetyMessage)
 
 			Message *pMessage = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get(),
                 PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Generic_Off_CONST,0);
+			if( PK_Pipe )
+				pMessage->m_mapParameters[COMMANDPARAMETER_PK_Pipe_CONST] = (*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_PK_Pipe_CONST];
+	        if( (*(*pSafetyMessage))->m_mapParameters.find(COMMANDPARAMETER_PK_Device_Pipes_CONST)!=(*(*pSafetyMessage))->m_mapParameters.end() )
+				pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_Pipes_CONST] = (*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_PK_Device_Pipes_CONST];
             ReceivedMessage(NULL,pMessage);
         }
         pDeviceData_Router->m_mapPipe_Active.clear();
@@ -1661,6 +1665,11 @@ void Router::HandleCommandPipes(Socket *pSocket,SafetyMessage *pSafetyMessage)
 
 			Message *pMessage = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get(),
                 PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Generic_On_CONST,0);
+			if( PK_Pipe )
+				pMessage->m_mapParameters[COMMANDPARAMETER_PK_Pipe_CONST] = (*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_PK_Pipe_CONST];
+			if( sPipesDevices.size() )
+				pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_Pipes_CONST] = (*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_PK_Device_Pipes_CONST];
+
             ReceivedMessage(NULL,pMessage);
 
 			if( !pPipe->m_pRow_Device_Device_Pipe->FK_Command_Input_isNull() )

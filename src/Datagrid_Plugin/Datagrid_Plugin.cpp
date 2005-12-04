@@ -206,7 +206,8 @@ void Datagrid_Plugin::CMD_Request_Datagrid_Contents(string sID,string sDataGrid_
 		if( sSeek.length() )
 		{
 #ifdef DEBUG
-g_pPlutoLogger->Write( LV_DATAGRID, "it has a seek value grid: %s rows: %d", sDataGrid_ID.c_str(),(int) pDataGridTable->GetRows() );
+			g_pPlutoLogger->Write( LV_DATAGRID, "it has a seek value grid: %s rows: %d seek %s offset: %d bValue: %d", 
+				  sDataGrid_ID.c_str(),(int) pDataGridTable->GetRows(),sSeek.c_str(), iOffset, (int) bValue );
 #endif
 			sSeek = StringUtils::ToUpper(sSeek);
 			// We need to do a seek for this value
@@ -227,23 +228,48 @@ g_pPlutoLogger->Write( LV_DATAGRID, "it has a seek value grid: %s rows: %d", sDa
 					g_pPlutoLogger->Write(LV_CRITICAL,"Request grid, we're seeking on a column that has empty cells ioffset: %d seek: %s id: %s",iOffset,sSeek.c_str(),sDataGrid_ID.c_str());
 					continue;
 				}
-				if( CellText[0]=='~' )
-					posStart++;
-				if( CellText[posStart]=='`' )
+
+				while(CellText.size() && CellText[0]=='~')
 				{
-					while(CellText[++posStart]!='`');
-				}
+					string::size_type nexttilde = CellText.find('~',1);
+					if( nexttilde!=string::npos )
+						CellText = CellText.substr(nexttilde+1);
+					else
+						CellText = CellText.substr(1);
+
+					g_pPlutoLogger->Write(LV_STATUS,"Stripping leading ~ pos %d now %s",
+						nexttilde,CellText.c_str());
+				};
+
+				while(CellText.size() && CellText[0]=='`')
+				{
+					string::size_type nexttilde = CellText.find('`',1);
+					if( nexttilde!=string::npos )
+						CellText = CellText.substr(nexttilde+1);
+					else
+						CellText = CellText.substr(1);
+
+					g_pPlutoLogger->Write(LV_STATUS,"Stripping leading ` pos %d now %s",
+						nexttilde,CellText.c_str());
+				};
 
 				// If we're looking for a specific ID, we need to match it.  Otherwise we're looking for 
 				// a value and will assume anything past the value is okay.
 				if( bValue==false && CellText>sSeek )
+				{
 					break;
+				}
 				if( bValue==true && CellText==sSeek )
+				{
 					break;
+				}
 			}
 			if( dgrow>0 )
 				--dgrow; // We're always the cell 1 after
 			*iRow=dgrow;
+#ifdef DEBUG
+g_pPlutoLogger->Write( LV_DATAGRID, "Seek row %d",*iRow);
+#endif
 		}
 		pDataGridTable->m_bKeepColumnHeader = bKeep_Column_Header;
 		pDataGridTable->m_bKeepRowHeader = bKeep_Row_Header;

@@ -60,6 +60,17 @@ bool UpdateEntArea::Connect(int PK_Installation,string host, string user, string
 	m_dwPK_Device_MediaPlugIn=vectRow_Device[0]->PK_Device_get();
 	m_iPK_Installation = vectRow_Device[0]->FK_Installation_get();
 
+	Row_Installation *pRow_Installation = m_pDatabase_pluto_main->Installation_get()->GetRow(m_iPK_Installation);
+	if( !pRow_Installation )
+	{
+		g_pPlutoLogger->Write( LV_CRITICAL, "Got Media Plugin %d but installation %d is invalid",
+			m_dwPK_Device_MediaPlugIn,m_iPK_Installation);
+		return false;
+	}
+	else
+		g_pPlutoLogger->Write( LV_STATUS, "Using Media Plugin %d Installation %d",
+			m_dwPK_Device_MediaPlugIn,m_iPK_Installation);
+
 	// ******** Orbiter Plugin ******************
 	vectRow_Device.clear();
 	sql = "JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory=" + 
@@ -137,6 +148,12 @@ void UpdateEntArea::GetMediaAndRooms()
 	// Get all the entertainment areas and populate them with all the devices in those areas
 	Row_Installation *pRow_Installation = m_pDatabase_pluto_main->Installation_get( )->GetRow( m_iPK_Installation );
 	m_mapRoom_Media.clear();
+
+	if( !pRow_Installation )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"UpdateEntArea::GetMediaAndRooms cannot continue with invalid installation %d", m_iPK_Installation);
+		return;
+	}
 
 	vector<Row_Room *> vectRow_Room; // Ent Areas are specified by room. Get all the rooms first
 	pRow_Installation->Room_FK_Installation_getrows( &vectRow_Room );

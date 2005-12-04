@@ -2471,9 +2471,13 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sFilename,int iPK_Med
 		//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From, "<%=T" + StringUtils::itos(TEXT_Cannot_play_media_CONST) + "%>");
 		SCREEN_DialogCannotPlayMedia SCREEN_DialogCannotPlayMedia(m_dwPK_Device, pMessage->m_dwPK_Device_From, "");
 		SendCommand(SCREEN_DialogCannotPlayMedia);
-    }
+	}
 	else
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::CMD_MH_Play_Media playing MediaType: %d Provider %d Orbiter %d Device %d Template %d",
+			iPK_MediaType,iPK_MediaProvider,iPK_Device_Orbiter,iPK_Device,iPK_DeviceTemplate);
 		StartMedia(iPK_MediaType,iPK_MediaProvider,iPK_Device_Orbiter,vectEntertainArea,iPK_Device,iPK_DeviceTemplate,&dequeMediaFile,bResume,iRepeat,"");  // We'll let the plug-in figure out the source, and we'll use the default remote
+	}
 }
 
 //<-dceag-c65-b->
@@ -2918,7 +2922,7 @@ int k=2;
 			DCE::CMD_On CMD_On(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_pDevice_MD->m_dwPK_Device,PK_Pipe_Current,"");
 			SendCommand(CMD_On);
 
-			DCE::CMD_On CMD_On2(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_Device,0,"");
+			DCE::CMD_On CMD_On2(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_Device,PK_Pipe_Current,"");
 			SendCommand(CMD_On2);
 		}
 
@@ -3561,14 +3565,17 @@ bool Media_Plugin::HandleDeviceOnOffEvent(MediaDevice *pMediaDevice,bool bIsOn)
 
 	if( bIsOn && iIsSource_OrDest )  // Nothing to report, we turned on something we already knew was on
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Nothing to report, we turned on something we already knew was on");
+		g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::HandleDeviceOnOffEvent Nothing to report, we turned on something we already knew was on");
 		return true;
 	}
 	if( !bIsOn && !iIsSource_OrDest )  // Nothing to report, we turned off something we already knew was off
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"Nothing to report, we turned off something we already knew was off");
+		g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::HandleDeviceOnOffEvent Nothing to report, we turned off something we already knew was off");
 		return true;
 	}
+
+	g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::HandleDeviceOnOffEvent IsOn %d iSource_OrDest %d",
+		(int) bIsOn,iIsSource_OrDest);
 
 	if( bIsOn==false )
 	{
@@ -3590,8 +3597,14 @@ bool Media_Plugin::HandleDeviceOnOffEvent(MediaDevice *pMediaDevice,bool bIsOn)
 			StreamEnded(pMediaStream);
 	}
 	else if( pMediaDevice->m_pCommandGroup )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::HandleDeviceOnOffEvent Turned On %d (%s) executing command group %d (%s)",
+			pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str(),
+			pMediaDevice->m_pCommandGroup->m_PK_CommandGroup,pMediaDevice->m_pCommandGroup->m_Description.c_str());
+
 		QueueMessageToRouter(new Message(m_dwPK_Device,DEVICEID_DCEROUTER,PRIORITY_NORMAL,
 			MESSAGETYPE_EXEC_COMMAND_GROUP,pMediaDevice->m_pCommandGroup->m_PK_CommandGroup,0));
+	}
 	else
 	{
 		// We don't have a specific command to do this, but since watching tv is such a common task
@@ -3651,6 +3664,7 @@ bool Media_Plugin::AvInputChanged( class Socket *pSocket, class Message *pMessag
 
 	DeviceData_Router *pDevice = (DeviceData_Router *) pDeviceFrom;
 	int PK_Command = atoi(pMessage->m_mapParameters[EVENTPARAMETER_PK_Command_CONST].c_str());
+	Command *pCommand = m_pRouter->m_mapCommand_Find(PK_Command);
 
 	// See what media device is using that input
 	for(size_t s=0;s<pDevice->m_vectDevices_SendingPipes.size();++s)
@@ -3664,7 +3678,13 @@ bool Media_Plugin::AvInputChanged( class Socket *pSocket, class Message *pMessag
 			{
 				MediaDevice *pMediaDevice = m_mapMediaDevice_Find(pPipe->m_pRow_Device_Device_Pipe->FK_Device_From_get());
 				if( pMediaDevice )
+				{
+					g_pPlutoLogger->Write(LV_STATUS,"Media_Plugin::AvInputChanged Device %d (%s) changed to input %d (%s) the source is %d (%s)",
+						pDevice->m_dwPK_Device,pDevice->m_sDescription.c_str(),
+						PK_Command,pCommand ? pCommand->m_sDescription.c_str() : "unknown",
+						pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_sDescription.c_str());
 					HandleDeviceOnOffEvent(pMediaDevice,true);
+				}
 			}
 		}
 	}
