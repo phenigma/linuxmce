@@ -136,7 +136,7 @@ bool Powerfile_C200::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 
 	if (! m_bStatusCached || bForce)
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Getting fresh status info%s", bForce ? " (Forced)" : "");
+		g_pPlutoLogger->Write(LV_STATUS, "Getting fresh status info (changer:%s) %s", m_sChanger.c_str(), bForce ? " (Forced)" : "");
 		m_vectDriveStatus.clear();
 		m_vectSlotStatus.clear();
 #ifdef EMULATE_PF
@@ -162,7 +162,9 @@ bool Powerfile_C200::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 				vector<string> vsC; // C = Components
 
 				ExtractFields(vect_sOutput_Rows[i], vsFF);
-				if (vsFF[0] == "Data")
+				if( vsFF.size()==0 )
+					g_pPlutoLogger->Write(LV_CRITICAL,"Extract fields failed to get anything from %d: %s",i,vect_sOutput_Rows[i].c_str());
+				else if (vsFF[0] == "Data" && vsFF.size()>=4 )
 				{
 					int iDiscFrom = 0;
 					sWhoWhat = vsFF[3];
@@ -184,6 +186,9 @@ bool Powerfile_C200::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 					sResult = string("S") + vsC[0] + "=" +vsC[1];
 					m_vectSlotStatus.push_back(vsC[1] == "Full");
 				}
+				else
+					g_pPlutoLogger->Write(LV_CRITICAL,"Don't know what to do with vsFF[0]=%s and size=%d",
+						vsFF[0].c_str(),(int) vsFF.size());
 				
 				if (sJukebox_Status && sResult != "")
 				{
