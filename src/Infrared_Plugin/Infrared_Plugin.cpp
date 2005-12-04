@@ -226,6 +226,7 @@ class DataGridTable *Infrared_Plugin::CommandsGrid(string GridID,string Parms,vo
 	int iRow=0;
 	IRDevice irDevice;
 	GetInfraredCodes(PK_Device,irDevice);
+	DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(PK_Device);
 
 	list<SortedIRData *> listSortedIRData;
 	for(map<int,string>::iterator it=irDevice.m_mapCodes.begin();it!=irDevice.m_mapCodes.end();++it)
@@ -251,20 +252,29 @@ class DataGridTable *Infrared_Plugin::CommandsGrid(string GridID,string Parms,vo
 		PK_CommandCategory=pSortedIRData->PK_CommandCategory;
 
 		pCell->m_Colspan = 4;
-		pCell->m_pMessage = new Message(PK_Orbiter,irDevice.m_PK_Device_ControlledVia,
-			PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Send_Code_CONST,1,
-			COMMANDPARAMETER_Text_CONST,pSortedIRData->sIRData.c_str());
-		DCE::CMD_Set_Text CMD_Set_Text(PK_Orbiter,PK_Orbiter,"","",PK_Text);
-		pCell->m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Text.m_pMessage );
-		pDataGrid->SetData(0,iRow,pCell);
+		if( irDevice.m_bImplementsDCE )
+		{
+			pCell->m_pMessage = new Message(PK_Orbiter,PK_Device,
+				PRIORITY_NORMAL,MESSAGETYPE_COMMAND,pSortedIRData->PK_Command,0);
+			pDataGrid->SetData(0,iRow++,pCell);
+		}
+		else
+		{
+			pCell->m_pMessage = new Message(PK_Orbiter,irDevice.m_PK_Device_ControlledVia,
+				PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Send_Code_CONST,1,
+				COMMANDPARAMETER_Text_CONST,pSortedIRData->sIRData.c_str());
+			DCE::CMD_Set_Text CMD_Set_Text(PK_Orbiter,PK_Orbiter,"","",PK_Text);
+			pCell->m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Text.m_pMessage );
+			pDataGrid->SetData(0,iRow,pCell);
 
-		pCell = new DataGridCell( "learn","" );
-		DCE::CMD_Learn_IR CMD_Learn_IR(PK_Orbiter,irDevice.m_PK_Device_ControlledVia,PK_Device,"1",PK_Text,pSortedIRData->PK_Command);
-		pCell->m_pMessage = CMD_Learn_IR.m_pMessage;
-		DCE::CMD_Set_Text CMD_Set_Text2(PK_Orbiter,PK_Orbiter,"","Start learning...",PK_Text);
-		pCell->m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Text2.m_pMessage );
+			pCell = new DataGridCell( "learn","" );
+			DCE::CMD_Learn_IR CMD_Learn_IR(PK_Orbiter,irDevice.m_PK_Device_ControlledVia,PK_Device,"1",PK_Text,pSortedIRData->PK_Command);
+			pCell->m_pMessage = CMD_Learn_IR.m_pMessage;
+			DCE::CMD_Set_Text CMD_Set_Text2(PK_Orbiter,PK_Orbiter,"","Start learning...",PK_Text);
+			pCell->m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Text2.m_pMessage );
 
-		pDataGrid->SetData(4,iRow++,pCell);
+			pDataGrid->SetData(4,iRow++,pCell);
+		}
 
 		delete pSortedIRData;
 	}
@@ -493,6 +503,7 @@ g_pPlutoLogger->Write(LV_STATUS,"q 2");
 			pTable_InfraredGroup_Command->GetRows("FK_InfraredGroup=" + StringUtils::itos(pRow_InfraredGroup->PK_InfraredGroup_get()),
 				&vectRow_InfraredGroup_Command[1]);
 		}
+		irDevice.m_bImplementsDCE = pRow_DeviceTemplate->ImplementsDCE_get()==1;
 	}
 
 g_pPlutoLogger->Write(LV_STATUS,"q 3");
@@ -521,6 +532,7 @@ g_pPlutoLogger->Write(LV_STATUS,"end q");
 		for (it_vRIGC = vectRow_InfraredGroup_Command[i].begin(); it_vRIGC != vectRow_InfraredGroup_Command[i].end(); it_vRIGC++)
 		{
 			Row_InfraredGroup_Command * pRow_InfraredGroup_Command = * it_vRIGC;
+			pRow_InfraredGroup_Command->Reload();  // Be sure we have the latest in case the user is debugging stuff
 			if( pRow_InfraredGroup_Command->IRData_get().size()==0 )
 				mapCommandsWithoutCodes[pRow_InfraredGroup_Command->FK_Command_get()]=true;
 			else

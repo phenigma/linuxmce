@@ -262,31 +262,72 @@ void IRTrans::CMD_Set_Screen_Type(int iValue,string &sCMD_Result,Message *pMessa
 void IRTrans::StartIRServer()
 {
 	g_pPlutoLogger->Write(LV_STATUS,"In start IR Server %s",DATA_Get_COM_Port_on_PC().c_str());
+
 #ifndef WIN32
 	CallBackFn=&DoGotIRCommand;
+#endif
 	m_bIRServerRunning=true;
 
 	char TTYPort[255];
 	if( DATA_Get_COM_Port_on_PC().size() && DATA_Get_COM_Port_on_PC().size()<255 )
+#ifndef WIN32
 		strcpy(TTYPort,TranslateSerialUSB(DATA_Get_COM_Port_on_PC()).c_str());
+#else
+		strcpy(TTYPort,DATA_Get_COM_Port_on_PC().c_str());
+#endif
 	else
 		strcpy(TTYPort,"/dev/ttyUSB0");
+
+	int LastChar;
+	bool bLoaded = false;
+	bool bSecondLoop = false;
+
 	char *argv[]={"IRTrans","-loglevel","4","-debug_code","-no_lirc", "-no_web",TTYPort};
+
+FindIRTrans:
+	LastChar = strlen(TTYPort)-1;
 	g_pPlutoLogger->Write(LV_STATUS,"Trying to open IRTrans on %s",TTYPort);
+#ifndef WIN32
 	if( libmain(7,argv)!=0 )
+#else
+	if( true )
+#endif
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"IRTrans not found on default port.  Will scan for it");
 		for(char cUSB='0';cUSB<='9';cUSB++)
 		{
-			TTYPort[11]=cUSB;
+			TTYPort[LastChar]=cUSB;
 			g_pPlutoLogger->Write(LV_STATUS,"Looking on %s",argv[6]);
+#ifndef WIN32
 			if( libmain(7,argv)!=0 )
+#else
+			if( true )
+#endif
 				g_pPlutoLogger->Write(LV_STATUS,"IRTrans not found on %s",argv[6]);
+			else
+			{
+				bLoaded=true;
+				break;
+			}
 		}
 	}
+	else bLoaded=true;
 
+	if( !bLoaded && !bSecondLoop )
+	{
+		if(strncmp(TTYPort,"/dev/ttyS",9)==0)
+			strcpy(TTYPort,"/dev/ttyUSB0");
+		else
+			strcpy(TTYPort,"/dev/ttyS0");
+		bSecondLoop=true;
+		goto FindIRTrans;
+	}
+
+	// We won't get here until it exits
+#ifndef WIN32
 	LCDBrightness(5);
 #endif
+
 	m_bIRServerRunning=false;
 }
 
