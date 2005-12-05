@@ -23,7 +23,7 @@ call "MakeRelease_WindowsCE.bat"
 
 cd "c:\pluto.makerelease\trunk\src\bin"
 copy Orbiter.exe Orbiter_Win32.dat
-copy OrbiterCE.exe Orbiter_WinCE.dat
+copy Orbiter_CeNet4_XScale.exe Orbiter_CeNet4_XScale.dat
 copy OrbiterSmartphone.exe OrbiterSmartphone.dat
 
 echo Copying EXE files...

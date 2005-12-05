@@ -109,7 +109,9 @@ HWND				g_hWndRandom_GenerateButton;
 HWND				g_hWndRandom_StopButton;
 //-----------------------------------------------------------------------------------------------------
 #ifdef WINCE
+#ifndef WINCE_x86
 static SHACTIVATEINFO s_sai;
+#endif
 #endif
 //-----------------------------------------------------------------------------------------------------
 /*extern*/ CommandLineParams CmdLineParams;
@@ -118,7 +120,9 @@ LRESULT CALLBACK EditWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 LRESULT CALLBACK PagesWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 //-----------------------------------------------------------------------------------------------------
 #ifdef WINCE
+#ifndef WINCE_x86
 	HWND CreateRpCommandBar(HWND);
+#endif
 #endif
 
 HWND CreateTabControl(HWND hWnd);
@@ -495,11 +499,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				HWND hTaskBarWindow = ::FindWindow(TEXT("HHTaskBar"), NULL);
 				::ShowWindow(hTaskBarWindow, SW_SHOWNORMAL);
 
+#ifndef WINCE_x86
 				g_hwndCB = CreateRpCommandBar(hWnd);
 
 				// Initialize the shell activate info structure
 				memset (&s_sai, 0, sizeof (s_sai));
 				s_sai.cbSize = sizeof (s_sai);
+#endif
+
 #endif //WINCE
 
 
@@ -635,12 +642,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case WM_ACTIVATE:
 			// Notify shell of our activate message
 #ifdef WINCE			
+#ifndef WINCE_x86
 			SHHandleWMActivate(hWnd, wParam, lParam, &s_sai, FALSE);
+#endif
 #endif
      		break;
 		case WM_SETTINGCHANGE:
 #ifdef WINCE
+#ifndef WINCE_x86
 			SHHandleWMSettingChange(hWnd, wParam, lParam, &s_sai);
+#endif
 #endif
      		break;
 
@@ -758,6 +769,7 @@ LRESULT CALLBACK PagesWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 }
 //-----------------------------------------------------------------------------------------------------
 #ifdef WINCE
+#ifndef WINCE_x86
 HWND CreateRpCommandBar(HWND hwnd)
 {
 	SHMENUBARINFO mbi;
@@ -775,6 +787,7 @@ HWND CreateRpCommandBar(HWND hwnd)
 
 	return mbi.hwndMB;
 }
+#endif
 #endif
 //-----------------------------------------------------------------------------------------------------
 HWND CreateTabControl(HWND hWnd)
