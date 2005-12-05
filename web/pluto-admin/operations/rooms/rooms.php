@@ -26,6 +26,7 @@ $out.='<h3>Rooms</h3>';
 if ($action=='form') {
 $queryRooms = 'SELECT * FROM Room WHERE FK_Installation = ?';
 $resRooms = $dbADO->Execute($queryRooms,array($installationID));
+$roomTypes=getAssocArray('RoomType','PK_RoomType','Description',$dbADO,'','ORDER BY Description ASC');	
 
 $displayedRooms = array();
 
@@ -63,6 +64,7 @@ $displayedRooms = array();
 					self.location='index.php?section=rooms&action=edit&manID='+room+'&val='+setMan;
 				}
 			}
+		
 		</script>";
 		$out.='<div class="err">'.(isset($_GET['error'])?stripslashes($_GET['error']):'').'</div>';
 		$out.='
@@ -73,8 +75,9 @@ $displayedRooms = array();
 			<input type="hidden" name="lastAction" value="">
 		<tr>
 			<td align="center" bgcolor="#F0F3F8"><B>Room Description</B></td>
+			<td align="center" bgcolor="#F0F3F8"><B>Room Type</B></td>
 			<td align="center" bgcolor="#F0F3F8"><B>Picture *</B></td>
-			<td align="center" bgcolor="#F0F3F8"><B>Don’t show room on Orbiter’s</B></td>
+			<td align="center" bgcolor="#F0F3F8"><B>Don\'t show room on Orbiter\'s</B></td>
 			<td align="center" bgcolor="#DADDE4"><B>Entertain areas</B></td>
 		</tr>
 		';
@@ -92,6 +95,7 @@ $displayedRooms = array();
 			$out.='
 			<tr>
 				<td align="center" valign="top"><input type="text" name="roomDesc_'.$rowRoom['PK_Room'].'" value="'.$rowRoom['Description'].'"><br><a href="javascript:void(0);" onClick="if(confirm(\'Are you sure you want to delete this room?\'))windowOpen(\'index.php?section=deleteRoomFromInstallation&from=rooms&roomID='.$rowRoom['PK_Room'].'\',\'status=0,resizable=1,width=200,height=200,toolbars=true\');">Delete Room</a></td>
+				<td align="center" valign="top">'.pulldownFromArray($roomTypes,'roomType_'.$rowRoom['PK_Room'],$rowRoom['FK_RoomType']).'</td>
 				<td valign="top">'.@$roomImage.'<input type="file" name="pic_'.$rowRoom['PK_Room'].'"></td>
 				<td valign="top" align="center"><input type="checkbox" name="hidden_'.$rowRoom['PK_Room'].'" value="1" '.(($rowRoom['HideFromOrbiter']==1)?'checked':'').'></td>
 				';
@@ -123,13 +127,13 @@ $displayedRooms = array();
 				frmvalidator.addValidation("roomDesc_'.$rowRoom['PK_Room'].'","req","Please enter a description");
 			';
 		}
-			
+		
 		$out.='
 			<tr>
 				<td colspan="4" align="center"> &nbsp;</td>
 			</tr>
 			<tr>
-				<td colspan="4" align="center"> <input type="submit" class="button" name="add" value="Add room"> <input type="submit" class="button" name="save" value="Save changes"></td>
+				<td colspan="4" align="center"> '.pulldownFromArray($roomTypes,'roomType',0).'<input type="submit" class="button" name="add" value="Add room"> <input type="submit" class="button" name="save" value="Save changes"></td>
 			</tr>
 			<tr>
 				<td colspan="4" align="left">* Pictures allowed must be JPG or PNG; if will be resized to 160x160 px if it has other resolution</td>
@@ -167,8 +171,9 @@ $displayedRooms = array();
 	
 	$errNotice='';
 	if (isset($_POST['add'])) {
-		$queryInsertRoom = 'INSERT INTO Room (Description,FK_Installation) values(?,?)';
-		$res = $dbADO->Execute($queryInsertRoom,array('New room',$installationID));
+		$roomType=((int)@$_REQUEST['roomType']>0)?(int)@$_REQUEST['roomType']:NULL;
+		$queryInsertRoom = 'INSERT INTO Room (Description,FK_Installation,FK_RoomType) values(?,?,?)';
+		$res = $dbADO->Execute($queryInsertRoom,array('New room',$installationID,$roomType));
 		$lastInsert = $dbADO->Insert_ID();
 		// removed the scenarios since they are created outside website
 		//addScenariosToRoom($lastInsert, $installationID, $dbADO);
@@ -198,11 +203,9 @@ $displayedRooms = array();
 		$newRoomType = (@$_POST['roomType_'.$room]!=0)?cleanInteger(@$_POST['roomType_'.$room]):NULL;
 		$HideFromOrbiter=(int)@$_POST['hidden_'.$room];
 		
-		if ($newDesc!=$oldDesc || $oldHideFromOrbiter!=$HideFromOrbiter)  {
-			$query = 'UPDATE Room set Description=?,HideFromOrbiter=? WHERE PK_Room = ?';
-			$resUpdRoom = $dbADO->Execute($query,array($newDesc,$HideFromOrbiter,$room));
-			$locationGoTo = "roomDesc_".$room;
-		}
+		$query = 'UPDATE Room set Description=?,HideFromOrbiter=?,FK_RoomType=? WHERE PK_Room = ?';
+		$resUpdRoom = $dbADO->Execute($query,array($newDesc,$HideFromOrbiter,$newRoomType,$room));
+		$locationGoTo = "roomDesc_".$room;
 
 		// upload room picture
 		$imgType=(ereg('png',$_FILES['pic_'.$room]['type']))?'png':'jpg';
