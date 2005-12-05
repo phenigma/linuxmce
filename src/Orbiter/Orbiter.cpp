@@ -3783,7 +3783,17 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
 
 bool Orbiter::ButtonDown( int iPK_Button )
 {
-    //if this is a repeated button, we'll handle it right away
+	CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnKeyDown);
+	if(pCallBackData)
+	{
+		KeyCallBackData *pKeyData = (KeyCallBackData *)pCallBackData;
+		pKeyData->m_nPlutoKey = iPK_Button;
+	}
+
+	if(ExecuteScreenHandlerCallback(cbOnKeyDown))
+		return true;
+
+	//if this is a repeated button, we'll handle it right away
     if(m_pScreenHistory_Current && IsRepeatedKeyForScreen(m_pScreenHistory_Current->m_pObj, iPK_Button))
     {
         return HandleButtonEvent(iPK_Button);
@@ -3810,6 +3820,16 @@ bool Orbiter::ButtonDown( int iPK_Button )
 
 bool Orbiter::ButtonUp( int iPK_Button )
 {
+	CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnKeyUp);
+	if(pCallBackData)
+	{
+		KeyCallBackData *pKeyData = (KeyCallBackData *)pCallBackData;
+		pKeyData->m_nPlutoKey = iPK_Button;
+	}
+
+	if(ExecuteScreenHandlerCallback(cbOnKeyUp))
+		return true;
+
 	if( m_mapHardKeys.find(iPK_Button)!=m_mapHardKeys.end() )
 	{
 		Message *pMessage = m_mapHardKeys[iPK_Button];
@@ -3972,11 +3992,33 @@ g_pPlutoLogger->Write(LV_STATUS, "Short key %d", iPK_Button);
 
 bool Orbiter::RegionUp( int x,  int y )
 {
+	CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnMouseUp);
+	if(pCallBackData)
+	{
+		MouseClickCallBackData *pKeyData = (MouseClickCallBackData *)pCallBackData;
+		pKeyData->m_x = x;
+		pKeyData->m_y = y;
+	}
+
+	if(ExecuteScreenHandlerCallback(cbOnMouseUp))
+		return true;
+
     StopRepeatRelatedEvents();
 	return false;
 }
 bool Orbiter::RegionDown( int x,  int y )
 {
+	CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnMouseDown);
+	if(pCallBackData)
+	{
+		MouseClickCallBackData *pKeyData = (MouseClickCallBackData *)pCallBackData;
+		pKeyData->m_x = x;
+		pKeyData->m_y = y;
+	}
+
+	if(ExecuteScreenHandlerCallback(cbOnMouseDown))
+		return true;
+
 	NeedToRender render( this, "Region Down" );  // Redraw anything that was changed by this command
     if( !GotActivity(  ) )
 	{

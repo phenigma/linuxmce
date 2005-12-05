@@ -46,7 +46,11 @@ enum CallBackType
 	cbObjectSelected,
 	cbOnCreateWxWidget,
 	cbOnDeleteWxWidget,
-	cbOnRefreshWxWidget
+	cbOnRefreshWxWidget,
+	cbOnKeyDown,
+	cbOnKeyUp,
+	cbOnMouseDown,
+	cbOnMouseUp
 };
 
 #define PROMPT_CANCEL -1
