@@ -181,7 +181,7 @@ function addStepForm($dbADO,$telecomADO){
 				</tr>		
 				<tr>
 					<td align="right">&nbsp;</td>
-					<td>'.step_options($selectedStep,$dbADO).'</td>
+					<td>'.step_options($selectedStep,$userID,$dbADO).'</td>
 				</tr>	
 				<tr bgcolor="#EEEEEE">
 					<td colspan="2" align="center"><input type="submit" class="button" name="add" value="'.$TEXT_ADD_CONST.'"></td>
@@ -230,7 +230,7 @@ function stepsTable($userID,$selectedUserMode,$selectedCaller,$telecomADO,$dbADO
 		<tr>
 			<td width="50"><B>Step '.$pos.'</B></td>
 			<td>'.pulldownFromArray($stepsArray,'routing_'.$row['PK_UserRouting'],$selectedStep,'onChange="changeOptions(\''.$row['PK_UserRouting'].'\')"','key','').'</td>
-			<td>'.step_options($selectedStep,$dbADO,$row['PK_UserRouting'],$oldValues).'</td>
+			<td>'.step_options($selectedStep,$row['EK_Users'],$dbADO,$row['PK_UserRouting'],$oldValues).'</td>
 			<td align="center"><input type="button" class="button" name="del" value="Delete" onclick="if(confirm(\''.$TEXT_DELETE_STEP_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=callRouting&action=del&userID='.$userID.'&mode='.$selectedUserMode.'&pr='.$selectedCaller.'&did='.$row['PK_UserRouting'].'\'"> '.$moveDownBtn.'</td>
 		</tr>
 		<tr>
@@ -250,7 +250,7 @@ function stepsTable($userID,$selectedUserMode,$selectedCaller,$telecomADO,$dbADO
 	return $out;
 }
 
-function step_options($selected,$dbADO,$suffix='',$oldValues=''){
+function step_options($selected,$user,$dbADO,$suffix='',$oldValues=''){
 	global 	$stepsArray;
 
 	$out='';
@@ -268,12 +268,12 @@ function step_options($selected,$dbADO,$suffix='',$oldValues=''){
 				$out.='<div id="div_ring_'.$suffix.'" '.$styleHidden.'>'.$div_ring.'</div>';
 			break;
 			case 'user':
-				$users=getAssocArray('Users','PK_Users','Username',$dbADO,'INNER JOIN Installation_Users ON FK_Users=PK_Users WHERE FK_Installation='.(int)$_SESSION['installationID']);
+				$users=getAssocArray('Users','PK_Users','Username',$dbADO,'INNER JOIN Installation_Users ON FK_Users=PK_Users WHERE FK_Installation='.(int)$_SESSION['installationID'].' AND PK_Users!='.$user);
 				$div_user=pulldownFromArray($users,'user_'.$suffix,(int)@$oldValues);
 				$out.='<div id="div_user_'.$suffix.'" '.$styleHidden.'>'.$div_user.'</div>';
 			break;		
 			case 'voicemail':
-				$users=getAssocArray('Users','PK_Users','Username',$dbADO,'INNER JOIN Installation_Users ON FK_Users=PK_Users WHERE FK_Installation='.(int)$_SESSION['installationID']);
+				$users=getAssocArray('Users','PK_Users','Username',$dbADO,'INNER JOIN Installation_Users ON FK_Users=PK_Users WHERE FK_Installation='.(int)$_SESSION['installationID'].' AND PK_Users!='.$user);
 				$div_voicemail=pulldownFromArray($users,'voicemail_'.$suffix,(int)@$oldValues);
 				$out.='<div id="div_voicemail_'.$suffix.'" '.$styleHidden.'>'.$div_voicemail.'</div>';
 			break;		
