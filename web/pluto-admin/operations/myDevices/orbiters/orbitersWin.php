@@ -17,8 +17,29 @@ function orbitersWin($output,$dbADO) {
 	<input type="hidden" name="action" value="add">	
 	<h3  align="left">Download Windows Software for Orbiters</h3>
 	<br>
-	<a href="fdownload.php?filepath=installers/OrbiterInstaller.msi" target="_blank">Windows XP/2000</a><br><br>
-	<a href="fdownload.php?filepath=installers/OrbiterCE.CAB" target="_blank">Windows CE</a><br><br>
+	
+	<table>
+		<tr>
+			<td><B>Processor</B></td>
+			<td><B>Operating System</B></td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr bgcolor="#F0F3F8">
+			<td>Intel/AMD x86 (normal)</td>
+			<td>Windows 98/ME/XP</td>
+			<td><a href="fdownload.php?filepath=installers/OrbiterInstaller.msi" target="_blank">(download)</a></td>
+		</tr>
+		<tr>
+			<td>XScale</td>
+			<td>Windows CE.NET</td>
+			<td><a href="fdownload.php?filepath=installers/Orbiter_CeNet4_XScale.CAB" target="_blank">(download)</a></td>
+		</tr>
+		<tr bgcolor="#F0F3F8">
+			<td>Intel x86</td>
+			<td> Windows CE.NET</td>
+			<td><a href="fdownload.php?filepath=installers/Orbiter_CeNet4_x86.CAB" target="_blank">(download)</a></td>
+		</tr>
+	</table>
 		
 	</form>
 	';

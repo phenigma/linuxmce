@@ -30,12 +30,12 @@
 		<tr>
 			<td>XScale</td>
 			<td>Windows CE.NET</td>
-			<td><a href="fdownload.php?filepath=installers/Orbiter_CENet4_XScale.CAB" target="_blank">(download)</a></td>
+			<td><a href="fdownload.php?filepath=installers/Orbiter_CeNet4_XScale.CAB" target="_blank">(download)</a></td>
 		</tr>
 		<tr bgcolor="#F0F3F8">
 			<td>Intel x86</td>
 			<td> Windows CE.NET</td>
-			<td><a href="fdownload.php?filepath=installers/Orbiter_CENet4_x86.CAB" target="_blank">(download)</a></td>
+			<td><a href="fdownload.php?filepath=installers/Orbiter_CeNet4_x86.CAB" target="_blank">(download)</a></td>
 		</tr>
 	</table>
 	
