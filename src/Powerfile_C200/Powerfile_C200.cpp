@@ -176,7 +176,7 @@ bool Powerfile_C200::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 						sResult += string("-") + vsFF[6];
 						sscanf(vsFF[6].c_str(), "%d", &iDiscFrom);
 					}
-					m_vectDriveStatus.push_back(iDiscFrom);
+					m_vectDriveStatus.push_back(pair<int, bool>(iDiscFrom, true));
 				}
 				else if (vsFF.size() == 3 && vsFF[0] == "Storage" && vsFF[1] == "Element")
 				{
@@ -217,7 +217,7 @@ bool Powerfile_C200::Get_Jukebox_Status(string * sJukebox_Status, bool bForce)
 		
 		for (i = 0; i < m_vectDriveStatus.size(); i++)
 		{
-			sState = m_vectDriveStatus[i] == 0 ? "Empty" : ("Full-" + StringUtils::itos(m_vectDriveStatus[i]));
+			sState = m_vectDriveStatus[i].first == 0 ? "Empty" : ("Full-" + StringUtils::itos(m_vectDriveStatus[i].first));
 			sResult = "D" + StringUtils::itos(i) + "=" + sState;
 			if (sJukebox_Status && sResult != "")
 			{
@@ -314,8 +314,8 @@ bool Powerfile_C200::GetConfig()
 
 	for (size_t i = 0; i < m_vectDriveStatus.size(); i++)
 	{
-		if (m_vectDriveStatus[i] != 0)
-			CMD_Unload_from_Drive_into_Slot(m_vectDriveStatus[i], i);
+		if (m_vectDriveStatus[i].first != 0)
+			CMD_Unload_from_Drive_into_Slot(m_vectDriveStatus[i].first, i);
 	}
 	
 	PurgeInterceptors();
@@ -400,7 +400,7 @@ void Powerfile_C200::CMD_Load_from_Slot_into_Drive(int iSlot_Number,int iDrive_N
 #endif
 
 	sCMD_Result = "FAILED";
-	if (m_vectDriveStatus[iDrive_Number] > 0)
+	if (m_vectDriveStatus[iDrive_Number].first > 0)
 	{
 		g_pPlutoLogger->Write(LV_WARNING, "Disc unit %d full", iDrive_Number);
 	}
@@ -408,9 +408,9 @@ void Powerfile_C200::CMD_Load_from_Slot_into_Drive(int iSlot_Number,int iDrive_N
 	{
 		g_pPlutoLogger->Write(LV_WARNING, "Slot %d empty", iSlot_Number);
 	}
-	else if (m_vectDriveStatus[iDrive_Number] < 0 && m_vectDriveStatus[iDrive_Number] != -iSlot_Number)
+	else if (m_vectDriveStatus[iDrive_Number].first < 0 && m_vectDriveStatus[iDrive_Number].first != -iSlot_Number)
 	{
-		g_pPlutoLogger->Write(LV_WARNING, "Drive asked for by slot %d is reserved by slot %d", iSlot_Number, m_vectDriveStatus[iDrive_Number]);
+		g_pPlutoLogger->Write(LV_WARNING, "Drive asked for by slot %d is reserved by slot %d", iSlot_Number, m_vectDriveStatus[iDrive_Number].first);
 	}
 	else
 	{
@@ -424,21 +424,44 @@ void Powerfile_C200::CMD_Load_from_Slot_into_Drive(int iSlot_Number,int iDrive_N
 			//system(sCmd.c_str());
 			sCmd = "mtx -f " + m_vectDrive[iDrive_Number].second + " eject"; // this is a patched version of mtx
 			g_pPlutoLogger->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
-			system(sCmd.c_str());
+			int iRet = system(sCmd.c_str());
+			if (iRet == -1)
+			{
+				g_pPlutoLogger->Write(LV_WARNING, "Failed to execute mtx");
+			}
+			else
+			{
+				if (WEXITSTATUS(iRet) == 1)
+				{
+					g_pPlutoLogger->Write(LV_WARNING, "Disc loaded but failed to refresh state. Marking drive %d as OFFLINE", iDrive_Number);
+					m_vectDriveStatus[iDrive_Number].second = false;
+				}
+				else
 #endif
-			g_pPlutoLogger->Write(LV_STATUS, "Loading disc succeeded");
-			
-			m_vectDriveStatus[iDrive_Number] = iSlot_Number;
-			m_vectSlotStatus[iSlot_Number - 1] = false;
+				{
+					g_pPlutoLogger->Write(LV_STATUS, "Loading disc succeeded");
+				}
+				
+				m_vectDriveStatus[iDrive_Number].first = iSlot_Number;
+				m_vectSlotStatus[iSlot_Number - 1] = false;
 
-			Disk_Drive_Functions * pDDF = GetDDF(iDrive_Number);
-			pDDF->m_mediaDiskStatus = DISCTYPE_NONE;
-			pDDF->m_mediaInserted = false;
-			pDDF->cdrom_checkdrive(pDDF->m_sDrive.c_str(), &pDDF->m_mediaDiskStatus, false);
-			g_pPlutoLogger->Write(LV_STATUS, "Loaded disc of type %d", pDDF->m_mediaDiskStatus);
-			pDDF->m_mediaInserted = true;
-			
-			sCMD_Result = "OK";
+				g_pPlutoLogger->Write(LV_STATUS, "Getting disc type");
+				Disk_Drive_Functions * pDDF = GetDDF(iDrive_Number);
+				pDDF->m_mediaDiskStatus = DISCTYPE_NONE;
+				pDDF->m_mediaInserted = false;
+				pDDF->cdrom_checkdrive(pDDF->m_sDrive.c_str(), &pDDF->m_mediaDiskStatus, false);
+				if (pDDF->m_mediaDiskStatus != -1)
+				{
+					g_pPlutoLogger->Write(LV_STATUS, "Loaded disc of type %d", pDDF->m_mediaDiskStatus);
+					pDDF->m_mediaInserted = true;
+					sCMD_Result = "OK";
+				}
+				else
+				{
+					g_pPlutoLogger->Write(LV_WARNING, "Can't get disc type. Since we're sure there's a disc in there (we just loaded it), assuming defective unit. Marking drive %d as OFFLINE", iDrive_Number);
+					m_vectDriveStatus[iDrive_Number].second = false;
+				}
+			}
 		}
 		else
 		{
@@ -468,7 +491,7 @@ void Powerfile_C200::CMD_Unload_from_Drive_into_Slot(int iSlot_Number,int iDrive
 #endif
 	
 	sCMD_Result = "FAILED";
-	if (m_vectDriveStatus[iDrive_Number] == 0)
+	if (m_vectDriveStatus[iDrive_Number].first == 0)
 	{
 		g_pPlutoLogger->Write(LV_WARNING, "Disc unit %d empty", iDrive_Number);
 	}
@@ -488,20 +511,35 @@ void Powerfile_C200::CMD_Unload_from_Drive_into_Slot(int iSlot_Number,int iDrive
 			//system(sCmd.c_str());
 			sCmd = "mtx -f " + m_vectDrive[iDrive_Number].second + " eject"; // this is a patched version of mtx
 			g_pPlutoLogger->Write(LV_STATUS,"Executing: %s",sCmd.c_str());
-			system(sCmd.c_str());
+			int iRet = system(sCmd.c_str());
+			if (iRet == -1)
+			{
+				g_pPlutoLogger->Write(LV_WARNING, "Failed to execute mtx");
+			}
+			else
+			{
+				if (WEXITSTATUS(iRet) == 1)
+				{
+					g_pPlutoLogger->Write(LV_WARNING, "Disc unloaded but failed to refresh state. Marking drive %d as OFFLINE", iDrive_Number);
+					m_vectDriveStatus[iDrive_Number].second = false;
+				}
+				else
 #endif
-			g_pPlutoLogger->Write(LV_STATUS, "Unloading disc succeeded");
-			
-			m_vectDriveStatus[iDrive_Number] = -iSlot_Number;
-			m_vectSlotStatus[iSlot_Number - 1] = true;
-			
-			Disk_Drive_Functions * pDDF = GetDDF(iDrive_Number);
-			pDDF->m_mediaDiskStatus = DISCTYPE_NONE;
-			pDDF->m_mediaInserted = false;
-			
-			ReleaseDrive_NoMutex(iDrive_Number, iSlot_Number);
-			
-			sCMD_Result = "OK";
+				{
+					g_pPlutoLogger->Write(LV_STATUS, "Unloading disc succeeded");
+				}
+				
+				m_vectDriveStatus[iDrive_Number].first = -iSlot_Number;
+				m_vectSlotStatus[iSlot_Number - 1] = true;
+				
+				Disk_Drive_Functions * pDDF = GetDDF(iDrive_Number);
+				pDDF->m_mediaDiskStatus = DISCTYPE_NONE;
+				pDDF->m_mediaInserted = false;
+				
+				ReleaseDrive_NoMutex(iDrive_Number, iSlot_Number);
+				
+				sCMD_Result = "OK";
+			}
 		}
 		else
 		{
@@ -789,6 +827,8 @@ void Powerfile_C200::CMD_Bulk_Rip(string sFilename,int iPK_Users,string sFormat,
 
 	for (size_t i = 0; i < m_vectDrive.size(); i++)
 	{
+		if (!m_vectDriveStatus[i].second)
+			continue; // unit offline; skip
 		Task * pTask = m_pJob->GetNextTask();
 		if (pTask)
 			pTask->Execute();
@@ -889,6 +929,8 @@ void Powerfile_C200::CMD_Mass_identify_media(string sDisks,string &sCMD_Result,M
 
 	for (size_t i = 0; i < m_vectDrive.size(); i++)
 	{
+		if (!m_vectDriveStatus[i].second)
+			continue; // unit offline; skip
 		Task * pTask = m_pJob->GetNextTask();
 		if (pTask)
 			pTask->Execute();
@@ -904,10 +946,10 @@ int Powerfile_C200::GetFreeDrive(int iSlot)
 
 	for (i = 0; i < m_vectDriveStatus.size(); i++)
 	{
-		if (m_vectDriveStatus[i] == 0 || abs(m_vectDriveStatus[i]) == iSlot)
+		if (m_vectDriveStatus[i].second && (m_vectDriveStatus[i].first == 0 || abs(m_vectDriveStatus[i].first) == iSlot))
 		{
 			g_pPlutoLogger->Write(LV_STATUS, "Free drive %d to slot %d", i, iSlot);
-			m_vectDriveStatus[i] = -iSlot;
+			m_vectDriveStatus[i].first = -iSlot;
 			return i;
 		}
 	}
@@ -924,13 +966,13 @@ void Powerfile_C200::ReleaseDrive(int iDrive_Number, int iSlot)
 
 void Powerfile_C200::ReleaseDrive_NoMutex(int iDrive_Number, int iSlot)
 {
-	if (abs(m_vectDriveStatus[iDrive_Number]) != iSlot)
+	if (abs(m_vectDriveStatus[iDrive_Number].first) != iSlot)
 	{
 		g_pPlutoLogger->Write(LV_WARNING, "Slot %d tried to release drive %d which is in use by slot %d. Expect the application to mis-behave after this.",
-			iSlot, iDrive_Number, abs(m_vectDriveStatus[iDrive_Number]));
+			iSlot, iDrive_Number, abs(m_vectDriveStatus[iDrive_Number].first));
 		return;
 	}
-	m_vectDriveStatus[iDrive_Number] = 0;
+	m_vectDriveStatus[iDrive_Number].first = 0;
 
 	if (m_pJob)
 	{
@@ -973,6 +1015,9 @@ string PowerfileIdentify_Task::ToString()
 
 void PowerfileRip_Task::Run()
 {
+	if (m_eTaskStatus == TASK_NOT_STARTED)
+		return; // task postponed
+	
 	Powerfile_Job * pPowerfile_Job = (Powerfile_Job *) m_pJob;
 
 	listMediaAttribute listMediaAttribute_;
@@ -1160,6 +1205,9 @@ void PowerfileRip_Task::RipCD(Row_Disc *pRow_Disc,listMediaAttribute &listMediaA
 
 void PowerfileIdentify_Task::Run()
 {
+	if (m_eTaskStatus == TASK_NOT_STARTED)
+		return; // task postponed
+	
 	g_pPlutoLogger->Write(LV_STATUS,"PowerfileIdentify_Task::Run");
 	Powerfile_Job * pPowerfile_Job = (Powerfile_Job *) m_pJob;
 	
@@ -1186,13 +1234,28 @@ void Powerfile_Task::ThreadStarted()
 {
 	Powerfile_Job * pPowerfile_Job = (Powerfile_Job *) m_pJob;
 	m_iDrive_Number = pPowerfile_Job->m_pPowerfile_C200->GetFreeDrive(m_iSlot);
-	pPowerfile_Job->m_pPowerfile_C200->CMD_Load_from_Slot_into_Drive(m_iSlot, m_iDrive_Number);
+	if (m_iDrive_Number == -1)
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Asked to run, but no free drive. Task postponed");
+		m_eTaskStatus = TASK_NOT_STARTED;
+	}
+	else
+	{
+		string sCmdResult = "FAILED";
+		pPowerfile_Job->m_pPowerfile_C200->CMD_Load_from_Slot_into_Drive(m_iSlot, m_iDrive_Number, sCmdResult, NULL);
+		if (sCmdResult != "OK")
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "Failed to load disc into drive. Task postponed");
+			m_eTaskStatus = TASK_NOT_STARTED;
+		}
+	}
 }
 
 void Powerfile_Task::ThreadEnded()
 {
 	Powerfile_Job * pPowerfile_Job = (Powerfile_Job *) m_pJob;
-	pPowerfile_Job->m_pPowerfile_C200->CMD_Unload_from_Drive_into_Slot(m_iSlot, m_iDrive_Number);
+	if (m_iDrive_Number != -1)
+		pPowerfile_Job->m_pPowerfile_C200->CMD_Unload_from_Drive_into_Slot(m_iSlot, m_iDrive_Number);
 	m_eTaskStatus = m_ePreTaskStatus;
 }
 

@@ -312,7 +312,7 @@ only slots that were scheduled for ripping will appear in the string */
 
 			bool Get_Jukebox_Status(string * sJukebox_Status, bool bForce = false);
 			
-			vector<int> m_vectDriveStatus; // slot of provenience (0 = empty, n>0 = occupied by disc from slot n; n<0 = reserved for slot |n|)
+			vector<pair<int, bool> > m_vectDriveStatus; // first: slot of provenience (0 = empty, n>0 = occupied by disc from slot n; n<0 = reserved for slot |n|), second: unit is usable
 			vector<bool> m_vectSlotStatus; // occupied or not
 			bool m_bStatusCached;
 
