@@ -4,12 +4,12 @@ use diagnostics;
 use strict;
 use DBI;
 
-#need to resubmit "http://dcerouter/pluto-admin/index.php?section=devices&type=phones&action=add&update=Update"
-
-my $EXT_FILE = "extensions_pluto_dial.conf";
-my $EXT_BUFFER = "[ext-pluto-custom]\n";
+my $EXT_FILE = "/etc/asterisk/extensions_pluto_dial.conf";
+my $EXT_BUFFER = "[from-pluto-custom]\n";
 
 my %USERS = ();
+my %MAILS = ();
+my %NAMES = ();
 my %PHONES = ();
 
 my $TIMEOUT = 15;
@@ -24,8 +24,6 @@ my $DB_STATEMENT;
 my $DB_SQL;
 my $DB_ROW;
 
-
-
 &read_pluto_config();
 $DB_PL_HANDLE = DBI->connect("dbi:mysql:database=pluto_main;host=".$CONF_HOST.";user=".$CONF_USER.";password=".$CONF_PASSWD.";") or die "Could not connect to MySQL";
 $DB_TC_HANDLE = DBI->connect("dbi:mysql:database=pluto_telecom;host=".$CONF_HOST.";user=".$CONF_USER.";password=".$CONF_PASSWD.";") or die "Could not connect to MySQL";
@@ -33,7 +31,7 @@ $DB_TC_HANDLE = DBI->connect("dbi:mysql:database=pluto_telecom;host=".$CONF_HOST
 &get_all_phones_extensions();
 
 $EXT_BUFFER .= "\n;Lines\n";
-$EXT_BUFFER .= "exten => 100,1,Macro(vm,100)\n";
+$EXT_BUFFER .= "exten => 100,1,VoiceMail(100)\n";
 $EXT_BUFFER .= "exten => 100,2,Hangup\n";
 
 $DB_SQL = "select ID,EK_HouseMode,Routing from Line_HouseMode order by ID,EK_HouseMode";
@@ -47,7 +45,7 @@ while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
 	if($tmp ne $line)
 	{
 		$EXT_BUFFER .= "exten => $line,1,SetVar(HOUSEMODE=1)\n";
-		$EXT_BUFFER .= "exten => $line,2,GotoIf($line-hm\${HOUSEMODE})\n";
+		$EXT_BUFFER .= "exten => $line,2,Goto($line-hm\${HOUSEMODE},1)\n";
 		$EXT_BUFFER .= "exten => $line,3,Hangup\n";	
 	}
 	my $action = "NoOp(\"Do nothing\")";
@@ -59,6 +57,7 @@ while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
 		{
 			$action .= "Local/".$PHONES{$i}."\@trusted&";
 		}
+		$action =~ s/[&]$//;		
 		$action .= ",$TIMEOUT)";
 	}
 	if($DB_ROW->{'Routing'} =~ /^user,(\d+)$/)
@@ -103,7 +102,7 @@ while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
 	if($tmp ne $user)
 	{
 		$EXT_BUFFER .= "exten => $user,1,SetVar(USERMODE=1)\n";
-		$EXT_BUFFER .= "exten => $user,2,GotoIf($user-um\${USERMODE})\n";
+		$EXT_BUFFER .= "exten => $user,2,Goto($user-um\${USERMODE},1)\n";
 		$EXT_BUFFER .= "exten => $user,3,Hangup\n";
 	}
 
@@ -116,6 +115,7 @@ while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
 		{
 			$action .= "Local/".$PHONES{$i}."\@trusted&";
 		}
+		$action =~ s/[&]$//;		
 		$action .= ",$TIMEOUT)";
 	}
 	if($DB_ROW->{'Routing'} =~ /^user,(\d+)$/)
@@ -157,7 +157,7 @@ foreach my $user (sort (values(%PHONES)))
 {
 	$tmp .= "Local/$user\@trusted&";
 }
-
+$tmp =~ s/[&]$//;
 $EXT_BUFFER .= "exten => 0,1,Dial($tmp,$TIMEOUT)\n";
 $EXT_BUFFER .= "exten => 0,2,Goto(s,1)\n";
 foreach my $user (sort (values(%USERS)))
@@ -168,27 +168,73 @@ foreach my $user (sort (values(%USERS)))
 $EXT_BUFFER .= "exten => #,1,Macro(vm,100)\n";
 $EXT_BUFFER .= "exten => #,2,Hangup\n";
 
-
-print $EXT_BUFFER;
-
-#for each user:
-#$EXT_BUFFER .= "exten => 101,1, Dial(Local/200@trusted,Local/201@trusted)"; #ring extensions
-#$EXT_BUFFER .= "exten => 101,102, Dial(Local/102@trusted)"; #ring another user
-#$EXT_BUFFER .= "exten => 101,303, Dial(Local/901140740649941)"; #ring on cell phone
-#$EXT_BUFFER .= "exten => 101,404, Macro(vm,101)"; #Voicemail
-#$EXT_BUFFER .= "exten => 101,405, Hangup";
+open(FILE,"> $EXT_FILE") or die "Could not open '$EXT_FILE'";
+print FILE $EXT_BUFFER;
+close(FILE);
 
 
 #create voiceboxes
-#my $VM_FILE = "/etc/asterisk/voicemail.conf"
-#my $VM_BUFFER = "[default]"
-#$VM_BUFFER .= "100 => 123456789,101,user@mail.server,,attach=no|saycid=no|envelope=no|delete=no|nextaftercmd=no";
+my $VM_FILE = "/etc/asterisk/voicemail.conf";
+my $VM_BUFFER = "";
 
+open(FILE,"< $VM_FILE") or die "Could not open '$VM_FILE'";
 
+while(<FILE>)
+{
+	chomp;
+	my $line = $_;
+	if($line =~ /^\[default\]$/)
+	{
+		$VM_BUFFER .= $line."\n";
+		$line = <FILE>;
+		chomp $line;
+		my $founduser= ",";
+		my $user;
+		my $key;
+		while($line =~ /[^\[]/)
+		{
+			$VM_BUFFER .= $line."\n";
+			foreach $key (keys (%USERS))
+			{
+				$user = $USERS{$key};
+				if($line =~ /^$user\s[=][>]/)
+				{
+					$founduser .= $user.",";
+				}
+			}
+			if($line =~ /^100\s[=][>]/)
+			{
+				$founduser .= "100,";
+			}
+			
+			$line = <FILE>;
+			chomp $line;			
+		}
+		foreach $key (keys (%USERS))
+		{
+			$user = $USERS{$key};
+			unless($founduser =~ /,$user,/)
+			{
+				$VM_BUFFER .= "$user => $user,".$NAMES{$key}.",".$MAILS{$key}.",,attach=yes|saycid=no|envelope=yes|delete=no|nextaftercmd=no|operator=no\n";
+			}
+		}
+		unless($founduser =~ /,100,/)
+		{
+			$VM_BUFFER .= "100 => 100,Default,,,attach=no|saycid=no|envelope=no|delete=no|nextaftercmd=no|operator=no\n";
+		}
+		
+		$VM_BUFFER .= $line."\n";		
+	}
+	else
+	{
+		$VM_BUFFER .= $line."\n";
+	}
+}
+close(FILE);
 
-
-
-
+open(FILE,"> $VM_FILE") or die "Could not open '$VM_FILE'";
+print FILE $VM_BUFFER;
+close(FILE);
 
 sub read_pluto_config()
 {
@@ -215,12 +261,14 @@ sub read_pluto_config()
 
 sub get_all_users_extensions()
 {
-	$DB_SQL = "select PK_Users,Extension from Users where `Extension` is not null";
+	$DB_SQL = "select PK_Users,UserName,Extension,ForwardEmail from Users where `Extension` like '30%'";
 	$DB_STATEMENT = $DB_PL_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
 	$DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
 	while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
 	{
 		$USERS{$DB_ROW->{'PK_Users'}} = $DB_ROW->{'Extension'};
+		$MAILS{$DB_ROW->{'PK_Users'}} = $DB_ROW->{'ForwardEmail'};
+		$NAMES{$DB_ROW->{'PK_Users'}} = $DB_ROW->{'UserName'};
 	}
 	$DB_STATEMENT->finish();
 }
