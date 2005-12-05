@@ -1,0 +1,37 @@
+[Version]
+Signature   = "$Windows NT$"        ; required as-is
+Provider    = "Pluto"           ; maximum of 30 characters, full app name will be "<Provider> <AppName>"
+CESignature = "$Windows CE$"        ; required as-is
+ 
+[CEStrings]
+AppName     = "Pluto Orbiter"        ; maximum of 40 characters, full app name will be "<Provider> <AppName>"
+InstallDir  = %CE1%\%AppName%       ; Program Files\Mine Sweeper
+ 
+[SourceDisksNames]                  ; directory that holds the application's files
+1 = , ".",,"c:\$Installers\$OrbiterCE_x86\"        ; 1 = , "Common Files",,Common
+ 
+[SourceDisksFiles]                  ; list of files to be included in .cab
+Orbiter_CeNet4_x86.exe = 1
+PthreadsCE_x86.DLL = 1
+logo.gif = 1
+ 
+[DefaultInstall]                    ; operations to be completed during install
+CopyFiles   = CopyToProgramFiles
+AddReg      = RegData
+CEShortcuts = Shortcuts   
+ 
+[DestinationDirs]                   ; default destination directories for each operation section
+CopyToProgramFiles    = 0, %InstallDir%
+Shortcuts   = 0, "%CE17%"    ; WindowsStart Menu 
+ 
+[CopyToProgramFiles]                ; copy operation file list
+"Orbiter_CeNet4_x86.exe", Orbiter_CeNet4_x86.exe
+"PthreadsCE_x86.dll", PthreadsCE_x86.DLL 
+"logo.gif", logo.gif 
+ 
+[RegData]                           ; registry key list
+HKCU,Software\%AppName%,MajorVersion,0x00010001,2
+HKCU,Software\%AppName%,MinorVersion,0x00010001,30
+ 
+[Shortcuts]                         ; Shortcut created in destination dir, %CE17%
+%AppName%,0,Orbiter_CeNet4_x86.exe
