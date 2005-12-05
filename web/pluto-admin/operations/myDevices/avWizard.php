@@ -151,6 +151,7 @@ $start_time=getmicrotime();
 		}
 		$resDevice->Close();
 
+		
 		$queryConnectedToDevices='
 			SELECT DISTINCT Device.*
 			FROM Device 
@@ -167,7 +168,6 @@ $start_time=getmicrotime();
 		$displayedDevices=array();
 		$joinArray=$DTIDArray;
 		$joinArray[]=0; 	// used only for query when there are no DT in selected category
-		$orderFilter=($type!='media_directors')?'ORDER BY FK_Device_ControlledVia DESC, Device.Description ASC':'';
 		$queryDevice='
 			SELECT 
 				PK_Device,
@@ -200,7 +200,8 @@ $start_time=getmicrotime();
 			INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory 
 			INNER JOIN Manufacturer ON FK_Manufacturer=PK_Manufacturer 		
 			LEFT JOIN Device_EntertainArea ON Device_EntertainArea.FK_Device=PK_Device	
-			WHERE Device.FK_DeviceTemplate IN ('.join(',',$joinArray).') AND FK_Installation=? '.$filter.' '.$orderFilter;
+			WHERE Device.FK_DeviceTemplate IN ('.join(',',$joinArray).') AND FK_Installation=? '.$filter.' 
+			ORDER BY FK_Device_RouteTo DESC, Device.Description ASC';
 
 		$resDevice=$dbADO->Execute($queryDevice,$installationID);
 		$childOf=array();
@@ -218,6 +219,7 @@ $start_time=getmicrotime();
 				$deviceDataArray[$firstDevice][]=$rowD;
 			}
 		}
+
 		$joinArray=array_keys($displayedDevices);	// used only for query when there are no Devices in selected category
 		if(count($joinArray)==0)
 			$joinArray[]=0;
@@ -252,7 +254,7 @@ $start_time=getmicrotime();
 				unset($GLOBALS['DeviceIDControlledVia']);
 				unset($GLOBALS['DeviceControlledVia']);
 	
-	
+
 				if(@$childOf[$rowD['PK_Device']]==''){
 					$out.='
 					<tr>
@@ -304,8 +306,9 @@ $start_time=getmicrotime();
 						<td bgcolor="#F0F3F8">'.@$devicePipes['2']['to'].'</td>
 						<td bgcolor="#F0F3F8">'.@$devicePipes['2']['input'].'</td>
 					</tr>';
+
 				}
-	
+
 			}
 		}
 		$out.='
@@ -392,13 +395,8 @@ $start_time=getmicrotime();
 						$updateDevice='UPDATE Device SET Description=?, FK_Room=?, FK_Device_ControlledVia=? '.@$updateMacIp.' WHERE PK_Device=?';
 						$dbADO->Execute($updateDevice,array($description,$room,$controlledBy,$value));
 					}else{
-						if($type=='media_directors'){
-							$updateDevice='UPDATE Device SET Description=?, FK_Room=? '.@$updateMacIp.' WHERE PK_Device=?';
-							$dbADO->Execute($updateDevice,array($description,$room,$value));
-						}else{
-							$updateDevice='UPDATE Device SET Description=? '.@$updateMacIp.' WHERE PK_Device=?';
-							$dbADO->Execute($updateDevice,array($description,$value));
-						}
+						$updateDevice='UPDATE Device SET Description=? '.@$updateMacIp.' WHERE PK_Device=?';
+						$dbADO->Execute($updateDevice,array($description,$value));
 					}
 					foreach($DeviceDataToDisplayArray as $ddValue){
 						$deviceData=(isset($_POST['deviceData_'.$value.'_'.$ddValue]))?$_POST['deviceData_'.$value.'_'.$ddValue]:0;
