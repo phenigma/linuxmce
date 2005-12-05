@@ -3,9 +3,8 @@ del c:\$Installers\$OrbiterCE_x86\*.* /Q
 cd
 cd ..\..\bin
 copy Orbiter_CeNet4_x86.exe "c:\$Installers\$OrbiterCE_x86\"
-cd "..\Orbiter\CENet\Misc files"
 
-cd Misc
+cd "..\Orbiter\CENet\Misc files"
 copy PthreadsCE_x86.dll c:\$Installers\$OrbiterCE_x86\
 copy logo.gif c:\$Installers\$OrbiterCE_x86\
 cd ..\..\Orbiter_CeNet4_x86
