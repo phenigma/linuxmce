@@ -18,7 +18,11 @@ using namespace std;
 using namespace DCE;
 
 #ifdef WINCE
+	#ifdef WINCE_x86
+		const string csOrbiter_Update("/usr/pluto/bin/Orbiter_CeNet4_x86.dat");
+	#else
 		const string csOrbiter_Update("/usr/pluto/bin/Orbiter_CeNet4_XScale.dat");
+	#endif
 #else
 		const string csOrbiter_Update("/usr/pluto/bin/Orbiter_Win32.dat");
 #endif
