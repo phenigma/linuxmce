@@ -116,7 +116,7 @@ function getPhoneLinesSettings($id,$type,$dbADO,$telecomADO,$oldValues){
 		'voicemail'=>'Go directly to a user\'s voicemail',
 		'prompt'=>'Prompt the caller to choose an extension or user',
 		'transfer'=>'Transfer to an outside number');
-	
+
 	$pos=0;
 	$out='<table align="center" cellpadding="2" cellspacing="0">';
 	foreach ($houseModes AS $mode=>$label){
@@ -124,7 +124,7 @@ function getPhoneLinesSettings($id,$type,$dbADO,$telecomADO,$oldValues){
 		$color=($pos%2==1)?'#EEEEEE':'#FFFFFF';
 		
 
-		$databaseHM=substr(@$oldValues[$mode],0,strpos(@$oldValues[$mode],','));
+		$databaseHM=(strpos(@$oldValues[$mode],',')!==false)?substr(@$oldValues[$mode],0,strpos(@$oldValues[$mode],',')):@$oldValues[$mode];
 		$selectedHM=(isset($_REQUEST['routing_'.$mode]))?$_REQUEST['routing_'.$mode]:$databaseHM;
 		$selectedValue=(isset($_REQUEST['routing_'.$mode]) && $_REQUEST['routing_'.$mode]!=$databaseHM)?'':substr(@$oldValues[$mode],strpos(@$oldValues[$mode],',')+1);
 
