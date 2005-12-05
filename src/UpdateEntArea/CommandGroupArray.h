@@ -57,7 +57,7 @@ public:
 	Row_Room *m_pRow_Room;
     Database_pluto_main *m_pDatabase_pluto_main;
 	bool m_bAutoDelete;
-	int m_PK_Array;
+	int m_PK_Array,m_iPK_Installation;
 	map< pair<int, pair<int,int> >,CommandGroup *> m_mapCommandGroup;
 	CommandGroup *m_mapCommandGroup_Find(int PK_Template,int Parm1, int Parm2) { pair<int,int> p12 = make_pair<int,int> (Parm1,Parm2); map< pair<int, pair<int,int> >,CommandGroup *>::iterator it = m_mapCommandGroup.find( make_pair<int, pair<int,int> > ( PK_Template, p12 ) ); return it==m_mapCommandGroup.end() ? NULL : (*it).second; }
 
@@ -68,6 +68,7 @@ public:
 		m_pRow_Room=NULL;
 		m_PK_Array=PK_Array;
 		m_bAutoDelete=bAutoDelete;
+		m_iPK_Installation=pRow_EntertainArea->FK_Room_getrow()->FK_Installation_get();
 	}
 
 	CommandGroupArray(Row_Room *pRow_Room,int PK_Array,bool bAutoDelete=true)
@@ -77,6 +78,17 @@ public:
 		m_pRow_EntertainArea=NULL;
 		m_PK_Array=PK_Array;
 		m_bAutoDelete=bAutoDelete;
+		m_iPK_Installation=m_pRow_Room->FK_Installation_get();
+	}
+
+	CommandGroupArray(Database_pluto_main *pDatabase_pluto_main,int PK_Installation,int PK_Array,bool bAutoDelete=true)
+	{
+		m_pDatabase_pluto_main=pDatabase_pluto_main;
+		m_pRow_Room=NULL;
+		m_pRow_EntertainArea=NULL;
+		m_PK_Array=PK_Array;
+		m_bAutoDelete=bAutoDelete;
+		m_iPK_Installation=PK_Installation;
 	}
 
 	~CommandGroupArray();
@@ -87,6 +99,8 @@ public:
 	CommandGroup *FindCommandGroupByTemplate(int PK_Template,string sDescription,int PK_Icon,int TemplateParm1,int TemplateParm2,int *PK_CommandGroup=NULL);
 	CommandGroup *FindCommandGroupByTemplate(Row_Room *pRow_Room,int PK_Template,string sDescription,int PK_Icon,int TemplateParm1,int TemplateParm2,int *PK_CommandGroup);
 	CommandGroup *FindCommandGroupByTemplate(Row_EntertainArea *pRow_EntertainArea,int PK_Template,string sDescription,int PK_Icon,int TemplateParm1,int TemplateParm2,int *PK_CommandGroup);
+	CommandGroup *FindCommandGroupByTemplate_NoRoom(int PK_Template,string sDescription,int PK_Icon,int TemplateParm1,int TemplateParm2,int *PK_CommandGroup);
+
 	void DeleteCommandGroup(Row_CommandGroup *pRow_CommandGroup);
 	void DeleteUnusedCommandGroups();
 	void DeleteUnusedCommandGroups(Row_EntertainArea *pRow_EntertainArea);

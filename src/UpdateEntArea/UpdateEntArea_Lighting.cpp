@@ -54,7 +54,7 @@ using namespace std;
 using namespace DCE;
 using namespace DefaultScenarios;
 
-bool IsLight(int PK_FloorplanType)
+bool UpdateEntArea::IsLight(int PK_FloorplanType)
 {
 	return PK_FloorplanType==FLOORPLANOBJECTTYPE_LIGHT_CEILING_LIGHT_CONST ||
 		PK_FloorplanType==FLOORPLANOBJECTTYPE_LIGHT_TABLE_LAMP_CONST ||
@@ -65,7 +65,7 @@ bool IsLight(int PK_FloorplanType)
 		PK_FloorplanType==FLOORPLANOBJECTTYPE_LIGHT_ACCENT_LIGHT_CONST;
 }
 
-bool IsPublicInteriorRoom(int PK_RoomType)
+bool UpdateEntArea::IsPublicInteriorRoom(int PK_RoomType)
 {
 	return PK_RoomType==ROOMTYPE_Living_Room_CONST ||
 		PK_RoomType==ROOMTYPE_Family_Room_CONST || 
@@ -75,7 +75,19 @@ bool IsPublicInteriorRoom(int PK_RoomType)
 		PK_RoomType==ROOMTYPE_Hallway_CONST;
 }
 
-bool IsExterior(int PK_RoomType)
+bool UpdateEntArea::IsInteriorRoom(int PK_RoomType)
+{
+	return PK_RoomType==ROOMTYPE_Living_Room_CONST ||
+		PK_RoomType==ROOMTYPE_Family_Room_CONST || 
+		PK_RoomType==ROOMTYPE_Garage_CONST || 
+		PK_RoomType==ROOMTYPE_Kitchen_CONST || 
+		PK_RoomType==ROOMTYPE_Dining_Room_CONST || 
+		PK_RoomType==ROOMTYPE_Hallway_CONST ||
+		PK_RoomType==ROOMTYPE_Bedroom_CONST ||
+		PK_RoomType==ROOMTYPE_Master_Bedroom_CONST;
+}
+
+bool UpdateEntArea::IsExterior(int PK_RoomType)
 {
 	return PK_RoomType==ROOMTYPE_Patio_CONST ||
 		PK_RoomType==ROOMTYPE_Outside_Area_CONST;

@@ -129,6 +129,9 @@
 				RelativePath="..\PlutoUtils\CommonIncludes.cpp">
 			</File>
 			<File
+				RelativePath=".\Criteria.cpp">
+			</File>
+			<File
 				RelativePath="..\PlutoUtils\FileUtils.cpp">
 			</File>
 			<File
@@ -142,6 +145,9 @@
 			</File>
 			<File
 				RelativePath=".\UpdateEntArea_Climate.cpp">
+			</File>
+			<File
+				RelativePath=".\UpdateEntArea_Event.cpp">
 			</File>
 			<File
 				RelativePath=".\UpdateEntArea_Lighting.cpp">

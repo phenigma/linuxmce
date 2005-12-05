@@ -63,5 +63,6 @@ void UpdateEntArea::AddDefaultScenarios()
 	AddDefaultClimateScenarios();
 	AddDefaultTelecomScenarios();
 	AddDefaultSecurityScenarios();
+	AddDefaultEventHandlers();
 }
 

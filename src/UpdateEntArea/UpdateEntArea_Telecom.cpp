@@ -83,7 +83,7 @@ void UpdateEntArea::AddDefaultTelecomScenarios(Row_Room *pRow_Room)
 		pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Telecom_Scenarios_CONST,pRow_Users->UserName_get(),0,1,pRow_Users->PK_Users_get());
 		if( pCommandGroup )
 			pCommandGroup->AddCommand(DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,1,
-				COMMANDPARAMETER_PK_Screen_CONST,StringUtils::itos(SCREEN_MakeCallFavorites_CONST).c_str());
+				COMMANDPARAMETER_PK_Screen_CONST,StringUtils::itos(SCREEN_UserStatus_CONST).c_str());
 	}
 }
 

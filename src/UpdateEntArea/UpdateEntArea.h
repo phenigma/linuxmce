@@ -7,6 +7,9 @@
 #include "pluto_main/Table_Room.h"
 #include "CommandGroupArray.h"
 
+class Row_EventHandler;
+class Row_Criteria;
+
 namespace DefaultScenarios
 {
 
@@ -52,6 +55,7 @@ public:
 	void AddDefaultClimateScenarios();  // UpdateEntArea_Climate.cpp
 	void AddDefaultTelecomScenarios();  // UpdateEntArea_Telecom.cpp
 	void AddDefaultSecurityScenarios();  // UpdateEntArea_Security.cpp
+	void AddDefaultEventHandlers();  // UpdateEntArea_Event.cpp
 
 	// Call these to add default scenarios to specific rooms/EA's
 	void AddDefaultMediaScenarios(Row_EntertainArea *pRow_EntertainArea);
@@ -59,11 +63,23 @@ public:
 	void AddDefaultClimateScenarios(Row_Room *pRow_Room);
 	void AddDefaultTelecomScenarios(Row_Room *pRow_Room);
 	void AddDefaultSecurityScenarios(Row_Room *pRow_Room);
+	void AddDefaultEventHandlers(Row_Room *pRow_Room);
 
 	// Helper functions for security
 	void AddQuadCameraScenarios(Row_Room *pRow_Room,vector<Row_Device *> &vectRow_Device,CommandGroupArray &commandGroupArray);
 	void AddSingleCameraScenarios(Row_Room *pRow_Room,vector<Row_Device *> &vectRow_Device,CommandGroupArray &commandGroupArray);
 
+	// Helper functions for events
+	CommandGroup *CreateLeaveHomeCommandGroup(CommandGroupArray &commandGroupArray);
+	Row_EventHandler *CreateLeaveHomeEventHandler(CommandGroupArray &commandGroupArray);
+	Row_Criteria *SetLeaveHomeCriteria(Row_EventHandler *pRow_EventHandler);
+	void ResetEventHandler_psc_mod(Row_EventHandler *pRow_EventHandler);
+
+	// Misc helper functions for determining types of lights and rooms
+	bool IsLight(int PK_FloorplanType);
+	bool IsPublicInteriorRoom(int PK_RoomType);
+	bool IsInteriorRoom(int PK_RoomType);
+	bool IsExterior(int PK_RoomType);
 };
 
 }
