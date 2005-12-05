@@ -180,7 +180,7 @@ function addStepForm($dbADO,$telecomADO){
 					<td>'.pulldownFromArray($stepsArray,'routing_',$selectedStep,'onChange="changeOptions(\'\')"','key','').'</td>
 				</tr>		
 				<tr>
-					<td align="right">&nbsp;</td>
+					<td align="right" width="100">&nbsp;</td>
 					<td>'.step_options($selectedStep,$userID,$dbADO).'</td>
 				</tr>	
 				<tr bgcolor="#EEEEEE">
@@ -337,6 +337,9 @@ function processAddStep($telecomADO){
 			(?,?,?,?,?,?)',
 	array($selectedUser,$userMode,$SendStatusFirst,$priorityCaller,$StepOrder,$routingValue));
 	
+	$cmd='sudo -u root /usr/pluto/bin/create_pluto_dialplan.pl';
+	exec($cmd);
+	
 	header("Location: index.php?section=callRouting&action=step&userID=$selectedUser&mode=$userMode&pr=$priorityCaller&msg=$TEXT_CALL_ROUTING_STEP_ADDED_CONST");
 	exit();
 }
@@ -361,6 +364,10 @@ function deleteStep($did,$telecomADO){
 	$priorityCaller=(int)$_REQUEST['pr'];
 	
 	$telecomADO->Execute('DELETE FROM UserRouting WHERE PK_UserRouting=?',$did);
+
+	$cmd='sudo -u root /usr/pluto/bin/create_pluto_dialplan.pl';
+	exec($cmd);
+		
 	header("Location: index.php?section=callRouting&action=step&userID=$selectedUser&mode=$userMode&pr=$priorityCaller&msg=$TEXT_CALL_ROUTING_STEP_DELETED_CONST");
 	exit();
 	
@@ -382,6 +389,10 @@ function moveStep($mdid,$telecomADO){
 		$newOrder=$toSwitch[1];
 		$telecomADO->Execute('UPDATE UserRouting SET StepOrder=? WHERE PK_UserRouting=?',array($newOrder,$mdid));
 		$telecomADO->Execute('UPDATE UserRouting SET StepOrder=? WHERE PK_UserRouting=?',array($oldOrder,$oldID));
+		
+		$cmd='sudo -u root /usr/pluto/bin/create_pluto_dialplan.pl';
+		exec($cmd);
+				
 		header("Location: index.php?section=callRouting&action=step&userID=$selectedUser&mode=$userMode&pr=$priorityCaller");
 		exit();
 	}
@@ -441,6 +452,9 @@ function updateSteps($telecomADO){
 		$telecomADO->Execute('UPDATE UserRouting SET Routing=? WHERE PK_UserRouting=?',	array($routingValue,$usrID));
 	}
 		
+	$cmd='sudo -u root /usr/pluto/bin/create_pluto_dialplan.pl';
+	exec($cmd);
+	
 	header("Location: index.php?section=callRouting&action=step&userID=$selectedUser&mode=$userMode&pr=$priorityCaller&msg=$TEXT_CALL_ROUTING_STEP_UPDATE_CONST");
 	exit();
 
