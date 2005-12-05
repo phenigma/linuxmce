@@ -25,6 +25,7 @@
 #define ARRAY_Mobile_Orbiter_Scenarios_CONST 23
 #define ARRAY_Rooms_CONST 24
 #define ARRAY_Misc_Scenarios_non_visible_CONST 25
+#define ARRAY_Scenarios_for_Event_Handlers_CONST 26
 
 #define ARRAY_TABLE "Array"
 #define ARRAY_PK_ARRAY_FIELD "PK_Array"
