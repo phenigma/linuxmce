@@ -15,6 +15,7 @@ using namespace DCE;
 #include "iaxclient.h"
 #include "DCE/DCEConfig.h"
 #include "pluto_main/Define_Event.h"
+#include "pluto_main/Define_DeviceTemplate.h"
 
 static int phone_status=0;
 static int call_status=0;
@@ -279,7 +280,7 @@ void SimplePhone::doProccess(void)
 		{
 			if(event_status != phone_status)
 			{
-				GetEvents()->SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, EVENT_Incoming_Call_CONST,0));
+				GetEvents()->SendMessage(new Message(m_dwPK_Device, DEVICETEMPLATE_VirtDev_Telecom_Plugin_CONST, PRIORITY_NORMAL, MESSAGETYPE_EVENT, EVENT_Incoming_Call_CONST,0));
 			}
 			if(phone_status>1)
 			{
