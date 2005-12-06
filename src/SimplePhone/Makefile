@@ -24,15 +24,15 @@ XTRALDLIBS = -liaxclient -lm
 Gen_Dev_Files +=
 sources +=
 
-#<-dceag-mf-b->
+#<-dceag-mf-b->!
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
 
 whattodo:
 	@echo "type 'make bin', 'make so' or 'make all'"
 
-all: lib/libiaxclient.a bin so 
+all: bin so 
 
-bin: SimplePhone 
+bin: lib/libiaxclient.a SimplePhone 
 
 so: SimplePhone.so
 
