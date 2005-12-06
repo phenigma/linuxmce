@@ -319,8 +319,8 @@ void SimplePhone::unregisterWithAsterisk()
 {
 	iaxc_dump_all_calls();
 	iaxc_millisleep(1000);
-	free(deviceExtension);
-	free(asteriskHost);
+//	free(deviceExtension);
+//	free(asteriskHost);
 }
 
 void * startIaxThread(void * Arg)
