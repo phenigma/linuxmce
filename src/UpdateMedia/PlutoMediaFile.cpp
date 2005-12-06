@@ -116,39 +116,42 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
     pRow_File->EK_MediaType_set(PK_MediaType);
     pRow_File->Table_File_get()->Commit();
 
-	if(IsSupported(m_sFile))
+	string sFileWithAttributes = m_sFile;
+	if(!IsSupported(m_sFile))
 	{
-		// Add attributes from ID3 tags
-		map<int,string> mapAttributes;
-		GetId3Info(m_sDirectory + "/" + m_sFile, mapAttributes);	
-
-		for(map<int,string>::iterator it = mapAttributes.begin(); it != mapAttributes.end(); it++)
-		{
-			int PK_AttrType = (*it).first;
-			string sValue = (*it).second;
-
-			if(PK_AttrType <= 0)
-			{
-				g_pPlutoLogger->Write(LV_STATUS, "PK_AttrType = %d with value %s - does not exist", PK_AttrType, sValue.c_str()); 
-				continue;
-			}
-
-			Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->AddRow();
-			pRow_Attribute->FK_AttributeType_set(PK_AttrType);
-			pRow_Attribute->Name_set(sValue);
-			pRow_Attribute->Table_Attribute_get()->Commit();
-
-			Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->AddRow();
-			pRow_File_Attribute->FK_File_set(pRow_File->PK_File_get());
-			pRow_File_Attribute->FK_Attribute_set(pRow_Attribute->PK_Attribute_get());
-			pRow_File_Attribute->Table_File_Attribute_get()->Commit();
-
-			g_pPlutoLogger->Write(LV_STATUS, "PK_AttrType = %d with value %s", PK_AttrType, sValue.c_str()); 
-		}
+		sFileWithAttributes = FileUtils::FileWithoutExtension(m_sFile) + ".id3";
+		if(!FileUtils::DirExists(m_sDirectory + "/" + sFileWithAttributes))
+			FileUtils::WriteTextFile(m_sDirectory + "/" + sFileWithAttributes, ""); //touch it
 	}
-	else
+
+	g_pPlutoLogger->Write(LV_STATUS, "Gettings id3 tags from %s/%s", m_sDirectory.c_str(), sFileWithAttributes.c_str());
+
+	// Add attributes from ID3 tags
+	map<int,string> mapAttributes;
+	GetId3Info(m_sDirectory + "/" + sFileWithAttributes, mapAttributes);	
+
+	for(map<int,string>::iterator it = mapAttributes.begin(); it != mapAttributes.end(); it++)
 	{
-		//do something here
+		int PK_AttrType = (*it).first;
+		string sValue = (*it).second;
+
+		if(PK_AttrType <= 0)
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "PK_AttrType = %d with value %s - does not exist", PK_AttrType, sValue.c_str()); 
+			continue;
+		}
+
+		Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->AddRow();
+		pRow_Attribute->FK_AttributeType_set(PK_AttrType);
+		pRow_Attribute->Name_set(sValue);
+		pRow_Attribute->Table_Attribute_get()->Commit();
+
+		Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->AddRow();
+		pRow_File_Attribute->FK_File_set(pRow_File->PK_File_get());
+		pRow_File_Attribute->FK_Attribute_set(pRow_Attribute->PK_Attribute_get());
+		pRow_File_Attribute->Table_File_Attribute_get()->Commit();
+
+		g_pPlutoLogger->Write(LV_STATUS, "PK_AttrType = %d with value %s", PK_AttrType, sValue.c_str()); 
 	}
 
 	g_pPlutoLogger->Write(LV_STATUS, "Added %s/%s to db with PK_File = %d", m_sDirectory.c_str(), m_sFile.c_str(),
@@ -165,38 +168,41 @@ void PlutoMediaFile::SetFileAttribute(int PK_File)
     attr_set( (m_sDirectory + "/" + m_sFile).c_str( ), "ID", sPK_File.c_str( ), sPK_File.length( ), 0 );
 #endif
 
-	if(IsSupported(m_sFile))
+	string sFileWithAttributes = m_sFile;
+	if(!IsSupported(m_sFile))
 	{
-		//sync id3tags on the files with the attributes from the db
-		map<int,string> mapAttributes;
-		GetId3Info(m_sDirectory + "/" + m_sFile, mapAttributes);
+		sFileWithAttributes = FileUtils::FileWithoutExtension(m_sFile) + ".id3";
+		if(!FileUtils::DirExists(m_sDirectory + "/" + sFileWithAttributes))
+			FileUtils::WriteTextFile(m_sDirectory + "/" + sFileWithAttributes, ""); //touch it
+	}
 
-		string SQL = 
-			"SELECT Attribute.FK_AttributeType, Attribute.Name FROM File_Attribute " 
-			"INNER JOIN Attribute ON Attribute.PK_Attribute = File_Attribute.FK_Attribute "
-			"WHERE FK_File = " + sPK_File;
+	g_pPlutoLogger->Write(LV_STATUS, "Gettings id3 tags from %s/%s", m_sDirectory.c_str(), sFileWithAttributes.c_str());
 
-		PlutoSqlResult allresult,result;
-		MYSQL_ROW row;
-		if((allresult.r = m_pDatabase_pluto_media->mysql_query_result(SQL)))
+	//sync id3tags on the files with the attributes from the db
+	map<int,string> mapAttributes;
+	GetId3Info(m_sDirectory + "/" + sFileWithAttributes, mapAttributes);
+
+	string SQL = 
+		"SELECT Attribute.FK_AttributeType, Attribute.Name FROM File_Attribute " 
+		"INNER JOIN Attribute ON Attribute.PK_Attribute = File_Attribute.FK_Attribute "
+		"WHERE FK_File = " + sPK_File;
+
+	PlutoSqlResult allresult,result;
+	MYSQL_ROW row;
+	if((allresult.r = m_pDatabase_pluto_media->mysql_query_result(SQL)))
+	{
+		while((row = mysql_fetch_row(allresult.r)))
 		{
-			while((row = mysql_fetch_row(allresult.r)))
-			{
-				string sFK_AttributeType = row[0];
-				string sName = row[1];
+			string sFK_AttributeType = row[0];
+			string sName = row[1];
 
-				//create a new entry in id3 tag list or overwrite an old one
-				mapAttributes[atoi(sFK_AttributeType.c_str())] = sName;
-			}
+			//create a new entry in id3 tag list or overwrite an old one
+			mapAttributes[atoi(sFK_AttributeType.c_str())] = sName;
 		}
+	}
 
-		if(mapAttributes.size())
-			SetId3Info(m_sDirectory + "/" + m_sFile, mapAttributes);
-	}
-	else
-	{
-		//do something here
-	}
+	if(mapAttributes.size())
+		SetId3Info(m_sDirectory + "/" + sFileWithAttributes, mapAttributes);
 }
 //-----------------------------------------------------------------------------------------------------
 int PlutoMediaFile::GetFileAttribute()
