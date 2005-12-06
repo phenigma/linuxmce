@@ -1,3 +1,9 @@
+asterisk-pluto (1.0.9-6) unstable; urgency=low
+
+  * Add support for pluto's dialplan to complete control for users and phonelines
+
+ -- Office Server Operator <root@activate.plutohome.com>  Wed, 6 Dec 2005 12:42:13 +0200
+
 asterisk-pluto (1.0.9-5) unstable; urgency=low
 
   * Speak in the house using simplephone
