@@ -47,16 +47,25 @@ using namespace DCE;
 //-----------------------------------------------------------------------------------------------------
 PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, 
                                Database_pluto_main *pDatabase_pluto_main,
-                               string sDirectory, string sFile)
+							   string sDirectory, string sFile) 
 {
     m_pDatabase_pluto_media = pDatabase_pluto_media;
     m_pDatabase_pluto_main = pDatabase_pluto_main;
     m_sDirectory = sDirectory;
     m_sFile = sFile;
+
+	g_pPlutoLogger->Write(LV_WARNING, "Processing path %s, file %s", m_sDirectory.c_str(), m_sFile.c_str());
 }
 //-----------------------------------------------------------------------------------------------------
 PlutoMediaFile::~PlutoMediaFile()
 {
+}
+//-----------------------------------------------------------------------------------------------------
+/*static*/ bool PlutoMediaFile::IsSupported(string sFileName)
+{
+	const string csSupportedExtensions("mp3:ogg:aac:flac");
+	string sExtension = StringUtils::ToLower(FileUtils::FindExtension(sFileName));
+    return csSupportedExtensions.find(sExtension) != string::npos;
 }
 //-----------------------------------------------------------------------------------------------------
 int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
@@ -64,20 +73,21 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
     // Nope.  It's either a new file, or it was moved here from some other directory.  If so,
     // then the the attribute should be set.
     int PK_File = GetFileAttribute();
-    cout << m_sDirectory << "/" << m_sFile << " not in db-attr: " << PK_File << endl;
-    if( !PK_File )
+	g_pPlutoLogger->Write(LV_STATUS, "%s/%s not IN db-attr: %d", m_sDirectory.c_str(), m_sFile.c_str(), PK_File);
+
+    if(!PK_File)
     {
         // Is it a media file?
         if(!PK_MediaType)
             PK_MediaType = PlutoMediaIdentifier::Identify(m_sDirectory + "/" + m_sFile);
 
-        cout << "Media Type is: " << PK_MediaType << endl;
+		g_pPlutoLogger->Write(LV_STATUS, "Media Type is: %d", PK_MediaType);
 
-        if(PK_MediaType)
+		if(PK_MediaType)
             return AddFileToDatabase(PK_MediaType);
         else
         {
-            cout << "not a media file" << endl;
+            g_pPlutoLogger->Write(LV_STATUS, "not a media file");
             return 0;
         }
     }
@@ -87,7 +97,7 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
         if( !pRow_File )
         {
             SetFileAttribute(0);  // The file doesn't exist.  Shouldn't really happen
-            cout << "Huh??  not in db now" << endl;
+			g_pPlutoLogger->Write(LV_STATUS, "Huh??  not in db now");
             return 0;
         }
         // it was in the database, but it's been moved to a different directory or renamed
@@ -106,8 +116,7 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
     pRow_File->EK_MediaType_set(PK_MediaType);
     pRow_File->Table_File_get()->Commit();
 
-	string sExtension = FileUtils::FindExtension(m_sFile);
-	if(sExtension == "mp3")
+	if(IsSupported(m_sFile))
 	{
 		// Add attributes from ID3 tags
 		map<int,string> mapAttributes;
@@ -120,7 +129,7 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 
 			if(PK_AttrType <= 0)
 			{
-				cout << "PK_AttrType = " << PK_AttrType << " with value " << sValue << " - does not exist" << endl;
+				g_pPlutoLogger->Write(LV_STATUS, "PK_AttrType = %d with value %s - does not exist", PK_AttrType, sValue.c_str()); 
 				continue;
 			}
 
@@ -134,25 +143,29 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 			pRow_File_Attribute->FK_Attribute_set(pRow_Attribute->PK_Attribute_get());
 			pRow_File_Attribute->Table_File_Attribute_get()->Commit();
 
-			cout << "Added PK_AttrType = " << PK_AttrType << " with value " << sValue << endl;
+			g_pPlutoLogger->Write(LV_STATUS, "PK_AttrType = %d with value %s", PK_AttrType, sValue.c_str()); 
 		}
 	}
+	else
+	{
+		//do something here
+	}
 
-    cout << "Added " << m_sDirectory << "/" << m_sFile << " to db " << pRow_File->PK_File_get() << endl;
+	g_pPlutoLogger->Write(LV_STATUS, "Added %s/%s to db with PK_File = %d", m_sDirectory.c_str(), m_sFile.c_str(),
+		pRow_File->PK_File_get());
     return pRow_File->PK_File_get();
 }
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::SetFileAttribute(int PK_File)
 {
-    cout << "SetFileAttribute " << m_sDirectory << "/" << m_sFile << " " << PK_File  << endl;
+	g_pPlutoLogger->Write(LV_STATUS, "SetFileAttribute %s/%s %d", m_sDirectory.c_str(), m_sFile.c_str(), PK_File);
     string sPK_File = StringUtils::itos(PK_File);
 
 #ifndef WIN32
     attr_set( (m_sDirectory + "/" + m_sFile).c_str( ), "ID", sPK_File.c_str( ), sPK_File.length( ), 0 );
 #endif
 
-	string sExtension = FileUtils::FindExtension(m_sFile);
-	if(sExtension == "mp3")
+	if(IsSupported(m_sFile))
 	{
 		//sync id3tags on the files with the attributes from the db
 		map<int,string> mapAttributes;
@@ -180,6 +193,10 @@ void PlutoMediaFile::SetFileAttribute(int PK_File)
 		if(mapAttributes.size())
 			SetId3Info(m_sDirectory + "/" + m_sFile, mapAttributes);
 	}
+	else
+	{
+		//do something here
+	}
 }
 //-----------------------------------------------------------------------------------------------------
 int PlutoMediaFile::GetFileAttribute()
@@ -199,18 +216,19 @@ int PlutoMediaFile::GetFileAttribute()
 
     if ( attr_get( (m_sDirectory + "/" + m_sFile).c_str( ), "ID", value, &n, 0 ) == 0 )
     {
-        cout << "GetFileAttribute " << m_sDirectory << "/" << m_sFile << " " << value << endl;
+		g_pPlutoLogger->Write(LV_STATUS, "GetFileAttribute %s/%s %s", m_sDirectory.c_str(), m_sFile.c_str(), value);
         return atoi( value );
     }
 #endif
 
-    cout << "GetFileAttribute " << m_sDirectory << "/" << m_sFile << " not found " << endl;
+	g_pPlutoLogger->Write(LV_STATUS, "GetFileAttribute %s/%s not found", m_sDirectory.c_str(), m_sFile.c_str());
     return 0;
 }
 //-----------------------------------------------------------------------------------------------------
 void PlutoMediaFile::SetPicAttribute(int PK_Picture)
 {
-    cout << "SetPicAttribute " << m_sDirectory << "/" << m_sFile << " " << PK_Picture  << endl;
+	g_pPlutoLogger->Write(LV_STATUS, "SetPicAttribute %s/%s PK_Picture %d", m_sDirectory.c_str(), m_sFile.c_str(),
+		PK_Picture);
 
 #ifndef WIN32
     string sPK_Picture = StringUtils::itos(PK_Picture);
@@ -254,7 +272,7 @@ int PlutoMediaFile::GetPicAttribute(int PK_File)
         StringUtils::itos(PK_File) +
         " ORDER BY `PicPriority`",&vectPicture_Attribute);
 
-    cout << "Found " << (int) vectPicture_Attribute.size() << " pics for attribute" << endl;
+	g_pPlutoLogger->Write(LV_STATUS, "Found %d pics for attribute", (int) vectPicture_Attribute.size());
     if( vectPicture_Attribute.size() )
     {
         SetPicAttribute(vectPicture_Attribute[0]->FK_Picture_get());
@@ -275,6 +293,8 @@ map<string,int> PlutoMediaIdentifier::m_mapExtensions;
 {
 	if(m_mapExtensions.size()) //activate once
 		return;
+
+	g_pPlutoLogger->Write(LV_STATUS, "Activating Pluto Media Identifier...");
 	
     vector<Row_MediaType *> vectRow_MediaType;
     pDatabase_pluto_main->MediaType_get()->GetRows("1=1",&vectRow_MediaType);
@@ -283,10 +303,8 @@ map<string,int> PlutoMediaIdentifier::m_mapExtensions;
         Row_MediaType *pRow_MediaType = vectRow_MediaType[s];
         string::size_type pos=0;
         string sExtensions = pRow_MediaType->Extensions_get();
-cout << "Extensions for " << pRow_MediaType->PK_MediaType_get() << " are : " << sExtensions << endl;		
         while(pos < sExtensions.size() )
             m_mapExtensions[StringUtils::Tokenize(sExtensions,",",pos)] = pRow_MediaType->PK_MediaType_get();
-cout << "m_mapExtensions size is now: " << m_mapExtensions.size() << endl;		
     }
 
     vector<Row_DeviceTemplate_MediaType *> vectRow_DeviceTemplate_MediaType;
@@ -299,6 +317,8 @@ cout << "m_mapExtensions size is now: " << m_mapExtensions.size() << endl;
         while(pos < sExtensions.size() )
             m_mapExtensions[StringUtils::Tokenize(sExtensions,",",pos)] = pRow_DeviceTemplate_MediaType->FK_MediaType_get();
     }
+
+	g_pPlutoLogger->Write(LV_STATUS, "Pluto Media Identifier activated. Extensions %d", m_mapExtensions.size());
 }
 //-----------------------------------------------------------------------------------------------------
 /*static*/ int PlutoMediaIdentifier::Identify(string sFilename)

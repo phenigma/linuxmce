@@ -88,8 +88,6 @@ UpdateMedia::UpdateMedia(Database_pluto_media *pDatabase_pluto_media,
     m_pDatabase_pluto_main = pDatabase_pluto_main;
     m_pDatabase_pluto_media = pDatabase_pluto_media;
 
-	PlutoMediaIdentifier::Activate(m_pDatabase_pluto_main);
-
 	m_bAsDaemon = true;
 	PlutoMediaIdentifier::Activate(m_pDatabase_pluto_main);
 

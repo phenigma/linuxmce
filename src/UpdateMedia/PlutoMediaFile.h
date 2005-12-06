@@ -37,6 +37,8 @@ public:
 
     void SetPicAttribute(int PK_Picture);
     int GetPicAttribute(int PK_File);
+
+	static bool IsSupported(string sFileName);
 };
 
 //-----------------------------------------------------------------------------------------------------
