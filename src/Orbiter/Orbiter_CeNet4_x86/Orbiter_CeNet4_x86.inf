@@ -1,3 +1,9 @@
+[CEDevice]
+UnsupportedPlatforms = 
+VersionMin = 1.0
+VersionMax = 100.0
+ProcessorType = 0
+
 [Version]
 Signature   = "$Windows NT$"        ; required as-is
 Provider    = "Pluto"           ; maximum of 30 characters, full app name will be "<Provider> <AppName>"
@@ -22,7 +28,7 @@ CEShortcuts = Shortcuts
  
 [DestinationDirs]                   ; default destination directories for each operation section
 CopyToProgramFiles    = 0, %InstallDir%
-Shortcuts   = 0, "%CE17%"    ; WindowsStart Menu 
+Shortcuts   = 0, "%CE3%"    ; Desktop
  
 [CopyToProgramFiles]                ; copy operation file list
 "Orbiter_CeNet4_x86.exe", Orbiter_CeNet4_x86.exe
