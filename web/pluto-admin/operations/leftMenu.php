@@ -55,8 +55,8 @@ function leftMenu($output,$dbADO) {
 					if ($res1) {
 						while ($row1 = $res1->FetchRow()) {
 							$jsTree.='				    
-								auxS'.$row1['PK_Array'].' = insFld(foldersTree, gFld("'.removeCR($row1['Description']).'", "index.php?section=myScenarios&action=showArrayCommands&array='.$row1['PK_Array'].'"));
-								auxS'.$row1['PK_Array'].'.xID = '.$row1['PK_Array'].';
+								auxS'.(100000+$row1['PK_Array']).' = insFld(foldersTree, gFld("'.removeCR($row1['Description']).'", "index.php?section=myScenarios&action=showArrayCommands&array='.$row1['PK_Array'].'"));
+								auxS'.(100000+$row1['PK_Array']).'.xID = '.(100000+$row1['PK_Array']).';
 							';
 							
 							$queryGetCommands = 'SELECT * FROM CommandGroup WHERE FK_Installation = ? AND FK_Array = ?';
@@ -64,7 +64,7 @@ function leftMenu($output,$dbADO) {
 							
 							while ($rowGetCommands = $resGetCommands->FetchRow()) {
 								$jsTree.='				    
-									auxSa'.$rowGetCommands['PK_CommandGroup'].' = insFld(auxS'.$row1['PK_Array'].', gFld("'.removeCR($rowGetCommands['Description']).(($rowGetCommands['Hint']!='')?': '.$rowGetCommands['Hint']:'').'", "index.php?section=editCommandGroup&cgID='.$rowGetCommands['PK_CommandGroup'].'"));
+									auxSa'.$rowGetCommands['PK_CommandGroup'].' = insFld(auxS'.(100000+$row1['PK_Array']).', gFld("'.removeCR($rowGetCommands['Description']).(($rowGetCommands['Hint']!='')?': '.$rowGetCommands['Hint']:'').'", "index.php?section=editCommandGroup&cgID='.$rowGetCommands['PK_CommandGroup'].'"));
 									auxSa'.$rowGetCommands['PK_CommandGroup'].'.xID = '.$rowGetCommands['PK_CommandGroup'].';
 								';
 							}
