@@ -369,16 +369,16 @@ function ripInProgress($powerFileID){
 
 function get_already_ripped($powerFileID,$mediadbADO){
 	$res=$mediadbADO->Execute('
-		SELECT Disc.*,File_Attribute.FK_File,Attribute.FK_AttributeType,Attribute.Name 
+		SELECT Disc.*,File_Attribute.FK_File,Attribute.FK_AttributeType,Attribute.Name
 		FROM Disc
 		LEFT JOIN Disc_Attribute ON FK_Disc=PK_Disc AND Disc_Attribute.Section=0 AND Disc_Attribute.Track=0
 		LEFT JOIN Attribute ON Disc_Attribute.FK_Attribute=PK_Attribute
-		LEFT JOIN File_Attribute ON File_Attribute.FK_Attribute=PK_Attribute AND File_Attribute.Track=0 AND File_Attribute.Section=0 
-		WHERE (FK_AttributeType IN (2,3,4,13,14) OR FK_AttributeType IS NULL) AND EK_Device=? 
+		LEFT JOIN File_Attribute ON File_Attribute.FK_Attribute=PK_Attribute AND File_Attribute.Track=0 AND File_Attribute.Section=0
+		WHERE (FK_AttributeType IN (2,3,4,13,14) OR FK_AttributeType IS NULL) AND EK_Device=?
 		ORDER BY Slot',$powerFileID);
 	$ripped=array();
 	while($row=$res->FetchRow()){
-		if(!is_null($row['FK_File'])){
+		if((!is_null($row['FK_File']) && $row['FK_AttributeType']==3) || (!is_null($row['FK_File']) && $row['FK_AttributeType']==4)){
 			$ripped[$row['Slot']]=$row['FK_File'];
 		}
 	}
