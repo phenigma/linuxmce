@@ -52,7 +52,7 @@ function leftMediaFilesSync($output,$mediadbADO) {
 		foreach ($pathsArray AS $directory){
 			if($directory!=''){
 				$pathTo.='/'.$directory;
-				$linksTree.=$indent.(($pathTo==$startPath)?'<B>[ '.stripslashes($directory).' ]</B><br>':'<a href="javascript:syncPath(\''.urlencode($pathTo).'\')"><B>&gt; '.stripslashes($directory).'</B></a><br>');
+				$linksTree.=$indent.(($pathTo==$startPath)?'<B>[ <a href="javascript:syncPath(\''.urlencode($pathTo).'\')"><B> '.stripslashes($directory).'</B></a> ]</B><br>':'<a href="javascript:syncPath(\''.urlencode($pathTo).'\')"><B>&gt; '.stripslashes($directory).'</B></a><br>');
 				$indent.='&nbsp;&nbsp;&nbsp;&nbsp;';
 			}
 		}

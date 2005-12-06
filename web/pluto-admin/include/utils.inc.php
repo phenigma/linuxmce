@@ -859,7 +859,7 @@ function grabFiles($path,$fileParm='-type f',$startingWith='') {
 	$filesArray=array();
 	// required to read files larger than 2G
 	$PathParm=($startingWith!='')?'"'.$path.$startingWith.'"*':$path;
-	exec('find "'.$PathParm.'" '.$fileParm.' -maxdepth 1',$retArray);
+	exec('sudo -u root find "'.$PathParm.'" '.$fileParm.' -maxdepth 1',$retArray);
 	foreach ($retArray AS $file){
 		if($file!=$path){
 			$filesArray[]=str_replace($path.'/','',$file);
@@ -3380,6 +3380,7 @@ function getIrGroup_CommandsMatrix($dtID,$InfraredGroupsArray,$userID,$comMethod
 	if(count($InfraredGroupsArray)==0){
 		return '';
 	}
+
 	$comMethodFilter=(!is_null($comMethod))?' AND FK_CommMethod='.$comMethod:'';	
 	$codesData=getFieldsAsArray('InfraredGroup_Command','PK_InfraredGroup_Command,IRData,FK_InfraredGroup,FK_Command,InfraredGroup.Description AS IRG_Name',$publicADO,'INNER JOIN Command ON FK_Command=PK_Command INNER JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup WHERE (FK_DeviceTemplate IS NULL OR FK_DeviceTemplate='.$dtID.') AND FK_InfraredGroup IN ('.join(',',$InfraredGroupsArray).') AND FK_Command IN ('.join(',',array_keys($restrictedCommandsArray)).')'.$comMethodFilter,'ORDER BY FK_InfraredGroup ASC,FK_Command ASC');
 
