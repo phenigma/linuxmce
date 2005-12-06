@@ -40,52 +40,51 @@ $DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\
 my $tmp="";
 while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
 {
-	my $line = "10".$1 if($DB_ROW->{'ID'} =~ /(\d)$/);
-	my $hm = $DB_ROW->{'EK_HouseMode'};
-	if($tmp ne $line)
-	{
-		$EXT_BUFFER .= "exten => $line,1,AGI(pluto-gethousemode.agi)\n";
-		$EXT_BUFFER .= "exten => $line,2,Goto($line-hm\${HOUSEMODE},1)\n";
-		$EXT_BUFFER .= "exten => $line,3,Hangup\n";	
-	}
-	my $action = "NoOp(\"Do nothing\")";
-	if($DB_ROW->{'Routing'} =~ /^ring,((\d+[,])*(\d+))$/)
-	{
-		my @arr=split(/,/,$1);
-		$action = "Dial(";
-		foreach my $i (@arr)
-		{
-			$action .= "Local/".$PHONES{$i}."\@trusted&";
-		}
-		$action =~ s/[&]$//;		
-		$action .= ",$TIMEOUT)";
-	}
-	if($DB_ROW->{'Routing'} =~ /^user,(\d+)$/)
-	{
-		$action = "Dial(Local/".$USERS{$1}."\@trusted,$TIMEOUT)";
-	}
-	if($DB_ROW->{'Routing'} =~ /^transfer,(\d+)$/)
-	{
-		$action = "Dial(Local/".$1."\@trusted,$TIMEOUT)";
-	}
-	if($DB_ROW->{'Routing'} =~ /^voicemail,(\d+)$/)
-	{
-		$action = "Macro(vm,".$USERS{$1}.")";
-	}
-	if($DB_ROW->{'Routing'} =~ /^prompt,(\d+)$/)
-	{
-		$action = "Goto(voice-menu-pluto-custom,s,1)";
-	}
-	$EXT_BUFFER .= "exten => $line-hm$hm,1,$action\n";
-	$EXT_BUFFER .= "exten => $line-hm$hm,2,Goto($line-hm$hm-\${DIALSTATUS},1)\n";		
-	$EXT_BUFFER .= "exten => $line-hm$hm,3,Hangup\n";
-	$EXT_BUFFER .= "exten => $line-hm$hm-BUSY,1,Goto(100,1)\n";	
-	$EXT_BUFFER .= "exten => $line-hm$hm-NOANSWER,1,Goto(100,1)\n";
-	$EXT_BUFFER .= "exten => $line-hm$hm-CONGESTION,1,Goto(100,1)\n";	
-	$EXT_BUFFER .= "exten => $line-hm$hm-CHANUNAVAIL,1,Goto(100,1)\n";
-	$tmp = $line;
+    my $line = "10".$1 if($DB_ROW->{'ID'} =~ /(\d)$/);
+    my $hm = $DB_ROW->{'EK_HouseMode'};
+    if($tmp ne $line)
+    {
+        $EXT_BUFFER .= "exten => $line,1,AGI(pluto-gethousemode.agi)\n";
+        $EXT_BUFFER .= "exten => $line,2,Goto($line-hm\${HOUSEMODE},1)\n";
+        $EXT_BUFFER .= "exten => $line,3,Hangup\n";
+    }
+    my $action = "NoOp(\"Do nothing\")";
+    if($DB_ROW->{'Routing'} =~ /^ring,((\d+[,])*(\d+))$/)
+    {
+        my @arr=split(/,/,$1);
+        $action = "Dial(";
+        foreach my $i (@arr)
+        {
+            $action .= "Local/".$PHONES{$i}."\@trusted&";
+        }
+        $action =~ s/[&]$//;
+        $action .= ",$TIMEOUT)";
+    }
+    if($DB_ROW->{'Routing'} =~ /^user,(\d+)$/)
+    {
+        $action = "Dial(Local/".$USERS{$1}."\@trusted,$TIMEOUT)";
+    }
+    if($DB_ROW->{'Routing'} =~ /^transfer,(\d+)$/)
+    {
+        $action = "Dial(Local/".$1."\@trusted,$TIMEOUT)";
+    }
+    if($DB_ROW->{'Routing'} =~ /^voicemail,(\d+)$/)
+    {
+        $action = "Macro(vm,".$USERS{$1}.")";
+    }
+    if($DB_ROW->{'Routing'} =~ /^prompt,(\d+)$/)
+    {
+        $action = "Goto(voice-menu-pluto-custom,s,1)";
+    }
+    $EXT_BUFFER .= "exten => $line-hm$hm,1,$action\n";
+    $EXT_BUFFER .= "exten => $line-hm$hm,2,Goto($line-hm$hm-\${DIALSTATUS},1)\n";
+    $EXT_BUFFER .= "exten => $line-hm$hm,3,Hangup\n";
+    $EXT_BUFFER .= "exten => $line-hm$hm-BUSY,1,Goto(100,1)\n";
+    $EXT_BUFFER .= "exten => $line-hm$hm-NOANSWER,1,Goto(100,1)\n";
+    $EXT_BUFFER .= "exten => $line-hm$hm-CONGESTION,1,Goto(100,1)\n";
+    $EXT_BUFFER .= "exten => $line-hm$hm-CHANUNAVAIL,1,Goto(100,1)\n";
+    $tmp = $line;
 }
-
 
 $EXT_BUFFER .= "\n;Users\n";
 $DB_SQL = "select EK_Users,EK_UserMode,IsPriorityCaller,StepOrder,Routing from UserRouting order by EK_Users,IsPriorityCaller,EK_UserMode,StepOrder";
@@ -94,58 +93,56 @@ $DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\
 $tmp = "";
 while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
 {{
-	next unless(defined $USERS{$DB_ROW->{'EK_Users'}});
-	my $user = $USERS{$DB_ROW->{'EK_Users'}};
-	my $um = $DB_ROW->{'EK_UserMode'};
-	my $try = $DB_ROW->{'StepOrder'};
-	my $pri = $DB_ROW->{'IsPriorityCaller'};
-	unless($tmp =~ /^$user[-]/)
-	{
-		$EXT_BUFFER .= "exten => $user,1,AGI(pluto-getusermode.agi)\n";
-		$EXT_BUFFER .= "exten => $user,2,Goto($user-um\${USERMODE}-pri\${PRIORITYCALLER},1)\n";
-		$EXT_BUFFER .= "exten => $user,3,Hangup\n";
-	}
-
-	my $action = "NoOp(\"Do nothing\")";
-	if($DB_ROW->{'Routing'} =~ /^ring,((\d+[,])*(\d+))$/)
-	{
-		my @arr=split(/,/,$1);
-		$action = "Dial(";
-		foreach my $i (@arr)
-		{
-			$action .= "Local/".$PHONES{$i}."\@trusted&";
-		}
-		$action =~ s/[&]$//;		
-		$action .= ",$TIMEOUT)";
-	}
-	if($DB_ROW->{'Routing'} =~ /^user,(\d+)$/)
-	{
-		$action = "Dial(Local/".$USERS{$1}."\@trusted,$TIMEOUT)";
-	}
-	if($DB_ROW->{'Routing'} =~ /^transfer,(\d+)$/)
-	{
-		$action = "Dial(Local/".$1."\@trusted,$TIMEOUT)";
-	}
-	if($DB_ROW->{'Routing'} =~ /^voicemail,(\d+)$/)
-	{
-		$action = "Macro(vm,".$USERS{$1}.")";
-	}
-	if($tmp ne $user."-".$pri)
-	{
-		$EXT_BUFFER .= "exten => $user-um$um-pri$pri,1,Goto($user-um$um-pri$pri-try$try,1)\n";
-	}
-	$EXT_BUFFER .= "exten => $user-um$um-pri$pri-try$try,1,$action\n";
-	$EXT_BUFFER .= "exten => $user-um$um-pri$pri-try$try,2,Goto($user-um$um-pri$pri-try$try-\${DIALSTATUS},1)\n";
-	$EXT_BUFFER .= "exten => $user-um$um-pri$pri-try$try,3,Hangup\n";
-	$EXT_BUFFER .= "exten => $user-um$um-pri$pri-try$try-BUSY,1,Goto($user-um$um-pri$pri-try".($try+1).",1)\n";	
-	$EXT_BUFFER .= "exten => $user-um$um-pri$pri-try$try-NOANSWER,1,Goto($user-um$um-pri$pri-try".($try+1).",1)\n";
-	$EXT_BUFFER .= "exten => $user-um$um-pri$pri-try$try-CONGESTION,1,Goto($user-um$um-pri$pri-try".($try+1).",1)\n";
-	$EXT_BUFFER .= "exten => $user-um$um-pri$pri-try$try-CHANUNAVAIL,1,Goto($user-um$um-pri$pri-try".($try+1).",1)\n";
-	$tmp = $user."-".$pri;
-#	$EXT_BUFFER .= "exten => $user-um$um-try$try,1,Hangup\n";
+    next unless(defined $USERS{$DB_ROW->{'EK_Users'}});
+    my $user = $USERS{$DB_ROW->{'EK_Users'}};
+    my $um = $DB_ROW->{'EK_UserMode'};
+    my $try = $DB_ROW->{'StepOrder'};
+    my $pri = $DB_ROW->{'IsPriorityCaller'};
+    unless($tmp =~ /^$user[-]/)
+    {
+        $EXT_BUFFER .= "exten => $user,1,AGI(pluto-getusermode.agi)\n";
+        $EXT_BUFFER .= "exten => $user,2,Goto($user-um\${USERMODE}-pri\${PRIORITYCALLER},1)\n";
+        $EXT_BUFFER .= "exten => $user,3,Hangup\n";
+    }
+    my $action = "NoOp(\"Do nothing\")";
+    if($DB_ROW->{'Routing'} =~ /^ring,((\d+[,])*(\d+))$/)
+    {
+        my @arr=split(/,/,$1);
+        $action = "Dial(";
+        foreach my $i (@arr)
+        {
+            $action .= "Local/".$PHONES{$i}."\@trusted&";
+        }
+        $action =~ s/[&]$//;
+        $action .= ",$TIMEOUT)";
+    }
+    if($DB_ROW->{'Routing'} =~ /^user,(\d+)$/)
+    {
+        $action = "Dial(Local/".$USERS{$1}."\@trusted,$TIMEOUT)";
+    }
+    if($DB_ROW->{'Routing'} =~ /^transfer,(\d+)$/)
+    {
+        $action = "Dial(Local/".$1."\@trusted,$TIMEOUT)";
+    }
+    if($DB_ROW->{'Routing'} =~ /^voicemail,(\d+)$/)
+    {
+        $action = "Macro(vm,".$USERS{$1}.")";
+    }
+    if($tmp ne $user."-".$pri)
+    {
+        $EXT_BUFFER .= "exten => $user-um$um-pri$pri,1,Goto($user-um$um-pri$pri-try$try,1)\n";
+    }
+    $EXT_BUFFER .= "exten => $user-um$um-pri$pri-try$try,1,$action\n";
+    $EXT_BUFFER .= "exten => $user-um$um-pri$pri-try$try,2,Goto($user-um$um-pri$pri-try$try-\${DIALSTATUS},1)\n";
+    $EXT_BUFFER .= "exten => $user-um$um-pri$pri-try$try,3,Hangup\n";
+    $EXT_BUFFER .= "exten => $user-um$um-pri$pri-try$try-BUSY,1,Goto($user-um$um-pri$pri-try".($try+1).",1)\n";
+    $EXT_BUFFER .= "exten => $user-um$um-pri$pri-try$try-NOANSWER,1,Goto($user-um$um-pri$pri-try".($try+1).",1)\n";
+    $EXT_BUFFER .= "exten => $user-um$um-pri$pri-try$try-CONGESTION,1,Goto($user-um$um-pri$pri-try".($try+1).",1)\n";
+    $EXT_BUFFER .= "exten => $user-um$um-pri$pri-try$try-CHANUNAVAIL,1,Goto($user-um$um-pri$pri-try".($try+1).",1)\n";
+    $tmp = $user."-".$pri;
+#    $EXT_BUFFER .= "exten => $user-um$um-try$try,1,Hangup\n";
 
 }}
-
 
 $EXT_BUFFER .= "\n\n[voice-menu-pluto-custom]\n\n";
 $EXT_BUFFER .= "exten => s,1,Answer\n";
@@ -157,15 +154,15 @@ $EXT_BUFFER .= "exten => t,1,Goto(s,1)\n";
 
 foreach my $user (sort (values(%PHONES)))
 {
-	$tmp .= "Local/$user\@trusted&";
+    $tmp .= "Local/$user\@trusted&";
 }
 $tmp =~ s/[&]$//;
 $EXT_BUFFER .= "exten => 0,1,Dial($tmp,$TIMEOUT)\n";
 $EXT_BUFFER .= "exten => 0,2,Goto(s,1)\n";
 foreach my $user (sort (values(%USERS)))
 {
-	$EXT_BUFFER .= "exten => $1,1,Dial(Local/$user\@trused,$TIMEOUT)\n" if ($user =~ /(\d)$/);
-	$EXT_BUFFER .= "exten => $1,2,Goto(s,1)\n" if ($user =~ /(\d)$/);
+    $EXT_BUFFER .= "exten => $1,1,Dial(Local/$user\@trused,$TIMEOUT)\n" if ($user =~ /(\d)$/);
+    $EXT_BUFFER .= "exten => $1,2,Goto(s,1)\n" if ($user =~ /(\d)$/);
 }
 $EXT_BUFFER .= "exten => #,1,Macro(vm,100)\n";
 $EXT_BUFFER .= "exten => #,2,Hangup\n";
@@ -173,7 +170,6 @@ $EXT_BUFFER .= "exten => #,2,Hangup\n";
 open(FILE,"> $EXT_FILE") or die "Could not open '$EXT_FILE'";
 print FILE $EXT_BUFFER;
 close(FILE);
-
 
 #create voiceboxes
 my $VM_FILE = "/etc/asterisk/voicemail.conf";
@@ -183,54 +179,54 @@ open(FILE,"< $VM_FILE") or die "Could not open '$VM_FILE'";
 
 while(<FILE>)
 {
-	chomp;
-	my $line = $_;
-	if($line =~ /^\[default\]$/)
-	{
-		$VM_BUFFER .= $line."\n";
-		$line = <FILE>;
-		chomp $line;
-		my $founduser= ",";
-		my $user;
-		my $key;
-		while($line =~ /[^\[]/)
-		{
-			$VM_BUFFER .= $line."\n";
-			foreach $key (keys (%USERS))
-			{
-				$user = $USERS{$key};
-				if($line =~ /^$user\s[=][>]/)
-				{
-					$founduser .= $user.",";
-				}
-			}
-			if($line =~ /^100\s[=][>]/)
-			{
-				$founduser .= "100,";
-			}
-			
-			$line = <FILE>;
-			chomp $line;			
-		}
-		foreach $key (keys (%USERS))
-		{
-			$user = $USERS{$key};
-			unless($founduser =~ /,$user,/)
-			{
-				$VM_BUFFER .= "$user => $user,".$NAMES{$key}.",".$MAILS{$key}.",,attach=yes|saycid=no|envelope=yes|delete=no|nextaftercmd=no|operator=no\n";
-			}
-		}
-		unless($founduser =~ /,100,/)
-		{
-			$VM_BUFFER .= "100 => 100,Default,,,attach=no|saycid=no|envelope=no|delete=no|nextaftercmd=no|operator=no\n";
-		}
-		
-		$VM_BUFFER .= $line."\n";		
-	}
-	else
-	{
-		$VM_BUFFER .= $line."\n";
-	}
+    chomp;
+    my $line = $_;
+    if($line =~ /^\[default\]$/)
+    {
+        $VM_BUFFER .= $line."\n";
+        $line = <FILE>;
+        chomp $line;
+        my $founduser= ",";
+        my $user;
+        my $key;
+        while($line =~ /[^\[]/)
+        {
+            $VM_BUFFER .= $line."\n";
+            foreach $key (keys (%USERS))
+            {
+                $user = $USERS{$key};
+                if($line =~ /^$user\s[=][>]/)
+                {
+                    $founduser .= $user.",";
+                }
+            }
+            if($line =~ /^100\s[=][>]/)
+            {
+                $founduser .= "100,";
+            }
+
+            $line = <FILE>;
+            chomp $line;
+        }
+        foreach $key (keys (%USERS))
+        {
+            $user = $USERS{$key};
+            unless($founduser =~ /,$user,/)
+            {
+                $VM_BUFFER .= "$user => $user,".$NAMES{$key}.",".$MAILS{$key}.",,attach=yes|saycid=no|envelope=yes|delete=no|nextaftercmd=no|operator=no\n";
+            }
+        }
+        unless($founduser =~ /,100,/)
+        {
+            $VM_BUFFER .= "100 => 100,Default,,,attach=no|saycid=no|envelope=no|delete=no|nextaftercmd=no|operator=no\n";
+        }
+
+        $VM_BUFFER .= $line."\n";
+    }
+    else
+    {
+        $VM_BUFFER .= $line."\n";
+    }
 }
 close(FILE);
 
@@ -240,49 +236,49 @@ close(FILE);
 
 sub read_pluto_config()
 {
-	open(CONF,"/etc/pluto.conf") or die "Could not open pluto config";
-	while(<CONF>)
-	{
-		chomp;
-		my ($option, $eq, $value) = split(/ /,$_);
-		if($option eq "MySqlHost")
-		{
-			$CONF_HOST=$value;
-		}
-		elsif ($option eq "MySqlUser")
-		{
-			$CONF_USER=$value;
-		}
-		elsif ($option eq "MySqlPassword")
-		{
-			$CONF_PASSWD=$value;
-		}
-	}
-	close(CONF);
+    open(CONF,"/etc/pluto.conf") or die "Could not open pluto config";
+    while(<CONF>)
+    {
+        chomp;
+        my ($option, $eq, $value) = split(/ /,$_);
+        if($option eq "MySqlHost")
+        {
+            $CONF_HOST=$value;
+        }
+        elsif ($option eq "MySqlUser")
+        {
+            $CONF_USER=$value;
+        }
+        elsif ($option eq "MySqlPassword")
+        {
+            $CONF_PASSWD=$value;
+        }
+    }
+    close(CONF);
 }
 
 sub get_all_users_extensions()
 {
-	$DB_SQL = "select PK_Users,UserName,Extension,ForwardEmail from Users where `Extension` like '30%'";
-	$DB_STATEMENT = $DB_PL_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
-	$DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
-	while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
-	{
-		$USERS{$DB_ROW->{'PK_Users'}} = $DB_ROW->{'Extension'};
-		$MAILS{$DB_ROW->{'PK_Users'}} = $DB_ROW->{'ForwardEmail'};
-		$NAMES{$DB_ROW->{'PK_Users'}} = $DB_ROW->{'UserName'};
-	}
-	$DB_STATEMENT->finish();
+    $DB_SQL = "select PK_Users,UserName,Extension,ForwardEmail from Users where `Extension` like '30%'";
+    $DB_STATEMENT = $DB_PL_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
+    $DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
+    while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
+    {
+        $USERS{$DB_ROW->{'PK_Users'}} = $DB_ROW->{'Extension'};
+        $MAILS{$DB_ROW->{'PK_Users'}} = $DB_ROW->{'ForwardEmail'};
+        $NAMES{$DB_ROW->{'PK_Users'}} = $DB_ROW->{'UserName'};
+    }
+    $DB_STATEMENT->finish();
 }
 
 sub get_all_phones_extensions()
 {
-	$DB_SQL = "select FK_Device, IK_DeviceData from Device_DeviceData where FK_DeviceData=31";
-	$DB_STATEMENT = $DB_PL_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
-	$DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
-	while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
-	{
-		$PHONES{$DB_ROW->{'FK_Device'}} = $DB_ROW->{'IK_DeviceData'};
-	}
-	$DB_STATEMENT->finish();
+    $DB_SQL = "select FK_Device, IK_DeviceData from Device_DeviceData where FK_DeviceData=31";
+    $DB_STATEMENT = $DB_PL_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
+    $DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
+    while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
+    {
+        $PHONES{$DB_ROW->{'FK_Device'}} = $DB_ROW->{'IK_DeviceData'};
+    }
+    $DB_STATEMENT->finish();
 }
