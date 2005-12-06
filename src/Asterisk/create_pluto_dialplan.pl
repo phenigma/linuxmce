@@ -44,7 +44,7 @@ while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
 	my $hm = $DB_ROW->{'EK_HouseMode'};
 	if($tmp ne $line)
 	{
-		$EXT_BUFFER .= "exten => $line,1,SetVar(HOUSEMODE=1)\n";
+		$EXT_BUFFER .= "exten => $line,1,AGI(pluto-gethousemode.agi)\n";
 		$EXT_BUFFER .= "exten => $line,2,Goto($line-hm\${HOUSEMODE},1)\n";
 		$EXT_BUFFER .= "exten => $line,3,Hangup\n";	
 	}
@@ -101,10 +101,9 @@ while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
 	my $pri = $DB_ROW->{'IsPriorityCaller'};
 	unless($tmp =~ /^$user[-]/)
 	{
-		$EXT_BUFFER .= "exten => $user,1,SetVar(USERMODE=1)\n";
-		$EXT_BUFFER .= "exten => $user,2,AGI(pluto-prioritycaller.agi,\${CALLERIDNUM})\n";
-		$EXT_BUFFER .= "exten => $user,3,Goto($user-um\${USERMODE}-pri\${PRIORITYCALLER},1)\n";
-		$EXT_BUFFER .= "exten => $user,4,Hangup\n";
+		$EXT_BUFFER .= "exten => $user,1,AGI(pluto-getusermode.agi)\n";
+		$EXT_BUFFER .= "exten => $user,2,Goto($user-um\${USERMODE}-pri\${PRIORITYCALLER},1)\n";
+		$EXT_BUFFER .= "exten => $user,3,Hangup\n";
 	}
 
 	my $action = "NoOp(\"Do nothing\")";
