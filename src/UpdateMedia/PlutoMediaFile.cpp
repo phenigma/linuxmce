@@ -24,6 +24,7 @@
 
 #include "pluto_main/Table_MediaType.h"
 #include "pluto_main/Table_DeviceTemplate_MediaType.h"
+#include "pluto_main/Table_Installation.h"
 
 #include "pluto_media/Table_File.h"
 #include "pluto_media/Table_Picture_File.h"
@@ -53,6 +54,13 @@ PlutoMediaFile::PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media,
     m_pDatabase_pluto_main = pDatabase_pluto_main;
     m_sDirectory = sDirectory;
     m_sFile = sFile;
+
+	m_nInstallationID = 0;
+	vector<Row_Installation *> vectRow_Installation;
+	m_pDatabase_pluto_main->Installation_get()->GetRows("1=1", &vectRow_Installation);
+
+	if(vectRow_Installation.size() > 1)
+		m_nInstallationID = vectRow_Installation[0]->PK_Installation_get();
 
 	g_pPlutoLogger->Write(LV_WARNING, "Processing path %s, file %s", m_sDirectory.c_str(), m_sFile.c_str());
 }
@@ -165,7 +173,9 @@ void PlutoMediaFile::SetFileAttribute(int PK_File)
     string sPK_File = StringUtils::itos(PK_File);
 
 #ifndef WIN32
-    attr_set( (m_sDirectory + "/" + m_sFile).c_str( ), "ID", sPK_File.c_str( ), sPK_File.length( ), 0 );
+	string sInstallation = StringUtils::ltos(m_nInstallationID);
+	attr_set((m_sDirectory + "/" + m_sFile).c_str(), "PK_Installation", sInstallation.c_str(), sInstallation.length(), 0);
+    attr_set((m_sDirectory + "/" + m_sFile).c_str(), "ID", sPK_File.c_str(), sPK_File.length(), 0);
 #endif
 
 	string sFileWithAttributes = m_sFile;
@@ -216,14 +226,26 @@ int PlutoMediaFile::GetFileAttribute()
     else
         return 0;
 #else
-    int n = 79;
-    char value[80];
-    memset( value, 0, sizeof( value ) );
+	int n = 79;
+	char value[80];
+	memset(value, 0, sizeof(value));
 
-    if ( attr_get( (m_sDirectory + "/" + m_sFile).c_str( ), "ID", value, &n, 0 ) == 0 )
+	//get installation id
+	if(attr_get((m_sDirectory + "/" + m_sFile).c_str(), "PK_Installation", value, &n, 0) == 0)
+	{
+		int PK_Installation = atoi(value);
+		if(NULL == m_pDatabase_pluto_main->Installation_get()->GetRow(PK_Installation)) //not the same installation
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "File %s/%s is form a different installation %d", 
+				m_sDirectory.c_str(), m_sFile.c_str(), PK_Installation);
+			return 0;
+		}
+	}
+
+    if(attr_get((m_sDirectory + "/" + m_sFile).c_str(), "ID", value, &n, 0) == 0)
     {
 		g_pPlutoLogger->Write(LV_STATUS, "GetFileAttribute %s/%s %s", m_sDirectory.c_str(), m_sFile.c_str(), value);
-        return atoi( value );
+        return atoi(value);
     }
 #endif
 

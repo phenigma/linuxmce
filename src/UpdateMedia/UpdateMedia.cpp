@@ -140,7 +140,7 @@ int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
 	{
         string sFile = *it;
 
-		//ignore id3 tags
+		//ignore id3 files
 		if(StringUtils::ToLower(FileUtils::FindExtension(sFile)) == "id3")
 			continue;
 

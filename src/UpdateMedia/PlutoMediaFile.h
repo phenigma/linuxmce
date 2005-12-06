@@ -21,10 +21,11 @@ private:
 
     string m_sDirectory;
     string m_sFile;
+	long m_nInstallationID;
 
     //internal helper functions
     int AddFileToDatabase(int PK_MediaType);
-
+	
 public:
     PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, Database_pluto_main *pDatabase_pluto_main,
         string sDirectory, string sFile);
