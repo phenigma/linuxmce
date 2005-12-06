@@ -1,0 +1,44 @@
+#!/usr/bin/perl
+use strict;
+use DBI;
+
+$|=1;
+
+# Setup some variables
+my %AGI;
+my $line;
+my $the_priority = 0;
+
+while(<STDIN>) {
+	chomp;
+	last unless length($_);
+	if (/^agi_(\w+)\:\s+(.*)$/) {
+		$AGI{$1} = $2;
+	}
+}
+
+print STDERR "AGI Environment Dump:\n";
+foreach my $i (sort keys %AGI) {
+	print STDERR " -- $i = $AGI{$i}\n";
+}
+
+print "EXEC SetVar HOUSEMODE=1\n";
+$line=<STDIN>;
+&checkresult($line);
+
+sub checkresult {
+	my ($res) = @_;
+	my $retval;
+	chomp $res;
+	if ($res =~ /^200/) {
+		$res =~ /result=(-?\d+)/;
+		if (!length($1)) {
+			print STDERR "FAIL ($res)\n";
+		} else {
+			print STDERR "PASS ($1)\n";
+		}
+	} else {
+		print STDERR "FAIL (unexpected result '$res')\n";
+	}
+}
+
