@@ -25,7 +25,11 @@ private:
 
     //internal helper functions
     int AddFileToDatabase(int PK_MediaType);
-	
+
+	string FileWithAttributes();
+	bool SavePlutoAttributes(string sFullFileName, long PK_Installation, long PK_File, long PK_Picture, string sPictureUrl);
+	bool LoadPlutoAttributes(string sFullFileName, long& PK_Installation, long& PK_File, long& PK_Picture, string& sPictureUrl);
+
 public:
     PlutoMediaFile(Database_pluto_media *pDatabase_pluto_media, Database_pluto_main *pDatabase_pluto_main,
         string sDirectory, string sFile);
@@ -36,7 +40,7 @@ public:
     void SetFileAttribute(int PK_File);
     int GetFileAttribute();
 
-    void SetPicAttribute(int PK_Picture);
+    void SetPicAttribute(int PK_Picture, string sPictureUrl);
     int GetPicAttribute(int PK_File);
 
 	static bool IsSupported(string sFileName);

@@ -2,6 +2,8 @@
 #  include <config.h>
 #endif
 
+#include "id3info.h"
+
 #include <id3/tag.h>
 #include <id3/utils.h>
 #include <id3/misc_support.h>
@@ -60,6 +62,8 @@ void GetInformation(const ID3_Tag &myTag, map<int,string>& mapAttributes)
         PK_Attr = -6; // todo ask
     else if(id == "TOPE") //Original artist(s)/performer(s)
         PK_Attr = -7; // todo ask;
+	else if(id == "TXXX") //used defined text
+		PK_Attr = Internal_UserDefinedText_CONST; 
 	else
 		PK_Attr = -1000;
 
@@ -119,7 +123,7 @@ void GetInformation(const ID3_Tag &myTag, map<int,string>& mapAttributes)
         *sText = ID3_GetString(frame, ID3FN_TEXT), 
         *sDesc = ID3_GetString(frame, ID3FN_DESCRIPTION);
         cout << "(" << sDesc << "): " << sText << endl;
-		value = string("(") + sDesc + "): " + sText;
+		value = sText; //ignoring Description
         delete [] sText;
         delete [] sDesc;
         break;
@@ -378,6 +382,50 @@ ID3_Frame* ID3_AddComposer(ID3_Tag *tag, const char *text, bool replace = true)
     return frame;
 } 
 
+size_t ID3_RemoveUserDefinedText(ID3_Tag *tag)
+{
+	size_t num_removed = 0;
+	ID3_Frame *frame = NULL;
+
+	if (NULL == tag)
+	{
+		return num_removed;
+	}
+
+	while ((frame = tag->Find(ID3FID_USERTEXT)))
+	{
+		frame = tag->RemoveFrame(frame);
+		delete frame;
+		num_removed++;
+	}
+
+	return num_removed;
+} 
+
+ID3_Frame* ID3_AddUserDefinedText(ID3_Tag *tag, const char *text, bool replace = true)
+{
+	ID3_Frame* frame = NULL;
+	if (NULL != tag && NULL != text && strlen(text) > 0)
+	{
+		cout << "replace: " << replace << endl;
+		if (replace)
+		{
+			ID3_RemoveUserDefinedText(tag);
+		}
+		if (replace || tag->Find(ID3FID_USERTEXT) == NULL)
+		{
+			frame = new ID3_Frame(ID3FID_USERTEXT);
+			if (frame)
+			{
+				frame->GetField(ID3FN_TEXT)->Set(text);
+				tag->AttachFrame(frame);
+			}
+		}
+	}
+
+	return frame;
+} 
+
 void SetId3Info(string sFilename, const map<int,string>& mapAttributes)
 {
     ID3_Tag myTag; 
@@ -425,6 +473,10 @@ void SetId3Info(string sFilename, const map<int,string>& mapAttributes)
 
             case ATTRIBUTETYPE_Composer_CONST:
                 ID3_AddComposer(&myTag, sValue.c_str(), true);
+				break;
+			
+			case Internal_UserDefinedText_CONST:
+				ID3_AddUserDefinedText(&myTag, sValue.c_str(), true);
 				break;
 
             default:

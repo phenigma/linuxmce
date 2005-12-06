@@ -155,7 +155,7 @@ int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
 			PK_File = PlutoMediaFile_.HandleFileNotInDatabase();
 			if(!PK_File)
 				continue; // Nothing to do
-		}
+		}	
 		else
 		{
 			Row_File *pRow_File = itMapFiles->second.first;
@@ -262,7 +262,7 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 	if( PK_Picture_Directory )
 		PK_Picture = PK_Picture_Directory;  // This takes priority
 
-	PlutoMediaParentFolder.SetPicAttribute(PK_Picture);
+	PlutoMediaParentFolder.SetPicAttribute(PK_Picture, "");
 
 	return PK_Picture;
 }
