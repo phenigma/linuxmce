@@ -236,10 +236,13 @@ int PlutoMediaFile::GetFileAttribute()
 		int PK_Installation = atoi(value);
 		if(NULL == m_pDatabase_pluto_main->Installation_get()->GetRow(PK_Installation)) //not the same installation
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "File %s/%s is form a different installation %d", 
+			g_pPlutoLogger->Write(LV_STATUS, "File %s/%s is from a different installation %d", 
 				m_sDirectory.c_str(), m_sFile.c_str(), PK_Installation);
 			return 0;
 		}
+
+		g_pPlutoLogger->Write(LV_STATUS, "File %s/%s is from our installation %d", 
+			m_sDirectory.c_str(), m_sFile.c_str(), PK_Installation);
 	}
 
     if(attr_get((m_sDirectory + "/" + m_sFile).c_str(), "ID", value, &n, 0) == 0)
