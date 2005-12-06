@@ -140,6 +140,10 @@ int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
 	{
         string sFile = *it;
 
+		//ignore id3 tags
+		if(StringUtils::ToLower(FileUtils::FindExtension(sFile)) == "id3")
+			continue;
+
         PlutoMediaFile PlutoMediaFile_(m_pDatabase_pluto_media, m_pDatabase_pluto_main,
             sDirectory, sFile);
             
