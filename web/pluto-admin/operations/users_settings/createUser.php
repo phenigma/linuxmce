@@ -7,6 +7,8 @@ function createUser($output,$dbADO) {
 	$installationID = cleanInteger(@$_SESSION['installationID']);
 	
 	if ($action=='form') {
+		$lastExtensionArr=array_values(getAssocArray('Users','PK_Users','Extension',$dbADO,'','ORDER BY Extension DESC LIMIT 0,1'));
+		$_SESSION['createUser']['userExtension']=(isset($lastExtensionArr[0]))?($lastExtensionArr[0]+1):'301';
 		
 		$out.='
 		<script>
