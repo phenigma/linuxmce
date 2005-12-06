@@ -88,7 +88,7 @@ while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
 
 
 $EXT_BUFFER .= "\n;Users\n";
-$DB_SQL = "select EK_Users,EK_UserMode,StepOrder,Routing from UserRouting order by EK_Users,EK_UserMode,StepOrder";
+$DB_SQL = "select EK_Users,EK_UserMode,IsPriorityCaller,StepOrder,Routing from UserRouting order by EK_Users,IsPriorityCaller,EK_UserMode,StepOrder";
 $DB_STATEMENT = $DB_TC_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
 $DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
 $tmp = "";
@@ -98,12 +98,13 @@ while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
 	my $user = $USERS{$DB_ROW->{'EK_Users'}};
 	my $um = $DB_ROW->{'EK_UserMode'};
 	my $try = $DB_ROW->{'StepOrder'};
-
-	if($tmp ne $user)
+	my $pri = $DB_ROW->{'IsPriorityCaller'};
+	unless($tmp =~ /^$user[-]/)
 	{
 		$EXT_BUFFER .= "exten => $user,1,SetVar(USERMODE=1)\n";
-		$EXT_BUFFER .= "exten => $user,2,Goto($user-um\${USERMODE},1)\n";
-		$EXT_BUFFER .= "exten => $user,3,Hangup\n";
+		$EXT_BUFFER .= "exten => $user,2,AGI(pluto-prioritycaller.agi,\${CALLERIDNUM})\n";
+		$EXT_BUFFER .= "exten => $user,3,Goto($user-um\${USERMODE}-pri\${PRIORITYCALLER},1)\n";
+		$EXT_BUFFER .= "exten => $user,4,Hangup\n";
 	}
 
 	my $action = "NoOp(\"Do nothing\")";
@@ -130,19 +131,21 @@ while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
 	{
 		$action = "Macro(vm,".$USERS{$1}.")";
 	}
-	$EXT_BUFFER .= "exten => $user-um$um,1,Goto($user-um$um-try$try,1)\n";	
-	$EXT_BUFFER .= "exten => $user-um$um-try$try,1,$action\n";
-	$EXT_BUFFER .= "exten => $user-um$um-try$try,2,Goto($user-um$um-try$try-\${DIALSTATUS},1)\n";
-	$EXT_BUFFER .= "exten => $user-um$um-try$try,3,Hangup\n";
-	$EXT_BUFFER .= "exten => $user-um$um-try$try-BUSY,1,Goto($user-um$um-try".($try+1).",1)\n";	
-	$EXT_BUFFER .= "exten => $user-um$um-try$try-NOANSWER,1,Goto($user-um$um-try".($try+1).",1)\n";
-	$EXT_BUFFER .= "exten => $user-um$um-try$try-CONGESTION,1,Goto($user-um$um-try".($try+1).",1)\n";
-	$EXT_BUFFER .= "exten => $user-um$um-try$try-CHANUNAVAIL,1,Goto($user-um$um-try".($try+1).",1)\n";
-
-#		$EXT_BUFFER .= "exten => $user-um$um-try$try,1,Hangup\n";
+	if($tmp ne $user."-".$pri)
+	{
+		$EXT_BUFFER .= "exten => $user-um$um-pri$pri,1,Goto($user-um$um-pri$pri-try$try,1)\n";
+	}
+	$EXT_BUFFER .= "exten => $user-um$um-pri$pri-try$try,1,$action\n";
+	$EXT_BUFFER .= "exten => $user-um$um-pri$pri-try$try,2,Goto($user-um$um-pri$pri-try$try-\${DIALSTATUS},1)\n";
+	$EXT_BUFFER .= "exten => $user-um$um-pri$pri-try$try,3,Hangup\n";
+	$EXT_BUFFER .= "exten => $user-um$um-pri$pri-try$try-BUSY,1,Goto($user-um$um-pri$pri-try".($try+1).",1)\n";	
+	$EXT_BUFFER .= "exten => $user-um$um-pri$pri-try$try-NOANSWER,1,Goto($user-um$um-pri$pri-try".($try+1).",1)\n";
+	$EXT_BUFFER .= "exten => $user-um$um-pri$pri-try$try-CONGESTION,1,Goto($user-um$um-pri$pri-try".($try+1).",1)\n";
+	$EXT_BUFFER .= "exten => $user-um$um-pri$pri-try$try-CHANUNAVAIL,1,Goto($user-um$um-pri$pri-try".($try+1).",1)\n";
+	$tmp = $user."-".$pri;
+#	$EXT_BUFFER .= "exten => $user-um$um-try$try,1,Hangup\n";
 
 }}
-
 
 
 $EXT_BUFFER .= "\n\n[voice-menu-pluto-custom]\n\n";
