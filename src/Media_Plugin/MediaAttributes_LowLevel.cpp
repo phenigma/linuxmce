@@ -596,9 +596,12 @@ Row_Picture * MediaAttributes_LowLevel::AddPicture(char *pData,int iData_Size,st
 			system(sCommand.c_str());
 
 			size_t nSize = 0;
-			char *pData = FileUtils::ReadFileIntoBuffer(sDownloadedFile, nSize);
+			pData = FileUtils::ReadFileIntoBuffer(sDownloadedFile, nSize);
 			FileUtils::DelFile(sDownloadedFile);
 			iData_Size = nSize;
+#ifdef DEBUG
+			g_pPlutoLogger->Write(LV_STATUS, "Wget command line: '%s' ; file saved size: %d; file path: %s", sCommand.c_str(), nSize, sPictureFileName.c_str());
+#endif			
 		}
 
 		fwrite((void *) pData,iData_Size,1,file);
