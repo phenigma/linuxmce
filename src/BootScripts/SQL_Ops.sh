@@ -23,7 +23,7 @@ RunSQL()
 		Pass="-p$MySqlPassword"
 	fi
 	if [[ -n "$Q" ]]; then
-		echo "$Q;" | mysql -A -N "$SQL_DB" -h "$MySqlHost" -u "$MySqlUser" $Pass | tr '\n\t ' ' ,~' | sed 's/ *$//'
+		echo "$Q;" | mysql -A -N "$SQL_DB" -h "$MySqlHost" -u "$MySqlUser" $Pass | SQL_Translate
 	fi
 }
 
@@ -50,3 +50,10 @@ UseDB()
 }
 
 UseDB "$MySqlDBName"
+
+SQL_Translate()
+{
+	while read row; do
+		echo "$row" | tr '\n\t ' ' ,~'
+	done | sed 's/ *$//'
+}
