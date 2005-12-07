@@ -125,7 +125,7 @@ bool Infrared_Plugin::Register()
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Infrared_Plugin::DeviceTemplateByMfrModel)),
-		DATAGRID_Device_Template_by_Mfr_Model_CONST,PK_DeviceTemplate_get());
+		DATAGRID_Device_Template_by_Mfr_Mo_CONST,PK_DeviceTemplate_get());
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Infrared_Plugin::AvailableInputs)),
@@ -336,15 +336,14 @@ class DataGridTable *Infrared_Plugin::AvailableInputs(string GridID,string Parms
 	DataGridCell *pCell;
 	
 	int PK_DeviceTemplate=atoi(Parms.c_str());
-
+/*
 	Row_DeviceTemplate_Input *pRow_DeviceTemplate_Input = NULL;  // The initially selected manufacturer can be passed in as a device
-	int PK_DeviceTemplate=0;
 	vector<Row_DeviceTemplate_Input *> vectRow_DeviceTemplate_Input;
 	m_pDatabase_pluto_main->DeviceTemplate_Input_get()->GetRows("FK_DeviceTemplate=" + StringUtils::itos(PK_DeviceTemplate),
 		&vectRow_DeviceTemplate_Input);
-	for(size_t s=0;s<vectRow_DeviceTemplate.size();++s)
+	for(size_t s=0;s<vectRow_DeviceTemplate_Input.size();++s)
 	{
-		Row_DeviceTemplate *pRow_DeviceTemplate = vectRow_DeviceTemplate[s];
+		Row_DeviceTemplate_Input *pRow_DeviceTemplate_Input = vectRow_DeviceTemplate_Input[s];
 		if( !PK_DeviceTemplate && Parms.size() && StringUtils::StartsWith(pRow_DeviceTemplate->Description_get(),Parms,true) )
 			PK_DeviceTemplate = pRow_DeviceTemplate->PK_DeviceTemplate_get();
 		pCell = new DataGridCell( pRow_DeviceTemplate->Description_get(),StringUtils::itos(pRow_DeviceTemplate->PK_DeviceTemplate_get()) );
@@ -353,7 +352,7 @@ class DataGridTable *Infrared_Plugin::AvailableInputs(string GridID,string Parms
 
 	if( PK_DeviceTemplate )
 		*sValue_To_Assign = StringUtils::itos(PK_DeviceTemplate);
-
+*/
 	return pDataGrid;
 }
 
