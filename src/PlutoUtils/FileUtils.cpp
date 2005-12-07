@@ -99,6 +99,25 @@ bool FileUtils::WriteBufferIntoFile( string sFileName, const char *pBuffer, size
 	return true;
 }
 
+/*
+char *FileUtils::DownloadFile(string sUrl, size_t &Size)
+{
+#ifdef WIN32
+	string sDownloadedFile = "C:\\Temp\\picture.tmp";
+#else
+	string sDownloadedFile = "/tmp/picture.tmp";
+#endif
+
+	string sCommand = "wget " + sUrl + " -O " + sDownloadedFile;
+	system(sCommand.c_str());
+
+	char *pData = FileUtils::ReadFileIntoBuffer(sDownloadedFile, Size);
+	FileUtils::DelFile(sDownloadedFile);
+
+	return pData;
+}
+*/
+
 bool FileUtils::ReadTextFile(string sFileName, string& sData)
 {
 	size_t nSize = 0;

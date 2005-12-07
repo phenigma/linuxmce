@@ -34,6 +34,7 @@ namespace FileUtils
 #ifndef SYMBIAN
     char *ReadFileIntoBuffer( string sFileName, size_t &Size ); /** < reads file into buffer; buffer must be freed by caller */
 	bool WriteBufferIntoFile( string sFileName, const char *pBuffer, size_t Size ); /** < writes a buffer into a file */
+	//char *DownloadFile(string sUrl, size_t &Size); /** < download a file into buffer; buffer must be freed by caller */
 
 	bool ReadTextFile(string sFileName, string& sData);
 	bool WriteTextFile(string sFileName, const string& sData);

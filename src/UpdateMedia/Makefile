@@ -11,6 +11,7 @@ sources = Main.cpp \
 UpdateMedia.cpp \
 PlutoMediaFile.cpp \
 MediaIdentifier.cpp \
+$(ROOT)/Media_Plugin/MediaAttributes_LowLevel.cpp \
 $(ROOT)/inotify/FileNotifier.cpp \
 $(ROOT)/inotify/inotify_class.cpp \
 $(ROOT)/UpdateMedia/id3info/id3info.cpp 

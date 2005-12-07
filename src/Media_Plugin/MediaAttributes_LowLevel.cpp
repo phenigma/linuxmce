@@ -42,6 +42,8 @@
 #include "pluto_media/Table_Picture_Attribute.h"
 #include "pluto_media/Define_AttributeType.h"
 
+#include "PlutoUtils/FileUtils.h"
+
 #include "MediaFile.h"
 
 using namespace DCE;
@@ -563,7 +565,14 @@ Row_Picture * MediaAttributes_LowLevel::AddPicture(char *pData,int iData_Size,st
 	pRow_Picture->URL_set(sURL);
 	m_pDatabase_pluto_media->Picture_get()->Commit();
 
-	FILE *file = fopen( ("/home/mediapics/" + StringUtils::itos(pRow_Picture->PK_Picture_get()) + "." + sFormat).c_str(),"wb");
+#ifdef WIN32
+	string sMediaPicsFolder = "c:\\home\\mediapics\\";
+#else
+	string sMediaPicsFolder = "/home/mediapics/";
+#endif
+
+	string sPictureFileName = sMediaPicsFolder + StringUtils::itos(pRow_Picture->PK_Picture_get()) + "." + sFormat;
+	FILE *file = fopen(sPictureFileName.c_str(), "wb");
 	if( !file )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot create bookmark pic file");
@@ -573,6 +582,25 @@ Row_Picture * MediaAttributes_LowLevel::AddPicture(char *pData,int iData_Size,st
 	}
 	else
 	{
+		if(!pData) //picture not downloaded yet 
+		{
+			//TODO: use FileUtils::DownloadFile instead!!!
+
+#ifdef WIN32
+			string sDownloadedFile = "C:\\Temp\\picture.tmp";
+#else
+			string sDownloadedFile = "/tmp/picture.tmp";
+#endif
+
+			string sCommand = "wget " + sURL + " -O " + sDownloadedFile;
+			system(sCommand.c_str());
+
+			size_t nSize = 0;
+			char *pData = FileUtils::ReadFileIntoBuffer(sDownloadedFile, nSize);
+			FileUtils::DelFile(sDownloadedFile);
+			iData_Size = nSize;
+		}
+
 		fwrite((void *) pData,iData_Size,1,file);
 		fclose(file);
 		string Cmd = "convert -sample 75x75 /home/mediapics/" + StringUtils::itos( pRow_Picture->PK_Picture_get() ) + "." + sFormat +

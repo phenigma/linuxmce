@@ -1,12 +1,7 @@
 #include "PlutoMediaFile.h"
 
 #include "PlutoUtils/CommonIncludes.h"
-
-//#include "PlutoUtils/FileUtils.h"
-//#include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
-//#include "Logger.h"
-//#include "UpdateMedia.h"
 
 #include <iostream>
 #include <sstream>
@@ -32,6 +27,8 @@
 #include "pluto_media/Table_Attribute.h"
 #include "pluto_media/Table_Picture_Attribute.h"
 #include "pluto_media/Table_File_Attribute.h"
+
+#include "Media_Plugin/MediaAttributes_LowLevel.h"
 
 #include "id3info/id3info.h"
 #include "MediaIdentifier.h"
@@ -164,16 +161,23 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 		if(sPictureURL != "")
 		{
 			//it's a "new" file, but we know the picture url
-			Row_Picture *pRow_Picture = m_pDatabase_pluto_media->Picture_get()->AddRow();
-			pRow_Picture->Extension_set(FileUtils::FindExtension(sPictureURL));
-			pRow_Picture->URL_set(sPictureURL);
-			pRow_Picture->Table_Picture_get()->Commit();
-            
-			Row_Picture_File *pRow_Picture_File = m_pDatabase_pluto_media->Picture_File_get()->AddRow();
-			pRow_Picture_File->FK_File_set(pRow_File->PK_File_get());
-			pRow_Picture_File->FK_Picture_set(pRow_Picture->PK_Picture_get());
-			pRow_Picture_File->Table_Picture_File_get()->Commit();
+			//we'll download the picture and record in Picture table
+			MediaAttributes_LowLevel mediaAttributes_LowLevel(m_pDatabase_pluto_media);
+			Row_Picture *pRow_Picture = mediaAttributes_LowLevel.AddPicture(NULL, 0, FileUtils::FindExtension(sPictureURL), sPictureURL);
+
+			if(pRow_Picture)
+			{
+				PK_Picture = pRow_Picture->PK_Picture_get();
+
+				Row_Picture_File *pRow_Picture_File = m_pDatabase_pluto_media->Picture_File_get()->AddRow();
+				pRow_Picture_File->FK_File_set(pRow_File->PK_File_get());
+				pRow_Picture_File->FK_Picture_set(PK_Picture);
+				pRow_Picture_File->Table_Picture_File_get()->Commit();
+			}
 		}
+
+		SavePlutoAttributes(m_sDirectory + "/" + FileWithAttributes(), m_nInstallationID, pRow_File->PK_File_get(), 
+			PK_Picture, sPictureURL);
 	}
 
 	g_pPlutoLogger->Write(LV_STATUS, "Added %s/%s to db with PK_File = %d", m_sDirectory.c_str(), m_sFile.c_str(),
@@ -228,17 +232,6 @@ void PlutoMediaFile::SetFileAttribute(int PK_File)
 //-----------------------------------------------------------------------------------------------------
 int PlutoMediaFile::GetFileAttribute()
 {
-//#ifdef WIN32
-	/*
-    vector<Row_File *> vectRow_File;
-    m_pDatabase_pluto_media->File_get()->GetRows("Path='" + StringUtils::SQLEscape(m_sDirectory) + 
-        "' AND Filename='" + StringUtils::SQLEscape(m_sFile) + "'", &vectRow_File);
-    if( vectRow_File.size() )
-        return vectRow_File[0]->PK_File_get();
-    else
-        return 0;
-	*/
-
 	long PK_Installation, PK_File, PK_Picture;
 	string sPictureURL;
 	if(LoadPlutoAttributes(m_sDirectory + "/" + FileWithAttributes(), PK_Installation, PK_File, PK_Picture, sPictureURL))

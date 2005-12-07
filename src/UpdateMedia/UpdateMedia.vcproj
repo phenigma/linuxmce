@@ -135,6 +135,9 @@
 				RelativePath=".\Main.cpp">
 			</File>
 			<File
+				RelativePath="..\Media_Plugin\MediaAttributes_LowLevel.cpp">
+			</File>
+			<File
 				RelativePath=".\MediaIdentifier.cpp">
 			</File>
 			<File

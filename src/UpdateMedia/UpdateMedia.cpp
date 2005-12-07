@@ -114,7 +114,6 @@ int UpdateMedia::ReadDirectory(string sDirectory, bool bRecursive)
 	// Strip any trailing /
 	if( sDirectory[ sDirectory.size()-1 ] == '/' )
 		sDirectory = sDirectory.substr(0,sDirectory.size()-1);
-	Sleep(10); //no so ... faaast
 
 	// Build a list of the files on disk, and a map of those in the database
 	int PK_Picture=0;
@@ -193,6 +192,7 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 				}
 			}
 		}
+		Sleep(50);
 	}
 
 	if(!bRecursive)
@@ -255,6 +255,8 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 		int i = ReadDirectory(sSubDir, bRecursive);
 		if( !PK_Picture )
 			PK_Picture = i;
+
+		Sleep(50);
 	}
 
 	// Whatever was the first picture we found will be the one for this directory
@@ -280,6 +282,8 @@ void UpdateMedia::UpdateSearchTokens()
 	{
 		while( ( row=mysql_fetch_row( allresult.r ) ) )
 		{
+			Sleep(50);
+
 			string sName = row[1];
 			string::size_type pos=0;
 			while( pos<sName.size() )
@@ -321,6 +325,8 @@ void UpdateMedia::UpdateThumbnails()
 	{
 		while( ( row=mysql_fetch_row( result.r ) ) )
 		{
+			Sleep(50);
+
 			time_t tModTime=0,tTnModTime=0;
 #ifndef WIN32
 			struct stat64 dirEntryStat;
