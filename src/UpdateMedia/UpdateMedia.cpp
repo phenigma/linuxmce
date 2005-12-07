@@ -195,9 +195,6 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 		Sleep(50);
 	}
 
-	if(!bRecursive)
-		return PK_Picture;
-
 	// Now recurse
 	list<string> listSubDirectories;
 	FileUtils::FindDirectories(listSubDirectories,sDirectory,false,true,0,""
@@ -213,6 +210,10 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 	for(list<string>::iterator it=listSubDirectories.begin();it!=listSubDirectories.end();++it)
 	{
 		string sSubDir = *it;
+
+		//conditional recursiveness: skip the subdir if it's already in the db
+		if(mapFiles.find(sSubDir) != mapFiles.end() && !bRecursive)
+			continue;
 
         //is sDirectory a ripped dvd ?
 		if( 
