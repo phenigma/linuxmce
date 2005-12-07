@@ -211,14 +211,18 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 	{
 		string sSubDir = *it;
 
-		string SQL = "select count(*) from File Where Path = '" + 
-			FileUtils::ExcludeTrailingSlash(sDirectory) + sSubDir + "'";
+		string SQL = "select count(*) from File Where Path LIKE '" + 
+			StringUtils::SQLEscape(FileUtils::ExcludeTrailingSlash(sSubDir)) + "%' AND Missing = 0";
+
 		PlutoSqlResult allresult;
+		MYSQL_ROW row;
 		if((allresult.r = m_pDatabase_pluto_media->mysql_query_result(SQL)))
 		{
-			if(allresult.r->row_count > 0 && !bRecursive)
+			row = mysql_fetch_row(allresult.r);
+
+			if(row && atoi(row[0]) > 0 && !bRecursive)
 			{
-				g_pPlutoLogger->Write(LV_WARNING, "Subdir %s/%s already in scanned", sDirectory.c_str(), sSubDir.c_str());
+				g_pPlutoLogger->Write(LV_WARNING, "Skipping subdir %s cause it's already scanned", sSubDir.c_str());
 				continue;
 			}
 		}
