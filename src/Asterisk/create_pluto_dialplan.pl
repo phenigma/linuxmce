@@ -1,11 +1,11 @@
 #!/usr/bin/perl
 
-use diagnostics;
+#use diagnostics;
 use strict;
 use DBI;
 
 my $EXT_FILE = "/etc/asterisk/extensions_pluto_dial.conf";
-my $EXT_BUFFER = "[from-pluto-custom]\n";
+my $EXT_BUFFER = "[ext-local-custom]\ninclude =>from-pluto-custom\n\n[from-pluto-custom]\n";
 
 my %USERS = ();
 my %MAILS = ();
@@ -72,7 +72,7 @@ while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
     {
         $action = "Macro(vm,".$USERS{$1}.")";
     }
-    if($DB_ROW->{'Routing'} =~ /^prompt,(\d+)$/)
+    if($DB_ROW->{'Routing'} =~ /^prompt/)
     {
         $action = "Goto(voice-menu-pluto-custom,s,1)";
     }
@@ -147,9 +147,9 @@ while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
 $EXT_BUFFER .= "\n\n[voice-menu-pluto-custom]\n\n";
 $EXT_BUFFER .= "exten => s,1,Answer\n";
 $EXT_BUFFER .= "exten => s,2,Wait(1)\n";
-$EXT_BUFFER .= "exten => s,3,Background('You reached XXX. To call all extensions in the house press 0, to call user1 press 1, to call user2 press 2, to call user3 press 3, to leave a message press #')\n";
-$EXT_BUFFER .= "exten => s,4,DigitTimeout,14\n";
-$EXT_BUFFER .= "exten => s,5,ResponseTimeout,15\n";
+$EXT_BUFFER .= "exten => s,3,Background(pluto/pluto-default-voicemenu)\n";
+$EXT_BUFFER .= "exten => s,4,DigitTimeout,20\n";
+$EXT_BUFFER .= "exten => s,5,ResponseTimeout,20\n";
 $EXT_BUFFER .= "exten => t,1,Goto(s,1)\n";
 
 foreach my $user (sort (values(%PHONES)))
@@ -161,10 +161,10 @@ $EXT_BUFFER .= "exten => 0,1,Dial($tmp,$TIMEOUT)\n";
 $EXT_BUFFER .= "exten => 0,2,Goto(s,1)\n";
 foreach my $user (sort (values(%USERS)))
 {
-    $EXT_BUFFER .= "exten => $1,1,Dial(Local/$user\@trused,$TIMEOUT)\n" if ($user =~ /(\d)$/);
+    $EXT_BUFFER .= "exten => $1,1,Dial(Local/$user\@trusted,$TIMEOUT)\n" if ($user =~ /(\d)$/);
     $EXT_BUFFER .= "exten => $1,2,Goto(s,1)\n" if ($user =~ /(\d)$/);
 }
-$EXT_BUFFER .= "exten => #,1,Macro(vm,100)\n";
+$EXT_BUFFER .= "exten => #,1,VoiceMail(100)\n";
 $EXT_BUFFER .= "exten => #,2,Hangup\n";
 
 open(FILE,"> $EXT_FILE") or die "Could not open '$EXT_FILE'";
@@ -282,3 +282,5 @@ sub get_all_phones_extensions()
     }
     $DB_STATEMENT->finish();
 }
+
+`asterisk -rx 'reload'`;
