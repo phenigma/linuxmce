@@ -175,7 +175,7 @@ if [[ "$Me" == "$(basename "$cronCmd")" ]]; then
 		AddCronEntry
 		[[ "$1" == "restart" ]] && RemoveTunnels
 		CreateTunnels
-	elif grep -q '^remote=' /etc/pluto.conf
+	elif grep -q '^remote=' /etc/pluto.conf; then
 		Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "Remote assistance is enabled in pluto.conf, yet remote password is empty. Avoiding closing the tunnels."
 	else
 		DelCronEntry
