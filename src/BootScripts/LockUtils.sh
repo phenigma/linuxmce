@@ -2,6 +2,9 @@
 
 # TODO: real locks, with PID and locking host inside to detect stale locks
 
+# Note: when a process is killed, these locks remain active
+#       can't trap EXIT safely, so the above TODO will have to be implemented instead
+
 Dir="/usr/pluto/locks"
 mkdir -p "$Dir"
 
