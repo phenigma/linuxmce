@@ -141,10 +141,9 @@ int PlutoMediaFile::AddFileToDatabase(int PK_MediaType)
 			continue;
 		}
 
-		Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->AddRow();
-		pRow_Attribute->FK_AttributeType_set(PK_AttrType);
-		pRow_Attribute->Name_set(sValue);
-		pRow_Attribute->Table_Attribute_get()->Commit();
+		MediaAttributes_LowLevel mediaAttributes_LowLevel(m_pDatabase_pluto_media);
+		Row_Attribute *pRow_Attribute = mediaAttributes_LowLevel.GetAttributeFromDescription(PK_MediaType,
+			PK_AttrType, sValue);
 
 		Row_File_Attribute *pRow_File_Attribute = m_pDatabase_pluto_media->File_Attribute_get()->AddRow();
 		pRow_File_Attribute->FK_File_set(pRow_File->PK_File_get());
