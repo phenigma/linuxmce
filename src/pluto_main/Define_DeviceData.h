@@ -107,6 +107,11 @@
 #define DEVICEDATA_Refresh_Interval_CONST 123
 #define DEVICEDATA_Speak_in_the_House_CONST 124
 #define DEVICEDATA_Mixer_CONST 125
+#define DEVICEDATA_Share_Name_CONST 126
+#define DEVICEDATA_Username_CONST 127
+#define DEVICEDATA_Password_CONST 128
+#define DEVICEDATA_Mount_Point_CONST 129
+#define DEVICEDATA_Use_Pluto_Directory_Structure_CONST 130
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"
