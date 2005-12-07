@@ -211,7 +211,8 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 	{
 		string sSubDir = *it;
 
-		string SQL = "select count(*) from File Where Path = " + sDirectory + "/" + sSubDir;
+		string SQL = "select count(*) from File Where Path = '" + 
+			FileUtils::ExcludeTrailingSlash(sDirectory) + sSubDir + "'";
 		PlutoSqlResult allresult;
 		if((allresult.r = m_pDatabase_pluto_media->mysql_query_result(SQL)))
 		{
