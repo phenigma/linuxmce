@@ -563,6 +563,14 @@ switch ($section) {
 		include_once('dealer/manufacturer_area.php');
 	    manufacturer_area($output,$dbADO);
 	break;
+	case 'registeredDeviceData':
+    	$output = new Template();
+    	$output->setConn($conn);
+       	$output->setTemplateFileType('nonews');
+		include_once('dealer/registeredDeviceData.php');
+	    registeredDeviceData($output,$dbADO);
+	break;
+	
 	case 'edit_manufacturer_profile':
     	$output = new Template();
     	$output->setConn($conn);
