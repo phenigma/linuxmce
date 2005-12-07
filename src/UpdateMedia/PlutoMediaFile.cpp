@@ -78,7 +78,7 @@ int PlutoMediaFile::HandleFileNotInDatabase(int PK_MediaType)
 {
     // Nope.  It's either a new file, or it was moved here from some other directory.  If so,
     // then the the attribute should be set.
-    int PK_File = GetFileAttribute();
+    int PK_File = GetFileAttribute(false);
 	g_pPlutoLogger->Write(LV_STATUS, "%s/%s not IN db-attr: %d", m_sDirectory.c_str(), m_sFile.c_str(), PK_File);
 
     if(!PK_File)
@@ -229,14 +229,20 @@ void PlutoMediaFile::SetFileAttribute(int PK_File)
 		SetId3Info(m_sDirectory + "/" + sFileWithAttributes, mapAttributes);
 }
 //-----------------------------------------------------------------------------------------------------
-int PlutoMediaFile::GetFileAttribute()
+int PlutoMediaFile::GetFileAttribute(bool bCreateId3File)
 {
-	long PK_Installation, PK_File, PK_Picture;
-	string sPictureURL;
-	if(LoadPlutoAttributes(m_sDirectory + "/" + FileWithAttributes(), PK_Installation, PK_File, PK_Picture, sPictureURL))
+	string sFileWithAttributes = FileWithAttributes(bCreateId3File);
+
+	if(sFileWithAttributes != "")
 	{
-		if(PK_Installation == m_nInstallationID && PK_File != 0)
-			return PK_File;
+		long PK_Installation, PK_File, PK_Picture;
+		string sPictureURL;
+
+		if(LoadPlutoAttributes(m_sDirectory + "/" + sFileWithAttributes, PK_Installation, PK_File, PK_Picture, sPictureURL))
+		{
+			if(PK_Installation == m_nInstallationID && PK_File != 0)
+				return PK_File;
+		}
 	}
 
 #ifndef WIN32
@@ -336,11 +342,14 @@ int PlutoMediaFile::GetPicAttribute(int PK_File)
     return 0;
 }
 //-----------------------------------------------------------------------------------------------------
-string PlutoMediaFile::FileWithAttributes()
+string PlutoMediaFile::FileWithAttributes(bool bCreateId3File)
 {
 	string sFileWithAttributes = m_sFile;
 	if(!IsSupported(m_sFile))
 	{
+		if(!bCreateId3File)
+			return "";
+
 		sFileWithAttributes = FileUtils::FileWithoutExtension(m_sFile) + ".id3";
 		if(!FileUtils::DirExists(m_sDirectory + "/" + sFileWithAttributes))
 			FileUtils::WriteTextFile(m_sDirectory + "/" + sFileWithAttributes, ""); //touch it

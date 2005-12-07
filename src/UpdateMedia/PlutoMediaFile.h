@@ -26,7 +26,7 @@ private:
     //internal helper functions
     int AddFileToDatabase(int PK_MediaType);
 
-	string FileWithAttributes();
+	string FileWithAttributes(bool bCreateId3File = true);
 	bool SavePlutoAttributes(string sFullFileName, long PK_Installation, long PK_File, long PK_Picture, string sPictureUrl);
 	bool LoadPlutoAttributes(string sFullFileName, long& PK_Installation, long& PK_File, long& PK_Picture, string& sPictureUrl);
 
@@ -38,7 +38,7 @@ public:
     int HandleFileNotInDatabase(int PK_MediaType = 0);
 
     void SetFileAttribute(int PK_File);
-    int GetFileAttribute();
+    int GetFileAttribute(bool bCreateId3File = true);
 
     void SetPicAttribute(int PK_Picture, string sPictureUrl);
     int GetPicAttribute(int PK_File);
