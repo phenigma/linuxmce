@@ -23,7 +23,7 @@ ConfEval()
 
 ConfSet()
 {
-	WaitLock "Config_Ops-pluto.conf" "Config_Ops-ConfSet" nolog
+	WaitLock "pluto.conf" "Config_Ops-ConfSet" nolog
 	local Variable="$1" Value="$2"
 	local Line="$Variable = $Value"
 	if ! grep "$Variable.*=" /etc/pluto.conf &>/dev/null; then
@@ -37,7 +37,7 @@ ConfSet()
 
 ConfGet()
 {
-	WaitLock "Config_Op-pluto.confs" "Config_Ops-ConfGet" nolog
+	WaitLock "pluto.conf" "Config_Ops-ConfGet" nolog
 	local Variable="$1" Line
 	if ! grep "$Variable.*=" /etc/pluto.conf &>/dev/null; then
 		return 1
