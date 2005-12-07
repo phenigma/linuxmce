@@ -218,7 +218,7 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 		{
 			if(allresult.r->row_count > 0 && !bRecursive)
 			{
-				g_pPlutoLogger->Write(LV_WARNING, "Subdir %s/%s already in scanned", sDirectory, sSubDir);
+				g_pPlutoLogger->Write(LV_WARNING, "Subdir %s/%s already in scanned", sDirectory.c_str(), sSubDir.c_str());
 				continue;
 			}
 		}
