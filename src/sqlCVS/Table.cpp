@@ -489,6 +489,27 @@ bool Table::Update( RA_Processor &ra_Processor, DCE::Socket *pSocket )
 		vectFields.push_back( ( *it ).first );
 	}
 
+	// First delete any rows in our vect that we found during the DetermineDeletions phase so we reduce the 'duplicate key' errors
+	if( m_vectRowsToDelete.size() )
+	{
+		cout << "Deleting " << (int) m_vectRowsToDelete.size() << " rows from table: " << m_sName << endl;
+		ostringstream sSql;
+		sSql << "DELETE FROM `" << m_sName << "` WHERE psc_id IN (";
+
+		for(size_t s=0;s<m_vectRowsToDelete.size();++s)
+			sSql << (s ? "," : "") << m_vectRowsToDelete[s];
+
+		sSql << ")";
+cout << sSql.str() << endl;
+if( !g_GlobalConfig.m_bNoPrompts && !AskYNQuestion("Proceed with delete?",false) )
+throw "problem with delete";
+		if( m_pDatabase->threaded_mysql_query( sSql.str() )<0 )
+		{
+			cerr << "Unable to delete local rows" << endl;
+			throw "Cannot delete rows";
+		}
+	}
+
 	R_UpdateTable r_UpdateTable( m_sName, m_psc_batch_last_sync, m_psc_id_last_sync, &vectFields, &g_GlobalConfig.m_vectRestrictions );
 
 	// The server will send us all updates after m_psc_batch_last_sync, but we need to tell it to 
@@ -523,26 +544,6 @@ bool Table::Update( RA_Processor &ra_Processor, DCE::Socket *pSocket )
 	}
 
 	cout << "Requested update" << endl;
-	// Now delete any rows in our vect that we found during the DetermineDeletions phase
-	if( m_vectRowsToDelete.size() )
-	{
-		cout << "Deleting " << (int) m_vectRowsToDelete.size() << " rows from table: " << m_sName << endl;
-		ostringstream sSql;
-		sSql << "DELETE FROM `" << m_sName << "` WHERE psc_id IN (";
-
-		for(size_t s=0;s<m_vectRowsToDelete.size();++s)
-			sSql << (s ? "," : "") << m_vectRowsToDelete[s];
-
-		sSql << ")";
-cout << sSql.str() << endl;
-if( !g_GlobalConfig.m_bNoPrompts && !AskYNQuestion("Proceed with delete?",false) )
-throw "problem with delete";
-		if( m_pDatabase->threaded_mysql_query( sSql.str() )<0 )
-		{
-			cerr << "Unable to delete local rows" << endl;
-			throw "Cannot delete rows";
-		}
-	}
 
 	if( r_UpdateTable.m_psc_id_last_sync > m_psc_id_last_sync )
 		m_pRepository->psc_id_last_sync_set(this,r_UpdateTable.m_psc_id_last_sync);
