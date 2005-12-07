@@ -206,6 +206,8 @@ int k=2;
 							m_bUsingCache=true;
 							ReadFloorplanInfo(Filename+".fp");
 							cout << "Not building screen " << StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(m_iVersion) << " found valid cache" << endl;
+							g_pPlutoLogger->Write(LV_STATUS,"Not building screen %d, using cache",
+								m_pRow_DesignObj->PK_DesignObj_get());
 							return;
 						}
 						else

@@ -224,7 +224,7 @@ public:
 	virtual void CMD_Select_Object(string sPK_DesignObj,string sPK_DesignObj_CurrentScreen,string sTime,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Surrender_to_OS(string sOnOff,bool bFully_release_keyboard,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Current_Room(int iPK_Room,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Reset_Highlight(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Reset_Highlight(string sPK_DesignObj,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Current_Location(int iLocationID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Guide(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_EnterGo(string &sCMD_Result,class Message *pMessage) {};
@@ -262,7 +262,7 @@ public:
 	virtual void CMD_Set_Mouse_Position_Relative(int iPosition_X,int iPosition_Y,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Simulate_Mouse_Click_At_Present_Pos(string sType,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,string sSpeed,string sTitle,string sSection,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Goto_Screen(int iEK_Screen,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Goto_Screen(int iPK_Screen,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -1210,7 +1210,8 @@ public:
 				case 85:
 					{
 						string sCMD_Result="OK";
-						CMD_Reset_Highlight(sCMD_Result,pMessage);
+					string sPK_DesignObj=pMessage->m_mapParameters[3];
+						CMD_Reset_Highlight(sPK_DesignObj.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -1227,7 +1228,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Reset_Highlight(sCMD_Result,pMessage);
+								CMD_Reset_Highlight(sPK_DesignObj.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -2220,8 +2221,8 @@ public:
 				case 741:
 					{
 						string sCMD_Result="OK";
-					int iEK_Screen=atoi(pMessage->m_mapParameters[159].c_str());
-						CMD_Goto_Screen(iEK_Screen,sCMD_Result,pMessage);
+					int iPK_Screen=atoi(pMessage->m_mapParameters[159].c_str());
+						CMD_Goto_Screen(iPK_Screen,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -2238,7 +2239,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Goto_Screen(iEK_Screen,sCMD_Result,pMessage);
+								CMD_Goto_Screen(iPK_Screen,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

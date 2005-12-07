@@ -76,6 +76,7 @@ DesignObj_Orbiter::DesignObj_Orbiter(Orbiter *pCore)
 	m_pDataGridTable=NULL;
 	m_pCore = pCore;
 
+	m_MaxRow=m_MaxCol=0;
 	m_vectGraphic.clear();
 	m_vectSelectedGraphic.clear();
 	m_vectHighlightedGraphic.clear();

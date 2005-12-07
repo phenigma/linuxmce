@@ -183,6 +183,9 @@ bool RegenMonitor::CachedVersionOK(string sString)
 		return false; 
 	}
 		
+	g_pPlutoLogger->Write(LV_STATUS,"RegenMonitor::CachedVersionOK comp: %s str: %s",
+		sComparisson.c_str(), sString.c_str());
+		
 	if( sComparisson==sString )
 		return true;
 

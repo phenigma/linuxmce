@@ -42,6 +42,8 @@ using namespace DCE;
 #include "pluto_main/Table_Device_MRU.h"
 #include "pluto_main/Table_UnknownDevices.h"
 #include "pluto_main/Table_DHCPDevice.h"
+#include "pluto_main/Table_Users.h"
+#include "pluto_main/Table_Country.h"
 #include "pluto_main/Define_DataGrid.h"
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_CommandParameter.h"
@@ -135,6 +137,14 @@ bool General_Info_Plugin::Register()
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::PNPDevices)), 
 		DATAGRID_New_PNP_Devices_CONST,PK_DeviceTemplate_get());
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::UsersGrid)), 
+		DATAGRID_Users_CONST,PK_DeviceTemplate_get());
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::CountriesGrid)), 
+		DATAGRID_Countries_CONST,PK_DeviceTemplate_get());
 
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &General_Info_Plugin::NewMacAddress ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_New_Mac_Address_Detected_CONST );
 
@@ -714,6 +724,67 @@ class DataGridTable *General_Info_Plugin::PNPDevices( string GridID, string Parm
 			iRow++;
 		}
 	}
+
+	return pDataGrid;
+}
+
+class DataGridTable *General_Info_Plugin::UsersGrid( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+    int iWidth = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Width_CONST].c_str());
+	if( !iWidth )
+		iWidth = 4;
+
+	DataGridTable *pDataGrid = new DataGridTable( );
+	DataGridCell *pCell;
+
+	int iRow=0,iCol=0;
+	vector<Row_Users *> vectRow_Users;
+	m_pDatabase_pluto_main->Users_get()->GetRows("1=1 ORDER BY UserName",&vectRow_Users);
+	for(size_t s=0;s<vectRow_Users.size();++s)
+	{
+		Row_Users *pRow_Users = vectRow_Users[s];
+		pCell = new DataGridCell(pRow_Users->UserName_get(),StringUtils::itos(pRow_Users->PK_Users_get()));
+			pDataGrid->SetData( iCol++, iRow, pCell );
+		if( iCol>=iWidth )
+		{
+			iCol=0;
+			iRow++;
+		}
+	}
+
+	return pDataGrid;
+}
+
+class DataGridTable *General_Info_Plugin::CountriesGrid( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+    int iWidth = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Width_CONST].c_str());
+	if( !iWidth )
+		iWidth = 1;
+
+	DataGridTable *pDataGrid = new DataGridTable( );
+	DataGridCell *pCell;
+
+	int PK_Country=0;
+	int iRow=0,iCol=0;
+	vector<Row_Country *> vectRow_Country;
+	m_pDatabase_pluto_main->Country_get()->GetRows("1=1 ORDER BY Description",&vectRow_Country);
+	for(size_t s=0;s<vectRow_Country.size();++s)
+	{
+		Row_Country *pRow_Country = vectRow_Country[s];
+		if( !PK_Country && Parms.size() && StringUtils::StartsWith(pRow_Country->Description_get(),Parms,true) )
+			PK_Country = pRow_Country->PK_Country_get();
+
+		pCell = new DataGridCell(pRow_Country->Description_get(),StringUtils::itos(pRow_Country->PK_Country_get()));
+			pDataGrid->SetData( iCol++, iRow, pCell );
+		if( iCol>=iWidth )
+		{
+			iCol=0;
+			iRow++;
+		}
+	}
+
+	if( PK_Country )
+		*sValue_To_Assign = StringUtils::itos(PK_Country);
 
 	return pDataGrid;
 }

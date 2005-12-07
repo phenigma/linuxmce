@@ -313,7 +313,6 @@ g_pPlutoLogger->Write( LV_DATAGRID, "ready to call todata: %s ", sDataGrid_ID.c_
 void Datagrid_Plugin::CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int iPK_DataGrid,string sOptions,int iPK_DeviceTemplate,int *iPK_Variable,string *sValue_To_Assign,bool *bIsSuccessful,int *iWidth,int *iHeight,string &sCMD_Result,Message *pMessage)
 //<-dceag-c35-e->
 {
-	*iPK_Variable=0;
 	*bIsSuccessful=false; // assume we're not succesful
 	PLUTO_SAFETY_LOCK( s, m_DataGridMutex );
 	string::size_type pos=0;

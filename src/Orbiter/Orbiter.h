@@ -1415,9 +1415,11 @@ public:
 
 	/** @brief COMMAND: #85 - Reset Highlight */
 	/** Resets the currently highlighted object.  Do this when you hide or unhide blocks that have tab stops. */
+		/** @param #3 PK_DesignObj */
+			/** If specified, this object will be highlighted.  Otherwise the first detected one. */
 
-	virtual void CMD_Reset_Highlight() { string sCMD_Result; CMD_Reset_Highlight(sCMD_Result,NULL);};
-	virtual void CMD_Reset_Highlight(string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Reset_Highlight(string sPK_DesignObj) { string sCMD_Result; CMD_Reset_Highlight(sPK_DesignObj.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Reset_Highlight(string sPK_DesignObj,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #88 - Set Current Location */
@@ -1803,11 +1805,11 @@ light, climate, media, security, telecom */
 
 	/** @brief COMMAND: #741 - Goto Screen */
 	/** Goto a specific screen. */
-		/** @param #159 EK_Screen */
+		/** @param #159 PK_Screen */
 			/** The screen id. */
 
-	virtual void CMD_Goto_Screen(int iEK_Screen) { string sCMD_Result; CMD_Goto_Screen(iEK_Screen,sCMD_Result,NULL);};
-	virtual void CMD_Goto_Screen(int iEK_Screen,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Goto_Screen(int iPK_Screen) { string sCMD_Result; CMD_Goto_Screen(iPK_Screen,sCMD_Result,NULL);};
+	virtual void CMD_Goto_Screen(int iPK_Screen,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

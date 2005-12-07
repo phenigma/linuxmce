@@ -123,6 +123,14 @@ bool Infrared_Plugin::Register()
 		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Infrared_Plugin::InfraredCodes)),
 		DATAGRID_Infrared_Codes_CONST,PK_DeviceTemplate_get());
 
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Infrared_Plugin::DeviceTemplateByMfrModel)),
+		DATAGRID_Device_Template_by_Mfr_Model_CONST,PK_DeviceTemplate_get());
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Infrared_Plugin::AvailableInputs)),
+		DATAGRID_Available_Inputs_CONST,PK_DeviceTemplate_get());
+
 	return Connect(PK_DeviceTemplate_get()); 
 }
 
@@ -321,29 +329,95 @@ class DataGridTable *Infrared_Plugin::InfraredCodes(string GridID,string Parms,v
 	}
 	return pDataGrid;
 }
+
+class DataGridTable *Infrared_Plugin::AvailableInputs(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
+{
+	DataGridTable *pDataGrid = new DataGridTable();
+	DataGridCell *pCell;
+	
+	int PK_DeviceTemplate=atoi(Parms.c_str());
+
+	Row_DeviceTemplate_Input *pRow_DeviceTemplate_Input = NULL;  // The initially selected manufacturer can be passed in as a device
+	int PK_DeviceTemplate=0;
+	vector<Row_DeviceTemplate_Input *> vectRow_DeviceTemplate_Input;
+	m_pDatabase_pluto_main->DeviceTemplate_Input_get()->GetRows("FK_DeviceTemplate=" + StringUtils::itos(PK_DeviceTemplate),
+		&vectRow_DeviceTemplate_Input);
+	for(size_t s=0;s<vectRow_DeviceTemplate.size();++s)
+	{
+		Row_DeviceTemplate *pRow_DeviceTemplate = vectRow_DeviceTemplate[s];
+		if( !PK_DeviceTemplate && Parms.size() && StringUtils::StartsWith(pRow_DeviceTemplate->Description_get(),Parms,true) )
+			PK_DeviceTemplate = pRow_DeviceTemplate->PK_DeviceTemplate_get();
+		pCell = new DataGridCell( pRow_DeviceTemplate->Description_get(),StringUtils::itos(pRow_DeviceTemplate->PK_DeviceTemplate_get()) );
+		pDataGrid->SetData(0,s,pCell);
+	}
+
+	if( PK_DeviceTemplate )
+		*sValue_To_Assign = StringUtils::itos(PK_DeviceTemplate);
+
+	return pDataGrid;
+}
+
+class DataGridTable *Infrared_Plugin::DeviceTemplateByMfrModel(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
+{
+	DataGridTable *pDataGrid = new DataGridTable();
+	DataGridCell *pCell;
+	Row_Device *pRow_Device = NULL;  // The initially selected manufacturer can be passed in as a device
+	
+	string::size_type pos=0;
+	int PK_Manufacturer=atoi(StringUtils::Tokenize(Parms,",",pos).c_str());
+	int PK_DeviceCategory=atoi(StringUtils::Tokenize(Parms,",",pos).c_str());
+	Parms = StringUtils::Tokenize(Parms,",",pos); // Just get whatever is left over the user typed in as a search value
+
+	int PK_DeviceTemplate=0;
+	vector<Row_DeviceTemplate *> vectRow_DeviceTemplate;
+	m_pDatabase_pluto_main->DeviceTemplate_get()->GetRows("FK_Manufacturer=" + StringUtils::itos(PK_Manufacturer) + 
+		" AND FK_DeviceCategory=" + StringUtils::itos(PK_DeviceCategory) + " ORDER BY Description",&vectRow_DeviceTemplate);
+	for(size_t s=0;s<vectRow_DeviceTemplate.size();++s)
+	{
+		Row_DeviceTemplate *pRow_DeviceTemplate = vectRow_DeviceTemplate[s];
+		if( !PK_DeviceTemplate && Parms.size() && StringUtils::StartsWith(pRow_DeviceTemplate->Description_get(),Parms,true) )
+			PK_DeviceTemplate = pRow_DeviceTemplate->PK_DeviceTemplate_get();
+		pCell = new DataGridCell( pRow_DeviceTemplate->Description_get(),StringUtils::itos(pRow_DeviceTemplate->PK_DeviceTemplate_get()) );
+		pDataGrid->SetData(0,s,pCell);
+	}
+
+	if( PK_DeviceTemplate )
+		*sValue_To_Assign = StringUtils::itos(PK_DeviceTemplate);
+
+	return pDataGrid;
+}
+
 class DataGridTable *Infrared_Plugin::Manufacturers(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
 {
 	DataGridTable *pDataGrid = new DataGridTable();
 	DataGridCell *pCell;
 	Row_Device *pRow_Device = NULL;  // The initially selected manufacturer can be passed in as a device
 
-	if( Parms.length() )
+	if( Parms.length() )  // If it's not a device, it won't be reset, and we will consider it a search value
 	{
 		pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(atoi(Parms.c_str()));
 		if( pRow_Device )
 		{
 			*iPK_Variable = VARIABLE_Misc_Data_1_CONST;
 			*sValue_To_Assign = StringUtils::itos(pRow_Device->FK_DeviceTemplate_getrow()->FK_Manufacturer_get());
+			Parms="";
 		}
 	}
+
+	int PK_Manufacturer=0;
 	vector<Row_Manufacturer *> vectRow_Manufacturer;
 	m_pDatabase_pluto_main->Manufacturer_get()->GetRows("1=1 ORDER BY Description",&vectRow_Manufacturer);
 	for(size_t s=0;s<vectRow_Manufacturer.size();++s)
 	{
 		Row_Manufacturer *pRow_Manufacturer = vectRow_Manufacturer[s];
+		if( !PK_Manufacturer && Parms.size() && StringUtils::StartsWith(pRow_Manufacturer->Description_get(),Parms,true) )
+			PK_Manufacturer = pRow_Manufacturer->PK_Manufacturer_get();
 		pCell = new DataGridCell( pRow_Manufacturer->Description_get(),StringUtils::itos(pRow_Manufacturer->PK_Manufacturer_get()) );
 		pDataGrid->SetData(0,s,pCell);
 	}
+
+	if( PK_Manufacturer )
+		*sValue_To_Assign = StringUtils::itos(PK_Manufacturer);
 
 	return pDataGrid;
 }

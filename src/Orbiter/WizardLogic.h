@@ -20,6 +20,21 @@ public:
 	bool Setup();
 
 	/*
+		SETUP USERS
+	*/
+	bool AlreadyHasUsers() { return false; };
+	void AddUser(string sUsername) {};
+	void RemoveUser(int PK_User) {};
+
+	/*
+		SETUP LOCATION 
+	*/
+	int GetCountry() { return 840; }
+	string GetCityRegion(int PK_Country) { return "Las Vegas, NV"; }
+	void SetPostalCode(string PostalCode) {}
+
+
+	/*
 		SETUP ROOMS
 	*/
 	// Get a map of RoomTypes to number of Rooms of that Type, and the total number of rooms
@@ -27,6 +42,14 @@ public:
 	void ProcessUpdatedRoomInfo( map<int, int > &mapRooms ); // Call this to process the updated info
 	void RemoveRoomsOfType( int PK_RoomType, int NumRoomsCurrent, int NumRoomsDesired ); // Helper function
 	void AddRoomsOfType( int PK_RoomType, int NumRoomsCurrent, int NumRoomsDesired); // Helper function
+	void ChangeRoomName(int PK_Room,string sName) {};
+
+	/*
+		SETUP A/V EQUIPMENT
+	*/
+	int AddDevice(int PK_DeviceTemplate) {};
+	void SetAvPath(int PK_Device_From,int PK_Device_To,int PK_Pipe) {};
+
 
 
 };

@@ -3357,7 +3357,7 @@ g_pPlutoLogger->Write(LV_CRITICAL,"parsing %s",pObj->m_ObjectID.c_str());
 void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Screen, DesignObj_Orbiter *pObj_Parent, GraphicType Type,  int Lev )
 {
 	ShowProgress();
-    if(  pObj->m_ObjectID.find( "4271" )!=string::npos )// || pObj->m_ObjectID.find( "2071" )!=string::npos )
+    if(  pObj->m_ObjectID.find( "4666" )!=string::npos )// || pObj->m_ObjectID.find( "2071" )!=string::npos )
     {
         int k=2;
     }
@@ -3592,74 +3592,8 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
     if( !GotActivity(  ) )
         return true;
 
-    if(  PK_Button == BUTTON_Enter_CONST  )
-    {
-		if(  m_pObj_Highlighted && !m_pObj_Highlighted->IsHidden(  )  )
-        {
-            SelectedObject( m_pObj_Highlighted, -2, -2 );
-            bHandled=true;
-        }
-    }
-    if(  !( bHandled=ClickedButton( m_pScreenHistory_Current->m_pObj,  PK_Button ) )  )
-    {
-        if(  PK_Button>=BUTTON_Up_Arrow_CONST && PK_Button<=BUTTON_Right_Arrow_CONST  ) // up,  down,  left or right
-        {
-            if(  PK_Button==BUTTON_Up_Arrow_CONST  )
-            {
-                HighlightNextObject( DIRECTION_Up_CONST );
-                PK_Button = -1;
-            }
-            else if(  PK_Button==BUTTON_Down_Arrow_CONST  )
-            {
-                HighlightNextObject( DIRECTION_Down_CONST );
-                PK_Button = -1;
-            }
-            else if(  PK_Button==BUTTON_Left_Arrow_CONST  )
-            {
-                HighlightNextObject( DIRECTION_Left_CONST );
-                PK_Button = -1;
-            }
-            else if(  PK_Button==BUTTON_Right_Arrow_CONST  )
-            {
-                HighlightNextObject( DIRECTION_Right_CONST );
-                PK_Button = -1;
-            }
-            bHandled=true;
-        }
-        else if(  PK_Button>=BUTTON_Shift_Up_Arrow_CONST && PK_Button<=BUTTON_Shift_Right_Arrow_CONST  )
-        {
-            if(  PK_Button==BUTTON_Shift_Up_Arrow_CONST  )
-            {
-                CMD_Scroll_Grid( "", "", DIRECTION_Up_CONST );
-                PK_Button = -1;
-            }
-            else if(  PK_Button==BUTTON_Shift_Down_Arrow_CONST  )
-            {
-                CMD_Scroll_Grid( "", "", DIRECTION_Down_CONST );
-                PK_Button = -1;
-            }
-            else if(  PK_Button==BUTTON_Shift_Left_Arrow_CONST  )
-            {
-                CMD_Scroll_Grid( "", "", DIRECTION_Left_CONST );
-                PK_Button = -1;
-            }
-            else if(  PK_Button==BUTTON_Shift_Right_Arrow_CONST  )
-            {
-                CMD_Scroll_Grid( "", "", DIRECTION_Right_CONST );
-                PK_Button = -1;
-            }
-        }
-        else if(  PK_Button==BUTTON_F4_CONST  )  // home
-        {
-#ifdef DEBUG
-            g_pPlutoLogger->Write(LV_STATUS,"Got an F4, sending to %s",m_sMainMenu.c_str());
-#endif
-            //LACA_B4_0( "Orbitercore::respond to input home" );
-            GotoScreen( m_sMainMenu );
-            bHandled=true;
-        }
-    }
-
+	// 2005-dec-7  Do the capture keyboard stuff first in case one of the 
+	// objects we selected needs the current value
 #ifndef PHONEKEYS
     if( m_bCaptureKeyboard_OnOff )
     {
@@ -3775,12 +3709,81 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
     }
 #endif
 
+    if(  PK_Button == BUTTON_Enter_CONST  )
+    {
+		if(  m_pObj_Highlighted && !m_pObj_Highlighted->IsHidden(  )  )
+        {
+            SelectedObject( m_pObj_Highlighted, -2, -2 );
+            bHandled=true;
+        }
+    }
+    if(  !( bHandled=ClickedButton( m_pScreenHistory_Current->m_pObj,  PK_Button ) )  )
+    {
+        if(  PK_Button>=BUTTON_Up_Arrow_CONST && PK_Button<=BUTTON_Right_Arrow_CONST  ) // up,  down,  left or right
+        {
+            if(  PK_Button==BUTTON_Up_Arrow_CONST  )
+            {
+                HighlightNextObject( DIRECTION_Up_CONST );
+                PK_Button = -1;
+            }
+            else if(  PK_Button==BUTTON_Down_Arrow_CONST  )
+            {
+                HighlightNextObject( DIRECTION_Down_CONST );
+                PK_Button = -1;
+            }
+            else if(  PK_Button==BUTTON_Left_Arrow_CONST  )
+            {
+                HighlightNextObject( DIRECTION_Left_CONST );
+                PK_Button = -1;
+            }
+            else if(  PK_Button==BUTTON_Right_Arrow_CONST  )
+            {
+                HighlightNextObject( DIRECTION_Right_CONST );
+                PK_Button = -1;
+            }
+            bHandled=true;
+        }
+        else if(  PK_Button>=BUTTON_Shift_Up_Arrow_CONST && PK_Button<=BUTTON_Shift_Right_Arrow_CONST  )
+        {
+            if(  PK_Button==BUTTON_Shift_Up_Arrow_CONST  )
+            {
+                CMD_Scroll_Grid( "", "", DIRECTION_Up_CONST );
+                PK_Button = -1;
+            }
+            else if(  PK_Button==BUTTON_Shift_Down_Arrow_CONST  )
+            {
+                CMD_Scroll_Grid( "", "", DIRECTION_Down_CONST );
+                PK_Button = -1;
+            }
+            else if(  PK_Button==BUTTON_Shift_Left_Arrow_CONST  )
+            {
+                CMD_Scroll_Grid( "", "", DIRECTION_Left_CONST );
+                PK_Button = -1;
+            }
+            else if(  PK_Button==BUTTON_Shift_Right_Arrow_CONST  )
+            {
+                CMD_Scroll_Grid( "", "", DIRECTION_Right_CONST );
+                PK_Button = -1;
+            }
+        }
+        else if(  PK_Button==BUTTON_F4_CONST  )  // home
+        {
+#ifdef DEBUG
+            g_pPlutoLogger->Write(LV_STATUS,"Got an F4, sending to %s",m_sMainMenu.c_str());
+#endif
+            //LACA_B4_0( "Orbitercore::respond to input home" );
+            GotoScreen( m_sMainMenu );
+            bHandled=true;
+        }
+    }
+
     if(  pScreenHistory != m_pScreenHistory_Current  )
         m_bRerenderScreen = true;
 
     return bHandled;
 }
 
+#include "WizardLogic.h"
 bool Orbiter::ButtonDown( int iPK_Button )
 {
 	CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnKeyDown);
@@ -4476,8 +4479,8 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
                 }
 
                 bool bResponse;
-                int iPK_Variable=0;
-                string sValue_To_Assign;
+                int iPK_Variable=atoi(pCommand->m_ParameterList[COMMANDPARAMETER_PK_Variable_CONST].c_str());;
+                string sValue_To_Assign=pCommand->m_ParameterList[COMMANDPARAMETER_Value_To_Assign_CONST];
 				int iWidth=pObj->m_MaxCol,iHeight=pObj->m_MaxRow;
 if( iWidth<0 )
 {
@@ -4486,7 +4489,9 @@ int k=2;
 
 				DCE::CMD_Populate_Datagrid CMD_Populate_Datagrid( m_dwPK_Device,  m_dwPK_Device_DatagridPlugIn,  StringUtils::itos( m_dwIDataGridRequestCounter ),
                     GridID, atoi( pCommand->m_ParameterList[COMMANDPARAMETER_PK_DataGrid_CONST].c_str(  ) ),
-                    SubstituteVariables( pCommand->m_ParameterList[COMMANDPARAMETER_Options_CONST], pObj, 0, 0 ), atoi( pCommand->m_ParameterList[COMMANDPARAMETER_PK_DeviceTemplate_CONST].c_str(  ) ), &iPK_Variable, &sValue_To_Assign, &bResponse, &iWidth, &iHeight );
+                    SubstituteVariables( pCommand->m_ParameterList[COMMANDPARAMETER_Options_CONST], pObj, 0, 0 ), 
+					atoi( pCommand->m_ParameterList[COMMANDPARAMETER_PK_DeviceTemplate_CONST].c_str(  ) ), 
+					&iPK_Variable, &sValue_To_Assign, &bResponse, &iWidth, &iHeight );
                 if(  !SendCommand( CMD_Populate_Datagrid ) || !bResponse  ) // wait for a response
                     g_pPlutoLogger->Write( LV_CRITICAL, "Populate datagrid from command: %d failed", atoi( pCommand->m_ParameterList[COMMANDPARAMETER_PK_DataGrid_CONST].c_str(  ) ) );
                 else if(  iPK_Variable  )
@@ -4494,6 +4499,17 @@ int k=2;
 					PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
                     m_mapVariable[iPK_Variable] = sValue_To_Assign;
 				}
+
+				if( m_vectObjs_GridsOnScreen.size() )
+				{
+					DesignObj_DataGrid *pObj = m_vectObjs_GridsOnScreen[0];
+					if( pObj->m_sGridID==GridID && pObj->m_sExtraInfo.find('S')!=string::npos && pObj->m_sSeek.length()==0 && !pObj->sSelVariable.empty(  )  )
+					{
+						PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
+						pObj->m_sSeek = "~" + m_mapVariable[atoi( pObj->sSelVariable.c_str(  ) )];
+					}
+				}
+
 
                 continue; // processed this one ourselves
             }
@@ -6643,11 +6659,25 @@ bool Orbiter::CaptureKeyboard_EditText_AppendChar( char ch )
 
 	/** @brief COMMAND: #85 - Reset Highlight */
 	/** Resets the currently highlighted object.  Do this when you hide or unhide blocks that have tab stops. */
+		/** @param #3 PK_DesignObj */
+			/** If specified, this object will be highlighted.  Otherwise the first detected one. */
 
-void Orbiter::CMD_Reset_Highlight(string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Reset_Highlight(string sPK_DesignObj,string &sCMD_Result,Message *pMessage)
 //<-dceag-c85-e->
 {
-    HighlightFirstObject(  );
+	if( sPK_DesignObj.c_str() )
+	{
+        DesignObj_Orbiter *pObj = FindObject(sPK_DesignObj);
+		if( pObj )
+		{
+			m_pObj_Highlighted = pObj;
+			return;
+		}
+		else
+			g_pPlutoLogger->Write(LV_WARNING,"Orbiter::CMD_Reset_Highlight Cannot find object %s",sPK_DesignObj.c_str());
+	}
+
+	HighlightFirstObject(  );
 }
 
 bool Orbiter::ReceivedMessage( class Message *pMessageOriginal )

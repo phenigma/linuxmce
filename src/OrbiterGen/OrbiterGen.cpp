@@ -90,13 +90,14 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	//	WSADATA wsaData;
 	//	err = WSAStartup(MAKEWORD( 1, 1 ),(LPWSADATA)  &wsaData);
+	g_pPlutoLogger=new FileLogger("/temp/orbiter.newlog");
 #else
 int main(int argc, char *argv[])
 {
 	setenv("SDL_VIDEODRIVER", "dummy", 1); // force SDL to use its dummy video driver (removed a dependency on the X server)
+	g_pPlutoLogger=new FileLogger("/var/log/pluto/OrbiterGen.newlog");
 #endif
 
-	g_pPlutoLogger=new FileLogger(stdout);
 
 	string DBHost="dcerouter",DBUser="root",DBPassword="",DBName="pluto_main";
 #ifdef WIN32
@@ -304,6 +305,8 @@ int OrbiterGenerator::DoIt()
 // 			exit(0);
 		}
 	}
+
+	g_pPlutoLogger->Write(LV_STATUS,"Generating %d",m_pRow_Orbiter->PK_Orbiter_get());
 
 	cout << "Setting RegenInProgress_set to true for " << m_pRow_Orbiter->PK_Orbiter_get() << endl;
 	m_pRow_Orbiter->RegenInProgress_set(true);
@@ -770,8 +773,9 @@ m_bNoEffects = true;
 				m_dwPK_Device_LocalAppServer = pRow_Device->PK_Device_get();
 			break;
 		case DEVICECATEGORY_Media_Players_CONST:
-			if( CommonControlledVia(m_pRow_Device,pRow_Device) )
-				m_dwPK_Device_LocalMediaPlayer = pRow_Device->PK_Device_get();
+			if( CommonControlledVia(m_pRow_Device,pRow_Device) &&
+				pRow_Device->FK_DeviceTemplate_get()==DEVICETEMPLATE_Xine_Player_CONST )  // For now only xine is a general purpose player
+					m_dwPK_Device_LocalMediaPlayer = pRow_Device->PK_Device_get();
 			break;
 		case DEVICECATEGORY_Infrared_Receivers_CONST:
 		case DEVICECATEGORY_LIRC_Drivers_CONST:
