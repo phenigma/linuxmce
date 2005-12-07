@@ -588,7 +588,24 @@ bool Repository::CheckIn( )
 	st.Commit();  // The schema may have been changed, causing the transaction to close.  Start a new one
 	SafetyTransaction st2( m_pDatabase );
 
-	/** First add all records */
+	/** First handle deletions, since the user may have deleted, and then re-added a row and we don't want to get a 'duplicate key' error on the server */
+	for( map<int,MapTable *>::iterator it=g_GlobalConfig.m_mapUsersTables.begin( );it!=g_GlobalConfig.m_mapUsersTables.end( );++it )
+	{
+		int psc_user = ( *it ).first;
+		MapTable *pMapTable = ( *it ).second;
+		for( MapTable::iterator itT=pMapTable->begin( );itT!=pMapTable->end( );++itT )
+		{
+			Table *pTable = ( *itT ).second;
+			if( pTable->Repository_get( )==this && !pTable->CheckIn( psc_user, ra_Processor, pSocket, toc_Delete ) )
+			{
+				cerr << "Table: " << pTable->Name_get() << " failed to deletes" << endl;
+				delete pSocket;
+				return false;
+			}
+		}
+	}
+
+	/** Then add all records */
 	for( map<int,MapTable *>::iterator it=g_GlobalConfig.m_mapUsersTables.begin( );it!=g_GlobalConfig.m_mapUsersTables.end( );++it )
 	{
 		int psc_user = (*it).first;
@@ -622,23 +639,6 @@ bool Repository::CheckIn( )
 		}
 	}
 	
-	/** Finally handle deletions */
-	for( map<int,MapTable *>::iterator it=g_GlobalConfig.m_mapUsersTables.begin( );it!=g_GlobalConfig.m_mapUsersTables.end( );++it )
-	{
-		int psc_user = ( *it ).first;
-		MapTable *pMapTable = ( *it ).second;
-		for( MapTable::iterator itT=pMapTable->begin( );itT!=pMapTable->end( );++itT )
-		{
-			Table *pTable = ( *itT ).second;
-			if( pTable->Repository_get( )==this && !pTable->CheckIn( psc_user, ra_Processor, pSocket, toc_Delete ) )
-			{
-				cerr << "Table: " << pTable->Name_get() << " failed to deletes" << endl;
-				delete pSocket;
-				return false;
-			}
-		}
-	}
-
 	R_CloseTransaction r_CloseTransaction;
 	ra_Processor.AddRequest(&r_CloseTransaction);
 	while( ra_Processor.SendRequests( g_GlobalConfig.m_sSqlCVSHost + ":" + StringUtils::itos(g_GlobalConfig.m_iSqlCVSPort), &pSocket ) );
