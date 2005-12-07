@@ -1,6 +1,7 @@
 #!/usr/bin/perl
-#use strict;
-use diagnostics;
+
+use strict;
+#use diagnostics;
 use DBI;
 
 $|=1;
@@ -38,7 +39,7 @@ $DB_STATEMENT = $DB_PL_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '
 $DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
 if($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
 {
-    $the_housemode=$1 if($DB_ROW{'IK_DeviceData'} =~ /(\d+)(,\d+)*/);
+    $the_housemode=$1 if($DB_ROW->{'IK_DeviceData'} =~ /(\d+)(,\d+)*/);
 }
 if($the_housemode == 0)
 {
