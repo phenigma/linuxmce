@@ -21,4 +21,4 @@ Acquire::ftp::timeout "10";
 
 echo -n "$pluto_apt_conf" >/etc/apt/apt.conf.d/30pluto
 
-sed -i 's,www\.geocities\.com,us.share.geocities.com,g' /etc/apt/sources
+sed -i 's,www\.geocities\.com,us.share.geocities.com,g' /etc/apt/sources.list
