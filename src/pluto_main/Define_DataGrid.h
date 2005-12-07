@@ -46,6 +46,10 @@
 #define DATAGRID_Types_Of_Mobile_Phones_CONST 43
 #define DATAGRID_New_PNP_Devices_CONST 44
 #define DATAGRID_Powerfile_CONST 45
+#define DATAGRID_Users_CONST 46
+#define DATAGRID_Countries_CONST 47
+#define DATAGRID_Device_Template_by_Mfr_Mo_CONST 48
+#define DATAGRID_Available_Inputs_CONST 49
 
 #define DATAGRID_TABLE "DataGrid"
 #define DATAGRID_PK_DATAGRID_FIELD "PK_DataGrid"

@@ -1720,9 +1720,9 @@
 #define DESIGNOBJ_VoipAccount_CONST 4567
 #define DESIGNOBJ_butStartWizard_CONST 4568
 #define DESIGNOBJ_butRepeat_CONST 4569
-#define DESIGNOBJ_butNextStep02_CONST 4570
-#define DESIGNOBJ_butNextStep03_CONST 4571
-#define DESIGNOBJ_butNextStep04_CONST 4572
+#define DESIGNOBJ_butYourName_CONST 4570
+#define DESIGNOBJ_butFamilyMembers_CONST 4571
+#define DESIGNOBJ_butNextStep03_CONST 4572
 #define DESIGNOBJ_butNextStep05_CONST 4573
 #define DESIGNOBJ_butNextStep06_CONST 4574
 #define DESIGNOBJ_butNextStep07_CONST 4575
@@ -1738,7 +1738,7 @@
 #define DESIGNOBJ_butNextStep17_CONST 4585
 #define DESIGNOBJ_butNextStep18_CONST 4586
 #define DESIGNOBJ_butNextStep19_CONST 4587
-#define DESIGNOBJ_butAdd_CONST 4588
+#define DESIGNOBJ_butAdduser_CONST 4588
 #define DESIGNOBJ_butKVC_CONST 4589
 #define DESIGNOBJ_butKVL_CONST 4590
 #define DESIGNOBJ_butKXV_CONST 4591
@@ -1767,8 +1767,6 @@
 #define DESIGNOBJ_roomsapplet_CONST 4616
 #define DESIGNOBJ_butRoomswizard_CONST 4617
 #define DESIGNOBJ_butGreetings_CONST 4618
-#define DESIGNOBJ_butYourName_CONST 4619
-#define DESIGNOBJ_butFamilyMembers_CONST 4620
 #define DESIGNOBJ_butConfirmNames_CONST 4621
 #define DESIGNOBJ_butTVManuf_CONST 4622
 #define DESIGNOBJ_butTVManufNotListed_CONST 4623
@@ -1804,6 +1802,18 @@
 #define DESIGNOBJ_butVoipAccount_CONST 4654
 #define DESIGNOBJ_grpShortcuts_CONST 4655
 #define DESIGNOBJ_butDirectToTV_CONST 4657
+#define DESIGNOBJ_butStopVideo_CONST 4658
+#define DESIGNOBJ_WhatCountry_CONST 4659
+#define DESIGNOBJ_butRemoveUser_CONST 4660
+#define DESIGNOBJ_butNextStep3b_CONST 4661
+#define DESIGNOBJ_PostalCode_CONST 4662
+#define DESIGNOBJ_butNextStep4_CONST 4663
+#define DESIGNOBJ_dgUsers_CONST 4664
+#define DESIGNOBJ_dgCountries_CONST 4665
+#define DESIGNOBJ_grpCountryAutoSearch_CONST 4666
+#define DESIGNOBJ_grpManufacturerKeyboard_CONST 4667
+#define DESIGNOBJ_dgDeviceTemplateByMfrModel_CONST 4668
+#define DESIGNOBJ_grpDeviceTemplateByMfrModelKey_CONST 4669
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

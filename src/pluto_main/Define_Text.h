@@ -812,7 +812,7 @@
 #define TEXT_Voip_account_CONST 1517
 #define TEXT_I_can_hear_you_CONST 1518
 #define TEXT_dont_control_my_TV_CONST 1519
-#define TEXT_Add_CONST 1520
+#define TEXT_Add_user_CONST 1520
 #define TEXT_KVC61M_51M_42M_CONST 1521
 #define TEXT_KVL60P_CONST 1522
 #define TEXT_KXV52P_CONST 1523
@@ -842,6 +842,14 @@
 #define TEXT_Track_light_CONST 1547
 #define TEXT_Recessed_lighting_CONST 1548
 #define TEXT_Start_Using_the_Monster_Vault_CONST 1549
+#define TEXT_Can_you_see_me_and_hear_me_CONST 1551
+#define TEXT_Stop_video_CONST 1552
+#define TEXT_What’s_your_name_CONST 1553
+#define TEXT_Other_family_members_CONST 1554
+#define TEXT_What_country_are_you_in_CONST 1555
+#define TEXT_Remove_user_CONST 1556
+#define TEXT_What_is_your_postal_code_CONST 1557
+#define TEXT_What_rooms_are_in_your_house_CONST 1558
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
