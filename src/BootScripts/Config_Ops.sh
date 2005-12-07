@@ -6,6 +6,7 @@ NoSpace="s/ //g"
 
 ConfEval()
 {
+	local Ret=0
 	WaitLock "pluto.conf" "Config_Ops-ConfEval" nolog
 	[[ -e /etc/pluto.conf ]] || exit 0
 	# Note to self: this "read from file into while" is absolutely necessary
@@ -19,10 +20,12 @@ ConfEval()
 		eval "export $line" &>/dev/null
 	done </etc/pluto.conf
 	Unlock "pluto.conf" "Config_Ops-ConfEval" nolog
+	return $Ret
 }
 
 ConfSet()
 {
+	local Ret=0
 	WaitLock "pluto.conf" "Config_Ops-ConfSet" nolog
 	local Variable="$1" Value="$2"
 	local Line="$Variable = $Value"
@@ -33,19 +36,22 @@ ConfSet()
 	fi
 	eval "export $Variable=\"$Value\"" &>/dev/null
 	Unlock "pluto.conf" "Config_Ops-ConfSet" nolog
+	return $Ret
 }
 
 ConfGet()
 {
+	local Ret=0
 	WaitLock "pluto.conf" "Config_Ops-ConfGet" nolog
 	local Variable="$1" Line
 	if ! grep "$Variable.*=" /etc/pluto.conf &>/dev/null; then
-		return 1
+		Ret=1
 	else
 		Line=$(grep "$Variable.*=" /etc/pluto.conf 2>/dev/null | head -1 | sed "$NoSpace")
 		eval "export $Line"
 	fi
 	Unlock "pluto.conf" "Config_Ops-ConfGet" nolog
+	return $Ret
 }
 
 ReplaceVars()
