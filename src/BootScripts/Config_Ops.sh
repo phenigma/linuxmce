@@ -2,17 +2,28 @@
 
 NoSpace="s/ //g"
 
+. /usr/pluto/bin/LockUtils.sh
+
 ConfEval()
 {
-	[ -e /etc/pluto.conf ] || exit 0
-	sed "$NoSpace" /etc/pluto.conf | egrep -v "^#|^//" |
+	WaitLock "pluto.conf" "Config_Ops-ConfEval" nolog
+	[[ -e /etc/pluto.conf ]] || exit 0
+	# Note to self: this "read from file into while" is absolutely necessary
+	#               "cmd | while ..." spawns a subshell and our veriables will be set there instead of our current shell
+	#               "while ...; do ...; done <file" works the way we need
 	while read line; do
+		line="${line// }"
+		if [[ "$line" == "#"* || "$line" == "//"* ]]; then
+			continue # comment line; skip
+		fi
 		eval "export $line" &>/dev/null
-	done
+	done </etc/pluto.conf
+	Unlock "pluto.conf" "Config_Ops-ConfEval" nolog
 }
 
 ConfSet()
 {
+	WaitLock "Config_Ops-pluto.conf" "Config_Ops-ConfSet" nolog
 	local Variable="$1" Value="$2"
 	local Line="$Variable = $Value"
 	if ! grep "$Variable.*=" /etc/pluto.conf &>/dev/null; then
@@ -21,10 +32,12 @@ ConfSet()
 		sed -i "s/^.*$Variable.*=.*$/$Line/g" /etc/pluto.conf
 	fi
 	eval "export $Variable=\"$Value\"" &>/dev/null
+	Unlock "pluto.conf" "Config_Ops-ConfSet" nolog
 }
 
 ConfGet()
 {
+	WaitLock "Config_Op-pluto.confs" "Config_Ops-ConfGet" nolog
 	local Variable="$1" Line
 	if ! grep "$Variable.*=" /etc/pluto.conf &>/dev/null; then
 		return 1
@@ -32,6 +45,7 @@ ConfGet()
 		Line=$(grep "$Variable.*=" /etc/pluto.conf 2>/dev/null | head -1 | sed "$NoSpace")
 		eval "export $Line"
 	fi
+	Unlock "pluto.conf" "Config_Ops-ConfGet" nolog
 }
 
 ReplaceVars()
@@ -45,7 +59,7 @@ ReplaceVars()
 		VarValue=${VarValue//\//\\\/}
 		VarValue=$(echo "$VarValue" | sed 's/^ *//g; s/ *$//g')
 		SedCmd="s/%$i%/$VarValue/g"
-		[ -z "$Commands" ] && Commands="$SedCmd" || Commands="$Commands; s/%$i%/$VarValue/g"
+		[[ -z "$Commands" ]] && Commands="$SedCmd" || Commands="$Commands; s/%$i%/$VarValue/g"
 	done
 	sed -i "$Commands" $File
 }
@@ -54,14 +68,14 @@ PackageIsInstalled()
 {
 	local Pkg="$1"
 
-	[ -z "$Pkg" ] && return 1
+	[[ -z "$Pkg" ]] && return 1
 	dpkg -s "$Pkg" 2>/dev/null | grep -q 'Status: install ok installed'
 }
 
 ConfEval
 
 VGcmd=""
-if [ -n "$Valgrind" ]; then
+if [[ -n "$Valgrind" ]]; then
 	if which valgrind &>/dev/null; then
 		VGcmd="valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=15 " # trailing space is mandatory
 		export GLIBCXX_FORCE_NEW=1
@@ -71,11 +85,11 @@ if [ -n "$Valgrind" ]; then
 	fi
 fi
 
-[ -f /tmp/pluto.gdb ] || echo "run" >/tmp/pluto.gdb
-if [ -n "$GDB" ]; then
+[[ -f /tmp/pluto.gdb ]] || echo "run" >/tmp/pluto.gdb
+if [[ -n "$GDB" ]]; then
 	if which gdb &>/dev/null; then
 		VGcmd="gdb --command=/tmp/pluto.gdb --args "
-	elif [ -z "$VGcmd" ]; then
+	elif [[ -z "$VGcmd" ]]; then
 		echo "*** WARNING *** GDB not installed. Running programs the normal way ***"
 	fi
 fi

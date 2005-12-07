@@ -28,12 +28,13 @@ Unlock()
 {
 	local Lock="$1"
 	local Device="$2"
+	local NoLog="$3"
 	
-	echo "$$ $(date) Unlock '$Lock' ($Device)"
+	[[ -z "$NoLog" ]] && echo "$$ $(date) Unlock '$Lock' ($Device)"
 
 	[[ -z "$Lock" ]] && echo "$$ $(date) Unlock '$Lock' ($Device) fail" && return 1
 	rm -f "$Dir/$Lock" 2>/dev/null
-	echo "$$ $(date) Unlock '$Lock' ($Device) success"
+	[[ -z "$NoLog" ]] && echo "$$ $(date) Unlock '$Lock' ($Device) success"
 	return 0
 }
 
@@ -41,13 +42,14 @@ TryLock()
 {
 	local Lock="$1"
 	local Device="$2"
+	local NoLog="$3"
 
-	echo "$$ $(date) TryLock '$Lock' ($Device)"
+	[[ -z "$NoLog" ]] && echo "$$ $(date) TryLock '$Lock' ($Device)"
 	if Lock "$Lock" "$Device"; then
-		echo "$$ $(date) TryLock '$Lock' ($Device) success"
+		[[ -z "$NoLog" ]] && echo "$$ $(date) TryLock '$Lock' ($Device) success"
 		return 0
 	else
-		echo "$$ $(date) TryLock '$Lock' ($Device) fail"
+		[[ -z "$NoLog" ]] && echo "$$ $(date) TryLock '$Lock' ($Device) fail"
 		return 1
 	fi
 }
@@ -56,11 +58,12 @@ WaitLock()
 {
 	local Lock="$1"
 	local Device="$2"
+	local NoLog="$3"
 	
-	echo "$$ $(date) WaitLock '$Lock' ($Device)"
+	[[ -z "$NoLog" ]] && echo "$$ $(date) WaitLock '$Lock' ($Device)"
 	until Lock "$1" "$Device" nolog; do
 		sleep 1
 	done
-	echo "$$ $(date) WaitLock '$Lock' ($Device) success"
+	[[ -z "$NoLog" ]] && echo "$$ $(date) WaitLock '$Lock' ($Device) success"
 	return 0
 }
