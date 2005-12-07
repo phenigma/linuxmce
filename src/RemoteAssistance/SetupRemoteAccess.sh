@@ -17,7 +17,7 @@ if [[ ! -L "$cronCmd_Special" ]]; then
 fi
 
 RAKey="/usr/pluto/keys/id_dsa_remoteassistance"
-[ -f "$RAKey" ] && chmod 700 "$RAKey" || exit
+[[ -f "$RAKey" ]] && chmod 700 "$RAKey" || exit
 
 shopt -s nullglob
 
@@ -122,7 +122,7 @@ RemoveTunnel()
 	Tunnel=$(echo /var/run/screen/S-root/*${screenName}_${Suffix})
 
 	# kill port forward if it exists
-	if [ -n "$Tunnel" ]; then
+	if [[ -n "$Tunnel" ]]; then
 		PID="${Tunnel##*/}"
 		PID="${PID%%.*}"
 		kill $PID
@@ -171,10 +171,12 @@ Me="$(basename "$0")"
 
 if [[ "$Me" == "$(basename "$cronCmd")" ]]; then
 	DeleteHostKey
-	if [ -n "$remote" ]; then
+	if [[ -n "$remote" ]]; then
 		AddCronEntry
-		[ "$1" == "restart" ] && RemoveTunnels
+		[[ "$1" == "restart" ]] && RemoveTunnels
 		CreateTunnels
+	elif grep -q '^remote=' /etc/pluto.conf
+		Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "Remote assistance is enabled in pluto.conf, yet remote password is empty. Avoiding closing the tunnels."
 	else
 		DelCronEntry
 		RemoveTunnels
