@@ -5,10 +5,10 @@ NoSpace="s/ //g"
 ConfEval()
 {
 	[ -e /etc/pluto.conf ] || exit 0
-	sed "$NoSpace" /etc/pluto.conf | egrep -v "^#|^//" >/tmp/pluto.conf
+	sed "$NoSpace" /etc/pluto.conf | egrep -v "^#|^//" |
 	while read line; do
 		eval "export $line" &>/dev/null
-	done </tmp/pluto.conf
+	done
 }
 
 ConfSet()
