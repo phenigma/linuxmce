@@ -211,9 +211,16 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 	{
 		string sSubDir = *it;
 
-		//conditional recursiveness: skip the subdir if it's already in the db
-		if(mapFiles.find(sSubDir) != mapFiles.end() && !bRecursive)
-			continue;
+		string SQL = "select count(*) from File Where Path = " + sDirectory + "/" + sSubDir;
+		PlutoSqlResult allresult;
+		if((allresult.r = m_pDatabase_pluto_media->mysql_query_result(SQL)))
+		{
+			if(allresult.r->row_count > 0 && !bRecursive)
+			{
+				g_pPlutoLogger->Write(LV_WARNING, "Subdir %s/%s already in scanned", sDirectory, sSubDir);
+				continue;
+			}
+		}
 
         //is sDirectory a ripped dvd ?
 		if( 
