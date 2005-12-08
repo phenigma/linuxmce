@@ -1016,7 +1016,10 @@ string PowerfileIdentify_Task::ToString()
 void PowerfileRip_Task::Run()
 {
 	if (m_eTaskStatus == TASK_NOT_STARTED)
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Task posponed. Exiting Run()");
 		return; // task postponed
+	}
 	
 	Powerfile_Job * pPowerfile_Job = (Powerfile_Job *) m_pJob;
 
@@ -1206,7 +1209,10 @@ void PowerfileRip_Task::RipCD(Row_Disc *pRow_Disc,listMediaAttribute &listMediaA
 void PowerfileIdentify_Task::Run()
 {
 	if (m_eTaskStatus == TASK_NOT_STARTED)
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Task posponed. Exiting Run()");
 		return; // task postponed
+	}
 	
 	g_pPlutoLogger->Write(LV_STATUS,"PowerfileIdentify_Task::Run");
 	Powerfile_Job * pPowerfile_Job = (Powerfile_Job *) m_pJob;
