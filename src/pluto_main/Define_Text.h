@@ -797,7 +797,7 @@
 #define TEXT_Rooms_CONST 1502
 #define TEXT_Confirm_Names_CONST 1503
 #define TEXT_AV_connection_CONST 1504
-#define TEXT_TV_Model_CONST 1505
+#define TEXT_Model_CONST 1505
 #define TEXT_Connection_to_the_TV_CONST 1506
 #define TEXT_Use_a_receiver_CONST 1507
 #define TEXT_AV_devices_CONST 1508
@@ -850,6 +850,15 @@
 #define TEXT_Remove_user_CONST 1556
 #define TEXT_What_is_your_postal_code_CONST 1557
 #define TEXT_What_rooms_are_in_your_house_CONST 1558
+#define TEXT_TV_Provider_CONST 1559
+#define TEXT_Alarm_Panel_CONST 1560
+#define TEXT_Do_you_use_cable_satellite_or_antenna_CONST 1561
+#define TEXT_Manufacturer_of_box_CONST 1562
+#define TEXT_Model_of_box_CONST 1563
+#define TEXT_Who_made_the_TV_you_are_using_CONST 1564
+#define TEXT_Do_you_use_a_receiver_CONST 1565
+#define TEXT_Receiver_CONST 1566
+#define TEXT_Who_made_the_Receiver_you_are_using_CONST 1567
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

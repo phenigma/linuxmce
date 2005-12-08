@@ -191,6 +191,15 @@
 #define SCREEN_DialogSendFileToPhoneFailed_CONST 190
 #define SCREEN_AudiHome_CONST 191
 #define SCREEN_RoomsWizard_CONST 192
+#define SCREEN_UsersWizard_CONST 193
+#define SCREEN_CountryWizard_CONST 194
+#define SCREEN_TV_provider_CONST 195
+#define SCREEN_TV_Manufacturer_CONST 196
+#define SCREEN_Receiver_CONST 197
+#define SCREEN_LightsSetup_CONST 198
+#define SCREEN_AlarmPanel_CONST 199
+#define SCREEN_VOIP_Provider_CONST 200
+#define SCREEN_AV_Devices_CONST 201
 
 #define SCREEN_TABLE "Screen"
 #define SCREEN_PK_SCREEN_FIELD "PK_Screen"
