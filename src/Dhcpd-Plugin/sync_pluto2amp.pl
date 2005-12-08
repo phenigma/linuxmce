@@ -12,7 +12,7 @@ my $DEVICE_PORT = 0;  #default for SIP
 
 my $CONF_HOST="localhost";
 my $CONF_USER="root";
-my $CONF_PASSWD="x";
+my $CONF_PASSWD="";
 
 my $DB_PL_HANDLE;
 my $DB_AS_HANDLE;
@@ -208,6 +208,7 @@ sub add_to_asterisk_db()
 	$EXT_VARS{'deviceuser'}="same";
 	$EXT_VARS{'password'}="";
 	$EXT_VARS{'outboundcid'}="";
+	$EXT_VARS{'vm'}="disabled";
 	$EXT_VARS{'secret'}=$DEVICE_EXT if ($DEVICE_TYPE ne 'custom');
 	$EXT_VARS{'dial'}="SCCP/".$DEVICE_EXT if ($DEVICE_TYPE eq 'custom');
 	foreach my $var (keys %EXT_VARS)
