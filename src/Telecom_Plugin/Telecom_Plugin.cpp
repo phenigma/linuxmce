@@ -38,6 +38,7 @@ using namespace DCE;
 #include "pluto_telecom/Database_pluto_telecom.h"
 #include "pluto_main/Table_CommandGroup.h"
 #include "pluto_main/Define_Array.h"
+#include "pluto_main/Define_Screen.h"
 #include "pluto_main/Define_DeviceTemplate.h"
 #include "pluto_main/Define_DataGrid.h"
 #include "pluto_main/Define_DeviceData.h"
@@ -630,7 +631,7 @@ Telecom_Plugin::IncomingCall( class Socket *pSocket, class Message *pMessage,
 					 			class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo ) {
 	g_pPlutoLogger->Write(LV_STATUS, "IncomingCall on device %d",pDeviceFrom->m_dwPK_Device);
 	g_pPlutoLogger->Write(LV_STATUS, "Will send GOTO_SCREEN to %d",pDeviceFrom->m_dwPK_Device_ControlledVia);
-	CMD_Goto_Screen cmdGoToScreen(m_dwPK_Device,pDeviceFrom->m_dwPK_Device_ControlledVia,121);
+	CMD_Goto_Screen cmdGoToScreen(m_dwPK_Device,pDeviceFrom->m_dwPK_Device_ControlledVia,SCREEN_DevIncomingCall_CONST);
 	SendCommand(cmdGoToScreen);
 	return true;
 }
