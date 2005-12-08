@@ -308,4 +308,69 @@ void ScreenHandler::SCREEN_DialogSendFileToPhoneFailed(long PK_Screen, string sM
 	);
 }
 //-----------------------------------------------------------------------------------------------------
-
+void ScreenHandler::SCREEN_Lights(long PK_Screen, string sLocation)
+{
+	m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)) + "." + sLocation + ".0", 
+		sLocation, "", false, false );
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_Media(long PK_Screen, string sLocation)
+{
+	m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)) + "." + sLocation + ".0", 
+		sLocation, "", false, false );
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_Climate(long PK_Screen, string sLocation)
+{
+	m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)) + "." + sLocation + ".0", 
+		sLocation, "", false, false );
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_Security(long PK_Screen, string sLocation)
+{
+	m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)) + "." + sLocation + ".0", 
+		sLocation, "", false, false );
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_Telephony(long PK_Screen, string sLocation)
+{
+	m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)) + "." + sLocation + ".0", 
+		sLocation, "", false, false );
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_Misc(long PK_Screen, string sLocation)
+{
+	m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)) + "." + sLocation + ".0", 
+		sLocation, "", false, false );
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_popLights(long PK_Screen, string sLocation)
+{
+	m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)) + "." + sLocation + ".0", 
+		sLocation, "", false, false );
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_popMedia(long PK_Screen, string sLocation)
+{
+	m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)) + "." + sLocation + ".0", 
+		sLocation, "", false, false );
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_popClimate(long PK_Screen, string sLocation)
+{
+	m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)) + "." + sLocation + ".0", 
+		sLocation, "", false, false );
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_popTelecom(long PK_Screen, string sLocation)
+{
+	m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)) + "." + sLocation + ".0", 
+		sLocation, "", false, false );
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_popSecurity(long PK_Screen, string sLocation)
+{
+	m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)) + "." + sLocation + ".0", 
+		sLocation, "", false, false );
+}
+//-----------------------------------------------------------------------------------------------------

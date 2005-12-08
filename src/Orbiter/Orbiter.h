@@ -50,7 +50,8 @@ enum CallBackType
 	cbOnKeyDown,
 	cbOnKeyUp,
 	cbOnMouseDown,
-	cbOnMouseUp
+	cbOnMouseUp,
+	cbCapturedKeyboardBufferChanged
 };
 
 #define PROMPT_CANCEL -1
@@ -282,6 +283,7 @@ protected:
 	int m_dwIDataGridRequestCounter;  // For testing purposes we can log all datagrid requests
 
 	DesignObj_OrbiterMap m_mapObj_All; /** < All objects with the object ID in x.y.z.a.b format */
+
 	map < string, DesignObj_DataList * > m_mapObj_AllNoSuffix; /** < All object with the object ID as a string */
 	list < ScreenHistory * > m_listScreenHistory; /** < A history of the screens we've visited */
 	map<int,class DeviceData_Base *> m_mapDevice_Selected;  /** < We can select multiple devices on the floorplan to send messages to, instead of the usual one */

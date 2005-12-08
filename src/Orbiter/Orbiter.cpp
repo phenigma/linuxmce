@@ -1635,6 +1635,14 @@ void Orbiter::ObjectOffScreen( DesignObj_Orbiter *pObj )
 void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y)
 {
     PLUTO_SAFETY_LOCK( vm, m_ScreenMutex );
+
+	CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbObjectSelected);
+	if(pCallBackData)
+	{
+		ObjectInfoBackData *pObjectData = (ObjectInfoBackData *)pCallBackData;
+		pObjectData->m_PK_DesignObj_SelectedObject = pObj->m_iBaseObjectID;
+	}
+
 	if(ExecuteScreenHandlerCallback(cbObjectSelected))
 		return;
 
@@ -1938,6 +1946,14 @@ g_pPlutoLogger->Write(LV_WARNING,"Selected grid %s but m_pDataGridTable is NULL"
 //------------------------------------------------------------------------
 bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCell *pCell )
 {
+	CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbDataGridSelected);
+	if(pCallBackData)
+	{
+		DatagridCellBackData *pCellData = (DatagridCellBackData *)pCallBackData;
+		pCellData->m_sText = pCell->GetText();
+		pCellData->m_sValue = pCell->GetValue();
+	}
+
 	if(ExecuteScreenHandlerCallback(cbDataGridSelected))
 		return true;
 
@@ -6580,6 +6596,8 @@ bool Orbiter::CaptureKeyboard_EditText_DeleteLastChar(  )
     m_mapVariable[m_iCaptureKeyboard_PK_Variable] = NewValue;
     vm.Release();
 
+	ExecuteScreenHandlerCallback(cbCapturedKeyboardBufferChanged);
+
     if( NULL != m_pCaptureKeyboard_Text )
     {
         m_pCaptureKeyboard_Text->m_sText = NewValue;
@@ -6637,6 +6655,8 @@ bool Orbiter::CaptureKeyboard_EditText_AppendChar( char ch )
     m_sCaptureKeyboard_InternalBuffer = NewValue;
     m_mapVariable[m_iCaptureKeyboard_PK_Variable] = NewValue;
     vm.Release();
+
+	ExecuteScreenHandlerCallback(cbCapturedKeyboardBufferChanged);
 
     if( NULL != m_pCaptureKeyboard_Text )
     {
