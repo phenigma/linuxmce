@@ -179,7 +179,7 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 					<img src=include/images/disk.gif align=middle border=0>	Exist only on disk<br>
 					'.(($_SESSION['missing']==1)?'<img src=include/images/db.gif align=middle border=0> Exist only in database<br>':'').'
 					<img src=include/images/sync.gif align=middle border=0>	Exist both on disk and in database<br>
-					<input type="checkbox" name="show_missing" value="1" onclick="self.location=\'index.php?section=mainMediaFilesSync&path='.$path.'&missing='.((@$_SESSION['missing']==1)?0:1).'\'" '.(($_SESSION['missing']==1)?'checked':'').'> Show files who are missing from database
+					<input type="checkbox" name="show_missing" value="1" onclick="self.location=\'index.php?section=mainMediaFilesSync&path='.$path.'&missing='.((@$_SESSION['missing']==1)?0:1).'\'" '.(($_SESSION['missing']==1)?'checked':'').'> Show files who are missing from disk
 				</tr>
 			</table>';
 		}

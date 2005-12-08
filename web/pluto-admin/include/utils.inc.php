@@ -1438,7 +1438,7 @@ function pulldownFromArray($valuesArray,$name,$selectedValue,$extra='',$valueKey
 {
 //	if(count($valuesArray)==0)
 //		return null;
-	$out='<select name="'.$name.'" "'.$extra.'">';
+	$out='<select name="'.$name.'" '.$extra.'>';
 	if($zeroValueDescription!='')
 		$out.='<option value="0">'.$zeroValueDescription.'</option>';
 	foreach ($valuesArray AS $key=>$value){
