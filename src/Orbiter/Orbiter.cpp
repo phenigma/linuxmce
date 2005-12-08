@@ -1050,7 +1050,7 @@ int k=2;
 
         DesignObj_DataList::reverse_iterator iHao;
 
-#pragma warning( "todo - nasty hack -- on the hard drive screen,  you select music,  then when you go to video,  it redraws the video section,  but then redraws the deselected music with m_pGraphicToUndoSelect,  which includes a snapshot of the prior highlighters,  that are overwriting the new ones.  Redraw these first!  After render object won't draw anything" )
+//#pragma warning( "todo - nasty hack -- on the hard drive screen,  you select music,  then when you go to video,  it redraws the video section,  but then redraws the deselected music with m_pGraphicToUndoSelect,  which includes a snapshot of the prior highlighters,  that are overwriting the new ones.  Redraw these first!  After render object won't draw anything" )
     for( iHao=pObj->m_ChildObjects.rbegin(  ); iHao != pObj->m_ChildObjects.rend(  ); ++iHao )
     {
         DesignObj_Orbiter *pDesignObj_Orbiter=( DesignObj_Orbiter * )*iHao;
@@ -1060,7 +1060,7 @@ int k=2;
     }
 
 
-#pragma warning( "todo - nasty hack -- the datagrid highlighters need to be drawn after the music button.  Until I can implement layering,  scan twice and do the tied to's last" )
+///#pragma warning( "todo - nasty hack -- the datagrid highlighters need to be drawn after the music button.  Until I can implement layering,  scan twice and do the tied to's last" )
     for( iHao=pObj->m_ChildObjects.rbegin(  ); iHao != pObj->m_ChildObjects.rend(  ); ++iHao )
     {
         // Hold back the tied to's and datagrids
@@ -1744,7 +1744,7 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y)
     }
 #endif
 
-#pragma warning( "bad,  bad hack" )
+//#pragma warning( "bad,  bad hack" )
     if(  pObj->m_iBaseObjectID==2706  )
     {
         // There's a problem when you select the video button.  The music button was already selected,  and saved a snapshop in the 'savebackgroundfordeselect'.
@@ -2011,7 +2011,7 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
 		}
         else
         {
-#pragma warning( "Look into this and the sendreceive above.  one deletes,  the other not.  if it deletes,  you can't select the grid twice.  if not,  the framework will delete.  should make a copy I think" );
+//#pragma warning( "Look into this and the sendreceive above.  one deletes,  the other not.  if it deletes,  you can't select the grid twice.  if not,  the framework will delete.  should make a copy I think" );
             QueueMessageToRouter( pMessage );
 
             //          QueueMessageToRouter( pMessage );  // I think this caused some grids not to immediately refresh  **TODO** look into this
@@ -3783,7 +3783,7 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
     return bHandled;
 }
 
-#include "WizardLogic.h"
+//#include "WizardLogic.h"
 bool Orbiter::ButtonDown( int iPK_Button )
 {
 	CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnKeyDown);
@@ -9243,7 +9243,7 @@ void ReceivePingHandler(Socket *pSocket)
 			" S" + StringUtils::itos(pOrbiter->m_ScreenMutex.m_NumLocks) + " V" + StringUtils::itos(pOrbiter->m_VariableMutex.m_NumLocks)
 			+ " D" + StringUtils::itos(pOrbiter->m_DatagridMutex.m_NumLocks) + " M" + StringUtils::itos(pOrbiter->m_MaintThreadMutex.m_NumLocks)
 			+ " R" + StringUtils::itos(pOrbiter->m_NeedRedrawVarMutex.m_NumLocks) + "#" + 
-			StringUtils::itos(pSocket->m_Socket) + " " + pSocket->m_sName + "\n";
+			StringUtils::itos(int(pSocket->m_Socket)) + " " + pSocket->m_sName + "\n";
 		NeedToRender render( pOrbiter, "ReceivePingHandler" );
 		PLUTO_SAFETY_LOCK( nd, pOrbiter->m_NeedRedrawVarMutex );
 		DesignObjText *pText = pOrbiter->FindText( pOrbiter->m_pScreenHistory_Current->m_pObj, TEXT_STATUS_CONST );
@@ -9272,7 +9272,7 @@ bool SendPingHandler(Socket *pSocket)
 			+ " S" + StringUtils::itos(pOrbiter->m_ScreenMutex.m_NumLocks) + " V" + StringUtils::itos(pOrbiter->m_VariableMutex.m_NumLocks)
 			+ " D" + StringUtils::itos(pOrbiter->m_DatagridMutex.m_NumLocks) + " M" + StringUtils::itos(pOrbiter->m_MaintThreadMutex.m_NumLocks)
 			+ " R" + StringUtils::itos(pOrbiter->m_NeedRedrawVarMutex.m_NumLocks) + "#"
-			+ StringUtils::itos(pSocket->m_Socket) + " " + pSocket->m_sName + "\n";
+			+ StringUtils::itos(int(pSocket->m_Socket)) + " " + pSocket->m_sName + "\n";
 		PLUTO_SAFETY_LOCK( nd, pOrbiter->m_NeedRedrawVarMutex );
 		pText->m_sText = sMessage + pText->m_sText;
 		pOrbiter->m_vectObjs_NeedRedraw.push_back( pOrbiter->m_pScreenHistory_Current->m_pObj );
@@ -9285,7 +9285,7 @@ bool SendPingHandler(Socket *pSocket)
 			+ " S" + StringUtils::itos(pOrbiter->m_ScreenMutex.m_NumLocks) + " V" + StringUtils::itos(pOrbiter->m_VariableMutex.m_NumLocks)
 			+ " D" + StringUtils::itos(pOrbiter->m_DatagridMutex.m_NumLocks) + " M" + StringUtils::itos(pOrbiter->m_MaintThreadMutex.m_NumLocks)
 			+ " R" + StringUtils::itos(pOrbiter->m_NeedRedrawVarMutex.m_NumLocks) + "#"
-			+ StringUtils::itos(pSocket->m_Socket) + " " + pSocket->m_sName + "\n";
+			+ StringUtils::itos(int(pSocket->m_Socket)) + " " + pSocket->m_sName + "\n";
 		PLUTO_SAFETY_LOCK( nd, pOrbiter->m_NeedRedrawVarMutex );
 		pText->m_sText = sMessage + pText->m_sText;
 		pOrbiter->m_vectObjs_NeedRedraw.push_back( pOrbiter->m_pScreenHistory_Current->m_pObj );
@@ -9307,7 +9307,7 @@ bool SendPingHandler(Socket *pSocket)
 			+ " S" + StringUtils::itos(pOrbiter->m_ScreenMutex.m_NumLocks) + " V" + StringUtils::itos(pOrbiter->m_VariableMutex.m_NumLocks)
 			+ " D" + StringUtils::itos(pOrbiter->m_DatagridMutex.m_NumLocks) + " M" + StringUtils::itos(pOrbiter->m_MaintThreadMutex.m_NumLocks)
 			+ " R" + StringUtils::itos(pOrbiter->m_NeedRedrawVarMutex.m_NumLocks) + "#"
-			+ StringUtils::itos(pSocket->m_Socket) + " " + pSocket->m_sName + "\n";
+			+ StringUtils::itos(int(pSocket->m_Socket)) + " " + pSocket->m_sName + "\n";
 
 		PLUTO_SAFETY_LOCK( nd, pOrbiter->m_NeedRedrawVarMutex );
 		pText->m_sText = sMessage + pText->m_sText;
@@ -9346,7 +9346,7 @@ bool Orbiter::WaitForRelativesIfOSD()
 		}
 
 		g_pPlutoLogger->Write(LV_STATUS,"Waiting %d devices %s",iUnregisteredRelatives,sDescription.c_str());
-		if( DisplayProgress(sDescription,100-(iUnregisteredRelatives*100/mapUnregisteredRelatives.size())) )
+		if( DisplayProgress(sDescription,100-(iUnregisteredRelatives*100/int(mapUnregisteredRelatives.size()))) )
 		{
 			DisplayProgress("",-1);
 			g_pPlutoLogger->Write(LV_WARNING,"Orbiter::WaitForRelativesIfOSD user wants to abort");

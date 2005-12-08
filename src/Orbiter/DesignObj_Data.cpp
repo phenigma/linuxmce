@@ -50,7 +50,7 @@ bool DesignObjText::Serialize( bool bWriting, char *&pcDataBlock, unsigned long 
 		Write_string(m_sText);
 
 		{
-			Write_long(m_mapAltVersions.size());
+			Write_long(long(m_mapAltVersions.size()));
 			for(map<int,string>::iterator it=m_mapAltVersions.begin();it!=m_mapAltVersions.end();++it)
 			{
 				Write_long(it->first);
@@ -59,7 +59,7 @@ bool DesignObjText::Serialize( bool bWriting, char *&pcDataBlock, unsigned long 
 		}
 
 		{
-			Write_long(m_mapTextStyle.size());
+			Write_long(long(m_mapTextStyle.size()));
 			for(MapTextStyle::iterator it=m_mapTextStyle.begin();it!=m_mapTextStyle.end();++it)
 			{
 				Write_long(it->first);
@@ -80,7 +80,7 @@ bool DesignObjText::Serialize( bool bWriting, char *&pcDataBlock, unsigned long 
 		Read_string(m_sText);
 
 		{
-			int count=Read_long();
+			size_t count = size_t(Read_long());
 			for(size_t s=0;s<count;++s)
 			{
 				long l = Read_long();
@@ -91,7 +91,7 @@ bool DesignObjText::Serialize( bool bWriting, char *&pcDataBlock, unsigned long 
 		}
 
 		{
-			int count=Read_long();
+			size_t count = size_t(Read_long());
 			for(size_t s=0;s<count;++s)
 			{
 				long l=Read_long();
@@ -120,7 +120,7 @@ bool DesignObjZone::Serialize( bool bWriting, char *&pcDataBlock, unsigned long 
 		Write_long(m_Rect.Height);
 
 		{
-			Write_long(m_Commands.size());
+			Write_long(long(m_Commands.size()));
 			for(DesignObjCommandList::iterator it=m_Commands.begin();it!=m_Commands.end();++it)
 				(*it)->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition,pExtraSerializationData);
 		}
@@ -133,7 +133,7 @@ bool DesignObjZone::Serialize( bool bWriting, char *&pcDataBlock, unsigned long 
 		m_Rect.Height=Read_long();
 
 		{
-			int count=Read_long();
+			size_t count = size_t(Read_long());
 			for(size_t s=0;s<count;++s)
 			{
 				DesignObjCommand *pDesignObjCommand = new DesignObjCommand();
@@ -164,7 +164,7 @@ bool DesignObjCommand::Serialize( bool bWriting, char *&pcDataBlock, unsigned lo
 		Write_char(m_bRelativeToSender);
 		Write_char(m_bDeliveryConfirmation);
 		{
-			Write_long(m_ParameterList.size());
+			Write_long(long(m_ParameterList.size()));
 			for(map<int,string>::iterator it=m_ParameterList.begin();it!=m_ParameterList.end();++it)
 			{
 				Write_long(it->first);
@@ -183,7 +183,7 @@ bool DesignObjCommand::Serialize( bool bWriting, char *&pcDataBlock, unsigned lo
 		m_bRelativeToSender=Read_char()==1;
 		m_bDeliveryConfirmation=Read_char()==1;
 		{
-			int count=Read_long();
+			size_t count = size_t(Read_long());
 			for(size_t s=0;s<count;++s)
 			{
 				long l = Read_long();
@@ -263,13 +263,13 @@ bool DesignObj_Data::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 		
 
 		{
-			Write_long(m_vectAltGraphicFilename.size());
+			Write_long(long(m_vectAltGraphicFilename.size()));
 			for(size_t s=0;s<m_vectAltGraphicFilename.size();++s)
 				Write_string(m_vectAltGraphicFilename[s]);
 		}
 
 		{
-			Write_long(m_mapObjParms.size());
+			Write_long(long(m_mapObjParms.size()));
 			for(map<int,string>::iterator it=m_mapObjParms.begin();it!=m_mapObjParms.end();++it)
 			{
 				Write_long(it->first);
@@ -277,33 +277,33 @@ bool DesignObj_Data::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 			}
 		}
 		{
-			Write_long(m_Action_LoadList.size());
+			Write_long(long(m_Action_LoadList.size()));
 			for(DesignObjCommandList::iterator it=m_Action_LoadList.begin();it!=m_Action_LoadList.end();++it)
 				(*it)->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition,pExtraSerializationData);
 		}
 
 		{
-			Write_long(m_Action_UnloadList.size());
+			Write_long(long(m_Action_UnloadList.size()));
 			for(DesignObjCommandList::iterator it=m_Action_UnloadList.begin();it!=m_Action_UnloadList.end();++it)
 				(*it)->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition,pExtraSerializationData);
 		}
 		{
-			Write_long(m_Action_TimeoutList.size());
+			Write_long(long(m_Action_TimeoutList.size()));
 			for(DesignObjCommandList::iterator it=m_Action_TimeoutList.begin();it!=m_Action_TimeoutList.end();++it)
 				(*it)->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition,pExtraSerializationData);
 		}
 		{
-			Write_long(m_Action_StartupList.size());
+			Write_long(long(m_Action_StartupList.size()));
 			for(DesignObjCommandList::iterator it=m_Action_StartupList.begin();it!=m_Action_StartupList.end();++it)
 				(*it)->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition,pExtraSerializationData);
 		}
 		{
-			Write_long(m_ZoneList.size());
+			Write_long(long(m_ZoneList.size()));
 			for(DesignObjZoneList::iterator it=m_ZoneList.begin();it!=m_ZoneList.end();++it)
 				(*it)->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition,pExtraSerializationData);
 		}
 		{
-			Write_long(m_ChildObjects.size());
+			Write_long(long(m_ChildObjects.size()));
 			for(DesignObj_DataList::iterator it=m_ChildObjects.begin();it!=m_ChildObjects.end();++it)
 			{
 				Write_unsigned_long( (*it)->m_ObjectType );
@@ -312,7 +312,7 @@ bool DesignObj_Data::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 		}
 
 		{
-			Write_long(m_vectDesignObjText.size());
+			Write_long(long(m_vectDesignObjText.size()));
 			for(VectorDesignObjText::iterator it=m_vectDesignObjText.begin();it!=m_vectDesignObjText.end();++it)
 				(*it)->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition,pExtraSerializationData);
 		}
@@ -376,7 +376,7 @@ bool DesignObj_Data::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 		m_dbHitTest.m_pBlock=Read_block(m_dbHitTest.m_dwSize);
 
 		{
-			int count=Read_long();
+			size_t count = size_t(Read_long());
 			for(size_t s=0;s<count;++s)
 			{
 				string str;
@@ -386,7 +386,7 @@ bool DesignObj_Data::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 		}
 
 		{
-			int count=Read_long();
+			size_t count = size_t(Read_long());
 			for(size_t s=0;s<count;++s)
 			{
 				long l = Read_long();
@@ -397,7 +397,7 @@ bool DesignObj_Data::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 		}
 
 		{
-			int count=Read_long();
+			size_t count = size_t(Read_long());
 			for(size_t s=0;s<count;++s)
 			{
 				DesignObjCommand *pDesignObjCommand = new DesignObjCommand();
@@ -407,7 +407,7 @@ bool DesignObj_Data::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 		}
 
 		{
-			int count=Read_long();
+			size_t count = size_t(Read_long());
 			for(size_t s=0;s<count;++s)
 			{
 				DesignObjCommand *pDesignObjCommand = new DesignObjCommand();
@@ -417,7 +417,7 @@ bool DesignObj_Data::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 		}
 
 		{
-			int count=Read_long();
+			size_t count = size_t(Read_long());
 			for(size_t s=0;s<count;++s)
 			{
 				DesignObjCommand *pDesignObjCommand = new DesignObjCommand();
@@ -427,7 +427,7 @@ bool DesignObj_Data::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 		}
 
 		{
-			int count=Read_long();
+			size_t count = size_t(Read_long());
 			for(size_t s=0;s<count;++s)
 			{
 				DesignObjCommand *pDesignObjCommand = new DesignObjCommand();
@@ -437,7 +437,7 @@ bool DesignObj_Data::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 		}
 
 		{
-			int count=Read_long();
+			size_t count = size_t(Read_long());
 			for(size_t s=0;s<count;++s)
 			{
 				DesignObjZone *pDesignObjZone = new DesignObjZone();
@@ -447,7 +447,7 @@ bool DesignObj_Data::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 		}
 
 		{
-			int count=Read_long();
+			size_t count = size_t(Read_long());
 			for(size_t s=0;s<count;++s)
 			{
 				unsigned long Type = Read_unsigned_long();
@@ -468,7 +468,7 @@ bool DesignObj_Data::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 		}
 
 		{
-			int count=Read_long();
+			size_t count = size_t(Read_long());
 			for(size_t s=0;s<count;++s)
 			{
 				DesignObjText *pDesignObjText = new DesignObjText();
