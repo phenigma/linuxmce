@@ -1232,6 +1232,7 @@ void PowerfileIdentify_Task::Run()
 
 void Powerfile_Task::ThreadStarted()
 {
+	m_eTaskStatus = TASK_IN_PROGRESS;
 	Powerfile_Job * pPowerfile_Job = (Powerfile_Job *) m_pJob;
 	m_iDrive_Number = pPowerfile_Job->m_pPowerfile_C200->GetFreeDrive(m_iSlot);
 	if (m_iDrive_Number == -1)
