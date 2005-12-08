@@ -41,6 +41,7 @@ using namespace DCE;
 #include "pluto_main/Define_DeviceTemplate.h"
 #include "pluto_main/Define_DataGrid.h"
 #include "pluto_main/Define_DeviceData.h"
+#include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_CommandParameter.h"
 #include "pluto_main/Define_Event.h"
 #include "pluto_main/Define_EventParameter.h"
@@ -124,6 +125,7 @@ bool Telecom_Plugin::Register()
 
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Telecom_Plugin::CommandResult ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_PBX_CommandResult_CONST );
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Telecom_Plugin::Ring ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_PBX_Ring_CONST );
+	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Telecom_Plugin::IncomingCall ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Incoming_Call_CONST );	
 
 	return Connect(PK_DeviceTemplate_get()); 
 }
@@ -621,3 +623,14 @@ string Telecom_Plugin::GetDialNumber(Row_PhoneNumber *pRow_PhoneNumber)
 	return sDial;
 }
 
+
+
+bool 
+Telecom_Plugin::IncomingCall( class Socket *pSocket, class Message *pMessage, 
+					 			class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo ) {
+	g_pPlutoLogger->Write(LV_STATUS, "IncomingCall on device %d",pDeviceFrom->m_dwPK_Device);
+	g_pPlutoLogger->Write(LV_STATUS, "Will send GOTO_SCREEN to %d",pDeviceFrom->m_dwPK_Device_ControlledVia);
+	CMD_Goto_Screen cmdGoToScreen(m_dwPK_Device,pDeviceFrom->m_dwPK_Device_ControlledVia,121);
+	SendCommand(cmdGoToScreen);
+	return true;
+}

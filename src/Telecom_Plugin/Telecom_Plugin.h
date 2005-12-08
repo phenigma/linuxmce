@@ -125,7 +125,9 @@ private:
 	 bool Ring( class Socket *pSocket, class Message *pMessage, 
 					 			class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 	 void ProcessRing(std::string sPhoneExtension, std::string sPhoneCallerID, std::string sPhoneCallID);
-
+	 
+	bool Telecom_Plugin::IncomingCall( class Socket *pSocket, class Message *pMessage, 
+					 			class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 private:
     DeviceData_Router* find_AsteriskDevice();
     DeviceData_Router* find_Device(int iPK_Device);
