@@ -147,9 +147,10 @@ while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
 $EXT_BUFFER .= "\n\n[voice-menu-pluto-custom]\n\n";
 $EXT_BUFFER .= "exten => s,1,Answer\n";
 $EXT_BUFFER .= "exten => s,2,Wait(1)\n";
-$EXT_BUFFER .= "exten => s,3,Background(pluto/pluto-default-voicemenu)\n";
-$EXT_BUFFER .= "exten => s,4,DigitTimeout,20\n";
-$EXT_BUFFER .= "exten => s,5,ResponseTimeout,20\n";
+$EXT_BUFFER .= "exten => s,3,AGI(pluto-callersforme.agi)\n";
+$EXT_BUFFER .= "exten => s,4,Background(pluto/pluto-default-voicemenu)\n";
+$EXT_BUFFER .= "exten => s,5,DigitTimeout,20\n";
+$EXT_BUFFER .= "exten => s,6,ResponseTimeout,20\n";
 $EXT_BUFFER .= "exten => t,1,Goto(s,1)\n";
 
 foreach my $user (sort (values(%PHONES)))
