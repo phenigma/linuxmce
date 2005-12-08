@@ -75,8 +75,12 @@ void UpdateEntArea::AddDefaultSecurityScenarios(Row_Room *pRow_Room)
 		pCommandGroup->AddCommand(DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,1,
 			COMMANDPARAMETER_PK_Screen_CONST,StringUtils::itos(SCREEN_SecurityPanel_CONST).c_str());
 
-	string sSQL = "JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate LEFT JOIN Room ON PK_Room=FK_Room WHERE FK_DeviceCategory=" + 
-		StringUtils::itos(DEVICECATEGORY_Surveillance_Cameras_CONST) + " ORDER BY Room.Description";
+	string sSQL = "JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate "
+		"JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory "
+		"LEFT JOIN Room ON PK_Room=FK_Room WHERE "
+		"(PK_DeviceCategory=" + StringUtils::itos(DEVICECATEGORY_Surveillance_Cameras_CONST) + 
+		" OR FK_DeviceCategory_Parent=" + StringUtils::itos(DEVICECATEGORY_Surveillance_Cameras_CONST) + 
+		") ORDER BY Room.Description";
 
 	vector<Row_Device *> vectRow_Device;
 	m_pDatabase_pluto_main->Device_get()->GetRows(sSQL,&vectRow_Device);
@@ -99,6 +103,8 @@ void UpdateEntArea::AddQuadCameraScenarios(Row_Room *pRow_Room,vector<Row_Device
 		Row_Room *pRow_Room = vectRow_Device[s]->FK_Room_getrow();
 		if( pRow_Room )
 			sRoom = pRow_Room->Description_get();
+		if( sRoom.size()==0 )
+			sRoom = "Quad Cams";
 
 		string sDevices;
 		for(int iFour=s+4;s<vectRow_Device.size() && s<iFour;++s)
@@ -121,13 +127,8 @@ void UpdateEntArea::AddSingleCameraScenarios(Row_Room *pRow_Room,vector<Row_Devi
 	CommandGroup *pCommandGroup;
 	for(size_t s=0;s<vectRow_Device.size();++s)
 	{
-		string sRoom;
-		Row_Room *pRow_Room = vectRow_Device[s]->FK_Room_getrow();
-		if( pRow_Room )
-			sRoom = pRow_Room->Description_get();
-
 		pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Security_View_Camera_CONST,
-			sRoom,0,s,0);
+			vectRow_Device[s]->Description_get(),0,s,0);
 		if( pCommandGroup )
 			pCommandGroup->AddCommand(DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,2,
 				COMMANDPARAMETER_PK_Screen_CONST,StringUtils::itos(SCREEN_SingleCameraViewOnly_CONST).c_str(),

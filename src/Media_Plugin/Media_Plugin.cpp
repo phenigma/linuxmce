@@ -1737,6 +1737,10 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
         }
     }
 
+	// If we get less than 5 rows, we will do a 2nd search
+	if( result.r->row_count> 4 )
+		return pDataGrid;
+
     SQL = "select DISTINCT PK_Attribute, Name, Description, FK_Picture FROM SearchToken "\
         "JOIN SearchToken_Attribute ON PK_SearchToken=FK_SearchToken "\
         "JOIN Attribute ON SearchToken_Attribute.FK_Attribute=PK_Attribute "\

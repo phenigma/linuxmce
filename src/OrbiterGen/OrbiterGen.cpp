@@ -733,7 +733,10 @@ m_bNoEffects = true;
 	for(size_t s=0;s<vectRow_Device.size();++s)
 	{
 		Row_Device *pRow_Device = vectRow_Device[s];
-		switch(pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get())
+		Row_DeviceTemplate *pRow_DeviceTemplate = pRow_Device->FK_DeviceTemplate_getrow();
+		if( !pRow_DeviceTemplate )
+			continue; // shouldn't happen
+		switch(pRow_DeviceTemplate->FK_DeviceCategory_get())
 		{
 		case DEVICECATEGORY_DCE_Router_CONST:
 			m_dwPK_Device_Router = pRow_Device->PK_Device_get();
