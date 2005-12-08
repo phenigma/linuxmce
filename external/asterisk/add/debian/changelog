@@ -1,6 +1,7 @@
 asterisk-pluto (1.0.9-7) unstable; urgency=low
 
   * Add support for a nice voice in security menu and also default voicemenu
+  * Upgraded to latest chan_sccp
 
  -- Office Server Operator <root@activate.plutohome.com>  Wed, 7 Dec 2005 16:36:55 +0200
 
