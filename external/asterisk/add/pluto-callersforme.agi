@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 use strict;
-#use diagnostics;
+use diagnostics;
 use DBI;
 
 $|=1;
@@ -12,10 +12,8 @@ my %HASH_U2E;
 my %HASH_E2U;
 
 my $PRIORITYCALLERID = "";
-my $USEREXTENSION = "";
 my $line;
-my $the_priority = 0;
-my $the_usermode = 1;
+my $the_user = "";
 
 my $CONF_HOST="localhost";
 my $CONF_USER="root";
@@ -45,51 +43,27 @@ $DB_TC_HANDLE = DBI->connect("dbi:mysql:database=pluto_telecom;host=".$CONF_HOST
 &get_all_users_extensions();
 
 $PRIORITYCALLERID = $1 if ($AGI{'callerid'} =~ /[<]([ +0-9-]+)[>]/);
-$USEREXTENSION = $AGI{'extension'};
 
-print "EXEC NoOp \"Finding if ".$PRIORITYCALLERID." is a priority call for user ".$HASH_E2U{$USEREXTENSION}."\"\n";
+print "EXEC NoOp \"Finding if ".$PRIORITYCALLERID." is a priority call for somebody\"\n";
 $line=<STDIN>;
 &checkresult($line);
 
-$DB_SQL = "select PhoneNumber from CallersForMe where PhoneNumber='".$PRIORITYCALLERID."' and EK_Users='".$HASH_E2U{$USEREXTENSION}."'";
+$DB_SQL = "select PhoneNumber,EK_Users from CallersForMe where PhoneNumber='".$PRIORITYCALLERID."'";
 $DB_STATEMENT = $DB_TC_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
 $DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
 if($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
 {
-    $the_priority = 1;
+    $the_user = $HASH_U2E{$DB_ROW->{'EK_Users'}};
 }
 
-$DB_SQL = "select PhoneNumber from PriorityCallers where PhoneNumber='".$PRIORITYCALLERID."' and EK_Users='".$HASH_E2U{$USEREXTENSION}."'";
-$DB_STATEMENT = $DB_TC_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
-$DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
-if($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
-{
-    $the_priority = 1;
-}
 $DB_STATEMENT->finish();
-print "EXEC SetVar PRIORITYCALLER=".$the_priority."\n";
-$line=<STDIN>;
-&checkresult($line);
-
-print "EXEC NoOp \"Finding usermode for user ".$HASH_E2U{$USEREXTENSION}."\"\n";
-$line=<STDIN>;
-&checkresult($line);
-
-$DB_SQL = "SELECT FK_UserMode FROM Users where PK_Users='".$HASH_E2U{$USEREXTENSION}."'";
-$DB_STATEMENT = $DB_PL_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
-$DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
-if($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
+if($the_user ne "")
 {
-    $the_usermode = $1 if($DB_ROW->{'FK_UserMode'} =~ /(\d+)(,\d+)*/);
+	print "EXEC Dial Local/".$the_user."\@trusted\n";
+	$line=<STDIN>;
+	&checkresult($line);
 }
-if($the_usermode == 0)
-{
-    $the_usermode = 1;
-}
-$DB_STATEMENT->finish();
-print "EXEC SetVar USERMODE=".$the_usermode."\n";
-$line=<STDIN>;
-&checkresult($line);
+
 
 sub checkresult {
     my ($res) = @_;
@@ -115,7 +89,6 @@ sub get_all_users_extensions()
     while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
     {
         $HASH_U2E{$DB_ROW->{'PK_Users'}} = $DB_ROW->{'Extension'};
-        $HASH_E2U{$DB_ROW->{'Extension'}} = $DB_ROW->{'PK_Users'};
     }
     $DB_STATEMENT->finish();
 }
