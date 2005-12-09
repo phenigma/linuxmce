@@ -19,10 +19,10 @@ sources = Main.cpp General_Info_Plugin.cpp $(Gen_Dev_Files)
 CXXFLAGS +=
 CPPFLAGS +=
 LDFLAGS +=
-XTRALDLIBS = -lpluto_main -lhttp_fetcher
+XTRALDLIBS = -lpluto_main
 
 Gen_Dev_Files += 
-sources += Web_DHCP_Query.cpp
+sources += 
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
@@ -60,5 +60,3 @@ ifeq (,$(findstring clean, $(MAKECMDGOALS)))
 endif
 #<-dceag-mf-e->
 
-Web_DHCP_Query_test: $(sources:.cpp=.o)
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -o Web_DHCP_Query_test Web_DHCP_Query.o Web_DHCP_Query_test.cpp $(LDFLAGS) $(LDLIBS)
