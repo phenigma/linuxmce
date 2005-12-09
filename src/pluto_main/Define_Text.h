@@ -804,12 +804,12 @@
 #define TEXT_Other_AV_devices_CONST 1509
 #define TEXT_12_Lights_CONST 1510
 #define TEXT_Lights_Setup_CONST 1511
-#define TEXT_Include_lights_CONST 1512
-#define TEXT_Chose_room_for_light_CONST 1513
+#define TEXT_Confirm_lights_CONST 1512
+#define TEXT_Which_room_is_this_in_CONST 1513
 #define TEXT_16_Light_test_CONST 1514
 #define TEXT_Light_type_CONST 1515
 #define TEXT_Light_name_CONST 1516
-#define TEXT_Voip_account_CONST 1517
+#define TEXT_Voip_provider_CONST 1517
 #define TEXT_I_can_hear_you_CONST 1518
 #define TEXT_dont_control_my_TV_CONST 1519
 #define TEXT_Add_user_CONST 1520
@@ -865,6 +865,13 @@
 #define TEXT_Do_you_have_a_Monster_lighting_system_CONST 1571
 #define TEXT_Prepare_Monster_Lighting_CONST 1572
 #define TEXT_Setup_later_CONST 1573
+#define TEXT_Do_you_have_an_alarm_panel_CONST 1574
+#define TEXT_Found_the_alarm_panel_CONST 1575
+#define TEXT_Do_you_have_a_VOIP_provider_CONST 1576
+#define TEXT_Set_username_CONST 1577
+#define TEXT_VOIP_Username_CONST 1578
+#define TEXT_VOIP_password_CONST 1579
+#define TEXT_All_done_CONST 1580
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

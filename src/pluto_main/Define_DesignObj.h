@@ -1717,7 +1717,7 @@
 #define DESIGNOBJ_LightTest_CONST 4564
 #define DESIGNOBJ_LightType_CONST 4565
 #define DESIGNOBJ_LightName_CONST 4566
-#define DESIGNOBJ_VoipAccount_CONST 4567
+#define DESIGNOBJ_VoipProvider_CONST 4567
 #define DESIGNOBJ_butStartWizard_CONST 4568
 #define DESIGNOBJ_butRepeat_CONST 4569
 #define DESIGNOBJ_butYourName_CONST 4570
@@ -1735,8 +1735,8 @@
 #define DESIGNOBJ_butAVDeviceModel_CONST 4583
 #define DESIGNOBJ_butAVOutputs_CONST 4584
 #define DESIGNOBJ_butNextStep17_CONST 4585
-#define DESIGNOBJ_butNextStep18_CONST 4586
-#define DESIGNOBJ_butNextStep19_CONST 4587
+#define DESIGNOBJ_butFloorLamp_CONST 4586
+#define DESIGNOBJ_butAlarmPanel_CONST 4587
 #define DESIGNOBJ_butAdduser_CONST 4588
 #define DESIGNOBJ_butKVC_CONST 4589
 #define DESIGNOBJ_butKVL_CONST 4590
@@ -1818,7 +1818,6 @@
 #define DESIGNOBJ_AVDeviceModel_CONST 4677
 #define DESIGNOBJ_AVDeviceOutputs_CONST 4678
 #define DESIGNOBJ_AlarmPanel_CONST 4680
-#define DESIGNOBJ_butAlarmPanel_CONST 4682
 #define DESIGNOBJ_butTVBoxManuf_CONST 4683
 #define DESIGNOBJ_butTVBoxInput_CONST 4684
 #define DESIGNOBJ_dgEditRooms_CONST 4685
@@ -1826,6 +1825,15 @@
 #define DESIGNOBJ_butIHaveMonster_CONST 4688
 #define DESIGNOBJ_LightsPrepare_CONST 4689
 #define DESIGNOBJ_butLightsSetupLater_CONST 4691
+#define DESIGNOBJ_butLightsSetupRoom_CONST 4693
+#define DESIGNOBJ_butAlarmSensors_CONST 4696
+#define DESIGNOBJ_AlarmSensors_CONST 4697
+#define DESIGNOBJ_butFinal_CONST 4699
+#define DESIGNOBJ_Final_CONST 4700
+#define DESIGNOBJ_butSetUsername_CONST 4701
+#define DESIGNOBJ_VoipUsername_CONST 4702
+#define DESIGNOBJ_VoipPassword_CONST 4703
+#define DESIGNOBJ_butVoipPassword_CONST 4704
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

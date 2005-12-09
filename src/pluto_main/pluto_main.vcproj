@@ -556,6 +556,9 @@
 				RelativePath=".\Table_Pipe.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_PostalCode.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_QuickStartCategory.cpp">
 			</File>
 			<File

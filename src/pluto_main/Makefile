@@ -152,6 +152,7 @@ Table_PaidLicense.cpp \
 Table_ParameterType.cpp \
 Table_PhoneLineType.cpp \
 Table_Pipe.cpp \
+Table_PostalCode.cpp \
 Table_QuickStartCategory.cpp \
 Table_QuickStartTemplate.cpp \
 Table_Region.cpp \

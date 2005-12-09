@@ -170,6 +170,7 @@ tblPaidLicense=NULL;
 tblParameterType=NULL;
 tblPhoneLineType=NULL;
 tblPipe=NULL;
+tblPostalCode=NULL;
 tblQuickStartCategory=NULL;
 tblQuickStartTemplate=NULL;
 tblRegion=NULL;
@@ -695,6 +696,9 @@ if( tblPhoneLineType!=NULL )
 if( tblPipe!=NULL )
 	if( !Commit_Pipe(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
 		bResult=false;
+if( tblPostalCode!=NULL )
+	if( !Commit_PostalCode(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
+		bResult=false;
 if( tblQuickStartCategory!=NULL )
 	if( !Commit_QuickStartCategory(bDeleteFailedModifiedRow,bDeleteFailedInsertRow) )
 		bResult=false;
@@ -1078,6 +1082,7 @@ DeleteTable_PaidLicense();
 DeleteTable_ParameterType();
 DeleteTable_PhoneLineType();
 DeleteTable_Pipe();
+DeleteTable_PostalCode();
 DeleteTable_QuickStartCategory();
 DeleteTable_QuickStartTemplate();
 DeleteTable_Region();

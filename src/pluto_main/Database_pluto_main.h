@@ -317,6 +317,8 @@ class Table_PhoneLineType* tblPhoneLineType;
 bool Commit_PhoneLineType(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_Pipe* tblPipe;
 bool Commit_Pipe(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
+class Table_PostalCode* tblPostalCode;
+bool Commit_PostalCode(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_QuickStartCategory* tblQuickStartCategory;
 bool Commit_QuickStartCategory(bool bDeleteFailedModifiedRow,bool bDeleteFailedInsertRow);
 class Table_QuickStartTemplate* tblQuickStartTemplate;
@@ -618,6 +620,7 @@ class Table_PaidLicense* PaidLicense_get() { if( !tblPaidLicense ) CreateTable_P
 class Table_ParameterType* ParameterType_get() { if( !tblParameterType ) CreateTable_ParameterType(); return tblParameterType; }
 class Table_PhoneLineType* PhoneLineType_get() { if( !tblPhoneLineType ) CreateTable_PhoneLineType(); return tblPhoneLineType; }
 class Table_Pipe* Pipe_get() { if( !tblPipe ) CreateTable_Pipe(); return tblPipe; }
+class Table_PostalCode* PostalCode_get() { if( !tblPostalCode ) CreateTable_PostalCode(); return tblPostalCode; }
 class Table_QuickStartCategory* QuickStartCategory_get() { if( !tblQuickStartCategory ) CreateTable_QuickStartCategory(); return tblQuickStartCategory; }
 class Table_QuickStartTemplate* QuickStartTemplate_get() { if( !tblQuickStartTemplate ) CreateTable_QuickStartTemplate(); return tblQuickStartTemplate; }
 class Table_Region* Region_get() { if( !tblRegion ) CreateTable_Region(); return tblRegion; }
@@ -847,6 +850,7 @@ void CreateTable_PaidLicense();
 void CreateTable_ParameterType();
 void CreateTable_PhoneLineType();
 void CreateTable_Pipe();
+void CreateTable_PostalCode();
 void CreateTable_QuickStartCategory();
 void CreateTable_QuickStartTemplate();
 void CreateTable_Region();
@@ -1070,6 +1074,7 @@ void DeleteTable_PaidLicense();
 void DeleteTable_ParameterType();
 void DeleteTable_PhoneLineType();
 void DeleteTable_Pipe();
+void DeleteTable_PostalCode();
 void DeleteTable_QuickStartCategory();
 void DeleteTable_QuickStartTemplate();
 void DeleteTable_Region();
