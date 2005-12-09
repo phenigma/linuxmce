@@ -73,6 +73,17 @@ public:
 	*/
 
 
+	/** @brief COMMAND: #28 - Simulate Keypress */
+	/** Send a DTMF code */
+		/** @param #26 PK_Button */
+			/** What key to simulate being pressed.  If 2 numbers are specified, separated by a comma, the second will be used if the Shift key is specified. */
+		/** @param #50 Name */
+			/** The application to send the keypress to. If not specified, it goes to the DCE device. */
+
+	virtual void CMD_Simulate_Keypress(string sPK_Button,string sName) { string sCMD_Result; CMD_Simulate_Keypress(sPK_Button.c_str(),sName.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage);
+
+
 	/** @brief COMMAND: #232 - PL_Originate */
 	/** Originate a call */
 		/** @param #2 PK_Device */
@@ -102,6 +113,29 @@ public:
 	virtual void CMD_PL_Hangup(string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #334 - Phone_Initiate */
+	/** Initiates a call */
+		/** @param #83 PhoneExtension */
+			/** Extention to dial */
+
+	virtual void CMD_Phone_Initiate(string sPhoneExtension) { string sCMD_Result; CMD_Phone_Initiate(sPhoneExtension.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Phone_Initiate(string sPhoneExtension,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #335 - Phone_Answer */
+	/** Answer a call */
+
+	virtual void CMD_Phone_Answer() { string sCMD_Result; CMD_Phone_Answer(sCMD_Result,NULL);};
+	virtual void CMD_Phone_Answer(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #336 - Phone_Drop */
+	/** Drop a call */
+
+	virtual void CMD_Phone_Drop() { string sCMD_Result; CMD_Phone_Drop(sCMD_Result,NULL);};
+	virtual void CMD_Phone_Drop(string &sCMD_Result,Message *pMessage);
+
+
 	/** @brief COMMAND: #414 - PL External Originate */
 	/** Originate an external call */
 		/** @param #75 PhoneNumber */
@@ -114,6 +148,16 @@ public:
 	virtual void CMD_PL_External_Originate(string sPhoneNumber,string sCallerID,string sPhoneExtension) { string sCMD_Result; CMD_PL_External_Originate(sPhoneNumber.c_str(),sCallerID.c_str(),sPhoneExtension.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_PL_External_Originate(string sPhoneNumber,string sCallerID,string sPhoneExtension,string &sCMD_Result,Message *pMessage);
 
+
+	/** @brief COMMAND: #744 - Set User Mode */
+	/** Set a user to a given mode (sleeping, etc.) */
+		/** @param #17 PK_Users */
+			/** The user */
+		/** @param #194 PK_UserMode */
+			/** The user mode */
+
+	virtual void CMD_Set_User_Mode(int iPK_Users,int iPK_UserMode) { string sCMD_Result; CMD_Set_User_Mode(iPK_Users,iPK_UserMode,sCMD_Result,NULL);};
+	virtual void CMD_Set_User_Mode(int iPK_Users,int iPK_UserMode,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 

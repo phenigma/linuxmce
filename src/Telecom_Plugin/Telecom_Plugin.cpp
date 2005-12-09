@@ -36,6 +36,7 @@ using namespace DCE;
 
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_telecom/Database_pluto_telecom.h"
+#include "pluto_main/Table_Device.h"
 #include "pluto_main/Table_CommandGroup.h"
 #include "pluto_main/Define_Array.h"
 #include "pluto_main/Define_Screen.h"
@@ -436,7 +437,7 @@ Telecom_Plugin::generate_NewCommandID() {
 void Telecom_Plugin::CMD_PL_Originate(int iPK_Device,string sPhoneExtension,string sPhoneCallerID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c232-e->
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Originate cammand called with params: DeviceID=%d, PhoneExtension=%s!", iPK_Device, sPhoneExtension.c_str());
+	g_pPlutoLogger->Write(LV_STATUS, "Originate command called with params: DeviceID=%d, PhoneExtension=%s!", iPK_Device, sPhoneExtension.c_str());
 
 	if(sPhoneExtension.empty()) {
 		g_pPlutoLogger->Write(LV_CRITICAL, "Error validating input parameters");
@@ -493,7 +494,7 @@ void Telecom_Plugin::CMD_PL_Originate(int iPK_Device,string sPhoneExtension,stri
 void Telecom_Plugin::CMD_PL_TransferConferenceDevice(int iPK_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c234-e->
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Transfer cammand called with params: DeviceID=%d!", iPK_Device);
+	g_pPlutoLogger->Write(LV_STATUS, "Transfer command called with params: DeviceID=%d!", iPK_Device);
 	
 	/*search device by id*/
 	DeviceData_Router *pDeviceData = find_Device(iPK_Device);
@@ -532,7 +533,7 @@ void Telecom_Plugin::CMD_PL_TransferConferenceDevice(int iPK_Device,string &sCMD
 void Telecom_Plugin::CMD_PL_Hangup(string &sCMD_Result,Message *pMessage)
 //<-dceag-c236-e->
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Hangup cammand called.");
+	g_pPlutoLogger->Write(LV_STATUS, "Hangup command called.");
 	
 	CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(pMessage->m_dwPK_Device_From);
 	if(!pCallData) {
@@ -570,7 +571,7 @@ void Telecom_Plugin::GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Route
 void Telecom_Plugin::CMD_PL_External_Originate(string sPhoneNumber,string sCallerID,string sPhoneExtension,string &sCMD_Result,Message *pMessage)
 //<-dceag-c414-e->
 {
-    g_pPlutoLogger->Write(LV_STATUS, "Originate external cammand called with params: PhoneNumber=%s, PhoneExtension=%s!", sPhoneNumber.c_str(), sPhoneExtension.c_str());
+    g_pPlutoLogger->Write(LV_STATUS, "Originate external command called with params: PhoneNumber=%s, PhoneExtension=%s!", sPhoneNumber.c_str(), sPhoneExtension.c_str());
 
     if(sPhoneExtension.empty()) {
         g_pPlutoLogger->Write(LV_CRITICAL, "Error validating input parameters");
@@ -634,4 +635,103 @@ Telecom_Plugin::IncomingCall( class Socket *pSocket, class Message *pMessage,
 	CMD_Goto_Screen cmdGoToScreen(m_dwPK_Device,pDeviceFrom->m_dwPK_Device_ControlledVia,SCREEN_DevIncomingCall_CONST);
 	SendCommand(cmdGoToScreen);
 	return true;
+}
+//<-dceag-c28-b->
+
+	/** @brief COMMAND: #28 - Simulate Keypress */
+	/** Send a DTMF code */
+		/** @param #26 PK_Button */
+			/** What key to simulate being pressed.  If 2 numbers are specified, separated by a comma, the second will be used if the Shift key is specified. */
+		/** @param #50 Name */
+			/** The application to send the keypress to. If not specified, it goes to the DCE device. */
+
+void Telecom_Plugin::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage)
+//<-dceag-c28-e->
+{
+	int phoneID=0;
+	int orbiterId=pMessage->m_dwPK_Device_From;
+	vector<class Row_Device*> vectDevices;
+	m_pDatabase_pluto_main->Device_get()->GetRows(DEVICE_FK_DEVICE_CONTROLLEDVIA_FIELD + string("=") + StringUtils::itos(orbiterId) , &vectDevices);
+	if(vectDevices.size()>0)
+	{
+		phoneID= vectDevices[0]->PK_Device_get();
+	}
+	DCE::CMD_Simulate_Keypress cmd(m_dwPK_Device,phoneID,sPK_Button,sName);
+	SendCommand(cmd);
+	sCMD_Result="OK";
+}
+//<-dceag-c334-b->
+
+	/** @brief COMMAND: #334 - Phone_Initiate */
+	/** Initiates a call */
+		/** @param #83 PhoneExtension */
+			/** Extention to dial */
+
+void Telecom_Plugin::CMD_Phone_Initiate(string sPhoneExtension,string &sCMD_Result,Message *pMessage)
+//<-dceag-c334-e->
+{
+	int phoneID=0;
+	int orbiterId=pMessage->m_dwPK_Device_From;
+	vector<class Row_Device*> vectDevices;
+	m_pDatabase_pluto_main->Device_get()->GetRows(DEVICE_FK_DEVICE_CONTROLLEDVIA_FIELD + string("=") + StringUtils::itos(orbiterId) , &vectDevices);
+	if(vectDevices.size()>0)
+	{
+		phoneID= vectDevices[0]->PK_Device_get();
+	}
+	DCE::CMD_Phone_Initiate cmd(m_dwPK_Device,phoneID,sPhoneExtension);
+	SendCommand(cmd);
+	sCMD_Result="OK";
+}
+//<-dceag-c335-b->
+
+	/** @brief COMMAND: #335 - Phone_Answer */
+	/** Answer a call */
+
+void Telecom_Plugin::CMD_Phone_Answer(string &sCMD_Result,Message *pMessage)
+//<-dceag-c335-e->
+{
+	int phoneID=0;
+	int orbiterId=pMessage->m_dwPK_Device_From;
+	vector<class Row_Device*> vectDevices;
+	m_pDatabase_pluto_main->Device_get()->GetRows(DEVICE_FK_DEVICE_CONTROLLEDVIA_FIELD + string("=") + StringUtils::itos(orbiterId) , &vectDevices);
+	if(vectDevices.size()>0)
+	{
+		phoneID= vectDevices[0]->PK_Device_get();
+	}
+	DCE::CMD_Phone_Answer cmd(m_dwPK_Device,phoneID);
+	SendCommand(cmd);
+	sCMD_Result="OK";
+}
+//<-dceag-c336-b->
+
+	/** @brief COMMAND: #336 - Phone_Drop */
+	/** Drop a call */
+
+void Telecom_Plugin::CMD_Phone_Drop(string &sCMD_Result,Message *pMessage)
+//<-dceag-c336-e->
+{
+	int phoneID=0;
+	int orbiterId=pMessage->m_dwPK_Device_From;
+	vector<class Row_Device*> vectDevices;
+	m_pDatabase_pluto_main->Device_get()->GetRows(DEVICE_FK_DEVICE_CONTROLLEDVIA_FIELD + string("=") + StringUtils::itos(orbiterId) , &vectDevices);
+	if(vectDevices.size()>0)
+	{
+		phoneID= vectDevices[0]->PK_Device_get();
+	}
+	DCE::CMD_Phone_Drop cmd(m_dwPK_Device,phoneID);
+	SendCommand(cmd);
+	sCMD_Result="OK";
+}
+//<-dceag-c744-b->
+
+	/** @brief COMMAND: #744 - Set User Mode */
+	/** Set a user to a given mode (sleeping, etc.) */
+		/** @param #17 PK_Users */
+			/** The user */
+		/** @param #194 PK_UserMode */
+			/** The user mode */
+
+void Telecom_Plugin::CMD_Set_User_Mode(int iPK_Users,int iPK_UserMode,string &sCMD_Result,Message *pMessage)
+//<-dceag-c744-e->
+{
 }
