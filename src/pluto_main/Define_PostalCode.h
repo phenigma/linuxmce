@@ -3,6 +3,8 @@
 
 
 #define POSTALCODE_TABLE "PostalCode"
+#define POSTALCODE_PK_POSTALCODE_FIELD "PK_PostalCode"
+#define POSTALCODE_PK_POSTALCODE_TABLE_FIELD "PostalCode.PK_PostalCode"
 #define POSTALCODE_POSTALCODE_FIELD "PostalCode"
 #define POSTALCODE_POSTALCODE_TABLE_FIELD "PostalCode.PostalCode"
 #define POSTALCODE_LONG_FIELD "Long"

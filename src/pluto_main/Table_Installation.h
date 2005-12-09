@@ -85,6 +85,8 @@ string m_City;
 string m_State;
 string m_Zip;
 long int m_FK_Country;
+long int m_FK_City;
+long int m_FK_PostalCode;
 string m_ActivationCode;
 string m_LastStatus;
 string m_LastAlive;
@@ -100,7 +102,7 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[22];
+		bool is_null[24];
 	
 	public:
 		long int PK_Installation_get();
@@ -111,6 +113,8 @@ string City_get();
 string State_get();
 string Zip_get();
 long int FK_Country_get();
+long int FK_City_get();
+long int FK_PostalCode_get();
 string ActivationCode_get();
 string LastStatus_get();
 string LastAlive_get();
@@ -135,6 +139,8 @@ void City_set(string val);
 void State_set(string val);
 void Zip_set(string val);
 void FK_Country_set(long int val);
+void FK_City_set(long int val);
+void FK_PostalCode_set(long int val);
 void ActivationCode_set(string val);
 void LastStatus_set(string val);
 void LastAlive_set(string val);
@@ -157,6 +163,8 @@ bool City_isNull();
 bool State_isNull();
 bool Zip_isNull();
 bool FK_Country_isNull();
+bool FK_City_isNull();
+bool FK_PostalCode_isNull();
 bool ActivationCode_isNull();
 bool LastStatus_isNull();
 bool LastAlive_isNull();
@@ -177,6 +185,8 @@ void City_setNull(bool val);
 void State_setNull(bool val);
 void Zip_setNull(bool val);
 void FK_Country_setNull(bool val);
+void FK_City_setNull(bool val);
+void FK_PostalCode_setNull(bool val);
 void ActivationCode_setNull(bool val);
 void LastStatus_setNull(bool val);
 void LastAlive_setNull(bool val);
@@ -202,6 +212,8 @@ void psc_restrict_setNull(bool val);
 
 		// Return the rows for foreign keys 
 		class Row_Country* FK_Country_getrow();
+class Row_City* FK_City_getrow();
+class Row_PostalCode* FK_PostalCode_getrow();
 class Row_Version* FK_Version_getrow();
 class Row_RepositoryType* FK_RepositoryType_Source_getrow();
 class Row_RepositoryType* FK_RepositoryType_Binaries_getrow();
@@ -226,7 +238,7 @@ void Users_FK_Installation_Main_getrows(vector <class Row_Users*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Installation+ m_Description+ m_Name+ m_Address+ m_City+ m_State+ m_Zip+ m_FK_Country+ m_ActivationCode+ m_LastStatus+ m_LastAlive+ m_isActive+ m_FK_Version+ m_isMonitored+ m_FK_RepositoryType_Source+ m_FK_RepositoryType_Binaries+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_Installation+ m_Description+ m_Name+ m_Address+ m_City+ m_State+ m_Zip+ m_FK_Country+ m_FK_City+ m_FK_PostalCode+ m_ActivationCode+ m_LastStatus+ m_LastAlive+ m_isActive+ m_FK_Version+ m_isMonitored+ m_FK_RepositoryType_Source+ m_FK_RepositoryType_Binaries+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -239,6 +251,8 @@ string City_asSQL();
 string State_asSQL();
 string Zip_asSQL();
 string FK_Country_asSQL();
+string FK_City_asSQL();
+string FK_PostalCode_asSQL();
 string ActivationCode_asSQL();
 string LastStatus_asSQL();
 string LastAlive_asSQL();

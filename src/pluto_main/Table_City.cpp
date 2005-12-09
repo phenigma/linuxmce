@@ -20,6 +20,7 @@ using namespace std;
 #include "Table_Country.h"
 #include "Table_Region.h"
 
+#include "Table_Installation.h"
 #include "Table_PostalCode.h"
 
 
@@ -1253,6 +1254,13 @@ return pTable->GetRow(m_FK_Region);
 }
 
 
+void Row_City::Installation_FK_City_getrows(vector <class Row_Installation*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Installation *pTable = table->database->Installation_get();
+pTable->GetRows("`FK_City`=" + StringUtils::itos(m_PK_City),rows);
+}
 void Row_City::PostalCode_FK_City_getrows(vector <class Row_PostalCode*> *rows)
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);

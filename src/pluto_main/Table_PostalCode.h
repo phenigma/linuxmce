@@ -15,7 +15,7 @@
 class DECLSPECIFIER TableRow;
 class DECLSPECIFIER SerializeClass;
 
-class DECLSPECIFIER Table_PostalCode : public TableBase 
+class DECLSPECIFIER Table_PostalCode : public TableBase , SingleLongKeyBase
 {
 private:
 	Database_pluto_main *database;
@@ -32,11 +32,10 @@ private:
 	struct Key
 	{
 		friend class Row_PostalCode;
-		string pk_PostalCode;
-long int pk_FK_Country;
+		long int pk_PK_PostalCode;
 
 		
-		Key(string in_PostalCode, long int in_FK_Country);
+		Key(long int in_PK_PostalCode);
 	
 		Key(class Row_PostalCode *pRow);
 	};
@@ -45,8 +44,8 @@ long int pk_FK_Country;
 		bool operator()(const Table_PostalCode::Key &key1, const Table_PostalCode::Key &key2) const;
 	};	
 
-	map<Table_PostalCode::Key, class TableRow*, Table_PostalCode::Key_Less> cachedRows;
-	map<Table_PostalCode::Key, class TableRow*, Table_PostalCode::Key_Less> deleted_cachedRows;
+	
+	
 
 public:				
 	// Normally the framework never deletes any Row_X objects, since the application will
@@ -60,13 +59,13 @@ public:
 	Database_pluto_main *Database_pluto_main_get() { return database; }
 	
 		
-	class Row_PostalCode* GetRow(string in_PostalCode, long int in_FK_Country);
+	class Row_PostalCode* GetRow(long int in_PK_PostalCode);
 	
 
 private:	
 	
 		
-	class Row_PostalCode* FetchRow(Table_PostalCode::Key &key);
+	class Row_PostalCode* FetchRow(SingleLongKey &key);
 		
 			
 };
@@ -78,7 +77,8 @@ class DECLSPECIFIER Row_PostalCode : public TableRow, public SerializeClass
 	private:
 		Table_PostalCode *table;
 		
-		string m_PostalCode;
+		long int m_PK_PostalCode;
+string m_PostalCode;
 string m_Long;
 string m_Lat;
 string m_City;
@@ -93,10 +93,11 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[14];
+		bool is_null[15];
 	
 	public:
-		string PostalCode_get();
+		long int PK_PostalCode_get();
+string PostalCode_get();
 string Long_get();
 string Lat_get();
 string City_get();
@@ -112,7 +113,8 @@ string psc_mod_get();
 long int psc_restrict_get();
 
 		
-		void PostalCode_set(string val);
+		void PK_PostalCode_set(long int val);
+void PostalCode_set(string val);
 void Long_set(string val);
 void Lat_set(string val);
 void City_set(string val);
@@ -167,16 +169,18 @@ class Row_Country* FK_Country_getrow();
 
 
 		// Return the rows in other tables with foreign keys pointing here
-		
+		void Installation_FK_PostalCode_getrows(vector <class Row_Installation*> *rows);
+
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PostalCode+ m_Long+ m_Lat+ m_City+ m_State+ m_County+ m_FK_City+ m_FK_Country+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_PostalCode+ m_PostalCode+ m_Long+ m_Lat+ m_City+ m_State+ m_County+ m_FK_City+ m_FK_Country+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
 		
-		string PostalCode_asSQL();
+		string PK_PostalCode_asSQL();
+string PostalCode_asSQL();
 string Long_asSQL();
 string Lat_asSQL();
 string City_asSQL();

@@ -20,6 +20,7 @@ using namespace std;
 #include "Table_City.h"
 #include "Table_Country.h"
 
+#include "Table_Installation.h"
 
 
 void Database_pluto_main::CreateTable_PostalCode()
@@ -40,7 +41,7 @@ bool Database_pluto_main::Commit_PostalCode(bool bDeleteFailedModifiedRow,bool b
 
 Table_PostalCode::~Table_PostalCode()
 {
-	map<Table_PostalCode::Key, class TableRow*, Table_PostalCode::Key_Less>::iterator it;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
 		Row_PostalCode *pRow = (Row_PostalCode *) (*it).second;
@@ -80,8 +81,8 @@ void Row_PostalCode::Delete()
 		}
 		else
 		{
-			Table_PostalCode::Key key(pRow->m_PostalCode,pRow->m_FK_Country);
-			map<Table_PostalCode::Key, TableRow*, Table_PostalCode::Key_Less>::iterator i = table->cachedRows.find(key);
+			SingleLongKey key(pRow->m_PK_PostalCode);
+			map<SingleLongKey, TableRow*, SingleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -99,7 +100,7 @@ void Row_PostalCode::Reload()
 	
 	if (!is_added)
 	{
-		Table_PostalCode::Key key(pRow->m_PostalCode,pRow->m_FK_Country);
+		SingleLongKey key(pRow->m_PK_PostalCode);
 		Row_PostalCode *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -119,29 +120,31 @@ Row_PostalCode::Row_PostalCode(Table_PostalCode *pTable):table(pTable)
 
 void Row_PostalCode::SetDefaultValues()
 {
-	m_PostalCode = "";
+	m_PK_PostalCode = 0;
 is_null[0] = false;
-m_Long = "";
+m_PostalCode = "";
 is_null[1] = false;
-is_null[2] = true;
+m_Long = "";
+is_null[2] = false;
 is_null[3] = true;
 is_null[4] = true;
 is_null[5] = true;
 is_null[6] = true;
+is_null[7] = true;
 m_FK_City = 0;
 m_FK_Country = 0;
-is_null[7] = false;
-is_null[8] = true;
-m_psc_id = 0;
+is_null[8] = false;
 is_null[9] = true;
-m_psc_batch = 0;
+m_psc_id = 0;
 is_null[10] = true;
+m_psc_batch = 0;
+is_null[11] = true;
 m_psc_user = 0;
 m_psc_frozen = 0;
-is_null[11] = false;
-m_psc_mod = "00000000000000";
 is_null[12] = false;
-is_null[13] = true;
+m_psc_mod = "00000000000000";
+is_null[13] = false;
+is_null[14] = true;
 m_psc_restrict = 0;
 
 
@@ -150,6 +153,9 @@ m_psc_restrict = 0;
 	is_modified=false;
 }
 
+long int Row_PostalCode::PK_PostalCode_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+return m_PK_PostalCode;}
 string Row_PostalCode::PostalCode_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
 return m_PostalCode;}
@@ -194,129 +200,145 @@ long int Row_PostalCode::psc_restrict_get(){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,tabl
 return m_psc_restrict;}
 
 		
+void Row_PostalCode::PK_PostalCode_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+m_PK_PostalCode = val; is_modified=true; is_null[0]=false;}
 void Row_PostalCode::PostalCode_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_PostalCode = val; is_modified=true; is_null[0]=false;}
+m_PostalCode = val; is_modified=true; is_null[1]=false;}
 void Row_PostalCode::Long_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_Long = val; is_modified=true; is_null[1]=false;}
+m_Long = val; is_modified=true; is_null[2]=false;}
 void Row_PostalCode::Lat_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_Lat = val; is_modified=true; is_null[2]=false;}
+m_Lat = val; is_modified=true; is_null[3]=false;}
 void Row_PostalCode::City_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_City = val; is_modified=true; is_null[3]=false;}
+m_City = val; is_modified=true; is_null[4]=false;}
 void Row_PostalCode::State_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_State = val; is_modified=true; is_null[4]=false;}
+m_State = val; is_modified=true; is_null[5]=false;}
 void Row_PostalCode::County_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_County = val; is_modified=true; is_null[5]=false;}
+m_County = val; is_modified=true; is_null[6]=false;}
 void Row_PostalCode::FK_City_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_FK_City = val; is_modified=true; is_null[6]=false;}
+m_FK_City = val; is_modified=true; is_null[7]=false;}
 void Row_PostalCode::FK_Country_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_FK_Country = val; is_modified=true; is_null[7]=false;}
+m_FK_Country = val; is_modified=true; is_null[8]=false;}
 void Row_PostalCode::psc_id_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_id = val; is_modified=true; is_null[8]=false;}
+m_psc_id = val; is_modified=true; is_null[9]=false;}
 void Row_PostalCode::psc_batch_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_batch = val; is_modified=true; is_null[9]=false;}
+m_psc_batch = val; is_modified=true; is_null[10]=false;}
 void Row_PostalCode::psc_user_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_user = val; is_modified=true; is_null[10]=false;}
+m_psc_user = val; is_modified=true; is_null[11]=false;}
 void Row_PostalCode::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_frozen = val; is_modified=true; is_null[11]=false;}
+m_psc_frozen = val; is_modified=true; is_null[12]=false;}
 void Row_PostalCode::psc_mod_set(string val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_mod = val; is_modified=true; is_null[12]=false;}
+m_psc_mod = val; is_modified=true; is_null[13]=false;}
 void Row_PostalCode::psc_restrict_set(long int val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-m_psc_restrict = val; is_modified=true; is_null[13]=false;}
+m_psc_restrict = val; is_modified=true; is_null[14]=false;}
 
 		
 bool Row_PostalCode::Lat_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return is_null[2];}
+return is_null[3];}
 bool Row_PostalCode::City_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return is_null[3];}
+return is_null[4];}
 bool Row_PostalCode::State_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return is_null[4];}
+return is_null[5];}
 bool Row_PostalCode::County_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return is_null[5];}
+return is_null[6];}
 bool Row_PostalCode::FK_City_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return is_null[6];}
+return is_null[7];}
 bool Row_PostalCode::psc_id_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return is_null[8];}
+return is_null[9];}
 bool Row_PostalCode::psc_batch_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return is_null[9];}
+return is_null[10];}
 bool Row_PostalCode::psc_user_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return is_null[10];}
+return is_null[11];}
 bool Row_PostalCode::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return is_null[11];}
+return is_null[12];}
 bool Row_PostalCode::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-return is_null[13];}
+return is_null[14];}
 
 			
 void Row_PostalCode::Lat_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-is_null[2]=val;
-is_modified=true;
-}
-void Row_PostalCode::City_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[3]=val;
 is_modified=true;
 }
-void Row_PostalCode::State_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PostalCode::City_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[4]=val;
 is_modified=true;
 }
-void Row_PostalCode::County_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PostalCode::State_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[5]=val;
 is_modified=true;
 }
-void Row_PostalCode::FK_City_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PostalCode::County_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[6]=val;
 is_modified=true;
 }
-void Row_PostalCode::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-is_null[8]=val;
+void Row_PostalCode::FK_City_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[7]=val;
 is_modified=true;
 }
-void Row_PostalCode::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PostalCode::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[9]=val;
 is_modified=true;
 }
-void Row_PostalCode::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PostalCode::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[10]=val;
 is_modified=true;
 }
-void Row_PostalCode::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+void Row_PostalCode::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 is_null[11]=val;
 is_modified=true;
 }
+void Row_PostalCode::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+is_null[12]=val;
+is_modified=true;
+}
 void Row_PostalCode::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
-is_null[13]=val;
+is_null[14]=val;
 is_modified=true;
 }
 	
+
+string Row_PostalCode::PK_PostalCode_asSQL()
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+if (is_null[0])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_PK_PostalCode);
+
+return buf;
+}
 
 string Row_PostalCode::PostalCode_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[0])
+if (is_null[1])
 return "NULL";
 
 char *buf = new char[21];
@@ -330,7 +352,7 @@ string Row_PostalCode::Long_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[1])
+if (is_null[2])
 return "NULL";
 
 char *buf = new char[21];
@@ -344,7 +366,7 @@ string Row_PostalCode::Lat_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[2])
+if (is_null[3])
 return "NULL";
 
 char *buf = new char[21];
@@ -358,7 +380,7 @@ string Row_PostalCode::City_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[3])
+if (is_null[4])
 return "NULL";
 
 char *buf = new char[121];
@@ -372,7 +394,7 @@ string Row_PostalCode::State_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[4])
+if (is_null[5])
 return "NULL";
 
 char *buf = new char[5];
@@ -386,7 +408,7 @@ string Row_PostalCode::County_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[5])
+if (is_null[6])
 return "NULL";
 
 char *buf = new char[121];
@@ -400,7 +422,7 @@ string Row_PostalCode::FK_City_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[6])
+if (is_null[7])
 return "NULL";
 
 char buf[32];
@@ -413,7 +435,7 @@ string Row_PostalCode::FK_Country_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[7])
+if (is_null[8])
 return "NULL";
 
 char buf[32];
@@ -426,7 +448,7 @@ string Row_PostalCode::psc_id_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[8])
+if (is_null[9])
 return "NULL";
 
 char buf[32];
@@ -439,7 +461,7 @@ string Row_PostalCode::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[9])
+if (is_null[10])
 return "NULL";
 
 char buf[32];
@@ -452,7 +474,7 @@ string Row_PostalCode::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[10])
+if (is_null[11])
 return "NULL";
 
 char buf[32];
@@ -465,7 +487,7 @@ string Row_PostalCode::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[11])
+if (is_null[12])
 return "NULL";
 
 char buf[32];
@@ -478,7 +500,7 @@ string Row_PostalCode::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[12])
+if (is_null[13])
 return "NULL";
 
 char *buf = new char[29];
@@ -492,7 +514,7 @@ string Row_PostalCode::psc_restrict_asSQL()
 {
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
 
-if (is_null[13])
+if (is_null[14])
 return "NULL";
 
 char buf[32];
@@ -504,10 +526,9 @@ return buf;
 
 
 
-Table_PostalCode::Key::Key(string in_PostalCode, long int in_FK_Country)
+Table_PostalCode::Key::Key(long int in_PK_PostalCode)
 {
-			pk_PostalCode = in_PostalCode;
-pk_FK_Country = in_FK_Country;
+			pk_PK_PostalCode = in_PK_PostalCode;
 	
 }
 
@@ -515,18 +536,14 @@ Table_PostalCode::Key::Key(Row_PostalCode *pRow)
 {
 			PLUTO_SAFETY_LOCK_ERRORSONLY(sl,pRow->table->database->m_MySqlMutex);
 
-			pk_PostalCode = pRow->m_PostalCode;
-pk_FK_Country = pRow->m_FK_Country;
+			pk_PK_PostalCode = pRow->m_PK_PostalCode;
 	
 }		
 
 bool Table_PostalCode::Key_Less::operator()(const Table_PostalCode::Key &key1, const Table_PostalCode::Key &key2) const
 {
-			if (key1.pk_PostalCode!=key2.pk_PostalCode)
-return key1.pk_PostalCode<key2.pk_PostalCode;
-else
-if (key1.pk_FK_Country!=key2.pk_FK_Country)
-return key1.pk_FK_Country<key2.pk_FK_Country;
+			if (key1.pk_PK_PostalCode!=key2.pk_PK_PostalCode)
+return key1.pk_PK_PostalCode<key2.pk_PK_PostalCode;
 else
 return false;	
 }	
@@ -544,10 +561,10 @@ bool Table_PostalCode::Commit(bool bDeleteFailedModifiedRow,bool bDeleteFailedIn
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PostalCode_asSQL()+", "+pRow->Long_asSQL()+", "+pRow->Lat_asSQL()+", "+pRow->City_asSQL()+", "+pRow->State_asSQL()+", "+pRow->County_asSQL()+", "+pRow->FK_City_asSQL()+", "+pRow->FK_Country_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_PostalCode_asSQL()+", "+pRow->PostalCode_asSQL()+", "+pRow->Long_asSQL()+", "+pRow->Lat_asSQL()+", "+pRow->City_asSQL()+", "+pRow->State_asSQL()+", "+pRow->County_asSQL()+", "+pRow->FK_City_asSQL()+", "+pRow->FK_Country_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_restrict_asSQL();
 
 	
-		string query = "insert into PostalCode (`PostalCode`, `Long`, `Lat`, `City`, `State`, `County`, `FK_City`, `FK_Country`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
+		string query = "insert into PostalCode (`PK_PostalCode`, `PostalCode`, `Long`, `Lat`, `City`, `State`, `County`, `FK_City`, `FK_Country`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`, `psc_restrict`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -568,10 +585,12 @@ values_list_comma_separated = values_list_comma_separated + pRow->PostalCode_asS
 			
 			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
 		
-				
+			if (id!=0)
+pRow->m_PK_PostalCode=id;
+	
 			
 			addedRows.erase(i);
-			Table_PostalCode::Key key(pRow->m_PostalCode,pRow->m_FK_Country);	
+			SingleLongKey key(pRow->m_PK_PostalCode);	
 			cachedRows[key] = pRow;
 					
 			
@@ -585,26 +604,23 @@ values_list_comma_separated = values_list_comma_separated + pRow->PostalCode_asS
 //update modified
 	
 
-	for (map<Table_PostalCode::Key, class TableRow*, Table_PostalCode::Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+	for (map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
 		if	(((*i).second)->is_modified_get())
 	{
 		Row_PostalCode* pRow = (Row_PostalCode*) (*i).second;	
-		Table_PostalCode::Key key(pRow->m_PostalCode,pRow->m_FK_Country);
+		SingleLongKey key(pRow->m_PK_PostalCode);
 
-		char tmp_PostalCode[21];
-mysql_real_escape_string(database->m_pMySQL,tmp_PostalCode, key.pk_PostalCode.c_str(), (unsigned long) key.pk_PostalCode.size());
-
-char tmp_FK_Country[32];
-sprintf(tmp_FK_Country, "%li", key.pk_FK_Country);
+		char tmp_PK_PostalCode[32];
+sprintf(tmp_PK_PostalCode, "%li", key.pk);
 
 
 string condition;
-condition = condition + "`PostalCode`=" + "\"" + tmp_PostalCode+ "\""+" AND "+"`FK_Country`=" + tmp_FK_Country;
+condition = condition + "`PK_PostalCode`=" + tmp_PK_PostalCode;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`PostalCode`="+pRow->PostalCode_asSQL()+", `Long`="+pRow->Long_asSQL()+", `Lat`="+pRow->Lat_asSQL()+", `City`="+pRow->City_asSQL()+", `State`="+pRow->State_asSQL()+", `County`="+pRow->County_asSQL()+", `FK_City`="+pRow->FK_City_asSQL()+", `FK_Country`="+pRow->FK_Country_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
+update_values_list = update_values_list + "`PK_PostalCode`="+pRow->PK_PostalCode_asSQL()+", `PostalCode`="+pRow->PostalCode_asSQL()+", `Long`="+pRow->Long_asSQL()+", `Lat`="+pRow->Lat_asSQL()+", `City`="+pRow->City_asSQL()+", `State`="+pRow->State_asSQL()+", `County`="+pRow->County_asSQL()+", `FK_City`="+pRow->FK_City_asSQL()+", `FK_Country`="+pRow->FK_Country_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL()+", `psc_restrict`="+pRow->psc_restrict_asSQL();
 
 	
 		string query = "update PostalCode set " + update_values_list + " where " + condition;
@@ -639,20 +655,17 @@ update_values_list = update_values_list + "`PostalCode`="+pRow->PostalCode_asSQL
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Table_PostalCode::Key, class TableRow*, Table_PostalCode::Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Table_PostalCode::Key key = (*i).first;
+		SingleLongKey key = (*i).first;
 		Row_PostalCode* pRow = (Row_PostalCode*) (*i).second;	
 
-		char tmp_PostalCode[21];
-mysql_real_escape_string(database->m_pMySQL,tmp_PostalCode, key.pk_PostalCode.c_str(), (unsigned long) key.pk_PostalCode.size());
-
-char tmp_FK_Country[32];
-sprintf(tmp_FK_Country, "%li", key.pk_FK_Country);
+		char tmp_PK_PostalCode[32];
+sprintf(tmp_PK_PostalCode, "%li", key.pk);
 
 
 string condition;
-condition = condition + "`PostalCode`=" + "\"" + tmp_PostalCode+ "\""+" AND "+"`FK_Country`=" + tmp_FK_Country;
+condition = condition + "`PK_PostalCode`=" + tmp_PK_PostalCode;
 
 	
 		string query = "delete from PostalCode where " + condition;
@@ -719,164 +732,175 @@ bool Table_PostalCode::GetRows(string where_statement,vector<class Row_PostalCod
 		if (row[0] == NULL)
 {
 pRow->is_null[0]=true;
-pRow->m_PostalCode = "";
+pRow->m_PK_PostalCode = 0;
 }
 else
 {
 pRow->is_null[0]=false;
-pRow->m_PostalCode = string(row[0],lengths[0]);
+sscanf(row[0], "%li", &(pRow->m_PK_PostalCode));
 }
 
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_Long = "";
+pRow->m_PostalCode = "";
 }
 else
 {
 pRow->is_null[1]=false;
-pRow->m_Long = string(row[1],lengths[1]);
+pRow->m_PostalCode = string(row[1],lengths[1]);
 }
 
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_Lat = "";
+pRow->m_Long = "";
 }
 else
 {
 pRow->is_null[2]=false;
-pRow->m_Lat = string(row[2],lengths[2]);
+pRow->m_Long = string(row[2],lengths[2]);
 }
 
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_City = "";
+pRow->m_Lat = "";
 }
 else
 {
 pRow->is_null[3]=false;
-pRow->m_City = string(row[3],lengths[3]);
+pRow->m_Lat = string(row[3],lengths[3]);
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_State = "";
+pRow->m_City = "";
 }
 else
 {
 pRow->is_null[4]=false;
-pRow->m_State = string(row[4],lengths[4]);
+pRow->m_City = string(row[4],lengths[4]);
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_County = "";
+pRow->m_State = "";
 }
 else
 {
 pRow->is_null[5]=false;
-pRow->m_County = string(row[5],lengths[5]);
+pRow->m_State = string(row[5],lengths[5]);
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_FK_City = 0;
+pRow->m_County = "";
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%li", &(pRow->m_FK_City));
+pRow->m_County = string(row[6],lengths[6]);
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_FK_Country = 0;
+pRow->m_FK_City = 0;
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%li", &(pRow->m_FK_Country));
+sscanf(row[7], "%li", &(pRow->m_FK_City));
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_psc_id = 0;
+pRow->m_FK_Country = 0;
 }
 else
 {
 pRow->is_null[8]=false;
-sscanf(row[8], "%li", &(pRow->m_psc_id));
+sscanf(row[8], "%li", &(pRow->m_FK_Country));
 }
 
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[9]=false;
-sscanf(row[9], "%li", &(pRow->m_psc_batch));
+sscanf(row[9], "%li", &(pRow->m_psc_id));
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[10]=false;
-sscanf(row[10], "%li", &(pRow->m_psc_user));
+sscanf(row[10], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[11] == NULL)
 {
 pRow->is_null[11]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[11]=false;
-sscanf(row[11], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[11], "%li", &(pRow->m_psc_user));
 }
 
 if (row[12] == NULL)
 {
 pRow->is_null[12]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[12]=false;
-pRow->m_psc_mod = string(row[12],lengths[12]);
+sscanf(row[12], "%hi", &(pRow->m_psc_frozen));
 }
 
 if (row[13] == NULL)
 {
 pRow->is_null[13]=true;
-pRow->m_psc_restrict = 0;
+pRow->m_psc_mod = "";
 }
 else
 {
 pRow->is_null[13]=false;
-sscanf(row[13], "%li", &(pRow->m_psc_restrict));
+pRow->m_psc_mod = string(row[13],lengths[13]);
+}
+
+if (row[14] == NULL)
+{
+pRow->is_null[14]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[14]=false;
+sscanf(row[14], "%li", &(pRow->m_psc_restrict));
 }
 
 
 
 		//checking for duplicates
 
-		Table_PostalCode::Key key(pRow->m_PostalCode,pRow->m_FK_Country);
+		SingleLongKey key(pRow->m_PK_PostalCode);
 		
-		map<Table_PostalCode::Key, class TableRow*, Table_PostalCode::Key_Less>::iterator i = cachedRows.find(key);
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
@@ -906,13 +930,13 @@ Row_PostalCode* Table_PostalCode::AddRow()
 
 
 
-Row_PostalCode* Table_PostalCode::GetRow(string in_PostalCode, long int in_FK_Country)
+Row_PostalCode* Table_PostalCode::GetRow(long int in_PK_PostalCode)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
-	Table_PostalCode::Key row_key(in_PostalCode, in_FK_Country);
+	SingleLongKey row_key(in_PK_PostalCode);
 
-	map<Table_PostalCode::Key, class TableRow*, Table_PostalCode::Key_Less>::iterator i;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -934,20 +958,17 @@ Row_PostalCode* Table_PostalCode::GetRow(string in_PostalCode, long int in_FK_Co
 
 
 
-Row_PostalCode* Table_PostalCode::FetchRow(Table_PostalCode::Key &key)
+Row_PostalCode* Table_PostalCode::FetchRow(SingleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK_ERRORSONLY(sl,database->m_MySqlMutex);
 
 	//defines the string query for the value of key
-	char tmp_PostalCode[21];
-mysql_real_escape_string(database->m_pMySQL,tmp_PostalCode, key.pk_PostalCode.c_str(), (unsigned long) key.pk_PostalCode.size());
-
-char tmp_FK_Country[32];
-sprintf(tmp_FK_Country, "%li", key.pk_FK_Country);
+	char tmp_PK_PostalCode[32];
+sprintf(tmp_PK_PostalCode, "%li", key.pk);
 
 
 string condition;
-condition = condition + "`PostalCode`=" + "\"" + tmp_PostalCode+ "\""+" AND "+"`FK_Country`=" + tmp_FK_Country;
+condition = condition + "`PK_PostalCode`=" + tmp_PK_PostalCode;
 
 
 	string query = "select * from PostalCode where " + condition;		
@@ -984,155 +1005,166 @@ condition = condition + "`PostalCode`=" + "\"" + tmp_PostalCode+ "\""+" AND "+"`
 	if (row[0] == NULL)
 {
 pRow->is_null[0]=true;
-pRow->m_PostalCode = "";
+pRow->m_PK_PostalCode = 0;
 }
 else
 {
 pRow->is_null[0]=false;
-pRow->m_PostalCode = string(row[0],lengths[0]);
+sscanf(row[0], "%li", &(pRow->m_PK_PostalCode));
 }
 
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_Long = "";
+pRow->m_PostalCode = "";
 }
 else
 {
 pRow->is_null[1]=false;
-pRow->m_Long = string(row[1],lengths[1]);
+pRow->m_PostalCode = string(row[1],lengths[1]);
 }
 
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_Lat = "";
+pRow->m_Long = "";
 }
 else
 {
 pRow->is_null[2]=false;
-pRow->m_Lat = string(row[2],lengths[2]);
+pRow->m_Long = string(row[2],lengths[2]);
 }
 
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_City = "";
+pRow->m_Lat = "";
 }
 else
 {
 pRow->is_null[3]=false;
-pRow->m_City = string(row[3],lengths[3]);
+pRow->m_Lat = string(row[3],lengths[3]);
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_State = "";
+pRow->m_City = "";
 }
 else
 {
 pRow->is_null[4]=false;
-pRow->m_State = string(row[4],lengths[4]);
+pRow->m_City = string(row[4],lengths[4]);
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_County = "";
+pRow->m_State = "";
 }
 else
 {
 pRow->is_null[5]=false;
-pRow->m_County = string(row[5],lengths[5]);
+pRow->m_State = string(row[5],lengths[5]);
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_FK_City = 0;
+pRow->m_County = "";
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%li", &(pRow->m_FK_City));
+pRow->m_County = string(row[6],lengths[6]);
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_FK_Country = 0;
+pRow->m_FK_City = 0;
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%li", &(pRow->m_FK_Country));
+sscanf(row[7], "%li", &(pRow->m_FK_City));
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_psc_id = 0;
+pRow->m_FK_Country = 0;
 }
 else
 {
 pRow->is_null[8]=false;
-sscanf(row[8], "%li", &(pRow->m_psc_id));
+sscanf(row[8], "%li", &(pRow->m_FK_Country));
 }
 
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[9]=false;
-sscanf(row[9], "%li", &(pRow->m_psc_batch));
+sscanf(row[9], "%li", &(pRow->m_psc_id));
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[10]=false;
-sscanf(row[10], "%li", &(pRow->m_psc_user));
+sscanf(row[10], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[11] == NULL)
 {
 pRow->is_null[11]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[11]=false;
-sscanf(row[11], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[11], "%li", &(pRow->m_psc_user));
 }
 
 if (row[12] == NULL)
 {
 pRow->is_null[12]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[12]=false;
-pRow->m_psc_mod = string(row[12],lengths[12]);
+sscanf(row[12], "%hi", &(pRow->m_psc_frozen));
 }
 
 if (row[13] == NULL)
 {
 pRow->is_null[13]=true;
-pRow->m_psc_restrict = 0;
+pRow->m_psc_mod = "";
 }
 else
 {
 pRow->is_null[13]=false;
-sscanf(row[13], "%li", &(pRow->m_psc_restrict));
+pRow->m_psc_mod = string(row[13],lengths[13]);
+}
+
+if (row[14] == NULL)
+{
+pRow->is_null[14]=true;
+pRow->m_psc_restrict = 0;
+}
+else
+{
+pRow->is_null[14]=false;
+sscanf(row[14], "%li", &(pRow->m_psc_restrict));
 }
 
 
@@ -1159,6 +1191,13 @@ return pTable->GetRow(m_FK_Country);
 }
 
 
+void Row_PostalCode::Installation_FK_PostalCode_getrows(vector <class Row_Installation*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_MySqlMutex);
+
+class Table_Installation *pTable = table->database->Installation_get();
+pTable->GetRows("`FK_PostalCode`=" + StringUtils::itos(m_PK_PostalCode),rows);
+}
 
 
 

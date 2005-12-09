@@ -178,7 +178,8 @@ class Row_Region* FK_Region_getrow();
 
 
 		// Return the rows in other tables with foreign keys pointing here
-		void PostalCode_FK_City_getrows(vector <class Row_PostalCode*> *rows);
+		void Installation_FK_City_getrows(vector <class Row_Installation*> *rows);
+void PostalCode_FK_City_getrows(vector <class Row_PostalCode*> *rows);
 
 
 		// Setup binary serialization
