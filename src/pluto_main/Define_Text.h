@@ -844,7 +844,7 @@
 #define TEXT_Start_Using_the_Monster_Vault_CONST 1549
 #define TEXT_Can_you_see_me_and_hear_me_CONST 1551
 #define TEXT_Stop_video_CONST 1552
-#define TEXT_What’s_your_name_CONST 1553
+#define TEXT_Whats_your_name_CONST 1553
 #define TEXT_Other_family_members_CONST 1554
 #define TEXT_What_country_are_you_in_CONST 1555
 #define TEXT_Remove_user_CONST 1556
