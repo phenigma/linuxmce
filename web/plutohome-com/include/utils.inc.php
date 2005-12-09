@@ -924,22 +924,6 @@ function getFieldsAsArray($tableName,$fields,$dbADO,$filter='',$orderBy='')
 	return $result;	
 }
 
-function convertMac($mac)
-{
-	$macArray=explode(':',$mac);
-	if(count($macArray)!=6)
-		return false;
-		
-		
-	$int64 = 0;
-	for ($i = 5; $i >= 0; $i--){
-	    $value = hexdec($macArray[$i]);
-	    $power = pow(256, $i);
-	    $int64 += $power * $value;
-	}
-	
-	return $int64;
-}
 
 // display array nicely formated - used for debug only
 function print_array($arr)
@@ -954,5 +938,111 @@ function getmicrotime()
 { 
     list($usec, $sec) = explode(" ", microtime()); 
     return ((float)$usec + (float)$sec); 
+}
+
+function pulldownFromArray($valuesArray,$name,$selectedValue,$extra='',$valueKey='key',$zeroValueDescription='- Please select -',$highlightValue=-1)
+{
+	$out='<select name="'.$name.'" "'.$extra.'">';
+	if($zeroValueDescription!='')
+		$out.='<option value="0">'.$zeroValueDescription.'</option>';
+	foreach ($valuesArray AS $key=>$value){
+		$optionValue=($valueKey=='key')?$key:$value;
+		$out.='<option value="'.$optionValue.'" '.(($optionValue==$selectedValue)?'selected':'').' '.((in_array($optionValue,explode(',',$highlightValue)))?'style="background:lightgreen;"':'').'>'.$value.'</option>
+		';
+	}
+	$out.='</select>';
+	return $out;
+}
+
+function getUnixStamp($date)
+{
+	$dateArray=explode(' ',$date);
+	$dateParts=explode('-',$dateArray[0]);
+	$timeParts=explode(':',$dateArray[1]);
+
+	return mktime($timeParts[0],$timeParts[1],$timeParts[2],$dateParts[1],$dateParts[2],$dateParts[0]);
+}
+
+function convertMac($mac)
+{
+	return exec('/usr/pluto/bin/convert_mac "' . $mac. '"');
+	
+	$macArray=explode(':',$mac);
+	if(count($macArray)!=6)
+		return false;
+		
+		
+	$int64 = 0;
+	for ($i = 0; $i < 6; $i++){
+	    $value = hexdec($macArray[$i]);
+	    $power = pow(256, 5-$i);
+	    $int64 += $power * $value;
+	    #$int64 *= 256;
+	    #$int64 += $value;
+	    echo $int64. " ";
+	}
+	
+	return $int64;
+}
+
+
+function isMacRange($adr){
+	$parts=explode('-',$adr);
+	$no=count($parts);
+	if($no==1){
+		return checkMAC(trim($parts[0]));
+	}elseif($no==2){
+		if(checkMAC(trim($parts[0])) && checkMAC(trim($parts[1]))){
+			return true;
+		}
+	}else{
+		return false;
+	}
+	
+	return false;
+}
+
+function checkMAC($addr){
+	$rc = false;
+	if ((strlen($addr)==17) && (!preg_match('/[^A-Fa-f0-9\:]/',$addr)))
+	{
+		$mac = explode(":", $addr);
+		if (count($mac)==6)
+		{
+			$rc = true;
+			for ($i=0;$i<=5;$i++)
+			{
+				if ((strlen($mac[$i])!=2)		||
+				(hexdec($mac[$i])<0)	||
+				(hexdec($mac[$i]>255)))
+				{
+					$rc = false;
+					break;
+				}
+			}
+		}
+	}
+	return $rc;
+}
+
+function IntToMac($nr){
+	return exec('/usr/pluto/bin/convert_mac "' . $nr. '"');
+	$hexArr=array();
+	$pos=0;
+	while(floor($nr)>0){
+		$hexdigit = $nr % 256;
+		if ($hexdigit < 0)
+			$hexdigit += 256;
+		echo '<br>'.$hexdigit;
+		$hexArr[5-$pos]=dechex($hexdigit);
+		$nr /= 256;
+		$pos++;
+	}
+
+	if(count($hexArr)!=6){
+		return false;
+	}
+	
+	return join(':',$hexArr);
 }
 ?>
