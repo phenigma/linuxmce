@@ -53,6 +53,14 @@ using namespace DCE;
 #include "Event_Plugin/Event_Plugin.h"
 #include "Gen_Devices/AllScreens.h"
 
+#include "Web_DHCP_Query.h"
+using namespace nsWeb_DHCP_Query;
+
+#ifndef WEB_QUERY_DEBUG
+static const string sURL_Base = "http://plutohome.com/getRegisteredDevices.php";
+#else
+static const string sURL_Base = "http://10.0.0.175/plutohome-com/getRegisteredDevices.php";
+#endif
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 General_Info_Plugin::General_Info_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
@@ -725,6 +733,14 @@ class DataGridTable *General_Info_Plugin::PNPDevices( string GridID, string Parm
 		}
 	}
 
+	if (vectRow_DHCPDevice.size() == 0 && m_iPK_WebQuery != 0)
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "General_Info_Plugin::PNPDevices got empty list from database. Using data from the web.");
+		
+		pCell = new DataGridCell(m_sWeb_Description, StringUtils::itos(-m_iPK_WebQuery));
+		pDataGrid->SetData(0, 0, pCell);
+	}
+
 	return pDataGrid;
 }
 
@@ -1168,9 +1184,64 @@ bool General_Info_Plugin::NewMacAddress( class Socket *pSocket, class Message *p
 		return false;
 	}
 
+	g_pPlutoLogger->Write(LV_STATUS, "General_Info_Plugin::NewMacAddress querying web");
+	m_iPK_WebQuery = 0;
+	m_sWeb_MacAddress = sMacAddress;
+	
+	Web_DHCP_Query Web_Query(sURL_Base);
+	Web_DHCP_Query_Params Web_Params;
+	Web_DHCP_Query_Result Web_Result;
+
+	Web_Params["MAC"] = m_sWeb_MacAddress;
+	Web_Query.Query(Web_Params, Web_Result);
+
+	if (Web_Result.size() == 0 || Web_Result[0].size() == 0)
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Empty result from web query");
+		return false;
+	}
+	else if (Web_Result[0][0] == "FAIL")
+	{
+		if (Web_Result[0].size() >= 2)
+			g_pPlutoLogger->Write(LV_WARNING, "Query failed. Server said: %s", Web_Result[1][1].c_str());
+		else
+			g_pPlutoLogger->Write(LV_WARNING, "Query failed. Server didn't return reason message.");
+		return false;
+	}
+	else if (Web_Result[0].size() < 2)
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Query failed. Server returned incomplete answer");
+		return false;
+	}
+	else
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Query succeeded. Server returned: '%s', '%s'", Web_Result[0][0].c_str(), Web_Result[0][1].c_str());
+		m_iPK_WebQuery = atoi(Web_Result[0][0].c_str());
+		m_sWeb_Description = Web_Result[0][1];
+		if (m_iPK_WebQuery < 0)
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "Invalid PK in result");
+			return false;
+		}
+		else
+		{
+			DCE::SCREEN_NewMacAddress_DL SCREEN_NewMacAddress_DL(m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, sMacAddress, sIPAddress);
+			SendCommand(SCREEN_NewMacAddress_DL);
+
+			return false;
+		}
+	}
+
 	// Check on the main server
 	return false;
 }
+
+struct Web_DeviceData
+{
+	string m_sMacAddress;
+	int m_iPK_DeviceTemplate;
+	map<int, string> m_mapDeviceData;
+};
 
 //<-dceag-c700-b->
 
@@ -1188,6 +1259,62 @@ void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,strin
 {
 	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL( m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, StringUtils::itos(DESIGNOBJ_mnuNewMacAddress_CONST), sMac_address );
 	SendCommand(CMD_Remove_Screen_From_History_DL);
+
+	vector<Web_DeviceData> vectWeb_DeviceData;
+	if (m_iPK_WebQuery != 0)
+	{
+		Web_DHCP_Query Web_Query(sURL_Base);
+		Web_DHCP_Query_Params Web_Params;
+		Web_DHCP_Query_Result Web_Result;
+
+		Web_Params["MAC"] = m_sWeb_MacAddress;
+		Web_Params["PK"] = StringUtils::itos(m_iPK_WebQuery);
+		Web_Query.Query(Web_Params, Web_Result);
+
+		if (Web_Result.size() == 0 || Web_Result[0].size() == 0)
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "Empty result from web query");
+		}
+		else if (Web_Result[0][0] == "FAIL")
+		{
+			if (Web_Result[0].size() >= 2)
+				g_pPlutoLogger->Write(LV_WARNING, "Query failed. Server said: %s", Web_Result[1][1].c_str());
+			else
+				g_pPlutoLogger->Write(LV_WARNING, "Query failed. Server didn't return reason message.");
+		}
+		else if (Web_Result.size() < 2)
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "Server said it has data, but returned 0 records");
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "Query succeeded");
+			
+			for (int i = 1; i < Web_Result.size(); i++)
+			{
+				if (Web_Result[i].size() % 2 != 0)
+				{
+					g_pPlutoLogger->Write(LV_WARNING, "Received incomplete parameters on line %d", i + 1);
+					continue;
+				}
+				
+				Web_DeviceData localWeb_DeviceData;
+				localWeb_DeviceData.m_iPK_DeviceTemplate = atoi(Web_Result[i][0].c_str());
+				localWeb_DeviceData.m_sMacAddress = Web_Result[i][1];
+
+				for (int j = 2; i < Web_Result[i].size(); i++)
+				{
+					int iPK_DeviceData = atoi(Web_Result[i][j].c_str());
+					string sDeviceData = Web_Result[i][j];
+					localWeb_DeviceData.m_mapDeviceData[iPK_DeviceData] = sDeviceData;
+				}
+				
+				vectWeb_DeviceData.push_back(localWeb_DeviceData);
+			}
+		}
+	}
+	// TODO: CreateDevice with data collected above
+	// TODO: extra parameters: -M MAC_Address, -R Relative_To (= device number of 1st entry for 2nd+ entries), -D DeviceData DeviceDataValue
 
 	CreateDevice createDevice(m_pRouter->iPK_Installation_get(),m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get());
 	int PK_Device = createDevice.DoIt(iPK_DHCPDevice,0,sIP_Address,sMac_address);

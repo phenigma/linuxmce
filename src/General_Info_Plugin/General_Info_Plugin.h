@@ -299,6 +299,10 @@ public:
 
 
 //<-dceag-h-e->
+	public:
+		int m_iPK_WebQuery; // this works if you plug and acknowledge one device at a time; but not more
+		string m_sWeb_MacAddress;
+		string m_sWeb_Description;
 };
 
 //<-dceag-end-b->
