@@ -192,7 +192,9 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 				}
 			}
 		}
-		Sleep(50);
+
+		if(m_bAsDaemon)
+			Sleep(50);
 	}
 
 	// Now recurse
@@ -269,7 +271,8 @@ cout << sFile << " exists in db as: " << PK_File << endl;
 		if( !PK_Picture )
 			PK_Picture = i;
 
-		Sleep(50);
+		if(m_bAsDaemon)
+			Sleep(50);
 	}
 
 	// Whatever was the first picture we found will be the one for this directory
@@ -295,7 +298,8 @@ void UpdateMedia::UpdateSearchTokens()
 	{
 		while( ( row=mysql_fetch_row( allresult.r ) ) )
 		{
-			Sleep(50);
+			if(m_bAsDaemon)
+				Sleep(20);
 
 			string sName = row[1];
 			string::size_type pos=0;
@@ -338,7 +342,8 @@ void UpdateMedia::UpdateThumbnails()
 	{
 		while( ( row=mysql_fetch_row( result.r ) ) )
 		{
-			Sleep(50);
+			if(m_bAsDaemon)
+				Sleep(20);
 
 			time_t tModTime=0,tTnModTime=0;
 #ifndef WIN32
