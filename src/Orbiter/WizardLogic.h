@@ -9,7 +9,7 @@ class WizardLogic : public MySqlHelper
 {
 protected:
 	class Orbiter *m_pOrbiter;
-
+	class UserUtils *m_pUserUtils;
 public: 
 	list< pair<int,string> > m_listRoomTypes;  // In the order to display them
 	map<int,string> m_mapRoomTypes; // For fast lookup
@@ -22,16 +22,17 @@ public:
 	/*
 		SETUP USERS
 	*/
-	bool AlreadyHasUsers() { return false; };
-	void AddUser(string sUsername) {};
-	void RemoveUser(int PK_User) {};
+	bool AlreadyHasUsers();
+	int AddUser(string sUsername);
+	void RemoveUser(int PK_User);
 
 	/*
 		SETUP LOCATION 
 	*/
-	int GetCountry() { return 840; }
-	string GetCityRegion(int PK_Country) { return "Las Vegas, NV"; }
-	void SetPostalCode(string PostalCode) {}
+	int GetCountry();
+	void SetCountry(int PK_Country);
+	string GetCityRegion(int PK_Country);
+	void SetPostalCode(string PostalCode);
 
 
 	/*
@@ -48,7 +49,7 @@ public:
 		SETUP A/V EQUIPMENT
 	*/
 	int AddDevice(int PK_DeviceTemplate) {};
-	void SetAvPath(int PK_Device_From,int PK_Device_To,int PK_Pipe) {};
+	void SetAvPath(int PK_Device_From,int PK_Device_To,int PK_Pipe,int PK_Command_Input) {};
 
 
 
