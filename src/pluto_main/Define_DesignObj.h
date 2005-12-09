@@ -1729,12 +1729,11 @@
 #define DESIGNOBJ_butTVModel_CONST 4576
 #define DESIGNOBJ_butReceiver_CONST 4577
 #define DESIGNOBJ_butReceiverModel_CONST 4578
-#define DESIGNOBJ_butNextStep11_CONST 4579
-#define DESIGNOBJ_butNextStep12_CONST 4580
-#define DESIGNOBJ_butNextStep13_CONST 4581
-#define DESIGNOBJ_butNextStep14_CONST 4582
-#define DESIGNOBJ_butNextStep15_CONST 4583
-#define DESIGNOBJ_butNextStep16_CONST 4584
+#define DESIGNOBJ_butReceiverInputs_CONST 4579
+#define DESIGNOBJ_butAVDevices_CONST 4580
+#define DESIGNOBJ_butAVDevicesManuf_CONST 4582
+#define DESIGNOBJ_butAVDeviceModel_CONST 4583
+#define DESIGNOBJ_butAVOutputs_CONST 4584
 #define DESIGNOBJ_butNextStep17_CONST 4585
 #define DESIGNOBJ_butNextStep18_CONST 4586
 #define DESIGNOBJ_butNextStep19_CONST 4587
@@ -1788,7 +1787,6 @@
 #define DESIGNOBJ_butRepeatLikeTV_CONST 4643
 #define DESIGNOBJ_RepeatLikeTV_CONST 4644
 #define DESIGNOBJ_butOtherAVDevices_CONST 4645
-#define DESIGNOBJ_butAVDevices_CONST 4646
 #define DESIGNOBJ_butLightsSetup_CONST 4648
 #define DESIGNOBJ_butLightsSetupInclude_CONST 4649
 #define DESIGNOBJ_butLightSetupRooms_CONST 4650
@@ -1803,6 +1801,7 @@
 #define DESIGNOBJ_butRemoveUser_CONST 4660
 #define DESIGNOBJ_butPostalCode_CONST 4661
 #define DESIGNOBJ_PostalCode_CONST 4662
+#define DESIGNOBJ_butWizRooms_CONST 4663
 #define DESIGNOBJ_dgUsers_CONST 4664
 #define DESIGNOBJ_dgCountries_CONST 4665
 #define DESIGNOBJ_grpCountryAutoSearch_CONST 4666
@@ -1824,6 +1823,9 @@
 #define DESIGNOBJ_butTVBoxInput_CONST 4684
 #define DESIGNOBJ_dgEditRooms_CONST 4685
 #define DESIGNOBJ_butTV_CONST 4686
+#define DESIGNOBJ_butIHaveMonster_CONST 4688
+#define DESIGNOBJ_LightsPrepare_CONST 4689
+#define DESIGNOBJ_butLightsSetupLater_CONST 4691
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

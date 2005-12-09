@@ -859,6 +859,12 @@
 #define TEXT_Do_you_use_a_receiver_CONST 1565
 #define TEXT_Receiver_CONST 1566
 #define TEXT_Who_made_the_Receiver_you_are_using_CONST 1567
+#define TEXT_Which_input_did_you_use_CONST 1568
+#define TEXT_Who_made_the_device_CONST 1569
+#define TEXT_AV_Outputs_CONST 1570
+#define TEXT_Do_you_have_a_Monster_lighting_system_CONST 1571
+#define TEXT_Prepare_Monster_Lighting_CONST 1572
+#define TEXT_Setup_later_CONST 1573
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
