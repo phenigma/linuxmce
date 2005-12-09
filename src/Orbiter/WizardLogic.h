@@ -48,7 +48,7 @@ public:
 	/*
 		SETUP A/V EQUIPMENT
 	*/
-	int AddDevice(int PK_DeviceTemplate) { return 0;};
+	int AddDevice(int PK_DeviceTemplate) {};
 	void SetAvPath(int PK_Device_From,int PK_Device_To,int PK_Pipe,int PK_Command_Input) {};
 
 
