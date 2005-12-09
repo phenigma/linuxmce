@@ -1594,8 +1594,11 @@ g_pPlutoLogger->Write( LV_STATUS, "Orbiter %d %s in this ea to stop", pOH_Orbite
 		}
 
 		g_pPlutoLogger->Write( LV_STATUS, "Orbiter %d %s is bound", pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_sDescription.c_str());
-		DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device,pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,"<%=M%>","","",false, false);
-		SendCommand(CMD_Goto_DesignObj);
+		//DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device,pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,"<%=M%>","","",false, false);
+		//SendCommand(CMD_Goto_DesignObj);
+		DCE::SCREEN_Main SCREEN_Main(m_dwPK_Device,pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,"<%=L%>"); //current location
+		SendCommand(SCREEN_Main);
+
     }
 }
 
@@ -1648,8 +1651,10 @@ g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::CMD_Bind_to_Media_Remote(). Bind
 		if( !pEntertainArea->m_pMediaStream )
 		{
 			sCMD_Result="No media stream";
-			DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device,pMessage->m_dwPK_Device_From,0,"<%=M%>","","",false,false);
-			SendCommand(CMD_Goto_DesignObj);
+			//DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device,pMessage->m_dwPK_Device_From,0,"<%=M%>","","",false,false);
+			//SendCommand(CMD_Goto_DesignObj);
+			DCE::SCREEN_Main SCREEN_Main(m_dwPK_Device,pMessage->m_dwPK_Device_From,"<%=L%>"); //current location
+			SendCommand(SCREEN_Main);
 			g_pPlutoLogger->Write(LV_CRITICAL,"Attempt to bind to a remote in an entertainment area with no media stream");
 			return; // Don't know what area it should be played in, or there's no media playing there
 		}

@@ -50,6 +50,7 @@ using namespace DCE;
 #include "pluto_main/Define_DeviceTemplate.h"
 #include "pluto_main/Define_VertAlignment.h"
 #include "pluto_main/Define_DesignObj.h"
+#include "pluto_main/Define_Screen.h"
 #include "Floorplan.h"
 #include "pluto_main/Define_DesignObj.h"
 #include "pluto_main/Define_FloorplanType.h"
@@ -168,6 +169,7 @@ template<class T> inline static T Dist( T x,  T y ) { return x * x + y * y; }
 //------------------------------------------------------------------------
 void *MaintThread(void *p);
 static bool bMaintThreadIsRunning = false;
+bool ScreenHistory::m_bAddToHistory=true;
 //------------------------------------------------------------------------
 
 /*
@@ -244,6 +246,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
     m_bAltDown = false;
     m_bCapsLock = false;
 	m_pCacheImageManager = NULL;
+	m_pScreenHistory_NewEntry = NULL;
 
 	pthread_mutexattr_init( &m_MutexAttr );
     pthread_mutexattr_settype( &m_MutexAttr,  PTHREAD_MUTEX_RECURSIVE_NP );
@@ -1410,8 +1413,17 @@ g_pPlutoLogger->Write(LV_WARNING,"Goto Screen -- wakign up from screen saver");
         {
             //update the list only if the screen is changed
             PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex );
-            if(  bAddToHistory  )
+            //if(bAddToHistory)
+
+			if(ScreenHistory::m_bAddToHistory)//m_pScreenHistory_Current->m_bAddToHistory)
+			{
+g_pPlutoLogger->Write(LV_WARNING, "Adding to screens history list screen %d", m_pScreenHistory_Current->m_nPK_Screen);
                 m_listScreenHistory.push_back( m_pScreenHistory_Current );
+				//m_pScreenHistory_Current->m_bAddToHistory = false;
+			}
+
+			ScreenHistory::m_bAddToHistory = true;
+
 #ifdef DEBUG
 			DumpScreenHistory();
 #endif
@@ -1424,7 +1436,6 @@ g_pPlutoLogger->Write(LV_WARNING,"Goto Screen -- wakign up from screen saver");
     }
 
 	// todo 2.0 SelectFirstObject(  );
-
 	if( m_pDesignObj_Orbiter_ScreenSaveMenu && !m_bBypassScreenSaver && pScreenHistory->m_pObj == m_pDesignObj_Orbiter_ScreenSaveMenu && m_iTimeoutBlank )
 	{
 		m_tTimeoutTime = time(NULL) + m_iTimeoutBlank;
@@ -3063,10 +3074,16 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 			}
 			else
 			{
+				/*
 				if( m_sInitialScreen.size() )
 					GotoScreen( m_sInitialScreen );
 				else
 					GotoScreen( m_sMainMenu );
+				*/
+				DCE::SCREEN_Main SCREEN_Main_(m_dwPK_Device, m_dwPK_Device, 
+					StringUtils::ltos(m_pLocationInfo_Initial->iLocation));
+				string sResult;
+                CMD_Goto_Screen(SCREEN_Main_CONST, sResult, SCREEN_Main_.m_pMessage);
 			}
 
 			m_pLocationInfo = m_pLocationInfo_Initial;
@@ -5427,6 +5444,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Go Back currently: %s  cs: %s",this->m_pScreenH
         // The last screen we went to
         pScreenHistory = m_listScreenHistory.back(  );
 
+g_pPlutoLogger->Write(LV_WARNING, "Removing from screens history list screen %d", pScreenHistory->m_nPK_Screen);
+
         // We now took the prior screen off teh list
         m_listScreenHistory.pop_back(  );
         if( pScreenHistory->m_bCantGoBack && sForce!="1"  )
@@ -5449,23 +5468,37 @@ g_pPlutoLogger->Write(LV_STATUS,"Go Back currently: %s  cs: %s",this->m_pScreenH
 
 		vm.Release();
 
+
+		ScreenHistory::m_bAddToHistory = false;
+		//m_pScreenHistory_Current->m_bAddToHistory = false; //don't add it again
+			
+		/*
 		//hack! :(
 		if( pScreenHistory->m_pObj->m_iBaseObjectID == atoi(m_sMainMenu.c_str()) )
 		{
 #ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS,"Forcing go back to the main menu");
 #endif
-			GotoScreen( m_sMainMenu );
+			GotoScreen(m_sMainMenu);
 		}
-		else if( pScreenHistory->m_pObj->m_bIsARemoteControl )
+		else */
+
+		/*
+		if( pScreenHistory->m_pObj->m_bIsARemoteControl )
 		{
 			if( m_iPK_DesignObj_Remote || m_iPK_DesignObj_RemoteOSD )
 				CMD_Goto_DesignObj(0,"<%=NP_R%>","","",false,false);
 			else
 				CMD_Goto_DesignObj(0,"<%=M%>","","",false,false);
 		}
-		else
-			NeedToRender::NeedToChangeScreens( this, pScreenHistory, false );
+		*/
+		//else
+		{
+			string sResult;
+			CMD_Goto_Screen(pScreenHistory->m_nPK_Screen, sResult, pScreenHistory->m_pMessage);
+			//NeedToRender::NeedToChangeScreens( this, pScreenHistory, false );
+		}
+			
 
 	}
 	else
@@ -5561,17 +5594,29 @@ g_pPlutoLogger->Write(LV_STATUS,"Forcing go to the main menu");
 	if( bIsRemote || pObj_New->m_iBaseObjectID==m_iPK_DesignObj_Remote || pObj_New->m_iBaseObjectID==m_iPK_DesignObj_RemoteOSD )
 		pObj_New->m_bIsARemoteControl=true;
 
-    // We're going to change screens,  create the new ScreenHistory object
-    ScreenHistory *pScreenHistory_New = new ScreenHistory( pObj_New, m_pScreenHistory_Current );
+	ScreenHistory *pScreenHistory_New = NULL;
+	if(NULL != m_pScreenHistory_NewEntry)
+	{
+		pScreenHistory_New = m_pScreenHistory_NewEntry; //just create by CMD_Goto_Screen
+		m_pScreenHistory_NewEntry = NULL;
+	}
+	else
+	{
+		pScreenHistory_New = m_pScreenHistory_Current; //another designobj for the same screen
+	}
+
     // See if we're going to control a new device,  or should stick with the one we're now controlling
-    pScreenHistory_New->m_sID=sID;
+	pScreenHistory_New->m_pObj = pObj_New;
+    pScreenHistory_New->m_sID = sID;
 	pScreenHistory_New->m_bCantGoBack = bCant_Go_Back ? true : pObj_New->m_bCantGoBack;
     vm.Release(  );
 
     // See if we need to store the variables on this screen,  so we restore them in case of a go back
-    if(  bStore_Variables  )
+    if(bStore_Variables)
         CMD_Store_Variables(  );
-	NeedToRender::NeedToChangeScreens( this, pScreenHistory_New );
+
+	//NeedToRender::NeedToChangeScreens( this, pScreenHistory_New );
+	NeedToRender::NeedToChangeScreens( this, pScreenHistory_New);
 }
 
 //<-dceag-c6-b->
@@ -7922,12 +7967,12 @@ void Orbiter::DumpScreenHistory()
     PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex );
     string s = "Screen history: size: " + StringUtils::itos(int(m_listScreenHistory.size())) + "; screens: ";
 
-for(list < ScreenHistory * >::iterator it=m_listScreenHistory.begin();it!=m_listScreenHistory.end();++it)
-{
-ScreenHistory *psh = *it;
-s+=psh->m_pObj->m_ObjectID + " / ";
-}
-g_pPlutoLogger->Write(LV_WARNING,"%s",s.c_str());
+	for(list < ScreenHistory * >::iterator it=m_listScreenHistory.begin();it!=m_listScreenHistory.end();++it)
+	{
+		ScreenHistory *psh = *it;
+		s += StringUtils::ltos(psh->m_nPK_Screen) + " / ";
+	}
+	g_pPlutoLogger->Write(LV_WARNING,"%s",s.c_str());
 }
 //<-dceag-c59-b->
 
@@ -9401,6 +9446,7 @@ void Orbiter::CMD_Goto_Screen(int iPK_Screen,string &sCMD_Result,Message *pMessa
 	}
 #endif
 
+	m_pScreenHistory_NewEntry = new ScreenHistory(iPK_Screen, new Message(pMessage), m_pScreenHistory_Current);
 	m_pScreenHandler->ReceivedGotoScreenMessage(iPK_Screen, pMessage);
 }
 //-----------------------------------------------------------------------------------------------------
@@ -9408,7 +9454,7 @@ void Orbiter::CMD_Goto_Screen(int iPK_Screen,string &sCMD_Result,Message *pMessa
 {
 	return new ScreenHandler(this, &m_mapDesignObj);
 }
-
+//-----------------------------------------------------------------------------------------------------
 void Orbiter::LoadPlugins()
 {
 	/*
@@ -9502,21 +9548,5 @@ bool Orbiter::ExecuteScreenHandlerCallback(CallBackType aCallBackType)
 		return CALL_MEMBER_FN(*m_pScreenHandler, pCallBack)(m_pScreenHandler->m_mapCallBackData_Find(aCallBackType));
 
 	return false; 
-}
-//-----------------------------------------------------------------------------------------------------
-void Orbiter::GetRooms(map<string,int> &mapRooms)
-{
-	//TODO: implement me!
-
-	//test - remus will use it to get the state
-	mapRooms["Living room"] = 1;
-	mapRooms["Bathroom"] = 0;
-	mapRooms["Badroom"] = 3;
-}
-//-----------------------------------------------------------------------------------------------------
-void Orbiter::SetRooms(map<string,int> &mapRooms)
-{
-	//TODO: implement me!
-	//do something with rooms
 }
 //-----------------------------------------------------------------------------------------------------

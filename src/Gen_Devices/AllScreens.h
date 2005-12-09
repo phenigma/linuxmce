@@ -16,40 +16,48 @@ namespace DCE
 	class SCREEN_Main : public PreformedCommand
 	{
 	public:
-		SCREEN_Main(long DeviceIDFrom, long DeviceIDTo)
+		SCREEN_Main(long DeviceIDFrom, long DeviceIDTo,
+			string sLocation)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
-				COMMANDPARAMETER_PK_Screen_CONST, "1" /* screen ID */);
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
+				COMMANDPARAMETER_PK_Screen_CONST, "1" /* screen ID */,
+				195 /* Location */, sLocation.c_str());
 		}
 	};
 
 	class SCREEN_Main_DL : public PreformedCommand
 	{
 	public:
-		SCREEN_Main_DL(long DeviceIDFrom, string sDeviceIDTo)
+		SCREEN_Main_DL(long DeviceIDFrom, string sDeviceIDTo,
+			string sLocation)
 		{
-			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
-				COMMANDPARAMETER_PK_Screen_CONST, "1" /* screen ID */);
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
+				COMMANDPARAMETER_PK_Screen_CONST, "1" /* screen ID */,
+				195 /* Location */, sLocation.c_str());
 		}
 	};
 
 	class SCREEN_Main_DT : public PreformedCommand
 	{
 	public:
-		SCREEN_Main_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
+		SCREEN_Main_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
+			string sLocation)
 		{
-			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
-				COMMANDPARAMETER_PK_Screen_CONST, "1" /* screen ID */);
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
+				COMMANDPARAMETER_PK_Screen_CONST, "1" /* screen ID */,
+				195 /* Location */, sLocation.c_str());
 		}
 	};
 
 	class SCREEN_Main_Cat : public PreformedCommand
 	{
 	public:
-		SCREEN_Main_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
+		SCREEN_Main_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
+			string sLocation)
 		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
-				COMMANDPARAMETER_PK_Screen_CONST, "1" /* screen ID */);
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 2, 
+				COMMANDPARAMETER_PK_Screen_CONST, "1" /* screen ID */,
+				195 /* Location */, sLocation.c_str());
 		}
 	};
 
@@ -8224,7 +8232,7 @@ namespace DCE
 		}
 
 		/*  Display a message for the user */
-		virtual void SCREEN_Main(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_Main(long PK_Screen, string sLocation){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Lights(long PK_Screen, string sLocation){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Media(long PK_Screen, string sLocation){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Climate(long PK_Screen, string sLocation){ GotoScreen(PK_Screen); }
@@ -8430,7 +8438,8 @@ namespace DCE
 			{
 				case 1:
 				{
-					SCREEN_Main(nPK_Screen);
+					string sLocation = pMessage->m_mapParameters[195];
+					SCREEN_Main(nPK_Screen, sLocation);
 					break;
 				}
 				case 2:

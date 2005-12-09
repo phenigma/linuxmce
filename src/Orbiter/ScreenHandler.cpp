@@ -147,6 +147,12 @@ void ScreenHandler::SCREEN_DialogRippingInProgress(long PK_Screen, string sPK_De
 	return;
 }
 //-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_Main(long PK_Screen, string sLocation)
+{
+	m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)) + "." + sLocation + ".0", 
+		sLocation, "", false, false );
+} 
+//-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_DialogCheckingDrive(long PK_Screen)
 {
 	DisplayMessageOnOrbiter(PK_Screen, "<%=T" + StringUtils::itos(TEXT_Checking_drive_CONST) + "%>", false, "20");

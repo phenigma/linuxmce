@@ -67,10 +67,12 @@ public:
 	/**
 	 * @brief constructor
 	 */
-	ScreenHistory( class DesignObj_Orbiter *pObj, class ScreenHistory *pScreenHistory_Prior )
+	ScreenHistory(int nPK_Screen, Message *pMessage, class ScreenHistory *pScreenHistory_Prior )
 	{
+		m_nPK_Screen = nPK_Screen;
+		m_pMessage = pMessage;
 		m_tTime = time(NULL);
-		m_pObj=pObj; 
+		m_pObj=NULL;
 		m_dwPK_Device=0;
 		m_bCantGoBack=false; 
 		if(  pScreenHistory_Prior  )
@@ -79,12 +81,20 @@ public:
 		}
 	}
 
+	~ScreenHistory()
+	{
+		delete m_pMessage; //it's a copy
+	}
+
 	/**
 	 * @brief A unique ID that can be specified in the Goto command
 	 * A unique ID that can be specified in the Goto command, allowing a particular 'instance'
 	 * of a screen to be removed in 'remove screen from history'
 	 */
 	string m_sID;
+	int m_nPK_Screen;
+	Message *m_pMessage;
+	static bool m_bAddToHistory;
 	time_t m_tTime;
 	int m_dwPK_Device; /** < The device being controlled */
 	bool m_bCantGoBack; /** < If we get a go back, skip over this screen unless "Force" is set to true */
@@ -287,6 +297,8 @@ protected:
 	map < string, DesignObj_DataList * > m_mapObj_AllNoSuffix; /** < All object with the object ID as a string */
 	list < ScreenHistory * > m_listScreenHistory; /** < A history of the screens we've visited */
 	map<int,class DeviceData_Base *> m_mapDevice_Selected;  /** < We can select multiple devices on the floorplan to send messages to, instead of the usual one */
+
+	ScreenHistory *m_pScreenHistory_NewEntry;
 
 	string m_sObj_Popop_RemoteControl,m_sObj_Popop_FileList;
 	int m_Popop_RemoteControl_X,m_Popop_RemoteControl_Y,m_Popop_FileList_X,m_Popop_FileList_Y;
@@ -952,10 +964,6 @@ public:
 	// Plugins
 	void LoadPlugins();
 	ScreenHandler *PlugIn_Load(string sCommandLine);
-
-	//rooms state
-	void GetRooms(map<string,int> &mapRooms);
-	void SetRooms(map<string,int> &mapRooms);
 
 	/**
 	 *	MAINTENANCE CALL BACKS

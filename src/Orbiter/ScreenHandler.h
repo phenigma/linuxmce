@@ -76,18 +76,20 @@ public:
 	//callbacks; they will be implemented in derived classes
 	virtual bool FileSave_ObjectSelected(CallBackData *pData) { return false;} 
 
-	void SCREEN_Lights(long PK_Screen, string sLocation);
-	void SCREEN_Media(long PK_Screen, string sLocation);
-	void SCREEN_Climate(long PK_Screen, string sLocation);
-	void SCREEN_Security(long PK_Screen, string sLocation);
-	void SCREEN_Telephony(long PK_Screen, string sLocation);
-	void SCREEN_Misc(long PK_Screen, string sLocation);
+	virtual void SCREEN_Main(long PK_Screen, string sLocation); 
 
-    void SCREEN_popLights(long PK_Screen, string sLocation);
-	void SCREEN_popMedia(long PK_Screen, string sLocation);
-	void SCREEN_popClimate(long PK_Screen, string sLocation);
-	void SCREEN_popTelecom(long PK_Screen, string sLocation);
-	void SCREEN_popSecurity(long PK_Screen, string sLocation);
+	virtual void SCREEN_Lights(long PK_Screen, string sLocation);
+	virtual void SCREEN_Media(long PK_Screen, string sLocation);
+	virtual void SCREEN_Climate(long PK_Screen, string sLocation);
+	virtual void SCREEN_Security(long PK_Screen, string sLocation);
+	virtual void SCREEN_Telephony(long PK_Screen, string sLocation);
+	virtual void SCREEN_Misc(long PK_Screen, string sLocation);
+
+    virtual void SCREEN_popLights(long PK_Screen, string sLocation);
+	virtual void SCREEN_popMedia(long PK_Screen, string sLocation);
+	virtual void SCREEN_popClimate(long PK_Screen, string sLocation);
+	virtual void SCREEN_popTelecom(long PK_Screen, string sLocation);
+	virtual void SCREEN_popSecurity(long PK_Screen, string sLocation);
 
 };
 //-----------------------------------------------------------------------------------------------------
