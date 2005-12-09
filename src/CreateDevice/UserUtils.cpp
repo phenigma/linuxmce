@@ -1,0 +1,104 @@
+#include "PlutoUtils/FileUtils.h"
+#include "PlutoUtils/StringUtils.h"
+#include "PlutoUtils/Other.h"
+
+#include "PlutoUtils/MySQLHelper.h"
+#include "UserUtils.h"
+
+UserUtils::UserUtils(MySqlHelper *pMySqlHelper, int PK_Installation)
+{
+	m_pMySqlHelper=pMySqlHelper;
+	m_PK_Installation=PK_Installation;
+}
+
+bool UserUtils::AlreadyHasUsers()
+{
+	string sSQL = "SELECT count(PK_Users) FROM Users JOIN Installation_Users ON FK_Users=PK_Users WHERE FK_Installation="
+		+ StringUtils::itos(m_PK_Installation);
+
+	PlutoSqlResult result_set_room;
+	if( (result_set_room.r=m_pMySqlHelper->mysql_query_result(sSQL)) && result_set_room.r->row_count )
+		return true;
+	return false;
+}
+
+string UserUtils::GetGoodExtension(map<int,bool> &mapUsedExtensions) 
+{
+	// Don't put a condition.  If we use up more than the allowed extensions (shouldn't happen)
+	// we'll just keep going anyway
+	for(int i=FIRST_USER_EXTENSION;;++i)
+	{
+		if( mapUsedExtensions[i]==false )
+		{
+			mapUsedExtensions[i]=true;
+			return StringUtils::itos(i);
+		}
+	}
+}
+
+void UserUtils::CheckExtensions(  )
+{
+	// First mark off which valid extensions are already used
+	map<int,bool> mapUsedExtensions;
+	string sSQL = "select Extension FROM Users JOIN Installation_Users ON FK_Users=PK_Users "
+		"WHERE Extension IS NOT NULL AND Extension>=" + StringUtils::itos(FIRST_USER_EXTENSION) +
+		" AND Extension<=" + StringUtils::itos(LAST_USER_EXTENSION) + 
+		" ORDER BY Extension";
+
+	PlutoSqlResult result_set_valid_ext;
+	MYSQL_ROW row;
+	if( (result_set_valid_ext.r=m_pMySqlHelper->mysql_query_result(sSQL)) )
+		while ((row = mysql_fetch_row(result_set_valid_ext.r)))
+			mapUsedExtensions[ atoi(row[0]) ] = true;
+
+	sSQL = "select PK_Users FROM Users JOIN Installation_Users ON FK_Users=PK_Users "
+		"WHERE Extension IS NULL OR Extension<" + StringUtils::itos(FIRST_USER_EXTENSION) +
+		" OR Extension>" + StringUtils::itos(LAST_USER_EXTENSION) + 
+		" ORDER BY UserName";
+
+	PlutoSqlResult result_set_bad_ext;
+	if( (result_set_bad_ext.r=m_pMySqlHelper->mysql_query_result(sSQL)) )
+		while ((row = mysql_fetch_row(result_set_bad_ext.r)))
+		{
+			sSQL = "UPDATE Users SET Extension=" + GetGoodExtension(mapUsedExtensions) 
+				+ " WHERE PK_Users=" + row[0];
+			m_pMySqlHelper->threaded_mysql_query(sSQL);
+
+		}
+}
+
+int UserUtils::AddUser(string sUsername)
+{
+	bool bExistingUsers=AlreadyHasUsers;
+	string sSQL = "INSERT INTO Users(UserName) VALUES('" + StringUtils::SQLEscape(sUsername) + "');";
+
+	int PK_Users = m_pMySqlHelper->threaded_mysql_query_withID(sSQL);
+	sSQL = "INSERT INTO Installation_Users(FK_Installation,FK_Users,userCanModifyInstallation,userCanChangeHouseMode) "
+		"VALUES(" + StringUtils::itos(m_PK_Installation) + "," + StringUtils::itos(PK_Users) + 
+		(bExistingUsers ? "0,0)" : "1,1)");
+
+	m_pMySqlHelper->threaded_mysql_query(sSQL);
+
+	CheckExtensions();
+	return PK_Users;
+}
+
+void UserUtils::RemoveUser(int PK_User)
+{
+	string sSQL = "DELETE FROM Users WHERE PK_Users=" + StringUtils::itos(PK_User);
+	m_pMySqlHelper->threaded_mysql_query(sSQL);
+
+	sSQL = "DELETE FROM Installation_Users WHERE FK_Users=" + StringUtils::itos(PK_User);
+	m_pMySqlHelper->threaded_mysql_query(sSQL);
+
+	sSQL = "DELETE FROM Device_Users WHERE FK_Users=" + StringUtils::itos(PK_User);
+	m_pMySqlHelper->threaded_mysql_query(sSQL);
+
+	sSQL = "DELETE FROM Orbiter_Users_PasswordReq WHERE FK_Users=" + StringUtils::itos(PK_User);
+	m_pMySqlHelper->threaded_mysql_query(sSQL);
+
+	sSQL = "DELETE FROM Room_Users WHERE FK_Users=" + StringUtils::itos(PK_User);
+	m_pMySqlHelper->threaded_mysql_query(sSQL);
+
+}
+
