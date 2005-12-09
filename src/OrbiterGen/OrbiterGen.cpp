@@ -1526,7 +1526,7 @@ int k=2;
 
 void OrbiterGenerator::SearchForGotos(DesignObj_Data *pDesignObj_Data)
 {
-if( pDesignObj_Data->m_ObjectID.find("2753")!=string::npos )
+if( pDesignObj_Data->m_ObjectID.find("3407")!=string::npos )
 {
 int k=2;
 }
@@ -1588,6 +1588,13 @@ int k=2;
 					Row_DesignObj *pRow_DesignObj = GetDesignObjFromScreen(atoi((*itParm).second.c_str()));
 					if( pRow_DesignObj )
 						sDesignObj = StringUtils::itos(pRow_DesignObj->PK_DesignObj_get());
+					map<int, string>::iterator itParmLocation = oca->m_ParameterList.find(COMMANDPARAMETER_Location_CONST);
+					if( itParmLocation!=oca->m_ParameterList.end() )
+					{
+						sDesignObj += "." + itParmLocation->second;
+						m_iLocation = atoi(itParmLocation->second.c_str());
+					}
+						
 				}
 				else
 					sDesignObj = (*itParm).second;
