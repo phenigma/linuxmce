@@ -249,6 +249,8 @@
 #define COUNTRY_DESCRIPTION_TABLE_FIELD "Country.Description"
 #define COUNTRY_DEFINE_FIELD "Define"
 #define COUNTRY_DEFINE_TABLE_FIELD "Country.Define"
+#define COUNTRY_USEPOSTALCODE_FIELD "UsePostalCode"
+#define COUNTRY_USEPOSTALCODE_TABLE_FIELD "Country.UsePostalCode"
 #define COUNTRY_PSC_ID_FIELD "psc_id"
 #define COUNTRY_PSC_ID_TABLE_FIELD "Country.psc_id"
 #define COUNTRY_PSC_BATCH_FIELD "psc_batch"

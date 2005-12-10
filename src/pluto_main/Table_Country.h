@@ -80,6 +80,7 @@ class DECLSPECIFIER Row_Country : public TableRow, public SerializeClass
 		long int m_PK_Country;
 string m_Description;
 string m_Define;
+short int m_UsePostalCode;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -87,12 +88,13 @@ short int m_psc_frozen;
 string m_psc_mod;
 long int m_psc_restrict;
 
-		bool is_null[9];
+		bool is_null[10];
 	
 	public:
 		long int PK_Country_get();
 string Description_get();
 string Define_get();
+short int UsePostalCode_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -104,6 +106,7 @@ long int psc_restrict_get();
 		void PK_Country_set(long int val);
 void Description_set(string val);
 void Define_set(string val);
+void UsePostalCode_set(short int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -148,7 +151,7 @@ void RepositorySource_URL_FK_Country_getrows(vector <class Row_RepositorySource_
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Country+ m_Description+ m_Define+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
+			StartSerializeList() + m_PK_Country+ m_Description+ m_Define+ m_UsePostalCode+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod+ m_psc_restrict;
 		}
 	private:
 		void SetDefaultValues();
@@ -156,6 +159,7 @@ void RepositorySource_URL_FK_Country_getrows(vector <class Row_RepositorySource_
 		string PK_Country_asSQL();
 string Description_asSQL();
 string Define_asSQL();
+string UsePostalCode_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();
