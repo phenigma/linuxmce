@@ -43,7 +43,7 @@ public:
 	void ProcessUpdatedRoomInfo( map<int, int > &mapRooms ); // Call this to process the updated info
 	void RemoveRoomsOfType( int PK_RoomType, int NumRoomsCurrent, int NumRoomsDesired ); // Helper function
 	void AddRoomsOfType( int PK_RoomType, int NumRoomsCurrent, int NumRoomsDesired); // Helper function
-	void ChangeRoomName(int PK_Room,string sName) {};
+	void ChangeRoomName(int PK_Room,string sName);
 
 	/*
 		SETUP A/V EQUIPMENT

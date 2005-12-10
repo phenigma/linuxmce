@@ -17,7 +17,7 @@ WizardLogic::~WizardLogic()
 
 bool WizardLogic::Setup()
 {
-	if( !MySQLConnect("10.2.1.162" /*m_pOrbiter->m_sIPAddress*/,"root", "", "pluto_main") )
+	if( !MySQLConnect("10.0.0.150" /*m_pOrbiter->m_sIPAddress*/,"root", "", "pluto_main") )
 		return false;
 
 	string sSQL;
@@ -151,6 +151,15 @@ void WizardLogic::AddRoomsOfType( int PK_RoomType, int NumRoomsCurrent, int NumR
 		string sSQL = "INSERT INTO Room(FK_Installation,FK_RoomType,Description) "
 			"VALUES(" + Installation_get() + "," +
 			StringUtils::itos(PK_RoomType) + ",'" + StringUtils::SQLEscape(sDescription) + "');";
+		threaded_mysql_query(sSQL);
+	}
+}
+
+void WizardLogic::ChangeRoomName(int PK_Room, string sName)
+{
+	if(PK_Room)
+	{
+		string sSQL = "UPDATE Room SET Description = '" + sName + "' WHERE PK_Room = " + StringUtils::ltos(PK_Room);
 		threaded_mysql_query(sSQL);
 	}
 }
