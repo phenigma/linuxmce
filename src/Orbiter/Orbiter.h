@@ -430,7 +430,7 @@ public: // temp - remove this
 	 * This immediately calls RenderScreen. Normally we add the current screen to the history list so we can go back again. However,
 	 * if we're changing screens because of a GO BACK command, we won't do that
 	 */
-	virtual void NeedToChangeScreens( ScreenHistory *pScreenHistory, bool bAddToHistory = true );
+	virtual void NeedToChangeScreens( ScreenHistory *pScreenHistory/*, bool bAddToHistory = true*/ );
 
 	/**
 	 * @brief
@@ -1861,7 +1861,7 @@ class NeedToRender
 	class Orbiter *m_pOrbiter; /** <  */
 	const char *m_pWhere; /** <  */
 	static ScreenHistory *m_pScreenHistory;
-	static bool m_bAddToHistory;
+	//static bool m_bAddToHistory;
 public:
 
 	/**
@@ -1881,7 +1881,7 @@ public:
 			{
 				ScreenHistory *pScreenHistory = m_pScreenHistory;
 				m_pScreenHistory=NULL;
-				m_pOrbiter->NeedToChangeScreens( pScreenHistory, m_bAddToHistory );
+				m_pOrbiter->NeedToChangeScreens( pScreenHistory/*, m_bAddToHistory */);
 			}
 #ifdef DEBUG
 			g_pPlutoLogger->Write( LV_STATUS, "NeedToRender::~NeedToRender() calling redraw for: %s", m_pWhere);
@@ -1891,7 +1891,7 @@ public:
 
 	}
 
-	static void NeedToChangeScreens( class Orbiter *pOrbiter, ScreenHistory *pScreenHistory, bool bAddToHistory = true );
+	static void NeedToChangeScreens( class Orbiter *pOrbiter, ScreenHistory *pScreenHistory/*, bool bAddToHistory = true*/ );
 };
 
 //<-dceag-end-b->

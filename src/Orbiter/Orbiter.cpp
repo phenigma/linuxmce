@@ -1348,7 +1348,7 @@ g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable is now %p",pObj-
     }
 }
 //-----------------------------------------------------------------------------------------------------------
-/*virtual*/ void Orbiter::NeedToChangeScreens( ScreenHistory *pScreenHistory, bool bAddToHistory )
+/*virtual*/ void Orbiter::NeedToChangeScreens( ScreenHistory *pScreenHistory/*, bool bAddToHistory*/ )
 {
 	if(m_bQuit)
 		return;
@@ -1357,8 +1357,8 @@ g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable is now %p",pObj-
 
 #ifdef DEBUG
 if(pScreenHistory)
-g_pPlutoLogger->Write(LV_STATUS,"Need to change screens executed to %s (%d)",
-					  pScreenHistory->m_pObj->m_ObjectID.c_str(),(int) bAddToHistory);
+g_pPlutoLogger->Write(LV_STATUS,"Need to change screens executed to %s",
+					  pScreenHistory->m_pObj->m_ObjectID.c_str());
 #endif
 
     PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
@@ -1419,7 +1419,6 @@ g_pPlutoLogger->Write(LV_WARNING,"Goto Screen -- wakign up from screen saver");
 			{
 g_pPlutoLogger->Write(LV_WARNING, "Adding to screens history list screen %d", m_pScreenHistory_Current->m_nPK_Screen);
                 m_listScreenHistory.push_back( m_pScreenHistory_Current );
-				//m_pScreenHistory_Current->m_bAddToHistory = false;
 			}
 
 			ScreenHistory::m_bAddToHistory = true;
@@ -6914,7 +6913,7 @@ void Orbiter::RenderFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_O
 }
 
 ScreenHistory *NeedToRender::m_pScreenHistory=NULL;
-bool NeedToRender::m_bAddToHistory=true;
+//bool NeedToRender::m_bAddToHistory=true;
 
 NeedToRender::NeedToRender( class Orbiter *pOrbiter, const char *pWhere )
 {
@@ -6931,13 +6930,13 @@ NeedToRender::NeedToRender( class Orbiter *pOrbiter, const char *pWhere )
     g_iDontRender++;
 }
 
-void NeedToRender::NeedToChangeScreens( Orbiter *pOrbiter, ScreenHistory *pScreenHistory, bool bAddToHistory )
+void NeedToRender::NeedToChangeScreens( Orbiter *pOrbiter, ScreenHistory *pScreenHistory/*, bool bAddToHistory*/ )
 {
 #ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS,"Need to change screens logged to %s",pScreenHistory->m_pObj->m_ObjectID.c_str());
 #endif
 	m_pScreenHistory = pScreenHistory;
-	m_bAddToHistory = bAddToHistory;
+	//m_bAddToHistory = bAddToHistory;
 
 	//purge pending tasks, if need it.  Do it here, so that things will happen in the right order.
 	//ie: CMD_GotoScreen, CMD_SelectObject. The real need to change screens won't get called until
