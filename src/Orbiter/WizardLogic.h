@@ -32,7 +32,7 @@ public:
 	int GetCountry();
 	void SetCountry(int PK_Country);
 	string GetCityRegion(int PK_Country);
-	void SetPostalCode(string PostalCode);
+	bool SetPostalCode(string PostalCode);
 
 
 	/*
@@ -48,9 +48,14 @@ public:
 	/*
 		SETUP A/V EQUIPMENT
 	*/
-	int AddDevice(int PK_DeviceTemplate) {};
+	int AddDevice(int PK_DeviceTemplate) { return 0; }
 	void SetAvPath(int PK_Device_From,int PK_Device_To,int PK_Pipe,int PK_Command_Input) {};
 
+	/*
+		UTILITIES
+	*/
+
+	string Installation_get() { return StringUtils::itos(m_pOrbiter->m_pData->m_dwPK_Installation); }
 
 
 };

@@ -2,6 +2,7 @@
 #include "WizardLogic.h"
 #include "CreateDevice/UserUtils.h"
 #include "pluto_main/Define_Country.h"
+#include "pluto_main/Define_DeviceData.h"
 
 WizardLogic::WizardLogic(Orbiter *pOrbiter)
 {
@@ -16,7 +17,7 @@ WizardLogic::~WizardLogic()
 
 bool WizardLogic::Setup()
 {
-	if( !MySQLConnect(m_pOrbiter->m_sIPAddress,"root", "", "pluto_main") )
+	if( !MySQLConnect("10.2.1.162" /*m_pOrbiter->m_sIPAddress*/,"root", "", "pluto_main") )
 		return false;
 
 	string sSQL;
@@ -148,7 +149,7 @@ void WizardLogic::AddRoomsOfType( int PK_RoomType, int NumRoomsCurrent, int NumR
 			sDescription += " #" + StringUtils::itos(iRoom);
 
 		string sSQL = "INSERT INTO Room(FK_Installation,FK_RoomType,Description) "
-			"VALUES(" + StringUtils::itos(m_pOrbiter->m_pData->m_dwPK_Installation) + "," +
+			"VALUES(" + Installation_get() + "," +
 			StringUtils::itos(PK_RoomType) + ",'" + StringUtils::SQLEscape(sDescription) + "');";
 		threaded_mysql_query(sSQL);
 	}
@@ -157,7 +158,7 @@ void WizardLogic::AddRoomsOfType( int PK_RoomType, int NumRoomsCurrent, int NumR
 int WizardLogic::GetCountry()
 {
 	string sSQL = "SELECT FK_Country FROM Installation WHERE PK_Installation=" + 
-		StringUtils::itos(m_pOrbiter->m_pData->m_dwPK_Installation);
+		Installation_get();
 
 
 	PlutoSqlResult result_set;
@@ -171,15 +172,15 @@ int WizardLogic::GetCountry()
 
 void WizardLogic::SetCountry(int PK_Country)
 { 
-	string sSQL = "UPDATE Installation SET City=NULL,State=NULL,Zip=NULL WHERE PK_Installation=" + 
-		StringUtils::itos(m_pOrbiter->m_pData->m_dwPK_Installation) + 
+	string sSQL = "UPDATE Installation SET City=NULL,State=NULL,Zip=NULL,FK_City=NULL,FK_PostalCode=NULL WHERE PK_Installation=" + 
+		Installation_get() + 
 		" AND FK_Country<>" + StringUtils::itos(PK_Country);
 
 	threaded_mysql_query(sSQL); 
 
 	sSQL = "UPDATE Installation SET FK_Country=" + StringUtils::itos(PK_Country) + 
 		" WHERE PK_Installation=" + 
-		StringUtils::itos(m_pOrbiter->m_pData->m_dwPK_Installation);
+		Installation_get();
 
 	threaded_mysql_query(sSQL); 
 }
@@ -187,7 +188,7 @@ void WizardLogic::SetCountry(int PK_Country)
 string WizardLogic::GetCityRegion(int PK_Country) 
 { 
 	string sSQL = "SELECT City,State FROM Installation WHERE PK_Installation=" + 
-		StringUtils::itos(m_pOrbiter->m_pData->m_dwPK_Installation);
+		Installation_get();
 
 	PlutoSqlResult result_set;
 	MYSQL_ROW row;
@@ -198,10 +199,48 @@ string WizardLogic::GetCityRegion(int PK_Country)
 	return ""; 
 }
 
-void WizardLogic::SetPostalCode(string PostalCode) 
+bool WizardLogic::SetPostalCode(string PostalCode) 
 {
-	string sSQL = "UPDATE Installation SET City='Las Vegas',State='NV' WHERE PK_Installation=" + 
-		StringUtils::itos(m_pOrbiter->m_pData->m_dwPK_Installation);
+	int PK_Country = GetCountry();
+	string sSQL = "SELECT City,State,FK_City,`Long`,Lat FROM PostalCode WHERE PostalCode='"
+		+ StringUtils::SQLEscape(PostalCode) + "' AND FK_Country=" + StringUtils::itos(PK_Country);
 
-	threaded_mysql_query(sSQL); 
+	PlutoSqlResult result_set;
+	MYSQL_ROW row;
+	if( (result_set.r=mysql_query_result(sSQL)) && 
+		(row = mysql_fetch_row(result_set.r)) && row[0] )
+	{
+		sSQL = "UPDATE Installation SET City='" + StringUtils::SQLEscape(row[0]) + 
+			"'" +
+			(row[1] ? string(",State=") + StringUtils::SQLEscape(row[1]) : string("")) + 
+			(row[2] ? string(",FK_City=") + StringUtils::SQLEscape(row[2]) : string(""));
+		threaded_mysql_query(sSQL);
+		
+		DeviceData_Base *pDevice_Event_Plugin = 
+			m_pOrbiter->m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory(DEVICECATEGORY_Event_Plugins_CONST);
+		if( pDevice_Event_Plugin )
+		{
+			sSQL = "INSERT INTO Device_DeviceData(FK_Device,FK_DeviceData) VALUES(" + 
+				StringUtils::itos(pDevice_Event_Plugin->m_dwPK_Device) + "," + 
+				StringUtils::itos(DEVICEDATA_Longitude_CONST) + ")";
+			threaded_mysql_query(sSQL,true);  // Ignore errors, this may already be there
+
+			sSQL = "INSERT INTO Device_DeviceData(FK_Device,FK_DeviceData) VALUES(" + 
+				StringUtils::itos(pDevice_Event_Plugin->m_dwPK_Device) + "," + 
+				StringUtils::itos(DEVICEDATA_Latitude_CONST) + ")";
+			threaded_mysql_query(sSQL,true);  // Ignore errors, this may already be there
+
+			sSQL = string("UPDATE Device_DeviceData SET IK_DeviceData='") + row[3] + "'" +
+				"WHERE FK_Device=" + StringUtils::itos(pDevice_Event_Plugin->m_dwPK_Device) +
+				" AND FK_DeviceData=" + StringUtils::itos(DEVICEDATA_Longitude_CONST);
+			threaded_mysql_query(sSQL);
+
+			sSQL = string("UPDATE Device_DeviceData SET IK_DeviceData='") + row[4] + "'" +
+				"WHERE FK_Device=" + StringUtils::itos(pDevice_Event_Plugin->m_dwPK_Device) +
+				" AND FK_DeviceData=" + StringUtils::itos(DEVICEDATA_Latitude_CONST);
+			threaded_mysql_query(sSQL);
+		}
+		return true;
+	}
+	return false;
 }
