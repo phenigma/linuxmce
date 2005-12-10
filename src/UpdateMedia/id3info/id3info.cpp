@@ -266,6 +266,7 @@ void GetInformation(const ID3_Tag &myTag, map<int,string>& mapAttributes)
       }
       case ID3FID_SYNCEDLYRICS:
       {
+		  /*
         char 
         *sDesc = ID3_GetString(frame, ID3FN_DESCRIPTION), 
         *sLang = ID3_GetString(frame, ID3FN_LANGUAGE);
@@ -299,6 +300,7 @@ void GetInformation(const ID3_Tag &myTag, map<int,string>& mapAttributes)
         cout << endl;
         delete [] sDesc;
         delete [] sLang;
+		*/
         break;
       }
       case ID3FID_AUDIOCRYPTO:
