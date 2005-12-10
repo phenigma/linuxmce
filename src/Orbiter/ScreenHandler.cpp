@@ -380,3 +380,29 @@ void ScreenHandler::SCREEN_popSecurity(long PK_Screen, string sLocation)
 		sLocation, "", false, false );
 }
 //-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_SingleCameraViewOnly(long PK_Screen, string sPKDevice)
+{
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Device_CONST, sPKDevice);
+	ScreenHandlerBase::SCREEN_SingleCameraViewOnly(PK_Screen, sPKDevice);
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_QuadViewCameras(long PK_Screen, string sPKDevicesList)
+{
+	vector<string> vectDevices;
+	StringUtils::Tokenize(sPKDevicesList, ",", vectDevices);
+
+	if(vectDevices.size() == 4)
+	{
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Device_1_CONST, vectDevices[0]);
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Device_2_CONST, vectDevices[1]);
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Device_3_CONST, vectDevices[2]);
+		m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Device_4_CONST, vectDevices[3]);
+		ScreenHandlerBase::SCREEN_SingleCameraViewOnly(PK_Screen, sPKDevicesList);
+	}
+	else
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "The list of devices for SCREEN_QuadViewCameras is wrong: %s", 
+			sPKDevicesList.c_str());
+	}
+}
+//-----------------------------------------------------------------------------------------------------

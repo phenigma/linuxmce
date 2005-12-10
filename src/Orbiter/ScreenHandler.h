@@ -91,6 +91,8 @@ public:
 	virtual void SCREEN_popTelecom(long PK_Screen, string sLocation);
 	virtual void SCREEN_popSecurity(long PK_Screen, string sLocation);
 
+	virtual void SCREEN_SingleCameraViewOnly(long PK_Screen, string sPKDevice);
+	virtual void SCREEN_QuadViewCameras(long PK_Screen, string sPKDevicesList);
 };
 //-----------------------------------------------------------------------------------------------------
 #endif
