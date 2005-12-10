@@ -235,13 +235,16 @@ namespace HADesigner
 					break;
 				}
 
-				Screen_CommandParameterDataRow drScreenParameter; 
-				String sql = Screen_CommandParameterData.FK_SCREEN_FIELD + " = " + sPK_Screen;
-				DataRow[] drScreenParameters = this.mds.tScreen_CommandParameter.Select(sql, null);
-				foreach(DataRow dr in drScreenParameters)
+				if(sPK_Screen != "")
 				{
-					drScreenParameter = new Screen_CommandParameterDataRow(dr);
-					this.Parameters.Add(new UIDesignObjVariationCommandParameter(this, drScreenParameter.fFK_CommandParameter));
+					Screen_CommandParameterDataRow drScreenParameter; 
+					String sql = Screen_CommandParameterData.FK_SCREEN_FIELD + " = " + sPK_Screen;
+					DataRow[] drScreenParameters = this.mds.tScreen_CommandParameter.Select(sql, null);
+					foreach(DataRow dr in drScreenParameters)
+					{
+						drScreenParameter = new Screen_CommandParameterDataRow(dr);
+						this.Parameters.Add(new UIDesignObjVariationCommandParameter(this, drScreenParameter.fFK_CommandParameter));
+					}
 				}
 			}
 		}
