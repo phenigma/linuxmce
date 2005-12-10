@@ -7,7 +7,7 @@
 #define TOKEN_CHANNEL		"Channel"
 #define TOKEN_RESPONSE		"Response"
 #define TOKEN_MESSAGE		"Message"
-#define TOKEN_CALLERID		"Callerid"
+#define TOKEN_CALLERID		"CallerID"
 #define TOKEN_APPLICATION	"Application"
 #define TOKEN_APPDATA		"AppData"
 #define TOKEN_ACTION		"Action"

@@ -227,6 +227,8 @@ void Asterisk::CMD_PBX_Transfer(string sPhoneExtension,int iCommandID,string sPh
                                                 "PhoneCallID: %s"
   			                                    "CommandID: %d"
 			                                    , sPhoneExtension.c_str(), sPhoneCallID.c_str(), iCommandID);
+	/* Will need to implelment this one !!!! */
+													
 }
 //<-dceag-c237-b->
 

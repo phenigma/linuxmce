@@ -15,6 +15,7 @@
 #include "tokenmanager.h"
 
 #include <string>
+#include <map>
 
 namespace ASTERISK {
 
@@ -32,7 +33,8 @@ protected:
 	virtual int handleToken(Token* ptoken);
 	virtual void handleTerminate();
 	
-public:
+private:
+	std::map<std::string,std::string> map_ringext;
 };
 
 };

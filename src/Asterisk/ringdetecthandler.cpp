@@ -41,6 +41,20 @@ RingDetectHandler::handleStartup() {
 
 int 
 RingDetectHandler::handleToken(Token* ptoken) {
+	if(ptoken->getKey(TOKEN_EVENT) == EVENT_NEWEXTEN &&
+		ptoken->getKey(TOKEN_APPLICATION) == APPLICATION_DIAL)
+	{
+		string party = ptoken->getKey(TOKEN_APPDATA);
+		string extension;
+		if(!Utils::ParseParty(party, &extension)) {	
+			string channel = ptoken->getKey(TOKEN_CHANNEL);
+			map_ringext[extension] = channel;
+			g_pPlutoLogger->Write(LV_STATUS, "Will connect channel %s to extension %s", channel.c_str(),extension.c_str());
+		} else {
+			g_pPlutoLogger->Write(LV_CRITICAL, "Error parsing party:%s", party.c_str());
+		}
+		
+	}
 	if(ptoken->getKey(TOKEN_EVENT) == EVENT_NEWCHANNEL &&
 		ptoken->getKey(TOKEN_STATE) == STATE_RINGING) 
 	{
@@ -54,19 +68,18 @@ RingDetectHandler::handleToken(Token* ptoken) {
 				g_pPlutoLogger->Write(LV_STATUS, "Phone %s is Origination a call. Skipping issue Ring event.",
 							ringphoneid.c_str());
 			} else {
+				if(map_ringext.find(ringphoneid) == map_ringext.end())
+				{
+					g_pPlutoLogger->Write(LV_CRITICAL, "No previos ring to this channel !!!");
+					return 0;
+				}
 				g_pPlutoLogger->Write(LV_STATUS, "Phone %s is Ringing. Fire Ring event.",
 							ringphoneid.c_str());
 							
 				string callerid = ptoken->getKey(TOKEN_CALLERID);
 				
-				string srcphonenum, srccallername;
-				if(!Utils::ParseCallerID(callerid, &srcphonenum, &srccallername)) {
-					g_pPlutoLogger->Write(LV_STATUS, "Phone Ringing: %s call from %s", srcphonenum.c_str(), srccallername.c_str());
-				} else {	
-					g_pPlutoLogger->Write(LV_CRITICAL, "Error parsing callerid:%s", callerid.c_str());
-				}
 				AsteriskManager* manager = AsteriskManager::getInstance();
-				manager->NotifyRing(srccallername, srcphonenum, channel);
+				manager->NotifyRing(callerid, ringphoneid, map_ringext[ringphoneid]);
 			}
 		} else {
 			g_pPlutoLogger->Write(LV_CRITICAL, "Error parsing channel:%s", channel.c_str());
