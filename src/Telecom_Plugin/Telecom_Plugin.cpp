@@ -37,6 +37,7 @@ using namespace DCE;
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_telecom/Database_pluto_telecom.h"
 #include "pluto_main/Table_Device.h"
+#include "pluto_main/Table_Device_DeviceData.h"
 #include "pluto_main/Table_CommandGroup.h"
 #include "pluto_main/Define_Array.h"
 #include "pluto_main/Define_Screen.h"
@@ -85,6 +86,12 @@ bool Telecom_Plugin::GetConfig()
 		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot connect to telecom database!");
 		m_bQuit=true;
 		return false;
+	}
+	vector<class Row_Device*> vectDevices;
+	m_pDatabase_pluto_main->Device_get()->GetRows(DEVICE_FK_DEVICETEMPLATE_FIELD + string("=") + StringUtils::itos(DEVICETEMPLATE_Orbiter_Embedded_Phone_CONST), &vectDevices);
+	for(size_t s=0;s<vectDevices.size();++s)
+	{
+		map_orbiter2embedphone[vectDevices[s]->FK_Device_ControlledVia_get()] = vectDevices[s]->PK_Device_get();
 	}
 
 	return true;
@@ -367,13 +374,38 @@ Telecom_Plugin::Ring( class Socket *pSocket, class Message *pMessage,
 	string sPhoneExtension = pMessage->m_mapParameters[EVENTPARAMETER_PhoneExtension_CONST];
 	string sPhoneCallID = pMessage->m_mapParameters[EVENTPARAMETER_PhoneCallID_CONST];
 	string sPhoneCallerID = pMessage->m_mapParameters[EVENTPARAMETER_PhoneCallerID_CONST];
-	
+
 	ProcessRing(sPhoneExtension, sPhoneCallerID, sPhoneCallID);
 	return true;
 }
 
 void 
-Telecom_Plugin::ProcessRing(std::string sPhoneExtension, std::string sPhoneCallerID, std::string sPhoneCallID) {
+Telecom_Plugin::ProcessRing(std::string sPhoneExtension, std::string sPhoneCallerID, std::string sPhoneCallID)
+{
+	int phoneID=0;
+	vector<class Row_Device_DeviceData*> vectDeviceData;
+	m_pDatabase_pluto_main->Device_DeviceData_get()->GetRows(DEVICE_DEVICEDATA_FK_DEVICEDATA_FIELD+string("=") + StringUtils::itos(DEVICEDATA_PhoneNumber_CONST)+ " AND " +
+	                                                         DEVICE_DEVICEDATA_IK_DEVICEDATA_FIELD +string("=") + sPhoneExtension , &vectDeviceData);
+	if(vectDeviceData.size()>0)
+	{
+		phoneID= vectDeviceData[0]->FK_Device_get();
+		CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(phoneID);
+		if(!pCallData) {
+			/*create new call data*/
+			pCallData = new CallData();
+			pCallData->setOwnerDevID(phoneID);
+			pCallData->setID(sPhoneCallID);
+			CallManager::getInstance()->addCall(pCallData);
+			
+			g_pPlutoLogger->Write(LV_STATUS, "Creating calldata for ringing device %d (ext %s, id %s)",phoneID,sPhoneExtension.c_str(),sPhoneCallID.c_str());			
+			pCallData->setState(CallData::STATE_NOTDEFINED);
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "This should not happend, already have a call on device %d",phoneID);
+			g_pPlutoLogger->Write(LV_WARNING, "However if this is a hardphone...this is probably possible");
+		}
+	}
 }
 
 
@@ -450,7 +482,18 @@ void Telecom_Plugin::CMD_PL_Originate(int iPK_Device,string sPhoneExtension,stri
 		g_pPlutoLogger->Write(LV_CRITICAL, "No device found with id: %d", iPK_Device);
 		return;
 	}
-
+	if(pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Orbiter_CONST)
+	{
+    	pDeviceData = find_Device(map_orbiter2embedphone[iPK_Device]);
+ 		if(!pDeviceData) {
+			g_pPlutoLogger->Write(LV_CRITICAL, "No device found with id: %d", iPK_Device);
+			return;
+		}
+	}
+	if(sPhoneCallerID == "")
+	{
+		sPhoneCallerID="pluto";
+	}
 	/*find phonetype and phonenumber*/
 	string sSrcPhoneType = pDeviceData->mapParameters_Find(DEVICEDATA_PhoneType_CONST);
 	string sSrcPhoneNumber = pDeviceData->mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
@@ -458,7 +501,6 @@ void Telecom_Plugin::CMD_PL_Originate(int iPK_Device,string sPhoneExtension,stri
 	g_pPlutoLogger->Write(LV_STATUS, "Using source phone with parameters: PhoneType=%s, PhoneNumber=%s!", 
 													sSrcPhoneType.c_str(), sSrcPhoneNumber.c_str());
 				
-	
 	/*find PBX*/
 	DeviceData_Router* pPBXDevice = find_AsteriskDevice();
 	if(pPBXDevice) {
@@ -502,6 +544,14 @@ void Telecom_Plugin::CMD_PL_TransferConferenceDevice(int iPK_Device,string &sCMD
 		g_pPlutoLogger->Write(LV_CRITICAL, "No device found with id: %d", iPK_Device);
 		return;
     }
+	if(pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Orbiter_CONST)
+	{
+    	pDeviceData = find_Device(map_orbiter2embedphone[iPK_Device]);
+ 		if(!pDeviceData) {
+			g_pPlutoLogger->Write(LV_CRITICAL, "No device found with id: %d", iPK_Device);
+			return;
+		}
+	}
 
 	/*find phonetype and phonenumber*/
     string sPhoneType = pDeviceData->mapParameters_Find(DEVICEDATA_PhoneType_CONST);
@@ -509,9 +559,13 @@ void Telecom_Plugin::CMD_PL_TransferConferenceDevice(int iPK_Device,string &sCMD
 	
 	CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(pMessage->m_dwPK_Device_From);
 	if(!pCallData) {
-		return;
-	}
+		g_pPlutoLogger->Write(LV_WARNING, "No calldata found for device %d",pMessage->m_dwPK_Device_From);
 	
+		pCallData = CallManager::getInstance()->findCallByOwnerDevID(map_orbiter2embedphone[pMessage->m_dwPK_Device_From]);
+		if(!pCallData) {
+			g_pPlutoLogger->Write(LV_WARNING, "No calldata found for device %d",map_orbiter2embedphone[pMessage->m_dwPK_Device_From]);
+		}
+	}	
 	/*find PBX*/
 	DeviceData_Router* pPBXDevice = find_AsteriskDevice();
 	if(pPBXDevice) {
@@ -519,9 +573,13 @@ void Telecom_Plugin::CMD_PL_TransferConferenceDevice(int iPK_Device,string &sCMD
 		pCallData->setPendingCmdID(generate_NewCommandID());
 				
 		/*send transfer command to PBX*/
-		CMD_PBX_Transfer cmd_PBX_Transfer(m_dwPK_Device, pPBXDevice->m_dwPK_Device, 
-									"0" + sPhoneNumber, pCallData->getPendingCmdID(), pCallData->getID());
-		SendCommand(cmd_PBX_Transfer);
+		/* None of this works (yet) */
+//		CMD_PBX_Transfer cmd_PBX_Transfer(m_dwPK_Device, pPBXDevice->m_dwPK_Device, 
+//									"0" + sPhoneNumber, pCallData->getPendingCmdID(), pCallData->getID());
+//		CMD_PBX_Transfer cmd_PBX_Transfer(m_dwPK_Device, pPBXDevice->m_dwPK_Device, 
+//									"100", pCallData->getPendingCmdID(), pCallData->getID());
+									
+//		SendCommand(cmd_PBX_Transfer);
 	}
 }
 	
@@ -537,9 +595,15 @@ void Telecom_Plugin::CMD_PL_Hangup(string &sCMD_Result,Message *pMessage)
 	
 	CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(pMessage->m_dwPK_Device_From);
 	if(!pCallData) {
-		return;
-	}
+		g_pPlutoLogger->Write(LV_WARNING, "No calldata found for device %d",pMessage->m_dwPK_Device_From);
 	
+		pCallData = CallManager::getInstance()->findCallByOwnerDevID(map_orbiter2embedphone[pMessage->m_dwPK_Device_From]);
+		if(!pCallData) {
+			g_pPlutoLogger->Write(LV_WARNING, "No calldata found for device %d",map_orbiter2embedphone[pMessage->m_dwPK_Device_From]);
+			return;
+		}
+	}
+	g_pPlutoLogger->Write(LV_STATUS, "Will hangup on channelid %s", pCallData->getID().c_str());	
 	/*find PBX*/
 	DeviceData_Router* pPBXDevice = find_AsteriskDevice();
 	if(pPBXDevice) {
@@ -547,9 +611,8 @@ void Telecom_Plugin::CMD_PL_Hangup(string &sCMD_Result,Message *pMessage)
 		CMD_PBX_Hangup cmd_PBX_Hangup(m_dwPK_Device, pPBXDevice->m_dwPK_Device, 
 								0, pCallData->getID());
 		SendCommand(cmd_PBX_Hangup);
-		
 		CallManager::getInstance()->removeCall(pCallData);
-	}	
+	}
 }
 //<-dceag-createinst-b->!
 
@@ -648,16 +711,12 @@ Telecom_Plugin::IncomingCall( class Socket *pSocket, class Message *pMessage,
 void Telecom_Plugin::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage)
 //<-dceag-c28-e->
 {
-	int phoneID=0;
-	int orbiterId=pMessage->m_dwPK_Device_From;
-	vector<class Row_Device*> vectDevices;
-	m_pDatabase_pluto_main->Device_get()->GetRows(DEVICE_FK_DEVICE_CONTROLLEDVIA_FIELD + string("=") + StringUtils::itos(orbiterId) , &vectDevices);
-	if(vectDevices.size()>0)
+	int phoneID=map_orbiter2embedphone[pMessage->m_dwPK_Device_From];
+	if(phoneID>0)
 	{
-		phoneID= vectDevices[0]->PK_Device_get();
+		DCE::CMD_Simulate_Keypress cmd(m_dwPK_Device,phoneID,sPK_Button,sName);
+		SendCommand(cmd);
 	}
-	DCE::CMD_Simulate_Keypress cmd(m_dwPK_Device,phoneID,sPK_Button,sName);
-	SendCommand(cmd);
 	sCMD_Result="OK";
 }
 //<-dceag-c334-b->
@@ -670,16 +729,21 @@ void Telecom_Plugin::CMD_Simulate_Keypress(string sPK_Button,string sName,string
 void Telecom_Plugin::CMD_Phone_Initiate(string sPhoneExtension,string &sCMD_Result,Message *pMessage)
 //<-dceag-c334-e->
 {
-	int phoneID=0;
-	int orbiterId=pMessage->m_dwPK_Device_From;
-	vector<class Row_Device*> vectDevices;
-	m_pDatabase_pluto_main->Device_get()->GetRows(DEVICE_FK_DEVICE_CONTROLLEDVIA_FIELD + string("=") + StringUtils::itos(orbiterId) , &vectDevices);
-	if(vectDevices.size()>0)
+	int phoneID=map_orbiter2embedphone[pMessage->m_dwPK_Device_From];
+	if(phoneID>0)
 	{
-		phoneID= vectDevices[0]->PK_Device_get();
+		DCE::CMD_Phone_Initiate cmd(m_dwPK_Device,phoneID,sPhoneExtension);
+		SendCommand(cmd);
+		CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(phoneID);
+		if(!pCallData) {
+			/*create new call data*/
+			pCallData = new CallData();
+			pCallData->setOwnerDevID(phoneID);
+			CallManager::getInstance()->addCall(pCallData);
+		}
+		pCallData->setState(CallData::STATE_ORIGINATING);
 	}
-	DCE::CMD_Phone_Initiate cmd(m_dwPK_Device,phoneID,sPhoneExtension);
-	SendCommand(cmd);
+	
 	sCMD_Result="OK";
 }
 //<-dceag-c335-b->
@@ -690,16 +754,21 @@ void Telecom_Plugin::CMD_Phone_Initiate(string sPhoneExtension,string &sCMD_Resu
 void Telecom_Plugin::CMD_Phone_Answer(string &sCMD_Result,Message *pMessage)
 //<-dceag-c335-e->
 {
-	int phoneID=0;
-	int orbiterId=pMessage->m_dwPK_Device_From;
-	vector<class Row_Device*> vectDevices;
-	m_pDatabase_pluto_main->Device_get()->GetRows(DEVICE_FK_DEVICE_CONTROLLEDVIA_FIELD + string("=") + StringUtils::itos(orbiterId) , &vectDevices);
-	if(vectDevices.size()>0)
+	int phoneID=map_orbiter2embedphone[pMessage->m_dwPK_Device_From];
+	if(phoneID>0)
 	{
-		phoneID= vectDevices[0]->PK_Device_get();
+		DCE::CMD_Phone_Answer cmd(m_dwPK_Device,phoneID);
+		SendCommand(cmd);
+		CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(phoneID);
+		if(!pCallData) {
+			/*create new call data*/
+			pCallData = new CallData();
+			pCallData->setOwnerDevID(phoneID);
+			CallManager::getInstance()->addCall(pCallData);
+			g_pPlutoLogger->Write(LV_WARNING, "Answering a call for which have no data");
+		}
+		pCallData->setState(CallData::STATE_OPENED);
 	}
-	DCE::CMD_Phone_Answer cmd(m_dwPK_Device,phoneID);
-	SendCommand(cmd);
 	sCMD_Result="OK";
 }
 //<-dceag-c336-b->
@@ -710,16 +779,20 @@ void Telecom_Plugin::CMD_Phone_Answer(string &sCMD_Result,Message *pMessage)
 void Telecom_Plugin::CMD_Phone_Drop(string &sCMD_Result,Message *pMessage)
 //<-dceag-c336-e->
 {
-	int phoneID=0;
-	int orbiterId=pMessage->m_dwPK_Device_From;
-	vector<class Row_Device*> vectDevices;
-	m_pDatabase_pluto_main->Device_get()->GetRows(DEVICE_FK_DEVICE_CONTROLLEDVIA_FIELD + string("=") + StringUtils::itos(orbiterId) , &vectDevices);
-	if(vectDevices.size()>0)
+	int phoneID=map_orbiter2embedphone[pMessage->m_dwPK_Device_From];
+	if(phoneID>0)
 	{
-		phoneID= vectDevices[0]->PK_Device_get();
+		DCE::CMD_Phone_Drop cmd(m_dwPK_Device,phoneID);
+		SendCommand(cmd);
+		CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(phoneID);
+		if(pCallData) {
+			CallManager::getInstance()->removeCall(pCallData);	
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "Dropping a call for which have no data");
+		}
 	}
-	DCE::CMD_Phone_Drop cmd(m_dwPK_Device,phoneID);
-	SendCommand(cmd);
 	sCMD_Result="OK";
 }
 //<-dceag-c744-b->

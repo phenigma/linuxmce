@@ -179,6 +179,7 @@ private:
 private:
 	int iCmdCounter;
 	int generate_NewCommandID();
+	map<int,int> map_orbiter2embedphone;
 		
 };	
 
