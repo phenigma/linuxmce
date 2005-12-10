@@ -62,33 +62,6 @@ MWMHints;
 // The event processing thread will handle it
 int g_iSpecialSeekSpeed = 0;
 
-/*
-    Crazy hack -- it seems xine is firing the payback completed event
-    2 seconds before it's really completed, chopping off the end of the media,
-    probably due to a delay flushing the buffer???  Here's a stupid hack
-    to delay the event for 2 seconds
-*/
-
-class DelayedPlaybackCompletedInfo
-{
-public:
-    Xine_Player *m_pXine_Player;
-    int m_iStreamID;
-    bool m_bWithErrors;
-};
-
-void* DelayedPlaybackCompleted( void* param )
-{
-    DelayedPlaybackCompletedInfo * pDelayedPlaybackCompletedInfo = ( DelayedPlaybackCompletedInfo * ) param;
-    g_pPlutoLogger->Write( LV_WARNING, "DelayedPlaybackCompleted before sleep for id: %d", pDelayedPlaybackCompletedInfo->m_iStreamID );
-    usleep( 2000000 );  // AB 10-June-05 -- Xine seems to report this before the buffers are flushed (about 1.5 seconds too early).  So we'll add a little delay
-    g_pPlutoLogger->Write( LV_WARNING, "DelayedPlaybackCompleted after sleep for id: %d", pDelayedPlaybackCompletedInfo->m_iStreamID );
-    pDelayedPlaybackCompletedInfo->m_pXine_Player->EVENT_Playback_Completed(
-        pDelayedPlaybackCompletedInfo->m_iStreamID, pDelayedPlaybackCompletedInfo->m_bWithErrors );
-    delete pDelayedPlaybackCompletedInfo;
-    return NULL;
-}
-
 XineSlaveWrapper::XineSlaveWrapper( int iTimeCodeReportFrequency )
         : m_sWindowTitle( "pluto-xine-playback-window" ),
         XServerDisplay( NULL ),
@@ -450,26 +423,12 @@ bool XineSlaveWrapper::playStream( int streamID, string mediaPosition, bool play
         if ( pos )
         {
             // This functionality in xine keeps bouncing back and forth between working and not working
-            // Sometimes you cannot do a seek right after a play and have to wait a bit or else you get
+			// With some Xine revisions you can pass the seek position in when you start playing, but 
+			// other times you must wait at least 500ms after starting the stream before trying to seek
+            // or else you get
             // "Stream is not seekable".  In such cases we have a m_iSpecialOneTimeSeek that we will use
             // if we fail to do the seek correctly
             m_iSpecialOneTimeSeek = pos;
-            // It can take up to 10 retries to get to the right location
-            for ( int i = 0;i < 10;++i )
-            {
-                int positionTime, totalTime;
-                if ( abs( getStreamPlaybackPosition( 1, positionTime, totalTime ) - pos ) < 2000 )                  //|| totalTime<pos)
-                {
-                    m_iSpecialOneTimeSeek = 0;
-                    g_pPlutoLogger->Write( LV_WARNING, "Close enough %d %d total %d", positionTime, pos, totalTime );
-                    break;
-                }
-                else
-                {
-                    g_pPlutoLogger->Write( LV_WARNING, "get closer %d %d total %d ctr %d", positionTime, pos, totalTime, i );
-                    xine_play( xineStream->m_pStream, 0, pos );
-                }
-            }
         }
 
         if ( Subtitle != -2 )
@@ -707,9 +666,9 @@ void XineSlaveWrapper::xineEventListener( void *userData, const xine_event_t *ev
             xineStream->m_bIsRendering = false;
             break;
             case XINE_EVENT_QUIT:
-            g_pPlutoLogger->Write( LV_STATUS, "Stream was disposed" );
-            // the playback completed is sent from another place. (see the stopMedia)
-            break;
+				g_pPlutoLogger->Write( LV_STATUS, "Stream was disposed" );
+				// the playback completed is sent from another place. (see the stopMedia)
+				break;
 
             case XINE_EVENT_PROGRESS:
             {
@@ -920,74 +879,13 @@ void *XineSlaveWrapper::eventProcessingLoop( void *arguments )
                 iCounter_TimeCode = 1;
             }
         }
-        if ( pStream->m_pOwner->m_iSpecialOneTimeSeek && iCounter > 5 )                  // We need to wait 500ms after the stream starts before doing the seek!
+        if ( pStream->m_pOwner->m_iSpecialOneTimeSeek && iCounter > 5 ) // We need to wait 500ms after the stream starts before doing the seek!
         {
-            g_pPlutoLogger->Write( LV_WARNING, "Doing the special one-time hack seek to %d", pStream->m_pOwner->m_iSpecialOneTimeSeek );
-
-            int pos = pStream->m_pOwner->m_iSpecialOneTimeSeek;
-            for ( int i = 0;i < 10;++i )
-            {
-                int positionTime, totalTime;
-                if ( abs( pStream->m_pOwner->getStreamPlaybackPosition( 1, positionTime, totalTime ) - pos ) < 2000 )                  //|| totalTime<pos)
-                {
-                    g_pPlutoLogger->Write( LV_WARNING, "Close enough %d %d total %d", positionTime, pos, totalTime );
-                    break;
-                }
-                else
-                {
-                    g_pPlutoLogger->Write( LV_WARNING, "get closer %d %d total %d ctr %d", positionTime, pos, totalTime, i );
-                    xine_play( pStream->m_pStream, 0, pos );
-                }
-            }
-
+			pStream->m_pOwner->Seek(pStream->m_pOwner->m_iSpecialOneTimeSeek,2000); // As long as we're within 2 seconds that's fine
             pStream->m_pOwner->m_iSpecialOneTimeSeek = 0;
         }
         if ( g_iSpecialSeekSpeed )
-        {
-            pStream->m_pOwner->DisplaySpeedAndTimeCode();
-            // time to seek
-            int positionTime, totalTime;
-            pStream->m_pOwner->getStreamPlaybackPosition( 1, positionTime, totalTime );
-            int seekTime = positionTime + ( g_iSpecialSeekSpeed / 10 );
-
-            g_pPlutoLogger->Write( LV_WARNING, "Current pos %d / %d  seek speed: %d will seek to: %d", positionTime, totalTime, g_iSpecialSeekSpeed, seekTime );
-            if ( seekTime < 0 || seekTime > totalTime )
-            {
-                g_pPlutoLogger->Write( LV_CRITICAL, "aborting seek" );
-                pStream->m_pOwner->StopSpecialSeek();
-                pStream->m_pOwner->m_pAggregatorObject->ReportTimecode( pStream->m_iStreamID, pStream->m_iPlaybackSpeed );
-            }
-
-            for ( int iHackLoop = 0;iHackLoop < 20;++iHackLoop )                   // More nasty, nasty hacks.  For some reason the new Xine 1.0.1 ignores the seek value a lot, but unpredictably.
-                // When that happens, xine gets 'stuck' seeking to the same point, not the one I'm pass in.  So we'll do a loop up to 20 times
-                // steadily increasing the seek value if xine is stuck until it's unstuck.  It is considered stuck when we seek to a position
-                // +x and then the actual position moves less than x/2
-            {
-
-                if ( !xine_play( pStream->m_pStream, 0, seekTime ) )                   // Pass in position as 2nd parameter
-                {
-                    g_pPlutoLogger->Write( LV_CRITICAL, "special seek failed, normal speed" );
-                    pStream->m_pOwner->StopSpecialSeek();
-                    pStream->m_pOwner->m_pAggregatorObject->ReportTimecode( pStream->m_iStreamID, pStream->m_iPlaybackSpeed );
-                }
-                int positionTime_new, totalTime_new;
-                pStream->m_pOwner->getStreamPlaybackPosition( 1, positionTime_new, totalTime_new );
-                // Xine thinks it seeked correctly, but as commented above it may not have actually done it.  So check the new
-                // position, and see if is at least half what it should be
-                if ( abs( positionTime_new - positionTime ) > abs( ( g_iSpecialSeekSpeed / 10 ) / 2 ) &&
-                        ( ( positionTime_new > positionTime && g_iSpecialSeekSpeed > 0 ) || ( positionTime_new < positionTime && g_iSpecialSeekSpeed < 0 ) ) )
-                {
-                    g_pPlutoLogger->Write( LV_STATUS, "Seek ok, we went for %d and landed at %d diff %d", seekTime, positionTime_new, positionTime_new - positionTime );
-                    break;
-                }
-                else
-                {
-                    g_pPlutoLogger->Write( LV_WARNING, "Xine is stuck again.  started at %d went for %d landed at %d seek %d now will try %d",
-                                           positionTime, seekTime, positionTime_new, g_iSpecialSeekSpeed, seekTime + ( g_iSpecialSeekSpeed / 10 ) );
-                    seekTime += ( g_iSpecialSeekSpeed / 10 );
-                }
-            }
-        }
+			pStream->m_pOwner->HandleSpecialSeekSpeed();
 
         usleep( 100000 );
     }
@@ -1869,14 +1767,7 @@ void XineSlaveWrapper::playbackCompleted( int iStreamID, bool bWithErrors )
 {
     g_pPlutoLogger->Write( LV_STATUS, "Fire playback completed event %d", ( int ) m_isSlimClient );
     if ( ! m_isSlimClient )
-    {
-        DelayedPlaybackCompletedInfo * pDelayedPlaybackCompletedInfo = new DelayedPlaybackCompletedInfo();
-        pDelayedPlaybackCompletedInfo->m_pXine_Player = m_pAggregatorObject;
-        pDelayedPlaybackCompletedInfo->m_iStreamID = iStreamID;
-        pDelayedPlaybackCompletedInfo->m_bWithErrors = bWithErrors;
-        pthread_t pt;
-        pthread_create( &pt, NULL, DelayedPlaybackCompleted, ( void * ) pDelayedPlaybackCompletedInfo );
-    }
+		m_pAggregatorObject->EVENT_Playback_Completed(iStreamID, bWithErrors );
 }
 
 int XineSlaveWrapper::getStreamPlaybackPosition( int iStreamID, int &positionTime, int &totalTime )
@@ -2294,3 +2185,53 @@ XineSlaveWrapper::Dynamic_Pointer::~Dynamic_Pointer()
 {
     g_pDynamic_Pointer = NULL;
 }
+
+void XineSlaveWrapper::Seek(int pos,int tolerance_ms)
+{
+    XineStream * xineStream = getStreamForId( 1, "Trying to set parm for and invalid stream: (%d)" );
+	if ( xineStream == NULL )
+		return ;
+
+		
+    g_pPlutoLogger->Write( LV_WARNING, "XineSlaveWrapper::Seek seek to %d tolerance %d", pos, tolerance_ms );
+
+    for ( int i = 0;i < 10;++i )
+    {
+        int positionTime, totalTime;
+        if ( abs( getStreamPlaybackPosition( 1, positionTime, totalTime ) - pos ) < tolerance_ms )
+        {
+            g_pPlutoLogger->Write( LV_WARNING, "XineSlaveWrapper::Seek Close enough %d %d total %d", positionTime, pos, totalTime );
+            break;
+        }
+        else
+        {
+            g_pPlutoLogger->Write( LV_WARNING, "XineSlaveWrapper::Seek get closer %d %d total %d ctr %d", positionTime, pos, totalTime, i );
+            xine_play( xineStream->m_pStream, 0, pos );
+        }
+    }
+}
+
+void XineSlaveWrapper::HandleSpecialSeekSpeed()
+{
+    XineStream * xineStream = getStreamForId( 1, "Trying to set parm for and invalid stream: (%d)" );
+    if ( xineStream == NULL )
+        return ;
+
+    DisplaySpeedAndTimeCode();
+    // time to seek
+    int positionTime, totalTime;
+    getStreamPlaybackPosition( 1, positionTime, totalTime );
+    int seekTime = positionTime + ( g_iSpecialSeekSpeed / 10 );
+
+    g_pPlutoLogger->Write( LV_WARNING, "Current pos %d / %d  seek speed: %d will seek to: %d", positionTime, totalTime, g_iSpecialSeekSpeed, seekTime );
+    if ( seekTime < 0 || seekTime > totalTime )
+    {
+        g_pPlutoLogger->Write( LV_CRITICAL, "aborting seek" );
+        StopSpecialSeek();
+        m_pAggregatorObject->ReportTimecode( xineStream->m_iStreamID, xineStream->m_iPlaybackSpeed );
+		return;
+    }
+
+	Seek(seekTime,g_iSpecialSeekSpeed / 20);
+}
+

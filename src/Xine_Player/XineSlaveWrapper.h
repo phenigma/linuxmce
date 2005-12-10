@@ -402,6 +402,10 @@ public:
     void StartSpecialSeek( int Speed );
     void StopSpecialSeek();
 
+	// Do the seeking in these functions
+	void Seek(int pos,int tolerance_ms);
+	void HandleSpecialSeekSpeed();  // Used for handling rewind and fast forward
+
     class Dynamic_Pointer
     {
     public:
