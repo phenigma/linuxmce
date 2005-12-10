@@ -2205,7 +2205,7 @@ void XineSlaveWrapper::Seek(int pos,int tolerance_ms)
         }
         else
         {
-            g_pPlutoLogger->Write( LV_WARNING, "XineSlaveWrapper::Seek get closer %d %d total %d ctr %d", positionTime, pos, totalTime, i );
+			g_pPlutoLogger->Write( LV_WARNING, "XineSlaveWrapper::Seek get closer currently at: %d target pos: %d ctr %d", positionTime, pos, i );
             xine_play( xineStream->m_pStream, 0, pos );
         }
     }
