@@ -50,6 +50,10 @@
 #define DATAGRID_Countries_CONST 47
 #define DATAGRID_Device_Template_by_Mfr_Mo_CONST 48
 #define DATAGRID_Available_Inputs_CONST 49
+#define DATAGRID_AVDeviceTypes_CONST 50
+#define DATAGRID_TvSourcesRegularTV_CONST 51
+#define DATAGRID_TvSourcesExternalBox_CONST 52
+#define DATAGRID_LightType_CONST 53
 
 #define DATAGRID_TABLE "DataGrid"
 #define DATAGRID_PK_DATAGRID_FIELD "PK_DataGrid"

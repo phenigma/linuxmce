@@ -872,6 +872,11 @@
 #define TEXT_VOIP_Username_CONST 1578
 #define TEXT_VOIP_password_CONST 1579
 #define TEXT_All_done_CONST 1580
+#define TEXT_Broadvoice_CONST 1581
+#define TEXT_Free_World_Dialup_CONST 1582
+#define TEXT_InPhonex_CONST 1583
+#define TEXT_Efon_CONST 1584
+#define TEXT_Teliax_CONST 1585
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

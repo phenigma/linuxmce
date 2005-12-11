@@ -1834,6 +1834,16 @@
 #define DESIGNOBJ_VoipUsername_CONST 4702
 #define DESIGNOBJ_VoipPassword_CONST 4703
 #define DESIGNOBJ_butVoipPassword_CONST 4704
+#define DESIGNOBJ_dgAVDevices_CONST 4705
+#define DESIGNOBJ_butVoipBroadvoice_CONST 4706
+#define DESIGNOBJ_butVoipFreeworld_CONST 4707
+#define DESIGNOBJ_butVoipInphonex_CONST 4708
+#define DESIGNOBJ_butVoipEfon_CONST 4709
+#define DESIGNOBJ_ButVoipTeliax_CONST 4710
+#define DESIGNOBJ_dgTvSourcesRegularTV_CONST 4711
+#define DESIGNOBJ_dgTvSourcesExternalBox_CONST 4712
+#define DESIGNOBJ_dgLightType_CONST 4713
+#define DESIGNOBJ_sensorsapplet_CONST 4714
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
