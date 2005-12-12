@@ -55,13 +55,17 @@ BEGIN { ParsingInterface = 0; OFS = ","; }
 /#/ {
 	$0 = substr($0, 1, match($0, /#/) - 1);
 }
-/auto (.*)/ {
-	Display(ParsingInterface, interface, address, netmask, gateway, dns);
-	ParsingInterface = 0;
-	if ($2 == "lo") next;
+/iface/ && $3 == "inet" {
+	if (ParsingInterface == 1)
+	{
+		Display(ParsingInterface, interface, address, netmask, gateway, dns);
+	}
 	interface = $2;
-}
-/iface/ && $2 == interface && $3 == "inet" {
+	if (interface == "lo")
+	{
+		ParsingInterface = 0;
+		next;
+	}
 	setting = $4;
 	if (setting == "static")
 	{
