@@ -103,12 +103,12 @@ function uploadFloorplan($output,$dbADO) {
 			}
 			
 			if(isset($invalidType)){
-				header("Location: index.php?section=uploadFloorplan&error='.$TEXT_ERROR_INVALID_FILE_TYPE_CONST.'&page=$page&fpID=$page");
+				header("Location: index.php?section=uploadFloorplan&error=$TEXT_ERROR_INVALID_FILE_TYPE_CONST&page=$page&fpID=$page");
 				exit();
 			}
 			
 			if(!file_exists($path) && !@mkdir($path)){
-				header("Location: index.php?section=uploadFloorplan&error='.$TEXT_ERROR_CANNOT_CREATE_DIRECTORY_CONST.'&page=$page&fpID=$page");
+				header("Location: index.php?section=uploadFloorplan&error=$TEXT_ERROR_CANNOT_CREATE_DIRECTORY_CONST&page=$page&fpID=$page");
 				exit();
 			}
 			
@@ -122,7 +122,7 @@ function uploadFloorplan($output,$dbADO) {
 				$newPicName=$page.'.'.$extension;
 			
 			if(!move_uploaded_file($_FILES['fileImage']['tmp_name'],$path.'/'.$newPicName)){
-				header("Location: index.php?section=uploadFloorplan&error='.$TEXT_ERROR_PERMISSIONS_CONST.' $path&page=".$page);
+				header("Location: index.php?section=uploadFloorplan&error=$TEXT_ERROR_PERMISSIONS_CONST $path&page=".$page);
 				exit();
 			}
 			

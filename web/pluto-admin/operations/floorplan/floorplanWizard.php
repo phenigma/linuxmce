@@ -26,6 +26,8 @@ function floorplanWizard($output,$dbADO) {
 	$resFloorplans=$dbADO->Execute($queryFloorplans,$installationID);
 	
 	if($action=='form'){
+		$roomsArray=getAssocArray('Room','PK_Room','Description',$dbADO,'WHERE FK_Installation='.$installationID,'ORDER BY Description ASC');
+		
 		$out=setLeftMenu($dbADO).'
 		<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
 		<div class="confirm" align="center"><B>'.@stripslashes($_GET['msg']).'</B></div>
@@ -83,6 +85,12 @@ function floorplanWizard($output,$dbADO) {
 				<td align="center" colspan="2"><input type="button" class="button" value="'.$TEXT_CANCEL_CONST.'" onclick="cancel();">&nbsp; &nbsp; &nbsp;	<input type="button" class="button" value="'.$TEXT_SAVE_CONST.'" onclick="submitForm();"><br /></td>
 			</tr>
 			<tr>
+				<td valign="top" colspan="2">&nbsp;</td>
+			</tr>						
+			<tr>
+				<td valign="top" colspan="2">Show devices in room: '.pulldownFromArray($roomsArray,'sel_room',@$_SESSION['sel_room'],'onChange="submitForm();"','key','All rooms').'</td>
+			</tr>					
+			<tr>
 				<td valign="top" colspan="2"><script language="javascript" type="text/javascript">objSensorPositioner.writeHTML();</script></td>
 			</tr>
 		</table>
@@ -117,6 +125,7 @@ function floorplanWizard($output,$dbADO) {
 	}
 	$out.='</form>';
 	
+	$roomFilter=((int)@$_SESSION['sel_room']!=0)?' AND FK_Room='.(int)$_SESSION['sel_room']:'';	
 	if($type==$GLOBALS['EntertainmentZone']){
 		$queryCoords = "
 			SELECT 
@@ -131,6 +140,7 @@ function floorplanWizard($output,$dbADO) {
 			WHERE 
 				FK_Installation=?
 				AND FK_FloorplanType=?
+				$roomFilter
 			ORDER BY itemtype
 			";
 	
@@ -155,6 +165,7 @@ function floorplanWizard($output,$dbADO) {
 			WHERE 
 				d.FK_Installation=?
 				AND fpot.FK_FloorplanType=?
+				$roomFilter
 			ORDER BY itemtype
 			";
 
@@ -240,6 +251,11 @@ function floorplanWizard($output,$dbADO) {
 					
 	}else{
 		// process
+		if(isset($_REQUEST['sel_room'])){
+			$_SESSION['sel_room']=$_REQUEST['sel_room'];
+		}		
+		
+		
 		if($action=='remove'){
 			$dbADO->Execute('DELETE FROM Floorplan WHERE FK_Installation=? AND Page=?',array($installationID,$page));
 			unlink($path.'/'.$page.'.png');
