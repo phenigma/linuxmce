@@ -9,7 +9,7 @@
 // Copyright: See COPYING file that comes with this distribution
 //
 //
-#include "TransferCommand.h"
+#include "transfercommand.h"
 
 #include "DCE/Logger.h"
 
@@ -53,6 +53,7 @@ TransferCommand::handleStartup() {
 	transtok.setKey(TOKEN_ACTION, ACTION_REDIRECT);
 	transtok.setKey(TOKEN_CHANNEL, channel );
 	transtok.setKey(TOKEN_EXTENSION, extennum);
+	transtok.setKey(TOKEN_CONTEXT, "trusted");
 	transtok.setKey("Priority", "1");
 	);
 

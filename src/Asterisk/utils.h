@@ -25,7 +25,7 @@ public:
 		std::string* psphone, std::string* psphonetype = 0,	std::string* psid = 0);
 	static int ParseCallerID(const std::string callerid,
 		std::string* psphonenume, std::string* pscallername = 0);
-	static int ParseParty(const std::string party, std::string* extension);
+	static int ParseParty(const std::string party, std::string* extension, std::string* string = 0);
 };
 
 };

@@ -75,7 +75,7 @@ Utils::ParseCallerID(const std::string callerid,
 }
 
 int 
-Utils::ParseParty(const std::string party, std::string* extension) 
+Utils::ParseParty(const std::string party, std::string* extension, std::string *rest) 
 {
 	int pos, oldpos = 0;
 	
@@ -85,9 +85,15 @@ Utils::ParseParty(const std::string party, std::string* extension)
 	}
 	
 	oldpos = pos + 1;
-	pos = party.find('|',oldpos);
+	pos = party.find('@',oldpos);	
+	if(pos < 0) {
+		pos = party.find('&',oldpos);	
+	}
 	if(pos < 0) {
 		pos = party.find(',',oldpos);	
+	}
+	if(pos < 0) {
+		pos = party.find('|',oldpos);
 	}
 	if(pos < 0) {
 		return -1;
@@ -96,7 +102,18 @@ Utils::ParseParty(const std::string party, std::string* extension)
 	if(extension) {
 		*extension = party.substr(oldpos, pos - oldpos);
 	}
-	
+	if(rest)
+	{
+		pos = party.find('&',oldpos);
+		if(pos > 0)
+		{
+			*rest = party.substr(pos+1,party.length());
+		}
+		else
+		{
+			*rest = "";
+		}
+	}
 	return 0;
 }
 

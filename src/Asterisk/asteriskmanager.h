@@ -54,7 +54,12 @@ public:
 	/*hangs up a call*/
 	void Hangup(const std::string sChannel, 
 						int iCommandID);
-						
+
+	/*transfers up a call*/						
+	void Transfer(const std::string sChannel,
+	              const std::string sPhoneNumber,
+				  int iCommandID);
+	
 	/*events - usually called by state machines*/
 	void NotifyRing(const std::string sCallerID /*ringing phone id*/, 
 	 					const std::string sSrcExt /*src extention*/, 

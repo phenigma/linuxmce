@@ -29,7 +29,7 @@ protected:
 	virtual ~TransferCommand();
 
 public:
-	void setExtenNum(std::strin extennum);
+	void setExtenNum(std::string extennum);
 	void setChannel(std::string channel);
 	void setCommandID(int commandid);
 	

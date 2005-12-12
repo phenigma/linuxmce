@@ -45,16 +45,57 @@ RingDetectHandler::handleToken(Token* ptoken) {
 		ptoken->getKey(TOKEN_APPLICATION) == APPLICATION_DIAL)
 	{
 		string party = ptoken->getKey(TOKEN_APPDATA);
-		string extension;
-		if(!Utils::ParseParty(party, &extension)) {	
-			string channel = ptoken->getKey(TOKEN_CHANNEL);
-			map_ringext[extension] = channel;
-			g_pPlutoLogger->Write(LV_STATUS, "Will connect channel %s to extension %s", channel.c_str(),extension.c_str());
-		} else {
-			g_pPlutoLogger->Write(LV_CRITICAL, "Error parsing party:%s", party.c_str());
+		while (party != "")
+		{
+			string rest=party;
+			string extension;
+			if(!Utils::ParseParty(party, &extension,&rest)) {	
+				string channel = ptoken->getKey(TOKEN_CHANNEL);
+				map_ringext[extension] = channel;
+				g_pPlutoLogger->Write(LV_STATUS, "Will connect channel %s to extension %s", channel.c_str(),extension.c_str());
+			} else {
+				g_pPlutoLogger->Write(LV_CRITICAL, "Error parsing party:%s", party.c_str());
+			}
+			party = rest;
+		}
+	}
+	if(ptoken->getKey(TOKEN_EVENT) == EVENT_HANGUP)
+	{
+		string channel = ptoken->getKey(TOKEN_CHANNEL);
+		bool success=false;
+		for(map<string,string>::iterator it=map_ringext.begin();it!=map_ringext.end();it++)
+		{
+			if( (*it).second == channel)
+			{
+				map_ringext.erase(it);
+				success=true;
+				g_pPlutoLogger->Write(LV_STATUS, "Will delete channel %s from extension %s", channel.c_str(),(*it).first.c_str());				
+			}
+		}
+		if(!success)
+		{
+			string ringphoneid;
+			if(!Utils::ParseChannel(channel, &ringphoneid)) {
+				if(map_ringext.find(ringphoneid)!= map_ringext.end())
+				{
+					map_ringext.erase(ringphoneid);
+					success=true;
+					g_pPlutoLogger->Write(LV_STATUS, "Will clear map for extension %s", ringphoneid.c_str());				
+				}
+			}
+			else
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL, "Error parsing channel:%s", channel.c_str());
+			}
+		}
+		if(!success)
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "Hangup on unknown channel %s", channel.c_str());
+			return 0;
 		}
 		
 	}
+
 	if(ptoken->getKey(TOKEN_EVENT) == EVENT_NEWCHANNEL &&
 		ptoken->getKey(TOKEN_STATE) == STATE_RINGING) 
 	{
