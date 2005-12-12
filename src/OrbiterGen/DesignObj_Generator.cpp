@@ -177,10 +177,6 @@ int k=2;
 		}
         al->push_back(this);
 
-if( !m_pOrbiterGenerator->m_pRow_DesignObj_MainMenu )
-{
-int k=2;
-}
         if( m_pOrbiterGenerator->m_bOrbiterChanged==false || m_pOrbiterGenerator->m_map_PK_DesignObj_SoleScreenToGen.size() )
         {
             // Let's see if we can just use a cached version
@@ -214,7 +210,7 @@ int k=2;
 							cout << "Regenerating: cannot serialize cache file" << endl;
 					}
 					else
-						cout << "Regenerating: cache file doesn't exist" << endl;
+						cout << "Regenerating: cache file " << Filename << " doesn't exist" << endl;
 				}
 				else
 					cout << "Regenerating: screen has changed" << endl;

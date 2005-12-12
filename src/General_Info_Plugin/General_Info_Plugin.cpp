@@ -739,7 +739,8 @@ class DataGridTable *General_Info_Plugin::UsersGrid( string GridID, string Parms
 
 	int iRow=0,iCol=0;
 	vector<Row_Users *> vectRow_Users;
-	m_pDatabase_pluto_main->Users_get()->GetRows("1=1 ORDER BY UserName",&vectRow_Users);
+	m_pDatabase_pluto_main->Users_get()->GetRows("JOIN Installation_Users ON FK_Users=PK_Users WHERE FK_Installation="
+		+ StringUtils::itos(m_pRouter->iPK_Installation_get()) + " ORDER BY UserName",&vectRow_Users);
 	for(size_t s=0;s<vectRow_Users.size();++s)
 	{
 		Row_Users *pRow_Users = vectRow_Users[s];

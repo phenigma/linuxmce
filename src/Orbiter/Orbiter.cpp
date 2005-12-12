@@ -3063,6 +3063,8 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 			g_pPlutoLogger->Write(LV_STATUS,"Setting current location");
 #endif
 			CMD_Set_Current_Location(m_pLocationInfo_Initial->iLocation);
+			m_pLocationInfo = m_pLocationInfo_Initial;
+			m_dwPK_Users = m_dwPK_Users_Default;
 
 			DesignObj_OrbiterMap::iterator iHao=m_ScreenMap.begin(  );
 			if ( iHao==m_ScreenMap.end(  ) )
@@ -3071,22 +3073,10 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
                 PromptUser("Something went very wrong. No screens found!");
 				exit( 1 );
 			}
+			else if( m_sInitialScreen.size() )
+				CMD_Goto_Screen(atoi(m_sInitialScreen.c_str()));
 			else
-			{
-				/*
-				if( m_sInitialScreen.size() )
-					GotoScreen( m_sInitialScreen );
-				else
-					GotoScreen( m_sMainMenu );
-				*/
-				DCE::SCREEN_Main SCREEN_Main_(m_dwPK_Device, m_dwPK_Device, 
-					StringUtils::ltos(m_pLocationInfo_Initial->iLocation));
-				string sResult;
-                CMD_Goto_Screen(SCREEN_Main_CONST, sResult, SCREEN_Main_.m_pMessage);
-			}
-
-			m_pLocationInfo = m_pLocationInfo_Initial;
-			m_dwPK_Users = m_dwPK_Users_Default;
+				GotoMainMenu();
 
 			char *pData=NULL; int iSize=0;
 			DCE::CMD_Orbiter_Registered CMD_Orbiter_Registered( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, "1",
@@ -4187,7 +4177,7 @@ bool Orbiter::GotActivity(  )
 		if( m_pDesignObj_Orbiter_ScreenSaveMenu && m_pScreenHistory_Current->m_pObj == m_pDesignObj_Orbiter_ScreenSaveMenu )
 		{
 			CMD_Set_Main_Menu("N");
-			CMD_Go_back("","1");
+			GotoMainMenu();
 		}
 #ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS,"Ignoring click because screen saver was active");
@@ -9555,3 +9545,11 @@ bool Orbiter::ExecuteScreenHandlerCallback(CallBackType aCallBackType)
 	return false; 
 }
 //-----------------------------------------------------------------------------------------------------
+
+void Orbiter::GotoMainMenu() 
+{
+	DCE::SCREEN_Main SCREEN_Main_(m_dwPK_Device, m_dwPK_Device, 
+		StringUtils::ltos(m_pLocationInfo->iLocation));
+	string sResult;
+	CMD_Goto_Screen(SCREEN_Main_CONST, sResult, SCREEN_Main_.m_pMessage);
+}

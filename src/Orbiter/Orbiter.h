@@ -961,6 +961,8 @@ public:
 	// Report our current EntArea/Room to orbiter plugin
 	void FireEntAreaRoomCommands();
 
+	void GotoMainMenu();
+    
 	// Plugins
 	void LoadPlugins();
 	ScreenHandler *PlugIn_Load(string sCommandLine);
@@ -1013,7 +1015,6 @@ public:
 	void DATA_Set_ImageQuality(int Value);
 	bool DATA_Get_Leave_Monitor_on_for_OSD();
 	string DATA_Get_Ignore_State();
-	int DATA_Get_PK_DesignObj();
 	bool DATA_Get_Dont_Auto_Jump_to_Remote();
 	int DATA_Get_ScreenWidth();
 	int DATA_Get_ScreenHeight();
@@ -1023,6 +1024,7 @@ public:
 	int DATA_Get_Using_Infrared();
 	string DATA_Get_Remote_Phone_IP();
 	int DATA_Get_Listen_Port();
+	string DATA_Get_PK_Screen();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position);

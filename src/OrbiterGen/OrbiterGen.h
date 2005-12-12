@@ -18,6 +18,7 @@ public:
 	class Row_Device * m_pRow_Device;
 	class Row_Room * m_pRow_Room;
 	class Row_EntertainArea * m_pRow_EntertainArea;
+	class Row_Screen *m_pRow_Screen_MainMenu,*m_pRow_Screen_Sleeping,*m_pRow_Screen_ScreenSaver;
 	class Row_DesignObj *m_pRow_DesignObj_MainMenu,*m_pRow_DesignObj_Sleeping,*m_pRow_DesignObj_ScreenSaver;
 	class Row_Skin *m_pRow_Skin;
 	class Row_Language *m_pRow_Language;
@@ -91,6 +92,7 @@ public:
     ~OrbiterGenerator() {}
 	int DoIt();
 	Row_DesignObj *GetDesignObjFromScreen(int PK_Screen);
+	Row_DesignObj *GetDesignObjFromScreen(Row_Screen *pRow_Screen);
 
 private:
 	map<int,string> htDevicePages;

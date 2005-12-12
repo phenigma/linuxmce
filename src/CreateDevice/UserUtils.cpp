@@ -13,8 +13,8 @@ UserUtils::UserUtils(MySqlHelper *pMySqlHelper, int PK_Installation)
 
 bool UserUtils::AlreadyHasUsers()
 {
-	string sSQL = "SELECT count(PK_Users) FROM Users JOIN Installation_Users ON FK_Users=PK_Users WHERE FK_Installation="
-		+ StringUtils::itos(m_PK_Installation);
+	string sSQL = "SELECT PK_Users FROM Users JOIN Installation_Users ON FK_Users=PK_Users WHERE FK_Installation="
+		+ StringUtils::itos(m_PK_Installation) + " LIMIT 1";
 
 	PlutoSqlResult result_set_room;
 	if( (result_set_room.r=m_pMySqlHelper->mysql_query_result(sSQL)) && result_set_room.r->row_count )
@@ -69,13 +69,29 @@ void UserUtils::CheckExtensions(  )
 
 int UserUtils::AddUser(string sUsername)
 {
-	bool bExistingUsers=AlreadyHasUsers;
-	string sSQL = "INSERT INTO Users(UserName) VALUES('" + StringUtils::SQLEscape(sUsername) + "');";
+	bool bExistingUsers=AlreadyHasUsers();
+	string sSQL;
+	
+	MYSQL_ROW row;
+	string sOriginalUsername=sUsername;
+	// Be sure the username is unique, up to 99 users of the same name should be more than enough
+	for(int i=1;i<99;++i)
+	{
+		if( i>1 )
+			sUsername = sOriginalUsername + "_" + StringUtils::itos(i);
+			
+		sSQL = "SELECT count(PK_Users) from Users WHERE UserName='" + StringUtils::SQLEscape(sUsername) + "';";
+		PlutoSqlResult result_set;
+		if( (result_set.r=m_pMySqlHelper->mysql_query_result(sSQL))==NULL || 
+			(row = mysql_fetch_row(result_set.r))==NULL || atoi(row[0])==0 )
+				break;  // This username is unique
+	}
+	sSQL = "INSERT INTO Users(UserName) VALUES('" + StringUtils::SQLEscape(sUsername) + "');";
 
 	int PK_Users = m_pMySqlHelper->threaded_mysql_query_withID(sSQL);
 	sSQL = "INSERT INTO Installation_Users(FK_Installation,FK_Users,userCanModifyInstallation,userCanChangeHouseMode) "
 		"VALUES(" + StringUtils::itos(m_PK_Installation) + "," + StringUtils::itos(PK_Users) + 
-		(bExistingUsers ? "0,0)" : "1,1)");
+		(bExistingUsers ? ",0,0)" : ",1,1)");
 
 	m_pMySqlHelper->threaded_mysql_query(sSQL);
 

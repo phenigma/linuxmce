@@ -90,7 +90,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	//	WSADATA wsaData;
 	//	err = WSAStartup(MAKEWORD( 1, 1 ),(LPWSADATA)  &wsaData);
-	g_pPlutoLogger=new FileLogger("/temp/orbiter.newlog");
+	g_pPlutoLogger=new FileLogger("/temp/orbitergen.newlog");
 #else
 int main(int argc, char *argv[])
 {
@@ -302,7 +302,9 @@ int OrbiterGenerator::DoIt()
 		if( tNow-tModDate < 120 )  // There's recent activity within the last 2 minutes, so skip it
 		{
 			cout << "skipping" << endl;
-// 			exit(0);
+#ifndef WIN32
+ 			exit(0);
+#endif
 		}
 	}
 
@@ -375,22 +377,19 @@ int OrbiterGenerator::DoIt()
 
 	PopulateScreenMap(&mds, m_mapDesignObj, m_pRow_UI, m_pRow_Skin, m_pRow_Device);
 
-	m_pRow_DesignObj_MainMenu = NULL;
-	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_DesignObj_CONST);
+	m_pRow_Screen_MainMenu = NULL;
+	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_Screen_CONST);
 
 	if( pRow_Device_DeviceData )
-		m_pRow_DesignObj_MainMenu = mds.DesignObj_get()->GetRow(atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) );
+		m_pRow_Screen_MainMenu = mds.Screen_get()->GetRow(atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) );
 
-	if( !m_pRow_DesignObj_MainMenu )
-		m_pRow_DesignObj_MainMenu = GetDesignObjFromScreen(m_pRow_Skin->FK_Screen_MainMenu_get());
+	if( !m_pRow_Screen_MainMenu )
+		m_pRow_Screen_MainMenu = m_pRow_Skin->FK_Screen_MainMenu_getrow();
 
-	if( !m_pRow_DesignObj_MainMenu )
-		m_pRow_DesignObj_MainMenu = GetDesignObjFromScreen(SCREEN_Main_CONST);
+	if( !m_pRow_Screen_MainMenu )
+		m_pRow_Screen_MainMenu = mds.Screen_get()->GetRow(SCREEN_Main_CONST);
 
-	if( !m_pRow_DesignObj_MainMenu )
-		m_pRow_DesignObj_MainMenu = mds.DesignObj_get()->GetRow(DESIGNOBJ_mnuMain_CONST);
-
-	if( !m_pRow_DesignObj_MainMenu )
+	if( !m_pRow_Screen_MainMenu )
 	{
 		cerr << "Cannot find Orbiter's Main Menu: " << endl;
 		cout << "Setting RegenInProgress_set 3 to false for " << m_pRow_Orbiter->PK_Orbiter_get() << endl;
@@ -399,21 +398,25 @@ int OrbiterGenerator::DoIt()
 		exit(1);
 	}
 
-	m_pRow_DesignObj_Sleeping = GetDesignObjFromScreen(m_pRow_Skin->FK_Screen_Sleeping_get());
+	m_pRow_Screen_Sleeping = m_pRow_Skin->FK_Screen_Sleeping_getrow();
 
-	if( !m_pRow_DesignObj_Sleeping )
-		m_pRow_DesignObj_Sleeping = GetDesignObjFromScreen(SCREEN_Sleeping_CONST);
+	if( !m_pRow_Screen_Sleeping )
+		m_pRow_Screen_Sleeping = mds.Screen_get()->GetRow(SCREEN_Sleeping_CONST);
 
-	if( !m_pRow_DesignObj_Sleeping )
-		m_pRow_DesignObj_Sleeping = m_pRow_DesignObj_MainMenu;
+	if( !m_pRow_Screen_Sleeping )
+		m_pRow_Screen_Sleeping = m_pRow_Screen_MainMenu;
 
-	m_pRow_DesignObj_ScreenSaver = GetDesignObjFromScreen(m_pRow_Skin->FK_Screen_ScreenSaver_get());
+	m_pRow_Screen_ScreenSaver = m_pRow_Skin->FK_Screen_ScreenSaver_getrow();
 
-	if( !m_pRow_DesignObj_ScreenSaver )
-		m_pRow_DesignObj_ScreenSaver = mds.DesignObj_get()->GetRow(DESIGNOBJ_mnuScreenSaver_CONST);
+	if( !m_pRow_Screen_ScreenSaver )
+		m_pRow_Screen_ScreenSaver = mds.Screen_get()->GetRow(SCREEN_ScreenSaver_CONST);
 
-	if( !m_pRow_DesignObj_ScreenSaver )
-		m_pRow_DesignObj_ScreenSaver = m_pRow_DesignObj_MainMenu;
+	if( !m_pRow_Screen_ScreenSaver )
+		m_pRow_Screen_ScreenSaver = m_pRow_Screen_MainMenu;
+
+	m_pRow_DesignObj_MainMenu = GetDesignObjFromScreen(m_pRow_Screen_MainMenu);
+	m_pRow_DesignObj_Sleeping = GetDesignObjFromScreen(m_pRow_Screen_Sleeping);
+	m_pRow_DesignObj_ScreenSaver = GetDesignObjFromScreen(m_pRow_Screen_ScreenSaver);
 
 	// Get the language
 	m_pRow_Language = NULL;
@@ -640,7 +643,7 @@ m_bNoEffects = true;
 
 	// m_sizeScreen is the unscaled resolution
 	m_sizeScreen = new PlutoSize(m_pRow_Size->Width_get() * 1000 / m_pRow_Size->ScaleX_get(),m_pRow_Size->Height_get() * 1000 / m_pRow_Size->ScaleY_get());
-	m_iPK_DesignObj_Screen = m_pRow_DesignObj_MainMenu->PK_DesignObj_get();
+	m_iPK_DesignObj_Screen = GetDesignObjFromScreen(m_pRow_Screen_MainMenu)->PK_DesignObj_get();
 
 	int i=0;
 
@@ -893,9 +896,9 @@ m_bNoEffects = true;
 		m_dequeLocation.push_back(li);					
 	}
 
-	m_sScreenSaveMenu = StringUtils::itos(m_pRow_DesignObj_ScreenSaver->PK_DesignObj_get()) + ".0.0";
-	if( m_pRow_DesignObj_ScreenSaver!=m_pRow_DesignObj_MainMenu )
-		DesignObj_Generator *ocDesignObj3 = new DesignObj_Generator(this,m_pRow_DesignObj_ScreenSaver,PlutoRectangle(0,0,0,0),NULL,true,false);
+	m_sScreenSaveMenu = StringUtils::itos( GetDesignObjFromScreen(m_pRow_Screen_ScreenSaver)->PK_DesignObj_get()) + ".0.0";
+	if( m_pRow_Screen_ScreenSaver!=m_pRow_Screen_MainMenu )
+		DesignObj_Generator *ocDesignObj3 = new DesignObj_Generator(this,GetDesignObjFromScreen(m_pRow_Screen_ScreenSaver),PlutoRectangle(0,0,0,0),NULL,true,false);
 
 	m_iLocation_Initial=0;
 	DequeLocationInfo::iterator itd;
@@ -905,8 +908,8 @@ m_bNoEffects = true;
 		if( (pRow_EntertainArea_Default && li->PK_EntertainArea==pRow_EntertainArea_Default->PK_EntertainArea_get()) ||
 			(!pRow_EntertainArea_Default && li->PK_Room==m_pRow_Device->FK_Room_get()) || m_dequeLocation.size()==1 )
 		{
-			m_sMainMenu = StringUtils::itos(m_pRow_DesignObj_MainMenu->PK_DesignObj_get()) + "." + StringUtils::itos(li->iLocation) + ".0";
-			m_sSleepingMenu = StringUtils::itos(m_pRow_DesignObj_Sleeping->PK_DesignObj_get()) + "." + StringUtils::itos(li->iLocation) + ".0";
+			m_sMainMenu = StringUtils::itos( GetDesignObjFromScreen(m_pRow_Screen_MainMenu)->PK_DesignObj_get()) + "." + StringUtils::itos(li->iLocation) + ".0";
+			m_sSleepingMenu = StringUtils::itos( GetDesignObjFromScreen(m_pRow_Screen_Sleeping)->PK_DesignObj_get()) + "." + StringUtils::itos(li->iLocation) + ".0";
 			m_iLocation_Initial = li->iLocation;
 		}
 
@@ -915,9 +918,9 @@ m_bNoEffects = true;
 		m_pRegenMonitor->SetRoom(m_pRow_Room);
 		m_pRegenMonitor->SetEntArea(m_pRow_EntertainArea);
 		m_iLocation = li->iLocation;
-		DesignObj_Generator *ocDesignObj = new DesignObj_Generator(this,m_pRow_DesignObj_MainMenu,PlutoRectangle(0,0,0,0),NULL,true,false);
-		if( m_pRow_DesignObj_Sleeping!=m_pRow_DesignObj_MainMenu )
-			DesignObj_Generator *ocDesignObj2 = new DesignObj_Generator(this,m_pRow_DesignObj_Sleeping,PlutoRectangle(0,0,0,0),NULL,true,false);
+		DesignObj_Generator *ocDesignObj = new DesignObj_Generator(this,GetDesignObjFromScreen(m_pRow_Screen_MainMenu),PlutoRectangle(0,0,0,0),NULL,true,false);
+		if( m_pRow_Screen_Sleeping!=m_pRow_Screen_MainMenu )
+			DesignObj_Generator *ocDesignObj2 = new DesignObj_Generator(this,GetDesignObjFromScreen(m_pRow_Screen_Sleeping),PlutoRectangle(0,0,0,0),NULL,true,false);
 	}
 
 	if( m_sMainMenu=="" )
@@ -926,9 +929,9 @@ m_bNoEffects = true;
 				<< "Using the first entry as the main menu." << endl;
 		
 		LocationInfo *li = m_dequeLocation.front();
-		m_sMainMenu = StringUtils::itos(m_pRow_DesignObj_MainMenu->PK_DesignObj_get()) + "." + StringUtils::itos(li->iLocation) + ".0";
-		m_sSleepingMenu = StringUtils::itos(m_pRow_DesignObj_Sleeping->PK_DesignObj_get()) + "." + StringUtils::itos(li->iLocation) + ".0";
-		m_sScreenSaveMenu = StringUtils::itos(m_pRow_DesignObj_ScreenSaver->PK_DesignObj_get()) + "." + StringUtils::itos(li->iLocation) + ".0";
+		m_sMainMenu = StringUtils::itos(GetDesignObjFromScreen(m_pRow_Screen_MainMenu)->PK_DesignObj_get()) + "." + StringUtils::itos(li->iLocation) + ".0";
+		m_sSleepingMenu = StringUtils::itos(GetDesignObjFromScreen(m_pRow_Screen_Sleeping)->PK_DesignObj_get()) + "." + StringUtils::itos(li->iLocation) + ".0";
+		m_sScreenSaveMenu = StringUtils::itos(GetDesignObjFromScreen(m_pRow_Screen_ScreenSaver)->PK_DesignObj_get()) + "." + StringUtils::itos(li->iLocation) + ".0";
 		m_iLocation_Initial = li->iLocation;
 	}
 
@@ -1228,7 +1231,7 @@ int k=2;
 	if( bNewOrbiter && m_pRow_Device->FK_DeviceTemplate_get()==DEVICETEMPLATE_OnScreen_Orbiter_CONST )
 	{
 		cout << "First time generating this orbiter" << endl;
-		Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(DESIGNOBJ_mnuFirstTime_CONST);
+		Row_DesignObj *drNewDesignObj = GetDesignObjFromScreen(SCREEN_FirstTime_CONST);
 		if( !drNewDesignObj )
 			cerr << "Cannot find 'first time' menu" << endl;
 		else
@@ -1236,7 +1239,7 @@ int k=2;
 if( drNewDesignObj->PK_DesignObj_get()==4438 )
 int k=2;
 			alNewDesignObjsToGenerate.push_back(drNewDesignObj);
-			m_sInitialScreen=StringUtils::itos(DESIGNOBJ_mnuFirstTime_CONST);
+			m_sInitialScreen=StringUtils::itos(SCREEN_FirstTime_CONST);
 		}
 	}
 
@@ -2307,4 +2310,9 @@ Row_DesignObj *OrbiterGenerator::GetDesignObjFromScreen(int PK_Screen)
 		return NULL;
 
 	return mds.DesignObj_get()->GetRow(it->second);
+}
+
+Row_DesignObj *OrbiterGenerator::GetDesignObjFromScreen(Row_Screen *pRow_Screen)
+{
+	return GetDesignObjFromScreen(pRow_Screen->PK_Screen_get());
 }

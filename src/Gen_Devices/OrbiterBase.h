@@ -56,7 +56,6 @@ public:
 	void Set_ImageQuality(int Value) { SetParm(75,StringUtils::itos(Value).c_str()); }
 	bool Get_Leave_Monitor_on_for_OSD() { return (m_mapParameters[84]=="1" ? true : false);}
 	string Get_Ignore_State() { return m_mapParameters[87];}
-	int Get_PK_DesignObj() { return atoi(m_mapParameters[91].c_str());}
 	bool Get_Dont_Auto_Jump_to_Remote() { return (m_mapParameters[95]=="1" ? true : false);}
 	int Get_ScreenWidth() { return atoi(m_mapParameters[100].c_str());}
 	int Get_ScreenHeight() { return atoi(m_mapParameters[101].c_str());}
@@ -66,6 +65,7 @@ public:
 	int Get_Using_Infrared() { return atoi(m_mapParameters[111].c_str());}
 	string Get_Remote_Phone_IP() { return m_mapParameters[118];}
 	int Get_Listen_Port() { return atoi(m_mapParameters[119].c_str());}
+	string Get_PK_Screen() { return m_mapParameters[132];}
 };
 
 
@@ -177,7 +177,6 @@ public:
 	void DATA_Set_ImageQuality(int Value,bool bUpdateDatabase=false) { GetData()->Set_ImageQuality(Value); if( bUpdateDatabase ) SetDeviceDataInDB(m_dwPK_Device,75,Value); }
 	bool DATA_Get_Leave_Monitor_on_for_OSD() { return GetData()->Get_Leave_Monitor_on_for_OSD(); }
 	string DATA_Get_Ignore_State() { return GetData()->Get_Ignore_State(); }
-	int DATA_Get_PK_DesignObj() { return GetData()->Get_PK_DesignObj(); }
 	bool DATA_Get_Dont_Auto_Jump_to_Remote() { return GetData()->Get_Dont_Auto_Jump_to_Remote(); }
 	int DATA_Get_ScreenWidth() { return GetData()->Get_ScreenWidth(); }
 	int DATA_Get_ScreenHeight() { return GetData()->Get_ScreenHeight(); }
@@ -187,6 +186,7 @@ public:
 	int DATA_Get_Using_Infrared() { return GetData()->Get_Using_Infrared(); }
 	string DATA_Get_Remote_Phone_IP() { return GetData()->Get_Remote_Phone_IP(); }
 	int DATA_Get_Listen_Port() { return GetData()->Get_Listen_Port(); }
+	string DATA_Get_PK_Screen() { return GetData()->Get_PK_Screen(); }
 	//Event accessors
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position) { GetEvents()->Touch_or_click(iX_Position,iY_Position); }
 	//Commands - Override these to handle commands from the server
