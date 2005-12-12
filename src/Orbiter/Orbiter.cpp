@@ -3190,8 +3190,10 @@ if( pObj->m_iPopulatedWidth<0 )
 {
 int k=2;
 }
+
+		string sParams = SubstituteVariables( pObj->m_sOptions, pObj, 0, 0 );
         DCE::CMD_Populate_Datagrid CMD_Populate_Datagrid( m_dwPK_Device,  m_dwPK_Device_DatagridPlugIn,  StringUtils::itos( m_dwIDataGridRequestCounter ), pObj->m_sGridID,
-            pObj->m_iPK_Datagrid, SubstituteVariables( pObj->m_sOptions, pObj, 0, 0 ), pObj->m_iPK_DeviceTemplate, &iPK_Variable, &sValue_To_Assign, &bResponse, &pObj->m_iPopulatedWidth, &pObj->m_iPopulatedHeight  );
+            pObj->m_iPK_Datagrid, sParams, pObj->m_iPK_DeviceTemplate, &iPK_Variable, &sValue_To_Assign, &bResponse, &pObj->m_iPopulatedWidth, &pObj->m_iPopulatedHeight  );
         if(  !SendCommand( CMD_Populate_Datagrid ) || !bResponse  ) // wait for a response
             g_pPlutoLogger->Write( LV_CRITICAL, "Populate datagrid: %d failed", pObj->m_iPK_Datagrid );
         else if(  iPK_Variable  )
@@ -4519,9 +4521,13 @@ if( iWidth<0 )
 int k=2;
 }
 
+				string sParams; 
+				if(pDesignObj_DataGrid_OnScreen)
+					sParams += SubstituteVariables( pDesignObj_DataGrid_OnScreen->m_sOptions, pObj, 0, 0 );
+				sParams += SubstituteVariables( pCommand->m_ParameterList[COMMANDPARAMETER_Options_CONST], pObj, 0, 0 );
 				DCE::CMD_Populate_Datagrid CMD_Populate_Datagrid( m_dwPK_Device,  m_dwPK_Device_DatagridPlugIn,  StringUtils::itos( m_dwIDataGridRequestCounter ),
                     GridID, atoi( pCommand->m_ParameterList[COMMANDPARAMETER_PK_DataGrid_CONST].c_str(  ) ),
-                    SubstituteVariables( pCommand->m_ParameterList[COMMANDPARAMETER_Options_CONST], pObj, 0, 0 ), 
+                    sParams, 
 					atoi( pCommand->m_ParameterList[COMMANDPARAMETER_PK_DeviceTemplate_CONST].c_str(  ) ), 
 					&iPK_Variable, &sValue_To_Assign, &bResponse, &iWidth, &iHeight );
                 if(  !SendCommand( CMD_Populate_Datagrid ) || !bResponse  ) // wait for a response
