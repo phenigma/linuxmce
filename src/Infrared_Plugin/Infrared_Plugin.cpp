@@ -416,11 +416,16 @@ class DataGridTable *Infrared_Plugin::Manufacturers(string GridID,string Parms,v
 	}
 
 	int PK_Manufacturer=0;
+	string sWhereCondition;
+	if(sPK_DeviceCategory != "" && atoi(sPK_DeviceCategory.c_str()) > 0)
+		sWhereCondition = "JOIN DeviceTemplate ON PK_Manufacturer = FK_Manufacturer "
+			"WHERE FK_DeviceCategory = " + sPK_DeviceCategory + " "
+			"ORDER BY Manufacturer.Description";
+	else
+		sWhereCondition = "1=1 ORDER BY Manufacturer.Description";
+
 	vector<Row_Manufacturer *> vectRow_Manufacturer;
-	m_pDatabase_pluto_main->Manufacturer_get()->GetRows(
-		"JOIN DeviceTemplate ON PK_Manufacturer = FK_Manufacturer "
-		"WHERE FK_DeviceCategory = " + sPK_DeviceCategory + " "
-		"ORDER BY Manufacturer.Description",&vectRow_Manufacturer);
+	m_pDatabase_pluto_main->Manufacturer_get()->GetRows(sWhereCondition, &vectRow_Manufacturer);
 	long PK_LastManufacturer = 0;
 	int nIndex = 0;
 	for(size_t s=0;s<vectRow_Manufacturer.size();++s)
