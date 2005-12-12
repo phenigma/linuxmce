@@ -134,8 +134,10 @@ bool Event_Plugin::GetConfig()
 			m_fLatitude = pRow_City->Latitude_get();
 		}
 	}
+
 	SetFirstSunriseSunset();
 	SetNextTimedEventCallback();
+
 	return true;
 }
 
@@ -440,6 +442,16 @@ void Event_Plugin::SetFirstSunriseSunset()
 		time_t tNow=time(NULL);
 		time_t tSunrise,tSunset,tSunriseTomorrow,tSunsetTomorrow;
 		GetSunriseSunset(tSunrise,tSunset,tSunriseTomorrow,tSunsetTomorrow,m_fLatitude,m_fLongitude);
+
+		//chris m. 12/12/05: asctime is crashing - don't have time to debug! :(
+		//probably, localtime returns NULL
+		tm *tmm = localtime(&tSunrise);
+		if(!tmm)
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "SetFirstSunriseSunset: localtime returned NULL"); 
+			return;
+		}
+
 		g_pPlutoLogger->Write(LV_STATUS,"tSunrise: %s",asctime(localtime(&tSunrise)));
 		g_pPlutoLogger->Write(LV_STATUS,"tSunset: %s",asctime(localtime(&tSunset)));
 		g_pPlutoLogger->Write(LV_STATUS,"tSunriseTomorrow: %s",asctime(localtime(&tSunriseTomorrow)));
