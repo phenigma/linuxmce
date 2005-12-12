@@ -61,7 +61,7 @@ function installationSettings($output,$dbADO) {
 		$mediaPluginDD=getDD($mediaPluginID,$GLOBALS['RipFormat'],$dbADO);
 		$selectedRipFormat=$mediaPluginDD[$GLOBALS['RipFormat']];
 	}else{
-		$selectedRipFormat='mp3';
+		$selectedRipFormat='mp3;128;cbr';
 	}
 	
 	$query = "
@@ -79,6 +79,22 @@ function installationSettings($output,$dbADO) {
 	
 	if ($action=='form') {		
 		$out.=setLeftMenu($dbADO).'
+		
+		<script>
+		function setOptions(){
+			show_mp3=(document.installationSettings.rip.value=="mp3")?"":"none";
+			show_ogg=(document.installationSettings.rip.value=="ogg")?"":"none";
+			show_flac=(document.installationSettings.rip.value=="flac")?"":"none";
+			show_wav=(document.installationSettings.rip.value=="wav")?"":"none";
+		
+			document.getElementById("mp3_opt").style.display=show_mp3;
+			document.getElementById("ogg_opt").style.display=show_ogg;
+			document.getElementById("flac_opt").style.display=show_flac;
+			document.getElementById("wav_opt").style.display=show_wav;
+		}
+		</script>
+		
+		
 		<form action="index.php" method="post" name="installationSettings">
 		<input type="hidden" name="section" value="installationSettings">
 		<input type="hidden" name="action" value="add">		
@@ -240,6 +256,7 @@ function installationSettings($output,$dbADO) {
 			}
 			
 		}
+
 		$out.='
 					</table>
 		
@@ -249,8 +266,11 @@ function installationSettings($output,$dbADO) {
 					<td colspan="2" align="center" bgcolor="lightblue"><B>Miscelaneous</B>:</td>
 				</tr>
 				<tr>
-					<td align="left" colspan="2"><B>Ripping format for cd\'s: </B>'.pulldownFromArray($ripFormats,'rip',$selectedRipFormat).'</td>
+					<td align="left" colspan="2"><B>Ripping format for cd\'s: </B>'.pulldownFromArray($ripFormats,'rip',substr($selectedRipFormat,0,strpos($selectedRipFormat,';')),'onChange="setOptions();"').'</td>
 				</tr>				
+				<tr>
+					<td align="left" colspan="2">'.rippingSettings($selectedRipFormat).'</td>
+				</tr>		
 				<tr>
 					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"  ></td>
 				</tr>
@@ -299,6 +319,17 @@ function installationSettings($output,$dbADO) {
 		}
 
 		$rip=$_POST['rip'];
+		switch ($rip){
+			case 'mp3':
+				$bit_rate=($_POST['bit_rate_user']!=0 && $_POST['bit_rate_user']>=96 && $_POST['bit_rate_user']<=320)?$_POST['bit_rate_user']:$_POST['bit_rate_predefined'];
+				$cbr_vbr=$_POST['cbr_vbr'];
+				$rip="$rip;$bit_rate;$cbr_vbr";
+			break;
+			case 'ogg':
+				$ql=$_POST['ogg_ql'];
+				$rip="$rip;$ql";
+			break;			
+		}		
 		if($mediaPluginID!==null){
 			$dbADO->Execute($updateDD,array($rip,$mediaPluginID,$GLOBALS['RipFormat']));
 		}else{
@@ -372,6 +403,52 @@ function getCitiesCoordsArray($dbADO,$filter='')
 	</script>
 	';
 
+	return $out;
+}
+
+// display options for each rip format
+function rippingSettings($selectedRipFormat){
+	$bitRateArray=array(96=>96,128=>128,192=>192,256=>256,320=>320);
+	$optarray=array();
+	for($i=1;$i<11;$i++){
+		$optarray[$i]=$i;
+	}	
+	
+	$parts=explode(';',$selectedRipFormat);
+	$ripFormat=$parts[0];
+	switch ($ripFormat){
+		case 'mp3':
+			$bit_rate=@$parts[1];
+			$cbr_vbr=@$parts[2];
+		break;
+		case 'ogg':
+			$ql=(isset($parts[1]) && $parts[1]>0 && $parts[1]<11)?$parts[1]:3;
+		break;
+		
+	}
+	$ql=(!isset($ql))?3:$ql;
+	
+	$out='
+	<table>
+		<tr>
+			<td><B>Settings</B></td>
+			<td><div id="mp3_opt" style="display:'.(($ripFormat=='mp3')?'':'none').';">
+				Bit rate: '.pulldownFromArray($bitRateArray,'bit_rate_predefined',@$bit_rate,'onchange="document.installationSettings.bit_rate_user.value=document.installationSettings.bit_rate_predefined.value;"','key','').' or type <input type="text" name="bit_rate_user" value="'.@$bit_rate.'"><br>
+				<input type="radio" name="cbr_vbr" value="cbr" '.((!isset($cbr_vbr) || @$cbr_vbr=='cbr')?'checked':'').'>CBR <input type="radio" name="cbr_vbr" value="vbr" '.((@$cbr_vbr=='vbr')?'checked':'').'> VBR
+			</div>
+			<div id="ogg_opt" style="display:'.(($ripFormat=='ogg')?'':'none').';">
+				Quality: '.pulldownFromArray($optarray,'ogg_ql',@$ql,'','key','').'
+			</div>	
+			<div id="flac_opt" style="display:'.(($ripFormat=='flac')?'':'none').';">
+				No options available.
+			</div>	
+			<div id="wav_opt" style="display:'.(($ripFormat=='wav')?'':'none').';">
+				No options available.
+			</div>	
+			</td>
+		</tr>
+	</table>';
+	
 	return $out;
 }
 ?>
