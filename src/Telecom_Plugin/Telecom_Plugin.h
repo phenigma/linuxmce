@@ -97,13 +97,17 @@ public:
 	virtual void CMD_PL_Originate(int iPK_Device,string sPhoneExtension,string sPhoneCallerID,string &sCMD_Result,Message *pMessage);
 
 
-	/** @brief COMMAND: #234 - PL_TransferConferenceDevice */
+	/** @brief COMMAND: #234 - PL_Transfer */
 	/** Transfers a call to other phone */
 		/** @param #2 PK_Device */
 			/** Device ID to transfer call to */
+		/** @param #17 PK_Users */
+			/** User ID to transfer call to */
+		/** @param #83 PhoneExtension */
+			/** Local Extension to transfer call to */
 
-	virtual void CMD_PL_TransferConferenceDevice(int iPK_Device) { string sCMD_Result; CMD_PL_TransferConferenceDevice(iPK_Device,sCMD_Result,NULL);};
-	virtual void CMD_PL_TransferConferenceDevice(int iPK_Device,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension) { string sCMD_Result; CMD_PL_Transfer(iPK_Device,iPK_Users,sPhoneExtension.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #236 - PL_Hangup */

@@ -402,7 +402,9 @@ Telecom_Plugin::ProcessRing(std::string sPhoneExtension, std::string sPhoneCalle
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "This should not happend, already have a call on device %d",phoneID);
+			pCallData->setID(sPhoneCallID);
+			pCallData->setState(CallData::STATE_NOTDEFINED);			
+			g_pPlutoLogger->Write(LV_WARNING, "This should not happend, already have a call on device %d in state %d",phoneID,pCallData->getState());
 			g_pPlutoLogger->Write(LV_WARNING, "However if this is a hardphone...this is probably possible");
 		}
 	}
@@ -528,34 +530,63 @@ void Telecom_Plugin::CMD_PL_Originate(int iPK_Device,string sPhoneExtension,stri
 
 //<-dceag-c234-b->
 
-	/** @brief COMMAND: #234 - PL_TransferConferenceDevice */
+	/** @brief COMMAND: #234 - PL_Transfer */
 	/** Transfers a call to other phone */
 		/** @param #2 PK_Device */
 			/** Device ID to transfer call to */
+		/** @param #17 PK_Users */
+			/** User ID to transfer call to */
+		/** @param #83 PhoneExtension */
+			/** Local Extension to transfer call to */
 
-void Telecom_Plugin::CMD_PL_TransferConferenceDevice(int iPK_Device,string &sCMD_Result,Message *pMessage)
+void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,string &sCMD_Result,Message *pMessage)
 //<-dceag-c234-e->
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Transfer command called with params: DeviceID=%d!", iPK_Device);
-	
-	/*search device by id*/
-	DeviceData_Router *pDeviceData = find_Device(iPK_Device);
-	if(!pDeviceData) {
-		g_pPlutoLogger->Write(LV_CRITICAL, "No device found with id: %d", iPK_Device);
-		return;
-    }
-	if(pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Orbiter_CONST)
+	g_pPlutoLogger->Write(LV_STATUS, "Transfer command called with params: DeviceID=%d UserID=%d Extension=%d", iPK_Device,iPK_Users,sPhoneExtension.c_str());
+	string sPhoneNumber;
+	if(iPK_Device != 0)
 	{
-    	pDeviceData = find_Device(map_orbiter2embedphone[iPK_Device]);
- 		if(!pDeviceData) {
+		/*search device by id*/
+		DeviceData_Router *pDeviceData = find_Device(iPK_Device);
+		if(!pDeviceData) {
 			g_pPlutoLogger->Write(LV_CRITICAL, "No device found with id: %d", iPK_Device);
+			return;
+	    }
+		if(pDeviceData->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Orbiter_CONST)
+		{
+	    	pDeviceData = find_Device(map_orbiter2embedphone[iPK_Device]);
+ 			if(!pDeviceData) {
+				g_pPlutoLogger->Write(LV_CRITICAL, "No device found with id: %d", iPK_Device);
+				return;
+			}
+		}
+		sPhoneNumber = pDeviceData->mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
+	}
+	if(iPK_Users != 0)
+	{
+		/*search user by id*/
+
+		class Row_Users* rowuser;
+		rowuser=m_pDatabase_pluto_main->Users_get()->GetRow(iPK_Users);
+		if(rowuser)
+		{
+			sPhoneNumber =  StringUtils::itos(rowuser->Extension_get());
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "No user found with id: %d", iPK_Users);
 			return;
 		}
 	}
-
-	/*find phonetype and phonenumber*/
-    string sPhoneType = pDeviceData->mapParameters_Find(DEVICEDATA_PhoneType_CONST);
-	string sPhoneNumber = pDeviceData->mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
+	if(sPhoneExtension != "")
+	{
+		sPhoneNumber=sPhoneExtension;
+	}
+	if(sPhoneNumber == "")
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "Nowhere to transfer !!!");
+		return;
+	}
 	
 	CallData *pCallData = CallManager::getInstance()->findCallByOwnerDevID(pMessage->m_dwPK_Device_From);
 	if(!pCallData) {
@@ -573,13 +604,9 @@ void Telecom_Plugin::CMD_PL_TransferConferenceDevice(int iPK_Device,string &sCMD
 		pCallData->setPendingCmdID(generate_NewCommandID());
 				
 		/*send transfer command to PBX*/
-		/* None of this works (yet) */
-//		CMD_PBX_Transfer cmd_PBX_Transfer(m_dwPK_Device, pPBXDevice->m_dwPK_Device, 
-//									"0" + sPhoneNumber, pCallData->getPendingCmdID(), pCallData->getID());
-//		CMD_PBX_Transfer cmd_PBX_Transfer(m_dwPK_Device, pPBXDevice->m_dwPK_Device, 
-//									"100", pCallData->getPendingCmdID(), pCallData->getID());
+		CMD_PBX_Transfer cmd_PBX_Transfer(m_dwPK_Device, pPBXDevice->m_dwPK_Device, sPhoneNumber, pCallData->getPendingCmdID(), pCallData->getID());
 									
-//		SendCommand(cmd_PBX_Transfer);
+		SendCommand(cmd_PBX_Transfer);
 	}
 }
 	
