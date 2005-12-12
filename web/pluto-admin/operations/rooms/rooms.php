@@ -51,7 +51,7 @@ $displayedRooms = array();
 			function confirmCheck(room,label){
 				eval('isChecked=document.rooms.manually_'+room+'.checked');
 				if(isChecked===true){
-					if(confirm('Are you sure you want to mannualy configure the entertain area(s) for room '+label+'?')){
+					if(confirm('Are you sure you want to manualy configure the entertain area(s) for room '+label+'?')){
 						setMan=1;
 					}else{
 						setMan=-1;
@@ -101,7 +101,7 @@ $displayedRooms = array();
 				';
 			$displayedRooms[]=$rowRoom['PK_Room'];
 			$out.='<td bgcolor="#DADDE4">';
-			$out.='<input type="checkbox" name="manually_'.$rowRoom['PK_Room'].'" value="1" '.(($rowRoom['ManuallyConfigureEA']==1)?'checked':'').' onclick="confirmCheck('.$rowRoom['PK_Room'].',\''.addslashes($rowRoom['Description']).'\');//self.location=\'index.php?section=rooms&action=edit&manID='.$rowRoom['PK_Room'].'&val='.(($rowRoom['ManuallyConfigureEA']==1)?'0':'1').'\'"> Mannually configure.<br>';
+			$out.='<input type="checkbox" name="manually_'.$rowRoom['PK_Room'].'" value="1" '.(($rowRoom['ManuallyConfigureEA']==1)?'checked':'').' onclick="confirmCheck('.$rowRoom['PK_Room'].',\''.addslashes($rowRoom['Description']).'\');//self.location=\'index.php?section=rooms&action=edit&manID='.$rowRoom['PK_Room'].'&val='.(($rowRoom['ManuallyConfigureEA']==1)?'0':'1').'\'"> Manually configure.<br>';
 			if($rowRoom['ManuallyConfigureEA']==1){
 				$queryEntertain='SELECT * FROM EntertainArea WHERE FK_Room=?';
 				$resEntertain=$dbADO->Execute($queryEntertain,$rowRoom['PK_Room']);
