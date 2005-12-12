@@ -1317,12 +1317,41 @@ void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,strin
 			}
 		}
 	}
-	// TODO: CreateDevice with data collected above
-	// TODO: extra parameters: -M MAC_Address, -R Relative_To (= device number of 1st entry for 2nd+ entries), -D DeviceData DeviceDataValue
 
 	CreateDevice createDevice(m_pRouter->iPK_Installation_get(),m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get());
-	int PK_Device = createDevice.DoIt(iPK_DHCPDevice,0,sIP_Address,sMac_address);
-	g_pPlutoLogger->Write(LV_STATUS,"Created PNP device %d from mac %s",PK_Device,sMac_address.c_str());
+	int PK_Device;
+	if (iPK_DHCPDevice < 0)
+	{
+		int iPK_Device_Related = 0;
+		for (size_t i = 0; i < vectWeb_DeviceData.size(); i++)
+		{
+			Web_DeviceData &WDD = vectWeb_DeviceData[i];
+
+			// TODO: add default DeviceData to CreateDevice
+			//       the default DeviceData comes as a map<int, string> named WDD.m_mapDeviceData
+			//       first = DeviceData number, second = DeviceData contents
+			// TODO: add "related to device" parameter
+			//       stored in iPK_Device_Related
+			PK_Device = createDevice.DoIt(0, WDD.m_iPK_DeviceTemplate, (i == 0) ? sIP_Address : "", WDD.m_sMacAddress);
+			
+			if (i == 0) // 1st device is our PNP device, and all the others will be related to it
+			{
+				g_pPlutoLogger->Write(LV_STATUS, "Created PNP device %d from MAC %s", PK_Device, sMac_address.c_str());
+				iPK_Device_Related = PK_Device;
+			}
+			else
+			{
+				g_pPlutoLogger->Write(LV_STATUS, "Created device %d, related to PNP device %d", PK_Device, iPK_Device_Related);
+			}
+		}
+		PK_Device = iPK_Device_Related; // for the Orbiter to display when it asks the user to select a room
+		// TODO: maybe the Orbiter should be told about all the devices? it sets the room only to the one it displays
+	}
+	else
+	{
+		PK_Device = createDevice.DoIt(iPK_DHCPDevice, 0, sIP_Address, sMac_address);
+		g_pPlutoLogger->Write(LV_STATUS, "Created PNP device %d from mac %s", PK_Device, sMac_address.c_str());
+	}
 
 // Temporary debugging code since somehow the mac address sometimes got deleted
 Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(PK_Device);
