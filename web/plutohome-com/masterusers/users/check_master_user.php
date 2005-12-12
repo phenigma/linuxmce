@@ -50,6 +50,8 @@ function check_master_user($conn){
 			$out.="&Password=".$res->Password;			
 		if(isset($_POST['Email']))
 			$out.="&Email=".$res->Email;
+		if(isset($_POST['sqlCvsAdmin']))
+			$out.="&sqlCvsAdmin=".$res->sqlCvsAdmin;			
 	}
 	echo $out;	
 }
