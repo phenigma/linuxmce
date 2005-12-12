@@ -218,7 +218,7 @@
 #define COMMAND_Load_Playlist_CONST 231
 #define COMMAND_PL_Originate_CONST 232
 #define COMMAND_PBX_Originate_CONST 233
-#define COMMAND_PL_TransferConferenceDevice_CONST 234
+#define COMMAND_PL_Transfer_CONST 234
 #define COMMAND_PBX_Transfer_CONST 235
 #define COMMAND_PL_Hangup_CONST 236
 #define COMMAND_PBX_Hangup_CONST 237

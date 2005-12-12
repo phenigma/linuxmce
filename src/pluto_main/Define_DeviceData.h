@@ -113,6 +113,7 @@
 #define DEVICEDATA_Mount_Point_CONST 129
 #define DEVICEDATA_Use_Pluto_Directory_Structure_CONST 130
 #define DEVICEDATA_AutoDiscovery_Script_CONST 131
+#define DEVICEDATA_PK_Screen_CONST 132
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"

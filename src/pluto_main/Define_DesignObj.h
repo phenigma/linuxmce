@@ -1844,6 +1844,7 @@
 #define DESIGNOBJ_dgTvSourcesExternalBox_CONST 4712
 #define DESIGNOBJ_dgLightType_CONST 4713
 #define DESIGNOBJ_sensorsapplet_CONST 4714
+#define DESIGNOBJ_dgReceiverInputs_CONST 4715
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
