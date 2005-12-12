@@ -114,7 +114,8 @@ if($action=='form'){
 						<td align="right"><input type="button" name="preview" value="Preview" onClick="document.documentDisplay.action.value=\'preview\';updateRTEs();document.documentDisplay.submit();"></td>
 					</tr>
 				</table>
-		</form>		
+		</form>	
+		<em>If you want to include a picture or diagram you should include the link as HTML within the document, and e-mail the graphic to <a href="mailto:support@plutohome.com">support@plutohome.com</a>, with an explanation of what document it belongs to.</em>	
 		';
 		if(isset($_SESSION['docTitle'])){
 			unset($_SESSION['docTitle']);
@@ -127,7 +128,7 @@ if($action=='form'){
 	}
 }elseif($action=='preview'){
 	$_SESSION['docTitle']=cleanString($_POST['Title']);
-	$_SESSION['docContents']=$_POST['Contents'];
+	$_SESSION['docContents']=stripslashes($_POST['Contents']);
 	$_SESSION['docOrder']=cleanInteger($_POST['docOrder']);
 	$_SESSION['parentID']=cleanInteger($_POST['parentID']);
 

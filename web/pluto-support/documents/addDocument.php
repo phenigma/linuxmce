@@ -61,7 +61,8 @@ if($action=='form'){
 					<td align="right"><input type="button" name="preview" value="Preview" onClick="document.addDocument.action.value=\'preview\';updateRTEs();document.addDocument.submit();"></td>
 				</tr>
 			</table>
-		</form>		
+		</form>
+		<em>If you want to include a picture or diagram you should include the link as HTML within the document, and e-mail the graphic to <a href="mailto:support@plutohome.com">support@plutohome.com</a>, with an explanation of what document it belongs to.</em>
 		';
 	if(isset($_SESSION['docTitle'])){
 		unset($_SESSION['docTitle']);
