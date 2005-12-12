@@ -39,7 +39,7 @@ using namespace DCE;
 
 int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddress,string sMacAddress,int PK_Device_ControlledVia)
 {
-	cerr << "CreateDevice::DoIt called with: IPK_DHCPDevice=" << iPK_DHCPDevice << "; iPK_DeviceTemplate=" << iPK_DeviceTemplate
+	cerr << "CreateDevice::DoIt called with: iPK_DHCPDevice=" << iPK_DHCPDevice << "; iPK_DeviceTemplate=" << iPK_DeviceTemplate
 		<< "; sIPAddress=" << sIPAddress << "; sMacAddress=" << sMacAddress << "; PK_Device_ControlledVia=" << PK_Device_ControlledVia << endl;
 	if( !m_bConnected )
 	{
