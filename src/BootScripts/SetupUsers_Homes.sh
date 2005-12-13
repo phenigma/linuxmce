@@ -10,6 +10,7 @@ BaseDir="/home"
 MakeUsers=yes
 while [[ "$#" -gt 0 ]]; do
 	case "$1" in
+		-e) ExtraDir="$2"; ExtraLink="$3"; shift; shift ;;
 		-b) BaseDir="$2"; shift ;;
 		-n) MakeUsers="no" ;;
 	esac
@@ -34,7 +35,10 @@ LinuxUserID=10000
 DefaultSambaPassword=609FCABC7B0F9AEAAAD3B435B51404EE:DDFF3B733E17BE6500375694FE258864
 DefaultLinuxPassword=
 
-user_dirs="data data/movies data/pictures data/music data/documents data/videos"
+global_static_dirs="public temp_pvr mydvd cameras tv_listing"
+user_dirs="movies pictures music documents videos"
+user_static_dirs="data"
+
 UserList=
 
 for Users in $R; do
@@ -76,9 +80,20 @@ for Users in $R; do
 	fi
 
 	mkdir -p -m 0770 "$BaseDir/user_$PlutoUserID"
-	for dir in $user_dirs; do
+
+	for dir in $user_static_dirs; do
 		mkdir -p -m 0770 "$BaseDir/user_$PlutoUserID/${dir/~/ }"
 	done
+	
+	for dir in $user_dirs; do
+		mkdir -p -m 0770 "$BaseDir/user_$PlutoUserID/data/${dir/~/ }"
+		if [[ -n "$ExtraDir" ]]; then
+			Target="$ExtraDir/user_$PlutoUserID/data/${dir/~/ }/NAS_$ExtraLink"
+			rm "$Target" &>/dev/null
+			ln -sf "$BaseDir/user_$PlutoUserID/data/${dir/~/ }" "$Target"
+		fi
+	done
+
 	rm -f "$BaseDir/$UserName"
 	ln -sf "user_$PlutoUserID" "$BaseDir/$UserName"
 	UserList="$UserList $UserName"
@@ -88,9 +103,21 @@ for Users in $R; do
 	((LinuxUserID++))
 done
 
-static_dirs="public public/data public/data/movies public/data/pictures public/data/music public/data/documents temp_pvr mydvd cameras public/data/videos tv_listing"
-for dir in $static_dirs; do
+for dir in $global_static_dirs; do
 	mkdir -p -m 0755 "$BaseDir/${dir/~/ }"
+done
+
+for dir in $user_static_dirs; do
+	mkdir -p -m 0755 "$BaseDir/public/${dir/~/ }"
+done
+
+for dir in $user_dirs; do
+	mkdir -p -m 0755 "$BaseDir/public/data/${dir/~/ }"
+	if [[ -n "$ExtraDir" ]]; then
+		Target="$ExtraDir/public/data/${dir/~/ }/NAS_$ExtraLink"
+		rm "$Target" &>/dev/null
+		ln -sf "$BaseDir/public/data/${dir/~/ }" "$Target"
+	fi
 done
 
 # Get a list of all Media Directors
