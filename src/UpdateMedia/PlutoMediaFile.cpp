@@ -330,7 +330,7 @@ int PlutoMediaFile::GetPicAttribute(int PK_File)
         " ORDER BY `PicPriority`",&vectPicture_Attribute);
 
 	g_pPlutoLogger->Write(LV_STATUS, "Found %d pics for attribute", (int) vectPicture_Attribute.size());
-    if( vectPicture_Attribute.size() )
+    if( vectPicture_Attribute.size() && vectPicture_File.size())
     {
 		long PK_Picture = vectPicture_File[0]->FK_Picture_get();
 		Row_Picture *pRow_Picture = m_pDatabase_pluto_media->Picture_get()->GetRow(PK_Picture);
