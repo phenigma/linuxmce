@@ -11823,19 +11823,35 @@ namespace DCE
 	};
 	class CMD_SetDateTime : public PreformedCommand {
 	public:
-		CMD_SetDateTime(long DeviceIDFrom, long DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,750,0); }
+		CMD_SetDateTime(long DeviceIDFrom, long DeviceIDTo,string sTime,string sData) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,750,2,102,sTime.c_str(),109,sData.c_str()); }
 	};
 	class CMD_SetDateTime_DL : public PreformedCommand {
 	public:
-		CMD_SetDateTime_DL(long DeviceIDFrom, string DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,750,0); }
+		CMD_SetDateTime_DL(long DeviceIDFrom, string DeviceIDTo,string sTime,string sData) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,750,2,102,sTime.c_str(),109,sData.c_str()); }
 	};
 	class CMD_SetDateTime_DT : public PreformedCommand {
 	public:
-		CMD_SetDateTime_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,750,0); }
+		CMD_SetDateTime_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sTime,string sData) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,750,2,102,sTime.c_str(),109,sData.c_str()); }
 	};
 	class CMD_SetDateTime_Cat : public PreformedCommand {
 	public:
-		CMD_SetDateTime_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,750,0); }
+		CMD_SetDateTime_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sTime,string sData) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,750,2,102,sTime.c_str(),109,sData.c_str()); }
+	};
+	class CMD_PL_Add_VOIP_Account : public PreformedCommand {
+	public:
+		CMD_PL_Add_VOIP_Account(long DeviceIDFrom, long DeviceIDTo,string sName,string sPhoneNumber,string sPassword,string sUsers) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,751,4,50,sName.c_str(),75,sPhoneNumber.c_str(),99,sPassword.c_str(),189,sUsers.c_str()); }
+	};
+	class CMD_PL_Add_VOIP_Account_DL : public PreformedCommand {
+	public:
+		CMD_PL_Add_VOIP_Account_DL(long DeviceIDFrom, string DeviceIDTo,string sName,string sPhoneNumber,string sPassword,string sUsers) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,751,4,50,sName.c_str(),75,sPhoneNumber.c_str(),99,sPassword.c_str(),189,sUsers.c_str()); }
+	};
+	class CMD_PL_Add_VOIP_Account_DT : public PreformedCommand {
+	public:
+		CMD_PL_Add_VOIP_Account_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sName,string sPhoneNumber,string sPassword,string sUsers) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,751,4,50,sName.c_str(),75,sPhoneNumber.c_str(),99,sPassword.c_str(),189,sUsers.c_str()); }
+	};
+	class CMD_PL_Add_VOIP_Account_Cat : public PreformedCommand {
+	public:
+		CMD_PL_Add_VOIP_Account_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sName,string sPhoneNumber,string sPassword,string sUsers) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,751,4,50,sName.c_str(),75,sPhoneNumber.c_str(),99,sPassword.c_str(),189,sUsers.c_str()); }
 	};
 }
 #endif
