@@ -128,7 +128,7 @@ while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
     {
         $action = "Macro(vm,".$USERS{$1}.")";
     }
-    if($tmp ne $user."-".$pri)
+    if($tmp ne $user."-".$pri."-".$um)
     {
         $EXT_BUFFER .= "exten => $user-um$um-pri$pri,1,Goto($user-um$um-pri$pri-try$try,1)\n";
     }
@@ -139,7 +139,7 @@ while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
     $EXT_BUFFER .= "exten => $user-um$um-pri$pri-try$try-NOANSWER,1,Goto($user-um$um-pri$pri-try".($try+1).",1)\n";
     $EXT_BUFFER .= "exten => $user-um$um-pri$pri-try$try-CONGESTION,1,Goto($user-um$um-pri$pri-try".($try+1).",1)\n";
     $EXT_BUFFER .= "exten => $user-um$um-pri$pri-try$try-CHANUNAVAIL,1,Goto($user-um$um-pri$pri-try".($try+1).",1)\n";
-    $tmp = $user."-".$pri;
+    $tmp = $user."-".$pri."-".$um;
 #    $EXT_BUFFER .= "exten => $user-um$um-try$try,1,Hangup\n";
 
 }}

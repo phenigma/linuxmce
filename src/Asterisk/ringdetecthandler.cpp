@@ -55,6 +55,7 @@ RingDetectHandler::handleToken(Token* ptoken) {
 				g_pPlutoLogger->Write(LV_STATUS, "Will connect channel %s to extension %s", channel.c_str(),extension.c_str());
 			} else {
 				g_pPlutoLogger->Write(LV_CRITICAL, "Error parsing party:%s", party.c_str());
+				return 0;
 			}
 			party = rest;
 		}
@@ -121,6 +122,7 @@ RingDetectHandler::handleToken(Token* ptoken) {
 				
 				AsteriskManager* manager = AsteriskManager::getInstance();
 				manager->NotifyRing(callerid, ringphoneid, map_ringext[ringphoneid]);
+				/* as idea 	:  we need both  map_ringext[ringphoneid] and channel, and use one or another or both depending on situation */
 			}
 		} else {
 			g_pPlutoLogger->Write(LV_CRITICAL, "Error parsing channel:%s", channel.c_str());
