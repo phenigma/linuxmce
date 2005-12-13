@@ -163,6 +163,21 @@ public:
 	virtual void CMD_Set_User_Mode(int iPK_Users,int iPK_UserMode) { string sCMD_Result; CMD_Set_User_Mode(iPK_Users,iPK_UserMode,sCMD_Result,NULL);};
 	virtual void CMD_Set_User_Mode(int iPK_Users,int iPK_UserMode,string &sCMD_Result,Message *pMessage);
 
+
+	/** @brief COMMAND: #751 - PL_Add_VOIP_Account */
+	/** Add a VOIP account */
+		/** @param #50 Name */
+			/** Provider name */
+		/** @param #75 PhoneNumber */
+			/** Phone number */
+		/** @param #99 Password */
+			/** Password */
+		/** @param #189 Users */
+			/** User name */
+
+	virtual void CMD_PL_Add_VOIP_Account(string sName,string sPhoneNumber,string sPassword,string sUsers) { string sCMD_Result; CMD_PL_Add_VOIP_Account(sName.c_str(),sPhoneNumber.c_str(),sPassword.c_str(),sUsers.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_PL_Add_VOIP_Account(string sName,string sPhoneNumber,string sPassword,string sUsers,string &sCMD_Result,Message *pMessage);
+
 //<-dceag-h-e->
 
 private:

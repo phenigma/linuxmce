@@ -595,6 +595,7 @@ void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneE
 		pCallData = CallManager::getInstance()->findCallByOwnerDevID(map_orbiter2embedphone[pMessage->m_dwPK_Device_From]);
 		if(!pCallData) {
 			g_pPlutoLogger->Write(LV_WARNING, "No calldata found for device %d",map_orbiter2embedphone[pMessage->m_dwPK_Device_From]);
+			return;
 		}
 	}	
 	/*find PBX*/
@@ -834,4 +835,50 @@ void Telecom_Plugin::CMD_Phone_Drop(string &sCMD_Result,Message *pMessage)
 void Telecom_Plugin::CMD_Set_User_Mode(int iPK_Users,int iPK_UserMode,string &sCMD_Result,Message *pMessage)
 //<-dceag-c744-e->
 {
+	class Row_Users* rowuser;
+	rowuser=m_pDatabase_pluto_main->Users_get()->GetRow(iPK_Users);
+	rowuser->FK_UserMode_set(iPK_UserMode);
+	m_pDatabase_pluto_main->Users_get()->Commit();
+}
+//<-dceag-c751-b->
+
+	/** @brief COMMAND: #751 - PL_Add_VOIP_Account */
+	/** Add a VOIP account */
+		/** @param #50 Name */
+			/** Provider name */
+		/** @param #75 PhoneNumber */
+			/** Phone number */
+		/** @param #99 Password */
+			/** Password */
+		/** @param #189 Users */
+			/** User name */
+
+void Telecom_Plugin::CMD_PL_Add_VOIP_Account(string sName,string sPhoneNumber,string sPassword,string sUsers,string &sCMD_Result,Message *pMessage)
+//<-dceag-c751-e->
+{
+	string cmdline = "";
+	
+	if(sName == "broadvoice")
+	{
+		cmdline += "/usr/pluto/bin/create_amp_broadvoice.pl";
+	}
+	if(sName == "freeworlddialup")
+	{
+		cmdline += "/usr/pluto/bin/create_amp_fwd.pl";
+	}
+	if(sName == "inphonex")
+	{
+		cmdline += "/usr/pluto/bin/create_amp_inphonex.pl";
+	}
+	if(sName == "efon")
+	{
+		cmdline += "/usr/pluto/bin/create_amp_efon.pl";
+	}
+	if(sName == "teliax")
+	{
+		cmdline += "/usr/pluto/bin/create_amp_teliax.pl";
+	}
+	
+	cmdline+= string(" ")+sUsers+(" ")+sPassword+string(" ")+sName;
+	system(cmdline.c_str());
 }
