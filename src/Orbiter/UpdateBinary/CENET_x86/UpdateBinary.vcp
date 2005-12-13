@@ -184,7 +184,7 @@ RSC=rc.exe
 # ADD RSC /l 0x409 /d "$(CePlatform)" /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "DEBUG" /d "_X86_" /d "x86" /d "_i386_" /r
 CPP=cl.exe
 # ADD BASE CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "_i386_" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /Yu"stdafx.h" /Gs8192 /GF /c
-# ADD CPP /nologo /W1 /Zi /Od /I "." /I ".." /I "../../.." /I "../../../../libs/Libraries/pthreads-snap-2002-11-04" /I "../../../../libs/Libraries/STLport-4.5.3/src" /I "../../../../libs/Libraries/STLport-4.5.3/stlport" /I "../../CENET" /D "DEBUG" /D "_i386_" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "WIN32" /D "WINCE" /D "__STL_NO_IOSTREAMS" /D "WINCE_x86" /Gs8192 /GF /c
+# ADD CPP /nologo /Zi /Od /I "." /I ".." /I "../../.." /I "../../../../libs/Libraries/pthreads-snap-2002-11-04" /I "../../../../libs/Libraries/STLport-4.5.3/src" /I "../../../../libs/Libraries/STLport-4.5.3/stlport" /I "../../CENET" /D "DEBUG" /D "_i386_" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "WIN32" /D "WINCE" /D "__STL_NO_IOSTREAMS" /D "WINCE_x86" /Gs8192 /GF /c
 # SUBTRACT CPP /YX /Yc /Yu
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
@@ -195,7 +195,7 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
 # SUBTRACT BASE LINK32 /incremental:no
-# ADD LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) PthreadsCE_x86.lib winsock.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /out:"../../bin/UpdateBinaryCE_x86.exe" /libpath:"../../../../libs/Libraries/pthreads-snap-2002-11-04/PthreadsCE/X86Dbg" /subsystem:$(CESubsystem) /MACHINE:IX86
+# ADD LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) PthreadsCE_x86.lib winsock.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /out:"../../../bin/UpdateBinaryCE_x86.exe" /libpath:"../../../../libs/Libraries/pthreads-snap-2002-11-04/PthreadsCE/X86Dbg" /subsystem:$(CESubsystem) /MACHINE:IX86
 # SUBTRACT LINK32 /incremental:no
 
 !ENDIF 

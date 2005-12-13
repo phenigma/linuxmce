@@ -1885,8 +1885,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Selected grid %s but m_pDataGridTable is NULL"
 						pDesignObj_DataGrid->m_iHighlightedColumn=pDesignObj_DataGrid->m_iHighlightedRow=-1;
 					    if(  pDesignObj_DataGrid->m_sExtraInfo.find( 'X' )!=string::npos  )
 						{
-							PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
-							m_mapVariable[pDesignObj_DataGrid->m_iPK_Variable] = "";
+							CMD_Set_Variable(pDesignObj_DataGrid->m_iPK_Variable, "");
 						}
 						dg.Release();
                         CMD_Scroll_Grid( "",  pDesignObj_DataGrid->m_ObjectID,  DIRECTION_Down_CONST );
@@ -1897,8 +1896,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Selected grid %s but m_pDataGridTable is NULL"
 						pDesignObj_DataGrid->m_iHighlightedColumn=pDesignObj_DataGrid->m_iHighlightedRow=-1;
 					    if(  pDesignObj_DataGrid->m_sExtraInfo.find( 'X' )!=string::npos  )
 						{
-							PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
-							m_mapVariable[pDesignObj_DataGrid->m_iPK_Variable] = "";
+							CMD_Set_Variable(pDesignObj_DataGrid->m_iPK_Variable, "");
 						}
 						dg.Release();
                         CMD_Scroll_Grid( "",  pDesignObj_DataGrid->m_ObjectID,  DIRECTION_Up_CONST );
@@ -2014,11 +2012,18 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
             if(  pMessage_Out  )
             {
                 int iPK_Variable = atoi( pMessage_Out->m_mapParameters[COMMANDPARAMETER_PK_Variable_CONST].c_str(  ) );
-                if(  iPK_Variable  )
+
+                if(iPK_Variable)
 				{
-					PLUTO_SAFETY_LOCK( vm, m_VariableMutex );
-                    m_mapVariable[iPK_Variable] = pMessage_Out->m_mapParameters[COMMANDPARAMETER_Value_To_Assign_CONST];
+					CMD_Set_Variable(iPK_Variable, pMessage_Out->m_mapParameters[COMMANDPARAMETER_Value_To_Assign_CONST]);
 				}
+				else
+				{
+#ifdef DEBUG
+					g_pPlutoLogger->Write(LV_WARNING, "NOT setting the datagrid variable. It's 0!");
+#endif
+				}
+
                 delete pMessage_Out;
             }
 		    pDesignObj_DataGrid->m_GridCurCol = pDesignObj_DataGrid->m_iInitialColNum;
@@ -2099,9 +2104,7 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
         pDesignObj_DataGrid->m_iPK_Variable, NewValue.c_str());
 #endif
 
-    PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
-    m_mapVariable[PK_Variable] = NewValue;
-
+	CMD_Set_Variable(PK_Variable, NewValue);
     return true;
 }
 //------------------------------------------------------------------------
@@ -2149,11 +2152,7 @@ bool Orbiter::SelectedGrid( int DGRow )
 #endif
 
 	if( pCell )
-	{
-		PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
-		m_mapVariable[pDesignObj_DataGrid->m_iPK_Variable] = pCell->GetValue(  );
-		vm.Release();
-    }
+		CMD_Set_Variable(pDesignObj_DataGrid->m_iPK_Variable, pCell->GetValue());
 
 	return true;
 }
@@ -2176,7 +2175,7 @@ void Orbiter::SpecialHandlingObjectSelected(DesignObj_Orbiter *pDesignObj_Orbite
 			}
 			else
 			{
-				m_mapVariable[VARIABLE_Datagrid_Input_CONST]="";
+				CMD_Set_Variable(VARIABLE_Datagrid_Input_CONST, "");
 				CMD_Set_Text(m_pScreenHistory_Current->m_pObj->m_ObjectID,"***INVALID***",TEXT_PIN_Code_CONST);
 			}
 		}
@@ -2790,17 +2789,12 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
                     pDesignObj_DataGrid->m_iHighlightedRow!=-1 ? pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow : 0);
 
 				if( pCell )
-				{
-					PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
-					m_mapVariable[pDesignObj_DataGrid->m_iPK_Variable] = pCell->GetValue(  );
-					vm.Release();
-				}
+					CMD_Set_Variable(pDesignObj_DataGrid->m_iPK_Variable, pCell->GetValue());
 			}
 			else
 			{
 				// Be sure nothing is selected since we moved the highlight
-				PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
-				m_mapVariable[pDesignObj_DataGrid->m_iPK_Variable] = "";
+				CMD_Set_Variable(pDesignObj_DataGrid->m_iPK_Variable, "");
 			}
 			dg.Release();
 			SelectedObject(pDesignObj_DataGrid,-2,-2);
@@ -3186,11 +3180,8 @@ int k=2;
             pObj->m_iPK_Datagrid, sParams, pObj->m_iPK_DeviceTemplate, &iPK_Variable, &sValue_To_Assign, &bResponse, &pObj->m_iPopulatedWidth, &pObj->m_iPopulatedHeight  );
         if(  !SendCommand( CMD_Populate_Datagrid ) || !bResponse  ) // wait for a response
             g_pPlutoLogger->Write( LV_CRITICAL, "Populate datagrid: %d failed", pObj->m_iPK_Datagrid );
-        else if(  iPK_Variable  )
-		{
-			PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
-			m_mapVariable[iPK_Variable] = sValue_To_Assign;
-		}
+        else if(iPK_Variable)
+			CMD_Set_Variable(iPK_Variable, sValue_To_Assign);
     }
     /* todo 2.0
     if ( !sSelVariable.empty(  ) && !bEPG )
@@ -4522,11 +4513,13 @@ int k=2;
 					&iPK_Variable, &sValue_To_Assign, &bResponse, &iWidth, &iHeight );
                 if(  !SendCommand( CMD_Populate_Datagrid ) || !bResponse  ) // wait for a response
                     g_pPlutoLogger->Write( LV_CRITICAL, "Populate datagrid from command: %d failed", atoi( pCommand->m_ParameterList[COMMANDPARAMETER_PK_DataGrid_CONST].c_str(  ) ) );
-                else if(  iPK_Variable  )
-				{
-					PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
-                    m_mapVariable[iPK_Variable] = sValue_To_Assign;
-				}
+                else if(iPK_Variable)
+					CMD_Set_Variable(iPK_Variable, sValue_To_Assign);
+
+if(!iPK_Variable)
+{
+	int bubu  = 3;
+}
 
 				if( m_vectObjs_GridsOnScreen.size() )
 				{
@@ -5459,7 +5452,7 @@ g_pPlutoLogger->Write(LV_WARNING, "Removing from screens history list screen %d"
 	{
 		// If we stored variables, be sure to restore them
 		for(VariableMap::iterator it=pScreenHistory->m_mapVariable.begin();it!=pScreenHistory->m_mapVariable.end();++it)
-			m_mapVariable[ (*it).first ] = (*it).second;
+			CMD_Set_Variable((*it).first, (*it).second);
 
 		vm.Release();
 
@@ -6248,11 +6241,8 @@ void Orbiter::CMD_Store_Variables(string &sCMD_Result,Message *pMessage)
 	if( !m_pScreenHistory_Current )
 		return;
 
-	PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
 	for(VariableMap::iterator it=m_mapVariable.begin();it!=m_mapVariable.end();++it)
-	{
-		m_pScreenHistory_Current->m_mapVariable[ (*it).first ] = (*it).second;
-	}
+		CMD_Set_Variable((*it).first, (*it).second);
 }
 
 //<-dceag-c32-b->
@@ -6554,10 +6544,7 @@ bool Orbiter::BuildCaptureKeyboardParams( string sPK_DesignObj, int iPK_Variable
     m_iCaptureKeyboard_PK_Variable = iPK_Variable;
 
     if( iPK_Variable && m_bCaptureKeyboard_Reset )
-	{
-		PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
-		m_mapVariable[iPK_Variable] = "";
-	}
+		CMD_Set_Variable(iPK_Variable, "");
 
     //find the parent object
     DesignObj_Orbiter *pObj;
@@ -6633,7 +6620,7 @@ bool Orbiter::CaptureKeyboard_EditText_DeleteLastChar(  )
         NewValue = OldValue.substr( 0,  OldValue.size(  ) - 1 );
 
     m_sCaptureKeyboard_InternalBuffer = NewValue;
-    m_mapVariable[m_iCaptureKeyboard_PK_Variable] = NewValue;
+	CMD_Set_Variable(m_iCaptureKeyboard_PK_Variable, NewValue);
     vm.Release();
 
 	ExecuteScreenHandlerCallback(cbCapturedKeyboardBufferChanged);
@@ -6693,7 +6680,7 @@ bool Orbiter::CaptureKeyboard_EditText_AppendChar( char ch )
     string NewValue = OldValue + ch;
 
     m_sCaptureKeyboard_InternalBuffer = NewValue;
-    m_mapVariable[m_iCaptureKeyboard_PK_Variable] = NewValue;
+	CMD_Set_Variable(m_iCaptureKeyboard_PK_Variable, NewValue);
     vm.Release();
 
 	ExecuteScreenHandlerCallback(cbCapturedKeyboardBufferChanged);
@@ -6756,8 +6743,7 @@ bool Orbiter::ReceivedMessage( class Message *pMessageOriginal )
 
 void Orbiter::CaptureKeyboard_UpdateVariableAndText( int iVariable,  string sVariable ) //for capture keyboard cmd
 {
-	PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
-    m_mapVariable[iVariable] = sVariable;
+	CMD_Set_Variable(iVariable, sVariable);
 }
 
 //<-dceag-c58-b->
@@ -6991,7 +6977,7 @@ void Orbiter::CMD_Set_Now_Playing(int iPK_Device,string sPK_DesignObj,string sVa
 	m_sNowPlaying = SubstituteVariables(sValue_To_Assign, NULL, 0, 0);
 	m_sNowPlaying_Section = SubstituteVariables(sText, NULL, 0, 0);
 	m_dwPK_Device_NowPlaying = iPK_Device;
-	m_mapVariable[VARIABLE_Track_or_Playlist_Positio_CONST]=StringUtils::itos(iValue);
+	CMD_Set_Variable(VARIABLE_Track_or_Playlist_Positio_CONST, StringUtils::itos(iValue));
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"CMD_Set_Now_Playing %s %s",sValue_To_Assign.c_str(),sPK_DesignObj.c_str());
 #endif
@@ -7350,7 +7336,10 @@ int k=2;
     //used in normal state will be rendered for selected state + a blue rectangle to show the selection
     if(!bIsMNG && pObj->m_GraphicToDisplay == GRAPHIC_SELECTED)
     {
-        pVectorPlutoGraphic = &pObj->m_vectGraphic; //normal state
+		if(pObj->m_vectSelectedGraphic.size() != 0)
+			pVectorPlutoGraphic = &pObj->m_vectSelectedGraphic;
+		else
+			pVectorPlutoGraphic = &pObj->m_vectGraphic; //normal state
 
         //we have nothing to render
         if(pVectorPlutoGraphic->size() == 0)
@@ -8319,8 +8308,8 @@ void Orbiter::CMD_Show_File_List(int iPK_MediaType,string &sCMD_Result,Message *
 		return;
 	}
 
-	m_mapVariable[VARIABLE_Filename_CONST] = pOrbiterFileBrowser_Entry->m_sFilename;
-	m_mapVariable[VARIABLE_PK_MediaType_CONST] = StringUtils::itos(iPK_MediaType);
+	CMD_Set_Variable(VARIABLE_Filename_CONST, pOrbiterFileBrowser_Entry->m_sFilename);
+	CMD_Set_Variable(VARIABLE_PK_MediaType_CONST, StringUtils::itos(iPK_MediaType));
 
 	DesignObj_Orbiter *pObj_Popop_FileList;
 	if( m_sObj_Popop_RemoteControl.size() && pOrbiterFileBrowser_Entry->m_DesignObj_Popup && (pObj_Popop_FileList=FindObject(m_sObj_Popop_RemoteControl)) )
