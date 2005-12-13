@@ -2124,7 +2124,11 @@ void XineSlaveWrapper::StartSpecialSeek( int Speed )
     if ( xineStream == NULL )
         return ;
 
-    g_pPlutoLogger->Write( LV_STATUS, "Starting special seek %d", Speed );
+	int totalTime;
+    gettimeofday( &m_tsLastSpecialSeek, NULL );
+	getStreamPlaybackPosition( 1, m_posLastSpecialSeek, totalTime )
+
+	g_pPlutoLogger->Write( LV_STATUS, "Starting special seek %d", Speed );
     xine_set_param( xineStream->m_pStream, XINE_PARAM_METRONOM_PREBUFFER, 2 * 90000 );
     g_iSpecialSeekSpeed = Speed;
     xineStream->m_iPlaybackSpeed = PLAYBACK_NORMAL;
@@ -2192,6 +2196,22 @@ void XineSlaveWrapper::Seek(int pos,int tolerance_ms)
 	if ( xineStream == NULL )
 		return ;
 
+	if( tolerance_ms==0 )
+	{
+
+		timespec ts1,ts2,tsElapsed;
+		gettimeofday( &ts1, NULL );
+
+		xine_play( xineStream->m_pStream, 0, pos );
+
+		gettimeofday( &ts2, NULL );
+		tsElapsed = ts2-ts1;
+        int positionTime, totalTime;
+        getStreamPlaybackPosition( 1, positionTime, totalTime );
+		g_pPlutoLogger->Write(LV_STATUS,"Seek took %d ms.  Tried for pos %d landed at %d, off by %d",
+			tsElapsed.tv_sec * 1000 + tsElapsed.tv_nsec / 1000000,
+			pos,positionTime,positionTime-pos);
+	}
 		
     g_pPlutoLogger->Write( LV_WARNING, "XineSlaveWrapper::Seek seek to %d tolerance %d", pos, tolerance_ms );
 
@@ -2214,17 +2234,25 @@ void XineSlaveWrapper::Seek(int pos,int tolerance_ms)
 void XineSlaveWrapper::HandleSpecialSeekSpeed()
 {
     XineStream * xineStream = getStreamForId( 1, "Trying to set parm for and invalid stream: (%d)" );
-    if ( xineStream == NULL )
+    if ( xineStream == NULL || m_tsLastSpecialSeek.tv_sec==0 )  // Should not happen
         return ;
 
     DisplaySpeedAndTimeCode();
-    // time to seek
-    int positionTime, totalTime;
-    getStreamPlaybackPosition( 1, positionTime, totalTime );
-    int seekTime = positionTime + ( g_iSpecialSeekSpeed / 10 );
 
-    g_pPlutoLogger->Write( LV_WARNING, "Current pos %d / %d  seek speed: %d will seek to: %d", positionTime, totalTime, g_iSpecialSeekSpeed, seekTime );
-    if ( seekTime < 0 || seekTime > totalTime )
+	timespec ts;
+    gettimeofday( &ts, NULL );
+
+	timespec tsElapsed = ts-m_tsLastSpecialSeek;
+	int msElapsed = tsElapsed.tv_sec * 1000 + tsElapsed.tv_nsec / 1000000;
+	int seekTime = m_posLastSpecialSeek + (msElapsed * g_iSpecialSeekSpeed / 1000);  // Take the time that did elapse, factor the speed difference, and add it to the last seek
+
+	g_pPlutoLogger->Write(LV_STATUS,"HandleSpecialSeekSpeed last time: %d:%d now %d:%d ms elapsed: %d:%d (%d ms) last seek pos: %d this time: %d",
+		m_tsLastSpecialSeek.tv_sec,m_tsLastSpecialSeek.tv_nsec,ts.tv_sec,ts.tv_nsec,
+		tsElapsed.tv_sec,tsElapsed.tv_nsec,
+		(int) msElapsed,
+		m_posLastSpecialSeek,seekTime);
+
+	if ( seekTime < 0 || seekTime > totalTime )
     {
         g_pPlutoLogger->Write( LV_CRITICAL, "aborting seek" );
         StopSpecialSeek();
@@ -2232,6 +2260,6 @@ void XineSlaveWrapper::HandleSpecialSeekSpeed()
 		return;
     }
 
-	Seek(seekTime,g_iSpecialSeekSpeed / 20);
+	Seek(seekTime,0);
 }
 

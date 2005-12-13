@@ -116,6 +116,10 @@ private:
     int m_iTimeCodeReportFrequency;
     int m_iSpecialOneTimeSeek;
 
+	// Used to handle rewind and fastforward to keep track of where we last seeked
+	timespec m_tsLastSpecialSeek;
+	int m_posLastSpecialSeek;
+
     string m_sXineVideoDriverName;
     string m_sXineAudioDriverName;
 
