@@ -82,4 +82,10 @@ if ! mount -t "$FS" -o "$Opts" "$Src" "$Dst"; then
 	Logging "NAS" $SEVERITY_CRITICAL "share mount" "Mount failed"
 else
 	Logging "NAS" $SEVERITY_WARNING "share mount" "Mount succeeded"
+
+	if [[ -n "$NAS_Use_Pluto_Directory_Structure" && "$NAS_Use_Pluto_Directory_Structure" -gt 0 ]]; then
+		/usr/pluto/bin/SetupUsers_Homes.sh -n -b "$Dst" -e /home "$NAS_Description"
+	else
+		: # TODO: Custom mount points
+	fi
 fi
