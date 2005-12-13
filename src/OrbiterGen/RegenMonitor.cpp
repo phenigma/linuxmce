@@ -183,13 +183,17 @@ bool RegenMonitor::CachedVersionOK(string sString)
 		return false; 
 	}
 		
-	g_pPlutoLogger->Write(LV_STATUS,"RegenMonitor::CachedVersionOK comp: %s str: %s",
-		sComparisson.c_str(), sString.c_str());
+	g_pPlutoLogger->Write(LV_STATUS,"RegenMonitor::CachedVersionOK comp: %s str: %s room %d ea %d",
+		sComparisson.c_str(), sString.c_str(),
+		m_pRow_Room ? m_pRow_Room->PK_Room_get() : 0,
+		m_pRow_EntertainArea ? m_pRow_EntertainArea->PK_EntertainArea_get() : 0);
 		
 	if( sComparisson==sString )
 		return true;
 
-	cout << "Cache: " << sString << endl << "Current: " << sComparisson << endl;
+	cout << "Cache: " << sString << endl << "Current: " << sComparisson << 
+		" room: " << (m_pRow_Room ? m_pRow_Room->PK_Room_get() : 0) <<
+		" ea: " << (m_pRow_EntertainArea ? m_pRow_EntertainArea->PK_EntertainArea_get() : 0) << endl;
 	return false;
 }
 

@@ -896,6 +896,11 @@ m_bNoEffects = true;
 		m_dequeLocation.push_back(li);					
 	}
 
+	// The screen saver is not location specific
+	m_pRow_Room = NULL;
+	m_pRow_EntertainArea = NULL;
+	m_iLocation = 0;
+
 	m_sScreenSaveMenu = StringUtils::itos( GetDesignObjFromScreen(m_pRow_Screen_ScreenSaver)->PK_DesignObj_get()) + ".0.0";
 	if( m_pRow_Screen_ScreenSaver!=m_pRow_Screen_MainMenu )
 		DesignObj_Generator *ocDesignObj3 = new DesignObj_Generator(this,GetDesignObjFromScreen(m_pRow_Screen_ScreenSaver),PlutoRectangle(0,0,0,0),NULL,true,false);
@@ -915,8 +920,6 @@ m_bNoEffects = true;
 
 		m_pRow_Room = mds.Room_get()->GetRow(li->PK_Room);
 		m_pRow_EntertainArea = li->PK_EntertainArea>0 ? mds.EntertainArea_get()->GetRow(li->PK_EntertainArea) : NULL;
-		m_pRegenMonitor->SetRoom(m_pRow_Room);
-		m_pRegenMonitor->SetEntArea(m_pRow_EntertainArea);
 		m_iLocation = li->iLocation;
 		DesignObj_Generator *ocDesignObj = new DesignObj_Generator(this,GetDesignObjFromScreen(m_pRow_Screen_MainMenu),PlutoRectangle(0,0,0,0),NULL,true,false);
 		if( m_pRow_Screen_Sleeping!=m_pRow_Screen_MainMenu )
@@ -2276,8 +2279,6 @@ string OrbiterGenerator::First2Dots(string sDesignObj)
 
 	m_pRow_Room = mds.Room_get()->GetRow(li->PK_Room);
 	m_pRow_EntertainArea = li->PK_EntertainArea>0 ? mds.EntertainArea_get()->GetRow(li->PK_EntertainArea) : NULL;
-	m_pRegenMonitor->SetRoom(m_pRow_Room);
-	m_pRegenMonitor->SetEntArea(m_pRow_EntertainArea);
 	return sDesignObj.substr(0,pos_second_dot);
 }
 

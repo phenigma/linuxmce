@@ -118,7 +118,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
     m_bDontShare=bDontShare;
     m_bUsingCache=false;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==1270 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==3412 )// || 
+if( m_pRow_DesignObj->PK_DesignObj_get()==4667 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==3412 )// || 
 //   m_pRow_DesignObj->PK_DesignObj_get()==4271 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==2211 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==1881 ||  m_pRow_DesignObj->PK_DesignObj_get()==2228 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==3531 ||  m_pRow_DesignObj->PK_DesignObj_get()==3534 )// || m_pRow_DesignObj->PK_DesignObj_get()==3471 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )*/
@@ -142,6 +142,7 @@ if( m_pRow_DesignObj->PK_DesignObj_get()==2233 )// || m_pRow_DesignObj->PK_Desig
         return;
     }
 
+	bool bLocationSpecific=false;
 	if( m_pOrbiterGenerator->m_mapDesignObj_WithArrays.find(m_pRow_DesignObjVariation_Standard->FK_DesignObj_get())!=
 		m_pOrbiterGenerator->m_mapDesignObj_WithArrays.end() ||
 		m_pOrbiterGenerator->m_pRow_DesignObj_MainMenu==m_pRow_DesignObj || m_pOrbiterGenerator->m_pRow_DesignObj_Sleeping==m_pRow_DesignObj )
@@ -149,6 +150,7 @@ if( m_pRow_DesignObj->PK_DesignObj_get()==2233 )// || m_pRow_DesignObj->PK_Desig
 		bAddToGenerated = true;
 		m_bDontShare = true;
         m_iVersion = m_pOrbiterGenerator->m_iLocation;
+		bLocationSpecific=true;
     }
 
 	if( bAddToGenerated )
@@ -163,7 +165,11 @@ if( m_pRow_DesignObj->PK_DesignObj_get()==2233 )// || m_pRow_DesignObj->PK_Desig
 			m_pOrbiterGenerator->m_pRow_Orbiter->Table_Orbiter_get()->Commit();
 		}
 
-		cout << "Generating screen: " << drDesignObj->PK_DesignObj_get() << " in orbiter: " << pGenerator->m_pRow_Device->PK_Device_get() << endl;
+		cout << StringUtils::PrecisionTime() << "Generating screen: " << drDesignObj->PK_DesignObj_get() << 
+			" ver: " << m_iVersion << (bLocationSpecific ? "Y" : "N") << 
+			" room: " << (m_pOrbiterGenerator->m_pRow_Room ? m_pOrbiterGenerator->m_pRow_Room->PK_Room_get() : 0) <<
+			" ea: " << (m_pOrbiterGenerator->m_pRow_EntertainArea ? m_pOrbiterGenerator->m_pRow_EntertainArea->PK_EntertainArea_get() : 0) <<
+			" in orbiter: " << pGenerator->m_pRow_Device->PK_Device_get() << endl;
 		if( m_pOrbiterGenerator->m_pRow_Size->PreserveAspectRatio_get()==2 )  // Means only preserve the backgrounds
 			m_bPreserveAspectRatio=true;
 
@@ -213,7 +219,7 @@ int k=2;
 						cout << "Regenerating: cache file " << Filename << " doesn't exist" << endl;
 				}
 				else
-					cout << "Regenerating: screen has changed" << endl;
+					cout << "Regenerating: screen has changed from " << lModDate1 << " to " << lModDate2 << endl;
             }
 			else
 				cout << "Regenerating: " << ( pdrCachedScreen==NULL ? " no cached screen in DB " : " schema changed " ) << endl;
@@ -957,6 +963,8 @@ int k=2;
         }
     }
 
+if( m_pRow_DesignObj->PK_DesignObj_get()==4667 )
+int k=2;
     // Don't stretch out the floorplan objects
     if( m_pRow_DesignObj->FK_DesignObjType_get()!=DESIGNOBJTYPE_Floorplan_CONST )
     {
@@ -964,6 +972,8 @@ int k=2;
         for(size_t s=0;s<m_alChildDesignObjs.size();++s)
         {
             DesignObj_Generator *oco = m_alChildDesignObjs[s];
+			if( oco->m_iScale!=100 )
+				continue; // If this is a specially scaled object don't factor it in
             if( oco->m_rPosition.Width>0 )
             {
                 if( m_rPosition.Width>0 )
@@ -1926,6 +1936,9 @@ int k=2;
 
 bool DesignObj_Generator::CachedVersionOK()
 {
+	m_pOrbiterGenerator->m_pRegenMonitor->SetRoom(m_pOrbiterGenerator->m_pRow_Room);
+	m_pOrbiterGenerator->m_pRegenMonitor->SetEntArea(m_pOrbiterGenerator->m_pRow_EntertainArea);
+
 	for(size_t s=0;s<m_vectRegenMonitor.size();++s)
 	{
 		if( !m_pOrbiterGenerator->m_pRegenMonitor->CachedVersionOK(m_vectRegenMonitor[s]) )
