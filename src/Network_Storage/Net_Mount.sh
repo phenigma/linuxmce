@@ -34,13 +34,13 @@ for Row in $R; do
 	IK_DeviceData=$(Field 2 "$Row")
 
 	case "$FK_DeviceData" in
-		$DEVICEDATA_Type) NAS_Type=$IK_DeviceData ;;
-		$DEVICEDATA_TCP_Address) NAS_IP_Address=$IK_DeviceData ;;
-		$DEVICEDATA_Share_Name) NAS_Share_Name=$IK_DeviceData ;;
-		$DEVICEDATA_Username) NAS_Username=$IK_DeviceData ;;
-		$DEVICEDATA_Password) NAS_Password=$IK_DeviceData ;;
-		$DEVICEDATA_Mount_Point) NAS_Mount_Point=$IK_DeviceData ;;
-		$DEVICEDATA_Use_Pluto_Directory_Structure) NAS_Use_Pluto_Directory_Structure=$IK_DeviceData ;;
+		$DEVICEDATA_Type) NAS_Type="$IK_DeviceData" ;;
+		$DEVICEDATA_TCP_Address) NAS_IP_Address="$IK_DeviceData" ;;
+		$DEVICEDATA_Share_Name) NAS_Share_Name="$IK_DeviceData" ;;
+		$DEVICEDATA_Username) NAS_Username="$IK_DeviceData" ;;
+		$DEVICEDATA_Password) NAS_Password="$IK_DeviceData" ;;
+		$DEVICEDATA_Mount_Point) NAS_Mount_Point="$IK_DeviceData" ;;
+		$DEVICEDATA_Use_Pluto_Directory_Structure) NAS_Use_Pluto_Directory_Structure="$IK_DeviceData" ;;
 		*) Logging "NAS" $SEVERITY_WARNING "share mount" "Unknown DeviceData '$FK_DeviceData=$IK_DeviceData'" ;;
 	esac
 done
@@ -49,7 +49,7 @@ SQL="SELECT Description FROM Device WHERE PK_Device=$NAS_PK_Device"
 R=$(RunSQL "$SQL")
 NAS_Description=$(Field 1 "$R")
 
-Msg="Description: $NAS_Description; Type: $NAS_Type; IP: $NAS_IP_Address; Share name: $NAS_Share_Name; Username: $Username; Mount point: $NAS_MOUNT_Point; Pluto directory structure: $DEVICEDATA_Use_Pluto_Directory_Structure"
+Msg="Description: $NAS_Description; Type: $NAS_Type; IP: $NAS_IP_Address; Share name: $NAS_Share_Name; Username: $Username; Mount point: $NAS_MOUNT_Point; Pluto directory structure: $NAS_Use_Pluto_Directory_Structure"
 Logging "NAS" $SEVERITY_NORMAL "share mount" "$Msg"
 
 if [[ -z "$NAS_IP_Address" || -z "$NAS_Share_Name" ]]; then
