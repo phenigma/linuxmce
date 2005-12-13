@@ -4,7 +4,9 @@
 #ifdef WINCE
 	#include "stdafx.h"
 	#include <commctrl.h>
+#ifndef WINCE_x86
 	#include <aygshell.h>
+#endif
 	#include <sipapi.h>
 #else
 	#include <iostream>
