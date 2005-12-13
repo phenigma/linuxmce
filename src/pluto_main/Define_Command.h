@@ -695,6 +695,7 @@
 #define COMMAND_Arm_CONST 748
 #define COMMAND_StatusReport_CONST 749
 #define COMMAND_SetDateTime_CONST 750
+#define COMMAND_PL_Add_VOIP_Account_CONST 751
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

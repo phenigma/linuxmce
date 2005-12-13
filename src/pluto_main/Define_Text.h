@@ -809,7 +809,7 @@
 #define TEXT_16_Light_test_CONST 1514
 #define TEXT_Light_type_CONST 1515
 #define TEXT_Light_name_CONST 1516
-#define TEXT_Voip_provider_CONST 1517
+#define TEXT_VOIP_Provider_CONST 1517
 #define TEXT_I_can_hear_you_CONST 1518
 #define TEXT_dont_control_my_TV_CONST 1519
 #define TEXT_Add_user_CONST 1520
@@ -868,15 +868,16 @@
 #define TEXT_Do_you_have_an_alarm_panel_CONST 1574
 #define TEXT_Found_the_alarm_panel_CONST 1575
 #define TEXT_Do_you_have_a_VOIP_provider_CONST 1576
-#define TEXT_Set_username_CONST 1577
+#define TEXT_Configure_Account_CONST 1577
 #define TEXT_VOIP_Username_CONST 1578
-#define TEXT_VOIP_password_CONST 1579
+#define TEXT_VOIP_Password_CONST 1579
 #define TEXT_All_done_CONST 1580
 #define TEXT_Broadvoice_CONST 1581
 #define TEXT_Free_World_Dialup_CONST 1582
 #define TEXT_InPhonex_CONST 1583
 #define TEXT_Efon_CONST 1584
 #define TEXT_Teliax_CONST 1585
+#define TEXT_VOIP_Number_CONST 1586
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
