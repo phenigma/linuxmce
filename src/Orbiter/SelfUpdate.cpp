@@ -19,11 +19,14 @@ using namespace DCE;
 
 #ifdef WINCE
 	#ifdef WINCE_x86
+		const string csUpdateBinaryName("UpdateBinary_x86.exe");
 		const string csOrbiter_Update("/usr/pluto/bin/Orbiter_CeNet4_x86.dat");
 	#else
+		const string csUpdateBinaryName("UpdateBinaryCE.exe");
 		const string csOrbiter_Update("/usr/pluto/bin/Orbiter_CeNet4_XScale.dat");
 	#endif
 #else
+		const string csUpdateBinaryName("UpdateBinary.exe");
 		const string csOrbiter_Update("/usr/pluto/bin/Orbiter_Win32.dat");
 #endif
 
@@ -140,7 +143,8 @@ bool OrbiterSelfUpdate::DownloadUpdateBinary()
 	char *pUpdateFile = NULL;
 	int iSizeUpdateFile = 0;	
 
-	string sUpdateName = m_pOrbiter->DATA_Get_Update_Name();
+	//string sUpdateName = m_pOrbiter->DATA_Get_Update_Name();
+	string sUpdateName = csUpdateBinaryName;
 	string sStoragePath = m_pOrbiter->DATA_Get_Path();
 
 	DCE::CMD_Request_File_Cat CMD_Request_File_Cat(
@@ -235,7 +239,7 @@ bool OrbiterSelfUpdate::SpawnUpdateBinaryProcess()
 	si.cb = sizeof(STARTUPINFO);
 	si.lpReserved = 0;
 
-	string sUpdateName = m_pOrbiter->DATA_Get_Update_Name();
+	string sUpdateName = csUpdateBinaryName;
 	string sStoragePath = m_pOrbiter->DATA_Get_Path();
 	string sCommFile = m_pOrbiter->DATA_Get_Communication_file();
 	string sCmdLine = "";
