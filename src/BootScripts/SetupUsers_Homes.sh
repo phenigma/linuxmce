@@ -10,7 +10,8 @@ BaseDir="/home"
 MakeUsers=yes
 while [[ "$#" -gt 0 ]]; do
 	case "$1" in
-		-b) BaseDir="$2"; MakeUsers=no; shift ;;
+		-b) BaseDir="$2"; shift ;;
+		-n) MakeUsers="no" ;;
 	esac
 	shift
 done
