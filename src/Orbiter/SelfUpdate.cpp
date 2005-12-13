@@ -19,7 +19,7 @@ using namespace DCE;
 
 #ifdef WINCE
 	#ifdef WINCE_x86
-		const string csUpdateBinaryName("UpdateBinary_x86.exe");
+		const string csUpdateBinaryName("UpdateBinaryCE_x86.exe");
 		const string csOrbiter_Update("/usr/pluto/bin/Orbiter_CeNet4_x86.dat");
 	#else
 		const string csUpdateBinaryName("UpdateBinaryCE.exe");
