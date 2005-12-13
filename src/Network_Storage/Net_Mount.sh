@@ -41,13 +41,13 @@ for Row in $R; do
 		$DEVICEDATA_Password) NAS_Password=$IK_DeviceData ;;
 		$DEVICEDATA_Mount_Point) NAS_Mount_Point=$IK_DeviceData ;;
 		$DEVICEDATA_Use_Pluto_Directory_Structure) NAS_Use_Pluto_Directory_Structure=$IK_DeviceData ;;
-		*) Logging "NAS" $SEVERITY_WARNING "NAS_GetData ($NAS_ShareType)" "Unknown DeviceData '$FK_DeviceData=$IK_DeviceData'" ;;
+		*) Logging "NAS" $SEVERITY_WARNING "share mount" "Unknown DeviceData '$FK_DeviceData=$IK_DeviceData'" ;;
 	esac
 done
 
 SQL="SELECT Description FROM Device WHERE PK_Device=$NAS_PK_Device"
 R=$(RunSQL "$SQL")
-NAS_Description=$(RunSQL "$R")
+NAS_Description=$(Field 1 "$R")
 
 Msg="Description: $NAS_Description; Type: $NAS_Type; IP: $NAS_IP_Address; Share name: $NAS_Share_Name; Username: $Username; Mount point: $NAS_MOUNT_Point; Pluto directory structure: $DEVICEDATA_Use_Pluto_Directory_Structure"
 Logging "NAS" $SEVERITY_NORMAL "share mount" "$Msg"
@@ -56,8 +56,6 @@ if [[ -z "$NAS_IP_Address" || -z "$NAS_Share_Name" ]]; then
 	Logging "NAS" $SEVERITY_CRITICAL "share mount" "Missing important mount parameters"
 	exit 1
 fi
-
-local Type="$1" Src="$2" Dst="$2" Opts="$3"
 
 Dst="/mnt/${NAS_Description}_${NAS_PK_Device}"
 mkdir -p "$Dst"
@@ -75,11 +73,13 @@ case "$NAS_Type" in
 		[[ -n "$NAS_Username" ]] && Opts="$Opts,username=$NAS_Username"
 	;;
 	*)
+		Logging "NAS" $SEVERITY_CRITICAL "share mount" "Unknown share type: '$NAS_Type'"
+		exit 1
 	;;
 esac
 
-if ! mount -t "$Type" -o "$Opts" "$Src" "$Dst"; then
+if ! mount -t "$FS" -o "$Opts" "$Src" "$Dst"; then
 	Logging "NAS" $SEVERITY_CRITICAL "share mount" "Mount failed"
 else
-	Logging "NAS" $SEVERITY_CRITICAL "share mount" "Mount succeeded"
+	Logging "NAS" $SEVERITY_WARNING "share mount" "Mount succeeded"
 fi
