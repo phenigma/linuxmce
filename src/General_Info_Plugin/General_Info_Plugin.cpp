@@ -53,14 +53,18 @@ using namespace DCE;
 #include "Event_Plugin/Event_Plugin.h"
 #include "Gen_Devices/AllScreens.h"
 
+#ifndef WIN32
 #include "Web_DHCP_Query.h"
 using namespace nsWeb_DHCP_Query;
+#endif
 
 #ifndef WEB_QUERY_DEBUG
 static const string sURL_Base = "http://plutohome.com/getRegisteredDevices.php";
 #else
 static const string sURL_Base = "http://10.0.0.175/plutohome-com/getRegisteredDevices.php";
 #endif
+
+
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 General_Info_Plugin::General_Info_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
@@ -1185,6 +1189,7 @@ bool General_Info_Plugin::NewMacAddress( class Socket *pSocket, class Message *p
 		return false;
 	}
 
+#ifndef WIN32
 	g_pPlutoLogger->Write(LV_STATUS, "General_Info_Plugin::NewMacAddress querying web");
 	m_iPK_WebQuery = 0;
 	m_sWeb_MacAddress = sMacAddress;
@@ -1233,6 +1238,8 @@ bool General_Info_Plugin::NewMacAddress( class Socket *pSocket, class Message *p
 		}
 	}
 
+#endif
+
 	// Check on the main server
 	return false;
 }
@@ -1261,6 +1268,7 @@ void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,strin
 	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL( m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, StringUtils::itos(DESIGNOBJ_mnuNewMacAddress_CONST), sMac_address );
 	SendCommand(CMD_Remove_Screen_From_History_DL);
 
+#ifndef WIN32
 	vector<Web_DeviceData> vectWeb_DeviceData;
 	if (m_iPK_WebQuery != 0)
 	{
@@ -1364,6 +1372,8 @@ else
 	Message *pMessage_Event = new Message(m_dwPK_Device,DEVICEID_EVENTMANAGER,PRIORITY_NORMAL,MESSAGETYPE_EVENT,EVENT_New_PNP_Device_Detected_CONST,
 		1,EVENTPARAMETER_PK_Device_CONST,StringUtils::itos(PK_Device).c_str());
 	QueueMessageToRouter(pMessage_Event);
+
+#endif
 }
 //<-dceag-c710-b->
 
