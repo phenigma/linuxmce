@@ -2,24 +2,29 @@
 # set system password files
 
 . /usr/pluto/bin/pluto.func
-
-RunSQL()
-{
-	local Q
-	Q="$*"
-	echo "$Q;" | /usr/bin/mysql pluto_main | tail +2 | tr '\t\n' ', '
-}
+. /usr/pluto/bin/SQL_Ops.sh
 
 TemplateDir=/usr/pluto/templates
 
-# Extract non-pluto entries
-awk '!/^pluto_/' /etc/group >/etc/group.$$
-awk '!/^pluto_/' /etc/passwd >/etc/passwd.$$
-awk '!/^pluto_/' /etc/shadow >/etc/shadow.$$
+BaseDir="/home"
+MakeUsers=yes
+while [[ "$#" -gt 0 ]]; do
+	case "$1" in
+		-b) BaseDir="$2"; MakeUsers=no; shift ;;
+	esac
+	shift
+done
 
-cp $TemplateDir/smb.conf.tmpl /etc/samba/smb.conf.$$
-cp $TemplateDir/smbpasswd.tmpl /etc/samba/smbpasswd.$$
-: >/etc/samba/usermap.txt
+if [[ "$MakeUsers" == yes ]]; then
+	# Extract non-pluto entries
+	awk '!/^pluto_/' /etc/group >/etc/group.$$
+	awk '!/^pluto_/' /etc/passwd >/etc/passwd.$$
+	awk '!/^pluto_/' /etc/shadow >/etc/shadow.$$
+
+	cp $TemplateDir/smb.conf.tmpl /etc/samba/smb.conf.$$
+	cp $TemplateDir/smbpasswd.tmpl /etc/samba/smbpasswd.$$
+	: >/etc/samba/usermap.txt
+fi
 
 # get a list of all users
 Q="SELECT PK_Users,UserName,Password_Unix,Password_Samba FROM Users"
@@ -32,58 +37,59 @@ user_dirs="data data/movies data/pictures data/music data/documents data/videos"
 UserList=
 
 for Users in $R; do
-	PlutoUserID=$(echo "$Users" | cut -d, -f1)
-	UserName=$(echo "$Users" | cut -d, -f2 | tr 'A-Z' 'a-z' | tr -dc "a-z0-9-")
-	LinuxPassword=$(echo "$Users" | cut -d, -f3)
-	SambaPassword=$(echo "$Users" | cut -d, -f4)
+	PlutoUserID=$(Field 1 "$Users")
+	UserName=$(Field 2 "$Users" | tr 'A-Z' 'a-z' | tr -dc "a-z0-9-")
+	LinuxPassword=$(Field 3 "$Users")
+	SambaPassword=$(Field 4 "$Users")
 
-	if [[ ! -d "/home/user_$PlutoUserID" ]]; then
-		rm -rf "/home/user_$PlutoUserID"
+	if [[ ! -d "$BaseDir/user_$PlutoUserID" ]]; then
+		rm -rf "$BaseDir/user_$PlutoUserID"
 	fi
 	
-	[ -z "$LinuxPassword" ] && LinuxPassword="$DefaultLinuxPassword"
-	[ -z "$SambaPassword" ] && SambaPassword="$DefaultSambaPassword"
+	[[ -z "$LinuxPassword" ]] && LinuxPassword="$DefaultLinuxPassword"
+	[[ -z "$SambaPassword" ]] && SambaPassword="$DefaultSambaPassword"
 #	echo "$Users : $PlutoUserID - $UserName - $LinuxPassword - $SambaPassword"
 	
-	SambaShare="[$UserName]
-	comment = $UserName's private files
-	browseable = yes
-	writable = yes
-	create mask = 0770
-	directory mask = 0770
-	path = /home/user_$PlutoUserID
-	public = no
-"
-# TODO: replace 00000001 with a real number of seconds (never set to 00000000)
-	SambaEntry="pluto_$UserName:$LinuxUserID:$SambaPassword:[U          ]:LCT-00000001:,,,"
-	ShadowEntry="pluto_$UserName:$LinuxPassword:12221:0:99999:7:::"
-	PasswdEntry="pluto_$UserName:x:$LinuxUserID:$LinuxUserID:,,,:/home/user_$PlutoUserID:/bin/false"
-	GroupEntry="pluto_$UserName:x:$LinuxUserID:www-data"
-	SambaUnixMap="pluto_$UserName = $UserName"
-	
-	echo "$SambaShare" >>/etc/samba/smb.conf.$$
-	echo "$SambaEntry" >>/etc/samba/smbpasswd.$$
-	echo "$ShadowEntry" >>/etc/shadow.$$
-	echo "$PasswdEntry" >>/etc/passwd.$$
-	echo "$GroupEntry" >>/etc/group.$$
-	echo "$SambaUnixMap" >>/etc/samba/usermap.txt
+	if [[ "$MakeUsers" == yes ]]; then
+		SambaShare="[$UserName]
+		comment = $UserName's private files
+		browseable = yes
+		writable = yes
+		create mask = 0770
+		directory mask = 0770
+		path = /home/user_$PlutoUserID
+		public = no
+		"
+		# TODO: replace 00000001 with a real number of seconds (never set to 00000000)
+		SambaEntry="pluto_$UserName:$LinuxUserID:$SambaPassword:[U          ]:LCT-00000001:,,,"
+		ShadowEntry="pluto_$UserName:$LinuxPassword:12221:0:99999:7:::"
+		PasswdEntry="pluto_$UserName:x:$LinuxUserID:$LinuxUserID:,,,:/home/user_$PlutoUserID:/bin/false"
+		GroupEntry="pluto_$UserName:x:$LinuxUserID:www-data"
+		SambaUnixMap="pluto_$UserName = $UserName"
+		echo "$SambaShare" >>/etc/samba/smb.conf.$$
+		echo "$SambaEntry" >>/etc/samba/smbpasswd.$$
+		echo "$ShadowEntry" >>/etc/shadow.$$
+		echo "$PasswdEntry" >>/etc/passwd.$$
+		echo "$GroupEntry" >>/etc/group.$$
+		echo "$SambaUnixMap" >>/etc/samba/usermap.txt
+	fi
 
-	mkdir -p -m 0770 /home/user_$PlutoUserID
+	mkdir -p -m 0770 "$BaseDir/user_$PlutoUserID"
 	for dir in $user_dirs; do
-		mkdir -p -m 0770 /home/user_$PlutoUserID/${dir/~/ }
+		mkdir -p -m 0770 "$BaseDir/user_$PlutoUserID/${dir/~/ }"
 	done
-	rm -f /home/$UserName
-	ln -sf /home/user_$PlutoUserID /home/$UserName
+	rm -f "$BaseDir/$UserName"
+	ln -sf "user_$PlutoUserID" "$BaseDir/$UserName"
 	UserList="$UserList $UserName"
 # Files not updated at this point (woking on copies)
 #	chown -R $UserName.$UserName /home/user_$PlutoUserID
 
-	LinuxUserID=$((LinuxUserID+1))
+	((LinuxUserID++))
 done
 
-static_dirs="/home/public /home/public/data /home/public/data/movies /home/public/data/pictures /home/public/data/music /home/public/data/documents /home/temp_pvr /home/mydvd /home/cameras /home/public/data/videos /home/tv_listing"
+static_dirs="public public/data public/data/movies public/data/pictures public/data/music public/data/documents temp_pvr mydvd cameras public/data/videos tv_listing"
 for dir in $static_dirs; do
-	mkdir -p -m 0755 ${dir/~/ }
+	mkdir -p -m 0755 "$BaseDir/${dir/~/ }"
 done
 
 # Get a list of all Media Directors
@@ -91,22 +97,23 @@ Q="SELECT PK_Device FROM Device WHERE FK_DeviceTemplate=28"
 R=$(RunSQL "$Q")
 
 for Device in $R; do
-	MD=$(echo "$R" | cut -d, -f1)
-	mkdir -p -m 0755 /home/tmp_$MD
+	mkdir -p -m 0755 /home/tmp_$Device
 done
 
-files="samba/smb.conf samba/smbpasswd shadow passwd group"
-for file in $files; do
-	mv -f /etc/$file.$$ /etc/$file
-done
+if [[ "$MakeUsers" == yes ]]; then
+	files="samba/smb.conf samba/smbpasswd shadow passwd group"
+	for file in $files; do
+		mv -f /etc/$file.$$ /etc/$file
+	done
 
-# Only now we have the copies in place of the originals so we can add users and set ownerships
-addgroup public &>/dev/null
-for User in $UserList; do
-	adduser pluto_$User public &>/dev/null
-	chown --dereference -R pluto_$User.pluto_$User /home/$User/
-done
+	# Only now we have the copies in place of the originals so we can add users and set ownerships
+	addgroup public &>/dev/null
+	for User in $UserList; do
+		adduser pluto_$User public &>/dev/null
+		chown --dereference -R pluto_$User.pluto_$User /home/$User/
+	done
+fi
 
-chmod -R 2770 /home/user_*
-chmod -R 2775 /home/public
-chgrp -R public /home/public
+chmod -R 2770 "$BaseDir"/user_*
+chmod -R 2775 "$BaseDir"/public
+chgrp -R public "$BaseDir"/public
