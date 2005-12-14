@@ -633,7 +633,7 @@ public:
 					string sData=pMessage->m_mapParameters[109];
 					int iPK_DHCPDevice=atoi(pMessage->m_mapParameters[150].c_str());
 					int iPK_Device_ControlledVia=atoi(pMessage->m_mapParameters[156].c_str());
-					int iPK_Orbiter=atoi(pMessage->m_mapParameters[196].c_str());
+					int iPK_Orbiter=atoi(pMessage->m_mapParameters[198].c_str());
 					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
 						CMD_Create_Device(iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,sIP_Address.c_str(),sData.c_str(),iPK_DHCPDevice,iPK_Device_ControlledVia,iPK_Orbiter,&iPK_Device,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
