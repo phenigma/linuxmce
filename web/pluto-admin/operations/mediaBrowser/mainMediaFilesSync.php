@@ -104,14 +104,18 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 					}else{
 						$notInDBArray[]=$physicalkey; 
 						$inDB=0;
-						$addToDB='<td align="right"> Type: <select name="type_'.$physicalkey.'">
-							<option value="">- Please select -</option>';
-						foreach ($typeArray AS $typeID=>$typeDescription){
-							$addToDB.='<option value="'.$typeID.'">'.str_replace('np_','',$typeDescription).'</option>';
+						if(!is_dir($path.'/'.$filename)){
+							$addToDB='<td align="right"> Type: <select name="type_'.$physicalkey.'">
+								<option value="">- Please select -</option>';
+							foreach ($typeArray AS $typeID=>$typeDescription){
+								$addToDB.='<option value="'.$typeID.'">'.str_replace('np_','',$typeDescription).'</option>';
+							}
+							$addToDB.='</select> <input type="submit" class="button" name="add" value="Add to database">
+							<input type="hidden" name="filename_'.$physicalkey.'" value="'.$filename.'">
+							</td>';
+						}else{
+							$addToDB='<td>&nbsp;</td>';
 						}
-						$addToDB.='</select> <input type="submit" class="button" name="add" value="Add to database">
-						<input type="hidden" name="filename_'.$physicalkey.'" value="'.$filename.'">
-						</td>';
 					}
 					$out.='	<tr style="background-color:'.(($physicalkey%2==0)?'#EEEEEE':'#EBEFF9').';">
 								<td '.(((@$inDB==1)?'colspan="2"':'')).'>'.((@$inDB==1)?'<img src=include/images/sync.gif align=middle border=0>':'<img src=include/images/disk.gif align=middle border=0>').' '.((@$inDB==1)?'<a href="index.php?section=editMediaFile&fileID='.$dbPKFiles[$key].'"><B>'.$filename.'</B></a>':'<B>'.$filename.'</B> '.$addToDB).'</td>

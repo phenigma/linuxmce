@@ -165,7 +165,7 @@
 	$GLOBALS['ListenPort']=119;					// Listen Port
 	$GLOBALS['SupportIframes']=122;				// Support iframes
 	$GLOBALS['RefreshInterval']=123;			// Refresh Interval
-	
+	$GLOBALS['AvailableSerialPorts']=133;		// Available Serial Ports
 	
 	// PK_FloorplanType from table FloorplanType 
 

@@ -2566,18 +2566,21 @@ function PortForHumans($device,$deviceNames)
 	return "Unknown: $devname";
 }
 
-function serialPortsPulldown($name,$selectedPort,$allowedToModify,$topParentIP,$dbADO,$deviceID)
+function serialPortsPulldown($name,$selectedPort,$allowedToModify,$topParent,$dbADO,$deviceID)
 {
 	$installationID=(int)$_SESSION['installationID'];
 
-	if($topParentIP==0){
-		return 'Error: top parent IP not found';
+	if($topParent==0){
+		return 'Error: top parent device not found';
 	}
 	
+	/*
 	$serial_ports=array();
 	$cmd="sudo -u root /usr/pluto/bin/LaunchRemoteCmd.sh '$topParentIP' /usr/pluto/bin/ListSerialPorts.sh";
 	exec($cmd, $serial_ports);
-
+	*/
+	$serial_ports=explode(',',getDeviceData($topParent,$GLOBALS['AvailableSerialPorts'],$dbADO));
+	
 	$usedPorts=getFieldsAsArray('Device_DeviceData','Device.Description,FK_Device,IK_DeviceData',$dbADO,'INNER JOIN Device ON FK_Device=PK_Device WHERE FK_Installation='.$installationID.' AND FK_DeviceData='.$GLOBALS['Port'].' AND PK_Device!='.$deviceID);
 	$serialPortAsoc=array();
 	foreach($serial_ports AS $key=>$value){
@@ -2649,6 +2652,26 @@ function getDeviceInformation($deviceID,$dbADO)
 	return $row;
 }
 
+function getTopLevelParentIP($deviceID,$dbADO)
+{
+	$topParent=0;
+	if($deviceID!=0){
+		$res=$dbADO->Execute('SELECT FK_DeviceTemplate,FK_Device_ControlledVia,IPaddress FROM Device WHERE PK_Device=?',$deviceID);
+		$row=$res->FetchRow();
+		if((int)$row['FK_Device_ControlledVia']!=0){
+			$topParent=getTopLevelParentIP($row['FK_Device_ControlledVia'],$dbADO);
+		}else{
+			if($row['FK_DeviceTemplate']==$GLOBALS['rootCoreID'] || $row['FK_DeviceTemplate']==$GLOBALS['rootMediaDirectorsID']){
+				$topParent=($row['FK_DeviceTemplate']==$GLOBALS['rootCoreID'] && $row['IPaddress']=='')?'127.0.0.1':$row['IPaddress'];
+			}else{
+				$topParent=0;
+			}
+		}
+	}
+	
+	return $topParent;
+}
+
 function getTopLevelParent($deviceID,$dbADO)
 {
 	$topParent=0;
@@ -2659,7 +2682,7 @@ function getTopLevelParent($deviceID,$dbADO)
 			$topParent=getTopLevelParent($row['FK_Device_ControlledVia'],$dbADO);
 		}else{
 			if($row['FK_DeviceTemplate']==$GLOBALS['rootCoreID'] || $row['FK_DeviceTemplate']==$GLOBALS['rootMediaDirectorsID']){
-				$topParent=($row['FK_DeviceTemplate']==$GLOBALS['rootCoreID'] && $row['IPaddress']=='')?'127.0.0.1':$row['IPaddress'];
+				$topParent=$deviceID;
 			}else{
 				$topParent=0;
 			}

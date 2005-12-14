@@ -1,5 +1,9 @@
 <?
 function avWizard($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/avWizard.lang.php');
+	
 	global $dbPlutoMainDatabase;
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
@@ -17,7 +21,6 @@ $start_time=getmicrotime();
 
 	$deviceCategory=$GLOBALS['rootAVEquipment'];
 	$specificFloorplanType=$GLOBALS['AVEquipmentFlorplanType'];
-	$title='A/V Equipment';
 	$output->setHelpSrc('/support/index.php?section=document&docID=131');
 
 	// get selected category Device Templates
@@ -70,17 +73,17 @@ $start_time=getmicrotime();
 	<input type="hidden" name="type" value="'.$type.'">
 	<input type="hidden" name="action" value="add">
 	<input type="hidden" name="cmd" value="0">			
-	<div align="center"><h3>'.((isset($title))?$title:strtoupper(str_replace('_',' ',$type))).'</h3></div>
+	<div align="center"><h3>'.$TEXT_AV_EQUIPMENT_CONST.'</h3></div>
 	
 	<div id="preloader" style="display:;">
 		<table width="100%">
 			<tr>
-				<td align="center">Loading, please wait ...</td>
+				<td align="center">'.$TEXT_LOADING_CONST.'</td>
 			</tr>
 		</table>
 	</div>
 	<div id="content" style="display:none;">';
-		$out.='<a href="index.php?section=connectionWizard">Connection Wizard</a>';
+		$out.='<a href="index.php?section=connectionWizard">'.$TEXT_CONNECTION_WIZARD_CONST.'</a>';
 		$queryDevice='
 			SELECT Device.* 
 			FROM Device
@@ -96,27 +99,27 @@ $start_time=getmicrotime();
 			$sharedWithOthers=($rowShare['Enabled']==1)?1:0;
 		}
 
-		$out.='<div align="center"><input type="checkbox" name="shareIRCodes" value="1" '.((@$sharedWithOthers>0)?'checked':'').' onClick="document.avWizard.submit();"> Share my I/R codes with other Pluto users.</div>';
+		$out.='<div align="center"><input type="checkbox" name="shareIRCodes" value="1" '.((@$sharedWithOthers>0)?'checked':'').' onClick="document.avWizard.submit();"> '.$TEXT_SHARE_CODES_CONST.'</div>';
 		$out.='	<input type="hidden" name="coreID" value="'.$coreID.'">
 				<input type="hidden" name="oldShareIRCodes" value="'.((@$sharedWithOthers>0)?'1':'0').'">';
 
 		$entAreas=getAssocArray('EntertainArea','PK_EntertainArea','EntertainArea.Description',$dbADO,'INNER JOIN Room ON FK_Room=PK_Room WHERE FK_Installation='.$installationID,'ORDER BY EntertainArea.Description ASC');
-		$entAreas[-2]='All entertain areas';
+		$entAreas[-2]=$TEXT_ALL_ENTERTAIN_AREAS_CONST;
 		$_SESSION['selectedEntArea']=(isset($_REQUEST['entArea']))?(int)$_REQUEST['entArea']:(int)@$_SESSION['selectedEntArea'];		
 		$out.='
-		Choose entertain area: '.pulldownFromArray($entAreas,'entArea',$_SESSION['selectedEntArea'],'onchange="document.avWizard.action.value=\'form\';document.avWizard.submit();"','key','Unassigned').'
+		'.$TEXT_CHOOSE_ENTERTAIN_AREA_CONST.': '.pulldownFromArray($entAreas,'entArea',$_SESSION['selectedEntArea'],'onchange="document.avWizard.action.value=\'form\';document.avWizard.submit();"','key',$TEXT_UNASSIGNED_CONST).'
 		<table align="center" border="0" cellpadding="2" cellspacing="0">
 			<tr bgcolor="lightblue">
-					<td align="center" rowspan="2"><B>Device</B></td>
-					<td align="center" rowspan="2"><B>Room / Controlled by</B></td>
-					<td align="center" colspan="4"><B>Pipes</B></td>
-					<td align="center" rowspan="2"><B>Device Data</B></td>
-					<td align="center" rowspan="2"><B>Actions</B></td>
+					<td align="center" rowspan="2"><B>'.$TEXT_DEVICE_CONST.'</B></td>
+					<td align="center" rowspan="2"><B>'.$TEXT_ROOM_CONTROLLED_BY_CONST.'</B></td>
+					<td align="center" colspan="4"><B>'.$TEXT_PIPES_CONST.'</B></td>
+					<td align="center" rowspan="2"><B>'.$TEXT_DEVICE_DATA_CONST.'</B></td>
+					<td align="center" rowspan="2"><B>'.$TEXT_ACTION_CONST.'</B></td>
 				</tr>		
 				<tr bgcolor="lightblue">
-					<td align="center"><B>Output</B></td>
-					<td align="center"><B>Connected to</B></td>
-					<td align="center"><B>Input</B></td>
+					<td align="center"><B>'.$TEXT_OUTPUT_CONST.'</B></td>
+					<td align="center"><B>'.$TEXT_CONNECTED_TO_CONST.'</B></td>
+					<td align="center"><B>'.$TEXT_INPUT_CONST.'</B></td>
 					<td align="center"><B>&nbsp;</B></td>
 				</tr>
 					';
@@ -236,17 +239,17 @@ $start_time=getmicrotime();
 				$deviceName=(@$childOf[$rowD['PK_Device']]=='')?'<input type="text" name="description_'.$rowD['PK_Device'].'" value="'.$rowD['Description'].'">':'<input type="hidden" name="description_'.$rowD['PK_Device'].'" value="'.$rowD['Description'].'"><B>'.$rowD['Description'].'</B>';
 				$deviceName.=' # '.$rowD['PK_Device'];
 				$roomPulldown='<select name="room_'.$rowD['PK_Device'].'">
-							<option value="0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Select room -&nbsp;&nbsp;&nbsp;&nbsp;</option>';
+							<option value="0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- '.$TEXT_SELECT_ROOM_CONST.' -&nbsp;&nbsp;&nbsp;&nbsp;</option>';
 				foreach($roomIDArray as $key => $value){
 					$roomPulldown.='<option value="'.$value.'" '.(($rowD['FK_Room']==$value)?'selected':'').'>'.$roomArray[$key].'</option>';
 				}
 				$roomPulldown.='</select>';
 	
 				$buttons='
-						<input value="Help" type="button" class="button" name="help" onClick="self.location=\'index.php?section=help&deviceID='.$rowD['PK_Device'].'\'"><br>
-						<input type="button" class="button" name="edit_'.$rowD['PK_Device'].'" value="Advanced"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'\';"><br>
-						<input type="button" class="button" name="btn" value="A/V Properties" onClick="windowOpen(\'index.php?section=irCodes&dtID='.$rowD['FK_DeviceTemplate'].'&deviceID='.$rowD['PK_Device'].'&from='.urlencode('avWizard&type='.$type).'\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');"><br>
-						<input type="submit" class="button" name="delete_'.$rowD['PK_Device'].'" value="Delete"  onclick="if(confirm(\'Are you sure you want to delete this device?\'))return true;else return false;"></td>';
+						<input value="'.$TEXT_HELP_CONST.'" type="button" class="button" name="help" onClick="self.location=\'index.php?section=help&deviceID='.$rowD['PK_Device'].'\'"><br>
+						<input type="button" class="button" name="edit_'.$rowD['PK_Device'].'" value="'.$TEXT_ADVANCED_CONST.'"  onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$rowD['PK_Device'].'\';"><br>
+						<input type="button" class="button" name="btn" value="'.$TEXT_AV_PROPERTIES_CONST.'" onClick="windowOpen(\'index.php?section=irCodes&dtID='.$rowD['FK_DeviceTemplate'].'&deviceID='.$rowD['PK_Device'].'&from='.urlencode('avWizard&type='.$type).'\',\'width=1024,height=768,toolbars=true,scrollbars=1,resizable=1\');"><br>
+						<input type="submit" class="button" name="delete_'.$rowD['PK_Device'].'" value="'.$TEXT_DELETE_CONST.'"  onclick="if(confirm(\''.$TEXT_DELETE_DEVICE_CONFIRMATION_CONST.'\'))return true;else return false;"></td>';
 	
 				$controlledByPulldown=controlledViaPullDown('controlledBy_'.$rowD['PK_Device'],$rowD['PK_Device'],$rowD['FK_DeviceTemplate'],$rowD['FK_DeviceCategory'],$rowD['FK_Device_ControlledVia'],$dbADO);
 				$devicePipes=getPipes($rowD['PK_Device'],$dbADO);
@@ -268,7 +271,7 @@ $start_time=getmicrotime();
 						<td bgcolor="#F0F3F8" align="center" rowspan="2" valign="top">'.$buttons.'</td>
 					</tr>
 					<tr>			
-						<td align="center" bgcolor="#F0F3F8" title="Category: '.$rowD['CategoryName'].', manufacturer: '.$rowD['ManufacturerName'].'">DT: '.$rowD['TemplateName'].'</td>
+						<td align="center" bgcolor="#F0F3F8" title="'.$TEXT_DEVICE_CATEGORY_CONST.': '.$rowD['CategoryName'].', '.strtolower($TEXT_MANUFACTURER_CONST).': '.$rowD['ManufacturerName'].'">DT: '.$rowD['TemplateName'].'</td>
 						<td align="right">'.$controlledByPulldown.'</td>
 						<td bgcolor="#F0F3F8">V: '.@$devicePipes['2']['output'].'</td>
 						<td bgcolor="#F0F3F8">'.@$devicePipes['2']['to'].'</td>
@@ -291,16 +294,16 @@ $start_time=getmicrotime();
 					$embededRows[$rowD['FK_Device_ControlledVia']][]='
 					<tr>
 						<td align="center" bgcolor="#F0F3F8"><a name="deviceLink_'.$rowD['PK_Device'].'"></a>'.$deviceName.'</td>
-						<td align="center">- Embeded device -</td>
+						<td align="center">- '.$TEXT_EMBEDED_DEVICE_CONST.' -</td>
 						<td bgcolor="#F0F3F8">A: '.@$devicePipes['1']['output'].'</td>
 						<td bgcolor="#F0F3F8">'.@$devicePipes['1']['to'].'</td>
 						<td bgcolor="#F0F3F8">'.@$devicePipes['1']['input'].'</td>
-						<td bgcolor="#F0F3F8" rowspan="2"><a href="javascript:windowOpen(\'index.php?section=editPipes&deviceID='.$rowD['PK_Device'].'&from=avWizard\',\'width=600,height=300,toolbars=true,scrollbars=1,resizable=1\');">Edit</a></td>
-						<td valign="top" align="center">- embedded device -</td>
+						<td bgcolor="#F0F3F8" rowspan="2"><a href="javascript:windowOpen(\'index.php?section=editPipes&deviceID='.$rowD['PK_Device'].'&from=avWizard\',\'width=600,height=300,toolbars=true,scrollbars=1,resizable=1\');">'.$TEXT_EDIT_CONST.'</a></td>
+						<td valign="top" align="center">- '.$TEXT_EMBEDED_DEVICE_CONST.' -</td>
 						<td bgcolor="#F0F3F8" align="center" rowspan="2" valign="top">&nbsp;</td>
 					</tr>
 					<tr>			
-						<td align="center" bgcolor="#F0F3F8" title="Category: '.$rowD['CategoryName'].', manufacturer: '.$rowD['ManufacturerName'].'">DT: '.$rowD['TemplateName'].'</td>
+						<td align="center" bgcolor="#F0F3F8" title="'.$TEXT_DEVICE_CATEGORY_CONST.': '.$rowD['CategoryName'].', '.strtolower($TEXT_MANUFACTURER_CONST).': '.$rowD['ManufacturerName'].'">DT: '.$rowD['TemplateName'].'</td>
 						<td>&nbsp;</td>
 						<td bgcolor="#F0F3F8">V: '.@$devicePipes['2']['output'].'</td>
 						<td bgcolor="#F0F3F8">'.@$devicePipes['2']['to'].'</td>
@@ -317,7 +320,7 @@ $start_time=getmicrotime();
 		if($resDevice->RecordCount()!=0){
 			$out.='
 				<tr>
-					<td colspan="8" align="center"><input type="submit" class="button" name="update" value="Update"></td>
+					<td colspan="8" align="center"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"></td>
 				</tr>
 				<tr>
 					<td colspan="8" align="left">&nbsp;</td>
@@ -325,10 +328,10 @@ $start_time=getmicrotime();
 		}
 		$out.='
 				<tr>
-					<td colspan="8">* PK_FloorplanObjectType in red has no picture available</td>
+					<td colspan="8">* '.$TEXT_FLOORPLAN_NOTE_CONST.'</td>
 				</tr>
 				<tr>
-					<td colspan="8" align="center"><input type="button" class="button" name="button" value="Add device" onClick="document.avWizard.action.value=\'externalSubmit\';document.avWizard.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from='.urlencode('avWizard&type='.$type).'&categoryID='.$deviceCategory.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"></td>
+					<td colspan="8" align="center"><input type="button" class="button" name="button" value="'.$TEXT_ADD_DEVICE_CONST.'" onClick="document.avWizard.action.value=\'externalSubmit\';document.avWizard.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from='.urlencode('avWizard&type='.$type).'&categoryID='.$deviceCategory.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"></td>
 				</tr>
 			</table>
 			<input type="hidden" name="DeviceDataToDisplay" value="'.join(',',$GLOBALS['DeviceDataToDisplay']).'">
@@ -348,7 +351,7 @@ $start_time=getmicrotime();
 		// check if the user has the right to modify installation
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
 		if (!$canModifyInstallation){
-			header("Location: index.php?section=avWizard&type=$type&error=You are not authorised to change the installation.");
+			header("Location: index.php?section=avWizard&type=$type&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit(0);
 		}
 
@@ -454,13 +457,13 @@ $start_time=getmicrotime();
 		}
 
 
-		header("Location: index.php?section=avWizard&msg=The devices was updated&type=$type".@$anchor);
+		header("Location: index.php?section=avWizard&msg=$TEXT_DEVICES_WAS_UPDATED_CONST&type=$type".@$anchor);
 	}
 
 	$output->setScriptCalendar('null');
 
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.((isset($title))?' :: '.$title:' :: '.strtoupper(str_replace('_',' ',$type))));
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_AV_EQUIPMENT_CONST);
 	$output->output();
 }
 

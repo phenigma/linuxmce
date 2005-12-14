@@ -1,5 +1,9 @@
 <?
 function bootSequence($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/bootSequence.lang.php');
+	
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	$out='';
@@ -72,11 +76,12 @@ function bootSequence($output,$dbADO) {
 		<input type="hidden" name="section" value="bootSequence">
 		<input type="hidden" name="action" value="add">	
 		<input type="hidden" name="computer" value="'.$computer.'">	
+		
 		<table>
 			<tr>
-				<td>Change the boot sequence for:</td>
+				<td>'.$TEXT_CHANGE_BOOT_SEQUENCE_CONST.':</td>
 				<td><select name="computer" onChange="javascript:document.bootSequence.action.value=\'form\';document.bootSequence.submit();">
-					<option value="0">- Please select -</option>';
+					<option value="0">- '.$TEXT_PLEASE_SELECT_CONST.' -</option>';
 		$validComputers=getValidComputersArray($installationID,$dbADO);
 		$queryComputers='
 			SELECT * FROM Device 
@@ -91,15 +96,15 @@ function bootSequence($output,$dbADO) {
 		</table>';
 		if($computer!=0){
 			$out.='
-		At bootup, this computer will run the following maintenance scripts:
+		'.$TEXT_BOOTUP_NOTE_CONST.':
 		<table>
 			<tr>
-				<td align="center"><B>Order</B></td>
-				<td align="center"><B>Command</B></td>
-				<td align="center"><B>Enabled</B></td>
-				<td align="center"><B>Background</B></td>
-				<td align="center"><B>Parameters</B></td>
-				<td align="center"><B>Configure only</B></td>
+				<td align="center"><B>'.$TEXT_ORDER_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_COMMAND_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_ENABLED_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_BACKGROUND_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_PARAMETERS_CONST.'</B></td>
+				<td align="center"><B>'.$TEXT_CONFIGURE_ONLY_CONST.'</B></td>
 			</tr>';
 
 		$selectDeviceStartupScript='
@@ -127,19 +132,19 @@ function bootSequence($output,$dbADO) {
 				<td colspan="6">Description: '.$rowDeviceStartupScript['Description'].'</td>
 			</tr>
 			<tr bgcolor='.(($lineCount%2==0)?'#F0F3F8':'#FFFFFF').'> 
-				<td colspan="6">Parameters: '.(($rowDeviceStartupScript['Parameter_Syntax']=='')?'None':$rowDeviceStartupScript['Parameter_Syntax']).'</td>
+				<td colspan="6">'.$TEXT_PARAMETERS_CONST.': '.(($rowDeviceStartupScript['Parameter_Syntax']=='')?'None':$rowDeviceStartupScript['Parameter_Syntax']).'</td>
 			</tr>
 			<tr bgcolor='.(($lineCount%2==0)?'#F0F3F8':'#FFFFFF').'>
 				<td colspan="6">';
 			switch($DeviceType){
 				case 'Core':
- 					$out.='Defaults: Order: '.$rowDeviceStartupScript['Core_Boot_Order'].' Enabled: '.(($rowDeviceStartupScript['Core_Enabled']==1)?'Y':'N').' Background: '.(($rowDeviceStartupScript['Core_Background']==1)?'Y':'N').' Parameters: '.$rowDeviceStartupScript['Core_Parameter'];
+ 					$out.='Defaults: Order: '.$rowDeviceStartupScript['Core_Boot_Order'].' Enabled: '.(($rowDeviceStartupScript['Core_Enabled']==1)?'Y':'N').' Background: '.(($rowDeviceStartupScript['Core_Background']==1)?'Y':'N').' '.$TEXT_PARAMETERS_CONST.': '.$rowDeviceStartupScript['Core_Parameter'];
  				break;
 				case 'MediaDirector':
- 					$out.='Defaults: Order: '.$rowDeviceStartupScript['MD_Boot_Order'].' Enabled: '.(($rowDeviceStartupScript['MD_Enabled']==1)?'Y':'N').' Background: '.(($rowDeviceStartupScript['MD_Background']==1)?'Y':'N').' Parameters: '.$rowDeviceStartupScript['MD_Parameter'];
+ 					$out.='Defaults: Order: '.$rowDeviceStartupScript['MD_Boot_Order'].' Enabled: '.(($rowDeviceStartupScript['MD_Enabled']==1)?'Y':'N').' Background: '.(($rowDeviceStartupScript['MD_Background']==1)?'Y':'N').' '.$TEXT_PARAMETERS_CONST.': '.$rowDeviceStartupScript['MD_Parameter'];
  				break;
 				case 'Hybrid':
- 					$out.='Defaults: Order: '.$rowDeviceStartupScript['Hybrid_Boot_Order'].' Enabled: '.(($rowDeviceStartupScript['Hybrid_Enabled']==1)?'Y':'N').' Background: '.(($rowDeviceStartupScript['Hybrid_Background']==1)?'Y':'N').' Parameters: '.$rowDeviceStartupScript['Hybrid_Parameter'];
+ 					$out.='Defaults: Order: '.$rowDeviceStartupScript['Hybrid_Boot_Order'].' Enabled: '.(($rowDeviceStartupScript['Hybrid_Enabled']==1)?'Y':'N').' Background: '.(($rowDeviceStartupScript['Hybrid_Background']==1)?'Y':'N').' '.$TEXT_PARAMETERS_CONST.': '.$rowDeviceStartupScript['Hybrid_Parameter'];
  				break;
 			}
  			$out.='</td>
@@ -150,7 +155,7 @@ function bootSequence($output,$dbADO) {
 		$out.='
 			<input type="hidden" name="displayedSS" value="'.@join(',',$displayedSS).'">
 			<tr> 
-				<td colspan="6" align="center"><input type="submit" class="button" name="save" value="Save Changes"  ></td>
+				<td colspan="6" align="center"><input type="submit" class="button" name="save" value="'.$TEXT_SAVE_CONST.'"  ></td>
 			</tr>
 		</table>
 		</form>
@@ -180,6 +185,6 @@ function bootSequence($output,$dbADO) {
 	$output->setScriptCalendar('null');
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_BOOT_SEQUENCE_CONST);			
 	$output->output();  	
 }

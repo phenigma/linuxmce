@@ -1,6 +1,9 @@
 <?
-//se iau intai cele selectate, din baza de date si apoi se verifica array-ul din DeviceTemplate_DeviceParameter!
 function addMyDevice($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/addMyDevice.lang.php');
+		
 	global $dbPlutoMainDatabase;
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
@@ -27,27 +30,28 @@ function addMyDevice($output,$dbADO) {
 	<input type="hidden" name="section" value="addMyDevice">
 	<input type="hidden" name="action" value="add">	
 	<input type="hidden" name="parentID" value="'.$parentID.'">
-		<h3>Add '.(($parentID==0)?'top level ':' child ').'device</h3>
+		
+		<h3>'.(($parentID==0)?$TEXT_ADD_TOP_LEVEL_DEVICE_CONST:$TEXT_ADD_CHILD_DEVICE_CONST).'</h3>
 		<table>			
 				<tr>
-					<td>Description:</td>
+					<td>'.$TEXT_DESCRIPTION_CONST.':</td>
 					<td><input type="text" size="15" name="Description" value=""></td>
 				</tr>				
 				<tr>
-					<td>IP Address:</td>
+					<td>'.$TEXT_IP_ADDRESS_CONST.':</td>
 					<td><textarea name="IPaddress"></textarea></td>
 				</tr>
 				<tr>
-					<td>MACaddress:</td>
+					<td>'.$TEXT_MAC_ADDRESS_CONST.':</td>
 					<td><textarea name="MACaddress"></textarea></td>
 				</tr>
 				<tr>
-					<td>Ignore On/Off:</td>
-					<td>On:<input type="radio" value="1" name="IgnoreOnOff"> &nbsp; Off:<input type="radio" value="0" name="IgnoreOnOff" checked="checked"></td>
+					<td>'.$TEXT_IGNORE_ON_OFF_CONST.':</td>
+					<td>'.$TEXT_ON_CONST.':<input type="radio" value="1" name="IgnoreOnOff"> &nbsp; '.$TEXT_OFF_CONST.':<input type="radio" value="0" name="IgnoreOnOff" checked="checked"></td>
 				</tr>
 				<tr>
-					<td>Device template</td>
-					<td><input type="button" class="button" name="pick" value="Pick device template" onclick="document.addMyDevice.submit();windowOpen(\'index.php?section=deviceTemplatePicker&categoryID=0&from='.urlencode('addMyDevice&parentID='.$parentID).'&allowAdd=1\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"></td>
+					<td>'.$TEXT_DEVICE_TEMPLATE_CONST.'</td>
+					<td><input type="button" class="button" name="pick" value="'.$TEXT_PICK_DEVICE_TEMPLATE_CONST.'" onclick="document.addMyDevice.submit();windowOpen(\'index.php?section=deviceTemplatePicker&categoryID=0&from='.urlencode('addMyDevice&parentID='.$parentID).'&allowAdd=1\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"></td>
 				</tr>
 			</table>
 	</form>
@@ -56,7 +60,7 @@ function addMyDevice($output,$dbADO) {
 		// check if the user has the right to modify installation
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
 		if (!$canModifyInstallation){
-			header("Location: index.php?section=addMyDevice&parentID=$parentID&error=You are not authorised to change the installation.");
+			header("Location: index.php?section=addMyDevice&parentID=$parentID&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 			exit(0);
 		}
 
@@ -89,7 +93,7 @@ function addMyDevice($output,$dbADO) {
 			
 			$out.="<script>
 			top.frames['treeframe'].location='index.php?section=leftMenu&deviceID=$insertID';
-			self.location.href=\"index.php?section=editDeviceParams&deviceID=$insertID&parentID=$parentID&msg=New device added.$suffix\";
+			self.location.href=\"index.php?section=editDeviceParams&deviceID=$insertID&parentID=$parentID&msg=$TEXT_NEW_DEVICE_ADDED_CONST.$suffix\";
 		</script>";
 		}else{
 			$_SESSION['Description']=cleanString(@$_POST['Description']);
