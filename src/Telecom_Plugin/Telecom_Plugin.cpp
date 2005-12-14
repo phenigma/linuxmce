@@ -739,7 +739,7 @@ string Telecom_Plugin::GetDialNumber(Row_PhoneNumber *pRow_PhoneNumber)
 bool 
 Telecom_Plugin::IncomingCall( class Socket *pSocket, class Message *pMessage, 
 					 			class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo ) {
-	CMD_Goto_Screen cmdGoToScreen(m_dwPK_Device,pDeviceFrom->m_dwPK_Device_ControlledVia,SCREEN_DevIncomingCall_CONST);
+	CMD_Goto_Screen cmdGoToScreen(m_dwPK_Device,pDeviceFrom->m_dwPK_Device_ControlledVia,"",SCREEN_DevIncomingCall_CONST);
 	SendCommand(cmdGoToScreen);
 	return true;
 }
