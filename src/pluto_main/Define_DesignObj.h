@@ -1847,9 +1847,15 @@
 #define DESIGNOBJ_dgReceiverInputs_CONST 4715
 #define DESIGNOBJ_butVoipUsername_CONST 4716
 #define DESIGNOBJ_dgRoomTypes_CONST 4717
-#define DESIGNOBJ_dgAlarmSensors_CONST 4719
-#define DESIGNOBJ_butAddRoomType_CONST 4720
-#define DESIGNOBJ_butRemoveRoomType_CONST 4721
+#define DESIGNOBJ_dgAlarmSensors_CONST 4718
+#define DESIGNOBJ_butAddRoomType_CONST 4719
+#define DESIGNOBJ_butRemoveRoomType_CONST 4720
+#define DESIGNOBJ_butNoDefaultDirectoryStructure_CONST 4721
+#define DESIGNOBJ_mnuNAS_Options_CONST 4722
+#define DESIGNOBJ_butYesUseIt_CONST 4723
+#define DESIGNOBJ_butNoDontUseIt_CONST 4724
+#define DESIGNOBJ_mnuNAS_Option_Mount_CONST 4725
+#define DESIGNOBJ_butYesDefaultDirectory_CONST 4726
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

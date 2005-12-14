@@ -200,6 +200,7 @@
 #define SCREEN_AlarmPanel_CONST 199
 #define SCREEN_VOIP_Provider_CONST 200
 #define SCREEN_AV_Devices_CONST 201
+#define SCREEN_NAS_Options_CONST 202
 
 #define SCREEN_TABLE "Screen"
 #define SCREEN_PK_SCREEN_FIELD "PK_Screen"

@@ -880,6 +880,10 @@
 #define TEXT_VOIP_Number_CONST 1586
 #define TEXT_Add_CONST 1587
 #define TEXT_Remove_CONST 1588
+#define TEXT_No_recommended_directory_structure_CONST 1589
+#define TEXT_Auto_Use_NAS_CONST 1590
+#define TEXT_dont_auto_use_nas_CONST 1591
+#define TEXT_Use_recommended_directory_structure_CONST 1592
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
