@@ -1848,6 +1848,8 @@
 #define DESIGNOBJ_butVoipUsername_CONST 4716
 #define DESIGNOBJ_dgRoomTypes_CONST 4717
 #define DESIGNOBJ_dgAlarmSensors_CONST 4719
+#define DESIGNOBJ_butAddRoomType_CONST 4720
+#define DESIGNOBJ_butRemoveRoomType_CONST 4721
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

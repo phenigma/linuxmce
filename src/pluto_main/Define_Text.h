@@ -878,6 +878,8 @@
 #define TEXT_Efon_CONST 1584
 #define TEXT_Teliax_CONST 1585
 #define TEXT_VOIP_Number_CONST 1586
+#define TEXT_Add_CONST 1587
+#define TEXT_Remove_CONST 1588
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
