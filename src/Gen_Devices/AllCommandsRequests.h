@@ -11095,19 +11095,19 @@ namespace DCE
 	};
 	class CMD_New_Plug_and_Play_Device : public PreformedCommand {
 	public:
-		CMD_New_Plug_and_Play_Device(long DeviceIDFrom, long DeviceIDTo,string sMac_address,string sIP_Address,string sData,int iPK_DHCPDevice) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,700,4,47,sMac_address.c_str(),58,sIP_Address.c_str(),109,sData.c_str(),150,StringUtils::itos(iPK_DHCPDevice).c_str()); }
+		CMD_New_Plug_and_Play_Device(long DeviceIDFrom, long DeviceIDTo,string sMac_address,string sIP_Address,int iPK_DHCPDevice) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,700,3,47,sMac_address.c_str(),58,sIP_Address.c_str(),150,StringUtils::itos(iPK_DHCPDevice).c_str()); }
 	};
 	class CMD_New_Plug_and_Play_Device_DL : public PreformedCommand {
 	public:
-		CMD_New_Plug_and_Play_Device_DL(long DeviceIDFrom, string DeviceIDTo,string sMac_address,string sIP_Address,string sData,int iPK_DHCPDevice) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,700,4,47,sMac_address.c_str(),58,sIP_Address.c_str(),109,sData.c_str(),150,StringUtils::itos(iPK_DHCPDevice).c_str()); }
+		CMD_New_Plug_and_Play_Device_DL(long DeviceIDFrom, string DeviceIDTo,string sMac_address,string sIP_Address,int iPK_DHCPDevice) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,700,3,47,sMac_address.c_str(),58,sIP_Address.c_str(),150,StringUtils::itos(iPK_DHCPDevice).c_str()); }
 	};
 	class CMD_New_Plug_and_Play_Device_DT : public PreformedCommand {
 	public:
-		CMD_New_Plug_and_Play_Device_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sMac_address,string sIP_Address,string sData,int iPK_DHCPDevice) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,700,4,47,sMac_address.c_str(),58,sIP_Address.c_str(),109,sData.c_str(),150,StringUtils::itos(iPK_DHCPDevice).c_str()); }
+		CMD_New_Plug_and_Play_Device_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sMac_address,string sIP_Address,int iPK_DHCPDevice) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,700,3,47,sMac_address.c_str(),58,sIP_Address.c_str(),150,StringUtils::itos(iPK_DHCPDevice).c_str()); }
 	};
 	class CMD_New_Plug_and_Play_Device_Cat : public PreformedCommand {
 	public:
-		CMD_New_Plug_and_Play_Device_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sMac_address,string sIP_Address,string sData,int iPK_DHCPDevice) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,700,4,47,sMac_address.c_str(),58,sIP_Address.c_str(),109,sData.c_str(),150,StringUtils::itos(iPK_DHCPDevice).c_str()); }
+		CMD_New_Plug_and_Play_Device_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sMac_address,string sIP_Address,int iPK_DHCPDevice) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,700,3,47,sMac_address.c_str(),58,sIP_Address.c_str(),150,StringUtils::itos(iPK_DHCPDevice).c_str()); }
 	};
 	class CMD_Load_from_Slot_into_Drive : public PreformedCommand {
 	public:
@@ -11271,35 +11271,35 @@ namespace DCE
 	};
 	class CMD_Create_Device : public PreformedCommand {
 	public:
-		CMD_Create_Device(long DeviceIDFrom, long DeviceIDTo,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter,int *iPK_Device) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,718,9,44,StringUtils::itos(iPK_DeviceTemplate).c_str(),47,sMac_address.c_str(),57,StringUtils::itos(iPK_Room).c_str(),58,sIP_Address.c_str(),109,sData.c_str(),150,StringUtils::itos(iPK_DHCPDevice).c_str(),156,StringUtils::itos(iPK_Device_ControlledVia).c_str(),196,StringUtils::itos(iPK_Orbiter).c_str(),2,StringUtils::itos(*iPK_Device).c_str());		m_pcResponse = new RESP_Create_Device(iPK_Device); }
+		CMD_Create_Device(long DeviceIDFrom, long DeviceIDTo,int iPK_DeviceTemplate,string sMac_address,string sIP_Address,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int *iPK_Device) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,718,6,44,StringUtils::itos(iPK_DeviceTemplate).c_str(),47,sMac_address.c_str(),58,sIP_Address.c_str(),150,StringUtils::itos(iPK_DHCPDevice).c_str(),156,StringUtils::itos(iPK_Device_ControlledVia).c_str(),2,StringUtils::itos(*iPK_Device).c_str());		m_pcResponse = new RESP_Create_Device(iPK_Device); }
 	};
 	class CMD_Create_Device_DL : public PreformedCommand {
 	public:
-		CMD_Create_Device_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter,int *iPK_Device) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,718,9,44,StringUtils::itos(iPK_DeviceTemplate).c_str(),47,sMac_address.c_str(),57,StringUtils::itos(iPK_Room).c_str(),58,sIP_Address.c_str(),109,sData.c_str(),150,StringUtils::itos(iPK_DHCPDevice).c_str(),156,StringUtils::itos(iPK_Device_ControlledVia).c_str(),196,StringUtils::itos(iPK_Orbiter).c_str(),2,StringUtils::itos(*iPK_Device).c_str());		m_pcResponse = new RESP_Create_Device(iPK_Device); }
+		CMD_Create_Device_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_DeviceTemplate,string sMac_address,string sIP_Address,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int *iPK_Device) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,718,6,44,StringUtils::itos(iPK_DeviceTemplate).c_str(),47,sMac_address.c_str(),58,sIP_Address.c_str(),150,StringUtils::itos(iPK_DHCPDevice).c_str(),156,StringUtils::itos(iPK_Device_ControlledVia).c_str(),2,StringUtils::itos(*iPK_Device).c_str());		m_pcResponse = new RESP_Create_Device(iPK_Device); }
 	};
 	class CMD_Create_Device_DT : public PreformedCommand {
 	public:
-		CMD_Create_Device_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter,int *iPK_Device) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,718,9,44,StringUtils::itos(iPK_DeviceTemplate).c_str(),47,sMac_address.c_str(),57,StringUtils::itos(iPK_Room).c_str(),58,sIP_Address.c_str(),109,sData.c_str(),150,StringUtils::itos(iPK_DHCPDevice).c_str(),156,StringUtils::itos(iPK_Device_ControlledVia).c_str(),196,StringUtils::itos(iPK_Orbiter).c_str(),2,StringUtils::itos(*iPK_Device).c_str());		m_pcResponse = new RESP_Create_Device(iPK_Device); }
+		CMD_Create_Device_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_DeviceTemplate,string sMac_address,string sIP_Address,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int *iPK_Device) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,718,6,44,StringUtils::itos(iPK_DeviceTemplate).c_str(),47,sMac_address.c_str(),58,sIP_Address.c_str(),150,StringUtils::itos(iPK_DHCPDevice).c_str(),156,StringUtils::itos(iPK_Device_ControlledVia).c_str(),2,StringUtils::itos(*iPK_Device).c_str());		m_pcResponse = new RESP_Create_Device(iPK_Device); }
 	};
 	class CMD_Create_Device_Cat : public PreformedCommand {
 	public:
-		CMD_Create_Device_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter,int *iPK_Device) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,718,9,44,StringUtils::itos(iPK_DeviceTemplate).c_str(),47,sMac_address.c_str(),57,StringUtils::itos(iPK_Room).c_str(),58,sIP_Address.c_str(),109,sData.c_str(),150,StringUtils::itos(iPK_DHCPDevice).c_str(),156,StringUtils::itos(iPK_Device_ControlledVia).c_str(),196,StringUtils::itos(iPK_Orbiter).c_str(),2,StringUtils::itos(*iPK_Device).c_str());		m_pcResponse = new RESP_Create_Device(iPK_Device); }
+		CMD_Create_Device_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_DeviceTemplate,string sMac_address,string sIP_Address,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int *iPK_Device) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,718,6,44,StringUtils::itos(iPK_DeviceTemplate).c_str(),47,sMac_address.c_str(),58,sIP_Address.c_str(),150,StringUtils::itos(iPK_DHCPDevice).c_str(),156,StringUtils::itos(iPK_Device_ControlledVia).c_str(),2,StringUtils::itos(*iPK_Device).c_str());		m_pcResponse = new RESP_Create_Device(iPK_Device); }
 	};
 	class CMD_NOREP_Create_Device : public PreformedCommand {
 	public:
-		CMD_NOREP_Create_Device(long DeviceIDFrom, long DeviceIDTo,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,718,8,44,StringUtils::itos(iPK_DeviceTemplate).c_str(),47,sMac_address.c_str(),57,StringUtils::itos(iPK_Room).c_str(),58,sIP_Address.c_str(),109,sData.c_str(),150,StringUtils::itos(iPK_DHCPDevice).c_str(),156,StringUtils::itos(iPK_Device_ControlledVia).c_str(),196,StringUtils::itos(iPK_Orbiter).c_str()); }
+		CMD_NOREP_Create_Device(long DeviceIDFrom, long DeviceIDTo,int iPK_DeviceTemplate,string sMac_address,string sIP_Address,int iPK_DHCPDevice,int iPK_Device_ControlledVia) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,718,5,44,StringUtils::itos(iPK_DeviceTemplate).c_str(),47,sMac_address.c_str(),58,sIP_Address.c_str(),150,StringUtils::itos(iPK_DHCPDevice).c_str(),156,StringUtils::itos(iPK_Device_ControlledVia).c_str()); }
 	};
 	class CMD_NOREP_Create_Device_DL : public PreformedCommand {
 	public:
-		CMD_NOREP_Create_Device_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,718,8,44,StringUtils::itos(iPK_DeviceTemplate).c_str(),47,sMac_address.c_str(),57,StringUtils::itos(iPK_Room).c_str(),58,sIP_Address.c_str(),109,sData.c_str(),150,StringUtils::itos(iPK_DHCPDevice).c_str(),156,StringUtils::itos(iPK_Device_ControlledVia).c_str(),196,StringUtils::itos(iPK_Orbiter).c_str()); }
+		CMD_NOREP_Create_Device_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_DeviceTemplate,string sMac_address,string sIP_Address,int iPK_DHCPDevice,int iPK_Device_ControlledVia) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,718,5,44,StringUtils::itos(iPK_DeviceTemplate).c_str(),47,sMac_address.c_str(),58,sIP_Address.c_str(),150,StringUtils::itos(iPK_DHCPDevice).c_str(),156,StringUtils::itos(iPK_Device_ControlledVia).c_str()); }
 	};
 	class CMD_NOREP_Create_Device_DT : public PreformedCommand {
 	public:
-		CMD_NOREP_Create_Device_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,718,8,44,StringUtils::itos(iPK_DeviceTemplate).c_str(),47,sMac_address.c_str(),57,StringUtils::itos(iPK_Room).c_str(),58,sIP_Address.c_str(),109,sData.c_str(),150,StringUtils::itos(iPK_DHCPDevice).c_str(),156,StringUtils::itos(iPK_Device_ControlledVia).c_str(),196,StringUtils::itos(iPK_Orbiter).c_str()); }
+		CMD_NOREP_Create_Device_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_DeviceTemplate,string sMac_address,string sIP_Address,int iPK_DHCPDevice,int iPK_Device_ControlledVia) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,718,5,44,StringUtils::itos(iPK_DeviceTemplate).c_str(),47,sMac_address.c_str(),58,sIP_Address.c_str(),150,StringUtils::itos(iPK_DHCPDevice).c_str(),156,StringUtils::itos(iPK_Device_ControlledVia).c_str()); }
 	};
 	class CMD_NOREP_Create_Device_Cat : public PreformedCommand {
 	public:
-		CMD_NOREP_Create_Device_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,718,8,44,StringUtils::itos(iPK_DeviceTemplate).c_str(),47,sMac_address.c_str(),57,StringUtils::itos(iPK_Room).c_str(),58,sIP_Address.c_str(),109,sData.c_str(),150,StringUtils::itos(iPK_DHCPDevice).c_str(),156,StringUtils::itos(iPK_Device_ControlledVia).c_str(),196,StringUtils::itos(iPK_Orbiter).c_str()); }
+		CMD_NOREP_Create_Device_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_DeviceTemplate,string sMac_address,string sIP_Address,int iPK_DHCPDevice,int iPK_Device_ControlledVia) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,718,5,44,StringUtils::itos(iPK_DeviceTemplate).c_str(),47,sMac_address.c_str(),58,sIP_Address.c_str(),150,StringUtils::itos(iPK_DHCPDevice).c_str(),156,StringUtils::itos(iPK_Device_ControlledVia).c_str()); }
 	};
 	class CMD_Delete_Device : public PreformedCommand {
 	public:
@@ -11743,19 +11743,19 @@ namespace DCE
 	};
 	class CMD_Disarm_partition : public PreformedCommand {
 	public:
-		CMD_Disarm_partition(long DeviceIDFrom, long DeviceIDTo,int iValue) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,745,1,48,StringUtils::itos(iValue).c_str()); }
+		CMD_Disarm_partition(long DeviceIDFrom, long DeviceIDTo,int iValue,string sPassword) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,745,2,48,StringUtils::itos(iValue).c_str(),99,sPassword.c_str()); }
 	};
 	class CMD_Disarm_partition_DL : public PreformedCommand {
 	public:
-		CMD_Disarm_partition_DL(long DeviceIDFrom, string DeviceIDTo,int iValue) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,745,1,48,StringUtils::itos(iValue).c_str()); }
+		CMD_Disarm_partition_DL(long DeviceIDFrom, string DeviceIDTo,int iValue,string sPassword) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,745,2,48,StringUtils::itos(iValue).c_str(),99,sPassword.c_str()); }
 	};
 	class CMD_Disarm_partition_DT : public PreformedCommand {
 	public:
-		CMD_Disarm_partition_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iValue) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,745,1,48,StringUtils::itos(iValue).c_str()); }
+		CMD_Disarm_partition_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iValue,string sPassword) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,745,2,48,StringUtils::itos(iValue).c_str(),99,sPassword.c_str()); }
 	};
 	class CMD_Disarm_partition_Cat : public PreformedCommand {
 	public:
-		CMD_Disarm_partition_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iValue) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,745,1,48,StringUtils::itos(iValue).c_str()); }
+		CMD_Disarm_partition_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iValue,string sPassword) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,745,2,48,StringUtils::itos(iValue).c_str(),99,sPassword.c_str()); }
 	};
 	class CMD_Disarm_panel : public PreformedCommand {
 	public:
@@ -11775,19 +11775,19 @@ namespace DCE
 	};
 	class CMD_Arm_partition : public PreformedCommand {
 	public:
-		CMD_Arm_partition(long DeviceIDFrom, long DeviceIDTo,string sType,string sOptions,int iValue) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,747,3,14,sType.c_str(),39,sOptions.c_str(),48,StringUtils::itos(iValue).c_str()); }
+		CMD_Arm_partition(long DeviceIDFrom, long DeviceIDTo,string sType,int iValue) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,747,2,14,sType.c_str(),48,StringUtils::itos(iValue).c_str()); }
 	};
 	class CMD_Arm_partition_DL : public PreformedCommand {
 	public:
-		CMD_Arm_partition_DL(long DeviceIDFrom, string DeviceIDTo,string sType,string sOptions,int iValue) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,747,3,14,sType.c_str(),39,sOptions.c_str(),48,StringUtils::itos(iValue).c_str()); }
+		CMD_Arm_partition_DL(long DeviceIDFrom, string DeviceIDTo,string sType,int iValue) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,747,2,14,sType.c_str(),48,StringUtils::itos(iValue).c_str()); }
 	};
 	class CMD_Arm_partition_DT : public PreformedCommand {
 	public:
-		CMD_Arm_partition_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sType,string sOptions,int iValue) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,747,3,14,sType.c_str(),39,sOptions.c_str(),48,StringUtils::itos(iValue).c_str()); }
+		CMD_Arm_partition_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sType,int iValue) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,747,2,14,sType.c_str(),48,StringUtils::itos(iValue).c_str()); }
 	};
 	class CMD_Arm_partition_Cat : public PreformedCommand {
 	public:
-		CMD_Arm_partition_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sType,string sOptions,int iValue) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,747,3,14,sType.c_str(),39,sOptions.c_str(),48,StringUtils::itos(iValue).c_str()); }
+		CMD_Arm_partition_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sType,int iValue) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,747,2,14,sType.c_str(),48,StringUtils::itos(iValue).c_str()); }
 	};
 	class CMD_Arm : public PreformedCommand {
 	public:
@@ -11836,6 +11836,22 @@ namespace DCE
 	class CMD_SetDateTime_Cat : public PreformedCommand {
 	public:
 		CMD_SetDateTime_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sTime,string sData) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,750,2,102,sTime.c_str(),109,sData.c_str()); }
+	};
+	class CMD_PL_Add_VOIP_Account : public PreformedCommand {
+	public:
+		CMD_PL_Add_VOIP_Account(long DeviceIDFrom, long DeviceIDTo,string sName,string sPhoneNumber,string sPassword,string sUsers) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,751,4,50,sName.c_str(),75,sPhoneNumber.c_str(),99,sPassword.c_str(),189,sUsers.c_str()); }
+	};
+	class CMD_PL_Add_VOIP_Account_DL : public PreformedCommand {
+	public:
+		CMD_PL_Add_VOIP_Account_DL(long DeviceIDFrom, string DeviceIDTo,string sName,string sPhoneNumber,string sPassword,string sUsers) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,751,4,50,sName.c_str(),75,sPhoneNumber.c_str(),99,sPassword.c_str(),189,sUsers.c_str()); }
+	};
+	class CMD_PL_Add_VOIP_Account_DT : public PreformedCommand {
+	public:
+		CMD_PL_Add_VOIP_Account_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sName,string sPhoneNumber,string sPassword,string sUsers) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,751,4,50,sName.c_str(),75,sPhoneNumber.c_str(),99,sPassword.c_str(),189,sUsers.c_str()); }
+	};
+	class CMD_PL_Add_VOIP_Account_Cat : public PreformedCommand {
+	public:
+		CMD_PL_Add_VOIP_Account_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sName,string sPhoneNumber,string sPassword,string sUsers) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,751,4,50,sName.c_str(),75,sPhoneNumber.c_str(),99,sPassword.c_str(),189,sUsers.c_str()); }
 	};
 }
 #endif
