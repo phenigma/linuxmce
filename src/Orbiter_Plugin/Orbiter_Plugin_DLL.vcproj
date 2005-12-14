@@ -166,6 +166,9 @@
 			<File
 				RelativePath="..\VIPShared\VIPMenu.cpp">
 			</File>
+			<File
+				RelativePath="..\General_Info_Plugin\Web_DHCP_Query.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"

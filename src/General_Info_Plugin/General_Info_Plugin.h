@@ -14,6 +14,8 @@ class Database_pluto_main;
 
 namespace DCE
 {
+	class OH_Orbiter;
+
 	class LastApplication
 	{
 	public:
@@ -64,7 +66,14 @@ public:
 		return false;
 	}
 	bool NewPnpDevice( int PK_Device );
-	bool OkayToCreateDevice(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sMac_address,string sIP_Address,int iPK_Orbiter);
+	bool OkayToCreateDevice(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sMac_address,string sIP_Address,OH_Orbiter *pOH_Orbiter,string sData);
+	bool OkayToCreateDevice_AlarmPanel(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sMac_address,string sIP_Address,OH_Orbiter *pOH_Orbiter,string sData);
+	bool OkayToCreateDevice_NetworkStorage(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sMac_address,string sIP_Address,OH_Orbiter *pOH_Orbiter,string sData);
+
+	void PostCreateDevice(int iPK_Device,int iPK_DeviceTemplate,OH_Orbiter *pOH_Orbiter);
+	void PostCreateDevice_AlarmPanel(int iPK_Device,int iPK_DeviceTemplate,OH_Orbiter *pOH_Orbiter);
+	void PostCreateDevice_NetworkStorage(int iPK_Device,int iPK_DeviceTemplate,OH_Orbiter *pOH_Orbiter);
+
 	// Private methods
 	list<pair<string, string> > GetUserBookmarks(string sPK_User);
 	list<int> m_listNewPnpDevicesWaitingForARoom;

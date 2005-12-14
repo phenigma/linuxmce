@@ -34,6 +34,10 @@
 	#include <unistd.h>
 	#include <fcntl.h>
 	#include <fnmatch.h>
+	extern "C"
+	{
+	#include <http_fetcher.h>
+	}
 #else
 //	#include <shellapi.h>
 #endif
@@ -99,14 +103,10 @@ bool FileUtils::WriteBufferIntoFile( string sFileName, const char *pBuffer, size
 	return true;
 }
 
-/*
-char *FileUtils::DownloadFile(string sUrl, size_t &Size)
+char *FileUtils::ReadURL(string sUrl, size_t &Size,bool bNullTerminate)
 {
 #ifdef WIN32
 	string sDownloadedFile = "C:\\Temp\\picture.tmp";
-#else
-	string sDownloadedFile = "/tmp/picture.tmp";
-#endif
 
 	string sCommand = "wget " + sUrl + " -O " + sDownloadedFile;
 	system(sCommand.c_str());
@@ -114,9 +114,19 @@ char *FileUtils::DownloadFile(string sUrl, size_t &Size)
 	char *pData = FileUtils::ReadFileIntoBuffer(sDownloadedFile, Size);
 	FileUtils::DelFile(sDownloadedFile);
 
-	return pData;
+	return pData; // This always null terminates anyway
+#else
+	char * buffer = NULL;
+	int iResult = http_fetch(sURL.c_str(), &buffer);
+	if( bNullTerminate && iResult>0 )
+	{
+		buffer = (char *) realloc(buffer, iResult + 1); // http_fetch doesn't store a \0 in the end
+		buffer[iResult] = 0;
+	}
+	Size = iResult;
+	return buffer;
+#endif
 }
-*/
 
 bool FileUtils::ReadTextFile(string sFileName, string& sData)
 {

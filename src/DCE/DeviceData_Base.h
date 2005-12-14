@@ -67,6 +67,15 @@ namespace DCE
 		 * @brief returns "DeviceCategory" so that the SerializeClass knows what it has to serialize
 		 */
 		virtual string SerializeClassClassName() { return "DeviceCategory"; }
+
+		bool WithinCategory(int PK_DeviceCategory)
+		{
+			if( PK_DeviceCategory==m_dwPK_DeviceCategory )
+				return true;
+			if( m_pDeviceCategory_Parent )
+				return m_pDeviceCategory_Parent->WithinCategory(PK_DeviceCategory);
+			return false;
+		}
 	};
 
 

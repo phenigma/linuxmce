@@ -2,11 +2,6 @@
 #include "PlutoUtils/StringUtils.h"
 #include "DCE/Logger.h"
 
-extern "C"
-{
-#include <http_fetcher.h>
-}
-
 using namespace DCE;
 
 namespace nsWeb_DHCP_Query
@@ -31,16 +26,15 @@ namespace nsWeb_DHCP_Query
 		
 		g_pPlutoLogger->Write(LV_WARNING, "Running Web Query: %s?%s", m_sURL_Base.c_str(), sQueryString.c_str());
 		
-		char * buffer = NULL;
 		string sURL = m_sURL_Base + "?" + sQueryString;
-		int iResult = http_fetch(sURL.c_str(), &buffer);
+
+		size_t size;
+		char * buffer = NULL;
+		buffer = FileUtils::ReadURL(sURL,size,true);
 		
-		buffer = (char *) realloc(buffer, iResult + 1); // http_fetch doesn't store a \0 in the end
-		buffer[iResult] = 0;
-		
-		if (iResult == -1)
+		if (size==0)
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "Error fetching page: %s", http_strerror());
+			g_pPlutoLogger->Write(LV_WARNING, "Error fetching page: %s", sURL.c_str());
 			return;
 		}
 		else
