@@ -1306,8 +1306,8 @@ void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,strin
 //<-dceag-c700-e->
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_New_Plug_and_Play_Device template %d mac %s room %d ip %d data %s",
-		iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,sIP_Address.c_str(),sData.c_str());
+	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_New_Plug_and_Play_Device %d mac %s data %s",
+		iPK_DHCPDevice,sMac_address.c_str(),sData.c_str());
 #endif
 	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL(
 		m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, sMac_address, SCREEN_NewMacAddress_CONST);
@@ -1659,6 +1659,18 @@ bool General_Info_Plugin::OkayToCreateDevice_AlarmPanel(int iPK_DHCPDevice,int i
 
 void General_Info_Plugin::PostCreateDevice(int iPK_Device,int iPK_DeviceTemplate,OH_Orbiter *pOH_Orbiter)
 {
+	// See if there is anything special we need to do for this type of device
+	Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(iPK_DeviceTemplate);
+	if( !pRow_DeviceTemplate )
+		return;
+
+	DeviceCategory *pDeviceCategory = m_pRouter->m_mapDeviceCategory_Find(pRow_DeviceTemplate->FK_DeviceCategory_get());
+	if( !pDeviceCategory )
+		return;
+
+	// TODO -- THIS SHOULD BE A 'REGISTER CREATE DEVICE' INTERCEPTOR WHERE YOU REGISTER A DEVICETEMPLATE/CATEGORY, AND A PRE/POST CREATE CALLBACK
+	if( pDeviceCategory->WithinCategory(DEVICECATEGORY_Network_Storage_CONST) )
+		PostCreateDevice_NetworkStorage(iPK_Device,iPK_DeviceTemplate,pOH_Orbiter);
 }
 
 void General_Info_Plugin::PostCreateDevice_AlarmPanel(int iPK_Device,int iPK_DeviceTemplate,OH_Orbiter *pOH_Orbiter)
@@ -1670,15 +1682,15 @@ bool General_Info_Plugin::OkayToCreateDevice_NetworkStorage(int iPK_DHCPDevice,i
 	if( StringUtils::StartsWith(sData,StringUtils::itos(DEVICEDATA_Use_Automatically_CONST) + "|") || !pOH_Orbiter )
 	{
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::OkayToCreateDevice_NetworkStorage alredy configured %d template %d mac %s room %d ip %d data %s",
-		*iPK_Device,iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,sIP_Address.c_str(),sData.c_str());
+	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::OkayToCreateDevice_NetworkStorage already configured %d template %d mac %s data %s",
+		iPK_DHCPDevice,iPK_DeviceTemplate,sMac_address.c_str(),sData.c_str());
 #endif
 		return true;
 	}
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::OkayToCreateDevice_NetworkStorage not configured %d template %d mac %s room %d ip %d data %s",
-		*iPK_Device,iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,sIP_Address.c_str(),sData.c_str());
+	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::OkayToCreateDevice_NetworkStorage not configured %d template %d mac %s data %s",
+		iPK_DHCPDevice,iPK_DeviceTemplate,sMac_address.c_str(),sData.c_str());
 #endif
 
 	DCE::SCREEN_NAS_Options SCREEN_NAS_Options(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, 
@@ -1690,8 +1702,8 @@ bool General_Info_Plugin::OkayToCreateDevice_NetworkStorage(int iPK_DHCPDevice,i
 void General_Info_Plugin::PostCreateDevice_NetworkStorage(int iPK_Device,int iPK_DeviceTemplate,OH_Orbiter *pOH_Orbiter)
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::PostCreateDevice_NetworkStorage device  %d template %d mac %s room %d ip %d data %s",
-		iPK_Device,iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,sIP_Address.c_str(),sData.c_str());
+	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::PostCreateDevice_NetworkStorage device  %d template %d",
+		iPK_Device,iPK_DeviceTemplate);
 #endif
 }
 
