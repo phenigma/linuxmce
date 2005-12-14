@@ -36,11 +36,11 @@
 using namespace std;
 using namespace DCE;
 
-
-int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddress,string sMacAddress,int PK_Device_ControlledVia)
+int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddress,string sMacAddress,int PK_Device_ControlledVia,string sDeviceData,int iPK_Device_RelatedTo)
 {
 	cerr << "CreateDevice::DoIt called with: iPK_DHCPDevice=" << iPK_DHCPDevice << "; iPK_DeviceTemplate=" << iPK_DeviceTemplate
-		<< "; sIPAddress=" << sIPAddress << "; sMacAddress=" << sMacAddress << "; PK_Device_ControlledVia=" << PK_Device_ControlledVia << endl;
+		<< "; sIPAddress=" << sIPAddress << "; sMacAddress=" << sMacAddress << "; PK_Device_ControlledVia=" << PK_Device_ControlledVia 
+		<< "; sDeviceData=" << sDeviceData << "; iPK_Device_RelatedToendl=" << iPK_Device_RelatedTo << endl;
 	if( !m_bConnected )
 	{
 		cerr << "Cannot connect to database" << endl;
@@ -131,42 +131,7 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 	// If we weren't given a controlled via, try to find an appropriate one
 	if( !PK_Device_ControlledVia )
 	{
-		PlutoSqlResult result_cv1,result_cv2;
-		int iPK_Device_ControlledVia_New=0;
-		SQL = "SELECT PK_Device FROM DeviceTemplate_DeviceTemplate_ControlledVia JOIN Device ON Device.FK_DeviceTemplate=FK_DeviceTemplate_ControlledVia WHERE DeviceTemplate_DeviceTemplate_ControlledVia.FK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate) + " AND FK_Installation=" + StringUtils::itos(m_iPK_Installation);
-		if( (result_cv1.r=mysql_query_result(SQL)) && (row=mysql_fetch_row(result_cv1.r)) )
-			iPK_Device_ControlledVia_New = atoi(row[0]);
-		else
-		{
-			string sPK_DeviceCategory;
-			SQL = "select DC1.PK_DeviceCategory,DC2.PK_DeviceCategory,DC2.FK_DeviceCategory_Parent "
-				"FROM DeviceTemplate_DeviceCategory_ControlledVia "
-				"JOIN DeviceCategory AS DC1 ON DeviceTemplate_DeviceCategory_ControlledVia.FK_DeviceCategory=DC1.PK_DeviceCategory "
-				"LEFT JOIN DeviceCategory AS DC2 ON DC2.FK_DeviceCategory_Parent=DC1.PK_DeviceCategory "
-				"WHERE FK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate);
-
-			if( (result_cv2.r=mysql_query_result(SQL)) && result_cv2.r->row_count )
-			{
-				while (row=mysql_fetch_row(result_cv2.r))
-				{
-					if(row[0] && atoi(row[0]))
-						sPK_DeviceCategory += (sPK_DeviceCategory.size() ? "," : "") + string(row[0]);
-					if(row[1] && atoi(row[1]))
-						sPK_DeviceCategory += (sPK_DeviceCategory.size() ? "," : "") + string(row[1]);
-					if(row[2] && atoi(row[2]))
-						sPK_DeviceCategory += (sPK_DeviceCategory.size() ? "," : "") + string(row[2]);
-				}
-				PlutoSqlResult result_cv3;
-				SQL = "SELECT PK_Device "
-					"FROM Device "
-					"JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate "
-					"WHERE FK_DeviceCategory IN (" + sPK_DeviceCategory + ") AND PK_Device<>" + StringUtils::itos(PK_Device) + " AND FK_Installation=" + StringUtils::itos(m_iPK_Installation) + " ORDER BY PK_Device LIMIT 1";
-
-				if( (result_cv3.r=mysql_query_result(SQL)) && (row=mysql_fetch_row(result_cv3.r)) )
-					iPK_Device_ControlledVia_New = atoi(row[0]);
-			}
-		}
-
+		int iPK_Device_ControlledVia_New=FindControlledViaCandidate(PK_Device,iPK_DeviceTemplate,iPK_Device_RelatedTo);
 		if( iPK_Device_ControlledVia_New )
 		{
 			SQL = "UPDATE Device SET FK_Device_ControlledVia=" + StringUtils::itos(iPK_Device_ControlledVia_New) +
@@ -265,6 +230,16 @@ g_pPlutoLogger->Write(LV_STATUS,"Found %d rows with %s",(int) result3.r->row_cou
 		}
 	}
 
+	if( sDeviceData.size() )
+	{
+		string::size_type pos=0;
+		while(pos<sDeviceData.size())
+		{
+			int PK_DeviceData = atoi(StringUtils::Tokenize(sDeviceData,"\t",pos).c_str());
+			string sValue = StringUtils::Tokenize(sDeviceData,"\t",pos);
+			AssignDeviceData(PK_Device,PK_DeviceData,sValue);
+		}
+	}
 	// Now we've got to see if we have any children we need to create automatically, first by the category
 	CreateChildrenByCategory(PK_Device,iPK_DeviceCategory);
 	CreateChildrenByTemplate(PK_Device,iPK_DeviceTemplate);
@@ -451,4 +426,76 @@ g_pPlutoLogger->Write(LV_STATUS,"Found result_related %d rows with %s",(int) res
 				ConfirmRelations(atoi(row[0]),true);
 		}
 	}
+}
+
+int CreateDevice::FindControlledViaCandidate(int iPK_Device,int iPK_DeviceTemplate,int iPK_Device_RelatedTo)
+{
+	PlutoSqlResult result_cv1,result_cv2;
+	string SQL = "SELECT PK_Device FROM DeviceTemplate_DeviceTemplate_ControlledVia JOIN Device ON Device.FK_DeviceTemplate=FK_DeviceTemplate_ControlledVia WHERE DeviceTemplate_DeviceTemplate_ControlledVia.FK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate) + " AND FK_Installation=" + StringUtils::itos(m_iPK_Installation);
+	if( (result_cv1.r=mysql_query_result(SQL)) )
+		return FindControlledViaCandidate(iPK_Device,iPK_DeviceTemplate,iPK_Device_RelatedTo,result_cv1);
+	else
+	{
+		string sPK_DeviceCategory;
+		SQL = "select DC1.PK_DeviceCategory,DC2.PK_DeviceCategory,DC2.FK_DeviceCategory_Parent "
+			"FROM DeviceTemplate_DeviceCategory_ControlledVia "
+			"JOIN DeviceCategory AS DC1 ON DeviceTemplate_DeviceCategory_ControlledVia.FK_DeviceCategory=DC1.PK_DeviceCategory "
+			"LEFT JOIN DeviceCategory AS DC2 ON DC2.FK_DeviceCategory_Parent=DC1.PK_DeviceCategory "
+			"WHERE FK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate);
+
+		if( (result_cv2.r=mysql_query_result(SQL)) && result_cv2.r->row_count )
+		{
+			MYSQL_ROW row;
+			while (row=mysql_fetch_row(result_cv2.r))
+			{
+				if(row[0] && atoi(row[0]))
+					sPK_DeviceCategory += (sPK_DeviceCategory.size() ? "," : "") + string(row[0]);
+				if(row[1] && atoi(row[1]))
+					sPK_DeviceCategory += (sPK_DeviceCategory.size() ? "," : "") + string(row[1]);
+				if(row[2] && atoi(row[2]))
+					sPK_DeviceCategory += (sPK_DeviceCategory.size() ? "," : "") + string(row[2]);
+			}
+			PlutoSqlResult result_cv3;
+			SQL = "SELECT PK_Device "
+				"FROM Device "
+				"JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate "
+				"WHERE FK_DeviceCategory IN (" + sPK_DeviceCategory + ") AND PK_Device<>" + StringUtils::itos(iPK_Device) + " AND FK_Installation=" + StringUtils::itos(m_iPK_Installation) + " ORDER BY PK_Device LIMIT 1";
+
+			if( (result_cv3.r=mysql_query_result(SQL)) )
+				return FindControlledViaCandidate(iPK_Device,iPK_DeviceTemplate,iPK_Device_RelatedTo,result_cv3);
+		}
+	}
+	return 0;
+}
+
+int CreateDevice::FindControlledViaCandidate(int iPK_Device,int iPK_DeviceTemplate,int iPK_Device_RelatedTo,PlutoSqlResult &result)
+{
+	MYSQL_ROW row;
+	map<int,bool> mapDeviceTree;
+//	if( iPK_Device_RelatedTo )
+//		GetAllDevicesInTree(iPK_Device_RelatedTo,iPK_Device_RelatedTo);
+
+	while (row=mysql_fetch_row(result.r))
+	{
+//		if( !iPK_Device_RelatedTo )// || IsInTree)
+			return atoi(row[0]);
+	}
+	return 0;
+}
+
+void CreateDevice::AssignDeviceData(int PK_Device,int PK_DeviceData,string sValue)
+{
+	string SQL = "SELECT FK_Device FROM Device_DeviceData WHERE FK_Device="
+		+ StringUtils::itos(PK_Device) + " AND FK_DeviceData=" + StringUtils::itos(PK_DeviceData);
+
+	PlutoSqlResult result1;
+	result1.r=mysql_query_result( SQL );
+	if( !result1.r || result1.r->row_count==0 )
+		threaded_mysql_query("INSERT INTO Device_DeviceData(FK_Device,FK_DeviceData) "
+			"VALUES(" + StringUtils::itos(PK_Device) + "," + StringUtils::itos(PK_DeviceData) + ");");
+
+	threaded_mysql_query("UPDATE Device_DeviceData SET IK_DeviceData='"
+		+ StringUtils::SQLEscape(sValue) + "' WHERE "
+		"FK_Device=" + StringUtils::itos(PK_Device) + 
+		" AND FK_DeviceData=" + StringUtils::itos(PK_DeviceData) );
 }

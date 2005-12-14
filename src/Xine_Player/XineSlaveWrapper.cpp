@@ -881,7 +881,7 @@ void *XineSlaveWrapper::eventProcessingLoop( void *arguments )
         }
         if ( pStream->m_pOwner->m_iSpecialOneTimeSeek && iCounter > 5 ) // We need to wait 500ms after the stream starts before doing the seek!
         {
-			pStream->m_pOwner->Seek(pStream->m_pOwner->m_iSpecialOneTimeSeek,2000); // As long as we're within 2 seconds that's fine
+			pStream->m_pOwner->Seek(pStream->m_pOwner->m_iSpecialOneTimeSeek,10000); // As long as we're within 10 seconds that's fine
             pStream->m_pOwner->m_iSpecialOneTimeSeek = 0;
         }
         if ( g_iSpecialSeekSpeed )

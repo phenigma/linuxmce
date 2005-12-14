@@ -867,7 +867,7 @@ public:
 					int iData_Size=pMessage->m_mapData_Lengths[19];
 					string sFormat=pMessage->m_mapParameters[20];
 					string sMediaURL=pMessage->m_mapParameters[59];
-					string sURL=pMessage->m_mapParameters[160];
+					string sURL=pMessage->m_mapParameters[193];
 						CMD_Media_Identified(iPK_Device,sValue_To_Assign.c_str(),sID.c_str(),pData,iData_Size,sFormat.c_str(),sMediaURL.c_str(),sURL.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{

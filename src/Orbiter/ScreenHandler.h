@@ -14,6 +14,7 @@ class ScreenHandler : public ScreenHandlerBase
 {
 protected:
 	Orbiter *m_pOrbiter;
+	class WizardLogic *m_pWizardLogic;
 	map<CallBackType, ScreenHandlerCallBack> m_mapCallBack;
 	map<CallBackType, CallBackData *> m_mapCallBackData;
 
@@ -38,6 +39,9 @@ public:
 	void ResetCallBacks();
 	ScreenHandlerCallBack m_mapCallBack_Find(CallBackType aCallBackType);
 	CallBackData *m_mapCallBackData_Find(CallBackType aCallBackType);
+
+	//helper functions
+	int GetCurrentScreen_PK_DesignObj();
 
 	//screens functions
 	virtual void GotoDesignObj(int PK_DesignObj);
@@ -73,10 +77,8 @@ public:
 	virtual void SCREEN_DialogSendFileToPhoneFailed(long PK_Screen, string sMacAddress, string sCommandLine, 
 		string sPK_DeviceFrom, string sPhoneName, string sPK_Device_AppServer);
 
-	//callbacks; they will be implemented in derived classes
-	virtual bool FileSave_ObjectSelected(CallBackData *pData) { return false;} 
-
-	virtual void SCREEN_Main(long PK_Screen, string sLocation); 
+	//Screens with locations
+	virtual void SCREEN_Main(long PK_Screen, string sLocation);
 
 	virtual void SCREEN_Lights(long PK_Screen, string sLocation);
 	virtual void SCREEN_Media(long PK_Screen, string sLocation);
@@ -85,14 +87,63 @@ public:
 	virtual void SCREEN_Telephony(long PK_Screen, string sLocation);
 	virtual void SCREEN_Misc(long PK_Screen, string sLocation);
 
-    virtual void SCREEN_popLights(long PK_Screen, string sLocation);
+	virtual void SCREEN_popLights(long PK_Screen, string sLocation);
 	virtual void SCREEN_popMedia(long PK_Screen, string sLocation);
 	virtual void SCREEN_popClimate(long PK_Screen, string sLocation);
 	virtual void SCREEN_popTelecom(long PK_Screen, string sLocation);
 	virtual void SCREEN_popSecurity(long PK_Screen, string sLocation);
 
+	//cameras
 	virtual void SCREEN_SingleCameraViewOnly(long PK_Screen, string sPKDevice);
 	virtual void SCREEN_QuadViewCameras(long PK_Screen, string sPKDevicesList);
+
+
+	//	
+	//Video Wizard Screens
+	//
+
+	long m_nPK_Device_TVProvider_External;
+
+	//1. Users Wizard
+	virtual void SCREEN_UsersWizard(long PK_Screen);
+	virtual bool UsersWizard_ObjectSelected(CallBackData *pData);
+	virtual bool UsersWizard_DatagridSelected(CallBackData *pData);
+	virtual bool HandleAddUser();
+
+	//2. Location Wizard
+	virtual void SCREEN_CountryWizard(long PK_Screen);
+	virtual bool CountryWizard_ObjectSelected(CallBackData *pData);
+
+	//3. Rooms Wizard
+	virtual void SCREEN_RoomsWizard(long PK_Screen);
+	virtual bool RoomsWizard_CapturedKeyboardBufferChanged(CallBackData *pData);
+	virtual bool RoomsWizard_DatagridSelected(CallBackData *pData);
+
+	//4. TV Provider
+	virtual void SCREEN_TV_provider(long PK_Screen);
+	virtual bool TV_provider_ObjectSelected(CallBackData *pData);
+
+	//5. A/V Connection
+	virtual void SCREEN_TV_Manufacturer(long PK_Screen);
+	virtual bool TV_Manufacturer_ObjectSelected(CallBackData *pData);
+
+	//6. Receiver
+	virtual void SCREEN_Receiver(long PK_Screen);
+	virtual bool Receiver_ObjectSelected(CallBackData *pData);
+
+	//7. AV Devices
+	virtual void SCREEN_AV_Devices(long PK_Screen);
+	virtual bool AV_Devices_ObjectSelected(CallBackData *pData);
+
+	//8. Lights Setup
+	virtual void SCREEN_LightsSetup(long PK_Screen);
+
+	//9. Alarm Panel
+	virtual void SCREEN_AlarmPanel(long PK_Screen);
+
+	//10. VOIP Provider
+	virtual void SCREEN_VOIP_Provider(long PK_Screen);
+	bool ScreenHandler::VOIP_Provider_ObjectSelected(CallBackData *pData);
 };
 //-----------------------------------------------------------------------------------------------------
 #endif

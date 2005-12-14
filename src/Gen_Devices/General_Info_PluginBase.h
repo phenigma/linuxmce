@@ -128,6 +128,7 @@ public:
 	virtual void CMD_Get_Device_State(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Device_Status(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Restart_DCERouter(string sForce,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Set_Room_For_Device(int iPK_Device,string sName,int iPK_Room,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Wake_Device(int iPK_Device,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Halt_Device(int iPK_Device,string sForce,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Room_Description(int iPK_Device,string *sText,int *iPK_Room,string &sCMD_Result,class Message *pMessage) {};
@@ -135,8 +136,8 @@ public:
 	virtual void CMD_Check_for_updates(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Check_for_updates_done(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Active_Application(int iPK_Device,string sName,int iPK_QuickStartTemplate,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_New_Plug_and_Play_Device(string sMac_address,string sIP_Address,int iPK_DHCPDevice,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Create_Device(int iPK_DeviceTemplate,string sMac_address,string sIP_Address,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int *iPK_Device,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_New_Plug_and_Play_Device(string sMac_address,string sIP_Address,string sData,int iPK_DHCPDevice,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Create_Device(int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter,int *iPK_Device,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Delete_Device(int iPK_Device,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
@@ -377,6 +378,34 @@ public:
 					};
 					iHandled++;
 					continue;
+				case 274:
+					{
+						string sCMD_Result="OK";
+					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
+					string sName=pMessage->m_mapParameters[50];
+					int iPK_Room=atoi(pMessage->m_mapParameters[57].c_str());
+						CMD_Set_Room_For_Device(iPK_Device,sName.c_str(),iPK_Room,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Set_Room_For_Device(iPK_Device,sName.c_str(),iPK_Room,sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
 				case 322:
 					{
 						string sCMD_Result="OK";
@@ -570,8 +599,9 @@ public:
 						string sCMD_Result="OK";
 					string sMac_address=pMessage->m_mapParameters[47];
 					string sIP_Address=pMessage->m_mapParameters[58];
+					string sData=pMessage->m_mapParameters[109];
 					int iPK_DHCPDevice=atoi(pMessage->m_mapParameters[150].c_str());
-						CMD_New_Plug_and_Play_Device(sMac_address.c_str(),sIP_Address.c_str(),iPK_DHCPDevice,sCMD_Result,pMessage);
+						CMD_New_Plug_and_Play_Device(sMac_address.c_str(),sIP_Address.c_str(),sData.c_str(),iPK_DHCPDevice,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -588,21 +618,24 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_New_Plug_and_Play_Device(sMac_address.c_str(),sIP_Address.c_str(),iPK_DHCPDevice,sCMD_Result,pMessage);
+								CMD_New_Plug_and_Play_Device(sMac_address.c_str(),sIP_Address.c_str(),sData.c_str(),iPK_DHCPDevice,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
 					continue;
-				case 710:
+				case 718:
 					{
 						string sCMD_Result="OK";
 					int iPK_DeviceTemplate=atoi(pMessage->m_mapParameters[44].c_str());
 					string sMac_address=pMessage->m_mapParameters[47];
+					int iPK_Room=atoi(pMessage->m_mapParameters[57].c_str());
 					string sIP_Address=pMessage->m_mapParameters[58];
+					string sData=pMessage->m_mapParameters[109];
 					int iPK_DHCPDevice=atoi(pMessage->m_mapParameters[150].c_str());
-					int iPK_Device_ControlledVia=atoi(pMessage->m_mapParameters[155].c_str());
+					int iPK_Device_ControlledVia=atoi(pMessage->m_mapParameters[156].c_str());
+					int iPK_Orbiter=atoi(pMessage->m_mapParameters[196].c_str());
 					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
-						CMD_Create_Device(iPK_DeviceTemplate,sMac_address.c_str(),sIP_Address.c_str(),iPK_DHCPDevice,iPK_Device_ControlledVia,&iPK_Device,sCMD_Result,pMessage);
+						CMD_Create_Device(iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,sIP_Address.c_str(),sData.c_str(),iPK_DHCPDevice,iPK_Device_ControlledVia,iPK_Orbiter,&iPK_Device,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -620,12 +653,12 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Create_Device(iPK_DeviceTemplate,sMac_address.c_str(),sIP_Address.c_str(),iPK_DHCPDevice,iPK_Device_ControlledVia,&iPK_Device,sCMD_Result,pMessage);
+								CMD_Create_Device(iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,sIP_Address.c_str(),sData.c_str(),iPK_DHCPDevice,iPK_Device_ControlledVia,iPK_Orbiter,&iPK_Device,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
 					continue;
-				case 711:
+				case 719:
 					{
 						string sCMD_Result="OK";
 					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());

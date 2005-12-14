@@ -21,7 +21,6 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
-#include "PlutoUtils/ProcessUtils.h"
 
 #include <iostream>
 using namespace std;
@@ -32,6 +31,7 @@ using namespace DCE;
 
 #include <sstream>
 
+#include "PlutoUtils/ProcessUtils.h"
 #include "Orbiter/Floorplan.h"
 #include "Orbiter/OrbiterFileBrowser.h"
 
@@ -289,7 +289,6 @@ bool Orbiter_Plugin::Register()
 	RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::RouteToOrbitersInRoom),0,DEVICETEMPLATE_Standard_Orbiters_in_my_room_CONST,0,0,0,0);
     RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::RouteToOrbitersInRoom),0,DEVICETEMPLATE_Mobile_Orbiters_in_my_room_CONST,0,0,0,0);
     RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::RouteToOrbitersInRoom),0,DEVICETEMPLATE_Orbiters_in_my_room_CONST,0,0,0,0);
-	RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::NewPnpDevice ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_New_PNP_Device_Detected_CONST );
 
     return Connect(PK_DeviceTemplate_get());
 
@@ -972,10 +971,8 @@ void Orbiter_Plugin::CMD_Set_Current_Room(int iPK_Room,string &sCMD_Result,Messa
 			/** The language, 0=use default */
 		/** @param #143 PK_Size */
 			/** The size, 0=use default */
-		/** @param #147 Uses Wifi connection */
-			/** Enables 5 seconds ping protocol, 0 = use default, 1 = true, 2 = false */
 
-void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,int iWidth,int iHeight,int iPK_Skin,int iPK_Language,int iPK_Size,int iUses_Wifi_connection,int *iPK_Device,string &sCMD_Result,Message *pMessage)
+void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,int iWidth,int iHeight,int iPK_Skin,int iPK_Language,int iPK_Size,int *iPK_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c78-e->
 {
 	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL( m_dwPK_Device, m_sPK_Device_AllOrbiters, StringUtils::itos(DESIGNOBJ_mnuNewPhoneDetected_CONST), "" );
@@ -1137,8 +1134,6 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
 
     if( iPK_Room > 0 )
         pRow_Device->FK_Room_set(iPK_Room);
-    if( iUses_Wifi_connection > 0 )
-        pRow_Device->PingTest_set(iUses_Wifi_connection == 1 ? 1 : 0);
         
     pRow_Device->Table_Device_get()->Commit();
 
@@ -1847,43 +1842,6 @@ void Orbiter_Plugin::CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Resu
 //<-dceag-createinst-b->!
 
 
-bool Orbiter_Plugin::NewPnpDevice( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
-{
-	g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::NewPnpDevice");
-	PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
-	int PK_Device = atoi(pMessage->m_mapParameters[EVENTPARAMETER_PK_Device_CONST].c_str());
-	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(PK_Device);
-	if( !pRow_Device )
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Got invalid pnp device: %d",PK_Device);
-		return false;
-	}
-
-	m_listNewPnpDevicesWaitingForARoom.push_back(PK_Device);
-
-	/*
-	DCE::CMD_Goto_DesignObj_DL CMD_Goto_DesignObj( m_dwPK_Device, m_sPK_Device_AllOrbiters, 0, StringUtils::itos(DESIGNOBJ_mnuNewPlugAndPlayDevice_CONST), StringUtils::itos(PK_Device), "", true, false );
-	// The destination devices must match
-	DCE::CMD_Set_Variable_DL CMD_Set_Variable1( m_dwPK_Device, m_sPK_Device_AllOrbiters, VARIABLE_Misc_Data_1_CONST, pRow_Device->Description_get());
-	CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable1.m_pMessage);
-	DCE::CMD_Set_Variable_DL CMD_Set_Variable2( m_dwPK_Device, m_sPK_Device_AllOrbiters, VARIABLE_Misc_Data_2_CONST, pRow_Device->FK_DeviceTemplate_getrow()->Comments_get());
-	CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable2.m_pMessage);
-	DCE::CMD_Set_Variable_DL CMD_Set_Variable3( m_dwPK_Device, m_sPK_Device_AllOrbiters, VARIABLE_Misc_Data_3_CONST, StringUtils::itos(PK_Device));
-	CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable3.m_pMessage);
-
-	QueueMessageToRouter(CMD_Goto_DesignObj.m_pMessage);
-	*/
-
-	DCE::SCREEN_NewPlugAndPlayDevice_DL SCREEN_NewPlugAndPlayDevice_DL(m_dwPK_Device, m_sPK_Device_AllOrbiters,
-		StringUtils::itos(PK_Device), pRow_Device->Description_get(), 
-		pRow_Device->FK_DeviceTemplate_getrow()->Comments_get());
-	SendCommand(SCREEN_NewPlugAndPlayDevice_DL);
-
-	DCE::CMD_Check_for_updates_Cat CMD_Check_for_updates_Cat(m_dwPK_Device,DEVICECATEGORY_General_Info_Plugins_CONST,false,BL_SameHouse);
-	SendCommand(CMD_Check_for_updates_Cat);
-
-	return false;  // Let anybody else have this who wants it
-}
 
 bool Orbiter_Plugin::OSD_OnOff( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
@@ -1943,79 +1901,6 @@ bool Orbiter_Plugin::OSD_OnOff( class Socket *pSocket, class Message *pMessage, 
 	}
 
 	return false; // Let others handle it too
-}
-
-//<-dceag-c274-b->
-
-	/** @brief COMMAND: #274 - Set Room For Device */
-	/** Updates the record in the database for a given device putting in a certain room. */
-		/** @param #2 PK_Device */
-			/** The device */
-		/** @param #50 Name */
-			/** If PK_Room is empty, a new room with this name will be created */
-		/** @param #57 PK_Room */
-			/** The room */
-
-void Orbiter_Plugin::CMD_Set_Room_For_Device(int iPK_Device,string sName,int iPK_Room,string &sCMD_Result,Message *pMessage)
-//<-dceag-c274-e->
-{
-    PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
-	size_t sBefore=m_listNewPnpDevicesWaitingForARoom.size();
-
-	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(iPK_Device);
-	Row_Room *pRow_Room;
-	if( iPK_Room )
-		pRow_Room = m_pDatabase_pluto_main->Room_get()->GetRow(iPK_Room);
-	else
-	{
-		if( sName.size()==0 )
-		{
-			//DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"You must type in a name for the room");
-			SCREEN_DialogGenericNoButtons SCREEN_DialogGenericNoButtons(m_dwPK_Device, pMessage->m_dwPK_Device_From,
-				"You must type in a name for the room", "0", "0", "0");
-			SendCommand(SCREEN_DialogGenericNoButtons);
-
-			return;
-		}
-		pRow_Room = m_pDatabase_pluto_main->Room_get()->AddRow();
-		pRow_Room->Description_set(sName);
-		pRow_Room->FK_Installation_set(m_pRouter->iPK_Installation_get());
-		m_pDatabase_pluto_main->Room_get()->Commit();
-	}
-
-	if( !pRow_Device || !pRow_Room )
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot set device %d to room %d",iPK_Device,iPK_Room);
-		return;
-	}
-	else
-	{
-		pRow_Device->Reload();
-		g_pPlutoLogger->Write(LV_STATUS,"Setting device %d to with ip %s mac %s to room %d",
-			iPK_Device,pRow_Device->IPaddress_get().c_str(),pRow_Device->MACaddress_get().c_str(),iPK_Room);
-		pRow_Device->FK_Room_set( pRow_Room->PK_Room_get() );
-		pRow_Device->Table_Device_get()->Commit();
-	}
-
-	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL( m_dwPK_Device, m_sPK_Device_AllOrbiters, StringUtils::itos(DESIGNOBJ_mnuNewPlugAndPlayDevice_CONST), StringUtils::itos(iPK_Device) );
-	SendCommand(CMD_Remove_Screen_From_History_DL);
-	m_listNewPnpDevicesWaitingForARoom.remove(pRow_Device->PK_Device_get());
-
-bool bStillRunningConfig = m_pGeneral_Info_Plugin->PendingConfigs();
-g_pPlutoLogger->Write(LV_STATUS,"CMD_Set_Room_For_Device: before %d after %d pending %d",
-(int) sBefore,(int) m_listNewPnpDevicesWaitingForARoom.size(),(int) bStillRunningConfig);
-	// If there pnp devices waiting for the room, and we finished specifying the last one, and we're
-	// not still getting the software, let the user know his device is done
-	if( sBefore && m_listNewPnpDevicesWaitingForARoom.size()==0 && !bStillRunningConfig )
-	{
-		if( !CheckForNewWizardDevices(NULL) )  // Don't display the 'device is done' if there are still some config settings we need
-		{
-			//DisplayMessageOnOrbiter("","<%=T" + StringUtils::itos(TEXT_New_Devices_Configured_CONST) + "%>",true);
-			SCREEN_DialogGenericNoButtons_DL SCREEN_DialogGenericNoButtons_DL(m_dwPK_Device, m_sPK_Device_AllOrbiters,
-				"<%=T" + StringUtils::itos(TEXT_New_Devices_Configured_CONST) + "%>", "1", "0", "0");
-			SendCommand(SCREEN_DialogGenericNoButtons_DL);
-		}
-	}
 }
 
 void Orbiter_Plugin::FireFollowMe(string sMask,int iPK_Orbiter,int iPK_Users,int iPK_RoomOrEntArea,int iPK_RoomOrEntArea_Left)
@@ -2297,16 +2182,16 @@ void Orbiter_Plugin::CMD_Set_Auto_Switch_to_Remote(int iPK_Device,bool bTrueFals
 			/** you can give the message a name, such as "status", "error", etc */
 		/** @param #102 Time */
 			/** Number of seconds to display the message for */
-		/** @param #103 PK_Device_List */
+		/** @param #103 sPK_Device_List */
 			/** If going to a plugin that wil relay messages to other devices (ie orbiter_plugin and orbiter), A comma delimited list of devices to display this message on.  If going to a display device directly (like vfd/lcd) this is ignored. */
 
-void Orbiter_Plugin::CMD_Display_Message(string sText,string sType,string sName,string sTime,string sPK_Device_List,string &sCMD_Result,Message *pMessage)
+void Orbiter_Plugin::CMD_Display_Message(string sText,string sType,string sName,string sTime,string ssPK_Device_List,string &sCMD_Result,Message *pMessage)
 //<-dceag-c406-e->
 {
 	//TODO: remove me
 
 	int iTime = sTime.size() ? atoi(sTime.c_str()) : 0;
-	DisplayMessageOnOrbiter(sPK_Device_List,sText,false,iTime,true);
+	DisplayMessageOnOrbiter(ssPK_Device_List,sText,false,iTime,true);
 }
 
 //<-dceag-c686-b->
@@ -2317,10 +2202,10 @@ void Orbiter_Plugin::CMD_Display_Message(string sText,string sType,string sName,
 			/** The message to display */
 		/** @param #39 Options */
 			/** A pipe delimited list with options and messages like this: option1|message1|options2|message2 */
-		/** @param #103 PK_Device_List */
+		/** @param #103 sPK_Device_List */
 			/** A comma delimited list of orbiters, or all orbiters if empty */
 
-void Orbiter_Plugin::CMD_Display_Dialog_Box_On_Orbiter(string sText,string sOptions,string sPK_Device_List,string &sCMD_Result,Message *pMessage)
+void Orbiter_Plugin::CMD_Display_Dialog_Box_On_Orbiter(string sText,string sOptions,string ssPK_Device_List,string &sCMD_Result,Message *pMessage)
 //<-dceag-c686-e->
 {
 	//TODO: removed me
@@ -2335,7 +2220,7 @@ void Orbiter_Plugin::CMD_Display_Dialog_Box_On_Orbiter(string sText,string sOpti
     while(vectOptions.size() < 8)
         vectOptions.push_back("");
 
-    DisplayMessageOnOrbiter(sPK_Device_List, sText, false, 0, true,
+    DisplayMessageOnOrbiter(ssPK_Device_List, sText, false, 0, true,
         vectOptions[0], vectOptions[1], vectOptions[2], vectOptions[3], 
         vectOptions[4], vectOptions[5], vectOptions[6], vectOptions[7]);
 }

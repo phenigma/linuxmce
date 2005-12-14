@@ -81,7 +81,6 @@ public:
 	class FloorplanInfoProvider *m_pLighting_Floorplan,*m_pClimate_Floorplan,*m_pMedia_Floorplan,*m_pSecurity_Floorplan,*m_pTelecom_Floorplan;
 	class Media_Plugin *m_pMedia_Plugin;
 	class General_Info_Plugin *m_pGeneral_Info_Plugin;
-	list<int> m_listNewPnpDevicesWaitingForARoom;
 
     // Private methods
     map<string,UnknownDeviceInfos *> m_mapUnknownDevices; // A temporary map to match Bluetooth Dongle's with devices they detect
@@ -152,25 +151,10 @@ public:
     bool MobileOrbiterLinked(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
 	bool ReloadAborted(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
 	bool MobileOrbiterLost(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
-	bool NewPnpDevice( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 	bool OSD_OnOff( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 
     void ProcessUnknownDevice();
     bool IdentifyDevice(const string& sMacAddress, string &sDeviceCategoryDesc, int &iPK_DeviceTemplate, string &sManufacturerDesc);
-	void DoneCheckingForUpdates()
-	{
-		PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
-
-		// We must have started the check for updates because we added a new device.  However we finished
-		// getting room info from the user, so he's ready to go
-		if( m_listNewPnpDevicesWaitingForARoom.size()==0 && !CheckForNewWizardDevices(NULL) )
-		{
-			//DisplayMessageOnOrbiter("","<%=T" + StringUtils::itos(TEXT_New_Devices_Configured_CONST) + "%>",true);
-			SCREEN_DialogGenericNoButtons_DL SCREEN_DialogGenericNoButtons_DL(m_dwPK_Device, m_sPK_Device_AllOrbiters,
-				"<%=T" + StringUtils::itos(TEXT_New_Devices_Configured_CONST) + "%>", "1", "0", "0");
-			SendCommand(SCREEN_DialogGenericNoButtons_DL);
-		}
-	}
 
 	/*  If the user wants to use the onscreen display, he may want the tv to always stay on and only
 	turn off when the orbiter is specifcally turned off or goes to sleep.  In those cases the user
@@ -265,6 +249,8 @@ public:
     void GenerateVMCFiles();
     void GeneratePlutoMOConfig();
 
+	string m_sPK_Device_AllOrbiters_get() { return m_sPK_Device_AllOrbiters; }
+
 	//<-dceag-h-b->
 	/*
 				AUTO-GENERATED SECTION
@@ -338,11 +324,9 @@ public:
 			/** The language, 0=use default */
 		/** @param #143 PK_Size */
 			/** The size, 0=use default */
-		/** @param #147 Uses Wifi connection */
-			/** Enables 5 seconds ping protocol, 0 = use default, 1 = true, 2 = false */
 
-	virtual void CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,int iWidth,int iHeight,int iPK_Skin,int iPK_Language,int iPK_Size,int iUses_Wifi_connection,int *iPK_Device) { string sCMD_Result; CMD_New_Orbiter(sType.c_str(),iPK_Users,iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,iWidth,iHeight,iPK_Skin,iPK_Language,iPK_Size,iUses_Wifi_connection,iPK_Device,sCMD_Result,NULL);};
-	virtual void CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,int iWidth,int iHeight,int iPK_Skin,int iPK_Language,int iPK_Size,int iUses_Wifi_connection,int *iPK_Device,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,int iWidth,int iHeight,int iPK_Skin,int iPK_Language,int iPK_Size,int *iPK_Device) { string sCMD_Result; CMD_New_Orbiter(sType.c_str(),iPK_Users,iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,iWidth,iHeight,iPK_Skin,iPK_Language,iPK_Size,iPK_Device,sCMD_Result,NULL);};
+	virtual void CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,int iWidth,int iHeight,int iPK_Skin,int iPK_Language,int iPK_Size,int *iPK_Device,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #79 - Add Unknown Device */
@@ -432,19 +416,6 @@ public:
 	virtual void CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Result,Message *pMessage);
 
 
-	/** @brief COMMAND: #274 - Set Room For Device */
-	/** Updates the record in the database for a given device putting in a certain room. */
-		/** @param #2 PK_Device */
-			/** The device */
-		/** @param #50 Name */
-			/** If PK_Room is empty, a new room with this name will be created */
-		/** @param #57 PK_Room */
-			/** The room */
-
-	virtual void CMD_Set_Room_For_Device(int iPK_Device,string sName,int iPK_Room) { string sCMD_Result; CMD_Set_Room_For_Device(iPK_Device,sName.c_str(),iPK_Room,sCMD_Result,NULL);};
-	virtual void CMD_Set_Room_For_Device(int iPK_Device,string sName,int iPK_Room,string &sCMD_Result,Message *pMessage);
-
-
 	/** @brief COMMAND: #404 - Set Auto Switch to Remote */
 	/** Specifies whether the given orbiter will automatically switch to the remote control when media starts. */
 		/** @param #2 PK_Device */
@@ -466,11 +437,11 @@ public:
 			/** you can give the message a name, such as "status", "error", etc */
 		/** @param #102 Time */
 			/** Number of seconds to display the message for */
-		/** @param #103 PK_Device_List */
+		/** @param #103 sPK_Device_List */
 			/** If going to a plugin that wil relay messages to other devices (ie orbiter_plugin and orbiter), A comma delimited list of devices to display this message on.  If going to a display device directly (like vfd/lcd) this is ignored. */
 
-	virtual void CMD_Display_Message(string sText,string sType,string sName,string sTime,string sPK_Device_List) { string sCMD_Result; CMD_Display_Message(sText.c_str(),sType.c_str(),sName.c_str(),sTime.c_str(),sPK_Device_List.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Display_Message(string sText,string sType,string sName,string sTime,string sPK_Device_List,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Display_Message(string sText,string sType,string sName,string sTime,string ssPK_Device_List) { string sCMD_Result; CMD_Display_Message(sText.c_str(),sType.c_str(),sName.c_str(),sTime.c_str(),ssPK_Device_List.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Display_Message(string sText,string sType,string sName,string sTime,string ssPK_Device_List,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #686 - Display Dialog Box On Orbiter */
@@ -479,11 +450,11 @@ public:
 			/** The message to display */
 		/** @param #39 Options */
 			/** A pipe delimited list with options and messages like this: option1|message1|options2|message2 */
-		/** @param #103 PK_Device_List */
+		/** @param #103 sPK_Device_List */
 			/** A comma delimited list of orbiters, or all orbiters if empty */
 
-	virtual void CMD_Display_Dialog_Box_On_Orbiter(string sText,string sOptions,string sPK_Device_List) { string sCMD_Result; CMD_Display_Dialog_Box_On_Orbiter(sText.c_str(),sOptions.c_str(),sPK_Device_List.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Display_Dialog_Box_On_Orbiter(string sText,string sOptions,string sPK_Device_List,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Display_Dialog_Box_On_Orbiter(string sText,string sOptions,string ssPK_Device_List) { string sCMD_Result; CMD_Display_Dialog_Box_On_Orbiter(sText.c_str(),sOptions.c_str(),ssPK_Device_List.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Display_Dialog_Box_On_Orbiter(string sText,string sOptions,string ssPK_Device_List,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #693 - Send File To Phone */

@@ -71,7 +71,6 @@ public:
 	}
 	virtual bool GetConfig()
 	{
-		
 		m_pData=NULL;
 		m_pEvent = new Orbiter_Plugin_Event(m_dwPK_Device, m_sHostName, !m_bLocalMode);
 		if( m_pEvent->m_dwPK_Device )
@@ -158,7 +157,7 @@ public:
 	virtual void CMD_Set_Current_User(int iPK_Users,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Entertainment_Area(string sPK_EntertainArea,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Current_Room(int iPK_Room,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,int iWidth,int iHeight,int iPK_Skin,int iPK_Language,int iPK_Size,int iUses_Wifi_connection,int *iPK_Device,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,int iWidth,int iHeight,int iPK_Skin,int iPK_Language,int iPK_Size,int *iPK_Device,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Add_Unknown_Device(string sText,string sID,string sMac_address,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Floorplan_Layout(string *sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Current_Floorplan(string sID,int iPK_FloorplanType,string *sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
@@ -166,10 +165,9 @@ public:
 	virtual void CMD_Set_FollowMe(int iPK_Device,string sText,int iPK_Users,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Regen_Orbiter(int iPK_Device,string sForce,string sReset,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Set_Room_For_Device(int iPK_Device,string sName,int iPK_Room,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Auto_Switch_to_Remote(int iPK_Device,bool bTrueFalse,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Display_Message(string sText,string sType,string sName,string sTime,string sPK_Device_List,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Display_Dialog_Box_On_Orbiter(string sText,string sOptions,string sPK_Device_List,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Display_Message(string sText,string sType,string sName,string sTime,string ssPK_Device_List,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Display_Dialog_Box_On_Orbiter(string sText,string sOptions,string ssPK_Device_List,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Send_File_To_Phone(string sMac_address,string sCommand_Line,int iApp_Server_Device_ID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Orbiter_Status(int iPK_Device,string *sValue_To_Assign,string *sText,int *iValue,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Orbiter_Options(string sText,string *sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
@@ -279,9 +277,8 @@ public:
 					int iPK_Skin=atoi(pMessage->m_mapParameters[141].c_str());
 					int iPK_Language=atoi(pMessage->m_mapParameters[142].c_str());
 					int iPK_Size=atoi(pMessage->m_mapParameters[143].c_str());
-					int iUses_Wifi_connection=atoi(pMessage->m_mapParameters[147].c_str());
 					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
-						CMD_New_Orbiter(sType.c_str(),iPK_Users,iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,iWidth,iHeight,iPK_Skin,iPK_Language,iPK_Size,iUses_Wifi_connection,&iPK_Device,sCMD_Result,pMessage);
+						CMD_New_Orbiter(sType.c_str(),iPK_Users,iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,iWidth,iHeight,iPK_Skin,iPK_Language,iPK_Size,&iPK_Device,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -299,7 +296,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_New_Orbiter(sType.c_str(),iPK_Users,iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,iWidth,iHeight,iPK_Skin,iPK_Language,iPK_Size,iUses_Wifi_connection,&iPK_Device,sCMD_Result,pMessage);
+								CMD_New_Orbiter(sType.c_str(),iPK_Users,iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,iWidth,iHeight,iPK_Skin,iPK_Language,iPK_Size,&iPK_Device,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -502,34 +499,6 @@ public:
 					};
 					iHandled++;
 					continue;
-				case 274:
-					{
-						string sCMD_Result="OK";
-					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
-					string sName=pMessage->m_mapParameters[50];
-					int iPK_Room=atoi(pMessage->m_mapParameters[57].c_str());
-						CMD_Set_Room_For_Device(iPK_Device,sName.c_str(),iPK_Room,sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
-						{
-							pMessage->m_bRespondedToMessage=true;
-							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
-							pMessageOut->m_mapParameters[0]=sCMD_Result;
-							SendMessage(pMessageOut);
-						}
-						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
-						{
-							pMessage->m_bRespondedToMessage=true;
-							SendString(sCMD_Result);
-						}
-						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
-						{
-							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
-							for(int i=2;i<=iRepeat;++i)
-								CMD_Set_Room_For_Device(iPK_Device,sName.c_str(),iPK_Room,sCMD_Result,pMessage);
-						}
-					};
-					iHandled++;
-					continue;
 				case 404:
 					{
 						string sCMD_Result="OK";
@@ -564,8 +533,8 @@ public:
 					string sType=pMessage->m_mapParameters[14];
 					string sName=pMessage->m_mapParameters[50];
 					string sTime=pMessage->m_mapParameters[102];
-					string sPK_Device_List=pMessage->m_mapParameters[103];
-						CMD_Display_Message(sText.c_str(),sType.c_str(),sName.c_str(),sTime.c_str(),sPK_Device_List.c_str(),sCMD_Result,pMessage);
+					string ssPK_Device_List=pMessage->m_mapParameters[103];
+						CMD_Display_Message(sText.c_str(),sType.c_str(),sName.c_str(),sTime.c_str(),ssPK_Device_List.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -582,7 +551,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Display_Message(sText.c_str(),sType.c_str(),sName.c_str(),sTime.c_str(),sPK_Device_List.c_str(),sCMD_Result,pMessage);
+								CMD_Display_Message(sText.c_str(),sType.c_str(),sName.c_str(),sTime.c_str(),ssPK_Device_List.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -592,8 +561,8 @@ public:
 						string sCMD_Result="OK";
 					string sText=pMessage->m_mapParameters[9];
 					string sOptions=pMessage->m_mapParameters[39];
-					string sPK_Device_List=pMessage->m_mapParameters[103];
-						CMD_Display_Dialog_Box_On_Orbiter(sText.c_str(),sOptions.c_str(),sPK_Device_List.c_str(),sCMD_Result,pMessage);
+					string ssPK_Device_List=pMessage->m_mapParameters[103];
+						CMD_Display_Dialog_Box_On_Orbiter(sText.c_str(),sOptions.c_str(),ssPK_Device_List.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -610,7 +579,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Display_Dialog_Box_On_Orbiter(sText.c_str(),sOptions.c_str(),sPK_Device_List.c_str(),sCMD_Result,pMessage);
+								CMD_Display_Dialog_Box_On_Orbiter(sText.c_str(),sOptions.c_str(),ssPK_Device_List.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

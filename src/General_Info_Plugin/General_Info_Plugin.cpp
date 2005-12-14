@@ -48,6 +48,7 @@ using namespace DCE;
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_CommandParameter.h"
 #include "pluto_main/Define_Text.h"
+#include "pluto_main/Table_Room.h"
 #include "DataGrid.h"
 #include "Orbiter_Plugin/Orbiter_Plugin.h"
 #include "Event_Plugin/Event_Plugin.h"
@@ -934,7 +935,7 @@ void General_Info_Plugin::CMD_Check_for_updates_done(string &sCMD_Result,Message
 	else
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"Done updating config");
-		m_pOrbiter_Plugin->DoneCheckingForUpdates();
+		DoneCheckingForUpdates();
 	}
 }
 
@@ -1259,10 +1260,12 @@ struct Web_DeviceData
 			/** The Mac Address */
 		/** @param #58 IP Address */
 			/** The IP Address */
+		/** @param #109 Data */
+			/** Extra device data to create the device */
 		/** @param #150 PK_DHCPDevice */
 			/** The template for the device */
 
-void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,string sIP_Address,int iPK_DHCPDevice,string &sCMD_Result,Message *pMessage)
+void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,string sIP_Address,string sData,int iPK_DHCPDevice,string &sCMD_Result,Message *pMessage)
 //<-dceag-c700-e->
 {
 	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL( m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, StringUtils::itos(DESIGNOBJ_mnuNewMacAddress_CONST), sMac_address );
@@ -1325,7 +1328,11 @@ void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,strin
 			}
 		}
 	}
-
+/*
+<<<<<<< .mine
+	int iPK_Device=0;
+	CMD_Create_Device(0,sMac_address,-1,sIP_Address,sData,iPK_DHCPDevice,0,pMessage->m_dwPK_Device_From,&iPK_Device);
+=======
 	CreateDevice createDevice(m_pRouter->iPK_Installation_get(),m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get());
 	int PK_Device;
 	if (iPK_DHCPDevice < 0)
@@ -1372,12 +1379,14 @@ else
 	Message *pMessage_Event = new Message(m_dwPK_Device,DEVICEID_EVENTMANAGER,PRIORITY_NORMAL,MESSAGETYPE_EVENT,EVENT_New_PNP_Device_Detected_CONST,
 		1,EVENTPARAMETER_PK_Device_CONST,StringUtils::itos(PK_Device).c_str());
 	QueueMessageToRouter(pMessage_Event);
-
+>>>>>>> .r6405
+*/
 #endif
 }
-//<-dceag-c710-b->
 
-	/** @brief COMMAND: #710 - Create Device */
+//<-dceag-c718-b->
+
+	/** @brief COMMAND: #718 - Create Device */
 	/** Creates a new device of the given template */
 		/** @param #2 PK_Device */
 			/** The new device number */
@@ -1385,30 +1394,62 @@ else
 			/** The template */
 		/** @param #47 Mac address */
 			/** The mac address */
+		/** @param #57 PK_Room */
+			/** The room for the device.  0=no room, -1=ask user */
 		/** @param #58 IP Address */
 			/** The IP of the device */
+		/** @param #109 Data */
+			/** Extra device data to be assigned when creating the device */
 		/** @param #150 PK_DHCPDevice */
 			/** Only needed if this is a dhcp pnp device */
-		/** @param #155 PK_Device_ControlledVia */
+		/** @param #156 PK_Device_ControlledVia */
 			/** The controlled via */
+		/** @param #196 PK_Orbiter */
+			/** The orbiter which should be used to prompt the user for any extra information.  Zero means all orbiters */
 
-void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_address,string sIP_Address,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int *iPK_Device,string &sCMD_Result,Message *pMessage)
-//<-dceag-c710-e->
+void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter,int *iPK_Device,string &sCMD_Result,Message *pMessage)
+//<-dceag-c718-e->
 {
+	Row_DHCPDevice *pRow_DHCPDevice = NULL;
+	if( iPK_DHCPDevice )
+	{
+		pRow_DHCPDevice = m_pDatabase_pluto_main->DHCPDevice_get()->GetRow(iPK_DHCPDevice);
+		if( !iPK_DeviceTemplate )
+			iPK_DeviceTemplate = pRow_DHCPDevice->FK_DeviceTemplate_get();
+	}
+
+	if( !OkayToCreateDevice(iPK_DHCPDevice,iPK_DeviceTemplate,sMac_address,sIP_Address,iPK_Orbiter) )
+		return;
+
 	CreateDevice createDevice(m_pRouter->iPK_Installation_get(),m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get());
-	*iPK_Device = createDevice.DoIt(iPK_DHCPDevice,iPK_DeviceTemplate,sIP_Address,sMac_address,iPK_Device_ControlledVia);
+	*iPK_Device = createDevice.DoIt(iPK_DHCPDevice,iPK_DeviceTemplate,sIP_Address,sMac_address,iPK_Device_ControlledVia,sData);
+
 	g_pPlutoLogger->Write(LV_STATUS,"Created device %d",*iPK_Device);
+	CMD_Check_for_updates();
+
+// Temporary debugging code since somehow the mac address sometimes got deleted
+Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(*iPK_Device);
+if( pRow_Device )
+	g_pPlutoLogger->Write(LV_STATUS,"Database reports row as ip %s mac %s",
+		pRow_Device->IPaddress_get().c_str(),pRow_Device->MACaddress_get().c_str());
+else
+	g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find %d in database",*iPK_Device);
+
+	Message *pMessage_Event = new Message(m_dwPK_Device,DEVICEID_EVENTMANAGER,PRIORITY_NORMAL,MESSAGETYPE_EVENT,EVENT_New_PNP_Device_Detected_CONST,
+		1,EVENTPARAMETER_PK_Device_CONST,StringUtils::itos(*iPK_Device).c_str());
+	QueueMessageToRouter(pMessage_Event);
+
 }
 
-//<-dceag-c711-b->
+//<-dceag-c719-b->
 
-	/** @brief COMMAND: #711 - Delete Device */
+	/** @brief COMMAND: #719 - Delete Device */
 	/** Deletes a device */
 		/** @param #2 PK_Device */
 			/** The device to delete */
 
 void General_Info_Plugin::CMD_Delete_Device(int iPK_Device,string &sCMD_Result,Message *pMessage)
-//<-dceag-c711-e->
+//<-dceag-c719-e->
 {
 	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM Device WHERE PK_Device=" + StringUtils::itos(iPK_Device));
 	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM CommandGroup_Command WHERE FK_Device=" + StringUtils::itos(iPK_Device));
@@ -1431,3 +1472,135 @@ void General_Info_Plugin::CMD_Delete_Device(int iPK_Device,string &sCMD_Result,M
 	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM Device_Device_Pipe WHERE FK_Device_From=" + StringUtils::itos(iPK_Device) + " OR FK_Device_To=" + StringUtils::itos(iPK_Device));
 	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM PaidLicense WHERE FK_Device=" + StringUtils::itos(iPK_Device));
 }
+
+
+bool General_Info_Plugin::NewPnpDevice( int PK_Device )
+{
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::NewPnpDevice");
+	PLUTO_SAFETY_LOCK(mm, m_GipMutex);
+
+	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(PK_Device);
+	if( !pRow_Device )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Got invalid pnp device: %d",PK_Device);
+		return false;
+	}
+
+	m_listNewPnpDevicesWaitingForARoom.push_back(PK_Device);
+
+	/*
+	DCE::CMD_Goto_DesignObj_DL CMD_Goto_DesignObj( m_dwPK_Device, m_sPK_Device_AllOrbiters, 0, StringUtils::itos(DESIGNOBJ_mnuNewPlugAndPlayDevice_CONST), StringUtils::itos(PK_Device), "", true, false );
+	// The destination devices must match
+	DCE::CMD_Set_Variable_DL CMD_Set_Variable1( m_dwPK_Device, m_sPK_Device_AllOrbiters, VARIABLE_Misc_Data_1_CONST, pRow_Device->Description_get());
+	CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable1.m_pMessage);
+	DCE::CMD_Set_Variable_DL CMD_Set_Variable2( m_dwPK_Device, m_sPK_Device_AllOrbiters, VARIABLE_Misc_Data_2_CONST, pRow_Device->FK_DeviceTemplate_getrow()->Comments_get());
+	CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable2.m_pMessage);
+	DCE::CMD_Set_Variable_DL CMD_Set_Variable3( m_dwPK_Device, m_sPK_Device_AllOrbiters, VARIABLE_Misc_Data_3_CONST, StringUtils::itos(PK_Device));
+	CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable3.m_pMessage);
+
+	QueueMessageToRouter(CMD_Goto_DesignObj.m_pMessage);
+	*/
+
+	DCE::SCREEN_NewPlugAndPlayDevice_DL SCREEN_NewPlugAndPlayDevice_DL(m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_get(),
+		StringUtils::itos(PK_Device), pRow_Device->Description_get(), 
+		pRow_Device->FK_DeviceTemplate_getrow()->Comments_get());
+	SendCommand(SCREEN_NewPlugAndPlayDevice_DL);
+
+	DCE::CMD_Check_for_updates_Cat CMD_Check_for_updates_Cat(m_dwPK_Device,DEVICECATEGORY_General_Info_Plugins_CONST,false,BL_SameHouse);
+	SendCommand(CMD_Check_for_updates_Cat);
+
+	return false;  // Let anybody else have this who wants it
+}
+//<-dceag-c274-b->
+
+	/** @brief COMMAND: #274 - Set Room For Device */
+	/** Updates the record in the database for a given device putting in a certain room. */
+		/** @param #2 PK_Device */
+			/** The device */
+		/** @param #50 Name */
+			/** If PK_Room is empty, a new room with this name will be created */
+		/** @param #57 PK_Room */
+			/** The room */
+
+void General_Info_Plugin::CMD_Set_Room_For_Device(int iPK_Device,string sName,int iPK_Room,string &sCMD_Result,Message *pMessage)
+//<-dceag-c274-e->
+{
+    PLUTO_SAFETY_LOCK(mm, m_GipMutex);
+	size_t sBefore=m_listNewPnpDevicesWaitingForARoom.size();
+
+	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(iPK_Device);
+	Row_Room *pRow_Room;
+	if( iPK_Room )
+		pRow_Room = m_pDatabase_pluto_main->Room_get()->GetRow(iPK_Room);
+	else
+	{
+		if( sName.size()==0 )
+		{
+			//DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"You must type in a name for the room");
+			SCREEN_DialogGenericNoButtons SCREEN_DialogGenericNoButtons(m_dwPK_Device, pMessage->m_dwPK_Device_From,
+				"You must type in a name for the room", "0", "0", "0");
+			SendCommand(SCREEN_DialogGenericNoButtons);
+
+			return;
+		}
+		pRow_Room = m_pDatabase_pluto_main->Room_get()->AddRow();
+		pRow_Room->Description_set(sName);
+		pRow_Room->FK_Installation_set(m_pRouter->iPK_Installation_get());
+		m_pDatabase_pluto_main->Room_get()->Commit();
+	}
+
+	if( !pRow_Device || !pRow_Room )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot set device %d to room %d",iPK_Device,iPK_Room);
+		return;
+	}
+	else
+	{
+		pRow_Device->Reload();
+		g_pPlutoLogger->Write(LV_STATUS,"Setting device %d to with ip %s mac %s to room %d",
+			iPK_Device,pRow_Device->IPaddress_get().c_str(),pRow_Device->MACaddress_get().c_str(),iPK_Room);
+		pRow_Device->FK_Room_set( pRow_Room->PK_Room_get() );
+		pRow_Device->Table_Device_get()->Commit();
+	}
+
+	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL( m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_get(), StringUtils::itos(DESIGNOBJ_mnuNewPlugAndPlayDevice_CONST), StringUtils::itos(iPK_Device) );
+	SendCommand(CMD_Remove_Screen_From_History_DL);
+	m_listNewPnpDevicesWaitingForARoom.remove(pRow_Device->PK_Device_get());
+
+bool bStillRunningConfig = PendingConfigs();
+g_pPlutoLogger->Write(LV_STATUS,"CMD_Set_Room_For_Device: before %d after %d pending %d",
+(int) sBefore,(int) m_listNewPnpDevicesWaitingForARoom.size(),(int) bStillRunningConfig);
+	// If there pnp devices waiting for the room, and we finished specifying the last one, and we're
+	// not still getting the software, let the user know his device is done
+	if( sBefore && m_listNewPnpDevicesWaitingForARoom.size()==0 && !bStillRunningConfig )
+	{
+		if( !m_pOrbiter_Plugin->CheckForNewWizardDevices(NULL) )  // Don't display the 'device is done' if there are still some config settings we need
+		{
+			//DisplayMessageOnOrbiter("","<%=T" + StringUtils::itos(TEXT_New_Devices_Configured_CONST) + "%>",true);
+			SCREEN_DialogGenericNoButtons_DL SCREEN_DialogGenericNoButtons_DL(m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_get(),
+				"<%=T" + StringUtils::itos(TEXT_New_Devices_Configured_CONST) + "%>", "1", "0", "0");
+			SendCommand(SCREEN_DialogGenericNoButtons_DL);
+		}
+	}
+}
+
+void General_Info_Plugin::DoneCheckingForUpdates()
+{
+	PLUTO_SAFETY_LOCK(mm, m_GipMutex);
+
+	// We must have started the check for updates because we added a new device.  However we finished
+	// getting room info from the user, so he's ready to go
+	if( m_listNewPnpDevicesWaitingForARoom.size()==0 && !m_pOrbiter_Plugin->CheckForNewWizardDevices(NULL) )
+	{
+		//DisplayMessageOnOrbiter("","<%=T" + StringUtils::itos(TEXT_New_Devices_Configured_CONST) + "%>",true);
+		SCREEN_DialogGenericNoButtons_DL SCREEN_DialogGenericNoButtons_DL(m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_get(),
+			"<%=T" + StringUtils::itos(TEXT_New_Devices_Configured_CONST) + "%>", "1", "0", "0");
+		SendCommand(SCREEN_DialogGenericNoButtons_DL);
+	}
+}
+
+bool General_Info_Plugin::OkayToCreateDevice(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sMac_address,string sIP_Address,int iPK_Orbiter)
+{
+	return true;
+}
+
