@@ -144,6 +144,14 @@ while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
 
 }}
 
+$EXT_BUFFER .= "\n;Device conference rooms\n";
+$EXT_BUFFER .= "exten =>00,1,Hangup\n";
+foreach my $phone (sort (values(%PHONES)))
+{
+    $EXT_BUFFER .= "exten =>0$phone,1,Conference(0$phone/S/1)\n";
+    $EXT_BUFFER .= "exten =>0$phone,2,Hangup\n";
+}
+
 $EXT_BUFFER .= "\n\n[voice-menu-pluto-custom]\n\n";
 $EXT_BUFFER .= "exten => s,1,Answer\n";
 $EXT_BUFFER .= "exten => s,2,Wait(1)\n";
@@ -153,9 +161,9 @@ $EXT_BUFFER .= "exten => s,5,DigitTimeout,20\n";
 $EXT_BUFFER .= "exten => s,6,ResponseTimeout,20\n";
 $EXT_BUFFER .= "exten => t,1,Goto(s,1)\n";
 
-foreach my $user (sort (values(%PHONES)))
+foreach my $phone (sort (values(%PHONES)))
 {
-    $tmp .= "Local/$user\@trusted&";
+    $tmp .= "Local/$phone\@trusted&";
 }
 $tmp =~ s/[&]$//;
 $EXT_BUFFER .= "exten => 0,1,Dial($tmp,$TIMEOUT)\n";

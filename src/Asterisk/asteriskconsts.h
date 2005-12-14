@@ -5,6 +5,7 @@
 #define TOKEN_EVENT			"Event"
 #define TOKEN_STATE			"State"
 #define TOKEN_CHANNEL		"Channel"
+#define TOKEN_EXTRACHANNEL  "ExtraChannel"
 #define TOKEN_RESPONSE		"Response"
 #define TOKEN_MESSAGE		"Message"
 #define TOKEN_CALLERID		"CallerID"

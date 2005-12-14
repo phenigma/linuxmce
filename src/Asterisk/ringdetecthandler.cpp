@@ -66,27 +66,20 @@ RingDetectHandler::handleToken(Token* ptoken) {
 		bool success=false;
 		for(map<string,string>::iterator it=map_ringext.begin();it!=map_ringext.end();it++)
 		{
-			if( (*it).second == channel)
+			string newchan=(*it).second;
+			int pos = newchan.find(channel);
+			if( pos >=0)
 			{
-				map_ringext.erase(it);
-				success=true;
-				g_pPlutoLogger->Write(LV_STATUS, "Will delete channel %s from extension %s", channel.c_str(),(*it).first.c_str());				
-			}
-		}
-		if(!success)
-		{
-			string ringphoneid;
-			if(!Utils::ParseChannel(channel, &ringphoneid)) {
-				if(map_ringext.find(ringphoneid)!= map_ringext.end())
+				g_pPlutoLogger->Write(LV_STATUS, "Will delete channel %s from extension %s", channel.c_str(),(*it).first.c_str());
+				newchan = newchan.substr(0,pos)+newchan.substr(pos+channel.length(),newchan.length());
+				g_pPlutoLogger->Write(LV_STATUS, "Change from [%s] to [%s]",(*it).second.c_str(),newchan.c_str());
+				(*it).second = newchan;
+				if ((*it).second.find_first_not_of(' ')<0)
 				{
-					map_ringext.erase(ringphoneid);
-					success=true;
-					g_pPlutoLogger->Write(LV_STATUS, "Will clear map for extension %s", ringphoneid.c_str());				
+					map_ringext.erase(it);
+					g_pPlutoLogger->Write(LV_STATUS, "Will delete as empty");
 				}
-			}
-			else
-			{
-				g_pPlutoLogger->Write(LV_CRITICAL, "Error parsing channel:%s", channel.c_str());
+				success=true;
 			}
 		}
 		if(!success)
@@ -115,13 +108,14 @@ RingDetectHandler::handleToken(Token* ptoken) {
 					g_pPlutoLogger->Write(LV_CRITICAL, "No previos ring to this channel !!!");
 					return 0;
 				}
-				g_pPlutoLogger->Write(LV_STATUS, "Phone %s is Ringing. Fire Ring event.",
-							ringphoneid.c_str());
+				g_pPlutoLogger->Write(LV_STATUS, "Phone %s is Ringing. Fire Ring event.",ringphoneid.c_str());
 							
 				string callerid = ptoken->getKey(TOKEN_CALLERID);
 				
 				AsteriskManager* manager = AsteriskManager::getInstance();
+				map_ringext[ringphoneid] += string(" ")+channel;
 				manager->NotifyRing(callerid, ringphoneid, map_ringext[ringphoneid]);
+
 				/* as idea 	:  we need both  map_ringext[ringphoneid] and channel, and use one or another or both depending on situation */
 			}
 		} else {

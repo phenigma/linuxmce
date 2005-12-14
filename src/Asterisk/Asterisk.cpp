@@ -12,6 +12,7 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
+#include <stack>
 #include "asteriskmanager.h"
 using namespace ASTERISK;
 
@@ -218,18 +219,52 @@ void Asterisk::CMD_PBX_Originate(string sPhoneNumber,string sPhoneType,string sP
 			/** CommandID which will be passed back when getting results */
 		/** @param #87 PhoneCallID */
 			/** Call ID which will be transferred */
+		/** @param #196 IsConference */
+			/** Transfer to a conferrence room ? */
 
-void Asterisk::CMD_PBX_Transfer(string sPhoneExtension,int iCommandID,string sPhoneCallID,string &sCMD_Result,Message *pMessage)
+void Asterisk::CMD_PBX_Transfer(string sPhoneExtension,int iCommandID,string sPhoneCallID,bool bIsConference,string &sCMD_Result,Message *pMessage)
 //<-dceag-c235-e->
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Command Transfer called with param: "
+	g_pPlutoLogger->Write(LV_STATUS, "Command %s called with param: "
 	                                            "PhoneExtension: %s "
                                                 "PhoneCallID: %s"
-  			                                    "CommandID: %d"
-			                                    , sPhoneExtension.c_str(), sPhoneCallID.c_str(), iCommandID);
+  			                                    "CommandID: %d",(bIsConference?"Conference":"Transfer"),sPhoneExtension.c_str(), sPhoneCallID.c_str(), iCommandID);
 
     AsteriskManager *manager = AsteriskManager::getInstance();
-    manager->Transfer(sPhoneCallID,sPhoneExtension,iCommandID);
+
+	if(!bIsConference)
+	{
+		string rest = sPhoneCallID;
+		int pos = rest.find(' ');
+		if(pos>=0)
+		{
+			rest=rest.substr(0, pos);
+		}
+		
+    	manager->Transfer(rest,sPhoneExtension,iCommandID);
+		if(pos >=0)
+		{
+			rest = sPhoneCallID.substr(pos+1,sPhoneCallID.length());
+			CMD_PBX_Hangup(iCommandID,rest,sCMD_Result,NULL);
+		}
+	}
+	else
+	{
+		int pos = sPhoneCallID.find(' ');
+		if(pos>=0)
+		{
+			string rest1 = sPhoneCallID;
+			string rest2 = sPhoneCallID;
+			rest1=sPhoneCallID.substr(0, pos);
+			rest2=sPhoneCallID.substr(pos+1,sPhoneCallID.length());
+			g_pPlutoLogger->Write(LV_STATUS, "Will put %s and %s in conference room %s",rest1.c_str(), rest2.c_str(),sPhoneExtension.c_str());
+			manager->Conference(rest1,rest2,sPhoneExtension,iCommandID);
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "Conference on unconnected channels ???");
+		}
+	}
 }
 //<-dceag-c237-b->
 
@@ -249,6 +284,24 @@ void Asterisk::CMD_PBX_Hangup(int iCommandID,string sPhoneCallID,string &sCMD_Re
 			                                    , sPhoneCallID.c_str(), iCommandID);
 													
     AsteriskManager *manager = AsteriskManager::getInstance();
-    manager->Hangup(sPhoneCallID, iCommandID);
+	string rest = sPhoneCallID;
+	std::stack<std::string> hangup_order;
+	while (rest != "")
+	{
+		int pos = rest.find(' ');
+		if(pos<0)
+		{
+			break;
+		}
+		string chan=rest.substr(0, pos);
+		hangup_order.push(chan);
+		rest = rest.substr(pos+1,rest.length());
+	}
+	hangup_order.push(rest);
+	while(!hangup_order.empty())
+	{
+	    manager->Hangup(hangup_order.top(), iCommandID);
+		hangup_order.pop();
+	}
 }
 //<-dceag-createinst-b->!

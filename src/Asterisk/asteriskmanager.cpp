@@ -18,6 +18,7 @@
 #include "originatecommand.h"
 #include "hangupcommand.h"
 #include "transfercommand.h"
+#include "conferencecommand.h"
 #include "ringdetecthandler.h"
 
 #define DEFAUL_LOGIN_NAME "admin"
@@ -79,6 +80,19 @@ void AsteriskManager::Transfer(const std::string sChannel, const string sPhoneNu
 
 	ptransfer->Run(false);
 }
+
+void AsteriskManager::Conference(const std::string sChannel1, const std::string sChannel2, const string sPhoneNumber, int iCommandID) {
+	
+	/*conference*/
+	TokenSMPtr<ConferenceCommand> ptransfer = ConferenceCommand::getInstance();
+	ptransfer->setExtenNum(sPhoneNumber);
+	ptransfer->setChannel1(sChannel1);
+	ptransfer->setChannel2(sChannel2);
+	ptransfer->setCommandID(iCommandID);
+
+	ptransfer->Run(false);
+}
+
 	
 void AsteriskManager::NotifyRing(std::string sCallerID, const std::string sSrcExt, 
 												const std::string sChannel) {

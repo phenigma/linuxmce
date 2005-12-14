@@ -55,10 +55,16 @@ public:
 	void Hangup(const std::string sChannel, 
 						int iCommandID);
 
-	/*transfers up a call*/						
+	/*transfers a call*/						
 	void Transfer(const std::string sChannel,
 	              const std::string sPhoneNumber,
 				  int iCommandID);
+
+	/*make it a conference  a call*/						
+	void Conference(const std::string sChannel1,
+	                const std::string sChannel2,
+	                const std::string sPhoneNumber,
+	                int iCommandID);
 	
 	/*events - usually called by state machines*/
 	void NotifyRing(const std::string sCallerID /*ringing phone id*/, 

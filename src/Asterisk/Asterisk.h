@@ -76,9 +76,11 @@ public:
 			/** CommandID which will be passed back when getting results */
 		/** @param #87 PhoneCallID */
 			/** Call ID which will be transferred */
+		/** @param #196 IsConference */
+			/** Transfer to a conferrence room ? */
 
-	virtual void CMD_PBX_Transfer(string sPhoneExtension,int iCommandID,string sPhoneCallID) { string sCMD_Result; CMD_PBX_Transfer(sPhoneExtension.c_str(),iCommandID,sPhoneCallID.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_PBX_Transfer(string sPhoneExtension,int iCommandID,string sPhoneCallID,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_PBX_Transfer(string sPhoneExtension,int iCommandID,string sPhoneCallID,bool bIsConference) { string sCMD_Result; CMD_PBX_Transfer(sPhoneExtension.c_str(),iCommandID,sPhoneCallID.c_str(),bIsConference,sCMD_Result,NULL);};
+	virtual void CMD_PBX_Transfer(string sPhoneExtension,int iCommandID,string sPhoneCallID,bool bIsConference,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #237 - PBX_Hangup */
@@ -90,7 +92,6 @@ public:
 
 	virtual void CMD_PBX_Hangup(int iCommandID,string sPhoneCallID) { string sCMD_Result; CMD_PBX_Hangup(iCommandID,sPhoneCallID.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_PBX_Hangup(int iCommandID,string sPhoneCallID,string &sCMD_Result,Message *pMessage);
-
 
 //<-dceag-h-e->
 	};

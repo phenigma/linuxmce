@@ -48,7 +48,7 @@ TransferCommand::setCommandID(int commandid) {
 void
 TransferCommand::handleStartup() {
 	Token transtok;
-
+	
 	LOCKED_OP(
 	transtok.setKey(TOKEN_ACTION, ACTION_REDIRECT);
 	transtok.setKey(TOKEN_CHANNEL, channel );
