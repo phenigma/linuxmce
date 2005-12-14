@@ -46,6 +46,7 @@ using namespace DCE;
 #include "pluto_main/Table_Country.h"
 #include "pluto_main/Define_DataGrid.h"
 #include "pluto_main/Define_Command.h"
+#include "pluto_main/Define_Screen.h"
 #include "pluto_main/Define_CommandParameter.h"
 #include "pluto_main/Define_Text.h"
 #include "pluto_main/Table_Room.h"
@@ -138,6 +139,10 @@ bool General_Info_Plugin::Register()
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &General_Info_Plugin::Rooms ) )
         , DATAGRID_Rooms_CONST,PK_DeviceTemplate_get() );
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &General_Info_Plugin::RoomTypes ) )
+		, DATAGRID_Room_Types_CONST,PK_DeviceTemplate_get() );
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::BookmarkList)), 
@@ -280,7 +285,8 @@ void General_Info_Plugin::CMD_Add_Unknown_Device(string sText,string sID,string 
 	m_pDatabase_pluto_main->UnknownDevices_get()->Commit();
 g_pPlutoLogger->Write(LV_STATUS,"uknown device, setting: %d to mac: %s",pRow_UnknownDevices->PK_UnknownDevices_get(),pRow_UnknownDevices->MacAddress_get().c_str());
 
-	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL( m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, StringUtils::itos(DESIGNOBJ_mnuNewMacAddress_CONST), sMac_address );
+	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL(
+		m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, sMac_address, SCREEN_NewMacAddress_CONST);
 	SendCommand(CMD_Remove_Screen_From_History_DL);
 }
 //<-dceag-c239-b->
@@ -841,6 +847,39 @@ class DataGridTable *General_Info_Plugin::Rooms( string GridID, string Parms, vo
 	return pDataGrid;
 }
 
+class DataGridTable *General_Info_Plugin::RoomTypes(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage)
+{
+	DataGridTable *pDataGrid = new DataGridTable( );
+	DataGridCell *pCell;
+
+	int iRow=0, iCol=0;
+	string sql = 
+		"SELECT PK_RoomType, RoomType.Description, Sum(IF(NOT IFNULL(FK_Installation, 0), 0, 1)) As Count "
+		"FROM RoomType LEFT JOIN Room ON FK_RoomType = PK_RoomType "
+		"WHERE FK_Installation = " + StringUtils::itos(m_pRouter->iPK_Installation_get()) + " OR FK_Installation IS NULL " 
+		"GROUP BY PK_RoomType "
+		"ORDER BY Description";
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	if(mysql_query(m_pDatabase_pluto_main->m_pMySQL,sql.c_str())==0 && (result.r = mysql_store_result(m_pDatabase_pluto_main->m_pMySQL)) )
+	{
+		while((row=mysql_fetch_row(result.r)))
+		{
+			string sPK_RoomType = row[0];
+			string sDescription = row[1];
+			string sNumberOfRoomTypes = row[2];
+
+			pCell = new DataGridCell(sDescription, sPK_RoomType);
+			pDataGrid->SetData(0, iRow, pCell);
+
+			pCell = new DataGridCell(sNumberOfRoomTypes, sPK_RoomType);
+			pDataGrid->SetData(1, iRow++, pCell);
+		}
+	}
+
+	return pDataGrid;
+}
+
 //<-dceag-c395-b->
 
 	/** @brief COMMAND: #395 - Check for updates */
@@ -1268,7 +1307,8 @@ struct Web_DeviceData
 void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,string sIP_Address,string sData,int iPK_DHCPDevice,string &sCMD_Result,Message *pMessage)
 //<-dceag-c700-e->
 {
-	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL( m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, StringUtils::itos(DESIGNOBJ_mnuNewMacAddress_CONST), sMac_address );
+	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL(
+		m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, sMac_address, SCREEN_NewMacAddress_CONST);
 	SendCommand(CMD_Remove_Screen_From_History_DL);
 
 #ifndef WIN32
@@ -1563,7 +1603,9 @@ void General_Info_Plugin::CMD_Set_Room_For_Device(int iPK_Device,string sName,in
 		pRow_Device->Table_Device_get()->Commit();
 	}
 
-	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL( m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_get(), StringUtils::itos(DESIGNOBJ_mnuNewPlugAndPlayDevice_CONST), StringUtils::itos(iPK_Device) );
+	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL(
+		m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_get(), 
+		StringUtils::itos(iPK_Device), SCREEN_NewPlugAndPlayDevice_CONST);
 	SendCommand(CMD_Remove_Screen_From_History_DL);
 	m_listNewPnpDevicesWaitingForARoom.remove(pRow_Device->PK_Device_get());
 

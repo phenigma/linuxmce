@@ -51,7 +51,8 @@ enum CallBackType
 	cbOnKeyUp,
 	cbOnMouseDown,
 	cbOnMouseUp,
-	cbCapturedKeyboardBufferChanged
+	cbCapturedKeyboardBufferChanged,
+	cbOnMove
 };
 
 #define PROMPT_CANCEL -1
@@ -1024,7 +1025,7 @@ public:
 	int DATA_Get_Using_Infrared();
 	string DATA_Get_Remote_Phone_IP();
 	int DATA_Get_Listen_Port();
-	string DATA_Get_PK_Screen();
+	int DATA_Get_PK_Screen();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position);
@@ -1128,13 +1129,13 @@ public:
 
 	/** @brief COMMAND: #8 - Remove Screen From History */
 	/** The orbiter keeps a history of visible screens, allowing the user to go back.  See Go_Back.  This removes screens from the queue that should not available anymore.  An example is when a call comes in, the controllers are sent to an incoming call screen. */
-		/** @param #3 PK_DesignObj */
-			/** The screen to remove */
 		/** @param #10 ID */
 			/** If specified, only screens that match this ID will be removed */
+		/** @param #159 PK_Screen */
+			/** The screen to remove */
 
-	virtual void CMD_Remove_Screen_From_History(string sPK_DesignObj,string sID) { string sCMD_Result; CMD_Remove_Screen_From_History(sPK_DesignObj.c_str(),sID.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Remove_Screen_From_History(string sPK_DesignObj,string sID,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Remove_Screen_From_History(string sID,int iPK_Screen) { string sCMD_Result; CMD_Remove_Screen_From_History(sID.c_str(),iPK_Screen,sCMD_Result,NULL);};
+	virtual void CMD_Remove_Screen_From_History(string sID,int iPK_Screen,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #9 - Scroll Grid */
@@ -1817,11 +1818,13 @@ light, climate, media, security, telecom */
 
 	/** @brief COMMAND: #741 - Goto Screen */
 	/** Goto a specific screen. */
+		/** @param #10 ID */
+			/** Assigns an optional ID to this particular "viewing" of the screen, used with Kill Screen.  There can be lots of instances of the same screen in the history queue (such as call in progress).  This allows a program to pop a particular one out of the queue. */
 		/** @param #159 PK_Screen */
 			/** The screen id. */
 
-	virtual void CMD_Goto_Screen(int iPK_Screen) { string sCMD_Result; CMD_Goto_Screen(iPK_Screen,sCMD_Result,NULL);};
-	virtual void CMD_Goto_Screen(int iPK_Screen,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Goto_Screen(string sID,int iPK_Screen) { string sCMD_Result; CMD_Goto_Screen(sID.c_str(),iPK_Screen,sCMD_Result,NULL);};
+	virtual void CMD_Goto_Screen(string sID,int iPK_Screen,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

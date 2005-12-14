@@ -3068,7 +3068,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 				exit( 1 );
 			}
 			else if( m_sInitialScreen.size() )
-				CMD_Goto_Screen(atoi(m_sInitialScreen.c_str()));
+				CMD_Goto_Screen("", atoi(m_sInitialScreen.c_str()));
 			else
 				GotoMainMenu();
 
@@ -5439,8 +5439,12 @@ g_pPlutoLogger->Write(LV_WARNING, "Removing from screens history list screen %d"
         if( pScreenHistory->m_bCantGoBack && sForce!="1"  )
             continue;
 
-        if( m_pScreenHistory_Current && pScreenHistory->m_pObj==m_pScreenHistory_Current->m_pObj && !pScreenHistory->m_pObj->m_bCanGoBackToSameScreen  )
+		//TODO : ask: is this needed ?
+		/*
+        if( m_pScreenHistory_Current && pScreenHistory->m_pObj == m_pScreenHistory_Current->m_pObj 
+			&& !pScreenHistory->m_pObj->m_bCanGoBackToSameScreen )
             continue;
+		*/
 
 		break;   // We got one to go back to
     }
@@ -5483,7 +5487,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Forcing go back to the main menu");
 		//else
 		{
 			string sResult;
-			CMD_Goto_Screen(pScreenHistory->m_nPK_Screen, sResult, pScreenHistory->m_pMessage);
+			CMD_Goto_Screen("", pScreenHistory->m_nPK_Screen, sResult, pScreenHistory->m_pMessage);
 			//NeedToRender::NeedToChangeScreens( this, pScreenHistory, false );
 		}
 			
@@ -5595,7 +5599,6 @@ g_pPlutoLogger->Write(LV_STATUS,"Forcing go to the main menu");
 
     // See if we're going to control a new device,  or should stick with the one we're now controlling
 	pScreenHistory_New->m_pObj = pObj_New;
-    pScreenHistory_New->m_sID = sID;
 	pScreenHistory_New->m_bCantGoBack = bCant_Go_Back ? true : pObj_New->m_bCantGoBack;
     vm.Release(  );
 
@@ -5685,18 +5688,18 @@ void Orbiter::CMD_Terminate_Orbiter(string &sCMD_Result,Message *pMessage)
 
 	/** @brief COMMAND: #8 - Remove Screen From History */
 	/** The orbiter keeps a history of visible screens, allowing the user to go back.  See Go_Back.  This removes screens from the queue that should not available anymore.  An example is when a call comes in, the controllers are sent to an incoming call screen. */
-		/** @param #3 PK_DesignObj */
-			/** The screen to remove */
 		/** @param #10 ID */
 			/** If specified, only screens that match this ID will be removed */
+		/** @param #159 PK_Screen */
+			/** The screen to remove */
 
-void Orbiter::CMD_Remove_Screen_From_History(string sPK_DesignObj,string sID,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Remove_Screen_From_History(string sID,int iPK_Screen,string &sCMD_Result,Message *pMessage)
 //<-dceag-c8-e->
 {
     PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex );
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_STATUS,"CMD_Remove_Screen_From_History %s - %s size: %d",sPK_DesignObj.c_str(),sID.c_str(),(int) m_listScreenHistory.size());
+	g_pPlutoLogger->Write(LV_STATUS,"CMD_Remove_Screen_From_History %d - %s size: %d",iPK_Screen,sID.c_str(),(int) m_listScreenHistory.size());
 	DumpScreenHistory();
 #endif
 
@@ -5706,10 +5709,10 @@ void Orbiter::CMD_Remove_Screen_From_History(string sPK_DesignObj,string sID,str
 #ifdef DEBUG
 g_pPlutoLogger->Write(LV_STATUS,"Comparing %s - %s",pScreenHistory->m_pObj->m_ObjectID.c_str(),pScreenHistory->m_sID.c_str());
 #endif
-		if( pScreenHistory->m_pObj->m_ObjectID.find(sPK_DesignObj+".")==0 && (sID.length()==0 || sID==pScreenHistory->m_sID) )
+		if( pScreenHistory->m_nPK_Screen == iPK_Screen && (sID.length()==0 || sID==pScreenHistory->m_sID) )
 		{
 #ifdef DEBUG
-g_pPlutoLogger->Write(LV_STATUS,"deleting %s - %s",pScreenHistory->m_pObj->m_ObjectID.c_str(),pScreenHistory->m_sID.c_str());
+g_pPlutoLogger->Write(LV_STATUS,"deleting %d - %s",iPK_Screen,pScreenHistory->m_sID.c_str());
 #endif
 			delete (*it);
 			it = m_listScreenHistory.erase( it );
@@ -5717,7 +5720,13 @@ g_pPlutoLogger->Write(LV_STATUS,"deleting %s - %s",pScreenHistory->m_pObj->m_Obj
 		else
 			++it;
 	}
-	if( m_pScreenHistory_Current && m_pScreenHistory_Current->m_pObj->m_ObjectID.find(sPK_DesignObj+".")==0 && (sID.length()==0 || sID==m_pScreenHistory_Current->m_sID) )
+
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"After CMD_Remove_Screen_From_History %d - %s size: %d",iPK_Screen,sID.c_str(),(int) m_listScreenHistory.size());
+	DumpScreenHistory();
+#endif
+
+	if( m_pScreenHistory_Current && m_pScreenHistory_Current->m_nPK_Screen == iPK_Screen && (sID.length()==0 || sID==m_pScreenHistory_Current->m_sID) )
 	{
 		vm.Release();
 		CMD_Go_back("","");
@@ -7954,7 +7963,7 @@ void Orbiter::DumpScreenHistory()
 	for(list < ScreenHistory * >::iterator it=m_listScreenHistory.begin();it!=m_listScreenHistory.end();++it)
 	{
 		ScreenHistory *psh = *it;
-		s += StringUtils::ltos(psh->m_nPK_Screen) + " / ";
+		s += StringUtils::ltos(psh->m_nPK_Screen) + "(\"" + psh->m_sID + "\")" + " / ";
 	}
 	g_pPlutoLogger->Write(LV_WARNING,"%s",s.c_str());
 }
@@ -9413,10 +9422,12 @@ bool Orbiter::WaitForRelativesIfOSD()
 
 	/** @brief COMMAND: #741 - Goto Screen */
 	/** Goto a specific screen. */
+		/** @param #10 ID */
+			/** Assigns an optional ID to this particular "viewing" of the screen, used with Kill Screen.  There can be lots of instances of the same screen in the history queue (such as call in progress).  This allows a program to pop a particular one out of the queue. */
 		/** @param #159 PK_Screen */
 			/** The screen id. */
 
-void Orbiter::CMD_Goto_Screen(int iPK_Screen,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,string &sCMD_Result,Message *pMessage)
 //<-dceag-c741-e->
 {
 	m_pScreenHandler->ResetCallBacks(); 
@@ -9431,6 +9442,7 @@ void Orbiter::CMD_Goto_Screen(int iPK_Screen,string &sCMD_Result,Message *pMessa
 #endif
 
 	m_pScreenHistory_NewEntry = new ScreenHistory(iPK_Screen, new Message(pMessage), m_pScreenHistory_Current);
+	m_pScreenHistory_NewEntry->m_sID = sID;
 	m_pScreenHandler->ReceivedGotoScreenMessage(iPK_Screen, pMessage);
 }
 //-----------------------------------------------------------------------------------------------------
@@ -9540,5 +9552,5 @@ void Orbiter::GotoMainMenu()
 	DCE::SCREEN_Main SCREEN_Main_(m_dwPK_Device, m_dwPK_Device, 
 		StringUtils::ltos(m_pLocationInfo->iLocation));
 	string sResult;
-	CMD_Goto_Screen(SCREEN_Main_CONST, sResult, SCREEN_Main_.m_pMessage);
+	CMD_Goto_Screen("", SCREEN_Main_CONST, sResult, SCREEN_Main_.m_pMessage);
 }

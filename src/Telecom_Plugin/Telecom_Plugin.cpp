@@ -34,6 +34,8 @@ using namespace DCE;
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
 #include "DCE/DataGrid.h"
 
+#include "Gen_Devices/AllScreens.h"
+
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_telecom/Database_pluto_telecom.h"
 #include "pluto_main/Table_Device.h"
@@ -605,7 +607,7 @@ void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneE
 		pCallData->setPendingCmdID(generate_NewCommandID());
 				
 		/*send transfer command to PBX*/
-		CMD_PBX_Transfer cmd_PBX_Transfer(m_dwPK_Device, pPBXDevice->m_dwPK_Device, sPhoneNumber, pCallData->getPendingCmdID(), pCallData->getID());
+		CMD_PBX_Transfer cmd_PBX_Transfer(m_dwPK_Device, pPBXDevice->m_dwPK_Device, sPhoneNumber, pCallData->getPendingCmdID(), pCallData->getID(), false);
 									
 		SendCommand(cmd_PBX_Transfer);
 	}
@@ -723,8 +725,8 @@ Telecom_Plugin::IncomingCall( class Socket *pSocket, class Message *pMessage,
 					 			class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo ) {
 	g_pPlutoLogger->Write(LV_STATUS, "IncomingCall on device %d",pDeviceFrom->m_dwPK_Device);
 	g_pPlutoLogger->Write(LV_STATUS, "Will send GOTO_SCREEN to %d",pDeviceFrom->m_dwPK_Device_ControlledVia);
-	CMD_Goto_Screen cmdGoToScreen(m_dwPK_Device,pDeviceFrom->m_dwPK_Device_ControlledVia,SCREEN_DevIncomingCall_CONST);
-	SendCommand(cmdGoToScreen);
+	SCREEN_DevIncomingCall SCREEN_DevIncomingCall_(m_dwPK_Device,pDeviceFrom->m_dwPK_Device_ControlledVia);
+	SendCommand(SCREEN_DevIncomingCall_);
 	return true;
 }
 //<-dceag-c28-b->

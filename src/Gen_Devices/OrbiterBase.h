@@ -65,7 +65,7 @@ public:
 	int Get_Using_Infrared() { return atoi(m_mapParameters[111].c_str());}
 	string Get_Remote_Phone_IP() { return m_mapParameters[118];}
 	int Get_Listen_Port() { return atoi(m_mapParameters[119].c_str());}
-	string Get_PK_Screen() { return m_mapParameters[132];}
+	int Get_PK_Screen() { return atoi(m_mapParameters[132].c_str());}
 };
 
 
@@ -186,7 +186,7 @@ public:
 	int DATA_Get_Using_Infrared() { return GetData()->Get_Using_Infrared(); }
 	string DATA_Get_Remote_Phone_IP() { return GetData()->Get_Remote_Phone_IP(); }
 	int DATA_Get_Listen_Port() { return GetData()->Get_Listen_Port(); }
-	string DATA_Get_PK_Screen() { return GetData()->Get_PK_Screen(); }
+	int DATA_Get_PK_Screen() { return GetData()->Get_PK_Screen(); }
 	//Event accessors
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position) { GetEvents()->Touch_or_click(iX_Position,iY_Position); }
 	//Commands - Override these to handle commands from the server
@@ -197,7 +197,7 @@ public:
 	virtual void CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,string sPK_DesignObj_CurrentScreen,bool bStore_Variables,bool bCant_Go_Back,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Show_Object(string sPK_DesignObj,int iPK_Variable,string sComparisson_Operator,string sComparisson_Value,string sOnOff,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Terminate_Orbiter(string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Remove_Screen_From_History(string sPK_DesignObj,string sID,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Remove_Screen_From_History(string sID,int iPK_Screen,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iPK_Direction,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Move_Highlight(string sRelative_Level,string sPK_DesignObj,int iPK_Direction,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Play_Sound(char *pData,int iData_Size,string sFormat,string &sCMD_Result,class Message *pMessage) {};
@@ -262,7 +262,7 @@ public:
 	virtual void CMD_Set_Mouse_Position_Relative(int iPosition_X,int iPosition_Y,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Simulate_Mouse_Click_At_Present_Pos(string sType,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Update_Time_Code(int iStreamID,string sTime,string sTotal,string sSpeed,string sTitle,string sSection,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Goto_Screen(int iPK_Screen,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Goto_Screen(string sID,int iPK_Screen,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -478,9 +478,9 @@ public:
 				case 8:
 					{
 						string sCMD_Result="OK";
-					string sPK_DesignObj=pMessage->m_mapParameters[3];
 					string sID=pMessage->m_mapParameters[10];
-						CMD_Remove_Screen_From_History(sPK_DesignObj.c_str(),sID.c_str(),sCMD_Result,pMessage);
+					int iPK_Screen=atoi(pMessage->m_mapParameters[159].c_str());
+						CMD_Remove_Screen_From_History(sID.c_str(),iPK_Screen,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -497,7 +497,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Remove_Screen_From_History(sPK_DesignObj.c_str(),sID.c_str(),sCMD_Result,pMessage);
+								CMD_Remove_Screen_From_History(sID.c_str(),iPK_Screen,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
@@ -2221,8 +2221,9 @@ public:
 				case 741:
 					{
 						string sCMD_Result="OK";
+					string sID=pMessage->m_mapParameters[10];
 					int iPK_Screen=atoi(pMessage->m_mapParameters[159].c_str());
-						CMD_Goto_Screen(iPK_Screen,sCMD_Result,pMessage);
+						CMD_Goto_Screen(sID.c_str(),iPK_Screen,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -2239,7 +2240,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Goto_Screen(iPK_Screen,sCMD_Result,pMessage);
+								CMD_Goto_Screen(sID.c_str(),iPK_Screen,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

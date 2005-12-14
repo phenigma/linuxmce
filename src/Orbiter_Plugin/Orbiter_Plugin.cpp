@@ -975,7 +975,8 @@ void Orbiter_Plugin::CMD_Set_Current_Room(int iPK_Room,string &sCMD_Result,Messa
 void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTemplate,string sMac_address,int iPK_Room,int iWidth,int iHeight,int iPK_Skin,int iPK_Language,int iPK_Size,int *iPK_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c78-e->
 {
-	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL( m_dwPK_Device, m_sPK_Device_AllOrbiters, StringUtils::itos(DESIGNOBJ_mnuNewPhoneDetected_CONST), "" );
+	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL(
+		m_dwPK_Device, m_sPK_Device_AllOrbiters, "", SCREEN_NewPhoneDetected_CONST);
     SendCommand(CMD_Remove_Screen_From_History_DL);
 
     PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
@@ -1240,7 +1241,8 @@ void Orbiter_Plugin::CMD_Add_Unknown_Device(string sText,string sID,string sMac_
 
     m_bNoUnknownDeviceIsProcessing = false;
 
-	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL( m_dwPK_Device, m_sPK_Device_AllOrbiters, StringUtils::itos(DESIGNOBJ_mnuNewPhoneDetected_CONST), "" );
+	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL(
+		m_dwPK_Device, m_sPK_Device_AllOrbiters, "", SCREEN_NewPhoneDetected_CONST);
     SendCommand(CMD_Remove_Screen_From_History_DL);
 
     ProcessUnknownDevice();
