@@ -1846,6 +1846,8 @@
 #define DESIGNOBJ_sensorsapplet_CONST 4714
 #define DESIGNOBJ_dgReceiverInputs_CONST 4715
 #define DESIGNOBJ_butVoipUsername_CONST 4716
+#define DESIGNOBJ_dgRoomTypes_CONST 4717
+#define DESIGNOBJ_dgAlarmSensors_CONST 4719
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

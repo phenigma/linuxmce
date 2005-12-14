@@ -54,6 +54,8 @@
 #define DATAGRID_TvSourcesRegularTV_CONST 51
 #define DATAGRID_TvSourcesExternalBox_CONST 52
 #define DATAGRID_LightType_CONST 53
+#define DATAGRID_Alarm_Sensors_CONST 54
+#define DATAGRID_Room_Types_CONST 55
 
 #define DATAGRID_TABLE "DataGrid"
 #define DATAGRID_PK_DATAGRID_FIELD "PK_DataGrid"
