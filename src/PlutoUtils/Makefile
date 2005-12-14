@@ -4,13 +4,15 @@ GDEV = ./Gen_Devices
 CXXFLAGS = -Wall -g -ggdb3 -D_GNU_SOURCE
 CPPFLAGS = -I./ -I../../ -I../ -I../DCE/ -I../../DCE -I../VIPShared/ -I../../VIPShared -I/usr/include/mysql -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -DUSE_LZO_DATAGRID -D_DEVEL_DEFINES
 CXX = g++
+LDFLAGS = 
+LDLIBS = -lhttp_fetcher
 
 sources = CommonIncludes.cpp FileUtils.cpp MultiThreadIncludes.cpp Other.cpp ProcessUtils.cpp StringUtils.cpp getch.cpp md5c.cpp minilzo.cpp uuencode.cpp LinuxSerialUSB.cpp
 
 all: libPlutoUtils.so all-recursive
 
 libPlutoUtils.so: $(sources:.cpp=.o)
-	$(CXX) -shared $(CXXFLAGS) $(CPPFLAGS) -o $@ $(call cpath,$+)
+	$(CXX) -shared $(CXXFLAGS) $(CPPFLAGS) -o $@ $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../lib
 	
 libPlutoUtils.a: $(sources:.cpp=.o)
