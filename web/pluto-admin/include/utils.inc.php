@@ -2579,7 +2579,12 @@ function serialPortsPulldown($name,$selectedPort,$allowedToModify,$topParent,$db
 	$cmd="sudo -u root /usr/pluto/bin/LaunchRemoteCmd.sh '$topParentIP' /usr/pluto/bin/ListSerialPorts.sh";
 	exec($cmd, $serial_ports);
 	*/
-	$serial_ports=explode(',',getDeviceData($topParent,$GLOBALS['AvailableSerialPorts'],$dbADO));
+	$portDeviceData=getDeviceData($topParent,$GLOBALS['AvailableSerialPorts'],$dbADO);
+	if($portDeviceData==''){
+		return 'Serial port not found';
+	}
+
+	$serial_ports=explode(',',$portDeviceData);
 	
 	$usedPorts=getFieldsAsArray('Device_DeviceData','Device.Description,FK_Device,IK_DeviceData',$dbADO,'INNER JOIN Device ON FK_Device=PK_Device WHERE FK_Installation='.$installationID.' AND FK_DeviceData='.$GLOBALS['Port'].' AND PK_Device!='.$deviceID);
 	$serialPortAsoc=array();
