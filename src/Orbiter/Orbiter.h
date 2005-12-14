@@ -51,8 +51,7 @@ enum CallBackType
 	cbOnKeyUp,
 	cbOnMouseDown,
 	cbOnMouseUp,
-	cbCapturedKeyboardBufferChanged,
-	cbOnMove
+	cbCapturedKeyboardBufferChanged
 };
 
 #define PROMPT_CANCEL -1

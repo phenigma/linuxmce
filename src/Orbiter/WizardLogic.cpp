@@ -17,7 +17,7 @@ WizardLogic::~WizardLogic()
 
 bool WizardLogic::Setup()
 {
-	if( !MySQLConnect(m_pOrbiter->m_sIPAddress,"root", "", "pluto_main") )
+	if( !MySQLConnect("10.0.0.150"/*m_pOrbiter->m_sIPAddress*/,"root", "", "pluto_main") )
 		return false;
 
 	string sSQL;
@@ -137,6 +137,38 @@ void WizardLogic::RemoveRoomsOfType( int PK_RoomType, int NumRoomsCurrent, int N
 		sSQL = "DELETE FROM Room_Users WHERE FK_Room=" + StringUtils::itos(PK_Room);
 		threaded_mysql_query(sSQL);
 	}
+}
+
+void WizardLogic::AddRoomOfType(int PK_RoomType)
+{
+	string sSQL = "SELECT Count(*) FROM Room "
+		"WHERE FK_RoomType=" + StringUtils::itos(PK_RoomType) +
+		" AND FK_Installation = " + Installation_get();
+
+	PlutoSqlResult result_get_rooms;
+	MYSQL_ROW row;
+	long nNumberOfRooms = 0;
+	if((result_get_rooms.r=mysql_query_result(sSQL)) && (row = mysql_fetch_row(result_get_rooms.r)))
+		nNumberOfRooms = atoi(row[0]);
+
+	AddRoomsOfType(PK_RoomType, nNumberOfRooms, nNumberOfRooms + 1); //just add a room
+}
+
+void WizardLogic::RemoveRoomOfType(int PK_RoomType)
+{
+	string sSQL = "SELECT Count(*) FROM Room "
+		"WHERE FK_RoomType=" + StringUtils::itos(PK_RoomType) +
+		" AND FK_Installation = " + Installation_get();
+
+	PlutoSqlResult result_get_rooms;
+	MYSQL_ROW row;
+	long nNumberOfRooms = 0;
+	if((result_get_rooms.r=mysql_query_result(sSQL)) && (row = mysql_fetch_row(result_get_rooms.r)))
+		nNumberOfRooms = atoi(row[0]);
+
+	if(nNumberOfRooms)
+		RemoveRoomsOfType(PK_RoomType, nNumberOfRooms, nNumberOfRooms - 1);//just remove one room
+
 }
 
 void WizardLogic::AddRoomsOfType( int PK_RoomType, int NumRoomsCurrent, int NumRoomsDesired )
