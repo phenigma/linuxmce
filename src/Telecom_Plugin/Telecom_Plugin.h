@@ -105,9 +105,11 @@ public:
 			/** User ID to transfer call to */
 		/** @param #83 PhoneExtension */
 			/** Local Extension to transfer call to */
+		/** @param #196 IsConference */
+			/** Transfer the call to a conference room? */
 
-	virtual void CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension) { string sCMD_Result; CMD_PL_Transfer(iPK_Device,iPK_Users,sPhoneExtension.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,bool bIsConference) { string sCMD_Result; CMD_PL_Transfer(iPK_Device,iPK_Users,sPhoneExtension.c_str(),bIsConference,sCMD_Result,NULL);};
+	virtual void CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,bool bIsConference,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #236 - PL_Hangup */

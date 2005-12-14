@@ -540,11 +540,13 @@ void Telecom_Plugin::CMD_PL_Originate(int iPK_Device,string sPhoneExtension,stri
 			/** User ID to transfer call to */
 		/** @param #83 PhoneExtension */
 			/** Local Extension to transfer call to */
+		/** @param #196 IsConference */
+			/** Transfer the call to a conference room? */
 
-void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,string &sCMD_Result,Message *pMessage)
+void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneExtension,bool bIsConference,string &sCMD_Result,Message *pMessage)
 //<-dceag-c234-e->
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Transfer command called with params: DeviceID=%d UserID=%d Extension=%d", iPK_Device,iPK_Users,sPhoneExtension.c_str());
+	g_pPlutoLogger->Write(LV_STATUS, "Transfer command called with params: DeviceID=%d UserID=%d Extension=%s", iPK_Device,iPK_Users,sPhoneExtension.c_str());
 	string sPhoneNumber;
 	if(iPK_Device != 0)
 	{
@@ -605,11 +607,25 @@ void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneE
 	if(pPBXDevice) {
 		pCallData->setState(CallData::STATE_TRANSFERING);
 		pCallData->setPendingCmdID(generate_NewCommandID());
-				
-		/*send transfer command to PBX*/
-		CMD_PBX_Transfer cmd_PBX_Transfer(m_dwPK_Device, pPBXDevice->m_dwPK_Device, sPhoneNumber, pCallData->getPendingCmdID(), pCallData->getID(), false);
-									
-		SendCommand(cmd_PBX_Transfer);
+		if(bIsConference)
+		{
+			DeviceData_Router *pDeviceData = find_Device(pCallData->getOwnerDevID());
+			string room="0";
+			room += pDeviceData->mapParameters_Find(DEVICEDATA_PhoneNumber_CONST);
+			/*send transfer command to PBX*/
+			CMD_PBX_Transfer cmd_PBX_Transfer(m_dwPK_Device, pPBXDevice->m_dwPK_Device, room, pCallData->getPendingCmdID(), pCallData->getID(),bIsConference);
+			SendCommand(cmd_PBX_Transfer);
+			Sleep(5000);
+			DCE::CMD_PL_External_Originate cmd_invite(pCallData->getOwnerDevID(),m_dwPK_Device,sPhoneNumber,"pluto",room);
+			SendCommand(cmd_invite);			
+		}
+		else
+		{
+			/*send transfer command to PBX*/
+			CMD_PBX_Transfer cmd_PBX_Transfer(m_dwPK_Device, pPBXDevice->m_dwPK_Device, sPhoneNumber, pCallData->getPendingCmdID(), pCallData->getID(),bIsConference);
+			SendCommand(cmd_PBX_Transfer);
+		}
+		
 	}
 }
 	
@@ -723,10 +739,8 @@ string Telecom_Plugin::GetDialNumber(Row_PhoneNumber *pRow_PhoneNumber)
 bool 
 Telecom_Plugin::IncomingCall( class Socket *pSocket, class Message *pMessage, 
 					 			class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo ) {
-	g_pPlutoLogger->Write(LV_STATUS, "IncomingCall on device %d",pDeviceFrom->m_dwPK_Device);
-	g_pPlutoLogger->Write(LV_STATUS, "Will send GOTO_SCREEN to %d",pDeviceFrom->m_dwPK_Device_ControlledVia);
-	SCREEN_DevIncomingCall SCREEN_DevIncomingCall_(m_dwPK_Device,pDeviceFrom->m_dwPK_Device_ControlledVia);
-	SendCommand(SCREEN_DevIncomingCall_);
+	CMD_Goto_Screen cmdGoToScreen(m_dwPK_Device,pDeviceFrom->m_dwPK_Device_ControlledVia,SCREEN_DevIncomingCall_CONST);
+	SendCommand(cmdGoToScreen);
 	return true;
 }
 //<-dceag-c28-b->
