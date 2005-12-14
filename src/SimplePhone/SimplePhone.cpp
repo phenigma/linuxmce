@@ -205,7 +205,7 @@ void SimplePhone::CMD_Phone_Initiate(string sPhoneExtension,string &sCMD_Result,
 	g_pPlutoLogger->Write(LV_STATUS, "Try to call %s", tmp);
 	iaxc_call(tmp);
 	sCMD_Result="OK";
-	CMD_Goto_Screen cmdGoToScreen(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia,SCREEN_DevCallInProgress_CONST);
+	CMD_Goto_Screen cmdGoToScreen(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia,"",SCREEN_DevCallInProgress_CONST);
 	SendCommand(cmdGoToScreen);
 }
 
@@ -222,7 +222,7 @@ void SimplePhone::CMD_Phone_Answer(string &sCMD_Result,Message *pMessage)
 		iaxc_answer_call(0);
 		iaxc_select_call(0);
 		sCMD_Result="OK";
-		CMD_Goto_Screen cmdGoToScreen(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia,SCREEN_DevCallInProgress_CONST);
+		CMD_Goto_Screen cmdGoToScreen(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia,"",SCREEN_DevCallInProgress_CONST);
 		SendCommand(cmdGoToScreen);
 	}
 	else
@@ -242,7 +242,7 @@ void SimplePhone::CMD_Phone_Drop(string &sCMD_Result,Message *pMessage)
 	iaxc_dump_call();
 	iaxc_millisleep(1000);
 	sCMD_Result="OK";
-	CMD_Goto_Screen cmdGoToScreen(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia,SCREEN_Main_CONST);
+	CMD_Goto_Screen cmdGoToScreen(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia,"",SCREEN_Main_CONST);
 	SendCommand(cmdGoToScreen);
 }
 
