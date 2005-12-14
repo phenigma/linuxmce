@@ -117,7 +117,7 @@ char *FileUtils::ReadURL(string sUrl, size_t &Size,bool bNullTerminate)
 	return pData; // This always null terminates anyway
 #else
 	char * buffer = NULL;
-	int iResult = http_fetch(sURL.c_str(), &buffer);
+	int iResult = http_fetch(sUrl.c_str(), &buffer);
 	if( bNullTerminate && iResult>0 )
 	{
 		buffer = (char *) realloc(buffer, iResult + 1); // http_fetch doesn't store a \0 in the end
