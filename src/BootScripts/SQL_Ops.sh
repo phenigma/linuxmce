@@ -35,7 +35,7 @@ Field()
 	local Row FieldNumber
 	FieldNumber="$1"; shift
 	Row="$*"
-	echo "$Row" | cut -d, -f"$FieldNumber" | tr '~' ' '
+	echo "$Row" | cut -d$'\x01' -f"$FieldNumber" | tr $'\x02' ' '
 }
 
 #Usage:
@@ -53,7 +53,5 @@ UseDB "$MySqlDBName"
 
 SQL_Translate()
 {
-	while read row; do
-		echo "$row" | tr '\n\t ' ' ,~'
-	done | sed 's/ *$//'
+	tr '\n\t ' $'\x20'$'\x01'$'\x02' | sed 's/ *$//'
 }
