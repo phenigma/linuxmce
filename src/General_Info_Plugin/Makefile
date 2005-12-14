@@ -19,7 +19,7 @@ sources = Main.cpp General_Info_Plugin.cpp $(Gen_Dev_Files)
 CXXFLAGS +=
 CPPFLAGS += #-DWEB_QUERY_DEBUG
 LDFLAGS +=
-XTRALDLIBS = -lpluto_main -lhttp_fetcher
+XTRALDLIBS = -lpluto_main
 
 Gen_Dev_Files += 
 sources += Web_DHCP_Query.cpp
