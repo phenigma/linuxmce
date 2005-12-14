@@ -2581,7 +2581,7 @@ function serialPortsPulldown($name,$selectedPort,$allowedToModify,$topParent,$db
 	*/
 	$portDeviceData=getDeviceData($topParent,$GLOBALS['AvailableSerialPorts'],$dbADO);
 	if($portDeviceData==''){
-		return 'Serial port not found';
+		return 'No serial ports found.';
 	}
 
 	$serial_ports=explode(',',$portDeviceData);
