@@ -5,7 +5,6 @@
 . /usr/pluto/bin/SQL_Ops.sh
 
 DEVICEDATA_Type=47
-DEVICEDATA_TCP_Address=117
 DEVICEDATA_Share_Name=126
 DEVICEDATA_Username=127
 DEVICEDATA_Password=128
@@ -25,8 +24,11 @@ if [[ -z "$NAS_PK_Device" ]]; then
 	exit 1
 fi
 
+SQL="SELECT IPaddress FROM Device WHERE PK_Device=$NAS_PK_Device"
+NAS_IP_Address=$(RunSQL "$SQL")
+
 SQL="SELECT FK_DeviceData,IK_DeviceData FROM Device_DeviceData
-	WHERE FK_Device=$NAS_PK_Device AND FK_DeviceData IN ($DEVICEDATA_Type,$DEVICEDATA_TCP_Address,$DEVICEDATA_Share_Name,$DEVICEDATA_Username,$DEVICEDATA_Password,$DEVICEDATA_Mount_Point,$DEVICEDATA_Use_Pluto_Directory_Structure)"
+	WHERE FK_Device=$NAS_PK_Device AND FK_DeviceData IN ($DEVICEDATA_Type,$DEVICEDATA_Share_Name,$DEVICEDATA_Username,$DEVICEDATA_Password,$DEVICEDATA_Mount_Point,$DEVICEDATA_Use_Pluto_Directory_Structure)"
 R=$(RunSQL "$SQL")
 
 for Row in $R; do
@@ -35,7 +37,6 @@ for Row in $R; do
 
 	case "$FK_DeviceData" in
 		$DEVICEDATA_Type) NAS_Type="$IK_DeviceData" ;;
-		$DEVICEDATA_TCP_Address) NAS_IP_Address="$IK_DeviceData" ;;
 		$DEVICEDATA_Share_Name) NAS_Share_Name="$IK_DeviceData" ;;
 		$DEVICEDATA_Username) NAS_Username="$IK_DeviceData" ;;
 		$DEVICEDATA_Password) NAS_Password="$IK_DeviceData" ;;
