@@ -8,6 +8,8 @@ function printHelp()
 	Logging "$TYPE" "$SEVERITY_NORMAL" "Invalid paramters: ./Start_LocalDevices.sh [ -d DeviceID [-r RouterAddress ] ]" >&2;
 }
 
+/usr/pluto/bin/UpdateAvailableSerialPorts.sh
+
 Alternative=/usr/pluto/bin/Start_LocalDevices_Static.sh
 
 if [ -f "$Alternative" -a -x "$Alternative" ]; then
