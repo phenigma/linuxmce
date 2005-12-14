@@ -88,7 +88,7 @@ for Users in $R; do
 	for dir in $user_dirs; do
 		mkdir -p -m 0770 "$BaseDir/user_$PlutoUserID/data/${dir/~/ }"
 		if [[ -n "$ExtraDir" ]]; then
-			Target="$ExtraDir/user_$PlutoUserID/data/${dir/~/ }/NAS_$ExtraLink"
+			Target="$ExtraDir/user_$PlutoUserID/data/${dir/~/ }/$ExtraLink"
 			rm -f "$Target"
 			ln -sf "$BaseDir/user_$PlutoUserID/data/${dir/~/ }" "$Target"
 		fi
@@ -114,7 +114,7 @@ done
 for dir in $user_dirs; do
 	mkdir -p -m 0755 "$BaseDir/public/data/${dir/~/ }"
 	if [[ -n "$ExtraDir" ]]; then
-		Target="$ExtraDir/public/data/${dir/~/ }/NAS_$ExtraLink"
+		Target="$ExtraDir/public/data/${dir/~/ }/$ExtraLink"
 		rm -f "$Target"
 		ln -sf "$BaseDir/public/data/${dir/~/ }" "$Target"
 	fi
