@@ -139,6 +139,7 @@ void DumpScreenHistory(); // temporary function
 //<-dceag-decl-e->
 	friend class BD_PC_SetVariable; /** < Needs to maniuplate our variables */
 	friend class NeedToRender; /** < Needs to maniuplate our variables */
+	friend class ScreenHandler;
 
 public: //data
 	int m_iImageWidth; /** < image width duh */

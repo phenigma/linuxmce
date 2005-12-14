@@ -1305,6 +1305,10 @@ struct Web_DeviceData
 void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,string sIP_Address,string sData,int iPK_DHCPDevice,string &sCMD_Result,Message *pMessage)
 //<-dceag-c700-e->
 {
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_New_Plug_and_Play_Device template %d mac %s room %d ip %d data %s",
+		iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,sIP_Address.c_str(),sData.c_str());
+#endif
 	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL(
 		m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters, sMac_address, SCREEN_NewMacAddress_CONST);
 	SendCommand(CMD_Remove_Screen_From_History_DL);
@@ -1440,16 +1444,30 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 			iPK_DeviceTemplate = pRow_DHCPDevice->FK_DeviceTemplate_get();
 	}
 
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Create_Device template %d mac %s room %d ip %d data %s",
+		iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,sIP_Address.c_str(),sData.c_str());
+#endif
 	OH_Orbiter *pOH_Orbiter = NULL;
 	if( iPK_Orbiter )
 		pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(iPK_Orbiter);
 
 	if( !OkayToCreateDevice(iPK_DHCPDevice,iPK_DeviceTemplate,sMac_address,sIP_Address,pOH_Orbiter,sData) )
+	{
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Create_Device exiting -- not ok to create template %d mac %s room %d ip %d data %s",
+			iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,sIP_Address.c_str(),sData.c_str());
+#endif
 		return;
+	}
 
 	CreateDevice createDevice(m_pRouter->iPK_Installation_get(),m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get());
 	*iPK_Device = createDevice.DoIt(iPK_DHCPDevice,iPK_DeviceTemplate,sIP_Address,sMac_address,iPK_Device_ControlledVia,sData);
 
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Create_Device created %d template %d mac %s room %d ip %d data %s",
+			*iPK_Device,iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,sIP_Address.c_str(),sData.c_str());
+#endif
 	PostCreateDevice(*iPK_Device,iPK_DeviceTemplate,pOH_Orbiter);
 
 	g_pPlutoLogger->Write(LV_STATUS,"Created device %d",*iPK_Device);
@@ -1649,15 +1667,31 @@ void General_Info_Plugin::PostCreateDevice_AlarmPanel(int iPK_Device,int iPK_Dev
 
 bool General_Info_Plugin::OkayToCreateDevice_NetworkStorage(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sMac_address,string sIP_Address,OH_Orbiter *pOH_Orbiter,string sData)
 {
-	if( StringUtils::StartsWith(sData,StringUtils::itos(1) + "|") || !pOH_Orbiter )
+	if( StringUtils::StartsWith(sData,StringUtils::itos(DEVICEDATA_Use_Automatically_CONST) + "|") || !pOH_Orbiter )
+	{
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::OkayToCreateDevice_NetworkStorage alredy configured %d template %d mac %s room %d ip %d data %s",
+		*iPK_Device,iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,sIP_Address.c_str(),sData.c_str());
+#endif
 		return true;
+	}
 
-	DCE::SCREEN_NewMacAddress_DL SCREEN_NewMacAddress_DL(m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_get(), sMac_address, sIP_Address);
-	SendCommand(SCREEN_NewMacAddress_DL);
-	return true;
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::OkayToCreateDevice_NetworkStorage not configured %d template %d mac %s room %d ip %d data %s",
+		*iPK_Device,iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,sIP_Address.c_str(),sData.c_str());
+#endif
+
+	DCE::SCREEN_NAS_Options SCREEN_NAS_Options(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, 
+		StringUtils::itos(iPK_DeviceTemplate),sMac_address, sIP_Address,StringUtils::itos(iPK_DHCPDevice));
+	SendCommand(SCREEN_NAS_Options);
+	return false;
 }
 
 void General_Info_Plugin::PostCreateDevice_NetworkStorage(int iPK_Device,int iPK_DeviceTemplate,OH_Orbiter *pOH_Orbiter)
 {
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::PostCreateDevice_NetworkStorage device  %d template %d mac %s room %d ip %d data %s",
+		iPK_Device,iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,sIP_Address.c_str(),sData.c_str());
+#endif
 }
 

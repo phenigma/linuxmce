@@ -1599,6 +1599,14 @@ int k=2;
 					{
 						sDesignObj += "." + itParmLocation->second;
 						m_iLocation = atoi(itParmLocation->second.c_str());
+						if( m_iLocation<m_dequeLocation.size() )
+						{
+							LocationInfo *li = m_dequeLocation[m_iLocation];
+							m_pRow_Room = mds.Room_get()->GetRow(li->PK_Room);
+							m_pRow_EntertainArea = mds.EntertainArea_get()->GetRow(li->PK_EntertainArea);
+						}
+						else
+							cout << "ERROR: Cached screen refers to invalid location" << endl;
 					}
 						
 				}

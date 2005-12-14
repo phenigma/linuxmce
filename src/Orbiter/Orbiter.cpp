@@ -5521,7 +5521,8 @@ void Orbiter::CMD_Goto_DesignObj(int iPK_Device,string sPK_DesignObj,string sID,
 g_pPlutoLogger->Write(LV_STATUS,"CMD_Goto_Screen: %s",sPK_DesignObj.c_str());
 #endif
     PLUTO_SAFETY_LOCK( sm, m_ScreenMutex );  // Nothing more can happen
-
+if( sID.size() )
+int k=2;
 	bool bIsRemote=false;
 	// We're using a popup remote, so just go to the main menu
 	if( sPK_DesignObj=="<%=NP_R%>" )
