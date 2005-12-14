@@ -49,7 +49,7 @@ SQL="SELECT Description FROM Device WHERE PK_Device=$NAS_PK_Device"
 R=$(RunSQL "$SQL")
 NAS_Description=$(Field 1 "$R")
 
-Msg="Description: $NAS_Description; Type: $NAS_Type; IP: $NAS_IP_Address; Share name: $NAS_Share_Name; Username: $Username; Mount point: $NAS_MOUNT_Point; Pluto directory structure: $NAS_Use_Pluto_Directory_Structure"
+Msg="Description: $NAS_Description; Type: $NAS_Type; IP: $NAS_IP_Address; Share name: $NAS_Share_Name; Username: $Username; Mount point: $NAS_Mount_Point; Pluto directory structure: $NAS_Use_Pluto_Directory_Structure"
 Logging "NAS" $SEVERITY_NORMAL "share mount" "$Msg"
 
 if [[ -z "$NAS_IP_Address" || -z "$NAS_Share_Name" ]]; then
@@ -83,9 +83,34 @@ if ! mount -t "$FS" -o "$Opts" "$Src" "$Dst"; then
 else
 	Logging "NAS" $SEVERITY_WARNING "share mount" "Mount succeeded"
 
+	LinkName="NAS_$NAS_Description"
+	
+	find /home -type l -name "$LinkName" -exec rm -f '{}' ';' # clean up links
+	
 	if [[ -n "$NAS_Use_Pluto_Directory_Structure" && "$NAS_Use_Pluto_Directory_Structure" -gt 0 ]]; then
-		/usr/pluto/bin/SetupUsers_Homes.sh -n -b "$Dst" -e /home "$NAS_Description"
-	else
-		: # TODO: Custom mount points
+		Logging "NAS" $SEVERITY_NORMAL "share mount" "Using Pluto directory structure"
+		/usr/pluto/bin/SetupUsers_Homes.sh -n -b "$Dst" -e /home "$LinkName"
+	elif [[ -n "$NAS_Mount_Point" ]]; then
+		Logging "NAS" $SEVERITY_NORMAL "share mount" "Not using Pluto directory structure. Specific mount point(s): '$NAS_Mount_Point'"
+		for entries in ${NAS_Mount_Point//,/ }; do
+			user="${entries%%/*}"
+			dir="${entries#*/}"
+			[[ "$user" != public ]] && user="user_$user"
+			Target="/home/$user/data/$dir/$LinkName"
+			ln -sf "$Dst" "$Target"
+		done
+	else # not using Pluto directory structure, no mount point specified
+		Logging "NAS" $SEVERITY_NORMAL "share mount" "Not using Pluto directory structure. Links all over the place"
+		user_dirs="movies pictures music documents videos"
+		Q="SELECT PK_Users FROM Users"
+		R=$(RunSQL "$Q")
+
+		for user in public $R; do
+			[[ "$user" == public ]] || user="user_$user"
+			for dir in $user_dirs; do
+				Target="/home/$user/data/$dir/$LinkName"
+				ln -sf "$Dst" "$Target"
+			done
+		done
 	fi
 fi
