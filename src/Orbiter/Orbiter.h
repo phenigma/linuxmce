@@ -274,6 +274,7 @@ protected:
 	map<int,  vector<PlutoGraphic*> *> m_mapUserIcons; /** < user icons */
 	map<int,FloorplanObjectVectorMap *> m_mapFloorplanObjectVector;
 	FloorplanObjectVectorMap *m_mapFloorplanObjectVector_Find(int Page)	{ map<int,FloorplanObjectVectorMap *>::iterator it = m_mapFloorplanObjectVector.find(Page); return it==m_mapFloorplanObjectVector.end() ? NULL : (*it).second; }
+	DesignObj_DataGrid *FindGridOnScreen(string sGridID);
 
 	time_t m_LastActivityTime; /** < The last activity time */
 	bool m_bDisplayOn; /** < False if the screen has blanked for the screen saver */

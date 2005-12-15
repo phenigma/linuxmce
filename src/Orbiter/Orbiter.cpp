@@ -1678,9 +1678,14 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y)
 #endif
             DataGridCell *pCell = pDesignObj_DataGrid->m_pDataGridTable->GetData(
                 pDesignObj_DataGrid->m_iHighlightedColumn!=-1 ? pDesignObj_DataGrid->m_iHighlightedColumn + pDesignObj_DataGrid->m_GridCurCol : pDesignObj_DataGrid->m_GridCurCol,
-                pDesignObj_DataGrid->m_iHighlightedRow!=-1 ? pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow : 0);
-            if(  pCell  )
-                SelectedGrid( pDesignObj_DataGrid, pCell );
+				pDesignObj_DataGrid->m_iHighlightedRow!=-1 ? pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow - (pDesignObj_DataGrid->HasMoreUp() ? -1 : 0) : 0);
+            if(pCell)
+			{
+                SelectedGrid(pDesignObj_DataGrid, pCell);
+
+				PLUTO_SAFETY_LOCK(nd, m_NeedRedrawVarMutex);
+				m_vectObjs_NeedRedraw.push_back(pDesignObj_DataGrid);				
+			}
 		}
 	}
 
@@ -2029,6 +2034,7 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
 		    pDesignObj_DataGrid->m_GridCurCol = pDesignObj_DataGrid->m_iInitialColNum;
 	        pDesignObj_DataGrid->m_GridCurRow = pDesignObj_DataGrid->m_iInitialRowNum;
             pDesignObj_DataGrid->bReAcquire=true;
+
             if(  bRefreshGrids  )
 			{
 				PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
@@ -3670,7 +3676,9 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
             }
         }
 
-        if( m_bCaptureKeyboard_DataGrid )
+		//we don't need this anymore
+		/*
+        if(m_bCaptureKeyboard_DataGrid)
         {
             if(
                 ( PK_Button >= BUTTON_a_CONST && PK_Button <= BUTTON_z_CONST ) ||
@@ -3678,38 +3686,43 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
                 ( PK_Button == BUTTON_Back_CONST )
                 )
             {
+				PLUTO_SAFETY_LOCK(nd, m_NeedRedrawVarMutex);
+				PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
                 PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
-                if( m_vectObjs_GridsOnScreen.size(  ) > 0 )
+                if(m_vectObjs_GridsOnScreen.size() > 0)
                 {
-                    //m_sCaptureKeyboard_InternalBuffer;
-
-                    vector<DesignObj_DataGrid *>::iterator it = m_vectObjs_GridsOnScreen.begin(  );
+                    vector<DesignObj_DataGrid *>::iterator it = m_vectObjs_GridsOnScreen.begin();
                     DesignObj_DataGrid *pDataGrid = *it;
 
-                    for( int i = 0; i < pDataGrid->m_pDataGridTable->m_RowCount; i++ )
-                    {
-                        DataGridCell * pCell = pDataGrid->m_pDataGridTable->GetData( 0,  i );
-                        string Text = "";
+					bool bResponse;
+					int iPK_Variable = pDataGrid->m_iPK_Variable;
+					string sValue_To_Assign = m_sCaptureKeyboard_InternalBuffer;
+					int iWidth = pDataGrid->m_MaxCol, iHeight = pDataGrid->m_MaxRow;
 
-                        if( pCell )
-                            Text = pCell->GetText(  );
+					string sParams; 
+					sParams = SubstituteVariables(pDataGrid->m_sOptions, pDataGrid, 0, 0 );
+					//sParams += SubstituteVariables( pCommand->m_ParameterList[COMMANDPARAMETER_Options_CONST], pObj, 0, 0 );
+					sParams += sValue_To_Assign;
+					DCE::CMD_Populate_Datagrid CMD_Populate_Datagrid(m_dwPK_Device, m_dwPK_Device_DatagridPlugIn,  
+						StringUtils::itos( m_dwIDataGridRequestCounter ), pDataGrid->m_sGridID, 
+						pDataGrid->m_iPK_Datagrid, sParams, pDataGrid->m_iPK_DeviceTemplate, 
+						&iPK_Variable, &sValue_To_Assign, &bResponse, &iWidth, &iHeight );
+					if(!SendCommand(CMD_Populate_Datagrid) || !bResponse) // wait for a response
+						g_pPlutoLogger->Write(LV_CRITICAL, "Populate datagrid from command: %d failed", pDataGrid->m_sGridID);
+					else if(iPK_Variable)
+						CMD_Set_Variable(iPK_Variable, sValue_To_Assign);
 
-                        if( 0 == Text.find( m_sCaptureKeyboard_InternalBuffer ) ) //we have a match,  Text starts with m_sCaptureKeyboard_InternalBuffer
-                        {
-                            pDataGrid->m_iHighlightedRow = i;
+					if(pDataGrid->m_sExtraInfo.find('S')!=string::npos && pDataGrid->m_sSeek.length()==0 && !pDataGrid->sSelVariable.empty())
+					{
+						pDataGrid->m_sSeek = "~" + m_mapVariable[atoi(pDataGrid->sSelVariable.c_str())];
+					}
 
-                            PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
-                            m_vectObjs_NeedRedraw.push_back( pDataGrid );
-                            nd.Release();
-
-                            //selected
-                            bHandled = true;
-                            break;
-                        }
-                    }
-                }
+					m_vectObjs_NeedRedraw.push_back(pDataGrid);
+					return true; 
+				}
             }
         }
+		*/
     }
 
     //TODO: seek in data grid
@@ -4467,7 +4480,8 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
         }
         else
         {
-            if(  PK_Command==COMMAND_Populate_Datagrid_CONST  )
+			//chrism : we need to talk about this!
+            if(PK_Command==COMMAND_Populate_Datagrid_CONST)
             {
 				// If we already added messages to the queue, go ahead and send them out so that the populate datagrid is executed in the proper order
 				if(  pMessage && !m_bLocalMode  )
@@ -9552,7 +9566,6 @@ bool Orbiter::ExecuteScreenHandlerCallback(CallBackType aCallBackType)
 	return false; 
 }
 //-----------------------------------------------------------------------------------------------------
-
 void Orbiter::GotoMainMenu() 
 {
 	DCE::SCREEN_Main SCREEN_Main_(m_dwPK_Device, m_dwPK_Device, 
@@ -9560,3 +9573,16 @@ void Orbiter::GotoMainMenu()
 	string sResult;
 	CMD_Goto_Screen("", SCREEN_Main_CONST, sResult, SCREEN_Main_.m_pMessage);
 }
+//-----------------------------------------------------------------------------------------------------
+DesignObj_DataGrid *Orbiter::FindGridOnScreen(string sGridID)
+{
+	for(size_t s = 0; s < m_vectObjs_GridsOnScreen.size(); ++s)
+	{
+		DesignObj_DataGrid *pDesignObj_DataGrid = m_vectObjs_GridsOnScreen[s];
+		if(pDesignObj_DataGrid->m_sGridID == sGridID)
+			return pDesignObj_DataGrid;
+	}
+
+	return NULL;
+}
+//-----------------------------------------------------------------------------------------------------
