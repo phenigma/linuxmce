@@ -2713,7 +2713,7 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
             else if(  pDesignObj_DataGrid->m_iHighlightedRow>0 || pDesignObj_DataGrid->m_GridCurRow>0  )
             {
                 pDesignObj_DataGrid->m_iHighlightedRow--;
-                if(  pDesignObj_DataGrid->m_iHighlightedRow<0  )
+                if(pDesignObj_DataGrid->m_iHighlightedRow < 0 || (pDesignObj_DataGrid->m_iHighlightedRow == 0 && pDesignObj_DataGrid->HasMoreUp()))
                 {
                     // Save which row in the actual table we are pointing to,  so we can point there again after doing the scroll
                     int iHighlightedAbsoluteRow = pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow;
@@ -2733,7 +2733,7 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
             {
                 pDesignObj_DataGrid->m_iHighlightedRow++;
                 // See if we've scrolled past the visible end, in which case we need to page.  Subtract 1 or 2 cells for the scroll up/down cells if any
-                if(  pDesignObj_DataGrid->m_iHighlightedRow>=pDesignObj_DataGrid->m_MaxRow - (pDesignObj_DataGrid->m_dwIDownRow >= 0 ? 1 : 0) - (pDesignObj_DataGrid->m_iUpRow >= 0 ? 1 : 0) )
+                if(pDesignObj_DataGrid->m_iHighlightedRow>=pDesignObj_DataGrid->m_MaxRow - (pDesignObj_DataGrid->m_dwIDownRow >= 0 ? 1 : 0) /*- (pDesignObj_DataGrid->m_iUpRow >= 0 ? 1 : 0)*/)
                 {
                     int iHighlightedAbsoluteRow = pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow;
 					dg.Release();
