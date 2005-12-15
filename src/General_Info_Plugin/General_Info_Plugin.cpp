@@ -48,6 +48,7 @@ using namespace DCE;
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_Screen.h"
 #include "pluto_main/Define_CommandParameter.h"
+#include "pluto_main/Define_DeviceCategory.h"
 #include "pluto_main/Define_Text.h"
 #include "pluto_main/Define_Screen.h"
 #include "pluto_main/Table_Room.h"
@@ -142,6 +143,10 @@ bool General_Info_Plugin::Register()
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &General_Info_Plugin::RoomTypes ) )
 		, DATAGRID_Room_Types_CONST,PK_DeviceTemplate_get() );
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::AlarmSensorsList)), 
+		DATAGRID_Alarm_Sensors_CONST,PK_DeviceTemplate_get());
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::BookmarkList)), 
@@ -874,6 +879,46 @@ class DataGridTable *General_Info_Plugin::RoomTypes(string GridID, string Parms,
 
 			pCell = new DataGridCell(sNumberOfRoomTypes, sPK_RoomType);
 			pDataGrid->SetData(1, iRow++, pCell);
+		}
+	}
+
+	return pDataGrid;
+}
+
+class DataGridTable *General_Info_Plugin::AlarmSensorsList(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage)
+{
+	DataGridTable *pDataGrid = new DataGridTable( );
+	DataGridCell *pCell;
+
+	int iRow=0, iCol=0;
+
+	string sSensorList;
+	DCE::CMD_ListSensor_Cat CMD_ListSensor_Cat_(m_dwPK_Device, DEVICECATEGORY_Security_Device_CONST, true, BL_SameHouse, &sSensorList);
+	SendCommand(CMD_ListSensor_Cat_);
+
+	//for testing
+	sSensorList = "1,006,room1,56,1,007,room1,56,1,008,room1,56,1,009,room1,56,1,010,room1,56,1,001,room1,56,1,002,room1,56,1,003,room1,56,1,004,room1,56,1,005,room1,56,";
+
+	vector<string> vectStrings;
+	StringUtils::Tokenize(sSensorList, ",", vectStrings);
+
+	if(vectStrings.size())
+	{
+		for(int i = 0; i < vectStrings.size() - 3; i+=4)
+		{
+			string AlarmPanelType = vectStrings[i]; //unused for now
+			string sSensorName = vectStrings[i + 1];
+			string sRoomName = vectStrings[i + 2];
+			string sSensorType = vectStrings[i + 3];
+
+			pCell = new DataGridCell(sSensorName, sSensorName);
+			pDataGrid->SetData(0, iRow, pCell);
+
+			pCell = new DataGridCell(sRoomName, sSensorName);
+			pDataGrid->SetData(1, iRow, pCell);
+
+			pCell = new DataGridCell(sSensorType, sSensorName);
+			pDataGrid->SetData(2, iRow++, pCell);
 		}
 	}
 
