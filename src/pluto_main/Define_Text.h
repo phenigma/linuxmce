@@ -848,7 +848,7 @@
 #define TEXT_Other_family_members_CONST 1554
 #define TEXT_What_country_are_you_in_CONST 1555
 #define TEXT_Remove_user_CONST 1556
-#define TEXT_What_is_your_postal_code_CONST 1557
+#define TEXT_Confirm_postal_code_CONST 1557
 #define TEXT_What_rooms_are_in_your_house_CONST 1558
 #define TEXT_TV_Provider_CONST 1559
 #define TEXT_Alarm_Panel_CONST 1560
@@ -884,6 +884,8 @@
 #define TEXT_Auto_Use_NAS_CONST 1590
 #define TEXT_dont_auto_use_nas_CONST 1591
 #define TEXT_Use_recommended_directory_structure_CONST 1592
+#define TEXT_Enter_your_postal_code_CONST 1593
+#define TEXT_Bad_Zip_Code_CONST 1594
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
