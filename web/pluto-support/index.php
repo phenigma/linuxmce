@@ -30,6 +30,7 @@
 				$_SESSION['Email']=$Email;
 				$_SESSION['extPassword']=trim($extPassword);
 				$_SESSION['userLoggedIn'] = true;
+				$_SESSION['sqlCvsAdmin']=$sqlCvsAdmin;
 			}
 		}
 	}

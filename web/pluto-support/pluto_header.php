@@ -11,7 +11,7 @@ if (@$_SESSION['userIsLogged']!="yes"){
 	//print_r($_COOKIE);
 	if(isset($_COOKIE['PlutoHomeAutoLogin'])){
 		parse_str(base64_decode($_COOKIE['PlutoHomeAutoLogin']));
-		$isMasterUsers=checkMasterUsers($username, $password,$checkMasterUserUrl,'&FirstAccount=&Email=&PlutoId=&Pin=');
+		$isMasterUsers=checkMasterUsers($username, $password,$checkMasterUserUrl,'&FirstAccount=&Email=&PlutoId=&Pin=&sqlCvsAdmin=');
 		if($isMasterUsers[0]){
 			parse_str($isMasterUsers[1]);
 			$_SESSION['userID'] = $MasterUsersID;
@@ -22,6 +22,7 @@ if (@$_SESSION['userIsLogged']!="yes"){
 			$_SESSION['categ']=$FirstAccount;
 			$_SESSION['Email']=$Email;
 			$_SESSION['extPassword']=$extPassword;
+			$_SESSION['sqlCvsAdmin']=@$sqlCvsAdmin;
 		}
 	}
 }
@@ -166,20 +167,20 @@ function menuSettings(menuObject)
   <tr>
     <td background="<?=$imagesPath?>back_header.jpg"><table width="900"  border="0" cellspacing="0" cellpadding="0">
         <tr>
-          <td width="225"><table width="225"  border="0" cellpadding="0" cellspacing="0">
+          <td width="225" valign="top"><table width="225"  border="0" cellpadding="0" cellspacing="0">
               <tr>
-                <td width="124"><img src="<?=$imagesPath?>live_support.jpg" width="124" height="36" /></td>
+                <td width="124" valign="top"><img src="<?=$imagesPath?>live_support.jpg" width="124" height="36" /></td>
                 <td width="102" valign="top"><script language="JavaScript" src="http://plutohome.com/phplive/js/status_image.php?base_url=http://plutohome.com/phplive&l=radu&x=1&deptid=4&"></script></td>
               </tr>
           </table></td>
-          <td width="31"><img src="<?=$imagesPath?>header_colt_1.jpg" width="31" height="36" /></td>
+          <td width="31" valign="top"><img src="<?=$imagesPath?>header_colt_1.jpg" width="31" height="36" /></td>
           <td><form name="form2" method="post" action="<?=$PlutoHomeHost?>index.php?section=search"><table width="226"  border="0" cellpadding="0" cellspacing="0">
               <tr>
                 <td width="132" background="<?=$imagesPath?>back_search.jpg"><input type="text" name="cuvant" value="" class="search"></td>
                 <td width="94" background="<?=$imagesPath?>back_search.jpg"><input type="image" src="<?=$imagesPath?>buton_search.jpg" name="search""></td></form>
               </tr>
           </table></td>
-          <td width="239"><?=(@$_SESSION['userIsLogged']!='yes')?$login:$logout;?></td>
+          <td width="239" valign="top"><?=(@$_SESSION['userIsLogged']!='yes')?$login:$logout;?></td>
         </tr>
     </table></td>
   </tr>
