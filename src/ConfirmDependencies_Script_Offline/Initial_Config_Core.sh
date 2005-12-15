@@ -123,8 +123,8 @@ sqlUsername="${Username//\'/\'}"
 sqlPassword="${Password//\'/\'}"
 sqlPasswordUnix="${PasswordUnix//\'/\'}"
 sqlPasswordSamba="${PasswordSamba//\'/\'}"
-Q="INSERT INTO Users(UserName, Password, Password_Unix, Password_Samba)
-	VALUES('$sqlUsername', MD5('$sqlPassword'), '$sqlPasswordUnix', '$sqlPasswordSamba')"
+Q="INSERT INTO Users(UserName, Password, Password_Unix, Password_Samba, Extension)
+	VALUES('$sqlUsername', MD5('$sqlPassword'), '$sqlPasswordUnix', '$sqlPasswordSamba', 301)"
 RunSQL "$Q"
 
 # Add user to installation
