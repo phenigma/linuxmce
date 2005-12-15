@@ -12,11 +12,13 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
+
 #include "iaxclient.h"
 #include "DCE/DCEConfig.h"
 #include "pluto_main/Define_Event.h"
-#include "pluto_main/Define_Screen.h"
 #include "pluto_main/Define_DeviceTemplate.h"
+
+#include "Gen_Devices/AllScreens.h"
 
 static int phone_status=0;
 static int call_status=0;
@@ -205,8 +207,8 @@ void SimplePhone::CMD_Phone_Initiate(string sPhoneExtension,string &sCMD_Result,
 	g_pPlutoLogger->Write(LV_STATUS, "Try to call %s", tmp);
 	iaxc_call(tmp);
 	sCMD_Result="OK";
-	CMD_Goto_Screen cmdGoToScreen(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia,"",SCREEN_DevCallInProgress_CONST);
-	SendCommand(cmdGoToScreen);
+	DCE::SCREEN_DevCallInProgress SCREEN_DevCallInProgress_(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia);
+	SendCommand(SCREEN_DevCallInProgress_);								
 }
 
 //<-dceag-c335-b->
@@ -222,8 +224,8 @@ void SimplePhone::CMD_Phone_Answer(string &sCMD_Result,Message *pMessage)
 		iaxc_answer_call(0);
 		iaxc_select_call(0);
 		sCMD_Result="OK";
-		CMD_Goto_Screen cmdGoToScreen(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia,"",SCREEN_DevCallInProgress_CONST);
-		SendCommand(cmdGoToScreen);
+		DCE::SCREEN_DevCallInProgress SCREEN_DevCallInProgress_(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia);
+		SendCommand(SCREEN_DevCallInProgress_);								
 	}
 	else
 	{
@@ -242,8 +244,8 @@ void SimplePhone::CMD_Phone_Drop(string &sCMD_Result,Message *pMessage)
 	iaxc_dump_call();
 	iaxc_millisleep(1000);
 	sCMD_Result="OK";
-	CMD_Goto_Screen cmdGoToScreen(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia,"",SCREEN_Main_CONST);
-	SendCommand(cmdGoToScreen);
+	DCE::SCREEN_Main SCREEN_Main_(m_dwPK_Device,GetData()->m_dwPK_Device_ControlledVia,"");
+	SendCommand(SCREEN_Main_);								
 }
 
 
