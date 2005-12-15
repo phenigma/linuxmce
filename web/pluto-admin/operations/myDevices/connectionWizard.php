@@ -1,5 +1,9 @@
 <?
 function connectionWizard($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/connectionWizard.lang.php');
+
 	global $dbPlutoMainDatabase;
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
@@ -16,7 +20,8 @@ function connectionWizard($output,$dbADO) {
 	$_SESSION['AVentertainArea']=(isset($_REQUEST['entertainArea']) && (int)$_REQUEST['entertainArea']!=0)?(int)$_REQUEST['entertainArea']:@$_SESSION['AVentertainArea'];
 	$entertainArea=@$_SESSION['AVentertainArea'];
 
-	$connectorsArray=array(0=>'other.gif',1=>'composite.gif',2=>'svideo.gif',3=>'component.gif',4=>'dvi.gif',5=>'vga.gif',6=>'scart.gif',8=>'hdmi.gif');
+	//$connectorsArray=array(0=>'other.gif',1=>'composite.gif',2=>'svideo.gif',3=>'component.gif',4=>'dvi.gif',5=>'vga.gif',6=>'scart.gif',8=>'hdmi.gif');
+	$connectorsArray=getConnectorsArray($dbADO);
 	$pipeTypesArray=array(1=>'audio',2=>'video',3=>'audioLive',4=>'videoLive');
 	
 if ($action == 'form') {
@@ -37,22 +42,22 @@ if ($action == 'form') {
 	<input type="hidden" name="devicesCoords" value="">
 	<input type="hidden" name="oldEntertainArea" value="'.$entertainArea.'">
 	
-	<div align="center"><h3>A/V equipment connection wizard</h3></div>
-	<a href="index.php?section=avWizard">Advanced mode</a><br><br>
+	<div align="center"><h3>'.$TEXT_AV_CONNECTION_WIZARD_CONST.'</h3></div>
+	<a href="index.php?section=avWizard">'.$TEXT_ADVANCED_MODE_CONST.'</a><br><br>
 	Edit devices in:'.generatePullDown('entertainArea','EntertainArea','PK_EntertainArea','Description',$_SESSION['AVentertainArea'],$dbADO,' INNER JOIN Room ON FK_Room=PK_Room WHERE FK_Installation='.(int)$_SESSION['installationID'],'onChange="savePositions();"').'<br>';
 	$devicesList=array();
 	if($entertainArea!=0){		
 		$out.='
-			<input type="button" class="button" name="button" value="Add device" onClick="document.connectionWizard.action.value=\'externalSubmit\';document.connectionWizard.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from=connectionWizard&categoryID='.$deviceCategory.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"> <input type="button" class="button" value="Update" onClick="savePositions();">
+			<input type="button" class="button" name="button" value="'.$TEXT_ADD_DEVICE_CONST.'" onClick="document.connectionWizard.action.value=\'externalSubmit\';document.connectionWizard.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from=connectionWizard&categoryID='.$deviceCategory.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"> <input type="button" class="button" value="'.$TEXT_UPDATE_CONST.'" onClick="savePositions();">
 			<div style="position:absolute;top:25px;">
 			<div style="position:relative; top:0px; width:360px;background:#DDDDDD;float:right;Z-INDEX:1;">
 			<table align="right">
 				<tr>
-					<td><B>From</B>: </td>
+					<td><B>'.$TEXT_FROM_CONST.'</B>: </td>
 					<td bgcolor="#EEEEEE" width="120"> <span id="fromMessage"></span></td>
 				</tr>
 				<tr>
-					<td><B>To</B>: </td>
+					<td><B>'.$TEXT_TO_CONST.'</B>: </td>
 					<td bgcolor="#EEEEEE"> <span id="toMessage"></span></td>
 
 				</tr>
@@ -61,12 +66,12 @@ if ($action == 'form') {
 					<td></td>
 				</tr>
 				<tr>
-					<td><B>Messages</B>:</td>
+					<td><B>'.$TEXT_MESSAGES_CONST.'</B>:</td>
 					<td bgcolor="#EEEEEE"> <span id="generalMessage"></span></td>
 				</tr>
 				<tr>
-					<td><B>Pipe type</B>:</td>
-					<td bgcolor="#EEEEEE"><input type="radio" name="pipeType" value="audio" checked onclick="setPipeType();"> <font color="red">Audio</font> <input type="radio" name="pipeType" value="video" onclick="setPipeType();"> <font color="blue">Video</font> <input type="radio" name="pipeType" value="audioLive" onclick="setPipeType();"> <font color="green">Audio Live</font> <input type="radio" name="pipeType" value="videoLive" onclick="setPipeType();"> <font color="magenta">Video Live</font></td>
+					<td><B>'.$TEXT_PIPE_TYPE_CONST.'</B>:</td>
+					<td bgcolor="#EEEEEE"><input type="radio" name="pipeType" value="audio" checked onclick="setPipeType();"> <font color="red">'.$TEXT_AUDIO_CONST.'</font> <input type="radio" name="pipeType" value="video" onclick="setPipeType();"> <font color="blue">'.$TEXT_VIDEO_CONST.'</font> <input type="radio" name="pipeType" value="audioLive" onclick="setPipeType();"> <font color="green">'.$TEXT_AUDIO_LIVE_CONST.'</font> <input type="radio" name="pipeType" value="videoLive" onclick="setPipeType();"> <font color="magenta">'.$TEXT_VIDEO_LIVE_CONST.'</font></td>
 				</tr>
 			</table>
 		</div>
@@ -225,8 +230,8 @@ if ($action == 'form') {
 			$inputHeight=20;
 			while($rowInputs=$resInputs->FetchRow()){
 				$img=(@$rowInputs['FK_ConnectorType']=='')?$connectorsArray[0]:@$connectorsArray[@$rowInputs['FK_ConnectorType']];
-				$img=(file_exists('include/images/'.$img) && $img!='')?$img:$connectorsArray[0];
-				$inputsForDevice[]='<div align="left" id="in_'.$rowD['PK_Device'].'_cmd_'.$rowInputs['PK_Command'].'" style="position:absolute;Z-INDEX: 1000;width:110px;height:20px;left:5;top:'.$inputHeight.';border: 1px solid black;align:left;valign:middle;background-color:white;" title="'.$rowInputs['Description'].'" onClick="setPipe(\''.$rowD['PK_Device'].'\',\''.$rowInputs['PK_Command'].'\',\'in_\',\''.urlencode($rowInputs['Description']).' ('.str_replace('.gif','',$img).') on '.urlencode($rowD['Description']).'\');"><img src="include/images/'.$img.'" align="middle"> '.$rowInputs['Description'].'</div>';
+				$img=(file_exists('include/images/connectors/'.$img) && $img!='')?$img:$connectorsArray[0];
+				$inputsForDevice[]='<div align="left" id="in_'.$rowD['PK_Device'].'_cmd_'.$rowInputs['PK_Command'].'" style="position:absolute;Z-INDEX: 1000;width:110px;height:20px;left:5;top:'.$inputHeight.';border: 1px solid black;align:left;valign:middle;background-color:white;" title="'.$rowInputs['Description'].'" onClick="setPipe(\''.$rowD['PK_Device'].'\',\''.$rowInputs['PK_Command'].'\',\'in_\',\''.urlencode($rowInputs['Description']).' ('.str_replace('.png','',$img).') on '.urlencode($rowD['Description']).'\');"><img src="include/images/connectors/'.$img.'" align="top"> '.$rowInputs['Description'].'</div>';
 				$inputHeight+=25;
 			}
 			
@@ -238,11 +243,11 @@ if ($action == 'form') {
 				WHERE FK_DeviceTemplate=?';
 			$resOutput=$dbADO->Execute($queryOutput,$rowD['FK_DeviceTemplate']);
 			$outHeight=20;
-			$outputsForDevice[]='<div align="right" id="out_'.$rowD['PK_Device'].'_cmd_0" style="position:absolute;Z-INDEX: 1000;width:110px;height:20px;left:235;top:'.$outHeight.';border: 1px solid black;background-color:white;" title="Output" onClick="setPipe(\''.$rowD['PK_Device'].'\',\'0\',\'out_\',\'Output on '.urlencode($rowD['Description']).'\');">Output <img src="include/images/none.gif" align="middle"></div>';
+			$outputsForDevice[]='<div align="right" id="out_'.$rowD['PK_Device'].'_cmd_0" style="position:absolute;Z-INDEX: 1000;width:110px;height:20px;left:235;top:'.$outHeight.';border: 1px solid black;background-color:white;" title="Output" onClick="setPipe(\''.$rowD['PK_Device'].'\',\'0\',\'out_\',\'Output on '.urlencode($rowD['Description']).'\');">Output <img src="include/images/connectors/none.png" align="top"></div>';
 			$outHeight+=25;
 			while($rowOutputs=$resOutput->FetchRow()){
 				$img=($rowOutputs['FK_ConnectorType']=='')?$connectorsArray[0]:$connectorsArray[$rowOutputs['FK_ConnectorType']];
-				$outputsForDevice[]='<div align="right" id="out_'.$rowD['PK_Device'].'_cmd_'.$rowOutputs['PK_Command'].'" style="position:absolute;Z-INDEX: 1000;width:110px;height:20px;left:235;top:'.$outHeight.';border: 1px solid black;background-color:white;" title="'.$rowOutputs['Description'].'" onClick="setPipe(\''.$rowD['PK_Device'].'\',\''.$rowOutputs['PK_Command'].'\',\'out_\',\''.urlencode($rowOutputs['Description']).' ('.str_replace('.gif','',$img).') on '.urlencode($rowD['Description']).'\');">'.$rowOutputs['Description'].' <img src="include/images/'.$img.'" align="middle"></div>';
+				$outputsForDevice[]='<div align="right" id="out_'.$rowD['PK_Device'].'_cmd_'.$rowOutputs['PK_Command'].'" style="position:absolute;Z-INDEX: 1000;width:110px;height:20px;left:235;top:'.$outHeight.';border: 1px solid black;background-color:white;" title="'.$rowOutputs['Description'].'" onClick="setPipe(\''.$rowD['PK_Device'].'\',\''.$rowOutputs['PK_Command'].'\',\'out_\',\''.urlencode($rowOutputs['Description']).' ('.str_replace('.png','',$img).') on '.urlencode($rowD['Description']).'\');">'.$rowOutputs['Description'].' <img src="include/images/connectors/'.$img.'" align="middle"></div>';
 				$outHeight+=25;
 			}
 			$height=($inputHeight>$outHeight)?$inputHeight:$outHeight;
@@ -351,7 +356,7 @@ if ($action == 'form') {
 					$dbADO->Execute('INSERT INTO Device_DeviceData (FK_Device, FK_DeviceData) VALUES (?,?)',array($insertID,$GLOBALS['InfraredPort']));
 				}
 			}
-			header("Location: index.php?section=connectionWizard&msg=Device added.");
+			header("Location: index.php?section=connectionWizard&msg=$TEXT_DEVICE_ADDED_CONST.");
 			exit();
 		}
 		
@@ -377,12 +382,12 @@ if ($action == 'form') {
 			setcookie("PlutoAdminConnectionWizard_".$_SESSION['installationID'],$cookieData,(time()+31536000),'/',false);
 		}
 				
-		header("Location: index.php?section=connectionWizard&msg=The devices was updated&entertainArea=$entertainArea");		
+		header("Location: index.php?section=connectionWizard&msg=$TEXT_DEVICES_UPDATED_CONST&entertainArea=$entertainArea");		
 	}
 
 
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: A/V devices connection wizard');
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_AV_CONNECTION_WIZARD_CONST);
 	$output->output();
 }
 
@@ -398,4 +403,13 @@ function addDeletePipe($operation,$deviceFrom,$pipe,$dbADO)
 	}
 }
 
+function getConnectorsArray($dbADO){
+	$ids=getAssocArray('ConnectorType','PK_ConnectorType','PK_ConnectorType',$dbADO);
+	$pics=array(0=>'other.png');
+	foreach ($ids AS $id){
+		$pics[$id]=$id.'_connector.png';
+	}
+	
+	return $pics;
+}
 ?>

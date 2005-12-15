@@ -1,5 +1,9 @@
 <?
 function deleteCriticalDevice($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/deleteCriticalDevice.lang.php');
+	
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	$out='';
@@ -7,14 +11,14 @@ function deleteCriticalDevice($output,$dbADO) {
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$deviceID = isset($_REQUEST['deviceID'])?cleanInteger($_REQUEST['deviceID']):0;
 	if($deviceID==0){
-		header("Location: index.php?section=editDeviceParams&deviceID=$deviceID&error=Invalid device ID specified.");
+		header("Location: index.php?section=editDeviceParams&deviceID=$deviceID&error=$TEXT_ERROR_INVALID_ID_CONST");
 		exit();
 	}
 	
 	// check if the user has the right to modify installation
 	$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
 	if (!$canModifyInstallation){
-		header("Location: index.php?section=editDeviceParams&deviceID=$deviceID&error=You are not authorised to change the installation.");
+		header("Location: index.php?section=editDeviceParams&deviceID=$deviceID&error=$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST");
 		exit();
 	}
 
@@ -25,15 +29,16 @@ function deleteCriticalDevice($output,$dbADO) {
 	<input type="hidden" name="section" value="deleteCriticalDevice">
 	<input type="hidden" name="action" value="del">	
 	<input type="hidden" name="deviceID" value="'.$deviceID.'">
+		
 		<font color="red">
-		<h2 align="center">This is a critical device !!! If you delete it, you will break you installation.</h2><br>
-		<h3 align="center"><B>Do you still want to delete it?</B></h3>
+		<h2 align="center">'.$TEXT_DELETE_CRITICAL_DEVICE_NOTICE_CONST.'</h2><br>
+		<h3 align="center"><B>'.$TEXT_DELETE_CRITICAL_DEVICE_CONFIRMATION_CONST.'</B></h3>
 		<table width="50%" align="center">
 			<tr>
-				<td align="center">Please confirm the operation by typing your password below:<br><br> <input type="password" name="confirmPassword"><br><br></td>
+				<td align="center">'.$TEXT_CONFIRM_BY_PASSWORD_CONST.':<br><br> <input type="password" name="confirmPassword"><br><br></td>
 			</tr>
 			<tr>
-				<td align="center"><input type="submit" class="button" name="del" value="Yes, delete it"> <input type="button" class="button" name="cancel" value="No way !!!" onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$deviceID.'\'"></td>
+				<td align="center"><input type="submit" class="button" name="del" value="'.$TEXT_CONFIRMATION_DELETE_CONST.'"> <input type="button" class="button" name="cancel" value="'.$TEXT_NO_DELETE_CONST.'" onClick="self.location=\'index.php?section=editDeviceParams&deviceID='.$deviceID.'\'"></td>
 			</tr>
 		</table>
 		</font>
@@ -42,7 +47,7 @@ function deleteCriticalDevice($output,$dbADO) {
 	}else{
 		$confirmPassword=$_POST['confirmPassword'];
 		if($confirmPassword!=$_SESSION['password']){
-			header("Location: index.php?section=editDeviceParams&deviceID=$deviceID&error=Password does not match.");
+			header("Location: index.php?section=editDeviceParams&deviceID=$deviceID&error=$TEXT_ERROR_PASSWORD_NOMATCH_CONST");
 			exit();
 		}
 		$deviceFields=getFieldsAsArray('Device','FK_DeviceTemplate,IPaddress,MACaddress',$dbADO,'WHERE PK_Device='.$deviceID);
@@ -56,7 +61,7 @@ function deleteCriticalDevice($output,$dbADO) {
 
 		$out.='
 	<script>
-		alert("Device(s) deleted!");
+		alert("'.$TEXT_CRITICAL_DEVICES_DELETED_CONST.'");
 		top.frames["treeframe"].location="index.php?section=leftMenu";
 		document.location.href="index.php?section=myDevices&action=showBasicInfo";
 	</script>
@@ -69,6 +74,6 @@ function deleteCriticalDevice($output,$dbADO) {
 	$output->setScriptCalendar('null');
 
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_DELETE_CRITICAL_DEVICE_CONST);
 	$output->output();
 }

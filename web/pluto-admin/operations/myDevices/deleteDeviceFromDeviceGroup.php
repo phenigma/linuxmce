@@ -1,5 +1,9 @@
 <?php
 function deleteDeviceFromDeviceGroup($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/deleteDeviceFromDeviceGroup.lang.php');
+	
 	//$dbADO->debug=true;
 	$out='';
 	
@@ -20,7 +24,7 @@ function deleteDeviceFromDeviceGroup($output,$dbADO) {
 				
 				$out.="
 				<script>
-					alert('Device removed from group!');
+					alert('$TEXT_DEVICE_REMOVED_FROM_DEVICEGROUP_CONST');
 				    opener.document.forms.{$from}.action.value='form';
 					opener.document.forms.{$from}.submit();
 					self.close();

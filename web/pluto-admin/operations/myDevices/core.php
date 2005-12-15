@@ -1,5 +1,9 @@
 <?
 function core($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/core.lang.php');
+	
 /* @var $dbADO ADOConnection */
 /* @var $rs ADORecordSet */
 
@@ -50,7 +54,8 @@ function core($output,$dbADO) {
 	
 	<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
 	<div class="confirm"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg']):'').'</B></div>
-	<h3>General Info page for the core</h3>
+	
+	<h3>'.$TEXT_CORE_GENERAL_INFO_CONST.'</h3>
 		
 <form method="post" action="index.php" name="core">
 	<input type="hidden" name="section" value="core">
@@ -60,7 +65,7 @@ function core($output,$dbADO) {
 		<td>'.getInstallWizardDeviceTemplates(5,$dbADO,$coreDCERouterID,$coreDistro,$CoreOS).'</td>
 	</tr>	
 	<tr>
-		<td align="center"><input type="submit" class="button" name="update" value="Update"></td>
+		<td align="center"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"></td>
 	</tr>	
 </table>
 </form>';
@@ -71,7 +76,7 @@ function core($output,$dbADO) {
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$installationID,$dbADO);
 		
 		if (!$canModifyInstallation) {
-			Header('Location: index.php?section=core&error=You are not allowed to modify installation.');
+			Header('Location: index.php?section=core&error='.$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST);
 			exit();
 		}
 		
@@ -99,12 +104,12 @@ function core($output,$dbADO) {
 			}
 		}
 
-		Header('Location: index.php?section=core&msg=Core optional device updated.');
+		Header('Location: index.php?section=core&msg='.$TEXT_CORE_OPTIONAL_DEVICES_UPDATED_CONST);
 	}
 	
 	$output->setNavigationMenu(array("My Devices"=>'index.php?section=myDevices',"Core"=>"index.php?section=core"));
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_CORE_GENERAL_INFO_CONST);
 	$output->output();  		
 }
 ?>

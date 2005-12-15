@@ -1,5 +1,9 @@
 <?php
 function createDeviceGroup($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/createDeviceGroup.lang.php');
+	
 	//$dbADO->debug=true;
 	$out='';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
@@ -19,16 +23,17 @@ function createDeviceGroup($output,$dbADO) {
 		<input type="hidden" name="lastAction" value="">
 		<input type="hidden" name="from" value="'.$from.'">
 		<input type="hidden" name="deviceID" value="'.$deviceID.'">
+			<h3 align="center">'.$TEXT_CREATE_DEVICE_GROUP_CONST.'</h3>		
 			<table>			
 				<tr>
 					<td>Description:</td>
-					<td><input type="text" size="15" name="Description" value=""></td>
+					<td><input type="text" size="15" name="'.$TEXT_DESCRIPTION_CONST.'" value=""></td>
 				</tr>
 				<tr>
-					<td>Parent:</td>
+					<td>'.$TEXT_PARENT_CONST.':</td>
 					<td>
 						<select name="parentID" >
-						<option value="0">-please select-</option>
+						<option value="0">-'.$TEXT_PLEASE_SELECT_CONST.'-</option>
 						';
 		if ($resPossibleParents) {
 			while ($rowPossibleParents = $resPossibleParents->fetchRow()) {
@@ -40,14 +45,14 @@ function createDeviceGroup($output,$dbADO) {
 					</td>
 				</tr>
 				<tr>
-					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"  ></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="'.$TEXT_SAVE_CONST.'"  ></td>
 				</tr>
 			</table>
 		</form>
 				
 		<script>
 		 	var frmvalidator = new formValidator("createDeviceGroup");
- 			frmvalidator.addValidation("Description","req","Please enter a description");			
+ 			frmvalidator.addValidation("Description","req","'.$TEXT_DEVICE_GROUP_DESCRIPTION_CONFIRMATION_CONST.'");			
 		</script>
 		';
 		
@@ -57,7 +62,7 @@ function createDeviceGroup($output,$dbADO) {
 		if (!$canModifyInstallation){
 			$out="
 				<script>
-			 		opener.top.frames[1].location='index.php?section=editDeviceParams&deviceID=$deviceID&error=You are not authorised to change the installation.';
+			 		opener.top.frames[1].location='index.php?section=editDeviceParams&deviceID=$deviceID&error='.$TEXT_NOT_AUTHORISED_TO_MODIFY_INSTALLATION_CONST;
 					self.close();
 				</script>
 				";		
@@ -111,7 +116,7 @@ function createDeviceGroup($output,$dbADO) {
 	}
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);			
+	$output->setTitle(APPLICATION_NAME.' :: '.$TEXT_CREATE_DEVICE_GROUP_CONST);			
 	$output->output();
 }
 ?>
