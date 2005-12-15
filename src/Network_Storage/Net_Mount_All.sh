@@ -3,7 +3,7 @@
 . /usr/pluto/bin/SQL_Ops.sh
 . /usr/pluto/bin/pluto.func
 
-DEVICECATEGORY_Network_Storage=150 # may change after SQLCVS is used to commit
+DEVICECATEGORY_Network_Storage=150
 
 Q="SELECT PK_Device,D.Description,DT.Description
 	FROM Device D
