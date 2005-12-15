@@ -259,6 +259,7 @@ void Asterisk::CMD_PBX_Transfer(string sPhoneExtension,int iCommandID,string sPh
 			rest2=sPhoneCallID.substr(pos+1,sPhoneCallID.length());
 			g_pPlutoLogger->Write(LV_STATUS, "Will put %s and %s in conference room %s",rest1.c_str(), rest2.c_str(),sPhoneExtension.c_str());
 			manager->Conference(rest1,rest2,sPhoneExtension,iCommandID);
+			manager->Conference(rest2,"",sPhoneExtension,iCommandID);
 		}
 		else
 		{
