@@ -84,7 +84,7 @@ if ! mount -t "$FS" -o "$Opts" "$Src" "$Dst"; then
 else
 	Logging "NAS" $SEVERITY_WARNING "share mount" "Mount succeeded"
 
-	LinkName="NAS_$NAS_Description"
+	LinkName="NAS_${NAS_Description}_$NAS_PK_Device"
 	
 	find /home -type l -name "$LinkName" -exec rm -f '{}' ';' # clean up links
 	
