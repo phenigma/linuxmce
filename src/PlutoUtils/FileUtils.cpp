@@ -109,7 +109,10 @@ char *FileUtils::ReadURL(string sUrl, size_t &Size,bool bNullTerminate)
 	string sDownloadedFile = "C:\\Temp\\picture.tmp";
 
 	string sCommand = "wget " + sUrl + " -O " + sDownloadedFile;
+#ifndef WINCE
+	//not working under ce. todo: use ShellExecuteEx instead
 	system(sCommand.c_str());
+#endif
 
 	char *pData = FileUtils::ReadFileIntoBuffer(sDownloadedFile, Size);
 	FileUtils::DelFile(sDownloadedFile);
