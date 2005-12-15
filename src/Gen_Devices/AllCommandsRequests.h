@@ -11853,5 +11853,21 @@ namespace DCE
 	public:
 		CMD_PL_Add_VOIP_Account_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sName,string sPhoneNumber,string sPassword,string sUsers) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,751,4,50,sName.c_str(),75,sPhoneNumber.c_str(),99,sPassword.c_str(),189,sUsers.c_str()); }
 	};
+	class CMD_Check_Mounts : public PreformedCommand {
+	public:
+		CMD_Check_Mounts(long DeviceIDFrom, long DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,752,0); }
+	};
+	class CMD_Check_Mounts_DL : public PreformedCommand {
+	public:
+		CMD_Check_Mounts_DL(long DeviceIDFrom, string DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,752,0); }
+	};
+	class CMD_Check_Mounts_DT : public PreformedCommand {
+	public:
+		CMD_Check_Mounts_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,752,0); }
+	};
+	class CMD_Check_Mounts_Cat : public PreformedCommand {
+	public:
+		CMD_Check_Mounts_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,752,0); }
+	};
 }
 #endif

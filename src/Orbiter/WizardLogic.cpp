@@ -226,7 +226,7 @@ void WizardLogic::SetCountry(int PK_Country)
 	threaded_mysql_query(sSQL); 
 }
 
-string WizardLogic::GetCityRegion(int PK_Country) 
+string WizardLogic::GetCityRegion() 
 { 
 	string sSQL = "SELECT City,State FROM Installation WHERE PK_Installation=" + 
 		Installation_get();
@@ -253,8 +253,8 @@ bool WizardLogic::SetPostalCode(string PostalCode)
 	{
 		sSQL = "UPDATE Installation SET City='" + StringUtils::SQLEscape(row[0]) + 
 			"'" +
-			(row[1] ? string(",State=") + StringUtils::SQLEscape(row[1]) : string("")) + 
-			(row[2] ? string(",FK_City=") + StringUtils::SQLEscape(row[2]) : string(""));
+			(row[1] ? string(",State='") + StringUtils::SQLEscape(row[1]) + "'": string("")) + 
+			(row[2] ? string(",FK_City='") + StringUtils::SQLEscape(row[2]) + "'" : string(""));
 		threaded_mysql_query(sSQL);
 		
 		DeviceData_Base *pDevice_Event_Plugin = 
@@ -272,12 +272,12 @@ bool WizardLogic::SetPostalCode(string PostalCode)
 			threaded_mysql_query(sSQL,true);  // Ignore errors, this may already be there
 
 			sSQL = string("UPDATE Device_DeviceData SET IK_DeviceData='") + row[3] + "'" +
-				"WHERE FK_Device=" + StringUtils::itos(pDevice_Event_Plugin->m_dwPK_Device) +
+				" WHERE FK_Device=" + StringUtils::itos(pDevice_Event_Plugin->m_dwPK_Device) +
 				" AND FK_DeviceData=" + StringUtils::itos(DEVICEDATA_Longitude_CONST);
 			threaded_mysql_query(sSQL);
 
 			sSQL = string("UPDATE Device_DeviceData SET IK_DeviceData='") + row[4] + "'" +
-				"WHERE FK_Device=" + StringUtils::itos(pDevice_Event_Plugin->m_dwPK_Device) +
+				" WHERE FK_Device=" + StringUtils::itos(pDevice_Event_Plugin->m_dwPK_Device) +
 				" AND FK_DeviceData=" + StringUtils::itos(DEVICEDATA_Latitude_CONST);
 			threaded_mysql_query(sSQL);
 		}

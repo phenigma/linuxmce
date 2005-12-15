@@ -183,6 +183,7 @@ int k=2;
 		}
         al->push_back(this);
 
+		bool bSoleScreenCache = m_pOrbiterGenerator->m_map_PK_DesignObj_SoleScreenToGen.size()!=0 && m_pOrbiterGenerator->m_map_PK_DesignObj_SoleScreenToGen[m_pRow_DesignObj->PK_DesignObj_get()]==false;
         if( m_pOrbiterGenerator->m_bOrbiterChanged==false || m_pOrbiterGenerator->m_map_PK_DesignObj_SoleScreenToGen.size() )
         {
             // Let's see if we can just use a cached version
@@ -192,13 +193,13 @@ int k=2;
             {
 				time_t lModDate1 = StringUtils::SQLDateTime(pdrCachedScreen->Modification_LastGen_get());
 				time_t lModDate2 = StringUtils::SQLDateTime(m_pRow_DesignObj->psc_mod_get());
-				if( lModDate1==lModDate2 || (m_pOrbiterGenerator->m_map_PK_DesignObj_SoleScreenToGen.size()!=0 && m_pOrbiterGenerator->m_map_PK_DesignObj_SoleScreenToGen[m_pRow_DesignObj->PK_DesignObj_get()]==false) )
+				if( lModDate1==lModDate2 || bSoleScreenCache )
 				{
 					string Filename = m_pOrbiterGenerator->m_sOutputPath + "screen " + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get()) + "." +
 						StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(m_iVersion) + "." + StringUtils::itos((int) lModDate1) + ".cache";
 					if( FileUtils::FileExists(Filename) )
 					{
-						if( !ReadRegenVersion(Filename+".regen") || !CachedVersionOK() )
+						if( !ReadRegenVersion(Filename+".regen") || (!bSoleScreenCache && !CachedVersionOK()) )
 						{
 							m_vectRegenMonitor.clear();
 							cout << "Regenerating: cache has changed" << endl;

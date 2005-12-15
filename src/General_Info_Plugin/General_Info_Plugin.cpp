@@ -1522,7 +1522,7 @@ void General_Info_Plugin::CMD_Delete_Device(int iPK_Device,string &sCMD_Result,M
 
 bool General_Info_Plugin::NewPnpDevice( int PK_Device )
 {
-	g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::NewPnpDevice");
+	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::NewPnpDevice");
 	PLUTO_SAFETY_LOCK(mm, m_GipMutex);
 
 	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(PK_Device);
@@ -1705,5 +1705,52 @@ void General_Info_Plugin::PostCreateDevice_NetworkStorage(int iPK_Device,int iPK
 	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::PostCreateDevice_NetworkStorage device  %d template %d",
 		iPK_Device,iPK_DeviceTemplate);
 #endif
+	CMD_Check_Mounts();
 }
 
+//<-dceag-c752-b->
+
+	/** @brief COMMAND: #752 - Check Mounts */
+	/** Re-mount all network storage devices */
+
+void General_Info_Plugin::CMD_Check_Mounts(string &sCMD_Result,Message *pMessage)
+//<-dceag-c752-e->
+{
+	ListDeviceData_Router *pListDeviceData_Router = 
+		m_pRouter->m_mapDeviceByTemplate_Find(DEVICETEMPLATE_App_Server_CONST);
+
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_WARNING,"General_Info_Plugin::CMD_Check_Mounts %p",pListDeviceData_Router);
+#endif
+
+	if( !pListDeviceData_Router )
+		return;
+
+	DeviceData_Router *pDevice_AppServerOnCore=NULL; // We will use this to be sure we don't run 2 app server's
+	bool bAlreadyRanOnCore=false;
+	for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();it!=pListDeviceData_Router->end();++it)
+	{
+		DeviceData_Router *pDevice = *it;
+		if( pDevice->m_pDevice_ControlledVia && pDevice->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Media_Director_CONST) )
+		{
+			if( pDevice->m_pDevice_Core )
+				bAlreadyRanOnCore=true;
+
+			if( !m_mapMediaDirectors_PendingConfig[pDevice->m_pDevice_ControlledVia->m_dwPK_Device] )
+			{
+				DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice->m_dwPK_Device,"/usr/pluto/bin/DoAllMounts.sh","dm",
+					"","","",false,false,false);
+				SendCommand(CMD_Spawn_Application);
+			}
+		}
+		else if( pDevice->m_pDevice_ControlledVia && pDevice->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Core_CONST) )
+			pDevice_AppServerOnCore = pDevice;
+	}
+
+	if( pDevice_AppServerOnCore && !bAlreadyRanOnCore && !m_mapMediaDirectors_PendingConfig[pDevice_AppServerOnCore->m_pDevice_ControlledVia->m_dwPK_Device] )
+	{
+		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_AppServerOnCore->m_dwPK_Device,"/usr/pluto/bin/DoAllMounts.sh","dm",
+			"","","",false,false,false);
+		SendCommand(CMD_Spawn_Application);
+	}
+}

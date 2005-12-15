@@ -334,6 +334,13 @@ public:
 	virtual void CMD_Delete_Device(int iPK_Device,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #752 - Check Mounts */
+	/** Re-mount all network storage devices */
+
+	virtual void CMD_Check_Mounts() { string sCMD_Result; CMD_Check_Mounts(sCMD_Result,NULL);};
+	virtual void CMD_Check_Mounts(string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 	public:
 		int m_iPK_WebQuery; // this works if you plug and acknowledge one device at a time; but not more

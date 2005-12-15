@@ -9432,9 +9432,12 @@ void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,string &sCMD_Result,Mess
 //<-dceag-c741-e->
 {
 	m_pScreenHandler->ResetCallBacks(); 
+	bool bCreatedMessage=pMessage==NULL;
+	if( pMessage==NULL )
+		pMessage = new Message();
 
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_WARNING, "Received goto screen message id %d params:", iPK_Screen);
+	g_pPlutoLogger->Write(LV_WARNING, "Received goto screen message id %d params: message %p", iPK_Screen);
 	for(map<long, string>::iterator it = pMessage->m_mapParameters.begin(); it != pMessage->m_mapParameters.end(); it++)
 	{
 		string sValue = it->second;
@@ -9445,6 +9448,8 @@ void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,string &sCMD_Result,Mess
 	m_pScreenHistory_NewEntry = new ScreenHistory(iPK_Screen, new Message(pMessage), m_pScreenHistory_Current);
 	m_pScreenHistory_NewEntry->m_sID = sID;
 	m_pScreenHandler->ReceivedGotoScreenMessage(iPK_Screen, pMessage);
+	if( bCreatedMessage )
+		delete pMessage;
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ ScreenHandler *Orbiter::CreateScreenHandler()
