@@ -615,7 +615,7 @@ void Telecom_Plugin::CMD_PL_Transfer(int iPK_Device,int iPK_Users,string sPhoneE
 			/*send transfer command to PBX*/
 			CMD_PBX_Transfer cmd_PBX_Transfer(m_dwPK_Device, pPBXDevice->m_dwPK_Device, room, pCallData->getPendingCmdID(), pCallData->getID(),bIsConference);
 			SendCommand(cmd_PBX_Transfer);
-			Sleep(5000);
+			Sleep(2000);
 			DCE::CMD_PL_External_Originate cmd_invite(pCallData->getOwnerDevID(),m_dwPK_Device,sPhoneNumber,"pluto",room);
 			SendCommand(cmd_invite);			
 		}
@@ -739,8 +739,8 @@ string Telecom_Plugin::GetDialNumber(Row_PhoneNumber *pRow_PhoneNumber)
 bool 
 Telecom_Plugin::IncomingCall( class Socket *pSocket, class Message *pMessage, 
 					 			class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo ) {
-	CMD_Goto_Screen cmdGoToScreen(m_dwPK_Device,pDeviceFrom->m_dwPK_Device_ControlledVia,"",SCREEN_DevIncomingCall_CONST);
-	SendCommand(cmdGoToScreen);
+	SCREEN_DevIncomingCall SCREEN_DevIncomingCall_(m_dwPK_Device,pDeviceFrom->m_dwPK_Device_ControlledVia);
+	SendCommand(SCREEN_DevIncomingCall_);								
 	return true;
 }
 //<-dceag-c28-b->
