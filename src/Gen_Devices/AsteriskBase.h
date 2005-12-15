@@ -64,7 +64,6 @@ public:
 	}
 	virtual bool GetConfig()
 	{
-		
 		m_pData=NULL;
 		m_pEvent = new Asterisk_Event(m_dwPK_Device, m_sHostName, !m_bLocalMode);
 		if( m_pEvent->m_dwPK_Device )
@@ -146,7 +145,7 @@ public:
 	void EVENT_Voice_Mail_Changed() { GetEvents()->Voice_Mail_Changed(); }
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_PBX_Originate(string sPhoneNumber,string sPhoneType,string sPhoneExtension,string sPhoneCallerID,int iCommandID,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_PBX_Transfer(string sPhoneExtension,int iCommandID,string sPhoneCallID,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_PBX_Transfer(string sPhoneExtension,int iCommandID,string sPhoneCallID,bool bIsConference,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_PBX_Hangup(int iCommandID,string sPhoneCallID,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
@@ -199,7 +198,8 @@ public:
 					string sPhoneExtension=pMessage->m_mapParameters[83];
 					int iCommandID=atoi(pMessage->m_mapParameters[85].c_str());
 					string sPhoneCallID=pMessage->m_mapParameters[87];
-						CMD_PBX_Transfer(sPhoneExtension.c_str(),iCommandID,sPhoneCallID.c_str(),sCMD_Result,pMessage);
+					bool bIsConference=(pMessage->m_mapParameters[196]=="1" ? true : false);
+						CMD_PBX_Transfer(sPhoneExtension.c_str(),iCommandID,sPhoneCallID.c_str(),bIsConference,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -216,7 +216,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_PBX_Transfer(sPhoneExtension.c_str(),iCommandID,sPhoneCallID.c_str(),sCMD_Result,pMessage);
+								CMD_PBX_Transfer(sPhoneExtension.c_str(),iCommandID,sPhoneCallID.c_str(),bIsConference,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
