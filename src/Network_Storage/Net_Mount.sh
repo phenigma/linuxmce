@@ -65,7 +65,7 @@ case "$NAS_Type" in
 	nfs)
 		FS="nfs"
 		Src="$NAS_IP_Address:$NAS_Share_Name"
-		Opts="tcp,intr,rsize=32768,wsize=32768,retrans=10,timeo=50"
+		Opts="intr,rsize=32768,wsize=32768,retrans=10,timeo=50" # tcp doesn't seem to allow mounting most of the time with the Maxtor Network Storage
 	;;
 	samba|smbfs)
 		FS="smbfs"
