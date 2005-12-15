@@ -86,7 +86,7 @@ else
 
 	LinkName="NAS_${NAS_Description}_$NAS_PK_Device"
 	
-	find /home -type l -name "$LinkName" -exec rm -f '{}' ';' # clean up links
+	#find /home -type l -name "$LinkName" -exec rm -f '{}' ';' # clean up links
 	
 	if [[ -n "$NAS_Use_Pluto_Directory_Structure" && "$NAS_Use_Pluto_Directory_Structure" -gt 0 ]]; then
 		Logging "NAS" $SEVERITY_NORMAL "share mount" "Using Pluto directory structure"
