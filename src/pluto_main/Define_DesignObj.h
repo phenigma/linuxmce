@@ -1709,7 +1709,7 @@
 #define DESIGNOBJ_DirectToTV_CONST 4556
 #define DESIGNOBJ_Receiver_CONST 4557
 #define DESIGNOBJ_AVDevices_CONST 4558
-#define DESIGNOBJ_OtherAVDevices_CONST 4559
+#define DESIGNOBJ_AlarmPanelPort_CONST 4559
 #define DESIGNOBJ_Lights_CONST 4560
 #define DESIGNOBJ_LightsSetup_CONST 4561
 #define DESIGNOBJ_LightsSetupInclude_CONST 4562
@@ -1858,6 +1858,8 @@
 #define DESIGNOBJ_butDirectlyToTv_CONST 4732
 #define DESIGNOBJ_butToReceiver_CONST 4733
 #define DESIGNOBJ_butNeither_CONST 4734
+#define DESIGNOBJ_butNoAlarm_CONST 4735
+#define DESIGNOBJ_butDSC_CONST 4736
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
