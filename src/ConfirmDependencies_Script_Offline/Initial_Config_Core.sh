@@ -24,7 +24,12 @@ clear
 echo "Note: Hybrid means this PC will not only be the main server, but you will"
 echo "also hook it up to a TV and use it as a media director.  Core means it is"
 echo "a server only, and will not be used as a media station."
-Type=$(Ask "Should this be a Core or Hybrid? [C/h]")
+Type=$(Ask "Should this be a Core, Hybrid or Other? [C/h/o]")
+
+CoreDT=7
+if [[ "$Type" == o || "$Type" == O ]]; then
+	CoreDT=$(Ask "Enter the device template number")
+fi
 
 echo ""
 echo "You need to answer 'Y' below if you want Plug-and-play or extra media"
@@ -139,7 +144,7 @@ Q="INSERT INTO Room(FK_Installation, FK_RoomType, Description)
 RunSQL "$Q"
 
 # Add Core
-CoreDev=$(NewDev -d 7)
+CoreDev=$(NewDev -d "$CoreDT")
 Q="UPDATE Device SET Description='CORE', FK_Room=1 WHERE PK_Device='$CoreDev'"
 RunSQL "$Q"
 
