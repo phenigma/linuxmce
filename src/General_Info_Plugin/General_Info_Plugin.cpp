@@ -1527,7 +1527,7 @@ void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,strin
 			// TODO: add "related to device" parameter
 			//       stored in iPK_Device_Related
 			CMD_Create_Device(0,sMac_address,i==0 ? -1 : 0 /* only prompt the user for the room for the 1st device */,
-				sIP_Address,sData,iPK_DHCPDevice,0,pMessage->m_dwPK_Device_From,&iPK_Device);
+				sIP_Address,sData,iPK_DHCPDevice,0,pMessage->m_dwPK_Device_From,0,&iPK_Device);
 			
 			if (i == 0) // 1st device is our PNP device, and all the others will be related to it
 			{
@@ -1545,7 +1545,7 @@ void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,strin
 	else
 	{
 		int iPK_Device=0;
-		CMD_Create_Device(0,sMac_address,-1,sIP_Address,sData,iPK_DHCPDevice,0,pMessage->m_dwPK_Device_From,&iPK_Device);
+		CMD_Create_Device(0,sMac_address,-1,sIP_Address,sData,iPK_DHCPDevice,0,pMessage->m_dwPK_Device_From,0,&iPK_Device);
 		g_pPlutoLogger->Write(LV_STATUS, "Created PNP device %d from mac %s", iPK_Device, sMac_address.c_str());
 	}
 
@@ -1574,8 +1574,10 @@ void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,strin
 			/** The controlled via */
 		/** @param #198 PK_Orbiter */
 			/** The orbiter which should be used to prompt the user for any extra information.  Zero means all orbiters */
+		/** @param #199 PK_Device_Related */
+			/** The device to which this should be related if possible. */
 
-void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter,int *iPK_Device,string &sCMD_Result,Message *pMessage)
+void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter,int iPK_Device_Related,int *iPK_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c718-e->
 {
 	Row_DHCPDevice *pRow_DHCPDevice = NULL;
@@ -1604,7 +1606,7 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 	}
 
 	CreateDevice createDevice(m_pRouter->iPK_Installation_get(),m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get());
-	*iPK_Device = createDevice.DoIt(iPK_DHCPDevice,iPK_DeviceTemplate,sIP_Address,sMac_address,iPK_Device_ControlledVia,sData);
+	*iPK_Device = createDevice.DoIt(iPK_DHCPDevice,iPK_DeviceTemplate,sIP_Address,sMac_address,iPK_Device_ControlledVia,sData,iPK_Device_Related);
 
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Create_Device created %d template %d mac %s room %d ip %d data %s",

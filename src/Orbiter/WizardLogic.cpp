@@ -33,6 +33,9 @@ bool WizardLogic::Setup()
 			m_mapRoomTypes[atoi(row[0])] = row[1];
 		}
 
+	m_nPK_Device_TVProvider_External=m_nPK_Device_TV=m_nPK_Device_Receiver=0;
+	m_bUsingReceiverForVideo=false;
+
 	return true;
 }
 
@@ -285,3 +288,30 @@ bool WizardLogic::SetPostalCode(string PostalCode)
 	}
 	return false;
 }
+
+void WizardLogic::SetAvPath(int PK_Device_From,int PK_Device_To,int PK_Pipe,int PK_Command_Input)
+{
+	string sSQL = "DELETE FROM Device_Device_Pipe WHERE FK_Device_From=" + StringUtils::itos(PK_Device_From) + 
+		" AND FK_Pipe=" + StringUtils::itos(PK_Pipe);
+	threaded_mysql_query(sSQL);
+
+	sSQL = "INSERT INTO Device_Device_Pipe(FK_Device_From,FK_Device_To,FK_Pipe,FK_Command_Input)"
+		" VALUES(" + StringUtils::itos(PK_Device_From) + "," + StringUtils::itos(PK_Device_To) + ","
+		+ StringUtils::itos(PK_Pipe) + "," + StringUtils::itos(PK_Command_Input) + ")";
+
+	threaded_mysql_query(sSQL);
+}
+
+int WizardLogic::AddDevice(int PK_DeviceTemplate)
+{
+	/*
+	int iPK_Device=0;
+	DCE::CMD_Create_Device_Cat CMD_Create_Device_Cat(m_dwPK_Device,DEVICECATEGORY_General_Info_Plugins_CONST,false,BL_SameHouse,
+		PK_DeviceTemplate,"",m_pOrbiter->m_pData->m_dwPK_Room,"","","",0,m_pOrbiter->m_pData->m_dwPK_Device,m_pOrbiter->m_pData->m_dwPK_Device,
+		&iPK_Device);
+	m_pOrbiter->SendCommand(CMD_Create_Device_Cat);
+	return iPK_Device;
+	*/
+	return 0;
+}
+

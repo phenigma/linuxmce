@@ -1036,7 +1036,7 @@ Row_File *MediaAttributes_LowLevel::AddDirectoryToDatabase(int PK_MediaType,stri
 	// See what is 1 level up, and be sure it's in there too, as long as we're not at the top of the 'data' tree
 	string sParent = FileUtils::BasePath(sDirectory);
 	string sParentDirectory = FileUtils::BasePath(sParent);
-	if( sParentDirectory.substr( sParentDirectory.length()-4 )!="data" )
+	if( sParentDirectory.length()>5 && sParentDirectory.substr( sParentDirectory.length()-4 )!="data" )
 		AddDirectoryToDatabase(PK_MediaType,sParent);
 
 	return pRow_File;
@@ -1117,7 +1117,7 @@ void MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaT
 			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find ripped disc: %s",sDestination.c_str());
 		else
 		{
-			Row_File *pRow_File = AddDirectoryToDatabase(PK_MediaType,FileUtils::BasePath(sDestination) + FileUtils::FilenameWithoutPath(listFiles.front()));
+			Row_File *pRow_File = AddDirectoryToDatabase(PK_MediaType,FileUtils::BasePath(sDestination));
 			AddDiscAttributesToFile(pRow_File->PK_File_get(),PK_Disc,-1);  // We won't have tracks then we ripped.  -1=ripped whole thing
 		}
 	}

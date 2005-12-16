@@ -52,6 +52,9 @@ bool Slim_Server_Streamer::GetConfig()
 		return false;
 //<-dceag-getconfig-e->
 
+	g_pPlutoLogger->Write(LV_STATUS, "Waiting 5 seconds before starting slim server so we can be sure app server has started");
+	Sleep(5000);
+
 	if (! ConnectToSlimServerCliCommandChannel())
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "Connection failed. Sending a start command to the application server.");

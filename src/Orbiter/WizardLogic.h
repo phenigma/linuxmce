@@ -7,6 +7,11 @@
 
 class WizardLogic : public MySqlHelper
 {
+private:
+	friend class ScreenHandler;
+	long m_nPK_Device_TVProvider_External,m_nPK_Device_TV,m_nPK_Device_Receiver;
+	bool m_bUsingReceiverForVideo;
+
 protected:
 	class Orbiter *m_pOrbiter;
 	class UserUtils *m_pUserUtils;
@@ -50,8 +55,8 @@ public:
 	/*
 		SETUP A/V EQUIPMENT
 	*/
-	int AddDevice(int PK_DeviceTemplate) { return 0; }
-	void SetAvPath(int PK_Device_From,int PK_Device_To,int PK_Pipe,int PK_Command_Input) {};
+	int AddDevice(int PK_DeviceTemplate);
+	void SetAvPath(int PK_Device_From,int PK_Device_To,int PK_Pipe,int PK_Command_Input);
 
 	/*
 		UTILITIES
