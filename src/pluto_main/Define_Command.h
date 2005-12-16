@@ -697,7 +697,7 @@
 #define COMMAND_SetDateTime_CONST 750
 #define COMMAND_PL_Add_VOIP_Account_CONST 751
 #define COMMAND_Check_Mounts_CONST 752
-#define COMMAND_ListSensor_CONST 753
+#define COMMAND_GetSensorList_CONST 753
 #define COMMAND_SimulateAlarm_CONST 754
 
 #define COMMAND_TABLE "Command"
