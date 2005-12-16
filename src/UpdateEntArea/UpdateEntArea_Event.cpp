@@ -164,13 +164,6 @@ CommandGroup *UpdateEntArea::CreateLeaveHomeCommandGroup(CommandGroupArray &comm
 			COMMANDPARAMETER_PK_UserMode_CONST,StringUtils::itos(USERMODE_Away_CONST).c_str());
 	}
 
-	iOrder=3000;
-	map_Device_Type_RoomType.clear();
-	GetDevicesTypesAndRoomTypes(DEVICECATEGORY_Security_Interface_CONST,&map_Device_Type_RoomType);
-	for(map<int,pair<int,int> >::iterator it=map_Device_Type_RoomType.begin();it!=map_Device_Type_RoomType.end();++it)
-	{
-		pCommandGroup->AddCommand(it->first,COMMAND_Arm_CONST,iOrder,0);
-	}
 
 	return pCommandGroup;
 }
