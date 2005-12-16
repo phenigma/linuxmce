@@ -9603,7 +9603,8 @@ DesignObj_DataGrid *Orbiter::FindGridOnScreen(string sGridID)
 void Orbiter::ServiceScreenHandler(void *data)
 {
 	PLUTO_SAFETY_LOCK(vm, m_VariableMutex);
-	ExecuteScreenHandlerCallback(cbOnTimer);
+	if(!ExecuteScreenHandlerCallback(cbOnTimer))
+		return;
 
 	int *pInterval = (int *)data;
 	StartScreenHandlerTimer(*pInterval);

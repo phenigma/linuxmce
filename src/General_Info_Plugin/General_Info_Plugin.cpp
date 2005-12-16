@@ -45,6 +45,7 @@ using namespace DCE;
 #include "pluto_main/Table_Users.h"
 #include "pluto_main/Table_Country.h"
 #include "pluto_main/Define_DataGrid.h"
+#include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_Screen.h"
 #include "pluto_main/Define_CommandParameter.h"
@@ -52,6 +53,7 @@ using namespace DCE;
 #include "pluto_main/Define_Text.h"
 #include "pluto_main/Define_Screen.h"
 #include "pluto_main/Table_Room.h"
+#include "pluto_main/Define_FloorplanType.h"
 #include "DataGrid.h"
 #include "Orbiter_Plugin/Orbiter_Plugin.h"
 #include "Event_Plugin/Event_Plugin.h"
@@ -147,6 +149,14 @@ bool General_Info_Plugin::Register()
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::AlarmSensorsList)), 
 		DATAGRID_Alarm_Sensors_CONST,PK_DeviceTemplate_get());
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::AvailableSerialPorts)), 
+		DATAGRID_Available_Serial_Ports_CONST,PK_DeviceTemplate_get());
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::LightsTypes)), 
+		DATAGRID_LightType_CONST,PK_DeviceTemplate_get());
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::BookmarkList)), 
@@ -904,7 +914,7 @@ class DataGridTable *General_Info_Plugin::AlarmSensorsList(string GridID, string
 
 	if(vectStrings.size())
 	{
-		for(int i = 0; i < vectStrings.size() - 3; i+=4)
+		for(size_t i = 0; i < vectStrings.size() - 3; i+=4)
 		{
 			string AlarmPanelID = vectStrings[i]; //unused for now
 			string sSensorName = vectStrings[i + 1];
@@ -925,6 +935,87 @@ class DataGridTable *General_Info_Plugin::AlarmSensorsList(string GridID, string
 
 			pCell = new DataGridCell(sSensorType, sSensorName);
 			pDataGrid->SetData(2, iRow++, pCell);
+		}
+	}
+
+	return pDataGrid;
+}
+
+class DataGridTable *General_Info_Plugin::AvailableSerialPorts(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage)
+{
+	DataGridTable *pDataGrid = new DataGridTable( );
+	DataGridCell *pCell;
+
+	int iRow=0, iCol=0;
+	string sql = 
+		"SELECT Device.Description, PK_Device, IK_DeviceData FROM Device " 
+		"JOIN DeviceTemplate ON FK_DeviceTemplate = PK_DeviceTemplate "
+		"JOIN Device_DeviceData ON FK_Device = PK_Device "
+		"WHERE FK_Installation = " + StringUtils::itos(m_pRouter->iPK_Installation_get()) + " "
+		"AND FK_DeviceData = " + StringUtils::ltos(DEVICEDATA_Available_Serial_Ports_CONST) + " "
+		"AND FK_DeviceCategory IN (" + StringUtils::ltos(DEVICETEMPLATE_Generic_PC_as_Core_CONST) + "," + 
+			StringUtils::ltos(DEVICETEMPLATE_Generic_PC_as_MD_CONST) + ")";
+
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	if(mysql_query(m_pDatabase_pluto_main->m_pMySQL,sql.c_str())==0 && (result.r = mysql_store_result(m_pDatabase_pluto_main->m_pMySQL)) )
+	{
+		while((row=mysql_fetch_row(result.r)))
+		{
+			string sComputerName = row[0];
+			string sPK_Device = row[1];
+			string sUnixSerialDev = row[2];
+			string sSerialPort;
+
+			if(sUnixSerialDev == "/dev/ttyS0")
+				sSerialPort = "COM1";
+			else if(sUnixSerialDev == "/dev/ttyS1")
+				sSerialPort = "COM2";
+			else if(sUnixSerialDev == "/dev/ttyS2")
+				sSerialPort = "COM3";
+			else if(sUnixSerialDev == "/dev/ttyS3")
+				sSerialPort = "COM4";
+
+			pCell = new DataGridCell(sComputerName + " " + sSerialPort , sPK_Device + "," + sUnixSerialDev);
+			pDataGrid->SetData(0, iRow++, pCell);
+		}
+	}
+
+	return pDataGrid;
+}
+
+class DataGridTable *General_Info_Plugin::LightsTypes(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage)
+{
+	int iWidth = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Width_CONST].c_str());
+	if( !iWidth )
+		iWidth = 3;
+
+	string::size_type pos=0;
+	string sFloorPlanType = StringUtils::Tokenize(Parms,",",pos);
+
+	DataGridTable *pDataGrid = new DataGridTable( );
+	DataGridCell *pCell;
+
+	int iRow=0,iCol=0;
+	string sql = 
+		"SELECT PK_FloorplanObjectType, Description "
+		"FROM FloorplanObjectType "
+		"WHERE FK_FloorplanType = " + sFloorPlanType + " "
+		"ORDER BY Description";
+
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	if( mysql_query(m_pDatabase_pluto_main->m_pMySQL,sql.c_str())==0 && (result.r = mysql_store_result(m_pDatabase_pluto_main->m_pMySQL)) )
+	{
+		while( ( row=mysql_fetch_row( result.r ) ) )
+		{
+			pCell = new DataGridCell(row[1], row[0]);
+			pDataGrid->SetData( iCol++, iRow, pCell );
+			if( iCol>=iWidth )
+			{
+				iCol=0;
+				iRow++;
+			}
 		}
 	}
 
