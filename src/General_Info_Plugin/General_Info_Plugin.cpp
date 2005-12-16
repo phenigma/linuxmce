@@ -906,16 +906,22 @@ class DataGridTable *General_Info_Plugin::AlarmSensorsList(string GridID, string
 	{
 		for(int i = 0; i < vectStrings.size() - 3; i+=4)
 		{
-			string AlarmPanelType = vectStrings[i]; //unused for now
+			string AlarmPanelID = vectStrings[i]; //unused for now
 			string sSensorName = vectStrings[i + 1];
 			string sRoomName = vectStrings[i + 2];
 			string sSensorType = vectStrings[i + 3];
 
-			pCell = new DataGridCell(sSensorName, sSensorName);
+			pCell = new DataGridCell("Sensor " + sSensorName, sSensorName);
 			pDataGrid->SetData(0, iRow, pCell);
 
 			pCell = new DataGridCell(sRoomName, sSensorName);
 			pDataGrid->SetData(1, iRow, pCell);
+
+			Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(atoi(sSensorType.c_str()));
+			if(pRow_DeviceTemplate)
+				sSensorType = pRow_DeviceTemplate->Description_get();
+			else
+				sSensorType = "Unknown sensor type";
 
 			pCell = new DataGridCell(sSensorType, sSensorName);
 			pDataGrid->SetData(2, iRow++, pCell);

@@ -51,7 +51,8 @@ enum CallBackType
 	cbOnKeyUp,
 	cbOnMouseDown,
 	cbOnMouseUp,
-	cbCapturedKeyboardBufferChanged
+	cbCapturedKeyboardBufferChanged,
+	cbOnTimer
 };
 
 #define PROMPT_CANCEL -1
@@ -386,6 +387,10 @@ protected:
 
 	// Reselect the given object, used for repeating buttons
 	void ReselectObject( void *data );
+
+	//helper functions for the timer mechanism in screen handlers
+	void ServiceScreenHandler(void *data);
+	void StartScreenHandlerTimer(int nInterval /*in miliseconds*/);
 
 public: // temp - remove this
 	/**

@@ -2397,11 +2397,23 @@ if( pObj->m_ObjectID.find("1255.2.0.3407")!=string::npos )
 {
 int k=2;
 }
-    if( pObj->m_iPK_Button==PK_Button || pObj->m_iPK_Button==BUTTON_Any_key_CONST  )
+    if( 
+		pObj->m_iPK_Button == PK_Button || 
+		pObj->m_iPK_Button == BUTTON_Any_key_CONST || 
+		(
+			pObj->m_iPK_Button == BUTTON_Alphanumeric_keys_CONST &&
+			(
+				(PK_Button >= BUTTON_a_CONST && PK_Button <= BUTTON_z_CONST) ||
+				(PK_Button >= BUTTON_A_CONST && PK_Button <= BUTTON_Z_CONST) ||
+				(PK_Button >= BUTTON_1_CONST && PK_Button <= BUTTON_0_CONST)		
+			)
+		)
+	)
     {
         SelectedObject( pObj );
         return true;
     }
+
     return bFoundHandler;
 }
 //------------------------------------------------------------------------
@@ -3746,6 +3758,7 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
         }
     }
     if(  !( bHandled=ClickedButton( m_pScreenHistory_Current->m_pObj,  PK_Button ) )  )
+	//bHandled = ClickedButton(m_pScreenHistory_Current->m_pObj, PK_Button);
     {
         if(  PK_Button>=BUTTON_Up_Arrow_CONST && PK_Button<=BUTTON_Right_Arrow_CONST  ) // up,  down,  left or right
         {
@@ -9559,6 +9572,7 @@ ScreenHandler *Orbiter::PlugIn_Load(string sCommandLine)
 //-----------------------------------------------------------------------------------------------------
 bool Orbiter::ExecuteScreenHandlerCallback(CallBackType aCallBackType)
 {
+	PLUTO_SAFETY_LOCK(vm, m_VariableMutex);
 	ScreenHandlerCallBack pCallBack = m_pScreenHandler->m_mapCallBack_Find(aCallBackType);
 	if(NULL != pCallBack)
 		return CALL_MEMBER_FN(*m_pScreenHandler, pCallBack)(m_pScreenHandler->m_mapCallBackData_Find(aCallBackType));
@@ -9584,5 +9598,20 @@ DesignObj_DataGrid *Orbiter::FindGridOnScreen(string sGridID)
 	}
 
 	return NULL;
+}
+//-----------------------------------------------------------------------------------------------------
+void Orbiter::ServiceScreenHandler(void *data)
+{
+	PLUTO_SAFETY_LOCK(vm, m_VariableMutex);
+	ExecuteScreenHandlerCallback(cbOnTimer);
+
+	int *pInterval = (int *)data;
+	StartScreenHandlerTimer(*pInterval);
+	delete pInterval;
+}
+//-----------------------------------------------------------------------------------------------------
+void Orbiter::StartScreenHandlerTimer(int nInterval /*in miliseconds*/)
+{
+	CallMaintenanceInMiliseconds(nInterval, &Orbiter::ServiceScreenHandler, new int(nInterval), pe_ALL );
 }
 //-----------------------------------------------------------------------------------------------------

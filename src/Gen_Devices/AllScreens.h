@@ -3733,46 +3733,6 @@ namespace DCE
 		}
 	};
 
-	class SCREEN_MainAudi : public PreformedCommand
-	{
-	public:
-		SCREEN_MainAudi(long DeviceIDFrom, long DeviceIDTo)
-		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
-				COMMANDPARAMETER_PK_Screen_CONST, "91" /* screen ID */);
-		}
-	};
-
-	class SCREEN_MainAudi_DL : public PreformedCommand
-	{
-	public:
-		SCREEN_MainAudi_DL(long DeviceIDFrom, string sDeviceIDTo)
-		{
-			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
-				COMMANDPARAMETER_PK_Screen_CONST, "91" /* screen ID */);
-		}
-	};
-
-	class SCREEN_MainAudi_DT : public PreformedCommand
-	{
-	public:
-		SCREEN_MainAudi_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
-		{
-			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
-				COMMANDPARAMETER_PK_Screen_CONST, "91" /* screen ID */);
-		}
-	};
-
-	class SCREEN_MainAudi_Cat : public PreformedCommand
-	{
-	public:
-		SCREEN_MainAudi_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
-		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
-				COMMANDPARAMETER_PK_Screen_CONST, "91" /* screen ID */);
-		}
-	};
-
 	class SCREEN_MythTvRemote : public PreformedCommand
 	{
 	public:
@@ -4250,46 +4210,6 @@ namespace DCE
 		{
 			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
 				COMMANDPARAMETER_PK_Screen_CONST, "103" /* screen ID */);
-		}
-	};
-
-	class SCREEN_MainMenuSmall : public PreformedCommand
-	{
-	public:
-		SCREEN_MainMenuSmall(long DeviceIDFrom, long DeviceIDTo)
-		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
-				COMMANDPARAMETER_PK_Screen_CONST, "104" /* screen ID */);
-		}
-	};
-
-	class SCREEN_MainMenuSmall_DL : public PreformedCommand
-	{
-	public:
-		SCREEN_MainMenuSmall_DL(long DeviceIDFrom, string sDeviceIDTo)
-		{
-			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
-				COMMANDPARAMETER_PK_Screen_CONST, "104" /* screen ID */);
-		}
-	};
-
-	class SCREEN_MainMenuSmall_DT : public PreformedCommand
-	{
-	public:
-		SCREEN_MainMenuSmall_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
-		{
-			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
-				COMMANDPARAMETER_PK_Screen_CONST, "104" /* screen ID */);
-		}
-	};
-
-	class SCREEN_MainMenuSmall_Cat : public PreformedCommand
-	{
-	public:
-		SCREEN_MainMenuSmall_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
-		{
-			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
-				COMMANDPARAMETER_PK_Screen_CONST, "104" /* screen ID */);
 		}
 	};
 
@@ -8366,6 +8286,7 @@ namespace DCE
 	public:
 		int m_p_MapDesignObj_Find(int PK_Screen) { map<int,int>::iterator it = m_p_MapDesignObj->find(PK_Screen); return it==m_p_MapDesignObj->end() ? NULL : (*it).second; }
 		ScreenHandlerBase(map<int,int> *p_MapDesignObj) { m_p_MapDesignObj=p_MapDesignObj; }
+		virtual ~ScreenHandlerBase() {}
 
 		virtual void GotoDesignObj(int PK_DesignObj)=0;
 		virtual void GotoScreen(int PK_Screen)
@@ -8466,7 +8387,6 @@ namespace DCE
 		virtual void SCREEN_BrowseBookmarks(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_GenericAppController(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_BookmarksByMediaType(long PK_Screen){ GotoScreen(PK_Screen); }
-		virtual void SCREEN_MainAudi(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_MythTvRemote(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Myth_all_commands(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Mytv_watching_tv(long PK_Screen){ GotoScreen(PK_Screen); }
@@ -8479,7 +8399,6 @@ namespace DCE
 		virtual void SCREEN_TVEPG3(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_ShowInfo(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_CreateViewBookmarksTV(long PK_Screen){ GotoScreen(PK_Screen); }
-		virtual void SCREEN_MainMenuSmall(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_WebSites(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_WhatModelMobileOrbiter(long PK_Screen, string sMacAddress){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_Filelist(long PK_Screen){ GotoScreen(PK_Screen); }
@@ -9057,11 +8976,6 @@ namespace DCE
 					SCREEN_BookmarksByMediaType(nPK_Screen);
 					break;
 				}
-				case 91:
-				{
-					SCREEN_MainAudi(nPK_Screen);
-					break;
-				}
 				case 92:
 				{
 					SCREEN_MythTvRemote(nPK_Screen);
@@ -9120,11 +9034,6 @@ namespace DCE
 				case 103:
 				{
 					SCREEN_CreateViewBookmarksTV(nPK_Screen);
-					break;
-				}
-				case 104:
-				{
-					SCREEN_MainMenuSmall(nPK_Screen);
 					break;
 				}
 				case 105:
