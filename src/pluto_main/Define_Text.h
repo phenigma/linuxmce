@@ -893,6 +893,12 @@
 #define TEXT_Neither_–_I_have_a_special_setup_like_a_CONST 1604
 #define TEXT_DSC_CONST 1605
 #define TEXT_APEX_CONST 1606
+#define TEXT_Installed_AV_Devices_CONST 1607
+#define TEXT_Another_AV_Device_CONST 1608
+#define TEXT_Alarm_Panel_Model_CONST 1609
+#define TEXT_What_port_did_you_connect_it_to_CONST 1610
+#define TEXT_Looking_for_alarm_panel_Please_wait_CONST 1611
+#define TEXT_Panel_not_found_CONST 1612
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

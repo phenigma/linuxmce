@@ -1765,7 +1765,7 @@
 #define DESIGNOBJ_butRoomswizard_CONST 4617
 #define DESIGNOBJ_butGreetings_CONST 4618
 #define DESIGNOBJ_butTVManufNotListed_CONST 4623
-#define DESIGNOBJ_TVManufNotListed_CONST 4624
+#define DESIGNOBJ_AlarmDetect_CONST 4624
 #define DESIGNOBJ_butWhichIRGroup_CONST 4626
 #define DESIGNOBJ_VoipNumber_CONST 4627
 #define DESIGNOBJ_butIRGroup_CONST 4628
@@ -1773,8 +1773,8 @@
 #define DESIGNOBJ_ConfirmCodes_CONST 4630
 #define DESIGNOBJ_butConfirmCodes_CONST 4631
 #define DESIGNOBJ_butTypeTVmodel_CONST 4632
-#define DESIGNOBJ_TypeTVModel_CONST 4633
-#define DESIGNOBJ_WhatInputs_CONST 4634
+#define DESIGNOBJ_AlarmPanelModel_CONST 4633
+#define DESIGNOBJ_AlarmNoPanelDetected_CONST 4634
 #define DESIGNOBJ_butWhatInputs_CONST 4635
 #define DESIGNOBJ_butLearnCodes_CONST 4636
 #define DESIGNOBJ_LearnCodes_CONST 4637
@@ -1862,6 +1862,10 @@
 #define DESIGNOBJ_butDSC_CONST 4736
 #define DESIGNOBJ_butAPEX_CONST 4737
 #define DESIGNOBJ_dgInstalledAVDevices_CONST 4738
+#define DESIGNOBJ_butAnotherAVDevice_CONST 4739
+#define DESIGNOBJ_butAlarmPanelModel_CONST 4740
+#define DESIGNOBJ_butAlarmPanelPort_CONST 4741
+#define DESIGNOBJ_dgPorts_CONST 4742
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
