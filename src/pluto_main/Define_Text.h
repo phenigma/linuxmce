@@ -798,7 +798,7 @@
 #define TEXT_Confirm_Names_CONST 1503
 #define TEXT_AV_connection_CONST 1504
 #define TEXT_Model_CONST 1505
-#define TEXT_Connection_to_the_TV_CONST 1506
+#define TEXT_Connect_directly_to_the_TV_CONST 1506
 #define TEXT_Use_a_receiver_CONST 1507
 #define TEXT_AV_devices_CONST 1508
 #define TEXT_Other_AV_devices_CONST 1509
@@ -886,6 +886,11 @@
 #define TEXT_Use_recommended_directory_structure_CONST 1592
 #define TEXT_Enter_your_postal_code_CONST 1593
 #define TEXT_Bad_Zip_Code_CONST 1594
+#define TEXT_Voip_Container_CONST 1600
+#define TEXT_You_choose_Broadvoice_CONST 1601
+#define TEXT_Directly_to_TV_CONST 1602
+#define TEXT_To_a_receiver_CONST 1603
+#define TEXT_Neither_–_I_have_a_special_setup_like_a_CONST 1604
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

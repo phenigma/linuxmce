@@ -1761,8 +1761,6 @@
 #define DESIGNOBJ_butTracklight_CONST 4610
 #define DESIGNOBJ_butRecessedlighting_CONST 4611
 #define DESIGNOBJ_butStartUsingMonster_CONST 4612
-#define DESIGNOBJ_mnuPowerFile_CONST 4613
-#define DESIGNOBJ_dgPowerFile_CONST 4614
 #define DESIGNOBJ_roomsapplet_CONST 4616
 #define DESIGNOBJ_butRoomswizard_CONST 4617
 #define DESIGNOBJ_butGreetings_CONST 4618
@@ -1856,6 +1854,10 @@
 #define DESIGNOBJ_butNoDontUseIt_CONST 4724
 #define DESIGNOBJ_mnuNAS_Option_Mount_CONST 4725
 #define DESIGNOBJ_butYesDefaultDirectory_CONST 4726
+#define DESIGNOBJ_butDirectToTv_CONST 4731
+#define DESIGNOBJ_butDirectlyToTv_CONST 4732
+#define DESIGNOBJ_butToReceiver_CONST 4733
+#define DESIGNOBJ_butNeither_CONST 4734
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
