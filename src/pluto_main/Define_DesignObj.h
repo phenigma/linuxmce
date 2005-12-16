@@ -1781,7 +1781,7 @@
 #define DESIGNOBJ_RecommendedInput_CONST 4638
 #define DESIGNOBJ_butRecommendedInput_CONST 4639
 #define DESIGNOBJ_butWhichInput_CONST 4640
-#define DESIGNOBJ_WhichInput_CONST 4641
+#define DESIGNOBJ_WhichTVInput_CONST 4641
 #define DESIGNOBJ_butRepeatLikeTV_CONST 4643
 #define DESIGNOBJ_RepeatLikeTV_CONST 4644
 #define DESIGNOBJ_butOtherAVDevices_CONST 4645
@@ -1860,6 +1860,8 @@
 #define DESIGNOBJ_butNeither_CONST 4734
 #define DESIGNOBJ_butNoAlarm_CONST 4735
 #define DESIGNOBJ_butDSC_CONST 4736
+#define DESIGNOBJ_butAPEX_CONST 4737
+#define DESIGNOBJ_dgInstalledAVDevices_CONST 4738
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

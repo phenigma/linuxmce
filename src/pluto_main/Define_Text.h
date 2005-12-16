@@ -892,6 +892,7 @@
 #define TEXT_To_a_receiver_CONST 1603
 #define TEXT_Neither_–_I_have_a_special_setup_like_a_CONST 1604
 #define TEXT_DSC_CONST 1605
+#define TEXT_APEX_CONST 1606
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
