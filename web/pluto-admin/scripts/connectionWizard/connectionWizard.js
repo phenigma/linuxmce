@@ -167,6 +167,14 @@ function generatePipe(deviceFrom,commandOut,deviceTo,commandIn,connectionType,de
 	
 }
 
+function disabletext(e){
+	return false
+}
+
+function reEnable(){
+	return true
+}
+
 function bring_to_front(val)
 {
 	last_z_index++;
@@ -174,6 +182,16 @@ function bring_to_front(val)
 	for(i=0;i<layersArray.length;i++){
 		eval("document.getElementById('head_"+layersArray[i]+"').style.background='red';");
 	}
+
+
+	//if the browser is IE4+
+	document.onselectstart=new Function ("return false")
+	
+	//if the browser is NS6
+	if (window.sidebar){
+		document.onmousedown=disabletext
+		document.onclick=reEnable
+	}	
 }
 
 function setPipeVariables()
@@ -241,10 +259,13 @@ function setPipe(device,command,prefix,itemName)
 			if(existAlready){
 				if(eval("confirm('The "+globalPipe+" pipe for device "+globalToDevice+" exist. Do you want to delete it to create a new one?')")){
 					eval("clearPipe('"+globalPipe+"_'+"+globalFromDevice+")");
+					setPipeVariables();
+					drawPipe(globalFromDevice,globalPipe,globalXFrom,globalYFrom,globalXTo,globalYTo);
 				}
+			}else{
+				setPipeVariables();
+				drawPipe(globalFromDevice,globalPipe,globalXFrom,globalYFrom,globalXTo,globalYTo);
 			}
-			setPipeVariables();
-			drawPipe(globalFromDevice,globalPipe,globalXFrom,globalYFrom,globalXTo,globalYTo);
 			
 			globalXFrom=-1;
 			globalYFrom=-1;
