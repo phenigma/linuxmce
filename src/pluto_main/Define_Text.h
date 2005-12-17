@@ -899,6 +899,8 @@
 #define TEXT_What_port_did_you_connect_it_to_CONST 1610
 #define TEXT_Looking_for_alarm_panel_Please_wait_CONST 1611
 #define TEXT_Panel_not_found_CONST 1612
+#define TEXT_input_from_Receiver_to_TV_CONST 1613
+#define TEXT_input_from_md_CONST 1614
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
