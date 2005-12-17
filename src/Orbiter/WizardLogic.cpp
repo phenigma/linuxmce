@@ -8,6 +8,7 @@ WizardLogic::WizardLogic(Orbiter *pOrbiter)
 {
 	m_pOrbiter = pOrbiter;
 	m_pUserUtils = new UserUtils(this,m_pOrbiter->m_pData->m_dwPK_Installation);
+	m_nPK_AlarmPanelDevice = 0;
 }
 
 WizardLogic::~WizardLogic()
@@ -17,7 +18,7 @@ WizardLogic::~WizardLogic()
 
 bool WizardLogic::Setup()
 {
-	if( !MySQLConnect("192.168.80.1"/*m_pOrbiter->m_sIPAddress*/,"root", "", "pluto_main") )
+	if( !MySQLConnect("10.0.0.150"/*m_pOrbiter->m_sIPAddress*/,"root", "", "pluto_main") )
 		return false;
 
 	string sSQL;
@@ -315,3 +316,14 @@ int WizardLogic::AddDevice(int PK_DeviceTemplate)
 	return 0;
 }
 
+string WizardLogic::GetDeviceStatus(long nPK_Device)
+{
+	string sSQL = "SELECT Status FROM Device WHERE PK_Device = " + StringUtils::ltos(nPK_Device);
+
+	PlutoSqlResult result_set;
+	MYSQL_ROW row;
+	if((result_set.r = mysql_query_result(sSQL)) && (row = mysql_fetch_row(result_set.r)) && row[0])
+		return row[0];
+
+	return "";
+}

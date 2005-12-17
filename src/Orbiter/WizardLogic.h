@@ -10,7 +10,14 @@ class WizardLogic : public MySqlHelper
 private:
 	friend class ScreenHandler;
 	long m_nPK_Device_TVProvider_External,m_nPK_Device_TV,m_nPK_Device_Receiver;
+	long m_nPK_Command_Input_Video_On_TV;
 	bool m_bUsingReceiverForVideo;
+
+	long m_nPK_AlarmPanelDevice;
+	long m_nAlarmDeviceTimeout;
+	bool m_bAlarmPanelDetectionStarted;
+
+	string GetDeviceStatus(long nPK_Device);
 
 protected:
 	class Orbiter *m_pOrbiter;
@@ -65,6 +72,8 @@ public:
 	string Installation_get() { return StringUtils::itos(m_pOrbiter->m_pData->m_dwPK_Installation); }
 
 
+	void AddExternalTuner(long something) {}
+	void DeleteDevicesInThisRoomOfType(long something) {}
 };
 //-----------------------------------------------------------------------------------------------------
 #endif

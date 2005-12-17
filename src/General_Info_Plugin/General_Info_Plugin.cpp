@@ -163,6 +163,10 @@ bool General_Info_Plugin::Register()
 		DATAGRID_Installed_AV_Devices_CONST,PK_DeviceTemplate_get());
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::SensorType)), 
+		DATAGRID_Sensor_Type_CONST,PK_DeviceTemplate_get());
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::BookmarkList)), 
 		DATAGRID_Mozilla_Bookmarks_CONST,PK_DeviceTemplate_get());
 
@@ -901,16 +905,19 @@ class DataGridTable *General_Info_Plugin::RoomTypes(string GridID, string Parms,
 
 class DataGridTable *General_Info_Plugin::AlarmSensorsList(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage)
 {
+	string::size_type pos=0;
+	long nPK_Device_AlarmPanel = atoi(StringUtils::Tokenize(Parms,",",pos).c_str());
+
 	DataGridTable *pDataGrid = new DataGridTable( );
 	DataGridCell *pCell;
 
 	int iRow=0, iCol=0;
 
 	string sSensorList;
-	DCE::CMD_ListSensor_Cat CMD_ListSensor_Cat_(m_dwPK_Device, DEVICECATEGORY_Security_Device_CONST, true, BL_SameHouse, &sSensorList);
-	SendCommand(CMD_ListSensor_Cat_);
+	DCE::CMD_ListSensor CMD_ListSensor_(m_dwPK_Device, nPK_Device_AlarmPanel, &sSensorList);
+	SendCommand(CMD_ListSensor_);
 
-	//for testing
+	//for testing - remove me!
 	sSensorList = "1,006,room1,56,1,007,room1,56,1,008,room1,56,1,009,room1,56,1,010,room1,56,1,001,room1,56,1,002,room1,56,1,003,room1,56,1,004,room1,56,1,005,room1,56,";
 
 	vector<string> vectStrings;
@@ -1087,6 +1094,31 @@ class DataGridTable *General_Info_Plugin::InstalledAVDevices(string GridID, stri
 	return pDataGrid;
 }
 
+class DataGridTable *General_Info_Plugin::SensorType(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage)
+{
+	string::size_type pos=0;
+
+	DataGridTable *pDataGrid = new DataGridTable( );
+	DataGridCell *pCell;
+
+	int iRow=0;
+	string sql = 
+		"SELECT * FROM DeviceTemplate WHERE FK_DeviceCategory = " + 
+		StringUtils::ltos(DEVICECATEGORY_Security_Device_CONST);
+
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	if( mysql_query(m_pDatabase_pluto_main->m_pMySQL,sql.c_str())==0 && (result.r = mysql_store_result(m_pDatabase_pluto_main->m_pMySQL)) )
+	{
+		while( ( row=mysql_fetch_row( result.r ) ) )
+		{
+			pCell = new DataGridCell(row[1], row[0]);
+			pDataGrid->SetData(0, iRow++, pCell );
+		}
+	}
+
+	return pDataGrid;
+}
 
 //<-dceag-c395-b->
 
