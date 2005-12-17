@@ -4,7 +4,7 @@
 #include "pluto_main/Define_Text.h"
 #include "pluto_main/Define_DesignObj.h"
 #include "pluto_main/Define_DeviceTemplate.h"
-//#include "WizardLogic.h"
+
 //-----------------------------------------------------------------------------------------------------
 ScreenHandler::ScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj) : ScreenHandlerBase(p_MapDesignObj)
 {
@@ -13,17 +13,20 @@ ScreenHandler::ScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj) : 
 //-----------------------------------------------------------------------------------------------------
 ScreenHandler::~ScreenHandler() 
 {
+	m_pOrbiter = NULL;
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::RegisterCallBack(CallBackType aCallBackType, ScreenHandlerCallBack aScreenHandlerCallBack, 
 	CallBackData *pCallBackData)
 {
+	PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
 	m_mapCallBack[aCallBackType] = aScreenHandlerCallBack;
 	m_mapCallBackData[aCallBackType] = pCallBackData;
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::ResetCallBacks()
 {
+	PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
 	m_mapCallBack.clear();
 
 	for(map<CallBackType, CallBackData *>::iterator it = m_mapCallBackData.begin(); it != m_mapCallBackData.end(); it++)
@@ -36,12 +39,14 @@ void ScreenHandler::ResetCallBacks()
 //-----------------------------------------------------------------------------------------------------
 ScreenHandlerCallBack ScreenHandler::m_mapCallBack_Find(CallBackType aCallBackType)	
 { 
+	PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
 	map<CallBackType, ScreenHandlerCallBack>::iterator it = m_mapCallBack.find(aCallBackType); 
 	return it == m_mapCallBack.end() ? NULL : it->second; 
 }
 //-----------------------------------------------------------------------------------------------------
 CallBackData *ScreenHandler::m_mapCallBackData_Find(CallBackType aCallBackType)	
 { 
+	PLUTO_SAFETY_LOCK(vm, m_pOrbiter->m_VariableMutex);
 	map<CallBackType, CallBackData *>::iterator it = m_mapCallBackData.find(aCallBackType); 
 	return it == m_mapCallBackData.end() ? NULL : it->second; 
 }
@@ -49,6 +54,11 @@ CallBackData *ScreenHandler::m_mapCallBackData_Find(CallBackType aCallBackType)
 void ScreenHandler::GotoDesignObj(int PK_DesignObj)
 {
 	m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(PK_DesignObj), "", "", false, false);
+}
+//-----------------------------------------------------------------------------------------------------
+int ScreenHandler::GetCurrentScreen_PK_DesignObj()
+{
+	return m_pOrbiter->m_pScreenHistory_Current->m_pObj->m_iBaseObjectID;
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_NewMacAddress(long PK_Screen, string sMacAddress, string sIpAddress) 
@@ -147,12 +157,6 @@ void ScreenHandler::SCREEN_DialogRippingInProgress(long PK_Screen, string sPK_De
 	return;
 }
 //-----------------------------------------------------------------------------------------------------
-void ScreenHandler::SCREEN_Main(long PK_Screen, string sLocation)
-{
-	m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)) + "." + sLocation + ".0", 
-		sLocation, "", false, false );
-} 
-//-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_DialogCheckingDrive(long PK_Screen)
 {
 	DisplayMessageOnOrbiter(PK_Screen, "<%=T" + StringUtils::itos(TEXT_Checking_drive_CONST) + "%>", false, "20");
@@ -236,7 +240,7 @@ void ScreenHandler::SCREEN_DialogAskToResume(long PK_Screen, string sPK_DeviceFr
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_DialogGC100Error(long PK_Screen, string sDescription, string sCannotGoBack)
 {
-	DisplayMessageOnOrbiter(PK_Screen, sDescription, false, "0", sCannotGoBack == "1");
+	DisplayMessageOnOrbiter(PK_Screen, sDescription, false, "0", false);
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::DisplayMessageOnOrbiter(int PK_Screen,
@@ -312,6 +316,13 @@ void ScreenHandler::SCREEN_DialogSendFileToPhoneFailed(long PK_Screen, string sM
 		//No command
 		"" //do nothing
 	);
+}
+//-----------------------------------------------------------------------------------------------------
+void ScreenHandler::SCREEN_Main(long PK_Screen, string sLocation)
+{
+	m_pOrbiter->CMD_Goto_DesignObj(0, m_pOrbiter->m_sMainMenu, 
+		/*StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)) + "." + sLocation + ".0", */
+		sLocation, "", false, false );
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_Lights(long PK_Screen, string sLocation)
@@ -405,4 +416,13 @@ void ScreenHandler::SCREEN_QuadViewCameras(long PK_Screen, string sPKDevicesList
 			sPKDevicesList.c_str());
 	}
 }
-//-----------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------- 
+void ScreenHandler::SCREEN_NAS_Options(long PK_Screen, string sPK_DeviceTemplate, string sMacAddres, 
+	string sIPAddress, string sPK_DHCPDevice)
+{ 
+	m_pOrbiter->m_pScreenHistory_NewEntry->m_sID = sMacAddres;
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sIPAddress);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, sPK_DHCPDevice);
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_PK_Device_1_CONST, sPK_DeviceTemplate);
+	m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)), "", "", false, false );
+}

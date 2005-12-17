@@ -9,6 +9,7 @@ class WizardLogic : public MySqlHelper
 {
 private:
 	friend class ScreenHandler;
+	friend class OSDScreenHandler;
 	long m_nPK_Device_TVProvider_External,m_nPK_Device_TV,m_nPK_Device_Receiver,
 		m_nPK_Command_Input_Video_On_TV;
 	bool m_bUsingReceiverForVideo;

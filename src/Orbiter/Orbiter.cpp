@@ -9483,9 +9483,17 @@ void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,string &sCMD_Result,Mess
 		delete pMessage;
 }
 //-----------------------------------------------------------------------------------------------------
+#ifdef TEST_OSD
+#include "Linux/OSDScreenHandler.h"
+#endif
+
 /*virtual*/ ScreenHandler *Orbiter::CreateScreenHandler()
 {
+#ifdef TEST_OSD
+	return new OSDScreenHandler(this, &m_mapDesignObj);
+#else
 	return new ScreenHandler(this, &m_mapDesignObj);
+#endif
 }
 //-----------------------------------------------------------------------------------------------------
 void Orbiter::LoadPlugins()

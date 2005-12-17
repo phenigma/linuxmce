@@ -26,6 +26,7 @@
 
 class OrbiterFileBrowser_Collection;
 class ScreenHandler;
+class OSDScreenHandler;
 
 /** For brevity,  DesignObj_Orbiter will be abbreviated Obj */
 
@@ -141,6 +142,7 @@ void DumpScreenHistory(); // temporary function
 	friend class BD_PC_SetVariable; /** < Needs to maniuplate our variables */
 	friend class NeedToRender; /** < Needs to maniuplate our variables */
 	friend class ScreenHandler;
+	friend class OSDScreenHandler;
 
 public: //data
 	int m_iImageWidth; /** < image width duh */

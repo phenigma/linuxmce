@@ -39,6 +39,9 @@ public:
 	ScreenHandlerCallBack m_mapCallBack_Find(CallBackType aCallBackType);
 	CallBackData *m_mapCallBackData_Find(CallBackType aCallBackType);
 
+	//helper functions
+	int GetCurrentScreen_PK_DesignObj();
+
 	//screens functions
 	virtual void GotoDesignObj(int PK_DesignObj);
 	virtual void SCREEN_NewMacAddress(long PK_Screen, string sMacAddress, string sIpAddress);
@@ -73,10 +76,8 @@ public:
 	virtual void SCREEN_DialogSendFileToPhoneFailed(long PK_Screen, string sMacAddress, string sCommandLine, 
 		string sPK_DeviceFrom, string sPhoneName, string sPK_Device_AppServer);
 
-	//callbacks; they will be implemented in derived classes
-	virtual bool FileSave_ObjectSelected(CallBackData *pData) { return false;} 
-
-	virtual void SCREEN_Main(long PK_Screen, string sLocation); 
+	//Screens with locations
+	virtual void SCREEN_Main(long PK_Screen, string sLocation);
 
 	virtual void SCREEN_Lights(long PK_Screen, string sLocation);
 	virtual void SCREEN_Media(long PK_Screen, string sLocation);
@@ -85,12 +86,16 @@ public:
 	virtual void SCREEN_Telephony(long PK_Screen, string sLocation);
 	virtual void SCREEN_Misc(long PK_Screen, string sLocation);
 
-    virtual void SCREEN_popLights(long PK_Screen, string sLocation);
+	virtual void SCREEN_popLights(long PK_Screen, string sLocation);
 	virtual void SCREEN_popMedia(long PK_Screen, string sLocation);
 	virtual void SCREEN_popClimate(long PK_Screen, string sLocation);
 	virtual void SCREEN_popTelecom(long PK_Screen, string sLocation);
 	virtual void SCREEN_popSecurity(long PK_Screen, string sLocation);
 
+	virtual void SCREEN_NAS_Options(long PK_Screen, string sPK_DeviceTemplate, string sMacAddres, 
+		string sIPAddress, string sPK_DHCPDevice);
+
+	//cameras
 	virtual void SCREEN_SingleCameraViewOnly(long PK_Screen, string sPKDevice);
 	virtual void SCREEN_QuadViewCameras(long PK_Screen, string sPKDevicesList);
 };
