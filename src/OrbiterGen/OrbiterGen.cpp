@@ -2351,5 +2351,6 @@ Row_Skin *OrbiterGenerator::TranslateSkin(Row_Skin *pRow_Skin)
 				return pRow_Skin;
 		}
 	}
+	return NULL;
 }
 

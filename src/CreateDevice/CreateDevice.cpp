@@ -126,8 +126,6 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 			g_pPlutoLogger->Write(LV_CRITICAL,"No installation info for package %d",iPK_Package);
 	}
 
-	ConfirmRelations(PK_Device);
-
 	// If we weren't given a controlled via, try to find an appropriate one
 	if( !PK_Device_ControlledVia )
 	{
@@ -243,6 +241,34 @@ g_pPlutoLogger->Write(LV_STATUS,"Found %d rows with %s",(int) result3.r->row_cou
 	// Now we've got to see if we have any children we need to create automatically, first by the category
 	CreateChildrenByCategory(PK_Device,iPK_DeviceCategory);
 	CreateChildrenByTemplate(PK_Device,iPK_DeviceTemplate);
+	ConfirmRelations(PK_Device);
+
+	if( iPK_DeviceCategory==DEVICECATEGORY_Core_CONST )
+	{
+		string SQL = "SELECT FK_DeviceTemplate FROM InstallWizard WHERE `Default`=1 AND Step=5"; // Get the default items to add if this is a Core
+		PlutoSqlResult result_child_dev;
+		if( ( result_child_dev.r=mysql_query_result( SQL ) ) )
+		{
+			while( row=mysql_fetch_row( result_child_dev.r ) )
+			{
+	g_pPlutoLogger->Write(LV_STATUS,"Found install wizard %d",atoi(row[0]));
+				DoIt(0,atoi(row[0]),"","",0,"",PK_Device);
+			}
+		}
+	}
+	else if( iPK_DeviceCategory==DEVICECATEGORY_Media_Director_CONST )
+	{
+		string SQL = "SELECT FK_DeviceTemplate FROM InstallWizard WHERE `Default`=1 AND Step=6"; // Get the default items to add if this is a Core
+		PlutoSqlResult result_child_dev;
+		if( ( result_child_dev.r=mysql_query_result( SQL ) ) )
+		{
+			while( row=mysql_fetch_row( result_child_dev.r ) )
+			{
+	g_pPlutoLogger->Write(LV_STATUS,"Found install wizard %d",atoi(row[0]));
+				DoIt(0,atoi(row[0]),"","",0,"",PK_Device);
+			}
+		}
+	}
 
 	if( bIsOrbiter )
 	{
@@ -362,11 +388,23 @@ void CreateDevice::CreateChildrenByTemplate(int iPK_Device,int iPK_DeviceTemplat
 
 void CreateDevice::ConfirmRelations(int PK_Device,bool bRecurseChildren,bool bOnlyAddDevicesOnCore)
 {
-	PlutoSqlResult result_dt,result_related,result_related2,result_related3;
+	PlutoSqlResult result_dt,result_related,result_related2,result_related3,result_related4,result_related5;
 	MYSQL_ROW row,row3;
 
+	int PK_Device_Core=0,PK_Device_DCERouter=0,PK_Device_Parent=0;
+	string SQL = "SELECT PK_Device,FK_Device_ControlledVia FROM Device WHERE FK_DeviceTemplate=" + StringUtils::itos(DEVICETEMPLATE_DCERouter_CONST);
+	if( (result_related4.r=mysql_query_result(SQL)) && (row3=mysql_fetch_row(result_related4.r)) )
+	{
+		PK_Device_DCERouter = row3[0] ? atoi(row3[0]) : 0;
+		PK_Device_Core = row3[1] ? atoi(row3[1]) : 0;
+	}
+
+	SQL = "SELECT FK_Device_ControlledVia FROM Device WHERE PK_Device=" + StringUtils::itos(PK_Device);
+	if( (result_related5.r=mysql_query_result(SQL)) && (row3=mysql_fetch_row(result_related5.r)) )
+		PK_Device_Parent = row3[0] ? atoi(row3[0]) : 0;
+
 	int PK_DeviceTemplate=0;
-	string SQL = "SELECT FK_DeviceTemplate FROM Device WHERE PK_Device=" + StringUtils::itos(PK_Device);
+	SQL = "SELECT FK_DeviceTemplate FROM Device WHERE PK_Device=" + StringUtils::itos(PK_Device);
 	if( (result_dt.r=mysql_query_result(SQL)) && (row=mysql_fetch_row(result_dt.r)) )
 		PK_DeviceTemplate=atoi(row[0]);
 
@@ -377,7 +415,7 @@ void CreateDevice::ConfirmRelations(int PK_Device,bool bRecurseChildren,bool bOn
 	}
 
 	// See if this requires dragging any other types of devices
-	SQL = "SELECT FK_DeviceTemplate_Related,Value FROM DeviceTemplate_DeviceTemplate_Related WHERE FK_DeviceTemplate=" + StringUtils::itos(PK_DeviceTemplate);
+	SQL = "SELECT FK_DeviceTemplate_Related,Value FROM DeviceTemplate_DeviceTemplate_Related WHERE FK_DeviceTemplate=" + StringUtils::itos(PK_DeviceTemplate) + " ORDER BY FK_DeviceTemplate_Related";  // Use an order by so we can predict exactly in what order this will be done
 	if( ( result_related.r=mysql_query_result( SQL ) ) )
 	{
 g_pPlutoLogger->Write(LV_STATUS,"Found result_related %d rows with %s",(int) result_related.r->row_count,SQL.c_str());
@@ -385,32 +423,54 @@ g_pPlutoLogger->Write(LV_STATUS,"Found result_related %d rows with %s",(int) res
 		{
 			int iPK_DeviceTemplate_Related = atoi(row[0]);
 			int iRelation= (row[1] ? atoi(row[1]) : 0);
-			if( iRelation>=1 && iRelation<=3 )
+			// 1 = Sister device same controlled via
+			// 2 = child of the core (dce router's parent)
+			// 3 = plugin
+			// 4 = anywhere on the same pc
+			// 5 = my child
+			if( (iRelation>=1 && iRelation<=3) || iRelation==5 )
 			{
 				// We need this device too.  See if we already have it
-				SQL = "SELECT FK_DeviceTemplate FROM Device WHERE FK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate_Related);
+				if( iRelation==1 )
+					SQL = "SELECT FK_DeviceTemplate FROM Device WHERE FK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate_Related) + " AND FK_Device_ControlledVia=" + StringUtils::itos(PK_Device_Parent);
+				else if( iRelation==2 )
+					SQL = "SELECT FK_DeviceTemplate FROM Device WHERE FK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate_Related) + " AND FK_Device_ControlledVia=" + StringUtils::itos(PK_Device_Core);
+				else if( iRelation==3 )
+					SQL = "SELECT FK_DeviceTemplate FROM Device WHERE FK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate_Related) + " AND FK_Device_ControlledVia=" + StringUtils::itos(PK_Device_DCERouter);
+				else if( iRelation==5 )
+					SQL = "SELECT FK_DeviceTemplate FROM Device WHERE FK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate_Related) + " AND FK_Device_ControlledVia=" + StringUtils::itos(PK_Device);
+
 				if( (result_related2.r=mysql_query_result(SQL)) && result_related2.r->row_count>0 )
 					continue;  // It's ok.  We got it
 
 				// That device doesn't exist.  We need to create it
 				if( iRelation==1 && !bOnlyAddDevicesOnCore )  // It's a sister device
-				{
-					SQL = "SELECT FK_Device_ControlledVia FROM Device WHERE PK_Device=" + StringUtils::itos(PK_Device);
-					if( (result_related3.r=mysql_query_result(SQL)) && (row3=mysql_fetch_row(result_related3.r)) )
-						DoIt(0,iPK_DeviceTemplate_Related,"","",atoi(row3[0]));
-				}
+					DoIt(0,iPK_DeviceTemplate_Related,"","",PK_Device_Parent);
 				else if( iRelation==2 )  // It's a child of the core (ie DCERouter's parent)
-				{
-					SQL = "SELECT FK_Device_ControlledVia FROM Device WHERE FK_DeviceTemplate=" + StringUtils::itos(DEVICETEMPLATE_DCERouter_CONST);
-					if( (result_related3.r=mysql_query_result(SQL)) && (row3=mysql_fetch_row(result_related3.r)) )
-						DoIt(0,iPK_DeviceTemplate_Related,"","",atoi(row3[0]));
-				}
+					DoIt(0,iPK_DeviceTemplate_Related,"","",PK_Device_Core);
 				else if( iRelation==3 )  // It's a plugin (ie child of DCERouter)
+					DoIt(0,iPK_DeviceTemplate_Related,"","",PK_Device_DCERouter);
+				else if( iRelation==5 )  // It's my child
+					DoIt(0,iPK_DeviceTemplate_Related,"","",PK_Device);
+			}
+			else if( iRelation==4 )
+			{
+				map<int,int> mapDeviceTree;
+				GetAllDevicesInTree(PK_Device,mapDeviceTree);
+
+				bool bFound=false;
+				for(map<int,int>::iterator it=mapDeviceTree.begin();it!=mapDeviceTree.end();++it)
 				{
-					SQL = "SELECT PK_Device FROM Device WHERE FK_DeviceTemplate=" + StringUtils::itos(DEVICETEMPLATE_DCERouter_CONST);
-					if( (result_related3.r=mysql_query_result(SQL)) && (row3=mysql_fetch_row(result_related3.r)) )
-						DoIt(0,iPK_DeviceTemplate_Related,"","",atoi(row3[0]));
+					if( it->second==iPK_DeviceTemplate_Related )
+					{
+						bFound=true;
+						break;
+					}
 				}
+				if( bFound )
+					continue;
+
+				DoIt(0,iPK_DeviceTemplate_Related,"","",0,"",PK_Device);
 			}
 		}
 	}
@@ -473,7 +533,7 @@ int CreateDevice::FindControlledViaCandidate(int iPK_Device,int iPK_DeviceTempla
 int CreateDevice::FindControlledViaCandidate(int iPK_Device,int iPK_DeviceTemplate,int iPK_Device_RelatedTo,PlutoSqlResult &result)
 {
 	MYSQL_ROW row;
-	map<int,bool> mapDeviceTree;
+	map<int,int> mapDeviceTree;
 	if( iPK_Device_RelatedTo )
 		GetAllDevicesInTree(iPK_Device_RelatedTo,mapDeviceTree);
 
@@ -490,9 +550,15 @@ int CreateDevice::FindControlledViaCandidate(int iPK_Device,int iPK_DeviceTempla
 	return iPK_Device_Fallback;
 }
 
-void CreateDevice::GetAllDevicesInTree(int PK_Device,map<int,bool> &mapDeviceTree,bool bCheckParent,int PK_Device_ChildExclude)
+void CreateDevice::GetAllDevicesInTree(int PK_Device,map<int,int> &mapDeviceTree,bool bCheckParent,int PK_Device_ChildExclude)
 {
-	mapDeviceTree[PK_Device]=true;
+	{
+		string sSQL = "SELECT FK_DeviceTemplate FROM Device WHERE PK_Device=" + StringUtils::itos(PK_Device);
+		PlutoSqlResult result;
+		MYSQL_ROW row;
+		if( ( result.r=mysql_query_result( sSQL ) ) && ( row=mysql_fetch_row( result.r ) ) && row[0] )
+			mapDeviceTree[PK_Device]=atoi(row[0]);
+	}
 	if( bCheckParent )
 	{
 		string sSQL = "SELECT FK_Device_ControlledVia FROM Device WHERE PK_Device=" + StringUtils::itos(PK_Device);

@@ -18,7 +18,7 @@ public:
 	int FindControlledViaCandidate(int iPK_Device,int iPK_DeviceTemplate,int iPK_Device_RelatedTo);
 	int FindControlledViaCandidate(int iPK_Device,int iPK_DeviceTemplate,int iPK_Device_RelatedTo,PlutoSqlResult &result_cv);
 	void AssignDeviceData(int PK_Device,int PK_DeviceData,string sValue);
-	void GetAllDevicesInTree(int PK_Device,map<int,bool> &mapDeviceTree,bool bCheckParent=true,int PK_Device_ChildExclude=0);
+	void GetAllDevicesInTree(int PK_Device,map<int,int> &mapDeviceTree,bool bCheckParent=true,int PK_Device_ChildExclude=0);
 
 	bool m_bDontCallConfigureScript;
 };
