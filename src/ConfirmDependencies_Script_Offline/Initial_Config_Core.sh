@@ -266,10 +266,9 @@ while :; do
 			ExtraRepositoryPath=$(Ask "Enter repository path")
 			echo "$ExtraRepositoryPath" >>/etc/apt/sources.list
 			aptitude update
-
-			ExtraPkgName=$(Ask "Enter package name")
-			aptitude install "$ExtraPkgName"
 		fi
+		ExtraPkgName=$(Ask "Enter package name")
+		aptitude install "$ExtraPkgName"
 	else
 		break
 	fi
