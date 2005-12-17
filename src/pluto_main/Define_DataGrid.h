@@ -58,6 +58,7 @@
 #define DATAGRID_Room_Types_CONST 55
 #define DATAGRID_Available_Serial_Ports_CONST 56
 #define DATAGRID_Installed_AV_Devices_CONST 57
+#define DATAGRID_Sensor_Type_CONST 58
 
 #define DATAGRID_TABLE "DataGrid"
 #define DATAGRID_PK_DATAGRID_FIELD "PK_DataGrid"

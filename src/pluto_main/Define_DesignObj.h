@@ -1867,6 +1867,7 @@
 #define DESIGNOBJ_butAlarmPanelPort_CONST 4741
 #define DESIGNOBJ_dgPorts_CONST 4742
 #define DESIGNOBJ_butAlarmDetect_CONST 4743
+#define DESIGNOBJ_dgAlarmSensorTypes_CONST 4744
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
