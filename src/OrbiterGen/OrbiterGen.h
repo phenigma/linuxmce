@@ -109,6 +109,7 @@ private:
 	class Row_Size *TranslateSize(string sSize);
 	bool CommonControlledVia(Row_Device *pRow_Device1,Row_Device *pRow_Device2);
 	string First2Dots(string sDesignObj);
+	class Row_Skin *TranslateSkin(Row_Skin *pRow_Skin);
 	//void PopulateScreenMap();
 };
 

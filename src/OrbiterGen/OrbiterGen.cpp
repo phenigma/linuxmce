@@ -67,6 +67,9 @@ static HEAP_ALLOC(wrkmem,LZO1X_1_MEM_COMPRESS);
 #include "pluto_main/Table_EventHandler.h"
 #include "pluto_main/Table_CommandGroup_Command_CommandParameter.h"
 #include "pluto_main/Table_CommandGroup_Command.h"
+#include "DCE/DCEConfig.h"
+
+DCEConfig g_DCEConfig;
 
 #define  VERSION "<=version=>"
 
@@ -355,6 +358,8 @@ int OrbiterGenerator::DoIt()
 		mds.Orbiter_get()->Commit();
 		exit(1);
 	}
+
+	m_pRow_Skin = TranslateSkin(m_pRow_Skin);
 
 	m_sSkin = m_pRow_Skin->Description_get();
 
@@ -1231,10 +1236,16 @@ int k=2;
 		}
 	}
 
+	bool bUseVideoWizard=false;
 	if( bNewOrbiter && m_pRow_Device->FK_DeviceTemplate_get()==DEVICETEMPLATE_OnScreen_Orbiter_CONST )
 	{
-		cout << "First time generating this orbiter" << endl;
-		Row_DesignObj *drNewDesignObj = GetDesignObjFromScreen(SCREEN_FirstTime_CONST);
+		bUseVideoWizard = atoi(g_DCEConfig.ReadString("UseVideoWizard").c_str())==1;
+		cout << "First time generating this orbiter.  Wizard: " << bUseVideoWizard << endl;
+		Row_DesignObj *drNewDesignObj;
+		if( bUseVideoWizard )
+			drNewDesignObj = GetDesignObjFromScreen(SCREEN_VideoWizard_CONST);
+		else
+			drNewDesignObj = GetDesignObjFromScreen(SCREEN_FirstTime_CONST);
 		if( !drNewDesignObj )
 			cerr << "Cannot find 'first time' menu" << endl;
 		else
@@ -2325,3 +2336,17 @@ Row_DesignObj *OrbiterGenerator::GetDesignObjFromScreen(Row_Screen *pRow_Screen)
 {
 	return GetDesignObjFromScreen(pRow_Screen->PK_Screen_get());
 }
+
+Row_Skin *OrbiterGenerator::TranslateSkin(Row_Skin *pRow_Skin)
+{
+	for(map<string,string>::iterator it=g_DCEConfig.m_mapParameters.begin();it!=g_DCEConfig.m_mapParameters.end();++it)
+	{
+		if( it->first == "ReplaceSkin_" + StringUtils::itos(pRow_Skin->PK_Skin_get()) )
+		{
+			Row_Skin *pRow_Skin = mds.Skin_get()->GetRow( atoi(it->second.c_str()) );
+			if( pRow_Skin )
+				return pRow_Skin;
+		}
+	}
+}
+
