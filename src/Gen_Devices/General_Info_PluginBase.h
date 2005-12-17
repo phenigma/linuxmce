@@ -137,7 +137,7 @@ public:
 	virtual void CMD_Check_for_updates_done(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Active_Application(int iPK_Device,string sName,int iPK_QuickStartTemplate,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_New_Plug_and_Play_Device(string sMac_address,string sIP_Address,string sData,int iPK_DHCPDevice,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Create_Device(int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter,int *iPK_Device,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Create_Device(int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter,int iPK_Device_Related,int *iPK_Device,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Delete_Device(int iPK_Device,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Check_Mounts(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Interogate_Interface_Device(int iPK_Device,string *sStatus,string *sChildren_List,string &sCMD_Result,class Message *pMessage) {};
@@ -637,8 +637,9 @@ public:
 					int iPK_DHCPDevice=atoi(pMessage->m_mapParameters[150].c_str());
 					int iPK_Device_ControlledVia=atoi(pMessage->m_mapParameters[156].c_str());
 					int iPK_Orbiter=atoi(pMessage->m_mapParameters[198].c_str());
+					int iPK_Device_Related=atoi(pMessage->m_mapParameters[201].c_str());
 					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
-						CMD_Create_Device(iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,sIP_Address.c_str(),sData.c_str(),iPK_DHCPDevice,iPK_Device_ControlledVia,iPK_Orbiter,&iPK_Device,sCMD_Result,pMessage);
+						CMD_Create_Device(iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,sIP_Address.c_str(),sData.c_str(),iPK_DHCPDevice,iPK_Device_ControlledVia,iPK_Orbiter,iPK_Device_Related,&iPK_Device,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -656,7 +657,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Create_Device(iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,sIP_Address.c_str(),sData.c_str(),iPK_DHCPDevice,iPK_Device_ControlledVia,iPK_Orbiter,&iPK_Device,sCMD_Result,pMessage);
+								CMD_Create_Device(iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,sIP_Address.c_str(),sData.c_str(),iPK_DHCPDevice,iPK_Device_ControlledVia,iPK_Orbiter,iPK_Device_Related,&iPK_Device,sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

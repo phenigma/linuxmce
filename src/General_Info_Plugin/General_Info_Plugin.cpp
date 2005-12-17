@@ -1682,8 +1682,10 @@ void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,strin
 			/** The controlled via */
 		/** @param #198 PK_Orbiter */
 			/** The orbiter which should be used to prompt the user for any extra information.  Zero means all orbiters */
+		/** @param #201 PK_Device_Related */
+			/** Will make the new device relate to this one if possible */
 
-void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter,int *iPK_Device,string &sCMD_Result,Message *pMessage)
+void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter,int iPK_Device_Related,int *iPK_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c718-e->
 {
 	Row_DHCPDevice *pRow_DHCPDevice = NULL;
@@ -1712,7 +1714,7 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 	}
 
 	CreateDevice createDevice(m_pRouter->iPK_Installation_get(),m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get());
-	*iPK_Device = createDevice.DoIt(iPK_DHCPDevice,iPK_DeviceTemplate,sIP_Address,sMac_address,iPK_Device_ControlledVia,sData/*,iPK_Device_Related*/);
+	*iPK_Device = createDevice.DoIt(iPK_DHCPDevice,iPK_DeviceTemplate,sIP_Address,sMac_address,iPK_Device_ControlledVia,sData,iPK_Device_Related);
 
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Create_Device created %d template %d mac %s room %d ip %d data %s",
@@ -1753,8 +1755,16 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 void General_Info_Plugin::CMD_Delete_Device(int iPK_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c719-e->
 {
-delete embedded devices
-move controlled via to top
+	// First delete any embedded devices
+	string sSQL = "SELECT PK_Device FROM Device where FK_Device_RouteTo=" + StringUtils::itos(iPK_Device);
+	PlutoSqlResult result_set;
+    MYSQL_ROW row;
+	if( (result_set.r=m_pRouter->mysql_query_result(sSQL)) )
+		while ((row = mysql_fetch_row(result_set.r)))
+			if( row[0] && atoi(row[0]) )
+				CMD_Delete_Device( atoi(row[0]) );
+	
+	m_pDatabase_pluto_main->threaded_mysql_query("UPDATE Device SET FK_Device_ControlledVia=NULL WHERE FK_Device_ControlledVia=" + StringUtils::itos(iPK_Device));
 	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM Device WHERE PK_Device=" + StringUtils::itos(iPK_Device));
 	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM CommandGroup_Command WHERE FK_Device=" + StringUtils::itos(iPK_Device));
 	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM Device_Command WHERE FK_Device=" + StringUtils::itos(iPK_Device));
@@ -2021,7 +2031,8 @@ void General_Info_Plugin::CMD_Check_Mounts(string &sCMD_Result,Message *pMessage
 		/** @param #199 Status */
 			/** If the device has "Report Child Device" command implemented, Status = "OK". If not, it will be "Not supported". */
 		/** @param #200 Children List */
-			/** It should look like this: [internal id] \t [description] \t [room name] \t [device template] \t [floorplan id] \n */
+			/** It should look like this:
+ [internal id] \t [description] \t [room name] \t [device template] \t [floorplan id] \n */
 
 void General_Info_Plugin::CMD_Interogate_Interface_Device(int iPK_Device,string *sStatus,string *sChildren_List,string &sCMD_Result,Message *pMessage)
 //<-dceag-c755-e->
@@ -2037,7 +2048,8 @@ void General_Info_Plugin::CMD_Interogate_Interface_Device(int iPK_Device,string 
 	/** @brief COMMAND: #756 - Report Child Device */
 	/** Gets the list with device's children */
 		/** @param #199 Status */
-			/** A list like this: [internal id] \t [description] \t [room name] \t [device template] \t [floorplan id] \n */
+			/** A list like this:
+[internal id] \t [description] \t [room name] \t [device template] \t [floorplan id] \n */
 
 void General_Info_Plugin::CMD_Report_Child_Device(string *sStatus,string &sCMD_Result,Message *pMessage)
 //<-dceag-c756-e->
