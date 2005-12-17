@@ -11,7 +11,7 @@ $out='';
 	$deviceID = (int)$_REQUEST['model'];
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$lastAction = isset($_REQUEST['lastAction'])?cleanString($_REQUEST['lastAction']):'';
-	$dtRelatedValues=array('1'=>'Sister device', '2'=>'Install on core', '3'=>'Plugin for the router');
+	$dtRelatedValues=array('1'=>'Sister device', '2'=>'Install on core', '3'=>'Plugin for the router', '4'=>'Anywhere on same PC');
 	
 //the form	
 	if ($action=='form') {
