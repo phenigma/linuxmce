@@ -1842,7 +1842,7 @@
 #define DESIGNOBJ_dgTvSourcesExternalBox_CONST 4712
 #define DESIGNOBJ_dgLightType_CONST 4713
 #define DESIGNOBJ_sensorsapplet_CONST 4714
-#define DESIGNOBJ_dgReceiverInputs_CONST 4715
+#define DESIGNOBJ_dgAvailableInputs_CONST 4715
 #define DESIGNOBJ_butVoipUsername_CONST 4716
 #define DESIGNOBJ_dgRoomTypes_CONST 4717
 #define DESIGNOBJ_dgAlarmSensors_CONST 4718
@@ -1866,6 +1866,7 @@
 #define DESIGNOBJ_butAlarmPanelModel_CONST 4740
 #define DESIGNOBJ_butAlarmPanelPort_CONST 4741
 #define DESIGNOBJ_dgPorts_CONST 4742
+#define DESIGNOBJ_butAlarmDetect_CONST 4743
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
