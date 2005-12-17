@@ -1253,7 +1253,10 @@ int k=2;
 if( drNewDesignObj->PK_DesignObj_get()==4438 )
 int k=2;
 			alNewDesignObjsToGenerate.push_back(drNewDesignObj);
-			m_sInitialScreen=StringUtils::itos(SCREEN_FirstTime_CONST);
+			if( bUseVideoWizard )
+				m_sInitialScreen=StringUtils::itos(SCREEN_VideoWizard_CONST);
+			else
+				m_sInitialScreen=StringUtils::itos(SCREEN_FirstTime_CONST);
 		}
 	}
 
