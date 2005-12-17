@@ -890,7 +890,7 @@
 #define TEXT_You_choose_Broadvoice_CONST 1601
 #define TEXT_Directly_to_TV_CONST 1602
 #define TEXT_To_a_receiver_CONST 1603
-#define TEXT_Neither_–_I_have_a_special_setup_like_a_CONST 1604
+#define TEXT_Neither_I_have_a_special_setup_like_a_CONST 1604
 #define TEXT_DSC_CONST 1605
 #define TEXT_APEX_CONST 1606
 #define TEXT_Installed_AV_Devices_CONST 1607
