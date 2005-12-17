@@ -913,29 +913,39 @@ class DataGridTable *General_Info_Plugin::AlarmSensorsList(string GridID, string
 
 	int iRow=0, iCol=0;
 
-	string sSensorList;
-	DCE::CMD_ListSensor CMD_ListSensor_(m_dwPK_Device, nPK_Device_AlarmPanel, &sSensorList);
-	SendCommand(CMD_ListSensor_);
+	string sSensorList, sStatus;
+	//DCE::CMD_Interogate_Interface_Device CMD_Interogate_Interface_Device_(m_dwPK_Device, m_dwPK_Device, nPK_Device_AlarmPanel, &sStatus, &sSensorList);
+	//SendCommand(CMD_Interogate_Interface_Device_);
+
+	/*
+	//for testing - uncomment me
+	if(sStatus != "OK")
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Device %d don't support reporting child device", nPK_Device_AlarmPanel);
+		return pDataGrid;
+	}
+	*/
 
 	//for testing - remove me!
-	sSensorList = "1,006,room1,56,1,007,room1,56,1,008,room1,56,1,009,room1,56,1,010,room1,56,1,001,room1,56,1,002,room1,56,1,003,room1,56,1,004,room1,56,1,005,room1,56,";
+	sSensorList = "5238\tMotion Detector 1\tCORE\t54\t1\n5239\tMotion Detector 2\tMD\t54\t1\n";
 
 	vector<string> vectStrings;
-	StringUtils::Tokenize(sSensorList, ",", vectStrings);
+	StringUtils::Tokenize(sSensorList, "\n\t", vectStrings);
 
 	if(vectStrings.size())
 	{
-		for(size_t i = 0; i < vectStrings.size() - 3; i+=4)
+		for(size_t i = 0; i < vectStrings.size() - 4; i += 5)
 		{
-			string AlarmPanelID = vectStrings[i]; //unused for now
+			string sSensorId = vectStrings[i];
 			string sSensorName = vectStrings[i + 1];
 			string sRoomName = vectStrings[i + 2];
 			string sSensorType = vectStrings[i + 3];
+			//string sFloorplanID = vectorStrings[i + 4];
 
-			pCell = new DataGridCell("Sensor " + sSensorName, sSensorName);
+			pCell = new DataGridCell(sSensorName, sSensorId);
 			pDataGrid->SetData(0, iRow, pCell);
 
-			pCell = new DataGridCell(sRoomName, sSensorName);
+			pCell = new DataGridCell(sRoomName, sSensorId);
 			pDataGrid->SetData(1, iRow, pCell);
 
 			Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(atoi(sSensorType.c_str()));
@@ -944,7 +954,7 @@ class DataGridTable *General_Info_Plugin::AlarmSensorsList(string GridID, string
 			else
 				sSensorType = "Unknown sensor type";
 
-			pCell = new DataGridCell(sSensorType, sSensorName);
+			pCell = new DataGridCell(sSensorType, sSensorId);
 			pDataGrid->SetData(2, iRow++, pCell);
 		}
 	}
@@ -1625,7 +1635,7 @@ void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,strin
 			// TODO: add "related to device" parameter
 			//       stored in iPK_Device_Related
 			CMD_Create_Device(0,sMac_address,i==0 ? -1 : 0 /* only prompt the user for the room for the 1st device */,
-				sIP_Address,sData,iPK_DHCPDevice,0,pMessage->m_dwPK_Device_From,0,&iPK_Device);
+				sIP_Address,sData,iPK_DHCPDevice,0,pMessage->m_dwPK_Device_From,0/*,&iPK_Device*/);
 			
 			if (i == 0) // 1st device is our PNP device, and all the others will be related to it
 			{
@@ -1643,7 +1653,7 @@ void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,strin
 	else
 	{
 		int iPK_Device=0;
-		CMD_Create_Device(0,sMac_address,-1,sIP_Address,sData,iPK_DHCPDevice,0,pMessage->m_dwPK_Device_From,0,&iPK_Device);
+		CMD_Create_Device(0,sMac_address,-1,sIP_Address,sData,iPK_DHCPDevice,0,pMessage->m_dwPK_Device_From,0/*,&iPK_Device*/);
 		g_pPlutoLogger->Write(LV_STATUS, "Created PNP device %d from mac %s", iPK_Device, sMac_address.c_str());
 	}
 
@@ -1672,10 +1682,8 @@ void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,strin
 			/** The controlled via */
 		/** @param #198 PK_Orbiter */
 			/** The orbiter which should be used to prompt the user for any extra information.  Zero means all orbiters */
-		/** @param #199 PK_Device_Related */
-			/** The device to which this should be related if possible. */
 
-void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter,int iPK_Device_Related,int *iPK_Device,string &sCMD_Result,Message *pMessage)
+void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter,int *iPK_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c718-e->
 {
 	Row_DHCPDevice *pRow_DHCPDevice = NULL;
@@ -1704,7 +1712,7 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 	}
 
 	CreateDevice createDevice(m_pRouter->iPK_Installation_get(),m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get());
-	*iPK_Device = createDevice.DoIt(iPK_DHCPDevice,iPK_DeviceTemplate,sIP_Address,sMac_address,iPK_Device_ControlledVia,sData,iPK_Device_Related);
+	*iPK_Device = createDevice.DoIt(iPK_DHCPDevice,iPK_DeviceTemplate,sIP_Address,sMac_address,iPK_Device_ControlledVia,sData/*,iPK_Device_Related*/);
 
 #ifdef DEBUG
 		g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Create_Device created %d template %d mac %s room %d ip %d data %s",
@@ -2001,4 +2009,36 @@ void General_Info_Plugin::CMD_Check_Mounts(string &sCMD_Result,Message *pMessage
 			"","","",false,false,false);
 		SendCommand(CMD_Spawn_Application);
 	}
+}
+//<-dceag-c755-b->
+
+	/** @brief COMMAND: #755 - Interogate Interface Device */
+	/** Gets the list of internal children devices of a device. */
+		/** @param #2 PK_Device */
+			/** The device id */
+		/** @param #199 Status */
+			/** If the device has "Report Child Device" command implemented, Status = "OK". If not, it will be "Not supported". */
+		/** @param #200 Children List */
+			/** It should look like this: [internal id] \t [description] \t [room name] \t [device template] \t [floorplan id] \n */
+
+void General_Info_Plugin::CMD_Interogate_Interface_Device(int iPK_Device,string *sStatus,string *sChildren_List,string &sCMD_Result,Message *pMessage)
+//<-dceag-c755-e->
+{
+	DCE::CMD_Report_Child_Device CMD_Report_Child_Device_(m_dwPK_Device, iPK_Device, sChildren_List);
+	if(!SendCommand(CMD_Report_Child_Device_))
+		*sStatus = "Not supported";
+	else
+		*sStatus = "OK";
+}
+//<-dceag-c756-b->
+
+	/** @brief COMMAND: #756 - Report Child Device */
+	/** Gets the list with device's children */
+		/** @param #199 Status */
+			/** A list like this: [internal id] \t [description] \t [room name] \t [device template] \t [floorplan id] \n */
+
+void General_Info_Plugin::CMD_Report_Child_Device(string *sStatus,string &sCMD_Result,Message *pMessage)
+//<-dceag-c756-e->
+{
+	*sStatus = "";
 }

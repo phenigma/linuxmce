@@ -39,6 +39,7 @@ class DatagridCellBackData : public CallBackData
 public:
 	string m_sText;
 	string m_sValue;
+	long m_nPK_Datagrid;
 };
 //-----------------------------------------------------------------------------------------------------
 #endif

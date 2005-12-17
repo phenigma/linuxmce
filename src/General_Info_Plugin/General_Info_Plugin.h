@@ -325,11 +325,9 @@ public:
 			/** The controlled via */
 		/** @param #198 PK_Orbiter */
 			/** The orbiter which should be used to prompt the user for any extra information.  Zero means all orbiters */
-		/** @param #199 PK_Device_Related */
-			/** The device to which this should be related if possible. */
 
-	virtual void CMD_Create_Device(int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter,int iPK_Device_Related,int *iPK_Device) { string sCMD_Result; CMD_Create_Device(iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,sIP_Address.c_str(),sData.c_str(),iPK_DHCPDevice,iPK_Device_ControlledVia,iPK_Orbiter,iPK_Device_Related,iPK_Device,sCMD_Result,NULL);};
-	virtual void CMD_Create_Device(int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter,int iPK_Device_Related,int *iPK_Device,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Create_Device(int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter,int *iPK_Device) { string sCMD_Result; CMD_Create_Device(iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,sIP_Address.c_str(),sData.c_str(),iPK_DHCPDevice,iPK_Device_ControlledVia,iPK_Orbiter,iPK_Device,sCMD_Result,NULL);};
+	virtual void CMD_Create_Device(int iPK_DeviceTemplate,string sMac_address,int iPK_Room,string sIP_Address,string sData,int iPK_DHCPDevice,int iPK_Device_ControlledVia,int iPK_Orbiter,int *iPK_Device,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #719 - Delete Device */
@@ -346,6 +344,30 @@ public:
 
 	virtual void CMD_Check_Mounts() { string sCMD_Result; CMD_Check_Mounts(sCMD_Result,NULL);};
 	virtual void CMD_Check_Mounts(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #755 - Interogate Interface Device */
+	/** Gets the list of internal children devices of a device. */
+		/** @param #2 PK_Device */
+			/** The device id */
+		/** @param #199 Status */
+			/** If the device has "Report Child Device" command implemented, Status = "OK". If not, it will be "Not supported". */
+		/** @param #200 Children List */
+			/** It should look like this:
+ [internal id] \t [description] \t [room name] \t [device template] \t [floorplan id] \n */
+
+	virtual void CMD_Interogate_Interface_Device(int iPK_Device,string *sStatus,string *sChildren_List) { string sCMD_Result; CMD_Interogate_Interface_Device(iPK_Device,sStatus,sChildren_List,sCMD_Result,NULL);};
+	virtual void CMD_Interogate_Interface_Device(int iPK_Device,string *sStatus,string *sChildren_List,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #756 - Report Child Device */
+	/** Gets the list with device's children */
+		/** @param #199 Status */
+			/** A list like this:
+[internal id] \t [description] \t [room name] \t [device template] \t [floorplan id] \n */
+
+	virtual void CMD_Report_Child_Device(string *sStatus) { string sCMD_Result; CMD_Report_Child_Device(sStatus,sCMD_Result,NULL);};
+	virtual void CMD_Report_Child_Device(string *sStatus,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

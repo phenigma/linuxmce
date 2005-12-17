@@ -1965,6 +1965,7 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
 		DatagridCellBackData *pCellData = (DatagridCellBackData *)pCallBackData;
 		pCellData->m_sText = pCell->GetText();
 		pCellData->m_sValue = pCell->GetValue();
+		pCellData->m_nPK_Datagrid = pDesignObj_DataGrid->m_iPK_Datagrid;
 	}
 
 	if(ExecuteScreenHandlerCallback(cbDataGridSelected))
