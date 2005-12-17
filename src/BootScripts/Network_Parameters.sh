@@ -119,8 +119,6 @@ ExtractData "$R"
 
 Q="SELECT IK_DeviceData
 FROM Device_DeviceData
-JOIN Device ON PK_Device=FK_Device
-JOIN DeviceTemplate ON PK_DeviceTemplate=FK_DeviceTemplate
 WHERE FK_Device=1 AND FK_DeviceData=28"
 DHCPsetting=$(RunSQL "$Q")
 
