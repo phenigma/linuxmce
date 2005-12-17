@@ -7,7 +7,7 @@
 #include "pluto_main/Define_DataGrid.h"
 #include "Gen_Devices/AllCommandsRequests.h"
 
-#include "WizardLogic.h"
+#include "../WizardLogic.h"
 
 //-----------------------------------------------------------------------------------------------------
 OSDScreenHandler::OSDScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj) :

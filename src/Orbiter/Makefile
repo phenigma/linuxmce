@@ -38,6 +38,8 @@ sources +=  DesignObj_Data.cpp DesignObj_Orbiter.cpp \
 			SDL/SDLGraphic.cpp \
 			SDL/OrbiterSDL.cpp SDL/StartOrbiterSDL.cpp \
 			Linux/OSDScreenHandler.cpp \
+			WizardLogic.cpp \
+			../CreateDevice/UserUtils.cpp \
 			$(ROOT)/Splitter/TextSplitter.cpp \
 			$(ROOT)/Splitter/TextWrapper.cpp \
 			$(ROOT)/OrbiterGen/Renderer.cpp \
