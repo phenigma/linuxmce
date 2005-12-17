@@ -255,23 +255,27 @@ if [[ -d /home/backup && -f /home/backup/entire_database.sql ]]; then
 	mysql < /home/backup/entire_database.sql
 fi
 
-# XXX: No error checking, no loop
+# XXX: No error checking
 exec 3>&1 1>/dev/tty
-clear
-ExtraPkg=$(Ask "Do you want to add extra packages? [y/N]")
-if [[ "$ExtraPkg" == y || "$ExtraPkg" == Y ]]; then
-	ExtraRepository=$(Ask "Add a new repository? [y/N]")
-	if [[ "$ExtraRepository" == y || "$ExtraRepository" == Y ]]; then
-		ExtraRepositoryPath=$(Ask "Enter repository path")
-		echo "$ExtraRepositoryPath" >>/etc/apt/sources.list
-		aptitude update
+while :; do
+	clear
+	ExtraPkg=$(Ask "Do you want to add extra packages? [y/N]")
+	if [[ "$ExtraPkg" == y || "$ExtraPkg" == Y ]]; then
+		ExtraRepository=$(Ask "Add a new repository? [y/N]")
+		if [[ "$ExtraRepository" == y || "$ExtraRepository" == Y ]]; then
+			ExtraRepositoryPath=$(Ask "Enter repository path")
+			echo "$ExtraRepositoryPath" >>/etc/apt/sources.list
+			aptitude update
 
-		ExtraPkgName=$(Ask "Enter package name")
-		aptitude install "$ExtraPkgName"
+			ExtraPkgName=$(Ask "Enter package name")
+			aptitude install "$ExtraPkgName"
+		fi
+	else
+		break
 	fi
-fi
+done
 exec 1>&3 3>&-
-# XXX: No error checking, no loop
+# XXX: No error checking
 
 /usr/pluto/bin/SetupUsers.sh
 /usr/pluto/install/Initial_Config_Finish.sh
