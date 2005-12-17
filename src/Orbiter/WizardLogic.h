@@ -9,7 +9,8 @@ class WizardLogic : public MySqlHelper
 {
 private:
 	friend class ScreenHandler;
-	long m_nPK_Device_TVProvider_External,m_nPK_Device_TV,m_nPK_Device_Receiver;
+	long m_nPK_Device_TVProvider_External,m_nPK_Device_TV,m_nPK_Device_Receiver,
+		m_nPK_Command_Input_Video_On_TV;
 	long m_nPK_Command_Input_Video_On_TV;
 	bool m_bUsingReceiverForVideo;
 
@@ -64,14 +65,14 @@ public:
 	*/
 	int AddDevice(int PK_DeviceTemplate);
 	void SetAvPath(int PK_Device_From,int PK_Device_To,int PK_Pipe,int PK_Command_Input);
+	void AddExternalTuner(int PK_Device_Tuner);
 
 	/*
 		UTILITIES
 	*/
 
 	string Installation_get() { return StringUtils::itos(m_pOrbiter->m_pData->m_dwPK_Installation); }
-
-
+	void DeleteDevicesInThisRoomOfType(int PK_DeviceCategory);
 	void AddExternalTuner(long something) {}
 	void DeleteDevicesInThisRoomOfType(long something) {}
 };

@@ -1,8 +1,10 @@
 #include "Orbiter.h"
 #include "WizardLogic.h"
 #include "CreateDevice/UserUtils.h"
+#include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_Country.h"
 #include "pluto_main/Define_DeviceData.h"
+#include "Gen_Devices/AllCommandsRequests.h"
 
 WizardLogic::WizardLogic(Orbiter *pOrbiter)
 {
@@ -34,7 +36,8 @@ bool WizardLogic::Setup()
 			m_mapRoomTypes[atoi(row[0])] = row[1];
 		}
 
-	m_nPK_Device_TVProvider_External=m_nPK_Device_TV=m_nPK_Device_Receiver=0;
+	m_nPK_Device_TVProvider_External=m_nPK_Device_TV=m_nPK_Device_Receiver=
+		m_nPK_Command_Input_Video_On_TV=0;
 	m_bUsingReceiverForVideo=false;
 
 	return true;
@@ -305,15 +308,43 @@ void WizardLogic::SetAvPath(int PK_Device_From,int PK_Device_To,int PK_Pipe,int 
 
 int WizardLogic::AddDevice(int PK_DeviceTemplate)
 {
-	/*
 	int iPK_Device=0;
-	DCE::CMD_Create_Device_Cat CMD_Create_Device_Cat(m_dwPK_Device,DEVICECATEGORY_General_Info_Plugins_CONST,false,BL_SameHouse,
-		PK_DeviceTemplate,"",m_pOrbiter->m_pData->m_dwPK_Room,"","","",0,m_pOrbiter->m_pData->m_dwPK_Device,m_pOrbiter->m_pData->m_dwPK_Device,
+	DCE::CMD_Create_Device_Cat CMD_Create_Device_Cat(m_pOrbiter->m_dwPK_Device,DEVICECATEGORY_General_Info_Plugins_CONST,false,BL_SameHouse,
+		PK_DeviceTemplate,"",m_pOrbiter->m_pData->m_dwPK_Room,"","",0,0,m_pOrbiter->m_pData->m_dwPK_Device,m_pOrbiter->m_pData->m_dwPK_Device,
 		&iPK_Device);
 	m_pOrbiter->SendCommand(CMD_Create_Device_Cat);
 	return iPK_Device;
-	*/
-	return 0;
+}
+
+void WizardLogic::AddExternalTuner(int PK_Device_Tuner)
+{
+	DeviceData_Base *pDevice_PVR = m_pOrbiter->m_pData->FindFirstRelatedDeviceOfCategory(DEVICECATEGORY_PVR_Capture_Cards_CONST);
+	if( pDevice_PVR )
+	{
+		SetAvPath(PK_Device_Tuner,pDevice_PVR->m_dwPK_Device,1,COMMAND_AV_1_CONST);
+		SetAvPath(PK_Device_Tuner,pDevice_PVR->m_dwPK_Device,2,COMMAND_AV_1_CONST);
+	}
+}
+
+
+void WizardLogic::DeleteDevicesInThisRoomOfType(int PK_DeviceCategory)
+{
+	string sSQL = "SELECT PK_Device FROM Device "
+		"join DeviceTemplate ON FK_DeviceTemplate = PK_DeviceTemplate "
+		"join DeviceCategory ON FK_DeviceCategory = PK_DeviceCategory "
+		"where PK_DeviceCategory=" + StringUtils::itos(DEVICECATEGORY_TVsPlasmasLCDsProjectors_CONST) + 
+		" OR FK_DeviceCategory_Parent=" + StringUtils::itos(DEVICECATEGORY_TVsPlasmasLCDsProjectors_CONST) + 
+		" AND FK_Room=" + StringUtils::itos(m_pOrbiter->m_pData->m_dwPK_Room);
+
+	PlutoSqlResult result_set;
+	MYSQL_ROW row;
+	if( (result_set.r=mysql_query_result(sSQL)) )
+		while ((row = mysql_fetch_row(result_set.r)))
+		{
+			DCE::CMD_Delete_Device_Cat CMD_Delete_Device_Cat(m_pOrbiter->m_dwPK_Device,
+				DEVICECATEGORY_General_Info_Plugins_CONST,false,BL_SameHouse,atoi(row[0]));
+			m_pOrbiter->SendCommand(CMD_Delete_Device_Cat);
+		}
 }
 
 string WizardLogic::GetDeviceStatus(long nPK_Device)
@@ -327,3 +358,4 @@ string WizardLogic::GetDeviceStatus(long nPK_Device)
 
 	return "";
 }
+

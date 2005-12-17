@@ -6530,6 +6530,9 @@ void Orbiter::CalculateGridRight( DesignObj_DataGrid *pObj,  int &CurCol,  int C
 //------------------------------------------------------------------------------------------------------------
 DesignObjText *Orbiter::FindText( DesignObj_Orbiter *pObj,  int iPK_Text )
 {
+	if( !pObj )
+		return NULL;
+
     DesignObjText *pText = NULL;
     vector<DesignObjText *>::iterator it_text;
     for( it_text = pObj->m_vectDesignObjText.begin(  );

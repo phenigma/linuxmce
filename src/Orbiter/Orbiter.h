@@ -900,6 +900,7 @@ public:
 	 * @brief Find an object.  If pDesignObj_Orbiter is past and the ObjectID is not fully qualified, it will look for sPK_DesignObj as a child of pDesignObj_Orbiter
 	 */
 	DesignObj_Orbiter *FindObject( string sPK_DesignObj, class DesignObj_Orbiter *pDesignObj_Orbiter = NULL );
+	DesignObj_Orbiter *FindObject( int PK_DesignObj ) { return FindObject(StringUtils::itos(PK_DesignObj)); }
 
 	/**
 	 * @brief finds an object identified by a single numeber by searching in the object hierarchi

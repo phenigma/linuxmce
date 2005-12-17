@@ -353,11 +353,21 @@ class DataGridTable *Infrared_Plugin::AvailableInputs(string GridID,string Parms
 	vector<Row_DeviceTemplate_Input *> vectRow_DeviceTemplate_Input;
 	m_pDatabase_pluto_main->DeviceTemplate_Input_get()->GetRows("FK_DeviceTemplate=" + StringUtils::itos(PK_DeviceTemplate),
 		&vectRow_DeviceTemplate_Input);
+
+	int iRow=0,iColumn=0;
+	int iMaxColumns = atoi( pMessage->m_mapParameters[COMMANDPARAMETER_Width_CONST].c_str() );
+
 	for(size_t s=0;s<vectRow_DeviceTemplate_Input.size();++s)
 	{
 		Row_DeviceTemplate_Input *pRow_DeviceTemplate_Input = vectRow_DeviceTemplate_Input[s];
 		pCell = new DataGridCell( pRow_DeviceTemplate_Input->FK_Command_getrow()->Description_get(),StringUtils::itos(pRow_DeviceTemplate_Input->FK_Command_get()) );
-		pDataGrid->SetData(0,s,pCell);
+		pDataGrid->SetData(iColumn,iRow,pCell);
+		iColumn++;
+		if( iColumn>=iMaxColumns )
+		{
+			iColumn=0;
+			iRow++;
+		}
 	}
 
 	return pDataGrid;

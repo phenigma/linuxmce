@@ -1715,13 +1715,19 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 	g_pPlutoLogger->Write(LV_STATUS,"Created device %d",*iPK_Device);
 	CMD_Check_for_updates();
 
-// Temporary debugging code since somehow the mac address sometimes got deleted
-Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(*iPK_Device);
-if( pRow_Device )
-	g_pPlutoLogger->Write(LV_STATUS,"Database reports row as ip %s mac %s",
-		pRow_Device->IPaddress_get().c_str(),pRow_Device->MACaddress_get().c_str());
-else
-	g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find %d in database",*iPK_Device);
+	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(*iPK_Device);
+	if( pRow_Device )
+	{
+		if( iPK_Room )
+		{
+			pRow_Device->FK_Room_set(iPK_Room);
+			pRow_Device->Table_Device_get()->Commit();
+		}
+		g_pPlutoLogger->Write(LV_STATUS,"Database reports row as ip %s mac %s",
+			pRow_Device->IPaddress_get().c_str(),pRow_Device->MACaddress_get().c_str());
+	}
+	else
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find %d in database",*iPK_Device);
 
 	Message *pMessage_Event = new Message(m_dwPK_Device,DEVICEID_EVENTMANAGER,PRIORITY_NORMAL,MESSAGETYPE_EVENT,EVENT_New_PNP_Device_Detected_CONST,
 		1,EVENTPARAMETER_PK_Device_CONST,StringUtils::itos(*iPK_Device).c_str());
