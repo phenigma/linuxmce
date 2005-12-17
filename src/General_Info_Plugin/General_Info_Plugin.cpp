@@ -1753,6 +1753,8 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 void General_Info_Plugin::CMD_Delete_Device(int iPK_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c719-e->
 {
+delete embedded devices
+move controlled via to top
 	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM Device WHERE PK_Device=" + StringUtils::itos(iPK_Device));
 	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM CommandGroup_Command WHERE FK_Device=" + StringUtils::itos(iPK_Device));
 	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM Device_Command WHERE FK_Device=" + StringUtils::itos(iPK_Device));
