@@ -159,6 +159,10 @@ bool General_Info_Plugin::Register()
 		DATAGRID_LightType_CONST,PK_DeviceTemplate_get());
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::InstalledAVDevices)), 
+		DATAGRID_Installed_AV_Devices_CONST,PK_DeviceTemplate_get());
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::BookmarkList)), 
 		DATAGRID_Mozilla_Bookmarks_CONST,PK_DeviceTemplate_get());
 
@@ -943,6 +947,10 @@ class DataGridTable *General_Info_Plugin::AlarmSensorsList(string GridID, string
 
 class DataGridTable *General_Info_Plugin::AvailableSerialPorts(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage)
 {
+	int iWidth = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Width_CONST].c_str());
+	if( !iWidth )
+		iWidth = 3;
+
 	DataGridTable *pDataGrid = new DataGridTable( );
 	DataGridCell *pCell;
 
@@ -953,8 +961,8 @@ class DataGridTable *General_Info_Plugin::AvailableSerialPorts(string GridID, st
 		"JOIN Device_DeviceData ON FK_Device = PK_Device "
 		"WHERE FK_Installation = " + StringUtils::itos(m_pRouter->iPK_Installation_get()) + " "
 		"AND FK_DeviceData = " + StringUtils::ltos(DEVICEDATA_Available_Serial_Ports_CONST) + " "
-		"AND FK_DeviceCategory IN (" + StringUtils::ltos(DEVICETEMPLATE_Generic_PC_as_Core_CONST) + "," + 
-			StringUtils::ltos(DEVICETEMPLATE_Generic_PC_as_MD_CONST) + ")";
+		"AND FK_DeviceCategory IN (" + StringUtils::ltos(DEVICECATEGORY_Core_CONST) + "," + 
+			StringUtils::ltos(DEVICECATEGORY_Media_Director_CONST) + ")";
 
 	PlutoSqlResult result;
 	MYSQL_ROW row;
@@ -964,20 +972,34 @@ class DataGridTable *General_Info_Plugin::AvailableSerialPorts(string GridID, st
 		{
 			string sComputerName = row[0];
 			string sPK_Device = row[1];
-			string sUnixSerialDev = row[2];
+			string sUnixSerialDevList = row[2];
 			string sSerialPort;
 
-			if(sUnixSerialDev == "/dev/ttyS0")
-				sSerialPort = "COM1";
-			else if(sUnixSerialDev == "/dev/ttyS1")
-				sSerialPort = "COM2";
-			else if(sUnixSerialDev == "/dev/ttyS2")
-				sSerialPort = "COM3";
-			else if(sUnixSerialDev == "/dev/ttyS3")
-				sSerialPort = "COM4";
+			vector<string> vectStrings;
+			StringUtils::Tokenize(sUnixSerialDevList, ",", vectStrings);
 
-			pCell = new DataGridCell(sComputerName + " " + sSerialPort , sPK_Device + "," + sUnixSerialDev);
-			pDataGrid->SetData(0, iRow++, pCell);
+			for(size_t i = 0; i < vectStrings.size(); i++)
+			{
+				string sUnixSerialDev = vectStrings[i];
+
+				if(sUnixSerialDev == "/dev/ttyS0")
+					sSerialPort = "COM1";
+				else if(sUnixSerialDev == "/dev/ttyS1")
+					sSerialPort = "COM2";
+				else if(sUnixSerialDev == "/dev/ttyS2")
+					sSerialPort = "COM3";
+				else if(sUnixSerialDev == "/dev/ttyS3")
+					sSerialPort = "COM4";
+
+				pCell = new DataGridCell(sComputerName + " " + sSerialPort , sPK_Device + "," + sUnixSerialDev);
+				pDataGrid->SetData(iCol++, iRow, pCell);
+
+				if(iCol >= iWidth)
+				{
+					iCol = 0;
+					iRow++;
+				}
+			}
 		}
 	}
 
@@ -1021,6 +1043,50 @@ class DataGridTable *General_Info_Plugin::LightsTypes(string GridID, string Parm
 
 	return pDataGrid;
 }
+
+class DataGridTable *General_Info_Plugin::InstalledAVDevices(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage)
+{
+	int iWidth = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Width_CONST].c_str());
+	if( !iWidth )
+		iWidth = 2;
+
+	DataGridTable *pDataGrid = new DataGridTable( );
+	DataGridCell *pCell;
+
+	string sPK_DeviceCategory_Parent = StringUtils::ltos(DEVICECATEGORY_AV_CONST);
+
+	int iRow=0,iCol=0;
+	string sql = 
+		"SELECT DISTINCT D.PK_Device, D.Description FROM DeviceTemplate DT "
+		"JOIN DeviceCategory DC1 ON DT.FK_DeviceCategory = DC1.PK_DeviceCategory "
+		"JOIN DeviceCategory DC2 ON DC1.PK_DeviceCategory = DC2.FK_DeviceCategory_Parent OR DC2.FK_DeviceCategory_Parent IS NULL "
+		"JOIN Device D ON D.FK_DeviceTemplate = DT.PK_DeviceTemplate "
+		"WHERE "
+			"(DT.FK_DeviceCategory = " + sPK_DeviceCategory_Parent + " OR "
+			"DC1.FK_DeviceCategory_Parent = " + sPK_DeviceCategory_Parent + " OR "
+			"DC2.FK_DeviceCategory_Parent = " + sPK_DeviceCategory_Parent + ") "
+		"AND D.FK_Installation = " + StringUtils::itos(m_pRouter->iPK_Installation_get());
+
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	if( mysql_query(m_pDatabase_pluto_main->m_pMySQL,sql.c_str())==0 && (result.r = mysql_store_result(m_pDatabase_pluto_main->m_pMySQL)) )
+	{
+		while((row = mysql_fetch_row( result.r )))
+		{
+			pCell = new DataGridCell(row[1], row[0]);
+			pDataGrid->SetData(iCol++, iRow, pCell );
+
+			if(iCol >= iWidth)
+			{
+				iCol = 0;
+				iRow++;
+			}
+		}
+	}
+
+	return pDataGrid;
+}
+
 
 //<-dceag-c395-b->
 
