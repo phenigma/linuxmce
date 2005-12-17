@@ -2,6 +2,11 @@
 
 . /usr/pluto/bin/SQL_Ops.sh
 
+CommaField()
+{
+	echo "$2" | cut -d, -f "$1"
+}
+
 ExtractData()
 {
 	local R IntPart ExtPart
@@ -14,18 +19,18 @@ ExtractData()
 		IntPart=$(echo "$R" | cut -d'|' -sf2)
 
 		if [ -n "$IntPart" ]; then
-			IntIf=$(Field 1 "$IntPart")
-			IntIP=$(Field 2 "$IntPart")
-			IntNetmask=$(Field 3 "$IntPart")
+			IntIf=$(CommaField 1 "$IntPart")
+			IntIP=$(CommaField 2 "$IntPart")
+			IntNetmask=$(CommaField 3 "$IntPart")
 		fi
 
 		if [ -n "$ExtPart" ]; then
-			ExtIf=$(Field 1 "$ExtPart")
-			ExtIP=$(Field 2 "$ExtPart")
+			ExtIf=$(CommaField 1 "$ExtPart")
+			ExtIP=$(CommaField 2 "$ExtPart")
 			if [ "$ExtIP" != "DHCP" -a "$ExtIP" != "dhcp" ]; then
-				ExtNetmask=$(Field 3 "$ExtPart")
-				Gateway=$(Field 4 "$ExtPart")
-				DNS=$(Field 5- "$ExtPart")
+				ExtNetmask=$(CommaField 3 "$ExtPart")
+				Gateway=$(CommaField 4 "$ExtPart")
+				DNS=$(CommaField 5- "$ExtPart")
 			fi
 		fi
 		NetIfConf=1
