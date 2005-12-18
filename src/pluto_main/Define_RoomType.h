@@ -2,7 +2,7 @@
 #define __Define_RoomType_H__
 
 #define ROOMTYPE_Living_Room_CONST 1
-#define ROOMTYPE_Family_Room_CONST 2
+#define ROOMTYPE_ClosetStorage_Space_CONST 2
 #define ROOMTYPE_Bedroom_CONST 3
 #define ROOMTYPE_Garage_CONST 4
 #define ROOMTYPE_Kitchen_CONST 5

@@ -661,7 +661,6 @@
 #define COMMAND_Component_2_CONST 713
 #define COMMAND_DVR_CONST 714
 #define COMMAND_TV_Theater_CONST 715
-#define COMMAND_Discover_New_Devices_CONST 717
 #define COMMAND_Create_Device_CONST 718
 #define COMMAND_Delete_Device_CONST 719
 #define COMMAND_Bulk_Rip_CONST 720
@@ -693,9 +692,7 @@
 #define COMMAND_StatusReport_CONST 749
 #define COMMAND_PL_Add_VOIP_Account_CONST 751
 #define COMMAND_Check_Mounts_CONST 752
-#define COMMAND_GetSensorList_CONST 753
-#define COMMAND_Interogate_Interface_Device_CONST 755
-#define COMMAND_Report_Child_Device_CONST 756
+#define COMMAND_Report_Child_Devices_CONST 756
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
