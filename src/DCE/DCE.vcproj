@@ -120,6 +120,9 @@
 				RelativePath="..\PlutoUtils\CommonIncludes.cpp">
 			</File>
 			<File
+				RelativePath="..\PlutoUtils\DatabaseUtils.cpp">
+			</File>
+			<File
 				RelativePath="DataGrid.cpp">
 			</File>
 			<File
