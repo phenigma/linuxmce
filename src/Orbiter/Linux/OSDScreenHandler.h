@@ -7,6 +7,7 @@ class OSDScreenHandler: public ScreenHandler
 {
 protected:
 	class WizardLogic *m_pWizardLogic;
+	int m_nLightInDequeToAssign; // To keep track of which light we're flashing
 
 public:
 	OSDScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj);
@@ -44,6 +45,7 @@ public:
 	//5. A/V Connection
 	virtual void SCREEN_TV_Manufacturer(long PK_Screen);
 	virtual bool TV_Manufacturer_ObjectSelected(CallBackData *pData);
+	virtual bool TV_Manufacturer_GridSelected(CallBackData *pData);
 
 	//6. Receiver
 	virtual void SCREEN_Receiver(long PK_Screen);
@@ -56,7 +58,10 @@ public:
 	//8. Lights Setup
 	virtual void SCREEN_LightsSetup(long PK_Screen);
 	virtual bool LightsSetup_ObjectSelected(CallBackData *pData);
+	virtual bool LightsSetup_SelectedGrid(CallBackData *pData);
 	virtual bool LightsSetup_Intercepted(CallBackData *pData);
+	virtual bool LightsSetup_OnScreen(CallBackData *pData);
+	virtual bool LightsSetup_Timer(CallBackData *pData);
 
 	//9. Alarm Panel
 	virtual void SCREEN_AlarmPanel(long PK_Screen);

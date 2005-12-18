@@ -1482,6 +1482,9 @@ bool General_Info_Plugin::ReportingChildDevices( class Socket *pSocket, class Me
 			CMD_Delete_Device(pRow_Device->PK_Device_get());
 		}
 	}
+	m_pDatabase_pluto_main->Device_get()->Commit();
+	m_pDatabase_pluto_main->Device_DeviceData_get()->Commit();
+
 	return true;
 }
 
@@ -1511,7 +1514,10 @@ Row_Device *General_Info_Plugin::ProcessChildDevice(Row_Device *pRow_Device,stri
 	
 	Row_Device *pRow_Device_Child;
 	if( vectRow_Device_Child.size() )
+	{
 		pRow_Device_Child = vectRow_Device_Child[0];
+		pRow_Device_Child->Reload();   // Don't overwrite the room or other data that may already be there
+	}
 	else
 	{
 		// Create it since it doesn't exist

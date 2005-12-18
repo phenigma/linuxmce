@@ -50,4 +50,11 @@ public:
 	class DeviceData_Base *m_pDeviceFrom, *m_pDeviceTo;
 };
 //-----------------------------------------------------------------------------------------------------
+class RenderScreenCallBackData : public CallBackData
+{
+public:
+	int m_nPK_Screen;
+	class DesignObj_Orbiter *m_pObj;
+};
+//-----------------------------------------------------------------------------------------------------
 #endif

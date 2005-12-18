@@ -4,11 +4,13 @@
 #include "pluto_main/Define_Text.h"
 #include "pluto_main/Define_DesignObj.h"
 #include "pluto_main/Define_DeviceTemplate.h"
+#include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_DataGrid.h"
 #include "pluto_main/Define_Event.h"
 #include "pluto_main/Define_EventParameter.h"
+#include "pluto_main/Define_CommMethod.h"
 #include "Gen_Devices/AllCommandsRequests.h"
-
+#include "PlutoUtils/DatabaseUtils.h"
 #include "../WizardLogic.h"
 
 //-----------------------------------------------------------------------------------------------------
@@ -439,6 +441,25 @@ void OSDScreenHandler::SCREEN_TV_Manufacturer(long PK_Screen)
 	ScreenHandlerBase::SCREEN_TV_Manufacturer(PK_Screen);
 
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &OSDScreenHandler::TV_Manufacturer_ObjectSelected, new ObjectInfoBackData());
+	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &OSDScreenHandler::TV_Manufacturer_GridSelected, new DatagridCellBackData());
+}
+//-----------------------------------------------------------------------------------------------------
+bool OSDScreenHandler::TV_Manufacturer_GridSelected(CallBackData *pData)
+{
+	DatagridCellBackData *pCellInfoData = (DatagridCellBackData *)pData;
+	if( pCellInfoData->m_nPK_Datagrid==DATAGRID_Available_Serial_Ports_CONST )
+	{
+		string::size_type pos=0;
+		int iPK_Device_ControlledVia = atoi(StringUtils::Tokenize(pCellInfoData->m_sValue,",",pos).c_str());
+		string sPort = StringUtils::Tokenize(pCellInfoData->m_sValue,",",pos);
+		if( DatabaseUtils::SetDeviceControlledVia(m_pWizardLogic,m_pWizardLogic->m_nPK_Device_TV,iPK_Device_ControlledVia) )
+		{
+			DatabaseUtils::SetDeviceData(m_pWizardLogic,m_pWizardLogic->m_nPK_Device_TV,DEVICEDATA_COM_Port_on_PC_CONST,pCellInfoData->m_sValue);
+			m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(DESIGNOBJ_DirectToTV_CONST),"","",true,false);
+		}
+		return true;
+	}
+	return false;
 }
 //-----------------------------------------------------------------------------------------------------
 bool OSDScreenHandler::TV_Manufacturer_ObjectSelected(CallBackData *pData)
@@ -469,6 +490,12 @@ bool OSDScreenHandler::TV_Manufacturer_ObjectSelected(CallBackData *pData)
 				// Delete tv's first since maybe the user is returning to this wizard
 				m_pWizardLogic->DeleteDevicesInThisRoomOfType(DEVICECATEGORY_TVsPlasmasLCDsProjectors_CONST);
 				m_pWizardLogic->m_nPK_Device_TV = m_pWizardLogic->AddDevice(atoi(sModel.c_str()));
+				int PK_CommMethod = DatabaseUtils::GetCommMethodForDeviceTemplate(m_pWizardLogic,atoi(sModel.c_str()));
+				if( PK_CommMethod==COMMMETHOD_RS232_CONST )
+				{
+					m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(DESIGNOBJ_SelectPort_CONST),"","",false,false);
+					return true;  // We're redirecting the flow
+				}
 			}
 		}
 		break;
@@ -670,10 +697,57 @@ void OSDScreenHandler::SCREEN_LightsSetup(long PK_Screen)
 	ScreenHandlerBase::SCREEN_LightsSetup(PK_Screen);
 	RegisterCallBack(cbMessageIntercepted, (ScreenHandlerCallBack) &OSDScreenHandler::LightsSetup_Intercepted, new MsgInterceptorCellBackData());
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &OSDScreenHandler::LightsSetup_ObjectSelected, new ObjectInfoBackData());
+	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &OSDScreenHandler::LightsSetup_SelectedGrid, new DatagridCellBackData());
+	RegisterCallBack(cbOnRenderScreen, (ScreenHandlerCallBack) &OSDScreenHandler::LightsSetup_OnScreen, new RenderScreenCallBackData());
+	RegisterCallBack(cbOnTimer, (ScreenHandlerCallBack) &OSDScreenHandler::LightsSetup_Timer, new CallBackData());
 }
 //-----------------------------------------------------------------------------------------------------
 
 // TODO: This is Monster specific
+bool OSDScreenHandler::LightsSetup_OnScreen(CallBackData *pData)
+{
+	RenderScreenCallBackData *pRenderScreenCallBackData = (RenderScreenCallBackData *)pData;
+	if( pRenderScreenCallBackData->m_pObj->m_iBaseObjectID==DESIGNOBJ_LightSetupRooms_CONST )
+	{
+		if( m_nLightInDequeToAssign < (int) m_pWizardLogic->m_dequeNumLights.size() )
+		{
+			DesignObjText *pText = m_pOrbiter->FindText( m_pOrbiter->FindObject(DESIGNOBJ_PostalCode_CONST),TEXT_STATUS_CONST );
+			if( pText )
+				pText->m_sText = StringUtils::itos(m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign]) + 
+					DatabaseUtils::GetDescriptionForDevice(m_pWizardLogic,m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign]);
+
+			m_pOrbiter->CallMaintenanceInMiliseconds(2000,&Orbiter::ServiceScreenHandler,NULL,pe_ALL);
+		}
+		else
+		{
+			m_pOrbiter->CMD_Goto_Screen("",SCREEN_AlarmPanel_CONST);
+			m_pOrbiter->CMD_Refresh("");
+		}
+	}
+	return false;
+}
+
+bool OSDScreenHandler::LightsSetup_Timer(CallBackData *pData)
+{
+	static bool bLastTimeOn=true;
+	if( m_nLightInDequeToAssign < (int) m_pWizardLogic->m_dequeNumLights.size() )
+	{
+		if( bLastTimeOn )
+		{
+			DCE::CMD_Off CMD_Off(m_pOrbiter->m_dwPK_Device,m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign],0);
+			m_pOrbiter->SendCommand(CMD_Off);
+		}
+		else
+		{
+			DCE::CMD_On CMD_On(m_pOrbiter->m_dwPK_Device,m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign],0,"");
+			m_pOrbiter->SendCommand(CMD_On);
+		}
+		bLastTimeOn=!bLastTimeOn;
+		m_pOrbiter->CallMaintenanceInMiliseconds(2000,&Orbiter::ServiceScreenHandler,NULL,pe_ALL);
+	}
+	return false;
+}
+
 bool OSDScreenHandler::LightsSetup_ObjectSelected(CallBackData *pData)
 {
 	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
@@ -715,6 +789,26 @@ bool OSDScreenHandler::LightsSetup_ObjectSelected(CallBackData *pData)
 
 	return false;
 }
+
+bool OSDScreenHandler::LightsSetup_SelectedGrid(CallBackData *pData)
+{
+	DatagridCellBackData *pDatagridCellBackData = (DatagridCellBackData *) pData;
+	if( pDatagridCellBackData->m_nPK_Datagrid == DATAGRID_Rooms_CONST )
+		if( !DatabaseUtils::SetDeviceInRoom(m_pWizardLogic,m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign],atoi(pDatagridCellBackData->m_sValue.c_str())) )
+			return true;  // This room isn't valid
+		else
+			m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(DESIGNOBJ_LightType_CONST),"","",false,false);
+	else if( pDatagridCellBackData->m_nPK_Datagrid == DATAGRID_LightType_CONST )
+	{
+		DatabaseUtils::SetDeviceData(m_pWizardLogic,m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign],
+			DEVICEDATA_PK_FloorplanObjectType_CONST,pDatagridCellBackData->m_sValue);
+		m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(DESIGNOBJ_LightSetupRooms_CONST),"","",false,false);
+		m_nLightInDequeToAssign++;
+	}
+
+	return false;
+}
+
 //-----------------------------------------------------------------------------------------------------
 bool OSDScreenHandler::LightsSetup_Intercepted(CallBackData *pData)
 {
@@ -755,7 +849,28 @@ bool OSDScreenHandler::LightsSetup_Intercepted(CallBackData *pData)
 				return false;
 			}
 
-			m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(DESIGNOBJ_LightsSetupInclude_CONST),"","",false,false);
+			int iNumLightsTotal = m_pWizardLogic->GetNumLights(iNumLightsTotal);
+
+			if( iNumLightsTotal==0 )
+			{
+				DesignObjText *pText = m_pOrbiter->FindText( m_pOrbiter->FindObject(DESIGNOBJ_LightsSetup_CONST),TEXT_STATUS_CONST );
+				if( pText )
+					pText->m_sText = m_pOrbiter->m_mapTextString[TEXT_No_Lights_Found_CONST] + ": " + sResult;
+				m_pOrbiter->CMD_Refresh("");
+				return false;
+			}
+
+			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST,StringUtils::itos(iNumLightsTotal));
+			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST,StringUtils::itos((int) m_pWizardLogic->m_dequeNumLights.size()));
+
+			if( m_pWizardLogic->m_dequeNumLights.size()>0 )
+			{
+				m_nLightInDequeToAssign=0;
+				m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(DESIGNOBJ_LightsSetupInclude_CONST),"","",false,false);
+			}
+			else
+				m_pOrbiter->CMD_Goto_Screen("",SCREEN_AlarmPanel_CONST);
+
 			return false;
 		}
 	}
@@ -811,7 +926,7 @@ bool OSDScreenHandler::AlarmPanel_ObjectSelected(CallBackData *pData)
 		}
 		break;
 
-		case DESIGNOBJ_AlarmPanelPort_CONST:
+		case DESIGNOBJ_SelectPort_CONST:
 		{
 			if(DESIGNOBJ_butAlarmDetect_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{

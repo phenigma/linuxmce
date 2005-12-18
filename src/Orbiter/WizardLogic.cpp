@@ -368,3 +368,23 @@ string WizardLogic::GetDeviceStatus(long nPK_Device)
 	return "";
 }
 
+int WizardLogic::GetNumLights(int &iNumLightsUnassigned)
+{
+	m_dequeNumLights.clear();
+	string sSQL = "SELECT PK_Device,FK_Room FROM Device "
+		"JOIN DeviceTemplate ON FK_DeviceTemplate = PK_DeviceTemplate "
+		"JOIN DeviceCategory ON FK_DeviceCategory = PK_DeviceCategory "
+		"where PK_DeviceCategory=" + StringUtils::itos(DEVICECATEGORY_Lighting_Device_CONST) + 
+		" OR FK_DeviceCategory_Parent=" + StringUtils::itos(DEVICECATEGORY_Lighting_Device_CONST);
+
+	PlutoSqlResult result_set;
+	MYSQL_ROW row;
+	if( (result_set.r=mysql_query_result(sSQL)) )
+		while ((row = mysql_fetch_row(result_set.r)))
+		{
+			if( !row[1] || !atoi(row[1]) )
+				m_dequeNumLights.push_back(atoi(row[0]));
+		}
+
+	return (int) result_set.r->row_count;
+}

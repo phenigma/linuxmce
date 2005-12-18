@@ -901,6 +901,9 @@
 #define TEXT_Panel_not_found_CONST 1612
 #define TEXT_input_from_Receiver_to_TV_CONST 1613
 #define TEXT_input_from_md_CONST 1614
+#define TEXT_Monster_Remote_Found_CONST 1616
+#define TEXT_Error_getting_data_CONST 1617
+#define TEXT_No_Lights_Found_CONST 1619
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

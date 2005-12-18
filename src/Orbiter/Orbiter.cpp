@@ -575,10 +575,20 @@ void Orbiter::RenderScreen( )
 	if( m_bQuit )
 		return;
 	if( !m_pScreenHistory_Current || !m_pScreenHistory_Current->m_pObj )
-{
-    g_pPlutoLogger->Write( LV_CRITICAL, "Got attempt to render null screen: %s", m_pScreenHistory_Current );
-	return;
-}
+	{
+		g_pPlutoLogger->Write( LV_CRITICAL, "Got attempt to render null screen: %s", m_pScreenHistory_Current );
+		return;
+	}
+
+	CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnRenderScreen);
+	if(pCallBackData)
+	{
+		RenderScreenCallBackData *pRenderScreenCallBackData = (RenderScreenCallBackData *)pCallBackData;
+		pRenderScreenCallBackData->m_nPK_Screen = m_pScreenHistory_Current->m_nPK_Screen;
+		pRenderScreenCallBackData->m_pObj = m_pScreenHistory_Current->m_pObj;
+	}
+
+	ExecuteScreenHandlerCallback(cbOnRenderScreen);
 
 #ifndef WINCE
     g_pPlutoLogger->Write( LV_STATUS, "Render screen: %s", m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str(  ) );
@@ -9586,6 +9596,7 @@ bool Orbiter::ExecuteScreenHandlerCallback(CallBackType aCallBackType)
 {
 	PLUTO_SAFETY_LOCK(vm, m_VariableMutex);
 	ScreenHandlerCallBack pCallBack = m_pScreenHandler->m_mapCallBack_Find(aCallBackType);
+	vm.Release();
 	if(NULL != pCallBack)
 		return CALL_MEMBER_FN(*m_pScreenHandler, pCallBack)(m_pScreenHandler->m_mapCallBackData_Find(aCallBackType));
 

@@ -1709,7 +1709,7 @@
 #define DESIGNOBJ_DirectToTV_CONST 4556
 #define DESIGNOBJ_Receiver_CONST 4557
 #define DESIGNOBJ_AVDevices_CONST 4558
-#define DESIGNOBJ_AlarmPanelPort_CONST 4559
+#define DESIGNOBJ_SelectPort_CONST 4559
 #define DESIGNOBJ_Lights_CONST 4560
 #define DESIGNOBJ_LightsSetup_CONST 4561
 #define DESIGNOBJ_LightsSetupInclude_CONST 4562
@@ -1822,6 +1822,7 @@
 #define DESIGNOBJ_butTV_CONST 4686
 #define DESIGNOBJ_butIHaveMonster_CONST 4688
 #define DESIGNOBJ_LightsPrepare_CONST 4689
+#define DESIGNOBJ_butMonsterLightsSetup_CONST 4690
 #define DESIGNOBJ_butLightsSetupLater_CONST 4691
 #define DESIGNOBJ_butLightsSetupRoom_CONST 4693
 #define DESIGNOBJ_butAlarmSensors_CONST 4696

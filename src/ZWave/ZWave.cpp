@@ -22,17 +22,16 @@ using namespace DCE;
 ZWave::ZWave(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: ZWave_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
+	, m_ZWaveMutex("zwave")
 {
+    pthread_mutexattr_init( &m_MutexAttr );
+    pthread_mutexattr_settype( &m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP );
+    m_ZWaveMutex.Init( &m_MutexAttr );
+
 	m_pPlainClientSocket=NULL;
 }
 
-//<-dceag-const2-b->
-// The constructor when the class is created as an embedded instance within another stand-alone device
-ZWave::ZWave(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)
-	: ZWave_Command(pPrimaryDeviceCommand, pData, pEvent, pRouter)
-//<-dceag-const2-e->
-{
-}
+//<-dceag-const2-b->!
 
 //<-dceag-dest-b->
 ZWave::~ZWave()
@@ -50,7 +49,7 @@ bool ZWave::GetConfig()
 
 	if( !ConfirmConnection() )
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot connect to windows zwave");
-	SyncDeviceList();
+	CMD_Report_Child_Devices();
 	return true;
 }
 
@@ -62,15 +61,7 @@ bool ZWave::Register()
 	return Connect(PK_DeviceTemplate_get()); 
 }
 
-/*  Since several parents can share the same child class, and each has it's own implementation, the base class in Gen_Devices
-	cannot include the actual implementation.  Instead there's an extern function declared, and the actual new exists here.  You 
-	can safely remove this block (put a ! after the dceag-createinst-b block) if this device is not embedded within other devices. */
-//<-dceag-createinst-b->
-ZWave_Command *Create_ZWave(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)
-{
-	return new ZWave(pPrimaryDeviceCommand, pData, pEvent, pRouter);
-}
-//<-dceag-createinst-e->
+//<-dceag-createinst-b->!
 
 /*
 	When you receive commands that are destined to one of your children,
@@ -84,6 +75,8 @@ ZWave_Command *Create_ZWave(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl
 void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
+	PLUTO_SAFETY_LOCK(zm,m_ZWaveMutex);
+
 	int NodeID = atoi(pDeviceData_Impl->m_mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST).c_str());
 	if( !NodeID )
 	{
@@ -139,126 +132,107 @@ void ZWave::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 
 */
 
-
-
-//<-dceag-c709-b->
-
-	/** @brief COMMAND: #709 - Discover New Devices */
-	/** Scans for new devices and adds them to the system */
-
-void ZWave::CMD_Discover_New_Devices(string &sCMD_Result,Message *pMessage)
-//<-dceag-c709-e->
+void *DoDownloadConfiguration(void *p)
 {
-	if( !ConfirmConnection() )
-		return;
-
-	m_pPlainClientSocket->SendString("RECEIVECONFIG");
-	string sResponse;
-	if( !m_pPlainClientSocket->ReceiveString(sResponse,60) )
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot receive config");
-		return;
-	}
-	if( sResponse!="OK" )
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"ZWave failed to receive config: %s",sResponse.c_str());
-		return;
-	}
-	SyncDeviceList();
-	Message *pMessage_Out = new Message(m_dwPK_Device,DEVICEID_DCEROUTER,PRIORITY_NORMAL,MESSAGETYPE_SYSCOMMAND,SYSCOMMAND_RELOAD,0);
-	QueueMessageToRouter(pMessage_Out);
+	ZWave *pZWave = (ZWave *) p;
+	pZWave->DownloadConfiguration();
+	return NULL;
 }
 
-void ZWave::SyncDeviceList()
+void ZWave::DownloadConfiguration()
 {
-	if( !ConfirmConnection() )
-		return;
-
-	m_pPlainClientSocket->SendString("DEVICES");
-	string sResponse;
-	if( !m_pPlainClientSocket->ReceiveString(sResponse,30) )
+EVENT_Download_Config_Done("");
+return;
+	for(int iRetries=0;;++iRetries)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot get list of devices");
-		return;
-	}
-
-	DeviceData_Base *pDevice_GeneralInfoPlugin = m_pData->m_AllDevices.m_mapDeviceData_Base_FindFirstOfCategory(DEVICECATEGORY_General_Info_Plugins_CONST);
-	if( !pDevice_GeneralInfoPlugin )
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot do this without a general info plugin");
-		return;
-	}
-
-	MySqlHelper mySqlHelper(m_sIPAddress,"root","","pluto_main");
-	if( !mySqlHelper.m_bConnected )
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot connect to MySql database");
-		return;
-	}
-
-	map<int,pair<int,int> > mapNodeID;
-	string sSQL = "SELECT PK_Device,FK_DeviceTemplate,IK_DeviceData FROM Device "
-		"LEFT JOIN Device_DeviceData ON FK_Device=PK_Device "
-		"WHERE FK_Device_ControlledVia=" + StringUtils::itos(m_dwPK_Device) + " AND (FK_DeviceData IS NULL OR FK_DeviceData=" + StringUtils::itos(DEVICEDATA_PortChannel_Number_CONST) + ")";
-
-	PlutoSqlResult result;
-	MYSQL_ROW row;
-	if( ( result.r=mySqlHelper.mysql_query_result( sSQL ) ) )
-	{
-		while( row=mysql_fetch_row( result.r ) )
+		PLUTO_SAFETY_LOCK(zm,m_ZWaveMutex);
+		g_pPlutoLogger->Write(LV_STATUS,"TZWave::ReportChildDevices trying to get list of devices");
+		if( !ConfirmConnection() )
 		{
-			if( row[2] )
-				mapNodeID[atoi(row[2])] = make_pair<int,int> (atoi(row[0]),atoi(row[1]));
+			g_pPlutoLogger->Write(LV_WARNING,"Cannot connect to ZWave %d",iRetries);
+			if( iRetries>4 )
+			{
+				EVENT_Download_Config_Done("Cannot connect to ZWave");
+				return;
+			}
+			zm.Release();
+			Sleep(1000);
+			continue;
 		}
-	}
 
-	string::size_type pos=0;
-	while(pos<sResponse.size() && pos!=string::npos)
-	{
-		int NodeID = atoi(StringUtils::Tokenize(sResponse,",",pos).c_str());
-		int PK_DeviceTemplate = atoi(StringUtils::Tokenize(sResponse,",",pos).c_str());
-		map<int,pair<int,int> >::iterator itNode = mapNodeID.find(NodeID);
-		if( itNode==mapNodeID.end() || itNode->second.second!=PK_DeviceTemplate )  // It either isn't in the database, or it changed types
+		m_pPlainClientSocket->SendString("RECEIVECONFIG");
+		string sResponse;
+		if( !m_pPlainClientSocket->ReceiveString(sResponse,60) || sResponse!="OK" )
 		{
-			if( itNode!=mapNodeID.end() )
+			g_pPlutoLogger->Write(LV_WARNING,"ZWave::ReportChildDevices Cannot receive string %d",iRetries);
+			if( iRetries>4 )
 			{
-				int PK_Device = itNode->second.first;
-        		DCE::CMD_Delete_Device CMD_Delete_Device(m_dwPK_Device,pDevice_GeneralInfoPlugin->m_dwPK_Device,PK_Device);
-				SendCommand(CMD_Delete_Device);
-				mapNodeID.erase(itNode);  // We found it
+				EVENT_Download_Config_Done("Device didn't respond: " + sResponse);
+				g_pPlutoLogger->Write(LV_CRITICAL,"Cannot get list of devices");
+				return;
 			}
-			int PK_Device=0;
-			DCE::CMD_Create_Device CMD_Create_Device(m_dwPK_Device,pDevice_GeneralInfoPlugin->m_dwPK_Device,
-				PK_DeviceTemplate,"","",0,m_dwPK_Device,&PK_Device);
-			if( SendCommand(CMD_Create_Device) && PK_Device )
-			{
-				if( mySqlHelper.threaded_mysql_query("UPDATE Device_DeviceData SET IK_DeviceData='" + StringUtils::itos(NodeID) +
-					"' WHERE FK_Device=" + StringUtils::itos(PK_Device) + " AND FK_DeviceData=" + StringUtils::itos(DEVICEDATA_PortChannel_Number_CONST))!=1 )
-				{
-					if( mySqlHelper.threaded_mysql_query("INSERT INTO Device_DeviceData(FK_Device,FK_DeviceData,IK_DeviceData) VALUES(" +
-						StringUtils::itos(PK_Device) + "," + StringUtils::itos(DEVICEDATA_PortChannel_Number_CONST) + ",'" + StringUtils::itos(NodeID) + "';")!=1 )
-							g_pPlutoLogger->Write(LV_CRITICAL,"Unable to set device data for %d",PK_Device);
-				}
-				mySqlHelper.threaded_mysql_query("UPDATE Device SET Description='Node " + StringUtils::itos(NodeID) + "' WHERE PK_Device=" + StringUtils::itos(PK_Device));
-			}
-			else
-				g_pPlutoLogger->Write(LV_CRITICAL,"Failed to create device");
+			zm.Release();
+			Sleep(1000);
+			continue;
 		}
-		else
-			mapNodeID.erase(itNode);  // We found it
-	}
 
-	// These are what's left that are devices that no longer exist
-	for( map<int,pair<int,int> >::iterator itNode=mapNodeID.begin();itNode!=mapNodeID.end();++itNode )
+		g_pPlutoLogger->Write(LV_STATUS,"ZWave::ReportChildDevices got %s",sResponse.c_str());
+		EVENT_Download_Config_Done("");
+		return;
+	}
+}
+
+void ZWave::ReportChildDevices()
+{
+EVENT_Reporting_Child_Devices("",
+"1\tNode 1\t\t37\t9\n"
+"2\tNode 2\t\t38\t10\n"
+"3\tNode 3\t\t37\t11\n"
+);
+return;
+	for(int iRetries=0;;++iRetries)
 	{
-		int PK_Device = itNode->second.first;
-        DCE::CMD_Delete_Device CMD_Delete_Device(m_dwPK_Device,pDevice_GeneralInfoPlugin->m_dwPK_Device,PK_Device);
-		SendCommand(CMD_Delete_Device);
+		PLUTO_SAFETY_LOCK(zm,m_ZWaveMutex);
+		g_pPlutoLogger->Write(LV_STATUS,"TZWave::ReportChildDevices trying to get list of devices");
+		if( !ConfirmConnection() )
+		{
+			g_pPlutoLogger->Write(LV_WARNING,"Cannot connect to ZWave %d",iRetries);
+			if( iRetries>4 )
+			{
+				EVENT_Reporting_Child_Devices("Cannot connect to ZWave","");
+				return;
+			}
+			zm.Release();
+			Sleep(1000);
+			continue;
+		}
+
+		m_pPlainClientSocket->SendString("DEVICES");
+		string sResponse;
+		if( !m_pPlainClientSocket->ReceiveString(sResponse,30) )
+		{
+			g_pPlutoLogger->Write(LV_WARNING,"ZWave::ReportChildDevices Cannot receive string %d",iRetries);
+			if( iRetries>4 )
+			{
+				EVENT_Reporting_Child_Devices("Device didn't respond: " + sResponse,"");
+				g_pPlutoLogger->Write(LV_CRITICAL,"Cannot get list of devices");
+				return;
+			}
+			zm.Release();
+			Sleep(1000);
+			continue;
+		}
+
+		g_pPlutoLogger->Write(LV_STATUS,"ZWave::ReportChildDevices got %s",sResponse.c_str());
+		EVENT_Reporting_Child_Devices("",sResponse);
+		return;
 	}
 }
 
 bool ZWave::ConfirmConnection()
 {
+return true;
+	PLUTO_SAFETY_LOCK(zm,m_ZWaveMutex);
 	if( !m_pPlainClientSocket )
 		m_pPlainClientSocket = new PlainClientSocket(DATA_Get_Remote_Phone_IP() + ":3999");
 
@@ -286,4 +260,36 @@ bool ZWave::ConfirmConnection()
 	m_pPlainClientSocket->ReceiveString(sResponse,10);
 	g_pPlutoLogger->Write(LV_STATUS,"Sent PING 2 got %s",sResponse.c_str());
 	return sResponse=="PONG";
+}
+
+void *DoReportChildDevices(void *p)
+{
+	ZWave *pZWave = (ZWave *) p;
+	pZWave->ReportChildDevices();
+	return NULL;
+}
+
+//<-dceag-c756-b->
+
+	/** @brief COMMAND: #756 - Report Child Devices */
+	/** Report all the child sensors this has by firing an event 'Reporting Child Devices' */
+
+void ZWave::CMD_Report_Child_Devices(string &sCMD_Result,Message *pMessage)
+//<-dceag-c756-e->
+{
+	pthread_t t;
+	pthread_create(&t, NULL, DoReportChildDevices, (void*)this);
+}
+//<-dceag-c757-b->
+
+	/** @brief COMMAND: #757 - Download Configuration */
+	/** Download new configuration data for this device */
+		/** @param #9 Text */
+			/** Any information the device may want to do the download */
+
+void ZWave::CMD_Download_Configuration(string sText,string &sCMD_Result,Message *pMessage)
+//<-dceag-c757-e->
+{
+	pthread_t t;
+	pthread_create(&t, NULL, DoDownloadConfiguration, (void*)this);
 }

@@ -21,6 +21,7 @@ private:
 	bool m_bAlarmPanelDetectionStarted;
 
 	string GetDeviceStatus(long nPK_Device);
+	deque<int> m_dequeNumLights;
 
 protected:
 	class Orbiter *m_pOrbiter;
@@ -68,6 +69,11 @@ public:
 	int AddDevice(int PK_DeviceTemplate);
 	void SetAvPath(int PK_Device_From,int PK_Device_To,int PK_Pipe,int PK_Command_Input);
 	void AddExternalTuner(int PK_Device_Tuner);
+
+	/*
+		SETUP LIGHTING
+	*/
+	int GetNumLights(int &iNumLightsUnassigned);
 
 	/*
 		UTILITIES

@@ -25,6 +25,10 @@ namespace DatabaseUtils
 	void GetUnusedPortsOnPC(MySqlHelper *pMySqlHelper,int PK_Device,vector<string> &vectPorts);
 	void GetAllDevicesInTree(MySqlHelper *pMySqlHelper,int PK_Device,map<int,int> &mapDeviceTree,bool bCheckParent=true,int PK_Device_ChildExclude=0);
 	void SetDeviceData(MySqlHelper *pMySqlHelper,int PK_Device,int PK_DeviceData,string IK_DeviceData);
+	string GetDescriptionForDevice(MySqlHelper *pMySqlHelper,int PK_Device);
+	bool SetDeviceInRoom(MySqlHelper *pMySqlHelper,int PK_Device,int PK_Room);
+	bool SetDeviceControlledVia(MySqlHelper *pMySqlHelper,int PK_Device,int PK_Device_ControlledVia);
+	int GetCommMethodForDeviceTemplate(MySqlHelper *pMySqlHelper,int PK_DeviceTemplate);
 };
 
 #endif //#ifndef _DatabaseUtils

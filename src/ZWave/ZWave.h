@@ -2,7 +2,7 @@
 #ifndef ZWave_h
 #define ZWave_h
 
-//	DCE Implemenation for #1750 ZWave
+//	DCE Implemenation for #1754 ZWave
 
 #include "Gen_Devices/ZWaveBase.h"
 //<-dceag-d-e->
@@ -17,6 +17,8 @@ namespace DCE
 //<-dceag-decl-e->
 		// Private member variables
 		PlainClientSocket *m_pPlainClientSocket;
+	    pluto_pthread_mutex_t m_ZWaveMutex; 
+	    pthread_mutexattr_t m_MutexAttr;
 
 		// Private methods
 		bool ConfirmConnection();
@@ -34,13 +36,10 @@ public:
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
 
-//<-dceag-const2-b->
-		// The following constructor is only used if this a class instance embedded within a DCE Device.  In that case, it won't create it's own connection to the router
-		// You can delete this whole section and put an ! after dceag-const2-b tag if you don't want this constructor.  Do the same in the implementation file
-		ZWave(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter);
-//<-dceag-const2-e->
+//<-dceag-const2-b->!
 
-		void SyncDeviceList();
+		void DownloadConfiguration();
+		void ReportChildDevices();
 
 //<-dceag-h-b->
 	/*
@@ -53,16 +52,27 @@ public:
 	string DATA_Get_Remote_Phone_IP();
 
 			*****EVENT***** accessors inherited from base class
+	void EVENT_Reporting_Child_Devices(string sError_Message,string sText);
+	void EVENT_Download_Config_Done(string sError_Message);
 
 			*****COMMANDS***** we need to implement
 	*/
 
 
-	/** @brief COMMAND: #709 - Discover New Devices */
-	/** Scans for new devices and adds them to the system */
+	/** @brief COMMAND: #756 - Report Child Devices */
+	/** Report all the child sensors this has by firing an event 'Reporting Child Devices' */
 
-	virtual void CMD_Discover_New_Devices() { string sCMD_Result; CMD_Discover_New_Devices(sCMD_Result,NULL);};
-	virtual void CMD_Discover_New_Devices(string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Report_Child_Devices() { string sCMD_Result; CMD_Report_Child_Devices(sCMD_Result,NULL);};
+	virtual void CMD_Report_Child_Devices(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #757 - Download Configuration */
+	/** Download new configuration data for this device */
+		/** @param #9 Text */
+			/** Any information the device may want to do the download */
+
+	virtual void CMD_Download_Configuration(string sText) { string sCMD_Result; CMD_Download_Configuration(sText.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Download_Configuration(string sText,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

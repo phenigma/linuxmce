@@ -54,6 +54,7 @@
 #define EVENT_Sunset_CONST 52
 #define EVENT_New_Mac_Address_Detected_CONST 53
 #define EVENT_Reporting_Child_Devices_CONST 54
+#define EVENT_Download_Config_Done_CONST 55
 
 #define EVENT_TABLE "Event"
 #define EVENT_PK_EVENT_FIELD "PK_Event"

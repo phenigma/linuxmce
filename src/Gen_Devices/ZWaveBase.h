@@ -22,6 +22,11 @@ public:
 		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 54,2,12,sError_Message.c_str(),13,sText.c_str()));
 	}
 
+	virtual void Download_Config_Done(string sError_Message)
+	{
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 55,1,12,sError_Message.c_str()));
+	}
+
 };
 
 
@@ -91,7 +96,7 @@ public:
 			m_pData = new ZWave_Data();
 			return true;
 		}
-		if( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None || m_pEvent->m_pClientSocket->m_Socket==INVALID_SOCKET )
+		if( (m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None && m_pEvent->m_pClientSocket->m_eLastError!=cs_err_NeedReload) || m_pEvent->m_pClientSocket->m_Socket==INVALID_SOCKET )
 			return false;
 
 		int Size; char *pConfig = m_pEvent->GetConfig(Size);
@@ -127,8 +132,10 @@ public:
 	string DATA_Get_Remote_Phone_IP() { return GetData()->Get_Remote_Phone_IP(); }
 	//Event accessors
 	void EVENT_Reporting_Child_Devices(string sError_Message,string sText) { GetEvents()->Reporting_Child_Devices(sError_Message.c_str(),sText.c_str()); }
+	void EVENT_Download_Config_Done(string sError_Message) { GetEvents()->Download_Config_Done(sError_Message.c_str()); }
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Report_Child_Devices(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Download_Configuration(string sText,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -165,6 +172,32 @@ public:
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
 								CMD_Report_Child_Devices(sCMD_Result,pMessage);
+						}
+					};
+					iHandled++;
+					continue;
+				case 757:
+					{
+						string sCMD_Result="OK";
+					string sText=pMessage->m_mapParameters[9];
+						CMD_Download_Configuration(sText.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
+							SendString(sCMD_Result);
+						}
+						if( (itRepeat=pMessage->m_mapParameters.find(72))!=pMessage->m_mapParameters.end() )
+						{
+							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
+							for(int i=2;i<=iRepeat;++i)
+								CMD_Download_Configuration(sText.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

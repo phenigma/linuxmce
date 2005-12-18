@@ -131,3 +131,48 @@ void DatabaseUtils::GetAllDevicesInTree(MySqlHelper *pMySqlHelper,int PK_Device,
 		}
 	}
 }
+
+string DatabaseUtils::GetDescriptionForDevice(MySqlHelper *pMySqlHelper,int PK_Device)
+{
+	string sSQL = "SELECT Description FROM Device WHERE PK_Device=" + StringUtils::itos(PK_Device);
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	if( ( result.r=pMySqlHelper->mysql_query_result( sSQL ) )!=NULL && (row=mysql_fetch_row(result.r))!=NULL && row[0] )
+		return row[0];
+	return "";
+}
+
+bool DatabaseUtils::SetDeviceInRoom(MySqlHelper *pMySqlHelper,int PK_Device,int PK_Room)
+{
+	string sSQL = "SELECT PK_Room FROM Room WHERE PK_Room=" + StringUtils::itos(PK_Room);
+	PlutoSqlResult result_room;
+	if( ( result_room.r=pMySqlHelper->mysql_query_result( sSQL ) )==NULL || result_room.r->row_count!=1 )
+		return false;
+
+	sSQL = "UPDATE Device SET FK_Room=" + StringUtils::itos(PK_Room) + " WHERE PK_Device=" + StringUtils::itos(PK_Device);
+	pMySqlHelper->threaded_mysql_query(sSQL);
+	return true;
+}
+
+bool DatabaseUtils::SetDeviceControlledVia(MySqlHelper *pMySqlHelper,int PK_Device,int PK_Device_ControlledVia)
+{
+	string sSQL = "SELECT PK_Device FROM Device WHERE PK_Device=" + StringUtils::itos(PK_Device_ControlledVia);
+	PlutoSqlResult result_cv;
+	if( ( result_cv.r=pMySqlHelper->mysql_query_result( sSQL ) )==NULL || result_cv.r->row_count!=1 )
+		return false;
+
+	sSQL = "UPDATE Device SET FK_Device_ControlledVia=" + StringUtils::itos(PK_Device_ControlledVia) + " WHERE PK_Device=" + StringUtils::itos(PK_Device);
+	pMySqlHelper->threaded_mysql_query(sSQL);
+	return true;
+}
+
+int DatabaseUtils::GetCommMethodForDeviceTemplate(MySqlHelper *pMySqlHelper,int PK_DeviceTemplate)
+{
+	string sSQL = "SELECT FK_CommMethod FROM DeviceTemplate JOIN InfraredGroup ON FK_InfraredGroup=PK_InfraredGroup WHERE PK_DeviceTemplate=" + StringUtils::itos(PK_DeviceTemplate);
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	if( ( result.r=pMySqlHelper->mysql_query_result( sSQL ) )!=NULL && (row=mysql_fetch_row(result.r))!=NULL && row[0] )
+		return atoi(row[0]);
+	return 0;
+}
+
