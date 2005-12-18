@@ -85,3 +85,9 @@ echo "cd /usr/pluto/sources" >>"/usr/pluto/sources/buildall.sh"
 rm -f "/usr/pluto/install/compile.sh" # old version mistake precaution
 ln -sf "/usr/pluto/sources/buildall.sh" "/usr/pluto/install/compile.sh"
 chmod +x "/usr/pluto/sources/buildall.sh"
+
+if [[ "$2" == "StartLocalDevice" ]]; then
+        echo "Starting local devices"
+        /usr/pluto/bin/Start_LocalDevices.sh
+fi
+
