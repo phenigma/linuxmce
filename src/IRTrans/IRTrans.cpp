@@ -15,6 +15,8 @@ using namespace DCE;
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_DeviceCategory.h"
 #include "PlutoUtils/LinuxSerialUSB.h"
+#include "PlutoUtils/DatabaseUtils.h"
+#include "PlutoUtils/MySQLHelper.h"
 
 #ifdef WIN32
 typedef int WSAEVENT;
@@ -269,59 +271,55 @@ void IRTrans::StartIRServer()
 	m_bIRServerRunning=true;
 
 	char TTYPort[255];
+	TTYPort[0]=0;
 	if( DATA_Get_COM_Port_on_PC().size() && DATA_Get_COM_Port_on_PC().size()<255 )
 #ifndef WIN32
 		strcpy(TTYPort,TranslateSerialUSB(DATA_Get_COM_Port_on_PC()).c_str());
 #else
 		strcpy(TTYPort,DATA_Get_COM_Port_on_PC().c_str());
 #endif
-	else
-		strcpy(TTYPort,"/dev/ttyUSB0");
 
-	int LastChar;
 	bool bLoaded = false;
-	bool bSecondLoop = false;
-
 	char *argv[]={"IRTrans","-loglevel","4","-debug_code","-no_lirc", "-no_web",TTYPort};
 
-FindIRTrans:
-	LastChar = strlen(TTYPort)-1;
 	g_pPlutoLogger->Write(LV_STATUS,"Trying to open IRTrans on %s",TTYPort);
 #ifndef WIN32
-	if( libmain(7,argv)!=0 )
+	if( TTYPort[0]==0 || libmain(7,argv)!=0 )
 #else
-	if( true )
+	if( TTYPort[0]==0 || true )
 #endif
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"IRTrans not found on default port.  Will scan for it");
-		for(char cUSB='0';cUSB<='9';cUSB++)
+		MySqlHelper mySqlHelper(m_sIPAddress,"root","","pluto_main");
+		g_pPlutoLogger->Write(LV_STATUS,"IRTrans not found on default port.  Will scan for it %d",(int) mySqlHelper.m_bConnected);
+		if( mySqlHelper.m_bConnected )
 		{
-			TTYPort[LastChar]=cUSB;
-			g_pPlutoLogger->Write(LV_STATUS,"Looking on %s",argv[6]);
-#ifndef WIN32
-			if( libmain(7,argv)!=0 )
-#else
-			if( true )
-#endif
-				g_pPlutoLogger->Write(LV_STATUS,"IRTrans not found on %s",argv[6]);
-			else
+			vector<string> vectPorts;
+			DatabaseUtils::GetUnusedPortsOnPC(&mySqlHelper,m_dwPK_Device,vectPorts);
+			for(size_t s=0;s<vectPorts.size();++s)
 			{
-				bLoaded=true;
-				break;
+				string sPort = vectPorts[s];
+#ifndef WIN32
+				string sPortTranslated = TranslateSerialUSB(sPort);
+#else
+				string sPortTranslated = sPort;
+#endif
+				g_pPlutoLogger->Write(LV_STATUS,"Looking on %s (%s)",sPort.c_str(),sPortTranslated.c_str());
+#ifndef WIN32
+				if( libmain(7,sPortTranslated.c_str())!=0 )
+#else
+				if( true )
+#endif
+					g_pPlutoLogger->Write(LV_STATUS,"IRTrans not found on %s",sPort.c_str());
+				else
+				{
+					bLoaded=true;
+					DatabaseUtils::SetDeviceData(&mySqlHelper,m_dwPK_Device,DEVICEDATA_COM_Port_on_PC_CONST,sPort);
+					break;
+				}
 			}
 		}
 	}
 	else bLoaded=true;
-
-	if( !bLoaded && !bSecondLoop )
-	{
-		if(strncmp(TTYPort,"/dev/ttyS",9)==0)
-			strcpy(TTYPort,"/dev/ttyUSB0");
-		else
-			strcpy(TTYPort,"/dev/ttyS0");
-		bSecondLoop=true;
-		goto FindIRTrans;
-	}
 
 	// We won't get here until it exits
 #ifndef WIN32
