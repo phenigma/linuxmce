@@ -307,7 +307,8 @@ void IRTrans::StartIRServer()
 #endif
 				g_pPlutoLogger->Write(LV_STATUS,"Looking on %s (%s)",sPort.c_str(),sPortTranslated.c_str());
 #ifndef WIN32
-				if( libmain(7,sPortTranslated.c_str())!=0 )
+				strcpy(TTYPort,sPortTranslated.c_str());
+				if( libmain(7,argv)!=0 )
 #else
 				if( true )
 #endif
