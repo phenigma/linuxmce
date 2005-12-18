@@ -693,6 +693,7 @@
 #define COMMAND_PL_Add_VOIP_Account_CONST 751
 #define COMMAND_Check_Mounts_CONST 752
 #define COMMAND_Report_Child_Devices_CONST 756
+#define COMMAND_Download_Configuration_CONST 757
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

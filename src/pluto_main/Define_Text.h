@@ -903,6 +903,7 @@
 #define TEXT_input_from_md_CONST 1614
 #define TEXT_Monster_Remote_Found_CONST 1616
 #define TEXT_Error_getting_data_CONST 1617
+#define TEXT_Num_Lights_CONST 1618
 #define TEXT_No_Lights_Found_CONST 1619
 
 #define TEXT_TABLE "Text"
