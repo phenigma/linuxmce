@@ -53,7 +53,8 @@ enum CallBackType
 	cbOnMouseDown,
 	cbOnMouseUp,
 	cbCapturedKeyboardBufferChanged,
-	cbOnTimer
+	cbOnTimer,
+	cbMessageIntercepted
 };
 
 #define PROMPT_CANCEL -1
@@ -553,6 +554,11 @@ public: // temp - remove this
 	 * @brief A "DoMaint" callback when we need to select an object after a delay
 	 */
 	void DelayedSelectObject( void *data );
+
+	/**
+	 * If a ScreenHandler needs to intercept a message it can register using this function
+	 */
+	bool ScreenHandlerMsgInterceptor( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 
 	/**
 	 * @brief A "DoMaint" callback to continually refresh the screen

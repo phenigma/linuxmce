@@ -5,6 +5,8 @@
 #include "pluto_main/Define_DesignObj.h"
 #include "pluto_main/Define_DeviceTemplate.h"
 #include "pluto_main/Define_DataGrid.h"
+#include "pluto_main/Define_Event.h"
+#include "pluto_main/Define_EventParameter.h"
 #include "Gen_Devices/AllCommandsRequests.h"
 
 #include "../WizardLogic.h"
@@ -14,6 +16,7 @@ OSDScreenHandler::OSDScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignO
 	ScreenHandler(pOrbiter, p_MapDesignObj)
 {
 	m_pWizardLogic = new WizardLogic(pOrbiter);
+	m_dwMessageInterceptorCounter_ReportingChildDevices = 0;
 
 	if(!m_pWizardLogic->Setup())
 	{
@@ -415,8 +418,8 @@ bool OSDScreenHandler::TV_provider_ObjectSelected(CallBackData *pData)
 				//we have the TVBox Manufacturer and TVBox Model!
 				m_pWizardLogic->DeleteDevicesInThisRoomOfType(DEVICECATEGORY_Cable_Boxes_CONST);
 				m_pWizardLogic->DeleteDevicesInThisRoomOfType(DEVICECATEGORY_Satellite_Boxes_CONST);
-				m_nPK_Device_TVProvider_External = m_pWizardLogic->AddDevice(atoi(sModel.c_str()));
-				m_pWizardLogic->AddExternalTuner(m_nPK_Device_TVProvider_External);  // Make this point to our PVR card's input
+				m_pWizardLogic->m_nPK_Device_TVProvider_External = m_pWizardLogic->AddDevice(atoi(sModel.c_str()));
+				m_pWizardLogic->AddExternalTuner(m_pWizardLogic->m_nPK_Device_TVProvider_External);  // Make this point to our PVR card's input
 			}
 		}
 		break;
@@ -658,7 +661,106 @@ bool OSDScreenHandler::AV_Devices_ObjectSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_LightsSetup(long PK_Screen)
 {
+	if( !m_pWizardLogic->m_nPK_Device_ZWave )
+	{
+		// TODO: This is monster specific
+		// Just go to a 'add other devices' design obj
+		m_pOrbiter->CMD_Goto_Screen("",SCREEN_AlarmPanel_CONST);
+	}
 	ScreenHandlerBase::SCREEN_LightsSetup(PK_Screen);
+	RegisterCallBack(cbMessageIntercepted, (ScreenHandlerCallBack) &OSDScreenHandler::LightsSetup_Intercepted, new MsgInterceptorCellBackData());
+	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &OSDScreenHandler::LightsSetup_ObjectSelected, new ObjectInfoBackData());
+}
+//-----------------------------------------------------------------------------------------------------
+
+// TODO: This is Monster specific
+bool OSDScreenHandler::LightsSetup_ObjectSelected(CallBackData *pData)
+{
+	ObjectInfoBackData *pObjectInfoData = (ObjectInfoBackData *)pData;
+
+	switch(GetCurrentScreen_PK_DesignObj())
+	{
+		case DESIGNOBJ_Lights_CONST:
+		{
+			if(DESIGNOBJ_butIHaveMonster_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
+			{
+				if( !m_dwMessageInterceptorCounter_ReportingChildDevices )
+				{
+					m_dwMessageInterceptorCounter_ReportingChildDevices = m_pOrbiter->RegisterMsgInterceptor((MessageInterceptorFn)(Orbiter::ScreenHandlerMsgInterceptor),0,0,0,0,MESSAGETYPE_EVENT,EVENT_Reporting_Child_Devices_CONST);
+					m_pOrbiter->RegisterMsgInterceptor((MessageInterceptorFn)(Orbiter::ScreenHandlerMsgInterceptor),0,0,0,0,MESSAGETYPE_EVENT,EVENT_Download_Config_Done_CONST);
+				}
+				DesignObjText *pText = m_pOrbiter->FindText( m_pOrbiter->FindObject(DESIGNOBJ_LightsSetup_CONST),TEXT_STATUS_CONST );
+				if( pText )
+					pText->m_sText = m_pOrbiter->m_mapTextString[TEXT_Lights_Setup_CONST];
+			}
+		}
+		break;
+
+		case DESIGNOBJ_LightsPrepare_CONST:
+		{
+			if(DESIGNOBJ_butMonsterLightsSetup_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
+			{
+				string sResponse;
+				DCE::CMD_Download_Configuration CMD_Download_Configuration(m_pOrbiter->m_dwPK_Device,m_pWizardLogic->m_nPK_Device_ZWave,"");
+				if( !m_pOrbiter->SendCommand(CMD_Download_Configuration,&sResponse) )
+				{
+					DesignObjText *pText = m_pOrbiter->FindText( m_pOrbiter->FindObject(DESIGNOBJ_LightsSetup_CONST),TEXT_STATUS_CONST );
+					if( pText )
+						pText->m_sText = m_pOrbiter->m_mapTextString[TEXT_Error_getting_data_CONST] + ": ZWave interface not responding";
+				}
+			}
+		}
+		break;
+	};
+
+	return false;
+}
+//-----------------------------------------------------------------------------------------------------
+bool OSDScreenHandler::LightsSetup_Intercepted(CallBackData *pData)
+{
+	if(GetCurrentScreen_PK_DesignObj()==DESIGNOBJ_LightsSetup_CONST)
+	{
+		MsgInterceptorCellBackData *pMsgInterceptorCellBackData = (MsgInterceptorCellBackData *) pData;
+		if( pMsgInterceptorCellBackData->m_pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT &&
+			pMsgInterceptorCellBackData->m_pMessage->m_dwID==EVENT_Download_Config_Done_CONST )
+		{
+			DesignObjText *pText = m_pOrbiter->FindText( m_pOrbiter->FindObject(DESIGNOBJ_LightsSetup_CONST),TEXT_STATUS_CONST );
+			string sResult = pMsgInterceptorCellBackData->m_pMessage->m_mapParameters[EVENTPARAMETER_Error_Message_CONST];
+
+			if( sResult.size() )
+			{
+				if( pText )
+					pText->m_sText = m_pOrbiter->m_mapTextString[TEXT_Error_getting_data_CONST] + ": " + sResult;
+				m_pOrbiter->CMD_Refresh("");
+				return false;
+			}
+			if( pText )
+				pText->m_sText = m_pOrbiter->m_mapTextString[TEXT_Monster_Remote_Found_CONST];
+
+			DCE::CMD_Report_Child_Devices CMD_Report_Child_Devices(m_pOrbiter->m_dwPK_Device,m_pWizardLogic->m_nPK_Device_ZWave);
+			m_pOrbiter->SendCommand(CMD_Report_Child_Devices);
+			m_pOrbiter->CMD_Refresh("");
+			return false;
+		}
+		if( pMsgInterceptorCellBackData->m_pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT &&
+			pMsgInterceptorCellBackData->m_pMessage->m_dwID==EVENT_Reporting_Child_Devices_CONST )
+		{
+			string sResult = pMsgInterceptorCellBackData->m_pMessage->m_mapParameters[EVENTPARAMETER_Error_Message_CONST];
+			if( sResult.size() )
+			{
+				DesignObjText *pText = m_pOrbiter->FindText( m_pOrbiter->FindObject(DESIGNOBJ_LightsSetup_CONST),TEXT_STATUS_CONST );
+				if( pText )
+					pText->m_sText = m_pOrbiter->m_mapTextString[TEXT_Error_getting_data_CONST] + ": " + sResult;
+				m_pOrbiter->CMD_Refresh("");
+				return false;
+			}
+
+			m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(DESIGNOBJ_LightsSetupInclude_CONST),"","",false,false);
+			return false;
+		}
+	}
+
+	return false;
 }
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_AlarmPanel(long PK_Screen)
@@ -700,11 +802,11 @@ bool OSDScreenHandler::AlarmPanel_ObjectSelected(CallBackData *pData)
 				if(sAlarmModel == "")
 					return true;
 
-				m_pWizardLogic->m_nPK_AlarmPanelDevice = m_pWizardLogic->AddDevice(atoi(sAlarmModel.c_str()));
+				m_pWizardLogic->m_nPK_Device_AlarmPanel = m_pWizardLogic->AddDevice(atoi(sAlarmModel.c_str()));
 				//this will also spawn the device
 
 				//for testing
-				m_pWizardLogic->m_nPK_AlarmPanelDevice = 5237;
+				m_pWizardLogic->m_nPK_Device_AlarmPanel = 5237;
 			}
 		}
 		break;
@@ -740,16 +842,16 @@ bool OSDScreenHandler::AlarmPanel_ObjectSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 bool OSDScreenHandler::AlarmPanel_OnTimer(CallBackData *pData)
 {
-	if(!m_pWizardLogic->m_nPK_AlarmPanelDevice)
+	if(!m_pWizardLogic->m_nPK_Device_AlarmPanel)
 		return true;
 	else
 	{
 		m_pWizardLogic->m_nAlarmDeviceTimeout -= 500;
 
 		g_pPlutoLogger->Write(LV_WARNING, "Check status for device %d... Milliseconds left: %d", 
-			m_pWizardLogic->m_nPK_AlarmPanelDevice, m_pWizardLogic->m_nAlarmDeviceTimeout);
+			m_pWizardLogic->m_nPK_Device_AlarmPanel, m_pWizardLogic->m_nAlarmDeviceTimeout);
 
-		string sDeviceStatus = m_pWizardLogic->GetDeviceStatus(m_pWizardLogic->m_nPK_AlarmPanelDevice);
+		string sDeviceStatus = m_pWizardLogic->GetDeviceStatus(m_pWizardLogic->m_nPK_Device_AlarmPanel);
 		if(sDeviceStatus == "READY")
 		{
 			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "");
@@ -757,7 +859,7 @@ bool OSDScreenHandler::AlarmPanel_OnTimer(CallBackData *pData)
 			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, "");
 			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, "");
 			m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Input_CONST, "");
-			m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Filter_CONST, StringUtils::ltos(m_pWizardLogic->m_nPK_AlarmPanelDevice));
+			m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Filter_CONST, StringUtils::ltos(m_pWizardLogic->m_nPK_Device_AlarmPanel));
 
 			m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(DESIGNOBJ_AlarmSensors_CONST), "", "", false, false);
 			m_pOrbiter->CMD_Refresh("*");

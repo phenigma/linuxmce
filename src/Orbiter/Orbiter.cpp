@@ -9628,3 +9628,19 @@ void Orbiter::StartScreenHandlerTimer(int nInterval /*in miliseconds*/)
 	CallMaintenanceInMiliseconds(nInterval, &Orbiter::ServiceScreenHandler, new int(nInterval), pe_ALL );
 }
 //-----------------------------------------------------------------------------------------------------
+bool Orbiter::ScreenHandlerMsgInterceptor( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
+{
+	CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbMessageIntercepted);
+	if(pCallBackData)
+	{
+		MsgInterceptorCellBackData *pMsgInterceptorCellBackData = (MsgInterceptorCellBackData *)pCallBackData;
+		pMsgInterceptorCellBackData->m_pSocket = pSocket;
+		pMsgInterceptorCellBackData->m_pMessage = pMessage;
+		pMsgInterceptorCellBackData->m_pDeviceFrom = pDeviceFrom;
+		pMsgInterceptorCellBackData->m_pDeviceTo = pDeviceTo;
+	}
+
+	ExecuteScreenHandlerCallback(cbMessageIntercepted);
+	return true;
+}
+

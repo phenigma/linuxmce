@@ -4,13 +4,14 @@
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_Country.h"
 #include "pluto_main/Define_DeviceData.h"
+#include "pluto_main/Define_DeviceTemplate.h"
 #include "Gen_Devices/AllCommandsRequests.h"
 
 WizardLogic::WizardLogic(Orbiter *pOrbiter)
 {
 	m_pOrbiter = pOrbiter;
 	m_pUserUtils = new UserUtils(this,m_pOrbiter->m_pData->m_dwPK_Installation);
-	m_nPK_AlarmPanelDevice = 0;
+	m_nPK_Device_ZWave = m_nPK_Device_AlarmPanel = 0;
 }
 
 WizardLogic::~WizardLogic()
@@ -27,18 +28,26 @@ bool WizardLogic::Setup()
 	MYSQL_ROW row;
 
 	sSQL = "SELECT PK_RoomType,Description FROM RoomType ORDER BY Description";
-
-	PlutoSqlResult result_set_roomtypes;
-	if( (result_set_roomtypes.r=mysql_query_result(sSQL)) )
-		while ((row = mysql_fetch_row(result_set_roomtypes.r)))
-		{
-			m_listRoomTypes.push_back( make_pair<int,string> (atoi(row[0]),row[1]) );
-			m_mapRoomTypes[atoi(row[0])] = row[1];
-		}
+	{
+		PlutoSqlResult result_set_roomtypes;
+		if( (result_set_roomtypes.r=mysql_query_result(sSQL)) )
+			while ((row = mysql_fetch_row(result_set_roomtypes.r)))
+			{
+				m_listRoomTypes.push_back( make_pair<int,string> (atoi(row[0]),row[1]) );
+				m_mapRoomTypes[atoi(row[0])] = row[1];
+			}
+	}
 
 	m_nPK_Device_TVProvider_External=m_nPK_Device_TV=m_nPK_Device_Receiver=
 		m_nPK_Command_Input_Video_On_TV=0;
 	m_bUsingReceiverForVideo=false;
+
+	sSQL = "SELECT PK_Device FROM Device WHERE FK_DeviceTemplate=" + StringUtils::itos(DEVICETEMPLATE_ZWave_CONST);
+	{
+		PlutoSqlResult result_set;
+		if( (result_set.r=mysql_query_result(sSQL)) && ((row = mysql_fetch_row(result_set.r))) )
+			m_nPK_Device_ZWave = atoi( row[0] );
+	}
 
 	return true;
 }

@@ -19,7 +19,7 @@ public:
 	//Video Wizard Screens
 	//
 
-	long m_nPK_Device_TVProvider_External;
+	int m_dwMessageInterceptorCounter_ReportingChildDevices;
 
 	//1. Users Wizard
 	virtual void SCREEN_UsersWizard(long PK_Screen);
@@ -55,6 +55,8 @@ public:
 
 	//8. Lights Setup
 	virtual void SCREEN_LightsSetup(long PK_Screen);
+	virtual bool LightsSetup_ObjectSelected(CallBackData *pData);
+	virtual bool LightsSetup_Intercepted(CallBackData *pData);
 
 	//9. Alarm Panel
 	virtual void SCREEN_AlarmPanel(long PK_Screen);

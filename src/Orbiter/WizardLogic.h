@@ -5,6 +5,8 @@
 #include "PlutoUtils/MySQLHelper.h"
 //-----------------------------------------------------------------------------------------------------
 
+class Row_Device;
+
 class WizardLogic : public MySqlHelper
 {
 private:
@@ -14,7 +16,7 @@ private:
 		m_nPK_Command_Input_Video_On_TV;
 	bool m_bUsingReceiverForVideo;
 
-	long m_nPK_AlarmPanelDevice;
+	long m_nPK_Device_AlarmPanel,m_nPK_Device_ZWave;  // Monster specific
 	long m_nAlarmDeviceTimeout;
 	bool m_bAlarmPanelDetectionStarted;
 

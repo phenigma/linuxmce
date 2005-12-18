@@ -42,4 +42,12 @@ public:
 	long m_nPK_Datagrid;
 };
 //-----------------------------------------------------------------------------------------------------
+class MsgInterceptorCellBackData : public CallBackData
+{
+public:
+	class Socket *m_pSocket;
+	class Message *m_pMessage;
+	class DeviceData_Base *m_pDeviceFrom, *m_pDeviceTo;
+};
+//-----------------------------------------------------------------------------------------------------
 #endif
