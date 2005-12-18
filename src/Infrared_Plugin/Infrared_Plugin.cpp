@@ -575,6 +575,8 @@ void Infrared_Plugin::GetInfraredCodes(int iPK_Device,IRDevice &irDevice,bool bN
 	vector<Row_InfraredGroup_Command *> vectRow_InfraredGroup_Command[4];
 
 	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(iPK_Device);
+	if( !pRow_Device )
+		return;
 	pRow_Device->Reload();  // Get the latest so the user doesn't need to do a quick reload router
 	irDevice.m_PK_Device_ControlledVia = pRow_Device->FK_Device_ControlledVia_get();
 
