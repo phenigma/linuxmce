@@ -50,6 +50,7 @@ public:
 	//6. Receiver
 	virtual void SCREEN_Receiver(long PK_Screen);
 	virtual bool Receiver_ObjectSelected(CallBackData *pData);
+	virtual bool Receiver_GridSelected(CallBackData *pData);
 
 	//7. AV Devices
 	virtual void SCREEN_AV_Devices(long PK_Screen);

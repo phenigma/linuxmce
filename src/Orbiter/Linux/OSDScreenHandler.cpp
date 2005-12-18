@@ -549,6 +549,25 @@ void OSDScreenHandler::SCREEN_Receiver(long PK_Screen)
 		ScreenHandlerBase::SCREEN_Receiver(PK_Screen);
 
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &OSDScreenHandler::Receiver_ObjectSelected, new ObjectInfoBackData());
+	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &OSDScreenHandler::Receiver_GridSelected, new DatagridCellBackData());
+}
+//-----------------------------------------------------------------------------------------------------
+bool OSDScreenHandler::Receiver_GridSelected(CallBackData *pData)
+{
+	DatagridCellBackData *pCellInfoData = (DatagridCellBackData *)pData;
+	if( pCellInfoData->m_nPK_Datagrid==DATAGRID_Available_Serial_Ports_CONST )
+	{
+		string::size_type pos=0;
+		int iPK_Device_ControlledVia = atoi(StringUtils::Tokenize(pCellInfoData->m_sValue,",",pos).c_str());
+		string sPort = StringUtils::Tokenize(pCellInfoData->m_sValue,",",pos);
+		if( DatabaseUtils::SetDeviceControlledVia(m_pWizardLogic,m_pWizardLogic->m_nPK_Device_TV,iPK_Device_ControlledVia) )
+		{
+			DatabaseUtils::SetDeviceData(m_pWizardLogic,m_pWizardLogic->m_nPK_Device_TV,DEVICEDATA_COM_Port_on_PC_CONST,pCellInfoData->m_sValue);
+			m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(DESIGNOBJ_ReceiverInputs_CONST),"","",true,false);
+		}
+		return true;
+	}
+	return false;
 }
 //-----------------------------------------------------------------------------------------------------
 bool OSDScreenHandler::Receiver_ObjectSelected(CallBackData *pData)
@@ -587,6 +606,16 @@ bool OSDScreenHandler::Receiver_ObjectSelected(CallBackData *pData)
 				string sModel = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_3_CONST];
 				if(sModel == "")
 					return true;
+
+				// Delete receivers first since maybe the user is returning to this wizard
+				m_pWizardLogic->DeleteDevicesInThisRoomOfType(DEVICECATEGORY_AmpsPreampsReceiversTuners_CONST);
+				m_pWizardLogic->m_nPK_Device_Receiver = m_pWizardLogic->AddDevice(atoi(sModel.c_str()));
+				int PK_CommMethod = DatabaseUtils::GetCommMethodForDeviceTemplate(m_pWizardLogic,atoi(sModel.c_str()));
+				if( PK_CommMethod==COMMMETHOD_RS232_CONST )
+				{
+					m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(DESIGNOBJ_SelectPort_CONST),"","",false,false);
+					return true;  // We're redirecting the flow
+				}
 			}
 		}
 		break;
@@ -599,23 +628,19 @@ bool OSDScreenHandler::Receiver_ObjectSelected(CallBackData *pData)
 					if(sReceiverInputs == "")
 						return true;
 
-					string sModel = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_3_CONST];
-					m_pWizardLogic->DeleteDevicesInThisRoomOfType(DEVICECATEGORY_AmpsPreampsReceiversTuners_CONST);
-					int PK_Receiver = m_pWizardLogic->AddDevice(atoi(sModel.c_str()));
-
 					int PK_Device_From = 0;
 					int PK_Command_Input = atoi(sReceiverInputs.c_str());
 					
 					// Set the input
 					m_pWizardLogic->SetAvPath(m_pOrbiter->m_pData->m_dwPK_Device_ControlledVia,
-						PK_Receiver,1 /* audio */,PK_Command_Input);
+						m_pWizardLogic->m_nPK_Device_Receiver,1 /* audio */,PK_Command_Input);
 
 					// Video also goes to the receiver, and the receiver's video goes to the tv
 					if( m_pWizardLogic->m_bUsingReceiverForVideo )
 					{
 						m_pWizardLogic->SetAvPath(m_pOrbiter->m_pData->m_dwPK_Device_ControlledVia,
-							PK_Receiver,2 /* video */,PK_Command_Input);
-						m_pWizardLogic->SetAvPath(PK_Receiver,
+							m_pWizardLogic->m_nPK_Device_Receiver,2 /* video */,PK_Command_Input);
+						m_pWizardLogic->SetAvPath(m_pWizardLogic->m_nPK_Device_Receiver,
 							m_pWizardLogic->m_nPK_Device_TV,2 /* video */,m_pWizardLogic->m_nPK_Command_Input_Video_On_TV);
 					}
 				}

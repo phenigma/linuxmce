@@ -11,7 +11,6 @@ WizardLogic::WizardLogic(Orbiter *pOrbiter)
 {
 	m_pOrbiter = pOrbiter;
 	m_pUserUtils = new UserUtils(this,m_pOrbiter->m_pData->m_dwPK_Installation);
-	m_nPK_Device_ZWave = m_nPK_Device_AlarmPanel = 0;
 }
 
 WizardLogic::~WizardLogic()
@@ -38,6 +37,7 @@ bool WizardLogic::Setup()
 			}
 	}
 
+	m_nPK_Device_ZWave = m_nPK_Device_AlarmPanel = 0;
 	m_nPK_Device_TVProvider_External=m_nPK_Device_TV=m_nPK_Device_Receiver=
 		m_nPK_Command_Input_Video_On_TV=0;
 	m_bUsingReceiverForVideo=false;
