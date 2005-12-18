@@ -1244,8 +1244,7 @@ void Router::OnDisconnected(int DeviceID)
 	my_thread_end();
 #endif
 
-//  mysql_thread_end();
-    m_RunningDevices.erase(DeviceID);
+	m_RunningDevices.erase(DeviceID);
 }
 
 void Router::RegisteredEventHandler(ServerSocket *pSocket, int DeviceID)
@@ -1254,7 +1253,7 @@ void Router::RegisteredEventHandler(ServerSocket *pSocket, int DeviceID)
     DeviceData_Router *pDevice = m_mapDeviceData_Router_Find(DeviceID);
     if( !pDevice )
     {
-        g_pPlutoLogger->Write(LV_CRITICAL,"Device: %d tried to register event handler but it doesn't exist",DeviceID);
+        g_pPlutoLogger->Write(LV_WARNING,"Device: %d tried to register event handler but it doesn't exist",DeviceID);
         return;
     }
 
@@ -1271,15 +1270,11 @@ void Router::RegisteredCommandHandler(ServerSocket *pSocket, int DeviceID)
 	my_thread_init();
 #endif
 
-
     DeviceData_Router *pDevice = m_mapDeviceData_Router_Find(DeviceID);
     if( !pDevice )
-    {
-        g_pPlutoLogger->Write(LV_CRITICAL,"Device: %d tried to register but it doesn't exist",DeviceID);
-        return;
-    }
+        g_pPlutoLogger->Write(LV_WARNING,"Device: %d tried to register but it doesn't exist",DeviceID);
 
-    if( pDevice->m_bForceReloadOnFirstConnect )
+    if( pDevice && pDevice->m_bForceReloadOnFirstConnect )
     {
         pDevice->m_bForceReloadOnFirstConnect = false;
         pDevice->m_bIsReady=false;
@@ -1287,7 +1282,7 @@ void Router::RegisteredCommandHandler(ServerSocket *pSocket, int DeviceID)
         sl.Release();
         ReceivedMessage(NULL, new Message(0, DeviceID, PRIORITY_NORMAL, MESSAGETYPE_SYSCOMMAND, SYSCOMMAND_RELOAD, 0));
     }
-	else if( pDevice->m_bUsePingToKeepAlive )
+	else if( pDevice && pDevice->m_bUsePingToKeepAlive )
 	{
 		ServerSocket *pServerSocket;
 		GET_SERVER_SOCKET(gs, pServerSocket, DeviceID );
@@ -1298,8 +1293,11 @@ void Router::RegisteredCommandHandler(ServerSocket *pSocket, int DeviceID)
     // This device has registered, so we can always route its messages back to itself
     m_Routing_DeviceToController[DeviceID] = DeviceID;
 
-	pDevice->m_pSocket_Command=pSocket;
-    pDevice->m_bIsReady=true;
+	if( pDevice )
+	{
+		pDevice->m_pSocket_Command=pSocket;
+		pDevice->m_bIsReady=true;
+	}
 }
 
 

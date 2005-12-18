@@ -95,7 +95,7 @@ public:
 			m_pData = new Powerfile_C200_Data();
 			return true;
 		}
-		if( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None || m_pEvent->m_pClientSocket->m_Socket==INVALID_SOCKET )
+		if( (m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None && m_pEvent->m_pClientSocket->m_eLastError!=cs_err_NeedReload) || m_pEvent->m_pClientSocket->m_Socket==INVALID_SOCKET )
 			return false;
 
 		int Size; char *pConfig = m_pEvent->GetConfig(Size);

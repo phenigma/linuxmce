@@ -13,7 +13,7 @@ string ConvertRC5_6(string sCode);  // From GenerateRcX
 class IRBase : public AVMessageProcessor {
 	Command_Impl *m_pCommand_Impl;
 public:
-	IRBase() { m_bMustConvertRC5_6=false; }
+	IRBase() { m_bMustConvertRC5_6=false; m_pCommand_Impl=NULL; }
 	virtual ~IRBase() {};
 
 public:

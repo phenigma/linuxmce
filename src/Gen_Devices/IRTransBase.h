@@ -77,7 +77,7 @@ public:
 						CannotReloadRouter();
 						g_pPlutoLogger->Write(LV_WARNING,"Reload request denied: %s",sResponse.c_str());
 					}
-				Sleep(10000);  // Give the router 10 seconds before we re-attempt, otherwise we'll get an error right away
+					Sleep(10000);  // Give the router 10 seconds before we re-attempt, otherwise we'll get an error right away
 				}	
 			}
 		}
@@ -87,7 +87,7 @@ public:
 			m_pData = new IRTrans_Data();
 			return true;
 		}
-		if( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None || m_pEvent->m_pClientSocket->m_Socket==INVALID_SOCKET )
+		if( (m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None && m_pEvent->m_pClientSocket->m_eLastError!=cs_err_NeedReload) || m_pEvent->m_pClientSocket->m_Socket==INVALID_SOCKET )
 			return false;
 
 		int Size; char *pConfig = m_pEvent->GetConfig(Size);

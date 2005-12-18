@@ -257,6 +257,8 @@ void IRTrans::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 void IRTrans::CMD_Set_Screen_Type(int iValue,string &sCMD_Result,Message *pMessage)
 //<-dceag-c687-e->
 {
+	DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,169,"1",1);
+	SendCommand(CMD_Goto_Screen);
 	m_cCurrentScreen=(char) iValue;
 	g_pPlutoLogger->Write(LV_STATUS,"Screen type now %c",m_cCurrentScreen);
 }

@@ -436,11 +436,8 @@ void Command_Impl::SetDeviceCategories(DeviceData_Impl *pData)
 
 bool Command_Impl::RouterNeedsReload()
 {
-#ifndef WINCE
-	return AskYNQuestion("This device is new and the Router needs to reload\nbefore it can register.  This will cause all devices to reset.\nDo this now?",false,30);
-#else
-    return false;
-#endif
+	g_pPlutoLogger->Write(LV_WARNING,"The router must be reloaded before this device is fully functional");
+	return false;
 }
 
 int Command_Impl::DeviceIdInvalid()

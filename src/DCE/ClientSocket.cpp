@@ -239,21 +239,24 @@ bool ClientSocket::OnConnect( int PK_DeviceTemplate,string sExtraInfo )
 
 	if ( sResponse.length()<2 || sResponse.substr(0,2) != "OK" )
 	{
-		if( sResponse.substr(0,24)=="NOT IN THIS INSTALLATION" || sResponse.substr(0,10)=="BAD DEVICE" )
+		if( sResponse.substr(0,11)=="NEED RELOAD" )
+			m_eLastError=cs_err_NeedReload;
+		else if( sResponse.substr(0,24)=="NOT IN THIS INSTALLATION" || sResponse.substr(0,10)=="BAD DEVICE" )
 			m_eLastError=cs_err_BadDevice;
 		else
 			m_eLastError=cs_err_CannotConnect;
 		if( g_pPlutoLogger )
 			g_pPlutoLogger->Write( LV_CRITICAL, "Connection for client socket reported %s, device %d last error %d", 
 				sResponse.c_str(), m_dwPK_Device,(int) m_eLastError );
-		SendString( "CORRUPT SOCKET" );
-		Sleep( 500 );
-		Disconnect();
+
+		if( m_eLastError!=cs_err_NeedReload )
+		{
+			SendString( "CORRUPT SOCKET" );
+			Sleep( 500 );
+			Disconnect();
+		}
 		return false;
 	}
-
-	if( sResponse.length()>9 && sResponse.substr( sResponse.length()-6,6)=="RELOAD" )
-		m_bNeedReload=true;
 
 	int PK_Device_New = 0;
 	if( sResponse.length()>3 )

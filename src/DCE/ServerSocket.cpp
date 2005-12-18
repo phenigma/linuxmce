@@ -216,9 +216,7 @@ sMacAddress="11:22";
 			else
 			{
 				int iResponse = m_pListener->ConfirmDeviceTemplate( m_dwPK_Device, PK_DeviceTemplate );
-				if( iResponse==3 )
-					g_pPlutoLogger->Write(LV_WARNING,"Device %d registered but the router needs to be reloaded",m_dwPK_Device);
-				else if( iResponse==0 )
+				if( iResponse==0 )
 				{
 					SendString( "NOT IN THIS INSTALLATION" + sIPAndMac);
 					g_pPlutoLogger->Write(LV_CRITICAL,"Device %d registered but it doesn't exist",m_dwPK_Device);
@@ -227,7 +225,13 @@ sMacAddress="11:22";
 				}
 				if( PK_DeviceTemplate && iResponse!=2 )
 					g_pPlutoLogger->Write(LV_STATUS,"Device %d connected as foreign template %d",m_dwPK_Device, PK_DeviceTemplate);
-				SendString( "OK " + StringUtils::itos(m_dwPK_Device) + sIPAndMac + (iResponse==3 ? " RELOAD" : "") );
+				if( iResponse==3 )
+				{
+					SendString( "NEED RELOAD" + sIPAndMac);
+					g_pPlutoLogger->Write(LV_WARNING,"Device %d registered but the router needs to be reloaded",m_dwPK_Device);
+				}
+				else
+					SendString( "OK " + StringUtils::itos(m_dwPK_Device) + sIPAndMac );
 				m_sName += sMessage;
 			}
 

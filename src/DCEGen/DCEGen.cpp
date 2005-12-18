@@ -500,7 +500,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	fstr_DeviceCommand << "\t\t\treturn true;" << endl;
 	fstr_DeviceCommand << "\t\t}" << endl;
 		
-	fstr_DeviceCommand << "\t\tif( m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None || m_pEvent->m_pClientSocket->m_Socket==INVALID_SOCKET )" << endl;
+	fstr_DeviceCommand << "\t\tif( (m_pEvent->m_pClientSocket->m_eLastError!=cs_err_None && m_pEvent->m_pClientSocket->m_eLastError!=cs_err_NeedReload) || m_pEvent->m_pClientSocket->m_Socket==INVALID_SOCKET )" << endl;
 	fstr_DeviceCommand << "\t\t\treturn false;" << endl;
 	fstr_DeviceCommand << endl;
 
