@@ -104,7 +104,7 @@ public:
 	pluto_pthread_mutex_t m_UnknownDevicesMutex;
 	pthread_mutexattr_t m_MutexAttr;
     bool m_bNoUnknownDeviceIsProcessing;
-	string m_sPK_Device_AllOrbiters;
+	string m_sPK_Device_AllOrbiters,m_sPK_Device_AllOrbiters_AllowingPopups;
 	map<int,OH_Orbiter *> m_mapRemote_2_Orbiter;
 	map<int,OH_Orbiter *> m_mapMD_2_Orbiter;
 
@@ -180,7 +180,7 @@ public:
 			sMessage = "Unable to save playlist";
 
 		if( sPK_Device.size()==0 )
-			sPK_Device = m_sPK_Device_AllOrbiters;
+			sPK_Device = m_sPK_Device_AllOrbiters_AllowingPopups;
 		DCE::CMD_Goto_DesignObj_DL CMD_Goto_DesignObj( m_dwPK_Device, sPK_Device, 0, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST), "", "", false, bCantGoBack );
 
 		DCE::CMD_Set_Text_DL CMD_Set_Text_DL( m_dwPK_Device, sPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST), sMessage, TEXT_STATUS_CONST);
@@ -250,6 +250,7 @@ public:
     void GeneratePlutoMOConfig();
 
 	string m_sPK_Device_AllOrbiters_get() { return m_sPK_Device_AllOrbiters; }
+	string m_sPK_Device_AllOrbiters_AllowingPopups_get() { return m_sPK_Device_AllOrbiters_AllowingPopups; }
 
 	//<-dceag-h-b->
 	/*
@@ -496,6 +497,17 @@ format */
 
 	virtual void CMD_Get_Orbiter_Options(string sText,string *sValue_To_Assign) { string sCMD_Result; CMD_Get_Orbiter_Options(sText.c_str(),sValue_To_Assign,sCMD_Result,NULL);};
 	virtual void CMD_Get_Orbiter_Options(string sText,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #758 - Send Orbiter Popups */
+	/** Indicates if Orbiter should receive popup messages */
+		/** @param #119 True/False */
+			/** True = yes, I want popups */
+		/** @param #198 PK_Orbiter */
+			/** The orbiter */
+
+	virtual void CMD_Send_Orbiter_Popups(bool bTrueFalse,int iPK_Orbiter) { string sCMD_Result; CMD_Send_Orbiter_Popups(bTrueFalse,iPK_Orbiter,sCMD_Result,NULL);};
+	virtual void CMD_Send_Orbiter_Popups(bool bTrueFalse,int iPK_Orbiter,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

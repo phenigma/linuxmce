@@ -13,6 +13,8 @@
 #include "PlutoUtils/DatabaseUtils.h"
 #include "../WizardLogic.h"
 
+gip keeps sending me to: SCREEN_DialogGenericNoButtons_CONST
+
 //-----------------------------------------------------------------------------------------------------
 OSDScreenHandler::OSDScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj) :
 	ScreenHandler(pOrbiter, p_MapDesignObj)

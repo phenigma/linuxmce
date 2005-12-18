@@ -28,7 +28,7 @@ namespace DCE
 
 		int m_iLastSignalStrength;
 		int m_iFailedToConnectCount;
-		bool m_bRegistered,m_bDisplayOn,m_bDontAutoShowRemote;
+		bool m_bRegistered,m_bDisplayOn,m_bDontAutoShowRemote,m_bSendPopups;
         string m_sUpdateVMCFile;
         string m_sConfigFile;
 		string m_sVersion;
@@ -39,6 +39,7 @@ namespace DCE
 
 		OH_Orbiter(class DeviceData_Router *pDeviceData_Router)
 		{
+			m_bSendPopups=true;
 			m_pDeviceData_Router = pDeviceData_Router;
 			m_dwPK_Room = m_dwPK_Room_Locked = 0;
 			m_pEntertainArea = m_pEntertainArea_Locked = NULL;

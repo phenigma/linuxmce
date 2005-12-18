@@ -1584,17 +1584,7 @@ bool General_Info_Plugin::NewMacAddress( class Socket *pSocket, class Message *p
 	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::NewMacAddress %s has %d candidates",sMacAddress.c_str(),(int) vectRow_DHCPDevice.size());
 	if( vectRow_DHCPDevice.size()>0 )
 	{
-		/*
-		DCE::CMD_Goto_DesignObj_DL CMD_Goto_DesignObj( m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_get(), 0, 
-			StringUtils::itos(DESIGNOBJ_mnuNewMacAddress_CONST), sMacAddress, "", false, true );
-
-		DCE::CMD_Set_Variable_DL CMD_Set_Variable( m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_get(), VARIABLE_Misc_Data_1_CONST, 
-			sIPAddress );
-		CMD_Goto_DesignObj.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable.m_pMessage);
-		SendCommand(CMD_Goto_DesignObj);
-		*/
-
-		DCE::SCREEN_NewMacAddress_DL SCREEN_NewMacAddress_DL(m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_get(), sMacAddress, sIPAddress);
+		DCE::SCREEN_NewMacAddress_DL SCREEN_NewMacAddress_DL(m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_AllowingPopups_get(), sMacAddress, sIPAddress);
 		SCREEN_NewMacAddress_DL.m_pMessage->m_mapParameters[COMMANDPARAMETER_ID_CONST]=sMacAddress;
 		SendCommand(SCREEN_NewMacAddress_DL);
 
@@ -1929,7 +1919,7 @@ bool General_Info_Plugin::NewPnpDevice( int PK_Device )
 
 	m_listNewPnpDevicesWaitingForARoom.push_back(PK_Device);
 
-	DCE::SCREEN_NewPlugAndPlayDevice_DL SCREEN_NewPlugAndPlayDevice_DL(m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_get(),
+	DCE::SCREEN_NewPlugAndPlayDevice_DL SCREEN_NewPlugAndPlayDevice_DL(m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_AllowingPopups_get(),
 		StringUtils::itos(PK_Device), pRow_Device->Description_get(), 
 		pRow_Device->FK_DeviceTemplate_getrow()->Comments_get());
 	SendCommand(SCREEN_NewPlugAndPlayDevice_DL);
@@ -2007,7 +1997,7 @@ g_pPlutoLogger->Write(LV_STATUS,"CMD_Set_Room_For_Device: before %d after %d pen
 		if( !m_pOrbiter_Plugin->CheckForNewWizardDevices(NULL) )  // Don't display the 'device is done' if there are still some config settings we need
 		{
 			//DisplayMessageOnOrbiter("","<%=T" + StringUtils::itos(TEXT_New_Devices_Configured_CONST) + "%>",true);
-			SCREEN_DialogGenericNoButtons_DL SCREEN_DialogGenericNoButtons_DL(m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_get(),
+			SCREEN_DialogGenericNoButtons_DL SCREEN_DialogGenericNoButtons_DL(m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_AllowingPopups_get(),
 				"<%=T" + StringUtils::itos(TEXT_New_Devices_Configured_CONST) + "%>", "1", "0", "0");
 			SendCommand(SCREEN_DialogGenericNoButtons_DL);
 		}
@@ -2023,7 +2013,7 @@ void General_Info_Plugin::DoneCheckingForUpdates()
 	if( m_listNewPnpDevicesWaitingForARoom.size()==0 && !m_pOrbiter_Plugin->CheckForNewWizardDevices(NULL) )
 	{
 		//DisplayMessageOnOrbiter("","<%=T" + StringUtils::itos(TEXT_New_Devices_Configured_CONST) + "%>",true);
-		SCREEN_DialogGenericNoButtons_DL SCREEN_DialogGenericNoButtons_DL(m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_get(),
+		SCREEN_DialogGenericNoButtons_DL SCREEN_DialogGenericNoButtons_DL(m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_AllowingPopups_get(),
 			"<%=T" + StringUtils::itos(TEXT_New_Devices_Configured_CONST) + "%>", "1", "0", "0");
 		SendCommand(SCREEN_DialogGenericNoButtons_DL);
 	}

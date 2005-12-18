@@ -167,6 +167,7 @@ bool Orbiter_Plugin::GetConfig()
         }
     }
 
+	m_sPK_Device_AllOrbiters_AllowingPopups = m_sPK_Device_AllOrbiters;
 	m_iThreshHold = DATA_Get_ThreshHold();
 	m_bIgnoreAllBluetoothDevices = (DATA_Get_Ignore_State()=="Y" || DATA_Get_Ignore_State()=="y" || DATA_Get_Ignore_State()=="1");
 
@@ -466,18 +467,8 @@ g_pPlutoLogger->Write(LV_STATUS,"in process");
 	Description += "  Manufacturer: " + sManufacturer;
 	Description += "  Category: " + sDeviceCategory;
 	Description += "  Bluetooth ID: " + pUnknownDeviceInfos->m_sID;
-/*
-    DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL(m_dwPK_Device, m_sPK_Device_AllOrbiters, VARIABLE_Misc_Data_1_CONST, sMacAddress);
-    DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL2(m_dwPK_Device, m_sPK_Device_AllOrbiters, VARIABLE_Misc_Data_2_CONST, Description);
-    DCE::CMD_Goto_DesignObj_DL CMD_Goto_DesignObj_DL(m_dwPK_Device, m_sPK_Device_AllOrbiters, 0, StringUtils::itos(DESIGNOBJ_mnuNewPhoneDetected_CONST), "", "", true, false);
 
-    // Send them all 3 in one message for efficiency
-    CMD_Goto_DesignObj_DL.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Variable_DL.m_pMessage );
-    CMD_Goto_DesignObj_DL.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Variable_DL2.m_pMessage );
-    QueueMessageToRouter(CMD_Goto_DesignObj_DL.m_pMessage);
-*/
-
-	DCE::SCREEN_NewPhoneDetected_DL SCREEN_NewPhoneDetected_DL(m_dwPK_Device, m_sPK_Device_AllOrbiters,
+	DCE::SCREEN_NewPhoneDetected_DL SCREEN_NewPhoneDetected_DL(m_dwPK_Device, m_sPK_Device_AllOrbiters_AllowingPopups,
 		sMacAddress, Description);
 	SendCommand(SCREEN_NewPhoneDetected_DL);
 
@@ -1196,17 +1187,6 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
 
 g_pPlutoLogger->Write(LV_STATUS,"setting process flag to false");
 
-/*
-    if(pUnknownDeviceInfos)
-    {
-        //the orbiter will get the name of the phone din variable when it will display the instuctions
-        DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL_(m_dwPK_Device, m_sPK_Device_AllOrbiters, VARIABLE_Misc_Data_3_CONST, pUnknownDeviceInfos->m_sID);
-        SendCommand(CMD_Set_Variable_DL_);
-    }
-
-    DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T" + StringUtils::itos(TEXT_instructions_CONST) + "%>",false);
-*/
-
 	SCREEN_DialogPhoneInstructions SCREEN_DialogPhoneInstructions(m_dwPK_Device, pMessage->m_dwPK_Device_From,
 		"<%=T" + StringUtils::itos(TEXT_instructions_CONST) + "%>", pUnknownDeviceInfos ? pUnknownDeviceInfos->m_sID : "N/A");
 	SendCommand(SCREEN_DialogPhoneInstructions);
@@ -1562,6 +1542,8 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,int iPK_Users,string s
 	else
 		pOH_Orbiter->m_bRegistered = sOnOff=="1";
 
+	CMD_Send_Orbiter_Popups(true,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+
 	if( pOH_Orbiter->m_bRegistered )
 	{
 		DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Iconl(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_pOH_User && pOH_Orbiter->m_pOH_User->m_bFollowMe_Lighting ? "1" : "0","follow_light");
@@ -1823,7 +1805,7 @@ void Orbiter_Plugin::CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Resu
 		//DisplayMessageOnOrbiter("",pRow_Device->Description_get() + "\n<%=T" + StringUtils::itos(TEXT_Device_Ready_CONST) +
 		//	"%>",true);
 
-		SCREEN_DialogGenericNoButtons_DL SCREEN_DialogGenericNoButtons_DL(m_dwPK_Device, m_sPK_Device_AllOrbiters, 
+		SCREEN_DialogGenericNoButtons_DL SCREEN_DialogGenericNoButtons_DL(m_dwPK_Device, m_sPK_Device_AllOrbiters_AllowingPopups, 
 			pRow_Device->Description_get() + "\n<%=T" + StringUtils::itos(TEXT_Device_Ready_CONST) + "%>", "0", "0", "0");
 		SendCommand(SCREEN_DialogGenericNoButtons_DL);
 	}
@@ -2524,3 +2506,29 @@ bool Orbiter_Plugin::CheckForNewWizardDevices(DeviceData_Router *pDevice_MD)
 	m_pDatabase_pluto_main->Device_get()->Commit();
 	return false;
 }
+//<-dceag-c758-b->
+
+	/** @brief COMMAND: #758 - Send Orbiter Popups */
+	/** Indicates if Orbiter should receive popup messages */
+		/** @param #119 True/False */
+			/** True = yes, I want popups */
+		/** @param #198 PK_Orbiter */
+			/** The orbiter */
+
+void Orbiter_Plugin::CMD_Send_Orbiter_Popups(bool bTrueFalse,int iPK_Orbiter,string &sCMD_Result,Message *pMessage)
+//<-dceag-c758-e->
+{
+	OH_Orbiter *pOH_Orbiter=m_mapOH_Orbiter_Find(iPK_Orbiter);
+	if( pOH_Orbiter )
+		pOH_Orbiter->m_bSendPopups = bTrueFalse;
+
+	m_sPK_Device_AllOrbiters_AllowingPopups="";
+	for(map<int,OH_Orbiter *>::iterator it=m_mapOH_Orbiter.begin();it!=m_mapOH_Orbiter.end();++it)
+		if( it->second->m_bSendPopups )
+			m_sPK_Device_AllOrbiters_AllowingPopups += StringUtils::itos(it->first) + ",";
+
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Send_Orbiter_Popups list is now %s",
+		m_sPK_Device_AllOrbiters_AllowingPopups.c_str());
+}
+
+
