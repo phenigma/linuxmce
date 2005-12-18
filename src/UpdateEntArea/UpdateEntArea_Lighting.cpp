@@ -68,7 +68,7 @@ bool UpdateEntArea::IsLight(int PK_FloorplanType)
 bool UpdateEntArea::IsPublicInteriorRoom(int PK_RoomType)
 {
 	return PK_RoomType==ROOMTYPE_Living_Room_CONST ||
-		PK_RoomType==ROOMTYPE_Family_Room_CONST || 
+		PK_RoomType==ROOMTYPE_ClosetStorage_Space_CONST || 
 		PK_RoomType==ROOMTYPE_Garage_CONST || 
 		PK_RoomType==ROOMTYPE_Kitchen_CONST || 
 		PK_RoomType==ROOMTYPE_Dining_Room_CONST || 
@@ -78,7 +78,7 @@ bool UpdateEntArea::IsPublicInteriorRoom(int PK_RoomType)
 bool UpdateEntArea::IsInteriorRoom(int PK_RoomType)
 {
 	return PK_RoomType==ROOMTYPE_Living_Room_CONST ||
-		PK_RoomType==ROOMTYPE_Family_Room_CONST || 
+		PK_RoomType==ROOMTYPE_ClosetStorage_Space_CONST || 
 		PK_RoomType==ROOMTYPE_Garage_CONST || 
 		PK_RoomType==ROOMTYPE_Kitchen_CONST || 
 		PK_RoomType==ROOMTYPE_Dining_Room_CONST || 
