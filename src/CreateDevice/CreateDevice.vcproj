@@ -129,6 +129,9 @@
 				RelativePath="CreateDevice.cpp">
 			</File>
 			<File
+				RelativePath="..\PlutoUtils\DatabaseUtils.cpp">
+			</File>
+			<File
 				RelativePath="..\PlutoUtils\FileUtils.cpp">
 			</File>
 			<File

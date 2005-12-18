@@ -1,6 +1,7 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
+#include "PlutoUtils/DatabaseUtils.h"
 #include "Logger.h"
 #include "CreateDevice.h"
 
@@ -456,7 +457,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Found result_related %d rows with %s",(int) res
 			else if( iRelation==4 )
 			{
 				map<int,int> mapDeviceTree;
-				GetAllDevicesInTree(PK_Device,mapDeviceTree);
+				DatabaseUtils::GetAllDevicesInTree(this,PK_Device,mapDeviceTree);
 
 				bool bFound=false;
 				for(map<int,int>::iterator it=mapDeviceTree.begin();it!=mapDeviceTree.end();++it)
@@ -535,7 +536,7 @@ int CreateDevice::FindControlledViaCandidate(int iPK_Device,int iPK_DeviceTempla
 	MYSQL_ROW row;
 	map<int,int> mapDeviceTree;
 	if( iPK_Device_RelatedTo )
-		GetAllDevicesInTree(iPK_Device_RelatedTo,mapDeviceTree);
+		DatabaseUtils::GetAllDevicesInTree(this,iPK_Device_RelatedTo,mapDeviceTree);
 
 	// If the user wants a device that is related to iPK_Device_RelatedTo, but we can't find one, here is a 
 	// un-related fallback device
@@ -548,41 +549,6 @@ int CreateDevice::FindControlledViaCandidate(int iPK_Device,int iPK_DeviceTempla
 		iPK_Device_Fallback=iPK_Device_Candidate;
 	}
 	return iPK_Device_Fallback;
-}
-
-void CreateDevice::GetAllDevicesInTree(int PK_Device,map<int,int> &mapDeviceTree,bool bCheckParent,int PK_Device_ChildExclude)
-{
-	{
-		string sSQL = "SELECT FK_DeviceTemplate FROM Device WHERE PK_Device=" + StringUtils::itos(PK_Device);
-		PlutoSqlResult result;
-		MYSQL_ROW row;
-		if( ( result.r=mysql_query_result( sSQL ) ) && ( row=mysql_fetch_row( result.r ) ) && row[0] )
-			mapDeviceTree[PK_Device]=atoi(row[0]);
-	}
-	if( bCheckParent )
-	{
-		string sSQL = "SELECT FK_Device_ControlledVia FROM Device WHERE PK_Device=" + StringUtils::itos(PK_Device);
-		PlutoSqlResult result;
-		MYSQL_ROW row;
-		if( ( result.r=mysql_query_result( sSQL ) ) && ( row=mysql_fetch_row( result.r ) ) && row[0] )
-			GetAllDevicesInTree(atoi(row[0]),mapDeviceTree,true,PK_Device);
-	}
-
-	string sSQL = "SELECT PK_Device FROM Device WHERE FK_Device_ControlledVia=" + StringUtils::itos(PK_Device);
-	PlutoSqlResult result;
-	MYSQL_ROW row;
-	if( ( result.r=mysql_query_result( sSQL ) )!=NULL )
-	{
-		while(  (row=mysql_fetch_row(result.r)) )
-		{
-			if( row[0] )
-			{
-				int PK_Device_Child = atoi(row[0]);
-				if( PK_Device_Child && PK_Device_Child!=PK_Device_ChildExclude )
-					GetAllDevicesInTree(PK_Device_Child,mapDeviceTree,false,0);
-			}
-		}
-	}
 }
 
 void CreateDevice::AssignDeviceData(int PK_Device,int PK_DeviceData,string sValue)
