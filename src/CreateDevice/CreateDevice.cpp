@@ -45,7 +45,7 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 	if( !m_bConnected )
 	{
 		cerr << "Cannot connect to database" << endl;
-		exit(1);
+		return 0;
 	}
 
 	if( iPK_DHCPDevice )
@@ -61,7 +61,7 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 	if( !iPK_DeviceTemplate )
 	{
 		cerr << "You did not specify the device.  You must use -c or -d" << endl;
-		exit(1);
+		return 0;
 	}
 
 
@@ -75,7 +75,7 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 		else
 		{
 			cerr << "You did not specify the installation ID.  You must use -i" << endl;
-			exit(1);
+			return 0;
 		}
 	}
 
@@ -91,7 +91,7 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 	else
 	{
 		cerr << "Cannot find DeviceTemplate: " << iPK_DeviceTemplate << endl;
-		exit(1);
+		return 0;
 	}
 
 	int iPK_Package = row[4] ? atoi(row[4]) : 0;
@@ -108,7 +108,7 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 	if( !PK_Device )
 	{
 		cerr << "Unable to add device" << endl;
-		exit(1);
+		return 0;
 	}
 
 	g_pPlutoLogger->Write(LV_STATUS,"Inserted device: %d Package: %d configure: %d",PK_Device,iPK_Package,(int) m_bDontCallConfigureScript);
@@ -138,7 +138,7 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 			if( threaded_mysql_query(SQL)<0 )
 			{
 				cout << "Error updating device controlled via" << endl;
-				exit(1);
+				return 0;
 			}
 		}
 	}
@@ -164,7 +164,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Added parameter from category %d %s",atoi(row[0
 				if( threaded_mysql_query(SQL)<0 )
 				{
 					cout << "Error adding device" << endl;
-					exit(1);
+					return 0;
 				}
 			}
 		}
@@ -196,7 +196,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Executing %s",SQL.c_str());
 			if( threaded_mysql_query(SQL)<0 )
 			{
 				cout << "Error adding device" << endl;
-				exit(1);
+				return 0;
 			}
 		}
 	}
@@ -223,7 +223,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Found %d rows with %s",(int) result3.r->row_cou
 				if( threaded_mysql_query(SQL)<0 )
 				{
 					cout << "Error adding device" << endl;
-					exit(1);
+					return 0;
 				}
 			}
 		}

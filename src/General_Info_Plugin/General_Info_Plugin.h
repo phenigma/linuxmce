@@ -101,8 +101,11 @@ public:
 		string sBinary,string sArguments,string sDescription,int PK_QuickStartTemplate=0);
 
 	bool NewMacAddress( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
+	bool ReportingChildDevices( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 
+	// Helper functions
 	void DoneCheckingForUpdates();
+	Row_Device *ProcessChildDevice(Row_Device *pRow_Device,string sLine);
 
 //<-dceag-h-b->
 	/*
@@ -346,30 +349,6 @@ public:
 
 	virtual void CMD_Check_Mounts() { string sCMD_Result; CMD_Check_Mounts(sCMD_Result,NULL);};
 	virtual void CMD_Check_Mounts(string &sCMD_Result,Message *pMessage);
-
-
-	/** @brief COMMAND: #755 - Interogate Interface Device */
-	/** Gets the list of internal children devices of a device. */
-		/** @param #2 PK_Device */
-			/** The device id */
-		/** @param #199 Status */
-			/** If the device has "Report Child Device" command implemented, Status = "OK". If not, it will be "Not supported". */
-		/** @param #200 Children List */
-			/** It should look like this:
- [internal id] \t [description] \t [room name] \t [device template] \t [floorplan id] \n */
-
-	virtual void CMD_Interogate_Interface_Device(int iPK_Device,string *sStatus,string *sChildren_List) { string sCMD_Result; CMD_Interogate_Interface_Device(iPK_Device,sStatus,sChildren_List,sCMD_Result,NULL);};
-	virtual void CMD_Interogate_Interface_Device(int iPK_Device,string *sStatus,string *sChildren_List,string &sCMD_Result,Message *pMessage);
-
-
-	/** @brief COMMAND: #756 - Report Child Device */
-	/** Gets the list with device's children */
-		/** @param #199 Status */
-			/** A list like this:
-[internal id] \t [description] \t [room name] \t [device template] \t [floorplan id] \n */
-
-	virtual void CMD_Report_Child_Device(string *sStatus) { string sCMD_Result; CMD_Report_Child_Device(sStatus,sCMD_Result,NULL);};
-	virtual void CMD_Report_Child_Device(string *sStatus,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

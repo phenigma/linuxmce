@@ -126,9 +126,6 @@
 				RelativePath="..\Vfd_lcd\CoreMenuStructure.cpp">
 			</File>
 			<File
-				RelativePath="..\PlutoUtils\DatabaseUtils.cpp">
-			</File>
-			<File
 				RelativePath="..\Lirc_dce\IRReceiverBase.cpp">
 			</File>
 			<File

@@ -50,6 +50,7 @@ ClientSocket::ClientSocket( int iDeviceID, string sIPAddress, string sName ) : S
 {
 	m_dwPK_Device = iDeviceID;
 	m_eLastError = cs_err_None;
+	m_bNeedReload = false;
 	/** @todo check comment */
 	//	if( g_pDCELogger ) // This won't be created yet if this is the server logger socket
 	//		g_pDCELogger->Write(LV_SOCKET,"Created client socket %p device: %d ip: %s",this,m_DeviceID,m_IPAddress.c_str());
@@ -238,9 +239,7 @@ bool ClientSocket::OnConnect( int PK_DeviceTemplate,string sExtraInfo )
 
 	if ( sResponse.length()<2 || sResponse.substr(0,2) != "OK" )
 	{
-		if( sResponse.substr(0,11)=="NEED RELOAD" )
-			m_eLastError=cs_err_NeedReload;
-		else if( sResponse.substr(0,24)=="NOT IN THIS INSTALLATION" || sResponse.substr(0,10)=="BAD DEVICE" )
+		if( sResponse.substr(0,24)=="NOT IN THIS INSTALLATION" || sResponse.substr(0,10)=="BAD DEVICE" )
 			m_eLastError=cs_err_BadDevice;
 		else
 			m_eLastError=cs_err_CannotConnect;
@@ -252,6 +251,9 @@ bool ClientSocket::OnConnect( int PK_DeviceTemplate,string sExtraInfo )
 		Disconnect();
 		return false;
 	}
+
+	if( sResponse.length()>9 && sResponse.substr( sResponse.length()-6,6)=="RELOAD" )
+		m_bNeedReload=true;
 
 	int PK_Device_New = 0;
 	if( sResponse.length()>3 )

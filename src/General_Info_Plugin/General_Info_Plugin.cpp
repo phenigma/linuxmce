@@ -187,6 +187,7 @@ bool General_Info_Plugin::Register()
 		DATAGRID_Countries_CONST,PK_DeviceTemplate_get());
 
 	RegisterMsgInterceptor( ( MessageInterceptorFn )( &General_Info_Plugin::NewMacAddress ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_New_Mac_Address_Detected_CONST );
+	RegisterMsgInterceptor( ( MessageInterceptorFn )( &General_Info_Plugin::ReportingChildDevices ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Reporting_Child_Devices_CONST );
 
 	return Connect(PK_DeviceTemplate_get()); 
 }
@@ -1071,17 +1072,21 @@ class DataGridTable *General_Info_Plugin::InstalledAVDevices(string GridID, stri
 	DataGridCell *pCell;
 
 	string sPK_DeviceCategory_Parent = StringUtils::ltos(DEVICECATEGORY_AV_CONST);
-
+	string sExcludeCategories = " NOT IN (" + StringUtils::itos(DEVICECATEGORY_TVsPlasmasLCDsProjectors_CONST) + "," + StringUtils::itos(DEVICECATEGORY_AmpsPreampsReceiversTuners_CONST) + ")";
 	int iRow=0,iCol=0;
 	string sql = 
 		"SELECT DISTINCT D.PK_Device, D.Description FROM DeviceTemplate DT "
 		"JOIN DeviceCategory DC1 ON DT.FK_DeviceCategory = DC1.PK_DeviceCategory "
-		"JOIN DeviceCategory DC2 ON DC1.PK_DeviceCategory = DC2.FK_DeviceCategory_Parent OR DC2.FK_DeviceCategory_Parent IS NULL "
+		"LEFT JOIN DeviceCategory DC2 ON DC1.PK_DeviceCategory = DC2.FK_DeviceCategory_Parent "
 		"JOIN Device D ON D.FK_DeviceTemplate = DT.PK_DeviceTemplate "
 		"WHERE "
 			"(DT.FK_DeviceCategory = " + sPK_DeviceCategory_Parent + " OR "
 			"DC1.FK_DeviceCategory_Parent = " + sPK_DeviceCategory_Parent + " OR "
 			"DC2.FK_DeviceCategory_Parent = " + sPK_DeviceCategory_Parent + ") "
+		"AND FK_Device_RouteTo is NULL "  // No embedded devices
+		"AND DT.FK_DeviceCategory " + sExcludeCategories +
+		"AND DC1.FK_DeviceCategory_Parent " + sExcludeCategories +
+		"AND DC2.FK_DeviceCategory_Parent " + sExcludeCategories +
 		"AND D.FK_Installation = " + StringUtils::itos(m_pRouter->iPK_Installation_get());
 
 	PlutoSqlResult result;
@@ -1169,7 +1174,7 @@ void General_Info_Plugin::CMD_Check_for_updates(string &sCMD_Result,Message *pMe
 			if( !m_mapMediaDirectors_PendingConfig[pDevice->m_pDevice_ControlledVia->m_dwPK_Device] )
 			{
 				DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice->m_dwPK_Device,"/usr/pluto/bin/Config_Device_Changes.sh","cdc",
-					"F","",StringUtils::itos(pDevice->m_dwPK_Device) + " " + StringUtils::itos(m_dwPK_Device) + " " +
+					"F\tStartLocalDevice","",StringUtils::itos(pDevice->m_dwPK_Device) + " " + StringUtils::itos(m_dwPK_Device) + " " +
 					StringUtils::itos(MESSAGETYPE_COMMAND) + " " + StringUtils::itos(COMMAND_Check_for_updates_done_CONST),false,false,false);
 				string sResponse;
 				if( !SendCommand(CMD_Spawn_Application,&sResponse) || sResponse!="OK" )
@@ -1185,7 +1190,7 @@ void General_Info_Plugin::CMD_Check_for_updates(string &sCMD_Result,Message *pMe
 	if( pDevice_AppServerOnCore && !bAlreadyRanOnCore && !m_mapMediaDirectors_PendingConfig[pDevice_AppServerOnCore->m_pDevice_ControlledVia->m_dwPK_Device] )
 	{
 		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_AppServerOnCore->m_dwPK_Device,"/usr/pluto/bin/Config_Device_Changes.sh","cdc",
-			"F","",StringUtils::itos(pDevice_AppServerOnCore->m_dwPK_Device) + " " + StringUtils::itos(m_dwPK_Device) + " " +
+			"F\tStartLocalDevice","",StringUtils::itos(pDevice_AppServerOnCore->m_dwPK_Device) + " " + StringUtils::itos(m_dwPK_Device) + " " +
 			StringUtils::itos(MESSAGETYPE_COMMAND) + " " + StringUtils::itos(COMMAND_Check_for_updates_done_CONST),false,false,false);
 		string sResponse;
 		if( !SendCommand(CMD_Spawn_Application,&sResponse) || sResponse!="OK" )
@@ -1433,6 +1438,116 @@ Message *General_Info_Plugin::BuildMessageToSpawnApp(DeviceData_Router *pDevice_
 	return CMD_Spawn_Application.m_pMessage;
 }
 
+bool General_Info_Plugin::ReportingChildDevices( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
+{
+	string sError = pMessage->m_mapParameters[EVENTPARAMETER_Error_Message_CONST];
+	if( sError.size() )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"General_Info_Plugin::ReportingChildDevices Device %d failed to report its children: %s",
+			pMessage->m_dwPK_Device_From,sError.c_str());
+		return true;
+	}
+
+	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(pMessage->m_dwPK_Device_From);
+	if( !pRow_Device )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"General_Info_Plugin::ReportingChildDevices Device %d is invalid",
+			pMessage->m_dwPK_Device_From);
+		return true;
+	}
+
+	string sChildren = pMessage->m_mapParameters[EVENTPARAMETER_Text_CONST];
+	map<int,bool> mapCurrentChildren;
+	vector<string> vectLines;
+	StringUtils::Tokenize(sChildren,"\n",vectLines);
+	for(size_t s=0;s<vectLines.size();++s)
+	{
+		// This will add the child device if it doesn't exist
+		Row_Device *pRow_Device_Child = ProcessChildDevice(pRow_Device,vectLines[s]);
+		if( pRow_Device_Child )
+			mapCurrentChildren[pRow_Device_Child->PK_Device_get()]=true;
+	}
+
+	// See if any child devices have since disappeared
+	string sSQL = "FK_Device_ControlledVia=" + StringUtils::itos(pMessage->m_dwPK_Device_From);
+	vector<Row_Device *> vectRow_Device;
+	m_pDatabase_pluto_main->Device_get()->GetRows(sSQL,&vectRow_Device);
+	for(size_t s=0;s<vectRow_Device.size();++s)
+	{
+		Row_Device *pRow_Device = vectRow_Device[s];
+		if( mapCurrentChildren[pRow_Device->PK_Device_get()]==false )
+		{
+			g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::ReportingChildDevices removing dead device %d %s",
+				pRow_Device->PK_Device_get(),pRow_Device->Description_get().c_str());
+			CMD_Delete_Device(pRow_Device->PK_Device_get());
+		}
+	}
+	return true;
+}
+
+// It will be like this:
+// [internal id] \t [description] \t [room name] \t [device template] \t [floorplan id] \n
+Row_Device *General_Info_Plugin::ProcessChildDevice(Row_Device *pRow_Device,string sLine)
+{
+	string::size_type pos=0;
+	string sInternalID = StringUtils::Tokenize(sLine,"\t",pos);
+	string sDescription = StringUtils::Tokenize(sLine,"\t",pos);
+	string sRoomName = StringUtils::Tokenize(sLine,"\t",pos);
+	int PK_DeviceTemplate = atoi(StringUtils::Tokenize(sLine,"\t",pos).c_str());
+	string sPK_FloorplanObjectType = StringUtils::Tokenize(sLine,"\t",pos);
+	Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(PK_DeviceTemplate);
+	if( !PK_DeviceTemplate )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"General_Info_Plugin::ProcessChildDevice Line %s malformed",sLine.c_str());
+		return NULL;
+	}
+
+	// Find the child device with this internal id
+	vector<Row_Device *> vectRow_Device_Child;
+	m_pDatabase_pluto_main->Device_get()->GetRows("JOIN Device_DeviceData ON FK_Device=PK_Device "
+		" WHERE FK_Device_ControlledVia=" + StringUtils::itos(pRow_Device->PK_Device_get()) +
+		" AND FK_DeviceData=" + StringUtils::itos(DEVICEDATA_PortChannel_Number_CONST) +
+		" AND IK_DeviceData='" + StringUtils::SQLEscape(sInternalID) + "'",&vectRow_Device_Child);
+	
+	Row_Device *pRow_Device_Child;
+	if( vectRow_Device_Child.size() )
+		pRow_Device_Child = vectRow_Device_Child[0];
+	else
+	{
+		// Create it since it doesn't exist
+		pRow_Device_Child = m_pDatabase_pluto_main->Device_get()->AddRow();
+		pRow_Device_Child->FK_Device_ControlledVia_set(pRow_Device->PK_Device_get());
+		pRow_Device_Child->Table_Device_get()->Commit();
+		Row_Device_DeviceData *pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->AddRow();
+		pRow_Device_DeviceData->FK_Device_set(pRow_Device_Child->PK_Device_get());
+		pRow_Device_DeviceData->FK_DeviceData_set(DEVICEDATA_PortChannel_Number_CONST);
+		pRow_Device_DeviceData->IK_DeviceData_set(sInternalID);
+
+	}
+	pRow_Device_Child->Description_set(sDescription);
+
+	vector<Row_Room *> vectRow_Room;
+	m_pDatabase_pluto_main->Room_get()->GetRows("Description like '" + StringUtils::SQLEscape(sRoomName) + "'",&vectRow_Room);
+	if( vectRow_Room.size() )
+		pRow_Device_Child->FK_Room_set( vectRow_Room[0]->PK_Room_get() );
+	else
+		g_pPlutoLogger->Write(LV_STATUS,"Device %d %s in unknown room %s",
+			pRow_Device_Child->PK_Device_get(),sDescription.c_str(),sRoomName.c_str());
+
+	pRow_Device_Child->FK_DeviceTemplate_set( PK_DeviceTemplate );
+
+	Row_Device_DeviceData *pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(pRow_Device_Child->PK_Device_get(),DEVICEDATA_PK_FloorplanObjectType_CONST);
+	if( !pRow_Device_DeviceData )
+	{
+		pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->AddRow();
+		pRow_Device_DeviceData->FK_Device_set(pRow_Device_Child->PK_Device_get());
+		pRow_Device_DeviceData->FK_DeviceData_set(DEVICEDATA_PK_FloorplanObjectType_CONST);
+	}
+
+	pRow_Device_DeviceData->IK_DeviceData_set( sPK_FloorplanObjectType );
+	return pRow_Device_Child;
+}
+
 bool General_Info_Plugin::NewMacAddress( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
 	string sMacAddress = pMessage->m_mapParameters[EVENTPARAMETER_Mac_Address_CONST];
@@ -1474,6 +1589,7 @@ bool General_Info_Plugin::NewMacAddress( class Socket *pSocket, class Message *p
 		*/
 
 		DCE::SCREEN_NewMacAddress_DL SCREEN_NewMacAddress_DL(m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_get(), sMacAddress, sIPAddress);
+		SCREEN_NewMacAddress_DL.m_pMessage->m_mapParameters[COMMANDPARAMETER_ID_CONST]=sMacAddress;
 		SendCommand(SCREEN_NewMacAddress_DL);
 
 		return false;
@@ -1696,6 +1812,11 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 			iPK_DeviceTemplate = pRow_DHCPDevice->FK_DeviceTemplate_get();
 	}
 
+	if( !iPK_DeviceTemplate )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"General_Info_Plugin::CMD_Create_Device Device Template not specified");
+		return;
+	}
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Create_Device template %d mac %s room %d ip %d data %s",
 		iPK_DeviceTemplate,sMac_address.c_str(),iPK_Room,sIP_Address.c_str(),sData.c_str());
@@ -2021,38 +2142,4 @@ void General_Info_Plugin::CMD_Check_Mounts(string &sCMD_Result,Message *pMessage
 			"","","",false,false,false);
 		SendCommand(CMD_Spawn_Application);
 	}
-}
-//<-dceag-c755-b->
-
-	/** @brief COMMAND: #755 - Interogate Interface Device */
-	/** Gets the list of internal children devices of a device. */
-		/** @param #2 PK_Device */
-			/** The device id */
-		/** @param #199 Status */
-			/** If the device has "Report Child Device" command implemented, Status = "OK". If not, it will be "Not supported". */
-		/** @param #200 Children List */
-			/** It should look like this:
- [internal id] \t [description] \t [room name] \t [device template] \t [floorplan id] \n */
-
-void General_Info_Plugin::CMD_Interogate_Interface_Device(int iPK_Device,string *sStatus,string *sChildren_List,string &sCMD_Result,Message *pMessage)
-//<-dceag-c755-e->
-{
-	DCE::CMD_Report_Child_Device CMD_Report_Child_Device_(m_dwPK_Device, iPK_Device, sChildren_List);
-	if(!SendCommand(CMD_Report_Child_Device_))
-		*sStatus = "Not supported";
-	else
-		*sStatus = "OK";
-}
-//<-dceag-c756-b->
-
-	/** @brief COMMAND: #756 - Report Child Device */
-	/** Gets the list with device's children */
-		/** @param #199 Status */
-			/** A list like this:
-[internal id] \t [description] \t [room name] \t [device template] \t [floorplan id] \n */
-
-void General_Info_Plugin::CMD_Report_Child_Device(string *sStatus,string &sCMD_Result,Message *pMessage)
-//<-dceag-c756-e->
-{
-	*sStatus = "";
 }

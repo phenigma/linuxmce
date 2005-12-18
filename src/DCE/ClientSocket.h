@@ -34,10 +34,11 @@ namespace DCE
 	{
 		
 	public:
+		bool m_bNeedReload; /** < the device was recently added and the router not yet reloaded, so functionality may be limited */
 		long m_dwPK_Device; /** < the device identifier */
 		clock_t m_clockTimeout; /** < used to set timeouts */
 		string m_sMyIPAddress; /** this client's machine IP address */
-		enum {cs_err_None=0,cs_err_CannotConnect,cs_err_NeedReload,cs_err_BadDevice} m_eLastError;
+		enum {cs_err_None=0,cs_err_CannotConnect,cs_err_BadDevice} m_eLastError;
 
 		/**
 		 * @brief constructor, assignes values to the member data

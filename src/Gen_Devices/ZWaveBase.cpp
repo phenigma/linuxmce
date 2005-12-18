@@ -14,7 +14,7 @@ DeviceData_Impl *ZWave_Data::CreateData(DeviceData_Impl *Parent,char *pDataBlock
 	int iPK_Installation = b.Read_unsigned_long();
 	int iPK_DeviceTemplate = b.Read_unsigned_long();
 	switch(iPK_DeviceTemplate) {
-		case 1750:
+		case 1754:
 			return new ZWave_Data();
 	};
 	g_pPlutoLogger->Write(LV_STATUS, "Got CreateData for unknown type %d.", iPK_DeviceTemplate);
@@ -24,7 +24,7 @@ DeviceData_Impl *ZWave_Data::CreateData(DeviceData_Impl *Parent,char *pDataBlock
 Event_Impl *ZWave_Event::CreateEvent( unsigned long dwPK_DeviceTemplate, ClientSocket *pOCClientSocket, unsigned long dwDevice )
 {
 	switch(dwPK_DeviceTemplate) {
-		case 1750:
+		case 1754:
 			return (Event_Impl *) new ZWave_Event(pOCClientSocket, dwDevice);
 	};
 	g_pPlutoLogger->Write(LV_STATUS, "Got CreateEvent for unknown type %d.", dwPK_DeviceTemplate);

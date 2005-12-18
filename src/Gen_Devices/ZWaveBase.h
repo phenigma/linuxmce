@@ -13,10 +13,15 @@ namespace DCE
 class ZWave_Event : public Event_Impl
 {
 public:
-	ZWave_Event(int DeviceID, string ServerAddress, bool bConnectEventHandler=true) : Event_Impl(DeviceID,1750, ServerAddress, bConnectEventHandler) {};
+	ZWave_Event(int DeviceID, string ServerAddress, bool bConnectEventHandler=true) : Event_Impl(DeviceID,1754, ServerAddress, bConnectEventHandler) {};
 	ZWave_Event(class ClientSocket *pOCClientSocket, int DeviceID) : Event_Impl(pOCClientSocket, DeviceID) {};
 	//Events
 	class Event_Impl *CreateEvent( unsigned long dwPK_DeviceTemplate, ClientSocket *pOCClientSocket, unsigned long dwDevice );
+	virtual void Reporting_Child_Devices(string sError_Message,string sText)
+	{
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 54,2,12,sError_Message.c_str(),13,sText.c_str()));
+	}
+
 };
 
 
@@ -27,7 +32,7 @@ class ZWave_Data : public DeviceData_Impl
 public:
 	virtual ~ZWave_Data() {};
 	class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition);
-	virtual int GetPK_DeviceList() { return 1750; } ;
+	virtual int GetPK_DeviceList() { return 1754; } ;
 	virtual const char *GetDeviceDescription() { return "ZWave"; } ;
 	string Get_Remote_Phone_IP() { return m_mapParameters[118];}
 };
@@ -100,7 +105,7 @@ public:
 		m_pData->m_AllDevices.SerializeRead(Size,pConfig);
 		delete[] pConfig;
 		m_pData->m_pEvent_Impl = m_pEvent;
-		m_pcRequestSocket = new Event_Impl(m_dwPK_Device, 1750,m_sHostName);
+		m_pcRequestSocket = new Event_Impl(m_dwPK_Device, 1754,m_sHostName);
 		if( m_iInstanceID )
 		{
 			m_pEvent->m_pClientSocket->SendString("INSTANCE " + StringUtils::itos(m_iInstanceID));
@@ -113,16 +118,17 @@ public:
 	ZWave_Event *GetEvents() { return (ZWave_Event *) m_pEvent; };
 	ZWave_Data *GetData() { return (ZWave_Data *) m_pData; };
 	const char *GetClassName() { return "ZWave_Command"; };
-	virtual int PK_DeviceTemplate_get() { return 1750; };
-	static int PK_DeviceTemplate_get_static() { return 1750; };
+	virtual int PK_DeviceTemplate_get() { return 1754; };
+	static int PK_DeviceTemplate_get_static() { return 1754; };
 	virtual void ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage) { };
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
 	string DATA_Get_Remote_Phone_IP() { return GetData()->Get_Remote_Phone_IP(); }
 	//Event accessors
+	void EVENT_Reporting_Child_Devices(string sError_Message,string sText) { GetEvents()->Reporting_Child_Devices(sError_Message.c_str(),sText.c_str()); }
 	//Commands - Override these to handle commands from the server
-	virtual void CMD_Discover_New_Devices(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Report_Child_Devices(string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -138,10 +144,10 @@ public:
 			{
 				switch(pMessage->m_dwID)
 				{
-				case 709:
+				case 756:
 					{
 						string sCMD_Result="OK";
-						CMD_Discover_New_Devices(sCMD_Result,pMessage);
+						CMD_Report_Child_Devices(sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -158,7 +164,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Discover_New_Devices(sCMD_Result,pMessage);
+								CMD_Report_Child_Devices(sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;
