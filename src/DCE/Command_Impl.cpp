@@ -132,7 +132,7 @@ Command_Impl::Command_Impl( int DeviceID, string ServerAddress, bool bLocalMode,
 	pthread_cond_init( &m_listMessageQueueCond, NULL );
 	m_listMessageQueueMutex.Init( NULL, &m_listMessageQueueCond );
 	m_bGeneric = false;
-	m_dwMessageInterceptorCounter=0;
+	m_dwMessageInterceptorCounter=1;
 	if(pthread_create( &m_pthread_queue_id, NULL, MessageQueueThread_DCECI, (void*)this) )
 	{
 		m_bMessageQueueThreadRunning=false;
@@ -847,22 +847,25 @@ void Command_Impl::StopWatchDog()
     }
 }
 
-void Command_Impl::RegisterMsgInterceptor(MessageInterceptorFn pMessageInterceptorFn,int PK_Device_From,int PK_Device_To,int PK_DeviceTemplate,int PK_DeviceCategory,int MessageType,int MessageID)
+int Command_Impl::RegisterMsgInterceptor(MessageInterceptorFn pMessageInterceptorFn,int PK_Device_From,int PK_Device_To,int PK_DeviceTemplate,int PK_DeviceCategory,int MessageType,int MessageID)
 {
 #ifndef WINCE
 	if( m_pRouter )
 	{
 		m_pRouter->RegisterMsgInterceptor(
 			new MessageInterceptorCallBack(this, pMessageInterceptorFn), PK_Device_From, PK_Device_To, PK_DeviceTemplate, PK_DeviceCategory, MessageType, MessageID );
+		return 0;
 	}
 	else
 	{
+		int dwMessageInterceptorCounter=m_dwMessageInterceptorCounter;
 		m_mapMessageInterceptorFn[m_dwMessageInterceptorCounter] = pMessageInterceptorFn;
 		Message *pMessage = new Message(m_dwPK_Device,0,PRIORITY_NORMAL,MESSAGETYPE_REGISTER_INTERCEPTOR,m_dwMessageInterceptorCounter,6,
 			PARM_FROM, StringUtils::itos(PK_Device_From).c_str(), PARM_TO, StringUtils::itos(PK_Device_To).c_str(),PARM_TEMPLATE, StringUtils::itos(PK_DeviceTemplate).c_str(),
 			PARM_CATEGORY, StringUtils::itos(PK_DeviceCategory).c_str(), PARM_MESSAGE_TYPE, StringUtils::itos(MessageType).c_str(), PARM_MESSAGE_ID, StringUtils::itos(MessageID).c_str());
 		SendMessageToRouter(pMessage);
 		m_dwMessageInterceptorCounter++;
+		return dwMessageInterceptorCounter;
 	}
 #endif
 }

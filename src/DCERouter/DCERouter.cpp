@@ -1238,7 +1238,7 @@ bool Router::ReceivedString(Socket *pSocket, string Line, int nTimeout/* = -1*/)
 
 void Router::OnDisconnected(int DeviceID)
 {
-#ifdef mysql_thread_end
+#ifdef use_mysql_thread_end
 	mysql_thread_end();
 #else
 	my_thread_end();
@@ -1264,7 +1264,7 @@ void Router::RegisteredCommandHandler(ServerSocket *pSocket, int DeviceID)
 {
     PLUTO_SAFETY_LOCK(sl,m_CoreMutex);
 
-#ifdef mysql_thread_init //MYSQL_VERSION_ID == 40023
+#ifdef use_mysql_thread_init //MYSQL_VERSION_ID == 40023
 	mysql_thread_init();
 #else
 	my_thread_init();

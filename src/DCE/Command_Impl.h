@@ -25,7 +25,7 @@ namespace DCE
 	typedef list<class Command_Impl *> ListCommand_Impl;
 
 	/**
-	 * @brief return false if DCE should stop processing the message
+	 * @brief Function definition for a callback
 	 */
 	typedef  bool ( Command_Impl::*MessageInterceptorFn )( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 
@@ -297,8 +297,9 @@ namespace DCE
 		/**
 		 * @brief Register a function that we want to get called back when a message matching a given criteria is received.
 		 * Any of the criteria may be 0, indicating all messages will be a match.
+		 * If this is not a plugin, it will return the counter ID for this interceptor, otherwise it returns 0
 		 */
-		void RegisterMsgInterceptor(MessageInterceptorFn pMessageInterceptorFn,int PK_Device_From,int PK_Device_To,int PK_DeviceTemplate,int PK_DeviceCategory,int MessageType,int MessageID);
+		int RegisterMsgInterceptor(MessageInterceptorFn pMessageInterceptorFn,int PK_Device_From,int PK_Device_To,int PK_DeviceTemplate,int PK_DeviceCategory,int MessageType,int MessageID);
 
 		/**
 		 * @brief If a plug-in dies, the router also dies, and all interceptors are cleared.  However if this
