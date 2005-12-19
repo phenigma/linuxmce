@@ -1085,9 +1085,9 @@ class DataGridTable *General_Info_Plugin::InstalledAVDevices(string GridID, stri
 			"DC1.FK_DeviceCategory_Parent = " + sPK_DeviceCategory_Parent + " OR "
 			"DC2.FK_DeviceCategory_Parent = " + sPK_DeviceCategory_Parent + ") "
 		"AND FK_Device_RouteTo is NULL "  // No embedded devices
-		"AND DT.FK_DeviceCategory " + sExcludeCategories +
-		"AND DC1.FK_DeviceCategory_Parent " + sExcludeCategories +
-		"AND DC2.FK_DeviceCategory_Parent " + sExcludeCategories +
+		"AND (DT.FK_DeviceCategory IS NULL OR DT.FK_DeviceCategory " + sExcludeCategories + ") " + 
+		"AND (DC1.FK_DeviceCategory_Parent IS NULL OR DC1.FK_DeviceCategory_Parent " + sExcludeCategories + ") " + 
+		"AND (DC2.FK_DeviceCategory_Parent IS NULL OR DC2.FK_DeviceCategory_Parent " + sExcludeCategories + ") " + 
 		"AND D.FK_Installation = " + StringUtils::itos(m_pRouter->iPK_Installation_get());
 
 	PlutoSqlResult result;
