@@ -22,7 +22,7 @@
 #include <libmyth/mythdialogs.h>
 #include <libmythtv/programinfo.h>
 
-#include <mythtv/remoteutil.h>
+#include <libmythtv/remoteutil.h>
 
 using namespace DCE;
 
