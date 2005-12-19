@@ -914,46 +914,47 @@ class DataGridTable *General_Info_Plugin::AlarmSensorsList(string GridID, string
 
 	int iRow=0, iCol=0;
 
-	string sSensorList, sStatus;
-	//DCE::CMD_Interogate_Interface_Device CMD_Interogate_Interface_Device_(m_dwPK_Device, m_dwPK_Device, nPK_Device_AlarmPanel, &sStatus, &sSensorList);
-	//SendCommand(CMD_Interogate_Interface_Device_);
+	string sSensorList;
+	DCE::CMD_Get_Sensors_List CMD_Get_Sensors_List_(m_dwPK_Device, nPK_Device_AlarmPanel, &sSensorList);
+	SendCommand(CMD_Get_Sensors_List_);
 
-	/*
-	//for testing - uncomment me
-	if(sStatus != "OK")
-	{
-		g_pPlutoLogger->Write(LV_WARNING, "Device %d don't support reporting child device", nPK_Device_AlarmPanel);
-		return pDataGrid;
-	}
-	*/
-
-	//for testing - remove me!
-	sSensorList = "5238\tMotion Detector 1\tCORE\t54\t1\n5239\tMotion Detector 2\tMD\t54\t1\n";
+	//for testing
+	//sSensorList = "5238\tMotion Detector 1\tCORE\t54\t1\n5239\tMotion Detector 2\tMD\t54\t1\n";
 
 	vector<string> vectStrings;
 	StringUtils::Tokenize(sSensorList, "\n\t", vectStrings);
 
-	if(vectStrings.size())
+	string sSensorIds;
+	for(size_t i = 0; i < vectStrings.size() - 4; i += 5)
 	{
-		for(size_t i = 0; i < vectStrings.size() - 4; i += 5)
+		if(i > 0)
+			sSensorIds += ",";
+
+		sSensorIds += vectStrings[i];
+	}
+
+	string sql = 
+		"SELECT PK_Device, Device.Description AS Description, Room.Description As Room, DeviceTemplate.Description As SensorType "
+		"FROM Device "
+		"LEFT JOIN Room ON FK_Room = PK_Room "
+		"JOIN DeviceTemplate ON FK_DeviceTemplate = PK_DeviceTemplate "
+		"WHERE PK_Device IN (" + sSensorIds + ")";
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	if(mysql_query(m_pDatabase_pluto_main->m_pMySQL,sql.c_str())==0 && (result.r = mysql_store_result(m_pDatabase_pluto_main->m_pMySQL)) )
+	{
+		while((row=mysql_fetch_row(result.r)))
 		{
-			string sSensorId = vectStrings[i];
-			string sSensorName = vectStrings[i + 1];
-			string sRoomName = vectStrings[i + 2];
-			string sSensorType = vectStrings[i + 3];
-			//string sFloorplanID = vectorStrings[i + 4];
+			string sSensorId = row[0];
+			string sSensorName = row[1];
+			string sRoomName = row[2] ? row[2] : "";
+			string sSensorType = row[3];
 
 			pCell = new DataGridCell(sSensorName, sSensorId);
 			pDataGrid->SetData(0, iRow, pCell);
 
 			pCell = new DataGridCell(sRoomName, sSensorId);
 			pDataGrid->SetData(1, iRow, pCell);
-
-			Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(atoi(sSensorType.c_str()));
-			if(pRow_DeviceTemplate)
-				sSensorType = pRow_DeviceTemplate->Description_get();
-			else
-				sSensorType = "Unknown sensor type";
 
 			pCell = new DataGridCell(sSensorType, sSensorId);
 			pDataGrid->SetData(2, iRow++, pCell);

@@ -19,6 +19,7 @@ private:
 	long m_nPK_Device_AlarmPanel,m_nPK_Device_ZWave;  // Monster specific
 	long m_nAlarmDeviceTimeout;
 	bool m_bAlarmPanelDetectionStarted;
+	bool m_bAlarmPanelIsOk;
 
 	string GetDeviceStatus(long nPK_Device);
 	deque<int> m_dequeNumLights;
@@ -66,7 +67,7 @@ public:
 	/*
 		SETUP A/V EQUIPMENT
 	*/
-	int AddDevice(int PK_DeviceTemplate);
+	int AddDevice(int PK_DeviceTemplate, string sDeviceDataList = "", long PK_Device_ControlledVia = 0);
 	void SetAvPath(int PK_Device_From,int PK_Device_To,int PK_Pipe,int PK_Command_Input);
 	void AddExternalTuner(int PK_Device_Tuner);
 
@@ -83,6 +84,19 @@ public:
 	void DeleteDevicesInThisRoomOfType(int PK_DeviceCategory);
 	void AddExternalTuner(long something) {}
 	void DeleteDevicesInThisRoomOfType(long something) {}
+
+	/*
+		ALARM PANEL
+	*/
+
+	string GetDeviceName(string sPK_Device);
+	void SetDeviceName(string sPK_Device, string sName);
+	
+	long GetDeviceTemplateForDevice(string sPK_Device);
+	void ChangeDeviceTemplateForDevice(string sPK_Device, string sFK_DeviceTemplate);
+	
+	long GetRoomForDevice(string sPK_Device);
+	void SetRoomForDevice(string sPK_Device, string sFK_Room);
 };
 //-----------------------------------------------------------------------------------------------------
 #endif

@@ -315,11 +315,11 @@ void WizardLogic::SetAvPath(int PK_Device_From,int PK_Device_To,int PK_Pipe,int 
 	threaded_mysql_query(sSQL);
 }
 
-int WizardLogic::AddDevice(int PK_DeviceTemplate)
+int WizardLogic::AddDevice(int PK_DeviceTemplate, string sDeviceDataList /* = "" */, long PK_Device_ControlledVia/* = 0*/)
 {
 	int iPK_Device=0;
 	DCE::CMD_Create_Device_Cat CMD_Create_Device_Cat(m_pOrbiter->m_dwPK_Device,DEVICECATEGORY_General_Info_Plugins_CONST,false,BL_SameHouse,
-		PK_DeviceTemplate,"",m_pOrbiter->m_pData->m_dwPK_Room,"","",0,0,m_pOrbiter->m_pData->m_dwPK_Device,m_pOrbiter->m_pData->m_dwPK_Device,
+		PK_DeviceTemplate,"",m_pOrbiter->m_pData->m_dwPK_Room,"",sDeviceDataList,0,PK_Device_ControlledVia,m_pOrbiter->m_pData->m_dwPK_Device,m_pOrbiter->m_pData->m_dwPK_Device,
 		&iPK_Device);
 	m_pOrbiter->SendCommand(CMD_Create_Device_Cat);
 	return iPK_Device;
@@ -387,4 +387,58 @@ int WizardLogic::GetNumLights(int &iNumLightsUnassigned)
 		}
 
 	return (int) result_set.r->row_count;
+}
+
+string WizardLogic::GetDeviceName(string sPK_Device)
+{
+	string sSQL = "SELECT Description FROM Device WHERE PK_Device = " + sPK_Device;
+
+	PlutoSqlResult result_set;
+	MYSQL_ROW row;
+	if((result_set.r = mysql_query_result(sSQL)) && (row = mysql_fetch_row(result_set.r)) && row[0])
+		return row[0];
+
+	return "";
+}
+
+void WizardLogic::SetDeviceName(string sPK_Device, string sName)
+{
+	string sSQL = "UPDATE Device SET Description = '" + sName + "' WHERE PK_Device = " + sPK_Device;
+	threaded_mysql_query(sSQL);
+}
+
+long WizardLogic::GetDeviceTemplateForDevice(string sPK_Device)
+{
+	string sSQL = "SELECT FK_DeviceTemplate FROM Device WHERE PK_Device = " + sPK_Device;
+
+	PlutoSqlResult result_set;
+	MYSQL_ROW row;
+	if((result_set.r = mysql_query_result(sSQL)) && (row = mysql_fetch_row(result_set.r)) && row[0])
+		return atoi(row[0]);
+
+	return 0;
+}
+
+void WizardLogic::ChangeDeviceTemplateForDevice(string sPK_Device, string sFK_DeviceTemplate)
+{
+	string sSQL = "UPDATE Device SET FK_DeviceTemplate = " + sFK_DeviceTemplate + " WHERE PK_Device = " + sPK_Device;
+	threaded_mysql_query(sSQL);
+}
+
+long WizardLogic::GetRoomForDevice(string sPK_Device)
+{
+	string sSQL = "SELECT FK_Room FROM Device WHERE PK_Device = " + sPK_Device;
+
+	PlutoSqlResult result_set;
+	MYSQL_ROW row;
+	if((result_set.r = mysql_query_result(sSQL)) && (row = mysql_fetch_row(result_set.r)) && row[0])
+		return row[0] != NULL ? atoi(row[0]) : 0;
+
+	return 0;
+}
+
+void WizardLogic::SetRoomForDevice(string sPK_Device, string sFK_Room)
+{
+	string sSQL = "UPDATE Device SET FK_Room = " + sFK_Room + " WHERE PK_Device = " + sPK_Device;
+	threaded_mysql_query(sSQL);
 }

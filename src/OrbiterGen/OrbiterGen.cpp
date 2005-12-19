@@ -361,7 +361,7 @@ int OrbiterGenerator::DoIt()
 
 	Row_Skin *pRow_Skin_Translated = TranslateSkin(m_pRow_Skin);
 
-	//ignore TranslateSkin is there's nothing to translate (no ReplaceSkin_* for DCEConfig)
+	//ignore TranslateSkin if there's nothing to translate (no ReplaceSkin_* for DCEConfig)
 	if(pRow_Skin_Translated)
 		m_pRow_Skin = pRow_Skin_Translated;
 

@@ -867,6 +867,8 @@ int Command_Impl::RegisterMsgInterceptor(MessageInterceptorFn pMessageIntercepto
 		m_dwMessageInterceptorCounter++;
 		return dwMessageInterceptorCounter;
 	}
+#else
+    return 0;
 #endif
 }
 

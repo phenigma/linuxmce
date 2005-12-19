@@ -11837,5 +11837,45 @@ namespace DCE
 	public:
 		CMD_Send_Orbiter_Popups_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,bool bTrueFalse,int iPK_Orbiter) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,758,2,119,(bTrueFalse ? "1" : "0"),198,StringUtils::itos(iPK_Orbiter).c_str()); }
 	};
+	class RESP_Get_Sensors_List : public PreformedCommandResponse {
+		string *m_sData;
+	public:
+		RESP_Get_Sensors_List(string *sData) { 
+		m_sData=sData; }
+		void ParseResponse(Message *pMessage) {
+			*m_sData=pMessage->m_mapParameters[109]; };
+	};
+	class CMD_Get_Sensors_List : public PreformedCommand {
+	public:
+		CMD_Get_Sensors_List(long DeviceIDFrom, long DeviceIDTo,string *sData) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,759,1,109,(*sData).c_str());		m_pcResponse = new RESP_Get_Sensors_List(sData); }
+	};
+	class CMD_Get_Sensors_List_DL : public PreformedCommand {
+	public:
+		CMD_Get_Sensors_List_DL(long DeviceIDFrom, string DeviceIDTo,string *sData) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,759,1,109,(*sData).c_str());		m_pcResponse = new RESP_Get_Sensors_List(sData); }
+	};
+	class CMD_Get_Sensors_List_DT : public PreformedCommand {
+	public:
+		CMD_Get_Sensors_List_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string *sData) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,759,1,109,(*sData).c_str());		m_pcResponse = new RESP_Get_Sensors_List(sData); }
+	};
+	class CMD_Get_Sensors_List_Cat : public PreformedCommand {
+	public:
+		CMD_Get_Sensors_List_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string *sData) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,759,1,109,(*sData).c_str());		m_pcResponse = new RESP_Get_Sensors_List(sData); }
+	};
+	class CMD_NOREP_Get_Sensors_List : public PreformedCommand {
+	public:
+		CMD_NOREP_Get_Sensors_List(long DeviceIDFrom, long DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,759,0); }
+	};
+	class CMD_NOREP_Get_Sensors_List_DL : public PreformedCommand {
+	public:
+		CMD_NOREP_Get_Sensors_List_DL(long DeviceIDFrom, string DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,759,0); }
+	};
+	class CMD_NOREP_Get_Sensors_List_DT : public PreformedCommand {
+	public:
+		CMD_NOREP_Get_Sensors_List_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,759,0); }
+	};
+	class CMD_NOREP_Get_Sensors_List_Cat : public PreformedCommand {
+	public:
+		CMD_NOREP_Get_Sensors_List_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,759,0); }
+	};
 }
 #endif

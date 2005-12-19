@@ -13,9 +13,6 @@ public:
 	OSDScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj);
 	~OSDScreenHandler();
 
-	void SCREEN_FileSave(long PK_Screen, string sDefaultUserValue, string sPrivate, string sPublic, string sCaption);
-	bool FileSave_ObjectSelected(CallBackData *pData);
-
 	//	
 	//Video Wizard Screens
 	//
@@ -70,6 +67,7 @@ public:
 	bool AlarmPanel_OnTimer(CallBackData *pData);
 	bool AlarmPanel_DatagridSelected(CallBackData *pData);
 	bool AlarmPanel_CapturedKeyboardBufferChanged(CallBackData *pData);
+	bool AlarmPanel_Intercepted(CallBackData *pData);
 
 	//10. VOIP Provider
 	virtual void SCREEN_VOIP_Provider(long PK_Screen);

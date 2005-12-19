@@ -51,6 +51,19 @@ CallBackData *ScreenHandler::m_mapCallBackData_Find(CallBackType aCallBackType)
 	return it == m_mapCallBackData.end() ? NULL : it->second; 
 }
 //-----------------------------------------------------------------------------------------------------
+void ScreenHandler::RefreshDatagrid(long PK_DesignObj_Datagrid)
+{
+	DesignObj_Orbiter *pObj = m_pOrbiter->FindObject(StringUtils::ltos(PK_DesignObj_Datagrid));
+	if(pObj)
+	{
+		PLUTO_SAFETY_LOCK(nd, m_pOrbiter->m_NeedRedrawVarMutex);
+		m_pOrbiter->m_vectObjs_NeedRedraw.push_back(pObj);
+
+		m_pOrbiter->InitializeGrid((DesignObj_DataGrid *)pObj);
+		m_pOrbiter->RedrawObjects();
+	}
+}
+//-----------------------------------------------------------------------------------------------------
 void ScreenHandler::GotoDesignObj(int PK_DesignObj)
 {
 	m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(PK_DesignObj), "", "", false, false);
