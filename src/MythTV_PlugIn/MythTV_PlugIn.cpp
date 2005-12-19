@@ -42,7 +42,7 @@ MythTV_PlugIn::MythTV_PlugIn(int DeviceID, string ServerAddress,bool bConnectEve
 //<-dceag-const-e->
 {
     m_pMythBackend_ProxyDevice = NULL;
-	m_bPreProcessSpeedControl=false;  // We do some ridiculous hacks in Myth player to convert speed control commands to keystrokes
+//	m_bPreProcessSpeedControl=false;  // We do some ridiculous hacks in Myth player to convert speed control commands to keystrokes
 	m_pMythWrapper = NULL;
 }
 
