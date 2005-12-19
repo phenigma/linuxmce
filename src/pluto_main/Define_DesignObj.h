@@ -1735,7 +1735,6 @@
 #define DESIGNOBJ_butAVDevicesManuf_CONST 4582
 #define DESIGNOBJ_butAVDeviceModel_CONST 4583
 #define DESIGNOBJ_butAVOutputs_CONST 4584
-#define DESIGNOBJ_butNextStep17_CONST 4585
 #define DESIGNOBJ_butFloorLamp_CONST 4586
 #define DESIGNOBJ_butAlarmPanel_CONST 4587
 #define DESIGNOBJ_butAdduser_CONST 4588
@@ -1871,6 +1870,9 @@
 #define DESIGNOBJ_butAlarmDetect_CONST 4743
 #define DESIGNOBJ_dgAlarmSensorTypes_CONST 4744
 #define DESIGNOBJ_butDontControlMyTV_CONST 4745
+#define DESIGNOBJ_butAVDeviceAudio_CONST 4746
+#define DESIGNOBJ_butAVDeviceVideoInputs_CONST 4747
+#define DESIGNOBJ_butAVDeviceAudioInputs_CONST 4748
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

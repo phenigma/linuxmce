@@ -696,6 +696,7 @@
 #define COMMAND_Download_Configuration_CONST 757
 #define COMMAND_Send_Orbiter_Popups_CONST 758
 #define COMMAND_Get_Sensors_List_CONST 759
+#define COMMAND_Send_Command_To_Child_CONST 760
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
