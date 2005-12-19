@@ -230,7 +230,7 @@ function getDeviceIP($deviceID,$dbADO){
 
 function getCoreIP($dbADO)
 {
-	$res=$dbADO->Execute('SELECT * FROM Device WHERE FK_DeviceTemplate=?',array($GLOBALS['rootCoreID']));
+	$res=$dbADO->Execute('SELECT * FROM Device INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory=?',array($GLOBALS['CategoryCore']));
 	$row=$res->FetchRow();
 	return @$row['IPAddress'];
 }

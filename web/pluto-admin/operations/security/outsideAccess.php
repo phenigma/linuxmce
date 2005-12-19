@@ -17,10 +17,11 @@ function outsideAccess($output,$dbADO) {
 	$queryDSS='
 		SELECT Device_StartupScript.Enabled, PK_Device, Parameter,FK_Device 
 		FROM Device 
+		INNEr JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
 		LEFT JOIN Device_StartupScript ON FK_Device=PK_Device AND FK_StartupScript=?
-		WHERE FK_DeviceTemplate=? AND FK_Installation=?';
+		WHERE FK_DeviceCategory=? AND FK_Installation=?';
 
-	$resDSS=$dbADO->Execute($queryDSS,array($GLOBALS['ProcessLogs'],$GLOBALS['rootCoreID'],$installationID));
+	$resDSS=$dbADO->Execute($queryDSS,array($GLOBALS['ProcessLogs'],$GLOBALS['CategoryCore'],$installationID));
 	if($resDSS->RecordCount()>0){
 		$rowDSS=$resDSS->FetchRow();
 		$sendErrorsToPluto=($rowDSS['Enabled']==1 && $rowDSS['Parameter']!='0')?1:0;

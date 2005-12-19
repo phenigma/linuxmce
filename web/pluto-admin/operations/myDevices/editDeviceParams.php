@@ -55,7 +55,7 @@ $installationID = (int)@$_SESSION['installationID'];
 		$State=$row['State'];
 		$Status=$row['Status'];
 		//$helpDocument=$row['FK_Document'];
-		$coreSystemLog=($row['FK_DeviceTemplate']==$GLOBALS['rootCoreID'])?'&nbsp;&nbsp;&nbsp;<a href="javascript:windowOpen(\'index.php?section=followLog&deviceID='.$deviceID.'&system_log=1\',\'width=1024,height=768,scrollbars=1,resizable=1,fullscreen=1\');">System log</a>':'';
+		$coreSystemLog=($row['FK_DeviceCategory']==$GLOBALS['CategoryCore'])?'&nbsp;&nbsp;&nbsp;<a href="javascript:windowOpen(\'index.php?section=followLog&deviceID='.$deviceID.'&system_log=1\',\'width=1024,height=768,scrollbars=1,resizable=1,fullscreen=1\');">System log</a>':'';
 	}
 	
 	if ($DeviceTemplate==0) {

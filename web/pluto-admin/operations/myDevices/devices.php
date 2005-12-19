@@ -1,5 +1,9 @@
 <?
 function devices($output,$dbADO) {
+	// include language files
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');
+	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/devices.lang.php');
+	
 	global $dbPlutoMainDatabase;
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
@@ -18,7 +22,7 @@ function devices($output,$dbADO) {
 		break;
 		case 'avEquipment':
 			$deviceCategory=$GLOBALS['rootAVEquipment'];
-			$title='A/V Equipment';
+			$title=$TEXT_TITLE_AV_EQUIPMENT_CONST;
 		break;
 		case 'lights':
 			$deviceCategory=$GLOBALS['rootLights'];
@@ -105,12 +109,13 @@ function devices($output,$dbADO) {
 	<input type="hidden" name="section" value="devices">
 	<input type="hidden" name="type" value="'.$type.'">
 	<input type="hidden" name="action" value="add">	
+		
 	<div align="center"><h3>'.((isset($title))?$title:strtoupper(str_replace('_',' ',$type))).'</h3></div>
 		
 		<div id="preloader" style="display:;">
 			<table width="100%">
 				<tr>
-					<td align="center">Loading, please wait ...</td>
+					<td align="center">'.$TEXT_LOADING_NOTICE_CONST.'</td>
 				</tr>
 			</table>
 		</div>
@@ -118,17 +123,18 @@ function devices($output,$dbADO) {
 		<div id="content" style="display:none;">
 		<table align="center" cellpadding="3" cellspacing="0">
 				<tr>
-					<td align="center"><B>Type of Device</B></td>
-					<td align="center"><B>Description</B></td>
-					<td align="center"><B>Room</B></td>
-					<td align="center"><B>Controlled by</B></td>
-					<td align="center"><B>Device Data</B></td>';
+					<td align="center"><B>'.$TEXT_Type_of_Device_CONST.'</B></td>
+					<td align="center"><B>'.$TEXT_DESCRIPTION_CONST.'</B></td>
+					<td align="center"><B>'.$TEXT_ROOM_CONST.'</B></td>
+					<td align="center"><B>'.$TEXT_CONTROLLED_BY_CONST.'</B></td>
+					<td align="center"><B>'.$TEXT_DEVICE_DATA_CONST.'</B></td>';
 				$displayedDevices=array();
 				$DeviceDataToDisplay=array();
 				$DeviceDataDescriptionToDisplay=array();
 				$DDTypesToDisplay=array();	
 				$joinArray=$DTIDArray;	// used only for query when there are no DT in selected category
 				$joinArray[]=0;
+				$dbADO->debug=true;
 				$queryDevice='
 					SELECT 
 						Device.*, DeviceTemplate.Description AS TemplateName, DeviceCategory.Description AS CategoryName,Manufacturer.Description AS ManufacturerName,IsIPBased
@@ -174,15 +180,15 @@ function devices($output,$dbADO) {
 				$pos++;
 				$out.='
 				<tr bgcolor="'.(($pos%2==1)?'#EEEEEE':'').'">
-					<td align="center" title="Category: '.$rowD['CategoryName'].', manufacturer: '.$rowD['ManufacturerName'].'"><B>'.$rowD['TemplateName'].'</B>';
+					<td align="center" title="'.$TEXT_DEVICE_CATEGORY_CONST.': '.$rowD['CategoryName'].', '.strtolower($TEXT_MANUFACTURER_CONST).': '.$rowD['ManufacturerName'].'"><B>'.$rowD['TemplateName'].'</B>';
 				if($rowD['IsIPBased']==1){
 					$out.='<table>
 						<tr>
-							<td>IP</td>
+							<td>'.$TEXT_IP_ADDRESS_CONST.'</td>
 							<td><input type="text" name="ip_'.$rowD['PK_Device'].'" value="'.$rowD['IPaddress'].'"></td>
 						</tr>
 						<tr>
-							<td>MAC</td>
+							<td>'.$TEXT_MAC_ADDRESS_CONST.'</td>
 							<td><input type="text" name="mac_'.$rowD['PK_Device'].'" value="'.$rowD['MACaddress'].'"></td>
 						</tr>
 					</table>';

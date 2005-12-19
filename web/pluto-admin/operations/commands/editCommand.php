@@ -124,7 +124,7 @@ function editCommand($output,$dbADO) {
 		$resAllParameters->Close();
 		$out.='
 					'.$TEXT_ADD_NEW_PARAMETER_CONST.' <select name="addNewParameterToCommand">'.$allParams.'</select><input type="submit" class="button" name="submitX" value="'.$TEXT_ADD_CONST.'"><br />
-					<a href="javascript:void(0);" onClick="document.forms.editCommand.submit();windowOpen(\'index.php?section=createParameterForCommand&from=editCommand\',\'width=400,height=400,toolbars=false,resizable=0,scrollbars=0\');">'.$TEXT_CREATE_NEW_PARAMETER_CONST.'</a>
+					<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createParameterForCommand&from=editCommand\',\'width=400,height=400,toolbars=false,resizable=0,scrollbars=0\');">'.$TEXT_CREATE_NEW_PARAMETER_CONST.'</a>
 				</fieldset>
 				</td>
 				</tr>

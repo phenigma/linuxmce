@@ -24,7 +24,7 @@ function wapSettings($output,$dbADO) {
 	
 	if ($action=='form') {
 		if(!isset($wapURL) || $wapURL==''){
-			$coreFields=getFieldsAsArray('Device','IPAddress',$dbADO,'WHERE FK_Installation='.$installationID.' AND FK_DeviceTemplate='.$GLOBALS['rootCoreID']);
+			$coreFields=getFieldsAsArray('Device','IPAddress',$dbADO,'INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_Installation='.$installationID.' AND FK_DeviceCategory='.$GLOBALS['CategoryCore']);
 			$wapURL='http://'.$coreFields['IPAddress'][0].'/pluto-admin/check.wml';
 		}
 

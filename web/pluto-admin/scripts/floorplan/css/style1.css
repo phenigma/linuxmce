@@ -20,7 +20,6 @@
 	font-weight: normal;
 	color: #000000;
 	text-decoration: none;
-	cursor:hand;
 }
 .normalLink:hover {
 	font-size: 10pt;
@@ -28,7 +27,6 @@
 	font-weight: normal;
 	color: #000000;
 	text-decoration: underline;
-	cursor:hand;
 }
 .normalBoldGreen {
 	font-size: 10pt;

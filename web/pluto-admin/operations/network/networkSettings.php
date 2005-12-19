@@ -15,7 +15,7 @@ function networkSettings($output,$dbADO) {
 			FK_DeviceTemplate=PK_DeviceTemplate
 		WHERE FK_DeviceCategory=? AND Device.FK_Installation=?
 		';
-	$resDevice=$dbADO->Execute($queryDevice,array($GLOBALS['rootCoreID'],$installationID));
+	$resDevice=$dbADO->Execute($queryDevice,array($GLOBALS['CategoryCore'],$installationID));
 	if($resDevice->RecordCount()!=0){
 		$rowDevice=$resDevice->FetchRow();
 		$coreID=$rowDevice['PK_Device'];

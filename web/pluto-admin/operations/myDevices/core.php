@@ -17,9 +17,9 @@ function core($output,$dbADO) {
 		FROM Device
 		INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
 		LEFT JOIN Room ON FK_Room=PK_Room
-		WHERE FK_DeviceTemplate=? AND Device.FK_Installation=?
+		WHERE FK_DeviceCategory=? AND Device.FK_Installation=?
 		';
-	$resDevice=$dbADO->Execute($queryDevice,array($GLOBALS['rootCoreID'],$installationID));
+	$resDevice=$dbADO->Execute($queryDevice,array($GLOBALS['CategoryCore'],$installationID));
 	if($resDevice->RecordCount()!=0){
 		$rowDevice=$resDevice->FetchRow();
 		$roomName=$rowDevice['RoomName'];

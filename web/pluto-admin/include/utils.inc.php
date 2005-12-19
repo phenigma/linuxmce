@@ -783,14 +783,18 @@ function isMediaDirector($deviceID,$dbADO)
 
 function isCore($deviceID,$dbADO)
 {
-	$getTemplate='SELECT FK_DeviceTemplate,FK_Device_ControlledVia FROM Device WHERE PK_Device=?';
+	$getTemplate='
+		SELECT FK_DeviceCategory,FK_Device_ControlledVia 
+		FROM Device 
+		INNEr JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
+		WHERE PK_Device=?';
 	$resTemplate=$dbADO->Execute($getTemplate,$deviceID);
 	if($resTemplate->RecordCount()>0){
 		$row=$resTemplate->FetchRow();
-		$DeviceTemplate=$row['FK_DeviceTemplate'];
+		$DeviceCategory=$row['FK_DeviceCategory'];
 	}else
 		return false;
-	if($DeviceTemplate==$GLOBALS['rootCoreID']){
+	if($DeviceCategory==$GLOBALS['CategoryCore']){
 		return true;
 	}
 	return false;
@@ -1112,6 +1116,7 @@ function builtTopMenu($website,$dbADO)
 	$resSelectMenu = $dbADO->Execute($selectMenu,$_SESSION['installationID']);
 	$menuPages='';
 	$pos=0;	
+	$pagesArray=array();
 	while ($rowSelectMenu = $resSelectMenu->FetchRow()) {
 		$menuPages.='menuObject.item'.$pos.' = "'.$rowSelectMenu['Description'].'"
 		';
@@ -2661,13 +2666,17 @@ function getTopLevelParentIP($deviceID,$dbADO)
 {
 	$topParent=0;
 	if($deviceID!=0){
-		$res=$dbADO->Execute('SELECT FK_DeviceTemplate,FK_Device_ControlledVia,IPaddress FROM Device WHERE PK_Device=?',$deviceID);
+		$res=$dbADO->Execute('
+			SELECT FK_DeviceCategory,FK_DeviceTemplate,FK_Device_ControlledVia,IPaddress 
+			FROM Device 
+			INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
+			WHERE PK_Device=?',$deviceID);
 		$row=$res->FetchRow();
 		if((int)$row['FK_Device_ControlledVia']!=0){
 			$topParent=getTopLevelParentIP($row['FK_Device_ControlledVia'],$dbADO);
 		}else{
-			if($row['FK_DeviceTemplate']==$GLOBALS['rootCoreID'] || $row['FK_DeviceTemplate']==$GLOBALS['rootMediaDirectorsID']){
-				$topParent=($row['FK_DeviceTemplate']==$GLOBALS['rootCoreID'] && $row['IPaddress']=='')?'127.0.0.1':$row['IPaddress'];
+			if($row['FK_DeviceCategory']==$GLOBALS['CategoryCore'] || $row['FK_DeviceTemplate']==$GLOBALS['rootMediaDirectorsID']){
+				$topParent=($row['FK_DeviceCategory']==$GLOBALS['CategoryCore'] && $row['IPaddress']=='')?'127.0.0.1':$row['IPaddress'];
 			}else{
 				$topParent=0;
 			}
@@ -2681,12 +2690,16 @@ function getTopLevelParent($deviceID,$dbADO)
 {
 	$topParent=0;
 	if($deviceID!=0){
-		$res=$dbADO->Execute('SELECT FK_DeviceTemplate,FK_Device_ControlledVia,IPaddress FROM Device WHERE PK_Device=?',$deviceID);
+		$res=$dbADO->Execute('
+			SELECT FK_DeviceTemplate,FK_Device_ControlledVia,IPaddress 
+			FROM Device 
+			INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
+			WHERE PK_Device=?',$deviceID);
 		$row=$res->FetchRow();
 		if((int)$row['FK_Device_ControlledVia']!=0){
 			$topParent=getTopLevelParent($row['FK_Device_ControlledVia'],$dbADO);
 		}else{
-			if($row['FK_DeviceTemplate']==$GLOBALS['rootCoreID'] || $row['FK_DeviceTemplate']==$GLOBALS['rootMediaDirectorsID']){
+			if($row['FK_DeviceCategory']==$GLOBALS['CategoryCore'] || $row['FK_DeviceTemplate']==$GLOBALS['rootMediaDirectorsID']){
 				$topParent=$deviceID;
 			}else{
 				$topParent=0;

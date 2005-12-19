@@ -90,7 +90,9 @@ if ($action == 'form') {
 			INNER JOIN Device_EntertainArea ON FK_Device=PK_Device
 			WHERE FK_DeviceTemplate IN ('.join(',',$avDTsArray).') AND FK_Installation=? AND FK_EntertainArea=?';	
 		$resDevice=$dbADO->Execute($queryDevice,array((int)$_SESSION['installationID'],$entertainArea));
-		$topPos=230;
+		$topPosC1=230;
+		$topPosC2=230;
+
 		
 		// get existing devices in EA to compare with those from cookie
 		$devicesInEA=array();
@@ -256,6 +258,22 @@ if ($action == 'form') {
 			$deviceInfo=getDeviceInformation($rowD['PK_Device'],$dbADO);
 			$deviceInfoText='<br>DT: <B>'.$deviceInfo['DeviceTemplate'].'</B><br>Category: <B>'.$deviceInfo['Category'].'</B><br>Manufacturer: <B>'.$deviceInfo['Manufacturer'].'</B>';
 			
+			// set device box coordinates
+			if(isset($oldDevice[$rowD['PK_Device']])){
+				$left=$oldDevice[$rowD['PK_Device']]['deviceX'];
+				$top=$oldDevice[$rowD['PK_Device']]['deviceY'];
+			}else{
+				if(!isset($existingPipes[$rowD['PK_Device']])){
+					$left='550px';
+					$top=$topPosC2;
+					$topPosC2+=(15+$height);
+				}else{
+					$left='100px';
+					$top=$topPosC1;
+					$topPosC1+=(15+$height);
+				}
+			}
+						
 			$out.='
 <div id="device_'.$rowD['PK_Device'].'_pipe_1" style="position:absolute;Z-INDEX: 100;left:0;top:0;"></div>
 <div id="device_'.$rowD['PK_Device'].'_pipe_2" style="position:absolute;Z-INDEX: 100;left:0;top:0;"></div>
@@ -267,7 +285,7 @@ if ($action == 'form') {
 	var audioLive_'.$rowD['PK_Device'].' = new jsGraphics("device_'.$rowD['PK_Device'].'_pipe_3");
 	var videoLive_'.$rowD['PK_Device'].' = new jsGraphics("device_'.$rowD['PK_Device'].'_pipe_4");
 </script>
-<DIV id="device_'.$rowD['PK_Device'].'" style="BORDER-RIGHT: 2px outset; BORDER-TOP: 2px outset; DISPLAY: ; Z-INDEX: 1; BORDER-LEFT: 2px outset; WIDTH: 350px; BORDER-BOTTOM: 2px outset; POSITION: absolute; '.((isset($oldDevice[$rowD['PK_Device']])?'LEFT: '.$oldDevice[$rowD['PK_Device']]['deviceX'].'; TOP: '.$oldDevice[$rowD['PK_Device']]['deviceY'].';':'LEFT: 100px; TOP: '.$topPos.'px;')).' HEIGHT: '.$height.'px" onclick="bring_to_front(\'device_'.$rowD['PK_Device'].'\')" onmousedown="bring_to_front(\'device_'.$rowD['PK_Device'].'\')">
+<DIV id="device_'.$rowD['PK_Device'].'" style="BORDER-RIGHT: 2px outset; BORDER-TOP: 2px outset; DISPLAY: ; Z-INDEX: 1; BORDER-LEFT: 2px outset; WIDTH: 350px; BORDER-BOTTOM: 2px outset; POSITION: absolute; LEFT: '.$left.'; TOP: '.$top.'; HEIGHT: '.$height.'px" onclick="bring_to_front(\'device_'.$rowD['PK_Device'].'\')" onmousedown="bring_to_front(\'device_'.$rowD['PK_Device'].'\')">
   <TABLE height="100%" cellSpacing=0 cellPadding=0 width="100%" bgColor=#EEEEEE border=0 onContextMenu="showInfoToolbar('.$rowD['PK_Device'].');return false;">
       <TBODY>
         <TR onmouseup="end_drag(\'device_'.$rowD['PK_Device'].'\')" onmousedown="start_drag(\'device_'.$rowD['PK_Device'].'\')" id="head_'.$rowD['PK_Device'].'"> 
@@ -294,7 +312,6 @@ if ($action == 'form') {
 <input type="checkbox" id="del_videoLive" value="1" onClick="removePipe(this);">VideoLive: <span style="color:magenta" id="del_videoLive_text">not set</span> <br>
 </div>
 ';
-			$topPos+=(15+$height);
 		}
 
 		// if they are pipes who are not displayed, call for javascript function who will serch for coordinates and display them

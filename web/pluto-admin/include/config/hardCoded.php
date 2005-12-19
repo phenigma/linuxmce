@@ -4,6 +4,7 @@
 	
 	$GLOBALS['rootOrbiterID'] = 5; 				// Orbiter
 	$GLOBALS['rootComputerID'] = 6; 			// Computers
+	$GLOBALS['CategoryCore']=7;					// Core
 	$GLOBALS['rootMediaDirectors'] = 8; 		// Media Directors
 	$GLOBALS['rootInterfaces'] = 71; 			// Interfaces
 	$GLOBALS['rootLights'] = 73; 				// Lighting devices

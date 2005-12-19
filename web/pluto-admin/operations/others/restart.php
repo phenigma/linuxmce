@@ -12,7 +12,7 @@ function restart($output,$dbADO) {
 			FROM Device
 			INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
 			WHERE FK_DeviceCategory=? AND Device.FK_Installation=?';
-		$resDevice=$dbADO->Execute($queryDevice,array($GLOBALS['rootCoreID'],$_SESSION['installationID']));
+		$resDevice=$dbADO->Execute($queryDevice,array($GLOBALS['CategoryCore'],$_SESSION['installationID']));
 		if($resDevice->RecordCount()!=0){
 			$rowDevice=$resDevice->FetchRow();
 			$coreID=$rowDevice['PK_Device'];
