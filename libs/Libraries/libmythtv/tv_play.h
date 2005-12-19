@@ -82,6 +82,7 @@ class TV : public QObject
     bool getEndOfRecording(void) { return endOfRecording; }
 
     void ProcessKeypress(QKeyEvent *e);
+    void processNetworkControlCommand(void);
     void customEvent(QCustomEvent *e);
 
     void AddPreviousChannel(void);
@@ -336,6 +337,11 @@ class TV : public QObject
     pthread_t event;     // TV::RunTV(), the event thread
     pthread_t decode;    // nvp::StartPlaying(), video decoder thread
     pthread_t pipdecode; // pipnvp, Picture-in-Picture video decoder thread
+
+    // Network Control stuff
+    bool gotNetworkControlCommand;
+    QString networkControlCommand;
+    QMutex ncLock;
 };
 
 #endif

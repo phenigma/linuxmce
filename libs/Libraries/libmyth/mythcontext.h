@@ -162,7 +162,7 @@ class MythPrivRequest
     void *m_data;
 };
 
-#define MYTH_BINARY_VERSION "0.18.20050409-1"
+#define MYTH_BINARY_VERSION "0.18.1.20050523-1"
 #define MYTH_PROTO_VERSION "15"
 
 extern int print_verbose_messages;
@@ -322,6 +322,10 @@ class MythContext : public QObject
     void waitPrivRequest() const;
     MythPrivRequest popPrivRequest();
 
+    void addCurrentLocation(QString location);
+    QString removeCurrentLocation(void);
+    QString getCurrentLocation(void);
+
     static QMutex verbose_mutex;
 
   private slots:
@@ -340,6 +344,9 @@ class MythContext : public QObject
     void RemoveCacheDir(const QString &dirname);
 
     MythContextPrivate *d;
+
+    QMutex locationLock;
+    QValueList <QString> currentLocation;
 };
 
 extern MythContext *gContext;

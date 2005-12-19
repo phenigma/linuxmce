@@ -184,7 +184,7 @@ class NuppelVideoPlayer
 
     void StopVideoSync(void);
 
-    int calcSliderPos(QString &desc);
+    int calcSliderPos(QString &desc, bool justTimes = false);
 
     bool GetLimitKeyRepeat(void) { return limitKeyRepeat; }
 

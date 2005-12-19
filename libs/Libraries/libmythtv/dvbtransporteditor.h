@@ -1,5 +1,5 @@
 /*
- * $Id: dvbtransporteditor.h,v 1.3 2005/02/23 05:04:36 avalanche Exp $
+ * $Id: dvbtransporteditor.h 5683 2005-02-23 05:04:37Z avalanche $
  * vim: set expandtab tabstop=4 shiftwidth=4:
  *
  * Original Project

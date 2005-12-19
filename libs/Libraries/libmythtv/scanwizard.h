@@ -1,5 +1,5 @@
 /*
- * $Id: scanwizard.h,v 1.5 2005/03/26 15:16:49 taylor Exp $
+ * $Id: scanwizard.h 7227 2005-09-11 09:35:19Z jarod $
  * vim: set expandtab tabstop=4 shiftwidth=4:
  *
  * Original Project
@@ -44,7 +44,15 @@ class QPSKPane;
 class ATSCPane;
 class QAMPane;
 class SIScan;
+class ChannelBase;
+class Channel;
 class DVBChannel;
+class ScanWizard;
+class ScanWizardScanner;
+class ScanOptionalConfig;
+class ScanCountry;
+class SignalMonitorValue;
+class AnalogScan;
 
 class VideoSourceSetting: public ComboBoxSetting
 {

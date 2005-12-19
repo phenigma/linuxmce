@@ -1,5 +1,5 @@
 /*
- * $Id: sitypes.h,v 1.5 2005/03/27 18:18:56 taylor Exp $
+ * $Id: sitypes.h 5859 2005-03-27 18:18:56Z taylor $
  * vim: set expandtab tabstop=4 shiftwidth=4:
  */
 
