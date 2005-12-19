@@ -47,7 +47,12 @@ if [ "$isSetup" != 0  ]; then
 fi;
 
 addEntries MasterServerIP       $routerip;
-addEntries MasterServerPort     6543;
+
+if ["$hostip" != "$routerip"]; then
+	addEntries MasterServerPort     6543;
+else
+	addEntries MasterServerPort     6143;
+fi;
 
 addEntries BackendServerIP 		$hostip $hostname;
 addEntries BackendServerPort 	6143 	$hostname;
