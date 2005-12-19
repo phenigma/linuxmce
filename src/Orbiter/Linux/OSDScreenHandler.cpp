@@ -900,6 +900,7 @@ bool OSDScreenHandler::AlarmPanel_Intercepted(CallBackData *pData)
 			else
 			{
 				m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(DESIGNOBJ_AlarmNoPanelDetected_CONST), "", "", false, false);
+				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, sResult);
 				m_pOrbiter->CMD_Refresh("*");
 				return false; //wrong port or device
 			}
@@ -1007,6 +1008,7 @@ bool OSDScreenHandler::AlarmPanel_OnTimer(CallBackData *pData)
 		if(m_pWizardLogic->m_nAlarmDeviceTimeout <= 0)
 		{
 			m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(DESIGNOBJ_AlarmNoPanelDetected_CONST), "", "", false, false);
+			m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, "The alarm panel does not respond");
 			m_pOrbiter->CMD_Refresh("*");
 			return false; //wrong port or device
 		}
