@@ -216,4 +216,4 @@ if(my $DB_ROW = $DB_STATEMENT->fetchrow_hashref())
 $DB_PL_HANDLE->disconnect();
 
 #reload asterisk
-`/etc/init.d/asterisk reload`;
+`/etc/init.d/asterisk restart`;
