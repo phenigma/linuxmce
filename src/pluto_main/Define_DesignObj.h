@@ -1714,7 +1714,7 @@
 #define DESIGNOBJ_LightsSetup_CONST 4561
 #define DESIGNOBJ_LightsSetupInclude_CONST 4562
 #define DESIGNOBJ_LightSetupRooms_CONST 4563
-#define DESIGNOBJ_LightTest_CONST 4564
+#define DESIGNOBJ_AVDeviceAudioInputs_CONST 4564
 #define DESIGNOBJ_LightType_CONST 4565
 #define DESIGNOBJ_LightName_CONST 4566
 #define DESIGNOBJ_VoipProvider_CONST 4567
@@ -1731,6 +1731,7 @@
 #define DESIGNOBJ_butReceiverModel_CONST 4578
 #define DESIGNOBJ_butReceiverInputs_CONST 4579
 #define DESIGNOBJ_butAVDevices_CONST 4580
+#define DESIGNOBJ_butNoAvDevice_CONST 4581
 #define DESIGNOBJ_butAVDevicesManuf_CONST 4582
 #define DESIGNOBJ_butAVDeviceModel_CONST 4583
 #define DESIGNOBJ_butAVOutputs_CONST 4584
@@ -1778,12 +1779,12 @@
 #define DESIGNOBJ_butWhatInputs_CONST 4635
 #define DESIGNOBJ_butLearnCodes_CONST 4636
 #define DESIGNOBJ_LearnCodes_CONST 4637
-#define DESIGNOBJ_RecommendedInput_CONST 4638
+#define DESIGNOBJ_AVDeviceAudio_CONST 4638
 #define DESIGNOBJ_butRecommendedInput_CONST 4639
 #define DESIGNOBJ_butWhichInput_CONST 4640
 #define DESIGNOBJ_WhichTVInput_CONST 4641
 #define DESIGNOBJ_butRepeatLikeTV_CONST 4643
-#define DESIGNOBJ_RepeatLikeTV_CONST 4644
+#define DESIGNOBJ_AVDeviceVideoInputs_CONST 4644
 #define DESIGNOBJ_butOtherAVDevices_CONST 4645
 #define DESIGNOBJ_butLightsSetup_CONST 4648
 #define DESIGNOBJ_butLightsSetupInclude_CONST 4649
@@ -1814,7 +1815,7 @@
 #define DESIGNOBJ_ReceiverInputs_CONST 4675
 #define DESIGNOBJ_AVDeviceManuf_CONST 4676
 #define DESIGNOBJ_AVDeviceModel_CONST 4677
-#define DESIGNOBJ_AVDeviceOutputs_CONST 4678
+#define DESIGNOBJ_AVDeviceVideo_CONST 4678
 #define DESIGNOBJ_AlarmPanel_CONST 4680
 #define DESIGNOBJ_butTVBoxManuf_CONST 4683
 #define DESIGNOBJ_butTVBoxInput_CONST 4684
@@ -1869,6 +1870,7 @@
 #define DESIGNOBJ_dgPorts_CONST 4742
 #define DESIGNOBJ_butAlarmDetect_CONST 4743
 #define DESIGNOBJ_dgAlarmSensorTypes_CONST 4744
+#define DESIGNOBJ_butDontControlMyTV_CONST 4745
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

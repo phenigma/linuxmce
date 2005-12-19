@@ -905,6 +905,12 @@
 #define TEXT_Error_getting_data_CONST 1617
 #define TEXT_Num_Lights_CONST 1618
 #define TEXT_No_Lights_Found_CONST 1619
+#define TEXT_Does_this_device_have_a_video_output_tha_CONST 1620
+#define TEXT_Inputs_CONST 1621
+#define TEXT_Does_this_device_have_an_audio_output_th_CONST 1622
+#define TEXT_no_pnp_CONST 1623
+#define TEXT_After_you_press_this_button_the_system_w_CONST 1624
+#define TEXT_alarm_error_CONST 1625
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
