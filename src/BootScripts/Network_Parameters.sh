@@ -119,7 +119,9 @@ ExtractData "$R"
 
 Q="SELECT IK_DeviceData
 FROM Device_DeviceData
-WHERE FK_Device=1 AND FK_DeviceData=28"
+JOIN Device ON FK_Device=PK_Device
+JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
+WHERE FK_DeviceCategory=7 AND FK_DeviceData=28"
 DHCPsetting=$(RunSQL "$Q")
 
 if [[ "$DHCPsetting" == eth*, ]]; then
