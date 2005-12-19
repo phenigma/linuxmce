@@ -424,6 +424,15 @@ g_pPlutoLogger->Write(LV_STATUS,"Found result_related %d rows with %s",(int) res
 		{
 			int iPK_DeviceTemplate_Related = atoi(row[0]);
 			int iRelation= (row[1] ? atoi(row[1]) : 0);
+
+			string sDeviceData;
+			if( row[1] )
+			{
+				char *pDeviceData = strchr(row[1],'|');
+				if( pDeviceData )
+					sDeviceData = pDeviceData + 1;
+			}
+
 			// 1 = Sister device same controlled via
 			// 2 = child of the core (dce router's parent)
 			// 3 = plugin
@@ -446,13 +455,13 @@ g_pPlutoLogger->Write(LV_STATUS,"Found result_related %d rows with %s",(int) res
 
 				// That device doesn't exist.  We need to create it
 				if( iRelation==1 && !bOnlyAddDevicesOnCore )  // It's a sister device
-					DoIt(0,iPK_DeviceTemplate_Related,"","",PK_Device_Parent);
+					DoIt(0,iPK_DeviceTemplate_Related,"","",PK_Device_Parent,sDeviceData);
 				else if( iRelation==2 )  // It's a child of the core (ie DCERouter's parent)
-					DoIt(0,iPK_DeviceTemplate_Related,"","",PK_Device_Core);
+					DoIt(0,iPK_DeviceTemplate_Related,"","",PK_Device_Core,sDeviceData);
 				else if( iRelation==3 )  // It's a plugin (ie child of DCERouter)
-					DoIt(0,iPK_DeviceTemplate_Related,"","",PK_Device_DCERouter);
+					DoIt(0,iPK_DeviceTemplate_Related,"","",PK_Device_DCERouter,sDeviceData);
 				else if( iRelation==5 )  // It's my child
-					DoIt(0,iPK_DeviceTemplate_Related,"","",PK_Device);
+					DoIt(0,iPK_DeviceTemplate_Related,"","",PK_Device,sDeviceData);
 			}
 			else if( iRelation==4 )
 			{
@@ -471,7 +480,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Found result_related %d rows with %s",(int) res
 				if( bFound )
 					continue;
 
-				DoIt(0,iPK_DeviceTemplate_Related,"","",0,"",PK_Device);
+				DoIt(0,iPK_DeviceTemplate_Related,"","",0,sDeviceData,PK_Device);
 			}
 		}
 	}

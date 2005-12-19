@@ -1530,7 +1530,15 @@ Row_Device *General_Info_Plugin::ProcessChildDevice(Row_Device *pRow_Device,stri
 		pRow_Device_DeviceData->IK_DeviceData_set(sInternalID);
 
 	}
-	pRow_Device_Child->Description_set(sDescription);
+
+	// Don't reset the description if it's already there, the user may have overridden the default name
+	if( pRow_Device_Child->Description_get().size()==0 )
+	{
+		if( sDescription.size() )
+			pRow_Device_Child->Description_set(sDescription);
+		else
+			pRow_Device_Child->Description_set(sInternalID);
+	}
 
 	vector<Row_Room *> vectRow_Room;
 	m_pDatabase_pluto_main->Room_get()->GetRows("Description like '" + StringUtils::SQLEscape(sRoomName) + "'",&vectRow_Room);
