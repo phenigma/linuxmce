@@ -149,30 +149,11 @@ CoreDev=$(NewDev -d "$CoreDT")
 Q="UPDATE Device SET Description='CORE', FK_Room=1 WHERE PK_Device='$CoreDev'"
 RunSQL "$Q"
 
-# Add Core options
-Q='SELECT FK_DeviceTemplate FROM InstallWizard WHERE `Default`=1 AND Step=5'
-R=$(RunSQL "$Q")
-
-for DevT in $R; do
-	Dev=$(NewDev -d "$DevT")
-done
-
 # Create hybrid
 if [[ "$Type" == "H" || "$Type" == "h" ]]; then
 	HybDev=$(NewDev -d 28 -C "$CoreDev")
 	Q="UPDATE Device SET Description='The core/hybrid', FK_Room=1 WHERE PK_Device='$HybDev'"
 	RunSQL "$Q"
-
-	Q="SELECT PK_Device FROM Device WHERE FK_DeviceTemplate=62 AND FK_Device_ControlledVia='$HybDev' LIMIT 1"
-	OrbDev=$(RunSQL "$Q")
-
-	# Add hybrid options
-	Q='SELECT FK_DeviceTemplate FROM InstallWizard WHERE `Default`=1 AND Step=6'
-	R=$(RunSQL "$Q")
-
-	for DevT in $R; do
-		Dev=$(NewDev -d "$DevT" -C "$OrbDev")
-	done
 fi
 
 DHCPsetting=
