@@ -25,6 +25,7 @@
  //<-dceag-d-b->
 #include "MythTV_Player.h"
 #include "DCE/Logger.h"
+#include "DCE/PlainClientSocket.h"
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
@@ -64,6 +65,7 @@ using namespace DCE;
 #include <sys/wait.h>
 
 MythTV_Player *g_pMythPlayer = NULL;
+#define MYTH_SOCKET_TIMEOUT	3  // SECONDS
 
 void sh(int i) /* signal handler */
 {
@@ -247,6 +249,54 @@ void MythTV_Player::processKeyBoardInputRequest(int iXKeySym)
 
 }
 
+bool MythTV_Player::sendMythCommand(const char *Cmd, string &sResponse)
+{
+	char ch=0;
+
+	g_pPlutoLogger->Write(LV_WARNING,"Going to send command %s",Cmd);
+	PlainClientSocket _PlainClientSocket("localhost:10001");
+	if( !_PlainClientSocket.Connect() )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Unable to connect to MythTV client");
+		return false;
+	}
+	// Wait for Myth's console prompt.	g_pPlutoLogger->Write(LV_STATUS,"connected");
+	do
+	{
+		if ( !_PlainClientSocket.ReceiveData( 1, &ch, MYTH_SOCKET_TIMEOUT ) ) 
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Timeout waiting for Myth prompt.");
+			return false;
+		}
+	} while(ch!='#');
+	if( !_PlainClientSocket.SendString(Cmd) )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Could not send string");
+		return false;
+	}
+/*	// Receive the echo...
+	if( !_PlainClientSocket.ReceiveString(sResponse,MYTH_SOCKET_TIMEOUT) )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"No response to command.");
+		return false;
+	}*/
+	// Receive the response
+	if( !_PlainClientSocket.ReceiveString(sResponse,MYTH_SOCKET_TIMEOUT) )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Got echo but didn't get reply.");
+		return false;
+	}
+	g_pPlutoLogger->Write(LV_WARNING,"Myth Responded %s",sResponse.c_str());
+	
+	if( !_PlainClientSocket.SendString("QUIT") )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Could not send QUIT string");
+		return false;
+	}
+	_PlainClientSocket.Close();
+	return true;
+}
+
 bool MythTV_Player::checkWindowName(long unsigned int window, string windowName)
 {
     XTextProperty text;
@@ -318,7 +368,18 @@ void MythTV_Player::CMD_Tune_to_channel(string sOptions,string sProgramID,string
 		return;
 	}
 
-    string channelNumber = numbers[0];
+	string sResult, sTuneCMD = string("play channel ")+numbers[0];
+	if (!sendMythCommand(sTuneCMD.c_str(), sResult))
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Failed to send myth channel request");
+		return;
+	}
+	if (sResult!="OK")
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Reply to channel change request was %s", sResult.c_str());
+	}
+
+/*    string channelNumber = numbers[0];
     for( unsigned int i = 0; i < channelNumber.size(); i++ )
     {
         switch ( channelNumber[i] )
@@ -338,7 +399,7 @@ void MythTV_Player::CMD_Tune_to_channel(string sOptions,string sProgramID,string
         }
     }
 
-	processKeyBoardInputRequest(XK_Return);
+	processKeyBoardInputRequest(XK_Return); */
 }
 
 void MythTV_Player::KillSpawnedDevices()
@@ -718,7 +779,9 @@ void MythTV_Player::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message *p
 {
 	// We treat the middle button (pause) as enter -- what a nasty hack!
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-	processKeyBoardInputRequest(XK_Return);
+	string sResult;
+	sendMythCommand("play speed pause", sResult);
+	//	processKeyBoardInputRequest(XK_Return);
 }
 
 //<-dceag-c40-b->
@@ -731,6 +794,8 @@ void MythTV_Player::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message *p
 void MythTV_Player::CMD_Restart_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c40-e->
 {
+	string sResult;
+	sendMythCommand("play speed normal", sResult);
 }
 
 //<-dceag-c41-b->
@@ -747,10 +812,56 @@ void MythTV_Player::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSp
 {
 	// We send left/right for this
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-	if( iMediaPlaybackSpeed==2 )
-		processKeyBoardInputRequest(XK_Right);
-	else
-		processKeyBoardInputRequest(XK_Left);
+	string sResult;
+
+	switch(iMediaPlaybackSpeed)
+	{
+	case 0:
+		sendMythCommand("play speed pause", sResult);
+		break;
+	case 1:
+	case 1000:
+		sendMythCommand("play speed normal", sResult);
+		break;
+	case 2:
+	case 2000:
+		sendMythCommand("play speed 2x", sResult);
+		break;
+	case -1:
+	case -1000:
+		sendMythCommand("play speed -1x", sResult);
+		break;
+	case -2:
+	case -2000:
+		sendMythCommand("play speed -2x", sResult);
+		break;
+	case 4000:
+		sendMythCommand("play speed 4x", sResult);
+		break;
+	case 8000:
+		sendMythCommand("play speed 8x", sResult);
+		break;
+	case 16000:
+		sendMythCommand("play speed 16x", sResult);
+		break;
+	case -4000:
+		sendMythCommand("play speed -4x", sResult);
+		break;
+	case -8000:
+		sendMythCommand("play speed -8x", sResult);
+		break;
+	case -16000:
+		sendMythCommand("play speed -16x", sResult);
+		break;
+	default:
+		g_pPlutoLogger->Write(LV_STATUS, "Don't know how to handle playback speed: \"%d\"", iMediaPlaybackSpeed);
+		break;
+	}
+
+//	if( iMediaPlaybackSpeed==2 )
+//		processKeyBoardInputRequest(XK_Right);
+//	else
+//		processKeyBoardInputRequest(XK_Left);
 }
 
 //<-dceag-c42-b->
@@ -799,6 +910,12 @@ void MythTV_Player::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string
 void MythTV_Player::CMD_Report_Playback_Position(int iStreamID,string *sText,string *sMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c259-e->
 {
+	string sResult;
+
+	sendMythCommand("play status position", sResult);
+	*sText = sResult;
+
+	g_pPlutoLogger->Write(LV_STATUS, "Status position: \"%s\"", sResult.c_str());
 }
 
 //<-dceag-c412-b->
@@ -814,3 +931,4 @@ void MythTV_Player::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,s
 //<-dceag-c412-e->
 {
 }
+

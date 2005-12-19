@@ -39,6 +39,7 @@ namespace DCE
         bool LaunchMythFrontend(bool bSelectWindow=true);
 
         void processKeyBoardInputRequest(int iXKeySym);
+		bool sendMythCommand(const char *Cmd, string &sResult);
 
         // This should be Window but if i put #include <X11/Xlib.h>  in this it will break the compilation.
         bool locateMythTvFrontendWindow(long unsigned int window);
