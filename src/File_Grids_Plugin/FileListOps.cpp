@@ -79,10 +79,13 @@ void GetDirContents(list<FileDetails *> &listFileNames,string Path, string sVali
                 string::size_type pos = 0;
                 while(pos<sValidExtensions_CSV.length() || sValidExtensions_CSV.length()==0 )
                 {
+					char *pPtr;
                     string s = StringUtils::Tokenize(sValidExtensions_CSV, ",", pos);
                     if (s.length()>0 && s.substr(0,1) == "*")
                         s = s.substr(1);
-                    if ( s.length()==0 || s == ".*" || strstr(finddata.name, s.c_str()) != NULL)
+                    if ( s.length()==0 || s == ".*" || 
+						(pPtr=strstr(finddata.name, s.c_str())) != NULL && 
+						pPtr-finddata.name==strlen(finddata.name)-s.size() )
                     {
                         FileDetails *fi = new FileDetails(BasePath, finddata.name, false, iDirNumber, finddata.time_write);
                         listFileNames.push_back(fi);
@@ -143,10 +146,13 @@ g_pPlutoLogger->Write(LV_STATUS, "found file entry %s", entry.d_name);
                 size_t pos = 0;
                 while(pos<sValidExtensions_CSV.length() || sValidExtensions_CSV.length()==0 )
                 {
+					char *pPtr;
                     string s = StringUtils::Tokenize(sValidExtensions_CSV, ",", pos);
                     if (s.length()>0 && s.substr(0,1) == "*")
                         s = s.substr(1);
-                    if ( s.length()==0 || s == ".*" || strstr(entry.d_name, s.c_str()) != NULL)
+                    if ( s.length()==0 || s == ".*" ||
+						(pPtr=strstr(finddata.name, s.c_str())) != NULL && 
+						pPtr-finddata.name==strlen(finddata.name)-s.size() )
                     {
                         FileDetails *fi = new FileDetails(BasePath, entry.d_name, false, iDirNumber, dirEntryStat.st_mtime);
 #ifdef DEBUG
