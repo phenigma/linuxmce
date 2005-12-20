@@ -17,7 +17,7 @@ sources = Main.cpp General_Info_Plugin.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
 CXXFLAGS +=
-CPPFLAGS += #-DWEB_QUERY_DEBUG
+CPPFLAGS += #-DWEB_QUERY_DEBUG -DDEBUG
 LDFLAGS +=
 XTRALDLIBS = -lpluto_main
 
