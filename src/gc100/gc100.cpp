@@ -752,11 +752,14 @@ void gc100::Start_seriald()
 
 //			sprintf(command, "socat -v TCP4:%s:%d PTY,link=%s,echo=false,icanon=false,raw >>/var/log/pluto/%s.newlog 2>&1 &",
 //				ip_addr.c_str(), global_slot+GC100_COMMAND_PORT, sDevice.c_str(), sDevName.c_str());
-			sprintf(command, "/usr/pluto/bin/gc100-serial-bridge.sh %s %d %s &", ip_addr.c_str(), global_slot+GC100_COMMAND_PORT, sDevice.c_str());
+			snprintf(command, 512, "/usr/pluto/bin/gc100-serial-bridge.sh %s %d %s &", ip_addr.c_str(), global_slot+GC100_COMMAND_PORT, sDevice.c_str());
 			g_pPlutoLogger->Write(LV_STATUS, "seriald cmd: %s", command);
 			system(command);
 		}
 	}
+	snprintf(command, 512, "/usr/pluto/bin/UpdateAvailableSerialPorts.sh");
+	g_pPlutoLogger->Write(LV_STATUS, "Update Available Serial Ports cmd: %s", command);
+	system(command);
 }
 
 void gc100::parse_message_statechange(std::string message, bool change)
