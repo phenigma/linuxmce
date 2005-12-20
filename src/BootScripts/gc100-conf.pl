@@ -53,10 +53,16 @@ if($ARGV[0] eq "") {
 		}
 	}
 	$state->finish();
-	loggc("Creating Device...\n");
+	loggc("/usr/pluto/bin/CreateDevice -i $install -d $dev_templ -M $mac -C $PKDEV -n\n");
+	loggc("Creating Device...");
 	$Device_ID = `/usr/pluto/bin/CreateDevice -i $install -d $dev_templ -M $mac -C $PKDEV -n`;
+	@lines = split(/\n/s, $Device_ID);
+	$nlines = $#lines;
+	$Device_ID = $lines[$nlines];
 	chomp($Device_ID);
 	print "$Device_ID\n";	
+	loggc(" [$Device_ID]\n");
+	
 	loggc("Finding IP ");
 	$ip = find_ip($Device_ID);
 	loggc("[$ip]\n");
