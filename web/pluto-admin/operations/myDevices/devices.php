@@ -134,7 +134,6 @@ function devices($output,$dbADO) {
 				$DDTypesToDisplay=array();	
 				$joinArray=$DTIDArray;	// used only for query when there are no DT in selected category
 				$joinArray[]=0;
-				$dbADO->debug=true;
 				$queryDevice='
 					SELECT 
 						Device.*, DeviceTemplate.Description AS TemplateName, DeviceCategory.Description AS CategoryName,Manufacturer.Description AS ManufacturerName,IsIPBased

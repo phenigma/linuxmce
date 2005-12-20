@@ -2691,7 +2691,7 @@ function getTopLevelParent($deviceID,$dbADO)
 	$topParent=0;
 	if($deviceID!=0){
 		$res=$dbADO->Execute('
-			SELECT FK_DeviceTemplate,FK_Device_ControlledVia,IPaddress 
+			SELECT FK_DeviceTemplate,FK_Device_ControlledVia,IPaddress,FK_DeviceCategory 
 			FROM Device 
 			INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
 			WHERE PK_Device=?',$deviceID);
