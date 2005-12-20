@@ -1497,14 +1497,16 @@ Row_Device *General_Info_Plugin::ProcessChildDevice(Row_Device *pRow_Device,stri
 	else
 	{
 		// Create it since it doesn't exist
-		pRow_Device_Child = m_pDatabase_pluto_main->Device_get()->AddRow();
-		pRow_Device_Child->FK_Device_ControlledVia_set(pRow_Device->PK_Device_get());
-		pRow_Device_Child->Table_Device_get()->Commit();
-		Row_Device_DeviceData *pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->AddRow();
-		pRow_Device_DeviceData->FK_Device_set(pRow_Device_Child->PK_Device_get());
-		pRow_Device_DeviceData->FK_DeviceData_set(DEVICEDATA_PortChannel_Number_CONST);
-		pRow_Device_DeviceData->IK_DeviceData_set(sInternalID);
-
+		int iPK_Device;
+		CMD_Create_Device(PK_DeviceTemplate,"",0,"",
+			StringUtils::itos(DEVICEDATA_PortChannel_Number_CONST) + "|" + sInternalID,
+			0,pRow_Device->PK_Device_get(),0,0,&iPK_Device);
+		pRow_Device_Child = m_pDatabase_pluto_main->Device_get()->GetRow(iPK_Device);
+		if( !pRow_Device_Child )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"General_Info_Plugin::ProcessChildDevice failed to create child %d",iPK_Device);
+			return NULL;
+		}
 	}
 
 	// Don't reset the description if it's already there, the user may have overridden the default name
