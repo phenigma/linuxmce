@@ -245,5 +245,5 @@ if(my $DB_ROW = $DB_STATEMENT->fetchrow_hashref())
 }
 $DB_PL_HANDLE->disconnect();
 
-#reload asterisk
-`asterisk -rx reload`;
+#A HARD RELOAD FOR ASTERISK
+`killall -9 asterisk`;
