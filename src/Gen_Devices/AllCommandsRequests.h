@@ -11837,22 +11837,6 @@ namespace DCE
 	public:
 		CMD_Send_Orbiter_Popups_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,bool bTrueFalse,int iPK_Orbiter) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,758,2,119,(bTrueFalse ? "1" : "0"),198,StringUtils::itos(iPK_Orbiter).c_str()); }
 	};
-	class CMD_Send_Command_To_Child : public PreformedCommand {
-	public:
-		CMD_Send_Command_To_Child(long DeviceIDFrom, long DeviceIDTo,string sID,int iPK_Command,string sParameters) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,759,3,10,sID.c_str(),154,StringUtils::itos(iPK_Command).c_str(),202,sParameters.c_str()); }
-	};
-	class CMD_Send_Command_To_Child_DL : public PreformedCommand {
-	public:
-		CMD_Send_Command_To_Child_DL(long DeviceIDFrom, string DeviceIDTo,string sID,int iPK_Command,string sParameters) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,759,3,10,sID.c_str(),154,StringUtils::itos(iPK_Command).c_str(),202,sParameters.c_str()); }
-	};
-	class CMD_Send_Command_To_Child_DT : public PreformedCommand {
-	public:
-		CMD_Send_Command_To_Child_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sID,int iPK_Command,string sParameters) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,759,3,10,sID.c_str(),154,StringUtils::itos(iPK_Command).c_str(),202,sParameters.c_str()); }
-	};
-	class CMD_Send_Command_To_Child_Cat : public PreformedCommand {
-	public:
-		CMD_Send_Command_To_Child_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sID,int iPK_Command,string sParameters) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,759,3,10,sID.c_str(),154,StringUtils::itos(iPK_Command).c_str(),202,sParameters.c_str()); }
-	};
 	class RESP_Get_Sensors_List : public PreformedCommandResponse {
 		string *m_sData;
 	public:
@@ -11892,6 +11876,22 @@ namespace DCE
 	class CMD_NOREP_Get_Sensors_List_Cat : public PreformedCommand {
 	public:
 		CMD_NOREP_Get_Sensors_List_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,759,0); }
+	};
+	class CMD_Send_Command_To_Child : public PreformedCommand {
+	public:
+		CMD_Send_Command_To_Child(long DeviceIDFrom, long DeviceIDTo,string sID,int iPK_Command,string sParameters) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,760,3,10,sID.c_str(),154,StringUtils::itos(iPK_Command).c_str(),202,sParameters.c_str()); }
+	};
+	class CMD_Send_Command_To_Child_DL : public PreformedCommand {
+	public:
+		CMD_Send_Command_To_Child_DL(long DeviceIDFrom, string DeviceIDTo,string sID,int iPK_Command,string sParameters) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,760,3,10,sID.c_str(),154,StringUtils::itos(iPK_Command).c_str(),202,sParameters.c_str()); }
+	};
+	class CMD_Send_Command_To_Child_DT : public PreformedCommand {
+	public:
+		CMD_Send_Command_To_Child_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sID,int iPK_Command,string sParameters) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,760,3,10,sID.c_str(),154,StringUtils::itos(iPK_Command).c_str(),202,sParameters.c_str()); }
+	};
+	class CMD_Send_Command_To_Child_Cat : public PreformedCommand {
+	public:
+		CMD_Send_Command_To_Child_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sID,int iPK_Command,string sParameters) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,760,3,10,sID.c_str(),154,StringUtils::itos(iPK_Command).c_str(),202,sParameters.c_str()); }
 	};
 }
 #endif
