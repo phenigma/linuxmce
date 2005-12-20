@@ -748,6 +748,9 @@ class DataGridTable *General_Info_Plugin::TypesOfPhones( string GridID, string P
 
 class DataGridTable *General_Info_Plugin::PNPDevices( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
+	g_pPlutoLogger->Write(LV_WARNING, "General_Info_Plugin::PNPDevices Parms=%s", Parms.c_str());
+	PLUTO_SAFETY_LOCK(gm,m_GipMutex);
+	
 	DataGridTable *pDataGrid = new DataGridTable( );
 	DataGridCell *pCell;
 	string::size_type pos=0;
@@ -755,6 +758,7 @@ class DataGridTable *General_Info_Plugin::PNPDevices( string GridID, string Parm
 	// This will be a new background thread
 	PhoneDevice pd("", Parms, 0);
 
+	// ask user what device this is (db result)
 	vector<Row_DHCPDevice *> vectRow_DHCPDevice;
 	m_pDatabase_pluto_main->DHCPDevice_get()->GetRows(StringUtils::i64tos(pd.m_iMacAddress) + ">=Mac_Range_Low AND " + StringUtils::i64tos(pd.m_iMacAddress) + "<=Mac_Range_High",&vectRow_DHCPDevice);
 	int iRow=0,iColumn=0;
@@ -771,11 +775,17 @@ class DataGridTable *General_Info_Plugin::PNPDevices( string GridID, string Parm
 		}
 	}
 
-	if (vectRow_DHCPDevice.size() == 0 && m_iPK_WebQuery != 0)
+	// ask user what device this is (web result)
+	mapMacPKDescription::iterator mapit;
+	g_pPlutoLogger->Write(LV_STATUS, "General_Info_Plugin::PNPDevices got empty list from database.");
+	//Parms = "00:30:59:01:e3:9a";
+	g_pPlutoLogger->Write(LV_WARNING, "General_Info_Plugin::PNPDevices Parms=%s", Parms.c_str());
+	if (vectRow_DHCPDevice.size() == 0 && (mapit = m_mapMacPKDescription.find(Parms)) != m_mapMacPKDescription.end())
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "General_Info_Plugin::PNPDevices got empty list from database. Using data from the web.");
+		g_pPlutoLogger->Write(LV_STATUS, "General_Info_Plugin::PNPDevices Using data from the web.");
 		
-		pCell = new DataGridCell(m_sWeb_Description, StringUtils::itos(-m_iPK_WebQuery));
+		// second = description, first = PK_Web
+		pCell = new DataGridCell(mapit->second.second, StringUtils::itos(- mapit->second.first));
 		pDataGrid->SetData(0, 0, pCell);
 	}
 
@@ -1524,6 +1534,8 @@ Row_Device *General_Info_Plugin::ProcessChildDevice(Row_Device *pRow_Device,stri
 
 bool General_Info_Plugin::NewMacAddress( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
+	PLUTO_SAFETY_LOCK(gm,m_GipMutex);
+	
 	string sMacAddress = pMessage->m_mapParameters[EVENTPARAMETER_Mac_Address_CONST];
 	string sIPAddress = pMessage->m_mapParameters[EVENTPARAMETER_IP_Address_CONST];
 	if( sMacAddress.size()<11 || sIPAddress.size()<7 )
@@ -1559,16 +1571,13 @@ bool General_Info_Plugin::NewMacAddress( class Socket *pSocket, class Message *p
 		return false;
 	}
 
-/*
 	g_pPlutoLogger->Write(LV_STATUS, "General_Info_Plugin::NewMacAddress querying web");
-	m_iPK_WebQuery = 0;
-	m_sWeb_MacAddress = sMacAddress;
 	
 	Web_DHCP_Query Web_Query(sURL_Base);
 	Web_DHCP_Query_Params Web_Params;
 	Web_DHCP_Query_Result Web_Result;
 
-	Web_Params["MAC"] = m_sWeb_MacAddress;
+	Web_Params["MAC"] = sMacAddress;
 	Web_Query.Query(Web_Params, Web_Result);
 
 	if (Web_Result.size() == 0 || Web_Result[0].size() == 0)
@@ -1592,22 +1601,24 @@ bool General_Info_Plugin::NewMacAddress( class Socket *pSocket, class Message *p
 	else
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "Query succeeded. Server returned: '%s', '%s'", Web_Result[0][0].c_str(), Web_Result[0][1].c_str());
-		m_iPK_WebQuery = atoi(Web_Result[0][0].c_str());
-		m_sWeb_Description = Web_Result[0][1];
-		if (m_iPK_WebQuery < 0)
+		
+		int iPK_WebQuery = atoi(Web_Result[0][0].c_str());
+		string sWeb_Description = Web_Result[0][1];
+		if (iPK_WebQuery <= 0)
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "Invalid PK in result");
+			g_pPlutoLogger->Write(LV_WARNING, "Invalid PK in result: %d", iPK_WebQuery);
 			return false;
 		}
 		else
 		{
+			m_mapMacPKDescription[sMacAddress] = pairPKDescription(iPK_WebQuery, sWeb_Description);
+			
 			DCE::SCREEN_NewMacAddress_DL SCREEN_NewMacAddress_DL(m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_get(), sMacAddress, sIPAddress);
 			SendCommand(SCREEN_NewMacAddress_DL);
 
 			return false;
 		}
 	}
-*/
 
 	return false;
 }
@@ -1635,6 +1646,8 @@ struct Web_DeviceData
 void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,string sIP_Address,string sData,int iPK_DHCPDevice,string &sCMD_Result,Message *pMessage)
 //<-dceag-c700-e->
 {
+	PLUTO_SAFETY_LOCK(gm,m_GipMutex);
+	//sMac_address = "00:30:59:01:e3:0a";
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_New_Plug_and_Play_Device %d mac %s data %s",
 		iPK_DHCPDevice,sMac_address.c_str(),sData.c_str());
@@ -1644,15 +1657,16 @@ void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,strin
 	SendCommand(CMD_Remove_Screen_From_History_DL);
 
 	vector<Web_DeviceData> vectWeb_DeviceData;
-/*
-	if (m_iPK_WebQuery != 0)
+
+	mapMacPKDescription::iterator mapit;
+	if (m_mapMacPKDescription.size() != 0 && (mapit = m_mapMacPKDescription.find(sMac_address)) != m_mapMacPKDescription.end())
 	{
 		Web_DHCP_Query Web_Query(sURL_Base);
 		Web_DHCP_Query_Params Web_Params;
 		Web_DHCP_Query_Result Web_Result;
 
-		Web_Params["MAC"] = m_sWeb_MacAddress;
-		Web_Params["PK"] = StringUtils::itos(m_iPK_WebQuery);
+		Web_Params["MAC"] = sMac_address;
+		Web_Params["PK"] = StringUtils::itos(mapit->second.first); // PK_Web
 		Web_Query.Query(Web_Params, Web_Result);
 
 		if (Web_Result.size() == 0 || Web_Result[0].size() == 0)
@@ -1700,7 +1714,7 @@ void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,strin
 			}
 		}
 	}
-*/
+	
 	int iPK_Device;
 	if (iPK_DHCPDevice < 0)
 	{
@@ -1709,14 +1723,6 @@ void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,strin
 		{
 			Web_DeviceData &WDD = vectWeb_DeviceData[i];
 
-			// TODO: add default DeviceData to CreateDevice
-			//       the default DeviceData comes as a map<int, string> named WDD.m_mapDeviceData
-			//       first = DeviceData number, second = DeviceData contents
-			// TODO: add "related to device" parameter
-			//       stored in iPK_Device_Related
-			CMD_Create_Device(0,sMac_address,i==0 ? -1 : 0 /* only prompt the user for the room for the 1st device */,
-				sIP_Address,sData,iPK_DHCPDevice,0,pMessage->m_dwPK_Device_From,0,&iPK_Device);
-			
 			if (i == 0) // 1st device is our PNP device, and all the others will be related to it
 			{
 				g_pPlutoLogger->Write(LV_STATUS, "Created PNP device %d from MAC %s", iPK_Device, sMac_address.c_str());
@@ -1726,6 +1732,23 @@ void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,strin
 			{
 				g_pPlutoLogger->Write(LV_STATUS, "Created device %d, related to PNP device %d", iPK_Device, iPK_Device_Related);
 			}
+
+			bool bSeparator = false;
+			if (sData.size() > 0)
+			{
+				sData += "|";
+				bSeparator = true;
+			}
+			
+			for (map<int, string>::iterator it = WDD.m_mapDeviceData.begin(); it != WDD.m_mapDeviceData.end(); it++)
+			{
+				if (bSeparator)
+					sData += "|";
+				sData += it->first + "|" + it->second;
+			}
+			
+			CMD_Create_Device(0,sMac_address,i==0 ? -1 : 0 /* only prompt the user for the room for the 1st device */,
+				sIP_Address,sData,iPK_DHCPDevice,0,pMessage->m_dwPK_Device_From,iPK_Device_Related,&iPK_Device);
 		}
 		iPK_Device = iPK_Device_Related; // for the Orbiter to display when it asks the user to select a room
 	}

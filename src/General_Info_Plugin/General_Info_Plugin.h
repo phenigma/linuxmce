@@ -30,6 +30,8 @@ namespace DCE
 	class General_Info_Plugin : public General_Info_Plugin_Command
 	{
 //<-dceag-decl-e->
+		typedef pair<int, string> pairPKDescription;
+		typedef map<string, pairPKDescription> mapMacPKDescription;
 //<-dceag-const-b->
 public:
 		// Constructors/Destructor
@@ -352,10 +354,8 @@ public:
 
 
 //<-dceag-h-e->
-	public:
-		int m_iPK_WebQuery; // this works if you plug and acknowledge one device at a time; but not more
-		string m_sWeb_MacAddress;
-		string m_sWeb_Description;
+	private:
+		mapMacPKDescription m_mapMacPKDescription;
 };
 
 //<-dceag-end-b->
