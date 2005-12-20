@@ -151,8 +151,8 @@ g_pPlutoLogger->Write(LV_STATUS, "found file entry %s", entry.d_name);
                     if (s.length()>0 && s.substr(0,1) == "*")
                         s = s.substr(1);
                     if ( s.length()==0 || s == ".*" ||
-						(pPtr=strstr(finddata.name, s.c_str())) != NULL && 
-						pPtr-finddata.name==strlen(finddata.name)-s.size() )
+						(pPtr=strstr(entry.d_name, s.c_str())) != NULL && 
+						pPtr-entry.d_name==strlen(entry.d_name)-s.size() )
                     {
                         FileDetails *fi = new FileDetails(BasePath, entry.d_name, false, iDirNumber, dirEntryStat.st_mtime);
 #ifdef DEBUG
