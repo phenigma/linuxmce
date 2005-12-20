@@ -416,7 +416,8 @@ function mediaDirectors($output,$dbADO) {
 							
 					$room=(@$_POST['room_'.$value]!=0)?(int)@$_POST['room_'.$value]:NULL;
 					$controlledBy=(@$_POST['controlledBy_'.$value]!=0)?(int)@$_POST['controlledBy_'.$value]:NULL;
-
+					$dbADO->Execute('UPDATE Device Dparent JOIN Device Dchild ON Dchild.FK_Device_ControlledVia=Dparent.PK_Device SET Dparent.FK_Room=? WHERE Dchild.PK_Device=?',array($room,$value));
+					
 					if(isset($_POST['controlledBy_'.$value])){
 						$updateDevice='UPDATE Device SET Description=?, FK_Room=?, FK_Device_ControlledVia=? '.@$updateMacIp.' WHERE PK_Device=?';
 						$dbADO->Execute($updateDevice,array($description,$room,$controlledBy,$value));
