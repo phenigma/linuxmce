@@ -666,7 +666,61 @@ bool OSDScreenHandler::AV_Devices_ObjectSelected(CallBackData *pData)
 					return true;
 
 				//we have the AV Device Manufacturer and AV Device Model!
-				m_pWizardLogic->AddDevice(atoi(sModel.c_str()));
+				m_pWizardLogic->m_nPK_Device_Last_AV = m_pWizardLogic->AddDevice(atoi(sModel.c_str()));
+			}
+		}
+		break;
+
+		case DESIGNOBJ_AVDeviceVideo_CONST:
+		{
+			if(DESIGNOBJ_butAVDeviceVideoInputs_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
+			{
+				string sInstalledAVDevice = m_pOrbiter->m_mapVariable[VARIABLE_Datagrid_Input_CONST];
+				if(sInstalledAVDevice == "")
+					return true;
+
+				m_pWizardLogic->m_nPK_Device_AV_Installed = atoi(sInstalledAVDevice.c_str());
+			}
+		}
+		break;
+
+		case DESIGNOBJ_AVDeviceVideoInputs_CONST:
+		{
+			if(DESIGNOBJ_butAVDeviceAudio_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
+			{
+				string sInput = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_4_CONST];
+				if(sInput != "") 
+				{
+					m_pWizardLogic->SetAvPath(m_pWizardLogic->m_nPK_Device_Last_AV,
+						m_pWizardLogic->m_nPK_Device_AV_Installed, 2 /* video */, atoi(sInput.c_str()));
+				}
+			}
+		}
+		break;
+
+		case DESIGNOBJ_AVDeviceAudio_CONST:
+		{
+			if(DESIGNOBJ_butAVDeviceAudioInputs_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
+			{
+				string sInstalledAVDevice = m_pOrbiter->m_mapVariable[VARIABLE_Datagrid_Input_CONST];
+				if(sInstalledAVDevice == "")
+					return true;
+
+				m_pWizardLogic->m_nPK_Device_AV_Installed = atoi(sInstalledAVDevice.c_str());
+			}
+		}
+		break;
+
+		case DESIGNOBJ_AVDeviceAudioInputs_CONST:
+		{
+			if(DESIGNOBJ_dgAvailableInputs_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
+			{
+				string sInput = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_4_CONST];
+				if(sInput != "") 
+				{
+					m_pWizardLogic->SetAvPath(m_pWizardLogic->m_nPK_Device_Last_AV,
+						m_pWizardLogic->m_nPK_Device_AV_Installed, 1 /* audio */, atoi(sInput.c_str()));
+				}
 			}
 		}
 		break;
