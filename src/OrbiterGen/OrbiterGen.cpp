@@ -384,7 +384,18 @@ int OrbiterGenerator::DoIt()
 		exit(1);
 	}
 
-	PopulateScreenMap(&mds, m_mapDesignObj, m_pRow_UI, m_pRow_Skin, m_pRow_Device);
+	// Maybe we're using a substituted skin.  If so, for the sake of calculating the screen
+	// mapping we should use the original.
+	Row_Skin *pRow_Skin_For_Translation = m_pRow_Skin;
+	int PK_Skin_Original = m_mapSkinTranslated[m_pRow_Skin->PK_Skin_get()];
+	if( PK_Skin_Original )
+	{
+		pRow_Skin_For_Translation = mds.Skin_get()->GetRow(PK_Skin_Original);
+		if( !pRow_Skin_For_Translation )
+			pRow_Skin_For_Translation = m_pRow_Skin;
+	}
+
+	PopulateScreenMap(&mds, m_mapDesignObj, m_pRow_UI, pRow_Skin_For_Translation, m_pRow_Device);
 
 	m_pRow_Screen_MainMenu = NULL;
 	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_Screen_CONST);
@@ -2346,15 +2357,26 @@ Row_DesignObj *OrbiterGenerator::GetDesignObjFromScreen(Row_Screen *pRow_Screen)
 
 Row_Skin *OrbiterGenerator::TranslateSkin(Row_Skin *pRow_Skin)
 {
+	int PK_Skin_New=0;
 	for(map<string,string>::iterator it=g_DCEConfig.m_mapParameters.begin();it!=g_DCEConfig.m_mapParameters.end();++it)
 	{
-		if( it->first == "ReplaceSkin_" + StringUtils::itos(pRow_Skin->PK_Skin_get()) )
+		if( StringUtils::StartsWith(it->first,"UseSkinSettings_") )
 		{
-			Row_Skin *pRow_Skin = mds.Skin_get()->GetRow( atoi(it->second.c_str()) );
-			if( pRow_Skin )
-				return pRow_Skin;
+			int PK_Skin = atoi(it->first.substr(16).c_str());
+			m_mapSkinTranslated[ PK_Skin ] = atoi(it->second.c_str());
+		}
+		else if( StringUtils::StartsWith(it->first,"ReplaceSkin_") )
+		{
+			int PK_Skin = atoi(it->first.substr(12).c_str());
+			if( PK_Skin==pRow_Skin->PK_Skin_get() )
+				PK_Skin_New = atoi(it->second.c_str());
 		}
 	}
-	return NULL;
+
+
+	if( PK_Skin_New )
+		return mds.Skin_get()->GetRow(PK_Skin_New);
+	else
+		return NULL;
 }
 

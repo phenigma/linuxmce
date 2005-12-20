@@ -30,6 +30,7 @@ public:
 	int m_iLocation;
 	map<int,int> m_htUsedStyleVariation;
 	map<int,int> m_mapUsedOrbiterCriteria;
+	map<int,int> m_mapSkinTranslated;
 	map<string,listDesignObj_Generator *> m_htGeneratedScreens;
 	map<int,class TextStyle *> m_htStylesUsedInOrbiterText;
 	map<int,bool> m_mapDesignObj_WithArrays;
