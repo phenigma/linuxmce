@@ -963,7 +963,7 @@ bool OSDScreenHandler::AlarmPanel_ObjectSelected(CallBackData *pData)
 
 				m_pWizardLogic->m_bAlarmPanelDetectionStarted = false;
 				m_pWizardLogic->m_bAlarmPanelIsOk = false;
-				m_pWizardLogic->m_nAlarmDeviceTimeout = 15000;//millisec
+				m_pWizardLogic->m_nAlarmDeviceTimeout = 120000;//2 min
 			}
 		}
 		break;

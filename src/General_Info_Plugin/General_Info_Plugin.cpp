@@ -148,7 +148,7 @@ bool General_Info_Plugin::Register()
 		, DATAGRID_Room_Types_CONST,PK_DeviceTemplate_get() );
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
-		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::AlarmSensorsList)), 
+		new DataGridGeneratorCallBack(this, (DCEDataGridGeneratorFn) (&General_Info_Plugin::ChildrenInfo)), 
 		DATAGRID_Alarm_Sensors_CONST,PK_DeviceTemplate_get());
 
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
@@ -723,7 +723,7 @@ class DataGridTable *General_Info_Plugin::QuickStartApps( string GridID, string 
 class DataGridTable *General_Info_Plugin::MRUDocuments( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
     DataGridTable *pDataGrid = new DataGridTable( );
-    DataGridCell *pCell;
+//    DataGridCell *pCell;
 
 
 	return pDataGrid;
@@ -905,59 +905,39 @@ class DataGridTable *General_Info_Plugin::RoomTypes(string GridID, string Parms,
 	return pDataGrid;
 }
 
-class DataGridTable *General_Info_Plugin::AlarmSensorsList(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage)
+class DataGridTable *General_Info_Plugin::ChildrenInfo(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage)
 {
 	string::size_type pos=0;
-	long nPK_Device_AlarmPanel = atoi(StringUtils::Tokenize(Parms,",",pos).c_str());
+	string sPK_Device_Parent = StringUtils::Tokenize(Parms,",",pos);
 
 	DataGridTable *pDataGrid = new DataGridTable( );
 	DataGridCell *pCell;
 
-	int iRow=0, iCol=0;
-
-	string sSensorList;
-	DCE::CMD_Get_Sensors_List CMD_Get_Sensors_List_(m_dwPK_Device, nPK_Device_AlarmPanel, &sSensorList);
-	SendCommand(CMD_Get_Sensors_List_);
-
-	//for testing
-	//sSensorList = "5238\tMotion Detector 1\tCORE\t54\t1\n5239\tMotion Detector 2\tMD\t54\t1\n";
-
-	vector<string> vectStrings;
-	StringUtils::Tokenize(sSensorList, "\n\t", vectStrings);
-
-	string sSensorIds;
-	for(size_t i = 0; i < vectStrings.size() - 4; i += 5)
-	{
-		if(i > 0)
-			sSensorIds += ",";
-
-		sSensorIds += vectStrings[i];
-	}
-
+	int iRow=0;
 	string sql = 
-		"SELECT PK_Device, Device.Description AS Description, Room.Description As Room, DeviceTemplate.Description As SensorType "
+		"SELECT PK_Device, Device.Description AS Description, Room.Description As Room, DeviceTemplate.Description As ChildType "
 		"FROM Device "
 		"LEFT JOIN Room ON FK_Room = PK_Room "
 		"JOIN DeviceTemplate ON FK_DeviceTemplate = PK_DeviceTemplate "
-		"WHERE PK_Device IN (" + sSensorIds + ")";
+		"WHERE FK_Device_ControlledVia = " + sPK_Device_Parent;
 	PlutoSqlResult result;
 	MYSQL_ROW row;
 	if(mysql_query(m_pDatabase_pluto_main->m_pMySQL,sql.c_str())==0 && (result.r = mysql_store_result(m_pDatabase_pluto_main->m_pMySQL)) )
 	{
 		while((row=mysql_fetch_row(result.r)))
 		{
-			string sSensorId = row[0];
-			string sSensorName = row[1];
+			string PK_ChildDevice = row[0];
+			string sChildName = row[1];
 			string sRoomName = row[2] ? row[2] : "";
-			string sSensorType = row[3];
+			string sChildType = row[3];
 
-			pCell = new DataGridCell(sSensorName, sSensorId);
+			pCell = new DataGridCell(sChildName, PK_ChildDevice);
 			pDataGrid->SetData(0, iRow, pCell);
 
-			pCell = new DataGridCell(sRoomName, sSensorId);
+			pCell = new DataGridCell(sRoomName, PK_ChildDevice);
 			pDataGrid->SetData(1, iRow, pCell);
 
-			pCell = new DataGridCell(sSensorType, sSensorId);
+			pCell = new DataGridCell(sChildType, PK_ChildDevice);
 			pDataGrid->SetData(2, iRow++, pCell);
 		}
 	}
@@ -975,7 +955,7 @@ class DataGridTable *General_Info_Plugin::AvailableSerialPorts(string GridID, st
 	DataGridCell *pCell;
 
 	vector< pair<int,string> > vectAllPorts;
-	DatabaseUtils::GetUnusedPortsOnAllPCs(m_pDatabase_pluto_main,vectAllPorts);
+	DatabaseUtils::GetUnusedPortsOnAllPCs(m_pDatabase_pluto_main,vectAllPorts,m_pRouter->iPK_Installation_get());
 
 	int iRow=0, iCol=0;
 

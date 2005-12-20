@@ -30,12 +30,25 @@
 
 string DatabaseUtils::HumanReadablePort(MySqlHelper *pMySqlHelper,int PK_Device,string sPort)
 {
+	if(sPort == "/dev/ttyS0")
+		sPort = "COM1";
+	if(sPort == "/dev/ttyS1")
+		sPort = "COM2";
+	if(sPort == "/dev/ttyS2")
+		sPort = "COM3";
+	if(sPort == "/dev/ttyS3")
+		sPort = "COM4";
+
 	return sPort;
 }
 
-void DatabaseUtils::GetUnusedPortsOnAllPCs(MySqlHelper *pMySqlHelper,vector< pair<int,string> > &vectAllPorts)
+void DatabaseUtils::GetUnusedPortsOnAllPCs(MySqlHelper *pMySqlHelper,vector< pair<int,string> > &vectAllPorts, 
+										   long nFK_Installation/*=0*/)
 {
 	string sSQL = "SELECT PK_Device FROM Device WHERE FK_Device_ControlledVia IS NULL";
+	if(nFK_Installation)
+		sSQL += " AND FK_Installation = " + StringUtils::ltos(nFK_Installation);
+
 	PlutoSqlResult result;
 	MYSQL_ROW row;
 	if( ( result.r=pMySqlHelper->mysql_query_result( sSQL ) ) )

@@ -6787,7 +6787,11 @@ bool Orbiter::ReceivedMessage( class Message *pMessageOriginal )
 		return false;
 
 	string strMessage = string("ReceivedMessage: ") + StringUtils::itos(pMessageOriginal->m_dwID);
-    NeedToRender render( this, strMessage.c_str() );  // Redraw anything that was changed by this command
+
+	if(m_pScreenHandler->m_mapCallBackData_Find(cbMessageIntercepted) && ScreenHandlerMsgInterceptor(this, pMessageOriginal, NULL, NULL))
+		return true;
+	
+	NeedToRender render( this, strMessage.c_str() );  // Redraw anything that was changed by this command
     bool bResult = Orbiter_Command::ReceivedMessage( pMessageOriginal );
     return bResult;
 }
@@ -9649,9 +9653,10 @@ bool Orbiter::ScreenHandlerMsgInterceptor( class Socket *pSocket, class Message 
 		pMsgInterceptorCellBackData->m_pMessage = pMessage;
 		pMsgInterceptorCellBackData->m_pDeviceFrom = pDeviceFrom;
 		pMsgInterceptorCellBackData->m_pDeviceTo = pDeviceTo;
+
+		return ExecuteScreenHandlerCallback(cbMessageIntercepted);
 	}
 
-	ExecuteScreenHandlerCallback(cbMessageIntercepted);
-	return true;
+	return false;
 }
 
