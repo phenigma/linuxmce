@@ -207,6 +207,13 @@ bool IRTrans::Register()
 void IRTrans::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
+	if( m_sAltPort.size() && m_bIRServerRunning )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"IRTrans setting port to %s",m_sAltPort.c_str());
+		SetDeviceDataInDB(m_dwPK_Device,DEVICEDATA_COM_Port_on_PC_CONST,m_sAltPort);
+		m_sAltPort="";
+	}
+
 	// Let the IR Base class try to handle the message
 	if ( IRBase::ProcessMessage(pMessage) )
 	{
@@ -307,6 +314,7 @@ void IRTrans::StartIRServer()
 #endif
 				g_pPlutoLogger->Write(LV_STATUS,"Looking on %s (%s)",sPort.c_str(),sPortTranslated.c_str());
 #ifndef WIN32
+				m_sAltPort=sPort;
 				strcpy(TTYPort,sPortTranslated.c_str());
 				if( libmain(7,argv)!=0 )
 #else
@@ -314,12 +322,7 @@ void IRTrans::StartIRServer()
 #endif
 					g_pPlutoLogger->Write(LV_STATUS,"IRTrans not found on %s",sPort.c_str());
 				else
-				{
-					g_pPlutoLogger->Write(LV_STATUS,"IRTrans setting port to %s",sPort.c_str());
-					bLoaded=true;
-					SetDeviceDataInDB(m_dwPK_Device,DEVICEDATA_COM_Port_on_PC_CONST,sPort);
-					break;
-				}
+					break;  // we don't get here anyway
 			}
 		}
 	}
@@ -335,6 +338,13 @@ void IRTrans::StartIRServer()
 
 void IRTrans::GotIRCommand(const char *pRemote,const char *pCommand)
 {
+	if( m_sAltPort.size() && m_bIRServerRunning )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"IRTrans setting port to %s",m_sAltPort.c_str());
+		SetDeviceDataInDB(m_dwPK_Device,DEVICEDATA_COM_Port_on_PC_CONST,m_sAltPort);
+		m_sAltPort="";
+	}
+
 	int PK_Device = m_mapNameToDevice[pRemote];
 	if( !PK_Device )
 		g_pPlutoLogger->Write(LV_CRITICAL,"Got command %s from unknown remote %s",pCommand,pRemote);
