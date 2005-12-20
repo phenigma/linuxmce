@@ -1,5 +1,7 @@
 #!/bin/bash
 
+dmesg -n 1
+
 # router/diskless
 Type="router"
 
