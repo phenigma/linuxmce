@@ -119,13 +119,13 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
     bool bQualityImageScreen = false;
     if(NULL != m_pScreenHistory_Current)
     {
-		g_pPlutoLogger->Write(LV_CRITICAL, "Current screen: %s",  m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str());
-        bSignalStrengthScreen = m_pScreenHistory_Current->m_pObj->m_ObjectID.find(ADVANCED_OPTIONS_SCREEN) != string::npos;
+		g_pPlutoLogger->Write(LV_CRITICAL, "Current screen: %s",  m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
+        bSignalStrengthScreen = m_pScreenHistory_Current->GetObj()->m_ObjectID.find(ADVANCED_OPTIONS_SCREEN) != string::npos;
     }
 
     if(NULL != m_pScreenHistory_Current)
     {
-        bQualityImageScreen = m_pScreenHistory_Current->m_pObj->m_ObjectID.find(IMAGE_QUALITY_SCREEN) != string::npos;
+        bQualityImageScreen = m_pScreenHistory_Current->GetObj()->m_ObjectID.find(IMAGE_QUALITY_SCREEN) != string::npos;
     }
 
     const string csTempFileName = "TmpScreen.png";
@@ -137,7 +137,7 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
         SDL_SaveJPG(pScreenImage, csTempFileName.c_str(), m_ImageQuality);
 
     string sRepeatedKeysList;
-    GetRepeatedKeysForScreen(m_pScreenHistory_Current->m_pObj, sRepeatedKeysList);
+    GetRepeatedKeysForScreen(m_pScreenHistory_Current->GetObj(), sRepeatedKeysList);
 #ifdef DEBUG
     g_pPlutoLogger->Write(LV_WARNING, "Repeated keys list %s: ", sRepeatedKeysList.c_str());
 #endif

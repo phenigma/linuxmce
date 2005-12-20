@@ -145,7 +145,7 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
 	PLUTO_SAFETY_LOCK(sm,m_ScreenMutex);
     if(NULL != m_pScreenHistory_Current)
     {
-		g_pPlutoLogger->Write(LV_STATUS, "Proxy_Orbiter::DisplayImageOnScreen Current screen: %s",  m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str());
+		g_pPlutoLogger->Write(LV_STATUS, "Proxy_Orbiter::DisplayImageOnScreen Current screen: %s",  m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
     }
 
     if(pScreenImage->w <= 320 && pScreenImage->h <= 240) //ip phone
@@ -168,15 +168,15 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
 	m_iImageCounter++;
     
     g_pPlutoLogger->Write(LV_WARNING, "Image/xml generated. Wake up! Screen %s", 
-        m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str());
+        m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
     pthread_cond_broadcast(&m_ActionCond);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void xxProxy_Orbiter::SaveXML(string sFileName)
 {
     m_dequeXMLItems.clear();
-    GenerateXMLItems(m_pScreenHistory_Current->m_pObj);
-    string sSoftKeys = GenerateSoftKeys(m_pScreenHistory_Current->m_pObj);
+    GenerateXMLItems(m_pScreenHistory_Current->GetObj());
+    string sSoftKeys = GenerateSoftKeys(m_pScreenHistory_Current->GetObj());
 
     string sXMLItems;
     int nCount = 1;
@@ -186,7 +186,7 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
         if(nCount > 32)
         {
             g_pPlutoLogger->Write(LV_CRITICAL, "More then 32 objects needed! Screen: %s", 
-                m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str());
+                m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
             break;
         }
 
@@ -199,7 +199,7 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
         if(nCount > 32)
         {
             g_pPlutoLogger->Write(LV_CRITICAL, "More then 32 objects needed! Screen: %s", 
-                m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str());
+                m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str());
             break;
         }
 

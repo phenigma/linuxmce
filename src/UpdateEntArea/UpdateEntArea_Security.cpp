@@ -72,8 +72,11 @@ void UpdateEntArea::AddDefaultSecurityScenarios(Row_Room *pRow_Room)
 
 	pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Security_Arm_Disarm_CONST,"Security",0,1,0);
 	if( pCommandGroup )
+	{
 		pCommandGroup->AddCommand(DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,1,
 			COMMANDPARAMETER_PK_Screen_CONST,StringUtils::itos(SCREEN_SecurityPanel_CONST).c_str());
+		pCommandGroup->m_pRow_CommandGroup->FK_DesignObj_set(DESIGNOBJ_objHouseStatusIndicator_CONST);
+	}
 
 	string sSQL = "JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate "
 		"JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory "

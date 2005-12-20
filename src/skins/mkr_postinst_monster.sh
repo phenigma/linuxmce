@@ -6,3 +6,5 @@ ConfSet UseVideoWizard 1
 ConfSet ReplaceSkin_1 7
 ConfSet ReplaceSkin_3 10
 ConfSet ReplaceSkin_6 11
+
+echo "DELETE FROM Skin; DELETE FROM Users;" | mysql pluto_main

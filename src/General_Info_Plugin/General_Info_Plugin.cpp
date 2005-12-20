@@ -33,6 +33,7 @@ using namespace DCE;
 #include "../PlutoUtils/md5.h"
 #include "BD/PhoneDevice.h"
 #include "CreateDevice/CreateDevice.h"
+#include "UpdateEntArea/UpdateEntArea.h"
 
 #include "DCERouter.h"
 #include "DCE/DeviceData_Router.h"
@@ -62,6 +63,7 @@ using namespace DCE;
 
 #include "Web_DHCP_Query.h"
 using namespace nsWeb_DHCP_Query;
+using namespace DefaultScenarios;
 
 #ifndef WEB_QUERY_DEBUG
 static const string sURL_Base = "http://plutohome.com/getRegisteredDevices.php";
@@ -1549,7 +1551,7 @@ bool General_Info_Plugin::NewMacAddress( class Socket *pSocket, class Message *p
 	m_pDatabase_pluto_main->DHCPDevice_get()->GetRows(StringUtils::i64tos(pd.m_iMacAddress) + ">=Mac_Range_Low AND " + StringUtils::i64tos(pd.m_iMacAddress) + "<=Mac_Range_High",&vectRow_DHCPDevice);
 	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::NewMacAddress %s has %d candidates",sMacAddress.c_str(),(int) vectRow_DHCPDevice.size());
 	if( vectRow_DHCPDevice.size()>0 )
-	{
+	{ 
 		DCE::SCREEN_NewMacAddress_DL SCREEN_NewMacAddress_DL(m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_AllowingPopups_get(), sMacAddress, sIPAddress);
 		SCREEN_NewMacAddress_DL.m_pMessage->m_mapParameters[COMMANDPARAMETER_ID_CONST]=sMacAddress;
 		SendCommand(SCREEN_NewMacAddress_DL);
@@ -1733,19 +1735,6 @@ void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,strin
 		CMD_Create_Device(0,sMac_address,-1,sIP_Address,sData,iPK_DHCPDevice,0,pMessage->m_dwPK_Device_From,0,&iPK_Device);
 		g_pPlutoLogger->Write(LV_STATUS, "Created PNP device %d from mac %s", iPK_Device, sMac_address.c_str());
 	}
-
-	// Ask the user what room it's in
-	OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
-	if( pOH_Orbiter )
-	{
-		Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(iPK_Device);
-		if( pRow_Device )
-		{
-			DCE::SCREEN_NewPlugAndPlayDevice SCREEN_NewPlugAndPlayDevice(m_dwPK_Device,pMessage->m_dwPK_Device_From,StringUtils::itos(iPK_Device),
-				pRow_Device->Description_get(),pRow_Device->FK_DeviceTemplate_getrow()->Comments_get());
-			SendCommand(SCREEN_NewPlugAndPlayDevice);
-		}
-	}
 }
 
 //<-dceag-c718-b->
@@ -1818,10 +1807,24 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 	g_pPlutoLogger->Write(LV_STATUS,"Created device %d",*iPK_Device);
 	CMD_Check_for_updates();
 
+	UpdateEntArea updateEntArea;
+	if( updateEntArea.Connect(m_pData->m_dwPK_Installation,m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get()) )
+	{
+		updateEntArea.GetMediaAndRooms();
+		updateEntArea.SetEAInRooms();
+		updateEntArea.AddDefaultScenarios();
+	}
+
 	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(*iPK_Device);
 	if( pRow_Device )
 	{
-		if( iPK_Room )
+		if( iPK_Room==-1 && iPK_Orbiter )
+		{
+			DCE::SCREEN_NewPlugAndPlayDevice SCREEN_NewPlugAndPlayDevice(m_dwPK_Device,iPK_Orbiter,StringUtils::itos(*iPK_Device),
+				pRow_Device->Description_get(),pRow_Device->FK_DeviceTemplate_getrow()->Comments_get());
+			SendCommand(SCREEN_NewPlugAndPlayDevice);
+		}
+		else if( iPK_Room )
 		{
 			pRow_Device->FK_Room_set(iPK_Room);
 			pRow_Device->Table_Device_get()->Commit();
@@ -1962,6 +1965,14 @@ void General_Info_Plugin::CMD_Set_Room_For_Device(int iPK_Device,string sName,in
 		StringUtils::itos(iPK_Device), SCREEN_NewPlugAndPlayDevice_CONST);
 	SendCommand(CMD_Remove_Screen_From_History_DL);
 	m_listNewPnpDevicesWaitingForARoom.remove(pRow_Device->PK_Device_get());
+
+	UpdateEntArea updateEntArea;
+	if( updateEntArea.Connect(m_pData->m_dwPK_Installation,m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get()) )
+	{
+		updateEntArea.GetMediaAndRooms();
+		updateEntArea.SetEAInRooms();
+		updateEntArea.AddDefaultScenarios();
+	}
 
 bool bStillRunningConfig = PendingConfigs();
 g_pPlutoLogger->Write(LV_STATUS,"CMD_Set_Room_For_Device: before %d after %d pending %d",
