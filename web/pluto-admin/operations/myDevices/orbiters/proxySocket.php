@@ -1,7 +1,8 @@
 <?
 function proxySocket($output,$dbADO){
 	if(!isset($_REQUEST['address']) && !isset($_REQUEST['port'])){
-		$ProxyOrbiterInfo=getFieldsAsArray('Device','FK_Device_ControlledVia,IPAddress,DD1.IK_DeviceData AS PhoneIP,DD2.IK_DeviceData AS Port',$dbADO,'INNER JOIN Device_DeviceData DD1 ON DD1.FK_Device=PK_Device AND DD1.FK_DeviceData='.$GLOBALS['RemotePhoneIP'].' INNER JOIN Device_DeviceData DD2 ON DD2.FK_Device=PK_Device AND DD2.FK_DeviceData='.$GLOBALS['ListenPort'].' WHERE DD1.IK_DeviceData=\''.$_SERVER['REMOTE_ADDR'].'\' AND FK_DeviceTemplate='.$GLOBALS['ProxyOrbiter']);
+		$phoneIPAddress=$_SERVER['REMOTE_ADDR'];
+		$ProxyOrbiterInfo=getFieldsAsArray('Device','FK_Device_ControlledVia,IPAddress,DD1.IK_DeviceData AS PhoneIP,DD2.IK_DeviceData AS Port',$dbADO,'INNER JOIN Device_DeviceData DD1 ON DD1.FK_Device=PK_Device AND DD1.FK_DeviceData='.$GLOBALS['RemotePhoneIP'].' INNER JOIN Device_DeviceData DD2 ON DD2.FK_Device=PK_Device AND DD2.FK_DeviceData='.$GLOBALS['ListenPort'].' WHERE DD1.IK_DeviceData=\''.$phoneIPAddress.'\' AND FK_DeviceTemplate='.$GLOBALS['ProxyOrbiter']);
 		if(count($ProxyOrbiterInfo)!=0){
 			$address=$ProxyOrbiterInfo['IPAddress'][0];
 			if($address=='' || is_null($address)){
@@ -14,8 +15,9 @@ function proxySocket($output,$dbADO){
 			}
 			$port=$ProxyOrbiterInfo['Port'][0];
 		}else{
-			write_log("\n\nOrbiter proxy not found for phone IP ".$_SERVER['REMOTE_ADDR']."\n");
-			return 'Orbiter proxy not found.';
+			$address=@$_REQUEST['address'];
+			$port=@$_REQUEST['port'];
+			xml_die($address,$port,$command,"\n\nOrbiter proxy not found for phone IP ".$phoneIPAddress."\n",'Invalid phone IP '.$phoneIPAddress);
 		}
 
 	}else{
@@ -32,7 +34,7 @@ function proxySocket($output,$dbADO){
 	write_log("\n".date('d-m-Y H:i:s')."\nAttempting to create socket on host $address port $port ... ");
 	$socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 	if ($socket === false) {
-		write_log("socket_create() failed: reason: " . socket_strerror($socket) . "\n");
+		xml_die($address,$port,$command,"socket_create() failed: reason: " . socket_strerror($socket) . "\n",'Failed to connect');
 	} else {
 		write_log("OK.\n");
 	}
@@ -40,7 +42,8 @@ function proxySocket($output,$dbADO){
 	$result = @socket_connect($socket, $address, $port);
 
 	if ($result !==true) {
-		write_log("socket_connect() failed.\nReason: (".socket_last_error().") " . socket_strerror(socket_last_error()) . "\n");
+		@socket_close($socket);
+		xml_die($address,$port,$command,"socket_connect() failed.\nReason: (".socket_last_error().") " . socket_strerror(socket_last_error()) . "\n",'Failed to connect');
 	} else {
 		write_log("Connected on socket ... OK.\n");
 	}
@@ -235,4 +238,28 @@ function getCoreIP($dbADO)
 	return @$row['IPAddress'];
 }
 
+function xml_die($address,$port,$command,$message,$userFriendlyMessage=''){
+	// the phone has 32 characters limit for values
+	write_log(trim($message));
+	$xmlMessage=($userFriendlyMessage!='')?$userFriendlyMessage:str_replace("\n","",trim($message));
+	$xml='
+<CiscoIPPhoneGraphicFileMenu>
+	<Title>Pluto Orbiter</Title>
+	<Prompt>'.substr($xmlMessage,0,31).'</Prompt>
+	<LocationX>0</LocationX>
+	<LocationY>0</LocationY>
+	<URL>http://192.168.80.1/pluto-admin/security_images/generic_xml_error.png</URL>
+	<MenuItem>
+		<Name>Button</Name>
+			<URL>http://192.168.80.1/pluto-admin/security_images/generic_xml_error.png</URL>
+		<TouchArea X1="0" Y1="0" X2="0" Y2="0"/>
+	</MenuItem>	
+</CiscoIPPhoneGraphicFileMenu>';
+
+	$refreshURL="http://".$_SERVER['SERVER_ADDR']."/pluto-admin/index.php?section=proxySocket&address=$address&port=$port&command=$command";
+	Header("Refresh: 5; url=$refreshURL");
+	Header("Content-type: text/xml"); 
+	write_log("\nRedirecting to $refreshURL\n");
+	die($xml);	
+}
 ?>
