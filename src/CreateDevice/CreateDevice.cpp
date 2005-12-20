@@ -1,6 +1,7 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
+#include "PlutoUtils/ProcessUtils.h"
 #include "PlutoUtils/DatabaseUtils.h"
 #include "Logger.h"
 #include "CreateDevice.h"
@@ -111,7 +112,8 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 		return 0;
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS,"Inserted device: %d Package: %d configure: %d",PK_Device,iPK_Package,(int) m_bDontCallConfigureScript);
+	g_pPlutoLogger->Write(LV_STATUS,"Inserted device: %d Package: %d installation: %d configure: %d",
+		PK_Device,iPK_Package,m_iPK_Installation,(int) m_bDontCallConfigureScript);
 
 	if( iPK_Package )
 	{
@@ -119,9 +121,10 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 		PlutoSqlResult result;
 		if( ( result.r=mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
 		{
-			string sCmd = "/usr/pluto/bin/InstallNewDevice.sh " + StringUtils::itos(PK_Device) + " \"" + row[0] + "\"";
-			g_pPlutoLogger->Write(LV_STATUS,"Executing %s",sCmd.c_str());
-			system(sCmd.c_str());
+			ProcessUtils::SpawnApplication("/usr/pluto/bin/InstallNewDevice.sh",
+				StringUtils::itos(PK_Device) + "\t" + (row[0] ? row[0] : "") + "\t","newdevice");
+			g_pPlutoLogger->Write(LV_STATUS,"Executing /usr/pluto/bin/InstallNewDevice.sh %d %s",
+				PK_Device,(row[0] ? row[0] : ""));
 		}
 		else
 			g_pPlutoLogger->Write(LV_CRITICAL,"No installation info for package %d",iPK_Package);

@@ -146,6 +146,23 @@ bool UpdateEntArea::Connect(int PK_Installation,string host, string user, string
 
 void UpdateEntArea::GetMediaAndRooms()
 {
+	string sSQL="UPDATE Device "
+		" JOIN Device AS Parent ON Device.FK_Device_ControlledVia=Parent.PK_Device"
+		" SET Device.FK_Installation=" + StringUtils::itos(m_iPK_Installation) +
+		" WHERE Parent.FK_Installation=" + StringUtils::itos(m_iPK_Installation);
+
+	// Keep doing this in case any nested rows missing the installation
+	while( m_pDatabase_pluto_main->threaded_mysql_query(sSQL)>0 );
+
+	sSQL = "UPDATE Device "
+		" JOIN Device AS Parent ON Parent.PK_Device=Device.FK_Device_ControlledVia "
+		" JOIN DeviceTemplate ON Device.FK_DeviceTemplate=DeviceTemplate.PK_DeviceTemplate "
+		" JOIN DeviceTemplate AS DeviceTemplate_Parent ON Parent.FK_DeviceTemplate=DeviceTemplate_Parent.PK_DeviceTemplate "
+		" SET Device.FK_Room = Parent.FK_Room "
+		" WHERE DeviceTemplate.FK_DeviceCategory=" + StringUtils::itos(DEVICECATEGORY_Media_Director_CONST) +
+		" AND DeviceTemplate_Parent.FK_DeviceCategory=" + StringUtils::itos(DEVICECATEGORY_Core_CONST);
+	m_pDatabase_pluto_main->threaded_mysql_query(sSQL);
+
 	// Get all the entertainment areas and populate them with all the devices in those areas
 	Row_Installation *pRow_Installation = m_pDatabase_pluto_main->Installation_get( )->GetRow( m_iPK_Installation );
 	m_mapRoom_Media.clear();

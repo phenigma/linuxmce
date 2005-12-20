@@ -75,6 +75,20 @@ public:
 	virtual void CMD_Download_Configuration(string sText,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #759 - Send Command To Child */
+	/** After reporting new child devices, there may be children we want to test, but we haven't done a quick reload router and can't send them messages directly.  This way we can send 'live' messages to children */
+		/** @param #10 ID */
+			/** The internal ID used for this device--not the Pluto device ID. */
+		/** @param #154 PK_Command */
+			/** The command to send */
+		/** @param #202 Parameters */
+			/** Parameters for the command in the format:
+PK_CommandParameter|Value|... */
+
+	virtual void CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParameters) { string sCMD_Result; CMD_Send_Command_To_Child(sID.c_str(),iPK_Command,sParameters.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParameters,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 	};
 

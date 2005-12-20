@@ -28,6 +28,29 @@
 #include "MySQLHelper.h"
 #include "pluto_main/Define_DeviceData.h"
 
+string DatabaseUtils::HumanReadablePort(MySqlHelper *pMySqlHelper,int PK_Device,string sPort)
+{
+	return sPort;
+}
+
+void DatabaseUtils::GetUnusedPortsOnAllPCs(MySqlHelper *pMySqlHelper,vector< pair<int,string> > &vectAllPorts)
+{
+	string sSQL = "SELECT PK_Device FROM Device WHERE FK_Device_ControlledVia IS NULL";
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	if( ( result.r=pMySqlHelper->mysql_query_result( sSQL ) ) )
+	{
+		while ( row=mysql_fetch_row( result.r ) )
+		{
+			int PK_Device = atoi(row[0]);
+			vector<string> vectPorts;
+			GetUnusedPortsOnPC(pMySqlHelper,PK_Device,vectPorts);
+			for(size_t s=0;s<vectPorts.size();++s)
+				vectAllPorts.push_back( make_pair<int,string> (PK_Device,vectPorts[s]));
+		}
+	}
+}
+
 void DatabaseUtils::GetUnusedPortsOnPC(MySqlHelper *pMySqlHelper,int PK_Device,vector<string> &vectPorts)
 {
 	map<string,bool> mapPorts;

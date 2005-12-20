@@ -1930,8 +1930,9 @@ g_pPlutoLogger->Write(LV_SOCKET, "Got response: %d to message type %d id %d to %
                     }
                     else
                     {
-                        g_pPlutoLogger->Write(LV_CRITICAL, "Socket %p failure waiting for response to message from device %d",
-                            pServerSocket,pServerSocket->m_dwPK_Device );
+                        g_pPlutoLogger->Write(LV_CRITICAL, "Socket %p failure waiting for response to message from device %d type %d id %d",
+                            pServerSocket,pServerSocket->m_dwPK_Device,
+							(*(*pSafetyMessage))->m_dwMessage_Type,(*(*pSafetyMessage))->m_dwID);
                         bServerSocket_Failed = true;
                     }
                 }

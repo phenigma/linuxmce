@@ -497,9 +497,13 @@ bool Orbiter_Plugin::IdentifyDevice(const string& sMacAddress, string &sDeviceCa
     if(pRow_DHCPDevice->FK_DeviceCategory_get() == DEVICECATEGORY_Bluetooth_Dongles_CONST)
         return false;
 
-    sDeviceCategoryDesc = pRow_DHCPDevice->FK_DeviceCategory_getrow()->Description_get();
+	Row_DeviceCategory *pRow_DeviceCategory = pRow_DHCPDevice->FK_DeviceCategory_getrow();
+	if( pRow_DeviceCategory )
+	    sDeviceCategoryDesc = pRow_DeviceCategory->Description_get();
     iPK_DeviceTemplate = pRow_DHCPDevice->FK_DeviceTemplate_get();
-    sManufacturerDesc = pRow_DHCPDevice->FK_Manufacturer_getrow()->Description_get();
+	Row_Manufacturer *pRow_Manufacturer = pRow_DHCPDevice->FK_Manufacturer_getrow();
+	if( pRow_Manufacturer )
+	    sManufacturerDesc = pRow_Manufacturer->Description_get();
     
     return true;
 }

@@ -318,10 +318,10 @@ void WizardLogic::SetAvPath(int PK_Device_From,int PK_Device_To,int PK_Pipe,int 
 int WizardLogic::AddDevice(int PK_DeviceTemplate, string sDeviceDataList /* = "" */, long PK_Device_ControlledVia/* = 0*/)
 {
 	int iPK_Device=0;
-	DCE::CMD_Create_Device_Cat CMD_Create_Device_Cat(m_pOrbiter->m_dwPK_Device,DEVICECATEGORY_General_Info_Plugins_CONST,false,BL_SameHouse,
+	DCE::CMD_Create_Device CMD_Create_Device(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn,
 		PK_DeviceTemplate,"",m_pOrbiter->m_pData->m_dwPK_Room,"",sDeviceDataList,0,PK_Device_ControlledVia,m_pOrbiter->m_pData->m_dwPK_Device,m_pOrbiter->m_pData->m_dwPK_Device,
 		&iPK_Device);
-	m_pOrbiter->SendCommand(CMD_Create_Device_Cat);
+	m_pOrbiter->SendCommand(CMD_Create_Device);
 	return iPK_Device;
 }
 
@@ -350,9 +350,9 @@ void WizardLogic::DeleteDevicesInThisRoomOfType(int PK_DeviceCategory)
 	if( (result_set.r=mysql_query_result(sSQL)) )
 		while ((row = mysql_fetch_row(result_set.r)))
 		{
-			DCE::CMD_Delete_Device_Cat CMD_Delete_Device_Cat(m_pOrbiter->m_dwPK_Device,
-				DEVICECATEGORY_General_Info_Plugins_CONST,false,BL_SameHouse,atoi(row[0]));
-			m_pOrbiter->SendCommand(CMD_Delete_Device_Cat);
+			string sResponse;  // Make sure the device is deleted before we continue
+			DCE::CMD_Delete_Device CMD_Delete_Device(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_GeneralInfoPlugIn,atoi(row[0]));
+			m_pOrbiter->SendCommand(CMD_Delete_Device,&sResponse);
 		}
 }
 
@@ -371,10 +371,11 @@ string WizardLogic::GetDeviceStatus(long nPK_Device)
 int WizardLogic::GetNumLights(int &iNumLightsUnassigned)
 {
 	m_dequeNumLights.clear();
-	string sSQL = "SELECT PK_Device,FK_Room FROM Device "
+	string sSQL = "SELECT PK_Device,FK_Room,IK_DeviceData FROM Device "
 		"JOIN DeviceTemplate ON FK_DeviceTemplate = PK_DeviceTemplate "
 		"JOIN DeviceCategory ON FK_DeviceCategory = PK_DeviceCategory "
-		"where PK_DeviceCategory=" + StringUtils::itos(DEVICECATEGORY_Lighting_Device_CONST) + 
+		"LEFT JOIN Device_DeviceData ON FK_Device=PK_Device AND FK_DeviceData=" + StringUtils::itos(DEVICEDATA_PortChannel_Number_CONST) +
+		" WHERE PK_DeviceCategory=" + StringUtils::itos(DEVICECATEGORY_Lighting_Device_CONST) + 
 		" OR FK_DeviceCategory_Parent=" + StringUtils::itos(DEVICECATEGORY_Lighting_Device_CONST);
 
 	PlutoSqlResult result_set;
@@ -383,7 +384,7 @@ int WizardLogic::GetNumLights(int &iNumLightsUnassigned)
 		while ((row = mysql_fetch_row(result_set.r)))
 		{
 			if( !row[1] || !atoi(row[1]) )
-				m_dequeNumLights.push_back(atoi(row[0]));
+				m_dequeNumLights.push_back(make_pair<int,string> (atoi(row[0]),row[2] ? row[2] : ""));
 		}
 
 	return (int) result_set.r->row_count;

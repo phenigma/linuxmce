@@ -398,6 +398,8 @@ namespace DCE
 				pRow_Device_DeviceData->FK_Device_set(PK_Device);
 				pRow_Device_DeviceData->FK_DeviceData_set(PK_DeviceData);
 			}
+			else
+				pRow_Device_DeviceData->Reload();
 			pRow_Device_DeviceData->IK_DeviceData_set( sValue );
 			pRow_Device_DeviceData->Table_Device_DeviceData_get()->Commit();
 		}

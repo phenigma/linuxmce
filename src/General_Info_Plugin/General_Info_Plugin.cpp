@@ -29,6 +29,7 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
+#include "PlutoUtils/DatabaseUtils.h"
 #include "../PlutoUtils/md5.h"
 #include "BD/PhoneDevice.h"
 #include "CreateDevice/CreateDevice.h"
@@ -973,52 +974,26 @@ class DataGridTable *General_Info_Plugin::AvailableSerialPorts(string GridID, st
 	DataGridTable *pDataGrid = new DataGridTable( );
 	DataGridCell *pCell;
 
+	vector< pair<int,string> > vectAllPorts;
+	DatabaseUtils::GetUnusedPortsOnAllPCs(m_pDatabase_pluto_main,vectAllPorts);
+
 	int iRow=0, iCol=0;
-	string sql = 
-		"SELECT Device.Description, PK_Device, IK_DeviceData FROM Device " 
-		"JOIN DeviceTemplate ON FK_DeviceTemplate = PK_DeviceTemplate "
-		"JOIN Device_DeviceData ON FK_Device = PK_Device "
-		"WHERE FK_Installation = " + StringUtils::itos(m_pRouter->iPK_Installation_get()) + " "
-		"AND FK_DeviceData = " + StringUtils::ltos(DEVICEDATA_Available_Serial_Ports_CONST) + " "
-		"AND FK_DeviceCategory IN (" + StringUtils::ltos(DEVICECATEGORY_Core_CONST) + "," + 
-			StringUtils::ltos(DEVICECATEGORY_Media_Director_CONST) + ")";
 
-	PlutoSqlResult result;
-	MYSQL_ROW row;
-	if(mysql_query(m_pDatabase_pluto_main->m_pMySQL,sql.c_str())==0 && (result.r = mysql_store_result(m_pDatabase_pluto_main->m_pMySQL)) )
+	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::AvailableSerialPorts - found %d ports",(int) vectAllPorts.size());
+	for(size_t s=0;s<vectAllPorts.size();++s)
 	{
-		while((row=mysql_fetch_row(result.r)))
+		Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(vectAllPorts[s].first);
+		if( !pRow_Device )
+			continue;
+
+		pCell = new DataGridCell(pRow_Device->Description_get() + " " + DatabaseUtils::HumanReadablePort(m_pDatabase_pluto_main,vectAllPorts[s].first,vectAllPorts[s].second)
+			, StringUtils::itos(vectAllPorts[s].first) + "," + vectAllPorts[s].second);
+		pDataGrid->SetData(iCol++, iRow, pCell);
+
+		if(iCol >= iWidth)
 		{
-			string sComputerName = row[0];
-			string sPK_Device = row[1];
-			string sUnixSerialDevList = row[2];
-			string sSerialPort;
-
-			vector<string> vectStrings;
-			StringUtils::Tokenize(sUnixSerialDevList, ",", vectStrings);
-
-			for(size_t i = 0; i < vectStrings.size(); i++)
-			{
-				string sUnixSerialDev = vectStrings[i];
-
-				if(sUnixSerialDev == "/dev/ttyS0")
-					sSerialPort = "COM1";
-				else if(sUnixSerialDev == "/dev/ttyS1")
-					sSerialPort = "COM2";
-				else if(sUnixSerialDev == "/dev/ttyS2")
-					sSerialPort = "COM3";
-				else if(sUnixSerialDev == "/dev/ttyS3")
-					sSerialPort = "COM4";
-
-				pCell = new DataGridCell(sComputerName + " " + sSerialPort , sPK_Device + "," + sUnixSerialDev);
-				pDataGrid->SetData(iCol++, iRow, pCell);
-
-				if(iCol >= iWidth)
-				{
-					iCol = 0;
-					iRow++;
-				}
-			}
+			iCol = 0;
+			iRow++;
 		}
 	}
 

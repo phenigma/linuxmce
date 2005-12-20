@@ -22,7 +22,7 @@ private:
 	bool m_bAlarmPanelIsOk;
 
 	string GetDeviceStatus(long nPK_Device);
-	deque<int> m_dequeNumLights;
+	deque< pair<int,string> > m_dequeNumLights;
 
 protected:
 	class Orbiter *m_pOrbiter;

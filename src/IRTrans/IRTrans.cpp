@@ -315,8 +315,9 @@ void IRTrans::StartIRServer()
 					g_pPlutoLogger->Write(LV_STATUS,"IRTrans not found on %s",sPort.c_str());
 				else
 				{
+					g_pPlutoLogger->Write(LV_STATUS,"IRTrans setting port to %s",sPort.c_str());
 					bLoaded=true;
-					DatabaseUtils::SetDeviceData(&mySqlHelper,m_dwPK_Device,DEVICEDATA_COM_Port_on_PC_CONST,sPort);
+					SetDeviceDataInDB(m_dwPK_Device,DEVICEDATA_COM_Port_on_PC_CONST,sPort);
 					break;
 				}
 			}

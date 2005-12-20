@@ -700,12 +700,12 @@ bool OSDScreenHandler::LightsSetup_OnScreen(CallBackData *pData)
 	{
 		if( m_nLightInDequeToAssign < (int) m_pWizardLogic->m_dequeNumLights.size() )
 		{
-			DesignObjText *pText = m_pOrbiter->FindText( m_pOrbiter->FindObject(DESIGNOBJ_PostalCode_CONST),TEXT_STATUS_CONST );
+			DesignObjText *pText = m_pOrbiter->FindText( m_pOrbiter->FindObject(DESIGNOBJ_LightSetupRooms_CONST),TEXT_STATUS_CONST );
 			if( pText )
-				pText->m_sText = StringUtils::itos(m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign]) + 
- 					DatabaseUtils::GetDescriptionForDevice(m_pWizardLogic,m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign]);
+				pText->m_sText = StringUtils::itos(m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign].first) + 
+					" " + DatabaseUtils::GetDescriptionForDevice(m_pWizardLogic,m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign].first);
 
-			m_pOrbiter->CallMaintenanceInMiliseconds(2000,&Orbiter::ServiceScreenHandler,NULL,pe_ALL);
+			m_pOrbiter->CallMaintenanceInMiliseconds(0,&Orbiter::ServiceScreenHandler,NULL,pe_ALL);
 		}
 		else
 		{
@@ -721,18 +721,20 @@ bool OSDScreenHandler::LightsSetup_Timer(CallBackData *pData)
 	static bool bLastTimeOn=true;
 	if( m_nLightInDequeToAssign < (int) m_pWizardLogic->m_dequeNumLights.size() )
 	{
-		if( bLastTimeOn )
+		if( !bLastTimeOn )
 		{
-			DCE::CMD_Off CMD_Off(m_pOrbiter->m_dwPK_Device,m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign],0);
-			m_pOrbiter->SendCommand(CMD_Off);
+			DCE::CMD_Send_Command_To_Child CMD_Send_Command_To_Child(m_pOrbiter->m_dwPK_Device,m_pWizardLogic->m_nPK_Device_ZWave, // Monster specific
+				m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign].second,COMMAND_Generic_On_CONST,"");
+			m_pOrbiter->SendCommand(CMD_Send_Command_To_Child);
 		}
 		else
 		{
-			DCE::CMD_On CMD_On(m_pOrbiter->m_dwPK_Device,m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign],0,"");
-			m_pOrbiter->SendCommand(CMD_On);
+			DCE::CMD_Send_Command_To_Child CMD_Send_Command_To_Child(m_pOrbiter->m_dwPK_Device,m_pWizardLogic->m_nPK_Device_ZWave, // Monster specific
+				m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign].second,COMMAND_Generic_Off_CONST,"");
+			m_pOrbiter->SendCommand(CMD_Send_Command_To_Child);
 		}
 		bLastTimeOn=!bLastTimeOn;
-		m_pOrbiter->CallMaintenanceInMiliseconds(2000,&Orbiter::ServiceScreenHandler,NULL,pe_ALL);
+		m_pOrbiter->CallMaintenanceInMiliseconds(4000,&Orbiter::ServiceScreenHandler,NULL,pe_ALL);
 	}
 	return false;
 }
@@ -783,13 +785,13 @@ bool OSDScreenHandler::LightsSetup_SelectedGrid(CallBackData *pData)
 {
 	DatagridCellBackData *pDatagridCellBackData = (DatagridCellBackData *) pData;
 	if( pDatagridCellBackData->m_nPK_Datagrid == DATAGRID_Rooms_CONST )
-		if( !DatabaseUtils::SetDeviceInRoom(m_pWizardLogic,m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign],atoi(pDatagridCellBackData->m_sValue.c_str())) )
+		if( !DatabaseUtils::SetDeviceInRoom(m_pWizardLogic,m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign].first,atoi(pDatagridCellBackData->m_sValue.c_str())) )
 			return true;  // This room isn't valid
 		else
 			m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(DESIGNOBJ_LightType_CONST),"","",false,false);
 	else if( pDatagridCellBackData->m_nPK_Datagrid == DATAGRID_LightType_CONST )
 	{
-		DatabaseUtils::SetDeviceData(m_pWizardLogic,m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign],
+		DatabaseUtils::SetDeviceData(m_pWizardLogic,m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign].first,
 			DEVICEDATA_PK_FloorplanObjectType_CONST,pDatagridCellBackData->m_sValue);
 		m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(DESIGNOBJ_LightSetupRooms_CONST),"","",false,false);
 		m_nLightInDequeToAssign++;

@@ -141,8 +141,8 @@ void *DoDownloadConfiguration(void *p)
 
 void ZWave::DownloadConfiguration()
 {
-EVENT_Download_Config_Done("");
-return;
+//EVENT_Download_Config_Done("");
+//return;
 	for(int iRetries=0;;++iRetries)
 	{
 		PLUTO_SAFETY_LOCK(zm,m_ZWaveMutex);
@@ -162,7 +162,7 @@ return;
 
 		m_pPlainClientSocket->SendString("RECEIVECONFIG");
 		string sResponse;
-		if( !m_pPlainClientSocket->ReceiveString(sResponse,60) || sResponse!="OK" )
+		if( !m_pPlainClientSocket->ReceiveString(sResponse,120) || sResponse!="OK" )
 		{
 			g_pPlutoLogger->Write(LV_WARNING,"ZWave::ReportChildDevices Cannot receive string %d",iRetries);
 			if( iRetries>4 )
@@ -184,12 +184,14 @@ return;
 
 void ZWave::ReportChildDevices()
 {
+	/*
 EVENT_Reporting_Child_Devices("",
 "1\tNode 1\t\t37\t9\n"
 "2\tNode 2\t\t38\t10\n"
 "3\tNode 3\t\t37\t11\n"
 );
 return;
+*/
 	for(int iRetries=0;;++iRetries)
 	{
 		PLUTO_SAFETY_LOCK(zm,m_ZWaveMutex);
@@ -223,6 +225,7 @@ return;
 			continue;
 		}
 
+		StringUtils::Replace(&sResponse,"|","\n");
 		g_pPlutoLogger->Write(LV_STATUS,"ZWave::ReportChildDevices got %s",sResponse.c_str());
 		EVENT_Reporting_Child_Devices("",sResponse);
 		return;
@@ -231,7 +234,7 @@ return;
 
 bool ZWave::ConfirmConnection()
 {
-return true;
+//return true;
 	PLUTO_SAFETY_LOCK(zm,m_ZWaveMutex);
 	if( !m_pPlainClientSocket )
 		m_pPlainClientSocket = new PlainClientSocket(DATA_Get_Remote_Phone_IP() + ":3999");
@@ -292,4 +295,39 @@ void ZWave::CMD_Download_Configuration(string sText,string &sCMD_Result,Message 
 {
 	pthread_t t;
 	pthread_create(&t, NULL, DoDownloadConfiguration, (void*)this);
+}
+//<-dceag-c759-b->
+
+	/** @brief COMMAND: #759 - Send Command To Child */
+	/** After reporting new child devices, there may be children we want to test, but we haven't done a quick reload router and can't send them messages directly.  This way we can send 'live' messages to children */
+		/** @param #10 ID */
+			/** The internal ID used for this device--not the Pluto device ID. */
+		/** @param #154 PK_Command */
+			/** The command to send */
+		/** @param #202 Parameters */
+			/** Parameters for the command in the format:
+PK_CommandParameter|Value|... */
+
+void ZWave::CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParameters,string &sCMD_Result,Message *pMessage)
+//<-dceag-c759-e->
+{
+	if( !ConfirmConnection() )
+	{
+		sCMD_Result = "NO ZWAVE";
+		return;
+	}
+
+	sCMD_Result = "OK";
+	if( iPK_Command==COMMAND_Generic_On_CONST )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"Sending ON");
+		m_pPlainClientSocket->SendString("ON " + sID);
+		return;
+	}
+	else if( iPK_Command==COMMAND_Generic_Off_CONST )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"Sending Off");
+		m_pPlainClientSocket->SendString("OFF " + sID);
+		return;
+	}
 }
