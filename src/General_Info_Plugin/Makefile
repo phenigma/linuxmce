@@ -23,17 +23,17 @@ XTRALDLIBS = -lpluto_main
 
 Gen_Dev_Files += 
 sources += Web_DHCP_Query.cpp \
-	CreateDevice/CreateDevice.cpp \
-	UpdateEntArea/UpdateEntArea.cpp \
-	UpdateEntArea/UpdateEntArea_Climate.cpp \
-	UpdateEntArea/UpdateEntArea_Lighting.cpp \
-	UpdateEntArea/UpdateEntArea_Media.cpp \
-	UpdateEntArea/UpdateEntArea_Security.cpp \
-	UpdateEntArea/UpdateEntArea_Telecom.cpp \
-	UpdateEntArea/UpdateEntArea_Setup.cpp \
-	UpdateEntArea/UpdateEntArea_Event.cpp \
-	UpdateEntArea/CommandGroupArray.cpp \
-	UpdateEntArea/Criteria.cpp
+	../CreateDevice/CreateDevice.cpp \
+	../UpdateEntArea/UpdateEntArea.cpp \
+	../UpdateEntArea/UpdateEntArea_Climate.cpp \
+	../UpdateEntArea/UpdateEntArea_Lighting.cpp \
+	../UpdateEntArea/UpdateEntArea_Media.cpp \
+	../UpdateEntArea/UpdateEntArea_Security.cpp \
+	../UpdateEntArea/UpdateEntArea_Telecom.cpp \
+	../UpdateEntArea/UpdateEntArea_Setup.cpp \
+	../UpdateEntArea/UpdateEntArea_Event.cpp \
+	../UpdateEntArea/CommandGroupArray.cpp \
+	../UpdateEntArea/Criteria.cpp
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
