@@ -65,6 +65,8 @@ enum CallBackType
  */
 class ScreenHistory
 {
+private:
+	class DesignObj_Orbiter *m_pObj; /** < The screen we're viewing */
 
 public:
 
@@ -90,10 +92,19 @@ public:
 		delete m_pMessage; //it's a copy
 	}
 
+	DesignObj_Orbiter *GetObj() { return m_pObj; }
+	void SetObj(DesignObj_Orbiter *pObj) 
+	{ 
+		m_pObj = pObj;
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_WARNING, "ScreenHistory - replaced in screen %d obj with %d", m_nPK_Screen, pObj->m_iBaseObjectID);
+#endif
+	}
+
 	/**
 	 * @brief A unique ID that can be specified in the Goto command
 	 * A unique ID that can be specified in the Goto command, allowing a particular 'instance'
-	 * of a screen to be removed in 'remove screen from history'
+	 * of a screen to be removed in 'remove screen from history' 
 	 */
 	string m_sID;
 	int m_nPK_Screen;
@@ -102,7 +113,6 @@ public:
 	time_t m_tTime;
 	int m_dwPK_Device; /** < The device being controlled */
 	bool m_bCantGoBack; /** < If we get a go back, skip over this screen unless "Force" is set to true */
-	class DesignObj_Orbiter *m_pObj; /** < The screen we're viewing */
 	map<int, string> m_mapVariable; /** < Any variables we need to restore when returning to this screen */
 };
 

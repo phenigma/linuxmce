@@ -71,7 +71,7 @@ void ScreenHandler::GotoDesignObj(int PK_DesignObj)
 //-----------------------------------------------------------------------------------------------------
 int ScreenHandler::GetCurrentScreen_PK_DesignObj()
 {
-	return m_pOrbiter->m_pScreenHistory_Current->m_pObj->m_iBaseObjectID;
+	return m_pOrbiter->m_pScreenHistory_Current->GetObj()->m_iBaseObjectID;
 }
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_NewMacAddress(long PK_Screen, string sMacAddress, string sIpAddress) 

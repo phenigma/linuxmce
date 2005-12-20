@@ -741,7 +741,7 @@ void Infrared_Plugin::CMD_Add_GC100(string &sCMD_Result,Message *pMessage)
 	int iPK_Device_Orbiter = pMessage->m_dwPK_Device_From;
 
 	//m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"Finding GC100",false,30,true);
-	SCREEN_DialogGC100Error SCREEN_DialogGC100Error(m_dwPK_Device, iPK_Device_Orbiter, "Finding GC100", "1");
+	SCREEN_DialogGC100Error SCREEN_DialogGC100Error(m_dwPK_Device, iPK_Device_Orbiter, "Finding GC100", "0");
 	SendCommand(SCREEN_DialogGC100Error);
 
 	returned = system(Command.c_str());
