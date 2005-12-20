@@ -40,6 +40,15 @@ enum SelectionBehaviour
     sbNoSelection
 };
 
+enum SelectionMethod
+{
+    smKeyboard,
+	smMouse,
+	smNavigation,
+	smCommand,
+	smLoadUnload
+};
+
 //used by screen handler class
 enum CallBackType
 {
@@ -486,7 +495,7 @@ public: // temp - remove this
 	 * @brief
 	 * @param if X and Y are -1, the object was selected by pushing a keyboard key, rather than touching the screen
 	 */
-	void SelectedObject( DesignObj_Orbiter *pDesignObj_Orbiter, int iX = -1, int iY = -1);
+	void SelectedObject( DesignObj_Orbiter *pDesignObj_Orbiter, SelectionMethod selectionMethod, int iX = -1, int iY = -1);
 
 	/**
 	 * @brief
@@ -939,7 +948,7 @@ public:
 	 it won't be unhidden because the goto screen (which resets the hidden flag) is executed last.  This concept of 
 	 holding up the goto is probably no longer needed since we now use NeedToRender, which serves the same purpose
 	 */
-	void ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList, DesignObj_Orbiter *pDesignObj_Orbiter, int iX = -1, int iY = -1, int Repeat=0 ); // Execute commands
+	void ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList, DesignObj_Orbiter *pDesignObj_Orbiter, SelectionMethod selectionMethod, int iX = -1, int iY = -1, int Repeat=0 ); // Execute commands
 
 	/**
 	 * @brief returns the grid cell dimensions in the parameters

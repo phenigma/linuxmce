@@ -130,22 +130,6 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 			g_pPlutoLogger->Write(LV_CRITICAL,"No installation info for package %d",iPK_Package);
 	}
 
-	// If we weren't given a controlled via, try to find an appropriate one
-	if( !PK_Device_ControlledVia )
-	{
-		int iPK_Device_ControlledVia_New=FindControlledViaCandidate(PK_Device,iPK_DeviceTemplate,iPK_Device_RelatedTo);
-		if( iPK_Device_ControlledVia_New )
-		{
-			SQL = "UPDATE Device SET FK_Device_ControlledVia=" + StringUtils::itos(iPK_Device_ControlledVia_New) +
-				" WHERE PK_Device=" + StringUtils::itos(PK_Device);
-			if( threaded_mysql_query(SQL)<0 )
-			{
-				cout << "Error updating device controlled via" << endl;
-				return 0;
-			}
-		}
-	}
-
 	bool bIsOrbiter=false;
 	// Loop through all the categories
 	int iPK_DeviceCategory_Loop = iPK_DeviceCategory;
@@ -291,6 +275,24 @@ g_pPlutoLogger->Write(LV_STATUS,"Found %d rows with %s",(int) result3.r->row_cou
 		else
 			cerr << "No Orbiter plugin" << endl;
 
+	}
+
+	// If we weren't given a controlled via, try to find an appropriate one
+	// Do this last since the controlled via may be something we added above
+	if( !PK_Device_ControlledVia )
+	{
+		int iPK_Device_ControlledVia_New=FindControlledViaCandidate(PK_Device,iPK_DeviceTemplate,iPK_Device_RelatedTo);
+		g_pPlutoLogger->Write(LV_STATUS,"Searching for controlled via returned %d",iPK_Device_ControlledVia_New);
+		if( iPK_Device_ControlledVia_New )
+		{
+			SQL = "UPDATE Device SET FK_Device_ControlledVia=" + StringUtils::itos(iPK_Device_ControlledVia_New) +
+				" WHERE PK_Device=" + StringUtils::itos(PK_Device);
+			if( threaded_mysql_query(SQL)<0 )
+			{
+				cout << "Error updating device controlled via" << endl;
+				return 0;
+			}
+		}
 	}
 
 	return PK_Device;

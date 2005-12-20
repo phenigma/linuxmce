@@ -671,7 +671,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Screen %s timed out data: %p",m_pScreenHistory_
 
 	DesignObj_Orbiter *pObj = (DesignObj_Orbiter *) data;
     if(  pObj->m_Action_TimeoutList.size(  )>0  )
-        ExecuteCommandsInList( &pObj->m_Action_TimeoutList, pObj );
+        ExecuteCommandsInList( &pObj->m_Action_TimeoutList, pObj, smLoadUnload );
 }
 
 void Orbiter::ReselectObject( void *data )
@@ -683,7 +683,7 @@ void Orbiter::ReselectObject( void *data )
 	for( iZone=pObj->m_ZoneList.begin(  );iZone!=pObj->m_ZoneList.end(  );++iZone )
     {
         DesignObjZone *pDesignObjZone = ( *iZone );
-		ExecuteCommandsInList( &pDesignObjZone->m_Commands, pObj, -1, -1, pObj->m_iRepeatParm+1 );
+		ExecuteCommandsInList( &pDesignObjZone->m_Commands, pObj, smLoadUnload, -1, -1, pObj->m_iRepeatParm+1 );
     }
 }
 
@@ -1526,7 +1526,7 @@ void Orbiter::ObjectOnScreenWrapper(  )
 		
 
 	// Do the on load actions for the screen itself,  and objects on it
-    ExecuteCommandsInList( &m_pScreenHistory_Current->GetObj()->m_Action_LoadList, m_pScreenHistory_Current->GetObj(), 0, 0 );
+    ExecuteCommandsInList( &m_pScreenHistory_Current->GetObj()->m_Action_LoadList, m_pScreenHistory_Current->GetObj(), smLoadUnload, 0, 0 );
 
 	HandleNewObjectsOnScreen( &vectDesignObj_Orbiter_OnScreen );
 
@@ -1642,7 +1642,7 @@ void Orbiter::ObjectOffScreen( DesignObj_Orbiter *pObj )
     pObj->m_pvectCurrentGraphic = NULL;
 	pObj->m_pvectCurrentPlayingGraphic = NULL;
 
-    ExecuteCommandsInList( &pObj->m_Action_UnloadList, pObj, 0, 0 );
+    ExecuteCommandsInList( &pObj->m_Action_UnloadList, pObj, smLoadUnload, 0, 0 );
 
     DesignObj_DataList::iterator iHao;
     for( iHao=pObj->m_ChildObjects.begin(  ); iHao != pObj->m_ChildObjects.end(  ); ++iHao )
@@ -1652,7 +1652,7 @@ void Orbiter::ObjectOffScreen( DesignObj_Orbiter *pObj )
 }
 
 //------------------------------------------------------------------------
-void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y)
+void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  SelectionMethod selectionMethod, int X,  int Y)
 {
     PLUTO_SAFETY_LOCK( vm, m_ScreenMutex );
 
@@ -1713,7 +1713,7 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y)
         DesignObjZone *pDesignObjZone = ( *iZone );
         if(  pDesignObjZone->m_Rect.Width==0 || pDesignObjZone->m_Rect.Height==0 || pDesignObjZone->m_Rect.Contains( X, Y )  )
         {
-            ExecuteCommandsInList( &pDesignObjZone->m_Commands, pObj, X, Y );
+            ExecuteCommandsInList( &pDesignObjZone->m_Commands, pObj, selectionMethod, X, Y );
         }
     }
 
@@ -1842,7 +1842,7 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y)
 		// selected.  If it wasn't selected by touch, such as by i/r or keyboard, we should select
 		// our parent object's as well
 		if( pObj->m_pParentObject )
-			SelectedObject((DesignObj_Orbiter *)pObj->m_pParentObject);
+			SelectedObject((DesignObj_Orbiter *)pObj->m_pParentObject,selectionMethod);
 	}
 }
 //------------------------------------------------------------------------
@@ -2421,7 +2421,7 @@ int k=2;
 		)
 	)
     {
-        SelectedObject( pObj );
+        SelectedObject( pObj, smKeyboard );
         return true;
     }
 
@@ -2458,7 +2458,7 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
 				return false;
 		}
 
-		SelectedObject( pObj, X, Y );
+		SelectedObject( pObj, smMouse, X, Y );
         return true;
     }
     return false;
@@ -2826,7 +2826,7 @@ DesignObj_Orbiter *Orbiter::FindObjectToHighlight( DesignObj_Orbiter *pObjCurren
 				CMD_Set_Variable(pDesignObj_DataGrid->m_iPK_Variable, "");
 			}
 			dg.Release();
-			SelectedObject(pDesignObj_DataGrid,-2,-2);
+			SelectedObject(pDesignObj_DataGrid,smNavigation);
 		}
 		dg.Release();
 		PLUTO_SAFETY_LOCK( nd, m_NeedRedrawVarMutex );
@@ -3134,7 +3134,7 @@ void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea 
 		{
 			DesignObj_Orbiter* pObj = (*itDesignObjOrbiter).second;
 			if(  pObj->m_Action_StartupList.size(  )>0  )
-				ExecuteCommandsInList( &pObj->m_Action_StartupList, pObj );
+				ExecuteCommandsInList( &pObj->m_Action_StartupList, pObj, smLoadUnload );
 		}
 		m_bStartingUp=false;
 	}
@@ -3764,7 +3764,7 @@ bool Orbiter::ProcessEvent( Orbiter::Event &event )
     {
 		if(  m_pObj_Highlighted && !m_pObj_Highlighted->IsHidden(  )  )
         {
-            SelectedObject( m_pObj_Highlighted, -2, -2 );
+            SelectedObject( m_pObj_Highlighted, smNavigation );
             bHandled=true;
         }
     }
@@ -4351,7 +4351,7 @@ DesignObj_Orbiter* Orbiter::FindSingleNumberObject( int PK_Object,  DesignObj_Or
 }
 //------------------------------------------------------------------------
 void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList,
-                                    DesignObj_Orbiter *pObj,
+                                    DesignObj_Orbiter *pObj, SelectionMethod selectionMethod,
                                     int X,  int Y, int Repeat )
 {
 	if(m_bQuit)
@@ -4444,7 +4444,7 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
         // that key if the user touches it.  In this case, we don't want to execute the simulate keypress command
         // if the button was selected because the user hit the button associated with it (ie x==-1 and y==-1 when input was ButtonDown)
         // and create an endless loop
-        else if( PK_Command==COMMAND_Simulate_Keypress_CONST && X==-1 && Y==-1 )
+        else if( PK_Command==COMMAND_Simulate_Keypress_CONST && selectionMethod==smKeyboard )
             continue;
 
 
@@ -6367,7 +6367,7 @@ void Orbiter::DelayedSelectObject( void *data )
 {
 	DelayedSelectObjectInfo *pDelayedSelectObjectInfo = (DelayedSelectObjectInfo *) data;
 	if( TestCurrentScreen(pDelayedSelectObjectInfo->m_sPK_DesignObj_CurrentScreen) )
-		SelectedObject(pDelayedSelectObjectInfo->m_pObj);
+		SelectedObject(pDelayedSelectObjectInfo->m_pObj,smCommand);
 
 	delete pDelayedSelectObjectInfo;
 }
@@ -6421,7 +6421,7 @@ void Orbiter::CMD_Select_Object(string sPK_DesignObj,string sPK_DesignObj_Curren
 		CallMaintenanceInMiliseconds( TimeInMS, &Orbiter::DelayedSelectObject, pDelayedSelectObjectInfo, pe_NO );
 	}
 	else
-	    SelectedObject( pDesignObj_Orbiter );
+	    SelectedObject( pDesignObj_Orbiter, smCommand );
 }
 
 //<-dceag-c72-b->
@@ -8445,7 +8445,7 @@ void Orbiter::HandleNewObjectsOnScreen(VectDesignObj_Orbiter *pVectDesignObj_Orb
         DesignObj_Orbiter *pDesignObj_Orbiter = (*pVectDesignObj_Orbiter)[s];
         if(  pDesignObj_Orbiter!=m_pScreenHistory_Current->GetObj()  )  // We just did the screen itself above
 		{
-            ExecuteCommandsInList( &pDesignObj_Orbiter->m_Action_LoadList, pDesignObj_Orbiter, 0, 0 );
+            ExecuteCommandsInList( &pDesignObj_Orbiter->m_Action_LoadList, pDesignObj_Orbiter, smLoadUnload, 0, 0 );
 		}
     }
 
@@ -8782,7 +8782,16 @@ void Orbiter::CMD_EnterGo(string &sCMD_Result,Message *pMessage)
 //<-dceag-c190-e->
 {
 	if( GotActivity(  ) && m_pObj_Highlighted && !m_pObj_Highlighted->IsHidden() )
-		SelectedObject(m_pObj_Highlighted);
+	{
+		// Selected the highlighted object as well as it's parents.  If this was clicked, this would happen
+		// automatically, but since we're using the navigation we have to walk the tree ourselves
+		DesignObj_Orbiter *pObj = m_pObj_Highlighted;
+		while(pObj)
+		{
+			SelectedObject(pObj,smNavigation);
+			pObj = (DesignObj_Orbiter *) pObj->m_pParentObject;
+		}
+	}
 #ifdef DEBUG
 	else
 	{

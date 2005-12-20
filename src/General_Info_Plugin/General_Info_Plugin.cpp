@@ -1726,7 +1726,6 @@ void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,strin
 			}
 		}
 		iPK_Device = iPK_Device_Related; // for the Orbiter to display when it asks the user to select a room
-		// TODO: maybe the Orbiter should be told about all the devices? it sets the room only to the one it displays
 	}
 	else
 	{
@@ -1735,7 +1734,18 @@ void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,strin
 		g_pPlutoLogger->Write(LV_STATUS, "Created PNP device %d from mac %s", iPK_Device, sMac_address.c_str());
 	}
 
-
+	// Ask the user what room it's in
+	OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
+	if( pOH_Orbiter )
+	{
+		Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(iPK_Device);
+		if( pRow_Device )
+		{
+			DCE::SCREEN_NewPlugAndPlayDevice SCREEN_NewPlugAndPlayDevice(m_dwPK_Device,pMessage->m_dwPK_Device_From,StringUtils::itos(iPK_Device),
+				pRow_Device->Description_get(),pRow_Device->FK_DeviceTemplate_getrow()->Comments_get());
+			SendCommand(SCREEN_NewPlugAndPlayDevice);
+		}
+	}
 }
 
 //<-dceag-c718-b->

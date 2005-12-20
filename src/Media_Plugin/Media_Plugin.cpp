@@ -686,6 +686,9 @@ void Media_Plugin::StartMedia( int iPK_MediaType, int iPK_MediaProvider, unsigne
 			string sDirectory2 = (*p_dequeMediaFile)[0]->FullyQualifiedFile() + "/VIDEO_TS";
 			if( FileUtils::DirExists(sDirectory1) || FileUtils::DirExists(sDirectory2) )
 				iPK_MediaType=MEDIATYPE_pluto_DVD_CONST;
+			else
+				g_pPlutoLogger->Write(LV_CRITICAL,"Found nothing in %d ent areas to play files of %s",
+					(int) vectEntertainArea.size(),Extension.c_str());
 		}
 	}
 
