@@ -164,7 +164,7 @@ g_pPlutoLogger->Write(LV_STATUS, "~OrbiterSDL finished");
 /*virtual*/ void OrbiterSDL::RenderScreen()
 {
 #ifdef DEBUG
-    g_pPlutoLogger->Write(LV_STATUS,"$$$ RENDER SCREEN $$$ %s",(m_pScreenHistory_Current ? m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str() : " NO SCREEN"));
+    g_pPlutoLogger->Write(LV_STATUS,"$$$ RENDER SCREEN $$$ %s",(m_pScreenHistory_Current ? m_pScreenHistory_Current->GetObj()->m_ObjectID.c_str() : " NO SCREEN"));
 #endif
 
     if (m_pScreenHistory_Current)
