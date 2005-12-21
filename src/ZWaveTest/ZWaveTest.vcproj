@@ -119,6 +119,9 @@
 				RelativePath=".\SerialConnection.cpp">
 			</File>
 			<File
+				RelativePath=".\ZW_SerialAPI.cpp">
+			</File>
+			<File
 				RelativePath=".\ZWaveTest.cpp">
 			</File>
 		</Filter>
@@ -131,6 +134,9 @@
 			</File>
 			<File
 				RelativePath=".\SerialConnection.h">
+			</File>
+			<File
+				RelativePath=".\ZW_SerialAPI.h">
 			</File>
 		</Filter>
 		<Filter
