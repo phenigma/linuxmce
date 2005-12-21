@@ -1659,66 +1659,66 @@ void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,strin
 
 	vector<Web_DeviceData> vectWeb_DeviceData;
 
-	mapMacPKDescription::iterator mapit;
-	if (m_mapMacPKDescription.size() != 0 && (mapit = m_mapMacPKDescription.find(sMac_address)) != m_mapMacPKDescription.end())
-	{
-		Web_DHCP_Query Web_Query(sURL_Base);
-		Web_DHCP_Query_Params Web_Params;
-		Web_DHCP_Query_Result Web_Result;
-
-		Web_Params["MAC"] = sMac_address;
-		Web_Params["PK"] = StringUtils::itos(mapit->second.first); // PK_Web
-		Web_Query.Query(Web_Params, Web_Result);
-
-		if (Web_Result.size() == 0 || Web_Result[0].size() == 0)
-		{
-			g_pPlutoLogger->Write(LV_WARNING, "Empty result from web query");
-		}
-		else if (Web_Result[0][0] == "FAIL")
-		{
-			if (Web_Result[0].size() >= 2)
-				g_pPlutoLogger->Write(LV_WARNING, "Query failed. Server said: %s", Web_Result[1][1].c_str());
-			else
-				g_pPlutoLogger->Write(LV_WARNING, "Query failed. Server didn't return reason message.");
-		}
-		else if (Web_Result.size() < 2)
-		{
-			g_pPlutoLogger->Write(LV_WARNING, "Server said it has data, but returned 0 records");
-		}
-		else
-		{
-			g_pPlutoLogger->Write(LV_STATUS, "Query succeeded");
-			
-			for (int i = 1; i < Web_Result.size(); i++)
-			{
-				if (Web_Result[i].size() % 2 != 0)
-				{
-					string sMsg;
-					for (int k = 0; k < Web_Result[i].size(); k++)
-						sMsg += Web_Result[i][k] + ", ";
-					g_pPlutoLogger->Write(LV_WARNING, "Received incomplete parameters on line %d (%d): %s", i + 1, Web_Result[i].size(), sMsg.c_str());
-					continue;
-				}
-				
-				Web_DeviceData localWeb_DeviceData;
-				localWeb_DeviceData.m_iPK_DeviceTemplate = atoi(Web_Result[i][0].c_str());
-				localWeb_DeviceData.m_sMacAddress = Web_Result[i][1];
-
-				for (int j = 2; j < Web_Result[i].size(); j++)
-				{
-					int iPK_DeviceData = atoi(Web_Result[i][j].c_str());
-					string sDeviceData = Web_Result[i][j];
-					localWeb_DeviceData.m_mapDeviceData[iPK_DeviceData] = sDeviceData;
-				}
-				
-				vectWeb_DeviceData.push_back(localWeb_DeviceData);
-			}
-		}
-	}
-	
-	int iPK_Device;
 	if (iPK_DHCPDevice < 0)
 	{
+		mapMacPKDescription::iterator mapit;
+		if (m_mapMacPKDescription.size() != 0 && (mapit = m_mapMacPKDescription.find(sMac_address)) != m_mapMacPKDescription.end())
+		{
+			Web_DHCP_Query Web_Query(sURL_Base);
+			Web_DHCP_Query_Params Web_Params;
+			Web_DHCP_Query_Result Web_Result;
+
+			Web_Params["MAC"] = sMac_address;
+			Web_Params["PK"] = StringUtils::itos(mapit->second.first); // PK_Web
+			Web_Query.Query(Web_Params, Web_Result);
+
+			if (Web_Result.size() == 0 || Web_Result[0].size() == 0)
+			{
+				g_pPlutoLogger->Write(LV_WARNING, "Empty result from web query");
+			}
+			else if (Web_Result[0][0] == "FAIL")
+			{
+				if (Web_Result[0].size() >= 2)
+					g_pPlutoLogger->Write(LV_WARNING, "Query failed. Server said: %s", Web_Result[1][1].c_str());
+				else
+					g_pPlutoLogger->Write(LV_WARNING, "Query failed. Server didn't return reason message.");
+			}
+			else if (Web_Result.size() < 2)
+			{
+				g_pPlutoLogger->Write(LV_WARNING, "Server said it has data, but returned 0 records");
+			}
+			else
+			{
+				g_pPlutoLogger->Write(LV_STATUS, "Query succeeded");
+				
+				for (int i = 1; i < Web_Result.size(); i++)
+				{
+					if (Web_Result[i].size() % 2 != 0)
+					{
+						string sMsg;
+						for (int k = 0; k < Web_Result[i].size(); k++)
+							sMsg += Web_Result[i][k] + ", ";
+						g_pPlutoLogger->Write(LV_WARNING, "Received incomplete parameters on line %d (%d): %s", i + 1, Web_Result[i].size(), sMsg.c_str());
+						continue;
+					}
+					
+					Web_DeviceData localWeb_DeviceData;
+					localWeb_DeviceData.m_iPK_DeviceTemplate = atoi(Web_Result[i][0].c_str());
+					localWeb_DeviceData.m_sMacAddress = Web_Result[i][1];
+
+					for (int j = 2; j < Web_Result[i].size(); j++)
+					{
+						int iPK_DeviceData = atoi(Web_Result[i][j].c_str());
+						string sDeviceData = Web_Result[i][j];
+						localWeb_DeviceData.m_mapDeviceData[iPK_DeviceData] = sDeviceData;
+					}
+					
+					vectWeb_DeviceData.push_back(localWeb_DeviceData);
+				}
+			}
+		}
+	
+		int iPK_Device = mapit->second.first;
 		int iPK_Device_Related = 0;
 		for (size_t i = 0; i < vectWeb_DeviceData.size(); i++)
 		{
