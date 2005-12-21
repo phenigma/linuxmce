@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..;&quot;C:\Work\Pluto\Libraries\Libraries\pthreads-win32\include&quot;;../Serial"
+				AdditionalIncludeDirectories="..;&quot;C:\work\Libraries\Libraries\pthreads-win32\include&quot;;../Serial"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -35,7 +35,7 @@
 				AdditionalDependencies="pthreadVC.lib DCE.lib Serial.lib"
 				OutputFile="../debug/ZWaveTest.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="C:\Work\Pluto\pluto_main\lib;&quot;C:\Work\Pluto\Libraries\Libraries\pthreads-win32\lib&quot;"
+				AdditionalLibraryDirectories="C:\work\pluto_main\lib;&quot;C:\work\Libraries\Libraries\pthreads-win32\lib&quot;"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/ZWaveTest.pdb"
 				SubSystem="1"
@@ -119,9 +119,6 @@
 				RelativePath=".\SerialConnection.cpp">
 			</File>
 			<File
-				RelativePath=".\ZW_SerialAPI.cpp">
-			</File>
-			<File
 				RelativePath=".\ZWaveTest.cpp">
 			</File>
 		</Filter>
@@ -134,9 +131,6 @@
 			</File>
 			<File
 				RelativePath=".\SerialConnection.h">
-			</File>
-			<File
-				RelativePath=".\ZW_SerialAPI.h">
 			</File>
 		</Filter>
 		<Filter
