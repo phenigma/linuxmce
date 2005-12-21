@@ -38,7 +38,7 @@ public:
 
 	/**checks if there is a full response in the serial buffer
 	*@return true if there is a full response in the buffer*/
-	bool SerialConnection::hasCommand();
+	int SerialConnection::hasCommand();
 
 	~SerialConnection();
 
@@ -53,7 +53,7 @@ private:
 	CSerialPort* serialPort;
 
 	/**receive queue*/
-	std::list<char> buffer;
+	std::deque<char> buffer;
 
 
 	pthread_mutex_t mutex_serial;

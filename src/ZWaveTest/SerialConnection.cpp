@@ -73,7 +73,7 @@ int SerialConnection::receive(char *buffer, unsigned int *len)
 
 int SerialConnection::hasCommand()
 {
-	bool returnValue = 1;
+	int returnValue = 1;
 	if(buffer.size() < 4)
 		return 0;
 	if( buffer.front() == 0x06 )
@@ -81,15 +81,15 @@ int SerialConnection::hasCommand()
 	if( buffer.front() == 0x01 )
 	{
 		std::deque<char>::iterator i = buffer.begin();
-		int len = (int)(++i) ;
+		unsigned int len = *(++i) ;
 		if(buffer.size() >= len + 3) //SOF+LEN+CHECK
 		{
 			i += len + 1;
-			char checkSum = i;
+			char checkSum = *i;
 			char tmpSum = 0;
 			std::deque<char>::iterator endPack;
 			for(i = buffer.begin() + 2; i != endPack; i++)
-				tmpSum ^= i; 
+				tmpSum ^= *i; 
 			if(tmpSum == checkSum)
 				returnValue = 1;
 			else
@@ -114,14 +114,14 @@ void *SerialConnection::receiveFunction(void *)
 			while(true)
 			{
 				len = 100;
-				pthread_mutex_lock( mutex_serial );
+				pthread_mutex_lock( &instance->mutex_serial );
 				size_t len = instance->serialPort->Read(mybuf, 100);
-				pthread_mutex_unlock( mutex_serial );
+				pthread_mutex_unlock( &instance->mutex_serial );
 
-				pthread_mutex_lock( mutex_buffer );
+				pthread_mutex_lock( &instance->mutex_buffer );
 				while(--len >= 0)
 					instance->buffer.push_back(mybuf[len]);
-				pthread_mutex_unlock( mutex_buffer );
+				pthread_mutex_unlock( &instance->mutex_buffer );
 			}
 		}
 	}
@@ -135,8 +135,8 @@ void *SerialConnection::receiveFunction(void *)
 SerialConnection::~SerialConnection()
 {
 	pthread_exit(write_thread);
-	pthread_mutex_destroy(mutex_serial);
-	pthread_mutex_destroy(mutex_buffer);
+	pthread_mutex_destroy(&mutex_serial);
+	pthread_mutex_destroy(&mutex_buffer);
 	delete serialPort;
 	serialPort = NULL;
 	instance = NULL;
