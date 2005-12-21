@@ -30,7 +30,7 @@ if (isset($_POST['username']) && $_POST['username']!='') {
 		} else {
 				$passwordMD5 = md5($password);
 				// check master users database
-				$isMasterUsers=checkMasterUsers($username, $password,$checkMasterUserUrl,'&FirstAccount=&Email=&PlutoId=&Pin=');
+				$isMasterUsers=checkMasterUsers($username, $password,$checkMasterUserUrl,'&FirstAccount=&Email=&PlutoId=&Pin=&sqlCvsAdmin=');
 				if(!$isMasterUsers[0])
 					$messages.='Invalid username or password, try again!!!</a>';
 		}
@@ -44,6 +44,7 @@ if (isset($_POST['username']) && $_POST['username']!='') {
 			$_SESSION['userIsLogged']="yes";
 			$_SESSION['categ']=$FirstAccount;
 			$_SESSION['Email']=$Email;
+			$_SESSION['sqlCvsAdmin']=$sqlCvsAdmin;
 			$_SESSION['userLoggedIn'] = true;
 			
 			$query_installation = "SELECT * FROM Installation_Users WHERE FK_Users = ?";

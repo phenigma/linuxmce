@@ -49,7 +49,7 @@ if($action=='form'){
 		$table.='<div align="center"><input type="submit" name="update" value="Update"></div>
 		<input type="hidden" name="ddArray" value="'.join(',',array_keys($currentValues)).'">';
 	}else{
-		$table='This device does not have any device data.';
+		$table='<p class="normal_row">This device does not have any device data.';
 	}
 	
 	$errMsg=(isset($_REQUEST['err']))?'<span class="err">'.stripslashes($_REQUEST['err']).'</span>':'';
@@ -60,9 +60,10 @@ if($action=='form'){
 			<input type="hidden" name="section" value="registeredDeviceData">
 			<input type="hidden" name="action" value="add">		
 			<input type="hidden" name="rdDT" value="'.$rdDT.'">		
-			
+			<br>
 			<h3 align="center">Edit Device Data</h3>
 			'.$table.'
+			<br><br>
 		</form>
       	';
 }else{

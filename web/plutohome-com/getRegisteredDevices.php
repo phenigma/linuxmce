@@ -21,7 +21,7 @@ if(isset($_REQUEST['MAC']) && !isset($_REQUEST['PK'])){
 		INNER JOIN RegisteredDevice ON FK_RegisteredDevice=PK_RegisteredDevice
 		WHERE MacAddressFrom<=? AND MacAddressTo >=? AND InheritMac=1',array($macInt,$macInt));
 	if($res->RecordCount()==0){
-		die('FAIL\tMac address not found');
+		die("FAIL\tMac address not found");
 	}
 	
 	$row=$res->FetchRow();
@@ -29,11 +29,11 @@ if(isset($_REQUEST['MAC']) && !isset($_REQUEST['PK'])){
 	$pkRD=$row['PK_RegisteredDevice'];
 	
 	if($dt==0){
-		die('FAIL\tInvalid device template');
+		die("FAIL\tInvalid device template");
 	}
 	$dtArray=getAssocArray('DeviceTemplate','PK_DeviceTemplate','Description',$dbADO,'WHERE Pk_DeviceTemplate='.$dt);
 	if(!isset($dtArray[$dt])){
-		die('Device template #'.$dt.' does not exist.');
+		die("FAIL\tDevice template #'.$dt.' does not exist.");
 	}
 	
 	$answer="$pkRD\t".$dtArray[$dt];
@@ -43,7 +43,7 @@ if(isset($_REQUEST['MAC']) && !isset($_REQUEST['PK'])){
 	$mac=$_REQUEST['MAC'];
 	
 	if($pk==0){
-		die('FAIL\tInvalid PK parameter.');
+		die("FAIL\tInvalid PK parameter.");
 	}
 	
 	$res=$manufacturerADO->Execute('
@@ -72,7 +72,7 @@ if(isset($_REQUEST['MAC']) && !isset($_REQUEST['PK'])){
 	}
 
 }else{
-	die('No parameters specified');
+	die('FAIL\tNo parameters specified');
 }
 
 
