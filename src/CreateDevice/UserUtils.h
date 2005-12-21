@@ -6,8 +6,8 @@
 class UserUtils
 {
 
-#define FIRST_USER_EXTENSION	100
-#define LAST_USER_EXTENSION		199
+#define FIRST_USER_EXTENSION	301
+#define LAST_USER_EXTENSION		399
 
 	MySqlHelper *m_pMySqlHelper;
 	int m_PK_Installation;
