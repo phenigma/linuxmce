@@ -29,8 +29,8 @@ public:
 	class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition);
 	virtual int GetPK_DeviceList() { return 69; } ;
 	virtual const char *GetDeviceDescription() { return "Generic_Serial_Device"; } ;
-	string Get_COM_Port_on_PC() { return m_mapParameters[37];}
-	int Get_TCP_Port() { return atoi(m_mapParameters[69].c_str());}
+	string Get_COM_Port_on_PC() {  return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,37);}
+	int Get_TCP_Port() { if( m_bRunningWithoutDeviceData )  return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,69).c_str()); else return atoi(m_mapParameters[69].c_str());}
 };
 
 
@@ -96,6 +96,11 @@ public:
 		m_pData = new Generic_Serial_Device_Data();
 		if( Size )
 			m_pData->SerializeRead(Size,pConfig);
+		else
+		{
+			m_pData->m_dwPK_Device=m_dwPK_Device;  // Assign this here since it didn't get it's own data
+			m_pData->m_bRunningWithoutDeviceData=true;
+		}
 		delete[] pConfig;
 		pConfig = m_pEvent->GetDeviceList(Size);
 		m_pData->m_AllDevices.SerializeRead(Size,pConfig);
