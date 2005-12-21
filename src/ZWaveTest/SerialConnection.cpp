@@ -21,11 +21,10 @@ int SerialConnection::connect()
 	try
 	{
 		serialPort = new CSerialPort("COM1", 9600, epbsN81);
-/*		PTHREAD_MUTEX_INITIALIZER(mutex_receive);
-		PTHREAD_MUTEX_INITIALIZER(mutex_send);
-*/
-		pthread_mutex_init(&mutex_receive, NULL);
-		pthread_mutex_init(&mutex_send, NULL);
+		pthread_mutex_init(&mutex_serial, NULL);
+		pthread_mutex_init(&mutex_buffer, NULL);
+		
+		pthread_create(&write_thread, NULL, &receiveFunction, NULL);
 	}
 	catch(...)
 	{
@@ -50,9 +49,9 @@ int SerialConnection::send(char *buffer, unsigned int len)
 			try
 			{
 				//todo: guard the access to the serial port
-//				pthread_mutex_lock( mutex_send );
+				pthread_mutex_lock( &mutex_serial );
 				serialPort->Write(buffer, len);
-//				pthread_mutex_unlock( mutex_send );
+				pthread_mutex_unlock( &mutex_serial );
 			}
 			catch(...)
 			{
@@ -67,9 +66,41 @@ int SerialConnection::send(char *buffer, unsigned int len)
 
 int SerialConnection::receive(char *buffer, unsigned int *len)
 {
-	//todo: guard the access to the receive queue
+	//todo guard the access to the receive queue
 	*len = 0;
 	return 0;
+}
+
+int SerialConnection::hasCommand()
+{
+	bool returnValue = 1;
+	if(buffer.size() < 4)
+		return 0;
+	if( buffer.front() == 0x06 )
+		buffer.pop_front();
+	if( buffer.front() == 0x01 )
+	{
+		std::deque<char>::iterator i = buffer.begin();
+		int len = (int)(++i) ;
+		if(buffer.size() >= len + 3) //SOF+LEN+CHECK
+		{
+			i += len + 1;
+			char checkSum = i;
+			char tmpSum = 0;
+			std::deque<char>::iterator endPack;
+			for(i = buffer.begin() + 2; i != endPack; i++)
+				tmpSum ^= i; 
+			if(tmpSum == checkSum)
+				returnValue = 1;
+			else
+				returnValue = 0;
+		}
+		else
+			returnValue = 0;
+	}
+	else 
+		returnValue = -1;
+	return returnValue;
 }
 
 void *SerialConnection::receiveFunction(void *)
@@ -83,24 +114,30 @@ void *SerialConnection::receiveFunction(void *)
 			while(true)
 			{
 				len = 100;
-//				pthread_mutex_lock( mutex_receive );
-				/*size_t len =*/ instance->serialPort->Read(mybuf, 100);
-//				pthread_mutex_unlock( mutex_receive );
+				pthread_mutex_lock( mutex_serial );
+				size_t len = instance->serialPort->Read(mybuf, 100);
+				pthread_mutex_unlock( mutex_serial );
 
-//				pthread_mutex_lock( mutex_buffer );
-
+				pthread_mutex_lock( mutex_buffer );
 				while(--len >= 0)
-					instance->buffer.push(mybuf[len]);
-				
-
-//				pthread_mutex_unlock( mutex_buffer );
-				
+					instance->buffer.push_back(mybuf[len]);
+				pthread_mutex_unlock( mutex_buffer );
 			}
 		}
 	}
 	catch(...)
 	{
-		//todo: treat the exception
+		//todo treat the exception
 	}
 	return NULL;
+}
+
+SerialConnection::~SerialConnection()
+{
+	pthread_exit(write_thread);
+	pthread_mutex_destroy(mutex_serial);
+	pthread_mutex_destroy(mutex_buffer);
+	delete serialPort;
+	serialPort = NULL;
+	instance = NULL;
 }
