@@ -64,15 +64,53 @@ int SerialConnection::send(char *buffer, unsigned int len)
 	return returnValue ;
 }
 
-int SerialConnection::receive(char *buffer, unsigned int *len)
+int SerialConnection::receive(char *b, unsigned int *len)
 {
-	//todo guard the access to the receive queue
-	*len = 0;
-	return 0;
+	if(b == NULL)
+	{
+		*len = 0;
+		return -1;
+	}
+
+	pthread_mutex_lock( &instance->mutex_buffer );
+	if(buffer.size() > 0)
+	{
+		if( buffer.front() == 0x06 )
+			buffer.pop_front();
+		if( buffer.front() != 0x01 )
+		{
+			*len = 0;
+			return -1;
+		}
+		unsigned int buffered_len = *(buffer.begin() + 1);
+		if(buffer.size() < buffered_len + 3)
+		{
+			*len = 0;
+			return -1;
+		}
+		unsigned int i = 0;
+		while(i < buffered_len)
+		{
+			b[i++] = buffer.front();
+			buffer.pop_front();
+		}
+		if( buffer.front() != checkSum(b, buffered_len) )
+			*len = 0;
+		else
+			*len = buffered_len;
+		buffer.pop_front();
+	}
+	else
+	{
+		*len = 0;
+		return 0;
+	}
+	pthread_mutex_unlock( &instance->mutex_buffer );
 }
 
 int SerialConnection::hasCommand()
 {
+	pthread_mutex_lock( &instance->mutex_buffer );
 	int returnValue = 1;
 	if(buffer.size() < 4)
 		return 0;
@@ -88,6 +126,7 @@ int SerialConnection::hasCommand()
 			char checkSum = *i;
 			char tmpSum = 0;
 			std::deque<char>::iterator endPack;
+			endPack = buffer.begin() + len + 2;
 			for(i = buffer.begin() + 2; i != endPack; i++)
 				tmpSum ^= *i; 
 			if(tmpSum == checkSum)
@@ -100,8 +139,24 @@ int SerialConnection::hasCommand()
 	}
 	else 
 		returnValue = -1;
+	pthread_mutex_unlock( &instance->mutex_buffer );
 	return returnValue;
 }
+
+char SerialConnection::checkSum(char *b, int len)
+{
+	char returnValue = 0;
+	if( b == NULL)
+	{
+		return returnValue;
+	}
+	for(int i=0; i< len; i++)
+	{
+		returnValue ^= b[i]; 
+	}
+	return returnValue;
+}
+
 
 void *SerialConnection::receiveFunction(void *)
 {

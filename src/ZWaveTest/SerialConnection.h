@@ -61,6 +61,8 @@ private:
 	pthread_t write_thread;
 
 	static void* receiveFunction(void *);
+
+	char SerialConnection::checkSum(char *b, int len);
 };
 
 #endif
