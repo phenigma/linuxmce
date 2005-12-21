@@ -3,7 +3,7 @@
 
 #include "DCE/ServerLogger.h"
 #include "Serial/SerialPort.h" 
-#include <queue>
+#include <deque>
 #include <pthread.h>
 
 /**
@@ -36,20 +36,29 @@ public:
 	*@return 0 if successfull, else negative*/
 	int SerialConnection::connect();
 
+	/**checks if there is a full response in the serial buffer
+	*@return true if there is a full response in the buffer*/
+	bool SerialConnection::hasCommand();
+
+	~SerialConnection();
+
 private:
 	/**static instance of this class*/
 	static SerialConnection* instance;
 	
 	/**private constructor*/
 	SerialConnection();
-	
+
 	/**the serial port*/
 	CSerialPort* serialPort;
 
 	/**receive queue*/
-	std::queue<char> buffer;
-	pthread_mutex_t mutex_receive;
-	pthread_mutex_t mutex_send;
+	std::list<char> buffer;
+
+
+	pthread_mutex_t mutex_serial;
+	pthread_mutex_t mutex_buffer;
+	pthread_t write_thread;
 
 	static void* receiveFunction(void *);
 };
