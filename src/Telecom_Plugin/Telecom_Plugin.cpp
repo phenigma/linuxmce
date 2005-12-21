@@ -895,6 +895,7 @@ void Telecom_Plugin::CMD_PL_Add_VOIP_Account(string sName,string sPhoneNumber,st
 		cmdline += "/usr/pluto/bin/create_amp_teliax.pl";
 	}
 	
-	cmdline+= string(" ")+sUsers+(" ")+sPassword+string(" ")+sName;
+	cmdline+= string(" ")+sUsers+(" ")+sPassword+string(" ")+sPhoneNumber;
+	g_pPlutoLogger->Write(LV_WARNING, "Will call %s",cmdline.c_str());
 	system(cmdline.c_str());
 }
