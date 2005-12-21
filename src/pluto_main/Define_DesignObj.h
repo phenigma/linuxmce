@@ -1777,7 +1777,7 @@
 #define DESIGNOBJ_AlarmNoPanelDetected_CONST 4634
 #define DESIGNOBJ_butWhatInputs_CONST 4635
 #define DESIGNOBJ_butLearnCodes_CONST 4636
-#define DESIGNOBJ_LearnCodes_CONST 4637
+#define DESIGNOBJ_InWhichRoomIsTheSystem_CONST 4637
 #define DESIGNOBJ_AVDeviceAudio_CONST 4638
 #define DESIGNOBJ_butRecommendedInput_CONST 4639
 #define DESIGNOBJ_butWhichInput_CONST 4640
@@ -1873,6 +1873,7 @@
 #define DESIGNOBJ_butAVDeviceAudio_CONST 4746
 #define DESIGNOBJ_butAVDeviceVideoInputs_CONST 4747
 #define DESIGNOBJ_butAVDeviceAudioInputs_CONST 4748
+#define DESIGNOBJ_mnuNewPhoneEnterNumber_CONST 4749
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

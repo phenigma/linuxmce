@@ -911,6 +911,7 @@
 #define TEXT_no_pnp_CONST 1623
 #define TEXT_After_you_press_this_button_the_system_w_CONST 1624
 #define TEXT_alarm_error_CONST 1625
+#define TEXT_which_room_is_this_system_in_CONST 1626
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
