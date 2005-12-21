@@ -67,7 +67,6 @@ public:
 		}
 		return false;
 	}
-	bool NewPnpDevice( int PK_Device );
 	bool OkayToCreateDevice(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sMac_address,string sIP_Address,OH_Orbiter *pOH_Orbiter,string sData);
 	bool OkayToCreateDevice_AlarmPanel(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sMac_address,string sIP_Address,OH_Orbiter *pOH_Orbiter,string sData);
 	bool OkayToCreateDevice_NetworkStorage(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sMac_address,string sIP_Address,OH_Orbiter *pOH_Orbiter,string sData);

@@ -1176,6 +1176,7 @@ void General_Info_Plugin::CMD_Check_for_updates(string &sCMD_Result,Message *pMe
 void General_Info_Plugin::CMD_Check_for_updates_done(string &sCMD_Result,Message *pMessage)
 //<-dceag-c396-e->
 {
+	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates_done");
 	PLUTO_SAFETY_LOCK(gm,m_GipMutex);
 
 	DeviceData_Router *pDevice_AppServer = m_pRouter->m_mapDeviceData_Router_Find(pMessage->m_dwPK_Device_From);
@@ -1647,7 +1648,7 @@ void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,strin
 //<-dceag-c700-e->
 {
 	PLUTO_SAFETY_LOCK(gm,m_GipMutex);
-	//sMac_address = "00:30:59:01:e3:0a";
+
 #ifdef DEBUG
 	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_New_Plug_and_Play_Device %d mac %s data %s",
 		iPK_DHCPDevice,sMac_address.c_str(),sData.c_str());
@@ -1843,6 +1844,9 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 	{
 		if( iPK_Room==-1 && iPK_Orbiter )
 		{
+			g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Create_Device adding %d to m_listNewPnpDevicesWaitingForARoom size: %d",
+				*iPK_Device,(int) m_listNewPnpDevicesWaitingForARoom.size());
+			m_listNewPnpDevicesWaitingForARoom.push_back(*iPK_Device);
 			DCE::SCREEN_NewPlugAndPlayDevice SCREEN_NewPlugAndPlayDevice(m_dwPK_Device,iPK_Orbiter,StringUtils::itos(*iPK_Device),
 				pRow_Device->Description_get(),pRow_Device->FK_DeviceTemplate_getrow()->Comments_get());
 			SendCommand(SCREEN_NewPlugAndPlayDevice);
@@ -1858,7 +1862,7 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 	else
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find %d in database",*iPK_Device);
 
-	Message *pMessage_Event = new Message(m_dwPK_Device,DEVICEID_EVENTMANAGER,PRIORITY_NORMAL,MESSAGETYPE_EVENT,EVENT_New_PNP_Device_Detected_CONST,
+	Message *pMessage_Event = new Message(m_dwPK_Device,DEVICEID_EVENTMANAGER,PRIORITY_NORMAL,MESSAGETYPE_EVENT,EVENT_New_Device_Created_CONST,
 		1,EVENTPARAMETER_PK_Device_CONST,StringUtils::itos(*iPK_Device).c_str());
 	QueueMessageToRouter(pMessage_Event);
 
@@ -1906,31 +1910,6 @@ void General_Info_Plugin::CMD_Delete_Device(int iPK_Device,string &sCMD_Result,M
 	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM PaidLicense WHERE FK_Device=" + StringUtils::itos(iPK_Device));
 }
 
-
-bool General_Info_Plugin::NewPnpDevice( int PK_Device )
-{
-	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::NewPnpDevice");
-	PLUTO_SAFETY_LOCK(mm, m_GipMutex);
-
-	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(PK_Device);
-	if( !pRow_Device )
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Got invalid pnp device: %d",PK_Device);
-		return false;
-	}
-
-	m_listNewPnpDevicesWaitingForARoom.push_back(PK_Device);
-
-	DCE::SCREEN_NewPlugAndPlayDevice_DL SCREEN_NewPlugAndPlayDevice_DL(m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_AllowingPopups_get(),
-		StringUtils::itos(PK_Device), pRow_Device->Description_get(), 
-		pRow_Device->FK_DeviceTemplate_getrow()->Comments_get());
-	SendCommand(SCREEN_NewPlugAndPlayDevice_DL);
-
-	DCE::CMD_Check_for_updates_Cat CMD_Check_for_updates_Cat(m_dwPK_Device,DEVICECATEGORY_General_Info_Plugins_CONST,false,BL_SameHouse);
-	SendCommand(CMD_Check_for_updates_Cat);
-
-	return false;  // Let anybody else have this who wants it
-}
 //<-dceag-c274-b->
 
 	/** @brief COMMAND: #274 - Set Room For Device */

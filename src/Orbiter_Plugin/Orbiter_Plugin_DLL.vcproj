@@ -125,7 +125,13 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
+				RelativePath="..\UpdateEntArea\CommandGroupArray.cpp">
+			</File>
+			<File
 				RelativePath="..\CreateDevice\CreateDevice.cpp">
+			</File>
+			<File
+				RelativePath="..\UpdateEntArea\Criteria.cpp">
 			</File>
 			<File
 				RelativePath="..\Datagrid_Plugin\Datagrid_Plugin.cpp">
@@ -162,6 +168,30 @@
 			</File>
 			<File
 				RelativePath="..\OrbiterGen\RegenMonitor.cpp">
+			</File>
+			<File
+				RelativePath="..\UpdateEntArea\UpdateEntArea.cpp">
+			</File>
+			<File
+				RelativePath="..\UpdateEntArea\UpdateEntArea_Climate.cpp">
+			</File>
+			<File
+				RelativePath="..\UpdateEntArea\UpdateEntArea_Event.cpp">
+			</File>
+			<File
+				RelativePath="..\UpdateEntArea\UpdateEntArea_Lighting.cpp">
+			</File>
+			<File
+				RelativePath="..\UpdateEntArea\UpdateEntArea_Media.cpp">
+			</File>
+			<File
+				RelativePath="..\UpdateEntArea\UpdateEntArea_Security.cpp">
+			</File>
+			<File
+				RelativePath="..\UpdateEntArea\UpdateEntArea_Setup.cpp">
+			</File>
+			<File
+				RelativePath="..\UpdateEntArea\UpdateEntArea_Telecom.cpp">
 			</File>
 			<File
 				RelativePath="..\VIPShared\VIPMenu.cpp">

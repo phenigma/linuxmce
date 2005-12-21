@@ -76,6 +76,7 @@ int ScreenHandler::GetCurrentScreen_PK_DesignObj()
 //-----------------------------------------------------------------------------------------------------
 void ScreenHandler::SCREEN_NewMacAddress(long PK_Screen, string sMacAddress, string sIpAddress) 
 { 
+	m_pOrbiter->m_pScreenHistory_NewEntry->m_sID = sMacAddress;
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sIpAddress);
 	m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(m_p_MapDesignObj_Find(PK_Screen)), sMacAddress, "", false, false );
 }
