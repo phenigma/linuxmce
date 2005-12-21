@@ -54,22 +54,22 @@ case $diskType in
 		case "$ripFormat" in
 			wav)
 				FinalExt="wav"
-				OutputFile="\"$Dir/\$FileName.in-progress-$FinalExt\"" # bare file
+				OutputFile="\"$Dir/\$FileName.$FinalExt.in-progress\"" # bare file
 			;;
 			
 			ogg)
 				FinalExt="ogg"
-				OutputFile=">(oggenc -Q -o \"$Dir/\$FileName.in-progress-$FinalExt\" -)" # encoder
+				OutputFile=">(oggenc -Q -o \"$Dir/\$FileName.$FinalExt.in-progress\" -)" # encoder
 			;;
 			
 			flac)
 				FinalExt="flac"
-				OutputFile=">(flac -o \"$Dir/\$FileName.in-progress-$FinalExt\" -)" # encoder
+				OutputFile=">(flac -o \"$Dir/\$FileName.$FinalExt.in-progress\" -)" # encoder
 			;;
 			
 			mp3)
 				FinalExt="mp3"
-				OutputFile=">(lame -h - \"$Dir/\$FileName.in-progress-$FinalExt\")" # encoder
+				OutputFile=">(lame -h - \"$Dir/\$FileName.$FinalExt.in-progress\")" # encoder
 			;;
 			
 			*)
@@ -91,11 +91,11 @@ fi
 if [[ "$diskType" == 2 ]]; then
 	if eval $command; then
 		echo "Ripping successful"
-		mv -f "$targetFileName.in-progress-dvd" "$targetFileName.dvd";
+		mv -f "$targetFileName.dvd"{.in-progress,}
 		exit 0;
 	else
 		echo "Ripping failed"
-		rm "$targetFileName.in-progress-dvd";
+		rm "$targetFileName.dvd.in-progress";
 		exit 1;
 	fi
 elif [[ "$diskType" == 0 || "$diskType" == 1 || "$diskType" == 6 || "$diskType" == 7 || "$diskType" == 8 ]]; then
@@ -113,15 +113,14 @@ elif [[ "$diskType" == 0 || "$diskType" == 1 || "$diskType" == 6 || "$diskType" 
 		echo "Executing: $(eval echo "\"$displaycmd\"")"
 		if ! eval "$command"; then
 			echo "Ripping failed"
-			rm "$Dir/$Filename.in-progress-$FinalExt" &>/dev/null
+			rm "$Dir/$Filename.$FinalExt.in-progress" &>/dev/null
 			exit 1;
 		fi
-		echo "File ripped ok; moving: $Dir/$FileName.in-progress-$FinalExt"
-		mv "$Dir/$FileName."{in-progress-,}"$FinalExt"
+		echo "File ripped ok; moving: $Dir/$FileName.$FinalExt.in-progress"
+		mv "$Dir/$FileName.$FinalExt"{.in-progress,}
 	done
 	echo "Ripping successful"
 	exit 0;
 fi
 
 echo "Exiting ripping script"
-
