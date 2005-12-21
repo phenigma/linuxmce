@@ -99,6 +99,8 @@ public:
 	//cameras
 	virtual void SCREEN_SingleCameraViewOnly(long PK_Screen, string sPKDevice);
 	virtual void SCREEN_QuadViewCameras(long PK_Screen, string sPKDevicesList);
+
+	virtual void SCREEN_New_Phone_Enter_Number(long PK_Screen, string sPhoneName, string sPK_Device);
 };
 //-----------------------------------------------------------------------------------------------------
 #endif

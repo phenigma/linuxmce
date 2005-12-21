@@ -379,6 +379,7 @@ void General_Info_Plugin::CMD_Request_File_And_Checksum(string sFilename,char **
 void General_Info_Plugin::CMD_Set_Device_Data(int iPK_Device,string sValue_To_Assign,int iPK_DeviceData,string &sCMD_Result,Message *pMessage)
 //<-dceag-c246-e->
 {
+	DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main, iPK_Device, iPK_DeviceData, sValue_To_Assign);
 }
 
 //<-dceag-c247-b->

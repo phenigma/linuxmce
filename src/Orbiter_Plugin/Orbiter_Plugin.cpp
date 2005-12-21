@@ -1152,7 +1152,9 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
 
 	Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(iPK_DeviceTemplate);
 
-    if( !pUnknownDeviceInfos || !pUnknownDeviceInfos->m_iDeviceIDFrom )
+	bool bDontSendInstructions = false;
+
+    if(!pUnknownDeviceInfos || !pUnknownDeviceInfos->m_iDeviceIDFrom )
         g_pPlutoLogger->Write(LV_CRITICAL,"Got New Mobile Orbiter but can't find device!");
     else if( pRow_DeviceTemplate && pRow_DeviceTemplate->FK_DeviceCategory_get()==DEVICECATEGORY_Mobile_Orbiter_CONST )
     {
@@ -1187,13 +1189,22 @@ void Orbiter_Plugin::CMD_New_Orbiter(string sType,int iPK_Users,int iPK_DeviceTe
         }
         else
             g_pPlutoLogger->Write(LV_CRITICAL, "Couldn't find the App_Server for %d's MD/HY", pUnknownDeviceInfos->m_pDeviceFrom->m_dwPK_Device);
+
+		bDontSendInstructions = true;
+
+		SCREEN_New_Phone_Enter_Number SCREEN_New_Phone_Enter_Number_(m_dwPK_Device, pMessage->m_dwPK_Device_From, 
+			pUnknownDeviceInfos ? pUnknownDeviceInfos->m_sID : "N/A", StringUtils::ltos(pRow_Device->PK_Device_get()));
+		SendCommand(SCREEN_New_Phone_Enter_Number_);
     }
 
 g_pPlutoLogger->Write(LV_STATUS,"setting process flag to false");
 
-	SCREEN_DialogPhoneInstructions SCREEN_DialogPhoneInstructions(m_dwPK_Device, pMessage->m_dwPK_Device_From,
-		"<%=T" + StringUtils::itos(TEXT_instructions_CONST) + "%>", pUnknownDeviceInfos ? pUnknownDeviceInfos->m_sID : "N/A");
-	SendCommand(SCREEN_DialogPhoneInstructions);
+	if(!bDontSendInstructions)
+	{
+		SCREEN_DialogPhoneInstructions SCREEN_DialogPhoneInstructions(m_dwPK_Device, pMessage->m_dwPK_Device_From,
+			"<%=T" + StringUtils::itos(TEXT_instructions_CONST) + "%>", pUnknownDeviceInfos ? pUnknownDeviceInfos->m_sID : "N/A");
+		SendCommand(SCREEN_DialogPhoneInstructions);
+	}
 
     ProcessUnknownDevice();
 }

@@ -612,6 +612,16 @@ bool OSDScreenHandler::Receiver_ObjectSelected(CallBackData *pData)
 		}
 		break;
 
+		case DESIGNOBJ_SelectPort_CONST:
+		{
+			if(DESIGNOBJ_butAlarmDetect_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
+			{
+				m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(DESIGNOBJ_ReceiverInputs_CONST),"","",false,false);
+				return true;  // We're redirecting to normal flow (DESIGNOBJ_SelectPort_CONST IS USED ON ALARM PANEL!!!)
+			}
+		}
+		break;
+
 		case DESIGNOBJ_ReceiverInputs_CONST:
 			{
 				if(DESIGNOBJ_butAVDevices_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)

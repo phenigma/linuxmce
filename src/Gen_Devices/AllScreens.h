@@ -8277,6 +8277,54 @@ namespace DCE
 		}
 	};
 
+	class SCREEN_New_Phone_Enter_Number : public PreformedCommand
+	{
+	public:
+		SCREEN_New_Phone_Enter_Number(long DeviceIDFrom, long DeviceIDTo,
+			string sPhoneName, string sPK_Device)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
+				COMMANDPARAMETER_PK_Screen_CONST, "203" /* screen ID */,
+				191 /* Phone Name */, sPhoneName.c_str(), 204 /* PK_Device */, sPK_Device.c_str());
+		}
+	};
+
+	class SCREEN_New_Phone_Enter_Number_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_New_Phone_Enter_Number_DL(long DeviceIDFrom, string sDeviceIDTo,
+			string sPhoneName, string sPK_Device)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
+				COMMANDPARAMETER_PK_Screen_CONST, "203" /* screen ID */,
+				191 /* Phone Name */, sPhoneName.c_str(), 204 /* PK_Device */, sPK_Device.c_str());
+		}
+	};
+
+	class SCREEN_New_Phone_Enter_Number_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_New_Phone_Enter_Number_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,
+			string sPhoneName, string sPK_Device)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
+				COMMANDPARAMETER_PK_Screen_CONST, "203" /* screen ID */,
+				191 /* Phone Name */, sPhoneName.c_str(), 204 /* PK_Device */, sPK_Device.c_str());
+		}
+	};
+
+	class SCREEN_New_Phone_Enter_Number_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_New_Phone_Enter_Number_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,
+			string sPhoneName, string sPK_Device)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 3, 
+				COMMANDPARAMETER_PK_Screen_CONST, "203" /* screen ID */,
+				191 /* Phone Name */, sPhoneName.c_str(), 204 /* PK_Device */, sPK_Device.c_str());
+		}
+	};
+
 
 	class ScreenHandlerBase
 	{
@@ -8497,6 +8545,7 @@ namespace DCE
 		virtual void SCREEN_VOIP_Provider(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_AV_Devices(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_NAS_Options(long PK_Screen, string sPK_DeviceTemplate, string sMacAddres, string sIPAddress, string sPK_DHCPDevice){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_New_Phone_Enter_Number(long PK_Screen, string sPhoneName, string sPK_Device){ GotoScreen(PK_Screen); }
 
 		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
@@ -9565,6 +9614,13 @@ namespace DCE
 					string sIPAddress = pMessage->m_mapParameters[58];
 					string sPK_DHCPDevice = pMessage->m_mapParameters[150];
 					SCREEN_NAS_Options(nPK_Screen, sPK_DeviceTemplate, sMacAddres, sIPAddress, sPK_DHCPDevice);
+					break;
+				}
+				case 203:
+				{
+					string sPhoneName = pMessage->m_mapParameters[191];
+					string sPK_Device = pMessage->m_mapParameters[204];
+					SCREEN_New_Phone_Enter_Number(nPK_Screen, sPhoneName, sPK_Device);
 					break;
 				}
 
