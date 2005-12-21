@@ -201,6 +201,7 @@
 #define SCREEN_VOIP_Provider_CONST 200
 #define SCREEN_AV_Devices_CONST 201
 #define SCREEN_NAS_Options_CONST 202
+#define SCREEN_New_Phone_Enter_Number_CONST 203
 
 #define SCREEN_TABLE "Screen"
 #define SCREEN_PK_SCREEN_FIELD "PK_Screen"
