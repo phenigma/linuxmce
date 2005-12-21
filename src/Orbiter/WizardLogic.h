@@ -65,6 +65,7 @@ public:
 	void AddRoomOfType(int PK_RoomType); //Helper function
 	void RemoveRoomOfType(int PK_RoomType); //Helper function
 	void ChangeRoomName(int PK_Room,string sName);
+	int WhatRoomIsThisDeviceIn(int PK_Device);
 
 	/*
 		SETUP A/V EQUIPMENT

@@ -271,6 +271,35 @@ bool OSDScreenHandler::RoomsWizard_ObjectSelected(CallBackData *pData)
 			}
 		}
 		break;
+
+		case DESIGNOBJ_ConfirmNames_CONST:
+		{
+			if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butTVProvider_CONST)
+			{
+				if(!m_pWizardLogic->WhatRoomIsThisDeviceIn(m_pOrbiter->m_dwPK_Device))
+				{
+					m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Input_CONST, "");
+					//the user removed the initial room while picking the room types; redirecting
+					m_pOrbiter->CMD_Goto_DesignObj(0, StringUtils::ltos(DESIGNOBJ_InWhichRoomIsTheSystem_CONST), 
+						"", "", false, false);
+					return true;
+				}
+			}
+		}
+		break;
+
+		case DESIGNOBJ_InWhichRoomIsTheSystem_CONST:
+		{
+			if(pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butTVProvider_CONST)
+			{
+				string sPK_Room = m_pOrbiter->m_mapVariable[VARIABLE_Datagrid_Input_CONST];
+				if(sPK_Room == "")
+					return true;
+
+				m_pWizardLogic->SetRoomForDevice(StringUtils::ltos(m_pOrbiter->m_dwPK_Device), sPK_Room);
+			}
+		}
+		break;
 	}
 
 	return false;

@@ -6,6 +6,7 @@
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_DeviceTemplate.h"
 #include "Gen_Devices/AllCommandsRequests.h"
+#include "PlutoUtils/DatabaseUtils.h"
 
 WizardLogic::WizardLogic(Orbiter *pOrbiter)
 {
@@ -443,3 +444,8 @@ void WizardLogic::SetRoomForDevice(string sPK_Device, string sFK_Room)
 	string sSQL = "UPDATE Device SET FK_Room = " + sFK_Room + " WHERE PK_Device = " + sPK_Device;
 	threaded_mysql_query(sSQL);
 }
+
+int WizardLogic::WhatRoomIsThisDeviceIn(int PK_Device)
+{
+	return GetRoomForDevice(StringUtils::ltos(DatabaseUtils::GetTopMostDevice(this, PK_Device)));
+}	
