@@ -19,7 +19,6 @@ OSDScreenHandler::OSDScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignO
 {
 	m_pWizardLogic = new WizardLogic(pOrbiter);
 	m_dwMessageInterceptorCounter_ReportingChildDevices = 0;
-
 	if(!m_pWizardLogic->Setup())
 	{
 		//do something here; unable to connect to db
@@ -1224,7 +1223,7 @@ bool OSDScreenHandler::VOIP_Provider_ObjectSelected(CallBackData *pData)
 				string sVOIPProvider = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_4_CONST];
 
 				DCE::CMD_PL_Add_VOIP_Account CMD_PL_Add_VOIP_Account_(m_pOrbiter->m_dwPK_Device, 
-					m_pOrbiter->m_dwPK_Device_TelecomPlugIn, sVOIPProvider, sPhoneNumber, sUsername, sPassword);
+					m_pOrbiter->m_dwPK_Device_TelecomPlugIn, sVOIPProvider, sPhoneNumber, sPassword, sUsername);
 				m_pOrbiter->SendCommand(CMD_PL_Add_VOIP_Account_);
 			}
 		}

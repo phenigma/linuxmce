@@ -1103,7 +1103,8 @@ bool Media_Plugin::ReceivedMessage( class Message *pMessage )
 
 		if( !pOH_Orbiter || !pOH_Orbiter->m_pEntertainArea || !pOH_Orbiter->m_pEntertainArea->m_pMediaStream  )
         {
-			if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && (pMessage->m_dwID==COMMAND_Stop_CONST || pMessage->m_dwID==COMMAND_Stop_Media_CONST) )
+			if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND && (pMessage->m_dwID==COMMAND_Stop_CONST || pMessage->m_dwID==COMMAND_Stop_Media_CONST) 
+				&& pMessage->m_mapParameters[COMMANDPARAMETER_Eject_CONST]=="1" )
 			{
 				g_pPlutoLogger->Write(LV_STATUS,"Got a stop with no media.  Will eject 1");
 				DCE::CMD_Eject_Disk_Cat CMD_Eject_Disk_Cat(pMessage->m_dwPK_Device_From,DEVICECATEGORY_Disc_Drives_CONST,true,BL_SameComputer, 0);

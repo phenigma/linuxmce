@@ -42,6 +42,18 @@ string DatabaseUtils::HumanReadablePort(MySqlHelper *pMySqlHelper,int PK_Device,
 	return sPort;
 }
 
+int DatabaseUtils::GetTopMostDevice(MySqlHelper *pMySqlHelper,int PK_Device)
+{
+	string sSQL = "SELECT FK_Device_ControlledVia FROM Device WHERE PK_Device=" + StringUtils::itos(PK_Device);
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	if( ( result.r=pMySqlHelper->mysql_query_result( sSQL ) ) && ( row=mysql_fetch_row( result.r ) ) && row[0] && atoi(row[0]) )
+		return GetTopMostDevice(pMySqlHelper,atoi(row[0]));
+	else
+		return PK_Device;
+}
+
+
 void DatabaseUtils::GetUnusedPortsOnAllPCs(MySqlHelper *pMySqlHelper,vector< pair<int,string> > &vectAllPorts, 
 										   long nFK_Installation/*=0*/)
 {

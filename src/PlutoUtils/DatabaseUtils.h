@@ -22,6 +22,7 @@ using namespace std;
 
 namespace DatabaseUtils
 {
+	int GetTopMostDevice(MySqlHelper *pMySqlHelper,int PK_Device);
 	string HumanReadablePort(MySqlHelper *pMySqlHelper,int PK_Device,string sPort);
 	void GetUnusedPortsOnPC(MySqlHelper *pMySqlHelper,int PK_Device,vector<string> &vectPorts);
 	void GetUnusedPortsOnAllPCs(MySqlHelper *pMySqlHelper,vector< pair<int,string> > &vectAllPorts, long nFK_Installation = 0);
