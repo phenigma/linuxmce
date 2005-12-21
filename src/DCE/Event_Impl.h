@@ -95,13 +95,8 @@ namespace DCE
 		 * @brief gets the specified parameter from the specified device and returns it's value in the sResult parameter
 		 * @warning not implemented here
 		 */
-		bool GetParameter( unsigned long dwToDevice, unsigned long dwParmType, string &sResult );
-		
-		/**
-		 * @brief gets the specified parameter default value from the specified device and returns it in the sResult parameter
-		 * @warning not implemented here
-		 */
-		bool GetInitialParameter( unsigned long dwToDevice, unsigned long dwParmType, string &sResult );
+		string GetCurrentDeviceData( int PK_Device, int PK_DeviceData );  // Get it from the device itself
+		string GetDeviceDataFromDatabase( int PK_Device, int PK_DeviceData );  // Get the latest value from the router
 
 		/**
 		 * @brief should create a new Event_Impl object based on the parameters

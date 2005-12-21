@@ -35,12 +35,10 @@ namespace DCE
 	 */
 	class Command_Impl : public HandleRequestSocket
 	{
-	
 	private:
 	
 		list<Message *> m_listMessageQueue;  /** < there are two ways of sending a message: realtime and queued (in a sepparted thread); this is the queue of messages */
 		vector<string> m_vectSpawnedDevices;  /** < Keep track of all the devices we spawned so we can kill them on create */
-
 	public:
 	
 		Command_Impl *m_pParent; /** < if the command was created as an embedded command, keep a pointer to it's parent */
@@ -379,7 +377,7 @@ namespace DCE
 		/**
 		 * @brief Gets the current value of a given device data directly from the device
 		 */
-		string GetCurrentDeviceData( int PK_Device, int PK_DeviceData );
+		string GetCurrentDeviceData( int PK_Device, int PK_DeviceData ) { return m_pEvent->GetCurrentDeviceData(PK_Device,PK_DeviceData); }
 
 		/**
 		 * @brief Sends a message to DCERouter to set the device data for the given device

@@ -8073,6 +8073,9 @@ void Orbiter::CMD_Set_Current_Room(int iPK_Room,string &sCMD_Result,Message *pMe
 void Orbiter::CMD_Send_Message(string sText,bool bGo_Back,string &sCMD_Result,Message *pMessage)
 //<-dceag-c389-e->
 {
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter::CMD_Send_Message %s",sText.c_str());
+#endif
 	bool bContainsGoto=false;
 	string sMessage = SubstituteVariables(sText,NULL,0,0);
 

@@ -947,17 +947,6 @@ bool Command_Impl::SetStatus( string sStatus, int dwPK_Device )
 	return m_pcRequestSocket->m_pClientSocket->SendString("SET_STATUS " + StringUtils::itos( dwPK_Device ? dwPK_Device : m_dwPK_Device ) + " " + sStatus );
 }
 
-string Command_Impl::GetCurrentDeviceData( int PK_Device, int PK_DeviceData )
-{
-	Message *pMessage = new Message(m_dwPK_Device,PK_Device,PRIORITY_NORMAL,MESSAGETYPE_DATAPARM_REQUEST,PK_DeviceData,0);
-	Message *pResponse = m_pEvent->SendReceiveMessage(pMessage);
-
-	if( pResponse )
-		return pResponse->m_mapParameters[PK_DeviceData];
-	
-	return "";
-}
-
 void Command_Impl::SetDeviceDataInDB(int PK_Device,int PK_DeviceData,string Value)
 {
 	Message *pMessage = new Message(PK_Device,DEVICEID_DCEROUTER,PRIORITY_NORMAL,MESSAGETYPE_DATAPARM_CHANGE,0,1,PK_DeviceData,Value.c_str());

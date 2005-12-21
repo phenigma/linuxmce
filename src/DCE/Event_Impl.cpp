@@ -30,6 +30,7 @@
 #include "Event_Impl.h"
 #include "DCE/Logger.h"
 #include "Message.h"
+#include "pluto_main/Define_CommandParameter.h"
 
 using namespace DCE;
 
@@ -132,4 +133,27 @@ char *Event_Impl::GetDeviceList( /*unsigned long*/ int &dwSize )
 		return pcBuff;
 	}
 	return NULL;
+}
+
+string Event_Impl::GetCurrentDeviceData( int PK_Device, int PK_DeviceData )
+{
+	Message *pMessage = new Message(m_dwPK_Device,PK_Device,PRIORITY_NORMAL,MESSAGETYPE_DATAPARM_REQUEST,PK_DeviceData,0);
+	Message *pResponse = SendReceiveMessage(pMessage);
+
+	if( pResponse )
+		return pResponse->m_mapParameters[PK_DeviceData];
+	
+	return "";
+}
+
+string Event_Impl::GetDeviceDataFromDatabase( int PK_Device, int PK_DeviceData )
+{
+	Message *pMessage = new Message(m_dwPK_Device,DEVICEID_DCEROUTER,PRIORITY_NORMAL,MESSAGETYPE_DATAPARM_REQUEST,PK_DeviceData,1,
+		COMMANDPARAMETER_PK_Device_CONST,StringUtils::itos(PK_Device).c_str());
+	Message *pResponse = SendReceiveMessage(pMessage);
+
+	if( pResponse )
+		return pResponse->m_mapParameters[PK_DeviceData];
+	
+	return "";
 }

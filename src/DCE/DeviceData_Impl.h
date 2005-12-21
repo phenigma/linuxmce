@@ -37,7 +37,7 @@ namespace DCE
         string m_mapParameters_Find(int PK_DeviceData) { map<int, string>::iterator it = m_mapParameters.find(PK_DeviceData); return it==m_mapParameters.end() ? "" : (*it).second; }
 		
 		VectDeviceData_Impl m_vectDeviceData_Impl_Children; /** < vector containing the child devices  */
-		bool m_bUsePingToKeepAlive;
+		bool m_bUsePingToKeepAlive,m_bRunningWithoutDeviceData;
 	
 		/** @todo check comment */	
 		/*
@@ -69,6 +69,7 @@ namespace DCE
 		 */
 		DeviceData_Impl() 
 		{
+			m_bRunningWithoutDeviceData=false;
 			m_bUsePingToKeepAlive=false;
 			m_bDeviceData_Impl = true;
 		}
@@ -82,6 +83,7 @@ namespace DCE
 			: DeviceData_Base( dwPK_Device, dwPK_Installation, dwPK_Device_Template, dwPK_Device_Controlled_Via, m_dwPK_DeviceCategory, dwPK_Room,
 			bImplementsDCE, bIsEmbedded, sCommandLine, bIsPlugIn, sDescription, sIPAddress, sMacAddress, bInheritsMacFromPC )
 		{
+			m_bRunningWithoutDeviceData=false;
 			m_bUsePingToKeepAlive=false;
 			m_bDeviceData_Impl = true;
 		}

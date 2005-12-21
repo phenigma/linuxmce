@@ -974,11 +974,10 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 					slCore.m_bReleased=true; // So it never gets released
 				}
 				break;
-
 			}
             return;
         }
-        else if( (*SafetyMessage)->m_dwMessage_Type == MESSAGETYPE_LOG )
+        else if( (*SafetyMessage)->m_dwMessage_Type == MESSAGETYPE_LOG && (*SafetyMessage)->m_mapData_Lengths.size() )
         {
             Logger::Entry e;
             e.SerializeRead( (*SafetyMessage)->m_mapData_Lengths[0], (*SafetyMessage)->m_mapData_Parameters[0] );
@@ -989,6 +988,27 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 			map<long, string>::iterator p = (*SafetyMessage)->m_mapParameters.begin();
 			if ( p != (*SafetyMessage)->m_mapParameters.end() )
 				SetDeviceDataInDB((*SafetyMessage)->m_dwPK_Device_From,p->first,p->second,true);
+		}
+		else if ( (*SafetyMessage)->m_dwMessage_Type == MESSAGETYPE_DATAPARM_REQUEST )
+		{
+			map<long, string>::iterator p = (*SafetyMessage)->m_mapParameters.begin();
+			if ( p != (*SafetyMessage)->m_mapParameters.end() )
+			{
+				int PK_Device = atoi(p->second.c_str());
+				Row_Device_DeviceData *pRow_Device_DeviceData = 
+					m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(PK_Device,(*SafetyMessage)->m_dwID);
+				if( pRow_Device_DeviceData )
+				{
+					pRow_Device_DeviceData->Reload();
+					pSocket->SendMessage(new Message(m_dwPK_Device, (*SafetyMessage)->m_dwPK_Device_From, PRIORITY_NORMAL, MESSAGETYPE_REPLY, 0, 1, (*SafetyMessage)->m_dwID, pRow_Device_DeviceData->IK_DeviceData_get().c_str()));
+					(*SafetyMessage)->m_bRespondedToMessage=true;
+				}
+			}
+			if( !(*SafetyMessage)->m_bRespondedToMessage )
+			{
+				pSocket->SendMessage(new Message(m_dwPK_Device, (*SafetyMessage)->m_dwPK_Device_From, PRIORITY_NORMAL, MESSAGETYPE_REPLY, 0, 1, (*SafetyMessage)->m_dwID, "ERR Parameter not found"));
+				(*SafetyMessage)->m_bRespondedToMessage=true;
+			}
 		}
         else if ((*SafetyMessage)->m_dwMessage_Type == MESSAGETYPE_START_PING)
         {

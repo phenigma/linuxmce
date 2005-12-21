@@ -27,26 +27,6 @@ if [ $hasRecords -ne 0 ]; then
 	SkipDatabase="yes"
 fi
 
-# Temporary code to remove everything related to Mozilla_Plugin
-RunSQL "DELETE FROM Device where FK_DeviceTemplate=30" # We got rid of Mozilla Plugin
-rm -f /usr/pluto/bin/Mozilla_Plugin.so
-#apt-get -y remove pluto-mozilla-plugin pluto-src-mozilla-plugin || true
-
-# Temporary code since we changed the way these scenarios are created
-RunSQL "DELETE FROM CommandGroup where FK_Template in (1,2,3,4,5,6,7,8,13,14,16,17,18)"
-
-# If any PC's are missing app servers, add them.  There was a bug in .29 that it didn't have app servers
-Q="SELECT PC.PK_Device FROM Device AS PC
-JOIN DeviceTemplate AS PCDT ON PC.FK_DeviceTemplate=PCDT.PK_DeviceTemplate
-LEFT JOIN Device AS APP ON APP.FK_Device_ControlledVia=PC.PK_Device AND APP.FK_DeviceTemplate=26
-WHERE PCDT.FK_DeviceCategory IN (6,7,8) AND APP.PK_Device IS NULL"
-
-PCS=$(RunSQL "$Q")
-
-for PCDev in $PCS; do
-	/usr/pluto/bin/CreateDevice -d 26 -C $PCDev 
-done
-
 /usr/pluto/bin/SetupUsers.sh
 /usr/pluto/bin/Update_StartupScrips.sh
 
