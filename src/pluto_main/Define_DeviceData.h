@@ -116,6 +116,7 @@
 #define DEVICEDATA_PK_Screen_CONST 132
 #define DEVICEDATA_Available_Serial_Ports_CONST 133
 #define DEVICEDATA_Use_Automatically_CONST 134
+#define DEVICEDATA_Zones_CONST 135
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"

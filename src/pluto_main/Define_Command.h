@@ -689,7 +689,6 @@
 #define COMMAND_Cancel_Pending_Task_CONST 743
 #define COMMAND_Set_User_Mode_CONST 744
 #define COMMAND_Disarm_panel_CONST 746
-#define COMMAND_StatusReport_CONST 749
 #define COMMAND_PL_Add_VOIP_Account_CONST 751
 #define COMMAND_Check_Mounts_CONST 752
 #define COMMAND_Report_Child_Devices_CONST 756
