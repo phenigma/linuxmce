@@ -1593,8 +1593,10 @@ function getInstallWizardDeviceTemplates($step,$dbADO,$device='',$distro=0,$oper
 		// check if the device actually exist to display actual entries
 		if($device!=''){
 			if($device!=@$_SESSION['CoreDCERouter']){
-				$queryDevice='SELECT * FROM Device WHERE FK_DeviceTemplate=? AND FK_Device_ControlledVia=?';
-				$resDevice=$dbADO->Execute($queryDevice,array($row['FK_DeviceTemplate'],$device));
+				$orbiterMDChild=getMediaDirectorOrbiterChild($device,$dbADO);
+				
+				$queryDevice='SELECT * FROM Device WHERE FK_DeviceTemplate=? AND FK_Device_ControlledVia IN (?,?)';
+				$resDevice=$dbADO->Execute($queryDevice,array($row['FK_DeviceTemplate'],$device,$orbiterMDChild));
 			}else{
 				// if device is DCE Router, check also childs of Core
 				$queryDevice='SELECT * FROM Device WHERE FK_DeviceTemplate=? AND (FK_Device_ControlledVia=? OR FK_Device_ControlledVia=?)';

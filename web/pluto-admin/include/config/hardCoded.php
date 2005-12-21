@@ -43,6 +43,7 @@
 	$GLOBALS['deviceTemplateOrbiter']=8;		// Orbiter
 	$GLOBALS['OrbiterPlugIn'] = 12; 			// Orbiter Plug In
 	$GLOBALS['XinePlayer'] = 5; 				// Xine Player
+	$GLOBALS['BluetoothDongle'] = 13; 			// BluetoothDongle
 	$GLOBALS['rootMediaDirectorsID'] = 28; 		// Media Directors
 	$GLOBALS['SecurityPlugin'] = 33;	 		// Security plugin
 	$GLOBALS['TelecomPlugin'] = 34;	 			// Telecom plugin

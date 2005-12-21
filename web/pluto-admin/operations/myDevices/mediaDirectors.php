@@ -328,7 +328,7 @@ function mediaDirectors($output,$dbADO) {
 	
 						$out.='
 							<tr>
-								<td colspan="8">'.getInstallWizardDeviceTemplates(6,$dbADO,$orbiterMDChild,$GLOBALS['mdDistro'],1).'<br>'.displayRemotes($rowD['PK_Device'],$dbADO,'mediaDirectors').'<br>'.displayReceivers($rowD['PK_Device'],$dbADO).'<br><input type="button" class="button" name="editCA_" value="Edit Computing Applications" onclick="windowOpen(\'index.php?section=editComputingApplications&mdID='.$rowD['PK_Device'].'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\')"><hr></td>
+								<td colspan="8">'.getInstallWizardDeviceTemplates(6,$dbADO,$rowD['PK_Device'],$GLOBALS['mdDistro'],1).'<br>'.displayRemotes($rowD['PK_Device'],$dbADO,'mediaDirectors').'<br>'.displayReceivers($rowD['PK_Device'],$dbADO).'<br><input type="button" class="button" name="editCA_" value="Edit Computing Applications" onclick="windowOpen(\'index.php?section=editComputingApplications&mdID='.$rowD['PK_Device'].'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\')"><hr></td>
 							</tr>';
 						$setupDisklessMD=' <input type="button" class="button" name="setupDisklessMD" value="Setup Diskless Media Directors *" onClick="self.location=\'index.php?section=setupDisklessMD\';">';
 						$setupDisklessMDInfo='* When you add a new diskless M/D, you must first click this button, wait for the setup process to complete, then do a ‘quick reload router’, and then you can bootup your new diskless media director.';
@@ -448,15 +448,18 @@ function mediaDirectors($output,$dbADO) {
 					}
 					
 					$orbiterMDChild=getMediaDirectorOrbiterChild($value,$dbADO);
-					$installOptionsArray=explode(',',@$_POST['displayedTemplatesRequired_'.$orbiterMDChild]);
+					$installOptionsArray=explode(',',@$_POST['displayedTemplatesRequired_'.$value]);
 					foreach($installOptionsArray AS $elem){
-						$oldDevice=@$_POST['oldDevice_'.$orbiterMDChild.'_requiredTemplate_'.$elem];
-						$optionalDevice=(isset($_POST['device_'.$orbiterMDChild.'_requiredTemplate_'.$elem]))?$_POST['device_'.$orbiterMDChild.'_requiredTemplate_'.$elem]:0;
+						$oldDevice=@$_POST['oldDevice_'.$value.'_requiredTemplate_'.$elem];
+						$optionalDevice=(isset($_POST['device_'.$value.'_requiredTemplate_'.$elem]))?$_POST['device_'.$value.'_requiredTemplate_'.$elem]:0;
 						if($optionalDevice!=0){
 							$OptionalDeviceName=cleanString(@$_POST['templateName_'.$elem]);
-
 							if($oldDevice==''){
-								$insertID=exec('sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$elem.' -i '.$installationID.' -C '.$orbiterMDChild);
+								// hard-coded: for BlueTooth dongle I create the device as child of media director instead of osd
+								$parent=($elem==$GLOBALS['BluetoothDongle'])?$value:$orbiterMDChild;
+								$cmd='sudo -u root /usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$elem.' -i '.$installationID.' -C '.$parent;
+
+								$insertID=exec($cmd);
 								$dbADO->Execute('UPDATE Device SET Description=?,FK_Room=? WHERE PK_Device=?',array($OptionalDeviceName,$room,$insertID));
 							}
 						}else{
