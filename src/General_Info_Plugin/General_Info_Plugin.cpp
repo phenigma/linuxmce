@@ -1543,6 +1543,7 @@ bool General_Info_Plugin::NewMacAddress( class Socket *pSocket, class Message *p
 	if( sMacAddress.size()<11 || sIPAddress.size()<7 )
 		return false; // invalid mac address or IP Address
 
+	// these queries don't work on multi-installation databases (like that on 150)
 	vector<Row_UnknownDevices *> vectRow_UnknownDevices;
 	m_pDatabase_pluto_main->UnknownDevices_get()->GetRows("MacAddress like '%" + sMacAddress + "%'",&vectRow_UnknownDevices);
 	if( vectRow_UnknownDevices.size() )
@@ -1719,12 +1720,23 @@ void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,strin
 			}
 		}
 	
-		int iPK_Device = mapit->second.first;
+		int iPK_Device; // filled in by CMD_Create_Device
 		int iPK_Device_Related = 0;
 		for (size_t i = 0; i < vectWeb_DeviceData.size(); i++)
 		{
 			Web_DeviceData &WDD = vectWeb_DeviceData[i];
 
+			bool bSeparator = false;
+			for (map<int, string>::iterator it = WDD.m_mapDeviceData.begin(); it != WDD.m_mapDeviceData.end(); it++)
+			{
+				if (bSeparator)
+					sData += "|";
+				sData += it->first + "|" + it->second;
+			}
+			
+			CMD_Create_Device(WDD.m_iPK_DeviceTemplate, sMac_address, i == 0 ? -1 : 0 /* only prompt the user for the room for the 1st device */,
+				sIP_Address, sData, 0, 0, pMessage->m_dwPK_Device_From, iPK_Device_Related, &iPK_Device); // <-- here's where iPK_Device is being set
+			
 			if (i == 0) // 1st device is our PNP device, and all the others will be related to it
 			{
 				g_pPlutoLogger->Write(LV_STATUS, "Created PNP device %d from MAC %s", iPK_Device, sMac_address.c_str());
@@ -1735,22 +1747,11 @@ void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,strin
 				g_pPlutoLogger->Write(LV_STATUS, "Created device %d, related to PNP device %d", iPK_Device, iPK_Device_Related);
 			}
 
-			bool bSeparator = false;
 			if (sData.size() > 0)
 			{
 				sData += "|";
 				bSeparator = true;
 			}
-			
-			for (map<int, string>::iterator it = WDD.m_mapDeviceData.begin(); it != WDD.m_mapDeviceData.end(); it++)
-			{
-				if (bSeparator)
-					sData += "|";
-				sData += it->first + "|" + it->second;
-			}
-			
-			CMD_Create_Device(0,sMac_address,i==0 ? -1 : 0 /* only prompt the user for the room for the 1st device */,
-				sIP_Address,sData,iPK_DHCPDevice,0,pMessage->m_dwPK_Device_From,iPK_Device_Related,&iPK_Device);
 		}
 		iPK_Device = iPK_Device_Related; // for the Orbiter to display when it asks the user to select a room
 	}
