@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
 
 	int iPK_DeviceTemplate=0,iPK_DHCPDevice=0,iPK_Device_Controlled_Via=0,iPK_Device_RelatedTo=0;
 	string sIPAddress,sMacAddress,sDeviceData;
-	bool bDontCallConfigureScript=false;
+	bool bDontCallConfigureScript=false,bDontInstallPackages=false,bInstallPackagesInBackground=false;
 
 	bool bError=false;
 	char c;
@@ -92,6 +92,12 @@ int main(int argc, char *argv[])
 		case 'R':
 			iPK_Device_RelatedTo = atoi(argv[++optnum]);
 			break;
+		case 'x':
+			bDontInstallPackages = true;
+			break;
+		case 'b':
+			bInstallPackagesInBackground = true;
+			break;
 		default:
 			cout << "Unknown: " << argv[optnum] << endl;
 			bError=true;
@@ -107,6 +113,8 @@ int main(int argc, char *argv[])
 			<< "[-C PK_Device_Controlled_Via] [-n don't call configure script]" << endl
 			<< "[-A Default Device data tab delimited as PK_DeviceData\tValue\t...]" << endl
 			<< "[-R PK_Device (if there are multiple possible controlled Via's)]" << endl
+			<< "[-x don't call InstallNewDevice to add packages]" << endl
+			<< "[-b Install packages in background]" << endl
 			<< "hostname    -- address or DNS of database host, default is `dce_router`" << endl
 			<< "username    -- username for database connection" << endl
 			<< "password    -- password for database connection, default is `` (empty)" << endl
@@ -121,7 +129,9 @@ int main(int argc, char *argv[])
 	g_pPlutoLogger->Write(LV_STATUS,"Called with: %s",args.c_str());
 
 	CreateDevice createDevice(dceConfig.m_iPK_Installation,dceConfig.m_sDBHost,dceConfig.m_sDBUser,dceConfig.m_sDBPassword,dceConfig.m_sDBName,dceConfig.m_iDBPort);
+	createDevice.m_bDontInstallPackages=bDontInstallPackages;
 	createDevice.m_bDontCallConfigureScript=bDontCallConfigureScript;
+	createDevice.m_bInstallPackagesInBackground=bInstallPackagesInBackground;
 
 	int PK_Device=createDevice.DoIt(iPK_DHCPDevice,iPK_DeviceTemplate,sIPAddress,sMacAddress,iPK_Device_Controlled_Via,sDeviceData,iPK_Device_RelatedTo);
 	if( PK_Device==0 )

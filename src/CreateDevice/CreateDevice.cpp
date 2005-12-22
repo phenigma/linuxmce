@@ -115,20 +115,31 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 	g_pPlutoLogger->Write(LV_STATUS,"Inserted device: %d Package: %d installation: %d configure: %d",
 		PK_Device,iPK_Package,m_iPK_Installation,(int) m_bDontCallConfigureScript);
 
-	if( iPK_Package )
+	if( iPK_Package && !m_bDontInstallPackages )
 	{
 		SQL = "SELECT Name FROM Package_Source JOIN RepositorySource ON FK_RepositorySource=PK_RepositorySource WHERE FK_RepositoryType=1 and FK_Package=" + StringUtils::itos(iPK_Package);
 		PlutoSqlResult result;
 		if( ( result.r=mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
 		{
-			ProcessUtils::SpawnApplication("/usr/pluto/bin/InstallNewDevice.sh",
-				StringUtils::itos(PK_Device) + "\t" + (row[0] ? row[0] : "") + "\t","newdevice");
-			g_pPlutoLogger->Write(LV_STATUS,"Executing /usr/pluto/bin/InstallNewDevice.sh %d %s",
-				PK_Device,(row[0] ? row[0] : ""));
+			if( m_bInstallPackagesInBackground )
+			{
+				ProcessUtils::SpawnApplication("/usr/pluto/bin/InstallNewDevice.sh",
+					StringUtils::itos(PK_Device) + "\t" + (row[0] ? row[0] : "") + "\t","newdevice");
+				g_pPlutoLogger->Write(LV_STATUS,"Executing /usr/pluto/bin/InstallNewDevice.sh %d %s",
+					PK_Device,(row[0] ? row[0] : ""));
+			}
+			else
+			{
+				string sCmd = "/usr/pluto/bin/InstallNewDevice.sh " + StringUtils::itos(PK_Device) + " \"" + row[0] + "\"";
+				g_pPlutoLogger->Write(LV_STATUS,"Executing %s",sCmd.c_str());
+				system(sCmd.c_str());
+			}
 		}
 		else
 			g_pPlutoLogger->Write(LV_CRITICAL,"No installation info for package %d",iPK_Package);
 	}
+	else
+		g_pPlutoLogger->Write(LV_STATUS,"Not installing package %d",iPK_Package);
 
 	bool bIsOrbiter=false;
 	// Loop through all the categories

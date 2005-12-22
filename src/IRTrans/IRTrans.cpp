@@ -272,7 +272,8 @@ void IRTrans::CMD_Set_Screen_Type(int iValue,string &sCMD_Result,Message *pMessa
 
 void IRTrans::StartIRServer()
 {
-	g_pPlutoLogger->Write(LV_STATUS,"In start IR Server %s",DATA_Get_COM_Port_on_PC().c_str());
+	string sComPortOnPC = DATA_Get_COM_Port_on_PC();
+	g_pPlutoLogger->Write(LV_STATUS,"In start IR Server %s",sComPortOnPC.c_str());
 
 #ifndef WIN32
 	CallBackFn=&DoGotIRCommand;
@@ -281,11 +282,11 @@ void IRTrans::StartIRServer()
 
 	char TTYPort[255];
 	TTYPort[0]=0;
-	if( DATA_Get_COM_Port_on_PC().size() && DATA_Get_COM_Port_on_PC().size()<255 )
+	if( sComPortOnPC.size() && sComPortOnPC.size()<255 )
 #ifndef WIN32
-		strcpy(TTYPort,TranslateSerialUSB(DATA_Get_COM_Port_on_PC()).c_str());
+		strcpy(TTYPort,TranslateSerialUSB(sComPortOnPC).c_str());
 #else
-		strcpy(TTYPort,DATA_Get_COM_Port_on_PC().c_str());
+		strcpy(TTYPort,sComPortOnPC.c_str());
 #endif
 
 	bool bLoaded = false;

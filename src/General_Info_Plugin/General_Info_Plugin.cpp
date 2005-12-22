@@ -379,7 +379,6 @@ void General_Info_Plugin::CMD_Request_File_And_Checksum(string sFilename,char **
 void General_Info_Plugin::CMD_Set_Device_Data(int iPK_Device,string sValue_To_Assign,int iPK_DeviceData,string &sCMD_Result,Message *pMessage)
 //<-dceag-c246-e->
 {
-	DatabaseUtils::SetDeviceData(m_pDatabase_pluto_main, iPK_Device, iPK_DeviceData, sValue_To_Assign);
 }
 
 //<-dceag-c247-b->
@@ -1543,7 +1542,6 @@ bool General_Info_Plugin::NewMacAddress( class Socket *pSocket, class Message *p
 	if( sMacAddress.size()<11 || sIPAddress.size()<7 )
 		return false; // invalid mac address or IP Address
 
-	// these queries don't work on multi-installation databases (like that on 150)
 	vector<Row_UnknownDevices *> vectRow_UnknownDevices;
 	m_pDatabase_pluto_main->UnknownDevices_get()->GetRows("MacAddress like '%" + sMacAddress + "%'",&vectRow_UnknownDevices);
 	if( vectRow_UnknownDevices.size() )
@@ -1661,82 +1659,71 @@ void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,strin
 
 	vector<Web_DeviceData> vectWeb_DeviceData;
 
-	if (iPK_DHCPDevice < 0)
+	mapMacPKDescription::iterator mapit;
+	if (m_mapMacPKDescription.size() != 0 && (mapit = m_mapMacPKDescription.find(sMac_address)) != m_mapMacPKDescription.end())
 	{
-		mapMacPKDescription::iterator mapit;
-		if (m_mapMacPKDescription.size() != 0 && (mapit = m_mapMacPKDescription.find(sMac_address)) != m_mapMacPKDescription.end())
+		Web_DHCP_Query Web_Query(sURL_Base);
+		Web_DHCP_Query_Params Web_Params;
+		Web_DHCP_Query_Result Web_Result;
+
+		Web_Params["MAC"] = sMac_address;
+		Web_Params["PK"] = StringUtils::itos(mapit->second.first); // PK_Web
+		Web_Query.Query(Web_Params, Web_Result);
+
+		if (Web_Result.size() == 0 || Web_Result[0].size() == 0)
 		{
-			Web_DHCP_Query Web_Query(sURL_Base);
-			Web_DHCP_Query_Params Web_Params;
-			Web_DHCP_Query_Result Web_Result;
-
-			Web_Params["MAC"] = sMac_address;
-			Web_Params["PK"] = StringUtils::itos(mapit->second.first); // PK_Web
-			Web_Query.Query(Web_Params, Web_Result);
-
-			if (Web_Result.size() == 0 || Web_Result[0].size() == 0)
-			{
-				g_pPlutoLogger->Write(LV_WARNING, "Empty result from web query");
-			}
-			else if (Web_Result[0][0] == "FAIL")
-			{
-				if (Web_Result[0].size() >= 2)
-					g_pPlutoLogger->Write(LV_WARNING, "Query failed. Server said: %s", Web_Result[1][1].c_str());
-				else
-					g_pPlutoLogger->Write(LV_WARNING, "Query failed. Server didn't return reason message.");
-			}
-			else if (Web_Result.size() < 2)
-			{
-				g_pPlutoLogger->Write(LV_WARNING, "Server said it has data, but returned 0 records");
-			}
+			g_pPlutoLogger->Write(LV_WARNING, "Empty result from web query");
+		}
+		else if (Web_Result[0][0] == "FAIL")
+		{
+			if (Web_Result[0].size() >= 2)
+				g_pPlutoLogger->Write(LV_WARNING, "Query failed. Server said: %s", Web_Result[1][1].c_str());
 			else
+				g_pPlutoLogger->Write(LV_WARNING, "Query failed. Server didn't return reason message.");
+		}
+		else if (Web_Result.size() < 2)
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "Server said it has data, but returned 0 records");
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "Query succeeded");
+			
+			for (int i = 1; i < Web_Result.size(); i++)
 			{
-				g_pPlutoLogger->Write(LV_STATUS, "Query succeeded");
-				
-				for (int i = 1; i < Web_Result.size(); i++)
+				if (Web_Result[i].size() % 2 != 0)
 				{
-					if (Web_Result[i].size() % 2 != 0)
-					{
-						string sMsg;
-						for (int k = 0; k < Web_Result[i].size(); k++)
-							sMsg += Web_Result[i][k] + ", ";
-						g_pPlutoLogger->Write(LV_WARNING, "Received incomplete parameters on line %d (%d): %s", i + 1, Web_Result[i].size(), sMsg.c_str());
-						continue;
-					}
-					
-					Web_DeviceData localWeb_DeviceData;
-					localWeb_DeviceData.m_iPK_DeviceTemplate = atoi(Web_Result[i][0].c_str());
-					localWeb_DeviceData.m_sMacAddress = Web_Result[i][1];
-
-					for (int j = 2; j < Web_Result[i].size(); j++)
-					{
-						int iPK_DeviceData = atoi(Web_Result[i][j].c_str());
-						string sDeviceData = Web_Result[i][j];
-						localWeb_DeviceData.m_mapDeviceData[iPK_DeviceData] = sDeviceData;
-					}
-					
-					vectWeb_DeviceData.push_back(localWeb_DeviceData);
+					string sMsg;
+					for (int k = 0; k < Web_Result[i].size(); k++)
+						sMsg += Web_Result[i][k] + ", ";
+					g_pPlutoLogger->Write(LV_WARNING, "Received incomplete parameters on line %d (%d): %s", i + 1, Web_Result[i].size(), sMsg.c_str());
+					continue;
 				}
+				
+				Web_DeviceData localWeb_DeviceData;
+				localWeb_DeviceData.m_iPK_DeviceTemplate = atoi(Web_Result[i][0].c_str());
+				localWeb_DeviceData.m_sMacAddress = Web_Result[i][1];
+
+				for (int j = 2; j < Web_Result[i].size(); j++)
+				{
+					int iPK_DeviceData = atoi(Web_Result[i][j].c_str());
+					string sDeviceData = Web_Result[i][j];
+					localWeb_DeviceData.m_mapDeviceData[iPK_DeviceData] = sDeviceData;
+				}
+				
+				vectWeb_DeviceData.push_back(localWeb_DeviceData);
 			}
 		}
+	}
 	
-		int iPK_Device; // filled in by CMD_Create_Device
+	int iPK_Device;
+	if (iPK_DHCPDevice < 0)
+	{
 		int iPK_Device_Related = 0;
 		for (size_t i = 0; i < vectWeb_DeviceData.size(); i++)
 		{
 			Web_DeviceData &WDD = vectWeb_DeviceData[i];
 
-			bool bSeparator = false;
-			for (map<int, string>::iterator it = WDD.m_mapDeviceData.begin(); it != WDD.m_mapDeviceData.end(); it++)
-			{
-				if (bSeparator)
-					sData += "|";
-				sData += it->first + "|" + it->second;
-			}
-			
-			CMD_Create_Device(WDD.m_iPK_DeviceTemplate, sMac_address, i == 0 ? -1 : 0 /* only prompt the user for the room for the 1st device */,
-				sIP_Address, sData, 0, 0, pMessage->m_dwPK_Device_From, iPK_Device_Related, &iPK_Device); // <-- here's where iPK_Device is being set
-			
 			if (i == 0) // 1st device is our PNP device, and all the others will be related to it
 			{
 				g_pPlutoLogger->Write(LV_STATUS, "Created PNP device %d from MAC %s", iPK_Device, sMac_address.c_str());
@@ -1747,11 +1734,22 @@ void General_Info_Plugin::CMD_New_Plug_and_Play_Device(string sMac_address,strin
 				g_pPlutoLogger->Write(LV_STATUS, "Created device %d, related to PNP device %d", iPK_Device, iPK_Device_Related);
 			}
 
+			bool bSeparator = false;
 			if (sData.size() > 0)
 			{
 				sData += "|";
 				bSeparator = true;
 			}
+			
+			for (map<int, string>::iterator it = WDD.m_mapDeviceData.begin(); it != WDD.m_mapDeviceData.end(); it++)
+			{
+				if (bSeparator)
+					sData += "|";
+				sData += it->first + "|" + it->second;
+			}
+			
+			CMD_Create_Device(0,sMac_address,i==0 ? -1 : 0 /* only prompt the user for the room for the 1st device */,
+				sIP_Address,sData,iPK_DHCPDevice,0,pMessage->m_dwPK_Device_From,iPK_Device_Related,&iPK_Device);
 		}
 		iPK_Device = iPK_Device_Related; // for the Orbiter to display when it asks the user to select a room
 	}
@@ -1822,6 +1820,7 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 	}
 
 	CreateDevice createDevice(m_pRouter->iPK_Installation_get(),m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),m_pRouter->sDBName_get(),m_pRouter->iDBPort_get());
+	createDevice.m_bInstallPackagesInBackground = true;
 	*iPK_Device = createDevice.DoIt(iPK_DHCPDevice,iPK_DeviceTemplate,sIP_Address,sMac_address,iPK_Device_ControlledVia,sData,iPK_Device_Related);
 
 #ifdef DEBUG
