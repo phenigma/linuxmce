@@ -454,7 +454,7 @@ bool OSDScreenHandler::TV_Manufacturer_GridSelected(CallBackData *pData)
 
 		m_pWizardLogic->DeleteDevicesInThisRoomOfType(DEVICECATEGORY_TVsPlasmasLCDsProjectors_CONST);
 		m_pWizardLogic->m_nPK_Device_TV = m_pWizardLogic->AddDevice(atoi(sModel.c_str()),
-			StringUtils::itos(DEVICEDATA_COM_Port_on_PC_CONST) + "|" + pCellInfoData->m_sValue,
+			StringUtils::itos(DEVICEDATA_COM_Port_on_PC_CONST) + "|" + sPort,
 			iPK_Device_ControlledVia);
 		m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(DESIGNOBJ_DirectToTV_CONST),"","",true,false);
 		return true;
@@ -571,7 +571,7 @@ bool OSDScreenHandler::Receiver_GridSelected(CallBackData *pData)
 		// Delete receivers first since maybe the user is returning to this wizard
 		m_pWizardLogic->DeleteDevicesInThisRoomOfType(DEVICECATEGORY_AmpsPreampsReceiversTuners_CONST);
 		m_pWizardLogic->m_nPK_Device_TV = m_pWizardLogic->AddDevice(atoi(sModel.c_str()),
-			StringUtils::itos(DEVICEDATA_COM_Port_on_PC_CONST) + "|" + pCellInfoData->m_sValue,
+			StringUtils::itos(DEVICEDATA_COM_Port_on_PC_CONST) + "|" + sPort,
 			iPK_Device_ControlledVia);
 
 		m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(DESIGNOBJ_ReceiverInputs_CONST),"","",true,false);
@@ -1107,7 +1107,7 @@ bool OSDScreenHandler::AlarmPanel_OnTimer(CallBackData *pData)
 		DCE::CMD_Report_Child_Devices CMD_Report_Child_Devices_(m_pOrbiter->m_dwPK_Device, 
 			m_pWizardLogic->m_nPK_Device_AlarmPanel);
 
-		if(m_pOrbiter->SendCommand(CMD_Report_Child_Devices_, &sResponse) || sResponse != "OK" )
+		if(!m_pOrbiter->SendCommand(CMD_Report_Child_Devices_, &sResponse) || sResponse != "OK" )
 			g_pPlutoLogger->Write(LV_WARNING, "Alarm panel is NOT registered. We'll try again later");
 		else 
 		{

@@ -851,10 +851,15 @@ void Telecom_Plugin::CMD_Phone_Drop(string &sCMD_Result,Message *pMessage)
 void Telecom_Plugin::CMD_Set_User_Mode(int iPK_Users,int iPK_UserMode,string &sCMD_Result,Message *pMessage)
 //<-dceag-c744-e->
 {
-	class Row_Users* rowuser;
-	rowuser=m_pDatabase_pluto_main->Users_get()->GetRow(iPK_Users);
-	rowuser->FK_UserMode_set(iPK_UserMode);
-	m_pDatabase_pluto_main->Users_get()->Commit();
+	class Row_Users* pRow_Users;
+	pRow_Users=m_pDatabase_pluto_main->Users_get()->GetRow(iPK_Users);
+	if( pRow_Users )
+	{
+		pRow_Users->FK_UserMode_set(iPK_UserMode);
+		m_pDatabase_pluto_main->Users_get()->Commit();
+	}
+	else
+		g_pPlutoLogger->Write(LV_CRITICAL,"Trying to set house mode for invalid user %d",iPK_Users);
 }
 //<-dceag-c751-b->
 

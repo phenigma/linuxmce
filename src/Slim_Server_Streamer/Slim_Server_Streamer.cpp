@@ -163,6 +163,7 @@ void Slim_Server_Streamer::CMD_Start_Streaming(int iStreamID,string sStreamingTa
         if ( iPlayerId == 0 )
         {
             g_pPlutoLogger->Write(LV_WARNING, "Player id string %s parsed to 0. Ignoring.", (*itPlayerIds).c_str() );
+			itPlayerIds++;
             continue;
         }
 
@@ -170,6 +171,7 @@ void Slim_Server_Streamer::CMD_Start_Streaming(int iStreamID,string sStreamingTa
         if ( pPlayerDeviceData == NULL )
         {
             g_pPlutoLogger->Write(LV_WARNING, "Child with id: %d was not found. Ignoring", iPlayerId);
+			itPlayerIds++;
             continue;
         }
 
@@ -188,6 +190,7 @@ void Slim_Server_Streamer::CMD_Start_Streaming(int iStreamID,string sStreamingTa
 		{
 			g_pPlutoLogger->Write(LV_WARNING, "Slim_Server_Streamer::CMD_Start_Streaming() Device %d (%s) with mac address %s was not detected as connected. Ignoring device.",
 				pPlayerDeviceData->m_dwPK_Device, pPlayerDeviceData->m_sDescription.c_str(), currentPlayerAddress.c_str());
+			return;
 		}
 		else
 		{

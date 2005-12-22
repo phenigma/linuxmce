@@ -1843,14 +1843,23 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(*iPK_Device);
 	if( pRow_Device )
 	{
-		if( iPK_Room==-1 && iPK_Orbiter )
+		if( iPK_Room==-1 )
 		{
 			g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Create_Device adding %d to m_listNewPnpDevicesWaitingForARoom size: %d",
 				*iPK_Device,(int) m_listNewPnpDevicesWaitingForARoom.size());
 			m_listNewPnpDevicesWaitingForARoom.push_back(*iPK_Device);
-			DCE::SCREEN_NewPlugAndPlayDevice SCREEN_NewPlugAndPlayDevice(m_dwPK_Device,iPK_Orbiter,StringUtils::itos(*iPK_Device),
-				pRow_Device->Description_get(),pRow_Device->FK_DeviceTemplate_getrow()->Comments_get());
-			SendCommand(SCREEN_NewPlugAndPlayDevice);
+			if( iPK_Orbiter )
+			{
+				DCE::SCREEN_NewPlugAndPlayDevice SCREEN_NewPlugAndPlayDevice(m_dwPK_Device,iPK_Orbiter,StringUtils::itos(*iPK_Device),
+					pRow_Device->Description_get(),pRow_Device->FK_DeviceTemplate_getrow()->Comments_get());
+				SendCommand(SCREEN_NewPlugAndPlayDevice);
+			}
+			else
+			{
+				DCE::SCREEN_NewPlugAndPlayDevice_DL SCREEN_NewPlugAndPlayDevice_DL(m_dwPK_Device,m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters,StringUtils::itos(*iPK_Device),
+					pRow_Device->Description_get(),pRow_Device->FK_DeviceTemplate_getrow()->Comments_get());
+				SendCommand(SCREEN_NewPlugAndPlayDevice_DL);
+			}
 		}
 		else if( iPK_Room )
 		{
