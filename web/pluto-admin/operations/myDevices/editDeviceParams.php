@@ -29,7 +29,8 @@ $installationID = (int)@$_SESSION['installationID'];
 			FK_DeviceCategory,
 			PingTest,
 			State,
-			Status
+			Status,
+			ImplementsDCE
 		FROM Device 
 		INNER JOIN DeviceTemplate on FK_DeviceTemplate = PK_DeviceTemplate
 		WHERE PK_Device = ?";
@@ -54,12 +55,16 @@ $installationID = (int)@$_SESSION['installationID'];
 		$PingTest=$row['PingTest'];
 		$State=$row['State'];
 		$Status=$row['Status'];
+		$ImplementsDCE=$row['ImplementsDCE'];
 		//$helpDocument=$row['FK_Document'];
 		$coreSystemLog=($row['FK_DeviceCategory']==$GLOBALS['CategoryCore'])?'&nbsp;&nbsp;&nbsp;<a href="javascript:windowOpen(\'index.php?section=followLog&deviceID='.$deviceID.'&system_log=1\',\'width=1024,height=768,scrollbars=1,resizable=1,fullscreen=1\');">System log</a>':'';
 	}
 	
 	if ($DeviceTemplate==0) {
-		header("Location: index.php?error=invalid_Device_id");
+		$_SESSION['error_message']='Invalid device ID';
+		$_SESSION['retry_url']='index.php?section=editDeviceParams&deviceID='.$deviceID;
+		header("Location: index.php?section=error_message");
+		exit();
 	}
 	
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
@@ -106,6 +111,7 @@ $installationID = (int)@$_SESSION['installationID'];
 	
 	$manufHomeLink=($ManufacturerURL!='')?'<a href="'.$ManufacturerURL.'" target="_blank" title="Manufacturer URL"><img src="include/images/home.png" border="0" align="middle"></a>':'';
 	$internalLink=($ManufacturerURL!='' && $InternalURLSuffix!='')?'<a href="'.$ManufacturerURL.$InternalURLSuffix.'" title="Device URL on manufacturer site" target="_blank"><img src="include/images/file.png" border="0" align="middle"></a>':'';
+	$resetDeviceLink=($ImplementsDCE==1)?'<a href="index.php?section=editDeviceParams&deviceID='.$deviceID.'&action=reset">Reset device</a>':'';
 	
 	if(isset($_REQUEST['showNote'])){
 		$Alert='alert("This device requires some advance preparation, which can take several minutes. Your Core is doing this now and you will see a message on all orbiters and media directors notifying you when it\'s done. Please wait to use the device until then.");
@@ -127,7 +133,7 @@ $installationID = (int)@$_SESSION['installationID'];
 		<tr>
 			<td><a href="index.php?section=addMyDevice&parentID='.$deviceID.'">Create '.($deviceID==0?' Top Level ':'').'Child Device</a> &nbsp; &nbsp; &nbsp;
 			'.$deleteLink.' &nbsp; &nbsp; &nbsp; 
-			<a href="javascript:windowOpen(\'index.php?section=sendCommand&deviceID='.$deviceID.'\',\'width=800,height=600,scrollbars=1,resizable=1\');">Send command to device</a>
+			<a href="javascript:windowOpen(\'index.php?section=sendCommand&deviceID='.$deviceID.'\',\'width=800,height=600,scrollbars=1,resizable=1\');">Send command to device</a> &nbsp; &nbsp; &nbsp; '.$resetDeviceLink.'
 			</td>
 			<td align="right"><a href="javascript:windowOpen(\'index.php?section=errorLog&deviceID='.$deviceID.'\',\'width=1024,height=768,scrollbars=1,resizable=1,fullscreen=1\');">View errors in log</a>&nbsp;&nbsp;&nbsp;
 				<a href="javascript:windowOpen(\'index.php?section=fullLog&deviceID='.$deviceID.'\',\'width=1024,height=768,scrollbars=1,resizable=1,fullscreen=1\');">View whole log</a>&nbsp;&nbsp;&nbsp;
@@ -495,6 +501,12 @@ $installationID = (int)@$_SESSION['installationID'];
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$installationID,$dbADO);
 	
 	if ($canModifyInstallation) {
+		if($action=='reset'){
+			$command="/usr/pluto/bin/MessageSend localhost 0 $deviceID 7 1";
+			exec($command);
+			Header('Location: index.php?section=editDeviceParams&deviceID='.$deviceID.'&msg=The device was reseted.');
+			exit();			
+		}
 		
 		$description = cleanString($_POST['DeviceDescription']);
 		$ipAddress = cleanString($_POST['ipAddress']);
