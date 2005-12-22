@@ -53,9 +53,9 @@ if($ARGV[0] eq "") {
 		}
 	}
 	$state->finish();
-	loggc("/usr/pluto/bin/CreateDevice -i $install -d $dev_templ -M $mac -C $PKDEV -n\n");
+	loggc("/usr/pluto/bin/MessageSend dcerouter -o -targetType template 0 27 1 718 44 $dev_templ 57 -1 47 $mac 198 0 156 $PKDEV | grep '^2:' | cut -d: -f2-;\n");
 	loggc("Creating Device...");
-	$Device_ID = `/usr/pluto/bin/CreateDevice -i $install -d $dev_templ -M $mac -C $PKDEV -n`;
+	$Device_ID = `/usr/pluto/bin/MessageSend dcerouter -o -targetType template 0 27 1 718 44 $dev_templ 57 -1 47 $mac 198 0 156 $PKDEV | grep '^2:' | cut -d: -f2-;`;
 	@lines = split(/\n/s, $Device_ID);
 	$nlines = $#lines;
 	$Device_ID = $lines[$nlines];
@@ -66,7 +66,6 @@ if($ARGV[0] eq "") {
 	loggc("Finding IP ");
 	$ip = find_ip($Device_ID);
 	loggc("[$ip]\n");
-	system("/usr/pluto/bin/MessageSend localhost 0 0 2 24 26 $Device_ID");
 	loggc("Configuring GC100 via Web...");
 	configure_webgc($ip);
 	loggc("Done\n");
