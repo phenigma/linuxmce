@@ -306,7 +306,8 @@ void IRTrans::StartIRServer()
 		{
 			vector<string> vectPorts;
 			DatabaseUtils::GetUnusedPortsOnPC(&mySqlHelper,m_dwPK_Device,vectPorts);
-			for(size_t s=0;s<vectPorts.size();++s)
+			size_t s;
+			for(s=0;s<vectPorts.size();++s)
 			{
 				string sPort = vectPorts[s];
 #ifndef WIN32
