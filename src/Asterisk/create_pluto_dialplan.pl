@@ -38,6 +38,7 @@ $DB_SQL = "select ID,EK_HouseMode,Routing from Line_HouseMode order by ID,EK_Hou
 $DB_STATEMENT = $DB_TC_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
 $DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
 my $tmp="";
+my $configured="";
 while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
 {
     my $line = "10".$1 if($DB_ROW->{'ID'} =~ /(\d)$/);
@@ -47,6 +48,7 @@ while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
         $EXT_BUFFER .= "exten => $line,1,AGI(pluto-gethousemode.agi)\n";
         $EXT_BUFFER .= "exten => $line,2,Goto($line-hm\${HOUSEMODE},1)\n";
         $EXT_BUFFER .= "exten => $line,3,Hangup\n";
+        $configured .= " ".$line." ";
     }
     my $action = "NoOp(\"Do nothing\")";
     if($DB_ROW->{'Routing'} =~ /^ring,((\d+[,])*(\d+))$/)
@@ -85,12 +87,21 @@ while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
     $EXT_BUFFER .= "exten => $line-hm$hm-CHANUNAVAIL,1,Goto(100,1)\n";
     $tmp = $line;
 }
+for (my $i=1; $i<10; $i++)
+{
+    unless($configured =~ / 10$i /)
+    {
+        $EXT_BUFFER .= "exten => 10$i,1,Goto(voice-menu-pluto-custom,s,1)\n";
+        $EXT_BUFFER .= "exten => 10$i,2,Hangup\n";
+    }
+}
 
 $EXT_BUFFER .= "\n;Users\n";
 $DB_SQL = "select EK_Users,EK_UserMode,IsPriorityCaller,StepOrder,Routing from UserRouting order by EK_Users,IsPriorityCaller,EK_UserMode,StepOrder";
 $DB_STATEMENT = $DB_TC_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
 $DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";
 $tmp = "";
+$configured="";
 while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
 {{
     next unless(defined $USERS{$DB_ROW->{'EK_Users'}});
@@ -103,6 +114,7 @@ while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
         $EXT_BUFFER .= "exten => $user,1,AGI(pluto-getusermode.agi)\n";
         $EXT_BUFFER .= "exten => $user,2,Goto($user-um\${USERMODE}-pri\${PRIORITYCALLER},1)\n";
         $EXT_BUFFER .= "exten => $user,3,Hangup\n";
+        $configured .= " ".$user." ";        
     }
     my $action = "NoOp(\"Do nothing\")";
     if($DB_ROW->{'Routing'} =~ /^ring,((\d+[,])*(\d+))$/)
@@ -143,6 +155,15 @@ while($DB_ROW = $DB_STATEMENT->fetchrow_hashref())
 #    $EXT_BUFFER .= "exten => $user-um$um-try$try,1,Hangup\n";
 
 }}
+
+foreach my $i (sort (values(%USERS)))
+{
+    unless($configured =~ / $i /)
+    {
+        $EXT_BUFFER .= "exten => $i,1,Macro(vm,$i)\n";
+        $EXT_BUFFER .= "exten => $i,2,Hangup\n";
+    }
+}
 
 $EXT_BUFFER .= "\n;Device conference rooms\n";
 $EXT_BUFFER .= "exten =>00,1,Hangup\n";
