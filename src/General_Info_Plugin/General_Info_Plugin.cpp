@@ -1481,6 +1481,7 @@ Row_Device *General_Info_Plugin::ProcessChildDevice(Row_Device *pRow_Device,stri
 		" AND FK_DeviceData=" + StringUtils::itos(DEVICEDATA_PortChannel_Number_CONST) +
 		" AND IK_DeviceData='" + StringUtils::SQLEscape(sInternalID) + "'",&vectRow_Device_Child);
 	
+	bool bCreatedNew=false;
 	Row_Device *pRow_Device_Child;
 	if( vectRow_Device_Child.size() )
 	{
@@ -1491,6 +1492,7 @@ Row_Device *General_Info_Plugin::ProcessChildDevice(Row_Device *pRow_Device,stri
 	{
 		// Create it since it doesn't exist
 		int iPK_Device;
+		bCreatedNew=true;
 		CMD_Create_Device(PK_DeviceTemplate,"",0,"",
 			StringUtils::itos(DEVICEDATA_PortChannel_Number_CONST) + "|" + sInternalID,
 			0,pRow_Device->PK_Device_get(),0,0,&iPK_Device);
@@ -1510,7 +1512,14 @@ Row_Device *General_Info_Plugin::ProcessChildDevice(Row_Device *pRow_Device,stri
 		else
 			pRow_Device_Child->Description_set(sInternalID);
 	}
-
+	else if( bCreatedNew )
+	{
+		string sOldDescription = pRow_Device_Child->Description_get();
+		if( sDescription.size() )
+			pRow_Device_Child->Description_set(sOldDescription + " " + sDescription);
+		else
+			pRow_Device_Child->Description_set(sOldDescription + " " + sInternalID);
+	}
 	vector<Row_Room *> vectRow_Room;
 	m_pDatabase_pluto_main->Room_get()->GetRows("Description like '" + StringUtils::SQLEscape(sRoomName) + "'",&vectRow_Room);
 	if( vectRow_Room.size() )
