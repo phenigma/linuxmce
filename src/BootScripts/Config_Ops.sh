@@ -8,7 +8,10 @@ ConfEval()
 {
 	local Ret=0
 	WaitLock "pluto.conf" "Config_Ops-ConfEval" nolog
-	[[ -e /etc/pluto.conf ]] || exit 0
+	if [[ ! -e /etc/pluto.conf ]]; then
+		UnLock "pluto.conf" "Config_Ops-ConfEval" nolog
+		exit 0
+	fi
 	# Note to self: this "read from file into while" is absolutely necessary
 	#               "cmd | while ..." spawns a subshell and our veriables will be set there instead of our current shell
 	#               "while ...; do ...; done <file" works the way we need
