@@ -249,23 +249,31 @@ RubyIOManager::RouteMessage(DeviceData_Base* pdevdata, Message *pMessage) {
 	g_pPlutoLogger->Write(LV_STATUS, "Dispatching Message %d to %d...", pMessage->m_dwID, pMessage->m_dwPK_Device_To);
 
 	RubyIOManager* pmanager = RubyIOManager::getInstance();
-	
+	int routeToDevice = 0;
 	/*find device*/
-	DeviceData_Base *ptmpdevdata = pdevdata->m_AllDevices.m_mapDeviceData_Base_Find(pMessage->m_dwPK_Device_To);
-	while(ptmpdevdata != NULL && !pmanager->hasDevice(ptmpdevdata)) {
-		pdevdata = ptmpdevdata;
-		ptmpdevdata =
-			pdevdata->m_AllDevices.m_mapDeviceData_Base_Find(ptmpdevdata->m_dwPK_Device_ControlledVia);
+	if(!pdevdata)
+	{
+	    g_pPlutoLogger->Write(LV_WARNING, "Running without DeviceData");	
+		routeToDevice = pMessage->m_dwPK_Device_To;
 	}
-	
-	if(ptmpdevdata == NULL) {
-	    g_pPlutoLogger->Write(LV_STATUS, "Command will be handled in Parent device.");
-		ptmpdevdata = pdevdata;
+	else
+	{
+		DeviceData_Base *ptmpdevdata = pdevdata->m_AllDevices.m_mapDeviceData_Base_Find(pMessage->m_dwPK_Device_To);
+		while(ptmpdevdata != NULL && !pmanager->hasDevice(ptmpdevdata)) {
+			pdevdata = ptmpdevdata;
+			ptmpdevdata =
+				pdevdata->m_AllDevices.m_mapDeviceData_Base_Find(ptmpdevdata->m_dwPK_Device_ControlledVia);
+		}
+		if(ptmpdevdata == NULL) {
+		    g_pPlutoLogger->Write(LV_STATUS, "Command will be handled in Parent device.");
+			ptmpdevdata = pdevdata;
+		}
+		routeToDevice = ptmpdevdata->m_dwPK_Device;
 	}
 		
-    g_pPlutoLogger->Write(LV_STATUS, "Routing message to device %d.", ptmpdevdata->m_dwPK_Device);
+    g_pPlutoLogger->Write(LV_STATUS, "Routing message to device %d.", routeToDevice);
 	mmsg_.Lock();
-	std::pair<unsigned, Message*> msg(ptmpdevdata->m_dwPK_Device, pMessage);
+	std::pair<unsigned, Message*> msg(routeToDevice, pMessage);
 	msgqueue_.push_back(msg);
 	mmsg_.Unlock();
 	emsg_.Signal();
