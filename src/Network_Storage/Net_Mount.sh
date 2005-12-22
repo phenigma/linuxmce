@@ -14,6 +14,8 @@ DEVICEDATA_Use_Pluto_Directory_Structure=130
 while [[ "$#" > 0 ]]; do
 	case "$1" in
 		-d) NAS_PK_Device="$2"; shift ;;
+		-i) NAS_IP_Address="${Params[$i]}"; shift ;;
+		-m) NAS_MAC_Address="${Params[$i]}"; shift ;;
 		*) Logging "NAS" $SEVERITY_WARNING "share mount" "Unknown parameter '$1'" ;;
 	esac
 	shift
@@ -24,8 +26,10 @@ if [[ -z "$NAS_PK_Device" ]]; then
 	exit 1
 fi
 
-SQL="SELECT IPaddress FROM Device WHERE PK_Device=$NAS_PK_Device"
-NAS_IP_Address=$(RunSQL "$SQL")
+if [[ -z "$NAS_IP_Address" ]]; then
+	SQL="SELECT IPaddress FROM Device WHERE PK_Device=$NAS_PK_Device"
+	NAS_IP_Address=$(RunSQL "$SQL")
+fi
 
 SQL="SELECT FK_DeviceData,IK_DeviceData FROM Device_DeviceData
 	WHERE FK_Device=$NAS_PK_Device AND FK_DeviceData IN ($DEVICEDATA_Type,$DEVICEDATA_Share_Name,$DEVICEDATA_Username,$DEVICEDATA_Password,$DEVICEDATA_Mount_Point,$DEVICEDATA_Use_Pluto_Directory_Structure)"

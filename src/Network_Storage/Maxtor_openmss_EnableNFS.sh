@@ -13,7 +13,7 @@ EnableMaxtorNFS()
 	[[ -z "$IP" ]] && return 2
 	
 
-	Logging "Maxtor-openmss" $SEVERITY_STATUS "EnableMaxtorNFS" "Enabling NFS on Maxtor with IP '$IP'"
+	Logging "Maxtor-openmss" $SEVERITY_NORMAL "EnableMaxtorNFS" "Enabling NFS on Maxtor with IP '$IP'"
 	# How this works (because I'm sure I won't understand it later either):
 	# purpose: send a list of commands via a free-access telnet server running on the Maxtor Network Storage (1.2.2-openmss2) device
 	# 1st part echoes the commands, one per line, ending with "exit"
@@ -34,6 +34,6 @@ EnableMaxtorNFS()
 		exit"
 	while :; do echo -n "."; sleep 1; done) | socat STDIO TCP4:"$IP":23 | while read line; do [[ "$line" == *exit* ]] && break; done
 
-	Logging "Maxtor-openmss" $SEVERITY_STATUS "EnableMaxtorNFS" "Enabled NFS on Maxtor with IP '$IP'"
+	Logging "Maxtor-openmss" $SEVERITY_NORMAL "EnableMaxtorNFS" "Enabled NFS on Maxtor with IP '$IP'"
 	return 0
 }
