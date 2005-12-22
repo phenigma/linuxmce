@@ -76,39 +76,21 @@ class ScreenHistory
 {
 private:
 	class DesignObj_Orbiter *m_pObj; /** < The screen we're viewing */
+	list<class DesignObj_Orbiter *> m_listObjs;
 
 public:
 
-	/**
-	 * @brief constructor
-	 */
-	ScreenHistory(int nPK_Screen, Message *pMessage, class ScreenHistory *pScreenHistory_Prior )
-	{
-		m_nPK_Screen = nPK_Screen;
-		m_pMessage = pMessage;
-		m_tTime = time(NULL);
-		m_pObj=NULL;
-		m_dwPK_Device=0;
-		m_bCantGoBack=false; 
-		if(  pScreenHistory_Prior  )
-		{
-			m_dwPK_Device = pScreenHistory_Prior->m_dwPK_Device;
-		}
-	}
+	ScreenHistory(int nPK_Screen, Message *pMessage, class ScreenHistory *pScreenHistory_Prior);
+	~ScreenHistory();
 
-	~ScreenHistory()
-	{
-		delete m_pMessage; //it's a copy
-	}
+	DesignObj_Orbiter *GetObj();
+	void SetObj(DesignObj_Orbiter *pObj);
 
-	DesignObj_Orbiter *GetObj() { return m_pObj; }
-	void SetObj(DesignObj_Orbiter *pObj) 
-	{ 
-		m_pObj = pObj;
-#ifdef DEBUG
-		g_pPlutoLogger->Write(LV_WARNING, "ScreenHistory - replaced in screen %d obj with %d", m_nPK_Screen, pObj->m_iBaseObjectID);
-#endif
-	}
+	void AddToHistory();
+	bool HistoryEmpty();
+	bool GoBack();
+	string ToString();
+
 
 	/**
 	 * @brief A unique ID that can be specified in the Goto command
@@ -157,7 +139,8 @@ int k=2;
  */
 class Orbiter : public Orbiter_Command,  public OrbiterData
 {
-void DumpScreenHistory(); // temporary function
+protected:
+	void DumpScreenHistory(); // temporary function
 
 //<-dceag-decl-e->
 	friend class BD_PC_SetVariable; /** < Needs to maniuplate our variables */

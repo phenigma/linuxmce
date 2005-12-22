@@ -265,7 +265,13 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, int PK_DeviceTemplate, stri
     {
         DumpLocks();
     }
-    else if( wParam == VK_P && m_bControlDown)
+	else if( wParam == VK_P && m_bShiftDown && m_bControlDown && uMsg == WM_KEYUP)
+	{
+#ifdef DEBUG
+		DumpScreenHistory();
+#endif
+	}
+    else if( wParam == VK_P && m_bControlDown && uMsg == WM_KEYUP)
     {
         static int Count = 0;
         m_bControlDown=false;
