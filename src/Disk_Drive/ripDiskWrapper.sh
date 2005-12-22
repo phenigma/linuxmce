@@ -31,8 +31,10 @@ targetFileName=$3
 sourceDevice=$4
 diskType=$5
 ownerID=$6
-ripFormat=$7 # mp3, ogg, flac, wav
+ripFormatString=$7 # mp3, ogg, flac, wav
 trackList="$8"
+
+ripFormat=${ripFormatString%%;*}
 
 # Disk type possbile values:
 #	0 DISCTYPE_CD_AUDIO 
