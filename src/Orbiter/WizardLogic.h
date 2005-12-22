@@ -21,6 +21,7 @@ private:
 	long m_nPK_Device_AlarmPanel,m_nPK_Device_ZWave;  // Monster specific
 	long m_nAlarmDeviceTimeout;
 	bool m_bAlarmPanelDetectionStarted;
+	bool m_bAlarmPanelCommandReceived;
 	bool m_bAlarmPanelIsOk;
 
 	string GetDeviceStatus(long nPK_Device);

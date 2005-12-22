@@ -1067,16 +1067,16 @@ bool OSDScreenHandler::AlarmPanel_ObjectSelected(CallBackData *pData)
 
 				string sAlarmModel = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_3_CONST];
 				string sDeviceData = StringUtils::ltos(DEVICEDATA_COM_Port_on_PC_CONST) + "|" + sPort;
+
 				m_pWizardLogic->m_nPK_Device_AlarmPanel = m_pWizardLogic->AddDevice(atoi(sAlarmModel.c_str()), sDeviceData,
 					iPK_Device_ControlledVia);
 
-				DCE::CMD_Report_Child_Devices CMD_Report_Child_Devices_(m_pOrbiter->m_dwPK_Device, 
-					m_pWizardLogic->m_nPK_Device_AlarmPanel);
-				m_pOrbiter->SendCommand(CMD_Report_Child_Devices_);
-
-				m_pWizardLogic->m_bAlarmPanelDetectionStarted = false;
+				m_pWizardLogic->m_bAlarmPanelCommandReceived = false;
 				m_pWizardLogic->m_bAlarmPanelIsOk = false;
 				m_pWizardLogic->m_nAlarmDeviceTimeout = 150 * 1000;//2 min and 1/2
+
+				g_pPlutoLogger->Write(LV_WARNING, "AddDevice called for alarm device %d", m_pWizardLogic->m_nPK_Device_AlarmPanel);
+				m_pWizardLogic->m_bAlarmPanelDetectionStarted = false;
 			}
 		}
 		break;
@@ -1087,6 +1087,8 @@ bool OSDScreenHandler::AlarmPanel_ObjectSelected(CallBackData *pData)
 			{
 				m_pWizardLogic->m_bAlarmPanelDetectionStarted = true;
                 m_pOrbiter->StartScreenHandlerTimer(500);
+
+				g_pPlutoLogger->Write(LV_WARNING, "Started detection timer for alarm device %d", m_pWizardLogic->m_nPK_Device_AlarmPanel);
 			}
 		}
 		break;
@@ -1099,8 +1101,21 @@ bool OSDScreenHandler::AlarmPanel_OnTimer(CallBackData *pData)
 {
 	if(!m_pWizardLogic->m_nPK_Device_AlarmPanel)
 		return true;
-	else
+	else if(!m_pWizardLogic->m_bAlarmPanelCommandReceived)
 	{
+		string sResponse;
+		DCE::CMD_Report_Child_Devices CMD_Report_Child_Devices_(m_pOrbiter->m_dwPK_Device, 
+			m_pWizardLogic->m_nPK_Device_AlarmPanel);
+
+		if(m_pOrbiter->SendCommand(CMD_Report_Child_Devices_, &sResponse) || sResponse != "OK" )
+			g_pPlutoLogger->Write(LV_WARNING, "Alarm panel is NOT registered. We'll try again later");
+		else 
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "Alarm panel is registered. We'll wait to be notified with Reporting event.");
+			m_pWizardLogic->m_bAlarmPanelCommandReceived = true;
+		}
+	}
+	else{
 		m_pWizardLogic->m_nAlarmDeviceTimeout -= 500;
 
 		g_pPlutoLogger->Write(LV_WARNING, "Check status for device %d... Milliseconds left: %d", 
