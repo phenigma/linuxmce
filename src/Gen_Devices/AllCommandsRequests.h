@@ -1615,19 +1615,19 @@ namespace DCE
 	};
 	class CMD_Stop : public PreformedCommand {
 	public:
-		CMD_Stop(long DeviceIDFrom, long DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,95,0); }
+		CMD_Stop(long DeviceIDFrom, long DeviceIDTo,bool bEject) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,95,1,203,(bEject ? "1" : "0")); }
 	};
 	class CMD_Stop_DL : public PreformedCommand {
 	public:
-		CMD_Stop_DL(long DeviceIDFrom, string DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,95,0); }
+		CMD_Stop_DL(long DeviceIDFrom, string DeviceIDTo,bool bEject) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,95,1,203,(bEject ? "1" : "0")); }
 	};
 	class CMD_Stop_DT : public PreformedCommand {
 	public:
-		CMD_Stop_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,95,0); }
+		CMD_Stop_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,bool bEject) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,95,1,203,(bEject ? "1" : "0")); }
 	};
 	class CMD_Stop_Cat : public PreformedCommand {
 	public:
-		CMD_Stop_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,95,0); }
+		CMD_Stop_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,bool bEject) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,95,1,203,(bEject ? "1" : "0")); }
 	};
 	class CMD_Change_Disc : public PreformedCommand {
 	public:
@@ -11740,22 +11740,6 @@ namespace DCE
 	class CMD_Disarm_panel_Cat : public PreformedCommand {
 	public:
 		CMD_Disarm_panel_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,746,0); }
-	};
-	class CMD_StatusReport : public PreformedCommand {
-	public:
-		CMD_StatusReport(long DeviceIDFrom, long DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,749,0); }
-	};
-	class CMD_StatusReport_DL : public PreformedCommand {
-	public:
-		CMD_StatusReport_DL(long DeviceIDFrom, string DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,749,0); }
-	};
-	class CMD_StatusReport_DT : public PreformedCommand {
-	public:
-		CMD_StatusReport_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,749,0); }
-	};
-	class CMD_StatusReport_Cat : public PreformedCommand {
-	public:
-		CMD_StatusReport_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,749,0); }
 	};
 	class CMD_PL_Add_VOIP_Account : public PreformedCommand {
 	public:

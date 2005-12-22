@@ -58,7 +58,7 @@ public:
 				while( m_pEvent->m_pClientSocket->m_eLastError==cs_err_BadDevice && (m_dwPK_Device = DeviceIdInvalid())!=0 )
 				{
 					delete m_pEvent;
-					m_pEvent = new App_Server_Event(m_dwPK_Device, m_sHostName);
+					m_pEvent = new App_Server_Event(m_dwPK_Device, m_sHostName, !m_bLocalMode);
 					if( m_pEvent->m_dwPK_Device )
 						m_dwPK_Device = m_pEvent->m_dwPK_Device;
 				}
@@ -79,7 +79,7 @@ public:
 				}	
 			}
 		}
-
+		
 		if( m_bLocalMode )
 		{
 			m_pData = new App_Server_Data();
@@ -94,6 +94,11 @@ public:
 		m_pData = new App_Server_Data();
 		if( Size )
 			m_pData->SerializeRead(Size,pConfig);
+		else
+		{
+			m_pData->m_dwPK_Device=m_dwPK_Device;  // Assign this here since it didn't get it's own data
+			m_pData->m_bRunningWithoutDeviceData=true;
+		}
 		delete[] pConfig;
 		pConfig = m_pEvent->GetDeviceList(Size);
 		m_pData->m_AllDevices.SerializeRead(Size,pConfig);

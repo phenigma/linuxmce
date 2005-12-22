@@ -435,8 +435,21 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 		string pID = StringUtils::itos(pDataInfo->m_pRow_DeviceData->PK_DeviceData_get());
 		string pDefine = FileUtils::ValidCPPName(pDataInfo->m_pRow_DeviceData->Description_get());
 		fstr_DeviceCommand << "\t" << pDataInfo->m_pRow_DeviceData->FK_ParameterType_getrow()->Description_get()  << " Get_"  <<
-			pDefine  << "() { return ";
-		fstr_DeviceCommand << CastStringToType("m_mapParameters[" + pID + "]",pDataInfo->m_pRow_DeviceData->FK_ParameterType_get()) << ";}" << endl;
+			pDefine  << "() { ";
+
+		if( pDataInfo->m_pRow_DeviceData->PK_DeviceData_get()!=DEVICEDATA_COM_Port_on_PC_CONST )
+			fstr_DeviceCommand << "if( m_bRunningWithoutDeviceData ) ";
+
+		fstr_DeviceCommand << " return " << 
+			CastStringToType("m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device," + pID + ")",
+			pDataInfo->m_pRow_DeviceData->FK_ParameterType_get()) <<
+			";";
+		if( pDataInfo->m_pRow_DeviceData->PK_DeviceData_get()!=DEVICEDATA_COM_Port_on_PC_CONST )
+			fstr_DeviceCommand << " else return " << 
+			CastStringToType("m_mapParameters[" + pID + "]",pDataInfo->m_pRow_DeviceData->FK_ParameterType_get()) << ";";
+	
+		fstr_DeviceCommand << "}" << endl;
+
 		if(pDataInfo->m_bCanSet)
 		{
 			fstr_DeviceCommand << "\tvoid Set_" << pDefine << "(" << pDataInfo->m_pRow_DeviceData->FK_ParameterType_getrow()->Description_get() <<
@@ -510,6 +523,11 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	fstr_DeviceCommand << "\t\tm_pData = new "  << Name  << "_Data();" << endl;
 	fstr_DeviceCommand << "\t\tif( Size )" << endl;
 	fstr_DeviceCommand << "\t\t\tm_pData->SerializeRead(Size,pConfig);" << endl;
+	fstr_DeviceCommand << "\t\telse" << endl;
+	fstr_DeviceCommand << "\t\t{" << endl;
+	fstr_DeviceCommand << "\t\t\tm_pData->m_dwPK_Device=m_dwPK_Device;  // Assign this here since it didn't get it's own data" << endl;
+	fstr_DeviceCommand << "\t\t\tm_pData->m_bRunningWithoutDeviceData=true;" << endl;
+	fstr_DeviceCommand << "\t\t}" << endl;
 
 	fstr_DeviceCommand << "\t\tdelete[] pConfig;" << endl;
 	fstr_DeviceCommand << "\t\tpConfig = m_pEvent->GetDeviceList(Size);" << endl;

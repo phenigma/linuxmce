@@ -29,7 +29,7 @@ public:
 	class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition);
 	virtual int GetPK_DeviceList() { return 1715; } ;
 	virtual const char *GetDeviceDescription() { return "IRTrans"; } ;
-	string Get_COM_Port_on_PC() { return m_mapParameters[37];}
+	string Get_COM_Port_on_PC() { return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,37);}
 };
 
 
@@ -45,7 +45,6 @@ public:
 	}
 	virtual bool GetConfig()
 	{
-		
 		m_pData=NULL;
 		m_pEvent = new IRTrans_Event(m_dwPK_Device, m_sHostName, !m_bLocalMode);
 		if( m_pEvent->m_dwPK_Device )
@@ -77,7 +76,7 @@ public:
 						CannotReloadRouter();
 						g_pPlutoLogger->Write(LV_WARNING,"Reload request denied: %s",sResponse.c_str());
 					}
-					Sleep(10000);  // Give the router 10 seconds before we re-attempt, otherwise we'll get an error right away
+				Sleep(10000);  // Give the router 10 seconds before we re-attempt, otherwise we'll get an error right away
 				}	
 			}
 		}
@@ -96,6 +95,11 @@ public:
 		m_pData = new IRTrans_Data();
 		if( Size )
 			m_pData->SerializeRead(Size,pConfig);
+		else
+		{
+			m_pData->m_dwPK_Device=m_dwPK_Device;  // Assign this here since it didn't get it's own data
+			m_pData->m_bRunningWithoutDeviceData=true;
+		}
 		delete[] pConfig;
 		pConfig = m_pEvent->GetDeviceList(Size);
 		m_pData->m_AllDevices.SerializeRead(Size,pConfig);
@@ -126,7 +130,7 @@ public:
 	virtual void CMD_Send_Code(string sText,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Toggle_Power(string sOnOff,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Learn_IR(int iPK_Device,string sOnOff,int iPK_Text,int iPK_Command,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Display_Message(string sText,string sType,string sName,string sTime,string sPK_Device_List,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Display_Message(string sText,string sType,string sName,string sTime,string ssPK_Device_List,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Screen_Type(int iValue,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
@@ -231,8 +235,8 @@ public:
 					string sType=pMessage->m_mapParameters[14];
 					string sName=pMessage->m_mapParameters[50];
 					string sTime=pMessage->m_mapParameters[102];
-					string sPK_Device_List=pMessage->m_mapParameters[103];
-						CMD_Display_Message(sText.c_str(),sType.c_str(),sName.c_str(),sTime.c_str(),sPK_Device_List.c_str(),sCMD_Result,pMessage);
+					string ssPK_Device_List=pMessage->m_mapParameters[103];
+						CMD_Display_Message(sText.c_str(),sType.c_str(),sName.c_str(),sTime.c_str(),ssPK_Device_List.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
 							pMessage->m_bRespondedToMessage=true;
@@ -249,7 +253,7 @@ public:
 						{
 							int iRepeat=atoi(pMessage->m_mapParameters[72].c_str());
 							for(int i=2;i<=iRepeat;++i)
-								CMD_Display_Message(sText.c_str(),sType.c_str(),sName.c_str(),sTime.c_str(),sPK_Device_List.c_str(),sCMD_Result,pMessage);
+								CMD_Display_Message(sText.c_str(),sType.c_str(),sName.c_str(),sTime.c_str(),ssPK_Device_List.c_str(),sCMD_Result,pMessage);
 						}
 					};
 					iHandled++;

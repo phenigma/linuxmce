@@ -407,10 +407,10 @@ g_pPlutoLogger->Write(LV_WARNING,"\x1b[2J;%s\n%s",s1.c_str(),s2.c_str());
 			/** you can give the message a name, such as "status", "error", etc */
 		/** @param #102 Time */
 			/** Number of seconds to display the message for */
-		/** @param #103 PK_Device_List */
+		/** @param #103 sPK_Device_List */
 			/** If going to a plugin that wil relay messages to other devices (ie orbiter_plugin and orbiter), A comma delimited list of devices to display this message on.  If going to a display device directly (like vfd/lcd) this is ignored. */
 
-void IRTrans::CMD_Display_Message(string sText,string sType,string sName,string sTime,string sPK_Device_List,string &sCMD_Result,Message *pMessage)
+void IRTrans::CMD_Display_Message(string sText,string sType,string sName,string sTime,string ssPK_Device_List,string &sCMD_Result,Message *pMessage)
 //<-dceag-c406-e->
 {
 	NewMessage(atoi(sType.c_str()),sName,sText,atoi(sTime.c_str()));

@@ -34,38 +34,38 @@ public:
 	class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition);
 	virtual int GetPK_DeviceList() { return 8; } ;
 	virtual const char *GetDeviceDescription() { return "Orbiter"; } ;
-	string Get_Path() { return m_mapParameters[2];}
-	int Get_PK_Users() { return atoi(m_mapParameters[3].c_str());}
-	string Get_Current_Screen() { return m_mapParameters[4];}
+	string Get_Path() { if( m_bRunningWithoutDeviceData )  return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,2); else return m_mapParameters[2];}
+	int Get_PK_Users() { if( m_bRunningWithoutDeviceData )  return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,3).c_str()); else return atoi(m_mapParameters[3].c_str());}
+	string Get_Current_Screen() { if( m_bRunningWithoutDeviceData )  return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,4); else return m_mapParameters[4];}
 	void Set_Current_Screen(string Value) { SetParm(4,Value.c_str()); }
-	int Get_PK_Distro() { return atoi(m_mapParameters[7].c_str());}
-	bool Get_Development() { return (m_mapParameters[8]=="1" ? true : false);}
-	bool Get_No_Effects() { return (m_mapParameters[20]=="1" ? true : false);}
-	int Get_PK_Skin() { return atoi(m_mapParameters[24].c_str());}
-	int Get_PK_Size() { return atoi(m_mapParameters[25].c_str());}
-	int Get_PK_Language() { return atoi(m_mapParameters[26].c_str());}
-	string Get_FK_EntertainArea() { return m_mapParameters[27];}
-	string Get_Update_Name() { return m_mapParameters[41];}
-	string Get_Communication_file() { return m_mapParameters[43];}
-	string Get_Timeout() { return m_mapParameters[56];}
-	string Get_CacheFolder() { return m_mapParameters[57];}
-	int Get_CacheSize() { return atoi(m_mapParameters[58].c_str());}
-	bool Get_Use_OCG_Format() { return (m_mapParameters[64]=="1" ? true : false);}
-	int Get_VideoFrameInterval() { return atoi(m_mapParameters[72].c_str());}
-	int Get_ImageQuality() { return atoi(m_mapParameters[75].c_str());}
+	int Get_PK_Distro() { if( m_bRunningWithoutDeviceData )  return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,7).c_str()); else return atoi(m_mapParameters[7].c_str());}
+	bool Get_Development() { if( m_bRunningWithoutDeviceData )  return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,8)=="1" ? true : false); else return (m_mapParameters[8]=="1" ? true : false);}
+	bool Get_No_Effects() { if( m_bRunningWithoutDeviceData )  return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,20)=="1" ? true : false); else return (m_mapParameters[20]=="1" ? true : false);}
+	int Get_PK_Skin() { if( m_bRunningWithoutDeviceData )  return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,24).c_str()); else return atoi(m_mapParameters[24].c_str());}
+	int Get_PK_Size() { if( m_bRunningWithoutDeviceData )  return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,25).c_str()); else return atoi(m_mapParameters[25].c_str());}
+	int Get_PK_Language() { if( m_bRunningWithoutDeviceData )  return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,26).c_str()); else return atoi(m_mapParameters[26].c_str());}
+	string Get_FK_EntertainArea() { if( m_bRunningWithoutDeviceData )  return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,27); else return m_mapParameters[27];}
+	string Get_Update_Name() { if( m_bRunningWithoutDeviceData )  return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,41); else return m_mapParameters[41];}
+	string Get_Communication_file() { if( m_bRunningWithoutDeviceData )  return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,43); else return m_mapParameters[43];}
+	string Get_Timeout() { if( m_bRunningWithoutDeviceData )  return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,56); else return m_mapParameters[56];}
+	string Get_CacheFolder() { if( m_bRunningWithoutDeviceData )  return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,57); else return m_mapParameters[57];}
+	int Get_CacheSize() { if( m_bRunningWithoutDeviceData )  return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,58).c_str()); else return atoi(m_mapParameters[58].c_str());}
+	bool Get_Use_OCG_Format() { if( m_bRunningWithoutDeviceData )  return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,64)=="1" ? true : false); else return (m_mapParameters[64]=="1" ? true : false);}
+	int Get_VideoFrameInterval() { if( m_bRunningWithoutDeviceData )  return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,72).c_str()); else return atoi(m_mapParameters[72].c_str());}
+	int Get_ImageQuality() { if( m_bRunningWithoutDeviceData )  return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,75).c_str()); else return atoi(m_mapParameters[75].c_str());}
 	void Set_ImageQuality(int Value) { SetParm(75,StringUtils::itos(Value).c_str()); }
-	bool Get_Leave_Monitor_on_for_OSD() { return (m_mapParameters[84]=="1" ? true : false);}
-	string Get_Ignore_State() { return m_mapParameters[87];}
-	bool Get_Dont_Auto_Jump_to_Remote() { return (m_mapParameters[95]=="1" ? true : false);}
-	int Get_ScreenWidth() { return atoi(m_mapParameters[100].c_str());}
-	int Get_ScreenHeight() { return atoi(m_mapParameters[101].c_str());}
-	int Get_Rotation() { return atoi(m_mapParameters[102].c_str());}
-	int Get_PK_UI() { return atoi(m_mapParameters[104].c_str());}
-	string Get_Hard_Keys_mapping() { return m_mapParameters[105];}
-	int Get_Using_Infrared() { return atoi(m_mapParameters[111].c_str());}
-	string Get_Remote_Phone_IP() { return m_mapParameters[118];}
-	int Get_Listen_Port() { return atoi(m_mapParameters[119].c_str());}
-	int Get_PK_Screen() { return atoi(m_mapParameters[132].c_str());}
+	bool Get_Leave_Monitor_on_for_OSD() { if( m_bRunningWithoutDeviceData )  return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,84)=="1" ? true : false); else return (m_mapParameters[84]=="1" ? true : false);}
+	string Get_Ignore_State() { if( m_bRunningWithoutDeviceData )  return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,87); else return m_mapParameters[87];}
+	bool Get_Dont_Auto_Jump_to_Remote() { if( m_bRunningWithoutDeviceData )  return (m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,95)=="1" ? true : false); else return (m_mapParameters[95]=="1" ? true : false);}
+	int Get_ScreenWidth() { if( m_bRunningWithoutDeviceData )  return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,100).c_str()); else return atoi(m_mapParameters[100].c_str());}
+	int Get_ScreenHeight() { if( m_bRunningWithoutDeviceData )  return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,101).c_str()); else return atoi(m_mapParameters[101].c_str());}
+	int Get_Rotation() { if( m_bRunningWithoutDeviceData )  return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,102).c_str()); else return atoi(m_mapParameters[102].c_str());}
+	int Get_PK_UI() { if( m_bRunningWithoutDeviceData )  return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,104).c_str()); else return atoi(m_mapParameters[104].c_str());}
+	string Get_Hard_Keys_mapping() { if( m_bRunningWithoutDeviceData )  return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,105); else return m_mapParameters[105];}
+	int Get_Using_Infrared() { if( m_bRunningWithoutDeviceData )  return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,111).c_str()); else return atoi(m_mapParameters[111].c_str());}
+	string Get_Remote_Phone_IP() { if( m_bRunningWithoutDeviceData )  return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,118); else return m_mapParameters[118];}
+	int Get_Listen_Port() { if( m_bRunningWithoutDeviceData )  return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,119).c_str()); else return atoi(m_mapParameters[119].c_str());}
+	int Get_PK_Screen() { if( m_bRunningWithoutDeviceData )  return atoi(m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,132).c_str()); else return atoi(m_mapParameters[132].c_str());}
 };
 
 
@@ -131,6 +131,11 @@ public:
 		m_pData = new Orbiter_Data();
 		if( Size )
 			m_pData->SerializeRead(Size,pConfig);
+		else
+		{
+			m_pData->m_dwPK_Device=m_dwPK_Device;  // Assign this here since it didn't get it's own data
+			m_pData->m_bRunningWithoutDeviceData=true;
+		}
 		delete[] pConfig;
 		pConfig = m_pEvent->GetDeviceList(Size);
 		m_pData->m_AllDevices.SerializeRead(Size,pConfig);

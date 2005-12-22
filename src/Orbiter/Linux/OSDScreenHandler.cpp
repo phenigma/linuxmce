@@ -444,11 +444,16 @@ bool OSDScreenHandler::TV_Manufacturer_GridSelected(CallBackData *pData)
 		string::size_type pos=0;
 		int iPK_Device_ControlledVia = atoi(StringUtils::Tokenize(pCellInfoData->m_sValue,",",pos).c_str());
 		string sPort = StringUtils::Tokenize(pCellInfoData->m_sValue,",",pos);
-		if( DatabaseUtils::SetDeviceControlledVia(m_pWizardLogic,m_pWizardLogic->m_nPK_Device_TV,iPK_Device_ControlledVia) )
-		{
-			DatabaseUtils::SetDeviceData(m_pWizardLogic,m_pWizardLogic->m_nPK_Device_TV,DEVICEDATA_COM_Port_on_PC_CONST,pCellInfoData->m_sValue);
-			m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(DESIGNOBJ_DirectToTV_CONST),"","",true,false);
-		}
+
+		string sModel = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_3_CONST];
+		if(sModel == "")
+			return true;
+
+		m_pWizardLogic->DeleteDevicesInThisRoomOfType(DEVICECATEGORY_TVsPlasmasLCDsProjectors_CONST);
+		m_pWizardLogic->m_nPK_Device_TV = m_pWizardLogic->AddDevice(atoi(sModel.c_str()),
+			StringUtils::itos(DEVICEDATA_COM_Port_on_PC_CONST) + "|" + pCellInfoData->m_sValue,
+			iPK_Device_ControlledVia);
+		m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(DESIGNOBJ_DirectToTV_CONST),"","",true,false);
 		return true;
 	}
 	return false;
@@ -480,13 +485,16 @@ bool OSDScreenHandler::TV_Manufacturer_ObjectSelected(CallBackData *pData)
 					return true;
 
 				// Delete tv's first since maybe the user is returning to this wizard
-				m_pWizardLogic->DeleteDevicesInThisRoomOfType(DEVICECATEGORY_TVsPlasmasLCDsProjectors_CONST);
-				m_pWizardLogic->m_nPK_Device_TV = m_pWizardLogic->AddDevice(atoi(sModel.c_str()));
 				int PK_CommMethod = DatabaseUtils::GetCommMethodForDeviceTemplate(m_pWizardLogic,atoi(sModel.c_str()));
 				if( PK_CommMethod==COMMMETHOD_RS232_CONST )
 				{
 					m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(DESIGNOBJ_SelectPort_CONST),"","",false,false);
 					return true;  // We're redirecting the flow
+				}
+				else
+				{
+					m_pWizardLogic->DeleteDevicesInThisRoomOfType(DEVICECATEGORY_TVsPlasmasLCDsProjectors_CONST);
+					m_pWizardLogic->m_nPK_Device_TV = m_pWizardLogic->AddDevice(atoi(sModel.c_str()));
 				}
 			}
 		}
@@ -552,11 +560,18 @@ bool OSDScreenHandler::Receiver_GridSelected(CallBackData *pData)
 		string::size_type pos=0;
 		int iPK_Device_ControlledVia = atoi(StringUtils::Tokenize(pCellInfoData->m_sValue,",",pos).c_str());
 		string sPort = StringUtils::Tokenize(pCellInfoData->m_sValue,",",pos);
-		if( DatabaseUtils::SetDeviceControlledVia(m_pWizardLogic,m_pWizardLogic->m_nPK_Device_TV,iPK_Device_ControlledVia) )
-		{
-			DatabaseUtils::SetDeviceData(m_pWizardLogic,m_pWizardLogic->m_nPK_Device_TV,DEVICEDATA_COM_Port_on_PC_CONST,pCellInfoData->m_sValue);
-			m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(DESIGNOBJ_ReceiverInputs_CONST),"","",true,false);
-		}
+
+		string sModel = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_3_CONST];
+		if(sModel == "")
+			return true;
+
+		// Delete receivers first since maybe the user is returning to this wizard
+		m_pWizardLogic->DeleteDevicesInThisRoomOfType(DEVICECATEGORY_AmpsPreampsReceiversTuners_CONST);
+		m_pWizardLogic->m_nPK_Device_TV = m_pWizardLogic->AddDevice(atoi(sModel.c_str()),
+			StringUtils::itos(DEVICEDATA_COM_Port_on_PC_CONST) + "|" + pCellInfoData->m_sValue,
+			iPK_Device_ControlledVia);
+
+		m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(DESIGNOBJ_ReceiverInputs_CONST),"","",true,false);
 		return true;
 	}
 	return false;
@@ -599,14 +614,17 @@ bool OSDScreenHandler::Receiver_ObjectSelected(CallBackData *pData)
 				if(sModel == "")
 					return true;
 
-				// Delete receivers first since maybe the user is returning to this wizard
-				m_pWizardLogic->DeleteDevicesInThisRoomOfType(DEVICECATEGORY_AmpsPreampsReceiversTuners_CONST);
-				m_pWizardLogic->m_nPK_Device_Receiver = m_pWizardLogic->AddDevice(atoi(sModel.c_str()));
 				int PK_CommMethod = DatabaseUtils::GetCommMethodForDeviceTemplate(m_pWizardLogic,atoi(sModel.c_str()));
 				if( PK_CommMethod==COMMMETHOD_RS232_CONST )
 				{
 					m_pOrbiter->CMD_Goto_DesignObj(0,StringUtils::itos(DESIGNOBJ_SelectPort_CONST),"","",false,false);
 					return true;  // We're redirecting the flow
+				}
+				else
+				{
+					// Delete receivers first since maybe the user is returning to this wizard
+					m_pWizardLogic->DeleteDevicesInThisRoomOfType(DEVICECATEGORY_AmpsPreampsReceiversTuners_CONST);
+					m_pWizardLogic->m_nPK_Device_Receiver = m_pWizardLogic->AddDevice(atoi(sModel.c_str()));
 				}
 			}
 		}

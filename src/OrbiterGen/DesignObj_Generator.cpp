@@ -118,7 +118,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
     m_bDontShare=bDontShare;
     m_bUsingCache=false;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==2269 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==3412 )// || 
+if( m_pRow_DesignObj->PK_DesignObj_get()==1269 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==3412 )// || 
 //   m_pRow_DesignObj->PK_DesignObj_get()==4271 )// ||  m_pRow_DesignObj->PK_DesignObj_get()==2211 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==1881 ||  m_pRow_DesignObj->PK_DesignObj_get()==2228 ||
 //   m_pRow_DesignObj->PK_DesignObj_get()==3531 ||  m_pRow_DesignObj->PK_DesignObj_get()==3534 )// || m_pRow_DesignObj->PK_DesignObj_get()==3471 )// && m_ocoParent->m_pRow_DesignObj->PK_DesignObj_get()==2134 )//2821 && bAddToGenerated )*/
@@ -763,7 +763,7 @@ int k=2;
 		}
 
 		string sRegenMonitor = m_pOrbiterGenerator->m_pRegenMonitor->GetModInfo_Floorplan(FloorplanType);
-		if( sRegenMonitor.size()>1 )
+		if( sRegenMonitor.size()>0 )
 			m_pDesignObj_TopMost->m_vectRegenMonitor.push_back( sRegenMonitor );
 
 		Row_Device_DeviceData *pRow_Device_DeviceData_FPInfo=NULL;  // We may need this down below
@@ -1628,7 +1628,7 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
     }
 
 	string sRegenMonitor = m_pOrbiterGenerator->m_pRegenMonitor->GetModInfo_Array(PK_Array);
-	if( sRegenMonitor.size()>1 )
+	if( sRegenMonitor.size()>0 )
 		m_pDesignObj_TopMost->m_vectRegenMonitor.push_back( sRegenMonitor );
     return alArray;
 
