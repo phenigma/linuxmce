@@ -237,10 +237,10 @@ if [[ -d /home/backup && -f /home/backup/entire_database.sql ]]; then
 	mysql < /home/backup/entire_database.sql
 fi
 
+clear
 # XXX: No error checking
 exec 3>&1 1>/dev/tty
 while :; do
-	clear
 	ExtraPkg=$(Ask "Do you want to add extra packages? [y/N]")
 	if [[ "$ExtraPkg" == y || "$ExtraPkg" == Y ]]; then
 		ExtraRepository=$(Ask "Add a new repository? [y/N]")
