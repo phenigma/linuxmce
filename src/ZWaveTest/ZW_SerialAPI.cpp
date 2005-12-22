@@ -2,6 +2,21 @@
 
 #include "main.h"
 #include "SerialConnection.h"
+#include "ZWaveNode.h"
+#include "ZWaveJob.h"
+
+#include <deque>
+#include <map>
+
+using namespace std;
+
+typedef map<int, ZWaveNode*, less<int> > NodesMap;
+typedef NodesMap::iterator NodesMapIterator;
+typedef NodesMap::const_iterator NodesMapCIterator;
+
+typedef deque<ZWaveJob*> JobsDeque;
+typedef JobsDeque::iterator JobsDequeIterator;
+typedef JobsDeque::const_iterator JobsDequeCIterator;
 
 class ZW_SerialAPI::Private
 {
@@ -12,6 +27,8 @@ class ZW_SerialAPI::Private
 		~Private();
 
 		SerialConnection * connection;
+		JobsDeque jobsQueue;
+		NodesMap nodes;
 
 	private:
 
@@ -48,7 +65,17 @@ ZW_SerialAPI::~ZW_SerialAPI()
 	delete d;
 }
 
-bool ZW_SerialAPI::insertJob()
+bool ZW_SerialAPI::start()
+{
+	return true;
+}
+
+bool ZW_SerialAPI::stop()
+{
+	return true;
+}
+		
+bool ZW_SerialAPI::insertJob(ZWaveJob * job)
 {
 	return true;
 }
