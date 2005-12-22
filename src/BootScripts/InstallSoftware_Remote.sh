@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. /usr/pluto/bin/LockUtils.sh
+
 IP="$1"
 PackageName="$2"
 RepositoryURL="$3"
@@ -20,6 +22,7 @@ date -R >>/var/log/pluto/remote_install.newlog
 
 Result=""
 if [ -n "$IsDeb" ]; then
+	WaitLock "InstallNewDevice" "InstallSoftware_Remote"
 	[[ "$RepositoryName" != *" "* ]] && RepositoryName="$RepositoryName main contrib non-free"
 	if [[ -z "$NoAptSource" ]] && ! grep -qF "$RepositoryURL $RepositoryName" /etc/apt/sources.list; then
 		echo "$RepositoryURL $RepositoryName" |tee "/etc/apt/sources.list.test"
@@ -42,10 +45,13 @@ if [ -n "$IsDeb" ]; then
 			Result="Installation failed (from Debian repository)"
 		fi
 	fi
+	Unlock "InstallNewDevice" "InstallSoftware_Remote"
 else
 	wget -P /tmp "$RepositoryURL/$PackageName" &> >(tee -a /var/log/pluto/remote_install.newlog)
 	if [ "$?" -eq 0 ]; then
+		WaitLock "InstallNewDevice" "InstallSoftware_Remote"
 		dpkg -i /tmp/$PackageName || Result="Installation failed (direct link)" &> >(tee -a /var/log/pluto/remote_install.newlog)
+		Unlock "InstallNewDevice" "InstallSoftware_Remote"
 	else
 		Result="Download failed (direct link)"
 	fi
