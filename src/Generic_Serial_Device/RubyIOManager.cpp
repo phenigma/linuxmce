@@ -60,7 +60,7 @@ RubyDCEDeviceNode*
 RubyIOManager::InstantiateNode(Command_Impl* pcmdimpl, DeviceData_Impl* pdevdata) {
 	RubyDCEDeviceNode* pNode = NULL;
 	pcmdimpl_=pcmdimpl;
-	string sport = pdevdata->m_mapParameters[DEVICEDATA_COM_Port_on_PC_CONST];
+	string sport = pcmdimpl->GetDeviceDataFromDatabase(pcmdimpl->m_dwPK_Device,DEVICEDATA_COM_Port_on_PC_CONST);
 	PORTTYPE porttype = PORTTYPE_UNKNOWN;
 	if(!sport.empty() && sport != "0") {
 		porttype = PORTTYPE_SERIAL;
