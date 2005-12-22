@@ -445,6 +445,11 @@ void WizardLogic::SetRoomForDevice(string sPK_Device, string sFK_Room)
 	threaded_mysql_query(sSQL);
 }
 
+int WizardLogic::GetTopMostDevice(int PK_Device)
+{
+	return DatabaseUtils::GetTopMostDevice(this, PK_Device);
+}
+
 int WizardLogic::WhatRoomIsThisDeviceIn(int PK_Device)
 {
 	return GetRoomForDevice(StringUtils::ltos(DatabaseUtils::GetTopMostDevice(this, PK_Device)));

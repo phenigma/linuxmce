@@ -100,6 +100,8 @@ public:
 	
 	long GetRoomForDevice(string sPK_Device);
 	void SetRoomForDevice(string sPK_Device, string sFK_Room);
+
+	int GetTopMostDevice(int PK_Device);
 };
 //-----------------------------------------------------------------------------------------------------
 #endif

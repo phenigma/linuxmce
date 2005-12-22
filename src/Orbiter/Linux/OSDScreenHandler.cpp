@@ -296,7 +296,10 @@ bool OSDScreenHandler::RoomsWizard_ObjectSelected(CallBackData *pData)
 				if(sPK_Room == "")
 					return true;
 
-				m_pWizardLogic->SetRoomForDevice(StringUtils::ltos(m_pOrbiter->m_dwPK_Device), sPK_Room);
+				int nPK_Device_TopMost = m_pWizardLogic->GetTopMostDevice(m_pOrbiter->m_dwPK_Device);
+				g_pPlutoLogger->Write(LV_WARNING, "Setting the room for top most device %d, room %s", 
+					nPK_Device_TopMost, sPK_Room.c_str());
+				m_pWizardLogic->SetRoomForDevice(StringUtils::ltos(nPK_Device_TopMost), sPK_Room);
 			}
 		}
 		break;
