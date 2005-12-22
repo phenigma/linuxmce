@@ -171,6 +171,7 @@ bool IRTrans::GetConfig()
 			}
 		}
 	}
+
 	pthread_t pthread_id; 
 	if(pthread_create( &pthread_id, NULL, DoStartIRServer, (void*) this) )
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot start IRServer thread");
@@ -324,6 +325,11 @@ void IRTrans::StartIRServer()
 					g_pPlutoLogger->Write(LV_STATUS,"IRTrans not found on %s",sPort.c_str());
 				else
 					break;  // we don't get here anyway
+			}
+			if( s==vectPorts.size() )
+			{
+				g_pPlutoLogger->Write(LV_STATUS,"No IRTrans found on any port.  Clearing the database entry");
+				SetDeviceDataInDB(m_dwPK_Device,DEVICEDATA_COM_Port_on_PC_CONST,"");
 			}
 		}
 	}

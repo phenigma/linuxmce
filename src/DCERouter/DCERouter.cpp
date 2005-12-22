@@ -987,10 +987,13 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 		{
 			map<long, string>::iterator p = (*SafetyMessage)->m_mapParameters.begin();
 			if ( p != (*SafetyMessage)->m_mapParameters.end() )
-				SetDeviceDataInDB((*SafetyMessage)->m_dwPK_Device_From,p->first,p->second,true);
+				SetDeviceDataInDB((*SafetyMessage)->m_dwPK_Device_From,p->first,p->second);
 		}
 		else if ( (*SafetyMessage)->m_dwMessage_Type == MESSAGETYPE_DATAPARM_REQUEST )
 		{
+#ifdef DEBUG
+			g_pPlutoLogger->Write(LV_STATUS,"DCERouter MESSAGETYPE_DATAPARM_REQUEST");
+#endif
 			map<long, string>::iterator p = (*SafetyMessage)->m_mapParameters.begin();
 			if ( p != (*SafetyMessage)->m_mapParameters.end() )
 			{
@@ -1000,6 +1003,11 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 				if( pRow_Device_DeviceData )
 				{
 					pRow_Device_DeviceData->Reload();
+#ifdef DEBUG
+			g_pPlutoLogger->Write(LV_STATUS,"DCERouter MESSAGETYPE_DATAPARM_REQUEST device %d data %d=%s",
+				pRow_Device_DeviceData->FK_Device_get(),pRow_Device_DeviceData->FK_DeviceData_get(),
+				pRow_Device_DeviceData->IK_DeviceData_get().c_str());
+#endif
 					pSocket->SendMessage(new Message(m_dwPK_Device, (*SafetyMessage)->m_dwPK_Device_From, PRIORITY_NORMAL, MESSAGETYPE_REPLY, 0, 1, (*SafetyMessage)->m_dwID, pRow_Device_DeviceData->IK_DeviceData_get().c_str()));
 					(*SafetyMessage)->m_bRespondedToMessage=true;
 				}
