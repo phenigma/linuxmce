@@ -45,6 +45,7 @@ function core($output,$dbADO) {
 
 
 	if ($action == 'form') {
+		$roomsArray=getAssocArray('Room','PK_Room','Description',$dbADO,'WHERE FK_Installation='.$installationID,'ORDER BY Description ASC');
 	$out.=setLeftMenu($dbADO).'
 	<script>
 	function windowOpen(locationA,attributes) {
@@ -61,6 +62,9 @@ function core($output,$dbADO) {
 	<input type="hidden" name="section" value="core">
 	<input type="hidden" name="action" value="update">
 <table>
+	<tr>
+		<td><B>Room:</B> '.pulldownFromArray($roomsArray,'room',$coreRoom).'</td>
+	</tr>	
 	<tr>
 		<td>'.getInstallWizardDeviceTemplates(5,$dbADO,$coreDCERouterID,$coreDistro,$CoreOS).'</td>
 	</tr>	
@@ -103,7 +107,10 @@ function core($output,$dbADO) {
 				$dbADO->Execute("DELETE FROM Device WHERE PK_Device='".$oldDevice."'");
 			}
 		}
-
+		$room=((int)$_REQUEST['room']>0)?(int)$_REQUEST['room']:NULL;
+		$dbADO->Execute('UPDATE Device SET FK_Room=? WHERE PK_Device=?',array($room,$coreID));
+		$dbADO->Execute('UPDATE Device JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate SET FK_Room=? WHERE FK_Device_ControlledVia=? AND FK_DeviceCategory=?',array($room,$coreID,$GLOBALS['rootMediaDirectors']));
+		
 		Header('Location: index.php?section=core&msg='.$TEXT_CORE_OPTIONAL_DEVICES_UPDATED_CONST);
 	}
 	
