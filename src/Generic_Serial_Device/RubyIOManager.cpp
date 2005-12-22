@@ -87,7 +87,7 @@ RubyIOManager::InstantiateNode(Command_Impl* pcmdimpl, DeviceData_Impl* pdevdata
     	    case PORTTYPE_SERIAL: {
 	            int bps = 9600;
 
-        	    string serport = pdevdata->m_mapParameters[DEVICEDATA_COM_Port_on_PC_CONST];
+        	    string serport = pcmdimpl->m_pEvent->GetDeviceDataFromDatabase(pcmdimpl->m_dwPK_Device,DEVICEDATA_COM_Port_on_PC_CONST);
 				serport = TranslateSerialUSB(serport);
             	if(serport.find("/dev/") == 0) {
 	                serport.erase(0, strlen("/dev/"));

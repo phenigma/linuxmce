@@ -365,6 +365,13 @@ void IRTrans::GotIRCommand(const char *pRemote,const char *pCommand)
 
 void IRTrans::DoUpdateDisplay(vector<string> *vectString)
 {
+	if( m_sAltPort.size() && m_bIRServerRunning )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"IRTrans setting port to %s",m_sAltPort.c_str());
+		SetDeviceDataInDB(m_dwPK_Device,DEVICEDATA_COM_Port_on_PC_CONST,m_sAltPort);
+		m_sAltPort="";
+	}
+
 	if( !vectString || vectString->size()==0 )
 		return;
 

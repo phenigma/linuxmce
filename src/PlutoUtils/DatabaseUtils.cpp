@@ -30,6 +30,18 @@
 
 string DatabaseUtils::HumanReadablePort(MySqlHelper *pMySqlHelper,int PK_Device,string sPort)
 {
+	string sPortMapping = GetDeviceData(pMySqlHelper,PK_Device,DEVICEDATA_Serial_Port_Names_CONST);
+	string::size_type pos=0;
+	while(pos<sPortMapping.size())
+	{
+		string sToken = StringUtils::Tokenize(sPortMapping,",",pos);
+		string::size_type posEqual = sToken.find('=');
+		if( posEqual==string::npos )
+			continue;
+		if( sToken.substr(0,posEqual)==sPort )
+			return sToken.substr(posEqual+1);
+	}
+
 	if(sPort == "/dev/ttyS0")
 		sPort = "COM1";
 	if(sPort == "/dev/ttyS1")
@@ -143,6 +155,19 @@ void DatabaseUtils::SetDeviceData(MySqlHelper *pMySqlHelper,int PK_Device,int PK
 			+ StringUtils::SQLEscape(IK_DeviceData) + "');";
 
 	pMySqlHelper->threaded_mysql_query(sSQL);	
+}
+
+string DatabaseUtils::GetDeviceData(MySqlHelper *pMySqlHelper,int PK_Device,int PK_DeviceData)
+{
+	string sSQL = "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device=" + StringUtils::itos(PK_Device) 
+		+ " AND FK_DeviceData=" + StringUtils::itos(PK_DeviceData);
+
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+	if( ( result.r=pMySqlHelper->mysql_query_result( sSQL ) ) && ( row=mysql_fetch_row( result.r ) ) && row[0] )
+		return row[0];
+	else
+		return "";
 }
 
 void DatabaseUtils::GetAllDevicesInTree(MySqlHelper *pMySqlHelper,int PK_Device,map<int,int> &mapDeviceTree,bool bCheckParent,int PK_Device_ChildExclude)
