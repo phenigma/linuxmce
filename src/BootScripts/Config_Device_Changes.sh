@@ -2,6 +2,7 @@
 
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/SQL_Ops.sh
+. /usr/pluto/bin/LockUtils.sh
 
 NeedConfigure()
 {
@@ -70,9 +71,11 @@ awk "NR<$linecount-8" "$CUsh.$$" >"$CUsh"
 rm "$CUsh.$$"
 
 chmod +x "$CUsh"
+WaitLock "InstallNewDevice" "Confirm_Device_Changes" # don't step on InstallNewDevices scripts that may be running in the background
 if bash -x "$CUsh" &> >(tee /var/log/pluto/Config_Device_Changes.newlog); then
 	Unset_NeedConfigure_Children "$PK_Device"
 fi
+Unlock "InstallNewDevice" "Confirm_Device_Changes"
 #rm "$CUsh"
 
 echo /usr/pluto/bin/ConfirmDependencies -n -h $MySqlHost -u $MySqlUser $Pass -d $PK_Device buildall
@@ -90,4 +93,3 @@ if [[ "$2" == "StartLocalDevice" ]]; then
         echo "Starting local devices"
         /usr/pluto/bin/Start_LocalDevices.sh
 fi
-
