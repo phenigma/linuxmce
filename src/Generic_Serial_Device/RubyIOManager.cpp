@@ -19,6 +19,7 @@
 #include "NetworkIOPool.h"
 #include "PlutoUtils/LinuxSerialUSB.h"
 #include "DCE/DeviceData_Impl.h"
+#include "DCE/Command_Impl.h"
 #include "DCE/Logger.h"
 #include "DCE/Message.h"
 #include "DCE/Command_Impl.h"
@@ -60,7 +61,7 @@ RubyDCEDeviceNode*
 RubyIOManager::InstantiateNode(Command_Impl* pcmdimpl, DeviceData_Impl* pdevdata) {
 	RubyDCEDeviceNode* pNode = NULL;
 	pcmdimpl_=pcmdimpl;
-	string sport = pcmdimpl->GetDeviceDataFromDatabase(pcmdimpl->m_dwPK_Device,DEVICEDATA_COM_Port_on_PC_CONST);
+	string sport = pcmdimpl->m_pEvent->GetDeviceDataFromDatabase(pcmdimpl->m_dwPK_Device,DEVICEDATA_COM_Port_on_PC_CONST);
 	PORTTYPE porttype = PORTTYPE_UNKNOWN;
 	if(!sport.empty() && sport != "0") {
 		porttype = PORTTYPE_SERIAL;
