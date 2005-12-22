@@ -9,7 +9,7 @@ ConfEval()
 	local Ret=0
 	WaitLock "pluto.conf" "Config_Ops-ConfEval" nolog
 	if [[ ! -e /etc/pluto.conf ]]; then
-		UnLock "pluto.conf" "Config_Ops-ConfEval" nolog
+		Unlock "pluto.conf" "Config_Ops-ConfEval" nolog
 		exit 0
 	fi
 	# Note to self: this "read from file into while" is absolutely necessary
