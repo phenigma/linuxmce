@@ -2,4 +2,8 @@
 
 cd /usr/pluto/bin
 ./SetupUsers_Homes.sh
-./generate_users_voicemenu.pl || /bin/true
+if [ -x /usr/pluto/bin/generate_users_voicemenu.pl \
+then
+	./generate_users_voicemenu.pl
+fi
+
