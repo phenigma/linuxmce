@@ -372,6 +372,16 @@ RubyIOManager::SendMessage(Message* pmsg) {
 		g_pPlutoLogger->Write(LV_STATUS, "Message was sent.");
 }
 
+void 
+RubyIOManager::SendString(string str) {
+	g_pPlutoLogger->Write(LV_STATUS, "Ruby code sending string...");
+	if(!pcmdimpl_->SendString(str))
+		g_pPlutoLogger->Write(LV_WARNING, "Failed to send string.");
+	else
+		g_pPlutoLogger->Write(LV_STATUS, "String was sent.");
+}
+
+
 bool 
 RubyIOManager::handleStartup() {
 	try {

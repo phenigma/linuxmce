@@ -68,6 +68,7 @@ public:
 public:
 	int RouteMessage(DeviceData_Base* pdevdata, Message *pMessage);
 	virtual void SendMessage(Message* pmsg);
+	virtual void SendString(string str);
 	pluto_pthread_mutex_t m_MsgMutex;
 	
 protected:
