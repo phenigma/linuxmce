@@ -70,7 +70,7 @@ int main(int argc, char * argv[])
 		
 		printf("Received: %s", buffer);
 
-		if (commands[cmd_idx] != NULL)
+		if (commands[cmd_idx] != NULL) // reason for this: sometimes we receive a "prompt>" after the last command, which resulted in a Segmentation Fault
 		{
 			if (strstr(buffer, "prompt>") == buffer)
 			{
