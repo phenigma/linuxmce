@@ -10,4 +10,4 @@ ConfSet UseSkinSettings_7 1
 ConfSet UseSkinSettings_10 3
 ConfSet UseSkinSettings_11 6
 
-mv /var/www/pluto-admin/include/images/{logo_pluto,monster_logo}.jpg
+mv /var/www/pluto-admin/include/images/{monster_logo,logo_pluto}.jpg
