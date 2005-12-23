@@ -86,7 +86,7 @@ int UserUtils::AddUser(string sUsername)
 			(row = mysql_fetch_row(result_set.r))==NULL || atoi(row[0])==0 )
 				break;  // This username is unique
 	}
-	sSQL = "INSERT INTO Users(UserName) VALUES('" + StringUtils::SQLEscape(sUsername) + "');";
+	sSQL = "INSERT INTO Users(UserName,Password) VALUES('" + StringUtils::SQLEscape(sUsername) + "',md5('" + StringUtils::SQLEscape(sUsername) + "'));";
 
 	int PK_Users = m_pMySqlHelper->threaded_mysql_query_withID(sSQL);
 	sSQL = "INSERT INTO Installation_Users(FK_Installation,FK_Users,userCanModifyInstallation,userCanChangeHouseMode) "
