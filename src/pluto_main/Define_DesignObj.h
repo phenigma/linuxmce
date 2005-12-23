@@ -1630,14 +1630,12 @@
 #define DESIGNOBJ_butAdvancedOptions2_CONST 4441
 #define DESIGNOBJ_mapMedia_CONST 4444
 #define DESIGNOBJ_butArrayMediaFloorplan_CONST 4445
-#define DESIGNOBJ_mnuFilelist_CONST 4447
+#define DESIGNOBJ_mnuFilelist_movies_video_music_CONST 4447
 #define DESIGNOBJ_butDVDfilelist_CONST 4448
 #define DESIGNOBJ_mnuDVDmenu_CONST 4449
-#define DESIGNOBJ_mnuAttributes_CONST 4451
 #define DESIGNOBJ_butDVDoptions_CONST 4452
 #define DESIGNOBJ_mnuDVDoptions_CONST 4453
 #define DESIGNOBJ_butAdvRemote_CONST 4454
-#define DESIGNOBJ_mnuAdvRemote_CONST 4455
 #define DESIGNOBJ_mnuPlaylist_CONST 4456
 #define DESIGNOBJ_butPlaylist_CONST 4457
 #define DESIGNOBJ_butCreateBookmarks_CONST 4458
