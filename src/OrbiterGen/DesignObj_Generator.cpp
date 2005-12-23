@@ -282,7 +282,8 @@ int k=2;
         {
             if( GraphicType==1 )
 			{
-				if( m_pRow_DesignObj==m_pOrbiterGenerator->m_pRow_DesignObj_MainMenu &&
+				if( m_pOrbiterGenerator->m_iLocation<m_pOrbiterGenerator->m_dequeLocation.size() &&
+						m_pRow_DesignObj==m_pOrbiterGenerator->m_pRow_DesignObj_MainMenu &&
 						FileUtils::FileExists(m_pOrbiterGenerator->m_GraphicsBasePath + "/" + m_pOrbiterGenerator->m_pRow_Skin->DataSubdirectory_get() + 
 						"/../../orbiter_bg/" + StringUtils::itos(m_pOrbiterGenerator->m_iPK_Orbiter) + "_" + 
 						StringUtils::itos(m_pOrbiterGenerator->m_dequeLocation[m_pOrbiterGenerator->m_iLocation]->PK_Room) + ".png") )
