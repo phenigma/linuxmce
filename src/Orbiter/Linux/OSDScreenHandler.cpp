@@ -1089,6 +1089,10 @@ bool OSDScreenHandler::AlarmPanel_ObjectSelected(CallBackData *pData)
                 m_pOrbiter->StartScreenHandlerTimer(500);
 
 				g_pPlutoLogger->Write(LV_WARNING, "Started detection timer for alarm device %d", m_pWizardLogic->m_nPK_Device_AlarmPanel);
+
+				m_pOrbiter->RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter::ScreenHandlerMsgInterceptor),0,0,0,0,MESSAGETYPE_EVENT,EVENT_Reporting_Child_Devices_CONST);
+
+				g_pPlutoLogger->Write(LV_WARNING, "Registered message interceptor for %d", m_pWizardLogic->m_nPK_Device_AlarmPanel);
 			}
 		}
 		break;
