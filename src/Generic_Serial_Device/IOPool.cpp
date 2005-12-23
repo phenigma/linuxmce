@@ -15,7 +15,7 @@
 #include "IOPool.h"
 
 #define FAIL_SLEEP_TIME				2000
-#define DATA_AVAILABLE_WAIT_TIME	5
+#define DATA_AVAILABLE_WAIT_TIME	100
 
 namespace DCE {
 
