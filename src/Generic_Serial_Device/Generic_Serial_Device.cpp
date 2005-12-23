@@ -177,7 +177,14 @@ void Generic_Serial_Device::ParseDeviceHierarchy(DeviceData_Impl *pdevdata) {
 			}
 		}
 	} else {
-	    g_pPlutoLogger->Write(LV_STATUS, "Device %d has no GSD specified as command line. No ruby code will be executed.",
-						pdevdata->m_dwPK_Device);
+		if(pdevdata->m_bRunningWithoutDeviceData)
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "Running without DeviceData, will try to add device");
+			pmanager->addDevice(this, pdevdata);
+		}
+		else
+		{
+		    g_pPlutoLogger->Write(LV_STATUS, "Device %d has no GSD specified as command line. No ruby code will be executed.",pdevdata->m_dwPK_Device);
+		}
 	}
 }

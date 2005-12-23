@@ -253,7 +253,7 @@ RubyIOManager::RouteMessage(DeviceData_Base* pdevdata, Message *pMessage) {
 	/*find device*/
 	if(!pdevdata)
 	{
-	    g_pPlutoLogger->Write(LV_WARNING, "Running without DeviceData");	
+	    g_pPlutoLogger->Write(LV_WARNING, "Running without DeviceData");
 		routeToDevice = pMessage->m_dwPK_Device_To;
 	}
 	else
