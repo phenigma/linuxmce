@@ -58,7 +58,7 @@
 	$GLOBALS['ONScreenOrbiter']=62;				// On screen orbiter
 	$GLOBALS['EventPlugIn']=52;					// Event plugin
 	$GLOBALS['Asterisk']=45;					// Asterisk
-	$GLOBALS['ProxyOrbiter']=1727;				// Proxy Orbiter
+	$GLOBALS['ProxyOrbiter']=1749;				// Proxy Orbiter
 	$GLOBALS['GenericWebDevice']=1748;			// Generic Web Device
 	$GLOBALS['PowerfileC200']=1737;				// Powerfile C200
 	
