@@ -1073,7 +1073,7 @@ bool OSDScreenHandler::AlarmPanel_ObjectSelected(CallBackData *pData)
 
 				m_pWizardLogic->m_bAlarmPanelCommandReceived = false;
 				m_pWizardLogic->m_bAlarmPanelIsOk = false;
-				m_pWizardLogic->m_nAlarmDeviceTimeout = 150 * 1000;//2 min and 1/2
+				m_pWizardLogic->m_nAlarmDeviceTimeout = 210 * 1000;// 3 min and 1/2 timeout
 
 				g_pPlutoLogger->Write(LV_WARNING, "AddDevice called for alarm device %d", m_pWizardLogic->m_nPK_Device_AlarmPanel);
 				m_pWizardLogic->m_bAlarmPanelDetectionStarted = false;
