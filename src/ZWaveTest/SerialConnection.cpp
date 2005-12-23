@@ -40,6 +40,13 @@ int SerialConnection::disconnect()
 	return 0;
 }
 
+
+bool SerialConnection::isConnected()
+{
+	//TODO Edgar
+	return true;
+}
+
 int SerialConnection::send(char *buffer, unsigned int len)
 {
 	int returnValue = 0;
@@ -103,9 +110,10 @@ int SerialConnection::receive(char *b, unsigned int *len)
 	else
 	{
 		*len = 0;
-		return 0;
 	}
+	
 	pthread_mutex_unlock( &instance->mutex_buffer );
+	return 0;
 }
 
 int SerialConnection::hasCommand()
@@ -141,6 +149,12 @@ int SerialConnection::hasCommand()
 		returnValue = -1;
 	pthread_mutex_unlock( &instance->mutex_buffer );
 	return returnValue;
+}
+
+const char * SerialConnection::getCommand() const
+{
+	//TODO Edgar
+	return NULL;
 }
 
 char SerialConnection::checkSum(char *b, int len)

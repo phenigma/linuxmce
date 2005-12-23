@@ -11,17 +11,23 @@ class ZW_SerialAPI
 		
 		enum ZW_JOB { VERSION, GET_INFO, SET_INFO, INITIALIZE, RECEIVE, ADD_NODE, REMOVE_NODE };
 
-		ZW_SerialAPI();
+		static ZW_SerialAPI * instance();
 
 		virtual ~ZW_SerialAPI();
 
 		virtual bool start();
+		
+		virtual bool listen();
 		
 		virtual bool stop();
 		
 		virtual bool insertJob(ZWaveJob*);
 
 	private:
+
+		ZW_SerialAPI();
+		
+		static ZW_SerialAPI * ref;
 
 		class Private;
 		Private * d;

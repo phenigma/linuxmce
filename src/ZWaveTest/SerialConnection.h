@@ -21,26 +21,31 @@ public:
 	*@param buffer the buffer to be sent
 	*@param len the length of the buffer
 	*@return 0 if OK, else negative */
-	int send(char *buffer, unsigned int len);
+	virtual int send(char *buffer, unsigned int len);
 	
 	/**try to get the specified len from the serial buffer
 	* @parameter buffer the buffer where the data should be found
 	* @param len the len that should be read. After the call, len will contain the actual read data length*/
-	int receive(char *buffer, unsigned int *len);
+	virtual int receive(char *buffer, unsigned int *len);
 
 	/**disconnect from the serial port
 	*@return 0*/
-	int SerialConnection::disconnect();
+	virtual int disconnect();
 
 	/**connect to the serial port
 	*@return 0 if successfull, else negative*/
-	int SerialConnection::connect();
+	virtual int connect();
+	
+	virtual bool isConnected();
 
 	/**checks if there is a full response in the serial buffer
 	*@return true if there is a full response in the buffer*/
-	int SerialConnection::hasCommand();
+	virtual int hasCommand();
+	
+	/** Returns a buffer containing the current command.*/
+	virtual const char * getCommand() const;
 
-	~SerialConnection();
+	virtual ~SerialConnection();
 
 private:
 	/**static instance of this class*/

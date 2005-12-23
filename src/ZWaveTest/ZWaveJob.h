@@ -17,7 +17,7 @@ class ZWaveJob
 		virtual bool run() = 0;
 		
 		/** It is called to process the protocol data flow.*/
-		virtual bool processData(const char * buffer, unsigned length) = 0;
+		virtual bool processData(const char * buffer, size_t length) = 0;
 		
 		/** Returns the job state.*/
 		virtual JobState state() const;
