@@ -1,9 +1,9 @@
 #ifndef __Define_RoomType_H__
 #define __Define_RoomType_H__
 
-#define ROOMTYPE_Living_Room_CONST 1
+#define ROOMTYPE_Living_RoomFamily_Room_CONST 1
 #define ROOMTYPE_ClosetStorage_Space_CONST 2
-#define ROOMTYPE_Bedroom_CONST 3
+#define ROOMTYPE_Bedroom_Other_CONST 3
 #define ROOMTYPE_Garage_CONST 4
 #define ROOMTYPE_Kitchen_CONST 5
 #define ROOMTYPE_Patio_CONST 6
@@ -11,7 +11,9 @@
 #define ROOMTYPE_Outside_Area_CONST 8
 #define ROOMTYPE_Miscellaneous_CONST 9
 #define ROOMTYPE_Hallway_CONST 10
-#define ROOMTYPE_Master_Bedroom_CONST 11
+#define ROOMTYPE_Bedroom_Master_CONST 11
+#define ROOMTYPE_Home_Theater_CONST 12
+#define ROOMTYPE_FoyerEntrance_CONST 13
 
 #define ROOMTYPE_TABLE "RoomType"
 #define ROOMTYPE_PK_ROOMTYPE_FIELD "PK_RoomType"

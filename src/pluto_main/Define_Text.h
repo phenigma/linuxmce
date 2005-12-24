@@ -913,6 +913,8 @@
 #define TEXT_alarm_error_CONST 1625
 #define TEXT_which_room_is_this_system_in_CONST 1626
 #define TEXT_Please_enter_your_phone_number_for_this_CONST 1627
+#define TEXT_CableAntenna_input_CONST 1628
+#define TEXT_External_Tuner_CONST 1629
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
