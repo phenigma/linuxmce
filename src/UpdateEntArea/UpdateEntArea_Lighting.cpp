@@ -67,24 +67,28 @@ bool UpdateEntArea::IsLight(int PK_FloorplanType)
 
 bool UpdateEntArea::IsPublicInteriorRoom(int PK_RoomType)
 {
-	return PK_RoomType==ROOMTYPE_Living_Room_CONST ||
-		PK_RoomType==ROOMTYPE_ClosetStorage_Space_CONST || 
-		PK_RoomType==ROOMTYPE_Garage_CONST || 
-		PK_RoomType==ROOMTYPE_Kitchen_CONST || 
-		PK_RoomType==ROOMTYPE_Dining_Room_CONST || 
-		PK_RoomType==ROOMTYPE_Hallway_CONST;
-}
-
-bool UpdateEntArea::IsInteriorRoom(int PK_RoomType)
-{
-	return PK_RoomType==ROOMTYPE_Living_Room_CONST ||
+	return PK_RoomType==ROOMTYPE_Living_RoomFamily_Room_CONST ||
 		PK_RoomType==ROOMTYPE_ClosetStorage_Space_CONST || 
 		PK_RoomType==ROOMTYPE_Garage_CONST || 
 		PK_RoomType==ROOMTYPE_Kitchen_CONST || 
 		PK_RoomType==ROOMTYPE_Dining_Room_CONST || 
 		PK_RoomType==ROOMTYPE_Hallway_CONST ||
-		PK_RoomType==ROOMTYPE_Bedroom_CONST ||
-		PK_RoomType==ROOMTYPE_Master_Bedroom_CONST;
+		PK_RoomType==ROOMTYPE_FoyerEntrance_CONST ||
+		PK_RoomType==ROOMTYPE_Home_Theater_CONST;
+}
+
+bool UpdateEntArea::IsInteriorRoom(int PK_RoomType)
+{
+	return PK_RoomType==ROOMTYPE_Living_RoomFamily_Room_CONST ||
+		PK_RoomType==ROOMTYPE_ClosetStorage_Space_CONST || 
+		PK_RoomType==ROOMTYPE_Garage_CONST || 
+		PK_RoomType==ROOMTYPE_Kitchen_CONST || 
+		PK_RoomType==ROOMTYPE_Dining_Room_CONST || 
+		PK_RoomType==ROOMTYPE_Hallway_CONST ||
+		PK_RoomType==ROOMTYPE_Bedroom_Other_CONST ||
+		PK_RoomType==ROOMTYPE_Bedroom_Master_CONST ||
+		PK_RoomType==ROOMTYPE_FoyerEntrance_CONST ||
+		PK_RoomType==ROOMTYPE_Home_Theater_CONST;
 }
 
 bool UpdateEntArea::IsExterior(int PK_RoomType)
@@ -167,7 +171,7 @@ void UpdateEntArea::AddDefaultLightingScenarios(Row_Room *pRow_Room)
 		}
 	}
 
-	if( pRow_Room->FK_RoomType_get()==ROOMTYPE_Bedroom_CONST || pRow_Room->FK_RoomType_get()==ROOMTYPE_Master_Bedroom_CONST )
+	if( pRow_Room->FK_RoomType_get()==ROOMTYPE_Bedroom_Other_CONST || pRow_Room->FK_RoomType_get()==ROOMTYPE_Bedroom_Master_CONST )
 	{
 		pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Lighting_Automatic_CONST,"Sleep",ICON_Sleep_CONST,3,0);  // Bedtime is parm1=3
 		if( pCommandGroup )
@@ -199,7 +203,7 @@ void UpdateEntArea::AddDefaultLightingScenarios(Row_Room *pRow_Room)
 		}
 	}
 
-	if( pRow_Room->FK_RoomType_get()==ROOMTYPE_Master_Bedroom_CONST )
+	if( pRow_Room->FK_RoomType_get()==ROOMTYPE_Bedroom_Master_CONST )
 	{
 		pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Lighting_Automatic_CONST,"House to sleep mode",ICON_House_to_Sleep_Mode_CONST,5,0);  // House to sleep mode is parm1=5
 		if( pCommandGroup )
