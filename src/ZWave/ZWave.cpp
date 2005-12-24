@@ -331,3 +331,17 @@ void ZWave::CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParamet
 		return;
 	}
 }
+//<-dceag-c760-b->
+
+	/** @brief COMMAND: #760 - Send Command To Child */
+	/** After reporting new child devices, there may be children we want to test, but we haven't done a quick reload router and can't send them messages directly.  This way we can send 'live' messages to children */
+		/** @param #10 ID */
+			/** The internal ID used for this device--not the Pluto device ID. */
+		/** @param #154 PK_Command */
+			/** The command to send */
+		/** @param #202 Parameters */
+			/** Parameters for the command in the format:
+PK_CommandParameter|Value|... */
+
+void ZWave::CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParameters,string &sCMD_Result,Message *pMessage)
+//<-dceag-c760-e->

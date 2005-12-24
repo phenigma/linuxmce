@@ -75,7 +75,7 @@ public:
 	virtual void CMD_Download_Configuration(string sText,string &sCMD_Result,Message *pMessage);
 
 
-	/** @brief COMMAND: #759 - Send Command To Child */
+	/** @brief COMMAND: #760 - Send Command To Child */
 	/** After reporting new child devices, there may be children we want to test, but we haven't done a quick reload router and can't send them messages directly.  This way we can send 'live' messages to children */
 		/** @param #10 ID */
 			/** The internal ID used for this device--not the Pluto device ID. */

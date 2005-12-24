@@ -39,7 +39,7 @@ public:
 	class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition);
 	virtual int GetPK_DeviceList() { return 1754; } ;
 	virtual const char *GetDeviceDescription() { return "ZWave"; } ;
-	string Get_Remote_Phone_IP() { return m_mapParameters[118];}
+	string Get_Remote_Phone_IP() { if( m_bRunningWithoutDeviceData )  return m_pEvent_Impl->GetDeviceDataFromDatabase(m_dwPK_Device,118); else return m_mapParameters[118];}
 };
 
 
@@ -105,6 +105,11 @@ public:
 		m_pData = new ZWave_Data();
 		if( Size )
 			m_pData->SerializeRead(Size,pConfig);
+		else
+		{
+			m_pData->m_dwPK_Device=m_dwPK_Device;  // Assign this here since it didn't get it's own data
+			m_pData->m_bRunningWithoutDeviceData=true;
+		}
 		delete[] pConfig;
 		pConfig = m_pEvent->GetDeviceList(Size);
 		m_pData->m_AllDevices.SerializeRead(Size,pConfig);
@@ -203,7 +208,7 @@ public:
 					};
 					iHandled++;
 					continue;
-				case 759:
+				case 760:
 					{
 						string sCMD_Result="OK";
 					string sID=pMessage->m_mapParameters[10];
