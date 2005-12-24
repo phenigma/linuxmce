@@ -21,7 +21,7 @@ namespace DCE
 	    pthread_mutexattr_t m_MutexAttr;
 
 		// Private methods
-		bool ConfirmConnection();
+		bool ConfirmConnection(int iRetryCount=0);
 public:
 		// Public member variables
 

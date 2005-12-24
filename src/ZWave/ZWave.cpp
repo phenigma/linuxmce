@@ -94,19 +94,47 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 	if( pMessage->m_dwID==COMMAND_Generic_On_CONST )
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"Sending ON");
-		m_pPlainClientSocket->SendString("ON " + StringUtils::itos(NodeID));
+		string sOutput = "ON " + StringUtils::itos(NodeID);
+		m_pPlainClientSocket->SendString(sOutput);
+		string sResponse;
+		m_pPlainClientSocket->ReceiveString(sResponse,10);
+		if( sResponse!="OK " + sOutput )
+		{
+			m_pPlainClientSocket->Disconnect();
+			sCMD_Result = "DEVICE DIDN'T RESPOND";
+			return;
+		}
 		return;
 	}
 	else if( pMessage->m_dwID==COMMAND_Generic_Off_CONST )
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"Sending Off");
-		m_pPlainClientSocket->SendString("OFF " + StringUtils::itos(NodeID));
+		string sOutput = "OFF " + StringUtils::itos(NodeID);
+		m_pPlainClientSocket->SendString(sOutput);
+		string sResponse;
+		m_pPlainClientSocket->ReceiveString(sResponse,10);
+		if( sResponse!="OK " + sOutput )
+		{
+			m_pPlainClientSocket->Disconnect();
+			sCMD_Result = "DEVICE DIDN'T RESPOND";
+			return;
+		}
+
 		return;
 	}
 	else if( pMessage->m_dwID==COMMAND_Set_Level_CONST )
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"Sending LEVEL");
-		m_pPlainClientSocket->SendString("LEVEL" + pMessage->m_mapParameters[COMMANDPARAMETER_Level_CONST] + " " + StringUtils::itos(NodeID));
+		string sOutput = "LEVEL" + pMessage->m_mapParameters[COMMANDPARAMETER_Level_CONST] + " " + StringUtils::itos(NodeID);
+		m_pPlainClientSocket->SendString(sOutput);
+		string sResponse;
+		m_pPlainClientSocket->ReceiveString(sResponse,10);
+		if( sResponse!="OK " + sOutput )
+		{
+			m_pPlainClientSocket->Disconnect();
+			sCMD_Result = "DEVICE DIDN'T RESPOND";
+			return;
+		}
 		return;
 	}
 	sCMD_Result = "UNHANDLED CHILD";
@@ -232,7 +260,7 @@ return;
 	}
 }
 
-bool ZWave::ConfirmConnection()
+bool ZWave::ConfirmConnection(int RetryCount)
 {
 //return true;
 	PLUTO_SAFETY_LOCK(zm,m_ZWaveMutex);
@@ -256,13 +284,27 @@ bool ZWave::ConfirmConnection()
 	if( !m_pPlainClientSocket->Connect() )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to connect");
+		if( RetryCount<3 )
+		{
+			Sleep(500);
+			return ConfirmConnection(RetryCount+1);
+		}
+
 		return false;
 	}
 	m_pPlainClientSocket->SendString("PING");
 	string sResponse;
 	m_pPlainClientSocket->ReceiveString(sResponse,10);
 	g_pPlutoLogger->Write(LV_STATUS,"Sent PING 2 got %s",sResponse.c_str());
-	return sResponse=="PONG";
+	if( sResponse=="PONG" ) 
+		return true;
+	if( RetryCount<3 )
+	{
+		Sleep(500);
+		return ConfirmConnection(RetryCount+1);
+	}
+
+	return false;
 }
 
 void *DoReportChildDevices(void *p)
@@ -321,13 +363,31 @@ void ZWave::CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParamet
 	if( iPK_Command==COMMAND_Generic_On_CONST )
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"Sending ON");
-		m_pPlainClientSocket->SendString("ON " + sID);
+		string sOutput = "ON " + sID;
+		m_pPlainClientSocket->SendString(sOutput);
+		string sResponse;
+		m_pPlainClientSocket->ReceiveString(sResponse,10);
+		if( sResponse!="OK " + sOutput )
+		{
+			m_pPlainClientSocket->Disconnect();
+			sCMD_Result = "DEVICE DIDN'T RESPOND";
+			return;
+		}
 		return;
 	}
 	else if( iPK_Command==COMMAND_Generic_Off_CONST )
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"Sending Off");
-		m_pPlainClientSocket->SendString("OFF " + sID);
+		string sOutput = "OFF " + sID;
+		m_pPlainClientSocket->SendString(sOutput);
+		string sResponse;
+		m_pPlainClientSocket->ReceiveString(sResponse,10);
+		if( sResponse!="OK " + sOutput )
+		{
+			m_pPlainClientSocket->Disconnect();
+			sCMD_Result = "DEVICE DIDN'T RESPOND";
+			return;
+		}
 		return;
 	}
 }

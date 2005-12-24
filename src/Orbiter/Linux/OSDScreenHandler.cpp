@@ -796,6 +796,8 @@ void OSDScreenHandler::SCREEN_LightsSetup(long PK_Screen)
 		// Just go to a 'add other devices' design obj
 		m_pOrbiter->CMD_Goto_Screen("",SCREEN_AlarmPanel_CONST);
 	}
+	m_nLightInDequeToAssign=0;
+
 	ScreenHandlerBase::SCREEN_LightsSetup(PK_Screen);
 	RegisterCallBack(cbMessageIntercepted, (ScreenHandlerCallBack) &OSDScreenHandler::LightsSetup_Intercepted, new MsgInterceptorCellBackData());
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &OSDScreenHandler::LightsSetup_ObjectSelected, new ObjectInfoBackData());
@@ -813,7 +815,7 @@ bool OSDScreenHandler::LightsSetup_OnScreen(CallBackData *pData)
 	{
 		if( m_nLightInDequeToAssign < (int) m_pWizardLogic->m_dequeNumLights.size() )
 		{
-			DesignObjText *pText = m_pOrbiter->FindText( m_pOrbiter->FindObject(DESIGNOBJ_LightSetupRooms_CONST),TEXT_STATUS_CONST );
+			DesignObjText *pText = m_pOrbiter->FindText( m_pOrbiter->FindObject(StringUtils::itos(DESIGNOBJ_LightSetupRooms_CONST) + ".0." + StringUtils::itos(DESIGNOBJ_objLightStatus_CONST)),TEXT_STATUS_CONST );
 			if( pText )
 				pText->m_sText = StringUtils::itos(m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign].first) + 
 					" " + DatabaseUtils::GetDescriptionForDevice(m_pWizardLogic,m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign].first);
@@ -834,19 +836,39 @@ bool OSDScreenHandler::LightsSetup_Timer(CallBackData *pData)
 	static bool bLastTimeOn=true;
 	if( m_nLightInDequeToAssign < (int) m_pWizardLogic->m_dequeNumLights.size() )
 	{
+		string sID = m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign].second;
+		int PK_Device = m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign].first;
+		string sDescription = DatabaseUtils::GetDescriptionForDevice(m_pWizardLogic,PK_Device);
+
+		string sText = string("Turning ") + (bLastTimeOn ? "OFF " : "ON ") + StringUtils::itos(PK_Device) + " " + sDescription + "...";
+		DesignObj_Orbiter *pObjStatus = m_pOrbiter->FindObject(StringUtils::itos(DESIGNOBJ_LightSetupRooms_CONST) + ".0.0." + StringUtils::itos(DESIGNOBJ_objLightStatus_CONST));
+		DesignObjText *pText = m_pOrbiter->FindText( pObjStatus,TEXT_STATUS_CONST );
+		if( pText )
+			pText->m_sText = sText;
+
+		string sResponse;
 		if( !bLastTimeOn )
 		{
 			DCE::CMD_Send_Command_To_Child CMD_Send_Command_To_Child(m_pOrbiter->m_dwPK_Device,m_pWizardLogic->m_nPK_Device_ZWave, // Monster specific
-				m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign].second,COMMAND_Generic_On_CONST,"");
-			m_pOrbiter->SendCommand(CMD_Send_Command_To_Child);
+				sID,COMMAND_Generic_On_CONST,"");
+
+			m_pOrbiter->SendCommand(CMD_Send_Command_To_Child,&sResponse);
 		}
 		else
 		{
 			DCE::CMD_Send_Command_To_Child CMD_Send_Command_To_Child(m_pOrbiter->m_dwPK_Device,m_pWizardLogic->m_nPK_Device_ZWave, // Monster specific
-				m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign].second,COMMAND_Generic_Off_CONST,"");
-			m_pOrbiter->SendCommand(CMD_Send_Command_To_Child);
+				sID,COMMAND_Generic_Off_CONST,"");
+			m_pOrbiter->SendCommand(CMD_Send_Command_To_Child,&sResponse);
 		}
 		bLastTimeOn=!bLastTimeOn;
+
+		if( pText )
+			pText->m_sText = sText + "(" + sResponse  + ")";
+
+		PLUTO_SAFETY_LOCK( nd, m_pOrbiter->m_NeedRedrawVarMutex );
+		if( pObjStatus )
+			m_pOrbiter->m_vectObjs_NeedRedraw.push_back(pObjStatus);
+	    NeedToRender render2( m_pOrbiter, "OSDScreenHandler::LightsSetup_Timer2" );  // Redraw anything that was changed by this command
 		m_pOrbiter->CallMaintenanceInMiliseconds(4000,&Orbiter::ServiceScreenHandler,NULL,pe_ALL);
 	}
 	return false;
