@@ -53,6 +53,7 @@ public:
 	void SetCountry(int PK_Country);
 	string GetCityRegion();
 	bool SetPostalCode(string PostalCode);
+	int GetPostalCode();
 
 
 	/*

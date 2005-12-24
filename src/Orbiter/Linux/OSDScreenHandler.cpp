@@ -352,10 +352,11 @@ bool OSDScreenHandler::RoomsWizard_DatagridSelected(CallBackData *pData)
 //-----------------------------------------------------------------------------------------------------
 void OSDScreenHandler::SCREEN_TV_provider(long PK_Screen)
 {
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, "");
-	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, "");
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_4_CONST, "0");
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, "0");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, "");
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Datagrid_Input_CONST, "");
+	m_pOrbiter->CMD_Set_Variable(VARIABLE_Location_CONST, StringUtils::itos(m_pWizardLogic->GetPostalCode()));
 
 	ScreenHandlerBase::SCREEN_TV_provider(PK_Screen);
 
@@ -375,19 +376,16 @@ bool OSDScreenHandler::TV_provider_ObjectSelected(CallBackData *pData)
 				string sInput1 = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_3_CONST];
 				string sInput2 = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_4_CONST];
 
-				if(sInput1 != "")
+				if(atoi(sInput1.c_str())==0)
 				{
 					DCE::SCREEN_TV_Manufacturer SCREEN_TV_Manufacturer_(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device);
 					string sResult;
 					m_pOrbiter->CMD_Goto_Screen("", SCREEN_TV_Manufacturer_CONST, sResult, SCREEN_TV_Manufacturer_.m_pMessage);
 					return true;
 				}
-				else if(sInput2 != "")
-				{
-					//do nothing.. it will go to the next screen
-				}
-				else
-					return true;
+
+				// Temporary hack until we get a solution for auto-configuring Myth
+				return false;
 			}
 		}
 		break;

@@ -136,15 +136,6 @@ bool Infrared_Plugin::Register()
 		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Infrared_Plugin::AVDeviceTypes)),
 		DATAGRID_AVDeviceTypes_CONST,PK_DeviceTemplate_get());
 
-	m_pDatagrid_Plugin->RegisterDatagridGenerator(
-		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Infrared_Plugin::TvSourcesRegularTV)),
-		DATAGRID_TvSourcesRegularTV_CONST,PK_DeviceTemplate_get());
-
-	m_pDatagrid_Plugin->RegisterDatagridGenerator(
-		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Infrared_Plugin::TvSourcesExternalBox)),
-		DATAGRID_TvSourcesExternalBox_CONST,PK_DeviceTemplate_get());
-
-
 	return Connect(PK_DeviceTemplate_get()); 
 }
 
@@ -818,36 +809,6 @@ class DataGridTable *Infrared_Plugin::AVDeviceTypes(string GridID,string Parms,v
 	if( PK_DeviceCategory )
 		*sValue_To_Assign = StringUtils::itos(PK_DeviceCategory);
 
-	return pDataGrid;
-}
-
-class DataGridTable *Infrared_Plugin::TvSourcesRegularTV(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
-{
-	DataGridTable *pDataGrid = new DataGridTable();
-	DataGridCell *pCell;
-	Row_Device *pRow_Device = NULL;  // The initially selected manufacturer can be passed in as a device
-
-	pCell = new DataGridCell("No provider", "1");
-	pDataGrid->SetData(0,0,pCell);
-	pCell = new DataGridCell("Generic TV Cable", "2");
-	pDataGrid->SetData(0,1,pCell);
-
-	*sValue_To_Assign = 1;
-	return pDataGrid;
-}
-
-class DataGridTable *Infrared_Plugin::TvSourcesExternalBox(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
-{
-	DataGridTable *pDataGrid = new DataGridTable();
-	DataGridCell *pCell;
-	Row_Device *pRow_Device = NULL;  // The initially selected manufacturer can be passed in as a device
-
-	pCell = new DataGridCell("No provider", "1");
-	pDataGrid->SetData(0,0,pCell);
-	pCell = new DataGridCell("Generic Satellite System", "2");
-	pDataGrid->SetData(0,1,pCell);
-
-	*sValue_To_Assign = 1;
 	return pDataGrid;
 }
 

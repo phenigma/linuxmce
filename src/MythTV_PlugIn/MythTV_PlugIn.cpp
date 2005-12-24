@@ -44,6 +44,7 @@ MythTV_PlugIn::MythTV_PlugIn(int DeviceID, string ServerAddress,bool bConnectEve
     m_pMythBackend_ProxyDevice = NULL;
 //	m_bPreProcessSpeedControl=false;  // We do some ridiculous hacks in Myth player to convert speed control commands to keystrokes
 	m_pMythWrapper = NULL;
+	m_pMySqlHelper_Myth = NULL;
 }
 
 //<-dceag-getconfig-b->
@@ -54,6 +55,9 @@ bool MythTV_PlugIn::GetConfig()
 //<-dceag-getconfig-e->
 #ifndef WIN32
 	m_pMythWrapper = new MythTvWrapper(this);
+	m_pMySqlHelper_Myth = new MySqlHelper("localhost","root","","pluto_myth");
+#else
+	m_pMySqlHelper_Myth = new MySqlHelper("192.168.80.1","root","","pluto_myth");
 #endif
 	return true;
 }
@@ -113,6 +117,9 @@ bool MythTV_PlugIn::Register()
 
     m_pDatagrid_Plugin->RegisterDatagridGenerator( new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&MythTV_PlugIn::AllShowsForMobiles))
                                                 ,DATAGRID_EPG_All_Shows_Mobile_CONST,PK_DeviceTemplate_get());
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator( new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&MythTV_PlugIn::TvProviders))
+												,DATAGRID_TV_Providers_CONST,PK_DeviceTemplate_get());
 
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::MediaInfoChanged), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_MythTV_Channel_Changed_CONST );
 	// RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::MediaInfoChanged), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Playback_Info_Changed_CONST );
@@ -599,3 +606,38 @@ void MythTV_PlugIn::CMD_Schedule_Recording(string sProgramID,string &sCMD_Result
 #endif
 }
 //<-dceag-createinst-b->!
+
+
+class DataGridTable *MythTV_PlugIn::TvProviders(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
+{
+	DataGridTable *pDataGrid = new DataGridTable();
+	DataGridCell *pCell;
+	if( !m_pMySqlHelper_Myth || !m_pMySqlHelper_Myth->m_bConnected )
+		return pDataGrid;
+
+	string::size_type pos=0;
+	string sPK_PostalCode = StringUtils::Tokenize(Parms,",",pos);
+	bool bInternalTuner = StringUtils::Tokenize(Parms,",",pos)=="1";
+	string sSQL = "SELECT PK_Provider,Provider.Description,ProviderType.Description FROM PostalCode_Provider"
+		" JOIN Provider ON FK_Provider=PK_Provider"
+		" JOIN ProviderType ON FK_ProviderType=PK_ProviderType"
+		" WHERE EK_PostalCode=" + sPK_PostalCode +
+		" AND FK_ProviderType IN " +
+		(bInternalTuner ? "(1,4)" : "(1,2,3,4)");
+
+	PlutoSqlResult result_set;
+    MYSQL_ROW row;
+	pCell = new DataGridCell("None","0");
+	pDataGrid->SetData(0,0,pCell);
+	int iRow=1;
+	if( (result_set.r=m_pMySqlHelper_Myth->mysql_query_result(sSQL)) )
+	{
+		while ((row = mysql_fetch_row(result_set.r)))
+		{
+			pCell = new DataGridCell(string(row[2]) + ": " + row[1], row[0]);
+			pDataGrid->SetData(0,iRow++,pCell);
+		}
+	}
+
+	return pDataGrid;
+}

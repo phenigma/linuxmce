@@ -7328,7 +7328,7 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
                 }
             }
         }
-        if(  iLocation!=-1  )
+        if(  iLocation!=-1 && iLocation<m_dequeLocation.size() )
         {
             LocationInfo *pLocation = m_dequeLocation[iLocation];
             pLocation->m_pvectGraphic = &(pObj->m_vectGraphic);

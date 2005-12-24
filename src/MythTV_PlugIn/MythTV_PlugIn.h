@@ -24,6 +24,7 @@ class Database_FakeEPG;
 class Row_Listing;
 
 class MythTvWrapper;
+class MySqlHelper;
 
 namespace DCE
 {
@@ -34,7 +35,7 @@ namespace DCE
     {
 	//<-dceag-decl-e->
         // friend class MythTvStream;
-
+		MySqlHelper *m_pMySqlHelper_Myth;
 		map<int, int> m_mapMythInputsToDevices;
 
 		DeviceData_Router *m_pMythBackend_ProxyDevice;
@@ -89,6 +90,9 @@ public:
 
         /** The interceptor for the MediaInfoChangedEvent from the playing device */
     	bool MediaInfoChanged( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
+
+		/** What tv options are available in the area -- this is a temporary hack until we get a proper source for this */
+		class DataGridTable *TvProviders(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
 
         //<-dceag-h-b->
 	/*

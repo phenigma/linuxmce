@@ -38,6 +38,7 @@
 #define VARIABLE_Track_or_Playlist_Positio_CONST 35
 #define VARIABLE_PowerFile_slot_CONST 36
 #define VARIABLE_Datagrid_Filter_CONST 37
+#define VARIABLE_Location_CONST 38
 
 #define VARIABLE_TABLE "Variable"
 #define VARIABLE_PK_VARIABLE_FIELD "PK_Variable"

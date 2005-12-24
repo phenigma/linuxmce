@@ -257,10 +257,22 @@ string WizardLogic::GetCityRegion()
 	return ""; 
 }
 
+int WizardLogic::GetPostalCode()
+{
+	string sSQL = "SELECT FK_PostalCode FROM Installation";
+
+	PlutoSqlResult result_set;
+	MYSQL_ROW row;
+	if( (result_set.r=mysql_query_result(sSQL)) && (row = mysql_fetch_row(result_set.r)) && row[0] )
+		return atoi(row[0]);
+	else
+		return 0;
+}
+
 bool WizardLogic::SetPostalCode(string PostalCode) 
 {
 	int PK_Country = GetCountry();
-	string sSQL = "SELECT City,State,FK_City,`Long`,Lat FROM PostalCode WHERE PostalCode='"
+	string sSQL = "SELECT City,State,FK_City,`Long`,Lat,PK_PostalCode FROM PostalCode WHERE PostalCode='"
 		+ StringUtils::SQLEscape(PostalCode) + "' AND FK_Country=" + StringUtils::itos(PK_Country);
 
 	PlutoSqlResult result_set;
@@ -271,7 +283,8 @@ bool WizardLogic::SetPostalCode(string PostalCode)
 		sSQL = "UPDATE Installation SET City='" + StringUtils::SQLEscape(row[0]) + 
 			"'" +
 			(row[1] ? string(",State='") + StringUtils::SQLEscape(row[1]) + "'": string("")) + 
-			(row[2] ? string(",FK_City='") + StringUtils::SQLEscape(row[2]) + "'" : string(""));
+			(row[2] ? string(",FK_City='") + StringUtils::SQLEscape(row[2]) + "'" : string("")) +
+			",FK_PostalCode=" + row[5];
 		threaded_mysql_query(sSQL);
 		
 		DeviceData_Base *pDevice_Event_Plugin = 
@@ -453,4 +466,4 @@ int WizardLogic::GetTopMostDevice(int PK_Device)
 int WizardLogic::WhatRoomIsThisDeviceIn(int PK_Device)
 {
 	return GetRoomForDevice(StringUtils::ltos(DatabaseUtils::GetTopMostDevice(this, PK_Device)));
-}	
+}

@@ -50,8 +50,6 @@ public:
 		class DataGridTable *IRGroupCategories(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
 		class DataGridTable *AvailableInputs(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
 		class DataGridTable *AVDeviceTypes(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
-		class DataGridTable *TvSourcesRegularTV(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
-		class DataGridTable *TvSourcesExternalBox(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
 
 		void GetInfraredCodes(int iPK_Device,IRDevice &irDevice,bool bNoIRData=false);
 		
