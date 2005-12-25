@@ -1875,6 +1875,7 @@
 #define DESIGNOBJ_mnuNewPhoneEnterNumber_CONST 4749
 #define DESIGNOBJ_butSaveMobileNumber_CONST 4750
 #define DESIGNOBJ_objLightStatus_CONST 4761
+#define DESIGNOBJ_dgInstalledAVDevices_NoTVRecei_CONST 4762
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
