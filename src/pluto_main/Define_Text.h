@@ -915,6 +915,13 @@
 #define TEXT_Please_enter_your_phone_number_for_this_CONST 1627
 #define TEXT_CableAntenna_input_CONST 1628
 #define TEXT_External_Tuner_CONST 1629
+#define TEXT_Need_to_reload_CONST 1630
+#define TEXT_Yes_reload_router_CONST 1631
+#define TEXT_No_dont_reload_router_CONST 1632
+#define TEXT_Need_to_regen_CONST 1633
+#define TEXT_Yes_Regen_this_CONST 1634
+#define TEXT_Yes_Regen_All_CONST 1635
+#define TEXT_No_Regen_Later_CONST 1636
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

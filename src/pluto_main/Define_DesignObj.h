@@ -1876,6 +1876,13 @@
 #define DESIGNOBJ_butSaveMobileNumber_CONST 4750
 #define DESIGNOBJ_objLightStatus_CONST 4761
 #define DESIGNOBJ_dgInstalledAVDevices_NoTVRecei_CONST 4762
+#define DESIGNOBJ_mnuNeedReloadRouter_CONST 4763
+#define DESIGNOBJ_butYesResetRouter_CONST 4764
+#define DESIGNOBJ_butNoDontResetRouter_CONST 4765
+#define DESIGNOBJ_mnuNeedRegen_CONST 4766
+#define DESIGNOBJ_butYesRegenThis_CONST 4767
+#define DESIGNOBJ_butYesRegenAll_CONST 4768
+#define DESIGNOBJ_butNoRegenLater_CONST 4769
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
