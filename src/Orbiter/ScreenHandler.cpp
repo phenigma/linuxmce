@@ -451,3 +451,9 @@ void ScreenHandler::SCREEN_New_Phone_Enter_Number(long PK_Screen, string sPhoneN
 	ScreenHandlerBase::SCREEN_New_Phone_Enter_Number(PK_Screen, sPhoneName, sPK_Device);
 }
 //-----------------------------------------------------------------------------------------------------
+void ScreenHandler::BadGotoScreen(int PK_Screen)
+{
+	g_pPlutoLogger->Write(LV_CRITICAL,"ScreenHandler::BadGotoScreen %d",PK_Screen);
+}
+
+

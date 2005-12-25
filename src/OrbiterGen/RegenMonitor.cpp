@@ -270,6 +270,7 @@ string RegenMonitor::AllScenariosFloorplans()
 
 	sSQL = "select count(PK_CommandGroup),max(CommandGroup.psc_mod),max(CommandGroup_Room.psc_mod),max(CommandGroup_Command.psc_mod),max(CommandGroup_Command_CommandParameter.psc_mod) "
 		"FROM CommandGroup "
+		"LEFT JOIN CommandGroup_Room ON CommandGroup_Room.FK_CommandGroup=PK_CommandGroup "
 		"LEFT JOIN CommandGroup_Command ON CommandGroup_Command.FK_CommandGroup=PK_CommandGroup "
 		"LEFT JOIN CommandGroup_Command_CommandParameter ON FK_CommandGroup_Command=PK_CommandGroup_Command ";
 

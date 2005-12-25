@@ -42,6 +42,7 @@ public:
 	//helper functions
 	int GetCurrentScreen_PK_DesignObj();
 	void RefreshDatagrid(long PK_DesignObj_Datagrid);
+	void BadGotoScreen(int PK_Screen);
 
 	//screens functions
 	virtual void GotoDesignObj(int PK_DesignObj);

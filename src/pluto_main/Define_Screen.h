@@ -202,6 +202,8 @@
 #define SCREEN_AV_Devices_CONST 201
 #define SCREEN_NAS_Options_CONST 202
 #define SCREEN_New_Phone_Enter_Number_CONST 203
+#define SCREEN_Need_Reload_Router_CONST 204
+#define SCREEN_Need_Regen_Orbiter_CONST 205
 
 #define SCREEN_TABLE "Screen"
 #define SCREEN_PK_SCREEN_FIELD "PK_Screen"

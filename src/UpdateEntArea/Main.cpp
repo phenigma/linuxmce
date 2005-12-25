@@ -35,6 +35,9 @@ namespace DCE
 	Logger *g_pPlutoLogger;
 }
 
+bool g_bChangedScenarios=false;
+
+
 int main(int argc, char *argv[])
 {
 	g_pPlutoLogger = new FileLogger("/var/log/pluto/UpdateEntArea.newlog");
@@ -92,6 +95,8 @@ int main(int argc, char *argv[])
 	UpdateEntArea updateEntArea;
 	if( !updateEntArea.Connect(dceConfig.m_iPK_Installation,dceConfig.m_sDBHost,dceConfig.m_sDBUser,dceConfig.m_sDBPassword,dceConfig.m_sDBName,dceConfig.m_iDBPort) )
 	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot connect to database");
+		return 1;
 	}
 
 	updateEntArea.GetMediaAndRooms();
@@ -111,6 +116,12 @@ int main(int argc, char *argv[])
 	else
 		updateEntArea.AddDefaultScenarios();
 
+	if( g_bChangedScenarios )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"Scenarios were changed.  Updating Orbiters");
+		string sSQL = "UPDATE Orbiter SET ScenariosFloorplans=NULL";
+		updateEntArea.m_pDatabase_pluto_main->threaded_mysql_query(sSQL);
+	}
 	return 0;
 }
 

@@ -30,7 +30,11 @@ $GEN_CLASSES$
 			int PK_DesignObj = m_p_MapDesignObj_Find(PK_Screen);
 			if( PK_DesignObj )
 				GotoDesignObj(PK_DesignObj);
+			else
+				BadGotoScreen(PK_Screen);
 		}
+
+		virtual void BadGotoScreen(int PK_Screen) {}
 
 		/*  Display a message for the user */
 $GEN_METHODS$
@@ -39,6 +43,9 @@ $GEN_METHODS$
 			switch(nPK_Screen) 
 			{
 $GEN_SWITCH_BLOCK$
+			default:
+				BadGotoScreen(nPK_Screen);
+				break;
 			}
 		}
 	};

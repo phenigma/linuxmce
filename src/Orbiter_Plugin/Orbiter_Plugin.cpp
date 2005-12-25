@@ -1596,14 +1596,13 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,int iPK_Users,string s
 		// It's an OSD -- see if there are any unconfigured devices
 		if( pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia && pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Computers_CONST) )
 			CheckForNewWizardDevices( (DeviceData_Router *) pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia);
-/*
+
 		string sRegenAllDevicesRooms = m_pRegenMonitor->AllDevicesRooms();
 		if( m_sRegenAllDevicesRooms!=sRegenAllDevicesRooms )
 		{
 			m_sRegenAllDevicesRooms=sRegenAllDevicesRooms;
-			DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
-				0,StringUtils::itos(DESIGNOBJ_REload),"","",false,false);
-			SendCommand(CMD_Goto_DesignObj);
+			DCE::SCREEN_Need_Reload_Router SCREEN_Need_Reload_Router(m_dwPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+			SendCommand(SCREEN_Need_Reload_Router);
 		}
 		else
 		{
@@ -1614,13 +1613,11 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,int iPK_Users,string s
 				pRow_Orbiter->Reload();
 				if( pRow_Orbiter->ScenariosFloorplans_get()!=sScenariosFloorplans )
 				{
-					DCE::CMD_Goto_DesignObj CMD_Goto_DesignObj(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
-						0,StringUtils::itos(DESIGNOBJ_RegenOrbiter),"","",false,false);
-					SendCommand(CMD_Goto_DesignObj);
+					DCE::SCREEN_Need_Regen_Orbiter SCREEN_Need_Regen_Orbiter(m_dwPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+					SendCommand(SCREEN_Need_Regen_Orbiter);
 				}
 			}
 		}
-*/
 	}
 	else
 	{

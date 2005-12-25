@@ -8325,6 +8325,86 @@ namespace DCE
 		}
 	};
 
+	class SCREEN_Need_Reload_Router : public PreformedCommand
+	{
+	public:
+		SCREEN_Need_Reload_Router(long DeviceIDFrom, long DeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "204" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Need_Reload_Router_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_Need_Reload_Router_DL(long DeviceIDFrom, string sDeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "204" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Need_Reload_Router_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_Need_Reload_Router_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "204" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Need_Reload_Router_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_Need_Reload_Router_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "204" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Need_Regen_Orbiter : public PreformedCommand
+	{
+	public:
+		SCREEN_Need_Regen_Orbiter(long DeviceIDFrom, long DeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "205" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Need_Regen_Orbiter_DL : public PreformedCommand
+	{
+	public:
+		SCREEN_Need_Regen_Orbiter_DL(long DeviceIDFrom, string sDeviceIDTo)
+		{
+			m_pMessage = new Message(DeviceIDFrom, sDeviceIDTo, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "205" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Need_Regen_Orbiter_DT : public PreformedCommand
+	{
+	public:
+		SCREEN_Need_Regen_Orbiter_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "205" /* screen ID */);
+		}
+	};
+
+	class SCREEN_Need_Regen_Orbiter_Cat : public PreformedCommand
+	{
+	public:
+		SCREEN_Need_Regen_Orbiter_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB)
+		{
+			m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Goto_Screen_CONST, 1, 
+				COMMANDPARAMETER_PK_Screen_CONST, "205" /* screen ID */);
+		}
+	};
+
 
 	class ScreenHandlerBase
 	{
@@ -8342,7 +8422,11 @@ namespace DCE
 			int PK_DesignObj = m_p_MapDesignObj_Find(PK_Screen);
 			if( PK_DesignObj )
 				GotoDesignObj(PK_DesignObj);
+			else
+				BadGotoScreen(PK_Screen);
 		}
+
+		virtual void BadGotoScreen(int PK_Screen) {}
 
 		/*  Display a message for the user */
 		virtual void SCREEN_Main(long PK_Screen, string sLocation){ GotoScreen(PK_Screen); }
@@ -8546,6 +8630,8 @@ namespace DCE
 		virtual void SCREEN_AV_Devices(long PK_Screen){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_NAS_Options(long PK_Screen, string sPK_DeviceTemplate, string sMacAddres, string sIPAddress, string sPK_DHCPDevice){ GotoScreen(PK_Screen); }
 		virtual void SCREEN_New_Phone_Enter_Number(long PK_Screen, string sPhoneName, string sPK_Device){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_Need_Reload_Router(long PK_Screen){ GotoScreen(PK_Screen); }
+		virtual void SCREEN_Need_Regen_Orbiter(long PK_Screen){ GotoScreen(PK_Screen); }
 
 		virtual void ReceivedGotoScreenMessage(int nPK_Screen, Message *pMessage)
 		{
@@ -9623,7 +9709,20 @@ namespace DCE
 					SCREEN_New_Phone_Enter_Number(nPK_Screen, sPhoneName, sPK_Device);
 					break;
 				}
+				case 204:
+				{
+					SCREEN_Need_Reload_Router(nPK_Screen);
+					break;
+				}
+				case 205:
+				{
+					SCREEN_Need_Regen_Orbiter(nPK_Screen);
+					break;
+				}
 
+			default:
+				BadGotoScreen(nPK_Screen);
+				break;
 			}
 		}
 	};
