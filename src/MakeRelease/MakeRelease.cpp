@@ -78,7 +78,7 @@ public:
 string g_sPackages, g_sPackages_Exclude, g_sManufacturer, g_sSourcecodePrefix, g_sNonSourcecodePrefix, g_sCompile_Date, g_sBaseVersion;
 string g_sPK_RepositorySource;
 int g_iPK_Distro=0,g_iSVNRevision=0;
-bool g_bBuildSource = true, g_bCreatePackage = true, g_bInteractive = false, g_bSimulate = false, g_bSupressPrompts = false, g_bDontTouchDB = false;
+bool g_bBuildSource = true, g_bCreatePackage = true, g_bInteractive = false, g_bSimulate = false, g_bSupressPrompts = false, g_bDontTouchDB = false, g_bSetVersion = true;
 Database_pluto_main *g_pDatabase_pluto_main;
 Row_Version *g_pRow_Version;
 Row_Distro *g_pRow_Distro;
@@ -212,6 +212,9 @@ int main(int argc, char *argv[])
 			break;
 		case 'd':
 			g_bDontTouchDB = true;
+			break;
+		case 'V':
+			g_bSetVersion = false;
 			break;
 		default:
 			cout << "Unknown: " << argv[optnum] << endl;
@@ -366,10 +369,13 @@ int main(int argc, char *argv[])
 			" Source " << pRow_Package_Source->PK_Package_Source_get() << " " << pRow_Package_Source->FK_RepositorySource_getrow()->Description_get() <<
 			": " << g_pRow_Version->VersionName_get() << endl;
 
-				if( pRow_Package_Source->FK_RepositorySource_get()==REPOSITORYSOURCE_Pluto_CVS_CONST || pRow_Package_Source->FK_RepositorySource_get()==REPOSITORYSOURCE_Pluto_SVN_CONST )
-					pRow_Package_Source->Version_set(g_pRow_Version->VersionName_get());
-				else
-					pRow_Package_Source->Version_set(g_pRow_Version->VersionName_get());
+				if( g_bSetVersion )
+				{
+					if( pRow_Package_Source->FK_RepositorySource_get()==REPOSITORYSOURCE_Pluto_CVS_CONST || pRow_Package_Source->FK_RepositorySource_get()==REPOSITORYSOURCE_Pluto_SVN_CONST )
+						pRow_Package_Source->Version_set(g_pRow_Version->VersionName_get());
+					else
+						pRow_Package_Source->Version_set(g_pRow_Version->VersionName_get());
+				}
 			}
 		}
 	}
@@ -912,7 +918,8 @@ AsksSourceQuests:
 			return true;  // Not necessarily a critical error.  Keep going
 		}
 
-		pRow_Package_Source_SVN->Version_set(g_pRow_Version->VersionName_get());
+		if( g_bSetVersion )
+			pRow_Package_Source_SVN->Version_set(g_pRow_Version->VersionName_get());
 		if( !g_bDontTouchDB )
 			g_pDatabase_pluto_main->Package_Source_get()->Commit();
 	}
