@@ -64,7 +64,7 @@ RubyIOManager::InstantiateNode(Command_Impl* pcmdimpl, DeviceData_Impl* pdevdata
 	string sport = pcmdimpl->m_pEvent->GetDeviceDataFromDatabase(pcmdimpl->m_dwPK_Device,DEVICEDATA_COM_Port_on_PC_CONST);
 	g_pPlutoLogger->Write(LV_STATUS,"RubyIOManager::InstantiateNode port: %s",sport.c_str());
 	PORTTYPE porttype = PORTTYPE_UNKNOWN;
-	if(!sport.empty() && sport != "0") {
+	if(!sport.empty() && sport != "0" && StringUtils::StartsWith(sport,"ERR")==false ) {
 		porttype = PORTTYPE_SERIAL;
 	} else {
 		sport = pdevdata->m_mapParameters[DEVICEDATA_TCP_Port_CONST];
