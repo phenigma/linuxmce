@@ -376,6 +376,11 @@ bool OSDScreenHandler::TV_provider_ObjectSelected(CallBackData *pData)
 				string sInput1 = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_3_CONST];
 				string sInput2 = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_4_CONST];
 
+				int PK_PostalCode = m_pWizardLogic->GetPostalCode();
+				DCE::CMD_Spawn_Application CMD_Spawn_Application(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_LocalAppServer,
+					"/usr/pluto/bin/SetupMythHack.sh","",StringUtils::itos(PK_PostalCode),"","",false,false,false);
+				m_pOrbiter->SendCommand(CMD_Spawn_Application);
+
 				if(atoi(sInput1.c_str())==0)
 				{
 					DCE::SCREEN_TV_Manufacturer SCREEN_TV_Manufacturer_(m_pOrbiter->m_dwPK_Device, m_pOrbiter->m_dwPK_Device);
@@ -732,11 +737,13 @@ bool OSDScreenHandler::AV_Devices_ObjectSelected(CallBackData *pData)
 		{
 			if(DESIGNOBJ_butAVDeviceVideoInputs_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
-				string sInstalledAVDevice = m_pOrbiter->m_mapVariable[VARIABLE_Datagrid_Input_CONST];
+				string sInstalledAVDevice = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_3_CONST];
 				if(sInstalledAVDevice == "")
 					return true;
 
 				m_pWizardLogic->m_nPK_Device_AV_Installed = atoi(sInstalledAVDevice.c_str());
+				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST,
+					StringUtils::itos(DatabaseUtils::GetDeviceTemplateForDevice(m_pWizardLogic,m_pWizardLogic->m_nPK_Device_AV_Installed)));
 			}
 		}
 		break;
@@ -759,18 +766,20 @@ bool OSDScreenHandler::AV_Devices_ObjectSelected(CallBackData *pData)
 		{
 			if(DESIGNOBJ_butAVDeviceAudioInputs_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
-				string sInstalledAVDevice = m_pOrbiter->m_mapVariable[VARIABLE_Datagrid_Input_CONST];
+				string sInstalledAVDevice = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_3_CONST];
 				if(sInstalledAVDevice == "")
 					return true;
 
 				m_pWizardLogic->m_nPK_Device_AV_Installed = atoi(sInstalledAVDevice.c_str());
+				m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST,
+					StringUtils::itos(DatabaseUtils::GetDeviceTemplateForDevice(m_pWizardLogic,m_pWizardLogic->m_nPK_Device_AV_Installed)));
 			}
 		}
 		break;
 
 		case DESIGNOBJ_AVDeviceAudioInputs_CONST:
 		{
-			if(DESIGNOBJ_dgAvailableInputs_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
+			if(DESIGNOBJ_butLightsWizard_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
 				string sInput = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_4_CONST];
 				if(sInput != "") 

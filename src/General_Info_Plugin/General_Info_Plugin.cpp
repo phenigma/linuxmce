@@ -1040,7 +1040,6 @@ class DataGridTable *General_Info_Plugin::InstalledAVDevices(string GridID, stri
 	DataGridCell *pCell;
 
 	string sPK_DeviceCategory_Parent = StringUtils::ltos(DEVICECATEGORY_AV_CONST);
-	string sExcludeCategories = " NOT IN (" + StringUtils::itos(DEVICECATEGORY_TVsPlasmasLCDsProjectors_CONST) + "," + StringUtils::itos(DEVICECATEGORY_AmpsPreampsReceiversTuners_CONST) + ")";
 	int iRow=0,iCol=0;
 	string sql = 
 		"SELECT DISTINCT D.PK_Device, D.Description FROM DeviceTemplate DT "
@@ -1052,10 +1051,14 @@ class DataGridTable *General_Info_Plugin::InstalledAVDevices(string GridID, stri
 			"DC1.FK_DeviceCategory_Parent = " + sPK_DeviceCategory_Parent + " OR "
 			"DC2.FK_DeviceCategory_Parent = " + sPK_DeviceCategory_Parent + ") "
 		"AND FK_Device_RouteTo is NULL "  // No embedded devices
-		"AND (DT.FK_DeviceCategory IS NULL OR DT.FK_DeviceCategory " + sExcludeCategories + ") " + 
-		"AND (DC1.FK_DeviceCategory_Parent IS NULL OR DC1.FK_DeviceCategory_Parent " + sExcludeCategories + ") " + 
-		"AND (DC2.FK_DeviceCategory_Parent IS NULL OR DC2.FK_DeviceCategory_Parent " + sExcludeCategories + ") " + 
 		"AND D.FK_Installation = " + StringUtils::itos(m_pRouter->iPK_Installation_get());
+	if( Parms.size() )
+	{
+		string sExcludeCategories = " NOT IN (" + Parms + ")";
+		sql += " AND (DT.FK_DeviceCategory IS NULL OR DT.FK_DeviceCategory " + sExcludeCategories + ") " + 
+		"AND (DC1.FK_DeviceCategory_Parent IS NULL OR DC1.FK_DeviceCategory_Parent " + sExcludeCategories + ") " + 
+		"AND (DC2.FK_DeviceCategory_Parent IS NULL OR DC2.FK_DeviceCategory_Parent " + sExcludeCategories + ") ";
+	}
 
 	PlutoSqlResult result;
 	MYSQL_ROW row;
@@ -1921,7 +1924,6 @@ void General_Info_Plugin::CMD_Delete_Device(int iPK_Device,string &sCMD_Result,M
 	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM Device_StartupScript WHERE FK_Device=" + StringUtils::itos(iPK_Device));
 
 	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM Device_Users WHERE FK_Device=" + StringUtils::itos(iPK_Device));
-	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM InfraredGroup_Command WHERE FK_Device=" + StringUtils::itos(iPK_Device));
 	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM Package_Device WHERE FK_Device=" + StringUtils::itos(iPK_Device));
 	m_pDatabase_pluto_main->threaded_mysql_query("DELETE FROM PaidLicense WHERE FK_Device=" + StringUtils::itos(iPK_Device));
 
