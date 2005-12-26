@@ -189,6 +189,12 @@ Powerfile: 0, 1, ... */
 void Disk_Drive::CMD_Eject_Disk(int iDrive_Number,string &sCMD_Result,Message *pMessage)
 //<-dceag-c48-e->
 {
+	static time_t tLastEject=0;
+	if( time(NULL)-tLastEject<=2 )  // It can take the drive a while to spin down and the user hits eject multiple times
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"Disk_Drive::CMD_Eject_Disk skipping eject within last 2 seconds");
+		return;
+	}
 	if( m_pDisk_Drive_Functions->m_bTrayOpen )
 	{
 		m_pDisk_Drive_Functions->DisplayMessageOnOrbVFD("Closing tray...");
@@ -200,6 +206,7 @@ void Disk_Drive::CMD_Eject_Disk(int iDrive_Number,string &sCMD_Result,Message *p
 	    system("eject");
 	}
 
+	tLastEject = time(NULL); // Put this after the system call so we know when it's been less than 2 seconds since a successful one
 	m_pDisk_Drive_Functions->m_bTrayOpen = !m_pDisk_Drive_Functions->m_bTrayOpen;
 }
 
