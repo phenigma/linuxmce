@@ -101,6 +101,7 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 		g_pPlutoLogger->Write(LV_STATUS,"Got response %d-%s",(int) bResult,sResponse.c_str());
 		if( sResponse!="OK " + sOutput )
 		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Got response <%s> instead of <%s>",("OK " + sOutput).c_str(),sResponse.c_str());
 			m_pPlainClientSocket->Disconnect();
 			sCMD_Result = "DEVICE DIDN'T RESPOND";
 			return;
@@ -117,6 +118,7 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 		g_pPlutoLogger->Write(LV_STATUS,"Got response %d-%s",(int) bResult,sResponse.c_str());
 		if( sResponse!="OK " + sOutput )
 		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Got response <%s> instead of <%s>",("OK " + sOutput).c_str(),sResponse.c_str());
 			m_pPlainClientSocket->Disconnect();
 			sCMD_Result = "DEVICE DIDN'T RESPOND";
 			return;
@@ -134,6 +136,7 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 		g_pPlutoLogger->Write(LV_STATUS,"Got response %d-%s",(int) bResult,sResponse.c_str());
 		if( sResponse!="OK " + sOutput )
 		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Got response <%s> instead of <%s>",("OK " + sOutput).c_str(),sResponse.c_str());
 			m_pPlainClientSocket->Disconnect();
 			sCMD_Result = "DEVICE DIDN'T RESPOND";
 			return;
@@ -373,6 +376,7 @@ void ZWave::CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParamet
 		g_pPlutoLogger->Write(LV_STATUS,"Got response %d-%s",(int) bResult,sResponse.c_str());
 		if( sResponse!="OK " + sOutput )
 		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Got response <%s> instead of <%s>",("OK " + sOutput).c_str(),sResponse.c_str());
 			m_pPlainClientSocket->Disconnect();
 			sCMD_Result = "DEVICE DIDN'T RESPOND";
 			return;
@@ -389,6 +393,7 @@ void ZWave::CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParamet
 		g_pPlutoLogger->Write(LV_STATUS,"Got response %d-%s",(int) bResult,sResponse.c_str());
 		if( sResponse!="OK " + sOutput )
 		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Got response <%s> instead of <%s>",("OK " + sOutput).c_str(),sResponse.c_str());
 			m_pPlainClientSocket->Disconnect();
 			sCMD_Result = "DEVICE DIDN'T RESPOND";
 			return;
