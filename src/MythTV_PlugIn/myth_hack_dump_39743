@@ -1,0 +1,1496 @@
+-- MySQL dump 9.11
+--
+-- Host: localhost    Database: mythconverg
+-- ------------------------------------------------------
+-- Server version	4.0.24_Debian-10
+
+--
+-- Table structure for table `callsignnetworkmap`
+--
+
+DROP TABLE IF EXISTS `callsignnetworkmap`;
+CREATE TABLE `callsignnetworkmap` (
+  `id` int(11) NOT NULL auto_increment,
+  `callsign` varchar(20) NOT NULL default '',
+  `network` varchar(20) NOT NULL default '',
+  PRIMARY KEY  (`id`),
+  UNIQUE KEY `callsign` (`callsign`)
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `callsignnetworkmap`
+--
+
+
+--
+-- Table structure for table `capturecard`
+--
+
+DROP TABLE IF EXISTS `capturecard`;
+CREATE TABLE `capturecard` (
+  `cardid` int(10) unsigned NOT NULL auto_increment,
+  `videodevice` varchar(128) default NULL,
+  `audiodevice` varchar(128) default NULL,
+  `vbidevice` varchar(128) default NULL,
+  `cardtype` varchar(32) default 'V4L',
+  `defaultinput` varchar(32) default 'Television',
+  `audioratelimit` int(11) default NULL,
+  `hostname` varchar(255) default NULL,
+  `dvb_swfilter` int(11) default '0',
+  `dvb_recordts` int(11) default '0',
+  `dvb_sat_type` int(11) NOT NULL default '0',
+  `dvb_wait_for_seqstart` int(11) NOT NULL default '1',
+  `dvb_dmx_buf_size` int(11) NOT NULL default '8192',
+  `dvb_pkt_buf_size` int(11) NOT NULL default '8192',
+  `skipbtaudio` tinyint(1) default '0',
+  `dvb_on_demand` tinyint(4) NOT NULL default '0',
+  `dvb_diseqc_type` smallint(6) default NULL,
+  `firewire_port` int(10) unsigned NOT NULL default '0',
+  `firewire_node` int(10) unsigned NOT NULL default '2',
+  `firewire_speed` int(10) unsigned NOT NULL default '0',
+  `firewire_model` varchar(32) default NULL,
+  `firewire_connection` int(10) unsigned NOT NULL default '0',
+  `dvb_hw_decoder` int(11) default '0',
+  PRIMARY KEY  (`cardid`)
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `capturecard`
+--
+
+INSERT INTO `capturecard` VALUES (1,'0','','','DVB','DVBInput',NULL,'dcerouter',0,0,0,1,8192,8192,0,0,0,0,2,0,NULL,0,0);
+
+--
+-- Table structure for table `cardinput`
+--
+
+DROP TABLE IF EXISTS `cardinput`;
+CREATE TABLE `cardinput` (
+  `cardinputid` int(10) unsigned NOT NULL auto_increment,
+  `cardid` int(10) unsigned NOT NULL default '0',
+  `sourceid` int(10) unsigned NOT NULL default '0',
+  `inputname` varchar(32) NOT NULL default '',
+  `externalcommand` varchar(128) default NULL,
+  `preference` int(11) NOT NULL default '0',
+  `shareable` char(1) default 'N',
+  `tunechan` varchar(5) NOT NULL default '',
+  `startchan` varchar(5) NOT NULL default '',
+  `freetoaironly` tinyint(1) default '1',
+  `diseqc_port` smallint(6) default NULL,
+  `diseqc_pos` float default NULL,
+  `lnb_lof_switch` int(11) default '11700000',
+  `lnb_lof_hi` int(11) default '10600000',
+  `lnb_lof_lo` int(11) default '9750000',
+  PRIMARY KEY  (`cardinputid`)
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `cardinput`
+--
+
+INSERT INTO `cardinput` VALUES (1,1,1,'DVBInput',NULL,0,'N','','',1,NULL,0,11700000,10600000,9750000);
+
+--
+-- Table structure for table `channel`
+--
+
+DROP TABLE IF EXISTS `channel`;
+CREATE TABLE `channel` (
+  `chanid` int(10) unsigned NOT NULL default '0',
+  `channum` varchar(5) NOT NULL default '',
+  `freqid` varchar(10) default NULL,
+  `sourceid` int(10) unsigned default NULL,
+  `callsign` varchar(20) NOT NULL default '',
+  `name` varchar(64) NOT NULL default '',
+  `icon` varchar(255) NOT NULL default 'none',
+  `finetune` int(11) default NULL,
+  `videofilters` varchar(255) NOT NULL default '',
+  `xmltvid` varchar(64) NOT NULL default '',
+  `recpriority` int(10) NOT NULL default '0',
+  `contrast` int(11) default '32768',
+  `brightness` int(11) default '32768',
+  `colour` int(11) default '32768',
+  `hue` int(11) default '32768',
+  `tvformat` varchar(10) NOT NULL default 'Default',
+  `commfree` tinyint(4) NOT NULL default '0',
+  `visible` tinyint(1) NOT NULL default '1',
+  `outputfilters` varchar(255) NOT NULL default '',
+  `useonairguide` tinyint(1) default '0',
+  `mplexid` smallint(6) default NULL,
+  `serviceid` mediumint(8) unsigned default NULL,
+  `atscsrcid` int(11) default NULL,
+  PRIMARY KEY  (`chanid`),
+  KEY `channel_src` (`channum`,`sourceid`)
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `channel`
+--
+
+
+--
+-- Table structure for table `codecparams`
+--
+
+DROP TABLE IF EXISTS `codecparams`;
+CREATE TABLE `codecparams` (
+  `profile` int(10) unsigned NOT NULL default '0',
+  `name` varchar(128) NOT NULL default '',
+  `value` varchar(128) default NULL,
+  PRIMARY KEY  (`profile`,`name`)
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `codecparams`
+--
+
+
+--
+-- Table structure for table `conflictresolutionany`
+--
+
+DROP TABLE IF EXISTS `conflictresolutionany`;
+CREATE TABLE `conflictresolutionany` (
+  `prefertitle` varchar(128) NOT NULL default '',
+  `disliketitle` varchar(128) NOT NULL default '',
+  KEY `prefertitle` (`prefertitle`),
+  KEY `disliketitle` (`disliketitle`)
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `conflictresolutionany`
+--
+
+
+--
+-- Table structure for table `conflictresolutionoverride`
+--
+
+DROP TABLE IF EXISTS `conflictresolutionoverride`;
+CREATE TABLE `conflictresolutionoverride` (
+  `chanid` int(10) unsigned NOT NULL default '0',
+  `starttime` timestamp(14) NOT NULL,
+  `endtime` timestamp(14) NOT NULL default '00000000000000',
+  KEY `chanid` (`chanid`,`starttime`),
+  KEY `endtime` (`endtime`)
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `conflictresolutionoverride`
+--
+
+
+--
+-- Table structure for table `conflictresolutionsingle`
+--
+
+DROP TABLE IF EXISTS `conflictresolutionsingle`;
+CREATE TABLE `conflictresolutionsingle` (
+  `preferchanid` int(10) unsigned NOT NULL default '0',
+  `preferstarttime` timestamp(14) NOT NULL,
+  `preferendtime` timestamp(14) NOT NULL default '00000000000000',
+  `dislikechanid` int(10) unsigned NOT NULL default '0',
+  `dislikestarttime` timestamp(14) NOT NULL default '00000000000000',
+  `dislikeendtime` timestamp(14) NOT NULL default '00000000000000',
+  KEY `preferchanid` (`preferchanid`,`preferstarttime`),
+  KEY `preferendtime` (`preferendtime`)
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `conflictresolutionsingle`
+--
+
+
+--
+-- Table structure for table `credits`
+--
+
+DROP TABLE IF EXISTS `credits`;
+CREATE TABLE `credits` (
+  `person` mediumint(8) unsigned NOT NULL default '0',
+  `chanid` int(10) unsigned NOT NULL default '0',
+  `starttime` datetime NOT NULL default '0000-00-00 00:00:00',
+  `role` set('actor','director','producer','executive_producer','writer','guest_star','host','adapter','presenter','commentator','guest') NOT NULL default '',
+  UNIQUE KEY `chanid` (`chanid`,`starttime`,`person`,`role`),
+  KEY `person` (`person`,`role`)
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `credits`
+--
+
+
+--
+-- Table structure for table `dtv_multiplex`
+--
+
+DROP TABLE IF EXISTS `dtv_multiplex`;
+CREATE TABLE `dtv_multiplex` (
+  `mplexid` smallint(6) NOT NULL auto_increment,
+  `sourceid` smallint(6) default NULL,
+  `transportid` int(11) default NULL,
+  `networkid` int(11) default NULL,
+  `frequency` int(11) default NULL,
+  `inversion` char(1) default 'a',
+  `symbolrate` int(11) default NULL,
+  `fec` varchar(10) default 'auto',
+  `polarity` char(1) default NULL,
+  `modulation` varchar(10) default 'auto',
+  `bandwidth` char(1) default 'a',
+  `lp_code_rate` varchar(10) default 'auto',
+  `transmission_mode` char(1) default 'a',
+  `guard_interval` varchar(10) default 'auto',
+  `visible` smallint(1) NOT NULL default '0',
+  `constellation` varchar(10) default 'auto',
+  `hierarchy` varchar(10) default 'auto',
+  `hp_code_rate` varchar(10) default 'auto',
+  `sistandard` varchar(10) default 'dvb',
+  `serviceversion` smallint(6) default '33',
+  `updatetimestamp` timestamp(14) NOT NULL,
+  PRIMARY KEY  (`mplexid`)
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `dtv_multiplex`
+--
+
+INSERT INTO `dtv_multiplex` VALUES (1,1,397,0,207000000,'a',NULL,'auto',NULL,'8vsb','a','auto','a','auto',0,'auto','auto','auto','atsc',0,20051225124047);
+INSERT INTO `dtv_multiplex` VALUES (2,1,NULL,NULL,503000000,'a',NULL,'auto',NULL,'8vsb','a','auto','a','auto',0,'auto','auto','auto','atsc',33,20051225124106);
+INSERT INTO `dtv_multiplex` VALUES (3,1,405,0,635000000,'a',NULL,'auto',NULL,'8vsb','a','auto','a','auto',0,'auto','auto','auto','atsc',16,20051225124216);
+INSERT INTO `dtv_multiplex` VALUES (4,1,NULL,NULL,647000000,'a',NULL,'auto',NULL,'8vsb','a','auto','a','auto',0,'auto','auto','auto','atsc',33,20051225124221);
+INSERT INTO `dtv_multiplex` VALUES (5,1,NULL,NULL,659000000,'a',NULL,'auto',NULL,'8vsb','a','auto','a','auto',0,'auto','auto','auto','atsc',33,20051225124229);
+INSERT INTO `dtv_multiplex` VALUES (6,1,401,0,683000000,'a',NULL,'auto',NULL,'8vsb','a','auto','a','auto',0,'auto','auto','auto','atsc',23,20051225124245);
+INSERT INTO `dtv_multiplex` VALUES (7,1,NULL,NULL,689000000,'a',NULL,'auto',NULL,'8vsb','a','auto','a','auto',0,'auto','auto','auto','atsc',33,20051225124246);
+INSERT INTO `dtv_multiplex` VALUES (8,1,385,0,695000000,'a',NULL,'auto',NULL,'8vsb','a','auto','a','auto',0,'auto','auto','auto','atsc',2,20051225124253);
+INSERT INTO `dtv_multiplex` VALUES (9,1,399,0,701000000,'a',NULL,'auto',NULL,'8vsb','a','auto','a','auto',0,'auto','auto','auto','atsc',0,20051225124255);
+INSERT INTO `dtv_multiplex` VALUES (10,1,NULL,NULL,725000000,'a',NULL,'auto',NULL,'8vsb','a','auto','a','auto',0,'auto','auto','auto','atsc',33,20051225124305);
+
+--
+-- Table structure for table `dtv_privatetypes`
+--
+
+DROP TABLE IF EXISTS `dtv_privatetypes`;
+CREATE TABLE `dtv_privatetypes` (
+  `sitype` varchar(4) NOT NULL default '',
+  `networkid` int(11) NOT NULL default '0',
+  `private_type` varchar(20) NOT NULL default '',
+  `private_value` varchar(100) NOT NULL default ''
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `dtv_privatetypes`
+--
+
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',9018,'channel_numbers','131');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',9018,'guide_fixup','2');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',256,'guide_fixup','1');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',257,'guide_fixup','1');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',256,'tv_types','1,150,134,133');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',257,'tv_types','1,150,134,133');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',4100,'sdt_mapping','1');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',4101,'sdt_mapping','1');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',4102,'sdt_mapping','1');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',4103,'sdt_mapping','1');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',4104,'sdt_mapping','1');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',4105,'sdt_mapping','1');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',4106,'sdt_mapping','1');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',4107,'sdt_mapping','1');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',4097,'sdt_mapping','1');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',4098,'sdt_mapping','1');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',4100,'tv_types','1,145,154');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',4101,'tv_types','1,145,154');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',4102,'tv_types','1,145,154');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',4103,'tv_types','1,145,154');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',4104,'tv_types','1,145,154');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',4105,'tv_types','1,145,154');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',4106,'tv_types','1,145,154');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',4107,'tv_types','1,145,154');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',4097,'tv_types','1,145,154');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',4098,'tv_types','1,145,154');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',4100,'guide_fixup','1');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',4101,'guide_fixup','1');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',4102,'guide_fixup','1');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',4103,'guide_fixup','1');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',4104,'guide_fixup','1');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',4105,'guide_fixup','1');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',4106,'guide_fixup','1');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',4107,'guide_fixup','1');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',4097,'guide_fixup','1');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',4098,'guide_fixup','1');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',94,'tv_types','1,128');
+INSERT INTO `dtv_privatetypes` VALUES ('atsc',1793,'guide_fixup','3');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',40999,'guide_fixup','4');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',70,'force_guide_present','yes');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',70,'guide_ranges','80,80,96,96');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',4112,'channel_numbers','131');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',4115,'channel_numbers','131');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',4116,'channel_numbers','131');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',12802,'channel_numbers','131');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',12803,'channel_numbers','131');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',12829,'channel_numbers','131');
+INSERT INTO `dtv_privatetypes` VALUES ('dvb',40999,'parse_subtitle_list','1070,1049,1041,1039,1038,1030,1016,1131,1068,1069');
+
+--
+-- Table structure for table `dvb_channel`
+--
+
+DROP TABLE IF EXISTS `dvb_channel`;
+CREATE TABLE `dvb_channel` (
+  `chanid` smallint(6) NOT NULL default '0',
+  `serviceid` smallint(6) default NULL,
+  `networkid` smallint(6) default NULL,
+  `providerid` smallint(6) default NULL,
+  `transportid` smallint(6) default NULL,
+  `frequency` int(11) default NULL,
+  `inversion` char(1) default NULL,
+  `symbolrate` int(11) default NULL,
+  `fec` varchar(10) default NULL,
+  `polarity` char(1) default NULL,
+  `satid` smallint(6) default NULL,
+  `modulation` varchar(10) default NULL,
+  `bandwidth` char(1) default NULL,
+  `lp_code_rate` varchar(10) default NULL,
+  `transmission_mode` char(1) default NULL,
+  `guard_interval` varchar(10) default NULL,
+  `hierarchy` char(1) default NULL,
+  `pmtcache` blob,
+  PRIMARY KEY  (`chanid`)
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `dvb_channel`
+--
+
+
+--
+-- Table structure for table `dvb_pids`
+--
+
+DROP TABLE IF EXISTS `dvb_pids`;
+CREATE TABLE `dvb_pids` (
+  `chanid` smallint(6) NOT NULL default '0',
+  `pid` smallint(6) NOT NULL default '0',
+  `type` char(1) NOT NULL default 'o',
+  `lang` char(3) NOT NULL default '',
+  PRIMARY KEY  (`chanid`,`pid`)
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `dvb_pids`
+--
+
+
+--
+-- Table structure for table `dvb_sat`
+--
+
+DROP TABLE IF EXISTS `dvb_sat`;
+CREATE TABLE `dvb_sat` (
+  `satid` smallint(6) NOT NULL auto_increment,
+  `cardid` int(11) default NULL,
+  `pos` float default NULL,
+  `name` varchar(128) default NULL,
+  `diseqc_type` smallint(6) default '0',
+  `diseqc_port` smallint(6) default '0',
+  `diseqc_pos` smallint(6) default '0',
+  `lnb_lof_switch` int(11) default '11700000',
+  `lnb_lof_hi` int(11) default '10600000',
+  `lnb_lof_lo` int(11) default '9750000',
+  PRIMARY KEY  (`satid`)
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `dvb_sat`
+--
+
+
+--
+-- Table structure for table `dvb_signal_quality`
+--
+
+DROP TABLE IF EXISTS `dvb_signal_quality`;
+CREATE TABLE `dvb_signal_quality` (
+  `id` int(10) unsigned NOT NULL auto_increment,
+  `sampletime` timestamp(14) NOT NULL,
+  `cardid` int(10) unsigned NOT NULL default '0',
+  `fe_snr` int(10) unsigned NOT NULL default '0',
+  `fe_ss` int(10) unsigned NOT NULL default '0',
+  `fe_ber` int(10) unsigned NOT NULL default '0',
+  `fe_unc` int(10) unsigned NOT NULL default '0',
+  `myth_cont` int(10) unsigned NOT NULL default '0',
+  `myth_over` int(10) unsigned NOT NULL default '0',
+  `myth_pkts` int(10) unsigned NOT NULL default '0',
+  PRIMARY KEY  (`id`),
+  KEY `sampletime` (`sampletime`,`cardid`)
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `dvb_signal_quality`
+--
+
+
+--
+-- Table structure for table `favorites`
+--
+
+DROP TABLE IF EXISTS `favorites`;
+CREATE TABLE `favorites` (
+  `favid` int(11) unsigned NOT NULL auto_increment,
+  `userid` int(11) unsigned NOT NULL default '0',
+  `chanid` int(11) unsigned NOT NULL default '0',
+  PRIMARY KEY  (`favid`)
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `favorites`
+--
+
+
+--
+-- Table structure for table `housekeeping`
+--
+
+DROP TABLE IF EXISTS `housekeeping`;
+CREATE TABLE `housekeeping` (
+  `tag` varchar(64) NOT NULL default '',
+  `lastrun` datetime default NULL,
+  PRIMARY KEY  (`tag`)
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `housekeeping`
+--
+
+INSERT INTO `housekeeping` VALUES ('JobQueueCleanup','2005-12-23 16:06:22');
+INSERT INTO `housekeeping` VALUES ('JobQueueRecover-dcerouter','2005-12-23 16:06:22');
+
+--
+-- Table structure for table `jobqueue`
+--
+
+DROP TABLE IF EXISTS `jobqueue`;
+CREATE TABLE `jobqueue` (
+  `id` int(11) NOT NULL auto_increment,
+  `chanid` int(10) NOT NULL default '0',
+  `starttime` datetime NOT NULL default '0000-00-00 00:00:00',
+  `inserttime` datetime NOT NULL default '0000-00-00 00:00:00',
+  `type` int(11) NOT NULL default '0',
+  `cmds` int(11) NOT NULL default '0',
+  `flags` int(11) NOT NULL default '0',
+  `status` int(11) NOT NULL default '0',
+  `statustime` timestamp(14) NOT NULL,
+  `hostname` varchar(255) NOT NULL default '',
+  `args` blob NOT NULL,
+  `comment` varchar(128) NOT NULL default '',
+  PRIMARY KEY  (`id`),
+  UNIQUE KEY `chanid` (`chanid`,`starttime`,`type`,`inserttime`)
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `jobqueue`
+--
+
+
+--
+-- Table structure for table `jumppoints`
+--
+
+DROP TABLE IF EXISTS `jumppoints`;
+CREATE TABLE `jumppoints` (
+  `destination` varchar(128) NOT NULL default '',
+  `description` varchar(255) default NULL,
+  `keylist` varchar(32) default NULL,
+  `hostname` varchar(255) NOT NULL default '',
+  PRIMARY KEY  (`destination`,`hostname`)
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `jumppoints`
+--
+
+INSERT INTO `jumppoints` VALUES ('Program Guide',NULL,'','dcerouter');
+INSERT INTO `jumppoints` VALUES ('Program Finder',NULL,'','dcerouter');
+INSERT INTO `jumppoints` VALUES ('Manage Recordings / Fix Conflicts',NULL,'','dcerouter');
+INSERT INTO `jumppoints` VALUES ('Program Recording Priorities',NULL,'','dcerouter');
+INSERT INTO `jumppoints` VALUES ('Channel Recording Priorities',NULL,'','dcerouter');
+INSERT INTO `jumppoints` VALUES ('TV Recording Playback',NULL,'','dcerouter');
+INSERT INTO `jumppoints` VALUES ('TV Recording Deletion',NULL,'','dcerouter');
+INSERT INTO `jumppoints` VALUES ('Live TV',NULL,'','dcerouter');
+INSERT INTO `jumppoints` VALUES ('Manual Record Scheduling',NULL,'','dcerouter');
+
+--
+-- Table structure for table `keybindings`
+--
+
+DROP TABLE IF EXISTS `keybindings`;
+CREATE TABLE `keybindings` (
+  `context` varchar(32) NOT NULL default '',
+  `action` varchar(32) NOT NULL default '',
+  `description` varchar(255) default NULL,
+  `keylist` varchar(32) default NULL,
+  `hostname` varchar(255) NOT NULL default '',
+  PRIMARY KEY  (`context`,`action`,`hostname`)
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `keybindings`
+--
+
+INSERT INTO `keybindings` VALUES ('Global','UP','Up Arrow','Up','dcerouter');
+INSERT INTO `keybindings` VALUES ('Global','DOWN','Down Arrow','Down','dcerouter');
+INSERT INTO `keybindings` VALUES ('Global','LEFT','Left Arrow','Left','dcerouter');
+INSERT INTO `keybindings` VALUES ('Global','RIGHT','Right Arrow','Right','dcerouter');
+INSERT INTO `keybindings` VALUES ('Global','SELECT','Select','Return,Enter,Space','dcerouter');
+INSERT INTO `keybindings` VALUES ('Global','ESCAPE','Escape','Esc','dcerouter');
+INSERT INTO `keybindings` VALUES ('Global','MENU','Pop-up menu','M','dcerouter');
+INSERT INTO `keybindings` VALUES ('Global','INFO','More information','I','dcerouter');
+INSERT INTO `keybindings` VALUES ('Global','PAGEUP','Page Up','PgUp','dcerouter');
+INSERT INTO `keybindings` VALUES ('Global','PAGEDOWN','Page Down','PgDown','dcerouter');
+INSERT INTO `keybindings` VALUES ('Global','PREVVIEW','Previous View','Home','dcerouter');
+INSERT INTO `keybindings` VALUES ('Global','NEXTVIEW','Next View','End','dcerouter');
+INSERT INTO `keybindings` VALUES ('Global','HELP','Help','F1','dcerouter');
+INSERT INTO `keybindings` VALUES ('Global','0','0','0','dcerouter');
+INSERT INTO `keybindings` VALUES ('Global','1','1','1','dcerouter');
+INSERT INTO `keybindings` VALUES ('Global','2','2','2','dcerouter');
+INSERT INTO `keybindings` VALUES ('Global','3','3','3','dcerouter');
+INSERT INTO `keybindings` VALUES ('Global','4','4','4','dcerouter');
+INSERT INTO `keybindings` VALUES ('Global','5','5','5','dcerouter');
+INSERT INTO `keybindings` VALUES ('Global','6','6','6','dcerouter');
+INSERT INTO `keybindings` VALUES ('Global','7','7','7','dcerouter');
+INSERT INTO `keybindings` VALUES ('Global','8','8','8','dcerouter');
+INSERT INTO `keybindings` VALUES ('Global','9','9','9','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Frontend','PAGEUP','Page Up','3','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Frontend','PAGEDOWN','Page Down','9','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Frontend','DELETE','Delete Program','D','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Frontend','PLAYBACK','Play Program','P','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Frontend','TOGGLERECORD','Toggle recording status of current program','R','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Frontend','DAYLEFT','Page the program guide back one day','Home,7','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Frontend','DAYRIGHT','Page the program guide forward one day','End,1','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Frontend','PAGELEFT','Page the program guide left',',,<','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Frontend','PAGERIGHT','Page the program guide right','>,.','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Frontend','TOGGLEFAV','Toggle the current channel as a favorite','?','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Frontend','NEXTFAV','Toggle showing all channels or just favorites in the program guide.','/','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Frontend','CHANUPDATE','Switch channels without exiting guide in Live TV mode.','X','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Frontend','RANKINC','Increase program or channel rank','Right','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Frontend','RANKDEC','Decrease program or channel rank','Left','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Frontend','UPCOMING','List upcoming episodes','O','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Frontend','DETAILS','Show program details','U','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','CLEAROSD','Clear OSD','Backspace','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','PAUSE','Pause','P','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','DELETE','Delete Program','D','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','SEEKFFWD','Fast Forward','Right','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','SEEKRWND','Rewind','Left','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','CHANNELUP','Channel up','Up','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','CHANNELDOWN','Channel down','Down','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','NEXTFAV','Switch to the next favorite channel','/','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','PREVCHAN','Switch to the previous channel','H','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','JUMPFFWD','Jump ahead','PgDown','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','JUMPRWND','Jump back','PgUp','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','FFWDSTICKY','Fast Forward (Sticky) or Forward one frame while paused','>,.','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','RWNDSTICKY','Rewind (Sticky) or Rewind one frame while paused',',,<','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','TOGGLEINPUTS','Toggle Inputs','C','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','SWITCHCARDS','Switch Capture Cards','Y','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','SKIPCOMMERCIAL','Skip Commercial','Z,End','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','SKIPCOMMBACK','Skip Commercial (Reverse)','Q,Home','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','JUMPSTART','Jump to the start of the recording.','Ctrl+B','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','TOGGLEBROWSE','Toggle channel browse mode','O','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','TOGGLERECORD','Toggle recording status of current program','R','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','TOGGLEFAV','Toggle the current channel as a favorite','?','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','VOLUMEDOWN','Volume down','[,{,F10','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','VOLUMEUP','Volume up','],},F11','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','MUTE','Mute','|,\\\\,F9','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','TOGGLEPIPMODE','Toggle Picture-in-Picture mode','V','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','TOGGLEPIPWINDOW','Toggle active PiP window','B','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','SWAPPIP','Swap the PiP window channels','N','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','TOGGLEASPECT','Toggle the display aspect ratio','W','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','TOGGLECC','Toggle Closed Captioning/Teletext','T','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','DISPCC1','Display CC1','','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','DISPCC2','Display CC2','','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','DISPCC3','Display CC3','','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','DISPCC4','Display CC4','','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','DISPTXT1','Display TXT1','','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','DISPTXT2','Display TXT2','','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','DISPTXT3','Display TXT3','','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','DISPTXT4','Display TXT4','','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','QUEUETRANSCODE','Queue the current recording for transcoding','X','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','SPEEDINC','Increase the playback speed','U','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','SPEEDDEC','Decrease the playback speed','J','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','TOGGLESTRETCH','Turn on time stretch control','A','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','TOGGLEPICCONTROLS','Turn on the playback picture adjustment controls','F','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','TOGGLERECCONTROLS','Turn on the recording picture adjustment controls','G','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','TOGGLEEDIT','Start Edit Mode','E','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','GUIDE','Show the Program Guide','S','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','TOGGLESLEEP','Toggle the Sleep Timer','F8','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','PLAY','Play','Ctrl+P','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','NEXTAUDIO','Switch to the next audio track','+','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','PREVAUDIO','Switch to the previous audio track','-','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Playback','SUBCHANNELSEP','Separator for HDTV subchannels','_','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Editing','CLEARMAP','Clear editing cut points','C,Q,Home','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Editing','INVERTMAP','Invert Begin/End cut points','I','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Editing','LOADCOMMSKIP','Load cut list from commercial skips','Z,End','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Editing','NEXTCUT','Jump to the next cut point','PgDown','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Editing','PREVCUT','Jump to the previous cut point','PgUp','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Editing','BIGJUMPREW','Jump back 10x the normal amount',',,<','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Editing','BIGJUMPFWD','Jump forward 10x the normal amount','>,.','dcerouter');
+INSERT INTO `keybindings` VALUES ('TV Editing','TOGGLEEDIT','Exit out of Edit Mode','E','dcerouter');
+INSERT INTO `keybindings` VALUES ('qt','DELETE','Delete','D','dcerouter');
+INSERT INTO `keybindings` VALUES ('qt','EDIT','Edit','E','dcerouter');
+
+--
+-- Table structure for table `keyword`
+--
+
+DROP TABLE IF EXISTS `keyword`;
+CREATE TABLE `keyword` (
+  `phrase` varchar(128) NOT NULL default '',
+  `searchtype` int(10) unsigned NOT NULL default '3',
+  UNIQUE KEY `phrase` (`phrase`,`searchtype`)
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `keyword`
+--
+
+
+--
+-- Table structure for table `mythlog`
+--
+
+DROP TABLE IF EXISTS `mythlog`;
+CREATE TABLE `mythlog` (
+  `logid` int(10) unsigned NOT NULL auto_increment,
+  `module` varchar(32) NOT NULL default '',
+  `priority` int(11) NOT NULL default '0',
+  `acknowledged` tinyint(1) default '0',
+  `logdate` datetime default NULL,
+  `host` varchar(128) default NULL,
+  `message` varchar(255) NOT NULL default '',
+  `details` text,
+  PRIMARY KEY  (`logid`)
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `mythlog`
+--
+
+
+--
+-- Table structure for table `networkiconmap`
+--
+
+DROP TABLE IF EXISTS `networkiconmap`;
+CREATE TABLE `networkiconmap` (
+  `id` int(11) NOT NULL auto_increment,
+  `network` varchar(20) NOT NULL default '',
+  `url` varchar(255) NOT NULL default '',
+  PRIMARY KEY  (`id`),
+  UNIQUE KEY `network` (`network`)
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `networkiconmap`
+--
+
+
+--
+-- Table structure for table `oldfind`
+--
+
+DROP TABLE IF EXISTS `oldfind`;
+CREATE TABLE `oldfind` (
+  `recordid` int(11) NOT NULL default '0',
+  `findid` int(11) NOT NULL default '0',
+  PRIMARY KEY  (`recordid`,`findid`)
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `oldfind`
+--
+
+
+--
+-- Table structure for table `oldprogram`
+--
+
+DROP TABLE IF EXISTS `oldprogram`;
+CREATE TABLE `oldprogram` (
+  `oldtitle` varchar(128) NOT NULL default '',
+  `airdate` datetime NOT NULL default '0000-00-00 00:00:00',
+  PRIMARY KEY  (`oldtitle`)
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `oldprogram`
+--
+
+
+--
+-- Table structure for table `oldrecorded`
+--
+
+DROP TABLE IF EXISTS `oldrecorded`;
+CREATE TABLE `oldrecorded` (
+  `chanid` int(10) unsigned NOT NULL default '0',
+  `starttime` datetime NOT NULL default '0000-00-00 00:00:00',
+  `endtime` datetime NOT NULL default '0000-00-00 00:00:00',
+  `title` varchar(128) NOT NULL default '',
+  `subtitle` varchar(128) NOT NULL default '',
+  `description` text NOT NULL,
+  `category` varchar(64) NOT NULL default '',
+  `seriesid` varchar(12) NOT NULL default '',
+  `programid` varchar(20) NOT NULL default '',
+  `findid` int(11) NOT NULL default '0',
+  `recordid` int(11) NOT NULL default '0',
+  PRIMARY KEY  (`chanid`,`starttime`),
+  KEY `endtime` (`endtime`),
+  KEY `title` (`title`),
+  KEY `seriesid` (`seriesid`),
+  KEY `programid` (`programid`),
+  KEY `recordid` (`recordid`)
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `oldrecorded`
+--
+
+
+--
+-- Table structure for table `people`
+--
+
+DROP TABLE IF EXISTS `people`;
+CREATE TABLE `people` (
+  `person` mediumint(8) unsigned NOT NULL auto_increment,
+  `name` char(128) NOT NULL default '',
+  PRIMARY KEY  (`person`),
+  UNIQUE KEY `name` (`name`(41))
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `people`
+--
+
+
+--
+-- Table structure for table `profilegroups`
+--
+
+DROP TABLE IF EXISTS `profilegroups`;
+CREATE TABLE `profilegroups` (
+  `id` int(10) unsigned NOT NULL auto_increment,
+  `name` varchar(128) default NULL,
+  `cardtype` varchar(32) NOT NULL default 'V4L',
+  `is_default` int(1) default '0',
+  `hostname` varchar(255) default NULL,
+  PRIMARY KEY  (`id`),
+  UNIQUE KEY `name` (`name`,`hostname`)
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `profilegroups`
+--
+
+INSERT INTO `profilegroups` VALUES (1,'Software Encoders (v4l based)','V4L',1,NULL);
+INSERT INTO `profilegroups` VALUES (2,'MPEG-2 Encoders (PVR-250, PVR-350)','MPEG',1,NULL);
+INSERT INTO `profilegroups` VALUES (3,'Hardware MJPEG Encoders (Matrox G200-TV, Miro DC10, etc)','MJPEG',1,NULL);
+INSERT INTO `profilegroups` VALUES (4,'Hardware HDTV','HDTV',1,NULL);
+INSERT INTO `profilegroups` VALUES (5,'Hardware DVB Encoders','DVB',1,NULL);
+INSERT INTO `profilegroups` VALUES (6,'Transcoders','TRANSCODE',1,NULL);
+INSERT INTO `profilegroups` VALUES (7,'FireWire Input','FIREWIRE',1,NULL);
+INSERT INTO `profilegroups` VALUES (8,'USB Mpeg-4 Encoder (Plextor ConvertX, etc)','GO7007',1,NULL);
+
+--
+-- Table structure for table `program`
+--
+
+DROP TABLE IF EXISTS `program`;
+CREATE TABLE `program` (
+  `chanid` int(10) unsigned NOT NULL default '0',
+  `starttime` datetime NOT NULL default '0000-00-00 00:00:00',
+  `endtime` datetime NOT NULL default '0000-00-00 00:00:00',
+  `title` varchar(128) NOT NULL default '',
+  `subtitle` varchar(128) NOT NULL default '',
+  `description` text NOT NULL,
+  `category` varchar(64) NOT NULL default '',
+  `category_type` varchar(64) NOT NULL default '',
+  `airdate` year(4) NOT NULL default '0000',
+  `stars` float NOT NULL default '0',
+  `previouslyshown` tinyint(4) NOT NULL default '0',
+  `title_pronounce` varchar(128) NOT NULL default '',
+  `stereo` tinyint(1) NOT NULL default '0',
+  `subtitled` tinyint(1) NOT NULL default '0',
+  `hdtv` tinyint(1) NOT NULL default '0',
+  `closecaptioned` tinyint(1) NOT NULL default '0',
+  `partnumber` int(11) NOT NULL default '0',
+  `parttotal` int(11) NOT NULL default '0',
+  `seriesid` varchar(12) NOT NULL default '',
+  `originalairdate` date default NULL,
+  `showtype` varchar(30) NOT NULL default '',
+  `colorcode` varchar(20) NOT NULL default '',
+  `syndicatedepisodenumber` varchar(20) NOT NULL default '',
+  `programid` varchar(20) NOT NULL default '',
+  `manualid` int(10) unsigned NOT NULL default '0',
+  PRIMARY KEY  (`chanid`,`starttime`,`manualid`),
+  KEY `endtime` (`endtime`),
+  KEY `title` (`title`),
+  KEY `title_pronounce` (`title_pronounce`),
+  KEY `seriesid` (`seriesid`),
+  KEY `programid` (`programid`),
+  KEY `id_start_end` (`chanid`,`starttime`,`endtime`)
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `program`
+--
+
+
+--
+-- Table structure for table `programgenres`
+--
+
+DROP TABLE IF EXISTS `programgenres`;
+CREATE TABLE `programgenres` (
+  `chanid` int(10) unsigned NOT NULL default '0',
+  `starttime` datetime NOT NULL default '0000-00-00 00:00:00',
+  `relevance` char(1) NOT NULL default '',
+  `genre` char(30) default NULL,
+  PRIMARY KEY  (`chanid`,`starttime`,`relevance`)
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `programgenres`
+--
+
+
+--
+-- Table structure for table `programrating`
+--
+
+DROP TABLE IF EXISTS `programrating`;
+CREATE TABLE `programrating` (
+  `chanid` int(10) unsigned NOT NULL default '0',
+  `starttime` datetime NOT NULL default '0000-00-00 00:00:00',
+  `system` char(8) NOT NULL default '',
+  `rating` char(8) NOT NULL default '',
+  UNIQUE KEY `chanid` (`chanid`,`starttime`,`system`,`rating`),
+  KEY `starttime` (`starttime`,`system`)
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `programrating`
+--
+
+
+--
+-- Table structure for table `recgrouppassword`
+--
+
+DROP TABLE IF EXISTS `recgrouppassword`;
+CREATE TABLE `recgrouppassword` (
+  `recgroup` varchar(32) NOT NULL default '',
+  `password` varchar(10) NOT NULL default '',
+  PRIMARY KEY  (`recgroup`),
+  UNIQUE KEY `recgroup` (`recgroup`)
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `recgrouppassword`
+--
+
+
+--
+-- Table structure for table `record`
+--
+
+DROP TABLE IF EXISTS `record`;
+CREATE TABLE `record` (
+  `recordid` int(10) unsigned NOT NULL auto_increment,
+  `type` int(10) unsigned NOT NULL default '0',
+  `chanid` int(10) unsigned default NULL,
+  `starttime` time NOT NULL default '00:00:00',
+  `startdate` date NOT NULL default '0000-00-00',
+  `endtime` time NOT NULL default '00:00:00',
+  `enddate` date NOT NULL default '0000-00-00',
+  `title` varchar(128) NOT NULL default '',
+  `subtitle` varchar(128) NOT NULL default '',
+  `description` text NOT NULL,
+  `category` varchar(64) NOT NULL default '',
+  `profile` varchar(128) NOT NULL default 'Default',
+  `recpriority` int(10) NOT NULL default '0',
+  `autoexpire` int(11) NOT NULL default '0',
+  `maxepisodes` int(11) NOT NULL default '0',
+  `maxnewest` int(11) NOT NULL default '0',
+  `startoffset` int(11) NOT NULL default '0',
+  `endoffset` int(11) NOT NULL default '0',
+  `recgroup` varchar(32) NOT NULL default 'Default',
+  `dupmethod` int(11) NOT NULL default '6',
+  `dupin` int(11) NOT NULL default '15',
+  `station` varchar(20) NOT NULL default '',
+  `seriesid` varchar(12) NOT NULL default '',
+  `programid` varchar(20) NOT NULL default '',
+  `search` int(10) unsigned NOT NULL default '0',
+  `autotranscode` tinyint(1) NOT NULL default '0',
+  `autocommflag` tinyint(1) NOT NULL default '0',
+  `autouserjob1` tinyint(1) NOT NULL default '0',
+  `autouserjob2` tinyint(1) NOT NULL default '0',
+  `autouserjob3` tinyint(1) NOT NULL default '0',
+  `autouserjob4` tinyint(1) NOT NULL default '0',
+  `findday` tinyint(4) NOT NULL default '0',
+  `findtime` time NOT NULL default '00:00:00',
+  `findid` int(11) NOT NULL default '0',
+  `inactive` tinyint(1) NOT NULL default '0',
+  `parentid` int(11) NOT NULL default '0',
+  PRIMARY KEY  (`recordid`),
+  KEY `chanid` (`chanid`,`starttime`),
+  KEY `title` (`title`),
+  KEY `seriesid` (`seriesid`),
+  KEY `programid` (`programid`)
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `record`
+--
+
+
+--
+-- Table structure for table `recorded`
+--
+
+DROP TABLE IF EXISTS `recorded`;
+CREATE TABLE `recorded` (
+  `chanid` int(10) unsigned NOT NULL default '0',
+  `starttime` datetime NOT NULL default '0000-00-00 00:00:00',
+  `endtime` datetime NOT NULL default '0000-00-00 00:00:00',
+  `title` varchar(128) NOT NULL default '',
+  `subtitle` varchar(128) NOT NULL default '',
+  `description` text NOT NULL,
+  `category` varchar(64) NOT NULL default '',
+  `hostname` varchar(255) NOT NULL default '',
+  `bookmark` varchar(128) default NULL,
+  `editing` int(10) unsigned NOT NULL default '0',
+  `cutlist` text,
+  `autoexpire` int(11) NOT NULL default '0',
+  `commflagged` int(10) unsigned NOT NULL default '0',
+  `recgroup` varchar(32) NOT NULL default 'Default',
+  `recordid` int(11) default NULL,
+  `seriesid` varchar(12) NOT NULL default '',
+  `programid` varchar(20) NOT NULL default '',
+  `lastmodified` timestamp(14) NOT NULL,
+  `filesize` bigint(20) NOT NULL default '0',
+  `stars` float NOT NULL default '0',
+  `previouslyshown` tinyint(1) default '0',
+  `originalairdate` date default NULL,
+  `preserve` tinyint(1) NOT NULL default '0',
+  `findid` int(11) NOT NULL default '0',
+  `deletepending` tinyint(1) NOT NULL default '0',
+  PRIMARY KEY  (`chanid`,`starttime`),
+  KEY `endtime` (`endtime`),
+  KEY `seriesid` (`seriesid`),
+  KEY `programid` (`programid`),
+  KEY `title` (`title`),
+  KEY `recordid` (`recordid`)
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `recorded`
+--
+
+
+--
+-- Table structure for table `recordedcredits`
+--
+
+DROP TABLE IF EXISTS `recordedcredits`;
+CREATE TABLE `recordedcredits` (
+  `person` mediumint(8) unsigned NOT NULL default '0',
+  `chanid` int(10) unsigned NOT NULL default '0',
+  `starttime` datetime NOT NULL default '0000-00-00 00:00:00',
+  `role` set('actor','director','producer','executive_producer','writer','guest_star','host','adapter','presenter','commentator','guest') NOT NULL default '',
+  UNIQUE KEY `chanid` (`chanid`,`starttime`,`person`,`role`),
+  KEY `person` (`person`,`role`)
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `recordedcredits`
+--
+
+
+--
+-- Table structure for table `recordedmarkup`
+--
+
+DROP TABLE IF EXISTS `recordedmarkup`;
+CREATE TABLE `recordedmarkup` (
+  `chanid` int(10) unsigned NOT NULL default '0',
+  `starttime` datetime NOT NULL default '0000-00-00 00:00:00',
+  `mark` bigint(20) NOT NULL default '0',
+  `offset` varchar(32) default NULL,
+  `type` int(11) NOT NULL default '0',
+  PRIMARY KEY  (`chanid`,`starttime`,`mark`,`type`)
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `recordedmarkup`
+--
+
+
+--
+-- Table structure for table `recordedprogram`
+--
+
+DROP TABLE IF EXISTS `recordedprogram`;
+CREATE TABLE `recordedprogram` (
+  `chanid` int(10) unsigned NOT NULL default '0',
+  `starttime` datetime NOT NULL default '0000-00-00 00:00:00',
+  `endtime` datetime NOT NULL default '0000-00-00 00:00:00',
+  `title` varchar(128) NOT NULL default '',
+  `subtitle` varchar(128) NOT NULL default '',
+  `description` text NOT NULL,
+  `category` varchar(64) NOT NULL default '',
+  `category_type` varchar(64) NOT NULL default '',
+  `airdate` year(4) NOT NULL default '0000',
+  `stars` float unsigned NOT NULL default '0',
+  `previouslyshown` tinyint(4) NOT NULL default '0',
+  `title_pronounce` varchar(128) NOT NULL default '',
+  `stereo` tinyint(1) NOT NULL default '0',
+  `subtitled` tinyint(1) NOT NULL default '0',
+  `hdtv` tinyint(1) NOT NULL default '0',
+  `closecaptioned` tinyint(1) NOT NULL default '0',
+  `partnumber` int(11) NOT NULL default '0',
+  `parttotal` int(11) NOT NULL default '0',
+  `seriesid` varchar(12) NOT NULL default '',
+  `originalairdate` date default NULL,
+  `showtype` varchar(30) NOT NULL default '',
+  `colorcode` varchar(20) NOT NULL default '',
+  `syndicatedepisodenumber` varchar(20) NOT NULL default '',
+  `programid` varchar(20) NOT NULL default '',
+  `manualid` int(10) unsigned NOT NULL default '0',
+  PRIMARY KEY  (`chanid`,`starttime`,`manualid`),
+  KEY `endtime` (`endtime`),
+  KEY `title` (`title`),
+  KEY `title_pronounce` (`title_pronounce`),
+  KEY `seriesid` (`seriesid`),
+  KEY `programid` (`programid`),
+  KEY `id_start_end` (`chanid`,`starttime`,`endtime`)
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `recordedprogram`
+--
+
+
+--
+-- Table structure for table `recordedrating`
+--
+
+DROP TABLE IF EXISTS `recordedrating`;
+CREATE TABLE `recordedrating` (
+  `chanid` int(10) unsigned NOT NULL default '0',
+  `starttime` datetime NOT NULL default '0000-00-00 00:00:00',
+  `system` char(8) NOT NULL default '',
+  `rating` char(8) NOT NULL default '',
+  UNIQUE KEY `chanid` (`chanid`,`starttime`,`system`,`rating`),
+  KEY `starttime` (`starttime`,`system`)
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `recordedrating`
+--
+
+
+--
+-- Table structure for table `recordingprofiles`
+--
+
+DROP TABLE IF EXISTS `recordingprofiles`;
+CREATE TABLE `recordingprofiles` (
+  `id` int(10) unsigned NOT NULL auto_increment,
+  `name` varchar(128) default NULL,
+  `videocodec` varchar(128) default NULL,
+  `audiocodec` varchar(128) default NULL,
+  `profilegroup` int(10) unsigned NOT NULL default '0',
+  PRIMARY KEY  (`id`)
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `recordingprofiles`
+--
+
+INSERT INTO `recordingprofiles` VALUES (1,'Default',NULL,NULL,1);
+INSERT INTO `recordingprofiles` VALUES (2,'Live TV',NULL,NULL,1);
+INSERT INTO `recordingprofiles` VALUES (3,'High Quality',NULL,NULL,1);
+INSERT INTO `recordingprofiles` VALUES (4,'Low Quality',NULL,NULL,1);
+INSERT INTO `recordingprofiles` VALUES (5,'Default',NULL,NULL,2);
+INSERT INTO `recordingprofiles` VALUES (6,'Live TV',NULL,NULL,2);
+INSERT INTO `recordingprofiles` VALUES (7,'High Quality',NULL,NULL,2);
+INSERT INTO `recordingprofiles` VALUES (8,'Low Quality',NULL,NULL,2);
+INSERT INTO `recordingprofiles` VALUES (9,'Default',NULL,NULL,3);
+INSERT INTO `recordingprofiles` VALUES (10,'Live TV',NULL,NULL,3);
+INSERT INTO `recordingprofiles` VALUES (11,'High Quality',NULL,NULL,3);
+INSERT INTO `recordingprofiles` VALUES (12,'Low Quality',NULL,NULL,3);
+INSERT INTO `recordingprofiles` VALUES (13,'Default',NULL,NULL,4);
+INSERT INTO `recordingprofiles` VALUES (14,'Live TV',NULL,NULL,4);
+INSERT INTO `recordingprofiles` VALUES (15,'High Quality',NULL,NULL,4);
+INSERT INTO `recordingprofiles` VALUES (16,'Low Quality',NULL,NULL,4);
+INSERT INTO `recordingprofiles` VALUES (17,'Default',NULL,NULL,5);
+INSERT INTO `recordingprofiles` VALUES (18,'Live TV',NULL,NULL,5);
+INSERT INTO `recordingprofiles` VALUES (19,'High Quality',NULL,NULL,5);
+INSERT INTO `recordingprofiles` VALUES (20,'Low Quality',NULL,NULL,5);
+INSERT INTO `recordingprofiles` VALUES (21,'RTjpeg/MPEG4',NULL,NULL,6);
+INSERT INTO `recordingprofiles` VALUES (22,'MPEG2',NULL,NULL,6);
+INSERT INTO `recordingprofiles` VALUES (23,'Default',NULL,NULL,8);
+INSERT INTO `recordingprofiles` VALUES (24,'Live TV',NULL,NULL,8);
+INSERT INTO `recordingprofiles` VALUES (25,'High Quality',NULL,NULL,8);
+INSERT INTO `recordingprofiles` VALUES (26,'Low Quality',NULL,NULL,8);
+
+--
+-- Table structure for table `recordmatch`
+--
+
+DROP TABLE IF EXISTS `recordmatch`;
+CREATE TABLE `recordmatch` (
+  `recordid` int(10) unsigned default NULL,
+  `chanid` int(10) unsigned default NULL,
+  `starttime` datetime default NULL,
+  `manualid` int(10) unsigned default NULL,
+  KEY `recordid` (`recordid`)
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `recordmatch`
+--
+
+
+--
+-- Table structure for table `recordoverride`
+--
+
+DROP TABLE IF EXISTS `recordoverride`;
+CREATE TABLE `recordoverride` (
+  `recordid` int(10) unsigned NOT NULL default '0',
+  `type` int(10) unsigned NOT NULL default '0',
+  `chanid` int(10) unsigned default NULL,
+  `starttime` datetime NOT NULL default '0000-00-00 00:00:00',
+  `endtime` datetime NOT NULL default '0000-00-00 00:00:00',
+  `title` varchar(128) default NULL,
+  `subtitle` varchar(128) default NULL,
+  `description` text,
+  `station` varchar(20) NOT NULL default ''
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `recordoverride`
+--
+
+
+--
+-- Table structure for table `schemalock`
+--
+
+DROP TABLE IF EXISTS `schemalock`;
+CREATE TABLE `schemalock` (
+  `schemalock` int(1) default NULL
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `schemalock`
+--
+
+
+--
+-- Table structure for table `settings`
+--
+
+DROP TABLE IF EXISTS `settings`;
+CREATE TABLE `settings` (
+  `value` varchar(128) NOT NULL default '',
+  `data` text,
+  `hostname` varchar(255) default NULL,
+  KEY `value` (`value`,`hostname`)
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `settings`
+--
+
+INSERT INTO `settings` VALUES ('mythfilldatabaseLastRunStart','',NULL);
+INSERT INTO `settings` VALUES ('mythfilldatabaseLastRunEnd','',NULL);
+INSERT INTO `settings` VALUES ('mythfilldatabaseLastRunStatus','',NULL);
+INSERT INTO `settings` VALUES ('DataDirectMessage','',NULL);
+INSERT INTO `settings` VALUES ('HaveRepeats','1',NULL);
+INSERT INTO `settings` VALUES ('DBSchemaVer','1083',NULL);
+INSERT INTO `settings` VALUES ('MasterServerPort','6143',NULL);
+INSERT INTO `settings` VALUES ('BackendServerIP','192.168.80.1','dcerouter');
+INSERT INTO `settings` VALUES ('BackendServerPort','6143','dcerouter');
+INSERT INTO `settings` VALUES ('BufferSize','5','dcerouter');
+INSERT INTO `settings` VALUES ('LiveBufferDir','/home/mythtv/cache/192.168.80.1','dcerouter');
+INSERT INTO `settings` VALUES ('RecordFilePrefix','/home/mythtv/shows/192.168.80.1','dcerouter');
+INSERT INTO `settings` VALUES ('Deinterlace','0','dcerouter');
+INSERT INTO `settings` VALUES ('DeinterlaceFilter','linearblend','dcerouter');
+INSERT INTO `settings` VALUES ('CustomFilters','','dcerouter');
+INSERT INTO `settings` VALUES ('UseMPEG2Dec','0','dcerouter');
+INSERT INTO `settings` VALUES ('RealtimePriority','1','dcerouter');
+INSERT INTO `settings` VALUES ('UseVideoTimebase','0','dcerouter');
+INSERT INTO `settings` VALUES ('DecodeExtraAudio','1','dcerouter');
+INSERT INTO `settings` VALUES ('AspectOverride','0','dcerouter');
+INSERT INTO `settings` VALUES ('PIPLocation','0','dcerouter');
+INSERT INTO `settings` VALUES ('PlaybackExitPrompt','0','dcerouter');
+INSERT INTO `settings` VALUES ('EndOfRecordingExitPrompt','0','dcerouter');
+INSERT INTO `settings` VALUES ('ClearSavedPosition','1','dcerouter');
+INSERT INTO `settings` VALUES ('AltClearSavedPosition','1','dcerouter');
+INSERT INTO `settings` VALUES ('UseOutputPictureControls','0','dcerouter');
+INSERT INTO `settings` VALUES ('CCBufferWarnings','0','dcerouter');
+INSERT INTO `settings` VALUES ('UDPNotifyPort','6948','dcerouter');
+INSERT INTO `settings` VALUES ('PlayBoxOrdering','1','dcerouter');
+INSERT INTO `settings` VALUES ('PlayBoxEpisodeSort','Date','dcerouter');
+INSERT INTO `settings` VALUES ('GeneratePreviewPixmaps','0','dcerouter');
+INSERT INTO `settings` VALUES ('PreviewPixmapOffset','64',NULL);
+INSERT INTO `settings` VALUES ('PlaybackPreview','1','dcerouter');
+INSERT INTO `settings` VALUES ('PlaybackPreviewLowCPU','0','dcerouter');
+INSERT INTO `settings` VALUES ('PlaybackBoxStartInTitle','1','dcerouter');
+INSERT INTO `settings` VALUES ('ShowGroupInfo','0','dcerouter');
+INSERT INTO `settings` VALUES ('AllRecGroupPassword','',NULL);
+INSERT INTO `settings` VALUES ('DisplayRecGroup','All Programs','dcerouter');
+INSERT INTO `settings` VALUES ('RememberRecGroup','1','dcerouter');
+INSERT INTO `settings` VALUES ('UseCategoriesAsRecGroups','0','dcerouter');
+INSERT INTO `settings` VALUES ('DispRecGroupAsAllProg','0','dcerouter');
+INSERT INTO `settings` VALUES ('PVR350OutputEnable','0','dcerouter');
+INSERT INTO `settings` VALUES ('PVR350VideoDev','/dev/video16','dcerouter');
+INSERT INTO `settings` VALUES ('PVR350EPGAlphaValue','164','dcerouter');
+INSERT INTO `settings` VALUES ('PVR350InternalAudioOnly','0','dcerouter');
+INSERT INTO `settings` VALUES ('UseXVMC','0','dcerouter');
+INSERT INTO `settings` VALUES ('FastForwardAmount','30','dcerouter');
+INSERT INTO `settings` VALUES ('RewindAmount','5','dcerouter');
+INSERT INTO `settings` VALUES ('SmartForward','0','dcerouter');
+INSERT INTO `settings` VALUES ('StickyKeys','0','dcerouter');
+INSERT INTO `settings` VALUES ('FFRewRepos','1','dcerouter');
+INSERT INTO `settings` VALUES ('FFRewReverse','1','dcerouter');
+INSERT INTO `settings` VALUES ('ExactSeeking','0','dcerouter');
+INSERT INTO `settings` VALUES ('JumpAmount','10','dcerouter');
+INSERT INTO `settings` VALUES ('AutoCommercialSkip','0','dcerouter');
+INSERT INTO `settings` VALUES ('CommRewindAmount','0','dcerouter');
+INSERT INTO `settings` VALUES ('CommNotifyAmount','0','dcerouter');
+INSERT INTO `settings` VALUES ('CommSkipAllBlanks','1',NULL);
+INSERT INTO `settings` VALUES ('TryUnflaggedSkip','0','dcerouter');
+INSERT INTO `settings` VALUES ('VertScanPercentage','0','dcerouter');
+INSERT INTO `settings` VALUES ('HorizScanPercentage','0','dcerouter');
+INSERT INTO `settings` VALUES ('XScanDisplacement','0','dcerouter');
+INSERT INTO `settings` VALUES ('YScanDisplacement','0','dcerouter');
+INSERT INTO `settings` VALUES ('OSDTheme','blueosd','dcerouter');
+INSERT INTO `settings` VALUES ('OSDDisplayTime','3','dcerouter');
+INSERT INTO `settings` VALUES ('OSDFont','FreeMono.ttf','dcerouter');
+INSERT INTO `settings` VALUES ('OSDCCFont','FreeMono.ttf','dcerouter');
+INSERT INTO `settings` VALUES ('OSDThemeFontSizeType','default','dcerouter');
+INSERT INTO `settings` VALUES ('CCBackground','0','dcerouter');
+INSERT INTO `settings` VALUES ('DefaultCCMode','0','dcerouter');
+INSERT INTO `settings` VALUES ('PersistentBrowseMode','0','dcerouter');
+INSERT INTO `settings` VALUES ('RecordPreRoll','0',NULL);
+INSERT INTO `settings` VALUES ('RecordOverTime','0',NULL);
+INSERT INTO `settings` VALUES ('ChannelOrdering','channum + 0','dcerouter');
+INSERT INTO `settings` VALUES ('SmartChannelChange','0','dcerouter');
+INSERT INTO `settings` VALUES ('LastFreeCard','0',NULL);
+INSERT INTO `settings` VALUES ('ChannelFormat','<num> <sign>','dcerouter');
+INSERT INTO `settings` VALUES ('LongChannelFormat','<num> <name>','dcerouter');
+INSERT INTO `settings` VALUES ('ATSCCheckSignalWait','5000',NULL);
+INSERT INTO `settings` VALUES ('ATSCCheckSignalThreshold','65',NULL);
+INSERT INTO `settings` VALUES ('HDRingbufferSize','9400',NULL);
+INSERT INTO `settings` VALUES ('AutoExpireDiskThreshold','0',NULL);
+INSERT INTO `settings` VALUES ('MinRecordDiskThreshold','300',NULL);
+INSERT INTO `settings` VALUES ('AutoExpireFrequency','10',NULL);
+INSERT INTO `settings` VALUES ('AutoExpireMethod','1',NULL);
+INSERT INTO `settings` VALUES ('AutoExpireDefault','1',NULL);
+INSERT INTO `settings` VALUES ('RerecordAutoExpired','0',NULL);
+INSERT INTO `settings` VALUES ('AutoCommercialFlag','1',NULL);
+INSERT INTO `settings` VALUES ('CommercialSkipMethod','1',NULL);
+INSERT INTO `settings` VALUES ('AggressiveCommDetect','1',NULL);
+INSERT INTO `settings` VALUES ('AutoRunUserJob1','0',NULL);
+INSERT INTO `settings` VALUES ('AutoRunUserJob2','0',NULL);
+INSERT INTO `settings` VALUES ('AutoRunUserJob3','0',NULL);
+INSERT INTO `settings` VALUES ('AutoRunUserJob4','0',NULL);
+INSERT INTO `settings` VALUES ('EPGFillType','10','dcerouter');
+INSERT INTO `settings` VALUES ('EPGShowCategoryColors','1','dcerouter');
+INSERT INTO `settings` VALUES ('EPGShowCategoryText','1','dcerouter');
+INSERT INTO `settings` VALUES ('EPGScrollType','1','dcerouter');
+INSERT INTO `settings` VALUES ('EPGShowChannelIcon','1','dcerouter');
+INSERT INTO `settings` VALUES ('EPGShowFavorites','0','dcerouter');
+INSERT INTO `settings` VALUES ('WatchTVGuide','0','dcerouter');
+INSERT INTO `settings` VALUES ('chanPerPage','5','dcerouter');
+INSERT INTO `settings` VALUES ('timePerPage','4','dcerouter');
+INSERT INTO `settings` VALUES ('UnknownTitle','Unknown','dcerouter');
+INSERT INTO `settings` VALUES ('UnknownCategory','Unknown','dcerouter');
+INSERT INTO `settings` VALUES ('DefaultTVChannel','3','dcerouter');
+INSERT INTO `settings` VALUES ('SelectChangesChannel','0','dcerouter');
+INSERT INTO `settings` VALUES ('SelChangeRecThreshold','16','dcerouter');
+INSERT INTO `settings` VALUES ('EPGEnableJumpToChannel','0',NULL);
+INSERT INTO `settings` VALUES ('Theme','G.A.N.T.','dcerouter');
+INSERT INTO `settings` VALUES ('Style','','dcerouter');
+INSERT INTO `settings` VALUES ('ThemeFontSizeType','default','dcerouter');
+INSERT INTO `settings` VALUES ('RandomTheme','0','dcerouter');
+INSERT INTO `settings` VALUES ('MenuTheme','Default','dcerouter');
+INSERT INTO `settings` VALUES ('GuiWidth','0','dcerouter');
+INSERT INTO `settings` VALUES ('GuiHeight','0','dcerouter');
+INSERT INTO `settings` VALUES ('GuiOffsetX','0','dcerouter');
+INSERT INTO `settings` VALUES ('GuiOffsetY','0','dcerouter');
+INSERT INTO `settings` VALUES ('GuiSizeForTV','1','dcerouter');
+INSERT INTO `settings` VALUES ('HideMouseCursor','1','dcerouter');
+INSERT INTO `settings` VALUES ('RunFrontendInWindow','0','dcerouter');
+INSERT INTO `settings` VALUES ('UseVideoModes','0','dcerouter');
+INSERT INTO `settings` VALUES ('GuiVidModeResolution','640x480','dcerouter');
+INSERT INTO `settings` VALUES ('TVVidModeResolution','640x400','dcerouter');
+INSERT INTO `settings` VALUES ('TVVidModeForceAspect','0.0','dcerouter');
+INSERT INTO `settings` VALUES ('VidModeWidth0','0','dcerouter');
+INSERT INTO `settings` VALUES ('VidModeHeight0','0','dcerouter');
+INSERT INTO `settings` VALUES ('TVVidModeResolution0','640x400','dcerouter');
+INSERT INTO `settings` VALUES ('TVVidModeForceAspect0','0.0','dcerouter');
+INSERT INTO `settings` VALUES ('VidModeWidth1','0','dcerouter');
+INSERT INTO `settings` VALUES ('VidModeHeight1','0','dcerouter');
+INSERT INTO `settings` VALUES ('TVVidModeResolution1','640x400','dcerouter');
+INSERT INTO `settings` VALUES ('TVVidModeForceAspect1','0.0','dcerouter');
+INSERT INTO `settings` VALUES ('VidModeWidth2','0','dcerouter');
+INSERT INTO `settings` VALUES ('VidModeHeight2','0','dcerouter');
+INSERT INTO `settings` VALUES ('TVVidModeResolution2','640x400','dcerouter');
+INSERT INTO `settings` VALUES ('TVVidModeForceAspect2','0.0','dcerouter');
+INSERT INTO `settings` VALUES ('Language','EN','dcerouter');
+INSERT INTO `settings` VALUES ('DateFormat','ddd MMM d','dcerouter');
+INSERT INTO `settings` VALUES ('ShortDateFormat','M/d','dcerouter');
+INSERT INTO `settings` VALUES ('TimeFormat','h:mm AP','dcerouter');
+INSERT INTO `settings` VALUES ('QtFontSmall','12','dcerouter');
+INSERT INTO `settings` VALUES ('QtFontMedium','16','dcerouter');
+INSERT INTO `settings` VALUES ('QtFontBig','25','dcerouter');
+INSERT INTO `settings` VALUES ('PlayBoxTransparency','1','dcerouter');
+INSERT INTO `settings` VALUES ('PlayBoxShading','0','dcerouter');
+INSERT INTO `settings` VALUES ('LCDEnable','0','dcerouter');
+INSERT INTO `settings` VALUES ('LCDShowTime','1','dcerouter');
+INSERT INTO `settings` VALUES ('LCDShowMenu','1','dcerouter');
+INSERT INTO `settings` VALUES ('LCDShowMusic','1','dcerouter');
+INSERT INTO `settings` VALUES ('LCDShowChannel','1','dcerouter');
+INSERT INTO `settings` VALUES ('LCDShowVolume','1','dcerouter');
+INSERT INTO `settings` VALUES ('LCDShowGeneric','1','dcerouter');
+INSERT INTO `settings` VALUES ('LCDBacklightOn','1','dcerouter');
+INSERT INTO `settings` VALUES ('LCDPopupTime','5','dcerouter');
+INSERT INTO `settings` VALUES ('AudioOutputDevice','/dev/dsp','dcerouter');
+INSERT INTO `settings` VALUES ('AC3PassThru','0','dcerouter');
+INSERT INTO `settings` VALUES ('AggressiveSoundcardBuffer','0','dcerouter');
+INSERT INTO `settings` VALUES ('MythControlsVolume','1','dcerouter');
+INSERT INTO `settings` VALUES ('MixerDevice','/dev/mixer','dcerouter');
+INSERT INTO `settings` VALUES ('MixerControl','PCM','dcerouter');
+INSERT INTO `settings` VALUES ('MasterMixerVolume','70','dcerouter');
+INSERT INTO `settings` VALUES ('PCMMixerVolume','70','dcerouter');
+INSERT INTO `settings` VALUES ('IndividualMuteControl','0','dcerouter');
+INSERT INTO `settings` VALUES ('AllowQuitShutdown','4','dcerouter');
+INSERT INTO `settings` VALUES ('NoPromptOnExit','1','dcerouter');
+INSERT INTO `settings` VALUES ('HaltCommand','halt','dcerouter');
+INSERT INTO `settings` VALUES ('LircKeyPressedApp','','dcerouter');
+INSERT INTO `settings` VALUES ('UseArrowAccels','1','dcerouter');
+INSERT INTO `settings` VALUES ('SetupPinCodeRequired','0','dcerouter');
+INSERT INTO `settings` VALUES ('MonitorDrives','0','dcerouter');
+INSERT INTO `settings` VALUES ('EnableXbox','0','dcerouter');
+INSERT INTO `settings` VALUES ('LogEnabled','0',NULL);
+INSERT INTO `settings` VALUES ('LogPrintLevel','8','dcerouter');
+INSERT INTO `settings` VALUES ('LogCleanEnabled','0','dcerouter');
+INSERT INTO `settings` VALUES ('LogCleanPeriod','14','dcerouter');
+INSERT INTO `settings` VALUES ('LogCleanDays','14','dcerouter');
+INSERT INTO `settings` VALUES ('LogCleanMax','30','dcerouter');
+INSERT INTO `settings` VALUES ('LogMaxCount','100','dcerouter');
+INSERT INTO `settings` VALUES ('MythFillEnabled','0',NULL);
+INSERT INTO `settings` VALUES ('MythFillDatabasePath','mythfilldatabase',NULL);
+INSERT INTO `settings` VALUES ('MythFillDatabaseArgs','',NULL);
+INSERT INTO `settings` VALUES ('MythFillDatabaseLog','',NULL);
+INSERT INTO `settings` VALUES ('MythFillPeriod','1',NULL);
+INSERT INTO `settings` VALUES ('MythFillMinHour','2',NULL);
+INSERT INTO `settings` VALUES ('MythFillMaxHour','5',NULL);
+INSERT INTO `settings` VALUES ('SchedMoveHigher','0',NULL);
+INSERT INTO `settings` VALUES ('SingleRecordRecPriority','0',NULL);
+INSERT INTO `settings` VALUES ('OverrideRecordRecPriority','0',NULL);
+INSERT INTO `settings` VALUES ('FindOneRecordRecPriority','0',NULL);
+INSERT INTO `settings` VALUES ('WeekslotRecordRecPriority','0',NULL);
+INSERT INTO `settings` VALUES ('TimeslotRecordRecPriority','0',NULL);
+INSERT INTO `settings` VALUES ('ChannelRecordRecPriority','0',NULL);
+INSERT INTO `settings` VALUES ('AllRecordRecPriority','0',NULL);
+INSERT INTO `settings` VALUES ('TVVidModeRefreshRate','0','dcerouter');
+INSERT INTO `settings` VALUES ('TVVidModeRefreshRate0','0','dcerouter');
+INSERT INTO `settings` VALUES ('TVVidModeRefreshRate1','0','dcerouter');
+INSERT INTO `settings` VALUES ('TVVidModeRefreshRate2','0','dcerouter');
+INSERT INTO `settings` VALUES ('MaxBufferFill','50','dcerouter');
+INSERT INTO `settings` VALUES ('SaveTranscoding','0',NULL);
+INSERT INTO `settings` VALUES ('TVFormat','NTSC',NULL);
+INSERT INTO `settings` VALUES ('VbiFormat','None',NULL);
+INSERT INTO `settings` VALUES ('FreqTable','us-bcast',NULL);
+INSERT INTO `settings` VALUES ('TimeOffset','None',NULL);
+INSERT INTO `settings` VALUES ('MasterBackendOverride','1',NULL);
+INSERT INTO `settings` VALUES ('DeletesFollowLinks','0',NULL);
+INSERT INTO `settings` VALUES ('startupCommand','',NULL);
+INSERT INTO `settings` VALUES ('blockSDWUwithoutClient','1',NULL);
+INSERT INTO `settings` VALUES ('idleTimeoutSecs','0',NULL);
+INSERT INTO `settings` VALUES ('idleWaitForRecordingTime','15',NULL);
+INSERT INTO `settings` VALUES ('StartupSecsBeforeRecording','120',NULL);
+INSERT INTO `settings` VALUES ('WakeupTimeFormat','hh:mm yyyy-MM-dd',NULL);
+INSERT INTO `settings` VALUES ('SetWakeuptimeCommand','',NULL);
+INSERT INTO `settings` VALUES ('ServerHaltCommand','sudo /sbin/halt -p',NULL);
+INSERT INTO `settings` VALUES ('preSDWUCheckCommand','',NULL);
+INSERT INTO `settings` VALUES ('WOLbackendReconnectWaitTime','0',NULL);
+INSERT INTO `settings` VALUES ('WOLbackendConnectRetry','5',NULL);
+INSERT INTO `settings` VALUES ('WOLbackendCommand','',NULL);
+INSERT INTO `settings` VALUES ('WOLslaveBackendsCommand','',NULL);
+INSERT INTO `settings` VALUES ('JobQueueMaxSimultaneousJobs','1','dcerouter');
+INSERT INTO `settings` VALUES ('JobQueueCheckFrequency','60','dcerouter');
+INSERT INTO `settings` VALUES ('JobQueueWindowStart','00:00','dcerouter');
+INSERT INTO `settings` VALUES ('JobQueueWindowEnd','23:59','dcerouter');
+INSERT INTO `settings` VALUES ('JobQueueCPU','0','dcerouter');
+INSERT INTO `settings` VALUES ('JobAllowCommFlag','1','dcerouter');
+INSERT INTO `settings` VALUES ('JobAllowUserJob1','0','dcerouter');
+INSERT INTO `settings` VALUES ('JobAllowUserJob2','0','dcerouter');
+INSERT INTO `settings` VALUES ('JobAllowUserJob3','0','dcerouter');
+INSERT INTO `settings` VALUES ('JobAllowUserJob4','0','dcerouter');
+INSERT INTO `settings` VALUES ('JobsRunOnRecordHost','0',NULL);
+INSERT INTO `settings` VALUES ('AutoTranscodeBeforeAutoCommflag','0',NULL);
+INSERT INTO `settings` VALUES ('AutoCommflagWhileRecording','0',NULL);
+INSERT INTO `settings` VALUES ('UserJobDesc1','User Job #1',NULL);
+INSERT INTO `settings` VALUES ('UserJob1','',NULL);
+INSERT INTO `settings` VALUES ('UserJobDesc2','User Job #2',NULL);
+INSERT INTO `settings` VALUES ('UserJob2','',NULL);
+INSERT INTO `settings` VALUES ('UserJobDesc3','User Job #3',NULL);
+INSERT INTO `settings` VALUES ('UserJob3','',NULL);
+INSERT INTO `settings` VALUES ('UserJobDesc4','User Job #4',NULL);
+INSERT INTO `settings` VALUES ('UserJob4','',NULL);
+INSERT INTO `settings` VALUES ('MasterServerIP','192.168.80.1',NULL);
+
+--
+-- Table structure for table `videobookmarks`
+--
+
+DROP TABLE IF EXISTS `videobookmarks`;
+CREATE TABLE `videobookmarks` (
+  `filename` varchar(255) NOT NULL default '',
+  `bookmark` varchar(128) default NULL,
+  PRIMARY KEY  (`filename`)
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `videobookmarks`
+--
+
+
+--
+-- Table structure for table `videosource`
+--
+
+DROP TABLE IF EXISTS `videosource`;
+CREATE TABLE `videosource` (
+  `sourceid` int(10) unsigned NOT NULL auto_increment,
+  `name` varchar(128) NOT NULL default '',
+  `xmltvgrabber` varchar(128) default NULL,
+  `userid` varchar(128) NOT NULL default '',
+  `freqtable` varchar(16) NOT NULL default 'default',
+  `lineupid` varchar(64) default NULL,
+  `password` varchar(64) default NULL,
+  PRIMARY KEY  (`sourceid`),
+  UNIQUE KEY `name` (`name`)
+) TYPE=MyISAM;
+
+--
+-- Dumping data for table `videosource`
+--
+
+INSERT INTO `videosource` VALUES (1,'94005','datadirect','paulhuber2005','default','PC:94005','msvirus1');
+
