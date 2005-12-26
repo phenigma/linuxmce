@@ -5640,6 +5640,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Go Back currently: %s  cs: %s",this->m_pScreenH
 		}
 		else
 		{*/
+			m_pScreenHistory_NewEntry = pScreenHistory;
 			CMD_Goto_DesignObj(pScreenHistory->m_dwPK_Device, pScreenHistory->GetObj()->m_ObjectID, pScreenHistory->m_sID,
 				"", false, pScreenHistory->GetObj()->m_bCantGoBack);
 		//}

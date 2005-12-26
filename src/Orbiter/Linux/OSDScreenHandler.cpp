@@ -573,7 +573,7 @@ bool OSDScreenHandler::Receiver_GridSelected(CallBackData *pData)
 
 		// Delete receivers first since maybe the user is returning to this wizard
 		m_pWizardLogic->DeleteDevicesInThisRoomOfType(DEVICECATEGORY_AmpsPreampsReceiversTuners_CONST);
-		m_pWizardLogic->m_nPK_Device_TV = m_pWizardLogic->AddDevice(atoi(sModel.c_str()),
+		m_pWizardLogic->m_nPK_Device_Receiver = m_pWizardLogic->AddDevice(atoi(sModel.c_str()),
 			StringUtils::itos(DEVICEDATA_COM_Port_on_PC_CONST) + "|" + sPort,
 			iPK_Device_ControlledVia);
 

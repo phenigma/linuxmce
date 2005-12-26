@@ -658,6 +658,19 @@ time_t StringUtils::SQLDateTime( string sSQLDate )
     return mktime( &t );
 }
 
+time_t StringUtils::MakeTime( int Year, int Month, int Day, int Hour, int Minute, int Second )
+{
+	struct tm t;
+    t.tm_year = Year;
+    t.tm_mon = Month;
+    t.tm_mday = Day;
+    t.tm_hour = Hour;
+    t.tm_min = Minute;
+    t.tm_sec = Second;
+    return mktime( &t );
+}
+
+
 string StringUtils::SQLDateTime(time_t t)
 {
     char acDateTime[100];

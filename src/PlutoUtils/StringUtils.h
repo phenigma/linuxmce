@@ -198,6 +198,7 @@ namespace StringUtils
 
 	string SecondsAsTime(int iSeconds);
 	string PrecisionTime();
+	time_t MakeTime( int Year, int Month, int Day, int Hour=0, int Minute=0, int Second=0 );
 
 	bool ContainsNonAscii(string &sInput);
 

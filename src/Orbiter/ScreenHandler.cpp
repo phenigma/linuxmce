@@ -113,6 +113,7 @@ void ScreenHandler::SCREEN_WhatModelMobileOrbiter(long PK_Screen, string sMacAdd
 void ScreenHandler::SCREEN_NewPlugAndPlayDevice(long PK_Screen, string sPK_Device, 
 												   string sDescription, string sComments)
 {
+	m_pOrbiter->m_pScreenHistory_NewEntry->m_sID = sPK_Device;
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_1_CONST, sDescription);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_2_CONST, sComments);
 	m_pOrbiter->CMD_Set_Variable(VARIABLE_Misc_Data_3_CONST, sPK_Device);

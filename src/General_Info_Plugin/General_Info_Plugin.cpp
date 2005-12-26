@@ -1169,6 +1169,11 @@ void General_Info_Plugin::CMD_Check_for_updates(string &sCMD_Result,Message *pMe
 		else
 			m_mapMediaDirectors_PendingConfig[pDevice_AppServerOnCore->m_pDevice_ControlledVia->m_dwPK_Device]=true;
 	}
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates %d pending configs",(int) m_mapMediaDirectors_PendingConfig.size());
+	for(map<int,bool>::iterator it=m_mapMediaDirectors_PendingConfig.begin();it!=m_mapMediaDirectors_PendingConfig.end();++it)
+		g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates md %d=%d",it->first,(int) it->second);
+#endif
 }
 
 //<-dceag-c396-b->
@@ -1187,7 +1192,12 @@ void General_Info_Plugin::CMD_Check_for_updates_done(string &sCMD_Result,Message
 		return; // Shouldn't happen
 
 	m_mapMediaDirectors_PendingConfig[pDevice_AppServer->m_pDevice_ControlledVia->m_dwPK_Device]=false;
-	g_pPlutoLogger->Write(LV_STATUS,"device %d done config update",pMessage->m_dwPK_Device_From);
+
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates_done from %d, %d pending configs",pMessage->m_dwPK_Device_From,(int) m_mapMediaDirectors_PendingConfig.size());
+	for(map<int,bool>::iterator it=m_mapMediaDirectors_PendingConfig.begin();it!=m_mapMediaDirectors_PendingConfig.end();++it)
+		g_pPlutoLogger->Write(LV_STATUS,"General_Info_Plugin::CMD_Check_for_updates_done md %d=%d",it->first,(int) it->second);
+#endif
 
 	if( PendingConfigs() )
 		return; // Others are still running
@@ -2158,6 +2168,6 @@ void General_Info_Plugin::SetRoomForDevice(Row_Device *pRow_Device,Row_Room *pRo
 	for(size_t s=0;s<vectRow_Device.size();++s)
 	{
 		Row_Device *pRow_Device_Child = vectRow_Device[s];
-		SetRoomForDevice(pRow_Device,pRow_Room);
+		SetRoomForDevice(pRow_Device_Child,pRow_Room);
 	}
 }

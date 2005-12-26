@@ -122,6 +122,9 @@ bool Orbiter_Plugin::GetConfig()
 
 	m_pRegenMonitor=new RegenMonitor(m_pDatabase_pluto_main);
 	m_sRegenAllDevicesRooms = m_pRegenMonitor->AllDevicesRooms();
+#ifdef DEBUG
+	g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::GetConfig Starting up with m_sRegenAllDevicesRooms=%s",m_sRegenAllDevicesRooms.c_str());
+#endif
 
     m_pDatabase_pluto_security = new Database_pluto_security( );
     if( !m_pDatabase_pluto_security->Connect( m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ), "pluto_security", m_pRouter->iDBPort_get( ) ) )
@@ -1598,6 +1601,9 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,int iPK_Users,string s
 			CheckForNewWizardDevices( (DeviceData_Router *) pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia);
 
 		string sRegenAllDevicesRooms = m_pRegenMonitor->AllDevicesRooms();
+#ifdef DEBUG
+		g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Orbiter_Registered sRegenAllDevicesRooms %s=%s",m_sRegenAllDevicesRooms.c_str(),sRegenAllDevicesRooms.c_str());
+#endif
 		if( m_sRegenAllDevicesRooms!=sRegenAllDevicesRooms )
 		{
 			m_sRegenAllDevicesRooms=sRegenAllDevicesRooms;
@@ -1611,6 +1617,9 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,int iPK_Users,string s
 			if( pRow_Orbiter )
 			{
 				pRow_Orbiter->Reload();
+#ifdef DEBUG
+				g_pPlutoLogger->Write(LV_STATUS,"Orbiter_Plugin::CMD_Orbiter_Registered sScenariosFloorplans %s=%s",pRow_Orbiter->ScenariosFloorplans_get().c_str(),sScenariosFloorplans.c_str());
+#endif
 				if( pRow_Orbiter->ScenariosFloorplans_get()!=sScenariosFloorplans )
 				{
 					DCE::SCREEN_Need_Regen_Orbiter SCREEN_Need_Regen_Orbiter(m_dwPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
