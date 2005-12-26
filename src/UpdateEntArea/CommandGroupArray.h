@@ -101,6 +101,9 @@ public:
 	CommandGroup *FindCommandGroupByTemplate(Row_EntertainArea *pRow_EntertainArea,int PK_Template,string sDescription,int PK_Icon,int TemplateParm1,int TemplateParm2,int *PK_CommandGroup);
 	CommandGroup *FindCommandGroupByTemplate_NoRoom(int PK_Template,string sDescription,int PK_Icon,int TemplateParm1,int TemplateParm2,int *PK_CommandGroup);
 
+	// The following versions just do a lookup.  No CommandGroup class is created, and AutoDelete is unaffected
+	static Row_CommandGroup *FindCommandGroupByTemplate(Row_Room *pRow_Room,int PK_Array,int PK_Template,int TemplateParm1,int TemplateParm2);
+
 	void DeleteCommandGroup(Row_CommandGroup *pRow_CommandGroup);
 	void DeleteUnusedCommandGroups();
 	void DeleteUnusedCommandGroups(Row_EntertainArea *pRow_EntertainArea);

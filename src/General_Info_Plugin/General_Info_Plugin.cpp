@@ -765,7 +765,7 @@ class DataGridTable *General_Info_Plugin::PNPDevices( string GridID, string Parm
 	int iMaxColumns = atoi( pMessage->m_mapParameters[COMMANDPARAMETER_Width_CONST].c_str() );
 	for(size_t s=0;s<vectRow_DHCPDevice.size();++s)
 	{
-		pCell = new DataGridCell(vectRow_DHCPDevice[s]->Description_get(),StringUtils::itos(vectRow_DHCPDevice[s]->PK_DHCPDevice_get()));
+		pCell = new DataGridCell(vectRow_DHCPDevice[s]->FK_DeviceTemplate_getrow()->Description_get(),StringUtils::itos(vectRow_DHCPDevice[s]->PK_DHCPDevice_get()));
 		pDataGrid->SetData(iColumn,iRow,pCell);
 		iColumn++;
 		if( iColumn>=iMaxColumns )
@@ -1601,7 +1601,7 @@ bool General_Info_Plugin::NewMacAddress( class Socket *pSocket, class Message *p
 	else if (Web_Result[0][0] == "FAIL")
 	{
 		if (Web_Result[0].size() >= 2)
-			g_pPlutoLogger->Write(LV_WARNING, "Query failed. Server said: %s", Web_Result[1][1].c_str());
+			g_pPlutoLogger->Write(LV_WARNING, "Query failed. Server said: %s", Web_Result[0][1].c_str());
 		else
 			g_pPlutoLogger->Write(LV_WARNING, "Query failed. Server didn't return reason message.");
 		return false;

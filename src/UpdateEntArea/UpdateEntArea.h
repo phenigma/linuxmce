@@ -19,7 +19,8 @@ class UpdateEntArea
 {
 	int m_iPK_Installation;
 	int m_dwPK_Device_MediaPlugIn,m_dwPK_Device_OrbiterPlugIn,m_dwPK_Device_LightingPlugIn,
-		m_dwPK_Device_ClimatePlugIn,m_dwPK_Device_SecurityPlugIn,m_dwPK_Device_TelecomPlugIn;
+		m_dwPK_Device_ClimatePlugIn,m_dwPK_Device_SecurityPlugIn,m_dwPK_Device_TelecomPlugIn,
+		m_dwPK_Device_DCERouter;
 	map<int, pair<LevelOfMedia, bool> > m_mapRoom_Media;  // For a room, what type of media is in it, and bool=true when it's manually configure
 	map<int, LevelOfMedia > m_mapEnt_Area_Auto_Media;  // For an ent area that is automatic, what type of media is in it
 
@@ -74,6 +75,10 @@ public:
 	Row_EventHandler *CreateLeaveHomeEventHandler(CommandGroupArray &commandGroupArray);
 	Row_Criteria *SetLeaveHomeCriteria(Row_EventHandler *pRow_EventHandler);
 	void ResetEventHandler_psc_mod(Row_EventHandler *pRow_EventHandler);
+
+	CommandGroup *CreateWatchingMediaCommandGroup(CommandGroupArray &commandGroupArray,Row_Room *pRow_Room,int iIsWatching);
+	Row_EventHandler *CreateWatchingMediaEventHandler(CommandGroupArray &commandGroupArray,Row_Room *pRow_Room,int iIsWatching);
+	Row_Criteria *SetWatchingMediaCriteria(Row_EventHandler *pRow_EventHandler);
 
 	// Misc helper functions for determining types of lights and rooms
 	bool IsLight(int PK_FloorplanType);

@@ -62,7 +62,8 @@ bool UpdateEntArea::IsLight(int PK_FloorplanType)
 		PK_FloorplanType==FLOORPLANOBJECTTYPE_LIGHT_FLOOR_LAMP_CONST ||
 		PK_FloorplanType==FLOORPLANOBJECTTYPE_LIGHT_CHANDALIER_CONST ||
 		PK_FloorplanType==FLOORPLANOBJECTTYPE_LIGHT_PICTURE_LIGHT_CONST ||
-		PK_FloorplanType==FLOORPLANOBJECTTYPE_LIGHT_ACCENT_LIGHT_CONST;
+		PK_FloorplanType==FLOORPLANOBJECTTYPE_LIGHT_ACCENT_LIGHT_CONST ||
+		PK_FloorplanType==0;  // Assume it's a light if the user didn't specify the type
 }
 
 bool UpdateEntArea::IsPublicInteriorRoom(int PK_RoomType)

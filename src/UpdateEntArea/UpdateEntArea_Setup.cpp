@@ -141,6 +141,20 @@ bool UpdateEntArea::Connect(int PK_Installation,string host, string user, string
 	}
 	else
 		m_dwPK_Device_TelecomPlugIn=vectRow_Device[0]->PK_Device_get();
+
+	// ******** DCERouter ******************
+	vectRow_Device.clear();
+	sql = "JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate WHERE FK_DeviceCategory=" + 
+		StringUtils::itos(DEVICECATEGORY_DCE_Router_CONST) + " AND FK_Installation=" + StringUtils::itos(m_iPK_Installation);
+
+	m_pDatabase_pluto_main->Device_get()->GetRows(sql,&vectRow_Device);
+	if( vectRow_Device.size()!=1 )
+	{
+		g_pPlutoLogger->Write( LV_STATUS, "Cannot find a DCERouter" );
+		m_dwPK_Device_DCERouter=0;
+	}
+	else
+		m_dwPK_Device_DCERouter=vectRow_Device[0]->PK_Device_get();
 	return true;
 }
 

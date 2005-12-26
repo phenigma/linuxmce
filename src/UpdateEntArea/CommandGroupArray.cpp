@@ -11,7 +11,7 @@
 #include "pluto_main/Table_CommandGroup_Command.h"
 #include "pluto_main/Table_CommandGroup_Command_CommandParameter.h"
 
-extern bool g_bChangedScenarios;
+bool g_bChangedScenarios=false;
 
 using namespace DefaultScenarios;
 
@@ -82,6 +82,22 @@ CommandGroup *CommandGroupArray::FindCommandGroupByTemplate_NoRoom(int PK_Templa
 		pRow_CommandGroup->PK_CommandGroup_get(),pRow_CommandGroup->Description_get().c_str());
 	
 	return new CommandGroup(this,pRow_CommandGroup);
+}
+
+Row_CommandGroup *CommandGroupArray::FindCommandGroupByTemplate(Row_Room *pRow_Room,int PK_Array,int PK_Template,int TemplateParm1,int TemplateParm2)
+{
+	string SQL = "JOIN CommandGroup_Room ON FK_CommandGroup=PK_CommandGroup WHERE FK_Room=" + StringUtils::itos(pRow_Room->PK_Room_get()) + 
+		" AND FK_Template=" + StringUtils::itos(PK_Template) + " AND FK_Array=" + StringUtils::itos(PK_Array) +
+		" AND TemplateParm1=" + StringUtils::itos(TemplateParm1) +
+		" AND TemplateParm2=" + StringUtils::itos(TemplateParm2);
+
+	vector<Row_CommandGroup *> vectRow_CommandGroup;
+	pRow_Room->Table_Room_get()->Database_pluto_main_get()->CommandGroup_get()->GetRows(SQL,&vectRow_CommandGroup);
+
+	if( vectRow_CommandGroup.size() )
+		return vectRow_CommandGroup[0];
+	else
+		return NULL;
 }
 
 CommandGroup *CommandGroupArray::FindCommandGroupByTemplate(Row_Room *pRow_Room,int PK_Template,string sDescription,int PK_Icon,int TemplateParm1,int TemplateParm2,int *PK_CommandGroup)

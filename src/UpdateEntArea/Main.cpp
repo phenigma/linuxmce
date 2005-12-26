@@ -35,8 +35,7 @@ namespace DCE
 	Logger *g_pPlutoLogger;
 }
 
-bool g_bChangedScenarios=false;
-
+extern bool g_bChangedScenarios;
 
 int main(int argc, char *argv[])
 {

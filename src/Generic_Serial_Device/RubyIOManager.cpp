@@ -68,7 +68,7 @@ RubyIOManager::InstantiateNode(Command_Impl* pcmdimpl, DeviceData_Impl* pdevdata
 		porttype = PORTTYPE_SERIAL;
 	} else {
 		sport = pdevdata->m_mapParameters[DEVICEDATA_TCP_Port_CONST];
-		g_pPlutoLogger->Write(LV_CRITICAL, "Checking TCP Port %s",sport.c_str());
+		g_pPlutoLogger->Write(LV_STATUS, "Checking TCP Port %s",sport.c_str());
 		if(!sport.empty()) {
 			porttype = PORTTYPE_NETWORK;
 		} else {

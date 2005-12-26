@@ -106,7 +106,7 @@ bool FileUtils::WriteBufferIntoFile( string sFileName, const char *pBuffer, size
 char *FileUtils::ReadURL(string sUrl, size_t &Size,bool bNullTerminate)
 {
 #ifdef WIN32
-	string sDownloadedFile = "C:\\Temp\\picture.tmp";
+	string sDownloadedFile = "/temp/wget.tmp";
 
 	string sCommand = "wget " + sUrl + " -O " + sDownloadedFile;
 #ifndef WINCE

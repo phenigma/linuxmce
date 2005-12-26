@@ -88,33 +88,13 @@ void UpdateEntArea::AddDefaultEventHandlers()
 	m_pDatabase_pluto_main->Criteria_get()->Commit();
 	m_pDatabase_pluto_main->CriteriaParmNesting_get()->Commit();
 	m_pDatabase_pluto_main->CriteriaParm_get()->Commit();
-/*
-
-	pCommandGroup=CreateLeaveHomeCommandGroup(commandGroupArray);
-	pRow_EventHandler=CreateLeaveHomeEventHandler(commandGroupArray);
-	if( atoi(pRow_EventHandler->psc_mod_get().c_str())==0 )
-	{
-		if( pCommandGroup )
-			pRow_EventHandler->FK_CommandGroup_set( pCommandGroup->m_pRow_CommandGroup->PK_CommandGroup_get() );
-		SetLeaveHomeCriteria(pRow_EventHandler);
-	}
-
-
-
-
-	Row_EventHander *pRow_EventHanderget(TEMPLATE_Security_Events_CONST,HOUSEMODE_Armed_away_CONST); // returns NULL If modified
-	addCommandGroup *;
-	SetHouseModeChangedCriteria(row_EventHander);
-	
-
 
 	for(map<int, pair<LevelOfMedia, bool> >::iterator it=m_mapRoom_Media.begin();it!=m_mapRoom_Media.end();++it)
 	{
 		Row_Room *pRow_Room = m_pDatabase_pluto_main->Room_get()->GetRow(it->first);
 		if( pRow_Room )
-			AddDefaultTelecomScenarios(pRow_Room);
+			AddDefaultEventHandlers(pRow_Room);
 	}
-*/
 }
 
 void UpdateEntArea::ResetEventHandler_psc_mod(Row_EventHandler *pRow_EventHandler)
@@ -294,22 +274,157 @@ Row_Criteria *UpdateEntArea::SetLeaveHomeCriteria(Row_EventHandler *pRow_EventHa
 void UpdateEntArea::AddDefaultEventHandlers(Row_Room *pRow_Room)
 {
 	CommandGroup *pCommandGroup;
-/*
-	pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Telecom_Scenarios_CONST,"Phone",ICON_Phone_CONST,1,0);
-	if( pCommandGroup )
-		pCommandGroup->AddCommand(DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,1,
-			COMMANDPARAMETER_PK_Screen_CONST,StringUtils::itos(SCREEN_MakeCallFavorites_CONST).c_str());
+	Row_EventHandler *pRow_EventHandler;
+	CommandGroupArray commandGroupArray(pRow_Room,ARRAY_Scenarios_for_Event_Handlers_CONST,true);
 
-	vector<Row_Users *> vectRow_Users;
-	m_pDatabase_pluto_main->Users_get()->GetRows("1=1",&vectRow_Users);
-	for(size_t s=0;s<vectRow_Users.size();++s)
+	map<int,int> map_Device_Type_TV; // Where type is a floorplan type
+	GetDevicesTypes(DEVICECATEGORY_TVsPlasmasLCDsProjectors_CONST,pRow_Room->PK_Room_get(),
+		&map_Device_Type_TV,NULL);
+
+	if( map_Device_Type_TV.size() )
 	{
-		Row_Users *pRow_Users = vectRow_Users[s];
-		pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Telecom_Scenarios_CONST,pRow_Users->UserName_get(),0,1,pRow_Users->PK_Users_get());
-		if( pCommandGroup )
-			pCommandGroup->AddCommand(DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,1,
-				COMMANDPARAMETER_PK_Screen_CONST,StringUtils::itos(SCREEN_MakeCallFavorites_CONST).c_str());
+		// Watching media
+		pCommandGroup=CreateWatchingMediaCommandGroup(commandGroupArray,pRow_Room,1);
+		pRow_EventHandler=CreateWatchingMediaEventHandler(commandGroupArray,pRow_Room,1);
+		if( pRow_EventHandler )  // The user didn't change it, so go ahead and confirm it's current
+		{
+			if( pCommandGroup )
+				pRow_EventHandler->FK_CommandGroup_set( pCommandGroup->m_pRow_CommandGroup->PK_CommandGroup_get() );
+			SetWatchingMediaCriteria(pRow_EventHandler);
+			pRow_EventHandler->Table_EventHandler_get()->Commit();
+			ResetEventHandler_psc_mod(pRow_EventHandler);
+		}
+
+		// Stop Watching
+		pCommandGroup=CreateWatchingMediaCommandGroup(commandGroupArray,pRow_Room,0);
+		pRow_EventHandler=CreateWatchingMediaEventHandler(commandGroupArray,pRow_Room,0);
+		if( pRow_EventHandler )  // The user didn't change it, so go ahead and confirm it's current
+		{
+			if( pCommandGroup )
+				pRow_EventHandler->FK_CommandGroup_set( pCommandGroup->m_pRow_CommandGroup->PK_CommandGroup_get() );
+			SetWatchingMediaCriteria(pRow_EventHandler);
+			pRow_EventHandler->Table_EventHandler_get()->Commit();
+			ResetEventHandler_psc_mod(pRow_EventHandler);
+		}
 	}
-*/
 }
 
+CommandGroup *UpdateEntArea::CreateWatchingMediaCommandGroup(CommandGroupArray &commandGroupArray,Row_Room *pRow_Room,int iIsWatching)
+{
+	string sDescription;
+	if( iIsWatching )
+		sDescription = "Watching - " + pRow_Room->Description_get();
+	else
+		sDescription = "Not Watching - " + pRow_Room->Description_get();
+
+    CommandGroup *pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Media_Events_CONST,sDescription,0,pRow_Room->PK_Room_get(),iIsWatching); 
+	if( !pCommandGroup )
+		return NULL;
+
+	Row_CommandGroup *pRow_CommandGroup_Execute;
+	if( iIsWatching )
+		pRow_CommandGroup_Execute = commandGroupArray.FindCommandGroupByTemplate(pRow_Room,ARRAY_Lighting_Scenarios_CONST,TEMPLATE_Lighting_Automatic_CONST,2,0);  // Showtime is parm1=2
+	else
+		pRow_CommandGroup_Execute = commandGroupArray.FindCommandGroupByTemplate(pRow_Room,ARRAY_Lighting_Scenarios_CONST,TEMPLATE_Lighting_Automatic_CONST,1,0);
+
+	if( pRow_CommandGroup_Execute )
+		pCommandGroup->AddCommand(m_dwPK_Device_DCERouter,COMMAND_Execute_Command_Group_CONST,0,1,
+			COMMANDPARAMETER_PK_CommandGroup_CONST,StringUtils::itos(pRow_CommandGroup_Execute->PK_CommandGroup_get()).c_str());
+
+	return pCommandGroup;
+}
+
+Row_EventHandler *UpdateEntArea::CreateWatchingMediaEventHandler(CommandGroupArray &commandGroupArray,Row_Room *pRow_Room,int iIsWatching)
+{
+	vector<Row_EventHandler *> vectRow_EventHandler;
+	string sSQL = "FK_Template=" + StringUtils::itos(TEMPLATE_Media_Events_CONST) + 
+		" AND TemplateParm1=" + StringUtils::itos(pRow_Room->PK_Room_get()) + " AND TemplateParm2=" +
+		StringUtils::itos(iIsWatching);
+	
+	// There should only be 1
+	m_pDatabase_pluto_main->EventHandler_get()->GetRows(sSQL,&vectRow_EventHandler);
+	for(size_t s=1;s<vectRow_EventHandler.size();++s)
+	{
+		Row_EventHandler *pRow_EventHandler = vectRow_EventHandler[s];
+		if( atoi(pRow_EventHandler->psc_mod_get().c_str())==0 )
+			pRow_EventHandler->Delete();
+	}
+
+	Row_EventHandler *pRow_EventHandler;
+	if( vectRow_EventHandler.size() )
+	{
+		pRow_EventHandler = vectRow_EventHandler[0];
+		if( atoi(pRow_EventHandler->psc_mod_get().c_str())!=0 )
+			return NULL;
+	}
+	else	// There is no such event handler.  Create it
+		pRow_EventHandler = m_pDatabase_pluto_main->EventHandler_get()->AddRow();
+
+	string sDescription;
+	if( iIsWatching )
+		sDescription = "Watching - " + pRow_Room->Description_get();
+	else
+		sDescription = "Not Watching - " + pRow_Room->Description_get();
+
+	pRow_EventHandler->Description_set(sDescription);
+	pRow_EventHandler->FK_Event_set(iIsWatching ? EVENT_Watching_Media_CONST : EVENT_Stopped_Watching_Media_CONST);
+	pRow_EventHandler->FK_Installation_set(m_iPK_Installation);
+	pRow_EventHandler->FK_Template_set(TEMPLATE_Media_Events_CONST);
+	pRow_EventHandler->TemplateParm1_set(pRow_Room->PK_Room_get());
+	pRow_EventHandler->TemplateParm2_set(1);
+	pRow_EventHandler->UserCreated_set(iIsWatching);
+
+	return pRow_EventHandler;
+}
+
+Row_Criteria *UpdateEntArea::SetWatchingMediaCriteria(Row_EventHandler *pRow_EventHandler)
+{
+	// (				// NewMode
+	//		Room (#39 EVENTPARAMETER_PK_Room_CONST) = Room
+	// )
+
+	CriteriaParm *pCriteriaParm;
+
+	Row_Criteria *pRow_Criteria = pRow_EventHandler->FK_Criteria_getrow();
+	Row_CriteriaParmNesting *pRow_CriteriaParmNesting = NULL;
+	if( pRow_Criteria )
+		if( atoi(pRow_Criteria->psc_mod_get().c_str()) )
+			return NULL; // User made changes
+		else
+			pRow_CriteriaParmNesting = pRow_Criteria->FK_CriteriaParmNesting_getrow();
+
+	if( !pRow_CriteriaParmNesting )
+		pRow_CriteriaParmNesting = m_pDatabase_pluto_main->CriteriaParmNesting_get()->AddRow();
+	else if( atoi( pRow_CriteriaParmNesting->psc_mod_get().c_str() ) )
+		return NULL;
+
+	CriteriaParmNesting *p_criteriaParmNesting_Top = 
+		new CriteriaParmNesting(true,pRow_CriteriaParmNesting);  // The And
+
+	pCriteriaParm = p_criteriaParmNesting_Top->new_CriteriaParm(CRITERIAPARMLIST_PK_EventParameter_CONST,
+		StringUtils::itos(EVENTPARAMETER_PK_Room_CONST),operatorEquals,
+		StringUtils::itos(pRow_EventHandler->TemplateParm1_get()));
+
+	if( p_criteriaParmNesting_Top->Commit(NULL) )  // Returns false if the user made any changes
+	{
+		if( !pRow_Criteria )
+			pRow_Criteria = m_pDatabase_pluto_main->Criteria_get()->AddRow();
+		pRow_Criteria->FK_CriteriaParmNesting_set(p_criteriaParmNesting_Top->m_pRow_CriteriaParmNesting->PK_CriteriaParmNesting_get());
+		pRow_Criteria->FK_CriteriaList_set(CRITERIALIST_Events_CONST);
+		pRow_Criteria->FK_Installation_set(m_iPK_Installation);
+		if( pRow_EventHandler->FK_Event_get()==EVENT_Watching_Media_CONST )
+			pRow_Criteria->Description_set("Watching Media");
+		else
+			pRow_Criteria->Description_set("Stop Watching");
+		m_pDatabase_pluto_main->Criteria_get()->Commit();
+
+		m_pDatabase_pluto_main->threaded_mysql_query(
+			"UPDATE Criteria set psc_mod=0 WHERE PK_Criteria=" + 
+			StringUtils::itos(pRow_Criteria->PK_Criteria_get()));
+
+		pRow_EventHandler->FK_Criteria_set( pRow_Criteria->PK_Criteria_get() );
+		return pRow_Criteria;
+	}
+	else
+		return NULL;
+}
