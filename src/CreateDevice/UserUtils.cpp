@@ -96,6 +96,9 @@ int UserUtils::AddUser(string sUsername)
 	m_pMySqlHelper->threaded_mysql_query(sSQL);
 
 	CheckExtensions();
+	string sCmd = "/usr/pluto/bin/SetPasswords.sh " + StringUtils::itos(PK_Users) + " \"" + sUsername + "\"";
+	g_pPlutoLogger->Write(LV_STATUS,"Executing %s",sCmd.c_str());
+	system(sCmd.c_str());
 	return PK_Users;
 }
 
