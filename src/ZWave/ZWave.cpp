@@ -102,7 +102,6 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 		if( sResponse!="OK " + sOutput )
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL,"Got response <%s> instead of <%s>",("OK " + sOutput).c_str(),sResponse.c_str());
-			m_pPlainClientSocket->Disconnect();
 			sCMD_Result = "DEVICE DIDN'T RESPOND";
 			return;
 		}
@@ -119,7 +118,6 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 		if( sResponse!="OK " + sOutput )
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL,"Got response <%s> instead of <%s>",("OK " + sOutput).c_str(),sResponse.c_str());
-			m_pPlainClientSocket->Disconnect();
 			sCMD_Result = "DEVICE DIDN'T RESPOND";
 			return;
 		}
@@ -137,7 +135,6 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 		if( sResponse!="OK " + sOutput )
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL,"Got response <%s> instead of <%s>",("OK " + sOutput).c_str(),sResponse.c_str());
-			m_pPlainClientSocket->Disconnect();
 			sCMD_Result = "DEVICE DIDN'T RESPOND";
 			return;
 		}
@@ -377,7 +374,6 @@ void ZWave::CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParamet
 		if( sResponse!="OK " + sOutput )
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL,"Got response <%s> instead of <%s>",("OK " + sOutput).c_str(),sResponse.c_str());
-			m_pPlainClientSocket->Disconnect();
 			sCMD_Result = "DEVICE DIDN'T RESPOND";
 			return;
 		}
@@ -394,7 +390,6 @@ void ZWave::CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParamet
 		if( sResponse!="OK " + sOutput )
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL,"Got response <%s> instead of <%s>",("OK " + sOutput).c_str(),sResponse.c_str());
-			m_pPlainClientSocket->Disconnect();
 			sCMD_Result = "DEVICE DIDN'T RESPOND";
 			return;
 		}
