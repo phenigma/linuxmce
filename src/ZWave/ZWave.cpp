@@ -97,7 +97,8 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 		string sOutput = "ON " + StringUtils::itos(NodeID);
 		m_pPlainClientSocket->SendString(sOutput);
 		string sResponse;
-		m_pPlainClientSocket->ReceiveString(sResponse,10);
+		bool bResult = m_pPlainClientSocket->ReceiveString(sResponse,10);
+		g_pPlutoLogger->Write(LV_STATUS,"Got response %d-%s",(int) bResult,sResponse.c_str());
 		if( sResponse!="OK " + sOutput )
 		{
 			m_pPlainClientSocket->Disconnect();
@@ -112,7 +113,8 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 		string sOutput = "OFF " + StringUtils::itos(NodeID);
 		m_pPlainClientSocket->SendString(sOutput);
 		string sResponse;
-		m_pPlainClientSocket->ReceiveString(sResponse,10);
+		bool bResult = m_pPlainClientSocket->ReceiveString(sResponse,10);
+		g_pPlutoLogger->Write(LV_STATUS,"Got response %d-%s",(int) bResult,sResponse.c_str());
 		if( sResponse!="OK " + sOutput )
 		{
 			m_pPlainClientSocket->Disconnect();
@@ -128,7 +130,8 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 		string sOutput = "LEVEL" + pMessage->m_mapParameters[COMMANDPARAMETER_Level_CONST] + " " + StringUtils::itos(NodeID);
 		m_pPlainClientSocket->SendString(sOutput);
 		string sResponse;
-		m_pPlainClientSocket->ReceiveString(sResponse,10);
+		bool bResult = m_pPlainClientSocket->ReceiveString(sResponse,10);
+		g_pPlutoLogger->Write(LV_STATUS,"Got response %d-%s",(int) bResult,sResponse.c_str());
 		if( sResponse!="OK " + sOutput )
 		{
 			m_pPlainClientSocket->Disconnect();
@@ -192,7 +195,7 @@ void ZWave::DownloadConfiguration()
 		string sResponse;
 		if( !m_pPlainClientSocket->ReceiveString(sResponse,120) || sResponse!="OK" )
 		{
-			g_pPlutoLogger->Write(LV_WARNING,"ZWave::ReportChildDevices Cannot receive string %d",iRetries);
+			g_pPlutoLogger->Write(LV_WARNING,"ZWave::ReportChildDevices Cannot receive string %d-%s",iRetries,sResponse.c_str());
 			if( iRetries>4 )
 			{
 				EVENT_Download_Config_Done("Device didn't respond: " + sResponse);
@@ -241,7 +244,7 @@ return;
 		string sResponse;
 		if( !m_pPlainClientSocket->ReceiveString(sResponse,30) )
 		{
-			g_pPlutoLogger->Write(LV_WARNING,"ZWave::ReportChildDevices Cannot receive string %d",iRetries);
+			g_pPlutoLogger->Write(LV_WARNING,"ZWave::ReportChildDevices Cannot receive string %d-%s",iRetries,sResponse.c_str());
 			if( iRetries>4 )
 			{
 				EVENT_Reporting_Child_Devices("Device didn't respond: " + sResponse,"");
@@ -271,8 +274,8 @@ bool ZWave::ConfirmConnection(int RetryCount)
 	{
 		m_pPlainClientSocket->SendString("PING");
 		string sResponse;
-		m_pPlainClientSocket->ReceiveString(sResponse);
-		g_pPlutoLogger->Write(LV_STATUS,"Sent PING 1 got %s",sResponse.c_str());
+		bool bResult = m_pPlainClientSocket->ReceiveString(sResponse);
+		g_pPlutoLogger->Write(LV_STATUS,"Sent PING 1 got %d-%s",(int) bResult,sResponse.c_str());
 		if( sResponse=="PONG" )
 			return true;
 
@@ -294,8 +297,8 @@ bool ZWave::ConfirmConnection(int RetryCount)
 	}
 	m_pPlainClientSocket->SendString("PING");
 	string sResponse;
-	m_pPlainClientSocket->ReceiveString(sResponse,10);
-	g_pPlutoLogger->Write(LV_STATUS,"Sent PING 2 got %s",sResponse.c_str());
+	bool bResult=m_pPlainClientSocket->ReceiveString(sResponse,10);
+	g_pPlutoLogger->Write(LV_STATUS,"Sent PING 2 got %d-%s",(int) bResult,sResponse.c_str());
 	if( sResponse=="PONG" ) 
 		return true;
 	if( RetryCount<3 )
@@ -366,7 +369,8 @@ void ZWave::CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParamet
 		string sOutput = "ON " + sID;
 		m_pPlainClientSocket->SendString(sOutput);
 		string sResponse;
-		m_pPlainClientSocket->ReceiveString(sResponse,10);
+		bool bResult = m_pPlainClientSocket->ReceiveString(sResponse,10);
+		g_pPlutoLogger->Write(LV_STATUS,"Got response %d-%s",(int) bResult,sResponse.c_str());
 		if( sResponse!="OK " + sOutput )
 		{
 			m_pPlainClientSocket->Disconnect();
@@ -381,7 +385,8 @@ void ZWave::CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParamet
 		string sOutput = "OFF " + sID;
 		m_pPlainClientSocket->SendString(sOutput);
 		string sResponse;
-		m_pPlainClientSocket->ReceiveString(sResponse,10);
+		bool bResult = m_pPlainClientSocket->ReceiveString(sResponse,10);
+		g_pPlutoLogger->Write(LV_STATUS,"Got response %d-%s",(int) bResult,sResponse.c_str());
 		if( sResponse!="OK " + sOutput )
 		{
 			m_pPlainClientSocket->Disconnect();

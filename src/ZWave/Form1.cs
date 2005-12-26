@@ -391,12 +391,14 @@ namespace zwave1
 						tbDevices.Text = DateTime.Now.ToLongTimeString() + " ON: " + device.NodeID.ToString() + "\r\n" + tbDevices.Text;
 						device.PowerOn();
 						m_Socket.Send(Encoding.ASCII.GetBytes("OK " + sIncoming + "\n"));
+						tbDevices.Text = DateTime.Now.ToLongTimeString() + " REPLIED WITH OK " + sIncoming + "\r\n" + tbDevices.Text;
 					}
 					else if( sIncoming.StartsWith("OFF") )
 					{
 						tbDevices.Text = DateTime.Now.ToLongTimeString() + " OFF: " + device.NodeID.ToString() + "\r\n" + tbDevices.Text;
 						device.PowerOff();
 						m_Socket.Send(Encoding.ASCII.GetBytes("OK " + sIncoming + "\n"));
+						tbDevices.Text = DateTime.Now.ToLongTimeString() + " REPLIED WITH OK " + sIncoming + "\r\n" + tbDevices.Text;
 					}
 					else if( sIncoming.StartsWith("LEVEL") )
 					{
@@ -404,6 +406,7 @@ namespace zwave1
 						tbDevices.Text = DateTime.Now.ToLongTimeString() + " LEVEL: " + device.NodeID.ToString() + " " + level.ToString() + "\r\n" + tbDevices.Text;
 						device.Level=level;
 						m_Socket.Send(Encoding.ASCII.GetBytes("OK " + sIncoming + "\n"));
+						tbDevices.Text = DateTime.Now.ToLongTimeString() + " REPLIED WITH OK " + sIncoming + "\r\n" + tbDevices.Text;
 					}
 				}
 				catch(Exception e)

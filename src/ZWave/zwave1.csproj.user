@@ -1,7 +1,7 @@
 <VisualStudioProject>
     <CSHARP LastOpenVersion = "7.10.3077" >
         <Build>
-            <Settings ReferencePath = "C:\temp\zwave1\bin\Debug\" >
+            <Settings ReferencePath = "C:\temp\zwave1\bin\Debug\;C:\pluto\src\ZWave\bin\Debug\" >
                 <Config
                     Name = "Debug"
                     EnableASPDebugging = "false"
