@@ -12,5 +12,5 @@ sqlPassword="${Password//\'/\'}"
 sqlPasswordUnix="${PasswordUnix//\'/\'}"
 sqlPasswordSamba="${PasswordSamba//\'/\'}"
 
-Q="UPDATE Users SET Password=md5('$sqlPassword'), Password_Unix='$sqlPasswordUnix', Password_Samba='$sqlPasswordSamba' WHERE PK_Users=PK_Users"
+Q="UPDATE Users SET Password=md5('$sqlPassword'), Password_Unix='$sqlPasswordUnix', Password_Samba='$sqlPasswordSamba' WHERE PK_Users=$PK_Users"
 RunSQL "$Q"
