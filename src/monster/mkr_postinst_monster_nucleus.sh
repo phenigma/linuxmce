@@ -11,6 +11,9 @@ Q="GRANT ALL PRIVILEGES ON * TO 'root'@'192.%.%.%'"
 RunSQL "$Q"
 sed 's/X -ac -allowMouseOpenFail/X -dpi 75 -ac -allowMouseOpenFail/g' /usr/pluto/bin/Start_X.sh > /tmp/Start_X.sh
 mv /tmp/Start_X.sh /usr/pluto/bin/Start_X.sh
+sed 's/#log..= \/var\/log\/mysql\/mysql.log/log = \/var\/log\/mysql\/mysql.log/g' /etc/mysql/my.cnf > /tmp/my.cnf
+mv /tmp/my.cnf /etc/mysql/my.cnf
+sed 's/X -ac -allowMouseOpenFail/X -dpi 75 -ac -allowMouseOpenFail/g' /usr/pluto/bin/Start_X.sh > /tmp/Start_X.sh
 grep 'deb http://www.yttron.as.ro/ realextra main' /etc/apt/sources.list > /dev/null
 if [[ $? -ne 0 ]] ; then
 	echo "deb http://www.yttron.as.ro/ realextra main" >> /etc/apt/sources.list
