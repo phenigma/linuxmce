@@ -1875,8 +1875,9 @@ void General_Info_Plugin::CMD_Create_Device(int iPK_DeviceTemplate,string sMac_a
 		}
 		else if( iPK_Room )
 		{
-			pRow_Device->FK_Room_set(iPK_Room);
-			pRow_Device->Table_Device_get()->Commit();
+			Row_Room *pRow_Room = m_pDatabase_pluto_main->Room_get()->GetRow(iPK_Room);
+			if( pRow_Room )
+				SetRoomForDevice(pRow_Device,pRow_Room);
 		}
 		g_pPlutoLogger->Write(LV_STATUS,"Database reports row as ip %s mac %s",
 			pRow_Device->IPaddress_get().c_str(),pRow_Device->MACaddress_get().c_str());
@@ -1975,13 +1976,7 @@ void General_Info_Plugin::CMD_Set_Room_For_Device(int iPK_Device,string sName,in
 		return;
 	}
 	else
-	{
-		pRow_Device->Reload();
-		g_pPlutoLogger->Write(LV_STATUS,"Setting device %d to with ip %s mac %s to room %d",
-			iPK_Device,pRow_Device->IPaddress_get().c_str(),pRow_Device->MACaddress_get().c_str(),iPK_Room);
-		pRow_Device->FK_Room_set( pRow_Room->PK_Room_get() );
-		pRow_Device->Table_Device_get()->Commit();
-	}
+		SetRoomForDevice(pRow_Device,pRow_Room);
 
 	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL(
 		m_dwPK_Device, m_pOrbiter_Plugin->m_sPK_Device_AllOrbiters_get(), 
@@ -2147,5 +2142,22 @@ void General_Info_Plugin::CMD_Check_Mounts(string &sCMD_Result,Message *pMessage
 		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_AppServerOnCore->m_dwPK_Device,"/usr/pluto/bin/DoAllMounts.sh","dm",
 			"","","",false,false,false);
 		SendCommand(CMD_Spawn_Application);
+	}
+}
+
+void General_Info_Plugin::SetRoomForDevice(Row_Device *pRow_Device,Row_Room *pRow_Room)
+{
+	pRow_Device->Reload();
+	g_pPlutoLogger->Write(LV_STATUS,"Setting device %d to with ip %s mac %s to room %d",
+		pRow_Device->PK_Device_get(),pRow_Device->IPaddress_get().c_str(),pRow_Device->MACaddress_get().c_str(),pRow_Room->PK_Room_get());
+	pRow_Device->FK_Room_set( pRow_Room->PK_Room_get() );
+	pRow_Device->Table_Device_get()->Commit();
+
+	vector<Row_Device *> vectRow_Device;
+	pRow_Device->Device_FK_Device_ControlledVia_getrows(&vectRow_Device);
+	for(size_t s=0;s<vectRow_Device.size();++s)
+	{
+		Row_Device *pRow_Device_Child = vectRow_Device[s];
+		SetRoomForDevice(pRow_Device,pRow_Room);
 	}
 }
