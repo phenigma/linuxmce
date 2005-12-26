@@ -97,7 +97,7 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 		string sOutput = "ON " + StringUtils::itos(NodeID);
 		m_pPlainClientSocket->SendString(sOutput);
 		string sResponse;
-		bool bResult = m_pPlainClientSocket->ReceiveString(sResponse,10);
+		bool bResult = m_pPlainClientSocket->ReceiveString(sResponse,20);
 		g_pPlutoLogger->Write(LV_STATUS,"Got response %d-%s",(int) bResult,sResponse.c_str());
 		if( sResponse!="OK " + sOutput )
 		{
@@ -114,7 +114,7 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 		string sOutput = "OFF " + StringUtils::itos(NodeID);
 		m_pPlainClientSocket->SendString(sOutput);
 		string sResponse;
-		bool bResult = m_pPlainClientSocket->ReceiveString(sResponse,10);
+		bool bResult = m_pPlainClientSocket->ReceiveString(sResponse,20);
 		g_pPlutoLogger->Write(LV_STATUS,"Got response %d-%s",(int) bResult,sResponse.c_str());
 		if( sResponse!="OK " + sOutput )
 		{
@@ -132,7 +132,7 @@ void ZWave::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 		string sOutput = "LEVEL" + pMessage->m_mapParameters[COMMANDPARAMETER_Level_CONST] + " " + StringUtils::itos(NodeID);
 		m_pPlainClientSocket->SendString(sOutput);
 		string sResponse;
-		bool bResult = m_pPlainClientSocket->ReceiveString(sResponse,10);
+		bool bResult = m_pPlainClientSocket->ReceiveString(sResponse,20);
 		g_pPlutoLogger->Write(LV_STATUS,"Got response %d-%s",(int) bResult,sResponse.c_str());
 		if( sResponse!="OK " + sOutput )
 		{
@@ -372,7 +372,7 @@ void ZWave::CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParamet
 		string sOutput = "ON " + sID;
 		m_pPlainClientSocket->SendString(sOutput);
 		string sResponse;
-		bool bResult = m_pPlainClientSocket->ReceiveString(sResponse,10);
+		bool bResult = m_pPlainClientSocket->ReceiveString(sResponse,20);
 		g_pPlutoLogger->Write(LV_STATUS,"Got response %d-%s",(int) bResult,sResponse.c_str());
 		if( sResponse!="OK " + sOutput )
 		{
@@ -389,7 +389,7 @@ void ZWave::CMD_Send_Command_To_Child(string sID,int iPK_Command,string sParamet
 		string sOutput = "OFF " + sID;
 		m_pPlainClientSocket->SendString(sOutput);
 		string sResponse;
-		bool bResult = m_pPlainClientSocket->ReceiveString(sResponse,10);
+		bool bResult = m_pPlainClientSocket->ReceiveString(sResponse,20);
 		g_pPlutoLogger->Write(LV_STATUS,"Got response %d-%s",(int) bResult,sResponse.c_str());
 		if( sResponse!="OK " + sOutput )
 		{

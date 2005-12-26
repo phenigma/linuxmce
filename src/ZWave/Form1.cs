@@ -381,7 +381,6 @@ namespace zwave1
 				try
 				{
 					byte iNode = Convert.ToByte( sIncoming.Substring( sIncoming.IndexOf(' ')) );
-					sIncoming = sIncoming.Substring(0,sIncoming.IndexOf(' '));
 					ControlThink.ZWave.Devices.ZWaveDevice device = (ControlThink.ZWave.Devices.ZWaveDevice) mapDevices[iNode];
 					if( device==null )
 						return;
