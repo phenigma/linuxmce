@@ -17,6 +17,7 @@
 OSDScreenHandler::OSDScreenHandler(Orbiter *pOrbiter, map<int,int> *p_MapDesignObj) :
 	ScreenHandler(pOrbiter, p_MapDesignObj)
 {
+	m_bLightsFlashThreadRunning=m_bLightsFlashThreadQuit=false;
 	m_pWizardLogic = new WizardLogic(pOrbiter);
 	m_dwMessageInterceptorCounter_ReportingChildDevices = 0;
 	if(!m_pWizardLogic->Setup())
@@ -810,11 +811,25 @@ void OSDScreenHandler::SCREEN_LightsSetup(long PK_Screen)
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &OSDScreenHandler::LightsSetup_ObjectSelected, new ObjectInfoBackData());
 	RegisterCallBack(cbDataGridSelected, (ScreenHandlerCallBack) &OSDScreenHandler::LightsSetup_SelectedGrid, new DatagridCellBackData());
 	RegisterCallBack(cbOnRenderScreen, (ScreenHandlerCallBack) &OSDScreenHandler::LightsSetup_OnScreen, new RenderScreenCallBackData());
-	RegisterCallBack(cbOnTimer, (ScreenHandlerCallBack) &OSDScreenHandler::LightsSetup_Timer, new CallBackData());
+	RegisterCallBack(cbOnGotoScreen, (ScreenHandlerCallBack) &OSDScreenHandler::LightsSetup_OnGotoScreen, new GotoScreenCallBackData());
 }
 //-----------------------------------------------------------------------------------------------------
 
 // TODO: This is Monster specific
+bool OSDScreenHandler::LightsSetup_OnGotoScreen(CallBackData *pData)
+{
+	GotoScreenCallBackData *pGotoScreenCallBackData = (GotoScreenCallBackData *)pData;
+	m_bLightsFlashThreadQuit=true;
+	return false;
+}
+
+void *LightsFlashThread(void *p)
+{
+	OSDScreenHandler* pOSDScreenHandler = (OSDScreenHandler *)p;
+	pOSDScreenHandler->LightsSetup_Timer();
+	return NULL;
+}
+
 bool OSDScreenHandler::LightsSetup_OnScreen(CallBackData *pData)
 {
 	RenderScreenCallBackData *pRenderScreenCallBackData = (RenderScreenCallBackData *)pData;
@@ -822,12 +837,14 @@ bool OSDScreenHandler::LightsSetup_OnScreen(CallBackData *pData)
 	{
 		if( m_nLightInDequeToAssign < (int) m_pWizardLogic->m_dequeNumLights.size() )
 		{
-			DesignObjText *pText = m_pOrbiter->FindText( m_pOrbiter->FindObject(StringUtils::itos(DESIGNOBJ_LightSetupRooms_CONST) + ".0." + StringUtils::itos(DESIGNOBJ_objLightStatus_CONST)),TEXT_STATUS_CONST );
-			if( pText )
-				pText->m_sText = StringUtils::itos(m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign].first) + 
-					" " + DatabaseUtils::GetDescriptionForDevice(m_pWizardLogic,m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign].first);
-
-			m_pOrbiter->CallMaintenanceInMiliseconds(0,&Orbiter::ServiceScreenHandler,NULL,pe_ALL);
+			PLUTO_SAFETY_LOCK(vm,m_pOrbiter->m_VariableMutex);
+			if( !m_bLightsFlashThreadRunning )
+			{
+				m_bLightsFlashThreadRunning=true;
+				m_bLightsFlashThreadQuit=false;
+				pthread_t t;
+				pthread_create(&t, NULL, LightsFlashThread, (void*)this);
+			}
 		}
 		else
 		{
@@ -838,11 +855,17 @@ bool OSDScreenHandler::LightsSetup_OnScreen(CallBackData *pData)
 	return false;
 }
 
-bool OSDScreenHandler::LightsSetup_Timer(CallBackData *pData)
+void OSDScreenHandler::LightsSetup_Timer()
 {
+	// We're going to create our own sockets since we're looking for delivery confirmation on 
+	// the flashing commands so we can report status to the user.  These may be slow, so do
+	// this on it's own socket so it doesn't block sending/receiving datagrads and other ui stuff
+	Event_Impl event_Impl(m_pOrbiter->m_dwPK_Device, 0, m_pOrbiter->m_sHostName);
+
 	static bool bLastTimeOn=true;
-	if( m_nLightInDequeToAssign < (int) m_pWizardLogic->m_dequeNumLights.size() )
+	while( !m_bLightsFlashThreadQuit && m_nLightInDequeToAssign < (int) m_pWizardLogic->m_dequeNumLights.size() )
 	{
+		PLUTO_SAFETY_LOCK(vm,m_pOrbiter->m_VariableMutex);
 		string sID = m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign].second;
 		int PK_Device = m_pWizardLogic->m_dequeNumLights[m_nLightInDequeToAssign].first;
 		string sDescription = DatabaseUtils::GetDescriptionForDevice(m_pWizardLogic,PK_Device);
@@ -852,33 +875,48 @@ bool OSDScreenHandler::LightsSetup_Timer(CallBackData *pData)
 		DesignObjText *pText = m_pOrbiter->FindText( pObjStatus,TEXT_STATUS_CONST );
 		if( pText )
 			pText->m_sText = sText;
+		vm.Release();
+
+		{
+			PLUTO_SAFETY_LOCK( nd, m_pOrbiter->m_NeedRedrawVarMutex );
+			if( pObjStatus )
+				m_pOrbiter->m_vectObjs_NeedRedraw.push_back(pObjStatus);
+			NeedToRender render2( m_pOrbiter, "OSDScreenHandler::LightsSetup_Timer1" );  // Redraw anything that was changed by this command
+		}
 
 		string sResponse;
 		if( !bLastTimeOn )
 		{
 			DCE::CMD_Send_Command_To_Child CMD_Send_Command_To_Child(m_pOrbiter->m_dwPK_Device,m_pWizardLogic->m_nPK_Device_ZWave, // Monster specific
 				sID,COMMAND_Generic_On_CONST,"");
-
-			m_pOrbiter->SendCommand(CMD_Send_Command_To_Child,&sResponse);
+			event_Impl.SendMessage(CMD_Send_Command_To_Child.m_pMessage,sResponse);
 		}
 		else
 		{
 			DCE::CMD_Send_Command_To_Child CMD_Send_Command_To_Child(m_pOrbiter->m_dwPK_Device,m_pWizardLogic->m_nPK_Device_ZWave, // Monster specific
 				sID,COMMAND_Generic_Off_CONST,"");
-			m_pOrbiter->SendCommand(CMD_Send_Command_To_Child,&sResponse);
+			event_Impl.SendMessage(CMD_Send_Command_To_Child.m_pMessage,sResponse);
 		}
 		bLastTimeOn=!bLastTimeOn;
 
+		vm.Relock();
 		if( pText )
 			pText->m_sText = sText + "(" + sResponse  + ")";
+		vm.Release();
 
-		PLUTO_SAFETY_LOCK( nd, m_pOrbiter->m_NeedRedrawVarMutex );
-		if( pObjStatus )
-			m_pOrbiter->m_vectObjs_NeedRedraw.push_back(pObjStatus);
-	    NeedToRender render2( m_pOrbiter, "OSDScreenHandler::LightsSetup_Timer2" );  // Redraw anything that was changed by this command
-		m_pOrbiter->CallMaintenanceInMiliseconds(4000,&Orbiter::ServiceScreenHandler,NULL,pe_ALL);
+		{
+			PLUTO_SAFETY_LOCK( nd, m_pOrbiter->m_NeedRedrawVarMutex );
+			if( pObjStatus )
+				m_pOrbiter->m_vectObjs_NeedRedraw.push_back(pObjStatus);
+			NeedToRender render2( m_pOrbiter, "OSDScreenHandler::LightsSetup_Timer2" );  // Redraw anything that was changed by this command
+		}
+
+		time_t timeout = time(NULL) + 4;
+		int nLightInDequeToAssign=m_nLightInDequeToAssign;
+		while(timeout>time(NULL) && nLightInDequeToAssign==m_nLightInDequeToAssign && !m_bLightsFlashThreadQuit)
+			Sleep(500);  // max 500 ms delay
 	}
-	return false;
+	m_bLightsFlashThreadRunning=false;
 }
 
 bool OSDScreenHandler::LightsSetup_ObjectSelected(CallBackData *pData)

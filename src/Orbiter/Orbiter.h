@@ -64,7 +64,8 @@ enum CallBackType
 	cbCapturedKeyboardBufferChanged,
 	cbOnTimer,
 	cbMessageIntercepted,
-	cbOnRenderScreen
+	cbOnRenderScreen,
+	cbOnGotoScreen
 };
 
 #define PROMPT_CANCEL -1
@@ -88,6 +89,7 @@ public:
 
 	void AddToHistory();
 	bool HistoryEmpty();
+	void PurgeHistory() { m_listObjs.clear(); }
 	bool GoBack();
 	string ToString();
 

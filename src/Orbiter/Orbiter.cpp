@@ -5891,6 +5891,7 @@ g_pPlutoLogger->Write(LV_STATUS,"deleting %d - %s",iPK_Screen,pScreenHistory->m_
 
 	if( m_pScreenHistory_Current && m_pScreenHistory_Current->m_nPK_Screen == iPK_Screen && (sID.length()==0 || sID==m_pScreenHistory_Current->m_sID) )
 	{
+		m_pScreenHistory_Current->PurgeHistory(); // User wants to delete this entire screen instance.  If we leave this populated, we may just go to a prior design obj in this screen
 		vm.Release();
 		CMD_Go_back("","");
 	}
@@ -9612,6 +9613,15 @@ bool Orbiter::WaitForRelativesIfOSD()
 void Orbiter::CMD_Goto_Screen(string sID,int iPK_Screen,string &sCMD_Result,Message *pMessage)
 //<-dceag-c741-e->
 {
+	CallBackData *pCallBackData = m_pScreenHandler->m_mapCallBackData_Find(cbOnGotoScreen);
+	if(pCallBackData)
+	{
+		GotoScreenCallBackData *pGotoScreenCallBackData = (GotoScreenCallBackData *)pCallBackData;
+		pGotoScreenCallBackData->m_nPK_Screen = iPK_Screen;
+	}
+	if( ExecuteScreenHandlerCallback(cbOnGotoScreen) )
+		return;
+
 	m_pScreenHandler->ResetCallBacks(); 
 	bool bCreatedMessage=pMessage==NULL;
 	if( pMessage==NULL )
