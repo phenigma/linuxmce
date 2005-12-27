@@ -301,6 +301,7 @@ bool OSDScreenHandler::RoomsWizard_ObjectSelected(CallBackData *pData)
 				g_pPlutoLogger->Write(LV_WARNING, "Setting the room for top most device %d, room %s", 
 					nPK_Device_TopMost, sPK_Room.c_str());
 				m_pWizardLogic->SetRoomForDevice(StringUtils::ltos(nPK_Device_TopMost), sPK_Room);
+				m_pOrbiter->m_pData->m_dwPK_Room = atoi(sPK_Room.c_str());
 			}
 		}
 		break;
