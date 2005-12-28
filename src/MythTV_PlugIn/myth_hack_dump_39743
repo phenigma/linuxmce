@@ -2,7 +2,7 @@
 --
 -- Host: localhost    Database: mythconverg
 -- ------------------------------------------------------
--- Server version	4.0.24_Debian-10
+-- Server version	4.0.24_Debian-10-log
 
 --
 -- Table structure for table `callsignnetworkmap`
@@ -88,7 +88,7 @@ CREATE TABLE `cardinput` (
 -- Dumping data for table `cardinput`
 --
 
-INSERT INTO `cardinput` VALUES (1,1,1,'DVBInput',NULL,0,'N','','',1,NULL,0,11700000,10600000,9750000);
+INSERT INTO `cardinput` VALUES (1,1,1,'DVBInput',NULL,0,'N','','111',1,NULL,0,11700000,10600000,9750000);
 
 --
 -- Table structure for table `channel`
@@ -127,6 +127,12 @@ CREATE TABLE `channel` (
 -- Dumping data for table `channel`
 --
 
+INSERT INTO `channel` VALUES (1000,'111',NULL,1,'KNTV-HD','KNTV-HD','none',NULL,'','21785',0,32768,32768,32768,32768,'Default',0,1,'',1,1,4,1);
+INSERT INTO `channel` VALUES (1001,'112',NULL,1,'NBC Wea','NBC Wea','none',NULL,'','36151',0,32768,32768,32768,32768,'Default',0,1,'',1,1,5,2);
+INSERT INTO `channel` VALUES (1002,'481',NULL,1,'KSTS-DT','KSTS-DT','none',NULL,'','30460',0,32768,32768,32768,32768,'Default',0,1,'',1,3,3,1);
+INSERT INTO `channel` VALUES (1003,'541',NULL,1,'KTEH-DT','KTEH-DT','none',NULL,'','44690',0,32768,32768,32768,32768,'Default',0,1,'',1,4,1,1);
+INSERT INTO `channel` VALUES (1004,'141',NULL,1,'KDTV DT','KDTV DT','none',NULL,'','42617',0,32768,32768,32768,32768,'Default',0,1,'',1,5,3,1);
+INSERT INTO `channel` VALUES (1005,'361',NULL,1,'KICU-HD','KICU-HD','none',NULL,'','21650',0,32768,32768,32768,32768,'Default',0,1,'',1,6,3,1);
 
 --
 -- Table structure for table `codecparams`
@@ -254,16 +260,15 @@ CREATE TABLE `dtv_multiplex` (
 -- Dumping data for table `dtv_multiplex`
 --
 
-INSERT INTO `dtv_multiplex` VALUES (1,1,397,0,207000000,'a',NULL,'auto',NULL,'8vsb','a','auto','a','auto',0,'auto','auto','auto','atsc',0,20051225124047);
-INSERT INTO `dtv_multiplex` VALUES (2,1,NULL,NULL,503000000,'a',NULL,'auto',NULL,'8vsb','a','auto','a','auto',0,'auto','auto','auto','atsc',33,20051225124106);
-INSERT INTO `dtv_multiplex` VALUES (3,1,405,0,635000000,'a',NULL,'auto',NULL,'8vsb','a','auto','a','auto',0,'auto','auto','auto','atsc',16,20051225124216);
-INSERT INTO `dtv_multiplex` VALUES (4,1,NULL,NULL,647000000,'a',NULL,'auto',NULL,'8vsb','a','auto','a','auto',0,'auto','auto','auto','atsc',33,20051225124221);
-INSERT INTO `dtv_multiplex` VALUES (5,1,NULL,NULL,659000000,'a',NULL,'auto',NULL,'8vsb','a','auto','a','auto',0,'auto','auto','auto','atsc',33,20051225124229);
-INSERT INTO `dtv_multiplex` VALUES (6,1,401,0,683000000,'a',NULL,'auto',NULL,'8vsb','a','auto','a','auto',0,'auto','auto','auto','atsc',23,20051225124245);
-INSERT INTO `dtv_multiplex` VALUES (7,1,NULL,NULL,689000000,'a',NULL,'auto',NULL,'8vsb','a','auto','a','auto',0,'auto','auto','auto','atsc',33,20051225124246);
-INSERT INTO `dtv_multiplex` VALUES (8,1,385,0,695000000,'a',NULL,'auto',NULL,'8vsb','a','auto','a','auto',0,'auto','auto','auto','atsc',2,20051225124253);
-INSERT INTO `dtv_multiplex` VALUES (9,1,399,0,701000000,'a',NULL,'auto',NULL,'8vsb','a','auto','a','auto',0,'auto','auto','auto','atsc',0,20051225124255);
-INSERT INTO `dtv_multiplex` VALUES (10,1,NULL,NULL,725000000,'a',NULL,'auto',NULL,'8vsb','a','auto','a','auto',0,'auto','auto','auto','atsc',33,20051225124305);
+INSERT INTO `dtv_multiplex` VALUES (1,1,397,0,207000000,'a',NULL,'auto',NULL,'8vsb','a','auto','a','auto',0,'auto','auto','auto','atsc',0,20051227190416);
+INSERT INTO `dtv_multiplex` VALUES (2,1,NULL,NULL,659000000,'a',NULL,'auto',NULL,'8vsb','a','auto','a','auto',0,'auto','auto','auto','atsc',33,20051227190554);
+INSERT INTO `dtv_multiplex` VALUES (3,1,401,0,683000000,'a',NULL,'auto',NULL,'8vsb','a','auto','a','auto',0,'auto','auto','auto','atsc',19,20051227190610);
+INSERT INTO `dtv_multiplex` VALUES (4,1,403,0,689000000,'a',NULL,'auto',NULL,'8vsb','a','auto','a','auto',0,'auto','auto','auto','atsc',0,20051227190614);
+INSERT INTO `dtv_multiplex` VALUES (5,1,385,0,695000000,'a',NULL,'auto',NULL,'8vsb','a','auto','a','auto',0,'auto','auto','auto','atsc',2,20051227190616);
+INSERT INTO `dtv_multiplex` VALUES (6,1,399,0,701000000,'a',NULL,'auto',NULL,'8vsb','a','auto','a','auto',0,'auto','auto','auto','atsc',0,20051227190617);
+INSERT INTO `dtv_multiplex` VALUES (7,1,NULL,NULL,725000000,'a',NULL,'auto',NULL,'8vsb','a','auto','a','auto',0,'auto','auto','auto','atsc',33,20051227190628);
+INSERT INTO `dtv_multiplex` VALUES (8,1,NULL,NULL,731000000,'a',NULL,'auto',NULL,'8vsb','a','auto','a','auto',0,'auto','auto','auto','atsc',33,20051227190633);
+INSERT INTO `dtv_multiplex` VALUES (9,1,NULL,NULL,767000000,'a',NULL,'auto',NULL,'8vsb','a','auto','a','auto',0,'auto','auto','auto','atsc',33,20051227190655);
 
 --
 -- Table structure for table `dtv_privatetypes`
@@ -770,6 +775,364 @@ CREATE TABLE `people` (
 -- Dumping data for table `people`
 --
 
+INSERT INTO `people` VALUES (1,'Adam Bitterman');
+INSERT INTO `people` VALUES (2,'Adam Chase');
+INSERT INTO `people` VALUES (3,'Adam Lazarre-White');
+INSERT INTO `people` VALUES (4,'Adam Secunda');
+INSERT INTO `people` VALUES (5,'Aixa Clemente');
+INSERT INTO `people` VALUES (6,'Al Higgins');
+INSERT INTO `people` VALUES (7,'Al Jean');
+INSERT INTO `people` VALUES (8,'Alex Desert');
+INSERT INTO `people` VALUES (9,'Alex Herschlag');
+INSERT INTO `people` VALUES (10,'Alex Thomas');
+INSERT INTO `people` VALUES (11,'Alexander Folk');
+INSERT INTO `people` VALUES (12,'Alexander Smalls');
+INSERT INTO `people` VALUES (13,'Alexia Robinson');
+INSERT INTO `people` VALUES (14,'Ali Landry');
+INSERT INTO `people` VALUES (15,'Alley Mills');
+INSERT INTO `people` VALUES (16,'Amelia Marshall');
+INSERT INTO `people` VALUES (17,'Andrea Wiley');
+INSERT INTO `people` VALUES (18,'Andrew Secunda');
+INSERT INTO `people` VALUES (19,'Andy Ackerman');
+INSERT INTO `people` VALUES (20,'Andy Comeau');
+INSERT INTO `people` VALUES (21,'Andy Kindler');
+INSERT INTO `people` VALUES (22,'Angee Hughes');
+INSERT INTO `people` VALUES (23,'Angelle Brooks');
+INSERT INTO `people` VALUES (24,'Annabella Sciorra');
+INSERT INTO `people` VALUES (25,'Anne Meara');
+INSERT INTO `people` VALUES (26,'Anne Ramsay');
+INSERT INTO `people` VALUES (27,'Annie Parisse');
+INSERT INTO `people` VALUES (28,'Anson Williams');
+INSERT INTO `people` VALUES (29,'Antwon Tanner');
+INSERT INTO `people` VALUES (30,'Arthur Penn');
+INSERT INTO `people` VALUES (31,'Ashley Edner');
+INSERT INTO `people` VALUES (32,'Aunjanue Ellis');
+INSERT INTO `people` VALUES (33,'Bebe Neuwirth');
+INSERT INTO `people` VALUES (34,'Ben Masters');
+INSERT INTO `people` VALUES (35,'Benjamin Bratt');
+INSERT INTO `people` VALUES (36,'Beth Broderick');
+INSERT INTO `people` VALUES (37,'Bill Boulware');
+INSERT INTO `people` VALUES (38,'Bill Hayes');
+INSERT INTO `people` VALUES (39,'Billy Grundfest');
+INSERT INTO `people` VALUES (40,'Bonnie Burroughs');
+INSERT INTO `people` VALUES (41,'Brad Garrett');
+INSERT INTO `people` VALUES (42,'Brandon Hillock');
+INSERT INTO `people` VALUES (43,'Brandon Williams');
+INSERT INTO `people` VALUES (44,'Brian Hooks');
+INSERT INTO `people` VALUES (45,'Brody Hutzler');
+INSERT INTO `people` VALUES (46,'Brook Kerr');
+INSERT INTO `people` VALUES (47,'Bruce Ferber');
+INSERT INTO `people` VALUES (48,'Bryan Cranston');
+INSERT INTO `people` VALUES (49,'Bryan Dattilo');
+INSERT INTO `people` VALUES (50,'Busy Philipps');
+INSERT INTO `people` VALUES (51,'Candace Edwards');
+INSERT INTO `people` VALUES (52,'Caren Saiet');
+INSERT INTO `people` VALUES (53,'Carla Toutz');
+INSERT INTO `people` VALUES (54,'Caroline Fogarty');
+INSERT INTO `people` VALUES (55,'Caroline Rhea');
+INSERT INTO `people` VALUES (56,'Catherine Lloyd Burns');
+INSERT INTO `people` VALUES (57,'Cathy Jeneén Doe');
+INSERT INTO `people` VALUES (58,'Cathy Yuspa');
+INSERT INTO `people` VALUES (59,'Chane\'t Johnson');
+INSERT INTO `people` VALUES (60,'Charisma Carpenter');
+INSERT INTO `people` VALUES (61,'Charles Divins');
+INSERT INTO `people` VALUES (62,'Charles Hutchins');
+INSERT INTO `people` VALUES (63,'Charles Napier');
+INSERT INTO `people` VALUES (64,'Chelise and Blair Scott');
+INSERT INTO `people` VALUES (65,'China Shavers');
+INSERT INTO `people` VALUES (66,'Chris Elliot');
+INSERT INTO `people` VALUES (67,'Christopher Gerse');
+INSERT INTO `people` VALUES (68,'Christopher Kennedy Masterson');
+INSERT INTO `people` VALUES (69,'Christopher Masterson');
+INSERT INTO `people` VALUES (70,'Christopher Noth');
+INSERT INTO `people` VALUES (71,'Conan O\'Brien');
+INSERT INTO `people` VALUES (72,'Countess Mo\'Nique');
+INSERT INTO `people` VALUES (73,'Countess Vaughn');
+INSERT INTO `people` VALUES (74,'Courtney B. Vance');
+INSERT INTO `people` VALUES (75,'Craig Lamar Traylor');
+INSERT INTO `people` VALUES (76,'Cynthia Harris');
+INSERT INTO `people` VALUES (77,'Dan Castellaneta');
+INSERT INTO `people` VALUES (78,'Danny Jacobson');
+INSERT INTO `people` VALUES (79,'Daphnee Duplaix Samuel');
+INSERT INTO `people` VALUES (80,'Darrell Foster');
+INSERT INTO `people` VALUES (81,'Dave Hackel');
+INSERT INTO `people` VALUES (82,'David Anthony Higgins');
+INSERT INTO `people` VALUES (83,'David Janollari');
+INSERT INTO `people` VALUES (84,'David Keith');
+INSERT INTO `people` VALUES (85,'David Kohan');
+INSERT INTO `people` VALUES (86,'David Lascher');
+INSERT INTO `people` VALUES (87,'David McKenna');
+INSERT INTO `people` VALUES (88,'David Mirkin');
+INSERT INTO `people` VALUES (89,'David Richardson');
+INSERT INTO `people` VALUES (90,'David Shatraw');
+INSERT INTO `people` VALUES (91,'David Starzyk');
+INSERT INTO `people` VALUES (92,'David Steinberg');
+INSERT INTO `people` VALUES (93,'Dayna Devon');
+INSERT INTO `people` VALUES (94,'Debbie Reynolds');
+INSERT INTO `people` VALUES (95,'Debra Messing');
+INSERT INTO `people` VALUES (96,'Dee LaDuke');
+INSERT INTO `people` VALUES (97,'Deidre Hall');
+INSERT INTO `people` VALUES (98,'Dennis Erdman');
+INSERT INTO `people` VALUES (99,'Dennis Farina');
+INSERT INTO `people` VALUES (100,'Dennis Hopper');
+INSERT INTO `people` VALUES (101,'Dennis Lipscomb');
+INSERT INTO `people` VALUES (102,'Dick Wolf');
+INSERT INTO `people` VALUES (103,'Dorien Wilson');
+INSERT INTO `people` VALUES (104,'Doris Roberts');
+INSERT INTO `people` VALUES (105,'Drake Hogestyn');
+INSERT INTO `people` VALUES (106,'Drew Powell');
+INSERT INTO `people` VALUES (107,'Dwight Woody');
+INSERT INTO `people` VALUES (108,'Dylan Fergus');
+INSERT INTO `people` VALUES (109,'Eddie Shin');
+INSERT INTO `people` VALUES (110,'Elana Finley');
+INSERT INTO `people` VALUES (111,'Elisa Donovan');
+INSERT INTO `people` VALUES (112,'Elizabeth Atkins');
+INSERT INTO `people` VALUES (113,'Ellen Albertini Dow');
+INSERT INTO `people` VALUES (114,'Eloise Porter');
+INSERT INTO `people` VALUES (115,'Emily Harper');
+INSERT INTO `people` VALUES (116,'Emy Coligado');
+INSERT INTO `people` VALUES (117,'Enrico Colantoni');
+INSERT INTO `people` VALUES (118,'Eric Marstolf');
+INSERT INTO `people` VALUES (119,'Eric McCormack');
+INSERT INTO `people` VALUES (120,'Eric Stonestreet');
+INSERT INTO `people` VALUES (121,'Eric Winter');
+INSERT INTO `people` VALUES (122,'Erica Gimpel');
+INSERT INTO `people` VALUES (123,'Erik Per Sullivan');
+INSERT INTO `people` VALUES (124,'Estella Warren');
+INSERT INTO `people` VALUES (125,'Farah Fath');
+INSERT INTO `people` VALUES (126,'Francis Capra');
+INSERT INTO `people` VALUES (127,'Frank Conniff');
+INSERT INTO `people` VALUES (128,'Frank Gehry');
+INSERT INTO `people` VALUES (129,'Frankie Muniz');
+INSERT INTO `people` VALUES (130,'Fred Thompson');
+INSERT INTO `people` VALUES (131,'Gail Mancuso');
+INSERT INTO `people` VALUES (132,'Galen Gering');
+INSERT INTO `people` VALUES (133,'Gary Valentine');
+INSERT INTO `people` VALUES (134,'Gigi McCreery');
+INSERT INTO `people` VALUES (135,'Golden Brooks');
+INSERT INTO `people` VALUES (136,'Hal Holbrook');
+INSERT INTO `people` VALUES (137,'Hank Azaria');
+INSERT INTO `people` VALUES (138,'Harry Shearer');
+INSERT INTO `people` VALUES (139,'Hattie Winston');
+INSERT INTO `people` VALUES (140,'Heidi Mueller');
+INSERT INTO `people` VALUES (141,'Helen Hunt');
+INSERT INTO `people` VALUES (142,'Holly Robinson Peete');
+INSERT INTO `people` VALUES (143,'Ian Gurvitz');
+INSERT INTO `people` VALUES (144,'Ilana Wernick');
+INSERT INTO `people` VALUES (145,'Ion Overman');
+INSERT INTO `people` VALUES (146,'James Burrows');
+INSERT INTO `people` VALUES (147,'James Hyde');
+INSERT INTO `people` VALUES (148,'James L. Brooks');
+INSERT INTO `people` VALUES (149,'Jamey Sheridan');
+INSERT INTO `people` VALUES (150,'Jane Kaczmarek');
+INSERT INTO `people` VALUES (151,'Janene Possell');
+INSERT INTO `people` VALUES (152,'Jason Cook');
+INSERT INTO `people` VALUES (153,'Jason Dohring');
+INSERT INTO `people` VALUES (154,'Jason George');
+INSERT INTO `people` VALUES (155,'Jay Leno');
+INSERT INTO `people` VALUES (156,'Jeff Greenstein');
+INSERT INTO `people` VALUES (157,'Jeff Melman');
+INSERT INTO `people` VALUES (158,'Jeffrey Lane');
+INSERT INTO `people` VALUES (159,'Jenna von Oy');
+INSERT INTO `people` VALUES (160,'Jerry Bruckheimer');
+INSERT INTO `people` VALUES (161,'Jerry Stiller');
+INSERT INTO `people` VALUES (162,'Jerry Zaks');
+INSERT INTO `people` VALUES (163,'Jesse L. Martin');
+INSERT INTO `people` VALUES (164,'Jill Marie Jones');
+INSERT INTO `people` VALUES (165,'Jim Eve');
+INSERT INTO `people` VALUES (166,'Jim Johnston');
+INSERT INTO `people` VALUES (167,'Jim Meskimen');
+INSERT INTO `people` VALUES (168,'Joan McMurtrey');
+INSERT INTO `people` VALUES (169,'Joe Mantegna');
+INSERT INTO `people` VALUES (170,'Joe Morton');
+INSERT INTO `people` VALUES (171,'Joel Silver');
+INSERT INTO `people` VALUES (172,'John Aniston');
+INSERT INTO `people` VALUES (173,'John Ciccolini');
+INSERT INTO `people` VALUES (174,'John Enbom');
+INSERT INTO `people` VALUES (175,'John Ingle');
+INSERT INTO `people` VALUES (176,'John Kretchmer');
+INSERT INTO `people` VALUES (177,'John Pankow');
+INSERT INTO `people` VALUES (178,'John Reilly');
+INSERT INTO `people` VALUES (179,'John Ross Bowie');
+INSERT INTO `people` VALUES (180,'Jon Huertas');
+INSERT INTO `people` VALUES (181,'Jon Kinnally');
+INSERT INTO `people` VALUES (182,'Jonathan Littman');
+INSERT INTO `people` VALUES (183,'Josh Goldsmith');
+INSERT INTO `people` VALUES (184,'Joy Leslie Hadnott');
+INSERT INTO `people` VALUES (185,'Joyce Gittlin');
+INSERT INTO `people` VALUES (186,'Joyce Tolbert');
+INSERT INTO `people` VALUES (187,'Judi Evans');
+INSERT INTO `people` VALUES (188,'Judy Geeson');
+INSERT INTO `people` VALUES (189,'Julie Kavner');
+INSERT INTO `people` VALUES (190,'Juliet Mills');
+INSERT INTO `people` VALUES (191,'Justin Berfield');
+INSERT INTO `people` VALUES (192,'Justin Hartley');
+INSERT INTO `people` VALUES (193,'Karen Austin');
+INSERT INTO `people` VALUES (194,'Karim Prince');
+INSERT INTO `people` VALUES (195,'Kathryn Erbe');
+INSERT INTO `people` VALUES (196,'Kelly Rutherford');
+INSERT INTO `people` VALUES (197,'Kelsey Grammer');
+INSERT INTO `people` VALUES (198,'Ken Corday');
+INSERT INTO `people` VALUES (199,'Ken L');
+INSERT INTO `people` VALUES (200,'Kenneth Mars');
+INSERT INTO `people` VALUES (201,'Kevin Dunagin');
+INSERT INTO `people` VALUES (202,'Kevin James');
+INSERT INTO `people` VALUES (203,'Kevin Marburger');
+INSERT INTO `people` VALUES (204,'Kristen Bell');
+INSERT INTO `people` VALUES (205,'Kristian Alfonso');
+INSERT INTO `people` VALUES (206,'Kyle Brandt');
+INSERT INTO `people` VALUES (207,'Kyle Gallner');
+INSERT INTO `people` VALUES (208,'Kyle Lowder');
+INSERT INTO `people` VALUES (209,'Lauren Koslow');
+INSERT INTO `people` VALUES (210,'Leah Remini');
+INSERT INTO `people` VALUES (211,'Lenny Garner');
+INSERT INTO `people` VALUES (212,'Lenny Wolpe');
+INSERT INTO `people` VALUES (213,'Leonard R. Garner');
+INSERT INTO `people` VALUES (214,'Leonard R. Garner Jr.');
+INSERT INTO `people` VALUES (215,'Levie Isaacks');
+INSERT INTO `people` VALUES (216,'Lindsay Hartley');
+INSERT INTO `people` VALUES (217,'Linwood Boomer');
+INSERT INTO `people` VALUES (218,'Lisa S. Hesser');
+INSERT INTO `people` VALUES (219,'Liza Huber');
+INSERT INTO `people` VALUES (220,'Lou Ferrigno');
+INSERT INTO `people` VALUES (221,'Louis Zorich');
+INSERT INTO `people` VALUES (222,'Louisa Abernathy');
+INSERT INTO `people` VALUES (223,'Lucy Liu');
+INSERT INTO `people` VALUES (224,'Lynda Carter');
+INSERT INTO `people` VALUES (225,'Madylin Sweeten');
+INSERT INTO `people` VALUES (226,'Maggie Bandur');
+INSERT INTO `people` VALUES (227,'Mara Brock Akil');
+INSERT INTO `people` VALUES (228,'Marco Sanchez');
+INSERT INTO `people` VALUES (229,'Mariska Hargitay');
+INSERT INTO `people` VALUES (230,'Mariska Ice-T');
+INSERT INTO `people` VALUES (231,'Mark Alton Brown');
+INSERT INTO `people` VALUES (232,'Mark Burg');
+INSERT INTO `people` VALUES (233,'Mark McGrath');
+INSERT INTO `people` VALUES (234,'Mark Tymchyshyn');
+INSERT INTO `people` VALUES (235,'Marley Sims');
+INSERT INTO `people` VALUES (236,'Marquis Scott');
+INSERT INTO `people` VALUES (237,'Marshall Manesh');
+INSERT INTO `people` VALUES (238,'Martin Mull');
+INSERT INTO `people` VALUES (239,'Mary Lou Belli');
+INSERT INTO `people` VALUES (240,'Mary Lou Flesh');
+INSERT INTO `people` VALUES (241,'Matt Cedeno');
+INSERT INTO `people` VALUES (242,'Matt Groening');
+INSERT INTO `people` VALUES (243,'Matt Hannigan');
+INSERT INTO `people` VALUES (244,'Matthew Ashford');
+INSERT INTO `people` VALUES (245,'Max Mutchnick');
+INSERT INTO `people` VALUES (246,'Meg DeLoatch');
+INSERT INTO `people` VALUES (247,'Megan Mullally');
+INSERT INTO `people` VALUES (248,'Melissa Joan Hart');
+INSERT INTO `people` VALUES (249,'Michael Kostroff');
+INSERT INTO `people` VALUES (250,'Michael Muhney');
+INSERT INTO `people` VALUES (251,'Michael Weithorn');
+INSERT INTO `people` VALUES (252,'Michele Marburger');
+INSERT INTO `people` VALUES (253,'Michelle Banks');
+INSERT INTO `people` VALUES (254,'Millee Taggart-Ratcliffe');
+INSERT INTO `people` VALUES (255,'Monica Horan');
+INSERT INTO `people` VALUES (256,'Nancy Cartwright');
+INSERT INTO `people` VALUES (257,'Nancy Travis');
+INSERT INTO `people` VALUES (258,'Natalie Desselle-Reid');
+INSERT INTO `people` VALUES (259,'Nate Richert');
+INSERT INTO `people` VALUES (260,'Nell Scovell');
+INSERT INTO `people` VALUES (261,'Nick Bakay');
+INSERT INTO `people` VALUES (262,'Nick Toth');
+INSERT INTO `people` VALUES (263,'Nicole Patenberg');
+INSERT INTO `people` VALUES (264,'Nicole Sullivan');
+INSERT INTO `people` VALUES (265,'Oprah Winfrey');
+INSERT INTO `people` VALUES (266,'Oren Koules');
+INSERT INTO `people` VALUES (267,'Oscar Nunez');
+INSERT INTO `people` VALUES (268,'Page Kennedy');
+INSERT INTO `people` VALUES (269,'Pamela Hayden');
+INSERT INTO `people` VALUES (270,'Pamela Paulshock');
+INSERT INTO `people` VALUES (271,'Pang-Ni Landrum');
+INSERT INTO `people` VALUES (272,'Patricia Heaton');
+INSERT INTO `people` VALUES (273,'Patrick Howard');
+INSERT INTO `people` VALUES (274,'Patton Oswalt');
+INSERT INTO `people` VALUES (275,'Paul Reiser');
+INSERT INTO `people` VALUES (276,'Paula Hart');
+INSERT INTO `people` VALUES (277,'Paxton Whitehead');
+INSERT INTO `people` VALUES (278,'Penn Jillette');
+INSERT INTO `people` VALUES (279,'Percy Daggs III');
+INSERT INTO `people` VALUES (280,'Perry Rein');
+INSERT INTO `people` VALUES (281,'Persia White');
+INSERT INTO `people` VALUES (282,'Peter Boyle');
+INSERT INTO `people` VALUES (283,'Peter Paige');
+INSERT INTO `people` VALUES (284,'Phil Klemmer');
+INSERT INTO `people` VALUES (285,'Phil McGraw');
+INSERT INTO `people` VALUES (286,'Phil Reeves');
+INSERT INTO `people` VALUES (287,'Phil Rosenthal');
+INSERT INTO `people` VALUES (288,'Philip Sternberg');
+INSERT INTO `people` VALUES (289,'Randy Kovitz');
+INSERT INTO `people` VALUES (290,'Ray Romano');
+INSERT INTO `people` VALUES (291,'Reagan Gomez-Preston');
+INSERT INTO `people` VALUES (292,'Reggie Hayes');
+INSERT INTO `people` VALUES (293,'Rene Balcer');
+INSERT INTO `people` VALUES (294,'Renee Jones');
+INSERT INTO `people` VALUES (295,'Rev. Al Sharpton');
+INSERT INTO `people` VALUES (296,'Richard Kind');
+INSERT INTO `people` VALUES (297,'Richard Kuhlman');
+INSERT INTO `people` VALUES (298,'Richard Steinmetz');
+INSERT INTO `people` VALUES (299,'Rob Schiller');
+INSERT INTO `people` VALUES (300,'Rob Thomas');
+INSERT INTO `people` VALUES (301,'Robert Greenblatt');
+INSERT INTO `people` VALUES (302,'Robert Wagner');
+INSERT INTO `people` VALUES (303,'Robin Bartlett');
+INSERT INTO `people` VALUES (304,'Rory Rosegarten');
+INSERT INTO `people` VALUES (305,'Rudy Hornish');
+INSERT INTO `people` VALUES (306,'Russ Woody');
+INSERT INTO `people` VALUES (307,'Ryan Hansen');
+INSERT INTO `people` VALUES (308,'S. Epatha Merkerson');
+INSERT INTO `people` VALUES (309,'Sam Waterston');
+INSERT INTO `people` VALUES (310,'Sandra P. Grant');
+INSERT INTO `people` VALUES (311,'Sara V. Finney');
+INSERT INTO `people` VALUES (312,'Saverio Guerra');
+INSERT INTO `people` VALUES (313,'Sean Hayes');
+INSERT INTO `people` VALUES (314,'Sean Maguire');
+INSERT INTO `people` VALUES (315,'Sharon Brathwaite');
+INSERT INTO `people` VALUES (316,'Sharon Madden');
+INSERT INTO `people` VALUES (317,'Shawnee Smith');
+INSERT INTO `people` VALUES (318,'Shelley Morrison');
+INSERT INTO `people` VALUES (319,'Silvana Arias');
+INSERT INTO `people` VALUES (320,'Soleil Moon Frye');
+INSERT INTO `people` VALUES (321,'Stephen Wyman');
+INSERT INTO `people` VALUES (322,'Steve Blackwood');
+INSERT INTO `people` VALUES (323,'Steve Skrovan');
+INSERT INTO `people` VALUES (324,'Steve Vinovich');
+INSERT INTO `people` VALUES (325,'Stu Smiley');
+INSERT INTO `people` VALUES (326,'Sullivan and Sawyer Sweeten');
+INSERT INTO `people` VALUES (327,'Sydney Tamiia Poitier');
+INSERT INTO `people` VALUES (328,'T.J. Lottie');
+INSERT INTO `people` VALUES (329,'Tanya Boyd');
+INSERT INTO `people` VALUES (330,'Ted Danson');
+INSERT INTO `people` VALUES (331,'Teddy Dunn');
+INSERT INTO `people` VALUES (332,'Terry Farrell');
+INSERT INTO `people` VALUES (333,'Tessa Thompson');
+INSERT INTO `people` VALUES (334,'Tim Bagley');
+INSERT INTO `people` VALUES (335,'Tim Berry');
+INSERT INTO `people` VALUES (336,'Tim Kaiser');
+INSERT INTO `people` VALUES (337,'Timm Sharp');
+INSERT INTO `people` VALUES (338,'Todd Holland');
+INSERT INTO `people` VALUES (339,'Tom Tartamelia');
+INSERT INTO `people` VALUES (340,'Tony Singletary');
+INSERT INTO `people` VALUES (341,'Torian Hughes');
+INSERT INTO `people` VALUES (342,'Tracee Ellis Ross');
+INSERT INTO `people` VALUES (343,'Tracey Ross');
+INSERT INTO `people` VALUES (344,'Tracy Poust');
+INSERT INTO `people` VALUES (345,'Trevor Lissauer');
+INSERT INTO `people` VALUES (346,'Trieu Tran');
+INSERT INTO `people` VALUES (347,'Tucker Cawley');
+INSERT INTO `people` VALUES (348,'Victor Levin');
+INSERT INTO `people` VALUES (349,'Victor Williams');
+INSERT INTO `people` VALUES (350,'Vince Vieluf');
+INSERT INTO `people` VALUES (351,'Vincent D\'Onofrio');
+INSERT INTO `people` VALUES (352,'Warren Littlefield');
+INSERT INTO `people` VALUES (353,'William Finkelstein');
+INSERT INTO `people` VALUES (354,'Woody Harrelson');
+INSERT INTO `people` VALUES (355,'Yeardley Smith');
+INSERT INTO `people` VALUES (356,'Yeni Alvarez');
+INSERT INTO `people` VALUES (357,'Yvette Wilson');
+INSERT INTO `people` VALUES (358,'Zachary Knighton');
 
 --
 -- Table structure for table `profilegroups`
@@ -1213,11 +1576,11 @@ CREATE TABLE `settings` (
 -- Dumping data for table `settings`
 --
 
-INSERT INTO `settings` VALUES ('mythfilldatabaseLastRunStart','',NULL);
-INSERT INTO `settings` VALUES ('mythfilldatabaseLastRunEnd','',NULL);
-INSERT INTO `settings` VALUES ('mythfilldatabaseLastRunStatus','',NULL);
-INSERT INTO `settings` VALUES ('DataDirectMessage','',NULL);
-INSERT INTO `settings` VALUES ('HaveRepeats','1',NULL);
+INSERT INTO `settings` VALUES ('mythfilldatabaseLastRunStart','2005-12-27 15:51',NULL);
+INSERT INTO `settings` VALUES ('mythfilldatabaseLastRunEnd','2005-12-27 15:51',NULL);
+INSERT INTO `settings` VALUES ('mythfilldatabaseLastRunStatus','mythfilldatabase ran, but did not insert any new data into the Guide.  This can indicate a potential grabber failure.',NULL);
+INSERT INTO `settings` VALUES ('DataDirectMessage','Your subscription expires on 03/24/06 00:57:20',NULL);
+INSERT INTO `settings` VALUES ('HaveRepeats','0',NULL);
 INSERT INTO `settings` VALUES ('DBSchemaVer','1083',NULL);
 INSERT INTO `settings` VALUES ('MasterServerPort','6143',NULL);
 INSERT INTO `settings` VALUES ('BackendServerIP','192.168.80.1','dcerouter');
@@ -1492,130 +1855,5 @@ CREATE TABLE `videosource` (
 -- Dumping data for table `videosource`
 --
 
-INSERT INTO `videosource` VALUES (1,'94005','datadirect','paulhuber2005','default','PC:94005','msvirus1');
-
--- MySQL dump 9.11
---
--- Host: localhost    Database: m
--- ------------------------------------------------------
--- Server version	4.0.24_Debian-10
-
---
--- Table structure for table `channel`
---
-
-DROP TABLE IF EXISTS `channel`;
-CREATE TABLE `channel` (
-  `chanid` int(10) unsigned NOT NULL default '0',
-  `channum` varchar(5) NOT NULL default '',
-  `freqid` varchar(10) default NULL,
-  `sourceid` int(10) unsigned default NULL,
-  `callsign` varchar(20) NOT NULL default '',
-  `name` varchar(64) NOT NULL default '',
-  `icon` varchar(255) NOT NULL default 'none',
-  `finetune` int(11) default NULL,
-  `videofilters` varchar(255) NOT NULL default '',
-  `xmltvid` varchar(64) NOT NULL default '',
-  `recpriority` int(10) NOT NULL default '0',
-  `contrast` int(11) default '32768',
-  `brightness` int(11) default '32768',
-  `colour` int(11) default '32768',
-  `hue` int(11) default '32768',
-  `tvformat` varchar(10) NOT NULL default 'Default',
-  `commfree` tinyint(4) NOT NULL default '0',
-  `visible` tinyint(1) NOT NULL default '1',
-  `outputfilters` varchar(255) NOT NULL default '',
-  `useonairguide` tinyint(1) default '0',
-  `mplexid` smallint(6) default NULL,
-  `serviceid` mediumint(8) unsigned default NULL,
-  `atscsrcid` int(11) default NULL,
-  PRIMARY KEY  (`chanid`),
-  KEY `channel_src` (`channum`,`sourceid`)
-) TYPE=MyISAM;
-
---
--- Dumping data for table `channel`
---
-
-INSERT INTO `channel` VALUES (1000,'111',NULL,1,'KNTV-HD','KNTV-HD','none',NULL,'','',0,32768,32768,32768,32768,'Default',0,1,'',1,1,4,1);
-INSERT INTO `channel` VALUES (1001,'112',NULL,1,'NBC Wea','NBC Wea','none',NULL,'','',0,32768,32768,32768,32768,'Default',0,1,'',1,1,5,2);
-INSERT INTO `channel` VALUES (1002,'11',NULL,1,'i','i','none',NULL,'','',0,32768,32768,32768,32768,'Default',0,1,'',1,3,3,11);
-INSERT INTO `channel` VALUES (1003,'12',NULL,1,'Pax','Pax','none',NULL,'','',0,32768,32768,32768,32768,'Default',0,1,'',1,3,4,12);
-INSERT INTO `channel` VALUES (1004,'13',NULL,1,'Worship','Worship','none',NULL,'','',0,32768,32768,32768,32768,'Default',0,1,'',1,3,5,13);
-INSERT INTO `channel` VALUES (1005,'14',NULL,1,'FaithTV','FaithTV','none',NULL,'','',0,32768,32768,32768,32768,'Default',0,1,'',1,3,6,14);
-INSERT INTO `channel` VALUES (1006,'481',NULL,1,'KSTS-DT','KSTS-DT','none',NULL,'','',0,32768,32768,32768,32768,'Default',0,1,'',1,6,3,1);
-INSERT INTO `channel` VALUES (1007,'141',NULL,1,'KDTV DT','KDTV DT','none',NULL,'','',0,32768,32768,32768,32768,'Default',0,1,'',1,8,3,1);
-INSERT INTO `channel` VALUES (1008,'361',NULL,1,'KICU-HD','KICU-HD','none',NULL,'','',0,32768,32768,32768,32768,'Default',0,1,'',1,9,3,1);
-INSERT INTO `channel` VALUES (1009,'362',NULL,1,'KICU-SD','KICU-SD','none',NULL,'','',0,32768,32768,32768,32768,'Default',0,1,'',1,9,4,2);
-INSERT INTO `channel` VALUES (1044,'44','44',1,'KBHK','KBHK','none',NULL,'','10345',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1038,'38','38',1,'KCNS','KCNS','none',NULL,'','10381',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1010,'3','3',1,'KCRA','KCRA','none',NULL,'','10388',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1014,'14','14',1,'KDTV','KDTV','none',NULL,'','10418',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1042,'42','42',1,'KTNC','KTNC','none',NULL,'','10457',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1064,'64','64',1,'KTFK','KTFK','none',NULL,'','10464',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1011,'7','7',1,'KGO','KGO','none',NULL,'','10479',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1036,'36','36',1,'KICU','KICU','none',NULL,'','10507',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1065,'65','65',1,'KKPX','KKPX','none',NULL,'','10562',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1032,'32','32',1,'KMTP','KMTP','none',NULL,'','10582',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1012,'11','11',1,'KNTV','KNTV','none',NULL,'','10600',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1020,'20','20',1,'KBWB','KBWB (formerly KOFY)','none',NULL,'','10619',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1013,'13','13',1,'KOVR','KOVR','none',NULL,'','10634',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1015,'5','5',1,'KPIX','KPIX','none',NULL,'','10641',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1016,'9','9',1,'KQED','KQED','none',NULL,'','10653',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1031,'31','31',1,'KMAX','KMAX (Formerly KPWB)','none',NULL,'','10656',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1022,'22','22',1,'KRCB','KRCB','none',NULL,'','10657',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1017,'4','4',1,'KRON','KRON','none',NULL,'','10672',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1018,'8','8',1,'KSBW','KSBW','none',NULL,'','10680',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1058,'58','58',1,'KQCA','KQCA','none',NULL,'','10683',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1048,'48','48',1,'KSTS','KSTS','none',NULL,'','10703',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1054,'54','54',1,'KTEH','KTEH','none',NULL,'','10717',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1026,'26','26',1,'KTSF','KTSF','none',NULL,'','10736',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1019,'2','2',1,'KTVU','KTVU','none',NULL,'','10760',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1040,'40','40',1,'KTXL','KTXL','none',NULL,'','10767',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1021,'6','6',1,'KVIE','KVIE','none',NULL,'','10799',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1023,'10','10',1,'KXTV','KXTV','none',NULL,'','10840',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1066,'66','66',1,'KFSF','KFSF (formerly KPST)','none',NULL,'','14752',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1028,'28','28',1,'KFTLCA','KFTL-CA','none',NULL,'','14800',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1068,'68','68',1,'KTLN','KTLN','none',NULL,'','18982',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1024,'2_1','56-1',1,'KTVUDT','KTVUDT (KTVU-DT)','none',NULL,'','19571',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1025,'5_1','29-1',1,'KPIXDT','KPIXDT (KPIX-DT)','none',NULL,'','19572',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1027,'4_1','57-1',1,'KRONDT','KRONDT (KRON-DT)','none',NULL,'','19573',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1029,'7_1','24-1',1,'KGODT','KGODT (KGO-DT)','none',NULL,'','19574',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1045,'44_1','45-1',1,'KBHKDT','KBHKDT (KBHK-DT)','none',NULL,'','19575',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1030,'3_1','35-1',1,'KCRADT','KCRADT (KCRA-DT)','none',NULL,'','20451',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1033,'4_2','57-2',1,'KRONDT2','KRONDT2 (KRON-DT2)','none',NULL,'','20547',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1034,'10_1','61-1',1,'KXTVDT','KXTVDT (KXTV-DT)','none',NULL,'','20775',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1041,'40_1','55-1',1,'KTXLDT','KTXLDT (KTXL-DT)','none',NULL,'','21211',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1035,'13_1','25-1',1,'KOVRDT','KOVRDT (KOVR-DT)','none',NULL,'','21214',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1037,'36_1','52-1',1,'KICUDT','KICUDT (KICU-DT)','none',NULL,'','21650',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1039,'11_1','12-1',1,'KNTVDT','KNTVDT(KNTV-DT)','none',NULL,'','21785',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1043,'20_1','19-1',1,'KBWBDT','KBWBDT (KBWB-DT)','none',NULL,'','24343',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1046,'9_1','30-1',1,'KQEDDT','KQEDDT (KQED-DT)','none',NULL,'','24344',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1059,'58_1','46-1',1,'KQCADT','KQCADT (KQCA-DT)','none',NULL,'','25509',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1049,'48_1','49-1',1,'KSTSDT','KSTSDT (KSTS-DT)','none',NULL,'','30460',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1047,'9_2','30-2',1,'KQEDDT2','KQEDDT2 (KQED-DT2)','none',NULL,'','30507',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1050,'3_2','35-2',1,'KCRADT2','KCRADT2 (KCRA-DT2)','none',NULL,'','30815',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1051,'7_2','24-2',1,'KGODT2','KGODT2 (KGO-DT2)','none',NULL,'','30833',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1052,'38_1','39-1',1,'KCNSDT','KCNSDT (KCNS-DT)','none',NULL,'','31220',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1053,'26_1','27-1',1,'KTSFDT','KTSFDT (KTSF-DT)','none',NULL,'','31221',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1055,'9_5','30-5',1,'KQEDDT5','KQEDDT5 (KQED-DT5)','none',NULL,'','34116',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1056,'9_4','30-4',1,'KQEDDT4','KQEDDT4 (KQED-DT4)','none',NULL,'','34168',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1057,'6_1','53-1',1,'KVIEDT','KVIEDT (KVIE-DT)','none',NULL,'','34197',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1060,'42_1','63-1',1,'KTNCDT','KTNCDT (KTNC-DT)','none',NULL,'','34741',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1061,'22_1','23-1',1,'KRCBDT','KRCBDT (KRCB-DT)','none',NULL,'','35242',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1062,'22_2','23-2',1,'KRCBDT2','KRCBDT2 (KRCB-DT2)','none',NULL,'','35244',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1063,'9_3','30-3',1,'KQEDDT3','KQEDDT3 KQED World (KQED-DT3)','none',NULL,'','35278',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1067,'10_2','61-2',1,'KXTVDT2','KXTVDT2 (KXTV-DT2)','none',NULL,'','35360',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1069,'65_1','41-1',1,'KKPXDT','KKPXDT (KKPX-DT)','none',NULL,'','35375',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1070,'6_2','53-2',1,'KVIEDT2','KVIEDT2 (KVIE-DT2)','none',NULL,'','35377',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1071,'13_2','25-2',1,'KOVRDT2','KOVRDT2 (KOVR-DT2)','none',NULL,'','35423',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1072,'40_2','55-2',1,'KTXLDT2','KTXLDT2 (KTXL-DT2)','none',NULL,'','35447',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1073,'43_1','43-1',1,'KCSMDT','KCSMDT (KCSM-DT)','none',NULL,'','35545',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1074,'68_1','47-1',1,'KTLNDT','KTLNDT (KTLN-DT)','none',NULL,'','36140',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1075,'11_2','12-2',1,'KNTVDT2','KNTVDT2 (KNTV-DT2)','none',NULL,'','36151',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1076,'66_1','34-1',1,'KFSFDT','KFSFDT (KFSF-DT)','none',NULL,'','42586',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1077,'14_1','51-1',1,'KDTVDT','KDTVDT (KDTV-DT)','none',NULL,'','42617',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1078,'31_1','21-1',1,'KMAXDT','KMAXDT (KMAX-DT)','none',NULL,'','43352',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1079,'54_1','50-1',1,'KTEHDT','KTEHDT (KTEH-DT)','none',NULL,'','44690',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
-INSERT INTO `channel` VALUES (1080,'32_1','33-1',1,'KMTPDT','KMTPDT (KMTP-DT)','none',NULL,'','47121',0,32768,32768,32768,32768,'Default',0,1,'',0,NULL,NULL,NULL);
+INSERT INTO `videosource` VALUES (1,'dd','datadirect','paulhuber2005','default','PC:94005','msvirus1');
 
