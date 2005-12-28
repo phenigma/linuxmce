@@ -380,7 +380,7 @@ bool OSDScreenHandler::TV_provider_ObjectSelected(CallBackData *pData)
 
 				int PK_PostalCode = m_pWizardLogic->GetPostalCode();
 				DCE::CMD_Spawn_Application CMD_Spawn_Application(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_LocalAppServer,
-					"/usr/pluto/bin/SetupMythHack.sh","",StringUtils::itos(PK_PostalCode),"","",false,false,false);
+					"/usr/pluto/bin/SetupMythHack.sh","mythhack",StringUtils::itos(PK_PostalCode),"","",false,false,false);
 				m_pOrbiter->SendCommand(CMD_Spawn_Application);
 
 				if(atoi(sInput1.c_str())==0)
@@ -781,7 +781,7 @@ bool OSDScreenHandler::AV_Devices_ObjectSelected(CallBackData *pData)
 
 		case DESIGNOBJ_AVDeviceAudioInputs_CONST:
 		{
-			if(DESIGNOBJ_butLightsWizard_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
+			if(DESIGNOBJ_butMoreAVDevices_CONST == pObjectInfoData->m_PK_DesignObj_SelectedObject)
 			{
 				string sInput = m_pOrbiter->m_mapVariable[VARIABLE_Misc_Data_4_CONST];
 				if(sInput != "") 

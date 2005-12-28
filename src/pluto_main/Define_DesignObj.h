@@ -1733,7 +1733,7 @@
 #define DESIGNOBJ_butAVDevicesManuf_CONST 4582
 #define DESIGNOBJ_butAVDeviceModel_CONST 4583
 #define DESIGNOBJ_butAVOutputs_CONST 4584
-#define DESIGNOBJ_butLightsWizard_CONST 4585
+#define DESIGNOBJ_butMoreAVDevices_CONST 4585
 #define DESIGNOBJ_butFloorLamp_CONST 4586
 #define DESIGNOBJ_butAlarmPanel_CONST 4587
 #define DESIGNOBJ_butAdduser_CONST 4588

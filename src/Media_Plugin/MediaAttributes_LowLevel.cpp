@@ -984,6 +984,8 @@ int MediaAttributes_LowLevel::AddPictureToDisc(int PK_Disc,char *pPictureData,si
 	if( pPictureData && sizePicture && pRow_Disc )
 	{
 		Row_Picture *pRow_Picture = AddPicture(pPictureData, sizePicture, "jpg",sURL);
+		if( !pRow_Picture )
+			return 0;
 
 		Row_Picture_Disc *pRow_Picture_Disc = m_pDatabase_pluto_media->Picture_Disc_get()->AddRow();
 		pRow_Picture_Disc->FK_Disc_set( pRow_Disc->PK_Disc_get() );
@@ -1117,7 +1119,13 @@ void MediaAttributes_LowLevel::AddRippedDiscToDatabase(int PK_Disc,int PK_MediaT
 			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find ripped disc: %s",sDestination.c_str());
 		else
 		{
-			Row_File *pRow_File = AddDirectoryToDatabase(PK_MediaType,FileUtils::BasePath(sDestination));
+			AddDirectoryToDatabase(PK_MediaType,FileUtils::BasePath(sDestination));
+			Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->AddRow();
+			pRow_File->EK_MediaType_set(PK_MediaType);
+			pRow_File->Path_set( FileUtils::BasePath(sDestination) );
+			pRow_File->Filename_set( FileUtils::FilenameWithoutPath(listFiles.front()) );
+			m_pDatabase_pluto_media->File_get()->Commit();
+
 			AddDiscAttributesToFile(pRow_File->PK_File_get(),PK_Disc,-1);  // We won't have tracks then we ripped.  -1=ripped whole thing
 		}
 	}

@@ -555,7 +555,7 @@ bool Orbiter::GetConfig()
 	{
 		if( m_pEvent->m_pClientSocket->m_eLastError==cs_err_CannotConnect && m_sHostName!="192.168.80.1" )
 		{
-			m_sHostName="localhost";
+			m_sHostName="192.168.80.1";
 			if( !Orbiter_Command::GetConfig() )
 			{
 				WriteStatusOutput("Couldn't connect to the router.");

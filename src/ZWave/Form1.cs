@@ -401,7 +401,9 @@ namespace zwave1
 					}
 					else if( sIncoming.StartsWith("LEVEL") )
 					{
-						byte level = Convert.ToByte(sIncoming.Substring(5));
+						string sLevelAndZone = sIncoming.Substring(5);
+						string sLevel = sLevelAndZone.Substring( 0,sLevelAndZone.IndexOf(' ') );
+						byte level = Convert.ToByte(sLevel);
 						tbDevices.Text = DateTime.Now.ToLongTimeString() + " LEVEL: " + device.NodeID.ToString() + " " + level.ToString() + "\r\n" + tbDevices.Text;
 						device.Level=level;
 						m_Socket.Send(Encoding.ASCII.GetBytes("OK " + sIncoming + "\n"));
@@ -410,7 +412,7 @@ namespace zwave1
 				}
 				catch(Exception e)
 				{
-					tbDevices.Text = DateTime.Now.ToLongTimeString() + " ****EX*** " + e.Message + "(" + sIncoming + ")\r\n" + tbDevices.Text;
+					tbDevices.Text = DateTime.Now.ToLongTimeString() + " ****EX*** " + e.Message + "\r\n" + e.StackTrace + "\r\n(" + sIncoming + ")\r\n" + tbDevices.Text;
 					m_Socket.Send(Encoding.ASCII.GetBytes("ERROR " + e.Message + " " + sIncoming + "\n"));
 				}
 			}
