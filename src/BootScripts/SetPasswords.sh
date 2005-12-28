@@ -14,3 +14,5 @@ sqlPasswordSamba="${PasswordSamba//\'/\'}"
 
 Q="UPDATE Users SET Password=md5('$sqlPassword'), Password_Unix='$sqlPasswordUnix', Password_Samba='$sqlPasswordSamba' WHERE PK_Users=$PK_Users"
 RunSQL "$Q"
+
+/usr/pluto/bin/SetupUsers_Homes.sh
