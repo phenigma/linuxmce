@@ -122,6 +122,12 @@
 				RelativePath=".\ZW_SerialAPI.cpp">
 			</File>
 			<File
+				RelativePath=".\ZWaveJob.cpp">
+			</File>
+			<File
+				RelativePath=".\ZWaveNode.cpp">
+			</File>
+			<File
 				RelativePath=".\ZWaveTest.cpp">
 			</File>
 		</Filter>
@@ -137,6 +143,12 @@
 			</File>
 			<File
 				RelativePath=".\ZW_SerialAPI.h">
+			</File>
+			<File
+				RelativePath=".\ZWaveJob.h">
+			</File>
+			<File
+				RelativePath=".\ZWaveNode.h">
 			</File>
 		</Filter>
 		<Filter
