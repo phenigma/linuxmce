@@ -1,4 +1,5 @@
 #include "SerialConnection.h"
+#include "main.h"
 
 SerialConnection* SerialConnection::instance = NULL;
 
@@ -43,8 +44,7 @@ int SerialConnection::disconnect()
 
 bool SerialConnection::isConnected()
 {
-	//TODO Edgar
-	return true;
+	return serialPort != NULL;
 }
 
 int SerialConnection::send(char *buffer, unsigned int len)
@@ -55,7 +55,6 @@ int SerialConnection::send(char *buffer, unsigned int len)
 		{
 			try
 			{
-				//todo: guard the access to the serial port
 				pthread_mutex_lock( &mutex_serial );
 				serialPort->Write(buffer, len);
 				pthread_mutex_unlock( &mutex_serial );
@@ -71,7 +70,7 @@ int SerialConnection::send(char *buffer, unsigned int len)
 	return returnValue ;
 }
 
-int SerialConnection::receive(char *b, unsigned int *len)
+int SerialConnection::receiveCommand(char *b, unsigned int *len)
 {
 	if(b == NULL)
 	{
@@ -90,7 +89,7 @@ int SerialConnection::receive(char *b, unsigned int *len)
 			return -1;
 		}
 		unsigned int buffered_len = *(buffer.begin() + 1);
-		if(buffer.size() < buffered_len + 3)
+		if(buffer.size() < buffered_len + 3 || *len < buffered_len + 3)
 		{
 			*len = 0;
 			return -1;
@@ -151,11 +150,6 @@ int SerialConnection::hasCommand()
 	return returnValue;
 }
 
-const char * SerialConnection::getCommand() const
-{
-	//TODO Edgar
-	return NULL;
-}
 
 char SerialConnection::checkSum(char *b, int len)
 {
@@ -174,29 +168,22 @@ char SerialConnection::checkSum(char *b, int len)
 
 void *SerialConnection::receiveFunction(void *)
 {
-	try
+	if(instance->isConnected())
 	{
-		if(instance->serialPort != NULL)
+		char mybuf[100];
+		int len = 100;
+		while(true)
 		{
-			char mybuf[100];
-			int len = 100;
-			while(true)
-			{
-				len = 100;
-				pthread_mutex_lock( &instance->mutex_serial );
-				size_t len = instance->serialPort->Read(mybuf, 100);
-				pthread_mutex_unlock( &instance->mutex_serial );
+			len = 100;
+			pthread_mutex_lock( &instance->mutex_serial );
+			size_t len = instance->serialPort->Read(mybuf, 100);
+			pthread_mutex_unlock( &instance->mutex_serial );
 
-				pthread_mutex_lock( &instance->mutex_buffer );
-				while(--len >= 0)
-					instance->buffer.push_back(mybuf[len]);
-				pthread_mutex_unlock( &instance->mutex_buffer );
-			}
+			pthread_mutex_lock( &instance->mutex_buffer );
+			while(--len >= 0)
+				instance->buffer.push_back(mybuf[len]);
+			pthread_mutex_unlock( &instance->mutex_buffer );
 		}
-	}
-	catch(...)
-	{
-		//todo treat the exception
 	}
 	return NULL;
 }

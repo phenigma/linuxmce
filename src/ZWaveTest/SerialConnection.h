@@ -26,7 +26,7 @@ public:
 	/**try to get the specified len from the serial buffer
 	* @parameter buffer the buffer where the data should be found
 	* @param len the len that should be read. After the call, len will contain the actual read data length*/
-	virtual int receive(char *buffer, unsigned int *len);
+	virtual int receiveCommand(char *buffer, unsigned int *len);
 
 	/**disconnect from the serial port
 	*@return 0*/
@@ -36,15 +36,13 @@ public:
 	*@return 0 if successfull, else negative*/
 	virtual int connect();
 	
+	/**checks if the serial connection class has been initialized*/
 	virtual bool isConnected();
 
 	/**checks if there is a full response in the serial buffer
 	*@return true if there is a full response in the buffer*/
 	virtual int hasCommand();
 	
-	/** Returns a buffer containing the current command.*/
-	virtual const char * getCommand() const;
-
 	virtual ~SerialConnection();
 
 private:
@@ -65,8 +63,9 @@ private:
 	pthread_mutex_t mutex_buffer;
 	pthread_t write_thread;
 
+	/**function that will be called in a new pthread and will receive the bytres from the serial connection*/
 	static void* receiveFunction(void *);
-
+	
 	char SerialConnection::checkSum(char *b, int len);
 };
 
