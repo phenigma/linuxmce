@@ -7,7 +7,7 @@ class ZWaveJob
 {
 	public:
 	
-		enum JobState { IDLE, RUNNING, STOPPED };
+		enum JobState { IDLE=0, RUNNING, STOPPED };
 		
 		enum ZW_JOB { NOTHING=0, VERSION, GET_INFO, SET_INFO, INITIALIZE, RECEIVE, ADD_NODE, REMOVE_NODE };
 
@@ -32,6 +32,11 @@ class ZWaveJob
 		
 		/** Sets the job type.*/
 		virtual void setType(ZW_JOB);
+		
+	protected:
+	
+		/** Returns the job handler.*/
+		virtual ZW_SerialAPI* handler() const;
 		
 	private:
 	

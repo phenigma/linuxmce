@@ -63,3 +63,8 @@ void ZWaveJob::setType(ZWaveJob::ZW_JOB type)
 {
 	d->type = type;
 }
+
+ZW_SerialAPI* ZWaveJob::handler() const
+{
+	return d->handler;
+}

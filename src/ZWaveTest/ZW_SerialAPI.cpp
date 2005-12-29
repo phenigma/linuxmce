@@ -23,7 +23,7 @@ class ZW_SerialAPI::Private
 		
 		ZWaveJob * currentJob;
 		char command[65536];
-		unsigned int commandLength;
+		size_t commandLength;
 
 	private:
 
@@ -130,6 +130,7 @@ bool ZW_SerialAPI::listen()
 						{
 							// TODO error
 						}
+						d->state = ZW_SerialAPI::WAITTING;
 					}
 					
 					// check if the job has finished
@@ -143,6 +144,11 @@ bool ZW_SerialAPI::listen()
 							d->jobsQueue.pop_front();
 							d->state = ZW_SerialAPI::RUNNING;
 							d->currentJob->run();
+							d->state = ZW_SerialAPI::WAITTING;
+						}
+						else
+						{
+							stop();
 						}
 					}
 				}
@@ -150,7 +156,6 @@ bool ZW_SerialAPI::listen()
 				{
 					// print the error
 				}
-				d->state = ZW_SerialAPI::WAITTING;
 			}
 			
 			// sleep 10 ms
@@ -162,31 +167,49 @@ bool ZW_SerialAPI::listen()
 
 bool ZW_SerialAPI::insertJob(ZWaveJob * job)
 {
+	// TODO Insert INIT job as the first job if the state is STOPPED
 	d->jobsQueue.push_back(job);
 	return true;
 }
 
 bool ZW_SerialAPI::insertNode(ZWaveNode * node)
 {
-	return true;
-}
-
-bool ZW_SerialAPI::processData(const char * buffer, size_t length)
-{
-	return true;
+	if( d->nodes.end() == d->nodes.find( node->nodeID() ) )
+	{
+		d->nodes[ node->nodeID() ] = node;
+		return true;
+	}
+	
+	return false;
 }
 
 bool ZW_SerialAPI::removeNode(unsigned short id)
 {
+	NodesMapIterator it = d->nodes.find(id);
+	if( it != d->nodes.end() )
+	{
+		d->nodes.erase(it);
+	}
 	return true;
 }
 
 ZWaveNode * ZW_SerialAPI::getNode(unsigned short id)
 {
-	return d->nodes[id];
+	NodesMapCIterator it = d->nodes.find(id);
+	if( it != d->nodes.end() )
+	{
+		return (*it).second;
+	}
+	
+	return NULL;
 }
 
 const NodesMap& ZW_SerialAPI::getNodes() const
 {
 	return d->nodes;
+}
+
+bool ZW_SerialAPI::processData(const char * buffer, size_t length)
+{
+	return true;
 }
