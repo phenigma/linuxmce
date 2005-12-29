@@ -30,15 +30,17 @@ namespace DCE
         /** Private member variables */
         int                          m_iControllingDevice;
         pthread_t                    m_qApplicationThreadId;
-        RatPoisonWrapper            *m_pRatWrapper;
-
-        void selectWindow();
+#ifndef WIN32
+		RatPoisonWrapper            *m_pRatWrapper;
+#endif
+		void selectWindow();
         bool checkWindowName(long unsigned int window, string windowName);
 
     protected:
         bool LaunchMythFrontend(bool bSelectWindow=true);
 
         void processKeyBoardInputRequest(int iXKeySym);
+		void pollMythStatus();
 		bool sendMythCommand(const char *Cmd, string &sResult);
 
         // This should be Window but if i put #include <X11/Xlib.h>  in this it will break the compilation.
@@ -79,6 +81,28 @@ public:
 
 			*****COMMANDS***** we need to implement
 	*/
+
+
+	/** @brief COMMAND: #28 - Simulate Keypress */
+	/** Send a key to the device's OSD, or simulate keypresses on the device's panel */
+		/** @param #26 PK_Button */
+			/** What key to simulate being pressed.  If 2 numbers are specified, separated by a comma, the second will be used if the Shift key is specified. */
+		/** @param #50 Name */
+			/** The application to send the keypress to. If not specified, it goes to the DCE device. */
+
+	virtual void CMD_Simulate_Keypress(string sPK_Button,string sName) { string sCMD_Result; CMD_Simulate_Keypress(sPK_Button.c_str(),sName.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #29 - Simulate Mouse Click */
+	/** Simlate a mouse click at a certain position on the screen */
+		/** @param #11 Position X */
+			/**  */
+		/** @param #12 Position Y */
+			/**  */
+
+	virtual void CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y) { string sCMD_Result; CMD_Simulate_Mouse_Click(iPosition_X,iPosition_Y,sCMD_Result,NULL);};
+	virtual void CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #37 - Play Media */
@@ -156,6 +180,24 @@ public:
 	virtual void CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #81 - Navigate Next */
+	/** Nagivate to the next possible navigable area. (The actual outcome depends on the specifc device) */
+		/** @param #41 StreamID */
+			/** The stream on which to do the navigation. */
+
+	virtual void CMD_Navigate_Next(int iStreamID) { string sCMD_Result; CMD_Navigate_Next(iStreamID,sCMD_Result,NULL);};
+	virtual void CMD_Navigate_Next(int iStreamID,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #82 - Navigate Prev */
+	/** Nagivate the previous possible navigable area. (The actual outcome depends on the specific device). */
+		/** @param #41 StreamID */
+			/** The stream on which to do the navigation. */
+
+	virtual void CMD_Navigate_Prev(int iStreamID) { string sCMD_Result; CMD_Navigate_Prev(iStreamID,sCMD_Result,NULL);};
+	virtual void CMD_Navigate_Prev(int iStreamID,string &sCMD_Result,Message *pMessage);
+
+
 	/** @brief COMMAND: #84 - Get Video Frame */
 	/** Capture a Video frame */
 		/** @param #19 Data */
@@ -173,6 +215,37 @@ public:
 
 	virtual void CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight,char **pData,int *iData_Size,string *sFormat) { string sCMD_Result; CMD_Get_Video_Frame(sDisable_Aspect_Lock.c_str(),iStreamID,iWidth,iHeight,pData,iData_Size,sFormat,sCMD_Result,NULL);};
 	virtual void CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight,char **pData,int *iData_Size,string *sFormat,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #87 - Goto Media Menu */
+	/** Goto to the current media Root Menu. */
+		/** @param #41 StreamID */
+			/** The stream ID */
+		/** @param #64 MenuType */
+			/** The type of menu that the user want to jump to.
+(For DVD handlers usually this applies)
+0 - Root menu 
+1 - Title menu
+2 - Media menu */
+
+	virtual void CMD_Goto_Media_Menu(int iStreamID,int iMenuType) { string sCMD_Result; CMD_Goto_Media_Menu(iStreamID,iMenuType,sCMD_Result,NULL);};
+	virtual void CMD_Goto_Media_Menu(int iStreamID,int iMenuType,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #123 - Info */
+	/** Info about the currently playing program */
+		/** @param #9 Text */
+			/** nimic */
+
+	virtual void CMD_Info(string sText) { string sCMD_Result; CMD_Info(sText.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Info(string sText,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #126 - Guide */
+	/** Go to the Guide */
+
+	virtual void CMD_Guide() { string sCMD_Result; CMD_Guide(sCMD_Result,NULL);};
+	virtual void CMD_Guide(string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #129 - PIP - Channel Up */
@@ -201,35 +274,35 @@ public:
 
 
 	/** @brief COMMAND: #190 - Enter/Go */
-	/** Enter was hit */
+	/** Select the currently highlighted menu item */
 
 	virtual void CMD_EnterGo() { string sCMD_Result; CMD_EnterGo(sCMD_Result,NULL);};
 	virtual void CMD_EnterGo(string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #200 - Move Up */
-	/** Up */
+	/** Move the highlighter */
 
 	virtual void CMD_Move_Up() { string sCMD_Result; CMD_Move_Up(sCMD_Result,NULL);};
 	virtual void CMD_Move_Up(string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #201 - Move Down */
-	/** Down */
+	/** Move the highlighter */
 
 	virtual void CMD_Move_Down() { string sCMD_Result; CMD_Move_Down(sCMD_Result,NULL);};
 	virtual void CMD_Move_Down(string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #202 - Move Left */
-	/** Left */
+	/** Move the highlighter */
 
 	virtual void CMD_Move_Left() { string sCMD_Result; CMD_Move_Left(sCMD_Result,NULL);};
 	virtual void CMD_Move_Left(string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #203 - Move Right */
-	/** Right */
+	/** Move the highlighter */
 
 	virtual void CMD_Move_Right() { string sCMD_Result; CMD_Move_Right(sCMD_Result,NULL);};
 	virtual void CMD_Move_Right(string &sCMD_Result,Message *pMessage);
@@ -325,6 +398,13 @@ public:
 	virtual void CMD_Report_Playback_Position(int iStreamID,string *sText,string *sMediaPosition,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #367 - Text */
+	/**  */
+
+	virtual void CMD_Text() { string sCMD_Result; CMD_Text(sCMD_Result,NULL);};
+	virtual void CMD_Text(string &sCMD_Result,Message *pMessage);
+
+
 	/** @brief COMMAND: #412 - Set Media Position */
 	/** Jump to a certain media position */
 		/** @param #41 StreamID */
@@ -334,6 +414,34 @@ public:
 
 	virtual void CMD_Set_Media_Position(int iStreamID,string sMediaPosition) { string sCMD_Result; CMD_Set_Media_Position(iStreamID,sMediaPosition.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Set_Media_Position(int iStreamID,string sMediaPosition,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #548 - Menu */
+	/** Go to the PVR's main menu */
+
+	virtual void CMD_Menu() { string sCMD_Result; CMD_Menu(sCMD_Result,NULL);};
+	virtual void CMD_Menu(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #761 - Recorded TV Menu */
+	/** Go to the list of recorded shows */
+
+	virtual void CMD_Recorded_TV_Menu() { string sCMD_Result; CMD_Recorded_TV_Menu(sCMD_Result,NULL);};
+	virtual void CMD_Recorded_TV_Menu(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #762 - Live TV */
+	/** Go to Live TV */
+
+	virtual void CMD_Live_TV() { string sCMD_Result; CMD_Live_TV(sCMD_Result,NULL);};
+	virtual void CMD_Live_TV(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #763 - Exit */
+	/** Exit guide */
+
+	virtual void CMD_Exit() { string sCMD_Result; CMD_Exit(sCMD_Result,NULL);};
+	virtual void CMD_Exit(string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

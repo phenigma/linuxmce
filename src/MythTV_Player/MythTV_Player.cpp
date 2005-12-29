@@ -25,10 +25,10 @@
  //<-dceag-d-b->
 #include "MythTV_Player.h"
 #include "DCE/Logger.h"
-#include "DCE/PlainClientSocket.h"
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
+#include "DCE/PlainClientSocket.h"
 
 #include <iostream>
 using namespace std;
@@ -52,7 +52,10 @@ using namespace DCE;
 
 #include <pthread.h>
 // #include "MythMainWindowResizable.h"
+MythTV_Player *g_pMythPlayer = NULL;
+#define MYTH_SOCKET_TIMEOUT	3  // SECONDS
 
+#ifndef WIN32
 #include "utilities/linux/RatpoisonHandler.h"
 
 #include "X11/Xlib.h"
@@ -60,12 +63,8 @@ using namespace DCE;
 #include "X11/keysym.h"
 #include <X11/extensions/XTest.h>
 
-// we only have signals on Linux and the global var is only used there. so we ifndef it..
-#ifndef WIN32
 #include <sys/wait.h>
 
-MythTV_Player *g_pMythPlayer = NULL;
-#define MYTH_SOCKET_TIMEOUT	3  // SECONDS
 
 void sh(int i) /* signal handler */
 {
@@ -80,7 +79,6 @@ void sh(int i) /* signal handler */
     if ( g_pMythPlayer )
         g_pMythPlayer->ProcessExited(pid, status);
 }
-#endif
 
 #define MYTH_WINDOW_NAME "mythfrontend"
 
@@ -94,6 +92,8 @@ public:
     bool commandRatPoison(string command) { return RatpoisonHandler<RatPoisonWrapper>::commandRatPoison(command); }
 };
 
+#endif
+
 // MythContext *gContext;
 
 //<-dceag-const-b->
@@ -103,9 +103,12 @@ MythTV_Player::MythTV_Player(int DeviceID, string ServerAddress,bool bConnectEve
 //<-dceag-const-e->
 	,m_MythMutex("myth")
 {
-	g_pMythPlayer = this;
 	m_MythMutex.Init(NULL);
-    m_pRatWrapper = NULL;
+	g_pMythPlayer = this;
+
+#ifndef WIN32 
+	m_pRatWrapper = NULL;
+#endif
     m_iMythFrontendWindowId = 0;
 }
 
@@ -115,9 +118,10 @@ bool MythTV_Player::GetConfig()
 	if( !MythTV_Player_Command::GetConfig() )
 		return false;
 //<-dceag-getconfig-e->
-
+#ifndef WIN32
     m_pRatWrapper = new RatPoisonWrapper(XOpenDisplay(getenv("DISPLAY")));
     signal(SIGCHLD, sh); /* install handler */
+#endif
 	return true;
 }
 
@@ -129,14 +133,16 @@ MythTV_Player::~MythTV_Player()
 {
 	// Kill any instances we spawned
 	vector<void *> data;
+#ifndef WIN32
 	ProcessUtils::KillApplication(MYTH_WINDOW_NAME, data);
 
     delete m_pRatWrapper;
-
+#endif
 }
 
 bool MythTV_Player::LaunchMythFrontend(bool bSelectWindow)
 {
+#ifndef WIN32
 	if ( ! m_pRatWrapper )
 		m_pRatWrapper = new RatPoisonWrapper(XOpenDisplay(getenv("DISPLAY")));
 
@@ -147,6 +153,17 @@ bool MythTV_Player::LaunchMythFrontend(bool bSelectWindow)
 		selectWindow();
 		locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay()));
 	}
+#endif
+	string sResult;
+	time_t timeout=20+time(NULL);
+
+	do
+	{
+	        Sleep(100);
+		sendMythCommand("jump livetv", sResult);
+		g_pPlutoLogger->Write(LV_WARNING, "%s", sResult.c_str());
+	} while(time(NULL) < timeout && sResult != "OK");
+
 
     return true;
 }
@@ -161,6 +178,7 @@ bool MythTV_Player::Register()
 
 bool MythTV_Player::checkXServerConnection()
 {
+#ifndef WIN32
 	if ( ! m_pRatWrapper || ! m_pRatWrapper->getDisplay() )
 	{
 		if ( !m_pRatWrapper )
@@ -175,20 +193,24 @@ bool MythTV_Player::checkXServerConnection()
 			return false;
 		}
 	}
-
+#endif
 	return true;
 }
 void MythTV_Player::CreateChildren()
 {
+/*
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 	if ( ! checkXServerConnection())
 		return;
 
+#ifndef WIN32
     if ( ! locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay())) )
     {
 		LaunchMythFrontend(false);
         locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay()));
     }
+#endif
+i*/
 }
 /*
     When you receive commands that are destined to one of your children,
@@ -217,13 +239,26 @@ void MythTV_Player::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage
     sCMD_Result = "UNKNOWN DEVICE";
 }
 
+void MythTV_Player::pollMythStatus()
+{
+	string sResult;
+
+	sendMythCommand("query location", sResult);
+
+
+
+}
+
 void MythTV_Player::selectWindow()
 {
+#ifndef WIN32
     m_pRatWrapper->commandRatPoison(":select " MYTH_WINDOW_NAME);
+#endif
 }
 
 void MythTV_Player::processKeyBoardInputRequest(int iXKeySym)
 {
+#ifndef WIN32
     Window oldWindow;
     int oldRevertBehaviour;
 
@@ -246,7 +281,7 @@ void MythTV_Player::processKeyBoardInputRequest(int iXKeySym)
         XSetInputFocus( m_pRatWrapper->getDisplay(), oldWindow, oldRevertBehaviour, CurrentTime );
 
     XFlush(m_pRatWrapper->getDisplay());
-
+#endif
 }
 
 bool MythTV_Player::sendMythCommand(const char *Cmd, string &sResponse)
@@ -274,18 +309,13 @@ bool MythTV_Player::sendMythCommand(const char *Cmd, string &sResponse)
 		g_pPlutoLogger->Write(LV_CRITICAL,"Could not send string");
 		return false;
 	}
-/*	// Receive the echo...
-	if( !_PlainClientSocket.ReceiveString(sResponse,MYTH_SOCKET_TIMEOUT) )
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"No response to command.");
-		return false;
-	}*/
 	// Receive the response
 	if( !_PlainClientSocket.ReceiveString(sResponse,MYTH_SOCKET_TIMEOUT) )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Got echo but didn't get reply.");
+		g_pPlutoLogger->Write(LV_CRITICAL,"Didn't get reply.");
 		return false;
 	}
+	sResponse = StringUtils::TrimSpaces(sResponse);
 	g_pPlutoLogger->Write(LV_WARNING,"Myth Responded %s",sResponse.c_str());
 	
 	if( !_PlainClientSocket.SendString("QUIT") )
@@ -299,19 +329,21 @@ bool MythTV_Player::sendMythCommand(const char *Cmd, string &sResponse)
 
 bool MythTV_Player::checkWindowName(long unsigned int window, string windowName)
 {
-    XTextProperty text;
+#ifndef WIN32
+	XTextProperty text;
 
 	if ( ! checkXServerConnection())
 		return false;
 
 	if ( XGetWMName (m_pRatWrapper->getDisplay(), window, &text) && windowName == string((const char*)text.value) )
         return true;
-
+#endif
     return false;
 }
 
 bool MythTV_Player::locateMythTvFrontendWindow(long unsigned int window)
 {
+#ifndef WIN32
     Window parent_win, root_win, *child_windows;
     unsigned int num_child_windows;
 
@@ -334,6 +366,7 @@ bool MythTV_Player::locateMythTvFrontendWindow(long unsigned int window)
     /* we need to free the list of child IDs, as it was dynamically allocated */
     /* by the XQueryTree function.                                            */
     XFree(child_windows);
+#endif
     return false;
 }
 
@@ -415,6 +448,7 @@ void MythTV_Player::KillSpawnedDevices()
 
 void MythTV_Player::ProcessExited(int pid, int status)
 {
+#ifndef WIN32
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 	g_pPlutoLogger->Write(LV_STATUS, "Process exited %d %d", pid, status);
 
@@ -431,6 +465,7 @@ void MythTV_Player::ProcessExited(int pid, int status)
 		DCE::CMD_MH_Stop_Media_Cat CMD_MH_Stop_Media_Cat(m_dwPK_Device,DEVICECATEGORY_Media_Plugins_CONST,false,BL_SameHouse,m_dwPK_Device,0,0,"");
 		SendCommand(CMD_MH_Stop_Media_Cat);
 	}
+#endif
 }
 
 //<-dceag-c84-b->
@@ -526,61 +561,71 @@ void MythTV_Player::CMD_PIP_Channel_Down(string &sCMD_Result,Message *pMessage)
 //<-dceag-c190-b->
 
 	/** @brief COMMAND: #190 - Enter/Go */
-	/** Enter was hit */
+	/** Select the currently highlighted menu item */
 
 void MythTV_Player::CMD_EnterGo(string &sCMD_Result,Message *pMessage)
 //<-dceag-c190-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
+#ifndef WIN32
 	processKeyBoardInputRequest(XK_Return);
+#endif
 }
 
 //<-dceag-c200-b->
 
 	/** @brief COMMAND: #200 - Move Up */
-	/** Up */
+	/** Move the highlighter */
 
 void MythTV_Player::CMD_Move_Up(string &sCMD_Result,Message *pMessage)
 //<-dceag-c200-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
+#ifndef WIN32
 	processKeyBoardInputRequest(XK_Up);
+#endif
 }
 
 //<-dceag-c201-b->
 
 	/** @brief COMMAND: #201 - Move Down */
-	/** Down */
+	/** Move the highlighter */
 
 void MythTV_Player::CMD_Move_Down(string &sCMD_Result,Message *pMessage)
 //<-dceag-c201-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
+#ifndef WIN32
 	processKeyBoardInputRequest(XK_Down);
+#endif
 }
 
 //<-dceag-c202-b->
 
 	/** @brief COMMAND: #202 - Move Left */
-	/** Left */
+	/** Move the highlighter */
 
 void MythTV_Player::CMD_Move_Left(string &sCMD_Result,Message *pMessage)
 //<-dceag-c202-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-    processKeyBoardInputRequest(XK_Left);
+#ifndef WIN32
+	processKeyBoardInputRequest(XK_Left);
+#endif
 }
 
 //<-dceag-c203-b->
 
 	/** @brief COMMAND: #203 - Move Right */
-	/** Right */
+	/** Move the highlighter */
 
 void MythTV_Player::CMD_Move_Right(string &sCMD_Result,Message *pMessage)
 //<-dceag-c203-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-    processKeyBoardInputRequest(XK_Right);
+#ifndef WIN32
+	processKeyBoardInputRequest(XK_Right);
+#endif
 }
 
 //<-dceag-c204-b->
@@ -592,7 +637,9 @@ void MythTV_Player::CMD_0(string &sCMD_Result,Message *pMessage)
 //<-dceag-c204-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-    processKeyBoardInputRequest(XK_0);
+#ifndef WIN32
+	processKeyBoardInputRequest(XK_0);
+#endif
 }
 
 //<-dceag-c205-b->
@@ -604,7 +651,9 @@ void MythTV_Player::CMD_1(string &sCMD_Result,Message *pMessage)
 //<-dceag-c205-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-    processKeyBoardInputRequest(XK_1);
+#ifndef WIN32
+	processKeyBoardInputRequest(XK_1);
+#endif
 }
 
 //<-dceag-c206-b->
@@ -616,7 +665,9 @@ void MythTV_Player::CMD_2(string &sCMD_Result,Message *pMessage)
 //<-dceag-c206-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-    processKeyBoardInputRequest(XK_2);
+#ifndef WIN32
+	processKeyBoardInputRequest(XK_2);
+#endif
 }
 
 //<-dceag-c207-b->
@@ -628,7 +679,9 @@ void MythTV_Player::CMD_3(string &sCMD_Result,Message *pMessage)
 //<-dceag-c207-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-    processKeyBoardInputRequest(XK_3);
+#ifndef WIN32
+	processKeyBoardInputRequest(XK_3);
+#endif
 }
 
 //<-dceag-c208-b->
@@ -640,7 +693,9 @@ void MythTV_Player::CMD_4(string &sCMD_Result,Message *pMessage)
 //<-dceag-c208-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-    processKeyBoardInputRequest(XK_4);
+#ifndef WIN32
+	processKeyBoardInputRequest(XK_4);
+#endif
 }
 
 //<-dceag-c209-b->
@@ -652,7 +707,9 @@ void MythTV_Player::CMD_5(string &sCMD_Result,Message *pMessage)
 //<-dceag-c209-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-    processKeyBoardInputRequest(XK_5);
+#ifndef WIN32
+	processKeyBoardInputRequest(XK_5);
+#endif
 }
 
 //<-dceag-c210-b->
@@ -664,7 +721,9 @@ void MythTV_Player::CMD_6(string &sCMD_Result,Message *pMessage)
 //<-dceag-c210-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-    processKeyBoardInputRequest(XK_6);
+#ifndef WIN32
+	processKeyBoardInputRequest(XK_6);
+#endif
 }
 
 //<-dceag-c211-b->
@@ -676,7 +735,9 @@ void MythTV_Player::CMD_7(string &sCMD_Result,Message *pMessage)
 //<-dceag-c211-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-    processKeyBoardInputRequest(XK_7);
+#ifndef WIN32
+	processKeyBoardInputRequest(XK_7);
+#endif
 }
 
 //<-dceag-c212-b->
@@ -688,7 +749,9 @@ void MythTV_Player::CMD_8(string &sCMD_Result,Message *pMessage)
 //<-dceag-c212-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-    processKeyBoardInputRequest(XK_8);
+#ifndef WIN32
+	processKeyBoardInputRequest(XK_8);
+#endif
 }
 
 //<-dceag-c213-b->
@@ -700,7 +763,9 @@ void MythTV_Player::CMD_9(string &sCMD_Result,Message *pMessage)
 //<-dceag-c213-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-    processKeyBoardInputRequest(XK_9);
+#ifndef WIN32
+	processKeyBoardInputRequest(XK_9);
+#endif
 }
 
 //<-dceag-c240-b->
@@ -712,7 +777,9 @@ void MythTV_Player::CMD_Back_Prior_Menu(string &sCMD_Result,Message *pMessage)
 //<-dceag-c240-e->
 {
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
-    processKeyBoardInputRequest(XK_Escape);
+#ifndef WIN32
+	processKeyBoardInputRequest(XK_Escape);
+#endif
 }
 //<-dceag-createinst-b->!
 //<-dceag-sample-b->!
@@ -733,6 +800,7 @@ void MythTV_Player::CMD_Back_Prior_Menu(string &sCMD_Result,Message *pMessage)
 void MythTV_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,string sMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c37-e->
 {
+#ifndef WIN32
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 	if ( ! checkXServerConnection())
 		return;
@@ -744,6 +812,7 @@ void MythTV_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStrea
     }
 
     selectWindow();
+#endif
 }
 
 //<-dceag-c38-b->
@@ -758,6 +827,7 @@ void MythTV_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStrea
 void MythTV_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c38-e->
 {
+#ifndef WIN32
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 	if ( ! checkXServerConnection())
 		return;
@@ -765,6 +835,7 @@ void MythTV_Player::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &
 	vector<void *> data;
 	if ( ProcessUtils::KillApplication(MYTH_WINDOW_NAME, data) == false )
 		g_pPlutoLogger->Write(LV_WARNING, "I failed to kill the application launched with name: %s", MYTH_WINDOW_NAME);
+#endif
 }
 
 //<-dceag-c39-b->
@@ -888,12 +959,14 @@ void MythTV_Player::CMD_Jump_to_Position_in_Stream(string sValue_To_Assign,int i
 void MythTV_Player::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c65-e->
 {
+#ifndef WIN32
 	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
 
 	if( sValue_To_Assign.size()==0 || sValue_To_Assign[0]=='+' )
 		processKeyBoardInputRequest(XK_Down);
 	else
 		processKeyBoardInputRequest(XK_Up);
+#endif
 }
 
 //<-dceag-c259-b->
@@ -932,3 +1005,153 @@ void MythTV_Player::CMD_Set_Media_Position(int iStreamID,string sMediaPosition,s
 {
 }
 
+//<-dceag-c28-b->
+
+	/** @brief COMMAND: #28 - Simulate Keypress */
+	/** Send a key to the device's OSD, or simulate keypresses on the device's panel */
+		/** @param #26 PK_Button */
+			/** What key to simulate being pressed.  If 2 numbers are specified, separated by a comma, the second will be used if the Shift key is specified. */
+		/** @param #50 Name */
+			/** The application to send the keypress to. If not specified, it goes to the DCE device. */
+
+void MythTV_Player::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage)
+//<-dceag-c28-e->
+//<-dceag-c29-b->
+	/** @brief COMMAND: #29 - Simulate Mouse Click */
+	/** Simlate a mouse click at a certain position on the screen */
+		/** @param #11 Position X */
+			/**  */
+		/** @param #12 Position Y */
+			/**  */
+{
+}
+
+void MythTV_Player::CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage)
+//<-dceag-c29-e->
+{
+}
+//<-dceag-c81-b->
+	/** @brief COMMAND: #81 - Navigate Next */
+	/** Nagivate to the next possible navigable area. (The actual outcome depends on the specifc device) */
+		/** @param #41 StreamID */
+			/** The stream on which to do the navigation. */
+
+
+void MythTV_Player::CMD_Navigate_Next(int iStreamID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c81-e->
+{
+}
+//<-dceag-c82-b->
+
+	/** @brief COMMAND: #82 - Navigate Prev */
+	/** Nagivate the previous possible navigable area. (The actual outcome depends on the specific device). */
+		/** @param #41 StreamID */
+			/** The stream on which to do the navigation. */
+
+void MythTV_Player::CMD_Navigate_Prev(int iStreamID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c82-e->
+{
+}
+//<-dceag-c87-b->
+
+	/** @brief COMMAND: #87 - Goto Media Menu */
+	/** Goto to the current media Root Menu. */
+		/** @param #41 StreamID */
+			/** The stream ID */
+		/** @param #64 MenuType */
+			/** The type of menu that the user want to jump to.
+(For DVD handlers usually this applies)
+0 - Root menu 
+1 - Title menu
+2 - Media menu */
+
+void MythTV_Player::CMD_Goto_Media_Menu(int iStreamID,int iMenuType,string &sCMD_Result,Message *pMessage)
+//<-dceag-c87-e->
+{
+}
+//<-dceag-c123-b->
+
+	/** @brief COMMAND: #123 - Info */
+	/** Info about the currently playing program */
+		/** @param #9 Text */
+			/** nimic */
+
+
+void MythTV_Player::CMD_Info(string sText,string &sCMD_Result,Message *pMessage)
+//<-dceag-c123-e->
+{
+	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
+#ifndef WIN32
+	processKeyBoardInputRequest(XK_I);
+#endif
+}
+//<-dceag-c126-b->
+
+	/** @brief COMMAND: #126 - Guide */
+	/** Go to the Guide */
+
+void MythTV_Player::CMD_Guide(string &sCMD_Result,Message *pMessage)
+//<-dceag-c126-e->
+{
+	string sResult;
+
+	sendMythCommand("jump guidegrid", sResult);
+}
+//<-dceag-c367-b->
+
+	/** @brief COMMAND: #367 - Text */
+	/**  */
+
+void MythTV_Player::CMD_Text(string &sCMD_Result,Message *pMessage)
+//<-dceag-c367-e->
+{
+}
+//<-dceag-c548-b->
+
+/** @brief COMMAND: #548 - Menu */
+	/** Go to the PVR's main menu */
+
+void MythTV_Player::CMD_Menu(string &sCMD_Result,Message *pMessage)
+//<-dceag-c548-e->
+{
+	string sResult;
+
+	sendMythCommand("jump mainmenu", sResult);
+}
+//<-dceag-c761-b->
+
+	/** @brief COMMAND: #761 - Recorded TV Menu */
+	/** Go to the list of recorded shows */
+
+void MythTV_Player::CMD_Recorded_TV_Menu(string &sCMD_Result,Message *pMessage)
+//<-dceag-c761-e->
+{
+	string sResult;
+
+	sendMythCommand("jump playbackrecordings", sResult);
+
+}
+//<-dceag-c762-b->
+	/** @brief COMMAND: #762 - Live TV */
+	/** Go to Live TV */
+
+void MythTV_Player::CMD_Live_TV(string &sCMD_Result,Message *pMessage)
+//<-dceag-c762-e->
+{
+	string sResult;
+
+	sendMythCommand("jump livetv", sResult);
+}
+//<-dceag-c763-b->
+	/** @brief COMMAND: #763 - Exit */
+	/** Exit guide */
+
+void MythTV_Player::CMD_Exit(string &sCMD_Result,Message *pMessage)
+//<-dceag-c763-e->
+{
+	PLUTO_SAFETY_LOCK(mm,m_MythMutex);
+#ifndef WIN32
+	processKeyBoardInputRequest(XK_Escape);
+#endif
+
+}
