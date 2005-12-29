@@ -21,12 +21,12 @@ public:
 	*@param buffer the buffer to be sent
 	*@param len the length of the buffer
 	*@return 0 if OK, else negative */
-	virtual int send(char *buffer, unsigned int len);
+	virtual int send(char *buffer, size_t len);
 	
 	/**try to get the specified len from the serial buffer
 	* @parameter buffer the buffer where the data should be found
 	* @param len the len that should be read. After the call, len will contain the actual read data length*/
-	virtual int receiveCommand(char *buffer, unsigned int *len);
+	virtual int receiveCommand(char *buffer, size_t *len);
 
 	/**disconnect from the serial port
 	*@return 0*/

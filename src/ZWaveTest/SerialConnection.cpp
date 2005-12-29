@@ -47,7 +47,7 @@ bool SerialConnection::isConnected()
 	return serialPort != NULL;
 }
 
-int SerialConnection::send(char *buffer, unsigned int len)
+int SerialConnection::send(char *buffer, size_t len)
 {
 	int returnValue = 0;
 	if(buffer != NULL)
@@ -70,7 +70,7 @@ int SerialConnection::send(char *buffer, unsigned int len)
 	return returnValue ;
 }
 
-int SerialConnection::receiveCommand(char *b, unsigned int *len)
+int SerialConnection::receiveCommand(char *b, size_t *len)
 {
 	if(b == NULL)
 	{
