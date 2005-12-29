@@ -8,6 +8,8 @@
 #include <deque>
 #include <map>
 
+#include <string.h>
+
 using namespace std;
 
 typedef map<int, ZWaveNode*, less<int> > NodesMap;
@@ -35,6 +37,8 @@ class ZW_SerialAPI::Private
 		ZW_SerialAPI::SerialState state;
 		
 		ZWaveJob * currentJob;
+		char command[65536];
+		unsigned int commandLength;
 
 	private:
 
@@ -45,8 +49,11 @@ ZW_SerialAPI::Private::Private(ZW_SerialAPI * parent)
 	: connection(NULL),
 	  state(ZW_SerialAPI::STOPPED),
 	  currentJob(NULL),
+	  commandLength(0),
 	  parent_(parent)
 {
+	memset(command, 0, sizeof(command));
+	
 	connection = SerialConnection::getInstance();
 	if( connection == NULL )
 	{
@@ -127,25 +134,38 @@ bool ZW_SerialAPI::listen()
 		{
 			if( d->connection->hasCommand() )
 			{
-				const char * command = d->connection->getCommand();
-				if( d->currentJob != NULL )
+				d->commandLength = sizeof(d->command);
+				memset(d->command, 0, d->commandLength);
+				if( !d->connection->receiveCommand(d->command, &d->commandLength) && d->commandLength )
 				{
-					if( !d->currentJob->processData(command, strlen(command)) )
+					if( d->currentJob != NULL )
 					{
-						// TODO error
+						d->state = ZW_SerialAPI::RUNNING;
+						if( !d->currentJob->processData(d->command, d->commandLength) )
+						{
+							// TODO error
+						}
+					}
+					
+					// check if the job has finished
+					if( ZWaveJob::STOPPED == d->currentJob->state() )
+					{
+						delete d->currentJob;
+						d->currentJob = NULL;
+						if( d->jobsQueue.size() )
+						{
+							d->currentJob = d->jobsQueue.front();
+							d->jobsQueue.pop_front();
+							d->state = ZW_SerialAPI::RUNNING;
+							d->currentJob->run();
+						}
 					}
 				}
-				
-				// check if the job has finished
-				if( ZWaveJob::STOPPED == d->currentJob->state() )
+				else
 				{
-					delete d->currentJob;
-					d->currentJob = NULL;
-					if( d->jobsQueue.size() )
-					{
-						
-					}
+					// print the error
 				}
+				d->state = ZW_SerialAPI::WAITTING;
 			}
 			
 			// sleep 10 ms
@@ -157,6 +177,7 @@ bool ZW_SerialAPI::listen()
 
 bool ZW_SerialAPI::insertJob(ZWaveJob * job)
 {
+	d->jobsQueue.push_back(job);
 	return true;
 }
 
