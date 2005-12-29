@@ -12,13 +12,15 @@ class ZWaveJob::Private
 		
 		ZW_SerialAPI * handler;
 		ZWaveJob::JobState state;
+		ZWaveJob::ZW_JOB type;
 		
 	private:
 };
 
 ZWaveJob::Private::Private(ZW_SerialAPI * zwAPI)
 	: handler(zwAPI),
-	  state(ZWaveJob::IDLE)
+	  state(ZWaveJob::IDLE),
+	  type(ZWaveJob::NOTHING)
 {
 }
 
@@ -51,4 +53,13 @@ void ZWaveJob::setState(ZWaveJob::JobState st)
 {
 	d->state = st;
 }
-		
+
+ZWaveJob::ZW_JOB ZWaveJob::type() const
+{
+	return d->type;
+}
+
+void ZWaveJob::setType(ZWaveJob::ZW_JOB type)
+{
+	d->type = type;
+}

@@ -2,23 +2,8 @@
 
 #include "main.h"
 #include "SerialConnection.h"
-#include "ZWaveNode.h"
-#include "ZWaveJob.h"
-
-#include <deque>
-#include <map>
 
 #include <string.h>
-
-using namespace std;
-
-typedef map<int, ZWaveNode*, less<int> > NodesMap;
-typedef NodesMap::iterator NodesMapIterator;
-typedef NodesMap::const_iterator NodesMapCIterator;
-
-typedef deque<ZWaveJob*> JobsDeque;
-typedef JobsDeque::iterator JobsDequeIterator;
-typedef JobsDeque::const_iterator JobsDequeCIterator;
 
 ZW_SerialAPI * ZW_SerialAPI::ref = NULL;
 
@@ -181,3 +166,27 @@ bool ZW_SerialAPI::insertJob(ZWaveJob * job)
 	return true;
 }
 
+bool ZW_SerialAPI::insertNode(ZWaveNode * node)
+{
+	return true;
+}
+
+bool ZW_SerialAPI::processData(const char * buffer, size_t length)
+{
+	return true;
+}
+
+bool ZW_SerialAPI::removeNode(unsigned short id)
+{
+	return true;
+}
+
+ZWaveNode * ZW_SerialAPI::getNode(unsigned short id)
+{
+	return d->nodes[id];
+}
+
+const NodesMap& ZW_SerialAPI::getNodes() const
+{
+	return d->nodes;
+}
