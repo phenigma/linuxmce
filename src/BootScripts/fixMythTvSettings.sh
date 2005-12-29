@@ -20,6 +20,7 @@ function addEntries
         if [ "$3" = "" ]; then
                 echo "insert into settings(value, data) values('$1', '$2')" | $mysql_command;
         else
+		echo "delete from settings where hostname='$3' AND value LIKE '$1'" | $mysql_command;
                 echo "insert into settings(value, data, hostname) values('$1', '$2', '$3')" | $mysql_command;
         fi;
 }
@@ -39,10 +40,6 @@ isSetup=`echo "$query" | $mysql_command`;
 
 if [ "$isSetup" != 0  ]; then
         echo "Removing old mythtv configuration for this machine";
-        echo "delete from settings where hostname='$hostname' AND value LIKE 'Backend%'" | $mysql_command;
-		echo "delete from settings where hostname='$hostname' AND value LIKE 'RecordFilePrefix'" | $mysql_command;
-		echo "delete from settings where hostname='$hostname' AND value LIKE 'LiveBufferDir'" | $mysql_command;
-
 		echo "delete from settings where value LIkE 'MasterServer%'" | $mysql_command;
 fi;
 
@@ -59,6 +56,12 @@ addEntries BackendServerPort 	6143 	$hostname;
 
 addEntries RecordFilePrefix 	/home/mythtv/shows/$hostip $hostname;
 addEntries LiveBufferDir 		/home/mythtv/cache/$hostip $hostname;
+addEntries VertScanPercentage	2	$hostname;
+addEntries HorizScanPercentage	1	$hostname;
+addEntries NetworkControlPort	10001	$hostname;
+addEntries UseXVMC 1	$hostname;
+addEntries Deinterlace 1	$hostname;
+addEntries DeinterlaceFilter bobdeint	$hostname;
 
 echo -n Creating and/or setting the cache and recorded folder paths ...
 mkdir -p 		/home/mythtv/shows/$hostip
